@@ -4,7 +4,7 @@
 #pragma once
 #endif
 
-#define CF_VERSION "beta1"
+#define CF_VERSION "beta2"
 
 #define CF_DECLARE_CLASS( className, baseClassName ) \
 	typedef baseClassName BaseClass; \
