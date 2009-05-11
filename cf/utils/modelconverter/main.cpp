@@ -12,10 +12,22 @@ int main(int argc, const char* argv[])
 		return 0;
 	}
 
+	size_t iFileLength = strlen(argv[1]);
+	const char* pszExtension = argv[1]+iFileLength-4;
+
 	CModelConverter c;
 
-	printf("Reading the OBJ... ");
-	c.ReadOBJ(argv[1]);
+	if (strcmp(pszExtension, ".obj") == 0)
+	{
+		printf("Reading the OBJ... ");
+		c.ReadOBJ(argv[1]);
+	}
+	else if (strcmp(pszExtension, ".sia") == 0)
+	{
+		printf("Reading the Silo ASCII file... ");
+		c.ReadSIA(argv[1]);
+	}
+
 	printf("Done.\n");
 	printf("\n");
 
@@ -33,7 +45,7 @@ int main(int argc, const char* argv[])
 	printf("Done.\n");
 	printf("\n");
 
-	printf("Press any key to continue...\n");
+	printf("Press enter to continue...\n");
 	getchar();
 
 	return 0;

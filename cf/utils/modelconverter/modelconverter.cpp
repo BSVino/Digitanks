@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 
 #include "modelconverter.h"
+#include "strutils.h"
 
 void CModelConverter::ReadOBJ(const char* pszFilename)
 {
@@ -104,6 +106,198 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 	fclose(fp);
 }
 
+// Silo ascii
+void CModelConverter::ReadSIA(const char* pszFilename)
+{
+	FILE* fp = fopen(pszFilename, "r");
+
+	if (!fp)
+	{
+		printf("No input file. Sorry!\n");
+		return;
+	}
+
+	m_Mesh.Clear();
+
+	char szLine[1024];
+	char* pszLine = NULL;
+	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	{
+		pszLine = StripWhitespace(pszLine);
+
+		if (strlen(pszLine) == 0)
+			continue;
+
+		char szToken[1024];
+		strcpy(szToken, pszLine);
+		char* pszToken = NULL;
+		pszToken = strtok(szToken, " ");
+
+		if (strcmp(pszToken, "-Version") == 0)
+		{
+			// Warning if version is later than 1.0, we may not support it
+			int iMajor, iMinor;
+			sscanf(pszLine, "-Version %d.%d", &iMajor, &iMinor);
+			if (iMajor != 1 && iMinor != 0)
+				printf("WARNING: I was programmed for version 1.0, this file is version %d.%d, so this might not work exactly right!\n", iMajor, iMinor);
+		}
+		else if (strcmp(pszToken, "-Mat") == 0)
+		{
+			ReadSIAMat(fp);
+		}
+		else if (strcmp(pszToken, "-Shape") == 0)
+		{
+			ReadSIAShape(fp);
+		}
+		else if (strcmp(pszToken, "-Texshape") == 0)
+		{
+			// This is the 3d UV space of the object, but we only care about its 2d UV space which is contained in rhw -Shape section, so meh.
+			ReadSIAShape(fp, false);
+		}
+	}
+
+	fclose(fp);
+
+	m_Mesh.CalculateEdgeData();
+	m_Mesh.CalculateVertexNormals();
+	m_Mesh.TranslateOrigin();
+}
+
+void CModelConverter::ReadSIAMat(FILE* fp)
+{
+	char szLine[1024];
+	char* pszLine = NULL;
+	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	{
+		pszLine = StripWhitespace(pszLine);
+
+		if (strlen(pszLine) == 0)
+			continue;
+
+		char szToken[1024];
+		strcpy(szToken, pszLine);
+		char* pszToken = NULL;
+		pszToken = strtok(szToken, " ");
+
+		if (strcmp(pszToken, "-name") == 0)
+		{
+			// All we care about is the name.
+			char* pszMaterial = pszLine+6;
+			std::string sName = pszMaterial;
+			std::vector<std::string> aName;
+			strtok(sName, aName, "\"");	// Strip out the quotation marks.
+
+			size_t iMaterial = m_Mesh.FindMaterial(aName[0].c_str());
+			if (iMaterial == ((size_t)~0))
+				m_Mesh.AddMaterial(aName[0].c_str());
+		}
+		else if (strcmp(pszToken, "-endMat") == 0)
+		{
+			return;
+		}
+	}
+}
+
+void CModelConverter::ReadSIAShape(FILE* fp, bool bCare)
+{
+	size_t iCurrentMaterial = ~0;
+
+	char szLine[1024];
+	char* pszLine = NULL;
+	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	{
+		pszLine = StripWhitespace(pszLine);
+
+		if (strlen(pszLine) == 0)
+			continue;
+
+		char szToken[1024];
+		strcpy(szToken, pszLine);
+		char* pszToken = NULL;
+		pszToken = strtok(szToken, " ");
+
+		if (!bCare)
+		{
+			if (strcmp(pszToken, "-endShape") == 0)
+				return;
+			else
+				continue;
+		}
+
+		if (strcmp(pszToken, "-snam") == 0)
+		{
+			// We name our mesh.
+			std::string sName = pszLine+6;
+			std::vector<std::string> aName;
+			strtok(sName, aName, "\"");	// Strip out the quotation marks.
+			m_Mesh.AddBone(aName[0].c_str());
+		}
+		else if (strcmp(pszToken, "-vert") == 0)
+		{
+			// A vertex.
+			float x, y, z;
+			sscanf(pszLine, "-vert %f %f %f", &x, &y, &z);
+			m_Mesh.AddVertex(x, y, z);
+		}
+		else if (strcmp(pszToken, "-edge") == 0)
+		{
+			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
+			int v1, v2;
+			sscanf(pszLine, "-edge %d %d", &v1, &v2);
+			m_Mesh.AddEdge(v1, v2);
+		}
+		else if (strcmp(pszToken, "-creas") == 0)
+		{
+			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
+			std::string sCreases = pszLine+9;
+			std::vector<std::string> aCreases;
+			strtok(sCreases, aCreases, " ");
+
+			for (size_t i = 0; i < aCreases.size(); i++)
+				m_Mesh.GetEdge(atoi(aCreases[i].c_str()))->m_bCreased = true;
+		}
+		else if (strcmp(pszToken, "-setmat") == 0)
+		{
+			char* pszMaterial = pszLine+8;
+			iCurrentMaterial = atoi(pszMaterial);
+		}
+		else if (strcmp(pszToken, "-face") == 0)
+		{
+			// A face.
+			size_t iFace = m_Mesh.AddFace(iCurrentMaterial);
+
+			std::string sFaces = pszLine+8;
+			std::vector<std::string> aFaces;
+			strtok(sFaces, aFaces, " ");
+
+			for (size_t i = 0; i < aFaces.size(); i += 4)
+			{
+				int iVertex = atoi(aFaces[i].c_str());
+				int iEdge = atoi(aFaces[i+1].c_str());
+				float flU = (float)atof(aFaces[i+2].c_str());
+				float flV = (float)atof(aFaces[i+3].c_str());
+
+				size_t iUV = m_Mesh.AddUV(flU, flV);
+				size_t iNormal = m_Mesh.AddNormal(0, 0, 1);	// For now!
+
+				m_Mesh.AddVertexToFace(iFace, iVertex, iUV, iNormal);
+				m_Mesh.AddEdgeToFace(iFace, iEdge);
+			}
+		}
+		else if (strcmp(pszToken, "-axis") == 0)
+		{
+			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
+			float x, y, z;
+			sscanf(pszLine, "-axis %f %f %f", &x, &y, &z);
+			m_Mesh.m_vecOrigin = Vector(x, y, z);
+		}
+		else if (strcmp(pszToken, "-endShape") == 0)
+		{
+			return;
+		}
+	}
+}
+
 void CModelConverter::WriteSMD(const char* pszFilename)
 {
 	char szFile[1024];
@@ -167,7 +361,10 @@ void CModelConverter::WriteSMD(const char* pszFilename)
 			size_t iMaterial = pFace->m;
 
 			if (iMaterial == ((size_t)~0))
-				fprintf(fp, "# ERROR! Can't find a material for this triangle.\nerror\n");
+			{
+				printf("ERROR! Can't find a material for a triangle.\n");
+				fprintf(fp, "error\n");
+			}
 			else
 				fprintf(fp, "%s\n", m_Mesh.GetMaterial(iMaterial)->GetName());
 
