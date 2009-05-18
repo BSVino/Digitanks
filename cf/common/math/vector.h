@@ -89,12 +89,20 @@ inline float Vector::LengthSqr()
 
 inline void Vector::Normalize()
 {
-	*this/=Length();
+	float flLength = Length();
+	if (!flLength)
+		*this=Vector(0,0,1);
+	else
+		*this/=Length();
 }
 
 inline Vector Vector::Normalized()
 {
-	return *this/Length();
+	float flLength = Length();
+	if (!flLength)
+		return Vector(0,0,1);
+	else
+		return *this/Length();
 }
 
 inline Vector Vector::Cross(const Vector& v) const
