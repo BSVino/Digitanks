@@ -109,9 +109,10 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 // Silo ascii
 void CModelConverter::ReadSIA(const char* pszFilename)
 {
-	FILE* fp = fopen(pszFilename, "r");
+	std::ifstream infile;
+	infile.open(pszFilename, std::ifstream::in);
 
-	if (!fp)
+	if (!infile.is_open())
 	{
 		printf("No input file. Sorry!\n");
 		return;
@@ -119,70 +120,70 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 
 	m_Mesh.Clear();
 
-	char szLine[1024];
-	char* pszLine = NULL;
-	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	std::string sLine;
+	while (infile.good())
 	{
-		pszLine = StripWhitespace(pszLine);
+		std::getline(infile, sLine);
 
-		if (strlen(pszLine) == 0)
+		sLine = StripWhitespace(sLine);
+
+		if (sLine.length() == 0)
 			continue;
 
-		char szToken[1024];
-		strcpy(szToken, pszLine);
-		char* pszToken = NULL;
-		pszToken = strtok(szToken, " ");
+		std::vector<std::string> aTokens;
+		strtok(sLine, aTokens, " ");
+		const char* pszToken = aTokens[0].c_str();
 
 		if (strcmp(pszToken, "-Version") == 0)
 		{
 			// Warning if version is later than 1.0, we may not support it
 			int iMajor, iMinor;
-			sscanf(pszLine, "-Version %d.%d", &iMajor, &iMinor);
+			sscanf(sLine.c_str(), "-Version %d.%d", &iMajor, &iMinor);
 			if (iMajor != 1 && iMinor != 0)
 				printf("WARNING: I was programmed for version 1.0, this file is version %d.%d, so this might not work exactly right!\n", iMajor, iMinor);
 		}
 		else if (strcmp(pszToken, "-Mat") == 0)
 		{
-			ReadSIAMat(fp);
+			ReadSIAMat(infile);
 		}
 		else if (strcmp(pszToken, "-Shape") == 0)
 		{
-			ReadSIAShape(fp);
+			ReadSIAShape(infile);
 		}
 		else if (strcmp(pszToken, "-Texshape") == 0)
 		{
 			// This is the 3d UV space of the object, but we only care about its 2d UV space which is contained in rhw -Shape section, so meh.
-			ReadSIAShape(fp, false);
+			ReadSIAShape(infile, false);
 		}
 	}
 
-	fclose(fp);
+	infile.close();
 
 	m_Mesh.CalculateEdgeData();
 	m_Mesh.CalculateVertexNormals();
 	m_Mesh.TranslateOrigin();
 }
 
-void CModelConverter::ReadSIAMat(FILE* fp)
+void CModelConverter::ReadSIAMat(std::ifstream& infile)
 {
-	char szLine[1024];
-	char* pszLine = NULL;
-	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	std::string sLine;
+	while (infile.good())
 	{
-		pszLine = StripWhitespace(pszLine);
+		std::getline(infile, sLine);
 
-		if (strlen(pszLine) == 0)
+		sLine = StripWhitespace(sLine);
+
+		if (sLine.length() == 0)
 			continue;
 
-		char szToken[1024];
-		strcpy(szToken, pszLine);
-		char* pszToken = NULL;
-		pszToken = strtok(szToken, " ");
+		std::vector<std::string> aTokens;
+		strtok(sLine, aTokens, " ");
+		const char* pszToken = aTokens[0].c_str();
 
 		if (strcmp(pszToken, "-name") == 0)
 		{
 			// All we care about is the name.
-			char* pszMaterial = pszLine+6;
+			const char* pszMaterial = sLine.c_str()+6;
 			std::string sName = pszMaterial;
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
@@ -198,23 +199,23 @@ void CModelConverter::ReadSIAMat(FILE* fp)
 	}
 }
 
-void CModelConverter::ReadSIAShape(FILE* fp, bool bCare)
+void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 {
 	size_t iCurrentMaterial = ~0;
 
-	char szLine[1024];
-	char* pszLine = NULL;
-	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	std::string sLine;
+	while (infile.good())
 	{
-		pszLine = StripWhitespace(pszLine);
+		std::getline(infile, sLine);
 
-		if (strlen(pszLine) == 0)
+		sLine = StripWhitespace(sLine);
+
+		if (sLine.length() == 0)
 			continue;
 
-		char szToken[1024];
-		strcpy(szToken, pszLine);
-		char* pszToken = NULL;
-		pszToken = strtok(szToken, " ");
+		std::vector<std::string> aTokens;
+		strtok(sLine, aTokens, " ");
+		const char* pszToken = aTokens[0].c_str();
 
 		if (!bCare)
 		{
@@ -227,7 +228,7 @@ void CModelConverter::ReadSIAShape(FILE* fp, bool bCare)
 		if (strcmp(pszToken, "-snam") == 0)
 		{
 			// We name our mesh.
-			std::string sName = pszLine+6;
+			std::string sName = sLine.c_str()+6;
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
 			m_Mesh.AddBone(aName[0].c_str());
@@ -236,29 +237,29 @@ void CModelConverter::ReadSIAShape(FILE* fp, bool bCare)
 		{
 			// A vertex.
 			float x, y, z;
-			sscanf(pszLine, "-vert %f %f %f", &x, &y, &z);
+			sscanf(sLine.c_str(), "-vert %f %f %f", &x, &y, &z);
 			m_Mesh.AddVertex(x, y, z);
 		}
 		else if (strcmp(pszToken, "-edge") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
 			int v1, v2;
-			sscanf(pszLine, "-edge %d %d", &v1, &v2);
+			sscanf(sLine.c_str(), "-edge %d %d", &v1, &v2);
 			m_Mesh.AddEdge(v1, v2);
 		}
 		else if (strcmp(pszToken, "-creas") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
-			std::string sCreases = pszLine+9;
+			std::string sCreases = sLine.c_str()+7;
 			std::vector<std::string> aCreases;
 			strtok(sCreases, aCreases, " ");
 
-			for (size_t i = 0; i < aCreases.size(); i++)
+			for (size_t i = 1; i < aCreases.size(); i++)
 				m_Mesh.GetEdge(atoi(aCreases[i].c_str()))->m_bCreased = true;
 		}
 		else if (strcmp(pszToken, "-setmat") == 0)
 		{
-			char* pszMaterial = pszLine+8;
+			const char* pszMaterial = sLine.c_str()+8;
 			iCurrentMaterial = atoi(pszMaterial);
 		}
 		else if (strcmp(pszToken, "-face") == 0)
@@ -266,7 +267,7 @@ void CModelConverter::ReadSIAShape(FILE* fp, bool bCare)
 			// A face.
 			size_t iFace = m_Mesh.AddFace(iCurrentMaterial);
 
-			std::string sFaces = pszLine+8;
+			std::string sFaces = sLine.c_str()+8;
 			std::vector<std::string> aFaces;
 			strtok(sFaces, aFaces, " ");
 
@@ -288,7 +289,7 @@ void CModelConverter::ReadSIAShape(FILE* fp, bool bCare)
 		{
 			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
 			float x, y, z;
-			sscanf(pszLine, "-axis %f %f %f", &x, &y, &z);
+			sscanf(sLine.c_str(), "-axis %f %f %f", &x, &y, &z);
 			m_Mesh.m_vecOrigin = Vector(x, y, z);
 		}
 		else if (strcmp(pszToken, "-endShape") == 0)
@@ -428,4 +429,20 @@ char* CModelConverter::StripWhitespace(char* pszLine)
 	}
 
 	return pszSpace;
+}
+
+std::string CModelConverter::StripWhitespace(std::string sLine)
+{
+	int i = 0;
+	while (IsWhitespace(sLine[i]) && sLine[i] != '\0')
+		i++;
+
+	int iEnd = ((int)sLine.length())-1;
+	while (iEnd >= 0 && IsWhitespace(sLine[iEnd]))
+		iEnd--;
+
+	if (iEnd >= -1)
+		sLine[iEnd+1] = '\0';
+
+	return sLine.substr(i);
 }

@@ -6,7 +6,7 @@ $surfaceprop metal
 
 $model "body" "test.smd"
 
-$cdmaterials models/
+$cdmaterials models/props/equipment
 
 $hboxset "default"
 
