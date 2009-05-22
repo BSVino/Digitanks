@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include "convmesh.h"
 
@@ -16,14 +17,15 @@ public:
 	void				ReadSIAMat(std::ifstream& infile);
 	void				ReadSIAShape(std::ifstream& infile, bool bCare = true);
 
-	void				WriteSMD(const char* pszFilename);
+	void				WriteSMDs();
+	void				WriteSMD(size_t iMesh);
 
 	char*				MakeFilename(char* pszPathFilename);
 	bool				IsWhitespace(char cChar);
 	char*				StripWhitespace(char* pszLine);
 	std::string			StripWhitespace(std::string sLine);
 
-	CConversionMesh		m_Mesh;
+	CConversionScene	m_Scene;
 };
 
 #endif

@@ -15,7 +15,8 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 		return;
 	}
 
-	m_Mesh.Clear();
+	m_Scene.AddMesh();
+	CConversionMesh* pMesh = m_Scene.GetMesh(0);
 
 	size_t iCurrentMaterial = ~0;
 
@@ -50,55 +51,55 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 			// A vertex.
 			float x, y, z;
 			sscanf(pszLine, "v %f %f %f", &x, &y, &z);
-			m_Mesh.AddVertex(x, y, z);
+			pMesh->AddVertex(x, y, z);
 		}
 		else if (strcmp(pszToken, "vn") == 0)
 		{
 			// A vertex normal.
 			float x, y, z;
 			sscanf(pszLine, "vn %f %f %f", &x, &y, &z);
-			m_Mesh.AddNormal(x, y, z);
+			pMesh->AddNormal(x, y, z);
 		}
 		else if (strcmp(pszToken, "vt") == 0)
 		{
 			// A UV coordinate for a vertex.
 			float u, v;
 			sscanf(pszLine, "vt %f %f", &u, &v);
-			m_Mesh.AddUV(u, v);
+			pMesh->AddUV(u, v);
 		}
 		else if (strcmp(pszToken, "g") == 0)
 		{
 			// A group of faces.
-			m_Mesh.AddBone(pszLine+2);
+			pMesh->AddBone(pszLine+2);
 		}
 		else if (strcmp(pszToken, "usemtl") == 0)
 		{
 			// All following faces should use this material.
 			char* pszMaterial = pszLine+7;
-			size_t iMaterial = m_Mesh.FindMaterial(pszMaterial);
+			size_t iMaterial = m_Scene.FindMaterial(pszMaterial);
 			if (iMaterial == ((size_t)~0))
-				iCurrentMaterial = m_Mesh.AddMaterial(pszMaterial);
+				iCurrentMaterial = m_Scene.AddMaterial(pszMaterial);
 			else
 				iCurrentMaterial = iMaterial;
 		}
 		else if (strcmp(pszToken, "f") == 0)
 		{
 			// A face.
-			size_t iFace = m_Mesh.AddFace(iCurrentMaterial);
+			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
 			while (pszToken = strtok(NULL, " "))
 			{
 				size_t v, vt, vn;
 				if (sscanf(pszToken, "%d/%d/%d", &v, &vt, &vn) == 3)
-					m_Mesh.AddVertexToFace(iFace, v-1, vt-1, vn-1);
+					pMesh->AddVertexToFace(iFace, v-1, vt-1, vn-1);
 				else
 					printf("WARNING! Found an invalid vertex while loading faces.\n");
 			}
 
-			if (m_Mesh.GetFace(iFace)->GetNumVertices() == 0)
+			if (pMesh->GetFace(iFace)->GetNumVertices() == 0)
 			{
 				printf("WARNING! Removing an empty face. Probably it doesn't have any UV map on it.\n");
-				m_Mesh.RemoveFace(iFace);
+				pMesh->RemoveFace(iFace);
 			}
 		}
 	}
@@ -117,8 +118,6 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 		printf("No input file. Sorry!\n");
 		return;
 	}
-
-	m_Mesh.Clear();
 
 	std::string sLine;
 	while (infile.good())
@@ -158,10 +157,6 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 	}
 
 	infile.close();
-
-	m_Mesh.CalculateEdgeData();
-	m_Mesh.CalculateVertexNormals();
-	m_Mesh.TranslateOrigin();
 }
 
 void CModelConverter::ReadSIAMat(std::ifstream& infile)
@@ -188,9 +183,9 @@ void CModelConverter::ReadSIAMat(std::ifstream& infile)
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
 
-			size_t iMaterial = m_Mesh.FindMaterial(aName[0].c_str());
+			size_t iMaterial = m_Scene.FindMaterial(aName[0].c_str());
 			if (iMaterial == ((size_t)~0))
-				m_Mesh.AddMaterial(aName[0].c_str());
+				m_Scene.AddMaterial(aName[0].c_str());
 		}
 		else if (strcmp(pszToken, "-endMat") == 0)
 		{
@@ -202,6 +197,14 @@ void CModelConverter::ReadSIAMat(std::ifstream& infile)
 void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 {
 	size_t iCurrentMaterial = ~0;
+
+	CConversionMesh* pMesh = NULL;
+
+	if (bCare)
+	{
+		size_t iMesh = m_Scene.AddMesh();
+		pMesh = m_Scene.GetMesh(iMesh);
+	}
 
 	std::string sLine;
 	while (infile.good())
@@ -231,21 +234,21 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			std::string sName = sLine.c_str()+6;
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
-			m_Mesh.AddBone(aName[0].c_str());
+			pMesh->AddBone(aName[0].c_str());
 		}
 		else if (strcmp(pszToken, "-vert") == 0)
 		{
 			// A vertex.
 			float x, y, z;
 			sscanf(sLine.c_str(), "-vert %f %f %f", &x, &y, &z);
-			m_Mesh.AddVertex(x, y, z);
+			pMesh->AddVertex(x, y, z);
 		}
 		else if (strcmp(pszToken, "-edge") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
 			int v1, v2;
 			sscanf(sLine.c_str(), "-edge %d %d", &v1, &v2);
-			m_Mesh.AddEdge(v1, v2);
+			pMesh->AddEdge(v1, v2);
 		}
 		else if (strcmp(pszToken, "-creas") == 0)
 		{
@@ -255,7 +258,7 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			strtok(sCreases, aCreases, " ");
 
 			for (size_t i = 1; i < aCreases.size(); i++)
-				m_Mesh.GetEdge(atoi(aCreases[i].c_str()))->m_bCreased = true;
+				pMesh->GetEdge(atoi(aCreases[i].c_str()))->m_bCreased = true;
 		}
 		else if (strcmp(pszToken, "-setmat") == 0)
 		{
@@ -265,7 +268,7 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 		else if (strcmp(pszToken, "-face") == 0)
 		{
 			// A face.
-			size_t iFace = m_Mesh.AddFace(iCurrentMaterial);
+			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
 			std::string sFaces = sLine.c_str()+8;
 			std::vector<std::string> aFaces;
@@ -278,11 +281,11 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 				float flU = (float)atof(aFaces[i+2].c_str());
 				float flV = (float)atof(aFaces[i+3].c_str());
 
-				size_t iUV = m_Mesh.AddUV(flU, flV);
-				size_t iNormal = m_Mesh.AddNormal(0, 0, 1);	// For now!
+				size_t iUV = pMesh->AddUV(flU, flV);
+				size_t iNormal = pMesh->AddNormal(0, 0, 1);	// For now!
 
-				m_Mesh.AddVertexToFace(iFace, iVertex, iUV, iNormal);
-				m_Mesh.AddEdgeToFace(iFace, iEdge);
+				pMesh->AddVertexToFace(iFace, iVertex, iUV, iNormal);
+				pMesh->AddEdgeToFace(iFace, iEdge);
 			}
 		}
 		else if (strcmp(pszToken, "-axis") == 0)
@@ -290,19 +293,31 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
 			float x, y, z;
 			sscanf(sLine.c_str(), "-axis %f %f %f", &x, &y, &z);
-			m_Mesh.m_vecOrigin = Vector(x, y, z);
+			pMesh->m_vecOrigin = Vector(x, y, z);
 		}
 		else if (strcmp(pszToken, "-endShape") == 0)
 		{
-			return;
+			break;
 		}
 	}
+
+	pMesh->CalculateEdgeData();
+	pMesh->CalculateVertexNormals();
+	pMesh->TranslateOrigin();
 }
 
-void CModelConverter::WriteSMD(const char* pszFilename)
+void CModelConverter::WriteSMDs()
 {
+	for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
+		WriteSMD(i);
+}
+
+void CModelConverter::WriteSMD(size_t iMesh)
+{
+	CConversionMesh* pMesh = m_Scene.GetMesh(iMesh);
+
 	char szFile[1024];
-	strcpy(szFile, pszFilename);
+	strcpy(szFile, pMesh->GetBoneName(0));
 
 	char* pszFile = MakeFilename(szFile);
 
@@ -319,7 +334,7 @@ void CModelConverter::WriteSMD(const char* pszFilename)
 	// Nodes section
 	fprintf(fp, "nodes\n");
 	// Only bothering with one node, we're only doing static props with this code for now.
-	fprintf(fp, "0 \"%s\" -1\n", m_Mesh.GetBoneName(0));
+	fprintf(fp, "0 \"%s\" -1\n", pMesh->GetBoneName(0));
 	fprintf(fp, "end\n\n");
 
 	// Skeleton section
@@ -329,9 +344,9 @@ void CModelConverter::WriteSMD(const char* pszFilename)
 	fprintf(fp, "end\n\n");
 	
 	fprintf(fp, "triangles\n");
-	for (size_t i = 0; i < m_Mesh.GetNumFaces(); i++)
+	for (size_t i = 0; i < pMesh->GetNumFaces(); i++)
 	{
-		CConversionFace* pFace = m_Mesh.GetFace(i);
+		CConversionFace* pFace = pMesh->GetFace(i);
 
 		if (!pFace->GetNumVertices())
 		{
@@ -346,17 +361,17 @@ void CModelConverter::WriteSMD(const char* pszFilename)
 			CConversionVertex* pV2 = pFace->GetVertex(j+1);
 			CConversionVertex* pV3 = pFace->GetVertex(j+2);
 
-			Vector v1 = m_Mesh.GetVertex(pV1->v);
-			Vector v2 = m_Mesh.GetVertex(pV2->v);
-			Vector v3 = m_Mesh.GetVertex(pV3->v);
+			Vector v1 = pMesh->GetVertex(pV1->v);
+			Vector v2 = pMesh->GetVertex(pV2->v);
+			Vector v3 = pMesh->GetVertex(pV3->v);
 
-			Vector n1 = m_Mesh.GetNormal(pV1->vn);
-			Vector n2 = m_Mesh.GetNormal(pV2->vn);
-			Vector n3 = m_Mesh.GetNormal(pV3->vn);
+			Vector n1 = pMesh->GetNormal(pV1->vn);
+			Vector n2 = pMesh->GetNormal(pV2->vn);
+			Vector n3 = pMesh->GetNormal(pV3->vn);
 
-			Vector uv1 = m_Mesh.GetUV(pV1->vt);
-			Vector uv2 = m_Mesh.GetUV(pV2->vt);
-			Vector uv3 = m_Mesh.GetUV(pV3->vt);
+			Vector uv1 = pMesh->GetUV(pV1->vt);
+			Vector uv2 = pMesh->GetUV(pV2->vt);
+			Vector uv3 = pMesh->GetUV(pV3->vt);
 
 			// Material name
 			size_t iMaterial = pFace->m;
@@ -367,7 +382,7 @@ void CModelConverter::WriteSMD(const char* pszFilename)
 				fprintf(fp, "error\n");
 			}
 			else
-				fprintf(fp, "%s\n", m_Mesh.GetMaterial(iMaterial)->GetName());
+				fprintf(fp, "%s\n", m_Scene.GetMaterial(iMaterial)->GetName());
 
 			// <int|Parent bone> <float|PosX PosY PosZ> <normal|NormX NormY NormZ> <normal|U V>
 			// Studio coordinates are not the same as game coordinates. Studio (x, y, z) is game (x, -z, y) and vice versa.

@@ -87,7 +87,6 @@ public:
 	size_t							AddNormal(float x, float y, float z);
 	size_t							AddUV(float u, float v);
 	size_t							AddBone(const char* pszName);
-	size_t							AddMaterial(const char* pszName);
 	size_t							AddEdge(size_t v1, size_t v2);
 	size_t							AddFace(size_t iMaterial);
 
@@ -106,10 +105,6 @@ public:
 	size_t							GetNumBones() { return m_aBones.size(); };
 	char*							GetBoneName(size_t i) { return m_aBones[i].m_szName; };
 
-	size_t							GetNumMaterials() { return m_aMaterials.size(); };
-	size_t							FindMaterial(const char* pszName);
-	CConversionMaterial*			GetMaterial(size_t i) { return &m_aMaterials[i]; };
-
 	size_t							GetNumEdges() { return m_aEdges.size(); };
 	CConversionEdge*				GetEdge(size_t i) { return &m_aEdges[i]; };
 
@@ -122,11 +117,26 @@ public:
 	std::vector<Vector>				m_aNormals;	
 	std::vector<Vector>				m_aUVs;		// Really don't feel like making a 2d vector just for this.
 	std::vector<CConversionBone>	m_aBones;
-	std::vector<CConversionMaterial>m_aMaterials;
 	std::vector<CConversionEdge>	m_aEdges;
 	std::vector<CConversionFace>	m_aFaces;
 
 	Vector							m_vecOrigin;
+};
+
+class CConversionScene
+{
+public:
+	size_t								AddMaterial(const char* pszName);
+	size_t								GetNumMaterials() { return m_aMaterials.size(); };
+	size_t								FindMaterial(const char* pszName);
+	CConversionMaterial*				GetMaterial(size_t i) { return &m_aMaterials[i]; };
+
+	size_t								AddMesh();
+	size_t								GetNumMeshes() { return m_aMeshes.size(); };
+	CConversionMesh*					GetMesh(size_t i) { return &m_aMeshes[i]; };
+
+	std::vector<CConversionMesh>		m_aMeshes;
+	std::vector<CConversionMaterial>	m_aMaterials;
 };
 
 #endif

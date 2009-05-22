@@ -11,7 +11,6 @@ void CConversionMesh::Clear()
 	m_aBones.clear();
 	m_aFaces.clear();
 	m_aEdges.clear();
-	m_aMaterials.clear();
 
 	m_vecOrigin = Vector();
 }
@@ -110,6 +109,27 @@ void CConversionMesh::TranslateOrigin()
 	m_vecOrigin = Vector(0,0,0);
 }
 
+size_t CConversionScene::AddMaterial(const char* pszName)
+{
+	m_aMaterials.push_back(CConversionMaterial(pszName));
+	return m_aMaterials.size()-1;
+}
+
+size_t CConversionScene::FindMaterial(const char* pszName)
+{
+	for (size_t i = 0; i < m_aMaterials.size(); i++)
+		if (strcmp(pszName, m_aMaterials[i].m_szName) == 0)
+			return i;
+
+	return ((size_t)~0);
+}
+
+size_t CConversionScene::AddMesh()
+{
+	m_aMeshes.push_back(CConversionMesh());
+	return m_aMeshes.size()-1;
+}
+
 size_t CConversionMesh::AddVertex(float x, float y, float z)
 {
 	m_aVertices.push_back(Vector(x, y, z));
@@ -132,12 +152,6 @@ size_t CConversionMesh::AddBone(const char* pszName)
 {
 	m_aBones.push_back(CConversionBone(pszName));
 	return m_aBones.size()-1;
-}
-
-size_t CConversionMesh::AddMaterial(const char* pszName)
-{
-	m_aMaterials.push_back(CConversionMaterial(pszName));
-	return m_aMaterials.size()-1;
 }
 
 size_t CConversionMesh::AddEdge(size_t v1, size_t v2)
@@ -239,15 +253,6 @@ void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
 void CConversionMesh::RemoveFace(size_t iFace)
 {
 	m_aFaces.erase(m_aFaces.begin()+iFace);
-}
-
-size_t CConversionMesh::FindMaterial(const char* pszName)
-{
-	for (size_t i = 0; i < m_aMaterials.size(); i++)
-		if (strcmp(pszName, m_aMaterials[i].m_szName) == 0)
-			return i;
-
-	return ((size_t)~0);
 }
 
 size_t CConversionMesh::FindFace(CConversionFace* pFace)

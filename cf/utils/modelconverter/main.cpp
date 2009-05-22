@@ -32,16 +32,26 @@ int main(int argc, const char* argv[])
 	printf("\n");
 
 	printf("-------------\n");
-	printf("Vertices    : %d\n", c.m_Mesh.GetNumVertices());
-	printf("Normals     : %d\n", c.m_Mesh.GetNumNormals());
-	printf("UVs         : %d\n", c.m_Mesh.GetNumUVs());
-	printf("Bones       : %d\n", c.m_Mesh.GetNumBones());
-	printf("Materials   : %d\n", c.m_Mesh.GetNumMaterials());
-	printf("Faces       : %d\n", c.m_Mesh.GetNumFaces());
+	printf("Materials   : %d\n", c.m_Scene.GetNumMaterials());
+	printf("Meshes      : %d\n", c.m_Scene.GetNumMeshes());
 	printf("\n");
 
+	for (size_t i = 0; i < c.m_Scene.GetNumMeshes(); i++)
+	{
+		CConversionMesh* pMesh = c.m_Scene.GetMesh(i);
+
+		printf("-------------\n");
+		printf("Mesh: %s\n", pMesh->GetBoneName(0));
+		printf("Vertices    : %d\n", pMesh->GetNumVertices());
+		printf("Normals     : %d\n", pMesh->GetNumNormals());
+		printf("UVs         : %d\n", pMesh->GetNumUVs());
+		printf("Bones       : %d\n", pMesh->GetNumBones());
+		printf("Faces       : %d\n", pMesh->GetNumFaces());
+		printf("\n");
+	}
+
 	printf("Writing the SMD... ");
-	c.WriteSMD(argv[1]);
+	c.WriteSMDs();
 	printf("Done.\n");
 	printf("\n");
 
