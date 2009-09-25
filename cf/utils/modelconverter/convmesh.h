@@ -19,7 +19,7 @@ public:
 class CConversionFace
 {
 public:
-									CConversionFace(class CConversionMesh* pMesh, size_t m);
+									CConversionFace(class CConversionScene* pScene, size_t iMesh, size_t m);
 
 	Vector							GetNormal();
 
@@ -34,7 +34,8 @@ public:
 	size_t							GetEdge(size_t i) { return m_aEdges[i]; }
 	bool							HasEdge(size_t i);
 
-	class CConversionMesh*			m_pMesh;
+	class CConversionScene*			m_pScene;
+	size_t							m_iMesh;
 
 	std::vector<CConversionVertex>	m_aVertices;
 	std::vector<size_t>				m_aEdges;	// Index into parent's vertex edge list
@@ -77,11 +78,15 @@ public:
 class CConversionMesh
 {
 public:
+									CConversionMesh(class CConversionScene* pScene, const char* pszName);
+
 	void							Clear();
 
 	void							CalculateEdgeData();
 	void							CalculateVertexNormals();
 	void							TranslateOrigin();
+
+	char*							GetName() { return m_szName; };
 
 	size_t							AddVertex(float x, float y, float z);
 	size_t							AddNormal(float x, float y, float z);
@@ -112,6 +117,9 @@ public:
 	size_t							FindFace(CConversionFace* pFace);
 	CConversionFace*				GetFace(size_t i) { return &m_aFaces[i]; };
 
+	char							m_szName[1024];
+	class CConversionScene*			m_pScene;
+
 	// A vector of Vectors? Holy crap!
 	std::vector<Vector>				m_aVertices;	
 	std::vector<Vector>				m_aNormals;	
@@ -131,9 +139,11 @@ public:
 	size_t								FindMaterial(const char* pszName);
 	CConversionMaterial*				GetMaterial(size_t i) { return &m_aMaterials[i]; };
 
-	size_t								AddMesh();
+	size_t								AddMesh(const char* pszName);
 	size_t								GetNumMeshes() { return m_aMeshes.size(); };
 	CConversionMesh*					GetMesh(size_t i) { return &m_aMeshes[i]; };
+	size_t								FindMesh(const char* pszName);
+	size_t								FindMesh(CConversionMesh* pMesh);
 
 	std::vector<CConversionMesh>		m_aMeshes;
 	std::vector<CConversionMaterial>	m_aMaterials;

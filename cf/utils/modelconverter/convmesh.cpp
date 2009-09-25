@@ -3,8 +3,16 @@
 
 #include "convmesh.h"
 
+CConversionMesh::CConversionMesh(class CConversionScene* pScene, const char* pszName)
+{
+	m_pScene = pScene;
+	strcpy(m_szName, pszName);
+}
+
 void CConversionMesh::Clear()
 {
+	m_szName[0] = '\0';
+
 	m_aVertices.clear();
 	m_aNormals.clear();
 	m_aUVs.clear();
@@ -124,10 +132,28 @@ size_t CConversionScene::FindMaterial(const char* pszName)
 	return ((size_t)~0);
 }
 
-size_t CConversionScene::AddMesh()
+size_t CConversionScene::AddMesh(const char* pszName)
 {
-	m_aMeshes.push_back(CConversionMesh());
+	m_aMeshes.push_back(CConversionMesh(this, pszName));
 	return m_aMeshes.size()-1;
+}
+
+size_t CConversionScene::FindMesh(const char* pszName)
+{
+	for (size_t i = 0; i < m_aMeshes.size(); i++)
+		if (strcmp(pszName, m_aMeshes[i].m_szName) == 0)
+			return i;
+
+	return ((size_t)~0);
+}
+
+size_t CConversionScene::FindMesh(CConversionMesh* pMesh)
+{
+	for (size_t i = 0; i < m_aMeshes.size(); i++)
+		if (&m_aMeshes[i] == pMesh)
+			return i;
+
+	return ((size_t)~0);
 }
 
 size_t CConversionMesh::AddVertex(float x, float y, float z)
@@ -164,16 +190,16 @@ Vector CConversionFace::GetNormal()
 {
 	assert(GetNumVertices() >= 3);
 
-	Vector v1 = m_pMesh->GetVertex(m_aVertices[0].v);
-	Vector v2 = m_pMesh->GetVertex(m_aVertices[1].v);
-	Vector v3 = m_pMesh->GetVertex(m_aVertices[2].v);
+	Vector v1 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[0].v);
+	Vector v2 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[1].v);
+	Vector v3 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[2].v);
 
 	return (v3 - v2).Normalized().Cross((v1 - v2).Normalized());
 }
 
 void CConversionFace::FindAdjacentFaces(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
-	aResult.push_back(m_pMesh->FindFace(this));
+	aResult.push_back(m_pScene->GetMesh(m_iMesh)->FindFace(this));
 	FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 }
 
@@ -182,7 +208,7 @@ void CConversionFace::FindAdjacentFacesInternal(std::vector<size_t>& aResult, si
 	// Crawl along each edge to find adjacent faces.
 	for (size_t iEdge = 0; iEdge < GetNumEdges(); iEdge++)
 	{
-		CConversionEdge* pEdge = m_pMesh->GetEdge(GetEdge(iEdge));
+		CConversionEdge* pEdge = m_pScene->GetMesh(m_iMesh)->GetEdge(GetEdge(iEdge));
 
 		if (bIgnoreCreased && pEdge->m_bCreased)
 			continue;
@@ -196,7 +222,7 @@ void CConversionFace::FindAdjacentFacesInternal(std::vector<size_t>& aResult, si
 			if (it == aResult.end())
 			{
 				aResult.push_back(pEdge->f1);
-				m_pMesh->GetFace(pEdge->f1)->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
+				m_pScene->GetMesh(m_iMesh)->GetFace(pEdge->f1)->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 			}
 		}
 
@@ -206,7 +232,7 @@ void CConversionFace::FindAdjacentFacesInternal(std::vector<size_t>& aResult, si
 			if (it == aResult.end())
 			{
 				aResult.push_back(pEdge->f2);
-				m_pMesh->GetFace(pEdge->f2)->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
+				m_pScene->GetMesh(m_iMesh)->GetFace(pEdge->f2)->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 			}
 		}
 	}
@@ -236,7 +262,7 @@ size_t CConversionFace::FindVertex(size_t i)
 
 size_t CConversionMesh::AddFace(size_t iMaterial)
 {
-	m_aFaces.push_back(CConversionFace(this, iMaterial));
+	m_aFaces.push_back(CConversionFace(m_pScene, m_pScene->FindMesh(this), iMaterial));
 	return m_aFaces.size()-1;
 }
 
@@ -274,9 +300,10 @@ CConversionMaterial::CConversionMaterial(const char* pszName)
 	strcpy(m_szName, pszName);
 }
 
-CConversionFace::CConversionFace(class CConversionMesh* pMesh, size_t M)
+CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, size_t M)
 {
-	m_pMesh = pMesh;
+	m_pScene = pScene;
+	m_iMesh = iMesh;
 	m = M;
 }
 

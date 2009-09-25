@@ -15,8 +15,7 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 		return;
 	}
 
-	m_Scene.AddMesh();
-	CConversionMesh* pMesh = m_Scene.GetMesh(0);
+	CConversionMesh* pMesh = m_Scene.GetMesh(m_Scene.AddMesh(pszFilename));
 
 	size_t iCurrentMaterial = ~0;
 
@@ -156,6 +155,13 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 		}
 	}
 
+	for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
+	{
+		m_Scene.GetMesh(i)->CalculateEdgeData();
+		m_Scene.GetMesh(i)->CalculateVertexNormals();
+		m_Scene.GetMesh(i)->TranslateOrigin();
+	}
+
 	infile.close();
 }
 
@@ -199,12 +205,10 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 	size_t iCurrentMaterial = ~0;
 
 	CConversionMesh* pMesh = NULL;
-
-	if (bCare)
-	{
-		size_t iMesh = m_Scene.AddMesh();
-		pMesh = m_Scene.GetMesh(iMesh);
-	}
+	size_t iAddV = 0;
+	size_t iAddE = 0;
+	size_t iAddUV = 0;
+	size_t iAddN = 0;
 
 	std::string sLine;
 	while (infile.good())
@@ -234,7 +238,25 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			std::string sName = sLine.c_str()+6;
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
-			pMesh->AddBone(aName[0].c_str());
+
+			if (bCare)
+			{
+				size_t iMesh = m_Scene.FindMesh(aName[0].c_str());
+				if (iMesh == (size_t)~0)
+				{
+					iMesh = m_Scene.AddMesh(aName[0].c_str());
+					pMesh = m_Scene.GetMesh(iMesh);
+					pMesh->AddBone(aName[0].c_str());
+				}
+				else
+				{
+					pMesh = m_Scene.GetMesh(iMesh);
+					iAddV = pMesh->GetNumVertices();
+					iAddE = pMesh->GetNumEdges();
+					iAddUV = pMesh->GetNumUVs();
+					iAddN = pMesh->GetNumNormals();
+				}
+			}
 		}
 		else if (strcmp(pszToken, "-vert") == 0)
 		{
@@ -248,7 +270,7 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
 			int v1, v2;
 			sscanf(sLine.c_str(), "-edge %d %d", &v1, &v2);
-			pMesh->AddEdge(v1, v2);
+			pMesh->AddEdge(v1+iAddV, v2+iAddV);
 		}
 		else if (strcmp(pszToken, "-creas") == 0)
 		{
@@ -258,7 +280,7 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			strtok(sCreases, aCreases, " ");
 
 			for (size_t i = 1; i < aCreases.size(); i++)
-				pMesh->GetEdge(atoi(aCreases[i].c_str()))->m_bCreased = true;
+				pMesh->GetEdge(atoi(aCreases[i].c_str())+iAddE)->m_bCreased = true;
 		}
 		else if (strcmp(pszToken, "-setmat") == 0)
 		{
@@ -276,11 +298,11 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 
 			for (size_t i = 0; i < aFaces.size(); i += 4)
 			{
-				int iVertex = atoi(aFaces[i].c_str());
-				int iEdge = atoi(aFaces[i+1].c_str());
+				size_t iVertex = atoi(aFaces[i].c_str())+iAddV;
+				size_t iEdge = atoi(aFaces[i+1].c_str())+iAddE;
+
 				float flU = (float)atof(aFaces[i+2].c_str());
 				float flV = (float)atof(aFaces[i+3].c_str());
-
 				size_t iUV = pMesh->AddUV(flU, flV);
 				size_t iNormal = pMesh->AddNormal(0, 0, 1);	// For now!
 
@@ -300,10 +322,6 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 			break;
 		}
 	}
-
-	pMesh->CalculateEdgeData();
-	pMesh->CalculateVertexNormals();
-	pMesh->TranslateOrigin();
 }
 
 void CModelConverter::WriteSMDs()
