@@ -137,7 +137,7 @@ public:
 	size_t								AddMaterial(const char* pszName);
 	size_t								GetNumMaterials() { return m_aMaterials.size(); };
 	size_t								FindMaterial(const char* pszName);
-	CConversionMaterial*				GetMaterial(size_t i) { return &m_aMaterials[i]; };
+	CConversionMaterial*				GetMaterial(size_t i) { if (i > m_aMaterials.size()) return NULL; return &m_aMaterials[i]; };
 
 	size_t								AddMesh(const char* pszName);
 	size_t								GetNumMeshes() { return m_aMeshes.size(); };

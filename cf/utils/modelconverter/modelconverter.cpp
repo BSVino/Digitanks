@@ -189,9 +189,7 @@ void CModelConverter::ReadSIAMat(std::ifstream& infile)
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
 
-			size_t iMaterial = m_Scene.FindMaterial(aName[0].c_str());
-			if (iMaterial == ((size_t)~0))
-				m_Scene.AddMaterial(aName[0].c_str());
+			m_Scene.AddMaterial(aName[0].c_str());
 		}
 		else if (strcmp(pszToken, "-endMat") == 0)
 		{
@@ -394,7 +392,7 @@ void CModelConverter::WriteSMD(size_t iMesh)
 			// Material name
 			size_t iMaterial = pFace->m;
 
-			if (iMaterial == ((size_t)~0))
+			if (iMaterial == ((size_t)~0) || !m_Scene.GetMaterial(iMaterial))
 			{
 				printf("ERROR! Can't find a material for a triangle.\n");
 				fprintf(fp, "error\n");
