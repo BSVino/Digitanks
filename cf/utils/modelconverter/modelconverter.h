@@ -17,6 +17,8 @@ public:
 	void				ReadSIAMat(std::ifstream& infile);
 	void				ReadSIAShape(std::ifstream& infile, bool bCare = true);
 
+	void				ReadDAE(const char* pszFilename);
+
 	void				WriteSMDs();
 	void				WriteSMD(size_t iMesh);
 

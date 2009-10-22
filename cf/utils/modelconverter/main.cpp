@@ -27,6 +27,11 @@ int main(int argc, const char* argv[])
 		printf("Reading the Silo ASCII file... ");
 		c.ReadSIA(argv[1]);
 	}
+	else if (strcmp(pszExtension, ".dae") == 0)
+	{
+		printf("Reading the Collada .dae file... ");
+		c.ReadDAE(argv[1]);
+	}
 
 	printf("Done.\n");
 	printf("\n");

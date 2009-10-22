@@ -431,7 +431,8 @@ char* CModelConverter::MakeFilename(char* pszPathFilename)
 		if (pszFile[i] == '.')
 			iLastChar = i;
 
-	pszFile[iLastChar] = '\0';
+	if (iLastChar >= 0)
+		pszFile[iLastChar] = '\0';
 
 	return pszFile;
 }

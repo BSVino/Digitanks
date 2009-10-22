@@ -4,7 +4,7 @@ $staticprop
 
 $surfaceprop metal
 
-$model "body" "test.smd"
+$model "body" "mesh.smd"
 
 $cdmaterials models/props/equipment
 

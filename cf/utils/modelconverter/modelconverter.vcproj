@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common;..\..\common\math"
+				AdditionalIncludeDirectories="..\..\common;..\..\common\math;&quot;\Program Files\Feeling Software\FCollada\&quot;;\Program Files\Feeling Software\FCollada\LibXML\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,8 +65,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="FColladaU.lib"
 				OutputFile="$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Feeling Software\FCollada\Output\Debug Unicode Win32\&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -123,7 +125,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\common;..\..\common\math"
+				AdditionalIncludeDirectories="..\..\common;..\..\common\math;&quot;\Program Files\Feeling Software\FCollada\&quot;;&quot;\Program Files\Feeling Software\FCollada\LibXML\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -142,8 +144,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="FColladaU.lib"
 				OutputFile="$(IntDir)\$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Feeling Software\FCollada\Output\Retail Unicode Win32\&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -204,6 +208,14 @@
 				RelativePath=".\modelconverter.h"
 				>
 			</File>
+			<Filter
+				Name="collada"
+				>
+				<File
+					RelativePath=".\collada.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
