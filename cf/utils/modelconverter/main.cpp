@@ -37,13 +37,13 @@ int main(int argc, const char* argv[])
 	printf("\n");
 
 	printf("-------------\n");
-	printf("Materials   : %d\n", c.m_Scene.GetNumMaterials());
-	printf("Meshes      : %d\n", c.m_Scene.GetNumMeshes());
+	printf("Materials   : %d\n", c.GetScene()->GetNumMaterials());
+	printf("Meshes      : %d\n", c.GetScene()->GetNumMeshes());
 	printf("\n");
 
-	for (size_t i = 0; i < c.m_Scene.GetNumMeshes(); i++)
+	for (size_t i = 0; i < c.GetScene()->GetNumMeshes(); i++)
 	{
-		CConversionMesh* pMesh = c.m_Scene.GetMesh(i);
+		CConversionMesh* pMesh = c.GetScene()->GetMesh(i);
 
 		printf("-------------\n");
 		printf("Mesh: %s\n", pMesh->GetBoneName(0));

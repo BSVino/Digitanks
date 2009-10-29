@@ -2,10 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="modelconverter"
-	ProjectGUID="{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}"
-	RootNamespace="modelconverter"
-	Keyword="Win32Proj"
+	Name="modelutility"
+	ProjectGUID="{FCA9F04C-73DB-4863-B8A8-4B7FC09D07B9}"
+	RootNamespace="modelutility"
 	>
 	<Platforms>
 		<Platform
@@ -19,17 +18,14 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="1"
+			ConfigurationType="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\modelconverter.lib&quot; attrib -r &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;modelconverter.lib copy &quot;$(TargetDir)&quot;modelconverter.lib &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\modelconverter.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -43,13 +39,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common;..\..\common\math;&quot;\Program Files\Feeling Software\FCollada\&quot;;\Program Files\Feeling Software\FCollada\LibXML\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..;..\..\common\math"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -64,11 +57,19 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(IntDir)\$(ProjectName).lib"
+				Name="VCLinkerTool"
+				AdditionalOptions="/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+				AdditionalDependencies="modelconverter.lib FColladaU.lib"
+				OutputFile="$(IntDir)\$(ProjectName).exe"
+				AdditionalLibraryDirectories="../GL;../../lib;&quot;\Program Files\Feeling Software\FCollada\Output\Debug Unicode Win32&quot;"
+				GenerateDebugInformation="true"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -80,6 +81,12 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -87,8 +94,8 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="1"
+			ConfigurationType="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -96,9 +103,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\modelconverter.lib&quot; attrib -r &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;modelconverter.lib copy &quot;$(TargetDir)&quot;modelconverter.lib &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\modelconverter.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -111,10 +115,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\common;..\..\common\math;&quot;\Program Files\Feeling Software\FCollada\&quot;;&quot;\Program Files\Feeling Software\FCollada\LibXML\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..;..\..\common\math"
 				RuntimeLibrary="0"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -129,11 +131,21 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(IntDir)\$(ProjectName).lib"
+				Name="VCLinkerTool"
+				AdditionalOptions="/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+				AdditionalDependencies="modelconverter.lib FColladaU.lib"
+				OutputFile="$(IntDir)\$(ProjectName).exe"
+				AdditionalLibraryDirectories="../GL;../../lib;&quot;\Program Files\Feeling Software\FCollada\Output\Retail Unicode Win32&quot;"
+				GenerateDebugInformation="true"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -143,6 +155,12 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -158,30 +176,18 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\convmesh.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\convmesh.h"
-				>
-			</File>
-			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\modelconverter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\modelconverter.h"
-				>
-			</File>
 			<Filter
-				Name="collada"
+				Name="ui"
 				>
 				<File
-					RelativePath=".\collada.cpp"
+					RelativePath=".\ui\modelwindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\modelwindow.h"
 					>
 				</File>
 			</Filter>

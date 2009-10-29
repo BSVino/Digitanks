@@ -31,9 +31,12 @@ public:
 
 	Vector	Cross(const Vector& v) const;
 
-	unit_t	x;
-	unit_t	y;
-	unit_t	z;
+	operator float*()
+	{
+		return(&x);
+	}
+
+	unit_t	x, y, z;
 };
 
 inline Vector::Vector()
@@ -46,9 +49,19 @@ inline Vector::Vector(unit_t X, unit_t Y, unit_t Z)
 {
 }
 
+inline Vector Vector::operator+(const Vector& v) const
+{
+	return Vector(x+v.x, y+v.y, z+v.z);
+}
+
 inline Vector Vector::operator-(const Vector& v) const
 {
 	return Vector(x-v.x, y-v.y, z-v.z);
+}
+
+inline Vector Vector::operator*(float s) const
+{
+	return Vector(x*s, y*s, z*s);
 }
 
 inline Vector Vector::operator/(float s) const

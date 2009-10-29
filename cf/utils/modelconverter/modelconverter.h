@@ -27,6 +27,9 @@ public:
 	char*				StripWhitespace(char* pszLine);
 	std::string			StripWhitespace(std::string sLine);
 
+	CConversionScene*	GetScene() { return &m_Scene; };
+
+protected:
 	CConversionScene	m_Scene;
 };
 
