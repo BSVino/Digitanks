@@ -10,6 +10,8 @@
 class CModelConverter
 {
 public:
+						CModelConverter(CConversionScene* pScene);
+
 	void				ReadOBJ(const char* pszFilename);
 	void				ReadMTL(const char* pszFilename);
 
@@ -29,10 +31,11 @@ public:
 	char*				StripWhitespace(char* pszLine);
 	std::string			StripWhitespace(std::string sLine);
 
-	CConversionScene*	GetScene() { return &m_Scene; };
+	void				SetScene(CConversionScene* pScene) { m_pScene = pScene; };
+	CConversionScene*	GetScene() { return m_pScene; };
 
 protected:
-	CConversionScene	m_Scene;
+	CConversionScene*	m_pScene;
 };
 
 #endif

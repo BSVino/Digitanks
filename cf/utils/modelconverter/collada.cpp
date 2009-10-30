@@ -41,8 +41,8 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 			FCDMaterial* pColladaMaterial = pMatLib->GetEntity(i);
 			FCDEffect* pEffect = pColladaMaterial->GetEffect();
 
-			size_t iMaterial = m_Scene.AddMaterial(pColladaMaterial->GetDaeId().c_str());
-			CConversionMaterial* pMaterial = m_Scene.GetMaterial(iMaterial);
+			size_t iMaterial = m_pScene->AddMaterial(pColladaMaterial->GetDaeId().c_str());
+			CConversionMaterial* pMaterial = m_pScene->GetMaterial(iMaterial);
 
 			if (pEffect->GetProfileCount() < 1)
 				continue;
@@ -102,8 +102,8 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 			{
 				size_t j;
 
-				size_t iMesh = m_Scene.AddMesh("mesh");
-				CConversionMesh* pMesh = m_Scene.GetMesh(iMesh);
+				size_t iMesh = m_pScene->AddMesh("mesh");
+				CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 				pMesh->AddBone("mesh");
 
 				FCDGeometryMesh* pGeoMesh = pGeometry->GetMesh();
@@ -157,7 +157,7 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 					char szNewString[iNewSize];
 					wcstombs_s(&iConvertedChars, szNewString, iOriginalSize, sMaterial.c_str(), _TRUNCATE);
 
-					size_t iCurrentMaterial = m_Scene.FindMaterial(szNewString);
+					size_t iCurrentMaterial = m_pScene->FindMaterial(szNewString);
 
 					if (pPolygons->TestPolyType() == 3)
 					{
@@ -191,9 +191,9 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 	else
 		printf("Oops! Some kind of error happened!\n");
 
-	for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
+	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 	{
-		m_Scene.GetMesh(i)->TranslateOrigin();
+		m_pScene->GetMesh(i)->TranslateOrigin();
 	}
 
 	pDoc->Release();

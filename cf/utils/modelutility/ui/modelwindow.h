@@ -10,7 +10,9 @@ public:
 
 	void					Run();	// Doesn't return
 
-	void					LoadFromScene(CConversionScene* pScene);
+	void					ReadFile(const char* pszFile);
+
+	void					LoadIntoGL();
 
 	static void				RenderCallback() { Get()->Render(); };
 	void					Render();
@@ -44,6 +46,8 @@ public:
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
 protected:
+	CConversionScene		m_Scene;
+
 	std::vector<size_t>		m_aiObjects;
 	size_t					m_iObjectsCreated;
 

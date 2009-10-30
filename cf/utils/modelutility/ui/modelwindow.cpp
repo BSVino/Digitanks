@@ -8,6 +8,8 @@
 #include <GL/glut.h>
 #include <IL/il.h>
 
+#include <modelconverter/modelconverter.h>
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
@@ -88,14 +90,32 @@ void CModelWindow::Run()
 	glutMainLoop();
 }
 
-void CModelWindow::LoadFromScene(CConversionScene* pScene)
+
+void CModelWindow::ReadFile(const char* pszFile)
+{
+	size_t iFileLength = strlen(pszFile);
+	const char* pszExtension = pszFile+iFileLength-4;
+
+	CModelConverter c(&m_Scene);
+
+	if (strcmp(pszExtension, ".obj") == 0)
+		c.ReadOBJ(pszFile);
+	else if (strcmp(pszExtension, ".sia") == 0)
+		c.ReadSIA(pszFile);
+	else if (strcmp(pszExtension, ".dae") == 0)
+		c.ReadDAE(pszFile);
+
+	LoadIntoGL();
+}
+
+void CModelWindow::LoadIntoGL()
 {
 	float flFarthest = 0;
 	size_t i;
 
-	for (i = 0; i < pScene->GetNumMaterials(); i++)
+	for (i = 0; i < m_Scene.GetNumMaterials(); i++)
 	{
-		CConversionMaterial* pMaterial = pScene->GetMaterial(i);
+		CConversionMaterial* pMaterial = m_Scene.GetMaterial(i);
 
 		ILuint iDevILId;
 		ilGenImages(1, &iDevILId);
@@ -145,9 +165,9 @@ void CModelWindow::LoadFromScene(CConversionScene* pScene)
 		}
 	}
 
-	for (i = 0; i < pScene->GetNumMeshes(); i++)
+	for (i = 0; i < m_Scene.GetNumMeshes(); i++)
 	{
-		CConversionMesh* pMesh = pScene->GetMesh(i);
+		CConversionMesh* pMesh = m_Scene.GetMesh(i);
 
 		GLuint iObject = (GLuint)GetNextObjectId();
 		m_aiObjects.push_back((size_t)iObject);
@@ -177,9 +197,9 @@ void CModelWindow::LoadFromScene(CConversionScene* pScene)
 				// Why? I dunno.
 				vecUV.y = -vecUV.y;
 
-				if (pFace->m != ~0 && pScene->GetMaterial(pFace->m))
+				if (pFace->m != ~0 && m_Scene.GetMaterial(pFace->m))
 				{
-					CConversionMaterial* pMaterial = pScene->GetMaterial(pFace->m);
+					CConversionMaterial* pMaterial = m_Scene.GetMaterial(pFace->m);
 					glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
 					glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
 					glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);

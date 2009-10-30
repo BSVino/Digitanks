@@ -15,7 +15,8 @@ int main(int argc, const char* argv[])
 	size_t iFileLength = strlen(argv[1]);
 	const char* pszExtension = argv[1]+iFileLength-4;
 
-	CModelConverter c;
+	CConversionScene s;
+	CModelConverter c(&s);
 
 	if (strcmp(pszExtension, ".obj") == 0)
 	{
@@ -37,13 +38,13 @@ int main(int argc, const char* argv[])
 	printf("\n");
 
 	printf("-------------\n");
-	printf("Materials   : %d\n", c.GetScene()->GetNumMaterials());
-	printf("Meshes      : %d\n", c.GetScene()->GetNumMeshes());
+	printf("Materials   : %d\n", s.GetNumMaterials());
+	printf("Meshes      : %d\n", s.GetNumMeshes());
 	printf("\n");
 
-	for (size_t i = 0; i < c.GetScene()->GetNumMeshes(); i++)
+	for (size_t i = 0; i < s.GetNumMeshes(); i++)
 	{
-		CConversionMesh* pMesh = c.GetScene()->GetMesh(i);
+		CConversionMesh* pMesh = s.GetMesh(i);
 
 		printf("-------------\n");
 		printf("Mesh: %s\n", pMesh->GetBoneName(0));

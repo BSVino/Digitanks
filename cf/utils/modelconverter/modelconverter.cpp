@@ -5,6 +5,11 @@
 #include "modelconverter.h"
 #include "strutils.h"
 
+CModelConverter::CModelConverter(CConversionScene* pScene)
+{
+	m_pScene = pScene;
+}
+
 void CModelConverter::ReadOBJ(const char* pszFilename)
 {
 	FILE* fp = fopen(pszFilename, "r");
@@ -15,7 +20,7 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 		return;
 	}
 
-	CConversionMesh* pMesh = m_Scene.GetMesh(m_Scene.AddMesh(pszFilename));
+	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(pszFilename));
 
 	size_t iCurrentMaterial = ~0;
 
@@ -79,9 +84,9 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 		{
 			// All following faces should use this material.
 			char* pszMaterial = pszLine+7;
-			size_t iMaterial = m_Scene.FindMaterial(pszMaterial);
+			size_t iMaterial = m_pScene->FindMaterial(pszMaterial);
 			if (iMaterial == ((size_t)~0))
-				iCurrentMaterial = m_Scene.AddMaterial(pszMaterial);
+				iCurrentMaterial = m_pScene->AddMaterial(pszMaterial);
 			else
 				iCurrentMaterial = iMaterial;
 		}
@@ -138,12 +143,12 @@ void CModelConverter::ReadMTL(const char* pszFilename)
 
 		CConversionMaterial* pMaterial = NULL;
 		if (iCurrentMaterial != ~0)
-			pMaterial = m_Scene.GetMaterial(iCurrentMaterial);
+			pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
 		if (strcmp(pszToken, "newmtl") == 0)
 		{
 			pszToken = strtok(NULL, " ");
-			iCurrentMaterial = m_Scene.AddMaterial(CConversionMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0));
+			iCurrentMaterial = m_pScene->AddMaterial(CConversionMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0));
 		}
 		else if (strcmp(pszToken, "Ka") == 0)
 		{
@@ -250,11 +255,11 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 		}
 	}
 
-	for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
+	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 	{
-		m_Scene.GetMesh(i)->CalculateEdgeData();
-		m_Scene.GetMesh(i)->CalculateVertexNormals();
-		m_Scene.GetMesh(i)->TranslateOrigin();
+		m_pScene->GetMesh(i)->CalculateEdgeData();
+		m_pScene->GetMesh(i)->CalculateVertexNormals();
+		m_pScene->GetMesh(i)->TranslateOrigin();
 	}
 
 	infile.close();
@@ -262,8 +267,8 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 
 void CModelConverter::ReadSIAMat(std::ifstream& infile, const char* pszFilename)
 {
-	size_t iCurrentMaterial = m_Scene.AddMaterial("");
-	CConversionMaterial* pMaterial = m_Scene.GetMaterial(iCurrentMaterial);
+	size_t iCurrentMaterial = m_pScene->AddMaterial("");
+	CConversionMaterial* pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
 	std::string sLine;
 	while (infile.good())
@@ -390,16 +395,16 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 
 			if (bCare)
 			{
-				size_t iMesh = m_Scene.FindMesh(aName[0].c_str());
+				size_t iMesh = m_pScene->FindMesh(aName[0].c_str());
 				if (iMesh == (size_t)~0)
 				{
-					iMesh = m_Scene.AddMesh(aName[0].c_str());
-					pMesh = m_Scene.GetMesh(iMesh);
+					iMesh = m_pScene->AddMesh(aName[0].c_str());
+					pMesh = m_pScene->GetMesh(iMesh);
 					pMesh->AddBone(aName[0].c_str());
 				}
 				else
 				{
-					pMesh = m_Scene.GetMesh(iMesh);
+					pMesh = m_pScene->GetMesh(iMesh);
 					iAddV = pMesh->GetNumVertices();
 					iAddE = pMesh->GetNumEdges();
 					iAddUV = pMesh->GetNumUVs();
@@ -475,13 +480,13 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 
 void CModelConverter::WriteSMDs()
 {
-	for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
+	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 		WriteSMD(i);
 }
 
 void CModelConverter::WriteSMD(size_t iMesh)
 {
-	CConversionMesh* pMesh = m_Scene.GetMesh(iMesh);
+	CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 
 	char szFile[1024];
 	strcpy(szFile, pMesh->GetBoneName(0));
@@ -543,13 +548,13 @@ void CModelConverter::WriteSMD(size_t iMesh)
 			// Material name
 			size_t iMaterial = pFace->m;
 
-			if (iMaterial == ((size_t)~0) || !m_Scene.GetMaterial(iMaterial))
+			if (iMaterial == ((size_t)~0) || !m_pScene->GetMaterial(iMaterial))
 			{
 				printf("ERROR! Can't find a material for a triangle.\n");
 				fprintf(fp, "error\n");
 			}
 			else
-				fprintf(fp, "%s\n", m_Scene.GetMaterial(iMaterial)->GetName());
+				fprintf(fp, "%s\n", m_pScene->GetMaterial(iMaterial)->GetName());
 
 			// <int|Parent bone> <float|PosX PosY PosZ> <normal|NormX NormY NormZ> <normal|U V>
 			// Studio coordinates are not the same as game coordinates. Studio (x, y, z) is game (x, -z, y) and vice versa.

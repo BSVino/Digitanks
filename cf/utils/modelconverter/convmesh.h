@@ -158,6 +158,8 @@ public:
 class CConversionScene
 {
 public:
+	void								LoadFromScene(CConversionScene* pScene);
+
 	size_t								AddMaterial(const char* pszName);
 	size_t								AddMaterial(CConversionMaterial& oMaterial);
 	size_t								GetNumMaterials() { return m_aMaterials.size(); };
