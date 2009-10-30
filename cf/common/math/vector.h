@@ -11,6 +11,7 @@ class Vector
 public:
 			Vector();
 			Vector(unit_t x, unit_t y, unit_t z);
+			Vector(unit_t* xyz);
 
 	Vector	operator-(void) const;
 
@@ -47,6 +48,16 @@ inline Vector::Vector()
 inline Vector::Vector(unit_t X, unit_t Y, unit_t Z)
 	: x(X), y(Y), z(Z)
 {
+}
+
+inline Vector::Vector(unit_t* xyz)
+	: x(*xyz), y(*(xyz+1)), z(*(xyz+2))
+{
+}
+
+inline Vector Vector::operator-() const
+{
+	return Vector(-x, -y, -z);
 }
 
 inline Vector Vector::operator+(const Vector& v) const

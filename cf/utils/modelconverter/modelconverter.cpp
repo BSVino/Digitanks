@@ -38,8 +38,12 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 
 		if (strcmp(pszToken, "mtllib") == 0)
 		{
-			// External file, material library.
-			// We ignore it.
+			char szDirectory[1024];
+			strcpy(szDirectory, pszFilename);
+			GetDirectory(szDirectory);
+			char szMaterial[1024];
+			sprintf(szMaterial, "%s/%s", szDirectory, pszLine + 7);
+			ReadMTL(szMaterial);
 		}
 		else if (strcmp(pszToken, "o") == 0)
 		{
@@ -106,6 +110,97 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 	fclose(fp);
 }
 
+void CModelConverter::ReadMTL(const char* pszFilename)
+{
+	FILE* fp = fopen(pszFilename, "r");
+
+	if (!fp)
+		return;
+
+	size_t iCurrentMaterial = ~0;
+
+	char szLine[1024];
+	char* pszLine = NULL;
+	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	{
+		pszLine = StripWhitespace(pszLine);
+
+		if (strlen(pszLine) == 0)
+			continue;
+
+		if (pszLine[0] == '#')
+			continue;
+
+		char szToken[1024];
+		strcpy(szToken, pszLine);
+		char* pszToken = NULL;
+		pszToken = strtok(szToken, " ");
+
+		CConversionMaterial* pMaterial = NULL;
+		if (iCurrentMaterial != ~0)
+			pMaterial = m_Scene.GetMaterial(iCurrentMaterial);
+
+		if (strcmp(pszToken, "newmtl") == 0)
+		{
+			pszToken = strtok(NULL, " ");
+			iCurrentMaterial = m_Scene.AddMaterial(CConversionMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0));
+		}
+		else if (strcmp(pszToken, "Ka") == 0)
+		{
+			float r, g, b;
+			sscanf(pszLine, "Ka %f %f %f", &r, &g, &b);
+			pMaterial->m_vecAmbient.x = r;
+			pMaterial->m_vecAmbient.y = g;
+			pMaterial->m_vecAmbient.z = b;
+		}
+		else if (strcmp(pszToken, "Kd") == 0)
+		{
+			float r, g, b;
+			sscanf(pszLine, "Kd %f %f %f", &r, &g, &b);
+			pMaterial->m_vecDiffuse.x = r;
+			pMaterial->m_vecDiffuse.y = g;
+			pMaterial->m_vecDiffuse.z = b;
+		}
+		else if (strcmp(pszToken, "Ks") == 0)
+		{
+			float r, g, b;
+			sscanf(pszLine, "Ks %f %f %f", &r, &g, &b);
+			pMaterial->m_vecSpecular.x = r;
+			pMaterial->m_vecSpecular.y = g;
+			pMaterial->m_vecSpecular.z = b;
+		}
+		else if (strcmp(pszToken, "d") == 0 || strcmp(pszToken, "Tr") == 0)
+		{
+			pszToken = strtok(NULL, " ");
+			pMaterial->m_flTransparency = (float)atof(pszToken);
+		}
+		else if (strcmp(pszToken, "Ns") == 0)
+		{
+			pszToken = strtok(NULL, " ");
+			pMaterial->m_flShininess = (float)atof(pszToken);
+		}
+		else if (strcmp(pszToken, "illum") == 0)
+		{
+			pszToken = strtok(NULL, " ");
+			pMaterial->m_eIllumType = (IllumType_t)atoi(pszToken);
+		}
+		else if (strcmp(pszToken, "map_Kd") == 0)
+		{
+			pszToken = strtok(NULL, " ");
+
+			char szDirectory[1024];
+			strcpy(szDirectory, pszFilename);
+			GetDirectory(szDirectory);
+			char szTexture[1024];
+			sprintf(szTexture, "%s/%s", szDirectory, pszToken);
+
+			strcpy(pMaterial->m_szTexture, szTexture);
+		}
+	}
+
+	fclose(fp);
+}
+
 // Silo ascii
 void CModelConverter::ReadSIA(const char* pszFilename)
 {
@@ -142,7 +237,7 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 		}
 		else if (strcmp(pszToken, "-Mat") == 0)
 		{
-			ReadSIAMat(infile);
+			ReadSIAMat(infile, pszFilename);
 		}
 		else if (strcmp(pszToken, "-Shape") == 0)
 		{
@@ -165,8 +260,11 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 	infile.close();
 }
 
-void CModelConverter::ReadSIAMat(std::ifstream& infile)
+void CModelConverter::ReadSIAMat(std::ifstream& infile, const char* pszFilename)
 {
+	size_t iCurrentMaterial = m_Scene.AddMaterial("");
+	CConversionMaterial* pMaterial = m_Scene.GetMaterial(iCurrentMaterial);
+
 	std::string sLine;
 	while (infile.good())
 	{
@@ -183,13 +281,66 @@ void CModelConverter::ReadSIAMat(std::ifstream& infile)
 
 		if (strcmp(pszToken, "-name") == 0)
 		{
-			// All we care about is the name.
 			const char* pszMaterial = sLine.c_str()+6;
 			std::string sName = pszMaterial;
 			std::vector<std::string> aName;
 			strtok(sName, aName, "\"");	// Strip out the quotation marks.
 
-			m_Scene.AddMaterial(aName[0].c_str());
+			strcpy(pMaterial->m_szName, aName[0].c_str());
+		}
+		else if (strcmp(pszToken, "-dif") == 0)
+		{
+			float r, g, b;
+			sscanf(sLine.c_str(), "-dif %f %f %f", &r, &g, &b);
+			pMaterial->m_vecDiffuse.x = r;
+			pMaterial->m_vecDiffuse.y = g;
+			pMaterial->m_vecDiffuse.z = b;
+		}
+		else if (strcmp(pszToken, "-amb") == 0)
+		{
+			float r, g, b;
+			sscanf(sLine.c_str(), "-amb %f %f %f", &r, &g, &b);
+			pMaterial->m_vecAmbient.x = r;
+			pMaterial->m_vecAmbient.y = g;
+			pMaterial->m_vecAmbient.z = b;
+		}
+		else if (strcmp(pszToken, "-spec") == 0)
+		{
+			float r, g, b;
+			sscanf(sLine.c_str(), "-spec %f %f %f", &r, &g, &b);
+			pMaterial->m_vecSpecular.x = r;
+			pMaterial->m_vecSpecular.y = g;
+			pMaterial->m_vecSpecular.z = b;
+		}
+		else if (strcmp(pszToken, "-emis") == 0)
+		{
+			float r, g, b;
+			sscanf(sLine.c_str(), "-emis %f %f %f", &r, &g, &b);
+			pMaterial->m_vecEmissive.x = r;
+			pMaterial->m_vecEmissive.y = g;
+			pMaterial->m_vecEmissive.z = b;
+		}
+		else if (strcmp(pszToken, "-shin") == 0)
+		{
+			float flShininess;
+			sscanf(sLine.c_str(), "-shin %f", &flShininess);
+			pMaterial->m_flShininess = flShininess;
+		}
+		else if (strcmp(pszToken, "-tex") == 0)
+		{
+			const char* pszTexture = sLine.c_str()+5;
+
+			std::string sName = pszTexture;
+			std::vector<std::string> aName;
+			strtok(sName, aName, "\"");	// Strip out the quotation marks.
+
+			char szDirectory[1024];
+			strcpy(szDirectory, pszFilename);
+			GetDirectory(szDirectory);
+			char szTexture[1024];
+			sprintf(szTexture, "%s/%s", szDirectory, aName[0].c_str());
+
+			strcpy(pMaterial->m_szTexture, szTexture);
 		}
 		else if (strcmp(pszToken, "-endMat") == 0)
 		{
@@ -435,6 +586,22 @@ char* CModelConverter::MakeFilename(char* pszPathFilename)
 		pszFile[iLastChar] = '\0';
 
 	return pszFile;
+}
+
+// Destructive
+char* CModelConverter::GetDirectory(char* pszFilename)
+{
+	int iLastSlash = -1;
+	int i = -1;
+
+	while (pszFilename[++i])
+		if (pszFilename[i] == '\\' || pszFilename[i] == '/')
+			iLastSlash = i;
+
+	if (iLastSlash >= 0)
+		pszFilename[iLastSlash] = '\0';
+
+	return pszFilename;
 }
 
 bool CModelConverter::IsWhitespace(char cChar)

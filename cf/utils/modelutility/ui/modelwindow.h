@@ -47,6 +47,8 @@ protected:
 	std::vector<size_t>		m_aiObjects;
 	size_t					m_iObjectsCreated;
 
+	std::vector<size_t>		m_aiMaterials;
+
 	float					m_flCameraDistance;
 
 	bool					m_bCameraRotating;

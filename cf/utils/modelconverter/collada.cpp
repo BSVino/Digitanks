@@ -1,7 +1,16 @@
+#include <assert.h>
+
 #include <FCollada.h>
 #include <FCDocument/FCDocument.h>
 #include <FCDocument/FCDLibrary.h>
 #include <FCDocument/FCDMaterial.h>
+#include <FCDocument/FCDEffect.h>
+#include <FCDocument/FCDEffectProfile.h>
+#include <FCDocument/FCDEffectStandard.h>
+#include <FCDocument/FCDEffectParameter.h>
+#include <FCDocument/FCDEffectParameterSampler.h>
+#include <FCDocument/FCDEffectParameterSurface.h>
+#include <FCDocument/FCDImage.h>
 #include <FCDocument/FCDGeometry.h>
 #include <FCDocument/FCDGeometryMesh.h>
 #include <FCDocument/FCDGeometrySource.h>
@@ -29,8 +38,59 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 		size_t iEntities = pMatLib->GetEntityCount();
 		for (i = 0; i < iEntities; ++i)
 		{
-			FCDMaterial* pMaterial = pMatLib->GetEntity(i);
-			m_Scene.AddMaterial(pMaterial->GetDaeId().c_str());
+			FCDMaterial* pColladaMaterial = pMatLib->GetEntity(i);
+			FCDEffect* pEffect = pColladaMaterial->GetEffect();
+
+			size_t iMaterial = m_Scene.AddMaterial(pColladaMaterial->GetDaeId().c_str());
+			CConversionMaterial* pMaterial = m_Scene.GetMaterial(iMaterial);
+
+			if (pEffect->GetProfileCount() < 1)
+				continue;
+
+			FCDEffectProfile* pEffectProfile = pEffect->GetProfile(0);
+
+			FUDaeProfileType::Type eProfileType = pEffectProfile->GetType();
+			if (eProfileType == FUDaeProfileType::COMMON)
+			{
+				FCDEffectStandard* pStandardProfile = dynamic_cast<FCDEffectStandard*>(pEffectProfile);
+				if (pStandardProfile)
+				{
+					pMaterial->m_vecAmbient = Vector((float*)pStandardProfile->GetAmbientColor());
+					pMaterial->m_vecDiffuse = Vector((float*)pStandardProfile->GetDiffuseColor());
+					pMaterial->m_vecSpecular = Vector((float*)pStandardProfile->GetSpecularColor());
+					pMaterial->m_vecEmissive = Vector((float*)pStandardProfile->GetEmissionColor());
+					pMaterial->m_flShininess = pStandardProfile->GetShininess();
+				}
+			}
+
+			for (size_t j = 0; j < pEffectProfile->GetEffectParameterCount(); j++)
+			{
+				FCDEffectParameter* pEffectParameter = pEffectProfile->GetEffectParameter(j);
+
+				FCDEffectParameter::Type eType = pEffectParameter->GetType();
+
+				if (eType == FCDEffectParameter::SAMPLER)
+				{
+					FCDEffectParameterSampler* pSampler = dynamic_cast<FCDEffectParameterSampler*>(pEffectParameter);
+					if (pSampler)
+					{
+						FCDEffectParameterSurface* pSurface = pSampler->GetSurface();
+						if (pSurface)
+						{
+							if (pSurface->GetImageCount())
+							{
+								// Christ Collada why do you have to make things so damn complicated?
+								FCDImage* pImage = pSurface->GetImage(0);
+
+								const wchar_t* pszFilename = pImage->GetFilename().c_str();
+
+								// I'm sick of these damn string copy functions.
+								wcstombs(pMaterial->m_szTexture, pszFilename, 1024);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		FCDGeometryLibrary* pGeoLib = pDoc->GetGeometryLibrary();
@@ -104,7 +164,7 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 						// All triangles!
 						for (size_t k = 0; k < iPositionCount; k+=3)
 						{
-							size_t iFace = pMesh->AddFace(0);
+							size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
 							pMesh->AddVertexToFace(iFace, pPositions[k+0], pUVs[k+0], pNormals[k+0]);
 							pMesh->AddVertexToFace(iFace, pPositions[k+1], pUVs[k+1], pNormals[k+1]);

@@ -1,10 +1,12 @@
 #include "modelwindow.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <GL/glut.h>
+#include <IL/il.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -77,6 +79,8 @@ CModelWindow::CModelWindow()
 	glLightfv(GL_LIGHT0, GL_SPECULAR, flLightSpecular);
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05);
+
+	ilInit();
 }
 
 void CModelWindow::Run()
@@ -87,8 +91,61 @@ void CModelWindow::Run()
 void CModelWindow::LoadFromScene(CConversionScene* pScene)
 {
 	float flFarthest = 0;
+	size_t i;
 
-	for (size_t i = 0; i < pScene->GetNumMeshes(); i++)
+	for (i = 0; i < pScene->GetNumMaterials(); i++)
+	{
+		CConversionMaterial* pMaterial = pScene->GetMaterial(i);
+
+		ILuint iDevILId;
+		ilGenImages(1, &iDevILId);
+		ilBindImage(iDevILId);
+
+		m_aiMaterials.push_back(0);
+
+		assert(m_aiMaterials.size()-1 == i);
+
+		const char* pszTexture = pMaterial->GetTexture();
+
+		if (!pszTexture || !*pszTexture)
+			continue;
+
+		wchar_t szTexture[1024];
+		mbstowcs(szTexture, pszTexture, 1024);
+
+		ILboolean bSuccess = ilLoadImage(szTexture);
+
+		if (!bSuccess)
+			bSuccess = ilLoadImage(szTexture);
+
+		ILenum iError = ilGetError();
+
+		if (bSuccess)
+		{
+			bSuccess = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+			if (bSuccess)
+			{
+				GLuint iGLId;
+				glGenTextures(1, &iGLId);
+				glBindTexture(GL_TEXTURE_2D, iGLId);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				gluBuild2DMipmaps(GL_TEXTURE_2D,
+					ilGetInteger(IL_IMAGE_BPP),
+					ilGetInteger(IL_IMAGE_WIDTH),
+					ilGetInteger(IL_IMAGE_HEIGHT),
+					ilGetInteger(IL_IMAGE_FORMAT),
+					GL_UNSIGNED_BYTE,
+					ilGetData());
+
+				ilDeleteImages(1, &iDevILId);
+
+				m_aiMaterials[i] = iGLId;
+			}
+		}
+	}
+
+	for (i = 0; i < pScene->GetNumMeshes(); i++)
 	{
 		CConversionMesh* pMesh = pScene->GetMesh(i);
 
@@ -102,6 +159,11 @@ void CModelWindow::LoadFromScene(CConversionScene* pScene)
 			size_t k;
 			CConversionFace* pFace = pMesh->GetFace(j);
 
+			if (pFace->m == ~0)
+				glBindTexture(GL_TEXTURE_2D, 0);
+			else
+				glBindTexture(GL_TEXTURE_2D, (GLuint)m_aiMaterials[pFace->m]);
+
 			glBegin(GL_POLYGON);
 
 			for (k = 0; k < pFace->GetNumVertices(); k++)
@@ -110,9 +172,22 @@ void CModelWindow::LoadFromScene(CConversionScene* pScene)
 
 				Vector vecVertex = pMesh->GetVertex(pVertex->v);
 				Vector vecNormal = pMesh->GetNormal(pVertex->vn);
-				vecNormal.Normalize();
+				Vector vecUV = pMesh->GetUV(pVertex->vt);
 
-				glTexCoord2fv(pMesh->GetUV(pVertex->vt));
+				// Why? I dunno.
+				vecUV.y = -vecUV.y;
+
+				if (pFace->m != ~0 && pScene->GetMaterial(pFace->m))
+				{
+					CConversionMaterial* pMaterial = pScene->GetMaterial(pFace->m);
+					glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
+					glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
+					glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
+					glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
+					glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
+				}
+
+				glTexCoord2fv(vecUV);
 				glNormal3fv(vecNormal);
 				glVertex3fv(vecVertex);
 
@@ -121,12 +196,34 @@ void CModelWindow::LoadFromScene(CConversionScene* pScene)
 			}
 
 			glEnd();
+
+#if 0
+			for (k = 0; k < pFace->GetNumVertices(); k++)
+			{
+				CConversionVertex* pVertex = pFace->GetVertex(k);
+
+				glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+				glBegin(GL_LINES);
+
+				glColor3f(0.8f, 0.8f, 0.8f);
+
+				Vector vecVertex = pMesh->GetVertex(pVertex->v);
+				Vector vecNormal = pMesh->GetNormal(pVertex->vn);
+
+				glVertex3fv(vecVertex);
+				glVertex3fv(vecVertex + vecNormal);
+
+				glEnd();
+			}
+#endif
 		}
 
 		glEndList();
 	}
 
 	m_flCameraDistance = sqrt(flFarthest);
+	if (m_flCameraDistance < 100)
+		m_flCameraDistance = 100;
 
 	gluLookAt(0.0, 0.0, m_flCameraDistance,
 		0.0, 0.0, 0.0,
@@ -148,6 +245,7 @@ void CModelWindow::Render()
 
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
 
 	glBegin(GL_QUADS);
 		glColor3f(0.6,0.6,0.6);
@@ -203,21 +301,44 @@ void CModelWindow::RenderGround(void)
 
 		for (int j = 0; j <= 20; j++)
 		{
-			if (j == 0 || j == 20 || j == 10)
-				glColor3f(0.6, 0.6, 0.6);
-			else
-				glColor3f(0.5, 0.5, 0.5);
+			GLfloat aflBorderLineBright[3] = { 0.7f, 0.7f, 0.7f };
+			GLfloat aflBorderLineDarker[3] = { 0.6f, 0.6f, 0.6f };
+			GLfloat aflInsideLineBright[3] = { 0.5f, 0.5f, 0.5f };
+			GLfloat aflInsideLineDarker[3] = { 0.4f, 0.4f, 0.4f };
+
 
 			glBegin(GL_LINES);
 
+				if (j == 0 || j == 20 || j == 10)
+					glColor3fv(aflBorderLineBright);
+				else
+					glColor3fv(aflInsideLineBright);
+
 				glVertex3fv(vecStartX);
+
+				if (j == 0 || j == 20 || j == 10)
+					glColor3fv(aflBorderLineDarker);
+				else
+					glColor3fv(aflInsideLineDarker);
+
 				glVertex3fv(vecEndX);
 
 			glEnd();
 
 			glBegin(GL_LINES);
 
+				if (j == 0 || j == 20 || j == 10)
+					glColor3fv(aflBorderLineBright);
+				else
+					glColor3fv(aflInsideLineBright);
+
 				glVertex3fv(vecStartZ);
+
+				if (j == 0 || j == 20 || j == 10)
+					glColor3fv(aflBorderLineDarker);
+				else
+					glColor3fv(aflInsideLineDarker);
+
 				glVertex3fv(vecEndZ);
 
 			glEnd();
@@ -244,6 +365,8 @@ void CModelWindow::RenderLightSource()
 	// Tell GL new light source position.
     glLightfv(GL_LIGHT0, GL_POSITION, flLightPosition);
 
+	float flScale = m_flCameraDistance/60;
+
 	glPushMatrix();
 		glDisable(GL_LIGHTING);
 		glColor3f(1.0, 1.0, 0.0);
@@ -253,6 +376,7 @@ void CModelWindow::RenderLightSource()
 		glTranslatef(flLightPosition[0], flLightPosition[1], flLightPosition[2]);
 		glRotatef(-m_flLightYaw, 0, 1, 0);
 		glRotatef(m_flLightPitch, 0, 0, 1);
+		glScalef(flScale, flScale, flScale);
 		glBegin(GL_TRIANGLE_FAN);
 			glVertex3f(0, 0, 0);
 			glVertex3f(2, 1, 1);
@@ -276,9 +400,11 @@ void CModelWindow::RenderObjects()
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_CULL_FACE);
-	glDisable(GL_COLOR_MATERIAL);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_SMOOTH);
 
+	// It uses this color if the texture is missing.
 	GLfloat flMaterialColor[] = {0.7, 0.7, 0.7, 1.0};
 
 	for (size_t i = 0; i < m_aiObjects.size(); i++)
@@ -299,7 +425,7 @@ void CModelWindow::WindowResize(int w, int h)
 	gluPerspective(
 			44.0,						// FOV
 			(float)w/(float)h,			// Aspect ratio
-			10.0,						// Z near
+			1.0,						// Z near
 			10000.0						// Z far
 		);
 	glMatrixMode(GL_MODELVIEW);

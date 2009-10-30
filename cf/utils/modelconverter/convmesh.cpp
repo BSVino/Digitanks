@@ -123,6 +123,12 @@ size_t CConversionScene::AddMaterial(const char* pszName)
 	return m_aMaterials.size()-1;
 }
 
+size_t CConversionScene::AddMaterial(CConversionMaterial& oMaterial)
+{
+	m_aMaterials.push_back(oMaterial);
+	return m_aMaterials.size()-1;
+}
+
 size_t CConversionScene::FindMaterial(const char* pszName)
 {
 	for (size_t i = 0; i < m_aMaterials.size(); i++)
@@ -295,9 +301,19 @@ CConversionBone::CConversionBone(const char* pszName)
 	strcpy(m_szName, pszName);
 }
 
-CConversionMaterial::CConversionMaterial(const char* pszName)
+CConversionMaterial::CConversionMaterial(const char* pszName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
 {
 	strcpy(m_szName, pszName);
+
+	m_vecAmbient = vecAmbient;
+	m_vecDiffuse = vecDiffuse;
+	m_vecSpecular = vecSpecular;
+	m_vecEmissive = vecEmissive;
+	m_flTransparency = flTransparency;
+	m_flShininess = flShininess;
+	m_eIllumType = ILLUM_FULL;
+
+	m_szTexture[0] = '\0';
 }
 
 CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, size_t M)

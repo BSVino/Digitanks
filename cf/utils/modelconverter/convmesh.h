@@ -65,14 +65,38 @@ public:
 	char							m_szName[1024];
 };
 
+typedef enum
+{
+	ILLUM_NONE,
+	ILLUM_NOSPEC,
+	ILLUM_FULL
+} IllumType_t;
+
 class CConversionMaterial
 {
 public:
-									CConversionMaterial(const char* pszName);
+									CConversionMaterial(const char* pszName,
+										Vector vecAmbient = Vector(0.2f, 0.2f, 0.2f),
+										Vector vecDiffuse = Vector(0.8f, 0.8f, 0.8f),
+										Vector vecSpecular = Vector(1.0f, 1.0f, 1.0f),
+										Vector vecEmissive = Vector(0.0f, 0.0f, 0.0f),
+										float flTransparency = 1.0f,
+										float flShininess = 0);
 
 	char*							GetName() { return m_szName; }
+	char*							GetTexture() { return m_szTexture; }
 
 	char							m_szName[1024];
+
+	Vector							m_vecAmbient;
+	Vector							m_vecDiffuse;
+	Vector							m_vecSpecular;
+	Vector							m_vecEmissive;
+	float							m_flTransparency;
+	float							m_flShininess;
+	IllumType_t						m_eIllumType;
+
+	char							m_szTexture[1024];
 };
 
 class CConversionMesh
@@ -135,6 +159,7 @@ class CConversionScene
 {
 public:
 	size_t								AddMaterial(const char* pszName);
+	size_t								AddMaterial(CConversionMaterial& oMaterial);
 	size_t								GetNumMaterials() { return m_aMaterials.size(); };
 	size_t								FindMaterial(const char* pszName);
 	CConversionMaterial*				GetMaterial(size_t i) { if (i >= m_aMaterials.size()) return NULL; return &m_aMaterials[i]; };
