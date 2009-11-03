@@ -193,13 +193,22 @@ void CModelConverter::ReadMTL(const char* pszFilename)
 		{
 			pszToken = strtok(NULL, " ");
 
-			char szDirectory[1024];
-			strcpy(szDirectory, pszFilename);
-			GetDirectory(szDirectory);
-			char szTexture[1024];
-			sprintf(szTexture, "%s/%s", szDirectory, pszToken);
+			if (FILE* fpTest = fopen(pszToken, "r"))
+			{
+				fclose(fpTest);
 
-			strcpy(pMaterial->m_szTexture, szTexture);
+				strcpy(pMaterial->m_szTexture, pszToken);
+			}
+			else
+			{
+				char szDirectory[1024];
+				strcpy(szDirectory, pszFilename);
+				GetDirectory(szDirectory);
+				char szTexture[1024];
+				sprintf(szTexture, "%s/%s", szDirectory, pszToken);
+
+				strcpy(pMaterial->m_szTexture, szTexture);
+			}
 		}
 	}
 

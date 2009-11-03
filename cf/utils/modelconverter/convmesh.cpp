@@ -117,6 +117,12 @@ void CConversionMesh::TranslateOrigin()
 	m_vecOrigin = Vector(0,0,0);
 }
 
+void CConversionScene::DestroyAll()
+{
+	m_aMaterials.clear();
+	m_aMeshes.clear();
+}
+
 size_t CConversionScene::AddMaterial(const char* pszName)
 {
 	m_aMaterials.push_back(CConversionMaterial(pszName));

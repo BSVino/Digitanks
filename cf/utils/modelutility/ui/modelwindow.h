@@ -10,7 +10,9 @@ public:
 
 	void					Run();	// Doesn't return
 
+	void					DestroyAll();
 	void					ReadFile(const char* pszFile);
+	void					ReloadFromFile();
 
 	void					LoadIntoGL();
 
@@ -45,8 +47,12 @@ public:
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
+	void					ClearDebugLines();
+	void					AddDebugLine(Vector vecStart, Vector vecEnd);
+
 protected:
 	CConversionScene		m_Scene;
+	char					m_szFileLoaded[1024];
 
 	std::vector<size_t>		m_aiObjects;
 	size_t					m_iObjectsCreated;
@@ -67,6 +73,11 @@ protected:
 
 	float					m_flLightYaw;
 	float					m_flLightPitch;
+
+	size_t					m_iWindowWidth;
+	size_t					m_iWindowHeight;
+
+	std::vector<Vector>		m_avecDebugLines;
 
 	static CModelWindow*	s_pModelWindow;
 };

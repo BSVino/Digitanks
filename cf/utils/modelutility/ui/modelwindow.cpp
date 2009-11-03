@@ -10,6 +10,8 @@
 
 #include <modelconverter/modelconverter.h>
 
+#include "../crunch.h"
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
@@ -48,8 +50,11 @@ CModelWindow::CModelWindow()
 
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL | GLUT_MULTISAMPLE);
 
+	m_iWindowWidth = iScreenWidth*2/3;
+	m_iWindowHeight = iScreenHeight*2/3;
+
 	glutInitWindowPosition(iScreenWidth/6, iScreenHeight/6);
-	glutInitWindowSize(iScreenWidth*2/3, iScreenHeight*2/3);
+	glutInitWindowSize((int)m_iWindowWidth, (int)m_iWindowHeight);
 
 	glutCreateWindow("Model Utility");
 
@@ -90,9 +95,21 @@ void CModelWindow::Run()
 	glutMainLoop();
 }
 
+void CModelWindow::DestroyAll()
+{
+	m_Scene.DestroyAll();
+
+	m_szFileLoaded[0] = '\0';
+
+	m_aiObjects.clear();
+	m_iObjectsCreated = 0;
+	m_aiMaterials.clear();
+}
 
 void CModelWindow::ReadFile(const char* pszFile)
 {
+	DestroyAll();
+
 	size_t iFileLength = strlen(pszFile);
 	const char* pszExtension = pszFile+iFileLength-4;
 
@@ -105,7 +122,14 @@ void CModelWindow::ReadFile(const char* pszFile)
 	else if (strcmp(pszExtension, ".dae") == 0)
 		c.ReadDAE(pszFile);
 
+	strcpy(m_szFileLoaded, pszFile);
+
 	LoadIntoGL();
+}
+
+void CModelWindow::ReloadFromFile()
+{
+	ReadFile(m_szFileLoaded);
 }
 
 void CModelWindow::LoadIntoGL()
@@ -236,6 +260,33 @@ void CModelWindow::LoadIntoGL()
 				glEnd();
 			}
 #endif
+
+#if 0
+			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+			glBegin(GL_LINES);
+				glColor3f(0.8f, 0.8f, 0.8f);
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
+
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(2)->v));
+
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(2)->v));
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
+			glEnd();
+			for (k = 0; k < pFace->GetNumVertices()-2; k++)
+			{
+				glBegin(GL_LINES);
+					glColor3f(0.8f, 0.8f, 0.8f);
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+1)->v));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+2)->v));
+
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+2)->v));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
+				glEnd();
+			}
+#endif
+
 		}
 
 		glEndList();
@@ -252,6 +303,9 @@ void CModelWindow::LoadIntoGL()
 
 void CModelWindow::Render()
 {
+	glDrawBuffer(GL_BACK);
+	glViewport(0, 0, (GLsizei)m_iWindowWidth, (GLsizei)m_iWindowHeight);
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// First draw a nice faded gray background.
@@ -283,11 +337,19 @@ void CModelWindow::Render()
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
+	glLoadIdentity();
+	gluPerspective(
+			44.0,
+			(float)glutGet(GLUT_SCREEN_WIDTH)/(float)glutGet(GLUT_SCREEN_HEIGHT),
+			1,
+			10000.0
+		);
+
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
 	glPushMatrix();
- 
+
 	gluLookAt(0.0, 0.0, m_flCameraDistance,
 		0.0, 0.0, 0.0,
 		0.0, 1.0, 0.0);
@@ -300,6 +362,22 @@ void CModelWindow::Render()
     RenderGround();
 
 	RenderObjects();
+
+	if (m_avecDebugLines.size())
+	{
+		glPointSize(3);
+		glDisable(GL_COLOR_MATERIAL);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+			glColor3f(1, 1, 1);
+			for (size_t i = 0; i < m_avecDebugLines.size(); i+=2)
+			{
+				glVertex3fv(m_avecDebugLines[i]);
+				glVertex3fv(m_avecDebugLines[i+1]);
+			}
+		glEnd();
+	}
 
 	glPopMatrix();
 
@@ -417,7 +495,6 @@ void CModelWindow::RenderLightSource()
 
 void CModelWindow::RenderObjects()
 {
-	glEnable(GL_NORMALIZE);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
@@ -439,6 +516,9 @@ void CModelWindow::RenderObjects()
 
 void CModelWindow::WindowResize(int w, int h)
 {
+	m_iWindowWidth = w;
+	m_iWindowHeight = h;
+
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
@@ -545,6 +625,18 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 27)
 		exit(0);
 
+	if (c == 'a')
+	{
+		CAOGenerator ao(&m_Scene, &m_aiMaterials);
+		ao.SetSize(128, 128);
+		ao.SetUseTexture(true);
+		ao.Generate();
+		ao.SaveToFile("ao.bmp");
+	}
+
+	if (c == 'r' && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
+		ReloadFromFile();
+
 	glutPostRedisplay();
 }
 
@@ -553,6 +645,9 @@ void CModelWindow::Special(int k, int x, int y)
 	if (k == GLUT_KEY_F4 && (glutGetModifiers()&GLUT_ACTIVE_ALT))
 		exit(0);
 
+	if (k == GLUT_KEY_F5)
+		ReloadFromFile();
+
 	glutPostRedisplay();
 }
 
@@ -560,3 +655,14 @@ size_t CModelWindow::GetNextObjectId()
 {
 	return (m_iObjectsCreated++)+1;
 }
+
+void CModelWindow::ClearDebugLines()
+{
+	m_avecDebugLines.clear();
+};
+
+void CModelWindow::AddDebugLine(Vector vecStart, Vector vecEnd)
+{
+	m_avecDebugLines.push_back(vecStart);
+	m_avecDebugLines.push_back(vecEnd);
+};

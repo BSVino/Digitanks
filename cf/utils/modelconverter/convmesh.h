@@ -158,7 +158,7 @@ public:
 class CConversionScene
 {
 public:
-	void								LoadFromScene(CConversionScene* pScene);
+	void								DestroyAll();
 
 	size_t								AddMaterial(const char* pszName);
 	size_t								AddMaterial(CConversionMaterial& oMaterial);

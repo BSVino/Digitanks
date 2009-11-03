@@ -30,6 +30,7 @@ public:
 	void	Normalize();
 	Vector	Normalized();
 
+	float	Dot(const Vector& v) const;
 	Vector	Cross(const Vector& v) const;
 
 	operator float*()
@@ -94,6 +95,13 @@ inline void Vector::operator-=(const Vector& v)
 	z -= v.z;
 }
 
+inline void Vector::operator*=(float s)
+{
+	x *= s;
+	y *= s;
+	z *= s;
+}
+
 inline void Vector::operator/=(float s)
 {
 	x /= s;
@@ -127,6 +135,11 @@ inline Vector Vector::Normalized()
 		return Vector(0,0,1);
 	else
 		return *this/Length();
+}
+
+inline float Vector::Dot(const Vector& v) const
+{
+	return x*v.x + y*v.y + z*v.z;
 }
 
 inline Vector Vector::Cross(const Vector& v) const
