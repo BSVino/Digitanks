@@ -388,7 +388,7 @@ void CModelWindow::Render()
 	glLoadIdentity();
 	gluPerspective(
 			44.0,
-			(float)glutGet(GLUT_SCREEN_WIDTH)/(float)glutGet(GLUT_SCREEN_HEIGHT),
+			(float)m_iWindowWidth/(float)m_iWindowHeight,
 			1,
 			10000.0
 		);
@@ -586,6 +586,8 @@ void CModelWindow::WindowResize(int w, int h)
 		);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	Render();
 }
 
 void CModelWindow::Idle(void)
