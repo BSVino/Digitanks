@@ -684,7 +684,7 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 'a')
 	{
 		CAOGenerator ao(&m_Scene, &m_aoMaterials);
-		ao.SetSize(64, 64);
+		ao.SetSize(128, 128);
 		ao.SetUseTexture(true);
 		ao.Generate();
 		ao.SaveToFile("ao.bmp");

@@ -14,13 +14,17 @@ public:
 
 	void					SetSize(size_t iWidth, size_t iHeight);
 	void					SetUseTexture(bool bUseTexture) { m_bUseTexture = bUseTexture; };
+	void					SetBleed(size_t iBleed) { m_iBleed = iBleed; };
 
 	void					Generate();
 	Vector					RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pFace);
 	void					DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace);
+	void					Bleed();
 
 	size_t					GenerateTexture();
 	void					SaveToFile(const char* pszFilename);
+
+	bool					Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask = true);
 
 protected:
 	CConversionScene*		m_pScene;
@@ -29,10 +33,12 @@ protected:
 	size_t					m_iWidth;
 	size_t					m_iHeight;
 	bool					m_bUseTexture;
+	size_t					m_iBleed;
 
 	size_t					m_iViewportSize;
 	size_t					m_iPixelDepth;
 	GLfloat*				m_pPixels;
+	bool*					m_bPixelMask;
 
 	GLuint					m_iSceneList;
 

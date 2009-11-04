@@ -1,5 +1,6 @@
 #include "crunch.h"
 
+#include <assert.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 
@@ -27,17 +28,20 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	// Default options
 	SetSize(512, 512);
 	m_bUseTexture = true;
+	m_iBleed = 5;
 
 	// Pixel reading buffer
 	m_iViewportSize = 100;
 	m_iPixelDepth = 3;
 	size_t iBufferSize = m_iViewportSize*m_iViewportSize*sizeof(GLfloat)*m_iPixelDepth;
 	m_pPixels = (GLfloat*)malloc(iBufferSize);
+	m_bPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
 }
 
 CAOGenerator::~CAOGenerator()
 {
 	free(m_pPixels);
+	free(m_bPixelMask);
 	delete[] m_avecShadowValues;
 	delete[] m_aiShadowReads;
 }
@@ -72,6 +76,8 @@ void CAOGenerator::Generate()
 	float flPointInTriangleTime = 0;
 	float flMatrixMathTime = 0;
 	float flRenderingTime = 0;
+
+	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
 
 	// Tuck away our current stack so we can return to it later.
 	glMatrixMode(GL_PROJECTION);
@@ -278,8 +284,11 @@ void CAOGenerator::Generate()
 
 						flTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 						// Render the scene from this location
-						m_avecShadowValues[m_iHeight*(m_iHeight-j) + i] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
-						m_aiShadowReads[m_iHeight*(m_iHeight-j) + i]++;
+						size_t iTexel;
+						Texel(i, j, iTexel, false);
+						m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
+						m_aiShadowReads[iTexel]++;
+						m_bPixelMask[iTexel] = true;
 						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - flTimeBefore);
 					}
 				}
@@ -304,6 +313,8 @@ void CAOGenerator::Generate()
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	Bleed();
 }
 
 Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
@@ -467,6 +478,93 @@ void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vec
 #endif
 }
 
+void CAOGenerator::Bleed()
+{
+	bool* abPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
+
+	for (size_t i = 0; i < m_iBleed; i++)
+	{
+		// This is for pixels that have been set this frame.
+		memset(&abPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
+
+		for (size_t w = 0; w < m_iWidth; w++)
+		{
+			for (size_t h = 0; h < m_iHeight; h++)
+			{
+				Vector vecTotal(0,0,0);
+				size_t iTotal = 0;
+				size_t iTexel;
+
+				// If the texel has the mask on then it already has a value so skip it.
+				if (Texel(w, h, iTexel, true))
+					continue;
+
+				if (Texel(w-1, h-1, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w-1, h, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w-1, h+1, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w, h+1, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w+1, h+1, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w+1, h, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w+1, h-1, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				if (Texel(w, h-1, iTexel))
+				{
+					vecTotal += m_avecShadowValues[iTexel];
+					iTotal++;
+				}
+
+				Texel(w, h, iTexel, false);
+
+				if (iTotal)
+				{
+					vecTotal /= iTotal;
+					m_avecShadowValues[iTexel] = vecTotal;
+					abPixelMask[iTexel] = true;
+				}
+			}
+		}
+
+		for (size_t p = 0; p < m_iWidth*m_iHeight; p++)
+			m_bPixelMask[p] |= abPixelMask[p];
+	}
+
+	free(abPixelMask);
+}
+
 size_t CAOGenerator::GenerateTexture()
 {
 	GLuint iGLId;
@@ -500,4 +598,19 @@ void CAOGenerator::SaveToFile(const char *pszFilename)
 	ilSaveImage(szFilename);
 
 	ilDeleteImages(1,&iDevILId);
+}
+
+bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
+{
+	if (w < 0 || h < 0 || w >= m_iWidth || h >= m_iHeight)
+		return false;
+
+	iTexel = m_iHeight*(m_iHeight-h-1) + w;
+
+	assert(iTexel >= 0 && iTexel < m_iWidth * m_iHeight);
+
+	if (bUseMask && !m_bPixelMask[iTexel])
+		return false;
+
+	return true;
 }
