@@ -1,22 +1,25 @@
 #include "crunch.h"
 
 #include <IL/il.h>
+#include <IL/ilu.h>
 
 #include <geometry.h>
 #include <maths.h>
 
+#if 0
 #ifdef _DEBUG
 #define AO_DEBUG
+#endif
 #endif
 
 #ifdef AO_DEBUG
 #include "ui/modelwindow.h"
 #endif
 
-CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<size_t>* paiMaterials)
+CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
 	m_pScene = pScene;
-	m_paiMaterials = paiMaterials;
+	m_paoMaterials = paoMaterials;
 
 	m_avecShadowValues = NULL;
 	m_aiShadowReads = NULL;
@@ -70,13 +73,22 @@ void CAOGenerator::Generate()
 	float flMatrixMathTime = 0;
 	float flRenderingTime = 0;
 
+	// Tuck away our current stack so we can return to it later.
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
 	// Background represents light, so it's white.
 	glClearColor(1, 1, 1, 1);
 
 	size_t m;
 
 	// Create a list with the required polys so it draws quicker.
-	m_iSceneList = glGenLists((GLsizei)m_paiMaterials->size()+1);
+	m_iSceneList = glGenLists((GLsizei)m_paoMaterials->size()+1);
 
 	glNewList(m_iSceneList, GL_COMPILE);
 	// Draw the back faces separately so they can be batched.
@@ -105,7 +117,7 @@ void CAOGenerator::Generate()
 	{
 		glNewList(m_iSceneList+m+1, GL_COMPILE);
 
-		glBindTexture(GL_TEXTURE_2D, (GLuint)(*m_paiMaterials)[m]);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)(*m_paoMaterials)[m].m_iBase);
 		glColor3f(1, 1, 1);
 
 		for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
@@ -266,8 +278,8 @@ void CAOGenerator::Generate()
 
 						flTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 						// Render the scene from this location
-						m_avecShadowValues[m_iWidth*i + j] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
-						m_aiShadowReads[m_iWidth*i + j]++;
+						m_avecShadowValues[m_iHeight*(m_iHeight-j) + i] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
+						m_aiShadowReads[m_iHeight*(m_iHeight-j) + i]++;
 						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - flTimeBefore);
 					}
 				}
@@ -284,7 +296,14 @@ void CAOGenerator::Generate()
 			m_avecShadowValues[i] = Vector(0,0,0);
 	}
 
-	glDeleteLists(m_iSceneList, (GLsizei)m_paiMaterials->size()+1);
+	glDeleteLists(m_iSceneList, (GLsizei)m_paoMaterials->size()+1);
+
+	// We now return you to our normal render programming. Thank you for your patronage.
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 
 Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
@@ -337,7 +356,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 	// Draw the dark insides
 	glCallList(m_iSceneList);
 
-	for (size_t i = 0; i < m_paiMaterials->size(); i++)
+	for (size_t i = 0; i < m_paoMaterials->size(); i++)
 		glCallList(m_iSceneList+i+1);
 
 #ifdef AO_DEBUG
@@ -420,7 +439,7 @@ void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vec
 
 	//glCallList(m_iSceneList);
 
-	for (size_t i = 0; i < m_paiMaterials->size(); i++)
+	for (size_t i = 0; i < m_paoMaterials->size(); i++)
 		glCallList(m_iSceneList+i+1);
 
 	glEnable(GL_BLEND);
@@ -448,6 +467,18 @@ void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vec
 #endif
 }
 
+size_t CAOGenerator::GenerateTexture()
+{
+	GLuint iGLId;
+	glGenTextures(1, &iGLId);
+	glBindTexture(GL_TEXTURE_2D, iGLId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iWidth, (GLint)m_iHeight, GL_RGB, GL_FLOAT, &m_avecShadowValues[0].x);
+
+	return iGLId;
+}
+
 void CAOGenerator::SaveToFile(const char *pszFilename)
 {
 	ilEnable(IL_FILE_OVERWRITE);
@@ -460,6 +491,9 @@ void CAOGenerator::SaveToFile(const char *pszFilename)
 	ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, NULL);
 
 	ilSetData(&m_avecShadowValues[0].x);
+
+	// I'm glad this flips X and not Y, or it'd be pretty useless to me.
+	iluFlipImage();
 
 	wchar_t szFilename[1024];
 	mbstowcs(szFilename, pszFilename, 1024);

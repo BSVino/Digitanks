@@ -3,6 +3,19 @@
 
 #include <modelconverter/convmesh.h>
 
+class CMaterial
+{
+public:
+	CMaterial(size_t iBase)
+	{
+		m_iBase = iBase;
+		m_iAO = 0;
+	}
+
+	size_t		m_iBase;
+	size_t		m_iAO;
+};
+
 class CModelWindow
 {
 public:
@@ -15,6 +28,8 @@ public:
 	void					ReloadFromFile();
 
 	void					LoadIntoGL();
+	void					LoadTexturesIntoGL();
+	void					CreateGLLists();
 
 	static void				RenderCallback() { Get()->Render(); };
 	void					Render();
@@ -57,7 +72,7 @@ protected:
 	std::vector<size_t>		m_aiObjects;
 	size_t					m_iObjectsCreated;
 
-	std::vector<size_t>		m_aiMaterials;
+	std::vector<CMaterial>	m_aoMaterials;
 
 	float					m_flCameraDistance;
 

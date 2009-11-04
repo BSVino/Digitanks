@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <IL/il.h>
 
@@ -58,6 +59,10 @@ CModelWindow::CModelWindow()
 
 	glutCreateWindow("Model Utility");
 
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+		exit(0);
+
 	glutDisplayFunc(&CModelWindow::RenderCallback);
 	glutIdleFunc(&CModelWindow::IdleCallback);
 	glutMotionFunc(&CModelWindow::MouseMotionCallback);
@@ -103,7 +108,7 @@ void CModelWindow::DestroyAll()
 
 	m_aiObjects.clear();
 	m_iObjectsCreated = 0;
-	m_aiMaterials.clear();
+	m_aoMaterials.clear();
 }
 
 void CModelWindow::ReadFile(const char* pszFile)
@@ -134,10 +139,13 @@ void CModelWindow::ReloadFromFile()
 
 void CModelWindow::LoadIntoGL()
 {
-	float flFarthest = 0;
-	size_t i;
+	LoadTexturesIntoGL();
+	CreateGLLists();
+}
 
-	for (i = 0; i < m_Scene.GetNumMaterials(); i++)
+void CModelWindow::LoadTexturesIntoGL()
+{
+	for (size_t i = 0; i < m_Scene.GetNumMaterials(); i++)
 	{
 		CConversionMaterial* pMaterial = m_Scene.GetMaterial(i);
 
@@ -145,9 +153,9 @@ void CModelWindow::LoadIntoGL()
 		ilGenImages(1, &iDevILId);
 		ilBindImage(iDevILId);
 
-		m_aiMaterials.push_back(0);
+		m_aoMaterials.push_back(CMaterial(0));
 
-		assert(m_aiMaterials.size()-1 == i);
+		assert(m_aoMaterials.size()-1 == i);
 
 		const char* pszTexture = pMaterial->GetTexture();
 
@@ -184,19 +192,36 @@ void CModelWindow::LoadIntoGL()
 
 				ilDeleteImages(1, &iDevILId);
 
-				m_aiMaterials[i] = iGLId;
+				m_aoMaterials[i].m_iBase = iGLId;
 			}
 		}
 	}
+}
 
-	for (i = 0; i < m_Scene.GetNumMeshes(); i++)
+void CModelWindow::CreateGLLists()
+{
+	float flFarthest = 0;
+
+	for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
 	{
 		CConversionMesh* pMesh = m_Scene.GetMesh(i);
 
-		GLuint iObject = (GLuint)GetNextObjectId();
-		m_aiObjects.push_back((size_t)iObject);
+		GLuint iObject;
+
+		if (i < m_aiObjects.size())
+		{
+			iObject = (GLuint)m_aiObjects[i];
+			glDeleteLists(iObject, 1);
+		}
+		else
+		{
+			iObject = (GLuint)GetNextObjectId();
+			m_aiObjects.push_back((size_t)iObject);
+		}
 
 		glNewList(iObject, GL_COMPILE);
+
+		bool bMultiTexture = false;
 
 		for (size_t j = 0; j < pMesh->GetNumFaces(); j++)
 		{
@@ -206,7 +231,27 @@ void CModelWindow::LoadIntoGL()
 			if (pFace->m == ~0)
 				glBindTexture(GL_TEXTURE_2D, 0);
 			else
-				glBindTexture(GL_TEXTURE_2D, (GLuint)m_aiMaterials[pFace->m]);
+			{
+				CMaterial* pMaterial = &m_aoMaterials[pFace->m];
+
+				if (GLEW_VERSION_1_3 && pMaterial->m_iAO)
+				{
+					bMultiTexture = true;
+
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+					glEnable(GL_TEXTURE_2D);
+
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
+					glEnable(GL_TEXTURE_2D);
+				}
+				else
+				{
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+				}
+			}
 
 			glBegin(GL_POLYGON);
 
@@ -231,7 +276,14 @@ void CModelWindow::LoadIntoGL()
 					glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
 				}
 
-				glTexCoord2fv(vecUV);
+				if (bMultiTexture)
+				{
+					glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+					glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+				}
+				else
+					glTexCoord2fv(vecUV);
+
 				glNormal3fv(vecNormal);
 				glVertex3fv(vecVertex);
 
@@ -295,10 +347,6 @@ void CModelWindow::LoadIntoGL()
 	m_flCameraDistance = sqrt(flFarthest);
 	if (m_flCameraDistance < 100)
 		m_flCameraDistance = 100;
-
-	gluLookAt(0.0, 0.0, m_flCameraDistance,
-		0.0, 0.0, 0.0,
-		0.0, 1.0, 0.0);
 }
 
 void CModelWindow::Render()
@@ -512,6 +560,14 @@ void CModelWindow::RenderObjects()
 		glCallList((GLuint)m_aiObjects[i]);
 		glPopMatrix();
 	}
+
+	if (GLEW_VERSION_1_3)
+	{
+		// Disable the multi-texture stuff now that object drawing is done.
+		glActiveTexture(GL_TEXTURE1);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+	}
 }
 
 void CModelWindow::WindowResize(int w, int h)
@@ -627,11 +683,20 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (c == 'a')
 	{
-		CAOGenerator ao(&m_Scene, &m_aiMaterials);
-		ao.SetSize(128, 128);
+		CAOGenerator ao(&m_Scene, &m_aoMaterials);
+		ao.SetSize(64, 64);
 		ao.SetUseTexture(true);
 		ao.Generate();
 		ao.SaveToFile("ao.bmp");
+
+		size_t iAO = ao.GenerateTexture();
+		for (size_t i = 0; i < m_aoMaterials.size(); i++)
+		{
+			if (m_aoMaterials[0].m_iAO)
+				glDeleteTextures(1, &m_aoMaterials[0].m_iAO);
+			m_aoMaterials[0].m_iAO = iAO;
+		}
+		CreateGLLists();
 	}
 
 	if (c == 'r' && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
