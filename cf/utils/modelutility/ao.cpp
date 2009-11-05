@@ -198,10 +198,10 @@ void CAOGenerator::Generate()
 				if (vt3.y > vecHiUV.y)
 					vecHiUV.y = vt3.y;
 
-				size_t iLoX = vecLoUV.x * m_iWidth;
-				size_t iLoY = vecLoUV.y * m_iHeight;
-				size_t iHiX = vecHiUV.x * m_iWidth;
-				size_t iHiY = vecHiUV.y * m_iHeight;
+				size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
+				size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
+				size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
+				size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
 
 				for (size_t i = iLoX; i <= iHiX; i++)
 				{
@@ -210,14 +210,14 @@ void CAOGenerator::Generate()
 						float flU = (float)i/(float)m_iWidth;
 						float flV = (float)j/(float)m_iHeight;
 
-						float flTimeBefore = glutGet(GLUT_ELAPSED_TIME);
+						int iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 						bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
-						flPointInTriangleTime += (glutGet(GLUT_ELAPSED_TIME) - flTimeBefore);
+						flPointInTriangleTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 						if (!bInside)
 							continue;
 
-						flTimeBefore = glutGet(GLUT_ELAPSED_TIME);
+						iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 
 						Vector v1 = pMesh->GetVertex(pV1->v);
 						Vector v2 = pMesh->GetVertex(pV2->v);
@@ -280,16 +280,16 @@ void CAOGenerator::Generate()
 						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
 #endif
 
-						flMatrixMathTime += (glutGet(GLUT_ELAPSED_TIME) - flTimeBefore);
+						flMatrixMathTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
-						flTimeBefore = glutGet(GLUT_ELAPSED_TIME);
+						iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 						// Render the scene from this location
 						size_t iTexel;
 						Texel(i, j, iTexel, false);
 						m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
 						m_aiShadowReads[iTexel]++;
 						m_bPixelMask[iTexel] = true;
-						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - flTimeBefore);
+						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 					}
 				}
 			}
@@ -300,7 +300,7 @@ void CAOGenerator::Generate()
 	for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
 	{
 		if (m_aiShadowReads[i])
-			m_avecShadowValues[i] /= m_aiShadowReads[i];
+			m_avecShadowValues[i] /= (float)m_aiShadowReads[i];
 		else
 			m_avecShadowValues[i] = Vector(0,0,0);
 	}
@@ -333,7 +333,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 
 	// Bring it away from its poly so that the camera never clips around behind it.
 	// Adds .001 because of a bug where GL for some reason won't show the back faces unless I do that.
-	Vector vecEye = vecPosition + (vecDirection + Vector(.001, .001, .001)) * 0.1f;
+	Vector vecEye = vecPosition + (vecDirection + Vector(.001f, .001f, .001f)) * 0.1f;
 	Vector vecLookAt = vecPosition + vecDirection;
 
 	glViewport(0, 0, (GLsizei)m_iViewportSize, (GLsizei)m_iViewportSize);
@@ -386,7 +386,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 
 	for (size_t p = 0; p < m_iViewportSize*m_iViewportSize*m_iPixelDepth; p+=m_iPixelDepth)
 	{
-		float flColumn = fmod((float)p / (float)m_iPixelDepth, m_iViewportSize);
+		float flColumn = fmod((float)p / (float)m_iPixelDepth, (float)m_iViewportSize);
 
 		Vector vecUV(flColumn / m_iViewportSize, (float)(p / m_iPixelDepth / m_iViewportSize) / m_iViewportSize, 0);
 		Vector vecUVCenter(0.5f, 0.5f, 0);
@@ -394,7 +394,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 		// Weight the pixel based on its distance to the center.
 		// With the huge FOV that we work with, polygons to the
 		// outside are huge on the screen.
-		float flWeight = (0.5-(vecUV - vecUVCenter).Length())*2;
+		float flWeight = (0.5f-(vecUV - vecUVCenter).Length())*2.0f;
 		if (flWeight <= 0)
 			continue;
 
@@ -551,7 +551,7 @@ void CAOGenerator::Bleed()
 
 				if (iTotal)
 				{
-					vecTotal /= iTotal;
+					vecTotal /= (float)iTotal;
 					m_avecShadowValues[iTexel] = vecTotal;
 					abPixelMask[iTexel] = true;
 				}

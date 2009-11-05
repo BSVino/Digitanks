@@ -6,12 +6,10 @@
 #include <string.h>
 #include <math.h>
 #include <GL/glew.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <IL/il.h>
 
 #include <modelconverter/modelconverter.h>
-
-#include "../crunch.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -44,10 +42,10 @@ CModelWindow::CModelWindow()
 	m_flLightYaw = 100;
 	m_flLightPitch = 45;
 
+	glutInit(&argc, &argv);
+
 	int iScreenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	int iScreenHeight = glutGet(GLUT_SCREEN_HEIGHT);
-
-	glutInit(&argc, &argv);
 
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL | GLUT_MULTISAMPLE);
 
@@ -63,7 +61,7 @@ CModelWindow::CModelWindow()
 	if (GLEW_OK != err)
 		exit(0);
 
-	glutDisplayFunc(&CModelWindow::RenderCallback);
+	//glutDisplayFunc(&CModelWindow::RenderCallback);
 	glutIdleFunc(&CModelWindow::IdleCallback);
 	glutMotionFunc(&CModelWindow::MouseMotionCallback);
 	glutMouseFunc(&CModelWindow::MouseInputCallback);
@@ -79,9 +77,9 @@ CModelWindow::CModelWindow()
 
 	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
 
-	GLfloat flLightDiffuse[] = {0.9, 1.0, 0.9, 1.0};
-	GLfloat flLightAmbient[] = {0.2, 0.2, 0.2, 1.0};
-	GLfloat flLightSpecular[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat flLightDiffuse[] = {0.9f, 1.0f, 0.9f, 1.0f};
+	GLfloat flLightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+	GLfloat flLightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -89,15 +87,19 @@ CModelWindow::CModelWindow()
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, flLightDiffuse);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, flLightAmbient);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, flLightSpecular);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1f);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05f);
 
 	ilInit();
 }
 
 void CModelWindow::Run()
 {
-	glutMainLoop();
+	while (true)
+	{
+		glutMainLoopEvent();
+		Render();
+	}
 }
 
 void CModelWindow::DestroyAll()
@@ -370,14 +372,14 @@ void CModelWindow::Render()
 	glDisable(GL_TEXTURE_2D);
 
 	glBegin(GL_QUADS);
-		glColor3f(0.6,0.6,0.6);
-		glVertex2f(-1.0, 1.0);
-		glColor3f(0.4,0.4,0.4);
-		glVertex2f(-1.0,-1.0);
-		glColor3f(0.2,0.2,0.2);
-		glVertex2f(1.0,-1.0);
-		glColor3f(0.4,0.4,0.4);
-		glVertex2f(1.0, 1.0);
+		glColor3f(0.6f, 0.6f, 0.6f);
+		glVertex2f(-1.0f, 1.0f);
+		glColor3f(0.4f, 0.4f, 0.4f);
+		glVertex2f(-1.0f, -1.0f);
+		glColor3f(0.2f, 0.2f, 0.2f);
+		glVertex2f(1.0f, -1.0f);
+		glColor3f(0.4f, 0.4f, 0.4f);
+		glVertex2f(1.0f, 1.0f);
 	glEnd();
 
 	glEnable(GL_DEPTH_TEST);
@@ -500,12 +502,12 @@ void CModelWindow::RenderGround(void)
 void CModelWindow::RenderLightSource()
 {
 	GLfloat flLightPosition[4];
-	GLfloat lightColor[] = {0.9, 1.0, 0.9, 1.0};
+	GLfloat lightColor[] = {0.9f, 1.0f, 0.9f, 1.0f};
 
 	// Reposition the light source.
-	flLightPosition[0] = cos(m_flLightPitch * (M_PI*2 / 360)) * cos(m_flLightYaw * (M_PI*2 / 360)) * m_flCameraDistance/4;
-	flLightPosition[1] = sin(m_flLightPitch * (M_PI*2 / 360)) * m_flCameraDistance/4;
-	flLightPosition[2] = cos(m_flLightPitch * (M_PI*2 / 360)) * sin(m_flLightYaw * (M_PI*2 / 360)) * m_flCameraDistance/4;
+	flLightPosition[0] = (float)cos(m_flLightPitch * (M_PI*2 / 360)) * (float)cos(m_flLightYaw * (M_PI*2 / 360)) * m_flCameraDistance/4;
+	flLightPosition[1] = (float)sin(m_flLightPitch * (M_PI*2 / 360)) * m_flCameraDistance/4;
+	flLightPosition[2] = (float)cos(m_flLightPitch * (M_PI*2 / 360)) * (float)sin(m_flLightYaw * (M_PI*2 / 360)) * m_flCameraDistance/4;
 	flLightPosition[3] = 0.0;
 
 	// Tell GL new light source position.
@@ -550,7 +552,7 @@ void CModelWindow::RenderObjects()
 	glShadeModel(GL_SMOOTH);
 
 	// It uses this color if the texture is missing.
-	GLfloat flMaterialColor[] = {0.7, 0.7, 0.7, 1.0};
+	GLfloat flMaterialColor[] = {0.7f, 0.7f, 0.7f, 1.0f};
 
 	for (size_t i = 0; i < m_aiObjects.size(); i++)
 	{
@@ -595,127 +597,8 @@ void CModelWindow::Idle(void)
 	glutPostRedisplay();
 }
 
-void CModelWindow::MouseMotion(int x, int y)
-{
-	if (m_bCameraRotating)
-	{
-		m_flCameraPitch += (x - m_iMouseStartX)/2;
-		m_flCameraYaw += (y - m_iMouseStartY)/2;
-		m_iMouseStartX = x;
-		m_iMouseStartY = y;
-		glutPostRedisplay();
-	}
-
-	if (m_bCameraDollying)
-	{
-		m_flCameraDistance += y - m_iMouseStartY;
-
-		if (m_flCameraDistance < 1)
-			m_flCameraDistance = 1;
-
-		m_iMouseStartY = y;
-		glutPostRedisplay();
-	}
-
-	if (m_bLightRotating)
-	{
-		m_flLightYaw += (m_iMouseStartX - x);
-		m_flLightPitch += (m_iMouseStartY - y);
-
-		while (m_flLightYaw >= 180)
-			m_flLightYaw -= 360;
-		while (m_flLightYaw < -180)
-			m_flLightYaw += 360;
-		while (m_flLightPitch > 89)
-			m_flLightPitch = 89;
-		while (m_flLightPitch < -89)
-			m_flLightPitch = -89;
-
-		m_iMouseStartX = x;
-		m_iMouseStartY = y;
-		glutPostRedisplay();
-	}
-}
-
 void CModelWindow::Visible(int vis)
 {
-}
-
-void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
-{
-	if ((glutGetModifiers() & GLUT_ACTIVE_CTRL) && iButton == GLUT_LEFT_BUTTON)
-	{
-		if (iState == GLUT_DOWN)
-		{
-			m_bLightRotating = 1;
-			m_iMouseStartX = x;
-			m_iMouseStartY = y;
-		}
-		if (iState == GLUT_UP)
-			m_bLightRotating = 0;
-	}
-	else if (iButton == GLUT_LEFT_BUTTON)
-	{
-		if (iState == GLUT_DOWN)
-		{
-			m_bCameraRotating = 1;
-			m_iMouseStartX = x;
-			m_iMouseStartY = y;
-		}
-		if (iState == GLUT_UP)
-			m_bCameraRotating = 0;
-	}
-	else if (iButton == GLUT_RIGHT_BUTTON)
-	{
-		if (iState == GLUT_DOWN)
-		{
-			m_bCameraDollying = 1;
-			m_iMouseStartX = x;
-			m_iMouseStartY = y;
-		}
-		if (iState == GLUT_UP)
-			m_bCameraDollying = 0;
-	}
-}
-
-void CModelWindow::KeyPress(unsigned char c, int x, int y)
-{
-	if (c == 27)
-		exit(0);
-
-	if (c == 'a')
-	{
-		CAOGenerator ao(&m_Scene, &m_aoMaterials);
-		ao.SetSize(128, 128);
-		ao.SetUseTexture(true);
-		ao.Generate();
-		ao.SaveToFile("ao.bmp");
-
-		size_t iAO = ao.GenerateTexture();
-		for (size_t i = 0; i < m_aoMaterials.size(); i++)
-		{
-			if (m_aoMaterials[0].m_iAO)
-				glDeleteTextures(1, &m_aoMaterials[0].m_iAO);
-			m_aoMaterials[0].m_iAO = iAO;
-		}
-		CreateGLLists();
-	}
-
-	if (c == 'r' && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
-		ReloadFromFile();
-
-	glutPostRedisplay();
-}
-
-void CModelWindow::Special(int k, int x, int y)
-{
-	if (k == GLUT_KEY_F4 && (glutGetModifiers()&GLUT_ACTIVE_ALT))
-		exit(0);
-
-	if (k == GLUT_KEY_F5)
-		ReloadFromFile();
-
-	glutPostRedisplay();
 }
 
 size_t CModelWindow::GetNextObjectId()
