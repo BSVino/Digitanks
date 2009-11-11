@@ -1,8 +1,14 @@
 #include "modelwindow.h"
 
 #include "../crunch.h"
+#include "modelgui.h"
 
 void CModelWindow::MouseMotion(int x, int y)
+{
+	modelgui::CRootPanel::Get()->CursorMoved(x, (int)m_iWindowHeight-y);
+}
+
+void CModelWindow::MouseDragged(int x, int y)
 {
 	if (m_bCameraRotating)
 	{
@@ -42,6 +48,8 @@ void CModelWindow::MouseMotion(int x, int y)
 		m_iMouseStartY = y;
 		glutPostRedisplay();
 	}
+
+	modelgui::CRootPanel::Get()->CursorMoved(x, (int)m_iWindowHeight-y);
 }
 
 void CModelWindow::MouseInput(int iButton, int iState, int x, int y)

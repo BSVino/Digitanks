@@ -21,6 +21,8 @@ class CModelWindow
 public:
 							CModelWindow();
 
+	void					InitUI();
+
 	void					Run();	// Doesn't return
 
 	void					DestroyAll();
@@ -40,11 +42,14 @@ public:
 	static void				WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void					WindowResize(int x, int y);
 
-	static void				IdleCallback() { Get()->Idle(); };
-	void					Idle();
+	static void				DisplayCallback() { Get()->Display(); };
+	void					Display();
 
 	static void				MouseMotionCallback(int x, int y) { Get()->MouseMotion(x, y); };
 	void					MouseMotion(int x, int y);
+
+	static void				MouseDraggedCallback(int x, int y) { Get()->MouseDragged(x, y); };
+	void					MouseDragged(int x, int y);
 
 	static void				MouseInputCallback(int iButton, int iState, int x, int y) { Get()->MouseInput(iButton, iState, x, y); };
 	void					MouseInput(int iButton, int iState, int x, int y);

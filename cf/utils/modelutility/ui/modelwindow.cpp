@@ -10,6 +10,7 @@
 #include <IL/il.h>
 
 #include <modelconverter/modelconverter.h>
+#include "modelgui.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -57,15 +58,17 @@ CModelWindow::CModelWindow()
 
 	glutCreateWindow("Model Utility");
 
+	InitUI();
+
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 		exit(0);
 
-	//glutDisplayFunc(&CModelWindow::RenderCallback);
-	glutIdleFunc(&CModelWindow::IdleCallback);
-	glutMotionFunc(&CModelWindow::MouseMotionCallback);
+	glutPassiveMotionFunc(&CModelWindow::MouseMotionCallback);
+	glutMotionFunc(&CModelWindow::MouseDraggedCallback);
 	glutMouseFunc(&CModelWindow::MouseInputCallback);
 	glutReshapeFunc(&CModelWindow::WindowResizeCallback);
+	glutDisplayFunc(&CModelWindow::DisplayCallback);
 	glutVisibilityFunc(&CModelWindow::VisibleCallback);
 	glutKeyboardFunc(&CModelWindow::KeyPressCallback);
 	glutSpecialFunc(&CModelWindow::SpecialCallback);
@@ -99,6 +102,9 @@ void CModelWindow::Run()
 	{
 		glutMainLoopEvent();
 		Render();
+		modelgui::CRootPanel::Get()->Think();
+		modelgui::CRootPanel::Get()->Paint();
+		glutSwapBuffers();
 	}
 }
 
@@ -430,8 +436,6 @@ void CModelWindow::Render()
 	}
 
 	glPopMatrix();
-
-	glutSwapBuffers();
 }
 
 void CModelWindow::RenderGround(void)
@@ -578,7 +582,7 @@ void CModelWindow::WindowResize(int w, int h)
 	m_iWindowHeight = h;
 
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-	glMatrixMode (GL_PROJECTION);
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(
 			44.0,						// FOV
@@ -589,12 +593,13 @@ void CModelWindow::WindowResize(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	modelgui::CRootPanel::Get()->Layout();
+
 	Render();
 }
 
-void CModelWindow::Idle(void)
+void CModelWindow::Display()
 {
-	glutPostRedisplay();
 }
 
 void CModelWindow::Visible(int vis)
