@@ -54,6 +54,11 @@ void CModelWindow::MouseDragged(int x, int y)
 
 void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 {
+	if (iState == GLUT_DOWN)
+		modelgui::CRootPanel::Get()->MousePressed(iButton, x, (int)m_iWindowHeight-y);
+	else
+		modelgui::CRootPanel::Get()->MouseReleased(iButton, x, (int)m_iWindowHeight-y);
+
 	if ((glutGetModifiers() & GLUT_ACTIVE_CTRL) && iButton == GLUT_LEFT_BUTTON)
 	{
 		if (iState == GLUT_DOWN)
@@ -127,4 +132,18 @@ void CModelWindow::Special(int k, int x, int y)
 		ReloadFromFile();
 
 	glutPostRedisplay();
+}
+
+void CModelWindow::OpenCallback()
+{
+}
+
+void CModelWindow::ExitCallback()
+{
+	exit(0);
+}
+
+void CModelWindow::AboutCallback()
+{
+	OpenAboutPanel();
 }

@@ -23,7 +23,7 @@ CModelWindow::CModelWindow()
 	s_pModelWindow = this;
 
 	int argc = 1;
-	char* argv = "modelwindow";
+	char* argv = "smak";
 
 	m_aiObjects.clear();
 	m_iObjectsCreated = 0;
@@ -56,7 +56,7 @@ CModelWindow::CModelWindow()
 	glutInitWindowPosition(iScreenWidth/6, iScreenHeight/6);
 	glutInitWindowSize((int)m_iWindowWidth, (int)m_iWindowHeight);
 
-	glutCreateWindow("Model Utility");
+	glutCreateWindow("SMAK - Super Model Army Knife");
 
 	InitUI();
 

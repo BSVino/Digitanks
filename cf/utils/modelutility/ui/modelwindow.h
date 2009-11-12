@@ -2,6 +2,7 @@
 #define CF_MODELWINDOW_H
 
 #include <modelconverter/convmesh.h>
+#include "modelgui.h"
 
 class CMaterial
 {
@@ -16,7 +17,7 @@ public:
 	size_t		m_iAO;
 };
 
-class CModelWindow
+class CModelWindow : public modelgui::IEventListener
 {
 public:
 							CModelWindow();
@@ -63,7 +64,13 @@ public:
 	static void				SpecialCallback(int k, int x, int y) { Get()->Special(k, x, y); };
 	void					Special(int k, int x, int y);
 
+	EVENT_CALLBACK(CModelWindow, Open);
+	EVENT_CALLBACK(CModelWindow, Exit);
+	EVENT_CALLBACK(CModelWindow, About);
+
 	size_t					GetNextObjectId();
+
+	void					OpenAboutPanel();
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
 

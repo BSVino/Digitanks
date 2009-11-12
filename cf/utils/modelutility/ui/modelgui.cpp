@@ -3,22 +3,10 @@
 #include <assert.h>
 #include <algorithm>
 #include <GL/freeglut.h>
-#include <FTGL/ftgl.h>
 #include <maths.h>
+#include <vector.h>
 
 using namespace modelgui;
-
-// Hard coded width and height, pretending the screen is this wide.
-// The values are scaled just before drawing.
-int modelgui::ScreenWidth()
-{
-	return 1280;
-}
-
-int modelgui::ScreenHeight()
-{
-	return 800;
-}
 
 CBaseControl::CBaseControl(int x, int y, int w, int h)
 {
@@ -72,11 +60,46 @@ bool CBaseControl::IsVisible()
 	return m_bVisible;
 }
 
-#ifdef _DEBUG
-void CBaseControl::PaintDebugRect(int x, int y, int w, int h)
+void CBaseControl::PaintRect(int x, int y, int w, int h, int a)
 {
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glColor4ub(34, 37, 42, (GLubyte)a);
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, Vector(0.0f, 0.0f, 0.0f));
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, Vector(1.0f, 1.0f, 1.0f));
+	glMaterialfv(GL_FRONT, GL_SPECULAR, Vector(0.2f, 0.2f, 0.3f));
+	glMaterialfv(GL_FRONT, GL_EMISSION, Vector(0.0f, 0.0f, 0.0f));
+	glMaterialf(GL_FRONT, GL_SHININESS, 20.0f);
+
+	glBegin(GL_QUADS);
+		glNormal3f(-0.707106781f, -0.707106781f, 0);	// Give 'em normals so that the light falls on them cool-like.
+		glVertex2d(x, y);
+		glNormal3f(0.707106781f, -0.707106781f, 0);
+		glVertex2d(x+w-1, y);
+		glNormal3f(0.707106781f, 0.707106781f, 0);
+		glVertex2d(x+w-1, y+h);
+		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x, y+h);
+	glEnd();
+
+	glLineWidth(1);
+
+	glBegin(GL_LINES);
+		glNormal3f(-0.707106781f, -0.707106781f, 0);
+		glVertex2d(x, y+1);
+		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x, y+h-1);
+
+		glNormal3f(0.707106781f, -0.707106781f, 0);
+		glVertex2d(x+w, y+1);
+		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x+w, y+h-1);
+	glEnd();
+
+	glDisable(GL_BLEND);
 }
-#endif
 
 CPanel::CPanel(int x, int y, int w, int h)
 	: CBaseControl(x, y, w, h)
@@ -144,11 +167,8 @@ bool CPanel::KeyReleased(int code)
 	return false;
 }
 
-bool CPanel::MousePressed(int code)
+bool CPanel::MousePressed(int code, int mx, int my)
 {
-	int mx, my;
-	CRootPanel::GetFullscreenMousePos(mx, my);
-
 	int iCount = (int)m_apControls.size();
 	// Start at the end of the list so that items drawn last are tested for mouse events first.
 	for (int i = iCount-1; i >= 0; i--)
@@ -165,18 +185,15 @@ bool CPanel::MousePressed(int code)
 			mx < x + w &&
 			my < y + h)
 		{
-			if (pControl->MousePressed(code))
+			if (pControl->MousePressed(code, mx, my))
 				return true;
 		}
 	}
 	return false;
 }
 
-bool CPanel::MouseReleased(int code)
+bool CPanel::MouseReleased(int code, int mx, int my)
 {
-	int mx, my;
-	CRootPanel::GetFullscreenMousePos(mx, my);
-
 	int iCount = (int)m_apControls.size();
 	// Start at the end of the list so that items drawn last are tested for mouse events first.
 	for (int i = iCount-1; i >= 0; i--)
@@ -193,7 +210,7 @@ bool CPanel::MouseReleased(int code)
 			mx < x + w &&
 			my < y + h)
 		{
-			if (pControl->MouseReleased(code))
+			if (pControl->MouseReleased(code, mx, my))
 				return true;
 		}
 	}
@@ -401,16 +418,13 @@ void CDroppablePanel::SetPos(int x, int y)
 		m_apDraggables[i]->SetHoldingRect(GetHoldingRect());
 }
 
-bool CDroppablePanel::MousePressed(int code)
+bool CDroppablePanel::MousePressed(int code, int mx, int my)
 {
 	if (!IsVisible())
 		return false;
 
 	if (m_bGrabbable && m_apDraggables.size() > 0)
 	{
-		int mx, my;
-		CRootPanel::GetFullscreenMousePos(mx, my);
-
 		CRect r = GetHoldingRect();
 		if (code == 0 &&
 			mx >= r.x &&
@@ -423,7 +437,7 @@ bool CDroppablePanel::MousePressed(int code)
 		}
 	}
 
-	return CPanel::MousePressed(code);
+	return CPanel::MousePressed(code, mx, my);
 }
 
 void CDroppablePanel::SetDraggable(IDraggable* pDragged, bool bDelete)
@@ -472,6 +486,12 @@ CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 	m_eAlign = TA_MIDDLECENTER;
 	m_FGColor = Color(255, 255, 255, 255);
 
+	static char szFont[1024];
+	sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
+
+	m_pFont = new FTGLPixmapFont(szFont);
+	m_pFont->FaceSize(13);
+
 	SetText(pszText);
 }
 
@@ -480,6 +500,8 @@ void CLabel::Destructor()
 	if (m_pszText)
 		free(m_pszText);
 
+	delete m_pFont;
+
 	CBaseControl::Destructor();
 }
 
@@ -487,6 +509,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 {
 	if (!IsVisible())
 		return;
+
+	glDisable(GL_LIGHTING);
 
 	Color FGColor = m_FGColor;
 	if (!m_bEnabled)
@@ -497,33 +521,16 @@ void CLabel::Paint(int x, int y, int w, int h)
 	wchar_t* pszTok = wcstok(pszText, pszSeps);
 	m_iLine = 0;
 
-	static char szFont[1024];
-	sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
-
-	glColor4ubv(FGColor);
-
-	FTGLPixmapFont font(szFont);
-	font.FaceSize(13);
-
-	float flHeight = font.Ascender() + font.Descender();
-	float flWidth = font.Advance(pszText);
-
-	glRasterPos2f((float)x + (float)GetWidth()/2 - flWidth/2, (float)y + (float)GetHeight()/2 - flHeight/2);
-
-	font.Render(pszText);
-
-/*	while (pszTok)
+	while (pszTok)
 	{
-		vgui::surface()->DrawSetTextFont(CRootPanel::s_hDefaultFont);
-		vgui::surface()->DrawSetTextColor(FGColor);
+		glColor4ubv(FGColor);
 
-		int tw, th;
-		vgui::surface()->GetTextSize(CRootPanel::s_hDefaultFont, pszTok, tw, th);
-		int t = vgui::surface()->GetFontTall(CRootPanel::s_hDefaultFont);
+		float tw = m_pFont->Advance(pszTok);
+		float t = m_pFont->LineHeight();
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iLine+1)*t > h)
 		{
-			DrawLine(pszTok, wcslen(pszTok), x, y, w, h);
+			DrawLine(pszTok, (unsigned int)wcslen(pszTok), x, y, w, h);
 
 			m_iLine++;
 		}
@@ -534,7 +541,10 @@ void CLabel::Paint(int x, int y, int w, int h)
 			int iLastSpace = 0, iLastBreak = 0, iLength = 0;
 			while (iSource < wcslen(pszTok))
 			{
-				int cw = vgui::surface()->GetCharacterWidth(CRootPanel::s_hDefaultFont, pszTok[iSource]);
+				wchar_t szChar[2];
+				szChar[0] = pszTok[iSource];
+				szChar[1] = L'\0';
+				float cw = m_pFont->Advance(szChar);
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iLine+1)*t > h)
 				{
 					iLength++;
@@ -553,7 +563,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 					DrawLine(pszTok + iLastBreak, iLength, x, y, w, h);
 
-					iLength = tw = 0;
+					iLength = 0;
+					tw = 0;
 					while (iSource < wcslen(pszTok) && pszTok[iSource] == L' ')
 						iSource++;
 					iLastBreak = iLastSpace = iSource--;	// Skip over any following spaces, but leave iSource at the space 'cause it's incremented again below.
@@ -568,26 +579,31 @@ void CLabel::Paint(int x, int y, int w, int h)
 		}
 
 		pszTok = wcstok(NULL, pszSeps);
-	}*/
+	}
 
 	free(pszText);
+
+	glEnable(GL_LIGHTING);
 }
 
 void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
 {
-/*	int lw = GetTextWidth(CRootPanel::s_hDefaultFont, pszText, iLength);
-	int t = vgui::surface()->GetFontTall(CRootPanel::s_hDefaultFont);
-	int th = GetTextHeight();
+	float lw = m_pFont->Advance(pszText);
+	float t = m_pFont->LineHeight();
+	float th = GetTextHeight() - t;
+
+	float flBaseline = (float)m_pFont->FaceSize()/2 + m_pFont->Descender()/2;
 
 	if (m_eAlign == TA_MIDDLECENTER)
-		vgui::surface()->DrawSetTextPos(x + w/2 - lw/2, y + h/2 - th/2 + m_iLine*t);
+		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + (float)h/2 - flBaseline + th/2 - m_iLine*t);
 	else if (m_eAlign == TA_LEFTCENTER)
-		vgui::surface()->DrawSetTextPos(x, y + h/2 - th/2 + m_iLine*t);
+		glRasterPos2f((float)x, (float)y + (float)h/2 - flBaseline);
 	else if (m_eAlign == TA_RIGHTCENTER)
-		vgui::surface()->DrawSetTextPos(x + w - lw, y + h/2 - th/2 + m_iLine*t);
+		glRasterPos2f((float)x + (float)w - lw, y + h/2 - flBaseline + th/2 - m_iLine*t);
 	else	// TA_TOPLEFT
-		vgui::surface()->DrawSetTextPos(x, y + m_iLine*t);
-	vgui::surface()->DrawPrintText(pszText, iLength);*/
+		glRasterPos2f((float)x, (float)y + (float)h - lw);
+
+	m_pFont->Render(pszText);
 }
 
 void CLabel::SetSize(int w, int h)
@@ -663,17 +679,12 @@ void CLabel::AppendText(const char* pszText)
 
 int CLabel::GetTextWidth()
 {
-	int w = 0, h = 0;
-//	vgui::surface()->GetTextSize(CRootPanel::s_hDefaultFont, m_pszText, w, h);
-
-	return w;
+	return (int)m_pFont->Advance(m_pszText);
 }
 
-int CLabel::GetTextHeight()
+float CLabel::GetTextHeight()
 {
-	int t = 0;//vgui::surface()->GetFontTall(CRootPanel::s_hDefaultFont);
-
-	return t * m_iTotalLines;
+	return (m_pFont->LineHeight()) * m_iTotalLines;
 }
 
 void CLabel::ComputeLines(int w, int h)
@@ -700,11 +711,10 @@ void CLabel::ComputeLines(int w, int h)
 
 	m_iTotalLines = 0;
 
-	/*while (pszTok)
+	while (pszTok)
 	{
-		int tw, th;
-		vgui::surface()->GetTextSize(CRootPanel::s_hDefaultFont, pszText, tw, th);
-		int t = vgui::surface()->GetFontTall(CRootPanel::s_hDefaultFont);
+		float tw = m_pFont->Advance(pszTok);
+		float t = m_pFont->LineHeight();
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iTotalLines+1)*t > h)
 		{
@@ -717,7 +727,10 @@ void CLabel::ComputeLines(int w, int h)
 			int iLastSpace = 0, iLastBreak = 0, iLength = 0;
 			while (iSource < wcslen(pszTok))
 			{
-				int cw = vgui::surface()->GetCharacterWidth(CRootPanel::s_hDefaultFont, pszTok[iSource]);
+				wchar_t szChar[2];
+				szChar[0] = pszTok[iSource];
+				szChar[1] = L'\0';
+				float cw = m_pFont->Advance(szChar);
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iTotalLines+1)*t > h)
 				{
 					iLength++;
@@ -734,7 +747,8 @@ void CLabel::ComputeLines(int w, int h)
 					iSource -= iBackup;
 					iLength -= iBackup;
 
-					iLength = tw = 0;
+					iLength = 0;
+					tw = 0;
 					while (iSource < wcslen(pszTok) && pszTok[iSource] == L' ')
 						iSource++;
 					iLastBreak = iLastSpace = iSource--;	// Skip over any following spaces, but leave iSource at the space 'cause it's incremented again below.
@@ -748,7 +762,7 @@ void CLabel::ComputeLines(int w, int h)
 		}
 
 		pszTok = wcstok(NULL, pszSeps);
-	}*/
+	}
 
 	free(pszText);
 }
@@ -756,14 +770,14 @@ void CLabel::ComputeLines(int w, int h)
 // Make the label tall enough for one line of text to fit inside.
 void CLabel::EnsureTextFits()
 {
-	int w = GetTextWidth();
-	int h = GetTextHeight();
+	int w = GetTextWidth()+4;
+	int h = (int)GetTextHeight()+4;
 
-	if (m_iH < h+4)
-		SetSize(m_iW, h+4);
+	if (m_iH < h)
+		SetSize(m_iW, h);
 
-	if (m_iW < w+4)
-		SetSize(w+4, m_iH);
+	if (m_iW < w)
+		SetSize(w, m_iH);
 }
 
 int CLabel::GetTextWidth( /*vgui::HFont& font,*/ const wchar_t *str, int iLength )
@@ -795,8 +809,7 @@ void CLabel::SetFGColor(Color FGColor)
 	m_FGColor = FGColor;
 }
 
-#if 0
-CButton::CButton(int x, int y, int w, int h, char* pszText, bool bToggle)
+CButton::CButton(int x, int y, int w, int h, const char* pszText, bool bToggle)
 	: CLabel(x, y, w, h, pszText)
 {
 	m_bToggle = bToggle;
@@ -805,17 +818,12 @@ CButton::CButton(int x, int y, int w, int h, char* pszText, bool bToggle)
 	m_bHighlight = false;
 	m_pClickListener = NULL;
 	m_pfnClickCallback = NULL;
-	m_pClickParms = NULL;
 	m_pUnclickListener = NULL;
 	m_pfnUnclickCallback = NULL;
-	m_pUnclickParms = NULL;
 }
 
 void CButton::Destructor()
 {
-	if (m_pClickParms)
-		m_pClickParms->deleteThis();
-
 	CLabel::Destructor();
 }
 
@@ -874,46 +882,36 @@ void CButton::SetState(bool bDown, bool bRegister)
 	if (m_bToggle && !m_bToggleOn)
 	{
 		if (bRegister && m_pUnclickListener && m_pfnUnclickCallback)
-			m_pfnUnclickCallback(m_pUnclickListener, m_pUnclickParms);
+			m_pfnUnclickCallback(m_pUnclickListener);
 	}
 	else
 	{
 		if (bRegister && m_pClickListener && m_pfnClickCallback)
-			m_pfnClickCallback(m_pClickListener, m_pClickParms);
+			m_pfnClickCallback(m_pClickListener);
 	}
 }
 
-void CButton::SetClickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback, KeyValues* pParms)
+void CButton::SetClickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	Assert(pListener && pfnCallback || !pListener && !pfnCallback && !pParms);
+	assert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pClickListener = pListener;
 	m_pfnClickCallback = pfnCallback;
-
-	if (m_pClickParms)
-		m_pClickParms->deleteThis();
-
-	m_pClickParms = pParms;
 }
 
-void CButton::SetUnclickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback, KeyValues* pParms)
+void CButton::SetUnclickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	Assert(pListener && pfnCallback || !pListener && !pfnCallback && !pParms);
+	assert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pUnclickListener = pListener;
 	m_pfnUnclickCallback = pfnCallback;
-
-	if (m_pUnclickParms)
-		m_pUnclickParms->deleteThis();
-
-	m_pUnclickParms = pParms;
 }
 
-bool CButton::MousePressed(vgui::MouseCode code)
+bool CButton::MousePressed(int code, int mx, int my)
 {
 	if (!IsVisible())
-		return CLabel::MousePressed(code);
+		return CLabel::MousePressed(code, mx, my);
 
 	bool bUsed = false;
-	if (code == MOUSE_LEFT)
+	if (code == 0)
 	{
 		bUsed = Push();
 		CRootPanel::Get()->SetButtonDown(this);
@@ -921,16 +919,16 @@ bool CButton::MousePressed(vgui::MouseCode code)
 	return bUsed;
 }
 
-bool CButton::MouseReleased(vgui::MouseCode code)
+bool CButton::MouseReleased(int code, int mx, int my)
 {
 	if (!IsVisible())
-		return CLabel::MouseReleased(code);
+		return CLabel::MouseReleased(code, mx, my);
 
 	if (CRootPanel::Get()->GetButtonDown() != this)
 		return false;
 
 	bool bUsed = false;
-	if (code == MOUSE_LEFT)
+	if (code == 0)
 	{
 		bUsed = Pop();
 		CRootPanel::Get()->SetButtonDown(NULL);
@@ -991,7 +989,6 @@ void CButton::PaintButton(int x, int y, int w, int h)
 		glEnd();
 	}
 }
-#endif
 
 CSlidingPanel::CInnerPanel::CInnerPanel(CSlidingContainer* pMaster)
 	: CPanel(0, 0, 100, SLIDER_COLLAPSED_HEIGHT)
@@ -1043,12 +1040,12 @@ void CSlidingPanel::Paint(int x, int y, int w, int h)
 	CPanel::Paint(x, y, w, h);
 }
 
-bool CSlidingPanel::MousePressed(int code)
+bool CSlidingPanel::MousePressed(int code, int mx, int my)
 {
 	CSlidingContainer* pParent = dynamic_cast<CSlidingContainer*>(m_pParent);
 
 	if (pParent->IsCurrent(this))
-		return CPanel::MousePressed(code);
+		return CPanel::MousePressed(code, mx, my);
 	else
 	{
 		pParent->SetCurrent(this);
@@ -1182,7 +1179,7 @@ int CSlidingContainer::VisiblePanels()
 CRootPanel*	CRootPanel::s_pRootPanel = NULL;
 
 CRootPanel::CRootPanel() :
-	CPanel(0, 0, ScreenWidth(), ScreenHeight())
+	CPanel(0, 0, 800, 600)
 {
 	assert(!s_pRootPanel);
 
@@ -1273,7 +1270,7 @@ void CRootPanel::Paint()
 		int mx, my;
 		CRootPanel::GetFullscreenMousePos(mx, my);
 
-		int iWidth = ScreenHeight()/12;
+		int iWidth = GetHeight()/12;
 //		m_pDragging->GetCurrentDraggable()->Paint(mx-iWidth/2, my-iWidth/2, iWidth, iWidth, true);
 	}
 
@@ -1309,15 +1306,12 @@ CButton* CRootPanel::GetButtonDown()
 	return m_pButtonDown;
 }
 
-bool CRootPanel::MousePressed(int code)
+bool CRootPanel::MousePressed(int code, int mx, int my)
 {
 	assert(!m_pDragging);
 
 	if (m_pPopup)
 	{
-		int mx, my;
-		CRootPanel::GetFullscreenMousePos(mx, my);
-
 		int x = 0, y = 0, w = 0, h = 0;
 		m_pPopup->GetAbsDimensions(x, y, w, h);
 		if (!(mx >= x &&
@@ -1330,10 +1324,10 @@ bool CRootPanel::MousePressed(int code)
 		}
 	}
 
-	return CPanel::MousePressed(code);
+	return CPanel::MousePressed(code, mx, my);
 }
 
-bool CRootPanel::MouseReleased(int code)
+bool CRootPanel::MouseReleased(int code, int mx, int my)
 {
 	if (m_pDragging)
 	{
@@ -1341,7 +1335,7 @@ bool CRootPanel::MouseReleased(int code)
 			return true;
 	}
 
-	bool bUsed = CPanel::MouseReleased(code);
+	bool bUsed = CPanel::MouseReleased(code, mx, my);
 
 	if (!bUsed)
 	{
@@ -1453,16 +1447,20 @@ void CRootPanel::DrawRect(int x, int y, int x2, int y2)
 {
 }
 
-void CRootPanel::AddMenu(const char* pszTitle)
+CMenu* CRootPanel::AddMenu(const char* pszTitle)
 {
 	if (!m_pMenuBar)
-		return;
+		return NULL;
 
-	m_pMenuBar->AddControl(new CMenu(pszTitle));
+	CMenu* pMenu = new CMenu(pszTitle);
+	pMenu->SetWrap(false);
+	m_pMenuBar->AddControl(pMenu);
+
+	return pMenu;
 }
 
 CMenuBar::CMenuBar()
-	: CPanel(0, 0, 1024, 22)
+	: CPanel(0, 0, 1024, MENU_HEIGHT)
 {
 }
 
@@ -1470,7 +1468,7 @@ void CMenuBar::Layout( void )
 {
 	if (GetParent())
 	{
-		SetSize(GetParent()->GetWidth(), 22);
+		SetSize(GetParent()->GetWidth(), MENU_HEIGHT);
 		SetPos(MENU_SPACING, GetParent()->GetHeight() - GetHeight() - MENU_SPACING);
 	}
 
@@ -1484,42 +1482,136 @@ void CMenuBar::Layout( void )
 	}
 }
 
-CMenu::CMenu(const char* pszTitle)
-	: CLabel(0, 0, 41, 22, pszTitle)
+void CMenuBar::SetActive( CMenu* pActiveMenu )
 {
-	m_flHighlightGoal = m_flHighlight = 0;
+	for (size_t i = 0; i < m_apControls.size(); i++)
+	{
+		CMenu* pCurrentMenu = dynamic_cast<CMenu*>(m_apControls[i]);
+
+		if (!pCurrentMenu)
+			continue;
+
+		if (pCurrentMenu != pActiveMenu)
+			pCurrentMenu->Pop(true, true);
+	}
+}
+
+CMenu::CMenu(const char* pszTitle, bool bSubmenu)
+	: CButton(0, 0, 41, MENU_HEIGHT, pszTitle, true)
+{
+	m_bSubmenu = bSubmenu;
+
+	m_flHighlightGoal = m_flHighlight = m_flMenuHighlightGoal = m_flMenuHighlight = m_flMenuHeightGoal = m_flMenuHeight = 0;
+
+	SetClickedListener(this, Open);
+	SetUnclickedListener(this, Close);
+
+	m_pMenu = new CPanel(0, 0, 100, 100);
+	CRootPanel::Get()->AddControl(m_pMenu);
+
+	m_pMenu->SetVisible(false);
 }
 
 void CMenu::Think()
 {
-	m_flHighlight = Approach(m_flHighlightGoal, m_flHighlight, CRootPanel::Get()->GetFrameTime()*3);
+	// Make a copy so that the below logic doesn't clobber CursorOut()
+	float flHightlightGoal = m_flHighlightGoal;
+
+	// If our menu is open always stay highlighted.
+	if (m_pMenu->IsVisible())
+		flHightlightGoal = 1;
+
+	m_flHighlight = Approach(flHightlightGoal, m_flHighlight, CRootPanel::Get()->GetFrameTime()*3);
+	m_flMenuHighlight = Approach(m_flMenuHighlightGoal, m_flMenuHighlight, CRootPanel::Get()->GetFrameTime()*3);
+	m_flMenuHeight = Approach(m_flMenuHeightGoal, m_flMenuHeight, CRootPanel::Get()->GetFrameTime()*3);
+
+	m_pMenu->SetVisible(m_flMenuHighlight > 0 && m_flMenuHeight > 0);
+}
+
+void CMenu::Layout()
+{
+	int iHeight = 0;
+	int iWidth = 0;
+	std::vector<IControl*> apControls = m_pMenu->GetControls();
+	for (size_t i = 0; i < apControls.size(); i++)
+	{
+		apControls[i]->SetPos(5, (int)(apControls.size()*MENU_HEIGHT-(i+1)*MENU_HEIGHT));
+		iHeight += MENU_HEIGHT;
+		if (apControls[i]->GetWidth()+10 > iWidth)
+			iWidth = apControls[i]->GetWidth()+10;
+	}
+
+	int x, y;
+	GetAbsPos(x, y);
+
+	m_pMenu->SetSize(iWidth, iHeight);
+	m_pMenu->SetPos(x, y - 5 - m_pMenu->GetHeight());
+
+	m_pMenu->Layout();
 }
 
 void CMenu::Paint(int x, int y, int w, int h)
 {
-	glEnable(GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (!m_bSubmenu)
+	{
+		CRootPanel::Get()->PaintRect(x, y, w, h, (int)RemapVal(m_flHighlight, 0, 1, 125, 255));
+	}
 
-	glColor4ub(34, 37, 42, (GLubyte)RemapVal(m_flHighlight, 0, 1, 125, 255));
+	if (m_pMenu->IsVisible())
+	{
+		int mx, my, mw, mh;
+		m_pMenu->GetAbsDimensions(mx, my, mw, mh);
 
-	glBegin(GL_QUADS);
-		glVertex2d(x, y);
-		glVertex2d(x+w-1, y);
-		glVertex2d(x+w-1, y+h);
-		glVertex2d(x, y+h);
-	glEnd();
+		float flMenuHeight = Lerp(m_flMenuHeight, 0.6f);
+		if (flMenuHeight > 0.99f)
+			flMenuHeight = 0.99f;	// When it hits 1 it jerks.
 
-	glLineWidth(1);
-
-	glBegin(GL_LINES);
-		glVertex2d(x, y+1);
-		glVertex2d(x, y+h-1);
-
-		glVertex2d(x+w, y+1);
-		glVertex2d(x+w, y+h-1);
-	glEnd();
-
-	glDisable(GL_BLEND);
+		CRootPanel::Get()->PaintRect(mx, (int)(my + mh - mh*flMenuHeight), mw, (int)(mh*flMenuHeight), (int)RemapVal(m_flMenuHighlight, 0, 1, 0, 255));
+	}
 
 	CLabel::Paint(x, y, w, h);
+}
+
+void CMenu::CursorIn()
+{
+	m_flHighlightGoal = 1;
+}
+
+void CMenu::CursorOut()
+{
+	m_flHighlightGoal = 0;
+}
+
+void CMenu::OpenCallback()
+{
+	CRootPanel::Get()->GetMenuBar()->SetActive(this);
+
+	if (m_pMenu->GetControls().size())
+	{
+		m_flMenuHeightGoal = 1;
+		m_flMenuHighlightGoal = 1;
+		Layout();
+	}
+}
+
+void CMenu::CloseCallback()
+{
+	if (m_pMenu->GetControls().size())
+	{
+		m_flMenuHeightGoal = 0;
+		m_flMenuHighlightGoal = 0;
+	}
+}
+
+void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	CMenu* pMenu = new CMenu(pszTitle, true);
+	pMenu->SetAlign(TA_LEFTCENTER);
+	pMenu->SetWrap(false);
+	pMenu->EnsureTextFits();
+
+	if (pListener)
+		pMenu->SetClickedListener(pListener, pfnCallback);
+
+	m_pMenu->AddControl(pMenu);
 }

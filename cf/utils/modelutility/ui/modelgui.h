@@ -3,6 +3,15 @@
 
 #include <vector>
 #include <color.h>
+#include <FTGL/ftgl.h>
+
+// Not my favorite hack.
+#define EVENT_CALLBACK(type, pfn) \
+	void pfn##Callback(); \
+	static void pfn(modelgui::IEventListener* obj) \
+	{ \
+		((type*)obj)->pfn##Callback(); \
+	}
 
 namespace modelgui
 {
@@ -19,9 +28,6 @@ namespace modelgui
 		int w;
 		int h;
 	};
-
-	int ScreenWidth();
-	int ScreenHeight();
 
 	class IPopup
 	{
@@ -63,8 +69,8 @@ namespace modelgui
 
 		virtual bool		KeyPressed(int iKey)=0;
 		virtual bool		KeyReleased(int iKey)=0;
-		virtual bool		MousePressed(int iButton)=0;
-		virtual bool		MouseReleased(int iButton)=0;
+		virtual bool		MousePressed(int iButton, int mx, int my)=0;
+		virtual bool		MouseReleased(int iButton, int mx, int my)=0;
 		virtual bool		IsCursorListener()=0;
 		virtual void		CursorMoved(int x, int y)=0;
 		virtual void		CursorIn()=0;
@@ -180,16 +186,14 @@ namespace modelgui
 		virtual void	LevelShutdown( void ) { return; };
 		virtual bool	KeyPressed(int iKey) { return false; };
 		virtual bool	KeyReleased(int iKey) { return false; };
-		virtual bool	MousePressed(int iButton) { return false; };
-		virtual bool	MouseReleased(int iButton) { return false; };
+		virtual bool	MousePressed(int iButton, int mx, int my) { return false; };
+		virtual bool	MouseReleased(int iButton, int mx, int my) { return false; };
 		virtual bool	IsCursorListener() { return false; };
 		virtual void	CursorMoved(int x, int y) {};
 		virtual void	CursorIn() {};
 		virtual void	CursorOut() {};
 
-#ifdef _DEBUG
-		virtual void	PaintDebugRect(int x, int y, int w, int h);
-#endif
+		virtual void	PaintRect(int x, int y, int w, int h, int a);
 
 	protected:
 		IControl*		m_pParent;
@@ -226,14 +230,15 @@ namespace modelgui
 
 		virtual bool			KeyPressed(int code);
 		virtual bool			KeyReleased(int code);
-		virtual bool			MousePressed(int code);
-		virtual bool			MouseReleased(int code);
+		virtual bool			MousePressed(int code, int mx, int my);
+		virtual bool			MouseReleased(int code, int mx, int my);
 		virtual bool			IsCursorListener() {return true;};
 		virtual void			CursorMoved(int mx, int my);
 		virtual void			CursorOut();
 
 		virtual void			AddControl(IControl* pControl, bool bToTail = false);
 		virtual void			RemoveControl(IControl* pControl);
+		virtual std::vector<IControl*>&	GetControls() { return m_apControls; };
 
 		virtual void			SetHighlighted(bool bHighlight) { m_bHighlight = bHighlight; };
 		virtual bool			IsHighlighted() { return m_bHighlight; };
@@ -278,7 +283,7 @@ namespace modelgui
 		virtual void		SetSize(int w, int h);
 		virtual void		SetPos(int x, int y);
 
-		virtual bool		MousePressed(int code);
+		virtual bool		MousePressed(int code, int mx, int my);
 
 		virtual void		AddDraggable(IDraggable* pDragged);
 		virtual void		SetDraggable(IDraggable* pDragged, bool bDelete = true);
@@ -306,8 +311,8 @@ namespace modelgui
 		virtual void				Paint();
 		virtual void				Layout();
 
-		virtual bool				MousePressed(int code);
-		virtual bool				MouseReleased(int code);
+		virtual bool				MousePressed(int code, int mx, int my);
+		virtual bool				MouseReleased(int code, int mx, int my);
 		virtual void				CursorMoved(int mx, int my);
 
 		// Dragon Drop stuff is in this class, because this is always the
@@ -324,7 +329,8 @@ namespace modelgui
 		void						SetButtonDown(class CButton* pButton);
 		class CButton*				GetButtonDown();
 
-		void						AddMenu(const char* pszTitle);
+		class CMenuBar*				GetMenuBar() { return m_pMenuBar; };
+		class CMenu*				AddMenu(const char* pszTitle);
 
 		float						GetFrameTime() { return m_flFrameTime; };
 
@@ -380,8 +386,8 @@ namespace modelgui
 
 		virtual void	SetSize(int w, int h);
 
-		virtual bool	MousePressed(int code) {return false;};
-		virtual bool	MouseReleased(int code) {return false;};
+		virtual bool	MousePressed(int code, int mx, int my) {return false;};
+		virtual bool	MouseReleased(int code, int mx, int my) {return false;};
 		virtual bool	IsCursorListener() {return false;};
 
 		virtual bool	IsEnabled() {return m_bEnabled;};
@@ -391,7 +397,7 @@ namespace modelgui
 		virtual void	SetAlign(TextAlign eAlign) { m_eAlign = eAlign; };
 
 		virtual bool	GetWrap() { return m_bWrap; };
-		virtual void	SetWrap(bool bWrap) { m_bWrap = bWrap; };
+		virtual void	SetWrap(bool bWrap) { m_bWrap = bWrap; ComputeLines(); };
 
 		virtual void	SetText(const wchar_t* pszText);
 		virtual void	SetText(const char* pszText);
@@ -400,7 +406,7 @@ namespace modelgui
 		virtual const wchar_t*	GetText();
 
 		virtual int		GetTextWidth();
-		virtual int		GetTextHeight();
+		virtual float	GetTextHeight();
 		virtual void	ComputeLines(int w = -1, int h = -1);
 		virtual void	EnsureTextFits();
 		static int		GetTextWidth( /*vgui::HFont& font,*/ const wchar_t *str, int iLength );
@@ -418,16 +424,17 @@ namespace modelgui
 
 		int				m_iTotalLines;
 		int				m_iLine;
+
+		FTGLPixmapFont*	m_pFont;
 	};
 
-#if 0 // Until I find a proper way to deal with fonts.
 	class CButton : public CLabel
 	{
 		friend CRootPanel;
 		friend class CSlidingPanel;
 
 	public:
-						CButton(int x, int y, int w, int h, char* szText, bool bToggle = false);
+						CButton(int x, int y, int w, int h, const char* szText, bool bToggle = false);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -435,8 +442,8 @@ namespace modelgui
 		virtual void	Paint(int x, int y, int w, int h);
 		virtual void	PaintButton(int x, int y, int w, int h);
 
-		virtual bool	MousePressed(int code);
-		virtual bool	MouseReleased(int code);
+		virtual bool	MousePressed(int code, int mx, int my);
+		virtual bool	MouseReleased(int code, int mx, int my);
 		virtual bool	IsCursorListener() {return true;};
 		virtual void	CursorIn();
 		virtual void	CursorOut();
@@ -465,13 +472,10 @@ namespace modelgui
 		// Need multiple event listeners? Too bad! Make a list.
 		IEventListener::Callback m_pfnClickCallback;
 		IEventListener*	m_pClickListener;
-		KeyValues*		m_pClickParms;
 
 		IEventListener::Callback m_pfnUnclickCallback;
 		IEventListener*	m_pUnclickListener;
-		KeyValues*		m_pUnclickParms;
 	};
-#endif
 
 	class CSlidingContainer;
 	class CSlidingPanel : public CPanel
@@ -500,7 +504,7 @@ namespace modelgui
 
 		virtual void				AddControl(IControl* pControl, bool bToTail = false);
 
-		virtual bool				MousePressed(int iButton);
+		virtual bool				MousePressed(int iButton, int mx, int my);
 
 		virtual void				SetCurrent(bool bCurrent);
 
@@ -544,6 +548,7 @@ namespace modelgui
 	};
 
 #define MENU_SPACING 10
+#define MENU_HEIGHT 22
 
 	class CMenuBar : public CPanel
 	{
@@ -551,23 +556,42 @@ namespace modelgui
 									CMenuBar();
 
 		void						Layout();
+
+		void						SetActive(CMenu* pMenu);
 	};
 
-	class CMenu : public CLabel
+	class CMenu : public CButton, public IEventListener
 	{
 	public:
-									CMenu(const char* pszTitle);
+									CMenu(const char* pszTitle, bool bSubmenu = false);
 
 		virtual void				Think();
+		virtual void				Layout();
 		virtual void				Paint(int x, int y, int w, int h);
 
 		virtual bool				IsCursorListener() { return true; };
-		virtual void				CursorIn() { m_flHighlightGoal = 1; };
-		virtual void				CursorOut() { m_flHighlightGoal = 0; };
+		virtual void				CursorIn();
+		virtual void				CursorOut();
+
+		EVENT_CALLBACK(CMenu, Open);
+		EVENT_CALLBACK(CMenu, Close);
+
+		virtual void				AddSubmenu(const char* pszTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
 	protected:
+		bool						m_bSubmenu;
+
 		float						m_flHighlightGoal;
 		float						m_flHighlight;
+
+		float						m_flMenuHighlightGoal;
+		float						m_flMenuHighlight;
+		float						m_flMenuHeightGoal;
+		float						m_flMenuHeight;
+
+		CPanel*						m_pMenu;
+
+		std::vector<CMenu*>			m_apEntries;
 	};
 
 };
