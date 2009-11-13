@@ -10,11 +10,38 @@ void CModelWindow::InitUI()
 	CMenu* pHelp = CRootPanel::Get()->AddMenu("Help");
 
 	pFile->AddSubmenu("Open...", this, Open);
+	pFile->AddSubmenu("Reload", this, Reload);
+//	pFile->AddSubmenu("Save...", this, Save);
 	pFile->AddSubmenu("Exit", this, Exit);
 
 	pHelp->AddSubmenu("About SMAK", this, About);
 
 	CRootPanel::Get()->Layout();
+}
+
+void CModelWindow::OpenCallback()
+{
+	ReadFile(OpenFileDialog());
+}
+
+void CModelWindow::ReloadCallback()
+{
+	ReloadFromFile();
+}
+
+void CModelWindow::SaveCallback()
+{
+	SaveFile(SaveFileDialog());
+}
+
+void CModelWindow::ExitCallback()
+{
+	exit(0);
+}
+
+void CModelWindow::AboutCallback()
+{
+	OpenAboutPanel();
 }
 
 void CModelWindow::OpenAboutPanel()

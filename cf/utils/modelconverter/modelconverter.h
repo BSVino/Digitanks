@@ -22,8 +22,8 @@ public:
 
 	void				ReadDAE(const wchar_t* pszFilename);
 
-	void				WriteSMDs();
-	void				WriteSMD(size_t iMesh);
+	void				WriteSMDs(const wchar_t* pszFilename = NULL);
+	void				WriteSMD(size_t iMesh, const wchar_t* pszFilename = NULL);
 
 	wchar_t*			MakeFilename(wchar_t* pszPathFilename);
 	wchar_t*			GetDirectory(wchar_t* pszFilename);

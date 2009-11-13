@@ -34,6 +34,8 @@ public:
 	void					LoadTexturesIntoGL();
 	void					CreateGLLists();
 
+	void					SaveFile(const wchar_t* pszFile);
+
 	static void				RenderCallback() { Get()->Render(); };
 	void					Render();
 	void					RenderGround();
@@ -65,12 +67,15 @@ public:
 	void					Special(int k, int x, int y);
 
 	EVENT_CALLBACK(CModelWindow, Open);
+	EVENT_CALLBACK(CModelWindow, Reload);
+	EVENT_CALLBACK(CModelWindow, Save);
 	EVENT_CALLBACK(CModelWindow, Exit);
 	EVENT_CALLBACK(CModelWindow, About);
 
 	size_t					GetNextObjectId();
 
-	wchar_t*				OpenFile();
+	wchar_t*				OpenFileDialog();
+	wchar_t*				SaveFileDialog();
 	void					OpenAboutPanel();
 
 	static CModelWindow*	Get() { return s_pModelWindow; };

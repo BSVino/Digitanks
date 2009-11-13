@@ -124,21 +124,25 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 	if (!pszFile)
 		return;
 
-	DestroyAll();
+	// Save it in here in case m_szFileLoaded was passed into ReadFile, in which case it would be destroyed by DestroyAll.
+	std::wstring sFile = pszFile;
+	std::wstring sExtension;
 
 	size_t iFileLength = wcslen(pszFile);
-	const wchar_t* pszExtension = pszFile+iFileLength-4;
+	sExtension = pszFile+iFileLength-4;
+
+	DestroyAll();
 
 	CModelConverter c(&m_Scene);
 
-	if (wcscmp(pszExtension, L".obj") == 0)
-		c.ReadOBJ(pszFile);
-	else if (wcscmp(pszExtension, L".sia") == 0)
-		c.ReadSIA(pszFile);
-	else if (wcscmp(pszExtension, L".dae") == 0)
-		c.ReadDAE(pszFile);
+	if (wcscmp(sExtension.c_str(), L".obj") == 0)
+		c.ReadOBJ(sFile.c_str());
+	else if (wcscmp(sExtension.c_str(), L".sia") == 0)
+		c.ReadSIA(sFile.c_str());
+	else if (wcscmp(sExtension.c_str(), L".dae") == 0)
+		c.ReadDAE(sFile.c_str());
 
-	wcscpy(m_szFileLoaded, pszFile);
+	wcscpy(m_szFileLoaded, sFile.c_str());
 
 	LoadIntoGL();
 }
@@ -355,6 +359,20 @@ void CModelWindow::CreateGLLists()
 	m_flCameraDistance = sqrt(flFarthest);
 	if (m_flCameraDistance < 100)
 		m_flCameraDistance = 100;
+}
+
+void CModelWindow::SaveFile(const wchar_t* pszFile)
+{
+	if (!pszFile)
+		return;
+
+	CModelConverter c(&m_Scene);
+
+	size_t iFileLength = wcslen(pszFile);
+	std::wstring sExtension = pszFile+iFileLength-4;
+
+	if (wcscmp(sExtension.c_str(), L".smd") == 0)
+		c.WriteSMDs(pszFile);
 }
 
 void CModelWindow::Render()

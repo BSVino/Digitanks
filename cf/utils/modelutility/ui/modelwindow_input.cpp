@@ -133,18 +133,3 @@ void CModelWindow::Special(int k, int x, int y)
 
 	glutPostRedisplay();
 }
-
-void CModelWindow::OpenCallback()
-{
-	ReadFile(OpenFile());
-}
-
-void CModelWindow::ExitCallback()
-{
-	exit(0);
-}
-
-void CModelWindow::AboutCallback()
-{
-	OpenAboutPanel();
-}

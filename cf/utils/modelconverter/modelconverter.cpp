@@ -489,17 +489,23 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 	}
 }
 
-void CModelConverter::WriteSMDs()
+void CModelConverter::WriteSMDs(const wchar_t* pszFilename)
 {
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
-		WriteSMD(i);
+		WriteSMD(i, pszFilename);
 }
 
-void CModelConverter::WriteSMD(size_t iMesh)
+void CModelConverter::WriteSMD(size_t iMesh, const wchar_t* pszFilename)
 {
 	CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 
 	wchar_t szFile[1024];
+	szFile[0] = '\0';
+	if (pszFilename)
+	{
+		wcscpy(szFile, pszFilename);
+		wcscpy(szFile, L"_");
+	}
 	wcscpy(szFile, pMesh->GetBoneName(0));
 
 	wchar_t* pszFile = MakeFilename(szFile);
