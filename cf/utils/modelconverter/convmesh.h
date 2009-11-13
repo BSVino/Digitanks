@@ -60,9 +60,9 @@ public:
 class CConversionBone
 {
 public:
-									CConversionBone(const char* pszName);
+									CConversionBone(const wchar_t* pszName);
 
-	char							m_szName[1024];
+	wchar_t							m_szName[1024];
 };
 
 typedef enum
@@ -75,7 +75,7 @@ typedef enum
 class CConversionMaterial
 {
 public:
-									CConversionMaterial(const char* pszName,
+									CConversionMaterial(const wchar_t* pszName,
 										Vector vecAmbient = Vector(0.2f, 0.2f, 0.2f),
 										Vector vecDiffuse = Vector(0.8f, 0.8f, 0.8f),
 										Vector vecSpecular = Vector(1.0f, 1.0f, 1.0f),
@@ -83,10 +83,10 @@ public:
 										float flTransparency = 1.0f,
 										float flShininess = 0);
 
-	char*							GetName() { return m_szName; }
-	char*							GetTexture() { return m_szTexture; }
+	wchar_t*						GetName() { return m_szName; }
+	wchar_t*						GetTexture() { return m_szTexture; }
 
-	char							m_szName[1024];
+	wchar_t							m_szName[1024];
 
 	Vector							m_vecAmbient;
 	Vector							m_vecDiffuse;
@@ -96,13 +96,13 @@ public:
 	float							m_flShininess;
 	IllumType_t						m_eIllumType;
 
-	char							m_szTexture[1024];
+	wchar_t							m_szTexture[1024];
 };
 
 class CConversionMesh
 {
 public:
-									CConversionMesh(class CConversionScene* pScene, const char* pszName);
+									CConversionMesh(class CConversionScene* pScene, const wchar_t* pszName);
 
 	void							Clear();
 
@@ -110,12 +110,12 @@ public:
 	void							CalculateVertexNormals();
 	void							TranslateOrigin();
 
-	char*							GetName() { return m_szName; };
+	wchar_t*						GetName() { return m_szName; };
 
 	size_t							AddVertex(float x, float y, float z);
 	size_t							AddNormal(float x, float y, float z);
 	size_t							AddUV(float u, float v);
-	size_t							AddBone(const char* pszName);
+	size_t							AddBone(const wchar_t* pszName);
 	size_t							AddEdge(size_t v1, size_t v2);
 	size_t							AddFace(size_t iMaterial);
 
@@ -132,7 +132,7 @@ public:
 	Vector							GetUV(size_t i) { return m_aUVs[i]; }
 
 	size_t							GetNumBones() { return m_aBones.size(); };
-	char*							GetBoneName(size_t i) { return m_aBones[i].m_szName; };
+	wchar_t*						GetBoneName(size_t i) { return m_aBones[i].m_szName; };
 
 	size_t							GetNumEdges() { return m_aEdges.size(); };
 	CConversionEdge*				GetEdge(size_t i) { return &m_aEdges[i]; };
@@ -141,7 +141,7 @@ public:
 	size_t							FindFace(CConversionFace* pFace);
 	CConversionFace*				GetFace(size_t i) { return &m_aFaces[i]; };
 
-	char							m_szName[1024];
+	wchar_t							m_szName[1024];
 	class CConversionScene*			m_pScene;
 
 	// A vector of Vectors? Holy crap!
@@ -160,16 +160,16 @@ class CConversionScene
 public:
 	void								DestroyAll();
 
-	size_t								AddMaterial(const char* pszName);
+	size_t								AddMaterial(const wchar_t* pszName);
 	size_t								AddMaterial(CConversionMaterial& oMaterial);
 	size_t								GetNumMaterials() { return m_aMaterials.size(); };
-	size_t								FindMaterial(const char* pszName);
+	size_t								FindMaterial(const wchar_t* pszName);
 	CConversionMaterial*				GetMaterial(size_t i) { if (i >= m_aMaterials.size()) return NULL; return &m_aMaterials[i]; };
 
-	size_t								AddMesh(const char* pszName);
+	size_t								AddMesh(const wchar_t* pszName);
 	size_t								GetNumMeshes() { return m_aMeshes.size(); };
 	CConversionMesh*					GetMesh(size_t i) { return &m_aMeshes[i]; };
-	size_t								FindMesh(const char* pszName);
+	size_t								FindMesh(const wchar_t* pszName);
 	size_t								FindMesh(CConversionMesh* pMesh);
 
 	std::vector<CConversionMesh>		m_aMeshes;

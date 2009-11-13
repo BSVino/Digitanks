@@ -7,15 +7,15 @@
 #include <string>
 #include <vector>
 
-// It's online inline so I don't have to make a strutils.cpp :P
-inline void strtok(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " \r\n\t")
+// It's inline so I don't have to make a strutils.cpp :P
+inline void wcstok(const std::wstring& str, std::vector<std::wstring>& tokens, const std::wstring& delimiters = L" \r\n\t")
 {
     // Skip delimiters at beginning.
-    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    std::wstring::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
-    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+    std::wstring::size_type pos     = str.find_first_of(delimiters, lastPos);
 
-    while (std::string::npos != pos || std::string::npos != lastPos)
+    while (std::wstring::npos != pos || std::wstring::npos != lastPos)
     {
         // Found a token, add it to the vector.
         tokens.push_back(str.substr(lastPos, pos - lastPos));

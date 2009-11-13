@@ -27,7 +27,7 @@ public:
 	void					Run();	// Doesn't return
 
 	void					DestroyAll();
-	void					ReadFile(const char* pszFile);
+	void					ReadFile(const wchar_t* pszFile);
 	void					ReloadFromFile();
 
 	void					LoadIntoGL();
@@ -70,6 +70,7 @@ public:
 
 	size_t					GetNextObjectId();
 
+	wchar_t*				OpenFile();
 	void					OpenAboutPanel();
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
@@ -79,7 +80,7 @@ public:
 
 protected:
 	CConversionScene		m_Scene;
-	char					m_szFileLoaded[1024];
+	wchar_t					m_szFileLoaded[1024];
 
 	std::vector<size_t>		m_aiObjects;
 	size_t					m_iObjectsCreated;

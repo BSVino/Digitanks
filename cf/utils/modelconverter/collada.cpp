@@ -19,18 +19,12 @@
 
 #include "modelconverter.h"
 
-void CModelConverter::ReadDAE(const char* pszFilename)
+void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 {
 	FCollada::Initialize();
 
-	size_t iOriginalSize = strlen(pszFilename) + 1;
-	const size_t iNewSize = 100;
-	size_t iConvertedChars = 0;
-	wchar_t wszNewString[iNewSize];
-	mbstowcs_s(&iConvertedChars, wszNewString, iOriginalSize, pszFilename, _TRUNCATE);
-
 	FCDocument* pDoc = FCollada::NewTopDocument();
-	if (FCollada::LoadDocumentFromFile(pDoc, wszNewString))
+	if (FCollada::LoadDocumentFromFile(pDoc, pszFilename))
 	{
 		size_t i;
 
@@ -41,7 +35,7 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 			FCDMaterial* pColladaMaterial = pMatLib->GetEntity(i);
 			FCDEffect* pEffect = pColladaMaterial->GetEffect();
 
-			size_t iMaterial = m_pScene->AddMaterial(pColladaMaterial->GetDaeId().c_str());
+			size_t iMaterial = m_pScene->AddMaterial(pColladaMaterial->GetName());
 			CConversionMaterial* pMaterial = m_pScene->GetMaterial(iMaterial);
 
 			if (pEffect->GetProfileCount() < 1)
@@ -85,7 +79,7 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 								const wchar_t* pszFilename = pImage->GetFilename().c_str();
 
 								// I'm sick of these damn string copy functions.
-								wcstombs(pMaterial->m_szTexture, pszFilename, 1024);
+								wcscpy(pMaterial->m_szTexture, pszFilename);
 							}
 						}
 					}
@@ -102,9 +96,9 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 			{
 				size_t j;
 
-				size_t iMesh = m_pScene->AddMesh("mesh");
+				size_t iMesh = m_pScene->AddMesh(L"mesh");
 				CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
-				pMesh->AddBone("mesh");
+				pMesh->AddBone(L"mesh");
 
 				FCDGeometryMesh* pGeoMesh = pGeometry->GetMesh();
 				FCDGeometrySource* pPositionSource = pGeoMesh->GetPositionSource();
@@ -152,12 +146,7 @@ void CModelConverter::ReadDAE(const char* pszFilename)
 
 					fm::stringT<fchar> sMaterial = pPolygons->GetMaterialSemantic();
 
-					iOriginalSize = wcslen(sMaterial.c_str()) + 1;
-					size_t iConvertedChars = 0;
-					char szNewString[iNewSize];
-					wcstombs_s(&iConvertedChars, szNewString, iOriginalSize, sMaterial.c_str(), _TRUNCATE);
-
-					size_t iCurrentMaterial = m_pScene->FindMaterial(szNewString);
+					size_t iCurrentMaterial = m_pScene->FindMaterial(sMaterial.c_str());
 
 					if (pPolygons->TestPolyType() == 3)
 					{

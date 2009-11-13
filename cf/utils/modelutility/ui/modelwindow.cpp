@@ -119,23 +119,26 @@ void CModelWindow::DestroyAll()
 	m_aoMaterials.clear();
 }
 
-void CModelWindow::ReadFile(const char* pszFile)
+void CModelWindow::ReadFile(const wchar_t* pszFile)
 {
+	if (!pszFile)
+		return;
+
 	DestroyAll();
 
-	size_t iFileLength = strlen(pszFile);
-	const char* pszExtension = pszFile+iFileLength-4;
+	size_t iFileLength = wcslen(pszFile);
+	const wchar_t* pszExtension = pszFile+iFileLength-4;
 
 	CModelConverter c(&m_Scene);
 
-	if (strcmp(pszExtension, ".obj") == 0)
+	if (wcscmp(pszExtension, L".obj") == 0)
 		c.ReadOBJ(pszFile);
-	else if (strcmp(pszExtension, ".sia") == 0)
+	else if (wcscmp(pszExtension, L".sia") == 0)
 		c.ReadSIA(pszFile);
-	else if (strcmp(pszExtension, ".dae") == 0)
+	else if (wcscmp(pszExtension, L".dae") == 0)
 		c.ReadDAE(pszFile);
 
-	strcpy(m_szFileLoaded, pszFile);
+	wcscpy(m_szFileLoaded, pszFile);
 
 	LoadIntoGL();
 }
@@ -165,18 +168,15 @@ void CModelWindow::LoadTexturesIntoGL()
 
 		assert(m_aoMaterials.size()-1 == i);
 
-		const char* pszTexture = pMaterial->GetTexture();
+		const wchar_t* pszTexture = pMaterial->GetTexture();
 
 		if (!pszTexture || !*pszTexture)
 			continue;
 
-		wchar_t szTexture[1024];
-		mbstowcs(szTexture, pszTexture, 1024);
-
-		ILboolean bSuccess = ilLoadImage(szTexture);
+		ILboolean bSuccess = ilLoadImage(pszTexture);
 
 		if (!bSuccess)
-			bSuccess = ilLoadImage(szTexture);
+			bSuccess = ilLoadImage(pszTexture);
 
 		ILenum iError = ilGetError();
 

@@ -10,9 +10,9 @@ CModelConverter::CModelConverter(CConversionScene* pScene)
 	m_pScene = pScene;
 }
 
-void CModelConverter::ReadOBJ(const char* pszFilename)
+void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 {
-	FILE* fp = fopen(pszFilename, "r");
+	FILE* fp = _wfopen(pszFilename, L"r");
 
 	if (!fp)
 	{
@@ -24,81 +24,82 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 
 	size_t iCurrentMaterial = ~0;
 
-	char szLine[1024];
-	char* pszLine = NULL;
-	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	const size_t iChars = 1024;
+	wchar_t szLine[iChars];
+	wchar_t* pszLine = NULL;
+	while (pszLine = fgetws(szLine, iChars, fp))
 	{
 		pszLine = StripWhitespace(pszLine);
 
-		if (strlen(pszLine) == 0)
+		if (wcslen(pszLine) == 0)
 			continue;
 
 		if (pszLine[0] == '#')
 			continue;
 
-		char szToken[1024];
-		strcpy(szToken, pszLine);
-		char* pszToken = NULL;
-		pszToken = strtok(szToken, " ");
+		wchar_t szToken[1024];
+		wcscpy(szToken, pszLine);
+		wchar_t* pszToken = NULL;
+		pszToken = wcstok(szToken, L" ");
 
-		if (strcmp(pszToken, "mtllib") == 0)
+		if (wcscmp(pszToken, L"mtllib") == 0)
 		{
-			char szDirectory[1024];
-			strcpy(szDirectory, pszFilename);
+			wchar_t szDirectory[1024];
+			wcscpy(szDirectory, pszFilename);
 			GetDirectory(szDirectory);
-			char szMaterial[1024];
-			sprintf(szMaterial, "%s/%s", szDirectory, pszLine + 7);
+			wchar_t szMaterial[1024];
+			swprintf(szMaterial, L"%s/%s", szDirectory, pszLine + 7);
 			ReadMTL(szMaterial);
 		}
-		else if (strcmp(pszToken, "o") == 0)
+		else if (wcscmp(pszToken, L"o") == 0)
 		{
 			// Dunno what this does.
 		}
-		else if (strcmp(pszToken, "v") == 0)
+		else if (wcscmp(pszToken, L"v") == 0)
 		{
 			// A vertex.
 			float x, y, z;
-			sscanf(pszLine, "v %f %f %f", &x, &y, &z);
+			swscanf(pszLine, L"v %f %f %f", &x, &y, &z);
 			pMesh->AddVertex(x, y, z);
 		}
-		else if (strcmp(pszToken, "vn") == 0)
+		else if (wcscmp(pszToken, L"vn") == 0)
 		{
 			// A vertex normal.
 			float x, y, z;
-			sscanf(pszLine, "vn %f %f %f", &x, &y, &z);
+			swscanf(pszLine, L"vn %f %f %f", &x, &y, &z);
 			pMesh->AddNormal(x, y, z);
 		}
-		else if (strcmp(pszToken, "vt") == 0)
+		else if (wcscmp(pszToken, L"vt") == 0)
 		{
 			// A UV coordinate for a vertex.
 			float u, v;
-			sscanf(pszLine, "vt %f %f", &u, &v);
+			swscanf(pszLine, L"vt %f %f", &u, &v);
 			pMesh->AddUV(u, v);
 		}
-		else if (strcmp(pszToken, "g") == 0)
+		else if (wcscmp(pszToken, L"g") == 0)
 		{
 			// A group of faces.
 			pMesh->AddBone(pszLine+2);
 		}
-		else if (strcmp(pszToken, "usemtl") == 0)
+		else if (wcscmp(pszToken, L"usemtl") == 0)
 		{
 			// All following faces should use this material.
-			char* pszMaterial = pszLine+7;
+			wchar_t* pszMaterial = pszLine+7;
 			size_t iMaterial = m_pScene->FindMaterial(pszMaterial);
 			if (iMaterial == ((size_t)~0))
 				iCurrentMaterial = m_pScene->AddMaterial(pszMaterial);
 			else
 				iCurrentMaterial = iMaterial;
 		}
-		else if (strcmp(pszToken, "f") == 0)
+		else if (wcscmp(pszToken, L"f") == 0)
 		{
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
-			while (pszToken = strtok(NULL, " "))
+			while (pszToken = wcstok(NULL, L" "))
 			{
 				size_t v, vt, vn;
-				if (sscanf(pszToken, "%d/%d/%d", &v, &vt, &vn) == 3)
+				if (swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) == 3)
 					pMesh->AddVertexToFace(iFace, v-1, vt-1, vn-1);
 				else
 					printf("WARNING! Found an invalid vertex while loading faces.\n");
@@ -115,99 +116,100 @@ void CModelConverter::ReadOBJ(const char* pszFilename)
 	fclose(fp);
 }
 
-void CModelConverter::ReadMTL(const char* pszFilename)
+void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 {
-	FILE* fp = fopen(pszFilename, "r");
+	FILE* fp = _wfopen(pszFilename, L"r");
 
 	if (!fp)
 		return;
 
 	size_t iCurrentMaterial = ~0;
 
-	char szLine[1024];
-	char* pszLine = NULL;
-	while (pszLine = fgets(szLine, sizeof(szLine), fp))
+	const size_t iCount = 1024;
+	wchar_t szLine[iCount];
+	wchar_t* pszLine = NULL;
+	while (pszLine = fgetws(szLine, iCount, fp))
 	{
 		pszLine = StripWhitespace(pszLine);
 
-		if (strlen(pszLine) == 0)
+		if (wcslen(pszLine) == 0)
 			continue;
 
 		if (pszLine[0] == '#')
 			continue;
 
-		char szToken[1024];
-		strcpy(szToken, pszLine);
-		char* pszToken = NULL;
-		pszToken = strtok(szToken, " ");
+		wchar_t szToken[1024];
+		wcscpy(szToken, pszLine);
+		wchar_t* pszToken = NULL;
+		pszToken = wcstok(szToken, L" ");
 
 		CConversionMaterial* pMaterial = NULL;
 		if (iCurrentMaterial != ~0)
 			pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
-		if (strcmp(pszToken, "newmtl") == 0)
+		if (wcscmp(pszToken, L"newmtl") == 0)
 		{
-			pszToken = strtok(NULL, " ");
+			pszToken = wcstok(NULL, L" ");
 			iCurrentMaterial = m_pScene->AddMaterial(CConversionMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0));
 		}
-		else if (strcmp(pszToken, "Ka") == 0)
+		else if (wcscmp(pszToken, L"Ka") == 0)
 		{
 			float r, g, b;
-			sscanf(pszLine, "Ka %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"Ka %f %f %f", &r, &g, &b);
 			pMaterial->m_vecAmbient.x = r;
 			pMaterial->m_vecAmbient.y = g;
 			pMaterial->m_vecAmbient.z = b;
 		}
-		else if (strcmp(pszToken, "Kd") == 0)
+		else if (wcscmp(pszToken, L"Kd") == 0)
 		{
 			float r, g, b;
-			sscanf(pszLine, "Kd %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"Kd %f %f %f", &r, &g, &b);
 			pMaterial->m_vecDiffuse.x = r;
 			pMaterial->m_vecDiffuse.y = g;
 			pMaterial->m_vecDiffuse.z = b;
 		}
-		else if (strcmp(pszToken, "Ks") == 0)
+		else if (wcscmp(pszToken, L"Ks") == 0)
 		{
 			float r, g, b;
-			sscanf(pszLine, "Ks %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"Ks %f %f %f", &r, &g, &b);
 			pMaterial->m_vecSpecular.x = r;
 			pMaterial->m_vecSpecular.y = g;
 			pMaterial->m_vecSpecular.z = b;
 		}
-		else if (strcmp(pszToken, "d") == 0 || strcmp(pszToken, "Tr") == 0)
+		else if (wcscmp(pszToken, L"d") == 0 || wcscmp(pszToken, L"Tr") == 0)
 		{
-			pszToken = strtok(NULL, " ");
-			pMaterial->m_flTransparency = (float)atof(pszToken);
+			pszToken = wcstok(NULL, L" ");
+			pMaterial->m_flTransparency = (float)_wtof(pszToken);
 		}
-		else if (strcmp(pszToken, "Ns") == 0)
+		else if (wcscmp(pszToken, L"Ns") == 0)
 		{
-			pszToken = strtok(NULL, " ");
-			pMaterial->m_flShininess = (float)atof(pszToken);
+			pszToken = wcstok(NULL, L" ");
+			pMaterial->m_flShininess = (float)_wtof(pszToken);
 		}
-		else if (strcmp(pszToken, "illum") == 0)
+		else if (wcscmp(pszToken, L"illum") == 0)
 		{
-			pszToken = strtok(NULL, " ");
-			pMaterial->m_eIllumType = (IllumType_t)atoi(pszToken);
+			pszToken = wcstok(NULL, L" ");
+			pMaterial->m_eIllumType = (IllumType_t)_wtoi(pszToken);
 		}
-		else if (strcmp(pszToken, "map_Kd") == 0)
+		else if (wcscmp(pszToken, L"map_Kd") == 0)
 		{
-			pszToken = strtok(NULL, " ");
+			pszToken = wcstok(NULL, L" ");
 
-			if (FILE* fpTest = fopen(pszToken, "r"))
+			if (FILE* fpTest = _wfopen(pszToken, L"r"))
 			{
 				fclose(fpTest);
 
-				strcpy(pMaterial->m_szTexture, pszToken);
+				wcscpy(pMaterial->m_szTexture, pszToken);
 			}
 			else
 			{
-				char szDirectory[1024];
-				strcpy(szDirectory, pszFilename);
+				wchar_t szDirectory[1024];
+				wcscpy(szDirectory, pszFilename);
 				GetDirectory(szDirectory);
-				char szTexture[1024];
-				sprintf(szTexture, "%s/%s", szDirectory, pszToken);
+				wchar_t szTexture[1024];
+				swprintf(szTexture, L"%s/%s", szDirectory, pszToken);
 
-				strcpy(pMaterial->m_szTexture, szTexture);
+				wcscpy(pMaterial->m_szTexture, szTexture);
 			}
 		}
 	}
@@ -216,10 +218,10 @@ void CModelConverter::ReadMTL(const char* pszFilename)
 }
 
 // Silo ascii
-void CModelConverter::ReadSIA(const char* pszFilename)
+void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 {
-	std::ifstream infile;
-	infile.open(pszFilename, std::ifstream::in);
+	std::wifstream infile;
+	infile.open(pszFilename, std::wifstream::in);
 
 	if (!infile.is_open())
 	{
@@ -227,7 +229,7 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 		return;
 	}
 
-	std::string sLine;
+	std::wstring sLine;
 	while (infile.good())
 	{
 		std::getline(infile, sLine);
@@ -237,27 +239,27 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 		if (sLine.length() == 0)
 			continue;
 
-		std::vector<std::string> aTokens;
-		strtok(sLine, aTokens, " ");
-		const char* pszToken = aTokens[0].c_str();
+		std::vector<std::wstring> aTokens;
+		wcstok(sLine, aTokens, L" ");
+		const wchar_t* pszToken = aTokens[0].c_str();
 
-		if (strcmp(pszToken, "-Version") == 0)
+		if (wcscmp(pszToken, L"-Version") == 0)
 		{
 			// Warning if version is later than 1.0, we may not support it
 			int iMajor, iMinor;
-			sscanf(sLine.c_str(), "-Version %d.%d", &iMajor, &iMinor);
+			swscanf(sLine.c_str(), L"-Version %d.%d", &iMajor, &iMinor);
 			if (iMajor != 1 && iMinor != 0)
 				printf("WARNING: I was programmed for version 1.0, this file is version %d.%d, so this might not work exactly right!\n", iMajor, iMinor);
 		}
-		else if (strcmp(pszToken, "-Mat") == 0)
+		else if (wcscmp(pszToken, L"-Mat") == 0)
 		{
 			ReadSIAMat(infile, pszFilename);
 		}
-		else if (strcmp(pszToken, "-Shape") == 0)
+		else if (wcscmp(pszToken, L"-Shape") == 0)
 		{
 			ReadSIAShape(infile);
 		}
-		else if (strcmp(pszToken, "-Texshape") == 0)
+		else if (wcscmp(pszToken, L"-Texshape") == 0)
 		{
 			// This is the 3d UV space of the object, but we only care about its 2d UV space which is contained in rhw -Shape section, so meh.
 			ReadSIAShape(infile, false);
@@ -274,12 +276,12 @@ void CModelConverter::ReadSIA(const char* pszFilename)
 	infile.close();
 }
 
-void CModelConverter::ReadSIAMat(std::ifstream& infile, const char* pszFilename)
+void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilename)
 {
-	size_t iCurrentMaterial = m_pScene->AddMaterial("");
+	size_t iCurrentMaterial = m_pScene->AddMaterial(L"");
 	CConversionMaterial* pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
-	std::string sLine;
+	std::wstring sLine;
 	while (infile.good())
 	{
 		std::getline(infile, sLine);
@@ -289,81 +291,81 @@ void CModelConverter::ReadSIAMat(std::ifstream& infile, const char* pszFilename)
 		if (sLine.length() == 0)
 			continue;
 
-		std::vector<std::string> aTokens;
-		strtok(sLine, aTokens, " ");
-		const char* pszToken = aTokens[0].c_str();
+		std::vector<std::wstring> aTokens;
+		wcstok(sLine, aTokens, L" ");
+		const wchar_t* pszToken = aTokens[0].c_str();
 
-		if (strcmp(pszToken, "-name") == 0)
+		if (wcscmp(pszToken, L"-name") == 0)
 		{
-			const char* pszMaterial = sLine.c_str()+6;
-			std::string sName = pszMaterial;
-			std::vector<std::string> aName;
-			strtok(sName, aName, "\"");	// Strip out the quotation marks.
+			const wchar_t* pszMaterial = sLine.c_str()+6;
+			std::wstring sName = pszMaterial;
+			std::vector<std::wstring> aName;
+			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
-			strcpy(pMaterial->m_szName, aName[0].c_str());
+			wcscpy(pMaterial->m_szName, aName[0].c_str());
 		}
-		else if (strcmp(pszToken, "-dif") == 0)
+		else if (wcscmp(pszToken, L"-dif") == 0)
 		{
 			float r, g, b;
-			sscanf(sLine.c_str(), "-dif %f %f %f", &r, &g, &b);
+			swscanf(sLine.c_str(), L"-dif %f %f %f", &r, &g, &b);
 			pMaterial->m_vecDiffuse.x = r;
 			pMaterial->m_vecDiffuse.y = g;
 			pMaterial->m_vecDiffuse.z = b;
 		}
-		else if (strcmp(pszToken, "-amb") == 0)
+		else if (wcscmp(pszToken, L"-amb") == 0)
 		{
 			float r, g, b;
-			sscanf(sLine.c_str(), "-amb %f %f %f", &r, &g, &b);
+			swscanf(sLine.c_str(), L"-amb %f %f %f", &r, &g, &b);
 			pMaterial->m_vecAmbient.x = r;
 			pMaterial->m_vecAmbient.y = g;
 			pMaterial->m_vecAmbient.z = b;
 		}
-		else if (strcmp(pszToken, "-spec") == 0)
+		else if (wcscmp(pszToken, L"-spec") == 0)
 		{
 			float r, g, b;
-			sscanf(sLine.c_str(), "-spec %f %f %f", &r, &g, &b);
+			swscanf(sLine.c_str(), L"-spec %f %f %f", &r, &g, &b);
 			pMaterial->m_vecSpecular.x = r;
 			pMaterial->m_vecSpecular.y = g;
 			pMaterial->m_vecSpecular.z = b;
 		}
-		else if (strcmp(pszToken, "-emis") == 0)
+		else if (wcscmp(pszToken, L"-emis") == 0)
 		{
 			float r, g, b;
-			sscanf(sLine.c_str(), "-emis %f %f %f", &r, &g, &b);
+			swscanf(sLine.c_str(), L"-emis %f %f %f", &r, &g, &b);
 			pMaterial->m_vecEmissive.x = r;
 			pMaterial->m_vecEmissive.y = g;
 			pMaterial->m_vecEmissive.z = b;
 		}
-		else if (strcmp(pszToken, "-shin") == 0)
+		else if (wcscmp(pszToken, L"-shin") == 0)
 		{
 			float flShininess;
-			sscanf(sLine.c_str(), "-shin %f", &flShininess);
+			swscanf(sLine.c_str(), L"-shin %f", &flShininess);
 			pMaterial->m_flShininess = flShininess;
 		}
-		else if (strcmp(pszToken, "-tex") == 0)
+		else if (wcscmp(pszToken, L"-tex") == 0)
 		{
-			const char* pszTexture = sLine.c_str()+5;
+			const wchar_t* pszTexture = sLine.c_str()+5;
 
-			std::string sName = pszTexture;
-			std::vector<std::string> aName;
-			strtok(sName, aName, "\"");	// Strip out the quotation marks.
+			std::wstring sName = pszTexture;
+			std::vector<std::wstring> aName;
+			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
-			char szDirectory[1024];
-			strcpy(szDirectory, pszFilename);
+			wchar_t szDirectory[1024];
+			wcscpy(szDirectory, pszFilename);
 			GetDirectory(szDirectory);
-			char szTexture[1024];
-			sprintf(szTexture, "%s/%s", szDirectory, aName[0].c_str());
+			wchar_t szTexture[1024];
+			swprintf(szTexture, L"%s/%s", szDirectory, aName[0].c_str());
 
-			strcpy(pMaterial->m_szTexture, szTexture);
+			wcscpy(pMaterial->m_szTexture, szTexture);
 		}
-		else if (strcmp(pszToken, "-endMat") == 0)
+		else if (wcscmp(pszToken, L"-endMat") == 0)
 		{
 			return;
 		}
 	}
 }
 
-void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
+void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 {
 	size_t iCurrentMaterial = ~0;
 
@@ -373,7 +375,7 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 	size_t iAddUV = 0;
 	size_t iAddN = 0;
 
-	std::string sLine;
+	std::wstring sLine;
 	while (infile.good())
 	{
 		std::getline(infile, sLine);
@@ -383,24 +385,24 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 		if (sLine.length() == 0)
 			continue;
 
-		std::vector<std::string> aTokens;
-		strtok(sLine, aTokens, " ");
-		const char* pszToken = aTokens[0].c_str();
+		std::vector<std::wstring> aTokens;
+		wcstok(sLine, aTokens, L" ");
+		const wchar_t* pszToken = aTokens[0].c_str();
 
 		if (!bCare)
 		{
-			if (strcmp(pszToken, "-endShape") == 0)
+			if (wcscmp(pszToken, L"-endShape") == 0)
 				return;
 			else
 				continue;
 		}
 
-		if (strcmp(pszToken, "-snam") == 0)
+		if (wcscmp(pszToken, L"-snam") == 0)
 		{
 			// We name our mesh.
-			std::string sName = sLine.c_str()+6;
-			std::vector<std::string> aName;
-			strtok(sName, aName, "\"");	// Strip out the quotation marks.
+			std::wstring sName = sLine.c_str()+6;
+			std::vector<std::wstring> aName;
+			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
 			if (bCare)
 			{
@@ -421,51 +423,51 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 				}
 			}
 		}
-		else if (strcmp(pszToken, "-vert") == 0)
+		else if (wcscmp(pszToken, L"-vert") == 0)
 		{
 			// A vertex.
 			float x, y, z;
-			sscanf(sLine.c_str(), "-vert %f %f %f", &x, &y, &z);
+			swscanf(sLine.c_str(), L"-vert %f %f %f", &x, &y, &z);
 			pMesh->AddVertex(x, y, z);
 		}
-		else if (strcmp(pszToken, "-edge") == 0)
+		else if (wcscmp(pszToken, L"-edge") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
 			int v1, v2;
-			sscanf(sLine.c_str(), "-edge %d %d", &v1, &v2);
+			swscanf(sLine.c_str(), L"-edge %d %d", &v1, &v2);
 			pMesh->AddEdge(v1+iAddV, v2+iAddV);
 		}
-		else if (strcmp(pszToken, "-creas") == 0)
+		else if (wcscmp(pszToken, L"-creas") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
-			std::string sCreases = sLine.c_str()+7;
-			std::vector<std::string> aCreases;
-			strtok(sCreases, aCreases, " ");
+			std::wstring sCreases = sLine.c_str()+7;
+			std::vector<std::wstring> aCreases;
+			wcstok(sCreases, aCreases, L" ");
 
 			for (size_t i = 1; i < aCreases.size(); i++)
-				pMesh->GetEdge(atoi(aCreases[i].c_str())+iAddE)->m_bCreased = true;
+				pMesh->GetEdge(_wtoi(aCreases[i].c_str())+iAddE)->m_bCreased = true;
 		}
-		else if (strcmp(pszToken, "-setmat") == 0)
+		else if (wcscmp(pszToken, L"-setmat") == 0)
 		{
-			const char* pszMaterial = sLine.c_str()+8;
-			iCurrentMaterial = atoi(pszMaterial);
+			const wchar_t* pszMaterial = sLine.c_str()+8;
+			iCurrentMaterial = _wtoi(pszMaterial);
 		}
-		else if (strcmp(pszToken, "-face") == 0)
+		else if (wcscmp(pszToken, L"-face") == 0)
 		{
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
-			std::string sFaces = sLine.c_str()+8;
-			std::vector<std::string> aFaces;
-			strtok(sFaces, aFaces, " ");
+			std::wstring sFaces = sLine.c_str()+8;
+			std::vector<std::wstring> aFaces;
+			wcstok(sFaces, aFaces, L" ");
 
 			for (size_t i = 0; i < aFaces.size(); i += 4)
 			{
-				size_t iVertex = atoi(aFaces[i].c_str())+iAddV;
-				size_t iEdge = atoi(aFaces[i+1].c_str())+iAddE;
+				size_t iVertex = _wtoi(aFaces[i].c_str())+iAddV;
+				size_t iEdge = _wtoi(aFaces[i+1].c_str())+iAddE;
 
-				float flU = (float)atof(aFaces[i+2].c_str());
-				float flV = (float)atof(aFaces[i+3].c_str());
+				float flU = (float)_wtof(aFaces[i+2].c_str());
+				float flV = (float)_wtof(aFaces[i+3].c_str());
 				size_t iUV = pMesh->AddUV(flU, flV);
 				size_t iNormal = pMesh->AddNormal(0, 0, 1);	// For now!
 
@@ -473,14 +475,14 @@ void CModelConverter::ReadSIAShape(std::ifstream& infile, bool bCare)
 				pMesh->AddEdgeToFace(iFace, iEdge);
 			}
 		}
-		else if (strcmp(pszToken, "-axis") == 0)
+		else if (wcscmp(pszToken, L"-axis") == 0)
 		{
 			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
 			float x, y, z;
-			sscanf(sLine.c_str(), "-axis %f %f %f", &x, &y, &z);
+			swscanf(sLine.c_str(), L"-axis %f %f %f", &x, &y, &z);
 			pMesh->m_vecOrigin = Vector(x, y, z);
 		}
-		else if (strcmp(pszToken, "-endShape") == 0)
+		else if (wcscmp(pszToken, L"-endShape") == 0)
 		{
 			break;
 		}
@@ -497,34 +499,34 @@ void CModelConverter::WriteSMD(size_t iMesh)
 {
 	CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 
-	char szFile[1024];
-	strcpy(szFile, pMesh->GetBoneName(0));
+	wchar_t szFile[1024];
+	wcscpy(szFile, pMesh->GetBoneName(0));
 
-	char* pszFile = MakeFilename(szFile);
+	wchar_t* pszFile = MakeFilename(szFile);
 
-	std::string sSMDFile(pszFile);
-	sSMDFile.append(".smd");
+	std::wstring sSMDFile(pszFile);
+	sSMDFile.append(L".smd");
 
-	FILE* fp = fopen(sSMDFile.c_str(), "w");
+	FILE* fp = _wfopen(sSMDFile.c_str(), L"w");
 
 	// SMD file format: http://developer.valvesoftware.com/wiki/SMD
 
 	// Header section
-	fprintf(fp, "version 1\n\n");
+	fwprintf(fp, L"version 1\n\n");
 
 	// Nodes section
-	fprintf(fp, "nodes\n");
+	fwprintf(fp, L"nodes\n");
 	// Only bothering with one node, we're only doing static props with this code for now.
-	fprintf(fp, "0 \"%s\" -1\n", pMesh->GetBoneName(0));
-	fprintf(fp, "end\n\n");
+	fwprintf(fp, L"0 \"%s\" -1\n", pMesh->GetBoneName(0));
+	fwprintf(fp, L"end\n\n");
 
 	// Skeleton section
-	fprintf(fp, "skeleton\n");
-	fprintf(fp, "time 0\n");
-	fprintf(fp, "0 0.000000 0.000000 0.000000 1.570796 0.000000 0.0000001\n");
-	fprintf(fp, "end\n\n");
+	fwprintf(fp, L"skeleton\n");
+	fwprintf(fp, L"time 0\n");
+	fwprintf(fp, L"0 0.000000 0.000000 0.000000 1.570796 0.000000 0.0000001\n");
+	fwprintf(fp, L"end\n\n");
 	
-	fprintf(fp, "triangles\n");
+	fwprintf(fp, L"triangles\n");
 	for (size_t i = 0; i < pMesh->GetNumFaces(); i++)
 	{
 		CConversionFace* pFace = pMesh->GetFace(i);
@@ -560,94 +562,94 @@ void CModelConverter::WriteSMD(size_t iMesh)
 			if (iMaterial == ((size_t)~0) || !m_pScene->GetMaterial(iMaterial))
 			{
 				printf("ERROR! Can't find a material for a triangle.\n");
-				fprintf(fp, "error\n");
+				fwprintf(fp, L"error\n");
 			}
 			else
-				fprintf(fp, "%s\n", m_pScene->GetMaterial(iMaterial)->GetName());
+				fwprintf(fp, L"%s\n", m_pScene->GetMaterial(iMaterial)->GetName());
 
 			// <int|Parent bone> <float|PosX PosY PosZ> <normal|NormX NormY NormZ> <normal|U V>
 			// Studio coordinates are not the same as game coordinates. Studio (x, y, z) is game (x, -z, y) and vice versa.
-			fprintf(fp, "0 \t %f %f %f \t %f %f %f \t %f %f\n", v1.x, -v1.z, v1.y, n1.x, -n1.z, n1.y, uv1.x, uv1.y);
-			fprintf(fp, "0 \t %f %f %f \t %f %f %f \t %f %f\n", v2.x, -v2.z, v2.y, n2.x, -n2.z, n2.y, uv2.x, uv2.y);
-			fprintf(fp, "0 \t %f %f %f \t %f %f %f \t %f %f\n", v3.x, -v3.z, v3.y, n3.x, -n3.z, n3.y, uv3.x, uv3.y);
+			fwprintf(fp, L"0 \t %f %f %f \t %f %f %f \t %f %f\n", v1.x, -v1.z, v1.y, n1.x, -n1.z, n1.y, uv1.x, uv1.y);
+			fwprintf(fp, L"0 \t %f %f %f \t %f %f %f \t %f %f\n", v2.x, -v2.z, v2.y, n2.x, -n2.z, n2.y, uv2.x, uv2.y);
+			fwprintf(fp, L"0 \t %f %f %f \t %f %f %f \t %f %f\n", v3.x, -v3.z, v3.y, n3.x, -n3.z, n3.y, uv3.x, uv3.y);
 		}
 	}
-	fprintf(fp, "end\n");
+	fwprintf(fp, L"end\n");
 
 	fclose(fp);
 }
 
 // Takes a path + filename + extension and removes path and extension to return only the filename.
 // It is destructive on the string that is passed into it.
-char* CModelConverter::MakeFilename(char* pszPathFilename)
+wchar_t* CModelConverter::MakeFilename(wchar_t* pszPathFilename)
 {
-	char* pszFile = pszPathFilename;
+	wchar_t* pszFile = pszPathFilename;
 	int iLastChar = -1;
 	int i = -1;
 
 	while (pszFile[++i])
-		if (pszFile[i] == '\\' || pszFile[i] == '/')
+		if (pszFile[i] == L'\\' || pszFile[i] == L'/')
 			iLastChar = i;
 
 	pszFile += iLastChar+1;
 
 	i = -1;
 	while (pszFile[++i])
-		if (pszFile[i] == '.')
+		if (pszFile[i] == L'.')
 			iLastChar = i;
 
 	if (iLastChar >= 0)
-		pszFile[iLastChar] = '\0';
+		pszFile[iLastChar] = L'\0';
 
 	return pszFile;
 }
 
 // Destructive
-char* CModelConverter::GetDirectory(char* pszFilename)
+wchar_t* CModelConverter::GetDirectory(wchar_t* pszFilename)
 {
 	int iLastSlash = -1;
 	int i = -1;
 
 	while (pszFilename[++i])
-		if (pszFilename[i] == '\\' || pszFilename[i] == '/')
+		if (pszFilename[i] == L'\\' || pszFilename[i] == L'/')
 			iLastSlash = i;
 
 	if (iLastSlash >= 0)
-		pszFilename[iLastSlash] = '\0';
+		pszFilename[iLastSlash] = L'\0';
 
 	return pszFilename;
 }
 
-bool CModelConverter::IsWhitespace(char cChar)
+bool CModelConverter::IsWhitespace(wchar_t cChar)
 {
-	return (cChar == ' ' || cChar == '\t' || cChar == '\r' || cChar == '\n');
+	return (cChar == L' ' || cChar == L'\t' || cChar == L'\r' || cChar == L'\n');
 }
 
-char* CModelConverter::StripWhitespace(char* pszLine)
+wchar_t* CModelConverter::StripWhitespace(wchar_t* pszLine)
 {
 	if (!pszLine)
 		return NULL;
 
-	char* pszSpace = pszLine;
-	while (IsWhitespace(pszSpace[0]) && pszSpace[0] != '\0')
+	wchar_t* pszSpace = pszLine;
+	while (IsWhitespace(pszSpace[0]) && pszSpace[0] != L'\0')
 		pszSpace++;
 
-	int iEnd = ((int)strlen(pszSpace))-1;
+	int iEnd = ((int)wcslen(pszSpace))-1;
 	while (iEnd >= 0 && IsWhitespace(pszSpace[iEnd]))
 		iEnd--;
 
 	if (iEnd >= -1)
 	{
-		pszSpace[iEnd+1] = '\0';
+		pszSpace[iEnd+1] = L'\0';
 	}
 
 	return pszSpace;
 }
 
-std::string CModelConverter::StripWhitespace(std::string sLine)
+std::wstring CModelConverter::StripWhitespace(std::wstring sLine)
 {
 	int i = 0;
-	while (IsWhitespace(sLine[i]) && sLine[i] != '\0')
+	while (IsWhitespace(sLine[i]) && sLine[i] != L'\0')
 		i++;
 
 	int iEnd = ((int)sLine.length())-1;
@@ -655,7 +657,7 @@ std::string CModelConverter::StripWhitespace(std::string sLine)
 		iEnd--;
 
 	if (iEnd >= -1)
-		sLine[iEnd+1] = '\0';
+		sLine[iEnd+1] = L'\0';
 
 	return sLine.substr(i);
 }

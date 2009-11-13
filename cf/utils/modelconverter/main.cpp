@@ -18,20 +18,23 @@ int main(int argc, const char* argv[])
 	CConversionScene s;
 	CModelConverter c(&s);
 
+	wchar_t szFile[1024];
+	mbstowcs(szFile, argv[1], strlen(argv[1]));
+
 	if (strcmp(pszExtension, ".obj") == 0)
 	{
 		printf("Reading the OBJ... ");
-		c.ReadOBJ(argv[1]);
+		c.ReadOBJ(szFile);
 	}
 	else if (strcmp(pszExtension, ".sia") == 0)
 	{
 		printf("Reading the Silo ASCII file... ");
-		c.ReadSIA(argv[1]);
+		c.ReadSIA(szFile);
 	}
 	else if (strcmp(pszExtension, ".dae") == 0)
 	{
 		printf("Reading the Collada .dae file... ");
-		c.ReadDAE(argv[1]);
+		c.ReadDAE(szFile);
 	}
 
 	printf("Done.\n");

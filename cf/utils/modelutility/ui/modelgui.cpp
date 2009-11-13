@@ -950,6 +950,16 @@ void CButton::CursorOut()
 	m_bHighlight = false;
 }
 
+void CButton::SetToggleButton(bool bToggle)
+{
+	if (m_bToggle == bToggle)
+		return;
+
+	m_bToggle = bToggle;
+
+	SetState(false, false);
+}
+
 void CButton::Paint(int x, int y, int w, int h)
 {
 	if (!IsVisible())
@@ -1609,6 +1619,7 @@ void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventLi
 	pMenu->SetAlign(TA_LEFTCENTER);
 	pMenu->SetWrap(false);
 	pMenu->EnsureTextFits();
+	pMenu->SetToggleButton(false);
 
 	if (pListener)
 		pMenu->SetClickedListener(pListener, pfnCallback);

@@ -3,15 +3,15 @@
 
 #include "convmesh.h"
 
-CConversionMesh::CConversionMesh(class CConversionScene* pScene, const char* pszName)
+CConversionMesh::CConversionMesh(class CConversionScene* pScene, const wchar_t* pszName)
 {
 	m_pScene = pScene;
-	strcpy(m_szName, pszName);
+	wcscpy(m_szName, pszName);
 }
 
 void CConversionMesh::Clear()
 {
-	m_szName[0] = '\0';
+	m_szName[0] = L'\0';
 
 	m_aVertices.clear();
 	m_aNormals.clear();
@@ -123,7 +123,7 @@ void CConversionScene::DestroyAll()
 	m_aMeshes.clear();
 }
 
-size_t CConversionScene::AddMaterial(const char* pszName)
+size_t CConversionScene::AddMaterial(const wchar_t* pszName)
 {
 	m_aMaterials.push_back(CConversionMaterial(pszName));
 	return m_aMaterials.size()-1;
@@ -135,25 +135,25 @@ size_t CConversionScene::AddMaterial(CConversionMaterial& oMaterial)
 	return m_aMaterials.size()-1;
 }
 
-size_t CConversionScene::FindMaterial(const char* pszName)
+size_t CConversionScene::FindMaterial(const wchar_t* pszName)
 {
 	for (size_t i = 0; i < m_aMaterials.size(); i++)
-		if (strcmp(pszName, m_aMaterials[i].m_szName) == 0)
+		if (wcscmp(pszName, m_aMaterials[i].m_szName) == 0)
 			return i;
 
 	return ((size_t)~0);
 }
 
-size_t CConversionScene::AddMesh(const char* pszName)
+size_t CConversionScene::AddMesh(const wchar_t* pszName)
 {
 	m_aMeshes.push_back(CConversionMesh(this, pszName));
 	return m_aMeshes.size()-1;
 }
 
-size_t CConversionScene::FindMesh(const char* pszName)
+size_t CConversionScene::FindMesh(const wchar_t* pszName)
 {
 	for (size_t i = 0; i < m_aMeshes.size(); i++)
-		if (strcmp(pszName, m_aMeshes[i].m_szName) == 0)
+		if (wcscmp(pszName, m_aMeshes[i].m_szName) == 0)
 			return i;
 
 	return ((size_t)~0);
@@ -186,7 +186,7 @@ size_t CConversionMesh::AddUV(float u, float v)
 	return m_aUVs.size()-1;
 }
 
-size_t CConversionMesh::AddBone(const char* pszName)
+size_t CConversionMesh::AddBone(const wchar_t* pszName)
 {
 	m_aBones.push_back(CConversionBone(pszName));
 	return m_aBones.size()-1;
@@ -302,14 +302,14 @@ size_t CConversionMesh::FindFace(CConversionFace* pFace)
 	return ((size_t)~0);
 }
 
-CConversionBone::CConversionBone(const char* pszName)
+CConversionBone::CConversionBone(const wchar_t* pszName)
 {
-	strcpy(m_szName, pszName);
+	wcscpy(m_szName, pszName);
 }
 
-CConversionMaterial::CConversionMaterial(const char* pszName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
+CConversionMaterial::CConversionMaterial(const wchar_t* pszName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
 {
-	strcpy(m_szName, pszName);
+	wcscpy(m_szName, pszName);
 
 	m_vecAmbient = vecAmbient;
 	m_vecDiffuse = vecDiffuse;

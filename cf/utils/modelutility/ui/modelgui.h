@@ -449,6 +449,7 @@ namespace modelgui
 		virtual void	CursorOut();
 
 		virtual bool	IsToggleButton() {return m_bToggle;};
+		virtual void	SetToggleButton(bool bToggle);
 		virtual void	SetToggleState(bool bState);
 		virtual bool	GetToggleState() {return m_bToggleOn;};
 

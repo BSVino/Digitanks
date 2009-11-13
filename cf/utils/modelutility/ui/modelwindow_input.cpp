@@ -136,6 +136,7 @@ void CModelWindow::Special(int k, int x, int y)
 
 void CModelWindow::OpenCallback()
 {
+	ReadFile(OpenFile());
 }
 
 void CModelWindow::ExitCallback()
