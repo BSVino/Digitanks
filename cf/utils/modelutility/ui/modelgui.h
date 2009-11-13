@@ -574,8 +574,11 @@ namespace modelgui
 		virtual void				CursorIn();
 		virtual void				CursorOut();
 
+		virtual void				SetMenuListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+
 		EVENT_CALLBACK(CMenu, Open);
 		EVENT_CALLBACK(CMenu, Close);
+		EVENT_CALLBACK(CMenu, Clicked);
 
 		virtual void				AddSubmenu(const char* pszTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
@@ -589,6 +592,9 @@ namespace modelgui
 		float						m_flMenuHighlight;
 		float						m_flMenuHeightGoal;
 		float						m_flMenuHeight;
+
+		IEventListener::Callback	m_pfnMenuCallback;
+		IEventListener*				m_pMenuListener;
 
 		CPanel*						m_pMenu;
 

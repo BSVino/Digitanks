@@ -1516,6 +1516,9 @@ CMenu::CMenu(const char* pszTitle, bool bSubmenu)
 	SetClickedListener(this, Open);
 	SetUnclickedListener(this, Close);
 
+	m_pfnMenuCallback = NULL;
+	m_pMenuListener = NULL;
+
 	m_pMenu = new CPanel(0, 0, 100, 100);
 	CRootPanel::Get()->AddControl(m_pMenu);
 
@@ -1592,6 +1595,12 @@ void CMenu::CursorOut()
 	m_flHighlightGoal = 0;
 }
 
+void CMenu::SetMenuListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	m_pfnMenuCallback = pfnCallback;
+	m_pMenuListener = pListener;
+}
+
 void CMenu::OpenCallback()
 {
 	CRootPanel::Get()->GetMenuBar()->SetActive(this);
@@ -1613,6 +1622,14 @@ void CMenu::CloseCallback()
 	}
 }
 
+void CMenu::ClickedCallback()
+{
+	if (m_pMenuListener)
+		m_pfnMenuCallback(m_pMenuListener);
+
+	CRootPanel::Get()->GetMenuBar()->SetActive(NULL);
+}
+
 void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
 	CMenu* pMenu = new CMenu(pszTitle, true);
@@ -1621,8 +1638,10 @@ void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventLi
 	pMenu->EnsureTextFits();
 	pMenu->SetToggleButton(false);
 
+	pMenu->SetClickedListener(pMenu, Clicked);
+
 	if (pListener)
-		pMenu->SetClickedListener(pListener, pfnCallback);
+		pMenu->SetMenuListener(pListener, pfnCallback);
 
 	m_pMenu->AddControl(pMenu);
 }
