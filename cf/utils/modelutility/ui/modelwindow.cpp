@@ -12,10 +12,6 @@
 #include <modelconverter/modelconverter.h>
 #include "modelgui.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265
-#endif
-
 CModelWindow* CModelWindow::s_pModelWindow = NULL;
 
 CModelWindow::CModelWindow()
@@ -24,6 +20,9 @@ CModelWindow::CModelWindow()
 
 	int argc = 1;
 	char* argv = "smak";
+
+	m_pLightHalo = NULL;
+	m_pLightBeam = NULL;
 
 	m_aiObjects.clear();
 	m_iObjectsCreated = 0;
@@ -94,6 +93,23 @@ CModelWindow::CModelWindow()
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05f);
 
 	ilInit();
+
+	size_t iTexture = LoadTextureIntoGL(L"lighthalo.png");
+	if (iTexture)
+		m_pLightHalo = new CMaterial(iTexture);
+
+	iTexture = LoadTextureIntoGL(L"lightbeam.png");
+	if (iTexture)
+		m_pLightBeam = new CMaterial(iTexture);
+}
+
+CModelWindow::~CModelWindow()
+{
+	if (m_pLightHalo)
+		delete m_pLightHalo;
+
+	if (m_pLightBeam)
+		delete m_pLightBeam;
 }
 
 void CModelWindow::Run()
@@ -158,55 +174,61 @@ void CModelWindow::LoadIntoGL()
 	CreateGLLists();
 }
 
+size_t CModelWindow::LoadTextureIntoGL(const wchar_t* pszFilename)
+{
+	if (!pszFilename || !*pszFilename)
+		return 0;
+
+	ILuint iDevILId;
+	ilGenImages(1, &iDevILId);
+	ilBindImage(iDevILId);
+
+	ILboolean bSuccess = ilLoadImage(pszFilename);
+
+	if (!bSuccess)
+		bSuccess = ilLoadImage(pszFilename);
+
+	ILenum iError = ilGetError();
+
+	if (!bSuccess)
+		return 0;
+
+	bSuccess = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	if (!bSuccess)
+		return 0;
+
+	GLuint iGLId;
+	glGenTextures(1, &iGLId);
+	glBindTexture(GL_TEXTURE_2D, iGLId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gluBuild2DMipmaps(GL_TEXTURE_2D,
+		ilGetInteger(IL_IMAGE_BPP),
+		ilGetInteger(IL_IMAGE_WIDTH),
+		ilGetInteger(IL_IMAGE_HEIGHT),
+		ilGetInteger(IL_IMAGE_FORMAT),
+		GL_UNSIGNED_BYTE,
+		ilGetData());
+
+	ilDeleteImages(1, &iDevILId);
+
+	return iGLId;
+}
+
 void CModelWindow::LoadTexturesIntoGL()
 {
 	for (size_t i = 0; i < m_Scene.GetNumMaterials(); i++)
 	{
 		CConversionMaterial* pMaterial = m_Scene.GetMaterial(i);
 
-		ILuint iDevILId;
-		ilGenImages(1, &iDevILId);
-		ilBindImage(iDevILId);
-
 		m_aoMaterials.push_back(CMaterial(0));
 
 		assert(m_aoMaterials.size()-1 == i);
 
-		const wchar_t* pszTexture = pMaterial->GetTexture();
+		size_t iTexture = LoadTextureIntoGL(pMaterial->GetTexture());
 
-		if (!pszTexture || !*pszTexture)
-			continue;
-
-		ILboolean bSuccess = ilLoadImage(pszTexture);
-
-		if (!bSuccess)
-			bSuccess = ilLoadImage(pszTexture);
-
-		ILenum iError = ilGetError();
-
-		if (bSuccess)
-		{
-			bSuccess = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-			if (bSuccess)
-			{
-				GLuint iGLId;
-				glGenTextures(1, &iGLId);
-				glBindTexture(GL_TEXTURE_2D, iGLId);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				gluBuild2DMipmaps(GL_TEXTURE_2D,
-					ilGetInteger(IL_IMAGE_BPP),
-					ilGetInteger(IL_IMAGE_WIDTH),
-					ilGetInteger(IL_IMAGE_HEIGHT),
-					ilGetInteger(IL_IMAGE_FORMAT),
-					GL_UNSIGNED_BYTE,
-					ilGetData());
-
-				ilDeleteImages(1, &iDevILId);
-
-				m_aoMaterials[i].m_iBase = iGLId;
-			}
-		}
+		if (iTexture)
+			m_aoMaterials[i].m_iBase = iTexture;
 	}
 }
 
@@ -391,6 +413,8 @@ void CModelWindow::Render()
 	glPushMatrix();
 	glLoadIdentity();
 
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
@@ -424,18 +448,18 @@ void CModelWindow::Render()
 
 	glPushMatrix();
 
-	gluLookAt(0.0, 0.0, m_flCameraDistance,
+	Vector vecCameraVector = AngleVector(Vector(m_flCameraPitch, m_flCameraYaw, 0)) * m_flCameraDistance;
+
+	gluLookAt(vecCameraVector.x, vecCameraVector.y, vecCameraVector.z,
 		0.0, 0.0, 0.0,
 		0.0, 1.0, 0.0);
-
-    glRotatef(m_flCameraYaw, 1.0, 0.0, 0.0);
-    glRotatef(m_flCameraPitch, 0.0, 1.0, 0.0);
-
-	RenderLightSource();
 
     RenderGround();
 
 	RenderObjects();
+
+	// Render light source on top of objects, since it doesn't use the depth buffer.
+	RenderLightSource();
 
 	if (m_avecDebugLines.size())
 	{
@@ -454,6 +478,7 @@ void CModelWindow::Render()
 	}
 
 	glPopMatrix();
+	glPopAttrib();
 }
 
 void CModelWindow::RenderGround(void)
@@ -527,9 +552,11 @@ void CModelWindow::RenderLightSource()
 	GLfloat lightColor[] = {0.9f, 1.0f, 0.9f, 1.0f};
 
 	// Reposition the light source.
-	flLightPosition[0] = (float)cos(m_flLightPitch * (M_PI*2 / 360)) * (float)cos(m_flLightYaw * (M_PI*2 / 360)) * m_flCameraDistance/4;
-	flLightPosition[1] = (float)sin(m_flLightPitch * (M_PI*2 / 360)) * m_flCameraDistance/4;
-	flLightPosition[2] = (float)cos(m_flLightPitch * (M_PI*2 / 360)) * (float)sin(m_flLightYaw * (M_PI*2 / 360)) * m_flCameraDistance/4;
+	Vector vecLightDirection = AngleVector(Vector(m_flLightPitch, m_flLightYaw, 0));
+
+	flLightPosition[0] = vecLightDirection.x * m_flCameraDistance/2;
+	flLightPosition[1] = vecLightDirection.y * m_flCameraDistance/2;
+	flLightPosition[2] = vecLightDirection.z * m_flCameraDistance/2;
 	flLightPosition[3] = 0.0;
 
 	// Tell GL new light source position.
@@ -538,35 +565,115 @@ void CModelWindow::RenderLightSource()
 	float flScale = m_flCameraDistance/60;
 
 	glPushMatrix();
-		glDisable(GL_LIGHTING);
-		glColor3f(1.0, 1.0, 0.0);
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
-		// Draw an arrowhead.
-		glDisable(GL_CULL_FACE);
+		glDisable(GL_LIGHTING);
+
 		glTranslatef(flLightPosition[0], flLightPosition[1], flLightPosition[2]);
 		glRotatef(-m_flLightYaw, 0, 1, 0);
 		glRotatef(m_flLightPitch, 0, 0, 1);
 		glScalef(flScale, flScale, flScale);
-		glBegin(GL_TRIANGLE_FAN);
-			glVertex3f(0, 0, 0);
-			glVertex3f(2, 1, 1);
-			glVertex3f(2, -1, 1);
-			glVertex3f(2, -1, -1);
-			glVertex3f(2, 1, -1);
-			glVertex3f(2, 1, 1);
-		glEnd();
 
-		// Draw a white line from light direction.
-		glColor3f(1.0, 1.0, 1.0);
-		glBegin(GL_LINES);
-			glVertex3f(0, 0, 0);
-			glVertex3f(5, 0, 0);
-		glEnd();
+		if (m_pLightHalo && m_pLightBeam)
+		{
+			Vector vecCameraDirection = AngleVector(Vector(m_flCameraPitch, m_flCameraYaw, 0));
+
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+			glDisable(GL_DEPTH_TEST);
+
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glBindTexture(GL_TEXTURE_2D, (GLuint)m_pLightHalo->m_iBase);
+
+			float flDot = vecCameraDirection.Dot(vecLightDirection);
+
+			if (flDot < 0)
+			{
+				glColor4f(1.0, 1.0, 1.0, -flDot);
+
+				glBegin(GL_QUADS);
+					glTexCoord2f(0, 0);
+					glVertex3f(0, -2, -2);
+					glTexCoord2f(0, 1);
+					glVertex3f(0, -2, 2);
+					glTexCoord2f(1, 1);
+					glVertex3f(0, 2, 2);
+					glTexCoord2f(1, 0);
+					glVertex3f(0, 2, -2);
+				glEnd();
+			}
+
+			glDisable(GL_CULL_FACE);
+			glBindTexture(GL_TEXTURE_2D, (GLuint)m_pLightBeam->m_iBase);
+
+			Vector vecLightRight, vecLightUp;
+			AngleVectors(Vector(m_flLightPitch, m_flLightYaw, 0), NULL, &vecLightRight, &vecLightUp);
+
+			flDot = vecCameraDirection.Dot(vecLightRight);
+
+			glColor4f(1.0, 1.0, 1.0, fabs(flDot));
+
+			glBegin(GL_QUADS);
+				glTexCoord2f(1, 0);
+				glVertex3f(-25, -5, 0);
+				glTexCoord2f(0, 0);
+				glVertex3f(-25, 5, 0);
+				glTexCoord2f(0, 1);
+				glVertex3f(0, 5, 0);
+				glTexCoord2f(1, 1);
+				glVertex3f(0, -5, 0);
+			glEnd();
+
+			flDot = vecCameraDirection.Dot(vecLightUp);
+
+			glColor4f(1.0, 1.0, 1.0, fabs(flDot));
+
+			glBegin(GL_QUADS);
+				glTexCoord2f(1, 0);
+				glVertex3f(-25, 0, -5);
+				glTexCoord2f(0, 0);
+				glVertex3f(-25, 0, 5);
+				glTexCoord2f(0, 1);
+				glVertex3f(0, 0, 5);
+				glTexCoord2f(1, 1);
+				glVertex3f(0, 0, -5);
+			glEnd();
+
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+		}
+		else
+		{
+			glColor3f(1.0, 1.0, 0.0);
+
+			// Draw an arrowhead.
+			glDisable(GL_CULL_FACE);
+			glBegin(GL_TRIANGLE_FAN);
+				glVertex3f(0, 0, 0);
+				glVertex3f(2, 1, 1);
+				glVertex3f(2, -1, 1);
+				glVertex3f(2, -1, -1);
+				glVertex3f(2, 1, -1);
+				glVertex3f(2, 1, 1);
+			glEnd();
+
+			// Draw a white line from light direction.
+			glColor3f(1.0, 1.0, 1.0);
+			glBegin(GL_LINES);
+				glVertex3f(0, 0, 0);
+				glVertex3f(5, 0, 0);
+			glEnd();
+		}
+	glPopAttrib();
 	glPopMatrix();
 }
 
 void CModelWindow::RenderObjects()
 {
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
@@ -592,6 +699,8 @@ void CModelWindow::RenderObjects()
 		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 	}
+
+	glPopAttrib();
 }
 
 void CModelWindow::WindowResize(int w, int h)

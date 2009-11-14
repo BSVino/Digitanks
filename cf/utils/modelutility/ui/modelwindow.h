@@ -21,6 +21,7 @@ class CModelWindow : public modelgui::IEventListener
 {
 public:
 							CModelWindow();
+							~CModelWindow();
 
 	void					InitUI();
 
@@ -31,6 +32,7 @@ public:
 	void					ReloadFromFile();
 
 	void					LoadIntoGL();
+	size_t					LoadTextureIntoGL(const wchar_t* pszFilename);
 	void					LoadTexturesIntoGL();
 	void					CreateGLLists();
 
@@ -91,6 +93,9 @@ protected:
 	size_t					m_iObjectsCreated;
 
 	std::vector<CMaterial>	m_aoMaterials;
+
+	CMaterial*				m_pLightHalo;
+	CMaterial*				m_pLightBeam;
 
 	float					m_flCameraDistance;
 

@@ -5,6 +5,10 @@
 
 typedef float unit_t;
 
+#ifndef M_PI
+#define M_PI 3.14159265
+#endif
+
 // Try to keep this class compatible with Valve's vector.h
 class Vector
 {
@@ -145,6 +149,68 @@ inline float Vector::Dot(const Vector& v) const
 inline Vector Vector::Cross(const Vector& v) const
 {
 	return Vector(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
+}
+
+inline Vector AngleVector(const Vector& v)
+{
+	Vector vecResult;
+
+	float p = (float)(v.x * (M_PI*2 / 360));
+	float y = (float)(v.y * (M_PI*2 / 360));
+	float r = (float)(v.z * (M_PI*2 / 360));
+
+	float sp = sin(p);
+	float cp = cos(p);
+	float sy = sin(y);
+	float cy = cos(y);
+
+	vecResult.x = cp*cy;
+	vecResult.y = sp;
+	vecResult.z = cp*sy;
+
+	return vecResult;
+}
+
+inline void AngleVectors(const Vector& v, Vector* pvecF, Vector* pvecR, Vector* pvecU)
+{
+	float p = (float)(v.x * (M_PI*2 / 360));
+	float y = (float)(v.y * (M_PI*2 / 360));
+	float r = 0;
+
+	float sp = sin(p);
+	float cp = cos(p);
+	float sy = sin(y);
+	float cy = cos(y);
+	float sr = 0;
+	float cr = 0;
+
+	if (pvecR || pvecU)
+	{
+		r = (float)(v.z * (M_PI*2 / 360));
+		sr = sin(r);
+		cr = cos(r);
+	}
+
+	if (pvecF)
+	{
+		pvecF->x = cp*cy;
+		pvecF->y = sp;
+		pvecF->z = cp*sy;
+	}
+
+	if (pvecR)
+	{
+		pvecR->x = -sr*sp*cy + cr*sy;
+		pvecR->y = sr*cp;
+		pvecR->z = -sr*sp*sy - cr*cy;
+	}
+
+	if (pvecU)
+	{
+		pvecU->x = cr*sp*cy + sr*sy;
+		pvecU->y = -cr*cp;
+		pvecU->z = cr*sp*sy - sr*cy;
+	}
 }
 
 #endif

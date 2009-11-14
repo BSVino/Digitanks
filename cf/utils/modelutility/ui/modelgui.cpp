@@ -1271,7 +1271,11 @@ void CRootPanel::Paint()
 	glPushMatrix();
 	glLoadIdentity();
 
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
 	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
 
 	CPanel::Paint();
 
@@ -1291,6 +1295,8 @@ void CRootPanel::Paint()
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	glPopAttrib();
 }
 
 void CRootPanel::Layout()

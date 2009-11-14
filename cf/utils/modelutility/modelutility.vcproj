@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="modelutility"
+	Name="smak"
 	ProjectGUID="{FCA9F04C-73DB-4863-B8A8-4B7FC09D07B9}"
 	RootNamespace="modelutility"
 	>
@@ -26,6 +26,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="if exist &quot;\Program Files\SMAK\smak.exe&quot; attrib -r &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;smak.exe copy &quot;$(TargetDir)&quot;smak.exe &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;"
+				Outputs="\Program Files\SMAK\smak.exe"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -104,6 +106,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="if exist &quot;\Program Files\SMAK\smak.exe&quot; attrib -r &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;smak.exe copy &quot;$(TargetDir)&quot;smak.exe &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;"
+				Outputs="\Program Files\SMAK\smak.exe"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"

@@ -12,8 +12,14 @@ void CModelWindow::MouseDragged(int x, int y)
 {
 	if (m_bCameraRotating)
 	{
-		m_flCameraPitch += (x - m_iMouseStartX)/2;
-		m_flCameraYaw += (y - m_iMouseStartY)/2;
+		m_flCameraPitch += (y - m_iMouseStartY)/2;
+		m_flCameraYaw += (x - m_iMouseStartX)/2;
+
+		while (m_flCameraPitch > 89)
+			m_flCameraPitch = 89;
+		while (m_flCameraPitch < -89)
+			m_flCameraPitch = -89;
+
 		m_iMouseStartX = x;
 		m_iMouseStartY = y;
 		glutPostRedisplay();
