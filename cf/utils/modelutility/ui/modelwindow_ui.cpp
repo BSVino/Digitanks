@@ -89,7 +89,7 @@ void CAboutPanel::Layout()
 
 void CAboutPanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::Get()->PaintRect(x, y, w, h, 255);
+	CRootPanel::Get()->PaintRect(x, y, w, h);
 
 	CPanel::Paint(x, y, w, h);
 }

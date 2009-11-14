@@ -15,18 +15,20 @@
 
 namespace modelgui
 {
+	extern Color g_clrBox;
+
 	class CRect
 	{
 	public:
-		CRect(int x, int y, int w, int h) { this->x = x; this->y = y; this->w = w; this->h = h; };
+		CRect(float x, float y, float w, float h) { this->x = x; this->y = y; this->w = w; this->h = h; };
 		CRect() { CRect(0, 0, 0, 0); };
 
-		int Size() { return w*h; }
+		float Size() { return w*h; }
 
-		int x;
-		int y;
-		int w;
-		int h;
+		float x;
+		float y;
+		float w;
+		float h;
 	};
 
 	class IPopup
@@ -58,6 +60,8 @@ namespace modelgui
 		virtual void		GetBR(int &x, int &y)=0;
 		virtual int			GetWidth()=0;
 		virtual int			GetHeight()=0;
+		virtual void		SetAlpha(int a)=0;
+		virtual int			GetAlpha()=0;
 
 		virtual bool		IsVisible()=0;
 		virtual void		SetVisible(bool bVisible)=0;
@@ -177,8 +181,10 @@ namespace modelgui
 		virtual int		GetWidth() { return m_iW; };
 		virtual int		GetHeight() { return m_iH; };
 		virtual void	SetDimensions(int x, int y, int w, int h) { m_iX = x; m_iY = y; m_iW = w; m_iH = h; };	// Local space
-		virtual void	SetDimensions(const CRect& Dims) { SetDimensions(Dims.x, Dims.y, Dims.w, Dims.h); };	// Local space
+		virtual void	SetDimensions(const CRect& Dims) { SetDimensions((int)Dims.x, (int)Dims.y, (int)Dims.w, (int)Dims.h); };	// Local space
 		virtual void	GetBR(int &x, int &y) { x = m_iX + m_iW; y = m_iY + m_iH; };
+		virtual void	SetAlpha(int a) { m_iAlpha = a; };
+		virtual int		GetAlpha() { return m_iAlpha; };
 
 		virtual void	SetVisible(bool bVis) { m_bVisible = bVis; };
 		virtual bool	IsVisible();
@@ -193,7 +199,7 @@ namespace modelgui
 		virtual void	CursorIn() {};
 		virtual void	CursorOut() {};
 
-		virtual void	PaintRect(int x, int y, int w, int h, int a);
+		virtual void	PaintRect(int x, int y, int w, int h, Color& c = g_clrBox);
 
 	protected:
 		IControl*		m_pParent;
@@ -202,6 +208,8 @@ namespace modelgui
 		int				m_iY;
 		int				m_iW;
 		int				m_iH;
+
+		int				m_iAlpha;
 
 		bool			m_bVisible;
 	};
@@ -358,6 +366,9 @@ namespace modelgui
 		class CMenuBar*				m_pMenuBar;
 
 		float						m_flFrameTime;
+
+		int							m_iMX;
+		int							m_iMY;
 	};
 
 	class CLabel : public CBaseControl
@@ -413,6 +424,7 @@ namespace modelgui
 
 		virtual Color	GetFGColor();
 		virtual void	SetFGColor(Color FGColor);
+		virtual void	SetAlpha(int a);
 
 	protected:
 		bool			m_bEnabled;
@@ -583,6 +595,22 @@ namespace modelgui
 		virtual void				AddSubmenu(const char* pszTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
 	protected:
+		class CSubmenuPanel : public CPanel
+		{
+		public:
+									CSubmenuPanel();
+
+			void					Think();
+
+			void					SetFakeHeight(float flFakeHeight) { m_flFakeHeight = flFakeHeight; };
+
+		protected:
+			float					m_flFakeHeight;
+
+			std::vector<float>		m_aflControlHighlightGoal;
+			std::vector<float>		m_aflControlHighlight;
+		};
+
 		bool						m_bSubmenu;
 
 		float						m_flHighlightGoal;
@@ -592,11 +620,15 @@ namespace modelgui
 		float						m_flMenuHighlight;
 		float						m_flMenuHeightGoal;
 		float						m_flMenuHeight;
+		float						m_flMenuSelectionHighlightGoal;
+		float						m_flMenuSelectionHighlight;
+		CRect						m_MenuSelectionGoal;
+		CRect						m_MenuSelection;
 
 		IEventListener::Callback	m_pfnMenuCallback;
 		IEventListener*				m_pMenuListener;
 
-		CPanel*						m_pMenu;
+		CSubmenuPanel*				m_pMenu;
 
 		std::vector<CMenu*>			m_apEntries;
 	};

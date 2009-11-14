@@ -8,6 +8,8 @@
 
 using namespace modelgui;
 
+Color modelgui::g_clrBox = Color(34, 37, 42, 255);
+
 CBaseControl::CBaseControl(int x, int y, int w, int h)
 {
 	SetParent(NULL);
@@ -20,7 +22,7 @@ CBaseControl::CBaseControl(int x, int y, int w, int h)
 
 CBaseControl::CBaseControl(const CRect& Rect)
 {
-	CBaseControl(Rect.x, Rect.y, Rect.w, Rect.h);
+	CBaseControl((int)Rect.x, (int)Rect.y, (int)Rect.w, (int)Rect.h);
 }
 
 void CBaseControl::Destructor()
@@ -60,12 +62,12 @@ bool CBaseControl::IsVisible()
 	return m_bVisible;
 }
 
-void CBaseControl::PaintRect(int x, int y, int w, int h, int a)
+void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glColor4ub(34, 37, 42, (GLubyte)a);
+	glColor4ubv(c);
 
 	glMaterialfv(GL_FRONT, GL_AMBIENT, Vector(0.0f, 0.0f, 0.0f));
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, Vector(1.0f, 1.0f, 1.0f));
@@ -94,7 +96,7 @@ void CBaseControl::PaintRect(int x, int y, int w, int h, int a)
 
 		glNormal3f(0.707106781f, -0.707106781f, 0);
 		glVertex2d(x+w, y+1);
-		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glNormal3f(0.707106781f, 0.707106781f, 0);
 		glVertex2d(x+w, y+h-1);
 	glEnd();
 
@@ -398,7 +400,7 @@ void CDroppablePanel::Paint(int x, int y, int w, int h)
 		int ax, ay;
 		CRect c = m_apDraggables[i]->GetHoldingRect();
 		GetAbsPos(ax, ay);
-		m_apDraggables[i]->Paint(c.x+x-ax, c.y+y-ay);
+		m_apDraggables[i]->Paint((int)c.x+x-ax, (int)c.y+y-ay);
 	}
 
 	CPanel::Paint(x, y, w, h);
@@ -514,7 +516,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 	Color FGColor = m_FGColor;
 	if (!m_bEnabled)
-		FGColor.SetColor(m_FGColor.r()/2, m_FGColor.g()/2, m_FGColor.b()/2, 255);
+		FGColor.SetColor(m_FGColor.r()/2, m_FGColor.g()/2, m_FGColor.b()/2, m_iAlpha);
 
 	wchar_t* pszSeps = L"\n";
 	wchar_t* pszText = _wcsdup(m_pszText);
@@ -807,6 +809,13 @@ Color CLabel::GetFGColor()
 void CLabel::SetFGColor(Color FGColor)
 {
 	m_FGColor = FGColor;
+	SetAlpha(FGColor.a());
+}
+
+void CLabel::SetAlpha(int a)
+{
+	CBaseControl::SetAlpha(a);
+	m_FGColor.SetAlpha(a);
 }
 
 CButton::CButton(int x, int y, int w, int h, const char* pszText, bool bToggle)
@@ -1365,6 +1374,9 @@ bool CRootPanel::MouseReleased(int code, int mx, int my)
 
 void CRootPanel::CursorMoved(int x, int y)
 {
+	m_iMX = x;
+	m_iMY = y;
+
 	if (!m_pDragging)
 	{
 		CPanel::CursorMoved(x, y);
@@ -1456,7 +1468,8 @@ void CRootPanel::Popup(IPopup* pPopup)
 
 void CRootPanel::GetFullscreenMousePos(int& mx, int& my)
 {
-//	input->GetFullscreenMousePos(&mx, &my, NULL, NULL);
+	mx = Get()->m_iMX;
+	my = Get()->m_iMY;
 }
 
 void CRootPanel::DrawRect(int x, int y, int x2, int y2)
@@ -1517,7 +1530,11 @@ CMenu::CMenu(const char* pszTitle, bool bSubmenu)
 {
 	m_bSubmenu = bSubmenu;
 
-	m_flHighlightGoal = m_flHighlight = m_flMenuHighlightGoal = m_flMenuHighlight = m_flMenuHeightGoal = m_flMenuHeight = 0;
+	m_flHighlightGoal = m_flHighlight = m_flMenuHighlightGoal = m_flMenuHighlight = m_flMenuHeightGoal = m_flMenuHeight
+		= m_flMenuSelectionHighlightGoal = m_flMenuSelectionHighlight = 0;
+
+	m_MenuSelection = CRect(0, 0, 0, 0);
+	m_MenuSelectionGoal = CRect(0, 0, 0, 0);
 
 	SetClickedListener(this, Open);
 	SetUnclickedListener(this, Close);
@@ -1525,7 +1542,7 @@ CMenu::CMenu(const char* pszTitle, bool bSubmenu)
 	m_pfnMenuCallback = NULL;
 	m_pMenuListener = NULL;
 
-	m_pMenu = new CPanel(0, 0, 100, 100);
+	m_pMenu = new CSubmenuPanel();
 	CRootPanel::Get()->AddControl(m_pMenu);
 
 	m_pMenu->SetVisible(false);
@@ -1543,8 +1560,39 @@ void CMenu::Think()
 	m_flHighlight = Approach(flHightlightGoal, m_flHighlight, CRootPanel::Get()->GetFrameTime()*3);
 	m_flMenuHighlight = Approach(m_flMenuHighlightGoal, m_flMenuHighlight, CRootPanel::Get()->GetFrameTime()*3);
 	m_flMenuHeight = Approach(m_flMenuHeightGoal, m_flMenuHeight, CRootPanel::Get()->GetFrameTime()*3);
+	m_pMenu->SetFakeHeight(m_flMenuHeight);
 
 	m_pMenu->SetVisible(m_flMenuHighlight > 0 && m_flMenuHeight > 0);
+
+	m_flMenuSelectionHighlightGoal = 0;
+
+	for (size_t i = 0; i < m_pMenu->GetControls().size(); i++)
+	{
+		int cx, cy, cw, ch, mx, my;
+		m_pMenu->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::GetFullscreenMousePos(mx, my);
+		if (mx >= cx &&
+			my >= cy &&
+			mx < cx + cw &&
+			my < cy + ch)
+		{
+			m_flMenuSelectionHighlightGoal = 1;
+			m_MenuSelectionGoal = CRect((float)cx, (float)cy, (float)cw, (float)ch);
+			break;
+		}
+	}
+
+	if (m_flMenuSelectionHighlight < 0.01f)
+		m_MenuSelection = m_MenuSelectionGoal;
+	else
+	{
+		m_MenuSelection.x = Approach(m_MenuSelectionGoal.x, m_MenuSelection.x, CRootPanel::Get()->GetFrameTime()*200);
+		m_MenuSelection.y = Approach(m_MenuSelectionGoal.y, m_MenuSelection.y, CRootPanel::Get()->GetFrameTime()*200);
+		m_MenuSelection.w = Approach(m_MenuSelectionGoal.w, m_MenuSelection.w, CRootPanel::Get()->GetFrameTime()*200);
+		m_MenuSelection.h = Approach(m_MenuSelectionGoal.h, m_MenuSelection.h, CRootPanel::Get()->GetFrameTime()*200);
+	}
+
+	m_flMenuSelectionHighlight = Approach(m_flMenuSelectionHighlightGoal, m_flMenuSelectionHighlight, CRootPanel::Get()->GetFrameTime()*3);
 }
 
 void CMenu::Layout()
@@ -1573,7 +1621,9 @@ void CMenu::Paint(int x, int y, int w, int h)
 {
 	if (!m_bSubmenu)
 	{
-		CRootPanel::Get()->PaintRect(x, y, w, h, (int)RemapVal(m_flHighlight, 0, 1, 125, 255));
+		Color clrBox = g_clrBox;
+		clrBox.SetAlpha((int)RemapVal(m_flHighlight, 0, 1, 125, 255));
+		CRootPanel::Get()->PaintRect(x, y, w, h, clrBox);
 	}
 
 	if (m_pMenu->IsVisible())
@@ -1585,7 +1635,16 @@ void CMenu::Paint(int x, int y, int w, int h)
 		if (flMenuHeight > 0.99f)
 			flMenuHeight = 0.99f;	// When it hits 1 it jerks.
 
-		CRootPanel::Get()->PaintRect(mx, (int)(my + mh - mh*flMenuHeight), mw, (int)(mh*flMenuHeight), (int)RemapVal(m_flMenuHighlight, 0, 1, 0, 255));
+		Color clrBox = g_clrBox;
+		clrBox.SetAlpha((int)RemapVal(m_flMenuHighlight, 0, 1, 0, 255));
+		CRootPanel::Get()->PaintRect(mx, (int)(my + mh - mh*flMenuHeight), mw, (int)(mh*flMenuHeight), clrBox);
+
+		if (m_flMenuSelectionHighlight > 0)
+		{
+			clrBox = Color(148, 161, 181);
+			clrBox.SetAlpha((int)(255 * m_flMenuSelectionHighlight * flMenuHeight));
+			CRootPanel::Get()->PaintRect((int)m_MenuSelection.x, (int)m_MenuSelection.y+1, (int)m_MenuSelection.w, (int)m_MenuSelection.h-2, clrBox);
+		}
 	}
 
 	CLabel::Paint(x, y, w, h);
@@ -1650,4 +1709,43 @@ void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventLi
 		pMenu->SetMenuListener(pListener, pfnCallback);
 
 	m_pMenu->AddControl(pMenu);
+}
+
+CMenu::CSubmenuPanel::CSubmenuPanel()
+	: CPanel(0, 0, 100, 100)
+{
+}
+
+void CMenu::CSubmenuPanel::Think()
+{
+	if (m_apControls.size() != m_aflControlHighlightGoal.size() || m_apControls.size() != m_aflControlHighlight.size())
+	{
+		m_aflControlHighlightGoal.clear();
+		m_aflControlHighlight.clear();
+
+		for (size_t i = 0; i < m_apControls.size(); i++)
+		{
+			m_aflControlHighlightGoal.push_back(0);
+			m_aflControlHighlight.push_back(0);
+		}
+	}
+
+	for (size_t i = 0; i < m_apControls.size(); i++)
+	{
+		IControl* pControl = m_apControls[i];
+
+		int x, y;
+		pControl->GetPos(x, y);
+
+		if (y < GetHeight()-m_flFakeHeight*GetHeight())
+			m_aflControlHighlightGoal[i] = 0.0f;
+		else
+			m_aflControlHighlightGoal[i] = 1.0f;
+
+		m_aflControlHighlight[i] = Approach(m_aflControlHighlightGoal[i], m_aflControlHighlight[i], CRootPanel::Get()->GetFrameTime()*3);
+
+		pControl->SetAlpha((int)(m_aflControlHighlight[i] * 255));
+	}
+
+	CPanel::Think();
 }
