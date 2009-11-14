@@ -15,6 +15,13 @@ void CModelWindow::InitUI()
 	pFile->AddSubmenu("Close", this, Close);
 	pFile->AddSubmenu("Exit", this, Exit);
 
+	pView->AddSubmenu("View wireframe", this, Wireframe);
+	pView->AddSubmenu("View flat shaded", this, Flat);
+	pView->AddSubmenu("View smooth shaded", this, Smooth);
+	pView->AddSubmenu("Toggle light", this, LightToggle);
+	pView->AddSubmenu("Toggle texture", this, TextureToggle);
+	pView->AddSubmenu("Toggle AO map", this, AOToggle);
+
 	pHelp->AddSubmenu("About SMAK", this, About);
 
 	CButtonPanel* pButtons = new CButtonPanel();
@@ -86,13 +93,26 @@ void CModelWindow::LightCallback()
 void CModelWindow::TextureCallback()
 {
 	SetDisplayTexture(m_pTexture->GetState());
-	CreateGLLists();
 }
 
 void CModelWindow::AOCallback()
 {
 	SetDisplayAO(m_pAO->GetState());
-	CreateGLLists();
+}
+
+void CModelWindow::LightToggleCallback()
+{
+	SetDisplayLight(!m_bDisplayLight);
+}
+
+void CModelWindow::TextureToggleCallback()
+{
+	SetDisplayTexture(!m_bDisplayTexture);
+}
+
+void CModelWindow::AOToggleCallback()
+{
+	SetDisplayAO(!m_bDisplayAO);
 }
 
 void CModelWindow::AboutCallback()

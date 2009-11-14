@@ -86,6 +86,9 @@ public:
 	EVENT_CALLBACK(CModelWindow, Light);
 	EVENT_CALLBACK(CModelWindow, Texture);
 	EVENT_CALLBACK(CModelWindow, AO);
+	EVENT_CALLBACK(CModelWindow, LightToggle);
+	EVENT_CALLBACK(CModelWindow, TextureToggle);
+	EVENT_CALLBACK(CModelWindow, AOToggle);
 	EVENT_CALLBACK(CModelWindow, About);
 
 	size_t					GetNextObjectId();

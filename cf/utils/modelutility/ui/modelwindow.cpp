@@ -805,12 +805,14 @@ void CModelWindow::SetDisplayTexture(bool bTexture)
 {
 	m_bDisplayTexture = bTexture;
 	m_pTexture->SetState(bTexture, false);
+	CreateGLLists();
 }
 
 void CModelWindow::SetDisplayAO(bool bAO)
 {
 	m_bDisplayAO = bAO;
 	m_pAO->SetState(bAO, false);
+	CreateGLLists();
 }
 
 void CModelWindow::ClearDebugLines()
