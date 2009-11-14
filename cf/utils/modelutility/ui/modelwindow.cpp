@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+#include <maths.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <IL/il.h>
@@ -589,19 +589,19 @@ void CModelWindow::RenderLightSource()
 
 			float flDot = vecCameraDirection.Dot(vecLightDirection);
 
-			if (flDot < 0)
+			if (flDot < -0.2)
 			{
-				glColor4f(1.0, 1.0, 1.0, -flDot);
+				glColor4f(1.0, 1.0, 1.0, RemapVal(flDot, -0.2f, -1.0f, 0.0f, 1.0f));
 
 				glBegin(GL_QUADS);
 					glTexCoord2f(0, 0);
-					glVertex3f(0, -2, -2);
+					glVertex3f(0, -5, -5);
 					glTexCoord2f(0, 1);
-					glVertex3f(0, -2, 2);
+					glVertex3f(0, -5, 5);
 					glTexCoord2f(1, 1);
-					glVertex3f(0, 2, 2);
+					glVertex3f(0, 5, 5);
 					glTexCoord2f(1, 0);
-					glVertex3f(0, 2, -2);
+					glVertex3f(0, 5, -5);
 				glEnd();
 			}
 

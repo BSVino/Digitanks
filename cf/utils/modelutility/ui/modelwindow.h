@@ -71,6 +71,7 @@ public:
 	EVENT_CALLBACK(CModelWindow, Open);
 	EVENT_CALLBACK(CModelWindow, Reload);
 	EVENT_CALLBACK(CModelWindow, Save);
+	EVENT_CALLBACK(CModelWindow, Close);
 	EVENT_CALLBACK(CModelWindow, Exit);
 	EVENT_CALLBACK(CModelWindow, About);
 
