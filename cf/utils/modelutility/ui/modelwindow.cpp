@@ -269,23 +269,39 @@ void CModelWindow::CreateGLLists()
 
 			if (m_eDisplayType != DT_WIREFRAME)
 			{
-				if (pFace->m == ~0 || !m_bDisplayTexture)
+				if (pFace->m == ~0)
 					glBindTexture(GL_TEXTURE_2D, 0);
 				else
 				{
 					CMaterial* pMaterial = &m_aoMaterials[pFace->m];
 
-					if (GLEW_VERSION_1_3 && pMaterial->m_iAO && m_bDisplayAO)
+					if (GLEW_VERSION_1_3)
 					{
 						bMultiTexture = true;
 
 						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
-						glEnable(GL_TEXTURE_2D);
+						if (m_bDisplayTexture)
+						{
+							glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+							glEnable(GL_TEXTURE_2D);
+						}
+						else
+						{
+							glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+							glDisable(GL_TEXTURE_2D);
+						}
 
 						glActiveTexture(GL_TEXTURE1);
-						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
-						glEnable(GL_TEXTURE_2D);
+						if (m_bDisplayAO)
+						{
+							glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
+							glEnable(GL_TEXTURE_2D);
+						}
+						else
+						{
+							glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+							glDisable(GL_TEXTURE_2D);
+						}
 					}
 					else
 					{
