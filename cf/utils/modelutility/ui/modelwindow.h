@@ -17,6 +17,13 @@ public:
 	size_t		m_iAO;
 };
 
+typedef enum
+{
+	DT_WIREFRAME,
+	DT_FLAT,
+	DT_SMOOTH,
+} displaytype_t;
+
 class CModelWindow : public modelgui::IEventListener
 {
 public:
@@ -73,6 +80,10 @@ public:
 	EVENT_CALLBACK(CModelWindow, Save);
 	EVENT_CALLBACK(CModelWindow, Close);
 	EVENT_CALLBACK(CModelWindow, Exit);
+	EVENT_CALLBACK(CModelWindow, Wireframe);
+	EVENT_CALLBACK(CModelWindow, Flat);
+	EVENT_CALLBACK(CModelWindow, Smooth);
+	EVENT_CALLBACK(CModelWindow, AO);
 	EVENT_CALLBACK(CModelWindow, About);
 
 	size_t					GetNextObjectId();
@@ -80,6 +91,9 @@ public:
 	wchar_t*				OpenFileDialog();
 	wchar_t*				SaveFileDialog();
 	void					OpenAboutPanel();
+
+	// UI
+	void					SetDisplayType(displaytype_t eType);
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
@@ -117,6 +131,16 @@ protected:
 	size_t					m_iWindowHeight;
 
 	std::vector<Vector>		m_avecDebugLines;
+
+	// Options
+	displaytype_t			m_eDisplayType;
+	bool					m_bDisplayAO;
+
+	// Controls
+	modelgui::CButton*		m_pWireframe;
+	modelgui::CButton*		m_pFlat;
+	modelgui::CButton*		m_pSmooth;
+	modelgui::CButton*		m_pAO;
 
 	static CModelWindow*	s_pModelWindow;
 };

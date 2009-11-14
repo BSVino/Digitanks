@@ -17,6 +17,20 @@ void CModelWindow::InitUI()
 
 	pHelp->AddSubmenu("About SMAK", this, About);
 
+	CButtonPanel* pButtons = new CButtonPanel();
+
+	m_pWireframe = new CButton(0, 0, 100, 100, "Wire", true);
+	m_pFlat = new CButton(0, 0, 100, 100, "Flat", true);
+	m_pSmooth = new CButton(0, 0, 100, 100, "Smth", true);
+	m_pAO = new CButton(0, 0, 100, 100, "AO", true);
+
+	pButtons->AddButton(m_pWireframe, false, this, Wireframe);
+	pButtons->AddButton(m_pFlat, false, this, Flat);
+	pButtons->AddButton(m_pSmooth, true, this, Smooth);
+	pButtons->AddButton(m_pAO, true, this, AO);
+
+	CRootPanel::Get()->AddControl(pButtons);
+
 	CRootPanel::Get()->Layout();
 }
 
@@ -45,6 +59,28 @@ void CModelWindow::ExitCallback()
 	exit(0);
 }
 
+void CModelWindow::WireframeCallback()
+{
+	SetDisplayType(DT_WIREFRAME);
+}
+
+void CModelWindow::FlatCallback()
+{
+	SetDisplayType(DT_FLAT);
+}
+
+void CModelWindow::SmoothCallback()
+{
+	SetDisplayType(DT_SMOOTH);
+}
+
+void CModelWindow::AOCallback()
+{
+	m_bDisplayAO = m_pAO->GetState();
+
+	CreateGLLists();
+}
+
 void CModelWindow::AboutCallback()
 {
 	OpenAboutPanel();
@@ -53,6 +89,48 @@ void CModelWindow::AboutCallback()
 void CModelWindow::OpenAboutPanel()
 {
 	CAboutPanel::Open();
+}
+
+#define BTN_HEIGHT 32
+#define BTN_SPACE 8
+#define BTN_SECTION 18
+
+CButtonPanel::CButtonPanel()
+: CPanel(0, 0, BTN_HEIGHT, BTN_HEIGHT)
+{
+}
+
+void CButtonPanel::Layout()
+{
+	int iX = 0;
+
+	for (size_t i = 0; i < m_apControls.size(); i++)
+	{
+		IControl* pControl = m_apControls[i];
+
+		pControl->SetSize(BTN_HEIGHT, BTN_HEIGHT);
+		pControl->SetPos(iX, 0);
+
+		iX += BTN_HEIGHT + m_aiSpaces[i];
+	}
+
+	SetSize(iX + BTN_HEIGHT - m_aiSpaces[m_aiSpaces.size()-1], BTN_HEIGHT);
+	SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, BTN_HEIGHT + BTN_SPACE);
+
+	CPanel::Layout();
+}
+
+void CButtonPanel::AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	AddControl(pButton);
+
+	m_aiSpaces.push_back(bNewSection?BTN_SECTION:BTN_SPACE);
+
+	if (pListener)
+	{
+		pButton->SetClickedListener(pListener, pfnCallback);
+		pButton->SetUnclickedListener(pListener, pfnCallback);
+	}
 }
 
 CAboutPanel* CAboutPanel::s_pAboutPanel = NULL;
@@ -95,7 +173,7 @@ void CAboutPanel::Layout()
 
 void CAboutPanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::Get()->PaintRect(x, y, w, h);
+	CRootPanel::PaintRect(x, y, w, h);
 
 	CPanel::Paint(x, y, w, h);
 }

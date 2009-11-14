@@ -59,6 +59,8 @@ CModelWindow::CModelWindow()
 
 	InitUI();
 
+	SetDisplayType(DT_SMOOTH);
+
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 		exit(0);
@@ -262,70 +264,73 @@ void CModelWindow::CreateGLLists()
 			size_t k;
 			CConversionFace* pFace = pMesh->GetFace(j);
 
-			if (pFace->m == ~0)
-				glBindTexture(GL_TEXTURE_2D, 0);
-			else
+			if (m_eDisplayType != DT_WIREFRAME)
 			{
-				CMaterial* pMaterial = &m_aoMaterials[pFace->m];
-
-				if (GLEW_VERSION_1_3 && pMaterial->m_iAO)
-				{
-					bMultiTexture = true;
-
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
-					glEnable(GL_TEXTURE_2D);
-
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
-					glEnable(GL_TEXTURE_2D);
-				}
+				if (pFace->m == ~0)
+					glBindTexture(GL_TEXTURE_2D, 0);
 				else
 				{
-					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+					CMaterial* pMaterial = &m_aoMaterials[pFace->m];
+
+					if (GLEW_VERSION_1_3 && pMaterial->m_iAO && m_bDisplayAO)
+					{
+						bMultiTexture = true;
+
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+						glEnable(GL_TEXTURE_2D);
+
+						glActiveTexture(GL_TEXTURE1);
+						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
+						glEnable(GL_TEXTURE_2D);
+					}
+					else
+					{
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+					}
 				}
-			}
 
-			glBegin(GL_POLYGON);
+				glBegin(GL_POLYGON);
 
-			for (k = 0; k < pFace->GetNumVertices(); k++)
-			{
-				CConversionVertex* pVertex = pFace->GetVertex(k);
-
-				Vector vecVertex = pMesh->GetVertex(pVertex->v);
-				Vector vecNormal = pMesh->GetNormal(pVertex->vn);
-				Vector vecUV = pMesh->GetUV(pVertex->vt);
-
-				// Why? I dunno.
-				vecUV.y = -vecUV.y;
-
-				if (pFace->m != ~0 && m_Scene.GetMaterial(pFace->m))
+				for (k = 0; k < pFace->GetNumVertices(); k++)
 				{
-					CConversionMaterial* pMaterial = m_Scene.GetMaterial(pFace->m);
-					glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
-					glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
-					glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
-					glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
-					glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
+					CConversionVertex* pVertex = pFace->GetVertex(k);
+
+					Vector vecVertex = pMesh->GetVertex(pVertex->v);
+					Vector vecNormal = pMesh->GetNormal(pVertex->vn);
+					Vector vecUV = pMesh->GetUV(pVertex->vt);
+
+					// Why? I dunno.
+					vecUV.y = -vecUV.y;
+
+					if (pFace->m != ~0 && m_Scene.GetMaterial(pFace->m))
+					{
+						CConversionMaterial* pMaterial = m_Scene.GetMaterial(pFace->m);
+						glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
+						glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
+						glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
+						glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
+						glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
+					}
+
+					if (bMultiTexture)
+					{
+						glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+						glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+					}
+					else
+						glTexCoord2fv(vecUV);
+
+					glNormal3fv(vecNormal);
+					glVertex3fv(vecVertex);
+
+					if (vecVertex.LengthSqr() > flFarthest)
+						flFarthest = vecVertex.LengthSqr();
 				}
 
-				if (bMultiTexture)
-				{
-					glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
-					glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
-				}
-				else
-					glTexCoord2fv(vecUV);
-
-				glNormal3fv(vecNormal);
-				glVertex3fv(vecVertex);
-
-				if (vecVertex.LengthSqr() > flFarthest)
-					flFarthest = vecVertex.LengthSqr();
+				glEnd();
 			}
-
-			glEnd();
 
 #if 0
 			for (k = 0; k < pFace->GetNumVertices(); k++)
@@ -347,40 +352,42 @@ void CModelWindow::CreateGLLists()
 			}
 #endif
 
-#if 0
-			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
-			glBegin(GL_LINES);
-				glColor3f(0.8f, 0.8f, 0.8f);
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
-
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(2)->v));
-
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(2)->v));
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
-			glEnd();
-			for (k = 0; k < pFace->GetNumVertices()-2; k++)
+			if (m_eDisplayType == DT_WIREFRAME)
 			{
+				glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+				glColor3f(1.0f, 1.0f, 1.0f);
 				glBegin(GL_LINES);
-					glColor3f(0.8f, 0.8f, 0.8f);
-					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+1)->v));
-					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+2)->v));
+					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(0)->vn));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
+					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(1)->vn));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
 
-					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+2)->v));
+					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(1)->vn));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
+					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(2)->vn));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(2)->v));
+				glEnd();
+				for (k = 0; k < pFace->GetNumVertices()-2; k++)
+				{
+					glBegin(GL_LINES);
+						glNormal3fv(pMesh->GetNormal(pFace->GetVertex(k+1)->vn));
+						glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+1)->v));
+						glNormal3fv(pMesh->GetNormal(pFace->GetVertex(k+2)->vn));
+						glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+2)->v));
+					glEnd();
+				}
+				glBegin(GL_LINES);
+					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(k+1)->vn));
+					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+1)->v));
+					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(0)->vn));
 					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
 				glEnd();
 			}
-#endif
 
 		}
 
 		glEndList();
 	}
-
-	m_flCameraDistance = sqrt(flFarthest);
-	if (m_flCameraDistance < 100)
-		m_flCameraDistance = 100;
 }
 
 void CModelWindow::SaveFile(const wchar_t* pszFile)
@@ -418,6 +425,8 @@ void CModelWindow::Render()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
+
+	glShadeModel(GL_SMOOTH);
 
 	glBegin(GL_QUADS);
 		glColor3f(0.6f, 0.6f, 0.6f);
@@ -678,7 +687,11 @@ void CModelWindow::RenderObjects()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_TEXTURE_2D);
-	glShadeModel(GL_SMOOTH);
+
+	if (m_eDisplayType == DT_SMOOTH)
+		glShadeModel(GL_SMOOTH);
+	else if (m_eDisplayType == DT_FLAT)
+		glShadeModel(GL_FLAT);
 
 	// It uses this color if the texture is missing.
 	GLfloat flMaterialColor[] = {0.7f, 0.7f, 0.7f, 1.0f};
@@ -736,6 +749,24 @@ void CModelWindow::Visible(int vis)
 size_t CModelWindow::GetNextObjectId()
 {
 	return (m_iObjectsCreated++)+1;
+}
+
+void CModelWindow::SetDisplayType(displaytype_t eType)
+{
+	m_pWireframe->SetState(false, false);
+	m_pFlat->SetState(false, false);
+	m_pSmooth->SetState(false, false);
+
+	if (eType == DT_SMOOTH)
+		m_pSmooth->SetState(true, false);
+	else if (eType == DT_FLAT)
+		m_pFlat->SetState(true, false);
+	else if (eType == DT_WIREFRAME)
+		m_pWireframe->SetState(true, false);
+
+	m_eDisplayType = eType;
+
+	CreateGLLists();
 }
 
 void CModelWindow::ClearDebugLines()

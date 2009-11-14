@@ -9,6 +9,7 @@
 using namespace modelgui;
 
 Color modelgui::g_clrBox = Color(34, 37, 42, 255);
+Color modelgui::g_clrBoxHi = Color(148, 161, 181, 255);
 
 CBaseControl::CBaseControl(int x, int y, int w, int h)
 {
@@ -824,7 +825,7 @@ CButton::CButton(int x, int y, int w, int h, const char* pszText, bool bToggle)
 	m_bToggle = bToggle;
 	m_bToggleOn = false;
 	m_bDown = false;
-	m_bHighlight = false;
+	m_flHighlightGoal = m_flHighlight = 0;
 	m_pClickListener = NULL;
 	m_pfnClickCallback = NULL;
 	m_pUnclickListener = NULL;
@@ -949,14 +950,14 @@ void CButton::CursorIn()
 {
 	CLabel::CursorIn();
 
-	m_bHighlight = true;
+	m_flHighlightGoal = 1;
 }
 
 void CButton::CursorOut()
 {
 	CLabel::CursorOut();
 
-	m_bHighlight = false;
+	m_flHighlightGoal = 0;
 }
 
 void CButton::SetToggleButton(bool bToggle)
@@ -967,6 +968,13 @@ void CButton::SetToggleButton(bool bToggle)
 	m_bToggle = bToggle;
 
 	SetState(false, false);
+}
+
+void CButton::Think()
+{
+	m_flHighlight = Approach(m_flHighlightGoal, m_flHighlight, CRootPanel::Get()->GetFrameTime()*3);
+
+	CLabel::Think();
 }
 
 void CButton::Paint(int x, int y, int w, int h)
@@ -987,25 +995,13 @@ void CButton::PaintButton(int x, int y, int w, int h)
 	}
 	else if (m_bDown)
 	{
-	}
-	else if (m_bHighlight && CRootPanel::Get()->GetButtonDown() == NULL)
-	{
+		CRootPanel::PaintRect(x, y, w, h, g_clrBoxHi);
 	}
 	else
 	{
-		glBegin(GL_QUADS);
-			glColor3ub(255, 0, 0);
-			glVertex2d(0, 0);
-
-			glColor3ub(0, 255, 0);
-			glVertex2d(100, 0);
-
-			glColor3ub(0, 0, 255);
-			glVertex2d(50, 50);
-
-			glColor3ub(0, 255, 0);
-			glVertex2d(0, 100);
-		glEnd();
+		Color clrBox = g_clrBox;
+		clrBox.SetAlpha((int)RemapVal(m_flHighlight, 0, 1, 125, 255));
+		CRootPanel::PaintRect(x, y, w, h, clrBox);
 	}
 }
 
@@ -1285,6 +1281,8 @@ void CRootPanel::Paint()
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
+
+	glShadeModel(GL_SMOOTH);
 
 	CPanel::Paint();
 
@@ -1623,7 +1621,7 @@ void CMenu::Paint(int x, int y, int w, int h)
 	{
 		Color clrBox = g_clrBox;
 		clrBox.SetAlpha((int)RemapVal(m_flHighlight, 0, 1, 125, 255));
-		CRootPanel::Get()->PaintRect(x, y, w, h, clrBox);
+		CRootPanel::PaintRect(x, y, w, h, clrBox);
 	}
 
 	if (m_pMenu->IsVisible())
@@ -1637,13 +1635,13 @@ void CMenu::Paint(int x, int y, int w, int h)
 
 		Color clrBox = g_clrBox;
 		clrBox.SetAlpha((int)RemapVal(m_flMenuHighlight, 0, 1, 0, 255));
-		CRootPanel::Get()->PaintRect(mx, (int)(my + mh - mh*flMenuHeight), mw, (int)(mh*flMenuHeight), clrBox);
+		CRootPanel::PaintRect(mx, (int)(my + mh - mh*flMenuHeight), mw, (int)(mh*flMenuHeight), clrBox);
 
 		if (m_flMenuSelectionHighlight > 0)
 		{
-			clrBox = Color(148, 161, 181);
+			clrBox = g_clrBoxHi;
 			clrBox.SetAlpha((int)(255 * m_flMenuSelectionHighlight * flMenuHeight));
-			CRootPanel::Get()->PaintRect((int)m_MenuSelection.x, (int)m_MenuSelection.y+1, (int)m_MenuSelection.w, (int)m_MenuSelection.h-2, clrBox);
+			CRootPanel::PaintRect((int)m_MenuSelection.x, (int)m_MenuSelection.y+1, (int)m_MenuSelection.w, (int)m_MenuSelection.h-2, clrBox);
 		}
 	}
 

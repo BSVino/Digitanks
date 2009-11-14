@@ -5,6 +5,19 @@
 
 using namespace modelgui;
 
+class CButtonPanel : public CPanel
+{
+public:
+							CButtonPanel();
+
+	void					Layout();
+
+	void					AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
+
+protected:
+	std::vector<int>		m_aiSpaces;
+};
+
 class CAboutPanel : public CPanel
 {
 public:

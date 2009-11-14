@@ -108,7 +108,7 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 'a')
 	{
 		CAOGenerator ao(&m_Scene, &m_aoMaterials);
-		ao.SetSize(128, 128);
+		ao.SetSize(32, 32);
 		ao.SetUseTexture(true);
 		ao.Generate();
 		ao.SaveToFile("ao.bmp");
@@ -120,6 +120,10 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 				glDeleteTextures(1, &m_aoMaterials[0].m_iAO);
 			m_aoMaterials[0].m_iAO = iAO;
 		}
+
+		m_bDisplayAO = true;
+		m_pAO->SetState(true, false);
+
 		CreateGLLists();
 	}
 

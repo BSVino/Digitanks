@@ -16,6 +16,7 @@
 namespace modelgui
 {
 	extern Color g_clrBox;
+	extern Color g_clrBoxHi;
 
 	class CRect
 	{
@@ -199,7 +200,7 @@ namespace modelgui
 		virtual void	CursorIn() {};
 		virtual void	CursorOut() {};
 
-		virtual void	PaintRect(int x, int y, int w, int h, Color& c = g_clrBox);
+		static void		PaintRect(int x, int y, int w, int h, Color& c = g_clrBox);
 
 	protected:
 		IControl*		m_pParent;
@@ -450,6 +451,8 @@ namespace modelgui
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
+		virtual void	Think();
+
 		virtual void	Paint() { CLabel::Paint(); };
 		virtual void	Paint(int x, int y, int w, int h);
 		virtual void	PaintButton(int x, int y, int w, int h);
@@ -474,13 +477,14 @@ namespace modelgui
 		// Toggle buttons only
 		virtual void	SetUnclickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 
-		virtual bool	IsHighlighted() {return m_bHighlight;};
+		virtual bool	IsHighlighted() {return m_flHighlight > 0;};
 
 	protected:
 		bool			m_bToggle;
 		bool			m_bToggleOn;
 		bool			m_bDown;
-		bool			m_bHighlight;
+		float			m_flHighlightGoal;
+		float			m_flHighlight;
 
 		// Need multiple event listeners? Too bad! Make a list.
 		IEventListener::Callback m_pfnClickCallback;
