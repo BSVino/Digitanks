@@ -60,6 +60,9 @@ CModelWindow::CModelWindow()
 	InitUI();
 
 	SetDisplayType(DT_SMOOTH);
+	SetDisplayLight(true);
+	SetDisplayTexture(true);
+	SetDisplayAO(false);
 
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
@@ -266,7 +269,7 @@ void CModelWindow::CreateGLLists()
 
 			if (m_eDisplayType != DT_WIREFRAME)
 			{
-				if (pFace->m == ~0)
+				if (pFace->m == ~0 || !m_bDisplayTexture)
 					glBindTexture(GL_TEXTURE_2D, 0);
 				else
 				{
@@ -557,6 +560,9 @@ void CModelWindow::RenderGround(void)
 
 void CModelWindow::RenderLightSource()
 {
+	if (!m_bDisplayLight)
+		return;
+
 	GLfloat flLightPosition[4];
 	GLfloat lightColor[] = {0.9f, 1.0f, 0.9f, 1.0f};
 
@@ -683,7 +689,11 @@ void CModelWindow::RenderObjects()
 {
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
-	glEnable(GL_LIGHTING);
+	if (m_bDisplayLight)
+		glEnable(GL_LIGHTING);
+	else
+		glDisable(GL_LIGHTING);
+
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_TEXTURE_2D);
@@ -767,6 +777,24 @@ void CModelWindow::SetDisplayType(displaytype_t eType)
 	m_eDisplayType = eType;
 
 	CreateGLLists();
+}
+
+void CModelWindow::SetDisplayLight(bool bLight)
+{
+	m_bDisplayLight = bLight;
+	m_pLight->SetState(bLight, false);
+}
+
+void CModelWindow::SetDisplayTexture(bool bTexture)
+{
+	m_bDisplayTexture = bTexture;
+	m_pTexture->SetState(bTexture, false);
+}
+
+void CModelWindow::SetDisplayAO(bool bAO)
+{
+	m_bDisplayAO = bAO;
+	m_pAO->SetState(bAO, false);
 }
 
 void CModelWindow::ClearDebugLines()

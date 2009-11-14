@@ -22,12 +22,16 @@ void CModelWindow::InitUI()
 	m_pWireframe = new CButton(0, 0, 100, 100, "Wire", true);
 	m_pFlat = new CButton(0, 0, 100, 100, "Flat", true);
 	m_pSmooth = new CButton(0, 0, 100, 100, "Smth", true);
+	m_pLight = new CButton(0, 0, 100, 100, "Lght", true);
+	m_pTexture = new CButton(0, 0, 100, 100, "Tex", true);
 	m_pAO = new CButton(0, 0, 100, 100, "AO", true);
 
 	pButtons->AddButton(m_pWireframe, false, this, Wireframe);
 	pButtons->AddButton(m_pFlat, false, this, Flat);
 	pButtons->AddButton(m_pSmooth, true, this, Smooth);
-	pButtons->AddButton(m_pAO, true, this, AO);
+	pButtons->AddButton(m_pLight, false, this, Light);
+	pButtons->AddButton(m_pTexture, false, this, Texture);
+	pButtons->AddButton(m_pAO, false, this, AO);
 
 	CRootPanel::Get()->AddControl(pButtons);
 
@@ -74,10 +78,20 @@ void CModelWindow::SmoothCallback()
 	SetDisplayType(DT_SMOOTH);
 }
 
+void CModelWindow::LightCallback()
+{
+	SetDisplayLight(m_pLight->GetState());
+}
+
+void CModelWindow::TextureCallback()
+{
+	SetDisplayTexture(m_pTexture->GetState());
+	CreateGLLists();
+}
+
 void CModelWindow::AOCallback()
 {
-	m_bDisplayAO = m_pAO->GetState();
-
+	SetDisplayAO(m_pAO->GetState());
 	CreateGLLists();
 }
 

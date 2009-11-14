@@ -83,6 +83,8 @@ public:
 	EVENT_CALLBACK(CModelWindow, Wireframe);
 	EVENT_CALLBACK(CModelWindow, Flat);
 	EVENT_CALLBACK(CModelWindow, Smooth);
+	EVENT_CALLBACK(CModelWindow, Light);
+	EVENT_CALLBACK(CModelWindow, Texture);
 	EVENT_CALLBACK(CModelWindow, AO);
 	EVENT_CALLBACK(CModelWindow, About);
 
@@ -94,6 +96,9 @@ public:
 
 	// UI
 	void					SetDisplayType(displaytype_t eType);
+	void					SetDisplayLight(bool bLight);
+	void					SetDisplayTexture(bool bTexture);
+	void					SetDisplayAO(bool bAO);
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
@@ -134,12 +139,16 @@ protected:
 
 	// Options
 	displaytype_t			m_eDisplayType;
+	bool					m_bDisplayLight;
+	bool					m_bDisplayTexture;
 	bool					m_bDisplayAO;
 
 	// Controls
 	modelgui::CButton*		m_pWireframe;
 	modelgui::CButton*		m_pFlat;
 	modelgui::CButton*		m_pSmooth;
+	modelgui::CButton*		m_pLight;
+	modelgui::CButton*		m_pTexture;
 	modelgui::CButton*		m_pAO;
 
 	static CModelWindow*	s_pModelWindow;

@@ -121,9 +121,7 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 			m_aoMaterials[0].m_iAO = iAO;
 		}
 
-		m_bDisplayAO = true;
-		m_pAO->SetState(true, false);
-
+		SetDisplayAO(true);
 		CreateGLLists();
 	}
 
