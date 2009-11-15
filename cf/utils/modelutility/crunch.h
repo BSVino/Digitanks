@@ -6,11 +6,11 @@
 
 #include <GL/glut.h>
 
-class CAOGenerator
+class CColorAOGenerator
 {
 public:
-							CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
-							~CAOGenerator();
+							CColorAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+							~CColorAOGenerator();
 
 	void					SetSize(size_t iWidth, size_t iHeight);
 	void					SetUseTexture(bool bUseTexture) { m_bUseTexture = bUseTexture; };

@@ -17,7 +17,7 @@
 #include "ui/modelwindow.h"
 #endif
 
-CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+CColorAOGenerator::CColorAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
 	m_pScene = pScene;
 	m_paoMaterials = paoMaterials;
@@ -38,7 +38,7 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_bPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
 }
 
-CAOGenerator::~CAOGenerator()
+CColorAOGenerator::~CColorAOGenerator()
 {
 	free(m_pPixels);
 	free(m_bPixelMask);
@@ -46,7 +46,7 @@ CAOGenerator::~CAOGenerator()
 	delete[] m_aiShadowReads;
 }
 
-void CAOGenerator::SetSize(size_t iWidth, size_t iHeight)
+void CColorAOGenerator::SetSize(size_t iWidth, size_t iHeight)
 {
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -66,7 +66,7 @@ void CAOGenerator::SetSize(size_t iWidth, size_t iHeight)
 	memset(&m_aiShadowReads[0], 0, iWidth*iHeight*sizeof(size_t));
 }
 
-void CAOGenerator::Generate()
+void CColorAOGenerator::Generate()
 {
 #ifdef AO_DEBUG
 	CModelWindow::Get()->ClearDebugLines();
@@ -317,7 +317,7 @@ void CAOGenerator::Generate()
 	Bleed();
 }
 
-Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
+Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
 {
 	GLenum eBuffer = GL_AUX0;
 #ifdef AO_DEBUG
@@ -412,7 +412,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 	return vecShadowColor;
 }
 
-void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
+void CColorAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
 {
 #ifdef AO_DEBUG
 	glEnable(GL_CULL_FACE);
@@ -478,7 +478,7 @@ void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vec
 #endif
 }
 
-void CAOGenerator::Bleed()
+void CColorAOGenerator::Bleed()
 {
 	bool* abPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
 
@@ -565,7 +565,7 @@ void CAOGenerator::Bleed()
 	free(abPixelMask);
 }
 
-size_t CAOGenerator::GenerateTexture()
+size_t CColorAOGenerator::GenerateTexture()
 {
 	GLuint iGLId;
 	glGenTextures(1, &iGLId);
@@ -577,7 +577,7 @@ size_t CAOGenerator::GenerateTexture()
 	return iGLId;
 }
 
-void CAOGenerator::SaveToFile(const char *pszFilename)
+void CColorAOGenerator::SaveToFile(const char *pszFilename)
 {
 	ilEnable(IL_FILE_OVERWRITE);
 
@@ -600,7 +600,7 @@ void CAOGenerator::SaveToFile(const char *pszFilename)
 	ilDeleteImages(1,&iDevILId);
 }
 
-bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
+bool CColorAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 {
 	if (w < 0 || h < 0 || w >= m_iWidth || h >= m_iHeight)
 		return false;

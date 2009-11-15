@@ -61,9 +61,15 @@ void CModelWindow::MouseDragged(int x, int y)
 void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 {
 	if (iState == GLUT_DOWN)
-		modelgui::CRootPanel::Get()->MousePressed(iButton, x, (int)m_iWindowHeight-y);
+	{
+		if (modelgui::CRootPanel::Get()->MousePressed(iButton, x, (int)m_iWindowHeight-y))
+			return;
+	}
 	else
-		modelgui::CRootPanel::Get()->MouseReleased(iButton, x, (int)m_iWindowHeight-y);
+	{
+		if (modelgui::CRootPanel::Get()->MouseReleased(iButton, x, (int)m_iWindowHeight-y))
+			return;
+	}
 
 	if ((glutGetModifiers() & GLUT_ACTIVE_CTRL) && iButton == GLUT_LEFT_BUTTON)
 	{
@@ -107,21 +113,21 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (c == 'a')
 	{
-		CAOGenerator ao(&m_Scene, &m_aoMaterials);
+		CColorAOGenerator ao(&m_Scene, &m_aoMaterials);
 		ao.SetSize(32, 32);
 		ao.SetUseTexture(true);
 		ao.Generate();
 		ao.SaveToFile("ao.bmp");
 
-		size_t iAO = ao.GenerateTexture();
+		size_t iColorAO = ao.GenerateTexture();
 		for (size_t i = 0; i < m_aoMaterials.size(); i++)
 		{
-			if (m_aoMaterials[0].m_iAO)
-				glDeleteTextures(1, &m_aoMaterials[0].m_iAO);
-			m_aoMaterials[0].m_iAO = iAO;
+			if (m_aoMaterials[0].m_iColorAO)
+				glDeleteTextures(1, &m_aoMaterials[0].m_iColorAO);
+			m_aoMaterials[0].m_iColorAO = iColorAO;
 		}
 
-		SetDisplayAO(true);
+		SetDisplayColorAO(true);
 		CreateGLLists();
 	}
 

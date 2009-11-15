@@ -10,21 +10,73 @@ class CButtonPanel : public CPanel
 public:
 							CButtonPanel();
 
-	void					Layout();
+	virtual void			Layout();
 
-	void					AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
+	virtual void			AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
 protected:
 	std::vector<int>		m_aiSpaces;
 };
 
-class CAboutPanel : public CPanel
+#define HEADER_HEIGHT 16
+
+class CCloseButton : public CButton
+{
+public:
+							CCloseButton() : CButton(0, 0, 10, 10, "") {};
+
+	virtual void			Paint(int x, int y, int w, int h);
+};
+
+class CMovablePanel : public CPanel, public IEventListener
+{
+public:
+							CMovablePanel(char* pszName);
+
+	virtual void			Layout();
+
+	virtual void			Think();
+
+	virtual void			Paint(int x, int y, int w, int h);
+
+	virtual bool			MousePressed(int iButton, int mx, int my);
+	virtual bool			MouseReleased(int iButton, int mx, int my);
+
+	EVENT_CALLBACK(CMovablePanel, CloseWindow);
+
+protected:
+	int						m_iMouseStartX;
+	int						m_iMouseStartY;
+	int						m_iStartX;
+	int						m_iStartY;
+	bool					m_bMoving;
+
+	CLabel*					m_pName;
+
+	CCloseButton*			m_pCloseButton;
+};
+
+class CColorAOPanel : public CMovablePanel
+{
+public:
+							CColorAOPanel();
+
+	virtual void			Layout();
+
+	static void				Open();
+	static void				Close();
+
+protected:
+	static CColorAOPanel*	s_pColorAOPanel;
+};
+
+class CAboutPanel : public CMovablePanel
 {
 public:
 							CAboutPanel();
 
-	void					Layout();
-	void					Paint(int x, int y, int w, int h);
+	virtual void			Layout();
+	virtual void			Paint(int x, int y, int w, int h);
 
 	virtual bool			MousePressed(int iButton, int mx, int my);
 

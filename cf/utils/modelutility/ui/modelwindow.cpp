@@ -62,7 +62,7 @@ CModelWindow::CModelWindow()
 	SetDisplayType(DT_SMOOTH);
 	SetDisplayLight(true);
 	SetDisplayTexture(true);
-	SetDisplayAO(false);
+	SetDisplayColorAO(false);
 
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
@@ -292,9 +292,9 @@ void CModelWindow::CreateGLLists()
 						}
 
 						glActiveTexture(GL_TEXTURE1);
-						if (m_bDisplayAO)
+						if (m_bDisplayColorAO)
 						{
-							glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
+							glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
 							glEnable(GL_TEXTURE_2D);
 						}
 						else
@@ -808,10 +808,10 @@ void CModelWindow::SetDisplayTexture(bool bTexture)
 	CreateGLLists();
 }
 
-void CModelWindow::SetDisplayAO(bool bAO)
+void CModelWindow::SetDisplayColorAO(bool bColorAO)
 {
-	m_bDisplayAO = bAO;
-	m_pAO->SetState(bAO, false);
+	m_bDisplayColorAO = bColorAO;
+	m_pColorAO->SetState(bColorAO, false);
 	CreateGLLists();
 }
 

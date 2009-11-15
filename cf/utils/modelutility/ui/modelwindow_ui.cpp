@@ -1,5 +1,6 @@
 #include "modelwindow_ui.h"
 
+#include <maths.h>
 #include "modelwindow.h"
 
 void CModelWindow::InitUI()
@@ -20,7 +21,9 @@ void CModelWindow::InitUI()
 	pView->AddSubmenu("View smooth shaded", this, Smooth);
 	pView->AddSubmenu("Toggle light", this, LightToggle);
 	pView->AddSubmenu("Toggle texture", this, TextureToggle);
-	pView->AddSubmenu("Toggle AO map", this, AOToggle);
+	pView->AddSubmenu("Toggle color AO map", this, ColorAOToggle);
+
+	pTools->AddSubmenu("Generate color AO map", this, GenerateColorAO);
 
 	pHelp->AddSubmenu("About SMAK", this, About);
 
@@ -31,14 +34,14 @@ void CModelWindow::InitUI()
 	m_pSmooth = new CButton(0, 0, 100, 100, "Smth", true);
 	m_pLight = new CButton(0, 0, 100, 100, "Lght", true);
 	m_pTexture = new CButton(0, 0, 100, 100, "Tex", true);
-	m_pAO = new CButton(0, 0, 100, 100, "AO", true);
+	m_pColorAO = new CButton(0, 0, 100, 100, "C AO", true);
 
 	pButtons->AddButton(m_pWireframe, false, this, Wireframe);
 	pButtons->AddButton(m_pFlat, false, this, Flat);
 	pButtons->AddButton(m_pSmooth, true, this, Smooth);
 	pButtons->AddButton(m_pLight, false, this, Light);
 	pButtons->AddButton(m_pTexture, false, this, Texture);
-	pButtons->AddButton(m_pAO, false, this, AO);
+	pButtons->AddButton(m_pColorAO, false, this, ColorAO);
 
 	CRootPanel::Get()->AddControl(pButtons);
 
@@ -95,9 +98,9 @@ void CModelWindow::TextureCallback()
 	SetDisplayTexture(m_pTexture->GetState());
 }
 
-void CModelWindow::AOCallback()
+void CModelWindow::ColorAOCallback()
 {
-	SetDisplayAO(m_pAO->GetState());
+	SetDisplayColorAO(m_pColorAO->GetState());
 }
 
 void CModelWindow::LightToggleCallback()
@@ -110,9 +113,14 @@ void CModelWindow::TextureToggleCallback()
 	SetDisplayTexture(!m_bDisplayTexture);
 }
 
-void CModelWindow::AOToggleCallback()
+void CModelWindow::ColorAOToggleCallback()
 {
-	SetDisplayAO(!m_bDisplayAO);
+	SetDisplayColorAO(!m_bDisplayColorAO);
+}
+
+void CModelWindow::GenerateColorAOCallback()
+{
+	CColorAOPanel::Open();
 }
 
 void CModelWindow::AboutCallback()
@@ -167,14 +175,139 @@ void CButtonPanel::AddButton(CButton* pButton, bool bNewSection, IEventListener*
 	}
 }
 
+void CCloseButton::Paint(int x, int y, int w, int h)
+{
+	Color c;
+	
+	c.SetRed((int)RemapVal(m_flHighlight, 0.0f, 1.0f, (float)g_clrBox.r() * 2, 255.0f));
+	c.SetGreen((int)RemapVal(m_flHighlight, 0.0f, 1.0f, (float)g_clrBox.g(), (float)g_clrBoxHi.g()));
+	c.SetBlue((int)RemapVal(m_flHighlight, 0.0f, 1.0f, (float)g_clrBox.b(), (float)g_clrBoxHi.b()));
+	c.SetAlpha(255);
+
+	CRootPanel::PaintRect(x, y, w, h, c);
+}
+
+CMovablePanel::CMovablePanel(char* pszName)
+	: CPanel(0, 0, 200, 300)
+{
+	m_bMoving = false;
+
+	m_pName = new CLabel(0, GetHeight()-HEADER_HEIGHT, GetWidth(), HEADER_HEIGHT, pszName);
+	AddControl(m_pName);
+
+	m_pCloseButton = new CCloseButton();
+	AddControl(m_pCloseButton);
+
+	m_pCloseButton->SetClickedListener(this, CloseWindow);
+
+	CRootPanel::Get()->AddControl(this);
+}
+
+void CMovablePanel::Layout()
+{
+	m_pName->SetDimensions(0, GetHeight()-HEADER_HEIGHT, GetWidth(), HEADER_HEIGHT);
+
+	int iButtonSize = HEADER_HEIGHT*2/3;
+	m_pCloseButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - iButtonSize/2, GetHeight() - HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
+
+	CPanel::Layout();
+}
+
+void CMovablePanel::Think()
+{
+	if (m_bMoving)
+	{
+		int mx, my;
+		CRootPanel::GetFullscreenMousePos(mx, my);
+
+		SetPos(m_iStartX + mx - m_iMouseStartX, m_iStartY + my - m_iMouseStartY);
+	}
+
+	CPanel::Think();
+}
+
+void CMovablePanel::Paint(int x, int y, int w, int h)
+{
+	CRootPanel::PaintRect(x, y, w, h);
+	CRootPanel::PaintRect(x, y+h-HEADER_HEIGHT, w, HEADER_HEIGHT, g_clrBoxHi);
+
+	CPanel::Paint(x, y, w, h);
+}
+
+bool CMovablePanel::MousePressed(int iButton, int mx, int my)
+{
+	int x, y;
+	GetAbsPos(x, y);
+
+	if (iButton == 0 && mx > x && mx < x + GetWidth() - HEADER_HEIGHT*3/2 && my > y + GetHeight() - HEADER_HEIGHT && my < y + GetHeight())
+	{
+		m_iMouseStartX = mx;
+		m_iMouseStartY = my;
+		m_bMoving = true;
+
+		GetPos(x, y);
+		m_iStartX = x;
+		m_iStartY = y;
+
+		return true;
+	}
+
+	return CPanel::MousePressed(iButton, mx, my);
+}
+
+bool CMovablePanel::MouseReleased(int iButton, int mx, int my)
+{
+	if (m_bMoving)
+	{
+		m_bMoving = false;
+		return true;
+	}
+
+	return CPanel::MouseReleased(iButton, mx, my);
+}
+
+void CMovablePanel::CloseWindowCallback()
+{
+	SetVisible(false);
+}
+
+CColorAOPanel* CColorAOPanel::s_pColorAOPanel = NULL;
+
+CColorAOPanel::CColorAOPanel()
+	: CMovablePanel("Color AO generator")
+{
+	SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight() - 100);
+}
+
+void CColorAOPanel::Layout()
+{
+	CMovablePanel::Layout();
+}
+
+void CColorAOPanel::Open()
+{
+	if (!s_pColorAOPanel)
+		s_pColorAOPanel = new CColorAOPanel();
+
+	s_pColorAOPanel->SetVisible(true);
+	s_pColorAOPanel->Layout();
+}
+
+void CColorAOPanel::Close()
+{
+	if (!s_pColorAOPanel)
+		return;
+
+	s_pColorAOPanel->SetVisible(false);
+}
+
 CAboutPanel* CAboutPanel::s_pAboutPanel = NULL;
 
 CAboutPanel::CAboutPanel()
-	: CPanel(0, 0, 100, 100)
+	: CMovablePanel("About SMAK")
 {
 	m_pInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pInfo);
-	CRootPanel::Get()->AddControl(this);
 	Layout();
 }
 
@@ -202,18 +335,19 @@ void CAboutPanel::Layout()
 	m_pInfo->AppendText("GLEW copyright © 2002-2007, Milan Ikits, Marcelo E. Magallon, Lev Povalahev\n");
 	m_pInfo->AppendText("Freetype copyright © 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg\n");
 
-	CPanel::Layout();
+	CMovablePanel::Layout();
 }
 
 void CAboutPanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::PaintRect(x, y, w, h);
-
-	CPanel::Paint(x, y, w, h);
+	CMovablePanel::Paint(x, y, w, h);
 }
 
 bool CAboutPanel::MousePressed(int iButton, int mx, int my)
 {
+	if (CMovablePanel::MousePressed(iButton, mx, my))
+		return true;
+
 	Close();
 
 	return true;
