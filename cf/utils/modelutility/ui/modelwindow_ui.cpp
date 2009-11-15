@@ -353,6 +353,8 @@ void CColorAOPanel::GenerateCallback()
 	CRootPanel::Get()->Paint();
 	glutSwapBuffers();
 
+	CModelWindow::Get()->SetDisplayColorAO(true);
+
 	m_oGenerator.SetSize(32, 32);
 	m_oGenerator.SetUseTexture(true);
 	m_oGenerator.SetWorkListener(this);
@@ -366,7 +368,6 @@ void CColorAOPanel::GenerateCallback()
 		(*m_paoMaterials)[i].m_iColorAO = iColorAO;
 	}
 
-	CModelWindow::Get()->SetDisplayColorAO(true);
 	CModelWindow::Get()->CreateGLLists();
 
 	CModelWindow::Get()->SetRenderMode(bRenderUV);
@@ -401,6 +402,7 @@ void CColorAOPanel::WorkProgress()
 	}
 
 	glDrawBuffer(GL_BACK);
+	glReadBuffer(GL_BACK);
 
 	CModelWindow::Get()->RenderUV();
 	glutSwapBuffers();
