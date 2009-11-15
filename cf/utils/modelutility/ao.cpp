@@ -24,18 +24,17 @@ CColorAOGenerator::CColorAOGenerator(CConversionScene* pScene, std::vector<CMate
 
 	m_avecShadowValues = NULL;
 	m_aiShadowReads = NULL;
+	m_bPixelMask = NULL;
+	m_pPixels = NULL;
 
 	// Default options
 	SetSize(512, 512);
 	m_bUseTexture = true;
 	m_iBleed = 5;
+	SetRenderPreviewViewport(0, 0, 100, 100);
+	SetUseFrontBuffer(false);
 
-	// Pixel reading buffer
-	m_iViewportSize = 100;
-	m_iPixelDepth = 3;
-	size_t iBufferSize = m_iViewportSize*m_iViewportSize*sizeof(GLfloat)*m_iPixelDepth;
-	m_pPixels = (GLfloat*)malloc(iBufferSize);
-	m_bPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
+	m_pWorkListener = NULL;
 }
 
 CColorAOGenerator::~CColorAOGenerator()
@@ -64,6 +63,26 @@ void CColorAOGenerator::SetSize(size_t iWidth, size_t iHeight)
 	// Big hack incoming!
 	memset(&m_avecShadowValues[0].x, 0, iWidth*iHeight*sizeof(Vector));
 	memset(&m_aiShadowReads[0], 0, iWidth*iHeight*sizeof(size_t));
+
+	if (m_bPixelMask)
+		free(m_bPixelMask);
+	m_bPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
+}
+
+void CColorAOGenerator::SetRenderPreviewViewport(int x, int y, int w, int h)
+{
+	m_iRPVX = x;
+	m_iRPVY = y;
+	m_iRPVW = w;
+	m_iRPVH = h;
+
+	if (m_pPixels)
+		free(m_pPixels);
+
+	// Pixel reading buffer
+	m_iPixelDepth = 3;
+	size_t iBufferSize = m_iRPVW*m_iRPVH*sizeof(GLfloat)*m_iPixelDepth;
+	m_pPixels = (GLfloat*)malloc(iBufferSize);
 }
 
 void CColorAOGenerator::Generate()
@@ -290,6 +309,9 @@ void CColorAOGenerator::Generate()
 						m_aiShadowReads[iTexel]++;
 						m_bPixelMask[iTexel] = true;
 						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
+
+						if (m_pWorkListener)
+							m_pWorkListener->WorkProgress();
 					}
 				}
 			}
@@ -323,6 +345,10 @@ Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vec
 #ifdef AO_DEBUG
 	eBuffer = GL_FRONT;
 #endif
+
+	if (m_bUseFrontBuffer)
+		eBuffer = GL_FRONT;
+
 	glDrawBuffer(eBuffer);
 
 	glDisable(GL_LIGHTING);
@@ -336,7 +362,7 @@ Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vec
 	Vector vecEye = vecPosition + (vecDirection + Vector(.001f, .001f, .001f)) * 0.1f;
 	Vector vecLookAt = vecPosition + vecDirection;
 
-	glViewport(0, 0, (GLsizei)m_iViewportSize, (GLsizei)m_iViewportSize);
+	glViewport(m_iRPVX, m_iRPVY, m_iRPVW, m_iRPVH);
 
 	// Set up some rendering stuff.
 	glMatrixMode(GL_PROJECTION);
@@ -380,15 +406,15 @@ Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vec
 
 	glReadBuffer(eBuffer);
 
-	glReadPixels(0, 0, (GLsizei)m_iViewportSize, (GLsizei)m_iViewportSize, GL_RGB, GL_FLOAT, m_pPixels);
+	glReadPixels(m_iRPVX, m_iRPVY, m_iRPVW, m_iRPVH, GL_RGB, GL_FLOAT, m_pPixels);
 
 	float flTotal = 0;
 
-	for (size_t p = 0; p < m_iViewportSize*m_iViewportSize*m_iPixelDepth; p+=m_iPixelDepth)
+	for (size_t p = 0; p < m_iRPVW*m_iRPVH*m_iPixelDepth; p+=m_iPixelDepth)
 	{
-		float flColumn = fmod((float)p / (float)m_iPixelDepth, (float)m_iViewportSize);
+		float flColumn = fmod((float)p / (float)m_iPixelDepth, (float)m_iRPVW);
 
-		Vector vecUV(flColumn / m_iViewportSize, (float)(p / m_iPixelDepth / m_iViewportSize) / m_iViewportSize, 0);
+		Vector vecUV(flColumn / m_iRPVW, (float)(p / m_iPixelDepth / m_iRPVW) / m_iRPVH, 0);
 		Vector vecUVCenter(0.5f, 0.5f, 0);
 
 		// Weight the pixel based on its distance to the center.
@@ -560,6 +586,9 @@ void CColorAOGenerator::Bleed()
 
 		for (size_t p = 0; p < m_iWidth*m_iHeight; p++)
 			m_bPixelMask[p] |= abPixelMask[p];
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress();
 	}
 
 	free(abPixelMask);

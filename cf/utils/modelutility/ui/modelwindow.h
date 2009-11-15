@@ -103,6 +103,7 @@ public:
 	void					OpenAboutPanel();
 
 	// UI
+	bool					GetRenderMode() { return m_bRenderUV; };
 	void					SetRenderMode(bool bUV);
 	void					SetDisplayType(displaytype_t eType);
 	void					SetDisplayLight(bool bLight);

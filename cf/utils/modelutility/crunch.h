@@ -6,6 +6,12 @@
 
 #include <GL/glut.h>
 
+class IWorkListener
+{
+public:
+	virtual void			WorkProgress()=0;
+};
+
 class CColorAOGenerator
 {
 public:
@@ -15,6 +21,10 @@ public:
 	void					SetSize(size_t iWidth, size_t iHeight);
 	void					SetUseTexture(bool bUseTexture) { m_bUseTexture = bUseTexture; };
 	void					SetBleed(size_t iBleed) { m_iBleed = iBleed; };
+	void					SetRenderPreviewViewport(int x, int y, int w, int h);
+	void					SetUseFrontBuffer(bool bUseFrontBuffer) { m_bUseFrontBuffer = bUseFrontBuffer; };
+
+	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
 	void					Generate();
 	Vector					RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pFace);
@@ -34,8 +44,14 @@ protected:
 	size_t					m_iHeight;
 	bool					m_bUseTexture;
 	size_t					m_iBleed;
+	int						m_iRPVX;
+	int						m_iRPVY;
+	int						m_iRPVW;
+	int						m_iRPVH;
+	bool					m_bUseFrontBuffer;
 
-	size_t					m_iViewportSize;
+	IWorkListener*			m_pWorkListener;
+
 	size_t					m_iPixelDepth;
 	GLfloat*				m_pPixels;
 	bool*					m_bPixelMask;

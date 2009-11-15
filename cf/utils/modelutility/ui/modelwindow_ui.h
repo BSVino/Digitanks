@@ -66,12 +66,14 @@ protected:
 	CCloseButton*			m_pCloseButton;
 };
 
-class CColorAOPanel : public CMovablePanel
+class CColorAOPanel : public CMovablePanel, public IWorkListener
 {
 public:
 							CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 
 	virtual void			Layout();
+
+	virtual void			WorkProgress();
 
 	EVENT_CALLBACK(CColorAOPanel, Generate);
 

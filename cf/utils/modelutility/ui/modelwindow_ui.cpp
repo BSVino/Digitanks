@@ -179,7 +179,7 @@ void CButtonPanel::Layout()
 		iX += BTN_HEIGHT + m_aiSpaces[i];
 	}
 
-	SetSize(iX + BTN_HEIGHT - m_aiSpaces[m_aiSpaces.size()-1], BTN_HEIGHT);
+	SetSize(iX - m_aiSpaces[m_aiSpaces.size()-1], BTN_HEIGHT);
 	if (m_eAlign == BA_TOP)
 		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, CRootPanel::Get()->GetHeight() - BTN_HEIGHT*2 - BTN_SPACE);
 	else
@@ -331,8 +331,22 @@ void CColorAOPanel::Layout()
 
 void CColorAOPanel::GenerateCallback()
 {
+	bool bRenderUV = CModelWindow::Get()->GetRenderMode();
+
+	// Switch over to UV mode so we can see our progress.
+	CModelWindow::Get()->SetRenderMode(true);
+
+	// If the 3d model was there get rid of it.
+	CModelWindow::Get()->Render();
+	CRootPanel::Get()->Paint();
+	glutSwapBuffers();
+	CModelWindow::Get()->Render();
+	CRootPanel::Get()->Paint();
+	glutSwapBuffers();
+
 	m_oGenerator.SetSize(32, 32);
 	m_oGenerator.SetUseTexture(true);
+	m_oGenerator.SetWorkListener(this);
 	m_oGenerator.Generate();
 
 	size_t iColorAO = m_oGenerator.GenerateTexture();
@@ -345,6 +359,34 @@ void CColorAOPanel::GenerateCallback()
 
 	CModelWindow::Get()->SetDisplayColorAO(true);
 	CModelWindow::Get()->CreateGLLists();
+
+	CModelWindow::Get()->SetRenderMode(bRenderUV);
+}
+
+void CColorAOPanel::WorkProgress()
+{
+	static int iLastTime = 0;
+
+	int iCurrentTime = glutGet(GLUT_ELAPSED_TIME);
+
+	// Don't update too often or it'll slow us down just because of the updates.
+	if (iCurrentTime - iLastTime < 100)
+		return;
+
+	iLastTime = iCurrentTime;
+
+	size_t iColorAO = m_oGenerator.GenerateTexture();
+	for (size_t i = 0; i < m_paoMaterials->size(); i++)
+	{
+		if ((*m_paoMaterials)[i].m_iColorAO)
+			glDeleteTextures(1, &(*m_paoMaterials)[i].m_iColorAO);
+		(*m_paoMaterials)[i].m_iColorAO = iColorAO;
+	}
+
+	glDrawBuffer(GL_BACK);
+
+	CModelWindow::Get()->RenderUV();
+	glutSwapBuffers();
 }
 
 void CColorAOPanel::Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)

@@ -425,6 +425,7 @@ void CModelWindow::SaveFile(const wchar_t* pszFile)
 
 void CModelWindow::Render()
 {
+	glReadBuffer(GL_BACK);
 	glDrawBuffer(GL_BACK);
 	glViewport(0, 0, (GLsizei)m_iWindowWidth, (GLsizei)m_iWindowHeight);
 
@@ -758,6 +759,8 @@ void CModelWindow::RenderObjects()
 
 void CModelWindow::RenderUV()
 {
+	glViewport(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+
 	// Switch GL to 2d drawing model.
 	int aiViewport[4];
 	glGetIntegerv(GL_VIEWPORT, aiViewport);
@@ -942,9 +945,11 @@ void CModelWindow::WindowResize(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	modelgui::CRootPanel::Get()->Layout();
-
 	Render();
+	modelgui::CRootPanel::Get()->Layout();
+	modelgui::CRootPanel::Get()->Paint();
+
+	glutSwapBuffers();
 }
 
 void CModelWindow::Display()
