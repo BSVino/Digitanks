@@ -99,7 +99,7 @@ public:
 	size_t					GetNextObjectId();
 
 	wchar_t*				OpenFileDialog();
-	wchar_t*				SaveFileDialog();
+	wchar_t*				SaveFileDialog(wchar_t* pszFileTypes);
 	void					OpenAboutPanel();
 
 	// UI

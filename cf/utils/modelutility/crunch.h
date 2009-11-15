@@ -32,9 +32,11 @@ public:
 	void					Bleed();
 
 	size_t					GenerateTexture();
-	void					SaveToFile(const char* pszFilename);
+	void					SaveToFile(const wchar_t* pszFilename);
 
 	bool					Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask = true);
+
+	bool					HasGenerated() { return m_bHasGenerated; }
 
 protected:
 	CConversionScene*		m_pScene;
@@ -60,6 +62,8 @@ protected:
 
 	Vector*					m_avecShadowValues;
 	size_t*					m_aiShadowReads;
+
+	bool					m_bHasGenerated;
 };
 
 #endif

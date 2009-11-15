@@ -34,14 +34,14 @@ wchar_t* CModelWindow::OpenFileDialog()
 	return NULL;
 }
 
-wchar_t* CModelWindow::SaveFileDialog()
+wchar_t* CModelWindow::SaveFileDialog(wchar_t* pszFileTypes)
 {
 	static wchar_t szFile[256];
 	szFile[0] = '\0';
 
 	OPENFILENAME opf;
 	opf.hwndOwner = 0;
-	opf.lpstrFilter = L"Valve Source SMD\0*.smd\0";
+	opf.lpstrFilter = pszFileTypes;
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
 	opf.nFilterIndex = 1L;
@@ -51,7 +51,7 @@ wchar_t* CModelWindow::SaveFileDialog()
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
 	opf.lpstrInitialDir = NULL;
-	opf.lpstrTitle = L"Save Model";
+	opf.lpstrTitle = L"Save File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
 	opf.lpstrDefExt = L"*.*";

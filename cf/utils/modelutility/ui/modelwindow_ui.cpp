@@ -1,5 +1,6 @@
 #include "modelwindow_ui.h"
 
+#include <IL/il.h>
 #include <maths.h>
 #include "modelwindow.h"
 
@@ -72,7 +73,7 @@ void CModelWindow::ReloadCallback()
 
 void CModelWindow::SaveCallback()
 {
-	SaveFile(SaveFileDialog());
+	SaveFile(SaveFileDialog(L"Valve Source SMD\0*.smd\0"));
 }
 
 void CModelWindow::CloseCallback()
@@ -318,13 +319,21 @@ CColorAOPanel::CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* p
 
 	m_pGenerate->SetClickedListener(this, Generate);
 
+	m_pSave = new CButton(0, 0, 100, 100, "Save Map");
+	AddControl(m_pSave);
+
+	m_pSave->SetClickedListener(this, SaveMap);
+
 	Layout();
 }
 
 void CColorAOPanel::Layout()
 {
 	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
-	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8);
+	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8+GetWidth()/6+10);
+
+	m_pSave->SetSize(GetWidth()/2, GetWidth()/6);
+	m_pSave->SetPos(GetWidth()/4, GetWidth()/8);
 
 	CMovablePanel::Layout();
 }
@@ -361,6 +370,14 @@ void CColorAOPanel::GenerateCallback()
 	CModelWindow::Get()->CreateGLLists();
 
 	CModelWindow::Get()->SetRenderMode(bRenderUV);
+}
+
+void CColorAOPanel::SaveMapCallback()
+{
+	if (!m_oGenerator.HasGenerated())
+		return;
+
+	m_oGenerator.SaveToFile(CModelWindow::Get()->SaveFileDialog(L"Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0"));
 }
 
 void CColorAOPanel::WorkProgress()

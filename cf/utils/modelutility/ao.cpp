@@ -35,6 +35,8 @@ CColorAOGenerator::CColorAOGenerator(CConversionScene* pScene, std::vector<CMate
 	SetUseFrontBuffer(false);
 
 	m_pWorkListener = NULL;
+
+	m_bHasGenerated = false;
 }
 
 CColorAOGenerator::~CColorAOGenerator()
@@ -337,6 +339,8 @@ void CColorAOGenerator::Generate()
 	glPopMatrix();
 
 	Bleed();
+
+	m_bHasGenerated = true;
 }
 
 Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
@@ -606,7 +610,7 @@ size_t CColorAOGenerator::GenerateTexture()
 	return iGLId;
 }
 
-void CColorAOGenerator::SaveToFile(const char *pszFilename)
+void CColorAOGenerator::SaveToFile(const wchar_t *pszFilename)
 {
 	ilEnable(IL_FILE_OVERWRITE);
 
@@ -622,9 +626,7 @@ void CColorAOGenerator::SaveToFile(const char *pszFilename)
 	// I'm glad this flips X and not Y, or it'd be pretty useless to me.
 	iluFlipImage();
 
-	wchar_t szFilename[1024];
-	mbstowcs(szFilename, pszFilename, 1024);
-	ilSaveImage(szFilename);
+	ilSaveImage(pszFilename);
 
 	ilDeleteImages(1,&iDevILId);
 }

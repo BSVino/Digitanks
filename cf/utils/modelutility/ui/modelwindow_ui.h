@@ -76,6 +76,7 @@ public:
 	virtual void			WorkProgress();
 
 	EVENT_CALLBACK(CColorAOPanel, Generate);
+	EVENT_CALLBACK(CColorAOPanel, SaveMap);
 
 	static void				Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 	static void				Close();
@@ -87,6 +88,7 @@ protected:
 	CColorAOGenerator		m_oGenerator;
 
 	CButton*				m_pGenerate;
+	CButton*				m_pSave;
 
 	static CColorAOPanel*	s_pColorAOPanel;
 };
