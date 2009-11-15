@@ -2,6 +2,7 @@
 #define MODELWINDOW_UI_H
 
 #include "modelgui.h"
+#include "../crunch.h"
 
 using namespace modelgui;
 
@@ -32,6 +33,7 @@ class CMovablePanel : public CPanel, public IEventListener
 {
 public:
 							CMovablePanel(char* pszName);
+							~CMovablePanel();
 
 	virtual void			Layout();
 
@@ -59,14 +61,23 @@ protected:
 class CColorAOPanel : public CMovablePanel
 {
 public:
-							CColorAOPanel();
+							CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 
 	virtual void			Layout();
 
-	static void				Open();
+	EVENT_CALLBACK(CColorAOPanel, Generate);
+
+	static void				Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 	static void				Close();
 
 protected:
+	CConversionScene*		m_pScene;
+	std::vector<CMaterial>*	m_paoMaterials;
+
+	CColorAOGenerator		m_oGenerator;
+
+	CButton*				m_pGenerate;
+
 	static CColorAOPanel*	s_pColorAOPanel;
 };
 

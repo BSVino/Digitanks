@@ -2,6 +2,7 @@
 
 #include "../crunch.h"
 #include "modelgui.h"
+#include "modelwindow_ui.h"
 
 void CModelWindow::MouseMotion(int x, int y)
 {
@@ -112,24 +113,7 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 		exit(0);
 
 	if (c == 'a')
-	{
-		CColorAOGenerator ao(&m_Scene, &m_aoMaterials);
-		ao.SetSize(32, 32);
-		ao.SetUseTexture(true);
-		ao.Generate();
-		ao.SaveToFile("ao.bmp");
-
-		size_t iColorAO = ao.GenerateTexture();
-		for (size_t i = 0; i < m_aoMaterials.size(); i++)
-		{
-			if (m_aoMaterials[0].m_iColorAO)
-				glDeleteTextures(1, &m_aoMaterials[0].m_iColorAO);
-			m_aoMaterials[0].m_iColorAO = iColorAO;
-		}
-
-		SetDisplayColorAO(true);
-		CreateGLLists();
-	}
+		CColorAOPanel::Open(&m_Scene, &m_aoMaterials);
 
 	if (c == 'r' && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
 		ReloadFromFile();

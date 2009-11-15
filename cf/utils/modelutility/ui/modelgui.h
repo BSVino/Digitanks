@@ -15,6 +15,7 @@
 
 namespace modelgui
 {
+	extern Color g_clrPanel;
 	extern Color g_clrBox;
 	extern Color g_clrBoxHi;
 

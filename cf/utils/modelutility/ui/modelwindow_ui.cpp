@@ -120,7 +120,7 @@ void CModelWindow::ColorAOToggleCallback()
 
 void CModelWindow::GenerateColorAOCallback()
 {
-	CColorAOPanel::Open();
+	CColorAOPanel::Open(&m_Scene, &m_aoMaterials);
 }
 
 void CModelWindow::AboutCallback()
@@ -203,6 +203,11 @@ CMovablePanel::CMovablePanel(char* pszName)
 	CRootPanel::Get()->AddControl(this);
 }
 
+CMovablePanel::~CMovablePanel()
+{
+	CRootPanel::Get()->RemoveControl(this);
+}
+
 void CMovablePanel::Layout()
 {
 	m_pName->SetDimensions(0, GetHeight()-HEADER_HEIGHT, GetWidth(), HEADER_HEIGHT);
@@ -228,7 +233,8 @@ void CMovablePanel::Think()
 
 void CMovablePanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::PaintRect(x, y, w, h);
+	CRootPanel::PaintRect(x, y, w, h, g_clrPanel);
+
 	CRootPanel::PaintRect(x, y+h-HEADER_HEIGHT, w, HEADER_HEIGHT, g_clrBoxHi);
 
 	CPanel::Paint(x, y, w, h);
@@ -273,21 +279,55 @@ void CMovablePanel::CloseWindowCallback()
 
 CColorAOPanel* CColorAOPanel::s_pColorAOPanel = NULL;
 
-CColorAOPanel::CColorAOPanel()
-	: CMovablePanel("Color AO generator")
+CColorAOPanel::CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+	: CMovablePanel("Color AO generator"), m_oGenerator(pScene, paoMaterials)
 {
+	m_pScene = pScene;
+	m_paoMaterials = paoMaterials;
+
 	SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight() - 100);
+
+	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
+	AddControl(m_pGenerate);
+
+	m_pGenerate->SetClickedListener(this, Generate);
+
+	Layout();
 }
 
 void CColorAOPanel::Layout()
 {
+	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
+	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8);
+
 	CMovablePanel::Layout();
 }
 
-void CColorAOPanel::Open()
+void CColorAOPanel::GenerateCallback()
 {
-	if (!s_pColorAOPanel)
-		s_pColorAOPanel = new CColorAOPanel();
+	m_oGenerator.SetSize(32, 32);
+	m_oGenerator.SetUseTexture(true);
+	m_oGenerator.Generate();
+
+	size_t iColorAO = m_oGenerator.GenerateTexture();
+	for (size_t i = 0; i < m_paoMaterials->size(); i++)
+	{
+		if ((*m_paoMaterials)[i].m_iColorAO)
+			glDeleteTextures(1, &(*m_paoMaterials)[i].m_iColorAO);
+		(*m_paoMaterials)[i].m_iColorAO = iColorAO;
+	}
+
+	CModelWindow::Get()->SetDisplayColorAO(true);
+	CModelWindow::Get()->CreateGLLists();
+}
+
+void CColorAOPanel::Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+{
+	// Get rid of the last one, in case we've changed the scene.
+	if (s_pColorAOPanel)
+		delete s_pColorAOPanel;
+
+	s_pColorAOPanel = new CColorAOPanel(pScene, paoMaterials);
 
 	s_pColorAOPanel->SetVisible(true);
 	s_pColorAOPanel->Layout();

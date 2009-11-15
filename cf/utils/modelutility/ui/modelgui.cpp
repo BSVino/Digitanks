@@ -8,6 +8,7 @@
 
 using namespace modelgui;
 
+Color modelgui::g_clrPanel = Color(66, 72, 82, 255);
 Color modelgui::g_clrBox = Color(34, 37, 42, 255);
 Color modelgui::g_clrBoxHi = Color(148, 161, 181, 255);
 
