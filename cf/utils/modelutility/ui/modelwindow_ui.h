@@ -6,16 +6,24 @@
 
 using namespace modelgui;
 
+typedef enum
+{
+	BA_TOP,
+	BA_BOTTOM,
+} buttonalignment_t;
+
 class CButtonPanel : public CPanel
 {
 public:
-							CButtonPanel();
+							CButtonPanel(buttonalignment_t eAlign);
 
 	virtual void			Layout();
 
 	virtual void			AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
 protected:
+	buttonalignment_t		m_eAlign;
+
 	std::vector<int>		m_aiSpaces;
 };
 

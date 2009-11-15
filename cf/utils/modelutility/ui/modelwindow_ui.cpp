@@ -16,6 +16,8 @@ void CModelWindow::InitUI()
 	pFile->AddSubmenu("Close", this, Close);
 	pFile->AddSubmenu("Exit", this, Exit);
 
+	pView->AddSubmenu("3D view", this, Render3D);
+	pView->AddSubmenu("UV view", this, RenderUV);
 	pView->AddSubmenu("View wireframe", this, Wireframe);
 	pView->AddSubmenu("View flat shaded", this, Flat);
 	pView->AddSubmenu("View smooth shaded", this, Smooth);
@@ -27,7 +29,17 @@ void CModelWindow::InitUI()
 
 	pHelp->AddSubmenu("About SMAK", this, About);
 
-	CButtonPanel* pButtons = new CButtonPanel();
+	CButtonPanel* pTopButtons = new CButtonPanel(BA_TOP);
+
+	m_pRender3D = new CButton(0, 0, 100, 100, "3D", true);
+	m_pRenderUV = new CButton(0, 0, 100, 100, "UV", true);
+
+	pTopButtons->AddButton(m_pRender3D, false, this, Render3D);
+	pTopButtons->AddButton(m_pRenderUV, false, this, RenderUV);
+
+	CRootPanel::Get()->AddControl(pTopButtons);
+
+	CButtonPanel* pBottomButtons = new CButtonPanel(BA_BOTTOM);
 
 	m_pWireframe = new CButton(0, 0, 100, 100, "Wire", true);
 	m_pFlat = new CButton(0, 0, 100, 100, "Flat", true);
@@ -36,14 +48,14 @@ void CModelWindow::InitUI()
 	m_pTexture = new CButton(0, 0, 100, 100, "Tex", true);
 	m_pColorAO = new CButton(0, 0, 100, 100, "C AO", true);
 
-	pButtons->AddButton(m_pWireframe, false, this, Wireframe);
-	pButtons->AddButton(m_pFlat, false, this, Flat);
-	pButtons->AddButton(m_pSmooth, true, this, Smooth);
-	pButtons->AddButton(m_pLight, false, this, Light);
-	pButtons->AddButton(m_pTexture, false, this, Texture);
-	pButtons->AddButton(m_pColorAO, false, this, ColorAO);
+	pBottomButtons->AddButton(m_pWireframe, false, this, Wireframe);
+	pBottomButtons->AddButton(m_pFlat, false, this, Flat);
+	pBottomButtons->AddButton(m_pSmooth, true, this, Smooth);
+	pBottomButtons->AddButton(m_pLight, false, this, Light);
+	pBottomButtons->AddButton(m_pTexture, false, this, Texture);
+	pBottomButtons->AddButton(m_pColorAO, false, this, ColorAO);
 
-	CRootPanel::Get()->AddControl(pButtons);
+	CRootPanel::Get()->AddControl(pBottomButtons);
 
 	CRootPanel::Get()->Layout();
 }
@@ -71,6 +83,16 @@ void CModelWindow::CloseCallback()
 void CModelWindow::ExitCallback()
 {
 	exit(0);
+}
+
+void CModelWindow::Render3DCallback()
+{
+	SetRenderMode(false);
+}
+
+void CModelWindow::RenderUVCallback()
+{
+	SetRenderMode(true);
 }
 
 void CModelWindow::WireframeCallback()
@@ -137,9 +159,10 @@ void CModelWindow::OpenAboutPanel()
 #define BTN_SPACE 8
 #define BTN_SECTION 18
 
-CButtonPanel::CButtonPanel()
+CButtonPanel::CButtonPanel(buttonalignment_t eAlign)
 : CPanel(0, 0, BTN_HEIGHT, BTN_HEIGHT)
 {
+	m_eAlign = eAlign;
 }
 
 void CButtonPanel::Layout()
@@ -157,7 +180,10 @@ void CButtonPanel::Layout()
 	}
 
 	SetSize(iX + BTN_HEIGHT - m_aiSpaces[m_aiSpaces.size()-1], BTN_HEIGHT);
-	SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, BTN_HEIGHT + BTN_SPACE);
+	if (m_eAlign == BA_TOP)
+		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, CRootPanel::Get()->GetHeight() - BTN_HEIGHT*2 - BTN_SPACE);
+	else
+		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, BTN_HEIGHT + BTN_SPACE);
 
 	CPanel::Layout();
 }

@@ -47,9 +47,11 @@ public:
 
 	static void				RenderCallback() { Get()->Render(); };
 	void					Render();
+	void					Render3D();
 	void					RenderGround();
 	void					RenderObjects();
 	void					RenderLightSource();
+	void					RenderUV();
 
 	static void				WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void					WindowResize(int x, int y);
@@ -80,6 +82,8 @@ public:
 	EVENT_CALLBACK(CModelWindow, Save);
 	EVENT_CALLBACK(CModelWindow, Close);
 	EVENT_CALLBACK(CModelWindow, Exit);
+	EVENT_CALLBACK(CModelWindow, Render3D);
+	EVENT_CALLBACK(CModelWindow, RenderUV);
 	EVENT_CALLBACK(CModelWindow, Wireframe);
 	EVENT_CALLBACK(CModelWindow, Flat);
 	EVENT_CALLBACK(CModelWindow, Smooth);
@@ -99,6 +103,7 @@ public:
 	void					OpenAboutPanel();
 
 	// UI
+	void					SetRenderMode(bool bUV);
 	void					SetDisplayType(displaytype_t eType);
 	void					SetDisplayLight(bool bLight);
 	void					SetDisplayTexture(bool bTexture);
@@ -136,18 +141,24 @@ protected:
 	float					m_flLightYaw;
 	float					m_flLightPitch;
 
+	float					m_flCameraUVZoom;
+
 	size_t					m_iWindowWidth;
 	size_t					m_iWindowHeight;
 
 	std::vector<Vector>		m_avecDebugLines;
 
 	// Options
+	bool					m_bRenderUV;
 	displaytype_t			m_eDisplayType;
 	bool					m_bDisplayLight;
 	bool					m_bDisplayTexture;
 	bool					m_bDisplayColorAO;
 
 	// Controls
+	modelgui::CButton*		m_pRender3D;
+	modelgui::CButton*		m_pRenderUV;
+
 	modelgui::CButton*		m_pWireframe;
 	modelgui::CButton*		m_pFlat;
 	modelgui::CButton*		m_pSmooth;

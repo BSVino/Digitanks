@@ -39,6 +39,8 @@ CModelWindow::CModelWindow()
 	m_flCameraYaw = 45;
 	m_flCameraPitch = 45;
 
+	m_flCameraUVZoom = 1;
+
 	m_flLightYaw = 100;
 	m_flLightPitch = 45;
 
@@ -59,6 +61,7 @@ CModelWindow::CModelWindow()
 
 	InitUI();
 
+	SetRenderMode(false);
 	SetDisplayType(DT_SMOOTH);
 	SetDisplayLight(true);
 	SetDisplayTexture(true);
@@ -375,12 +378,9 @@ void CModelWindow::CreateGLLists()
 			{
 				glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 				glColor3f(1.0f, 1.0f, 1.0f);
-				glBegin(GL_LINES);
+				glBegin(GL_LINE_STRIP);
 					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(0)->vn));
 					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v));
-					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(1)->vn));
-					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
-
 					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(1)->vn));
 					glVertex3fv(pMesh->GetVertex(pFace->GetVertex(1)->v));
 					glNormal3fv(pMesh->GetNormal(pFace->GetVertex(2)->vn));
@@ -458,11 +458,25 @@ void CModelWindow::Render()
 		glVertex2f(1.0f, 1.0f);
 	glEnd();
 
-	glEnable(GL_DEPTH_TEST);
+	glPopAttrib();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	if (m_bRenderUV)
+		RenderUV();
+	else
+		Render3D();
+}
+
+void CModelWindow::Render3D()
+{
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(
 			44.0,
@@ -472,7 +486,6 @@ void CModelWindow::Render()
 		);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
 
 	glPushMatrix();
 
@@ -512,6 +525,7 @@ void CModelWindow::Render()
 void CModelWindow::RenderGround(void)
 {
 	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
 
 	int i;
 
@@ -742,6 +756,175 @@ void CModelWindow::RenderObjects()
 	glPopAttrib();
 }
 
+void CModelWindow::RenderUV()
+{
+	// Switch GL to 2d drawing model.
+	int aiViewport[4];
+	glGetIntegerv(GL_VIEWPORT, aiViewport);
+
+	float flRatio = (float)aiViewport[3] / (float)aiViewport[2];
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(-1, 1, -flRatio, flRatio, -1, 1);
+
+	glScalef(m_flCameraUVZoom, m_flCameraUVZoom, 0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_COLOR_MATERIAL);
+
+	glShadeModel(GL_FLAT);
+
+	bool bMultiTexture = false;
+
+	CMaterial* pMaterial = &m_aoMaterials[0];
+
+	if (GLEW_VERSION_1_3)
+	{
+		bMultiTexture = true;
+
+		glActiveTexture(GL_TEXTURE0);
+		if (m_bDisplayTexture)
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+			glEnable(GL_TEXTURE_2D);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		glActiveTexture(GL_TEXTURE1);
+		if (m_bDisplayColorAO)
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
+			glEnable(GL_TEXTURE_2D);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+			glDisable(GL_TEXTURE_2D);
+		}
+	}
+	else
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+	}
+
+	if (m_bDisplayTexture || m_bDisplayColorAO)
+		glColor3f(1.0f, 1.0f, 1.0f);
+	else
+		glColor3f(0.0f, 0.0f, 0.0f);
+
+	Vector vecUV;
+
+	glBegin(GL_QUADS);
+
+		vecUV = Vector(0.0f, 1.0f, 0.0f);
+		if (bMultiTexture)
+		{
+			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+		}
+		else
+			glTexCoord2fv(vecUV);
+		glVertex2f(-0.5f, -0.5f);
+
+		vecUV = Vector(1.0f, 1.0f, 0.0f);
+		if (bMultiTexture)
+		{
+			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+		}
+		else
+			glTexCoord2fv(vecUV);
+		glVertex2f(0.5f, -0.5f);
+
+		vecUV = Vector(1.0f, 0.0f, 0.0f);
+		if (bMultiTexture)
+		{
+			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+		}
+		else
+			glTexCoord2fv(vecUV);
+		glVertex2f(0.5f, 0.5f);
+
+		vecUV = Vector(0.0f, 0.0f, 0.0f);
+		if (bMultiTexture)
+		{
+			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+		}
+		else
+			glTexCoord2fv(vecUV);
+		glVertex2f(-0.5f, 0.5f);
+
+	glEnd();
+
+	if (GLEW_VERSION_1_3)
+	{
+		// Disable the multi-texture stuff now that object drawing is done.
+		glActiveTexture(GL_TEXTURE1);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+	}
+
+	if (m_eDisplayType == DT_WIREFRAME)
+	{
+		Vector vecOffset(-0.5f, -0.5f, 0);
+
+		for (size_t i = 0; i < m_Scene.GetNumMeshes(); i++)
+		{
+			CConversionMesh* pMesh = m_Scene.GetMesh(i);
+
+			for (size_t j = 0; j < pMesh->GetNumFaces(); j++)
+			{
+				size_t k;
+				CConversionFace* pFace = pMesh->GetFace(j);
+
+				glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glBegin(GL_LINE_STRIP);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vt) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(1)->vt) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(2)->vt) + vecOffset);
+				glEnd();
+				for (k = 0; k < pFace->GetNumVertices()-2; k++)
+				{
+					glBegin(GL_LINES);
+						glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+1)->vt) + vecOffset);
+						glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+2)->vt) + vecOffset);
+					glEnd();
+				}
+				glBegin(GL_LINES);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+1)->vt) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vt) + vecOffset);
+				glEnd();
+			}
+		}
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();   
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glPopAttrib();
+}
+
 void CModelWindow::WindowResize(int w, int h)
 {
 	m_iWindowWidth = w;
@@ -775,6 +958,19 @@ void CModelWindow::Visible(int vis)
 size_t CModelWindow::GetNextObjectId()
 {
 	return (m_iObjectsCreated++)+1;
+}
+
+void CModelWindow::SetRenderMode(bool bUV)
+{
+	m_pRender3D->SetState(false, false);
+	m_pRenderUV->SetState(false, false);
+
+	if (bUV)
+		m_pRenderUV->SetState(true, false);
+	else
+		m_pRender3D->SetState(true, false);
+
+	m_bRenderUV = bUV;
 }
 
 void CModelWindow::SetDisplayType(displaytype_t eType)
