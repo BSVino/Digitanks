@@ -22,6 +22,8 @@ public:
 									CConversionFace(class CConversionScene* pScene, size_t iMesh, size_t m);
 
 	Vector							GetNormal();
+	Vector							GetCenter();
+	float							GetArea();
 
 	void							FindAdjacentFaces(std::vector<size_t>& aResult, size_t iVert = (size_t)~0, bool bIgnoreCreased = false);
 	void							FindAdjacentFacesInternal(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased);
@@ -33,6 +35,8 @@ public:
 	size_t							GetNumEdges() { return m_aEdges.size(); }
 	size_t							GetEdge(size_t i) { return m_aEdges[i]; }
 	bool							HasEdge(size_t i);
+
+	std::vector<Vector>&			GetVertices(std::vector<Vector>& avecVertices);
 
 	class CConversionScene*			m_pScene;
 	size_t							m_iMesh;

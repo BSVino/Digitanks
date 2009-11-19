@@ -17,8 +17,9 @@
 #include "ui/modelwindow.h"
 #endif
 
-CColorAOGenerator::CColorAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+CAOGenerator::CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
+	m_eAOMethod = eMethod;
 	m_pScene = pScene;
 	m_paoMaterials = paoMaterials;
 
@@ -39,7 +40,7 @@ CColorAOGenerator::CColorAOGenerator(CConversionScene* pScene, std::vector<CMate
 	m_bHasGenerated = false;
 }
 
-CColorAOGenerator::~CColorAOGenerator()
+CAOGenerator::~CAOGenerator()
 {
 	free(m_pPixels);
 	free(m_bPixelMask);
@@ -47,7 +48,7 @@ CColorAOGenerator::~CColorAOGenerator()
 	delete[] m_aiShadowReads;
 }
 
-void CColorAOGenerator::SetSize(size_t iWidth, size_t iHeight)
+void CAOGenerator::SetSize(size_t iWidth, size_t iHeight)
 {
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -71,7 +72,7 @@ void CColorAOGenerator::SetSize(size_t iWidth, size_t iHeight)
 	m_bPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
 }
 
-void CColorAOGenerator::SetRenderPreviewViewport(int x, int y, int w, int h)
+void CAOGenerator::SetRenderPreviewViewport(int x, int y, int w, int h)
 {
 	m_iRPVX = x;
 	m_iRPVY = y;
@@ -87,19 +88,8 @@ void CColorAOGenerator::SetRenderPreviewViewport(int x, int y, int w, int h)
 	m_pPixels = (GLfloat*)malloc(iBufferSize);
 }
 
-void CColorAOGenerator::Generate()
+void CAOGenerator::RenderSetupScene()
 {
-#ifdef AO_DEBUG
-	CModelWindow::Get()->ClearDebugLines();
-#endif
-
-	float flTotalTime = 0;
-	float flPointInTriangleTime = 0;
-	float flMatrixMathTime = 0;
-	float flRenderingTime = 0;
-
-	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
-
 	// Tuck away our current stack so we can return to it later.
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -181,8 +171,34 @@ void CColorAOGenerator::Generate()
 
 		glEndList();
 	}
+}
 
-	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
+void CAOGenerator::Generate()
+{
+#ifdef AO_DEBUG
+	CModelWindow::Get()->ClearDebugLines();
+#endif
+
+	float flTotalTime = 0;
+	float flPointInTriangleTime = 0;
+	float flMatrixMathTime = 0;
+	float flRenderingTime = 0;
+
+	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
+
+	if (m_eAOMethod == AOMETHOD_RENDER)
+		RenderSetupScene();
+
+#ifdef AO_DEBUG
+	// In AO debug mode we need this to do the debug rendering, so do it anyways.
+	else
+		RenderSetupScene();
+#endif
+
+	float flLowestValue = -1;
+	float flHighestValue = 0;
+
+	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
 		CConversionMesh* pMesh = m_pScene->GetMesh(m);
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
@@ -304,12 +320,148 @@ void CColorAOGenerator::Generate()
 						flMatrixMathTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 						iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
-						// Render the scene from this location
+
 						size_t iTexel;
 						Texel(i, j, iTexel, false);
-						m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
+
+						if (m_eAOMethod == AOMETHOD_RENDER)
+						{
+							// Render the scene from this location
+							m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
+						}
+						else
+						{
+							float flShadowValue = 0;
+
+							//DebugRenderSceneLookAtPosition(vecUVPosition, vecNormal, pFace);
+
+							// Tri distance method
+							for (size_t m2 = 0; m2 < m_pScene->GetNumMeshes(); m2++)
+							{
+								CConversionMesh* pMesh2 = m_pScene->GetMesh(m2);
+								for (size_t f2 = 0; f2 < pMesh2->GetNumFaces(); f2++)
+								{
+									CConversionFace* pFace2 = pMesh2->GetFace(f2);
+
+									if (pFace == pFace2)
+										continue;
+
+									//DebugRenderSceneLookAtPosition(pFace2->GetCenter(), pFace2->GetNormal(), pFace2);
+
+									// If this face is behind us, ignore.
+									if ((pFace2->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
+										continue;
+
+									// Skip adjoining faces, they are done in a different algorithm below.
+									bool bFoundAdjacent = false;
+									for (size_t e = 0; e < pFace->GetNumEdges(); e++)
+									{
+										CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
+
+										if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) == pFace2) ||
+											(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) == pFace2))
+										{
+											bFoundAdjacent = true;
+											break;
+										}
+									}
+
+									if (bFoundAdjacent)
+										continue;
+
+									std::vector<Vector> av;
+
+									float flDistance = DistanceToPolygon(vecUVPosition, pFace2->GetVertices(av), pFace2->GetNormal());
+									float flDistanceToCenter = (vecUVPosition - pFace2->GetCenter()).Length();
+
+									// If the difference between the closest distance to the poly and the difference to the center is large
+									// then the poly is very close but we're near the edge of it, so that polygon shouldn't affect the
+									// lighting as much. If it's across from us then this should result in a higher multiplier.
+									float flDistanceMultiplier = exp(-fabs(flDistance - flDistanceToCenter));
+
+									flDistanceMultiplier = (flDistanceMultiplier+1)/2;	// Reduce this effect by half.
+
+									float flArea = sqrt(pFace2->GetArea());
+
+									flShadowValue += flArea * exp(-flDistance) * flDistanceMultiplier * fabs(pFace2->GetNormal().Dot(vecNormal));
+								}
+							}
+
+							// Loop through all the edges to give us dirty concave corners.
+							float flDistanceToOpposite = 0;
+							for (size_t e = 0; e < pFace->GetNumEdges(); e++)
+							{
+								CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
+								CConversionEdge* pAdjacentEdge = NULL;
+
+								if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) != pFace) ||
+									(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) != pFace))
+								{
+									pAdjacentEdge = pEdge;
+
+									if (pFace->GetNumEdges() % 2 == 0)
+									{
+										// Even number of edges, opposite is an edge.
+										size_t iOpposite = (e + pFace->GetNumEdges()/2) % pFace->GetNumEdges();
+										CConversionEdge* pOppositeEdge = pMesh->GetEdge(pFace->GetEdge(iOpposite));
+
+										// Use the center of the opposite edge for simplicity's sake.
+										Vector vecCenter = (pMesh->GetVertex(pOppositeEdge->v1) + pMesh->GetVertex(pOppositeEdge->v2))/2;
+										flDistanceToOpposite = DistanceToLine(vecCenter, pMesh->GetVertex(pEdge->v1), pMesh->GetVertex(pEdge->v2));
+									}
+									else
+									{
+										// Odd number of edges, opposite is an point.
+										size_t iOpposite = (e + pFace->GetNumVertices()/2) % pFace->GetNumVertices();
+
+										Vector vecOppositePoint = pMesh->GetVertex(pFace->GetVertex(iOpposite)->v);
+										flDistanceToOpposite = DistanceToLine(vecOppositePoint, pMesh->GetVertex(pEdge->v1), pMesh->GetVertex(pEdge->v2));
+									}
+								}
+
+								if (pAdjacentEdge)
+								{
+									CConversionFace* pOtherFace;
+
+									// Due to the above logic at least one of these is guaranteed to be valid,
+									// and if only one is valid then it must be the one we want.
+									if (pAdjacentEdge->f1 == ~0 || pMesh->GetFace(pAdjacentEdge->f1) == pFace)
+										pOtherFace = pMesh->GetFace(pAdjacentEdge->f2);
+									else
+										pOtherFace = pMesh->GetFace(pAdjacentEdge->f1);
+
+									// If this face is behind us, ignore.
+									if ((pOtherFace->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
+										continue;
+
+									float flDot = pOtherFace->GetNormal().Dot(vecNormal);
+
+									if (flDot == 0)
+										continue;
+
+									Vector v1 = pMesh->GetVertex(pAdjacentEdge->v1);
+									Vector v2 = pMesh->GetVertex(pAdjacentEdge->v2);
+
+									float flDistanceToEdge = DistanceToLine(vecUVPosition, v1, v2);
+									float flAngleMultiplier = RemapVal(flDot, 1.0f, -1.0f, 0.0f, 1.0f);
+									float flDistanceMultiplier = RemapValClamped(flDistanceToEdge, 0, flDistanceToOpposite, 1, 0);
+
+									flShadowValue += exp(-flDistanceToEdge) * flDistanceMultiplier * flAngleMultiplier * 2;
+								}
+							}
+
+							m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
+
+							if (flShadowValue < flLowestValue || flLowestValue == -1)
+								flLowestValue = flShadowValue;
+
+							if (flShadowValue > flHighestValue)
+								flHighestValue = flShadowValue;
+						}
+
 						m_aiShadowReads[iTexel]++;
 						m_bPixelMask[iTexel] = true;
+
 						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 						if (m_pWorkListener)
@@ -323,27 +475,41 @@ void CColorAOGenerator::Generate()
 	// Average out all of the reads.
 	for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
 	{
+		if (m_eAOMethod == AOMETHOD_TRIDISTANCE)
+		{
+			if (m_aiShadowReads[i])
+			{
+				// Scale us so that the lowest read value (most light) is 1 and the highest read value (least light) is 0.
+				float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, flLowestValue, flHighestValue, 1, 0);
+
+				m_avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
+			}
+		}
+
 		if (m_aiShadowReads[i])
 			m_avecShadowValues[i] /= (float)m_aiShadowReads[i];
 		else
 			m_avecShadowValues[i] = Vector(0,0,0);
 	}
 
-	glDeleteLists(m_iSceneList, (GLsizei)m_paoMaterials->size()+1);
+	if (m_eAOMethod == AOMETHOD_RENDER)
+	{
+		glDeleteLists(m_iSceneList, (GLsizei)m_paoMaterials->size()+1);
 
-	// We now return you to our normal render programming. Thank you for your patronage.
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+		// We now return you to our normal render programming. Thank you for your patronage.
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
 
 	Bleed();
 
 	m_bHasGenerated = true;
 }
 
-Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
+Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
 {
 	GLenum eBuffer = GL_AUX0;
 #ifdef AO_DEBUG
@@ -442,9 +608,13 @@ Vector CColorAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vec
 	return vecShadowColor;
 }
 
-void CColorAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
+void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
 {
 #ifdef AO_DEBUG
+	glDrawBuffer(GL_FRONT);
+
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
 	glEnable(GL_CULL_FACE);
 
 	Vector vecLookAt = vecPosition;
@@ -452,7 +622,7 @@ void CColorAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vecto
 	vecEye.y += 2;
 	vecEye.x += 2;
 
-	glViewport(0, (GLint)m_iViewportSize, 512, 512);
+	glViewport(0, 100, 512, 512);
 
 	// Set up some rendering stuff.
 	glMatrixMode(GL_PROJECTION);
@@ -488,7 +658,7 @@ void CColorAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vecto
 
 	glBegin(GL_POLYGON);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		glColor4f(0, 0, 1, 0.5f);
+		glColor4f(0, 1, 0, 0.5f);
 		for (size_t p = 0; p < pRenderFace->GetNumVertices(); p++)
 			glVertex3fv(pRenderFace->m_pScene->GetMesh(pRenderFace->m_iMesh)->GetVertex(pRenderFace->GetVertex(p)->v) + pRenderFace->GetNormal()*0.01f);
 	glEnd();
@@ -504,11 +674,13 @@ void CColorAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vecto
 		glVertex3f(vecNormalEnd.x, vecNormalEnd.y, vecNormalEnd.z);
 	glEnd();
 
-	glViewport(0, 0, (GLint)m_iViewportSize, (GLint)m_iViewportSize);
+	glFinish();
+
+	glViewport(m_iRPVX, m_iRPVY, m_iRPVW, m_iRPVH);
 #endif
 }
 
-void CColorAOGenerator::Bleed()
+void CAOGenerator::Bleed()
 {
 	bool* abPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
 
@@ -598,7 +770,7 @@ void CColorAOGenerator::Bleed()
 	free(abPixelMask);
 }
 
-size_t CColorAOGenerator::GenerateTexture()
+size_t CAOGenerator::GenerateTexture()
 {
 	GLuint iGLId;
 	glGenTextures(1, &iGLId);
@@ -610,7 +782,7 @@ size_t CColorAOGenerator::GenerateTexture()
 	return iGLId;
 }
 
-void CColorAOGenerator::SaveToFile(const wchar_t *pszFilename)
+void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 {
 	ilEnable(IL_FILE_OVERWRITE);
 
@@ -631,7 +803,7 @@ void CColorAOGenerator::SaveToFile(const wchar_t *pszFilename)
 	ilDeleteImages(1,&iDevILId);
 }
 
-bool CColorAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
+bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 {
 	if (w < 0 || h < 0 || w >= m_iWidth || h >= m_iHeight)
 		return false;

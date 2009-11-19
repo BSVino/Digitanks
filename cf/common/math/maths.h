@@ -31,6 +31,17 @@ inline float RemapVal(float flInput, float flInLo, float flInHi, float flOutLo, 
 	return (((flInput-flInLo) / (flInHi-flInLo)) * (flOutHi-flOutLo)) + flOutLo;
 }
 
+inline float RemapValClamped(float flInput, float flInLo, float flInHi, float flOutLo, float flOutHi)
+{
+	if (flInput < flInLo)
+		return flOutLo;
+
+	if (flInput > flInHi)
+		return flOutHi;
+
+	return RemapVal(flInput, flInLo, flInHi, flOutLo, flOutHi);
+}
+
 inline float Approach(float flGoal, float flInput, float flAmount)
 {
 	float flDifference = flGoal - flInput;

@@ -66,31 +66,32 @@ protected:
 	CCloseButton*			m_pCloseButton;
 };
 
-class CColorAOPanel : public CMovablePanel, public IWorkListener
+class CAOPanel : public CMovablePanel, public IWorkListener
 {
 public:
-							CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+							CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 
 	virtual void			Layout();
 
 	virtual void			WorkProgress();
 
-	EVENT_CALLBACK(CColorAOPanel, Generate);
-	EVENT_CALLBACK(CColorAOPanel, SaveMap);
+	EVENT_CALLBACK(CAOPanel, Generate);
+	EVENT_CALLBACK(CAOPanel, SaveMap);
 
-	static void				Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
-	static void				Close();
+	static void				Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+	static void				Close(bool bColor);
 
 protected:
 	CConversionScene*		m_pScene;
 	std::vector<CMaterial>*	m_paoMaterials;
 
-	CColorAOGenerator		m_oGenerator;
+	CAOGenerator			m_oGenerator;
 
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;
 
-	static CColorAOPanel*	s_pColorAOPanel;
+	static CAOPanel*		s_pAOPanel;
+	static CAOPanel*		s_pColorAOPanel;
 };
 
 class CAboutPanel : public CMovablePanel

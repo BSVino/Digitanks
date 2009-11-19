@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "convmesh.h"
+#include <geometry.h>
 
 CConversionMesh::CConversionMesh(class CConversionScene* pScene, const wchar_t* pszName)
 {
@@ -202,11 +203,43 @@ Vector CConversionFace::GetNormal()
 {
 	assert(GetNumVertices() >= 3);
 
+	// Precompute this shit maybe?
+
 	Vector v1 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[0].v);
 	Vector v2 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[1].v);
 	Vector v3 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[2].v);
 
 	return (v3 - v2).Normalized().Cross((v1 - v2).Normalized());
+}
+
+Vector CConversionFace::GetCenter()
+{
+	assert(GetNumVertices() >= 3);
+
+	// Precompute this shit maybe?
+	Vector v(0, 0, 0);
+
+	for (size_t i = 0; i < m_aVertices.size(); i++)
+		v += m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[i].v);
+
+	return v / (float)m_aVertices.size();
+}
+
+float CConversionFace::GetArea()
+{
+	Vector a = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[0].v);
+	Vector b = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[1].v);
+
+	float flArea = 0;
+
+	for (size_t i = 0; i < m_aVertices.size()-2; i++)
+	{
+		Vector c = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[i+2].v);
+
+		flArea += TriangleArea(a, b, c);
+	}
+
+	return flArea;
 }
 
 void CConversionFace::FindAdjacentFaces(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
@@ -270,6 +303,16 @@ size_t CConversionFace::FindVertex(size_t i)
 	}
 
 	return ~0;
+}
+
+std::vector<Vector>& CConversionFace::GetVertices(std::vector<Vector>& avecVertices)
+{
+	avecVertices.clear();
+
+	for (size_t i = 0; i < m_aVertices.size(); i++)
+		avecVertices.push_back(m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[i].v));
+
+	return avecVertices;
 }
 
 size_t CConversionMesh::AddFace(size_t iMaterial)

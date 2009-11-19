@@ -143,7 +143,7 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 		exit(0);
 
 	if (c == 'a')
-		CColorAOPanel::Open(&m_Scene, &m_aoMaterials);
+		CAOPanel::Open(false, &m_Scene, &m_aoMaterials);
 
 	if (c == 'r' && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
 		ReloadFromFile();

@@ -143,7 +143,7 @@ void CModelWindow::ColorAOToggleCallback()
 
 void CModelWindow::GenerateColorAOCallback()
 {
-	CColorAOPanel::Open(&m_Scene, &m_aoMaterials);
+	CAOPanel::Open(true, &m_Scene, &m_aoMaterials);
 }
 
 void CModelWindow::AboutCallback()
@@ -304,10 +304,11 @@ void CMovablePanel::CloseWindowCallback()
 	SetVisible(false);
 }
 
-CColorAOPanel* CColorAOPanel::s_pColorAOPanel = NULL;
+CAOPanel* CAOPanel::s_pAOPanel = NULL;
+CAOPanel* CAOPanel::s_pColorAOPanel = NULL;
 
-CColorAOPanel::CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
-	: CMovablePanel("Color AO generator"), m_oGenerator(pScene, paoMaterials)
+CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+	: CMovablePanel(bColor?"Color AO generator":"AO generator"), m_oGenerator(bColor?AOMETHOD_RENDER:AOMETHOD_TRIDISTANCE, pScene, paoMaterials)
 {
 	m_pScene = pScene;
 	m_paoMaterials = paoMaterials;
@@ -327,7 +328,7 @@ CColorAOPanel::CColorAOPanel(CConversionScene* pScene, std::vector<CMaterial>* p
 	Layout();
 }
 
-void CColorAOPanel::Layout()
+void CAOPanel::Layout()
 {
 	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
 	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8+GetWidth()/6+10);
@@ -338,7 +339,7 @@ void CColorAOPanel::Layout()
 	CMovablePanel::Layout();
 }
 
-void CColorAOPanel::GenerateCallback()
+void CAOPanel::GenerateCallback()
 {
 	bool bRenderUV = CModelWindow::Get()->GetRenderMode();
 
@@ -355,7 +356,7 @@ void CColorAOPanel::GenerateCallback()
 
 	CModelWindow::Get()->SetDisplayColorAO(true);
 
-	m_oGenerator.SetSize(32, 32);
+	m_oGenerator.SetSize(256, 256);
 	m_oGenerator.SetUseTexture(true);
 	m_oGenerator.SetWorkListener(this);
 	m_oGenerator.Generate();
@@ -373,7 +374,7 @@ void CColorAOPanel::GenerateCallback()
 	CModelWindow::Get()->SetRenderMode(bRenderUV);
 }
 
-void CColorAOPanel::SaveMapCallback()
+void CAOPanel::SaveMapCallback()
 {
 	if (!m_oGenerator.HasGenerated())
 		return;
@@ -381,17 +382,13 @@ void CColorAOPanel::SaveMapCallback()
 	m_oGenerator.SaveToFile(CModelWindow::Get()->SaveFileDialog(L"Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0"));
 }
 
-void CColorAOPanel::WorkProgress()
+void CAOPanel::WorkProgress()
 {
 	static int iLastTime = 0;
 
-	int iCurrentTime = glutGet(GLUT_ELAPSED_TIME);
-
 	// Don't update too often or it'll slow us down just because of the updates.
-	if (iCurrentTime - iLastTime < 100)
+	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 100)
 		return;
-
-	iLastTime = iCurrentTime;
 
 	size_t iColorAO = m_oGenerator.GenerateTexture();
 	for (size_t i = 0; i < m_paoMaterials->size(); i++)
@@ -406,26 +403,40 @@ void CColorAOPanel::WorkProgress()
 
 	CModelWindow::Get()->RenderUV();
 	glutSwapBuffers();
+
+	iLastTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
-void CColorAOPanel::Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
+	CAOPanel* pPanel = bColor?s_pColorAOPanel:s_pAOPanel;
+
 	// Get rid of the last one, in case we've changed the scene.
-	if (s_pColorAOPanel)
-		delete s_pColorAOPanel;
+	if (pPanel)
+		delete pPanel;
 
-	s_pColorAOPanel = new CColorAOPanel(pScene, paoMaterials);
+	if (bColor)
+		s_pColorAOPanel = new CAOPanel(true, pScene, paoMaterials);
+	else
+		s_pAOPanel = new CAOPanel(false, pScene, paoMaterials);
 
-	s_pColorAOPanel->SetVisible(true);
-	s_pColorAOPanel->Layout();
-}
+	pPanel = bColor?s_pColorAOPanel:s_pAOPanel;
 
-void CColorAOPanel::Close()
-{
-	if (!s_pColorAOPanel)
+	if (!pPanel)
 		return;
 
-	s_pColorAOPanel->SetVisible(false);
+	pPanel->SetVisible(true);
+	pPanel->Layout();
+}
+
+void CAOPanel::Close(bool bColor)
+{
+	CAOPanel* pPanel = bColor?s_pColorAOPanel:s_pAOPanel;
+
+	if (!pPanel)
+		return;
+
+	pPanel->SetVisible(false);
 }
 
 CAboutPanel* CAboutPanel::s_pAboutPanel = NULL;

@@ -12,11 +12,17 @@ public:
 	virtual void			WorkProgress()=0;
 };
 
-class CColorAOGenerator
+typedef enum
+{
+	AOMETHOD_RENDER,
+	AOMETHOD_TRIDISTANCE,
+} aomethod_t;
+
+class CAOGenerator
 {
 public:
-							CColorAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
-							~CColorAOGenerator();
+							CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+							~CAOGenerator();
 
 	void					SetSize(size_t iWidth, size_t iHeight);
 	void					SetUseTexture(bool bUseTexture) { m_bUseTexture = bUseTexture; };
@@ -26,6 +32,7 @@ public:
 
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
+	void					RenderSetupScene();
 	void					Generate();
 	Vector					RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pFace);
 	void					DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace);
@@ -51,6 +58,7 @@ protected:
 	int						m_iRPVW;
 	int						m_iRPVH;
 	bool					m_bUseFrontBuffer;
+	aomethod_t				m_eAOMethod;
 
 	IWorkListener*			m_pWorkListener;
 
