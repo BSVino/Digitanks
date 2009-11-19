@@ -637,17 +637,20 @@ void CModelWindow::RenderLightSource()
 
 			if (flDot < -0.2)
 			{
-				glColor4f(1.0, 1.0, 1.0, RemapVal(flDot, -0.2f, -1.0f, 0.0f, 1.0f));
+				float flScale = RemapVal(flDot, -0.2f, -1.0f, 0.0f, 1.0f);
+				glColor4f(1.0, 1.0, 1.0, flScale);
+
+				flScale *= 10;
 
 				glBegin(GL_QUADS);
 					glTexCoord2f(0, 0);
-					glVertex3f(0, -5, -5);
+					glVertex3f(0, -flScale, -flScale);
 					glTexCoord2f(0, 1);
-					glVertex3f(0, -5, 5);
+					glVertex3f(0, -flScale, flScale);
 					glTexCoord2f(1, 1);
-					glVertex3f(0, 5, 5);
+					glVertex3f(0, flScale, flScale);
 					glTexCoord2f(1, 0);
-					glVertex3f(0, 5, -5);
+					glVertex3f(0, flScale, -flScale);
 				glEnd();
 			}
 
