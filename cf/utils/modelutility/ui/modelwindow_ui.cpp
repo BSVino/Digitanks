@@ -3,6 +3,7 @@
 #include <IL/il.h>
 #include <maths.h>
 #include "modelwindow.h"
+#include <GL/freeglut.h>
 
 void CModelWindow::InitUI()
 {
@@ -24,8 +25,10 @@ void CModelWindow::InitUI()
 	pView->AddSubmenu("View smooth shaded", this, Smooth);
 	pView->AddSubmenu("Toggle light", this, LightToggle);
 	pView->AddSubmenu("Toggle texture", this, TextureToggle);
+	pView->AddSubmenu("Toggle AO map", this, AOToggle);
 	pView->AddSubmenu("Toggle color AO map", this, ColorAOToggle);
 
+	pTools->AddSubmenu("Generate AO map", this, GenerateAO);
 	pTools->AddSubmenu("Generate color AO map", this, GenerateColorAO);
 
 	pHelp->AddSubmenu("About SMAK", this, About);
@@ -47,6 +50,7 @@ void CModelWindow::InitUI()
 	m_pSmooth = new CButton(0, 0, 100, 100, "Smth", true);
 	m_pLight = new CButton(0, 0, 100, 100, "Lght", true);
 	m_pTexture = new CButton(0, 0, 100, 100, "Tex", true);
+	m_pAO = new CButton(0, 0, 100, 100, "AO", true);
 	m_pColorAO = new CButton(0, 0, 100, 100, "C AO", true);
 
 	pBottomButtons->AddButton(m_pWireframe, false, this, Wireframe);
@@ -54,6 +58,7 @@ void CModelWindow::InitUI()
 	pBottomButtons->AddButton(m_pSmooth, true, this, Smooth);
 	pBottomButtons->AddButton(m_pLight, false, this, Light);
 	pBottomButtons->AddButton(m_pTexture, false, this, Texture);
+	pBottomButtons->AddButton(m_pAO, false, this, AO);
 	pBottomButtons->AddButton(m_pColorAO, false, this, ColorAO);
 
 	CRootPanel::Get()->AddControl(pBottomButtons);
@@ -121,6 +126,11 @@ void CModelWindow::TextureCallback()
 	SetDisplayTexture(m_pTexture->GetState());
 }
 
+void CModelWindow::AOCallback()
+{
+	SetDisplayAO(m_pAO->GetState());
+}
+
 void CModelWindow::ColorAOCallback()
 {
 	SetDisplayColorAO(m_pColorAO->GetState());
@@ -136,9 +146,19 @@ void CModelWindow::TextureToggleCallback()
 	SetDisplayTexture(!m_bDisplayTexture);
 }
 
+void CModelWindow::AOToggleCallback()
+{
+	SetDisplayAO(!m_bDisplayAO);
+}
+
 void CModelWindow::ColorAOToggleCallback()
 {
 	SetDisplayColorAO(!m_bDisplayColorAO);
+}
+
+void CModelWindow::GenerateAOCallback()
+{
+	CAOPanel::Open(false, &m_Scene, &m_aoMaterials);
 }
 
 void CModelWindow::GenerateColorAOCallback()
@@ -285,7 +305,10 @@ bool CMovablePanel::MousePressed(int iButton, int mx, int my)
 		return true;
 	}
 
-	return CPanel::MousePressed(iButton, mx, my);
+	CPanel::MousePressed(iButton, mx, my);
+
+	// Don't let the app pick up mouse buttons on panels, or it will start rotating the screen.
+	return true;
 }
 
 bool CMovablePanel::MouseReleased(int iButton, int mx, int my)
@@ -296,7 +319,10 @@ bool CMovablePanel::MouseReleased(int iButton, int mx, int my)
 		return true;
 	}
 
-	return CPanel::MouseReleased(iButton, mx, my);
+	CPanel::MouseReleased(iButton, mx, my);
+
+	// Don't let the app pick up mouse buttons on panels, or it will start rotating the screen.
+	return true;
 }
 
 void CMovablePanel::CloseWindowCallback()
@@ -310,10 +336,45 @@ CAOPanel* CAOPanel::s_pColorAOPanel = NULL;
 CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 	: CMovablePanel(bColor?"Color AO generator":"AO generator"), m_oGenerator(bColor?AOMETHOD_RENDER:AOMETHOD_TRIDISTANCE, pScene, paoMaterials)
 {
+	m_bColor = bColor;
+
 	m_pScene = pScene;
 	m_paoMaterials = paoMaterials;
 
-	SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight() - 100);
+	if (m_bColor)
+		SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight()*2 - 150);
+	else
+		SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight() - 100);
+
+	m_pSizeLabel = new CLabel(0, 0, 32, 32, "Size");
+	AddControl(m_pSizeLabel);
+
+	m_pSizeSelector = new CScrollSelector<int>();
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(64, L"64x64"));
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(128, L"128x128"));
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(256, L"256x256"));
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(512, L"512x512"));
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(1024, L"1024x1024"));
+	m_pSizeSelector->SetSelection(2);
+	AddControl(m_pSizeSelector);
+
+	m_pEdgeBleedLabel = new CLabel(0, 0, 32, 32, "Edge Bleed");
+	AddControl(m_pEdgeBleedLabel);
+
+	m_pEdgeBleedSelector = new CScrollSelector<int>();
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(0, L"0"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(1, L"1"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(2, L"2"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(3, L"3"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(4, L"4"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(5, L"5"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(6, L"6"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(7, L"7"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(8, L"8"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(9, L"9"));
+	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(10, L"10"));
+	m_pEdgeBleedSelector->SetSelection(5);
+	AddControl(m_pEdgeBleedSelector);
 
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
 	AddControl(m_pGenerate);
@@ -330,6 +391,23 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 
 void CAOPanel::Layout()
 {
+	int iSpace = 20;
+	int iControlY = GetHeight() - HEADER_HEIGHT - m_pSizeSelector->GetHeight();
+
+	m_pSizeLabel->EnsureTextFits();
+	m_pSizeLabel->SetPos(5, iControlY);
+
+	m_pSizeSelector->SetSize(GetWidth() - m_pSizeLabel->GetWidth() - iSpace, m_pSizeLabel->GetHeight());
+	m_pSizeSelector->SetPos(GetWidth() - m_pSizeSelector->GetWidth() - iSpace/2, iControlY);
+
+	iControlY -= 40;
+
+	m_pEdgeBleedLabel->EnsureTextFits();
+	m_pEdgeBleedLabel->SetPos(5, iControlY);
+
+	m_pEdgeBleedSelector->SetSize(GetWidth() - m_pEdgeBleedLabel->GetWidth() - iSpace, m_pEdgeBleedLabel->GetHeight());
+	m_pEdgeBleedSelector->SetPos(GetWidth() - m_pEdgeBleedSelector->GetWidth() - iSpace/2, iControlY);
+
 	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
 	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8+GetWidth()/6+10);
 
@@ -341,7 +419,11 @@ void CAOPanel::Layout()
 
 void CAOPanel::GenerateCallback()
 {
-	bool bRenderUV = CModelWindow::Get()->GetRenderMode();
+	if (m_oGenerator.IsGenerating())
+	{
+		m_oGenerator.StopGenerating();
+		return;
+	}
 
 	// Switch over to UV mode so we can see our progress.
 	CModelWindow::Get()->SetRenderMode(true);
@@ -354,29 +436,45 @@ void CAOPanel::GenerateCallback()
 	CRootPanel::Get()->Paint();
 	glutSwapBuffers();
 
-	CModelWindow::Get()->SetDisplayColorAO(true);
+	if (m_bColor)
+		CModelWindow::Get()->SetDisplayColorAO(true);
+	else
+		CModelWindow::Get()->SetDisplayAO(true);
 
-	m_oGenerator.SetSize(256, 256);
+	m_pGenerate->SetText("Cancel");
+
+	int iSize = m_pSizeSelector->GetSelectionValue();
+	m_oGenerator.SetSize(iSize, iSize);
+	m_oGenerator.SetBleed(m_pEdgeBleedSelector->GetSelectionValue());
 	m_oGenerator.SetUseTexture(true);
 	m_oGenerator.SetWorkListener(this);
 	m_oGenerator.Generate();
 
-	size_t iColorAO = m_oGenerator.GenerateTexture();
+	size_t iAO;
+	if (m_oGenerator.DoneGenerating())
+		iAO = m_oGenerator.GenerateTexture();
+
 	for (size_t i = 0; i < m_paoMaterials->size(); i++)
 	{
-		if ((*m_paoMaterials)[i].m_iColorAO)
-			glDeleteTextures(1, &(*m_paoMaterials)[i].m_iColorAO);
-		(*m_paoMaterials)[i].m_iColorAO = iColorAO;
+		size_t& iAOTexture = m_bColor?(*m_paoMaterials)[i].m_iColorAO:(*m_paoMaterials)[i].m_iAO;
+
+		if (iAOTexture)
+			glDeleteTextures(1, &iAOTexture);
+
+		if (m_oGenerator.DoneGenerating())
+			iAOTexture = iAO;
+		else
+			iAOTexture = 0;
 	}
 
 	CModelWindow::Get()->CreateGLLists();
 
-	CModelWindow::Get()->SetRenderMode(bRenderUV);
+	m_pGenerate->SetText("Generate");
 }
 
 void CAOPanel::SaveMapCallback()
 {
-	if (!m_oGenerator.HasGenerated())
+	if (!m_oGenerator.DoneGenerating())
 		return;
 
 	m_oGenerator.SaveToFile(CModelWindow::Get()->SaveFileDialog(L"Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0"));
@@ -390,18 +488,26 @@ void CAOPanel::WorkProgress()
 	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 100)
 		return;
 
-	size_t iColorAO = m_oGenerator.GenerateTexture();
+	glutMainLoopEvent();
+
+	size_t iAO = m_oGenerator.GenerateTexture(true);
+
 	for (size_t i = 0; i < m_paoMaterials->size(); i++)
 	{
-		if ((*m_paoMaterials)[i].m_iColorAO)
-			glDeleteTextures(1, &(*m_paoMaterials)[i].m_iColorAO);
-		(*m_paoMaterials)[i].m_iColorAO = iColorAO;
+		size_t& iAOTexture = m_bColor?(*m_paoMaterials)[i].m_iColorAO:(*m_paoMaterials)[i].m_iAO;
+
+		if (iAOTexture)
+			glDeleteTextures(1, &iAOTexture);
+
+		iAOTexture = iAO;
 	}
 
 	glDrawBuffer(GL_BACK);
 	glReadBuffer(GL_BACK);
 
-	CModelWindow::Get()->RenderUV();
+	CModelWindow::Get()->Render();
+	CRootPanel::Get()->Think();
+	CRootPanel::Get()->Paint();
 	glutSwapBuffers();
 
 	iLastTime = glutGet(GLUT_ELAPSED_TIME);
@@ -429,14 +535,11 @@ void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial
 	pPanel->Layout();
 }
 
-void CAOPanel::Close(bool bColor)
+void CAOPanel::SetVisible(bool bVisible)
 {
-	CAOPanel* pPanel = bColor?s_pColorAOPanel:s_pAOPanel;
+	m_oGenerator.StopGenerating();
 
-	if (!pPanel)
-		return;
-
-	pPanel->SetVisible(false);
+	CMovablePanel::SetVisible(bVisible);
 }
 
 CAboutPanel* CAboutPanel::s_pAboutPanel = NULL;

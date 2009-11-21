@@ -4,6 +4,7 @@
 #include <vector>
 #include <color.h>
 #include <FTGL/ftgl.h>
+#include <maths.h>
 
 // Not my favorite hack.
 #define EVENT_CALLBACK(type, pfn) \
@@ -636,6 +637,185 @@ namespace modelgui
 		CSubmenuPanel*				m_pMenu;
 
 		std::vector<CMenu*>			m_apEntries;
+	};
+
+	template <typename T>
+	class CScrollSelection
+	{
+	public:
+		CScrollSelection(T oParam, wchar_t* szLabel)
+		{
+			m_oParam = oParam;
+			m_sLabel = szLabel;
+		}
+
+		T									m_oParam;
+		std::wstring						m_sLabel;
+	};
+
+	template <typename T>
+	class CScrollSelector : public CPanel
+	{
+	public:
+		CScrollSelector()
+			: CPanel(0, 0, 100, 16)
+		{
+			m_flHandlePositionGoal = 0;
+			m_flHandlePosition = 0;
+			m_bMovingHandle = false;
+
+			m_pOption = new CLabel(0, 0, 100, 100, "");
+			AddControl(m_pOption);
+		}
+
+		virtual void Layout()
+		{
+			m_pOption->SetSize(1, 1);
+			m_pOption->EnsureTextFits();
+			m_pOption->SetPos(GetWidth()/2 - m_pOption->GetWidth()/2, 0);
+
+			CPanel::Layout();
+		}
+
+		virtual void Think()
+		{
+			if (m_bMovingHandle)
+			{
+				int mx, my;
+				CRootPanel::GetFullscreenMousePos(mx, my);
+
+				int x, y, w, h;
+				GetAbsDimensions(x, y, w, h);
+
+				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x, (float)(x + w), 0.0f, 1.0f);
+			}
+			else
+				m_flHandlePositionGoal = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
+
+			m_flHandlePosition = Approach(m_flHandlePositionGoal, m_flHandlePosition, CRootPanel::Get()->GetFrameTime()*3);
+
+			int iSelection = SelectionByHandle();
+			m_pOption->SetText(m_aSelections[iSelection].m_sLabel.c_str());
+		}
+
+#define HANDLE_SIZE 8
+
+		virtual void Paint(int x, int y, int w, int h)
+		{
+			CRootPanel::PaintRect(x, y+h/2, w, 1, Color(200, 200, 200, 255));
+
+			for (size_t i = 0; i < m_aSelections.size(); i++)
+			{
+				CRootPanel::PaintRect(x + w*(int)i/((int)m_aSelections.size()-1), y+h/2-5, 1, 10, Color(200, 200, 200, 255));
+			}
+
+			CRootPanel::PaintRect(HandleX(), HandleY(), HANDLE_SIZE, HANDLE_SIZE, g_clrBoxHi);
+
+			CPanel::Paint(x, y, w, h);
+		}
+
+		virtual bool MousePressed(int code, int mx, int my)
+		{
+			int x, y, w, h;
+			GetAbsDimensions(x, y, w, h);
+
+			int hx, hy;
+			hx = HandleX();
+			hy = HandleY();
+
+			if (mx >= hx && mx < hx + HANDLE_SIZE && my >= hy && my < hy + HANDLE_SIZE)
+				m_bMovingHandle = true;
+			else
+			{
+				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x, (float)(x + w), 0.0f, 1.0f);
+				m_iSelection = SelectionByHandle();
+			}
+
+			return true;
+		}
+
+		virtual bool MouseReleased(int code, int mx, int my)
+		{
+			int x, y, w, h;
+			GetAbsDimensions(x, y, w, h);
+
+			if (m_bMovingHandle)
+			{
+				DoneMovingHandle();
+				return true;
+			}
+
+			return CPanel::MouseReleased(code, mx, my);
+		}
+
+		virtual void CursorOut()
+		{
+			DoneMovingHandle();
+		}
+
+		virtual void DoneMovingHandle()
+		{
+			m_bMovingHandle = false;
+
+			m_iSelection = SelectionByHandle();
+		}
+
+		virtual void AddSelection(CScrollSelection<T>& oSelection)
+		{
+			m_aSelections.push_back(oSelection);
+		}
+
+		virtual void SetSelection(size_t i)
+		{
+			m_iSelection = i;
+			m_flHandlePositionGoal = m_flHandlePosition = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
+		}
+
+		virtual T GetSelectionValue()
+		{
+			return m_aSelections[m_iSelection].m_oParam;
+		}
+
+		virtual int SelectionByHandle()
+		{
+			int iSelection = (int)(m_flHandlePositionGoal*m_aSelections.size());
+
+			if (iSelection < 0)
+				return 0;
+
+			if (iSelection >= (int)m_aSelections.size())
+				return (int)m_aSelections.size()-1;
+
+			return iSelection;
+		}
+
+		virtual int HandleX()
+		{
+			int x, y, w, h;
+			GetAbsDimensions(x, y, w, h);
+
+			return x + (int)(w*m_flHandlePosition) - HANDLE_SIZE/2;
+		}
+
+		virtual int HandleY()
+		{
+			int x, y, w, h;
+			GetAbsDimensions(x, y, w, h);
+
+			return y+h/2-HANDLE_SIZE/2;
+		}
+
+	protected:
+		std::vector<CScrollSelection<T>>	m_aSelections;
+
+		CLabel*								m_pOption;
+
+		size_t								m_iSelection;
+
+		float								m_flHandlePosition;
+		float								m_flHandlePositionGoal;
+
+		bool								m_bMovingHandle;
 	};
 
 };

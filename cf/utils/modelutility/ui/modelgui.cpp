@@ -77,30 +77,45 @@ void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
 	glMaterialfv(GL_FRONT, GL_EMISSION, Vector(0.0f, 0.0f, 0.0f));
 	glMaterialf(GL_FRONT, GL_SHININESS, 20.0f);
 
-	glBegin(GL_QUADS);
-		glNormal3f(-0.707106781f, -0.707106781f, 0);	// Give 'em normals so that the light falls on them cool-like.
-		glVertex2d(x, y);
-		glNormal3f(0.707106781f, -0.707106781f, 0);
-		glVertex2d(x+w-1, y);
-		glNormal3f(0.707106781f, 0.707106781f, 0);
-		glVertex2d(x+w-1, y+h);
-		glNormal3f(-0.707106781f, 0.707106781f, 0);
-		glVertex2d(x, y+h);
-	glEnd();
-
 	glLineWidth(1);
 
-	glBegin(GL_LINES);
-		glNormal3f(-0.707106781f, -0.707106781f, 0);
-		glVertex2d(x, y+1);
-		glNormal3f(-0.707106781f, 0.707106781f, 0);
-		glVertex2d(x, y+h-1);
+	if (w > 1)
+	{
+		glBegin(GL_QUADS);
+			glNormal3f(-0.707106781f, -0.707106781f, 0);	// Give 'em normals so that the light falls on them cool-like.
+			glVertex2d(x, y);
+			glNormal3f(0.707106781f, -0.707106781f, 0);
+			glVertex2d(x+w-1, y);
+			glNormal3f(0.707106781f, 0.707106781f, 0);
+			glVertex2d(x+w-1, y+h);
+			glNormal3f(-0.707106781f, 0.707106781f, 0);
+			glVertex2d(x, y+h);
+		glEnd();
+	}
+	else
+	{
+		glBegin(GL_LINES);
+			glNormal3f(1.0f, 0, 0);
+			glVertex2d(x, y);
+			glNormal3f(-1.0f, 0, 0);
+			glVertex2d(x, y+h);
+		glEnd();
+	}
 
-		glNormal3f(0.707106781f, -0.707106781f, 0);
-		glVertex2d(x+w, y+1);
-		glNormal3f(0.707106781f, 0.707106781f, 0);
-		glVertex2d(x+w, y+h-1);
-	glEnd();
+	if (h > 1 && w > 1)
+	{
+		glBegin(GL_LINES);
+			glNormal3f(-0.707106781f, -0.707106781f, 0);
+			glVertex2d(x, y+1);
+			glNormal3f(-0.707106781f, 0.707106781f, 0);
+			glVertex2d(x, y+h-1);
+
+			glNormal3f(0.707106781f, -0.707106781f, 0);
+			glVertex2d(x+w, y+1);
+			glNormal3f(0.707106781f, 0.707106781f, 0);
+			glVertex2d(x+w, y+h-1);
+		glEnd();
+	}
 
 	glDisable(GL_BLEND);
 }

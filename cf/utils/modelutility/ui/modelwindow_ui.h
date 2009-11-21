@@ -71,6 +71,8 @@ class CAOPanel : public CMovablePanel, public IWorkListener
 public:
 							CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 
+	virtual void			SetVisible(bool bVisible);
+
 	virtual void			Layout();
 
 	virtual void			WorkProgress();
@@ -79,13 +81,20 @@ public:
 	EVENT_CALLBACK(CAOPanel, SaveMap);
 
 	static void				Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
-	static void				Close(bool bColor);
 
 protected:
+	bool					m_bColor;
+
 	CConversionScene*		m_pScene;
 	std::vector<CMaterial>*	m_paoMaterials;
 
 	CAOGenerator			m_oGenerator;
+
+	CLabel*					m_pSizeLabel;
+	CScrollSelector<int>*	m_pSizeSelector;
+
+	CLabel*					m_pEdgeBleedLabel;
+	CScrollSelector<int>*	m_pEdgeBleedSelector;
 
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;

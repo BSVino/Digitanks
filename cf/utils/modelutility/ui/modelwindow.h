@@ -10,10 +10,12 @@ public:
 	CMaterial(size_t iBase)
 	{
 		m_iBase = iBase;
+		m_iAO = 0;
 		m_iColorAO = 0;
 	}
 
 	size_t		m_iBase;
+	size_t		m_iAO;
 	size_t		m_iColorAO;
 };
 
@@ -89,10 +91,13 @@ public:
 	EVENT_CALLBACK(CModelWindow, Smooth);
 	EVENT_CALLBACK(CModelWindow, Light);
 	EVENT_CALLBACK(CModelWindow, Texture);
+	EVENT_CALLBACK(CModelWindow, AO);
 	EVENT_CALLBACK(CModelWindow, ColorAO);
 	EVENT_CALLBACK(CModelWindow, LightToggle);
 	EVENT_CALLBACK(CModelWindow, TextureToggle);
+	EVENT_CALLBACK(CModelWindow, AOToggle);
 	EVENT_CALLBACK(CModelWindow, ColorAOToggle);
+	EVENT_CALLBACK(CModelWindow, GenerateAO);
 	EVENT_CALLBACK(CModelWindow, GenerateColorAO);
 	EVENT_CALLBACK(CModelWindow, About);
 
@@ -108,6 +113,7 @@ public:
 	void					SetDisplayType(displaytype_t eType);
 	void					SetDisplayLight(bool bLight);
 	void					SetDisplayTexture(bool bTexture);
+	void					SetDisplayAO(bool bAO);
 	void					SetDisplayColorAO(bool bAO);
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
@@ -154,6 +160,7 @@ protected:
 	displaytype_t			m_eDisplayType;
 	bool					m_bDisplayLight;
 	bool					m_bDisplayTexture;
+	bool					m_bDisplayAO;
 	bool					m_bDisplayColorAO;
 
 	// Controls
@@ -165,6 +172,7 @@ protected:
 	modelgui::CButton*		m_pSmooth;
 	modelgui::CButton*		m_pLight;
 	modelgui::CButton*		m_pTexture;
+	modelgui::CButton*		m_pAO;
 	modelgui::CButton*		m_pColorAO;
 
 	static CModelWindow*	s_pModelWindow;

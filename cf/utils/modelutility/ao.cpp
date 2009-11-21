@@ -37,7 +37,9 @@ CAOGenerator::CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::ve
 
 	m_pWorkListener = NULL;
 
-	m_bHasGenerated = false;
+	m_bIsGenerating = false;
+	m_bDoneGenerating = false;
+	m_bStopGenerating = false;
 }
 
 CAOGenerator::~CAOGenerator()
@@ -175,6 +177,10 @@ void CAOGenerator::RenderSetupScene()
 
 void CAOGenerator::Generate()
 {
+	m_bIsGenerating = true;
+	m_bStopGenerating = false;
+	m_bDoneGenerating = false;
+
 #ifdef AO_DEBUG
 	CModelWindow::Get()->ClearDebugLines();
 #endif
@@ -195,8 +201,8 @@ void CAOGenerator::Generate()
 		RenderSetupScene();
 #endif
 
-	float flLowestValue = -1;
-	float flHighestValue = 0;
+	m_flLowestValue = -1;
+	m_flHighestValue = 0;
 
 	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
@@ -452,11 +458,11 @@ void CAOGenerator::Generate()
 
 							m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
 
-							if (flShadowValue < flLowestValue || flLowestValue == -1)
-								flLowestValue = flShadowValue;
+							if (flShadowValue < m_flLowestValue || m_flLowestValue == -1)
+								m_flLowestValue = flShadowValue;
 
-							if (flShadowValue > flHighestValue)
-								flHighestValue = flShadowValue;
+							if (flShadowValue > m_flHighestValue)
+								m_flHighestValue = flShadowValue;
 						}
 
 						m_aiShadowReads[iTexel]++;
@@ -466,21 +472,36 @@ void CAOGenerator::Generate()
 
 						if (m_pWorkListener)
 							m_pWorkListener->WorkProgress();
+
+						if (m_bStopGenerating)
+							break;
 					}
+					if (m_bStopGenerating)
+						break;
 				}
+				if (m_bStopGenerating)
+					break;
 			}
+			if (m_bStopGenerating)
+				break;
 		}
+		if (m_bStopGenerating)
+			break;
 	}
 
 	// Average out all of the reads.
 	for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
 	{
+		// Don't immediately return, just skip this loop. We have cleanup work to do.
+		if (m_bStopGenerating)
+			break;
+
 		if (m_eAOMethod == AOMETHOD_TRIDISTANCE)
 		{
 			if (m_aiShadowReads[i])
 			{
 				// Scale us so that the lowest read value (most light) is 1 and the highest read value (least light) is 0.
-				float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, flLowestValue, flHighestValue, 1, 0);
+				float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, m_flLowestValue, m_flHighestValue, 1, 0);
 
 				m_avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
 			}
@@ -504,9 +525,16 @@ void CAOGenerator::Generate()
 		glPopMatrix();
 	}
 
-	Bleed();
+	if (!m_bStopGenerating)
+		Bleed();
 
-	m_bHasGenerated = true;
+	if (!m_bStopGenerating)
+		m_bDoneGenerating = true;
+	m_bIsGenerating = false;
+
+	// One last call to let them know we're done.
+	if (m_pWorkListener)
+		m_pWorkListener->WorkProgress();
 }
 
 Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
@@ -765,19 +793,58 @@ void CAOGenerator::Bleed()
 
 		if (m_pWorkListener)
 			m_pWorkListener->WorkProgress();
+
+		if (m_bStopGenerating)
+			break;
 	}
 
 	free(abPixelMask);
 }
 
-size_t CAOGenerator::GenerateTexture()
+size_t CAOGenerator::GenerateTexture(bool bInMedias)
 {
+	Vector* avecShadowValues = m_avecShadowValues;
+
+	if (bInMedias)
+	{
+		avecShadowValues = new Vector[m_iWidth*m_iHeight];
+
+		// Average out all of the reads.
+		for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
+		{
+			// Don't immediately return, just skip this loop. We have cleanup work to do.
+			if (m_bStopGenerating)
+				break;
+
+			if (m_eAOMethod == AOMETHOD_TRIDISTANCE)
+			{
+				if (m_aiShadowReads[i])
+				{
+					// Scale us so that the lowest read value (most light) is 1 and the highest read value (least light) is 0.
+					float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, m_flLowestValue, m_flHighestValue, 1, 0);
+
+					avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
+				}
+			}
+			else
+				avecShadowValues[i] = m_avecShadowValues[i];
+
+			if (m_aiShadowReads[i])
+				avecShadowValues[i] /= (float)m_aiShadowReads[i];
+			else
+				avecShadowValues[i] = Vector(0,0,0);
+		}
+	}
+
 	GLuint iGLId;
 	glGenTextures(1, &iGLId);
 	glBindTexture(GL_TEXTURE_2D, iGLId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iWidth, (GLint)m_iHeight, GL_RGB, GL_FLOAT, &m_avecShadowValues[0].x);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iWidth, (GLint)m_iHeight, GL_RGB, GL_FLOAT, &avecShadowValues[0].x);
+
+	if (bInMedias)
+		delete [] avecShadowValues;
 
 	return iGLId;
 }

@@ -38,12 +38,14 @@ public:
 	void					DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace);
 	void					Bleed();
 
-	size_t					GenerateTexture();
+	size_t					GenerateTexture(bool bInMedias = false);
 	void					SaveToFile(const wchar_t* pszFilename);
 
 	bool					Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask = true);
 
-	bool					HasGenerated() { return m_bHasGenerated; }
+	bool					IsGenerating() { return m_bIsGenerating; }
+	bool					DoneGenerating() { return m_bDoneGenerating; }
+	void					StopGenerating() { m_bStopGenerating = true; }
 
 protected:
 	CConversionScene*		m_pScene;
@@ -70,8 +72,12 @@ protected:
 
 	Vector*					m_avecShadowValues;
 	size_t*					m_aiShadowReads;
+	float					m_flLowestValue;
+	float					m_flHighestValue;
 
-	bool					m_bHasGenerated;
+	bool					m_bIsGenerating;
+	bool					m_bDoneGenerating;
+	bool					m_bStopGenerating;
 };
 
 #endif

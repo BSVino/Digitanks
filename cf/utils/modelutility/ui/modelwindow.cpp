@@ -65,6 +65,7 @@ CModelWindow::CModelWindow()
 	SetDisplayType(DT_SMOOTH);
 	SetDisplayLight(true);
 	SetDisplayTexture(true);
+	SetDisplayAO(false);
 	SetDisplayColorAO(false);
 
 	GLenum err = glewInit();
@@ -295,6 +296,18 @@ void CModelWindow::CreateGLLists()
 						}
 
 						glActiveTexture(GL_TEXTURE1);
+						if (m_bDisplayAO)
+						{
+							glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
+							glEnable(GL_TEXTURE_2D);
+						}
+						else
+						{
+							glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+							glDisable(GL_TEXTURE_2D);
+						}
+
+						glActiveTexture(GL_TEXTURE2);
 						if (m_bDisplayColorAO)
 						{
 							glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
@@ -340,6 +353,7 @@ void CModelWindow::CreateGLLists()
 					{
 						glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
 						glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+						glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 					}
 					else
 						glTexCoord2fv(vecUV);
@@ -754,6 +768,8 @@ void CModelWindow::RenderObjects()
 		// Disable the multi-texture stuff now that object drawing is done.
 		glActiveTexture(GL_TEXTURE1);
 		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE2);
+		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 	}
 
@@ -803,6 +819,8 @@ void CModelWindow::RenderUV()
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
 			glEnable(GL_TEXTURE_2D);
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 		}
 		else
 		{
@@ -811,10 +829,26 @@ void CModelWindow::RenderUV()
 		}
 
 		glActiveTexture(GL_TEXTURE1);
+		if (m_bDisplayAO)
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
+			glEnable(GL_TEXTURE_2D);
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		glActiveTexture(GL_TEXTURE2);
 		if (m_bDisplayColorAO)
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
 			glEnable(GL_TEXTURE_2D);
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 		}
 		else
 		{
@@ -826,9 +860,11 @@ void CModelWindow::RenderUV()
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 	}
 
-	if (m_bDisplayTexture || m_bDisplayColorAO)
+	if (m_bDisplayTexture || m_bDisplayAO || m_bDisplayColorAO)
 		glColor3f(1.0f, 1.0f, 1.0f);
 	else
 		glColor3f(0.0f, 0.0f, 0.0f);
@@ -842,6 +878,7 @@ void CModelWindow::RenderUV()
 		{
 			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -852,6 +889,7 @@ void CModelWindow::RenderUV()
 		{
 			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -862,6 +900,7 @@ void CModelWindow::RenderUV()
 		{
 			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -872,6 +911,7 @@ void CModelWindow::RenderUV()
 		{
 			glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -883,8 +923,16 @@ void CModelWindow::RenderUV()
 	{
 		// Disable the multi-texture stuff now that object drawing is done.
 		glActiveTexture(GL_TEXTURE1);
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE2);
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	}
 
 	if (m_eDisplayType == DT_WIREFRAME)
@@ -1009,6 +1057,13 @@ void CModelWindow::SetDisplayTexture(bool bTexture)
 {
 	m_bDisplayTexture = bTexture;
 	m_pTexture->SetState(bTexture, false);
+	CreateGLLists();
+}
+
+void CModelWindow::SetDisplayAO(bool bAO)
+{
+	m_bDisplayAO = bAO;
+	m_pAO->SetState(bAO, false);
 	CreateGLLists();
 }
 
