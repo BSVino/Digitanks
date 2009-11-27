@@ -4,6 +4,74 @@
 #include "vector.h"
 #include <vector>
 
+class Ray
+{
+public:
+				Ray(Vector vecPos, Vector vecDir);
+
+	bool		IntersectTriangle(Vector v1, Vector v2, Vector v3, Vector* pvecHit = NULL) const;
+
+	Vector		m_vecPos;
+	Vector		m_vecDir;
+};
+
+inline Ray::Ray(Vector vecPos, Vector vecDir)
+{
+	m_vecPos = vecPos;
+	m_vecDir = vecDir;
+}
+
+inline bool Ray::IntersectTriangle(Vector v0, Vector v1, Vector v2, Vector* pvecHit) const
+{
+	Vector u = v1 - v0;
+	Vector v = v2 - v0;
+	Vector n = u.Cross(v);
+
+	Vector w0 = m_vecPos - v0;
+
+	float a = -n.Dot(w0);
+	float b = n.Dot(m_vecDir);
+
+	float ep = 1e-4f;
+
+	if (fabs(b) < ep)
+	{
+		if (a == 0)			// Ray is parallel
+			return false;	// Ray is inside plane
+		else
+			return false;	// Ray is somewhere else
+	}
+
+	float r = a/b;
+	if (r < 0)
+		return false;		// Ray goes away from the triangle
+
+	Vector vecPoint = m_vecPos + m_vecDir*r;
+	if (pvecHit)
+		*pvecHit = vecPoint;
+
+	float uu = u.Dot(u);
+	float uv = u.Dot(v);
+	float vv = v.Dot(v);
+	Vector w = vecPoint - v0;
+	float wu = w.Dot(u);
+	float wv = w.Dot(v);
+
+	float D = uv * uv - uu * vv;
+
+	float s, t;
+
+	s = (uv * wv - vv * wu) / D;
+	if (s <= ep || s >= 1)		// Intersection point is outside the triangle
+		return false;
+
+	t = (uv * wu - uu * wv) / D;
+	if (t <= ep || (s+t) >= 1)	// Intersection point is outside the triangle
+		return false;
+
+	return true;
+}
+
 // Geometry-related functions
 
 inline bool SameSide(Vector p1, Vector p2, Vector a, Vector b)

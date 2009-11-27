@@ -6,6 +6,8 @@
 
 #include <geometry.h>
 #include <maths.h>
+#include <matrix.h>
+#include <raytracer/raytracer.h>
 
 #if 0
 #ifdef _DEBUG
@@ -32,6 +34,7 @@ CAOGenerator::CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::ve
 	SetSize(512, 512);
 	m_bUseTexture = true;
 	m_iBleed = 5;
+	m_iSamples = 8;
 	SetRenderPreviewViewport(0, 0, 100, 100);
 	SetUseFrontBuffer(false);
 
@@ -107,7 +110,7 @@ void CAOGenerator::RenderSetupScene()
 	size_t m;
 
 	// Create a list with the required polys so it draws quicker.
-	m_iSceneList = glGenLists((GLsizei)m_paoMaterials->size()+1);
+	m_iSceneList = glGenLists((GLsizei)m_paoMaterials->size()+2);
 
 	glNewList(m_iSceneList, GL_COMPILE);
 	// Draw the back faces separately so they can be batched.
@@ -131,10 +134,36 @@ void CAOGenerator::RenderSetupScene()
 	glEnd();
 	glEndList();
 
+	glNewList(m_iSceneList+1, GL_COMPILE);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glColor3f(0, 0, 0);
+
+	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
+		{
+			CConversionFace* pFace = pMesh->GetFace(f);
+
+			if (pFace->m != 0 && pFace->m != ~0)
+				continue;
+
+			glBegin(GL_TRIANGLE_FAN);
+
+			for (size_t k = 0; k < pFace->GetNumVertices(); k++)
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k)->v));
+
+			glEnd();
+		}
+	}
+
+	glEndList();
+
 	// Put the all materials in separate lists so that they can be batched too.
 	for (m = 0; m < m_pScene->GetNumMaterials(); m++)
 	{
-		glNewList(m_iSceneList+m+1, GL_COMPILE);
+		glNewList(m_iSceneList+m+2, GL_COMPILE);
 
 		glBindTexture(GL_TEXTURE_2D, (GLuint)(*m_paoMaterials)[m].m_iBase);
 		glColor3f(1, 1, 1);
@@ -181,9 +210,9 @@ void CAOGenerator::Generate()
 	m_bStopGenerating = false;
 	m_bDoneGenerating = false;
 
-#ifdef AO_DEBUG
+//#ifdef AO_DEBUG
 	CModelWindow::Get()->ClearDebugLines();
-#endif
+//#endif
 
 	float flTotalTime = 0;
 	float flPointInTriangleTime = 0;
@@ -201,8 +230,17 @@ void CAOGenerator::Generate()
 		RenderSetupScene();
 #endif
 
+	raytrace::CRaytracer* pTracer = NULL;
+
+	if (m_eAOMethod == AOMETHOD_RAYTRACE)
+	{
+		pTracer = new raytrace::CRaytracer(m_pScene);
+	}
+
 	m_flLowestValue = -1;
 	m_flHighestValue = 0;
+
+	size_t iTracesPerPoint = (m_iSamples+1)*(m_iSamples/2)+1;
 
 	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
@@ -334,6 +372,65 @@ void CAOGenerator::Generate()
 						{
 							// Render the scene from this location
 							m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
+						}
+						else if (m_eAOMethod == AOMETHOD_RAYTRACE)
+						{
+							// Build rotation matrix
+							Matrix4x4 m;
+							m.SetOrientation(vecNormal);
+
+							// Turn it sideways so that pitch 90 is up, for more uniform sampling
+							Matrix4x4 m2;
+							m2.SetRotation(EAngle(0, -90, 0));
+
+							m *= m2;
+
+							float flHits = 0;
+							float flTotalHits = 0;
+
+							for (size_t x = 0; x < m_iSamples/2; x++)
+							{
+								float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
+								for (size_t y = 0; y <= m_iSamples; y++)
+								{
+									float flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
+
+									Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
+
+									// Transform relative to the triangle's normal
+									Vector vecRay = m * vecDir;
+
+									//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
+
+									flTotalHits += sin(flPitch * M_PI/180);
+
+									Vector vecHit;
+									if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
+									{
+										flHits += sin(flPitch * M_PI/180);
+										//CModelWindow::Get()->AddDebugLine(vecUVPosition, vecHit);
+									}
+								}
+							}
+
+							// One last ray directly up, it is skipped in the above loop so it's not done 10 times.
+							Vector vecDir = AngleVector(EAngle(90, 0, 0));
+
+							// Transform relative to the triangle's normal
+							Vector vecRay = m * vecDir;
+
+							//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
+
+							flTotalHits++;
+
+							if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay)))
+							{
+								flHits++;
+								//CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecRay/4);
+							}
+
+							float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
+							m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
 						}
 						else
 						{
@@ -525,6 +622,11 @@ void CAOGenerator::Generate()
 		glPopMatrix();
 	}
 
+	if (m_eAOMethod == AOMETHOD_RAYTRACE)
+	{
+		delete pTracer;
+	}
+
 	if (!m_bStopGenerating)
 		Bleed();
 
@@ -591,8 +693,11 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 	// Draw the dark insides
 	glCallList(m_iSceneList);
 
+	// Draw polyons without materials
+	glCallList(m_iSceneList+1);
+
 	for (size_t i = 0; i < m_paoMaterials->size(); i++)
-		glCallList(m_iSceneList+i+1);
+		glCallList(m_iSceneList+i+2);
 
 #ifdef AO_DEBUG
 	DebugRenderSceneLookAtPosition(vecPosition, vecDirection, pRenderFace);

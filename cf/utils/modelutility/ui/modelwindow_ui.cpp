@@ -334,7 +334,7 @@ CAOPanel* CAOPanel::s_pAOPanel = NULL;
 CAOPanel* CAOPanel::s_pColorAOPanel = NULL;
 
 CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
-	: CMovablePanel(bColor?"Color AO generator":"AO generator"), m_oGenerator(bColor?AOMETHOD_RENDER:AOMETHOD_TRIDISTANCE, pScene, paoMaterials)
+	: CMovablePanel(bColor?"Color AO generator":"AO generator"), m_oGenerator(bColor?AOMETHOD_RENDER:AOMETHOD_RAYTRACE, pScene, paoMaterials)
 {
 	m_bColor = bColor;
 
@@ -350,6 +350,10 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	AddControl(m_pSizeLabel);
 
 	m_pSizeSelector = new CScrollSelector<int>();
+#ifdef _DEBUG
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(16, L"16x16"));
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(32, L"32x32"));
+#endif
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(64, L"64x64"));
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(128, L"128x128"));
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(256, L"256x256"));

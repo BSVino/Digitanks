@@ -1,3 +1,5 @@
+#if 0
+
 #include <assert.h>
 
 #include <FCollada.h>
@@ -190,3 +192,12 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 	FCollada::Release();
 }
 
+#else
+
+#include "modelconverter.h"
+
+void CModelConverter::ReadDAE(const wchar_t* pszFilename)
+{
+}
+
+#endif

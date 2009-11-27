@@ -6,7 +6,7 @@
 typedef float unit_t;
 
 #ifndef M_PI
-#define M_PI 3.14159265
+#define M_PI 3.14159265f
 #endif
 
 // Try to keep this class compatible with Valve's vector.h
@@ -29,6 +29,13 @@ public:
 	void	operator*=(float s);
 	void	operator/=(float s);
 
+	Vector	operator*(const Vector& v) const;
+
+	friend Vector operator*( float f, const Vector& v )
+	{
+		return Vector( v.x*f, v.y*f, v.z*f );
+	}
+
 	float	Length();
 	float	LengthSqr();
 	void	Normalize();
@@ -41,6 +48,9 @@ public:
 	{
 		return(&x);
 	}
+
+	float	operator[](int i) const;
+	float&	operator[](int i);
 
 	unit_t	x, y, z;
 };
@@ -113,6 +123,11 @@ inline void Vector::operator/=(float s)
 	z /= s;
 }
 
+inline Vector Vector::operator*(const Vector& v) const
+{
+	return Vector(x*v.x, y*v.y, z*v.z);
+}
+
 inline float Vector::Length()
 {
 	return sqrt(x*x + y*y + z*z);
@@ -151,13 +166,54 @@ inline Vector Vector::Cross(const Vector& v) const
 	return Vector(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
 }
 
-inline Vector AngleVector(const Vector& v)
+inline float& Vector::operator[](int i)
+{
+	return ((float*)this)[i];
+}
+
+inline float Vector::operator[](int i) const
+{
+	return ((float*)this)[i];
+}
+
+// Euler angles
+class EAngle
+{
+public:
+			EAngle();
+			EAngle(unit_t x, unit_t y, unit_t z);
+			EAngle(unit_t* xyz);
+
+	operator float*()
+	{
+		return(&p);
+	}
+
+	unit_t	p, y, r;
+};
+
+inline EAngle::EAngle()
+	: p(0), y(0), r(0)
+{
+}
+
+inline EAngle::EAngle(unit_t P, unit_t Y, unit_t R)
+	: p(P), y(Y), r(R)
+{
+}
+
+inline EAngle::EAngle(unit_t* pyr)
+	: p(*pyr), y(*(pyr+1)), r(*(pyr+2))
+{
+}
+
+inline Vector AngleVector(const EAngle& a)
 {
 	Vector vecResult;
 
-	float p = (float)(v.x * (M_PI*2 / 360));
-	float y = (float)(v.y * (M_PI*2 / 360));
-	float r = (float)(v.z * (M_PI*2 / 360));
+	float p = (float)(a.p * (M_PI*2 / 360));
+	float y = (float)(a.y * (M_PI*2 / 360));
+	float r = (float)(a.r * (M_PI*2 / 360));
 
 	float sp = sin(p);
 	float cp = cos(p);
@@ -171,10 +227,10 @@ inline Vector AngleVector(const Vector& v)
 	return vecResult;
 }
 
-inline void AngleVectors(const Vector& v, Vector* pvecF, Vector* pvecR, Vector* pvecU)
+inline void AngleVectors(const EAngle& a, Vector* pvecF, Vector* pvecR, Vector* pvecU)
 {
-	float p = (float)(v.x * (M_PI*2 / 360));
-	float y = (float)(v.y * (M_PI*2 / 360));
+	float p = (float)(a.p * (M_PI*2 / 360));
+	float y = (float)(a.y * (M_PI*2 / 360));
 	float r = 0;
 
 	float sp = sin(p);
@@ -186,7 +242,7 @@ inline void AngleVectors(const Vector& v, Vector* pvecF, Vector* pvecR, Vector* 
 
 	if (pvecR || pvecU)
 	{
-		r = (float)(v.z * (M_PI*2 / 360));
+		r = (float)(a.r * (M_PI*2 / 360));
 		sr = sin(r);
 		cr = cos(r);
 	}
@@ -211,6 +267,16 @@ inline void AngleVectors(const Vector& v, Vector* pvecF, Vector* pvecR, Vector* 
 		pvecU->y = -cr*cp;
 		pvecU->z = cr*sp*sy - sr*cy;
 	}
+}
+
+inline EAngle VectorAngles( const Vector& vecForward )
+{
+	EAngle angReturn(0, 0, 0);
+
+	angReturn.p = atan2(-vecForward.z, sqrt(vecForward.x*vecForward.x + vecForward.y*vecForward.y)) * 180/M_PI;
+	angReturn.y = atan2(vecForward.y, vecForward.x) * 180/M_PI;
+
+	return angReturn;
 }
 
 #endif

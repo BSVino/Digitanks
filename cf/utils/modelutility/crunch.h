@@ -16,6 +16,7 @@ typedef enum
 {
 	AOMETHOD_RENDER,
 	AOMETHOD_TRIDISTANCE,
+	AOMETHOD_RAYTRACE,
 } aomethod_t;
 
 class CAOGenerator
@@ -29,6 +30,7 @@ public:
 	void					SetBleed(size_t iBleed) { m_iBleed = iBleed; };
 	void					SetRenderPreviewViewport(int x, int y, int w, int h);
 	void					SetUseFrontBuffer(bool bUseFrontBuffer) { m_bUseFrontBuffer = bUseFrontBuffer; };
+	void					SetSamples(size_t iSamples) { m_iSamples = iSamples; };
 
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
@@ -55,6 +57,7 @@ protected:
 	size_t					m_iHeight;
 	bool					m_bUseTexture;
 	size_t					m_iBleed;
+	size_t					m_iSamples;
 	int						m_iRPVX;
 	int						m_iRPVY;
 	int						m_iRPVW;

@@ -239,6 +239,11 @@ void CModelWindow::LoadTexturesIntoGL()
 		if (iTexture)
 			m_aoMaterials[i].m_iBase = iTexture;
 	}
+
+	if (!m_aoMaterials.size())
+	{
+		m_aoMaterials.push_back(CMaterial(0));
+	}
 }
 
 void CModelWindow::CreateGLLists()
@@ -273,7 +278,7 @@ void CModelWindow::CreateGLLists()
 
 			if (m_eDisplayType != DT_WIREFRAME)
 			{
-				if (pFace->m == ~0)
+				if (pFace->m == ~0 || m_aoMaterials.size() == 0)
 					glBindTexture(GL_TEXTURE_2D, 0);
 				else
 				{
@@ -504,7 +509,7 @@ void CModelWindow::Render3D()
 
 	glPushMatrix();
 
-	Vector vecCameraVector = AngleVector(Vector(m_flCameraPitch, m_flCameraYaw, 0)) * m_flCameraDistance;
+	Vector vecCameraVector = AngleVector(EAngle(m_flCameraPitch, m_flCameraYaw, 0)) * m_flCameraDistance;
 
 	gluLookAt(vecCameraVector.x, vecCameraVector.y, vecCameraVector.z,
 		0.0, 0.0, 0.0,
@@ -519,11 +524,19 @@ void CModelWindow::Render3D()
 
 	if (m_avecDebugLines.size())
 	{
-		glPointSize(3);
+		glLineWidth(1);
 		glDisable(GL_COLOR_MATERIAL);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
+			glColor3f(1, 1, 1);
+			for (size_t i = 0; i < m_avecDebugLines.size(); i+=2)
+			{
+				glVertex3fv(m_avecDebugLines[i]);
+				glVertex3fv(m_avecDebugLines[i+1]);
+			}
+		glEnd();
+		glBegin(GL_POINTS);
 			glColor3f(1, 1, 1);
 			for (size_t i = 0; i < m_avecDebugLines.size(); i+=2)
 			{
@@ -612,7 +625,7 @@ void CModelWindow::RenderLightSource()
 	GLfloat lightColor[] = {0.9f, 1.0f, 0.9f, 1.0f};
 
 	// Reposition the light source.
-	Vector vecLightDirection = AngleVector(Vector(m_flLightPitch, m_flLightYaw, 0));
+	Vector vecLightDirection = AngleVector(EAngle(m_flLightPitch, m_flLightYaw, 0));
 
 	flLightPosition[0] = vecLightDirection.x * m_flCameraDistance/2;
 	flLightPosition[1] = vecLightDirection.y * m_flCameraDistance/2;
@@ -636,7 +649,7 @@ void CModelWindow::RenderLightSource()
 
 		if (m_pLightHalo && m_pLightBeam)
 		{
-			Vector vecCameraDirection = AngleVector(Vector(m_flCameraPitch, m_flCameraYaw, 0));
+			Vector vecCameraDirection = AngleVector(EAngle(m_flCameraPitch, m_flCameraYaw, 0));
 
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_TEXTURE_2D);
@@ -672,7 +685,7 @@ void CModelWindow::RenderLightSource()
 			glBindTexture(GL_TEXTURE_2D, (GLuint)m_pLightBeam->m_iBase);
 
 			Vector vecLightRight, vecLightUp;
-			AngleVectors(Vector(m_flLightPitch, m_flLightYaw, 0), NULL, &vecLightRight, &vecLightUp);
+			AngleVectors(EAngle(m_flLightPitch, m_flLightYaw, 0), NULL, &vecLightRight, &vecLightUp);
 
 			flDot = vecCameraDirection.Dot(vecLightRight);
 
@@ -808,9 +821,15 @@ void CModelWindow::RenderUV()
 
 	bool bMultiTexture = false;
 
-	CMaterial* pMaterial = &m_aoMaterials[0];
+	CMaterial* pMaterial = NULL;
+	if (m_aoMaterials.size())
+		pMaterial = &m_aoMaterials[0];
 
-	if (GLEW_VERSION_1_3)
+	if (!pMaterial)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	else if (GLEW_VERSION_1_3)
 	{
 		bMultiTexture = true;
 
@@ -864,7 +883,9 @@ void CModelWindow::RenderUV()
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 	}
 
-	if (m_bDisplayTexture || m_bDisplayAO || m_bDisplayColorAO)
+	if (!pMaterial)
+		glColor3f(0.8f, 0.8f, 0.8f);
+	else if (m_bDisplayTexture || m_bDisplayAO || m_bDisplayColorAO)
 		glColor3f(1.0f, 1.0f, 1.0f);
 	else
 		glColor3f(0.0f, 0.0f, 0.0f);
