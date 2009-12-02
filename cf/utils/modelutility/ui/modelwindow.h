@@ -137,6 +137,7 @@ protected:
 
 	bool					m_bCameraRotating;
 	bool					m_bCameraDollying;
+	bool					m_bCameraPanning;
 	bool					m_bLightRotating;
 
 	int						m_iMouseStartX;
@@ -148,6 +149,8 @@ protected:
 	float					m_flLightYaw;
 	float					m_flLightPitch;
 
+	float					m_flCameraUVX;
+	float					m_flCameraUVY;
 	float					m_flCameraUVZoom;
 
 	size_t					m_iWindowWidth;

@@ -23,6 +23,17 @@ void CModelWindow::MouseDragged(int x, int y)
 			m_iMouseStartY = y;
 			glutPostRedisplay();
 		}
+
+		if (m_bCameraPanning)
+		{
+			m_flCameraUVX += (float)(x - m_iMouseStartX)/500;
+			m_flCameraUVY += (float)(m_iMouseStartY - y)/500;
+
+			m_iMouseStartX = x;
+			m_iMouseStartY = y;
+
+			glutPostRedisplay();
+		}
 	}
 	else
 	{
@@ -90,14 +101,28 @@ void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 
 	if (m_bRenderUV)
 	{
-		if (iState == GLUT_DOWN)
+		if (iButton == GLUT_LEFT_BUTTON)
 		{
-			m_bCameraDollying = 1;
-			m_iMouseStartX = x;
-			m_iMouseStartY = y;
+			if (iState == GLUT_DOWN)
+			{
+				m_bCameraPanning = 1;
+				m_iMouseStartX = x;
+				m_iMouseStartY = y;
+			}
+			if (iState == GLUT_UP)
+				m_bCameraPanning = 0;
 		}
-		if (iState == GLUT_UP)
-			m_bCameraDollying = 0;
+		else
+		{
+			if (iState == GLUT_DOWN)
+			{
+				m_bCameraDollying = 1;
+				m_iMouseStartX = x;
+				m_iMouseStartY = y;
+			}
+			if (iState == GLUT_UP)
+				m_bCameraDollying = 0;
+		}
 	}
 	else
 	{

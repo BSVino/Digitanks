@@ -31,6 +31,7 @@ CModelWindow::CModelWindow()
 
 	m_bCameraRotating = false;
 	m_bCameraDollying = false;
+	m_bCameraPanning = false;
 	m_bLightRotating = false;
 
 	m_iMouseStartX = 0;
@@ -40,6 +41,8 @@ CModelWindow::CModelWindow()
 	m_flCameraPitch = 45;
 
 	m_flCameraUVZoom = 1;
+	m_flCameraUVX = 0;
+	m_flCameraUVY = 0;
 
 	m_flLightYaw = 100;
 	m_flLightPitch = 45;
@@ -807,6 +810,7 @@ void CModelWindow::RenderUV()
 	glOrtho(-1, 1, -flRatio, flRatio, -1, 1);
 
 	glScalef(m_flCameraUVZoom, m_flCameraUVZoom, 0);
+	glTranslatef(m_flCameraUVX, m_flCameraUVY, 0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
