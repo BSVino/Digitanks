@@ -181,6 +181,8 @@ void CModelWindow::LoadIntoGL()
 {
 	LoadTexturesIntoGL();
 	CreateGLLists();
+
+	ClearDebugLines();
 }
 
 size_t CModelWindow::LoadTextureIntoGL(const wchar_t* pszFilename)
@@ -529,7 +531,7 @@ void CModelWindow::Render3D()
 		glDisable(GL_LIGHTING);
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
-			glColor3f(1, 1, 1);
+			glColor3f(0.4f, 0.4f, 0.4f);
 			for (size_t i = 0; i < m_avecDebugLines.size(); i+=2)
 			{
 				glVertex3fv(m_avecDebugLines[i]);
@@ -537,7 +539,7 @@ void CModelWindow::Render3D()
 			}
 		glEnd();
 		glBegin(GL_POINTS);
-			glColor3f(1, 1, 1);
+			glColor3f(0.6f, 0.6f, 0.6f);
 			for (size_t i = 0; i < m_avecDebugLines.size(); i+=2)
 			{
 				glVertex3fv(m_avecDebugLines[i]);

@@ -36,6 +36,11 @@ public:
 		return Vector( v.x*f, v.y*f, v.z*f );
 	}
 
+	friend Vector operator/( float f, const Vector& v )
+	{
+		return Vector( f/v.x, f/v.y, f/v.z );
+	}
+
 	float	Length();
 	float	LengthSqr();
 	void	Normalize();
@@ -51,6 +56,9 @@ public:
 
 	float	operator[](int i) const;
 	float&	operator[](int i);
+
+	float	operator[](size_t i) const;
+	float&	operator[](size_t i);
 
 	unit_t	x, y, z;
 };
@@ -172,6 +180,16 @@ inline float& Vector::operator[](int i)
 }
 
 inline float Vector::operator[](int i) const
+{
+	return ((float*)this)[i];
+}
+
+inline float& Vector::operator[](size_t i)
+{
+	return ((float*)this)[i];
+}
+
+inline float Vector::operator[](size_t i) const
 {
 	return ((float*)this)[i];
 }

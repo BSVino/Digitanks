@@ -9,8 +9,6 @@ class Ray
 public:
 				Ray(Vector vecPos, Vector vecDir);
 
-	bool		IntersectTriangle(Vector v1, Vector v2, Vector v3, Vector* pvecHit = NULL) const;
-
 	Vector		m_vecPos;
 	Vector		m_vecDir;
 };
@@ -21,55 +19,33 @@ inline Ray::Ray(Vector vecPos, Vector vecDir)
 	m_vecDir = vecDir;
 }
 
-inline bool Ray::IntersectTriangle(Vector v0, Vector v1, Vector v2, Vector* pvecHit) const
+class AABB
 {
-	Vector u = v1 - v0;
-	Vector v = v2 - v0;
-	Vector n = u.Cross(v);
+public:
+				AABB() {};
+				AABB(Vector vecMins, Vector vecMaxs);
 
-	Vector w0 = m_vecPos - v0;
+	Vector		Center() const;
+	Vector		Size() const;
 
-	float a = -n.Dot(w0);
-	float b = n.Dot(m_vecDir);
+	Vector		m_vecMins;
+	Vector		m_vecMaxs;
+};
 
-	float ep = 1e-4f;
+inline AABB::AABB(Vector vecMins, Vector vecMaxs)
+{
+	m_vecMins = vecMins;
+	m_vecMaxs = vecMaxs;
+}
 
-	if (fabs(b) < ep)
-	{
-		if (a == 0)			// Ray is parallel
-			return false;	// Ray is inside plane
-		else
-			return false;	// Ray is somewhere else
-	}
+inline Vector AABB::Center() const
+{
+	return (m_vecMins + m_vecMaxs)/2;
+}
 
-	float r = a/b;
-	if (r < 0)
-		return false;		// Ray goes away from the triangle
-
-	Vector vecPoint = m_vecPos + m_vecDir*r;
-	if (pvecHit)
-		*pvecHit = vecPoint;
-
-	float uu = u.Dot(u);
-	float uv = u.Dot(v);
-	float vv = v.Dot(v);
-	Vector w = vecPoint - v0;
-	float wu = w.Dot(u);
-	float wv = w.Dot(v);
-
-	float D = uv * uv - uu * vv;
-
-	float s, t;
-
-	s = (uv * wv - vv * wu) / D;
-	if (s <= ep || s >= 1)		// Intersection point is outside the triangle
-		return false;
-
-	t = (uv * wu - uu * wv) / D;
-	if (t <= ep || (s+t) >= 1)	// Intersection point is outside the triangle
-		return false;
-
-	return true;
+inline Vector AABB::Size() const
+{
+	return m_vecMaxs - m_vecMins;
 }
 
 // Geometry-related functions
@@ -175,6 +151,333 @@ inline float DistanceToPolygon(Vector p, std::vector<Vector>& v, Vector n)
 inline float TriangleArea(Vector a, Vector b, Vector c)
 {
 	return (a-b).Cross(a-c).Length()/2;
+}
+
+inline bool RayIntersectsTriangle(Ray vecRay, Vector v0, Vector v1, Vector v2, Vector* pvecHit = NULL)
+{
+	Vector u = v1 - v0;
+	Vector v = v2 - v0;
+	Vector n = u.Cross(v);
+
+	Vector w0 = vecRay.m_vecPos - v0;
+
+	float a = -n.Dot(w0);
+	float b = n.Dot(vecRay.m_vecDir);
+
+	float ep = 1e-4f;
+
+	if (fabs(b) < ep)
+	{
+		if (a == 0)			// Ray is parallel
+			return false;	// Ray is inside plane
+		else
+			return false;	// Ray is somewhere else
+	}
+
+	float r = a/b;
+	if (r < 0)
+		return false;		// Ray goes away from the triangle
+
+	Vector vecPoint = vecRay.m_vecPos + vecRay.m_vecDir*r;
+	if (pvecHit)
+		*pvecHit = vecPoint;
+
+	float uu = u.Dot(u);
+	float uv = u.Dot(v);
+	float vv = v.Dot(v);
+	Vector w = vecPoint - v0;
+	float wu = w.Dot(u);
+	float wv = w.Dot(v);
+
+	float D = uv * uv - uu * vv;
+
+	float s, t;
+
+	s = (uv * wv - vv * wu) / D;
+	if (s <= ep || s >= 1)		// Intersection point is outside the triangle
+		return false;
+
+	t = (uv * wu - uu * wv) / D;
+	if (t <= ep || (s+t) >= 1)	// Intersection point is outside the triangle
+		return false;
+
+	return true;
+}
+
+inline bool ClipRay(float flMin, float flMax, float a, float d, float& tmin, float& tmax)
+{
+	const float flEpsilon = 1e-5f;
+
+	if (fabs(d) < flEpsilon)
+	{
+		if (d >= 0.0f)
+			return (a <= flMax);
+		else
+			return (a >= flMin);
+	}
+
+	float umin = (flMin - a)/d;
+	float umax = (flMax - a)/d;
+
+	if (umin > umax)
+	{
+		float yar = umin;
+		umin = umax;
+		umax = yar;
+	}
+
+	if (umax < tmin || umin > tmax)
+		return false;
+
+	tmin = (umin>tmin)?umin:tmin;
+	tmax = (umax<tmax)?umax:tmax;
+
+	return (tmax>tmin);
+}
+
+inline bool RayIntersectsAABB(const Ray& r, const AABB& b)
+{
+	float tmin = 0;
+	float tmax = b.Size().LengthSqr();	// It's a ray so make tmax effectively infinite.
+	if (tmax < 1)
+		tmax = 100;
+	float flDistToBox = (r.m_vecPos - b.Center()).LengthSqr();
+	if (flDistToBox < 1)
+		flDistToBox = 100;
+	tmax *= flDistToBox * 100;
+
+	if (!ClipRay(b.m_vecMins.x, b.m_vecMaxs.x, r.m_vecPos.x, r.m_vecDir.x, tmin, tmax))
+		return false;
+
+	if (!ClipRay(b.m_vecMins.y, b.m_vecMaxs.y, r.m_vecPos.y, r.m_vecDir.y, tmin, tmax))
+		return false;
+
+	if (!ClipRay(b.m_vecMins.z, b.m_vecMaxs.z, r.m_vecPos.z, r.m_vecDir.z, tmin, tmax))
+		return false;
+
+	return true;
+}
+
+inline bool ClipSegment(float flMin, float flMax, float a, float b, float d, float& tmin, float& tmax)
+{
+	const float flEpsilon = 1e-5f;
+
+	if (fabs(d) < flEpsilon)
+	{
+		if (d >= 0.0f)
+			return !(b < flMin || a > flMax);
+		else
+			return !(a < flMin || b > flMax);
+	}
+
+	float umin = (flMin - a)/d;
+	float umax = (flMax - a)/d;
+
+	if (umin > umax)
+	{
+		float yar = umin;
+		umin = umax;
+		umax = yar;
+	}
+
+	if (umax < tmin || umin > tmax)
+		return false;
+
+	tmin = (umin>tmin)?umin:tmin;
+	tmax = (umax<tmax)?umax:tmax;
+
+	return (tmax>tmin);
+}
+
+inline bool SegmentIntersectsAABB(const Vector& v1, const Vector& v2, const AABB& b)
+{
+	float tmin = 0;
+	float tmax = 1;
+
+	Vector vecDir = v2 - v1;
+
+	if (!ClipSegment(b.m_vecMins.x, b.m_vecMaxs.x, v1.x, v2.x, vecDir.x, tmin, tmax))
+		return false;
+
+	if (!ClipSegment(b.m_vecMins.y, b.m_vecMaxs.y, v1.y, v2.y, vecDir.y, tmin, tmax))
+		return false;
+
+	if (!ClipSegment(b.m_vecMins.z, b.m_vecMaxs.z, v1.z, v2.z, vecDir.z, tmin, tmax))
+		return false;
+
+	return true;
+}
+
+inline bool LineSegmentIntersectsTriangle(Vector s0, Vector s1, Vector v0, Vector v1, Vector v2, Vector* pvecHit = NULL)
+{
+	Vector u = v1 - v0;
+	Vector v = v2 - v0;
+	Vector n = u.Cross(v);
+
+	Vector w0 = s0 - v0;
+
+	float a = -n.Dot(w0);
+	float b = n.Dot(s1-s0);
+
+	float ep = 1e-4f;
+
+	if (fabs(b) < ep)
+	{
+		if (a == 0)			// Segment is parallel
+			return true;	// Segment is inside plane
+		else
+			return false;	// Segment is somewhere else
+	}
+
+	float r = a/b;
+	if (r < 0)
+		return false;		// Segment goes away from the triangle
+	if (r > 1)
+		return false;		// Segment goes away from the triangle
+
+	Vector vecPoint = s0 + (s1-s0)*r;
+	if (pvecHit)
+		*pvecHit = vecPoint;
+
+	float uu = u.Dot(u);
+	float uv = u.Dot(v);
+	float vv = v.Dot(v);
+	Vector w = vecPoint - v0;
+	float wu = w.Dot(u);
+	float wv = w.Dot(v);
+
+	float D = uv * uv - uu * vv;
+
+	float s, t;
+
+	s = (uv * wv - vv * wu) / D;
+	if (s <= ep || s >= 1)		// Intersection point is outside the triangle
+		return false;
+
+	t = (uv * wu - uu * wv) / D;
+	if (t <= ep || (s+t) >= 1)	// Intersection point is outside the triangle
+		return false;
+
+	return true;
+}
+
+inline bool PointInsideAABB( AABB oBox, Vector v )
+{
+	const float flEpsilon = 1e-4f;
+
+	for (size_t i = 0; i < 3; i++)
+	{
+		if (v[i] < oBox.m_vecMins[i] - flEpsilon || v[i] > oBox.m_vecMaxs[i] + flEpsilon)
+			return false;
+	}
+
+	return true;
+}
+
+inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
+{
+	// Trivial case rejection: If any of the points are inside the box, return true immediately.
+	if (PointInsideAABB(oBox, v0))
+		return true;
+	if (PointInsideAABB(oBox, v1))
+		return true;
+	if (PointInsideAABB(oBox, v2))
+		return true;
+
+	size_t i;
+
+	// Trivial case rejection: If all three points are on one side of the box then the triangle must be outside of it.
+	for (i = 0; i < 3; i++)
+	{
+		if (v0[i] > oBox.m_vecMaxs[i] && v1[i] > oBox.m_vecMaxs[i] && v2[i] > oBox.m_vecMaxs[i])
+			return false;
+		if (v0[i] < oBox.m_vecMins[i] && v1[i] < oBox.m_vecMins[i] && v2[i] < oBox.m_vecMins[i])
+			return false;
+	}
+
+
+	Vector c0 = oBox.m_vecMins;
+	Vector c1 = Vector(oBox.m_vecMins.x, oBox.m_vecMins.y, oBox.m_vecMaxs.z);
+	Vector c2 = Vector(oBox.m_vecMins.x, oBox.m_vecMaxs.y, oBox.m_vecMins.z);
+	Vector c3 = Vector(oBox.m_vecMins.x, oBox.m_vecMaxs.y, oBox.m_vecMaxs.z);
+	Vector c4 = Vector(oBox.m_vecMaxs.x, oBox.m_vecMins.y, oBox.m_vecMins.z);
+	Vector c5 = Vector(oBox.m_vecMaxs.x, oBox.m_vecMins.y, oBox.m_vecMaxs.z);
+	Vector c6 = Vector(oBox.m_vecMaxs.x, oBox.m_vecMaxs.y, oBox.m_vecMins.z);
+	Vector c7 = oBox.m_vecMaxs;
+
+	// Build a list of line segments in the cube to test against the triangle.
+	std::vector<Vector> aLines;
+
+	// Bottom four
+	aLines.push_back(c0);
+	aLines.push_back(c1);
+
+	aLines.push_back(c1);
+	aLines.push_back(c2);
+
+	aLines.push_back(c2);
+	aLines.push_back(c3);
+
+	aLines.push_back(c3);
+	aLines.push_back(c0);
+
+	// Sides
+	aLines.push_back(c0);
+	aLines.push_back(c4);
+
+	aLines.push_back(c1);
+	aLines.push_back(c5);
+
+	aLines.push_back(c2);
+	aLines.push_back(c6);
+
+	aLines.push_back(c3);
+	aLines.push_back(c7);
+
+	// Top
+	aLines.push_back(c4);
+	aLines.push_back(c5);
+
+	aLines.push_back(c5);
+	aLines.push_back(c6);
+
+	aLines.push_back(c6);
+	aLines.push_back(c7);
+
+	aLines.push_back(c7);
+	aLines.push_back(c4);
+
+	// Diagonals
+	aLines.push_back(c0);
+	aLines.push_back(c6);
+
+	aLines.push_back(c1);
+	aLines.push_back(c7);
+
+	aLines.push_back(c2);
+	aLines.push_back(c4);
+
+	aLines.push_back(c3);
+	aLines.push_back(c5);
+
+	// If any of the segments intersects with the triangle then we have a winner.
+	for (i = 0; i < aLines.size(); i+=2)
+	{
+		if (LineSegmentIntersectsTriangle(aLines[i], aLines[i+1], v0, v1, v2))
+			return true;
+	}
+
+	if (SegmentIntersectsAABB(v0, v1, oBox))
+		return true;
+
+	if (SegmentIntersectsAABB(v1, v2, oBox))
+		return true;
+
+	// Third test is redundant -- shouldn't ever catch anything the first two don't.
+	//if (SegmentIntersectsAABB(v0, v2, oBox))
+	//	return true;
+
+	return false;
 }
 
 #endif

@@ -210,9 +210,9 @@ void CAOGenerator::Generate()
 	m_bStopGenerating = false;
 	m_bDoneGenerating = false;
 
-//#ifdef AO_DEBUG
+#ifdef AO_DEBUG
 	CModelWindow::Get()->ClearDebugLines();
-//#endif
+#endif
 
 	float flTotalTime = 0;
 	float flPointInTriangleTime = 0;
@@ -235,6 +235,7 @@ void CAOGenerator::Generate()
 	if (m_eAOMethod == AOMETHOD_RAYTRACE)
 	{
 		pTracer = new raytrace::CRaytracer(m_pScene);
+		pTracer->BuildTree();
 	}
 
 	m_flLowestValue = -1;
@@ -989,3 +990,37 @@ bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 
 	return true;
 }
+
+#ifdef _DEBUG
+void DrawSplit(const raytrace::CKDNode* pNode)
+{
+	// No children, no split.
+	if (!pNode->GetLeftChild())
+		return;
+
+	AABB oBox = pNode->GetBounds();
+	size_t iSplitAxis = pNode->GetSplitAxis();
+	float flSplitPos = pNode->GetSplitPos();
+
+	// Construct four points that are the corners or a rectangle representing this portal split.
+	Vector v0 = oBox.m_vecMins;
+	v0[iSplitAxis] = flSplitPos;
+	Vector v1 = v0;
+	v1[(iSplitAxis+1)%3] = oBox.m_vecMaxs[(iSplitAxis+1)%3];
+	Vector v2 = v0;
+	v2[(iSplitAxis+1)%3] = oBox.m_vecMaxs[(iSplitAxis+1)%3];
+	v2[(iSplitAxis+2)%3] = oBox.m_vecMaxs[(iSplitAxis+2)%3];
+	Vector v3 = v0;
+	v3[(iSplitAxis+2)%3] = oBox.m_vecMaxs[(iSplitAxis+2)%3];
+
+	CModelWindow::Get()->AddDebugLine(v0, v1);
+	CModelWindow::Get()->AddDebugLine(v1, v2);
+	CModelWindow::Get()->AddDebugLine(v2, v3);
+	CModelWindow::Get()->AddDebugLine(v3, v0);
+
+	if (pNode->GetLeftChild())
+		DrawSplit(pNode->GetLeftChild());
+	if (pNode->GetRightChild())
+		DrawSplit(pNode->GetRightChild());
+}
+#endif
