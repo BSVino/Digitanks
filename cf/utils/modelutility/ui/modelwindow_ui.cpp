@@ -648,6 +648,7 @@ void CHelpPanel::Layout()
 	m_pInfo->SetText("CONTROLS:\n");
 	m_pInfo->AppendText("Left Mouse Button - Move the camera\n");
 	m_pInfo->AppendText("Right Mouse Button - Zoom in and out\n");
+	m_pInfo->AppendText("Ctrl-LMB - Rotate the light\n");
 	m_pInfo->AppendText(" \n");
 	m_pInfo->AppendText("For in-depth help information please visit our website, http://www.matreyastudios.com/smak\n");
 
