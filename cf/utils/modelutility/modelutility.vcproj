@@ -26,8 +26,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="if exist &quot;\Program Files\SMAK\smak.exe&quot; attrib -r &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;smak.exe copy &quot;$(TargetDir)&quot;smak.exe &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;"
-				Outputs="\Program Files\SMAK\smak.exe"
+				CommandLine="if exist &quot;install\smak.exe&quot; attrib -r &quot;install\smak.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;smak.exe copy &quot;$(TargetDir)&quot;smak.exe &quot;install\smak.exe&quot;&#x0D;&#x0A;"
+				Outputs="install\smak.exe"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -106,8 +106,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="if exist &quot;\Program Files\SMAK\smak.exe&quot; attrib -r &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;smak.exe copy &quot;$(TargetDir)&quot;smak.exe &quot;\Program Files\SMAK\smak.exe&quot;&#x0D;&#x0A;"
-				Outputs="\Program Files\SMAK\smak.exe"
+				CommandLine="if exist &quot;install\smak.exe&quot; attrib -r &quot;install\smak.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;smak.exe copy &quot;$(TargetDir)&quot;smak.exe &quot;install\smak.exe&quot;&#x0D;&#x0A;"
+				Outputs="install\smak.exe"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
