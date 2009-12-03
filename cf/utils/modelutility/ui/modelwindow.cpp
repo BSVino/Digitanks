@@ -62,6 +62,16 @@ CModelWindow::CModelWindow()
 
 	glutCreateWindow("SMAK - Super Model Army Knife");
 
+	ilInit();
+
+	size_t iTexture = LoadTextureIntoGL(L"lighthalo.png");
+	if (iTexture)
+		m_pLightHalo = new CMaterial(iTexture);
+
+	iTexture = LoadTextureIntoGL(L"lightbeam.png");
+	if (iTexture)
+		m_pLightBeam = new CMaterial(iTexture);
+
 	InitUI();
 
 	SetRenderMode(false);
@@ -103,16 +113,6 @@ CModelWindow::CModelWindow()
 	glLightfv(GL_LIGHT0, GL_SPECULAR, flLightSpecular);
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1f);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05f);
-
-	ilInit();
-
-	size_t iTexture = LoadTextureIntoGL(L"lighthalo.png");
-	if (iTexture)
-		m_pLightHalo = new CMaterial(iTexture);
-
-	iTexture = LoadTextureIntoGL(L"lightbeam.png");
-	if (iTexture)
-		m_pLightBeam = new CMaterial(iTexture);
 }
 
 CModelWindow::~CModelWindow()
