@@ -31,6 +31,7 @@ void CModelWindow::InitUI()
 	pTools->AddSubmenu("Generate AO map", this, GenerateAO);
 	pTools->AddSubmenu("Generate color AO map", this, GenerateColorAO);
 
+	pHelp->AddSubmenu("Help", this, Help);
 	pHelp->AddSubmenu("About SMAK", this, About);
 
 	CButtonPanel* pTopButtons = new CButtonPanel(BA_TOP);
@@ -166,9 +167,19 @@ void CModelWindow::GenerateColorAOCallback()
 	CAOPanel::Open(true, &m_Scene, &m_aoMaterials);
 }
 
+void CModelWindow::HelpCallback()
+{
+	OpenHelpPanel();
+}
+
 void CModelWindow::AboutCallback()
 {
 	OpenAboutPanel();
+}
+
+void CModelWindow::OpenHelpPanel()
+{
+	CHelpPanel::Open();
 }
 
 void CModelWindow::OpenAboutPanel()
@@ -334,7 +345,7 @@ CAOPanel* CAOPanel::s_pAOPanel = NULL;
 CAOPanel* CAOPanel::s_pColorAOPanel = NULL;
 
 CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
-	: CMovablePanel(bColor?"Color AO generator":"AO generator"), m_oGenerator(bColor?AOMETHOD_RENDER:AOMETHOD_RAYTRACE, pScene, paoMaterials)
+	: CMovablePanel(bColor?"Color AO generator":"AO generator"), m_oGenerator(pScene, paoMaterials)
 {
 	m_bColor = bColor;
 
@@ -342,9 +353,9 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	m_paoMaterials = paoMaterials;
 
 	if (m_bColor)
-		SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight()*2 - 150);
+		SetPos(GetParent()->GetWidth() - GetWidth() - 50, GetParent()->GetHeight() - GetHeight() - 150);
 	else
-		SetPos(GetParent()->GetWidth() - GetWidth() - 100, GetParent()->GetHeight() - GetHeight() - 100);
+		SetPos(GetParent()->GetWidth() - GetWidth() - 200, GetParent()->GetHeight() - GetHeight() - 100);
 
 	m_pSizeLabel = new CLabel(0, 0, 32, 32, "Size");
 	AddControl(m_pSizeLabel);
@@ -380,6 +391,35 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	m_pEdgeBleedSelector->SetSelection(5);
 	AddControl(m_pEdgeBleedSelector);
 
+	if (!m_bColor)
+	{
+		m_pAOMethodLabel = new CLabel(0, 0, 32, 32, "Method");
+		AddControl(m_pAOMethodLabel);
+
+		m_pAOMethodSelector = new CScrollSelector<int>();
+		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_RAYTRACE, L"Raytraced"));
+		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_TRIDISTANCE, L"Tri distance"));
+		m_pAOMethodSelector->SetSelectedListener(this, AOMethod);
+		AddControl(m_pAOMethodSelector);
+
+		m_pRayDensityLabel = new CLabel(0, 0, 32, 32, "Ray Density");
+		AddControl(m_pRayDensityLabel);
+
+		m_pRayDensitySelector = new CScrollSelector<int>();
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(15, L"15"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(16, L"16"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(17, L"17"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(18, L"18"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(19, L"19"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(20, L"20"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(21, L"21"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(22, L"22"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(23, L"23"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(24, L"24"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(25, L"25"));
+		AddControl(m_pRayDensitySelector);
+	}
+
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
 	AddControl(m_pGenerate);
 
@@ -411,6 +451,32 @@ void CAOPanel::Layout()
 
 	m_pEdgeBleedSelector->SetSize(GetWidth() - m_pEdgeBleedLabel->GetWidth() - iSpace, m_pEdgeBleedLabel->GetHeight());
 	m_pEdgeBleedSelector->SetPos(GetWidth() - m_pEdgeBleedSelector->GetWidth() - iSpace/2, iControlY);
+
+	if (!m_bColor)
+	{
+		iControlY -= 40;
+
+		m_pAOMethodLabel->EnsureTextFits();
+		m_pAOMethodLabel->SetPos(5, iControlY);
+
+		m_pAOMethodSelector->SetSize(GetWidth() - m_pAOMethodLabel->GetWidth() - iSpace, m_pAOMethodLabel->GetHeight());
+		m_pAOMethodSelector->SetPos(GetWidth() - m_pAOMethodSelector->GetWidth() - iSpace/2, iControlY);
+
+		bool bRaytracing = (m_pAOMethodSelector->GetSelectionValue() == AOMETHOD_RAYTRACE);
+		m_pRayDensityLabel->SetVisible(bRaytracing);
+		m_pRayDensitySelector->SetVisible(bRaytracing);
+
+		if (bRaytracing)
+		{
+			iControlY -= 40;
+
+			m_pRayDensityLabel->EnsureTextFits();
+			m_pRayDensityLabel->SetPos(5, iControlY);
+
+			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, m_pRayDensityLabel->GetHeight());
+			m_pRayDensitySelector->SetPos(GetWidth() - m_pRayDensitySelector->GetWidth() - iSpace/2, iControlY);
+		}
+	}
 
 	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
 	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8+GetWidth()/6+10);
@@ -448,10 +514,13 @@ void CAOPanel::GenerateCallback()
 	m_pGenerate->SetText("Cancel");
 
 	int iSize = m_pSizeSelector->GetSelectionValue();
+	m_oGenerator.SetMethod(m_bColor?AOMETHOD_RENDER:(aomethod_t)m_pAOMethodSelector->GetSelectionValue());
 	m_oGenerator.SetSize(iSize, iSize);
 	m_oGenerator.SetBleed(m_pEdgeBleedSelector->GetSelectionValue());
 	m_oGenerator.SetUseTexture(true);
 	m_oGenerator.SetWorkListener(this);
+	if (!m_bColor)
+		m_oGenerator.SetSamples(m_pRayDensitySelector->GetSelectionValue());
 	m_oGenerator.Generate();
 
 	size_t iAO;
@@ -544,6 +613,77 @@ void CAOPanel::SetVisible(bool bVisible)
 	m_oGenerator.StopGenerating();
 
 	CMovablePanel::SetVisible(bVisible);
+}
+
+void CAOPanel::AOMethodCallback()
+{
+	// So we can appear/disappear the ray density bar if the AO method has changed.
+	Layout();
+}
+
+CHelpPanel* CHelpPanel::s_pHelpPanel = NULL;
+
+CHelpPanel::CHelpPanel()
+	: CMovablePanel("Help")
+{
+	m_pInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pInfo);
+	Layout();
+}
+
+void CHelpPanel::Layout()
+{
+	if (GetParent())
+	{
+		int px, py, pw, ph;
+		GetParent()->GetAbsDimensions(px, py, pw, ph);
+
+		SetSize(600, 200);
+		SetPos(pw/2 - GetWidth()/2, ph/2 - GetHeight()/2);
+	}
+
+	m_pInfo->SetSize(GetWidth(), GetHeight());
+	m_pInfo->SetPos(0, 0);
+
+	m_pInfo->SetText("CONTROLS:\n");
+	m_pInfo->AppendText("Left Mouse Button - Move the camera\n");
+	m_pInfo->AppendText("Right Mouse Button - Zoom in and out\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("For in-depth help information please visit our website, http://www.matreyastudios.com/smak\n");
+
+	CMovablePanel::Layout();
+}
+
+void CHelpPanel::Paint(int x, int y, int w, int h)
+{
+	CMovablePanel::Paint(x, y, w, h);
+}
+
+bool CHelpPanel::MousePressed(int iButton, int mx, int my)
+{
+	if (CMovablePanel::MousePressed(iButton, mx, my))
+		return true;
+
+	Close();
+
+	return true;
+}
+
+void CHelpPanel::Open()
+{
+	if (!s_pHelpPanel)
+		s_pHelpPanel = new CHelpPanel();
+
+	s_pHelpPanel->SetVisible(true);
+	s_pHelpPanel->Layout();
+}
+
+void CHelpPanel::Close()
+{
+	if (!s_pHelpPanel)
+		return;
+
+	s_pHelpPanel->SetVisible(false);
 }
 
 CAboutPanel* CAboutPanel::s_pAboutPanel = NULL;

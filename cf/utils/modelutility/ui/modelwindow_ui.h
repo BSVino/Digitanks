@@ -79,6 +79,7 @@ public:
 
 	EVENT_CALLBACK(CAOPanel, Generate);
 	EVENT_CALLBACK(CAOPanel, SaveMap);
+	EVENT_CALLBACK(CAOPanel, AOMethod);
 
 	static void				Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 
@@ -96,11 +97,36 @@ protected:
 	CLabel*					m_pEdgeBleedLabel;
 	CScrollSelector<int>*	m_pEdgeBleedSelector;
 
+	CLabel*					m_pAOMethodLabel;
+	CScrollSelector<int>*	m_pAOMethodSelector;
+
+	CLabel*					m_pRayDensityLabel;
+	CScrollSelector<int>*	m_pRayDensitySelector;
+
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;
 
 	static CAOPanel*		s_pAOPanel;
 	static CAOPanel*		s_pColorAOPanel;
+};
+
+class CHelpPanel : public CMovablePanel
+{
+public:
+							CHelpPanel();
+
+	virtual void			Layout();
+	virtual void			Paint(int x, int y, int w, int h);
+
+	virtual bool			MousePressed(int iButton, int mx, int my);
+
+	static void				Open();
+	static void				Close();
+
+protected:
+	CLabel*					m_pInfo;
+
+	static CHelpPanel*		s_pHelpPanel;
 };
 
 class CAboutPanel : public CMovablePanel

@@ -99,12 +99,14 @@ public:
 	EVENT_CALLBACK(CModelWindow, ColorAOToggle);
 	EVENT_CALLBACK(CModelWindow, GenerateAO);
 	EVENT_CALLBACK(CModelWindow, GenerateColorAO);
+	EVENT_CALLBACK(CModelWindow, Help);
 	EVENT_CALLBACK(CModelWindow, About);
 
 	size_t					GetNextObjectId();
 
 	wchar_t*				OpenFileDialog();
 	wchar_t*				SaveFileDialog(wchar_t* pszFileTypes);
+	void					OpenHelpPanel();
 	void					OpenAboutPanel();
 
 	// UI

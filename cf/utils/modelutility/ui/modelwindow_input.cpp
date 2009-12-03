@@ -15,7 +15,7 @@ void CModelWindow::MouseDragged(int x, int y)
 	{
 		if (m_bCameraDollying)
 		{
-			m_flCameraUVZoom += (float)(y - m_iMouseStartY)/100;
+			m_flCameraUVZoom += (float)(m_iMouseStartY - y)/100;
 
 			if (m_flCameraUVZoom < 0.01f)
 				m_flCameraUVZoom = 0.01f;

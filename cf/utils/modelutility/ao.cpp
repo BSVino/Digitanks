@@ -19,9 +19,9 @@
 #include "ui/modelwindow.h"
 #endif
 
-CAOGenerator::CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
+CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
-	m_eAOMethod = eMethod;
+	m_eAOMethod = AOMETHOD_NONE;
 	m_pScene = pScene;
 	m_paoMaterials = paoMaterials;
 
@@ -34,7 +34,7 @@ CAOGenerator::CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::ve
 	SetSize(512, 512);
 	m_bUseTexture = true;
 	m_iBleed = 5;
-	m_iSamples = 8;
+	m_iSamples = 15;
 	SetRenderPreviewViewport(0, 0, 100, 100);
 	SetUseFrontBuffer(false);
 
@@ -146,7 +146,7 @@ void CAOGenerator::RenderSetupScene()
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);
 
-			if (pFace->m != 0 && pFace->m != ~0)
+			if (pFace->m != ~0)
 				continue;
 
 			glBegin(GL_TRIANGLE_FAN);
@@ -206,6 +206,9 @@ void CAOGenerator::RenderSetupScene()
 
 void CAOGenerator::Generate()
 {
+	if (!m_eAOMethod)
+		return;
+
 	m_bIsGenerating = true;
 	m_bStopGenerating = false;
 	m_bDoneGenerating = false;
@@ -280,10 +283,16 @@ void CAOGenerator::Generate()
 				if (vt3.y > vecHiUV.y)
 					vecHiUV.y = vt3.y;
 
-				size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
-				size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
-				size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
-				size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
+				size_t iLoX = (size_t)(vecLoUV.x * m_iWidth + 0.5f);	// Add 0.5f so it rounds instead of truncating.
+				size_t iLoY = (size_t)(vecLoUV.y * m_iHeight + 0.5f);
+				size_t iHiX = (size_t)(vecHiUV.x * m_iWidth + 0.5f);
+				size_t iHiY = (size_t)(vecHiUV.y * m_iHeight + 0.5f);
+
+				// Make sure adding 0.5f didn't put us out of the texture
+				if (iHiX > m_iWidth - 1)
+					iHiX = m_iWidth - 1;
+				if (iHiY > m_iHeight - 1)
+					iHiY = m_iHeight - 1;
 
 				for (size_t i = iLoX; i <= iHiX; i++)
 				{
@@ -692,7 +701,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 	glColor4fv(flMaterialColor);
 
 	// Draw the dark insides
-	glCallList(m_iSceneList);
+	//glCallList(m_iSceneList);
 
 	// Draw polyons without materials
 	glCallList(m_iSceneList+1);
@@ -981,7 +990,11 @@ bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 	if (w < 0 || h < 0 || w >= m_iWidth || h >= m_iHeight)
 		return false;
 
-	iTexel = m_iHeight*(m_iHeight-h-1) + w;
+	float flW = (float)w;
+	float flH = (float)h;
+
+	size_t iRow = m_iHeight-h-1;
+	iTexel = m_iHeight*iRow + w;
 
 	assert(iTexel >= 0 && iTexel < m_iWidth * m_iHeight);
 

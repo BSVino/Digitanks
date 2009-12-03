@@ -14,6 +14,7 @@ public:
 
 typedef enum
 {
+	AOMETHOD_NONE = 0,
 	AOMETHOD_RENDER,
 	AOMETHOD_TRIDISTANCE,
 	AOMETHOD_RAYTRACE,
@@ -22,9 +23,11 @@ typedef enum
 class CAOGenerator
 {
 public:
-							CAOGenerator(aomethod_t eMethod, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+							CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 							~CAOGenerator();
 
+public:
+	void					SetMethod(aomethod_t eMethod) { m_eAOMethod = eMethod; };
 	void					SetSize(size_t iWidth, size_t iHeight);
 	void					SetUseTexture(bool bUseTexture) { m_bUseTexture = bUseTexture; };
 	void					SetBleed(size_t iBleed) { m_iBleed = iBleed; };

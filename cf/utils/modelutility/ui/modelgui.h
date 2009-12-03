@@ -664,7 +664,13 @@ namespace modelgui
 			m_flHandlePosition = 0;
 			m_bMovingHandle = false;
 
+			m_iSelection = 0;
+
+			m_pfnSelectedCallback = NULL;
+			m_pSelectedListener = NULL;
+
 			m_pOption = new CLabel(0, 0, 100, 100, "");
+			m_pOption->SetWrap(false);
 			AddControl(m_pOption);
 		}
 
@@ -696,6 +702,13 @@ namespace modelgui
 
 			int iSelection = SelectionByHandle();
 			m_pOption->SetText(m_aSelections[iSelection].m_sLabel.c_str());
+
+			if (iSelection != m_iSelection)
+			{
+				m_iSelection = iSelection;
+				if (m_pSelectedListener)
+					m_pfnSelectedCallback(m_pSelectedListener);
+			}
 		}
 
 #define HANDLE_SIZE 8
@@ -729,6 +742,9 @@ namespace modelgui
 			{
 				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x, (float)(x + w), 0.0f, 1.0f);
 				m_iSelection = SelectionByHandle();
+
+				if (m_pSelectedListener)
+					m_pfnSelectedCallback(m_pSelectedListener);
 			}
 
 			return true;
@@ -758,6 +774,9 @@ namespace modelgui
 			m_bMovingHandle = false;
 
 			m_iSelection = SelectionByHandle();
+
+			if (m_pSelectedListener)
+				m_pfnSelectedCallback(m_pSelectedListener);
 		}
 
 		virtual void AddSelection(CScrollSelection<T>& oSelection)
@@ -769,6 +788,9 @@ namespace modelgui
 		{
 			m_iSelection = i;
 			m_flHandlePositionGoal = m_flHandlePosition = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
+
+			if (m_pSelectedListener)
+				m_pfnSelectedCallback(m_pSelectedListener);
 		}
 
 		virtual T GetSelectionValue()
@@ -805,6 +827,12 @@ namespace modelgui
 			return y+h/2-HANDLE_SIZE/2;
 		}
 
+		void SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+		{
+			m_pfnSelectedCallback = pfnCallback;
+			m_pSelectedListener = pListener;
+		}
+
 	protected:
 		std::vector<CScrollSelection<T>>	m_aSelections;
 
@@ -816,6 +844,9 @@ namespace modelgui
 		float								m_flHandlePositionGoal;
 
 		bool								m_bMovingHandle;
+
+		IEventListener::Callback			m_pfnSelectedCallback;
+		IEventListener*						m_pSelectedListener;
 	};
 
 };
