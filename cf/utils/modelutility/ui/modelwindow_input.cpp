@@ -1,5 +1,7 @@
 #include "modelwindow.h"
 
+#include <GL/glut.h>
+
 #include "../crunch.h"
 #include "modelgui.h"
 #include "modelwindow_ui.h"

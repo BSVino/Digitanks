@@ -297,4 +297,28 @@ inline EAngle VectorAngles( const Vector& vecForward )
 	return angReturn;
 }
 
+class Vector4D
+{
+public:
+			Vector4D();
+			Vector4D(unit_t x, unit_t y, unit_t z, unit_t w);
+
+	operator float*()
+	{
+		return(&x);
+	}
+
+	unit_t	x, y, z, w;
+};
+
+inline Vector4D::Vector4D()
+	: x(0), y(0), z(0), w(0)
+{
+}
+
+inline Vector4D::Vector4D(unit_t X, unit_t Y, unit_t Z, unit_t W)
+	: x(X), y(Y), z(Z), w(W)
+{
+}
+
 #endif

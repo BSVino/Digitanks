@@ -118,10 +118,70 @@ void CConversionMesh::TranslateOrigin()
 	m_vecOrigin = Vector(0,0,0);
 }
 
+void CConversionMesh::CalculateExtends()
+{
+	if (!GetNumVertices())
+	{
+		m_oExtends = AABB();
+		return;
+	}
+
+	Vector vecMins = m_aVertices[0];
+	Vector vecMaxs = m_aVertices[0];
+
+	for (size_t iVertex = 0; iVertex < GetNumVertices(); iVertex++)
+	{
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (m_aVertices[iVertex][i] < vecMins[i])
+				vecMins[i] = m_aVertices[iVertex][i];
+			if (m_aVertices[iVertex][i] > vecMaxs[i])
+				vecMaxs[i] = m_aVertices[iVertex][i];
+		}
+	}
+
+	m_oExtends = AABB(vecMins, vecMaxs);
+}
+
 void CConversionScene::DestroyAll()
 {
 	m_aMaterials.clear();
 	m_aMeshes.clear();
+}
+
+void CConversionScene::CalculateExtends()
+{
+	if (!GetNumMeshes())
+	{
+		m_oExtends = AABB();
+		return;
+	}
+
+	Vector vecMins;
+	Vector vecMaxs;
+
+	size_t m;
+	for (m = 0; m < GetNumMeshes(); m++)
+	{
+		GetMesh(m)->CalculateExtends();
+		if (m == 0)
+		{
+			vecMins = GetMesh(m)->m_oExtends.m_vecMins;
+			vecMaxs = GetMesh(m)->m_oExtends.m_vecMaxs;
+		}
+		else
+		{
+			for (size_t i = 0; i < 3; i++)
+			{
+				if (GetMesh(m)->m_oExtends.m_vecMins[i] < vecMins[i])
+					vecMins[i] = GetMesh(m)->m_oExtends.m_vecMins[i];
+				if (GetMesh(m)->m_oExtends.m_vecMaxs[i] > vecMaxs[i])
+					vecMaxs[i] = GetMesh(m)->m_oExtends.m_vecMaxs[i];
+			}
+		}
+	}
+
+	m_oExtends = AABB(vecMins, vecMaxs);
 }
 
 size_t CConversionScene::AddMaterial(const wchar_t* pszName)

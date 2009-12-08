@@ -844,8 +844,8 @@ void CModelWindow::RenderUV()
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
 			glEnable(GL_TEXTURE_2D);
-			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		}
 		else
 		{
@@ -858,8 +858,8 @@ void CModelWindow::RenderUV()
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
 			glEnable(GL_TEXTURE_2D);
-			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		}
 		else
 		{
@@ -872,8 +872,8 @@ void CModelWindow::RenderUV()
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
 			glEnable(GL_TEXTURE_2D);
-			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		}
 		else
 		{
@@ -885,8 +885,8 @@ void CModelWindow::RenderUV()
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	}
 
 	if (!pMaterial)

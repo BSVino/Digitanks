@@ -4,8 +4,6 @@
 #include <modelconverter/convmesh.h>
 #include "ui/modelwindow.h"
 
-#include <GL/glut.h>
-
 class IWorkListener
 {
 public:
@@ -18,6 +16,7 @@ typedef enum
 	AOMETHOD_RENDER,
 	AOMETHOD_TRIDISTANCE,
 	AOMETHOD_RAYTRACE,
+	AOMETHOD_SHADOWMAP,
 } aomethod_t;
 
 class CAOGenerator
@@ -37,8 +36,11 @@ public:
 
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
+	void					ShadowMapSetupScene();
 	void					RenderSetupScene();
 	void					Generate();
+	void					GenerateShadowMaps();
+	void					GenerateByTexel();
 	Vector					RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pFace);
 	void					DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace);
 	void					Bleed();
@@ -71,10 +73,10 @@ protected:
 	IWorkListener*			m_pWorkListener;
 
 	size_t					m_iPixelDepth;
-	GLfloat*				m_pPixels;
+	float*					m_pPixels;
 	bool*					m_bPixelMask;
 
-	GLuint					m_iSceneList;
+	unsigned int			m_iSceneList;
 
 	Vector*					m_avecShadowValues;
 	size_t*					m_aiShadowReads;

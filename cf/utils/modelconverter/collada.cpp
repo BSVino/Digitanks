@@ -190,6 +190,8 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 	pDoc->Release();
 
 	FCollada::Release();
+
+	m_pScene->CalculateExtends();
 }
 
 #else

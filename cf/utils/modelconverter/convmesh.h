@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "vector.h"
+#include "geometry.h"
 
 // These belong specifically to a face and are never shared.
 class CConversionVertex
@@ -113,6 +114,7 @@ public:
 	void							CalculateEdgeData();
 	void							CalculateVertexNormals();
 	void							TranslateOrigin();
+	void							CalculateExtends();
 
 	wchar_t*						GetName() { return m_szName; };
 
@@ -157,12 +159,15 @@ public:
 	std::vector<CConversionFace>	m_aFaces;
 
 	Vector							m_vecOrigin;
+	AABB							m_oExtends;
 };
 
 class CConversionScene
 {
 public:
 	void								DestroyAll();
+
+	void								CalculateExtends();
 
 	size_t								AddMaterial(const wchar_t* pszName);
 	size_t								AddMaterial(CConversionMaterial& oMaterial);
@@ -178,6 +183,8 @@ public:
 
 	std::vector<CConversionMesh>		m_aMeshes;
 	std::vector<CConversionMaterial>	m_aMaterials;
+
+	AABB								m_oExtends;
 };
 
 #endif

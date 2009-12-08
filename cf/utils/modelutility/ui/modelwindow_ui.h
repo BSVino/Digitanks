@@ -103,6 +103,9 @@ protected:
 	CLabel*					m_pRayDensityLabel;
 	CScrollSelector<int>*	m_pRayDensitySelector;
 
+	CLabel*					m_pLightsLabel;
+	CScrollSelector<int>*	m_pLightsSelector;
+
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;
 

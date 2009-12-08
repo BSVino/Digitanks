@@ -397,6 +397,7 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		AddControl(m_pAOMethodLabel);
 
 		m_pAOMethodSelector = new CScrollSelector<int>();
+		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_SHADOWMAP, L"Shadow map"));
 		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_RAYTRACE, L"Raytraced"));
 		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_TRIDISTANCE, L"Tri distance"));
 		m_pAOMethodSelector->SetSelectedListener(this, AOMethod);
@@ -418,6 +419,19 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(24, L"24"));
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(25, L"25"));
 		AddControl(m_pRayDensitySelector);
+
+		m_pLightsLabel = new CLabel(0, 0, 32, 32, "Lights");
+		AddControl(m_pLightsLabel);
+
+		m_pLightsSelector = new CScrollSelector<int>();
+		m_pLightsSelector->AddSelection(CScrollSelection<int>(500, L"500"));
+		m_pLightsSelector->AddSelection(CScrollSelection<int>(1000, L"1000"));
+		m_pLightsSelector->AddSelection(CScrollSelection<int>(1500, L"1500"));
+		m_pLightsSelector->AddSelection(CScrollSelection<int>(2000, L"2000"));
+		m_pLightsSelector->AddSelection(CScrollSelection<int>(2500, L"2500"));
+		m_pLightsSelector->AddSelection(CScrollSelection<int>(3000, L"3000"));
+		m_pLightsSelector->SetSelection(3);
+		AddControl(m_pLightsSelector);
 	}
 
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
@@ -476,6 +490,21 @@ void CAOPanel::Layout()
 			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, m_pRayDensityLabel->GetHeight());
 			m_pRayDensitySelector->SetPos(GetWidth() - m_pRayDensitySelector->GetWidth() - iSpace/2, iControlY);
 		}
+
+		bool bShadowmapping = (m_pAOMethodSelector->GetSelectionValue() == AOMETHOD_SHADOWMAP);
+		m_pLightsLabel->SetVisible(bShadowmapping);
+		m_pLightsSelector->SetVisible(bShadowmapping);
+
+		if (bShadowmapping)
+		{
+			iControlY -= 40;
+
+			m_pLightsLabel->EnsureTextFits();
+			m_pLightsLabel->SetPos(5, iControlY);
+
+			m_pLightsSelector->SetSize(GetWidth() - m_pLightsLabel->GetWidth() - iSpace, m_pLightsLabel->GetHeight());
+			m_pLightsSelector->SetPos(GetWidth() - m_pLightsSelector->GetWidth() - iSpace/2, iControlY);
+		}
 	}
 
 	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
@@ -520,7 +549,12 @@ void CAOPanel::GenerateCallback()
 	m_oGenerator.SetUseTexture(true);
 	m_oGenerator.SetWorkListener(this);
 	if (!m_bColor)
-		m_oGenerator.SetSamples(m_pRayDensitySelector->GetSelectionValue());
+	{
+		if (m_pAOMethodSelector->GetSelectionValue() == AOMETHOD_SHADOWMAP)
+			m_oGenerator.SetSamples(m_pLightsSelector->GetSelectionValue());
+		else
+			m_oGenerator.SetSamples(m_pRayDensitySelector->GetSelectionValue());
+	}
 	m_oGenerator.Generate();
 
 	size_t iAO;

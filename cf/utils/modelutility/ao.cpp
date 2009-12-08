@@ -3,11 +3,14 @@
 #include <assert.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <GL/glew.h>
+#include <GL/glut.h>
 
 #include <geometry.h>
 #include <maths.h>
 #include <matrix.h>
 #include <raytracer/raytracer.h>
+#include "shaders/shaders.h"
 
 #if 0
 #ifdef _DEBUG
@@ -17,6 +20,8 @@
 
 #ifdef AO_DEBUG
 #include "ui/modelwindow.h"
+
+void DrawTexture(GLuint iTexture);
 #endif
 
 CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
@@ -91,6 +96,50 @@ void CAOGenerator::SetRenderPreviewViewport(int x, int y, int w, int h)
 	m_iPixelDepth = 3;
 	size_t iBufferSize = m_iRPVW*m_iRPVH*sizeof(GLfloat)*m_iPixelDepth;
 	m_pPixels = (GLfloat*)malloc(iBufferSize);
+}
+
+void CAOGenerator::ShadowMapSetupScene()
+{
+	// Tuck away our current stack so we can return to it later.
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// Create a list with the required polys so it draws quicker.
+	m_iSceneList = glGenLists(1);
+
+	glNewList(m_iSceneList, GL_COMPILE);
+
+	// Overload the render preview viewport as a method for storing our pixels.
+	SetRenderPreviewViewport(0, 0, (int)m_iWidth, (int)m_iHeight);
+
+	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
+		{
+			CConversionFace* pFace = pMesh->GetFace(f);
+
+			glBegin(GL_POLYGON);
+
+			for (size_t k = 0; k < pFace->GetNumVertices(); k++)
+			{
+				// Translate here so it takes up the whole viewport when flattened by the shader.
+				Vector vecUV = pMesh->GetUV(pFace->GetVertex(k)->vt) * 2 - Vector(1,1,1);
+				vecUV.y = -vecUV.y;
+				glTexCoord2fv(vecUV);
+				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k)->v));
+			}
+
+			glEnd();
+		}
+	}
+
+	glEndList();
 }
 
 void CAOGenerator::RenderSetupScene()
@@ -213,25 +262,342 @@ void CAOGenerator::Generate()
 	m_bStopGenerating = false;
 	m_bDoneGenerating = false;
 
+	m_flLowestValue = -1;
+	m_flHighestValue = 0;
+
 #ifdef AO_DEBUG
 	CModelWindow::Get()->ClearDebugLines();
 #endif
 
+	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
+
+	if (m_eAOMethod == AOMETHOD_SHADOWMAP)
+	{
+		if (!GLEW_ARB_shadow || !GLEW_ARB_depth_texture || !GLEW_ARB_vertex_shader)
+		{
+			// Message here?
+			return;
+		}
+
+		ShadowMapSetupScene();
+		GenerateShadowMaps();
+	}
+	else
+	{
+		if (m_eAOMethod == AOMETHOD_RENDER)
+			RenderSetupScene();
+#ifdef AO_DEBUG
+		// In AO debug mode we need this to do the debug rendering, so do it anyways.
+		else
+			RenderSetupScene();
+#endif
+
+		GenerateByTexel();
+	}
+
+	size_t i;
+
+	// Average out all of the reads.
+	for (i = 0; i < m_iWidth*m_iHeight; i++)
+	{
+		// Don't immediately return, just skip this loop. We have cleanup work to do.
+		if (m_bStopGenerating)
+			break;
+
+		if (m_eAOMethod == AOMETHOD_TRIDISTANCE)
+		{
+			if (m_aiShadowReads[i])
+			{
+				// Scale us so that the lowest read value (most light) is 1 and the highest read value (least light) is 0.
+				float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, m_flLowestValue, m_flHighestValue, 1, 0);
+
+				m_avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
+			}
+		}
+
+		if (m_aiShadowReads[i])
+			m_avecShadowValues[i] /= (float)m_aiShadowReads[i];
+		else
+			m_avecShadowValues[i] = Vector(0,0,0);
+	}
+
+	if (m_eAOMethod == AOMETHOD_RENDER || m_eAOMethod == AOMETHOD_SHADOWMAP)
+	{
+		if (m_eAOMethod == AOMETHOD_RENDER)
+			glDeleteLists(m_iSceneList, (GLsizei)m_paoMaterials->size()+1);
+		else
+			glDeleteLists(m_iSceneList, 1);
+
+		// We now return you to our normal render programming. Thank you for your patronage.
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
+
+	if (!m_bStopGenerating)
+		Bleed();
+
+	if (!m_bStopGenerating)
+		m_bDoneGenerating = true;
+	m_bIsGenerating = false;
+
+	// One last call to let them know we're done.
+	if (m_pWorkListener)
+		m_pWorkListener->WorkProgress();
+}
+
+void CAOGenerator::GenerateShadowMaps()
+{
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	// Clear red so that we can pick out later what we want when we're reading pixels.
+	glClearColor(1, 0, 0, 0);
+
+	// Shading states
+	glColor4f(1, 1, 1, 1);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	// Depth states
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+
+	glDisable(GL_CULL_FACE);
+
+	GLsizei iShadowMapSize = 512;
+
+	GLuint iShadowMap;
+	glGenTextures(1, &iShadowMap);
+	glBindTexture(GL_TEXTURE_2D, iShadowMap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, iShadowMapSize, iShadowMapSize, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+
+	GLuint iVertexShader = glCreateShader(GL_VERTEX_SHADER);
+	const char* pszShaderSource = GetVSFlattenedShadowMap();
+	glShaderSource(iVertexShader, 1, &pszShaderSource, NULL);
+	glCompileShader(iVertexShader);
+
+#ifdef _DEBUG
+	int iLogLength = 0;
+	char szLog[1024];
+	glGetShaderInfoLog(iVertexShader, 1024, &iLogLength, szLog);
+#endif
+
+	GLuint iFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	pszShaderSource = GetFSFlattenedShadowMap();
+	glShaderSource(iFragmentShader, 1, &pszShaderSource, NULL);
+	glCompileShader(iFragmentShader);
+
+#ifdef _DEBUG
+	szLog[0] = '\0';
+	glGetShaderInfoLog(iVertexShader, 1024, &iLogLength, szLog);
+#endif
+
+	GLuint iProgram = glCreateProgram();
+	glAttachShader(iProgram, iVertexShader);
+	glAttachShader(iProgram, iFragmentShader);
+	glLinkProgram(iProgram);
+
+#ifdef _DEBUG
+	szLog[0] = '\0';
+	glGetProgramInfoLog(iVertexShader, 1024, &iLogLength, szLog);
+#endif
+
+	GLuint iShadowMapUniform = glGetUniformLocation(iProgram, "iShadowMap");
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glMatrixMode(GL_TEXTURE);
+	glPushMatrix();
+
+	Matrix4x4 mLightProjection;
+	
+	// Use column major because OpenGL does.
+	Matrix4x4 mBias(
+	0.5f, 0.0f, 0.0f, 0.0f,
+	0.0f, 0.5f, 0.0f, 0.0f,
+	0.0f, 0.0f, 0.5f, 0.0f,
+	0.499f, 0.499f, 0.499f, 1.0f); // Bias from [-1, 1] to [0, 1]
+
+	AABB oBox = m_pScene->m_oExtends;
+	Vector vecCenter = oBox.Center();
+	float flSize = oBox.Size().Length();	// Length of the box's diagonal
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-flSize/2, flSize/2, -flSize/2, flSize/2, 1, flSize*2);
+	//gluPerspective(45, 1, 1, flSize*2);
+	glGetFloatv(GL_PROJECTION_MATRIX, mLightProjection);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	size_t iSamples = (size_t)sqrt((float)m_iSamples);
+
+	for (size_t x = 0; x <= iSamples; x++)
+	{
+		float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)iSamples, -M_PI/2, M_PI/2)), 0, 1, 90, 0);
+		if (x < iSamples/2)
+			flPitch = -flPitch;
+
+		for (size_t y = 0; y < iSamples; y++)
+		{
+			if (x == 0 || x == iSamples)
+			{
+				// Don't do a bunch of samples from the same spot on the poles.
+				if (y != 0)
+					continue;
+			}
+
+			glDrawBuffer(GL_AUX1);
+			glReadBuffer(GL_AUX1);
+
+			glViewport(0, 0, iShadowMapSize, iShadowMapSize);
+
+			float flYaw = RemapVal((float)y, 0, (float)iSamples, -180, 180);
+
+			Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
+			Vector vecLightPosition = vecDir*flSize + vecCenter;	// Puts us twice as far from the closest vertex
+
+#ifdef AO_DEBUG
+			CModelWindow::Get()->AddDebugLine(vecLightPosition, vecLightPosition-vecDir);
+#endif
+
+			Matrix4x4 mLightView;
+
+			glLoadIdentity();
+			gluLookAt(
+				vecLightPosition.x, vecLightPosition.y, vecLightPosition.z,
+				vecCenter.x, vecCenter.y, vecCenter.z,
+				0, 1, 0);
+			glGetFloatv(GL_MODELVIEW_MATRIX, mLightView);
+
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+
+			glColorMask(0, 0, 0, 0);
+
+			glCullFace(GL_FRONT);
+			glCallList(m_iSceneList);
+			glCullFace(GL_BACK);
+
+			// Copy the depth buffer into our shadow map.
+			glBindTexture(GL_TEXTURE_2D, iShadowMap);
+			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, iShadowMapSize, iShadowMapSize);
+
+			glColorMask(1, 1, 1, 1);
+
+#ifdef AO_DEBUG
+			glDrawBuffer(GL_FRONT);
+			glReadBuffer(GL_FRONT);
+			DrawTexture(iShadowMap);
+			glFinish();
+			glDrawBuffer(GL_AUX1);
+			glReadBuffer(GL_AUX1);
+#endif
+
+			// OpenGL matrices are column major, so multiply in the wrong order to get the right result.
+			Matrix4x4 m1 = mLightProjection*mBias;
+			Matrix4x4 mTextureMatrix = mLightView*m1;
+
+			// We're storing the resulting projection in GL_TEXTURE7 for later reference by the shader.
+			glMatrixMode(GL_TEXTURE);
+			glActiveTexture(GL_TEXTURE7);
+			glLoadIdentity();
+			glLoadMatrixf(mTextureMatrix);
+
+			glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
+
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+			glUseProgram(iProgram);
+			glUniform1i(iShadowMapUniform, 7);
+			glActiveTexture(GL_TEXTURE7);
+			glBindTexture(GL_TEXTURE_2D, iShadowMap);
+			glEnable(GL_TEXTURE_2D);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			gluLookAt(
+				5, 5, 10,
+				0, 0, 0,
+				0, 1, 0);
+
+			//glDrawBuffer(GL_FRONT);
+			//glReadBuffer(GL_FRONT);
+			glCallList(m_iSceneList);
+			//glFinish();
+			//glDrawBuffer(GL_AUX1);
+			//glReadBuffer(GL_AUX1);
+
+			glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGB, GL_FLOAT, m_pPixels);
+
+			for (size_t p = 0; p < m_iWidth*m_iHeight*m_iPixelDepth; p+=m_iPixelDepth)
+			{
+				Vector vecPixel(m_pPixels[p+0], m_pPixels[p+1], m_pPixels[p+2]);
+
+				// Red is the clear color, skip it.
+				if (vecPixel.x == 1.0f && vecPixel.y == 0.0f && vecPixel.z == 0.0f)
+					continue;
+
+				size_t i = p/m_iPixelDepth;
+
+				m_avecShadowValues[i] += vecPixel;
+				m_aiShadowReads[i]++;
+				m_bPixelMask[i] = true;
+			}
+
+			glUseProgram(0);
+
+			glDisable(GL_TEXTURE_2D);
+
+			glPopAttrib();
+
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress();
+
+			if (m_bStopGenerating)
+				break;
+		}
+	}
+
+    glCullFace(GL_BACK);
+    glShadeModel(GL_SMOOTH);
+    glColorMask(1, 1, 1, 1);
+
+	glDetachShader(iProgram, iVertexShader);
+	glDetachShader(iProgram, iFragmentShader);
+	glDeleteProgram(iProgram);
+	glDeleteShader(iVertexShader);
+	glDeleteShader(iFragmentShader);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_TEXTURE);
+	glPopMatrix();
+
+	glDeleteTextures(1, &iShadowMap);
+
+	glDepthFunc(GL_LESS);
+
+	glPopAttrib();
+}
+
+void CAOGenerator::GenerateByTexel()
+{
 	float flTotalTime = 0;
 	float flPointInTriangleTime = 0;
 	float flMatrixMathTime = 0;
 	float flRenderingTime = 0;
-
-	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
-
-	if (m_eAOMethod == AOMETHOD_RENDER)
-		RenderSetupScene();
-
-#ifdef AO_DEBUG
-	// In AO debug mode we need this to do the debug rendering, so do it anyways.
-	else
-		RenderSetupScene();
-#endif
 
 	raytrace::CRaytracer* pTracer = NULL;
 
@@ -240,11 +606,6 @@ void CAOGenerator::Generate()
 		pTracer = new raytrace::CRaytracer(m_pScene);
 		pTracer->BuildTree();
 	}
-
-	m_flLowestValue = -1;
-	m_flHighestValue = 0;
-
-	size_t iTracesPerPoint = (m_iSamples+1)*(m_iSamples/2)+1;
 
 	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
@@ -596,57 +957,10 @@ void CAOGenerator::Generate()
 			break;
 	}
 
-	// Average out all of the reads.
-	for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
-	{
-		// Don't immediately return, just skip this loop. We have cleanup work to do.
-		if (m_bStopGenerating)
-			break;
-
-		if (m_eAOMethod == AOMETHOD_TRIDISTANCE)
-		{
-			if (m_aiShadowReads[i])
-			{
-				// Scale us so that the lowest read value (most light) is 1 and the highest read value (least light) is 0.
-				float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, m_flLowestValue, m_flHighestValue, 1, 0);
-
-				m_avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
-			}
-		}
-
-		if (m_aiShadowReads[i])
-			m_avecShadowValues[i] /= (float)m_aiShadowReads[i];
-		else
-			m_avecShadowValues[i] = Vector(0,0,0);
-	}
-
-	if (m_eAOMethod == AOMETHOD_RENDER)
-	{
-		glDeleteLists(m_iSceneList, (GLsizei)m_paoMaterials->size()+1);
-
-		// We now return you to our normal render programming. Thank you for your patronage.
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-	}
-
 	if (m_eAOMethod == AOMETHOD_RAYTRACE)
 	{
 		delete pTracer;
 	}
-
-	if (!m_bStopGenerating)
-		Bleed();
-
-	if (!m_bStopGenerating)
-		m_bDoneGenerating = true;
-	m_bIsGenerating = false;
-
-	// One last call to let them know we're done.
-	if (m_pWorkListener)
-		m_pWorkListener->WorkProgress();
 }
 
 Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace)
@@ -1035,5 +1349,52 @@ void DrawSplit(const raytrace::CKDNode* pNode)
 		DrawSplit(pNode->GetLeftChild());
 	if (pNode->GetRightChild())
 		DrawSplit(pNode->GetRightChild());
+}
+
+void DrawTexture(GLuint iTexture)
+{
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	// First draw a nice faded gray background.
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+
+	glShadeModel(GL_SMOOTH);
+
+	glBindTexture(GL_TEXTURE_2D, iTexture);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(-0.8f, 0.8f);
+
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(-0.8f, -0.8f);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(0.8f, -0.8f);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(0.8f, 0.8f);
+	glEnd();
+
+	glPopAttrib();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 #endif

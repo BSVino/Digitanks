@@ -114,6 +114,8 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 	}
 
 	fclose(fp);
+
+	m_pScene->CalculateExtends();
 }
 
 void CModelConverter::ReadMTL(const wchar_t* pszFilename)
@@ -266,6 +268,8 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		}
 	}
 
+	infile.close();
+
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 	{
 		m_pScene->GetMesh(i)->CalculateEdgeData();
@@ -273,7 +277,7 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		m_pScene->GetMesh(i)->TranslateOrigin();
 	}
 
-	infile.close();
+	m_pScene->CalculateExtends();
 }
 
 void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilename)

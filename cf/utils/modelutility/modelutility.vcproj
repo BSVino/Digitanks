@@ -237,6 +237,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="shaders"
+				>
+				<File
+					RelativePath=".\shaders\shaders.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\shaders\shaders.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
