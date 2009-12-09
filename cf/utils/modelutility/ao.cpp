@@ -132,6 +132,7 @@ void CAOGenerator::ShadowMapSetupScene()
 				Vector vecUV = pMesh->GetUV(pFace->GetVertex(k)->vt) * 2 - Vector(1,1,1);
 				vecUV.y = -vecUV.y;
 				glTexCoord2fv(vecUV);
+				glNormal3fv(pMesh->GetNormal(pFace->GetVertex(k)->vn));
 				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k)->v));
 			}
 
@@ -394,8 +395,7 @@ void CAOGenerator::GenerateShadowMaps()
 	glCompileShader(iFragmentShader);
 
 #ifdef _DEBUG
-	szLog[0] = '\0';
-	glGetShaderInfoLog(iVertexShader, 1024, &iLogLength, szLog);
+	glGetShaderInfoLog(iFragmentShader, 1024, &iLogLength, szLog);
 #endif
 
 	GLuint iProgram = glCreateProgram();
@@ -404,11 +404,8 @@ void CAOGenerator::GenerateShadowMaps()
 	glLinkProgram(iProgram);
 
 #ifdef _DEBUG
-	szLog[0] = '\0';
-	glGetProgramInfoLog(iVertexShader, 1024, &iLogLength, szLog);
+	glGetProgramInfoLog(iProgram, 1024, &iLogLength, szLog);
 #endif
-
-	GLuint iShadowMapUniform = glGetUniformLocation(iProgram, "iShadowMap");
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -424,7 +421,7 @@ void CAOGenerator::GenerateShadowMaps()
 	0.5f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.5f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.5f, 0.0f,
-	0.499f, 0.499f, 0.499f, 1.0f); // Bias from [-1, 1] to [0, 1]
+	0.5f, 0.5f, 0.5f, 1.0f); // Bias from [-1, 1] to [0, 1]
 
 	AABB oBox = m_pScene->m_oExtends;
 	Vector vecCenter = oBox.Center();
@@ -482,9 +479,7 @@ void CAOGenerator::GenerateShadowMaps()
 
 			glColorMask(0, 0, 0, 0);
 
-			glCullFace(GL_FRONT);
 			glCallList(m_iSceneList);
-			glCullFace(GL_BACK);
 
 			// Copy the depth buffer into our shadow map.
 			glBindTexture(GL_TEXTURE_2D, iShadowMap);
@@ -518,7 +513,13 @@ void CAOGenerator::GenerateShadowMaps()
 			glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
 			glUseProgram(iProgram);
+
+			GLuint iLightNormalUniform = glGetUniformLocation(iProgram, "vecLightNormal");
+			GLuint iShadowMapUniform = glGetUniformLocation(iProgram, "iShadowMap");
+
 			glUniform1i(iShadowMapUniform, 7);
+			glUniform3fv(iLightNormalUniform, 1, -vecDir);
+
 			glActiveTexture(GL_TEXTURE7);
 			glBindTexture(GL_TEXTURE_2D, iShadowMap);
 			glEnable(GL_TEXTURE_2D);
@@ -530,12 +531,16 @@ void CAOGenerator::GenerateShadowMaps()
 				0, 0, 0,
 				0, 1, 0);
 
-			//glDrawBuffer(GL_FRONT);
-			//glReadBuffer(GL_FRONT);
+#ifdef AO_DEBUG
+			glDrawBuffer(GL_FRONT);
+			glReadBuffer(GL_FRONT);
 			glCallList(m_iSceneList);
-			//glFinish();
-			//glDrawBuffer(GL_AUX1);
-			//glReadBuffer(GL_AUX1);
+			glFinish();
+			glDrawBuffer(GL_AUX1);
+			glReadBuffer(GL_AUX1);
+#endif
+
+			glCallList(m_iSceneList);
 
 			glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGB, GL_FLOAT, m_pPixels);
 
