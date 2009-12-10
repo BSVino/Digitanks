@@ -514,10 +514,12 @@ void CModelWindow::Render3D()
 
 	glPushMatrix();
 
-	Vector vecCameraVector = AngleVector(EAngle(m_flCameraPitch, m_flCameraYaw, 0)) * m_flCameraDistance;
+	Vector vecSceneCenter = m_Scene.m_oExtends.Center();
+
+	Vector vecCameraVector = AngleVector(EAngle(m_flCameraPitch, m_flCameraYaw, 0)) * m_flCameraDistance + vecSceneCenter;
 
 	gluLookAt(vecCameraVector.x, vecCameraVector.y, vecCameraVector.z,
-		0.0, 0.0, 0.0,
+		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
 		0.0, 1.0, 0.0);
 
     RenderGround();

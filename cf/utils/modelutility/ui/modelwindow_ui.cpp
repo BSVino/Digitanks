@@ -388,7 +388,7 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(8, L"8"));
 	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(9, L"9"));
 	m_pEdgeBleedSelector->AddSelection(CScrollSelection<int>(10, L"10"));
-	m_pEdgeBleedSelector->SetSelection(5);
+	m_pEdgeBleedSelector->SetSelection(1);
 	AddControl(m_pEdgeBleedSelector);
 
 	if (!m_bColor)

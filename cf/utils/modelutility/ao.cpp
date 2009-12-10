@@ -571,6 +571,9 @@ void CAOGenerator::GenerateShadowMaps()
 			if (m_bStopGenerating)
 				break;
 		}
+
+		if (m_bStopGenerating)
+			break;
 	}
 
     glCullFace(GL_BACK);
@@ -1382,16 +1385,16 @@ void DrawTexture(GLuint iTexture)
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(-0.8f, 0.8f);
+		glVertex2f(-1.0f, 1.0f);
 
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(-0.8f, -0.8f);
+		glVertex2f(-1.0f, -1.0f);
 
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(0.8f, -0.8f);
+		glVertex2f(1.0f, -1.0f);
 
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(0.8f, 0.8f);
+		glVertex2f(1.0f, 1.0f);
 	glEnd();
 
 	glPopAttrib();
