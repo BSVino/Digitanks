@@ -79,6 +79,7 @@ protected:
 	unsigned int			m_iSceneList;
 
 	Vector*					m_avecShadowValues;
+	Vector*					m_avecShadowGeneratedValues;
 	size_t*					m_aiShadowReads;
 	float					m_flLowestValue;
 	float					m_flHighestValue;

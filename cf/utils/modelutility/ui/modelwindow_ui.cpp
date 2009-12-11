@@ -590,6 +590,7 @@ void CAOPanel::SaveMapCallback()
 void CAOPanel::WorkProgress()
 {
 	static int iLastTime = 0;
+	static int iLastGenerate = 0;
 
 	// Don't update too often or it'll slow us down just because of the updates.
 	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 100)
@@ -597,16 +598,21 @@ void CAOPanel::WorkProgress()
 
 	glutMainLoopEvent();
 
-	size_t iAO = m_oGenerator.GenerateTexture(true);
-
-	for (size_t i = 0; i < m_paoMaterials->size(); i++)
+	if (glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 1000)
 	{
-		size_t& iAOTexture = m_bColor?(*m_paoMaterials)[i].m_iColorAO:(*m_paoMaterials)[i].m_iAO;
+		size_t iAO = m_oGenerator.GenerateTexture(true);
 
-		if (iAOTexture)
-			glDeleteTextures(1, &iAOTexture);
+		for (size_t i = 0; i < m_paoMaterials->size(); i++)
+		{
+			size_t& iAOTexture = m_bColor?(*m_paoMaterials)[i].m_iColorAO:(*m_paoMaterials)[i].m_iAO;
 
-		iAOTexture = iAO;
+			if (iAOTexture)
+				glDeleteTextures(1, &iAOTexture);
+
+			iAOTexture = iAO;
+		}
+
+		iLastGenerate = glutGet(GLUT_ELAPSED_TIME);
 	}
 
 	glDrawBuffer(GL_BACK);

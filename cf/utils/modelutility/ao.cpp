@@ -31,6 +31,7 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_paoMaterials = paoMaterials;
 
 	m_avecShadowValues = NULL;
+	m_avecShadowGeneratedValues = NULL;
 	m_aiShadowReads = NULL;
 	m_bPixelMask = NULL;
 	m_pPixels = NULL;
@@ -55,6 +56,7 @@ CAOGenerator::~CAOGenerator()
 	free(m_pPixels);
 	free(m_bPixelMask);
 	delete[] m_avecShadowValues;
+	delete[] m_avecShadowGeneratedValues;
 	delete[] m_aiShadowReads;
 }
 
@@ -66,15 +68,18 @@ void CAOGenerator::SetSize(size_t iWidth, size_t iHeight)
 	if (m_avecShadowValues)
 	{
 		delete[] m_avecShadowValues;
+		delete[] m_avecShadowGeneratedValues;
 		delete[] m_aiShadowReads;
 	}
 
 	// Shadow volume result buffer.
 	m_avecShadowValues = new Vector[iWidth*iHeight];
+	m_avecShadowGeneratedValues = new Vector[iWidth*iHeight];
 	m_aiShadowReads = new size_t[iWidth*iHeight];
 
 	// Big hack incoming!
 	memset(&m_avecShadowValues[0].x, 0, iWidth*iHeight*sizeof(Vector));
+	memset(&m_avecShadowGeneratedValues[0].x, 0, iWidth*iHeight*sizeof(Vector));
 	memset(&m_aiShadowReads[0], 0, iWidth*iHeight*sizeof(size_t));
 
 	if (m_bPixelMask)
@@ -315,6 +320,8 @@ void CAOGenerator::Generate()
 				m_avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
 			}
 		}
+		else if (m_eAOMethod == AOMETHOD_SHADOWMAP)
+			m_avecShadowValues[i] = Vector(m_avecShadowValues[i].x, m_avecShadowValues[i].x, m_avecShadowValues[i].x);
 
 		if (m_aiShadowReads[i])
 			m_avecShadowValues[i] /= (float)m_aiShadowReads[i];
@@ -351,6 +358,10 @@ void CAOGenerator::Generate()
 
 void CAOGenerator::GenerateShadowMaps()
 {
+	int iProcessScene = 0;
+	int iProcessSceneRead = 0;
+	int iProgress = 0;
+
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
 	// Clear red so that we can pick out later what we want when we're reading pixels.
@@ -542,22 +553,30 @@ void CAOGenerator::GenerateShadowMaps()
 
 			glCallList(m_iSceneList);
 
+			int iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
+
 			glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGB, GL_FLOAT, m_pPixels);
 
-			for (size_t p = 0; p < m_iWidth*m_iHeight*m_iPixelDepth; p+=m_iPixelDepth)
-			{
-				Vector vecPixel(m_pPixels[p+0], m_pPixels[p+1], m_pPixels[p+2]);
+			iProcessSceneRead += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
+			iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 
+			size_t iBufferSize = m_iWidth*m_iHeight*m_iPixelDepth;
+			for (size_t p = 0; p < iBufferSize; p+=m_iPixelDepth)
+			{
 				// Red is the clear color, skip it.
-				if (vecPixel.x == 1.0f && vecPixel.y == 0.0f && vecPixel.z == 0.0f)
+				if (m_pPixels[p+0] == 1.0f && m_pPixels[p+1] == 0.0f && m_pPixels[p+2] == 0.0f)
 					continue;
 
 				size_t i = p/m_iPixelDepth;
 
-				m_avecShadowValues[i] += vecPixel;
+				// We need speed in this loop.
+				m_avecShadowValues[i].x += m_pPixels[p+0];
+
 				m_aiShadowReads[i]++;
 				m_bPixelMask[i] = true;
 			}
+
+			iProcessScene += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 			glUseProgram(0);
 
@@ -565,8 +584,12 @@ void CAOGenerator::GenerateShadowMaps()
 
 			glPopAttrib();
 
+			iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
+
 			if (m_pWorkListener)
 				m_pWorkListener->WorkProgress();
+
+			iProgress += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 			if (m_bStopGenerating)
 				break;
@@ -1244,7 +1267,8 @@ size_t CAOGenerator::GenerateTexture(bool bInMedias)
 
 	if (bInMedias)
 	{
-		avecShadowValues = new Vector[m_iWidth*m_iHeight];
+		// Use this temporary buffer so we don't clobber the original.
+		avecShadowValues = m_avecShadowGeneratedValues;
 
 		// Average out all of the reads.
 		for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
@@ -1253,23 +1277,30 @@ size_t CAOGenerator::GenerateTexture(bool bInMedias)
 			if (m_bStopGenerating)
 				break;
 
+			if (!m_aiShadowReads[i])
+			{
+				avecShadowValues[i] = Vector(0,0,0);
+				continue;
+			}
+
 			if (m_eAOMethod == AOMETHOD_TRIDISTANCE)
 			{
 				if (m_aiShadowReads[i])
 				{
 					// Scale us so that the lowest read value (most light) is 1 and the highest read value (least light) is 0.
-					float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, m_flLowestValue, m_flHighestValue, 1, 0);
+					float flRealShadowValue = RemapVal(m_avecShadowValues[i].x, m_flLowestValue, m_flHighestValue, 1, 0) / m_aiShadowReads[i];
 
 					avecShadowValues[i] = Vector(flRealShadowValue, flRealShadowValue, flRealShadowValue);
 				}
 			}
+			else if (m_eAOMethod == AOMETHOD_SHADOWMAP)
+			{
+				// Shadow map uses only x values for speed reasons.
+				float flXDiv = m_avecShadowValues[i].x / m_aiShadowReads[i];
+				avecShadowValues[i].x = avecShadowValues[i].y = avecShadowValues[i].z = flXDiv;
+			}
 			else
-				avecShadowValues[i] = m_avecShadowValues[i];
-
-			if (m_aiShadowReads[i])
-				avecShadowValues[i] /= (float)m_aiShadowReads[i];
-			else
-				avecShadowValues[i] = Vector(0,0,0);
+				avecShadowValues[i] = m_avecShadowValues[i] / (float)m_aiShadowReads[i];
 		}
 	}
 
@@ -1279,9 +1310,6 @@ size_t CAOGenerator::GenerateTexture(bool bInMedias)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iWidth, (GLint)m_iHeight, GL_RGB, GL_FLOAT, &avecShadowValues[0].x);
-
-	if (bInMedias)
-		delete [] avecShadowValues;
 
 	return iGLId;
 }
