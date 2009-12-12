@@ -52,7 +52,7 @@ CModelWindow::CModelWindow()
 	int iScreenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	int iScreenHeight = glutGet(GLUT_SCREEN_HEIGHT);
 
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL | GLUT_MULTISAMPLE);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA | GLUT_MULTISAMPLE);
 
 	m_iWindowWidth = iScreenWidth*2/3;
 	m_iWindowHeight = iScreenHeight*2/3;
@@ -485,10 +485,10 @@ void CModelWindow::Render()
 
 	glPopAttrib();
 
-	glMatrixMode(GL_PROJECTION);
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
 	if (m_bRenderUV)

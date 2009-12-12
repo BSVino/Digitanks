@@ -21,7 +21,7 @@
 #ifdef AO_DEBUG
 #include "ui/modelwindow.h"
 
-void DrawTexture(GLuint iTexture);
+void DrawTexture(GLuint iTexture, float flScale = 1.0f);
 #endif
 
 CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
@@ -279,8 +279,9 @@ void CAOGenerator::Generate()
 
 	if (m_eAOMethod == AOMETHOD_SHADOWMAP)
 	{
-		if (!GLEW_ARB_shadow || !GLEW_ARB_depth_texture || !GLEW_ARB_vertex_shader)
+		if (!GLEW_ARB_shadow || !GLEW_ARB_depth_texture || !GLEW_ARB_vertex_shader || !GLEW_EXT_framebuffer_object)
 		{
+			m_bIsGenerating = false;
 			// Message here?
 			return;
 		}
@@ -377,7 +378,7 @@ void CAOGenerator::GenerateShadowMaps()
 
 	glDisable(GL_CULL_FACE);
 
-	GLsizei iShadowMapSize = 512;
+	GLsizei iShadowMapSize = 1024;
 
 	GLuint iShadowMap;
 	glGenTextures(1, &iShadowMap);
@@ -387,7 +388,45 @@ void CAOGenerator::GenerateShadowMaps()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, iShadowMapSize, iShadowMapSize, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, iShadowMapSize, iShadowMapSize, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+
+	GLuint iDepthRB;
+	glGenRenderbuffersEXT(1, &iDepthRB);
+	glBindRenderbufferEXT( GL_RENDERBUFFER, iDepthRB );
+	glRenderbufferStorageEXT( GL_RENDERBUFFER, GL_RGBA, iShadowMapSize, iShadowMapSize );
+	glBindRenderbufferEXT( GL_RENDERBUFFER, 0 );
+
+	// A frame buffer for holding the depth buffer shadow render
+	GLuint iDepthFB;
+	glGenFramebuffersEXT(1, &iDepthFB);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, iDepthFB);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, iShadowMap, 0);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, iDepthRB);	// Unused
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	GLuint iUVMap;
+	glGenTextures(1, &iUVMap);
+	glBindTexture(GL_TEXTURE_2D, iUVMap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (GLsizei)m_iWidth, (GLsizei)m_iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	GLuint iUVRB;
+	glGenRenderbuffersEXT(1, &iUVRB);
+	glBindRenderbufferEXT( GL_RENDERBUFFER, iUVRB );
+	glRenderbufferStorageEXT( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (GLsizei)m_iWidth, (GLsizei)m_iHeight );
+	glBindRenderbufferEXT( GL_RENDERBUFFER, 0 );
+
+	// A frame buffer for holding the UV layout once it is rendered flat with the shadow
+	GLuint iUVFB;
+	glGenFramebuffersEXT(1, &iUVFB);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, iUVFB);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, iUVMap, 0);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, iUVRB);	// Unused
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 	GLuint iVertexShader = glCreateShader(GL_VERTEX_SHADER);
 	const char* pszShaderSource = GetVSFlattenedShadowMap();
@@ -444,8 +483,6 @@ void CAOGenerator::GenerateShadowMaps()
 	//gluPerspective(45, 1, 1, flSize*2);
 	glGetFloatv(GL_PROJECTION_MATRIX, mLightProjection);
 
-	glMatrixMode(GL_MODELVIEW);
-
 	size_t iSamples = (size_t)sqrt((float)m_iSamples);
 
 	for (size_t x = 0; x <= iSamples; x++)
@@ -463,11 +500,6 @@ void CAOGenerator::GenerateShadowMaps()
 					continue;
 			}
 
-			glDrawBuffer(GL_AUX1);
-			glReadBuffer(GL_AUX1);
-
-			glViewport(0, 0, iShadowMapSize, iShadowMapSize);
-
 			float flYaw = RemapVal((float)y, 0, (float)iSamples, -180, 180);
 
 			Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
@@ -479,6 +511,7 @@ void CAOGenerator::GenerateShadowMaps()
 
 			Matrix4x4 mLightView;
 
+			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(
 				vecLightPosition.x, vecLightPosition.y, vecLightPosition.z,
@@ -486,25 +519,22 @@ void CAOGenerator::GenerateShadowMaps()
 				0, 1, 0);
 			glGetFloatv(GL_MODELVIEW_MATRIX, mLightView);
 
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+			glBindFramebufferEXT(GL_FRAMEBUFFER, iDepthFB);
+			glViewport(0, 0, iShadowMapSize, iShadowMapSize);
 
-			glColorMask(0, 0, 0, 0);
+		    glDisable(GL_CULL_FACE);
+
+			glClear(GL_DEPTH_BUFFER_BIT);
 
 			glCallList(m_iSceneList);
 
-			// Copy the depth buffer into our shadow map.
-			glBindTexture(GL_TEXTURE_2D, iShadowMap);
-			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, iShadowMapSize, iShadowMapSize);
-
-			glColorMask(1, 1, 1, 1);
+			glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 #ifdef AO_DEBUG
 			glDrawBuffer(GL_FRONT);
 			glReadBuffer(GL_FRONT);
-			DrawTexture(iShadowMap);
+			DrawTexture(iShadowMap, 0.6f);
 			glFinish();
-			glDrawBuffer(GL_AUX1);
-			glReadBuffer(GL_AUX1);
 #endif
 
 			// OpenGL matrices are column major, so multiply in the wrong order to get the right result.
@@ -512,14 +542,11 @@ void CAOGenerator::GenerateShadowMaps()
 			Matrix4x4 mTextureMatrix = mLightView*m1;
 
 			// We're storing the resulting projection in GL_TEXTURE7 for later reference by the shader.
-			glMatrixMode(GL_TEXTURE);
-			glActiveTexture(GL_TEXTURE7);
-			glLoadIdentity();
-			glLoadMatrixf(mTextureMatrix);
+			glBindFramebufferEXT(GL_FRAMEBUFFER, iUVFB);
 
 			glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 			glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
@@ -527,6 +554,12 @@ void CAOGenerator::GenerateShadowMaps()
 
 			GLuint iLightNormalUniform = glGetUniformLocation(iProgram, "vecLightNormal");
 			GLuint iShadowMapUniform = glGetUniformLocation(iProgram, "iShadowMap");
+
+			glMatrixMode(GL_TEXTURE);
+			glActiveTexture(GL_TEXTURE7);
+			glPushMatrix();
+			glLoadIdentity();
+			glLoadMatrixf(mTextureMatrix);
 
 			glUniform1i(iShadowMapUniform, 7);
 			glUniform3fv(iLightNormalUniform, 1, -vecDir);
@@ -542,20 +575,34 @@ void CAOGenerator::GenerateShadowMaps()
 				0, 0, 0,
 				0, 1, 0);
 
+			glDisable(GL_DEPTH_TEST);
+
+			glCallList(m_iSceneList);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glActiveTexture(GL_TEXTURE0);
+
+			glMatrixMode(GL_TEXTURE);
+			glPopMatrix();
+
+			glUseProgram(0);
+
+			glPopAttrib();
+
+			glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
 #ifdef AO_DEBUG
 			glDrawBuffer(GL_FRONT);
 			glReadBuffer(GL_FRONT);
-			glCallList(m_iSceneList);
+			DrawTexture(iUVMap);
 			glFinish();
-			glDrawBuffer(GL_AUX1);
-			glReadBuffer(GL_AUX1);
 #endif
-
-			glCallList(m_iSceneList);
 
 			int iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 
+			glBindFramebufferEXT(GL_FRAMEBUFFER, iUVFB);
 			glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGB, GL_FLOAT, m_pPixels);
+			glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 			iProcessSceneRead += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 			iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
@@ -577,12 +624,6 @@ void CAOGenerator::GenerateShadowMaps()
 			}
 
 			iProcessScene += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
-
-			glUseProgram(0);
-
-			glDisable(GL_TEXTURE_2D);
-
-			glPopAttrib();
 
 			iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 
@@ -609,14 +650,21 @@ void CAOGenerator::GenerateShadowMaps()
 	glDeleteShader(iVertexShader);
 	glDeleteShader(iFragmentShader);
 
+	glDeleteTextures(1, &iShadowMap);
+	glDeleteTextures(1, &iUVMap);
+
+	glDeleteRenderbuffersEXT(1, &iDepthRB);
+	glDeleteRenderbuffersEXT(1, &iUVRB);
+
+	glDeleteFramebuffersEXT(1, &iDepthFB);
+	glDeleteFramebuffersEXT(1, &iUVFB);
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_TEXTURE);
 	glPopMatrix();
-
-	glDeleteTextures(1, &iShadowMap);
 
 	glDepthFunc(GL_LESS);
 
@@ -1387,7 +1435,7 @@ void DrawSplit(const raytrace::CKDNode* pNode)
 		DrawSplit(pNode->GetRightChild());
 }
 
-void DrawTexture(GLuint iTexture)
+void DrawTexture(GLuint iTexture, float flScale)
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -1397,6 +1445,10 @@ void DrawTexture(GLuint iTexture)
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_TEXTURE);
 	glPushMatrix();
 	glLoadIdentity();
 
@@ -1413,16 +1465,16 @@ void DrawTexture(GLuint iTexture)
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(-1.0f, 1.0f);
+		glVertex2f(-flScale, flScale);
 
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(-1.0f, -1.0f);
+		glVertex2f(-flScale, -flScale);
 
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(1.0f, -1.0f);
+		glVertex2f(flScale, -flScale);
 
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(1.0f, 1.0f);
+		glVertex2f(flScale, flScale);
 	glEnd();
 
 	glPopAttrib();
@@ -1431,6 +1483,9 @@ void DrawTexture(GLuint iTexture)
 	glPopMatrix();
 
 	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glMatrixMode(GL_TEXTURE);
 	glPopMatrix();
 }
 #endif

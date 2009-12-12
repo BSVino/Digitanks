@@ -615,9 +615,6 @@ void CAOPanel::WorkProgress()
 		iLastGenerate = glutGet(GLUT_ELAPSED_TIME);
 	}
 
-	glDrawBuffer(GL_BACK);
-	glReadBuffer(GL_BACK);
-
 	CModelWindow::Get()->Render();
 	CRootPanel::Get()->Think();
 	CRootPanel::Get()->Paint();
