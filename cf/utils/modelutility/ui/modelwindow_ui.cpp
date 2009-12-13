@@ -593,12 +593,12 @@ void CAOPanel::WorkProgress()
 	static int iLastGenerate = 0;
 
 	// Don't update too often or it'll slow us down just because of the updates.
-	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 100)
+	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 10)
 		return;
 
 	glutMainLoopEvent();
 
-	if (glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 1000)
+	if (glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 500)
 	{
 		size_t iAO = m_oGenerator.GenerateTexture(true);
 

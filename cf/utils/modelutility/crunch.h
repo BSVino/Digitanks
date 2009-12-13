@@ -43,6 +43,7 @@ public:
 	void					GenerateByTexel();
 	Vector					RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pFace);
 	void					DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace);
+	void					AccumulateTexture(size_t iTexture);
 	void					Bleed();
 
 	size_t					GenerateTexture(bool bInMedias = false);
@@ -83,6 +84,7 @@ protected:
 	size_t*					m_aiShadowReads;
 	float					m_flLowestValue;
 	float					m_flHighestValue;
+	size_t					m_iAOFB;
 
 	bool					m_bIsGenerating;
 	bool					m_bDoneGenerating;
