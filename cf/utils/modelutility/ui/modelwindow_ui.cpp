@@ -443,6 +443,7 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	AddControl(m_pSave);
 
 	m_pSave->SetClickedListener(this, SaveMap);
+	m_pSave->SetVisible(false);
 
 	Layout();
 }
@@ -512,6 +513,7 @@ void CAOPanel::Layout()
 
 	m_pSave->SetSize(GetWidth()/2, GetWidth()/6);
 	m_pSave->SetPos(GetWidth()/4, GetWidth()/8);
+	m_pSave->SetVisible(m_oGenerator.DoneGenerating());
 
 	CMovablePanel::Layout();
 }
@@ -520,9 +522,12 @@ void CAOPanel::GenerateCallback()
 {
 	if (m_oGenerator.IsGenerating())
 	{
+		m_pSave->SetVisible(false);
 		m_oGenerator.StopGenerating();
 		return;
 	}
+
+	m_pSave->SetVisible(false);
 
 	// Switch over to UV mode so we can see our progress.
 	CModelWindow::Get()->SetRenderMode(true);
@@ -573,6 +578,8 @@ void CAOPanel::GenerateCallback()
 		else
 			iAOTexture = 0;
 	}
+
+	m_pSave->SetVisible(m_oGenerator.DoneGenerating());
 
 	CModelWindow::Get()->CreateGLLists();
 
