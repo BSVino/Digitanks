@@ -496,6 +496,19 @@ namespace modelgui
 		IEventListener*	m_pUnclickListener;
 	};
 
+	class CPictureButton : public CButton
+	{
+	public:
+						CPictureButton(const char* szText, size_t iTexture = 0, bool bToggle = false);
+		virtual void	Delete() { delete this; };
+
+	public:
+		virtual void	Paint(int x, int y, int w, int h);
+
+	protected:
+		size_t			m_iTexture;
+	};
+
 	class CSlidingContainer;
 	class CSlidingPanel : public CPanel
 	{

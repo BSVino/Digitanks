@@ -135,6 +135,14 @@ protected:
 	CMaterial*				m_pLightHalo;
 	CMaterial*				m_pLightBeam;
 
+	size_t					m_iWireframeTexture;
+	size_t					m_iFlatTexture;
+	size_t					m_iSmoothTexture;
+	size_t					m_iLightTexture;
+	size_t					m_iTextureTexture;
+	size_t					m_iAOTexture;
+	size_t					m_iCAOTexture;
+
 	float					m_flCameraDistance;
 
 	bool					m_bCameraRotating;

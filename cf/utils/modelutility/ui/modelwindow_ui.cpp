@@ -46,13 +46,13 @@ void CModelWindow::InitUI()
 
 	CButtonPanel* pBottomButtons = new CButtonPanel(BA_BOTTOM);
 
-	m_pWireframe = new CButton(0, 0, 100, 100, "Wire", true);
-	m_pFlat = new CButton(0, 0, 100, 100, "Flat", true);
-	m_pSmooth = new CButton(0, 0, 100, 100, "Smth", true);
-	m_pLight = new CButton(0, 0, 100, 100, "Lght", true);
-	m_pTexture = new CButton(0, 0, 100, 100, "Tex", true);
-	m_pAO = new CButton(0, 0, 100, 100, "AO", true);
-	m_pColorAO = new CButton(0, 0, 100, 100, "C AO", true);
+	m_pWireframe = new CPictureButton("Wire", m_iWireframeTexture, true);
+	m_pFlat = new CPictureButton("Flat", m_iFlatTexture, true);
+	m_pSmooth = new CPictureButton("Smth", m_iSmoothTexture, true);
+	m_pLight = new CPictureButton("Lght", m_iLightTexture, true);
+	m_pTexture = new CPictureButton("Tex", m_iTextureTexture, true);
+	m_pAO = new CPictureButton("AO", m_iAOTexture, true);
+	m_pColorAO = new CPictureButton("C AO", m_iCAOTexture, true);
 
 	pBottomButtons->AddButton(m_pWireframe, false, this, Wireframe);
 	pBottomButtons->AddButton(m_pFlat, false, this, Flat);

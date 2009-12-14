@@ -1021,6 +1021,51 @@ void CButton::PaintButton(int x, int y, int w, int h)
 	}
 }
 
+CPictureButton::CPictureButton(const char* pszText, size_t iTexture, bool bToggle)
+	: CButton(0, 0, 32, 32, pszText, bToggle)
+{
+	m_iTexture = iTexture;
+}
+
+void CPictureButton::Paint(int x, int y, int w, int h)
+{
+	if (!IsVisible())
+		return;
+
+	PaintButton(x, y, w, h);
+
+	if (m_iTexture)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
+		glColor4f(1,1,1,1);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0, 1);
+			glVertex2d(x, y);
+			glTexCoord2f(1, 1);
+			glVertex2d(x+w, y);
+			glTexCoord2f(1, 0);
+			glVertex2d(x+w, y+h);
+			glTexCoord2f(0, 0);
+			glVertex2d(x, y+h);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_LIGHTING);
+		glDisable(GL_BLEND);
+	}
+	else
+	{
+		// Now paint the text which appears on the button.
+		CLabel::Paint(x, y, w, h);
+	}
+}
+
 CSlidingPanel::CInnerPanel::CInnerPanel(CSlidingContainer* pMaster)
 	: CPanel(0, 0, 100, SLIDER_COLLAPSED_HEIGHT)
 {
