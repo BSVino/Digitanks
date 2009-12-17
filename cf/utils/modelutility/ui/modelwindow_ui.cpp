@@ -41,8 +41,8 @@ void CModelWindow::InitUI()
 	m_pRender3D = new CButton(0, 0, 100, 100, "3D", true);
 	m_pRenderUV = new CButton(0, 0, 100, 100, "UV", true);
 
-	pTopButtons->AddButton(m_pRender3D, false, this, Render3D);
-	pTopButtons->AddButton(m_pRenderUV, false, this, RenderUV);
+	pTopButtons->AddButton(m_pRender3D, "Render 3D View", false, this, Render3D);
+	pTopButtons->AddButton(m_pRenderUV, "Render UV View", false, this, RenderUV);
 
 	CRootPanel::Get()->AddControl(pTopButtons);
 
@@ -56,13 +56,13 @@ void CModelWindow::InitUI()
 	m_pAO = new CPictureButton("AO", m_iAOTexture, true);
 	m_pColorAO = new CPictureButton("C AO", m_iCAOTexture, true);
 
-	pBottomButtons->AddButton(m_pWireframe, false, this, Wireframe);
-	pBottomButtons->AddButton(m_pFlat, false, this, Flat);
-	pBottomButtons->AddButton(m_pSmooth, true, this, Smooth);
-	pBottomButtons->AddButton(m_pLight, false, this, Light);
-	pBottomButtons->AddButton(m_pTexture, false, this, Texture);
-	pBottomButtons->AddButton(m_pAO, false, this, AO);
-	pBottomButtons->AddButton(m_pColorAO, false, this, ColorAO);
+	pBottomButtons->AddButton(m_pWireframe, "Wireframe", false, this, Wireframe);
+	pBottomButtons->AddButton(m_pFlat, "Flat Shading", false, this, Flat);
+	pBottomButtons->AddButton(m_pSmooth, "Smooth Shading", true, this, Smooth);
+	pBottomButtons->AddButton(m_pLight, "Toggle Light", false, this, Light);
+	pBottomButtons->AddButton(m_pTexture, "Toggle Texture", false, this, Texture);
+	pBottomButtons->AddButton(m_pAO, "Toggle AO Map", false, this, AO);
+	pBottomButtons->AddButton(m_pColorAO, "Toggle Color AO", false, this, ColorAO);
 
 	CRootPanel::Get()->AddControl(pBottomButtons);
 
@@ -227,12 +227,15 @@ void CButtonPanel::Layout()
 {
 	int iX = 0;
 
-	for (size_t i = 0; i < m_apControls.size(); i++)
+	for (size_t i = 0; i < m_apButtons.size(); i++)
 	{
-		IControl* pControl = m_apControls[i];
+		IControl* pButton = m_apButtons[i];
 
-		pControl->SetSize(BTN_HEIGHT, BTN_HEIGHT);
-		pControl->SetPos(iX, 0);
+		pButton->SetSize(BTN_HEIGHT, BTN_HEIGHT);
+		pButton->SetPos(iX, 0);
+
+		IControl* pHint = m_apHints[i];
+		pHint->SetPos(iX + BTN_HEIGHT/2 - pHint->GetWidth()/2, -18);
 
 		iX += BTN_HEIGHT + m_aiSpaces[i];
 	}
@@ -246,17 +249,50 @@ void CButtonPanel::Layout()
 	CPanel::Layout();
 }
 
-void CButtonPanel::AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener, IEventListener::Callback pfnCallback)
+void CButtonPanel::AddButton(CButton* pButton, char* pszHints, bool bNewSection, IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
 	AddControl(pButton);
+	m_apButtons.push_back(pButton);
 
 	m_aiSpaces.push_back(bNewSection?BTN_SECTION:BTN_SPACE);
+
+	CLabel* pHint = new CLabel(0, 0, 0, 0, pszHints);
+	pHint->SetAlpha(255);
+	pHint->EnsureTextFits();
+	AddControl(pHint);
+	m_apHints.push_back(pHint);
 
 	if (pListener)
 	{
 		pButton->SetClickedListener(pListener, pfnCallback);
 		pButton->SetUnclickedListener(pListener, pfnCallback);
 	}
+}
+
+void CButtonPanel::Think()
+{
+	int mx, my;
+	CRootPanel::GetFullscreenMousePos(mx, my);
+
+	for (size_t i = 0; i < m_apButtons.size(); i++)
+	{
+		int x = 0, y = 0, w = 0, h = 0;
+		m_apButtons[i]->GetAbsDimensions(x, y, w, h);
+
+		float flAlpha = (float)m_apHints[i]->GetAlpha();
+
+		if (mx >= x && my >= y && mx < x + w && my < y + h)
+			m_apHints[i]->SetAlpha((int)Approach(255.0f, flAlpha, 30.0f));
+		else
+			m_apHints[i]->SetAlpha((int)Approach(0.0f, flAlpha, 30.0f));
+	}
+
+	CPanel::Think();
+}
+
+void CButtonPanel::Paint(int x, int y, int w, int h)
+{
+	CPanel::Paint(x, y, w, h);
 }
 
 void CCloseButton::Paint(int x, int y, int w, int h)

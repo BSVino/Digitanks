@@ -19,12 +19,17 @@ public:
 
 	virtual void			Layout();
 
-	virtual void			AddButton(CButton* pButton, bool bNewSection, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
+	virtual void			AddButton(CButton* pButton, char* pszHints, bool bNewSection, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
+
+	virtual void			Think();
+	virtual void			Paint(int x, int y, int w, int h);
 
 protected:
 	buttonalignment_t		m_eAlign;
 
 	std::vector<int>		m_aiSpaces;
+	std::vector<CButton*>	m_apButtons;
+	std::vector<CLabel*>	m_apHints;
 };
 
 #define HEADER_HEIGHT 16
