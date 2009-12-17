@@ -25,7 +25,6 @@ Var StartMenuFolder
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "smak-install.exe"
-Icon install/smak.ico
 ShowInstDetails show
 InstallDir $PROGRAMFILES\SMAK
 
@@ -39,7 +38,7 @@ Section -StartMenu
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 		;Create shortcuts
 		CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-		CreateShortcut "$SMPROGRAMS\$StartMenuFolder\SMAK.lnk" $INSTDIR\smak.exe "" "$INSTDIR\smak.ico"
+		CreateShortcut "$SMPROGRAMS\$StartMenuFolder\SMAK.lnk" $INSTDIR\smak.exe
 		;CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 	!insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
