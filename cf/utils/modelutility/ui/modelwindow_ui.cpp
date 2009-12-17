@@ -394,7 +394,6 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(256, L"256x256"));
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(512, L"512x512"));
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(1024, L"1024x1024"));
-	m_pSizeSelector->AddSelection(CScrollSelection<int>(2048, L"2048x2048"));
 	m_pSizeSelector->SetSelection(2);
 	AddControl(m_pSizeSelector);
 
