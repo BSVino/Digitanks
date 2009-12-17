@@ -77,11 +77,14 @@ public:
 
 	virtual void			WorkProgress();
 
+	virtual bool			DoneGenerating() { return m_oGenerator.DoneGenerating(); }
+
 	EVENT_CALLBACK(CAOPanel, Generate);
 	EVENT_CALLBACK(CAOPanel, SaveMap);
 	EVENT_CALLBACK(CAOPanel, AOMethod);
 
 	static void				Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+	static CAOPanel*		Get(bool bColor);
 
 protected:
 	bool					m_bColor;

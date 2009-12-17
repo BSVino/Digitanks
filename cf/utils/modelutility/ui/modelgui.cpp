@@ -1409,7 +1409,30 @@ bool CRootPanel::MousePressed(int code, int mx, int my)
 		}
 	}
 
-	return CPanel::MousePressed(code, mx, my);
+	if (CPanel::MousePressed(code, mx, my))
+		return true;
+
+	int iCount = (int)m_apControls.size();
+	for (int i = 0; i < iCount; i++)
+	{
+		IControl* pControl = m_apControls[i];
+
+		if (!pControl->IsVisible())
+			continue;
+
+		int x = 0, y = 0, w = 0, h = 0;
+		pControl->GetAbsDimensions(x, y, w, h);
+		if (mx >= x &&
+			my >= y &&
+			mx < x + w &&
+			my < y + h)
+		{
+			// If we were inside any visible elements, don't rotate the screen.
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool CRootPanel::MouseReleased(int code, int mx, int my)

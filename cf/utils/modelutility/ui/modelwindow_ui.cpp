@@ -131,11 +131,25 @@ void CModelWindow::TextureCallback()
 
 void CModelWindow::AOCallback()
 {
+	if (!CAOPanel::Get(false) || !CAOPanel::Get(false)->DoneGenerating())
+	{
+		CAOPanel::Open(false, &m_Scene, &m_aoMaterials);
+		m_pAO->SetState(false, false);
+		return;
+	}
+
 	SetDisplayAO(m_pAO->GetState());
 }
 
 void CModelWindow::ColorAOCallback()
 {
+	if (!CAOPanel::Get(true) || !CAOPanel::Get(true)->DoneGenerating())
+	{
+		CAOPanel::Open(true, &m_Scene, &m_aoMaterials);
+		m_pColorAO->SetState(false, false);
+		return;
+	}
+
 	SetDisplayColorAO(m_pColorAO->GetState());
 }
 
@@ -343,8 +357,7 @@ bool CMovablePanel::MouseReleased(int iButton, int mx, int my)
 
 	CPanel::MouseReleased(iButton, mx, my);
 
-	// Don't let the app pick up mouse buttons on panels, or it will start rotating the screen.
-	return true;
+	return false;
 }
 
 void CMovablePanel::CloseWindowCallback()
@@ -381,6 +394,7 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(256, L"256x256"));
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(512, L"512x512"));
 	m_pSizeSelector->AddSelection(CScrollSelection<int>(1024, L"1024x1024"));
+	m_pSizeSelector->AddSelection(CScrollSelection<int>(2048, L"2048x2048"));
 	m_pSizeSelector->SetSelection(2);
 	AddControl(m_pSizeSelector);
 
@@ -462,13 +476,15 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 void CAOPanel::Layout()
 {
 	int iSpace = 20;
-	int iControlY = GetHeight() - HEADER_HEIGHT - m_pSizeSelector->GetHeight();
 
 	m_pSizeLabel->EnsureTextFits();
-	m_pSizeLabel->SetPos(5, iControlY);
 
 	m_pSizeSelector->SetSize(GetWidth() - m_pSizeLabel->GetWidth() - iSpace, m_pSizeLabel->GetHeight());
+
+	int iControlY = GetHeight() - HEADER_HEIGHT - m_pSizeSelector->GetHeight();
+
 	m_pSizeSelector->SetPos(GetWidth() - m_pSizeSelector->GetWidth() - iSpace/2, iControlY);
+	m_pSizeLabel->SetPos(5, iControlY);
 
 	iControlY -= 40;
 
@@ -643,7 +659,7 @@ void CAOPanel::WorkProgress()
 
 void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
-	CAOPanel* pPanel = bColor?s_pColorAOPanel:s_pAOPanel;
+	CAOPanel* pPanel = Get(bColor);
 
 	// Get rid of the last one, in case we've changed the scene.
 	if (pPanel)
@@ -654,13 +670,18 @@ void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial
 	else
 		s_pAOPanel = new CAOPanel(false, pScene, paoMaterials);
 
-	pPanel = bColor?s_pColorAOPanel:s_pAOPanel;
+	pPanel = Get(bColor);
 
 	if (!pPanel)
 		return;
 
 	pPanel->SetVisible(true);
 	pPanel->Layout();
+}
+
+CAOPanel* CAOPanel::Get(bool bColor)
+{
+	return bColor?s_pColorAOPanel:s_pAOPanel;
 }
 
 void CAOPanel::SetVisible(bool bVisible)
@@ -722,8 +743,7 @@ bool CHelpPanel::MousePressed(int iButton, int mx, int my)
 
 	Close();
 
-	// Don't let the root window rotate shit
-	return true;
+	return false;
 }
 
 void CHelpPanel::Open()
@@ -792,8 +812,7 @@ bool CAboutPanel::MousePressed(int iButton, int mx, int my)
 
 	Close();
 
-	// Don't let the root window rotate shit
-	return true;
+	return false;
 }
 
 void CAboutPanel::Open()
@@ -883,8 +902,7 @@ bool CRegisterPanel::MousePressed(int iButton, int mx, int my)
 	if (CMovablePanel::MousePressed(iButton, mx, my))
 		return true;
 
-	// Don't let the root window rotate shit
-	return true;
+	return false;
 }
 
 bool CRegisterPanel::KeyPressed(int iKey)
@@ -977,8 +995,7 @@ bool CPiratesPanel::MousePressed(int iButton, int mx, int my)
 
 	Close();
 
-	// Don't let the root window rotate shit
-	return true;
+	return false;
 }
 
 void CPiratesPanel::Open()

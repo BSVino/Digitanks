@@ -779,7 +779,8 @@ namespace modelgui
 
 		virtual void CursorOut()
 		{
-			DoneMovingHandle();
+			if (m_bMovingHandle)
+				DoneMovingHandle();
 		}
 
 		virtual void DoneMovingHandle()

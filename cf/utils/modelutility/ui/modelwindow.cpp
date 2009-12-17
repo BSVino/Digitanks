@@ -183,6 +183,8 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 	wcscpy(m_szFileLoaded, sFile.c_str());
 
 	LoadIntoGL();
+
+	m_flCameraDistance = m_Scene.m_oExtends.Size().Length() * 1.5f;
 }
 
 void CModelWindow::ReloadFromFile()
@@ -572,6 +574,10 @@ void CModelWindow::RenderGround(void)
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 
+	glPushMatrix();
+
+	glTranslatef(m_Scene.m_oExtends.Center().x, m_Scene.m_oExtends.Center().y, m_Scene.m_oExtends.Center().z);
+
 	int i;
 
 	for (i = 0; i < 20; i++)
@@ -631,6 +637,8 @@ void CModelWindow::RenderGround(void)
 			vecEndZ.z += 10;
 		}
 	}
+
+	glPopMatrix();
 }
 
 void CModelWindow::RenderLightSource()
@@ -659,6 +667,7 @@ void CModelWindow::RenderLightSource()
 
 		glDisable(GL_LIGHTING);
 
+		glTranslatef(m_Scene.m_oExtends.Center().x, m_Scene.m_oExtends.Center().y, m_Scene.m_oExtends.Center().z);
 		glTranslatef(flLightPosition[0], flLightPosition[1], flLightPosition[2]);
 		glRotatef(-m_flLightYaw, 0, 1, 0);
 		glRotatef(m_flLightPitch, 0, 0, 1);
@@ -903,6 +912,8 @@ void CModelWindow::RenderUV()
 
 	if (!pMaterial)
 		glColor3f(0.8f, 0.8f, 0.8f);
+	else if (!pMaterial->m_iBase)
+		glColor3f(0.0f, 0.0f, 0.0f);
 	else if (m_bDisplayTexture || m_bDisplayAO || m_bDisplayColorAO)
 		glColor3f(1.0f, 1.0f, 1.0f);
 	else
