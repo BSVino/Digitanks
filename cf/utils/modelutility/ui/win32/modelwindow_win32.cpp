@@ -65,3 +65,18 @@ wchar_t* CModelWindow::SaveFileDialog(wchar_t* pszFileTypes)
 
 	return NULL;
 }
+
+std::string CModelWindow::GetClipboard()
+{
+	if (!OpenClipboard(NULL))
+		return "";
+
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	char* szBuffer = (char*)GlobalLock(hData);
+	GlobalUnlock(hData);
+	CloseClipboard();
+
+	std::string sClipboard(szBuffer);
+
+	return sClipboard;
+}

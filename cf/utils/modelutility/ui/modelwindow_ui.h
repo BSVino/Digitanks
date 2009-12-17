@@ -151,4 +151,48 @@ protected:
 	static CAboutPanel*		s_pAboutPanel;
 };
 
+class CRegisterPanel : public CMovablePanel
+{
+public:
+							CRegisterPanel();
+
+	virtual void			Layout();
+	virtual void			Paint(int x, int y, int w, int h);
+
+	virtual bool			MousePressed(int iButton, int mx, int my);
+	virtual bool			KeyPressed(int iKey);
+
+	static void				Open();
+	static void				Close();
+
+	EVENT_CALLBACK(CRegisterPanel, Pirates);
+
+protected:
+	CLabel*					m_pInfo;
+	CButton*				m_pPirates;
+
+	bool					m_bBadTry;
+
+	static CRegisterPanel*	s_pRegisterPanel;
+};
+
+class CPiratesPanel : public CMovablePanel
+{
+public:
+							CPiratesPanel();
+
+	virtual void			Layout();
+	virtual void			Paint(int x, int y, int w, int h);
+
+	virtual bool			MousePressed(int iButton, int mx, int my);
+
+	static void				Open();
+	static void				Close();
+
+protected:
+	CLabel*					m_pInfo;
+
+	static CPiratesPanel*	s_pPiratesPanel;
+};
+
 #endif

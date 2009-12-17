@@ -6,6 +6,9 @@
 
 #include <string>
 #include <vector>
+#include <functional>
+#include <algorithm>
+#include <cctype>
 
 // It's inline so I don't have to make a strutils.cpp :P
 inline void wcstok(const std::wstring& str, std::vector<std::wstring>& tokens, const std::wstring& delimiters = L" \r\n\t")
@@ -24,6 +27,23 @@ inline void wcstok(const std::wstring& str, std::vector<std::wstring>& tokens, c
         // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
     }
+}
+
+inline std::string& ltrim(std::string &s)
+{
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
+}
+
+inline std::string& rtrim(std::string &s)
+{
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	return s;
+}
+
+inline std::string& trim(std::string &s)
+{
+	return ltrim(rtrim(s));
 }
 
 #endif

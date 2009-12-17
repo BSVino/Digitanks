@@ -175,6 +175,8 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 'r' && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
 		ReloadFromFile();
 
+	modelgui::CRootPanel::Get()->KeyPressed(c);
+
 	glutPostRedisplay();
 }
 

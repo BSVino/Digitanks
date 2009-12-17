@@ -4,6 +4,7 @@
 #include <maths.h>
 #include "modelwindow.h"
 #include <GL/freeglut.h>
+#include <strutils.h>
 
 void CModelWindow::InitUI()
 {
@@ -32,6 +33,7 @@ void CModelWindow::InitUI()
 	pTools->AddSubmenu("Generate color AO map", this, GenerateColorAO);
 
 	pHelp->AddSubmenu("Help", this, Help);
+	pHelp->AddSubmenu("Register...", this, Register);
 	pHelp->AddSubmenu("About SMAK", this, About);
 
 	CButtonPanel* pTopButtons = new CButtonPanel(BA_TOP);
@@ -172,6 +174,11 @@ void CModelWindow::HelpCallback()
 	OpenHelpPanel();
 }
 
+void CModelWindow::RegisterCallback()
+{
+	OpenRegisterPanel();
+}
+
 void CModelWindow::AboutCallback()
 {
 	OpenAboutPanel();
@@ -180,6 +187,11 @@ void CModelWindow::AboutCallback()
 void CModelWindow::OpenHelpPanel()
 {
 	CHelpPanel::Open();
+}
+
+void CModelWindow::OpenRegisterPanel()
+{
+	CRegisterPanel::Open();
 }
 
 void CModelWindow::OpenAboutPanel()
@@ -318,8 +330,7 @@ bool CMovablePanel::MousePressed(int iButton, int mx, int my)
 
 	CPanel::MousePressed(iButton, mx, my);
 
-	// Don't let the app pick up mouse buttons on panels, or it will start rotating the screen.
-	return true;
+	return false;
 }
 
 bool CMovablePanel::MouseReleased(int iButton, int mx, int my)
@@ -711,6 +722,7 @@ bool CHelpPanel::MousePressed(int iButton, int mx, int my)
 
 	Close();
 
+	// Don't let the root window rotate shit
 	return true;
 }
 
@@ -756,7 +768,7 @@ void CAboutPanel::Layout()
 	m_pInfo->SetPos(0, 0);
 
 	m_pInfo->SetText("SMAK - The Super Model Army Knife\n");
-	m_pInfo->AppendText("Copyright © 2009, Jorge Rodriguez <jrodriguez@matreyastudios.com>\n");
+	m_pInfo->AppendText("Copyright © 2010, Jorge Rodriguez <jrodriguez@matreyastudios.com>\n");
 	m_pInfo->AppendText(" \n");
 	//m_pInfo->AppendText("FCollada copyright © 2006, Feeling Software\n");	// Put back in when Collada support is back.
 	m_pInfo->AppendText("DevIL copyright © 2001-2009, Denton Woods\n");
@@ -780,6 +792,7 @@ bool CAboutPanel::MousePressed(int iButton, int mx, int my)
 
 	Close();
 
+	// Don't let the root window rotate shit
 	return true;
 }
 
@@ -798,4 +811,189 @@ void CAboutPanel::Close()
 		return;
 
 	s_pAboutPanel->SetVisible(false);
+}
+
+CRegisterPanel* CRegisterPanel::s_pRegisterPanel = NULL;
+
+CRegisterPanel::CRegisterPanel()
+	: CMovablePanel("Register SMAK")
+{
+	m_pInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pInfo);
+
+	m_pPirates = new CButton(0, 0, 100, 100, "A message to pirates");
+	m_pPirates->SetClickedListener(this, Pirates);
+	AddControl(m_pPirates);
+
+	Layout();
+
+	m_bBadTry = false;
+}
+
+void CRegisterPanel::Layout()
+{
+	if (GetParent())
+	{
+		int px, py, pw, ph;
+		GetParent()->GetAbsDimensions(px, py, pw, ph);
+
+		SetSize(600, 300);
+		SetPos(pw/2 - GetWidth()/2, ph/2 - GetHeight()/2);
+	}
+
+	m_pInfo->SetSize(GetWidth(), 150);
+	m_pInfo->SetPos(0, 140);
+
+	if (!CModelWindow::Get()->GetSMAKTexture())
+	{
+		m_pInfo->SetText("Steps to Register SMAK\n");
+		m_pInfo->AppendText(" \n");
+		m_pInfo->AppendText("1. Visit http://www.matreyastudios.com/smak and purchase SMAK using the on-site store.\n");
+		m_pInfo->AppendText("2. You will be sent an unlock key in your email. Select it and use the COPY command (Ctrl-c)\n");
+		m_pInfo->AppendText("3. While this window is open, use the PASTE command (Ctrl-v)\n");
+		m_pInfo->AppendText("4. ...?\n");
+		m_pInfo->AppendText("5. Profit!\n");
+
+		if (m_bBadTry)
+		{
+			m_pInfo->AppendText(" \n");
+			m_pInfo->AppendText("Sorry, it seems that didn't work. Please try again.\n");
+			m_pInfo->AppendText("Make sure you copy only the key itself, without any quotes or other text.\n");
+		}
+	}
+	else
+	{
+		m_pInfo->SetText("Your installation of SMAK is now fully registered. Thanks!\n");
+	}
+
+	m_pPirates->SetSize(0, 0);
+	m_pPirates->EnsureTextFits();
+	m_pPirates->SetDimensions(GetWidth() - m_pPirates->GetWidth() - 5, 5, m_pPirates->GetWidth(), m_pPirates->GetHeight());
+
+	CMovablePanel::Layout();
+}
+
+void CRegisterPanel::Paint(int x, int y, int w, int h)
+{
+	CMovablePanel::Paint(x, y, w, h);
+}
+
+bool CRegisterPanel::MousePressed(int iButton, int mx, int my)
+{
+	if (CMovablePanel::MousePressed(iButton, mx, my))
+		return true;
+
+	// Don't let the root window rotate shit
+	return true;
+}
+
+bool CRegisterPanel::KeyPressed(int iKey)
+{
+	if (!CModelWindow::Get()->GetSMAKTexture() && iKey == 'v')
+	{
+		std::string sClipboard = trim(CModelWindow::GetClipboard());
+		CModelWindow::Get()->SetSMAKTexture(sClipboard.c_str());
+		m_bBadTry = true;
+		Layout();
+		return true;
+	}
+	else
+		return CMovablePanel::KeyPressed(iKey);
+}
+
+void CRegisterPanel::PiratesCallback()
+{
+	CPiratesPanel::Open();
+}
+
+void CRegisterPanel::Open()
+{
+	if (!s_pRegisterPanel)
+		s_pRegisterPanel = new CRegisterPanel();
+
+	s_pRegisterPanel->SetVisible(true);
+	s_pRegisterPanel->Layout();
+}
+
+void CRegisterPanel::Close()
+{
+	if (!s_pRegisterPanel)
+		return;
+
+	s_pRegisterPanel->SetVisible(false);
+}
+
+CPiratesPanel* CPiratesPanel::s_pPiratesPanel = NULL;
+
+CPiratesPanel::CPiratesPanel()
+	: CMovablePanel("A Message to Software Pirates")
+{
+	m_pInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pInfo);
+	Layout();
+}
+
+void CPiratesPanel::Layout()
+{
+	if (GetParent())
+	{
+		int px, py, pw, ph;
+		GetParent()->GetAbsDimensions(px, py, pw, ph);
+
+		SetSize(800, 350);
+		SetPos(pw/2 - GetWidth()/2, ph/2 - GetHeight()/2);
+	}
+
+	m_pInfo->SetSize(GetWidth()-10, GetHeight()-10);
+	m_pInfo->SetPos(5, 5);
+	m_pInfo->SetAlign(CLabel::TA_LEFTCENTER);
+
+	m_pInfo->SetText("Dear pirates,\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("I know who you are. I know where you live. I'm coming for you.\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("Just kidding.\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("Obviously there's nothing I can do to keep a determined person from pirating my software. I know how these things work, I've pirated plenty of things myself. All I can do is ask you sincerely, if you pirate this software and you are able to use it and enjoy it, please pay for it. I worked very hard on this thing (Almost as hard as you did to pirate it!) and all I'm trying to do is exchange a hard day's work for a couple of well-earned bones.\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("I'm not some big corporation trying to screw its customers. I'm not an industry assocation who will come after you if you download one thing. I'm not the man trying to hold you down, bro. I'm just a guy who's trying to make a living doing something that he loves. I don't have a BMW or a Rolex. I'm just a dude trying to feed his dog.\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("So please, when you pirate this software, think of the dog.\n");
+	m_pInfo->AppendText(" \n");
+	m_pInfo->AppendText("Jorge Rodriguez <jrodriguez@matreyastudios.com>\n");
+
+	CMovablePanel::Layout();
+}
+
+void CPiratesPanel::Paint(int x, int y, int w, int h)
+{
+	CMovablePanel::Paint(x, y, w, h);
+}
+
+bool CPiratesPanel::MousePressed(int iButton, int mx, int my)
+{
+	if (CMovablePanel::MousePressed(iButton, mx, my))
+		return true;
+
+	Close();
+
+	// Don't let the root window rotate shit
+	return true;
+}
+
+void CPiratesPanel::Open()
+{
+	if (!s_pPiratesPanel)
+		s_pPiratesPanel = new CPiratesPanel();
+
+	s_pPiratesPanel->SetVisible(true);
+	s_pPiratesPanel->Layout();
+}
+
+void CPiratesPanel::Close()
+{
+	if (!s_pPiratesPanel)
+		return;
+
+	s_pPiratesPanel->SetVisible(false);
 }

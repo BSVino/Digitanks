@@ -1503,6 +1503,9 @@ size_t CAOGenerator::GenerateTexture(bool bInMedias)
 
 void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 {
+	if (!pszFilename)
+		return;
+
 	ilEnable(IL_FILE_OVERWRITE);
 
 	ILuint iDevILId;
@@ -1516,6 +1519,12 @@ void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 
 	// I'm glad this flips X and not Y, or it'd be pretty useless to me.
 	iluFlipImage();
+
+	if (!CModelWindow::Get()->GetSMAKTexture() && (m_iWidth > 128 || m_iHeight > 128))
+	{
+		iluImageParameter(ILU_FILTER, ILU_BILINEAR);
+		iluScale(128, 128, 1);
+	}
 
 	ilSaveImage(pszFilename);
 

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <algorithm>
 
 #include "modelconverter.h"
 #include "strutils.h"

@@ -72,6 +72,8 @@ CModelWindow::CModelWindow()
 	if (iTexture)
 		m_pLightBeam = new CMaterial(iTexture);
 
+	LoadSMAKTexture();
+
 	m_iWireframeTexture = LoadTextureIntoGL(L"wireframe.png");
 	m_iFlatTexture = LoadTextureIntoGL(L"flat.png");
 	m_iSmoothTexture = LoadTextureIntoGL(L"smooth.png");
@@ -972,6 +974,36 @@ void CModelWindow::RenderUV()
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	}
 
+	if (!CModelWindow::Get()->GetSMAKTexture() && m_bDisplayAO)
+	{
+		static char szFont[1024];
+		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
+
+		FTGLPixmapFont*	pFont = new FTGLPixmapFont(szFont);
+		pFont->FaceSize(48);
+
+		glColor4ubv(Color(255, 255, 255, 20));
+
+		glRasterPos2f(0.15f, 0.2f);
+		pFont->Render("DEMO");
+
+		glRasterPos2f(-0.35f, 0.2f);
+		pFont->Render("DEMO");
+
+		glRasterPos2f(0.15f, -0.2f);
+		pFont->Render("DEMO");
+
+		glRasterPos2f(-0.35f, -0.2f);
+		pFont->Render("DEMO");
+
+		glColor4ubv(Color(255, 255, 255, 180));
+		glRasterPos2f(-0.5f, 0.51f);
+		pFont->FaceSize(16);
+		pFont->Render("This demo version will generate all map sizes, but will downsample to 128x128 when saving.");
+
+		delete pFont;
+	}
+
 	if (m_eDisplayType == DT_WIREFRAME)
 	{
 		Vector vecOffset(-0.5f, -0.5f, 0);
@@ -1114,10 +1146,10 @@ void CModelWindow::SetDisplayColorAO(bool bColorAO)
 void CModelWindow::ClearDebugLines()
 {
 	m_avecDebugLines.clear();
-};
+}
 
 void CModelWindow::AddDebugLine(Vector vecStart, Vector vecEnd)
 {
 	m_avecDebugLines.push_back(vecStart);
 	m_avecDebugLines.push_back(vecEnd);
-};
+}

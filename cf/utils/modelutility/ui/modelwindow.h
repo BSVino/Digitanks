@@ -45,6 +45,14 @@ public:
 	void					LoadTexturesIntoGL();
 	void					CreateGLLists();
 
+	// License management
+	unsigned long			PNG_CRC(unsigned char *buf, int len);
+	void					LoadSMAKTexture();
+	void					SetupSMAKTexture();
+	void					SaveSMAKTexture();
+	bool					GetSMAKTexture();
+	void					SetSMAKTexture(const char* pszTex);
+
 	void					SaveFile(const wchar_t* pszFile);
 
 	static void				RenderCallback() { Get()->Render(); };
@@ -100,13 +108,17 @@ public:
 	EVENT_CALLBACK(CModelWindow, GenerateAO);
 	EVENT_CALLBACK(CModelWindow, GenerateColorAO);
 	EVENT_CALLBACK(CModelWindow, Help);
+	EVENT_CALLBACK(CModelWindow, Register);
 	EVENT_CALLBACK(CModelWindow, About);
 
 	size_t					GetNextObjectId();
 
 	wchar_t*				OpenFileDialog();
 	wchar_t*				SaveFileDialog(wchar_t* pszFileTypes);
+	static std::string		GetClipboard();
+
 	void					OpenHelpPanel();
+	void					OpenRegisterPanel();
 	void					OpenAboutPanel();
 
 	// UI
