@@ -985,7 +985,7 @@ void CModelWindow::RenderUV()
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	}
 
-	if (!CModelWindow::Get()->GetSMAKTexture() && m_bDisplayAO)
+	if (!CModelWindow::Get()->GetSMAKTexture() && (m_bDisplayAO || m_bDisplayColorAO))
 	{
 		static char szFont[1024];
 		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));

@@ -1226,7 +1226,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 		glCallList(m_iSceneList+i+2);
 
 #ifdef AO_DEBUG
-	DebugRenderSceneLookAtPosition(vecPosition, vecDirection, pRenderFace);
+//	DebugRenderSceneLookAtPosition(vecPosition, vecDirection, pRenderFace);
 #endif
 
 	glFinish();
@@ -1235,7 +1235,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 
 	glReadBuffer(eBuffer);
 
-	glReadPixels(m_iRPVX, m_iRPVY, m_iRPVW, m_iRPVH, GL_RGB, GL_FLOAT, m_pPixels);
+	glReadPixels(m_iRPVX, m_iRPVY, m_iRPVW, m_iRPVH, GL_RGBA, GL_FLOAT, m_pPixels);
 
 	float flTotal = 0;
 
@@ -1250,7 +1250,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 		// With the huge FOV that we work with, polygons to the
 		// outside are huge on the screen.
 		float flWeight = (0.5f-(vecUV - vecUVCenter).Length())*2.0f;
-		if (flWeight <= 0)
+		if (flWeight <= 0.1)
 			continue;
 
 		// Pixels in the center of the screen are much, much more important.
@@ -1310,7 +1310,7 @@ void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vec
 	//glCallList(m_iSceneList);
 
 	for (size_t i = 0; i < m_paoMaterials->size(); i++)
-		glCallList(m_iSceneList+i+1);
+		glCallList(m_iSceneList+i+2);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
