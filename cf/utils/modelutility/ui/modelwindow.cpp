@@ -912,7 +912,7 @@ void CModelWindow::RenderUV()
 
 	if (!pMaterial)
 		glColor3f(0.8f, 0.8f, 0.8f);
-	else if (!pMaterial->m_iBase)
+	else if (!pMaterial->m_iBase && !(m_bDisplayAO || m_bDisplayColorAO))
 		glColor3f(0.0f, 0.0f, 0.0f);
 	else if (m_bDisplayTexture || m_bDisplayAO || m_bDisplayColorAO)
 		glColor3f(1.0f, 1.0f, 1.0f);
