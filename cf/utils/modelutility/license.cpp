@@ -32,10 +32,16 @@ void CModelWindow::LoadSMAKTexture()
 
 	bool bFoundTexture = false;
 
+	fseek(fp, 0, SEEK_END);
+	long iFileLength = ftell(fp);
+
 	fseek(fp, 8, SEEK_SET);
 	while (!feof(fp))
 	{
 		long iChunkStart = ftell(fp);
+
+		if (iChunkStart >= iFileLength)
+			break;
 
 		unsigned long iLength = 0;
 		fread(&iLength, sizeof(iLength), 1, fp);
@@ -106,10 +112,16 @@ void CModelWindow::SaveSMAKTexture()
 	static unsigned char szChunkName[4] = { 'd', 't', 'A', 'p' };	// death to all pirates
 	static unsigned char szEndChunk[12] = { 0, 0, 0, 0, 'I', 'E', 'N', 'D', 0xae, 0x42, 0x60, 0x82 };
 
+	fseek(fp, 0, SEEK_END);
+	long iFileLength = ftell(fp);
+
 	fseek(fp, 8, SEEK_SET);
 	while (!feof(fp))
 	{
 		long iChunkStart = ftell(fp);
+
+		if (iChunkStart >= iFileLength)
+			break;
 
 		unsigned long iLength = 0;
 		fread(&iLength, sizeof(iLength), 1, fp);
