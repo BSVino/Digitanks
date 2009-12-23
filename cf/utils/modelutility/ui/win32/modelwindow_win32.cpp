@@ -82,6 +82,26 @@ std::string CModelWindow::GetClipboard()
 	return sClipboard;
 }
 
+void CModelWindow::SetClipboard(const std::string& sBuf)
+{
+	if (!OpenClipboard(NULL))
+		return;
+
+	EmptyClipboard();
+
+	HGLOBAL hClipboard;
+	hClipboard = GlobalAlloc(GMEM_MOVEABLE, sBuf.length()+1);
+
+	char* pszBuffer = (char*)GlobalLock(hClipboard);
+	strcpy(pszBuffer, LPCSTR(sBuf.c_str()));
+
+	GlobalUnlock(hClipboard);
+
+	SetClipboardData(CF_TEXT, hClipboard);
+
+	CloseClipboard();
+}
+
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 {
 	static unsigned char aiAddresses[16][8];

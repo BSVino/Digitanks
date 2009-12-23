@@ -51,7 +51,8 @@ public:
 	void					SetupSMAKTexture();
 	void					SaveSMAKTexture();
 	bool					GetSMAKTexture();
-	unsigned long			GetSMAKTextureCode();
+	std::string				GetSMAKTextureCode();
+	void					GetSMAKTextureId(unsigned char* paiId);
 	void					SetSMAKTexture(const char* pszTex);
 
 	void					SaveFile(const wchar_t* pszFile);
@@ -117,6 +118,7 @@ public:
 	wchar_t*				OpenFileDialog();
 	wchar_t*				SaveFileDialog(wchar_t* pszFileTypes);
 	static std::string		GetClipboard();
+	static void				SetClipboard(const std::string& sBuf);
 
 	void					OpenHelpPanel();
 	void					OpenRegisterPanel();

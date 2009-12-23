@@ -879,9 +879,9 @@ CRegisterPanel::CRegisterPanel()
 	m_pPirates->SetClickedListener(this, Pirates);
 	AddControl(m_pPirates);
 
-	Layout();
-
 	m_bBadTry = false;
+
+	Layout();
 }
 
 void CRegisterPanel::Layout()
@@ -896,7 +896,7 @@ void CRegisterPanel::Layout()
 	}
 
 	m_pInfo->SetAlign(CLabel::TA_TOPCENTER);
-	m_pInfo->SetSize(GetWidth(), GetHeight()-60);
+	m_pInfo->SetSize(GetWidth(), GetHeight()-40);
 	m_pInfo->SetPos(0, 0);
 
 	if (!CModelWindow::Get()->GetSMAKTexture())
@@ -912,12 +912,10 @@ void CRegisterPanel::Layout()
 		m_pInfo->AppendText(" \n");
 		m_pInfo->AppendText(" \n");
 
-		char szCode[12];
-		sprintf(szCode, "%d", CModelWindow::Get()->GetSMAKTextureCode());
-
 		m_pInfo->AppendText("Your product code is: ");
-		m_pInfo->AppendText(szCode);
+		m_pInfo->AppendText(CModelWindow::Get()->GetSMAKTextureCode().c_str());
 		m_pInfo->AppendText("\n");
+		m_pInfo->AppendText("Use the COPY command (Ctrl-c) to move it to the clipboard.\n");
 
 		if (m_bBadTry)
 		{
@@ -953,12 +951,17 @@ bool CRegisterPanel::MousePressed(int iButton, int mx, int my)
 
 bool CRegisterPanel::KeyPressed(int iKey)
 {
-	if (!CModelWindow::Get()->GetSMAKTexture() && iKey == 'v')
+	if (!CModelWindow::Get()->GetSMAKTexture() && (iKey == 'v' || ((glutGetModifiers()&GLUT_ACTIVE_CTRL) && iKey == 'v'-'a'+1)))
 	{
 		std::string sClipboard = trim(CModelWindow::GetClipboard());
 		CModelWindow::Get()->SetSMAKTexture(sClipboard.c_str());
 		m_bBadTry = true;
 		Layout();
+		return true;
+	}
+	else if (!CModelWindow::Get()->GetSMAKTexture() && (iKey == 'c' || ((glutGetModifiers()&GLUT_ACTIVE_CTRL) && iKey == 'c'-'a'+1)))
+	{
+		CModelWindow::SetClipboard(CModelWindow::Get()->GetSMAKTextureCode());
 		return true;
 	}
 	else

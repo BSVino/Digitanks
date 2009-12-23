@@ -275,9 +275,12 @@ void CModelWindow::SetSMAKTexture(const char* pszTex)
 		SaveSMAKTexture();
 }
 
-unsigned long CModelWindow::GetSMAKTextureCode()
+std::string CModelWindow::GetSMAKTextureCode()
 {
-	return g_iSMAKTex;
+	char szCode[40];
+	sprintf(szCode, "%d-%x%x%x%x%x%x%x%x", g_iSMAKTex, g_iSMAKId[0], g_iSMAKId[1], g_iSMAKId[2], g_iSMAKId[3], g_iSMAKId[4], g_iSMAKId[5], g_iSMAKId[6], g_iSMAKId[7]);
+
+	return std::string(szCode);
 }
 
 /* Table of CRCs of all 8-bit messages. */
