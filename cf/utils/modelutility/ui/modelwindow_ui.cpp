@@ -895,8 +895,9 @@ void CRegisterPanel::Layout()
 		SetPos(pw/2 - GetWidth()/2, ph/2 - GetHeight()/2);
 	}
 
-	m_pInfo->SetSize(GetWidth(), 150);
-	m_pInfo->SetPos(0, 140);
+	m_pInfo->SetAlign(CLabel::TA_TOPCENTER);
+	m_pInfo->SetSize(GetWidth(), GetHeight()-60);
+	m_pInfo->SetPos(0, 0);
 
 	if (!CModelWindow::Get()->GetSMAKTexture())
 	{
@@ -907,6 +908,16 @@ void CRegisterPanel::Layout()
 		m_pInfo->AppendText("3. While this window is open, use the PASTE command (Ctrl-v)\n");
 		m_pInfo->AppendText("4. ...?\n");
 		m_pInfo->AppendText("5. Profit!\n");
+
+		m_pInfo->AppendText(" \n");
+		m_pInfo->AppendText(" \n");
+
+		char szCode[12];
+		sprintf(szCode, "%d", CModelWindow::Get()->GetSMAKTextureCode());
+
+		m_pInfo->AppendText("Your product code is: ");
+		m_pInfo->AppendText(szCode);
+		m_pInfo->AppendText("\n");
 
 		if (m_bBadTry)
 		{
@@ -964,6 +975,7 @@ void CRegisterPanel::Open()
 	if (!s_pRegisterPanel)
 		s_pRegisterPanel = new CRegisterPanel();
 
+	s_pRegisterPanel->m_bBadTry = false;
 	s_pRegisterPanel->SetVisible(true);
 	s_pRegisterPanel->Layout();
 }
@@ -1007,7 +1019,7 @@ void CPiratesPanel::Layout()
 	m_pInfo->AppendText(" \n");
 	m_pInfo->AppendText("Just kidding.\n");
 	m_pInfo->AppendText(" \n");
-	m_pInfo->AppendText("Obviously there's nothing I can do to keep a determined person from pirating my software. I know how these things work, I've pirated plenty of things myself. All I can do is ask you sincerely, if you pirate this software and you are able to use it and enjoy it, please pay for it. I worked very hard on this thing (Almost as hard as you did to pirate it!) and all I'm trying to do is exchange a hard day's work for a couple of well-earned bones.\n");
+	m_pInfo->AppendText("Obviously there's nothing I can do to keep a determined person from pirating my software. I know how these things work, I've pirated plenty of things myself. All I can do is ask you sincerely, if you pirate this software and you are able to use it and enjoy it, please pay for it. It's not a very expensive tool. I worked very hard on this thing (Almost as hard as you did to pirate it!) and all I'm trying to do is exchange a hard day's work for a couple of well-earned bones.\n");
 	m_pInfo->AppendText(" \n");
 	m_pInfo->AppendText("I'm not some big corporation trying to screw its customers. I'm not an industry assocation who will come after you if you download one thing. I'm not the man trying to hold you down, bro. I'm just a guy who's trying to make a living doing something that he loves. I don't have a BMW or a Rolex. I'm just a dude trying to feed his dog.\n");
 	m_pInfo->AppendText(" \n");

@@ -619,6 +619,8 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 		glRasterPos2f((float)x, (float)y + (float)h/2 - flBaseline + th/2 - m_iLine*t);
 	else if (m_eAlign == TA_RIGHTCENTER)
 		glRasterPos2f((float)x + (float)w - lw, y + h/2 - flBaseline + th/2 - m_iLine*t);
+	else if (m_eAlign == TA_TOPCENTER)
+		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + (float)h - m_iLine*t);
 	else	// TA_TOPLEFT
 		glRasterPos2f((float)x, (float)y + (float)h - lw);
 

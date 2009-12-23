@@ -20,6 +20,9 @@
 
 static unsigned long g_iSMAKTex = 0;
 static char g_szSMAKTex[40];
+static unsigned char g_iSMAKId[8];
+
+extern void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses);
 
 // It says it's the SMAK texture but it's actually our license file. Sneaky!
 void CModelWindow::LoadSMAKTexture()
@@ -29,6 +32,10 @@ void CModelWindow::LoadSMAKTexture()
 	// Can't license the product without our license file.
 	if (!fp)
 		return;
+
+	unsigned char* paiAddresses;
+	size_t iAddresses;
+	GetMACAddresses(paiAddresses, iAddresses);
 
 	bool bFoundTexture = false;
 
@@ -57,8 +64,22 @@ void CModelWindow::LoadSMAKTexture()
 			szData[8] = '\0';
 			g_iSMAKTex = atoi(szData);
 
+			unsigned char szData3[8];
+			fread(&szData3[0], sizeof(szData3), 1, fp);
+
 			if (g_iSMAKTex)
-				bFoundTexture = true;
+			{
+				// Look for our nic card. If it's not on the list then we should generate a new one.
+				for (size_t i = 0; i < iAddresses; i++)
+				{
+					if (memcmp(szData3, &paiAddresses[i*8], sizeof(szData3)) == 0)
+					{
+						memcpy(g_iSMAKId, szData3, sizeof(g_iSMAKId));
+						bFoundTexture = true;
+						break;
+					}
+				}
+			}
 
 			char szData2[40];
 			fread(&szData2[0], sizeof(szData2), 1, fp);
@@ -92,6 +113,13 @@ void CModelWindow::SetupSMAKTexture()
 	for (i = 0; i < 40; i++)
 		g_szSMAKTex[i] = '\0';
 
+	unsigned char* paiAddresses;
+	size_t iAddresses;
+	GetMACAddresses(paiAddresses, iAddresses);
+
+	// Just use the first one.
+	memcpy(g_iSMAKId, paiAddresses, sizeof(g_iSMAKId));
+
 	SaveSMAKTexture();
 }
 
@@ -100,14 +128,18 @@ void CModelWindow::SaveSMAKTexture()
 	FILE* fp = fopen("smak.png", "rb+");
 
 	// Generate the product code.
-	unsigned char szCode[48];
+	unsigned char szCode[56];
 
 	memset(szCode, 0, sizeof(szCode));
 
 	sprintf((char*)szCode, "%d", g_iSMAKTex);
 
-	for (size_t i = 0; i < 40; i++)
-		szCode[i+8] = g_szSMAKTex[i];
+	size_t i;
+	for (i = 0; i < 8; i++)
+		szCode[i+8] = g_iSMAKId[i];
+
+	for (i = 0; i < 40; i++)
+		szCode[i+16] = g_szSMAKTex[i];
 
 	static unsigned char szChunkName[4] = { 'd', 't', 'A', 'p' };	// death to all pirates
 	static unsigned char szEndChunk[12] = { 0, 0, 0, 0, 'I', 'E', 'N', 'D', 0xae, 0x42, 0x60, 0x82 };
@@ -174,11 +206,36 @@ bool CModelWindow::GetSMAKTexture()
 		0x34, 0x21, 0x20, 0xf0, 0x94, 0x5b, 0x14, 0xfd, 0x53, 0xdd
 	};
 
-	srand(g_iSMAKTex);
+	unsigned char* paiAddresses;
+	size_t iAddresses;
+	GetMACAddresses(paiAddresses, iAddresses);
+
+	size_t i;
+	bool bFoundId = false;
+	for (i = 0; i < iAddresses; i++)
+	{
+		if (memcmp(&g_iSMAKId[0], &paiAddresses[i*8], sizeof(g_iSMAKId)) == 0)
+		{
+			bFoundId = true;
+			break;
+		}
+	}
+
+	unsigned int iIdSum = 0;
+
+	// Anybody with no ethernet card falls back to just the product code.
+	// Technically it means all of those people can share a code/key but
+	// everybody has nic cards these days so who cares?
+	if (bFoundId)
+	{
+		for (i = 0; i < 8; i++)
+			iIdSum += g_iSMAKId[i];
+	}
+
+	srand(g_iSMAKTex + iIdSum);
 
 	unsigned char szResult[40];
 
-	size_t i;
 	for (i = 0; i < 40; i++)
 		szResult[i] = szTexture[i] ^ rand();
 
@@ -216,6 +273,11 @@ void CModelWindow::SetSMAKTexture(const char* pszTex)
 
 	if (GetSMAKTexture())
 		SaveSMAKTexture();
+}
+
+unsigned long CModelWindow::GetSMAKTextureCode()
+{
+	return g_iSMAKTex;
 }
 
 /* Table of CRCs of all 8-bit messages. */

@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
-				AdditionalDependencies="modelconverter.lib raytracer.lib DevIL.lib ILU.lib ftgl_static_D.lib freetype2311MT_D.lib"
+				AdditionalDependencies="modelconverter.lib raytracer.lib DevIL.lib ILU.lib ftgl_static_D.lib freetype2311MT_D.lib iphlpapi.lib"
 				OutputFile="$(IntDir)\$(ProjectName).exe"
 				AdditionalLibraryDirectories="&quot;../freeglut-2.4.0/DebugStatic&quot;;../../lib;&quot;\Program Files\Feeling Software\FCollada\Output\Debug Unicode Win32&quot;;..\DevIL\lib\unicode;&quot;..\freetype-2.3.11\objs\win32\vc2005&quot;;&quot;..\ftgl-2.1.3~rc5\msvc\build&quot;"
 				GenerateDebugInformation="true"
@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
-				AdditionalDependencies="modelconverter.lib raytracer.lib DevIL.lib ILU.lib ftgl_static.lib freetype2311MT.lib"
+				AdditionalDependencies="modelconverter.lib raytracer.lib DevIL.lib ILU.lib ftgl_static.lib freetype2311MT.lib iphlpapi.lib"
 				OutputFile="$(IntDir)\$(ProjectName).exe"
 				AdditionalLibraryDirectories="&quot;../freeglut-2.4.0/ReleaseStatic&quot;;../../lib;&quot;\Program Files\Feeling Software\FCollada\Output\Retail Unicode Win32&quot;;..\DevIL\lib\unicode;&quot;..\freetype-2.3.11\objs\win32\vc2005&quot;;&quot;..\ftgl-2.1.3~rc5\msvc\build&quot;"
 				GenerateDebugInformation="true"

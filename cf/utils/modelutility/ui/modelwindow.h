@@ -51,6 +51,7 @@ public:
 	void					SetupSMAKTexture();
 	void					SaveSMAKTexture();
 	bool					GetSMAKTexture();
+	unsigned long			GetSMAKTextureCode();
 	void					SetSMAKTexture(const char* pszTex);
 
 	void					SaveFile(const wchar_t* pszFile);

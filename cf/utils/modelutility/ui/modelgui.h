@@ -386,9 +386,10 @@ namespace modelgui
 		typedef enum
 		{
 			TA_TOPLEFT		= 0,
-			TA_LEFTCENTER	= 1,
-			TA_MIDDLECENTER	= 2,
-			TA_RIGHTCENTER	= 3,
+			TA_TOPCENTER	= 1,
+			TA_LEFTCENTER	= 2,
+			TA_MIDDLECENTER	= 3,
+			TA_RIGHTCENTER	= 4,
 		} TextAlign;
 
 		virtual void	Paint() { int x = 0, y = 0; GetAbsPos(x, y); Paint(x, y); };
