@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <string.h>
 
 #include <strutils.h>
 #include <platform.h>
@@ -83,11 +84,15 @@ bool GenerateKey(std::string sProductCode, std::string& sKey)
 		0x34, 0x21, 0x20, 0xf0, 0x94, 0x5b, 0x14, 0xfd, 0x53, 0xdd
 	};
 
+	size_t i;
+
+#ifdef CF_LICENSE_GENERATOR
+	bool bFoundId = true;
+#else
 	unsigned char* paiAddresses;
 	size_t iAddresses;
 	GetMACAddresses(paiAddresses, iAddresses);
 
-	size_t i;
 	bool bFoundId = false;
 	for (i = 0; i < iAddresses; i++)
 	{
@@ -97,6 +102,7 @@ bool GenerateKey(std::string sProductCode, std::string& sKey)
 			break;
 		}
 	}
+#endif
 
 	unsigned int iIdSum = 0;
 
