@@ -6,6 +6,8 @@
 #include <sys/utime.h>
 #endif
 
+#include <license/license.h>
+
 // Don't want to import winsock just for htonl and ntohl, so we're shortcutting it.
 #ifdef _WIN32
 #define htopl(A) ((((unsigned long)(A) & 0xff000000) >> 24) | \
@@ -195,76 +197,11 @@ void CModelWindow::SaveSMAKTexture()
 
 bool CModelWindow::GetSMAKTexture()
 {
-	if (!g_iSMAKTex)
+	std::string sResult;
+	if (!GenerateKey(GetSMAKTextureCode(), sResult))
 		return false;
 
-	unsigned char szTexture[40] =
-	{
-		0xb3, 0x5c, 0x5a, 0xdd, 0x83, 0xdf, 0xba, 0xd3, 0xf6, 0x99,
-		0x86, 0xd9, 0xb7, 0x9d, 0x1e, 0xf1, 0xec, 0x13, 0x76, 0x00,
-		0x2b, 0xb8, 0x69, 0x16, 0x5a, 0x51, 0x9c, 0x5d, 0xdc, 0x14,
-		0x34, 0x21, 0x20, 0xf0, 0x94, 0x5b, 0x14, 0xfd, 0x53, 0xdd
-	};
-
-	unsigned char* paiAddresses;
-	size_t iAddresses;
-	GetMACAddresses(paiAddresses, iAddresses);
-
-	size_t i;
-	bool bFoundId = false;
-	for (i = 0; i < iAddresses; i++)
-	{
-		if (memcmp(&g_iSMAKId[0], &paiAddresses[i*8], sizeof(g_iSMAKId)) == 0)
-		{
-			bFoundId = true;
-			break;
-		}
-	}
-
-	unsigned int iIdSum = 0;
-
-	// Anybody with no ethernet card falls back to just the product code.
-	// Technically it means all of those people can share a code/key but
-	// everybody has nic cards these days so who cares?
-	if (bFoundId)
-	{
-		for (i = 0; i < 8; i++)
-			iIdSum += g_iSMAKId[i];
-	}
-
-	srand(g_iSMAKTex + iIdSum);
-
-	unsigned char szResult[40];
-
-	for (i = 0; i < 40; i++)
-		szResult[i] = szTexture[i] ^ rand();
-
-	for (i = 0; i < 40; i++)
-	{
-		szResult[i] = szResult[i]%36;
-
-		if (szResult[i] < 10)
-			szResult[i] += '0';
-		else
-			szResult[i] += 'A' - 10;
-
-		if (szResult[i] == '1')
-			szResult[i] = 'R';
-
-		else if (szResult[i] == 'l')
-			szResult[i] = 'T';
-
-		else if (szResult[i] == 'I')
-			szResult[i] = '7';
-
-		else if (szResult[i] == '0')
-			szResult[i] = '4';
-
-		else if (szResult[i] == 'O')
-			szResult[i] = 'Z';
-	}
-
-	return memcmp(szResult, g_szSMAKTex, 40) == 0;
+	return memcmp(sResult.c_str(), g_szSMAKTex, 40) == 0;
 }
 
 void CModelWindow::SetSMAKTexture(const char* pszTex)
@@ -278,7 +215,7 @@ void CModelWindow::SetSMAKTexture(const char* pszTex)
 std::string CModelWindow::GetSMAKTextureCode()
 {
 	char szCode[40];
-	sprintf(szCode, "%d-%x%x%x%x%x%x%x%x", g_iSMAKTex, g_iSMAKId[0], g_iSMAKId[1], g_iSMAKId[2], g_iSMAKId[3], g_iSMAKId[4], g_iSMAKId[5], g_iSMAKId[6], g_iSMAKId[7]);
+	sprintf(szCode, "%d-%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x", g_iSMAKTex, g_iSMAKId[0], g_iSMAKId[1], g_iSMAKId[2], g_iSMAKId[3], g_iSMAKId[4], g_iSMAKId[5], g_iSMAKId[6], g_iSMAKId[7]);
 
 	return std::string(szCode);
 }
