@@ -92,7 +92,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="if exist &quot;..\..\lib\license.lib&quot; attrib -r &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;license.lib&quot; copy &quot;$(TargetDir)&quot;license.lib &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;"
+				CommandLine="if exist &quot;..\..\lib\license.lib&quot; attrib -r &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;license.lib copy &quot;$(TargetDir)&quot;license.lib &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;"
 				Outputs="..\..\lib\license.lib"
 			/>
 			<Tool
