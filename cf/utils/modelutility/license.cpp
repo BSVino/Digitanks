@@ -134,7 +134,7 @@ void CModelWindow::SaveSMAKTexture()
 
 	memset(szCode, 0, sizeof(szCode));
 
-	sprintf((char*)szCode, "%d", g_iSMAKTex);
+	sprintf((char*)szCode, "%.8d", g_iSMAKTex);
 
 	size_t i;
 	for (i = 0; i < 8; i++)
@@ -215,7 +215,7 @@ void CModelWindow::SetSMAKTexture(const char* pszTex)
 std::string CModelWindow::GetSMAKTextureCode()
 {
 	char szCode[40];
-	sprintf(szCode, "%d-%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x", g_iSMAKTex, g_iSMAKId[0], g_iSMAKId[1], g_iSMAKId[2], g_iSMAKId[3], g_iSMAKId[4], g_iSMAKId[5], g_iSMAKId[6], g_iSMAKId[7]);
+	sprintf(szCode, "%.8d-%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x", g_iSMAKTex, g_iSMAKId[0], g_iSMAKId[1], g_iSMAKId[2], g_iSMAKId[3], g_iSMAKId[4], g_iSMAKId[5], g_iSMAKId[6], g_iSMAKId[7]);
 
 	return std::string(szCode);
 }
