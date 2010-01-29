@@ -101,7 +101,10 @@ void CConversionMesh::CalculateVertexNormals()
 			vecNormal /= (float)aNormalFaces.size();
 			vecNormal.Normalize();
 
-			m_aNormals[pVertex->vn] = vecNormal;
+			if (pVertex->vn == ((size_t)~0))
+				pVertex->vn = AddNormal(vecNormal.x, vecNormal.y, vecNormal.z);
+			else
+				m_aNormals[pVertex->vn] = vecNormal;
 		}
 	}
 }

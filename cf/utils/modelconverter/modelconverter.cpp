@@ -97,9 +97,14 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 
 			while (pszToken = wcstok(NULL, L" "))
 			{
-				size_t v, vt, vn;
-				if (swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) == 3)
-					pMesh->AddVertexToFace(iFace, v-1, vt-1, vn-1);
+				size_t v, vt, vn = ~0;
+				if (swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) >= 2)
+				{
+					if (vn == ~0)
+						pMesh->AddVertexToFace(iFace, v-1, vt-1, ~0);
+					else
+						pMesh->AddVertexToFace(iFace, v-1, vt-1, vn-1);
+				}
 				else
 					printf("WARNING! Found an invalid vertex while loading faces.\n");
 			}
@@ -115,6 +120,12 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 	fclose(fp);
 
 	m_pScene->CalculateExtends();
+
+	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
+	{
+		if (m_pScene->GetMesh(i)->GetNumNormals() == 0)
+			m_pScene->GetMesh(i)->CalculateVertexNormals();
+	}
 }
 
 void CModelConverter::ReadMTL(const wchar_t* pszFilename)
