@@ -4,3 +4,4 @@ It gives position and texture coordinate and expects the reading application to 
 
 * sword_demon.obj
 It was also exported by Max (prob a different Max, somehow) and has no material specified before the faces begin.
+Also has tiny tiny vertex normals.
