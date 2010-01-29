@@ -60,7 +60,7 @@ wchar_t* CModelWindow::SaveFileDialog(wchar_t* pszFileTypes)
 	opf.Flags = (OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
 	opf.lStructSize = sizeof(OPENFILENAME);
 
-	if(GetOpenFileName(&opf))
+	if(GetSaveFileName(&opf))
 		return opf.lpstrFile;
 
 	return NULL;
