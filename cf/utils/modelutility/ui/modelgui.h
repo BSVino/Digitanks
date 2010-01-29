@@ -712,7 +712,7 @@ namespace modelgui
 			else
 				m_flHandlePositionGoal = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
 
-			m_flHandlePosition = Approach(m_flHandlePositionGoal, m_flHandlePosition, CRootPanel::Get()->GetFrameTime()*3);
+			m_flHandlePosition = Approach(m_flHandlePositionGoal, m_flHandlePosition, CRootPanel::Get()->GetFrameTime()*6);
 
 			int iSelection = SelectionByHandle();
 			m_pOption->SetText(m_aSelections[iSelection].m_sLabel.c_str());
