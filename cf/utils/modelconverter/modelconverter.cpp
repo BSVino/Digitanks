@@ -92,6 +92,9 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"f") == 0)
 		{
+			if (iCurrentMaterial == ~0)
+				iCurrentMaterial = m_pScene->AddMaterial(L"");
+
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
