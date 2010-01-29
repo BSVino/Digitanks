@@ -25,7 +25,7 @@ wchar_t* CModelWindow::OpenFileDialog()
 	opf.lpstrDefExt = L"*.*";
 	opf.lpfnHook = NULL;
 	opf.lCustData = 0;
-	opf.Flags = (OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT) & ~OFN_ALLOWMULTISELECT;
+	opf.Flags = (OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
 	opf.lStructSize = sizeof(OPENFILENAME);
 
 	if(GetOpenFileName(&opf))
@@ -57,7 +57,7 @@ wchar_t* CModelWindow::SaveFileDialog(wchar_t* pszFileTypes)
 	opf.lpstrDefExt = L"*.*";
 	opf.lpfnHook = NULL;
 	opf.lCustData = 0;
-	opf.Flags = (OFN_OVERWRITEPROMPT) & ~OFN_ALLOWMULTISELECT;
+	opf.Flags = (OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
 	opf.lStructSize = sizeof(OPENFILENAME);
 
 	if(GetOpenFileName(&opf))

@@ -83,10 +83,10 @@ public:
 									CConversionMaterial(const wchar_t* pszName,
 										Vector vecAmbient = Vector(0.2f, 0.2f, 0.2f),
 										Vector vecDiffuse = Vector(0.8f, 0.8f, 0.8f),
-										Vector vecSpecular = Vector(1.0f, 1.0f, 1.0f),
+										Vector vecSpecular = Vector(0.0f, 0.0f, 0.0f),
 										Vector vecEmissive = Vector(0.0f, 0.0f, 0.0f),
 										float flTransparency = 1.0f,
-										float flShininess = 0);
+										float flShininess = 10.0f);
 
 	wchar_t*						GetName() { return m_szName; }
 	wchar_t*						GetTexture() { return m_szTexture; }

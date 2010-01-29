@@ -129,6 +129,10 @@ void CModelWindow::SaveSMAKTexture()
 {
 	FILE* fp = fopen("smak.png", "rb+");
 
+	// Can't license the product without our license file.
+	if (!fp)
+		return;
+
 	// Generate the product code.
 	unsigned char szCode[56];
 
