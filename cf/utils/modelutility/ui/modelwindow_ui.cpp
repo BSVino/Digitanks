@@ -457,8 +457,8 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		AddControl(m_pAOMethodLabel);
 
 		m_pAOMethodSelector = new CScrollSelector<int>();
-		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_SHADOWMAP, L"Shadow map"));
-		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_RAYTRACE, L"Raytraced"));
+		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_SHADOWMAP, L"Shadow map (fast!)"));
+		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_RAYTRACE, L"Raytraced (slow!)"));
 		m_pAOMethodSelector->AddSelection(CScrollSelection<int>(AOMETHOD_TRIDISTANCE, L"Tri distance"));
 		m_pAOMethodSelector->SetSelectedListener(this, AOMethod);
 		AddControl(m_pAOMethodSelector);
