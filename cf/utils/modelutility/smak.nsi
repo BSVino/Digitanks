@@ -31,7 +31,10 @@ InstallDir $PROGRAMFILES\SMAK
 Section "-Program Files" FILES
 	SetOverwrite on
 	SetOutPath "$INSTDIR"
-	File /r /x *.svn "${LOCALDIR}\*.*"
+	File /r /x *.svn /x smak.png "${LOCALDIR}\*.*"
+	SetOverwrite off
+	File "${LOCALDIR}\smak.png"
+	SetOverwrite on
 SectionEnd
 
 Section -StartMenu
