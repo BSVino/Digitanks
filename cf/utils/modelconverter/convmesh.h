@@ -46,6 +46,8 @@ public:
 	std::vector<size_t>				m_aEdges;	// Index into parent's vertex edge list
 
 	size_t							m;
+
+	size_t							m_iSmoothingGroup;
 };
 
 // These are unique, so two faces may share the same one.

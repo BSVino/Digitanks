@@ -22,6 +22,9 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(pszFilename));
 
 	size_t iCurrentMaterial = ~0;
+	size_t iSmoothingGroup = 0;
+
+	bool bSmoothingGroups = false;
 
 	const size_t iChars = 1024;
 	wchar_t szLine[iChars];
@@ -90,6 +93,13 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			else
 				iCurrentMaterial = iMaterial;
 		}
+		else if (wcscmp(pszToken, L"s") == 0)
+		{
+			bSmoothingGroups = true;
+			size_t s;
+			swscanf(pszLine, L"s %d", &s);
+			iSmoothingGroup = s;
+		}
 		else if (wcscmp(pszToken, L"f") == 0)
 		{
 			if (iCurrentMaterial == ~0)
@@ -97,6 +107,8 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
+
+			pMesh->GetFace(iFace)->m_iSmoothingGroup = iSmoothingGroup;
 
 			while (pszToken = wcstok(NULL, L" "))
 			{
@@ -126,7 +138,9 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 	{
-		if (m_pScene->GetMesh(i)->GetNumNormals() == 0)
+		m_pScene->GetMesh(i)->CalculateEdgeData();
+
+		if (bSmoothingGroups || m_pScene->GetMesh(i)->GetNumNormals() == 0)
 			m_pScene->GetMesh(i)->CalculateVertexNormals();
 	}
 }

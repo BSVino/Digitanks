@@ -26,20 +26,90 @@ void CConversionMesh::Clear()
 
 void CConversionMesh::CalculateEdgeData()
 {
-	// For every edge, mark the vertexes it contains.
-	for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
+	// No edges? Well then let's generate them.
+	if (!GetNumEdges())
 	{
-		CConversionFace* pFace = GetFace(iFace);
-		for (size_t iEdge = 0; iEdge < pFace->GetNumEdges(); iEdge++)
+		// For every face, find and create edges.
+		for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
 		{
-			CConversionEdge* pEdge = GetEdge(pFace->GetEdge(iEdge));
+			CConversionFace* pFace = GetFace(iFace);
 
-			// There can't be more than two faces per edge. It's inconceivable!
-			assert(pEdge->f1 == ((size_t)~0) || pEdge->f2 == ((size_t)~0));
-			if (pEdge->f1 == ~0)
-				pEdge->f1 = iFace;
-			else
-				pEdge->f2 = iFace;
+			for (size_t iVertex = 0; iVertex < pFace->GetNumVertices(); iVertex++)
+			{
+				size_t iAdjVertex;
+				if (iVertex == pFace->GetNumVertices()-1)
+					iAdjVertex = 0;
+				else
+					iAdjVertex = iVertex+1;
+
+				// Find the other face with these two vertices!
+				for (size_t iFace2 = 0; iFace2 < GetNumFaces(); iFace2++)
+				{
+					if (iFace == iFace2)
+						continue;
+
+					CConversionFace* pFace2 = GetFace(iFace2);
+
+					size_t iVertex1 = pFace2->FindVertex(pFace->GetVertex(iVertex)->v);
+					if (iVertex1 == ~0)
+						continue;
+
+					size_t iVertex2 = pFace2->FindVertex(pFace->GetVertex(iAdjVertex)->v);
+					if (iVertex2 == ~0)
+						continue;
+
+					// I'm paranoid. Since these are unsigned make sure to subtract the larger by the smaller.
+					if ((iVertex2>iVertex1?iVertex2-iVertex1:iVertex1-iVertex2) == 1)
+					{
+						// Check for duplicate edges first.
+						bool bFoundEdge = false;
+						size_t iEdge;
+						for (iEdge = 0; iEdge < pFace->GetNumEdges(); iEdge++)
+						{
+							CConversionEdge* pEdge = GetEdge(pFace->GetEdge(iEdge));
+							if (pEdge->HasVertex(pFace->GetVertex(iVertex)->v) && pEdge->HasVertex(pFace->GetVertex(iAdjVertex)->v))
+							{
+								bFoundEdge = true;
+								break;
+							}
+						}
+
+						// Since the edge gets added to both faces we only need to check one face.
+
+						if (bFoundEdge)
+							break;
+
+						// By Jove we found it.
+						iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
+						CConversionEdge* pEdge = GetEdge(iEdge);
+						pEdge->f1 = iFace;
+						pEdge->f2 = iFace2;
+						AddEdgeToFace(iFace, iEdge);
+						AddEdgeToFace(iFace2, iEdge);
+						break;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		// For every edge, mark the vertexes it contains.
+		for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
+		{
+			CConversionFace* pFace = GetFace(iFace);
+
+			for (size_t iEdge = 0; iEdge < pFace->GetNumEdges(); iEdge++)
+			{
+				CConversionEdge* pEdge = GetEdge(pFace->GetEdge(iEdge));
+
+				// There can't be more than two faces per edge. It's inconceivable!
+				assert(pEdge->f1 == ((size_t)~0) || pEdge->f2 == ((size_t)~0));
+				if (pEdge->f1 == ~0)
+					pEdge->f1 = iFace;
+				else
+					pEdge->f2 = iFace;
+			}
 		}
 	}
 
@@ -80,6 +150,8 @@ void CConversionMesh::CalculateEdgeData()
 
 void CConversionMesh::CalculateVertexNormals()
 {
+	m_aNormals.clear();
+
 	// Got to calculate vertex normals now. We have to do it after we read faces because we need all of the face data loaded first.
 	for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
 	{
@@ -95,16 +167,24 @@ void CConversionMesh::CalculateVertexNormals()
 			pFace->FindAdjacentFaces(aNormalFaces, pVertex->v, true);
 
 			Vector vecNormal = Vector();
+			size_t iNormalFaces = 0;
 			for (size_t iNormalFace = 0; iNormalFace < aNormalFaces.size(); iNormalFace++)
-				vecNormal += GetFace(aNormalFaces[iNormalFace])->GetNormal();
+			{
+				CConversionFace* pOtherFace = GetFace(aNormalFaces[iNormalFace]);
 
-			vecNormal /= (float)aNormalFaces.size();
+				if (pOtherFace->m_iSmoothingGroup != pFace->m_iSmoothingGroup)
+					continue;
+
+				iNormalFaces++;
+				vecNormal += pOtherFace->GetNormal();
+			}
+
+			vecNormal /= (float)iNormalFaces;
 			vecNormal.Normalize();
 
-			if (pVertex->vn == ((size_t)~0))
-				pVertex->vn = AddNormal(vecNormal.x, vecNormal.y, vecNormal.z);
-			else
-				m_aNormals[pVertex->vn] = vecNormal;
+			// Find similar normals to save memory?
+			// ... nah!
+			pVertex->vn = AddNormal(vecNormal.x, vecNormal.y, vecNormal.z);
 		}
 	}
 }
