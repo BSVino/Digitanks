@@ -264,9 +264,16 @@ void CAOGenerator::Generate()
 	if (!m_eAOMethod)
 		return;
 
+	if (m_pWorkListener)
+	{
+		m_pWorkListener->BeginProgress();
+		m_pWorkListener->SetAction(L"Setting up", 0);
+	}
+
 	m_bIsGenerating = true;
 	m_bStopGenerating = false;
 	m_bDoneGenerating = false;
+	m_bIsBleeding = false;
 
 	m_flLowestValue = -1;
 	m_flHighestValue = 0;
@@ -304,6 +311,9 @@ void CAOGenerator::Generate()
 
 	size_t i;
 
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Averaging reads", m_iWidth*m_iHeight);
+
 	// Average out all of the reads.
 	for (i = 0; i < m_iWidth*m_iHeight; i++)
 	{
@@ -328,6 +338,9 @@ void CAOGenerator::Generate()
 			m_avecShadowValues[i] /= (float)m_aiShadowReads[i];
 		else
 			m_avecShadowValues[i] = Vector(0,0,0);
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(i);
 	}
 
 	if (m_eAOMethod == AOMETHOD_RENDER || m_eAOMethod == AOMETHOD_SHADOWMAP)
@@ -345,8 +358,11 @@ void CAOGenerator::Generate()
 		glPopMatrix();
 	}
 
+	// Somebody get this ao some clotters and morphine, STAT!
+	m_bIsBleeding = true;
 	if (!m_bStopGenerating)
 		Bleed();
+	m_bIsBleeding = false;
 
 	if (!m_bStopGenerating)
 		m_bDoneGenerating = true;
@@ -354,7 +370,7 @@ void CAOGenerator::Generate()
 
 	// One last call to let them know we're done.
 	if (m_pWorkListener)
-		m_pWorkListener->WorkProgress();
+		m_pWorkListener->EndProgress();
 }
 
 void CAOGenerator::GenerateShadowMaps()
@@ -535,6 +551,9 @@ void CAOGenerator::GenerateShadowMaps()
 
 	size_t iSamples = (size_t)sqrt((float)m_iSamples);
 
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Taking exposures", m_iSamples);
+
 	for (size_t x = 0; x <= iSamples; x++)
 	{
 		float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)iSamples, -M_PI/2, M_PI/2)), 0, 1, 90, 0);
@@ -671,7 +690,7 @@ void CAOGenerator::GenerateShadowMaps()
 			iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 
 			if (m_pWorkListener)
-				m_pWorkListener->WorkProgress();
+				m_pWorkListener->WorkProgress(x*iSamples + y);
 
 			iProgress += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
@@ -687,17 +706,27 @@ void CAOGenerator::GenerateShadowMaps()
 	glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGBA, GL_FLOAT, m_pPixels);
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
-	size_t iBufferSize = m_iWidth*m_iHeight*m_iPixelDepth;
-	for (size_t p = 0; p < iBufferSize; p+=m_iPixelDepth)
+	if (!m_bStopGenerating)
 	{
-		if (m_pPixels[p+3] == 0.0f)
-			continue;
+		size_t iBufferSize = m_iWidth*m_iHeight*m_iPixelDepth;
 
-		size_t i = p/m_iPixelDepth;
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction(L"Reading pixels", iBufferSize/m_iPixelDepth);
 
-		m_avecShadowValues[i].x = m_pPixels[p+0];
-		m_aiShadowReads[i] = (size_t)m_pPixels[p+3];
-		m_bPixelMask[i] = true;
+		for (size_t p = 0; p < iBufferSize; p+=m_iPixelDepth)
+		{
+			if (m_pPixels[p+3] == 0.0f)
+				continue;
+
+			size_t i = p/m_iPixelDepth;
+
+			m_avecShadowValues[i].x = m_pPixels[p+0];
+			m_aiShadowReads[i] = (size_t)m_pPixels[p+3];
+			m_bPixelMask[i] = true;
+
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(p/m_iPixelDepth);
+		}
 	}
 
 	glCullFace(GL_BACK);
@@ -801,15 +830,37 @@ void CAOGenerator::GenerateByTexel()
 	float flMatrixMathTime = 0;
 	float flRenderingTime = 0;
 
+	size_t m;
+
+	float flTotalArea = 0;
+
+	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
+		{
+			CConversionFace* pFace = pMesh->GetFace(f);
+			flTotalArea += pFace->GetUVArea();
+		}
+	}
+
 	raytrace::CRaytracer* pTracer = NULL;
 
 	if (m_eAOMethod == AOMETHOD_RAYTRACE)
 	{
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction(L"Building tree", 0);
+
 		pTracer = new raytrace::CRaytracer(m_pScene);
 		pTracer->BuildTree();
 	}
 
-	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Rendering", (size_t)(flTotalArea*m_iWidth*m_iHeight));
+
+	size_t iRendered = 0;
+
+	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
 		CConversionMesh* pMesh = m_pScene->GetMesh(m);
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
@@ -1141,7 +1192,7 @@ void CAOGenerator::GenerateByTexel()
 						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 						if (m_pWorkListener)
-							m_pWorkListener->WorkProgress();
+							m_pWorkListener->WorkProgress(++iRendered);
 
 						if (m_bStopGenerating)
 							break;
@@ -1343,6 +1394,9 @@ void CAOGenerator::Bleed()
 {
 	bool* abPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
 
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Bleeding edges", m_iBleed);
+
 	for (size_t i = 0; i < m_iBleed; i++)
 	{
 		// This is for pixels that have been set this frame.
@@ -1423,7 +1477,7 @@ void CAOGenerator::Bleed()
 			m_bPixelMask[p] |= abPixelMask[p];
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress();
+			m_pWorkListener->WorkProgress(i);
 
 		if (m_bStopGenerating)
 			break;
@@ -1441,23 +1495,37 @@ size_t CAOGenerator::GenerateTexture(bool bInMedias)
 		// Use this temporary buffer so we don't clobber the original.
 		avecShadowValues = m_avecShadowGeneratedValues;
 
-		if (m_eAOMethod == AOMETHOD_SHADOWMAP)
+		if (m_eAOMethod == AOMETHOD_SHADOWMAP) // If bleeding, we have reads already so do it the old fasioned way so it actually shows the bleeds expanding.
 		{
-			glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_iAOFB);
-			glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGBA, GL_FLOAT, m_pPixels);
-			glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-
-			size_t iBufferSize = m_iWidth*m_iHeight*m_iPixelDepth;
-			for (size_t p = 0; p < iBufferSize; p+=m_iPixelDepth)
+			if (m_bIsBleeding)
 			{
-				size_t i = p/m_iPixelDepth;
+				for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
+				{
+					// Don't immediately return, just skip this loop. We have cleanup work to do.
+					if (m_bStopGenerating)
+						break;
 
-				if (m_pPixels[p+3] == 0.0f)
-					avecShadowValues[i].x = 0;
-				else
-					avecShadowValues[i].x = m_pPixels[p+0]/m_pPixels[p+3];
+					avecShadowValues[i] = m_avecShadowValues[i];
+				}
+			}
+			else
+			{
+				glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_iAOFB);
+				glReadPixels(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight, GL_RGBA, GL_FLOAT, m_pPixels);
+				glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
-				avecShadowValues[i].y = avecShadowValues[i].z = avecShadowValues[i].x;
+				size_t iBufferSize = m_iWidth*m_iHeight*m_iPixelDepth;
+				for (size_t p = 0; p < iBufferSize; p+=m_iPixelDepth)
+				{
+					size_t i = p/m_iPixelDepth;
+
+					if (m_pPixels[p+3] == 0.0f)
+						avecShadowValues[i].x = 0;
+					else
+						avecShadowValues[i].x = m_pPixels[p+0]/m_pPixels[p+3];
+
+					avecShadowValues[i].y = avecShadowValues[i].z = avecShadowValues[i].x;
+				}
 			}
 		}
 		else

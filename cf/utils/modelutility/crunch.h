@@ -7,7 +7,10 @@
 class IWorkListener
 {
 public:
-	virtual void			WorkProgress()=0;
+	virtual void			BeginProgress()=0;
+	virtual void			SetAction(wchar_t* pszAction, size_t iTotalProgress)=0;
+	virtual void			WorkProgress(size_t iProgress)=0;
+	virtual void			EndProgress()=0;
 };
 
 typedef enum
@@ -87,6 +90,7 @@ protected:
 	size_t					m_iAOFB;
 
 	bool					m_bIsGenerating;
+	bool					m_bIsBleeding;
 	bool					m_bDoneGenerating;
 	bool					m_bStopGenerating;
 };

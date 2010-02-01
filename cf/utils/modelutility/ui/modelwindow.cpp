@@ -1029,7 +1029,7 @@ void CModelWindow::RenderUV()
 				CConversionFace* pFace = pMesh->GetFace(j);
 
 				glBindTexture(GL_TEXTURE_2D, (GLuint)0);
-				glColor3f(1.0f, 1.0f, 1.0f);
+				glColor3f(0.6f, 0.6f, 0.6f);
 				glBegin(GL_LINE_STRIP);
 					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vt) + vecOffset);
 					glVertex3fv(pMesh->GetUV(pFace->GetVertex(1)->vt) + vecOffset);

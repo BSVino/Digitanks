@@ -385,6 +385,23 @@ float CConversionFace::GetArea()
 	return flArea;
 }
 
+float CConversionFace::GetUVArea()
+{
+	Vector a = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[0].vt);
+	Vector b = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[1].vt);
+
+	float flArea = 0;
+
+	for (size_t i = 0; i < m_aVertices.size()-2; i++)
+	{
+		Vector c = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[i+2].vt);
+
+		flArea += TriangleArea(a, b, c);
+	}
+
+	return flArea;
+}
+
 void CConversionFace::FindAdjacentFaces(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
 	aResult.push_back(m_pScene->GetMesh(m_iMesh)->FindFace(this));

@@ -32,6 +32,31 @@ protected:
 	std::vector<CLabel*>	m_apHints;
 };
 
+class CProgressBar : public CPanel
+{
+public:
+							CProgressBar();
+
+public:
+	void					Layout();
+	void					Paint(int x, int y, int w, int h);
+
+	void					SetTotalProgress(size_t iProgress);
+	void					SetProgress(size_t iProgress, wchar_t* pszAction = NULL);
+	void					SetAction(wchar_t* pszAction);
+
+	static CProgressBar*	Get();
+
+protected:
+	size_t					m_iTotalProgress;
+	size_t					m_iCurrentProgress;
+
+	CLabel*					m_pAction;
+	std::wstring			m_sAction;
+
+	static CProgressBar*	s_pProgressBar;
+};
+
 #define HEADER_HEIGHT 16
 
 class CCloseButton : public CButton
@@ -80,7 +105,10 @@ public:
 
 	virtual void			Layout();
 
-	virtual void			WorkProgress();
+	virtual void			BeginProgress();
+	virtual void			SetAction(wchar_t* pszAction, size_t iTotalProgress);
+	virtual void			WorkProgress(size_t iProgress);
+	virtual void			EndProgress();
 
 	virtual bool			DoneGenerating() { return m_oGenerator.DoneGenerating(); }
 

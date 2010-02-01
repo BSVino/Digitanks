@@ -25,6 +25,7 @@ public:
 	Vector							GetNormal();
 	Vector							GetCenter();
 	float							GetArea();
+	float							GetUVArea();
 
 	void							FindAdjacentFaces(std::vector<size_t>& aResult, size_t iVert = (size_t)~0, bool bIgnoreCreased = false);
 	void							FindAdjacentFacesInternal(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased);

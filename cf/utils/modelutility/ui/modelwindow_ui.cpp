@@ -296,6 +296,75 @@ void CButtonPanel::Paint(int x, int y, int w, int h)
 	CPanel::Paint(x, y, w, h);
 }
 
+CProgressBar* CProgressBar::s_pProgressBar = NULL;
+
+CProgressBar::CProgressBar()
+	: CPanel(0, 0, 100, 100)
+{
+	CRootPanel::Get()->AddControl(this);
+	SetVisible(false);
+
+	m_pAction = new CLabel(0, 0, 200, BTN_HEIGHT, "");
+	AddControl(m_pAction);
+	m_pAction->SetWrap(false);
+
+	Layout();
+}
+
+void CProgressBar::Layout()
+{
+	SetSize(GetParent()->GetWidth()/2, BTN_HEIGHT);
+	SetPos(GetParent()->GetWidth()/4, GetParent()->GetHeight()/5);
+
+	m_pAction->SetSize(GetWidth(), BTN_HEIGHT);
+}
+
+void CProgressBar::Paint(int x, int y, int w, int h)
+{
+	float flTotalProgress = (float)m_iCurrentProgress/(float)m_iTotalProgress;
+
+	CPanel::PaintRect(x, y, w, h);
+	CPanel::PaintRect(x+10, y+10, (int)((w-20)*flTotalProgress), h-20, g_clrBoxHi);
+
+	m_pAction->Paint();
+}
+
+void CProgressBar::SetTotalProgress(size_t iProgress)
+{
+	m_iTotalProgress = iProgress;
+	SetProgress(0);
+}
+
+void CProgressBar::SetProgress(size_t iProgress, wchar_t* pszAction)
+{
+	m_iCurrentProgress = iProgress;
+
+	SetAction(pszAction);
+}
+
+void CProgressBar::SetAction(wchar_t* pszAction)
+{
+	if (pszAction)
+		m_sAction = std::wstring(pszAction);
+
+	m_pAction->SetText(m_sAction.c_str());
+
+	if (m_iTotalProgress)
+	{
+		wchar_t szProgress[100];
+		wsprintf(szProgress, L" %d/%d", m_iCurrentProgress, m_iTotalProgress);
+		m_pAction->AppendText(szProgress);
+	}
+}
+
+CProgressBar* CProgressBar::Get()
+{
+	if (!s_pProgressBar)
+		s_pProgressBar = new CProgressBar();
+
+	return s_pProgressBar;
+}
+
 void CCloseButton::Paint(int x, int y, int w, int h)
 {
 	Color c;
@@ -657,7 +726,19 @@ void CAOPanel::SaveMapCallback()
 	m_oGenerator.SaveToFile(CModelWindow::Get()->SaveFileDialog(L"Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0"));
 }
 
-void CAOPanel::WorkProgress()
+void CAOPanel::BeginProgress()
+{
+	CProgressBar::Get()->SetVisible(true);
+}
+
+void CAOPanel::SetAction(wchar_t* pszAction, size_t iTotalProgress)
+{
+	CProgressBar::Get()->SetTotalProgress(iTotalProgress);
+	CProgressBar::Get()->SetAction(pszAction);
+	WorkProgress(0);
+}
+
+void CAOPanel::WorkProgress(size_t iProgress)
 {
 	static int iLastTime = 0;
 	static int iLastGenerate = 0;
@@ -666,9 +747,11 @@ void CAOPanel::WorkProgress()
 	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 10)
 		return;
 
+	CProgressBar::Get()->SetProgress(iProgress);
+
 	glutMainLoopEvent();
 
-	if (glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 500)
+	if (m_oGenerator.IsGenerating() && glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 500)
 	{
 		size_t iAO = m_oGenerator.GenerateTexture(true);
 
@@ -691,6 +774,11 @@ void CAOPanel::WorkProgress()
 	glutSwapBuffers();
 
 	iLastTime = glutGet(GLUT_ELAPSED_TIME);
+}
+
+void CAOPanel::EndProgress()
+{
+	CProgressBar::Get()->SetVisible(false);
 }
 
 void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
