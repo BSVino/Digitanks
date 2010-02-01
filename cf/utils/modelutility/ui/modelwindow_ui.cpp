@@ -5,6 +5,7 @@
 #include "modelwindow.h"
 #include <GL/freeglut.h>
 #include <strutils.h>
+#include "../smak_version.h"
 
 void CModelWindow::InitUI()
 {
@@ -823,6 +824,7 @@ void CAboutPanel::Layout()
 	m_pInfo->SetPos(0, 0);
 
 	m_pInfo->SetText("SMAK - The Super Model Army Knife\n");
+	m_pInfo->AppendText("Version " SMAK_VERSION "\n");
 	m_pInfo->AppendText("Copyright © 2010, Jorge Rodriguez <jrodriguez@matreyastudios.com>\n");
 	m_pInfo->AppendText(" \n");
 	//m_pInfo->AppendText("FCollada copyright © 2006, Feeling Software\n");	// Put back in when Collada support is back.
