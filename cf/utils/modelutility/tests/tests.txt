@@ -11,3 +11,7 @@ The AO looks like crap without proper smoothing groups loaded. Lots of smoothing
 
 * smoothinggroups.obj
 A simple model with the top face in a separate smoothing group.
+
+* car1backwheel.obj
+Negative vertex indices
+Turning smoothing groups off

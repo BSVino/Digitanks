@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "modelconverter.h"
 #include "strutils.h"
@@ -22,7 +23,7 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(pszFilename));
 
 	size_t iCurrentMaterial = ~0;
-	size_t iSmoothingGroup = 0;
+	size_t iSmoothingGroup = ~0;
 
 	bool bSmoothingGroups = false;
 
@@ -95,10 +96,17 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"s") == 0)
 		{
-			bSmoothingGroups = true;
-			size_t s;
-			swscanf(pszLine, L"s %d", &s);
-			iSmoothingGroup = s;
+			if (wcsncmp(pszLine, L"s off", 5) == 0)
+			{
+				iSmoothingGroup = ~0;
+			}
+			else
+			{
+				bSmoothingGroups = true;
+				size_t s;
+				swscanf(pszLine, L"s %d", &s);
+				iSmoothingGroup = s;
+			}
 		}
 		else if (wcscmp(pszToken, L"f") == 0)
 		{
@@ -112,9 +120,21 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 
 			while (pszToken = wcstok(NULL, L" "))
 			{
-				size_t v, vt, vn = ~0;
+				// We don't use size_t because SOME EXPORTS put out negative numbers.
+				long v, vt, vn = ~0;
 				if (swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) >= 2)
 				{
+					if (v < 0)
+						v = (long)pMesh->GetNumVertices()+v+1;
+					if (vt < 0)
+						vt = (long)pMesh->GetNumUVs()+vt+1;
+					if (vn < 0)
+						vn = (long)pMesh->GetNumNormals()+vn+1;
+
+					assert ( v >= 1 && v < (long)pMesh->GetNumVertices()+1 );
+					assert ( vt >= 1 && vt < (long)pMesh->GetNumUVs()+1 );
+					assert ( vn >= 1 && vn < (long)pMesh->GetNumNormals()+1 );
+
 					if (vn == ~0)
 						pMesh->AddVertexToFace(iFace, v-1, vt-1, ~0);
 					else
