@@ -57,6 +57,8 @@ public:
 
 	void					SaveFile(const wchar_t* pszFile);
 
+	void					Layout();
+
 	static void				RenderCallback() { Get()->Render(); };
 	void					Render();
 	void					Render3D();
@@ -99,6 +101,7 @@ public:
 	EVENT_CALLBACK(CModelWindow, Wireframe);
 	EVENT_CALLBACK(CModelWindow, Flat);
 	EVENT_CALLBACK(CModelWindow, Smooth);
+	EVENT_CALLBACK(CModelWindow, UVWireframe);
 	EVENT_CALLBACK(CModelWindow, Light);
 	EVENT_CALLBACK(CModelWindow, Texture);
 	EVENT_CALLBACK(CModelWindow, AO);
@@ -128,6 +131,7 @@ public:
 	bool					GetRenderMode() { return m_bRenderUV; };
 	void					SetRenderMode(bool bUV);
 	void					SetDisplayType(displaytype_t eType);
+	void					SetDisplayUVWireframe(bool bWire);
 	void					SetDisplayLight(bool bLight);
 	void					SetDisplayTexture(bool bTexture);
 	void					SetDisplayAO(bool bAO);
@@ -186,6 +190,7 @@ protected:
 	// Options
 	bool					m_bRenderUV;
 	displaytype_t			m_eDisplayType;
+	bool					m_bDisplayUV;
 	bool					m_bDisplayLight;
 	bool					m_bDisplayTexture;
 	bool					m_bDisplayAO;
@@ -198,6 +203,7 @@ protected:
 	modelgui::CButton*		m_pWireframe;
 	modelgui::CButton*		m_pFlat;
 	modelgui::CButton*		m_pSmooth;
+	modelgui::CButton*		m_pUVWireframe;
 	modelgui::CButton*		m_pLight;
 	modelgui::CButton*		m_pTexture;
 	modelgui::CButton*		m_pAO;

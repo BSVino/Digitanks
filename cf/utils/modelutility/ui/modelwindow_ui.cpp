@@ -52,6 +52,7 @@ void CModelWindow::InitUI()
 	m_pWireframe = new CPictureButton("Wire", m_iWireframeTexture, true);
 	m_pFlat = new CPictureButton("Flat", m_iFlatTexture, true);
 	m_pSmooth = new CPictureButton("Smth", m_iSmoothTexture, true);
+	m_pUVWireframe = new CPictureButton("Wire", m_iWireframeTexture, true);
 	m_pLight = new CPictureButton("Lght", m_iLightTexture, true);
 	m_pTexture = new CPictureButton("Tex", m_iTextureTexture, true);
 	m_pAO = new CPictureButton("AO", m_iAOTexture, true);
@@ -60,6 +61,7 @@ void CModelWindow::InitUI()
 	pBottomButtons->AddButton(m_pWireframe, "Wireframe", false, this, Wireframe);
 	pBottomButtons->AddButton(m_pFlat, "Flat Shading", false, this, Flat);
 	pBottomButtons->AddButton(m_pSmooth, "Smooth Shading", true, this, Smooth);
+	pBottomButtons->AddButton(m_pUVWireframe, "Toggle UVs", true, this, UVWireframe);
 	pBottomButtons->AddButton(m_pLight, "Toggle Light", false, this, Light);
 	pBottomButtons->AddButton(m_pTexture, "Toggle Texture", false, this, Texture);
 	pBottomButtons->AddButton(m_pAO, "Toggle AO Map", false, this, AO);
@@ -67,6 +69,11 @@ void CModelWindow::InitUI()
 
 	CRootPanel::Get()->AddControl(pBottomButtons);
 
+	CRootPanel::Get()->Layout();
+}
+
+void CModelWindow::Layout()
+{
 	CRootPanel::Get()->Layout();
 }
 
@@ -118,6 +125,11 @@ void CModelWindow::FlatCallback()
 void CModelWindow::SmoothCallback()
 {
 	SetDisplayType(DT_SMOOTH);
+}
+
+void CModelWindow::UVWireframeCallback()
+{
+	m_bDisplayUV = m_pUVWireframe->GetState();
 }
 
 void CModelWindow::LightCallback()
@@ -232,6 +244,9 @@ void CButtonPanel::Layout()
 	{
 		IControl* pButton = m_apButtons[i];
 
+		if (!pButton->IsVisible())
+			continue;
+
 		pButton->SetSize(BTN_HEIGHT, BTN_HEIGHT);
 		pButton->SetPos(iX, 0);
 
@@ -258,7 +273,7 @@ void CButtonPanel::AddButton(CButton* pButton, char* pszHints, bool bNewSection,
 	m_aiSpaces.push_back(bNewSection?BTN_SECTION:BTN_SPACE);
 
 	CLabel* pHint = new CLabel(0, 0, 0, 0, pszHints);
-	pHint->SetAlpha(255);
+	pHint->SetAlpha(0);
 	pHint->EnsureTextFits();
 	AddControl(pHint);
 	m_apHints.push_back(pHint);
@@ -277,6 +292,12 @@ void CButtonPanel::Think()
 
 	for (size_t i = 0; i < m_apButtons.size(); i++)
 	{
+		if (!m_apButtons[i]->IsVisible())
+		{
+			m_apHints[i]->SetAlpha((int)Approach(0.0f, (float)m_apHints[i]->GetAlpha(), 30.0f));
+			continue;
+		}
+
 		int x = 0, y = 0, w = 0, h = 0;
 		m_apButtons[i]->GetAbsDimensions(x, y, w, h);
 

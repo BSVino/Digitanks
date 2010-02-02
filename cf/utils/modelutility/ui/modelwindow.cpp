@@ -86,6 +86,7 @@ CModelWindow::CModelWindow()
 
 	SetRenderMode(false);
 	SetDisplayType(DT_SMOOTH);
+	SetDisplayUVWireframe(true);
 	SetDisplayLight(true);
 	SetDisplayTexture(true);
 	SetDisplayAO(false);
@@ -1015,7 +1016,7 @@ void CModelWindow::RenderUV()
 		delete pFont;
 	}
 
-	if (m_eDisplayType == DT_WIREFRAME)
+	if (m_bDisplayUV)
 	{
 		Vector vecOffset(-0.5f, -0.5f, 0);
 
@@ -1107,6 +1108,13 @@ void CModelWindow::SetRenderMode(bool bUV)
 		m_pRender3D->SetState(true, false);
 
 	m_bRenderUV = bUV;
+
+	m_pWireframe->SetVisible(!m_bRenderUV);
+	m_pFlat->SetVisible(!m_bRenderUV);
+	m_pSmooth->SetVisible(!m_bRenderUV);
+	m_pUVWireframe->SetVisible(m_bRenderUV);
+
+	Layout();
 }
 
 void CModelWindow::SetDisplayType(displaytype_t eType)
@@ -1125,6 +1133,12 @@ void CModelWindow::SetDisplayType(displaytype_t eType)
 	m_eDisplayType = eType;
 
 	CreateGLLists();
+}
+
+void CModelWindow::SetDisplayUVWireframe(bool bWire)
+{
+	m_bDisplayUV = bWire;
+	m_pUVWireframe->SetState(bWire, false);
 }
 
 void CModelWindow::SetDisplayLight(bool bLight)
