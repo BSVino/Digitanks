@@ -1609,8 +1609,7 @@ bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 	float flW = (float)w;
 	float flH = (float)h;
 
-	size_t iRow = m_iHeight-h-1;
-	iTexel = m_iHeight*iRow + w;
+	iTexel = m_iHeight*h + w;
 
 	assert(iTexel >= 0 && iTexel < m_iWidth * m_iHeight);
 
