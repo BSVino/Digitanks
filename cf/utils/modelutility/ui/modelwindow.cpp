@@ -994,7 +994,7 @@ void CModelWindow::RenderUV()
 		FTGLPixmapFont*	pFont = new FTGLPixmapFont(szFont);
 		pFont->FaceSize(48);
 
-		glColor4ubv(Color(255, 255, 255, 20));
+		glColor4ubv(Color(155, 155, 255, 60));
 
 		glRasterPos2f(0.15f, 0.2f);
 		pFont->Render("DEMO");
