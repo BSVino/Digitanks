@@ -110,6 +110,7 @@ public:
 	virtual void			WorkProgress(size_t iProgress);
 	virtual void			EndProgress();
 
+	virtual bool			IsGenerating() { return m_oGenerator.IsGenerating(); }
 	virtual bool			DoneGenerating() { return m_oGenerator.DoneGenerating(); }
 
 	EVENT_CALLBACK(CAOPanel, Generate);

@@ -144,6 +144,12 @@ void CModelWindow::TextureCallback()
 
 void CModelWindow::AOCallback()
 {
+	if (CAOPanel::Get(false) && CAOPanel::Get(false)->IsGenerating() && !CAOPanel::Get(false)->DoneGenerating())
+	{
+		m_pAO->SetState(true, false);
+		return;
+	}
+
 	if (!CAOPanel::Get(false) || !CAOPanel::Get(false)->DoneGenerating())
 	{
 		CAOPanel::Open(false, &m_Scene, &m_aoMaterials);
@@ -156,6 +162,12 @@ void CModelWindow::AOCallback()
 
 void CModelWindow::ColorAOCallback()
 {
+	if (CAOPanel::Get(true) && CAOPanel::Get(true)->IsGenerating() && !CAOPanel::Get(true)->DoneGenerating())
+	{
+		m_pColorAO->SetState(true, false);
+		return;
+	}
+
 	if (!CAOPanel::Get(true) || !CAOPanel::Get(true)->DoneGenerating())
 	{
 		CAOPanel::Open(true, &m_Scene, &m_aoMaterials);
