@@ -162,6 +162,8 @@ public:
 	std::vector<CConversionEdge>	m_aEdges;
 	std::vector<CConversionFace>	m_aFaces;
 
+	std::vector<std::vector<size_t> >	m_aaVertexFaceMap;
+
 	Vector							m_vecOrigin;
 	AABB							m_oExtends;
 };

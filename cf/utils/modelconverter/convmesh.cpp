@@ -46,12 +46,13 @@ void CConversionMesh::CalculateEdgeData()
 					iAdjVertex = iVertex+1;
 
 				// Find the other face with these two vertices!
-				for (size_t iFace2 = 0; iFace2 < GetNumFaces(); iFace2++)
+				std::vector<size_t>& aFaces = m_aaVertexFaceMap[pFace->GetVertex(iVertex)->v];
+				for (size_t iFace2 = 0; iFace2 < aFaces.size(); iFace2++)
 				{
-					if (iFace == iFace2)
+					if (iFace == aFaces[iFace2])
 						continue;
 
-					CConversionFace* pFace2 = GetFace(iFace2);
+					CConversionFace* pFace2 = GetFace(aFaces[iFace2]);
 
 					size_t iVertex1 = pFace2->FindVertex(pFace->GetVertex(iVertex)->v);
 					if (iVertex1 == ~0)
@@ -86,9 +87,9 @@ void CConversionMesh::CalculateEdgeData()
 						iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
 						CConversionEdge* pEdge = GetEdge(iEdge);
 						pEdge->f1 = iFace;
-						pEdge->f2 = iFace2;
+						pEdge->f2 = aFaces[iFace2];
 						AddEdgeToFace(iFace, iEdge);
-						AddEdgeToFace(iFace2, iEdge);
+						AddEdgeToFace(aFaces[iFace2], iEdge);
 						break;
 					}
 				}
@@ -364,6 +365,7 @@ size_t CConversionScene::FindMesh(CConversionMesh* pMesh)
 size_t CConversionMesh::AddVertex(float x, float y, float z)
 {
 	m_aVertices.push_back(Vector(x, y, z));
+	m_aaVertexFaceMap.push_back(std::vector<size_t>());
 	return m_aVertices.size()-1;
 }
 
@@ -532,6 +534,7 @@ size_t CConversionMesh::AddFace(size_t iMaterial)
 
 void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t vn)
 {
+	m_aaVertexFaceMap[v].push_back(iFace);
 	m_aFaces[iFace].m_aVertices.push_back(CConversionVertex(v, vt, vn));
 }
 

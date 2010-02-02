@@ -15,3 +15,6 @@ A simple model with the top face in a separate smoothing group.
 * car1backwheel.obj
 Negative vertex indices
 Turning smoothing groups off
+
+* bigmodel.obj
+It's minhrifle.obj copied twice, which results in a 10k poly model, to test loading times.
