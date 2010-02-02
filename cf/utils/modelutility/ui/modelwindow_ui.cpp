@@ -784,6 +784,10 @@ void CAOPanel::WorkProgress(size_t iProgress)
 
 	CProgressBar::Get()->SetProgress(iProgress);
 
+	// We need to correct the viewport size before we push any events, or else any Layout() commands during
+	// button presses and the line will use the wrong viewport size.
+	glViewport(0, 0, CModelWindow::Get()->GetWindowWidth(), CModelWindow::Get()->GetWindowHeight());
+
 	glutMainLoopEvent();
 
 	if (m_oGenerator.IsGenerating() && glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 500)
@@ -802,6 +806,10 @@ void CAOPanel::WorkProgress(size_t iProgress)
 
 		iLastGenerate = glutGet(GLUT_ELAPSED_TIME);
 	}
+
+	// If we're in 3d mode, force it to use the updated texture.
+	if (!CModelWindow::Get()->GetRenderMode())
+		CModelWindow::Get()->CreateGLLists();
 
 	CModelWindow::Get()->Render();
 	CRootPanel::Get()->Think();

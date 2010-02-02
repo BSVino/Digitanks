@@ -515,6 +515,7 @@ void CModelWindow::Render3D()
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
 	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
 	glLoadIdentity();
 	gluPerspective(
 			44.0,
@@ -526,6 +527,7 @@ void CModelWindow::Render3D()
 	glMatrixMode(GL_MODELVIEW);
 
 	glPushMatrix();
+	glLoadIdentity();
 
 	Vector vecSceneCenter = m_Scene.m_oExtends.Center();
 
@@ -568,6 +570,9 @@ void CModelWindow::Render3D()
 
 	glPopMatrix();
 	glPopAttrib();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
 }
 
 void CModelWindow::RenderGround(void)

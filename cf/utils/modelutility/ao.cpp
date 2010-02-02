@@ -578,6 +578,9 @@ void CAOGenerator::GenerateShadowMaps()
 			CModelWindow::Get()->AddDebugLine(vecLightPosition, vecLightPosition-vecDir);
 #endif
 
+			glMatrixMode(GL_PROJECTION);
+			glLoadMatrixf(mLightProjection);
+
 			Matrix4x4 mLightView;
 
 			glMatrixMode(GL_MODELVIEW);

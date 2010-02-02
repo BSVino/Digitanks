@@ -137,6 +137,9 @@ public:
 	void					SetDisplayAO(bool bAO);
 	void					SetDisplayColorAO(bool bAO);
 
+	int						GetWindowWidth() { return (int)m_iWindowWidth; };
+	int						GetWindowHeight() { return (int)m_iWindowHeight; };
+
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
 	void					ClearDebugLines();
