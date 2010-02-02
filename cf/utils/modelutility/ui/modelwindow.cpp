@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <IL/il.h>
+#include <IL/ilu.h>
 
 #include <modelconverter/modelconverter.h>
 #include "modelgui.h"
@@ -238,6 +239,12 @@ size_t CModelWindow::LoadTextureIntoGL(const wchar_t* pszFilename)
 	if (!bSuccess)
 		return 0;
 
+	ILinfo ImageInfo;
+	iluGetImageInfo(&ImageInfo);
+
+	if (ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT)
+		iluFlipImage();
+
 	GLuint iGLId;
 	glGenTextures(1, &iGLId);
 	glBindTexture(GL_TEXTURE_2D, iGLId);
@@ -372,9 +379,6 @@ void CModelWindow::CreateGLLists()
 					Vector vecVertex = pMesh->GetVertex(pVertex->v);
 					Vector vecNormal = pMesh->GetNormal(pVertex->vn);
 					Vector vecUV = pMesh->GetUV(pVertex->vt);
-
-					// Why? I dunno.
-					vecUV.y = -vecUV.y;
 
 					if (pFace->m != ~0 && m_Scene.GetMaterial(pFace->m))
 					{
@@ -716,13 +720,13 @@ void CModelWindow::RenderLightSource()
 				flScale *= 10;
 
 				glBegin(GL_QUADS);
-					glTexCoord2f(0, 0);
-					glVertex3f(0, -flScale, -flScale);
-					glTexCoord2f(0, 1);
-					glVertex3f(0, -flScale, flScale);
-					glTexCoord2f(1, 1);
-					glVertex3f(0, flScale, flScale);
 					glTexCoord2f(1, 0);
+					glVertex3f(0, -flScale, -flScale);
+					glTexCoord2f(1, 1);
+					glVertex3f(0, -flScale, flScale);
+					glTexCoord2f(0, 1);
+					glVertex3f(0, flScale, flScale);
+					glTexCoord2f(0, 0);
 					glVertex3f(0, flScale, -flScale);
 				glEnd();
 			}
@@ -738,13 +742,13 @@ void CModelWindow::RenderLightSource()
 			glColor4f(1.0, 1.0, 1.0, fabs(flDot));
 
 			glBegin(GL_QUADS);
-				glTexCoord2f(1, 0);
-				glVertex3f(-25, -5, 0);
-				glTexCoord2f(0, 0);
-				glVertex3f(-25, 5, 0);
-				glTexCoord2f(0, 1);
-				glVertex3f(0, 5, 0);
 				glTexCoord2f(1, 1);
+				glVertex3f(-25, -5, 0);
+				glTexCoord2f(0, 1);
+				glVertex3f(-25, 5, 0);
+				glTexCoord2f(0, 0);
+				glVertex3f(0, 5, 0);
+				glTexCoord2f(1, 0);
 				glVertex3f(0, -5, 0);
 			glEnd();
 
@@ -753,13 +757,13 @@ void CModelWindow::RenderLightSource()
 			glColor4f(1.0, 1.0, 1.0, fabs(flDot));
 
 			glBegin(GL_QUADS);
-				glTexCoord2f(1, 0);
-				glVertex3f(-25, 0, -5);
-				glTexCoord2f(0, 0);
-				glVertex3f(-25, 0, 5);
-				glTexCoord2f(0, 1);
-				glVertex3f(0, 0, 5);
 				glTexCoord2f(1, 1);
+				glVertex3f(-25, 0, -5);
+				glTexCoord2f(0, 1);
+				glVertex3f(-25, 0, 5);
+				glTexCoord2f(0, 0);
+				glVertex3f(0, 0, 5);
+				glTexCoord2f(1, 0);
 				glVertex3f(0, 0, -5);
 			glEnd();
 
@@ -863,6 +867,7 @@ void CModelWindow::RenderUV()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_CULL_FACE);
 
 	glShadeModel(GL_FLAT);
 
@@ -952,7 +957,7 @@ void CModelWindow::RenderUV()
 		}
 		else
 			glTexCoord2fv(vecUV);
-		glVertex2f(-0.5f, -0.5f);
+		glVertex2f(-0.5f, 0.5f);
 
 		vecUV = Vector(1.0f, 1.0f, 0.0f);
 		if (bMultiTexture)
@@ -963,7 +968,7 @@ void CModelWindow::RenderUV()
 		}
 		else
 			glTexCoord2fv(vecUV);
-		glVertex2f(0.5f, -0.5f);
+		glVertex2f(0.5f, 0.5f);
 
 		vecUV = Vector(1.0f, 0.0f, 0.0f);
 		if (bMultiTexture)
@@ -974,7 +979,7 @@ void CModelWindow::RenderUV()
 		}
 		else
 			glTexCoord2fv(vecUV);
-		glVertex2f(0.5f, 0.5f);
+		glVertex2f(0.5f, -0.5f);
 
 		vecUV = Vector(0.0f, 0.0f, 0.0f);
 		if (bMultiTexture)
@@ -985,7 +990,7 @@ void CModelWindow::RenderUV()
 		}
 		else
 			glTexCoord2fv(vecUV);
-		glVertex2f(-0.5f, 0.5f);
+		glVertex2f(-0.5f, -0.5f);
 
 	glEnd();
 

@@ -135,7 +135,6 @@ void CAOGenerator::ShadowMapSetupScene()
 			{
 				// Translate here so it takes up the whole viewport when flattened by the shader.
 				Vector vecUV = pMesh->GetUV(pFace->GetVertex(k)->vt) * 2 - Vector(1,1,1);
-				vecUV.y = -vecUV.y;
 				glTexCoord2fv(vecUV);
 				glNormal3fv(pMesh->GetNormal(pFace->GetVertex(k)->vn));
 				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k)->v));
@@ -242,9 +241,6 @@ void CAOGenerator::RenderSetupScene()
 					Vector vecVertex = pMesh->GetVertex(pVertex->v);
 					Vector vecNormal = pMesh->GetNormal(pVertex->vn);
 					Vector vecUV = pMesh->GetUV(pVertex->vt);
-
-					// Why? I dunno.
-					vecUV.y = -vecUV.y;
 
 					glTexCoord2fv(vecUV);
 					glNormal3fv(vecNormal);
@@ -801,17 +797,17 @@ void CAOGenerator::AccumulateTexture(size_t iTexture)
 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(-1.0f, 1.0f);
-
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2f(-1.0f, -1.0f);
 
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(1.0f, -1.0f);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(-1.0f, 1.0f);
 
 		glTexCoord2f(1.0f, 1.0f);
 		glVertex2f(1.0f, 1.0f);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(1.0f, -1.0f);
 	glEnd();
 
 	glPopAttrib();
@@ -1588,6 +1584,9 @@ void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 
 	ilSetData(&m_avecShadowValues[0].x);
 
+	// Formats like PNG and VTF don't work unless it's in integer format.
+	ilConvertImage(IL_RGB, IL_UNSIGNED_INT);
+
 	// I'm glad this flips X and not Y, or it'd be pretty useless to me.
 	iluFlipImage();
 
@@ -1685,17 +1684,17 @@ void DrawTexture(GLuint iTexture, float flScale)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(-flScale, flScale);
-
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2f(-flScale, -flScale);
 
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(flScale, -flScale);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(-flScale, flScale);
 
 		glTexCoord2f(1.0f, 1.0f);
 		glVertex2f(flScale, flScale);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(flScale, -flScale);
 	glEnd();
 
 	glPopAttrib();
