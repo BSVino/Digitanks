@@ -12,6 +12,9 @@ CModelConverter::CModelConverter(CConversionScene* pScene)
 
 void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 {
+	if (m_pWorkListener)
+		m_pWorkListener->BeginProgress();
+
 	FILE* fp = _wfopen(pszFilename, L"r");
 
 	if (!fp)
@@ -26,6 +29,8 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 	size_t iSmoothingGroup = ~0;
 
 	bool bSmoothingGroups = false;
+
+	std::wstring sLastTask;
 
 	const size_t iChars = 1024;
 	wchar_t szLine[iChars];
@@ -60,6 +65,15 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"v") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading vertex data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			// A vertex.
 			float x, y, z;
 			swscanf(pszLine, L"v %f %f %f", &x, &y, &z);
@@ -67,6 +81,15 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"vn") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading vertex normal data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			// A vertex normal.
 			float x, y, z;
 			swscanf(pszLine, L"vn %f %f %f", &x, &y, &z);
@@ -74,6 +97,15 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"vt") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading texture coordinate data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			// A UV coordinate for a vertex.
 			float u, v;
 			swscanf(pszLine, L"vt %f %f", &u, &v);
@@ -110,6 +142,15 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"f") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading polygon data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			if (iCurrentMaterial == ~0)
 				iCurrentMaterial = m_pScene->AddMaterial(L"");
 
@@ -117,6 +158,10 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
 			pMesh->GetFace(iFace)->m_iSmoothingGroup = iSmoothingGroup;
+
+			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
+			wcscpy(szToken, pszLine);
+			pszToken = wcstok(szToken, L" ");
 
 			while (pszToken = wcstok(NULL, L" "))
 			{
@@ -154,6 +199,8 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 
 	fclose(fp);
 
+	m_pScene->SetWorkListener(m_pWorkListener);
+
 	m_pScene->CalculateExtends();
 
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
@@ -163,6 +210,9 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		if (bSmoothingGroups || m_pScene->GetMesh(i)->GetNumNormals() == 0)
 			m_pScene->GetMesh(i)->CalculateVertexNormals();
 	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
 }
 
 void CModelConverter::ReadMTL(const wchar_t* pszFilename)
@@ -171,6 +221,9 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 
 	if (!fp)
 		return;
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Reading materials", 0);
 
 	size_t iCurrentMaterial = ~0;
 
@@ -269,6 +322,9 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 // Silo ascii
 void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 {
+	if (m_pWorkListener)
+		m_pWorkListener->BeginProgress();
+
 	std::wifstream infile;
 	infile.open(pszFilename, std::wifstream::in);
 
@@ -317,6 +373,8 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 
 	infile.close();
 
+	m_pScene->SetWorkListener(m_pWorkListener);
+
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 	{
 		m_pScene->GetMesh(i)->CalculateEdgeData();
@@ -325,10 +383,16 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 	}
 
 	m_pScene->CalculateExtends();
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
 }
 
 void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilename)
 {
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Reading materials", 0);
+
 	size_t iCurrentMaterial = m_pScene->AddMaterial(L"");
 	CConversionMaterial* pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
@@ -426,6 +490,8 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 	size_t iAddUV = 0;
 	size_t iAddN = 0;
 
+	std::wstring sLastTask;
+
 	std::wstring sLine;
 	while (infile.good())
 	{
@@ -476,6 +542,15 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 		}
 		else if (wcscmp(pszToken, L"-vert") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading vertex data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			// A vertex.
 			float x, y, z;
 			swscanf(sLine.c_str(), L"-vert %f %f %f", &x, &y, &z);
@@ -483,6 +558,15 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 		}
 		else if (wcscmp(pszToken, L"-edge") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading edge data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
 			int v1, v2;
 			swscanf(sLine.c_str(), L"-edge %d %d", &v1, &v2);
@@ -505,8 +589,20 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 		}
 		else if (wcscmp(pszToken, L"-face") == 0)
 		{
+			if (m_pWorkListener)
+			{
+				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+					m_pWorkListener->WorkProgress(0);
+				else
+					m_pWorkListener->SetAction(L"Reading polygon data", 0);
+			}
+			sLastTask = std::wstring(pszToken);
+
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
+
+			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
+			wcstok(sLine, aTokens, L" ");
 
 			std::wstring sFaces = sLine.c_str()+8;
 			std::vector<std::wstring> aFaces;

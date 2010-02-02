@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <worklistener.h>
 #include "vector.h"
 #include "geometry.h"
 
@@ -168,6 +169,9 @@ public:
 class CConversionScene
 {
 public:
+										CConversionScene();
+
+public:
 	void								DestroyAll();
 
 	void								CalculateExtends();
@@ -184,10 +188,14 @@ public:
 	size_t								FindMesh(const wchar_t* pszName);
 	size_t								FindMesh(CConversionMesh* pMesh);
 
+	void								SetWorkListener(IWorkListener* pWorkListener) { m_pWorkListener = pWorkListener; }
+
 	std::vector<CConversionMesh>		m_aMeshes;
 	std::vector<CConversionMaterial>	m_aMaterials;
 
 	AABB								m_oExtends;
+
+	IWorkListener*						m_pWorkListener;
 };
 
 #endif

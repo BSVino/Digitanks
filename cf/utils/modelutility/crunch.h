@@ -3,15 +3,7 @@
 
 #include <modelconverter/convmesh.h>
 #include "ui/modelwindow.h"
-
-class IWorkListener
-{
-public:
-	virtual void			BeginProgress()=0;
-	virtual void			SetAction(wchar_t* pszAction, size_t iTotalProgress)=0;
-	virtual void			WorkProgress(size_t iProgress)=0;
-	virtual void			EndProgress()=0;
-};
+#include <worklistener.h>
 
 typedef enum
 {

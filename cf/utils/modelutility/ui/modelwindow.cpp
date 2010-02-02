@@ -21,6 +21,8 @@ CModelWindow::CModelWindow()
 	int argc = 1;
 	char* argv = "smak";
 
+	m_bLoadingFile = false;
+
 	m_pLightHalo = NULL;
 	m_pLightBeam = NULL;
 
@@ -163,6 +165,11 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 	if (!pszFile)
 		return;
 
+	if (m_bLoadingFile)
+		return;
+
+	m_bLoadingFile = true;
+
 	// Save it in here in case m_szFileLoaded was passed into ReadFile, in which case it would be destroyed by DestroyAll.
 	std::wstring sFile = pszFile;
 	std::wstring sExtension;
@@ -174,6 +181,8 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 
 	CModelConverter c(&m_Scene);
 
+	c.SetWorkListener(this);
+
 	if (wcscmp(sExtension.c_str(), L".obj") == 0)
 		c.ReadOBJ(sFile.c_str());
 	else if (wcscmp(sExtension.c_str(), L".sia") == 0)
@@ -183,9 +192,14 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 
 	wcscpy(m_szFileLoaded, sFile.c_str());
 
+	BeginProgress();
+	SetAction(L"Loading into video hardware", 0);
 	LoadIntoGL();
+	EndProgress();
 
 	m_flCameraDistance = m_Scene.m_oExtends.Size().Length() * 1.5f;
+
+	m_bLoadingFile = false;
 }
 
 void CModelWindow::ReloadFromFile()

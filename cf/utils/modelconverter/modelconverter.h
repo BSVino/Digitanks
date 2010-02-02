@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 
+#include <worklistener.h>
 #include "convmesh.h"
 
 class CModelConverter
@@ -34,8 +35,12 @@ public:
 	void				SetScene(CConversionScene* pScene) { m_pScene = pScene; };
 	CConversionScene*	GetScene() { return m_pScene; };
 
+	void				SetWorkListener(IWorkListener* pWorkListener) { m_pWorkListener = pWorkListener; }
+
 protected:
 	CConversionScene*	m_pScene;
+
+	IWorkListener*		m_pWorkListener;
 };
 
 #endif

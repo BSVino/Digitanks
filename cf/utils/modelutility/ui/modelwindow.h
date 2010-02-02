@@ -3,6 +3,7 @@
 
 #include <modelconverter/convmesh.h>
 #include "modelgui.h"
+#include <worklistener.h>
 
 class CMaterial
 {
@@ -26,7 +27,7 @@ typedef enum
 	DT_SMOOTH,
 } displaytype_t;
 
-class CModelWindow : public modelgui::IEventListener
+class CModelWindow : public modelgui::IEventListener, IWorkListener
 {
 public:
 							CModelWindow();
@@ -145,8 +146,14 @@ public:
 	void					ClearDebugLines();
 	void					AddDebugLine(Vector vecStart, Vector vecEnd);
 
+	void					BeginProgress();
+	void					SetAction(wchar_t* pszAction, size_t iTotalProgress);
+	void					WorkProgress(size_t iProgress, bool bForceDraw = false);
+	void					EndProgress();
+
 protected:
 	CConversionScene		m_Scene;
+	bool					m_bLoadingFile;
 	wchar_t					m_szFileLoaded[1024];
 
 	std::vector<size_t>		m_aiObjects;

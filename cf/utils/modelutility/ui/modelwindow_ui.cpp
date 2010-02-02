@@ -79,11 +79,17 @@ void CModelWindow::Layout()
 
 void CModelWindow::OpenCallback()
 {
+	if (m_bLoadingFile)
+		return;
+
 	ReadFile(OpenFileDialog());
 }
 
 void CModelWindow::ReloadCallback()
 {
+	if (m_bLoadingFile)
+		return;
+
 	ReloadFromFile();
 }
 
@@ -94,6 +100,9 @@ void CModelWindow::SaveCallback()
 
 void CModelWindow::CloseCallback()
 {
+	if (m_bLoadingFile)
+		return;
+
 	DestroyAll();
 }
 
@@ -236,6 +245,44 @@ void CModelWindow::OpenRegisterPanel()
 void CModelWindow::OpenAboutPanel()
 {
 	CAboutPanel::Open();
+}
+
+void CModelWindow::BeginProgress()
+{
+	CProgressBar::Get()->SetVisible(true);
+}
+
+void CModelWindow::SetAction(wchar_t* pszAction, size_t iTotalProgress)
+{
+	CProgressBar::Get()->SetTotalProgress(iTotalProgress);
+	CProgressBar::Get()->SetAction(pszAction);
+	WorkProgress(0, true);
+}
+
+void CModelWindow::WorkProgress(size_t iProgress, bool bForceDraw)
+{
+	static int iLastTime = 0;
+	static int iLastGenerate = 0;
+
+	// Don't update too often or it'll slow us down just because of the updates.
+	if (!bForceDraw && glutGet(GLUT_ELAPSED_TIME) - iLastTime < 100)
+		return;
+
+	CProgressBar::Get()->SetProgress(iProgress);
+
+	glutMainLoopEvent();
+
+	CModelWindow::Get()->Render();
+	CRootPanel::Get()->Think();
+	CRootPanel::Get()->Paint();
+	glutSwapBuffers();
+
+	iLastTime = glutGet(GLUT_ELAPSED_TIME);
+}
+
+void CModelWindow::EndProgress()
+{
+	CProgressBar::Get()->SetVisible(false);
 }
 
 #define BTN_HEIGHT 32
@@ -770,16 +817,16 @@ void CAOPanel::SetAction(wchar_t* pszAction, size_t iTotalProgress)
 {
 	CProgressBar::Get()->SetTotalProgress(iTotalProgress);
 	CProgressBar::Get()->SetAction(pszAction);
-	WorkProgress(0);
+	WorkProgress(0, true);
 }
 
-void CAOPanel::WorkProgress(size_t iProgress)
+void CAOPanel::WorkProgress(size_t iProgress, bool bForceDraw)
 {
 	static int iLastTime = 0;
 	static int iLastGenerate = 0;
 
 	// Don't update too often or it'll slow us down just because of the updates.
-	if (glutGet(GLUT_ELAPSED_TIME) - iLastTime < 10)
+	if (!bForceDraw && glutGet(GLUT_ELAPSED_TIME) - iLastTime < 10)
 		return;
 
 	CProgressBar::Get()->SetProgress(iProgress);

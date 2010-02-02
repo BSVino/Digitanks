@@ -29,6 +29,9 @@ void CConversionMesh::CalculateEdgeData()
 	// No edges? Well then let's generate them.
 	if (!GetNumEdges())
 	{
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->SetAction(L"Generating edges", GetNumFaces());
+
 		// For every face, find and create edges.
 		for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
 		{
@@ -90,10 +93,16 @@ void CConversionMesh::CalculateEdgeData()
 					}
 				}
 			}
+
+			if (m_pScene->m_pWorkListener)
+				m_pScene->m_pWorkListener->WorkProgress(iFace);
 		}
 	}
 	else
 	{
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->SetAction(L"Finding edges", GetNumFaces());
+
 		// For every edge, mark the vertexes it contains.
 		for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
 		{
@@ -110,8 +119,14 @@ void CConversionMesh::CalculateEdgeData()
 				else
 					pEdge->f2 = iFace;
 			}
+
+			if (m_pScene->m_pWorkListener)
+				m_pScene->m_pWorkListener->WorkProgress(iFace);
 		}
 	}
+
+	if (m_pScene->m_pWorkListener)
+		m_pScene->m_pWorkListener->SetAction(L"Calculating edge data", GetNumEdges());
 
 	// For every conversion vertex, mark the edges it meets.
 	for (size_t iEdge = 0; iEdge < GetNumEdges(); iEdge++)
@@ -145,11 +160,17 @@ void CConversionMesh::CalculateEdgeData()
 					pVertex->m_aEdges.push_back(iEdge);
 			}
 		}
+
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->WorkProgress(iEdge);
 	}
 }
 
 void CConversionMesh::CalculateVertexNormals()
 {
+	if (m_pScene->m_pWorkListener)
+		m_pScene->m_pWorkListener->SetAction(L"Calculating vertex normals", GetNumFaces());
+
 	m_aNormals.clear();
 
 	// Got to calculate vertex normals now. We have to do it after we read faces because we need all of the face data loaded first.
@@ -186,6 +207,9 @@ void CConversionMesh::CalculateVertexNormals()
 			// ... nah!
 			pVertex->vn = AddNormal(vecNormal.x, vecNormal.y, vecNormal.z);
 		}
+
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->WorkProgress(iFace);
 	}
 }
 
@@ -194,9 +218,17 @@ void CConversionMesh::TranslateOrigin()
 	if (m_vecOrigin.LengthSqr() == 0)
 		return;
 
+	if (m_pScene->m_pWorkListener)
+		m_pScene->m_pWorkListener->SetAction(L"Translating origins", GetNumVertices());
+
 	// Translate each vertex to the axis, essentially centering it around Silo's manipulator.
 	for (size_t iVertex = 0; iVertex < GetNumVertices(); iVertex++)
+	{
 		m_aVertices[iVertex] -= m_vecOrigin;
+
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->WorkProgress(iVertex);
+	}
 
 	m_vecOrigin = Vector(0,0,0);
 }
@@ -208,6 +240,9 @@ void CConversionMesh::CalculateExtends()
 		m_oExtends = AABB();
 		return;
 	}
+
+	if (m_pScene->m_pWorkListener)
+		m_pScene->m_pWorkListener->SetAction(L"Calculating extends", GetNumVertices());
 
 	Vector vecMins = m_aVertices[0];
 	Vector vecMaxs = m_aVertices[0];
@@ -221,9 +256,17 @@ void CConversionMesh::CalculateExtends()
 			if (m_aVertices[iVertex][i] > vecMaxs[i])
 				vecMaxs[i] = m_aVertices[iVertex][i];
 		}
+
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->WorkProgress(iVertex);
 	}
 
 	m_oExtends = AABB(vecMins, vecMaxs);
+}
+
+CConversionScene::CConversionScene()
+{
+	m_pWorkListener = NULL;
 }
 
 void CConversionScene::DestroyAll()
@@ -239,6 +282,9 @@ void CConversionScene::CalculateExtends()
 		m_oExtends = AABB();
 		return;
 	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Calculating model extends", GetNumMeshes());
 
 	Vector vecMins;
 	Vector vecMaxs;
@@ -262,6 +308,9 @@ void CConversionScene::CalculateExtends()
 					vecMaxs[i] = GetMesh(m)->m_oExtends.m_vecMaxs[i];
 			}
 		}
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(m);
 	}
 
 	m_oExtends = AABB(vecMins, vecMaxs);

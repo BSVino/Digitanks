@@ -107,7 +107,7 @@ public:
 
 	virtual void			BeginProgress();
 	virtual void			SetAction(wchar_t* pszAction, size_t iTotalProgress);
-	virtual void			WorkProgress(size_t iProgress);
+	virtual void			WorkProgress(size_t iProgress, bool bForceDraw = false);
 	virtual void			EndProgress();
 
 	virtual bool			IsGenerating() { return m_oGenerator.IsGenerating(); }
