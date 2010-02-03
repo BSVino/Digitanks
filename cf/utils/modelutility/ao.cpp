@@ -1587,9 +1587,6 @@ void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 	// Formats like PNG and VTF don't work unless it's in integer format.
 	ilConvertImage(IL_RGB, IL_UNSIGNED_INT);
 
-	// I'm glad this flips X and not Y, or it'd be pretty useless to me.
-	iluFlipImage();
-
 	if (!CModelWindow::Get()->GetSMAKTexture() && (m_iWidth > 128 || m_iHeight > 128))
 	{
 		iluImageParameter(ILU_FILTER, ILU_BILINEAR);
