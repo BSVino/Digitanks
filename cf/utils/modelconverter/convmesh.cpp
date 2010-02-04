@@ -284,9 +284,6 @@ void CConversionScene::CalculateExtends()
 		return;
 	}
 
-	if (m_pWorkListener)
-		m_pWorkListener->SetAction(L"Calculating model extends", GetNumMeshes());
-
 	Vector vecMins;
 	Vector vecMaxs;
 

@@ -13,6 +13,9 @@ class CModelConverter
 public:
 						CModelConverter(CConversionScene* pScene);
 
+public:
+	bool				ReadModel(const wchar_t* pszFilename);
+
 	void				ReadOBJ(const wchar_t* pszFilename);
 	void				ReadMTL(const wchar_t* pszFilename);
 

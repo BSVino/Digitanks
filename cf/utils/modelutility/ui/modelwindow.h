@@ -42,19 +42,19 @@ public:
 	void					ReloadFromFile();
 
 	void					LoadIntoGL();
-	size_t					LoadTextureIntoGL(const wchar_t* pszFilename);
+	static size_t			LoadTextureIntoGL(const wchar_t* pszFilename);
 	void					LoadTexturesIntoGL();
 	void					CreateGLLists();
 
 	// License management
-	unsigned long			PNG_CRC(unsigned char *buf, int len);
-	void					LoadSMAKTexture();
-	void					SetupSMAKTexture();
-	void					SaveSMAKTexture();
-	bool					GetSMAKTexture();
-	std::string				GetSMAKTextureCode();
-	void					GetSMAKTextureId(unsigned char* paiId);
-	void					SetSMAKTexture(const char* pszTex);
+	static unsigned long	PNG_CRC(unsigned char *buf, int len);
+	static void				LoadSMAKTexture();
+	static void				SetupSMAKTexture();
+	static void				SaveSMAKTexture();
+	static bool				GetSMAKTexture();
+	static std::string		GetSMAKTextureCode();
+	static void				GetSMAKTextureId(unsigned char* paiId);
+	static void				SetSMAKTexture(const char* pszTex);
 
 	void					SaveFile(const wchar_t* pszFile);
 

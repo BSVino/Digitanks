@@ -8,6 +8,26 @@
 CModelConverter::CModelConverter(CConversionScene* pScene)
 {
 	m_pScene = pScene;
+	m_pWorkListener = NULL;
+}
+
+bool CModelConverter::ReadModel(const wchar_t* pszFilename)
+{
+	std::wstring sExtension;
+
+	size_t iFileLength = wcslen(pszFilename);
+	sExtension = pszFilename+iFileLength-4;
+
+	if (wcscmp(sExtension.c_str(), L".obj") == 0)
+		ReadOBJ(pszFilename);
+	else if (wcscmp(sExtension.c_str(), L".sia") == 0)
+		ReadSIA(pszFilename);
+	else if (wcscmp(sExtension.c_str(), L".dae") == 0)
+		ReadDAE(pszFilename);
+	else
+		return false;
+
+	return true;
 }
 
 void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
@@ -166,24 +186,26 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			while (pszToken = wcstok(NULL, L" "))
 			{
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
-				long v, vt, vn = ~0;
-				if (swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) >= 2)
+				long v, vt, vn;
+				int iScans;
+				if (iScans = swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) >= 2)
 				{
 					if (v < 0)
 						v = (long)pMesh->GetNumVertices()+v+1;
 					if (vt < 0)
 						vt = (long)pMesh->GetNumUVs()+vt+1;
-					if (vn < 0)
+					if (iScans == 3 && vn < 0)
 						vn = (long)pMesh->GetNumNormals()+vn+1;
 
 					assert ( v >= 1 && v < (long)pMesh->GetNumVertices()+1 );
 					assert ( vt >= 1 && vt < (long)pMesh->GetNumUVs()+1 );
-					assert ( vn >= 1 && vn < (long)pMesh->GetNumNormals()+1 );
+					if (iScans == 3)
+						assert ( vn >= 1 && vn < (long)pMesh->GetNumNormals()+1 );
 
-					if (vn == ~0)
-						pMesh->AddVertexToFace(iFace, v-1, vt-1, ~0);
-					else
+					if (iScans == 3)
 						pMesh->AddVertexToFace(iFace, v-1, vt-1, vn-1);
+					else
+						pMesh->AddVertexToFace(iFace, v-1, vt-1, ~0);
 				}
 				else
 					printf("WARNING! Found an invalid vertex while loading faces.\n");

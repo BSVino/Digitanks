@@ -41,7 +41,8 @@ const char* GetFSFlattenedShadowMap()
 				// Reduce moire and self-shadowing
 		"		vecShadowCoordinateWdivide.z -= 0.003 + 0.004*(1.0-flLightDot);"	// Use flLightDot to get further away from surfaces at high angles.
 
-		"		flShadow = flDistanceFromLight < vecShadowCoordinateWdivide.z?0.0:1.0;"
+				// It's .99 because sometimes if every sample on a point is perfectly white it suffers integer overflow down the line and becomes black.
+		"		flShadow = flDistanceFromLight < vecShadowCoordinateWdivide.z?0.0:0.99;"
 		"	}"
 
 		"	gl_FragColor = vec4(flShadow, flShadow, flShadow, 1.0);"

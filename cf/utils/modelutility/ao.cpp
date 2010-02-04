@@ -275,7 +275,7 @@ void CAOGenerator::Generate()
 	m_flHighestValue = 0;
 
 #ifdef AO_DEBUG
-	CModelWindow::Get()->ClearDebugLines();
+//	CModelWindow::Get()->ClearDebugLines();
 #endif
 
 	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
@@ -571,7 +571,7 @@ void CAOGenerator::GenerateShadowMaps()
 			Vector vecLightPosition = vecDir*flSize + vecCenter;	// Puts us twice as far from the closest vertex
 
 #ifdef AO_DEBUG
-			CModelWindow::Get()->AddDebugLine(vecLightPosition, vecLightPosition-vecDir);
+//			CModelWindow::Get()->AddDebugLine(vecLightPosition, vecLightPosition-vecDir);
 #endif
 
 			glMatrixMode(GL_PROJECTION);
@@ -981,7 +981,7 @@ void CAOGenerator::GenerateByTexel()
 						Vector vecNormal = vn1 * wv1 + vn2 * wv2 + vn3 * wv3;
 
 #ifdef AO_DEBUG
-						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
+//						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
 #endif
 
 						flMatrixMathTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
@@ -1554,6 +1554,9 @@ size_t CAOGenerator::GenerateTexture(bool bInMedias)
 				}
 				else
 					avecShadowValues[i] = m_avecShadowValues[i] / (float)m_aiShadowReads[i];
+
+				// When exporting to png sometimes a pure white value will suffer integer overflow.
+				avecShadowValues[i] *= 0.99f;
 			}
 		}
 	}
@@ -1587,7 +1590,7 @@ void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 	// Formats like PNG and VTF don't work unless it's in integer format.
 	ilConvertImage(IL_RGB, IL_UNSIGNED_INT);
 
-	if (!CModelWindow::Get()->GetSMAKTexture() && (m_iWidth > 128 || m_iHeight > 128))
+	if (!CModelWindow::GetSMAKTexture() && (m_iWidth > 128 || m_iHeight > 128))
 	{
 		iluImageParameter(ILU_FILTER, ILU_BILINEAR);
 		iluScale(128, 128, 1);

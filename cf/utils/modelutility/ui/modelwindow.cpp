@@ -173,10 +173,6 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 
 	// Save it in here in case m_szFileLoaded was passed into ReadFile, in which case it would be destroyed by DestroyAll.
 	std::wstring sFile = pszFile;
-	std::wstring sExtension;
-
-	size_t iFileLength = wcslen(pszFile);
-	sExtension = pszFile+iFileLength-4;
 
 	DestroyAll();
 
@@ -184,12 +180,8 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 
 	c.SetWorkListener(this);
 
-	if (wcscmp(sExtension.c_str(), L".obj") == 0)
-		c.ReadOBJ(sFile.c_str());
-	else if (wcscmp(sExtension.c_str(), L".sia") == 0)
-		c.ReadSIA(sFile.c_str());
-	else if (wcscmp(sExtension.c_str(), L".dae") == 0)
-		c.ReadDAE(sFile.c_str());
+	if (!c.ReadModel(sFile.c_str()))
+		return;
 
 	wcscpy(m_szFileLoaded, sFile.c_str());
 
