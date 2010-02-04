@@ -28,6 +28,10 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 		if (strstr(pAdapterInfo->Description, "Hamachi"))
 			continue;
 
+		// Skip USB controllers, they can be unplugged.
+		if (strstr(pAdapterInfo->Description, "USB"))
+			continue;
+
 		memcpy(aiAddresses[iAddresses++], pAdapterInfo->Address, sizeof(char)*8);
 	}
 	while(pAdapterInfo = pAdapterInfo->Next);
