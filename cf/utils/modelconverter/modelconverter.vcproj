@@ -178,10 +178,22 @@
 				>
 			</File>
 			<Filter
-				Name="collada"
+				Name="formats"
 				>
 				<File
-					RelativePath=".\collada.cpp"
+					RelativePath=".\formats\collada.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\formats\obj.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\formats\silo.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\formats\smd.cpp"
 					>
 				</File>
 			</Filter>

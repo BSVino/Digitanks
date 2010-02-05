@@ -19,7 +19,7 @@
 #include <FCDocument/FCDGeometryPolygons.h>
 #include <FCDocument/FCDGeometryPolygonsInput.h>
 
-#include "modelconverter.h"
+#include "../modelconverter.h"
 
 void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 {
@@ -196,7 +196,7 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 
 #else
 
-#include "modelconverter.h"
+#include "../modelconverter.h"
 
 void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 {
