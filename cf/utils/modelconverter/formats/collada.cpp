@@ -1,9 +1,8 @@
-#if 0
-
 #include <assert.h>
 
 #include <FCollada.h>
 #include <FCDocument/FCDocument.h>
+#include <FCDocument/FCDocumentTools.h>
 #include <FCDocument/FCDLibrary.h>
 #include <FCDocument/FCDMaterial.h>
 #include <FCDocument/FCDEffect.h>
@@ -26,9 +25,14 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 	FCollada::Initialize();
 
 	FCDocument* pDoc = FCollada::NewTopDocument();
+
+	bool bConvertZToY = false;
+
 	if (FCollada::LoadDocumentFromFile(pDoc, pszFilename))
 	{
 		size_t i;
+
+		FCDocumentTools::StandardizeUpAxisAndLength(pDoc, FMVector3(0, 1, 0));
 
 		FCDMaterialLibrary* pMatLib = pDoc->GetMaterialLibrary();
 		size_t iEntities = pMatLib->GetEntityCount();
@@ -193,13 +197,3 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 
 	m_pScene->CalculateExtends();
 }
-
-#else
-
-#include "../modelconverter.h"
-
-void CModelConverter::ReadDAE(const wchar_t* pszFilename)
-{
-}
-
-#endif

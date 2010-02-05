@@ -24,6 +24,7 @@ public:
 	// Set a rotation
 	void		SetRotation(EAngle angDir);
 	void		SetOrientation(Vector vecDir);
+	void		SetScale(Vector vecScale);
 
 	// Transform a vector
 	Vector		operator*(const Vector& v) const;
@@ -43,7 +44,7 @@ public:
 	float		m[4][4];
 };
 
-Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
+inline Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
 {
 	m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m10;
 	m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
@@ -139,6 +140,13 @@ inline void Matrix4x4::SetOrientation(Vector vecDir)
 {
 	EAngle angDir = VectorAngles(vecDir);
 	SetRotation(angDir);
+}
+
+inline void Matrix4x4::SetScale(Vector vecScale)
+{
+	m[0][0] = vecScale.x;
+	m[1][1] = vecScale.y;
+	m[2][2] = vecScale.z;
 }
 
 inline Vector Matrix4x4::operator*(const Vector& v) const

@@ -1005,7 +1005,7 @@ void CAboutPanel::Layout()
 	m_pInfo->AppendText("Version " SMAK_VERSION "\n");
 	m_pInfo->AppendText("Copyright © 2010, Jorge Rodriguez <jrodriguez@matreyastudios.com>\n");
 	m_pInfo->AppendText(" \n");
-	//m_pInfo->AppendText("FCollada copyright © 2006, Feeling Software\n");	// Put back in when Collada support is back.
+	m_pInfo->AppendText("FCollada copyright © 2006, Feeling Software\n");
 	m_pInfo->AppendText("DevIL copyright © 2001-2009, Denton Woods\n");
 	m_pInfo->AppendText("FTGL copyright © 2001-2003 Henry Maddocks\n");
 	m_pInfo->AppendText("Freeglut copyright © 1999-2000, Pawel W. Olszta\n");

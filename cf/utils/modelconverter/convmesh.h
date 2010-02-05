@@ -4,8 +4,8 @@
 #include <vector>
 
 #include <worklistener.h>
-#include "vector.h"
-#include "geometry.h"
+#include <vector.h>
+#include <geometry.h>
 
 // These belong specifically to a face and are never shared.
 class CConversionVertex
