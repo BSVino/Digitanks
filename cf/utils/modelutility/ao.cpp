@@ -862,6 +862,10 @@ void CAOGenerator::GenerateByTexel()
 	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
 		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+
+		if (!pMesh->GetNumUVs())
+			continue;
+
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);

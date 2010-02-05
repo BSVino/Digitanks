@@ -435,6 +435,9 @@ float CConversionFace::GetArea()
 
 float CConversionFace::GetUVArea()
 {
+	if (!m_pScene->GetMesh(m_iMesh)->GetNumUVs())
+		return 0;
+
 	Vector a = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[0].vt);
 	Vector b = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[1].vt);
 

@@ -1040,6 +1040,9 @@ void CModelWindow::RenderUV()
 		{
 			CConversionMesh* pMesh = m_Scene.GetMesh(i);
 
+			if (!pMesh->GetNumUVs())
+				continue;
+
 			for (size_t j = 0; j < pMesh->GetNumFaces(); j++)
 			{
 				size_t k;

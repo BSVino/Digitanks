@@ -139,7 +139,7 @@ public:
 	size_t							GetNumNormals() { return m_aNormals.size(); };
 	Vector							GetNormal(size_t i) { return m_aNormals[i]; }
 	size_t							GetNumUVs() { return m_aUVs.size(); };
-	Vector							GetUV(size_t i) { return m_aUVs[i]; }
+	Vector							GetUV(size_t i) { if (!GetNumUVs()) return Vector(0,0,0); return m_aUVs[i]; }
 
 	size_t							GetNumBones() { return m_aBones.size(); };
 	wchar_t*						GetBoneName(size_t i) { return m_aBones[i].m_szName; };

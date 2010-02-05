@@ -187,34 +187,45 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			{
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
 				long v, vt, vn;
-				int iScans;
-				if (iScans = swscanf(pszToken, L"%d/%d/%d", &v, &vt, &vn) >= 2)
+				std::vector<std::wstring> asTokens;
+				explode(std::wstring(pszToken), asTokens, L"/");
+
+				if (asTokens.size() > 0)
 				{
+					v = _wtol(asTokens[0].c_str());
 					if (v < 0)
 						v = (long)pMesh->GetNumVertices()+v+1;
+					assert ( v >= 1 && v < (long)pMesh->GetNumVertices()+1 );
+				}
+
+				if (asTokens.size() > 1 && pMesh->GetNumUVs())
+				{
+					vt = _wtol(asTokens[1].c_str());
 					if (vt < 0)
 						vt = (long)pMesh->GetNumUVs()+vt+1;
-					if (iScans == 3 && vn < 0)
-						vn = (long)pMesh->GetNumNormals()+vn+1;
-
-					assert ( v >= 1 && v < (long)pMesh->GetNumVertices()+1 );
 					assert ( vt >= 1 && vt < (long)pMesh->GetNumUVs()+1 );
-					if (iScans == 3)
-						assert ( vn >= 1 && vn < (long)pMesh->GetNumNormals()+1 );
-
-					if (iScans == 3)
-						pMesh->AddVertexToFace(iFace, v-1, vt-1, vn-1);
-					else
-						pMesh->AddVertexToFace(iFace, v-1, vt-1, ~0);
 				}
-				else
-					printf("WARNING! Found an invalid vertex while loading faces.\n");
-			}
 
-			if (pMesh->GetFace(iFace)->GetNumVertices() == 0)
-			{
-				printf("WARNING! Removing an empty face. Probably it doesn't have any UV map on it.\n");
-				pMesh->RemoveFace(iFace);
+				if (asTokens.size() > 2 && pMesh->GetNumNormals())
+				{
+					vn = _wtol(asTokens[2].c_str());
+					if (vn < 0)
+						vn = (long)pMesh->GetNumNormals()+vn+1;
+					assert ( vn >= 1 && vn < (long)pMesh->GetNumNormals()+1 );
+				}
+
+				// OBJ uses 1-based indexing.
+				// Convert to 0-based indexing.
+				v--;
+				vt--;
+				vn--;
+
+				if (!pMesh->GetNumUVs())
+					vt = ~0;
+				if (asTokens.size() == 2 || !pMesh->GetNumNormals())
+					vn = ~0;
+
+				pMesh->AddVertexToFace(iFace, v, vt, vn);
 			}
 		}
 	}

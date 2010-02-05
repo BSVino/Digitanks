@@ -48,6 +48,26 @@ inline void wcstok(const std::wstring& str, std::vector<std::wstring>& tokens, c
     }
 }
 
+// explode is slightly different in that repeated delineators return multiple tokens.
+// ie "a|b||c" returns { "a", "b", "", "c" } whereas strtok will cut out the blank result.
+// Basically it works like PHP's explode.
+inline void explode(const std::wstring& str, std::vector<std::wstring>& tokens, const std::wstring& delimiter = L" ")
+{
+    std::wstring::size_type lastPos = str.find_first_of(delimiter, 0);
+    std::wstring::size_type pos = 0;
+
+    while (true)
+    {
+        tokens.push_back(str.substr(pos, lastPos - pos));
+
+		if (lastPos == std::wstring::npos)
+			break;
+
+		pos = lastPos+1;
+        lastPos = str.find_first_of(delimiter, pos);
+    }
+}
+
 inline std::string& ltrim(std::string &s)
 {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
