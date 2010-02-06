@@ -9,7 +9,7 @@ wchar_t* CModelWindow::OpenFileDialog()
 
 	OPENFILENAME opf;
 	opf.hwndOwner = 0;
-	opf.lpstrFilter = L"All *.obj;*.sia;*.dae\0*.obj;*.sia;*.dae\0";
+	opf.lpstrFilter = L"All *.obj;*.sia\0*.obj;*.sia\0";
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
 	opf.nFilterIndex = 1L;

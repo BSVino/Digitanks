@@ -196,6 +196,10 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\smak_version.h"
+				>
+			</File>
 			<Filter
 				Name="ui"
 				>
