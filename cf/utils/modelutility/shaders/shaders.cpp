@@ -29,23 +29,24 @@ const char* GetFSFlattenedShadowMap()
 		"	if (flLightDot > 0.0)"
 		"	{"
 		"		gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);"
-		"		return;"
 		"	}"
-
-		"	float flShadow = 1.0;"
-		"	if (vecShadowCoord.w > 0.0)"
+		"	else"
 		"	{"
-		"		vec4 vecShadowCoordinateWdivide = vecShadowCoord / vecShadowCoord.w;"
-		"		float flDistanceFromLight = texture2D(iShadowMap, vecShadowCoordinateWdivide.st).z;"
+		"		float flShadow = 1.0;"
+		"		if (vecShadowCoord.w > 0.0)"
+		"		{"
+		"			vec4 vecShadowCoordinateWdivide = vecShadowCoord / vecShadowCoord.w;"
+		"			float flDistanceFromLight = texture2D(iShadowMap, vecShadowCoordinateWdivide.st).z;"
 
-				// Reduce moire and self-shadowing
-		"		vecShadowCoordinateWdivide.z -= 0.003 + 0.004*(1.0-flLightDot);"	// Use flLightDot to get further away from surfaces at high angles.
+					// Reduce moire and self-shadowing
+		"			vecShadowCoordinateWdivide.z -= 0.003 + 0.004*(1.0-flLightDot);"	// Use flLightDot to get further away from surfaces at high angles.
 
-				// It's .99 because sometimes if every sample on a point is perfectly white it suffers integer overflow down the line and becomes black.
-		"		flShadow = flDistanceFromLight < vecShadowCoordinateWdivide.z?0.0:0.99;"
+					// It's .99 because sometimes if every sample on a point is perfectly white it suffers integer overflow down the line and becomes black.
+		"			flShadow = flDistanceFromLight < vecShadowCoordinateWdivide.z?0.0:0.99;"
+		"		}"
+
+		"		gl_FragColor = vec4(flShadow, flShadow, flShadow, 1.0);"
 		"	}"
-
-		"	gl_FragColor = vec4(flShadow, flShadow, flShadow, 1.0);"
 		"}";
 }
 
