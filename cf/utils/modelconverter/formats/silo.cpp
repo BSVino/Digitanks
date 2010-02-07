@@ -65,7 +65,6 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 	{
 		m_pScene->GetMesh(i)->CalculateEdgeData();
 		m_pScene->GetMesh(i)->CalculateVertexNormals();
-		m_pScene->GetMesh(i)->TranslateOrigin();
 	}
 
 	m_pScene->CalculateExtends();
@@ -103,7 +102,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilen
 			std::vector<std::wstring> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
-			wcscpy(pMaterial->m_szName, aName[0].c_str());
+			pMaterial->m_sName = aName[0];
 		}
 		else if (wcscmp(pszToken, L"-dif") == 0)
 		{
@@ -151,13 +150,11 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilen
 			std::vector<std::wstring> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
-			wchar_t szDirectory[1024];
-			wcscpy(szDirectory, pszFilename);
-			GetDirectory(szDirectory);
+			std::wstring sDirectory = GetDirectory(pszFilename);
 			wchar_t szTexture[1024];
-			swprintf(szTexture, L"%s/%s", szDirectory, aName[0].c_str());
+			swprintf(szTexture, L"%s/%s", sDirectory.c_str(), aName[0].c_str());
 
-			wcscpy(pMaterial->m_szTexture, szTexture);
+			pMaterial->m_sTexture = szTexture;
 		}
 		else if (wcscmp(pszToken, L"-endMat") == 0)
 		{
@@ -171,6 +168,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 	size_t iCurrentMaterial = ~0;
 
 	CConversionMesh* pMesh = NULL;
+	CConversionSceneNode* pMeshNode = NULL;
 	size_t iAddV = 0;
 	size_t iAddE = 0;
 	size_t iAddUV = 0;
@@ -224,6 +222,8 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 					iAddUV = pMesh->GetNumUVs();
 					iAddN = pMesh->GetNumNormals();
 				}
+				// Make sure it exists.
+				pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pMesh);
 			}
 		}
 		else if (wcscmp(pszToken, L"-vert") == 0)
@@ -271,7 +271,10 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 		else if (wcscmp(pszToken, L"-setmat") == 0)
 		{
 			const wchar_t* pszMaterial = sLine.c_str()+8;
-			iCurrentMaterial = _wtoi(pszMaterial);
+			size_t iNewMaterial = _wtoi(pszMaterial);
+
+			CConversionMaterial* pMaterial = m_pScene->GetMaterial(iNewMaterial);
+			iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, pMaterial->GetName());
 		}
 		else if (wcscmp(pszToken, L"-face") == 0)
 		{
@@ -313,7 +316,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
 			float x, y, z;
 			swscanf(sLine.c_str(), L"-axis %f %f %f", &x, &y, &z);
-			pMesh->m_vecOrigin = Vector(x, y, z);
+			pMeshNode->m_vecOrigin = Vector(x, y, z);
 		}
 		else if (wcscmp(pszToken, L"-endShape") == 0)
 		{

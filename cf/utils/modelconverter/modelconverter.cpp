@@ -31,44 +31,42 @@ bool CModelConverter::ReadModel(const wchar_t* pszFilename)
 }
 
 // Takes a path + filename + extension and removes path and extension to return only the filename.
-// It is destructive on the string that is passed into it.
-wchar_t* CModelConverter::MakeFilename(wchar_t* pszPathFilename)
+std::wstring CModelConverter::GetFilename(std::wstring sPathFilename)
 {
-	wchar_t* pszFile = pszPathFilename;
 	int iLastChar = -1;
 	int i = -1;
 
-	while (pszFile[++i])
-		if (pszFile[i] == L'\\' || pszFile[i] == L'/')
+	while (sPathFilename[++i])
+		if (sPathFilename[i] == L'\\' || sPathFilename[i] == L'/')
 			iLastChar = i;
 
-	pszFile += iLastChar+1;
+	std::wstring sReturn = sReturn.c_str() + iLastChar + 1;
 
 	i = -1;
-	while (pszFile[++i])
-		if (pszFile[i] == L'.')
+	while (sReturn[++i])
+		if (sReturn[i] == L'.')
 			iLastChar = i;
 
 	if (iLastChar >= 0)
-		pszFile[iLastChar] = L'\0';
+		return sReturn.substr(0, iLastChar);
 
-	return pszFile;
+	return sReturn;
 }
 
-// Destructive
-wchar_t* CModelConverter::GetDirectory(wchar_t* pszFilename)
+std::wstring CModelConverter::GetDirectory(std::wstring sFilename)
 {
 	int iLastSlash = -1;
 	int i = -1;
+	std::wstring sResult = sFilename;
 
-	while (pszFilename[++i])
-		if (pszFilename[i] == L'\\' || pszFilename[i] == L'/')
+	while (sResult[++i])
+		if (sResult[i] == L'\\' || sResult[i] == L'/')
 			iLastSlash = i;
 
 	if (iLastSlash >= 0)
-		pszFilename[iLastSlash] = L'\0';
+		sResult[iLastSlash] = L'\0';
 
-	return pszFilename;
+	return sResult;
 }
 
 bool CModelConverter::IsWhitespace(wchar_t cChar)

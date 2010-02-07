@@ -795,8 +795,6 @@ void CAOPanel::GenerateCallback()
 
 	m_pSave->SetVisible(m_oGenerator.DoneGenerating());
 
-	CModelWindow::Get()->CreateGLLists();
-
 	m_pGenerate->SetText("Generate");
 }
 
@@ -853,10 +851,6 @@ void CAOPanel::WorkProgress(size_t iProgress, bool bForceDraw)
 
 		iLastGenerate = glutGet(GLUT_ELAPSED_TIME);
 	}
-
-	// If we're in 3d mode, force it to use the updated texture.
-	if (!CModelWindow::Get()->GetRenderMode())
-		CModelWindow::Get()->CreateGLLists();
 
 	CModelWindow::Get()->Render();
 	CRootPanel::Get()->Think();

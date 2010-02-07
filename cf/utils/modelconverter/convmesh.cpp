@@ -1,18 +1,19 @@
 #include <assert.h>
 #include <algorithm>
+#include <utility>
 
 #include "convmesh.h"
 #include <geometry.h>
 
-CConversionMesh::CConversionMesh(class CConversionScene* pScene, const wchar_t* pszName)
+CConversionMesh::CConversionMesh(class CConversionScene* pScene, const std::wstring& sName)
 {
 	m_pScene = pScene;
-	wcscpy(m_szName, pszName);
+	m_sName = sName;
 }
 
 void CConversionMesh::Clear()
 {
-	m_szName[0] = L'\0';
+	m_sName = std::wstring(L"");
 
 	m_aVertices.clear();
 	m_aNormals.clear();
@@ -20,8 +21,6 @@ void CConversionMesh::Clear()
 	m_aBones.clear();
 	m_aFaces.clear();
 	m_aEdges.clear();
-
-	m_vecOrigin = Vector();
 }
 
 void CConversionMesh::CalculateEdgeData()
@@ -214,26 +213,6 @@ void CConversionMesh::CalculateVertexNormals()
 	}
 }
 
-void CConversionMesh::TranslateOrigin()
-{
-	if (m_vecOrigin.LengthSqr() == 0)
-		return;
-
-	if (m_pScene->m_pWorkListener)
-		m_pScene->m_pWorkListener->SetAction(L"Translating origins", GetNumVertices());
-
-	// Translate each vertex to the axis, essentially centering it around Silo's manipulator.
-	for (size_t iVertex = 0; iVertex < GetNumVertices(); iVertex++)
-	{
-		m_aVertices[iVertex] -= m_vecOrigin;
-
-		if (m_pScene->m_pWorkListener)
-			m_pScene->m_pWorkListener->WorkProgress(iVertex);
-	}
-
-	m_vecOrigin = Vector(0,0,0);
-}
-
 void CConversionMesh::CalculateExtends()
 {
 	if (!GetNumVertices())
@@ -274,6 +253,7 @@ void CConversionScene::DestroyAll()
 {
 	m_aMaterials.clear();
 	m_aMeshes.clear();
+	m_aScenes.clear();
 }
 
 void CConversionScene::CalculateExtends()
@@ -314,9 +294,9 @@ void CConversionScene::CalculateExtends()
 	m_oExtends = AABB(vecMins, vecMaxs);
 }
 
-size_t CConversionScene::AddMaterial(const wchar_t* pszName)
+size_t CConversionScene::AddMaterial(const std::wstring& sName)
 {
-	m_aMaterials.push_back(CConversionMaterial(pszName));
+	m_aMaterials.push_back(CConversionMaterial(sName));
 	return m_aMaterials.size()-1;
 }
 
@@ -326,25 +306,25 @@ size_t CConversionScene::AddMaterial(CConversionMaterial& oMaterial)
 	return m_aMaterials.size()-1;
 }
 
-size_t CConversionScene::FindMaterial(const wchar_t* pszName)
+size_t CConversionScene::FindMaterial(const std::wstring& sName)
 {
 	for (size_t i = 0; i < m_aMaterials.size(); i++)
-		if (wcscmp(pszName, m_aMaterials[i].m_szName) == 0)
+		if (sName.compare(m_aMaterials[i].m_sName) == 0)
 			return i;
 
 	return ((size_t)~0);
 }
 
-size_t CConversionScene::AddMesh(const wchar_t* pszName)
+size_t CConversionScene::AddMesh(const std::wstring& sName)
 {
-	m_aMeshes.push_back(CConversionMesh(this, pszName));
+	m_aMeshes.push_back(CConversionMesh(this, sName));
 	return m_aMeshes.size()-1;
 }
 
-size_t CConversionScene::FindMesh(const wchar_t* pszName)
+size_t CConversionScene::FindMesh(const std::wstring& sName)
 {
 	for (size_t i = 0; i < m_aMeshes.size(); i++)
-		if (wcscmp(pszName, m_aMeshes[i].m_szName) == 0)
+		if (sName.compare(m_aMeshes[i].m_sName) == 0)
 			return i;
 
 	return ((size_t)~0);
@@ -357,6 +337,110 @@ size_t CConversionScene::FindMesh(CConversionMesh* pMesh)
 			return i;
 
 	return ((size_t)~0);
+}
+
+size_t CConversionScene::AddScene()
+{
+	m_aScenes.push_back(CConversionSceneNode(this, NULL));
+	return m_aScenes.size()-1;
+}
+
+CConversionSceneNode* CConversionScene::GetDefaultScene()
+{
+	if (m_aScenes.size() == 0)
+		m_aScenes.push_back(CConversionSceneNode(this, NULL));
+
+	return &m_aScenes[0];
+}
+
+CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionMesh* pMesh)
+{
+	CConversionSceneNode* pScene = GetDefaultScene();
+
+	for (size_t i = 0; i < pScene->GetNumChildren(); i++)
+	{
+		CConversionSceneNode* pChild = pScene->GetChild(i);
+		size_t iMesh = pChild->FindMeshInstance(pMesh);
+		if (iMesh != ~0)
+			return pChild;
+	}
+
+	// Put it in its own child node so that it can be moved around on its own.
+	size_t iChild = pScene->AddChild();
+	pScene->GetChild(iChild)->AddMeshInstance(FindMesh(pMesh));
+
+	return pScene->GetChild(iChild);
+}
+
+size_t CConversionScene::AddDefaultSceneMaterial(CConversionMesh* pMesh, const std::wstring& sName)
+{
+	CConversionMeshInstance* pMeshInstance = GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0);
+
+	size_t iMaterialStub = pMesh->AddMaterialStub(sName);
+	pMeshInstance->m_aiMaterialsMap.insert(std::pair<size_t, size_t>(iMaterialStub, iMaterialStub));
+
+	return iMaterialStub;
+}
+
+CConversionSceneNode::CConversionSceneNode(CConversionScene* pScene, CConversionSceneNode* pParent)
+{
+	m_pScene = pScene;
+	m_pParent = pParent;
+}
+
+CConversionSceneNode::~CConversionSceneNode()
+{
+	// Test is (i < size()) because size_t is unsigned so there are no values < 0
+	for (size_t i = m_apChildren.size()-1; i < m_apChildren.size(); i--)
+		delete m_apChildren[i];
+}
+
+size_t CConversionSceneNode::AddChild()
+{
+	m_apChildren.push_back(new CConversionSceneNode(m_pScene, this));
+	return m_apChildren.size()-1;
+}
+
+size_t CConversionSceneNode::AddMeshInstance(size_t iMesh)
+{
+	m_aMeshInstances.push_back(CConversionMeshInstance(m_pScene, iMesh));
+	return m_aMeshInstances.size()-1;
+}
+
+// Returns the first mesh instance it finds that uses this mesh
+size_t CConversionSceneNode::FindMeshInstance(CConversionMesh* pMesh)
+{
+	for (size_t i = 0; i < m_aMeshInstances.size(); i++)
+	{
+		if (m_pScene->GetMesh(m_aMeshInstances[i].m_iMesh) == pMesh)
+			return i;
+	}
+
+	return ~0;
+}
+
+CConversionMeshInstance::CConversionMeshInstance(CConversionScene* pScene, size_t iMesh)
+{
+	m_pScene = pScene;
+	m_iMesh = iMesh;
+}
+
+CConversionMesh* CConversionMeshInstance::GetMesh()
+{
+	return m_pScene->GetMesh(m_iMesh);
+}
+
+void CConversionMeshInstance::AddMappedMaterial(size_t s, size_t m)
+{
+	m_aiMaterialsMap.insert(std::pair<size_t, size_t>(s, m));
+}
+
+size_t CConversionMeshInstance::GetMappedMaterial(size_t m)
+{
+	if (m_aiMaterialsMap.find(m) == m_aiMaterialsMap.end())
+		return ~0;
+
+	return m_aiMaterialsMap[m];
 }
 
 size_t CConversionMesh::AddVertex(float x, float y, float z)
@@ -378,9 +462,9 @@ size_t CConversionMesh::AddUV(float u, float v)
 	return m_aUVs.size()-1;
 }
 
-size_t CConversionMesh::AddBone(const wchar_t* pszName)
+size_t CConversionMesh::AddBone(const std::wstring& sName)
 {
-	m_aBones.push_back(CConversionBone(pszName));
+	m_aBones.push_back(CConversionBone(sName));
 	return m_aBones.size()-1;
 }
 
@@ -388,6 +472,17 @@ size_t CConversionMesh::AddEdge(size_t v1, size_t v2)
 {
 	m_aEdges.push_back(CConversionEdge(v1, v2));
 	return m_aEdges.size()-1;
+}
+
+size_t CConversionMesh::AddMaterialStub(const std::wstring& sName)
+{
+	m_aMaterialStubs.push_back(CConversionMaterialStub(sName));
+	return m_aMaterialStubs.size()-1;
+}
+
+CConversionMaterialStub::CConversionMaterialStub(const std::wstring& sName)
+{
+	m_sName = sName;
 }
 
 Vector CConversionFace::GetNormal()
@@ -557,14 +652,23 @@ size_t CConversionMesh::FindFace(CConversionFace* pFace)
 	return ((size_t)~0);
 }
 
-CConversionBone::CConversionBone(const wchar_t* pszName)
+size_t CConversionMesh::FindMaterialStub(const std::wstring& sName)
 {
-	wcscpy(m_szName, pszName);
+	for (size_t i = 0; i < m_aMaterialStubs.size(); i++)
+		if (m_aMaterialStubs[i].GetName().compare(sName) == 0)
+			return i;
+
+	return ((size_t)~0);
 }
 
-CConversionMaterial::CConversionMaterial(const wchar_t* pszName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
+CConversionBone::CConversionBone(const std::wstring& sName)
 {
-	wcscpy(m_szName, pszName);
+	m_sName = sName;
+}
+
+CConversionMaterial::CConversionMaterial(const std::wstring& sName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
+{
+	m_sName = sName;
 
 	m_vecAmbient = vecAmbient;
 	m_vecDiffuse = vecDiffuse;
@@ -573,8 +677,6 @@ CConversionMaterial::CConversionMaterial(const wchar_t* pszName, Vector vecAmbie
 	m_flTransparency = flTransparency;
 	m_flShininess = flShininess;
 	m_eIllumType = ILLUM_FULL;
-
-	m_szTexture[0] = '\0';
 }
 
 CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, size_t M)

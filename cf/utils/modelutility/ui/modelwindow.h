@@ -42,9 +42,8 @@ public:
 	void					ReloadFromFile();
 
 	void					LoadIntoGL();
-	static size_t			LoadTextureIntoGL(const wchar_t* pszFilename);
+	static size_t			LoadTextureIntoGL(std::wstring sFilename);
 	void					LoadTexturesIntoGL();
-	void					CreateGLLists();
 
 	// License management
 	static unsigned long	PNG_CRC(unsigned char *buf, int len);
@@ -65,6 +64,8 @@ public:
 	void					Render3D();
 	void					RenderGround();
 	void					RenderObjects();
+	void					RenderSceneNode(CConversionSceneNode* pNode);
+	void					RenderMeshInstance(CConversionMeshInstance* pMeshInstance);
 	void					RenderLightSource();
 	void					RenderUV();
 

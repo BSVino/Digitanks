@@ -25,12 +25,13 @@ public:
 	void				ReadSIAShape(std::wifstream& infile, bool bCare = true);
 
 	void				ReadDAE(const wchar_t* pszFilename);
+	void				ReadDAESceneTree(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
 
 	void				WriteSMDs(const wchar_t* pszFilename = NULL);
 	void				WriteSMD(size_t iMesh, const wchar_t* pszFilename = NULL);
 
-	wchar_t*			MakeFilename(wchar_t* pszPathFilename);
-	wchar_t*			GetDirectory(wchar_t* pszFilename);
+	std::wstring		GetFilename(std::wstring sPathFilename);
+	std::wstring		GetDirectory(std::wstring sFilename);
 	bool				IsWhitespace(wchar_t cChar);
 	wchar_t*			StripWhitespace(wchar_t* pszLine);
 	std::wstring		StripWhitespace(std::wstring sLine);

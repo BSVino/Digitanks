@@ -2,6 +2,7 @@
 #define CF_CONVMESH_H
 
 #include <vector>
+#include <map>
 
 #include <worklistener.h>
 #include <vector.h>
@@ -69,9 +70,9 @@ public:
 class CConversionBone
 {
 public:
-									CConversionBone(const wchar_t* pszName);
+									CConversionBone(const std::wstring& sName);
 
-	wchar_t							m_szName[1024];
+	std::wstring					m_sName;
 };
 
 typedef enum
@@ -84,7 +85,7 @@ typedef enum
 class CConversionMaterial
 {
 public:
-									CConversionMaterial(const wchar_t* pszName,
+									CConversionMaterial(const std::wstring& sName,
 										Vector vecAmbient = Vector(0.2f, 0.2f, 0.2f),
 										Vector vecDiffuse = Vector(0.8f, 0.8f, 0.8f),
 										Vector vecSpecular = Vector(0.0f, 0.0f, 0.0f),
@@ -92,10 +93,10 @@ public:
 										float flTransparency = 1.0f,
 										float flShininess = 10.0f);
 
-	wchar_t*						GetName() { return m_szName; }
-	wchar_t*						GetTexture() { return m_szTexture; }
+	std::wstring					GetName() const { return m_sName; }
+	std::wstring					GetTexture() const { return m_sTexture; }
 
-	wchar_t							m_szName[1024];
+	std::wstring					m_sName;
 
 	Vector							m_vecAmbient;
 	Vector							m_vecDiffuse;
@@ -105,27 +106,38 @@ public:
 	float							m_flShininess;
 	IllumType_t						m_eIllumType;
 
-	wchar_t							m_szTexture[1024];
+	std::wstring					m_sTexture;
+};
+
+// Each mesh has a material stub table, and the scene tree matches them up to actual materials
+class CConversionMaterialStub
+{
+public:
+									CConversionMaterialStub(const std::wstring& sName);
+
+public:
+	std::wstring					GetName() const { return m_sName; }
+
+	std::wstring					m_sName;
 };
 
 class CConversionMesh
 {
 public:
-									CConversionMesh(class CConversionScene* pScene, const wchar_t* pszName);
+									CConversionMesh(class CConversionScene* pScene, const std::wstring& sName);
 
 	void							Clear();
 
 	void							CalculateEdgeData();
 	void							CalculateVertexNormals();
-	void							TranslateOrigin();
 	void							CalculateExtends();
 
-	wchar_t*						GetName() { return m_szName; };
+	std::wstring					GetName() { return m_sName; };
 
 	size_t							AddVertex(float x, float y, float z);
 	size_t							AddNormal(float x, float y, float z);
 	size_t							AddUV(float u, float v);
-	size_t							AddBone(const wchar_t* pszName);
+	size_t							AddBone(const std::wstring& sName);
 	size_t							AddEdge(size_t v1, size_t v2);
 	size_t							AddFace(size_t iMaterial);
 
@@ -135,14 +147,14 @@ public:
 	void							RemoveFace(size_t iFace);
 
 	size_t							GetNumVertices() { return m_aVertices.size(); };
-	Vector							GetVertex(size_t i) { return m_aVertices[i]; }
+	Vector							GetVertex(size_t i) { if (i >= m_aVertices.size()) return Vector(0,0,0); return m_aVertices[i]; }
 	size_t							GetNumNormals() { return m_aNormals.size(); };
-	Vector							GetNormal(size_t i) { return m_aNormals[i]; }
+	Vector							GetNormal(size_t i) { if (i >= m_aNormals.size()) return Vector(1,0,0); return m_aNormals[i]; }
 	size_t							GetNumUVs() { return m_aUVs.size(); };
 	Vector							GetUV(size_t i) { if (!GetNumUVs()) return Vector(0,0,0); return m_aUVs[i]; }
 
 	size_t							GetNumBones() { return m_aBones.size(); };
-	wchar_t*						GetBoneName(size_t i) { return m_aBones[i].m_szName; };
+	std::wstring					GetBoneName(size_t i) { return m_aBones[i].m_sName; };
 
 	size_t							GetNumEdges() { return m_aEdges.size(); };
 	CConversionEdge*				GetEdge(size_t i) { return &m_aEdges[i]; };
@@ -151,7 +163,12 @@ public:
 	size_t							FindFace(CConversionFace* pFace);
 	CConversionFace*				GetFace(size_t i) { return &m_aFaces[i]; };
 
-	wchar_t							m_szName[1024];
+	size_t							AddMaterialStub(const std::wstring& sName = L"");
+	size_t							GetNumMaterialStubs() { return m_aMaterialStubs.size(); };
+	size_t							FindMaterialStub(const std::wstring& sName);
+	CConversionMaterialStub*		GetMaterialStub(size_t i) { return &m_aMaterialStubs[i]; };
+
+	std::wstring					m_sName;
 	class CConversionScene*			m_pScene;
 
 	// A vector of Vectors? Holy crap!
@@ -164,8 +181,54 @@ public:
 
 	std::vector<std::vector<size_t> >	m_aaVertexFaceMap;
 
-	Vector							m_vecOrigin;
+	std::vector<CConversionMaterialStub>	m_aMaterialStubs;
+
 	AABB							m_oExtends;
+};
+
+class CConversionMeshInstance
+{
+public:
+									CConversionMeshInstance(CConversionScene* pScene, size_t iMesh);
+
+public:
+	CConversionMesh*				GetMesh();
+
+	void							AddMappedMaterial(size_t s, size_t m);
+	size_t							GetMappedMaterial(size_t m);
+
+	size_t							m_iMesh;	// Index into CConversionScene::m_aMeshes
+
+	std::map<size_t, size_t>		m_aiMaterialsMap;	// Maps CConversionMesh::m_aMaterialStubs to CConversionScene::m_aMaterials
+
+	class CConversionScene*			m_pScene;
+};
+
+// A node in the scene tree.
+class CConversionSceneNode
+{
+public:
+										CConversionSceneNode(CConversionScene* pScene, CConversionSceneNode* pParent);
+										~CConversionSceneNode();
+
+public:
+	size_t								AddChild();
+	size_t								GetNumChildren() { return m_apChildren.size(); };
+	CConversionSceneNode*				GetChild(size_t i) { return m_apChildren[i]; };
+
+	size_t								AddMeshInstance(size_t iMesh);
+	size_t								GetNumMeshInstances() { return m_aMeshInstances.size(); };
+	size_t								FindMeshInstance(CConversionMesh* pMesh);
+	CConversionMeshInstance*			GetMeshInstance(size_t i) { return &m_aMeshInstances[i]; };
+
+	CConversionScene*					m_pScene;
+	CConversionSceneNode*				m_pParent;
+
+	std::vector<CConversionSceneNode*>	m_apChildren;
+
+	std::vector<CConversionMeshInstance>	m_aMeshInstances;
+
+	Vector								m_vecOrigin;
 };
 
 class CConversionScene
@@ -178,22 +241,39 @@ public:
 
 	void								CalculateExtends();
 
-	size_t								AddMaterial(const wchar_t* pszName);
+	size_t								AddMaterial(const std::wstring& sName);
 	size_t								AddMaterial(CConversionMaterial& oMaterial);
 	size_t								GetNumMaterials() { return m_aMaterials.size(); };
-	size_t								FindMaterial(const wchar_t* pszName);
+	size_t								FindMaterial(const std::wstring& sName);
 	CConversionMaterial*				GetMaterial(size_t i) { if (i >= m_aMaterials.size()) return NULL; return &m_aMaterials[i]; };
 
-	size_t								AddMesh(const wchar_t* pszName);
+	size_t								AddMesh(const std::wstring& sName);
 	size_t								GetNumMeshes() { return m_aMeshes.size(); };
 	CConversionMesh*					GetMesh(size_t i) { return &m_aMeshes[i]; };
-	size_t								FindMesh(const wchar_t* pszName);
+	size_t								FindMesh(const std::wstring& sName);
 	size_t								FindMesh(CConversionMesh* pMesh);
+
+	size_t								AddScene();
+	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_aScenes.size()) return NULL; return &m_aScenes[i]; };
+
+	// For model formats that don't have the concept of scenes, this is the one and only scene.
+	// It always returns a scene and always the same one.
+	CConversionSceneNode*				GetDefaultScene();
+
+	// For model formats that don't have the concept of scenes, this is a node that contains the one and only mesh instance for this mesh.
+	// It always returns a node and always the same one.
+	CConversionSceneNode*				GetDefaultSceneMeshInstance(CConversionMesh* pMesh);
+
+	// For model formats that don't have the concept of scenes,
+	// this will add a material to the mesh and map it properly in the scene.
+	size_t								AddDefaultSceneMaterial(CConversionMesh* pMesh, const std::wstring& sName);
 
 	void								SetWorkListener(IWorkListener* pWorkListener) { m_pWorkListener = pWorkListener; }
 
 	std::vector<CConversionMesh>		m_aMeshes;
 	std::vector<CConversionMaterial>	m_aMaterials;
+
+	std::vector<CConversionSceneNode>	m_aScenes;
 
 	AABB								m_oExtends;
 

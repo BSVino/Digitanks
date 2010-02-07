@@ -15,21 +15,19 @@ void CModelConverter::WriteSMD(size_t iMesh, const wchar_t* pszFilename)
 {
 	CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 
-	wchar_t szFile[1024];
-	szFile[0] = '\0';
+	std::wstring sFile;
 	if (pszFilename)
 	{
-		wcscpy(szFile, pszFilename);
-		wcscpy(szFile, L"_");
+		sFile.append(pszFilename);
+		sFile.append(L"_");
 	}
-	wcscpy(szFile, pMesh->GetBoneName(0));
+	sFile.append(pMesh->GetBoneName(0));
 
-	wchar_t* pszFile = MakeFilename(szFile);
+	sFile = GetFilename(sFile.c_str());
 
-	std::wstring sSMDFile(pszFile);
-	sSMDFile.append(L".smd");
+	sFile.append(L".smd");
 
-	FILE* fp = _wfopen(sSMDFile.c_str(), L"w");
+	FILE* fp = _wfopen(sFile.c_str(), L"w");
 
 	// SMD file format: http://developer.valvesoftware.com/wiki/SMD
 

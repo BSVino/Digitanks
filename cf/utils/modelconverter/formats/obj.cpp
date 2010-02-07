@@ -19,6 +19,8 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 	}
 
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(pszFilename));
+	// Make sure it exists.
+	CConversionSceneNode* pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pMesh);
 
 	size_t iCurrentMaterial = ~0;
 	size_t iSmoothingGroup = ~0;
@@ -47,11 +49,9 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 
 		if (wcscmp(pszToken, L"mtllib") == 0)
 		{
-			wchar_t szDirectory[1024];
-			wcscpy(szDirectory, pszFilename);
-			GetDirectory(szDirectory);
+			std::wstring sDirectory = GetDirectory(std::wstring(pszFilename));
 			wchar_t szMaterial[1024];
-			swprintf(szMaterial, L"%s/%s", szDirectory, pszLine + 7);
+			swprintf(szMaterial, L"%s/%s", sDirectory.c_str(), pszLine + 7);
 			ReadMTL(szMaterial);
 		}
 		else if (wcscmp(pszToken, L"o") == 0)
@@ -115,9 +115,9 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		{
 			// All following faces should use this material.
 			wchar_t* pszMaterial = pszLine+7;
-			size_t iMaterial = m_pScene->FindMaterial(pszMaterial);
+			size_t iMaterial = pMesh->FindMaterialStub(std::wstring(pszMaterial));
 			if (iMaterial == ((size_t)~0))
-				iCurrentMaterial = m_pScene->AddMaterial(pszMaterial);
+				iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, std::wstring(pszMaterial));
 			else
 				iCurrentMaterial = iMaterial;
 		}
@@ -147,7 +147,7 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			sLastTask = std::wstring(pszToken);
 
 			if (iCurrentMaterial == ~0)
-				iCurrentMaterial = m_pScene->AddMaterial(L"");
+				iCurrentMaterial = pMesh->AddMaterialStub();
 
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
@@ -309,7 +309,7 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 			{
 				fclose(fpTest);
 
-				wcscpy(pMaterial->m_szTexture, pszToken);
+				pMaterial->m_sTexture = std::wstring(pszToken);
 			}
 			else
 			{
@@ -319,7 +319,7 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 				wchar_t szTexture[1024];
 				swprintf(szTexture, L"%s/%s", szDirectory, pszToken);
 
-				wcscpy(pMaterial->m_szTexture, szTexture);
+				pMaterial->m_sTexture = std::wstring(szTexture);
 			}
 		}
 	}
