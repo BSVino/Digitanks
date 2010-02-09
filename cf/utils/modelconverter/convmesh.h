@@ -213,6 +213,12 @@ public:
 										~CConversionSceneNode();
 
 public:
+	void								CalculateExtends();
+
+	Matrix4x4							GetRootTransformations();
+
+	bool								IsEmpty();
+
 	size_t								AddChild();
 	size_t								GetNumChildren() { return m_apChildren.size(); };
 	CConversionSceneNode*				GetChild(size_t i) { return m_apChildren[i]; };
@@ -230,6 +236,8 @@ public:
 	std::vector<CConversionMeshInstance>	m_aMeshInstances;
 
 	Matrix4x4							m_mTransformations;
+
+	AABB								m_oExtends;
 };
 
 class CConversionScene
@@ -255,6 +263,7 @@ public:
 	size_t								FindMesh(CConversionMesh* pMesh);
 
 	size_t								AddScene();
+	size_t								GetNumScenes() { return m_aScenes.size(); };
 	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_aScenes.size()) return NULL; return &m_aScenes[i]; };
 
 	// For model formats that don't have the concept of scenes, this is the one and only scene.

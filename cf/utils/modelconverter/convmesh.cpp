@@ -264,34 +264,37 @@ void CConversionScene::CalculateExtends()
 		return;
 	}
 
-	Vector vecMins;
-	Vector vecMaxs;
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Calculating extends", GetNumMeshes() + GetNumScenes());
 
-	size_t m;
-	for (m = 0; m < GetNumMeshes(); m++)
+	for (size_t m = 0; m < GetNumMeshes(); m++)
 	{
 		GetMesh(m)->CalculateExtends();
-		if (m == 0)
-		{
-			vecMins = GetMesh(m)->m_oExtends.m_vecMins;
-			vecMaxs = GetMesh(m)->m_oExtends.m_vecMaxs;
-		}
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(m+1);
+	}
+
+	for (size_t i = 0; i < GetNumScenes(); i++)
+	{
+		GetScene(i)->CalculateExtends();
+
+		if (i == 0)
+			m_oExtends = GetScene(i)->m_oExtends;
 		else
 		{
+			AABB oMeshExtends = GetScene(i)->m_oExtends;
 			for (size_t i = 0; i < 3; i++)
 			{
-				if (GetMesh(m)->m_oExtends.m_vecMins[i] < vecMins[i])
-					vecMins[i] = GetMesh(m)->m_oExtends.m_vecMins[i];
-				if (GetMesh(m)->m_oExtends.m_vecMaxs[i] > vecMaxs[i])
-					vecMaxs[i] = GetMesh(m)->m_oExtends.m_vecMaxs[i];
+				if (oMeshExtends.m_vecMins[i] < m_oExtends.m_vecMins[i])
+					m_oExtends.m_vecMins[i] = oMeshExtends.m_vecMins[i];
+				if (oMeshExtends.m_vecMaxs[i] > m_oExtends.m_vecMaxs[i])
+					m_oExtends.m_vecMaxs[i] = oMeshExtends.m_vecMaxs[i];
 			}
 		}
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(m);
+			m_pWorkListener->WorkProgress(GetNumMeshes()+i+1);
 	}
-
-	m_oExtends = AABB(vecMins, vecMaxs);
 }
 
 size_t CConversionScene::AddMaterial(const std::wstring& sName)
@@ -393,6 +396,92 @@ CConversionSceneNode::~CConversionSceneNode()
 	// Test is (i < size()) because size_t is unsigned so there are no values < 0
 	for (size_t i = m_apChildren.size()-1; i < m_apChildren.size(); i--)
 		delete m_apChildren[i];
+}
+
+void CConversionSceneNode::CalculateExtends()
+{
+	size_t i, j;
+
+	if (IsEmpty())
+	{
+		m_oExtends = AABB(Vector(0,0,0), Vector(0,0,0));
+		return;
+	}
+
+	bool bFirst = true;
+	for (i = 0; i < GetNumChildren(); i++)
+	{
+		CConversionSceneNode* pChild = GetChild(i);
+		pChild->CalculateExtends();
+
+		// Don't let extends with 0,0,0 pollute this one.
+		if (pChild->IsEmpty())
+			continue;
+
+		if (bFirst)
+		{
+			m_oExtends = pChild->m_oExtends;
+			bFirst = false;
+		}
+		else
+		{
+			AABB oChildExtends = pChild->m_oExtends;
+			for (j = 0; j < 3; j++)
+			{
+				if (oChildExtends.m_vecMins[j] < m_oExtends.m_vecMins[j])
+					m_oExtends.m_vecMins[j] = oChildExtends.m_vecMins[j];
+				if (oChildExtends.m_vecMaxs[j] > m_oExtends.m_vecMaxs[j])
+					m_oExtends.m_vecMaxs[j] = oChildExtends.m_vecMaxs[j];
+			}
+		}
+	}
+
+	for (i = 0; i < m_aMeshInstances.size(); i++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(m_aMeshInstances[i].m_iMesh);
+
+		Matrix4x4 mRoot = GetRootTransformations();
+
+		// Transform the mesh extends for this node.
+		AABB oTransformed;
+		oTransformed.m_vecMins = mRoot*pMesh->m_oExtends.m_vecMins;
+		oTransformed.m_vecMaxs = mRoot*pMesh->m_oExtends.m_vecMaxs;
+
+		if (i == 0)
+			m_oExtends = oTransformed;
+		else
+		{
+			// It'd be more accurate to examine every vertex in the mesh, but that sounds slow!
+			for (j = 0; j < 3; j++)
+			{
+				if (oTransformed.m_vecMins[j] < m_oExtends.m_vecMins[j])
+					m_oExtends.m_vecMins[j] = oTransformed.m_vecMins[j];
+				if (oTransformed.m_vecMaxs[j] > m_oExtends.m_vecMaxs[j])
+					m_oExtends.m_vecMaxs[j] = oTransformed.m_vecMaxs[j];
+			}
+		}
+	}
+}
+
+Matrix4x4 CConversionSceneNode::GetRootTransformations()
+{
+	Matrix4x4 mParent;
+	if (m_pParent)
+		mParent = m_pParent->GetRootTransformations();
+
+	return mParent * m_mTransformations;
+}
+
+bool CConversionSceneNode::IsEmpty()
+{
+	if (m_aMeshInstances.size())
+		return false;
+
+	for (size_t i = 0; i < GetNumChildren(); i++)
+		if (!GetChild(i)->IsEmpty())
+			return false;
+
+	return true;
 }
 
 size_t CConversionSceneNode::AddChild()
