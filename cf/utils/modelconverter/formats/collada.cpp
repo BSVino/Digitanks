@@ -5,6 +5,7 @@
 #include <FCDocument/FCDocumentTools.h>
 #include <FCDocument/FCDLibrary.h>
 #include <FCDocument/FCDSceneNode.h>
+#include <FCDocument/FCDTransform.h>
 #include <FCDocument/FCDEntityInstance.h>
 #include <FCDocument/FCDGeometryInstance.h>
 #include <FCDocument/FCDMaterialInstance.h>
@@ -270,6 +271,17 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 
 void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode* pScene)
 {
+	size_t iTransforms = pNode->GetTransformCount();
+
+	pScene->m_mTransformations.Identity();
+
+	for (size_t t = 0; t < iTransforms; t++)
+	{
+		FCDTransform* pTransform = pNode->GetTransform(t);
+		FMMatrix44 m = pTransform->ToMatrix();
+		pScene->m_mTransformations *= Matrix4x4(m.Transposed());	// Transpose because they use a different convention.
+	}
+
 	size_t iInstances = pNode->GetInstanceCount();
 
 	for (size_t i = 0; i < iInstances; i++)

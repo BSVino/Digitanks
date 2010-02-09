@@ -6,6 +6,7 @@
 
 #include <worklistener.h>
 #include <vector.h>
+#include <matrix.h>
 #include <geometry.h>
 
 // These belong specifically to a face and are never shared.
@@ -228,7 +229,7 @@ public:
 
 	std::vector<CConversionMeshInstance>	m_aMeshInstances;
 
-	Vector								m_vecOrigin;
+	Matrix4x4							m_mTransformations;
 };
 
 class CConversionScene

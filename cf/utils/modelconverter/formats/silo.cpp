@@ -316,7 +316,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
 			float x, y, z;
 			swscanf(sLine.c_str(), L"-axis %f %f %f", &x, &y, &z);
-			pMeshNode->m_vecOrigin = Vector(x, y, z);
+			pMeshNode->m_mTransformations += Vector(x, y, z);
 		}
 		else if (wcscmp(pszToken, L"-endShape") == 0)
 		{

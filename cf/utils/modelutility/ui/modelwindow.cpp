@@ -649,13 +649,13 @@ void CModelWindow::RenderSceneNode(CConversionSceneNode* pNode)
 
 	glPushMatrix();
 
-	glTranslatef(pNode->m_vecOrigin.x, pNode->m_vecOrigin.y, pNode->m_vecOrigin.z);
-
-	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
-		RenderMeshInstance(pNode->GetMeshInstance(m));
+	glMultMatrixf(pNode->m_mTransformations.Transposed());	// GL uses column major.
 
 	for (size_t i = 0; i < pNode->GetNumChildren(); i++)
 		RenderSceneNode(pNode->GetChild(i));
+
+	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
+		RenderMeshInstance(pNode->GetMeshInstance(m));
 
 	glPopMatrix();
 }

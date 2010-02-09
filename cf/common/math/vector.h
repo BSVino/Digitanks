@@ -41,10 +41,10 @@ public:
 		return Vector( f/v.x, f/v.y, f/v.z );
 	}
 
-	float	Length();
-	float	LengthSqr();
+	float	Length() const;
+	float	LengthSqr() const;
 	void	Normalize();
-	Vector	Normalized();
+	Vector	Normalized() const;
 
 	float	Dot(const Vector& v) const;
 	Vector	Cross(const Vector& v) const;
@@ -136,12 +136,12 @@ inline Vector Vector::operator*(const Vector& v) const
 	return Vector(x*v.x, y*v.y, z*v.z);
 }
 
-inline float Vector::Length()
+inline float Vector::Length() const
 {
 	return sqrt(x*x + y*y + z*z);
 }
 
-inline float Vector::LengthSqr()
+inline float Vector::LengthSqr() const
 {
 	return x*x + y*y + z*z;
 }
@@ -155,7 +155,7 @@ inline void Vector::Normalize()
 		*this/=Length();
 }
 
-inline Vector Vector::Normalized()
+inline Vector Vector::Normalized() const
 {
 	float flLength = Length();
 	if (!flLength)
