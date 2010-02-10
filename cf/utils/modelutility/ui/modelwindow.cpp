@@ -13,6 +13,12 @@
 #include <modelconverter/modelconverter.h>
 #include "modelgui.h"
 
+extern "C" {
+static void CALLBACK RenderTesselateBegin(GLenum ePrim);
+static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData);
+static void CALLBACK RenderTesselateEnd();
+}
+
 CModelWindow* CModelWindow::s_pModelWindow = NULL;
 
 CModelWindow::CModelWindow()
@@ -95,6 +101,12 @@ CModelWindow::CModelWindow()
 	SetDisplayAO(false);
 	SetDisplayColorAO(false);
 
+	m_pTesselator = gluNewTess();
+	gluTessCallback(m_pTesselator, GLU_TESS_BEGIN, (void(CALLBACK*)())RenderTesselateBegin);
+	gluTessCallback(m_pTesselator, GLU_TESS_VERTEX_DATA, (void(CALLBACK*)())RenderTesselateVertex);
+	gluTessCallback(m_pTesselator, GLU_TESS_END, (void(CALLBACK*)())RenderTesselateEnd);
+	gluTessProperty(m_pTesselator, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
+
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 		exit(0);
@@ -136,6 +148,8 @@ CModelWindow::~CModelWindow()
 
 	if (m_pLightBeam)
 		delete m_pLightBeam;
+
+	gluDeleteTess(m_pTesselator);
 }
 
 void CModelWindow::Run()
@@ -660,6 +674,40 @@ void CModelWindow::RenderSceneNode(CConversionSceneNode* pNode)
 	glPopMatrix();
 }
 
+extern "C" {
+static void CALLBACK RenderTesselateBegin(GLenum ePrim)
+{
+	glBegin(ePrim);
+}
+
+static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData)
+{
+	CConversionMesh* pMesh = (CConversionMesh*)pPolygonData;
+	CConversionVertex* pVertex = (CConversionVertex*)pVertexData;
+
+	Vector vecVertex = pMesh->GetVertex(pVertex->v);
+	Vector vecNormal = pMesh->GetNormal(pVertex->vn);
+	Vector vecUV = pMesh->GetUV(pVertex->vt);
+
+	if (GLEW_VERSION_1_3)
+	{
+		glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
+		glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
+		glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
+	}
+	else
+		glTexCoord2fv(vecUV);
+
+	glNormal3fv(vecNormal);
+	glVertex3fv(vecVertex);
+}
+
+static void CALLBACK RenderTesselateEnd()
+{
+	glEnd();
+}
+}
+
 void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 {
 	// It uses this color if the texture is missing.
@@ -732,41 +780,31 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 				}
 			}
 
-			glBegin(GL_POLYGON);
+			if (pFace->m != ~0 && m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)))
+			{
+				CConversionMaterial* pMaterial = m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m));
+				glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
+				glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
+				glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
+				glColor4fv(pMaterial->m_vecDiffuse);
+			}
+
+			gluTessBeginPolygon(m_pTesselator, pMesh);
+			gluTessBeginContour(m_pTesselator);
 
 			for (k = 0; k < pFace->GetNumVertices(); k++)
 			{
 				CConversionVertex* pVertex = pFace->GetVertex(k);
 
 				Vector vecVertex = pMesh->GetVertex(pVertex->v);
-				Vector vecNormal = pMesh->GetNormal(pVertex->vn);
-				Vector vecUV = pMesh->GetUV(pVertex->vt);
-
-				if (pFace->m != ~0 && m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)))
-				{
-					CConversionMaterial* pMaterial = m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m));
-					glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
-					glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
-					glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
-					glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
-					glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
-					glColor4fv(pMaterial->m_vecDiffuse);
-				}
-
-				if (bMultiTexture)
-				{
-					glMultiTexCoord2fv(GL_TEXTURE0, vecUV);
-					glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
-					glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
-				}
-				else
-					glTexCoord2fv(vecUV);
-
-				glNormal3fv(vecNormal);
-				glVertex3fv(vecVertex);
+				GLdouble afCoords[3] = { vecVertex.x, vecVertex.y, vecVertex.z };
+				gluTessVertex(m_pTesselator, afCoords, pVertex);
 			}
 
-			glEnd();
+			gluTessEndContour(m_pTesselator);
+			gluTessEndPolygon(m_pTesselator);
 		}
 
 #if 0

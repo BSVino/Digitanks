@@ -207,6 +207,8 @@ protected:
 	bool					m_bDisplayAO;
 	bool					m_bDisplayColorAO;
 
+	class GLUtesselator*	m_pTesselator;
+
 	// Controls
 	modelgui::CButton*		m_pRender3D;
 	modelgui::CButton*		m_pRenderUV;
