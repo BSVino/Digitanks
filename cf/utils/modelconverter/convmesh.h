@@ -190,7 +190,7 @@ public:
 class CConversionMeshInstance
 {
 public:
-									CConversionMeshInstance(CConversionScene* pScene, size_t iMesh);
+									CConversionMeshInstance(CConversionScene* pScene, class CConversionSceneNode* pParent, size_t iMesh);
 
 public:
 	CConversionMesh*				GetMesh();
@@ -198,11 +198,15 @@ public:
 	void							AddMappedMaterial(size_t s, size_t m);
 	size_t							GetMappedMaterial(size_t m);
 
+	Vector							GetVertex(size_t i);
+	Vector							GetNormal(size_t i);
+
 	size_t							m_iMesh;	// Index into CConversionScene::m_aMeshes
 
 	std::map<size_t, size_t>		m_aiMaterialsMap;	// Maps CConversionMesh::m_aMaterialStubs to CConversionScene::m_aMaterials
 
 	class CConversionScene*			m_pScene;
+	class CConversionSceneNode*		m_pParent;
 };
 
 // A node in the scene tree.

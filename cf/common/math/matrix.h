@@ -19,6 +19,7 @@ public:
 	Matrix4x4	Transposed() const;
 
 	// Set a transformation
+	void		SetTranslation(const Vector& vecPos);
 	void		SetRotation(const EAngle& angDir);
 	void		SetOrientation(const Vector& vecDir);
 	void		SetScale(const Vector& vecScale);
@@ -97,6 +98,13 @@ inline Matrix4x4 Matrix4x4::Transposed() const
 	r.m[0][2] = m[2][0]; r.m[1][2] = m[2][1]; r.m[2][2] = m[2][2]; r.m[3][2] = m[2][3];
 	r.m[0][3] = m[3][0]; r.m[1][3] = m[3][1]; r.m[2][3] = m[3][2]; r.m[3][3] = m[3][3];
 	return r;
+}
+
+inline void Matrix4x4::SetTranslation(const Vector& vecPos)
+{
+	m[0][3] = vecPos.x;
+	m[1][3] = vecPos.y;
+	m[2][3] = vecPos.z;
 }
 
 inline void Matrix4x4::SetRotation(const EAngle& angDir)

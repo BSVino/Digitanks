@@ -492,7 +492,7 @@ size_t CConversionSceneNode::AddChild()
 
 size_t CConversionSceneNode::AddMeshInstance(size_t iMesh)
 {
-	m_aMeshInstances.push_back(CConversionMeshInstance(m_pScene, iMesh));
+	m_aMeshInstances.push_back(CConversionMeshInstance(m_pScene, this, iMesh));
 	return m_aMeshInstances.size()-1;
 }
 
@@ -508,9 +508,10 @@ size_t CConversionSceneNode::FindMeshInstance(CConversionMesh* pMesh)
 	return ~0;
 }
 
-CConversionMeshInstance::CConversionMeshInstance(CConversionScene* pScene, size_t iMesh)
+CConversionMeshInstance::CConversionMeshInstance(CConversionScene* pScene, CConversionSceneNode* pParent, size_t iMesh)
 {
 	m_pScene = pScene;
+	m_pParent = pParent;
 	m_iMesh = iMesh;
 }
 
@@ -530,6 +531,18 @@ size_t CConversionMeshInstance::GetMappedMaterial(size_t m)
 		return ~0;
 
 	return m_aiMaterialsMap[m];
+}
+
+Vector CConversionMeshInstance::GetVertex(size_t i)
+{
+	return m_pParent->GetRootTransformations()*GetMesh()->GetVertex(i);
+}
+
+Vector CConversionMeshInstance::GetNormal(size_t i)
+{
+	Matrix4x4 mTransformations = m_pParent->GetRootTransformations();
+	mTransformations.SetTranslation(Vector(0,0,0));
+	return (mTransformations*GetMesh()->GetNormal(i)).Normalized();
 }
 
 size_t CConversionMesh::AddVertex(float x, float y, float z)

@@ -77,6 +77,7 @@ public:
 	bool						RaytraceBruteForce(const Ray& rayTrace, Vector* pvecHit = NULL);
 
 	void						BuildTree();
+	void						AddMeshesFromNode(CConversionSceneNode* pNode);
 
 	const CKDTree*				GetTree() const { return m_pTree; };
 

@@ -72,31 +72,42 @@ bool CRaytracer::RaytraceBruteForce(const Ray& rayTrace, Vector* pvecHit)
 
 void CRaytracer::BuildTree()
 {
+	// Add all scene tris.
+	if (!m_pScene->GetNumScenes())
+		return;
+
 	m_pTree = new CKDTree();
 
-	// Add all scene tris.
-	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
+	AddMeshesFromNode(m_pScene->GetScene(0));
+
+	m_pTree->BuildTree();
+}
+
+void CRaytracer::AddMeshesFromNode(CConversionSceneNode* pNode)
+{
+	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
+		AddMeshesFromNode(pNode->GetChild(c));
+
+	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
 	{
-		CConversionMesh* pMesh = m_pScene->GetMesh(m);
-		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
+		CConversionMeshInstance* pMeshInstance = pNode->GetMeshInstance(m);
+		for (size_t f = 0; f < pMeshInstance->GetMesh()->GetNumFaces(); f++)
 		{
-			CConversionFace* pFace = pMesh->GetFace(f);
+			CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(f);
 			for (size_t t = 0; t < pFace->GetNumVertices()-2; t++)
 			{
 				CConversionVertex* pV1 = pFace->GetVertex(0);
 				CConversionVertex* pV2 = pFace->GetVertex(t+1);
 				CConversionVertex* pV3 = pFace->GetVertex(t+2);
 
-				Vector v1 = pMesh->GetVertex(pV1->v);
-				Vector v2 = pMesh->GetVertex(pV2->v);
-				Vector v3 = pMesh->GetVertex(pV3->v);
+				Vector v1 = pMeshInstance->GetVertex(pV1->v);
+				Vector v2 = pMeshInstance->GetVertex(pV2->v);
+				Vector v3 = pMeshInstance->GetVertex(pV3->v);
 
 				m_pTree->AddTriangle(v1, v2, v3);
 			}
 		}
 	}
-
-	m_pTree->BuildTree();
 }
 
 CKDTree::CKDTree()

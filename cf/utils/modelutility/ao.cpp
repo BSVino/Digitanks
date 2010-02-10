@@ -824,16 +824,9 @@ void CAOGenerator::AccumulateTexture(size_t iTexture)
 
 void CAOGenerator::GenerateByTexel()
 {
-	float flTotalTime = 0;
-	float flPointInTriangleTime = 0;
-	float flMatrixMathTime = 0;
-	float flRenderingTime = 0;
-
-	size_t m;
-
 	float flTotalArea = 0;
 
-	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
+	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
 	{
 		CConversionMesh* pMesh = m_pScene->GetMesh(m);
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
@@ -859,9 +852,24 @@ void CAOGenerator::GenerateByTexel()
 
 	size_t iRendered = 0;
 
-	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
+	if (m_pScene->GetNumScenes())
+		GenerateNodeByTexel(m_pScene->GetScene(0), pTracer, iRendered);
+
+	if (m_eAOMethod == AOMETHOD_RAYTRACE)
 	{
-		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		delete pTracer;
+	}
+}
+
+void CAOGenerator::GenerateNodeByTexel(CConversionSceneNode* pNode, raytrace::CRaytracer* pTracer, size_t& iRendered)
+{
+	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
+		GenerateNodeByTexel(pNode->GetChild(c), pTracer, iRendered);
+
+	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
+	{
+		CConversionMeshInstance* pMeshInstance = pNode->GetMeshInstance(m);
+		CConversionMesh* pMesh = pMeshInstance->GetMesh();
 
 		if (!pMesh->GetNumUVs())
 			continue;
@@ -918,22 +926,18 @@ void CAOGenerator::GenerateByTexel()
 						float flU = (float)i/(float)m_iWidth;
 						float flV = (float)j/(float)m_iHeight;
 
-						int iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 						bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
-						flPointInTriangleTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
 
 						if (!bInside)
 							continue;
 
-						iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
+						Vector v1 = pMeshInstance->GetVertex(pV1->v);
+						Vector v2 = pMeshInstance->GetVertex(pV2->v);
+						Vector v3 = pMeshInstance->GetVertex(pV3->v);
 
-						Vector v1 = pMesh->GetVertex(pV1->v);
-						Vector v2 = pMesh->GetVertex(pV2->v);
-						Vector v3 = pMesh->GetVertex(pV3->v);
-
-						Vector vn1 = pMesh->GetNormal(pV1->vn);
-						Vector vn2 = pMesh->GetNormal(pV2->vn);
-						Vector vn3 = pMesh->GetNormal(pV3->vn);
+						Vector vn1 = pMeshInstance->GetNormal(pV1->vn);
+						Vector vn2 = pMeshInstance->GetNormal(pV2->vn);
+						Vector vn3 = pMeshInstance->GetNormal(pV3->vn);
 
 						// Find where the UV is in world space.
 
@@ -987,10 +991,6 @@ void CAOGenerator::GenerateByTexel()
 #ifdef AO_DEBUG
 //						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
 #endif
-
-						flMatrixMathTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
-
-						iTimeBefore = glutGet(GLUT_ELAPSED_TIME);
 
 						size_t iTexel;
 						Texel(i, j, iTexel, false);
@@ -1194,8 +1194,6 @@ void CAOGenerator::GenerateByTexel()
 						m_aiShadowReads[iTexel]++;
 						m_bPixelMask[iTexel] = true;
 
-						flRenderingTime += (glutGet(GLUT_ELAPSED_TIME) - iTimeBefore);
-
 						if (m_pWorkListener)
 							m_pWorkListener->WorkProgress(++iRendered);
 
@@ -1213,11 +1211,6 @@ void CAOGenerator::GenerateByTexel()
 		}
 		if (m_bStopGenerating)
 			break;
-	}
-
-	if (m_eAOMethod == AOMETHOD_RAYTRACE)
-	{
-		delete pTracer;
 	}
 }
 

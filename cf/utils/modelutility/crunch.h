@@ -5,6 +5,11 @@
 #include "ui/modelwindow.h"
 #include <worklistener.h>
 
+namespace raytrace
+{
+	class CRaytracer;
+};
+
 typedef enum
 {
 	AOMETHOD_NONE = 0,
@@ -36,6 +41,7 @@ public:
 	void					Generate();
 	void					GenerateShadowMaps();
 	void					GenerateByTexel();
+	void					GenerateNodeByTexel(CConversionSceneNode* pNode, class raytrace::CRaytracer* pTracer, size_t& iRendered);
 	Vector					RenderSceneFromPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pFace);
 	void					DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vecDirection, CConversionFace* pRenderFace);
 	void					AccumulateTexture(size_t iTexture);
