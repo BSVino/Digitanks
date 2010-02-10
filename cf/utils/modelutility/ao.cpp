@@ -908,23 +908,17 @@ void CAOGenerator::GenerateNodeByTexel(CConversionSceneNode* pNode, raytrace::CR
 				if (vt3.y > vecHiUV.y)
 					vecHiUV.y = vt3.y;
 
-				size_t iLoX = (size_t)(vecLoUV.x * m_iWidth + 0.5f);	// Add 0.5f so it rounds instead of truncating.
-				size_t iLoY = (size_t)(vecLoUV.y * m_iHeight + 0.5f);
-				size_t iHiX = (size_t)(vecHiUV.x * m_iWidth + 0.5f);
-				size_t iHiY = (size_t)(vecHiUV.y * m_iHeight + 0.5f);
-
-				// Make sure adding 0.5f didn't put us out of the texture
-				if (iHiX > m_iWidth - 1)
-					iHiX = m_iWidth - 1;
-				if (iHiY > m_iHeight - 1)
-					iHiY = m_iHeight - 1;
+				size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
+				size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
+				size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
+				size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
 
 				for (size_t i = iLoX; i <= iHiX; i++)
 				{
 					for (size_t j = iLoY; j <= iHiY; j++)
 					{
-						float flU = (float)i/(float)m_iWidth;
-						float flV = (float)j/(float)m_iHeight;
+						float flU = ((float)i + 0.5f)/(float)m_iWidth;
+						float flV = ((float)j + 0.5f)/(float)m_iHeight;
 
 						bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
 
