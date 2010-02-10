@@ -1018,6 +1018,7 @@ void CAOGenerator::GenerateByTexel()
 							for (size_t x = 0; x < m_iSamples/2; x++)
 							{
 								float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
+								float flWeight = sin(flPitch * M_PI/180);
 								for (size_t y = 0; y <= m_iSamples; y++)
 								{
 									float flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
@@ -1029,13 +1030,13 @@ void CAOGenerator::GenerateByTexel()
 
 									//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
 
-									flTotalHits += sin(flPitch * M_PI/180);
+									flTotalHits += flWeight;
 
 									Vector vecHit;
 									if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
 									{
-										flHits += sin(flPitch * M_PI/180);
-										//CModelWindow::Get()->AddDebugLine(vecUVPosition, vecHit);
+										float flDistance = (vecHit - vecUVPosition).Length();
+										flHits += flWeight * (1/pow(2, flDistance));
 									}
 								}
 							}
@@ -1050,10 +1051,11 @@ void CAOGenerator::GenerateByTexel()
 
 							flTotalHits++;
 
-							if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay)))
+							Vector vecHit;
+							if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
 							{
-								flHits++;
-								//CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecRay/4);
+								float flDistance = (vecHit - vecUVPosition).Length();
+								flHits += (1/pow(2, flDistance));
 							}
 
 							float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
