@@ -72,7 +72,9 @@ class CRaytracer
 {
 public:
 								CRaytracer(CConversionScene* pScene);
+								~CRaytracer();
 
+public:
 	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
 	bool						RaytraceBruteForce(const Ray& rayTrace, Vector* pvecHit = NULL);
 

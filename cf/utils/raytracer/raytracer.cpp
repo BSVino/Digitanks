@@ -17,6 +17,12 @@ CRaytracer::CRaytracer(CConversionScene* pScene)
 	m_pTree = NULL;
 }
 
+CRaytracer::~CRaytracer()
+{
+	if (m_pTree)
+		delete m_pTree;
+}
+
 bool CRaytracer::Raytrace(const Ray& rayTrace, Vector* pvecHit)
 {
 	if (!m_pTree)
