@@ -274,8 +274,9 @@ void CAOGenerator::Generate()
 	m_flLowestValue = -1;
 	m_flHighestValue = 0;
 
-#ifdef AO_DEBUG
-//	CModelWindow::Get()->ClearDebugLines();
+#ifdef _DEBUG
+	if (CModelWindow::Get())
+		CModelWindow::Get()->ClearDebugLines();
 #endif
 
 	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
@@ -877,329 +878,351 @@ void CAOGenerator::GenerateNodeByTexel(CConversionSceneNode* pNode, raytrace::CR
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);
-			for (size_t t = 0; t < pFace->GetNumVertices()-2; t++)
+
+			std::vector<Vector> avecPoints;
+			std::vector<size_t> aiPoints;
+			for (size_t t = 0; t < pFace->GetNumVertices(); t++)
 			{
-				CConversionVertex* pV1 = pFace->GetVertex(0);
-				CConversionVertex* pV2 = pFace->GetVertex(t+1);
-				CConversionVertex* pV3 = pFace->GetVertex(t+2);
-
-				Vector vt1 = pMesh->GetUV(pV1->vt);
-				Vector vt2 = pMesh->GetUV(pV2->vt);
-				Vector vt3 = pMesh->GetUV(pV3->vt);
-
-				Vector vecLoUV = vt1;
-				Vector vecHiUV = vt1;
-
-				if (vt2.x < vecLoUV.x)
-					vecLoUV.x = vt2.x;
-				if (vt3.x < vecLoUV.x)
-					vecLoUV.x = vt3.x;
-				if (vt2.x > vecHiUV.x)
-					vecHiUV.x = vt2.x;
-				if (vt3.x > vecHiUV.x)
-					vecHiUV.x = vt3.x;
-
-				if (vt2.y < vecLoUV.y)
-					vecLoUV.y = vt2.y;
-				if (vt3.y < vecLoUV.y)
-					vecLoUV.y = vt3.y;
-				if (vt2.y > vecHiUV.y)
-					vecHiUV.y = vt2.y;
-				if (vt3.y > vecHiUV.y)
-					vecHiUV.y = vt3.y;
-
-				size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
-				size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
-				size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
-				size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
-
-				for (size_t i = iLoX; i <= iHiX; i++)
-				{
-					for (size_t j = iLoY; j <= iHiY; j++)
-					{
-						float flU = ((float)i + 0.5f)/(float)m_iWidth;
-						float flV = ((float)j + 0.5f)/(float)m_iHeight;
-
-						bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
-
-						if (!bInside)
-							continue;
-
-						Vector v1 = pMeshInstance->GetVertex(pV1->v);
-						Vector v2 = pMeshInstance->GetVertex(pV2->v);
-						Vector v3 = pMeshInstance->GetVertex(pV3->v);
-
-						Vector vn1 = pMeshInstance->GetNormal(pV1->vn);
-						Vector vn2 = pMeshInstance->GetNormal(pV2->vn);
-						Vector vn3 = pMeshInstance->GetNormal(pV3->vn);
-
-						// Find where the UV is in world space.
-
-						// First build 2x2 a "matrix" of the UV values.
-						float mta = vt2.x - vt1.x;
-						float mtb = vt3.x - vt1.x;
-						float mtc = vt2.y - vt1.y;
-						float mtd = vt3.y - vt1.y;
-
-						// Invert it.
-						float d = mta*mtd - mtb*mtc;
-						float mtia =  mtd / d;
-						float mtib = -mtb / d;
-						float mtic = -mtc / d;
-						float mtid =  mta / d;
-
-						// Now build a 2x3 "matrix" of the vertices.
-						float mva = v2.x - v1.x;
-						float mvb = v3.x - v1.x;
-						float mvc = v2.y - v1.y;
-						float mvd = v3.y - v1.y;
-						float mve = v2.z - v1.z;
-						float mvf = v3.z - v1.z;
-
-						// Multiply them together.
-						// [a b]   [a b]   [a b]
-						// [c d] * [c d] = [c d]
-						// [e f]           [e f]
-						// Really wish I had a matrix math library about now!
-						float mra = mva*mtia + mvb*mtic;
-						float mrb = mva*mtib + mvb*mtid;
-						float mrc = mvc*mtia + mvd*mtic;
-						float mrd = mvc*mtib + mvd*mtid;
-						float mre = mve*mtia + mvf*mtic;
-						float mrf = mve*mtib + mvf*mtid;
-
-						// These vectors should be the U and V axis in world space.
-						Vector vecUAxis(mra, mrc, mre);
-						Vector vecVAxis(mrb, mrd, mrf);
-
-						Vector vecUVOrigin = v1 - vecUAxis * vt1.x - vecVAxis * vt1.y;
-
-						Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
-
-						float wv1 = DistanceToLine(vecUVPosition, v2, v3) / DistanceToLine(v1, v2, v3);
-						float wv2 = DistanceToLine(vecUVPosition, v1, v3) / DistanceToLine(v2, v1, v3);
-						float wv3 = DistanceToLine(vecUVPosition, v1, v2) / DistanceToLine(v3, v1, v2);
-
-						Vector vecNormal = vn1 * wv1 + vn2 * wv2 + vn3 * wv3;
-
-#ifdef AO_DEBUG
-//						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
-#endif
-
-						size_t iTexel;
-						Texel(i, j, iTexel, false);
-
-						if (m_eAOMethod == AOMETHOD_RENDER)
-						{
-							// Render the scene from this location
-							m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
-						}
-						else if (m_eAOMethod == AOMETHOD_RAYTRACE)
-						{
-							// Build rotation matrix
-							Matrix4x4 m;
-							m.SetOrientation(vecNormal);
-
-							// Turn it sideways so that pitch 90 is up, for more uniform sampling
-							Matrix4x4 m2;
-							m2.SetRotation(EAngle(0, -90, 0));
-
-							m *= m2;
-
-							float flHits = 0;
-							float flTotalHits = 0;
-
-							for (size_t x = 0; x < m_iSamples/2; x++)
-							{
-								float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
-								float flWeight = sin(flPitch * M_PI/180);
-								for (size_t y = 0; y <= m_iSamples; y++)
-								{
-									float flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
-
-									Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
-
-									// Transform relative to the triangle's normal
-									Vector vecRay = m * vecDir;
-
-									//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
-
-									flTotalHits += flWeight;
-
-									Vector vecHit;
-									if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
-									{
-										float flDistance = (vecHit - vecUVPosition).Length();
-										flHits += flWeight * (1/pow(2, flDistance));
-									}
-								}
-							}
-
-							// One last ray directly up, it is skipped in the above loop so it's not done 10 times.
-							Vector vecDir = AngleVector(EAngle(90, 0, 0));
-
-							// Transform relative to the triangle's normal
-							Vector vecRay = m * vecDir;
-
-							//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
-
-							flTotalHits++;
-
-							Vector vecHit;
-							if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
-							{
-								float flDistance = (vecHit - vecUVPosition).Length();
-								flHits += (1/pow(2, flDistance));
-							}
-
-							float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
-							m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
-						}
-						else
-						{
-							float flShadowValue = 0;
-
-							//DebugRenderSceneLookAtPosition(vecUVPosition, vecNormal, pFace);
-
-							// Tri distance method
-							for (size_t m2 = 0; m2 < m_pScene->GetNumMeshes(); m2++)
-							{
-								CConversionMesh* pMesh2 = m_pScene->GetMesh(m2);
-								for (size_t f2 = 0; f2 < pMesh2->GetNumFaces(); f2++)
-								{
-									CConversionFace* pFace2 = pMesh2->GetFace(f2);
-
-									if (pFace == pFace2)
-										continue;
-
-									//DebugRenderSceneLookAtPosition(pFace2->GetCenter(), pFace2->GetNormal(), pFace2);
-
-									// If this face is behind us, ignore.
-									if ((pFace2->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
-										continue;
-
-									// Skip adjoining faces, they are done in a different algorithm below.
-									bool bFoundAdjacent = false;
-									for (size_t e = 0; e < pFace->GetNumEdges(); e++)
-									{
-										CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
-
-										if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) == pFace2) ||
-											(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) == pFace2))
-										{
-											bFoundAdjacent = true;
-											break;
-										}
-									}
-
-									if (bFoundAdjacent)
-										continue;
-
-									std::vector<Vector> av;
-
-									float flDistance = DistanceToPolygon(vecUVPosition, pFace2->GetVertices(av), pFace2->GetNormal());
-									float flDistanceToCenter = (vecUVPosition - pFace2->GetCenter()).Length();
-
-									// If the difference between the closest distance to the poly and the difference to the center is large
-									// then the poly is very close but we're near the edge of it, so that polygon shouldn't affect the
-									// lighting as much. If it's across from us then this should result in a higher multiplier.
-									float flDistanceMultiplier = exp(-fabs(flDistance - flDistanceToCenter));
-
-									flDistanceMultiplier = (flDistanceMultiplier+1)/2;	// Reduce this effect by half.
-
-									float flArea = sqrt(pFace2->GetArea());
-
-									flShadowValue += flArea * exp(-flDistance) * flDistanceMultiplier * fabs(pFace2->GetNormal().Dot(vecNormal));
-								}
-							}
-
-							// Loop through all the edges to give us dirty concave corners.
-							float flDistanceToOpposite = 0;
-							for (size_t e = 0; e < pFace->GetNumEdges(); e++)
-							{
-								CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
-								CConversionEdge* pAdjacentEdge = NULL;
-
-								if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) != pFace) ||
-									(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) != pFace))
-								{
-									pAdjacentEdge = pEdge;
-
-									if (pFace->GetNumEdges() % 2 == 0)
-									{
-										// Even number of edges, opposite is an edge.
-										size_t iOpposite = (e + pFace->GetNumEdges()/2) % pFace->GetNumEdges();
-										CConversionEdge* pOppositeEdge = pMesh->GetEdge(pFace->GetEdge(iOpposite));
-
-										// Use the center of the opposite edge for simplicity's sake.
-										Vector vecCenter = (pMesh->GetVertex(pOppositeEdge->v1) + pMesh->GetVertex(pOppositeEdge->v2))/2;
-										flDistanceToOpposite = DistanceToLine(vecCenter, pMesh->GetVertex(pEdge->v1), pMesh->GetVertex(pEdge->v2));
-									}
-									else
-									{
-										// Odd number of edges, opposite is an point.
-										size_t iOpposite = (e + pFace->GetNumVertices()/2) % pFace->GetNumVertices();
-
-										Vector vecOppositePoint = pMesh->GetVertex(pFace->GetVertex(iOpposite)->v);
-										flDistanceToOpposite = DistanceToLine(vecOppositePoint, pMesh->GetVertex(pEdge->v1), pMesh->GetVertex(pEdge->v2));
-									}
-								}
-
-								if (pAdjacentEdge)
-								{
-									CConversionFace* pOtherFace;
-
-									// Due to the above logic at least one of these is guaranteed to be valid,
-									// and if only one is valid then it must be the one we want.
-									if (pAdjacentEdge->f1 == ~0 || pMesh->GetFace(pAdjacentEdge->f1) == pFace)
-										pOtherFace = pMesh->GetFace(pAdjacentEdge->f2);
-									else
-										pOtherFace = pMesh->GetFace(pAdjacentEdge->f1);
-
-									// If this face is behind us, ignore.
-									if ((pOtherFace->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
-										continue;
-
-									float flDot = pOtherFace->GetNormal().Dot(vecNormal);
-
-									if (flDot == 0)
-										continue;
-
-									Vector v1 = pMesh->GetVertex(pAdjacentEdge->v1);
-									Vector v2 = pMesh->GetVertex(pAdjacentEdge->v2);
-
-									float flDistanceToEdge = DistanceToLine(vecUVPosition, v1, v2);
-									float flAngleMultiplier = RemapVal(flDot, 1.0f, -1.0f, 0.0f, 1.0f);
-									float flDistanceMultiplier = RemapValClamped(flDistanceToEdge, 0, flDistanceToOpposite, 1, 0);
-
-									flShadowValue += exp(-flDistanceToEdge) * flDistanceMultiplier * flAngleMultiplier * 2;
-								}
-							}
-
-							m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
-
-							if (flShadowValue < m_flLowestValue || m_flLowestValue == -1)
-								m_flLowestValue = flShadowValue;
-
-							if (flShadowValue > m_flHighestValue)
-								m_flHighestValue = flShadowValue;
-						}
-
-						m_aiShadowReads[iTexel]++;
-						m_bPixelMask[iTexel] = true;
-
-						if (m_pWorkListener)
-							m_pWorkListener->WorkProgress(++iRendered);
-
-						if (m_bStopGenerating)
-							break;
-					}
-					if (m_bStopGenerating)
-						break;
-				}
+				avecPoints.push_back(pMeshInstance->GetVertex(pFace->GetVertex(t)->v));
+				aiPoints.push_back(t);
+			}
+
+			while (avecPoints.size() > 3)
+			{
+				size_t iEar = FindEar(avecPoints);
+				size_t iLast = iEar==0?avecPoints.size()-1:iEar-1;
+				size_t iNext = iEar==avecPoints.size()-1?0:iEar+1;
+				GenerateTriangleByTexel(pMeshInstance, pFace, aiPoints[iLast], aiPoints[iEar], aiPoints[iNext], pTracer, iRendered);
+				avecPoints.erase(avecPoints.begin()+iEar);
+				aiPoints.erase(aiPoints.begin()+iEar);
 				if (m_bStopGenerating)
 					break;
 			}
+			GenerateTriangleByTexel(pMeshInstance, pFace, aiPoints[0], aiPoints[1], aiPoints[2], pTracer, iRendered);
+			if (m_bStopGenerating)
+				break;
+		}
+		if (m_bStopGenerating)
+			break;
+	}
+}
+
+void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, raytrace::CRaytracer* pTracer, size_t& iRendered)
+{
+	CConversionVertex* pV1 = pFace->GetVertex(v1);
+	CConversionVertex* pV2 = pFace->GetVertex(v2);
+	CConversionVertex* pV3 = pFace->GetVertex(v3);
+
+	CConversionMesh* pMesh = pMeshInstance->GetMesh();
+
+	Vector vt1 = pMesh->GetUV(pV1->vt);
+	Vector vt2 = pMesh->GetUV(pV2->vt);
+	Vector vt3 = pMesh->GetUV(pV3->vt);
+
+	Vector vecLoUV = vt1;
+	Vector vecHiUV = vt1;
+
+	if (vt2.x < vecLoUV.x)
+		vecLoUV.x = vt2.x;
+	if (vt3.x < vecLoUV.x)
+		vecLoUV.x = vt3.x;
+	if (vt2.x > vecHiUV.x)
+		vecHiUV.x = vt2.x;
+	if (vt3.x > vecHiUV.x)
+		vecHiUV.x = vt3.x;
+
+	if (vt2.y < vecLoUV.y)
+		vecLoUV.y = vt2.y;
+	if (vt3.y < vecLoUV.y)
+		vecLoUV.y = vt3.y;
+	if (vt2.y > vecHiUV.y)
+		vecHiUV.y = vt2.y;
+	if (vt3.y > vecHiUV.y)
+		vecHiUV.y = vt3.y;
+
+	size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
+	size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
+	size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
+	size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
+
+	for (size_t i = iLoX; i <= iHiX; i++)
+	{
+		for (size_t j = iLoY; j <= iHiY; j++)
+		{
+			float flU = ((float)i + 0.5f)/(float)m_iWidth;
+			float flV = ((float)j + 0.5f)/(float)m_iHeight;
+
+			bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
+
+			if (!bInside)
+				continue;
+
+			Vector v1 = pMeshInstance->GetVertex(pV1->v);
+			Vector v2 = pMeshInstance->GetVertex(pV2->v);
+			Vector v3 = pMeshInstance->GetVertex(pV3->v);
+
+			Vector vn1 = pMeshInstance->GetNormal(pV1->vn);
+			Vector vn2 = pMeshInstance->GetNormal(pV2->vn);
+			Vector vn3 = pMeshInstance->GetNormal(pV3->vn);
+
+			// Find where the UV is in world space.
+
+			// First build 2x2 a "matrix" of the UV values.
+			float mta = vt2.x - vt1.x;
+			float mtb = vt3.x - vt1.x;
+			float mtc = vt2.y - vt1.y;
+			float mtd = vt3.y - vt1.y;
+
+			// Invert it.
+			float d = mta*mtd - mtb*mtc;
+			float mtia =  mtd / d;
+			float mtib = -mtb / d;
+			float mtic = -mtc / d;
+			float mtid =  mta / d;
+
+			// Now build a 2x3 "matrix" of the vertices.
+			float mva = v2.x - v1.x;
+			float mvb = v3.x - v1.x;
+			float mvc = v2.y - v1.y;
+			float mvd = v3.y - v1.y;
+			float mve = v2.z - v1.z;
+			float mvf = v3.z - v1.z;
+
+			// Multiply them together.
+			// [a b]   [a b]   [a b]
+			// [c d] * [c d] = [c d]
+			// [e f]           [e f]
+			// Really wish I had a matrix math library about now!
+			float mra = mva*mtia + mvb*mtic;
+			float mrb = mva*mtib + mvb*mtid;
+			float mrc = mvc*mtia + mvd*mtic;
+			float mrd = mvc*mtib + mvd*mtid;
+			float mre = mve*mtia + mvf*mtic;
+			float mrf = mve*mtib + mvf*mtid;
+
+			// These vectors should be the U and V axis in world space.
+			Vector vecUAxis(mra, mrc, mre);
+			Vector vecVAxis(mrb, mrd, mrf);
+
+			Vector vecUVOrigin = v1 - vecUAxis * vt1.x - vecVAxis * vt1.y;
+
+			Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
+
+			float wv1 = DistanceToLine(vecUVPosition, v2, v3) / DistanceToLine(v1, v2, v3);
+			float wv2 = DistanceToLine(vecUVPosition, v1, v3) / DistanceToLine(v2, v1, v3);
+			float wv3 = DistanceToLine(vecUVPosition, v1, v2) / DistanceToLine(v3, v1, v2);
+
+			Vector vecNormal = vn1 * wv1 + vn2 * wv2 + vn3 * wv3;
+
+#ifdef AO_DEBUG
+			//						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
+#endif
+
+			size_t iTexel;
+			Texel(i, j, iTexel, false);
+
+			if (m_eAOMethod == AOMETHOD_RENDER)
+			{
+				// Render the scene from this location
+				m_avecShadowValues[iTexel] += RenderSceneFromPosition(vecUVPosition, vecNormal, pFace);
+			}
+			else if (m_eAOMethod == AOMETHOD_RAYTRACE)
+			{
+				// Build rotation matrix
+				Matrix4x4 m;
+				m.SetOrientation(vecNormal);
+
+				// Turn it sideways so that pitch 90 is up, for more uniform sampling
+				Matrix4x4 m2;
+				m2.SetRotation(EAngle(0, -90, 0));
+
+				m *= m2;
+
+				float flHits = 0;
+				float flTotalHits = 0;
+
+				for (size_t x = 0; x < m_iSamples/2; x++)
+				{
+					float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
+					float flWeight = sin(flPitch * M_PI/180);
+					for (size_t y = 0; y <= m_iSamples; y++)
+					{
+						float flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
+
+						Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
+
+						// Transform relative to the triangle's normal
+						Vector vecRay = m * vecDir;
+
+						//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
+
+						flTotalHits += flWeight;
+
+						Vector vecHit;
+						if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
+						{
+							float flDistance = (vecHit - vecUVPosition).Length();
+							flHits += flWeight * (1/pow(2, flDistance));
+						}
+					}
+				}
+
+				// One last ray directly up, it is skipped in the above loop so it's not done 10 times.
+				Vector vecDir = AngleVector(EAngle(90, 0, 0));
+
+				// Transform relative to the triangle's normal
+				Vector vecRay = m * vecDir;
+
+				//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
+
+				flTotalHits++;
+
+				Vector vecHit;
+				if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
+				{
+					float flDistance = (vecHit - vecUVPosition).Length();
+					flHits += (1/pow(2, flDistance));
+				}
+
+				float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
+				m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
+			}
+			else
+			{
+				float flShadowValue = 0;
+
+				//DebugRenderSceneLookAtPosition(vecUVPosition, vecNormal, pFace);
+
+				// Tri distance method
+				for (size_t m2 = 0; m2 < m_pScene->GetNumMeshes(); m2++)
+				{
+					CConversionMesh* pMesh2 = m_pScene->GetMesh(m2);
+					for (size_t f2 = 0; f2 < pMesh2->GetNumFaces(); f2++)
+					{
+						CConversionFace* pFace2 = pMesh2->GetFace(f2);
+
+						if (pFace == pFace2)
+							continue;
+
+						//DebugRenderSceneLookAtPosition(pFace2->GetCenter(), pFace2->GetNormal(), pFace2);
+
+						// If this face is behind us, ignore.
+						if ((pFace2->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
+							continue;
+
+						// Skip adjoining faces, they are done in a different algorithm below.
+						bool bFoundAdjacent = false;
+						for (size_t e = 0; e < pFace->GetNumEdges(); e++)
+						{
+							CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
+
+							if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) == pFace2) ||
+								(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) == pFace2))
+							{
+								bFoundAdjacent = true;
+								break;
+							}
+						}
+
+						if (bFoundAdjacent)
+							continue;
+
+						std::vector<Vector> av;
+
+						float flDistance = DistanceToPolygon(vecUVPosition, pFace2->GetVertices(av), pFace2->GetNormal());
+						float flDistanceToCenter = (vecUVPosition - pFace2->GetCenter()).Length();
+
+						// If the difference between the closest distance to the poly and the difference to the center is large
+						// then the poly is very close but we're near the edge of it, so that polygon shouldn't affect the
+						// lighting as much. If it's across from us then this should result in a higher multiplier.
+						float flDistanceMultiplier = exp(-fabs(flDistance - flDistanceToCenter));
+
+						flDistanceMultiplier = (flDistanceMultiplier+1)/2;	// Reduce this effect by half.
+
+						float flArea = sqrt(pFace2->GetArea());
+
+						flShadowValue += flArea * exp(-flDistance) * flDistanceMultiplier * fabs(pFace2->GetNormal().Dot(vecNormal));
+					}
+				}
+
+				// Loop through all the edges to give us dirty concave corners.
+				float flDistanceToOpposite = 0;
+				for (size_t e = 0; e < pFace->GetNumEdges(); e++)
+				{
+					CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
+					CConversionEdge* pAdjacentEdge = NULL;
+
+					if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) != pFace) ||
+						(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) != pFace))
+					{
+						pAdjacentEdge = pEdge;
+
+						if (pFace->GetNumEdges() % 2 == 0)
+						{
+							// Even number of edges, opposite is an edge.
+							size_t iOpposite = (e + pFace->GetNumEdges()/2) % pFace->GetNumEdges();
+							CConversionEdge* pOppositeEdge = pMesh->GetEdge(pFace->GetEdge(iOpposite));
+
+							// Use the center of the opposite edge for simplicity's sake.
+							Vector vecCenter = (pMesh->GetVertex(pOppositeEdge->v1) + pMesh->GetVertex(pOppositeEdge->v2))/2;
+							flDistanceToOpposite = DistanceToLine(vecCenter, pMesh->GetVertex(pEdge->v1), pMesh->GetVertex(pEdge->v2));
+						}
+						else
+						{
+							// Odd number of edges, opposite is an point.
+							size_t iOpposite = (e + pFace->GetNumVertices()/2) % pFace->GetNumVertices();
+
+							Vector vecOppositePoint = pMesh->GetVertex(pFace->GetVertex(iOpposite)->v);
+							flDistanceToOpposite = DistanceToLine(vecOppositePoint, pMesh->GetVertex(pEdge->v1), pMesh->GetVertex(pEdge->v2));
+						}
+					}
+
+					if (pAdjacentEdge)
+					{
+						CConversionFace* pOtherFace;
+
+						// Due to the above logic at least one of these is guaranteed to be valid,
+						// and if only one is valid then it must be the one we want.
+						if (pAdjacentEdge->f1 == ~0 || pMesh->GetFace(pAdjacentEdge->f1) == pFace)
+							pOtherFace = pMesh->GetFace(pAdjacentEdge->f2);
+						else
+							pOtherFace = pMesh->GetFace(pAdjacentEdge->f1);
+
+						// If this face is behind us, ignore.
+						if ((pOtherFace->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
+							continue;
+
+						float flDot = pOtherFace->GetNormal().Dot(vecNormal);
+
+						if (flDot == 0)
+							continue;
+
+						Vector v1 = pMesh->GetVertex(pAdjacentEdge->v1);
+						Vector v2 = pMesh->GetVertex(pAdjacentEdge->v2);
+
+						float flDistanceToEdge = DistanceToLine(vecUVPosition, v1, v2);
+						float flAngleMultiplier = RemapVal(flDot, 1.0f, -1.0f, 0.0f, 1.0f);
+						float flDistanceMultiplier = RemapValClamped(flDistanceToEdge, 0, flDistanceToOpposite, 1, 0);
+
+						flShadowValue += exp(-flDistanceToEdge) * flDistanceMultiplier * flAngleMultiplier * 2;
+					}
+				}
+
+				m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
+
+				if (flShadowValue < m_flLowestValue || m_flLowestValue == -1)
+					m_flLowestValue = flShadowValue;
+
+				if (flShadowValue > m_flHighestValue)
+					m_flHighestValue = flShadowValue;
+			}
+
+			m_aiShadowReads[iTexel]++;
+			m_bPixelMask[iTexel] = true;
+
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(++iRendered);
+
 			if (m_bStopGenerating)
 				break;
 		}

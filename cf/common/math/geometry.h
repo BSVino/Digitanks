@@ -480,4 +480,59 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 	return false;
 }
 
+inline size_t FindEar(const std::vector<Vector>& avecPoints)
+{
+	size_t iPoints = avecPoints.size();
+
+	// A triangle is always an ear.
+	if (iPoints <= 3)
+		return 0;
+
+	size_t i;
+
+	Vector vecFaceNormal;
+	// Calculate the face normal.
+	for (i = 0; i < iPoints; i++)
+	{
+		size_t iNext = (i+1)%iPoints;
+		vecFaceNormal.x += (avecPoints[i].y - avecPoints[iNext].y) * (avecPoints[i].z + avecPoints[iNext].z);
+		vecFaceNormal.y += (avecPoints[i].z - avecPoints[iNext].z) * (avecPoints[i].x + avecPoints[iNext].x);
+		vecFaceNormal.z += (avecPoints[i].x - avecPoints[iNext].x) * (avecPoints[i].y + avecPoints[iNext].y);
+	}
+
+	vecFaceNormal.Normalize();
+
+	for (i = 0; i < iPoints; i++)
+	{
+		size_t iLast = i==0?iPoints-1:i-1;
+		size_t iNext = i==iPoints-1?0:i+1;
+
+		Vector vecLast = avecPoints[iLast];
+		Vector vecThis = avecPoints[i];
+		Vector vecNext = avecPoints[iNext];
+
+		// Concave ones can not be ears.
+		if ((vecLast-vecThis).Cross(vecLast-vecNext).Dot(vecFaceNormal) < 0)
+			continue;
+
+		bool bFoundPoint = false;
+		for (size_t j = 0; j < iPoints; j++)
+		{
+			if (j == i || j == iLast || j == iNext)
+				continue;
+
+			if (PointInTriangle(avecPoints[j], vecLast, vecThis, vecNext))
+			{
+				bFoundPoint = true;
+				break;
+			}
+		}
+
+		if (!bFoundPoint)
+			return i;
+	}
+
+	return 0;
+}
+
 #endif

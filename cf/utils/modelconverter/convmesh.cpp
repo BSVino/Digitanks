@@ -593,11 +593,23 @@ Vector CConversionFace::GetNormal()
 
 	// Precompute this shit maybe?
 
-	Vector v1 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[0].v);
-	Vector v2 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[1].v);
-	Vector v3 = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[2].v);
+	size_t iPoints = GetNumVertices();
 
-	return (v3 - v2).Normalized().Cross((v1 - v2).Normalized());
+	// This algorithm works better for faces with convex points than a simple cross-product.
+	Vector vecFaceNormal;
+	for (size_t i = 0; i < iPoints; i++)
+	{
+		size_t iNext = (i+1)%iPoints;
+
+		Vector vecThis = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[i].v);
+		Vector vecNext = m_pScene->GetMesh(m_iMesh)->GetVertex(m_aVertices[iNext].v);
+
+		vecFaceNormal.x += (vecThis.y - vecNext.y) * (vecThis.z + vecNext.z);
+		vecFaceNormal.y += (vecThis.z - vecNext.z) * (vecThis.x + vecNext.x);
+		vecFaceNormal.z += (vecThis.x - vecNext.x) * (vecThis.y + vecNext.y);
+	}
+
+	return vecFaceNormal.Normalized();
 }
 
 Vector CConversionFace::GetCenter()

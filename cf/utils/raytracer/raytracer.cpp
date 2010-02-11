@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include <geometry.h>
+
 #ifdef DEBUG_WITH_GL
 #include <GL/freeglut.h>
 
@@ -100,18 +102,19 @@ void CRaytracer::AddMeshesFromNode(CConversionSceneNode* pNode)
 		for (size_t f = 0; f < pMeshInstance->GetMesh()->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(f);
-			for (size_t t = 0; t < pFace->GetNumVertices()-2; t++)
+			std::vector<Vector> avecPoints;
+			for (size_t t = 0; t < pFace->GetNumVertices(); t++)
+				avecPoints.push_back(pMeshInstance->GetVertex(pFace->GetVertex(t)->v));
+
+			while (avecPoints.size() > 3)
 			{
-				CConversionVertex* pV1 = pFace->GetVertex(0);
-				CConversionVertex* pV2 = pFace->GetVertex(t+1);
-				CConversionVertex* pV3 = pFace->GetVertex(t+2);
-
-				Vector v1 = pMeshInstance->GetVertex(pV1->v);
-				Vector v2 = pMeshInstance->GetVertex(pV2->v);
-				Vector v3 = pMeshInstance->GetVertex(pV3->v);
-
-				m_pTree->AddTriangle(v1, v2, v3);
+				size_t iEar = FindEar(avecPoints);
+				size_t iLast = iEar==0?avecPoints.size()-1:iEar-1;
+				size_t iNext = iEar==avecPoints.size()-1?0:iEar+1;
+				m_pTree->AddTriangle(avecPoints[iLast], avecPoints[iEar], avecPoints[iNext]);
+				avecPoints.erase(avecPoints.begin()+iEar);
 			}
+			m_pTree->AddTriangle(avecPoints[0], avecPoints[1], avecPoints[2]);
 		}
 	}
 }
