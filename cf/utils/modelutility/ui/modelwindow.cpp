@@ -87,6 +87,7 @@ CModelWindow::CModelWindow()
 	m_iWireframeTexture = LoadTextureIntoGL(L"wireframe.png");
 	m_iFlatTexture = LoadTextureIntoGL(L"flat.png");
 	m_iSmoothTexture = LoadTextureIntoGL(L"smooth.png");
+	m_iUVTexture = LoadTextureIntoGL(L"uv.png");
 	m_iLightTexture = LoadTextureIntoGL(L"light.png");
 	m_iTextureTexture = LoadTextureIntoGL(L"texture.png");
 	m_iAOTexture = LoadTextureIntoGL(L"ao.png");

@@ -169,6 +169,7 @@ protected:
 	size_t					m_iWireframeTexture;
 	size_t					m_iFlatTexture;
 	size_t					m_iSmoothTexture;
+	size_t					m_iUVTexture;
 	size_t					m_iLightTexture;
 	size_t					m_iTextureTexture;
 	size_t					m_iAOTexture;

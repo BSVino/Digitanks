@@ -55,7 +55,7 @@ void CModelWindow::InitUI()
 	m_pWireframe = new CPictureButton("Wire", m_iWireframeTexture, true);
 	m_pFlat = new CPictureButton("Flat", m_iFlatTexture, true);
 	m_pSmooth = new CPictureButton("Smth", m_iSmoothTexture, true);
-	m_pUVWireframe = new CPictureButton("Wire", m_iWireframeTexture, true);
+	m_pUVWireframe = new CPictureButton("Wire", m_iUVTexture, true);
 	m_pLight = new CPictureButton("Lght", m_iLightTexture, true);
 	m_pTexture = new CPictureButton("Tex", m_iTextureTexture, true);
 	m_pAO = new CPictureButton("AO", m_iAOTexture, true);
