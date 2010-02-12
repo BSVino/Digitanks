@@ -103,6 +103,35 @@ void CAOGenerator::SetRenderPreviewViewport(int x, int y, int w, int h)
 	m_pPixels = (GLfloat*)malloc(iBufferSize);
 }
 
+extern "C" {
+static void CALLBACK ShadowMapTesselateBegin(GLenum ePrim)
+{
+	glBegin(ePrim);
+}
+
+static void CALLBACK ShadowMapTesselateVertex(void* pVertexData, void* pPolygonData)
+{
+	CConversionMeshInstance* pMeshInstance = (CConversionMeshInstance*)pPolygonData;
+	CConversionMesh* pMesh = pMeshInstance->GetMesh();
+	CConversionVertex* pVertex = (CConversionVertex*)pVertexData;
+
+	Vector vecVertex = pMeshInstance->GetVertex(pVertex->v);
+	Vector vecNormal = pMeshInstance->GetNormal(pVertex->vn);
+
+	// Translate here so it takes up the whole viewport when flattened by the shader.
+	Vector vecUV = pMesh->GetUV(pVertex->vt) * 2 - Vector(1,1,1);
+
+	glTexCoord2fv(vecUV);
+	glNormal3fv(vecNormal);
+	glVertex3fv(vecVertex);
+}
+
+static void CALLBACK ShadowMapTesselateEnd()
+{
+	glEnd();
+}
+}
+
 void CAOGenerator::ShadowMapSetupScene()
 {
 	// Tuck away our current stack so we can return to it later.
@@ -114,6 +143,12 @@ void CAOGenerator::ShadowMapSetupScene()
 	glPushMatrix();
 	glLoadIdentity();
 
+	GLUtesselator* pTesselator = gluNewTess();
+	gluTessCallback(pTesselator, GLU_TESS_BEGIN, (void(CALLBACK*)())ShadowMapTesselateBegin);
+	gluTessCallback(pTesselator, GLU_TESS_VERTEX_DATA, (void(CALLBACK*)())ShadowMapTesselateVertex);
+	gluTessCallback(pTesselator, GLU_TESS_END, (void(CALLBACK*)())ShadowMapTesselateEnd);
+	gluTessProperty(pTesselator, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
+
 	// Create a list with the required polys so it draws quicker.
 	m_iSceneList = glGenLists(1);
 
@@ -122,29 +157,69 @@ void CAOGenerator::ShadowMapSetupScene()
 	// Overload the render preview viewport as a method for storing our pixels.
 	SetRenderPreviewViewport(0, 0, (int)m_iWidth, (int)m_iHeight);
 
-	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
+	ShadowMapSetupSceneNode(m_pScene->GetScene(0), pTesselator);
+
+	glEndList();
+
+	gluDeleteTess(pTesselator);
+}
+
+void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesselator* pTesselator)
+{
+	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
+		ShadowMapSetupSceneNode(pNode->GetChild(c), pTesselator);
+
+	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
 	{
-		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		CConversionMeshInstance* pMeshInstance = pNode->GetMeshInstance(m);
+		CConversionMesh* pMesh = pMeshInstance->GetMesh();
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);
 
-			glBegin(GL_POLYGON);
+			gluTessBeginPolygon(pTesselator, pMeshInstance);
+			gluTessBeginContour(pTesselator);
 
 			for (size_t k = 0; k < pFace->GetNumVertices(); k++)
 			{
-				// Translate here so it takes up the whole viewport when flattened by the shader.
-				Vector vecUV = pMesh->GetUV(pFace->GetVertex(k)->vt) * 2 - Vector(1,1,1);
-				glTexCoord2fv(vecUV);
-				glNormal3fv(pMesh->GetNormal(pFace->GetVertex(k)->vn));
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k)->v));
+				CConversionVertex* pVertex = pFace->GetVertex(k);
+
+				Vector vecVertex = pMeshInstance->GetVertex(pVertex->v);
+				GLdouble afCoords[3] = { vecVertex.x, vecVertex.y, vecVertex.z };
+				gluTessVertex(pTesselator, afCoords, pVertex);
 			}
 
-			glEnd();
+			gluTessEndContour(pTesselator);
+			gluTessEndPolygon(pTesselator);
 		}
 	}
+}
 
-	glEndList();
+extern "C" {
+static void CALLBACK RenderTesselateBegin(GLenum ePrim)
+{
+	glBegin(ePrim);
+}
+
+static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData)
+{
+	CConversionMeshInstance* pMeshInstance = (CConversionMeshInstance*)pPolygonData;
+	CConversionMesh* pMesh = pMeshInstance->GetMesh();
+	CConversionVertex* pVertex = (CConversionVertex*)pVertexData;
+
+	Vector vecVertex = pMeshInstance->GetVertex(pVertex->v);
+	Vector vecNormal = pMeshInstance->GetNormal(pVertex->vn);
+	Vector vecUV = pMesh->GetUV(pVertex->vt);
+
+	glTexCoord2fv(vecUV);
+	glNormal3fv(vecNormal);
+	glVertex3fv(vecVertex);
+}
+
+static void CALLBACK RenderTesselateEnd()
+{
+	glEnd();
+}
 }
 
 void CAOGenerator::RenderSetupScene()
@@ -161,97 +236,55 @@ void CAOGenerator::RenderSetupScene()
 	// Background represents light, so it's white.
 	glClearColor(1, 1, 1, 1);
 
-	size_t m;
+	GLUtesselator* pTesselator = gluNewTess();
+	gluTessCallback(pTesselator, GLU_TESS_BEGIN, (void(CALLBACK*)())RenderTesselateBegin);
+	gluTessCallback(pTesselator, GLU_TESS_VERTEX_DATA, (void(CALLBACK*)())RenderTesselateVertex);
+	gluTessCallback(pTesselator, GLU_TESS_END, (void(CALLBACK*)())RenderTesselateEnd);
+	gluTessProperty(pTesselator, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
 
 	// Create a list with the required polys so it draws quicker.
-	m_iSceneList = glGenLists((GLsizei)m_paoMaterials->size()+2);
+	m_iSceneList = glGenLists(1);
 
 	glNewList(m_iSceneList, GL_COMPILE);
-	// Draw the back faces separately so they can be batched.
-	glBegin(GL_TRIANGLES);
-	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
-	{
-		CConversionMesh* pMesh = m_pScene->GetMesh(m);
-		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
-		{
-			CConversionFace* pFace = pMesh->GetFace(f);
 
-			for (size_t k = 0; k < pFace->GetNumVertices()-2; k++)
-			{
-				// Wind backwards so they face the other way.
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(0)->v) - pFace->GetNormal() * 0.01f);
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+2)->v) - pFace->GetNormal() * 0.01f);
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k+1)->v) - pFace->GetNormal() * 0.01f);
-			}
-		}
-	}
-	glEnd();
+	RenderSetupSceneNode(m_pScene->GetScene(0), pTesselator);
+
 	glEndList();
 
-	glNewList(m_iSceneList+1, GL_COMPILE);
+	gluDeleteTess(pTesselator);
+}
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glColor3f(0, 0, 0);
+void CAOGenerator::RenderSetupSceneNode(CConversionSceneNode* pNode, GLUtesselator* pTesselator)
+{
+	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
+		RenderSetupSceneNode(pNode->GetChild(c), pTesselator);
 
-	for (m = 0; m < m_pScene->GetNumMeshes(); m++)
+	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
 	{
-		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		CConversionMeshInstance* pMeshInstance = pNode->GetMeshInstance(m);
+		CConversionMesh* pMesh = pMeshInstance->GetMesh();
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);
 
-			if (pFace->m != ~0)
-				continue;
+			glBindTexture(GL_TEXTURE_2D, (GLuint)(*m_paoMaterials)[m].m_iBase);
+			glColor3f(1, 1, 1);
 
-			glBegin(GL_TRIANGLE_FAN);
+			gluTessBeginPolygon(pTesselator, pMeshInstance);
+			gluTessBeginContour(pTesselator);
 
 			for (size_t k = 0; k < pFace->GetNumVertices(); k++)
-				glVertex3fv(pMesh->GetVertex(pFace->GetVertex(k)->v));
-
-			glEnd();
-		}
-	}
-
-	glEndList();
-
-	// Put the all materials in separate lists so that they can be batched too.
-	for (m = 0; m < m_pScene->GetNumMaterials(); m++)
-	{
-		glNewList(m_iSceneList+m+2, GL_COMPILE);
-
-		glBindTexture(GL_TEXTURE_2D, (GLuint)(*m_paoMaterials)[m].m_iBase);
-		glColor3f(1, 1, 1);
-
-		for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
-		{
-			CConversionMesh* pMesh = m_pScene->GetMesh(i);
-			for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 			{
-				CConversionFace* pFace = pMesh->GetFace(f);
+				CConversionVertex* pVertex = pFace->GetVertex(k);
 
-				if (pFace->m != m)
-					continue;
-
-				glBegin(GL_TRIANGLE_FAN);
-
-				for (size_t k = 0; k < pFace->GetNumVertices(); k++)
-				{
-					CConversionVertex* pVertex = pFace->GetVertex(k);
-
-					Vector vecVertex = pMesh->GetVertex(pVertex->v);
-					Vector vecNormal = pMesh->GetNormal(pVertex->vn);
-					Vector vecUV = pMesh->GetUV(pVertex->vt);
-
-					glTexCoord2fv(vecUV);
-					glNormal3fv(vecNormal);
-					glVertex3fv(vecVertex);
-				}
-
-				glEnd();
+				Vector vecVertex = pMeshInstance->GetVertex(pVertex->v);
+				GLdouble afCoords[3] = { vecVertex.x, vecVertex.y, vecVertex.z };
+				gluTessVertex(pTesselator, afCoords, pVertex);
 			}
-		}
 
-		glEndList();
+			gluTessEndContour(pTesselator);
+			gluTessEndPolygon(pTesselator);
+		}
 	}
 }
 
@@ -342,10 +375,7 @@ void CAOGenerator::Generate()
 
 	if (m_eAOMethod == AOMETHOD_RENDER || m_eAOMethod == AOMETHOD_SHADOWMAP)
 	{
-		if (m_eAOMethod == AOMETHOD_RENDER)
-			glDeleteLists(m_iSceneList, (GLsizei)m_paoMaterials->size()+1);
-		else
-			glDeleteLists(m_iSceneList, 1);
+		glDeleteLists(m_iSceneList, 1);
 
 		// We now return you to our normal render programming. Thank you for your patronage.
 		glMatrixMode(GL_PROJECTION);
@@ -1250,7 +1280,7 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 	glShadeModel(GL_FLAT);
 
 	// Bring it away from its poly so that the camera never clips around behind it.
-	// Adds .001 because of a bug where GL for some reason won't show the back faces unless I do that.
+	// Adds .001 because of a bug where GL for some reason won't show the faces unless I do that.
 	Vector vecEye = vecPosition + (vecDirection + Vector(.001f, .001f, .001f)) * 0.1f;
 	Vector vecLookAt = vecPosition + vecDirection;
 
@@ -1282,20 +1312,14 @@ Vector CAOGenerator::RenderSceneFromPosition(Vector vecPosition, Vector vecDirec
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, flMaterialColor);
 	glColor4fv(flMaterialColor);
 
-	// Draw the dark insides
-	//glCallList(m_iSceneList);
-
-	// Draw polyons without materials
-	glCallList(m_iSceneList+1);
-
-	for (size_t i = 0; i < m_paoMaterials->size(); i++)
-		glCallList(m_iSceneList+i+2);
-
-#ifdef AO_DEBUG
-//	DebugRenderSceneLookAtPosition(vecPosition, vecDirection, pRenderFace);
-#endif
+	glCallList(m_iSceneList);
 
 	glFinish();
+
+#ifdef AO_DEBUG
+	DebugRenderSceneLookAtPosition(vecPosition, vecDirection, pRenderFace);
+	glFinish();
+#endif
 
 	Vector vecShadowColor(0,0,0);
 
@@ -1373,10 +1397,7 @@ void CAOGenerator::DebugRenderSceneLookAtPosition(Vector vecPosition, Vector vec
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, flMaterialColor);
 	glColor4fv(flMaterialColor);
 
-	//glCallList(m_iSceneList);
-
-	for (size_t i = 0; i < m_paoMaterials->size(); i++)
-		glCallList(m_iSceneList+i+2);
+	glCallList(m_iSceneList);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

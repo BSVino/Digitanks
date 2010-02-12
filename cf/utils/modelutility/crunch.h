@@ -37,7 +37,9 @@ public:
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
 	void					ShadowMapSetupScene();
+	void					ShadowMapSetupSceneNode(CConversionSceneNode* pNode, class GLUtesselator* pTesselator);
 	void					RenderSetupScene();
+	void					RenderSetupSceneNode(CConversionSceneNode* pNode, class GLUtesselator* pTesselator);
 	void					Generate();
 	void					GenerateShadowMaps();
 	void					GenerateByTexel();
