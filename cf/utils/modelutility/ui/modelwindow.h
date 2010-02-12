@@ -100,6 +100,7 @@ public:
 	EVENT_CALLBACK(CModelWindow, Exit);
 	EVENT_CALLBACK(CModelWindow, Render3D);
 	EVENT_CALLBACK(CModelWindow, RenderUV);
+	EVENT_CALLBACK(CModelWindow, SceneTree);
 	EVENT_CALLBACK(CModelWindow, Wireframe);
 	EVENT_CALLBACK(CModelWindow, Flat);
 	EVENT_CALLBACK(CModelWindow, Smooth);

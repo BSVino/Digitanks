@@ -40,7 +40,7 @@ std::wstring CModelConverter::GetFilename(std::wstring sPathFilename)
 		if (sPathFilename[i] == L'\\' || sPathFilename[i] == L'/')
 			iLastChar = i;
 
-	std::wstring sReturn = sReturn.c_str() + iLastChar + 1;
+	std::wstring sReturn = sPathFilename.c_str() + iLastChar + 1;
 
 	i = -1;
 	while (sReturn[++i])

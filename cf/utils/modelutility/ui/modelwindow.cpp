@@ -12,6 +12,7 @@
 
 #include <modelconverter/modelconverter.h>
 #include "modelgui.h"
+#include "scenetree.h"
 
 extern "C" {
 static void CALLBACK RenderTesselateBegin(GLenum ePrim);
@@ -205,6 +206,8 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 	EndProgress();
 
 	m_flCameraDistance = m_Scene.m_oExtends.Size().Length() * 1.5f;
+
+	CSceneTreePanel::Get()->Layout();
 
 	m_bLoadingFile = false;
 }

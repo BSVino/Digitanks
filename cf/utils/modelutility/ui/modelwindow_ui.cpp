@@ -2,9 +2,11 @@
 
 #include <IL/il.h>
 #include <maths.h>
-#include "modelwindow.h"
 #include <GL/freeglut.h>
 #include <strutils.h>
+
+#include "modelwindow.h"
+#include "scenetree.h"
 #include "../smak_version.h"
 
 void CModelWindow::InitUI()
@@ -22,6 +24,7 @@ void CModelWindow::InitUI()
 
 	pView->AddSubmenu("3D view", this, Render3D);
 	pView->AddSubmenu("UV view", this, RenderUV);
+	pView->AddSubmenu("Scene tree", this, SceneTree);
 	pView->AddSubmenu("View wireframe", this, Wireframe);
 	pView->AddSubmenu("View flat shaded", this, Flat);
 	pView->AddSubmenu("View smooth shaded", this, Smooth);
@@ -68,6 +71,8 @@ void CModelWindow::InitUI()
 	pBottomButtons->AddButton(m_pColorAO, "Toggle Color AO", false, this, ColorAO);
 
 	CRootPanel::Get()->AddControl(pBottomButtons);
+
+	CSceneTreePanel::Open(&m_Scene);
 
 	CRootPanel::Get()->Layout();
 }
@@ -119,6 +124,11 @@ void CModelWindow::Render3DCallback()
 void CModelWindow::RenderUVCallback()
 {
 	SetRenderMode(true);
+}
+
+void CModelWindow::SceneTreeCallback()
+{
+	CSceneTreePanel::Open(&m_Scene);
 }
 
 void CModelWindow::WireframeCallback()

@@ -380,7 +380,8 @@ size_t CConversionScene::AddDefaultSceneMaterial(CConversionMesh* pMesh, const s
 	CConversionMeshInstance* pMeshInstance = GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0);
 
 	size_t iMaterialStub = pMesh->AddMaterialStub(sName);
-	pMeshInstance->m_aiMaterialsMap.insert(std::pair<size_t, size_t>(iMaterialStub, iMaterialStub));
+	size_t iMaterial = AddMaterial(sName);
+	pMeshInstance->m_aiMaterialsMap.insert(std::pair<size_t, size_t>(iMaterialStub, iMaterial));
 
 	return iMaterialStub;
 }

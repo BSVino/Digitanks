@@ -357,14 +357,15 @@ void CPanel::Paint(int x, int y, int w, int h)
 	size_t iCount = m_apControls.size();
 	for (size_t i = 0; i < iCount; i++)
 	{
-		if (!m_apControls[i]->IsVisible())
+		IControl* pControl = m_apControls[i];
+		if (!pControl->IsVisible())
 			continue;
 
 		// Translate this location to the child's local space.
 		int cx, cy, ax, ay;
-		m_apControls[i]->GetAbsPos(cx, cy);
+		pControl->GetAbsPos(cx, cy);
 		GetAbsPos(ax, ay);
-		m_apControls[i]->Paint(cx+x-ax, cy+y-ay);
+		pControl->Paint(cx+x-ax, cy+y-ay);
 	}
 }
 
@@ -696,6 +697,11 @@ void CLabel::AppendText(const char* pszText)
 	mbstowcs(pszBuf, pszText, strlen(pszText)+1);
 	AppendText(pszBuf);
 	free(pszBuf);
+}
+
+void CLabel::SetFontFaceSize(int iSize)
+{
+	m_pFont->FaceSize(iSize);
 }
 
 int CLabel::GetTextWidth()
@@ -1833,4 +1839,112 @@ void CMenu::CSubmenuPanel::Think()
 	}
 
 	CPanel::Think();
+}
+
+CTree::CTree()
+	: CBaseControl(0, 0, 10, 10)
+{
+}
+
+CTree::~CTree()
+{
+	for (size_t i = 0; i < m_pNodes.size(); i++)
+		delete m_pNodes[i];
+}
+
+void CTree::Paint()
+{
+	int x = 0, y = 0;
+	GetAbsPos(x, y);
+	Paint(x, y);
+}
+
+void CTree::Paint(int x, int y)
+{
+	Paint(x, y, m_iW, m_iH);
+}
+
+void CTree::Paint(int x, int y, int w, int h)
+{
+	m_iCurrentHeight = 0;
+	m_iCurrentDepth = 0;
+
+	for (size_t i = 0; i < m_pNodes.size(); i++)
+	{
+		m_pNodes[i]->Paint(x, y, w, h);
+	}
+}
+
+void CTree::ClearTree()
+{
+	for (size_t i = 0; i < m_pNodes.size(); i++)
+		delete m_pNodes[i];
+
+	m_pNodes.clear();
+}
+
+size_t CTree::AddNode(const std::wstring& sName)
+{
+	m_pNodes.push_back(new CTreeNode(NULL, this, sName));
+	return m_pNodes.size()-1;
+}
+
+CTreeNode* CTree::GetNode(size_t i)
+{
+	return m_pNodes[i];
+}
+
+CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText)
+	: CPanel(0, 0, 10, 10)
+{
+	m_pParent = pParent;
+	m_pTree = pTree;
+
+	m_pLabel = new CLabel(0, 0, GetWidth(), GetHeight(), "");
+	m_pLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pLabel->SetText(sText.c_str());
+	m_pLabel->SetFontFaceSize(11);
+	AddControl(m_pLabel);
+}
+
+CTreeNode::~CTreeNode()
+{
+	for (size_t i = 0; i < m_pNodes.size(); i++)
+		delete m_pNodes[i];
+}
+
+void CTreeNode::Paint(int x, int y, int w, int h)
+{
+	int& iCurrentDepth = m_pTree->m_iCurrentDepth;
+	int& iCurrentHeight = m_pTree->m_iCurrentHeight;
+
+	int iHeight = (int)m_pLabel->GetTextHeight();
+
+	iCurrentHeight += iHeight;
+
+	int iX = x + iCurrentDepth*iHeight;
+	int iY = y - iCurrentHeight + h;
+	int iW = w - iCurrentDepth*iHeight;
+	int iH = iHeight;
+	CBaseControl::PaintRect(iX, iY, iW, iH);
+
+	iCurrentDepth++;
+	for (size_t i = 0; i < m_pNodes.size(); i++)
+	{
+		m_pNodes[i]->Paint(x, y, w, h);
+	}
+	iCurrentDepth--;
+
+	CPanel::Paint(iX+4, iY+4, iW-4, iH);
+}
+
+size_t CTreeNode::AddNode(const std::wstring& sName)
+{
+	m_pNodes.push_back(new CTreeNode(this, m_pTree, sName));
+	return m_pNodes.size()-1;
+}
+
+CTreeNode* CTreeNode::GetNode(size_t i)
+{
+	return m_pNodes[i];
 }

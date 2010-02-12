@@ -18,7 +18,7 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		return;
 	}
 
-	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(pszFilename));
+	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(GetFilename(pszFilename)));
 	// Make sure it exists.
 	CConversionSceneNode* pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pMesh);
 

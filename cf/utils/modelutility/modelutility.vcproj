@@ -235,6 +235,14 @@
 					RelativePath=".\ui\win32\modelwindow_win32.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\ui\scenetree.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\scenetree.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="glew"

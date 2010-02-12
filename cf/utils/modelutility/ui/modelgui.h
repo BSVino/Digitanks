@@ -420,6 +420,8 @@ namespace modelgui
 		virtual void	AppendText(const wchar_t* pszText);
 		virtual const wchar_t*	GetText();
 
+		virtual void	SetFontFaceSize(int iSize);
+
 		virtual int		GetTextWidth();
 		virtual float	GetTextHeight();
 		virtual void	ComputeLines(int w = -1, int h = -1);
@@ -864,6 +866,69 @@ namespace modelgui
 		IEventListener*						m_pSelectedListener;
 	};
 
+	class CTreeNode : public CPanel
+	{
+	public:
+											CTreeNode(CTreeNode* pParent, class CTree* pTree, const std::wstring& sText);
+											~CTreeNode();
+
+	public:
+		void								Paint(int x, int y, int w, int h);
+
+		size_t								AddNode(const std::wstring& sName);
+		template <typename T>
+		size_t								AddNode(const std::wstring& sName, T* pObject)
+		{
+			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
+			// Who the hell knows, it's the magick of templates.
+			m_pNodes.push_back(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
+			return m_pNodes.size()-1;
+		}
+		CTreeNode*							GetNode(size_t i);
+
+	public:
+		std::vector<CTreeNode*>				m_pNodes;
+		CTreeNode*							m_pParent;
+		class CTree*						m_pTree;
+		CLabel*								m_pLabel;
+	};
+
+	class CTree : public CBaseControl
+	{
+	public:
+											CTree();
+											~CTree();
+
+	public:
+		void								Paint();
+		void								Paint(int x, int y);
+		void								Paint(int x, int y, int w, int h);
+
+		void								ClearTree();
+
+		size_t								AddNode(const std::wstring& sName);
+		CTreeNode*							GetNode(size_t i);
+
+	public:
+		std::vector<CTreeNode*>				m_pNodes;
+
+		int									m_iCurrentHeight;
+		int									m_iCurrentDepth;
+	};
+
+	template <typename T>
+	class CTreeNodeObject : public CTreeNode
+	{
+	public:
+		CTreeNodeObject(T* pObject, CTreeNode* pParent, class CTree* pTree, const std::wstring& sName)
+			: CTreeNode(pParent, pTree, sName)
+		{
+			m_pObject = pObject;
+		}
+
+	public:
+		T*									m_pObject;
+	};
 };
 
 #endif
