@@ -1146,11 +1146,13 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 						{
 							CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
 
-							if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) == pFace2) ||
-								(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) == pFace2))
+							for (size_t ef = 0; ef < pEdge->m_aiFaces.size(); ef++)
 							{
-								bFoundAdjacent = true;
-								break;
+								if (pEdge->m_aiFaces[ef] != ~0 && pMesh->GetFace(pEdge->m_aiFaces[ef]) == pFace2)
+								{
+									bFoundAdjacent = true;
+									break;
+								}
 							}
 						}
 
@@ -1182,8 +1184,17 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 					CConversionEdge* pEdge = pMesh->GetEdge(pFace->GetEdge(e));
 					CConversionEdge* pAdjacentEdge = NULL;
 
-					if ((pEdge->f1 != ~0 && pMesh->GetFace(pEdge->f1) != pFace) ||
-						(pEdge->f2 != ~0 && pMesh->GetFace(pEdge->f2) != pFace))
+					bool bAdjacentEdge = false;
+					for (size_t ef = 0; ef < pEdge->m_aiFaces.size(); ef++)
+					{
+						if (pMesh->GetFace(pEdge->m_aiFaces[ef]) == pFace)
+						{
+							bAdjacentEdge = true;
+							break;
+						}
+					}
+
+					if (bAdjacentEdge)
 					{
 						pAdjacentEdge = pEdge;
 
@@ -1209,18 +1220,23 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 					if (pAdjacentEdge)
 					{
-						CConversionFace* pOtherFace;
+						CConversionFace* pOtherFace = NULL;
 
-						// Due to the above logic at least one of these is guaranteed to be valid,
-						// and if only one is valid then it must be the one we want.
-						if (pAdjacentEdge->f1 == ~0 || pMesh->GetFace(pAdjacentEdge->f1) == pFace)
-							pOtherFace = pMesh->GetFace(pAdjacentEdge->f2);
-						else
-							pOtherFace = pMesh->GetFace(pAdjacentEdge->f1);
+						for (size_t ef = 0; ef < pAdjacentEdge->m_aiFaces.size(); ef++)
+						{
+							CConversionFace* pPossibleFace = NULL;
 
-						// If this face is behind us, ignore.
-						if ((pOtherFace->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
-							continue;
+							if (pMesh->GetFace(pAdjacentEdge->m_aiFaces[ef]) == pFace)
+								pPossibleFace = pMesh->GetFace(pAdjacentEdge->m_aiFaces[ef]);
+							else
+								continue;
+
+							// If this face is behind us, ignore.
+							if ((pPossibleFace->GetCenter() - vecUVPosition).Normalized().Dot(vecNormal) <= 0)
+								continue;
+
+							pOtherFace = pPossibleFace;
+						}
 
 						float flDot = pOtherFace->GetNormal().Dot(vecNormal);
 

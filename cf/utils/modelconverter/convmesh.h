@@ -65,7 +65,7 @@ public:
 	size_t							v1, v2;
 	bool							m_bCreased;
 
-	size_t							f1, f2;	// Index into parent's face list
+	std::vector<size_t>				m_aiFaces;	// Index into parent's face list
 };
 
 class CConversionBone

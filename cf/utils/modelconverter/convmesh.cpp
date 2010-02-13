@@ -85,8 +85,10 @@ void CConversionMesh::CalculateEdgeData()
 						// By Jove we found it.
 						iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
 						CConversionEdge* pEdge = GetEdge(iEdge);
-						pEdge->f1 = iFace;
-						pEdge->f2 = aFaces[iFace2];
+						if (std::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
+							pEdge->m_aiFaces.push_back(iFace);
+						if (std::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
+							pEdge->m_aiFaces.push_back(aFaces[iFace2]);
 						AddEdgeToFace(iFace, iEdge);
 						AddEdgeToFace(aFaces[iFace2], iEdge);
 						break;
@@ -112,12 +114,7 @@ void CConversionMesh::CalculateEdgeData()
 			{
 				CConversionEdge* pEdge = GetEdge(pFace->GetEdge(iEdge));
 
-				// There can't be more than two faces per edge. It's inconceivable!
-				assert(pEdge->f1 == ((size_t)~0) || pEdge->f2 == ((size_t)~0));
-				if (pEdge->f1 == ~0)
-					pEdge->f1 = iFace;
-				else
-					pEdge->f2 = iFace;
+				pEdge->m_aiFaces.push_back(iFace);
 			}
 
 			if (m_pScene->m_pWorkListener)
@@ -133,27 +130,13 @@ void CConversionMesh::CalculateEdgeData()
 	{
 		CConversionEdge* pEdge = GetEdge(iEdge);
 
-		if (pEdge->f1 != ((size_t)~0))
+		for (size_t iEdgeFace = 0; iEdgeFace < pEdge->m_aiFaces.size(); iEdgeFace++)
 		{
 			// Find every vertex on this face and mark its vertices as having this edge.
-			CConversionFace* pF1 = GetFace(pEdge->f1);
+			CConversionFace* pF1 = GetFace(pEdge->m_aiFaces[iEdgeFace]);
 			for (size_t iVertex = 0; iVertex < pF1->GetNumVertices(); iVertex++)
 			{
 				CConversionVertex* pVertex = pF1->GetVertex(iVertex);
-				if (pVertex->v == pEdge->v1)
-					pVertex->m_aEdges.push_back(iEdge);
-				else if (pVertex->v == pEdge->v2)
-					pVertex->m_aEdges.push_back(iEdge);
-			}
-		}
-
-		if (pEdge->f2 != ((size_t)~0))
-		{
-			// Find every vertex on this face and mark its vertices as having this edge.
-			CConversionFace* pF2 = GetFace(pEdge->f2);
-			for (size_t iVertex = 0; iVertex < pF2->GetNumVertices(); iVertex++)
-			{
-				CConversionVertex* pVertex = pF2->GetVertex(iVertex);
 				if (pVertex->v == pEdge->v1)
 					pVertex->m_aEdges.push_back(iEdge);
 				else if (pVertex->v == pEdge->v2)
@@ -683,23 +666,13 @@ void CConversionFace::FindAdjacentFacesInternal(std::vector<size_t>& aResult, si
 		if (iVert != ((size_t)~0) && !pEdge->HasVertex(iVert))
 			continue;
 
-		if (pEdge->f1 != ((size_t)~0))
+		for (size_t iEdgeFace = 0; iEdgeFace < pEdge->m_aiFaces.size(); iEdgeFace++)
 		{
-			std::vector<size_t>::iterator it = find(aResult.begin(), aResult.end(), pEdge->f1);
+			std::vector<size_t>::iterator it = find(aResult.begin(), aResult.end(), pEdge->m_aiFaces[iEdgeFace]);
 			if (it == aResult.end())
 			{
-				aResult.push_back(pEdge->f1);
-				m_pScene->GetMesh(m_iMesh)->GetFace(pEdge->f1)->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
-			}
-		}
-
-		if (pEdge->f2 != ((size_t)~0))
-		{
-			std::vector<size_t>::iterator it = find(aResult.begin(), aResult.end(), pEdge->f2);
-			if (it == aResult.end())
-			{
-				aResult.push_back(pEdge->f2);
-				m_pScene->GetMesh(m_iMesh)->GetFace(pEdge->f2)->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
+				aResult.push_back(pEdge->m_aiFaces[iEdgeFace]);
+				m_pScene->GetMesh(m_iMesh)->GetFace(pEdge->m_aiFaces[iEdgeFace])->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 			}
 		}
 	}
@@ -807,9 +780,6 @@ CConversionEdge::CConversionEdge(size_t V1, size_t V2, bool bCreased)
 	v1 = V1;
 	v2 = V2;
 	m_bCreased = bCreased;
-
-	f1 = ~0;
-	f2 = ~0;
 }
 
 bool CConversionEdge::HasVertex(size_t i)
