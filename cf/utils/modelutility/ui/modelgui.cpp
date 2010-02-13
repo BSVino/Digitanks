@@ -304,7 +304,7 @@ void CPanel::AddControl(IControl* pControl, bool bToTail)
 	if (bToTail)
 		m_apControls.push_back(pControl);
 	else
-		m_apControls.push_back(pControl);
+		m_apControls.insert(m_apControls.begin(), pControl);
 }
 
 void CPanel::RemoveControl(IControl* pControl)
@@ -1799,7 +1799,7 @@ void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventLi
 	if (pListener)
 		pMenu->SetMenuListener(pListener, pfnCallback);
 
-	m_pMenu->AddControl(pMenu);
+	m_pMenu->AddControl(pMenu, true);
 }
 
 CMenu::CSubmenuPanel::CSubmenuPanel()
