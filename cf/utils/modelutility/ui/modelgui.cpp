@@ -1278,7 +1278,7 @@ CRootPanel::CRootPanel() :
 	m_pPopup = NULL;
 
 	m_pMenuBar = new CMenuBar();
-	AddControl(m_pMenuBar);
+	AddControl(m_pMenuBar, true);
 
 	m_flFrameTime = 0;
 }
@@ -1574,7 +1574,7 @@ CMenu* CRootPanel::AddMenu(const char* pszTitle)
 
 	CMenu* pMenu = new CMenu(pszTitle);
 	pMenu->SetWrap(false);
-	m_pMenuBar->AddControl(pMenu);
+	m_pMenuBar->AddControl(pMenu, true);
 
 	return pMenu;
 }
@@ -1634,7 +1634,7 @@ CMenu::CMenu(const char* pszTitle, bool bSubmenu)
 	m_pMenuListener = NULL;
 
 	m_pMenu = new CSubmenuPanel();
-	CRootPanel::Get()->AddControl(m_pMenu);
+	CRootPanel::Get()->AddControl(m_pMenu, true);
 
 	m_pMenu->SetVisible(false);
 }
