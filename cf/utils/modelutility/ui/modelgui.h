@@ -870,9 +870,11 @@ namespace modelgui
 	{
 	public:
 											CTreeNode(CTreeNode* pParent, class CTree* pTree, const std::wstring& sText);
-											~CTreeNode();
 
 	public:
+		virtual void						Destructor();
+		virtual void						Delete() { delete this; };
+
 		void								LayoutNode();
 		void								Paint() { CPanel::Paint(); };
 		void								Paint(int x, int y, int w, int h);
@@ -927,9 +929,11 @@ namespace modelgui
 	{
 	public:
 											CTree(size_t iArrowTexture);
-											~CTree();
 
 	public:
+		virtual void						Destructor();
+		virtual void						Delete() { delete this; };
+
 		void								Layout();
 		void								Paint();
 		void								Paint(int x, int y);

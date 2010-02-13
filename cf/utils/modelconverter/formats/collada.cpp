@@ -242,7 +242,7 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 		{
 			FCDSceneNode* pNode = pVisualScenes->GetEntity(i);
 
-			size_t iScene = m_pScene->AddScene();
+			size_t iScene = m_pScene->AddScene(pNode->GetName().c_str());
 			ReadDAESceneTree(pNode, m_pScene->GetScene(iScene));
 		}
 	}
@@ -317,7 +317,7 @@ void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode
 	for (size_t j = 0; j < iChildren; j++)
 	{
 		FCDSceneNode* pChildNode = pNode->GetChild(j);
-		size_t iNode = pScene->AddChild();
+		size_t iNode = pScene->AddChild(pChildNode->GetName().c_str());
 		ReadDAESceneTree(pChildNode, pScene->GetChild(iNode));
 	}
 }

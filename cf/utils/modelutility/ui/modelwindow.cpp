@@ -176,6 +176,8 @@ void CModelWindow::DestroyAll()
 	m_aiObjects.clear();
 	m_iObjectsCreated = 0;
 	m_aoMaterials.clear();
+
+	CRootPanel::Get()->Layout();
 }
 
 void CModelWindow::ReadFile(const wchar_t* pszFile)
@@ -198,7 +200,10 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 	c.SetWorkListener(this);
 
 	if (!c.ReadModel(sFile.c_str()))
+	{
+		m_bLoadingFile = false;
 		return;
+	}
 
 	wcscpy(m_szFileLoaded, sFile.c_str());
 

@@ -342,16 +342,16 @@ size_t CConversionScene::FindMesh(CConversionMesh* pMesh)
 	return ((size_t)~0);
 }
 
-size_t CConversionScene::AddScene()
+size_t CConversionScene::AddScene(const std::wstring& sName)
 {
-	m_aScenes.push_back(CConversionSceneNode(this, NULL));
+	m_aScenes.push_back(CConversionSceneNode(sName, this, NULL));
 	return m_aScenes.size()-1;
 }
 
 CConversionSceneNode* CConversionScene::GetDefaultScene()
 {
 	if (m_aScenes.size() == 0)
-		m_aScenes.push_back(CConversionSceneNode(this, NULL));
+		m_aScenes.push_back(CConversionSceneNode(L"Default scene", this, NULL));
 
 	return &m_aScenes[0];
 }
@@ -369,7 +369,7 @@ CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionM
 	}
 
 	// Put it in its own child node so that it can be moved around on its own.
-	size_t iChild = pScene->AddChild();
+	size_t iChild = pScene->AddChild(L"Default mesh");
 	pScene->GetChild(iChild)->AddMeshInstance(FindMesh(pMesh));
 
 	return pScene->GetChild(iChild);
@@ -386,8 +386,9 @@ size_t CConversionScene::AddDefaultSceneMaterial(CConversionMesh* pMesh, const s
 	return iMaterialStub;
 }
 
-CConversionSceneNode::CConversionSceneNode(CConversionScene* pScene, CConversionSceneNode* pParent)
+CConversionSceneNode::CConversionSceneNode(const std::wstring& sName, CConversionScene* pScene, CConversionSceneNode* pParent)
 {
+	m_sName = sName;
 	m_pScene = pScene;
 	m_pParent = pParent;
 }
@@ -485,9 +486,9 @@ bool CConversionSceneNode::IsEmpty()
 	return true;
 }
 
-size_t CConversionSceneNode::AddChild()
+size_t CConversionSceneNode::AddChild(const std::wstring& sName)
 {
-	m_apChildren.push_back(new CConversionSceneNode(m_pScene, this));
+	m_apChildren.push_back(new CConversionSceneNode(sName, m_pScene, this));
 	return m_apChildren.size()-1;
 }
 

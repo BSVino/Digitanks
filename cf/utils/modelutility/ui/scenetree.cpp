@@ -57,7 +57,7 @@ void CSceneTreePanel::AddAllToTree()
 
 void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionSceneNode* pSceneNode)
 {
-	size_t iNode = pTreeNode->AddNode<CConversionSceneNode>(L"(Node)", pSceneNode);
+	size_t iNode = pTreeNode->AddNode<CConversionSceneNode>(pSceneNode->GetName(), pSceneNode);
 	for (size_t i = 0; i < pSceneNode->GetNumChildren(); i++)
 		AddNodeToTree(pTreeNode->GetNode(iNode), pSceneNode->GetChild(i));
 

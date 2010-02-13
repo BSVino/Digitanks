@@ -1847,9 +1847,10 @@ CTree::CTree(size_t iArrowTexture)
 	m_iArrowTexture = iArrowTexture;
 }
 
-CTree::~CTree()
+void CTree::Destructor()
 {
-	// ~CPanel does this since they are controls.
+	CPanel::Destructor();
+	// CPanel destructor does this since they are controls.
 //	for (size_t i = 0; i < m_apNodes.size(); i++)
 //		delete m_apNodes[i];
 }
@@ -1888,7 +1889,8 @@ void CTree::ClearTree()
 	{
 		IControl* pNode = m_apControls[0];
 		RemoveControl(pNode);
-		delete pNode;
+		pNode->Destructor();
+		pNode->Delete();
 	}
 
 	m_apNodes.clear();
@@ -1925,8 +1927,9 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText
 	AddControl(m_pExpandButton);
 }
 
-CTreeNode::~CTreeNode()
+void CTreeNode::Destructor()
 {
+	CPanel::Destructor();
 	// They are controls of CTree so it will deallocate them.
 //	for (size_t i = 0; i < m_apNodes.size(); i++)
 //		delete m_apNodes[i];

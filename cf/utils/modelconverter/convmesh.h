@@ -213,7 +213,7 @@ public:
 class CConversionSceneNode
 {
 public:
-										CConversionSceneNode(CConversionScene* pScene, CConversionSceneNode* pParent);
+										CConversionSceneNode(const std::wstring& sName, CConversionScene* pScene, CConversionSceneNode* pParent);
 										~CConversionSceneNode();
 
 public:
@@ -223,7 +223,7 @@ public:
 
 	bool								IsEmpty();
 
-	size_t								AddChild();
+	size_t								AddChild(const std::wstring& sName);
 	size_t								GetNumChildren() { return m_apChildren.size(); };
 	CConversionSceneNode*				GetChild(size_t i) { return m_apChildren[i]; };
 
@@ -232,6 +232,10 @@ public:
 	size_t								FindMeshInstance(CConversionMesh* pMesh);
 	CConversionMeshInstance*			GetMeshInstance(size_t i) { return &m_aMeshInstances[i]; };
 
+	std::wstring						GetName() { return m_sName; }
+
+public:
+	std::wstring						m_sName;
 	CConversionScene*					m_pScene;
 	CConversionSceneNode*				m_pParent;
 
@@ -266,7 +270,7 @@ public:
 	size_t								FindMesh(const std::wstring& sName);
 	size_t								FindMesh(CConversionMesh* pMesh);
 
-	size_t								AddScene();
+	size_t								AddScene(const std::wstring& sName);
 	size_t								GetNumScenes() { return m_aScenes.size(); };
 	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_aScenes.size()) return NULL; return &m_aScenes[i]; };
 
