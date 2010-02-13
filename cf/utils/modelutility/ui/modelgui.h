@@ -893,6 +893,8 @@ namespace modelgui
 		bool								IsExpanded() { return m_pExpandButton->IsExpanded(); };
 		void								SetExpanded(bool bExpanded) { m_pExpandButton->SetExpanded(bExpanded); };
 
+		void								SetIcon(size_t iTexture) { m_iIconTexture = iTexture; };
+
 		virtual bool						IsVisible();
 
 		EVENT_CALLBACK(CTreeNode, Expand);
@@ -902,6 +904,8 @@ namespace modelgui
 		CTreeNode*							m_pParent;
 		class CTree*						m_pTree;
 		CLabel*								m_pLabel;
+
+		size_t								m_iIconTexture;
 
 		class CExpandButton : public CPictureButton
 		{

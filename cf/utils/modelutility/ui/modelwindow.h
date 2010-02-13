@@ -144,6 +144,9 @@ public:
 	int						GetWindowHeight() { return (int)m_iWindowHeight; };
 
 	size_t					GetArrowTexture() { return m_iArrowTexture; };
+	size_t					GetMaterialsNodeTexture() { return m_iTextureTexture; };
+	size_t					GetMeshesNodeTexture() { return m_iWireframeTexture; };
+	size_t					GetScenesNodeTexture() { return m_iAOTexture; };
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
 

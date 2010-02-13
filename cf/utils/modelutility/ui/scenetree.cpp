@@ -39,20 +39,26 @@ void CSceneTreePanel::Paint(int x, int y, int w, int h)
 void CSceneTreePanel::AddAllToTree()
 {
 	size_t iMaterialsNode = m_pTree->AddNode(L"Materials");
+	CTreeNode* pMaterialsNode = m_pTree->GetNode(iMaterialsNode);
+	pMaterialsNode->SetIcon(CModelWindow::Get()->GetMaterialsNodeTexture());
 
 	size_t i;
 	for (i = 0; i < m_pScene->GetNumMaterials(); i++)
-		m_pTree->GetNode(iMaterialsNode)->AddNode<CConversionMaterial>(m_pScene->GetMaterial(i)->GetName(), m_pScene->GetMaterial(i));
+		pMaterialsNode->AddNode<CConversionMaterial>(m_pScene->GetMaterial(i)->GetName(), m_pScene->GetMaterial(i));
 
 	size_t iMeshesNode = m_pTree->AddNode(L"Meshes");
+	CTreeNode* pMeshesNode = m_pTree->GetNode(iMeshesNode);
+	pMeshesNode->SetIcon(CModelWindow::Get()->GetMeshesNodeTexture());
 
 	for (i = 0; i < m_pScene->GetNumMeshes(); i++)
-		m_pTree->GetNode(iMeshesNode)->AddNode<CConversionMesh>(m_pScene->GetMesh(i)->GetName(), m_pScene->GetMesh(i));
+		pMeshesNode->AddNode<CConversionMesh>(m_pScene->GetMesh(i)->GetName(), m_pScene->GetMesh(i));
 
 	size_t iScenesNode = m_pTree->AddNode(L"Scenes");
+	CTreeNode* pScenesNode = m_pTree->GetNode(iScenesNode);
+	pScenesNode->SetIcon(CModelWindow::Get()->GetScenesNodeTexture());
 
 	for (i = 0; i < m_pScene->GetNumScenes(); i++)
-		AddNodeToTree(m_pTree->GetNode(iScenesNode), m_pScene->GetScene(i));
+		AddNodeToTree(pScenesNode, m_pScene->GetScene(i));
 }
 
 void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionSceneNode* pSceneNode)

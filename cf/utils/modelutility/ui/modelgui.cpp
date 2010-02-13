@@ -1925,6 +1925,8 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText
 	m_pExpandButton->SetExpanded(false);
 	m_pExpandButton->SetClickedListener(this, Expand);
 	AddControl(m_pExpandButton);
+
+	m_iIconTexture = 0;
 }
 
 void CTreeNode::Destructor()
@@ -1972,9 +1974,38 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 	if (m_pTree->m_iArrowTexture && m_apNodes.size())
 		m_pExpandButton->Paint();
 
-	CBaseControl::PaintRect(x+15, y, w-25, h);
+//	CBaseControl::PaintRect(x+15, y, w-25, h);
 
-	m_pLabel->Paint(x+4+h, y, w-4-h, h);
+	int iIconSize = 0;
+	if (m_iIconTexture)
+	{
+		iIconSize = 12;
+
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iIconTexture);
+		glColor4f(1,1,1,1);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0, 0);
+			glVertex2d(x+12, y);
+			glTexCoord2f(1, 0);
+			glVertex2d(x+12+iIconSize, y);
+			glTexCoord2f(1, 1);
+			glVertex2d(x+12+iIconSize, y+iIconSize);
+			glTexCoord2f(0, 1);
+			glVertex2d(x+12, y+iIconSize);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_LIGHTING);
+		glDisable(GL_BLEND);
+	}
+
+	m_pLabel->Paint(x+h+iIconSize, y, w-h-iIconSize, h);
 }
 
 size_t CTreeNode::AddNode(const std::wstring& sName)
