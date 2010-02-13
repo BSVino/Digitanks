@@ -1841,17 +1841,30 @@ void CMenu::CSubmenuPanel::Think()
 	CPanel::Think();
 }
 
-CTree::CTree()
-	: CBaseControl(0, 0, 10, 10)
+CTree::CTree(size_t iArrowTexture)
+	: CPanel(0, 0, 10, 10)
 {
+	m_iArrowTexture = iArrowTexture;
 }
 
 CTree::~CTree()
 {
-	for (size_t i = 0; i < m_pNodes.size(); i++)
-		delete m_pNodes[i];
+	// ~CPanel does this since they are controls.
+//	for (size_t i = 0; i < m_apNodes.size(); i++)
+//		delete m_apNodes[i];
 }
 
+void CTree::Layout()
+{
+	m_iCurrentHeight = 0;
+	m_iCurrentDepth = 0;
+
+	for (size_t i = 0; i < m_apNodes.size(); i++)
+		m_apNodes[i]->LayoutNode();
+
+	CPanel::Layout();
+}
+	
 void CTree::Paint()
 {
 	int x = 0, y = 0;
@@ -1866,32 +1879,32 @@ void CTree::Paint(int x, int y)
 
 void CTree::Paint(int x, int y, int w, int h)
 {
-	m_iCurrentHeight = 0;
-	m_iCurrentDepth = 0;
-
-	for (size_t i = 0; i < m_pNodes.size(); i++)
-	{
-		m_pNodes[i]->Paint(x, y, w, h);
-	}
+	CPanel::Paint(x, y, w, h);
 }
 
 void CTree::ClearTree()
 {
-	for (size_t i = 0; i < m_pNodes.size(); i++)
-		delete m_pNodes[i];
+	while (m_apControls.size())
+	{
+		IControl* pNode = m_apControls[0];
+		RemoveControl(pNode);
+		delete pNode;
+	}
 
-	m_pNodes.clear();
+	m_apNodes.clear();
 }
 
 size_t CTree::AddNode(const std::wstring& sName)
 {
-	m_pNodes.push_back(new CTreeNode(NULL, this, sName));
-	return m_pNodes.size()-1;
+	CTreeNode* pNew = new CTreeNode(NULL, this, sName);
+	m_apNodes.push_back(pNew);
+	AddControl(pNew);
+	return m_apNodes.size()-1;
 }
 
 CTreeNode* CTree::GetNode(size_t i)
 {
-	return m_pNodes[i];
+	return m_apNodes[i];
 }
 
 CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText)
@@ -1905,15 +1918,21 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText
 	m_pLabel->SetText(sText.c_str());
 	m_pLabel->SetFontFaceSize(11);
 	AddControl(m_pLabel);
+
+	m_pExpandButton = new CExpandButton(m_pTree->m_iArrowTexture);
+	m_pExpandButton->SetExpanded(false);
+	m_pExpandButton->SetClickedListener(this, Expand);
+	AddControl(m_pExpandButton);
 }
 
 CTreeNode::~CTreeNode()
 {
-	for (size_t i = 0; i < m_pNodes.size(); i++)
-		delete m_pNodes[i];
+	// They are controls of CTree so it will deallocate them.
+//	for (size_t i = 0; i < m_apNodes.size(); i++)
+//		delete m_apNodes[i];
 }
 
-void CTreeNode::Paint(int x, int y, int w, int h)
+void CTreeNode::LayoutNode()
 {
 	int& iCurrentDepth = m_pTree->m_iCurrentDepth;
 	int& iCurrentHeight = m_pTree->m_iCurrentHeight;
@@ -1922,29 +1941,133 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 
 	iCurrentHeight += iHeight;
 
-	int iX = x + iCurrentDepth*iHeight;
-	int iY = y - iCurrentHeight + h;
-	int iW = w - iCurrentDepth*iHeight;
+	int iX = iCurrentDepth*iHeight;
+	int iY = m_pTree->GetHeight() - iCurrentHeight;
+	int iW = m_pTree->GetWidth() - iCurrentDepth*iHeight;
 	int iH = iHeight;
-	CBaseControl::PaintRect(iX, iY, iW, iH);
 
-	iCurrentDepth++;
-	for (size_t i = 0; i < m_pNodes.size(); i++)
+	SetPos(iX, iY);
+	SetSize(iW, iH);
+
+	m_pExpandButton->SetPos(0, 0);
+	m_pExpandButton->SetSize(iHeight, iHeight);
+
+	if (IsExpanded())
 	{
-		m_pNodes[i]->Paint(x, y, w, h);
+		iCurrentDepth++;
+		for (size_t i = 0; i < m_apNodes.size(); i++)
+			m_apNodes[i]->LayoutNode();
+		iCurrentDepth--;
 	}
-	iCurrentDepth--;
+}
 
-	CPanel::Paint(iX+4, iY+4, iW-4, iH);
+void CTreeNode::Paint(int x, int y, int w, int h)
+{
+	if (!IsVisible())
+		return;
+
+	if (m_pTree->m_iArrowTexture && m_apNodes.size())
+		m_pExpandButton->Paint();
+
+	CBaseControl::PaintRect(x+15, y, w-25, h);
+
+	m_pLabel->Paint(x+4+h, y, w-4-h, h);
 }
 
 size_t CTreeNode::AddNode(const std::wstring& sName)
 {
-	m_pNodes.push_back(new CTreeNode(this, m_pTree, sName));
-	return m_pNodes.size()-1;
+	return AddNode(new CTreeNode(this, m_pTree, sName));
+}
+
+size_t CTreeNode::AddNode(CTreeNode* pNode)
+{
+	if (!m_apNodes.size())
+		SetExpanded(true);
+	m_apNodes.push_back(pNode);
+	m_pTree->AddControl(pNode);
+	return m_apNodes.size()-1;
 }
 
 CTreeNode* CTreeNode::GetNode(size_t i)
 {
-	return m_pNodes[i];
+	return m_apNodes[i];
+}
+
+bool CTreeNode::IsVisible()
+{
+	if (!CPanel::IsVisible())
+		return false;
+
+	if (!m_pParent)
+		return true;
+
+	CTreeNode* pNode = m_pParent;
+	do
+	{
+		if (!pNode->IsExpanded())
+			return false;
+	}
+	while (pNode = pNode->m_pParent);
+
+	return true;
+}
+
+void CTreeNode::ExpandCallback()
+{
+	SetExpanded(!IsExpanded());
+	m_pTree->Layout();
+}
+
+CTreeNode::CExpandButton::CExpandButton(size_t iTexture)
+	: CPictureButton("*", iTexture, false)
+{
+	m_bExpanded = false;
+	m_flExpandedGoal = m_flExpandedCurrent = 0;
+}
+
+void CTreeNode::CExpandButton::Think()
+{
+	m_flExpandedCurrent = Approach(m_flExpandedGoal, m_flExpandedCurrent, CRootPanel::Get()->GetFrameTime()*10);
+}
+
+void CTreeNode::CExpandButton::Paint(int x, int y, int w, int h)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+
+	glPushMatrix();
+
+	glTranslatef((float)x+w/2, (float)y+h/2, 0);
+	glRotatef(m_flExpandedCurrent*90, 0, 0, 1);
+
+	// Hehe.
+	// glRotatef((float)(glutGet(GLUT_ELAPSED_TIME)%3600)/5, 0, 0, 1);
+
+	glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
+	glColor4f(1,1,1,1);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2d(-w/2, -h/2);
+		glTexCoord2f(1, 0);
+		glVertex2d(w/2, -h/2);
+		glTexCoord2f(1, 1);
+		glVertex2d(w/2, h/2);
+		glTexCoord2f(0, 1);
+		glVertex2d(-w/2, h/2);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+}
+
+void CTreeNode::CExpandButton::SetExpanded(bool bExpanded)
+{
+	m_bExpanded = bExpanded;
+	m_flExpandedGoal = m_bExpanded?1.0f:0.0f;
 }

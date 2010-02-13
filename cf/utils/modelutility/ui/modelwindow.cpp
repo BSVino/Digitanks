@@ -92,6 +92,7 @@ CModelWindow::CModelWindow()
 	m_iTextureTexture = LoadTextureIntoGL(L"texture.png");
 	m_iAOTexture = LoadTextureIntoGL(L"ao.png");
 	m_iCAOTexture = LoadTextureIntoGL(L"aocolor.png");
+	m_iArrowTexture = LoadTextureIntoGL(L"arrow.png");
 
 	InitUI();
 

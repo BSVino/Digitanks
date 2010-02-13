@@ -8,7 +8,7 @@ CSceneTreePanel::CSceneTreePanel(CConversionScene* pScene)
 	: CMovablePanel("Scene Tree")
 {
 	m_pScene = pScene;
-	m_pTree = new CTree();
+	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture());
 	AddControl(m_pTree);
 }
 
@@ -21,14 +21,14 @@ void CSceneTreePanel::Layout()
 {
 	SetPos(50, GetParent()->GetHeight() - GetHeight() - 100);
 
-	m_pTree->SetPos(10, 10);
-	m_pTree->SetSize(GetWidth() - 20, GetHeight() - HEADER_HEIGHT - 20);
-
-	CMovablePanel::Layout();
+	m_pTree->SetPos(5, 10);
+	m_pTree->SetSize(GetWidth() - 5, GetHeight() - HEADER_HEIGHT - 20);
 
 	m_pTree->ClearTree();
 
 	AddAllToTree();
+
+	CMovablePanel::Layout();
 }
 
 void CSceneTreePanel::Paint(int x, int y, int w, int h)

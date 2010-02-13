@@ -143,6 +143,8 @@ public:
 	int						GetWindowWidth() { return (int)m_iWindowWidth; };
 	int						GetWindowHeight() { return (int)m_iWindowHeight; };
 
+	size_t					GetArrowTexture() { return m_iArrowTexture; };
+
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
 	void					ClearDebugLines();
@@ -174,6 +176,7 @@ protected:
 	size_t					m_iTextureTexture;
 	size_t					m_iAOTexture;
 	size_t					m_iCAOTexture;
+	size_t					m_iArrowTexture;
 
 	float					m_flCameraDistance;
 

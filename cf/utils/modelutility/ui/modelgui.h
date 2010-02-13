@@ -866,13 +866,15 @@ namespace modelgui
 		IEventListener*						m_pSelectedListener;
 	};
 
-	class CTreeNode : public CPanel
+	class CTreeNode : public CPanel, modelgui::IEventListener
 	{
 	public:
 											CTreeNode(CTreeNode* pParent, class CTree* pTree, const std::wstring& sText);
 											~CTreeNode();
 
 	public:
+		void								LayoutNode();
+		void								Paint() { CPanel::Paint(); };
 		void								Paint(int x, int y, int w, int h);
 
 		size_t								AddNode(const std::wstring& sName);
@@ -881,25 +883,54 @@ namespace modelgui
 		{
 			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
 			// Who the hell knows, it's the magick of templates.
-			m_pNodes.push_back(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
-			return m_pNodes.size()-1;
+			return AddNode(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
 		}
+		size_t								AddNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
 
+		bool								IsExpanded() { return m_pExpandButton->IsExpanded(); };
+		void								SetExpanded(bool bExpanded) { m_pExpandButton->SetExpanded(bExpanded); };
+
+		virtual bool						IsVisible();
+
+		EVENT_CALLBACK(CTreeNode, Expand);
+
 	public:
-		std::vector<CTreeNode*>				m_pNodes;
+		std::vector<CTreeNode*>				m_apNodes;
 		CTreeNode*							m_pParent;
 		class CTree*						m_pTree;
 		CLabel*								m_pLabel;
+
+		class CExpandButton : public CPictureButton
+		{
+		public:
+											CExpandButton(size_t iTexture);
+
+		public:
+			void							Think();
+			void							Paint() { CButton::Paint(); };
+			void							Paint(int x, int y, int w, int h);
+
+			bool							IsExpanded() { return m_bExpanded; };
+			void							SetExpanded(bool bExpanded);
+
+		public:
+			bool							m_bExpanded;
+			float							m_flExpandedCurrent;
+			float							m_flExpandedGoal;
+		};
+
+		CExpandButton*						m_pExpandButton;
 	};
 
-	class CTree : public CBaseControl
+	class CTree : public CPanel
 	{
 	public:
-											CTree();
+											CTree(size_t iArrowTexture);
 											~CTree();
 
 	public:
+		void								Layout();
 		void								Paint();
 		void								Paint(int x, int y);
 		void								Paint(int x, int y, int w, int h);
@@ -910,10 +941,12 @@ namespace modelgui
 		CTreeNode*							GetNode(size_t i);
 
 	public:
-		std::vector<CTreeNode*>				m_pNodes;
+		std::vector<CTreeNode*>				m_apNodes;
 
 		int									m_iCurrentHeight;
 		int									m_iCurrentDepth;
+
+		size_t								m_iArrowTexture;
 	};
 
 	template <typename T>
