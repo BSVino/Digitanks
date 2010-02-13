@@ -70,12 +70,15 @@ void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionS
 	for (size_t m = 0; m < pSceneNode->GetNumMeshInstances(); m++)
 	{
 		size_t iMeshInstanceNode = pTreeNode->GetNode(iNode)->AddNode<CConversionMeshInstance>(pSceneNode->GetMeshInstance(m)->GetMesh()->GetName(), pSceneNode->GetMeshInstance(m));
+		CTreeNode* pMeshInstanceNode = pTreeNode->GetNode(iNode)->GetNode(iMeshInstanceNode);
+		pMeshInstanceNode->SetIcon(CModelWindow::Get()->GetMeshesNodeTexture());
+
 		for (size_t s = 0; s < pSceneNode->GetMeshInstance(m)->GetMesh()->GetNumMaterialStubs(); s++)
 		{
 			size_t iMaterial = pSceneNode->GetMeshInstance(m)->GetMappedMaterial(s);
 			if (!m_pScene->GetMaterial(iMaterial))
 				continue;
-			pTreeNode->GetNode(iNode)->GetNode(iMeshInstanceNode)->AddNode(m_pScene->GetMaterial(iMaterial)->GetName());
+			pMeshInstanceNode->AddNode(m_pScene->GetMaterial(iMaterial)->GetName());
 		}
 	}
 }

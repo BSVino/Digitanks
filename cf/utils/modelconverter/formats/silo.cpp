@@ -274,9 +274,13 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 			size_t iNewMaterial = _wtoi(pszMaterial);
 
 			CConversionMaterial* pMaterial = m_pScene->GetMaterial(iNewMaterial);
-			if (!pMaterial)
-				pMaterial = m_pScene->GetMaterial(m_pScene->AddMaterial(pMesh->GetName()));
-			iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, pMaterial->GetName());
+			iCurrentMaterial = pMesh->FindMaterialStub(pMaterial->GetName());
+			if (iCurrentMaterial == (size_t)~0)
+			{
+				size_t iMaterialStub = pMesh->AddMaterialStub(pMaterial->GetName());
+				m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iNewMaterial);
+				iCurrentMaterial = iNewMaterial;
+			}
 		}
 		else if (wcscmp(pszToken, L"-face") == 0)
 		{

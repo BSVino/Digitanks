@@ -2074,7 +2074,7 @@ void CTreeNode::CExpandButton::Paint(int x, int y, int w, int h)
 	glPushMatrix();
 
 	glTranslatef((float)x+w/2, (float)y+h/2, 0);
-	glRotatef(m_flExpandedCurrent*90, 0, 0, 1);
+	glRotatef((1-m_flExpandedCurrent)*90, 0, 0, 1);
 
 	// Hehe.
 	// glRotatef((float)(glutGet(GLUT_ELAPSED_TIME)%3600)/5, 0, 0, 1);
