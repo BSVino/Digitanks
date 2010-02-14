@@ -629,6 +629,16 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		AddControl(m_pRayDensityLabel);
 
 		m_pRayDensitySelector = new CScrollSelector<int>();
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(5, L"5"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(6, L"6"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(7, L"7"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(8, L"8"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(9, L"9"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(10, L"10"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(11, L"11"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(12, L"12"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(13, L"13"));
+		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(14, L"14"));
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(15, L"15"));
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(16, L"16"));
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(17, L"17"));
@@ -640,6 +650,7 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(23, L"23"));
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(24, L"24"));
 		m_pRayDensitySelector->AddSelection(CScrollSelection<int>(25, L"25"));
+		m_pRayDensitySelector->SetSelection(15);
 		AddControl(m_pRayDensitySelector);
 
 		m_pLightsLabel = new CLabel(0, 0, 32, 32, "Lights");
