@@ -9,6 +9,8 @@ CConversionMesh::CConversionMesh(class CConversionScene* pScene, const std::wstr
 {
 	m_pScene = pScene;
 	m_sName = sName;
+
+	m_bVisible = true;
 }
 
 void CConversionMesh::Clear()
@@ -364,7 +366,7 @@ size_t CConversionScene::AddDefaultSceneMaterial(CConversionMesh* pMesh, const s
 
 	size_t iMaterialStub = pMesh->AddMaterialStub(sName);
 	size_t iMaterial = AddMaterial(sName);
-	pMeshInstance->m_aiMaterialsMap.insert(std::pair<size_t, size_t>(iMaterialStub, iMaterial));
+	pMeshInstance->m_aiMaterialsMap.insert(std::pair<size_t, CConversionMaterialMap>(iMaterialStub, CConversionMaterialMap(iMaterialStub, iMaterial)));
 
 	return iMaterialStub;
 }
@@ -374,6 +376,8 @@ CConversionSceneNode::CConversionSceneNode(const std::wstring& sName, CConversio
 	m_sName = sName;
 	m_pScene = pScene;
 	m_pParent = pParent;
+
+	m_bVisible = true;
 }
 
 CConversionSceneNode::~CConversionSceneNode()
@@ -498,6 +502,8 @@ CConversionMeshInstance::CConversionMeshInstance(CConversionScene* pScene, CConv
 	m_pScene = pScene;
 	m_pParent = pParent;
 	m_iMesh = iMesh;
+
+	m_bVisible = true;
 }
 
 CConversionMesh* CConversionMeshInstance::GetMesh()
@@ -507,15 +513,15 @@ CConversionMesh* CConversionMeshInstance::GetMesh()
 
 void CConversionMeshInstance::AddMappedMaterial(size_t s, size_t m)
 {
-	m_aiMaterialsMap.insert(std::pair<size_t, size_t>(s, m));
+	m_aiMaterialsMap.insert(std::pair<size_t, CConversionMaterialMap>(s, CConversionMaterialMap(s, m)));
 }
 
-size_t CConversionMeshInstance::GetMappedMaterial(size_t m)
+CConversionMaterialMap* CConversionMeshInstance::GetMappedMaterial(size_t m)
 {
 	if (m_aiMaterialsMap.find(m) == m_aiMaterialsMap.end())
-		return ~0;
+		return NULL;
 
-	return m_aiMaterialsMap[m];
+	return &m_aiMaterialsMap[m];
 }
 
 Vector CConversionMeshInstance::GetVertex(size_t i)
@@ -528,6 +534,22 @@ Vector CConversionMeshInstance::GetNormal(size_t i)
 	Matrix4x4 mTransformations = m_pParent->GetRootTransformations();
 	mTransformations.SetTranslation(Vector(0,0,0));
 	return (mTransformations*GetMesh()->GetNormal(i)).Normalized();
+}
+
+CConversionMaterialMap::CConversionMaterialMap()
+{
+	m_iStub = 0;
+	m_iMaterial = 0;
+
+	m_bVisible = true;
+}
+
+CConversionMaterialMap::CConversionMaterialMap(size_t iStub, size_t iMaterial)
+{
+	m_iStub = iStub;
+	m_iMaterial = iMaterial;
+
+	m_bVisible = true;
 }
 
 size_t CConversionMesh::AddVertex(float x, float y, float z)
@@ -766,6 +788,8 @@ CConversionMaterial::CConversionMaterial(const std::wstring& sName, Vector vecAm
 	m_flTransparency = flTransparency;
 	m_flShininess = flShininess;
 	m_eIllumType = ILLUM_FULL;
+
+	m_bVisible = true;
 }
 
 CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, size_t M)

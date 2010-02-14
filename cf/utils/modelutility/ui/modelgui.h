@@ -169,8 +169,8 @@ namespace modelgui
 
 		virtual void	LoadTextures() {};
 
-		virtual void	Paint() {};
-		virtual void	Paint(int x, int y) {};
+		virtual void	Paint();
+		virtual void	Paint(int x, int y);
 		virtual void	Paint(int x, int y, int w, int h) {};
 		virtual void	Layout() {};
 		virtual void	Think() {};
@@ -506,6 +506,7 @@ namespace modelgui
 		virtual void	Delete() { delete this; };
 
 	public:
+		virtual void	Paint() { CButton::Paint(); };
 		virtual void	Paint(int x, int y, int w, int h);
 
 	protected:
@@ -866,7 +867,7 @@ namespace modelgui
 		IEventListener*						m_pSelectedListener;
 	};
 
-	class CTreeNode : public CPanel, modelgui::IEventListener
+	class CTreeNode : public CPanel, public modelgui::IEventListener
 	{
 	public:
 											CTreeNode(CTreeNode* pParent, class CTree* pTree, const std::wstring& sText);
@@ -875,7 +876,7 @@ namespace modelgui
 		virtual void						Destructor();
 		virtual void						Delete() { delete this; };
 
-		void								LayoutNode();
+		virtual void						LayoutNode();
 		void								Paint() { CPanel::Paint(); };
 		void								Paint(int x, int y, int w, int h);
 
@@ -889,6 +890,8 @@ namespace modelgui
 		}
 		size_t								AddNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
+
+		virtual void						AddVisibilityButton() {};
 
 		bool								IsExpanded() { return m_pExpandButton->IsExpanded(); };
 		void								SetExpanded(bool bExpanded) { m_pExpandButton->SetExpanded(bExpanded); };
@@ -906,6 +909,8 @@ namespace modelgui
 		CLabel*								m_pLabel;
 
 		size_t								m_iIconTexture;
+
+		CPictureButton*						m_pVisibilityButton;
 
 		class CExpandButton : public CPictureButton
 		{
@@ -932,7 +937,7 @@ namespace modelgui
 	class CTree : public CPanel
 	{
 	public:
-											CTree(size_t iArrowTexture);
+											CTree(size_t iArrowTexture, size_t iVisibilityTexture);
 
 	public:
 		virtual void						Destructor();
@@ -955,6 +960,7 @@ namespace modelgui
 		int									m_iCurrentDepth;
 
 		size_t								m_iArrowTexture;
+		size_t								m_iVisibilityTexture;
 	};
 
 	template <typename T>
@@ -968,8 +974,41 @@ namespace modelgui
 		}
 
 	public:
+		virtual void LayoutNode()
+		{
+			CTreeNode::LayoutNode();
+
+			int iHeight = (int)m_pLabel->GetTextHeight();
+
+			if (m_pVisibilityButton)
+			{
+				m_pVisibilityButton->SetPos(GetWidth()-iHeight-14, 0);
+				m_pVisibilityButton->SetSize(iHeight, iHeight);
+			}
+
+			m_pLabel->SetAlpha(m_pObject->IsVisible()?255:100);
+		}
+
+		virtual void AddVisibilityButton()
+		{
+			m_pVisibilityButton = new CPictureButton("@", m_pTree->m_iVisibilityTexture);
+			m_pVisibilityButton->SetClickedListener(this, Visibility);
+			AddControl(m_pVisibilityButton);
+		}
+
+		EVENT_CALLBACK(CTreeNodeObject, Visibility);
+
+	public:
 		T*									m_pObject;
 	};
+
+	template <typename T>
+	inline void CTreeNodeObject<T>::VisibilityCallback()
+	{
+		m_pObject->SetVisible(!m_pObject->IsVisible());
+
+		m_pLabel->SetAlpha(m_pObject->IsVisible()?255:100);
+	}
 };
 
 #endif

@@ -150,24 +150,33 @@ void CAOGenerator::ShadowMapSetupScene()
 	gluTessProperty(pTesselator, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
 
 	// Create a list with the required polys so it draws quicker.
-	m_iSceneList = glGenLists(1);
+	m_iSceneList = glGenLists(2);
 
 	glNewList(m_iSceneList, GL_COMPILE);
 
 	// Overload the render preview viewport as a method for storing our pixels.
 	SetRenderPreviewViewport(0, 0, (int)m_iWidth, (int)m_iHeight);
 
-	ShadowMapSetupSceneNode(m_pScene->GetScene(0), pTesselator);
+	ShadowMapSetupSceneNode(m_pScene->GetScene(0), pTesselator, true);
+
+	glEndList();
+
+	glNewList(m_iSceneList+1, GL_COMPILE);
+
+	// Overload the render preview viewport as a method for storing our pixels.
+	SetRenderPreviewViewport(0, 0, (int)m_iWidth, (int)m_iHeight);
+
+	ShadowMapSetupSceneNode(m_pScene->GetScene(0), pTesselator, false);
 
 	glEndList();
 
 	gluDeleteTess(pTesselator);
 }
 
-void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesselator* pTesselator)
+void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesselator* pTesselator, bool bDepth)
 {
 	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
-		ShadowMapSetupSceneNode(pNode->GetChild(c), pTesselator);
+		ShadowMapSetupSceneNode(pNode->GetChild(c), pTesselator, bDepth);
 
 	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
 	{
@@ -176,6 +185,20 @@ void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesse
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);
+
+			if (!bDepth)
+			{
+				// Allow this in the depth model so that it still projects a shadow, but we don't produce a map for it.
+				if (pFace->m != ~0)
+				{
+					if (!pMeshInstance->GetMappedMaterial(pFace->m)->IsVisible())
+						continue;
+
+					CConversionMaterial* pMaterial = m_pScene->GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
+					if (pMaterial && !pMaterial->IsVisible())
+						continue;
+				}
+			}
 
 			gluTessBeginPolygon(pTesselator, pMeshInstance);
 			gluTessBeginContour(pTesselator);
@@ -375,7 +398,10 @@ void CAOGenerator::Generate()
 
 	if (m_eAOMethod == AOMETHOD_RENDER || m_eAOMethod == AOMETHOD_SHADOWMAP)
 	{
-		glDeleteLists(m_iSceneList, 1);
+		if (m_eAOMethod == AOMETHOD_SHADOWMAP)
+			glDeleteLists(m_iSceneList, 2);
+		else
+			glDeleteLists(m_iSceneList, 1);
 
 		// We now return you to our normal render programming. Thank you for your patronage.
 		glMatrixMode(GL_PROJECTION);
@@ -676,7 +702,7 @@ void CAOGenerator::GenerateShadowMaps()
 
 			glDisable(GL_DEPTH_TEST);
 
-			glCallList(m_iSceneList);
+			glCallList(m_iSceneList+1);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glActiveTexture(GL_TEXTURE0);
@@ -908,6 +934,16 @@ void CAOGenerator::GenerateNodeByTexel(CConversionSceneNode* pNode, raytrace::CR
 		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
 		{
 			CConversionFace* pFace = pMesh->GetFace(f);
+
+			if (pFace->m != ~0)
+			{
+				if (!pMeshInstance->GetMappedMaterial(pFace->m)->IsVisible())
+					continue;
+
+				CConversionMaterial* pMaterial = m_pScene->GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
+				if (pMaterial && !pMaterial->IsVisible())
+					continue;
+			}
 
 			std::vector<Vector> avecPoints;
 			std::vector<size_t> aiPoints;

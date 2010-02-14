@@ -8,7 +8,7 @@ CSceneTreePanel::CSceneTreePanel(CConversionScene* pScene)
 	: CMovablePanel("Scene Tree")
 {
 	m_pScene = pScene;
-	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture());
+	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	AddControl(m_pTree);
 }
 
@@ -44,7 +44,11 @@ void CSceneTreePanel::AddAllToTree()
 
 	size_t i;
 	for (i = 0; i < m_pScene->GetNumMaterials(); i++)
-		pMaterialsNode->AddNode<CConversionMaterial>(m_pScene->GetMaterial(i)->GetName(), m_pScene->GetMaterial(i));
+	{
+		size_t iMaterialNode = pMaterialsNode->AddNode<CConversionMaterial>(m_pScene->GetMaterial(i)->GetName(), m_pScene->GetMaterial(i));
+		CTreeNode* pMaterialNode = pMaterialsNode->GetNode(iMaterialNode);
+		pMaterialNode->AddVisibilityButton();
+	}
 
 	size_t iMeshesNode = m_pTree->AddNode(L"Meshes");
 	CTreeNode* pMeshesNode = m_pTree->GetNode(iMeshesNode);
@@ -75,10 +79,14 @@ void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionS
 
 		for (size_t s = 0; s < pSceneNode->GetMeshInstance(m)->GetMesh()->GetNumMaterialStubs(); s++)
 		{
-			size_t iMaterial = pSceneNode->GetMeshInstance(m)->GetMappedMaterial(s);
-			if (!m_pScene->GetMaterial(iMaterial))
+			CConversionMaterialMap* pMaterialMap = pSceneNode->GetMeshInstance(m)->GetMappedMaterial(s);
+
+			if (!m_pScene->GetMaterial(pMaterialMap->m_iMaterial))
 				continue;
-			pMeshInstanceNode->AddNode(m_pScene->GetMaterial(iMaterial)->GetName());
+
+			size_t iMapNode = pMeshInstanceNode->AddNode<CConversionMaterialMap>(m_pScene->GetMaterial(pMaterialMap->m_iMaterial)->GetName(), pMaterialMap);
+			CTreeNode* pMeshMapNode = pMeshInstanceNode->GetNode(iMapNode);
+			pMeshMapNode->AddVisibilityButton();
 		}
 	}
 }

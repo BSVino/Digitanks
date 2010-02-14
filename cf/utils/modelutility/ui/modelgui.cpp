@@ -20,6 +20,7 @@ CBaseControl::CBaseControl(int x, int y, int w, int h)
 	m_iW = w;
 	m_iH = h;
 	m_bVisible = true;
+	SetAlpha(255);
 }
 
 CBaseControl::CBaseControl(const CRect& Rect)
@@ -62,6 +63,18 @@ bool CBaseControl::IsVisible()
 		return false;
 	
 	return m_bVisible;
+}
+
+void CBaseControl::Paint()
+{
+	int x = 0, y = 0;
+	GetAbsPos(x, y);
+	Paint(x, y);
+}
+
+void CBaseControl::Paint(int x, int y)
+{
+	Paint(x, y, m_iW, m_iH);
 }
 
 void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
@@ -528,6 +541,9 @@ void CLabel::Destructor()
 void CLabel::Paint(int x, int y, int w, int h)
 {
 	if (!IsVisible())
+		return;
+
+	if (m_iAlpha == 0)
 		return;
 
 	glDisable(GL_LIGHTING);
@@ -1841,10 +1857,11 @@ void CMenu::CSubmenuPanel::Think()
 	CPanel::Think();
 }
 
-CTree::CTree(size_t iArrowTexture)
+CTree::CTree(size_t iArrowTexture, size_t iVisibilityTexture)
 	: CPanel(0, 0, 10, 10)
 {
 	m_iArrowTexture = iArrowTexture;
+	m_iVisibilityTexture = iVisibilityTexture;
 }
 
 void CTree::Destructor()
@@ -1914,6 +1931,8 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText
 {
 	m_pParent = pParent;
 	m_pTree = pTree;
+
+	m_pVisibilityButton = NULL;
 
 	m_pLabel = new CLabel(0, 0, GetWidth(), GetHeight(), "");
 	m_pLabel->SetAlign(CLabel::TA_LEFTCENTER);
@@ -2006,6 +2025,9 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 	}
 
 	m_pLabel->Paint(x+h+iIconSize, y, w-h-iIconSize, h);
+
+	if (m_pVisibilityButton)
+		m_pVisibilityButton->Paint();
 }
 
 size_t CTreeNode::AddNode(const std::wstring& sName)

@@ -93,6 +93,7 @@ CModelWindow::CModelWindow()
 	m_iAOTexture = LoadTextureIntoGL(L"ao.png");
 	m_iCAOTexture = LoadTextureIntoGL(L"aocolor.png");
 	m_iArrowTexture = LoadTextureIntoGL(L"arrow.png");
+	m_iVisibilityTexture = LoadTextureIntoGL(L"eye.png");
 
 	InitUI();
 
@@ -671,6 +672,9 @@ void CModelWindow::RenderSceneNode(CConversionSceneNode* pNode)
 	if (!pNode)
 		return;
 
+	if (!pNode->IsVisible())
+		return;
+
 	glPushMatrix();
 
 	glMultMatrixf(pNode->m_mTransformations.Transposed());	// GL uses column major.
@@ -720,6 +724,9 @@ static void CALLBACK RenderTesselateEnd()
 
 void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 {
+	if (!pMeshInstance->IsVisible())
+		return;
+
 	// It uses this color if the texture is missing.
 	GLfloat flMaterialColor[] = {0.7f, 0.7f, 0.7f, 1.0f};
 
@@ -735,13 +742,23 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 		size_t k;
 		CConversionFace* pFace = pMesh->GetFace(j);
 
+		if (pFace->m != ~0)
+		{
+			if (!pMeshInstance->GetMappedMaterial(pFace->m)->IsVisible())
+				continue;
+
+			CConversionMaterial* pMaterial = m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
+			if (pMaterial && !pMaterial->IsVisible())
+				continue;
+		}
+
 		if (m_eDisplayType != DT_WIREFRAME)
 		{
-			if (pFace->m == ~0 || pMeshInstance->GetMappedMaterial(pFace->m) == ~0 || m_aoMaterials.size() == 0)
+			if (pFace->m == ~0 || pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial == ~0 || m_aoMaterials.size() == 0)
 				glBindTexture(GL_TEXTURE_2D, 0);
 			else
 			{
-				CMaterial* pMaterial = &m_aoMaterials[pMeshInstance->GetMappedMaterial(pFace->m)];
+				CMaterial* pMaterial = &m_aoMaterials[pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial];
 
 				if (GLEW_VERSION_1_3)
 				{
@@ -790,9 +807,9 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 				}
 			}
 
-			if (pFace->m != ~0 && m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)))
+			if (pFace->m != ~0 && m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial))
 			{
-				CConversionMaterial* pMaterial = m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m));
+				CConversionMaterial* pMaterial = m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
 				glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
 				glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
 				glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);

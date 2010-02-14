@@ -97,6 +97,10 @@ public:
 	std::wstring					GetName() const { return m_sName; }
 	std::wstring					GetTexture() const { return m_sTexture; }
 
+	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
+	bool							IsVisible() { return m_bVisible; };
+
+public:
 	std::wstring					m_sName;
 
 	Vector							m_vecAmbient;
@@ -108,6 +112,8 @@ public:
 	IllumType_t						m_eIllumType;
 
 	std::wstring					m_sTexture;
+
+	bool							m_bVisible;
 };
 
 // Each mesh has a material stub table, and the scene tree matches them up to actual materials
@@ -169,6 +175,10 @@ public:
 	size_t							FindMaterialStub(const std::wstring& sName);
 	CConversionMaterialStub*		GetMaterialStub(size_t i) { return &m_aMaterialStubs[i]; };
 
+	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
+	bool							IsVisible() { return m_bVisible; };
+
+public:
 	std::wstring					m_sName;
 	class CConversionScene*			m_pScene;
 
@@ -185,6 +195,25 @@ public:
 	std::vector<CConversionMaterialStub>	m_aMaterialStubs;
 
 	AABB							m_oExtends;
+
+	bool							m_bVisible;
+};
+
+class CConversionMaterialMap
+{
+public:
+									CConversionMaterialMap();
+									CConversionMaterialMap(size_t iStub, size_t iMaterial);
+
+public:
+	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
+	bool							IsVisible() { return m_bVisible; };
+
+public:
+	size_t							m_iStub;
+	size_t							m_iMaterial;
+
+	bool							m_bVisible;
 };
 
 class CConversionMeshInstance
@@ -196,17 +225,23 @@ public:
 	CConversionMesh*				GetMesh();
 
 	void							AddMappedMaterial(size_t s, size_t m);
-	size_t							GetMappedMaterial(size_t m);
+	CConversionMaterialMap*			GetMappedMaterial(size_t m);
 
 	Vector							GetVertex(size_t i);
 	Vector							GetNormal(size_t i);
 
+	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
+	bool							IsVisible() { return m_bVisible; };
+
+public:
 	size_t							m_iMesh;	// Index into CConversionScene::m_aMeshes
 
-	std::map<size_t, size_t>		m_aiMaterialsMap;	// Maps CConversionMesh::m_aMaterialStubs to CConversionScene::m_aMaterials
+	std::map<size_t, CConversionMaterialMap>	m_aiMaterialsMap;	// Maps CConversionMesh::m_aMaterialStubs to CConversionScene::m_aMaterials
 
 	class CConversionScene*			m_pScene;
 	class CConversionSceneNode*		m_pParent;
+
+	bool							m_bVisible;
 };
 
 // A node in the scene tree.
@@ -234,6 +269,9 @@ public:
 
 	std::wstring						GetName() { return m_sName; }
 
+	void								SetVisible(bool bVisible) { m_bVisible = bVisible; };
+	bool								IsVisible() { return m_bVisible; };
+
 public:
 	std::wstring						m_sName;
 	CConversionScene*					m_pScene;
@@ -246,6 +284,8 @@ public:
 	Matrix4x4							m_mTransformations;
 
 	AABB								m_oExtends;
+
+	bool								m_bVisible;
 };
 
 class CConversionScene

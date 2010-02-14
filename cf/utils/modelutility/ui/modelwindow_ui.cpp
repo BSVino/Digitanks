@@ -794,6 +794,9 @@ void CAOPanel::GenerateCallback()
 	{
 		size_t& iAOTexture = m_bColor?(*m_paoMaterials)[i].m_iColorAO:(*m_paoMaterials)[i].m_iAO;
 
+		if (!m_pScene->GetMaterial(i)->IsVisible())
+			continue;
+
 		if (iAOTexture)
 			glDeleteTextures(1, &iAOTexture);
 
