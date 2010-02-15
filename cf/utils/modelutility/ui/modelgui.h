@@ -513,6 +513,15 @@ namespace modelgui
 		size_t			m_iTexture;
 	};
 
+	class CCheckBox : public CButton
+	{
+	public:
+						CCheckBox();
+
+	public:
+		void			Paint(int x, int y, int w, int h);
+	};
+
 	class CSlidingContainer;
 	class CSlidingPanel : public CPanel
 	{

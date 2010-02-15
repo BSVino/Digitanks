@@ -5,6 +5,7 @@
 #include <IL/ilu.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <time.h>
 
 #include <geometry.h>
 #include <maths.h>
@@ -41,6 +42,8 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_bUseTexture = true;
 	m_iBleed = 5;
 	m_iSamples = 15;
+	m_bRandomize = false;
+
 	SetRenderPreviewViewport(0, 0, 100, 100);
 	SetUseFrontBuffer(false);
 
@@ -902,6 +905,8 @@ void CAOGenerator::GenerateByTexel()
 
 		pTracer = new raytrace::CRaytracer(m_pScene);
 		pTracer->BuildTree();
+
+		srand((unsigned int)time(0));
 	}
 
 	if (m_pWorkListener)
@@ -1109,11 +1114,19 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 				for (size_t x = 0; x < m_iSamples/2; x++)
 				{
-					float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
+					float flPitch;
+					if (m_bRandomize)
+						flPitch = RemapVal(cos(RemapVal((float)(rand()%10000), 0, (float)10000, 0, M_PI/2)), 0, 1, 90, 0);
+					else
+						flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
 					float flWeight = sin(flPitch * M_PI/180);
 					for (size_t y = 0; y <= m_iSamples; y++)
 					{
-						float flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
+						float flYaw = 0;
+						if (m_bRandomize)
+							flYaw = RemapVal((float)(rand()%10000), 0, (float)10000, -180, 180);
+						else
+							flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
 
 						Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
 

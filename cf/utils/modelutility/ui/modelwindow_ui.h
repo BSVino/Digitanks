@@ -143,6 +143,9 @@ protected:
 	CLabel*					m_pLightsLabel;
 	CScrollSelector<int>*	m_pLightsSelector;
 
+	CLabel*					m_pRandomLabel;
+	CCheckBox*				m_pRandomCheckBox;
+
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;
 

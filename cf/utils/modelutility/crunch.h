@@ -33,6 +33,7 @@ public:
 	void					SetRenderPreviewViewport(int x, int y, int w, int h);
 	void					SetUseFrontBuffer(bool bUseFrontBuffer) { m_bUseFrontBuffer = bUseFrontBuffer; };
 	void					SetSamples(size_t iSamples) { m_iSamples = iSamples; };
+	void					SetRandomize(bool bRandomize) { m_bRandomize = bRandomize; };
 
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
@@ -68,6 +69,7 @@ protected:
 	bool					m_bUseTexture;
 	size_t					m_iBleed;
 	size_t					m_iSamples;
+	bool					m_bRandomize;
 	int						m_iRPVX;
 	int						m_iRPVY;
 	int						m_iRPVW;

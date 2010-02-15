@@ -665,6 +665,12 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		m_pLightsSelector->AddSelection(CScrollSelection<int>(3000, L"3000"));
 		m_pLightsSelector->SetSelection(3);
 		AddControl(m_pLightsSelector);
+
+		m_pRandomLabel = new CLabel(0, 0, 32, 32, "Randomize rays");
+		AddControl(m_pRandomLabel);
+
+		m_pRandomCheckBox = new CCheckBox();
+		AddControl(m_pRandomCheckBox);
 	}
 
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
@@ -716,6 +722,9 @@ void CAOPanel::Layout()
 		m_pRayDensityLabel->SetVisible(bRaytracing);
 		m_pRayDensitySelector->SetVisible(bRaytracing);
 
+		m_pRandomCheckBox->SetVisible(bRaytracing);
+		m_pRandomLabel->SetVisible(bRaytracing);
+
 		if (bRaytracing)
 		{
 			iControlY -= 40;
@@ -725,6 +734,13 @@ void CAOPanel::Layout()
 
 			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, m_pRayDensityLabel->GetHeight());
 			m_pRayDensitySelector->SetPos(GetWidth() - m_pRayDensitySelector->GetWidth() - iSpace/2, iControlY);
+
+			iControlY -= 30;
+
+			m_pRandomLabel->EnsureTextFits();
+			m_pRandomLabel->SetPos(25, iControlY);
+
+			m_pRandomCheckBox->SetPos(10, iControlY + m_pRandomLabel->GetHeight()/2 - m_pRandomCheckBox->GetHeight()/2);
 		}
 
 		bool bShadowmapping = (m_pAOMethodSelector->GetSelectionValue() == AOMETHOD_SHADOWMAP);
@@ -794,6 +810,7 @@ void CAOPanel::GenerateCallback()
 			m_oGenerator.SetSamples(m_pLightsSelector->GetSelectionValue());
 		else
 			m_oGenerator.SetSamples(m_pRayDensitySelector->GetSelectionValue());
+		m_oGenerator.SetRandomize(m_pRandomCheckBox->GetToggleState());
 	}
 	m_oGenerator.Generate();
 
