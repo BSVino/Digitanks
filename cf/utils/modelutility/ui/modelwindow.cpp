@@ -742,7 +742,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 		size_t k;
 		CConversionFace* pFace = pMesh->GetFace(j);
 
-		if (pFace->m != ~0)
+		if (pFace->m != ~0 && pMeshInstance->GetMappedMaterial(pFace->m))
 		{
 			if (!pMeshInstance->GetMappedMaterial(pFace->m)->IsVisible())
 				continue;
@@ -754,7 +754,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 		if (m_eDisplayType != DT_WIREFRAME)
 		{
-			if (pFace->m == ~0 || pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial == ~0 || m_aoMaterials.size() == 0)
+			if (pFace->m == ~0 || !pMeshInstance->GetMappedMaterial(pFace->m) || pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial == ~0 || m_aoMaterials.size() == 0)
 				glBindTexture(GL_TEXTURE_2D, 0);
 			else
 			{
@@ -807,7 +807,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 				}
 			}
 
-			if (pFace->m != ~0 && m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial))
+			if (pFace->m != ~0 && pMeshInstance->GetMappedMaterial(pFace->m) && m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial))
 			{
 				CConversionMaterial* pMaterial = m_Scene.GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
 				glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);

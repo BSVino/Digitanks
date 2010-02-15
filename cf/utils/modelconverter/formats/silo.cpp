@@ -283,7 +283,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 				{
 					size_t iMaterialStub = pMesh->AddMaterialStub(pMaterial->GetName());
 					m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iNewMaterial);
-					iCurrentMaterial = iNewMaterial;
+					iCurrentMaterial = iMaterialStub;
 				}
 			}
 		}

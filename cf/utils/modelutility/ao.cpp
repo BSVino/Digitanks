@@ -202,7 +202,7 @@ void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesse
 			if (!bDepth)
 			{
 				// Allow this in the depth model so that it still projects a shadow, but we don't produce a map for it.
-				if (pFace->m != ~0)
+				if (pFace->m != ~0 && pMeshInstance->GetMappedMaterial(pFace->m))
 				{
 					if (!pMeshInstance->GetMappedMaterial(pFace->m)->IsVisible())
 						continue;
