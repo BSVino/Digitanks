@@ -146,6 +146,9 @@ protected:
 	CLabel*					m_pRandomLabel;
 	CCheckBox*				m_pRandomCheckBox;
 
+	CLabel*					m_pCreaseLabel;
+	CCheckBox*				m_pCreaseCheckBox;
+
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;
 

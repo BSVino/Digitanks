@@ -468,7 +468,7 @@ void CCloseButton::Paint(int x, int y, int w, int h)
 }
 
 CMovablePanel::CMovablePanel(char* pszName)
-	: CPanel(0, 0, 200, 300)
+	: CPanel(0, 0, 200, 350)
 {
 	m_bMoving = false;
 
@@ -671,6 +671,12 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 
 		m_pRandomCheckBox = new CCheckBox();
 		AddControl(m_pRandomCheckBox);
+
+		m_pCreaseLabel = new CLabel(0, 0, 32, 32, "Crease edges");
+		AddControl(m_pCreaseLabel);
+
+		m_pCreaseCheckBox = new CCheckBox();
+		AddControl(m_pCreaseCheckBox);
 	}
 
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
@@ -757,6 +763,13 @@ void CAOPanel::Layout()
 			m_pLightsSelector->SetSize(GetWidth() - m_pLightsLabel->GetWidth() - iSpace, m_pLightsLabel->GetHeight());
 			m_pLightsSelector->SetPos(GetWidth() - m_pLightsSelector->GetWidth() - iSpace/2, iControlY);
 		}
+
+		iControlY -= 30;
+
+		m_pCreaseLabel->EnsureTextFits();
+		m_pCreaseLabel->SetPos(25, iControlY);
+
+		m_pCreaseCheckBox->SetPos(10, iControlY + m_pCreaseLabel->GetHeight()/2 - m_pCreaseCheckBox->GetHeight()/2);
 	}
 
 	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
@@ -812,6 +825,7 @@ void CAOPanel::GenerateCallback()
 			m_oGenerator.SetSamples(m_pRayDensitySelector->GetSelectionValue());
 		m_oGenerator.SetRandomize(m_pRandomCheckBox->GetToggleState());
 	}
+	m_oGenerator.SetCreaseEdges(m_pCreaseCheckBox->GetToggleState());
 	m_oGenerator.Generate();
 
 	size_t iAO;

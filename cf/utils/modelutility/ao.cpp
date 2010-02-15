@@ -43,6 +43,7 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_iBleed = 5;
 	m_iSamples = 15;
 	m_bRandomize = false;
+	m_bCreaseEdges = true;
 
 	SetRenderPreviewViewport(0, 0, 100, 100);
 	SetUseFrontBuffer(false);
@@ -112,6 +113,9 @@ static void CALLBACK ShadowMapTesselateBegin(GLenum ePrim)
 	glBegin(ePrim);
 }
 
+// I don't like it either.
+static bool g_bCreaseEdges = false;
+static size_t g_iCreaseFace = 0;
 static void CALLBACK ShadowMapTesselateVertex(void* pVertexData, void* pPolygonData)
 {
 	CConversionMeshInstance* pMeshInstance = (CConversionMeshInstance*)pPolygonData;
@@ -119,7 +123,11 @@ static void CALLBACK ShadowMapTesselateVertex(void* pVertexData, void* pPolygonD
 	CConversionVertex* pVertex = (CConversionVertex*)pVertexData;
 
 	Vector vecVertex = pMeshInstance->GetVertex(pVertex->v);
-	Vector vecNormal = pMeshInstance->GetNormal(pVertex->vn);
+	Vector vecNormal;
+	if (g_bCreaseEdges)
+		vecNormal = pMesh->GetFace(g_iCreaseFace)->GetNormal();
+	else
+		vecNormal = pMeshInstance->GetNormal(pVertex->vn);
 
 	// Translate here so it takes up the whole viewport when flattened by the shader.
 	Vector vecUV = pMesh->GetUV(pVertex->vt) * 2 - Vector(1,1,1);
@@ -151,6 +159,8 @@ void CAOGenerator::ShadowMapSetupScene()
 	gluTessCallback(pTesselator, GLU_TESS_VERTEX_DATA, (void(CALLBACK*)())ShadowMapTesselateVertex);
 	gluTessCallback(pTesselator, GLU_TESS_END, (void(CALLBACK*)())ShadowMapTesselateEnd);
 	gluTessProperty(pTesselator, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
+
+	g_bCreaseEdges = m_bCreaseEdges;
 
 	// Create a list with the required polys so it draws quicker.
 	m_iSceneList = glGenLists(2);
@@ -202,6 +212,9 @@ void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesse
 						continue;
 				}
 			}
+
+			if (g_bCreaseEdges)
+				g_iCreaseFace = f;
 
 			gluTessBeginPolygon(pTesselator, pMeshInstance);
 			gluTessBeginContour(pTesselator);
@@ -1079,11 +1092,18 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 			Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
 
-			float wv1 = DistanceToLine(vecUVPosition, v2, v3) / DistanceToLine(v1, v2, v3);
-			float wv2 = DistanceToLine(vecUVPosition, v1, v3) / DistanceToLine(v2, v1, v3);
-			float wv3 = DistanceToLine(vecUVPosition, v1, v2) / DistanceToLine(v3, v1, v2);
+			Vector vecNormal;
 
-			Vector vecNormal = vn1 * wv1 + vn2 * wv2 + vn3 * wv3;
+			if (m_bCreaseEdges)
+				vecNormal = pFace->GetNormal();
+			else
+			{
+				float wv1 = DistanceToLine(vecUVPosition, v2, v3) / DistanceToLine(v1, v2, v3);
+				float wv2 = DistanceToLine(vecUVPosition, v1, v3) / DistanceToLine(v2, v1, v3);
+				float wv3 = DistanceToLine(vecUVPosition, v1, v2) / DistanceToLine(v3, v1, v2);
+
+				vecNormal = vn1 * wv1 + vn2 * wv2 + vn3 * wv3;
+			}
 
 #ifdef AO_DEBUG
 			//						CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition + vecNormal/2);
@@ -1114,19 +1134,21 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 				for (size_t x = 0; x < m_iSamples/2; x++)
 				{
-					float flPitch;
+					float flRandom = 0;
 					if (m_bRandomize)
-						flPitch = RemapVal(cos(RemapVal((float)(rand()%10000), 0, (float)10000, 0, M_PI/2)), 0, 1, 90, 0);
-					else
-						flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
+						flRandom = RemapVal((float)(rand()%10000), 0, 10000.0f, -0.5, 0.5);
+
+					float flPitch = RemapVal(cos(RemapVal((float)x+flRandom, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
+
 					float flWeight = sin(flPitch * M_PI/180);
+
 					for (size_t y = 0; y <= m_iSamples; y++)
 					{
-						float flYaw = 0;
+						flRandom = 0;
 						if (m_bRandomize)
-							flYaw = RemapVal((float)(rand()%10000), 0, (float)10000, -180, 180);
-						else
-							flYaw = RemapVal((float)y, 0, (float)m_iSamples, -180, 180);
+							flRandom = RemapVal((float)(rand()%10000), 0, 10000.0f, -0.5, 0.5);
+
+						float flYaw = RemapVal((float)y+flRandom, 0, (float)m_iSamples, -180, 180);
 
 						Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
 
