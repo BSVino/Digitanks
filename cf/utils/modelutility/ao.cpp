@@ -188,6 +188,9 @@ void CAOGenerator::ShadowMapSetupScene()
 
 void CAOGenerator::ShadowMapSetupSceneNode(CConversionSceneNode* pNode, GLUtesselator* pTesselator, bool bDepth)
 {
+	if (!pNode)
+		return;
+
 	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
 		ShadowMapSetupSceneNode(pNode->GetChild(c), pTesselator, bDepth);
 
@@ -295,6 +298,9 @@ void CAOGenerator::RenderSetupScene()
 
 void CAOGenerator::RenderSetupSceneNode(CConversionSceneNode* pNode, GLUtesselator* pTesselator)
 {
+	if (!pNode)
+		return;
+
 	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
 		RenderSetupSceneNode(pNode->GetChild(c), pTesselator);
 
