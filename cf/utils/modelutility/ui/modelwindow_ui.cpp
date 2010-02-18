@@ -284,7 +284,7 @@ void CModelWindow::WorkProgress(size_t iProgress, bool bForceDraw)
 
 	CModelWindow::Get()->Render();
 	CRootPanel::Get()->Think();
-	CRootPanel::Get()->Paint();
+	CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 	glutSwapBuffers();
 
 	iLastTime = glutGet(GLUT_ELAPSED_TIME);
@@ -798,10 +798,10 @@ void CAOPanel::GenerateCallback()
 
 	// If the 3d model was there get rid of it.
 	CModelWindow::Get()->Render();
-	CRootPanel::Get()->Paint();
+	CRootPanel::Get()->Paint(0, 0, CModelWindow::Get()->GetWindowWidth(), CModelWindow::Get()->GetWindowHeight());
 	glutSwapBuffers();
 	CModelWindow::Get()->Render();
-	CRootPanel::Get()->Paint();
+	CRootPanel::Get()->Paint(0, 0, CModelWindow::Get()->GetWindowWidth(), CModelWindow::Get()->GetWindowHeight());
 	glutSwapBuffers();
 
 	if (m_bColor)
@@ -909,7 +909,7 @@ void CAOPanel::WorkProgress(size_t iProgress, bool bForceDraw)
 
 	CModelWindow::Get()->Render();
 	CRootPanel::Get()->Think();
-	CRootPanel::Get()->Paint();
+	CRootPanel::Get()->Paint(0, 0, CModelWindow::Get()->GetWindowWidth(), CModelWindow::Get()->GetWindowHeight());
 	glutSwapBuffers();
 
 	iLastTime = glutGet(GLUT_ELAPSED_TIME);

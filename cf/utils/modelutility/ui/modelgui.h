@@ -319,7 +319,7 @@ namespace modelgui
 		virtual void				Delete() { delete this; };
 
 		virtual void				Think();
-		virtual void				Paint();
+		virtual void				Paint(int x, int y, int w, int h);
 		virtual void				Layout();
 
 		virtual bool				MousePressed(int code, int mx, int my);

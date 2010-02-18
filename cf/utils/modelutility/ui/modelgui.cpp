@@ -1398,16 +1398,13 @@ void CRootPanel::Think()
 	iTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
-void CRootPanel::Paint()
+void CRootPanel::Paint(int x, int y, int w, int h)
 {
-	// Switch GL to 2d drawing model.
-	int aiViewport[4];
-	glGetIntegerv(GL_VIEWPORT, aiViewport);
-
+	// Switch GL to 2d drawing mode.
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0, aiViewport[2], 0, aiViewport[3], -1, 1);
+	glOrtho(x, x+w, y, y+h, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -1422,7 +1419,7 @@ void CRootPanel::Paint()
 
 	glShadeModel(GL_SMOOTH);
 
-	CPanel::Paint();
+	CPanel::Paint(x, y, w, h);
 
 	if (m_pDragging)
 	{

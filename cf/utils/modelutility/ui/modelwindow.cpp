@@ -163,7 +163,7 @@ void CModelWindow::Run()
 		glutMainLoopEvent();
 		Render();
 		modelgui::CRootPanel::Get()->Think();
-		modelgui::CRootPanel::Get()->Paint();
+		modelgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 		glutSwapBuffers();
 	}
 }
@@ -890,11 +890,9 @@ void CModelWindow::RenderUV()
 {
 	glViewport(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
-	// Switch GL to 2d drawing model.
-	int aiViewport[4];
-	glGetIntegerv(GL_VIEWPORT, aiViewport);
+	// Switch GL to 2d drawing mode.
 
-	float flRatio = (float)aiViewport[3] / (float)aiViewport[2];
+	float flRatio = (float)m_iWindowHeight / (float)m_iWindowWidth;
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -1153,7 +1151,7 @@ void CModelWindow::WindowResize(int w, int h)
 
 	Render();
 	modelgui::CRootPanel::Get()->Layout();
-	modelgui::CRootPanel::Get()->Paint();
+	modelgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
 	glutSwapBuffers();
 }
