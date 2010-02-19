@@ -677,6 +677,12 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 
 		m_pCreaseCheckBox = new CCheckBox();
 		AddControl(m_pCreaseCheckBox);
+
+		m_pGroundOcclusionLabel = new CLabel(0, 0, 32, 32, "Ground occlusion");
+		AddControl(m_pGroundOcclusionLabel);
+
+		m_pGroundOcclusionCheckBox = new CCheckBox();
+		AddControl(m_pGroundOcclusionCheckBox);
 	}
 
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
@@ -764,6 +770,19 @@ void CAOPanel::Layout()
 			m_pLightsSelector->SetPos(GetWidth() - m_pLightsSelector->GetWidth() - iSpace/2, iControlY);
 		}
 
+		m_pGroundOcclusionLabel->SetVisible(bShadowmapping || bRaytracing);
+		m_pGroundOcclusionCheckBox->SetVisible(bShadowmapping || bRaytracing);
+
+		if (bShadowmapping || bRaytracing)
+		{
+			iControlY -= 30;
+
+			m_pGroundOcclusionLabel->EnsureTextFits();
+			m_pGroundOcclusionLabel->SetPos(25, iControlY);
+
+			m_pGroundOcclusionCheckBox->SetPos(10, iControlY + m_pGroundOcclusionLabel->GetHeight()/2 - m_pGroundOcclusionCheckBox->GetHeight()/2);
+		}
+
 		iControlY -= 30;
 
 		m_pCreaseLabel->EnsureTextFits();
@@ -826,6 +845,7 @@ void CAOPanel::GenerateCallback()
 		m_oGenerator.SetRandomize(m_pRandomCheckBox->GetToggleState());
 	}
 	m_oGenerator.SetCreaseEdges(m_pCreaseCheckBox->GetToggleState());
+	m_oGenerator.SetGroundOcclusion(m_pGroundOcclusionCheckBox->GetToggleState());
 	m_oGenerator.Generate();
 
 	size_t iAO;

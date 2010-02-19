@@ -149,6 +149,9 @@ protected:
 	CLabel*					m_pCreaseLabel;
 	CCheckBox*				m_pCreaseCheckBox;
 
+	CLabel*					m_pGroundOcclusionLabel;
+	CCheckBox*				m_pGroundOcclusionCheckBox;
+
 	CButton*				m_pGenerate;
 	CButton*				m_pSave;
 

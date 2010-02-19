@@ -18,6 +18,7 @@ const char* GetFSFlattenedShadowMap()
 	return
 		"uniform sampler2D iShadowMap;"
 		"uniform vec3 vecLightNormal;"
+		"uniform bool bOccludeAll;"
 		"varying vec4 vecShadowCoord;"
 		"varying vec3 vecSurfaceNormal;"
 
@@ -33,7 +34,9 @@ const char* GetFSFlattenedShadowMap()
 		"	else"
 		"	{"
 		"		float flShadow = 1.0;"
-		"		if (vecShadowCoord.w > 0.0)"
+		"		if (bOccludeAll)"
+		"			flShadow = 0.0;"
+		"		else if (vecShadowCoord.w > 0.0)"
 		"		{"
 		"			vec4 vecShadowCoordinateWdivide = vecShadowCoord / vecShadowCoord.w;"
 		"			float flDistanceFromLight = texture2D(iShadowMap, vecShadowCoordinateWdivide.st).z;"

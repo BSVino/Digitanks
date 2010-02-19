@@ -35,6 +35,7 @@ public:
 	void					SetSamples(size_t iSamples) { m_iSamples = iSamples; };
 	void					SetRandomize(bool bRandomize) { m_bRandomize = bRandomize; };
 	void					SetCreaseEdges(bool bCreaseEdges) { m_bCreaseEdges = bCreaseEdges; };
+	void					SetGroundOcclusion(bool bGroundOcclusion) { m_bGroundOcclusion = bGroundOcclusion; };
 
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
@@ -72,6 +73,7 @@ protected:
 	size_t					m_iSamples;
 	bool					m_bRandomize;
 	bool					m_bCreaseEdges;
+	bool					m_bGroundOcclusion;
 	int						m_iRPVX;
 	int						m_iRPVY;
 	int						m_iRPVW;

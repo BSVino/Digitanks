@@ -44,6 +44,7 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_iSamples = 15;
 	m_bRandomize = false;
 	m_bCreaseEdges = true;
+	m_bGroundOcclusion = false;
 
 	SetRenderPreviewViewport(0, 0, 100, 100);
 	SetUseFrontBuffer(false);
@@ -632,7 +633,7 @@ void CAOGenerator::GenerateShadowMaps()
 	for (size_t x = 0; x <= iSamples; x++)
 	{
 		float flPitch = RemapVal(cos(RemapVal((float)x, 0, (float)iSamples, -M_PI/2, M_PI/2)), 0, 1, 90, 0);
-		if (x < iSamples/2)
+		if (x > iSamples/2)
 			flPitch = -flPitch;
 
 		for (size_t y = 0; y < iSamples; y++)
@@ -666,23 +667,27 @@ void CAOGenerator::GenerateShadowMaps()
 				0, 1, 0);
 			glGetFloatv(GL_MODELVIEW_MATRIX, mLightView);
 
-			glBindFramebufferEXT(GL_FRAMEBUFFER, iDepthFB);
-			glViewport(0, 0, iShadowMapSize, iShadowMapSize);
+			// If we're looking from below and ground occlusion is on, don't bother with this render.
+			if (!(flPitch < -10 && m_bGroundOcclusion))
+			{
+				glBindFramebufferEXT(GL_FRAMEBUFFER, iDepthFB);
+				glViewport(0, 0, iShadowMapSize, iShadowMapSize);
 
-		    glDisable(GL_CULL_FACE);
+				glDisable(GL_CULL_FACE);
 
-			glClear(GL_DEPTH_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT);
 
-			glCallList(m_iSceneList);
+				glCallList(m_iSceneList);
 
-			glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+				glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 #ifdef AO_DEBUG
-			glDrawBuffer(GL_FRONT);
-			glReadBuffer(GL_FRONT);
-			DrawTexture(iShadowMap, 0.6f);
-			glFinish();
+				glDrawBuffer(GL_FRONT);
+				glReadBuffer(GL_FRONT);
+				DrawTexture(iShadowMap, 0.6f);
+				glFinish();
 #endif
+			}
 
 			// OpenGL matrices are column major, so multiply in the wrong order to get the right result.
 			Matrix4x4 m1 = mLightProjection*mBias;
@@ -701,6 +706,7 @@ void CAOGenerator::GenerateShadowMaps()
 
 			GLuint iLightNormalUniform = glGetUniformLocation(iSMProgram, "vecLightNormal");
 			GLuint iShadowMapUniform = glGetUniformLocation(iSMProgram, "iShadowMap");
+			GLuint ibOccludeAllUniform = glGetUniformLocation(iSMProgram, "bOccludeAll");
 
 			glMatrixMode(GL_TEXTURE);
 			glActiveTexture(GL_TEXTURE7);
@@ -710,6 +716,7 @@ void CAOGenerator::GenerateShadowMaps()
 
 			glUniform1i(iShadowMapUniform, 7);
 			glUniform3fv(iLightNormalUniform, 1, -vecDir);
+			glUniform1i(ibOccludeAllUniform, (flPitch < -10 && m_bGroundOcclusion));
 
 			glActiveTexture(GL_TEXTURE7);
 			glBindTexture(GL_TEXTURE_2D, iShadowMap);
@@ -1171,6 +1178,28 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 							float flDistance = (vecHit - vecUVPosition).Length();
 							flHits += flWeight * (1/pow(2, flDistance));
 						}
+						else if (m_bGroundOcclusion)
+						{
+							if (vecRay.y < 0)
+							{
+								Vector vecGround = pMeshInstance->m_pParent->m_oExtends.m_vecMins;
+
+								// The following math is basically a plane-ray intersection algorithm,
+								// with shortcuts made for the assumption of an infinite plane facing straight up.
+
+								Vector n = Vector(0,1,0);
+
+								float a = -(vecUVPosition.y - vecGround.y);
+								float b = vecRay.y;
+
+								float flDistance = a/b;
+
+								if (flDistance < 1e-4f)
+									flHits += flWeight;
+								else
+									flHits += flWeight * (1/pow(2, flDistance));
+							}
+						}
 					}
 				}
 
@@ -1189,6 +1218,28 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 				{
 					float flDistance = (vecHit - vecUVPosition).Length();
 					flHits += (1/pow(2, flDistance));
+				}
+				else if (m_bGroundOcclusion)
+				{
+					if (vecRay.y < 0)
+					{
+						Vector vecGround = pMeshInstance->m_pParent->m_oExtends.m_vecMins;
+
+						// The following math is basically a plane-ray intersection algorithm,
+						// with shortcuts made for the assumption of an infinite plane facing straight up.
+
+						Vector n = Vector(0,1,0);
+
+						float a = -(vecUVPosition.y - vecGround.y);
+						float b = vecRay.y;
+
+						float flDistance = a/b;
+
+						if (flDistance < 1e-4f)
+							flHits += 1;
+						else
+							flHits += (1/pow(2, flDistance));
+					}
 				}
 
 				float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
