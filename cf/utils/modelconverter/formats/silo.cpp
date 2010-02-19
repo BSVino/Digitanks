@@ -278,13 +278,18 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 			else
 			{
 				CConversionMaterial* pMaterial = m_pScene->GetMaterial(iNewMaterial);
-				iCurrentMaterial = pMesh->FindMaterialStub(pMaterial->GetName());
-				if (iCurrentMaterial == (size_t)~0)
+				if (pMaterial)
 				{
-					size_t iMaterialStub = pMesh->AddMaterialStub(pMaterial->GetName());
-					m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iNewMaterial);
-					iCurrentMaterial = iMaterialStub;
+					iCurrentMaterial = pMesh->FindMaterialStub(pMaterial->GetName());
+					if (iCurrentMaterial == (size_t)~0)
+					{
+						size_t iMaterialStub = pMesh->AddMaterialStub(pMaterial->GetName());
+						m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iNewMaterial);
+						iCurrentMaterial = iMaterialStub;
+					}
 				}
+				else
+					iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, pMesh->GetName());
 			}
 		}
 		else if (wcscmp(pszToken, L"-face") == 0)
