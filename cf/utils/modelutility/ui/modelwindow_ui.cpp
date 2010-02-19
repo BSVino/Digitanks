@@ -653,6 +653,41 @@ CAOPanel::CAOPanel(bool bColor, CConversionScene* pScene, std::vector<CMaterial>
 		m_pRayDensitySelector->SetSelection(15);
 		AddControl(m_pRayDensitySelector);
 
+		m_pFalloffLabel = new CLabel(0, 0, 32, 32, "Ray Falloff");
+		AddControl(m_pFalloffLabel);
+
+		m_pFalloffSelector = new CScrollSelector<float>();
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(0.01f, L"0.01"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(0.05f, L"0.05"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(0.1f, L"0.1"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(0.25f, L"0.25"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(0.5f, L"0.5"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(0.75f, L"0.75"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(1.0f, L"1.0"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(1.25f, L"1.25"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(1.5f, L"1.5"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(1.75f, L"1.75"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(2.0f, L"2.0"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(2.5f, L"2.5"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(3.0f, L"3.0"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(4.0f, L"4.0"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(5.0f, L"5.0"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(6.0f, L"6.0"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(7.5f, L"7.5"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(10.0f, L"10"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(25.0f, L"25"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(50.0f, L"50"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(100.0f, L"100"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(250.0f, L"250"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(500.0f, L"500"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(1000.0f, L"1000"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(2500.0f, L"2500"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(5000.0f, L"5000"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(10000.0f, L"10000"));
+		m_pFalloffSelector->AddSelection(CScrollSelection<float>(-1.0f, L"No falloff"));
+		m_pFalloffSelector->SetSelection(6);
+		AddControl(m_pFalloffSelector);
+
 		m_pLightsLabel = new CLabel(0, 0, 32, 32, "Lights");
 		AddControl(m_pLightsLabel);
 
@@ -712,7 +747,7 @@ void CAOPanel::Layout()
 	m_pSizeSelector->SetPos(GetWidth() - m_pSizeSelector->GetWidth() - iSpace/2, iControlY);
 	m_pSizeLabel->SetPos(5, iControlY);
 
-	iControlY -= 40;
+	iControlY -= 30;
 
 	m_pEdgeBleedLabel->EnsureTextFits();
 	m_pEdgeBleedLabel->SetPos(5, iControlY);
@@ -722,7 +757,7 @@ void CAOPanel::Layout()
 
 	if (!m_bColor)
 	{
-		iControlY -= 40;
+		iControlY -= 30;
 
 		m_pAOMethodLabel->EnsureTextFits();
 		m_pAOMethodLabel->SetPos(5, iControlY);
@@ -734,18 +769,29 @@ void CAOPanel::Layout()
 		m_pRayDensityLabel->SetVisible(bRaytracing);
 		m_pRayDensitySelector->SetVisible(bRaytracing);
 
+		m_pFalloffSelector->SetVisible(bRaytracing);
+		m_pFalloffLabel->SetVisible(bRaytracing);
+
 		m_pRandomCheckBox->SetVisible(bRaytracing);
 		m_pRandomLabel->SetVisible(bRaytracing);
 
 		if (bRaytracing)
 		{
-			iControlY -= 40;
+			iControlY -= 30;
 
 			m_pRayDensityLabel->EnsureTextFits();
 			m_pRayDensityLabel->SetPos(5, iControlY);
 
 			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, m_pRayDensityLabel->GetHeight());
 			m_pRayDensitySelector->SetPos(GetWidth() - m_pRayDensitySelector->GetWidth() - iSpace/2, iControlY);
+
+			iControlY -= 30;
+
+			m_pFalloffLabel->EnsureTextFits();
+			m_pFalloffLabel->SetPos(5, iControlY);
+
+			m_pFalloffSelector->SetSize(GetWidth() - m_pFalloffLabel->GetWidth() - iSpace, m_pFalloffLabel->GetHeight());
+			m_pFalloffSelector->SetPos(GetWidth() - m_pFalloffSelector->GetWidth() - iSpace/2, iControlY);
 
 			iControlY -= 30;
 
@@ -761,7 +807,7 @@ void CAOPanel::Layout()
 
 		if (bShadowmapping)
 		{
-			iControlY -= 40;
+			iControlY -= 30;
 
 			m_pLightsLabel->EnsureTextFits();
 			m_pLightsLabel->SetPos(5, iControlY);
@@ -775,7 +821,12 @@ void CAOPanel::Layout()
 
 		if (bShadowmapping || bRaytracing)
 		{
-			iControlY -= 30;
+			// If we're on the raytracing screen there was already the Randomize rays checkbox
+			// so keep the spacing smaller.
+			if (bRaytracing)
+				iControlY -= 20;
+			else
+				iControlY -= 30;
 
 			m_pGroundOcclusionLabel->EnsureTextFits();
 			m_pGroundOcclusionLabel->SetPos(25, iControlY);
@@ -783,7 +834,10 @@ void CAOPanel::Layout()
 			m_pGroundOcclusionCheckBox->SetPos(10, iControlY + m_pGroundOcclusionLabel->GetHeight()/2 - m_pGroundOcclusionCheckBox->GetHeight()/2);
 		}
 
-		iControlY -= 30;
+		if (bShadowmapping || bRaytracing)
+			iControlY -= 20;
+		else
+			iControlY -= 30;
 
 		m_pCreaseLabel->EnsureTextFits();
 		m_pCreaseLabel->SetPos(25, iControlY);
@@ -846,6 +900,7 @@ void CAOPanel::GenerateCallback()
 	}
 	m_oGenerator.SetCreaseEdges(m_pCreaseCheckBox->GetToggleState());
 	m_oGenerator.SetGroundOcclusion(m_pGroundOcclusionCheckBox->GetToggleState());
+	m_oGenerator.SetRayFalloff(m_pFalloffSelector->GetSelectionValue());
 	m_oGenerator.Generate();
 
 	size_t iAO;

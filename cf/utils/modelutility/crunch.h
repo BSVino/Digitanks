@@ -36,6 +36,7 @@ public:
 	void					SetRandomize(bool bRandomize) { m_bRandomize = bRandomize; };
 	void					SetCreaseEdges(bool bCreaseEdges) { m_bCreaseEdges = bCreaseEdges; };
 	void					SetGroundOcclusion(bool bGroundOcclusion) { m_bGroundOcclusion = bGroundOcclusion; };
+	void					SetRayFalloff(float flRayFalloff) { m_flRayFalloff = flRayFalloff; };
 
 	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
 
@@ -74,6 +75,7 @@ protected:
 	bool					m_bRandomize;
 	bool					m_bCreaseEdges;
 	bool					m_bGroundOcclusion;
+	float					m_flRayFalloff;
 	int						m_iRPVX;
 	int						m_iRPVY;
 	int						m_iRPVW;

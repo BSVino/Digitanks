@@ -45,6 +45,7 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_bRandomize = false;
 	m_bCreaseEdges = true;
 	m_bGroundOcclusion = false;
+	m_flRayFalloff = 1;
 
 	SetRenderPreviewViewport(0, 0, 100, 100);
 	SetUseFrontBuffer(false);
@@ -1176,7 +1177,10 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 						if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
 						{
 							float flDistance = (vecHit - vecUVPosition).Length();
-							flHits += flWeight * (1/pow(2, flDistance));
+							if (m_flRayFalloff < 0)
+								flHits += flWeight;
+							else
+								flHits += flWeight * (1/pow(2, flDistance/m_flRayFalloff));
 						}
 						else if (m_bGroundOcclusion)
 						{
@@ -1194,10 +1198,10 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 								float flDistance = a/b;
 
-								if (flDistance < 1e-4f)
+								if (flDistance < 1e-4f || m_flRayFalloff < 0)
 									flHits += flWeight;
 								else
-									flHits += flWeight * (1/pow(2, flDistance));
+									flHits += flWeight * (1/pow(2, flDistance/m_flRayFalloff));
 							}
 						}
 					}
@@ -1217,7 +1221,10 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 				if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
 				{
 					float flDistance = (vecHit - vecUVPosition).Length();
-					flHits += (1/pow(2, flDistance));
+					if (m_flRayFalloff < 0)
+						flHits += 1;
+					else
+						flHits += (1/pow(2, flDistance/m_flRayFalloff));
 				}
 				else if (m_bGroundOcclusion)
 				{
@@ -1235,10 +1242,10 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 						float flDistance = a/b;
 
-						if (flDistance < 1e-4f)
+						if (flDistance < 1e-4f || m_flRayFalloff < 0)
 							flHits += 1;
 						else
-							flHits += (1/pow(2, flDistance));
+							flHits += (1/pow(2, flDistance/m_flRayFalloff));
 					}
 				}
 
