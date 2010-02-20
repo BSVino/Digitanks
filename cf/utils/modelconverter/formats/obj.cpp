@@ -147,7 +147,7 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			sLastTask = std::wstring(pszToken);
 
 			if (iCurrentMaterial == ~0)
-				iCurrentMaterial = pMesh->AddMaterialStub();
+				iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, pMesh->GetName());
 
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);

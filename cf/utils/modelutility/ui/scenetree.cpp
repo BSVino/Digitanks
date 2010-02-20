@@ -101,6 +101,9 @@ void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionS
 		{
 			CConversionMaterialMap* pMaterialMap = pSceneNode->GetMeshInstance(m)->GetMappedMaterial(s);
 
+			if (!pMaterialMap)
+				continue;
+
 			if (!m_pScene->GetMaterial(pMaterialMap->m_iMaterial))
 				continue;
 
