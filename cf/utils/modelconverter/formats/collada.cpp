@@ -108,7 +108,7 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 			}
 
 			if (m_pWorkListener)
-				m_pWorkListener->SetAction(L"Reading materials", iEntities);
+				m_pWorkListener->WorkProgress(i+1);
 		}
 
 		FCDGeometryLibrary* pGeoLib = pDoc->GetGeometryLibrary();
@@ -233,7 +233,7 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 			}
 
 			if (m_pWorkListener)
-				m_pWorkListener->WorkProgress(i);
+				m_pWorkListener->WorkProgress(i+1);
 		}
 
 		FCDVisualSceneNodeLibrary* pVisualScenes = pDoc->GetVisualSceneLibrary();

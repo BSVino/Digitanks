@@ -206,9 +206,6 @@ void CConversionMesh::CalculateExtends()
 		return;
 	}
 
-	if (m_pScene->m_pWorkListener)
-		m_pScene->m_pWorkListener->SetAction(L"Calculating extends", GetNumVertices());
-
 	Vector vecMins = m_aVertices[0];
 	Vector vecMaxs = m_aVertices[0];
 
@@ -221,9 +218,6 @@ void CConversionMesh::CalculateExtends()
 			if (m_aVertices[iVertex][i] > vecMaxs[i])
 				vecMaxs[i] = m_aVertices[iVertex][i];
 		}
-
-		if (m_pScene->m_pWorkListener)
-			m_pScene->m_pWorkListener->WorkProgress(iVertex);
 	}
 
 	m_oExtends = AABB(vecMins, vecMaxs);
