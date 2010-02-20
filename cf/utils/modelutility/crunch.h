@@ -68,6 +68,7 @@ public:
 	bool					IsGenerating() { return m_bIsGenerating; }
 	bool					DoneGenerating() { return m_bDoneGenerating; }
 	void					StopGenerating() { m_bStopGenerating = true; }
+	bool					IsStopped() { return m_bStopGenerating; }
 
 protected:
 	CConversionScene*		m_pScene;

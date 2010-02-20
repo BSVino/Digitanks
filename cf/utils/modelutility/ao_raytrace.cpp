@@ -119,6 +119,10 @@ void CAOGenerator::RaytraceSceneFromPosition(raytrace::CRaytracer* pTracer, Vect
 
 	float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
 
+	// Mutex may be dead, try to bail before.
+	if (m_bStopGenerating)
+		return;
+
 	if (GetNumberOfProcessors() > 1)
 	{
 		// Keep all locking and unlocking in one branch to prevent processor prediction miss problems.
@@ -188,6 +192,13 @@ void RaytraceThreadMain(void* pData)
 
 		// Give the main thread a chance to render and whatnot.
 		SleepMS(1);
+
+		if (pThread->pGenerator->IsStopped())
+		{
+			pThread->bDone = true;
+			pthread_exit(NULL);
+			return;
+		}
 	}
 }
 
@@ -218,6 +229,13 @@ void CAOGenerator::RaytraceSetupThreads()
 
 void CAOGenerator::RaytraceCleanupThreads()
 {
+	if (GetNumberOfProcessors() == 1)
+		return;
+
+	// If there are no threads then we've already cleaned up, don't do it twice.
+	if (!g_aThreads.size())
+		return;
+
 	for (size_t i = 0; i < g_aThreads.size(); i++)
 	{
 		thread_data_t* pThread = &g_aThreads[i];
@@ -290,5 +308,11 @@ void CAOGenerator::RaytraceJoinThreads()
 
 		if (m_pWorkListener)
 			m_pWorkListener->WorkProgress(g_iJobsGiven-iWorkRemaining);
+
+		if (m_bStopGenerating)
+		{
+			RaytraceCleanupThreads();
+			return;
+		}
 	}
 }
