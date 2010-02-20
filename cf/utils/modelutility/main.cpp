@@ -71,6 +71,10 @@ int main(int argc, char** argv)
 	size_t iBleed = 1;
 	size_t iLights = 3000;
 	size_t iSamples = 20;
+	float flRayFalloff = 1.0f;
+	bool bRandomize = false;
+	bool bCrease = false;
+	bool bGroundOcclusion = false;
 	std::wstring sOutput;
 
 	if (argc >= 2)
@@ -144,6 +148,31 @@ int main(int argc, char** argv)
 						iSamples = 15;
 					else if (iSamples > 25)
 						iSamples = 25;
+				}
+				else if (wcscmp(szToken, L"--falloff") == 0)
+				{
+					i++;
+					mbstowcs(szToken, argv[i], strlen(argv[i])+1);
+					if (wcscmp(szToken, L"none") == 0)
+						flRayFalloff = -1.0f;
+					else
+					{
+						flRayFalloff = (float)_wtof(szToken);
+						if (flRayFalloff < 0.0001f)
+							flRayFalloff = 0.0001f;
+					}
+				}
+				else if (wcscmp(szToken, L"--randomize") == 0)
+				{
+					bRandomize = true;
+				}
+				else if (wcscmp(szToken, L"--crease") == 0)
+				{
+					bCrease = true;
+				}
+				else if (wcscmp(szToken, L"--groundocclusion") == 0)
+				{
+					bGroundOcclusion = true;
 				}
 				else if (wcscmp(szToken, L"--output") == 0)
 				{
@@ -252,6 +281,9 @@ int main(int argc, char** argv)
 				ao.SetSamples(iLights);
 			else if (eMethod == AOMETHOD_RAYTRACE)
 				ao.SetSamples(iSamples);
+			ao.SetRandomize(bRandomize);
+			ao.SetCreaseEdges(bCrease);
+			ao.SetGroundOcclusion(bGroundOcclusion);
 
 			ao.SetWorkListener(&l);
 
