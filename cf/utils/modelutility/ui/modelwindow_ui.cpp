@@ -1118,7 +1118,7 @@ void CAboutPanel::Layout()
 		int px, py, pw, ph;
 		GetParent()->GetAbsDimensions(px, py, pw, ph);
 
-		SetSize(600, 200);
+		SetSize(600, 250);
 		SetPos(pw/2 - GetWidth()/2, ph/2 - GetHeight()/2);
 	}
 
@@ -1133,6 +1133,7 @@ void CAboutPanel::Layout()
 	m_pInfo->AppendText("DevIL copyright © 2001-2009, Denton Woods\n");
 	m_pInfo->AppendText("FTGL copyright © 2001-2003 Henry Maddocks\n");
 	m_pInfo->AppendText("Freeglut copyright © 1999-2000, Pawel W. Olszta\n");
+	m_pInfo->AppendText("pthreads-win32 copyright © 2001, 2006 Ross P. Johnson\n");
 	m_pInfo->AppendText("GLEW copyright © 2002-2007, Milan Ikits, Marcelo E. Magallon, Lev Povalahev\n");
 	m_pInfo->AppendText("Freetype copyright © 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg\n");
 
