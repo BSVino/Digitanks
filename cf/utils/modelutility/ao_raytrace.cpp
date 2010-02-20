@@ -163,6 +163,13 @@ void RaytraceThreadMain(void* pData)
 	thread_data_t* pThread = (thread_data_t*)pData;
 	while (true)
 	{
+		if (pThread->pGenerator->IsStopped())
+		{
+			pThread->bDone = true;
+			pthread_exit(NULL);
+			return;
+		}
+
 		pthread_mutex_lock(&g_iJobsMutex);
 		if (!g_lJobs.size())
 		{
@@ -192,13 +199,6 @@ void RaytraceThreadMain(void* pData)
 
 		// Give the main thread a chance to render and whatnot.
 		SleepMS(1);
-
-		if (pThread->pGenerator->IsStopped())
-		{
-			pThread->bDone = true;
-			pthread_exit(NULL);
-			return;
-		}
 	}
 }
 
@@ -247,6 +247,7 @@ void CAOGenerator::RaytraceCleanupThreads()
 	pthread_mutex_destroy(&g_iJobsMutex);
 
 	g_aThreads.clear();
+	g_lJobs.clear();
 }
 
 void CAOGenerator::RaytraceSceneMultithreaded(raytrace::CRaytracer* pTracer, Vector vecUVPosition, Vector vecNormal, CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t iTexel)
