@@ -54,6 +54,12 @@ public:
 	void					AccumulateTexture(size_t iTexture);
 	void					Bleed();
 
+	void					RaytraceSetupThreads();
+	void					RaytraceCleanupThreads();
+	void					RaytraceSceneMultithreaded(class raytrace::CRaytracer* pTracer, Vector vecPosition, Vector vecDirection, CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t iTexel);
+	void					RaytraceSceneFromPosition(class raytrace::CRaytracer* pTracer, Vector vecPosition, Vector vecDirection, CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t iTexel);
+	void					RaytraceJoinThreads();
+
 	size_t					GenerateTexture(bool bInMedias = false);
 	void					SaveToFile(const wchar_t* pszFilename);
 

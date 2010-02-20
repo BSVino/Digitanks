@@ -12,6 +12,7 @@
 #include <matrix.h>
 #include <raytracer/raytracer.h>
 #include "shaders/shaders.h"
+#include <platform.h>
 
 #if 0
 #ifdef _DEBUG
@@ -375,6 +376,9 @@ void CAOGenerator::Generate()
 	}
 	else
 	{
+		if (m_eAOMethod == AOMETHOD_RAYTRACE)
+			RaytraceSetupThreads();
+
 		if (m_eAOMethod == AOMETHOD_RENDER)
 			RenderSetupScene();
 #ifdef AO_DEBUG
@@ -434,6 +438,9 @@ void CAOGenerator::Generate()
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 	}
+
+	if (m_eAOMethod == AOMETHOD_RAYTRACE)
+		RaytraceCleanupThreads();
 
 	// Somebody get this ao some clotters and morphine, STAT!
 	m_bIsBleeding = true;
@@ -937,7 +944,12 @@ void CAOGenerator::GenerateByTexel()
 	}
 
 	if (m_pWorkListener)
-		m_pWorkListener->SetAction(L"Rendering", (size_t)(flTotalArea*m_iWidth*m_iHeight));
+	{
+		if (m_eAOMethod == AOMETHOD_RAYTRACE && GetNumberOfProcessors() > 1)
+			m_pWorkListener->SetAction(L"Dispatching jobs", (size_t)(flTotalArea*m_iWidth*m_iHeight));
+		else
+			m_pWorkListener->SetAction(L"Rendering", (size_t)(flTotalArea*m_iWidth*m_iHeight));
+	}
 
 	size_t iRendered = 0;
 
@@ -945,9 +957,10 @@ void CAOGenerator::GenerateByTexel()
 		GenerateNodeByTexel(m_pScene->GetScene(0), pTracer, iRendered);
 
 	if (m_eAOMethod == AOMETHOD_RAYTRACE)
-	{
+		RaytraceJoinThreads();
+
+	if (m_eAOMethod == AOMETHOD_RAYTRACE)
 		delete pTracer;
-	}
 }
 
 void CAOGenerator::GenerateNodeByTexel(CConversionSceneNode* pNode, raytrace::CRaytracer* pTracer, size_t& iRendered)
@@ -1133,124 +1146,7 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 			}
 			else if (m_eAOMethod == AOMETHOD_RAYTRACE)
 			{
-				// Build rotation matrix
-				Matrix4x4 m;
-				m.SetOrientation(vecNormal);
-
-				// Turn it sideways so that pitch 90 is up, for more uniform sampling
-				Matrix4x4 m2;
-				m2.SetRotation(EAngle(0, -90, 0));
-
-				m *= m2;
-
-				float flHits = 0;
-				float flTotalHits = 0;
-
-				for (size_t x = 0; x < m_iSamples/2; x++)
-				{
-					float flRandom = 0;
-					if (m_bRandomize)
-						flRandom = RemapVal((float)(rand()%10000), 0, 10000.0f, -0.5, 0.5);
-
-					float flPitch = RemapVal(cos(RemapVal((float)x+flRandom, 0, (float)m_iSamples/2, 0, M_PI/2)), 0, 1, 90, 0);
-
-					float flWeight = sin(flPitch * M_PI/180);
-
-					for (size_t y = 0; y <= m_iSamples; y++)
-					{
-						flRandom = 0;
-						if (m_bRandomize)
-							flRandom = RemapVal((float)(rand()%10000), 0, 10000.0f, -0.5, 0.5);
-
-						float flYaw = RemapVal((float)y+flRandom, 0, (float)m_iSamples, -180, 180);
-
-						Vector vecDir = AngleVector(EAngle(flPitch, flYaw, 0));
-
-						// Transform relative to the triangle's normal
-						Vector vecRay = m * vecDir;
-
-						//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
-
-						flTotalHits += flWeight;
-
-						Vector vecHit;
-						if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
-						{
-							float flDistance = (vecHit - vecUVPosition).Length();
-							if (m_flRayFalloff < 0)
-								flHits += flWeight;
-							else
-								flHits += flWeight * (1/pow(2, flDistance/m_flRayFalloff));
-						}
-						else if (m_bGroundOcclusion)
-						{
-							if (vecRay.y < 0)
-							{
-								Vector vecGround = pMeshInstance->m_pParent->m_oExtends.m_vecMins;
-
-								// The following math is basically a plane-ray intersection algorithm,
-								// with shortcuts made for the assumption of an infinite plane facing straight up.
-
-								Vector n = Vector(0,1,0);
-
-								float a = -(vecUVPosition.y - vecGround.y);
-								float b = vecRay.y;
-
-								float flDistance = a/b;
-
-								if (flDistance < 1e-4f || m_flRayFalloff < 0)
-									flHits += flWeight;
-								else
-									flHits += flWeight * (1/pow(2, flDistance/m_flRayFalloff));
-							}
-						}
-					}
-				}
-
-				// One last ray directly up, it is skipped in the above loop so it's not done 10 times.
-				Vector vecDir = AngleVector(EAngle(90, 0, 0));
-
-				// Transform relative to the triangle's normal
-				Vector vecRay = m * vecDir;
-
-				//RenderSceneFromPosition(vecUVPosition, vecRay, pFace);
-
-				flTotalHits++;
-
-				Vector vecHit;
-				if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
-				{
-					float flDistance = (vecHit - vecUVPosition).Length();
-					if (m_flRayFalloff < 0)
-						flHits += 1;
-					else
-						flHits += (1/pow(2, flDistance/m_flRayFalloff));
-				}
-				else if (m_bGroundOcclusion)
-				{
-					if (vecRay.y < 0)
-					{
-						Vector vecGround = pMeshInstance->m_pParent->m_oExtends.m_vecMins;
-
-						// The following math is basically a plane-ray intersection algorithm,
-						// with shortcuts made for the assumption of an infinite plane facing straight up.
-
-						Vector n = Vector(0,1,0);
-
-						float a = -(vecUVPosition.y - vecGround.y);
-						float b = vecRay.y;
-
-						float flDistance = a/b;
-
-						if (flDistance < 1e-4f || m_flRayFalloff < 0)
-							flHits += 1;
-						else
-							flHits += (1/pow(2, flDistance/m_flRayFalloff));
-					}
-				}
-
-				float flShadowValue = 1 - ((float)flHits / (float)flTotalHits);
-				m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
+				RaytraceSceneMultithreaded(pTracer, vecUVPosition, vecNormal, pMeshInstance, pFace, iTexel);
 			}
 			else
 			{

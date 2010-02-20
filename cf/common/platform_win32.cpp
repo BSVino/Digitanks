@@ -39,3 +39,14 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 	paiAddresses = &aiAddresses[0][0];
 }
 
+size_t GetNumberOfProcessors()
+{
+	SYSTEM_INFO SystemInfo;
+	GetSystemInfo(&SystemInfo);
+	return SystemInfo.dwNumberOfProcessors;
+}
+
+void SleepMS(size_t iMS)
+{
+	Sleep(1);
+}
