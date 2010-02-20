@@ -149,13 +149,13 @@ typedef struct
 {
 	pthread_t					iThread;
 	CAOGenerator*				pGenerator;
-	std::list<thread_job_t>		lJobs;
-	pthread_mutex_t				iJobsMutex;
 	bool						bQuitWhenDone;
 	bool						bDone;
 } thread_data_t;
 
 std::vector<thread_data_t> g_aThreads;
+std::list<thread_job_t> g_lJobs;
+pthread_mutex_t g_iJobsMutex;
 size_t g_iJobsGiven = 0;
 
 void RaytraceThreadMain(void* pData)
@@ -163,10 +163,10 @@ void RaytraceThreadMain(void* pData)
 	thread_data_t* pThread = (thread_data_t*)pData;
 	while (true)
 	{
-		pthread_mutex_lock(&pThread->iJobsMutex);
-		if (!pThread->lJobs.size())
+		pthread_mutex_lock(&g_iJobsMutex);
+		if (!g_lJobs.size())
 		{
-			pthread_mutex_unlock(&pThread->iJobsMutex);
+			pthread_mutex_unlock(&g_iJobsMutex);
 
 			if (pThread->bQuitWhenDone)
 			{
@@ -183,10 +183,10 @@ void RaytraceThreadMain(void* pData)
 		}
 
 		// Copy so we can pop it.
-		thread_job_t oThreadJob = pThread->lJobs.front();
-		pThread->lJobs.pop_front();
+		thread_job_t oThreadJob = g_lJobs.front();
+		g_lJobs.pop_front();
 
-		pthread_mutex_unlock(&pThread->iJobsMutex);
+		pthread_mutex_unlock(&g_iJobsMutex);
 
 		pThread->pGenerator->RaytraceSceneFromPosition(oThreadJob.pTracer, oThreadJob.vecUVPosition, oThreadJob.vecNormal, oThreadJob.pMeshInstance, oThreadJob.pFace, oThreadJob.iTexel);
 
@@ -208,6 +208,7 @@ void CAOGenerator::RaytraceSetupThreads()
 		return;
 
 	pthread_mutex_init(&g_iDataMutex, NULL);
+	pthread_mutex_init(&g_iJobsMutex, NULL);
 
 	g_iJobsGiven = 0;
 
@@ -221,7 +222,6 @@ void CAOGenerator::RaytraceSetupThreads()
 		pThread->pGenerator = this;
 		pThread->bQuitWhenDone = false;
 		pThread->bDone = false;
-		pthread_mutex_init(&pThread->iJobsMutex, NULL);
 
 		pthread_create(&pThread->iThread, NULL, (void *(*) (void *))&RaytraceThreadMain, (void*)pThread);
 	}
@@ -240,12 +240,11 @@ void CAOGenerator::RaytraceCleanupThreads()
 	{
 		thread_data_t* pThread = &g_aThreads[i];
 
-		pthread_mutex_destroy(&pThread->iJobsMutex);
-
 		pthread_detach(pThread->iThread);
 	}
 
 	pthread_mutex_destroy(&g_iDataMutex);
+	pthread_mutex_destroy(&g_iJobsMutex);
 
 	g_aThreads.clear();
 }
@@ -258,14 +257,10 @@ void CAOGenerator::RaytraceSceneMultithreaded(raytrace::CRaytracer* pTracer, Vec
 		return;
 	}
 
-	static int iNextThread = 0;
+	pthread_mutex_lock(&g_iJobsMutex);
 
-	thread_data_t* pThread = &g_aThreads[(iNextThread++)%g_aThreads.size()];
-
-	pthread_mutex_lock(&pThread->iJobsMutex);
-
-	pThread->lJobs.push_back(thread_job_t());
-	thread_job_t* pJob = &pThread->lJobs.back();
+	g_lJobs.push_back(thread_job_t());
+	thread_job_t* pJob = &g_lJobs.back();
 	pJob->pTracer = pTracer;
 	pJob->vecUVPosition = vecUVPosition;
 	pJob->vecNormal = vecNormal;
@@ -273,7 +268,7 @@ void CAOGenerator::RaytraceSceneMultithreaded(raytrace::CRaytracer* pTracer, Vec
 	pJob->pFace = pFace;
 	pJob->iTexel = iTexel;
 
-	pthread_mutex_unlock(&pThread->iJobsMutex);
+	pthread_mutex_unlock(&g_iJobsMutex);
 
 	g_iJobsGiven++;
 }
@@ -295,19 +290,17 @@ void CAOGenerator::RaytraceJoinThreads()
 	while (true)
 	{
 		bool bDone = true;
-		size_t iWorkRemaining = 0;
 		for (size_t t = 0; t < g_aThreads.size(); t++)
 		{
 			if (!g_aThreads[t].bDone)
 				bDone = false;
-			iWorkRemaining += g_aThreads[t].lJobs.size();
 		}
 
 		if (bDone)
 			return;
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(g_iJobsGiven-iWorkRemaining);
+			m_pWorkListener->WorkProgress(g_iJobsGiven - g_lJobs.size());
 
 		if (m_bStopGenerating)
 		{
