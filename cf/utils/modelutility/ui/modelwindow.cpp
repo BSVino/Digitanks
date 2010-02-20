@@ -143,6 +143,8 @@ CModelWindow::CModelWindow()
 	glLightfv(GL_LIGHT0, GL_SPECULAR, flLightSpecular);
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1f);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05f);
+
+	CSceneTreePanel::Get()->UpdateTree();
 }
 
 CModelWindow::~CModelWindow()
@@ -177,6 +179,8 @@ void CModelWindow::DestroyAll()
 	m_aiObjects.clear();
 	m_iObjectsCreated = 0;
 	m_aoMaterials.clear();
+
+	CSceneTreePanel::Get()->UpdateTree();
 
 	CRootPanel::Get()->Layout();
 }
@@ -215,7 +219,7 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 
 	m_flCameraDistance = m_Scene.m_oExtends.Size().Length() * 1.5f;
 
-	CSceneTreePanel::Get()->Layout();
+	CSceneTreePanel::Get()->UpdateTree();
 
 	m_bLoadingFile = false;
 }

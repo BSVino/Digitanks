@@ -10,6 +10,13 @@ CSceneTreePanel::CSceneTreePanel(CConversionScene* pScene)
 	m_pScene = pScene;
 	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	AddControl(m_pTree);
+
+	SetCloseButtonMinimize(true);
+	SetClearBackground(true);
+
+	// Infinite height so that scene objects are always clickable.
+	SetSize(GetWidth(), 10000);
+	SetPos(50, GetParent()->GetHeight() - GetHeight() - 100);
 }
 
 CSceneTreePanel::~CSceneTreePanel()
@@ -19,16 +26,19 @@ CSceneTreePanel::~CSceneTreePanel()
 
 void CSceneTreePanel::Layout()
 {
-	SetPos(50, GetParent()->GetHeight() - GetHeight() - 100);
-
 	m_pTree->SetPos(5, 10);
 	m_pTree->SetSize(GetWidth() - 5, GetHeight() - HEADER_HEIGHT - 20);
 
+	CMovablePanel::Layout();
+}
+
+void CSceneTreePanel::UpdateTree()
+{
 	m_pTree->ClearTree();
 
 	AddAllToTree();
 
-	CMovablePanel::Layout();
+	Layout();
 }
 
 void CSceneTreePanel::Paint(int x, int y, int w, int h)
@@ -50,6 +60,10 @@ void CSceneTreePanel::AddAllToTree()
 		pMaterialNode->AddVisibilityButton();
 	}
 
+	// Don't overload the screen.
+	if (pMaterialsNode->m_apNodes.size() > 10)
+		pMaterialsNode->SetExpanded(false);
+
 	size_t iMeshesNode = m_pTree->AddNode(L"Meshes");
 	CTreeNode* pMeshesNode = m_pTree->GetNode(iMeshesNode);
 	pMeshesNode->SetIcon(CModelWindow::Get()->GetMeshesNodeTexture());
@@ -57,12 +71,18 @@ void CSceneTreePanel::AddAllToTree()
 	for (i = 0; i < m_pScene->GetNumMeshes(); i++)
 		pMeshesNode->AddNode<CConversionMesh>(m_pScene->GetMesh(i)->GetName(), m_pScene->GetMesh(i));
 
+	if (pMeshesNode->m_apNodes.size() > 10)
+		pMeshesNode->SetExpanded(false);
+
 	size_t iScenesNode = m_pTree->AddNode(L"Scenes");
 	CTreeNode* pScenesNode = m_pTree->GetNode(iScenesNode);
 	pScenesNode->SetIcon(CModelWindow::Get()->GetScenesNodeTexture());
 
 	for (i = 0; i < m_pScene->GetNumScenes(); i++)
 		AddNodeToTree(pScenesNode, m_pScene->GetScene(i));
+
+	if (pScenesNode->m_apNodes.size() > 10)
+		pScenesNode->SetExpanded(false);
 }
 
 void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionSceneNode* pSceneNode)

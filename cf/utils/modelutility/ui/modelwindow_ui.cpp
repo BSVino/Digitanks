@@ -24,7 +24,6 @@ void CModelWindow::InitUI()
 
 	pView->AddSubmenu("3D view", this, Render3D);
 	pView->AddSubmenu("UV view", this, RenderUV);
-	pView->AddSubmenu("Scene tree", this, SceneTree);
 	pView->AddSubmenu("View wireframe", this, Wireframe);
 	pView->AddSubmenu("View flat shaded", this, Flat);
 	pView->AddSubmenu("View smooth shaded", this, Smooth);
@@ -72,9 +71,9 @@ void CModelWindow::InitUI()
 
 	CRootPanel::Get()->AddControl(pBottomButtons);
 
-	CSceneTreePanel::Open(&m_Scene);
-
 	CRootPanel::Get()->Layout();
+
+	CSceneTreePanel::Open(&m_Scene);
 }
 
 void CModelWindow::Layout()
@@ -481,6 +480,11 @@ CMovablePanel::CMovablePanel(char* pszName)
 	m_pCloseButton->SetClickedListener(this, CloseWindow);
 
 	CRootPanel::Get()->AddControl(this);
+
+	m_bCloseButtonMinimize = false;
+	m_bMinimized = false;
+
+	m_bClearBackground = false;
 }
 
 CMovablePanel::~CMovablePanel()
@@ -513,11 +517,22 @@ void CMovablePanel::Think()
 
 void CMovablePanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::PaintRect(x, y, w, h, g_clrPanel);
+	if (!m_bMinimized && !m_bClearBackground)
+		CRootPanel::PaintRect(x, y, w, h, g_clrPanel);
 
-	CRootPanel::PaintRect(x, y+h-HEADER_HEIGHT, w, HEADER_HEIGHT, g_clrBoxHi);
+	Color clrBox = g_clrBoxHi;
+	if (m_bClearBackground)
+		clrBox.SetAlpha(clrBox.a()*3/2);
 
-	CPanel::Paint(x, y, w, h);
+	CRootPanel::PaintRect(x, y+h-HEADER_HEIGHT, w, HEADER_HEIGHT, clrBox);
+
+	if (m_bMinimized)
+	{
+		m_pName->Paint();
+		m_pCloseButton->Paint();
+	}
+	else
+		CPanel::Paint(x, y, w, h);
 }
 
 bool CMovablePanel::MousePressed(int iButton, int mx, int my)
@@ -556,9 +571,31 @@ bool CMovablePanel::MouseReleased(int iButton, int mx, int my)
 	return false;
 }
 
+void CMovablePanel::Minimize()
+{
+	m_bMinimized = !m_bMinimized;
+
+	if (m_bMinimized)
+	{
+		m_iNonMinimizedHeight = GetHeight();
+		SetSize(GetWidth(), HEADER_HEIGHT);
+		SetPos(m_iX, m_iY+m_iNonMinimizedHeight-HEADER_HEIGHT);
+	}
+	else
+	{
+		SetSize(GetWidth(), m_iNonMinimizedHeight);
+		SetPos(m_iX, m_iY-m_iNonMinimizedHeight+HEADER_HEIGHT);
+	}
+
+	Layout();
+}
+
 void CMovablePanel::CloseWindowCallback()
 {
-	SetVisible(false);
+	if (m_bCloseButtonMinimize)
+		Minimize();
+	else
+		SetVisible(false);
 }
 
 CAOPanel* CAOPanel::s_pAOPanel = NULL;

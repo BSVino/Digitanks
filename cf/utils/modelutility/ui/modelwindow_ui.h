@@ -64,6 +64,8 @@ class CCloseButton : public CButton
 public:
 							CCloseButton() : CButton(0, 0, 10, 10, "") {};
 
+public:
+	virtual void			Paint() { CButton::Paint(); };
 	virtual void			Paint(int x, int y, int w, int h);
 };
 
@@ -82,6 +84,11 @@ public:
 	virtual bool			MousePressed(int iButton, int mx, int my);
 	virtual bool			MouseReleased(int iButton, int mx, int my);
 
+	virtual void			SetCloseButtonMinimize(bool bMinimize) { m_bCloseButtonMinimize = bMinimize; };
+	virtual void			Minimize();
+
+	virtual void			SetClearBackground(bool bClearBackground) { m_bClearBackground = bClearBackground; };
+
 	EVENT_CALLBACK(CMovablePanel, CloseWindow);
 
 protected:
@@ -90,6 +97,12 @@ protected:
 	int						m_iStartX;
 	int						m_iStartY;
 	bool					m_bMoving;
+
+	bool					m_bCloseButtonMinimize;
+	bool					m_bMinimized;
+	int						m_iNonMinimizedHeight;
+
+	bool					m_bClearBackground;
 
 	CLabel*					m_pName;
 

@@ -13,6 +13,7 @@ public:
 	void							Layout();
 	void							Paint(int x, int y, int w, int h);
 
+	void							UpdateTree();
 	void							AddAllToTree();
 	void							AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionSceneNode* pNode);
 
