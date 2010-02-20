@@ -724,7 +724,7 @@ namespace modelgui
 			else
 				m_flHandlePositionGoal = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
 
-			m_flHandlePosition = Approach(m_flHandlePositionGoal, m_flHandlePosition, CRootPanel::Get()->GetFrameTime()*6);
+			m_flHandlePosition = Approach(m_flHandlePositionGoal, m_flHandlePosition, CRootPanel::Get()->GetFrameTime()*10);
 
 			int iSelection = SelectionByHandle();
 			m_pOption->SetText(m_aSelections[iSelection].m_sLabel.c_str());
@@ -737,18 +737,21 @@ namespace modelgui
 			}
 		}
 
-#define HANDLE_SIZE 8
+#define HANDLE_SIZE 12
 
 		virtual void Paint(int x, int y, int w, int h)
 		{
-			CRootPanel::PaintRect(x, y+h/2, w, 1, Color(200, 200, 200, 255));
+			//CRootPanel::PaintRect(x, y, w, h, g_clrBoxHi);
+
+			int iLeft = x+HANDLE_SIZE/2;
+			int iWidth = w-HANDLE_SIZE;
+
+			CRootPanel::PaintRect(iLeft, y+h/2, iWidth, 1, Color(200, 200, 200, 255));
 
 			for (size_t i = 0; i < m_aSelections.size(); i++)
-			{
-				CRootPanel::PaintRect(x + w*(int)i/((int)m_aSelections.size()-1), y+h/2-5, 1, 10, Color(200, 200, 200, 255));
-			}
+				CRootPanel::PaintRect(iLeft + iWidth*(int)i/((int)m_aSelections.size()-1), y+h/2-5, 1, 10, Color(200, 200, 200, 255));
 
-			CRootPanel::PaintRect(HandleX(), HandleY(), HANDLE_SIZE, HANDLE_SIZE, g_clrBoxHi);
+			CRootPanel::PaintRect(HandleX()+2, HandleY()+2, HANDLE_SIZE-4, HANDLE_SIZE-4, g_clrBoxHi);
 
 			CPanel::Paint(x, y, w, h);
 		}
@@ -766,7 +769,7 @@ namespace modelgui
 				m_bMovingHandle = true;
 			else
 			{
-				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x, (float)(x + w), 0.0f, 1.0f);
+				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x + HANDLE_SIZE/2, (float)(x + w - HANDLE_SIZE/2), 0.0f, 1.0f);
 				m_iSelection = SelectionByHandle();
 
 				if (m_pSelectedListener)
@@ -793,7 +796,18 @@ namespace modelgui
 		virtual void CursorOut()
 		{
 			if (m_bMovingHandle)
+			{
+				int mx, my;
+				CRootPanel::GetFullscreenMousePos(mx, my);
+
+				int x, y, w, h;
+				GetAbsDimensions(x, y, w, h);
+
+				// If the mouse went out of the left or right side, make sure we're all the way to that side.
+				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x, (float)(x + w), 0.0f, 1.0f);
+
 				DoneMovingHandle();
+			}
 		}
 
 		virtual void DoneMovingHandle()
@@ -843,7 +857,9 @@ namespace modelgui
 			int x, y, w, h;
 			GetAbsDimensions(x, y, w, h);
 
-			return x + (int)(w*m_flHandlePosition) - HANDLE_SIZE/2;
+			int iLeft = x+HANDLE_SIZE/2;
+			int iWidth = w-HANDLE_SIZE;
+			return iLeft + (int)(iWidth*m_flHandlePosition) - HANDLE_SIZE/2;
 		}
 
 		virtual int HandleY()

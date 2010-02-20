@@ -777,7 +777,9 @@ void CAOPanel::Layout()
 
 	m_pSizeLabel->EnsureTextFits();
 
-	m_pSizeSelector->SetSize(GetWidth() - m_pSizeLabel->GetWidth() - iSpace, m_pSizeLabel->GetHeight());
+	int iSelectorSize = m_pSizeLabel->GetHeight() - 4;
+
+	m_pSizeSelector->SetSize(GetWidth() - m_pSizeLabel->GetWidth() - iSpace, iSelectorSize);
 
 	int iControlY = GetHeight() - HEADER_HEIGHT - m_pSizeSelector->GetHeight();
 
@@ -789,7 +791,7 @@ void CAOPanel::Layout()
 	m_pEdgeBleedLabel->EnsureTextFits();
 	m_pEdgeBleedLabel->SetPos(5, iControlY);
 
-	m_pEdgeBleedSelector->SetSize(GetWidth() - m_pEdgeBleedLabel->GetWidth() - iSpace, m_pEdgeBleedLabel->GetHeight());
+	m_pEdgeBleedSelector->SetSize(GetWidth() - m_pEdgeBleedLabel->GetWidth() - iSpace, iSelectorSize);
 	m_pEdgeBleedSelector->SetPos(GetWidth() - m_pEdgeBleedSelector->GetWidth() - iSpace/2, iControlY);
 
 	if (!m_bColor)
@@ -799,7 +801,7 @@ void CAOPanel::Layout()
 		m_pAOMethodLabel->EnsureTextFits();
 		m_pAOMethodLabel->SetPos(5, iControlY);
 
-		m_pAOMethodSelector->SetSize(GetWidth() - m_pAOMethodLabel->GetWidth() - iSpace, m_pAOMethodLabel->GetHeight());
+		m_pAOMethodSelector->SetSize(GetWidth() - m_pAOMethodLabel->GetWidth() - iSpace, iSelectorSize);
 		m_pAOMethodSelector->SetPos(GetWidth() - m_pAOMethodSelector->GetWidth() - iSpace/2, iControlY);
 
 		bool bRaytracing = (m_pAOMethodSelector->GetSelectionValue() == AOMETHOD_RAYTRACE);
@@ -819,7 +821,7 @@ void CAOPanel::Layout()
 			m_pRayDensityLabel->EnsureTextFits();
 			m_pRayDensityLabel->SetPos(5, iControlY);
 
-			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, m_pRayDensityLabel->GetHeight());
+			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, iSelectorSize);
 			m_pRayDensitySelector->SetPos(GetWidth() - m_pRayDensitySelector->GetWidth() - iSpace/2, iControlY);
 
 			iControlY -= 30;
@@ -827,7 +829,7 @@ void CAOPanel::Layout()
 			m_pFalloffLabel->EnsureTextFits();
 			m_pFalloffLabel->SetPos(5, iControlY);
 
-			m_pFalloffSelector->SetSize(GetWidth() - m_pFalloffLabel->GetWidth() - iSpace, m_pFalloffLabel->GetHeight());
+			m_pFalloffSelector->SetSize(GetWidth() - m_pFalloffLabel->GetWidth() - iSpace, iSelectorSize);
 			m_pFalloffSelector->SetPos(GetWidth() - m_pFalloffSelector->GetWidth() - iSpace/2, iControlY);
 
 			iControlY -= 30;
@@ -849,7 +851,7 @@ void CAOPanel::Layout()
 			m_pLightsLabel->EnsureTextFits();
 			m_pLightsLabel->SetPos(5, iControlY);
 
-			m_pLightsSelector->SetSize(GetWidth() - m_pLightsLabel->GetWidth() - iSpace, m_pLightsLabel->GetHeight());
+			m_pLightsSelector->SetSize(GetWidth() - m_pLightsLabel->GetWidth() - iSpace, iSelectorSize);
 			m_pLightsSelector->SetPos(GetWidth() - m_pLightsSelector->GetWidth() - iSpace/2, iControlY);
 		}
 
