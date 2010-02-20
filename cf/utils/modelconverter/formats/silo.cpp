@@ -329,10 +329,15 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 		}
 		else if (wcscmp(pszToken, L"-axis") == 0)
 		{
-			// Object's center point. There is rotation information included in this node, but we don't use it at the moment.
-			float x, y, z;
-			swscanf(sLine.c_str(), L"-axis %f %f %f", &x, &y, &z);
-			pMeshNode->m_mTransformations += Vector(x, y, z);
+			// This is the manipulator position and angles. The code below is untested and probably has the elements in the wrong
+			// order. We don't support writing yet so no need to load it so I'm not bothering with it now.
+		/*	Matrix4x4& m = pMeshNode->m_mManipulator;
+			swscanf(sLine.c_str(), L"-axis %f %f %f %f %f %f %f %f %f",
+				&m.m[0][3], &m.m[1][3], &m.m[2][3],
+				&m.m[0][0], &m.m[0][1], &m.m[0][2],	// ?
+				&m.m[1][0], &m.m[1][1], &m.m[1][2], // ?
+				&m.m[2][0], &m.m[2][1], &m.m[2][2]  // ?
+				);*/
 		}
 		else if (wcscmp(pszToken, L"-endShape") == 0)
 		{
