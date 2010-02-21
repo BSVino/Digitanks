@@ -144,8 +144,8 @@ int main(int argc, char** argv)
 					i++;
 					mbstowcs(szToken, argv[i], strlen(argv[i])+1);
 					iSamples = _wtoi(szToken);
-					if (iSamples < 15)
-						iSamples = 15;
+					if (iSamples < 5)
+						iSamples = 5;
 					else if (iSamples > 25)
 						iSamples = 25;
 				}
