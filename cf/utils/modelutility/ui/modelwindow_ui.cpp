@@ -936,10 +936,10 @@ void CAOPanel::GenerateCallback()
 		else
 			m_oGenerator.SetSamples(m_pRayDensitySelector->GetSelectionValue());
 		m_oGenerator.SetRandomize(m_pRandomCheckBox->GetToggleState());
+		m_oGenerator.SetCreaseEdges(m_pCreaseCheckBox->GetToggleState());
+		m_oGenerator.SetGroundOcclusion(m_pGroundOcclusionCheckBox->GetToggleState());
+		m_oGenerator.SetRayFalloff(m_pFalloffSelector->GetSelectionValue());
 	}
-	m_oGenerator.SetCreaseEdges(m_pCreaseCheckBox->GetToggleState());
-	m_oGenerator.SetGroundOcclusion(m_pGroundOcclusionCheckBox->GetToggleState());
-	m_oGenerator.SetRayFalloff(m_pFalloffSelector->GetSelectionValue());
 	m_oGenerator.Generate();
 
 	size_t iAO;

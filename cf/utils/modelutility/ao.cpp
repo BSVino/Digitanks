@@ -318,6 +318,17 @@ void CAOGenerator::RenderSetupSceneNode(CConversionSceneNode* pNode, GLUtesselat
 			glBindTexture(GL_TEXTURE_2D, (GLuint)(*m_paoMaterials)[m].m_iBase);
 			glColor3f(1, 1, 1);
 
+			if (pFace->m != ~0 && pMeshInstance->GetMappedMaterial(pFace->m) && m_pScene->GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial))
+			{
+				CConversionMaterial* pMaterial = m_pScene->GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
+				glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
+				glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
+				glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
+				glColor4fv(pMaterial->m_vecDiffuse);
+			}
+
 			gluTessBeginPolygon(pTesselator, pMeshInstance);
 			gluTessBeginContour(pTesselator);
 
