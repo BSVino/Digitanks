@@ -1034,6 +1034,14 @@ void CAOPanel::EndProgress()
 	CProgressBar::Get()->SetVisible(false);
 }
 
+void CAOPanel::FindBestRayFalloff()
+{
+	if (!m_pScene->GetNumMeshes())
+		return;
+
+	m_pFalloffSelector->SetSelection(m_pFalloffSelector->FindClosestSelectionValue(m_pScene->m_oExtends.Size().Length()/2));
+}
+
 void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
 	CAOPanel* pPanel = Get(bColor);
@@ -1054,6 +1062,8 @@ void CAOPanel::Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial
 
 	pPanel->SetVisible(true);
 	pPanel->Layout();
+
+	pPanel->FindBestRayFalloff();
 }
 
 CAOPanel* CAOPanel::Get(bool bColor)

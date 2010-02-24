@@ -130,6 +130,8 @@ public:
 	EVENT_CALLBACK(CAOPanel, SaveMap);
 	EVENT_CALLBACK(CAOPanel, AOMethod);
 
+	virtual void			FindBestRayFalloff();
+
 	static void				Open(bool bColor, CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 	static CAOPanel*		Get(bool bColor);
 

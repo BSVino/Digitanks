@@ -839,6 +839,29 @@ namespace modelgui
 			return m_aSelections[m_iSelection].m_oParam;
 		}
 
+		virtual size_t FindClosestSelectionValue(float flValue)
+		{
+			size_t iClosest;
+			T flClosestValue;
+			for (size_t i = 0; i < m_aSelections.size(); i++)
+			{
+				if (i == 0)
+				{
+					flClosestValue = m_aSelections[0].m_oParam;
+					iClosest = 0;
+					continue;
+				}
+
+				if (fabs((float)(m_aSelections[i].m_oParam - flValue)) < fabs((float)(flClosestValue - flValue)))
+				{
+					flClosestValue = m_aSelections[i].m_oParam;
+					iClosest = i;
+				}
+			}
+
+			return iClosest;
+		}
+
 		virtual int SelectionByHandle()
 		{
 			int iSelection = (int)(m_flHandlePositionGoal*m_aSelections.size());
