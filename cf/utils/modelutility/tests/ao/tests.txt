@@ -24,3 +24,6 @@ Smooth cranium without faceting
 
 * occ_test.obj
 Inward-facing polygons should work with raytracing and tri distance, and concave polygons.
+
+* beveled box (UVd)
+A small box that has some faces that are pure white that DevIL will output as pure black due to integer overfow if it is handled improperly.

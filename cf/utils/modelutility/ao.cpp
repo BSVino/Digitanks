@@ -1680,6 +1680,13 @@ void CAOGenerator::SaveToFile(const wchar_t *pszFilename)
 	// WHAT A HACK!
 	ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, NULL);
 
+	if (m_eAOMethod != AOMETHOD_SHADOWMAP)
+	{
+		for (size_t i = 0; i < m_iWidth*m_iHeight; i++)
+			// When exporting to png sometimes a pure white value will suffer integer overflow.
+			m_avecShadowValues[i] *= 0.99f;
+	}
+
 	ilSetData(&m_avecShadowValues[0].x);
 
 	// Formats like PNG and VTF don't work unless it's in integer format.
