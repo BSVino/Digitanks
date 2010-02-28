@@ -703,8 +703,13 @@ namespace modelgui
 		virtual void Layout()
 		{
 			m_pOption->SetSize(1, 1);
+
+			// Make sure there's some text to be fit to.
+			if (wcscmp(m_pOption->GetText(), L"") == 0)
+				m_pOption->SetText(L"-");
+
 			m_pOption->EnsureTextFits();
-			m_pOption->SetPos(GetWidth()/2 - m_pOption->GetWidth()/2, 0);
+			m_pOption->SetPos(GetWidth()/2 - m_pOption->GetWidth()/2, GetHeight()-15);
 
 			CPanel::Layout();
 		}

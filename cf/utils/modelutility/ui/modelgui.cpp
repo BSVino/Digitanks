@@ -95,22 +95,22 @@ void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
 	if (w > 1)
 	{
 		glBegin(GL_QUADS);
-			glNormal3f(-0.707106781f, -0.707106781f, 0);	// Give 'em normals so that the light falls on them cool-like.
+			glNormal3f(-0.707106781f, 0.707106781f, 0);	// Give 'em normals so that the light falls on them cool-like.
 			glVertex2d(x, y);
-			glNormal3f(0.707106781f, -0.707106781f, 0);
-			glVertex2d(x+w-1, y);
-			glNormal3f(0.707106781f, 0.707106781f, 0);
-			glVertex2d(x+w-1, y+h);
-			glNormal3f(-0.707106781f, 0.707106781f, 0);
+			glNormal3f(-0.707106781f, -0.707106781f, 0);
 			glVertex2d(x, y+h);
+			glNormal3f(0.707106781f, -0.707106781f, 0);
+			glVertex2d(x+w-1, y+h);
+			glNormal3f(0.707106781f, 0.707106781f, 0);
+			glVertex2d(x+w-1, y);
 		glEnd();
 	}
 	else
 	{
 		glBegin(GL_LINES);
-			glNormal3f(1.0f, 0, 0);
+			glNormal3f(0, 1.0, 0);
 			glVertex2d(x, y);
-			glNormal3f(-1.0f, 0, 0);
+			glNormal3f(0, -1.0, 0);
 			glVertex2d(x, y+h);
 		glEnd();
 	}
@@ -118,14 +118,14 @@ void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
 	if (h > 1 && w > 1)
 	{
 		glBegin(GL_LINES);
-			glNormal3f(-0.707106781f, -0.707106781f, 0);
-			glVertex2d(x, y+1);
 			glNormal3f(-0.707106781f, 0.707106781f, 0);
+			glVertex2d(x, y+1);
+			glNormal3f(-0.707106781f, -0.707106781f, 0);
 			glVertex2d(x, y+h-1);
 
-			glNormal3f(0.707106781f, -0.707106781f, 0);
-			glVertex2d(x+w, y+1);
 			glNormal3f(0.707106781f, 0.707106781f, 0);
+			glVertex2d(x+w, y+1);
+			glNormal3f(0.707106781f, -0.707106781f, 0);
 			glVertex2d(x+w, y+h-1);
 		glEnd();
 	}
@@ -631,15 +631,15 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	float flBaseline = (float)m_pFont->FaceSize()/2 + m_pFont->Descender()/2;
 
 	if (m_eAlign == TA_MIDDLECENTER)
-		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + (float)h/2 - flBaseline + th/2 - m_iLine*t);
+		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + flBaseline + h/2 - th/2 + m_iLine*t);
 	else if (m_eAlign == TA_LEFTCENTER)
-		glRasterPos2f((float)x, (float)y + (float)h/2 - flBaseline + th/2 - m_iLine*t);
+		glRasterPos2f((float)x, (float)y + flBaseline + h/2 - th/2 + m_iLine*t);
 	else if (m_eAlign == TA_RIGHTCENTER)
-		glRasterPos2f((float)x + (float)w - lw, y + h/2 - flBaseline + th/2 - m_iLine*t);
+		glRasterPos2f((float)x + (float)w - lw, y + flBaseline + h/2 - th/2 + m_iLine*t);
 	else if (m_eAlign == TA_TOPCENTER)
-		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + (float)h - m_iLine*t);
+		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + flBaseline + m_iLine*t);
 	else	// TA_TOPLEFT
-		glRasterPos2f((float)x, (float)y + (float)h - lw);
+		glRasterPos2f((float)x, (float)y + flBaseline + m_iLine*t);
 
 	m_pFont->Render(pszText, iLength);
 }
@@ -1068,14 +1068,14 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
 		glColor4f(1,1,1,1);
 		glBegin(GL_QUADS);
-			glTexCoord2f(0, 0);
-			glVertex2d(x, y);
-			glTexCoord2f(1, 0);
-			glVertex2d(x+w, y);
-			glTexCoord2f(1, 1);
-			glVertex2d(x+w, y+h);
 			glTexCoord2f(0, 1);
+			glVertex2d(x, y);
+			glTexCoord2f(0, 0);
 			glVertex2d(x, y+h);
+			glTexCoord2f(1, 0);
+			glVertex2d(x+w, y+h);
+			glTexCoord2f(1, 1);
+			glVertex2d(x+w, y);
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1404,7 +1404,7 @@ void CRootPanel::Paint(int x, int y, int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(x, x+w, y, y+h, -1, 1);
+	glOrtho(x, x+w, y+h, y, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -1654,7 +1654,7 @@ void CMenuBar::Layout( void )
 	if (GetParent())
 	{
 		SetSize(GetParent()->GetWidth(), MENU_HEIGHT);
-		SetPos(MENU_SPACING, GetParent()->GetHeight() - GetHeight() - MENU_SPACING);
+		SetPos(MENU_SPACING, MENU_SPACING);
 	}
 
 	CPanel::Layout();
@@ -1758,7 +1758,7 @@ void CMenu::Layout()
 	std::vector<IControl*> apControls = m_pMenu->GetControls();
 	for (size_t i = 0; i < apControls.size(); i++)
 	{
-		apControls[i]->SetPos(5, (int)(apControls.size()*MENU_HEIGHT-(i+1)*MENU_HEIGHT));
+		apControls[i]->SetPos(5, (int)(i*MENU_HEIGHT));
 		iHeight += MENU_HEIGHT;
 		if (apControls[i]->GetWidth()+10 > iWidth)
 			iWidth = apControls[i]->GetWidth()+10;
@@ -1768,7 +1768,7 @@ void CMenu::Layout()
 	GetAbsPos(x, y);
 
 	m_pMenu->SetSize(iWidth, iHeight);
-	m_pMenu->SetPos(x, y - 5 - m_pMenu->GetHeight());
+	m_pMenu->SetPos(x, y + 5 + MENU_HEIGHT);
 
 	m_pMenu->Layout();
 }
@@ -1793,7 +1793,7 @@ void CMenu::Paint(int x, int y, int w, int h)
 
 		Color clrBox = g_clrBox;
 		clrBox.SetAlpha((int)RemapVal(m_flMenuHighlight, 0, 1, 0, 255));
-		CRootPanel::PaintRect(mx, (int)(my + mh - mh*flMenuHeight), mw, (int)(mh*flMenuHeight), clrBox);
+		CRootPanel::PaintRect(mx, (int)(my), mw, (int)(mh*flMenuHeight), clrBox);
 
 		if (m_flMenuSelectionHighlight > 0)
 		{
@@ -1893,10 +1893,10 @@ void CMenu::CSubmenuPanel::Think()
 		int x, y;
 		pControl->GetPos(x, y);
 
-		if (y < GetHeight()-m_flFakeHeight*GetHeight())
-			m_aflControlHighlightGoal[i] = 0.0f;
-		else
+		if (y < m_flFakeHeight*GetHeight())
 			m_aflControlHighlightGoal[i] = 1.0f;
+		else
+			m_aflControlHighlightGoal[i] = 0.0f;
 
 		m_aflControlHighlight[i] = Approach(m_aflControlHighlightGoal[i], m_aflControlHighlight[i], CRootPanel::Get()->GetFrameTime()*3);
 
@@ -2015,7 +2015,7 @@ void CTreeNode::LayoutNode()
 	iCurrentHeight += iHeight;
 
 	int iX = iCurrentDepth*iHeight;
-	int iY = m_pTree->GetHeight() - iCurrentHeight;
+	int iY = iCurrentHeight;
 	int iW = m_pTree->GetWidth() - iCurrentDepth*iHeight;
 	int iH = iHeight;
 
@@ -2057,14 +2057,14 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iIconTexture);
 		glColor4f(1,1,1,1);
 		glBegin(GL_QUADS);
-			glTexCoord2f(0, 0);
-			glVertex2d(x+12, y);
-			glTexCoord2f(1, 0);
-			glVertex2d(x+12+iIconSize, y);
-			glTexCoord2f(1, 1);
-			glVertex2d(x+12+iIconSize, y+iIconSize);
 			glTexCoord2f(0, 1);
+			glVertex2d(x+12, y);
+			glTexCoord2f(0, 0);
 			glVertex2d(x+12, y+iIconSize);
+			glTexCoord2f(1, 0);
+			glVertex2d(x+12+iIconSize, y+iIconSize);
+			glTexCoord2f(1, 1);
+			glVertex2d(x+12+iIconSize, y);
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -2145,7 +2145,7 @@ void CTreeNode::CExpandButton::Paint(int x, int y, int w, int h)
 	glPushMatrix();
 
 	glTranslatef((float)x+w/2, (float)y+h/2, 0);
-	glRotatef((1-m_flExpandedCurrent)*90, 0, 0, 1);
+	glRotatef((m_flExpandedCurrent)*90, 0, 0, 1);
 
 	// Hehe.
 	// glRotatef((float)(glutGet(GLUT_ELAPSED_TIME)%3600)/5, 0, 0, 1);
@@ -2153,14 +2153,14 @@ void CTreeNode::CExpandButton::Paint(int x, int y, int w, int h)
 	glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
 	glColor4f(1,1,1,1);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0, 0);
-		glVertex2d(-w/2, -h/2);
-		glTexCoord2f(1, 0);
-		glVertex2d(w/2, -h/2);
-		glTexCoord2f(1, 1);
-		glVertex2d(w/2, h/2);
 		glTexCoord2f(0, 1);
+		glVertex2d(-w/2, -h/2);
+		glTexCoord2f(1, 1);
 		glVertex2d(-w/2, h/2);
+		glTexCoord2f(1, 0);
+		glVertex2d(w/2, h/2);
+		glTexCoord2f(0, 0);
+		glVertex2d(w/2, -h/2);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 

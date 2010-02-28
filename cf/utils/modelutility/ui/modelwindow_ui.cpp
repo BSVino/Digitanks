@@ -326,9 +326,9 @@ void CButtonPanel::Layout()
 
 	SetSize(iX - m_aiSpaces[m_aiSpaces.size()-1], BTN_HEIGHT);
 	if (m_eAlign == BA_TOP)
-		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, CRootPanel::Get()->GetHeight() - BTN_HEIGHT*2 - BTN_SPACE);
-	else
 		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, BTN_HEIGHT + BTN_SPACE);
+	else
+		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, CRootPanel::Get()->GetHeight() - BTN_HEIGHT*2 - BTN_SPACE);
 
 	CPanel::Layout();
 }
@@ -494,10 +494,10 @@ CMovablePanel::~CMovablePanel()
 
 void CMovablePanel::Layout()
 {
-	m_pName->SetDimensions(0, GetHeight()-HEADER_HEIGHT, GetWidth(), HEADER_HEIGHT);
+	m_pName->SetDimensions(0, 0, GetWidth(), HEADER_HEIGHT);
 
 	int iButtonSize = HEADER_HEIGHT*2/3;
-	m_pCloseButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - iButtonSize/2, GetHeight() - HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
+	m_pCloseButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - iButtonSize/2, HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
 
 	CPanel::Layout();
 }
@@ -524,7 +524,7 @@ void CMovablePanel::Paint(int x, int y, int w, int h)
 	if (m_bClearBackground)
 		clrBox.SetAlpha(clrBox.a()*3/2);
 
-	CRootPanel::PaintRect(x, y+h-HEADER_HEIGHT, w, HEADER_HEIGHT, clrBox);
+	CRootPanel::PaintRect(x, y, w, HEADER_HEIGHT, clrBox);
 
 	if (m_bMinimized)
 	{
@@ -540,7 +540,7 @@ bool CMovablePanel::MousePressed(int iButton, int mx, int my)
 	int x, y;
 	GetAbsPos(x, y);
 
-	if (iButton == 0 && mx > x && mx < x + GetWidth() - HEADER_HEIGHT*3/2 && my > y + GetHeight() - HEADER_HEIGHT && my < y + GetHeight())
+	if (iButton == 0 && mx > x && mx < x + GetWidth() - HEADER_HEIGHT*3/2 && my > y && my < y + HEADER_HEIGHT )
 	{
 		m_iMouseStartX = mx;
 		m_iMouseStartY = my;
@@ -781,12 +781,12 @@ void CAOPanel::Layout()
 
 	m_pSizeSelector->SetSize(GetWidth() - m_pSizeLabel->GetWidth() - iSpace, iSelectorSize);
 
-	int iControlY = GetHeight() - HEADER_HEIGHT - m_pSizeSelector->GetHeight();
+	int iControlY = HEADER_HEIGHT;
 
 	m_pSizeSelector->SetPos(GetWidth() - m_pSizeSelector->GetWidth() - iSpace/2, iControlY);
 	m_pSizeLabel->SetPos(5, iControlY);
 
-	iControlY -= 30;
+	iControlY += 30;
 
 	m_pEdgeBleedLabel->EnsureTextFits();
 	m_pEdgeBleedLabel->SetPos(5, iControlY);
@@ -796,7 +796,7 @@ void CAOPanel::Layout()
 
 	if (!m_bColor)
 	{
-		iControlY -= 30;
+		iControlY += 30;
 
 		m_pAOMethodLabel->EnsureTextFits();
 		m_pAOMethodLabel->SetPos(5, iControlY);
@@ -816,7 +816,7 @@ void CAOPanel::Layout()
 
 		if (bRaytracing)
 		{
-			iControlY -= 30;
+			iControlY += 30;
 
 			m_pRayDensityLabel->EnsureTextFits();
 			m_pRayDensityLabel->SetPos(5, iControlY);
@@ -824,7 +824,7 @@ void CAOPanel::Layout()
 			m_pRayDensitySelector->SetSize(GetWidth() - m_pRayDensityLabel->GetWidth() - iSpace, iSelectorSize);
 			m_pRayDensitySelector->SetPos(GetWidth() - m_pRayDensitySelector->GetWidth() - iSpace/2, iControlY);
 
-			iControlY -= 30;
+			iControlY += 30;
 
 			m_pFalloffLabel->EnsureTextFits();
 			m_pFalloffLabel->SetPos(5, iControlY);
@@ -832,7 +832,7 @@ void CAOPanel::Layout()
 			m_pFalloffSelector->SetSize(GetWidth() - m_pFalloffLabel->GetWidth() - iSpace, iSelectorSize);
 			m_pFalloffSelector->SetPos(GetWidth() - m_pFalloffSelector->GetWidth() - iSpace/2, iControlY);
 
-			iControlY -= 30;
+			iControlY += 30;
 
 			m_pRandomLabel->EnsureTextFits();
 			m_pRandomLabel->SetPos(25, iControlY);
@@ -846,7 +846,7 @@ void CAOPanel::Layout()
 
 		if (bShadowmapping)
 		{
-			iControlY -= 30;
+			iControlY += 30;
 
 			m_pLightsLabel->EnsureTextFits();
 			m_pLightsLabel->SetPos(5, iControlY);
@@ -863,9 +863,9 @@ void CAOPanel::Layout()
 			// If we're on the raytracing screen there was already the Randomize rays checkbox
 			// so keep the spacing smaller.
 			if (bRaytracing)
-				iControlY -= 20;
+				iControlY += 20;
 			else
-				iControlY -= 30;
+				iControlY += 30;
 
 			m_pGroundOcclusionLabel->EnsureTextFits();
 			m_pGroundOcclusionLabel->SetPos(25, iControlY);
@@ -874,9 +874,9 @@ void CAOPanel::Layout()
 		}
 
 		if (bShadowmapping || bRaytracing)
-			iControlY -= 20;
+			iControlY += 20;
 		else
-			iControlY -= 30;
+			iControlY += 30;
 
 		m_pCreaseLabel->EnsureTextFits();
 		m_pCreaseLabel->SetPos(25, iControlY);
@@ -884,12 +884,12 @@ void CAOPanel::Layout()
 		m_pCreaseCheckBox->SetPos(10, iControlY + m_pCreaseLabel->GetHeight()/2 - m_pCreaseCheckBox->GetHeight()/2);
 	}
 
-	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
-	m_pGenerate->SetPos(GetWidth()/4, GetWidth()/8+GetWidth()/6+10);
-
 	m_pSave->SetSize(GetWidth()/2, GetWidth()/6);
-	m_pSave->SetPos(GetWidth()/4, GetWidth()/8);
+	m_pSave->SetPos(GetWidth()/4, GetHeight() - (int)(m_pSave->GetHeight()*1.5f));
 	m_pSave->SetVisible(m_oGenerator.DoneGenerating());
+
+	m_pGenerate->SetSize(GetWidth()/2, GetWidth()/6);
+	m_pGenerate->SetPos(GetWidth()/4, GetHeight() - (int)(m_pSave->GetHeight()*1.5f) - (int)(m_pGenerate->GetHeight()*1.5f));
 
 	CMovablePanel::Layout();
 }
@@ -1229,7 +1229,7 @@ CRegisterPanel::CRegisterPanel()
 	m_pInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pInfo);
 
-	m_pPirates = new CButton(0, 0, 100, 100, "A message to pirates");
+	m_pPirates = new CButton(0, 0, 1, 1, "A message to pirates");
 	m_pPirates->SetClickedListener(this, Pirates);
 	AddControl(m_pPirates);
 
@@ -1251,7 +1251,7 @@ void CRegisterPanel::Layout()
 
 	m_pInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pInfo->SetSize(GetWidth(), GetHeight()-40);
-	m_pInfo->SetPos(0, 0);
+	m_pInfo->SetPos(0, 40);
 
 	if (!CModelWindow::Get()->GetSMAKTexture())
 	{
@@ -1283,9 +1283,8 @@ void CRegisterPanel::Layout()
 		m_pInfo->SetText("Your installation of SMAK is now fully registered. Thanks!\n");
 	}
 
-	m_pPirates->SetSize(0, 0);
 	m_pPirates->EnsureTextFits();
-	m_pPirates->SetDimensions(GetWidth() - m_pPirates->GetWidth() - 5, 5, m_pPirates->GetWidth(), m_pPirates->GetHeight());
+	m_pPirates->SetDimensions(GetWidth() - m_pPirates->GetWidth() - 5, GetHeight() - m_pPirates->GetHeight() - 5, m_pPirates->GetWidth(), m_pPirates->GetHeight());
 
 	CMovablePanel::Layout();
 }
@@ -1325,6 +1324,7 @@ bool CRegisterPanel::KeyPressed(int iKey)
 void CRegisterPanel::PiratesCallback()
 {
 	CPiratesPanel::Open();
+	Close();
 }
 
 void CRegisterPanel::Open()
@@ -1351,7 +1351,7 @@ CPiratesPanel::CPiratesPanel()
 	: CMovablePanel("A Message to Software Pirates")
 {
 	m_pInfo = new CLabel(0, 0, 100, 100, "");
-	AddControl(m_pInfo);
+	AddControl(m_pInfo, true);
 	Layout();
 }
 

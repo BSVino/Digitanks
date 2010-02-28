@@ -8,7 +8,7 @@
 
 void CModelWindow::MouseMotion(int x, int y)
 {
-	modelgui::CRootPanel::Get()->CursorMoved(x, (int)m_iWindowHeight-y);
+	modelgui::CRootPanel::Get()->CursorMoved(x, y);
 }
 
 void CModelWindow::MouseDragged(int x, int y)
@@ -85,19 +85,19 @@ void CModelWindow::MouseDragged(int x, int y)
 		}
 	}
 
-	modelgui::CRootPanel::Get()->CursorMoved(x, (int)m_iWindowHeight-y);
+	modelgui::CRootPanel::Get()->CursorMoved(x, y);
 }
 
 void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 {
 	if (iState == GLUT_DOWN)
 	{
-		if (modelgui::CRootPanel::Get()->MousePressed(iButton, x, (int)m_iWindowHeight-y))
+		if (modelgui::CRootPanel::Get()->MousePressed(iButton, x, y))
 			return;
 	}
 	else
 	{
-		if (modelgui::CRootPanel::Get()->MouseReleased(iButton, x, (int)m_iWindowHeight-y))
+		if (modelgui::CRootPanel::Get()->MouseReleased(iButton, x, y))
 			return;
 	}
 
