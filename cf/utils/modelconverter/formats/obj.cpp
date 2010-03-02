@@ -115,9 +115,20 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		{
 			// All following faces should use this material.
 			wchar_t* pszMaterial = pszLine+7;
-			size_t iMaterial = pMesh->FindMaterialStub(std::wstring(pszMaterial));
+			std::wstring sMaterial = std::wstring(pszMaterial);
+			size_t iMaterial = pMesh->FindMaterialStub(sMaterial);
 			if (iMaterial == ((size_t)~0))
-				iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, std::wstring(pszMaterial));
+			{
+				size_t iSceneMaterial = m_pScene->FindMaterial(sMaterial);
+				if (iSceneMaterial == ((size_t)~0))
+					iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, sMaterial);
+				else
+				{
+					size_t iMaterialStub = pMesh->AddMaterialStub(sMaterial);
+					m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iSceneMaterial);
+					iCurrentMaterial = iMaterialStub;
+				}
+			}
 			else
 				iCurrentMaterial = iMaterial;
 		}
