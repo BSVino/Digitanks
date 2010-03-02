@@ -579,12 +579,10 @@ void CMovablePanel::Minimize()
 	{
 		m_iNonMinimizedHeight = GetHeight();
 		SetSize(GetWidth(), HEADER_HEIGHT);
-		SetPos(m_iX, m_iY+m_iNonMinimizedHeight-HEADER_HEIGHT);
 	}
 	else
 	{
 		SetSize(GetWidth(), m_iNonMinimizedHeight);
-		SetPos(m_iX, m_iY-m_iNonMinimizedHeight+HEADER_HEIGHT);
 	}
 
 	Layout();
