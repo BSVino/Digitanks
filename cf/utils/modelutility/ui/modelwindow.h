@@ -11,11 +11,13 @@ public:
 	CMaterial(size_t iBase)
 	{
 		m_iBase = iBase;
+		m_iNormal = 0;
 		m_iAO = 0;
 		m_iColorAO = 0;
 	}
 
 	size_t		m_iBase;
+	size_t		m_iNormal;
 	size_t		m_iAO;
 	size_t		m_iColorAO;
 };
@@ -34,6 +36,8 @@ public:
 							~CModelWindow();
 
 	void					InitUI();
+
+	void					CompileShaders();
 
 	void					Run();	// Doesn't return
 
@@ -183,6 +187,8 @@ protected:
 	size_t					m_iArrowTexture;
 	size_t					m_iVisibilityTexture;
 
+	size_t					m_iWhite;
+
 	float					m_flCameraDistance;
 
 	bool					m_bCameraRotating;
@@ -218,6 +224,8 @@ protected:
 	bool					m_bDisplayColorAO;
 
 	class GLUtesselator*	m_pTesselator;
+
+	size_t					m_iShaderProgram;
 
 	// Controls
 	modelgui::CButton*		m_pRender3D;
