@@ -39,61 +39,86 @@
 const char* GetVSModelShader()
 {
 	return
-		"vec3 vecNormal;"
-		"vec4 vecAmbientLight;"
-		"vec4 vecDiffuseLight;"
-		"vec4 vecSpecularLight;"
+		"varying vec3 vecVertexNormal;"
+		"varying vec3 vecLightDir;"
+		"varying vec3 vecLightHalf;"
+
+		"varying vec4 vecAmbientLight;"
+		"varying vec4 vecDiffuseLight;"
+		"varying vec4 vecSpecularLight;"
 
 		"void main()"
 		"{"
 		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
 
-		"	vecNormal = normalize(gl_NormalMatrix * gl_Normal);"
-		"	vec3 vecLightDir = normalize(vec3(gl_LightSource[0].position));"
+		"	vecVertexNormal = normalize(gl_NormalMatrix * gl_Normal);"
+		"	vecLightDir = normalize(gl_LightSource[0].position.xyz);"
+		"	vecLightHalf = normalize(gl_LightSource[0].halfVector.xyz);"
 
-		"	float flNormalDot = dot (vecNormal, vecLightDir);"
-		"	float flNormalDotHalfVector = min (0.0, dot (vecNormal, vec3(gl_LightSource[0].halfVector)));"
-
-		"	float flPowerFactor;"
-		"	if (flNormalDot == 0.0)"
-		"		flPowerFactor = 0.0;"
-		"	else"
-		"		flPowerFactor = pow (flNormalDotHalfVector, gl_FrontMaterial.shininess);"
-
-		"	vecAmbientLight += gl_LightSource[0].ambient;"
-		"	vecDiffuseLight += gl_LightSource[0].diffuse * flNormalDot;"
-		"	vecSpecularLight += gl_LightSource[0].specular * flPowerFactor;"
+		"	vecAmbientLight = gl_FrontMaterial.emission + gl_FrontMaterial.ambient * gl_LightModel.ambient + gl_LightSource[0].ambient * gl_FrontMaterial.ambient;"
+		"	vecDiffuseLight = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse;"
+		"	vecSpecularLight = gl_LightSource[0].specular * gl_FrontMaterial.specular;"
 
 		"	gl_TexCoord[0] = gl_MultiTexCoord0;"
-
-		"	gl_FrontColor = gl_FrontMaterial.emission + gl_FrontMaterial.ambient * gl_LightModel.ambient +"
-		"		vecAmbientLight * gl_FrontMaterial.ambient +"
-		"		vecDiffuseLight * gl_FrontMaterial.diffuse +"
-		"		vecSpecularLight * gl_FrontMaterial.specular;"
 		"}";
 }
 
 const char* GetFSModelShader()
 {
 	return
+		"varying vec3 vecVertexNormal;"
+		"varying vec3 vecLightDir;"
+		"varying vec3 vecLightHalf;"
+
+		"varying vec4 vecAmbientLight;"
+		"varying vec4 vecDiffuseLight;"
+		"varying vec4 vecSpecularLight;"
+
 		"uniform sampler2D iDiffuseTexture;"
 		"uniform sampler2D iNormalMap;"
 		"uniform sampler2D iAOMap;"
 		"uniform sampler2D iCAOMap;"
 
+		"uniform bool bDiffuseTexture;"
+		"uniform bool bNormalMap;"
+		"uniform bool bAOMap;"
+		"uniform bool bCAOMap;"
+
 		"void main()"
 		"{"
-		"	vec4 clrFront = gl_FrontColor;"
+		"	vec4 clrDiffuseColor = vec4(1.0, 1.0, 1.0, 1.0);"
+		"	vec4 vecNormal = vec4(0.5, 0.5, 0.5, 0.5);"
+		"	vec4 clrAO = vec4(1.0, 1.0, 1.0, 1.0);"
+		"	vec4 clrCAO = vec4(1.0, 1.0, 1.0, 1.0);"
 
-		"	vec4 clrDiffuseColor = texture2D(iDiffuseTexture, gl_TexCoord[0].xy);"
-		"	vec4 vecNormal = texture2D(iNormalMap, gl_TexCoord[0].xy);"
-		"	vec4 clrAO = texture2D(iAOMap, gl_TexCoord[0].xy);"
-		"	vec4 clrCAO = texture2D(iCAOMap, gl_TexCoord[0].xy);"
+		"	if (bDiffuseTexture)"
+		"		clrDiffuseColor = texture2D(iDiffuseTexture, gl_TexCoord[0].xy);"
 
-		"	clrFront.r = 0.0;"
-		"	vec4 clrBaseColor = clrFront * clrDiffuseColor * clrAO * clrCAO;"
+		"	if (bNormalMap)"
+		"		vecNormal = texture2D(iNormalMap, gl_TexCoord[0].xy);"
 
-		"	gl_FragColor = clrBaseColor;"
+		"	if (bAOMap)"
+		"		clrAO = texture2D(iAOMap, gl_TexCoord[0].xy);"
+
+		"	if (bCAOMap)"
+		"		clrCAO = texture2D(iCAOMap, gl_TexCoord[0].xy);"
+
+		"	vec3 vecNormalized = normalize(vecVertexNormal);"
+		"	float flNormalDot = dot(vecNormalized, vecLightDir);"
+		"	float flNormalDotHalfVector = min(0.0, dot (vecNormalized, normalize(vecLightHalf)));"
+
+		"	if (flNormalDot < 0.0)"
+		"		flNormalDot = 0.0;"
+
+		"	float flPowerFactor = 0.0;"
+		"	if (flNormalDot > 0.0)"
+		"		flPowerFactor = pow(flNormalDotHalfVector, gl_FrontMaterial.shininess);"
+
+		"	vec4 clrLight = vecAmbientLight +"
+		"		vecDiffuseLight * flNormalDot +"
+		"		vecSpecularLight * flPowerFactor;"
+
+		"	gl_FragColor = clrLight * clrDiffuseColor * clrAO * clrCAO;"
 
 		"	gl_FragColor.a = clrDiffuseColor.a;"
 		"}";

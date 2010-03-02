@@ -193,17 +193,6 @@ void CModelWindow::CompileShaders()
 #endif
 
 	m_iShaderProgram = (size_t)iShaderProgram;
-
-	ILuint iDevILId;
-	ilGenImages(1, &iDevILId);
-	ilBindImage(iDevILId);
-
-	int aiWhite[100];
-	memset(aiWhite, 1, sizeof(aiWhite));
-
-	ilTexImage(10, 10, 1, 3, IL_RGB, IL_INT, aiWhite);
-
-	m_iWhite = iDevILId;
 }
 
 void CModelWindow::Run()
@@ -809,11 +798,25 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 		if (m_eDisplayType != DT_WIREFRAME)
 		{
+			bool bTexture = m_bDisplayTexture;
+			bool bNormal = m_bDisplayTexture;
+			bool bAO = m_bDisplayAO;
+			bool bCAO = m_bDisplayColorAO;
+
 			if (pFace->m == ~0 || !pMeshInstance->GetMappedMaterial(pFace->m) || pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial == ~0 || m_aoMaterials.size() == 0)
 				glBindTexture(GL_TEXTURE_2D, 0);
 			else
 			{
 				CMaterial* pMaterial = &m_aoMaterials[pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial];
+
+				if (!pMaterial->m_iBase)
+					bTexture = false;
+				if (!pMaterial->m_iNormal)
+					bNormal = false;
+				if (!pMaterial->m_iAO)
+					bAO = false;
+				if (!pMaterial->m_iColorAO)
+					bCAO = false;
 
 				if (GLEW_VERSION_1_3)
 				{
@@ -851,7 +854,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 					}
 					else
 					{
-						glBindTexture(GL_TEXTURE_2D, (GLuint)m_iWhite);
+						glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 						glDisable(GL_TEXTURE_2D);
 					}
 
@@ -863,7 +866,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 					}
 					else
 					{
-						glBindTexture(GL_TEXTURE_2D, (GLuint)m_iWhite);
+						glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 						glDisable(GL_TEXTURE_2D);
 					}
 				}
@@ -887,6 +890,11 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 			glUseProgram((GLuint)m_iShaderProgram);
 
+			GLuint bDiffuseTexture = glGetUniformLocation((GLuint)m_iShaderProgram, "bDiffuseTexture");
+			GLuint bNormalMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bNormalMap");
+			GLuint bAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bAOMap");
+			GLuint bCAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bCAOMap");
+
 			GLuint iDiffuseTexture = glGetUniformLocation((GLuint)m_iShaderProgram, "iDiffuseTexture");
 			GLuint iNormalMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iNormalMap");
 			GLuint iAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iAOMap");
@@ -896,6 +904,11 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 			glUniform1i(iNormalMap, 1);
 			glUniform1i(iAOMap, 2);
 			glUniform1i(iCAOMap, 3);
+
+			glUniform1i(bDiffuseTexture, bTexture);
+			glUniform1i(bNormalMap, bNormal);
+			glUniform1i(bAOMap, bAO);
+			glUniform1i(bCAOMap, bCAO);
 
 			gluTessBeginPolygon(m_pTesselator, pMesh);
 			gluTessBeginContour(m_pTesselator);

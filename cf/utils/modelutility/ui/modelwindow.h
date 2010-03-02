@@ -187,8 +187,6 @@ protected:
 	size_t					m_iArrowTexture;
 	size_t					m_iVisibilityTexture;
 
-	size_t					m_iWhite;
-
 	float					m_flCameraDistance;
 
 	bool					m_bCameraRotating;
