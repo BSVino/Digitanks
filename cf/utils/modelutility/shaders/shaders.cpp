@@ -42,6 +42,7 @@ const char* GetVSModelShader()
 		"varying vec3 vecVertexNormal;"
 		"varying vec3 vecLightDir;"
 		"varying vec3 vecLightHalf;"
+		"varying vec3 vecViewDir;"
 
 		"varying vec4 vecAmbientLight;"
 		"varying vec4 vecDiffuseLight;"
@@ -53,7 +54,8 @@ const char* GetVSModelShader()
 
 		"	vecVertexNormal = normalize(gl_NormalMatrix * gl_Normal);"
 		"	vecLightDir = normalize(gl_LightSource[0].position.xyz);"
-		"	vecLightHalf = normalize(gl_LightSource[0].halfVector.xyz);"
+		"	vecLightHalf = gl_LightSource[0].halfVector.xyz;"
+		"	vecViewDir = normalize(-vec3(gl_ModelViewMatrix * gl_Vertex));"
 
 		"	vecAmbientLight = gl_FrontMaterial.emission + gl_FrontMaterial.ambient * gl_LightModel.ambient + gl_LightSource[0].ambient * gl_FrontMaterial.ambient;"
 		"	vecDiffuseLight = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse;"
@@ -69,6 +71,7 @@ const char* GetFSModelShader()
 		"varying vec3 vecVertexNormal;"
 		"varying vec3 vecLightDir;"
 		"varying vec3 vecLightHalf;"
+		"varying vec3 vecViewDir;"
 
 		"varying vec4 vecAmbientLight;"
 		"varying vec4 vecDiffuseLight;"
@@ -84,10 +87,23 @@ const char* GetFSModelShader()
 		"uniform bool bAOMap;"
 		"uniform bool bCAOMap;"
 
+		"mat3 ComputeTangentFrame(vec3 vecNormal, vec3 vecPosition, vec2 vecTexCoord)"
+		"{"
+		"	vec3 dpx = dFdx(vecPosition);"
+		"	vec3 dpy = dFdy(vecPosition);"
+		"	vec2 dtx = dFdx(vecTexCoord);"
+		"	vec2 dty = dFdy(vecTexCoord);"
+
+		"	vec3 vecTangent = normalize(dpx * dty.t - dpy * dtx.t);"
+		"	vec3 vecBitangent = cross(vecTangent, vecNormal);"
+
+		"	return mat3(vecTangent, vecBitangent, vecNormal);"
+		"}"
+
 		"void main()"
 		"{"
 		"	vec4 clrDiffuseColor = vec4(1.0, 1.0, 1.0, 1.0);"
-		"	vec4 vecNormal = vec4(0.5, 0.5, 0.5, 0.5);"
+		"	vec3 vecTangentNormal;"
 		"	vec4 clrAO = vec4(1.0, 1.0, 1.0, 1.0);"
 		"	vec4 clrCAO = vec4(1.0, 1.0, 1.0, 1.0);"
 
@@ -95,7 +111,12 @@ const char* GetFSModelShader()
 		"		clrDiffuseColor = texture2D(iDiffuseTexture, gl_TexCoord[0].xy);"
 
 		"	if (bNormalMap)"
-		"		vecNormal = texture2D(iNormalMap, gl_TexCoord[0].xy);"
+		"	{"
+		"		vecTangentNormal = normalize(texture2D(iNormalMap, gl_TexCoord[0].xy).xyz * 2.0 - 1.0);"
+		"		vecTangentNormal.x = -vecTangentNormal.x;"
+		"	}"
+		"	else"
+		"		vecTangentNormal = vec3(0.0, 0.0, 1.0);"
 
 		"	if (bAOMap)"
 		"		clrAO = texture2D(iAOMap, gl_TexCoord[0].xy);"
@@ -103,19 +124,26 @@ const char* GetFSModelShader()
 		"	if (bCAOMap)"
 		"		clrCAO = texture2D(iCAOMap, gl_TexCoord[0].xy);"
 
-		"	vec3 vecNormalized = normalize(vecVertexNormal);"
-		"	float flNormalDot = dot(vecNormalized, vecLightDir);"
-		"	float flNormalDotHalfVector = min(0.0, dot (vecNormalized, normalize(vecLightHalf)));"
+		"	vec3 vecTranslatedNormal = vecTangentNormal;"
 
-		"	if (flNormalDot < 0.0)"
-		"		flNormalDot = 0.0;"
+		"	if (bNormalMap)"
+		"	{"
+		"		mat3 mTBN = ComputeTangentFrame(normalize(vecVertexNormal), normalize(vecViewDir), gl_TexCoord[0].st);"
+		"		vecTranslatedNormal = mTBN * vecTangentNormal;"
+		"	}"
+
+		"	float flLightStrength = dot(vecTranslatedNormal, vecLightDir);"
+		"	if (flLightStrength < 0.0) flLightStrength = 0.0;"
+		"	if (flLightStrength > 1.0) flLightStrength = 1.0;"
+
+		"	float flNormalDotHalfVector = min(0.0, dot(vecTranslatedNormal, normalize(vecLightHalf)));"
 
 		"	float flPowerFactor = 0.0;"
-		"	if (flNormalDot > 0.0)"
+		"	if (flLightStrength > 0.0)"
 		"		flPowerFactor = pow(flNormalDotHalfVector, gl_FrontMaterial.shininess);"
 
 		"	vec4 clrLight = vecAmbientLight +"
-		"		vecDiffuseLight * flNormalDot +"
+		"		vecDiffuseLight * flLightStrength +"
 		"		vecSpecularLight * flPowerFactor;"
 
 		"	gl_FragColor = clrLight * clrDiffuseColor * clrAO * clrCAO;"

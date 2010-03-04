@@ -202,6 +202,7 @@ protected:
 
 	float					m_flLightYaw;
 	float					m_flLightPitch;
+	Vector					m_vecLightPosition;
 
 	float					m_flCameraUVX;
 	float					m_flCameraUVY;

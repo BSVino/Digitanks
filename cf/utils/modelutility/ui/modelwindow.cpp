@@ -433,7 +433,21 @@ void CModelWindow::Render3D()
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
 		0.0, 1.0, 0.0);
 
-    RenderGround();
+	// Reposition the light source.
+	Vector vecLightDirection = AngleVector(EAngle(m_flLightPitch, m_flLightYaw, 0));
+
+	m_vecLightPosition = vecLightDirection * m_flCameraDistance/2;
+
+	GLfloat flLightPosition[4];
+	flLightPosition[0] = m_vecLightPosition.x;
+	flLightPosition[1] = m_vecLightPosition.y;
+	flLightPosition[2] = m_vecLightPosition.z;
+	flLightPosition[3] = 0;
+
+	// Tell GL new light source position.
+    glLightfv(GL_LIGHT0, GL_POSITION, flLightPosition);
+
+	RenderGround();
 
 	RenderObjects();
 
@@ -496,7 +510,6 @@ void CModelWindow::RenderGround(void)
 			GLfloat aflInsideLineBright[3] = { 0.5f, 0.5f, 0.5f };
 			GLfloat aflInsideLineDarker[3] = { 0.4f, 0.4f, 0.4f };
 
-
 			glBegin(GL_LINES);
 
 				if (j == 0 || j == 20 || j == 10)
@@ -511,7 +524,17 @@ void CModelWindow::RenderGround(void)
 				else
 					glColor3fv(aflInsideLineDarker);
 
-				glVertex3fv(vecEndX);
+				if (j == 10)
+					glVertex3fv(Vector(0, 0, 0));
+				else
+					glVertex3fv(vecEndX);
+
+				if (j == 10)
+				{
+					glColor3f(0.7f, 0.2f, 0.2f);
+					glVertex3fv(Vector(0, 0, 0));
+					glVertex3fv(Vector(100, 0, 0));
+				}
 
 			glEnd();
 
@@ -529,7 +552,17 @@ void CModelWindow::RenderGround(void)
 				else
 					glColor3fv(aflInsideLineDarker);
 
-				glVertex3fv(vecEndZ);
+				if (j == 10)
+					glVertex3fv(Vector(0, 0, 0));
+				else
+					glVertex3fv(vecEndZ);
+
+				if (j == 10)
+				{
+					glColor3f(0.2f, 0.2f, 0.7f);
+					glVertex3fv(Vector(0, 0, 0));
+					glVertex3fv(Vector(0, 0, 100));
+				}
 
 			glEnd();
 
@@ -548,19 +581,7 @@ void CModelWindow::RenderLightSource()
 	if (!m_bDisplayLight)
 		return;
 
-	GLfloat flLightPosition[4];
 	GLfloat lightColor[] = {0.9f, 1.0f, 0.9f, 1.0f};
-
-	// Reposition the light source.
-	Vector vecLightDirection = AngleVector(EAngle(m_flLightPitch, m_flLightYaw, 0));
-
-	flLightPosition[0] = vecLightDirection.x * m_flCameraDistance/2;
-	flLightPosition[1] = vecLightDirection.y * m_flCameraDistance/2;
-	flLightPosition[2] = vecLightDirection.z * m_flCameraDistance/2;
-	flLightPosition[3] = 0.0;
-
-	// Tell GL new light source position.
-    glLightfv(GL_LIGHT0, GL_POSITION, flLightPosition);
 
 	float flScale = m_flCameraDistance/60;
 
@@ -570,7 +591,7 @@ void CModelWindow::RenderLightSource()
 		glDisable(GL_LIGHTING);
 
 		glTranslatef(m_Scene.m_oExtends.Center().x, m_Scene.m_oExtends.Center().y, m_Scene.m_oExtends.Center().z);
-		glTranslatef(flLightPosition[0], flLightPosition[1], flLightPosition[2]);
+		glTranslatef(m_vecLightPosition[0], m_vecLightPosition[1], m_vecLightPosition[2]);
 		glRotatef(-m_flLightYaw, 0, 1, 0);
 		glRotatef(m_flLightPitch, 0, 0, 1);
 		glScalef(flScale, flScale, flScale);
@@ -588,7 +609,7 @@ void CModelWindow::RenderLightSource()
 
 			glBindTexture(GL_TEXTURE_2D, (GLuint)m_pLightHalo->m_iBase);
 
-			float flDot = vecCameraDirection.Dot(vecLightDirection);
+			float flDot = vecCameraDirection.Dot(m_vecLightPosition.Normalized());
 
 			if (flDot < -0.2)
 			{
