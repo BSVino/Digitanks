@@ -140,7 +140,7 @@ const char* GetFSModelShader()
 		"		if (flLightStrength < 0.0) flLightStrength = 0.0;"
 		"		if (flLightStrength > 1.0) flLightStrength = 1.0;"
 
-		"		float flNormalDotHalfVector = min(0.0, dot(vecTranslatedNormal, normalize(vecLightHalf)));"
+		"		float flNormalDotHalfVector = max(0.0, dot(vecTranslatedNormal, normalize(vecLightHalf)));"
 
 		"		float flPowerFactor = 0.0;"
 		"		if (flLightStrength > 0.0)"
