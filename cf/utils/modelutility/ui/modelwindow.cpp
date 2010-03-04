@@ -86,11 +86,11 @@ CModelWindow::CModelWindow()
 	LoadSMAKTexture();
 
 	m_iWireframeTexture = LoadTextureIntoGL(L"wireframe.png");
-	m_iFlatTexture = LoadTextureIntoGL(L"flat.png");
 	m_iSmoothTexture = LoadTextureIntoGL(L"smooth.png");
 	m_iUVTexture = LoadTextureIntoGL(L"uv.png");
 	m_iLightTexture = LoadTextureIntoGL(L"light.png");
 	m_iTextureTexture = LoadTextureIntoGL(L"texture.png");
+	m_iNormalTexture = LoadTextureIntoGL(L"normal.png");
 	m_iAOTexture = LoadTextureIntoGL(L"ao.png");
 	m_iCAOTexture = LoadTextureIntoGL(L"aocolor.png");
 	m_iArrowTexture = LoadTextureIntoGL(L"arrow.png");
@@ -99,7 +99,7 @@ CModelWindow::CModelWindow()
 	InitUI();
 
 	SetRenderMode(false);
-	SetDisplayType(DT_SMOOTH);
+	SetDisplayWireframe(false);
 	SetDisplayUVWireframe(true);
 	SetDisplayLight(true);
 	SetDisplayTexture(true);
@@ -134,7 +134,7 @@ CModelWindow::CModelWindow()
 
 	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
 
-	GLfloat flLightDiffuse[] = {0.9f, 1.0f, 0.9f, 1.0f};
+	GLfloat flLightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	GLfloat flLightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
 	GLfloat flLightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
@@ -581,8 +581,6 @@ void CModelWindow::RenderLightSource()
 	if (!m_bDisplayLight)
 		return;
 
-	GLfloat lightColor[] = {0.9f, 1.0f, 0.9f, 1.0f};
-
 	float flScale = m_flCameraDistance/60;
 
 	glPushMatrix();
@@ -708,11 +706,6 @@ void CModelWindow::RenderObjects()
 	glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_TEXTURE_2D);
 
-	if (m_eDisplayType == DT_SMOOTH)
-		glShadeModel(GL_SMOOTH);
-	else if (m_eDisplayType == DT_FLAT)
-		glShadeModel(GL_FLAT);
-
 	// Just render the first scene.
 	RenderSceneNode(m_Scene.GetScene(0));
 
@@ -817,10 +810,10 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 				continue;
 		}
 
-		if (m_eDisplayType != DT_WIREFRAME)
+		if (!m_bDisplayWireframe)
 		{
 			bool bTexture = m_bDisplayTexture;
-			bool bNormal = m_bDisplayTexture;
+			bool bNormal = m_bDisplayNormal;
 			bool bAO = m_bDisplayAO;
 			bool bCAO = m_bDisplayColorAO;
 
@@ -856,7 +849,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 					}
 
 					glActiveTexture(GL_TEXTURE1);
-					if (m_bDisplayTexture)
+					if (m_bDisplayNormal)
 					{
 						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iNormal);
 						glEnable(GL_TEXTURE_2D);
@@ -911,6 +904,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 			glUseProgram((GLuint)m_iShaderProgram);
 
+			GLuint bLighting = glGetUniformLocation((GLuint)m_iShaderProgram, "bLighting");
 			GLuint bDiffuseTexture = glGetUniformLocation((GLuint)m_iShaderProgram, "bDiffuseTexture");
 			GLuint bNormalMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bNormalMap");
 			GLuint bAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bAOMap");
@@ -926,6 +920,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 			glUniform1i(iAOMap, 2);
 			glUniform1i(iCAOMap, 3);
 
+			glUniform1i(bLighting, m_bDisplayLight);
 			glUniform1i(bDiffuseTexture, bTexture);
 			glUniform1i(bNormalMap, bNormal);
 			glUniform1i(bAOMap, bAO);
@@ -969,7 +964,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 		}
 #endif
 
-		if (m_eDisplayType == DT_WIREFRAME)
+		if (m_bDisplayWireframe)
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 			glColor3f(1.0f, 1.0f, 1.0f);
@@ -1060,7 +1055,7 @@ void CModelWindow::RenderUV()
 		}
 
 		glActiveTexture(GL_TEXTURE1);
-		if (m_bDisplayTexture)
+		if (m_bDisplayNormal)
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iNormal);
 			glEnable(GL_TEXTURE_2D);
@@ -1113,7 +1108,7 @@ void CModelWindow::RenderUV()
 		glColor3f(0.8f, 0.8f, 0.8f);
 	else if (!pMaterial->m_iBase && !(m_bDisplayAO || m_bDisplayColorAO))
 		glColor3f(0.0f, 0.0f, 0.0f);
-	else if (m_bDisplayTexture || m_bDisplayAO || m_bDisplayColorAO)
+	else if (m_bDisplayTexture || m_bDisplayNormal || m_bDisplayAO || m_bDisplayColorAO)
 		glColor3f(1.0f, 1.0f, 1.0f);
 	else
 		glColor3f(0.0f, 0.0f, 0.0f);
@@ -1319,27 +1314,15 @@ void CModelWindow::SetRenderMode(bool bUV)
 	m_bRenderUV = bUV;
 
 	m_pWireframe->SetVisible(!m_bRenderUV);
-	m_pFlat->SetVisible(!m_bRenderUV);
-	m_pSmooth->SetVisible(!m_bRenderUV);
 	m_pUVWireframe->SetVisible(m_bRenderUV);
 
 	Layout();
 }
 
-void CModelWindow::SetDisplayType(displaytype_t eType)
+void CModelWindow::SetDisplayWireframe(bool bWire)
 {
-	m_pWireframe->SetState(false, false);
-	m_pFlat->SetState(false, false);
-	m_pSmooth->SetState(false, false);
-
-	if (eType == DT_SMOOTH)
-		m_pSmooth->SetState(true, false);
-	else if (eType == DT_FLAT)
-		m_pFlat->SetState(true, false);
-	else if (eType == DT_WIREFRAME)
-		m_pWireframe->SetState(true, false);
-
-	m_eDisplayType = eType;
+	m_bDisplayWireframe = bWire;
+	m_pWireframe->SetState(bWire, false);
 }
 
 void CModelWindow::SetDisplayUVWireframe(bool bWire)
@@ -1358,6 +1341,12 @@ void CModelWindow::SetDisplayTexture(bool bTexture)
 {
 	m_bDisplayTexture = bTexture;
 	m_pTexture->SetState(bTexture, false);
+}
+
+void CModelWindow::SetDisplayNormal(bool bNormal)
+{
+	m_bDisplayNormal = bNormal;
+	m_pNormal->SetState(bNormal, false);
 }
 
 void CModelWindow::SetDisplayAO(bool bAO)

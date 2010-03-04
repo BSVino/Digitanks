@@ -25,8 +25,6 @@ void CModelWindow::InitUI()
 	pView->AddSubmenu("3D view", this, Render3D);
 	pView->AddSubmenu("UV view", this, RenderUV);
 	pView->AddSubmenu("View wireframe", this, Wireframe);
-	pView->AddSubmenu("View flat shaded", this, Flat);
-	pView->AddSubmenu("View smooth shaded", this, Smooth);
 	pView->AddSubmenu("Toggle light", this, LightToggle);
 	pView->AddSubmenu("Toggle texture", this, TextureToggle);
 	pView->AddSubmenu("Toggle AO map", this, AOToggle);
@@ -52,20 +50,18 @@ void CModelWindow::InitUI()
 	CButtonPanel* pBottomButtons = new CButtonPanel(BA_BOTTOM);
 
 	m_pWireframe = new CPictureButton("Wire", m_iWireframeTexture, true);
-	m_pFlat = new CPictureButton("Flat", m_iFlatTexture, true);
-	m_pSmooth = new CPictureButton("Smth", m_iSmoothTexture, true);
 	m_pUVWireframe = new CPictureButton("Wire", m_iUVTexture, true);
 	m_pLight = new CPictureButton("Lght", m_iLightTexture, true);
 	m_pTexture = new CPictureButton("Tex", m_iTextureTexture, true);
+	m_pNormal = new CPictureButton("Nrml", m_iNormalTexture, true);
 	m_pAO = new CPictureButton("AO", m_iAOTexture, true);
 	m_pColorAO = new CPictureButton("C AO", m_iCAOTexture, true);
 
-	pBottomButtons->AddButton(m_pWireframe, "Wireframe", false, this, Wireframe);
-	pBottomButtons->AddButton(m_pFlat, "Flat Shading", false, this, Flat);
-	pBottomButtons->AddButton(m_pSmooth, "Smooth Shading", true, this, Smooth);
+	pBottomButtons->AddButton(m_pWireframe, "Toggle Wireframe", true, this, Wireframe);
 	pBottomButtons->AddButton(m_pUVWireframe, "Toggle UVs", true, this, UVWireframe);
 	pBottomButtons->AddButton(m_pLight, "Toggle Light", false, this, Light);
 	pBottomButtons->AddButton(m_pTexture, "Toggle Texture", false, this, Texture);
+	pBottomButtons->AddButton(m_pNormal, "Toggle Normal Map", false, this, Normal);
 	pBottomButtons->AddButton(m_pAO, "Toggle AO Map", false, this, AO);
 	pBottomButtons->AddButton(m_pColorAO, "Toggle Color AO", false, this, ColorAO);
 
@@ -132,17 +128,7 @@ void CModelWindow::SceneTreeCallback()
 
 void CModelWindow::WireframeCallback()
 {
-	SetDisplayType(DT_WIREFRAME);
-}
-
-void CModelWindow::FlatCallback()
-{
-	SetDisplayType(DT_FLAT);
-}
-
-void CModelWindow::SmoothCallback()
-{
-	SetDisplayType(DT_SMOOTH);
+	SetDisplayWireframe(m_pWireframe->GetState());
 }
 
 void CModelWindow::UVWireframeCallback()
@@ -158,6 +144,11 @@ void CModelWindow::LightCallback()
 void CModelWindow::TextureCallback()
 {
 	SetDisplayTexture(m_pTexture->GetState());
+}
+
+void CModelWindow::NormalCallback()
+{
+	SetDisplayNormal(m_pNormal->GetState());
 }
 
 void CModelWindow::AOCallback()
@@ -204,6 +195,11 @@ void CModelWindow::LightToggleCallback()
 void CModelWindow::TextureToggleCallback()
 {
 	SetDisplayTexture(!m_bDisplayTexture);
+}
+
+void CModelWindow::NormalToggleCallback()
+{
+	SetDisplayNormal(!m_bDisplayNormal);
 }
 
 void CModelWindow::AOToggleCallback()

@@ -22,13 +22,6 @@ public:
 	size_t		m_iColorAO;
 };
 
-typedef enum
-{
-	DT_WIREFRAME,
-	DT_FLAT,
-	DT_SMOOTH,
-} displaytype_t;
-
 class CModelWindow : public modelgui::IEventListener, IWorkListener
 {
 public:
@@ -111,10 +104,12 @@ public:
 	EVENT_CALLBACK(CModelWindow, UVWireframe);
 	EVENT_CALLBACK(CModelWindow, Light);
 	EVENT_CALLBACK(CModelWindow, Texture);
+	EVENT_CALLBACK(CModelWindow, Normal);
 	EVENT_CALLBACK(CModelWindow, AO);
 	EVENT_CALLBACK(CModelWindow, ColorAO);
 	EVENT_CALLBACK(CModelWindow, LightToggle);
 	EVENT_CALLBACK(CModelWindow, TextureToggle);
+	EVENT_CALLBACK(CModelWindow, NormalToggle);
 	EVENT_CALLBACK(CModelWindow, AOToggle);
 	EVENT_CALLBACK(CModelWindow, ColorAOToggle);
 	EVENT_CALLBACK(CModelWindow, GenerateAO);
@@ -137,10 +132,11 @@ public:
 	// UI
 	bool					GetRenderMode() { return m_bRenderUV; };
 	void					SetRenderMode(bool bUV);
-	void					SetDisplayType(displaytype_t eType);
+	void					SetDisplayWireframe(bool bWire);
 	void					SetDisplayUVWireframe(bool bWire);
 	void					SetDisplayLight(bool bLight);
 	void					SetDisplayTexture(bool bTexture);
+	void					SetDisplayNormal(bool bNormal);
 	void					SetDisplayAO(bool bAO);
 	void					SetDisplayColorAO(bool bAO);
 
@@ -182,6 +178,7 @@ protected:
 	size_t					m_iUVTexture;
 	size_t					m_iLightTexture;
 	size_t					m_iTextureTexture;
+	size_t					m_iNormalTexture;
 	size_t					m_iAOTexture;
 	size_t					m_iCAOTexture;
 	size_t					m_iArrowTexture;
@@ -215,10 +212,11 @@ protected:
 
 	// Options
 	bool					m_bRenderUV;
-	displaytype_t			m_eDisplayType;
+	bool					m_bDisplayWireframe;
 	bool					m_bDisplayUV;
 	bool					m_bDisplayLight;
 	bool					m_bDisplayTexture;
+	bool					m_bDisplayNormal;
 	bool					m_bDisplayAO;
 	bool					m_bDisplayColorAO;
 
@@ -236,6 +234,7 @@ protected:
 	modelgui::CButton*		m_pUVWireframe;
 	modelgui::CButton*		m_pLight;
 	modelgui::CButton*		m_pTexture;
+	modelgui::CButton*		m_pNormal;
 	modelgui::CButton*		m_pAO;
 	modelgui::CButton*		m_pColorAO;
 

@@ -82,6 +82,7 @@ const char* GetFSModelShader()
 		"uniform sampler2D iAOMap;"
 		"uniform sampler2D iCAOMap;"
 
+		"uniform bool bLighting;"
 		"uniform bool bDiffuseTexture;"
 		"uniform bool bNormalMap;"
 		"uniform bool bAOMap;"
@@ -106,6 +107,7 @@ const char* GetFSModelShader()
 		"	vec3 vecTangentNormal;"
 		"	vec4 clrAO = vec4(1.0, 1.0, 1.0, 1.0);"
 		"	vec4 clrCAO = vec4(1.0, 1.0, 1.0, 1.0);"
+		"	vec4 clrLight;"
 
 		"	if (bDiffuseTexture)"
 		"		clrDiffuseColor = texture2D(iDiffuseTexture, gl_TexCoord[0].xy);"
@@ -115,8 +117,6 @@ const char* GetFSModelShader()
 		"		vecTangentNormal = normalize(texture2D(iNormalMap, gl_TexCoord[0].xy).xyz * 2.0 - 1.0);"
 		"		vecTangentNormal.x = -vecTangentNormal.x;"
 		"	}"
-		"	else"
-		"		vecTangentNormal = vec3(0.0, 0.0, 1.0);"
 
 		"	if (bAOMap)"
 		"		clrAO = texture2D(iAOMap, gl_TexCoord[0].xy);"
@@ -124,27 +124,37 @@ const char* GetFSModelShader()
 		"	if (bCAOMap)"
 		"		clrCAO = texture2D(iCAOMap, gl_TexCoord[0].xy);"
 
-		"	vec3 vecTranslatedNormal = vecTangentNormal;"
-
-		"	if (bNormalMap)"
+		"	if (bLighting)"
 		"	{"
-		"		mat3 mTBN = ComputeTangentFrame(normalize(vecVertexNormal), normalize(vecViewDir), gl_TexCoord[0].st);"
-		"		vecTranslatedNormal = mTBN * vecTangentNormal;"
+		"		vec3 vecTranslatedNormal = vecTangentNormal;"
+
+		"		if (bNormalMap)"
+		"		{"
+		"			mat3 mTBN = ComputeTangentFrame(normalize(vecVertexNormal), normalize(vecViewDir), gl_TexCoord[0].st);"
+		"			vecTranslatedNormal = mTBN * vecTangentNormal;"
+		"		}"
+		"		else"
+		"			vecTranslatedNormal = normalize(vecVertexNormal);"
+
+		"		float flLightStrength = dot(vecTranslatedNormal, vecLightDir);"
+		"		if (flLightStrength < 0.0) flLightStrength = 0.0;"
+		"		if (flLightStrength > 1.0) flLightStrength = 1.0;"
+
+		"		float flNormalDotHalfVector = min(0.0, dot(vecTranslatedNormal, normalize(vecLightHalf)));"
+
+		"		float flPowerFactor = 0.0;"
+		"		if (flLightStrength > 0.0)"
+		"			flPowerFactor = pow(flNormalDotHalfVector, gl_FrontMaterial.shininess);"
+
+		"		clrLight = vecAmbientLight +"
+		"			vecDiffuseLight * flLightStrength +"
+		"			vecSpecularLight * flPowerFactor;"
 		"	}"
-
-		"	float flLightStrength = dot(vecTranslatedNormal, vecLightDir);"
-		"	if (flLightStrength < 0.0) flLightStrength = 0.0;"
-		"	if (flLightStrength > 1.0) flLightStrength = 1.0;"
-
-		"	float flNormalDotHalfVector = min(0.0, dot(vecTranslatedNormal, normalize(vecLightHalf)));"
-
-		"	float flPowerFactor = 0.0;"
-		"	if (flLightStrength > 0.0)"
-		"		flPowerFactor = pow(flNormalDotHalfVector, gl_FrontMaterial.shininess);"
-
-		"	vec4 clrLight = vecAmbientLight +"
-		"		vecDiffuseLight * flLightStrength +"
-		"		vecSpecularLight * flPowerFactor;"
+		"	else"
+		"	{"
+		"		float flDot = dot(normalize(vecVertexNormal), vec3(0, 1, 0));"
+		"		clrLight = vec4(1, 1, 1, 1) * (flDot * 0.5) + vec4(0.45, 0.45, 0.45, 0.45);"
+		"	}"
 
 		"	gl_FragColor = clrLight * clrDiffuseColor * clrAO * clrCAO;"
 
