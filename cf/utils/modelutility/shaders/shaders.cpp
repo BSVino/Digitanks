@@ -15,13 +15,13 @@
 		float linearAttenuation; 
 		float quadraticAttenuation;	
 	};
-	
+
 	uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
-	
+
 	struct gl_LightModelParameters {
 		vec4 ambient; 
 	};
-	
+
 	uniform gl_LightModelParameters gl_LightModel;
 
 	struct gl_MaterialParameters {
@@ -31,7 +31,7 @@
 		vec4 specular;   
 		float shininess; 
 	};
-	
+
 	uniform gl_MaterialParameters gl_FrontMaterial;
 	uniform gl_MaterialParameters gl_BackMaterial;
 */
@@ -154,6 +154,7 @@ const char* GetFSModelShader()
 		"	{"
 		"		float flDot = dot(normalize(vecVertexNormal), vec3(0, 1, 0));"
 		"		clrLight = vec4(1, 1, 1, 1) * (flDot * 0.5) + vec4(0.45, 0.45, 0.45, 0.45);"
+		"		clrLight = clrLight * gl_FrontMaterial.diffuse;"
 		"	}"
 
 		"	gl_FragColor = clrLight * clrDiffuseColor * clrAO * clrCAO;"
