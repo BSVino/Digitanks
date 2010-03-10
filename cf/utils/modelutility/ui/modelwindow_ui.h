@@ -69,6 +69,16 @@ public:
 	virtual void			Paint(int x, int y, int w, int h);
 };
 
+class CMinimizeButton : public CButton
+{
+public:
+							CMinimizeButton() : CButton(0, 0, 10, 10, "") {};
+
+public:
+	virtual void			Paint() { CButton::Paint(); };
+	virtual void			Paint(int x, int y, int w, int h);
+};
+
 class CMovablePanel : public CPanel, public IEventListener
 {
 public:
@@ -84,11 +94,12 @@ public:
 	virtual bool			MousePressed(int iButton, int mx, int my);
 	virtual bool			MouseReleased(int iButton, int mx, int my);
 
-	virtual void			SetCloseButtonMinimize(bool bMinimize) { m_bCloseButtonMinimize = bMinimize; };
+	virtual void			HasCloseButton(bool bHasClose) { m_bHasCloseButton = bHasClose; };
 	virtual void			Minimize();
 
 	virtual void			SetClearBackground(bool bClearBackground) { m_bClearBackground = bClearBackground; };
 
+	EVENT_CALLBACK(CMovablePanel, MinimizeWindow);
 	EVENT_CALLBACK(CMovablePanel, CloseWindow);
 
 protected:
@@ -98,7 +109,7 @@ protected:
 	int						m_iStartY;
 	bool					m_bMoving;
 
-	bool					m_bCloseButtonMinimize;
+	bool					m_bHasCloseButton;
 	bool					m_bMinimized;
 	int						m_iNonMinimizedHeight;
 
@@ -107,6 +118,7 @@ protected:
 	CLabel*					m_pName;
 
 	CCloseButton*			m_pCloseButton;
+	CMinimizeButton*		m_pMinimizeButton;
 };
 
 class CAOPanel : public CMovablePanel, public IWorkListener

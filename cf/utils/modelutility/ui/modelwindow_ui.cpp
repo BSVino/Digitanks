@@ -486,6 +486,18 @@ void CCloseButton::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(x, y, w, h, c);
 }
 
+void CMinimizeButton::Paint(int x, int y, int w, int h)
+{
+	Color c;
+	
+	c.SetRed((int)RemapVal(m_flHighlight, 0.0f, 1.0f, (float)g_clrBox.r(), (float)g_clrBox.r()));
+	c.SetGreen((int)RemapVal(m_flHighlight, 0.0f, 1.0f, (float)g_clrBox.g(), (float)g_clrBoxHi.g()));
+	c.SetBlue((int)RemapVal(m_flHighlight, 0.0f, 1.0f, (float)g_clrBox.b() * 2, 255.0f));
+	c.SetAlpha(255);
+
+	CRootPanel::PaintRect(x, y+h/3+1, w, h/3, c);
+}
+
 CMovablePanel::CMovablePanel(char* pszName)
 	: CPanel(0, 0, 200, 350)
 {
@@ -499,9 +511,14 @@ CMovablePanel::CMovablePanel(char* pszName)
 
 	m_pCloseButton->SetClickedListener(this, CloseWindow);
 
+	m_pMinimizeButton = new CMinimizeButton();
+	AddControl(m_pMinimizeButton);
+
+	m_pMinimizeButton->SetClickedListener(this, MinimizeWindow);
+
 	CRootPanel::Get()->AddControl(this, true);
 
-	m_bCloseButtonMinimize = false;
+	m_bHasCloseButton = true;
 	m_bMinimized = false;
 
 	m_bClearBackground = false;
@@ -517,8 +534,16 @@ void CMovablePanel::Layout()
 {
 	m_pName->SetDimensions(0, 0, GetWidth(), HEADER_HEIGHT);
 
+	m_pCloseButton->SetVisible(m_bHasCloseButton);
+
 	int iButtonSize = HEADER_HEIGHT*2/3;
-	m_pCloseButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - iButtonSize/2, HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
+	if (m_bHasCloseButton)
+	{
+		m_pCloseButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - iButtonSize/2, HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
+		m_pMinimizeButton->SetDimensions(GetWidth() - HEADER_HEIGHT*3/2 - iButtonSize/2, HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
+	}
+	else
+		m_pMinimizeButton->SetDimensions(GetWidth() - HEADER_HEIGHT/2 - iButtonSize/2, HEADER_HEIGHT/2 - iButtonSize/2, iButtonSize, iButtonSize);
 
 	CPanel::Layout();
 }
@@ -550,7 +575,9 @@ void CMovablePanel::Paint(int x, int y, int w, int h)
 	if (m_bMinimized)
 	{
 		m_pName->Paint();
-		m_pCloseButton->Paint();
+		if (m_bHasCloseButton)
+			m_pCloseButton->Paint();
+		m_pMinimizeButton->Paint();
 	}
 	else
 		CPanel::Paint(x, y, w, h);
@@ -561,7 +588,7 @@ bool CMovablePanel::MousePressed(int iButton, int mx, int my)
 	int x, y;
 	GetAbsPos(x, y);
 
-	if (iButton == 0 && mx > x && mx < x + GetWidth() - HEADER_HEIGHT*3/2 && my > y && my < y + HEADER_HEIGHT )
+	if (iButton == 0 && mx > x && mx < x + GetWidth() - HEADER_HEIGHT*2 && my > y && my < y + HEADER_HEIGHT )
 	{
 		m_iMouseStartX = mx;
 		m_iMouseStartY = my;
@@ -609,10 +636,12 @@ void CMovablePanel::Minimize()
 
 void CMovablePanel::CloseWindowCallback()
 {
-	if (m_bCloseButtonMinimize)
-		Minimize();
-	else
-		SetVisible(false);
+	SetVisible(false);
+}
+
+void CMovablePanel::MinimizeWindowCallback()
+{
+	Minimize();
 }
 
 CAOPanel* CAOPanel::s_pAOPanel = NULL;

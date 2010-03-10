@@ -11,7 +11,7 @@ CSceneTreePanel::CSceneTreePanel(CConversionScene* pScene)
 	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	AddControl(m_pTree);
 
-	SetCloseButtonMinimize(true);
+	HasCloseButton(false);
 	SetClearBackground(true);
 
 	// Infinite height so that scene objects are always clickable.
