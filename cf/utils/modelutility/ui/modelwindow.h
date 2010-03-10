@@ -114,6 +114,7 @@ public:
 	EVENT_CALLBACK(CModelWindow, ColorAOToggle);
 	EVENT_CALLBACK(CModelWindow, GenerateAO);
 	EVENT_CALLBACK(CModelWindow, GenerateColorAO);
+	EVENT_CALLBACK(CModelWindow, GenerateNormal);
 	EVENT_CALLBACK(CModelWindow, Help);
 	EVENT_CALLBACK(CModelWindow, Register);
 	EVENT_CALLBACK(CModelWindow, About);
@@ -150,6 +151,8 @@ public:
 	size_t					GetScenesNodeTexture() { return m_iAOTexture; };
 
 	static CModelWindow*	Get() { return s_pModelWindow; };
+
+	CConversionScene*		GetScene() { return &m_Scene; };
 
 	void					ClearDebugLines();
 	void					AddDebugLine(Vector vecStart, Vector vecEnd);

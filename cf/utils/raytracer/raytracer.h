@@ -27,6 +27,7 @@ public:
 	void						Build();
 
 	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
+	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetLeftChild() const { return m_pLeft; };
 	const CKDNode*				GetRightChild() const { return m_pRight; };
@@ -61,11 +62,14 @@ public:
 	void						BuildTree();
 
 	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
+	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetTopNode() const { return m_pTop; };
 
 protected:
 	CKDNode*					m_pTop;
+
+	bool						m_bBuilt;
 };
 
 class CRaytracer
@@ -78,8 +82,11 @@ public:
 	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
 	bool						RaytraceBruteForce(const Ray& rayTrace, Vector* pvecHit = NULL);
 
-	void						BuildTree();
+	float						Closest(const Vector& vecPoint);
+
 	void						AddMeshesFromNode(CConversionSceneNode* pNode);
+	void						AddMeshInstance(CConversionMeshInstance* pMeshInstance);
+	void						BuildTree();
 
 	const CKDTree*				GetTree() const { return m_pTree; };
 

@@ -172,6 +172,9 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 'a')
 		CAOPanel::Open(false, &m_Scene, &m_aoMaterials);
 
+	if (c == 'n')
+		CNormalPanel::Open(&m_Scene, &m_aoMaterials);
+
 	if (c == 'r'-'a'+1 && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
 		ReloadFromFile();
 

@@ -334,6 +334,8 @@ void CPanel::RemoveControl(IControl* pControl)
 		}
 	}
 
+	pControl->SetParent(NULL);
+
 	if (m_pHasCursor == pControl)
 		m_pHasCursor = NULL;
 }
@@ -1909,8 +1911,17 @@ void CMenu::CSubmenuPanel::Think()
 CTree::CTree(size_t iArrowTexture, size_t iVisibilityTexture)
 	: CPanel(0, 0, 10, 10)
 {
+	m_iHilighted = ~0;
+	m_iSelected = ~0;
+
 	m_iArrowTexture = iArrowTexture;
 	m_iVisibilityTexture = iVisibilityTexture;
+
+	m_pfnSelectedCallback = NULL;
+	m_pSelectedListener = NULL;
+
+	m_clrBackground = Color(0, 0, 0);
+	m_clrBackground.SetAlpha(0);
 }
 
 void CTree::Destructor()
@@ -1931,7 +1942,33 @@ void CTree::Layout()
 
 	CPanel::Layout();
 }
-	
+
+void CTree::Think()
+{
+	int mx, my;
+	CRootPanel::GetFullscreenMousePos(mx, my);
+
+	m_iHilighted = ~0;
+	for (size_t i = 0; i < m_apControls.size(); i++)
+	{
+		IControl* pNode = m_apControls[i];
+
+		if (!pNode->IsVisible())
+			continue;
+
+		int x, y, w, h;
+		pNode->GetAbsDimensions(x, y, w, h);
+
+		if (mx >= x && my >= y && mx < x+w && my < y+h)
+		{
+			m_iHilighted = i;
+			break;
+		}
+	}
+
+	CPanel::Think();
+}
+
 void CTree::Paint()
 {
 	int x = 0, y = 0;
@@ -1946,7 +1983,57 @@ void CTree::Paint(int x, int y)
 
 void CTree::Paint(int x, int y, int w, int h)
 {
+	CRootPanel::PaintRect(x, y, w, h, m_clrBackground);
+
+	Color clrHilight = g_clrBoxHi;
+	clrHilight.SetAlpha(100);
+	Color clrSelected = g_clrBoxHi;
+
+	if (m_iHilighted != ~0)
+	{
+		IControl* pNode = m_apControls[m_iHilighted];
+		int cx, cy, cw, ch;
+		pNode->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::PaintRect(cx, cy, cw, ch, clrHilight);
+	}
+
+	if (m_iSelected != ~0 && m_apControls[m_iSelected]->IsVisible())
+	{
+		IControl* pNode = m_apControls[m_iSelected];
+		int cx, cy, cw, ch;
+		pNode->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::PaintRect(cx, cy, cw, ch, clrSelected);
+	}
+
 	CPanel::Paint(x, y, w, h);
+}
+
+bool CTree::MousePressed(int code, int mx, int my)
+{
+	if (CPanel::MousePressed(code, mx, my))
+		return true;
+
+	m_iSelected = ~0;
+	for (size_t i = 0; i < m_apControls.size(); i++)
+	{
+		IControl* pNode = m_apControls[i];
+
+		if (!pNode->IsVisible())
+			continue;
+
+		int x, y, w, h;
+		pNode->GetAbsDimensions(x, y, w, h);
+
+		if (mx >= x && my >= y && mx < x+w && my < y+h)
+		{
+			m_iSelected = i;
+			CTreeNode* pTreeNode = dynamic_cast<CTreeNode*>(pNode);
+			pTreeNode->Selected();
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CTree::ClearTree()
@@ -1964,15 +2051,56 @@ void CTree::ClearTree()
 
 size_t CTree::AddNode(const std::wstring& sName)
 {
-	CTreeNode* pNew = new CTreeNode(NULL, this, sName);
-	m_apNodes.push_back(pNew);
-	AddControl(pNew);
+	return AddNode(new CTreeNode(NULL, this, sName));
+}
+
+size_t CTree::AddNode(CTreeNode* pNode)
+{
+	m_apNodes.push_back(pNode);
+	AddControl(pNode);
 	return m_apNodes.size()-1;
+}
+
+void CTree::RemoveNode(CTreeNode* pNode)
+{
+	IControl* pHilighted = NULL;
+	IControl* pSelected = NULL;
+
+	// Tuck these away so we can find them again after the controls list has changed.
+	if (m_iHilighted != ~0)
+		pHilighted = m_apControls[m_iHilighted];
+	if (m_iSelected != ~0)
+		pSelected = m_apControls[m_iSelected];
+
+	m_iHilighted = ~0;
+	m_iSelected = ~0;
+
+	for (size_t i = 0; i < m_apNodes.size(); i++)
+		if (m_apNodes[i] == pNode)
+			m_apNodes.erase(m_apNodes.begin()+i);
+
+	RemoveControl(pNode);
+
+	// Figure out if our hilighted or selected controls were deleted.
+	for (size_t c = 0; c < m_apControls.size(); c++)
+	{
+		if (m_apControls[c] == pHilighted)
+			m_iHilighted = c;
+		if (m_apControls[c] == pSelected)
+			m_iSelected = c;
+	}
 }
 
 CTreeNode* CTree::GetNode(size_t i)
 {
 	return m_apNodes[i];
+}
+
+void CTree::SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	m_pSelectedListener = pListener;
+	m_pfnSelectedCallback = pfnCallback;
 }
 
 CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText)
@@ -2012,8 +2140,6 @@ void CTreeNode::LayoutNode()
 
 	int iHeight = (int)m_pLabel->GetTextHeight();
 
-	iCurrentHeight += iHeight;
-
 	int iX = iCurrentDepth*iHeight;
 	int iY = iCurrentHeight;
 	int iW = m_pTree->GetWidth() - iCurrentDepth*iHeight;
@@ -2024,6 +2150,8 @@ void CTreeNode::LayoutNode()
 
 	m_pExpandButton->SetPos(0, 0);
 	m_pExpandButton->SetSize(iHeight, iHeight);
+
+	iCurrentHeight += iHeight;
 
 	if (IsExpanded())
 	{
@@ -2093,9 +2221,23 @@ size_t CTreeNode::AddNode(CTreeNode* pNode)
 	return m_apNodes.size()-1;
 }
 
+void CTreeNode::RemoveNode(CTreeNode* pNode)
+{
+	for (size_t i = 0; i < m_apNodes.size(); i++)
+		if (m_apNodes[i] == pNode)
+			m_apNodes.erase(m_apNodes.begin()+i);
+	m_pTree->RemoveNode(pNode);
+}
+
 CTreeNode* CTreeNode::GetNode(size_t i)
 {
 	return m_apNodes[i];
+}
+
+void CTreeNode::Selected()
+{
+	if (m_pTree->m_pSelectedListener)
+		m_pTree->m_pfnSelectedCallback(m_pTree->m_pSelectedListener);
 }
 
 bool CTreeNode::IsVisible()

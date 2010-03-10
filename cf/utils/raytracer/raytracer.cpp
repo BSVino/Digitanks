@@ -78,50 +78,65 @@ bool CRaytracer::RaytraceBruteForce(const Ray& rayTrace, Vector* pvecHit)
 	return false;
 }
 
+float CRaytracer::Closest(const Vector& vecPoint)
+{
+	if (!m_pTree)
+		return -1;
+
+	return m_pTree->Closest(vecPoint);
+}
+
 void CRaytracer::BuildTree()
 {
-	// Add all scene tris.
-	if (!m_pScene->GetNumScenes())
-		return;
-
-	m_pTree = new CKDTree();
-
-	AddMeshesFromNode(m_pScene->GetScene(0));
+	if (!m_pTree)
+		m_pTree = new CKDTree();
 
 	m_pTree->BuildTree();
 }
 
 void CRaytracer::AddMeshesFromNode(CConversionSceneNode* pNode)
 {
+	if (!m_pTree)
+		m_pTree = new CKDTree();
+
 	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
 		AddMeshesFromNode(pNode->GetChild(c));
 
 	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
 	{
 		CConversionMeshInstance* pMeshInstance = pNode->GetMeshInstance(m);
-		for (size_t f = 0; f < pMeshInstance->GetMesh()->GetNumFaces(); f++)
-		{
-			CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(f);
-			std::vector<Vector> avecPoints;
-			for (size_t t = 0; t < pFace->GetNumVertices(); t++)
-				avecPoints.push_back(pMeshInstance->GetVertex(pFace->GetVertex(t)->v));
+		AddMeshInstance(pMeshInstance);
+	}
+}
 
-			while (avecPoints.size() > 3)
-			{
-				size_t iEar = FindEar(avecPoints);
-				size_t iLast = iEar==0?avecPoints.size()-1:iEar-1;
-				size_t iNext = iEar==avecPoints.size()-1?0:iEar+1;
-				m_pTree->AddTriangle(avecPoints[iLast], avecPoints[iEar], avecPoints[iNext]);
-				avecPoints.erase(avecPoints.begin()+iEar);
-			}
-			m_pTree->AddTriangle(avecPoints[0], avecPoints[1], avecPoints[2]);
+void CRaytracer::AddMeshInstance(CConversionMeshInstance* pMeshInstance)
+{
+	if (!m_pTree)
+		m_pTree = new CKDTree();
+
+	for (size_t f = 0; f < pMeshInstance->GetMesh()->GetNumFaces(); f++)
+	{
+		CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(f);
+		std::vector<Vector> avecPoints;
+		for (size_t t = 0; t < pFace->GetNumVertices(); t++)
+			avecPoints.push_back(pMeshInstance->GetVertex(pFace->GetVertex(t)->v));
+
+		while (avecPoints.size() > 3)
+		{
+			size_t iEar = FindEar(avecPoints);
+			size_t iLast = iEar==0?avecPoints.size()-1:iEar-1;
+			size_t iNext = iEar==avecPoints.size()-1?0:iEar+1;
+			m_pTree->AddTriangle(avecPoints[iLast], avecPoints[iEar], avecPoints[iNext]);
+			avecPoints.erase(avecPoints.begin()+iEar);
 		}
+		m_pTree->AddTriangle(avecPoints[0], avecPoints[1], avecPoints[2]);
 	}
 }
 
 CKDTree::CKDTree()
 {
 	m_pTop = new CKDNode();
+	m_bBuilt = false;
 }
 
 CKDTree::~CKDTree()
@@ -132,20 +147,35 @@ CKDTree::~CKDTree()
 void CKDTree::AddTriangle(Vector v1, Vector v2, Vector v3)
 {
 	m_pTop->AddTriangle(v1, v2, v3);
+
+	m_bBuilt = false;
 }
 
 void CKDTree::BuildTree()
 {
 	m_pTop->CalcBounds();
 	m_pTop->Build();
+
+	m_bBuilt = true;
 }
 
 bool CKDTree::Raytrace(const Ray& rayTrace, Vector* pvecHit)
 {
+	if (!m_bBuilt)
+		BuildTree();
+
 	if (!RayIntersectsAABB(rayTrace, m_pTop->GetBounds()))
 		return false;
 
 	return m_pTop->Raytrace(rayTrace, pvecHit);
+}
+
+float CKDTree::Closest(const Vector& vecPoint)
+{
+	if (!m_bBuilt)
+		BuildTree();
+
+	return m_pTop->Closest(vecPoint);
 }
 
 CKDNode::CKDNode(CKDNode* pParent, AABB oBounds)
@@ -350,6 +380,71 @@ bool CKDNode::Raytrace(const Ray& rayTrace, Vector* pvecHit)
 		return true;
 	else
 		return pFarther->Raytrace(rayTrace, pvecHit);
+}
+
+float CKDNode::Closest(const Vector& vecPoint)
+{
+	float flClosest = -1;
+
+	if (m_pLeft)
+	{
+		// Maybe it's on the line and hits both?
+		bool bHitsLeft = PointInsideAABB(m_pLeft->m_oBounds, vecPoint);
+		bool bHitsRight = PointInsideAABB(m_pRight->m_oBounds, vecPoint);
+
+	#ifdef _DEBUG
+		// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
+		if (!(bHitsRight || bHitsLeft))
+			_asm { int 3 };
+	#endif
+
+		if (bHitsLeft && !bHitsRight)
+			flClosest = m_pLeft->Closest(vecPoint);
+		else if (bHitsRight && !bHitsLeft)
+			flClosest = m_pRight->Closest(vecPoint);
+		else
+		{
+			// Hit a poly in both cases, return the closer one.
+			float flLeft = m_pLeft->Closest(vecPoint);
+			float flRight = m_pRight->Closest(vecPoint);
+
+			if (flLeft < 0)
+				flClosest = flRight;
+			else if (flRight < 0)
+				flClosest = flLeft;
+			else
+				flClosest = flLeft<flRight?flLeft:flRight;
+		}
+	}
+
+	if (flClosest >= 0)
+		return flClosest;
+
+	// No children found anything. Test all triangles in this node.
+
+	bool bFound = false;
+
+	for (size_t i = 0; i < m_aTris.size(); i++)
+	{
+		CKDTri oTri = m_aTris[i];
+
+		std::vector<Vector> avecTri;
+		avecTri.push_back(oTri.v[0]);
+		avecTri.push_back(oTri.v[1]);
+		avecTri.push_back(oTri.v[2]);
+
+		float flDistance = DistanceToPolygon(vecPoint, avecTri, (oTri.v[0]-oTri.v[1]).Cross(oTri.v[0]-oTri.v[2]).Normalized());
+		if (!bFound)
+			flClosest = flDistance;
+		else if (flDistance < flClosest)
+			flClosest = flDistance;
+		bFound = true;
+	}
+
+	if (bFound)
+		return flClosest;
+	else
+		return -1;
 }
 
 CKDTri::CKDTri(Vector v1, Vector v2, Vector v3)

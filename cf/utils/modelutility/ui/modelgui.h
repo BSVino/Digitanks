@@ -942,9 +942,13 @@ namespace modelgui
 			return AddNode(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
 		}
 		size_t								AddNode(CTreeNode* pNode);
+		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
+		size_t								GetNumNodes() { return m_apNodes.size(); };
 
 		virtual void						AddVisibilityButton() {};
+
+		virtual void						Selected();
 
 		bool								IsExpanded() { return m_pExpandButton->IsExpanded(); };
 		void								SetExpanded(bool bExpanded) { m_pExpandButton->SetExpanded(bExpanded); };
@@ -989,6 +993,8 @@ namespace modelgui
 
 	class CTree : public CPanel
 	{
+		friend class CTreeNode;
+
 	public:
 											CTree(size_t iArrowTexture, size_t iVisibilityTexture);
 
@@ -996,15 +1002,32 @@ namespace modelgui
 		virtual void						Destructor();
 		virtual void						Delete() { delete this; };
 
-		void								Layout();
-		void								Paint();
-		void								Paint(int x, int y);
-		void								Paint(int x, int y, int w, int h);
+		virtual void						Layout();
+		virtual void						Think();
+		virtual void						Paint();
+		virtual void						Paint(int x, int y);
+		virtual void						Paint(int x, int y, int w, int h);
+
+		virtual bool						MousePressed(int code, int mx, int my);
 
 		void								ClearTree();
 
 		size_t								AddNode(const std::wstring& sName);
+		template <typename T>
+		size_t								AddNode(const std::wstring& sName, T* pObject)
+		{
+			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
+			// Who the hell knows, it's the magick of templates.
+			return AddNode(new CTreeNodeObject<T>(pObject, NULL, this, sName));
+		}
+		size_t								AddNode(CTreeNode* pNode);
+		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
+
+		virtual CTreeNode*					GetSelectedNode() { if (m_iSelected == ~0) return NULL; return dynamic_cast<CTreeNode*>(m_apControls[m_iSelected]); };
+		virtual void						SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+
+		void								SetBackgroundColor(const Color& clrBackground) { m_clrBackground = clrBackground; }
 
 	public:
 		std::vector<CTreeNode*>				m_apNodes;
@@ -1012,8 +1035,16 @@ namespace modelgui
 		int									m_iCurrentHeight;
 		int									m_iCurrentDepth;
 
+		size_t								m_iHilighted;
+		size_t								m_iSelected;
+
 		size_t								m_iArrowTexture;
 		size_t								m_iVisibilityTexture;
+
+		IEventListener::Callback			m_pfnSelectedCallback;
+		IEventListener*						m_pSelectedListener;
+
+		Color								m_clrBackground;
 	};
 
 	template <typename T>
@@ -1049,9 +1080,11 @@ namespace modelgui
 			AddControl(m_pVisibilityButton);
 		}
 
+		virtual T* GetObject() { return m_pObject; }
+
 		EVENT_CALLBACK(CTreeNodeObject, Visibility);
 
-	public:
+	protected:
 		T*									m_pObject;
 	};
 

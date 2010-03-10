@@ -949,6 +949,7 @@ void CAOGenerator::GenerateByTexel()
 			m_pWorkListener->SetAction(L"Building tree", 0);
 
 		pTracer = new raytrace::CRaytracer(m_pScene);
+		pTracer->AddMeshesFromNode(m_pScene->GetScene(0));
 		pTracer->BuildTree();
 
 		srand((unsigned int)time(0));
@@ -1707,9 +1708,6 @@ bool CAOGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 {
 	if (w < 0 || h < 0 || w >= m_iWidth || h >= m_iHeight)
 		return false;
-
-	float flW = (float)w;
-	float flH = (float)h;
 
 	iTexel = m_iHeight*h + w;
 

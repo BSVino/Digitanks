@@ -111,4 +111,52 @@ protected:
 	bool					m_bStopGenerating;
 };
 
+class CNormalGenerator
+{
+public:
+							CNormalGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+							~CNormalGenerator();
+
+public:
+	void					SetSize(size_t iWidth, size_t iHeight);
+	void					SetModels(const std::vector<CConversionMeshInstance*>& apHiRes, const std::vector<CConversionMeshInstance*>& apLoRes);
+
+	void					Generate();
+	void					GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, class raytrace::CRaytracer* pTracer);
+	void					Bleed();
+
+	void					ScaleHeightValues(float* aflTexture);
+	void					NormalizeHeightValues(float* aflTexture);
+	size_t					GenerateTexture(bool bInMedias = false);
+	void					SaveToFile(const wchar_t* pszFilename);
+
+	bool					Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask = true);
+
+	bool					IsGenerating() { return m_bIsGenerating; }
+	bool					DoneGenerating() { return m_bDoneGenerating; }
+	void					StopGenerating() { m_bStopGenerating = true; }
+	bool					IsStopped() { return m_bStopGenerating; }
+
+protected:
+	CConversionScene*		m_pScene;
+	std::vector<CMaterial>*	m_paoMaterials;
+
+	std::vector<CConversionMeshInstance*>	m_apHiRes;
+	std::vector<CConversionMeshInstance*>	m_apLoRes;
+
+	size_t					m_iWidth;
+	size_t					m_iHeight;
+
+	bool*					m_bPixelMask;
+
+	float*					m_aflHeightValues;
+	float*					m_aflHeightGeneratedValues;
+	Vector*					m_avecNormalValues;
+	size_t*					m_aiHeightReads;
+
+	bool					m_bIsGenerating;
+	bool					m_bDoneGenerating;
+	bool					m_bStopGenerating;
+};
+
 #endif

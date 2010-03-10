@@ -26,7 +26,7 @@ CSceneTreePanel::~CSceneTreePanel()
 
 void CSceneTreePanel::Layout()
 {
-	m_pTree->SetPos(5, 10);
+	m_pTree->SetPos(5, HEADER_HEIGHT);
 	m_pTree->SetSize(GetWidth() - 5, GetHeight() - HEADER_HEIGHT - 20);
 
 	CMovablePanel::Layout();
@@ -96,6 +96,7 @@ void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionS
 		size_t iMeshInstanceNode = pTreeNode->GetNode(iNode)->AddNode<CConversionMeshInstance>(pSceneNode->GetMeshInstance(m)->GetMesh()->GetName(), pSceneNode->GetMeshInstance(m));
 		CTreeNode* pMeshInstanceNode = pTreeNode->GetNode(iNode)->GetNode(iMeshInstanceNode);
 		pMeshInstanceNode->SetIcon(CModelWindow::Get()->GetMeshesNodeTexture());
+		pMeshInstanceNode->AddVisibilityButton();
 
 		for (size_t s = 0; s < pSceneNode->GetMeshInstance(m)->GetMesh()->GetNumMaterialStubs(); s++)
 		{

@@ -177,6 +177,65 @@ protected:
 	static CAOPanel*		s_pColorAOPanel;
 };
 
+class CNormalPanel : public CMovablePanel
+{
+public:
+								CNormalPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+
+public:
+	virtual void				SetVisible(bool bVisible);
+
+	virtual void				Layout();
+
+	virtual void				Paint(int x, int y, int w, int h);
+
+	virtual bool				IsGenerating() { return m_oGenerator.IsGenerating(); }
+	virtual bool				DoneGenerating() { return m_oGenerator.DoneGenerating(); }
+
+	EVENT_CALLBACK(CNormalPanel,	Generate);
+	EVENT_CALLBACK(CNormalPanel,	SaveMap);
+	EVENT_CALLBACK(CNormalPanel,	AddLoRes);
+	EVENT_CALLBACK(CNormalPanel,	AddHiRes);
+	EVENT_CALLBACK(CNormalPanel,	RemoveLoRes);
+	EVENT_CALLBACK(CNormalPanel,	RemoveHiRes);
+	EVENT_CALLBACK(CNormalPanel,	AddLoResMesh);
+	EVENT_CALLBACK(CNormalPanel,	AddHiResMesh);
+
+	static void					Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
+	static CNormalPanel*		Get() { return s_pNormalPanel; }
+
+protected:
+	CConversionScene*			m_pScene;
+	std::vector<CMaterial>*		m_paoMaterials;
+
+	CNormalGenerator			m_oGenerator;
+
+	CLabel*						m_pSizeLabel;
+	CScrollSelector<int>*		m_pSizeSelector;
+
+	CLabel*						m_pLoResLabel;
+	CTree*						m_pLoRes;
+
+	CLabel*						m_pHiResLabel;
+	CTree*						m_pHiRes;
+
+	std::vector<CConversionMeshInstance*>	m_apLoResMeshes;
+	std::vector<CConversionMeshInstance*>	m_apHiResMeshes;
+
+	CButton*					m_pAddLoRes;
+	CButton*					m_pAddHiRes;
+
+	CButton*					m_pRemoveLoRes;
+	CButton*					m_pRemoveHiRes;
+
+	CButton*					m_pGenerate;
+	CButton*					m_pSave;
+
+	class CMeshInstancePicker*	m_pMeshInstancePicker;
+
+	static CNormalPanel*		s_pNormalPanel;
+};
+
 class CHelpPanel : public CMovablePanel
 {
 public:

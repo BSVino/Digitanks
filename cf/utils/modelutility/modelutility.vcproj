@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\normal.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\smak_version.h"
 				>
 			</File>
@@ -237,6 +241,14 @@
 				</File>
 				<File
 					RelativePath=".\ui\win32\modelwindow_win32.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\picker.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\picker.h"
 					>
 				</File>
 				<File
