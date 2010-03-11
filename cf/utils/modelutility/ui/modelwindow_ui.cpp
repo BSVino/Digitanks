@@ -88,7 +88,7 @@ void CModelWindow::OpenCallback()
 	if (m_bLoadingFile)
 		return;
 
-	ReadFile(OpenFileDialog());
+	ReadFile(OpenFileDialog(L"All *.obj;*.sia;*.dae\0*.obj;*.sia;*.dae\0"));
 }
 
 void CModelWindow::ReloadCallback()
@@ -1164,14 +1164,14 @@ CNormalPanel::CNormalPanel(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_pLoResLabel = new CLabel(0, 0, 32, 32, "Low Resolution Meshes");
 	AddControl(m_pLoResLabel);
 
-	m_pLoRes = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
+	m_pLoRes = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetEditTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	m_pLoRes->SetBackgroundColor(g_clrBox);
 	AddControl(m_pLoRes);
 
 	m_pHiResLabel = new CLabel(0, 0, 32, 32, "High Resolution Meshes");
 	AddControl(m_pHiResLabel);
 
-	m_pHiRes = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
+	m_pHiRes = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetEditTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	m_pHiRes->SetBackgroundColor(g_clrBox);
 	AddControl(m_pHiRes);
 

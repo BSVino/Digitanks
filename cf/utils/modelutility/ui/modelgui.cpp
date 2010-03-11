@@ -1908,7 +1908,7 @@ void CMenu::CSubmenuPanel::Think()
 	CPanel::Think();
 }
 
-CTree::CTree(size_t iArrowTexture, size_t iVisibilityTexture)
+CTree::CTree(size_t iArrowTexture, size_t iEditTexture, size_t iVisibilityTexture)
 	: CPanel(0, 0, 10, 10)
 {
 	m_iHilighted = ~0;
@@ -1916,6 +1916,7 @@ CTree::CTree(size_t iArrowTexture, size_t iVisibilityTexture)
 
 	m_iArrowTexture = iArrowTexture;
 	m_iVisibilityTexture = iVisibilityTexture;
+	m_iEditTexture = iEditTexture;
 
 	m_pfnSelectedCallback = NULL;
 	m_pSelectedListener = NULL;
@@ -2110,6 +2111,7 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText
 	m_pTree = pTree;
 
 	m_pVisibilityButton = NULL;
+	m_pEditButton = NULL;
 
 	m_pLabel = new CLabel(0, 0, GetWidth(), GetHeight(), "");
 	m_pLabel->SetAlign(CLabel::TA_LEFTCENTER);
@@ -2205,6 +2207,9 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 
 	if (m_pVisibilityButton)
 		m_pVisibilityButton->Paint();
+
+	if (m_pEditButton)
+		m_pEditButton->Paint();
 }
 
 size_t CTreeNode::AddNode(const std::wstring& sName)

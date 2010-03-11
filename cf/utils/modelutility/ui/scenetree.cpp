@@ -1,5 +1,7 @@
 #include "scenetree.h"
 
+#include <GL/freeglut.h>
+
 using namespace modelgui;
 
 CSceneTreePanel* CSceneTreePanel::s_pSceneTreePanel = NULL;
@@ -8,7 +10,7 @@ CSceneTreePanel::CSceneTreePanel(CConversionScene* pScene)
 	: CMovablePanel("Scene Tree")
 {
 	m_pScene = pScene;
-	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
+	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetEditTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	AddControl(m_pTree);
 
 	HasCloseButton(false);
@@ -17,11 +19,16 @@ CSceneTreePanel::CSceneTreePanel(CConversionScene* pScene)
 	// Infinite height so that scene objects are always clickable.
 	SetSize(GetWidth(), 10000);
 	SetPos(50, 100);
+
+	m_pMaterialEditor = NULL;
 }
 
 CSceneTreePanel::~CSceneTreePanel()
 {
 	delete m_pTree;
+
+	if (m_pMaterialEditor)
+		delete m_pMaterialEditor;
 }
 
 void CSceneTreePanel::Layout()
@@ -58,6 +65,7 @@ void CSceneTreePanel::AddAllToTree()
 		size_t iMaterialNode = pMaterialsNode->AddNode<CConversionMaterial>(m_pScene->GetMaterial(i)->GetName(), m_pScene->GetMaterial(i));
 		CTreeNode* pMaterialNode = pMaterialsNode->GetNode(iMaterialNode);
 		pMaterialNode->AddVisibilityButton();
+		dynamic_cast<CTreeNodeObject<CConversionMaterial>*>(pMaterialNode)->AddEditButton(::OpenMaterialEditor);
 	}
 
 	// Don't overload the screen.
@@ -115,6 +123,25 @@ void CSceneTreePanel::AddNodeToTree(modelgui::CTreeNode* pTreeNode, CConversionS
 	}
 }
 
+void OpenMaterialEditor(CConversionMaterial* pMaterial)
+{
+	CSceneTreePanel::Get()->OpenMaterialEditor(pMaterial);
+}
+
+void CSceneTreePanel::OpenMaterialEditor(CConversionMaterial* pMaterial)
+{
+	if (m_pMaterialEditor)
+		delete m_pMaterialEditor;
+
+	m_pMaterialEditor = new CMaterialEditor(pMaterial, this);
+
+	if (!m_pMaterialEditor)
+		return;
+
+	m_pMaterialEditor->SetVisible(true);
+	m_pMaterialEditor->Layout();
+}
+
 void CSceneTreePanel::Open(CConversionScene* pScene)
 {
 	CSceneTreePanel* pPanel = Get();
@@ -132,4 +159,92 @@ void CSceneTreePanel::Open(CConversionScene* pScene)
 CSceneTreePanel* CSceneTreePanel::Get()
 {
 	return s_pSceneTreePanel;
+}
+
+CMaterialEditor::CMaterialEditor(CConversionMaterial* pMaterial, CSceneTreePanel* pSceneTree)
+	: CMovablePanel("Material Properties")
+{
+	m_pMaterial = pMaterial;
+	m_pSceneTree = pSceneTree;
+
+	m_pScene = CModelWindow::Get()->GetScene();
+
+	for (size_t i = 0; i < m_pScene->GetNumMaterials(); i++)
+	{
+		if (m_pScene->GetMaterial(i) == m_pMaterial)
+		{
+			m_iMaterial = i;
+			break;
+		}
+	}
+
+	int x, y;
+	m_pSceneTree->GetAbsPos(x, y);
+
+	SetPos(x + m_pSceneTree->GetWidth(), y);
+	SetSize(500, 80);
+
+	m_pName->AppendText(L" - ");
+	m_pName->AppendText(pMaterial->GetName().c_str());
+
+	m_pDiffuseLabel = new CLabel(0, 0, 1, 1, "Diffuse map: ");
+	AddControl(m_pDiffuseLabel);
+	m_pDiffuseFile = new CLabel(0, 0, 1, 1, "");
+	m_pDiffuseFile->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pDiffuseFile->SetWrap(false);
+	AddControl(m_pDiffuseFile);
+	m_pDiffuseButton = new CButton(0, 0, 70, 20, "Change...");
+	m_pDiffuseButton->SetClickedListener(this, ChooseDiffuse);
+	AddControl(m_pDiffuseButton);
+
+	Layout();
+}
+
+void CMaterialEditor::Layout()
+{
+	int iHeight = HEADER_HEIGHT+10;
+
+	m_pDiffuseLabel->SetPos(10, iHeight);
+	m_pDiffuseLabel->EnsureTextFits();
+
+	int x, y;
+	m_pDiffuseLabel->GetPos(x, y);
+	int iDiffuseRight = x + m_pDiffuseLabel->GetWidth();
+
+	m_pDiffuseFile->SetPos(iDiffuseRight, iHeight);
+	m_pDiffuseFile->SetText(m_pMaterial->GetTexture().c_str());
+	m_pDiffuseFile->SetSize(0, 0);
+	m_pDiffuseFile->EnsureTextFits();
+	if (m_pDiffuseFile->GetWidth() + m_pDiffuseLabel->GetWidth() + 10 > GetWidth())
+		m_pDiffuseFile->SetSize(GetWidth() - m_pDiffuseLabel->GetWidth() - 10, m_pDiffuseFile->GetHeight());
+
+	iHeight += y;
+
+	m_pDiffuseButton->SetPos(GetWidth() - m_pDiffuseButton->GetWidth() - 10, iHeight);
+
+	CMovablePanel::Layout();
+}
+
+void CMaterialEditor::ChooseDiffuseCallback()
+{
+	wchar_t* pszOpen = CModelWindow::OpenFileDialog(L"All *.bmp;*.jpg;*.png;*.tga;*.psd;*.gif;*.tif\0*.bmp;*.jpg;*.png;*.tga;*.psd;*.gif;*.tif\0");
+
+	if (!pszOpen)
+		return;
+
+	size_t iTexture = CModelWindow::LoadTextureIntoGL(std::wstring(pszOpen));
+
+	if (!iTexture)
+		return;
+
+	CMaterial* pMaterial = &(*CModelWindow::Get()->GetMaterials())[m_iMaterial];
+
+	if (pMaterial->m_iBase)
+		glDeleteTextures(1, &pMaterial->m_iBase);
+
+	pMaterial->m_iBase = iTexture;
+
+	m_pMaterial->m_sTexture = pszOpen;
+
+	Layout();
 }

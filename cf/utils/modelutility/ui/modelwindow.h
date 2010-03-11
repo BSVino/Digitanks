@@ -121,8 +121,8 @@ public:
 
 	size_t					GetNextObjectId();
 
-	wchar_t*				OpenFileDialog();
-	wchar_t*				SaveFileDialog(wchar_t* pszFileTypes);
+	static wchar_t*			OpenFileDialog(wchar_t* pszFileTypes);
+	static wchar_t*			SaveFileDialog(wchar_t* pszFileTypes);
 	static std::string		GetClipboard();
 	static void				SetClipboard(const std::string& sBuf);
 
@@ -145,6 +145,7 @@ public:
 	int						GetWindowHeight() { return (int)m_iWindowHeight; };
 
 	size_t					GetArrowTexture() { return m_iArrowTexture; };
+	size_t					GetEditTexture() { return m_iEditTexture; };
 	size_t					GetVisibilityTexture() { return m_iVisibilityTexture; };
 	size_t					GetMaterialsNodeTexture() { return m_iTextureTexture; };
 	size_t					GetMeshesNodeTexture() { return m_iWireframeTexture; };
@@ -153,6 +154,7 @@ public:
 	static CModelWindow*	Get() { return s_pModelWindow; };
 
 	CConversionScene*		GetScene() { return &m_Scene; };
+	std::vector<CMaterial>*	GetMaterials() { return &m_aoMaterials; };
 
 	void					ClearDebugLines();
 	void					AddDebugLine(Vector vecStart, Vector vecEnd);
@@ -186,6 +188,7 @@ protected:
 	size_t					m_iCAOTexture;
 	size_t					m_iArrowTexture;
 	size_t					m_iVisibilityTexture;
+	size_t					m_iEditTexture;
 
 	float					m_flCameraDistance;
 

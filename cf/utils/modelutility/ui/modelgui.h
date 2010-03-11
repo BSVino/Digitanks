@@ -968,6 +968,7 @@ namespace modelgui
 		size_t								m_iIconTexture;
 
 		CPictureButton*						m_pVisibilityButton;
+		CPictureButton*						m_pEditButton;
 
 		class CExpandButton : public CPictureButton
 		{
@@ -996,7 +997,7 @@ namespace modelgui
 		friend class CTreeNode;
 
 	public:
-											CTree(size_t iArrowTexture, size_t iVisibilityTexture);
+											CTree(size_t iArrowTexture, size_t iEditTexture, size_t iVisibilityTexture);
 
 	public:
 		virtual void						Destructor();
@@ -1040,6 +1041,7 @@ namespace modelgui
 
 		size_t								m_iArrowTexture;
 		size_t								m_iVisibilityTexture;
+		size_t								m_iEditTexture;
 
 		IEventListener::Callback			m_pfnSelectedCallback;
 		IEventListener*						m_pSelectedListener;
@@ -1058,6 +1060,8 @@ namespace modelgui
 		}
 
 	public:
+		typedef void (*EditFnCallback)(T*);
+
 		virtual void LayoutNode()
 		{
 			CTreeNode::LayoutNode();
@@ -1070,6 +1074,12 @@ namespace modelgui
 				m_pVisibilityButton->SetSize(iHeight, iHeight);
 			}
 
+			if (m_pEditButton)
+			{
+				m_pEditButton->SetPos(GetWidth()-iHeight*2-16, 0);
+				m_pEditButton->SetSize(iHeight, iHeight);
+			}
+
 			m_pLabel->SetAlpha(m_pObject->IsVisible()?255:100);
 		}
 
@@ -1080,12 +1090,23 @@ namespace modelgui
 			AddControl(m_pVisibilityButton);
 		}
 
+		virtual void AddEditButton(EditFnCallback pfnCallback)
+		{
+			m_pEditButton = new CPictureButton("*", m_pTree->m_iEditTexture);
+			m_pEditButton->SetClickedListener(this, Edit);
+			AddControl(m_pEditButton);
+			m_pfnCallback = pfnCallback;
+		}
+
 		virtual T* GetObject() { return m_pObject; }
 
 		EVENT_CALLBACK(CTreeNodeObject, Visibility);
+		EVENT_CALLBACK(CTreeNodeObject, Edit);
 
 	protected:
 		T*									m_pObject;
+
+		EditFnCallback						m_pfnCallback;
 	};
 
 	template <typename T>
@@ -1094,6 +1115,12 @@ namespace modelgui
 		m_pObject->SetVisible(!m_pObject->IsVisible());
 
 		m_pLabel->SetAlpha(m_pObject->IsVisible()?255:100);
+	}
+
+	template <typename T>
+	inline void CTreeNodeObject<T>::EditCallback()
+	{
+		m_pfnCallback(m_pObject);
 	}
 };
 

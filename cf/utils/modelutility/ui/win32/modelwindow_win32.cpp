@@ -2,14 +2,14 @@
 
 #include <windows.h>
 
-wchar_t* CModelWindow::OpenFileDialog()
+wchar_t* CModelWindow::OpenFileDialog(wchar_t* pszFileTypes)
 {
 	static wchar_t szFile[256];
 	szFile[0] = '\0';
 
 	OPENFILENAME opf;
 	opf.hwndOwner = 0;
-	opf.lpstrFilter = L"All *.obj;*.sia;*.dae\0*.obj;*.sia;*.dae\0";
+	opf.lpstrFilter = pszFileTypes;
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
 	opf.nFilterIndex = 1L;

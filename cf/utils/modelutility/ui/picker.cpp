@@ -15,7 +15,7 @@ CPicker::CPicker(char* pszName, IEventListener* pCallback, IEventListener::Callb
 
 	m_bPopulated = false;
 
-	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetVisibilityTexture());
+	m_pTree = new CTree(CModelWindow::Get()->GetArrowTexture(), CModelWindow::Get()->GetEditTexture(), CModelWindow::Get()->GetVisibilityTexture());
 	m_pTree->SetBackgroundColor(g_clrBox);
 	m_pTree->SetSelectedListener(this, Selected);
 	AddControl(m_pTree);
