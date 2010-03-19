@@ -22,6 +22,8 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 
 	SetSize(512, 512);
 
+	m_pWorkListener = NULL;
+
 	m_bIsGenerating = false;
 	m_bDoneGenerating = false;
 	m_bStopGenerating = false;
@@ -74,6 +76,12 @@ void CNormalGenerator::SetModels(const std::vector<CConversionMeshInstance*>& ap
 
 void CNormalGenerator::Generate()
 {
+	if (m_pWorkListener)
+	{
+		m_pWorkListener->BeginProgress();
+		m_pWorkListener->SetAction(L"Building tree", 0);
+	}
+
 	m_bIsGenerating = true;
 	m_bStopGenerating = false;
 	m_bDoneGenerating = false;
@@ -86,6 +94,23 @@ void CNormalGenerator::Generate()
 		pTracer->AddMeshInstance(m_apHiRes[m]);
 
 	pTracer->BuildTree();
+
+	float flTotalArea = 0;
+
+	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(m);
+		for (size_t f = 0; f < pMesh->GetNumFaces(); f++)
+		{
+			CConversionFace* pFace = pMesh->GetFace(f);
+			flTotalArea += pFace->GetUVArea();
+		}
+	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Generating", (size_t)(flTotalArea*m_iWidth*m_iHeight));
+
+	size_t iRendered = 0;
 
 	for (size_t i = 0; i < m_apLoRes.size(); i++)
 	{
@@ -121,13 +146,13 @@ void CNormalGenerator::Generate()
 				size_t iEar = FindEar(avecPoints);
 				size_t iLast = iEar==0?avecPoints.size()-1:iEar-1;
 				size_t iNext = iEar==avecPoints.size()-1?0:iEar+1;
-				GenerateTriangleByTexel(pMeshInstance, pFace, aiPoints[iLast], aiPoints[iEar], aiPoints[iNext], pTracer);
+				GenerateTriangleByTexel(pMeshInstance, pFace, aiPoints[iLast], aiPoints[iEar], aiPoints[iNext], pTracer, iRendered);
 				avecPoints.erase(avecPoints.begin()+iEar);
 				aiPoints.erase(aiPoints.begin()+iEar);
 				if (m_bStopGenerating)
 					break;
 			}
-			GenerateTriangleByTexel(pMeshInstance, pFace, aiPoints[0], aiPoints[1], aiPoints[2], pTracer);
+			GenerateTriangleByTexel(pMeshInstance, pFace, aiPoints[0], aiPoints[1], aiPoints[2], pTracer, iRendered);
 			if (m_bStopGenerating)
 				break;
 		}
@@ -144,9 +169,13 @@ void CNormalGenerator::Generate()
 	if (!m_bStopGenerating)
 		m_bDoneGenerating = true;
 	m_bIsGenerating = false;
+
+	// One last call to let them know we're done.
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
 }
 
-void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, raytrace::CRaytracer* pTracer)
+void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, raytrace::CRaytracer* pTracer, size_t& iRendered)
 {
 	CConversionVertex* pV1 = pFace->GetVertex(v1);
 	CConversionVertex* pV2 = pFace->GetVertex(v2);
@@ -289,6 +318,9 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			m_aiHeightReads[iTexel]++;
 			m_bPixelMask[iTexel] = true;
 
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(++iRendered);
+
 			if (m_bStopGenerating)
 				break;
 		}
@@ -300,6 +332,9 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 void CNormalGenerator::Bleed()
 {
 	bool* abPixelMask = (bool*)malloc(m_iWidth*m_iHeight*sizeof(bool));
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Bleeding edges", 0);
 
 	// This is for pixels that have been set this frame.
 	memset(&abPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
@@ -405,14 +440,17 @@ void CNormalGenerator::ScaleHeightValues(float* aflHeightValues)
 		}
 	}
 
-	// Use a simple scale instead of remapping [lo, hi] -> [0, 1] so that 0.5 stays our centerline.
-	float flScale = (fabs(flLowestValue) > fabs(flHighestValue))?fabs(flLowestValue):fabs(flHighestValue);
-	for (i = 0; i < m_iWidth*m_iHeight; i++)
+	if (!bFirst)
 	{
-		if (m_aiHeightReads[i] && aflHeightValues[i] != 0)
-			aflHeightValues[i] = RemapVal(m_aflHeightValues[i], -flScale, flScale, 0.0f, 1.0f);
-		else
-			aflHeightValues[i] = 0.5f;
+		// Use a simple scale instead of remapping [lo, hi] -> [0, 1] so that 0.5 stays our centerline.
+		float flScale = (fabs(flLowestValue) > fabs(flHighestValue))?fabs(flLowestValue):fabs(flHighestValue);
+		for (i = 0; i < m_iWidth*m_iHeight; i++)
+		{
+			if (m_aiHeightReads[i] && aflHeightValues[i] != 0)
+				aflHeightValues[i] = RemapVal(m_aflHeightValues[i], -flScale, flScale, 0.0f, 1.0f);
+			else
+				aflHeightValues[i] = 0.5f;
+		}
 	}
 }
 

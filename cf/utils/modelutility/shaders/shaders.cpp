@@ -152,7 +152,17 @@ const char* GetFSModelShader()
 		"	}"
 		"	else"
 		"	{"
-		"		float flDot = dot(normalize(vecVertexNormal), vec3(0, 1, 0));"
+
+		"		vec3 vecTranslatedNormal = vecTangentNormal;"
+		"		if (bNormalMap)"
+		"		{"
+		"			mat3 mTBN = ComputeTangentFrame(normalize(vecVertexNormal), normalize(vecViewDir), gl_TexCoord[0].st);"
+		"			vecTranslatedNormal = mTBN * vecTangentNormal;"
+		"		}"
+		"		else"
+		"			vecTranslatedNormal = normalize(vecVertexNormal);"
+
+		"		float flDot = dot(vecTranslatedNormal, vec3(0, 1, 0));"
 		"		clrLight = vec4(1, 1, 1, 1) * (flDot * 0.5) + vec4(0.45, 0.45, 0.45, 0.45);"
 		"		clrLight = clrLight * gl_FrontMaterial.diffuse;"
 		"	}"

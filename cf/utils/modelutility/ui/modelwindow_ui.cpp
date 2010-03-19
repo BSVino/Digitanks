@@ -1298,9 +1298,14 @@ void CNormalPanel::GenerateCallback()
 
 	m_pGenerate->SetText("Cancel");
 
+	// Disappear all of the hi-res meshes so we can see the lo res better.
+	for (size_t m = 0; m < m_apHiResMeshes.size(); m++)
+		m_apHiResMeshes[m]->SetVisible(false);
+
 	int iSize = m_pSizeSelector->GetSelectionValue();
 	m_oGenerator.SetSize(iSize, iSize);
 	m_oGenerator.SetModels(m_apHiResMeshes, m_apLoResMeshes);
+	m_oGenerator.SetWorkListener(this);
 	m_oGenerator.Generate();
 
 	size_t iNormal = 0;
@@ -1334,6 +1339,65 @@ void CNormalPanel::SaveMapCallback()
 		return;
 
 	m_oGenerator.SaveToFile(CModelWindow::Get()->SaveFileDialog(L"Portable Network Graphics (.png)\0*.png\0Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0"));
+}
+
+void CNormalPanel::BeginProgress()
+{
+	CProgressBar::Get()->SetVisible(true);
+}
+
+void CNormalPanel::SetAction(wchar_t* pszAction, size_t iTotalProgress)
+{
+	CProgressBar::Get()->SetTotalProgress(iTotalProgress);
+	CProgressBar::Get()->SetAction(pszAction);
+	WorkProgress(0, true);
+}
+
+void CNormalPanel::WorkProgress(size_t iProgress, bool bForceDraw)
+{
+	static int iLastTime = 0;
+	static int iLastGenerate = 0;
+
+	// Don't update too often or it'll slow us down just because of the updates.
+	if (!bForceDraw && glutGet(GLUT_ELAPSED_TIME) - iLastTime < 10)
+		return;
+
+	CProgressBar::Get()->SetProgress(iProgress);
+
+	// We need to correct the viewport size before we push any events, or else any Layout() commands during
+	// button presses and the line will use the wrong viewport size.
+	glViewport(0, 0, CModelWindow::Get()->GetWindowWidth(), CModelWindow::Get()->GetWindowHeight());
+
+	glutMainLoopEvent();
+
+	if (m_oGenerator.IsGenerating() && glutGet(GLUT_ELAPSED_TIME) - iLastGenerate > 500)
+	{
+		size_t iNormal = m_oGenerator.GenerateTexture(true);
+
+		for (size_t i = 0; i < m_paoMaterials->size(); i++)
+		{
+			size_t& iNormalTexture = (*m_paoMaterials)[i].m_iNormal;
+
+			if (iNormalTexture)
+				glDeleteTextures(1, &iNormalTexture);
+
+			iNormalTexture = iNormal;
+		}
+
+		iLastGenerate = glutGet(GLUT_ELAPSED_TIME);
+	}
+
+	CModelWindow::Get()->Render();
+	CRootPanel::Get()->Think();
+	CRootPanel::Get()->Paint(0, 0, CModelWindow::Get()->GetWindowWidth(), CModelWindow::Get()->GetWindowHeight());
+	glutSwapBuffers();
+
+	iLastTime = glutGet(GLUT_ELAPSED_TIME);
+}
+
+void CNormalPanel::EndProgress()
+{
+	CProgressBar::Get()->SetVisible(false);
 }
 
 void CNormalPanel::AddLoResCallback()

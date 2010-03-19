@@ -189,7 +189,7 @@ protected:
 	static CAOPanel*		s_pColorAOPanel;
 };
 
-class CNormalPanel : public CMovablePanel
+class CNormalPanel : public CMovablePanel, public IWorkListener
 {
 public:
 								CNormalPanel(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
@@ -200,6 +200,11 @@ public:
 	virtual void				Layout();
 
 	virtual void				Paint(int x, int y, int w, int h);
+
+	virtual void				BeginProgress();
+	virtual void				SetAction(wchar_t* pszAction, size_t iTotalProgress);
+	virtual void				WorkProgress(size_t iProgress, bool bForceDraw = false);
+	virtual void				EndProgress();
 
 	virtual bool				IsGenerating() { return m_oGenerator.IsGenerating(); }
 	virtual bool				DoneGenerating() { return m_oGenerator.DoneGenerating(); }

@@ -121,8 +121,10 @@ public:
 	void					SetSize(size_t iWidth, size_t iHeight);
 	void					SetModels(const std::vector<CConversionMeshInstance*>& apHiRes, const std::vector<CConversionMeshInstance*>& apLoRes);
 
+	void					SetWorkListener(IWorkListener* pListener) { m_pWorkListener = pListener; };
+
 	void					Generate();
-	void					GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, class raytrace::CRaytracer* pTracer);
+	void					GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, class raytrace::CRaytracer* pTracer, size_t& iRendered);
 	void					Bleed();
 
 	void					ScaleHeightValues(float* aflTexture);
@@ -146,6 +148,8 @@ protected:
 
 	size_t					m_iWidth;
 	size_t					m_iHeight;
+
+	IWorkListener*			m_pWorkListener;
 
 	bool*					m_bPixelMask;
 
