@@ -43,6 +43,9 @@ public:
 	void							Layout();
 
 	EVENT_CALLBACK(CMaterialEditor, ChooseDiffuse);
+	EVENT_CALLBACK(CMaterialEditor, ChooseNormal);
+	EVENT_CALLBACK(CMaterialEditor, RemoveDiffuse);
+	EVENT_CALLBACK(CMaterialEditor, RemoveNormal);
 
 protected:
 	CConversionMaterial*			m_pMaterial;
@@ -51,8 +54,12 @@ protected:
 	size_t							m_iMaterial;
 
 	CLabel*							m_pDiffuseLabel;
-	CLabel*							m_pDiffuseFile;
-	CButton*						m_pDiffuseButton;
+	CButton*						m_pDiffuseFile;
+	CButton*						m_pDiffuseRemove;
+
+	CLabel*							m_pNormalLabel;
+	CButton*						m_pNormalFile;
+	CButton*						m_pNormalRemove;
 };
 
 #endif

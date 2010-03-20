@@ -95,7 +95,11 @@ public:
 										float flShininess = 10.0f);
 
 	std::wstring					GetName() const { return m_sName; }
-	std::wstring					GetTexture() const { return m_sTexture; }
+
+	std::wstring					GetDiffuseTexture() const { return m_sDiffuseTexture; }
+	std::wstring					GetNormalTexture() const { return m_sNormalTexture; }
+	std::wstring					GetAOTexture() const { return m_sAOTexture; }
+	std::wstring					GetCAOTexture() const { return m_sCAOTexture; }
 
 	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool							IsVisible() { return m_bVisible; };
@@ -111,7 +115,10 @@ public:
 	float							m_flShininess;
 	IllumType_t						m_eIllumType;
 
-	std::wstring					m_sTexture;
+	std::wstring					m_sDiffuseTexture;
+	std::wstring					m_sNormalTexture;
+	std::wstring					m_sAOTexture;
+	std::wstring					m_sCAOTexture;
 
 	bool							m_bVisible;
 };

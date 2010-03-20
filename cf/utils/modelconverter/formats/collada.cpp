@@ -100,7 +100,7 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 								const wchar_t* pszFilename = pImage->GetFilename().c_str();
 
 								// I'm sick of these damn string copy functions.
-								pMaterial->m_sTexture = pszFilename;
+								pMaterial->m_sDiffuseTexture = pszFilename;
 							}
 						}
 					}

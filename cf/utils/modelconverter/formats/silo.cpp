@@ -154,7 +154,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilen
 			wchar_t szTexture[1024];
 			swprintf(szTexture, L"%s/%s", sDirectory.c_str(), aName[0].c_str());
 
-			pMaterial->m_sTexture = szTexture;
+			pMaterial->m_sDiffuseTexture = szTexture;
 		}
 		else if (wcscmp(pszToken, L"-endMat") == 0)
 		{

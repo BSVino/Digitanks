@@ -1338,7 +1338,22 @@ void CNormalPanel::SaveMapCallback()
 	if (!m_oGenerator.DoneGenerating())
 		return;
 
-	m_oGenerator.SaveToFile(CModelWindow::Get()->SaveFileDialog(L"Portable Network Graphics (.png)\0*.png\0Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0"));
+	const wchar_t* pszFilename = CModelWindow::Get()->SaveFileDialog(L"Portable Network Graphics (.png)\0*.png\0Bitmap (.bmp)\0*.bmp\0JPEG (.jpg)\0*.jpg\0Truevision Targa (.tga)\0*.tga\0Adobe PhotoShop (.psd)\0*.psd\0");
+
+	if (!pszFilename)
+		return;
+
+	m_oGenerator.SaveToFile(pszFilename);
+
+	for (size_t i = 0; i < m_paoMaterials->size(); i++)
+	{
+		if (!m_pScene->GetMaterial(i)->IsVisible())
+			continue;
+
+		m_pScene->GetMaterial(i)->m_sNormalTexture = pszFilename;
+	}
+
+	CRootPanel::Get()->Layout();
 }
 
 void CNormalPanel::BeginProgress()

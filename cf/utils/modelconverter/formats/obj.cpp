@@ -320,7 +320,7 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 			{
 				fclose(fpTest);
 
-				pMaterial->m_sTexture = std::wstring(pszToken);
+				pMaterial->m_sDiffuseTexture = std::wstring(pszToken);
 			}
 			else
 			{
@@ -330,7 +330,7 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 				wchar_t szTexture[1024];
 				swprintf(szTexture, L"%s/%s", szDirectory, pszToken);
 
-				pMaterial->m_sTexture = std::wstring(szTexture);
+				pMaterial->m_sDiffuseTexture = std::wstring(szTexture);
 			}
 		}
 	}

@@ -331,7 +331,7 @@ void CModelWindow::LoadTexturesIntoGL()
 
 		assert(m_aoMaterials.size()-1 == i);
 
-		size_t iTexture = LoadTextureIntoGL(pMaterial->GetTexture());
+		size_t iTexture = LoadTextureIntoGL(pMaterial->GetDiffuseTexture());
 
 		if (iTexture)
 			m_aoMaterials[i].m_iBase = iTexture;

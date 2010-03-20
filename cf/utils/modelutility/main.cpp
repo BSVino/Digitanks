@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
 					assert(aMaterials.size()-1 == i);
 
-					size_t iTexture = CModelWindow::LoadTextureIntoGL(pMaterial->GetTexture());
+					size_t iTexture = CModelWindow::LoadTextureIntoGL(pMaterial->GetDiffuseTexture());
 
 					if (iTexture)
 						aMaterials[i].m_iBase = iTexture;
