@@ -73,6 +73,7 @@ namespace modelgui
 		virtual void		Paint(int x, int y, int w, int h)=0;
 		virtual void		Layout()=0;
 		virtual void		Think()=0;
+		virtual void		UpdateScene()=0;
 
 		virtual bool		KeyPressed(int iKey)=0;
 		virtual bool		KeyReleased(int iKey)=0;
@@ -174,6 +175,7 @@ namespace modelgui
 		virtual void	Paint(int x, int y, int w, int h) {};
 		virtual void	Layout() {};
 		virtual void	Think() {};
+		virtual void	UpdateScene() {};
 
 		virtual void	SetSize(int w, int h) { m_iW = w; m_iH = h; };
 		virtual void	SetPos(int x, int y) { m_iX = x; m_iY = y; };
@@ -240,6 +242,7 @@ namespace modelgui
 		virtual void			Paint(int x, int y, int w, int h);
 		virtual void			Layout();
 		virtual void			Think();
+		virtual void			UpdateScene();
 
 		virtual bool			KeyPressed(int code);
 		virtual bool			KeyReleased(int code);

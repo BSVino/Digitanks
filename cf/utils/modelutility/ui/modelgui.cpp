@@ -359,6 +359,13 @@ void CPanel::Layout( void )
 	}
 }
 
+void CPanel::UpdateScene( void )
+{
+	size_t iCount = m_apControls.size();
+	for (size_t i = 0; i < iCount; i++)
+		m_apControls[i]->UpdateScene();
+}
+
 void CPanel::Paint()
 {
 	int x = 0, y = 0;

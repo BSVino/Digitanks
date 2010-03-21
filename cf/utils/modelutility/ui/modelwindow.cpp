@@ -218,6 +218,8 @@ void CModelWindow::DestroyAll()
 	m_iObjectsCreated = 0;
 	m_aoMaterials.clear();
 
+	CRootPanel::Get()->UpdateScene();
+
 	CSceneTreePanel::Get()->UpdateTree();
 
 	CRootPanel::Get()->Layout();

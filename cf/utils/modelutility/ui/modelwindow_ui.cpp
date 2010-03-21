@@ -1280,6 +1280,12 @@ void CNormalPanel::Layout()
 	CMovablePanel::Layout();
 }
 
+void CNormalPanel::UpdateScene()
+{
+	m_apLoResMeshes.clear();
+	m_apHiResMeshes.clear();
+}
+
 void CNormalPanel::Paint(int x, int y, int w, int h)
 {
 	CMovablePanel::Paint(x, y, w, h);

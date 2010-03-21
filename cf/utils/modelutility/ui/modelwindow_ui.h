@@ -198,6 +198,7 @@ public:
 	virtual void				SetVisible(bool bVisible);
 
 	virtual void				Layout();
+	virtual void				UpdateScene();
 
 	virtual void				Paint(int x, int y, int w, int h);
 
