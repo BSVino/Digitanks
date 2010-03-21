@@ -188,6 +188,8 @@ namespace modelgui
 		virtual void	GetBR(int &x, int &y) { x = m_iX + m_iW; y = m_iY + m_iH; };
 		virtual void	SetAlpha(int a) { m_iAlpha = a; };
 		virtual int		GetAlpha() { return m_iAlpha; };
+		virtual void	SetRight(int r);
+		virtual void	SetBottom(int b);
 
 		virtual void	SetVisible(bool bVis) { m_bVisible = bVis; };
 		virtual bool	IsVisible();
@@ -832,6 +834,9 @@ namespace modelgui
 
 		virtual void SetSelection(size_t i)
 		{
+			if (i >= m_aSelections.size())
+				i = m_aSelections.size() - 1;
+
 			m_iSelection = i;
 			m_flHandlePositionGoal = m_flHandlePosition = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
 

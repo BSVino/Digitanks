@@ -305,7 +305,7 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 		else if (wcscmp(pszToken, L"Ns") == 0)
 		{
 			pszToken = wcstok(NULL, L" ");
-			pMaterial->m_flShininess = (float)_wtof(pszToken);
+			pMaterial->m_flShininess = (float)_wtof(pszToken)*128/1000;
 		}
 		else if (wcscmp(pszToken, L"illum") == 0)
 		{

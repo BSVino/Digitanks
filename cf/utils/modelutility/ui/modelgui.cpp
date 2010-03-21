@@ -57,6 +57,16 @@ void CBaseControl::GetAbsDimensions(int &x, int &y, int &w, int &h)
 	h = m_iH;
 }
 
+void CBaseControl::SetRight(int r)
+{
+	m_iW = r - m_iX;
+}
+
+void CBaseControl::SetBottom(int b)
+{
+	m_iH = b - m_iY;
+}
+
 bool CBaseControl::IsVisible()
 {
 	if (GetParent() && !GetParent()->IsVisible())
