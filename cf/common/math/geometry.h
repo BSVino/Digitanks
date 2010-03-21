@@ -194,11 +194,11 @@ inline bool RayIntersectsTriangle(Ray vecRay, Vector v0, Vector v1, Vector v2, V
 	float s, t;
 
 	s = (uv * wv - vv * wu) / D;
-	if (s <= ep || s >= 1)		// Intersection point is outside the triangle
+	if (s < 0 || s > 1)		// Intersection point is outside the triangle
 		return false;
 
 	t = (uv * wu - uu * wv) / D;
-	if (t <= ep || (s+t) >= 1)	// Intersection point is outside the triangle
+	if (t < 0 || (s+t) > 1)	// Intersection point is outside the triangle
 		return false;
 
 	return true;

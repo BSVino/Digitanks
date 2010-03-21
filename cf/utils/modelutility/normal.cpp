@@ -330,10 +330,11 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 				flHit = sqrt((fabs(flHitFront)<fabs(flHitBack))?flHitFront:flHitBack);
 			}
 
+			// Maybe this check can be done sooner to eliminate the need for some raytracing?
 			float flClosest = pTracer->Closest(vecUVPosition);
 
-			if (flClosest >= 0 && fabs(flClosest) < fabs(flHit))
-				flHit = flHit>0?flClosest:-flClosest;
+			if (fabs(flClosest) <= 0.001f)
+				flHit = 0.0f;
 
 			m_aflHeightValues[iTexel] += flHit;
 
