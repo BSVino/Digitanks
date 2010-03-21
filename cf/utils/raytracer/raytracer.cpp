@@ -4,6 +4,7 @@
 
 #include <geometry.h>
 
+//#define DEBUG_WITH_GL
 #ifdef DEBUG_WITH_GL
 #include <GL/freeglut.h>
 
@@ -392,13 +393,14 @@ float CKDNode::Closest(const Vector& vecPoint)
 		bool bHitsLeft = PointInsideAABB(m_pLeft->m_oBounds, vecPoint);
 		bool bHitsRight = PointInsideAABB(m_pRight->m_oBounds, vecPoint);
 
-	#ifdef _DEBUG
-		// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
-		if (!(bHitsRight || bHitsLeft))
-			_asm { int 3 };
-	#endif
-
-		if (bHitsLeft && !bHitsRight)
+		if (!bHitsLeft && !bHitsRight)
+		{
+			if ((vecPoint - m_pLeft->m_oBounds.Center()).LengthSqr() < (vecPoint - m_pRight->m_oBounds.Center()).LengthSqr())
+				flClosest = m_pLeft->Closest(vecPoint);
+			else
+				flClosest = m_pRight->Closest(vecPoint);
+		}
+		else if (bHitsLeft && !bHitsRight)
 			flClosest = m_pLeft->Closest(vecPoint);
 		else if (bHitsRight && !bHitsLeft)
 			flClosest = m_pRight->Closest(vecPoint);

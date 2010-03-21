@@ -9,6 +9,16 @@
 #include <raytracer/raytracer.h>
 #include <maths.h>
 
+#if 0
+#ifdef _DEBUG
+#define NORMAL_DEBUG
+#endif
+#endif
+
+#ifdef NORMAL_DEBUG
+#include "ui/modelwindow.h"
+#endif
+
 CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)
 {
 	m_pScene = pScene;
@@ -81,6 +91,11 @@ void CNormalGenerator::Generate()
 		m_pWorkListener->BeginProgress();
 		m_pWorkListener->SetAction(L"Building tree", 0);
 	}
+
+#ifdef _DEBUG
+	if (CModelWindow::Get())
+		CModelWindow::Get()->ClearDebugLines();
+#endif
 
 	m_bIsGenerating = true;
 	m_bStopGenerating = false;
@@ -292,6 +307,13 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 
 			Vector vecHitBack;
 			bool bHitBack = pTracer->Raytrace(Ray(vecUVPosition, -vecNormal), &vecHitBack);
+
+#ifdef NORMAL_DEBUG
+			if (bHitFront && (vecUVPosition - vecHitFront).LengthSqr() > 0.001f)
+				CModelWindow::Get()->AddDebugLine(vecUVPosition, vecHitFront);
+			if (bHitBack && (vecUVPosition - vecHitBack).LengthSqr() > 0.001f)
+				CModelWindow::Get()->AddDebugLine(vecUVPosition, vecHitBack);
+#endif
 
 			float flHit;
 			if (bHitFront && !bHitBack)

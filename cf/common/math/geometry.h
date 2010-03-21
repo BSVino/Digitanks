@@ -395,6 +395,14 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 			return false;
 	}
 
+	if (SegmentIntersectsAABB(v0, v1, oBox))
+		return true;
+
+	if (SegmentIntersectsAABB(v1, v2, oBox))
+		return true;
+
+	if (SegmentIntersectsAABB(v0, v2, oBox))
+		return true;
 
 	Vector c0 = oBox.m_vecMins;
 	Vector c1 = Vector(oBox.m_vecMins.x, oBox.m_vecMins.y, oBox.m_vecMaxs.z);
@@ -466,16 +474,6 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 		if (LineSegmentIntersectsTriangle(aLines[i], aLines[i+1], v0, v1, v2))
 			return true;
 	}
-
-	if (SegmentIntersectsAABB(v0, v1, oBox))
-		return true;
-
-	if (SegmentIntersectsAABB(v1, v2, oBox))
-		return true;
-
-	// Third test is redundant -- shouldn't ever catch anything the first two don't.
-	//if (SegmentIntersectsAABB(v0, v2, oBox))
-	//	return true;
 
 	return false;
 }

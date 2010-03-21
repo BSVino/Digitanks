@@ -15,6 +15,11 @@
 #include "scenetree.h"
 #include "../shaders/shaders.h"
 
+//#define RAYTRACE_DEBUG
+#ifdef RAYTRACE_DEBUG
+#include <raytracer/raytracer.h>
+#endif
+
 extern "C" {
 static void CALLBACK RenderTesselateBegin(GLenum ePrim);
 static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData);
@@ -480,6 +485,21 @@ void CModelWindow::Render3D()
 			}
 		glEnd();
 	}
+
+#ifdef RAYTRACE_DEBUG
+	static raytrace::CRaytracer* pTracer = NULL;
+	Vector vecStart(0.55841917f, 0.28102291f, 2.4405572f);
+	Vector vecDirection(-0.093336411f, 0.99130136f, -0.092789143f);
+	if (!pTracer && GetScene()->GetNumScenes() && !m_bLoadingFile)
+	{
+		pTracer = new raytrace::CRaytracer(GetScene());
+		pTracer->AddMeshInstance(GetScene()->GetScene(0)->GetChild(2)->GetMeshInstance(0));
+		pTracer->BuildTree();
+		AddDebugLine(vecStart, vecStart+vecDirection*10);
+	}
+	if (pTracer)
+		pTracer->Raytrace(Ray(vecStart, vecDirection));
+#endif
 
 	glPopMatrix();
 	glPopAttrib();
