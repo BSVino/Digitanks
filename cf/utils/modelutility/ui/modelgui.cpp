@@ -2056,6 +2056,9 @@ bool CTree::MousePressed(int code, int mx, int my)
 
 void CTree::ClearTree()
 {
+	m_iHilighted = ~0;
+	m_iSelected = ~0;
+
 	while (m_apControls.size())
 	{
 		IControl* pNode = m_apControls[0];

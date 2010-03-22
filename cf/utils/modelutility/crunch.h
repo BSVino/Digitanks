@@ -127,8 +127,8 @@ public:
 	void					GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, class raytrace::CRaytracer* pTracer, size_t& iRendered);
 	void					Bleed();
 
-	void					ScaleHeightValues(float* aflTexture);
-	void					NormalizeHeightValues(float* aflTexture);
+//	void					ScaleHeightValues(float* aflTexture);
+//	void					NormalizeHeightValues(float* aflTexture);
 	size_t					GenerateTexture(bool bInMedias = false);
 	void					SaveToFile(const wchar_t* pszFilename);
 
@@ -153,10 +153,9 @@ protected:
 
 	bool*					m_bPixelMask;
 
-	float*					m_aflHeightValues;
-	float*					m_aflHeightGeneratedValues;
 	Vector*					m_avecNormalValues;
-	size_t*					m_aiHeightReads;
+	Vector*					m_avecNormalGeneratedValues;
+	size_t*					m_aiNormalReads;
 
 	bool					m_bIsGenerating;
 	bool					m_bDoneGenerating;

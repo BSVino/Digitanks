@@ -43,6 +43,8 @@ public:
 
 	std::vector<Vector>&			GetVertices(std::vector<Vector>& avecVertices);
 
+	Vector							GetNormal(Vector vecPoint, class CConversionMeshInstance* pMeshInstance = NULL);
+
 	class CConversionScene*			m_pScene;
 	size_t							m_iMesh;
 

@@ -6,12 +6,23 @@
 
 namespace raytrace {
 
+class CTraceResult
+{
+public:
+	Vector						m_vecHit;
+	CConversionFace*			m_pFace;
+	CConversionMeshInstance*	m_pMeshInstance;
+};
+
 class CKDTri
 {
 public:
-								CKDTri(Vector v1, Vector v2, Vector v3);
+								CKDTri(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
 
 	Vector						v[3];
+
+	CConversionFace*			m_pFace;
+	CConversionMeshInstance*	m_pMeshInstance;
 };
 
 class CKDNode
@@ -20,13 +31,13 @@ public:
 								CKDNode(CKDNode* pParent = NULL, AABB oBounds = AABB());
 								~CKDNode();
 
-	void						AddTriangle(Vector v1, Vector v2, Vector v3);
+	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
 
 	void						CalcBounds();
 	void						BuildTriList();
 	void						Build();
 
-	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
+	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
 	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetLeftChild() const { return m_pLeft; };
@@ -57,11 +68,11 @@ public:
 								CKDTree();
 								~CKDTree();
 
-	void						AddTriangle(Vector v1, Vector v2, Vector v3);
+	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
 
 	void						BuildTree();
 
-	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
+	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
 	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetTopNode() const { return m_pTop; };
@@ -79,8 +90,8 @@ public:
 								~CRaytracer();
 
 public:
-	bool						Raytrace(const Ray& rayTrace, Vector* pvecHit = NULL);
-	bool						RaytraceBruteForce(const Ray& rayTrace, Vector* pvecHit = NULL);
+	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
+	bool						RaytraceBruteForce(const Ray& rayTrace, CTraceResult* pTR = NULL);
 
 	float						Closest(const Vector& vecPoint);
 

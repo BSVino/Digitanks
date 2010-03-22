@@ -24,10 +24,9 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 	m_pScene = pScene;
 	m_paoMaterials = paoMaterials;
 
-	m_aflHeightValues = NULL;
-	m_aflHeightGeneratedValues = NULL;
 	m_avecNormalValues = NULL;
-	m_aiHeightReads = NULL;
+	m_avecNormalGeneratedValues = NULL;
+	m_aiNormalReads = NULL;
 	m_bPixelMask = NULL;
 
 	SetSize(512, 512);
@@ -42,10 +41,9 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 CNormalGenerator::~CNormalGenerator()
 {
 	free(m_bPixelMask);
-	delete[] m_aflHeightValues;
-	delete[] m_aflHeightGeneratedValues;
 	delete[] m_avecNormalValues;
-	delete[] m_aiHeightReads;
+	delete[] m_avecNormalGeneratedValues;
+	delete[] m_aiNormalReads;
 }
 
 void CNormalGenerator::SetSize(size_t iWidth, size_t iHeight)
@@ -53,25 +51,22 @@ void CNormalGenerator::SetSize(size_t iWidth, size_t iHeight)
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
 
-	if (m_aflHeightValues)
+	if (m_avecNormalValues)
 	{
-		delete[] m_aflHeightValues;
-		delete[] m_aflHeightGeneratedValues;
 		delete[] m_avecNormalValues;
-		delete[] m_aiHeightReads;
+		delete[] m_avecNormalGeneratedValues;
+		delete[] m_aiNormalReads;
 	}
 
 	// Shadow volume result buffer.
-	m_aflHeightValues = new float[iWidth*iHeight];
-	m_aflHeightGeneratedValues = new float[iWidth*iHeight];
 	m_avecNormalValues = new Vector[iWidth*iHeight];
-	m_aiHeightReads = new size_t[iWidth*iHeight];
+	m_avecNormalGeneratedValues = new Vector[iWidth*iHeight];
+	m_aiNormalReads = new size_t[iWidth*iHeight];
 
 	// Big hack incoming!
-	memset(&m_aflHeightValues[0], 0, iWidth*iHeight*sizeof(float));
-	memset(&m_aflHeightGeneratedValues[0], 0, iWidth*iHeight*sizeof(float));
 	memset(&m_avecNormalValues[0].x, 0, iWidth*iHeight*sizeof(Vector));
-	memset(&m_aiHeightReads[0], 0, iWidth*iHeight*sizeof(size_t));
+	memset(&m_avecNormalGeneratedValues[0], 0, iWidth*iHeight*sizeof(Vector));
+	memset(&m_aiNormalReads[0], 0, iWidth*iHeight*sizeof(size_t));
 
 	if (m_bPixelMask)
 		free(m_bPixelMask);
@@ -178,8 +173,8 @@ void CNormalGenerator::Generate()
 	delete pTracer;
 
 	Bleed();
-	ScaleHeightValues(m_aflHeightValues);
-	NormalizeHeightValues(m_aflHeightValues);
+//	ScaleHeightValues(m_aflHeightValues);
+//	NormalizeHeightValues(m_aflHeightValues);
 
 	if (!m_bStopGenerating)
 		m_bDoneGenerating = true;
@@ -228,6 +223,9 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 	size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
 	size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
 
+	Matrix4x4 m;
+	m.SetOrientation(Vector(0,0,1));
+
 	for (size_t i = iLoX; i <= iHiX; i++)
 	{
 		for (size_t j = iLoY; j <= iHiY; j++)
@@ -243,10 +241,6 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			Vector v1 = pMeshInstance->GetVertex(pV1->v);
 			Vector v2 = pMeshInstance->GetVertex(pV2->v);
 			Vector v3 = pMeshInstance->GetVertex(pV3->v);
-
-			Vector vn1 = pMeshInstance->GetNormal(pV1->vn);
-			Vector vn2 = pMeshInstance->GetNormal(pV2->vn);
-			Vector vn3 = pMeshInstance->GetNormal(pV3->vn);
 
 			// Find where the UV is in world space.
 
@@ -291,54 +285,73 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 
 			Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
 
-			Vector vecNormal;
-
-			float wv1 = DistanceToLine(vecUVPosition, v2, v3) / DistanceToLine(v1, v2, v3);
-			float wv2 = DistanceToLine(vecUVPosition, v1, v3) / DistanceToLine(v2, v1, v3);
-			float wv3 = DistanceToLine(vecUVPosition, v1, v2) / DistanceToLine(v3, v1, v2);
-
-			vecNormal = vn1 * wv1 + vn2 * wv2 + vn3 * wv3;
+			Vector vecNormal = pFace->GetNormal(vecUVPosition, pMeshInstance);
 
 			size_t iTexel;
 			Texel(i, j, iTexel, false);
 
-			Vector vecHitFront;
-			bool bHitFront = pTracer->Raytrace(Ray(vecUVPosition, vecNormal), &vecHitFront);
+			raytrace::CTraceResult trFront;
+			bool bHitFront = pTracer->Raytrace(Ray(vecUVPosition, vecNormal), &trFront);
 
-			Vector vecHitBack;
-			bool bHitBack = pTracer->Raytrace(Ray(vecUVPosition, -vecNormal), &vecHitBack);
+			raytrace::CTraceResult trBack;
+			bool bHitBack = pTracer->Raytrace(Ray(vecUVPosition, -vecNormal), &trBack);
 
 #ifdef NORMAL_DEBUG
+/*
 			if (bHitFront && (vecUVPosition - vecHitFront).LengthSqr() > 0.001f)
-				CModelWindow::Get()->AddDebugLine(vecUVPosition, vecHitFront);
+				CModelWindow::Get()->AddDebugLine(vecUVPosition, trFront.m_vecHit);
 			if (bHitBack && (vecUVPosition - vecHitBack).LengthSqr() > 0.001f)
-				CModelWindow::Get()->AddDebugLine(vecUVPosition, vecHitBack);
+				CModelWindow::Get()->AddDebugLine(vecUVPosition, trBack.m_vecHit);
+*/
 #endif
 
-			float flHit;
+			Vector vecHitNormal;
 			if (bHitFront && !bHitBack)
-				flHit = (vecUVPosition - vecHitFront).Length();
+				vecHitNormal = trFront.m_pFace->GetNormal(trFront.m_vecHit, trFront.m_pMeshInstance);
 			else if (bHitBack && !bHitFront)
-				flHit = -(vecUVPosition - vecHitBack).Length();
+				vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
 			else if (!bHitBack && !bHitFront)
-				flHit = 0;
+				vecHitNormal = vecNormal;
 			else
 			{
-				float flHitFront = (vecUVPosition - vecHitFront).LengthSqr();
-				float flHitBack = -(vecUVPosition - vecHitBack).LengthSqr();
+				float flHitFront = (vecUVPosition - trFront.m_vecHit).LengthSqr();
+				float flHitBack = (vecUVPosition - trBack.m_vecHit).LengthSqr();
 
-				flHit = sqrt((fabs(flHitFront)<fabs(flHitBack))?flHitFront:flHitBack);
+				if (flHitFront < flHitBack)
+					vecHitNormal = trFront.m_pFace->GetNormal(trFront.m_vecHit, trFront.m_pMeshInstance);
+				else
+					vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
 			}
 
 			// Maybe this check can be done sooner to eliminate the need for some raytracing?
 			float flClosest = pTracer->Closest(vecUVPosition);
 
 			if (fabs(flClosest) <= 0.001f)
-				flHit = 0.0f;
+				vecHitNormal = vecNormal;
 
-			m_aflHeightValues[iTexel] += flHit;
+#ifdef NORMAL_DEBUG
+			CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition+vecHitNormal);
+			if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
+				CModelWindow::Get()->AddDebugLine(trFront.m_vecHit, trFront.m_vecHit+vecHitNormal);
+			if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
+				CModelWindow::Get()->AddDebugLine(trBack.m_vecHit, trBack.m_vecHit+vecHitNormal);
+#endif
 
-			m_aiHeightReads[iTexel]++;
+			// Build rotation matrix
+			Matrix4x4 m2;
+			m2.SetOrientation(vecNormal);
+			m2.InvertTR();
+			Matrix4x4 m3 = m*m2;
+
+			Vector vecTangentNormal = m3*vecHitNormal;
+
+			float y = vecTangentNormal.y;
+			vecTangentNormal.y = vecTangentNormal.x;
+			vecTangentNormal.x = -y;
+
+			m_avecNormalValues[iTexel] += vecTangentNormal/2 + Vector(0.5f, 0.5f, 0.5f);
+
+			m_aiNormalReads[iTexel]++;
 			m_bPixelMask[iTexel] = true;
 
 			if (m_pWorkListener)
@@ -362,7 +375,7 @@ void CNormalGenerator::Bleed()
 	// This is for pixels that have been set this frame.
 	memset(&abPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
 
-	for (size_t w = 0; w < m_iWidth; w++)
+/*	for (size_t w = 0; w < m_iWidth; w++)
 	{
 		for (size_t h = 0; h < m_iHeight; h++)
 		{
@@ -431,7 +444,7 @@ void CNormalGenerator::Bleed()
 				abPixelMask[iTexel] = true;
 			}
 		}
-	}
+	}*/
 
 	for (size_t p = 0; p < m_iWidth*m_iHeight; p++)
 		m_bPixelMask[p] |= abPixelMask[p];
@@ -439,6 +452,7 @@ void CNormalGenerator::Bleed()
 	free(abPixelMask);
 }
 
+/*
 void CNormalGenerator::ScaleHeightValues(float* aflHeightValues)
 {
 	size_t i;
@@ -525,17 +539,15 @@ void CNormalGenerator::NormalizeHeightValues(float* aflHeightValues)
 		}
 	}
 }
+*/
 
 size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 {
-	float* aflHeightValues = m_aflHeightValues;
+	Vector* avecNormalValues = m_avecNormalValues;
 
 	if (bInMedias)
 	{
 		// Use this temporary buffer so we don't clobber the original.
-		aflHeightValues = m_aflHeightGeneratedValues;
-		ScaleHeightValues(aflHeightValues);
-		NormalizeHeightValues(aflHeightValues);
 	}
 
 	GLuint iGLId;

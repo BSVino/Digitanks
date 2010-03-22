@@ -726,6 +726,76 @@ std::vector<Vector>& CConversionFace::GetVertices(std::vector<Vector>& avecVerti
 	return avecVertices;
 }
 
+Vector CConversionFace::GetNormal(Vector vecPoint, CConversionMeshInstance* pMeshInstance)
+{
+	CConversionVertex* pV1 = GetVertex(0);
+	CConversionVertex* pV2;
+	CConversionVertex* pV3;
+
+	CConversionMesh* pMesh = m_pScene->GetMesh(m_iMesh);
+
+	Vector v1, v2, v3, vn1, vn2, vn3;
+
+	if (pMeshInstance)
+	{
+		v1 = pMeshInstance->GetVertex(pV1->v);
+		vn1 = pMeshInstance->GetNormal(pV1->vn);
+	}
+	else
+	{
+		v1 = pMesh->GetVertex(pV1->v);
+		vn1 = pMesh->GetNormal(pV1->vn);
+	}
+
+	// Find which sub-triangle this point is closest to and hopefully coplanar with.
+	size_t i;
+	for (i = 1; i < GetNumVertices()-1; i++)
+	{
+		if (pMeshInstance)
+		{
+			v2 = pMeshInstance->GetVertex(GetVertex(i)->v);
+			v3 = pMeshInstance->GetVertex(GetVertex(i+1)->v);
+		}
+		else
+		{
+			v2 = pMesh->GetVertex(GetVertex(i)->v);
+			v3 = pMesh->GetVertex(GetVertex(i+1)->v);
+		}
+
+		if (PointInTriangle(vecPoint, v1, v2, v3))
+			break;
+	}
+
+	if (i > GetNumVertices()-2)
+		i = 1;
+
+	pV2 = GetVertex(i);
+	pV3 = GetVertex(i+1);
+
+	if (pMeshInstance)
+	{
+		v2 = pMeshInstance->GetVertex(pV2->v);
+		v3 = pMeshInstance->GetVertex(pV3->v);
+
+		vn2 = pMeshInstance->GetNormal(pV2->vn);
+		vn3 = pMeshInstance->GetNormal(pV3->vn);
+	}
+	else
+	{
+		v2 = pMesh->GetVertex(pV2->v);
+		v3 = pMesh->GetVertex(pV3->v);
+
+		vn2 = pMesh->GetNormal(pV2->vn);
+		vn3 = pMesh->GetNormal(pV3->vn);
+	}
+
+	float wv1 = DistanceToLine(vecPoint, v2, v3) / DistanceToLine(v1, v2, v3);
+	float wv2 = DistanceToLine(vecPoint, v1, v3) / DistanceToLine(v2, v1, v3);
+	float wv3 = DistanceToLine(vecPoint, v1, v2) / DistanceToLine(v3, v1, v2);
+
+	return (vn1 * wv1 + vn2 * wv2 + vn3 * wv3).Normalized();
+}
+
 size_t CConversionMesh::AddFace(size_t iMaterial)
 {
 	m_aFaces.push_back(CConversionFace(m_pScene, m_pScene->FindMesh(this), iMaterial));

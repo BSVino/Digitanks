@@ -51,10 +51,10 @@ void CAOGenerator::RaytraceSceneFromPosition(raytrace::CRaytracer* pTracer, Vect
 
 			flTotalHits += flWeight;
 
-			Vector vecHit;
-			if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
+			raytrace::CTraceResult tr;
+			if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &tr))
 			{
-				float flDistance = (vecHit - vecUVPosition).Length();
+				float flDistance = (tr.m_vecHit - vecUVPosition).Length();
 				if (m_flRayFalloff < 0)
 					flHits += flWeight;
 				else
@@ -90,10 +90,10 @@ void CAOGenerator::RaytraceSceneFromPosition(raytrace::CRaytracer* pTracer, Vect
 
 	flTotalHits++;
 
-	Vector vecHit;
-	if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &vecHit))
+	raytrace::CTraceResult tr;
+	if (pTracer->Raytrace(Ray(vecUVPosition + pFace->GetNormal()*0.01f, vecRay), &tr))
 	{
-		float flDistance = (vecHit - vecUVPosition).Length();
+		float flDistance = (tr.m_vecHit - vecUVPosition).Length();
 		if (m_flRayFalloff < 0)
 			flHits += 1;
 		else
