@@ -1304,6 +1304,8 @@ void CNormalPanel::GenerateCallback()
 
 	m_pGenerate->SetText("Cancel");
 
+	CModelWindow::Get()->SetDisplayNormal(true);
+
 	// Disappear all of the hi-res meshes so we can see the lo res better.
 	for (size_t m = 0; m < m_apHiResMeshes.size(); m++)
 		m_apHiResMeshes[m]->SetVisible(false);

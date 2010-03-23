@@ -315,7 +315,7 @@ bool CKDNode::Raytrace(const Ray& rayTrace, CTraceResult* pTR)
 
 		for (size_t i = 0; i < m_aTris.size(); i++)
 		{
-			CKDTri oTri = m_aTris[i];
+			CKDTri& oTri = m_aTris[i];
 
 			Vector vecHit;
 			if (RayIntersectsTriangle(rayTrace, oTri.v[0], oTri.v[1], oTri.v[2], &vecHit))

@@ -290,6 +290,8 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			size_t iTexel;
 			Texel(i, j, iTexel, false);
 
+			// Maybe use a closest-poly check here to eliminate the need for some raytracing?
+
 			raytrace::CTraceResult trFront;
 			bool bHitFront = pTracer->Raytrace(Ray(vecUVPosition, vecNormal), &trFront);
 
@@ -297,12 +299,10 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			bool bHitBack = pTracer->Raytrace(Ray(vecUVPosition, -vecNormal), &trBack);
 
 #ifdef NORMAL_DEBUG
-/*
-			if (bHitFront && (vecUVPosition - vecHitFront).LengthSqr() > 0.001f)
+			if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
 				CModelWindow::Get()->AddDebugLine(vecUVPosition, trFront.m_vecHit);
-			if (bHitBack && (vecUVPosition - vecHitBack).LengthSqr() > 0.001f)
+			if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
 				CModelWindow::Get()->AddDebugLine(vecUVPosition, trBack.m_vecHit);
-*/
 #endif
 
 			Vector vecHitNormal;
@@ -323,14 +323,8 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 					vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
 			}
 
-			// Maybe this check can be done sooner to eliminate the need for some raytracing?
-			float flClosest = pTracer->Closest(vecUVPosition);
-
-			if (fabs(flClosest) <= 0.001f)
-				vecHitNormal = vecNormal;
-
 #ifdef NORMAL_DEBUG
-			CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition+vecHitNormal);
+//			CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition+vecHitNormal);
 			if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
 				CModelWindow::Get()->AddDebugLine(trFront.m_vecHit, trFront.m_vecHit+vecHitNormal);
 			if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
@@ -349,7 +343,7 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			vecTangentNormal.y = vecTangentNormal.x;
 			vecTangentNormal.x = -y;
 
-			m_avecNormalValues[iTexel] += vecTangentNormal/2 + Vector(0.5f, 0.5f, 0.5f);
+			m_avecNormalValues[iTexel] += vecTangentNormal*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
 
 			m_aiNormalReads[iTexel]++;
 			m_bPixelMask[iTexel] = true;
