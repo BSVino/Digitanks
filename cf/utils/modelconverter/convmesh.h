@@ -13,9 +13,17 @@
 class CConversionVertex
 {
 public:
-									CConversionVertex(size_t v, size_t vt, size_t vn);
+									CConversionVertex(class CConversionScene* pScene, size_t iMesh, size_t v, size_t vt, size_t vn);
 
-	size_t							v, vt, vn;
+public:
+	class CConversionScene*			m_pScene;
+	size_t							m_iMesh;
+
+	size_t							v;	// Vertex
+	size_t							vu;	// UV
+	size_t							vn;	// Normal
+	size_t							vt;	// Tangent
+	size_t							vb;	// Bitangent
 
 	std::vector<size_t>				m_aEdges;	// Index into parent's edge list
 };
@@ -43,6 +51,9 @@ public:
 
 	std::vector<Vector>&			GetVertices(std::vector<Vector>& avecVertices);
 
+	Vector							GetBaseVector(Vector vecPoint, int iVector, class CConversionMeshInstance* pMeshInstance = NULL);
+	Vector							GetTangent(Vector vecPoint, class CConversionMeshInstance* pMeshInstance = NULL);
+	Vector							GetBitangent(Vector vecPoint, class CConversionMeshInstance* pMeshInstance = NULL);
 	Vector							GetNormal(Vector vecPoint, class CConversionMeshInstance* pMeshInstance = NULL);
 
 	class CConversionScene*			m_pScene;
@@ -147,11 +158,14 @@ public:
 	void							CalculateEdgeData();
 	void							CalculateVertexNormals();
 	void							CalculateExtends();
+	void							CalculateVertexTangents();
 
 	std::wstring					GetName() { return m_sName; };
 
 	size_t							AddVertex(float x, float y, float z);
 	size_t							AddNormal(float x, float y, float z);
+	size_t							AddTangent(float x, float y, float z);
+	size_t							AddBitangent(float x, float y, float z);
 	size_t							AddUV(float u, float v);
 	size_t							AddBone(const std::wstring& sName);
 	size_t							AddEdge(size_t v1, size_t v2);
@@ -166,8 +180,13 @@ public:
 	Vector							GetVertex(size_t i) { if (i >= m_aVertices.size()) return Vector(0,0,0); return m_aVertices[i]; }
 	size_t							GetNumNormals() { return m_aNormals.size(); };
 	Vector							GetNormal(size_t i) { if (i >= m_aNormals.size()) return Vector(1,0,0); return m_aNormals[i]; }
+	size_t							GetNumTangents() { return m_aTangents.size(); };
+	Vector							GetTangent(size_t i) { if (i >= m_aTangents.size()) return Vector(0,1,0); return m_aTangents[i]; }
+	size_t							GetNumBitangents() { return m_aBitangents.size(); };
+	Vector							GetBitangent(size_t i) { if (i >= m_aBitangents.size()) return Vector(0,0,1); return m_aBitangents[i]; }
 	size_t							GetNumUVs() { return m_aUVs.size(); };
 	Vector							GetUV(size_t i) { if (!GetNumUVs()) return Vector(0,0,0); return m_aUVs[i]; }
+	Vector							GetBaseVector(int iVector, CConversionVertex* pVertex);
 
 	size_t							GetNumBones() { return m_aBones.size(); };
 	std::wstring					GetBoneName(size_t i) { return m_aBones[i].m_sName; };
@@ -192,8 +211,10 @@ public:
 	class CConversionScene*			m_pScene;
 
 	// A vector of Vectors? Holy crap!
-	std::vector<Vector>				m_aVertices;	
-	std::vector<Vector>				m_aNormals;	
+	std::vector<Vector>				m_aVertices;
+	std::vector<Vector>				m_aNormals;
+	std::vector<Vector>				m_aTangents;
+	std::vector<Vector>				m_aBitangents;	// Binormals can kiss my ass.
 	std::vector<Vector>				m_aUVs;		// Really don't feel like making a 2d vector just for this.
 	std::vector<CConversionBone>	m_aBones;
 	std::vector<CConversionEdge>	m_aEdges;
@@ -238,6 +259,9 @@ public:
 
 	Vector							GetVertex(size_t i);
 	Vector							GetNormal(size_t i);
+	Vector							GetTangent(size_t i);
+	Vector							GetBitangent(size_t i);
+	Vector							GetBaseVector(int iVector, CConversionVertex* pVertex);
 
 	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool							IsVisible() { return m_bVisible; };

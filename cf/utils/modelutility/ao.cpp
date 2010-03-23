@@ -133,7 +133,7 @@ static void CALLBACK ShadowMapTesselateVertex(void* pVertexData, void* pPolygonD
 		vecNormal = pMeshInstance->GetNormal(pVertex->vn);
 
 	// Translate here so it takes up the whole viewport when flattened by the shader.
-	Vector vecUV = pMesh->GetUV(pVertex->vt) * 2 - Vector(1,1,1);
+	Vector vecUV = pMesh->GetUV(pVertex->vu) * 2 - Vector(1,1,1);
 
 	glTexCoord2fv(vecUV);
 	glNormal3fv(vecNormal);
@@ -254,7 +254,7 @@ static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData
 
 	Vector vecVertex = pMeshInstance->GetVertex(pVertex->v);
 	Vector vecNormal = pMeshInstance->GetNormal(pVertex->vn);
-	Vector vecUV = pMesh->GetUV(pVertex->vt);
+	Vector vecUV = pMesh->GetUV(pVertex->vu);
 
 	glTexCoord2fv(vecUV);
 	glNormal3fv(vecNormal);
@@ -1038,30 +1038,30 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 
 	CConversionMesh* pMesh = pMeshInstance->GetMesh();
 
-	Vector vt1 = pMesh->GetUV(pV1->vt);
-	Vector vt2 = pMesh->GetUV(pV2->vt);
-	Vector vt3 = pMesh->GetUV(pV3->vt);
+	Vector vu1 = pMesh->GetUV(pV1->vu);
+	Vector vu2 = pMesh->GetUV(pV2->vu);
+	Vector vu3 = pMesh->GetUV(pV3->vu);
 
-	Vector vecLoUV = vt1;
-	Vector vecHiUV = vt1;
+	Vector vecLoUV = vu1;
+	Vector vecHiUV = vu1;
 
-	if (vt2.x < vecLoUV.x)
-		vecLoUV.x = vt2.x;
-	if (vt3.x < vecLoUV.x)
-		vecLoUV.x = vt3.x;
-	if (vt2.x > vecHiUV.x)
-		vecHiUV.x = vt2.x;
-	if (vt3.x > vecHiUV.x)
-		vecHiUV.x = vt3.x;
+	if (vu2.x < vecLoUV.x)
+		vecLoUV.x = vu2.x;
+	if (vu3.x < vecLoUV.x)
+		vecLoUV.x = vu3.x;
+	if (vu2.x > vecHiUV.x)
+		vecHiUV.x = vu2.x;
+	if (vu3.x > vecHiUV.x)
+		vecHiUV.x = vu3.x;
 
-	if (vt2.y < vecLoUV.y)
-		vecLoUV.y = vt2.y;
-	if (vt3.y < vecLoUV.y)
-		vecLoUV.y = vt3.y;
-	if (vt2.y > vecHiUV.y)
-		vecHiUV.y = vt2.y;
-	if (vt3.y > vecHiUV.y)
-		vecHiUV.y = vt3.y;
+	if (vu2.y < vecLoUV.y)
+		vecLoUV.y = vu2.y;
+	if (vu3.y < vecLoUV.y)
+		vecLoUV.y = vu3.y;
+	if (vu2.y > vecHiUV.y)
+		vecHiUV.y = vu2.y;
+	if (vu3.y > vecHiUV.y)
+		vecHiUV.y = vu3.y;
 
 	size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
 	size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
@@ -1075,7 +1075,7 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 			float flU = ((float)i + 0.5f)/(float)m_iWidth;
 			float flV = ((float)j + 0.5f)/(float)m_iHeight;
 
-			bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
+			bool bInside = PointInTriangle(Vector(flU,flV,0), vu1, vu2, vu3);
 
 			if (!bInside)
 				continue;
@@ -1091,10 +1091,10 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 			// Find where the UV is in world space.
 
 			// First build 2x2 a "matrix" of the UV values.
-			float mta = vt2.x - vt1.x;
-			float mtb = vt3.x - vt1.x;
-			float mtc = vt2.y - vt1.y;
-			float mtd = vt3.y - vt1.y;
+			float mta = vu2.x - vu1.x;
+			float mtb = vu3.x - vu1.x;
+			float mtc = vu2.y - vu1.y;
+			float mtd = vu3.y - vu1.y;
 
 			// Invert it.
 			float d = mta*mtd - mtb*mtc;
@@ -1127,7 +1127,7 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 			Vector vecUAxis(mra, mrc, mre);
 			Vector vecVAxis(mrb, mrd, mrf);
 
-			Vector vecUVOrigin = v1 - vecUAxis * vt1.x - vecVAxis * vt1.y;
+			Vector vecUVOrigin = v1 - vecUAxis * vu1.x - vecVAxis * vu1.y;
 
 			Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
 

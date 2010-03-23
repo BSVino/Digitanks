@@ -768,6 +768,11 @@ void CModelWindow::RenderSceneNode(CConversionSceneNode* pNode)
 	glPopMatrix();
 }
 
+// Ew!
+GLuint g_iTangentAttrib;
+GLuint g_iBitangentAttrib;
+bool g_bNormalMap;
+
 extern "C" {
 static void CALLBACK RenderTesselateBegin(GLenum ePrim)
 {
@@ -780,8 +785,7 @@ static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData
 	CConversionVertex* pVertex = (CConversionVertex*)pVertexData;
 
 	Vector vecVertex = pMesh->GetVertex(pVertex->v);
-	Vector vecNormal = pMesh->GetNormal(pVertex->vn);
-	Vector vecUV = pMesh->GetUV(pVertex->vt);
+	Vector vecUV = pMesh->GetUV(pVertex->vu);
 
 	if (GLEW_VERSION_1_3)
 	{
@@ -793,7 +797,15 @@ static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData
 	else
 		glTexCoord2fv(vecUV);
 
-	glNormal3fv(vecNormal);
+	if (g_bNormalMap)
+	{
+		glVertexAttrib3fv(g_iTangentAttrib, pMesh->GetTangent(pVertex->vt));
+		glVertexAttrib3fv(g_iBitangentAttrib, pMesh->GetBitangent(pVertex->vb));
+		glNormal3fv(pMesh->GetNormal(pVertex->vn));
+	}
+	else
+		glNormal3fv(pMesh->GetNormal(pVertex->vn));
+
 	glVertex3fv(vecVertex);
 }
 
@@ -836,12 +848,18 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 		if (!m_bDisplayWireframe)
 		{
 			bool bTexture = m_bDisplayTexture;
-			bool bNormal = m_bDisplayNormal;
+			g_bNormalMap = m_bDisplayNormal;
 			bool bAO = m_bDisplayAO;
 			bool bCAO = m_bDisplayColorAO;
 
 			if (pFace->m == ~0 || !pMeshInstance->GetMappedMaterial(pFace->m) || pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial == ~0 || m_aoMaterials.size() == 0)
+			{
 				glBindTexture(GL_TEXTURE_2D, 0);
+				bTexture = false;
+				g_bNormalMap = false;
+				bAO = false;
+				bCAO = false;
+			}
 			else
 			{
 				CMaterial* pMaterial = &m_aoMaterials[pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial];
@@ -849,7 +867,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 				if (!pMaterial->m_iBase)
 					bTexture = false;
 				if (!pMaterial->m_iNormal)
-					bNormal = false;
+					g_bNormalMap = false;
 				if (!pMaterial->m_iAO)
 					bAO = false;
 				if (!pMaterial->m_iColorAO)
@@ -938,6 +956,9 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 			GLuint iAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iAOMap");
 			GLuint iCAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iCAOMap");
 
+			g_iTangentAttrib = glGetAttribLocation((GLuint)m_iShaderProgram, "vecTangent");
+			g_iBitangentAttrib = glGetAttribLocation((GLuint)m_iShaderProgram, "vecBitangent");
+
 			glUniform1i(iDiffuseTexture, 0);
 			glUniform1i(iNormalMap, 1);
 			glUniform1i(iAOMap, 2);
@@ -945,7 +966,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 			glUniform1i(bLighting, m_bDisplayLight);
 			glUniform1i(bDiffuseTexture, bTexture);
-			glUniform1i(bNormalMap, bNormal);
+			glUniform1i(bNormalMap, g_bNormalMap);
 			glUniform1i(bAOMap, bAO);
 			glUniform1i(bCAOMap, bCAO);
 
@@ -966,26 +987,6 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 			glUseProgram(0);
 		}
-
-#if 0
-		for (k = 0; k < pFace->GetNumVertices(); k++)
-		{
-			CConversionVertex* pVertex = pFace->GetVertex(k);
-
-			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
-			glBegin(GL_LINES);
-
-			glColor3f(0.8f, 0.8f, 0.8f);
-
-			Vector vecVertex = pMesh->GetVertex(pVertex->v);
-			Vector vecNormal = pMesh->GetNormal(pVertex->vn);
-
-			glVertex3fv(vecVertex);
-			glVertex3fv(vecVertex + vecNormal);
-
-			glEnd();
-		}
-#endif
 
 		if (m_bDisplayWireframe)
 		{
@@ -1016,6 +1017,50 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 			glEnd();
 		}
 
+#if 0
+		glDisable(GL_LIGHTING);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+
+		for (k = 0; k < pFace->GetNumVertices(); k++)
+		{
+			CConversionVertex* pVertex = pFace->GetVertex(k);
+
+			Vector vecVertex = pMesh->GetVertex(pVertex->v);
+			Vector vecNormal = pMesh->GetNormal(pVertex->vn);
+			Vector vecTangent = pMesh->GetTangent(pVertex->vt);
+			Vector vecBitangent = pMesh->GetBitangent(pVertex->vb);
+			//vecNormal = Vector(pVertex->m_mInverseTBN.GetColumn(2));
+			//vecTangent = Vector(pVertex->m_mInverseTBN.GetColumn(0));
+			//vecBitangent = Vector(pVertex->m_mInverseTBN.GetColumn(1));
+
+			glColor3f(0.2f, 0.2f, 0.8f);
+
+			glBegin(GL_LINES);
+			glNormal3fv(vecNormal);
+			glVertex3fv(vecVertex);
+			glVertex3fv(vecVertex + vecNormal);
+			glEnd();
+
+			glColor3f(0.8f, 0.2f, 0.2f);
+
+			glBegin(GL_LINES);
+			glNormal3fv(vecTangent);
+			glVertex3fv(vecVertex);
+			glVertex3fv(vecVertex + vecTangent);
+			glEnd();
+
+			glColor3f(0.2f, 0.8f, 0.2f);
+
+			glBegin(GL_LINES);
+			glNormal3fv(vecBitangent);
+			glVertex3fv(vecVertex);
+			glVertex3fv(vecVertex + vecBitangent);
+			glEnd();
+		}
+#endif
 	}
 }
 
@@ -1259,20 +1304,20 @@ void CModelWindow::RenderUV()
 				glBindTexture(GL_TEXTURE_2D, (GLuint)0);
 				glColor3f(0.6f, 0.6f, 0.6f);
 				glBegin(GL_LINE_STRIP);
-					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vt) + vecOffset);
-					glVertex3fv(pMesh->GetUV(pFace->GetVertex(1)->vt) + vecOffset);
-					glVertex3fv(pMesh->GetUV(pFace->GetVertex(2)->vt) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vu) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(1)->vu) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(2)->vu) + vecOffset);
 				glEnd();
 				for (k = 0; k < pFace->GetNumVertices()-2; k++)
 				{
 					glBegin(GL_LINES);
-						glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+1)->vt) + vecOffset);
-						glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+2)->vt) + vecOffset);
+						glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+1)->vu) + vecOffset);
+						glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+2)->vu) + vecOffset);
 					glEnd();
 				}
 				glBegin(GL_LINES);
-					glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+1)->vt) + vecOffset);
-					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vt) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(k+1)->vu) + vecOffset);
+					glVertex3fv(pMesh->GetUV(pFace->GetVertex(0)->vu) + vecOffset);
 				glEnd();
 			}
 		}

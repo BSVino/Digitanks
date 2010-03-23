@@ -148,20 +148,28 @@ inline float Vector::LengthSqr() const
 
 inline void Vector::Normalize()
 {
+	// Try to save on the sqrt()
+	if (fabs(LengthSqr() - 1) < 1e-6)
+		return;
+
 	float flLength = Length();
 	if (!flLength)
 		*this=Vector(0,0,1);
 	else
-		*this/=Length();
+		*this/=flLength;
 }
 
 inline Vector Vector::Normalized() const
 {
+	// Try to save on the sqrt()
+	if (fabs(LengthSqr() - 1) < 1e-6)
+		return *this;
+
 	float flLength = Length();
 	if (!flLength)
 		return Vector(0,0,1);
 	else
-		return *this/Length();
+		return *this/flLength;
 }
 
 inline float Vector::Dot(const Vector& v) const

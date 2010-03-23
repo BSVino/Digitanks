@@ -259,6 +259,8 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 
 		if (m_pScene->GetMesh(i)->GetNumNormals() == 0)
 			m_pScene->GetMesh(i)->CalculateVertexNormals();
+
+		m_pScene->GetMesh(i)->CalculateVertexTangents();
 	}
 
 	pDoc->Release();

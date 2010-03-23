@@ -65,6 +65,7 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 	{
 		m_pScene->GetMesh(i)->CalculateEdgeData();
 		m_pScene->GetMesh(i)->CalculateVertexNormals();
+		m_pScene->GetMesh(i)->CalculateVertexTangents();
 	}
 
 	m_pScene->CalculateExtends();

@@ -160,12 +160,8 @@ void CModelWindow::NormalCallback()
 		return;
 	}
 
-	if (!CNormalPanel::Get() || !CNormalPanel::Get()->DoneGenerating())
-	{
+	if ((!CNormalPanel::Get() || !CNormalPanel::Get()->DoneGenerating()) && !CNormalPanel::Get()->IsVisible())
 		CNormalPanel::Open(&m_Scene, &m_aoMaterials);
-		m_pNormal->SetState(false, false);
-		return;
-	}
 
 	SetDisplayNormal(m_pNormal->GetState());
 }

@@ -198,6 +198,60 @@ void CConversionMesh::CalculateVertexNormals()
 	}
 }
 
+void CConversionMesh::CalculateVertexTangents()
+{
+	if (m_pScene->m_pWorkListener)
+		m_pScene->m_pWorkListener->SetAction(L"Calculating tangents and bitangents", GetNumFaces());
+
+	m_aTangents.clear();
+	m_aBitangents.clear();
+
+	// Got to calculate vertex normals now. We have to do it after we read faces because we need all of the face data loaded first.
+	for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
+	{
+		CConversionFace* pFace = GetFace(iFace);
+
+		// Loop through all vertices to calculate normals for
+		for (size_t iVertex = 0; iVertex < pFace->GetNumVertices(); iVertex++)
+		{
+			CConversionVertex* pV1 = pFace->GetVertex(iVertex);
+			CConversionVertex* pV2 = pFace->GetVertex((iVertex+1)%pFace->GetNumVertices());
+			CConversionVertex* pV3 = pFace->GetVertex((iVertex==0)?pFace->GetNumVertices()-1:iVertex-1);
+
+			Vector v1 = GetVertex(pV1->v);
+			Vector v2 = GetVertex(pV2->v);
+			Vector v3 = GetVertex(pV3->v);
+
+			Vector vu1 = GetUV(pV1->vu);
+			Vector vu2 = GetUV(pV2->vu);
+			Vector vu3 = GetUV(pV3->vu);
+
+			Vector v2v1 = v2 - v1;
+			Vector v3v1 = v3 - v1;
+
+			float c2c1t = vu2.x - vu1.x;
+			float c2c1b = vu2.y - vu1.y;
+
+			float c3c1t = vu3.x - vu1.x;
+			float c3c1b = vu3.y - vu1.y;
+
+			Vector vecNormal = GetNormal(pV1->vn);
+
+			Vector vecTangent = Vector(c3c1b * v2v1.x - c2c1b * v3v1.x, c3c1b * v2v1.y - c2c1b * v3v1.y, c3c1b * v2v1.z - c2c1b * v3v1.z);
+			//Vector vecBitangent = Vector(-c3c1t * v2v1.x + c2c1t * v3v1.x, -c3c1t * v2v1.y + c2c1t * v3v1.y, -c3c1t * v2v1.z + c2c1t * v3v1.z);
+
+			Vector vecSmoothBitangent = vecNormal.Cross(vecTangent).Normalized();
+			Vector vecSmoothTangent = vecSmoothBitangent.Cross(vecNormal).Normalized();
+
+			pV1->vt = AddTangent(vecSmoothTangent.x, vecSmoothTangent.y, vecSmoothTangent.z);
+			pV1->vb = AddBitangent(vecSmoothBitangent.x, vecSmoothBitangent.y, vecSmoothBitangent.z);
+		}
+
+		if (m_pScene->m_pWorkListener)
+			m_pScene->m_pWorkListener->WorkProgress(iFace);
+	}
+}
+
 void CConversionMesh::CalculateExtends()
 {
 	if (!GetNumVertices())
@@ -523,11 +577,38 @@ Vector CConversionMeshInstance::GetVertex(size_t i)
 	return m_pParent->GetRootTransformations()*GetMesh()->GetVertex(i);
 }
 
+Vector CConversionMeshInstance::GetTangent(size_t i)
+{
+	Matrix4x4 mTransformations = m_pParent->GetRootTransformations();
+	mTransformations.SetTranslation(Vector(0,0,0));
+	return (mTransformations*GetMesh()->GetTangent(i)).Normalized();
+}
+
+Vector CConversionMeshInstance::GetBitangent(size_t i)
+{
+	Matrix4x4 mTransformations = m_pParent->GetRootTransformations();
+	mTransformations.SetTranslation(Vector(0,0,0));
+	return (mTransformations*GetMesh()->GetBitangent(i)).Normalized();
+}
+
 Vector CConversionMeshInstance::GetNormal(size_t i)
 {
 	Matrix4x4 mTransformations = m_pParent->GetRootTransformations();
 	mTransformations.SetTranslation(Vector(0,0,0));
 	return (mTransformations*GetMesh()->GetNormal(i)).Normalized();
+}
+
+Vector CConversionMeshInstance::GetBaseVector(int iVector, CConversionVertex* pVertex)
+{
+	if (iVector == 0)
+		return GetTangent(pVertex->vt);
+	else if (iVector == 1)
+		return GetBitangent(pVertex->vb);
+	else if (iVector == 2)
+		return GetNormal(pVertex->vn);
+
+	assert(false);
+	return Vector(0,0,0);
 }
 
 CConversionMaterialMap::CConversionMaterialMap()
@@ -557,6 +638,18 @@ size_t CConversionMesh::AddNormal(float x, float y, float z)
 {
 	m_aNormals.push_back(Vector(x, y, z));
 	return m_aNormals.size()-1;
+}
+
+size_t CConversionMesh::AddTangent(float x, float y, float z)
+{
+	m_aTangents.push_back(Vector(x, y, z));
+	return m_aTangents.size()-1;
+}
+
+size_t CConversionMesh::AddBitangent(float x, float y, float z)
+{
+	m_aBitangents.push_back(Vector(x, y, z));
+	return m_aBitangents.size()-1;
 }
 
 size_t CConversionMesh::AddUV(float u, float v)
@@ -648,14 +741,14 @@ float CConversionFace::GetUVArea()
 	if (!m_pScene->GetMesh(m_iMesh)->GetNumUVs())
 		return 0;
 
-	Vector a = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[0].vt);
-	Vector b = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[1].vt);
+	Vector a = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[0].vu);
+	Vector b = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[1].vu);
 
 	float flArea = 0;
 
 	for (size_t i = 0; i < m_aVertices.size()-2; i++)
 	{
-		Vector c = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[i+2].vt);
+		Vector c = m_pScene->GetMesh(m_iMesh)->GetUV(m_aVertices[i+2].vu);
 
 		flArea += TriangleArea(a, b, c);
 	}
@@ -726,7 +819,25 @@ std::vector<Vector>& CConversionFace::GetVertices(std::vector<Vector>& avecVerti
 	return avecVertices;
 }
 
+Vector CConversionFace::GetTangent(Vector vecPoint, CConversionMeshInstance* pMeshInstance)
+{
+	return GetBaseVector(vecPoint, 0, pMeshInstance);
+}
+
+Vector CConversionFace::GetBitangent(Vector vecPoint, CConversionMeshInstance* pMeshInstance)
+{
+	return GetBaseVector(vecPoint, 1, pMeshInstance);
+}
+
 Vector CConversionFace::GetNormal(Vector vecPoint, CConversionMeshInstance* pMeshInstance)
+{
+	return GetBaseVector(vecPoint, 2, pMeshInstance);
+}
+
+// 0 - tangent
+// 1 - bitangent
+// 2 - normal
+Vector CConversionFace::GetBaseVector(Vector vecPoint, int iVector, CConversionMeshInstance* pMeshInstance)
 {
 	CConversionVertex* pV1 = GetVertex(0);
 	CConversionVertex* pV2;
@@ -734,17 +845,17 @@ Vector CConversionFace::GetNormal(Vector vecPoint, CConversionMeshInstance* pMes
 
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_iMesh);
 
-	Vector v1, v2, v3, vn1, vn2, vn3;
+	Vector v1, v2, v3, vb1, vb2, vb3;
 
 	if (pMeshInstance)
 	{
 		v1 = pMeshInstance->GetVertex(pV1->v);
-		vn1 = pMeshInstance->GetNormal(pV1->vn);
+		vb1 = pMeshInstance->GetBaseVector(iVector, pV1);
 	}
 	else
 	{
 		v1 = pMesh->GetVertex(pV1->v);
-		vn1 = pMesh->GetNormal(pV1->vn);
+		vb1 = pMesh->GetBaseVector(iVector, pV1);
 	}
 
 	// Find which sub-triangle this point is closest to and hopefully coplanar with.
@@ -777,23 +888,23 @@ Vector CConversionFace::GetNormal(Vector vecPoint, CConversionMeshInstance* pMes
 		v2 = pMeshInstance->GetVertex(pV2->v);
 		v3 = pMeshInstance->GetVertex(pV3->v);
 
-		vn2 = pMeshInstance->GetNormal(pV2->vn);
-		vn3 = pMeshInstance->GetNormal(pV3->vn);
+		vb2 = pMeshInstance->GetBaseVector(iVector, pV2);
+		vb3 = pMeshInstance->GetBaseVector(iVector, pV3);
 	}
 	else
 	{
 		v2 = pMesh->GetVertex(pV2->v);
 		v3 = pMesh->GetVertex(pV3->v);
 
-		vn2 = pMesh->GetNormal(pV2->vn);
-		vn3 = pMesh->GetNormal(pV3->vn);
+		vb2 = pMesh->GetBaseVector(iVector, pV2);
+		vb3 = pMesh->GetBaseVector(iVector, pV3);
 	}
 
 	float wv1 = DistanceToLine(vecPoint, v2, v3) / DistanceToLine(v1, v2, v3);
 	float wv2 = DistanceToLine(vecPoint, v1, v3) / DistanceToLine(v2, v1, v3);
 	float wv3 = DistanceToLine(vecPoint, v1, v2) / DistanceToLine(v3, v1, v2);
 
-	return (vn1 * wv1 + vn2 * wv2 + vn3 * wv3).Normalized();
+	return (vb1 * wv1 + vb2 * wv2 + vb3 * wv3).Normalized();
 }
 
 size_t CConversionMesh::AddFace(size_t iMaterial)
@@ -805,7 +916,7 @@ size_t CConversionMesh::AddFace(size_t iMaterial)
 void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t vn)
 {
 	m_aaVertexFaceMap[v].push_back(iFace);
-	m_aFaces[iFace].m_aVertices.push_back(CConversionVertex(v, vt, vn));
+	m_aFaces[iFace].m_aVertices.push_back(CConversionVertex(m_pScene, m_pScene->FindMesh(this), v, vt, vn));
 }
 
 void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
@@ -816,6 +927,19 @@ void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
 void CConversionMesh::RemoveFace(size_t iFace)
 {
 	m_aFaces.erase(m_aFaces.begin()+iFace);
+}
+
+Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)
+{
+	if (iVector == 0)
+		return GetTangent(pVertex->vt);
+	else if (iVector == 1)
+		return GetBitangent(pVertex->vb);
+	else if (iVector == 2)
+		return GetNormal(pVertex->vn);
+
+	assert(false);
+	return Vector(0,0,0);
 }
 
 size_t CConversionMesh::FindFace(CConversionFace* pFace)
@@ -878,9 +1002,13 @@ bool CConversionEdge::HasVertex(size_t i)
 	return false;
 }
 
-CConversionVertex::CConversionVertex(size_t V, size_t VT, size_t VN)
+CConversionVertex::CConversionVertex(class CConversionScene* pScene, size_t iMesh, size_t V, size_t VU, size_t VN)
 {
+	m_pScene = pScene;
+	m_iMesh = iMesh;
 	v = V;
-	vt = VT;
+	vu = VU;
 	vn = VN;
+	vt = ~0;
+	vb = ~0;
 }

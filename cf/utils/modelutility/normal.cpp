@@ -193,38 +193,35 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 
 	CConversionMesh* pMesh = pMeshInstance->GetMesh();
 
-	Vector vt1 = pMesh->GetUV(pV1->vt);
-	Vector vt2 = pMesh->GetUV(pV2->vt);
-	Vector vt3 = pMesh->GetUV(pV3->vt);
+	Vector vu1 = pMesh->GetUV(pV1->vu);
+	Vector vu2 = pMesh->GetUV(pV2->vu);
+	Vector vu3 = pMesh->GetUV(pV3->vu);
 
-	Vector vecLoUV = vt1;
-	Vector vecHiUV = vt1;
+	Vector vecLoUV = vu1;
+	Vector vecHiUV = vu1;
 
-	if (vt2.x < vecLoUV.x)
-		vecLoUV.x = vt2.x;
-	if (vt3.x < vecLoUV.x)
-		vecLoUV.x = vt3.x;
-	if (vt2.x > vecHiUV.x)
-		vecHiUV.x = vt2.x;
-	if (vt3.x > vecHiUV.x)
-		vecHiUV.x = vt3.x;
+	if (vu2.x < vecLoUV.x)
+		vecLoUV.x = vu2.x;
+	if (vu3.x < vecLoUV.x)
+		vecLoUV.x = vu3.x;
+	if (vu2.x > vecHiUV.x)
+		vecHiUV.x = vu2.x;
+	if (vu3.x > vecHiUV.x)
+		vecHiUV.x = vu3.x;
 
-	if (vt2.y < vecLoUV.y)
-		vecLoUV.y = vt2.y;
-	if (vt3.y < vecLoUV.y)
-		vecLoUV.y = vt3.y;
-	if (vt2.y > vecHiUV.y)
-		vecHiUV.y = vt2.y;
-	if (vt3.y > vecHiUV.y)
-		vecHiUV.y = vt3.y;
+	if (vu2.y < vecLoUV.y)
+		vecLoUV.y = vu2.y;
+	if (vu3.y < vecLoUV.y)
+		vecLoUV.y = vu3.y;
+	if (vu2.y > vecHiUV.y)
+		vecHiUV.y = vu2.y;
+	if (vu3.y > vecHiUV.y)
+		vecHiUV.y = vu3.y;
 
 	size_t iLoX = (size_t)(vecLoUV.x * m_iWidth);
 	size_t iLoY = (size_t)(vecLoUV.y * m_iHeight);
 	size_t iHiX = (size_t)(vecHiUV.x * m_iWidth);
 	size_t iHiY = (size_t)(vecHiUV.y * m_iHeight);
-
-	Matrix4x4 m;
-	m.SetOrientation(Vector(0,0,1));
 
 	for (size_t i = iLoX; i <= iHiX; i++)
 	{
@@ -233,7 +230,7 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			float flU = ((float)i + 0.5f)/(float)m_iWidth;
 			float flV = ((float)j + 0.5f)/(float)m_iHeight;
 
-			bool bInside = PointInTriangle(Vector(flU,flV,0), vt1, vt2, vt3);
+			bool bInside = PointInTriangle(Vector(flU,flV,0), vu1, vu2, vu3);
 
 			if (!bInside)
 				continue;
@@ -245,10 +242,10 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			// Find where the UV is in world space.
 
 			// First build 2x2 a "matrix" of the UV values.
-			float mta = vt2.x - vt1.x;
-			float mtb = vt3.x - vt1.x;
-			float mtc = vt2.y - vt1.y;
-			float mtd = vt3.y - vt1.y;
+			float mta = vu2.x - vu1.x;
+			float mtb = vu3.x - vu1.x;
+			float mtc = vu2.y - vu1.y;
+			float mtd = vu3.y - vu1.y;
 
 			// Invert it.
 			float d = mta*mtd - mtb*mtc;
@@ -281,7 +278,7 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 			Vector vecUAxis(mra, mrc, mre);
 			Vector vecVAxis(mrb, mrd, mrf);
 
-			Vector vecUVOrigin = v1 - vecUAxis * vt1.x - vecVAxis * vt1.y;
+			Vector vecUVOrigin = v1 - vecUAxis * vu1.x - vecVAxis * vu1.y;
 
 			Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
 
@@ -332,16 +329,18 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 #endif
 
 			// Build rotation matrix
-			Matrix4x4 m2;
-			m2.SetOrientation(vecNormal);
-			m2.InvertTR();
-			Matrix4x4 m3 = m*m2;
+			Matrix4x4 mObjectToTangent;
 
-			Vector vecTangentNormal = m3*vecHitNormal;
+			Vector t = pFace->GetBaseVector(vecUVPosition, 0, pMeshInstance);
+			Vector b = pFace->GetBaseVector(vecUVPosition, 1, pMeshInstance);
+			Vector n = pFace->GetBaseVector(vecUVPosition, 2, pMeshInstance);
 
-			float y = vecTangentNormal.y;
-			vecTangentNormal.y = vecTangentNormal.x;
-			vecTangentNormal.x = -y;
+			mObjectToTangent.SetColumn(0, t);
+			mObjectToTangent.SetColumn(1, b);
+			mObjectToTangent.SetColumn(2, n);
+			mObjectToTangent.InvertTR();
+
+			Vector vecTangentNormal = mObjectToTangent*vecHitNormal;
 
 			m_avecNormalValues[iTexel] += vecTangentNormal*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
 

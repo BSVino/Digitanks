@@ -40,6 +40,9 @@ const char* GetVSModelShader()
 {
 	return
 		"varying vec3 vecVertexNormal;"
+		"varying vec3 vecVertexTangent;"
+		"varying vec3 vecVertexBitangent;"
+
 		"varying vec3 vecLightDir;"
 		"varying vec3 vecLightHalf;"
 		"varying vec3 vecViewDir;"
@@ -48,11 +51,17 @@ const char* GetVSModelShader()
 		"varying vec4 vecDiffuseLight;"
 		"varying vec4 vecSpecularLight;"
 
+		"attribute vec3 vecTangent;"
+		"attribute vec3 vecBitangent;"
+
 		"void main()"
 		"{"
 		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
 
-		"	vecVertexNormal = normalize(gl_NormalMatrix * gl_Normal);"
+		"	vecVertexNormal = normalize(gl_Normal);"
+		"	vecVertexTangent = normalize(vecTangent);"
+		"	vecVertexBitangent = normalize(vecBitangent);"
+
 		"	vecLightDir = normalize(gl_LightSource[0].position.xyz);"
 		"	vecLightHalf = gl_LightSource[0].halfVector.xyz;"
 		"	vecViewDir = normalize(-vec3(gl_ModelViewMatrix * gl_Vertex));"
@@ -69,6 +78,9 @@ const char* GetFSModelShader()
 {
 	return
 		"varying vec3 vecVertexNormal;"
+		"varying vec3 vecVertexTangent;"
+		"varying vec3 vecVertexBitangent;"
+
 		"varying vec3 vecLightDir;"
 		"varying vec3 vecLightHalf;"
 		"varying vec3 vecViewDir;"
@@ -88,23 +100,11 @@ const char* GetFSModelShader()
 		"uniform bool bAOMap;"
 		"uniform bool bCAOMap;"
 
-		"mat3 ComputeTangentFrame(vec3 vecNormal, vec3 vecPosition, vec2 vecTexCoord)"
-		"{"
-		"	vec3 dpx = dFdx(vecPosition);"
-		"	vec3 dpy = dFdy(vecPosition);"
-		"	vec2 dtx = dFdx(vecTexCoord);"
-		"	vec2 dty = dFdy(vecTexCoord);"
-
-		"	vec3 vecTangent = normalize(dpx * dty.t - dpy * dtx.t);"
-		"	vec3 vecBitangent = cross(vecTangent, vecNormal);"
-
-		"	return mat3(vecTangent, vecBitangent, vecNormal);"
-		"}"
-
 		"void main()"
 		"{"
 		"	vec4 clrDiffuseColor = vec4(1.0, 1.0, 1.0, 1.0);"
-		"	vec3 vecTangentNormal;"
+		"	vec3 vecTangentNormal = vec3(0.0, 0.0, 1.0);"
+		"	vec3 vecTranslatedNormal;"
 		"	vec4 clrAO = vec4(1.0, 1.0, 1.0, 1.0);"
 		"	vec4 clrCAO = vec4(1.0, 1.0, 1.0, 1.0);"
 		"	vec4 clrLight;"
@@ -115,7 +115,6 @@ const char* GetFSModelShader()
 		"	if (bNormalMap)"
 		"	{"
 		"		vecTangentNormal = normalize(texture2D(iNormalMap, gl_TexCoord[0].xy).xyz * 2.0 - 1.0);"
-		"		vecTangentNormal.x = -vecTangentNormal.x;"
 		"	}"
 
 		"	if (bAOMap)"
@@ -126,15 +125,15 @@ const char* GetFSModelShader()
 
 		"	if (bLighting)"
 		"	{"
-		"		vec3 vecTranslatedNormal = vecTangentNormal;"
-
 		"		if (bNormalMap)"
 		"		{"
-		"			mat3 mTBN = ComputeTangentFrame(normalize(vecVertexNormal), normalize(vecViewDir), gl_TexCoord[0].st);"
-		"			vecTranslatedNormal = mTBN * vecTangentNormal;"
+					// If we are in normal map mode, vecVertexNormal is really part of the inverse TBN matrix
+		"			mat3 mTBN = mat3(normalize(vecVertexTangent), normalize(vecVertexBitangent), normalize(vecVertexNormal));"
+		"			vecTranslatedNormal = normalize(gl_NormalMatrix * (mTBN * vecTangentNormal));"
 		"		}"
 		"		else"
-		"			vecTranslatedNormal = normalize(vecVertexNormal);"
+					// If we are not in normal map mode, vecVertexNormal is just a normal normal
+		"			vecTranslatedNormal = normalize(gl_NormalMatrix * vecVertexNormal);"
 
 		"		float flLightStrength = dot(vecTranslatedNormal, vecLightDir);"
 		"		if (flLightStrength < 0.0) flLightStrength = 0.0;"
@@ -152,15 +151,13 @@ const char* GetFSModelShader()
 		"	}"
 		"	else"
 		"	{"
-
-		"		vec3 vecTranslatedNormal = vecTangentNormal;"
 		"		if (bNormalMap)"
 		"		{"
-		"			mat3 mTBN = ComputeTangentFrame(normalize(vecVertexNormal), normalize(vecViewDir), gl_TexCoord[0].st);"
-		"			vecTranslatedNormal = mTBN * vecTangentNormal;"
+		"			mat3 mTBN = mat3(normalize(vecVertexTangent), normalize(vecVertexBitangent), normalize(vecVertexNormal));"
+		"			vecTranslatedNormal = normalize(gl_NormalMatrix * (mTBN * vecTangentNormal));"
 		"		}"
 		"		else"
-		"			vecTranslatedNormal = normalize(vecVertexNormal);"
+		"			vecTranslatedNormal = normalize(gl_NormalMatrix * vecVertexNormal);"
 
 		"		float flDot = dot(vecTranslatedNormal, vec3(0, 1, 0));"
 		"		clrLight = vec4(1, 1, 1, 1) * (flDot * 0.5) + vec4(0.45, 0.45, 0.45, 0.45);"

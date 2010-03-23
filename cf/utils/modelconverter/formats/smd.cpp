@@ -72,9 +72,9 @@ void CModelConverter::WriteSMD(size_t iMesh, const wchar_t* pszFilename)
 			Vector n2 = pMesh->GetNormal(pV2->vn);
 			Vector n3 = pMesh->GetNormal(pV3->vn);
 
-			Vector uv1 = pMesh->GetUV(pV1->vt);
-			Vector uv2 = pMesh->GetUV(pV2->vt);
-			Vector uv3 = pMesh->GetUV(pV3->vt);
+			Vector uv1 = pMesh->GetUV(pV1->vu);
+			Vector uv2 = pMesh->GetUV(pV2->vu);
+			Vector uv3 = pMesh->GetUV(pV3->vu);
 
 			// Material name
 			size_t iMaterial = pFace->m;
