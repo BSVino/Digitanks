@@ -26,7 +26,6 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 
 	m_avecNormalValues = NULL;
 	m_avecNormalGeneratedValues = NULL;
-	m_aiNormalReads = NULL;
 	m_bPixelMask = NULL;
 
 	SetSize(512, 512);
@@ -43,7 +42,6 @@ CNormalGenerator::~CNormalGenerator()
 	free(m_bPixelMask);
 	delete[] m_avecNormalValues;
 	delete[] m_avecNormalGeneratedValues;
-	delete[] m_aiNormalReads;
 }
 
 void CNormalGenerator::SetSize(size_t iWidth, size_t iHeight)
@@ -55,18 +53,15 @@ void CNormalGenerator::SetSize(size_t iWidth, size_t iHeight)
 	{
 		delete[] m_avecNormalValues;
 		delete[] m_avecNormalGeneratedValues;
-		delete[] m_aiNormalReads;
 	}
 
 	// Shadow volume result buffer.
 	m_avecNormalValues = new Vector[iWidth*iHeight];
 	m_avecNormalGeneratedValues = new Vector[iWidth*iHeight];
-	m_aiNormalReads = new size_t[iWidth*iHeight];
 
 	// Big hack incoming!
 	memset(&m_avecNormalValues[0].x, 0, iWidth*iHeight*sizeof(Vector));
 	memset(&m_avecNormalGeneratedValues[0], 0, iWidth*iHeight*sizeof(Vector));
-	memset(&m_aiNormalReads[0], 0, iWidth*iHeight*sizeof(size_t));
 
 	if (m_bPixelMask)
 		free(m_bPixelMask);
@@ -91,6 +86,8 @@ void CNormalGenerator::Generate()
 	if (CModelWindow::Get())
 		CModelWindow::Get()->ClearDebugLines();
 #endif
+
+	memset(&m_bPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
 
 	m_bIsGenerating = true;
 	m_bStopGenerating = false;
@@ -173,8 +170,7 @@ void CNormalGenerator::Generate()
 	delete pTracer;
 
 	Bleed();
-//	ScaleHeightValues(m_aflHeightValues);
-//	NormalizeHeightValues(m_aflHeightValues);
+	TexturizeValues(m_avecNormalValues);
 
 	if (!m_bStopGenerating)
 		m_bDoneGenerating = true;
@@ -342,9 +338,8 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 
 			Vector vecTangentNormal = mObjectToTangent*vecHitNormal;
 
-			m_avecNormalValues[iTexel] += vecTangentNormal*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
+			m_avecNormalValues[iTexel] += vecTangentNormal;
 
-			m_aiNormalReads[iTexel]++;
 			m_bPixelMask[iTexel] = true;
 
 			if (m_pWorkListener)
@@ -368,76 +363,77 @@ void CNormalGenerator::Bleed()
 	// This is for pixels that have been set this frame.
 	memset(&abPixelMask[0], 0, m_iWidth*m_iHeight*sizeof(bool));
 
-/*	for (size_t w = 0; w < m_iWidth; w++)
+	for (size_t w = 0; w < m_iWidth; w++)
 	{
 		for (size_t h = 0; h < m_iHeight; h++)
 		{
-			float flTotal = 0;
-			size_t iTotal = 0;
+			Vector vecTotal(0,0,0);
 			size_t iTexel;
 
 			// If the texel has the mask on then it already has a value so skip it.
 			if (Texel(w, h, iTexel, true))
 				continue;
 
+			bool bTotal = false;
+
 			if (Texel(w-1, h-1, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w-1, h, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w-1, h+1, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w, h+1, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w+1, h+1, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w+1, h, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w+1, h-1, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			if (Texel(w, h-1, iTexel))
 			{
-				flTotal += m_aflHeightValues[iTexel];
-				iTotal++;
+				vecTotal += m_avecNormalValues[iTexel];
+				bTotal = true;
 			}
 
 			Texel(w, h, iTexel, false);
 
-			if (iTotal)
+			if (bTotal)
 			{
-				flTotal /= (float)iTotal;
-				m_aflHeightValues[iTexel] = flTotal/(float)iTotal;
+				m_avecNormalValues[iTexel] = vecTotal;
+				m_avecNormalValues[iTexel].Normalize();
 				abPixelMask[iTexel] = true;
 			}
 		}
-	}*/
+	}
 
 	for (size_t p = 0; p < m_iWidth*m_iHeight; p++)
 		m_bPixelMask[p] |= abPixelMask[p];
@@ -534,6 +530,21 @@ void CNormalGenerator::NormalizeHeightValues(float* aflHeightValues)
 }
 */
 
+void CNormalGenerator::TexturizeValues(Vector* avecTexture)
+{
+	for (size_t x = 0; x < m_iWidth; x++)
+	{
+		for (size_t y = 0; y < m_iHeight; y++)
+		{
+			size_t iTexel;
+
+			Texel(x, y, iTexel, false);
+
+			avecTexture[iTexel] = m_avecNormalValues[iTexel].Normalized()*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
+		}
+	}
+}
+
 size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 {
 	Vector* avecNormalValues = m_avecNormalValues;
@@ -541,6 +552,8 @@ size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 	if (bInMedias)
 	{
 		// Use this temporary buffer so we don't clobber the original.
+		avecNormalValues = m_avecNormalGeneratedValues;
+		TexturizeValues(avecNormalValues);
 	}
 
 	GLuint iGLId;
@@ -548,7 +561,7 @@ size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 	glBindTexture(GL_TEXTURE_2D, iGLId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iWidth, (GLint)m_iHeight, GL_RGB, GL_FLOAT, &m_avecNormalValues[0].x);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iWidth, (GLint)m_iHeight, GL_RGB, GL_FLOAT, &avecNormalValues[0].x);
 
 	return iGLId;
 }

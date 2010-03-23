@@ -129,6 +129,7 @@ public:
 
 //	void					ScaleHeightValues(float* aflTexture);
 //	void					NormalizeHeightValues(float* aflTexture);
+	void					TexturizeValues(Vector* avecTexture);
 	size_t					GenerateTexture(bool bInMedias = false);
 	void					SaveToFile(const wchar_t* pszFilename);
 
@@ -155,7 +156,6 @@ protected:
 
 	Vector*					m_avecNormalValues;
 	Vector*					m_avecNormalGeneratedValues;
-	size_t*					m_aiNormalReads;
 
 	bool					m_bIsGenerating;
 	bool					m_bDoneGenerating;
