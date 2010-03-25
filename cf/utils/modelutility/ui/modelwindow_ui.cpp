@@ -1190,6 +1190,14 @@ CNormalPanel::CNormalPanel(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_pRemoveHiRes->SetClickedListener(this, RemoveHiRes);
 	AddControl(m_pRemoveHiRes);
 
+	m_pTextureCheckBox = new CCheckBox();
+	m_pTextureCheckBox->SetClickedListener(this, UpdateNormal2);
+	m_pTextureCheckBox->SetUnclickedListener(this, UpdateNormal2);
+	AddControl(m_pTextureCheckBox);
+
+	m_pTextureLabel = new CLabel(0, 0, 100, 100, "Use texture");
+	AddControl(m_pTextureLabel);
+
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
 	m_pGenerate->SetClickedListener(this, Generate);
 	AddControl(m_pGenerate);
@@ -1223,26 +1231,30 @@ void CNormalPanel::Layout()
 	m_pLoResLabel->EnsureTextFits();
 	m_pLoResLabel->SetPos(10, 40);
 
-	m_pLoRes->SetSize(iTreeWidth, 200);
+	m_pLoRes->SetSize(iTreeWidth, 150);
 	m_pLoRes->SetPos(10, 70);
 
 	m_pAddLoRes->SetSize(40, 20);
-	m_pAddLoRes->SetPos(10, 275);
+	m_pAddLoRes->SetPos(10, 225);
 
 	m_pRemoveLoRes->SetSize(60, 20);
-	m_pRemoveLoRes->SetPos(60, 275);
+	m_pRemoveLoRes->SetPos(60, 225);
 
 	m_pHiResLabel->EnsureTextFits();
 	m_pHiResLabel->SetPos(iTreeWidth+20, 40);
 
-	m_pHiRes->SetSize(iTreeWidth, 200);
+	m_pHiRes->SetSize(iTreeWidth, 150);
 	m_pHiRes->SetPos(iTreeWidth+20, 70);
 
 	m_pAddHiRes->SetSize(40, 20);
-	m_pAddHiRes->SetPos(iTreeWidth+20, 275);
+	m_pAddHiRes->SetPos(iTreeWidth+20, 225);
 
 	m_pRemoveHiRes->SetSize(60, 20);
-	m_pRemoveHiRes->SetPos(iTreeWidth+70, 275);
+	m_pRemoveHiRes->SetPos(iTreeWidth+70, 225);
+
+	m_pTextureLabel->SetPos(25, 220);
+	m_pTextureLabel->EnsureTextFits();
+	m_pTextureCheckBox->SetPos(20, 220 + m_pTextureLabel->GetHeight()/2 - m_pTextureCheckBox->GetHeight()/2);
 
 	m_pSave->SetSize(100, 33);
 	m_pSave->SetPos(GetWidth() - m_pSave->GetWidth() - (int)(m_pSave->GetHeight()*0.5f), GetHeight() - (int)(m_pSave->GetHeight()*1.5f));
@@ -1283,6 +1295,30 @@ void CNormalPanel::UpdateScene()
 {
 	m_apLoResMeshes.clear();
 	m_apHiResMeshes.clear();
+	m_pTextureCheckBox->SetState(false, false);
+}
+
+void CNormalPanel::Think()
+{
+	if (m_oGenerator.IsNewNormal2Available())
+	{
+		for (size_t i = 0; i < m_paoMaterials->size(); i++)
+		{
+			size_t& iNormalTexture = (*m_paoMaterials)[i].m_iNormal2;
+
+			if (!m_pScene->GetMaterial(i)->IsVisible())
+				continue;
+
+			size_t iNormal2 = m_oGenerator.GetNormalMap2();
+
+			if (iNormalTexture)
+				glDeleteTextures(1, &iNormalTexture);
+
+			iNormalTexture = iNormal2;
+		}
+	}
+
+	CMovablePanel::Think();
 }
 
 void CNormalPanel::Paint(int x, int y, int w, int h)
@@ -1471,6 +1507,10 @@ void CNormalPanel::AddLoResMeshCallback()
 	m_pMeshInstancePicker = NULL;
 
 	Layout();
+
+	// So the generator has access to them making normal2
+	m_oGenerator.SetModels(m_apHiResMeshes, m_apLoResMeshes);
+	UpdateNormal2Callback();
 }
 
 void CNormalPanel::AddHiResMeshCallback()
@@ -1513,6 +1553,10 @@ void CNormalPanel::RemoveLoResCallback()
 			m_apLoResMeshes.erase(m_apLoResMeshes.begin()+i);
 
 	Layout();
+
+	// So the generator has access to them making normal2
+	m_oGenerator.SetModels(m_apHiResMeshes, m_apLoResMeshes);
+	UpdateNormal2Callback();
 }
 
 void CNormalPanel::RemoveHiResCallback()
@@ -1530,6 +1574,31 @@ void CNormalPanel::RemoveHiResCallback()
 			m_apHiResMeshes.erase(m_apHiResMeshes.begin()+i);
 
 	Layout();
+}
+
+void CNormalPanel::UpdateNormal2Callback()
+{
+	m_oGenerator.SetNormalTexture(m_pTextureCheckBox->GetState());
+
+	size_t iNormal = 0;
+	if (m_oGenerator.DoneGenerating())
+		iNormal = m_oGenerator.GenerateTexture();
+
+	for (size_t i = 0; i < m_paoMaterials->size(); i++)
+	{
+		size_t& iNormalTexture =(*m_paoMaterials)[i].m_iNormal;
+
+		if (!m_pScene->GetMaterial(i)->IsVisible())
+			continue;
+
+		if (iNormalTexture)
+			glDeleteTextures(1, &iNormalTexture);
+
+		if (m_oGenerator.DoneGenerating())
+			iNormalTexture = iNormal;
+		else
+			iNormalTexture = 0;
+	}
 }
 
 void CNormalPanel::Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)

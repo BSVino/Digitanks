@@ -127,18 +127,23 @@ public:
 	void					GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, class raytrace::CRaytracer* pTracer, size_t& iRendered);
 	void					Bleed();
 
-//	void					ScaleHeightValues(float* aflTexture);
-//	void					NormalizeHeightValues(float* aflTexture);
 	void					TexturizeValues(Vector* avecTexture);
 	size_t					GenerateTexture(bool bInMedias = false);
 	void					SaveToFile(const wchar_t* pszFilename);
 
 	bool					Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask = true);
+	bool					Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool bUseMask = true);
 
 	bool					IsGenerating() { return m_bIsGenerating; }
 	bool					DoneGenerating() { return m_bDoneGenerating; }
 	void					StopGenerating() { m_bStopGenerating = true; }
 	bool					IsStopped() { return m_bStopGenerating; }
+
+	void					SetNormalTexture(bool bNormalTexture);
+	void					RegenerateNormal2Texture();
+	void					NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals);
+	bool					IsNewNormal2Available() { return m_bNewNormal2Available; };
+	size_t					GetNormalMap2();
 
 protected:
 	CConversionScene*		m_pScene;
@@ -156,10 +161,17 @@ protected:
 
 	Vector*					m_avecNormalValues;
 	Vector*					m_avecNormalGeneratedValues;
+	Vector*					m_avecMergedNormalValues;
 
 	bool					m_bIsGenerating;
 	bool					m_bDoneGenerating;
 	bool					m_bStopGenerating;
+
+	size_t					m_iNormal2GLId;
+	size_t					m_iNormal2Width;
+	size_t					m_iNormal2Height;
+	float*					m_aflNormal2Texels;
+	bool					m_bNewNormal2Available;
 };
 
 #endif

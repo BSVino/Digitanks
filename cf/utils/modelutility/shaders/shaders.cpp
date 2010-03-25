@@ -91,19 +91,21 @@ const char* GetFSModelShader()
 
 		"uniform sampler2D iDiffuseTexture;"
 		"uniform sampler2D iNormalMap;"
+		"uniform sampler2D iNormal2Map;"
 		"uniform sampler2D iAOMap;"
 		"uniform sampler2D iCAOMap;"
 
 		"uniform bool bLighting;"
 		"uniform bool bDiffuseTexture;"
 		"uniform bool bNormalMap;"
+		"uniform bool bNormal2Map;"
 		"uniform bool bAOMap;"
 		"uniform bool bCAOMap;"
 
 		"void main()"
 		"{"
 		"	vec4 clrDiffuseColor = vec4(1.0, 1.0, 1.0, 1.0);"
-		"	vec3 vecTangentNormal = vec3(0.0, 0.0, 1.0);"
+		"	vec3 vecTangentNormal = vec3(0.0, 0.0, 0.0);"
 		"	vec3 vecTranslatedNormal;"
 		"	vec4 clrAO = vec4(1.0, 1.0, 1.0, 1.0);"
 		"	vec4 clrCAO = vec4(1.0, 1.0, 1.0, 1.0);"
@@ -112,9 +114,28 @@ const char* GetFSModelShader()
 		"	if (bDiffuseTexture)"
 		"		clrDiffuseColor = texture2D(iDiffuseTexture, gl_TexCoord[0].xy);"
 
+		"	if (!bNormalMap && !bNormal2Map)"
+		"		vecTangentNormal = vec3(0.0, 0.0, 1.0);"
+
 		"	if (bNormalMap)"
-		"	{"
 		"		vecTangentNormal = normalize(texture2D(iNormalMap, gl_TexCoord[0].xy).xyz * 2.0 - 1.0);"
+
+		"	vec3 vecNormal2;"
+		"	if (bNormal2Map)"
+		"	{"
+		"		vecNormal2 = normalize(texture2D(iNormal2Map, gl_TexCoord[0].xy).xyz * 2.0 - 1.0);"
+		"		if (bNormalMap)"
+		"		{"
+					// Transform the normal to the tangent space of the first normal map's normal
+		"			vec3 vecSmoothBitangent = normalize(cross(vecTangentNormal, vec3(1, 0, 0)));"
+		"			vec3 vecSmoothTangent = normalize(cross(vecSmoothBitangent, vecTangentNormal));"
+		"			mat3 mTBN = mat3(vecSmoothTangent, vecSmoothBitangent, vecTangentNormal);"
+		"			vecTangentNormal = mTBN * vecNormal2;"
+		"		}"
+		"		else"
+		"		{"
+		"			vecTangentNormal = vecNormal2;"
+		"		}"
 		"	}"
 
 		"	if (bAOMap)"
@@ -125,7 +146,7 @@ const char* GetFSModelShader()
 
 		"	if (bLighting)"
 		"	{"
-		"		if (bNormalMap)"
+		"		if (bNormalMap || bNormal2Map)"
 		"		{"
 					// If we are in normal map mode, vecVertexNormal is really part of the inverse TBN matrix
 		"			mat3 mTBN = mat3(normalize(vecVertexTangent), normalize(vecVertexBitangent), normalize(vecVertexNormal));"
@@ -151,7 +172,7 @@ const char* GetFSModelShader()
 		"	}"
 		"	else"
 		"	{"
-		"		if (bNormalMap)"
+		"		if (bNormalMap || bNormal2Map)"
 		"		{"
 		"			mat3 mTBN = mat3(normalize(vecVertexTangent), normalize(vecVertexBitangent), normalize(vecVertexNormal));"
 		"			vecTranslatedNormal = normalize(gl_NormalMatrix * (mTBN * vecTangentNormal));"

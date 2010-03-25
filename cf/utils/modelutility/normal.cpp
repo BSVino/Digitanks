@@ -26,6 +26,7 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 
 	m_avecNormalValues = NULL;
 	m_avecNormalGeneratedValues = NULL;
+	m_avecMergedNormalValues = NULL;
 	m_bPixelMask = NULL;
 
 	SetSize(512, 512);
@@ -35,6 +36,10 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 	m_bIsGenerating = false;
 	m_bDoneGenerating = false;
 	m_bStopGenerating = false;
+
+	m_iNormal2GLId = 0;
+	m_aflNormal2Texels = NULL;
+	m_bNewNormal2Available = false;
 }
 
 CNormalGenerator::~CNormalGenerator()
@@ -42,6 +47,15 @@ CNormalGenerator::~CNormalGenerator()
 	free(m_bPixelMask);
 	delete[] m_avecNormalValues;
 	delete[] m_avecNormalGeneratedValues;
+
+	if (m_avecMergedNormalValues)
+		delete[] m_avecMergedNormalValues;
+
+	if (m_iNormal2GLId)
+		glDeleteTextures(1, &m_iNormal2GLId);
+
+	if (m_aflNormal2Texels)
+		delete[] m_aflNormal2Texels;
 }
 
 void CNormalGenerator::SetSize(size_t iWidth, size_t iHeight)
@@ -113,6 +127,8 @@ void CNormalGenerator::Generate()
 			flTotalArea += pFace->GetUVArea();
 		}
 	}
+
+	RegenerateNormal2Texture();
 
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(L"Generating", (size_t)(flTotalArea*m_iWidth*m_iHeight));
@@ -441,95 +457,6 @@ void CNormalGenerator::Bleed()
 	free(abPixelMask);
 }
 
-/*
-void CNormalGenerator::ScaleHeightValues(float* aflHeightValues)
-{
-	size_t i;
-	bool bFirst = true;
-	float flLowestValue;
-	float flHighestValue;
-
-	for (i = 0; i < m_iWidth*m_iHeight; i++)
-	{
-		if (bFirst && m_aiHeightReads[i])
-		{
-			flHighestValue = flLowestValue = m_aflHeightValues[i]/m_aiHeightReads[i];
-			bFirst = false;
-		}
-		else if (m_aiHeightReads[i])
-		{
-			float flValue = m_aflHeightValues[i]/m_aiHeightReads[i];
-			if (flValue < flLowestValue)
-				flLowestValue = flValue;
-			if (flValue > flHighestValue)
-				flHighestValue = flValue;
-		}
-	}
-
-	if (!bFirst)
-	{
-		// Use a simple scale instead of remapping [lo, hi] -> [0, 1] so that 0.5 stays our centerline.
-		float flScale = (fabs(flLowestValue) > fabs(flHighestValue))?fabs(flLowestValue):fabs(flHighestValue);
-		for (i = 0; i < m_iWidth*m_iHeight; i++)
-		{
-			if (m_aiHeightReads[i] && aflHeightValues[i] != 0)
-				aflHeightValues[i] = RemapVal(m_aflHeightValues[i], -flScale, flScale, 0.0f, 1.0f);
-			else
-				aflHeightValues[i] = 0.5f;
-		}
-	}
-}
-
-void CNormalGenerator::NormalizeHeightValues(float* aflHeightValues)
-{
-	float flScale = ((m_iWidth+m_iHeight)/2.0f)/10.0f;
-
-	for (size_t x = 0; x < m_iWidth; x++)
-	{
-		for (size_t y = 0; y < m_iHeight; y++)
-		{
-			std::vector<Vector> avecHeights;
-			size_t iTexel;
-
-			Texel(x, y, iTexel, false);
-			Vector vecCenter((float)x, (float)y, aflHeightValues[iTexel]*flScale);
-
-			Vector& vecNormal = m_avecNormalValues[iTexel];
-			vecNormal = Vector(0,0,0);
-
-			if (Texel(x+1, y, iTexel, false))
-			{
-				Vector vecNeighbor(x+1.0f, (float)y, aflHeightValues[iTexel]*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, 1, 0));
-			}
-
-			if (Texel(x-1, y, iTexel, false))
-			{
-				Vector vecNeighbor(x-1.0f, (float)y, aflHeightValues[iTexel]*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, -1, 0));
-			}
-
-			if (Texel(x, y+1, iTexel, false))
-			{
-				Vector vecNeighbor((float)x, y+1.0f, aflHeightValues[iTexel]*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(-1, 0, 0));
-			}
-
-			if (Texel(x, y-1, iTexel, false))
-			{
-				Vector vecNeighbor((float)x, y-1.0f, aflHeightValues[iTexel]*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(1, 0, 0));
-			}
-
-			vecNormal.Normalize();
-
-			for (size_t i = 0; i < 3; i++)
-				vecNormal[i] = RemapVal(vecNormal[i], -1.0f, 1.0f, 0.0f, 0.99f);	// Don't use 1.0 because of integer overflow.
-		}
-	}
-}
-*/
-
 void CNormalGenerator::TexturizeValues(Vector* avecTexture)
 {
 	for (size_t x = 0; x < m_iWidth; x++)
@@ -555,6 +482,78 @@ size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 		avecNormalValues = m_avecNormalGeneratedValues;
 		TexturizeValues(avecNormalValues);
 	}
+	else
+	{
+		if (m_aflNormal2Texels)
+		{
+			size_t iTotalWidth = m_iWidth > m_iNormal2Width ? m_iWidth : m_iNormal2Width;
+			size_t iTotalHeight = m_iHeight > m_iNormal2Height ? m_iHeight : m_iNormal2Height;
+
+			Vector* avecResizedNormals = new Vector[iTotalWidth*iTotalHeight];
+			Vector* avecResizedNormals2 = new Vector[iTotalWidth*iTotalHeight];
+
+			ILuint iNormalId;
+			ilGenImages(1, &iNormalId);
+			ilBindImage(iNormalId);
+			ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, &avecNormalValues[0].x);
+			iluImageParameter(ILU_FILTER, ILU_BILINEAR);
+			iluScale((ILint)iTotalWidth, (ILint)iTotalHeight, 1);
+			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals[0].x);
+			ilDeleteImage(iNormalId);
+
+			ILuint iNormal2Id;
+			ilGenImages(1, &iNormal2Id);
+			ilBindImage(iNormal2Id);
+			ilTexImage((ILint)m_iNormal2Width, (ILint)m_iNormal2Height, 1, 3, IL_RGB, IL_FLOAT, &m_aflNormal2Texels[0]);
+			iluImageParameter(ILU_FILTER, ILU_BILINEAR);
+			iluScale((ILint)iTotalWidth, (ILint)iTotalHeight, 1);
+			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals2[0].x);
+			ilDeleteImage(iNormal2Id);
+
+			if (!m_avecMergedNormalValues)
+				m_avecMergedNormalValues = new Vector[iTotalWidth*iTotalHeight];
+
+			for (size_t i = 0; i < iTotalWidth; i++)
+			{
+				for (size_t j = 0; j < iTotalHeight; j++)
+				{
+					size_t iTexel;
+					Texel(i, j, iTexel, iTotalWidth, iTotalHeight, false);
+					Vector vecNormal = (avecResizedNormals[iTexel]*2 - Vector(1.0f, 1.0f, 1.0f));
+					Vector vecNormal2 = (avecResizedNormals2[iTexel]*2 - Vector(1.0f, 1.0f, 1.0f));
+
+					Vector vecBitangent = vecNormal.Cross(Vector(1, 0, 0)).Normalized();
+					Vector vecTangent = vecBitangent.Cross(vecNormal).Normalized();
+
+					Matrix4x4 mTBN;
+					mTBN.SetColumn(0, vecTangent);
+					mTBN.SetColumn(1, vecBitangent);
+					mTBN.SetColumn(2, vecNormal);
+
+					m_avecMergedNormalValues[iTexel] = (mTBN * vecNormal2)*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
+				}
+			}
+
+			delete[] avecResizedNormals;
+			delete[] avecResizedNormals2;
+
+			if (m_iNormal2GLId)
+			{
+				glDeleteTextures(1, &m_iNormal2GLId);
+				m_iNormal2GLId = 0;
+			}
+			m_bNewNormal2Available = true;
+
+			GLuint iGLId;
+			glGenTextures(1, &iGLId);
+			glBindTexture(GL_TEXTURE_2D, iGLId);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)iTotalWidth, (GLint)iTotalHeight, GL_RGB, GL_FLOAT, &m_avecMergedNormalValues[0].x);
+
+			return iGLId;
+		}
+	}
 
 	GLuint iGLId;
 	glGenTextures(1, &iGLId);
@@ -577,10 +576,15 @@ void CNormalGenerator::SaveToFile(const wchar_t *pszFilename)
 	ilGenImages(1, &iDevILId);
 	ilBindImage(iDevILId);
 
-	// WHAT A HACK!
-	ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, NULL);
-
-	ilSetData(&m_avecNormalValues[0].x);
+	if (m_avecMergedNormalValues)
+	{
+		size_t w, h;
+		w = m_iNormal2Width > m_iWidth ? m_iNormal2Width : m_iWidth;
+		h = m_iNormal2Height > m_iHeight ? m_iNormal2Height : m_iHeight;
+		ilTexImage((ILint)w, (ILint)h, 1, 3, IL_RGB, IL_FLOAT, &m_avecMergedNormalValues[0].x);
+	}
+	else
+		ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, &m_avecNormalValues[0].x);
 
 	// Formats like PNG and VTF don't work unless it's in integer format.
 	ilConvertImage(IL_RGB, IL_UNSIGNED_INT);
@@ -596,17 +600,172 @@ void CNormalGenerator::SaveToFile(const wchar_t *pszFilename)
 	ilDeleteImages(1,&iDevILId);
 }
 
-bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
+bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool bUseMask)
 {
-	if (w < 0 || h < 0 || w >= m_iWidth || h >= m_iHeight)
+	if (w < 0 || h < 0 || w >= tw || h >= th)
 		return false;
 
-	iTexel = m_iHeight*h + w;
+	iTexel = th*h + w;
 
-	assert(iTexel >= 0 && iTexel < m_iWidth * m_iHeight);
+	assert(iTexel >= 0 && iTexel < tw * th);
 
 	if (bUseMask && !m_bPixelMask[iTexel])
 		return false;
 
 	return true;
+}
+
+bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
+{
+	return Texel(w, h, iTexel, m_iWidth, m_iHeight, bUseMask);
+}
+
+void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
+{
+	// Options:
+	// Depth
+	// Lo pass
+	// Mid pass
+	// Hi pass
+
+	if (m_iNormal2GLId)
+		glDeleteTextures(1, &m_iNormal2GLId);
+	m_iNormal2GLId = 0;
+
+	m_bNewNormal2Available = true;
+
+	if (!bNormalTexture)
+	{
+		if (m_aflNormal2Texels)
+			delete[] m_aflNormal2Texels;
+		m_aflNormal2Texels = NULL;
+		return;
+	}
+
+	for (size_t iMesh = 0; iMesh < m_apLoRes.size(); iMesh++)
+	{
+		CConversionMeshInstance* pMeshInstance = m_apLoRes[iMesh];
+
+		for (size_t iMaterialStub = 0; iMaterialStub < pMeshInstance->GetMesh()->GetNumMaterialStubs(); iMaterialStub++)
+		{
+			size_t iMaterial = pMeshInstance->GetMappedMaterial(iMaterialStub)->m_iMaterial;
+
+			// Materials not loaded yet?
+			if (!m_paoMaterials->size())
+				continue;
+
+			CMaterial* pMaterial = &(*m_paoMaterials)[iMaterial];
+
+			if (!pMaterial->m_iBase)
+				continue;
+
+			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iBase);
+
+			GLint iWidth, iHeight;
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &iWidth);
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &iHeight);
+
+			float* aflTexels = new float[iWidth*iHeight*3];
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, &aflTexels[0]);
+
+			if (!m_aflNormal2Texels)
+				m_aflNormal2Texels = new float[iWidth*iHeight*3];
+			NormalizeHeightValues(iWidth, iHeight, aflTexels, m_aflNormal2Texels);
+
+			m_iNormal2Width = iWidth;
+			m_iNormal2Height = iHeight;
+
+			RegenerateNormal2Texture();
+
+			delete[] aflTexels;
+
+			break;
+		}
+	}
+}
+
+void CNormalGenerator::RegenerateNormal2Texture()
+{
+	if (!m_aflNormal2Texels)
+		return;
+
+	if (m_iNormal2GLId)
+		glDeleteTextures(1, &m_iNormal2GLId);
+
+	GLuint iGLId;
+	glGenTextures(1, &iGLId);
+	glBindTexture(GL_TEXTURE_2D, iGLId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)m_iNormal2Width, (GLint)m_iNormal2Height, GL_RGB, GL_FLOAT, &m_aflNormal2Texels[0]);
+
+	m_iNormal2GLId = iGLId;
+
+	m_bNewNormal2Available = true;
+}
+
+void CNormalGenerator::NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals)
+{
+	float flScale = ((w+h)/2.0f)/100.0f;
+
+	for (size_t x = 0; x < w; x++)
+	{
+		for (size_t y = 0; y < h; y++)
+		{
+			std::vector<Vector> avecHeights;
+			size_t iTexel;
+
+			Texel(x, y, iTexel, w, h, false);
+
+			float flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+			Vector vecCenter((float)x, (float)y, flHeight*flScale);
+
+			Vector vecNormal(0,0,0);
+
+			if (Texel(x+1, y, iTexel, w, h, false))
+			{
+				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+				Vector vecNeighbor(x+1.0f, (float)y, flHeight*flScale);
+				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, 1, 0));
+			}
+
+			if (Texel(x-1, y, iTexel, w, h, false))
+			{
+				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+				Vector vecNeighbor(x-1.0f, (float)y, flHeight*flScale);
+				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, -1, 0));
+			}
+
+			if (Texel(x, y+1, iTexel, w, h, false))
+			{
+				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+				Vector vecNeighbor((float)x, y+1.0f, flHeight*flScale);
+				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(-1, 0, 0));
+			}
+
+			if (Texel(x, y-1, iTexel, w, h, false))
+			{
+				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+				Vector vecNeighbor((float)x, y-1.0f, flHeight*flScale);
+				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(1, 0, 0));
+			}
+
+			vecNormal.Normalize();
+
+			for (size_t i = 0; i < 3; i++)
+				vecNormal[i] = RemapVal(vecNormal[i], -1.0f, 1.0f, 0.0f, 0.99f);	// Don't use 1.0 because of integer overflow.
+
+			aflNormals[iTexel*3] = vecNormal.x;
+			aflNormals[iTexel*3+1] = vecNormal.y;
+			aflNormals[iTexel*3+2] = vecNormal.z;
+		}
+	}
+}
+
+size_t CNormalGenerator::GetNormalMap2()
+{
+	size_t iNormal2 = m_iNormal2GLId;
+	m_iNormal2GLId = 0;
+	m_bNewNormal2Available = false;
+	return iNormal2;
 }

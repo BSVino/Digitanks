@@ -1131,27 +1131,27 @@ void CCheckBox::Paint(int x, int y, int w, int h)
 
 	glBegin(GL_LINES);
 		// Bottom line
-		glNormal3f(-0.707106781f, -0.707106781f, 0);
-		glVertex2d(x, y+1);
-		glNormal3f(0.707106781f, -0.707106781f, 0);
-		glVertex2d(x+w-1, y+1);
+		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x, y);
+		glNormal3f(0.707106781f, 0.707106781f, 0);
+		glVertex2d(x+w-1, y);
 
 		// Top line
-		glNormal3f(-0.707106781f, 0.707106781f, 0);
-		glVertex2d(x, y+h);
-		glNormal3f(0.707106781f, 0.707106781f, 0);
-		glVertex2d(x+w-1, y+h);
+		glNormal3f(-0.707106781f, -0.707106781f, 0);
+		glVertex2d(x, y+h-1);
+		glNormal3f(0.707106781f, -0.707106781f, 0);
+		glVertex2d(x+w-1, y+h-1);
 
 		// Left line
-		glNormal3f(-0.707106781f, -0.707106781f, 0);
-		glVertex2d(x, y+1);
 		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x, y+1);
+		glNormal3f(-0.707106781f, -0.707106781f, 0);
 		glVertex2d(x, y+h-1);
 
 		// Right line
-		glNormal3f(0.707106781f, -0.707106781f, 0);
-		glVertex2d(x+w, y+1);
 		glNormal3f(0.707106781f, 0.707106781f, 0);
+		glVertex2d(x+w, y+1);
+		glNormal3f(0.707106781f, -0.707106781f, 0);
 		glVertex2d(x+w, y+h-1);
 	glEnd();
 

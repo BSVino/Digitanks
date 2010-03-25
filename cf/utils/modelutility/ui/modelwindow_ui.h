@@ -200,6 +200,8 @@ public:
 	virtual void				Layout();
 	virtual void				UpdateScene();
 
+	virtual void				Think();
+
 	virtual void				Paint(int x, int y, int w, int h);
 
 	virtual void				BeginProgress();
@@ -218,6 +220,7 @@ public:
 	EVENT_CALLBACK(CNormalPanel,	RemoveHiRes);
 	EVENT_CALLBACK(CNormalPanel,	AddLoResMesh);
 	EVENT_CALLBACK(CNormalPanel,	AddHiResMesh);
+	EVENT_CALLBACK(CNormalPanel,	UpdateNormal2);
 
 	static void					Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials);
 	static CNormalPanel*		Get() { return s_pNormalPanel; }
@@ -245,6 +248,9 @@ protected:
 
 	CButton*					m_pRemoveLoRes;
 	CButton*					m_pRemoveHiRes;
+
+	CLabel*						m_pTextureLabel;
+	CCheckBox*					m_pTextureCheckBox;
 
 	CButton*					m_pGenerate;
 	CButton*					m_pSave;

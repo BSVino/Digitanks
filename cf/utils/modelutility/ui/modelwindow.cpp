@@ -741,6 +741,8 @@ void CModelWindow::RenderObjects()
 		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE3);
 		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE4);
+		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 	}
 
@@ -793,6 +795,7 @@ static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData
 		glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
 		glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 		glMultiTexCoord2fv(GL_TEXTURE3, vecUV); 
+		glMultiTexCoord2fv(GL_TEXTURE4, vecUV); 
 	}
 	else
 		glTexCoord2fv(vecUV);
@@ -848,6 +851,8 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 		if (!m_bDisplayWireframe)
 		{
 			bool bTexture = m_bDisplayTexture;
+			bool bNormal = m_bDisplayNormal;
+			bool bNormal2 = m_bDisplayNormal;
 			g_bNormalMap = m_bDisplayNormal;
 			bool bAO = m_bDisplayAO;
 			bool bCAO = m_bDisplayColorAO;
@@ -856,6 +861,8 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 			{
 				glBindTexture(GL_TEXTURE_2D, 0);
 				bTexture = false;
+				bNormal = false;
+				bNormal2 = false;
 				g_bNormalMap = false;
 				bAO = false;
 				bCAO = false;
@@ -867,6 +874,10 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 				if (!pMaterial->m_iBase)
 					bTexture = false;
 				if (!pMaterial->m_iNormal)
+					bNormal = false;
+				if (!pMaterial->m_iNormal2)
+					bNormal2 = false;
+				if (!bNormal && !bNormal2)
 					g_bNormalMap = false;
 				if (!pMaterial->m_iAO)
 					bAO = false;
@@ -890,7 +901,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 					}
 
 					glActiveTexture(GL_TEXTURE1);
-					if (m_bDisplayNormal)
+					if (bNormal)
 					{
 						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iNormal);
 						glEnable(GL_TEXTURE_2D);
@@ -902,6 +913,18 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 					}
 
 					glActiveTexture(GL_TEXTURE2);
+					if (bNormal2)
+					{
+						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iNormal2);
+						glEnable(GL_TEXTURE_2D);
+					}
+					else
+					{
+						glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+						glDisable(GL_TEXTURE_2D);
+					}
+
+					glActiveTexture(GL_TEXTURE3);
 					if (m_bDisplayAO)
 					{
 						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
@@ -913,7 +936,7 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 						glDisable(GL_TEXTURE_2D);
 					}
 
-					glActiveTexture(GL_TEXTURE3);
+					glActiveTexture(GL_TEXTURE4);
 					if (m_bDisplayColorAO)
 					{
 						glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
@@ -948,11 +971,13 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 			GLuint bLighting = glGetUniformLocation((GLuint)m_iShaderProgram, "bLighting");
 			GLuint bDiffuseTexture = glGetUniformLocation((GLuint)m_iShaderProgram, "bDiffuseTexture");
 			GLuint bNormalMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bNormalMap");
+			GLuint bNormal2Map = glGetUniformLocation((GLuint)m_iShaderProgram, "bNormal2Map");
 			GLuint bAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bAOMap");
 			GLuint bCAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "bCAOMap");
 
 			GLuint iDiffuseTexture = glGetUniformLocation((GLuint)m_iShaderProgram, "iDiffuseTexture");
 			GLuint iNormalMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iNormalMap");
+			GLuint iNormal2Map = glGetUniformLocation((GLuint)m_iShaderProgram, "iNormal2Map");
 			GLuint iAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iAOMap");
 			GLuint iCAOMap = glGetUniformLocation((GLuint)m_iShaderProgram, "iCAOMap");
 
@@ -961,12 +986,14 @@ void CModelWindow::RenderMeshInstance(CConversionMeshInstance* pMeshInstance)
 
 			glUniform1i(iDiffuseTexture, 0);
 			glUniform1i(iNormalMap, 1);
-			glUniform1i(iAOMap, 2);
-			glUniform1i(iCAOMap, 3);
+			glUniform1i(iNormal2Map, 2);
+			glUniform1i(iAOMap, 3);
+			glUniform1i(iCAOMap, 4);
 
 			glUniform1i(bLighting, m_bDisplayLight);
 			glUniform1i(bDiffuseTexture, bTexture);
-			glUniform1i(bNormalMap, g_bNormalMap);
+			glUniform1i(bNormalMap, bNormal);
+			glUniform1i(bNormal2Map, bNormal2);
 			glUniform1i(bAOMap, bAO);
 			glUniform1i(bCAOMap, bCAO);
 
@@ -1136,7 +1163,21 @@ void CModelWindow::RenderUV()
 			glDisable(GL_TEXTURE_2D);
 		}
 
-		glActiveTexture(GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE3);
+		if (m_bDisplayNormal)
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iNormal2);
+			glEnable(GL_TEXTURE_2D);
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)0);
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		glActiveTexture(GL_TEXTURE4);
 		if (m_bDisplayAO)
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iAO);
@@ -1150,7 +1191,7 @@ void CModelWindow::RenderUV()
 			glDisable(GL_TEXTURE_2D);
 		}
 
-		glActiveTexture(GL_TEXTURE3);
+		glActiveTexture(GL_TEXTURE5);
 		if (m_bDisplayColorAO)
 		{
 			glBindTexture(GL_TEXTURE_2D, (GLuint)pMaterial->m_iColorAO);
@@ -1192,6 +1233,7 @@ void CModelWindow::RenderUV()
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV);
 			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE3, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE4, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -1204,6 +1246,7 @@ void CModelWindow::RenderUV()
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE3, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE4, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -1216,6 +1259,7 @@ void CModelWindow::RenderUV()
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE3, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE4, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -1228,6 +1272,7 @@ void CModelWindow::RenderUV()
 			glMultiTexCoord2fv(GL_TEXTURE1, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE2, vecUV); 
 			glMultiTexCoord2fv(GL_TEXTURE3, vecUV); 
+			glMultiTexCoord2fv(GL_TEXTURE4, vecUV); 
 		}
 		else
 			glTexCoord2fv(vecUV);
@@ -1247,6 +1292,10 @@ void CModelWindow::RenderUV()
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE3);
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE4);
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 		glDisable(GL_TEXTURE_2D);
