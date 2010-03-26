@@ -56,6 +56,8 @@ CAOGenerator::CAOGenerator(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_bIsGenerating = false;
 	m_bDoneGenerating = false;
 	m_bStopGenerating = false;
+
+	m_pRaytraceParallelizer = NULL;
 }
 
 CAOGenerator::~CAOGenerator()
@@ -65,6 +67,9 @@ CAOGenerator::~CAOGenerator()
 	delete[] m_avecShadowValues;
 	delete[] m_avecShadowGeneratedValues;
 	delete[] m_aiShadowReads;
+
+	if (m_pRaytraceParallelizer)
+		delete m_pRaytraceParallelizer;
 }
 
 void CAOGenerator::SetSize(size_t iWidth, size_t iHeight)

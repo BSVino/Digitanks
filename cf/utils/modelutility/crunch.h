@@ -2,6 +2,7 @@
 #define CF_CRUNCH_H
 
 #include <modelconverter/convmesh.h>
+#include <parallelize.h>
 #include "ui/modelwindow.h"
 #include <worklistener.h>
 
@@ -109,6 +110,8 @@ protected:
 	bool					m_bIsBleeding;
 	bool					m_bDoneGenerating;
 	bool					m_bStopGenerating;
+
+	CParallelizer*			m_pRaytraceParallelizer;
 };
 
 class CNormalGenerator

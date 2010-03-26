@@ -1,13 +1,24 @@
 #include "crunch.h"
 
-#include <list>
-#include <pthread.h>
-#include <time.h>
-
 #include <raytracer/raytracer.h>
 #include <platform.h>
 
-pthread_mutex_t g_iDataMutex;
+typedef struct
+{
+	CAOGenerator*				pGenerator;
+	raytrace::CRaytracer*		pTracer;
+	Vector						vecUVPosition;
+	Vector						vecNormal;
+	CConversionMeshInstance*	pMeshInstance;
+	CConversionFace*			pFace;
+	size_t						iTexel;
+} thread_job_t;
+
+void RaytraceSceneFromPosition(void* pVoidData)
+{
+	thread_job_t* pJobData = (thread_job_t*)pVoidData;
+	pJobData->pGenerator->RaytraceSceneFromPosition(pJobData->pTracer, pJobData->vecUVPosition, pJobData->vecNormal, pJobData->pMeshInstance, pJobData->pFace, pJobData->iTexel);
+}
 
 void CAOGenerator::RaytraceSceneFromPosition(raytrace::CRaytracer* pTracer, Vector vecUVPosition, Vector vecNormal, CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t iTexel)
 {
@@ -127,79 +138,12 @@ void CAOGenerator::RaytraceSceneFromPosition(raytrace::CRaytracer* pTracer, Vect
 	{
 		// Keep all locking and unlocking in one branch to prevent processor prediction miss problems.
 		// I saw it in some presentation somewhere.
-		pthread_mutex_lock(&g_iDataMutex);
+		m_pRaytraceParallelizer->LockData();
 		m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
-		pthread_mutex_unlock(&g_iDataMutex);
+		m_pRaytraceParallelizer->UnlockData();
 	}
 	else
 		m_avecShadowValues[iTexel] += Vector(flShadowValue, flShadowValue, flShadowValue);
-}
-
-typedef struct
-{
-	raytrace::CRaytracer*		pTracer;
-	Vector						vecUVPosition;
-	Vector						vecNormal;
-	CConversionMeshInstance*	pMeshInstance;
-	CConversionFace*			pFace;
-	size_t						iTexel;
-} thread_job_t;
-
-typedef struct
-{
-	pthread_t					iThread;
-	CAOGenerator*				pGenerator;
-	bool						bQuitWhenDone;
-	bool						bDone;
-} thread_data_t;
-
-std::vector<thread_data_t> g_aThreads;
-std::list<thread_job_t> g_lJobs;
-pthread_mutex_t g_iJobsMutex;
-size_t g_iJobsGiven = 0;
-
-void RaytraceThreadMain(void* pData)
-{
-	thread_data_t* pThread = (thread_data_t*)pData;
-	while (true)
-	{
-		if (pThread->pGenerator->IsStopped())
-		{
-			pThread->bDone = true;
-			pthread_exit(NULL);
-			return;
-		}
-
-		pthread_mutex_lock(&g_iJobsMutex);
-		if (!g_lJobs.size())
-		{
-			pthread_mutex_unlock(&g_iJobsMutex);
-
-			if (pThread->bQuitWhenDone)
-			{
-				pThread->bDone = true;
-				pthread_exit(NULL);
-				return;
-			}
-			else
-			{
-				// Give the main thread a chance to render and whatnot.
-				SleepMS(1);
-				continue;
-			}
-		}
-
-		// Copy so we can pop it.
-		thread_job_t oThreadJob = g_lJobs.front();
-		g_lJobs.pop_front();
-
-		pthread_mutex_unlock(&g_iJobsMutex);
-
-		pThread->pGenerator->RaytraceSceneFromPosition(oThreadJob.pTracer, oThreadJob.vecUVPosition, oThreadJob.vecNormal, oThreadJob.pMeshInstance, oThreadJob.pFace, oThreadJob.iTexel);
-
-		// Give the main thread a chance to render and whatnot.
-		SleepMS(1);
-	}
 }
 
 void CAOGenerator::RaytraceSetupThreads()
@@ -207,101 +151,59 @@ void CAOGenerator::RaytraceSetupThreads()
 	if (GetNumberOfProcessors() == 1)
 		return;
 
-	pthread_mutex_init(&g_iDataMutex, NULL);
-	pthread_mutex_init(&g_iJobsMutex, NULL);
+	RaytraceCleanupThreads();
 
-	g_iJobsGiven = 0;
-
-	// Insert all first so that reallocations are all done before we pass the pointers to the threads.
-	g_aThreads.insert(g_aThreads.begin(), GetNumberOfProcessors(), thread_data_t());
-
-	for (size_t i = 0; i < GetNumberOfProcessors(); i++)
-	{
-		thread_data_t* pThread = &g_aThreads[i];
-
-		pThread->pGenerator = this;
-		pThread->bQuitWhenDone = false;
-		pThread->bDone = false;
-
-		pthread_create(&pThread->iThread, NULL, (void *(*) (void *))&RaytraceThreadMain, (void*)pThread);
-	}
+	m_pRaytraceParallelizer = new CParallelizer((JobCallback)::RaytraceSceneFromPosition);
 }
 
 void CAOGenerator::RaytraceCleanupThreads()
 {
-	if (GetNumberOfProcessors() == 1)
-		return;
+	if (m_pRaytraceParallelizer)
+		delete m_pRaytraceParallelizer;
 
-	// If there are no threads then we've already cleaned up, don't do it twice.
-	if (!g_aThreads.size())
-		return;
-
-	for (size_t i = 0; i < g_aThreads.size(); i++)
-	{
-		thread_data_t* pThread = &g_aThreads[i];
-
-		pthread_detach(pThread->iThread);
-	}
-
-	pthread_mutex_destroy(&g_iDataMutex);
-	pthread_mutex_destroy(&g_iJobsMutex);
-
-	g_aThreads.clear();
-	g_lJobs.clear();
+	m_pRaytraceParallelizer = NULL;
 }
 
 void CAOGenerator::RaytraceSceneMultithreaded(raytrace::CRaytracer* pTracer, Vector vecUVPosition, Vector vecNormal, CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t iTexel)
 {
-	if (GetNumberOfProcessors() == 1)
+	if (!m_pRaytraceParallelizer)
 	{
 		RaytraceSceneFromPosition(pTracer, vecUVPosition, vecNormal, pMeshInstance, pFace, iTexel);
 		return;
 	}
 
-	pthread_mutex_lock(&g_iJobsMutex);
+	thread_job_t oJob;
+	oJob.pGenerator = this;
+	oJob.pTracer = pTracer;
+	oJob.vecUVPosition = vecUVPosition;
+	oJob.vecNormal = vecNormal;
+	oJob.pMeshInstance = pMeshInstance;
+	oJob.pFace = pFace;
+	oJob.iTexel = iTexel;
 
-	g_lJobs.push_back(thread_job_t());
-	thread_job_t* pJob = &g_lJobs.back();
-	pJob->pTracer = pTracer;
-	pJob->vecUVPosition = vecUVPosition;
-	pJob->vecNormal = vecNormal;
-	pJob->pMeshInstance = pMeshInstance;
-	pJob->pFace = pFace;
-	pJob->iTexel = iTexel;
-
-	pthread_mutex_unlock(&g_iJobsMutex);
-
-	g_iJobsGiven++;
+	m_pRaytraceParallelizer->AddJob(&oJob, sizeof(oJob));
 }
 
 void CAOGenerator::RaytraceJoinThreads()
 {
-	if (GetNumberOfProcessors() == 1)
+	if (!m_pRaytraceParallelizer)
 		return;
 
 	// Doesn't really join the threads per se, just signals for them to quit and then waits for them to be done
 	// while calling work progress updates so the user can see what's happening.
 
-	for (size_t i = 0; i < g_aThreads.size(); i++)
-		g_aThreads[i].bQuitWhenDone = true;
+	m_pRaytraceParallelizer->FinishJobs();
 
 	if (m_pWorkListener)
-		m_pWorkListener->SetAction(L"Rendering", g_iJobsGiven);
+		m_pWorkListener->SetAction(L"Rendering", m_pRaytraceParallelizer->GetJobsTotal());
 
 	while (true)
 	{
-		bool bDone = true;
-		for (size_t t = 0; t < g_aThreads.size(); t++)
-		{
-			if (!g_aThreads[t].bDone)
-				bDone = false;
-		}
-
-		if (bDone)
+		if (m_pRaytraceParallelizer->AreAllJobsDone())
 			return;
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(g_iJobsGiven - g_lJobs.size());
+			m_pWorkListener->WorkProgress(m_pRaytraceParallelizer->GetJobsTotal() - m_pRaytraceParallelizer->GetJobsRemaining());
 
 		if (m_bStopGenerating)
 		{
