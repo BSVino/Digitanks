@@ -284,6 +284,14 @@
 				Name="common"
 				>
 				<File
+					RelativePath="..\..\common\mempool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\common\mempool.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\common\parallelize.cpp"
 					>
 				</File>

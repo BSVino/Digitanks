@@ -2,6 +2,7 @@
 
 #include <time.h>
 #include <platform.h>
+#include <mempool.h>
 
 void ThreadMain(void* pData)
 {
@@ -46,7 +47,9 @@ void CParallelizeThread::Process()
 
 		m_pParallelizer->DispatchJob(pJobData);
 
-		free(pJobData);
+		pthread_mutex_lock(&m_pParallelizer->m_iJobsMutex);
+		mempool_free(pJobData);
+		pthread_mutex_unlock(&m_pParallelizer->m_iJobsMutex);
 	}
 }
 
@@ -101,10 +104,10 @@ CParallelizer::~CParallelizer()
 
 void CParallelizer::AddJob(void* pJobData, size_t iSize)
 {
-	void* pJobDataCopy = malloc(iSize);
+	pthread_mutex_lock(&m_iJobsMutex);
+	void* pJobDataCopy = mempool_alloc(iSize);
 	memcpy(pJobDataCopy, pJobData, iSize);
 
-	pthread_mutex_lock(&m_iJobsMutex);
 	m_lpJobs.push_back(pJobDataCopy);
 	pthread_mutex_unlock(&m_iJobsMutex);
 
