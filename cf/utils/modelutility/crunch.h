@@ -142,10 +142,13 @@ public:
 	void					StopGenerating() { m_bStopGenerating = true; }
 	bool					IsStopped() { return m_bStopGenerating; }
 
+	void					NormalizeHeightValue(size_t x, size_t y, size_t w, size_t h, const float* aflTexture, float* aflNormals);
 	void					SetNormalTexture(bool bNormalTexture);
 	void					RegenerateNormal2Texture();
 	void					NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals);
-	bool					IsNewNormal2Available() { return m_bNewNormal2Available; };
+	bool					IsNewNormal2Available();
+	bool					IsGeneratingNewNormal2();
+	float					GetNormal2GenerationProgress();
 	size_t					GetNormalMap2();
 
 protected:
@@ -173,8 +176,11 @@ protected:
 	size_t					m_iNormal2GLId;
 	size_t					m_iNormal2Width;
 	size_t					m_iNormal2Height;
+	float*					m_aflTextureTexels;
 	float*					m_aflNormal2Texels;
 	bool					m_bNewNormal2Available;
+
+	CParallelizer*			m_pNormal2Parallelizer;
 };
 
 #endif

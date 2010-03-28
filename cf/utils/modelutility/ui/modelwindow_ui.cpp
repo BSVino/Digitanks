@@ -1252,8 +1252,10 @@ void CNormalPanel::Layout()
 	m_pRemoveHiRes->SetSize(60, 20);
 	m_pRemoveHiRes->SetPos(iTreeWidth+70, 225);
 
-	m_pTextureLabel->SetPos(25, 220);
+	m_pTextureLabel->SetPos(35, 220);
 	m_pTextureLabel->EnsureTextFits();
+	m_pTextureLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pTextureLabel->SetWrap(false);
 	m_pTextureCheckBox->SetPos(20, 220 + m_pTextureLabel->GetHeight()/2 - m_pTextureCheckBox->GetHeight()/2);
 
 	m_pSave->SetSize(100, 33);
@@ -1316,6 +1318,16 @@ void CNormalPanel::Think()
 
 			iNormalTexture = iNormal2;
 		}
+	}
+
+	m_pTextureLabel->SetText("Use texture");
+	if (m_oGenerator.IsGeneratingNewNormal2())
+	{
+		m_pTextureLabel->AppendText(" (Generating... ");
+		char szPercentage[10];
+		sprintf(szPercentage, "%d", (int)(m_oGenerator.GetNormal2GenerationProgress()*100));
+		m_pTextureLabel->AppendText(szPercentage);
+		m_pTextureLabel->AppendText("%)");
 	}
 
 	CMovablePanel::Think();

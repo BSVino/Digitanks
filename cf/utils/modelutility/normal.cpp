@@ -38,8 +38,11 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 	m_bStopGenerating = false;
 
 	m_iNormal2GLId = 0;
+	m_aflTextureTexels = NULL;
 	m_aflNormal2Texels = NULL;
 	m_bNewNormal2Available = false;
+
+	m_pNormal2Parallelizer = NULL;
 }
 
 CNormalGenerator::~CNormalGenerator()
@@ -55,7 +58,10 @@ CNormalGenerator::~CNormalGenerator()
 		glDeleteTextures(1, &m_iNormal2GLId);
 
 	if (m_aflNormal2Texels)
+	{
+		delete[] m_aflTextureTexels;
 		delete[] m_aflNormal2Texels;
+	}
 }
 
 void CNormalGenerator::SetSize(size_t iWidth, size_t iHeight)
@@ -620,6 +626,77 @@ bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 	return Texel(w, h, iTexel, m_iWidth, m_iHeight, bUseMask);
 }
 
+typedef struct
+{
+	CNormalGenerator*	pGenerator;
+	size_t				x;
+	size_t				y;
+	size_t				w;
+	size_t				h;
+	const float*		aflTexture;
+	float*				aflNormals;
+} normal2_data_t;
+
+void NormalizeHeightValue(void* pVoidData)
+{
+	normal2_data_t* pJobData = (normal2_data_t*)pVoidData;
+
+	pJobData->pGenerator->NormalizeHeightValue(pJobData->x, pJobData->y, pJobData->w, pJobData->h, pJobData->aflTexture, pJobData->aflNormals);
+}
+
+void CNormalGenerator::NormalizeHeightValue(size_t x, size_t y, size_t w, size_t h, const float* aflTexture, float* aflNormals)
+{
+	float flScale = ((w+h)/2.0f)/100.0f;
+
+	size_t iTexel;
+	Texel(x, y, iTexel, w, h, false);
+
+	std::vector<Vector> avecHeights;
+
+	float flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+	Vector vecCenter((float)x, (float)y, flHeight*flScale);
+
+	Vector vecNormal(0,0,0);
+
+	if (Texel(x+1, y, iTexel, w, h, false))
+	{
+		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+		Vector vecNeighbor(x+1.0f, (float)y, flHeight*flScale);
+		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, 1, 0));
+	}
+
+	if (Texel(x-1, y, iTexel, w, h, false))
+	{
+		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+		Vector vecNeighbor(x-1.0f, (float)y, flHeight*flScale);
+		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, -1, 0));
+	}
+
+	if (Texel(x, y+1, iTexel, w, h, false))
+	{
+		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+		Vector vecNeighbor((float)x, y+1.0f, flHeight*flScale);
+		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(-1, 0, 0));
+	}
+
+	if (Texel(x, y-1, iTexel, w, h, false))
+	{
+		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
+		Vector vecNeighbor((float)x, y-1.0f, flHeight*flScale);
+		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(1, 0, 0));
+	}
+
+	vecNormal.Normalize();
+
+	for (size_t i = 0; i < 3; i++)
+		vecNormal[i] = RemapVal(vecNormal[i], -1.0f, 1.0f, 0.0f, 0.99f);	// Don't use 1.0 because of integer overflow.
+
+	// Don't need to lock the data because we're guaranteed never to access the same texel twice due to the generation method.
+	aflNormals[iTexel*3] = vecNormal.x;
+	aflNormals[iTexel*3+1] = vecNormal.y;
+	aflNormals[iTexel*3+2] = vecNormal.z;
+}
+
 void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 {
 	// Options:
@@ -632,15 +709,25 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 		glDeleteTextures(1, &m_iNormal2GLId);
 	m_iNormal2GLId = 0;
 
-	m_bNewNormal2Available = true;
+	// Don't let the listeners know yet, we want to generate the new one first so there is no lapse in displaying.
+//	m_bNewNormal2Available = true;
 
 	if (!bNormalTexture)
 	{
 		if (m_aflNormal2Texels)
+		{
+			delete[] m_aflTextureTexels;
 			delete[] m_aflNormal2Texels;
+		}
+		m_aflTextureTexels = NULL;
 		m_aflNormal2Texels = NULL;
 		return;
 	}
+
+	if (m_pNormal2Parallelizer)
+		delete m_pNormal2Parallelizer;
+
+	m_pNormal2Parallelizer = new CParallelizer((JobCallback)::NormalizeHeightValue);
 
 	for (size_t iMesh = 0; iMesh < m_apLoRes.size(); iMesh++)
 	{
@@ -665,19 +752,17 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &iWidth);
 			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &iHeight);
 
-			float* aflTexels = new float[iWidth*iHeight*3];
-			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, &aflTexels[0]);
-
-			if (!m_aflNormal2Texels)
-				m_aflNormal2Texels = new float[iWidth*iHeight*3];
-			NormalizeHeightValues(iWidth, iHeight, aflTexels, m_aflNormal2Texels);
+			m_aflTextureTexels = new float[iWidth*iHeight*3];
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, &m_aflTextureTexels[0]);
 
 			m_iNormal2Width = iWidth;
 			m_iNormal2Height = iHeight;
 
-			RegenerateNormal2Texture();
+			if (!m_aflNormal2Texels)
+				m_aflNormal2Texels = new float[iWidth*iHeight*3];
+			NormalizeHeightValues(iWidth, iHeight, m_aflTextureTexels, m_aflNormal2Texels);
 
-			delete[] aflTexels;
+			m_pNormal2Parallelizer->FinishJobs();
 
 			break;
 		}
@@ -706,60 +791,64 @@ void CNormalGenerator::RegenerateNormal2Texture()
 
 void CNormalGenerator::NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals)
 {
-	float flScale = ((w+h)/2.0f)/100.0f;
+	normal2_data_t oJob;
+	oJob.pGenerator = this;
+	oJob.w = w;
+	oJob.h = h;
+	oJob.aflTexture = aflTexture;
+	oJob.aflNormals = aflNormals;
 
 	for (size_t x = 0; x < w; x++)
 	{
 		for (size_t y = 0; y < h; y++)
 		{
-			std::vector<Vector> avecHeights;
-			size_t iTexel;
-
-			Texel(x, y, iTexel, w, h, false);
-
-			float flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-			Vector vecCenter((float)x, (float)y, flHeight*flScale);
-
-			Vector vecNormal(0,0,0);
-
-			if (Texel(x+1, y, iTexel, w, h, false))
-			{
-				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-				Vector vecNeighbor(x+1.0f, (float)y, flHeight*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, 1, 0));
-			}
-
-			if (Texel(x-1, y, iTexel, w, h, false))
-			{
-				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-				Vector vecNeighbor(x-1.0f, (float)y, flHeight*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, -1, 0));
-			}
-
-			if (Texel(x, y+1, iTexel, w, h, false))
-			{
-				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-				Vector vecNeighbor((float)x, y+1.0f, flHeight*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(-1, 0, 0));
-			}
-
-			if (Texel(x, y-1, iTexel, w, h, false))
-			{
-				flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-				Vector vecNeighbor((float)x, y-1.0f, flHeight*flScale);
-				vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(1, 0, 0));
-			}
-
-			vecNormal.Normalize();
-
-			for (size_t i = 0; i < 3; i++)
-				vecNormal[i] = RemapVal(vecNormal[i], -1.0f, 1.0f, 0.0f, 0.99f);	// Don't use 1.0 because of integer overflow.
-
-			aflNormals[iTexel*3] = vecNormal.x;
-			aflNormals[iTexel*3+1] = vecNormal.y;
-			aflNormals[iTexel*3+2] = vecNormal.z;
+			oJob.x = x;
+			oJob.y = y;
+			m_pNormal2Parallelizer->AddJob(&oJob, sizeof(oJob));
 		}
 	}
+
+	m_pNormal2Parallelizer->FinishJobs();
+}
+
+bool CNormalGenerator::IsNewNormal2Available()
+{
+	if (m_pNormal2Parallelizer)
+	{
+		if (m_pNormal2Parallelizer->AreAllJobsDone())
+		{
+			RegenerateNormal2Texture();
+
+			m_bNewNormal2Available = true;
+
+			delete m_pNormal2Parallelizer;
+			m_pNormal2Parallelizer = NULL;
+		}
+	}
+
+	return m_bNewNormal2Available;
+}
+
+bool CNormalGenerator::IsGeneratingNewNormal2()
+{
+	if (!m_pNormal2Parallelizer)
+		return false;
+
+	if (m_pNormal2Parallelizer->AreAllJobsDone())
+		return false;
+
+	return true;
+}
+
+float CNormalGenerator::GetNormal2GenerationProgress()
+{
+	if (!m_pNormal2Parallelizer)
+		return 0;
+
+	if (m_pNormal2Parallelizer->GetJobsTotal() == 0)
+		return 0;
+
+	return (float)(m_pNormal2Parallelizer->GetJobsTotal()-m_pNormal2Parallelizer->GetJobsRemaining()) / (float)m_pNormal2Parallelizer->GetJobsTotal();
 }
 
 size_t CNormalGenerator::GetNormalMap2()

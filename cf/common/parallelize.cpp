@@ -47,9 +47,6 @@ void CParallelizeThread::Process()
 		m_pParallelizer->DispatchJob(pJobData);
 
 		free(pJobData);
-
-		// Give the main thread a chance to render and whatnot.
-		SleepMS(1);
 	}
 }
 
@@ -125,7 +122,11 @@ bool CParallelizer::AreAllJobsDone()
 	for (size_t t = 0; t < m_aThreads.size(); t++)
 	{
 		if (!m_aThreads[t].m_bDone)
+		{
+			// Give the job a chance to finish.
+			SleepMS(1);
 			return false;
+		}
 	}
 	return true;
 }
