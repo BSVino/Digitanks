@@ -17,6 +17,16 @@ public:
 	bool							m_bDone;
 };
 
+class CParallelizeJob
+{
+public:
+									CParallelizeJob() : m_pJobData(NULL), m_bExecuted(false) {};
+
+public:
+	void*							m_pJobData;
+	bool							m_bExecuted;
+};
+
 typedef void (*JobCallback)(void*);
 
 class CParallelizer
@@ -39,15 +49,18 @@ public:
 	void							UnlockData();
 
 	size_t							GetJobsTotal() { return m_iJobsGiven; };
-	size_t							GetJobsRemaining() { return m_lpJobs.size(); };
+	size_t							GetJobsDone() { return m_iJobsDone; };
 
 private:
 	void							DispatchJob(void* pJobData);
 
 	std::vector<CParallelizeThread>	m_aThreads;
-	std::list<void*>				m_lpJobs;
+	std::vector<CParallelizeJob>	m_aJobs;
+	size_t							m_iLastExecuted;
+	size_t							m_iLastAssigned;
 	pthread_mutex_t					m_iJobsMutex;
 	size_t							m_iJobsGiven;
+	size_t							m_iJobsDone;
 	pthread_mutex_t					m_iDataMutex;
 
 	bool							m_bStopped;

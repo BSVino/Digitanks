@@ -135,6 +135,9 @@ void* CMemPool::Alloc(size_t iSize)
 
 void CMemPool::Free(void* p)
 {
+	if (!p)
+		return;
+
 	bool bFound = false;
 	for (size_t i = 0; i < s_apMemPools.size(); i++)
 	{

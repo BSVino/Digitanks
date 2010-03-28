@@ -203,7 +203,7 @@ void CAOGenerator::RaytraceJoinThreads()
 			return;
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(m_pRaytraceParallelizer->GetJobsTotal() - m_pRaytraceParallelizer->GetJobsRemaining());
+			m_pWorkListener->WorkProgress(m_pRaytraceParallelizer->GetJobsDone());
 
 		if (m_bStopGenerating)
 		{

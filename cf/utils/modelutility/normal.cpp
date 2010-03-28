@@ -848,7 +848,7 @@ float CNormalGenerator::GetNormal2GenerationProgress()
 	if (m_pNormal2Parallelizer->GetJobsTotal() == 0)
 		return 0;
 
-	return (float)(m_pNormal2Parallelizer->GetJobsTotal()-m_pNormal2Parallelizer->GetJobsRemaining()) / (float)m_pNormal2Parallelizer->GetJobsTotal();
+	return (float)m_pNormal2Parallelizer->GetJobsDone() / (float)m_pNormal2Parallelizer->GetJobsTotal();
 }
 
 size_t CNormalGenerator::GetNormalMap2()
