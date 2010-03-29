@@ -39,6 +39,8 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 
 	m_iNormal2GLId = 0;
 	m_aflTextureTexels = NULL;
+	m_aflLowPassTexels = NULL;
+	m_abLowPassMask = NULL;
 	m_aflNormal2Texels = NULL;
 	m_bNewNormal2Available = false;
 
@@ -60,6 +62,8 @@ CNormalGenerator::~CNormalGenerator()
 	if (m_aflNormal2Texels)
 	{
 		delete[] m_aflTextureTexels;
+		delete[] m_aflLowPassTexels;
+		delete[] m_abLowPassMask;
 		delete[] m_aflNormal2Texels;
 	}
 }
@@ -606,7 +610,7 @@ void CNormalGenerator::SaveToFile(const wchar_t *pszFilename)
 	ilDeleteImages(1,&iDevILId);
 }
 
-bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool bUseMask)
+bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool* abMask)
 {
 	if (w < 0 || h < 0 || w >= tw || h >= th)
 		return false;
@@ -615,7 +619,7 @@ bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size
 
 	assert(iTexel >= 0 && iTexel < tw * th);
 
-	if (bUseMask && !m_bPixelMask[iTexel])
+	if (abMask && !abMask[iTexel])
 		return false;
 
 	return true;
@@ -623,7 +627,7 @@ bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size
 
 bool CNormalGenerator::Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask)
 {
-	return Texel(w, h, iTexel, m_iWidth, m_iHeight, bUseMask);
+	return Texel(w, h, iTexel, m_iWidth, m_iHeight, bUseMask?m_bPixelMask:NULL);
 }
 
 typedef struct
@@ -631,58 +635,60 @@ typedef struct
 	CNormalGenerator*	pGenerator;
 	size_t				x;
 	size_t				y;
-	size_t				w;
-	size_t				h;
-	const float*		aflTexture;
-	float*				aflNormals;
 } normal2_data_t;
 
 void NormalizeHeightValue(void* pVoidData)
 {
 	normal2_data_t* pJobData = (normal2_data_t*)pVoidData;
 
-	pJobData->pGenerator->NormalizeHeightValue(pJobData->x, pJobData->y, pJobData->w, pJobData->h, pJobData->aflTexture, pJobData->aflNormals);
+	pJobData->pGenerator->NormalizeHeightValue(pJobData->x, pJobData->y);
 }
 
-void CNormalGenerator::NormalizeHeightValue(size_t x, size_t y, size_t w, size_t h, const float* aflTexture, float* aflNormals)
+void CNormalGenerator::NormalizeHeightValue(size_t x, size_t y)
 {
-	float flScale = ((w+h)/2.0f)/100.0f * m_flNormalTextureDepth;
+	float flHiScale = ((m_iNormal2Width+m_iNormal2Height)/2.0f)/100.0f;
+	float flLoScale = ((m_iNormal2Width+m_iNormal2Height)/2.0f)/25.0f;
 
 	size_t iTexel;
-	Texel(x, y, iTexel, w, h, false);
+	Texel(x, y, iTexel, m_iNormal2Width, m_iNormal2Height, false);
 
 	std::vector<Vector> avecHeights;
 
-	float flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-	Vector vecCenter((float)x, (float)y, flHeight*flScale);
+	float flHeight = (m_aflTextureTexels[iTexel*3]+m_aflTextureTexels[iTexel*3+1]+m_aflTextureTexels[iTexel*3+2])/3 * flHiScale;
+	float flLoPass = GetLowPassValue(x, y) * flLoScale;
 
+	Vector vecCenter((float)x, (float)y, flHeight*m_flNormalTextureHiDepth+flLoPass*m_flNormalTextureLoDepth);
 	Vector vecNormal(0,0,0);
 
-	if (Texel(x+1, y, iTexel, w, h, false))
+	if (Texel(x+1, y, iTexel, m_iNormal2Width, m_iNormal2Height, false))
 	{
-		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-		Vector vecNeighbor(x+1.0f, (float)y, flHeight*flScale);
+		flHeight = (m_aflTextureTexels[iTexel*3]+m_aflTextureTexels[iTexel*3+1]+m_aflTextureTexels[iTexel*3+2])/3 * flHiScale;
+		flLoPass = GetLowPassValue(x+1, y) * flLoScale;
+		Vector vecNeighbor(x+1.0f, (float)y, flHeight*m_flNormalTextureHiDepth+flLoPass*m_flNormalTextureLoDepth);
 		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, 1, 0));
 	}
 
-	if (Texel(x-1, y, iTexel, w, h, false))
+	if (Texel(x-1, y, iTexel, m_iNormal2Width, m_iNormal2Height, false))
 	{
-		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-		Vector vecNeighbor(x-1.0f, (float)y, flHeight*flScale);
+		flHeight = (m_aflTextureTexels[iTexel*3]+m_aflTextureTexels[iTexel*3+1]+m_aflTextureTexels[iTexel*3+2])/3 * flHiScale;
+		flLoPass = GetLowPassValue(x-1, y) * flLoScale;
+		Vector vecNeighbor(x-1.0f, (float)y, flHeight*m_flNormalTextureHiDepth+flLoPass*m_flNormalTextureLoDepth);
 		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(0, -1, 0));
 	}
 
-	if (Texel(x, y+1, iTexel, w, h, false))
+	if (Texel(x, y+1, iTexel, m_iNormal2Width, m_iNormal2Height, false))
 	{
-		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-		Vector vecNeighbor((float)x, y+1.0f, flHeight*flScale);
+		flHeight = (m_aflTextureTexels[iTexel*3]+m_aflTextureTexels[iTexel*3+1]+m_aflTextureTexels[iTexel*3+2])/3 * flHiScale;
+		flLoPass = GetLowPassValue(x, y+1) * flLoScale;
+		Vector vecNeighbor((float)x, y+1.0f, flHeight*m_flNormalTextureHiDepth+flLoPass*m_flNormalTextureLoDepth);
 		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(-1, 0, 0));
 	}
 
-	if (Texel(x, y-1, iTexel, w, h, false))
+	if (Texel(x, y-1, iTexel, m_iNormal2Width, m_iNormal2Height, false))
 	{
-		flHeight = (aflTexture[iTexel*3]+aflTexture[iTexel*3+1]+aflTexture[iTexel*3+2])/3;
-		Vector vecNeighbor((float)x, y-1.0f, flHeight*flScale);
+		flHeight = (m_aflTextureTexels[iTexel*3]+m_aflTextureTexels[iTexel*3+1]+m_aflTextureTexels[iTexel*3+2])/3 * flHiScale;
+		flLoPass = GetLowPassValue(x, y-1) * flLoScale;
+		Vector vecNeighbor((float)x, y-1.0f, flHeight*m_flNormalTextureHiDepth+flLoPass*m_flNormalTextureLoDepth);
 		vecNormal += (vecNeighbor-vecCenter).Normalized().Cross(Vector(1, 0, 0));
 	}
 
@@ -692,9 +698,77 @@ void CNormalGenerator::NormalizeHeightValue(size_t x, size_t y, size_t w, size_t
 		vecNormal[i] = RemapVal(vecNormal[i], -1.0f, 1.0f, 0.0f, 0.99f);	// Don't use 1.0 because of integer overflow.
 
 	// Don't need to lock the data because we're guaranteed never to access the same texel twice due to the generation method.
-	aflNormals[iTexel*3] = vecNormal.x;
-	aflNormals[iTexel*3+1] = vecNormal.y;
-	aflNormals[iTexel*3+2] = vecNormal.z;
+	m_aflNormal2Texels[iTexel*3] = vecNormal.x;
+	m_aflNormal2Texels[iTexel*3+1] = vecNormal.y;
+	m_aflNormal2Texels[iTexel*3+2] = vecNormal.z;
+}
+
+float CNormalGenerator::GetLowPassValue(size_t x, size_t y)
+{
+	if (x < 0)
+		x = 0;
+
+	if (y < 0)
+		y = 0;
+
+	if (x >= m_iNormal2Width)
+		x = m_iNormal2Width-1;
+
+	if (y >= m_iNormal2Height)
+		y = m_iNormal2Height-1;
+
+	size_t iTexel;
+	Texel(x, y, iTexel, m_iNormal2Width, m_iNormal2Height);
+
+	bool bGenerate = false;
+
+	m_pNormal2Parallelizer->LockData();
+	if (!m_abLowPassMask[iTexel])
+		bGenerate = true;
+	m_pNormal2Parallelizer->UnlockData();
+
+	if (bGenerate)
+	{
+		// Generate the low pass value from a fast gaussian filter.
+
+		const float flWeightTable[11][11] = {
+			{ 0.004f, 0.004f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.004f, 0.004f },
+			{ 0.004f, 0.005f, 0.005f, 0.006f, 0.007f, 0.007f, 0.007f, 0.006f, 0.005f, 0.005f, 0.004f },
+			{ 0.005f, 0.005f, 0.006f, 0.008f, 0.009f, 0.009f, 0.009f, 0.008f, 0.006f, 0.005f, 0.005f },
+			{ 0.005f, 0.006f, 0.008f, 0.010f, 0.012f, 0.014f, 0.012f, 0.010f, 0.008f, 0.006f, 0.005f },
+			{ 0.005f, 0.007f, 0.009f, 0.012f, 0.019f, 0.027f, 0.019f, 0.012f, 0.009f, 0.007f, 0.005f },
+			{ 0.005f, 0.007f, 0.009f, 0.014f, 0.027f, 0.054f, 0.027f, 0.014f, 0.009f, 0.007f, 0.005f },
+			{ 0.005f, 0.007f, 0.009f, 0.012f, 0.019f, 0.027f, 0.019f, 0.012f, 0.009f, 0.007f, 0.005f },
+			{ 0.005f, 0.006f, 0.008f, 0.010f, 0.012f, 0.014f, 0.012f, 0.010f, 0.008f, 0.006f, 0.005f },
+			{ 0.005f, 0.005f, 0.006f, 0.008f, 0.009f, 0.009f, 0.009f, 0.008f, 0.006f, 0.005f, 0.005f },
+			{ 0.004f, 0.005f, 0.005f, 0.006f, 0.007f, 0.007f, 0.007f, 0.006f, 0.005f, 0.005f, 0.004f },
+			{ 0.004f, 0.004f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.004f, 0.004f },
+		};
+
+		float flHeight = 0;
+		float flTotalHeight = 0;
+
+		for (int i = -5; i <= 5; i++)
+		{
+			for (int j = -5; j <= 5; j++)
+			{
+				size_t iTexel2;
+				// *2 is my sneaky hack to make it a radius 10 distribution.
+				if (Texel(x+i*2, y+j*2, iTexel2, m_iNormal2Width, m_iNormal2Height))
+				{
+					flHeight += (m_aflTextureTexels[iTexel2*3]+m_aflTextureTexels[iTexel2*3+1]+m_aflTextureTexels[iTexel2*3+2])/3 * flWeightTable[i+5][j+5];
+					flTotalHeight += flWeightTable[i+5][j+5];
+				}
+			}
+		}
+
+		m_pNormal2Parallelizer->LockData();
+		m_aflLowPassTexels[iTexel] = flHeight/flTotalHeight;
+		m_abLowPassMask[iTexel] = true;
+		m_pNormal2Parallelizer->UnlockData();
+	}
+
+	return m_aflLowPassTexels[iTexel];
 }
 
 void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
@@ -717,6 +791,8 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 		if (m_aflNormal2Texels)
 		{
 			delete[] m_aflTextureTexels;
+			delete[] m_aflLowPassTexels;
+			delete[] m_abLowPassMask;
 			delete[] m_aflNormal2Texels;
 		}
 		m_aflTextureTexels = NULL;
@@ -761,8 +837,16 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 			m_iNormal2Width = iWidth;
 			m_iNormal2Height = iHeight;
 
+			if (!m_aflLowPassTexels)
+				m_aflLowPassTexels = new float[iWidth*iHeight];
+			if (!m_abLowPassMask)
+				m_abLowPassMask = new bool[iWidth*iHeight];
+
+			memset(m_abLowPassMask, 0, sizeof(bool)*iWidth*iHeight);
+
 			if (!m_aflNormal2Texels)
 				m_aflNormal2Texels = new float[iWidth*iHeight*3];
+
 			NormalizeHeightValues(iWidth, iHeight, m_aflTextureTexels, m_aflNormal2Texels);
 
 			break;
@@ -794,10 +878,6 @@ void CNormalGenerator::NormalizeHeightValues(size_t w, size_t h, const float* af
 {
 	normal2_data_t oJob;
 	oJob.pGenerator = this;
-	oJob.w = w;
-	oJob.h = h;
-	oJob.aflTexture = aflTexture;
-	oJob.aflNormals = aflNormals;
 
 	for (size_t x = 0; x < w; x++)
 	{

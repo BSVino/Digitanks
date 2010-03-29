@@ -135,15 +135,17 @@ public:
 	void					SaveToFile(const wchar_t* pszFilename);
 
 	bool					Texel(size_t w, size_t h, size_t& iTexel, bool bUseMask = true);
-	bool					Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool bUseMask = true);
+	bool					Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool* abMask = NULL);
 
 	bool					IsGenerating() { return m_bIsGenerating; }
 	bool					DoneGenerating() { return m_bDoneGenerating; }
 	void					StopGenerating() { m_bStopGenerating = true; }
 	bool					IsStopped() { return m_bStopGenerating; }
 
-	void					NormalizeHeightValue(size_t x, size_t y, size_t w, size_t h, const float* aflTexture, float* aflNormals);
-	void					SetNormalTextureDepth(float flDepth) { m_flNormalTextureDepth = flDepth; };
+	void					NormalizeHeightValue(size_t x, size_t y);
+	float					GetLowPassValue(size_t x, size_t y);
+	void					SetNormalTextureHiDepth(float flDepth) { m_flNormalTextureHiDepth = flDepth; };
+	void					SetNormalTextureLoDepth(float flDepth) { m_flNormalTextureLoDepth = flDepth; };
 	void					SetNormalTexture(bool bNormalTexture);
 	void					RegenerateNormal2Texture();
 	void					NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals);
@@ -174,11 +176,14 @@ protected:
 	bool					m_bDoneGenerating;
 	bool					m_bStopGenerating;
 
-	float					m_flNormalTextureDepth;
+	float					m_flNormalTextureHiDepth;
+	float					m_flNormalTextureLoDepth;
 	size_t					m_iNormal2GLId;
 	size_t					m_iNormal2Width;
 	size_t					m_iNormal2Height;
 	float*					m_aflTextureTexels;
+	float*					m_aflLowPassTexels;
+	bool*					m_abLowPassMask;
 	float*					m_aflNormal2Texels;
 	bool					m_bNewNormal2Available;
 
