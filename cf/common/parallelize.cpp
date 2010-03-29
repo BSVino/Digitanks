@@ -14,11 +14,17 @@ void CParallelizeThread::Process()
 {
 	while (true)
 	{
-		if (m_pParallelizer->m_bStopped)
+		if (m_pParallelizer->m_bShuttingDown)
 		{
 			m_bDone = true;
 			pthread_exit(NULL);
 			return;
+		}
+
+		if (m_pParallelizer->m_bStopped)
+		{
+			SleepMS(100);
+			continue;
 		}
 
 		pthread_mutex_lock(&m_pParallelizer->m_iJobsMutex);
@@ -26,9 +32,10 @@ void CParallelizeThread::Process()
 		{
 			pthread_mutex_unlock(&m_pParallelizer->m_iJobsMutex);
 
+			m_bDone = true;
+
 			if (m_bQuitWhenDone)
 			{
-				m_bDone = true;
 				pthread_exit(NULL);
 				return;
 			}
@@ -39,13 +46,15 @@ void CParallelizeThread::Process()
 				continue;
 			}
 		}
+		else
+			m_bDone = false;
 
 		for (size_t i = m_pParallelizer->m_iLastExecuted; i < m_pParallelizer->m_aJobs.size(); i++)
 		{
 			if (!m_pParallelizer->m_aJobs[i].m_pJobData)
 				continue;
 
-			if (m_pParallelizer->m_aJobs[i].m_bExecuted)
+			if (m_pParallelizer->m_aJobs[i].m_iExecuted >= m_pParallelizer->m_iExecutions)
 				continue;
 
 			if (i > m_pParallelizer->m_iLastAssigned)
@@ -59,7 +68,7 @@ void CParallelizeThread::Process()
 			continue;
 
 		CParallelizeJob* pJob = &m_pParallelizer->m_aJobs[m_pParallelizer->m_iLastExecuted];
-		pJob->m_bExecuted = true;
+		pJob->m_iExecuted = m_pParallelizer->m_iExecutions;
 
 		m_pParallelizer->m_iJobsDone++;
 
@@ -91,13 +100,16 @@ CParallelizer::CParallelizer(JobCallback pfnCallback)
 		pthread_create(&pThread->m_iThread, NULL, (void *(*) (void *))&ThreadMain, (void*)pThread);
 	}
 
-	m_bStopped = false;
+	m_bStopped = true;
+	m_bShuttingDown = false;
 
 	m_pfnCallback = pfnCallback;
 
 	m_iLastAssigned = -1;
 	m_iLastExecuted = 0;
 	m_aJobs.resize(100);
+
+	m_iExecutions = 1;
 }
 
 CParallelizer::~CParallelizer()
@@ -134,7 +146,7 @@ void CParallelizer::AddJob(void* pJobData, size_t iSize)
 		m_aJobs.resize(m_aJobs.size()*2);
 
 	m_aJobs[i].m_pJobData = mempool_alloc(iSize);
-	m_aJobs[i].m_bExecuted = false;
+	m_aJobs[i].m_iExecuted = 0;
 	m_iLastAssigned = i;
 
 	memcpy(m_aJobs[i].m_pJobData, pJobData, iSize);
@@ -162,6 +174,19 @@ bool CParallelizer::AreAllJobsDone()
 		}
 	}
 	return true;
+}
+
+void CParallelizer::RestartJobs()
+{
+	pthread_mutex_lock(&m_iJobsMutex);
+
+	m_iLastExecuted = 0;
+	m_iExecutions++;
+	m_iJobsDone = 0;
+
+	pthread_mutex_unlock(&m_iJobsMutex);
+
+	Start();
 }
 
 void CParallelizer::LockData()

@@ -20,11 +20,11 @@ public:
 class CParallelizeJob
 {
 public:
-									CParallelizeJob() : m_pJobData(NULL), m_bExecuted(false) {};
+									CParallelizeJob() : m_pJobData(NULL), m_iExecuted(0) {};
 
 public:
 	void*							m_pJobData;
-	bool							m_bExecuted;
+	size_t							m_iExecuted;
 };
 
 typedef void (*JobCallback)(void*);
@@ -43,13 +43,15 @@ public:
 	void							FinishJobs();
 	bool							AreAllJobsDone();
 
+	void							Start() { m_bStopped = false; };
 	void							Stop() { m_bStopped = true; };
+	void							RestartJobs();
 
 	void							LockData();
 	void							UnlockData();
 
 	size_t							GetJobsTotal() { return m_iJobsGiven; };
-	size_t							GetJobsDone() { return m_iJobsDone; };
+	size_t							GetJobsDone() { return m_iJobsDone; };	// GetJobsDone: What I like to say
 
 private:
 	void							DispatchJob(void* pJobData);
@@ -60,10 +62,12 @@ private:
 	size_t							m_iLastAssigned;
 	pthread_mutex_t					m_iJobsMutex;
 	size_t							m_iJobsGiven;
-	size_t							m_iJobsDone;
+	size_t							m_iJobsDone;	// JobsDone: What I like to hear
 	pthread_mutex_t					m_iDataMutex;
+	size_t							m_iExecutions;
 
 	bool							m_bStopped;
+	bool							m_bShuttingDown;
 
 	JobCallback						m_pfnCallback;
 };

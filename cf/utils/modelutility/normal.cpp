@@ -725,7 +725,10 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 	}
 
 	if (m_pNormal2Parallelizer)
-		delete m_pNormal2Parallelizer;
+	{
+		m_pNormal2Parallelizer->RestartJobs();
+		return;
+	}
 
 	m_pNormal2Parallelizer = new CParallelizer((JobCallback)::NormalizeHeightValue);
 
@@ -761,8 +764,6 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 			if (!m_aflNormal2Texels)
 				m_aflNormal2Texels = new float[iWidth*iHeight*3];
 			NormalizeHeightValues(iWidth, iHeight, m_aflTextureTexels, m_aflNormal2Texels);
-
-			m_pNormal2Parallelizer->FinishJobs();
 
 			break;
 		}
@@ -808,7 +809,7 @@ void CNormalGenerator::NormalizeHeightValues(size_t w, size_t h, const float* af
 		}
 	}
 
-	m_pNormal2Parallelizer->FinishJobs();
+	m_pNormal2Parallelizer->Start();
 }
 
 bool CNormalGenerator::IsNewNormal2Available()
@@ -820,9 +821,6 @@ bool CNormalGenerator::IsNewNormal2Available()
 			RegenerateNormal2Texture();
 
 			m_bNewNormal2Available = true;
-
-			delete m_pNormal2Parallelizer;
-			m_pNormal2Parallelizer = NULL;
 		}
 	}
 

@@ -154,6 +154,7 @@ void CAOGenerator::RaytraceSetupThreads()
 	RaytraceCleanupThreads();
 
 	m_pRaytraceParallelizer = new CParallelizer((JobCallback)::RaytraceSceneFromPosition);
+	m_pRaytraceParallelizer->Start();
 }
 
 void CAOGenerator::RaytraceCleanupThreads()
