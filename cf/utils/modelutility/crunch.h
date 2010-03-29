@@ -143,6 +143,7 @@ public:
 	bool					IsStopped() { return m_bStopGenerating; }
 
 	void					NormalizeHeightValue(size_t x, size_t y, size_t w, size_t h, const float* aflTexture, float* aflNormals);
+	void					SetNormalTextureDepth(float flDepth) { m_flNormalTextureDepth = flDepth; };
 	void					SetNormalTexture(bool bNormalTexture);
 	void					RegenerateNormal2Texture();
 	void					NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals);
@@ -173,6 +174,7 @@ protected:
 	bool					m_bDoneGenerating;
 	bool					m_bStopGenerating;
 
+	float					m_flNormalTextureDepth;
 	size_t					m_iNormal2GLId;
 	size_t					m_iNormal2Width;
 	size_t					m_iNormal2Height;

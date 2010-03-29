@@ -1198,6 +1198,34 @@ CNormalPanel::CNormalPanel(CConversionScene* pScene, std::vector<CMaterial>* pao
 	m_pTextureLabel = new CLabel(0, 0, 100, 100, "Use texture");
 	AddControl(m_pTextureLabel);
 
+	m_pDepthLabel = new CLabel(0, 0, 32, 32, "Texture Depth");
+	AddControl(m_pDepthLabel);
+
+	m_pDepthSelector = new CScrollSelector<float>();
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.2f, L"20%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.3f, L"30%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.4f, L"40%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.5f, L"50%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.6f, L"60%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.7f, L"70%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.8f, L"80%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(0.9f, L"90%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.0f, L"100%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.1f, L"110%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.2f, L"120%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.3f, L"130%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.4f, L"140%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.5f, L"150%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.6f, L"160%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.7f, L"170%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.8f, L"180%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(1.9f, L"190%"));
+	m_pDepthSelector->AddSelection(CScrollSelection<float>(2.0f, L"200%"));
+	m_pDepthSelector->SetSelection(9);
+	m_pDepthSelector->SetSelectedListener(this, UpdateNormal2);
+	AddControl(m_pDepthSelector);
+
 	m_pGenerate = new CButton(0, 0, 100, 100, "Generate");
 	m_pGenerate->SetClickedListener(this, Generate);
 	AddControl(m_pGenerate);
@@ -1257,6 +1285,13 @@ void CNormalPanel::Layout()
 	m_pTextureLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pTextureLabel->SetWrap(false);
 	m_pTextureCheckBox->SetPos(20, 220 + m_pTextureLabel->GetHeight()/2 - m_pTextureCheckBox->GetHeight()/2);
+
+	m_pDepthLabel->SetPos(10, 280);
+	m_pDepthLabel->EnsureTextFits();
+	m_pDepthLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pDepthLabel->SetWrap(false);
+	m_pDepthSelector->SetPos(m_pDepthLabel->GetRight() + 10, 280 + m_pDepthLabel->GetHeight()/2 - m_pDepthSelector->GetHeight()/2);
+	m_pDepthSelector->SetRight(GetWidth() - 10);
 
 	m_pSave->SetSize(100, 33);
 	m_pSave->SetPos(GetWidth() - m_pSave->GetWidth() - (int)(m_pSave->GetHeight()*0.5f), GetHeight() - (int)(m_pSave->GetHeight()*1.5f));
@@ -1590,6 +1625,7 @@ void CNormalPanel::RemoveHiResCallback()
 
 void CNormalPanel::UpdateNormal2Callback()
 {
+	m_oGenerator.SetNormalTextureDepth(m_pDepthSelector->GetSelectionValue());
 	m_oGenerator.SetNormalTexture(m_pTextureCheckBox->GetState());
 
 	size_t iNormal = 0;

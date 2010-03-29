@@ -646,7 +646,7 @@ void NormalizeHeightValue(void* pVoidData)
 
 void CNormalGenerator::NormalizeHeightValue(size_t x, size_t y, size_t w, size_t h, const float* aflTexture, float* aflNormals)
 {
-	float flScale = ((w+h)/2.0f)/100.0f;
+	float flScale = ((w+h)/2.0f)/100.0f * m_flNormalTextureDepth;
 
 	size_t iTexel;
 	Texel(x, y, iTexel, w, h, false);

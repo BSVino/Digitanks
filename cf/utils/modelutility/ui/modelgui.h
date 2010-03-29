@@ -192,6 +192,10 @@ namespace modelgui
 		virtual int		GetAlpha() { return m_iAlpha; };
 		virtual void	SetRight(int r);
 		virtual void	SetBottom(int b);
+		virtual int		GetLeft() { return m_iX; };
+		virtual int		GetTop() { return m_iY; };
+		virtual int		GetRight() { return m_iX + m_iW; };
+		virtual int		GetBottom() { return m_iY + m_iH; };
 
 		virtual void	SetVisible(bool bVis) { m_bVisible = bVis; };
 		virtual bool	IsVisible();

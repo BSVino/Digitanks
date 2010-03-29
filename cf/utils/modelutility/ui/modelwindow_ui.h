@@ -252,6 +252,9 @@ protected:
 	CLabel*						m_pTextureLabel;
 	CCheckBox*					m_pTextureCheckBox;
 
+	CScrollSelector<float>*		m_pDepthSelector;
+	CLabel*						m_pDepthLabel;
+
 	CButton*					m_pGenerate;
 	CButton*					m_pSave;
 
