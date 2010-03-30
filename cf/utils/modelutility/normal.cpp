@@ -26,7 +26,6 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 
 	m_avecNormalValues = NULL;
 	m_avecNormalGeneratedValues = NULL;
-	m_avecMergedNormalValues = NULL;
 	m_bPixelMask = NULL;
 
 	SetSize(512, 512);
@@ -52,9 +51,6 @@ CNormalGenerator::~CNormalGenerator()
 	free(m_bPixelMask);
 	delete[] m_avecNormalValues;
 	delete[] m_avecNormalGeneratedValues;
-
-	if (m_avecMergedNormalValues)
-		delete[] m_avecMergedNormalValues;
 
 	if (m_iNormal2GLId)
 		glDeleteTextures(1, &m_iNormal2GLId);
@@ -492,80 +488,6 @@ size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 		avecNormalValues = m_avecNormalGeneratedValues;
 		TexturizeValues(avecNormalValues);
 	}
-	else
-	{
-		if (m_aflNormal2Texels)
-		{
-			size_t iTotalWidth = m_iWidth > m_iNormal2Width ? m_iWidth : m_iNormal2Width;
-			size_t iTotalHeight = m_iHeight > m_iNormal2Height ? m_iHeight : m_iNormal2Height;
-
-			Vector* avecResizedNormals = new Vector[iTotalWidth*iTotalHeight];
-			Vector* avecResizedNormals2 = new Vector[iTotalWidth*iTotalHeight];
-
-			ILuint iNormalId;
-			ilGenImages(1, &iNormalId);
-			ilBindImage(iNormalId);
-			ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, &avecNormalValues[0].x);
-			iluImageParameter(ILU_FILTER, ILU_BILINEAR);
-			iluScale((ILint)iTotalWidth, (ILint)iTotalHeight, 1);
-			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals[0].x);
-			ilDeleteImage(iNormalId);
-
-			ILuint iNormal2Id;
-			ilGenImages(1, &iNormal2Id);
-			ilBindImage(iNormal2Id);
-			ilTexImage((ILint)m_iNormal2Width, (ILint)m_iNormal2Height, 1, 3, IL_RGB, IL_FLOAT, &m_aflNormal2Texels[0]);
-			iluImageParameter(ILU_FILTER, ILU_BILINEAR);
-			iluScale((ILint)iTotalWidth, (ILint)iTotalHeight, 1);
-			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals2[0].x);
-			ilDeleteImage(iNormal2Id);
-
-			if (m_avecMergedNormalValues)
-				delete[] m_avecMergedNormalValues;
-
-			m_avecMergedNormalValues = new Vector[iTotalWidth*iTotalHeight];
-
-			for (size_t i = 0; i < iTotalWidth; i++)
-			{
-				for (size_t j = 0; j < iTotalHeight; j++)
-				{
-					size_t iTexel;
-					Texel(i, j, iTexel, iTotalWidth, iTotalHeight, false);
-					Vector vecNormal = (avecResizedNormals[iTexel]*2 - Vector(1.0f, 1.0f, 1.0f));
-					Vector vecNormal2 = (avecResizedNormals2[iTexel]*2 - Vector(1.0f, 1.0f, 1.0f));
-
-					Vector vecBitangent = vecNormal.Cross(Vector(1, 0, 0)).Normalized();
-					Vector vecTangent = vecBitangent.Cross(vecNormal).Normalized();
-
-					Matrix4x4 mTBN;
-					mTBN.SetColumn(0, vecTangent);
-					mTBN.SetColumn(1, vecBitangent);
-					mTBN.SetColumn(2, vecNormal);
-
-					m_avecMergedNormalValues[iTexel] = (mTBN * vecNormal2)*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
-				}
-			}
-
-			delete[] avecResizedNormals;
-			delete[] avecResizedNormals2;
-
-			if (m_iNormal2GLId)
-			{
-				glDeleteTextures(1, &m_iNormal2GLId);
-				m_iNormal2GLId = 0;
-			}
-			m_bNewNormal2Available = true;
-
-			GLuint iGLId;
-			glGenTextures(1, &iGLId);
-			glBindTexture(GL_TEXTURE_2D, iGLId);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			gluBuild2DMipmaps(GL_TEXTURE_2D, 3, (GLint)iTotalWidth, (GLint)iTotalHeight, GL_RGB, GL_FLOAT, &m_avecMergedNormalValues[0].x);
-
-			return iGLId;
-		}
-	}
 
 	GLuint iGLId;
 	glGenTextures(1, &iGLId);
@@ -588,12 +510,66 @@ void CNormalGenerator::SaveToFile(const wchar_t *pszFilename)
 	ilGenImages(1, &iDevILId);
 	ilBindImage(iDevILId);
 
-	if (m_avecMergedNormalValues)
+	if (m_aflNormal2Texels)
 	{
-		size_t w, h;
-		w = m_iNormal2Width > m_iWidth ? m_iNormal2Width : m_iWidth;
-		h = m_iNormal2Height > m_iHeight ? m_iNormal2Height : m_iHeight;
-		ilTexImage((ILint)w, (ILint)h, 1, 3, IL_RGB, IL_FLOAT, &m_avecMergedNormalValues[0].x);
+		if (DoneGenerating())
+		{
+			size_t iTotalWidth = m_iWidth > m_iNormal2Width ? m_iWidth : m_iNormal2Width;
+			size_t iTotalHeight = m_iHeight > m_iNormal2Height ? m_iHeight : m_iNormal2Height;
+
+			Vector* avecResizedNormals = new Vector[iTotalWidth*iTotalHeight];
+			Vector* avecResizedNormals2 = new Vector[iTotalWidth*iTotalHeight];
+
+			ILuint iNormalId;
+			ilGenImages(1, &iNormalId);
+			ilBindImage(iNormalId);
+			ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, &m_avecNormalValues[0].x);
+			iluImageParameter(ILU_FILTER, ILU_BILINEAR);
+			iluScale((ILint)iTotalWidth, (ILint)iTotalHeight, 1);
+			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals[0].x);
+			ilDeleteImage(iNormalId);
+
+			ILuint iNormal2Id;
+			ilGenImages(1, &iNormal2Id);
+			ilBindImage(iNormal2Id);
+			ilTexImage((ILint)m_iNormal2Width, (ILint)m_iNormal2Height, 1, 3, IL_RGB, IL_FLOAT, &m_aflNormal2Texels[0]);
+			iluImageParameter(ILU_FILTER, ILU_BILINEAR);
+			iluScale((ILint)iTotalWidth, (ILint)iTotalHeight, 1);
+			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals2[0].x);
+			ilDeleteImage(iNormal2Id);
+
+			Vector* avecMergedNormalValues = new Vector[iTotalWidth*iTotalHeight];
+
+			for (size_t i = 0; i < iTotalWidth; i++)
+			{
+				for (size_t j = 0; j < iTotalHeight; j++)
+				{
+					size_t iTexel;
+					Texel(i, j, iTexel, iTotalWidth, iTotalHeight, false);
+					Vector vecNormal = (avecResizedNormals[iTexel]*2 - Vector(1.0f, 1.0f, 1.0f));
+					Vector vecNormal2 = (avecResizedNormals2[iTexel]*2 - Vector(1.0f, 1.0f, 1.0f));
+
+					Vector vecBitangent = vecNormal.Cross(Vector(1, 0, 0)).Normalized();
+					Vector vecTangent = vecBitangent.Cross(vecNormal).Normalized();
+
+					Matrix4x4 mTBN;
+					mTBN.SetColumn(0, vecTangent);
+					mTBN.SetColumn(1, vecBitangent);
+					mTBN.SetColumn(2, vecNormal);
+
+					avecMergedNormalValues[iTexel] = (mTBN * vecNormal2)*0.99f/2 + Vector(0.5f, 0.5f, 0.5f);
+				}
+			}
+
+			delete[] avecResizedNormals;
+			delete[] avecResizedNormals2;
+
+			ilTexImage((ILint)iTotalWidth, (ILint)iTotalHeight, 1, 3, IL_RGB, IL_FLOAT, &avecMergedNormalValues[0].x);
+
+			delete[] avecMergedNormalValues;
+		}
+		else
+			ilTexImage((ILint)m_iNormal2Width, (ILint)m_iNormal2Height, 1, 3, IL_RGB, IL_FLOAT, &m_aflNormal2Texels[0]);
 	}
 	else
 		ilTexImage((ILint)m_iWidth, (ILint)m_iHeight, 1, 3, IL_RGB, IL_FLOAT, &m_avecNormalValues[0].x);
@@ -793,6 +769,12 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 
 	if (!bNormalTexture)
 	{
+		if (m_pNormal2Parallelizer)
+		{
+			delete m_pNormal2Parallelizer;
+			m_pNormal2Parallelizer = NULL;
+		}
+
 		if (m_aflNormal2Texels)
 		{
 			delete[] m_aflTextureTexels;
@@ -804,6 +786,8 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 		m_aflLowPassTexels = NULL;
 		m_abLowPassMask = NULL;
 		m_aflNormal2Texels = NULL;
+
+		m_bNewNormal2Available = true;
 		return;
 	}
 

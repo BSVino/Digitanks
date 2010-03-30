@@ -504,6 +504,10 @@ void CMaterialEditor::ChooseNormalCallback()
 	pMaterial->m_iNormal = iTexture;
 	m_pMaterial->m_sNormalTexture = pszOpen;
 
+	if (pMaterial->m_iNormal2)
+		glDeleteTextures(1, &pMaterial->m_iNormal2);
+	pMaterial->m_iNormal2 = 0;
+
 	Layout();
 }
 
@@ -529,6 +533,10 @@ void CMaterialEditor::RemoveNormalCallback()
 
 	pMaterial->m_iNormal = 0;
 	m_pMaterial->m_sNormalTexture = L"";
+
+	if (pMaterial->m_iNormal2)
+		glDeleteTextures(1, &pMaterial->m_iNormal2);
+	pMaterial->m_iNormal2 = 0;
 
 	Layout();
 }

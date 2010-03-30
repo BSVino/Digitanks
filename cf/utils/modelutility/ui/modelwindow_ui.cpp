@@ -1376,6 +1376,8 @@ void CNormalPanel::Think()
 {
 	if (m_oGenerator.IsNewNormal2Available())
 	{
+		size_t iNormal2 = m_oGenerator.GetNormalMap2();
+
 		for (size_t i = 0; i < m_paoMaterials->size(); i++)
 		{
 			size_t& iNormalTexture = (*m_paoMaterials)[i].m_iNormal2;
@@ -1383,13 +1385,14 @@ void CNormalPanel::Think()
 			if (!m_pScene->GetMaterial(i)->IsVisible())
 				continue;
 
-			size_t iNormal2 = m_oGenerator.GetNormalMap2();
-
 			if (iNormalTexture)
 				glDeleteTextures(1, &iNormalTexture);
 
 			iNormalTexture = iNormal2;
+			break;
 		}
+
+		m_pSave->SetVisible(!!iNormal2);
 	}
 
 	m_pTextureLabel->SetText("Use texture");
@@ -1400,6 +1403,7 @@ void CNormalPanel::Think()
 		sprintf(szPercentage, "%d", (int)(m_oGenerator.GetNormal2GenerationProgress()*100));
 		m_pTextureLabel->AppendText(szPercentage);
 		m_pTextureLabel->AppendText("%)");
+		m_pSave->SetVisible(false);
 	}
 
 	CMovablePanel::Think();
@@ -1664,25 +1668,8 @@ void CNormalPanel::UpdateNormal2Callback()
 	m_oGenerator.SetNormalTextureLoDepth(m_pLoDepthSelector->GetSelectionValue());
 	m_oGenerator.SetNormalTexture(m_pTextureCheckBox->GetState());
 
-	size_t iNormal = 0;
-	if (m_oGenerator.DoneGenerating())
-		iNormal = m_oGenerator.GenerateTexture();
-
-	for (size_t i = 0; i < m_paoMaterials->size(); i++)
-	{
-		size_t& iNormalTexture =(*m_paoMaterials)[i].m_iNormal;
-
-		if (!m_pScene->GetMaterial(i)->IsVisible())
-			continue;
-
-		if (iNormalTexture)
-			glDeleteTextures(1, &iNormalTexture);
-
-		if (m_oGenerator.DoneGenerating())
-			iNormalTexture = iNormal;
-		else
-			iNormalTexture = 0;
-	}
+	if (!m_pTextureCheckBox->GetState())
+		m_pSave->SetVisible(false);
 }
 
 void CNormalPanel::Open(CConversionScene* pScene, std::vector<CMaterial>* paoMaterials)

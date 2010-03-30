@@ -138,7 +138,7 @@ public:
 	bool					Texel(size_t w, size_t h, size_t& iTexel, size_t tw, size_t th, bool* abMask = NULL);
 
 	bool					IsGenerating() { return m_bIsGenerating; }
-	bool					DoneGenerating() { return m_bDoneGenerating; }
+	bool					DoneGenerating() { return m_bDoneGenerating || m_aflNormal2Texels != NULL; }
 	void					StopGenerating() { m_bStopGenerating = true; }
 	bool					IsStopped() { return m_bStopGenerating; }
 
@@ -170,7 +170,6 @@ protected:
 
 	Vector*					m_avecNormalValues;
 	Vector*					m_avecNormalGeneratedValues;
-	Vector*					m_avecMergedNormalValues;
 
 	bool					m_bIsGenerating;
 	bool					m_bDoneGenerating;

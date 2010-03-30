@@ -1864,10 +1864,10 @@ void CMenu::CloseCallback()
 
 void CMenu::ClickedCallback()
 {
+	CRootPanel::Get()->GetMenuBar()->SetActive(NULL);
+
 	if (m_pMenuListener)
 		m_pfnMenuCallback(m_pMenuListener);
-
-	CRootPanel::Get()->GetMenuBar()->SetActive(NULL);
 }
 
 void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventListener::Callback pfnCallback)
