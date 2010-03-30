@@ -520,8 +520,10 @@ size_t CNormalGenerator::GenerateTexture(bool bInMedias)
 			ilCopyPixels(0, 0, 0, (ILint)iTotalWidth, (ILint)iTotalHeight, 3, IL_RGB, IL_FLOAT, &avecResizedNormals2[0].x);
 			ilDeleteImage(iNormal2Id);
 
-			if (!m_avecMergedNormalValues)
-				m_avecMergedNormalValues = new Vector[iTotalWidth*iTotalHeight];
+			if (m_avecMergedNormalValues)
+				delete[] m_avecMergedNormalValues;
+
+			m_avecMergedNormalValues = new Vector[iTotalWidth*iTotalHeight];
 
 			for (size_t i = 0; i < iTotalWidth; i++)
 			{
@@ -646,8 +648,11 @@ void NormalizeHeightValue(void* pVoidData)
 
 void CNormalGenerator::NormalizeHeightValue(size_t x, size_t y)
 {
-	float flHiScale = ((m_iNormal2Width+m_iNormal2Height)/2.0f)/100.0f;
-	float flLoScale = ((m_iNormal2Width+m_iNormal2Height)/2.0f)/25.0f;
+	if (!m_aflTextureTexels)
+		return;
+
+	float flHiScale = ((m_iNormal2Width+m_iNormal2Height)/2.0f)/200.0f;
+	float flLoScale = ((m_iNormal2Width+m_iNormal2Height)/2.0f)/50.0f;
 
 	size_t iTexel;
 	Texel(x, y, iTexel, m_iNormal2Width, m_iNormal2Height, false);
@@ -796,16 +801,20 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 			delete[] m_aflNormal2Texels;
 		}
 		m_aflTextureTexels = NULL;
+		m_aflLowPassTexels = NULL;
+		m_abLowPassMask = NULL;
 		m_aflNormal2Texels = NULL;
 		return;
 	}
 
-	if (m_pNormal2Parallelizer)
+	if (m_pNormal2Parallelizer && m_aflNormal2Texels)
 	{
 		m_pNormal2Parallelizer->RestartJobs();
 		return;
 	}
 
+	if (m_pNormal2Parallelizer)
+		delete m_pNormal2Parallelizer;
 	m_pNormal2Parallelizer = new CParallelizer((JobCallback)::NormalizeHeightValue);
 
 	for (size_t iMesh = 0; iMesh < m_apLoRes.size(); iMesh++)

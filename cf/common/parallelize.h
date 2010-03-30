@@ -15,6 +15,7 @@ public:
 	class CParallelizer*			m_pParallelizer;
 	bool							m_bQuitWhenDone;
 	bool							m_bDone;
+	bool							m_bQuit;
 };
 
 class CParallelizeJob
@@ -42,6 +43,7 @@ public:
 	void							AddJob(void* pJobData, size_t iSize);
 	void							FinishJobs();
 	bool							AreAllJobsDone();
+	bool							AreAllJobsQuit();
 
 	void							Start() { m_bStopped = false; };
 	void							Stop() { m_bStopped = true; };

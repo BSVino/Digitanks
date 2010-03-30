@@ -16,7 +16,7 @@ void CParallelizeThread::Process()
 	{
 		if (m_pParallelizer->m_bShuttingDown)
 		{
-			m_bDone = true;
+			m_bQuit = true;
 			pthread_exit(NULL);
 			return;
 		}
@@ -36,6 +36,7 @@ void CParallelizeThread::Process()
 
 			if (m_bQuitWhenDone)
 			{
+				m_bQuit = true;
 				pthread_exit(NULL);
 				return;
 			}
@@ -96,6 +97,7 @@ CParallelizer::CParallelizer(JobCallback pfnCallback)
 		pThread->m_pParallelizer = this;
 		pThread->m_bQuitWhenDone = false;
 		pThread->m_bDone = false;
+		pThread->m_bQuit = false;
 
 		pthread_create(&pThread->m_iThread, NULL, (void *(*) (void *))&ThreadMain, (void*)pThread);
 	}
@@ -114,13 +116,9 @@ CParallelizer::CParallelizer(JobCallback pfnCallback)
 
 CParallelizer::~CParallelizer()
 {
-	// If there are no threads then we've already cleaned up, don't do it twice.
-	if (!m_aThreads.size())
-		return;
+	m_bShuttingDown = true;
 
-	m_bStopped = true;
-
-	while (!AreAllJobsDone());
+	while (!AreAllJobsQuit());
 
 	for (size_t i = 0; i < m_aJobs.size(); i++)
 	{
@@ -172,6 +170,16 @@ bool CParallelizer::AreAllJobsDone()
 			SleepMS(1);
 			return false;
 		}
+	}
+	return true;
+}
+
+bool CParallelizer::AreAllJobsQuit()
+{
+	for (size_t t = 0; t < m_aThreads.size(); t++)
+	{
+		if (!m_aThreads[t].m_bQuit)
+			return false;
 	}
 	return true;
 }

@@ -1592,8 +1592,6 @@ void CNormalPanel::AddLoResMeshCallback()
 
 	Layout();
 
-	// So the generator has access to them making normal2
-	m_oGenerator.SetModels(m_apHiResMeshes, m_apLoResMeshes);
 	UpdateNormal2Callback();
 }
 
@@ -1638,8 +1636,6 @@ void CNormalPanel::RemoveLoResCallback()
 
 	Layout();
 
-	// So the generator has access to them making normal2
-	m_oGenerator.SetModels(m_apHiResMeshes, m_apLoResMeshes);
 	UpdateNormal2Callback();
 }
 
@@ -1662,6 +1658,8 @@ void CNormalPanel::RemoveHiResCallback()
 
 void CNormalPanel::UpdateNormal2Callback()
 {
+	m_oGenerator.SetModels(m_apHiResMeshes, m_apLoResMeshes);
+
 	m_oGenerator.SetNormalTextureHiDepth(m_pHiDepthSelector->GetSelectionValue());
 	m_oGenerator.SetNormalTextureLoDepth(m_pLoDepthSelector->GetSelectionValue());
 	m_oGenerator.SetNormalTexture(m_pTextureCheckBox->GetState());
