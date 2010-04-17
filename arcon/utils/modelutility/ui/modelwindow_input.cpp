@@ -103,7 +103,18 @@ void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 
 	if (m_bRenderUV)
 	{
-		if (iButton == GLUT_LEFT_BUTTON)
+		if (iButton == 3)
+		{
+			m_flCameraUVZoom += 0.01f;
+		}
+		else if (iButton == 4)
+		{
+			m_flCameraUVZoom -= 0.01f;
+
+			if (m_flCameraUVZoom < 0.01f)
+				m_flCameraUVZoom = 0.01f;
+		}
+		else if (iButton == GLUT_LEFT_BUTTON)
 		{
 			if (iState == GLUT_DOWN)
 			{
@@ -128,7 +139,18 @@ void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 	}
 	else
 	{
-		if ((glutGetModifiers() & GLUT_ACTIVE_CTRL) && iButton == GLUT_LEFT_BUTTON)
+		if (iButton == 3)
+		{
+			m_flCameraDistance += 1.0f;
+		}
+		else if (iButton == 4)
+		{
+			m_flCameraDistance -= 1.0f;
+
+			if (m_flCameraDistance < 1.0f)
+				m_flCameraDistance = 1.0f;
+		}
+		else if ((glutGetModifiers() & GLUT_ACTIVE_CTRL) && iButton == GLUT_LEFT_BUTTON)
 		{
 			if (iState == GLUT_DOWN)
 			{
