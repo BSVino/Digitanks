@@ -28,8 +28,8 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\modelconverter.lib&quot; attrib -r &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;modelconverter.lib copy &quot;$(TargetDir)&quot;modelconverter.lib &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\modelconverter.lib"
+				CommandLine="if exist &quot;..\..\lib\debug\modelconverter.lib&quot; attrib -r &quot;..\..\lib\debug\modelconverter.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;modelconverter.lib copy &quot;$(TargetDir)&quot;modelconverter.lib &quot;..\..\lib\debug\modelconverter.lib&quot;&#x0D;&#x0A;"
+				Outputs="..\..\lib\debug\modelconverter.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -97,8 +97,8 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\modelconverter.lib&quot; attrib -r &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;modelconverter.lib copy &quot;$(TargetDir)&quot;modelconverter.lib &quot;..\..\lib\modelconverter.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\modelconverter.lib"
+				CommandLine="if exist &quot;..\..\lib\release\modelconverter.lib&quot; attrib -r &quot;..\..\lib\release\modelconverter.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;modelconverter.lib copy &quot;$(TargetDir)&quot;modelconverter.lib &quot;..\..\lib\release\modelconverter.lib&quot;&#x0D;&#x0A;"
+				Outputs="..\..\lib\release\modelconverter.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"

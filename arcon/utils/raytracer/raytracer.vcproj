@@ -29,8 +29,8 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\raytracer.lib&quot; attrib -r &quot;&quot;..\..\lib\raytracer.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;raytracer.lib copy &quot;$(TargetDir)&quot;raytracer.lib &quot;..\..\lib\raytracer.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\raytracer.lib"
+				CommandLine="if exist &quot;..\..\lib\debug\raytracer.lib&quot; attrib -r &quot;&quot;..\..\lib\debug\raytracer.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;raytracer.lib copy &quot;$(TargetDir)&quot;raytracer.lib &quot;..\..\lib\debug\raytracer.lib&quot;&#x0D;&#x0A;"
+				Outputs="..\..\lib\debug\raytracer.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -111,8 +111,8 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\raytracer.lib&quot; attrib -r &quot;&quot;..\..\lib\raytracer.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;raytracer.lib copy &quot;$(TargetDir)&quot;raytracer.lib &quot;..\..\lib\raytracer.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\raytracer.lib"
+				CommandLine="if exist &quot;..\..\lib\release\raytracer.lib&quot; attrib -r &quot;..\..\lib\release\raytracer.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;raytracer.lib copy &quot;$(TargetDir)&quot;raytracer.lib &quot;..\..\lib\release\raytracer.lib&quot;&#x0D;&#x0A;"
+				Outputs="..\..\lib\release\raytracer.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"

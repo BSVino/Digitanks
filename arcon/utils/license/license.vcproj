@@ -26,8 +26,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="if exist &quot;..\..\lib\license.lib&quot; attrib -r &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;license.lib copy &quot;$(TargetDir)&quot;license.lib &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\license.lib"
+				CommandLine="if exist &quot;..\..\lib\debug\license.lib&quot; attrib -r &quot;..\..\lib\debug\license.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;license.lib copy &quot;$(TargetDir)&quot;license.lib &quot;..\..\lib\debug\license.lib&quot;&#x0D;&#x0A;"
+				Outputs="..\..\lib\debug\license.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -92,8 +92,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="if exist &quot;..\..\lib\license.lib&quot; attrib -r &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;license.lib copy &quot;$(TargetDir)&quot;license.lib &quot;..\..\lib\license.lib&quot;&#x0D;&#x0A;"
-				Outputs="..\..\lib\license.lib"
+				CommandLine="if exist &quot;..\..\lib\release\license.lib&quot; attrib -r &quot;..\..\lib\release\license.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;license.lib copy &quot;$(TargetDir)&quot;license.lib &quot;..\..\lib\release\license.lib&quot;&#x0D;&#x0A;"
+				Outputs="..\..\lib\release\license.lib"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
