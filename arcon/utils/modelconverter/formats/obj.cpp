@@ -18,9 +18,11 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 		return;
 	}
 
+	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(pszFilename).append(L".obj")));
+
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(GetFilename(pszFilename)));
 	// Make sure it exists.
-	CConversionSceneNode* pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pMesh);
+	CConversionSceneNode* pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pScene, pMesh);
 
 	size_t iCurrentMaterial = ~0;
 	size_t iSmoothingGroup = ~0;
@@ -121,11 +123,11 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			{
 				size_t iSceneMaterial = m_pScene->FindMaterial(sMaterial);
 				if (iSceneMaterial == ((size_t)~0))
-					iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, sMaterial);
+					iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pScene, pMesh, sMaterial);
 				else
 				{
 					size_t iMaterialStub = pMesh->AddMaterialStub(sMaterial);
-					m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iSceneMaterial);
+					m_pScene->GetDefaultSceneMeshInstance(pScene, pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iSceneMaterial);
 					iCurrentMaterial = iMaterialStub;
 				}
 			}
@@ -158,7 +160,7 @@ void CModelConverter::ReadOBJ(const wchar_t* pszFilename)
 			sLastTask = std::wstring(pszToken);
 
 			if (iCurrentMaterial == ~0)
-				iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, pMesh->GetName());
+				iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pScene, pMesh, pMesh->GetName());
 
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);

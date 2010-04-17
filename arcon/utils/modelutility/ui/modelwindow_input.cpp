@@ -188,9 +188,6 @@ void CModelWindow::MouseInput(int iButton, int iState, int x, int y)
 
 void CModelWindow::KeyPress(unsigned char c, int x, int y)
 {
-	if (c == 27)
-		exit(0);
-
 	if (c == 'a')
 		CAOPanel::Open(false, &m_Scene, &m_aoMaterials);
 
@@ -200,9 +197,14 @@ void CModelWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 'r'-'a'+1 && (glutGetModifiers()&GLUT_ACTIVE_CTRL))
 		ReloadFromFile();
 
-	modelgui::CRootPanel::Get()->KeyPressed(c);
+	if (modelgui::CRootPanel::Get()->KeyPressed(c))
+	{
+		glutPostRedisplay();
+		return;
+	}
 
-	glutPostRedisplay();
+	if (c == 27)
+		exit(0);
 }
 
 void CModelWindow::Special(int k, int x, int y)

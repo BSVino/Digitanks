@@ -238,24 +238,29 @@ void CModelWindow::ReadFile(const wchar_t* pszFile)
 	if (m_bLoadingFile)
 		return;
 
-	m_bLoadingFile = true;
-
 	// Save it in here in case m_szFileLoaded was passed into ReadFile, in which case it would be destroyed by DestroyAll.
 	std::wstring sFile = pszFile;
 
 	DestroyAll();
 
+	ReadFileIntoScene(sFile.c_str());
+}
+
+void CModelWindow::ReadFileIntoScene(const wchar_t* pszFile)
+{
+	m_bLoadingFile = true;
+
 	CModelConverter c(&m_Scene);
 
 	c.SetWorkListener(this);
 
-	if (!c.ReadModel(sFile.c_str()))
+	if (!c.ReadModel(pszFile))
 	{
 		m_bLoadingFile = false;
 		return;
 	}
 
-	wcscpy(m_szFileLoaded, sFile.c_str());
+	wcscpy(m_szFileLoaded, pszFile);
 
 	BeginProgress();
 	SetAction(L"Loading into video hardware", 0);
@@ -334,9 +339,10 @@ void CModelWindow::LoadTexturesIntoGL()
 	{
 		CConversionMaterial* pMaterial = m_Scene.GetMaterial(i);
 
-		m_aoMaterials.push_back(CMaterial(0));
+		if (i < m_aoMaterials.size())
+			continue;
 
-		assert(m_aoMaterials.size()-1 == i);
+		m_aoMaterials.push_back(CMaterial(0));
 
 		size_t iTexture = LoadTextureIntoGL(pMaterial->GetDiffuseTexture());
 
@@ -729,8 +735,8 @@ void CModelWindow::RenderObjects()
 	glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_TEXTURE_2D);
 
-	// Just render the first scene.
-	RenderSceneNode(m_Scene.GetScene(0));
+	for (size_t i = 0; i < m_Scene.GetNumScenes(); i++)
+		RenderSceneNode(m_Scene.GetScene(i));
 
 	if (GLEW_VERSION_1_3)
 	{

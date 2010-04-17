@@ -38,6 +38,7 @@ public:
 
 	void					DestroyAll();
 	void					ReadFile(const wchar_t* pszFile);
+	void					ReadFileIntoScene(const wchar_t* pszFile);
 	void					ReloadFromFile();
 
 	void					LoadIntoGL();
@@ -93,6 +94,7 @@ public:
 	void					Special(int k, int x, int y);
 
 	EVENT_CALLBACK(CModelWindow, Open);
+	EVENT_CALLBACK(CModelWindow, OpenInto);
 	EVENT_CALLBACK(CModelWindow, Reload);
 	EVENT_CALLBACK(CModelWindow, Save);
 	EVENT_CALLBACK(CModelWindow, Close);

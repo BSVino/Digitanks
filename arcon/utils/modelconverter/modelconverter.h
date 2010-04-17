@@ -21,8 +21,8 @@ public:
 
 	// SIA and its utility functions.
 	void				ReadSIA(const wchar_t* pszFilename);
-	void				ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilename);
-	void				ReadSIAShape(std::wifstream& infile, bool bCare = true);
+	void				ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const wchar_t* pszFilename);
+	void				ReadSIAShape(std::wifstream& infile, CConversionSceneNode* pScene, bool bCare = true);
 
 	void				ReadDAE(const wchar_t* pszFilename);
 	void				ReadDAESceneTree(class FCDSceneNode* pNode, CConversionSceneNode* pScene);

@@ -29,7 +29,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Copying to destination folder"
-				CommandLine="if exist &quot;..\..\lib\debug\raytracer.lib&quot; attrib -r &quot;&quot;..\..\lib\debug\raytracer.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;raytracer.lib copy &quot;$(TargetDir)&quot;raytracer.lib &quot;..\..\lib\debug\raytracer.lib&quot;&#x0D;&#x0A;"
+				CommandLine="if exist &quot;..\..\lib\debug\raytracer.lib&quot; attrib -r &quot;..\..\lib\debug\raytracer.lib&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;raytracer.lib copy &quot;$(TargetDir)&quot;raytracer.lib &quot;..\..\lib\debug\raytracer.lib&quot;&#x0D;&#x0A;"
 				Outputs="..\..\lib\debug\raytracer.lib"
 			/>
 			<Tool

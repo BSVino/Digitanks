@@ -20,6 +20,8 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		return;
 	}
 
+	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(pszFilename).append(L".sia")));
+
 	std::wstring sLine;
 	while (infile.good())
 	{
@@ -44,16 +46,16 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"-Mat") == 0)
 		{
-			ReadSIAMat(infile, pszFilename);
+			ReadSIAMat(infile, pScene, pszFilename);
 		}
 		else if (wcscmp(pszToken, L"-Shape") == 0)
 		{
-			ReadSIAShape(infile);
+			ReadSIAShape(infile, pScene);
 		}
 		else if (wcscmp(pszToken, L"-Texshape") == 0)
 		{
 			// This is the 3d UV space of the object, but we only care about its 2d UV space which is contained in rhw -Shape section, so meh.
-			ReadSIAShape(infile, false);
+			ReadSIAShape(infile, pScene, false);
 		}
 	}
 
@@ -74,7 +76,7 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		m_pWorkListener->EndProgress();
 }
 
-void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilename)
+void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const wchar_t* pszFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(L"Reading materials", 0);
@@ -164,7 +166,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, const wchar_t* pszFilen
 	}
 }
 
-void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
+void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode* pScene, bool bCare)
 {
 	size_t iCurrentMaterial = ~0;
 
@@ -224,7 +226,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 					iAddN = pMesh->GetNumNormals();
 				}
 				// Make sure it exists.
-				pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pMesh);
+				pMeshNode = m_pScene->GetDefaultSceneMeshInstance(pScene, pMesh);
 			}
 		}
 		else if (wcscmp(pszToken, L"-vert") == 0)
@@ -285,12 +287,12 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, bool bCare)
 					if (iCurrentMaterial == (size_t)~0)
 					{
 						size_t iMaterialStub = pMesh->AddMaterialStub(pMaterial->GetName());
-						m_pScene->GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iNewMaterial);
+						m_pScene->GetDefaultSceneMeshInstance(pScene, pMesh)->GetMeshInstance(0)->AddMappedMaterial(iMaterialStub, iNewMaterial);
 						iCurrentMaterial = iMaterialStub;
 					}
 				}
 				else
-					iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pMesh, pMesh->GetName());
+					iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pScene, pMesh, pMesh->GetName());
 			}
 		}
 		else if (wcscmp(pszToken, L"-face") == 0)

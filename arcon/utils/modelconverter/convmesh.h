@@ -325,6 +325,7 @@ class CConversionScene
 {
 public:
 										CConversionScene();
+										~CConversionScene();
 
 public:
 	void								DestroyAll();
@@ -344,27 +345,23 @@ public:
 	size_t								FindMesh(CConversionMesh* pMesh);
 
 	size_t								AddScene(const std::wstring& sName);
-	size_t								GetNumScenes() { return m_aScenes.size(); };
-	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_aScenes.size()) return NULL; return &m_aScenes[i]; };
-
-	// For model formats that don't have the concept of scenes, this is the one and only scene.
-	// It always returns a scene and always the same one.
-	CConversionSceneNode*				GetDefaultScene();
+	size_t								GetNumScenes() { return m_apScenes.size(); };
+	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_apScenes.size()) return NULL; return m_apScenes[i]; };
 
 	// For model formats that don't have the concept of scenes, this is a node that contains the one and only mesh instance for this mesh.
 	// It always returns a node and always the same one.
-	CConversionSceneNode*				GetDefaultSceneMeshInstance(CConversionMesh* pMesh);
+	CConversionSceneNode*				GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh);
 
 	// For model formats that don't have the concept of scenes,
 	// this will add a material to the mesh and map it properly in the scene.
-	size_t								AddDefaultSceneMaterial(CConversionMesh* pMesh, const std::wstring& sName);
+	size_t								AddDefaultSceneMaterial(CConversionSceneNode* pScene, CConversionMesh* pMesh, const std::wstring& sName);
 
 	void								SetWorkListener(IWorkListener* pWorkListener) { m_pWorkListener = pWorkListener; }
 
 	std::vector<CConversionMesh>		m_aMeshes;
 	std::vector<CConversionMaterial>	m_aMaterials;
 
-	std::vector<CConversionSceneNode>	m_aScenes;
+	std::vector<CConversionSceneNode*>	m_apScenes;
 
 	AABB								m_oExtends;
 

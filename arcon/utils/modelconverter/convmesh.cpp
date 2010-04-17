@@ -282,11 +282,19 @@ CConversionScene::CConversionScene()
 	m_pWorkListener = NULL;
 }
 
+CConversionScene::~CConversionScene()
+{
+	DestroyAll();
+}
+
 void CConversionScene::DestroyAll()
 {
+	for (size_t i = 0; i < m_apScenes.size(); i++)
+		delete m_apScenes[i];
+	
 	m_aMaterials.clear();
 	m_aMeshes.clear();
-	m_aScenes.clear();
+	m_apScenes.clear();
 }
 
 void CConversionScene::CalculateExtends()
@@ -377,22 +385,12 @@ size_t CConversionScene::FindMesh(CConversionMesh* pMesh)
 
 size_t CConversionScene::AddScene(const std::wstring& sName)
 {
-	m_aScenes.push_back(CConversionSceneNode(sName, this, NULL));
-	return m_aScenes.size()-1;
+	m_apScenes.push_back(new CConversionSceneNode(sName, this, NULL));
+	return m_apScenes.size()-1;
 }
 
-CConversionSceneNode* CConversionScene::GetDefaultScene()
+CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh)
 {
-	if (m_aScenes.size() == 0)
-		m_aScenes.push_back(CConversionSceneNode(L"Default scene", this, NULL));
-
-	return &m_aScenes[0];
-}
-
-CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionMesh* pMesh)
-{
-	CConversionSceneNode* pScene = GetDefaultScene();
-
 	for (size_t i = 0; i < pScene->GetNumChildren(); i++)
 	{
 		CConversionSceneNode* pChild = pScene->GetChild(i);
@@ -408,9 +406,9 @@ CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionM
 	return pScene->GetChild(iChild);
 }
 
-size_t CConversionScene::AddDefaultSceneMaterial(CConversionMesh* pMesh, const std::wstring& sName)
+size_t CConversionScene::AddDefaultSceneMaterial(CConversionSceneNode* pScene, CConversionMesh* pMesh, const std::wstring& sName)
 {
-	CConversionMeshInstance* pMeshInstance = GetDefaultSceneMeshInstance(pMesh)->GetMeshInstance(0);
+	CConversionMeshInstance* pMeshInstance = GetDefaultSceneMeshInstance(pScene, pMesh)->GetMeshInstance(0);
 
 	size_t iMaterialStub = pMesh->AddMaterialStub(sName);
 	size_t iMaterial = AddMaterial(sName);

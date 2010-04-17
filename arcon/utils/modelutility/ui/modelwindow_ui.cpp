@@ -21,6 +21,7 @@ void CModelWindow::InitUI()
 	CMenu* pHelp = CRootPanel::Get()->AddMenu("Help");
 
 	pFile->AddSubmenu("Open...", this, Open);
+	pFile->AddSubmenu("Open Into...", this, OpenInto);
 	pFile->AddSubmenu("Reload", this, Reload);
 //	pFile->AddSubmenu("Save...", this, Save);
 	pFile->AddSubmenu("Close", this, Close);
@@ -89,6 +90,14 @@ void CModelWindow::OpenCallback()
 		return;
 
 	ReadFile(OpenFileDialog(L"All *.obj;*.sia;*.dae\0*.obj;*.sia;*.dae\0"));
+}
+
+void CModelWindow::OpenIntoCallback()
+{
+	if (m_bLoadingFile)
+		return;
+
+	ReadFileIntoScene(OpenFileDialog(L"All *.obj;*.sia;*.dae\0*.obj;*.sia;*.dae\0"));
 }
 
 void CModelWindow::ReloadCallback()
@@ -939,6 +948,18 @@ void CAOPanel::Layout()
 	CMovablePanel::Layout();
 }
 
+bool CAOPanel::KeyPressed(int iKey)
+{
+	if (iKey == 27 && m_oGenerator.IsGenerating())
+	{
+		m_pSave->SetVisible(false);
+		m_oGenerator.StopGenerating();
+		return true;
+	}
+	else
+		return CMovablePanel::KeyPressed(iKey);
+}
+
 void CAOPanel::GenerateCallback()
 {
 	if (m_oGenerator.IsGenerating())
@@ -1413,6 +1434,18 @@ void CNormalPanel::Think()
 void CNormalPanel::Paint(int x, int y, int w, int h)
 {
 	CMovablePanel::Paint(x, y, w, h);
+}
+
+bool CNormalPanel::KeyPressed(int iKey)
+{
+	if (iKey == 27 && m_oGenerator.IsGenerating())
+	{
+		m_pSave->SetVisible(false);
+		m_oGenerator.StopGenerating();
+		return true;
+	}
+	else
+		return CMovablePanel::KeyPressed(iKey);
 }
 
 void CNormalPanel::GenerateCallback()
