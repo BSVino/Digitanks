@@ -1286,6 +1286,9 @@ void CAOGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstanc
 							pOtherFace = pPossibleFace;
 						}
 
+						if (!pOtherFace)
+							continue;
+
 						float flDot = pOtherFace->GetNormal().Dot(vecNormal);
 
 						if (flDot == 0)
