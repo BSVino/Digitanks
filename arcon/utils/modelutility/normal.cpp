@@ -42,6 +42,7 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 	m_abLowPassMask = NULL;
 	m_aflNormal2Texels = NULL;
 	m_bNewNormal2Available = false;
+	m_bNormal2Generated = false;
 
 	m_pNormal2Parallelizer = NULL;
 }
@@ -791,6 +792,8 @@ void CNormalGenerator::SetNormalTexture(bool bNormalTexture)
 		return;
 	}
 
+	m_bNormal2Generated = false;
+
 	if (m_pNormal2Parallelizer && m_aflNormal2Texels)
 	{
 		m_pNormal2Parallelizer->RestartJobs();
@@ -865,6 +868,7 @@ void CNormalGenerator::RegenerateNormal2Texture()
 	m_iNormal2GLId = iGLId;
 
 	m_bNewNormal2Available = true;
+	m_bNormal2Generated = true;
 }
 
 void CNormalGenerator::NormalizeHeightValues(size_t w, size_t h, const float* aflTexture, float* aflNormals)
@@ -889,7 +893,7 @@ bool CNormalGenerator::IsNewNormal2Available()
 {
 	if (m_pNormal2Parallelizer)
 	{
-		if (m_pNormal2Parallelizer->AreAllJobsDone())
+		if (m_pNormal2Parallelizer->AreAllJobsDone() && !m_bNormal2Generated)
 		{
 			RegenerateNormal2Texture();
 

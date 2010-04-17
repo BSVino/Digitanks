@@ -185,6 +185,7 @@ protected:
 	bool*					m_abLowPassMask;
 	float*					m_aflNormal2Texels;
 	bool					m_bNewNormal2Available;
+	bool					m_bNormal2Generated;
 
 	CParallelizer*			m_pNormal2Parallelizer;
 };
