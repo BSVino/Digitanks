@@ -328,9 +328,9 @@ void CModelConverter::ReadMTL(const wchar_t* pszFilename)
 			{
 				wchar_t szDirectory[1024];
 				wcscpy(szDirectory, pszFilename);
-				GetDirectory(szDirectory);
+				std::wstring sDirectory = GetDirectory(szDirectory);
 				wchar_t szTexture[1024];
-				swprintf(szTexture, L"%s/%s", szDirectory, pszToken);
+				swprintf(szTexture, L"%s/%s", sDirectory.c_str(), pszToken);
 
 				pMaterial->m_sDiffuseTexture = std::wstring(szTexture);
 			}
