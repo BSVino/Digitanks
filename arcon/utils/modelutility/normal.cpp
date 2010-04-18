@@ -44,6 +44,7 @@ CNormalGenerator::CNormalGenerator(CConversionScene* pScene, std::vector<CMateri
 	m_bNewNormal2Available = false;
 	m_bNormal2Generated = false;
 
+	m_pNormalParallelizer = NULL;
 	m_pNormal2Parallelizer = NULL;
 }
 
@@ -95,6 +96,26 @@ void CNormalGenerator::SetModels(const std::vector<CConversionMeshInstance*>& ap
 	m_apHiRes = apHiRes;
 }
 
+typedef struct
+{
+	CNormalGenerator*			pGenerator;
+	CConversionMeshInstance*	pMeshInstance;
+	CConversionFace*			pFace;
+	CConversionVertex*			pV1;
+	CConversionVertex*			pV2;
+	CConversionVertex*			pV3;
+	size_t						x;
+	size_t						y;
+	raytrace::CRaytracer*		pTracer;
+} normal_data_t;
+
+void FindNormalAtTexel(void* pVoidData)
+{
+	normal_data_t* pJobData = (normal_data_t*)pVoidData;
+
+	pJobData->pGenerator->FindNormalAtTexel(pJobData->pMeshInstance, pJobData->pFace, pJobData->pV1, pJobData->pV2, pJobData->pV3, pJobData->x, pJobData->y, pJobData->pTracer);
+}
+
 void CNormalGenerator::Generate()
 {
 	if (m_pWorkListener)
@@ -123,6 +144,9 @@ void CNormalGenerator::Generate()
 
 	pTracer->BuildTree();
 
+	m_pNormalParallelizer = new CParallelizer((JobCallback)::FindNormalAtTexel);
+	m_pNormalParallelizer->Start();
+
 	float flTotalArea = 0;
 
 	for (size_t m = 0; m < m_pScene->GetNumMeshes(); m++)
@@ -138,7 +162,7 @@ void CNormalGenerator::Generate()
 	RegenerateNormal2Texture();
 
 	if (m_pWorkListener)
-		m_pWorkListener->SetAction(L"Generating", (size_t)(flTotalArea*m_iWidth*m_iHeight));
+		m_pWorkListener->SetAction(L"Dispatching jobs", (size_t)(flTotalArea*m_iWidth*m_iHeight));
 
 	size_t iRendered = 0;
 
@@ -190,7 +214,26 @@ void CNormalGenerator::Generate()
 			break;
 	}
 
+	m_pNormalParallelizer->FinishJobs();
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Rendering", m_pNormalParallelizer->GetJobsTotal());
+
+	while (true)
+	{
+		if (m_pNormalParallelizer->AreAllJobsDone())
+			break;
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(m_pNormalParallelizer->GetJobsDone());
+
+		if (m_bStopGenerating)
+			break;
+	}
+
 	delete pTracer;
+
+	delete m_pNormalParallelizer;
 
 	Bleed();
 	TexturizeValues(m_avecNormalValues);
@@ -206,11 +249,21 @@ void CNormalGenerator::Generate()
 
 void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, raytrace::CRaytracer* pTracer, size_t& iRendered)
 {
+	normal_data_t oJob;
+
 	CConversionVertex* pV1 = pFace->GetVertex(v1);
 	CConversionVertex* pV2 = pFace->GetVertex(v2);
 	CConversionVertex* pV3 = pFace->GetVertex(v3);
 
 	CConversionMesh* pMesh = pMeshInstance->GetMesh();
+
+	oJob.pMeshInstance = pMeshInstance;
+	oJob.pFace = pFace;
+	oJob.pV1 = pV1;
+	oJob.pV2 = pV2;
+	oJob.pV3 = pV3;
+	oJob.pTracer = pTracer;
+	oJob.pGenerator = this;
 
 	Vector vu1 = pMesh->GetUV(pV1->vu);
 	Vector vu2 = pMesh->GetUV(pV2->vu);
@@ -246,124 +299,10 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 	{
 		for (size_t j = iLoY; j <= iHiY; j++)
 		{
-			float flU = ((float)i + 0.5f)/(float)m_iWidth;
-			float flV = ((float)j + 0.5f)/(float)m_iHeight;
+			oJob.x = i;
+			oJob.y = j;
 
-			bool bInside = PointInTriangle(Vector(flU,flV,0), vu1, vu2, vu3);
-
-			if (!bInside)
-				continue;
-
-			Vector v1 = pMeshInstance->GetVertex(pV1->v);
-			Vector v2 = pMeshInstance->GetVertex(pV2->v);
-			Vector v3 = pMeshInstance->GetVertex(pV3->v);
-
-			// Find where the UV is in world space.
-
-			// First build 2x2 a "matrix" of the UV values.
-			float mta = vu2.x - vu1.x;
-			float mtb = vu3.x - vu1.x;
-			float mtc = vu2.y - vu1.y;
-			float mtd = vu3.y - vu1.y;
-
-			// Invert it.
-			float d = mta*mtd - mtb*mtc;
-			float mtia =  mtd / d;
-			float mtib = -mtb / d;
-			float mtic = -mtc / d;
-			float mtid =  mta / d;
-
-			// Now build a 2x3 "matrix" of the vertices.
-			float mva = v2.x - v1.x;
-			float mvb = v3.x - v1.x;
-			float mvc = v2.y - v1.y;
-			float mvd = v3.y - v1.y;
-			float mve = v2.z - v1.z;
-			float mvf = v3.z - v1.z;
-
-			// Multiply them together.
-			// [a b]   [a b]   [a b]
-			// [c d] * [c d] = [c d]
-			// [e f]           [e f]
-			// Really wish I had a matrix math library about now!
-			float mra = mva*mtia + mvb*mtic;
-			float mrb = mva*mtib + mvb*mtid;
-			float mrc = mvc*mtia + mvd*mtic;
-			float mrd = mvc*mtib + mvd*mtid;
-			float mre = mve*mtia + mvf*mtic;
-			float mrf = mve*mtib + mvf*mtid;
-
-			// These vectors should be the U and V axis in world space.
-			Vector vecUAxis(mra, mrc, mre);
-			Vector vecVAxis(mrb, mrd, mrf);
-
-			Vector vecUVOrigin = v1 - vecUAxis * vu1.x - vecVAxis * vu1.y;
-
-			Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
-
-			Vector vecNormal = pFace->GetNormal(vecUVPosition, pMeshInstance);
-
-			size_t iTexel;
-			Texel(i, j, iTexel, false);
-
-			// Maybe use a closest-poly check here to eliminate the need for some raytracing?
-
-			raytrace::CTraceResult trFront;
-			bool bHitFront = pTracer->Raytrace(Ray(vecUVPosition, vecNormal), &trFront);
-
-			raytrace::CTraceResult trBack;
-			bool bHitBack = pTracer->Raytrace(Ray(vecUVPosition, -vecNormal), &trBack);
-
-#ifdef NORMAL_DEBUG
-			if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
-				CModelWindow::Get()->AddDebugLine(vecUVPosition, trFront.m_vecHit);
-			if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
-				CModelWindow::Get()->AddDebugLine(vecUVPosition, trBack.m_vecHit);
-#endif
-
-			Vector vecHitNormal;
-			if (bHitFront && !bHitBack)
-				vecHitNormal = trFront.m_pFace->GetNormal(trFront.m_vecHit, trFront.m_pMeshInstance);
-			else if (bHitBack && !bHitFront)
-				vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
-			else if (!bHitBack && !bHitFront)
-				vecHitNormal = vecNormal;
-			else
-			{
-				float flHitFront = (vecUVPosition - trFront.m_vecHit).LengthSqr();
-				float flHitBack = (vecUVPosition - trBack.m_vecHit).LengthSqr();
-
-				if (flHitFront < flHitBack)
-					vecHitNormal = trFront.m_pFace->GetNormal(trFront.m_vecHit, trFront.m_pMeshInstance);
-				else
-					vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
-			}
-
-#ifdef NORMAL_DEBUG
-//			CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition+vecHitNormal);
-			if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
-				CModelWindow::Get()->AddDebugLine(trFront.m_vecHit, trFront.m_vecHit+vecHitNormal);
-			if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
-				CModelWindow::Get()->AddDebugLine(trBack.m_vecHit, trBack.m_vecHit+vecHitNormal);
-#endif
-
-			// Build rotation matrix
-			Matrix4x4 mObjectToTangent;
-
-			Vector t = pFace->GetBaseVector(vecUVPosition, 0, pMeshInstance);
-			Vector b = pFace->GetBaseVector(vecUVPosition, 1, pMeshInstance);
-			Vector n = pFace->GetBaseVector(vecUVPosition, 2, pMeshInstance);
-
-			mObjectToTangent.SetColumn(0, t);
-			mObjectToTangent.SetColumn(1, b);
-			mObjectToTangent.SetColumn(2, n);
-			mObjectToTangent.InvertTR();
-
-			Vector vecTangentNormal = mObjectToTangent*vecHitNormal;
-
-			m_avecNormalValues[iTexel] += vecTangentNormal;
-
-			m_bPixelMask[iTexel] = true;
+			m_pNormalParallelizer->AddJob(&oJob, sizeof(oJob));
 
 			if (m_pWorkListener)
 				m_pWorkListener->WorkProgress(++iRendered);
@@ -374,6 +313,138 @@ void CNormalGenerator::GenerateTriangleByTexel(CConversionMeshInstance* pMeshIns
 		if (m_bStopGenerating)
 			break;
 	}
+}
+
+void CNormalGenerator::FindNormalAtTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, CConversionVertex* pV1, CConversionVertex* pV2, CConversionVertex* pV3, size_t i, size_t j, raytrace::CRaytracer* pTracer)
+{
+	CConversionMesh* pMesh = pMeshInstance->GetMesh();
+
+	Vector vu1 = pMesh->GetUV(pV1->vu);
+	Vector vu2 = pMesh->GetUV(pV2->vu);
+	Vector vu3 = pMesh->GetUV(pV3->vu);
+
+	float flU = ((float)i + 0.5f)/(float)m_iWidth;
+	float flV = ((float)j + 0.5f)/(float)m_iHeight;
+
+	bool bInside = PointInTriangle(Vector(flU,flV,0), vu1, vu2, vu3);
+
+	if (!bInside)
+		return;
+
+	Vector v1 = pMeshInstance->GetVertex(pV1->v);
+	Vector v2 = pMeshInstance->GetVertex(pV2->v);
+	Vector v3 = pMeshInstance->GetVertex(pV3->v);
+
+	// Find where the UV is in world space.
+
+	// First build 2x2 a "matrix" of the UV values.
+	float mta = vu2.x - vu1.x;
+	float mtb = vu3.x - vu1.x;
+	float mtc = vu2.y - vu1.y;
+	float mtd = vu3.y - vu1.y;
+
+	// Invert it.
+	float d = mta*mtd - mtb*mtc;
+	float mtia =  mtd / d;
+	float mtib = -mtb / d;
+	float mtic = -mtc / d;
+	float mtid =  mta / d;
+
+	// Now build a 2x3 "matrix" of the vertices.
+	float mva = v2.x - v1.x;
+	float mvb = v3.x - v1.x;
+	float mvc = v2.y - v1.y;
+	float mvd = v3.y - v1.y;
+	float mve = v2.z - v1.z;
+	float mvf = v3.z - v1.z;
+
+	// Multiply them together.
+	// [a b]   [a b]   [a b]
+	// [c d] * [c d] = [c d]
+	// [e f]           [e f]
+	// Really wish I had a matrix math library about now!
+	float mra = mva*mtia + mvb*mtic;
+	float mrb = mva*mtib + mvb*mtid;
+	float mrc = mvc*mtia + mvd*mtic;
+	float mrd = mvc*mtib + mvd*mtid;
+	float mre = mve*mtia + mvf*mtic;
+	float mrf = mve*mtib + mvf*mtid;
+
+	// These vectors should be the U and V axis in world space.
+	Vector vecUAxis(mra, mrc, mre);
+	Vector vecVAxis(mrb, mrd, mrf);
+
+	Vector vecUVOrigin = v1 - vecUAxis * vu1.x - vecVAxis * vu1.y;
+
+	Vector vecUVPosition = vecUVOrigin + vecUAxis * flU + vecVAxis * flV;
+
+	Vector vecNormal = pFace->GetNormal(vecUVPosition, pMeshInstance);
+
+	size_t iTexel;
+	Texel(i, j, iTexel, false);
+
+	// Maybe use a closest-poly check here to eliminate the need for some raytracing?
+
+	raytrace::CTraceResult trFront;
+	bool bHitFront = pTracer->Raytrace(Ray(vecUVPosition, vecNormal), &trFront);
+
+	raytrace::CTraceResult trBack;
+	bool bHitBack = pTracer->Raytrace(Ray(vecUVPosition, -vecNormal), &trBack);
+
+#ifdef NORMAL_DEBUG
+	if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
+		CModelWindow::Get()->AddDebugLine(vecUVPosition, trFront.m_vecHit);
+	if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
+		CModelWindow::Get()->AddDebugLine(vecUVPosition, trBack.m_vecHit);
+#endif
+
+	Vector vecHitNormal;
+	if (bHitFront && !bHitBack)
+		vecHitNormal = trFront.m_pFace->GetNormal(trFront.m_vecHit, trFront.m_pMeshInstance);
+	else if (bHitBack && !bHitFront)
+		vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
+	else if (!bHitBack && !bHitFront)
+		vecHitNormal = vecNormal;
+	else
+	{
+		float flHitFront = (vecUVPosition - trFront.m_vecHit).LengthSqr();
+		float flHitBack = (vecUVPosition - trBack.m_vecHit).LengthSqr();
+
+		if (flHitFront < flHitBack)
+			vecHitNormal = trFront.m_pFace->GetNormal(trFront.m_vecHit, trFront.m_pMeshInstance);
+		else
+			vecHitNormal = trBack.m_pFace->GetNormal(trBack.m_vecHit, trBack.m_pMeshInstance);
+	}
+
+#ifdef NORMAL_DEBUG
+//	CModelWindow::Get()->AddDebugLine(vecUVPosition, vecUVPosition+vecHitNormal);
+	if (bHitFront && (vecUVPosition - trFront.m_vecHit).LengthSqr() > 0.001f)
+		CModelWindow::Get()->AddDebugLine(trFront.m_vecHit, trFront.m_vecHit+vecHitNormal);
+	if (bHitBack && (vecUVPosition - trBack.m_vecHit).LengthSqr() > 0.001f)
+		CModelWindow::Get()->AddDebugLine(trBack.m_vecHit, trBack.m_vecHit+vecHitNormal);
+#endif
+
+	// Build rotation matrix
+	Matrix4x4 mObjectToTangent;
+
+	Vector t = pFace->GetBaseVector(vecUVPosition, 0, pMeshInstance);
+	Vector b = pFace->GetBaseVector(vecUVPosition, 1, pMeshInstance);
+	Vector n = pFace->GetBaseVector(vecUVPosition, 2, pMeshInstance);
+
+	mObjectToTangent.SetColumn(0, t);
+	mObjectToTangent.SetColumn(1, b);
+	mObjectToTangent.SetColumn(2, n);
+	mObjectToTangent.InvertTR();
+
+	Vector vecTangentNormal = mObjectToTangent*vecHitNormal;
+
+	m_pNormalParallelizer->LockData();
+
+	m_avecNormalValues[iTexel] += vecTangentNormal;
+
+	m_bPixelMask[iTexel] = true;
+
+	m_pNormalParallelizer->UnlockData();
 }
 
 void CNormalGenerator::Bleed()

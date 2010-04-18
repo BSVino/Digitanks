@@ -128,6 +128,7 @@ public:
 
 	void					Generate();
 	void					GenerateTriangleByTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, size_t v1, size_t v2, size_t v3, class raytrace::CRaytracer* pTracer, size_t& iRendered);
+	void					FindNormalAtTexel(CConversionMeshInstance* pMeshInstance, CConversionFace* pFace, CConversionVertex* pV1, CConversionVertex* pV2, CConversionVertex* pV3, size_t i, size_t j, raytrace::CRaytracer* pTracer);
 	void					Bleed();
 
 	void					TexturizeValues(Vector* avecTexture);
@@ -187,6 +188,7 @@ protected:
 	bool					m_bNewNormal2Available;
 	bool					m_bNormal2Generated;
 
+	CParallelizer*			m_pNormalParallelizer;
 	CParallelizer*			m_pNormal2Parallelizer;
 };
 
