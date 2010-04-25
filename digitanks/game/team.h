@@ -14,6 +14,8 @@ public:
 								~CTeam();
 
 public:
+	void						MoveTanks();
+
 	Color						GetColor() { return m_clrTeam; };
 
 	size_t						GetNumTanks() { return m_apTanks.size(); };

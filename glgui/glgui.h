@@ -331,7 +331,7 @@ namespace glgui
 		virtual void				Paint(int x, int y, int w, int h);
 		virtual void				Layout();
 
-		virtual bool				MousePressed(int code, int mx, int my);
+		virtual bool				MousePressed(int code, int mx, int my, bool bInsideControl = false);
 		virtual bool				MouseReleased(int code, int mx, int my);
 		virtual void				CursorMoved(int mx, int my);
 

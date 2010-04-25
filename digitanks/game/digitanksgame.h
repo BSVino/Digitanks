@@ -17,6 +17,11 @@ public:
 
 	void					Think();
 
+	void					SetDesiredMove();
+
+	void					NextTank();
+	void					Turn();
+
 	size_t					GetNumTeams() { return m_apTeams.size(); };
 	CTeam*					GetTeam(size_t i) { return m_apTeams[i]; };
 

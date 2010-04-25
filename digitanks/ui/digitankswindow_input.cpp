@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 
 #include "glgui/glgui.h"
+#include "game/digitanksgame.h"
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
@@ -27,6 +28,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			return;
 	}
 
+	if (Game())
+		Game()->SetDesiredMove();
 }
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
@@ -36,6 +39,9 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		glutPostRedisplay();
 		return;
 	}
+
+	if (Game() && c == 13)
+		Game()->Turn();
 
 	if (c == 27)
 		exit(0);

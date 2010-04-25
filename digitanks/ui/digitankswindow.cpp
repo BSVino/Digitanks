@@ -1,10 +1,11 @@
 #include "digitankswindow.h"
 
-#include <vector.h>
+#include <assert.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <vector.h>
 
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
@@ -202,9 +203,13 @@ void CDigitanksWindow::Render()
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
 		0.0, 1.0, 0.0);
 
+	m_bMouseGridQueryValid = true;
+
 	RenderGround();
 
 	RenderObjects();
+
+	m_bMouseGridQueryValid = false;
 
 	glPopMatrix();
 	glPopAttrib();
@@ -307,17 +312,79 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 		{
 			CDigitank* pTank = pTeam->GetTank(j);
 
-			glPushMatrix();
+			if (pTank->HasDesiredMove())
+			{
+				glPushMatrix();
 
-			Vector vecOrigin = pTank->GetOrigin();
+				glEnable(GL_BLEND);
+				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+				Vector vecOrigin = pTank->GetOrigin();
 
-			glutSolidCube(4);
+				glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
 
-			glPopMatrix();
+				Color clrTeam = pTeam->GetColor();
+				clrTeam.SetAlpha(100);
+				glColor4ubv(clrTeam);
+
+				glutSolidCube(4);
+				glDisable(GL_BLEND);
+
+				glPopMatrix();
+
+				glPushMatrix();
+
+				vecOrigin = pTank->GetDesiredMove();
+
+				glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+
+				glutSolidCube(4);
+
+				glPopMatrix();
+			}
+			else
+			{
+				glPushMatrix();
+
+				Vector vecOrigin = pTank->GetOrigin();
+
+				glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+
+				glutSolidCube(4);
+
+				glPopMatrix();
+			}
 		}
 	}
+
+	RenderMovementSelection();
+}
+
+void CDigitanksWindow::RenderMovementSelection()
+{
+	if (!Game()->GetCurrentTank())
+		return;
+
+	Vector vecPoint;
+	if (!GetMouseGridPosition(vecPoint))
+		return;
+
+	Game()->GetCurrentTank()->PreviewMove(vecPoint);
+
+	float flTotalPower = Game()->GetCurrentTank()->GetTotalPower();
+
+	if ((vecPoint - Game()->GetCurrentTank()->GetOrigin()).LengthSqr() > flTotalPower*flTotalPower)
+		return;
+
+	glColor4ubv(Color(255, 255, 255));
+
+	glPushMatrix();
+
+	glTranslatef(vecPoint.x, vecPoint.y, vecPoint.z);
+
+	glutSolidCube(2);
+
+	glPopMatrix();
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
@@ -350,4 +417,52 @@ void CDigitanksWindow::Display()
 
 void CDigitanksWindow::Visible(int vis)
 {
+}
+
+bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
+{
+	assert(m_bMouseGridQueryValid);
+
+	GLint aiViewport[4];
+	GLdouble aiModelView[16];
+	GLdouble aiProjection[16];
+	GLfloat winX, winY;
+	GLdouble posX, posY, posZ;
+
+	glGetDoublev( GL_MODELVIEW_MATRIX, aiModelView );
+	glGetDoublev( GL_PROJECTION_MATRIX, aiProjection );
+	glGetIntegerv( GL_VIEWPORT, aiViewport );
+
+	int x, y;
+	glgui::CRootPanel::Get()->GetFullscreenMousePos(x, y);
+
+	winX = (float)x;
+	winY = (float)aiViewport[3] - (float)y;
+
+	gluUnProject( winX, winY, 1, aiModelView, aiProjection, aiViewport, &posX, &posY, &posZ);
+
+	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * 100;
+
+	Vector vecRay = (Vector((float)posX, (float)posY, (float)posZ) - vecCameraVector).Normalized();
+
+	float a = -vecCameraVector.y;
+	float b = vecRay.y;
+
+	float ep = 1e-4f;
+
+	if (fabs(b) < ep)
+	{
+		if (a == 0)			// Ray is parallel
+			return false;	// Ray is inside plane
+		else
+			return false;	// Ray is somewhere else
+	}
+
+	float r = a/b;
+	if (r < 0)
+		return false;		// Ray goes away from the triangle
+
+	vecPoint = vecCameraVector + vecRay*r;
+
+	return true;
 }

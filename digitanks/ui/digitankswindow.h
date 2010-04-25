@@ -2,6 +2,7 @@
 #define DT_DIGITANKSWINDOW_H
 
 #include <string>
+#include "vector.h"
 
 class CDigitanksWindow
 {
@@ -25,6 +26,7 @@ public:
 	void						RenderObjects();
 	void						RenderLightSource();
 	void						RenderGame(class CDigitanksGame* pGame);
+	void						RenderMovementSelection();
 
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void						WindowResize(int x, int y);
@@ -53,6 +55,8 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
+	bool						GetMouseGridPosition(Vector& vecPoint);
+
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
 
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
@@ -63,6 +67,8 @@ protected:
 
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
+
+	bool						m_bMouseGridQueryValid;
 
 	class CDigitanksGame*		m_pDigitanksGame;
 

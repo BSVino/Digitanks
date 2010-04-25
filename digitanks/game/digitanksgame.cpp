@@ -1,5 +1,7 @@
 #include "digitanksgame.h"
 
+#include <assert.h>
+
 CDigitanksGame::~CDigitanksGame()
 {
 	for (size_t i = 0; i < m_apTeams.size(); i++)
@@ -31,6 +33,36 @@ void CDigitanksGame::StartGame()
 
 void CDigitanksGame::Think()
 {
+}
+
+void CDigitanksGame::SetDesiredMove()
+{
+	if (!GetCurrentTank())
+		return;
+
+	GetCurrentTank()->SetDesiredMove();
+
+	NextTank();
+}
+
+void CDigitanksGame::NextTank()
+{
+	assert(GetCurrentTank());
+	if (!GetCurrentTank())
+		return;
+
+	if (++m_iCurrentTank >= GetCurrentTeam()->GetNumTanks())
+		m_iCurrentTank = 0;
+}
+
+void CDigitanksGame::Turn()
+{
+	GetCurrentTeam()->MoveTanks();
+
+	m_iCurrentTank = 0;
+
+	if (++m_iCurrentTeam >= GetNumTeams())
+		m_iCurrentTeam = 0;
 }
 
 CTeam* CDigitanksGame::GetCurrentTeam()

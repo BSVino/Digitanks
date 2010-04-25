@@ -1483,7 +1483,7 @@ CButton* CRootPanel::GetButtonDown()
 	return m_pButtonDown;
 }
 
-bool CRootPanel::MousePressed(int code, int mx, int my)
+bool CRootPanel::MousePressed(int code, int mx, int my, bool bInsideControl)
 {
 	assert(!m_pDragging);
 
@@ -1503,6 +1503,9 @@ bool CRootPanel::MousePressed(int code, int mx, int my)
 
 	if (CPanel::MousePressed(code, mx, my))
 		return true;
+
+	if (!bInsideControl)
+		return false;
 
 	int iCount = (int)m_apControls.size();
 	for (int i = 0; i < iCount; i++)
