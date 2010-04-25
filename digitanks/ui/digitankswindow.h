@@ -24,6 +24,7 @@ public:
 	void						RenderGround();
 	void						RenderObjects();
 	void						RenderLightSource();
+	void						RenderGame(class CDigitanksGame* pGame);
 
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void						WindowResize(int x, int y);
@@ -60,6 +61,8 @@ protected:
 
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
+
+	class CDigitanksGame*		m_pDigitanksGame;
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
 };

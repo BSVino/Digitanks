@@ -1,15 +1,12 @@
 #include "digitankswindow.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <maths.h>
 #include <vector.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
+
+#include "game/digitanksgame.h"
 
 extern "C" {
 static void CALLBACK RenderTesselateBegin(GLenum ePrim);
@@ -54,6 +51,9 @@ CDigitanksWindow::CDigitanksWindow()
 
 	CompileShaders();
 
+	m_pDigitanksGame = new CDigitanksGame();
+	m_pDigitanksGame->SetupDefaultGame();
+
 	glutPassiveMotionFunc(&CDigitanksWindow::MouseMotionCallback);
 	glutMotionFunc(&CDigitanksWindow::MouseDraggedCallback);
 	glutMouseFunc(&CDigitanksWindow::MouseInputCallback);
@@ -86,6 +86,7 @@ CDigitanksWindow::CDigitanksWindow()
 
 CDigitanksWindow::~CDigitanksWindow()
 {
+	delete m_pDigitanksGame;
 }
 
 void CDigitanksWindow::CompileShaders()
@@ -320,15 +321,37 @@ void CDigitanksWindow::RenderObjects()
 {
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
-	glEnable(GL_LIGHTING);
-
 	glEnable(GL_CULL_FACE);
-	glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_TEXTURE_2D);
 
-	// Render objects here!
+	RenderGame(m_pDigitanksGame);
 
 	glPopAttrib();
+}
+
+void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
+{
+	for (size_t i = 0; i < pGame->GetNumTeams(); i++)
+	{
+		CTeam* pTeam = pGame->GetTeam(i);
+
+		glColor4ubv(pTeam->GetColor());
+
+		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
+		{
+			CDigitank* pTank = pTeam->GetTank(j);
+
+			glPushMatrix();
+
+			Vector vecOrigin = pTank->GetOrigin();
+
+			glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+
+			glutSolidCube(4);
+
+			glPopMatrix();
+		}
+	}
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)

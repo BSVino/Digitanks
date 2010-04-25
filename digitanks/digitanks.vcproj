@@ -222,6 +222,38 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="game"
+				>
+				<File
+					RelativePath=".\game\baseentity.h"
+					>
+				</File>
+				<File
+					RelativePath=".\game\digitank.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\digitank.h"
+					>
+				</File>
+				<File
+					RelativePath=".\game\digitanksgame.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\digitanksgame.h"
+					>
+				</File>
+				<File
+					RelativePath=".\game\team.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\team.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
