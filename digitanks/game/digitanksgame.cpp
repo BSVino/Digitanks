@@ -19,4 +19,35 @@ void CDigitanksGame::SetupDefaultGame()
 
 	m_apTeams[0]->m_apTanks[0]->SetOrigin(Vector(0, 0, 50));
 	m_apTeams[1]->m_apTanks[0]->SetOrigin(Vector(0, 0, -50));
+
+	StartGame();
+}
+
+void CDigitanksGame::StartGame()
+{
+	m_iCurrentTeam = 0;
+	m_iCurrentTank = 0;
+}
+
+void CDigitanksGame::Think()
+{
+}
+
+CTeam* CDigitanksGame::GetCurrentTeam()
+{
+	if (m_iCurrentTeam > m_apTeams.size())
+		return NULL;
+
+	return m_apTeams[m_iCurrentTeam];
+}
+
+CDigitank* CDigitanksGame::GetCurrentTank()
+{
+	if (!GetCurrentTeam())
+		return NULL;
+
+	if (m_iCurrentTeam > GetCurrentTeam()->GetNumTanks())
+		return NULL;
+
+	return GetCurrentTeam()->GetTank(m_iCurrentTank);
 }

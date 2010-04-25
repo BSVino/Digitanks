@@ -213,6 +213,14 @@
 					RelativePath=".\ui\digitankswindow_ui.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\ui\hud.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\hud.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="glew"

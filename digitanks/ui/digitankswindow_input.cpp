@@ -2,38 +2,40 @@
 
 #include <GL/glut.h>
 
+#include "glgui/glgui.h"
+
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
-//	modelgui::CRootPanel::Get()->CursorMoved(x, y);
+	glgui::CRootPanel::Get()->CursorMoved(x, y);
 }
 
 void CDigitanksWindow::MouseDragged(int x, int y)
 {
-//	modelgui::CRootPanel::Get()->CursorMoved(x, y);
+	glgui::CRootPanel::Get()->CursorMoved(x, y);
 }
 
 void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 {
 	if (iState == GLUT_DOWN)
 	{
-//		if (modelgui::CRootPanel::Get()->MousePressed(iButton, x, y))
-//			return;
+		if (glgui::CRootPanel::Get()->MousePressed(iButton, x, y))
+			return;
 	}
 	else
 	{
-//		if (modelgui::CRootPanel::Get()->MouseReleased(iButton, x, y))
-//			return;
+		if (glgui::CRootPanel::Get()->MouseReleased(iButton, x, y))
+			return;
 	}
 
 }
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 {
-//	if (modelgui::CRootPanel::Get()->KeyPressed(c))
-//	{
-//		glutPostRedisplay();
-//		return;
-//	}
+	if (glgui::CRootPanel::Get()->KeyPressed(c))
+	{
+		glutPostRedisplay();
+		return;
+	}
 
 	if (c == 27)
 		exit(0);

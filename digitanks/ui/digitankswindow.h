@@ -53,6 +53,8 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
+	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
+
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 
 protected:
@@ -64,7 +66,17 @@ protected:
 
 	class CDigitanksGame*		m_pDigitanksGame;
 
+	class CHUD*					m_pHUD;
+
 	static CDigitanksWindow*	s_pDigitanksWindow;
 };
+
+inline class CDigitanksGame* Game()
+{
+	if (!CDigitanksWindow::Get())
+		return NULL;
+
+	return CDigitanksWindow::Get()->GetGame();
+}
 
 #endif

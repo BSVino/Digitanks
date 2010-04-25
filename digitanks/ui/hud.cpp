@@ -1,0 +1,67 @@
+#include "hud.h"
+
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+
+#include "digitankswindow.h"
+#include "game/digitanksgame.h"
+
+using namespace glgui;
+
+CPowerBar::CPowerBar(powerbar_type_t ePowerbarType)
+	: CBaseControl(0, 0, 100, 100)
+{
+	m_ePowerbarType = ePowerbarType;
+}
+
+void CPowerBar::Paint(int x, int y, int w, int h)
+{
+	if (!Game())
+		return;
+
+	if (!Game()->GetCurrentTank())
+		return;
+
+	CDigitank* pTank = Game()->GetCurrentTank();
+
+	if (m_ePowerbarType == POWERBAR_ATTACK)
+		CRootPanel::PaintRect(x, y, (int)(w * pTank->GetAttackPower()), h);
+	else if (m_ePowerbarType == POWERBAR_DEFENSE)
+		CRootPanel::PaintRect(x, y, (int)(w * pTank->GetDefensePower()), h);
+	else
+		CRootPanel::PaintRect(x, y, (int)(w * pTank->GetMovementPower()), h);
+}
+
+CHUD::CHUD()
+	: CPanel(0, 0, 100, 100)
+{
+	m_pGame = NULL;
+
+	m_pAttackPower = new CPowerBar(POWERBAR_ATTACK);
+	m_pDefensePower = new CPowerBar(POWERBAR_DEFENSE);
+	m_pMovementPower = new CPowerBar(POWERBAR_MOVEMENT);
+
+	AddControl(m_pAttackPower);
+	AddControl(m_pDefensePower);
+	AddControl(m_pMovementPower);
+}
+
+void CHUD::Layout()
+{
+	SetSize(GetParent()->GetWidth(), GetParent()->GetHeight());
+
+	m_pAttackPower->SetPos(20, 20);
+	m_pAttackPower->SetSize(200, 20);
+
+	m_pDefensePower->SetPos(20, 50);
+	m_pDefensePower->SetSize(200, 20);
+
+	m_pMovementPower->SetPos(20, 80);
+	m_pMovementPower->SetSize(200, 20);
+}
+
+void CHUD::Think()
+{
+	if (!m_pGame)
+		return;
+}

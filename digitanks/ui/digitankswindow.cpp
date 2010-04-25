@@ -6,13 +6,8 @@
 #include <IL/il.h>
 #include <IL/ilu.h>
 
+#include "glgui/glgui.h"
 #include "game/digitanksgame.h"
-
-extern "C" {
-static void CALLBACK RenderTesselateBegin(GLenum ePrim);
-static void CALLBACK RenderTesselateVertex(void* pVertexData, void* pPolygonData);
-static void CALLBACK RenderTesselateEnd();
-}
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
@@ -43,6 +38,9 @@ CDigitanksWindow::CDigitanksWindow()
 
 	ilInit();
 
+	m_pDigitanksGame = new CDigitanksGame();
+	m_pDigitanksGame->SetupDefaultGame();
+
 	InitUI();
 
 	GLenum err = glewInit();
@@ -50,9 +48,6 @@ CDigitanksWindow::CDigitanksWindow()
 		exit(0);
 
 	CompileShaders();
-
-	m_pDigitanksGame = new CDigitanksGame();
-	m_pDigitanksGame->SetupDefaultGame();
 
 	glutPassiveMotionFunc(&CDigitanksWindow::MouseMotionCallback);
 	glutMotionFunc(&CDigitanksWindow::MouseDraggedCallback);
@@ -69,19 +64,6 @@ CDigitanksWindow::CDigitanksWindow()
 	glLineWidth(1.0);
 
 	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
-
-	GLfloat flLightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	GLfloat flLightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
-	GLfloat flLightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
-
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, flLightDiffuse);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, flLightAmbient);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, flLightSpecular);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1f);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05f);
 }
 
 CDigitanksWindow::~CDigitanksWindow()
@@ -99,8 +81,8 @@ void CDigitanksWindow::Run()
 	{
 		glutMainLoopEvent();
 		Render();
-		//modelgui::CRootPanel::Get()->Think();
-		//modelgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+		glgui::CRootPanel::Get()->Think();
+		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 		glutSwapBuffers();
 	}
 }
@@ -171,7 +153,6 @@ void CDigitanksWindow::Render()
 
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
-	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 
@@ -221,20 +202,6 @@ void CDigitanksWindow::Render()
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
 		0.0, 1.0, 0.0);
 
-	// Reposition the light source.
-	Vector vecLightDirection = AngleVector(EAngle(45, 0, 0));
-
-	Vector vecLightPosition = vecLightDirection * 100/2;
-
-	GLfloat flLightPosition[4];
-	flLightPosition[0] = vecLightPosition.x;
-	flLightPosition[1] = vecLightPosition.y;
-	flLightPosition[2] = vecLightPosition.z;
-	flLightPosition[3] = 0;
-
-	// Tell GL new light source position.
-    glLightfv(GL_LIGHT0, GL_POSITION, flLightPosition);
-
 	RenderGround();
 
 	RenderObjects();
@@ -248,7 +215,6 @@ void CDigitanksWindow::Render()
 
 void CDigitanksWindow::RenderGround(void)
 {
-	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 
 	glPushMatrix();
@@ -372,8 +338,8 @@ void CDigitanksWindow::WindowResize(int w, int h)
 	glLoadIdentity();
 
 	Render();
-//	modelgui::CRootPanel::Get()->Layout();
-//	modelgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+	glgui::CRootPanel::Get()->Layout();
+	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
 	glutSwapBuffers();
 }
