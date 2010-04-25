@@ -254,6 +254,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="glgui"
+				>
+				<File
+					RelativePath="..\glgui\glgui.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\glgui\glgui.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
