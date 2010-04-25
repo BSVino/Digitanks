@@ -38,7 +38,7 @@ Color::Color()
 
 Color::Color(int _r, int _g, int _b)
 {
-	Color(_r, _g, _b, 255);
+	SetColor(_r, _g, _b, 255);
 }
 
 Color::Color(int _r, int _g, int _b, int _a)
