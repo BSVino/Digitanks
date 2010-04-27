@@ -16,20 +16,22 @@ CPowerBar::CPowerBar(powerbar_type_t ePowerbarType)
 
 void CPowerBar::Paint(int x, int y, int w, int h)
 {
-	if (!Game())
+	if (!DigitanksGame())
 		return;
 
-	if (!Game()->GetCurrentTank())
+	if (!DigitanksGame()->GetCurrentTank())
 		return;
 
-	CDigitank* pTank = Game()->GetCurrentTank();
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, 128));
 
 	if (m_ePowerbarType == POWERBAR_ATTACK)
-		CRootPanel::PaintRect(x, y, (int)(w * pTank->GetAttackPower()), h);
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower())-2, h-2, Color(255, 0, 0));
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
-		CRootPanel::PaintRect(x, y, (int)(w * pTank->GetDefensePower()), h);
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower())-2, h-2, Color(255, 255, 0));
 	else
-		CRootPanel::PaintRect(x, y, (int)(w * pTank->GetMovementPower()), h);
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower())-2, h-2, Color(0, 0, 255));
 }
 
 CHUD::CHUD()
@@ -64,4 +66,24 @@ void CHUD::Think()
 {
 	if (!m_pGame)
 		return;
+}
+
+void CHUD::Paint(int x, int y, int w, int h)
+{
+	if (!DigitanksGame())
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	{
+		CTeam* pTeam = DigitanksGame()->GetTeam(i);
+		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
+		{
+			CDigitank* pTank = pTeam->GetTank(j);
+			Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(pTank->GetOrigin());
+			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 51, 102, 5, Color(0, 0, 0, 128));
+			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 50, (int)(100.0f*pTank->GetHealth()/pTank->GetTotalHealth()), 3, Color(100, 255, 100));
+		}
+	}
+
+	CPanel::Paint(x, y, w, h);
 }

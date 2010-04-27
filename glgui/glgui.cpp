@@ -565,6 +565,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 	if (m_iAlpha == 0)
 		return;
 
+	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_LIGHTING);
 
 	Color FGColor = m_FGColor;
@@ -638,7 +639,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 	free(pszText);
 
-	glEnable(GL_LIGHTING);
+	glPopAttrib();
 }
 
 void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
@@ -1079,6 +1080,8 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 
 	if (m_iTexture)
 	{
+		glPushAttrib(GL_ENABLE_BIT);
+
 		glEnable(GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_LIGHTING);
@@ -1098,9 +1101,7 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_LIGHTING);
-		glDisable(GL_BLEND);
+		glPopAttrib();
 	}
 	else
 	{
@@ -1368,6 +1369,8 @@ CRootPanel::CRootPanel() :
 	AddControl(m_pMenuBar, true);
 
 	m_flFrameTime = 0;
+
+	m_bUseLighting = true;
 }
 
 CRootPanel::~CRootPanel( )
@@ -1433,7 +1436,10 @@ void CRootPanel::Paint(int x, int y, int w, int h)
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_LIGHTING);
+	if (m_bUseLighting)
+		glEnable(GL_LIGHTING);
+	else
+		glDisable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
 
 	glShadeModel(GL_SMOOTH);
@@ -2202,6 +2208,7 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 	{
 		iIconSize = 12;
 
+		glPushAttrib(GL_ENABLE_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_LIGHTING);
@@ -2221,9 +2228,7 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_LIGHTING);
-		glDisable(GL_BLEND);
+		glPopAttrib();
 	}
 
 	m_pLabel->Paint(x+h+iIconSize, y, w-h-iIconSize, h);
@@ -2307,6 +2312,7 @@ void CTreeNode::CExpandButton::Think()
 
 void CTreeNode::CExpandButton::Paint(int x, int y, int w, int h)
 {
+	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_LIGHTING);
@@ -2336,9 +2342,7 @@ void CTreeNode::CExpandButton::Paint(int x, int y, int w, int h)
 
 	glPopMatrix();
 
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_LIGHTING);
-	glDisable(GL_BLEND);
+	glPopAttrib();
 }
 
 void CTreeNode::CExpandButton::SetExpanded(bool bExpanded)

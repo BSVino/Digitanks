@@ -352,6 +352,8 @@ namespace glgui
 		class CMenuBar*				GetMenuBar() { return m_pMenuBar; };
 		class CMenu*				AddMenu(const char* pszTitle);
 
+		void						SetLighting(bool bLighting) { m_bUseLighting = bLighting; };
+
 		float						GetFrameTime() { return m_flFrameTime; };
 
 		static CRootPanel*			Get();
@@ -381,6 +383,8 @@ namespace glgui
 
 		int							m_iMX;
 		int							m_iMY;
+
+		bool						m_bUseLighting;
 	};
 
 	class CLabel : public CBaseControl

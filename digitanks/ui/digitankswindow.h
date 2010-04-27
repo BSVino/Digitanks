@@ -55,6 +55,8 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
+	Vector						ScreenPosition(Vector vecWorld);
+	Vector						WorldPosition(Vector vecScreen);
 	bool						GetMouseGridPosition(Vector& vecPoint);
 
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
@@ -68,7 +70,9 @@ protected:
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
 
-	bool						m_bMouseGridQueryValid;
+	double						m_aiModelView[16];
+	double						m_aiProjection[16];
+	int							m_aiViewport[4];
 
 	class CDigitanksGame*		m_pDigitanksGame;
 
@@ -77,7 +81,7 @@ protected:
 	static CDigitanksWindow*	s_pDigitanksWindow;
 };
 
-inline class CDigitanksGame* Game()
+inline class CDigitanksGame* DigitanksGame()
 {
 	if (!CDigitanksWindow::Get())
 		return NULL;

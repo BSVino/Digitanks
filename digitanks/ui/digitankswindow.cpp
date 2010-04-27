@@ -5,16 +5,20 @@
 #include <GL/freeglut.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <time.h>
 #include <vector.h>
 
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
+#include "debugdraw.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
 CDigitanksWindow::CDigitanksWindow()
 {
 	s_pDigitanksWindow = this;
+
+	srand((unsigned int)time(NULL));
 
 	int argc = 1;
 	char* argv = "digitanks";
@@ -62,6 +66,7 @@ CDigitanksWindow::CDigitanksWindow()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
 
 	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
@@ -81,6 +86,7 @@ void CDigitanksWindow::Run()
 	while (true)
 	{
 		glutMainLoopEvent();
+		Game()->Think();
 		Render();
 		glgui::CRootPanel::Get()->Think();
 		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
@@ -203,13 +209,13 @@ void CDigitanksWindow::Render()
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
 		0.0, 1.0, 0.0);
 
-	m_bMouseGridQueryValid = true;
+	glGetDoublev( GL_MODELVIEW_MATRIX, m_aiModelView );
+	glGetDoublev( GL_PROJECTION_MATRIX, m_aiProjection );
+	glGetIntegerv( GL_VIEWPORT, m_aiViewport );
 
 	RenderGround();
 
 	RenderObjects();
-
-	m_bMouseGridQueryValid = false;
 
 	glPopMatrix();
 	glPopAttrib();
@@ -312,6 +318,9 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 		{
 			CDigitank* pTank = pTeam->GetTank(j);
 
+			if (!pTank)
+				continue;
+
 			if (pTank->HasDesiredMove())
 			{
 				glPushMatrix();
@@ -362,21 +371,36 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 
 void CDigitanksWindow::RenderMovementSelection()
 {
-	if (!Game()->GetCurrentTank())
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	if (!pTank)
 		return;
+
+	Vector vecOrigin;
+	if (pTank->HasDesiredMove())
+		vecOrigin = pTank->GetDesiredMove();
+	else
+		vecOrigin = pTank->GetOrigin();
+
+	// Movement
+	DebugCircle(vecOrigin, pTank->GetTotalPower(), Color(0, 0, 255));
+
+	// Range
+	DebugCircle(vecOrigin, 30, Color(0, 255, 0));
+	DebugCircle(vecOrigin, 50, Color(255, 0, 0));
 
 	Vector vecPoint;
 	if (!GetMouseGridPosition(vecPoint))
 		return;
 
-	Game()->GetCurrentTank()->PreviewMove(vecPoint);
+	pTank->PreviewMove(vecPoint);
 
-	float flTotalPower = Game()->GetCurrentTank()->GetTotalPower();
+	float flTotalPower = pTank->GetTotalPower();
 
-	if ((vecPoint - Game()->GetCurrentTank()->GetOrigin()).LengthSqr() > flTotalPower*flTotalPower)
+	if ((vecPoint - pTank->GetOrigin()).LengthSqr() > flTotalPower*flTotalPower)
 		return;
 
-	glColor4ubv(Color(255, 255, 255));
+	glColor4ubv(Color(0, 0, 255));
 
 	glPushMatrix();
 
@@ -421,29 +445,14 @@ void CDigitanksWindow::Visible(int vis)
 
 bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 {
-	assert(m_bMouseGridQueryValid);
-
-	GLint aiViewport[4];
-	GLdouble aiModelView[16];
-	GLdouble aiProjection[16];
-	GLfloat winX, winY;
-	GLdouble posX, posY, posZ;
-
-	glGetDoublev( GL_MODELVIEW_MATRIX, aiModelView );
-	glGetDoublev( GL_PROJECTION_MATRIX, aiProjection );
-	glGetIntegerv( GL_VIEWPORT, aiViewport );
-
 	int x, y;
 	glgui::CRootPanel::Get()->GetFullscreenMousePos(x, y);
 
-	winX = (float)x;
-	winY = (float)aiViewport[3] - (float)y;
-
-	gluUnProject( winX, winY, 1, aiModelView, aiProjection, aiViewport, &posX, &posY, &posZ);
+	Vector vecWorld = WorldPosition(Vector((float)x, (float)y, 1));
 
 	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * 100;
 
-	Vector vecRay = (Vector((float)posX, (float)posY, (float)posZ) - vecCameraVector).Normalized();
+	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
 	float a = -vecCameraVector.y;
 	float b = vecRay.y;
@@ -465,4 +474,24 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 	vecPoint = vecCameraVector + vecRay*r;
 
 	return true;
+}
+
+Vector CDigitanksWindow::ScreenPosition(Vector vecWorld)
+{
+	GLdouble x, y, z;
+	gluProject(
+		vecWorld.x, vecWorld.y, vecWorld.z,
+		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
+		&x, &y, &z);
+	return Vector((float)x, (float)GetWindowHeight() - (float)y, (float)z);
+}
+
+Vector CDigitanksWindow::WorldPosition(Vector vecScreen)
+{
+	GLdouble x, y, z;
+	gluUnProject(
+		vecScreen.x, (float)GetWindowHeight() - vecScreen.y, vecScreen.z,
+		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
+		&x, &y, &z);
+	return Vector((float)x, (float)y, (float)z);
 }

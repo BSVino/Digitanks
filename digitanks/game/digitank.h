@@ -6,32 +6,39 @@
 class CDigitank : public CBaseEntity
 {
 public:
-					CDigitank();
+								CDigitank();
 
 public:
-	float			GetTotalPower() { return m_flTotalPower; };
-	float			GetAttackPower();
-	float			GetDefensePower();
-	float			GetMovementPower();
+	float						GetTotalPower() { return m_flTotalPower; };
+	float						GetAttackPower();
+	float						GetDefensePower();
+	float						GetMovementPower();
 
-	void			PreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
+	void						StartTurn();
 
-	void			SetDesiredMove();
-	bool			HasDesiredMove() { return m_bDesiredMove; };
-	Vector			GetDesiredMove() { return m_vecDesiredMove; };
+	void						PreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
 
-	void			Move();
+	void						SetDesiredMove();
+	bool						HasDesiredMove() { return m_bDesiredMove; };
+	Vector						GetDesiredMove() { return m_vecDesiredMove; };
+
+	void						SetTarget(CDigitank* pTarget) { m_hTarget = pTarget; };
+
+	void						Move();
+	void						Fire();
 
 protected:
-	float			m_flTotalPower;
-	float			m_flAttackPower;
-	float			m_flDefensePower;
-	float			m_flMovementPower;
+	float						m_flTotalPower;
+	float						m_flAttackPower;
+	float						m_flDefensePower;
+	float						m_flMovementPower;
 
-	Vector			m_vecPreviewMove;
+	Vector						m_vecPreviewMove;
 
-	bool			m_bDesiredMove;
-	Vector			m_vecDesiredMove;
+	bool						m_bDesiredMove;
+	Vector						m_vecDesiredMove;
+
+	CEntityHandle<CDigitank>	m_hTarget;
 };
 
 #endif

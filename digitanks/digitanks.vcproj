@@ -182,6 +182,14 @@
 				Name="ui"
 				>
 				<File
+					RelativePath=".\ui\debugdraw.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\debugdraw.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ui\digitankswindow.cpp"
 					>
 					<FileConfiguration
@@ -234,6 +242,10 @@
 				Name="game"
 				>
 				<File
+					RelativePath=".\game\baseentity.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\game\baseentity.h"
 					>
 				</File>
@@ -251,6 +263,14 @@
 				</File>
 				<File
 					RelativePath=".\game\digitanksgame.h"
+					>
+				</File>
+				<File
+					RelativePath=".\game\game.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\game.h"
 					>
 				</File>
 				<File

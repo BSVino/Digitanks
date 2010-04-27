@@ -31,6 +31,8 @@ public:
 	virtual void				Layout();
 	virtual void				Think();
 
+	void						Paint(int x, int y, int w, int h);
+
 	void						SetGame(class CDigitanksGame* pGame) { m_pGame = pGame; };
 
 protected:

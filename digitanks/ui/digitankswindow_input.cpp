@@ -28,8 +28,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			return;
 	}
 
-	if (Game())
-		Game()->SetDesiredMove();
+	if (DigitanksGame())
+		DigitanksGame()->SetDesiredMove();
 }
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
@@ -40,8 +40,8 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		return;
 	}
 
-	if (Game() && c == 13)
-		Game()->Turn();
+	if (DigitanksGame() && c == 13)
+		DigitanksGame()->Turn();
 
 	if (c == 27)
 		exit(0);

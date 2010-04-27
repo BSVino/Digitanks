@@ -14,6 +14,8 @@ void CDigitanksWindow::InitUI()
 	CRootPanel::Get()->AddControl(m_pHUD);
 
 	CRootPanel::Get()->Layout();
+
+	CRootPanel::Get()->SetLighting(false);
 }
 
 void CDigitanksWindow::Layout()
