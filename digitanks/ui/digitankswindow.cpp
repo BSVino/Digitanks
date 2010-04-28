@@ -166,13 +166,13 @@ void CDigitanksWindow::Render()
 	glShadeModel(GL_SMOOTH);
 
 	glBegin(GL_QUADS);
-		glColor3f(0.6f, 0.6f, 0.6f);
+		glColor3ub(20, 20, 20);
 		glVertex2f(-1.0f, 1.0f);
-		glColor3f(0.4f, 0.4f, 0.4f);
+		glColor3ub(10, 10, 10);
 		glVertex2f(-1.0f, -1.0f);
-		glColor3f(0.2f, 0.2f, 0.2f);
+		glColor3ub(20, 20, 20);
 		glVertex2f(1.0f, -1.0f);
-		glColor3f(0.4f, 0.4f, 0.4f);
+		glColor3ub(10, 10, 10);
 		glVertex2f(1.0f, 1.0f);
 	glEnd();
 
@@ -243,10 +243,10 @@ void CDigitanksWindow::RenderGround(void)
 
 		for (int j = 0; j <= 20; j++)
 		{
-			GLfloat aflBorderLineBright[3] = { 0.7f, 0.7f, 0.7f };
-			GLfloat aflBorderLineDarker[3] = { 0.6f, 0.6f, 0.6f };
-			GLfloat aflInsideLineBright[3] = { 0.5f, 0.5f, 0.5f };
-			GLfloat aflInsideLineDarker[3] = { 0.4f, 0.4f, 0.4f };
+			GLfloat aflBorderLineBright[3] = { 0.5f, 0.6f, 0.5f };
+			GLfloat aflBorderLineDarker[3] = { 0.4f, 0.5f, 0.4f };
+			GLfloat aflInsideLineBright[3] = { 0.3f, 0.3f, 0.3f };
+			GLfloat aflInsideLineDarker[3] = { 0.2f, 0.2f, 0.2f };
 
 			glBegin(GL_LINES);
 
@@ -326,7 +326,7 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 				RenderTank(pTank, pTank->GetDesiredMove(), pTank->GetAngles(), pTeam->GetColor());
 
 				Color clrTeam = pTeam->GetColor();
-				clrTeam.SetAlpha(100);
+				clrTeam.SetAlpha(50);
 				RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), clrTeam);
 			}
 			else
@@ -359,7 +359,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	glutSolidCube(4);
 
 	glPushMatrix();
-	glColor4ubv(Color(0, 0, 0, clrTank.a()));
+	glColor4ubv(Color(100, 100, 100, clrTank.a()));
 	glTranslatef(2, 2, 0);
 	glutSolidCube(1);
 	glPopMatrix();
@@ -370,28 +370,28 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetFrontShieldStrength() * clrTank.a())));
 	glTranslatef(4, 0, 0);
-	glScalef(0.25f, 1, 1);
+	glScalef(0.1f, 1, 1);
 	glutSolidCube(4);
 	glPopMatrix();
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetLeftShieldStrength() * clrTank.a())));
 	glTranslatef(0, 0, 4);
-	glScalef(1, 1, 0.25f);
+	glScalef(1, 1, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRightShieldStrength() * clrTank.a())));
 	glTranslatef(0, 0, -4);
-	glScalef(1, 1, 0.25f);
+	glScalef(1, 1, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRearShieldStrength() * clrTank.a())));
 	glTranslatef(-4, 0, 0);
-	glScalef(0.25f, 1, 1);
+	glScalef(0.1f, 1, 1);
 	glutSolidCube(4);
 	glPopMatrix();
 
