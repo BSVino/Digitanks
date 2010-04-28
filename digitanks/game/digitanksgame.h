@@ -6,12 +6,25 @@
 
 #include <vector>
 
+class IDigitanksGameListener
+{
+public:
+	virtual void			GameStart()=0;
+	virtual void			GameOver()=0;
+
+	virtual void			NewCurrentTeam()=0;
+	virtual void			NewCurrentTank()=0;
+};
+
 class CDigitanksGame : public CGame
 {
 public:
+							CDigitanksGame();
 							~CDigitanksGame();
 
 public:
+	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
+
 	void					SetupDefaultGame();
 
 	void					StartGame();
@@ -37,6 +50,8 @@ protected:
 
 	size_t					m_iCurrentTeam;
 	size_t					m_iCurrentTank;
+
+	IDigitanksGameListener*	m_pListener;
 };
 
 #endif

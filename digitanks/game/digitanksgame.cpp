@@ -2,6 +2,14 @@
 
 #include <assert.h>
 
+CDigitanksGame::CDigitanksGame()
+{
+	m_iCurrentTeam = 0;
+	m_iCurrentTank = 0;
+
+	m_pListener = NULL;
+}
+
 CDigitanksGame::~CDigitanksGame()
 {
 	for (size_t i = 0; i < m_apTeams.size(); i++)
@@ -38,10 +46,19 @@ void CDigitanksGame::SetupDefaultGame()
 
 void CDigitanksGame::StartGame()
 {
+	if (m_pListener)
+		m_pListener->GameStart();
+
 	m_iCurrentTeam = 0;
 	m_iCurrentTank = 0;
 
+	if (m_pListener)
+		m_pListener->NewCurrentTeam();
+
 	GetCurrentTeam()->StartTurn();
+
+	if (m_pListener)
+		m_pListener->NewCurrentTank();
 }
 
 void CDigitanksGame::SetDesiredMove()
@@ -62,6 +79,9 @@ void CDigitanksGame::NextTank()
 
 	if (++m_iCurrentTank >= GetCurrentTeam()->GetNumTanks())
 		m_iCurrentTank = 0;
+
+	if (m_pListener)
+		m_pListener->NewCurrentTank();
 }
 
 void CDigitanksGame::Turn()
@@ -74,7 +94,13 @@ void CDigitanksGame::Turn()
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
 
+	if (m_pListener)
+		m_pListener->NewCurrentTeam();
+
 	GetCurrentTeam()->StartTurn();
+
+	if (m_pListener)
+		m_pListener->NewCurrentTank();
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
@@ -97,7 +123,12 @@ void CDigitanksGame::CheckWinConditions()
 	}
 
 	if (m_apTeams.size() <= 1)
+	{
+		if (m_pListener)
+			m_pListener->GameOver();
+
 		SetupDefaultGame();
+	}
 }
 
 void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)

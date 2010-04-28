@@ -46,6 +46,10 @@ CHUD::CHUD()
 	AddControl(m_pAttackPower);
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
+
+	m_pMoveButton = new CButton(0, 0, 50, 50, "");
+	m_pMoveButton->SetClickedListener(this, Move);
+	AddControl(m_pMoveButton);
 }
 
 void CHUD::Layout()
@@ -63,12 +67,18 @@ void CHUD::Layout()
 
 	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 450, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
+
+	m_pMoveButton->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
 }
 
 void CHUD::Think()
 {
-	if (!m_pGame)
-		return;
+	BaseClass::Think();
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+		m_pMoveButton->SetButtonColor(Color(100, 0, 0));
+	else
+		m_pMoveButton->SetButtonColor(Color(0, 0, 100));
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -107,4 +117,39 @@ void CHUD::Paint(int x, int y, int w, int h)
 	}
 
 	CPanel::Paint(x, y, w, h);
+}
+
+void CHUD::SetGame(CDigitanksGame *pGame)
+{
+	m_pGame = pGame;
+	m_pGame->SetListener(this);
+}
+
+void CHUD::GameStart()
+{
+	CDigitanksWindow::Get()->SetControlMode(MODE_NOTHING);
+}
+
+void CHUD::GameOver()
+{
+}
+
+void CHUD::NewCurrentTeam()
+{
+}
+
+void CHUD::NewCurrentTank()
+{
+	CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
+}
+
+void CHUD::MoveCallback()
+{
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+	{
+		CDigitanksWindow::Get()->SetControlMode(MODE_NOTHING);
+		DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
+	}
+	else
+		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
 }

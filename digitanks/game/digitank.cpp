@@ -121,6 +121,15 @@ void CDigitank::SetDesiredMove()
 	m_bDesiredMove = true;
 }
 
+void CDigitank::CancelDesiredMove()
+{
+	m_bDesiredMove = false;
+
+	m_flMovementPower = 0;
+	m_flAttackPower = m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flTotalPower;
+	m_flDefensePower = m_flTotalPower - m_flAttackPower;
+}
+
 void CDigitank::Move()
 {
 	if (!m_bDesiredMove)

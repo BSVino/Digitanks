@@ -890,6 +890,8 @@ CButton::CButton(int x, int y, int w, int h, const char* pszText, bool bToggle)
 	m_pfnClickCallback = NULL;
 	m_pUnclickListener = NULL;
 	m_pfnUnclickCallback = NULL;
+	m_clrButton = g_clrBox;
+	m_clrDown = g_clrBoxHi;
 }
 
 void CButton::Destructor()
@@ -1055,11 +1057,11 @@ void CButton::PaintButton(int x, int y, int w, int h)
 	}
 	else if (m_bDown)
 	{
-		CRootPanel::PaintRect(x, y, w, h, g_clrBoxHi);
+		CRootPanel::PaintRect(x, y, w, h, m_clrDown);
 	}
 	else
 	{
-		Color clrBox = g_clrBox;
+		Color clrBox = m_clrButton;
 		clrBox.SetAlpha((int)RemapVal(m_flHighlight, 0, 1, 125, 255));
 		CRootPanel::PaintRect(x, y, w, h, clrBox);
 	}

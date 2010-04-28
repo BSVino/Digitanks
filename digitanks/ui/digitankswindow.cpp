@@ -44,9 +44,10 @@ CDigitanksWindow::CDigitanksWindow()
 	ilInit();
 
 	m_pDigitanksGame = new CDigitanksGame();
-	m_pDigitanksGame->SetupDefaultGame();
 
 	InitUI();
+
+	m_pDigitanksGame->SetupDefaultGame();
 
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
@@ -408,7 +409,8 @@ void CDigitanksWindow::RenderMovementSelection()
 		return;
 
 	// Movement
-	DebugCircle(pTank->GetOrigin(), pTank->GetTotalPower(), Color(0, 0, 255));
+	if (GetControlMode() == MODE_MOVE)
+		DebugCircle(pTank->GetOrigin(), pTank->GetTotalPower(), Color(0, 0, 255));
 
 	Vector vecOrigin;
 	if (pTank->HasDesiredMove())
@@ -420,26 +422,29 @@ void CDigitanksWindow::RenderMovementSelection()
 	DebugCircle(vecOrigin, 30, Color(0, 255, 0));
 	DebugCircle(vecOrigin, 50, Color(255, 0, 0));
 
-	Vector vecPoint;
-	if (!GetMouseGridPosition(vecPoint))
-		return;
+	if (GetControlMode() == MODE_MOVE)
+	{
+		Vector vecPoint;
+		if (!GetMouseGridPosition(vecPoint))
+			return;
 
-	pTank->PreviewMove(vecPoint);
+		pTank->PreviewMove(vecPoint);
 
-	float flTotalPower = pTank->GetTotalPower();
+		float flTotalPower = pTank->GetTotalPower();
 
-	if ((vecPoint - pTank->GetOrigin()).LengthSqr() > flTotalPower*flTotalPower)
-		return;
+		if ((vecPoint - pTank->GetOrigin()).LengthSqr() > flTotalPower*flTotalPower)
+			return;
 
-	glColor4ubv(Color(0, 0, 255));
+		glColor4ubv(Color(0, 0, 255));
 
-	glPushMatrix();
+		glPushMatrix();
 
-	glTranslatef(vecPoint.x, vecPoint.y, vecPoint.z);
+		glTranslatef(vecPoint.x, vecPoint.y, vecPoint.z);
 
-	glutSolidCube(2);
+		glutSolidCube(2);
 
-	glPopMatrix();
+		glPopMatrix();
+	}
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)

@@ -497,6 +497,9 @@ namespace glgui
 
 		virtual bool	IsHighlighted() {return m_flHighlight > 0;};
 
+		virtual void	SetButtonColor(Color clrButton) { m_clrButton = clrButton; };
+		virtual void	SetDownColor(Color clrDown) { m_clrDown = clrDown; };
+
 	protected:
 		bool			m_bToggle;
 		bool			m_bToggleOn;
@@ -510,6 +513,9 @@ namespace glgui
 
 		IEventListener::Callback m_pfnUnclickCallback;
 		IEventListener*	m_pUnclickListener;
+
+		Color			m_clrButton;
+		Color			m_clrDown;
 	};
 
 	class CPictureButton : public CButton

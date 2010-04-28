@@ -5,12 +5,21 @@
 #include <vector.h>
 #include <color.h>
 
+typedef enum
+{
+	MODE_NOTHING = 0,
+	MODE_MOVE,
+	MODE_TURN,
+	MODE_FIRE,
+} controlmode_t;
+
 class CDigitanksWindow
 {
 public:
 								CDigitanksWindow();
 								~CDigitanksWindow();
 
+public:
 	void						InitUI();
 
 	void						CompileShaders();
@@ -63,6 +72,9 @@ public:
 
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
 
+	controlmode_t				GetControlMode() { return m_eControlMode; };
+	void						SetControlMode(controlmode_t eMode) { m_eControlMode = eMode; };
+
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 
 protected:
@@ -81,6 +93,8 @@ protected:
 	class CHUD*					m_pHUD;
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
+
+	controlmode_t				m_eControlMode;
 };
 
 inline class CDigitanksGame* DigitanksGame()

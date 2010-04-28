@@ -29,6 +29,7 @@ public:
 	void						PreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
 
 	void						SetDesiredMove();
+	void						CancelDesiredMove();
 	bool						HasDesiredMove() { return m_bDesiredMove; };
 	Vector						GetDesiredMove() { return m_vecDesiredMove; };
 

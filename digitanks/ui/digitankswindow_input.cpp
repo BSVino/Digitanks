@@ -28,8 +28,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			return;
 	}
 
-	if (DigitanksGame())
+	if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_MOVE)
+	{
 		DigitanksGame()->SetDesiredMove();
+		SetControlMode(MODE_TURN);
+	}
 }
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
