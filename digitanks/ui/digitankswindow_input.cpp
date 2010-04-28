@@ -33,6 +33,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		DigitanksGame()->SetDesiredMove();
 		SetControlMode(MODE_TURN);
 	}
+	else if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_TURN)
+	{
+		DigitanksGame()->SetDesiredTurn();
+		SetControlMode(MODE_FIRE);
+	}
 }
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)

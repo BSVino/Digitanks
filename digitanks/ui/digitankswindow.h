@@ -7,7 +7,7 @@
 
 typedef enum
 {
-	MODE_NOTHING = 0,
+	MODE_NONE = 0,
 	MODE_MOVE,
 	MODE_TURN,
 	MODE_FIRE,
@@ -38,6 +38,7 @@ public:
 	void						RenderGame(class CDigitanksGame* pGame);
 	void						RenderTank(class CDigitank* pTank, Vector vecOrigin, EAngle angDirection, Color clrTank);
 	void						RenderMovementSelection();
+	void						RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, float flDegrees);
 
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void						WindowResize(int x, int y);
@@ -73,7 +74,7 @@ public:
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
 
 	controlmode_t				GetControlMode() { return m_eControlMode; };
-	void						SetControlMode(controlmode_t eMode) { m_eControlMode = eMode; };
+	void						SetControlMode(controlmode_t eMode);
 
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 

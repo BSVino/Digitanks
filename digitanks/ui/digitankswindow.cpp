@@ -322,18 +322,33 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 			if (!pTank)
 				continue;
 
-			if (pTank->HasDesiredMove())
+			if (pTank == DigitanksGame()->GetCurrentTank())
 			{
-				RenderTank(pTank, pTank->GetDesiredMove(), pTank->GetAngles(), pTeam->GetColor());
+				if (pTank->HasDesiredMove() || pTank->HasDesiredTurn())
+				{
+					EAngle angTurn = EAngle(0, pTank->GetDesiredTurn(), 0);
 
-				Color clrTeam = pTeam->GetColor();
-				clrTeam.SetAlpha(50);
-				RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), clrTeam);
+					if (GetControlMode() == MODE_TURN && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalPower())
+						angTurn = EAngle(0, pTank->GetPreviewTurn(), 0);
+
+					RenderTank(pTank, pTank->GetDesiredMove(), angTurn, pTeam->GetColor());
+
+					Color clrTeam = pTeam->GetColor();
+					clrTeam.SetAlpha(50);
+					RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), clrTeam);
+				}
+				else
+				{
+					EAngle angTurn = pTank->GetAngles();
+
+					if (GetControlMode() == MODE_TURN && pTank->GetPreviewTurnPower() <= pTank->GetTotalPower())
+						angTurn = EAngle(0, pTank->GetPreviewTurn(), 0);
+
+					RenderTank(pTank, pTank->GetOrigin(), angTurn, pTeam->GetColor());
+				}
 			}
 			else
-			{
 				RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), pTeam->GetColor());
-			}
 		}
 	}
 
@@ -353,16 +368,56 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	}
 
 	glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+
+	// Turret
+	glPushMatrix();
+	glColor4ubv(Color(100, 100, 100, clrTank.a()));
+
+	if (pTank->GetTarget())
+	{
+		Vector vecTarget = (pTank->GetTarget()->GetOrigin() - vecOrigin).Normalized();
+		float flAngle = atan2(vecTarget.z, vecTarget.x) * 180/M_PI;
+		glRotatef(-flAngle, 0.0f, 1.0f, 0.0f);
+	}
+	else
+		glRotatef(-angDirection.y, 0.0f, 1.0f, 0.0f);
+
+	glPushMatrix();
+	glTranslatef(0, 2, 0);
+	glScalef(1, 0.5f, 1);
+	glutSolidCube(2);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(2, 2, 0);
+	glScalef(2, 1, 1);
+	glutSolidCube(1);
+	glPopMatrix();
+	glPopMatrix();
+
 	glRotatef(-angDirection.y, 0.0f, 1.0f, 0.0f);
 
 	glColor4ubv(clrTank);
 
+	glPushMatrix();
+	glScalef(1, 0.5f, 1);
+
 	glutSolidCube(4);
+	glPopMatrix();
+
+	// Tracks
+	glPushMatrix();
+	glTranslatef(0, -0.5f, 2);
+	glColor4ubv(Color(100, 100, 100, clrTank.a()));
+	glScalef(2, 0.5f, 0.5f);
+	glutSolidCube(2.1f);
+	glPopMatrix();
 
 	glPushMatrix();
+	glTranslatef(0, -0.5f, -2);
 	glColor4ubv(Color(100, 100, 100, clrTank.a()));
-	glTranslatef(2, 2, 0);
-	glutSolidCube(1);
+	glScalef(2, 0.5f, 0.5f);
+	glutSolidCube(2.1f);
 	glPopMatrix();
 
 	glEnable(GL_BLEND);
@@ -371,28 +426,28 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetFrontShieldStrength() * clrTank.a())));
 	glTranslatef(4, 0, 0);
-	glScalef(0.1f, 1, 1);
+	glScalef(0.1f, 0.5f, 1);
 	glutSolidCube(4);
 	glPopMatrix();
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetLeftShieldStrength() * clrTank.a())));
 	glTranslatef(0, 0, 4);
-	glScalef(1, 1, 0.1f);
+	glScalef(1, 0.5f, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRightShieldStrength() * clrTank.a())));
 	glTranslatef(0, 0, -4);
-	glScalef(1, 1, 0.1f);
+	glScalef(1, 0.5f, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRearShieldStrength() * clrTank.a())));
 	glTranslatef(-4, 0, 0);
-	glScalef(0.1f, 1, 1);
+	glScalef(0.1f, 0.5f, 1);
 	glutSolidCube(4);
 	glPopMatrix();
 
@@ -418,32 +473,79 @@ void CDigitanksWindow::RenderMovementSelection()
 	else
 		vecOrigin = pTank->GetOrigin();
 
-	// Range
-	DebugCircle(vecOrigin, 30, Color(0, 255, 0));
-	DebugCircle(vecOrigin, 50, Color(255, 0, 0));
-
-	if (GetControlMode() == MODE_MOVE)
+	if (GetControlMode() == MODE_TURN)
 	{
-		Vector vecPoint;
-		if (!GetMouseGridPosition(vecPoint))
-			return;
+		float flMaxTurnWithLeftoverPower = (1 - pTank->GetMovementPower()) * pTank->GetTotalPower() * pTank->TurnPerPower();
+		RenderTurnIndicator(vecOrigin, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
+	}
 
-		pTank->PreviewMove(vecPoint);
+	Vector vecRangeOrigin = vecOrigin;
+
+	Vector vecPoint;
+	bool bMouseOnGrid = GetMouseGridPosition(vecPoint);
+
+	if (GetControlMode() == MODE_MOVE && bMouseOnGrid)
+	{
+		pTank->SetPreviewMove(vecPoint);
 
 		float flTotalPower = pTank->GetTotalPower();
 
-		if ((vecPoint - pTank->GetOrigin()).LengthSqr() > flTotalPower*flTotalPower)
-			return;
+		if (pTank->GetPreviewMovePower() <= flTotalPower)
+		{
+			vecRangeOrigin = vecPoint;
 
-		glColor4ubv(Color(0, 0, 255));
+			Color clrTeam = pTank->GetTeam()->GetColor();
+			clrTeam.SetAlpha(50);
 
-		glPushMatrix();
+			RenderTank(pTank, vecPoint, pTank->GetAngles(), clrTeam);
 
-		glTranslatef(vecPoint.x, vecPoint.y, vecPoint.z);
+			float flMaxTurnWithLeftoverPower = (1 - pTank->GetMovementPower(true)) * pTank->GetTotalPower() * pTank->TurnPerPower();
+			if (flMaxTurnWithLeftoverPower < 180)
+				RenderTurnIndicator(vecPoint, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
+		}
+	}
 
-		glutSolidCube(2);
+	if (GetControlMode() == MODE_TURN && bMouseOnGrid)
+	{
+		Vector vecTurn;
+		if (pTank->HasDesiredMove())
+			vecTurn = vecPoint - pTank->GetDesiredMove();
+		else
+			vecTurn = vecPoint - pTank->GetOrigin();
 
-		glPopMatrix();
+		vecTurn.Normalize();
+
+		float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
+
+		pTank->SetPreviewTurn(flTurn);
+	}
+
+	// Range
+	DebugCircle(vecRangeOrigin, 30, Color(0, 255, 0));
+	DebugCircle(vecRangeOrigin, 50, Color(255, 0, 0));
+}
+
+void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, float flDegrees, float flAlpha)
+{
+	if (flDegrees < 180)
+	{
+		Vector vecTurnLeft, vecTurnRight;
+
+		AngleVectors(angAngle + EAngle(0, flDegrees, 0), &vecTurnLeft, NULL, NULL);
+		AngleVectors(angAngle - EAngle(0, flDegrees, 0), &vecTurnRight, NULL, NULL);
+
+		DebugLine(vecOrigin, vecOrigin + vecTurnLeft*10, Color(0, 0, 255));
+		DebugLine(vecOrigin, vecOrigin + vecTurnRight*10, Color(0, 0, 255));
+
+		DebugArc(vecOrigin, 10, angAngle.y - flDegrees, angAngle.y + flDegrees, Color(0, 0, 255, 255*flAlpha));
+	}
+	else
+	{
+		Vector vecForward;
+		AngleVectors(angAngle, &vecForward, NULL, NULL);
+
+		DebugLine(vecOrigin, vecOrigin + vecForward*10, Color(0, 0, 255));
+		DebugArc(vecOrigin, 10, angAngle.y - 30, angAngle.y + 30, Color(0, 0, 255, 255*flAlpha));
 	}
 }
 
@@ -530,4 +632,34 @@ Vector CDigitanksWindow::WorldPosition(Vector vecScreen)
 		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
 		&x, &y, &z);
 	return Vector((float)x, (float)y, (float)z);
+}
+
+void CDigitanksWindow::SetControlMode(controlmode_t eMode)
+{
+	if (m_eControlMode == MODE_MOVE)
+	{
+		if (eMode == MODE_NONE)
+			DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
+		else
+			DigitanksGame()->GetCurrentTank()->ClearPreviewMove();
+	}
+
+	if (m_eControlMode == MODE_TURN)
+	{
+		if (eMode == MODE_NONE)
+			DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
+		else
+			DigitanksGame()->GetCurrentTank()->ClearPreviewTurn();
+	}
+
+	if (eMode == MODE_MOVE)
+	{
+		DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
+		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
+	}
+
+	if (eMode == MODE_TURN)
+		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
+
+	m_eControlMode = eMode;
 }

@@ -210,6 +210,9 @@ public:
 			EAngle(unit_t x, unit_t y, unit_t z);
 			EAngle(unit_t* xyz);
 
+	EAngle	operator+(const EAngle& v) const;
+	EAngle	operator-(const EAngle& v) const;
+
 	operator float*()
 	{
 		return(&p);
@@ -231,6 +234,16 @@ inline EAngle::EAngle(unit_t P, unit_t Y, unit_t R)
 inline EAngle::EAngle(unit_t* pyr)
 	: p(*pyr), y(*(pyr+1)), r(*(pyr+2))
 {
+}
+
+inline EAngle EAngle::operator+(const EAngle& v) const
+{
+	return EAngle(p+v.p, y+v.y, r+v.r);
+}
+
+inline EAngle EAngle::operator-(const EAngle& v) const
+{
+	return EAngle(p-v.p, y-v.y, r-v.r);
 }
 
 inline Vector AngleVector(const EAngle& a)

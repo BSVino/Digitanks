@@ -30,6 +30,7 @@ public:
 	void					StartGame();
 
 	void					SetDesiredMove();
+	void					SetDesiredTurn();
 
 	void					NextTank();
 	void					Turn();

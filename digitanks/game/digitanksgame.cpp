@@ -29,8 +29,8 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[0]->m_clrTeam = Color(255, 0, 0);
 	m_apTeams[1]->m_clrTeam = Color(0, 0, 255);
 
-	m_apTeams[0]->m_ahTanks.push_back(new CDigitank());
-	m_apTeams[1]->m_ahTanks.push_back(new CDigitank());
+	m_apTeams[0]->AddTank(new CDigitank());
+	m_apTeams[1]->AddTank(new CDigitank());
 
 	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, 0, 30));
 	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, 0, -30));
@@ -67,6 +67,16 @@ void CDigitanksGame::SetDesiredMove()
 		return;
 
 	GetCurrentTank()->SetDesiredMove();
+
+	NextTank();
+}
+
+void CDigitanksGame::SetDesiredTurn()
+{
+	if (!GetCurrentTank())
+		return;
+
+	GetCurrentTank()->SetDesiredTurn();
 
 	NextTank();
 }

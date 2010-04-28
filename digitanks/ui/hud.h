@@ -46,6 +46,7 @@ public:
 	virtual void				NewCurrentTank();
 
 	EVENT_CALLBACK(CHUD, Move);
+	EVENT_CALLBACK(CHUD, Turn);
 
 protected:
 	class CDigitanksGame*		m_pGame;
@@ -55,6 +56,7 @@ protected:
 	CPowerBar*					m_pMovementPower;
 
 	glgui::CButton*				m_pMoveButton;
+	glgui::CButton*				m_pTurnButton;
 };
 
 #endif

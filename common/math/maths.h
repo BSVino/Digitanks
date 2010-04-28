@@ -54,4 +54,18 @@ inline float Approach(float flGoal, float flInput, float flAmount)
 		return flGoal;
 }
 
+inline float AngleDifference( float a, float b )
+{
+	float d = a - b;
+
+	if ( a > b )
+		while ( d >= 180 )
+			d -= 360;
+	else
+		while ( d <= -180 )
+			d += 360;
+
+	return d;
+}
+
 #endif

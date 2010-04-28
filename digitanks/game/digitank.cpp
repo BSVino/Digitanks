@@ -9,12 +9,17 @@ CDigitank::CDigitank()
 	m_flDefensePower = 4;
 	m_flMovementPower = 3;
 
+	m_flPreviewTurn = 0;
+
 	m_bDesiredMove = false;
+	m_bDesiredTurn = false;
 
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
 
 	m_flMaxShieldStrength = m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flBackShieldStrength = 5;
+
+	m_pTeam = NULL;
 }
 
 float CDigitank::GetAttackPower(bool bPreview)
@@ -23,12 +28,10 @@ float CDigitank::GetAttackPower(bool bPreview)
 	
 	if (bPreview)
 	{
-		flMovementLength = (m_vecPreviewMove - GetOrigin()).LengthSqr();
+		flMovementLength = GetPreviewMoveTurnPower();
 
-		if (flMovementLength > m_flTotalPower * m_flTotalPower)
+		if (flMovementLength > m_flTotalPower)
 			return m_flAttackPower/m_flTotalPower;
-
-		flMovementLength = sqrt(flMovementLength);
 
 		return RemapVal(flMovementLength, 0, m_flTotalPower, m_flAttackPower/(m_flAttackPower+m_flDefensePower), 0);
 	}
@@ -42,12 +45,10 @@ float CDigitank::GetDefensePower(bool bPreview)
 
 	if (bPreview)
 	{
-		flMovementLength = (m_vecPreviewMove - GetOrigin()).LengthSqr();
+		flMovementLength = GetPreviewMoveTurnPower();
 
-		if (flMovementLength > m_flTotalPower * m_flTotalPower)
+		if (flMovementLength > m_flTotalPower)
 			return m_flDefensePower/m_flTotalPower;
-
-		flMovementLength = sqrt(flMovementLength);
 
 		return RemapVal(flMovementLength, 0, m_flTotalPower, m_flDefensePower/(m_flAttackPower+m_flDefensePower), 0);
 	}
@@ -61,16 +62,42 @@ float CDigitank::GetMovementPower(bool bPreview)
 	
 	if (bPreview)
 	{
-		flMovementLength = (m_vecPreviewMove - GetOrigin()).LengthSqr();
+		flMovementLength = GetPreviewMoveTurnPower();
 
-		if (flMovementLength > m_flTotalPower * m_flTotalPower)
+		if (flMovementLength > m_flTotalPower)
 			return m_flMovementPower/m_flTotalPower;
 
-		flMovementLength = sqrt(flMovementLength);
 		return flMovementLength/m_flTotalPower;
 	}
 
 	return m_flMovementPower/m_flTotalPower;
+}
+
+float CDigitank::GetPreviewMoveTurnPower()
+{
+	return GetPreviewMovePower() + GetPreviewTurnPower();
+}
+
+float CDigitank::GetPreviewMovePower()
+{
+	if (HasDesiredMove())
+		return (m_vecDesiredMove - GetOrigin()).Length();
+
+	return (m_vecPreviewMove - GetOrigin()).Length();
+}
+
+float CDigitank::GetPreviewTurnPower()
+{
+	if (HasDesiredTurn())
+		return fabs(AngleDifference(m_flDesiredTurn, GetAngles().y)/TurnPerPower());
+
+	return fabs(AngleDifference(m_flPreviewTurn, GetAngles().y)/TurnPerPower());
+}
+
+void CDigitank::CalculateAttackDefense()
+{
+	m_flAttackPower = RemapVal(m_flMovementPower, 0, m_flTotalPower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flTotalPower, 0);
+	m_flDefensePower = m_flTotalPower - m_flMovementPower - m_flAttackPower;
 }
 
 float CDigitank::GetFrontShieldStrength()
@@ -96,27 +123,38 @@ float CDigitank::GetRearShieldStrength()
 void CDigitank::StartTurn()
 {
 	m_flMovementPower = 0;
-	m_flAttackPower = m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flTotalPower;
-	m_flDefensePower = m_flTotalPower - m_flAttackPower;
+	CalculateAttackDefense();
 
 	for (size_t i = 0; i < TANK_SHIELDS; i++)
 		m_flShieldStrengths[i] = Approach(m_flMaxShieldStrength, m_flShieldStrengths[i], ShieldRechargeRate());
 
 	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
+
+	m_vecPreviewMove = GetOrigin();
+	m_flPreviewTurn = GetAngles().y;
+}
+
+void CDigitank::ClearPreviewMove()
+{
+	m_vecPreviewMove = GetOrigin();
+}
+
+void CDigitank::ClearPreviewTurn()
+{
+	m_flPreviewTurn = GetAngles().y;
 }
 
 void CDigitank::SetDesiredMove()
 {
-	float flMoveLength = (m_vecPreviewMove - GetOrigin()).Length();
+	float flMovePower = GetPreviewMovePower();
 
-	if (flMoveLength > m_flTotalPower)
+	if (flMovePower > m_flTotalPower)
 		return;
 
 	m_vecDesiredMove = m_vecPreviewMove;
 
-	m_flMovementPower = flMoveLength;
-	m_flAttackPower = RemapVal(flMoveLength, 0, m_flTotalPower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flTotalPower, 0);
-	m_flDefensePower = m_flTotalPower - m_flMovementPower - m_flAttackPower;
+	m_flMovementPower = flMovePower;
+	CalculateAttackDefense();
 
 	m_bDesiredMove = true;
 }
@@ -125,18 +163,70 @@ void CDigitank::CancelDesiredMove()
 {
 	m_bDesiredMove = false;
 
-	m_flMovementPower = 0;
-	m_flAttackPower = m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flTotalPower;
-	m_flDefensePower = m_flTotalPower - m_flAttackPower;
+	m_flMovementPower = GetPreviewTurnPower();
+	CalculateAttackDefense();
+
+	ClearPreviewMove();
+}
+
+Vector CDigitank::GetDesiredMove()
+{
+	if (!HasDesiredMove())
+		return GetOrigin();
+
+	return m_vecDesiredMove;
+}
+
+void CDigitank::SetDesiredTurn()
+{
+	float flMovePower = GetPreviewMoveTurnPower();
+
+	if (flMovePower > m_flTotalPower)
+		return;
+
+	m_flDesiredTurn = m_flPreviewTurn;
+
+	m_flMovementPower = flMovePower;
+	CalculateAttackDefense();
+
+	m_bDesiredTurn = true;
+}
+
+void CDigitank::CancelDesiredTurn()
+{
+	m_bDesiredTurn = false;
+
+	if (HasDesiredMove())
+		m_flMovementPower = (GetOrigin() - GetDesiredMove()).Length();
+	else
+		m_flMovementPower = 0;
+
+	CalculateAttackDefense();
+
+	ClearPreviewTurn();
+}
+
+float CDigitank::GetDesiredTurn()
+{
+	if (!HasDesiredTurn())
+		return GetAngles().y;
+
+	return m_flDesiredTurn;
 }
 
 void CDigitank::Move()
 {
-	if (!m_bDesiredMove)
-		return;
+	if (m_bDesiredMove)
+	{
+		m_bDesiredMove = false;
+		SetOrigin(m_vecDesiredMove);
+	}
 
-	m_bDesiredMove = false;
-	SetOrigin(m_vecDesiredMove);
+	if (m_bDesiredTurn)
+	{
+		m_bDesiredTurn = false;
+		SetAngles(EAngle(0, m_flDesiredTurn, 0));
+	}
 }
 
 void CDigitank::Fire()

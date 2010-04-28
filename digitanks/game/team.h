@@ -15,6 +15,8 @@ public:
 								~CTeam();
 
 public:
+	void						AddTank(CDigitank* pTank);
+
 	void						StartTurn();
 
 	void						MoveTanks();

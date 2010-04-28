@@ -9,6 +9,13 @@ CTeam::~CTeam()
 	}
 }
 
+void CTeam::AddTank(CDigitank* pTank)
+{
+	pTank->SetTeam(this);
+
+	m_ahTanks.push_back(pTank);
+}
+
 void CTeam::StartTurn()
 {
 	for (size_t i = 0; i < m_ahTanks.size(); i++)
