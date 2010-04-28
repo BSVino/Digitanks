@@ -27,11 +27,11 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, 128));
 
 	if (m_ePowerbarType == POWERBAR_ATTACK)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower())-2, h-2, Color(255, 0, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower(true))-2, h-2, Color(255, 0, 0));
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower())-2, h-2, Color(255, 255, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true))-2, h-2, Color(255, 255, 0));
 	else
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower())-2, h-2, Color(0, 0, 255));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true))-2, h-2, Color(0, 0, 255));
 }
 
 CHUD::CHUD()

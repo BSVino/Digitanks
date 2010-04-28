@@ -2,17 +2,27 @@
 #define DT_DIGITANK_H
 
 #include "baseentity.h"
+#include <common.h>
+
+#define TANK_SHIELDS 4
 
 class CDigitank : public CBaseEntity
 {
+	DECLARE_CLASS(CDigitank, CBaseEntity);
+
 public:
 								CDigitank();
 
 public:
 	float						GetTotalPower() { return m_flTotalPower; };
-	float						GetAttackPower();
-	float						GetDefensePower();
-	float						GetMovementPower();
+	float						GetAttackPower(bool bPreview = false);
+	float						GetDefensePower(bool bPreview = false);
+	float						GetMovementPower(bool bPreview = false);
+
+	float						GetFrontShieldStrength();
+	float						GetLeftShieldStrength();
+	float						GetRightShieldStrength();
+	float						GetRearShieldStrength();
 
 	void						StartTurn();
 
@@ -27,11 +37,28 @@ public:
 	void						Move();
 	void						Fire();
 
+	virtual void				TakeDamage(CBaseEntity* pAttacker, float flDamage);
+
+	virtual float				ShieldRechargeRate() { return 1.0f; }
+	virtual float				HealthRechargeRate() { return 0.2f; }
+
 protected:
 	float						m_flTotalPower;
 	float						m_flAttackPower;
 	float						m_flDefensePower;
 	float						m_flMovementPower;
+
+	float						m_flMaxShieldStrength;
+
+	union {
+		struct {
+			float				m_flFrontShieldStrength;
+			float				m_flLeftShieldStrength;
+			float				m_flRightShieldStrength;
+			float				m_flBackShieldStrength;
+		};
+		float					m_flShieldStrengths[TANK_SHIELDS];
+	};
 
 	Vector						m_vecPreviewMove;
 

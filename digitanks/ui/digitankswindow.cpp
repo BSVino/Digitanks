@@ -323,50 +323,81 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 
 			if (pTank->HasDesiredMove())
 			{
-				glPushMatrix();
-
-				glEnable(GL_BLEND);
-				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-				Vector vecOrigin = pTank->GetOrigin();
-
-				glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+				RenderTank(pTank, pTank->GetDesiredMove(), pTank->GetAngles(), pTeam->GetColor());
 
 				Color clrTeam = pTeam->GetColor();
 				clrTeam.SetAlpha(100);
-				glColor4ubv(clrTeam);
-
-				glutSolidCube(4);
-				glDisable(GL_BLEND);
-
-				glPopMatrix();
-
-				glPushMatrix();
-
-				vecOrigin = pTank->GetDesiredMove();
-
-				glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
-
-				glutSolidCube(4);
-
-				glPopMatrix();
+				RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), clrTeam);
 			}
 			else
 			{
-				glPushMatrix();
-
-				Vector vecOrigin = pTank->GetOrigin();
-
-				glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
-
-				glutSolidCube(4);
-
-				glPopMatrix();
+				RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), pTeam->GetColor());
 			}
 		}
 	}
 
 	RenderMovementSelection();
+}
+
+void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAngle angDirection, Color clrTank)
+{
+	glPushAttrib(GL_ENABLE_BIT);
+
+	glPushMatrix();
+
+	if (clrTank.a() < 255)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+	glRotatef(-angDirection.y, 0.0f, 1.0f, 0.0f);
+
+	glColor4ubv(clrTank);
+
+	glutSolidCube(4);
+
+	glPushMatrix();
+	glColor4ubv(Color(0, 0, 0, clrTank.a()));
+	glTranslatef(2, 2, 0);
+	glutSolidCube(1);
+	glPopMatrix();
+
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glPushMatrix();
+	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetFrontShieldStrength() * clrTank.a())));
+	glTranslatef(4, 0, 0);
+	glScalef(0.25f, 1, 1);
+	glutSolidCube(4);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetLeftShieldStrength() * clrTank.a())));
+	glTranslatef(0, 0, 4);
+	glScalef(1, 1, 0.25f);
+	glutSolidCube(4);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRightShieldStrength() * clrTank.a())));
+	glTranslatef(0, 0, -4);
+	glScalef(1, 1, 0.25f);
+	glutSolidCube(4);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRearShieldStrength() * clrTank.a())));
+	glTranslatef(-4, 0, 0);
+	glScalef(0.25f, 1, 1);
+	glutSolidCube(4);
+	glPopMatrix();
+
+	glPopMatrix();
+
+	glPopAttrib();
 }
 
 void CDigitanksWindow::RenderMovementSelection()
@@ -376,14 +407,14 @@ void CDigitanksWindow::RenderMovementSelection()
 	if (!pTank)
 		return;
 
+	// Movement
+	DebugCircle(pTank->GetOrigin(), pTank->GetTotalPower(), Color(0, 0, 255));
+
 	Vector vecOrigin;
 	if (pTank->HasDesiredMove())
 		vecOrigin = pTank->GetDesiredMove();
 	else
 		vecOrigin = pTank->GetOrigin();
-
-	// Movement
-	DebugCircle(vecOrigin, pTank->GetTotalPower(), Color(0, 0, 255));
 
 	// Range
 	DebugCircle(vecOrigin, 30, Color(0, 255, 0));

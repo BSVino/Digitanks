@@ -15,6 +15,9 @@ public:
 	Vector									GetOrigin() const { return m_vecOrigin; };
 	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
 
+	EAngle									GetAngles() const { return m_angAngles; };
+	void									SetAngles(const EAngle& angAngles) { m_angAngles = angAngles; };
+
 	size_t									GetHandle() const { return m_iHandle; }
 							
 	virtual float							GetTotalHealth() { return m_flTotalHealth; }
@@ -32,6 +35,7 @@ public:
 
 protected:
 	Vector									m_vecOrigin;
+	EAngle									m_angAngles;
 
 	size_t									m_iHandle;
 

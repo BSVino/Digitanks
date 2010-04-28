@@ -27,6 +27,9 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, 0, 30));
 	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, 0, -30));
 
+	m_apTeams[0]->m_ahTanks[0]->SetAngles(EAngle(0, -90, 0));
+	m_apTeams[1]->m_ahTanks[0]->SetAngles(EAngle(0, 90, 0));
+
 	m_apTeams[0]->m_ahTanks[0]->SetTarget(m_apTeams[1]->m_ahTanks[0]);
 	m_apTeams[1]->m_ahTanks[0]->SetTarget(m_apTeams[0]->m_ahTanks[0]);
 
