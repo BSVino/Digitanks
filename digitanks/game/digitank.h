@@ -19,6 +19,8 @@ public:
 	float						GetDefensePower(bool bPreview = false);
 	float						GetMovementPower(bool bPreview = false);
 
+	void						SetAttackPower(float flAttackPower);
+
 	float						GetPreviewMoveTurnPower();
 	float						GetPreviewMovePower();
 	float						GetPreviewTurnPower();

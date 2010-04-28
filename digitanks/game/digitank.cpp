@@ -73,6 +73,15 @@ float CDigitank::GetMovementPower(bool bPreview)
 	return m_flMovementPower/m_flTotalPower;
 }
 
+void CDigitank::SetAttackPower(float flAttackPower)
+{
+	if (flAttackPower > m_flTotalPower - m_flMovementPower)
+		return;
+
+	m_flAttackPower = flAttackPower;
+	m_flDefensePower = m_flTotalPower - m_flMovementPower - m_flAttackPower;
+}
+
 float CDigitank::GetPreviewMoveTurnPower()
 {
 	return GetPreviewMovePower() + GetPreviewTurnPower();
@@ -102,22 +111,22 @@ void CDigitank::CalculateAttackDefense()
 
 float CDigitank::GetFrontShieldStrength()
 {
-	return m_flFrontShieldStrength/m_flMaxShieldStrength;
+	return m_flFrontShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
 }
 
 float CDigitank::GetLeftShieldStrength()
 {
-	return m_flLeftShieldStrength/m_flMaxShieldStrength;
+	return m_flLeftShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
 }
 
 float CDigitank::GetRightShieldStrength()
 {
-	return m_flRightShieldStrength/m_flMaxShieldStrength;
+	return m_flRightShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
 }
 
 float CDigitank::GetRearShieldStrength()
 {
-	return m_flBackShieldStrength/m_flMaxShieldStrength;
+	return m_flBackShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
 }
 
 void CDigitank::StartTurn()

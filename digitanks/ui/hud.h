@@ -47,6 +47,7 @@ public:
 
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
+	EVENT_CALLBACK(CHUD, Fire);
 
 protected:
 	class CDigitanksGame*		m_pGame;
@@ -57,6 +58,7 @@ protected:
 
 	glgui::CButton*				m_pMoveButton;
 	glgui::CButton*				m_pTurnButton;
+	glgui::CButton*				m_pFireButton;
 };
 
 #endif

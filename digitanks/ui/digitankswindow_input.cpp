@@ -31,12 +31,19 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_MOVE)
 	{
 		DigitanksGame()->SetDesiredMove();
-		SetControlMode(MODE_TURN);
+		SetControlMode(MODE_TURN, m_bAutoProceed);
 	}
 	else if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_TURN)
 	{
 		DigitanksGame()->SetDesiredTurn();
-		SetControlMode(MODE_FIRE);
+		if (m_bAutoProceed)
+			SetControlMode(MODE_FIRE, true);
+		else
+			SetControlMode(MODE_NONE, false);
+	}
+	else if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_FIRE)
+	{
+		SetControlMode(MODE_NONE);
 	}
 }
 

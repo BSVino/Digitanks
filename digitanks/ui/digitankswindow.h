@@ -38,7 +38,7 @@ public:
 	void						RenderGame(class CDigitanksGame* pGame);
 	void						RenderTank(class CDigitank* pTank, Vector vecOrigin, EAngle angDirection, Color clrTank);
 	void						RenderMovementSelection();
-	void						RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, float flDegrees);
+	void						RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, float flDegrees, float flAlpha = 1.0f);
 
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void						WindowResize(int x, int y);
@@ -74,7 +74,7 @@ public:
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
 
 	controlmode_t				GetControlMode() { return m_eControlMode; };
-	void						SetControlMode(controlmode_t eMode);
+	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
 
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 
@@ -96,6 +96,7 @@ protected:
 	static CDigitanksWindow*	s_pDigitanksWindow;
 
 	controlmode_t				m_eControlMode;
+	bool						m_bAutoProceed;
 };
 
 inline class CDigitanksGame* DigitanksGame()

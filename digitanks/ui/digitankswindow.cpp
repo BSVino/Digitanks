@@ -382,6 +382,9 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	else
 		glRotatef(-angDirection.y, 0.0f, 1.0f, 0.0f);
 
+	float flScale = RemapVal(pTank->GetAttackPower(), 0, 1, 1, 2);
+	glScalef(flScale, flScale, flScale);
+
 	glPushMatrix();
 	glTranslatef(0, 2, 0);
 	glScalef(1, 0.5f, 1);
@@ -537,7 +540,7 @@ void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, fl
 		DebugLine(vecOrigin, vecOrigin + vecTurnLeft*10, Color(0, 0, 255));
 		DebugLine(vecOrigin, vecOrigin + vecTurnRight*10, Color(0, 0, 255));
 
-		DebugArc(vecOrigin, 10, angAngle.y - flDegrees, angAngle.y + flDegrees, Color(0, 0, 255, 255*flAlpha));
+		DebugArc(vecOrigin, 10, angAngle.y - flDegrees, angAngle.y + flDegrees, Color(0, 0, 255, (int)(255.0f*flAlpha)));
 	}
 	else
 	{
@@ -545,7 +548,7 @@ void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, fl
 		AngleVectors(angAngle, &vecForward, NULL, NULL);
 
 		DebugLine(vecOrigin, vecOrigin + vecForward*10, Color(0, 0, 255));
-		DebugArc(vecOrigin, 10, angAngle.y - 30, angAngle.y + 30, Color(0, 0, 255, 255*flAlpha));
+		DebugArc(vecOrigin, 10, angAngle.y - 30, angAngle.y + 30, Color(0, 0, 255, (int)(255.0f*flAlpha)));
 	}
 }
 
@@ -634,7 +637,7 @@ Vector CDigitanksWindow::WorldPosition(Vector vecScreen)
 	return Vector((float)x, (float)y, (float)z);
 }
 
-void CDigitanksWindow::SetControlMode(controlmode_t eMode)
+void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 {
 	if (m_eControlMode == MODE_MOVE)
 	{
@@ -645,12 +648,7 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode)
 	}
 
 	if (m_eControlMode == MODE_TURN)
-	{
-		if (eMode == MODE_NONE)
-			DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
-		else
-			DigitanksGame()->GetCurrentTank()->ClearPreviewTurn();
-	}
+		DigitanksGame()->GetCurrentTank()->ClearPreviewTurn();
 
 	if (eMode == MODE_MOVE)
 	{
@@ -661,5 +659,6 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode)
 	if (eMode == MODE_TURN)
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
 
+	m_bAutoProceed = bAutoProceed;
 	m_eControlMode = eMode;
 }
