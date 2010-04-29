@@ -27,10 +27,13 @@ public:
 
 	void						CalculateAttackDefense();
 
+	float						GetShieldMaxStrength() { return m_flMaxShieldStrength; };
 	float						GetFrontShieldStrength();
 	float						GetLeftShieldStrength();
 	float						GetRightShieldStrength();
 	float						GetRearShieldStrength();
+
+	float*						GetShieldForAttackDirection(Vector vecAttack);
 
 	void						StartTurn();
 

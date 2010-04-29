@@ -7,6 +7,7 @@
 
 typedef enum
 {
+	POWERBAR_HEALTH,
 	POWERBAR_ATTACK,
 	POWERBAR_DEFENSE,
 	POWERBAR_MOVEMENT,
@@ -37,6 +38,8 @@ public:
 
 	void						Paint(int x, int y, int w, int h);
 
+	void						UpdateAttackInfo();
+
 	void						SetGame(class CDigitanksGame* pGame);
 
 	virtual void				GameStart();
@@ -52,6 +55,7 @@ public:
 protected:
 	class CDigitanksGame*		m_pGame;
 
+	CPowerBar*					m_pHealthBar;
 	CPowerBar*					m_pAttackPower;
 	CPowerBar*					m_pDefensePower;
 	CPowerBar*					m_pMovementPower;
@@ -59,6 +63,8 @@ protected:
 	glgui::CButton*				m_pMoveButton;
 	glgui::CButton*				m_pTurnButton;
 	glgui::CButton*				m_pFireButton;
+
+	glgui::CLabel*				m_pAttackInfo;
 };
 
 #endif

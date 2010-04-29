@@ -129,6 +129,24 @@ float CDigitank::GetRearShieldStrength()
 	return m_flBackShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
 }
 
+float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
+{
+	Vector vecForward, vecRight;
+	AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
+
+	float flForwardDot = vecForward.Dot(vecAttack);
+	float flRightDot = vecRight.Dot(vecAttack);
+
+	if (flForwardDot > 0.5f)
+		return &m_flFrontShieldStrength;
+	else if (flForwardDot < -0.5f)
+		return &m_flBackShieldStrength;
+	else if (flRightDot > 0.5f)
+		return &m_flRightShieldStrength;
+	else
+		return &m_flLeftShieldStrength;
+}
+
 void CDigitank::StartTurn()
 {
 	m_flMovementPower = 0;
@@ -263,25 +281,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 {
 	Vector vecAttackDirection = (pAttacker->GetOrigin() - GetOrigin()).Normalized();
 
-	Vector vecForward, vecRight;
-	AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
+	float* pflShield = GetShieldForAttackDirection(vecAttackDirection);
 
-	float flForwardDot = vecForward.Dot(vecAttackDirection);
-	float flRightDot = vecRight.Dot(vecAttackDirection);
-
-	float flDamageBlocked;
-
-	float* pflShield;
-	if (flForwardDot > 0.5f)
-		pflShield = &m_flFrontShieldStrength;
-	else if (flForwardDot < -0.5f)
-		pflShield = &m_flBackShieldStrength;
-	else if (flRightDot > 0.5f)
-		pflShield = &m_flRightShieldStrength;
-	else
-		pflShield = &m_flLeftShieldStrength;
-
-	flDamageBlocked = (*pflShield) * GetDefensePower();
+	float flDamageBlocked = (*pflShield) * GetDefensePower();
 
 	if (flDamage - flDamageBlocked <= 0)
 	{

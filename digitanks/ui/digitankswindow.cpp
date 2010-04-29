@@ -11,6 +11,7 @@
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
 #include "debugdraw.h"
+#include "hud.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
@@ -368,6 +369,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	}
 
 	glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+	glScalef(0.5f, 0.5f, 0.5f);
 
 	// Turret
 	glPushMatrix();
@@ -382,7 +384,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	else
 		glRotatef(-angDirection.y, 0.0f, 1.0f, 0.0f);
 
-	float flScale = RemapVal(pTank->GetAttackPower(), 0, 1, 1, 2);
+	float flScale = RemapVal(pTank->GetAttackPower(true), 0, 1, 1, 2);
 	glScalef(flScale, flScale, flScale);
 
 	glPushMatrix();
@@ -506,6 +508,8 @@ void CDigitanksWindow::RenderMovementSelection()
 			if (flMaxTurnWithLeftoverPower < 180)
 				RenderTurnIndicator(vecPoint, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
 		}
+
+		m_pHUD->UpdateAttackInfo();
 	}
 
 	if (GetControlMode() == MODE_TURN && bMouseOnGrid)
@@ -521,6 +525,8 @@ void CDigitanksWindow::RenderMovementSelection()
 		float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
 
 		pTank->SetPreviewTurn(flTurn);
+
+		m_pHUD->UpdateAttackInfo();
 	}
 
 	// Range
