@@ -13,12 +13,15 @@ typedef enum
 	POWERBAR_MOVEMENT,
 } powerbar_type_t;
 
-class CPowerBar : public glgui::CBaseControl
+class CPowerBar : public glgui::CLabel
 {
+	DECLARE_CLASS(CPowerBar, glgui::CLabel);
+
 public:
 								CPowerBar(powerbar_type_t ePowerbarType);
 
 public:
+	void						Think();
 	void						Paint(int x, int y, int w, int h);
 
 protected:

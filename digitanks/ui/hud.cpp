@@ -5,13 +5,47 @@
 
 #include "digitankswindow.h"
 #include "game/digitanksgame.h"
+#include "debugdraw.h"
 
 using namespace glgui;
 
 CPowerBar::CPowerBar(powerbar_type_t ePowerbarType)
-	: CBaseControl(0, 0, 100, 100)
+	: CLabel(0, 0, 100, 100, "")
 {
 	m_ePowerbarType = ePowerbarType;
+}
+
+void CPowerBar::Think()
+{
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	char szLabel[100];
+	if (m_ePowerbarType == POWERBAR_HEALTH)
+	{
+		sprintf(szLabel, "Health: %.1f/%.1f", pTank->GetHealth(), pTank->GetTotalHealth());
+		SetText(szLabel);
+	}
+	else if (m_ePowerbarType == POWERBAR_ATTACK)
+	{
+		sprintf(szLabel, "Attack Power: %.1f/%.1f", pTank->GetAttackPower(true) * pTank->GetTotalPower(), pTank->GetTotalPower());
+		SetText(szLabel);
+	}
+	else if (m_ePowerbarType == POWERBAR_DEFENSE)
+	{
+		sprintf(szLabel, "Defense Power: %.1f/%.1f", pTank->GetDefensePower(true) * pTank->GetTotalPower(), pTank->GetTotalPower());
+		SetText(szLabel);
+	}
+	else
+	{
+		sprintf(szLabel, "Movement Power: %.1f/%.1f", pTank->GetMovementPower(true) * pTank->GetTotalPower(), pTank->GetTotalPower());
+		SetText(szLabel);
+	}
 }
 
 void CPowerBar::Paint(int x, int y, int w, int h)
@@ -27,13 +61,15 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(x, y, w, h, Color(255, 255, 255, 128));
 
 	if (m_ePowerbarType == POWERBAR_HEALTH)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetHealth() / pTank->GetTotalHealth())-2, h-2, Color(0, 255, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetHealth() / pTank->GetTotalHealth())-2, h-2, Color(0, 150, 0));
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower(true))-2, h-2, Color(255, 0, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower(true))-2, h-2, Color(150, 0, 0));
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true))-2, h-2, Color(255, 255, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true))-2, h-2, Color(100, 100, 0));
 	else
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true))-2, h-2, Color(0, 0, 255));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true))-2, h-2, Color(0, 0, 150));
+
+	BaseClass::Paint(x, y, w, h);
 }
 
 CHUD::CHUD()
@@ -194,6 +230,50 @@ void CHUD::Paint(int x, int y, int w, int h)
 	}
 
 	CPanel::Paint(x, y, w, h);
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+	{
+		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+	}
+	else
+	{
+		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 30.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+	}
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+	{
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+	}
+	else
+	{
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+	}
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+	{
+		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+	}
+	else
+	{
+		glPushMatrix();
+		glTranslatef(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 25.0f, 0);
+		glRotatef(90, 1, 0, 0);
+		DebugCircle(Vector(0, 0, 0), 15, Color(255, 255, 255));
+		glPopMatrix();
+		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+	}
 }
 
 void CHUD::UpdateAttackInfo()
@@ -244,8 +324,8 @@ void CHUD::UpdateAttackInfo()
 	sprintf(szAttackInfo,
 		"Hit odds: %d%%\n"
 		" \n"
-		"Shield Damage: %.2f/%.2f\n"
-		"Digitank Damage: %.2f/%.2f\n",
+		"Shield Damage: %.1f/%.1f\n"
+		"Digitank Damage: %.1f/%.1f\n",
 		iHitOdds,
 		flShieldDamage, pTargetTank->GetShieldMaxStrength() * pTargetTank->GetDefensePower(),
 		flTankDamage, pTargetTank->GetHealth()

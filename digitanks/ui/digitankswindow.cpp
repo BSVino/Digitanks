@@ -15,6 +15,8 @@
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
+#define CAMERA_DISTANCE 80
+
 CDigitanksWindow::CDigitanksWindow()
 {
 	s_pDigitanksWindow = this;
@@ -205,7 +207,7 @@ void CDigitanksWindow::Render()
 
 	Vector vecSceneCenter = Vector(0,0,0);
 
-	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * 100 + vecSceneCenter;
+	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * CAMERA_DISTANCE + vecSceneCenter;
 
 	gluLookAt(vecCameraVector.x, vecCameraVector.y, vecCameraVector.z,
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
@@ -514,19 +516,26 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	if (GetControlMode() == MODE_TURN && bMouseOnGrid)
 	{
-		Vector vecTurn;
-		if (pTank->HasDesiredMove())
-			vecTurn = vecPoint - pTank->GetDesiredMove();
+		if ((vecPoint - vecOrigin).LengthSqr() > 3*3)
+		{
+			Vector vecTurn;
+			if (pTank->HasDesiredMove())
+				vecTurn = vecPoint - pTank->GetDesiredMove();
+			else
+				vecTurn = vecPoint - pTank->GetOrigin();
+
+			vecTurn.Normalize();
+
+			float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
+
+			pTank->SetPreviewTurn(flTurn);
+			m_pHUD->UpdateAttackInfo();
+		}
 		else
-			vecTurn = vecPoint - pTank->GetOrigin();
-
-		vecTurn.Normalize();
-
-		float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
-
-		pTank->SetPreviewTurn(flTurn);
-
-		m_pHUD->UpdateAttackInfo();
+		{
+			pTank->SetPreviewTurn(pTank->GetAngles().y);
+			m_pHUD->UpdateAttackInfo();
+		}
 	}
 
 	// Range
@@ -597,7 +606,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 
 	Vector vecWorld = WorldPosition(Vector((float)x, (float)y, 1));
 
-	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * 100;
+	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * CAMERA_DISTANCE;
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
