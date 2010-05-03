@@ -331,7 +331,7 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 				{
 					EAngle angTurn = EAngle(0, pTank->GetDesiredTurn(), 0);
 
-					if (GetControlMode() == MODE_TURN && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalPower())
+					if (GetControlMode() == MODE_TURN && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalMovementPower())
 						angTurn = EAngle(0, pTank->GetPreviewTurn(), 0);
 
 					RenderTank(pTank, pTank->GetDesiredMove(), angTurn, pTeam->GetColor());
@@ -344,7 +344,7 @@ void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 				{
 					EAngle angTurn = pTank->GetAngles();
 
-					if (GetControlMode() == MODE_TURN && pTank->GetPreviewTurnPower() <= pTank->GetTotalPower())
+					if (GetControlMode() == MODE_TURN && pTank->GetPreviewTurnPower() <= pTank->GetTotalMovementPower())
 						angTurn = EAngle(0, pTank->GetPreviewTurn(), 0);
 
 					RenderTank(pTank, pTank->GetOrigin(), angTurn, pTeam->GetColor());
@@ -386,7 +386,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	else
 		glRotatef(-angDirection.y, 0.0f, 1.0f, 0.0f);
 
-	float flScale = RemapVal(pTank->GetAttackPower(true), 0, 1, 1, 2);
+	float flScale = RemapVal(pTank->GetAttackPower(true), 0, 10, 1, 2);
 	glScalef(flScale, flScale, flScale);
 
 	glPushMatrix();
@@ -430,29 +430,45 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	int iShieldStrength = (int)(pTank->GetFrontShieldStrength() * clrTank.a());
+	if (iShieldStrength > 255)
+		iShieldStrength = 255;
+
 	glPushMatrix();
-	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetFrontShieldStrength() * clrTank.a())));
+	glColor4ubv(Color(255, 255, 255, iShieldStrength));
 	glTranslatef(4, 0, 0);
 	glScalef(0.1f, 0.5f, 1);
 	glutSolidCube(4);
 	glPopMatrix();
 
+	iShieldStrength = (int)(pTank->GetLeftShieldStrength() * clrTank.a());
+	if (iShieldStrength > 255)
+		iShieldStrength = 255;
+
 	glPushMatrix();
-	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetLeftShieldStrength() * clrTank.a())));
+	glColor4ubv(Color(255, 255, 255, iShieldStrength));
 	glTranslatef(0, 0, 4);
 	glScalef(1, 0.5f, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
 
+	iShieldStrength = (int)(pTank->GetRightShieldStrength() * clrTank.a());
+	if (iShieldStrength > 255)
+		iShieldStrength = 255;
+
 	glPushMatrix();
-	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRightShieldStrength() * clrTank.a())));
+	glColor4ubv(Color(255, 255, 255, iShieldStrength));
 	glTranslatef(0, 0, -4);
 	glScalef(1, 0.5f, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
 
+	iShieldStrength = (int)(pTank->GetRearShieldStrength() * clrTank.a());
+	if (iShieldStrength > 255)
+		iShieldStrength = 255;
+
 	glPushMatrix();
-	glColor4ubv(Color(255, 255, 255, (int)(pTank->GetRearShieldStrength() * clrTank.a())));
+	glColor4ubv(Color(255, 255, 255, iShieldStrength));
 	glTranslatef(-4, 0, 0);
 	glScalef(0.1f, 0.5f, 1);
 	glutSolidCube(4);
@@ -472,7 +488,7 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	// Movement
 	if (GetControlMode() == MODE_MOVE)
-		DebugCircle(pTank->GetOrigin(), pTank->GetTotalPower(), Color(0, 0, 255));
+		DebugCircle(pTank->GetOrigin(), pTank->GetTotalMovementPower(), Color(0, 0, 255));
 
 	Vector vecOrigin;
 	if (pTank->HasDesiredMove())
@@ -482,7 +498,7 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	if (GetControlMode() == MODE_TURN)
 	{
-		float flMaxTurnWithLeftoverPower = (1 - pTank->GetMovementPower()) * pTank->GetTotalPower() * pTank->TurnPerPower();
+		float flMaxTurnWithLeftoverPower = (pTank->GetTotalMovementPower() - pTank->GetMovementPower()) * pTank->TurnPerPower();
 		RenderTurnIndicator(vecOrigin, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
 	}
 
@@ -495,9 +511,7 @@ void CDigitanksWindow::RenderMovementSelection()
 	{
 		pTank->SetPreviewMove(vecPoint);
 
-		float flTotalPower = pTank->GetTotalPower();
-
-		if (pTank->GetPreviewMovePower() <= flTotalPower)
+		if (pTank->GetPreviewMovePower() <= pTank->GetTotalMovementPower())
 		{
 			vecRangeOrigin = vecPoint;
 
@@ -506,7 +520,7 @@ void CDigitanksWindow::RenderMovementSelection()
 
 			RenderTank(pTank, vecPoint, pTank->GetAngles(), clrTeam);
 
-			float flMaxTurnWithLeftoverPower = (1 - pTank->GetMovementPower(true)) * pTank->GetTotalPower() * pTank->TurnPerPower();
+			float flMaxTurnWithLeftoverPower = (pTank->GetTotalMovementPower() - pTank->GetMovementPower(true)) * pTank->TurnPerPower();
 			if (flMaxTurnWithLeftoverPower < 180)
 				RenderTurnIndicator(vecPoint, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
 		}

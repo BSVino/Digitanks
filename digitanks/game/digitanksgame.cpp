@@ -41,6 +41,9 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[0]->m_ahTanks[0]->SetTarget(m_apTeams[1]->m_ahTanks[0]);
 	m_apTeams[1]->m_ahTanks[0]->SetTarget(m_apTeams[0]->m_ahTanks[0]);
 
+	m_apTeams[0]->m_ahTanks[0]->GiveBonusPoints(2);
+	m_apTeams[1]->m_ahTanks[0]->GiveBonusPoints(2);
+
 	StartGame();
 }
 

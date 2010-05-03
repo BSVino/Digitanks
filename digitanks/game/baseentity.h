@@ -80,6 +80,16 @@ public:
 		return IsEqual(pEntity);
 	}
 
+	inline bool operator!=(C* pEntity)
+	{
+		return !IsEqual(pEntity);
+	}
+
+	inline bool operator!=(const C* pEntity) const
+	{
+		return !IsEqual(pEntity);
+	}
+
 	inline operator C*() const
 	{
 		return GetPointer();
@@ -95,7 +105,7 @@ public:
 		if (!pOther)
 		{
 			if (!CBaseEntity::GetEntity(m_iHandle))
-				return NULL;
+				return true;
 
 			return m_iHandle == ~0;
 		}

@@ -4,10 +4,14 @@
 
 CDigitank::CDigitank()
 {
-	m_flTotalPower = 10;
-	m_flAttackPower = 3;
-	m_flDefensePower = 4;
-	m_flMovementPower = 3;
+	m_flBasePower = 10;
+	m_flAttackPower = 4.5f;
+	m_flDefensePower = 5.5f;
+	m_flMovementPower = 0;
+
+	m_flBonusAttackPower = m_flBonusDefensePower = m_flBonusMovementPower = 0;
+
+	m_iBonusPoints = 0;
 
 	m_flPreviewTurn = 0;
 
@@ -22,72 +26,121 @@ CDigitank::CDigitank()
 	m_pTeam = NULL;
 }
 
-float CDigitank::GetAttackPower(bool bPreview)
+float CDigitank::GetBaseAttackPower(bool bPreview)
 {
 	float flMovementLength;
-	
+
 	if (bPreview)
 	{
 		flMovementLength = GetPreviewMoveTurnPower();
 
-		if (flMovementLength > m_flTotalPower)
-			return m_flAttackPower/m_flTotalPower;
+		if (flMovementLength > m_flBasePower)
+			return m_flAttackPower;
 
-		return RemapVal(flMovementLength, 0, m_flTotalPower, m_flAttackPower/(m_flAttackPower+m_flDefensePower), 0);
+		return RemapVal(flMovementLength, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
 	}
 
-	return m_flAttackPower/m_flTotalPower;
+	return m_flAttackPower;
+}
+
+float CDigitank::GetBaseDefensePower(bool bPreview)
+{
+	float flMovementLength;
+
+	if (bPreview)
+	{
+		flMovementLength = GetPreviewMoveTurnPower();
+
+		if (flMovementLength > m_flBasePower)
+			return m_flDefensePower;
+
+		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
+	}
+
+	return m_flDefensePower;
+}
+
+float CDigitank::GetBaseMovementPower(bool bPreview)
+{
+	float flMovementLength;
+
+	if (bPreview)
+	{
+		flMovementLength = GetPreviewMoveTurnPower();
+
+		if (flMovementLength > m_flBasePower)
+			return m_flMovementPower;
+
+		return flMovementLength;
+	}
+
+	return m_flMovementPower;
+}
+
+float CDigitank::GetAttackPower(bool bPreview)
+{
+	return GetBaseAttackPower(bPreview)+m_flBonusAttackPower;
 }
 
 float CDigitank::GetDefensePower(bool bPreview)
 {
-	float flMovementLength;
-
-	if (bPreview)
-	{
-		flMovementLength = GetPreviewMoveTurnPower();
-
-		if (flMovementLength > m_flTotalPower)
-			return m_flDefensePower/m_flTotalPower;
-
-		return RemapVal(flMovementLength, 0, m_flTotalPower, m_flDefensePower/(m_flAttackPower+m_flDefensePower), 0);
-	}
-
-	return m_flDefensePower/m_flTotalPower;
+	return GetBaseDefensePower(bPreview)+m_flBonusDefensePower;
 }
 
 float CDigitank::GetMovementPower(bool bPreview)
 {
-	float flMovementLength;
-	
-	if (bPreview)
-	{
-		flMovementLength = GetPreviewMoveTurnPower();
+	return GetBaseMovementPower(bPreview)+m_flBonusMovementPower;
+}
 
-		if (flMovementLength > m_flTotalPower)
-			return m_flMovementPower/m_flTotalPower;
+float CDigitank::GetTotalAttackPower()
+{
+	return m_flBasePower + m_flBonusAttackPower;
+}
 
-		return flMovementLength/m_flTotalPower;
-	}
+float CDigitank::GetTotalDefensePower()
+{
+	return m_flBasePower + m_flBonusDefensePower;
+}
 
-	return m_flMovementPower/m_flTotalPower;
+float CDigitank::GetTotalMovementPower()
+{
+	return m_flBasePower + m_flBonusMovementPower;
 }
 
 void CDigitank::SetAttackPower(float flAttackPower)
 {
-	if (flAttackPower > m_flTotalPower - m_flMovementPower)
+	if (flAttackPower > m_flBasePower - m_flMovementPower)
 		return;
 
 	m_flAttackPower = flAttackPower;
-	m_flDefensePower = m_flTotalPower - m_flMovementPower - m_flAttackPower;
+	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
 }
 
 float CDigitank::GetPreviewMoveTurnPower()
 {
-	return GetPreviewMovePower() + GetPreviewTurnPower();
+	float flPower = GetPreviewBaseMovePower() + GetPreviewBaseTurnPower() - m_flBonusMovementPower;
+	if (flPower < 0)
+		return 0;
+	return flPower;
 }
 
 float CDigitank::GetPreviewMovePower()
+{
+	float flPower = GetPreviewBaseMovePower() - m_flBonusMovementPower;
+	if (flPower < 0)
+		return 0;
+	return flPower;
+}
+
+float CDigitank::GetPreviewTurnPower()
+{
+	float flPower = GetPreviewBaseTurnPower() - m_flBonusMovementPower;
+	if (flPower < 0)
+		return 0;
+	return flPower;
+}
+
+float CDigitank::GetPreviewBaseMovePower()
 {
 	if (HasDesiredMove())
 		return (m_vecDesiredMove - GetOrigin()).Length();
@@ -95,7 +148,7 @@ float CDigitank::GetPreviewMovePower()
 	return (m_vecPreviewMove - GetOrigin()).Length();
 }
 
-float CDigitank::GetPreviewTurnPower()
+float CDigitank::GetPreviewBaseTurnPower()
 {
 	if (HasDesiredTurn())
 		return fabs(AngleDifference(m_flDesiredTurn, GetAngles().y)/TurnPerPower());
@@ -105,28 +158,28 @@ float CDigitank::GetPreviewTurnPower()
 
 void CDigitank::CalculateAttackDefense()
 {
-	m_flAttackPower = RemapVal(m_flMovementPower, 0, m_flTotalPower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flTotalPower, 0);
-	m_flDefensePower = m_flTotalPower - m_flMovementPower - m_flAttackPower;
+	m_flAttackPower = RemapVal(m_flMovementPower, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
+	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
 }
 
 float CDigitank::GetFrontShieldStrength()
 {
-	return m_flFrontShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
+	return m_flFrontShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
 }
 
 float CDigitank::GetLeftShieldStrength()
 {
-	return m_flLeftShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
+	return m_flLeftShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
 }
 
 float CDigitank::GetRightShieldStrength()
 {
-	return m_flRightShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
+	return m_flRightShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
 }
 
 float CDigitank::GetRearShieldStrength()
 {
-	return m_flBackShieldStrength/m_flMaxShieldStrength * GetDefensePower(true);
+	return m_flBackShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
 }
 
 float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
@@ -175,7 +228,7 @@ void CDigitank::SetDesiredMove()
 {
 	float flMovePower = GetPreviewMovePower();
 
-	if (flMovePower > m_flTotalPower)
+	if (flMovePower > m_flBasePower)
 		return;
 
 	m_vecDesiredMove = m_vecPreviewMove;
@@ -208,7 +261,7 @@ void CDigitank::SetDesiredTurn()
 {
 	float flMovePower = GetPreviewMoveTurnPower();
 
-	if (flMovePower > m_flTotalPower)
+	if (flMovePower > m_flBasePower)
 		return;
 
 	m_flDesiredTurn = m_flPreviewTurn;
@@ -274,7 +327,7 @@ void CDigitank::Fire()
 		bHit = (rand()%100) > RemapVal(flDistance, 30, 50, 0, 100);
 
 	if (bHit)
-		m_hTarget->TakeDamage(this, m_flAttackPower);
+		m_hTarget->TakeDamage(this, GetAttackPower());
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
@@ -283,7 +336,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 
 	float* pflShield = GetShieldForAttackDirection(vecAttackDirection);
 
-	float flDamageBlocked = (*pflShield) * GetDefensePower();
+	float flDamageBlocked = (*pflShield) * GetDefenseScale();
 
 	if (flDamage - flDamageBlocked <= 0)
 	{
@@ -296,4 +349,36 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 	*pflShield = 0;
 
 	BaseClass::TakeDamage(pAttacker, flDamage);
+}
+
+void CDigitank::GiveBonusPoints(size_t i)
+{
+	m_iBonusPoints += i;
+}
+
+void CDigitank::PromoteAttack()
+{
+	if (m_iBonusPoints <= 0)
+		return;
+
+	m_iBonusPoints--;
+	m_flBonusAttackPower++;
+}
+
+void CDigitank::PromoteDefense()
+{
+	if (m_iBonusPoints <= 0)
+		return;
+
+	m_iBonusPoints--;
+	m_flBonusDefensePower++;
+}
+
+void CDigitank::PromoteMovement()
+{
+	if (m_iBonusPoints <= 0)
+		return;
+
+	m_iBonusPoints--;
+	m_flBonusMovementPower++;
 }

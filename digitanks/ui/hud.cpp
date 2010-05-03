@@ -33,17 +33,17 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
-		sprintf(szLabel, "Attack Power: %.1f/%.1f", pTank->GetAttackPower(true) * pTank->GetTotalPower(), pTank->GetTotalPower());
+		sprintf(szLabel, "Attack Power: %.1f/%.1f", pTank->GetAttackPower(true), pTank->GetTotalAttackPower());
 		SetText(szLabel);
 	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
 	{
-		sprintf(szLabel, "Defense Power: %.1f/%.1f", pTank->GetDefensePower(true) * pTank->GetTotalPower(), pTank->GetTotalPower());
+		sprintf(szLabel, "Defense Power: %.1f/%.1f", pTank->GetDefensePower(true), pTank->GetTotalDefensePower());
 		SetText(szLabel);
 	}
 	else
 	{
-		sprintf(szLabel, "Movement Power: %.1f/%.1f", pTank->GetMovementPower(true) * pTank->GetTotalPower(), pTank->GetTotalPower());
+		sprintf(szLabel, "Movement Power: %.1f/%.1f", pTank->GetMovementPower(true), pTank->GetTotalMovementPower());
 		SetText(szLabel);
 	}
 }
@@ -63,11 +63,11 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 	if (m_ePowerbarType == POWERBAR_HEALTH)
 		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetHealth() / pTank->GetTotalHealth())-2, h-2, Color(0, 150, 0));
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower(true))-2, h-2, Color(150, 0, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower(true) / pTank->GetTotalAttackPower())-2, h-2, Color(150, 0, 0));
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true))-2, h-2, Color(100, 100, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true) / pTank->GetTotalDefensePower())-2, h-2, Color(100, 100, 0));
 	else
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true))-2, h-2, Color(0, 0, 150));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true) / pTank->GetTotalMovementPower())-2, h-2, Color(0, 0, 150));
 
 	BaseClass::Paint(x, y, w, h);
 }
@@ -87,22 +87,24 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_pMoveButton = new CButton(0, 0, 50, 50, "");
-	m_pMoveButton->SetClickedListener(this, Move);
-	AddControl(m_pMoveButton);
+	m_pButton1 = new CButton(0, 0, 50, 50, "");
+	AddControl(m_pButton1);
 
-	m_pTurnButton = new CButton(0, 0, 50, 50, "");
-	m_pTurnButton->SetClickedListener(this, Turn);
-	AddControl(m_pTurnButton);
+	m_pButton2 = new CButton(0, 0, 50, 50, "");
+	AddControl(m_pButton2);
 
-	m_pFireButton = new CButton(0, 0, 50, 50, "");
-	m_pFireButton->SetClickedListener(this, Fire);
-	AddControl(m_pFireButton);
+	m_pButton3 = new CButton(0, 0, 50, 50, "");
+	AddControl(m_pButton3);
+
+	m_pButton4 = new CButton(0, 0, 50, 50, "");
+	AddControl(m_pButton4);
 
 	m_pAttackInfo = new CLabel(0, 0, 100, 150, "");
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pAttackInfo);
+
+	SetupMenu(MENUMODE_MAIN);
 }
 
 void CHUD::Layout()
@@ -127,29 +129,51 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 450, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
-	m_pMoveButton->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
-	m_pTurnButton->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
-	m_pFireButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 100);
+	m_pButton1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
+	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
+	m_pButton3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 100);
+	m_pButton4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 100);
 }
 
 void CHUD::Think()
 {
 	BaseClass::Think();
 
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
-		m_pMoveButton->SetButtonColor(Color(100, 0, 0));
-	else
-		m_pMoveButton->SetButtonColor(Color(0, 0, 100));
+	if (m_eMenuMode == MENUMODE_MAIN)
+	{
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+			m_pButton1->SetButtonColor(Color(100, 0, 0));
+		else
+			m_pButton1->SetButtonColor(Color(0, 0, 100));
 
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
-		m_pTurnButton->SetButtonColor(Color(100, 0, 0));
-	else
-		m_pTurnButton->SetButtonColor(Color(0, 0, 100));
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+			m_pButton2->SetButtonColor(Color(100, 0, 0));
+		else
+			m_pButton2->SetButtonColor(Color(0, 0, 100));
 
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
-		m_pFireButton->SetButtonColor(Color(100, 0, 0));
-	else
-		m_pFireButton->SetButtonColor(Color(60, 40, 0));
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+			m_pButton3->SetButtonColor(Color(100, 0, 0));
+		else
+			m_pButton3->SetButtonColor(Color(60, 40, 0));
+
+		m_pButton4->SetButtonColor(Color(200, 200, 0));
+	}
+	else if (m_eMenuMode == MENUMODE_PROMOTE)
+	{
+		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
+		{
+			m_pButton1->SetButtonColor(Color(200, 0, 0));
+			m_pButton2->SetButtonColor(Color(200, 200, 0));
+			m_pButton3->SetButtonColor(Color(0, 0, 200));
+		}
+		else
+		{
+			m_pButton1->SetButtonColor(g_clrBox);
+			m_pButton2->SetButtonColor(g_clrBox);
+			m_pButton3->SetButtonColor(g_clrBox);
+		}
+		m_pButton4->SetButtonColor(Color(100, 0, 0));
+	}
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -196,14 +220,21 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 61, 102, 5, Color(255, 255, 255, 128));
 			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 60, (int)(100.0f*pTank->GetHealth()/pTank->GetTotalHealth()), 3, Color(100, 255, 100));
 
+			float flAttackPower = pTank->GetAttackPower(true);
+			float flDefensePower = pTank->GetDefensePower(true);
+			float flMovementPower = pTank->GetMovementPower(true);
+			float flTotalPower = flAttackPower + flDefensePower + flMovementPower;
+			flAttackPower = flAttackPower/flTotalPower;
+			flDefensePower = flDefensePower/flTotalPower;
+			flMovementPower = flMovementPower/flTotalPower;
 			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 51, 102, 5, Color(255, 255, 255, 128));
-			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 50, (int)(100.0f*pTank->GetAttackPower(true)), 3, Color(255, 0, 0));
-			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*pTank->GetAttackPower(true)), (int)vecScreen.y - 50, (int)(100.0f*pTank->GetDefensePower(true)), 3, Color(255, 255, 0));
-			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*(1-pTank->GetMovementPower(true))), (int)vecScreen.y - 50, (int)(100.0f*pTank->GetMovementPower(true)), 3, Color(0, 0, 255));
+			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 50, (int)(100.0f*flAttackPower), 3, Color(255, 0, 0));
+			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*flAttackPower), (int)vecScreen.y - 50, (int)(100.0f*flDefensePower), 3, Color(255, 255, 0));
+			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*(1-flMovementPower)), (int)vecScreen.y - 50, (int)(100.0f*flMovementPower), 3, Color(0, 0, 255));
 
 			if (pTank == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
 			{
-				int iHeight = (int)(200 * (1-pTank->GetMovementPower()));
+				int iHeight = (int)(200 * (pTank->GetBasePower()-pTank->GetBaseMovementPower())/pTank->GetBasePower());
 
 				if (iHeight < 20)
 					iHeight = 20;
@@ -222,7 +253,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)(flAttackPercentage*(iHeight-2)), 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(255, 255, 0, 255));
 				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)(flAttackPercentage*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
 
-				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetTotalPower()*(1-pTank->GetMovementPower())));
+				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
 
 				UpdateAttackInfo();
 			}
@@ -231,48 +262,59 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CPanel::Paint(x, y, w, h);
 
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-	}
-	else
-	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 30.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-	}
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		}
+		else
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 30.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		}
 
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
-	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-	}
-	else
-	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-	}
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		}
+		else
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
+		}
 
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
-	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		}
+		else
+		{
+			glPushMatrix();
+			glTranslatef(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 25.0f, 0);
+			glRotatef(90, 1, 0, 0);
+			DebugCircle(Vector(0, 0, 0), 15, Color(255, 255, 255));
+			glPopMatrix();
+			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		}
+
+		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
 	}
 	else
 	{
-		glPushMatrix();
-		glTranslatef(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 25.0f, 0);
-		glRotatef(90, 1, 0, 0);
-		DebugCircle(Vector(0, 0, 0), 15, Color(255, 255, 255));
-		glPopMatrix();
-		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
 	}
 }
 
@@ -291,7 +333,7 @@ void CHUD::UpdateAttackInfo()
 		return;
 
 	Vector vecOrigin;
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMoveTurnPower() <= pCurrentTank->GetTotalPower())
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMoveTurnPower() <= pCurrentTank->GetTotalMovementPower())
 		vecOrigin = pCurrentTank->GetPreviewMove();
 	else
 		vecOrigin = pCurrentTank->GetDesiredMove();
@@ -307,8 +349,8 @@ void CHUD::UpdateAttackInfo()
 		return;
 	}
 
-	float flDamageBlocked = (*pTargetTank->GetShieldForAttackDirection(vecAttack/flAttackDistance)) * pTargetTank->GetDefensePower();
-	float flAttackDamage = pCurrentTank->GetAttackPower(true) * pCurrentTank->GetTotalPower();
+	float flDamageBlocked = (*pTargetTank->GetShieldForAttackDirection(vecAttack/flAttackDistance)) * pTargetTank->GetDefenseScale(true);
+	float flAttackDamage = pCurrentTank->GetAttackPower(true);
 
 	float flShieldDamage;
 	float flTankDamage = 0;
@@ -327,7 +369,7 @@ void CHUD::UpdateAttackInfo()
 		"Shield Damage: %.1f/%.1f\n"
 		"Digitank Damage: %.1f/%.1f\n",
 		iHitOdds,
-		flShieldDamage, pTargetTank->GetShieldMaxStrength() * pTargetTank->GetDefensePower(),
+		flShieldDamage, pTargetTank->GetShieldMaxStrength() * pTargetTank->GetDefenseScale(true),
 		flTankDamage, pTargetTank->GetHealth()
 	);
 
@@ -338,6 +380,26 @@ void CHUD::SetGame(CDigitanksGame *pGame)
 {
 	m_pGame = pGame;
 	m_pGame->SetListener(this);
+}
+
+void CHUD::SetupMenu(menumode_t eMenuMode)
+{
+	if (eMenuMode == MENUMODE_MAIN)
+	{
+		m_pButton1->SetClickedListener(this, Move);
+		m_pButton2->SetClickedListener(this, Turn);
+		m_pButton3->SetClickedListener(this, Fire);
+		m_pButton4->SetClickedListener(this, Promote);
+	}
+	else if (eMenuMode == MENUMODE_PROMOTE)
+	{
+		m_pButton1->SetClickedListener(this, PromoteAttack);
+		m_pButton2->SetClickedListener(this, PromoteDefense);
+		m_pButton3->SetClickedListener(this, PromoteMovement);
+		m_pButton4->SetClickedListener(this, GoToMain);
+	}
+
+	m_eMenuMode = eMenuMode;
 }
 
 void CHUD::GameStart()
@@ -381,4 +443,65 @@ void CHUD::FireCallback()
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else
 		CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
+}
+
+void CHUD::PromoteCallback()
+{
+	SetupMenu(MENUMODE_PROMOTE);
+}
+
+void CHUD::PromoteAttackCallback()
+{
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	pTank->PromoteAttack();
+
+	SetupMenu(MENUMODE_MAIN);
+
+	UpdateAttackInfo();
+}
+
+void CHUD::PromoteDefenseCallback()
+{
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	pTank->PromoteDefense();
+
+	SetupMenu(MENUMODE_MAIN);
+
+	UpdateAttackInfo();
+}
+
+void CHUD::PromoteMovementCallback()
+{
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	pTank->PromoteMovement();
+
+	SetupMenu(MENUMODE_MAIN);
+
+	UpdateAttackInfo();
+}
+
+void CHUD::GoToMainCallback()
+{
+	SetupMenu(MENUMODE_MAIN);
 }

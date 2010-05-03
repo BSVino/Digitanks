@@ -32,6 +32,12 @@ class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
 
+	typedef enum
+	{
+		MENUMODE_MAIN,
+		MENUMODE_PROMOTE,
+	} menumode_t;
+
 public:
 								CHUD();
 
@@ -45,6 +51,8 @@ public:
 
 	void						SetGame(class CDigitanksGame* pGame);
 
+	void						SetupMenu(menumode_t eMenuMode);
+
 	virtual void				GameStart();
 	virtual void				GameOver();
 
@@ -54,6 +62,11 @@ public:
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
 	EVENT_CALLBACK(CHUD, Fire);
+	EVENT_CALLBACK(CHUD, Promote);
+	EVENT_CALLBACK(CHUD, PromoteAttack);
+	EVENT_CALLBACK(CHUD, PromoteDefense);
+	EVENT_CALLBACK(CHUD, PromoteMovement);
+	EVENT_CALLBACK(CHUD, GoToMain);
 
 protected:
 	class CDigitanksGame*		m_pGame;
@@ -63,9 +76,12 @@ protected:
 	CPowerBar*					m_pDefensePower;
 	CPowerBar*					m_pMovementPower;
 
-	glgui::CButton*				m_pMoveButton;
-	glgui::CButton*				m_pTurnButton;
-	glgui::CButton*				m_pFireButton;
+	menumode_t					m_eMenuMode;
+
+	glgui::CButton*				m_pButton1;
+	glgui::CButton*				m_pButton2;
+	glgui::CButton*				m_pButton3;
+	glgui::CButton*				m_pButton4;
 
 	glgui::CLabel*				m_pAttackInfo;
 };
