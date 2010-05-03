@@ -65,9 +65,9 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetAttackPower(true) / pTank->GetTotalAttackPower())-2, h-2, Color(150, 0, 0));
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true) / pTank->GetTotalDefensePower())-2, h-2, Color(100, 100, 0));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetDefensePower(true) / pTank->GetTotalDefensePower())-2, h-2, Color(0, 0, 150));
 	else
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true) / pTank->GetTotalMovementPower())-2, h-2, Color(0, 0, 150));
+		CRootPanel::PaintRect(x+1, y+1, (int)(w * pTank->GetMovementPower(true) / pTank->GetTotalMovementPower())-2, h-2, Color(100, 100, 0));
 
 	BaseClass::Paint(x, y, w, h);
 }
@@ -144,27 +144,27 @@ void CHUD::Think()
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 			m_pButton1->SetButtonColor(Color(100, 0, 0));
 		else
-			m_pButton1->SetButtonColor(Color(0, 0, 100));
+			m_pButton1->SetButtonColor(Color(150, 150, 0));
 
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
 			m_pButton2->SetButtonColor(Color(100, 0, 0));
 		else
-			m_pButton2->SetButtonColor(Color(0, 0, 100));
+			m_pButton2->SetButtonColor(Color(150, 150, 0));
 
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
 			m_pButton3->SetButtonColor(Color(100, 0, 0));
 		else
-			m_pButton3->SetButtonColor(Color(60, 40, 0));
+			m_pButton3->SetButtonColor(Color(150, 0, 0));
 
-		m_pButton4->SetButtonColor(Color(200, 200, 0));
+		m_pButton4->SetButtonColor(Color(250, 200, 0));
 	}
 	else if (m_eMenuMode == MENUMODE_PROMOTE)
 	{
 		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
 		{
 			m_pButton1->SetButtonColor(Color(200, 0, 0));
-			m_pButton2->SetButtonColor(Color(200, 200, 0));
-			m_pButton3->SetButtonColor(Color(0, 0, 200));
+			m_pButton2->SetButtonColor(Color(0, 0, 200));
+			m_pButton3->SetButtonColor(Color(200, 200, 0));
 		}
 		else
 		{

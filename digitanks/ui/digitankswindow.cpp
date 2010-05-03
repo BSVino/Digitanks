@@ -488,7 +488,7 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	// Movement
 	if (GetControlMode() == MODE_MOVE)
-		DebugCircle(pTank->GetOrigin(), pTank->GetTotalMovementPower(), Color(0, 0, 255));
+		DebugCircle(pTank->GetOrigin(), pTank->GetTotalMovementPower(), Color(255, 255, 0));
 
 	Vector vecOrigin;
 	if (pTank->HasDesiredMove())
@@ -522,7 +522,7 @@ void CDigitanksWindow::RenderMovementSelection()
 
 			float flMaxTurnWithLeftoverPower = (pTank->GetTotalMovementPower() - pTank->GetMovementPower(true)) * pTank->TurnPerPower();
 			if (flMaxTurnWithLeftoverPower < 180)
-				RenderTurnIndicator(vecPoint, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
+				RenderTurnIndicator(vecPoint, pTank->GetAngles(), flMaxTurnWithLeftoverPower, 0.3f);
 		}
 
 		m_pHUD->UpdateAttackInfo();
@@ -559,6 +559,10 @@ void CDigitanksWindow::RenderMovementSelection()
 
 void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, float flDegrees, float flAlpha)
 {
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	if (flDegrees < 180)
 	{
 		Vector vecTurnLeft, vecTurnRight;
@@ -566,19 +570,20 @@ void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, fl
 		AngleVectors(angAngle + EAngle(0, flDegrees, 0), &vecTurnLeft, NULL, NULL);
 		AngleVectors(angAngle - EAngle(0, flDegrees, 0), &vecTurnRight, NULL, NULL);
 
-		DebugLine(vecOrigin, vecOrigin + vecTurnLeft*10, Color(0, 0, 255));
-		DebugLine(vecOrigin, vecOrigin + vecTurnRight*10, Color(0, 0, 255));
+		DebugLine(vecOrigin, vecOrigin + vecTurnLeft*10, Color(255, 255, 0, (int)(255.0f*flAlpha)));
+		DebugLine(vecOrigin, vecOrigin + vecTurnRight*10, Color(255, 255, 0, (int)(255.0f*flAlpha)));
 
-		DebugArc(vecOrigin, 10, angAngle.y - flDegrees, angAngle.y + flDegrees, Color(0, 0, 255, (int)(255.0f*flAlpha)));
+		DebugArc(vecOrigin, 10, angAngle.y - flDegrees, angAngle.y + flDegrees, Color(255, 255, 0, (int)(255.0f*flAlpha)));
 	}
 	else
 	{
 		Vector vecForward;
 		AngleVectors(angAngle, &vecForward, NULL, NULL);
 
-		DebugLine(vecOrigin, vecOrigin + vecForward*10, Color(0, 0, 255));
-		DebugArc(vecOrigin, 10, angAngle.y - 30, angAngle.y + 30, Color(0, 0, 255, (int)(255.0f*flAlpha)));
+		DebugLine(vecOrigin, vecOrigin + vecForward*10, Color(255, 255, 0, (int)(255.0f*flAlpha)));
+		DebugArc(vecOrigin, 10, angAngle.y - 30, angAngle.y + 30, Color(255, 255, 0, (int)(255.0f*flAlpha)));
 	}
+	glPopAttrib();
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
