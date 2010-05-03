@@ -274,6 +274,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\game\powerup.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\powerup.h"
+					>
+				</File>
+				<File
 					RelativePath=".\game\team.cpp"
 					>
 				</File>

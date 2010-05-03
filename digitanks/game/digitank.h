@@ -76,6 +76,8 @@ public:
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, float flDamage);
 
+	virtual void				Render();
+
 	void						GiveBonusPoints(size_t i);
 	bool						HasBonusPoints() { return m_iBonusPoints > 0; };
 	void						PromoteAttack();

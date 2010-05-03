@@ -2,6 +2,10 @@
 
 #include "maths.h"
 
+#include "digitanksgame.h"
+#include "ui/digitankswindow.h"
+#include "powerup.h"
+
 CDigitank::CDigitank()
 {
 	m_flBasePower = 10;
@@ -307,6 +311,25 @@ void CDigitank::Move()
 		m_bDesiredTurn = false;
 		SetAngles(EAngle(0, m_flDesiredTurn, 0));
 	}
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
+
+		if (!pEntity)
+			continue;
+
+		CPowerup* pPowerup = dynamic_cast<CPowerup*>(pEntity);
+
+		if (!pPowerup)
+			continue;
+
+		if ((pPowerup->GetOrigin() - GetOrigin()).LengthSqr() < 3*3)
+		{
+			pPowerup->Delete();
+			GiveBonusPoints(1);
+		}
+	}
 }
 
 void CDigitank::Fire()
@@ -349,6 +372,37 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 	*pflShield = 0;
 
 	BaseClass::TakeDamage(pAttacker, flDamage);
+}
+
+void CDigitank::Render()
+{
+	if (this == DigitanksGame()->GetCurrentTank())
+	{
+		if (HasDesiredMove() || HasDesiredTurn())
+		{
+			EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
+
+			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
+				angTurn = EAngle(0, GetPreviewTurn(), 0);
+
+			CDigitanksWindow::Get()->RenderTank(this, GetDesiredMove(), angTurn, GetTeam()->GetColor());
+
+			Color clrTeam = GetTeam()->GetColor();
+			clrTeam.SetAlpha(50);
+			CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), GetAngles(), clrTeam);
+		}
+		else
+		{
+			EAngle angTurn = GetAngles();
+
+			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
+				angTurn = EAngle(0, GetPreviewTurn(), 0);
+
+			CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), angTurn, GetTeam()->GetColor());
+		}
+	}
+	else
+		CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), GetAngles(), GetTeam()->GetColor());
 }
 
 void CDigitank::GiveBonusPoints(size_t i)

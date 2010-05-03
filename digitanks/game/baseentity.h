@@ -27,11 +27,15 @@ public:
 	virtual void							TakeDamage(CBaseEntity* pAttacker, float flDamage);
 	virtual void							Killed();
 
+	virtual void							Render() {};
+
 	void									Delete();
 	bool									IsDeleted() { return m_bDeleted; }
 	void									SetDeleted() { m_bDeleted = true; }
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
+	static size_t							GetEntityHandle(size_t i);
+	static size_t							GetNumEntities();
 
 protected:
 	Vector									m_vecOrigin;

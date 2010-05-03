@@ -1,6 +1,7 @@
 #include "digitanksgame.h"
 
 #include <assert.h>
+#include "powerup.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -23,6 +24,9 @@ void CDigitanksGame::SetupDefaultGame()
 
 	m_apTeams.clear();
 
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Delete();
+
 	m_apTeams.push_back(new CTeam());
 	m_apTeams.push_back(new CTeam());
 
@@ -43,6 +47,11 @@ void CDigitanksGame::SetupDefaultGame()
 
 	m_apTeams[0]->m_ahTanks[0]->GiveBonusPoints(2);
 	m_apTeams[1]->m_ahTanks[0]->GiveBonusPoints(2);
+
+	CPowerup* pPowerup = new CPowerup();
+	pPowerup->SetOrigin(Vector(10, 0, 10));
+	pPowerup = new CPowerup();
+	pPowerup->SetOrigin(Vector(-10, 0, -10));
 
 	StartGame();
 }

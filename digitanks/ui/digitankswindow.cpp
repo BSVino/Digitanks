@@ -312,48 +312,8 @@ void CDigitanksWindow::RenderObjects()
 
 void CDigitanksWindow::RenderGame(CDigitanksGame* pGame)
 {
-	for (size_t i = 0; i < pGame->GetNumTeams(); i++)
-	{
-		CTeam* pTeam = pGame->GetTeam(i);
-
-		glColor4ubv(pTeam->GetColor());
-
-		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
-		{
-			CDigitank* pTank = pTeam->GetTank(j);
-
-			if (!pTank)
-				continue;
-
-			if (pTank == DigitanksGame()->GetCurrentTank())
-			{
-				if (pTank->HasDesiredMove() || pTank->HasDesiredTurn())
-				{
-					EAngle angTurn = EAngle(0, pTank->GetDesiredTurn(), 0);
-
-					if (GetControlMode() == MODE_TURN && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalMovementPower())
-						angTurn = EAngle(0, pTank->GetPreviewTurn(), 0);
-
-					RenderTank(pTank, pTank->GetDesiredMove(), angTurn, pTeam->GetColor());
-
-					Color clrTeam = pTeam->GetColor();
-					clrTeam.SetAlpha(50);
-					RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), clrTeam);
-				}
-				else
-				{
-					EAngle angTurn = pTank->GetAngles();
-
-					if (GetControlMode() == MODE_TURN && pTank->GetPreviewTurnPower() <= pTank->GetTotalMovementPower())
-						angTurn = EAngle(0, pTank->GetPreviewTurn(), 0);
-
-					RenderTank(pTank, pTank->GetOrigin(), angTurn, pTeam->GetColor());
-				}
-			}
-			else
-				RenderTank(pTank, pTank->GetOrigin(), pTank->GetAngles(), pTeam->GetColor());
-		}
-	}
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Render();
 
 	RenderMovementSelection();
 }

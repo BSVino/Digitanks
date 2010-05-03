@@ -55,4 +55,12 @@ protected:
 	IDigitanksGameListener*	m_pListener;
 };
 
+inline class CDigitanksGame* DigitanksGame()
+{
+	if (!Game())
+		return NULL;
+
+	return dynamic_cast<CDigitanksGame*>(Game());
+}
+
 #endif

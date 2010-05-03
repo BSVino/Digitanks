@@ -99,12 +99,4 @@ protected:
 	bool						m_bAutoProceed;
 };
 
-inline class CDigitanksGame* DigitanksGame()
-{
-	if (!CDigitanksWindow::Get())
-		return NULL;
-
-	return CDigitanksWindow::Get()->GetGame();
-}
-
 #endif

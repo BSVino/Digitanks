@@ -28,6 +28,26 @@ CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
 	return s_apEntityList[iHandle];
 }
 
+size_t CBaseEntity::GetEntityHandle(size_t i)
+{
+	if (!s_apEntityList.size())
+		return ~0;
+
+	if (i > s_apEntityList.size())
+		return ~0;
+
+	std::map<size_t, CBaseEntity*>::iterator it = s_apEntityList.begin();
+	while (i--)
+		it++;
+
+	return (*it).first;
+}
+
+size_t CBaseEntity::GetNumEntities()
+{
+	return s_apEntityList.size();
+}
+
 void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 {
 	m_flHealth -= flDamage;
