@@ -219,23 +219,23 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (!DigitanksGame())
 		return;
 
-#ifdef _DEBUG
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
+#ifdef _DEBUG
 	// Nobody runs resolutions under 1024x768 anymore.
 	// Show me my constraints!
-	CRootPanel::PaintRect(iWidth/2 - 1024/2, iHeight - 150, 1024, 200, Color(0, 0, 0, 100));
+	CRootPanel::PaintRect(iWidth/2 - 1024/2, iHeight - 150, 1024, 200, Color(255, 255, 255, 100));
+#endif
 
 	// This is where the minimap will be.
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 10, iHeight - 150 - 30, 170, 170, Color(255, 255, 255, 100));
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 10, iHeight - 150 - 30, 170, 170, Color(0, 0, 0, 100));
 
 	// Shield schematic
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 150, 130, Color(255, 255, 255, 100));
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 150, 130, Color(0, 0, 0, 100));
 
 	// Tank data
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 350, iHeight - 150 + 10, 100, 130, Color(255, 255, 255, 100));
-#endif
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 350, iHeight - 150 + 10, 100, 130, Color(0, 0, 0, 100));
 
 	// Background for the attack info label
 	CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, 100));
