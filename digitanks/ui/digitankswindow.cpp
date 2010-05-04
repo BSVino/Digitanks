@@ -471,7 +471,7 @@ void CDigitanksWindow::RenderMovementSelection()
 	{
 		pTank->SetPreviewMove(vecPoint);
 
-		if (pTank->GetPreviewMovePower() <= pTank->GetTotalMovementPower())
+		if (pTank->GetPreviewMovePower() <= pTank->GetBasePower())
 		{
 			vecRangeOrigin = vecPoint;
 
