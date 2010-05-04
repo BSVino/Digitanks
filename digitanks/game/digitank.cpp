@@ -25,7 +25,7 @@ CDigitank::CDigitank()
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
 
-	m_flMaxShieldStrength = m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flBackShieldStrength = 5;
+	m_flMaxShieldStrength = m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flBackShieldStrength = 15;
 
 	m_pTeam = NULL;
 }

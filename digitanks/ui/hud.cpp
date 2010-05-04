@@ -349,7 +349,8 @@ void CHUD::UpdateAttackInfo()
 		return;
 	}
 
-	float flDamageBlocked = (*pTargetTank->GetShieldForAttackDirection(vecAttack/flAttackDistance)) * pTargetTank->GetDefenseScale(true);
+	float flShieldStrength = (*pTargetTank->GetShieldForAttackDirection(vecAttack/flAttackDistance));
+	float flDamageBlocked = flShieldStrength * pTargetTank->GetDefenseScale(true);
 	float flAttackDamage = pCurrentTank->GetAttackPower(true);
 
 	float flShieldDamage;
@@ -369,7 +370,7 @@ void CHUD::UpdateAttackInfo()
 		"Shield Damage: %.1f/%.1f\n"
 		"Digitank Damage: %.1f/%.1f\n",
 		iHitOdds,
-		flShieldDamage, pTargetTank->GetShieldMaxStrength() * pTargetTank->GetDefenseScale(true),
+		flShieldDamage, flShieldStrength * pTargetTank->GetDefenseScale(true),
 		flTankDamage, pTargetTank->GetHealth()
 	);
 
