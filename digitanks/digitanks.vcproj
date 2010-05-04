@@ -102,6 +102,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="if exist &quot;install\digitanks.exe&quot; attrib -r &quot;install\digitanks.exe&quot;&#x0D;&#x0A;if exist &quot;$(TargetDir)&quot;digitanks.exe copy &quot;$(TargetDir)&quot;digitanks.exe &quot;install\digitanks.exe&quot;&#x0D;&#x0A;"
+				Outputs="install/digitanks.exe"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
