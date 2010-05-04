@@ -84,6 +84,13 @@ protected:
 	glgui::CButton*				m_pButton4;
 
 	glgui::CLabel*				m_pAttackInfo;
+
+	glgui::CLabel*				m_pFrontShieldInfo;
+	glgui::CLabel*				m_pRearShieldInfo;
+	glgui::CLabel*				m_pLeftShieldInfo;
+	glgui::CLabel*				m_pRightShieldInfo;
+
+	glgui::CLabel*				m_pTankInfo;
 };
 
 #endif

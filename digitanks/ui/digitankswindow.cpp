@@ -407,7 +407,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, iShieldStrength));
-	glTranslatef(0, 0, 4);
+	glTranslatef(0, 0, -4);
 	glScalef(1, 0.5f, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();
@@ -418,7 +418,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 
 	glPushMatrix();
 	glColor4ubv(Color(255, 255, 255, iShieldStrength));
-	glTranslatef(0, 0, -4);
+	glTranslatef(0, 0, 4);
 	glScalef(1, 0.5f, 0.1f);
 	glutSolidCube(4);
 	glPopMatrix();

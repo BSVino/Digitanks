@@ -104,6 +104,21 @@ CHUD::CHUD()
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pAttackInfo);
 
+	m_pFrontShieldInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pFrontShieldInfo);
+
+	m_pRearShieldInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pRearShieldInfo);
+
+	m_pLeftShieldInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pLeftShieldInfo);
+
+	m_pRightShieldInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pRightShieldInfo);
+
+	m_pTankInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pTankInfo);
+
 	SetupMenu(MENUMODE_MAIN);
 }
 
@@ -117,22 +132,42 @@ void CHUD::Layout()
 	m_pAttackInfo->SetPos(iWidth/2 - 1024/2 + 190 + 3, iHeight - 150 - 10 - 80 + 3);
 	m_pAttackInfo->SetSize(200, 80);
 
-	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 450, iHeight - 140);
+	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 140);
 	m_pHealthBar->SetSize(200, 20);
 
-	m_pAttackPower->SetPos(iWidth/2 - 1024/2 + 450, iHeight - 90);
+	m_pAttackPower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 90);
 	m_pAttackPower->SetSize(200, 20);
 
-	m_pDefensePower->SetPos(iWidth/2 - 1024/2 + 450, iHeight - 60);
+	m_pDefensePower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 60);
 	m_pDefensePower->SetSize(200, 20);
 
-	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 450, iHeight - 30);
+	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
 	m_pButton1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
 	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
 	m_pButton3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 100);
 	m_pButton4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 100);
+
+	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
+	m_pRightShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
+	m_pRearShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 25, 50, 10);
+	m_pFrontShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 35, 50, 10);
+
+	m_pLeftShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pRightShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pRearShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pFrontShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+
+	m_pLeftShieldInfo->SetWrap(false);
+	m_pRightShieldInfo->SetWrap(false);
+	m_pRearShieldInfo->SetWrap(false);
+	m_pFrontShieldInfo->SetWrap(false);
+
+	m_pTankInfo->SetDimensions(iWidth/2 - 1024/2 + 350 + 2, iHeight - 150 + 10 + 7, 96, 126);
+	m_pTankInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	m_pTankInfo->SetWrap(true);
+	m_pTankInfo->SetFontFaceSize(10);
 }
 
 void CHUD::Think()
@@ -156,7 +191,10 @@ void CHUD::Think()
 		else
 			m_pButton3->SetButtonColor(Color(150, 0, 0));
 
-		m_pButton4->SetButtonColor(Color(250, 200, 0));
+		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
+			m_pButton4->SetButtonColor(Color(250, 200, 0));
+		else
+			m_pButton4->SetButtonColor(g_clrBox);
 	}
 	else if (m_eMenuMode == MENUMODE_PROMOTE)
 	{
@@ -193,10 +231,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 10, iHeight - 150 - 30, 170, 170, Color(255, 255, 255, 100));
 
 	// Shield schematic
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 130, 130, Color(255, 255, 255, 100));
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 150, 130, Color(255, 255, 255, 100));
 
 	// Tank data
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 330, iHeight - 150 + 10, 100, 130, Color(255, 255, 255, 100));
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 350, iHeight - 150 + 10, 100, 130, Color(255, 255, 255, 100));
 #endif
 
 	// Background for the attack info label
@@ -262,6 +300,26 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CPanel::Paint(x, y, w, h);
 
+	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
+	int iShield = (int)(255*pTank->GetLeftShieldStrength());
+	if (iShield > 255)
+		iShield = 255;
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 20, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
+	iShield = (int)(255*pTank->GetRightShieldStrength());
+	if (iShield > 255)
+		iShield = 255;
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 10, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
+	iShield = (int)(255*pTank->GetFrontShieldStrength());
+	if (iShield > 255)
+		iShield = 255;
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+	iShield = (int)(255*pTank->GetRearShieldStrength());
+	if (iShield > 255)
+		iShield = 255;
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 10, 50, 10, Color(255, 255, 255, iShield));
+
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
@@ -326,6 +384,49 @@ void CHUD::UpdateAttackInfo()
 
 	if (!pCurrentTank)
 		return;
+
+	char szShieldInfo[1024];
+	float flShieldMax = pCurrentTank->GetShieldMaxStrength() * pCurrentTank->GetDefenseScale(true);
+	sprintf(szShieldInfo, "%.1f/%.1f", pCurrentTank->GetFrontShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	m_pFrontShieldInfo->SetText(szShieldInfo);
+
+	sprintf(szShieldInfo, "%.1f/%.1f", pCurrentTank->GetRearShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	m_pRearShieldInfo->SetText(szShieldInfo);
+
+	sprintf(szShieldInfo, "%.1f/\n%.1f", pCurrentTank->GetLeftShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	m_pLeftShieldInfo->SetText(szShieldInfo);
+
+	sprintf(szShieldInfo, "%.1f/\n%.1f", pCurrentTank->GetRightShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	m_pRightShieldInfo->SetText(szShieldInfo);
+
+	m_pTankInfo->SetText("TANK INFO");
+
+	if (pCurrentTank->HasBonusPoints())
+	{
+		if (pCurrentTank->GetBonusPoints() > 1)
+			sprintf(szShieldInfo, "\n \n%d bonus points available", pCurrentTank->GetBonusPoints());
+		else
+			sprintf(szShieldInfo, "\n \n1 bonus point available");
+		m_pTankInfo->AppendText(szShieldInfo);
+	}
+
+	if (pCurrentTank->GetBonusAttackPower())
+	{
+		sprintf(szShieldInfo, "\n \n+%d attack power", (int)pCurrentTank->GetBonusAttackPower());
+		m_pTankInfo->AppendText(szShieldInfo);
+	}
+
+	if (pCurrentTank->GetBonusDefensePower())
+	{
+		sprintf(szShieldInfo, "\n \n+%d defense power", (int)pCurrentTank->GetBonusDefensePower());
+		m_pTankInfo->AppendText(szShieldInfo);
+	}
+
+	if (pCurrentTank->GetBonusMovementPower())
+	{
+		sprintf(szShieldInfo, "\n \n+%d movement power", (int)pCurrentTank->GetBonusMovementPower());
+		m_pTankInfo->AppendText(szShieldInfo);
+	}
 
 	CDigitank* pTargetTank = pCurrentTank->GetTarget();
 

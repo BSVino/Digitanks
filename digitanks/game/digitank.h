@@ -30,6 +30,10 @@ public:
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
 	float						GetMovementScale(bool bPreview = false) { return GetMovementPower(bPreview) / 10; };
 
+	float						GetBonusAttackPower() { return m_flBonusAttackPower; };
+	float						GetBonusDefensePower() { return m_flBonusDefensePower; };
+	float						GetBonusMovementPower() { return m_flBonusMovementPower; };
+
 	void						SetAttackPower(float flAttackPower);
 
 	float						GetPreviewMoveTurnPower();
@@ -80,6 +84,7 @@ public:
 
 	void						GiveBonusPoints(size_t i);
 	bool						HasBonusPoints() { return m_iBonusPoints > 0; };
+	size_t						GetBonusPoints() { return m_iBonusPoints; };
 	void						PromoteAttack();
 	void						PromoteDefense();
 	void						PromoteMovement();
