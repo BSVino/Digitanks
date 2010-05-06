@@ -90,7 +90,7 @@ void CDigitanksWindow::Run()
 	while (true)
 	{
 		glutMainLoopEvent();
-		Game()->Think();
+		Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
 		Render();
 		glgui::CRootPanel::Get()->Think();
 		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
@@ -337,9 +337,14 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 	glPushMatrix();
 	glColor4ubv(Color(100, 100, 100, clrTank.a()));
 
-	if (pTank->GetTarget())
+	if ((pTank == DigitanksGame()->GetCurrentTank() && GetControlMode() == MODE_AIM) || pTank->HasDesiredAim())
 	{
-		Vector vecTarget = (pTank->GetTarget()->GetOrigin() - vecOrigin).Normalized();
+		Vector vecAimTarget;
+		if (pTank == DigitanksGame()->GetCurrentTank() && GetControlMode() == MODE_AIM)
+			vecAimTarget = pTank->GetPreviewAim();
+		else
+			vecAimTarget = pTank->GetDesiredAim();
+		Vector vecTarget = (vecAimTarget - vecOrigin).Normalized();
 		float flAngle = atan2(vecTarget.z, vecTarget.x) * 180/M_PI;
 		glRotatef(-flAngle, 0.0f, 1.0f, 0.0f);
 	}
@@ -512,9 +517,65 @@ void CDigitanksWindow::RenderMovementSelection()
 		}
 	}
 
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (GetControlMode() == MODE_AIM && bMouseOnGrid)
+	{
+		float flDistance = (vecPoint - vecOrigin).Length();
+
+		pTank->SetPreviewAim(vecPoint);
+
+		m_pHUD->UpdateAttackInfo();
+
+		if (flDistance < pTank->GetMaxRange())
+		{
+			DebugCircle(vecPoint, RemapValClamped(flDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0));
+
+			float flGravity = -flDistance*2;
+
+			Vector vecForce = vecPoint - vecOrigin;
+			vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+
+			Vector vecProjectile = vecOrigin;
+			for (size_t i = 0; i < 10; i++)
+			{
+				DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0));
+				vecProjectile += vecForce/10;
+				vecForce.y += flGravity/10;
+			}
+		}
+	}
+	else if (pTank->HasDesiredAim())
+	{
+		Vector vecDesiredAim = pTank->GetDesiredAim();
+		float flDistance = (vecDesiredAim - vecOrigin).Length();
+
+		if (flDistance < pTank->GetMaxRange())
+		{
+			DebugCircle(vecDesiredAim, RemapValClamped(flDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, 150));
+
+			float flGravity = -flDistance*2;
+
+			Vector vecForce = vecDesiredAim - vecOrigin;
+			vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+
+			Vector vecProjectile = vecOrigin;
+			for (size_t i = 0; i < 10; i++)
+			{
+				DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0, 150));
+				vecProjectile += vecForce/10;
+				vecForce.y += flGravity/10;
+			}
+		}
+	}
+
 	// Range
-	DebugCircle(vecRangeOrigin, 30, Color(0, 255, 0));
-	DebugCircle(vecRangeOrigin, 50, Color(255, 0, 0));
+	DebugCircle(vecRangeOrigin, pTank->GetMinRange(), Color(0, 255, 0, (GetControlMode() == MODE_AIM)?255:150));
+	DebugCircle(vecRangeOrigin, pTank->GetMaxRange(), Color(255, 0, 0, (GetControlMode() == MODE_AIM)?255:150));
+
+	glPopAttrib();
 }
 
 void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, float flDegrees, float flAlpha)
@@ -644,14 +705,21 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	if (m_eControlMode == MODE_TURN)
 		DigitanksGame()->GetCurrentTank()->ClearPreviewTurn();
 
+	if (m_eControlMode == MODE_AIM)
+		DigitanksGame()->GetCurrentTank()->ClearPreviewAim();
+
 	if (eMode == MODE_MOVE)
 	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
+		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
 	}
 
 	if (eMode == MODE_TURN)
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
+
+	if (eMode == MODE_AIM)
+		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
 
 	m_bAutoProceed = bAutoProceed;
 	m_eControlMode = eMode;

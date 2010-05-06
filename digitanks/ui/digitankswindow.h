@@ -10,6 +10,7 @@ typedef enum
 	MODE_NONE = 0,
 	MODE_MOVE,
 	MODE_TURN,
+	MODE_AIM,
 	MODE_FIRE,
 } controlmode_t;
 

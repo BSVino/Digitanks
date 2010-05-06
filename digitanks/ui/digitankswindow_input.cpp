@@ -36,6 +36,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	else if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_TURN)
 	{
 		DigitanksGame()->SetDesiredTurn();
+		SetControlMode(MODE_AIM, m_bAutoProceed);
+	}
+	else if (DigitanksGame() && iState == GLUT_DOWN && GetControlMode() == MODE_AIM)
+	{
+		DigitanksGame()->SetDesiredAim();
 		if (m_bAutoProceed)
 			SetControlMode(MODE_FIRE, true);
 		else

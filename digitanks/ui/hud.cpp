@@ -99,6 +99,9 @@ CHUD::CHUD()
 	m_pButton4 = new CButton(0, 0, 50, 50, "");
 	AddControl(m_pButton4);
 
+	m_pButton5 = new CButton(0, 0, 50, 50, "");
+	AddControl(m_pButton5);
+
 	m_pAttackInfo = new CLabel(0, 0, 100, 150, "");
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
@@ -148,6 +151,7 @@ void CHUD::Layout()
 	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
 	m_pButton3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 100);
 	m_pButton4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 100);
+	m_pButton5->SetPos(iWidth/2 - 1024/2 + 940, iHeight - 100);
 
 	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
 	m_pRightShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
@@ -176,25 +180,15 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
-			m_pButton1->SetButtonColor(Color(100, 0, 0));
-		else
-			m_pButton1->SetButtonColor(Color(150, 150, 0));
-
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
-			m_pButton2->SetButtonColor(Color(100, 0, 0));
-		else
-			m_pButton2->SetButtonColor(Color(150, 150, 0));
-
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
-			m_pButton3->SetButtonColor(Color(100, 0, 0));
-		else
-			m_pButton3->SetButtonColor(Color(150, 0, 0));
+		m_pButton1->SetButtonColor(Color(150, 150, 0));
+		m_pButton2->SetButtonColor(Color(150, 150, 0));
+		m_pButton3->SetButtonColor(Color(150, 0, 0));
+		m_pButton4->SetButtonColor(Color(150, 0, 150));
 
 		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
-			m_pButton4->SetButtonColor(Color(250, 200, 0));
+			m_pButton5->SetButtonColor(Color(250, 200, 0));
 		else
-			m_pButton4->SetButtonColor(g_clrBox);
+			m_pButton5->SetButtonColor(g_clrBox);
 	}
 	else if (m_eMenuMode == MENUMODE_PROMOTE)
 	{
@@ -210,7 +204,8 @@ void CHUD::Think()
 			m_pButton2->SetButtonColor(g_clrBox);
 			m_pButton3->SetButtonColor(g_clrBox);
 		}
-		m_pButton4->SetButtonColor(Color(100, 0, 0));
+		m_pButton4->SetButtonColor(g_clrBox);
+		m_pButton5->SetButtonColor(Color(100, 0, 0));
 	}
 }
 
@@ -350,7 +345,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
 		}
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
 		{
 			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
 			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
@@ -366,13 +361,29 @@ void CHUD::Paint(int x, int y, int w, int h)
 			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
 		}
 
-		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		}
+		else
+		{
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 5.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		}
+
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
 	}
 	else
 	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
 	}
 }
 
@@ -439,16 +450,38 @@ void CHUD::UpdateAttackInfo()
 	else
 		vecOrigin = pCurrentTank->GetDesiredMove();
 
-	Vector vecAttack = vecOrigin - pTargetTank->GetOrigin();
+	Vector vecAim;
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+		vecAim = pCurrentTank->GetPreviewAim();
+	else
+		vecAim = pCurrentTank->GetDesiredAim();
+
+	Vector vecAttack = vecOrigin - vecAim;
 	float flAttackDistance = vecAttack.Length();
 
-	int iHitOdds = (int)RemapValClamped(flAttackDistance, 30, 50, 100, 0);
+	float flRadius = RemapValClamped(flAttackDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS);
+	float flTargetDistance = (vecAim - pCurrentTank->GetTarget()->GetOrigin()).Length();
 
-	if (iHitOdds <= 0)
+	if (flTargetDistance > flRadius)
 	{
 		m_pAttackInfo->SetText("Hit odds: 0%");
 		return;
 	}
+
+	float flArea = flRadius*2*flRadius*2;			// It's really a square!
+	float flHitProbability = 2*4*M_PI / flArea;		// 2 * pi * tank radius
+
+	// If the target is close to the edge, fade the probability down
+	flHitProbability = RemapValClamped(flRadius - flTargetDistance, 0, 2, 0, flHitProbability);
+
+	if (flHitProbability <= 0)
+	{
+		m_pAttackInfo->SetText("Hit odds: 0%");
+		return;
+	}
+
+	if (flHitProbability > 1)
+		flHitProbability = 1;
 
 	float flShieldStrength = (*pTargetTank->GetShieldForAttackDirection(vecAttack/flAttackDistance));
 	float flDamageBlocked = flShieldStrength * pTargetTank->GetDefenseScale(true);
@@ -470,7 +503,7 @@ void CHUD::UpdateAttackInfo()
 		" \n"
 		"Shield Damage: %.1f/%.1f\n"
 		"Digitank Damage: %.1f/%.1f\n",
-		iHitOdds,
+		(int)(flHitProbability*100),
 		flShieldDamage, flShieldStrength * pTargetTank->GetDefenseScale(true),
 		flTankDamage, pTargetTank->GetHealth()
 	);
@@ -490,15 +523,17 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 	{
 		m_pButton1->SetClickedListener(this, Move);
 		m_pButton2->SetClickedListener(this, Turn);
-		m_pButton3->SetClickedListener(this, Fire);
-		m_pButton4->SetClickedListener(this, Promote);
+		m_pButton3->SetClickedListener(this, Aim);
+		m_pButton4->SetClickedListener(this, Fire);
+		m_pButton5->SetClickedListener(this, Promote);
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
 		m_pButton1->SetClickedListener(this, PromoteAttack);
 		m_pButton2->SetClickedListener(this, PromoteDefense);
 		m_pButton3->SetClickedListener(this, PromoteMovement);
-		m_pButton4->SetClickedListener(this, GoToMain);
+		m_pButton4->SetClickedListener(this, NULL);
+		m_pButton5->SetClickedListener(this, GoToMain);
 	}
 
 	m_eMenuMode = eMenuMode;
@@ -537,6 +572,14 @@ void CHUD::TurnCallback()
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else
 		CDigitanksWindow::Get()->SetControlMode(MODE_TURN);
+}
+
+void CHUD::AimCallback()
+{
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+	else
+		CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
 }
 
 void CHUD::FireCallback()

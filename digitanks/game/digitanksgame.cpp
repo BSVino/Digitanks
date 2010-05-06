@@ -79,8 +79,6 @@ void CDigitanksGame::SetDesiredMove()
 		return;
 
 	GetCurrentTank()->SetDesiredMove();
-
-	NextTank();
 }
 
 void CDigitanksGame::SetDesiredTurn()
@@ -89,8 +87,14 @@ void CDigitanksGame::SetDesiredTurn()
 		return;
 
 	GetCurrentTank()->SetDesiredTurn();
+}
 
-	NextTank();
+void CDigitanksGame::SetDesiredAim()
+{
+	if (!GetCurrentTank())
+		return;
+
+	GetCurrentTank()->SetDesiredAim();
 }
 
 void CDigitanksGame::NextTank()

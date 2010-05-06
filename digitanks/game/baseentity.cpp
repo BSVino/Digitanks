@@ -13,6 +13,8 @@ CBaseEntity::CBaseEntity()
 	m_flHealth = 1;
 
 	m_bDeleted = false;
+
+	m_bSimulated = false;
 }
 
 CBaseEntity::~CBaseEntity()

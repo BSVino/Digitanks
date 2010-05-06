@@ -12,7 +12,8 @@ public:
 												~CGame();
 
 public:
-	void										Think();
+	void										Think(float flGameTime);
+	void										Simulate();
 
 	virtual void								OnKilled(class CBaseEntity* pEntity) {};
 	virtual void								OnDeleted(class CBaseEntity* pEntity) {};
@@ -25,6 +26,9 @@ protected:
 	std::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
 
 	static CGame*								s_pGame;
+
+	float										m_flGameTime;
+	float										m_flFrameTime;
 };
 
 inline class CGame* Game()

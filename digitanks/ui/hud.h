@@ -61,6 +61,7 @@ public:
 
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
+	EVENT_CALLBACK(CHUD, Aim);
 	EVENT_CALLBACK(CHUD, Fire);
 	EVENT_CALLBACK(CHUD, Promote);
 	EVENT_CALLBACK(CHUD, PromoteAttack);
@@ -82,6 +83,7 @@ protected:
 	glgui::CButton*				m_pButton2;
 	glgui::CButton*				m_pButton3;
 	glgui::CButton*				m_pButton4;
+	glgui::CButton*				m_pButton5;
 
 	glgui::CLabel*				m_pAttackInfo;
 

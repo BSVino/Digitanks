@@ -31,6 +31,7 @@ public:
 
 	void					SetDesiredMove();
 	void					SetDesiredTurn();
+	void					SetDesiredAim();
 
 	void					NextTank();
 	void					Turn();

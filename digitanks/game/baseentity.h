@@ -15,11 +15,20 @@ public:
 	Vector									GetOrigin() const { return m_vecOrigin; };
 	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
 
+	Vector									GetVelocity() const { return m_vecVelocity; };
+	void									SetVelocity(const Vector& vecVelocity) { m_vecVelocity = vecVelocity; };
+
 	EAngle									GetAngles() const { return m_angAngles; };
 	void									SetAngles(const EAngle& angAngles) { m_angAngles = angAngles; };
 
+	Vector									GetGravity() const { return m_vecGravity; };
+	void									SetGravity(Vector vecGravity) { m_vecGravity = vecGravity; };
+
+	bool									GetSimulated() { return m_bSimulated; };
+	void									SetSimulated(bool bSimulated) { m_bSimulated = bSimulated; };
+
 	size_t									GetHandle() const { return m_iHandle; }
-							
+
 	virtual float							GetTotalHealth() { return m_flTotalHealth; }
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
@@ -28,6 +37,8 @@ public:
 	virtual void							Killed();
 
 	virtual void							Render() {};
+
+	virtual void							TouchedGround() {};
 
 	void									Delete();
 	bool									IsDeleted() { return m_bDeleted; }
@@ -40,6 +51,10 @@ public:
 protected:
 	Vector									m_vecOrigin;
 	EAngle									m_angAngles;
+	Vector									m_vecVelocity;
+	Vector									m_vecGravity;
+
+	bool									m_bSimulated;
 
 	size_t									m_iHandle;
 

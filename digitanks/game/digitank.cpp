@@ -1,6 +1,8 @@
 #include "digitank.h"
 
 #include "maths.h"
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
@@ -19,8 +21,11 @@ CDigitank::CDigitank()
 
 	m_flPreviewTurn = 0;
 
+	m_bPreviewAim = false;
+
 	m_bDesiredMove = false;
 	m_bDesiredTurn = false;
+	m_bDesiredAim = false;
 
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
@@ -36,6 +41,9 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 
 	if (bPreview)
 	{
+		if (!HasDesiredAim() && !IsPreviewAimValid())
+			return 0;
+
 		flMovementLength = GetPreviewMoveTurnPower();
 
 		if (flMovementLength > m_flBasePower)
@@ -55,8 +63,18 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 	{
 		flMovementLength = GetPreviewMoveTurnPower();
 
+		bool bPreviewAimValid = IsPreviewAimValid();
+
 		if (flMovementLength > m_flBasePower)
-			return m_flDefensePower;
+		{
+			if (!HasDesiredAim() && !bPreviewAimValid)
+				return m_flBasePower;
+			else
+				return m_flDefensePower;
+		}
+
+		if (!HasDesiredAim() && !bPreviewAimValid)
+			return m_flBasePower - flMovementLength;
 
 		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
 	}
@@ -228,6 +246,30 @@ void CDigitank::ClearPreviewTurn()
 	m_flPreviewTurn = GetAngles().y;
 }
 
+void CDigitank::SetPreviewAim(Vector vecPreviewAim)
+{
+	m_bPreviewAim = true;
+	m_vecPreviewAim = vecPreviewAim;
+}
+
+void CDigitank::ClearPreviewAim()
+{
+	m_bPreviewAim = false;
+	m_vecPreviewAim = GetOrigin();
+}
+
+bool CDigitank::IsPreviewAimValid()
+{
+	if (!m_bPreviewAim)
+		return false;
+
+	Vector vecOrigin = GetOrigin();
+	if (HasDesiredMove())
+		vecOrigin = GetDesiredMove();
+
+	return (GetPreviewAim() - vecOrigin).LengthSqr() < GetMaxRange()*GetMaxRange();
+}
+
 void CDigitank::SetDesiredMove()
 {
 	float flMovePower = GetPreviewMovePower();
@@ -298,6 +340,35 @@ float CDigitank::GetDesiredTurn()
 	return m_flDesiredTurn;
 }
 
+void CDigitank::SetDesiredAim()
+{
+	Vector vecOrigin = GetOrigin();
+	if (HasDesiredMove())
+		vecOrigin = GetDesiredMove();
+
+	if ((GetPreviewAim() - vecOrigin).Length() > GetMaxRange())
+		return;
+
+	m_vecDesiredAim = m_vecPreviewAim;
+
+	m_bDesiredAim = true;
+}
+
+void CDigitank::CancelDesiredAim()
+{
+	m_bDesiredAim = false;
+
+	ClearPreviewAim();
+}
+
+Vector CDigitank::GetDesiredAim()
+{
+	if (!HasDesiredAim())
+		return GetOrigin();
+
+	return m_vecDesiredAim;
+}
+
 void CDigitank::Move()
 {
 	if (m_bDesiredMove)
@@ -310,6 +381,12 @@ void CDigitank::Move()
 	{
 		m_bDesiredTurn = false;
 		SetAngles(EAngle(0, m_flDesiredTurn, 0));
+	}
+
+	if (!m_bDesiredAim)
+	{
+		m_flAttackPower = 0;
+		CalculateAttackDefense();
 	}
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -334,24 +411,33 @@ void CDigitank::Move()
 
 void CDigitank::Fire()
 {
-	if (m_hTarget == NULL)
+	if (!HasDesiredAim())
 		return;
 
-	float flDistanceSqr = (m_hTarget->GetOrigin() - GetOrigin()).LengthSqr();
-	if (flDistanceSqr > 50*50)
+	float flDistanceSqr = (GetDesiredAim() - GetOrigin()).LengthSqr();
+	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
 
-	bool bHit = false;
 	float flDistance = sqrt(flDistanceSqr);
+	float flGravity = -flDistance*2;
 
-	if (flDistanceSqr < 30*30)
-		bHit = true;
-	else
-		bHit = (rand()%100) > RemapVal(flDistance, 30, 50, 0, 100);
+	Vector vecLandingSpot = GetDesiredAim();
 
-	if (bHit)
-		m_hTarget->TakeDamage(this, GetAttackPower());
+	if (flDistance > GetMinRange())
+	{
+		float flFactor = RemapVal(flDistance, GetMinRange(), GetMaxRange(), 0, TANK_MAX_RANGE_RADIUS);
+		float x = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
+		float z = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
+		vecLandingSpot += Vector(x, 0, z);
+	}
+
+	Vector vecForce = vecLandingSpot - GetOrigin();
+	vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+
+	CProjectile* pProjectile = new CProjectile(this, GetAttackPower(), vecForce);
+	pProjectile->SetGravity(Vector(0, flGravity, 0));
 }
+
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 {
@@ -435,4 +521,40 @@ void CDigitank::PromoteMovement()
 
 	m_iBonusPoints--;
 	m_flBonusMovementPower++;
+}
+
+CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
+{
+	m_hOwner = pOwner;
+	m_flDamage = flDamage;
+	SetVelocity(vecForce);
+	SetOrigin(pOwner->GetOrigin());
+	SetSimulated(true);
+}
+
+void CProjectile::Render()
+{
+	glPushMatrix();
+	glTranslatef(GetOrigin().x, GetOrigin().y, GetOrigin().z);
+	glutSolidSphere(0.5f, 4, 4);
+	glPopMatrix();
+}
+
+void CProjectile::TouchedGround()
+{
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
+
+		if (pEntity == this)
+			continue;
+
+		if (pEntity == m_hOwner)
+			continue;
+
+		if ((pEntity->GetOrigin() - GetOrigin()).LengthSqr() < 4*4)
+			pEntity->TakeDamage(m_hOwner, m_flDamage);
+	}
+
+	Delete();
 }

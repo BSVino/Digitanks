@@ -5,6 +5,7 @@
 #include <common.h>
 
 #define TANK_SHIELDS 4
+#define TANK_MAX_RANGE_RADIUS 10
 
 class CDigitank : public CBaseEntity
 {
@@ -62,6 +63,11 @@ public:
 	void						SetPreviewTurn(float flPreviewTurn) { m_flPreviewTurn = flPreviewTurn; };
 	void						ClearPreviewTurn();
 
+	Vector						GetPreviewAim() { return m_vecPreviewAim; };
+	void						SetPreviewAim(Vector vecPreviewAim);
+	void						ClearPreviewAim();
+	bool						IsPreviewAimValid();
+
 	void						SetDesiredMove();
 	void						CancelDesiredMove();
 	bool						HasDesiredMove() { return m_bDesiredMove; };
@@ -71,6 +77,11 @@ public:
 	void						CancelDesiredTurn();
 	bool						HasDesiredTurn() { return m_bDesiredTurn; };
 	float						GetDesiredTurn();
+
+	void						SetDesiredAim();
+	void						CancelDesiredAim();
+	bool						HasDesiredAim() { return m_bDesiredAim; };
+	Vector						GetDesiredAim();
 
 	CDigitank*					GetTarget() { return m_hTarget; };
 	void						SetTarget(CDigitank* pTarget) { m_hTarget = pTarget; };
@@ -94,6 +105,8 @@ public:
 
 	virtual float				ShieldRechargeRate() { return 1.0f; }
 	virtual float				HealthRechargeRate() { return 0.2f; }
+	virtual float				GetMinRange() { return 30.0f; };
+	virtual float				GetMaxRange() { return 50.0f; };
 	virtual float				TurnPerPower() { return 45; }
 
 protected:
@@ -127,9 +140,29 @@ protected:
 	bool						m_bDesiredTurn;
 	float						m_flDesiredTurn;
 
+	bool						m_bPreviewAim;
+	Vector						m_vecPreviewAim;
+	bool						m_bDesiredAim;
+	Vector						m_vecDesiredAim;
+
 	CEntityHandle<CDigitank>	m_hTarget;
 
 	class CTeam*				m_pTeam;
+};
+
+class CProjectile : public CBaseEntity
+{
+public:
+								CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce);
+
+public:
+	virtual void				Render();
+
+	virtual void				TouchedGround();
+
+protected:
+	CEntityHandle<CDigitank>	m_hOwner;
+	float						m_flDamage;
 };
 
 #endif
