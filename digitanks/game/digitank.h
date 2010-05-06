@@ -83,9 +83,6 @@ public:
 	bool						HasDesiredAim() { return m_bDesiredAim; };
 	Vector						GetDesiredAim();
 
-	CDigitank*					GetTarget() { return m_hTarget; };
-	void						SetTarget(CDigitank* pTarget) { m_hTarget = pTarget; };
-
 	void						Move();
 	void						Fire();
 
@@ -144,8 +141,6 @@ protected:
 	Vector						m_vecPreviewAim;
 	bool						m_bDesiredAim;
 	Vector						m_vecDesiredAim;
-
-	CEntityHandle<CDigitank>	m_hTarget;
 
 	class CTeam*				m_pTeam;
 };

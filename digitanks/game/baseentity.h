@@ -46,6 +46,7 @@ public:
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
+	static CBaseEntity*						GetEntityNumber(size_t i);
 	static size_t							GetNumEntities();
 
 protected:

@@ -439,11 +439,6 @@ void CHUD::UpdateAttackInfo()
 		m_pTankInfo->AppendText(szShieldInfo);
 	}
 
-	CDigitank* pTargetTank = pCurrentTank->GetTarget();
-
-	if (!pTargetTank)
-		return;
-
 	Vector vecOrigin;
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMoveTurnPower() <= pCurrentTank->GetTotalMovementPower())
 		vecOrigin = pCurrentTank->GetPreviewMove();
@@ -459,8 +454,51 @@ void CHUD::UpdateAttackInfo()
 	Vector vecAttack = vecOrigin - vecAim;
 	float flAttackDistance = vecAttack.Length();
 
-	float flRadius = RemapValClamped(flAttackDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS);
-	float flTargetDistance = (vecAim - pCurrentTank->GetTarget()->GetOrigin()).Length();
+	if (flAttackDistance > pCurrentTank->GetMaxRange())
+		return;
+
+	if (!pCurrentTank->HasDesiredAim() && !pCurrentTank->IsPreviewAimValid())
+		return;
+
+	float flRadius = RemapValClamped(flAttackDistance, pCurrentTank->GetMinRange(), pCurrentTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+
+	CDigitank* pClosestTarget = NULL;
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		if (!pEntity)
+			continue;
+
+		CDigitank* pTargetTank = dynamic_cast<CDigitank*>(pEntity);
+
+		if (!pTargetTank)
+			continue;
+
+		if (pTargetTank == pCurrentTank)
+			continue;
+
+		if ((pTargetTank->GetOrigin() - vecAim).LengthSqr() > flRadius*flRadius)
+			continue;
+
+		if (!pClosestTarget)
+		{
+			pClosestTarget = pTargetTank;
+			continue;
+		}
+
+		if ((pTargetTank->GetOrigin() - vecAim).LengthSqr() < (pClosestTarget->GetOrigin() - vecAim).LengthSqr())
+			pClosestTarget = pTargetTank;
+	}
+
+	if (!pClosestTarget)
+	{
+		m_pAttackInfo->SetText("Hit odds: 0%");
+		return;
+	}
+
+	float flTargetDistance = (vecAim - pClosestTarget->GetOrigin()).Length();
 
 	if (flTargetDistance > flRadius)
 	{
@@ -483,8 +521,8 @@ void CHUD::UpdateAttackInfo()
 	if (flHitProbability > 1)
 		flHitProbability = 1;
 
-	float flShieldStrength = (*pTargetTank->GetShieldForAttackDirection(vecAttack/flAttackDistance));
-	float flDamageBlocked = flShieldStrength * pTargetTank->GetDefenseScale(true);
+	float flShieldStrength = (*pClosestTarget->GetShieldForAttackDirection(vecAttack/flAttackDistance));
+	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
 	float flAttackDamage = pCurrentTank->GetAttackPower(true);
 
 	float flShieldDamage;
@@ -504,8 +542,8 @@ void CHUD::UpdateAttackInfo()
 		"Shield Damage: %.1f/%.1f\n"
 		"Digitank Damage: %.1f/%.1f\n",
 		(int)(flHitProbability*100),
-		flShieldDamage, flShieldStrength * pTargetTank->GetDefenseScale(true),
-		flTankDamage, pTargetTank->GetHealth()
+		flShieldDamage, flShieldStrength * pClosestTarget->GetDefenseScale(true),
+		flTankDamage, pClosestTarget->GetHealth()
 	);
 
 	m_pAttackInfo->SetText(szAttackInfo);

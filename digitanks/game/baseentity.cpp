@@ -47,6 +47,11 @@ size_t CBaseEntity::GetEntityHandle(size_t i)
 	return (*it).first;
 }
 
+CBaseEntity* CBaseEntity::GetEntityNumber(size_t i)
+{
+	return GetEntity(GetEntityHandle(i));
+}
+
 size_t CBaseEntity::GetNumEntities()
 {
 	return s_apEntityList.size();
