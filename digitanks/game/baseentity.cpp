@@ -9,6 +9,8 @@ CBaseEntity::CBaseEntity()
 	m_iHandle = s_iNextEntityListIndex;
 	s_apEntityList.insert(std::pair<size_t, CBaseEntity*>(s_iNextEntityListIndex++, this));
 
+
+	m_bTakeDamage = false;
 	m_flTotalHealth = 1;
 	m_flHealth = 1;
 
@@ -52,6 +54,9 @@ size_t CBaseEntity::GetNumEntities()
 
 void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 {
+	if (!m_bTakeDamage)
+		return;
+
 	m_flHealth -= flDamage;
 
 	if (m_flHealth <= 0)

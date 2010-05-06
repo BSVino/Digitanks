@@ -27,6 +27,7 @@ CDigitank::CDigitank()
 	m_bDesiredTurn = false;
 	m_bDesiredAim = false;
 
+	m_bTakeDamage = true;
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
 

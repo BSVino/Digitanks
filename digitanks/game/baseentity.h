@@ -58,6 +58,7 @@ protected:
 
 	size_t									m_iHandle;
 
+	bool									m_bTakeDamage;
 	float									m_flTotalHealth;
 	float									m_flHealth;
 

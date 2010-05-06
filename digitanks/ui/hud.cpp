@@ -532,7 +532,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_pButton1->SetClickedListener(this, PromoteAttack);
 		m_pButton2->SetClickedListener(this, PromoteDefense);
 		m_pButton3->SetClickedListener(this, PromoteMovement);
-		m_pButton4->SetClickedListener(this, NULL);
+		m_pButton4->SetClickedListener(NULL, NULL);
 		m_pButton5->SetClickedListener(this, GoToMain);
 	}
 
