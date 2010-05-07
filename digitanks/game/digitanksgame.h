@@ -1,10 +1,11 @@
 #ifndef DT_DIGITANKSGAME_H
 #define DT_DIGITANKSGAME_H
 
+#include <vector>
+
 #include "game.h"
 #include "team.h"
-
-#include <vector>
+#include <common.h>
 
 class IDigitanksGameListener
 {
@@ -18,6 +19,8 @@ public:
 
 class CDigitanksGame : public CGame
 {
+	DECLARE_CLASS(CDigitanksGame, CGame);
+
 public:
 							CDigitanksGame();
 							~CDigitanksGame();
@@ -29,12 +32,17 @@ public:
 
 	void					StartGame();
 
+	virtual void			Think();
+
+	void					SetCurrentTank(CDigitank* pTank);
+
 	void					SetDesiredMove();
 	void					SetDesiredTurn();
 	void					SetDesiredAim();
 
 	void					NextTank();
-	void					Turn();
+	void					EndTurn();
+	void					StartTurn();
 
 	virtual void			OnKilled(class CBaseEntity* pEntity);
 	void					CheckWinConditions();
@@ -47,6 +55,8 @@ public:
 	CTeam*					GetCurrentTeam();
 	CDigitank*				GetCurrentTank();
 
+	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
+
 protected:
 	std::vector<CTeam*>		m_apTeams;
 
@@ -54,6 +64,9 @@ protected:
 	size_t					m_iCurrentTank;
 
 	IDigitanksGameListener*	m_pListener;
+
+	bool					m_bWaitingForProjectiles;
+	size_t					m_iWaitingForProjectiles;
 };
 
 inline class CDigitanksGame* DigitanksGame()

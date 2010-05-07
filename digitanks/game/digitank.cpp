@@ -235,6 +235,10 @@ void CDigitank::StartTurn()
 
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
+
+	m_bDesiredMove = false;
+	m_bDesiredTurn = false;
+	m_bDesiredAim = false;
 }
 
 void CDigitank::ClearPreviewMove()
@@ -343,6 +347,8 @@ float CDigitank::GetDesiredTurn()
 
 void CDigitank::SetDesiredAim()
 {
+	m_bDesiredAim = false;
+
 	Vector vecOrigin = GetOrigin();
 	if (HasDesiredMove())
 		vecOrigin = GetDesiredMove();
@@ -437,6 +443,7 @@ void CDigitank::Fire()
 
 	CProjectile* pProjectile = new CProjectile(this, GetAttackPower(), vecForce);
 	pProjectile->SetGravity(Vector(0, flGravity, 0));
+	DigitanksGame()->AddProjectileToWaitFor();
 }
 
 
@@ -463,33 +470,31 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 
 void CDigitank::Render()
 {
-	if (this == DigitanksGame()->GetCurrentTank())
+	if (HasDesiredMove() || HasDesiredTurn())
 	{
-		if (HasDesiredMove() || HasDesiredTurn())
-		{
-			EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
+		EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
 
-			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
-				angTurn = EAngle(0, GetPreviewTurn(), 0);
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
+			angTurn = EAngle(0, GetPreviewTurn(), 0);
 
-			CDigitanksWindow::Get()->RenderTank(this, GetDesiredMove(), angTurn, GetTeam()->GetColor());
+		CDigitanksWindow::Get()->RenderTank(this, GetDesiredMove(), angTurn, GetTeam()->GetColor());
 
-			Color clrTeam = GetTeam()->GetColor();
-			clrTeam.SetAlpha(50);
-			CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), GetAngles(), clrTeam);
-		}
-		else
-		{
-			EAngle angTurn = GetAngles();
-
-			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
-				angTurn = EAngle(0, GetPreviewTurn(), 0);
-
-			CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), angTurn, GetTeam()->GetColor());
-		}
+		Color clrTeam = GetTeam()->GetColor();
+		clrTeam.SetAlpha(50);
+		CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), GetAngles(), clrTeam);
 	}
 	else
-		CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), GetAngles(), GetTeam()->GetColor());
+	{
+		EAngle angTurn = GetAngles();
+
+		if (this == DigitanksGame()->GetCurrentTank())
+		{
+			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
+				angTurn = EAngle(0, GetPreviewTurn(), 0);
+		}
+
+		CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), angTurn, GetTeam()->GetColor());
+	}
 }
 
 void CDigitank::GiveBonusPoints(size_t i)

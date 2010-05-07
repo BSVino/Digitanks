@@ -315,6 +315,52 @@ void CHUD::Paint(int x, int y, int w, int h)
 		iShield = 255;
 	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 10, 50, 10, Color(255, 255, 255, iShield));
 
+	Vector vecMin;
+	Vector vecMax;
+
+	std::vector<Vector> aVecs;
+	aVecs.push_back(Vector(-2, -2, -2));
+	aVecs.push_back(Vector(2, -2, -2));
+	aVecs.push_back(Vector(-2, 2, -2));
+	aVecs.push_back(Vector(2, 2, -2));
+	aVecs.push_back(Vector(-2, -2, 2));
+	aVecs.push_back(Vector(-2, 2, 2));
+	aVecs.push_back(Vector(2, -2, 2));
+	aVecs.push_back(Vector(2, 2, 2));
+
+	Vector vecOrigin;
+	if (pTank->HasDesiredMove())
+		vecOrigin = pTank->GetDesiredMove();
+	else
+		vecOrigin = pTank->GetOrigin();
+
+	for (size_t v = 0; v < aVecs.size(); v++)
+	{
+		Vector vecCorner = CDigitanksWindow::Get()->ScreenPosition(vecOrigin+aVecs[v]);
+		if (v == 0)
+		{
+			vecMin = vecMax = vecCorner;
+			continue;
+		}
+
+		for (size_t x = 0; x < 3; x++)
+		{
+			if (vecCorner.x < vecMin.x)
+				vecMin.x = vecCorner.x;
+			if (vecCorner.y < vecMin.y)
+				vecMin.y = vecCorner.y;
+			if (vecCorner.x > vecMax.x)
+				vecMax.x = vecCorner.x;
+			if (vecCorner.y > vecMax.y)
+				vecMax.y = vecCorner.y;
+		}
+	}
+
+	CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
+	CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
+	CRootPanel::PaintRect((int)vecMax.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
+	CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
+
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
@@ -594,6 +640,8 @@ void CHUD::NewCurrentTank()
 {
 	if (!DigitanksGame()->GetCurrentTank()->HasDesiredMove() && !DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
 		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE, true);
+	else
+		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 }
 
 void CHUD::MoveCallback()

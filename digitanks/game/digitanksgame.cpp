@@ -9,6 +9,9 @@ CDigitanksGame::CDigitanksGame()
 	m_iCurrentTank = 0;
 
 	m_pListener = NULL;
+
+	m_bWaitingForProjectiles = false;
+	m_iWaitingForProjectiles = 0;
 }
 
 CDigitanksGame::~CDigitanksGame()
@@ -34,16 +37,32 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[1]->m_clrTeam = Color(0, 0, 255);
 
 	m_apTeams[0]->AddTank(new CDigitank());
+	m_apTeams[0]->AddTank(new CDigitank());
+	m_apTeams[0]->AddTank(new CDigitank());
+	m_apTeams[1]->AddTank(new CDigitank());
+	m_apTeams[1]->AddTank(new CDigitank());
 	m_apTeams[1]->AddTank(new CDigitank());
 
 	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, 0, 30));
+	m_apTeams[0]->m_ahTanks[1]->SetOrigin(Vector(5, 0, 35));
+	m_apTeams[0]->m_ahTanks[2]->SetOrigin(Vector(-5, 0, 35));
 	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, 0, -30));
+	m_apTeams[1]->m_ahTanks[1]->SetOrigin(Vector(5, 0, -35));
+	m_apTeams[1]->m_ahTanks[2]->SetOrigin(Vector(-5, 0, -35));
 
 	m_apTeams[0]->m_ahTanks[0]->SetAngles(EAngle(0, -90, 0));
+	m_apTeams[0]->m_ahTanks[1]->SetAngles(EAngle(0, -90, 0));
+	m_apTeams[0]->m_ahTanks[2]->SetAngles(EAngle(0, -90, 0));
 	m_apTeams[1]->m_ahTanks[0]->SetAngles(EAngle(0, 90, 0));
+	m_apTeams[1]->m_ahTanks[1]->SetAngles(EAngle(0, 90, 0));
+	m_apTeams[1]->m_ahTanks[2]->SetAngles(EAngle(0, 90, 0));
 
 	m_apTeams[0]->m_ahTanks[0]->GiveBonusPoints(2);
+	m_apTeams[0]->m_ahTanks[1]->GiveBonusPoints(1);
+	m_apTeams[0]->m_ahTanks[2]->GiveBonusPoints(1);
 	m_apTeams[1]->m_ahTanks[0]->GiveBonusPoints(2);
+	m_apTeams[1]->m_ahTanks[1]->GiveBonusPoints(1);
+	m_apTeams[1]->m_ahTanks[2]->GiveBonusPoints(1);
 
 	CPowerup* pPowerup = new CPowerup();
 	pPowerup->SetOrigin(Vector(10, 0, 10));
@@ -65,6 +84,50 @@ void CDigitanksGame::StartGame()
 		m_pListener->NewCurrentTeam();
 
 	GetCurrentTeam()->StartTurn();
+
+	if (m_pListener)
+		m_pListener->NewCurrentTank();
+}
+
+void CDigitanksGame::Think()
+{
+	BaseClass::Think();
+
+	if (m_bWaitingForProjectiles)
+	{
+		if (m_iWaitingForProjectiles == 0)
+		{
+			m_bWaitingForProjectiles = false;
+			StartTurn();
+		}
+	}
+}
+
+void CDigitanksGame::SetCurrentTank(CDigitank* pCurrentTank)
+{
+	bool bFoundNew = false;
+	for (size_t i = 0; i < GetNumTeams(); i++)
+	{
+		CTeam* pTeam = GetTeam(i);
+		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
+		{
+			CDigitank* pTank = pTeam->GetTank(j);
+
+			if (GetCurrentTeam() != pTank->GetTeam())
+				continue;
+
+			if (pTank == pCurrentTank)
+			{
+				m_iCurrentTeam = i;
+				m_iCurrentTank = j;
+				bFoundNew = true;
+				break;
+			}
+		}
+
+		if (bFoundNew)
+			break;
+	}
 
 	if (m_pListener)
 		m_pListener->NewCurrentTank();
@@ -107,11 +170,16 @@ void CDigitanksGame::NextTank()
 		m_pListener->NewCurrentTank();
 }
 
-void CDigitanksGame::Turn()
+void CDigitanksGame::EndTurn()
 {
 	GetCurrentTeam()->MoveTanks();
 	GetCurrentTeam()->FireTanks();
 
+	m_bWaitingForProjectiles = true;
+}
+
+void CDigitanksGame::StartTurn()
+{
 	m_iCurrentTank = 0;
 
 	if (++m_iCurrentTeam >= GetNumTeams())
@@ -158,6 +226,12 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 {
 	for (size_t i = 0; i < m_apTeams.size(); i++)
 		m_apTeams[i]->OnDeleted(pEntity);
+
+	if (dynamic_cast<class CProjectile*>(pEntity) != NULL)
+	{
+		if (m_iWaitingForProjectiles > 0)
+			m_iWaitingForProjectiles--;
+	}
 }
 
 CTeam* CDigitanksGame::GetCurrentTeam()

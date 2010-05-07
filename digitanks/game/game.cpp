@@ -29,6 +29,8 @@ void CGame::Think(float flGameTime)
 	m_ahDeletedEntities.clear();
 
 	Simulate();
+
+	Think();
 }
 
 void CGame::Simulate()

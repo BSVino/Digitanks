@@ -446,25 +446,25 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 
 void CDigitanksWindow::RenderMovementSelection()
 {
-	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
 
-	if (!pTank)
+	if (!pCurrentTank)
 		return;
 
 	// Movement
 	if (GetControlMode() == MODE_MOVE)
-		DebugCircle(pTank->GetOrigin(), pTank->GetTotalMovementPower(), Color(255, 255, 0));
+		DebugCircle(pCurrentTank->GetOrigin(), pCurrentTank->GetTotalMovementPower(), Color(255, 255, 0));
 
 	Vector vecOrigin;
-	if (pTank->HasDesiredMove())
-		vecOrigin = pTank->GetDesiredMove();
+	if (pCurrentTank->HasDesiredMove())
+		vecOrigin = pCurrentTank->GetDesiredMove();
 	else
-		vecOrigin = pTank->GetOrigin();
+		vecOrigin = pCurrentTank->GetOrigin();
 
 	if (GetControlMode() == MODE_TURN)
 	{
-		float flMaxTurnWithLeftoverPower = (pTank->GetTotalMovementPower() - pTank->GetMovementPower()) * pTank->TurnPerPower();
-		RenderTurnIndicator(vecOrigin, pTank->GetAngles(), flMaxTurnWithLeftoverPower);
+		float flMaxTurnWithLeftoverPower = (pCurrentTank->GetTotalMovementPower() - pCurrentTank->GetMovementPower()) * pCurrentTank->TurnPerPower();
+		RenderTurnIndicator(vecOrigin, pCurrentTank->GetAngles(), flMaxTurnWithLeftoverPower);
 	}
 
 	Vector vecRangeOrigin = vecOrigin;
@@ -474,20 +474,20 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	if (GetControlMode() == MODE_MOVE && bMouseOnGrid)
 	{
-		pTank->SetPreviewMove(vecPoint);
+		pCurrentTank->SetPreviewMove(vecPoint);
 
-		if (pTank->GetPreviewMovePower() <= pTank->GetBasePower())
+		if (pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
 		{
 			vecRangeOrigin = vecPoint;
 
-			Color clrTeam = pTank->GetTeam()->GetColor();
+			Color clrTeam = pCurrentTank->GetTeam()->GetColor();
 			clrTeam.SetAlpha(50);
 
-			RenderTank(pTank, vecPoint, pTank->GetAngles(), clrTeam);
+			RenderTank(pCurrentTank, vecPoint, pCurrentTank->GetAngles(), clrTeam);
 
-			float flMaxTurnWithLeftoverPower = (pTank->GetTotalMovementPower() - pTank->GetMovementPower(true)) * pTank->TurnPerPower();
+			float flMaxTurnWithLeftoverPower = (pCurrentTank->GetTotalMovementPower() - pCurrentTank->GetMovementPower(true)) * pCurrentTank->TurnPerPower();
 			if (flMaxTurnWithLeftoverPower < 180)
-				RenderTurnIndicator(vecPoint, pTank->GetAngles(), flMaxTurnWithLeftoverPower, 0.3f);
+				RenderTurnIndicator(vecPoint, pCurrentTank->GetAngles(), flMaxTurnWithLeftoverPower, 0.3f);
 		}
 
 		m_pHUD->UpdateAttackInfo();
@@ -498,21 +498,21 @@ void CDigitanksWindow::RenderMovementSelection()
 		if ((vecPoint - vecOrigin).LengthSqr() > 3*3)
 		{
 			Vector vecTurn;
-			if (pTank->HasDesiredMove())
-				vecTurn = vecPoint - pTank->GetDesiredMove();
+			if (pCurrentTank->HasDesiredMove())
+				vecTurn = vecPoint - pCurrentTank->GetDesiredMove();
 			else
-				vecTurn = vecPoint - pTank->GetOrigin();
+				vecTurn = vecPoint - pCurrentTank->GetOrigin();
 
 			vecTurn.Normalize();
 
 			float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
 
-			pTank->SetPreviewTurn(flTurn);
+			pCurrentTank->SetPreviewTurn(flTurn);
 			m_pHUD->UpdateAttackInfo();
 		}
 		else
 		{
-			pTank->SetPreviewTurn(pTank->GetAngles().y);
+			pCurrentTank->SetPreviewTurn(pCurrentTank->GetAngles().y);
 			m_pHUD->UpdateAttackInfo();
 		}
 	}
@@ -525,11 +525,11 @@ void CDigitanksWindow::RenderMovementSelection()
 	{
 		float flDistance = (vecPoint - vecOrigin).Length();
 
-		pTank->SetPreviewAim(vecPoint);
+		pCurrentTank->SetPreviewAim(vecPoint);
 
 		m_pHUD->UpdateAttackInfo();
 
-		if (flDistance < pTank->GetMaxRange())
+		if (flDistance < pCurrentTank->GetMaxRange())
 		{
 			DebugCircle(vecPoint, RemapValClamped(flDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0));
 
@@ -547,33 +547,56 @@ void CDigitanksWindow::RenderMovementSelection()
 			}
 		}
 	}
-	else if (pTank->HasDesiredAim())
+	else
 	{
-		Vector vecDesiredAim = pTank->GetDesiredAim();
-		float flDistance = (vecDesiredAim - vecOrigin).Length();
-
-		if (flDistance < pTank->GetMaxRange())
+		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		{
-			DebugCircle(vecDesiredAim, RemapValClamped(flDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, 150));
+			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+			if (!pEntity)
+				continue;
 
-			float flGravity = -flDistance*2;
+			CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+			if (!pTank)
+				continue;
 
-			Vector vecForce = vecDesiredAim - vecOrigin;
-			vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+			if (pTank->GetTeam() != DigitanksGame()->GetCurrentTeam())
+				continue;
 
-			Vector vecProjectile = vecOrigin;
-			for (size_t i = 0; i < 10; i++)
+			if (!pTank->HasDesiredAim())
+				continue;
+
+			Vector vecTankOrigin;
+			if (pTank->HasDesiredMove())
+				vecTankOrigin = pTank->GetDesiredMove();
+			else
+				vecTankOrigin = pTank->GetOrigin();
+
+			Vector vecDesiredAim = pTank->GetDesiredAim();
+			float flDistance = (vecDesiredAim - vecTankOrigin).Length();
+
+			if (flDistance < pTank->GetMaxRange())
 			{
-				DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0, 150));
-				vecProjectile += vecForce/10;
-				vecForce.y += flGravity/10;
+				DebugCircle(vecDesiredAim, RemapValClamped(flDistance, pTank->GetMinRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, 150));
+
+				float flGravity = -flDistance*2;
+
+				Vector vecForce = vecDesiredAim - vecTankOrigin;
+				vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+
+				Vector vecProjectile = vecTankOrigin;
+				for (size_t i = 0; i < 10; i++)
+				{
+					DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0, 150));
+					vecProjectile += vecForce/10;
+					vecForce.y += flGravity/10;
+				}
 			}
 		}
 	}
 
 	// Range
-	DebugCircle(vecRangeOrigin, pTank->GetMinRange(), Color(0, 255, 0, (GetControlMode() == MODE_AIM)?255:150));
-	DebugCircle(vecRangeOrigin, pTank->GetMaxRange(), Color(255, 0, 0, (GetControlMode() == MODE_AIM)?255:150));
+	DebugCircle(vecRangeOrigin, pCurrentTank->GetMinRange(), Color(0, 255, 0, (GetControlMode() == MODE_AIM)?255:150));
+	DebugCircle(vecRangeOrigin, pCurrentTank->GetMaxRange(), Color(255, 0, 0, (GetControlMode() == MODE_AIM)?255:150));
 
 	glPopAttrib();
 }

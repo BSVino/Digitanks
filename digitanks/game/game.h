@@ -15,6 +15,8 @@ public:
 	void										Think(float flGameTime);
 	void										Simulate();
 
+	virtual void								Think() {};
+
 	virtual void								OnKilled(class CBaseEntity* pEntity) {};
 	virtual void								OnDeleted(class CBaseEntity* pEntity) {};
 
