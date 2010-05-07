@@ -414,17 +414,20 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 		else
 		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 25.0f, iHeight - 100 + 5.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 5.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
 		}
 
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 5.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
+		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 45.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
 	}
 	else
 	{
