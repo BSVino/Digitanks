@@ -102,6 +102,21 @@ CHUD::CHUD()
 	m_pButton5 = new CButton(0, 0, 50, 50, "");
 	AddControl(m_pButton5);
 
+	m_pButtonHelp1 = new CLabel(0, 0, 50, 50, "");
+	AddControl(m_pButtonHelp1);
+
+	m_pButtonHelp2 = new CLabel(0, 0, 50, 50, "");
+	AddControl(m_pButtonHelp2);
+
+	m_pButtonHelp3 = new CLabel(0, 0, 50, 50, "");
+	AddControl(m_pButtonHelp3);
+
+	m_pButtonHelp4 = new CLabel(0, 0, 50, 50, "");
+	AddControl(m_pButtonHelp4);
+
+	m_pButtonHelp5 = new CLabel(0, 0, 50, 50, "");
+	AddControl(m_pButtonHelp5);
+
 	m_pAttackInfo = new CLabel(0, 0, 100, 150, "");
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
@@ -155,6 +170,22 @@ void CHUD::Layout()
 	m_pButton3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 100);
 	m_pButton4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 100);
 	m_pButton5->SetPos(iWidth/2 - 1024/2 + 940, iHeight - 100);
+
+	m_pButtonHelp1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 50);
+	m_pButtonHelp2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 50);
+	m_pButtonHelp3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 50);
+	m_pButtonHelp4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 50);
+	m_pButtonHelp5->SetPos(iWidth/2 - 1024/2 + 940, iHeight - 50);
+	m_pButtonHelp1->SetWrap(false);
+	m_pButtonHelp2->SetWrap(false);
+	m_pButtonHelp3->SetWrap(false);
+	m_pButtonHelp4->SetWrap(false);
+	m_pButtonHelp5->SetWrap(false);
+	m_pButtonHelp1->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pButtonHelp2->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pButtonHelp3->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pButtonHelp4->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pButtonHelp5->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 
 	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
 	m_pRightShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
@@ -640,6 +671,11 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_pButton3->SetClickedListener(this, Aim);
 		m_pButton4->SetClickedListener(this, Fire);
 		m_pButton5->SetClickedListener(this, Promote);
+		m_pButtonHelp1->SetText("Move");
+		m_pButtonHelp2->SetText("Turn");
+		m_pButtonHelp3->SetText("Aim");
+		m_pButtonHelp4->SetText("Set Power");
+		m_pButtonHelp5->SetText("Promote");
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
@@ -648,6 +684,11 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_pButton3->SetClickedListener(this, PromoteMovement);
 		m_pButton4->SetClickedListener(NULL, NULL);
 		m_pButton5->SetClickedListener(this, GoToMain);
+		m_pButtonHelp1->SetText("Upgrade\nAttack");
+		m_pButtonHelp2->SetText("Upgrade\nDefense");
+		m_pButtonHelp3->SetText("Upgrade\nMovement");
+		m_pButtonHelp4->SetText("");
+		m_pButtonHelp5->SetText("Return");
 	}
 
 	m_eMenuMode = eMenuMode;
