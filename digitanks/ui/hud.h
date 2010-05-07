@@ -93,6 +93,8 @@ protected:
 	glgui::CLabel*				m_pRightShieldInfo;
 
 	glgui::CLabel*				m_pTankInfo;
+
+	glgui::CLabel*				m_pPressEnter;
 };
 
 #endif

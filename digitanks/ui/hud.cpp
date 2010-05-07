@@ -122,6 +122,9 @@ CHUD::CHUD()
 	m_pTankInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pTankInfo);
 
+	m_pPressEnter = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pPressEnter);
+
 	SetupMenu(MENUMODE_MAIN);
 }
 
@@ -172,6 +175,11 @@ void CHUD::Layout()
 	m_pTankInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTankInfo->SetWrap(true);
 	m_pTankInfo->SetFontFaceSize(10);
+
+	m_pPressEnter->SetDimensions(iWidth/2 - 100/2, iHeight*2/3, 100, 50);
+	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pPressEnter->SetWrap(false);
+	m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
 }
 
 void CHUD::Think()
@@ -207,6 +215,25 @@ void CHUD::Think()
 		m_pButton4->SetButtonColor(g_clrBox);
 		m_pButton5->SetButtonColor(Color(100, 0, 0));
 	}
+
+	bool bShowEnter = true;
+	CTeam* pTeam = DigitanksGame()->GetCurrentTank()->GetTeam();
+	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+	{
+		CDigitank* pTank = pTeam->GetTank(i);
+		if (!pTank)
+			continue;
+
+		if (!pTank->IsAlive())
+			continue;
+
+		if (pTank->HasDesiredMove() || pTank->HasDesiredTurn() || pTank->HasDesiredAim())
+			continue;
+
+		bShowEnter = false;
+	}
+
+	m_pPressEnter->SetVisible(bShowEnter);
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
