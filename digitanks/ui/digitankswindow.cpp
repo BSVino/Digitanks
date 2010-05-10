@@ -39,7 +39,13 @@ CDigitanksWindow::CDigitanksWindow()
 	m_iWindowWidth = iScreenWidth*2/3;
 	m_iWindowHeight = iScreenHeight*2/3;
 
-	glutInitWindowPosition(iScreenWidth/6, iScreenHeight/6);
+	if (m_iWindowWidth < 1024)
+		m_iWindowWidth = 1024;
+
+	if (m_iWindowHeight < 768)
+		m_iWindowHeight = 768;
+
+	glutInitWindowPosition((int)(iScreenWidth/2-m_iWindowWidth/2), (int)(iScreenHeight/2-m_iWindowHeight/2));
 	glutInitWindowSize((int)m_iWindowWidth, (int)m_iWindowHeight);
 
 	glutCreateWindow("Digitanks!");
