@@ -117,6 +117,9 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	if (DigitanksGame() && c == 13)
 		DigitanksGame()->EndTurn();
 
+	if (DigitanksGame() && c == 32)
+		DigitanksGame()->NextTank();
+
 	if (c == 27)
 		exit(0);
 }
