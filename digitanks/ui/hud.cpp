@@ -725,13 +725,18 @@ void CHUD::GameOver()
 
 void CHUD::NewCurrentTeam()
 {
+	CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
 }
 
 void CHUD::NewCurrentTank()
 {
-	if (!DigitanksGame()->GetCurrentTank()->HasDesiredMove() && !DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
-		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE, true);
-	else
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && DigitanksGame()->GetCurrentTank()->HasDesiredMove())
+		CDigitanksWindow::Get()->SetControlMode(MODE_TURN);
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
+		CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+		CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && DigitanksGame()->GetCurrentTank()->ChoseFirepower())
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 }
 

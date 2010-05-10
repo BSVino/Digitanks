@@ -40,7 +40,7 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 {
 	float flMovementLength;
 
-	if (bPreview)
+	if (DigitanksGame()->GetCurrentTank() == this && bPreview)
 	{
 		if (!HasDesiredAim() && !IsPreviewAimValid())
 			return 0;
@@ -60,7 +60,7 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 {
 	float flMovementLength;
 
-	if (bPreview)
+	if (DigitanksGame()->GetCurrentTank() == this && bPreview)
 	{
 		flMovementLength = GetPreviewMoveTurnPower();
 
@@ -87,7 +87,7 @@ float CDigitank::GetBaseMovementPower(bool bPreview)
 {
 	float flMovementLength;
 
-	if (bPreview)
+	if (DigitanksGame()->GetCurrentTank() == this && bPreview)
 	{
 		flMovementLength = GetPreviewMoveTurnPower();
 
@@ -137,6 +137,8 @@ void CDigitank::SetAttackPower(float flAttackPower)
 
 	m_flAttackPower = flAttackPower;
 	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
+
+	m_bChoseFirepower = true;
 }
 
 float CDigitank::GetPreviewMoveTurnPower()
@@ -239,6 +241,7 @@ void CDigitank::StartTurn()
 	m_bDesiredMove = false;
 	m_bDesiredTurn = false;
 	m_bDesiredAim = false;
+	m_bChoseFirepower = false;
 }
 
 void CDigitank::ClearPreviewMove()
@@ -474,8 +477,11 @@ void CDigitank::Render()
 	{
 		EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
-			angTurn = EAngle(0, GetPreviewTurn(), 0);
+		if (this == DigitanksGame()->GetCurrentTank())
+		{
+			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
+				angTurn = EAngle(0, GetPreviewTurn(), 0);
+		}
 
 		CDigitanksWindow::Get()->RenderTank(this, GetDesiredMove(), angTurn, GetTeam()->GetColor());
 

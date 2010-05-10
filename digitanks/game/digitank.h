@@ -83,6 +83,8 @@ public:
 	bool						HasDesiredAim() { return m_bDesiredAim; };
 	Vector						GetDesiredAim();
 
+	bool						ChoseFirepower() { return m_bChoseFirepower; };
+
 	void						Move();
 	void						Fire();
 
@@ -141,6 +143,8 @@ protected:
 	Vector						m_vecPreviewAim;
 	bool						m_bDesiredAim;
 	Vector						m_vecDesiredAim;
+
+	bool						m_bChoseFirepower;
 
 	class CTeam*				m_pTeam;
 };

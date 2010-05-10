@@ -33,75 +33,24 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 	if (iState == GLUT_DOWN)
 	{
-		Vector vecPoint;
-		bool bMouseOnGrid = GetMouseGridPosition(vecPoint);
-
-		bool bSelected = false;
-
-		if (bMouseOnGrid)
-		{
-			for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-			{
-				CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-				if (!pEntity)
-					continue;
-
-				CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
-				if (!pTank)
-					continue;
-
-				if (DigitanksGame()->GetCurrentTeam() != pTank->GetTeam())
-					continue;
-
-				if (DigitanksGame()->GetCurrentTank() == pTank)
-					continue;
-
-				if ((vecPoint - pTank->GetOrigin()).LengthSqr() < 2*2)
-				{
-					DigitanksGame()->SetCurrentTank(pTank);
-					bSelected = true;
-					break;
-				}
-
-				if (pTank->HasDesiredMove() && (vecPoint - pTank->GetDesiredMove()).LengthSqr() < 2*2)
-				{
-					DigitanksGame()->SetCurrentTank(pTank);
-					bSelected = true;
-					break;
-				}
-			}
-		}
-
-		if (bSelected)
-		{
-		}
-		else if (GetControlMode() == MODE_MOVE)
+		if (GetControlMode() == MODE_MOVE)
 		{
 			DigitanksGame()->SetDesiredMove();
-			SetControlMode(MODE_TURN, m_bAutoProceed);
+			DigitanksGame()->NextTank();
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
 			DigitanksGame()->SetDesiredTurn();
-			if (m_bAutoProceed)
-				SetControlMode(MODE_AIM, true);
-			else
-				SetControlMode(MODE_NONE);
+			DigitanksGame()->NextTank();
 		}
 		else if (GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->SetDesiredAim();
-			if (m_bAutoProceed)
-				SetControlMode(MODE_FIRE, true);
-			else
-				SetControlMode(MODE_NONE);
+			DigitanksGame()->NextTank();
 		}
 		else if (GetControlMode() == MODE_FIRE)
 		{
-			if (m_bAutoProceed)
-				DigitanksGame()->NextTank();
-			else
-				SetControlMode(MODE_NONE);
+			DigitanksGame()->NextTank();
 		}
 	}
 }
