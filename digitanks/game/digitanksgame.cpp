@@ -1,6 +1,7 @@
 #include "digitanksgame.h"
 
 #include <assert.h>
+#include <maths.h>
 #include "powerup.h"
 
 CDigitanksGame::CDigitanksGame()
@@ -44,11 +45,11 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[1]->AddTank(new CDigitank());
 
 	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, 0, 30));
-	m_apTeams[0]->m_ahTanks[1]->SetOrigin(Vector(5, 0, 35));
-	m_apTeams[0]->m_ahTanks[2]->SetOrigin(Vector(-5, 0, 35));
+	m_apTeams[0]->m_ahTanks[1]->SetOrigin(Vector(10, 0, 35));
+	m_apTeams[0]->m_ahTanks[2]->SetOrigin(Vector(-10, 0, 35));
 	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, 0, -30));
-	m_apTeams[1]->m_ahTanks[1]->SetOrigin(Vector(5, 0, -35));
-	m_apTeams[1]->m_ahTanks[2]->SetOrigin(Vector(-5, 0, -35));
+	m_apTeams[1]->m_ahTanks[1]->SetOrigin(Vector(10, 0, -35));
+	m_apTeams[1]->m_ahTanks[2]->SetOrigin(Vector(-10, 0, -35));
 
 	m_apTeams[0]->m_ahTanks[0]->SetAngles(EAngle(0, -90, 0));
 	m_apTeams[0]->m_ahTanks[1]->SetAngles(EAngle(0, -90, 0));
@@ -133,28 +134,107 @@ void CDigitanksGame::SetCurrentTank(CDigitank* pCurrentTank)
 		m_pListener->NewCurrentTank();
 }
 
-void CDigitanksGame::SetDesiredMove()
+void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 {
 	if (!GetCurrentTank())
 		return;
 
-	GetCurrentTank()->SetDesiredMove();
+	if (bAllTanks)
+	{
+		float flMovePower = GetCurrentTank()->GetPreviewMovePower();
+
+		if (flMovePower > GetCurrentTank()->GetBasePower())
+		{
+			CTeam* pTeam = GetCurrentTeam();
+			for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+			{
+				CDigitank* pTank = pTeam->GetTank(i);
+				pTank->SetPreviewMove(pTank->GetOrigin());
+				pTank->SetDesiredMove();
+			}
+			return;
+		}
+
+		Vector vecPreview = GetCurrentTank()->GetPreviewMove();
+		Vector vecOrigin = GetCurrentTank()->GetOrigin();
+		Vector vecMove = vecPreview - vecOrigin;
+
+		CTeam* pTeam = GetCurrentTeam();
+		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+		{
+			CDigitank* pTank = pTeam->GetTank(i);
+
+			Vector vecTankMove = vecMove;
+			if (vecMove.Length() > pTank->GetTotalMovementPower())
+				vecTankMove = vecMove.Normalized() * pTank->GetTotalMovementPower() * 0.95f;
+
+			pTank->SetPreviewMove(pTank->GetOrigin() + vecTankMove);
+			pTank->SetDesiredMove();
+		}
+	}
+	else
+		GetCurrentTank()->SetDesiredMove();
 }
 
-void CDigitanksGame::SetDesiredTurn()
+void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 {
 	if (!GetCurrentTank())
 		return;
 
-	GetCurrentTank()->SetDesiredTurn();
+	if (bAllTanks)
+	{
+		bool bNoTurn = (vecLookAt - GetCurrentTank()->GetDesiredMove()).LengthSqr() < 3*3;
+
+		CTeam* pTeam = GetCurrentTeam();
+		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+		{
+			CDigitank* pTank = pTeam->GetTank(i);
+
+			if (bNoTurn)
+				pTank->SetPreviewTurn(pTank->GetAngles().y);
+			else
+			{
+				Vector vecDirection = (vecLookAt - pTank->GetDesiredMove()).Normalized();
+				float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
+
+				float flTankTurn = AngleDifference(flYaw, pTank->GetAngles().y);
+				if (pTank->GetPreviewMovePower() + fabs(flTankTurn)/pTank->TurnPerPower() > pTank->GetTotalMovementPower())
+					flTankTurn = (flTankTurn / fabs(flTankTurn)) * (pTank->GetTotalMovementPower() - pTank->GetPreviewMovePower()) * pTank->TurnPerPower() * 0.95f;
+
+				pTank->SetPreviewTurn(pTank->GetAngles().y + flTankTurn);
+			}
+
+			pTank->SetDesiredTurn();
+		}
+	}
+	else
+		GetCurrentTank()->SetDesiredTurn();
 }
 
-void CDigitanksGame::SetDesiredAim()
+void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 {
 	if (!GetCurrentTank())
 		return;
 
-	GetCurrentTank()->SetDesiredAim();
+	if (bAllTanks)
+	{
+		Vector vecPreviewAim = GetCurrentTank()->GetPreviewAim();
+
+		CTeam* pTeam = GetCurrentTeam();
+		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+		{
+			CDigitank* pTank = pTeam->GetTank(i);
+
+			Vector vecTankAim = vecPreviewAim;
+			if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
+				vecTankAim = pTank->GetDesiredMove() + (vecTankAim - pTank->GetDesiredMove()).Normalized() * pTank->GetMaxRange() * 0.99f;
+
+			pTank->SetPreviewAim(vecTankAim);
+			pTank->SetDesiredAim();
+		}
+	}
+	else
+		GetCurrentTank()->SetDesiredAim();
 }
 
 void CDigitanksGame::NextTank()

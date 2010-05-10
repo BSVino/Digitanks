@@ -65,6 +65,11 @@ public:
 	static void					SpecialCallback(int k, int x, int y) { Get()->Special(k, x, y); };
 	void						Special(int k, int x, int y);
 
+	void						FakeCtrlAltShift();
+	bool						IsCtrlDown() { return m_bCtrl; };
+	bool						IsAltDown() { return m_bAlt; };
+	bool						IsShiftDown() { return m_bShift; };
+
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
@@ -98,6 +103,10 @@ protected:
 
 	controlmode_t				m_eControlMode;
 	bool						m_bAutoProceed;
+
+	bool						m_bCtrl;
+	bool						m_bAlt;
+	bool						m_bShift;
 };
 
 #endif

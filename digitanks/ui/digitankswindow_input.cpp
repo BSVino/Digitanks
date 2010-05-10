@@ -7,16 +7,22 @@
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
+	FakeCtrlAltShift();
+
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 }
 
 void CDigitanksWindow::MouseDragged(int x, int y)
 {
+	FakeCtrlAltShift();
+
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 }
 
 void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 {
+	FakeCtrlAltShift();
+
 	if (iState == GLUT_DOWN)
 	{
 		if (glgui::CRootPanel::Get()->MousePressed(iButton, x, y))
@@ -33,19 +39,22 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 	if (iState == GLUT_DOWN)
 	{
+		Vector vecMousePosition;
+		bool bFound = GetMouseGridPosition(vecMousePosition);
+
 		if (GetControlMode() == MODE_MOVE)
 		{
-			DigitanksGame()->SetDesiredMove();
+			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 			DigitanksGame()->NextTank();
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
-			DigitanksGame()->SetDesiredTurn();
+			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
 			DigitanksGame()->NextTank();
 		}
 		else if (GetControlMode() == MODE_AIM)
 		{
-			DigitanksGame()->SetDesiredAim();
+			DigitanksGame()->SetDesiredAim(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 			DigitanksGame()->NextTank();
 		}
 		else if (GetControlMode() == MODE_FIRE)
@@ -57,6 +66,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 {
+	FakeCtrlAltShift();
+
 	if (glgui::CRootPanel::Get()->KeyPressed(c))
 	{
 		glutPostRedisplay();
@@ -75,8 +86,30 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 void CDigitanksWindow::Special(int k, int x, int y)
 {
+	FakeCtrlAltShift();
+
 	if (k == GLUT_KEY_F4 && (glutGetModifiers()&GLUT_ACTIVE_ALT))
 		exit(0);
 
 	glutPostRedisplay();
+}
+
+void CDigitanksWindow::FakeCtrlAltShift()
+{
+	int iModifiers = glutGetModifiers();
+
+	if ((iModifiers&GLUT_ACTIVE_CTRL) && !m_bCtrl)
+		m_bCtrl = true;
+	else if (!(iModifiers&GLUT_ACTIVE_CTRL) && m_bCtrl)
+		m_bCtrl = false;
+ 
+	if ((iModifiers&GLUT_ACTIVE_ALT) && !m_bAlt)
+		m_bAlt = true;
+	else if (!(iModifiers&GLUT_ACTIVE_ALT) && m_bAlt)
+		m_bAlt = false;
+
+	if ((iModifiers&GLUT_ACTIVE_SHIFT) && !m_bShift)
+		m_bShift = true;
+	else if (!(iModifiers&GLUT_ACTIVE_SHIFT) && m_bShift)
+		m_bShift = false;
 }

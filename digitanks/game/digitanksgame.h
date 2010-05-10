@@ -36,9 +36,9 @@ public:
 
 	void					SetCurrentTank(CDigitank* pTank);
 
-	void					SetDesiredMove();
-	void					SetDesiredTurn();
-	void					SetDesiredAim();
+	void					SetDesiredMove(bool bAllTanks = false);
+	void					SetDesiredTurn(bool bAllTanks = false, Vector vecLookAt = Vector());
+	void					SetDesiredAim(bool bAllTanks = false);
 
 	void					NextTank();
 	void					EndTurn();

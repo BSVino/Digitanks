@@ -29,6 +29,8 @@ CDigitanksWindow::CDigitanksWindow()
 	m_iMouseStartX = 0;
 	m_iMouseStartY = 0;
 
+	m_bCtrl = m_bAlt = m_bShift = false;
+
 	glutInit(&argc, &argv);
 
 	int iScreenWidth = glutGet(GLUT_SCREEN_WIDTH);
@@ -461,16 +463,12 @@ void CDigitanksWindow::RenderMovementSelection()
 	if (GetControlMode() == MODE_MOVE)
 		DebugCircle(pCurrentTank->GetOrigin(), pCurrentTank->GetTotalMovementPower(), Color(255, 255, 0));
 
-	Vector vecOrigin;
-	if (pCurrentTank->HasDesiredMove())
-		vecOrigin = pCurrentTank->GetDesiredMove();
-	else
-		vecOrigin = pCurrentTank->GetOrigin();
+	Vector vecOrigin = pCurrentTank->GetDesiredMove();
 
 	if (GetControlMode() == MODE_TURN)
 	{
 		float flMaxTurnWithLeftoverPower = (pCurrentTank->GetTotalMovementPower() - pCurrentTank->GetMovementPower()) * pCurrentTank->TurnPerPower();
-		RenderTurnIndicator(vecOrigin, pCurrentTank->GetAngles(), flMaxTurnWithLeftoverPower);
+		RenderTurnIndicator(pCurrentTank->GetDesiredMove(), pCurrentTank->GetAngles(), flMaxTurnWithLeftoverPower);
 	}
 
 	Vector vecRangeOrigin = vecOrigin;
@@ -494,6 +492,26 @@ void CDigitanksWindow::RenderMovementSelection()
 			float flMaxTurnWithLeftoverPower = (pCurrentTank->GetTotalMovementPower() - pCurrentTank->GetMovementPower(true)) * pCurrentTank->TurnPerPower();
 			if (flMaxTurnWithLeftoverPower < 180)
 				RenderTurnIndicator(vecPoint, pCurrentTank->GetAngles(), flMaxTurnWithLeftoverPower, 0.3f);
+
+			if (IsShiftDown())
+			{
+				Vector vecMove = pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin();
+
+				CTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+				for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+				{
+					CDigitank* pTank = pTeam->GetTank(i);
+
+					if (pTank == pCurrentTank)
+						continue;
+
+					Vector vecTankMove = vecMove;
+					if (vecMove.Length() > pTank->GetTotalMovementPower())
+						vecTankMove = vecMove.Normalized() * pTank->GetTotalMovementPower() * 0.95f;
+
+					RenderTank(pTank, pTank->GetOrigin() + vecTankMove, pCurrentTank->GetAngles(), clrTeam);
+				}
+			}
 		}
 
 		m_pHUD->UpdateAttackInfo();
@@ -503,11 +521,7 @@ void CDigitanksWindow::RenderMovementSelection()
 	{
 		if ((vecPoint - vecOrigin).LengthSqr() > 3*3)
 		{
-			Vector vecTurn;
-			if (pCurrentTank->HasDesiredMove())
-				vecTurn = vecPoint - pCurrentTank->GetDesiredMove();
-			else
-				vecTurn = vecPoint - pCurrentTank->GetOrigin();
+			Vector vecTurn = vecPoint - pCurrentTank->GetDesiredMove();
 
 			vecTurn.Normalize();
 
@@ -529,22 +543,33 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	if (GetControlMode() == MODE_AIM && bMouseOnGrid)
 	{
-		float flDistance = (vecPoint - vecOrigin).Length();
-
 		pCurrentTank->SetPreviewAim(vecPoint);
 
 		m_pHUD->UpdateAttackInfo();
 
-		if (flDistance < pCurrentTank->GetMaxRange())
+		CTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
 		{
-			DebugCircle(vecPoint, RemapValClamped(flDistance, 30, 50, 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0));
+			CDigitank* pTank = pTeam->GetTank(i);
+
+			if (pTank != pCurrentTank && !IsShiftDown())
+				continue;
+
+			Vector vecTankAim = vecPoint;
+			if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
+				vecTankAim = pTank->GetDesiredMove() + (vecTankAim - pTank->GetDesiredMove()).Normalized() * pTank->GetMaxRange() * 0.99f;
+
+			Vector vecTankOrigin = pTank->GetDesiredMove();
+			float flDistance = (vecTankAim - vecTankOrigin).Length();
+
+			DebugCircle(vecTankAim, RemapValClamped(flDistance, pTank->GetMinRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0));
 
 			float flGravity = -flDistance*2;
 
-			Vector vecForce = vecPoint - vecOrigin;
+			Vector vecForce = vecTankAim - vecTankOrigin;
 			vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
 
-			Vector vecProjectile = vecOrigin;
+			Vector vecProjectile = vecTankOrigin;
 			for (size_t i = 0; i < 10; i++)
 			{
 				DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0));
@@ -571,12 +596,7 @@ void CDigitanksWindow::RenderMovementSelection()
 			if (!pTank->HasDesiredAim())
 				continue;
 
-			Vector vecTankOrigin;
-			if (pTank->HasDesiredMove())
-				vecTankOrigin = pTank->GetDesiredMove();
-			else
-				vecTankOrigin = pTank->GetOrigin();
-
+			Vector vecTankOrigin = pTank->GetDesiredMove();
 			Vector vecDesiredAim = pTank->GetDesiredAim();
 			float flDistance = (vecDesiredAim - vecTankOrigin).Length();
 

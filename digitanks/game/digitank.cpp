@@ -271,11 +271,7 @@ bool CDigitank::IsPreviewAimValid()
 	if (!m_bPreviewAim)
 		return false;
 
-	Vector vecOrigin = GetOrigin();
-	if (HasDesiredMove())
-		vecOrigin = GetDesiredMove();
-
-	return (GetPreviewAim() - vecOrigin).LengthSqr() < GetMaxRange()*GetMaxRange();
+	return (GetPreviewAim() - GetDesiredMove()).LengthSqr() < GetMaxRange()*GetMaxRange();
 }
 
 void CDigitank::SetDesiredMove()
@@ -352,11 +348,7 @@ void CDigitank::SetDesiredAim()
 {
 	m_bDesiredAim = false;
 
-	Vector vecOrigin = GetOrigin();
-	if (HasDesiredMove())
-		vecOrigin = GetDesiredMove();
-
-	if ((GetPreviewAim() - vecOrigin).Length() > GetMaxRange())
+	if ((GetPreviewAim() - GetDesiredMove()).Length() > GetMaxRange())
 		return;
 
 	m_vecDesiredAim = m_vecPreviewAim;
@@ -449,7 +441,6 @@ void CDigitank::Fire()
 	DigitanksGame()->AddProjectileToWaitFor();
 }
 
-
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 {
 	Vector vecAttackDirection = (pAttacker->GetOrigin() - GetOrigin()).Normalized();
@@ -481,6 +472,24 @@ void CDigitank::Render()
 		{
 			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
 				angTurn = EAngle(0, GetPreviewTurn(), 0);
+		}
+		else if (CDigitanksWindow::Get()->IsShiftDown() && CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		{
+			Vector vecLookAt;
+			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
+			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetCurrentTank()->GetDesiredMove()).LengthSqr() < 3*3;
+
+			if (!bNoTurn && bMouseOK)
+			{
+				Vector vecDirection = (vecLookAt - GetDesiredMove()).Normalized();
+				float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
+
+				float flTankTurn = AngleDifference(flYaw, GetAngles().y);
+				if (GetPreviewMovePower() + fabs(flTankTurn)/TurnPerPower() > GetTotalMovementPower())
+					flTankTurn = (flTankTurn / fabs(flTankTurn)) * (GetTotalMovementPower() - GetPreviewMovePower()) * TurnPerPower() * 0.95f;
+
+				angTurn = EAngle(0, GetAngles().y + flTankTurn, 0);
+			}
 		}
 
 		CDigitanksWindow::Get()->RenderTank(this, GetDesiredMove(), angTurn, GetTeam()->GetColor());

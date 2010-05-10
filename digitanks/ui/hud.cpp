@@ -320,12 +320,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		{
 			CDigitank* pTank = pTeam->GetTank(j);
 
-			Vector vecOrigin;
-			if (pTank->HasDesiredMove())
-				vecOrigin = pTank->GetDesiredMove();
-			else
-				vecOrigin = pTank->GetOrigin();
-
+			Vector vecOrigin = pTank->GetDesiredMove();
 			Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(vecOrigin);
 
 			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 61, 102, 5, Color(255, 255, 255, 128));
@@ -364,7 +359,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)(flAttackPercentage*(iHeight-2)), 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
 				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)(flAttackPercentage*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
 
-				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
+				if (CDigitanksWindow::Get()->IsShiftDown())
+				{
+					CTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+					for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
+					{
+						CDigitank* pTank = pTeam->GetTank(t);
+						pTank->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
+					}
+				}
+				else
+					DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
 
 				UpdateAttackInfo();
 			}
@@ -406,11 +411,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	aVecs.push_back(Vector(2, -2, 2));
 	aVecs.push_back(Vector(2, 2, 2));
 
-	Vector vecOrigin;
-	if (pTank->HasDesiredMove())
-		vecOrigin = pTank->GetDesiredMove();
-	else
-		vecOrigin = pTank->GetOrigin();
+	Vector vecOrigin = pTank->GetDesiredMove();
 
 	for (size_t v = 0; v < aVecs.size(); v++)
 	{

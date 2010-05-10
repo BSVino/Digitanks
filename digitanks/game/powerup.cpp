@@ -19,11 +19,7 @@ void CPowerup::Render()
 		if (!pTank)
 			continue;
 
-		Vector vecOrigin = pEntity->GetOrigin();
-		if (pTank->HasDesiredMove())
-			vecOrigin = pTank->GetDesiredMove();
-
-		if ((vecOrigin - GetOrigin()).LengthSqr() < 3*3)
+		if ((pTank->GetDesiredMove() - GetOrigin()).LengthSqr() < 3*3)
 			clrPowerup = Color(0, 255, 0);
 	}
 
