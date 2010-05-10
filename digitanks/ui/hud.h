@@ -93,6 +93,8 @@ protected:
 
 	glgui::CLabel*				m_pAttackInfo;
 
+	glgui::CLabel*				m_pLowShieldsWarning;
+
 	glgui::CLabel*				m_pFrontShieldInfo;
 	glgui::CLabel*				m_pRearShieldInfo;
 	glgui::CLabel*				m_pLeftShieldInfo;

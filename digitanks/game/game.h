@@ -22,6 +22,9 @@ public:
 
 	void										Delete(class CBaseEntity* pEntity);
 
+	float										GetFrameTime() { return m_flFrameTime; };
+	float										GetGameTime() { return m_flGameTime; };
+
 	static CGame*								GetGame() { return s_pGame; };
 
 protected:

@@ -122,6 +122,11 @@ CHUD::CHUD()
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pAttackInfo);
 
+	m_pLowShieldsWarning = new CLabel(0, 0, 100, 150, "");
+	m_pLowShieldsWarning->SetWrap(false);
+	m_pLowShieldsWarning->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	AddControl(m_pLowShieldsWarning);
+
 	m_pFrontShieldInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pFrontShieldInfo);
 
@@ -152,6 +157,10 @@ void CHUD::Layout()
 
 	m_pAttackInfo->SetPos(iWidth/2 - 1024/2 + 190 + 3, iHeight - 150 - 10 - 80 + 3);
 	m_pAttackInfo->SetSize(200, 80);
+
+	m_pLowShieldsWarning->SetPos(iWidth/2 - 1024/2 + 590, iHeight - 150 - 10 - 80);
+	m_pLowShieldsWarning->SetSize(200, 80);
+	m_pLowShieldsWarning->SetText("WARNING: Shields Low!\nIncrease Defense Power");
 
 	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 140);
 	m_pHealthBar->SetSize(200, 20);
@@ -216,6 +225,17 @@ void CHUD::Layout()
 void CHUD::Think()
 {
 	BaseClass::Think();
+
+	if (DigitanksGame()->GetCurrentTank()->GetDefenseScale(true) < 0.3f)
+	{
+		m_pLowShieldsWarning->SetVisible(true);
+		int c = (int)RemapVal(fabs((float)(glutGet(GLUT_ELAPSED_TIME)%1000-500)/500), 0, 1, 128, 255);
+		m_pLowShieldsWarning->SetFGColor(Color(255, c, 0, c));
+	}
+	else
+	{
+		m_pLowShieldsWarning->SetVisible(false);
+	}
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
