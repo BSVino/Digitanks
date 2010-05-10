@@ -78,7 +78,11 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		DigitanksGame()->EndTurn();
 
 	if (DigitanksGame() && c == 32)
+	{
+		// Don't clobber existing commands when scrolling through tanks.
+		SetControlMode(MODE_NONE);
 		DigitanksGame()->NextTank();
+	}
 
 	if (c == 27)
 		exit(0);
