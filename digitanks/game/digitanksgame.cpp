@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <maths.h>
 #include "powerup.h"
+#include "terrain.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -31,6 +32,8 @@ void CDigitanksGame::SetupDefaultGame()
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Delete();
 
+	m_hTerrain = new CTerrain();
+
 	m_apTeams.push_back(new CTeam());
 	m_apTeams.push_back(new CTeam());
 
@@ -44,12 +47,12 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[1]->AddTank(new CDigitank());
 	m_apTeams[1]->AddTank(new CDigitank());
 
-	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, 0, 30));
-	m_apTeams[0]->m_ahTanks[1]->SetOrigin(Vector(10, 0, 35));
-	m_apTeams[0]->m_ahTanks[2]->SetOrigin(Vector(-10, 0, 35));
-	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, 0, -30));
-	m_apTeams[1]->m_ahTanks[1]->SetOrigin(Vector(10, 0, -35));
-	m_apTeams[1]->m_ahTanks[2]->SetOrigin(Vector(-10, 0, -35));
+	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, m_hTerrain->GetHeight(0, 30), 30));
+	m_apTeams[0]->m_ahTanks[1]->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, 35), 35));
+	m_apTeams[0]->m_ahTanks[2]->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, 35), 35));
+	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, m_hTerrain->GetHeight(0, -30), -30));
+	m_apTeams[1]->m_ahTanks[1]->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, -35), -35));
+	m_apTeams[1]->m_ahTanks[2]->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, -35), -35));
 
 	m_apTeams[0]->m_ahTanks[0]->SetAngles(EAngle(0, -90, 0));
 	m_apTeams[0]->m_ahTanks[1]->SetAngles(EAngle(0, -90, 0));
@@ -66,9 +69,9 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams[1]->m_ahTanks[2]->GiveBonusPoints(1);
 
 	CPowerup* pPowerup = new CPowerup();
-	pPowerup->SetOrigin(Vector(10, 0, 10));
+	pPowerup->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, 10), 10));
 	pPowerup = new CPowerup();
-	pPowerup->SetOrigin(Vector(-10, 0, -10));
+	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, -10), -10));
 
 	StartGame();
 }
@@ -168,7 +171,10 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 			if (vecMove.Length() > pTank->GetTotalMovementPower())
 				vecTankMove = vecMove.Normalized() * pTank->GetTotalMovementPower() * 0.95f;
 
-			pTank->SetPreviewMove(pTank->GetOrigin() + vecTankMove);
+			Vector vecNewPosition = pTank->GetOrigin() + vecTankMove;
+			vecNewPosition.y = GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+
+			pTank->SetPreviewMove(vecNewPosition);
 			pTank->SetDesiredMove();
 		}
 	}
@@ -331,4 +337,9 @@ CDigitank* CDigitanksGame::GetCurrentTank()
 		return NULL;
 
 	return GetCurrentTeam()->GetTank(m_iCurrentTank);
+}
+
+float CDigitanksGame::GetGravity()
+{
+	return -20;
 }

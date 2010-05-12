@@ -62,6 +62,9 @@ public:
 	static void					KeyPressCallback(unsigned char c, int x, int y) { Get()->KeyPress(c, x, y); };
 	void						KeyPress(unsigned char c, int x, int y);
 
+	static void					KeyReleaseCallback(unsigned char c, int x, int y) { Get()->KeyRelease(c, x, y); };
+	void						KeyRelease(unsigned char c, int x, int y);
+
 	static void					SpecialCallback(int k, int x, int y) { Get()->Special(k, x, y); };
 	void						Special(int k, int x, int y);
 
@@ -107,6 +110,11 @@ protected:
 	bool						m_bCtrl;
 	bool						m_bAlt;
 	bool						m_bShift;
+
+	bool						m_bFPSMode;
+	Vector						m_vecFPSCamera;
+	EAngle						m_angFPSCamera;
+	Vector						m_vecFPSVelocity;
 };
 
 #endif

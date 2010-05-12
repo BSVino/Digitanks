@@ -5,6 +5,12 @@
 #include <color.h>
 
 #include "digitank.h"
+#include "digitanksgame.h"
+
+CPowerup::CPowerup()
+{
+	SetCollisionGroup(CG_POWERUP);
+}
 
 void CPowerup::Render()
 {
@@ -25,7 +31,7 @@ void CPowerup::Render()
 
 	glPushMatrix();
 
-	glTranslatef(GetOrigin().x, GetOrigin().y, GetOrigin().z);
+	glTranslatef(GetOrigin().x, GetOrigin().y+2, GetOrigin().z);
 
 	int iRotate = glutGet(GLUT_ELAPSED_TIME)%3600;
 	glRotatef(iRotate/10.0f, 0, 1, 0);

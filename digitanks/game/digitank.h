@@ -155,11 +155,17 @@ public:
 								CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce);
 
 public:
+	virtual void				Think();
+
 	virtual void				Render();
 
-	virtual void				TouchedGround();
+	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
+	virtual bool				IsTouching(CBaseEntity* pOther) const;
+	virtual void				Touching(CBaseEntity* pOther);
 
 protected:
+	float						m_flTimeCreated;
+
 	CEntityHandle<CDigitank>	m_hOwner;
 	float						m_flDamage;
 };

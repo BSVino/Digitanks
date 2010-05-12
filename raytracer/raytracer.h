@@ -38,6 +38,7 @@ public:
 	void						Build();
 
 	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
+	bool						Raytrace(const Vector& vecStart, const Vector& vecEnd, CTraceResult* pTR = NULL);
 	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetLeftChild() const { return m_pLeft; };
@@ -68,11 +69,12 @@ public:
 								CKDTree();
 								~CKDTree();
 
-	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
+	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace = NULL, CConversionMeshInstance* pMeshInstance = NULL);
 
 	void						BuildTree();
 
 	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
+	bool						Raytrace(const Vector& vecStart, const Vector& vecEnd, CTraceResult* pTR = NULL);
 	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetTopNode() const { return m_pTop; };
@@ -86,17 +88,19 @@ protected:
 class CRaytracer
 {
 public:
-								CRaytracer(CConversionScene* pScene);
+								CRaytracer(CConversionScene* pScene = NULL);
 								~CRaytracer();
 
 public:
 	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
+	bool						Raytrace(const Vector& vecStart, const Vector& vecEnd, CTraceResult* pTR = NULL);
 	bool						RaytraceBruteForce(const Ray& rayTrace, CTraceResult* pTR = NULL);
 
 	float						Closest(const Vector& vecPoint);
 
 	void						AddMeshesFromNode(CConversionSceneNode* pNode);
 	void						AddMeshInstance(CConversionMeshInstance* pMeshInstance);
+	void						AddTriangle(Vector v1, Vector v2, Vector v3);
 	void						BuildTree();
 
 	const CKDTree*				GetTree() const { return m_pTree; };

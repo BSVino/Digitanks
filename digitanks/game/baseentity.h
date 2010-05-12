@@ -2,11 +2,15 @@
 #define DT_BASEENTITY_H
 
 #include <map>
+#include <vector>
 #include <vector.h>
 #include <assert.h>
 
+#include "entityhandle.h"
 class CBaseEntity
 {
+	friend class CGame;
+
 public:
 											CBaseEntity();
 											~CBaseEntity();
@@ -14,6 +18,9 @@ public:
 public:
 	Vector									GetOrigin() const { return m_vecOrigin; };
 	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
+
+	Vector									GetLastOrigin() const { return m_vecLastOrigin; };
+	void									SetLastOrigin(const Vector& vecOrigin) { m_vecLastOrigin = vecOrigin; };
 
 	Vector									GetVelocity() const { return m_vecVelocity; };
 	void									SetVelocity(const Vector& vecVelocity) { m_vecVelocity = vecVelocity; };
@@ -38,11 +45,18 @@ public:
 
 	virtual void							Render() {};
 
-	virtual void							TouchedGround() {};
-
 	void									Delete();
 	bool									IsDeleted() { return m_bDeleted; }
 	void									SetDeleted() { m_bDeleted = true; }
+
+	virtual void							Think() {};
+
+	virtual bool							ShouldTouch(CBaseEntity* pOther) const { return false; };
+	virtual bool							IsTouching(CBaseEntity* pOther) const { return false; };
+	virtual void							Touching(CBaseEntity* pOther) {};
+
+	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
+	virtual void							SetCollisionGroup(int iCollisionGroup) { m_iCollisionGroup = iCollisionGroup; }
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
@@ -51,6 +65,7 @@ public:
 
 protected:
 	Vector									m_vecOrigin;
+	Vector									m_vecLastOrigin;
 	EAngle									m_angAngles;
 	Vector									m_vecVelocity;
 	Vector									m_vecGravity;
@@ -65,85 +80,13 @@ protected:
 
 	bool									m_bDeleted;
 
+	std::vector<CEntityHandle<CBaseEntity> >	m_ahTouching;
+
+	int										m_iCollisionGroup;
+
 private:
 	static std::map<size_t, CBaseEntity*>	s_apEntityList;
 	static size_t							s_iNextEntityListIndex;
-};
-
-template <class C>
-class CEntityHandle
-{
-public:
-	CEntityHandle()
-	{
-		m_iHandle = ~0;
-	}
-
-	CEntityHandle(C* pEntity)
-	{
-		m_iHandle = pEntity->GetHandle();
-	}
-
-public:
-	inline const CEntityHandle& operator=(const C* pEntity)
-	{
-		m_iHandle = pEntity->GetHandle();
-		return *this;
-	}
-
-	inline bool operator==(C* pEntity)
-	{
-		return IsEqual(pEntity);
-	}
-
-	inline bool operator==(const C* pEntity) const
-	{
-		return IsEqual(pEntity);
-	}
-
-	inline bool operator!=(C* pEntity)
-	{
-		return !IsEqual(pEntity);
-	}
-
-	inline bool operator!=(const C* pEntity) const
-	{
-		return !IsEqual(pEntity);
-	}
-
-	inline operator C*() const
-	{
-		return GetPointer();
-	}
-
-	inline C* operator->() const
-	{
-		return GetPointer();
-	}
-
-	inline bool IsEqual(const C* pOther)
-	{
-		if (!pOther)
-		{
-			if (!CBaseEntity::GetEntity(m_iHandle))
-				return true;
-
-			return m_iHandle == ~0;
-		}
-
-		return m_iHandle == pOther->GetHandle();
-	}
-
-	inline C* GetPointer() const
-	{
-		assert(CBaseEntity::GetEntity(m_iHandle));
-		return dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle));
-	}
-
-	size_t	GetHandle() { return m_iHandle; }
-
-protected:
-	size_t	m_iHandle;
 };
 
 #endif

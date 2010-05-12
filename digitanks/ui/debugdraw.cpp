@@ -44,7 +44,7 @@ void DebugArc(Vector vecOrigin, float flRadius, float flStartDegree, float flEnd
 	float x = flRadius * cos(flStartDegree * M_PI/180.0f) + vecOrigin.x;
 	float z = flRadius * sin(flStartDegree * M_PI/180.0f) + vecOrigin.z;
 
-	glVertex3f(x, 0, z);
+	glVertex3f(x, vecOrigin.y, z);
 
 	for (int i = (int)flStartDegree*iLines/360; i <= (int)flEndDegree*iLines/360; i++)
 	{
@@ -56,13 +56,13 @@ void DebugArc(Vector vecOrigin, float flRadius, float flStartDegree, float flEnd
 		x = flRadius * cos(flDegree * M_PI/180.0f) + vecOrigin.x;
 		z = flRadius * sin(flDegree * M_PI/180.0f) + vecOrigin.z;
 
-		glVertex3f(x, 0, z);
+		glVertex3f(x, vecOrigin.y, z);
 	}
 
 	x = flRadius * cos(flEndDegree * M_PI/180.0f) + vecOrigin.x;
 	z = flRadius * sin(flEndDegree * M_PI/180.0f) + vecOrigin.z;
 
-	glVertex3f(x, 0, z);
+	glVertex3f(x, vecOrigin.y, z);
 
 	glEnd(); 
 }

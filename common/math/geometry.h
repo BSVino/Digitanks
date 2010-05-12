@@ -533,4 +533,29 @@ inline size_t FindEar(const std::vector<Vector>& avecPoints)
 	return 0;
 }
 
+inline void FindLaunchVelocity(const Vector& vecOrigin, const Vector& vecTarget, float flGravity, Vector& vecForce, float& flTime)
+{
+	Vector vecDistance = vecTarget - vecOrigin;
+	float flY = vecDistance.y;
+	vecDistance.y = 0;
+	float flX = vecDistance.Length();
+
+	float flA = -0.02f;
+	float flH = (flX*flX - (flY/flA))/(2*flX);
+	float flK = -flA*flH*flH;
+	float flB = -2*flH*flA;
+
+	float flForce = sqrt(2*-flGravity*flK);
+
+	float flTimeToVertex = -flForce/flGravity;
+	float flTimeToLand = sqrt(2*-(flK-flY)/flGravity);
+
+	flTime = flTimeToVertex + flTimeToLand;
+
+	Vector vecDirection = vecDistance.Normalized() * flX / flTime;
+	vecDirection.y = flForce;
+
+	vecForce = vecDirection;
+}
+
 #endif

@@ -6,6 +6,9 @@
 class CPowerup : public CBaseEntity
 {
 public:
+					CPowerup();
+
+public:
 	virtual void	Render();
 };
 

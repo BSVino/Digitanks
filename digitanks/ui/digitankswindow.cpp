@@ -15,7 +15,7 @@
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
-#define CAMERA_DISTANCE 80
+#define CAMERA_DISTANCE 100
 
 CDigitanksWindow::CDigitanksWindow()
 {
@@ -30,6 +30,8 @@ CDigitanksWindow::CDigitanksWindow()
 	m_iMouseStartY = 0;
 
 	m_bCtrl = m_bAlt = m_bShift = false;
+
+	m_bFPSMode = false;
 
 	glutInit(&argc, &argv);
 
@@ -73,6 +75,7 @@ CDigitanksWindow::CDigitanksWindow()
 	glutDisplayFunc(&CDigitanksWindow::DisplayCallback);
 	glutVisibilityFunc(&CDigitanksWindow::VisibleCallback);
 	glutKeyboardFunc(&CDigitanksWindow::KeyPressCallback);
+	glutKeyboardUpFunc(&CDigitanksWindow::KeyReleaseCallback);
 	glutSpecialFunc(&CDigitanksWindow::SpecialCallback);
 
 	glEnable(GL_CULL_FACE);
@@ -214,8 +217,22 @@ void CDigitanksWindow::Render()
 	glLoadIdentity();
 
 	Vector vecSceneCenter = Vector(0,0,0);
+	//if (DigitanksGame() && DigitanksGame()->GetCurrentTank())
+	//	vecSceneCenter = DigitanksGame()->GetCurrentTank()->GetDesiredMove();
 
 	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * CAMERA_DISTANCE + vecSceneCenter;
+
+	if (m_bFPSMode)
+	{
+		Vector vecForward, vecRight;
+		AngleVectors(m_angFPSCamera, &vecForward, &vecRight, NULL);
+
+		m_vecFPSCamera += vecForward * m_vecFPSVelocity.x * 2;
+		m_vecFPSCamera -= vecRight * m_vecFPSVelocity.z * 2;
+
+		vecCameraVector = m_vecFPSCamera;
+		vecSceneCenter = vecCameraVector + vecForward;
+	}
 
 	gluLookAt(vecCameraVector.x, vecCameraVector.y, vecCameraVector.z,
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
@@ -338,7 +355,7 @@ void CDigitanksWindow::RenderTank(class CDigitank* pTank, Vector vecOrigin, EAng
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	glTranslatef(vecOrigin.x, vecOrigin.y, vecOrigin.z);
+	glTranslatef(vecOrigin.x, vecOrigin.y+1, vecOrigin.z);
 	glScalef(0.5f, 0.5f, 0.5f);
 
 	// Turret
@@ -509,7 +526,9 @@ void CDigitanksWindow::RenderMovementSelection()
 					if (vecMove.Length() > pTank->GetTotalMovementPower())
 						vecTankMove = vecMove.Normalized() * pTank->GetTotalMovementPower() * 0.95f;
 
-					RenderTank(pTank, pTank->GetOrigin() + vecTankMove, pCurrentTank->GetAngles(), clrTeam);
+					Vector vecNewPosition = pTank->GetOrigin() + vecTankMove;
+					vecNewPosition.y = DigitanksGame()->GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+					RenderTank(pTank, vecNewPosition, pCurrentTank->GetAngles(), clrTeam);
 				}
 			}
 		}
@@ -564,17 +583,17 @@ void CDigitanksWindow::RenderMovementSelection()
 
 			DebugCircle(vecTankAim, RemapValClamped(flDistance, pTank->GetMinRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0));
 
-			float flGravity = -flDistance*2;
-
-			Vector vecForce = vecTankAim - vecTankOrigin;
-			vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+			float flGravity = DigitanksGame()->GetGravity();
+			float flTime;
+			Vector vecForce;
+			FindLaunchVelocity(vecTankOrigin, vecTankAim, flGravity, vecForce, flTime);
 
 			Vector vecProjectile = vecTankOrigin;
-			for (size_t i = 0; i < 10; i++)
+			for (size_t i = 0; i < 20; i++)
 			{
-				DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0));
-				vecProjectile += vecForce/10;
-				vecForce.y += flGravity/10;
+				DebugLine(vecProjectile, vecProjectile + vecForce*flTime/20, Color(255, 0, 0));
+				vecProjectile += vecForce*flTime/20;
+				vecForce.y += flGravity*flTime/20;
 			}
 		}
 	}
@@ -604,17 +623,17 @@ void CDigitanksWindow::RenderMovementSelection()
 			{
 				DebugCircle(vecDesiredAim, RemapValClamped(flDistance, pTank->GetMinRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, 150));
 
-				float flGravity = -flDistance*2;
-
-				Vector vecForce = vecDesiredAim - vecTankOrigin;
-				vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+				float flGravity = DigitanksGame()->GetGravity();
+				float flTime;
+				Vector vecForce;
+				FindLaunchVelocity(vecTankOrigin, vecDesiredAim, flGravity, vecForce, flTime);
 
 				Vector vecProjectile = vecTankOrigin;
-				for (size_t i = 0; i < 10; i++)
+				for (size_t i = 0; i < 20; i++)
 				{
-					DebugLine(vecProjectile, vecProjectile + vecForce/10, Color(255, 0, 0, 150));
-					vecProjectile += vecForce/10;
-					vecForce.y += flGravity/10;
+					DebugLine(vecProjectile, vecProjectile + vecForce*flTime/20, Color(255, 0, 0, 150));
+					vecProjectile += vecForce*flTime/20;
+					vecForce.y += flGravity*flTime/20;
 				}
 			}
 		}
@@ -697,28 +716,12 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 
 	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * CAMERA_DISTANCE;
 
+	if (m_bFPSMode)
+		vecCameraVector = m_vecFPSCamera;
+
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	float a = -vecCameraVector.y;
-	float b = vecRay.y;
-
-	float ep = 1e-4f;
-
-	if (fabs(b) < ep)
-	{
-		if (a == 0)			// Ray is parallel
-			return false;	// Ray is inside plane
-		else
-			return false;	// Ray is somewhere else
-	}
-
-	float r = a/b;
-	if (r < 0)
-		return false;		// Ray goes away from the triangle
-
-	vecPoint = vecCameraVector + vecRay*r;
-
-	return true;
+	return DigitanksGame()->GetTerrain()->Collide(Ray(vecCameraVector, vecRay), vecPoint);
 }
 
 Vector CDigitanksWindow::ScreenPosition(Vector vecWorld)

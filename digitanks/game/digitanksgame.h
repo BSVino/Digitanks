@@ -6,6 +6,7 @@
 #include "game.h"
 #include "team.h"
 #include <common.h>
+#include "terrain.h"
 
 class IDigitanksGameListener
 {
@@ -55,6 +56,10 @@ public:
 	CTeam*					GetCurrentTeam();
 	CDigitank*				GetCurrentTank();
 
+	CTerrain*				GetTerrain() { return m_hTerrain; };
+
+	float					GetGravity();
+
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
 
 protected:
@@ -62,6 +67,8 @@ protected:
 
 	size_t					m_iCurrentTeam;
 	size_t					m_iCurrentTank;
+
+	CEntityHandle<CTerrain>	m_hTerrain;
 
 	IDigitanksGameListener*	m_pListener;
 
@@ -76,5 +83,13 @@ inline class CDigitanksGame* DigitanksGame()
 
 	return dynamic_cast<CDigitanksGame*>(Game());
 }
+
+enum
+{
+	CG_TANK = 1,
+	CG_TERRAIN,
+	CG_PROJECTILE,
+	CG_POWERUP,
+};
 
 #endif

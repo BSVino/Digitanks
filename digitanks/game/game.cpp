@@ -30,21 +30,44 @@ void CGame::Think(float flGameTime)
 
 	Simulate();
 
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (!pEntity)
+			continue;
+
+		pEntity->Think();
+	}
+
 	Think();
 }
 
 void CGame::Simulate()
 {
+	// Move all entities
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
 
-		Vector vecNewOrigin = pEntity->GetOrigin() + pEntity->GetVelocity() * m_flFrameTime;
-		if (vecNewOrigin.y < 0 && pEntity->GetOrigin() >= 0)
-			pEntity->TouchedGround();
-		pEntity->SetOrigin(vecNewOrigin);
-
+		pEntity->SetLastOrigin(pEntity->GetOrigin());
+		pEntity->SetOrigin(pEntity->GetOrigin() + pEntity->GetVelocity() * m_flFrameTime);
 		pEntity->SetVelocity(pEntity->GetVelocity() + pEntity->GetGravity() * m_flFrameTime);
+	}
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
+		{
+			CBaseEntity* pEntity2 = CBaseEntity::GetEntityNumber(j);
+
+			if (!pEntity->ShouldTouch(pEntity2))
+				continue;
+
+			if (pEntity->IsTouching(pEntity2))
+				pEntity->Touching(pEntity2);
+		}
 	}
 }
 

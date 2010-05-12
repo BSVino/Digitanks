@@ -10,6 +10,15 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 	FakeCtrlAltShift();
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
+
+	if (m_bFPSMode)
+	{
+		m_angFPSCamera.y += ((x-m_iMouseStartX)/5.0f);
+		m_angFPSCamera.p += ((m_iMouseStartY-y)/5.0f);
+	}
+
+	m_iMouseStartX = x;
+	m_iMouseStartY = y;
 }
 
 void CDigitanksWindow::MouseDragged(int x, int y)
@@ -86,6 +95,41 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (c == 27)
 		exit(0);
+
+#ifdef _DEBUG
+	if (c == 'z')
+	{
+		m_bFPSMode = !m_bFPSMode;
+		//glutSetCursor(m_bFPSMode?GLUT_CURSOR_NONE:GLUT_CURSOR_LEFT_ARROW);
+	}
+#endif
+
+	if (m_bFPSMode)
+	{
+		if (c == 'w')
+			m_vecFPSVelocity.x = 1.0f;
+		if (c == 's')
+			m_vecFPSVelocity.x = -1.0f;
+		if (c == 'd')
+			m_vecFPSVelocity.z = 1.0f;
+		if (c == 'a')
+			m_vecFPSVelocity.z = -1.0f;
+	}
+}
+
+void CDigitanksWindow::KeyRelease(unsigned char c, int x, int y)
+{
+	if (m_bFPSMode)
+	{
+		if (c == 'w')
+			m_vecFPSVelocity.x = 0.0f;
+		if (c == 's')
+			m_vecFPSVelocity.x = 0.0f;
+		if (c == 'd')
+			m_vecFPSVelocity.z = 0.0f;
+		if (c == 'a')
+			m_vecFPSVelocity.z = 0.0f;
+	}
 }
 
 void CDigitanksWindow::Special(int k, int x, int y)

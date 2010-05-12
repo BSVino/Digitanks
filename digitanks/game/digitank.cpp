@@ -34,6 +34,8 @@ CDigitank::CDigitank()
 	m_flMaxShieldStrength = m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flBackShieldStrength = 15;
 
 	m_pTeam = NULL;
+
+	SetCollisionGroup(CG_TANK);
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -421,8 +423,6 @@ void CDigitank::Fire()
 		return;
 
 	float flDistance = sqrt(flDistanceSqr);
-	float flGravity = -flDistance*2;
-
 	Vector vecLandingSpot = GetDesiredAim();
 
 	if (flDistance > GetMinRange())
@@ -433,8 +433,10 @@ void CDigitank::Fire()
 		vecLandingSpot += Vector(x, 0, z);
 	}
 
-	Vector vecForce = vecLandingSpot - GetOrigin();
-	vecForce.y = -flGravity * 0.45f;	// Not quite sure how this works, but it does
+	float flGravity = DigitanksGame()->GetGravity();
+	float flTime;
+	Vector vecForce;
+	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime);
 
 	CProjectile* pProjectile = new CProjectile(this, GetAttackPower(), vecForce);
 	pProjectile->SetGravity(Vector(0, flGravity, 0));
@@ -546,11 +548,20 @@ void CDigitank::PromoteMovement()
 
 CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 {
+	m_flTimeCreated = DigitanksGame()->GetGameTime();
+
 	m_hOwner = pOwner;
 	m_flDamage = flDamage;
 	SetVelocity(vecForce);
-	SetOrigin(pOwner->GetOrigin());
+	SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
 	SetSimulated(true);
+	SetCollisionGroup(CG_POWERUP);
+}
+
+void CProjectile::Think()
+{
+	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 10.0f)
+		Delete();
 }
 
 void CProjectile::Render()
@@ -561,21 +572,39 @@ void CProjectile::Render()
 	glPopMatrix();
 }
 
-void CProjectile::TouchedGround()
+bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 {
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	if (pOther == m_hOwner)
+		return false;
+
+	if (pOther->GetCollisionGroup() == CG_TANK || pOther->GetCollisionGroup() == CG_TERRAIN)
+		return true;
+
+	return false;
+}
+
+bool CProjectile::IsTouching(CBaseEntity* pOther) const
+{
+	switch (pOther->GetCollisionGroup())
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
+	case CG_TANK:
+		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < 4*4)
+			return true;
+		break;
 
-		if (pEntity == this)
-			continue;
-
-		if (pEntity == m_hOwner)
-			continue;
-
-		if ((pEntity->GetOrigin() - GetOrigin()).LengthSqr() < 4*4)
-			pEntity->TakeDamage(m_hOwner, m_flDamage);
+	case CG_TERRAIN:
+	{
+		Vector vecPoint;
+		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
 	}
+	}
+
+	return false;
+};
+
+void CProjectile::Touching(CBaseEntity* pOther)
+{
+	pOther->TakeDamage(m_hOwner, m_flDamage);
 
 	Delete();
 }

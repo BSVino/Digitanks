@@ -9,6 +9,7 @@ CBaseEntity::CBaseEntity()
 	m_iHandle = s_iNextEntityListIndex;
 	s_apEntityList.insert(std::pair<size_t, CBaseEntity*>(s_iNextEntityListIndex++, this));
 
+	m_iCollisionGroup = 0;
 
 	m_bTakeDamage = false;
 	m_flTotalHealth = 1;
