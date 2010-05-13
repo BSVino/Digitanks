@@ -231,6 +231,14 @@
 					RelativePath=".\ui\hud.h"
 					>
 				</File>
+				<File
+					RelativePath=".\ui\instructor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\instructor.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="glew"

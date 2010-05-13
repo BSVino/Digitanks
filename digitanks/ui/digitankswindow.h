@@ -81,6 +81,7 @@ public:
 	bool						GetMouseGridPosition(Vector& vecPoint);
 
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
+	class CInstructor*			GetInstructor() { return m_pInstructor; };
 
 	controlmode_t				GetControlMode() { return m_eControlMode; };
 	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
@@ -101,6 +102,8 @@ protected:
 	class CDigitanksGame*		m_pDigitanksGame;
 
 	class CHUD*					m_pHUD;
+
+	class CInstructor*			m_pInstructor;
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
 

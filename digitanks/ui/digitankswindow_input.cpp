@@ -4,6 +4,7 @@
 
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
+#include "instructor.h"
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
@@ -55,20 +56,24 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		{
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 			DigitanksGame()->NextTank();
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
 			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
 			DigitanksGame()->NextTank();
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 		}
 		else if (GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->SetDesiredAim(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 			DigitanksGame()->NextTank();
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 		}
 		else if (GetControlMode() == MODE_FIRE)
 		{
 			DigitanksGame()->NextTank();
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 		}
 	}
 }
@@ -84,7 +89,10 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	}
 
 	if (DigitanksGame() && c == 13)
+	{
+		m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_KEYS);
 		DigitanksGame()->EndTurn();
+	}
 
 	if (DigitanksGame() && c == 32)
 	{

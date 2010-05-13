@@ -6,6 +6,7 @@
 #include "digitankswindow.h"
 #include "game/digitanksgame.h"
 #include "debugdraw.h"
+#include "instructor.h"
 
 using namespace glgui;
 
@@ -718,6 +719,8 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 void CHUD::GameStart()
 {
 	CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+	CDigitanksWindow::Get()->GetInstructor()->Initialize();
+	CDigitanksWindow::Get()->GetInstructor()->DisplayFirstTutorial();
 }
 
 void CHUD::GameOver()
@@ -739,6 +742,8 @@ void CHUD::NewCurrentTank()
 		CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && DigitanksGame()->GetCurrentTank()->ChoseFirepower())
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+
+	UpdateAttackInfo();
 }
 
 void CHUD::MoveCallback()
@@ -793,6 +798,8 @@ void CHUD::PromoteAttackCallback()
 	SetupMenu(MENUMODE_MAIN);
 
 	UpdateAttackInfo();
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::PromoteDefenseCallback()
@@ -810,6 +817,8 @@ void CHUD::PromoteDefenseCallback()
 	SetupMenu(MENUMODE_MAIN);
 
 	UpdateAttackInfo();
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::PromoteMovementCallback()
@@ -827,6 +836,8 @@ void CHUD::PromoteMovementCallback()
 	SetupMenu(MENUMODE_MAIN);
 
 	UpdateAttackInfo();
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::GoToMainCallback()

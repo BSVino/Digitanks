@@ -644,7 +644,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
 {
-	float lw = m_pFont->Advance(pszText);
+	float lw = m_pFont->Advance(pszText, iLength);
 	float t = m_pFont->LineHeight();
 	float th = GetTextHeight() - t;
 

@@ -12,6 +12,7 @@
 #include "game/digitanksgame.h"
 #include "debugdraw.h"
 #include "hud.h"
+#include "instructor.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
@@ -60,6 +61,8 @@ CDigitanksWindow::CDigitanksWindow()
 
 	InitUI();
 
+	m_pInstructor = new CInstructor();
+
 	m_pDigitanksGame->SetupDefaultGame();
 
 	GLenum err = glewInit();
@@ -90,6 +93,7 @@ CDigitanksWindow::CDigitanksWindow()
 CDigitanksWindow::~CDigitanksWindow()
 {
 	delete m_pDigitanksGame;
+	delete m_pInstructor;
 }
 
 void CDigitanksWindow::CompileShaders()
@@ -765,13 +769,26 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 		DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
 		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
+
+		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_MOVE);
 	}
 
 	if (eMode == MODE_TURN)
+	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
 
+		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_TURN);
+	}
+
 	if (eMode == MODE_AIM)
+	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
+
+		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_AIM);
+	}
+
+	if (eMode == MODE_FIRE)
+		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_POWER);
 
 	m_bAutoProceed = bAutoProceed;
 	m_eControlMode = eMode;
