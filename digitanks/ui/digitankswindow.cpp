@@ -731,6 +731,9 @@ Vector CDigitanksWindow::WorldPosition(Vector vecScreen)
 
 void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 {
+	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
 	if (m_eControlMode == MODE_MOVE)
 	{
 		if (eMode == MODE_NONE)

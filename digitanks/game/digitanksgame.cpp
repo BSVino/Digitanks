@@ -34,42 +34,77 @@ void CDigitanksGame::SetupDefaultGame()
 
 	m_hTerrain = new CTerrain();
 
-	m_apTeams.push_back(new CTeam());
-	m_apTeams.push_back(new CTeam());
+	Vector avecStartingPositions[] =
+	{
+		Vector(-80, 0, -80),
+		Vector(-80, 0, 0),
+		Vector(-80, 0, 80),
+		Vector(0, 0, 80),
+		Vector(80, 0, 80),
+		Vector(80, 0, 0),
+		Vector(80, 0, -80),
+		Vector(0, 0, -80),
+	};
 
-	m_apTeams[0]->m_clrTeam = Color(0, 0, 255);
-	m_apTeams[1]->m_clrTeam = Color(255, 0, 0);
+	Color aclrTeamColors[] =
+	{
+		Color(0, 0, 255),
+		Color(255, 0, 0),
+		Color(0, 255, 0),
+		Color(255, 255, 0),
+		Color(255, 0, 255),
+		Color(0, 255, 255),
+		Color(0, 0, 0),
+		Color(255, 255, 255),
+	};
 
-	m_apTeams[0]->AddTank(new CDigitank());
-	m_apTeams[0]->AddTank(new CDigitank());
-	m_apTeams[0]->AddTank(new CDigitank());
-	m_apTeams[1]->AddTank(new CDigitank());
-	m_apTeams[1]->AddTank(new CDigitank());
-	m_apTeams[1]->AddTank(new CDigitank());
+	std::vector<Vector> avecRandomStartingPositions;
+	for (size_t i = 0; i < 8; i++)
+	{
+		// 8 random starting positions.
+		if (rand()%2)
+			avecRandomStartingPositions.push_back(avecStartingPositions[i]);
+		else
+			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
+	}
 
-	m_apTeams[0]->m_ahTanks[0]->SetOrigin(Vector(0, m_hTerrain->GetHeight(0, 30), 30));
-	m_apTeams[0]->m_ahTanks[1]->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, 35), 35));
-	m_apTeams[0]->m_ahTanks[2]->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, 35), 35));
-	m_apTeams[1]->m_ahTanks[0]->SetOrigin(Vector(0, m_hTerrain->GetHeight(0, -30), -30));
-	m_apTeams[1]->m_ahTanks[1]->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, -35), -35));
-	m_apTeams[1]->m_ahTanks[2]->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, -35), -35));
+	for (size_t i = 0; i < 8; i++)
+	{
+		m_apTeams.push_back(new CTeam());
 
-	m_apTeams[0]->m_ahTanks[0]->SetAngles(EAngle(0, -90, 0));
-	m_apTeams[0]->m_ahTanks[1]->SetAngles(EAngle(0, -90, 0));
-	m_apTeams[0]->m_ahTanks[2]->SetAngles(EAngle(0, -90, 0));
-	m_apTeams[1]->m_ahTanks[0]->SetAngles(EAngle(0, 90, 0));
-	m_apTeams[1]->m_ahTanks[1]->SetAngles(EAngle(0, 90, 0));
-	m_apTeams[1]->m_ahTanks[2]->SetAngles(EAngle(0, 90, 0));
+		m_apTeams[i]->m_clrTeam = aclrTeamColors[i];
 
-	m_apTeams[0]->m_ahTanks[0]->GiveBonusPoints(2);
-	m_apTeams[0]->m_ahTanks[1]->GiveBonusPoints(1);
-	m_apTeams[0]->m_ahTanks[2]->GiveBonusPoints(1);
-	m_apTeams[1]->m_ahTanks[0]->GiveBonusPoints(2);
-	m_apTeams[1]->m_ahTanks[1]->GiveBonusPoints(1);
-	m_apTeams[1]->m_ahTanks[2]->GiveBonusPoints(1);
+		m_apTeams[i]->AddTank(new CDigitank());
+		m_apTeams[i]->AddTank(new CDigitank());
+		m_apTeams[i]->AddTank(new CDigitank());
+
+		Vector vecTank1 = avecRandomStartingPositions[i];
+		vecTank1.y = m_hTerrain->GetHeight(vecTank1.x, vecTank1.z);
+		Vector vecTank2 = avecRandomStartingPositions[i] + Vector(10, 0, 10);
+		vecTank2.y = m_hTerrain->GetHeight(vecTank2.x, vecTank2.z);
+		Vector vecTank3 = avecRandomStartingPositions[i] - Vector(10, 0, 10);
+		vecTank3.y = m_hTerrain->GetHeight(vecTank3.x, vecTank3.z);
+
+		m_apTeams[i]->m_ahTanks[0]->SetOrigin(vecTank1);
+		m_apTeams[i]->m_ahTanks[1]->SetOrigin(vecTank2);
+		m_apTeams[i]->m_ahTanks[2]->SetOrigin(vecTank3);
+
+		EAngle angTanks = VectorAngles(-avecRandomStartingPositions[i].Normalized());
+		m_apTeams[i]->m_ahTanks[0]->SetAngles(angTanks);
+		m_apTeams[i]->m_ahTanks[1]->SetAngles(angTanks);
+		m_apTeams[i]->m_ahTanks[2]->SetAngles(angTanks);
+
+		m_apTeams[i]->m_ahTanks[0]->GiveBonusPoints(2);
+		m_apTeams[i]->m_ahTanks[1]->GiveBonusPoints(1);
+		m_apTeams[i]->m_ahTanks[2]->GiveBonusPoints(1);
+	}
 
 	CPowerup* pPowerup = new CPowerup();
 	pPowerup->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, 10), 10));
+	pPowerup = new CPowerup();
+	pPowerup->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, -10), -10));
+	pPowerup = new CPowerup();
+	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, 10), 10));
 	pPowerup = new CPowerup();
 	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, -10), -10));
 
@@ -418,7 +453,7 @@ CDigitank* CDigitanksGame::GetCurrentTank()
 	if (!GetCurrentTeam())
 		return NULL;
 
-	if (m_iCurrentTeam > GetCurrentTeam()->GetNumTanks())
+	if (m_iCurrentTank > GetCurrentTeam()->GetNumTanks())
 		return NULL;
 
 	return GetCurrentTeam()->GetTank(m_iCurrentTank);

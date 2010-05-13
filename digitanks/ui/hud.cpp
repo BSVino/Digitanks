@@ -325,6 +325,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 			Vector vecOrigin = pTank->GetDesiredMove();
 			Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(vecOrigin);
 
+			if ((vecOrigin - CDigitanksWindow::Get()->GetCamera()->GetCameraPosition()).LengthSqr() > 250*250)
+				continue;
+
 			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 61, 102, 5, Color(255, 255, 255, 128));
 			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 60, (int)(100.0f*pTank->GetHealth()/pTank->GetTotalHealth()), 3, Color(100, 255, 100));
 
@@ -731,6 +734,8 @@ void CHUD::GameOver()
 void CHUD::NewCurrentTeam()
 {
 	CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
+
+	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTeam()->GetTank(0)->GetOrigin());
 }
 
 void CHUD::NewCurrentTank()
