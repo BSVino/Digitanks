@@ -111,7 +111,6 @@ protected:
 	static CDigitanksWindow*	s_pDigitanksWindow;
 
 	controlmode_t				m_eControlMode;
-	bool						m_bAutoProceed;
 
 	bool						m_bCtrl;
 	bool						m_bAlt;

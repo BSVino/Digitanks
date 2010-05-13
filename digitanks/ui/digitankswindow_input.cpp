@@ -6,6 +6,7 @@
 #include "game/digitanksgame.h"
 #include "instructor.h"
 #include "camera.h"
+#include "hud.h"
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
@@ -59,7 +60,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		if (GetControlMode() == MODE_MOVE)
 		{
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
-			DigitanksGame()->NextTank();
+
+			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
+				SetControlMode(MODE_TURN);
+			else
+				DigitanksGame()->NextTank();
+
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 
 			GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
@@ -67,18 +73,36 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		else if (GetControlMode() == MODE_TURN)
 		{
 			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
-			DigitanksGame()->NextTank();
+
+			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
+				SetControlMode(MODE_AIM);
+			else
+				DigitanksGame()->NextTank();
+
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 		}
 		else if (GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->SetDesiredAim(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
-			DigitanksGame()->NextTank();
+
+			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
+				SetControlMode(MODE_FIRE);
+			else if (!m_pHUD->ShouldAutoProceed())
+				SetControlMode(MODE_NONE);
+			else
+				DigitanksGame()->NextTank();
+
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 		}
 		else if (GetControlMode() == MODE_FIRE)
 		{
-			DigitanksGame()->NextTank();
+			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
+				SetControlMode(MODE_NONE);
+			else if (!m_pHUD->ShouldAutoProceed())
+				SetControlMode(MODE_NONE);
+			else
+				DigitanksGame()->NextTank();
+
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 		}
 	}
@@ -108,7 +132,12 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	}
 
 	if (c == 27)
-		exit(0);
+	{
+		if (GetControlMode() == MODE_NONE)
+			exit(0);
+		else
+			SetControlMode(MODE_NONE);
+	}
 
 	m_pCamera->KeyDown(c);
 }

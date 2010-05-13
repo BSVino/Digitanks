@@ -791,6 +791,5 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	if (eMode == MODE_NONE)
 		m_pCamera->SetDistance(100);
 
-	m_bAutoProceed = bAutoProceed;
 	m_eControlMode = eMode;
 }

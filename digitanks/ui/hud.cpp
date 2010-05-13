@@ -733,6 +733,8 @@ void CHUD::GameOver()
 
 void CHUD::NewCurrentTeam()
 {
+	m_bAutoProceed = true;
+
 	CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
 
 	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTeam()->GetTank(0)->GetOrigin());
@@ -740,19 +742,22 @@ void CHUD::NewCurrentTeam()
 
 void CHUD::NewCurrentTank()
 {
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && DigitanksGame()->GetCurrentTank()->HasDesiredMove())
-		CDigitanksWindow::Get()->SetControlMode(MODE_TURN);
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
-		CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+	if (m_bAutoProceed)
 	{
-		if (!DigitanksGame()->GetCurrentTank()->ChoseFirepower())
-			CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
-		else
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && DigitanksGame()->GetCurrentTank()->HasDesiredMove())
+			CDigitanksWindow::Get()->SetControlMode(MODE_TURN);
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
+			CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+		{
+			if (!DigitanksGame()->GetCurrentTank()->ChoseFirepower())
+				CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
+			else
+				CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+		}
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && DigitanksGame()->GetCurrentTank()->ChoseFirepower())
 			CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	}
-	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && DigitanksGame()->GetCurrentTank()->ChoseFirepower())
-		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 
 	UpdateAttackInfo();
 
@@ -761,6 +766,8 @@ void CHUD::NewCurrentTank()
 
 void CHUD::MoveCallback()
 {
+	m_bAutoProceed = false;
+
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else
@@ -769,6 +776,8 @@ void CHUD::MoveCallback()
 
 void CHUD::TurnCallback()
 {
+	m_bAutoProceed = false;
+
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else
@@ -777,6 +786,8 @@ void CHUD::TurnCallback()
 
 void CHUD::AimCallback()
 {
+	m_bAutoProceed = false;
+
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else
@@ -785,6 +796,8 @@ void CHUD::AimCallback()
 
 void CHUD::FireCallback()
 {
+	m_bAutoProceed = false;
+
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else

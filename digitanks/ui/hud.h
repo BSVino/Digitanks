@@ -59,6 +59,8 @@ public:
 	virtual void				NewCurrentTeam();
 	virtual void				NewCurrentTank();
 
+	bool						ShouldAutoProceed() { return m_bAutoProceed; };
+
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
 	EVENT_CALLBACK(CHUD, Aim);
@@ -103,6 +105,8 @@ protected:
 	glgui::CLabel*				m_pTankInfo;
 
 	glgui::CLabel*				m_pPressEnter;
+
+	bool						m_bAutoProceed;
 };
 
 #endif
