@@ -577,7 +577,19 @@ bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 	if (pOther == m_hOwner)
 		return false;
 
-	if (pOther->GetCollisionGroup() == CG_TANK || pOther->GetCollisionGroup() == CG_TERRAIN)
+	if (pOther->GetCollisionGroup() == CG_TANK)
+	{
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pOther);
+		if (!pTank)	// ?
+			return false;
+
+		if (pTank->GetTeam() == m_hOwner->GetTeam())
+			return false;
+
+		return true;
+	}
+
+	if (pOther->GetCollisionGroup() == CG_TERRAIN)
 		return true;
 
 	return false;

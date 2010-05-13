@@ -37,8 +37,8 @@ void CDigitanksGame::SetupDefaultGame()
 	m_apTeams.push_back(new CTeam());
 	m_apTeams.push_back(new CTeam());
 
-	m_apTeams[0]->m_clrTeam = Color(255, 0, 0);
-	m_apTeams[1]->m_clrTeam = Color(0, 0, 255);
+	m_apTeams[0]->m_clrTeam = Color(0, 0, 255);
+	m_apTeams[1]->m_clrTeam = Color(255, 0, 0);
 
 	m_apTeams[0]->AddTank(new CDigitank());
 	m_apTeams[0]->AddTank(new CDigitank());
@@ -276,8 +276,93 @@ void CDigitanksGame::StartTurn()
 
 	GetCurrentTeam()->StartTurn();
 
-	if (m_pListener)
-		m_pListener->NewCurrentTank();
+	if (m_iCurrentTeam == 0)
+	{
+		if (m_pListener)
+			m_pListener->NewCurrentTank();
+	}
+	else
+		Bot_ExecuteTurn();
+}
+
+void CDigitanksGame::Bot_ExecuteTurn()
+{
+	CDigitank* pHeadTank = GetCurrentTeam()->GetTank(0);
+
+	CDigitank* pTarget = NULL;
+
+	// Find the nearest enemy to the head tank, he's our target.
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (!pEntity)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+		if (!pTank)
+			continue;
+
+		if (pTank->GetTeam() == pHeadTank->GetTeam())
+			continue;
+
+		if (!pTarget)
+		{
+			pTarget = pTank;
+			continue;
+		}
+
+		if ((pHeadTank->GetOrigin() - pTank->GetOrigin()).LengthSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).LengthSqr())
+			pTarget = pTank;
+	}
+
+	for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		CDigitank* pTank = GetCurrentTeam()->GetTank(i);
+
+		// Use any promotion points.
+		while (pTank->HasBonusPoints())
+		{
+			switch (rand()%3)
+			{
+			case 0:
+				pTank->PromoteAttack();
+				break;
+
+			case 1:
+				pTank->PromoteDefense();
+				break;
+
+			case 2:
+				pTank->PromoteMovement();
+				break;
+			}
+		}
+
+		// If we are not within the min range, use 1/3 of our available movement power to move towards our target.
+		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetMinRange()*pTank->GetMinRange())
+		{
+			float flMovementPower = pTank->GetBasePower() + pTank->GetBonusMovementPower();
+			Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
+			vecDirection = vecDirection.Normalized() * (flMovementPower/3);
+
+			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+			vecDesiredMove.y = GetTerrain()->GetHeight(vecDesiredMove.x, vecDesiredMove.z);
+
+			pTank->SetPreviewMove(vecDesiredMove);
+			pTank->SetDesiredMove();
+		}
+
+		// If we are within the max range, try to fire.
+		if ((pTarget->GetOrigin() - pTank->GetDesiredMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+		{
+			pTank->SetPreviewAim(pTarget->GetOrigin());
+			pTank->SetDesiredAim();
+		}
+
+		pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetMovementPower())/2);
+	}
+
+	EndTurn();
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

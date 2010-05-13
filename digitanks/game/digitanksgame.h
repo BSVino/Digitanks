@@ -45,6 +45,8 @@ public:
 	void					EndTurn();
 	void					StartTurn();
 
+	void					Bot_ExecuteTurn();
+
 	virtual void			OnKilled(class CBaseEntity* pEntity);
 	void					CheckWinConditions();
 
