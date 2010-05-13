@@ -259,6 +259,13 @@ void CDigitank::ClearPreviewTurn()
 void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 {
 	m_bPreviewAim = true;
+
+	if ((vecPreviewAim - GetDesiredMove()).LengthSqr() > GetMaxRange()*GetMaxRange())
+	{
+		vecPreviewAim = GetDesiredMove() + (vecPreviewAim - GetDesiredMove()).Normalized() * GetMaxRange() * 0.99f;
+		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
+	}
+
 	m_vecPreviewAim = vecPreviewAim;
 }
 
@@ -281,6 +288,12 @@ void CDigitank::SetDesiredMove()
 	float flMovePower = GetPreviewMovePower();
 
 	if (flMovePower > m_flBasePower)
+		return;
+
+	if (fabs(m_vecPreviewMove.x) > DigitanksGame()->GetTerrain()->GetMapSize())
+		return;
+
+	if (fabs(m_vecPreviewMove.z) > DigitanksGame()->GetTerrain()->GetMapSize())
 		return;
 
 	m_vecDesiredMove = m_vecPreviewMove;

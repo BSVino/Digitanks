@@ -145,6 +145,11 @@ float CTerrain::GetHeight(float flX, float flY)
 	return m_aflHeights[iX][iY];
 }
 
+float CTerrain::GetMapSize()
+{
+	return 100;
+}
+
 bool CTerrain::Collide(const Ray& rayTrace, Vector &vecHit)
 {
 	CTraceResult tr;

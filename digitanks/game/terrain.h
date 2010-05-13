@@ -18,6 +18,7 @@ public:
 	virtual void			Render();
 
 	float					GetHeight(float x, float y);
+	float					GetMapSize();
 
 	bool					Collide(const Ray& rayTrace, Vector& vecPoint);
 	bool					Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);

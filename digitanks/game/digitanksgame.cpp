@@ -268,7 +268,10 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 
 			Vector vecTankAim = vecPreviewAim;
 			if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
+			{
 				vecTankAim = pTank->GetDesiredMove() + (vecTankAim - pTank->GetDesiredMove()).Normalized() * pTank->GetMaxRange() * 0.99f;
+				vecTankAim.y = GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+			}
 
 			pTank->SetPreviewAim(vecTankAim);
 			pTank->SetDesiredAim();

@@ -565,14 +565,21 @@ void CDigitanksWindow::RenderMovementSelection()
 			if (pTank != pCurrentTank && !IsShiftDown())
 				continue;
 
+			int iAlpha = 255;
+			if (pTank != pCurrentTank)
+				iAlpha = 150;
+
 			Vector vecTankAim = vecPoint;
 			if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
+			{
 				vecTankAim = pTank->GetDesiredMove() + (vecTankAim - pTank->GetDesiredMove()).Normalized() * pTank->GetMaxRange() * 0.99f;
+				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+			}
 
 			Vector vecTankOrigin = pTank->GetDesiredMove();
 			float flDistance = (vecTankAim - vecTankOrigin).Length();
 
-			DebugCircle(vecTankAim, RemapValClamped(flDistance, pTank->GetMinRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0));
+			DebugCircle(vecTankAim, RemapValClamped(flDistance, pTank->GetMinRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, iAlpha));
 
 			float flGravity = DigitanksGame()->GetGravity();
 			float flTime;
@@ -582,13 +589,14 @@ void CDigitanksWindow::RenderMovementSelection()
 			Vector vecProjectile = vecTankOrigin;
 			for (size_t i = 0; i < 20; i++)
 			{
-				DebugLine(vecProjectile, vecProjectile + vecForce*flTime/20, Color(255, 0, 0));
+				DebugLine(vecProjectile, vecProjectile + vecForce*flTime/20, Color(255, 0, 0, iAlpha));
 				vecProjectile += vecForce*flTime/20;
 				vecForce.y += flGravity*flTime/20;
 			}
 		}
 	}
-	else
+
+	if (!IsShiftDown())
 	{
 		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		{

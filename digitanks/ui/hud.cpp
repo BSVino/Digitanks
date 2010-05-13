@@ -325,7 +325,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			Vector vecOrigin = pTank->GetDesiredMove();
 			Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(vecOrigin);
 
-			if ((vecOrigin - CDigitanksWindow::Get()->GetCamera()->GetCameraPosition()).LengthSqr() > 250*250)
+			if (!CDigitanksWindow::Get()->IsAltDown() && pTank->GetTeam() != DigitanksGame()->GetCurrentTeam())
 				continue;
 
 			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 61, 102, 5, Color(255, 255, 255, 128));
