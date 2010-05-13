@@ -312,8 +312,8 @@ inline EAngle VectorAngles( const Vector& vecForward )
 {
 	EAngle angReturn(0, 0, 0);
 
-	angReturn.p = atan2(-vecForward.z, sqrt(vecForward.x*vecForward.x + vecForward.y*vecForward.y)) * 180/M_PI;
-	angReturn.y = atan2(vecForward.y, vecForward.x) * 180/M_PI;
+	angReturn.p = atan2(vecForward.y, sqrt(vecForward.x*vecForward.x + vecForward.z*vecForward.z)) * 180/M_PI;
+	angReturn.y = atan2(vecForward.z, vecForward.x) * 180/M_PI;
 
 	return angReturn;
 }

@@ -7,6 +7,7 @@
 #include "game/digitanksgame.h"
 #include "debugdraw.h"
 #include "instructor.h"
+#include "camera.h"
 
 using namespace glgui;
 
@@ -739,11 +740,18 @@ void CHUD::NewCurrentTank()
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
 		CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
-		CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
+	{
+		if (!DigitanksGame()->GetCurrentTank()->ChoseFirepower())
+			CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
+		else
+			CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+	}
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && DigitanksGame()->GetCurrentTank()->ChoseFirepower())
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 
 	UpdateAttackInfo();
+
+	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
 void CHUD::MoveCallback()

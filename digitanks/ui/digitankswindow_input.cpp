@@ -5,6 +5,7 @@
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
 #include "instructor.h"
+#include "camera.h"
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
@@ -12,11 +13,7 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
-	if (m_bFPSMode)
-	{
-		m_angFPSCamera.y += ((x-m_iMouseStartX)/5.0f);
-		m_angFPSCamera.p += ((m_iMouseStartY-y)/5.0f);
-	}
+	m_pCamera->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
@@ -27,11 +24,18 @@ void CDigitanksWindow::MouseDragged(int x, int y)
 	FakeCtrlAltShift();
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
+
+	m_pCamera->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+
+	m_iMouseStartX = x;
+	m_iMouseStartY = y;
 }
 
 void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 {
 	FakeCtrlAltShift();
+
+	m_pCamera->MouseButton(iButton, iState);
 
 	if (iState == GLUT_DOWN)
 	{
@@ -47,7 +51,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (!DigitanksGame())
 		return;
 
-	if (iState == GLUT_DOWN)
+	if (iState == GLUT_DOWN && iButton == 0)
 	{
 		Vector vecMousePosition;
 		bool bFound = GetMouseGridPosition(vecMousePosition);
@@ -57,6 +61,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 			DigitanksGame()->NextTank();
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+
+			GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
@@ -104,40 +110,12 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 27)
 		exit(0);
 
-#ifdef _DEBUG
-	if (c == 'z')
-	{
-		m_bFPSMode = !m_bFPSMode;
-		//glutSetCursor(m_bFPSMode?GLUT_CURSOR_NONE:GLUT_CURSOR_LEFT_ARROW);
-	}
-#endif
-
-	if (m_bFPSMode)
-	{
-		if (c == 'w')
-			m_vecFPSVelocity.x = 1.0f;
-		if (c == 's')
-			m_vecFPSVelocity.x = -1.0f;
-		if (c == 'd')
-			m_vecFPSVelocity.z = 1.0f;
-		if (c == 'a')
-			m_vecFPSVelocity.z = -1.0f;
-	}
+	m_pCamera->KeyDown(c);
 }
 
 void CDigitanksWindow::KeyRelease(unsigned char c, int x, int y)
 {
-	if (m_bFPSMode)
-	{
-		if (c == 'w')
-			m_vecFPSVelocity.x = 0.0f;
-		if (c == 's')
-			m_vecFPSVelocity.x = 0.0f;
-		if (c == 'd')
-			m_vecFPSVelocity.z = 0.0f;
-		if (c == 'a')
-			m_vecFPSVelocity.z = 0.0f;
-	}
+	m_pCamera->KeyUp(c);
 }
 
 void CDigitanksWindow::Special(int k, int x, int y)

@@ -59,8 +59,8 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_POWERBARS, 250, true,
 		L"UPGRADE YOUR TANK\n \nYour tanks have some bonus points that you can use to upgrade their power. Press the 'Promote' button to choose how to allocate your bonus points.\n \nPicking up powerups can grant you additional bonus points.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_KEYS, new CTutorial(this, TUTORIAL_KEYS, POSITION_TOPLEFT, 150, false,
-		L"ADDITIONAL KEYS\n \nShift: Command all tanks\nSpacebar: Next tank\nEnter: End turn\n \nEnjoy Digitanks!")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_KEYS, new CTutorial(this, TUTORIAL_KEYS, POSITION_TOPLEFT, 200, false,
+		L"ADDITIONAL KEYS\n \nShift: Command all tanks\nSpacebar: Next tank\nEnter: End turn\nRight mouse button: Drag camera\n \nEnjoy Digitanks!")));
 }
 
 void CInstructor::DisplayFirstTutorial()

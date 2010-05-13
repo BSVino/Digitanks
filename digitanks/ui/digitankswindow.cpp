@@ -13,10 +13,9 @@
 #include "debugdraw.h"
 #include "hud.h"
 #include "instructor.h"
+#include "camera.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
-
-#define CAMERA_DISTANCE 100
 
 CDigitanksWindow::CDigitanksWindow()
 {
@@ -31,8 +30,6 @@ CDigitanksWindow::CDigitanksWindow()
 	m_iMouseStartY = 0;
 
 	m_bCtrl = m_bAlt = m_bShift = false;
-
-	m_bFPSMode = false;
 
 	glutInit(&argc, &argv);
 
@@ -61,6 +58,8 @@ CDigitanksWindow::CDigitanksWindow()
 
 	InitUI();
 
+	m_pCamera = new CCamera();
+	m_pCamera->SetDistance(120);
 	m_pInstructor = new CInstructor();
 
 	m_pDigitanksGame->SetupDefaultGame();
@@ -93,6 +92,7 @@ CDigitanksWindow::CDigitanksWindow()
 CDigitanksWindow::~CDigitanksWindow()
 {
 	delete m_pDigitanksGame;
+	delete m_pCamera;
 	delete m_pInstructor;
 }
 
@@ -162,6 +162,8 @@ size_t CDigitanksWindow::LoadTextureIntoGL(std::wstring sFilename)
 
 void CDigitanksWindow::Render()
 {
+	m_pCamera->Think();
+
 	glReadBuffer(GL_BACK);
 	glDrawBuffer(GL_BACK);
 	glViewport(0, 0, (GLsizei)m_iWindowWidth, (GLsizei)m_iWindowHeight);
@@ -220,23 +222,8 @@ void CDigitanksWindow::Render()
 	glPushMatrix();
 	glLoadIdentity();
 
-	Vector vecSceneCenter = Vector(0,0,0);
-	//if (DigitanksGame() && DigitanksGame()->GetCurrentTank())
-	//	vecSceneCenter = DigitanksGame()->GetCurrentTank()->GetDesiredMove();
-
-	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * CAMERA_DISTANCE + vecSceneCenter;
-
-	if (m_bFPSMode)
-	{
-		Vector vecForward, vecRight;
-		AngleVectors(m_angFPSCamera, &vecForward, &vecRight, NULL);
-
-		m_vecFPSCamera += vecForward * m_vecFPSVelocity.x * 2;
-		m_vecFPSCamera -= vecRight * m_vecFPSVelocity.z * 2;
-
-		vecCameraVector = m_vecFPSCamera;
-		vecSceneCenter = vecCameraVector + vecForward;
-	}
+	Vector vecSceneCenter = m_pCamera->GetCameraTarget();
+	Vector vecCameraVector = m_pCamera->GetCameraPosition();
 
 	gluLookAt(vecCameraVector.x, vecCameraVector.y, vecCameraVector.z,
 		vecSceneCenter.x, vecSceneCenter.y, vecSceneCenter.z,
@@ -658,10 +645,8 @@ void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, fl
 
 	if (flDegrees < 180)
 	{
-		Vector vecTurnLeft, vecTurnRight;
-
-		AngleVectors(angAngle + EAngle(0, flDegrees, 0), &vecTurnLeft, NULL, NULL);
-		AngleVectors(angAngle - EAngle(0, flDegrees, 0), &vecTurnRight, NULL, NULL);
+		Vector vecTurnLeft = AngleVector(angAngle + EAngle(0, flDegrees, 0));
+		Vector vecTurnRight = AngleVector(angAngle - EAngle(0, flDegrees, 0));
 
 		DebugLine(vecOrigin, vecOrigin + vecTurnLeft*10, Color(255, 255, 0, (int)(255.0f*flAlpha)));
 		DebugLine(vecOrigin, vecOrigin + vecTurnRight*10, Color(255, 255, 0, (int)(255.0f*flAlpha)));
@@ -670,8 +655,7 @@ void CDigitanksWindow::RenderTurnIndicator(Vector vecOrigin, EAngle angAngle, fl
 	}
 	else
 	{
-		Vector vecForward;
-		AngleVectors(angAngle, &vecForward, NULL, NULL);
+		Vector vecForward = AngleVector(angAngle);
 
 		DebugLine(vecOrigin, vecOrigin + vecForward*10, Color(255, 255, 0, (int)(255.0f*flAlpha)));
 		DebugArc(vecOrigin, 10, angAngle.y - 30, angAngle.y + 30, Color(255, 255, 0, (int)(255.0f*flAlpha)));
@@ -718,10 +702,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 
 	Vector vecWorld = WorldPosition(Vector((float)x, (float)y, 1));
 
-	Vector vecCameraVector = AngleVector(EAngle(45, 0, 0)) * CAMERA_DISTANCE;
-
-	if (m_bFPSMode)
-		vecCameraVector = m_vecFPSCamera;
+	Vector vecCameraVector = m_pCamera->GetCameraPosition();
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
@@ -770,6 +751,7 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
 		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
 
+		m_pCamera->SetDistance(100);
 		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_MOVE);
 	}
 
@@ -777,6 +759,7 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
 
+		m_pCamera->SetDistance(80);
 		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_TURN);
 	}
 
@@ -784,11 +767,18 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
 
+		m_pCamera->SetDistance(120);
 		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_AIM);
 	}
 
 	if (eMode == MODE_FIRE)
+	{
+		m_pCamera->SetDistance(80);
 		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_POWER);
+	}
+
+	if (eMode == MODE_NONE)
+		m_pCamera->SetDistance(100);
 
 	m_bAutoProceed = bAutoProceed;
 	m_eControlMode = eMode;

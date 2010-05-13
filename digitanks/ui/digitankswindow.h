@@ -82,6 +82,7 @@ public:
 
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
+	class CCamera*				GetCamera() { return m_pCamera; };
 
 	controlmode_t				GetControlMode() { return m_eControlMode; };
 	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
@@ -105,6 +106,8 @@ protected:
 
 	class CInstructor*			m_pInstructor;
 
+	class CCamera*				m_pCamera;
+
 	static CDigitanksWindow*	s_pDigitanksWindow;
 
 	controlmode_t				m_eControlMode;
@@ -113,11 +116,6 @@ protected:
 	bool						m_bCtrl;
 	bool						m_bAlt;
 	bool						m_bShift;
-
-	bool						m_bFPSMode;
-	Vector						m_vecFPSCamera;
-	EAngle						m_angFPSCamera;
-	Vector						m_vecFPSVelocity;
 };
 
 #endif

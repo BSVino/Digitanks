@@ -184,6 +184,14 @@
 				Name="ui"
 				>
 				<File
+					RelativePath=".\ui\camera.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\camera.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ui\debugdraw.cpp"
 					>
 				</File>
