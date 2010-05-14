@@ -8,6 +8,8 @@
 #include <GL/freeglut.h>
 
 #include "digitanksgame.h"
+#include "ui/digitankswindow.h"
+#include "shaders/shaders.h"
 
 using namespace raytrace;
 
@@ -119,11 +121,35 @@ void CTerrain::Render()
 {
 	glPushAttrib(GL_ENABLE_BIT);
 
+	GLuint iTerrainProgram = (GLuint)CShaderLibrary::GetTerrainProgram();
+	glUseProgram(iTerrainProgram);
+
+	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+
+	if (pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+	{
+		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
+		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
+
+		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
+		glUniform1f(flMoveDistance, pCurrentTank->GetTotalMovementPower());
+
+		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
+		glUniform1i(bMovement, true);
+	}
+	else
+	{
+		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
+		glUniform1i(bMovement, false);
+	}
+
 //	glDisable(GL_DEPTH_TEST);
 //	glEnable(GL_BLEND);
 //	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glCallList((GLuint)m_iCallList);
+
+	glUseProgram(0);
 
 	glPopAttrib();
 }

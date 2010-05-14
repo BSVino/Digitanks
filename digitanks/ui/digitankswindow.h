@@ -23,8 +23,6 @@ public:
 public:
 	void						InitUI();
 
-	void						CompileShaders();
-
 	void						Run();	// Doesn't return
 
 	static size_t				LoadTextureIntoGL(std::wstring sFilename);
@@ -33,7 +31,6 @@ public:
 
 	static void					RenderCallback() { Get()->Render(); };
 	void						Render();
-	void						RenderGround();
 	void						RenderObjects();
 	void						RenderLightSource();
 	void						RenderGame(class CDigitanksGame* pGame);

@@ -14,6 +14,7 @@
 #include "hud.h"
 #include "instructor.h"
 #include "camera.h"
+#include "shaders/shaders.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
@@ -54,6 +55,12 @@ CDigitanksWindow::CDigitanksWindow()
 
 	ilInit();
 
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+		exit(0);
+
+	CShaderLibrary::CompileShaders();
+
 	m_pDigitanksGame = new CDigitanksGame();
 
 	InitUI();
@@ -63,12 +70,6 @@ CDigitanksWindow::CDigitanksWindow()
 	m_pInstructor = new CInstructor();
 
 	m_pDigitanksGame->SetupDefaultGame();
-
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-		exit(0);
-
-	CompileShaders();
 
 	glutPassiveMotionFunc(&CDigitanksWindow::MouseMotionCallback);
 	glutMotionFunc(&CDigitanksWindow::MouseDraggedCallback);
@@ -94,10 +95,6 @@ CDigitanksWindow::~CDigitanksWindow()
 	delete m_pDigitanksGame;
 	delete m_pCamera;
 	delete m_pInstructor;
-}
-
-void CDigitanksWindow::CompileShaders()
-{
 }
 
 void CDigitanksWindow::Run()
@@ -233,84 +230,12 @@ void CDigitanksWindow::Render()
 	glGetDoublev( GL_PROJECTION_MATRIX, m_aiProjection );
 	glGetIntegerv( GL_VIEWPORT, m_aiViewport );
 
-	RenderGround();
-
 	RenderObjects();
 
 	glPopMatrix();
 	glPopAttrib();
 
 	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-}
-
-void CDigitanksWindow::RenderGround(void)
-{
-	glDisable(GL_TEXTURE_2D);
-
-	glPushMatrix();
-
-	glTranslatef(0, 0, 0);
-
-	int i;
-
-	for (i = 0; i < 20; i++)
-	{
-		Vector vecStartX(-100, 0, -100);
-		Vector vecEndX(-100, 0, 100);
-		Vector vecStartZ(-100, 0, -100);
-		Vector vecEndZ(100, 0, -100);
-
-		for (int j = 0; j <= 20; j++)
-		{
-			GLfloat aflBorderLineBright[3] = { 0.5f, 0.6f, 0.5f };
-			GLfloat aflBorderLineDarker[3] = { 0.4f, 0.5f, 0.4f };
-			GLfloat aflInsideLineBright[3] = { 0.3f, 0.3f, 0.3f };
-			GLfloat aflInsideLineDarker[3] = { 0.2f, 0.2f, 0.2f };
-
-			glBegin(GL_LINES);
-
-				if (j == 0 || j == 20 || j == 10)
-					glColor3fv(aflBorderLineBright);
-				else
-					glColor3fv(aflInsideLineBright);
-
-				glVertex3fv(vecStartX);
-
-				if (j == 0 || j == 20 || j == 10)
-					glColor3fv(aflBorderLineDarker);
-				else
-					glColor3fv(aflInsideLineDarker);
-
-				glVertex3fv(vecEndX);
-
-			glEnd();
-
-			glBegin(GL_LINES);
-
-				if (j == 0 || j == 20 || j == 10)
-					glColor3fv(aflBorderLineBright);
-				else
-					glColor3fv(aflInsideLineBright);
-
-				glVertex3fv(vecStartZ);
-
-				if (j == 0 || j == 20 || j == 10)
-					glColor3fv(aflBorderLineDarker);
-				else
-					glColor3fv(aflInsideLineDarker);
-
-				glVertex3fv(vecEndZ);
-
-			glEnd();
-
-			vecStartX.x += 10;
-			vecEndX.x += 10;
-			vecStartZ.z += 10;
-			vecEndZ.z += 10;
-		}
-	}
-
 	glPopMatrix();
 }
 
@@ -466,10 +391,6 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	if (!pCurrentTank)
 		return;
-
-	// Movement
-	if (GetControlMode() == MODE_MOVE)
-		DebugCircle(pCurrentTank->GetOrigin(), pCurrentTank->GetTotalMovementPower(), Color(255, 255, 0));
 
 	Vector vecOrigin = pCurrentTank->GetDesiredMove();
 
