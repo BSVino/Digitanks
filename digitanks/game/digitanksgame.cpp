@@ -203,13 +203,24 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 			CDigitank* pTank = pTeam->GetTank(i);
 
 			Vector vecTankMove = vecMove;
-			if (vecMove.Length() > pTank->GetTotalMovementPower())
-				vecTankMove = vecMove.Normalized() * pTank->GetTotalMovementPower() * 0.95f;
 
 			Vector vecNewPosition = pTank->GetOrigin() + vecTankMove;
 			vecNewPosition.y = GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
 
 			pTank->SetPreviewMove(vecNewPosition);
+
+			do
+			{
+				if (pTank->GetPreviewMovePower() > pTank->GetTotalMovementPower())
+					vecTankMove = vecTankMove * 0.95f;
+
+				vecNewPosition = pTank->GetOrigin() + vecTankMove;
+				vecNewPosition.y = GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+
+				pTank->SetPreviewMove(vecNewPosition);
+			}
+			while (pTank->GetPreviewMovePower() > pTank->GetTotalMovementPower());
+
 			pTank->SetDesiredMove();
 		}
 	}
@@ -401,6 +412,18 @@ void CDigitanksGame::Bot_ExecuteTurn()
 	}
 
 	EndTurn();
+}
+
+void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, float flDamage)
+{
+	if (m_pListener)
+		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, flDamage);
+}
+
+void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, float flDamage)
+{
+	if (m_pListener)
+		m_pListener->OnTakeDamage(pVictim, pAttacker, flDamage);
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

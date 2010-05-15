@@ -467,12 +467,17 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 	if (flDamage - flDamageBlocked <= 0)
 	{
 		*pflShield -= flDamage;
+
+		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, flDamage);
+
 		return;
 	}
 
 	flDamage -= flDamageBlocked;
 
 	*pflShield = 0;
+
+	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, flDamageBlocked);
 
 	BaseClass::TakeDamage(pAttacker, flDamage);
 }

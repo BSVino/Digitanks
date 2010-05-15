@@ -28,6 +28,29 @@ protected:
 	powerbar_type_t				m_ePowerbarType;
 };
 
+class CDamageIndicator : public glgui::CLabel
+{
+	DECLARE_CLASS(CDamageIndicator, glgui::CLabel);
+
+public:
+								CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bShield);
+
+public:
+	virtual void				Destructor();
+	virtual void				Delete() { delete this; };
+
+public:
+	void						Think();
+	void						Paint(int x, int y, int w, int h);
+
+protected:
+	CEntityHandle<CBaseEntity>	m_hVictim;
+	float						m_flDamage;
+	bool						m_bShield;
+	float						m_flTime;
+	Vector						m_vecLastOrigin;
+};
+
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
@@ -58,6 +81,9 @@ public:
 
 	virtual void				NewCurrentTeam();
 	virtual void				NewCurrentTank();
+
+	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, float flDamage);
+	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, float flDamage);
 
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
 
@@ -92,6 +118,9 @@ protected:
 	glgui::CLabel*				m_pButtonHelp3;
 	glgui::CLabel*				m_pButtonHelp4;
 	glgui::CLabel*				m_pButtonHelp5;
+
+	glgui::CLabel*				m_pFireAttack;
+	glgui::CLabel*				m_pFireDefend;
 
 	glgui::CLabel*				m_pAttackInfo;
 

@@ -408,7 +408,7 @@ void CPanel::PaintBorder(int x, int y, int w, int h)
 void CPanel::Think()
 {
 	size_t iCount = m_apControls.size();
-	for (size_t i = 0; i < iCount; i++)
+	for (size_t i = iCount-1; i < iCount; i--)
 	{
 		m_apControls[i]->Think();
 	}

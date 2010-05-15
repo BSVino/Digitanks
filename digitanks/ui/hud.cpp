@@ -35,17 +35,17 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
-		sprintf(szLabel, "Attack Power: %.1f/%.1f", pTank->GetAttackPower(true), pTank->GetTotalAttackPower());
+		sprintf(szLabel, "Attack Power: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
 		SetText(szLabel);
 	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
 	{
-		sprintf(szLabel, "Defense Power: %.1f/%.1f", pTank->GetDefensePower(true), pTank->GetTotalDefensePower());
+		sprintf(szLabel, "Defense Power: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetBasePower()*100));
 		SetText(szLabel);
 	}
 	else
 	{
-		sprintf(szLabel, "Movement Power: %.1f/%.1f", pTank->GetMovementPower(true), pTank->GetTotalMovementPower());
+		sprintf(szLabel, "Movement Power: %d%%", (int)(pTank->GetMovementPower(true)/pTank->GetBasePower()*100));
 		SetText(szLabel);
 	}
 }
@@ -118,6 +118,11 @@ CHUD::CHUD()
 
 	m_pButtonHelp5 = new CLabel(0, 0, 50, 50, "");
 	AddControl(m_pButtonHelp5);
+
+	m_pFireAttack = new CButton(0, 0, 50, 50, "");
+	m_pFireDefend = new CButton(0, 0, 50, 50, "");
+	AddControl(m_pFireAttack);
+	AddControl(m_pFireDefend);
 
 	m_pAttackInfo = new CLabel(0, 0, 100, 150, "");
 	m_pAttackInfo->SetWrap(false);
@@ -287,6 +292,13 @@ void CHUD::Think()
 	}
 
 	m_pPressEnter->SetVisible(bShowEnter);
+
+	m_pFireAttack->SetVisible(CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE);
+	m_pFireDefend->SetVisible(CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE);
+	m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pFireAttack->SetWrap(false);
+	m_pFireDefend->SetWrap(false);
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -352,6 +364,21 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 				int iTop = (int)vecScreen.y - iHeight/2;
 				int iBottom = (int)vecScreen.y + iHeight/2;
+
+				m_pFireAttack->SetSize(0, 20);
+				m_pFireDefend->SetSize(0, 20);
+
+				char szLabel[100];
+				sprintf(szLabel, "Attack: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
+				m_pFireAttack->SetText(szLabel);
+				sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetBasePower()*100));
+				m_pFireDefend->SetText(szLabel);
+
+				m_pFireAttack->EnsureTextFits();
+				m_pFireDefend->EnsureTextFits();
+
+				m_pFireAttack->SetPos((int)vecScreen.x + 70 - m_pFireAttack->GetWidth()/2, iTop-20);
+				m_pFireDefend->SetPos((int)vecScreen.x + 70 - m_pFireDefend->GetWidth()/2, iBottom);
 
 				int mx, my;
 				glgui::CRootPanel::GetFullscreenMousePos(mx, my);
@@ -764,6 +791,18 @@ void CHUD::NewCurrentTank()
 	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
+void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, float flDamage)
+{
+	// Cleans itself up.
+	new CDamageIndicator(pVictim, flDamage, true);
+}
+
+void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, float flDamage)
+{
+	// Cleans itself up.
+	new CDamageIndicator(pVictim, flDamage, false);
+}
+
 void CHUD::MoveCallback()
 {
 	m_bAutoProceed = false;
@@ -869,4 +908,69 @@ void CHUD::PromoteMovementCallback()
 void CHUD::GoToMainCallback()
 {
 	SetupMenu(MENUMODE_MAIN);
+}
+
+CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bShield)
+	: CLabel(0, 0, 100, 100, "")
+{
+	m_hVictim = pVictim;
+	m_flDamage = flDamage;
+	m_bShield = bShield;
+	m_flTime = DigitanksGame()->GetGameTime();
+	m_vecLastOrigin = pVictim->GetOrigin();
+
+	glgui::CRootPanel::Get()->AddControl(this, true);
+
+	Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(pVictim->GetOrigin());
+	SetPos((int)vecScreen.x, (int)vecScreen.y);
+
+	if (m_bShield)
+		SetFGColor(Color(255, 255, 255));
+	else
+		SetFGColor(Color(255, 0, 0));
+
+	int iDamage = (int)flDamage;
+	if (flDamage > 0 && iDamage < 1)
+		iDamage = 1;
+
+	char szDamage[100];
+	sprintf(szDamage, "-%d", iDamage);
+	SetText(szDamage);
+
+	SetFontFaceSize(18);
+	SetAlign(CLabel::TA_TOPLEFT);
+}
+
+void CDamageIndicator::Destructor()
+{
+	glgui::CRootPanel::Get()->RemoveControl(this);
+}
+
+void CDamageIndicator::Think()
+{
+	float flFadeTime = 1.0f;
+
+	if (DigitanksGame()->GetGameTime() - m_flTime > flFadeTime)
+	{
+		Destructor();
+		Delete();
+		return;
+	}
+
+	if (m_hVictim != NULL)
+		m_vecLastOrigin = m_hVictim->GetOrigin();
+
+	float flOffset = RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
+
+	Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(m_vecLastOrigin);
+	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
+
+	SetAlpha((int)RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+
+	BaseClass::Think();
+}
+
+void CDamageIndicator::Paint(int x, int y, int w, int h)
+{
+	BaseClass::Paint(x, y, w, h);
 }

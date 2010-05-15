@@ -65,6 +65,8 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 
 	m_flHealth -= flDamage;
 
+	Game()->OnTakeDamage(this, pAttacker, flDamage);
+
 	if (m_flHealth <= 0)
 		Killed();
 }
