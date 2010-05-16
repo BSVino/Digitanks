@@ -67,15 +67,36 @@ private:
 	"}" \
 
 #define LERP \
-	"uniform float flLastLerp = -1;" \
-	"uniform float flLastExp = -1;" \
 	"float Lerp(float x, float flLerp)" \
 	"{" \
-		"if (flLerp == 0.5f)" \
+		"if (flLerp == 0.5)" \
 			"return x;" \
-		"if (flLastLerp != flLerp)" \
-			"flLastExp = log(flLerp) * -1.4427f;" \
-		"return pow(x, flLastExp);" \
+		"return pow(x, log(flLerp) * -1.4427);" \
+	"}" \
+
+// Depends on LENGTHSQR
+#define DISTANCE_TO_SEGMENT_SQR \
+	"float DistanceToLineSegmentSqr(vec3 p, vec3 v1, vec3 v2)" \
+	"{" \
+		"float flResult;" \
+		"vec3 v = v2 - v1;" \
+		"vec3 w = p - v1;" \
+		"float c1 = dot(w, v);" \
+		"if (c1 < 0.0)" \
+		"	flResult = LengthSqr(v1-p);" \
+		"else" \
+		"{" \
+		"	float c2 = dot(v, v);" \
+		"	if (c2 < c1)" \
+		"		flResult = LengthSqr(v2-p);" \
+		"	else" \
+		"	{" \
+		"		float b = c1/c2;" \
+		"		vec3 vb = v1 + v*b;" \
+		"		flResult = LengthSqr(vb - p);" \
+		"	}" \
+		"}" \
+		"return flResult;" \
 	"}" \
 
 /*

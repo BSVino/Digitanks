@@ -71,7 +71,16 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 		if (flMovementLength > m_flBasePower)
 		{
 			if (!HasDesiredAim() && !bPreviewAimValid)
-				return m_flBasePower;
+			{
+				if (!HasDesiredMove())
+					return m_flBasePower;
+
+				float flPower = m_flBasePower - GetPreviewMovePower();
+				if (flPower < 0)
+					return 0;
+				else
+					return flPower;
+			}
 			else
 				return m_flDefensePower;
 		}

@@ -143,6 +143,48 @@ void CTerrain::Render()
 		glUniform1i(bMovement, false);
 	}
 
+	if (pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+	{
+		Vector vecPoint;
+		bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
+
+		if (bMouseOnGrid)
+		{
+			GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
+			glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetDesiredMove());
+
+			GLuint vecTurnPosition = glGetUniformLocation(iTerrainProgram, "vecTurnPosition");
+			glUniform3fv(vecTurnPosition, 1, vecPoint);
+
+			GLuint bTurnValid = glGetUniformLocation(iTerrainProgram, "bTurnValid");
+
+			GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
+			glUniform1f(flTankYaw, pCurrentTank->GetAngles().y);
+
+			float flMaxTurnWithLeftoverPower = (pCurrentTank->GetTotalMovementPower() - pCurrentTank->GetMovementPower()) * pCurrentTank->TurnPerPower();
+
+			GLuint flTankMaxYaw = glGetUniformLocation(iTerrainProgram, "flTankMaxYaw");
+			glUniform1f(flTankMaxYaw, flMaxTurnWithLeftoverPower);
+
+			Vector vecDirection = (vecPoint - pCurrentTank->GetDesiredMove()).Normalized();
+			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
+
+			float flTankTurn = AngleDifference(flYaw, pCurrentTank->GetAngles().y);
+			if (pCurrentTank->GetPreviewMovePower() + fabs(flTankTurn)/pCurrentTank->TurnPerPower() > pCurrentTank->GetTotalMovementPower())
+				glUniform1i(bTurnValid, false);
+			else
+				glUniform1i(bTurnValid, true);
+		}
+
+		GLuint bTurning = glGetUniformLocation(iTerrainProgram, "bTurning");
+		glUniform1i(bTurning, bMouseOnGrid);
+	}
+	else
+	{
+		GLuint bTurning = glGetUniformLocation(iTerrainProgram, "bTurning");
+		glUniform1i(bTurning, false);
+	}
+
 //	glDisable(GL_DEPTH_TEST);
 //	glEnable(GL_BLEND);
 //	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
