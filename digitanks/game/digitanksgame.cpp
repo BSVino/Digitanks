@@ -18,21 +18,31 @@ CDigitanksGame::CDigitanksGame()
 
 CDigitanksGame::~CDigitanksGame()
 {
-	for (size_t i = 0; i < m_apTeams.size(); i++)
-		delete m_apTeams[i];
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		m_ahTeams[i]->Delete();
 }
 
-void CDigitanksGame::SetupDefaultGame()
+void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 {
-	for (size_t i = 0; i < m_apTeams.size(); i++)
-		delete m_apTeams[i];
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		m_ahTeams[i]->Delete();
 
-	m_apTeams.clear();
+	m_ahTeams.clear();
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Delete();
 
 	m_hTerrain = new CTerrain();
+
+	if (iPlayers > 8)
+		iPlayers = 8;
+	if (iPlayers < 2)
+		iPlayers = 2;
+
+	if (iTanks > 5)
+		iTanks = 5;
+	if (iTanks < 1)
+		iTanks = 1;
 
 	Vector avecStartingPositions[] =
 	{
@@ -44,6 +54,15 @@ void CDigitanksGame::SetupDefaultGame()
 		Vector(80, 0, 0),
 		Vector(80, 0, -80),
 		Vector(0, 0, -80),
+	};
+
+	Vector avecTankPositions[] =
+	{
+		Vector(0, 0, 0),
+		Vector(10, 0, 10),
+		Vector(-10, 0, -10),
+		Vector(10, 0, -10),
+		Vector(-10, 0, 10),
 	};
 
 	Color aclrTeamColors[] =
@@ -68,35 +87,25 @@ void CDigitanksGame::SetupDefaultGame()
 			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
 	}
 
-	for (size_t i = 0; i < 8; i++)
+	for (int i = 0; i < iPlayers; i++)
 	{
-		m_apTeams.push_back(new CTeam());
+		m_ahTeams.push_back(new CTeam());
 
-		m_apTeams[i]->m_clrTeam = aclrTeamColors[i];
+		m_ahTeams[i]->m_clrTeam = aclrTeamColors[i];
 
-		m_apTeams[i]->AddTank(new CDigitank());
-		m_apTeams[i]->AddTank(new CDigitank());
-		m_apTeams[i]->AddTank(new CDigitank());
+		for (int j = 0; j < iTanks; j++)
+		{
+			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
+			vecTank.y = m_hTerrain->GetHeight(vecTank.x, vecTank.z);
+			EAngle angTank = VectorAngles(-vecTank.Normalized());
 
-		Vector vecTank1 = avecRandomStartingPositions[i];
-		vecTank1.y = m_hTerrain->GetHeight(vecTank1.x, vecTank1.z);
-		Vector vecTank2 = avecRandomStartingPositions[i] + Vector(10, 0, 10);
-		vecTank2.y = m_hTerrain->GetHeight(vecTank2.x, vecTank2.z);
-		Vector vecTank3 = avecRandomStartingPositions[i] - Vector(10, 0, 10);
-		vecTank3.y = m_hTerrain->GetHeight(vecTank3.x, vecTank3.z);
+			m_ahTeams[i]->AddTank(new CDigitank());
+			CDigitank* pTank = m_ahTeams[i]->m_ahTanks[j];
 
-		m_apTeams[i]->m_ahTanks[0]->SetOrigin(vecTank1);
-		m_apTeams[i]->m_ahTanks[1]->SetOrigin(vecTank2);
-		m_apTeams[i]->m_ahTanks[2]->SetOrigin(vecTank3);
-
-		EAngle angTanks = VectorAngles(-avecRandomStartingPositions[i].Normalized());
-		m_apTeams[i]->m_ahTanks[0]->SetAngles(angTanks);
-		m_apTeams[i]->m_ahTanks[1]->SetAngles(angTanks);
-		m_apTeams[i]->m_ahTanks[2]->SetAngles(angTanks);
-
-		m_apTeams[i]->m_ahTanks[0]->GiveBonusPoints(2);
-		m_apTeams[i]->m_ahTanks[1]->GiveBonusPoints(1);
-		m_apTeams[i]->m_ahTanks[2]->GiveBonusPoints(1);
+			pTank->SetOrigin(vecTank);
+			pTank->SetAngles(angTank);
+			pTank->GiveBonusPoints(j==0?2:1);
+		}
 	}
 
 	CPowerup* pPowerup = new CPowerup();
@@ -428,36 +437,34 @@ void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, 
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 {
-	for (size_t i = 0; i < m_apTeams.size(); i++)
-		m_apTeams[i]->OnKilled(pEntity);
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		m_ahTeams[i]->OnKilled(pEntity);
 
 	CheckWinConditions();
 }
 
 void CDigitanksGame::CheckWinConditions()
 {
-	for (size_t i = 0; i < m_apTeams.size(); i++)
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_apTeams[i]->GetNumTanksAlive() == 0)
+		if (m_ahTeams[i]->GetNumTanksAlive() == 0)
 		{
-			delete m_apTeams[i];
-			m_apTeams.erase(m_apTeams.begin()+i);
+			m_ahTeams[i]->Delete();
+			m_ahTeams.erase(m_ahTeams.begin()+i);
 		}
 	}
 
-	if (m_apTeams.size() <= 1)
+	if (m_ahTeams.size() <= 1)
 	{
 		if (m_pListener)
 			m_pListener->GameOver();
-
-		SetupDefaultGame();
 	}
 }
 
 void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 {
-	for (size_t i = 0; i < m_apTeams.size(); i++)
-		m_apTeams[i]->OnDeleted(pEntity);
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		m_ahTeams[i]->OnDeleted(pEntity);
 
 	if (dynamic_cast<class CProjectile*>(pEntity) != NULL)
 	{
@@ -468,10 +475,10 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 
 CTeam* CDigitanksGame::GetCurrentTeam()
 {
-	if (m_iCurrentTeam > m_apTeams.size())
+	if (m_iCurrentTeam > m_ahTeams.size())
 		return NULL;
 
-	return m_apTeams[m_iCurrentTeam];
+	return m_ahTeams[m_iCurrentTeam];
 }
 
 CDigitank* CDigitanksGame::GetCurrentTank()

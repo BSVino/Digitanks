@@ -7,7 +7,7 @@
 #include "color.h"
 #include <vector>
 
-class CTeam
+class CTeam : public CBaseEntity
 {
 	friend class CDigitanksGame;
 

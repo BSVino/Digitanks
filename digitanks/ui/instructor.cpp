@@ -10,6 +10,7 @@ using namespace glgui;
 
 CInstructor::CInstructor()
 {
+	m_bActive = true;
 	m_pCurrentPanel = NULL;
 	Initialize();
 }
@@ -63,6 +64,18 @@ void CInstructor::Initialize()
 		L"ADDITIONAL KEYS\n \nShift: Command all tanks\nSpacebar: Next tank\nAlt: Show Power/HP bars\nEnter: End turn\nRight mouse button: Drag camera\n \nEnjoy Digitanks!")));
 }
 
+void CInstructor::SetActive(bool bActive)
+{
+	m_bActive = bActive;
+	if (!bActive)
+		HideTutorial();
+	else
+	{
+		Initialize();
+		DisplayFirstTutorial();
+	}
+}
+
 void CInstructor::DisplayFirstTutorial()
 {
 	m_iCurrentTutorial = TUTORIAL_INTRO;
@@ -76,6 +89,9 @@ void CInstructor::NextTutorial()
 
 void CInstructor::DisplayTutorial(size_t iTutorial)
 {
+	if (!m_bActive)
+		return;
+
 	if (m_apTutorials.find(iTutorial) == m_apTutorials.end())
 		return;
 
@@ -93,6 +109,21 @@ void CInstructor::DisplayTutorial(size_t iTutorial)
 
 	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[iTutorial]);
 	glgui::CRootPanel::Get()->AddControl(m_pCurrentPanel, true);
+}
+
+void CInstructor::ShowTutorial()
+{
+	DisplayTutorial(m_iCurrentTutorial);
+}
+
+void CInstructor::HideTutorial()
+{
+	if (m_pCurrentPanel)
+	{
+		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
+		m_pCurrentPanel->Delete();
+		m_pCurrentPanel = NULL;
+	}
 }
 
 void CInstructor::FinishedTutorial(size_t iTutorial)

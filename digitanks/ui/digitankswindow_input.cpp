@@ -7,6 +7,7 @@
 #include "instructor.h"
 #include "camera.h"
 #include "hud.h"
+#include "menu.h"
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
@@ -14,7 +15,8 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
-	m_pCamera->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+	if (GetCamera())
+		GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
@@ -26,7 +28,8 @@ void CDigitanksWindow::MouseDragged(int x, int y)
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
-	m_pCamera->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+	if (GetCamera())
+		GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
@@ -36,7 +39,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 {
 	FakeCtrlAltShift();
 
-	m_pCamera->MouseButton(iButton, iState);
+	if (GetCamera())
+		GetCamera()->MouseButton(iButton, iState);
 
 	if (iState == GLUT_DOWN)
 	{
@@ -133,18 +137,22 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (c == 27)
 	{
-		if (GetControlMode() == MODE_NONE)
-			exit(0);
+		if (GetMenu()->IsVisible())
+			GetMenu()->SetVisible(false);
+		else if (GetControlMode() == MODE_NONE)
+			GetMenu()->SetVisible(true);
 		else
 			SetControlMode(MODE_NONE);
 	}
 
-	m_pCamera->KeyDown(c);
+	if (GetCamera())
+		GetCamera()->KeyDown(c);
 }
 
 void CDigitanksWindow::KeyRelease(unsigned char c, int x, int y)
 {
-	m_pCamera->KeyUp(c);
+	if (GetCamera())
+		GetCamera()->KeyUp(c);
 }
 
 void CDigitanksWindow::Special(int k, int x, int y)

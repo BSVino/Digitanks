@@ -23,6 +23,8 @@ public:
 public:
 	void						InitUI();
 
+	void						CreateGame(int iPlayers, int iTanks);
+
 	void						Run();	// Doesn't return
 
 	static size_t				LoadTextureIntoGL(std::wstring sFilename);
@@ -77,6 +79,7 @@ public:
 	Vector						WorldPosition(Vector vecScreen);
 	bool						GetMouseGridPosition(Vector& vecPoint);
 
+	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
 	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
 	class CCamera*				GetCamera() { return m_pCamera; };
@@ -96,6 +99,8 @@ protected:
 	double						m_aiModelView[16];
 	double						m_aiProjection[16];
 	int							m_aiViewport[4];
+
+	class CDigitanksMenu*		m_pMenu;
 
 	class CDigitanksGame*		m_pDigitanksGame;
 

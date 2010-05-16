@@ -247,6 +247,10 @@
 					RelativePath=".\ui\instructor.h"
 					>
 				</File>
+				<File
+					RelativePath=".\ui\menu.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="glew"

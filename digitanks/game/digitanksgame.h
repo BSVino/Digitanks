@@ -32,7 +32,7 @@ public:
 public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
 
-	void					SetupDefaultGame();
+	void					SetupGame(int iPlayers, int iTanks);
 
 	void					StartGame();
 
@@ -58,8 +58,8 @@ public:
 
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
 
-	size_t					GetNumTeams() { return m_apTeams.size(); };
-	CTeam*					GetTeam(size_t i) { return m_apTeams[i]; };
+	size_t					GetNumTeams() { return m_ahTeams.size(); };
+	CTeam*					GetTeam(size_t i) { return m_ahTeams[i]; };
 
 	CTeam*					GetCurrentTeam();
 	CDigitank*				GetCurrentTank();
@@ -71,7 +71,7 @@ public:
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
 
 protected:
-	std::vector<CTeam*>		m_apTeams;
+	std::vector<CEntityHandle<CTeam>>	m_ahTeams;
 
 	size_t					m_iCurrentTeam;
 	size_t					m_iCurrentTank;

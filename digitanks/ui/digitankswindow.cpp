@@ -15,6 +15,7 @@
 #include "instructor.h"
 #include "camera.h"
 #include "shaders/shaders.h"
+#include "menu.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
@@ -61,15 +62,12 @@ CDigitanksWindow::CDigitanksWindow()
 
 	CShaderLibrary::CompileShaders();
 
-	m_pDigitanksGame = new CDigitanksGame();
-
 	InitUI();
 
-	m_pCamera = new CCamera();
-	m_pCamera->SetDistance(120);
-	m_pInstructor = new CInstructor();
-
-	m_pDigitanksGame->SetupDefaultGame();
+	m_pDigitanksGame = NULL;
+	m_pHUD = NULL;
+	m_pCamera = NULL;
+	m_pInstructor = NULL;
 
 	glutPassiveMotionFunc(&CDigitanksWindow::MouseMotionCallback);
 	glutMotionFunc(&CDigitanksWindow::MouseDraggedCallback);
@@ -92,9 +90,39 @@ CDigitanksWindow::CDigitanksWindow()
 
 CDigitanksWindow::~CDigitanksWindow()
 {
-	delete m_pDigitanksGame;
-	delete m_pCamera;
-	delete m_pInstructor;
+	delete m_pMenu;
+
+	if (m_pDigitanksGame)
+		delete m_pDigitanksGame;
+	if (m_pHUD)
+		delete m_pHUD;
+	if (m_pCamera)
+		delete m_pCamera;
+	if (m_pInstructor)
+		delete m_pInstructor;
+}
+
+void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
+{
+	if (m_pDigitanksGame)
+	{
+		m_pDigitanksGame->SetupGame(iPlayers, iTanks);
+		return;
+	}
+
+	m_pDigitanksGame = new CDigitanksGame();
+
+	m_pHUD = new CHUD();
+	m_pHUD->SetGame(m_pDigitanksGame);
+	glgui::CRootPanel::Get()->AddControl(m_pHUD);
+
+	m_pCamera = new CCamera();
+	m_pCamera->SetDistance(120);
+	m_pInstructor = new CInstructor();
+
+	m_pDigitanksGame->SetupGame(iPlayers, iTanks);
+
+	glgui::CRootPanel::Get()->Layout();
 }
 
 void CDigitanksWindow::Run()
@@ -102,8 +130,11 @@ void CDigitanksWindow::Run()
 	while (true)
 	{
 		glutMainLoopEvent();
-		Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
-		Render();
+		if (GetGame())
+		{
+			Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
+			Render();
+		}
 		glgui::CRootPanel::Get()->Think();
 		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 		glutSwapBuffers();
@@ -609,7 +640,9 @@ void CDigitanksWindow::WindowResize(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	Render();
+	if (GetGame())
+		Render();
+
 	glgui::CRootPanel::Get()->Layout();
 	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 

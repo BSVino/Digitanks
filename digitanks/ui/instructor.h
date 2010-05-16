@@ -45,10 +45,15 @@ public:
 	void							Clear();
 	void							Initialize();
 
+	void							SetActive(bool bActive);
+	bool							GetActive() { return m_bActive; };
+
 	void							DisplayFirstTutorial();
 	void							NextTutorial();
 
 	void							DisplayTutorial(size_t iTutorial);
+	void							HideTutorial();
+	void							ShowTutorial();
 	void							FinishedTutorial(size_t iTutorial);
 
 	enum {
@@ -70,6 +75,7 @@ public:
 	};
 
 protected:
+	bool							m_bActive;
 	std::map<size_t, CTutorial*>	m_apTutorials;
 	size_t							m_iCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;
