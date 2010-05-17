@@ -425,8 +425,6 @@ void CDigitanksWindow::RenderMovementSelection()
 
 	Vector vecOrigin = pCurrentTank->GetDesiredMove();
 
-	Vector vecRangeOrigin = vecOrigin;
-
 	Vector vecPoint;
 	bool bMouseOnGrid = GetMouseGridPosition(vecPoint);
 
@@ -436,8 +434,6 @@ void CDigitanksWindow::RenderMovementSelection()
 
 		if (pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
 		{
-			vecRangeOrigin = vecPoint;
-
 			Color clrTeam = pCurrentTank->GetTeam()->GetColor();
 			clrTeam.SetAlpha(50);
 
@@ -579,10 +575,6 @@ void CDigitanksWindow::RenderMovementSelection()
 			}
 		}
 	}
-
-	// Range
-	DebugCircle(vecRangeOrigin, pCurrentTank->GetMinRange(), Color(0, 255, 0, (GetControlMode() == MODE_AIM)?255:150));
-	DebugCircle(vecRangeOrigin, pCurrentTank->GetMaxRange(), Color(255, 0, 0, (GetControlMode() == MODE_AIM)?255:150));
 
 	glPopAttrib();
 }

@@ -185,6 +185,33 @@ void CTerrain::Render()
 		glUniform1i(bTurning, false);
 	}
 
+	if (pCurrentTank)
+	{
+		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
+		glUniform1i(bShowRanges, true);
+
+		GLuint bFocusRanges = glGetUniformLocation(iTerrainProgram, "bFocusRanges");
+		glUniform1i(bFocusRanges, CDigitanksWindow::Get()->GetControlMode() == MODE_AIM);
+
+		Vector vecRangeOrigin = pCurrentTank->GetDesiredMove();
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
+			vecRangeOrigin = pCurrentTank->GetPreviewMove();
+
+		GLuint vecTankPreviewOrigin = glGetUniformLocation(iTerrainProgram, "vecTankPreviewOrigin");
+		glUniform3fv(vecTankPreviewOrigin, 1, vecRangeOrigin);
+
+		GLuint flTankMaxRange = glGetUniformLocation(iTerrainProgram, "flTankMaxRange");
+		glUniform1f(flTankMaxRange, pCurrentTank->GetMaxRange());
+
+		GLuint flTankMinRange = glGetUniformLocation(iTerrainProgram, "flTankMinRange");
+		glUniform1f(flTankMinRange, pCurrentTank->GetMinRange());
+	}
+	else
+	{
+		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
+		glUniform1i(bShowRanges, false);
+	}
+	
 //	glDisable(GL_DEPTH_TEST);
 //	glEnable(GL_BLEND);
 //	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

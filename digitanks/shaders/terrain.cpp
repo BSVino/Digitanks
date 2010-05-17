@@ -33,6 +33,12 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"uniform float flTankMaxYaw;"
 		"uniform bool bTurning;"
 
+		"uniform vec3 vecTankPreviewOrigin;"
+		"uniform float flTankMaxRange;"
+		"uniform float flTankMinRange;"
+		"uniform bool bShowRanges;"
+		"uniform bool bFocusRanges;"
+
 		"varying vec4 vecFrontColor;"
 		"varying vec3 vecPosition;"
 
@@ -62,7 +68,6 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"	if (bTurning)"
 		"	{"
-
 		"		float flInside = 3.0;"
 		"		float flOutside = 10.0;"
 
@@ -120,6 +125,37 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"				float flStrength = RemapVal(flDistanceToLineSqr, 0.0, flLine*flLine, 1.0, 0.0);"
 		"				vecBaseColor = vecBaseColor * (1.0-flStrength) + vecTurnColor * flStrength;"
 		"			}"
+		"		}"
+		"	}"
+
+		"	if (bShowRanges)"
+		"	{"
+		"		float flColorStrength = 0.7;"
+		"		if (!bFocusRanges)"
+		"			flColorStrength = 0.3;"
+
+		"		float flPreviewDistanceSqr = LengthSqr(vecPosition - vecTankPreviewOrigin);"
+
+		"		float flTankMinRangeInside = 0.0;"
+		"		if (flPreviewDistanceSqr <= flTankMinRange*flTankMinRange && flPreviewDistanceSqr >= flTankMinRangeInside*flTankMinRangeInside)"
+		"		{"
+		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMinRangeInside*flTankMinRangeInside, flTankMinRange*flTankMinRange, 0.0, 1.0);"
+		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.8) * flColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 1.0, 0.0, 1.0) * flMoveColorStrength;"
+		"		}"
+		"		if (flPreviewDistanceSqr <= flTankMaxRange*flTankMaxRange && flPreviewDistanceSqr >= flTankMinRange*flTankMinRange)"
+		"		{"
+		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRange*flTankMaxRange, flTankMinRange*flTankMinRange, 0.0, 1.0);"
+		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.1) * flColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 1.0, 0.0, 1.0) * flMoveColorStrength;"
+		"		}"
+
+		"		float flTankMaxRangeInside = flTankMaxRange-3.0;"
+		"		if (flPreviewDistanceSqr <= flTankMaxRange*flTankMaxRange && flPreviewDistanceSqr >= flTankMaxRangeInside*flTankMaxRangeInside)"
+		"		{"
+		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRangeInside*flTankMaxRangeInside, flTankMaxRange*flTankMaxRange, 0.0, 1.0);"
+		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2) * flColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(1.0, 0.0, 0.0, 1.0) * flMoveColorStrength;"
 		"		}"
 		"	}"
 
