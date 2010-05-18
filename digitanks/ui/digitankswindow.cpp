@@ -681,7 +681,7 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
 
 		m_pCamera->SetDistance(80);
-		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_TURN);
+//		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_TURN);
 	}
 
 	if (eMode == MODE_AIM)

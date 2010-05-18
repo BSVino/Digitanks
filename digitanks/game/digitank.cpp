@@ -26,6 +26,7 @@ CDigitank::CDigitank()
 	m_bDesiredMove = false;
 	m_bDesiredTurn = false;
 	m_bDesiredAim = false;
+	m_bSelectedMove = false;
 
 	m_bTakeDamage = true;
 	m_flTotalHealth = 10;
@@ -252,6 +253,7 @@ void CDigitank::StartTurn()
 	m_bDesiredMove = false;
 	m_bDesiredTurn = false;
 	m_bDesiredAim = false;
+	m_bSelectedMove = false;
 	m_bChoseFirepower = false;
 }
 
@@ -294,6 +296,8 @@ bool CDigitank::IsPreviewAimValid()
 
 void CDigitank::SetDesiredMove()
 {
+	m_bSelectedMove = true;
+
 	float flMovePower = GetPreviewMovePower();
 
 	if (flMovePower > m_flBasePower)
@@ -316,6 +320,7 @@ void CDigitank::SetDesiredMove()
 void CDigitank::CancelDesiredMove()
 {
 	m_bDesiredMove = false;
+	m_bSelectedMove = false;
 
 	m_flMovementPower = GetPreviewTurnPower();
 	CalculateAttackDefense();

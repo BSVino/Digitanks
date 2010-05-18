@@ -316,6 +316,9 @@ void CDigitanksGame::NextTank()
 
 void CDigitanksGame::EndTurn()
 {
+	if (m_bWaitingForProjectiles)
+		return;
+
 	GetCurrentTeam()->MoveTanks();
 	GetCurrentTeam()->FireTanks();
 

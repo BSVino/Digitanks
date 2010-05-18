@@ -72,6 +72,7 @@ public:
 	void						CancelDesiredMove();
 	bool						HasDesiredMove() { return m_bDesiredMove; };
 	Vector						GetDesiredMove();
+	bool						HasSelectedMove() { return m_bSelectedMove; };
 
 	void						SetDesiredTurn();
 	void						CancelDesiredTurn();
@@ -134,6 +135,7 @@ protected:
 	Vector						m_vecPreviewMove;
 	bool						m_bDesiredMove;
 	Vector						m_vecDesiredMove;
+	bool						m_bSelectedMove;
 
 	float						m_flPreviewTurn;
 	bool						m_bDesiredTurn;

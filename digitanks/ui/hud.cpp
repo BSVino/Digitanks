@@ -246,18 +246,58 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		m_pButton1->SetButtonColor(Color(150, 150, 0));
-		m_pButton2->SetButtonColor(Color(150, 150, 0));
-		m_pButton3->SetButtonColor(Color(150, 0, 0));
-		m_pButton4->SetButtonColor(Color(150, 0, 150));
+		if (m_bAutoProceed)
+		{
+			m_pButton1->SetText("Auto");
+			m_pButton2->SetText("Auto");
+			m_pButton3->SetText("Auto");
+			m_pButton4->SetText("Auto");
+		}
+		else
+		{
+			m_pButton1->SetText("");
+			m_pButton2->SetText("");
+			m_pButton3->SetText("");
+			m_pButton4->SetText("");
+		}
+
+		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+			m_pButton1->SetButtonColor(Color(150, 150, 0));
+		else
+			m_pButton1->SetButtonColor(Color(100, 100, 100));
+
+		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+			m_pButton2->SetButtonColor(Color(150, 150, 0));
+		else
+			m_pButton2->SetButtonColor(Color(100, 100, 100));
+
+		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			m_pButton3->SetButtonColor(Color(150, 0, 0));
+		else
+			m_pButton3->SetButtonColor(Color(100, 100, 100));
+
+		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+			m_pButton4->SetButtonColor(Color(150, 0, 150));
+		else
+			m_pButton4->SetButtonColor(Color(100, 100, 100));
 
 		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
-			m_pButton5->SetButtonColor(Color(250, 200, 0));
+		{
+			float flRamp = 1;
+			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
+				flRamp = fabs(fmod(DigitanksGame()->GetGameTime(), 2)-1);
+			m_pButton5->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
+		}
 		else
 			m_pButton5->SetButtonColor(g_clrBox);
 	}
 	else if (m_eMenuMode == MENUMODE_PROMOTE)
 	{
+		m_pButton1->SetText("");
+		m_pButton2->SetText("");
+		m_pButton3->SetText("");
+		m_pButton4->SetText("");
+
 		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
 		{
 			m_pButton1->SetButtonColor(Color(200, 0, 0));
@@ -474,7 +514,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+		if (m_bAutoProceed)
+		{
+			// Nothing. The word "Auto" will appear.
+		}
+		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 		{
 			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
 			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
@@ -486,7 +530,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
 		}
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		if (m_bAutoProceed)
+		{
+			// Nothing. The word "Auto" will appear.
+		}
+		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
 		{
 			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
 			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
@@ -502,7 +550,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
 		}
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+		if (m_bAutoProceed)
+		{
+			// Nothing. The word "Auto" will appear.
+		}
+		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
 		{
 			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
 			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
@@ -518,7 +570,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
 		}
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+		if (m_bAutoProceed)
+		{
+			// Nothing. The word "Auto" will appear.
+		}
+		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
 		{
 			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
 			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
@@ -771,10 +827,12 @@ void CHUD::NewCurrentTank()
 {
 	if (m_bAutoProceed)
 	{
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && DigitanksGame()->GetCurrentTank()->HasDesiredMove())
-			CDigitanksWindow::Get()->SetControlMode(MODE_TURN);
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && DigitanksGame()->GetCurrentTank()->HasSelectedMove())
 			CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && DigitanksGame()->GetCurrentTank()->HasDesiredTurn())
+			CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
 		{
 			if (!DigitanksGame()->GetCurrentTank()->ChoseFirepower())
@@ -782,8 +840,12 @@ void CHUD::NewCurrentTank()
 			else
 				CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 		}
+
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && DigitanksGame()->GetCurrentTank()->ChoseFirepower())
+		{
 			CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+			m_bAutoProceed = false;
+		}
 	}
 
 	UpdateAttackInfo();
@@ -839,6 +901,8 @@ void CHUD::FireCallback()
 
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+	else if (DigitanksGame()->GetCurrentTank() && !DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+		CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
 	else
 		CDigitanksWindow::Get()->SetControlMode(MODE_FIRE);
 }

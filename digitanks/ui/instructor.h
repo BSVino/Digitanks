@@ -56,6 +56,8 @@ public:
 	void							ShowTutorial();
 	void							FinishedTutorial(size_t iTutorial);
 
+	size_t							GetCurrentTutorial() { return m_iCurrentTutorial; };
+
 	enum {
 		POSITION_TOPCENTER,
 		POSITION_POWERBARS,
@@ -67,7 +69,7 @@ public:
 		TUTORIAL_INTRO,
 		TUTORIAL_POWERPOINTS,
 		TUTORIAL_MOVE,
-		TUTORIAL_TURN,
+		//TUTORIAL_TURN,
 		TUTORIAL_AIM,
 		TUTORIAL_POWER,
 		TUTORIAL_UPGRADE,

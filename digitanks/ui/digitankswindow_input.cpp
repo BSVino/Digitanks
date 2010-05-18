@@ -66,7 +66,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-				SetControlMode(MODE_TURN);
+				SetControlMode(MODE_AIM);
 			else
 				DigitanksGame()->NextTank();
 
@@ -79,11 +79,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
 
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-				SetControlMode(MODE_AIM);
+				SetControlMode(MODE_NONE);
 			else
 				DigitanksGame()->NextTank();
 
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
+//			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 		}
 		else if (GetControlMode() == MODE_AIM)
 		{
