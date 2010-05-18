@@ -592,7 +592,7 @@ CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 
 void CProjectile::Think()
 {
-	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 10.0f)
+	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 5.0f)
 		Delete();
 }
 

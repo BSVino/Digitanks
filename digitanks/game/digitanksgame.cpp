@@ -14,6 +14,8 @@ CDigitanksGame::CDigitanksGame()
 
 	m_bWaitingForProjectiles = false;
 	m_iWaitingForProjectiles = 0;
+
+	m_iPowerups = 0;
 }
 
 CDigitanksGame::~CDigitanksGame()
@@ -46,14 +48,14 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 
 	Vector avecStartingPositions[] =
 	{
-		Vector(-80, 0, -80),
-		Vector(-80, 0, 0),
-		Vector(-80, 0, 80),
-		Vector(0, 0, 80),
-		Vector(80, 0, 80),
-		Vector(80, 0, 0),
-		Vector(80, 0, -80),
-		Vector(0, 0, -80),
+		Vector(35, 0, 84),
+		Vector(-35, 0, 84),
+		Vector(-84, 0, 35),
+		Vector(-84, 0, -35),
+		Vector(-35, 0, -84),
+		Vector(35, 0, -84),
+		Vector(84, 0, -35),
+		Vector(84, 0, 35),
 	};
 
 	Vector avecTankPositions[] =
@@ -78,7 +80,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 	};
 
 	std::vector<Vector> avecRandomStartingPositions;
-	for (size_t i = 0; i < 8; i++)
+	for (int i = 0; i < iPlayers; i++)
 	{
 		// 8 random starting positions.
 		if (rand()%2)
@@ -116,6 +118,8 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, 10), 10));
 	pPowerup = new CPowerup();
 	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, -10), -10));
+
+	m_iPowerups = 4;
 
 	StartGame();
 }
@@ -319,6 +323,8 @@ void CDigitanksGame::EndTurn()
 	if (m_bWaitingForProjectiles)
 		return;
 
+	m_iWaitingForProjectiles = 0;
+
 	GetCurrentTeam()->MoveTanks();
 	GetCurrentTeam()->FireTanks();
 
@@ -327,6 +333,17 @@ void CDigitanksGame::EndTurn()
 
 void CDigitanksGame::StartTurn()
 {
+	if (m_iPowerups < 10 && rand()%4 == 0)
+	{
+		float flX = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
+		float flZ = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
+
+		CPowerup* pPowerup = new CPowerup();
+		pPowerup->SetOrigin(Vector(flX, m_hTerrain->GetHeight(flX, flZ), flZ));
+
+		m_iPowerups++;
+	}
+
 	m_iCurrentTank = 0;
 
 	if (++m_iCurrentTeam >= GetNumTeams())
@@ -474,11 +491,14 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 		if (m_iWaitingForProjectiles > 0)
 			m_iWaitingForProjectiles--;
 	}
+
+	if (dynamic_cast<class CPowerup*>(pEntity) != NULL)
+		m_iPowerups--;
 }
 
 CTeam* CDigitanksGame::GetCurrentTeam()
 {
-	if (m_iCurrentTeam > m_ahTeams.size())
+	if (m_iCurrentTeam >= m_ahTeams.size())
 		return NULL;
 
 	return m_ahTeams[m_iCurrentTeam];
@@ -489,7 +509,7 @@ CDigitank* CDigitanksGame::GetCurrentTank()
 	if (!GetCurrentTeam())
 		return NULL;
 
-	if (m_iCurrentTank > GetCurrentTeam()->GetNumTanks())
+	if (m_iCurrentTank >= GetCurrentTeam()->GetNumTanks())
 		return NULL;
 
 	return GetCurrentTeam()->GetTank(m_iCurrentTank);

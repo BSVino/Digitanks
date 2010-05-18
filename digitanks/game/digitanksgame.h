@@ -82,6 +82,8 @@ protected:
 
 	bool					m_bWaitingForProjectiles;
 	size_t					m_iWaitingForProjectiles;
+
+	size_t					m_iPowerups;
 };
 
 inline class CDigitanksGame* DigitanksGame()
