@@ -82,7 +82,7 @@ public:
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
 	class CCamera*				GetCamera() { return m_pCamera; };
 
-	controlmode_t				GetControlMode() { return m_eControlMode; };
+	controlmode_t				GetControlMode();
 	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
 
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };

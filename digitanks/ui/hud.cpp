@@ -119,8 +119,8 @@ CHUD::CHUD()
 	m_pButtonHelp5 = new CLabel(0, 0, 50, 50, "");
 	AddControl(m_pButtonHelp5);
 
-	m_pFireAttack = new CButton(0, 0, 50, 50, "");
-	m_pFireDefend = new CButton(0, 0, 50, 50, "");
+	m_pFireAttack = new CLabel(0, 0, 50, 50, "");
+	m_pFireDefend = new CLabel(0, 0, 50, 50, "");
 	AddControl(m_pFireAttack);
 	AddControl(m_pFireDefend);
 
@@ -409,7 +409,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 				m_pFireDefend->SetSize(0, 20);
 
 				char szLabel[100];
-				sprintf(szLabel, "Attack: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
+				sprintf(szLabel, "Damage: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
 				m_pFireAttack->SetText(szLabel);
 				sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetBasePower()*100));
 				m_pFireDefend->SetText(szLabel);
@@ -423,12 +423,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 				int mx, my;
 				glgui::CRootPanel::GetFullscreenMousePos(mx, my);
 
-				float flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 0, 1);
+				float flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 1, 0);
 
 				CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
 
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)(flAttackPercentage*(iHeight-2)), 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
+				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)(flAttackPercentage*(iHeight-2)), Color(0, 0, 255, 255));
+				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)(flAttackPercentage*(iHeight-2)), 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(255, 0, 0, 255));
 				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)(flAttackPercentage*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
 
 				if (CDigitanksWindow::Get()->IsShiftDown())

@@ -86,6 +86,7 @@ public:
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, float flDamage);
 
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
+	void						SetAutoProceed(bool bAuto) { m_bAutoProceed = bAuto; };
 
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);

@@ -107,7 +107,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 
 			pTank->SetOrigin(vecTank);
 			pTank->SetAngles(angTank);
-			pTank->GiveBonusPoints(j==0?2:1);
+			pTank->GiveBonusPoints(1);
 		}
 	}
 
@@ -337,7 +337,7 @@ void CDigitanksGame::EndTurn()
 
 void CDigitanksGame::StartTurn()
 {
-	if (m_iPowerups < 10 && rand()%4 == 0)
+	if (m_iPowerups < 10 && rand()%6 == 0)
 	{
 		float flX = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());

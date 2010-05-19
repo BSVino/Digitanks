@@ -491,6 +491,14 @@ Vector CDigitanksWindow::WorldPosition(Vector vecScreen)
 	return Vector((float)x, (float)y, (float)z);
 }
 
+controlmode_t CDigitanksWindow::GetControlMode()
+{
+	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetTeam(0))
+		return m_eControlMode;
+
+	return MODE_NONE;
+}
+
 void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 {
 	if (!DigitanksGame()->GetCurrentTank())

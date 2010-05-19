@@ -133,6 +133,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		// Don't clobber existing commands when scrolling through tanks.
 		SetControlMode(MODE_NONE);
 		DigitanksGame()->NextTank();
+		m_pHUD->SetAutoProceed(false);
 	}
 
 	if (c == 27)
