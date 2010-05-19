@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "digitanks", "digitanks.vcpr
 		{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28} = {E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raytracer", "..\raytracer\raytracer.vcproj", "{E351902A-0AB8-477C-8FC1-09C56E0BF57F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raytracer", "..\..\raytracer\raytracer.vcproj", "{E351902A-0AB8-477C-8FC1-09C56E0BF57F}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -20,7 +20,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raytracer", "..\raytracer\r
 		{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28} = {E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modelconverter", "..\modelconverter\modelconverter.vcproj", "{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modelconverter", "..\..\modelconverter\modelconverter.vcproj", "{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}"\..
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
