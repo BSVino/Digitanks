@@ -427,9 +427,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 				CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
 
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)(flAttackPercentage*(iHeight-2)), Color(0, 0, 255, 255));
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)(flAttackPercentage*(iHeight-2)), 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(255, 0, 0, 255));
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)(flAttackPercentage*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
+				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
+				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
+				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
 
 				if (CDigitanksWindow::Get()->IsShiftDown())
 				{
@@ -474,14 +474,14 @@ void CHUD::Paint(int x, int y, int w, int h)
 	Vector vecMax;
 
 	std::vector<Vector> aVecs;
-	aVecs.push_back(Vector(-2, -2, -2));
-	aVecs.push_back(Vector(2, -2, -2));
-	aVecs.push_back(Vector(-2, 2, -2));
-	aVecs.push_back(Vector(2, 2, -2));
-	aVecs.push_back(Vector(-2, -2, 2));
-	aVecs.push_back(Vector(-2, 2, 2));
-	aVecs.push_back(Vector(2, -2, 2));
-	aVecs.push_back(Vector(2, 2, 2));
+	aVecs.push_back(Vector(-3, -1, -3));
+	aVecs.push_back(Vector(3, -1, -3));
+	aVecs.push_back(Vector(-3, 3, -3));
+	aVecs.push_back(Vector(3, 3, -3));
+	aVecs.push_back(Vector(-3, -1, 3));
+	aVecs.push_back(Vector(-3, 3, 3));
+	aVecs.push_back(Vector(3, -1, 3));
+	aVecs.push_back(Vector(3, 3, 3));
 
 	Vector vecOrigin = pTank->GetDesiredMove();
 

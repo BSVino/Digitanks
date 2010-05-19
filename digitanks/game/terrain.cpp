@@ -225,21 +225,45 @@ void CTerrain::OnRender()
 	glPopAttrib();
 }
 
+float CTerrain::GetRealHeight(int x, int y)
+{
+	if (x < 0)
+		x = 0;
+	if (x >= TERRAIN_SIZE)
+		x = TERRAIN_SIZE-1;
+	if (y < 0)
+		y = 0;
+	if (y >= TERRAIN_SIZE)
+		y = TERRAIN_SIZE-1;
+
+	return m_aflHeights[x][y];
+}
+
 float CTerrain::GetHeight(float flX, float flY)
 {
-	int iX = (int)(flX+(TERRAIN_SIZE/2.0f));
-	int iY = (int)(flY+(TERRAIN_SIZE/2.0f));
+	float flX2 = flX+(TERRAIN_SIZE/2.0f);
+	float flY2 = flY+(TERRAIN_SIZE/2.0f);
 
-	if (iX < 0)
-		iX = 0;
-	if (iX >= TERRAIN_SIZE)
-		iX = TERRAIN_SIZE-1;
-	if (iY < 0)
-		iY = 0;
-	if (iY >= TERRAIN_SIZE)
-		iY = TERRAIN_SIZE-1;
+	int iX = (int)flX2;
+	int iY = (int)flY2;
 
-	return m_aflHeights[iX][iY];
+	float a = GetRealHeight(iX, iY);
+	float b = GetRealHeight(iX, iY+1);
+	float c = GetRealHeight(iX+1, iY);
+	float d = GetRealHeight(iX+1, iY+1);
+
+	float flXLerp = fmod(flX2, 1);
+	float flYLerp = fmod(flY2, 1);
+
+	float l1 = RemapVal(flYLerp, 0, 1, a, b);
+	float l2 = RemapVal(flYLerp, 0, 1, c, d);
+
+	return RemapVal(flXLerp, 0, 1, l1, l2);
+}
+
+void CTerrain::SetPointHeight(Vector& vecPoint)
+{
+	vecPoint.y = GetHeight(vecPoint.x, vecPoint.z);
 }
 
 float CTerrain::GetMapSize()

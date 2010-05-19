@@ -17,7 +17,9 @@ public:
 
 	virtual void			OnRender();
 
+	float					GetRealHeight(int x, int y);
 	float					GetHeight(float x, float y);
+	void					SetPointHeight(Vector& vecPoint);
 	float					GetMapSize();
 
 	bool					Collide(const Ray& rayTrace, Vector& vecPoint);

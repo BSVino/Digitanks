@@ -61,9 +61,15 @@ void CGame::Simulate()
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
 
+		if (pEntity->IsDeleted())
+			continue;
+
 		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
 		{
 			CBaseEntity* pEntity2 = CBaseEntity::GetEntityNumber(j);
+
+			if (pEntity2->IsDeleted())
+				continue;
 
 			if (!pEntity->ShouldTouch(pEntity2))
 				continue;

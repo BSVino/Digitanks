@@ -75,6 +75,7 @@ public:
 	bool						HasDesiredMove() const { return m_bDesiredMove; };
 	Vector						GetDesiredMove() const;
 	bool						HasSelectedMove() { return m_bSelectedMove; };
+	bool						IsMoving();
 
 	void						SetDesiredTurn();
 	void						CancelDesiredTurn();
@@ -116,6 +117,7 @@ public:
 	virtual float				GetMinRange() { return 30.0f; };
 	virtual float				GetMaxRange() { return 50.0f; };
 	virtual float				TurnPerPower() const { return 45; }
+	virtual float				GetTransitionTime() const { return 2.0f; }
 
 protected:
 	float						m_flBasePower;
@@ -142,8 +144,10 @@ protected:
 
 	Vector						m_vecPreviewMove;
 	bool						m_bDesiredMove;
+	Vector						m_vecPreviousOrigin;
 	Vector						m_vecDesiredMove;
 	bool						m_bSelectedMove;
+	float						m_flStartedMove;
 
 	float						m_flPreviewTurn;
 	bool						m_bDesiredTurn;

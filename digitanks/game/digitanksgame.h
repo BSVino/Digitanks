@@ -80,6 +80,8 @@ protected:
 
 	IDigitanksGameListener*	m_pListener;
 
+	bool					m_bWaitingForMoving;
+
 	bool					m_bWaitingForProjectiles;
 	size_t					m_iWaitingForProjectiles;
 

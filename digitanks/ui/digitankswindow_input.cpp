@@ -72,7 +72,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 
-			GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
+			GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
@@ -101,7 +101,10 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		else if (GetControlMode() == MODE_FIRE)
 		{
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
+			{
 				SetControlMode(MODE_NONE);
+				m_pHUD->SetAutoProceed(false);
+			}
 			else if (!m_pHUD->ShouldAutoProceed())
 				SetControlMode(MODE_NONE);
 			else

@@ -13,6 +13,8 @@ CDigitanksGame::CDigitanksGame()
 
 	m_pListener = NULL;
 
+	m_bWaitingForMoving = false;
+
 	m_bWaitingForProjectiles = false;
 	m_iWaitingForProjectiles = 0;
 
@@ -145,6 +147,27 @@ void CDigitanksGame::StartGame()
 void CDigitanksGame::Think()
 {
 	BaseClass::Think();
+
+	if (m_bWaitingForMoving)
+	{
+		bool bMoving = false;
+		for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
+		{
+			if (GetCurrentTeam()->GetTank(i)->IsMoving())
+			{
+				bMoving = true;
+				break;
+			}
+		}
+
+		if (!bMoving)
+		{
+			m_bWaitingForMoving = false;
+			m_iWaitingForProjectiles = 0;
+			GetCurrentTeam()->FireTanks();
+			m_bWaitingForProjectiles = true;
+		}
+	}
 
 	if (m_bWaitingForProjectiles)
 	{
@@ -324,15 +347,11 @@ void CDigitanksGame::NextTank()
 
 void CDigitanksGame::EndTurn()
 {
-	if (m_bWaitingForProjectiles)
+	if (m_bWaitingForProjectiles || m_bWaitingForMoving)
 		return;
 
-	m_iWaitingForProjectiles = 0;
-
 	GetCurrentTeam()->MoveTanks();
-	GetCurrentTeam()->FireTanks();
-
-	m_bWaitingForProjectiles = true;
+	m_bWaitingForMoving = true;
 }
 
 void CDigitanksGame::StartTurn()
@@ -435,7 +454,7 @@ void CDigitanksGame::Bot_ExecuteTurn()
 		}
 
 		// If we are within the max range, try to fire.
-		if ((pTarget->GetOrigin() - pTank->GetDesiredMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+		if ((pTarget->GetOrigin() - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 		{
 			pTank->SetPreviewAim(pTarget->GetOrigin());
 			pTank->SetDesiredAim();

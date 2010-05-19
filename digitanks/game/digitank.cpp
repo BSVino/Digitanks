@@ -32,6 +32,8 @@ CDigitank::CDigitank()
 	m_bDesiredAim = false;
 	m_bSelectedMove = false;
 
+	m_flStartedMove = 0;
+
 	m_bTakeDamage = true;
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
@@ -324,12 +326,15 @@ void CDigitank::SetDesiredMove()
 	if (fabs(m_vecPreviewMove.z) > DigitanksGame()->GetTerrain()->GetMapSize())
 		return;
 
+	m_vecPreviousOrigin = GetOrigin();
 	m_vecDesiredMove = m_vecPreviewMove;
 
 	m_flMovementPower = flMovePower;
 	CalculateAttackDefense();
 
 	m_bDesiredMove = true;
+
+	m_flStartedMove = DigitanksGame()->GetGameTime();
 }
 
 void CDigitank::CancelDesiredMove()
@@ -345,10 +350,30 @@ void CDigitank::CancelDesiredMove()
 
 Vector CDigitank::GetDesiredMove() const
 {
+	float flTransitionTime = GetTransitionTime();
+	float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
+	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
+	{
+		float flLerp = SLerp(RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1), 0.2f);
+		Vector vecNewOrigin = m_vecPreviousOrigin * (1-flLerp) + m_vecDesiredMove * flLerp;
+		DigitanksGame()->GetTerrain()->SetPointHeight(vecNewOrigin);
+		return vecNewOrigin;
+	}
+
 	if (!HasDesiredMove())
 		return GetOrigin();
 
 	return m_vecDesiredMove;
+}
+
+bool CDigitank::IsMoving()
+{
+	float flTransitionTime = GetTransitionTime();
+	float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
+	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
+		return true;
+
+	return false;
 }
 
 void CDigitank::SetDesiredTurn()
@@ -371,7 +396,7 @@ void CDigitank::CancelDesiredTurn()
 	m_bDesiredTurn = false;
 
 	if (HasDesiredMove())
-		m_flMovementPower = (GetOrigin() - GetDesiredMove()).Length();
+		m_flMovementPower = (GetOrigin() - m_vecDesiredMove).Length();
 	else
 		m_flMovementPower = 0;
 
