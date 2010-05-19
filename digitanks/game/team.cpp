@@ -1,5 +1,7 @@
 #include "team.h"
 
+REGISTER_ENTITY(CTeam);
+
 CTeam::~CTeam()
 {
 	for (size_t i = 0; i < m_ahTanks.size(); i++)

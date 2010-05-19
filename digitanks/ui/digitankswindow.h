@@ -36,7 +36,6 @@ public:
 	void						RenderObjects();
 	void						RenderLightSource();
 	void						RenderGame(class CDigitanksGame* pGame);
-	void						RenderTank(class CDigitank* pTank, Vector vecOrigin, EAngle angDirection, Color clrTank);
 	void						RenderMovementSelection();
 
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <maths.h>
+#include <models/models.h>
 #include "powerup.h"
 #include "terrain.h"
 
@@ -226,6 +227,9 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 			{
 				if (pTank->GetPreviewMovePower() > pTank->GetTotalMovementPower())
 					vecTankMove = vecTankMove * 0.95f;
+
+				if (vecTankMove.Length() < 1)
+					break;
 
 				vecNewPosition = pTank->GetOrigin() + vecTankMove;
 				vecNewPosition.y = GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);

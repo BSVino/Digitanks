@@ -7,12 +7,14 @@
 #include "digitank.h"
 #include "digitanksgame.h"
 
+REGISTER_ENTITY(CPowerup);
+
 CPowerup::CPowerup()
 {
 	SetCollisionGroup(CG_POWERUP);
 }
 
-void CPowerup::Render()
+void CPowerup::OnRender()
 {
 	Color clrPowerup(255, 255, 255);
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -27,18 +29,17 @@ void CPowerup::Render()
 
 		if ((pTank->GetDesiredMove() - GetOrigin()).LengthSqr() < 3*3)
 			clrPowerup = Color(0, 255, 0);
+
+		if (pTank->GetPreviewMovePower() <= pTank->GetTotalMovementPower() && (pTank->GetPreviewMove() - GetOrigin()).LengthSqr() < 3*3)
+			clrPowerup = Color(0, 255, 0);
 	}
 
-	glPushMatrix();
-
-	glTranslatef(GetOrigin().x, GetOrigin().y+2, GetOrigin().z);
+	glTranslatef(0, 2, 0);
 
 	int iRotate = glutGet(GLUT_ELAPSED_TIME)%3600;
 	glRotatef(iRotate/10.0f, 0, 1, 0);
 
 	glColor4ubv(clrPowerup);
 	glutWireSphere(2, 4, 2);
-
-	glPopMatrix();
 }
 

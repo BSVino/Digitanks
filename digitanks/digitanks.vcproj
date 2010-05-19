@@ -59,8 +59,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DevIL.lib ILU.lib ftgl_static_D.lib freetype2311MT_D.lib raytracer.lib modelconverter.lib"
-				AdditionalLibraryDirectories="&quot;../freeglut-2.4.0/DebugStatic&quot;;../lib/debug;&quot;..\freetype-2.3.11\objs\win32\vc2005&quot;;&quot;..\ftgl-2.1.3~rc5\msvc\build&quot;;..\DevIL\lib\unicode"
+				AdditionalDependencies="DevIL.lib ILU.lib ftgl_static_D.lib freetype2311MT_D.lib raytracer.lib modelconverter.lib FColladaU.lib"
+				AdditionalLibraryDirectories="&quot;../freeglut-2.4.0/DebugStatic&quot;;../lib/debug;&quot;..\freetype-2.3.11\objs\win32\vc2005&quot;;&quot;..\ftgl-2.1.3~rc5\msvc\build&quot;;..\DevIL\lib\unicode;&quot;\Program Files\Feeling Software\FCollada\Output\Debug Unicode Win32&quot;"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -135,8 +135,8 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
-				AdditionalDependencies="DevIL.lib ILU.lib ftgl_static.lib freetype2311MT.lib raytracer.lib modelconverter.lib"
-				AdditionalLibraryDirectories="&quot;../freeglut-2.4.0/ReleaseStatic&quot;;../lib/release;..\DevIL\lib\unicode;&quot;..\freetype-2.3.11\objs\win32\vc2005&quot;;&quot;..\ftgl-2.1.3~rc5\msvc\build&quot;"
+				AdditionalDependencies="DevIL.lib ILU.lib ftgl_static.lib freetype2311MT.lib raytracer.lib modelconverter.lib FColladaU.lib"
+				AdditionalLibraryDirectories="&quot;../freeglut-2.4.0/ReleaseStatic&quot;;../lib/release;..\DevIL\lib\unicode;&quot;..\freetype-2.3.11\objs\win32\vc2005&quot;;&quot;..\ftgl-2.1.3~rc5\msvc\build&quot;;&quot;\Program Files\Feeling Software\FCollada\Output\Retail Unicode Win32&quot;"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -364,6 +364,30 @@
 							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 						/>
 					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="models"
+				>
+				<File
+					RelativePath=".\models\models.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\models\models.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="renderer"
+				>
+				<File
+					RelativePath=".\renderer\renderer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\renderer\renderer.h"
+					>
 				</File>
 			</Filter>
 		</Filter>

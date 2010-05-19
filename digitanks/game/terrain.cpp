@@ -13,6 +13,8 @@
 
 using namespace raytrace;
 
+REGISTER_ENTITY(CTerrain);
+
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);
@@ -117,7 +119,7 @@ void CTerrain::GenerateCallLists()
 	glEndList();
 }
 
-void CTerrain::Render()
+void CTerrain::OnRender()
 {
 	glPushAttrib(GL_ENABLE_BIT);
 

@@ -1,8 +1,15 @@
 #include "baseentity.h"
+
+#include <models/models.h>
+#include <renderer/renderer.h>
+
 #include "game.h"
 
 std::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
+std::vector<EntityRegisterCallback> CBaseEntity::s_apfnEntityRegisterCallbacks;
+
+REGISTER_ENTITY(CBaseEntity);
 
 CBaseEntity::CBaseEntity()
 {
@@ -18,11 +25,18 @@ CBaseEntity::CBaseEntity()
 	m_bDeleted = false;
 
 	m_bSimulated = false;
+
+	m_iModel = ~0;
 }
 
 CBaseEntity::~CBaseEntity()
 {
 	s_apEntityList.erase(s_apEntityList.find(m_iHandle));
+}
+
+void CBaseEntity::SetModel(const wchar_t* pszModel)
+{
+	m_iModel = CModelLibrary::Get()->FindModel(pszModel);
 }
 
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
@@ -77,7 +91,49 @@ void CBaseEntity::Killed()
 	Game()->Delete(this);
 }
 
+void CBaseEntity::Render()
+{
+	PreRender();
+
+	do {
+		CRenderingContext r;
+		r.Translate(GetRenderOrigin());
+
+		EAngle angRender = GetRenderAngles();
+		Vector vecForward, vecRight, vecUp;
+
+		AngleVectors(angRender, &vecForward, &vecRight, &vecUp);
+
+		// These first two aren't tested.
+		//r.Rotate(-angRender.r, vecForward);
+		//r.Rotate(-angRender.p, vecRight);
+		r.Rotate(-angRender.y, Vector(0, 1, 0));
+
+		if (m_iModel != ~0)
+			r.RenderModel(GetModel());
+
+		OnRender();
+	} while (false);
+
+	PostRender();
+}
+
 void CBaseEntity::Delete()
 {
 	Game()->Delete(this);
+}
+
+void CBaseEntity::PrecacheModel(const wchar_t* pszModel)
+{
+	CModelLibrary::Get()->AddModel(pszModel);
+}
+
+void CBaseEntity::RegisterEntity(EntityRegisterCallback pfnCallback)
+{
+	s_apfnEntityRegisterCallbacks.push_back(pfnCallback);
+}
+
+void CBaseEntity::RegisterEntity(CBaseEntity* pEntity)
+{
+	pEntity->Precache();
 }

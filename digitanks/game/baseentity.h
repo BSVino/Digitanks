@@ -7,6 +7,9 @@
 #include <assert.h>
 
 #include "entityhandle.h"
+
+typedef void (*EntityRegisterCallback)();
+
 class CBaseEntity
 {
 	friend class CGame;
@@ -16,6 +19,14 @@ public:
 											~CBaseEntity();
 
 public:
+	virtual void							Precache() {};
+
+	void									SetModel(const wchar_t* pszModel);
+	size_t									GetModel() { return m_iModel; };
+
+	virtual Vector							GetRenderOrigin() const { return GetOrigin(); };
+	virtual EAngle							GetRenderAngles() const { return GetAngles(); };
+
 	Vector									GetOrigin() const { return m_vecOrigin; };
 	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
 
@@ -43,7 +54,10 @@ public:
 	virtual void							TakeDamage(CBaseEntity* pAttacker, float flDamage);
 	virtual void							Killed();
 
-	virtual void							Render() {};
+	virtual void							PreRender() {};
+	void									Render();
+	virtual void							OnRender() {};
+	virtual void							PostRender() {};
 
 	void									Delete();
 	bool									IsDeleted() { return m_bDeleted; }
@@ -62,6 +76,11 @@ public:
 	static size_t							GetEntityHandle(size_t i);
 	static CBaseEntity*						GetEntityNumber(size_t i);
 	static size_t							GetNumEntities();
+
+	static void								PrecacheModel(const wchar_t* pszModel);
+
+	static void								RegisterEntity(EntityRegisterCallback pfnCallback);
+	static void								RegisterEntity(CBaseEntity* pEntity);
 
 protected:
 	Vector									m_vecOrigin;
@@ -84,9 +103,30 @@ protected:
 
 	int										m_iCollisionGroup;
 
+	size_t									m_iModel;
+
 private:
 	static std::map<size_t, CBaseEntity*>	s_apEntityList;
 	static size_t							s_iNextEntityListIndex;
+
+	static std::vector<EntityRegisterCallback>	s_apfnEntityRegisterCallbacks;
 };
+
+#define REGISTER_ENTITY(entity) \
+void RegisterCallback##entity() \
+{ \
+	entity* pEntity = new entity(); \
+	CBaseEntity::RegisterEntity(pEntity); \
+	delete pEntity; \
+} \
+ \
+class CRegister##entity \
+{ \
+public: \
+	CRegister##entity() \
+	{ \
+		CBaseEntity::RegisterEntity(&RegisterCallback##entity); \
+	} \
+} g_Register##entity = CRegister##entity(); \
 
 #endif

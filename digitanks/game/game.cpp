@@ -9,6 +9,9 @@ CGame::CGame()
 
 	m_flGameTime = 0;
 	m_flFrameTime = 0;
+
+	for (size_t i = 0; i < CBaseEntity::s_apfnEntityRegisterCallbacks.size(); i++)
+		CBaseEntity::s_apfnEntityRegisterCallbacks[i]();
 }
 
 CGame::~CGame()

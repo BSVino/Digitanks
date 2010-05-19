@@ -15,6 +15,8 @@ public:
 								CDigitank();
 
 public:
+	void						Precache();
+
 	float						GetBasePower() { return m_flBasePower; };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
@@ -25,7 +27,7 @@ public:
 	float						GetMovementPower(bool bPreview = false);
 	float						GetTotalAttackPower();
 	float						GetTotalDefensePower();
-	float						GetTotalMovementPower();
+	float						GetTotalMovementPower() const;
 
 	float						GetAttackScale(bool bPreview = false) { return GetAttackPower(bPreview) / 10; };
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
@@ -38,10 +40,10 @@ public:
 	void						SetAttackPower(float flAttackPower);
 
 	float						GetPreviewMoveTurnPower();
-	float						GetPreviewMovePower();
-	float						GetPreviewTurnPower();
-	float						GetPreviewBaseMovePower();
-	float						GetPreviewBaseTurnPower();
+	float						GetPreviewMovePower() const;
+	float						GetPreviewTurnPower() const;
+	float						GetPreviewBaseMovePower() const;
+	float						GetPreviewBaseTurnPower() const;
 
 	void						CalculateAttackDefense();
 
@@ -59,7 +61,7 @@ public:
 	void						SetPreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
 	void						ClearPreviewMove();
 
-	float						GetPreviewTurn() { return m_flPreviewTurn; };
+	float						GetPreviewTurn() const { return m_flPreviewTurn; };
 	void						SetPreviewTurn(float flPreviewTurn) { m_flPreviewTurn = flPreviewTurn; };
 	void						ClearPreviewTurn();
 
@@ -70,14 +72,14 @@ public:
 
 	void						SetDesiredMove();
 	void						CancelDesiredMove();
-	bool						HasDesiredMove() { return m_bDesiredMove; };
-	Vector						GetDesiredMove();
+	bool						HasDesiredMove() const { return m_bDesiredMove; };
+	Vector						GetDesiredMove() const;
 	bool						HasSelectedMove() { return m_bSelectedMove; };
 
 	void						SetDesiredTurn();
 	void						CancelDesiredTurn();
-	bool						HasDesiredTurn() { return m_bDesiredTurn; };
-	float						GetDesiredTurn();
+	bool						HasDesiredTurn() const { return m_bDesiredTurn; };
+	float						GetDesiredTurn() const;
 
 	void						SetDesiredAim();
 	void						CancelDesiredAim();
@@ -91,7 +93,13 @@ public:
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, float flDamage);
 
-	virtual void				Render();
+	virtual Vector				GetRenderOrigin() const;
+	virtual EAngle				GetRenderAngles() const;
+	virtual void				PreRender();
+	virtual void				OnRender();
+	virtual void				RenderTurret(float flAlpha = 1.0f);
+	virtual void				RenderShield(float flAlpha, float flAngle);
+	virtual void				PostRender();
 
 	void						GiveBonusPoints(size_t i);
 	bool						HasBonusPoints() { return m_iBonusPoints > 0; };
@@ -100,14 +108,14 @@ public:
 	void						PromoteDefense();
 	void						PromoteMovement();
 
-	class CTeam*				GetTeam() { return m_pTeam; };
+	class CTeam*				GetTeam() const { return m_pTeam; };
 	void						SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
 
 	virtual float				ShieldRechargeRate() { return 1.0f; }
 	virtual float				HealthRechargeRate() { return 0.2f; }
 	virtual float				GetMinRange() { return 30.0f; };
 	virtual float				GetMaxRange() { return 50.0f; };
-	virtual float				TurnPerPower() { return 45; }
+	virtual float				TurnPerPower() const { return 45; }
 
 protected:
 	float						m_flBasePower;
@@ -149,17 +157,21 @@ protected:
 	bool						m_bChoseFirepower;
 
 	class CTeam*				m_pTeam;
+
+	size_t						m_iTurretModel;
+	size_t						m_iShieldModel;
 };
 
 class CProjectile : public CBaseEntity
 {
 public:
+								CProjectile() {};
 								CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce);
 
 public:
 	virtual void				Think();
 
-	virtual void				Render();
+	virtual void				OnRender();
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther) const;

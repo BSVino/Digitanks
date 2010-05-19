@@ -15,7 +15,7 @@ public:
 public:
 	void					GenerateCallLists();
 
-	virtual void			Render();
+	virtual void			OnRender();
 
 	float					GetHeight(float x, float y);
 	float					GetMapSize();

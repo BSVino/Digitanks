@@ -9,7 +9,7 @@ public:
 					CPowerup();
 
 public:
-	virtual void	Render();
+	virtual void	OnRender();
 };
 
 #endif

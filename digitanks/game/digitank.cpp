@@ -1,12 +1,16 @@
 #include "digitank.h"
 
-#include "maths.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <maths.h>
+#include <models/models.h>
+#include <renderer/renderer.h>
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
 #include "powerup.h"
+
+REGISTER_ENTITY(CDigitank);
 
 CDigitank::CDigitank()
 {
@@ -37,6 +41,17 @@ CDigitank::CDigitank()
 	m_pTeam = NULL;
 
 	SetCollisionGroup(CG_TANK);
+
+	SetModel(L"models/digitanks/digitank-body.obj");
+	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
+	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+}
+
+void CDigitank::Precache()
+{
+	PrecacheModel(L"models/digitanks/digitank-body.obj");
+	PrecacheModel(L"models/digitanks/digitank-turret.obj");
+	PrecacheModel(L"models/digitanks/digitank-shield.obj");
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -137,7 +152,7 @@ float CDigitank::GetTotalDefensePower()
 	return m_flBasePower + m_flBonusDefensePower;
 }
 
-float CDigitank::GetTotalMovementPower()
+float CDigitank::GetTotalMovementPower() const
 {
 	return m_flBasePower + m_flBonusMovementPower;
 }
@@ -161,7 +176,7 @@ float CDigitank::GetPreviewMoveTurnPower()
 	return flPower;
 }
 
-float CDigitank::GetPreviewMovePower()
+float CDigitank::GetPreviewMovePower() const
 {
 	float flPower = GetPreviewBaseMovePower() - m_flBonusMovementPower;
 	if (flPower < 0)
@@ -169,7 +184,7 @@ float CDigitank::GetPreviewMovePower()
 	return flPower;
 }
 
-float CDigitank::GetPreviewTurnPower()
+float CDigitank::GetPreviewTurnPower() const
 {
 	float flPower = GetPreviewBaseTurnPower() - m_flBonusMovementPower;
 	if (flPower < 0)
@@ -177,7 +192,7 @@ float CDigitank::GetPreviewTurnPower()
 	return flPower;
 }
 
-float CDigitank::GetPreviewBaseMovePower()
+float CDigitank::GetPreviewBaseMovePower() const
 {
 	if (HasDesiredMove())
 		return (m_vecDesiredMove - GetOrigin()).Length();
@@ -185,7 +200,7 @@ float CDigitank::GetPreviewBaseMovePower()
 	return (m_vecPreviewMove - GetOrigin()).Length();
 }
 
-float CDigitank::GetPreviewBaseTurnPower()
+float CDigitank::GetPreviewBaseTurnPower() const
 {
 	if (HasDesiredTurn())
 		return fabs(AngleDifference(m_flDesiredTurn, GetAngles().y)/TurnPerPower());
@@ -328,7 +343,7 @@ void CDigitank::CancelDesiredMove()
 	ClearPreviewMove();
 }
 
-Vector CDigitank::GetDesiredMove()
+Vector CDigitank::GetDesiredMove() const
 {
 	if (!HasDesiredMove())
 		return GetOrigin();
@@ -365,7 +380,7 @@ void CDigitank::CancelDesiredTurn()
 	ClearPreviewTurn();
 }
 
-float CDigitank::GetDesiredTurn()
+float CDigitank::GetDesiredTurn() const
 {
 	if (!HasDesiredTurn())
 		return GetAngles().y;
@@ -496,18 +511,117 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 	BaseClass::TakeDamage(pAttacker, flDamage);
 }
 
-void CDigitank::Render()
+Vector CDigitank::GetRenderOrigin() const
+{
+	return GetDesiredMove() + Vector(0, 1, 0);
+}
+
+EAngle CDigitank::GetRenderAngles() const
+{
+	if (this == DigitanksGame()->GetCurrentTank())
+	{
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
+			return EAngle(0, GetPreviewTurn(), 0);
+	}
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+	{
+		if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == DigitanksGame()->GetCurrentTank()->GetTeam())
+		{
+			Vector vecLookAt;
+			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
+			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetCurrentTank()->GetDesiredMove()).LengthSqr() < 3*3;
+
+			if (!bNoTurn && bMouseOK)
+			{
+				Vector vecDirection = (vecLookAt - GetDesiredMove()).Normalized();
+				float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
+
+				float flTankTurn = AngleDifference(flYaw, GetAngles().y);
+				if (GetPreviewMovePower() + fabs(flTankTurn)/TurnPerPower() > GetTotalMovementPower())
+					flTankTurn = (flTankTurn / fabs(flTankTurn)) * (GetTotalMovementPower() - GetPreviewMovePower()) * TurnPerPower() * 0.95f;
+
+				return EAngle(0, GetAngles().y + flTankTurn, 0);
+			}
+		}
+	}
+
+	return EAngle(0, GetDesiredTurn(), 0);
+}
+
+void CDigitank::PreRender()
+{
+	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
+
+	Color clrTeam = GetTeam()->GetColor();
+	Vector vecTeamColor = Vector((float)clrTeam.r(), (float)clrTeam.g(), (float)clrTeam.b())/255;
+
+	// A spectacular hack to set the team color before rendering.
+	pModel->m_pScene->GetMaterial(pModel->m_pScene->FindMaterial(L"Body"))->m_vecDiffuse = vecTeamColor;
+}
+
+void CDigitank::OnRender()
+{
+	RenderTurret();
+
+	RenderShield(GetFrontShieldStrength(), 0);
+	RenderShield(GetLeftShieldStrength(), 90);
+	RenderShield(GetRearShieldStrength(), 180);
+	RenderShield(GetRightShieldStrength(), 270);
+}
+
+void CDigitank::RenderTurret(float flAlpha)
+{
+	CRenderingContext r;
+	r.SetAlpha(flAlpha);
+	r.Translate(Vector(-0.407324f, 0.962338f, 0));
+
+	if ((this == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM) || HasDesiredAim())
+	{
+		Vector vecAimTarget;
+		if (this == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			vecAimTarget = GetPreviewAim();
+		else
+			vecAimTarget = GetDesiredAim();
+		Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
+		float flAngle = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
+
+		r.Rotate(-flAngle, Vector(0, 1, 0));
+	}
+
+	float flScale = RemapVal(GetAttackPower(true), 0, 10, 1, 2);
+	r.Scale(flScale, flScale, flScale);
+
+	r.RenderModel(m_iTurretModel);
+}
+
+void CDigitank::RenderShield(float flAlpha, float flAngle)
+{
+	CRenderingContext r;
+	r.SetAlpha(flAlpha);
+	r.Rotate(flAngle, Vector(0, 1, 0));
+	r.RenderModel(m_iShieldModel);
+}
+
+void CDigitank::PostRender()
 {
 	if (HasDesiredMove() || HasDesiredTurn())
 	{
-		EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
+		CRenderingContext r;
+		r.Translate(GetOrigin() + Vector(0, 1, 0));
+		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
+		r.SetAlpha(50.0f/255);
+		r.RenderModel(GetModel());
 
-		if (this == DigitanksGame()->GetCurrentTank())
-		{
-			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewMoveTurnPower() <= GetTotalMovementPower())
-				angTurn = EAngle(0, GetPreviewTurn(), 0);
-		}
-		else if (CDigitanksWindow::Get()->IsShiftDown() && CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		RenderTurret(50.0f/255);
+	}
+
+	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+	{
+		EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
+		if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == pCurrentTank->GetTeam())
 		{
 			Vector vecLookAt;
 			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
@@ -524,25 +638,49 @@ void CDigitank::Render()
 
 				angTurn = EAngle(0, GetAngles().y + flTankTurn, 0);
 			}
+
+			CRenderingContext r;
+			r.Translate(GetRenderOrigin());
+			r.Rotate(-GetAngles().y, Vector(0, 1, 0));
+			r.SetAlpha(50.0f/255);
+			r.RenderModel(GetModel());
+
+			RenderTurret(50.0f/255);
 		}
-
-		CDigitanksWindow::Get()->RenderTank(this, GetDesiredMove(), angTurn, GetTeam()->GetColor());
-
-		Color clrTeam = GetTeam()->GetColor();
-		clrTeam.SetAlpha(50);
-		CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), GetAngles(), clrTeam);
 	}
-	else
+
+	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 	{
-		EAngle angTurn = GetAngles();
-
-		if (this == DigitanksGame()->GetCurrentTank())
+		if (pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
 		{
-			if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
-				angTurn = EAngle(0, GetPreviewTurn(), 0);
-		}
+			if (this == pCurrentTank)
+			{
+				CRenderingContext r;
+				r.Translate(GetPreviewMove() + Vector(0, 1, 0));
+				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
+				r.SetAlpha(50.0f/255);
+				r.RenderModel(GetModel());
 
-		CDigitanksWindow::Get()->RenderTank(this, GetOrigin(), angTurn, GetTeam()->GetColor());
+				RenderTurret(50.0f/255);
+			}
+			else if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == pCurrentTank->GetTeam())
+			{
+				Vector vecTankMove = pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin();
+				if (vecTankMove.Length() > GetTotalMovementPower())
+					vecTankMove = vecTankMove.Normalized() * GetTotalMovementPower() * 0.95f;
+
+				Vector vecNewPosition = GetOrigin() + vecTankMove;
+				vecNewPosition.y = DigitanksGame()->GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+
+				CRenderingContext r;
+				r.Translate(vecNewPosition + Vector(0, 1, 0));
+				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
+				r.SetAlpha(50.0f/255);
+				r.RenderModel(GetModel());
+
+				RenderTurret(50.0f/255);
+			}
+		}
 	}
 }
 
@@ -578,6 +716,8 @@ void CDigitank::PromoteMovement()
 	m_flBonusMovementPower++;
 }
 
+REGISTER_ENTITY(CProjectile);
+
 CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 {
 	m_flTimeCreated = DigitanksGame()->GetGameTime();
@@ -596,12 +736,10 @@ void CProjectile::Think()
 		Delete();
 }
 
-void CProjectile::Render()
+void CProjectile::OnRender()
 {
-	glPushMatrix();
-	glTranslatef(GetOrigin().x, GetOrigin().y, GetOrigin().z);
+	glColor4ubv(Color(255, 255, 255));
 	glutSolidSphere(0.5f, 4, 4);
-	glPopMatrix();
 }
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
