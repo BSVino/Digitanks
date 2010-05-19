@@ -67,11 +67,13 @@ CTerrain::CTerrain()
 		{
 			float flX = ArrayToWorldSpace(x);
 			float flY = ArrayToWorldSpace(y);
+			float flX1 = ArrayToWorldSpace(x+1);
+			float flY1 = ArrayToWorldSpace(y+1);
 
 			Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
-			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY+1);
-			Vector v3 = Vector(flX+1, m_aflHeights[x+1][y+1], flY+1);
-			Vector v4 = Vector(flX+1, m_aflHeights[x+1][y], flY);
+			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
+			Vector v3 = Vector(flX1, m_aflHeights[x+1][y+1], flY1);
+			Vector v4 = Vector(flX1, m_aflHeights[x+1][y], flY);
 
 			m_pTracer->AddTriangle(v1, v2, v3);
 			m_pTracer->AddTriangle(v1, v3, v4);
