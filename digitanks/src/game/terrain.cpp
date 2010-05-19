@@ -28,7 +28,7 @@ CTerrain::CTerrain()
 	CSimplexNoise n5(iSeed+4);
 
 	float flSpaceFactor1 = 0.01f;
-	float flHeightFactor1 = 30.0f;
+	float flHeightFactor1 = 60.0f;
 	float flSpaceFactor2 = flSpaceFactor1*3;
 	float flHeightFactor2 = flHeightFactor1/3;
 	float flSpaceFactor3 = flSpaceFactor2*3;
@@ -65,8 +65,8 @@ CTerrain::CTerrain()
 	{
 		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
 		{
-			float flX = x-(TERRAIN_SIZE/2.0f);
-			float flY = y-(TERRAIN_SIZE/2.0f);
+			float flX = ArrayToWorldSpace(x);
+			float flY = ArrayToWorldSpace(y);
 
 			Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
 			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY+1);
@@ -102,17 +102,23 @@ void CTerrain::GenerateCallLists()
 		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
 		{
 			float flColor = RemapVal(m_aflHeights[x][y], m_flLowest, m_flHighest, 0.0f, 0.98f);
+
+			float flX = ArrayToWorldSpace(x);
+			float flX1 = ArrayToWorldSpace(x+1);
+			float flY = ArrayToWorldSpace(y);
+			float flY1 = ArrayToWorldSpace(y+1);
+
 			glColor4f(flColor*0.40f, flColor*0.50f, flColor, 0.5f);
-			glVertex3f(x-(TERRAIN_SIZE/2.0f), m_aflHeights[x][y], y-(TERRAIN_SIZE/2.0f));
+			glVertex3f(flX, m_aflHeights[x][y], flY);
 
 			glColor4f(flColor*0.40f, flColor*0.48f, flColor, 0.5f);
-			glVertex3f(x-(TERRAIN_SIZE/2.0f), m_aflHeights[x][y+1], y-(TERRAIN_SIZE/2.0f)+1);
+			glVertex3f(flX, m_aflHeights[x][y+1], flY1);
 
 			glColor4f(flColor*0.43f, flColor*0.50f, flColor, 0.5f);
-			glVertex3f(x-(TERRAIN_SIZE/2.0f)+1, m_aflHeights[x+1][y+1], y-(TERRAIN_SIZE/2.0f)+1);
+			glVertex3f(flX1, m_aflHeights[x+1][y+1], flY1);
 
 			glColor4f(flColor*0.43f, flColor*0.52f, flColor, 0.5f);
-			glVertex3f(x-(TERRAIN_SIZE/2.0f)+1, m_aflHeights[x+1][y], y-(TERRAIN_SIZE/2.0f));
+			glVertex3f(flX1, m_aflHeights[x+1][y], flY);
 		}
 	}
 	glEnd();
@@ -241,8 +247,8 @@ float CTerrain::GetRealHeight(int x, int y)
 
 float CTerrain::GetHeight(float flX, float flY)
 {
-	float flX2 = flX+(TERRAIN_SIZE/2.0f);
-	float flY2 = flY+(TERRAIN_SIZE/2.0f);
+	float flX2 = RemapVal(flX, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
+	float flY2 = RemapVal(flY, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
 
 	int iX = (int)flX2;
 	int iY = (int)flY2;
@@ -268,7 +274,17 @@ void CTerrain::SetPointHeight(Vector& vecPoint)
 
 float CTerrain::GetMapSize()
 {
-	return 100;
+	return 200;
+}
+
+float CTerrain::ArrayToWorldSpace(size_t i)
+{
+	return RemapVal((float)i, 0, TERRAIN_SIZE, -GetMapSize(), GetMapSize());
+}
+
+size_t CTerrain::WorldToArraySpace(float f)
+{
+	return (size_t)RemapVal(f, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
 }
 
 bool CTerrain::Collide(const Ray& rayTrace, Vector &vecHit)
