@@ -39,6 +39,9 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"uniform bool bShowRanges;"
 		"uniform bool bFocusRanges;"
 
+		"uniform vec3 avecCraterMarks[10];"
+		"uniform int iCraterMarks;"
+
 		"varying vec4 vecFrontColor;"
 		"varying vec3 vecPosition;"
 
@@ -54,6 +57,18 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"	float flYMod = mod(vecPosition.y, 10.0);"
 		"	if (flYMod < 0.1)"
 		"		vecBaseColor = (vecBaseColor * 0.8) + vec4(0.5, 0.5, 0.5, 1.0)*0.2;"
+
+		"	for (int i = 0; i < iCraterMarks; i++)"
+		"	{"
+		"		float flRadius = 6.0;"
+		"		float flDistanceToMarkSqr = LengthSqr(vecPosition - avecCraterMarks[i]);"
+		"		if (flDistanceToMarkSqr < flRadius*flRadius)"
+		"		{"
+		"			float flStrength = RemapVal(flDistanceToMarkSqr, 0.0, flRadius*flRadius, 0.2, 0.0);"
+		"			vecBaseColor = vecBaseColor + vec4(vec3(1.0, 1.0, 1.0) * (mod(flDistanceToMarkSqr*3.0, 2.0)-1.0), 1.0) * flStrength;"
+		"			break;"
+		"		}"
+		"	}"
 
 		"	if (bMovement)"
 		"	{"

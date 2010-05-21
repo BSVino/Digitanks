@@ -28,13 +28,16 @@ public:
 class CKDNode
 {
 public:
-								CKDNode(CKDNode* pParent = NULL, AABB oBounds = AABB());
+								CKDNode(CKDNode* pParent = NULL, AABB oBounds = AABB(), class CKDTree* pTree = NULL);
 								~CKDNode();
 
 	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
 
+	void						RemoveArea(const AABB& oBox);
+
 	void						CalcBounds();
 	void						BuildTriList();
+	void						PassTriList();
 	void						Build();
 
 	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
@@ -53,9 +56,12 @@ protected:
 	CKDNode*					m_pLeft;
 	CKDNode*					m_pRight;
 
+	CKDTree*					m_pTree;
+
 	size_t						m_iDepth;
 
 	std::vector<CKDTri>			m_aTris;
+	size_t						m_iTriangles;	// This node and all child nodes
 
 	AABB						m_oBounds;
 
@@ -71,6 +77,8 @@ public:
 
 	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace = NULL, CConversionMeshInstance* pMeshInstance = NULL);
 
+	void						RemoveArea(const AABB& oBox);
+
 	void						BuildTree();
 
 	bool						Raytrace(const Ray& rayTrace, CTraceResult* pTR = NULL);
@@ -78,6 +86,8 @@ public:
 	float						Closest(const Vector& vecPoint);
 
 	const CKDNode*				GetTopNode() const { return m_pTop; };
+
+	bool						IsBuilt() { return m_bBuilt; };
 
 protected:
 	CKDNode*					m_pTop;
@@ -102,6 +112,8 @@ public:
 	void						AddMeshInstance(CConversionMeshInstance* pMeshInstance);
 	void						AddTriangle(Vector v1, Vector v2, Vector v3);
 	void						BuildTree();
+
+	void						RemoveArea(const AABB& oBox);
 
 	const CKDTree*				GetTree() const { return m_pTree; };
 

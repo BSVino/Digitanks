@@ -466,16 +466,16 @@ void CDigitanksGame::Bot_ExecuteTurn()
 	EndTurn();
 }
 
-void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, float flDamage)
+void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
 	if (m_pListener)
-		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, flDamage);
+		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, pInflictor, flDamage);
 }
 
-void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, float flDamage)
+void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
 	if (m_pListener)
-		m_pListener->OnTakeDamage(pVictim, pAttacker, flDamage);
+		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage);
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

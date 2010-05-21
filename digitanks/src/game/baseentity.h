@@ -51,7 +51,7 @@ public:
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
-	virtual void							TakeDamage(CBaseEntity* pAttacker, float flDamage);
+	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
 	virtual void							Killed();
 
 	virtual void							PreRender() {};
@@ -66,7 +66,7 @@ public:
 	virtual void							Think() {};
 
 	virtual bool							ShouldTouch(CBaseEntity* pOther) const { return false; };
-	virtual bool							IsTouching(CBaseEntity* pOther) const { return false; };
+	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};
 
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }

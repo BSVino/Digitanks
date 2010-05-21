@@ -72,14 +72,14 @@ size_t CBaseEntity::GetNumEntities()
 	return s_apEntityList.size();
 }
 
-void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, float flDamage)
+void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
 	if (!m_bTakeDamage)
 		return;
 
 	m_flHealth -= flDamage;
 
-	Game()->OnTakeDamage(this, pAttacker, flDamage);
+	Game()->OnTakeDamage(this, pAttacker, pInflictor, flDamage);
 
 	if (m_flHealth <= 0)
 		Killed();

@@ -510,7 +510,7 @@ void CDigitank::Fire()
 	DigitanksGame()->AddProjectileToWaitFor();
 }
 
-void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
+void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
 	Vector vecAttackDirection = (pAttacker->GetOrigin() - GetOrigin()).Normalized();
 
@@ -522,7 +522,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 	{
 		*pflShield -= flDamage;
 
-		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, flDamage);
+		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage);
 
 		return;
 	}
@@ -531,9 +531,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, float flDamage)
 
 	*pflShield = 0;
 
-	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, flDamageBlocked);
+	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked);
 
-	BaseClass::TakeDamage(pAttacker, flDamage);
+	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage);
 }
 
 Vector CDigitank::GetRenderOrigin() const
@@ -790,20 +790,18 @@ bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 	return false;
 }
 
-bool CProjectile::IsTouching(CBaseEntity* pOther) const
+bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 {
 	switch (pOther->GetCollisionGroup())
 	{
 	case CG_TANK:
+		vecPoint = GetOrigin();
 		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < 4*4)
 			return true;
 		break;
 
 	case CG_TERRAIN:
-	{
-		Vector vecPoint;
 		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
-	}
 	}
 
 	return false;
@@ -811,7 +809,7 @@ bool CProjectile::IsTouching(CBaseEntity* pOther) const
 
 void CProjectile::Touching(CBaseEntity* pOther)
 {
-	pOther->TakeDamage(m_hOwner, m_flDamage);
+	pOther->TakeDamage(m_hOwner, this, m_flDamage);
 
 	Delete();
 }

@@ -5,6 +5,8 @@
 #include "baseentity.h"
 
 #define TERRAIN_SIZE 200
+#define TERRAIN_GEN_SECTORS 4
+#define TERRAIN_SECTOR_SIZE (TERRAIN_SIZE/TERRAIN_GEN_SECTORS)
 
 class CTerrain : public CBaseEntity
 {
@@ -13,6 +15,7 @@ public:
 							~CTerrain();
 
 public:
+	void					GenerateTerrainCallLists();
 	void					GenerateCallLists();
 
 	virtual void			OnRender();
@@ -23,6 +26,8 @@ public:
 	float					GetMapSize();
 	float					ArrayToWorldSpace(int i);
 	int						WorldToArraySpace(float f);
+
+	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
 
 	bool					Collide(const Ray& rayTrace, Vector& vecPoint);
 	bool					Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
@@ -38,6 +43,10 @@ protected:
 	raytrace::CRaytracer*	m_pTracer;
 
 	Vector					m_avecTerrainColors[4];
+
+	std::vector<Vector>		m_avecCraterMarks;
+
+	bool					m_abTerrainNeedsRegenerate[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
 };
 
 #endif

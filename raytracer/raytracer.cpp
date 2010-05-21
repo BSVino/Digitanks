@@ -14,6 +14,8 @@ void DrawTri(Vector v1, Vector v2, Vector v3, float r, float g, float b);
 
 using namespace raytrace;
 
+#define MIN_TRIS_NODE 3
+
 CRaytracer::CRaytracer(CConversionScene* pScene)
 {
 	m_pScene = pScene;
@@ -106,6 +108,11 @@ void CRaytracer::BuildTree()
 	m_pTree->BuildTree();
 }
 
+void CRaytracer::RemoveArea(const AABB& oBox)
+{
+	m_pTree->RemoveArea(oBox);
+}
+
 void CRaytracer::AddMeshesFromNode(CConversionSceneNode* pNode)
 {
 	if (!m_pTree)
@@ -155,7 +162,7 @@ void CRaytracer::AddTriangle(Vector v1, Vector v2, Vector v3)
 
 CKDTree::CKDTree()
 {
-	m_pTop = new CKDNode();
+	m_pTop = new CKDNode(NULL, AABB(), this);
 	m_bBuilt = false;
 }
 
@@ -167,8 +174,11 @@ CKDTree::~CKDTree()
 void CKDTree::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance)
 {
 	m_pTop->AddTriangle(v1, v2, v3, pFace, pMeshInstance);
+}
 
-	m_bBuilt = false;
+void CKDTree::RemoveArea(const AABB& oBox)
+{
+	m_pTop->RemoveArea(oBox);
 }
 
 void CKDTree::BuildTree()
@@ -209,8 +219,13 @@ float CKDTree::Closest(const Vector& vecPoint)
 	return m_pTop->Closest(vecPoint);
 }
 
-CKDNode::CKDNode(CKDNode* pParent, AABB oBounds)
+CKDNode::CKDNode(CKDNode* pParent, AABB oBounds, CKDTree* pTree)
 {
+	if (pTree)
+		m_pTree = pTree;
+	else
+		m_pTree = pParent->m_pTree;
+
 	m_pParent = pParent;
 	m_oBounds = oBounds;
 
@@ -233,7 +248,96 @@ CKDNode::~CKDNode()
 
 void CKDNode::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance)
 {
-	m_aTris.push_back(CKDTri(v1, v2, v3, pFace, pMeshInstance));
+	m_iTriangles++;
+
+	if (m_pTree->IsBuilt())
+	{
+		// Keep the tree built.
+
+		if (!m_pLeft)
+			m_aTris.push_back(CKDTri(v1, v2, v3, pFace, pMeshInstance));
+
+		if (m_aTris.size() == MIN_TRIS_NODE+1)
+		{
+			// We just grew to 4 tris, so just call build since <= 3 tris hasn't been built before.
+			assert(!m_pLeft);
+			Build();
+			return;
+		}
+
+		if (!m_pLeft)
+			return;
+
+		if (TriangleIntersectsAABB(m_pLeft->m_oBounds, v1, v2, v3))
+			m_pLeft->AddTriangle(v1, v2, v3, pFace, pMeshInstance);
+
+		if (TriangleIntersectsAABB(m_pRight->m_oBounds, v1, v2, v3))
+			m_pRight->AddTriangle(v1, v2, v3, pFace, pMeshInstance);
+	}
+	else
+		m_aTris.push_back(CKDTri(v1, v2, v3, pFace, pMeshInstance));
+}
+
+void CKDNode::RemoveArea(const AABB& oBox)
+{
+	if (GetBounds().Inside(oBox) && m_pLeft)
+	{
+		size_t iTrianglesDeleted = m_pLeft->m_iTriangles + m_pRight->m_iTriangles;
+
+		CKDNode* pParent = m_pParent;
+		while (pParent)
+		{
+			pParent->m_iTriangles -= iTrianglesDeleted;
+			pParent = pParent->m_pParent;
+		}
+
+		m_iTriangles = 0;
+
+		delete m_pLeft;
+		delete m_pRight;
+		m_pLeft = m_pRight = NULL;
+		return;
+	}
+
+	if (!m_pLeft)
+	{
+		size_t iTrianglesDeleted = 0;
+		for (int i = (int)m_aTris.size()-1; i >= 0; i--)
+		{
+			if (TriangleIntersectsAABB(oBox, m_aTris[i].v[0], m_aTris[i].v[1], m_aTris[i].v[2]))
+			{
+				m_aTris.erase(m_aTris.begin()+i);
+				iTrianglesDeleted++;
+			}
+		}
+
+		m_iTriangles -= iTrianglesDeleted;
+
+		CKDNode* pParent = m_pParent;
+		while (pParent)
+		{
+			pParent->m_iTriangles -= iTrianglesDeleted;
+			pParent = pParent->m_pParent;
+		}
+	}
+
+	if (!m_pLeft)
+		return;
+
+	if (m_pLeft->GetBounds().Intersects(oBox))
+		m_pLeft->RemoveArea(oBox);
+
+	if (m_pRight->GetBounds().Intersects(oBox))
+		m_pRight->RemoveArea(oBox);
+
+	if (m_iTriangles <= MIN_TRIS_NODE)
+	{
+		m_pLeft->PassTriList();
+		m_pRight->PassTriList();
+		delete m_pLeft;
+		delete m_pRight;
+		m_pLeft = m_pRight = NULL;
+	}
 }
 
 void CKDNode::CalcBounds()
@@ -279,15 +383,29 @@ void CKDNode::BuildTriList()
 		{
 			CKDTri oTri = m_pParent->m_aTris[i];
 			if (TriangleIntersectsAABB(m_oBounds, oTri.v[0], oTri.v[1], oTri.v[2]))
-				AddTriangle(oTri.v[0], oTri.v[1], oTri.v[2], oTri.m_pFace, oTri.m_pMeshInstance);
+				m_aTris.push_back(CKDTri(oTri.v[0], oTri.v[1], oTri.v[2], oTri.m_pFace, oTri.m_pMeshInstance));
 		}
 	}
+}
+
+void CKDNode::PassTriList()
+{
+	if (m_pLeft)
+	{
+		m_pLeft->PassTriList();
+		m_pRight->PassTriList();
+	}
+
+	for (size_t i = 0; i < m_aTris.size(); i++)
+		m_pParent->m_aTris.push_back(m_aTris[i]);
+
+	m_aTris.clear();
 }
 
 void CKDNode::Build()
 {
 	// Find a better number!
-	if (m_aTris.size() <= 3)
+	if (m_aTris.size() <= MIN_TRIS_NODE)
 		return;
 
 	// Find a better number!
@@ -318,6 +436,8 @@ void CKDNode::Build()
 
 	m_pLeft->BuildTriList();
 	m_pRight->BuildTriList();
+
+	m_aTris.clear();
 
 	m_pLeft->Build();
 	m_pRight->Build();

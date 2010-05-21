@@ -28,6 +28,9 @@ public:
 	Vector		Center() const;
 	Vector		Size() const;
 
+	bool		Inside(const AABB& oBox) const;
+	bool		Intersects(const AABB& oBox) const;
+
 	Vector		m_vecMins;
 	Vector		m_vecMaxs;
 };
@@ -46,6 +49,52 @@ inline Vector AABB::Center() const
 inline Vector AABB::Size() const
 {
 	return m_vecMaxs - m_vecMins;
+}
+
+inline bool AABB::Inside(const AABB& oBox) const
+{
+	if (m_vecMins.x < oBox.m_vecMins.x)
+		return false;
+
+	if (m_vecMins.y < oBox.m_vecMins.y)
+		return false;
+
+	if (m_vecMins.z < oBox.m_vecMins.z)
+		return false;
+
+	if (m_vecMins.x > oBox.m_vecMins.x)
+		return false;
+
+	if (m_vecMins.y > oBox.m_vecMins.y)
+		return false;
+
+	if (m_vecMins.z > oBox.m_vecMins.z)
+		return false;
+
+	return true;
+}
+
+inline bool AABB::Intersects(const AABB& oBox) const
+{
+	if (m_vecMins.x > oBox.m_vecMaxs.x)
+		return false;
+
+	if (oBox.m_vecMins.x > m_vecMaxs.x)
+		return false;
+
+	if (m_vecMins.y > oBox.m_vecMaxs.y)
+		return false;
+
+	if (oBox.m_vecMins.y > m_vecMaxs.y)
+		return false;
+
+	if (m_vecMins.z > oBox.m_vecMaxs.z)
+		return false;
+
+	if (oBox.m_vecMins.z > m_vecMaxs.z)
+		return false;
+
+	return true;
 }
 
 // Geometry-related functions
@@ -540,7 +589,7 @@ inline void FindLaunchVelocity(const Vector& vecOrigin, const Vector& vecTarget,
 	vecDistance.y = 0;
 	float flX = vecDistance.Length();
 
-	float flA = -0.02f;
+	float flA = -0.04f;
 	float flH = (flX*flX - (flY/flA))/(2*flX);
 	float flK = -flA*flH*flH;
 	float flB = -2*flH*flA;

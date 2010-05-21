@@ -82,8 +82,8 @@ public:
 	virtual void				NewCurrentTeam();
 	virtual void				NewCurrentTank();
 
-	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, float flDamage);
-	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, float flDamage);
+	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage);
+	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage);
 
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
 	void						SetAutoProceed(bool bAuto) { m_bAutoProceed = bAuto; };

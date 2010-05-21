@@ -92,7 +92,7 @@ public:
 	void						Move();
 	void						Fire();
 
-	virtual void				TakeDamage(CBaseEntity* pAttacker, float flDamage);
+	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
 
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
@@ -178,7 +178,7 @@ public:
 	virtual void				OnRender();
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
-	virtual bool				IsTouching(CBaseEntity* pOther) const;
+	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	virtual void				Touching(CBaseEntity* pOther);
 
 protected:

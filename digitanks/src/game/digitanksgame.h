@@ -17,8 +17,8 @@ public:
 	virtual void			NewCurrentTeam()=0;
 	virtual void			NewCurrentTank()=0;
 
-	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, float flDamage)=0;
-	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, float flDamage)=0;
+	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage)=0;
+	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage)=0;
 };
 
 class CDigitanksGame : public CGame
@@ -50,9 +50,9 @@ public:
 
 	void					Bot_ExecuteTurn();
 
-	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, float flDamage);
+	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage);
 
-	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, float flDamage);
+	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage);
 	virtual void			OnKilled(class CBaseEntity* pEntity);
 	void					CheckWinConditions();
 

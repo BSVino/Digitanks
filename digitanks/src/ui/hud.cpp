@@ -233,7 +233,9 @@ void CHUD::Think()
 {
 	BaseClass::Think();
 
-	if (DigitanksGame()->GetCurrentTank()->GetDefenseScale(true) < 0.3f)
+	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+
+	if (pCurrentTank && pCurrentTank->GetDefenseScale(true) < 0.3f)
 	{
 		m_pLowShieldsWarning->SetVisible(true);
 		int c = (int)RemapVal(fabs((float)(glutGet(GLUT_ELAPSED_TIME)%1000-500)/500), 0, 1, 128, 255);
@@ -281,7 +283,7 @@ void CHUD::Think()
 		else
 			m_pButton4->SetButtonColor(Color(100, 100, 100));
 
-		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
+		if (pCurrentTank && pCurrentTank->HasBonusPoints())
 		{
 			float flRamp = 1;
 			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
@@ -298,7 +300,7 @@ void CHUD::Think()
 		m_pButton3->SetText("");
 		m_pButton4->SetText("");
 
-		if (DigitanksGame()->GetCurrentTank()->HasBonusPoints())
+		if (pCurrentTank && pCurrentTank->HasBonusPoints())
 		{
 			m_pButton1->SetButtonColor(Color(200, 0, 0));
 			m_pButton2->SetButtonColor(Color(0, 0, 200));
@@ -314,31 +316,34 @@ void CHUD::Think()
 		m_pButton5->SetButtonColor(Color(100, 0, 0));
 	}
 
-	bool bShowEnter = true;
-	CTeam* pTeam = DigitanksGame()->GetCurrentTank()->GetTeam();
-	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+	if (pCurrentTank)
 	{
-		CDigitank* pTank = pTeam->GetTank(i);
-		if (!pTank)
-			continue;
+		bool bShowEnter = true;
+		CTeam* pTeam = pCurrentTank->GetTeam();
+		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+		{
+			CDigitank* pTank = pTeam->GetTank(i);
+			if (!pTank)
+				continue;
 
-		if (!pTank->IsAlive())
-			continue;
+			if (!pTank->IsAlive())
+				continue;
 
-		if (pTank->HasDesiredMove() || pTank->HasDesiredTurn() || pTank->HasDesiredAim())
-			continue;
+			if (pTank->HasDesiredMove() || pTank->HasDesiredTurn() || pTank->HasDesiredAim())
+				continue;
 
-		bShowEnter = false;
+			bShowEnter = false;
+		}
+
+		m_pPressEnter->SetVisible(bShowEnter);
+
+		m_pFireAttack->SetVisible(CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE);
+		m_pFireDefend->SetVisible(CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE);
+		m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
+		m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
+		m_pFireAttack->SetWrap(false);
+		m_pFireDefend->SetWrap(false);
 	}
-
-	m_pPressEnter->SetVisible(bShowEnter);
-
-	m_pFireAttack->SetVisible(CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE);
-	m_pFireDefend->SetVisible(CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE);
-	m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
-	m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
-	m_pFireAttack->SetWrap(false);
-	m_pFireDefend->SetWrap(false);
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -452,23 +457,26 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
 
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
-	int iShield = (int)(255*pTank->GetLeftShieldStrength());
-	if (iShield > 255)
-		iShield = 255;
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 20, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
-	iShield = (int)(255*pTank->GetRightShieldStrength());
-	if (iShield > 255)
-		iShield = 255;
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 10, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
-	iShield = (int)(255*pTank->GetFrontShieldStrength());
-	if (iShield > 255)
-		iShield = 255;
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
-	iShield = (int)(255*pTank->GetRearShieldStrength());
-	if (iShield > 255)
-		iShield = 255;
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 10, 50, 10, Color(255, 255, 255, iShield));
+	if (pTank)
+	{
+		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
+		int iShield = (int)(255*pTank->GetLeftShieldStrength());
+		if (iShield > 255)
+			iShield = 255;
+		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 20, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
+		iShield = (int)(255*pTank->GetRightShieldStrength());
+		if (iShield > 255)
+			iShield = 255;
+		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 10, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
+		iShield = (int)(255*pTank->GetFrontShieldStrength());
+		if (iShield > 255)
+			iShield = 255;
+		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+		iShield = (int)(255*pTank->GetRearShieldStrength());
+		if (iShield > 255)
+			iShield = 255;
+		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 10, 50, 10, Color(255, 255, 255, iShield));
+	}
 
 	Vector vecMin;
 	Vector vecMax;
@@ -853,13 +861,13 @@ void CHUD::NewCurrentTank()
 	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
-void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, float flDamage)
+void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 }
 
-void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, float flDamage)
+void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);

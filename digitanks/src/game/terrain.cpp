@@ -28,7 +28,7 @@ CTerrain::CTerrain()
 	CSimplexNoise n5(iSeed+4);
 
 	float flSpaceFactor1 = 0.01f;
-	float flHeightFactor1 = 60.0f;
+	float flHeightFactor1 = 50.0f;
 	float flSpaceFactor2 = flSpaceFactor1*3;
 	float flHeightFactor2 = flHeightFactor1/3;
 	float flSpaceFactor3 = flSpaceFactor2*3;
@@ -113,52 +113,82 @@ CTerrain::CTerrain()
 		break;
 	}
 
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+			m_abTerrainNeedsRegenerate[i][j] = true;
+	}
+
 	GenerateCallLists();
 }
 
 CTerrain::~CTerrain()
 {
 	delete m_pTracer;
-	glDeleteLists((GLuint)m_iCallList, 2);
+	glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
+}
+
+void CTerrain::GenerateTerrainCallLists()
+{
+	// Break it up into sectors of smaller size so that when it comes time to regenerate,
+	// it can be done only for the sector that needs it and it won't take too long
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		{
+			if (!m_abTerrainNeedsRegenerate[i][j])
+				continue;
+
+			glNewList((GLuint)m_iCallList+i*TERRAIN_GEN_SECTORS+j+1, GL_COMPILE);
+			glBegin(GL_QUADS);
+			for (size_t x = TERRAIN_SECTOR_SIZE*i; x < TERRAIN_SECTOR_SIZE*(i+1); x++)
+			{
+				if (x >= TERRAIN_SIZE-1)
+					continue;
+
+				for (size_t y = TERRAIN_SECTOR_SIZE*j; y < TERRAIN_SECTOR_SIZE*(j+1); y++)
+				{
+					if (y >= TERRAIN_SIZE-1)
+						continue;
+
+					float flColor = RemapVal(m_aflHeights[x][y], m_flLowest, m_flHighest, 0.0f, 0.98f);
+
+					float flX = ArrayToWorldSpace((int)x);
+					float flX1 = ArrayToWorldSpace((int)x+1);
+					float flY = ArrayToWorldSpace((int)y);
+					float flY1 = ArrayToWorldSpace((int)y+1);
+
+					glColor3fv(flColor*m_avecTerrainColors[0]);
+					glVertex3f(flX, m_aflHeights[x][y], flY);
+
+					glColor3fv(flColor*m_avecTerrainColors[1]);
+					glVertex3f(flX, m_aflHeights[x][y+1], flY1);
+
+					glColor3fv(flColor*m_avecTerrainColors[2]);
+					glVertex3f(flX1, m_aflHeights[x+1][y+1], flY1);
+
+					glColor3fv(flColor*m_avecTerrainColors[3]);
+					glVertex3f(flX1, m_aflHeights[x+1][y], flY);
+				}
+			}
+			glEnd();
+			glEndList();
+
+			m_abTerrainNeedsRegenerate[i][j] = false;
+		}
+	}
 }
 
 void CTerrain::GenerateCallLists()
 {
 	if (m_iCallList)
-		glDeleteLists((GLuint)m_iCallList, 2);
+		glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
 
-	m_iCallList = glGenLists(2);
+	m_iCallList = glGenLists(TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
+
+	GenerateTerrainCallLists();
 
 	glNewList((GLuint)m_iCallList, GL_COMPILE);
-	glBegin(GL_QUADS);
-	for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
-	{
-		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
-		{
-			float flColor = RemapVal(m_aflHeights[x][y], m_flLowest, m_flHighest, 0.0f, 0.98f);
-
-			float flX = ArrayToWorldSpace((int)x);
-			float flX1 = ArrayToWorldSpace((int)x+1);
-			float flY = ArrayToWorldSpace((int)y);
-			float flY1 = ArrayToWorldSpace((int)y+1);
-
-			glColor3fv(flColor*m_avecTerrainColors[0]);
-			glVertex3f(flX, m_aflHeights[x][y], flY);
-
-			glColor3fv(flColor*m_avecTerrainColors[1]);
-			glVertex3f(flX, m_aflHeights[x][y+1], flY1);
-
-			glColor3fv(flColor*m_avecTerrainColors[2]);
-			glVertex3f(flX1, m_aflHeights[x+1][y+1], flY1);
-
-			glColor3fv(flColor*m_avecTerrainColors[3]);
-			glVertex3f(flX1, m_aflHeights[x+1][y], flY);
-		}
-	}
-	glEnd();
-	glEndList();
-
-	glNewList((GLuint)m_iCallList+1, GL_COMPILE);
 	float flLo = ArrayToWorldSpace(0);
 	float flHi = ArrayToWorldSpace(TERRAIN_SIZE-1);
 
@@ -572,16 +602,22 @@ void CTerrain::OnRender()
 		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
 		glUniform1i(bShowRanges, false);
 	}
-	
-//	glDisable(GL_DEPTH_TEST);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glCallList((GLuint)m_iCallList);
+	if (m_avecCraterMarks.size())
+	{
+		GLuint avecCraterMarks = glGetUniformLocation(iTerrainProgram, "avecCraterMarks");
+		glUniform3fv(avecCraterMarks, (GLint)m_avecCraterMarks.size(), m_avecCraterMarks[0]);
+	}
+
+	GLuint iCraterMarks = glGetUniformLocation(iTerrainProgram, "iCraterMarks");
+	glUniform1i(iCraterMarks, (GLint)m_avecCraterMarks.size());
+
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS; i++)
+		glCallList((GLuint)m_iCallList+i+1);
 
 	glUseProgram(0);
 
-	glCallList((GLuint)m_iCallList+1);
+	glCallList((GLuint)m_iCallList);
 
 	glPopAttrib();
 }
@@ -640,6 +676,87 @@ float CTerrain::ArrayToWorldSpace(int i)
 int CTerrain::WorldToArraySpace(float f)
 {
 	return (int)RemapVal(f, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
+}
+
+void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+{
+	float flRadius = 4.0f;
+	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
+
+	Vector vecOrigin = pInflictor->GetOrigin();
+
+	int iX = WorldToArraySpace(vecOrigin.x);
+	int iZ = WorldToArraySpace(vecOrigin.z);
+
+	Vector vecOriginFlat = vecOrigin;
+	vecOriginFlat.y = 0;
+
+	for (int x = iX-iRadius; x <= iX+iRadius; x++)
+	{
+		for (int z = iZ-iRadius; z <= iZ+iRadius; z++)
+		{
+			float flX = ArrayToWorldSpace(x);
+			float flZ = ArrayToWorldSpace(z);
+
+			float flX1 = ArrayToWorldSpace((int)x+1);
+			float flZ1 = ArrayToWorldSpace((int)z+1);
+
+			if ((Vector(flX, 0, flZ) - vecOriginFlat).LengthSqr() < flRadius*flRadius)
+			{
+				float flXDistance = (flX - vecOriginFlat.x);
+				float flZDistance = (flZ - vecOriginFlat.z);
+
+				float flSqrt = sqrt(flRadius*flRadius - flXDistance*flXDistance - flZDistance*flZDistance);
+				float flNewY = -flSqrt + vecOrigin.y;
+
+				// As if the dirt from above drops down into the hole.
+				float flAbove = m_aflHeights[x][z] - (flSqrt + vecOrigin.y);
+				if (flAbove > 0)
+					flNewY += flAbove;
+
+				// Stopgap to keep the raytracer from receiving triangles that go below its bounds.
+				if (flNewY < m_flLowest)
+					flNewY = m_flLowest+0.01f;
+
+				m_aflHeights[x][z] = flNewY;
+
+				m_abTerrainNeedsRegenerate[x/TERRAIN_SECTOR_SIZE][z/TERRAIN_SECTOR_SIZE] = true;
+				m_abTerrainNeedsRegenerate[x/TERRAIN_SECTOR_SIZE][(z+1)/TERRAIN_SECTOR_SIZE] = true;
+				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][z/TERRAIN_SECTOR_SIZE] = true;
+				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z+1)/TERRAIN_SECTOR_SIZE] = true;
+			}
+		}
+	}
+
+	Vector vecMins(vecOrigin.x - flRadius + 0.1f, -10000, vecOrigin.z - flRadius + 0.1f);
+	Vector vecMaxs(vecOrigin.x + flRadius +-0.1f, 10000,  vecOrigin.z + flRadius - 0.1f);
+	m_pTracer->RemoveArea(AABB(vecMins, vecMaxs));
+
+	for (int x = iX-iRadius; x <= iX+iRadius; x++)
+	{
+		for (int z = iZ-iRadius; z <= iZ+iRadius; z++)
+		{
+			float flX = ArrayToWorldSpace(x);
+			float flZ = ArrayToWorldSpace(z);
+
+			float flX1 = ArrayToWorldSpace((int)x+1);
+			float flZ1 = ArrayToWorldSpace((int)z+1);
+
+			Vector v1 = Vector(flX, m_aflHeights[x][z], flZ);
+			Vector v2 = Vector(flX, m_aflHeights[x][z+1], flZ1);
+			Vector v3 = Vector(flX1, m_aflHeights[x+1][z+1], flZ1);
+			Vector v4 = Vector(flX1, m_aflHeights[x+1][z], flZ);
+
+			m_pTracer->AddTriangle(v1, v2, v3);
+			m_pTracer->AddTriangle(v1, v3, v4);
+		}
+	}
+
+	m_avecCraterMarks.push_back(vecOrigin - Vector(0, flRadius, 0));
+	if (m_avecCraterMarks.size() > 10)
+		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
+
+	GenerateTerrainCallLists();
 }
 
 bool CTerrain::Collide(const Ray& rayTrace, Vector &vecHit)

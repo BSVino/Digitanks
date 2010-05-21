@@ -74,8 +74,12 @@ void CGame::Simulate()
 			if (!pEntity->ShouldTouch(pEntity2))
 				continue;
 
-			if (pEntity->IsTouching(pEntity2))
+			Vector vecPoint;
+			if (pEntity->IsTouching(pEntity2, vecPoint))
+			{
+				pEntity->SetOrigin(vecPoint);
 				pEntity->Touching(pEntity2);
+			}
 		}
 	}
 }

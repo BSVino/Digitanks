@@ -17,7 +17,7 @@ public:
 
 	virtual void								Think() {};
 
-	virtual void								OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, float flDamage) {};
+	virtual void								OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage) {};
 	virtual void								OnKilled(class CBaseEntity* pEntity) {};
 	virtual void								OnDeleted(class CBaseEntity* pEntity) {};
 
