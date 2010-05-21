@@ -599,7 +599,7 @@ void CDigitank::RenderTurret(float flAlpha)
 {
 	CRenderingContext r;
 	r.SetAlpha(flAlpha);
-	r.Translate(Vector(-0.407324f, 0.962338f, 0));
+	r.Translate(Vector(-0.564491f, 0.866906f, 0));
 
 	if ((this == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM) || HasDesiredAim())
 	{
