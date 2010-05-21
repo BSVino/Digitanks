@@ -141,13 +141,13 @@ void CCamera::KeyDown(int c)
 	if (m_bFPSMode)
 	{
 		if (c == 'w')
-			m_vecFPSVelocity.x = 1.0f;
+			m_vecFPSVelocity.x = 10.0f;
 		if (c == 's')
-			m_vecFPSVelocity.x = -1.0f;
+			m_vecFPSVelocity.x = -10.0f;
 		if (c == 'd')
-			m_vecFPSVelocity.z = 1.0f;
+			m_vecFPSVelocity.z = 10.0f;
 		if (c == 'a')
-			m_vecFPSVelocity.z = -1.0f;
+			m_vecFPSVelocity.z = -10.0f;
 	}
 }
 

@@ -21,8 +21,8 @@ public:
 	float					GetHeight(float x, float y);
 	void					SetPointHeight(Vector& vecPoint);
 	float					GetMapSize();
-	float					ArrayToWorldSpace(size_t i);
-	size_t					WorldToArraySpace(float f);
+	float					ArrayToWorldSpace(int i);
+	int						WorldToArraySpace(float f);
 
 	bool					Collide(const Ray& rayTrace, Vector& vecPoint);
 	bool					Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
@@ -36,6 +36,8 @@ protected:
 	size_t					m_iCallList;
 
 	raytrace::CRaytracer*	m_pTracer;
+
+	Vector					m_avecTerrainColors[4];
 };
 
 #endif

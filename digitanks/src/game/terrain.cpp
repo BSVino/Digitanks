@@ -65,10 +65,10 @@ CTerrain::CTerrain()
 	{
 		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
 		{
-			float flX = ArrayToWorldSpace(x);
-			float flY = ArrayToWorldSpace(y);
-			float flX1 = ArrayToWorldSpace(x+1);
-			float flY1 = ArrayToWorldSpace(y+1);
+			float flX = ArrayToWorldSpace((int)x);
+			float flY = ArrayToWorldSpace((int)y);
+			float flX1 = ArrayToWorldSpace((int)x+1);
+			float flY1 = ArrayToWorldSpace((int)y+1);
 
 			Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
 			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
@@ -82,21 +82,53 @@ CTerrain::CTerrain()
 
 	m_pTracer->BuildTree();
 
+	switch (rand()%4)
+	{
+	case 0:
+		m_avecTerrainColors[0] = Vector(0.40f, 0.50f, 1.0f);
+		m_avecTerrainColors[1] = Vector(0.40f, 0.48f, 1.0f);
+		m_avecTerrainColors[2] = Vector(0.43f, 0.50f, 1.0f);
+		m_avecTerrainColors[3] = Vector(0.43f, 0.52f, 1.0f);
+		break;
+
+	case 1:
+		m_avecTerrainColors[0] = Vector(0.55f, 0.40f, 0.0f);
+		m_avecTerrainColors[1] = Vector(0.55f, 0.38f, 0.0f);
+		m_avecTerrainColors[2] = Vector(0.58f, 0.40f, 0.0f);
+		m_avecTerrainColors[3] = Vector(0.58f, 0.42f, 0.0f);
+		break;
+
+	case 2:
+		m_avecTerrainColors[0] = Vector(0.0, 0.55f, 0.40f);
+		m_avecTerrainColors[1] = Vector(0.0, 0.55f, 0.38f);
+		m_avecTerrainColors[2] = Vector(0.0, 0.58f, 0.40f);
+		m_avecTerrainColors[3] = Vector(0.0, 0.58f, 0.42f);
+		break;
+
+	case 3:
+		m_avecTerrainColors[0] = Vector(0.70f, 0.0f, 0.25f);
+		m_avecTerrainColors[1] = Vector(0.70f, 0.0f, 0.23f);
+		m_avecTerrainColors[2] = Vector(0.73f, 0.0f, 0.25f);
+		m_avecTerrainColors[3] = Vector(0.73f, 0.0f, 0.27f);
+		break;
+	}
+
 	GenerateCallLists();
 }
 
 CTerrain::~CTerrain()
 {
 	delete m_pTracer;
-	glDeleteLists((GLuint)m_iCallList, 1);
+	glDeleteLists((GLuint)m_iCallList, 2);
 }
 
 void CTerrain::GenerateCallLists()
 {
 	if (m_iCallList)
-		glDeleteLists((GLuint)m_iCallList, 1);
+		glDeleteLists((GLuint)m_iCallList, 2);
 
-	m_iCallList = glGenLists(1);
+	m_iCallList = glGenLists(2);
+
 	glNewList((GLuint)m_iCallList, GL_COMPILE);
 	glBegin(GL_QUADS);
 	for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
@@ -105,25 +137,344 @@ void CTerrain::GenerateCallLists()
 		{
 			float flColor = RemapVal(m_aflHeights[x][y], m_flLowest, m_flHighest, 0.0f, 0.98f);
 
-			float flX = ArrayToWorldSpace(x);
-			float flX1 = ArrayToWorldSpace(x+1);
-			float flY = ArrayToWorldSpace(y);
-			float flY1 = ArrayToWorldSpace(y+1);
+			float flX = ArrayToWorldSpace((int)x);
+			float flX1 = ArrayToWorldSpace((int)x+1);
+			float flY = ArrayToWorldSpace((int)y);
+			float flY1 = ArrayToWorldSpace((int)y+1);
 
-			glColor4f(flColor*0.40f, flColor*0.50f, flColor, 0.5f);
+			glColor3fv(flColor*m_avecTerrainColors[0]);
 			glVertex3f(flX, m_aflHeights[x][y], flY);
 
-			glColor4f(flColor*0.40f, flColor*0.48f, flColor, 0.5f);
+			glColor3fv(flColor*m_avecTerrainColors[1]);
 			glVertex3f(flX, m_aflHeights[x][y+1], flY1);
 
-			glColor4f(flColor*0.43f, flColor*0.50f, flColor, 0.5f);
+			glColor3fv(flColor*m_avecTerrainColors[2]);
 			glVertex3f(flX1, m_aflHeights[x+1][y+1], flY1);
 
-			glColor4f(flColor*0.43f, flColor*0.52f, flColor, 0.5f);
+			glColor3fv(flColor*m_avecTerrainColors[3]);
 			glVertex3f(flX1, m_aflHeights[x+1][y], flY);
 		}
 	}
 	glEnd();
+	glEndList();
+
+	glNewList((GLuint)m_iCallList+1, GL_COMPILE);
+	float flLo = ArrayToWorldSpace(0);
+	float flHi = ArrayToWorldSpace(TERRAIN_SIZE-1);
+
+	for (int x = -10; x < TERRAIN_SIZE-1+10; x++)
+	{
+		float flX = ArrayToWorldSpace(x);
+		float flX1 = ArrayToWorldSpace(x+1);
+
+		float flAverage = 0;
+		float flAverage1 = 0;
+
+		for (int i = ((int)x)-3; i <= ((int)x)+3; i++)
+			flAverage += GetRealHeight(i, 0);
+
+		flAverage /= 7;
+
+		for (int i = ((int)x+1)-3; i <= ((int)x)+1+3; i++)
+			flAverage1 += GetRealHeight(i, 0);
+
+		flAverage1 /= 7;
+
+		glBegin(GL_QUADS);
+
+		Vector vecColor = Vector(0.5f, 0.5f, 0.5f);
+		glColor3fv(vecColor);
+		glVertex3f(flX, GetRealHeight(x, 0), flLo);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flX1, GetRealHeight(x+1, 0), flLo);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3f(flX1, flAverage1+7.0f, flLo);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flX, flAverage+7.0f, flLo);
+
+		Vector vecA(flX, flAverage+7.0f, flLo);
+		Vector vecB(flX1, flAverage1+7.0f, flLo);
+		Vector vecC(flX1, flAverage1+7.0f+10, flLo-10);
+		Vector vecD(flX, flAverage+7.0f+10, flLo-10);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		vecA = Vector(flX, flAverage+7.0f+10, flLo-10);
+		vecB = Vector(flX1, flAverage1+7.0f+10, flLo-10);
+		vecC = Vector(flX1, flAverage1+7.0f+10, flLo-20);
+		vecD = Vector(flX, flAverage+7.0f+10, flLo-20);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		glEnd();
+
+		if (flX > -GetMapSize()-15 && flX1 < GetMapSize()+15)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glBegin(GL_QUADS);
+
+			// Blue energy field
+			glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+			glVertex3f(flX, flAverage+7.0f+10, flLo-15);
+			glVertex3f(flX1, flAverage1+7.0f+10, flLo-15);
+
+			glColor4f(0.5f, 0.5f, 1.0f, 0.0f);
+			glVertex3f(flX1, flAverage1+7.0f+100, flLo-15);
+			glVertex3f(flX, flAverage+7.0f+100, flLo-15);
+
+			glEnd();
+
+			glDisable(GL_BLEND);
+		}
+
+		flAverage = 0;
+		for (int i = x-3; i <= x+3; i++)
+			flAverage += GetRealHeight(i, TERRAIN_SIZE-1);
+
+		flAverage /= 7;
+
+		flAverage1 = 0;
+		for (int i = x+1-3; i <= x+1+3; i++)
+			flAverage1 += GetRealHeight(i, TERRAIN_SIZE-1);
+
+		flAverage1 /= 7;
+
+		glBegin(GL_QUADS);
+
+		vecColor = Vector(0.5f, 0.5f, 0.5f);
+		glColor3fv(vecColor);
+		glVertex3f(flX, GetRealHeight(x, TERRAIN_SIZE-1), flHi);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flX, flAverage+7.0f, flHi);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3f(flX1, flAverage1+7.0f, flHi);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flX1, GetRealHeight(x+1, TERRAIN_SIZE-1), flHi);
+
+		vecA = Vector(flX, flAverage+7.0f, flHi);
+		vecB = Vector(flX, flAverage+7.0f+10, flHi+10);
+		vecC = Vector(flX1, flAverage1+7.0f+10, flHi+10);
+		vecD = Vector(flX1, flAverage1+7.0f, flHi);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		vecA = Vector(flX, flAverage+7.0f+10, flHi+10);
+		vecB = Vector(flX, flAverage+7.0f+10, flHi+20);
+		vecC = Vector(flX1, flAverage1+7.0f+10, flHi+20);
+		vecD = Vector(flX1, flAverage1+7.0f+10, flHi+10);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		glEnd();
+
+		if (flX > -GetMapSize()-15 && flX1 < GetMapSize()+15)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glBegin(GL_QUADS);
+
+			// Blue energy field
+			glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+			glVertex3f(flX, flAverage+7.0f+10, flHi+15);
+			glColor4f(0.5f, 0.5f, 1.0f, 0.0f);
+			glVertex3f(flX, flAverage+7.0f+100, flHi+15);
+			glVertex3f(flX1, flAverage1+7.0f+100, flHi+15);
+			glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+			glVertex3f(flX1, flAverage1+7.0f+10, flHi+15);
+
+			glEnd();
+
+			glDisable(GL_BLEND);
+		}
+	}
+
+	for (int z = -10; z < TERRAIN_SIZE-1+10; z++)
+	{
+		float flZ = ArrayToWorldSpace(z);
+		float flZ1 = ArrayToWorldSpace(z+1);
+
+		float flAverage = 0;
+		float flAverage1 = 0;
+
+		for (int i = z-3; i <= z+3; i++)
+			flAverage += GetRealHeight(0, i);
+
+		flAverage /= 7;
+
+		for (int i = z+1-3; i <= z+1+3; i++)
+			flAverage1 += GetRealHeight(0, i);
+
+		flAverage1 /= 7;
+
+		glBegin(GL_QUADS);
+
+		Vector vecColor = Vector(0.5f, 0.5f, 0.5f);
+		glColor3fv(vecColor);
+		glVertex3f(flLo, GetRealHeight(0, z), flZ);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flLo, flAverage+7.0f, flZ);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3f(flLo, flAverage1+7.0f, flZ1);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flLo, GetRealHeight(0, z+1), flZ1);
+
+		Vector vecA(flLo, flAverage+7.0f, flZ);
+		Vector vecB(flLo-10, flAverage+7.0f+10, flZ);
+		Vector vecC(flLo-10, flAverage1+7.0f+10, flZ1);
+		Vector vecD(flLo, flAverage1+7.0f, flZ1);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		vecA = Vector(flLo-10, flAverage+7.0f+10, flZ);
+		vecB = Vector(flLo-20, flAverage+7.0f+10, flZ);
+		vecC = Vector(flLo-20, flAverage1+7.0f+10, flZ1);
+		vecD = Vector(flLo-10, flAverage1+7.0f+10, flZ1);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		glEnd();
+
+		if (flZ > -GetMapSize()-15 && flZ1 < GetMapSize()+15)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glBegin(GL_QUADS);
+
+			// Blue energy field
+			glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+			glVertex3f(flLo-15, flAverage+7.0f+10, flZ);
+			glColor4f(0.5f, 0.5f, 1.0f, 0.0f);
+			glVertex3f(flLo-15, flAverage+7.0f+100, flZ);
+			glVertex3f(flLo-15, flAverage1+7.0f+100, flZ1);
+			glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+			glVertex3f(flLo-15, flAverage1+7.0f+10, flZ1);
+
+
+			glEnd();
+
+			glDisable(GL_BLEND);
+		}
+
+		flAverage = 0;
+		for (int i = ((int)z)-3; i <= ((int)z)+3; i++)
+			flAverage += GetRealHeight(TERRAIN_SIZE-1, i);
+
+		flAverage /= 7;
+
+		flAverage1 = 0;
+		for (int i = ((int)z+1)-3; i <= ((int)z)+1+3; i++)
+			flAverage1 += GetRealHeight(TERRAIN_SIZE-1, i);
+
+		flAverage1 /= 7;
+
+		glBegin(GL_QUADS);
+
+		vecColor = Vector(0.5f, 0.5f, 0.5f);
+		glColor3fv(vecColor);
+		glVertex3f(flHi, GetRealHeight(TERRAIN_SIZE-1, z), flZ);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flHi, GetRealHeight(TERRAIN_SIZE-1, z+1), flZ1);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3f(flHi, flAverage1+7.0f, flZ1);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3f(flHi, flAverage+7.0f, flZ);
+
+		vecA = Vector(flHi, flAverage+7.0f, flZ);
+		vecB = Vector(flHi, flAverage1+7.0f, flZ1);
+		vecC = Vector(flHi+10, flAverage1+7.0f+10, flZ1);
+		vecD = Vector(flHi+10, flAverage+7.0f+10, flZ);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		vecA = Vector(flHi+10, flAverage+7.0f+10, flZ);
+		vecB = Vector(flHi+10, flAverage1+7.0f+10, flZ1);
+		vecC = Vector(flHi+20, flAverage1+7.0f+10, flZ1);
+		vecD = Vector(flHi+20, flAverage+7.0f+10, flZ);
+		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		glColor3fv(vecColor);
+		glVertex3fv(vecA);
+		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecB);
+		glColor3fv(vecColor + Vector(0.01f, 0.01f, 0.01f));
+		glVertex3fv(vecC);
+		glColor3fv(vecColor - Vector(0.02f, 0.02f, 0.02f));
+		glVertex3fv(vecD);
+
+		glEnd();
+
+		if (flZ > -GetMapSize()-15 && flZ1 < GetMapSize()+15)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glBegin(GL_QUADS);
+
+			// Blue energy field
+			glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+			glVertex3f(flHi+15, flAverage+7.0f+10, flZ);
+			glVertex3f(flHi+15, flAverage1+7.0f+10, flZ1);
+			glColor4f(0.5f, 0.5f, 1.0f, 0.0f);
+			glVertex3f(flHi+15, flAverage1+7.0f+100, flZ1);
+			glVertex3f(flHi+15, flAverage+7.0f+100, flZ);
+
+			glEnd();
+
+			glDisable(GL_BLEND);
+		}
+	}
 	glEndList();
 }
 
@@ -230,6 +581,8 @@ void CTerrain::OnRender()
 
 	glUseProgram(0);
 
+	glCallList((GLuint)m_iCallList+1);
+
 	glPopAttrib();
 }
 
@@ -279,14 +632,14 @@ float CTerrain::GetMapSize()
 	return 200;
 }
 
-float CTerrain::ArrayToWorldSpace(size_t i)
+float CTerrain::ArrayToWorldSpace(int i)
 {
 	return RemapVal((float)i, 0, TERRAIN_SIZE, -GetMapSize(), GetMapSize());
 }
 
-size_t CTerrain::WorldToArraySpace(float f)
+int CTerrain::WorldToArraySpace(float f)
 {
-	return (size_t)RemapVal(f, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
+	return (int)RemapVal(f, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
 }
 
 bool CTerrain::Collide(const Ray& rayTrace, Vector &vecHit)
