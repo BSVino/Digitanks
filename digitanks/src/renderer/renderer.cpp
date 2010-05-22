@@ -163,35 +163,58 @@ void CRenderingContext::RenderMeshInstance(CConversionScene* pScene, CConversion
 	}
 }
 
+CFrameBuffer::CFrameBuffer()
+{
+	m_iMap = m_iDepth = m_iFB = 0;
+}
+
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
 
-	m_oSceneBuffer = CreateFrameBuffer();
+	m_oSceneBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, true, true);
+
+	for (size_t i = 0; i < BLOOM_FILTERS; i++)
+	{
+		m_oBloom1Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, true);
+		m_oBloom2Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, false);
+		iWidth /= 2;
+		iHeight /= 2;
+	}
 }
 
-CFrameBuffer CRenderer::CreateFrameBuffer()
+CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear)
 {
 	CFrameBuffer oBuffer;
 
 	glGenTextures(1, &oBuffer.m_iMap);
 	glBindTexture(GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)m_iWidth, (GLsizei)m_iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bLinear?GL_LINEAR:GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bLinear?GL_LINEAR:GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)iWidth, (GLsizei)iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glGenRenderbuffersEXT(1, &oBuffer.m_iDepth);
-	glBindRenderbufferEXT( GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth );
-	glRenderbufferStorageEXT( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (GLsizei)m_iWidth, (GLsizei)m_iHeight );
-	glBindRenderbufferEXT( GL_RENDERBUFFER, 0 );
+	if (bDepth)
+	{
+		glGenRenderbuffersEXT(1, &oBuffer.m_iDepth);
+		glBindRenderbufferEXT( GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth );
+		glRenderbufferStorageEXT( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (GLsizei)iWidth, (GLsizei)iHeight );
+		glBindRenderbufferEXT( GL_RENDERBUFFER, 0 );
+	}
 
 	glGenFramebuffersEXT(1, &oBuffer.m_iFB);
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap, 0);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth);
+	if (bDepth)
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth);
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+		printf("Framebuffer not complete!\n");
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	oBuffer.m_iWidth = iWidth;
+	oBuffer.m_iHeight = iHeight;
 
 	return oBuffer;
 }
@@ -274,6 +297,8 @@ void CRenderer::StartRendering()
 	glEnable(GL_TEXTURE_2D);
 }
 
+void DrawTexture(GLuint iTexture, float flScale = 1.0f);
+
 void CRenderer::FinishRendering()
 {
 	glPopMatrix();
@@ -284,8 +309,11 @@ void CRenderer::FinishRendering()
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
-	glReadBuffer(GL_BACK);
-	glDrawBuffer(GL_BACK);
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_COLOR_MATERIAL);
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -296,28 +324,42 @@ void CRenderer::FinishRendering()
 	glPushMatrix();
 	glLoadIdentity();
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	// Use a bright-pass filter to catch only the bright areas of the image
+	GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
+	glUseProgram(iBrightPass);
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_COLOR_MATERIAL);
+	GLint iSource = glGetUniformLocation(iBrightPass, "iSource");
+    glUniform1i(iSource, 0);
 
-	glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glColor4f(1, 1, 1, 1);
+	GLint flScale = glGetUniformLocation(iBrightPass, "flScale");
+	glUniform1f(flScale, (float)1/BLOOM_FILTERS);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)m_oSceneBuffer.m_iMap);
-	glEnable(GL_TEXTURE_2D);
+	GLint flBrightness = glGetUniformLocation(iBrightPass, "flBrightness");
+
+	for (size_t i = 0; i < BLOOM_FILTERS; i++)
+	{
+		glUniform1f(flBrightness, 0.7f - 0.1f*i);
+		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oBloom1Buffers[i]);
+	}
 
 	glUseProgram(0);
 
-	glBegin(GL_QUADS);
-		glTexCoord2i(0, 1); glVertex2d(0, 0);
-		glTexCoord2i(0, 0); glVertex2d(0, m_iHeight);
-		glTexCoord2i(1, 0); glVertex2d(m_iWidth, m_iHeight);
-		glTexCoord2i(1, 1); glVertex2d(m_iWidth, 0);
-	glEnd();
+	RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
+	RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
+
+	RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
+	RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
+
+	glReadBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
+
+	RenderMapFullscreen(m_oSceneBuffer.m_iMap);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	for (size_t i = 0; i < BLOOM_FILTERS; i++)
+		RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+	glDisable(GL_BLEND);
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();   
@@ -326,8 +368,73 @@ void CRenderer::FinishRendering()
 	glPopMatrix();
 
 	glPopAttrib();
+}
 
-	glFinish();
+void CRenderer::RenderMapFullscreen(size_t iMap)
+{
+	glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)iMap);
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
+
+	glBegin(GL_QUADS);
+		glTexCoord2i(0, 1); glVertex2d(0, 0);
+		glTexCoord2i(0, 0); glVertex2d(0, m_iHeight);
+		glTexCoord2i(1, 0); glVertex2d(m_iWidth, m_iHeight);
+		glTexCoord2i(1, 1); glVertex2d(m_iWidth, 0);
+	glEnd();
+}
+
+void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
+{
+	glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)iMap);
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, (GLuint)pBuffer->m_iFB);
+	glViewport(0, 0, (GLsizei)pBuffer->m_iWidth, (GLsizei)pBuffer->m_iHeight);
+
+	glBegin(GL_QUADS);
+		glTexCoord2i(0, 1); glVertex2i(0, 0);
+		glTexCoord2i(0, 0); glVertex2i(0, (GLint)m_iHeight);
+		glTexCoord2i(1, 0); glVertex2i((GLint)m_iWidth, (GLint)m_iHeight);
+		glTexCoord2i(1, 1); glVertex2i((GLint)m_iWidth, 0);
+	glEnd();
+}
+
+#define KERNEL_SIZE   3
+float aflKernel[KERNEL_SIZE] = { 5, 6, 5 };
+
+void CRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal)
+{
+	GLuint iBlur = (GLuint)CShaderLibrary::GetBlurProgram();
+	glUseProgram(iBlur);
+
+	GLint iSource = glGetUniformLocation(iBlur, "iSource");
+    glUniform1i(iSource, 0);
+
+	// Can't I get rid of this and hard code it into the shader?
+	GLint aflCoefficients = glGetUniformLocation(iBlur, "aflCoefficients");
+    glUniform1fv(aflCoefficients, KERNEL_SIZE, aflKernel);
+
+    GLint flOffsetX = glGetUniformLocation(iBlur, "flOffsetX");
+    glUniform1f(flOffsetX, 0);
+
+	GLint flOffset = glGetUniformLocation(iBlur, "flOffsetY");
+    glUniform1f(flOffset, 0);
+    if (bHorizontal)
+        flOffset = glGetUniformLocation(iBlur, "flOffsetX");
+
+    // Perform the blurring.
+    for (size_t i = 0; i < BLOOM_FILTERS; i++)
+    {
+		glUniform1f(flOffset, 1.2f / apSources[i].m_iWidth);
+		RenderMapToBuffer(apSources[i].m_iMap, &apTargets[i]);
+    }
+
+	glUseProgram(0);
 }
 
 void CRenderer::SetSize(int w, int h)

@@ -212,7 +212,7 @@ void CTerrain::GenerateCallLists()
 
 		glBegin(GL_QUADS);
 
-		Vector vecColor = Vector(0.5f, 0.5f, 0.5f);
+		Vector vecColor = Vector(0.35f, 0.35f, 0.35f);
 		glColor3fv(vecColor);
 		glVertex3f(flX, GetRealHeight(x, 0), flLo);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -226,7 +226,7 @@ void CTerrain::GenerateCallLists()
 		Vector vecB(flX1, flAverage1+7.0f, flLo);
 		Vector vecC(flX1, flAverage1+7.0f+10, flLo-10);
 		Vector vecD(flX, flAverage+7.0f+10, flLo-10);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -240,7 +240,7 @@ void CTerrain::GenerateCallLists()
 		vecB = Vector(flX1, flAverage1+7.0f+10, flLo-10);
 		vecC = Vector(flX1, flAverage1+7.0f+10, flLo-20);
 		vecD = Vector(flX, flAverage+7.0f+10, flLo-20);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -287,7 +287,7 @@ void CTerrain::GenerateCallLists()
 
 		glBegin(GL_QUADS);
 
-		vecColor = Vector(0.5f, 0.5f, 0.5f);
+		vecColor = Vector(0.35f, 0.35f, 0.35f);
 		glColor3fv(vecColor);
 		glVertex3f(flX, GetRealHeight(x, TERRAIN_SIZE-1), flHi);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -301,7 +301,7 @@ void CTerrain::GenerateCallLists()
 		vecB = Vector(flX, flAverage+7.0f+10, flHi+10);
 		vecC = Vector(flX1, flAverage1+7.0f+10, flHi+10);
 		vecD = Vector(flX1, flAverage1+7.0f, flHi);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -315,7 +315,7 @@ void CTerrain::GenerateCallLists()
 		vecB = Vector(flX, flAverage+7.0f+10, flHi+20);
 		vecC = Vector(flX1, flAverage1+7.0f+10, flHi+20);
 		vecD = Vector(flX1, flAverage1+7.0f+10, flHi+10);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -369,7 +369,7 @@ void CTerrain::GenerateCallLists()
 
 		glBegin(GL_QUADS);
 
-		Vector vecColor = Vector(0.5f, 0.5f, 0.5f);
+		Vector vecColor = Vector(0.35f, 0.35f, 0.35f);
 		glColor3fv(vecColor);
 		glVertex3f(flLo, GetRealHeight(0, z), flZ);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -383,7 +383,7 @@ void CTerrain::GenerateCallLists()
 		Vector vecB(flLo-10, flAverage+7.0f+10, flZ);
 		Vector vecC(flLo-10, flAverage1+7.0f+10, flZ1);
 		Vector vecD(flLo, flAverage1+7.0f, flZ1);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -397,7 +397,7 @@ void CTerrain::GenerateCallLists()
 		vecB = Vector(flLo-20, flAverage+7.0f+10, flZ);
 		vecC = Vector(flLo-20, flAverage1+7.0f+10, flZ1);
 		vecD = Vector(flLo-10, flAverage1+7.0f+10, flZ1);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -445,7 +445,7 @@ void CTerrain::GenerateCallLists()
 
 		glBegin(GL_QUADS);
 
-		vecColor = Vector(0.5f, 0.5f, 0.5f);
+		vecColor = Vector(0.35f, 0.35f, 0.35f);
 		glColor3fv(vecColor);
 		glVertex3f(flHi, GetRealHeight(TERRAIN_SIZE-1, z), flZ);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -459,7 +459,7 @@ void CTerrain::GenerateCallLists()
 		vecB = Vector(flHi, flAverage1+7.0f, flZ1);
 		vecC = Vector(flHi+10, flAverage1+7.0f+10, flZ1);
 		vecD = Vector(flHi+10, flAverage+7.0f+10, flZ);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));
@@ -473,7 +473,7 @@ void CTerrain::GenerateCallLists()
 		vecB = Vector(flHi+10, flAverage1+7.0f+10, flZ1);
 		vecC = Vector(flHi+20, flAverage1+7.0f+10, flZ1);
 		vecD = Vector(flHi+20, flAverage+7.0f+10, flZ);
-		vecColor = Vector(1, 1, 1) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
+		vecColor = Vector(0.7f, 0.7f, 0.7f) * Vector(0, -1, 0).Dot((vecA-vecB).Normalized().Cross((vecC-vecB).Normalized()));
 		glColor3fv(vecColor);
 		glVertex3fv(vecA);
 		glColor3fv(vecColor + Vector(0.02f, 0.02f, 0.02f));

@@ -28,10 +28,18 @@ public:
 class CFrameBuffer
 {
 public:
+				CFrameBuffer();
+
+public:
+	size_t		m_iWidth;
+	size_t		m_iHeight;
+
 	size_t		m_iMap;
 	size_t		m_iDepth;
 	size_t		m_iFB;
 };
+
+#define BLOOM_FILTERS 3
 
 class CRenderer
 {
@@ -39,12 +47,17 @@ public:
 					CRenderer(size_t iWidth, size_t iHeight);
 
 public:
-	CFrameBuffer	CreateFrameBuffer();
+	CFrameBuffer	CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear);
 
 	void			SetupFrame();
 	void			DrawBackground();
 	void			StartRendering();
 	void			FinishRendering();
+
+	void			RenderMapFullscreen(size_t iMap);
+	void			RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer);
+
+	void			RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal);
 
 	void			SetCameraPosition(Vector vecCameraPosition) { m_vecCameraPosition = vecCameraPosition; };
 	void			SetCameraTarget(Vector vecCameraTarget) { m_vecCameraTarget = vecCameraTarget; };
@@ -69,6 +82,9 @@ protected:
 	int				m_aiViewport[4];
 
 	CFrameBuffer	m_oSceneBuffer;
+
+	CFrameBuffer	m_oBloom1Buffers[BLOOM_FILTERS];
+	CFrameBuffer	m_oBloom2Buffers[BLOOM_FILTERS];
 };
 
 #endif

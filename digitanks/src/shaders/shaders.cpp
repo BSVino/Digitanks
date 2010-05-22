@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <assert.h>
 
 CShaderLibrary* CShaderLibrary::s_pShaderLibrary = NULL;
 static CShaderLibrary g_ShaderLibrary = CShaderLibrary();
@@ -14,6 +15,9 @@ CShaderLibrary::CShaderLibrary()
 
 	m_iTerrain = AddShader(GetVSTerrainShader(), GetFSTerrainShader());
 	m_iModel = AddShader(GetVSModelShader(), GetFSModelShader());
+
+	m_iBlur = AddShader(GetVSPassShader(), GetFSBlurShader());
+	m_iBrightPass = AddShader(GetVSPassShader(), GetFSBrightPassShader());
 }
 
 CShaderLibrary::~CShaderLibrary()
@@ -82,6 +86,7 @@ void CShaderLibrary::CompileShader(size_t iShader)
 
 #ifdef _DEBUG
 	glGetProgramInfoLog((GLuint)pShader->m_iProgram, 1024, &iLogLength, szLog);
+	assert(!glGetError());
 #endif
 }
 

@@ -336,6 +336,14 @@
 				Name="shaders"
 				>
 				<File
+					RelativePath=".\shaders\blur.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\shaders\filters.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\shaders\model.cpp"
 					>
 				</File>

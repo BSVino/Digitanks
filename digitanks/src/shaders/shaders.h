@@ -31,6 +31,8 @@ public:
 public:
 	static size_t			GetProgram(size_t iProgram) { return Get()->GetShader(iProgram)->m_iProgram; };
 
+	static const char*		GetVSPassShader();
+
 	static const char*		GetVSTerrainShader();
 	static const char*		GetFSTerrainShader();
 	static size_t			GetTerrainProgram() { return GetProgram(Get()->m_iTerrain); };
@@ -38,6 +40,12 @@ public:
 	static const char*		GetVSModelShader();
 	static const char*		GetFSModelShader();
 	static size_t			GetModelProgram() { return GetProgram(Get()->m_iModel); };
+
+	static const char*		GetFSBlurShader();
+	static size_t			GetBlurProgram() { return GetProgram(Get()->m_iBlur); };
+
+	static const char*		GetFSBrightPassShader();
+	static size_t			GetBrightPassProgram() { return GetProgram(Get()->m_iBrightPass); };
 
 	static void				CompileShaders();
 
@@ -52,10 +60,23 @@ protected:
 
 	size_t					m_iTerrain;
 	size_t					m_iModel;
+	size_t					m_iBlur;
+	size_t					m_iBrightPass;
 
 private:
 	static CShaderLibrary*	s_pShaderLibrary;
 };
+
+inline const char* CShaderLibrary::GetVSPassShader()
+{
+	return
+		"void main()"
+		"{"
+		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+		"	gl_TexCoord[0] = gl_MultiTexCoord0;"
+		"	gl_FrontColor = gl_Color;"
+		"}";
+}
 
 #define ENDL "\n"
 
