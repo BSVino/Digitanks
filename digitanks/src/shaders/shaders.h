@@ -35,6 +35,10 @@ public:
 	static const char*		GetFSTerrainShader();
 	static size_t			GetTerrainProgram() { return GetProgram(Get()->m_iTerrain); };
 
+	static const char*		GetVSModelShader();
+	static const char*		GetFSModelShader();
+	static size_t			GetModelProgram() { return GetProgram(Get()->m_iModel); };
+
 	static void				CompileShaders();
 
 	static CShaderLibrary*	Get() { return s_pShaderLibrary; };
@@ -47,6 +51,7 @@ protected:
 	bool					m_bCompiled;
 
 	size_t					m_iTerrain;
+	size_t					m_iModel;
 
 private:
 	static CShaderLibrary*	s_pShaderLibrary;

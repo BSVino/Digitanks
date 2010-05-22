@@ -1,6 +1,7 @@
 #include "models.h"
 
 #include <modelconverter/modelconverter.h>
+#include <renderer/renderer.h>
 
 CModelLibrary* CModelLibrary::s_pModelLibrary = NULL;
 static CModelLibrary g_ModelLibrary = CModelLibrary();
@@ -27,7 +28,11 @@ size_t CModelLibrary::AddModel(const wchar_t* pszFilename)
 		return iModel;
 
 	m_apModels.push_back(new CModel(pszFilename));
-	return m_apModels.size()-1;
+
+	iModel = m_apModels.size()-1;
+	m_apModels[iModel]->m_iCallList = CRenderer::CreateCallList(iModel);
+	m_apModels[iModel]->m_bStatic = true;
+	return iModel;
 }
 
 CModel* CModelLibrary::GetModel(size_t i)
@@ -53,6 +58,8 @@ CModel::CModel(const wchar_t* pszFilename)
 {
 	m_sFilename = pszFilename;
 	m_pScene = new CConversionScene();
+	m_bStatic = false;
+	m_iCallList = 0;
 	CModelConverter c(m_pScene);
 	c.ReadModel(pszFilename);
 }

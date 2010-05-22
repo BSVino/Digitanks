@@ -137,6 +137,8 @@ protected:
 	glgui::CLabel*				m_pPressEnter;
 
 	bool						m_bAutoProceed;
+
+	glgui::CLabel*				m_pFPS;
 };
 
 #endif

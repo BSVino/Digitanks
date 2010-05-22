@@ -154,6 +154,11 @@ CHUD::CHUD()
 	AddControl(m_pPressEnter);
 
 	SetupMenu(MENUMODE_MAIN);
+
+#ifdef _DEBUG
+	m_pFPS = new CLabel(0, 0, 100, 20, "");
+	AddControl(m_pFPS);
+#endif
 }
 
 void CHUD::Layout()
@@ -373,6 +378,12 @@ void CHUD::Think()
 		m_pFireAttack->SetWrap(false);
 		m_pFireDefend->SetWrap(false);
 	}
+
+#ifdef _DEBUG
+	char szFPS[100];
+	sprintf(szFPS, "%d fps", (int)(1/Game()->GetFrameTime()));
+	m_pFPS->SetText(szFPS);
+#endif
 }
 
 void CHUD::Paint(int x, int y, int w, int h)

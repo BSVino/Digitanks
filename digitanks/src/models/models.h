@@ -13,6 +13,9 @@ public:
 public:
 	std::wstring			m_sFilename;
 	CConversionScene*		m_pScene;
+
+	bool					m_bStatic;
+	size_t					m_iCallList;
 };
 
 class CModelLibrary

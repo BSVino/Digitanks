@@ -54,6 +54,9 @@ public:
 	Vector			ScreenPosition(Vector vecWorld);
 	Vector			WorldPosition(Vector vecScreen);
 
+public:
+	static size_t	CreateCallList(size_t iModel);
+
 protected:
 	size_t			m_iWidth;
 	size_t			m_iHeight;

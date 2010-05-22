@@ -2,10 +2,11 @@
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <maths.h>
 
 #include <modelconverter/convmesh.h>
 #include <models/models.h>
-#include <maths.h>
+#include <shaders/shaders.h>
 
 CRenderingContext::CRenderingContext()
 {
@@ -64,8 +65,23 @@ void CRenderingContext::RenderModel(size_t iModel)
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
-		RenderSceneNode(pModel->m_pScene, pModel->m_pScene->GetScene(i));
+	if (pModel->m_bStatic)
+	{
+		GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
+		glUseProgram(iProgram);
+
+		GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
+		glUniform1f(flAlpha, m_flAlpha);
+
+		glCallList((GLuint)pModel->m_iCallList);
+
+		glUseProgram(0);
+	}
+	else
+	{
+		for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
+			RenderSceneNode(pModel->m_pScene, pModel->m_pScene->GetScene(i));
+	}
 
 	glPopAttrib();
 }
@@ -102,36 +118,33 @@ void CRenderingContext::RenderMeshInstance(CConversionScene* pScene, CConversion
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, flMaterialColor);
 	glColor4fv(flMaterialColor);
 
-	bool bMultiTexture = false;
-
 	CConversionMesh* pMesh = pMeshInstance->GetMesh();
+
+	Vector vecDiffuse(0.7f, 0.7f, 0.7f);
 
 	for (size_t j = 0; j < pMesh->GetNumFaces(); j++)
 	{
 		size_t k;
 		CConversionFace* pFace = pMesh->GetFace(j);
 
-		if (pFace->m != ~0 && pMeshInstance->GetMappedMaterial(pFace->m))
+		if (pFace->m == ~0)
+			continue;
+
+		CConversionMaterial* pMaterial = NULL;
+		CConversionMaterialMap* pConversionMaterialMap = pMeshInstance->GetMappedMaterial(pFace->m);
+
+		if (pConversionMaterialMap)
 		{
-			if (!pMeshInstance->GetMappedMaterial(pFace->m)->IsVisible())
+			if (!pConversionMaterialMap->IsVisible())
 				continue;
 
-			CConversionMaterial* pMaterial = pScene->GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
+			pMaterial = pScene->GetMaterial(pConversionMaterialMap->m_iMaterial);
 			if (pMaterial && !pMaterial->IsVisible())
 				continue;
 		}
 
-		Vector vecDiffuse(0.7f, 0.7f, 0.7f);
-		if (pScene->DoesFaceHaveValidMaterial(pFace, pMeshInstance))
-		{
-			CConversionMaterial* pMaterial = pScene->GetMaterial(pMeshInstance->GetMappedMaterial(pFace->m)->m_iMaterial);
-			glMaterialfv(GL_FRONT, GL_AMBIENT, pMaterial->m_vecAmbient);
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, pMaterial->m_vecDiffuse);
-			glMaterialfv(GL_FRONT, GL_SPECULAR, pMaterial->m_vecSpecular);
-			glMaterialfv(GL_FRONT, GL_EMISSION, pMaterial->m_vecEmissive);
-			glMaterialf(GL_FRONT, GL_SHININESS, pMaterial->m_flShininess);
+		if (pMaterial)
 			vecDiffuse = pMaterial->m_vecDiffuse;
-		}
 
 		glBegin(GL_POLYGON);
 
@@ -341,4 +354,16 @@ Vector CRenderer::WorldPosition(Vector vecScreen)
 		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
 		&x, &y, &z);
 	return Vector((float)x, (float)y, (float)z);
+}
+
+size_t CRenderer::CreateCallList(size_t iModel)
+{
+	size_t iCallList = glGenLists(1);
+
+	glNewList((GLuint)iCallList, GL_COMPILE);
+	CRenderingContext c;
+	c.RenderModel(iModel);
+	glEndList();
+
+	return iCallList;
 }

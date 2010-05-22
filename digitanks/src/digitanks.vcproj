@@ -336,6 +336,10 @@
 				Name="shaders"
 				>
 				<File
+					RelativePath=".\shaders\model.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\shaders\shaders.cpp"
 					>
 				</File>

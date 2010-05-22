@@ -13,6 +13,7 @@ CShaderLibrary::CShaderLibrary()
 	m_bCompiled = false;
 
 	m_iTerrain = AddShader(GetVSTerrainShader(), GetFSTerrainShader());
+	m_iModel = AddShader(GetVSModelShader(), GetFSModelShader());
 }
 
 CShaderLibrary::~CShaderLibrary()
