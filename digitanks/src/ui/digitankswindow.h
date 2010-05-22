@@ -33,10 +33,6 @@ public:
 
 	static void					RenderCallback() { Get()->Render(); };
 	void						Render();
-	void						RenderObjects();
-	void						RenderLightSource();
-	void						RenderGame(class CDigitanksGame* pGame);
-	void						RenderMovementSelection();
 
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void						WindowResize(int x, int y);
@@ -73,14 +69,11 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
-	Vector						ScreenPosition(Vector vecWorld);
-	Vector						WorldPosition(Vector vecScreen);
 	bool						GetMouseGridPosition(Vector& vecPoint);
 
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
-	CDigitanksGame*				GetGame() { return m_pDigitanksGame; };
+	class CDigitanksGame*		GetGame() { return m_pDigitanksGame; };
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
-	class CCamera*				GetCamera() { return m_pCamera; };
 
 	controlmode_t				GetControlMode();
 	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
@@ -94,10 +87,6 @@ protected:
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
 
-	double						m_aiModelView[16];
-	double						m_aiProjection[16];
-	int							m_aiViewport[4];
-
 	class CDigitanksMenu*		m_pMenu;
 
 	class CDigitanksGame*		m_pDigitanksGame;
@@ -105,8 +94,6 @@ protected:
 	class CHUD*					m_pHUD;
 
 	class CInstructor*			m_pInstructor;
-
-	class CCamera*				m_pCamera;
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
 

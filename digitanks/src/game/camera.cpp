@@ -2,12 +2,12 @@
 
 #include <maths.h>
 
-#include "game/digitanksgame.h"
+#include "digitanksgame.h"
 
 CCamera::CCamera()
 {
 	m_bFPSMode = false;
-	m_flTargetRamp = m_flTargetRamp = 0;
+	m_flTargetRamp = m_flDistanceRamp = 0;
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
 }
@@ -19,10 +19,22 @@ void CCamera::SetTarget(Vector vecTarget)
 	m_vecNewTarget = vecTarget;
 }
 
+void CCamera::SnapTarget(Vector vecTarget)
+{
+	m_flTargetRamp = 0;
+	m_vecNewTarget = vecTarget;
+}
+
 void CCamera::SetDistance(float flDistance)
 {
 	m_flDistanceRamp = DigitanksGame()->GetGameTime();
 	m_flOldDistance = m_flDistance;
+	m_flNewDistance = flDistance;
+}
+
+void CCamera::SnapDistance(float flDistance)
+{
+	m_flDistanceRamp = 0;
 	m_flNewDistance = flDistance;
 }
 
@@ -32,7 +44,7 @@ void CCamera::Think()
 	float flLerpTime = 0.5f;
 	float flLerpAmount = 0.7f;
 
-	if (flGameTime - m_flTargetRamp < flLerpTime)
+	if (m_flTargetRamp && flGameTime - m_flTargetRamp < flLerpTime)
 	{
 		float flLerp = Lerp((flGameTime - m_flTargetRamp)/flLerpTime, flLerpAmount);
 		m_vecTarget = m_vecNewTarget * flLerp + m_vecOldTarget * (1-flLerp);
@@ -40,7 +52,7 @@ void CCamera::Think()
 	else
 		m_vecTarget = m_vecNewTarget;
 
-	if (flGameTime - m_flDistanceRamp < flLerpTime)
+	if (m_flDistanceRamp && flGameTime - m_flDistanceRamp < flLerpTime)
 	{
 		float flLerp = Lerp((flGameTime - m_flDistanceRamp)/flLerpTime, flLerpAmount);
 		m_flDistance = m_flNewDistance * flLerp + m_flOldDistance * (1-flLerp);

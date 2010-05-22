@@ -9,6 +9,7 @@
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
 #include "powerup.h"
+#include "ui/debugdraw.h"
 
 REGISTER_ENTITY(CDigitank);
 
@@ -705,6 +706,68 @@ void CDigitank::PostRender()
 
 				RenderTurret(50.0f/255);
 			}
+		}
+	}
+
+	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
+	bool bAimMode = CDigitanksWindow::Get()->GetControlMode() == MODE_AIM;
+	bool bShowThisTank = HasDesiredAim() || (bAimMode && (this == pCurrentTank || bShiftDown));
+	if (GetTeam() != DigitanksGame()->GetCurrentTeam())
+		bShowThisTank = false;
+
+	if (bShowThisTank)
+	{
+		Vector vecMouseAim;
+		bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecMouseAim);
+
+		Vector vecTankAim;
+		if (HasDesiredAim())
+			vecTankAim = GetDesiredAim();
+
+		if (bMouseOK && bAimMode)
+		{
+			if (this == pCurrentTank)
+				vecTankAim = vecMouseAim;
+
+			if (this != pCurrentTank && bShiftDown)
+				vecTankAim = vecMouseAim;
+		}
+
+		if (HasDesiredAim() || bMouseOK)
+		{
+			glPushAttrib(GL_ENABLE_BIT);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			int iAlpha = 150;
+			if (this == pCurrentTank && bAimMode)
+				iAlpha = 250;
+
+			if ((vecTankAim - GetDesiredMove()).Length() > GetMaxRange())
+			{
+				vecTankAim = GetDesiredMove() + (vecTankAim - GetDesiredMove()).Normalized() * GetMaxRange() * 0.99f;
+				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+			}
+
+			Vector vecTankOrigin = GetDesiredMove();
+			float flDistance = (vecTankAim - vecTankOrigin).Length();
+
+			DebugCircle(vecTankAim, RemapValClamped(flDistance, GetMinRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, iAlpha));
+
+			float flGravity = DigitanksGame()->GetGravity();
+			float flTime;
+			Vector vecForce;
+			FindLaunchVelocity(vecTankOrigin, vecTankAim, flGravity, vecForce, flTime);
+
+			Vector vecProjectile = vecTankOrigin;
+			for (size_t i = 0; i < 20; i++)
+			{
+				DebugLine(vecProjectile, vecProjectile + vecForce*flTime/20, Color(255, 0, 0, iAlpha));
+				vecProjectile += vecForce*flTime/20;
+				vecForce.y += flGravity*flTime/20;
+			}
+
+			glPopAttrib();
 		}
 	}
 }

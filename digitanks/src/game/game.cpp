@@ -1,5 +1,10 @@
 #include "game.h"
 
+#include <ui/digitankswindow.h>
+#include <renderer/renderer.h>
+
+#include "camera.h"
+
 CGame* CGame::s_pGame = NULL;
 
 CGame::CGame()
@@ -12,10 +17,16 @@ CGame::CGame()
 
 	for (size_t i = 0; i < CBaseEntity::s_apfnEntityRegisterCallbacks.size(); i++)
 		CBaseEntity::s_apfnEntityRegisterCallbacks[i]();
+
+	m_pCamera = new CCamera();
+	m_pCamera->SnapDistance(120);
+	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
 }
 
 CGame::~CGame()
 {
+	delete m_pRenderer;
+	delete m_pCamera;
 	assert(s_pGame == this);
 	s_pGame = NULL;
 }
@@ -82,6 +93,25 @@ void CGame::Simulate()
 			}
 		}
 	}
+}
+
+void CGame::Render()
+{
+	m_pCamera->Think();
+
+	m_pRenderer->SetCameraPosition(m_pCamera->GetCameraPosition());
+	m_pRenderer->SetCameraTarget(m_pCamera->GetCameraTarget());
+
+	m_pRenderer->SetupFrame();
+	m_pRenderer->DrawBackground();
+	m_pRenderer->StartRendering();
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Render();
+
+//	RenderMovementSelection();
+
+	m_pRenderer->FinishRendering();
 }
 
 void CGame::Delete(class CBaseEntity* pEntity)

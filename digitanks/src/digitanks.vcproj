@@ -184,14 +184,6 @@
 				Name="ui"
 				>
 				<File
-					RelativePath=".\ui\camera.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ui\camera.h"
-					>
-				</File>
-				<File
 					RelativePath=".\ui\debugdraw.cpp"
 					>
 				</File>
@@ -269,6 +261,14 @@
 				</File>
 				<File
 					RelativePath=".\game\baseentity.h"
+					>
+				</File>
+				<File
+					RelativePath=".\game\camera.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\camera.h"
 					>
 				</File>
 				<File

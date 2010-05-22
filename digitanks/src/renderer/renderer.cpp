@@ -149,3 +149,122 @@ void CRenderingContext::RenderMeshInstance(CConversionScene* pScene, CConversion
 		glEnd();
 	}
 }
+
+CRenderer::CRenderer(size_t iWidth, size_t iHeight)
+{
+	m_iWidth = iWidth;
+	m_iHeight = iHeight;
+}
+
+void CRenderer::SetupFrame()
+{
+	glReadBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
+	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void CRenderer::DrawBackground()
+{
+	// First draw a nice faded gray background.
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
+
+	glShadeModel(GL_SMOOTH);
+
+	glBegin(GL_QUADS);
+		glColor3ub(20, 20, 20);
+		glVertex2f(-1.0f, 1.0f);
+		glColor3ub(10, 10, 10);
+		glVertex2f(-1.0f, -1.0f);
+		glColor3ub(20, 20, 20);
+		glVertex2f(1.0f, -1.0f);
+		glColor3ub(10, 10, 10);
+		glVertex2f(1.0f, 1.0f);
+	glEnd();
+
+	glPopAttrib();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+}
+
+void CRenderer::StartRendering()
+{
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPerspective(
+			44.0,
+			(float)m_iWidth/(float)m_iHeight,
+			10,
+			1000.0
+		);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	glPushMatrix();
+	glLoadIdentity();
+
+	gluLookAt(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z,
+		m_vecCameraTarget.x, m_vecCameraTarget.y, m_vecCameraTarget.z,
+		0.0, 1.0, 0.0);
+
+	glGetDoublev( GL_MODELVIEW_MATRIX, m_aiModelView );
+	glGetDoublev( GL_PROJECTION_MATRIX, m_aiProjection );
+	glGetIntegerv( GL_VIEWPORT, m_aiViewport );
+
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+}
+
+void CRenderer::FinishRendering()
+{
+	glPopMatrix();
+	glPopAttrib();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+}
+
+void CRenderer::SetSize(int w, int h)
+{
+	m_iWidth = w;
+	m_iHeight = h;
+}
+
+Vector CRenderer::ScreenPosition(Vector vecWorld)
+{
+	GLdouble x, y, z;
+	gluProject(
+		vecWorld.x, vecWorld.y, vecWorld.z,
+		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
+		&x, &y, &z);
+	return Vector((float)x, (float)m_iHeight - (float)y, (float)z);
+}
+
+Vector CRenderer::WorldPosition(Vector vecScreen)
+{
+	GLdouble x, y, z;
+	gluUnProject(
+		vecScreen.x, (float)m_iHeight - vecScreen.y, vecScreen.z,
+		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
+		&x, &y, &z);
+	return Vector((float)x, (float)y, (float)z);
+}

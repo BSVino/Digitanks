@@ -7,7 +7,8 @@
 #include "game/digitanksgame.h"
 #include "debugdraw.h"
 #include "instructor.h"
-#include "camera.h"
+#include "game/camera.h"
+#include "renderer/renderer.h"
 
 using namespace glgui;
 
@@ -235,6 +236,34 @@ void CHUD::Think()
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
 
+	Vector vecPoint;
+	bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
+
+	if (bMouseOnGrid)
+	{
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE || CDigitanksWindow::Get()->GetControlMode() == MODE_TURN || CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			UpdateAttackInfo();
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+			pCurrentTank->SetPreviewMove(vecPoint);
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		{
+			if ((vecPoint - pCurrentTank->GetDesiredMove()).LengthSqr() > 3*3)
+			{
+				Vector vecTurn = vecPoint - pCurrentTank->GetDesiredMove();
+				vecTurn.Normalize();
+				float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
+				pCurrentTank->SetPreviewTurn(flTurn);
+			}
+			else
+				pCurrentTank->SetPreviewTurn(pCurrentTank->GetAngles().y);
+		}
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			pCurrentTank->SetPreviewAim(vecPoint);
+	}
+
 	if (pCurrentTank && pCurrentTank->GetDefenseScale(true) < 0.3f)
 	{
 		m_pLowShieldsWarning->SetVisible(true);
@@ -380,7 +409,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CDigitank* pTank = pTeam->GetTank(j);
 
 			Vector vecOrigin = pTank->GetDesiredMove();
-			Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(vecOrigin);
+			Vector vecScreen = Game()->GetRenderer()->ScreenPosition(vecOrigin);
 
 			if (!CDigitanksWindow::Get()->IsAltDown() && pTank->GetTeam() != DigitanksGame()->GetCurrentTeam())
 				continue;
@@ -495,7 +524,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	for (size_t v = 0; v < aVecs.size(); v++)
 	{
-		Vector vecCorner = CDigitanksWindow::Get()->ScreenPosition(vecOrigin+aVecs[v]);
+		Vector vecCorner = Game()->GetRenderer()->ScreenPosition(vecOrigin+aVecs[v]);
 		if (v == 0)
 		{
 			vecMin = vecMax = vecCorner;
@@ -828,7 +857,7 @@ void CHUD::NewCurrentTeam()
 
 	CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
 
-	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTeam()->GetTank(0)->GetOrigin());
+	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTeam()->GetTank(0)->GetOrigin());
 }
 
 void CHUD::NewCurrentTank()
@@ -858,7 +887,7 @@ void CHUD::NewCurrentTank()
 
 	UpdateAttackInfo();
 
-	CDigitanksWindow::Get()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
+	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
@@ -993,7 +1022,7 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
-	Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(pVictim->GetOrigin());
+	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
 
 	if (m_bShield)
@@ -1034,7 +1063,7 @@ void CDamageIndicator::Think()
 
 	float flOffset = RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
 
-	Vector vecScreen = CDigitanksWindow::Get()->ScreenPosition(m_vecLastOrigin);
+	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
 	SetAlpha((int)RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));

@@ -14,6 +14,7 @@ public:
 public:
 	void										Think(float flGameTime);
 	void										Simulate();
+	void										Render();
 
 	virtual void								Think() {};
 
@@ -26,6 +27,9 @@ public:
 	float										GetFrameTime() { return m_flFrameTime; };
 	float										GetGameTime() { return m_flGameTime; };
 
+	class CCamera*								GetCamera() { return m_pCamera; };
+	class CRenderer*							GetRenderer() { return m_pRenderer; };
+
 	static CGame*								GetGame() { return s_pGame; };
 
 protected:
@@ -35,6 +39,9 @@ protected:
 
 	float										m_flGameTime;
 	float										m_flFrameTime;
+
+	class CCamera*								m_pCamera;
+	class CRenderer*							m_pRenderer;
 };
 
 inline class CGame* Game()

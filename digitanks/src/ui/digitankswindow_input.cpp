@@ -5,7 +5,7 @@
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
 #include "instructor.h"
-#include "camera.h"
+#include "game/camera.h"
 #include "hud.h"
 #include "menu.h"
 
@@ -15,8 +15,8 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
-	if (GetCamera())
-		GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+	if (GetGame() && GetGame()->GetCamera())
+		GetGame()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
@@ -28,8 +28,8 @@ void CDigitanksWindow::MouseDragged(int x, int y)
 
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
-	if (GetCamera())
-		GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+	if (GetGame() && GetGame()->GetCamera())
+		GetGame()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
@@ -39,8 +39,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 {
 	FakeCtrlAltShift();
 
-	if (GetCamera())
-		GetCamera()->MouseButton(iButton, iState);
+	if (GetGame() && GetGame()->GetCamera())
+		GetGame()->GetCamera()->MouseButton(iButton, iState);
 
 	if (iState == GLUT_DOWN)
 	{
@@ -72,7 +72,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 
-			GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
+			GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
@@ -149,14 +149,14 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			SetControlMode(MODE_NONE);
 	}
 
-	if (GetCamera())
-		GetCamera()->KeyDown(c);
+	if (GetGame() && GetGame()->GetCamera())
+		GetGame()->GetCamera()->KeyDown(c);
 }
 
 void CDigitanksWindow::KeyRelease(unsigned char c, int x, int y)
 {
-	if (GetCamera())
-		GetCamera()->KeyUp(c);
+	if (GetGame() && GetGame()->GetCamera())
+		GetGame()->GetCamera()->KeyUp(c);
 }
 
 void CDigitanksWindow::Special(int k, int x, int y)

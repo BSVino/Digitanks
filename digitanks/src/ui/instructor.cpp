@@ -5,6 +5,7 @@
 #include "game/digitank.h"
 #include "game/digitanksgame.h"
 #include "digitankswindow.h"
+#include "renderer/renderer.h"
 
 using namespace glgui;
 
@@ -181,7 +182,7 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 	case CInstructor::POSITION_ACTIVETANK:
 	{
 		CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
-		Vector vecCurrentTank = CDigitanksWindow::Get()->ScreenPosition(pCurrentTank->GetOrigin());
+		Vector vecCurrentTank = Game()->GetRenderer()->ScreenPosition(pCurrentTank->GetOrigin());
 		SetPos((int)vecCurrentTank.x - GetWidth() - 100, (int)vecCurrentTank.y - 50);
 		if (GetLeft() < 0)
 			SetPos(0, GetTop());
