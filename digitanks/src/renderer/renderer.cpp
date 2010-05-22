@@ -154,12 +154,39 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
+
+	m_oSceneBuffer = CreateFrameBuffer();
+}
+
+CFrameBuffer CRenderer::CreateFrameBuffer()
+{
+	CFrameBuffer oBuffer;
+
+	glGenTextures(1, &oBuffer.m_iMap);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)m_iWidth, (GLsizei)m_iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenRenderbuffersEXT(1, &oBuffer.m_iDepth);
+	glBindRenderbufferEXT( GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth );
+	glRenderbufferStorageEXT( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (GLsizei)m_iWidth, (GLsizei)m_iHeight );
+	glBindRenderbufferEXT( GL_RENDERBUFFER, 0 );
+
+	glGenFramebuffersEXT(1, &oBuffer.m_iFB);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap, 0);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	return oBuffer;
 }
 
 void CRenderer::SetupFrame()
 {
-	glReadBuffer(GL_BACK);
-	glDrawBuffer(GL_BACK);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
+
 	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -241,6 +268,53 @@ void CRenderer::FinishRendering()
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	glReadBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+    glOrtho(0, m_iWidth, m_iHeight, 0, -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_COLOR_MATERIAL);
+
+	glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glColor4f(1, 1, 1, 1);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)m_oSceneBuffer.m_iMap);
+	glEnable(GL_TEXTURE_2D);
+
+	glUseProgram(0);
+
+	glBegin(GL_QUADS);
+		glTexCoord2i(0, 1); glVertex2d(0, 0);
+		glTexCoord2i(0, 0); glVertex2d(0, m_iHeight);
+		glTexCoord2i(1, 0); glVertex2d(m_iWidth, m_iHeight);
+		glTexCoord2i(1, 1); glVertex2d(m_iWidth, 0);
+	glEnd();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();   
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glPopAttrib();
+
+	glFinish();
 }
 
 void CRenderer::SetSize(int w, int h)

@@ -25,35 +25,47 @@ public:
 	float		m_flAlpha;
 };
 
+class CFrameBuffer
+{
+public:
+	size_t		m_iMap;
+	size_t		m_iDepth;
+	size_t		m_iFB;
+};
+
 class CRenderer
 {
 public:
-				CRenderer(size_t iWidth, size_t iHeight);
+					CRenderer(size_t iWidth, size_t iHeight);
 
 public:
-	void		SetupFrame();
-	void		DrawBackground();
-	void		StartRendering();
-	void		FinishRendering();
+	CFrameBuffer	CreateFrameBuffer();
 
-	void		SetCameraPosition(Vector vecCameraPosition) { m_vecCameraPosition = vecCameraPosition; };
-	void		SetCameraTarget(Vector vecCameraTarget) { m_vecCameraTarget = vecCameraTarget; };
+	void			SetupFrame();
+	void			DrawBackground();
+	void			StartRendering();
+	void			FinishRendering();
 
-	void		SetSize(int w, int h);
+	void			SetCameraPosition(Vector vecCameraPosition) { m_vecCameraPosition = vecCameraPosition; };
+	void			SetCameraTarget(Vector vecCameraTarget) { m_vecCameraTarget = vecCameraTarget; };
 
-	Vector		ScreenPosition(Vector vecWorld);
-	Vector		WorldPosition(Vector vecScreen);
+	void			SetSize(int w, int h);
+
+	Vector			ScreenPosition(Vector vecWorld);
+	Vector			WorldPosition(Vector vecScreen);
 
 protected:
-	size_t		m_iWidth;
-	size_t		m_iHeight;
+	size_t			m_iWidth;
+	size_t			m_iHeight;
 
-	Vector		m_vecCameraPosition;
-	Vector		m_vecCameraTarget;
+	Vector			m_vecCameraPosition;
+	Vector			m_vecCameraTarget;
 
-	double		m_aiModelView[16];
-	double		m_aiProjection[16];
-	int			m_aiViewport[4];
+	double			m_aiModelView[16];
+	double			m_aiProjection[16];
+	int				m_aiViewport[4];
+
+	CFrameBuffer	m_oSceneBuffer;
 };
 
 #endif

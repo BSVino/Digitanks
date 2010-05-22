@@ -109,8 +109,6 @@ void CGame::Render()
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Render();
 
-//	RenderMovementSelection();
-
 	m_pRenderer->FinishRendering();
 }
 
