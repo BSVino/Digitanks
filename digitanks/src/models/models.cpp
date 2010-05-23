@@ -21,7 +21,7 @@ CModelLibrary::~CModelLibrary()
 	s_pModelLibrary = NULL;
 }
 
-size_t CModelLibrary::AddModel(const wchar_t* pszFilename)
+size_t CModelLibrary::AddModel(const wchar_t* pszFilename, bool bStatic)
 {
 	size_t iModel = FindModel(pszFilename);
 	if (iModel != ~0)
@@ -31,7 +31,7 @@ size_t CModelLibrary::AddModel(const wchar_t* pszFilename)
 
 	iModel = m_apModels.size()-1;
 	m_apModels[iModel]->m_iCallList = CRenderer::CreateCallList(iModel);
-	m_apModels[iModel]->m_bStatic = true;
+	m_apModels[iModel]->m_bStatic = bStatic;
 	return iModel;
 }
 

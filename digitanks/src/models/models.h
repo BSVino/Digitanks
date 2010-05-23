@@ -27,7 +27,7 @@ public:
 public:
 	size_t					GetNumModels() { return m_apModels.size(); };
 
-	size_t					AddModel(const wchar_t* pszFilename);
+	size_t					AddModel(const wchar_t* pszFilename, bool bStatic = true);
 	size_t					FindModel(const wchar_t* pszFilename);
 	CModel*					GetModel(size_t i);
 

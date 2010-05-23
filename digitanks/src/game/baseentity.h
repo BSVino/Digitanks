@@ -77,7 +77,7 @@ public:
 	static CBaseEntity*						GetEntityNumber(size_t i);
 	static size_t							GetNumEntities();
 
-	static void								PrecacheModel(const wchar_t* pszModel);
+	static void								PrecacheModel(const wchar_t* pszModel, bool bStatic = true);
 
 	static void								RegisterEntity(EntityRegisterCallback pfnCallback);
 	static void								RegisterEntity(CBaseEntity* pEntity);

@@ -123,9 +123,9 @@ void CBaseEntity::Delete()
 	Game()->Delete(this);
 }
 
-void CBaseEntity::PrecacheModel(const wchar_t* pszModel)
+void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)
 {
-	CModelLibrary::Get()->AddModel(pszModel);
+	CModelLibrary::Get()->AddModel(pszModel, bStatic);
 }
 
 void CBaseEntity::RegisterEntity(EntityRegisterCallback pfnCallback)
