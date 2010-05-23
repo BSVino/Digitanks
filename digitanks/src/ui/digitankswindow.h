@@ -27,8 +27,6 @@ public:
 
 	void						Run();	// Doesn't return
 
-	static size_t				LoadTextureIntoGL(std::wstring sFilename);
-
 	void						Layout();
 
 	static void					RenderCallback() { Get()->Render(); };

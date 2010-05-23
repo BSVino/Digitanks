@@ -86,7 +86,7 @@ void CShaderLibrary::CompileShader(size_t iShader)
 
 #ifdef _DEBUG
 	glGetProgramInfoLog((GLuint)pShader->m_iProgram, 1024, &iLogLength, szLog);
-	assert(!glGetError());
+	assert(!strlen(szLog));
 #endif
 }
 

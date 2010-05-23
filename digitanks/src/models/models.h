@@ -11,11 +11,16 @@ public:
 							~CModel();
 
 public:
+	size_t					LoadTextureIntoGL(size_t iMaterial);
+
+public:
 	std::wstring			m_sFilename;
 	CConversionScene*		m_pScene;
 
 	bool					m_bStatic;
 	size_t					m_iCallList;
+
+	std::vector<size_t>		m_aiTextures;
 };
 
 class CModelLibrary

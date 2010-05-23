@@ -53,22 +53,22 @@ void CRenderingContext::Scale(float flX, float flY, float flZ)
 	glScalef(flX, flY, flZ);
 }
 
-void CRenderingContext::RenderModel(size_t iModel)
+void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
 
 	glPushAttrib(GL_ENABLE_BIT);
 
-	if (m_flAlpha < 1.0f)
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (pModel->m_bStatic)
+	if (pModel->m_bStatic && !bNewCallList)
 	{
 		GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
 		glUseProgram(iProgram);
+
+		GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
+		glUniform1i(bDiffuse, false);
 
 		GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
 		glUniform1f(flAlpha, m_flAlpha);
@@ -80,13 +80,13 @@ void CRenderingContext::RenderModel(size_t iModel)
 	else
 	{
 		for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
-			RenderSceneNode(pModel->m_pScene, pModel->m_pScene->GetScene(i));
+			RenderSceneNode(pModel, pModel->m_pScene, pModel->m_pScene->GetScene(i), bNewCallList);
 	}
 
 	glPopAttrib();
 }
 
-void CRenderingContext::RenderSceneNode(CConversionScene* pScene, CConversionSceneNode* pNode)
+void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, bool bNewCallList)
 {
 	if (!pNode)
 		return;
@@ -99,15 +99,15 @@ void CRenderingContext::RenderSceneNode(CConversionScene* pScene, CConversionSce
 	glMultMatrixf(pNode->m_mTransformations.Transposed());	// GL uses column major.
 
 	for (size_t i = 0; i < pNode->GetNumChildren(); i++)
-		RenderSceneNode(pScene, pNode->GetChild(i));
+		RenderSceneNode(pModel, pScene, pNode->GetChild(i), bNewCallList);
 
 	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
-		RenderMeshInstance(pScene, pNode->GetMeshInstance(m));
+		RenderMeshInstance(pModel, pScene, pNode->GetMeshInstance(m), bNewCallList);
 
 	glPopMatrix();
 }
 
-void CRenderingContext::RenderMeshInstance(CConversionScene* pScene, CConversionMeshInstance* pMeshInstance)
+void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pScene, CConversionMeshInstance* pMeshInstance, bool bNewCallList)
 {
 	if (!pMeshInstance->IsVisible())
 		return;
@@ -143,8 +143,32 @@ void CRenderingContext::RenderMeshInstance(CConversionScene* pScene, CConversion
 				continue;
 		}
 
+		bool bTexture = false;
 		if (pMaterial)
+		{
 			vecDiffuse = pMaterial->m_vecDiffuse;
+			GLuint iTexture = (GLuint)pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial];
+			glBindTexture(GL_TEXTURE_2D, iTexture);
+
+			bTexture = !!iTexture;
+		}
+		else
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+		if (!bNewCallList)
+		{
+			GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
+			glUseProgram(iProgram);
+
+			GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
+			glUniform1i(bDiffuse, bTexture);
+
+			GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
+			glUniform1i(iDiffuse, 0);
+
+			GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
+			glUniform1f(flAlpha, m_flAlpha);
+		}
 
 		glBegin(GL_POLYGON);
 
@@ -155,9 +179,12 @@ void CRenderingContext::RenderMeshInstance(CConversionScene* pScene, CConversion
 			// Give the tank a little bit of manual shading since there's no lights.
 			float flDarken = RemapVal(pMesh->GetNormal(pVertex->vn).Dot(Vector(0, 1, 0)), -1, 1, 0.3f, 1.0f);
 			glColor4f(vecDiffuse.x * flDarken, vecDiffuse.y * flDarken, vecDiffuse.z * flDarken, m_flAlpha);
-
+			glTexCoord2fv(pMesh->GetUV(pVertex->vu));
 			glVertex3fv(pMesh->GetVertex(pVertex->v));
 		}
+
+		if (!bNewCallList)
+			glUseProgram(0);
 
 		glEnd();
 	}
@@ -470,7 +497,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 
 	glNewList((GLuint)iCallList, GL_COMPILE);
 	CRenderingContext c;
-	c.RenderModel(iModel);
+	c.RenderModel(iModel, true);
 	glEndList();
 
 	return iCallList;

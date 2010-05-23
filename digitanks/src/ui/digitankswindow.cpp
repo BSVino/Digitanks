@@ -137,53 +137,6 @@ void CDigitanksWindow::Run()
 	}
 }
 
-size_t CDigitanksWindow::LoadTextureIntoGL(std::wstring sFilename)
-{
-	if (!sFilename.length())
-		return 0;
-
-	ILuint iDevILId;
-	ilGenImages(1, &iDevILId);
-	ilBindImage(iDevILId);
-
-	ILboolean bSuccess = ilLoadImage(sFilename.c_str());
-
-	if (!bSuccess)
-		bSuccess = ilLoadImage(sFilename.c_str());
-
-	ILenum iError = ilGetError();
-
-	if (!bSuccess)
-		return 0;
-
-	bSuccess = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-	if (!bSuccess)
-		return 0;
-
-	ILinfo ImageInfo;
-	iluGetImageInfo(&ImageInfo);
-
-	if (ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT)
-		iluFlipImage();
-
-	GLuint iGLId;
-	glGenTextures(1, &iGLId);
-	glBindTexture(GL_TEXTURE_2D, iGLId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	gluBuild2DMipmaps(GL_TEXTURE_2D,
-		ilGetInteger(IL_IMAGE_BPP),
-		ilGetInteger(IL_IMAGE_WIDTH),
-		ilGetInteger(IL_IMAGE_HEIGHT),
-		ilGetInteger(IL_IMAGE_FORMAT),
-		GL_UNSIGNED_BYTE,
-		ilGetData());
-
-	ilDeleteImages(1, &iDevILId);
-
-	return iGLId;
-}
-
 void CDigitanksWindow::Render()
 {
 	Game()->Render();

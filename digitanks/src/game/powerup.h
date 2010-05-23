@@ -9,7 +9,10 @@ public:
 					CPowerup();
 
 public:
-	virtual void	OnRender();
+	void			Precache();
+
+	virtual EAngle	GetRenderAngles() const;
+	virtual void	PreRender();
 };
 
 #endif
