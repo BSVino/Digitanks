@@ -405,7 +405,8 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 }
 
 #define KERNEL_SIZE   3
-float aflKernel[KERNEL_SIZE] = { 5, 6, 5 };
+//float aflKernel[KERNEL_SIZE] = { 5, 6, 5 };
+float aflKernel[KERNEL_SIZE] = { 0.3125f, 0.375f, 0.3125f };
 
 void CRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal)
 {

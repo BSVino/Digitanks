@@ -18,8 +18,6 @@ const char* CShaderLibrary::GetFSBlurShader()
 		"	vecColorSum += aflCoefficients[1] * texture2D(iSource, vecTC);"
 		"	vecColorSum += aflCoefficients[2] * texture2D(iSource, vecTC + vecOffset);"
 
-		"	float flCoSum = aflCoefficients[0] + aflCoefficients[1] + aflCoefficients[2];"
-
-		"	gl_FragColor = vecColorSum / flCoSum;"
+		"	gl_FragColor = vecColorSum;"
 		"}";
 }

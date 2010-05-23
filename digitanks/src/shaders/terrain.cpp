@@ -77,7 +77,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"		{"
 		"			float flMoveColorStrength = RemapVal(flTankDistanceSqr, 0.0, flMoveDistance*flMoveDistance, 0.0, 1.0);"
 		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2);"
-		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(1.0, 1.0, 0.0, 1.0) * flMoveColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"		}"
 		"	}"
 
@@ -105,7 +105,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"			{"
 		"				float flMoveColorStrength = RemapVal(flTankDistanceSqr, flInside*flInside, flOutside*flOutside, 1.0, 0.0);"
 		"				flMoveColorStrength = Lerp(flMoveColorStrength, 0.1);"
-		"				vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(1.0, 1.0, 0.0, 1.0) * flMoveColorStrength;"
+		"				vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"			}"
 		"		}"
 
@@ -116,7 +116,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"			float flTurnDistanceSqr = LengthSqr(vecPosition - vecTurnPosition);"
 
-		"			vec4 vecTurnColor = vec4(1.0, 1.0, 0.0, 1.0);"
+		"			vec4 vecTurnColor = vec4(0.8, 0.8, 0.0, 1.0);"
 		"			if (!bTurnValid)"
 		"				vecTurnColor = vec4(0.2, 0.2, 0.0, 1.0);"
 
@@ -156,13 +156,13 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"		{"
 		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMinRangeInside*flTankMinRangeInside, flTankMinRange*flTankMinRange, 0.0, 1.0);"
 		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.8) * flColorStrength;"
-		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 1.0, 0.0, 1.0) * flMoveColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"		}"
 		"		if (flPreviewDistanceSqr <= flTankMaxRange*flTankMaxRange && flPreviewDistanceSqr >= flTankMinRange*flTankMinRange)"
 		"		{"
 		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRange*flTankMaxRange, flTankMinRange*flTankMinRange, 0.0, 1.0);"
 		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.1) * flColorStrength;"
-		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 1.0, 0.0, 1.0) * flMoveColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"		}"
 
 		"		float flTankMaxRangeInside = flTankMaxRange-3.0;"
@@ -170,7 +170,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"		{"
 		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRangeInside*flTankMaxRangeInside, flTankMaxRange*flTankMaxRange, 0.0, 1.0);"
 		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2) * flColorStrength;"
-		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(1.0, 0.0, 0.0, 1.0) * flMoveColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.0, 0.0, 1.0) * flMoveColorStrength;"
 		"		}"
 		"	}"
 

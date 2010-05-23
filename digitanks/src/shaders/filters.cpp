@@ -13,13 +13,18 @@ const char* CShaderLibrary::GetFSBrightPassShader()
 		"{"
 		"	vec4 vecFragmentColor = texture2D(iSource, gl_TexCoord[0].xy);"
 
-		"	float flAverage = (vecFragmentColor.x + vecFragmentColor.y + vecFragmentColor.z)/3.0;"
-		"	if (flAverage < flBrightness && flAverage > flBrightness - 0.1)"
+		"	float flValue = vecFragmentColor.x;"
+		"	if (vecFragmentColor.y > flValue)"
+		"		flValue = vecFragmentColor.y;"
+		"	if (vecFragmentColor.z > flValue)"
+		"		flValue = vecFragmentColor.z;"
+
+		"	if (flValue < flBrightness && flValue > flBrightness - 0.2)"
 		"	{"
-		"		float flStrength = RemapVal(flAverage, flBrightness - 0.1, flBrightness, 0.0, 1.0);"
+		"		float flStrength = RemapVal(flValue, flBrightness - 0.2, flBrightness, 0.0, 1.0);"
 		"		vecFragmentColor = vecFragmentColor*flStrength;"
 		"	}"
-		"	else if (flAverage < flBrightness - 0.1)"
+		"	else if (flValue < flBrightness - 0.2)"
 		"		vecFragmentColor = vec4(0.0, 0.0, 0.0, 0.0);"
 
 		"	gl_FragColor = vecFragmentColor*flScale;"
