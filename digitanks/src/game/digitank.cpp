@@ -14,6 +14,8 @@
 
 REGISTER_ENTITY(CDigitank);
 
+size_t CDigitank::s_iAimBeam = 0;
+
 CDigitank::CDigitank()
 {
 	m_flBasePower = 10;
@@ -56,6 +58,8 @@ void CDigitank::Precache()
 	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
+
+	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -766,13 +770,21 @@ void CDigitank::PostRender()
 			Vector vecForce;
 			FindLaunchVelocity(vecTankOrigin, vecTankAim, flGravity, vecForce, flTime);
 
+			CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, vecTankOrigin);
+			oRope.SetColor(Color(255, 0, 0, 255));
+			oRope.SetTextureScale(50);
+			oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
+
 			Vector vecProjectile = vecTankOrigin;
-			for (size_t i = 0; i < 20; i++)
+			size_t iLinks = 20;
+			for (size_t i = 0; i < iLinks; i++)
 			{
-				DebugLine(vecProjectile, vecProjectile + vecForce*flTime/20, Color(255, 0, 0, iAlpha));
-				vecProjectile += vecForce*flTime/20;
-				vecForce.y += flGravity*flTime/20;
+				oRope.AddLink(vecProjectile + vecForce*(flTime/iLinks));
+				vecProjectile += vecForce*(flTime/iLinks);
+				vecForce.y += flGravity*flTime/iLinks;
 			}
+
+			oRope.Finish(vecTankAim);
 
 			glPopAttrib();
 		}

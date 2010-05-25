@@ -264,6 +264,14 @@ void CRenderingContext::BindTexture(size_t iTexture)
 	m_bBoundTexture = true;
 }
 
+void CRenderingContext::SetColor(Color c)
+{
+	if (!m_bAttribs)
+		PushAttribs();
+
+	glColor4ubv(c);
+}
+
 void CRenderingContext::BeginRenderQuads()
 {
 	glBegin(GL_QUADS);
@@ -294,6 +302,110 @@ void CRenderingContext::PushAttribs()
 CFrameBuffer::CFrameBuffer()
 {
 	m_iMap = m_iDepth = m_iFB = 0;
+}
+
+CRopeRenderer::CRopeRenderer(CRenderer *pRenderer, size_t iTexture, Vector vecStart)
+	: m_oContext(pRenderer)
+{
+	m_pRenderer = pRenderer;
+
+	m_oContext.BindTexture(iTexture);
+	m_vecLastLink = vecStart;
+	m_bFirstLink = true;
+
+	m_flWidth = 1;
+
+	m_flTextureScale = 1;
+	m_flTextureOffset = 0;
+
+	m_oContext.SetBlend(BLEND_ADDITIVE);
+	m_oContext.SetDepthMask(false);
+
+	m_clrRope = Color(255, 255, 255, 255);
+	m_oContext.BeginRenderQuads();
+}
+
+void CRopeRenderer::AddLink(Vector vecLink)
+{
+	Vector vecForward = m_pRenderer->GetCameraVector();
+
+	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
+	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
+
+	float flAddV = (1/m_flTextureScale);
+
+	m_oContext.SetColor(m_clrRope);
+
+	if (!m_bFirstLink)
+	{
+		// Finish the previous link
+		m_oContext.TexCoord(1, m_flTextureOffset+flAddV);
+		m_oContext.Vertex(m_vecLastLink+vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset+flAddV);
+		m_oContext.Vertex(m_vecLastLink-vecRight);
+
+		m_flTextureOffset += flAddV;
+	}
+
+	m_bFirstLink = false;
+
+	// Start this link
+	m_oContext.TexCoord(0, m_flTextureOffset);
+	m_oContext.Vertex(m_vecLastLink-vecRight);
+	m_oContext.TexCoord(1, m_flTextureOffset);
+	m_oContext.Vertex(m_vecLastLink+vecRight);
+
+	m_vecLastLink = vecLink;
+}
+
+void CRopeRenderer::Finish(Vector vecLink)
+{
+	Vector vecForward = m_pRenderer->GetCameraVector();
+
+	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
+	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
+
+	float flAddV = (1/m_flTextureScale);
+
+	if (m_bFirstLink)
+	{
+		// Start the previous link
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink-vecRight);
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink+vecRight);
+
+		m_flTextureOffset += flAddV;
+
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(vecLink+vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(vecLink-vecRight);
+	}
+	else
+	{
+		m_flTextureOffset += flAddV;
+
+		// Finish the last link
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink+vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink-vecRight);
+
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink-vecRight);
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink+vecRight);
+
+		m_flTextureOffset += flAddV;
+
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(vecLink-vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(vecLink+vecRight);
+	}
+
+	m_oContext.EndRender();
 }
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
@@ -492,8 +604,6 @@ void CRenderer::StartRendering()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
 }
-
-void DrawTexture(GLuint iTexture, float flScale = 1.0f);
 
 void CRenderer::FinishRendering()
 {

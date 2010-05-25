@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector.h>
+#include <color.h>
 
 typedef enum
 {
@@ -34,6 +35,7 @@ public:
 	void		SetUniform(const char* pszName, int iValue);
 	void		SetUniform(const char* pszName, float flValue);
 	void		BindTexture(size_t iTexture);
+	void		SetColor(Color c);
 	void		BeginRenderQuads();
 	void		TexCoord(float s, float t);
 	void		Vertex(const Vector& v);
@@ -53,6 +55,34 @@ public:
 
 	blendtype_t	m_eBlend;
 	float		m_flAlpha;
+};
+
+class CRopeRenderer
+{
+public:
+						CRopeRenderer(class CRenderer* pRenderer, size_t iTexture, Vector vecStart);
+
+public:
+	void				AddLink(Vector vecLink);
+	void				Finish(Vector vecLink);
+
+	void				SetWidth(float flWidth) { m_flWidth = flWidth; };
+	void				SetColor(Color c) { m_clrRope = c; };
+	void				SetTextureScale(float flTextureScale) { m_flTextureScale = flTextureScale; };
+	void				SetTextureOffset(float flTextureOffset) { m_flTextureOffset = flTextureOffset; };
+
+protected:
+	CRenderer*			m_pRenderer;
+	CRenderingContext	m_oContext;
+
+	size_t				m_iTexture;
+	Vector				m_vecLastLink;
+	bool				m_bFirstLink;
+
+	float				m_flWidth;
+	Color				m_clrRope;
+	float				m_flTextureScale;
+	float				m_flTextureOffset;
 };
 
 class CFrameBuffer

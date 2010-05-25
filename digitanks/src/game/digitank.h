@@ -164,6 +164,8 @@ protected:
 
 	size_t						m_iTurretModel;
 	size_t						m_iShieldModel;
+
+	static size_t				s_iAimBeam;
 };
 
 class CProjectile : public CBaseEntity
