@@ -106,7 +106,12 @@ size_t CParticleSystemLibrary::AddInstance(size_t iParticleSystem, Vector vecOri
 
 void CParticleSystemLibrary::StopInstance(size_t iInstance)
 {
-	Get()->m_apInstances[iInstance]->Stop();
+	CSystemInstance* pInstance = GetInstance(iInstance);
+
+	if (!pInstance)
+		return;
+
+	pInstance->Stop();
 }
 
 void CParticleSystemLibrary::RemoveInstance(size_t iInstance)
@@ -255,7 +260,7 @@ void CSystemInstance::Render()
 	Vector vecForward, vecRight, vecUp;
 	pRenderer->GetCameraVectors(&vecForward, &vecRight, &vecUp);
 
-	CRenderingContext c;
+	CRenderingContext c(Game()->GetRenderer());
 
 	c.BindTexture(m_pSystem->GetTexture());
 	c.SetBlend(BLEND_ADDITIVE);

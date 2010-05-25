@@ -14,7 +14,7 @@ typedef enum
 class CRenderingContext
 {
 public:
-				CRenderingContext();
+				CRenderingContext(class CRenderer* pRenderer);
 				~CRenderingContext();
 
 public:
@@ -29,6 +29,7 @@ public:
 	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
 	void		RenderMeshInstance(class CModel* pModel, class CConversionScene* pScene, class CConversionMeshInstance* pMeshInstance, bool bNewCallList);
 
+	void		UseFrameBuffer(size_t iBuffer);
 	void		UseProgram(size_t iProgram);
 	void		SetUniform(const char* pszName, int iValue);
 	void		SetUniform(const char* pszName, float flValue);
@@ -42,8 +43,11 @@ protected:
 	void		PushAttribs();
 
 public:
+	CRenderer*	m_pRenderer;
+
 	bool		m_bMatrixTransformations;
 	bool		m_bBoundTexture;
+	bool		m_bFBO;
 	size_t		m_iProgram;
 	bool		m_bAttribs;
 
@@ -75,6 +79,8 @@ public:
 public:
 	CFrameBuffer	CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear);
 
+	void			CreateNoise();
+
 	void			SetupFrame();
 	void			DrawBackground();
 	void			StartRendering();
@@ -96,6 +102,9 @@ public:
 	Vector			ScreenPosition(Vector vecWorld);
 	Vector			WorldPosition(Vector vecScreen);
 
+	const CFrameBuffer*	GetSceneBuffer() { return &m_oSceneBuffer; }
+	const CFrameBuffer*	GetExplosionBuffer() { return &m_oExplosionBuffer; }
+
 public:
 	static size_t	CreateCallList(size_t iModel);
 	static size_t	LoadTextureIntoGL(std::wstring sFilename);
@@ -115,6 +124,9 @@ protected:
 
 	CFrameBuffer	m_oBloom1Buffers[BLOOM_FILTERS];
 	CFrameBuffer	m_oBloom2Buffers[BLOOM_FILTERS];
+
+	CFrameBuffer	m_oNoiseBuffer;
+	CFrameBuffer	m_oExplosionBuffer;
 };
 
 #endif

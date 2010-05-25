@@ -340,6 +340,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\shaders\explosion.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\shaders\filters.cpp"
 					>
 				</File>

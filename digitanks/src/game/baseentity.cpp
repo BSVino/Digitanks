@@ -97,7 +97,7 @@ void CBaseEntity::Render()
 	PreRender();
 
 	do {
-		CRenderingContext r;
+		CRenderingContext r(Game()->GetRenderer());
 		r.Translate(GetRenderOrigin());
 
 		EAngle angRender = GetRenderAngles();

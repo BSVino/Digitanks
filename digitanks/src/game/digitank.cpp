@@ -599,7 +599,7 @@ void CDigitank::OnRender()
 
 void CDigitank::RenderTurret(float flAlpha)
 {
-	CRenderingContext r;
+	CRenderingContext r(Game()->GetRenderer());
 	r.SetAlpha(flAlpha);
 	r.SetBlend(BLEND_ALPHA);
 	r.Translate(Vector(-0.564491f, 0.866906f, 0));
@@ -625,7 +625,7 @@ void CDigitank::RenderTurret(float flAlpha)
 
 void CDigitank::RenderShield(float flAlpha, float flAngle)
 {
-	CRenderingContext r;
+	CRenderingContext r(Game()->GetRenderer());
 	r.SetAlpha(flAlpha);
 	r.Rotate(flAngle, Vector(0, 1, 0));
 	r.SetBlend(BLEND_ALPHA);
@@ -636,7 +636,7 @@ void CDigitank::PostRender()
 {
 	if (HasDesiredMove() || HasDesiredTurn())
 	{
-		CRenderingContext r;
+		CRenderingContext r(Game()->GetRenderer());
 		r.Translate(GetOrigin() + Vector(0, 1, 0));
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		r.SetAlpha(50.0f/255);
@@ -669,7 +669,7 @@ void CDigitank::PostRender()
 				angTurn = EAngle(0, GetAngles().y + flTankTurn, 0);
 			}
 
-			CRenderingContext r;
+			CRenderingContext r(Game()->GetRenderer());
 			r.Translate(GetRenderOrigin());
 			r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 			r.SetAlpha(50.0f/255);
@@ -686,7 +686,7 @@ void CDigitank::PostRender()
 		{
 			if (this == pCurrentTank)
 			{
-				CRenderingContext r;
+				CRenderingContext r(Game()->GetRenderer());
 				r.Translate(GetPreviewMove() + Vector(0, 1, 0));
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
@@ -704,7 +704,7 @@ void CDigitank::PostRender()
 				Vector vecNewPosition = GetOrigin() + vecTankMove;
 				vecNewPosition.y = DigitanksGame()->GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
 
-				CRenderingContext r;
+				CRenderingContext r(Game()->GetRenderer());
 				r.Translate(vecNewPosition + Vector(0, 1, 0));
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
@@ -816,6 +816,7 @@ REGISTER_ENTITY(CProjectile);
 CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 {
 	m_flTimeCreated = DigitanksGame()->GetGameTime();
+	m_flTimeExploded = 0;
 
 	m_hOwner = pOwner;
 	m_flDamage = flDamage;
@@ -835,14 +836,37 @@ void CProjectile::Precache()
 
 void CProjectile::Think()
 {
-	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 5.0f)
+	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 5.0f && m_flTimeExploded == 0.0f)
 		Delete();
+
+	else if (m_flTimeExploded != 0.0f && DigitanksGame()->GetGameTime() - m_flTimeExploded > 2.0f)
+		Delete();
+}
+
+void CProjectile::ModifyContext(class CRenderingContext* pContext)
+{
+	if (m_flTimeExploded > 0.0f)
+	{
+		pContext->UseFrameBuffer(Game()->GetRenderer()->GetExplosionBuffer()->m_iFB);
+	}
 }
 
 void CProjectile::OnRender()
 {
-	glColor4ubv(Color(255, 255, 255));
-	glutSolidSphere(0.5f, 4, 4);
+	if (m_flTimeExploded == 0.0f)
+	{
+		glColor4ubv(Color(255, 255, 255));
+		glutSolidSphere(0.5f, 4, 4);
+	}
+	else
+	{
+		float flAlpha = RemapValClamped(DigitanksGame()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
+		if (flAlpha > 0)
+		{
+			glColor4ubv(Color(255, 255, 255, (int)(flAlpha*255)));
+			glutSolidSphere(4.0f, 20, 10);
+		}
+	}
 }
 
 void CProjectile::OnDeleted()
@@ -852,6 +876,9 @@ void CProjectile::OnDeleted()
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 {
+	if (m_flTimeExploded != 0)
+		return false;
+
 	if (pOther == m_hOwner)
 		return false;
 
@@ -894,5 +921,10 @@ void CProjectile::Touching(CBaseEntity* pOther)
 {
 	pOther->TakeDamage(m_hOwner, this, m_flDamage);
 
-	Delete();
+	SetVelocity(Vector());
+	SetGravity(Vector());
+
+	CParticleSystemLibrary::StopInstance(m_iParticleSystem);
+
+	m_flTimeExploded = Game()->GetGameTime();
 }

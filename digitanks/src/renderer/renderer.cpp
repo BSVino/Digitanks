@@ -5,15 +5,19 @@
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <maths.h>
+#include <simplex.h>
 
 #include <modelconverter/convmesh.h>
 #include <models/models.h>
 #include <shaders/shaders.h>
 
-CRenderingContext::CRenderingContext()
+CRenderingContext::CRenderingContext(CRenderer* pRenderer)
 {
+	m_pRenderer = pRenderer;
+
 	m_bMatrixTransformations = false;
 	m_bBoundTexture = false;
+	m_bFBO = false;
 	m_iProgram = 0;
 	m_bAttribs = false;
 
@@ -28,6 +32,9 @@ CRenderingContext::~CRenderingContext()
 
 	if (m_bBoundTexture)
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (m_bFBO)
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_pRenderer->GetSceneBuffer()->m_iFB);
 
 	if (m_iProgram)
 		glUseProgram(0);
@@ -227,6 +234,12 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 	}
 }
 
+void CRenderingContext::UseFrameBuffer(size_t iFBO)
+{
+	m_bFBO = true;
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)iFBO);
+}
+
 void CRenderingContext::UseProgram(size_t iProgram)
 {
 	m_iProgram = iProgram;
@@ -297,6 +310,16 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 		iWidth /= 2;
 		iHeight /= 2;
 	}
+
+	m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+	m_oNoiseBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+
+	// Bind the regular scene's depth buffer to the explosion buffer so we can use it for depth compares.
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	CreateNoise();
 }
 
 CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear)
@@ -334,8 +357,66 @@ CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bD
 	return oBuffer;
 }
 
+void CRenderer::CreateNoise()
+{
+	CSimplexNoise n1(0);
+	CSimplexNoise n2(1);
+	CSimplexNoise n3(2);
+
+	float flSpaceFactor1 = 0.1f;
+	float flHeightFactor1 = 0.5f;
+	float flSpaceFactor2 = flSpaceFactor1*3;
+	float flHeightFactor2 = flHeightFactor1/3;
+	float flSpaceFactor3 = flSpaceFactor2*3;
+	float flHeightFactor3 = flHeightFactor2/3;
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oNoiseBuffer.m_iFB);
+
+	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+    glOrtho(0, m_iWidth, m_iHeight, 0, -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPointSize(1);
+
+	for (size_t x = 0; x < m_iWidth; x++)
+	{
+		for (size_t y = 0; y < m_iHeight; y++)
+		{
+			float flValue = 0.5f;
+			flValue += n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
+			flValue += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
+			flValue += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
+
+			glBegin(GL_POINTS);
+				glColor3f(flValue, flValue, flValue);
+				glVertex2f((float)x, (float)y);
+			glEnd();
+		}
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+}
+
 void CRenderer::SetupFrame()
 {
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
 
 	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
@@ -362,13 +443,13 @@ void CRenderer::DrawBackground()
 	glShadeModel(GL_SMOOTH);
 
 	glBegin(GL_QUADS);
-		glColor3ub(20, 20, 20);
+		glColor3ub(0, 0, 0);
 		glVertex2f(-1.0f, 1.0f);
-		glColor3ub(10, 10, 10);
+		glColor3ub(0, 0, 0);
 		glVertex2f(-1.0f, -1.0f);
-		glColor3ub(20, 20, 20);
+		glColor3ub(0, 0, 0);
 		glVertex2f(1.0f, -1.0f);
-		glColor3ub(10, 10, 10);
+		glColor3ub(0, 0, 0);
 		glVertex2f(1.0f, 1.0f);
 	glEnd();
 
@@ -438,6 +519,36 @@ void CRenderer::FinishRendering()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+
+	// Render the explosions back onto the scene buffer, passing through the noise filter.
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
+
+	glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)m_oNoiseBuffer.m_iMap);
+
+	GLuint iExplosionProgram = (GLuint)CShaderLibrary::GetExplosionProgram();
+	glUseProgram(iExplosionProgram);
+
+	GLint iExplosion = glGetUniformLocation(iExplosionProgram, "iNoise");
+    glUniform1i(iExplosion, 0);
+
+	GLint iNoise = glGetUniformLocation(iExplosionProgram, "iNoise");
+    glUniform1i(iNoise, 1);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
+	glDisable(GL_BLEND);
+
+	glUseProgram(0);
+
+	glActiveTexture(GL_TEXTURE1);
+    glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 	// Use a bright-pass filter to catch only the bright areas of the image
 	GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
@@ -607,7 +718,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 	size_t iCallList = glGenLists(1);
 
 	glNewList((GLuint)iCallList, GL_COMPILE);
-	CRenderingContext c;
+	CRenderingContext c(NULL);
 	c.RenderModel(iModel, true);
 	glEndList();
 

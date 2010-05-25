@@ -16,6 +16,7 @@ CShaderLibrary::CShaderLibrary()
 	m_iTerrain = AddShader(GetVSTerrainShader(), GetFSTerrainShader());
 	m_iModel = AddShader(GetVSModelShader(), GetFSModelShader());
 
+	m_iExplosion = AddShader(GetVSPassShader(), GetFSExplosionShader());
 	m_iBlur = AddShader(GetVSPassShader(), GetFSBlurShader());
 	m_iBrightPass = AddShader(GetVSPassShader(), GetFSBrightPassShader());
 }

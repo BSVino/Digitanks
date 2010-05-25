@@ -177,6 +177,7 @@ public:
 
 	virtual void				Think();
 
+	virtual void				ModifyContext(class CRenderingContext* pContext);
 	virtual void				OnRender();
 
 	virtual void				OnDeleted();
@@ -185,8 +186,11 @@ public:
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	virtual void				Touching(CBaseEntity* pOther);
 
+	void						Explode();
+
 protected:
 	float						m_flTimeCreated;
+	float						m_flTimeExploded;
 
 	CEntityHandle<CDigitank>	m_hOwner;
 	float						m_flDamage;

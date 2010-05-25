@@ -41,6 +41,9 @@ public:
 	static const char*		GetFSModelShader();
 	static size_t			GetModelProgram() { return GetProgram(Get()->m_iModel); };
 
+	static const char*		GetFSExplosionShader();
+	static size_t			GetExplosionProgram() { return GetProgram(Get()->m_iExplosion); };
+
 	static const char*		GetFSBlurShader();
 	static size_t			GetBlurProgram() { return GetProgram(Get()->m_iBlur); };
 
@@ -60,6 +63,7 @@ protected:
 
 	size_t					m_iTerrain;
 	size_t					m_iModel;
+	size_t					m_iExplosion;
 	size_t					m_iBlur;
 	size_t					m_iBrightPass;
 
