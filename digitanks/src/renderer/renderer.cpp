@@ -655,6 +655,7 @@ size_t CRenderer::LoadTextureIntoGL(std::wstring sFilename)
 		ilGetInteger(IL_IMAGE_FORMAT),
 		GL_UNSIGNED_BYTE,
 		ilGetData());
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	ilDeleteImages(1, &iDevILId);
 
