@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <maths.h>
 #include <models/models.h>
+
 #include "powerup.h"
 #include "terrain.h"
 

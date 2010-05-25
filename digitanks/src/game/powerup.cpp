@@ -4,6 +4,7 @@
 #include <GL/freeglut.h>
 #include <color.h>
 #include <models/models.h>
+#include <renderer/renderer.h>
 
 #include "digitank.h"
 #include "digitanksgame.h"
@@ -51,4 +52,9 @@ void CPowerup::PreRender()
 	}
 
 	pModel->m_pScene->GetMaterial(pModel->m_pScene->FindMaterial(L"Powerup"))->m_vecDiffuse = clrPowerup;
+}
+
+void CPowerup::ModifyContext(class CRenderingContext* pContext)
+{
+	pContext->SetBlend(BLEND_ADDITIVE);
 }

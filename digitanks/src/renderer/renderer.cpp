@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
 #include <maths.h>
 
 #include <modelconverter/convmesh.h>
@@ -11,6 +13,11 @@
 CRenderingContext::CRenderingContext()
 {
 	m_bMatrixTransformations = false;
+	m_bBoundTexture = false;
+	m_iProgram = 0;
+	m_bAttribs = false;
+
+	m_eBlend = BLEND_NONE;
 	m_flAlpha = 1;
 }
 
@@ -18,6 +25,15 @@ CRenderingContext::~CRenderingContext()
 {
 	if (m_bMatrixTransformations)
 		glPopMatrix();
+
+	if (m_bBoundTexture)
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (m_iProgram)
+		glUseProgram(0);
+
+	if (m_bAttribs)
+		glPopAttrib();
 }
 
 void CRenderingContext::Translate(Vector vecTranslate)
@@ -53,14 +69,37 @@ void CRenderingContext::Scale(float flX, float flY, float flZ)
 	glScalef(flX, flY, flZ);
 }
 
+void CRenderingContext::SetBlend(blendtype_t eBlend)
+{
+	if (!m_bAttribs)
+		PushAttribs();
+
+	if (eBlend)
+	{
+		glEnable(GL_BLEND);
+
+		if (eBlend == BLEND_ALPHA)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		else
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+}
+
+void CRenderingContext::SetDepthMask(bool bDepthMask)
+{
+	if (!m_bAttribs)
+		PushAttribs();
+
+	glDepthMask(bDepthMask);
+}
+
 void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
-
-	glPushAttrib(GL_ENABLE_BIT);
-
-	glEnable(GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	if (pModel->m_bStatic && !bNewCallList)
 	{
@@ -82,8 +121,6 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 		for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
 			RenderSceneNode(pModel, pModel->m_pScene, pModel->m_pScene->GetScene(i), bNewCallList);
 	}
-
-	glPopAttrib();
 }
 
 void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, bool bNewCallList)
@@ -188,6 +225,57 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 
 		glEnd();
 	}
+}
+
+void CRenderingContext::UseProgram(size_t iProgram)
+{
+	m_iProgram = iProgram;
+	glUseProgram((GLuint)iProgram);
+}
+
+void CRenderingContext::SetUniform(const char* pszName, int iValue)
+{
+	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
+	glUniform1i(iUniform, iValue);
+}
+
+void CRenderingContext::SetUniform(const char* pszName, float flValue)
+{
+	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
+	glUniform1f(iUniform, flValue);
+}
+
+void CRenderingContext::BindTexture(size_t iTexture)
+{
+	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
+	m_bBoundTexture = true;
+}
+
+void CRenderingContext::BeginRenderQuads()
+{
+	glBegin(GL_QUADS);
+}
+
+void CRenderingContext::TexCoord(float s, float t)
+{
+	glTexCoord2f(s, t);
+}
+
+void CRenderingContext::Vertex(const Vector& v)
+{
+	glVertex3fv(v);
+}
+
+void CRenderingContext::EndRender()
+{
+	glEnd();
+}
+
+void CRenderingContext::PushAttribs()
+{
+	m_bAttribs = true;
+	// Push all the attribs we'll ever need. I don't want to have to worry about popping them in order.
+	glPushAttrib(GL_ENABLE_BIT|GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 }
 
 CFrameBuffer::CFrameBuffer()
@@ -465,6 +553,29 @@ void CRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets
 	glUseProgram(0);
 }
 
+Vector CRenderer::GetCameraVector()
+{
+	return (m_vecCameraTarget - m_vecCameraPosition).Normalized();
+}
+
+void CRenderer::GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector* pvecUp)
+{
+	Vector vecForward = GetCameraVector();
+	Vector vecRight;
+
+	if (pvecForward)
+		(*pvecForward) = vecForward;
+
+	if (pvecRight || pvecUp)
+		vecRight = vecForward.Cross(Vector(0, 1, 0));
+
+	if (pvecRight)
+		(*pvecRight) = vecRight;
+
+	if (pvecUp)
+		(*pvecUp) = vecRight.Cross(vecForward);
+}
+
 void CRenderer::SetSize(int w, int h)
 {
 	m_iWidth = w;
@@ -501,4 +612,51 @@ size_t CRenderer::CreateCallList(size_t iModel)
 	glEndList();
 
 	return iCallList;
+}
+
+size_t CRenderer::LoadTextureIntoGL(std::wstring sFilename)
+{
+	if (!sFilename.length())
+		return 0;
+
+	ILuint iDevILId;
+	ilGenImages(1, &iDevILId);
+	ilBindImage(iDevILId);
+
+	ILboolean bSuccess = ilLoadImage(sFilename.c_str());
+
+	if (!bSuccess)
+		bSuccess = ilLoadImage(sFilename.c_str());
+
+	ILenum iError = ilGetError();
+
+	if (!bSuccess)
+		return 0;
+
+	bSuccess = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	if (!bSuccess)
+		return 0;
+
+	ILinfo ImageInfo;
+	iluGetImageInfo(&ImageInfo);
+
+	if (ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT)
+		iluFlipImage();
+
+	GLuint iGLId;
+	glGenTextures(1, &iGLId);
+	glBindTexture(GL_TEXTURE_2D, iGLId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gluBuild2DMipmaps(GL_TEXTURE_2D,
+		ilGetInteger(IL_IMAGE_BPP),
+		ilGetInteger(IL_IMAGE_WIDTH),
+		ilGetInteger(IL_IMAGE_HEIGHT),
+		ilGetInteger(IL_IMAGE_FORMAT),
+		GL_UNSIGNED_BYTE,
+		ilGetData());
+
+	ilDeleteImages(1, &iDevILId);
+
+	return iGLId;
 }

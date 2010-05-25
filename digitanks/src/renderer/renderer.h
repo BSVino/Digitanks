@@ -1,7 +1,15 @@
 #ifndef DT_RENDERER_H
 #define DT_RENDERER_H
 
+#include <string>
 #include <vector.h>
+
+typedef enum
+{
+	BLEND_NONE = 0,
+	BLEND_ALPHA,
+	BLEND_ADDITIVE,
+} blendtype_t;
 
 class CRenderingContext
 {
@@ -13,15 +21,33 @@ public:
 	void		Translate(Vector vecTranslate);
 	void		Rotate(float flAngle, Vector vecAxis);
 	void		Scale(float flX, float flY, float flZ);
+	void		SetBlend(blendtype_t eBlend);
 	void		SetAlpha(float flAlpha) { m_flAlpha = flAlpha; };
+	void		SetDepthMask(bool bDepthMask);
 
 	void		RenderModel(size_t iModel, bool bNewCallList = false);
 	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
 	void		RenderMeshInstance(class CModel* pModel, class CConversionScene* pScene, class CConversionMeshInstance* pMeshInstance, bool bNewCallList);
 
+	void		UseProgram(size_t iProgram);
+	void		SetUniform(const char* pszName, int iValue);
+	void		SetUniform(const char* pszName, float flValue);
+	void		BindTexture(size_t iTexture);
+	void		BeginRenderQuads();
+	void		TexCoord(float s, float t);
+	void		Vertex(const Vector& v);
+	void		EndRender();
+
+protected:
+	void		PushAttribs();
+
 public:
 	bool		m_bMatrixTransformations;
+	bool		m_bBoundTexture;
+	size_t		m_iProgram;
+	bool		m_bAttribs;
 
+	blendtype_t	m_eBlend;
 	float		m_flAlpha;
 };
 
@@ -62,6 +88,9 @@ public:
 	void			SetCameraPosition(Vector vecCameraPosition) { m_vecCameraPosition = vecCameraPosition; };
 	void			SetCameraTarget(Vector vecCameraTarget) { m_vecCameraTarget = vecCameraTarget; };
 
+	Vector			GetCameraVector();
+	void			GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector* pvecUp);
+
 	void			SetSize(int w, int h);
 
 	Vector			ScreenPosition(Vector vecWorld);
@@ -69,6 +98,7 @@ public:
 
 public:
 	static size_t	CreateCallList(size_t iModel);
+	static size_t	LoadTextureIntoGL(std::wstring sFilename);
 
 protected:
 	size_t			m_iWidth;

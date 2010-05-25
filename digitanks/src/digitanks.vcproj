@@ -394,11 +394,23 @@
 				Name="renderer"
 				>
 				<File
+					RelativePath=".\renderer\particles.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\renderer\particles.h"
+					>
+				</File>
+				<File
 					RelativePath=".\renderer\renderer.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\renderer\renderer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\renderer\systems.cpp"
 					>
 				</File>
 			</Filter>

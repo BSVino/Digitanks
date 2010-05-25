@@ -2,6 +2,7 @@
 
 #include <models/models.h>
 #include <renderer/renderer.h>
+#include <renderer/particles.h>
 
 #include "game.h"
 
@@ -109,6 +110,8 @@ void CBaseEntity::Render()
 		//r.Rotate(-angRender.p, vecRight);
 		r.Rotate(-angRender.y, Vector(0, 1, 0));
 
+		ModifyContext(&r);
+
 		if (m_iModel != ~0)
 			r.RenderModel(GetModel());
 
@@ -126,6 +129,12 @@ void CBaseEntity::Delete()
 void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)
 {
 	CModelLibrary::Get()->AddModel(pszModel, bStatic);
+}
+
+void CBaseEntity::PrecacheParticleSystem(const wchar_t* pszParticleSystem)
+{
+	size_t iSystem = CParticleSystemLibrary::Get()->FindParticleSystem(pszParticleSystem);
+	CParticleSystemLibrary::Get()->LoadParticleSystem(iSystem);
 }
 
 void CBaseEntity::RegisterEntity(EntityRegisterCallback pfnCallback)

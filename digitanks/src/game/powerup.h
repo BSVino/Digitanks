@@ -13,6 +13,7 @@ public:
 
 	virtual EAngle	GetRenderAngles() const;
 	virtual void	PreRender();
+	virtual void	ModifyContext(class CRenderingContext* pContext);
 };
 
 #endif

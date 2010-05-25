@@ -5,6 +5,7 @@
 #include <maths.h>
 #include <models/models.h>
 #include <renderer/renderer.h>
+#include <renderer/particles.h>
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
@@ -600,6 +601,7 @@ void CDigitank::RenderTurret(float flAlpha)
 {
 	CRenderingContext r;
 	r.SetAlpha(flAlpha);
+	r.SetBlend(BLEND_ALPHA);
 	r.Translate(Vector(-0.564491f, 0.866906f, 0));
 
 	if ((this == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM) || HasDesiredAim())
@@ -626,6 +628,7 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	CRenderingContext r;
 	r.SetAlpha(flAlpha);
 	r.Rotate(flAngle, Vector(0, 1, 0));
+	r.SetBlend(BLEND_ALPHA);
 	r.RenderModel(m_iShieldModel);
 }
 
@@ -637,6 +640,7 @@ void CDigitank::PostRender()
 		r.Translate(GetOrigin() + Vector(0, 1, 0));
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		r.SetAlpha(50.0f/255);
+		r.SetBlend(BLEND_ALPHA);
 		r.RenderModel(GetModel());
 
 		RenderTurret(50.0f/255);
@@ -669,6 +673,7 @@ void CDigitank::PostRender()
 			r.Translate(GetRenderOrigin());
 			r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 			r.SetAlpha(50.0f/255);
+			r.SetBlend(BLEND_ALPHA);
 			r.RenderModel(GetModel());
 
 			RenderTurret(50.0f/255);
@@ -685,6 +690,7 @@ void CDigitank::PostRender()
 				r.Translate(GetPreviewMove() + Vector(0, 1, 0));
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
+				r.SetBlend(BLEND_ALPHA);
 				r.RenderModel(GetModel());
 
 				RenderTurret(50.0f/255);
@@ -702,6 +708,7 @@ void CDigitank::PostRender()
 				r.Translate(vecNewPosition + Vector(0, 1, 0));
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
+				r.SetBlend(BLEND_ALPHA);
 				r.RenderModel(GetModel());
 
 				RenderTurret(50.0f/255);
@@ -816,6 +823,14 @@ CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 	SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
 	SetSimulated(true);
 	SetCollisionGroup(CG_POWERUP);
+
+	m_iParticleSystem = CParticleSystemLibrary::AddInstance(CParticleSystemLibrary::Get()->FindParticleSystem(L"shell-trail"), GetOrigin());
+	CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
+}
+
+void CProjectile::Precache()
+{
+	PrecacheParticleSystem(L"shell-trail");
 }
 
 void CProjectile::Think()
@@ -828,6 +843,11 @@ void CProjectile::OnRender()
 {
 	glColor4ubv(Color(255, 255, 255));
 	glutSolidSphere(0.5f, 4, 4);
+}
+
+void CProjectile::OnDeleted()
+{
+	CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 }
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const

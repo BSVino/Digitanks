@@ -55,11 +55,13 @@ public:
 	virtual void							Killed();
 
 	virtual void							PreRender() {};
+	virtual void							ModifyContext(class CRenderingContext* pContext) {};
 	void									Render();
 	virtual void							OnRender() {};
 	virtual void							PostRender() {};
 
 	void									Delete();
+	virtual void							OnDeleted() {};
 	bool									IsDeleted() { return m_bDeleted; }
 	void									SetDeleted() { m_bDeleted = true; }
 
@@ -78,6 +80,7 @@ public:
 	static size_t							GetNumEntities();
 
 	static void								PrecacheModel(const wchar_t* pszModel, bool bStatic = true);
+	static void								PrecacheParticleSystem(const wchar_t* pszSystem);
 
 	static void								RegisterEntity(EntityRegisterCallback pfnCallback);
 	static void								RegisterEntity(CBaseEntity* pEntity);

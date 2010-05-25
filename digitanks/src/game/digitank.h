@@ -173,9 +173,13 @@ public:
 								CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce);
 
 public:
+	virtual void				Precache();
+
 	virtual void				Think();
 
 	virtual void				OnRender();
+
+	virtual void				OnDeleted();
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
@@ -186,6 +190,8 @@ protected:
 
 	CEntityHandle<CDigitank>	m_hOwner;
 	float						m_flDamage;
+
+	size_t						m_iParticleSystem;
 };
 
 #endif

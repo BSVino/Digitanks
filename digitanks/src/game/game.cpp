@@ -2,6 +2,7 @@
 
 #include <ui/digitankswindow.h>
 #include <renderer/renderer.h>
+#include <renderer/particles.h>
 
 #include "camera.h"
 
@@ -12,6 +13,7 @@ CGame::CGame()
 	assert(!s_pGame);
 	s_pGame = this;
 
+	m_flRealTime = 0;
 	m_flGameTime = 0;
 	m_flFrameTime = 0;
 
@@ -21,6 +23,10 @@ CGame::CGame()
 	m_pCamera = new CCamera();
 	m_pCamera->SnapDistance(120);
 	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
+
+#ifdef _DEBUG
+	CParticleSystemLibrary::Get()->LoadParticleSystem(0);
+#endif
 }
 
 CGame::~CGame()
@@ -31,10 +37,15 @@ CGame::~CGame()
 	s_pGame = NULL;
 }
 
-void CGame::Think(float flGameTime)
+void CGame::Think(float flRealTime)
 {
-	m_flFrameTime = flGameTime - m_flGameTime;
-	m_flGameTime = flGameTime;
+	m_flFrameTime = flRealTime - m_flRealTime;
+
+	if (m_flFrameTime > 0.15f)
+		m_flFrameTime = 0.15f;
+
+	m_flGameTime += m_flFrameTime;
+	m_flRealTime = flRealTime;
 
 	// Erase anything deleted last frame.
 	for (size_t i = 0; i < m_ahDeletedEntities.size(); i++)
@@ -54,6 +65,8 @@ void CGame::Think(float flGameTime)
 	}
 
 	Think();
+
+	CParticleSystemLibrary::Simulate();
 }
 
 void CGame::Simulate()
@@ -109,6 +122,8 @@ void CGame::Render()
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Render();
 
+	CParticleSystemLibrary::Render();
+
 	m_pRenderer->FinishRendering();
 }
 
@@ -118,6 +133,7 @@ void CGame::Delete(class CBaseEntity* pEntity)
 		if (m_ahDeletedEntities[i] == pEntity)
 			return;
 
+	pEntity->OnDeleted();
 	OnDeleted(pEntity);
 	pEntity->SetDeleted();
 	m_ahDeletedEntities.push_back(pEntity);

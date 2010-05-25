@@ -54,6 +54,11 @@ public:
 		return(&x);
 	}
 
+	operator const float*() const
+	{
+		return(&x);
+	}
+
 	float	operator[](int i) const;
 	float&	operator[](int i);
 

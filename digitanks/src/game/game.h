@@ -12,7 +12,7 @@ public:
 												~CGame();
 
 public:
-	void										Think(float flGameTime);
+	void										Think(float flRealTime);
 	void										Simulate();
 	void										Render();
 
@@ -39,6 +39,7 @@ protected:
 
 	float										m_flGameTime;
 	float										m_flFrameTime;
+	float										m_flRealTime;
 
 	class CCamera*								m_pCamera;
 	class CRenderer*							m_pRenderer;
