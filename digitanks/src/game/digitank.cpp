@@ -446,6 +446,56 @@ Vector CDigitank::GetDesiredAim()
 	return m_vecDesiredAim;
 }
 
+void CDigitank::Think()
+{
+	m_bDisplayAim = false;
+
+	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+
+	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
+	bool bAimMode = CDigitanksWindow::Get()->GetControlMode() == MODE_AIM;
+	bool bShowThisTank = HasDesiredAim() || (bAimMode && (this == pCurrentTank || bShiftDown));
+	if (GetTeam() != DigitanksGame()->GetCurrentTeam())
+		bShowThisTank = false;
+
+	if (bShowThisTank)
+	{
+		Vector vecMouseAim;
+		bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecMouseAim);
+
+		Vector vecTankAim;
+		if (HasDesiredAim())
+			vecTankAim = GetDesiredAim();
+
+		if (bMouseOK && bAimMode)
+		{
+			if (this == pCurrentTank)
+				vecTankAim = vecMouseAim;
+
+			if (this != pCurrentTank && bShiftDown)
+				vecTankAim = vecMouseAim;
+		}
+
+		if (HasDesiredAim() || bMouseOK)
+		{
+			if ((vecTankAim - GetDesiredMove()).Length() > GetMaxRange())
+			{
+				vecTankAim = GetDesiredMove() + (vecTankAim - GetDesiredMove()).Normalized() * GetMaxRange() * 0.99f;
+				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+			}
+
+			float flDistance = (vecTankAim - GetDesiredMove()).Length();
+
+			float flRadius = RemapValClamped(flDistance, GetMinRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+			DigitanksGame()->AddTankAim(vecTankAim, flRadius, this == pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM);
+
+			m_bDisplayAim = true;
+			m_vecDisplayAim = vecTankAim;
+			m_flDisplayAimRadius = flRadius;
+		}
+	}
+}
+
 void CDigitank::Move()
 {
 	if (m_bDesiredMove)
@@ -720,74 +770,41 @@ void CDigitank::PostRender()
 		}
 	}
 
-	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
-	bool bAimMode = CDigitanksWindow::Get()->GetControlMode() == MODE_AIM;
-	bool bShowThisTank = HasDesiredAim() || (bAimMode && (this == pCurrentTank || bShiftDown));
-	if (GetTeam() != DigitanksGame()->GetCurrentTeam())
-		bShowThisTank = false;
-
-	if (bShowThisTank)
+	if (m_bDisplayAim)
 	{
-		Vector vecMouseAim;
-		bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecMouseAim);
+		glPushAttrib(GL_ENABLE_BIT);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		Vector vecTankAim;
-		if (HasDesiredAim())
-			vecTankAim = GetDesiredAim();
+		int iAlpha = 100;
+		if (this == pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			iAlpha = 255;
 
-		if (bMouseOK && bAimMode)
+		Vector vecTankOrigin = GetDesiredMove();
+
+		float flGravity = DigitanksGame()->GetGravity();
+		float flTime;
+		Vector vecForce;
+		FindLaunchVelocity(vecTankOrigin, m_vecDisplayAim, flGravity, vecForce, flTime);
+
+		CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, vecTankOrigin);
+		oRope.SetWidth(0.5f);
+		oRope.SetColor(Color(255, 0, 0, iAlpha));
+		oRope.SetTextureScale(50);
+		oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
+
+		Vector vecProjectile = vecTankOrigin;
+		size_t iLinks = 20;
+		for (size_t i = 0; i < iLinks; i++)
 		{
-			if (this == pCurrentTank)
-				vecTankAim = vecMouseAim;
-
-			if (this != pCurrentTank && bShiftDown)
-				vecTankAim = vecMouseAim;
+			oRope.AddLink(vecProjectile + vecForce*(flTime/iLinks));
+			vecProjectile += vecForce*(flTime/iLinks);
+			vecForce.y += flGravity*flTime/iLinks;
 		}
 
-		if (HasDesiredAim() || bMouseOK)
-		{
-			glPushAttrib(GL_ENABLE_BIT);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		oRope.Finish(m_vecDisplayAim);
 
-			int iAlpha = 150;
-			if (this == pCurrentTank && bAimMode)
-				iAlpha = 250;
-
-			if ((vecTankAim - GetDesiredMove()).Length() > GetMaxRange())
-			{
-				vecTankAim = GetDesiredMove() + (vecTankAim - GetDesiredMove()).Normalized() * GetMaxRange() * 0.99f;
-				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
-			}
-
-			Vector vecTankOrigin = GetDesiredMove();
-			float flDistance = (vecTankAim - vecTankOrigin).Length();
-
-			DebugCircle(vecTankAim, RemapValClamped(flDistance, GetMinRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS), Color(255, 0, 0, iAlpha));
-
-			float flGravity = DigitanksGame()->GetGravity();
-			float flTime;
-			Vector vecForce;
-			FindLaunchVelocity(vecTankOrigin, vecTankAim, flGravity, vecForce, flTime);
-
-			CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, vecTankOrigin);
-			oRope.SetColor(Color(255, 0, 0, 255));
-			oRope.SetTextureScale(50);
-			oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
-
-			Vector vecProjectile = vecTankOrigin;
-			size_t iLinks = 20;
-			for (size_t i = 0; i < iLinks; i++)
-			{
-				oRope.AddLink(vecProjectile + vecForce*(flTime/iLinks));
-				vecProjectile += vecForce*(flTime/iLinks);
-				vecForce.y += flGravity*flTime/iLinks;
-			}
-
-			oRope.Finish(vecTankAim);
-
-			glPopAttrib();
-		}
+		glPopAttrib();
 	}
 }
 

@@ -641,6 +641,31 @@ void CTerrain::OnRender()
 	GLuint iCraterMarks = glGetUniformLocation(iTerrainProgram, "iCraterMarks");
 	glUniform1i(iCraterMarks, (GLint)m_avecCraterMarks.size());
 
+	std::vector<Vector> avecTankAims;
+	std::vector<float> aflTankAimRadius;
+	size_t iTankAimFocus;
+
+	DigitanksGame()->GetTankAims(avecTankAims, aflTankAimRadius, iTankAimFocus);
+	DigitanksGame()->ClearTankAims();
+
+	GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
+	glUniform1i(iAimTargets, (GLint)avecTankAims.size());
+
+	if (avecTankAims.size())
+	{
+		GLuint avecAimTargets = glGetUniformLocation(iTerrainProgram, "avecAimTargets");
+		glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
+
+		GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
+		glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
+
+		GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			glUniform1i(iFocusTarget, (GLint)DigitanksGame()->GetCurrentTankId());
+		else
+			glUniform1i(iFocusTarget, -1);
+	}
+
 	for (size_t i = 0; i < TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS; i++)
 		glCallList((GLuint)m_iCallList+i+1);
 

@@ -42,6 +42,11 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"uniform vec3 avecCraterMarks[10];"
 		"uniform int iCraterMarks;"
 
+		"uniform vec3 avecAimTargets[5];"
+		"uniform float aflAimTargetRadius[5];"
+		"uniform int iAimTargets;"
+		"uniform int iFocusTarget;"
+
 		"varying vec4 vecFrontColor;"
 		"varying vec3 vecPosition;"
 
@@ -171,6 +176,25 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"			float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRangeInside*flTankMaxRangeInside, flTankMaxRange*flTankMaxRange, 0.0, 1.0);"
 		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2) * flColorStrength;"
 		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.0, 0.0, 1.0) * flMoveColorStrength;"
+		"		}"
+		"	}"
+
+		"	vec4 vecAimTargetColor = vec4(0.8, 0.0, 0.0, 1.0);"
+		"	vec3 vecPosition2D = vec3(vecPosition.x, 0, vecPosition.z);"
+
+		"	for (int i = 0; i < iAimTargets; i++)"
+		"	{"
+		"		float flRadius = aflAimTargetRadius[i];"
+		"		float flDistanceToAimSqr = LengthSqr(vecPosition2D - avecAimTargets[i]);"
+		"		float flColorStrength = 0.3;"
+		"		if (iFocusTarget == i)"
+		"			flColorStrength = 0.7;"
+
+		"		if (flDistanceToAimSqr < flRadius*flRadius)"
+		"		{"
+		"			float flTargetColorStrength = RemapVal(flDistanceToAimSqr, 0.0, flRadius*flRadius, 0.0, 1.0);"
+		"			flTargetColorStrength = Lerp(flTargetColorStrength, 0.8) * flColorStrength;"
+		"			vecBaseColor = vecBaseColor * (1.0-flTargetColorStrength) + vec4(0.8, 0.0, 0.0, 1.0) * flTargetColorStrength;"
 		"		}"
 		"	}"
 

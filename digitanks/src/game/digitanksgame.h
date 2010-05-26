@@ -63,12 +63,17 @@ public:
 
 	CTeam*					GetCurrentTeam();
 	CDigitank*				GetCurrentTank();
+	size_t					GetCurrentTankId();
 
 	CTerrain*				GetTerrain() { return m_hTerrain; };
 
 	float					GetGravity();
 
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
+
+	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
+	void					GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus);
+	void					ClearTankAims();
 
 protected:
 	std::vector<CEntityHandle<CTeam>>	m_ahTeams;
@@ -86,6 +91,10 @@ protected:
 	size_t					m_iWaitingForProjectiles;
 
 	size_t					m_iPowerups;
+
+	std::vector<Vector>		m_avecTankAims;
+	std::vector<float>		m_aflTankAimRadius;
+	size_t					m_iTankAimFocus;
 };
 
 inline class CDigitanksGame* DigitanksGame()

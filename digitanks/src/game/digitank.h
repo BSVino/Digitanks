@@ -89,6 +89,8 @@ public:
 
 	bool						ChoseFirepower() { return m_bChoseFirepower; };
 
+	virtual void				Think();
+
 	void						Move();
 	void						Fire();
 
@@ -157,6 +159,10 @@ protected:
 	Vector						m_vecPreviewAim;
 	bool						m_bDesiredAim;
 	Vector						m_vecDesiredAim;
+
+	bool						m_bDisplayAim;
+	Vector						m_vecDisplayAim;
+	float						m_flDisplayAimRadius;
 
 	bool						m_bChoseFirepower;
 

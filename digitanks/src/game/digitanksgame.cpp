@@ -539,7 +539,34 @@ CDigitank* CDigitanksGame::GetCurrentTank()
 	return GetCurrentTeam()->GetTank(m_iCurrentTank);
 }
 
+size_t CDigitanksGame::GetCurrentTankId()
+{
+	return m_iCurrentTank;
+}
+
 float CDigitanksGame::GetGravity()
 {
 	return -20;
+}
+
+void CDigitanksGame::AddTankAim(Vector vecAim, float flRadius, bool bFocus)
+{
+	vecAim.y = 0;
+	m_avecTankAims.push_back(vecAim);
+	m_aflTankAimRadius.push_back(flRadius);
+	if (bFocus)
+		m_iTankAimFocus = m_avecTankAims.size()-1;
+}
+
+void CDigitanksGame::GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus)
+{
+	avecAims = m_avecTankAims;
+	aflAimRadius = m_aflTankAimRadius;
+	iFocus = m_iTankAimFocus;
+}
+
+void CDigitanksGame::ClearTankAims()
+{
+	m_avecTankAims.clear();
+	m_aflTankAimRadius.clear();
 }
