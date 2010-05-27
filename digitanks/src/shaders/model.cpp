@@ -19,12 +19,18 @@ const char* CShaderLibrary::GetFSModelShader()
 
 		"uniform float flAlpha;"
 
+		"uniform bool bColorSwapInAlpha;"
+		"uniform vec3 vecColorSwap;"
+
 		"void main()"
 		"{"
 		"	vec4 vecDiffuse = gl_Color;"
 
 		"	if (bDiffuse)"
 		"		vecDiffuse *= texture2D(iDiffuse, gl_TexCoord[0].st);"
+
+		"	if (bColorSwapInAlpha)"
+		"		vecDiffuse = vec4(vecColorSwap * vecDiffuse.a + vecDiffuse.xyz * (1.0-vecDiffuse.a), 1.0);"
 
 		"	gl_FragColor = vecDiffuse;"
 		"	gl_FragColor.a *= flAlpha;"

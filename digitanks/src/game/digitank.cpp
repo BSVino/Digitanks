@@ -630,15 +630,9 @@ EAngle CDigitank::GetRenderAngles() const
 	return EAngle(0, GetDesiredTurn(), 0);
 }
 
-void CDigitank::PreRender()
+void CDigitank::ModifyContext(CRenderingContext* pContext)
 {
-	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
-
-	Color clrTeam = GetTeam()->GetColor();
-	Vector vecTeamColor = Vector((float)clrTeam.r(), (float)clrTeam.g(), (float)clrTeam.b())/255;
-
-	// A spectacular hack to set the team color before rendering.
-	pModel->m_pScene->GetMaterial(pModel->m_pScene->FindMaterial(L"Body"))->m_vecDiffuse = vecTeamColor;
+	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
 void CDigitank::OnRender()
@@ -656,7 +650,7 @@ void CDigitank::RenderTurret(float flAlpha)
 	CRenderingContext r(Game()->GetRenderer());
 	r.SetAlpha(flAlpha);
 	r.SetBlend(BLEND_ALPHA);
-	r.Translate(Vector(-0.564491f, 0.866906f, 0));
+	r.Translate(Vector(-0.527677f, 0.810368f, 0));
 
 	if ((this == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM) || HasDesiredAim())
 	{
@@ -682,7 +676,7 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	CRenderingContext r(Game()->GetRenderer());
 	r.SetAlpha(flAlpha);
 	r.Rotate(flAngle, Vector(0, 1, 0));
-	r.SetBlend(BLEND_ALPHA);
+	r.SetBlend(BLEND_ADDITIVE);
 	r.RenderModel(m_iShieldModel);
 }
 
@@ -695,6 +689,7 @@ void CDigitank::PostRender()
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		r.SetAlpha(50.0f/255);
 		r.SetBlend(BLEND_ALPHA);
+		r.SetColorSwap(GetTeam()->GetColor());
 		r.RenderModel(GetModel());
 
 		RenderTurret(50.0f/255);
@@ -728,6 +723,7 @@ void CDigitank::PostRender()
 			r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 			r.SetAlpha(50.0f/255);
 			r.SetBlend(BLEND_ALPHA);
+			r.SetColorSwap(GetTeam()->GetColor());
 			r.RenderModel(GetModel());
 
 			RenderTurret(50.0f/255);
@@ -745,6 +741,7 @@ void CDigitank::PostRender()
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
 				r.SetBlend(BLEND_ALPHA);
+				r.SetColorSwap(GetTeam()->GetColor());
 				r.RenderModel(GetModel());
 
 				RenderTurret(50.0f/255);
@@ -763,6 +760,7 @@ void CDigitank::PostRender()
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
 				r.SetBlend(BLEND_ALPHA);
+				r.SetColorSwap(GetTeam()->GetColor());
 				r.RenderModel(GetModel());
 
 				RenderTurret(50.0f/255);

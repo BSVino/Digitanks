@@ -104,6 +104,12 @@ void CRenderingContext::SetDepthMask(bool bDepthMask)
 	glDepthMask(bDepthMask);
 }
 
+void CRenderingContext::SetColorSwap(Color clrSwap)
+{
+	m_bColorSwap = true;
+	m_clrSwap = clrSwap;
+}
+
 void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
@@ -114,10 +120,16 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 		glUseProgram(iProgram);
 
 		GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
-		glUniform1i(bDiffuse, false);
+		glUniform1i(bDiffuse, true);
+
+		GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
+		glUniform1i(iDiffuse, 0);
 
 		GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
 		glUniform1f(flAlpha, m_flAlpha);
+
+		GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
+		glUniform1i(bColorSwapInAlpha, false);
 
 		glCallList((GLuint)pModel->m_iCallList);
 
@@ -212,6 +224,16 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 
 			GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
 			glUniform1f(flAlpha, m_flAlpha);
+
+			GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
+			glUniform1i(bColorSwapInAlpha, m_bColorSwap);
+
+			if (m_bColorSwap)
+			{
+				GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
+				Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
+				glUniform3fv(vecColorSwap, 1, vecColor);
+			}
 		}
 
 		glBegin(GL_POLYGON);
@@ -220,9 +242,7 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 		{
 			CConversionVertex* pVertex = pFace->GetVertex(k);
 
-			// Give the tank a little bit of manual shading since there's no lights.
-			float flDarken = RemapVal(pMesh->GetNormal(pVertex->vn).Dot(Vector(0, 1, 0)), -1, 1, 0.3f, 1.0f);
-			glColor4f(vecDiffuse.x * flDarken, vecDiffuse.y * flDarken, vecDiffuse.z * flDarken, m_flAlpha);
+			glColor4f(vecDiffuse.x, vecDiffuse.y, vecDiffuse.z, m_flAlpha);
 			glTexCoord2fv(pMesh->GetUV(pVertex->vu));
 			glVertex3fv(pMesh->GetVertex(pVertex->v));
 		}

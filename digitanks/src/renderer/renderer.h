@@ -25,6 +25,7 @@ public:
 	void		SetBlend(blendtype_t eBlend);
 	void		SetAlpha(float flAlpha) { m_flAlpha = flAlpha; };
 	void		SetDepthMask(bool bDepthMask);
+	void		SetColorSwap(Color clrSwap);
 
 	void		RenderModel(size_t iModel, bool bNewCallList = false);
 	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
@@ -52,6 +53,9 @@ public:
 	bool		m_bFBO;
 	size_t		m_iProgram;
 	bool		m_bAttribs;
+
+	bool		m_bColorSwap;
+	Color		m_clrSwap;
 
 	blendtype_t	m_eBlend;
 	float		m_flAlpha;
