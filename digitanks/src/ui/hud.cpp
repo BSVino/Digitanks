@@ -518,47 +518,50 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 10, 50, 10, Color(255, 255, 255, iShield));
 	}
 
-	Vector vecMin;
-	Vector vecMax;
-
-	std::vector<Vector> aVecs;
-	aVecs.push_back(Vector(-3, -1, -3));
-	aVecs.push_back(Vector(3, -1, -3));
-	aVecs.push_back(Vector(-3, 3, -3));
-	aVecs.push_back(Vector(3, 3, -3));
-	aVecs.push_back(Vector(-3, -1, 3));
-	aVecs.push_back(Vector(-3, 3, 3));
-	aVecs.push_back(Vector(3, -1, 3));
-	aVecs.push_back(Vector(3, 3, 3));
-
-	Vector vecOrigin = pTank->GetDesiredMove();
-
-	for (size_t v = 0; v < aVecs.size(); v++)
+	if (pTank)
 	{
-		Vector vecCorner = Game()->GetRenderer()->ScreenPosition(vecOrigin+aVecs[v]);
-		if (v == 0)
+		Vector vecMin;
+		Vector vecMax;
+
+		std::vector<Vector> aVecs;
+		aVecs.push_back(Vector(-3, -1, -3));
+		aVecs.push_back(Vector(3, -1, -3));
+		aVecs.push_back(Vector(-3, 3, -3));
+		aVecs.push_back(Vector(3, 3, -3));
+		aVecs.push_back(Vector(-3, -1, 3));
+		aVecs.push_back(Vector(-3, 3, 3));
+		aVecs.push_back(Vector(3, -1, 3));
+		aVecs.push_back(Vector(3, 3, 3));
+
+		Vector vecOrigin = pTank->GetDesiredMove();
+
+		for (size_t v = 0; v < aVecs.size(); v++)
 		{
-			vecMin = vecMax = vecCorner;
-			continue;
+			Vector vecCorner = Game()->GetRenderer()->ScreenPosition(vecOrigin+aVecs[v]);
+			if (v == 0)
+			{
+				vecMin = vecMax = vecCorner;
+				continue;
+			}
+
+			for (size_t x = 0; x < 3; x++)
+			{
+				if (vecCorner.x < vecMin.x)
+					vecMin.x = vecCorner.x;
+				if (vecCorner.y < vecMin.y)
+					vecMin.y = vecCorner.y;
+				if (vecCorner.x > vecMax.x)
+					vecMax.x = vecCorner.x;
+				if (vecCorner.y > vecMax.y)
+					vecMax.y = vecCorner.y;
+			}
 		}
 
-		for (size_t x = 0; x < 3; x++)
-		{
-			if (vecCorner.x < vecMin.x)
-				vecMin.x = vecCorner.x;
-			if (vecCorner.y < vecMin.y)
-				vecMin.y = vecCorner.y;
-			if (vecCorner.x > vecMax.x)
-				vecMax.x = vecCorner.x;
-			if (vecCorner.y > vecMax.y)
-				vecMax.y = vecCorner.y;
-		}
+		CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
+		CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
+		CRootPanel::PaintRect((int)vecMax.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
+		CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
 	}
-
-	CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
-	CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
-	CRootPanel::PaintRect((int)vecMax.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
-	CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
