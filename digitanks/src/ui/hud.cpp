@@ -159,6 +159,9 @@ CHUD::CHUD()
 	m_pFPS = new CLabel(0, 0, 100, 20, "");
 	AddControl(m_pFPS);
 #endif
+
+	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
+	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
 }
 
 void CHUD::Layout()
@@ -499,23 +502,59 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (pTank)
 	{
-		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
-		int iShield = (int)(255*pTank->GetLeftShieldStrength());
-		if (iShield > 255)
-			iShield = 255;
-		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 20, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
-		iShield = (int)(255*pTank->GetRightShieldStrength());
-		if (iShield > 255)
-			iShield = 255;
-		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 10, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50, Color(255, 255, 255, iShield));
-		iShield = (int)(255*pTank->GetFrontShieldStrength());
-		if (iShield > 255)
-			iShield = 255;
-		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
-		iShield = (int)(255*pTank->GetRearShieldStrength());
-		if (iShield > 255)
-			iShield = 255;
-		CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 10, 50, 10, Color(255, 255, 255, iShield));
+		CRenderingContext c(Game()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		CRootPanel::PaintTexture(m_iAvatarIcon, iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
+
+		c.SetBlend(BLEND_ADDITIVE);
+
+		c.Translate(Vector((float)(iWidth/2 - 1024/2 + 190 + 150/2), (float)(iHeight - 150 + 10 + 130/2), 0));
+
+		do
+		{
+			int iShield = (int)(255*pTank->GetFrontShieldStrength());
+			if (iShield > 255)
+				iShield = 255;
+			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+		}
+		while (false);
+
+		do
+		{
+			CRenderingContext c(Game()->GetRenderer());
+			c.Rotate(90, Vector(0, 0, 1));
+
+			int iShield = (int)(255*pTank->GetRightShieldStrength());
+			if (iShield > 255)
+				iShield = 255;
+			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+		}
+		while (false);
+
+		do
+		{
+			CRenderingContext c(Game()->GetRenderer());
+			c.Rotate(180, Vector(0, 0, 1));
+
+			int iShield = (int)(255*pTank->GetRearShieldStrength());
+			if (iShield > 255)
+				iShield = 255;
+			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+		}
+		while (false);
+
+		do
+		{
+			CRenderingContext c(Game()->GetRenderer());
+			c.Rotate(270, Vector(0, 0, 1));
+
+			int iShield = (int)(255*pTank->GetLeftShieldStrength());
+			if (iShield > 255)
+				iShield = 255;
+			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+		}
+		while (false);
 	}
 
 	if (pTank)

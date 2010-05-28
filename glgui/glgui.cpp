@@ -87,7 +87,7 @@ void CBaseControl::Paint(int x, int y)
 	Paint(x, y, m_iW, m_iH);
 }
 
-void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
+void CBaseControl::PaintRect(int x, int y, int w, int h, const Color& c)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -141,6 +141,29 @@ void CBaseControl::PaintRect(int x, int y, int w, int h, Color& c)
 	}
 
 	glDisable(GL_BLEND);
+}
+
+void CBaseControl::PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c)
+{
+	glPushAttrib(GL_ENABLE_BIT);
+
+	glEnable(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
+	glColor4ubv(c);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 1);
+		glVertex2d(x, y);
+		glTexCoord2f(0, 0);
+		glVertex2d(x, y+h);
+		glTexCoord2f(1, 0);
+		glVertex2d(x+w, y+h);
+		glTexCoord2f(1, 1);
+		glVertex2d(x+w, y);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glPopAttrib();
 }
 
 CPanel::CPanel(int x, int y, int w, int h)

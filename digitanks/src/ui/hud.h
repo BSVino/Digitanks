@@ -139,6 +139,9 @@ protected:
 	bool						m_bAutoProceed;
 
 	glgui::CLabel*				m_pFPS;
+
+	size_t						m_iAvatarIcon;
+	size_t						m_iShieldIcon;
 };
 
 #endif

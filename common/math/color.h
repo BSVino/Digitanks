@@ -24,6 +24,11 @@ public:
 		return(&red);
 	}
 
+	operator const unsigned char*() const
+	{
+		return(&red);
+	}
+
 private:
 	unsigned char	red;
 	unsigned char	green;

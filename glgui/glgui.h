@@ -210,7 +210,8 @@ namespace glgui
 		virtual void	CursorIn() {};
 		virtual void	CursorOut() {};
 
-		static void		PaintRect(int x, int y, int w, int h, Color& c = g_clrBox);
+		static void		PaintRect(int x, int y, int w, int h, const Color& c = g_clrBox);
+		static void		PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c = Color(255, 255, 255, 255));
 
 	protected:
 		IControl*		m_pParent;
