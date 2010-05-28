@@ -268,6 +268,7 @@ void CSystemInstance::Render()
 	c.UseProgram(CShaderLibrary::GetModelProgram());
 	c.SetUniform("bDiffuse", true);
 	c.SetUniform("iDiffuse", 0);
+	c.SetUniform("bColorSwapInAlpha", false);
 
 	for (size_t i = 0; i < m_aParticles.size(); i++)
 	{
