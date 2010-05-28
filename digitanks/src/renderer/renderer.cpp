@@ -21,6 +21,8 @@ CRenderingContext::CRenderingContext(CRenderer* pRenderer)
 	m_iProgram = 0;
 	m_bAttribs = false;
 
+	m_bColorSwap = false;
+
 	m_eBlend = BLEND_NONE;
 	m_flAlpha = 1;
 }
@@ -660,7 +662,7 @@ void CRenderer::FinishRendering()
 	GLuint iExplosionProgram = (GLuint)CShaderLibrary::GetExplosionProgram();
 	glUseProgram(iExplosionProgram);
 
-	GLint iExplosion = glGetUniformLocation(iExplosionProgram, "iNoise");
+	GLint iExplosion = glGetUniformLocation(iExplosionProgram, "iExplosion");
     glUniform1i(iExplosion, 0);
 
 	GLint iNoise = glGetUniformLocation(iExplosionProgram, "iNoise");
