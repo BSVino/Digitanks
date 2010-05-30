@@ -70,6 +70,8 @@ protected:
 	size_t					m_iBlur;
 	size_t					m_iBrightPass;
 
+	bool					m_bLogNeedsClearing;
+
 private:
 	static CShaderLibrary*	s_pShaderLibrary;
 };

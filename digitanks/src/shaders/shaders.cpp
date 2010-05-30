@@ -96,8 +96,7 @@ void CShaderLibrary::CompileShader(size_t iShader)
 
 void CShaderLibrary::ClearLog()
 {
-	FILE* fp = fopen("shaders.txt", "w");
-	fclose(fp);
+	m_bLogNeedsClearing = true;
 }
 
 void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
@@ -108,6 +107,14 @@ void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
 #ifdef _DEBUG
 	assert(!strlen(pszLog));
 #endif
+
+	if (m_bLogNeedsClearing)
+	{
+		// Only clear it if we're actually going to write to it so we don't create the file.
+		FILE* fp = fopen("shaders.txt", "w");
+		fclose(fp);
+		m_bLogNeedsClearing = false;
+	}
 
 	char szText[100];
 	strncpy(szText, pszShaderText, 99);
