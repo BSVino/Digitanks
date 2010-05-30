@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector.h>
+#include <matrix.h>
 #include <color.h>
 
 typedef enum
@@ -19,12 +20,14 @@ public:
 				~CRenderingContext();
 
 public:
+	void		Transform(const Matrix4x4& m);
 	void		Translate(Vector vecTranslate);
 	void		Rotate(float flAngle, Vector vecAxis);
 	void		Scale(float flX, float flY, float flZ);
 	void		SetBlend(blendtype_t eBlend);
 	void		SetAlpha(float flAlpha) { m_flAlpha = flAlpha; };
 	void		SetDepthMask(bool bDepthMask);
+	void		SetBackCulling(bool bCull);
 	void		SetColorSwap(Color clrSwap);
 
 	void		RenderModel(size_t iModel, bool bNewCallList = false);
@@ -35,10 +38,13 @@ public:
 	void		UseProgram(size_t iProgram);
 	void		SetUniform(const char* pszName, int iValue);
 	void		SetUniform(const char* pszName, float flValue);
+	void		SetUniform(const char* pszName, const Vector& vecValue);
 	void		BindTexture(size_t iTexture);
 	void		SetColor(Color c);
+	void		BeginRenderTris();
 	void		BeginRenderQuads();
 	void		TexCoord(float s, float t);
+	void		TexCoord(const Vector& v);
 	void		Vertex(const Vector& v);
 	void		EndRender();
 

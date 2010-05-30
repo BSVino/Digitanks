@@ -15,12 +15,18 @@ public:
 
 	void		Identity();
 	void		Init(const Matrix4x4& m);
+	void		Init(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33);
 
 	Matrix4x4	Transposed() const;
+
+	// Simple matrix operations
+	Matrix4x4	operator*(float f) const;
+	Matrix4x4	operator+(const Matrix4x4& m) const;
 
 	// Set a transformation
 	void		SetTranslation(const Vector& vecPos);
 	void		SetRotation(const EAngle& angDir);
+	void		SetRotation(float flAngle, const Vector& vecAxis);
 	void		SetOrientation(const Vector& vecDir);
 	void		SetScale(const Vector& vecScale);
 
@@ -48,6 +54,9 @@ public:
 
 	void		InvertTR();
 
+	float		Trace();
+	Vector		RotationAxis();
+
 	operator float*()
 	{
 		return(&m[0][0]);
@@ -58,10 +67,7 @@ public:
 
 inline Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
 {
-	m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m10;
-	m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
-	m[2][0] = m20; m[2][1] = m21; m[2][2] = m22; m[2][3] = m23;
-	m[3][0] = m30; m[3][1] = m31; m[3][2] = m32; m[3][3] = m33;
+	Init(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
 inline Matrix4x4::Matrix4x4(const Matrix4x4& i)
@@ -90,6 +96,14 @@ inline void Matrix4x4::Init(const Matrix4x4& i)
 	memcpy(&m[0][0], &i.m[0][0], sizeof(float)*16);
 }
 
+inline void Matrix4x4::Init(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
+{
+	m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m03;
+	m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
+	m[2][0] = m20; m[2][1] = m21; m[2][2] = m22; m[2][3] = m23;
+	m[3][0] = m30; m[3][1] = m31; m[3][2] = m32; m[3][3] = m33;
+}
+
 inline Matrix4x4 Matrix4x4::Transposed() const
 {
 	Matrix4x4 r;
@@ -97,6 +111,60 @@ inline Matrix4x4 Matrix4x4::Transposed() const
 	r.m[0][1] = m[1][0]; r.m[1][1] = m[1][1]; r.m[2][1] = m[1][2]; r.m[3][1] = m[1][3];
 	r.m[0][2] = m[2][0]; r.m[1][2] = m[2][1]; r.m[2][2] = m[2][2]; r.m[3][2] = m[2][3];
 	r.m[0][3] = m[3][0]; r.m[1][3] = m[3][1]; r.m[2][3] = m[3][2]; r.m[3][3] = m[3][3];
+	return r;
+}
+
+inline Matrix4x4 Matrix4x4::operator*(float f) const
+{
+	Matrix4x4 r;
+
+	r.m[0][0] = m[0][0]*f;
+	r.m[0][1] = m[0][1]*f;
+	r.m[0][2] = m[0][2]*f;
+	r.m[0][3] = m[0][3]*f;
+
+	r.m[1][0] = m[1][0]*f;
+	r.m[1][1] = m[1][1]*f;
+	r.m[1][2] = m[1][2]*f;
+	r.m[1][3] = m[1][3]*f;
+
+	r.m[2][0] = m[2][0]*f;
+	r.m[2][1] = m[2][1]*f;
+	r.m[2][2] = m[2][2]*f;
+	r.m[2][3] = m[2][3]*f;
+
+	r.m[3][0] = m[3][0]*f;
+	r.m[3][1] = m[3][1]*f;
+	r.m[3][2] = m[3][2]*f;
+	r.m[3][3] = m[3][3]*f;
+
+	return r;
+}
+
+inline Matrix4x4 Matrix4x4::operator+(const Matrix4x4& t) const
+{
+	Matrix4x4 r;
+
+	r.m[0][0] = m[0][0]+t.m[0][0];
+	r.m[0][1] = m[0][1]+t.m[0][1];
+	r.m[0][2] = m[0][2]+t.m[0][2];
+	r.m[0][3] = m[0][3]+t.m[0][3];
+
+	r.m[1][0] = m[1][0]+t.m[1][0];
+	r.m[1][1] = m[1][1]+t.m[1][1];
+	r.m[1][2] = m[1][2]+t.m[1][2];
+	r.m[1][3] = m[1][3]+t.m[1][3];
+
+	r.m[2][0] = m[2][0]+t.m[2][0];
+	r.m[2][1] = m[2][1]+t.m[2][1];
+	r.m[2][2] = m[2][2]+t.m[2][2];
+	r.m[2][3] = m[2][3]+t.m[2][3];
+
+	r.m[3][0] = m[3][0]+t.m[3][0];
+	r.m[3][1] = m[3][1]+t.m[3][1];
+	r.m[3][2] = m[3][2]+t.m[3][2];
+	r.m[3][3] = m[3][3]+t.m[3][3];
+
 	return r;
 }
 
@@ -109,22 +177,38 @@ inline void Matrix4x4::SetTranslation(const Vector& vecPos)
 
 inline void Matrix4x4::SetRotation(const EAngle& angDir)
 {
-	float sr = sin(angDir.r * M_PI/180);
 	float sp = sin(angDir.p * M_PI/180);
 	float sy = sin(angDir.y * M_PI/180);
-	float cr = cos(angDir.r * M_PI/180);
+	float sr = sin(angDir.r * M_PI/180);
 	float cp = cos(angDir.p * M_PI/180);
 	float cy = cos(angDir.y * M_PI/180);
+	float cr = cos(angDir.r * M_PI/180);
 
-	m[0][0] = cp*cy;
-	m[0][1] = sr*sp*cy+cr*-sy;
-	m[0][2] = (cr*sp*cy+-sr*-sy);
-	m[1][0] = cp*sy;
-	m[1][1] = sr*sp*sy+cr*cy;
-	m[1][2] = (cr*sp*sy+-sr*cy);
-	m[2][0] = -sp;
-	m[2][1] = sr*cp;
-	m[2][2] = cr*cp;
+	m[0][0] = cy*cp;
+	m[0][1] = -sr*sy*cp-cr*sp;
+	m[0][2] = -cr*sy*cp+sr*sp;
+	m[1][0] = cy*sp;
+	m[1][1] = -sr*sy*sp+cr*cp;
+	m[1][2] = -cr*sy*sp-sr*cp;
+	m[2][0] = sy;
+	m[2][1] = sr*cy;
+	m[2][2] = cr*cy;
+}
+
+inline void Matrix4x4::SetRotation(float flAngle, const Vector& v)
+{
+	float c = cos(flAngle*M_PI/180);
+	float s = sin(flAngle*M_PI/180);
+	float t = 1-c;
+
+	float xyt = v.x*v.y*t;
+	float zs = v.z*s;
+	float xzt = v.x*v.z*t;
+	float ys = v.y*s;
+	float yzt = v.y*v.z*t;
+	float xs = v.x*s;
+
+	Init(c + v.x*v.x*t, xyt - zs, xzt - ys, 0, xyt + zs, c + v.y*v.y*t, yzt - xs, 0, xzt - ys, yzt + xs, c + v.z*v.z*t, 0, 0, 0, 0, 1);
 }
 
 inline void Matrix4x4::SetOrientation(const Vector& vecDir)
@@ -258,6 +342,16 @@ inline void Matrix4x4::InvertTR()
 	Init(t);
 
 	SetColumn(3, t*Vector(-m[0][3], -m[1][3], -m[2][3]));
+}
+
+inline float Matrix4x4::Trace()
+{
+	return m[0][0] + m[1][1] + m[2][2];
+}
+
+inline Vector Matrix4x4::RotationAxis()
+{
+	return Vector(m[2][1] - m[1][2], m[0][2] - m[2][0], m[1][0] + m[0][1]).Normalized();
 }
 
 #endif

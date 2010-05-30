@@ -6,6 +6,7 @@
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
+#include <renderer/dissolver.h>
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
@@ -592,6 +593,11 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage);
 }
 
+void CDigitank::OnKilled()
+{
+	CModelDissolver::AddModel(this);
+}
+
 Vector CDigitank::GetRenderOrigin() const
 {
 	return GetDesiredMove() + Vector(0, 1, 0);
@@ -665,7 +671,7 @@ void CDigitank::RenderTurret(float flAlpha)
 		r.Rotate(-flAngle, Vector(0, 1, 0));
 	}
 
-	float flScale = RemapVal(GetAttackPower(true), 0, 10, 1, 2);
+	float flScale = RemapVal(GetAttackPower(true), 0, 10, 1, 1.5f);
 	r.Scale(flScale, flScale, flScale);
 
 	r.RenderModel(m_iTurretModel);

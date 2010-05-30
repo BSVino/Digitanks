@@ -9,7 +9,7 @@
 #include <ui/debugdraw.h>
 
 CParticleSystemLibrary* CParticleSystemLibrary::s_pParticleSystemLibrary = NULL;
-static CParticleSystemLibrary s_pParticleSystemLibrary = CParticleSystemLibrary();
+static CParticleSystemLibrary g_pParticleSystemLibrary = CParticleSystemLibrary();
 
 extern void InitSystems();
 

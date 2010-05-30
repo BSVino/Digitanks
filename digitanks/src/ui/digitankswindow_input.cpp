@@ -9,6 +9,8 @@
 #include "hud.h"
 #include "menu.h"
 
+#include <renderer/dissolver.h>
+
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
 	FakeCtrlAltShift();
@@ -148,6 +150,11 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		else
 			SetControlMode(MODE_NONE);
 	}
+
+#ifdef _DEBUG
+	if (c == 'x')
+		CModelDissolver::AddModel(DigitanksGame()->GetCurrentTank());
+#endif
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);

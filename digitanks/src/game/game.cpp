@@ -3,6 +3,7 @@
 #include <ui/digitankswindow.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
+#include <renderer/dissolver.h>
 
 #include "camera.h"
 
@@ -67,6 +68,7 @@ void CGame::Think(float flRealTime)
 	Think();
 
 	CParticleSystemLibrary::Simulate();
+	CModelDissolver::Simulate();
 }
 
 void CGame::Simulate()
@@ -123,6 +125,7 @@ void CGame::Render()
 		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Render();
 
 	CParticleSystemLibrary::Render();
+	CModelDissolver::Render();
 
 	m_pRenderer->FinishRendering();
 }

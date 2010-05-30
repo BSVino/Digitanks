@@ -45,6 +45,17 @@ CRenderingContext::~CRenderingContext()
 		glPopAttrib();
 }
 
+void CRenderingContext::Transform(const Matrix4x4& m)
+{
+	if (!m_bMatrixTransformations)
+	{
+		m_bMatrixTransformations = true;
+		glPushMatrix();
+	}
+
+	glMultMatrixf(m.Transposed());	// GL uses column major.
+}
+
 void CRenderingContext::Translate(Vector vecTranslate)
 {
 	if (!m_bMatrixTransformations)
@@ -104,6 +115,17 @@ void CRenderingContext::SetDepthMask(bool bDepthMask)
 		PushAttribs();
 
 	glDepthMask(bDepthMask);
+}
+
+void CRenderingContext::SetBackCulling(bool bCull)
+{
+	if (!m_bAttribs)
+		PushAttribs();
+
+	if (bCull)
+		glEnable(GL_CULL_FACE);
+	else
+		glDisable(GL_CULL_FACE);
 }
 
 void CRenderingContext::SetColorSwap(Color clrSwap)
@@ -280,6 +302,12 @@ void CRenderingContext::SetUniform(const char* pszName, float flValue)
 	glUniform1f(iUniform, flValue);
 }
 
+void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
+{
+	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
+	glUniform3fv(iUniform, 1, vecValue);
+}
+
 void CRenderingContext::BindTexture(size_t iTexture)
 {
 	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
@@ -294,6 +322,11 @@ void CRenderingContext::SetColor(Color c)
 	glColor4ubv(c);
 }
 
+void CRenderingContext::BeginRenderTris()
+{
+	glBegin(GL_TRIANGLES);
+}
+
 void CRenderingContext::BeginRenderQuads()
 {
 	glBegin(GL_QUADS);
@@ -302,6 +335,11 @@ void CRenderingContext::BeginRenderQuads()
 void CRenderingContext::TexCoord(float s, float t)
 {
 	glTexCoord2f(s, t);
+}
+
+void CRenderingContext::TexCoord(const Vector& v)
+{
+	glTexCoord2fv(v);
 }
 
 void CRenderingContext::Vertex(const Vector& v)

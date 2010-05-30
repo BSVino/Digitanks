@@ -398,6 +398,14 @@
 				Name="renderer"
 				>
 				<File
+					RelativePath=".\renderer\dissolver.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\renderer\dissolver.h"
+					>
+				</File>
+				<File
 					RelativePath=".\renderer\particles.cpp"
 					>
 				</File>
