@@ -46,6 +46,8 @@ CDigitank::CDigitank()
 
 	m_flMaxShieldStrength = m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flBackShieldStrength = 15;
 
+	m_flFireProjectileTime = 0;
+
 	m_pTeam = NULL;
 
 	SetCollisionGroup(CG_TANK);
@@ -499,6 +501,12 @@ void CDigitank::Think()
 			m_flDisplayAimRadius = flRadius;
 		}
 	}
+
+	if (m_flFireProjectileTime && Game()->GetGameTime() > m_flFireProjectileTime)
+	{
+		m_flFireProjectileTime = 0;
+		FireProjectile();
+	}
 }
 
 void CDigitank::Move()
@@ -550,6 +558,19 @@ void CDigitank::Fire()
 	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
 
+	DigitanksGame()->AddProjectileToWaitFor();
+	m_flFireProjectileTime = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 0, 1);
+}
+
+void CDigitank::FireProjectile()
+{
+	if (!HasDesiredAim())
+		return;
+
+	float flDistanceSqr = (GetDesiredAim() - GetOrigin()).LengthSqr();
+	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
+		return;
+
 	float flDistance = sqrt(flDistanceSqr);
 	Vector vecLandingSpot = GetDesiredAim();
 
@@ -568,7 +589,6 @@ void CDigitank::Fire()
 
 	CProjectile* pProjectile = new CProjectile(this, GetAttackPower(), vecForce);
 	pProjectile->SetGravity(Vector(0, flGravity, 0));
-	DigitanksGame()->AddProjectileToWaitFor();
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)

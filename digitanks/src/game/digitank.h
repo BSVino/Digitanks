@@ -93,6 +93,7 @@ public:
 
 	void						Move();
 	void						Fire();
+	void						FireProjectile();
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
 	virtual void				OnKilled();
@@ -166,6 +167,8 @@ protected:
 	float						m_flDisplayAimRadius;
 
 	bool						m_bChoseFirepower;
+
+	float						m_flFireProjectileTime;
 
 	class CTeam*				m_pTeam;
 
