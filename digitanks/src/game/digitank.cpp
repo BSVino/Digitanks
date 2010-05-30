@@ -219,7 +219,10 @@ float CDigitank::GetPreviewBaseTurnPower() const
 
 void CDigitank::CalculateAttackDefense()
 {
-	m_flAttackPower = RemapVal(m_flMovementPower, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
+	if (m_flAttackPower + m_flDefensePower == 0)
+		m_flAttackPower = 0;
+	else
+		m_flAttackPower = RemapVal(m_flMovementPower, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
 	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
 }
 
