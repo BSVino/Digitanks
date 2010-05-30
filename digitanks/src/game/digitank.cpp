@@ -12,6 +12,7 @@
 #include "ui/digitankswindow.h"
 #include "powerup.h"
 #include "ui/debugdraw.h"
+#include "camera.h"
 
 REGISTER_ENTITY(CDigitank);
 
@@ -963,4 +964,6 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 
 	m_flTimeExploded = Game()->GetGameTime();
+
+	Game()->GetCamera()->Shake(GetOrigin(), 3);
 }

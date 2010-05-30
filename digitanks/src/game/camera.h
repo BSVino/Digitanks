@@ -15,6 +15,8 @@ public:
 	void		SnapDistance(float flDistance);
 	void		SnapAngle(EAngle angCamera);
 
+	void		Shake(Vector vecLocation, float flMagnitude);
+
 	void		Think();
 
 	Vector		GetCameraPosition();
@@ -36,6 +38,10 @@ public:
 	float		m_flOldDistance;
 	float		m_flNewDistance;
 	float		m_flDistanceRamp;
+
+	Vector		m_vecShakeLocation;
+	float		m_flShakeMagnitude;
+	Vector		m_vecShake;
 
 	Vector		m_vecTarget;
 	float		m_flDistance;

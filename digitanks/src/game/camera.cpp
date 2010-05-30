@@ -1,6 +1,7 @@
 #include "camera.h"
 
 #include <maths.h>
+#include <renderer/renderer.h>
 
 #include "digitanksgame.h"
 
@@ -10,6 +11,7 @@ CCamera::CCamera()
 	m_flTargetRamp = m_flDistanceRamp = 0;
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
+	m_flShakeMagnitude = 0;
 }
 
 void CCamera::SetTarget(Vector vecTarget)
@@ -41,6 +43,12 @@ void CCamera::SnapDistance(float flDistance)
 void CCamera::SnapAngle(EAngle angCamera)
 {
 	m_angCamera = angCamera;
+}
+
+void CCamera::Shake(Vector vecLocation, float flMagnitude)
+{
+	m_vecShakeLocation = vecLocation;
+	m_flShakeMagnitude = flMagnitude;
 }
 
 void CCamera::Think()
@@ -75,6 +83,25 @@ void CCamera::Think()
 		m_vecFPSCamera += vecForward * m_vecFPSVelocity.x * DigitanksGame()->GetFrameTime() * 20;
 		m_vecFPSCamera -= vecRight * m_vecFPSVelocity.z * DigitanksGame()->GetFrameTime() * 20;
 	}
+
+	m_flShakeMagnitude = Approach(0, m_flShakeMagnitude, Game()->GetFrameTime()*5);
+	if (m_flShakeMagnitude)
+	{
+		Vector vecRight, vecUp;
+		Game()->GetRenderer()->GetCameraVectors(NULL, &vecRight, &vecUp);
+
+		float flX = RemapVal((float)(rand()%1000), 0, 1000, -m_flShakeMagnitude, m_flShakeMagnitude);
+		float flY = RemapVal((float)(rand()%1000), 0, 1000, -m_flShakeMagnitude, m_flShakeMagnitude);
+		m_vecShake = vecRight * flX + vecUp * flY;
+
+		float flDistance = (m_vecTarget-m_vecShakeLocation).Length();
+		float flScale = 1;
+		if (flDistance > 50)
+			flScale = RemapValClamped(flDistance, 50, 200, 1, 0);
+		m_vecShake *= flScale;
+	}
+	else
+		m_vecShake = Vector(0,0,0);
 }
 
 Vector CCamera::GetCameraPosition()
@@ -82,7 +109,7 @@ Vector CCamera::GetCameraPosition()
 	if (m_bFPSMode)
 		return m_vecFPSCamera;
 
-	return m_vecCamera;
+	return m_vecCamera + m_vecShake;
 }
 
 Vector CCamera::GetCameraTarget()
@@ -90,7 +117,7 @@ Vector CCamera::GetCameraTarget()
 	if (m_bFPSMode)
 		return m_vecFPSCamera + AngleVector(m_angFPSCamera);
 
-	return m_vecTarget;
+	return m_vecTarget + m_vecShake;
 }
 
 void CCamera::SetFPSMode(bool bOn)
