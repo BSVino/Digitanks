@@ -13,6 +13,7 @@ public:
 	void		SnapTarget(Vector vecTarget);
 	void		SetDistance(float flDistance);
 	void		SnapDistance(float flDistance);
+	void		SnapAngle(EAngle angCamera);
 
 	void		Think();
 

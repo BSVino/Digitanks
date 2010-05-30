@@ -6,6 +6,7 @@
 
 #include "powerup.h"
 #include "terrain.h"
+#include "camera.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -143,6 +144,11 @@ void CDigitanksGame::StartGame()
 
 	if (m_pListener)
 		m_pListener->NewCurrentTank();
+
+	// Point the camera in to the center
+	EAngle angCamera = VectorAngles(GetCurrentTank()->GetOrigin().Normalized());
+	angCamera.p = 45;
+	GetCamera()->SnapAngle(angCamera);
 }
 
 void CDigitanksGame::Think()
@@ -353,6 +359,22 @@ void CDigitanksGame::EndTurn()
 
 	GetCurrentTeam()->MoveTanks();
 	m_bWaitingForMoving = true;
+
+	size_t iSum = 0;
+	Vector vecSum;
+	for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		CDigitank* pTank = GetCurrentTeam()->GetTank(i);
+		if (!pTank)
+			continue;
+		if (!pTank->HasDesiredAim())
+			continue;
+		vecSum += pTank->GetDesiredMove() + pTank->GetDesiredAim();
+		iSum += 2;
+	}
+
+	if (iSum)
+		GetCamera()->SetTarget(vecSum/(float)iSum);
 }
 
 void CDigitanksGame::StartTurn()

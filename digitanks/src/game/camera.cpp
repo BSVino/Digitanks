@@ -38,6 +38,11 @@ void CCamera::SnapDistance(float flDistance)
 	m_flNewDistance = flDistance;
 }
 
+void CCamera::SnapAngle(EAngle angCamera)
+{
+	m_angCamera = angCamera;
+}
+
 void CCamera::Think()
 {
 	float flGameTime = DigitanksGame()->GetGameTime();
