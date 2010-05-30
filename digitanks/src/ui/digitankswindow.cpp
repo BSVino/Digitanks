@@ -131,6 +131,10 @@ void CDigitanksWindow::Run()
 			Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
 			Render();
 		}
+		else
+			// Clear the buffer for the gui.
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+
 		glgui::CRootPanel::Get()->Think();
 		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 		glutSwapBuffers();
