@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <assert.h>
+#include <time.h>
 
 CShaderLibrary* CShaderLibrary::s_pShaderLibrary = NULL;
 static CShaderLibrary g_ShaderLibrary = CShaderLibrary();
@@ -50,6 +51,8 @@ void CShaderLibrary::CompileShaders()
 	if (Get()->m_bCompiled)
 		return;
 
+	Get()->ClearLog();
+
 	for (size_t i = 0; i < Get()->m_aShaders.size(); i++)
 		Get()->CompileShader(i);
 
@@ -65,30 +68,56 @@ void CShaderLibrary::CompileShader(size_t iShader)
 	glShaderSource((GLuint)pShader->m_iVShader, 1, &pszStr, NULL);
 	glCompileShader((GLuint)pShader->m_iVShader);
 
-#ifdef _DEBUG
 	int iLogLength = 0;
 	char szLog[1024];
 	glGetShaderInfoLog((GLuint)pShader->m_iVShader, 1024, &iLogLength, szLog);
-#endif
+	WriteLog(szLog, pszStr);
 
 	pShader->m_iFShader = glCreateShader(GL_FRAGMENT_SHADER);
 	pszStr = pShader->m_sFS.c_str();
 	glShaderSource((GLuint)pShader->m_iFShader, 1, &pszStr, NULL);
 	glCompileShader((GLuint)pShader->m_iFShader);
 
-#ifdef _DEBUG
+	szLog[0] = '\0';
+	iLogLength = 0;
 	glGetShaderInfoLog((GLuint)pShader->m_iFShader, 1024, &iLogLength, szLog);
-#endif
+	WriteLog(szLog, pszStr);
 
 	pShader->m_iProgram = glCreateProgram();
 	glAttachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iVShader);
 	glAttachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iFShader);
 	glLinkProgram((GLuint)pShader->m_iProgram);
 
-#ifdef _DEBUG
+	szLog[0] = '\0';
+	iLogLength = 0;
 	glGetProgramInfoLog((GLuint)pShader->m_iProgram, 1024, &iLogLength, szLog);
-	assert(!strlen(szLog));
+	WriteLog(szLog, "link");
+}
+
+void CShaderLibrary::ClearLog()
+{
+	FILE* fp = fopen("shaders.txt", "w");
+	fclose(fp);
+}
+
+void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
+{
+	if (!pszLog || strlen(pszLog) == 0)
+		return;
+
+#ifdef _DEBUG
+	assert(!strlen(pszLog));
 #endif
+
+	char szText[100];
+	strncpy(szText, pszShaderText, 99);
+	szText[99] = '\0';
+
+	FILE* fp = fopen("shaders.txt", "a");
+	fprintf(fp, "Shader compile output %d\n", time(NULL));
+	fprintf(fp, "%s\n\n", pszLog);
+	fprintf(fp, "%s...\n\n", szText);
+	fclose(fp);
 }
 
 CShader* CShaderLibrary::GetShader(size_t i)

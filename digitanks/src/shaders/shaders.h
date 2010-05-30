@@ -57,6 +57,9 @@ public:
 protected:
 	void					CompileShader(size_t iShader);
 
+	void					ClearLog();
+	void					WriteLog(const char* pszLog, const char* pszShaderText);
+
 protected:
 	std::vector<CShader>	m_aShaders;
 	bool					m_bCompiled;
