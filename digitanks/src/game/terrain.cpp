@@ -649,10 +649,7 @@ void CTerrain::OnRender()
 	DigitanksGame()->ClearTankAims();
 
 	GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
-	if (GLEW_NV_vertex_program3)
-		glUniform1i(iAimTargets, (GLint)avecTankAims.size());
-	else
-		glUniform1i(iAimTargets, 1);
+	glUniform1i(iAimTargets, (GLint)avecTankAims.size());
 
 	if (avecTankAims.size())
 	{
@@ -660,31 +657,13 @@ void CTerrain::OnRender()
 		GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
 		GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
 
-		if (GLEW_NV_vertex_program3)
-		{
-			glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
-			glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
+		glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
+		glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
 
-			if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
-				glUniform1i(iFocusTarget, (GLint)DigitanksGame()->GetCurrentTankId());
-			else
-				glUniform1i(iFocusTarget, -1);
-		}
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			glUniform1i(iFocusTarget, (GLint)DigitanksGame()->GetCurrentTankId());
 		else
-		{
-			if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
-			{
-				glUniform3fv(avecAimTargets, 1, avecTankAims[DigitanksGame()->GetCurrentTankId()]);
-				glUniform1fv(aflAimTargetRadius, 1, &aflTankAimRadius[DigitanksGame()->GetCurrentTankId()]);
-				glUniform1i(iFocusTarget, 0);
-			}
-			else
-			{
-				glUniform3fv(avecAimTargets, 1, avecTankAims[0]);
-				glUniform1fv(aflAimTargetRadius, 1, &aflTankAimRadius[0]);
-				glUniform1i(iFocusTarget, -1);
-			}
-		}
+			glUniform1i(iFocusTarget, -1);
 	}
 
 	for (size_t i = 0; i < TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS; i++)

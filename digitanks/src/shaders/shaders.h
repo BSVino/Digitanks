@@ -101,6 +101,10 @@ inline const char* CShaderLibrary::GetVSPassShader()
 	"{" \
 	"	return v.x*v.x + v.y*v.y + v.z*v.z;" \
 	"}" \
+	"float LengthSqr(vec2 v)" \
+	"{" \
+	"	return v.x*v.x + v.y*v.y;" \
+	"}" \
 
 #define LERP \
 	"float Lerp(float x, float flLerp)" \
