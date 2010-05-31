@@ -155,6 +155,9 @@ CHUD::CHUD()
 
 	SetupMenu(MENUMODE_MAIN);
 
+	m_pOpenTutorial = new CLabel(0, 0, 100, 20, "Press 't' to start the tutorial");
+	AddControl(m_pOpenTutorial);
+
 #ifdef _DEBUG
 	m_pFPS = new CLabel(0, 0, 100, 20, "");
 	AddControl(m_pFPS);
@@ -236,6 +239,10 @@ void CHUD::Layout()
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pPressEnter->SetWrap(false);
 	m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
+
+	m_pOpenTutorial->SetPos(iWidth/2 - 100/2, 0);
+	m_pOpenTutorial->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pOpenTutorial->SetWrap(false);
 }
 
 void CHUD::Think()
@@ -381,6 +388,8 @@ void CHUD::Think()
 		m_pFireAttack->SetWrap(false);
 		m_pFireDefend->SetWrap(false);
 	}
+
+	m_pOpenTutorial->SetVisible(!CDigitanksWindow::Get()->GetInstructor()->GetActive());
 
 #ifdef _DEBUG
 	char szFPS[100];

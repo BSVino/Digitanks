@@ -151,6 +151,9 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			SetControlMode(MODE_NONE);
 	}
 
+	if (c == 't')
+		GetInstructor()->SetActive(true);
+
 #ifdef _DEBUG
 	if (c == 'x')
 		CModelDissolver::AddModel(DigitanksGame()->GetCurrentTank());

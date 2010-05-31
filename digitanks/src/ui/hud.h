@@ -138,6 +138,8 @@ protected:
 
 	bool						m_bAutoProceed;
 
+	glgui::CLabel*				m_pOpenTutorial;
+
 	glgui::CLabel*				m_pFPS;
 
 	size_t						m_iAvatarIcon;
