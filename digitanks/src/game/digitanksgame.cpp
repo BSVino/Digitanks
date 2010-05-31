@@ -226,16 +226,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		float flMovePower = GetCurrentTank()->GetPreviewMovePower();
 
 		if (flMovePower > GetCurrentTank()->GetBasePower())
-		{
-			CTeam* pTeam = GetCurrentTeam();
-			for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
-			{
-				CDigitank* pTank = pTeam->GetTank(i);
-				pTank->SetPreviewMove(pTank->GetOrigin());
-				pTank->SetDesiredMove();
-			}
 			return;
-		}
 
 		Vector vecPreview = GetCurrentTank()->GetPreviewMove();
 		Vector vecOrigin = GetCurrentTank()->GetOrigin();

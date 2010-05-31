@@ -794,6 +794,9 @@ void CHUD::UpdateAttackInfo()
 		if (pTargetTank == pCurrentTank)
 			continue;
 
+		if (pTargetTank->GetTeam() == pCurrentTank->GetTeam())
+			continue;
+
 		if ((pTargetTank->GetOrigin() - vecAim).LengthSqr() > flRadius*flRadius)
 			continue;
 
@@ -1085,6 +1088,8 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
 	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
+	if (bShield)
+		vecScreen += Vector(10, 10, 0);
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
 
 	if (m_bShield)
@@ -1126,6 +1131,8 @@ void CDamageIndicator::Think()
 	float flOffset = RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
 
 	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
+	if (m_bShield)
+		vecScreen += Vector(10, 10, 0);
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
 	SetAlpha((int)RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
@@ -1135,5 +1142,12 @@ void CDamageIndicator::Think()
 
 void CDamageIndicator::Paint(int x, int y, int w, int h)
 {
+	if (m_bShield)
+	{
+		int iWidth = GetTextWidth();
+		int iHeight = (int)GetTextHeight();
+		CRootPanel::PaintRect(x, y-iHeight/2, iWidth, iHeight, Color(0, 0, 0, GetAlpha()/2));
+	}
+
 	BaseClass::Paint(x, y, w, h);
 }

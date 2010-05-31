@@ -67,14 +67,17 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		{
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 
-			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-				SetControlMode(MODE_AIM);
-			else
+			if (DigitanksGame()->GetCurrentTank()->HasDesiredMove())
+			{
+				if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
+					SetControlMode(MODE_AIM);
+
 				DigitanksGame()->NextTank();
 
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+				m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 
-			GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
+				GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
+			}
 		}
 		else if (GetControlMode() == MODE_TURN)
 		{
@@ -136,9 +139,32 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	if (DigitanksGame() && c == 32)
 	{
 		// Don't clobber existing commands when scrolling through tanks.
-		SetControlMode(MODE_NONE);
+		if (m_pHUD->ShouldAutoProceed())
+		{
+			// Set desired move so that the tank knows the player selected something.
+			if (GetControlMode() == MODE_MOVE)
+				DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
+		}
+		else
+			SetControlMode(MODE_NONE);
 		DigitanksGame()->NextTank();
-		m_pHUD->SetAutoProceed(false);
+	}
+
+	if (DigitanksGame() && c == 9)
+	{
+		if (GetControlMode() == MODE_MOVE)
+			SetControlMode(MODE_AIM);
+		else if (GetControlMode() == MODE_AIM)
+		{
+			if (DigitanksGame()->GetCurrentTank() && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+				SetControlMode(MODE_FIRE);
+			else
+				SetControlMode(MODE_MOVE);
+		}
+		else if (GetControlMode() == MODE_FIRE)
+			SetControlMode(MODE_MOVE);
+		else
+			SetControlMode(MODE_MOVE);
 	}
 
 	if (c == 27)
