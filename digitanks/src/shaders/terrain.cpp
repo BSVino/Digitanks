@@ -1,10 +1,16 @@
 #include "shaders.h"
 
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+
+static std::string g_sVS;
+
 const char* CShaderLibrary::GetVSTerrainShader()
 {
-	return
-		LENGTHSQR
+	g_sVS = std::string();
+	g_sVS += LENGTHSQR;
 
+	g_sVS +=
 		"varying vec4 vecFrontColor;"
 		"varying vec3 vecPosition;"
 
@@ -17,22 +23,25 @@ const char* CShaderLibrary::GetVSTerrainShader()
 		"uniform float aflAimTargetRadius[5];"
 		"uniform int iAimTargets;"
 		"varying vec3 vecAimTarget1;"
+		"varying float flAimTargetRadius1;";
+
+	if (GLEW_NV_vertex_program3)	// 2.0 supports only a few varyings
+		g_sVS +=
 		"varying vec3 vecAimTarget2;"
 		"varying vec3 vecAimTarget3;"
 		"varying vec3 vecAimTarget4;"
 		"varying vec3 vecAimTarget5;"
-		"varying float flAimTargetRadius1;"
 		"varying float flAimTargetRadius2;"
 		"varying float flAimTargetRadius3;"
 		"varying float flAimTargetRadius4;"
-		"varying float flAimTargetRadius5;"
+		"varying float flAimTargetRadius5;";
 
+	g_sVS +=
 		"void main()"
 		"{"
 		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
 		"	vecPosition = gl_Vertex.xyz;"
 		"	gl_FrontColor = vecFrontColor = gl_Color;"
-
 		"	flRadius = 6.0;"
 		"	avecClosestCrater = vec3(0,0,0);"
 		"	for (int i = 0; i < iCraterMarks; i++)"
@@ -41,28 +50,38 @@ const char* CShaderLibrary::GetVSTerrainShader()
 		"		if (i == 0 || flDistanceToMarkSqr < LengthSqr(vecPosition - avecClosestCrater))"
 		"			avecClosestCrater = avecCraterMarks[i];"
 		"	}"
-
 		"	flAimTargetRadius1 = aflAimTargetRadius[0];"
+		"	vecAimTarget1 = avecAimTargets[0];";
+
+	if (GLEW_NV_vertex_program3)
+		g_sVS +=
 		"	flAimTargetRadius2 = aflAimTargetRadius[1];"
 		"	flAimTargetRadius3 = aflAimTargetRadius[2];"
 		"	flAimTargetRadius4 = aflAimTargetRadius[3];"
 		"	flAimTargetRadius5 = aflAimTargetRadius[4];"
-		"	vecAimTarget1 = avecAimTargets[0];"
 		"	vecAimTarget2 = avecAimTargets[1];"
 		"	vecAimTarget3 = avecAimTargets[2];"
 		"	vecAimTarget4 = avecAimTargets[3];"
-		"	vecAimTarget5 = avecAimTargets[4];"
+		"	vecAimTarget5 = avecAimTargets[4];";
+
+	g_sVS +=
 		"}";
+
+	return g_sVS.c_str();
 }
+
+static std::string g_sFS;
 
 const char* CShaderLibrary::GetFSTerrainShader()
 {
-	return
+	g_sFS = std::string();
+	g_sFS +=
 		REMAPVAL
 		LERP
 		LENGTHSQR
-		DISTANCE_TO_SEGMENT_SQR
+		DISTANCE_TO_SEGMENT_SQR;
 
+	g_sFS +=
 		"uniform vec3 vecTankOrigin;"
 
 		"uniform float flMoveDistance;"
@@ -87,16 +106,20 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"uniform int iFocusTarget;"
 		"uniform int iAimTargets;"
 		"varying vec3 vecAimTarget1;"
+		"varying float flAimTargetRadius1;";
+
+	if (GLEW_NV_vertex_program3)	// 2.0 supports only a few varyings
+		g_sFS +=
 		"varying vec3 vecAimTarget2;"
 		"varying vec3 vecAimTarget3;"
 		"varying vec3 vecAimTarget4;"
 		"varying vec3 vecAimTarget5;"
-		"varying float flAimTargetRadius1;"
 		"varying float flAimTargetRadius2;"
 		"varying float flAimTargetRadius3;"
 		"varying float flAimTargetRadius4;"
-		"varying float flAimTargetRadius5;"
+		"varying float flAimTargetRadius5;";
 
+	g_sFS +=
 		"varying vec4 vecFrontColor;"
 		"varying vec3 vecPosition;"
 
@@ -249,8 +272,10 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"			float flTargetColorStrength = GetAimTargetStrength(flDistanceToAimSqr1, flAimTargetRadius1, iFocusTarget == 0);"
 		"			vecBaseColor = vecBaseColor * (1.0-flTargetColorStrength) + vec4(0.8, 0.0, 0.0, 1.0) * flTargetColorStrength;"
 		"		}"
-		"	}"
+		"	}";
 
+	if (GLEW_NV_vertex_program3)
+		g_sFS +=
 		"	if (iAimTargets > 1)"
 		"	{"
 		"		float flDistanceToAimSqr2 = LengthSqr(vecPosition2D - vecAimTarget2);"
@@ -289,8 +314,11 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"			float flTargetColorStrength = GetAimTargetStrength(flDistanceToAimSqr5, flAimTargetRadius5, iFocusTarget == 4);"
 		"			vecBaseColor = vecBaseColor * (1.0-flTargetColorStrength) + vec4(0.8, 0.0, 0.0, 1.0) * flTargetColorStrength;"
 		"		}"
-		"	}"
+		"	}";
 
+	g_sFS +=
 		"	gl_FragColor = vecBaseColor;"
 		"}";
+
+	return g_sFS.c_str();
 }

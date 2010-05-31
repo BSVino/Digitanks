@@ -13,13 +13,6 @@ CShaderLibrary::CShaderLibrary()
 	s_pShaderLibrary = this;
 
 	m_bCompiled = false;
-
-	m_iTerrain = AddShader(GetVSTerrainShader(), GetFSTerrainShader());
-	m_iModel = AddShader(GetVSModelShader(), GetFSModelShader());
-
-	m_iExplosion = AddShader(GetVSPassShader(), GetFSExplosionShader());
-	m_iBlur = AddShader(GetVSPassShader(), GetFSBlurShader());
-	m_iBrightPass = AddShader(GetVSPassShader(), GetFSBrightPassShader());
 }
 
 CShaderLibrary::~CShaderLibrary()
@@ -37,6 +30,16 @@ CShaderLibrary::~CShaderLibrary()
 	s_pShaderLibrary = NULL;
 }
 
+void CShaderLibrary::AddShaders()
+{
+	m_iTerrain = AddShader(GetVSTerrainShader(), GetFSTerrainShader());
+	m_iModel = AddShader(GetVSModelShader(), GetFSModelShader());
+
+	m_iExplosion = AddShader(GetVSPassShader(), GetFSExplosionShader());
+	m_iBlur = AddShader(GetVSPassShader(), GetFSBlurShader());
+	m_iBrightPass = AddShader(GetVSPassShader(), GetFSBrightPassShader());
+}
+
 size_t CShaderLibrary::AddShader(const char* pszVS, const char* pszFS)
 {
 	if (m_bCompiled)
@@ -50,6 +53,8 @@ void CShaderLibrary::CompileShaders()
 {
 	if (Get()->m_bCompiled)
 		return;
+
+	Get()->AddShaders();
 
 	Get()->ClearLog();
 

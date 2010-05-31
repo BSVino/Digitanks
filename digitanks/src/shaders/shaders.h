@@ -25,6 +25,7 @@ public:
 public:
 	size_t					GetNumShaders() { return m_aShaders.size(); };
 
+	void					AddShaders();
 	size_t					AddShader(const char* pszVS, const char* pszFS);
 	CShader*				GetShader(size_t i);
 
