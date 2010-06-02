@@ -3,6 +3,7 @@
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
+#include <sound/sound.h>
 
 #include "game.h"
 
@@ -127,6 +128,21 @@ void CBaseEntity::Delete()
 	Game()->Delete(this);
 }
 
+void CBaseEntity::EmitSound(const char* pszFilename)
+{
+	CSoundLibrary::PlaySound(this, pszFilename);
+}
+
+void CBaseEntity::StopSound(const char* pszFilename)
+{
+	CSoundLibrary::StopSound(this, pszFilename);
+}
+
+bool CBaseEntity::IsSoundPlaying(const char* pszFilename)
+{
+	return CSoundLibrary::IsSoundPlaying(this, pszFilename);
+}
+
 void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)
 {
 	CModelLibrary::Get()->AddModel(pszModel, bStatic);
@@ -136,6 +152,11 @@ void CBaseEntity::PrecacheParticleSystem(const wchar_t* pszParticleSystem)
 {
 	size_t iSystem = CParticleSystemLibrary::Get()->FindParticleSystem(pszParticleSystem);
 	CParticleSystemLibrary::Get()->LoadParticleSystem(iSystem);
+}
+
+void CBaseEntity::PrecacheSound(const char* pszSound)
+{
+	CSoundLibrary::Get()->AddSound(pszSound);
 }
 
 void CBaseEntity::RegisterEntity(EntityRegisterCallback pfnCallback)

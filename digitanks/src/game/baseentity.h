@@ -72,6 +72,10 @@ public:
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};
 
+	void									EmitSound(const char* pszFilename);
+	void									StopSound(const char* pszFilename);
+	bool									IsSoundPlaying(const char* pszFilename);
+
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
 	virtual void							SetCollisionGroup(int iCollisionGroup) { m_iCollisionGroup = iCollisionGroup; }
 
@@ -82,6 +86,7 @@ public:
 
 	static void								PrecacheModel(const wchar_t* pszModel, bool bStatic = true);
 	static void								PrecacheParticleSystem(const wchar_t* pszSystem);
+	static void								PrecacheSound(const char* pszSound);
 
 	static void								RegisterEntity(EntityRegisterCallback pfnCallback);
 	static void								RegisterEntity(CBaseEntity* pEntity);

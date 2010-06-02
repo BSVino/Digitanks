@@ -204,6 +204,8 @@ protected:
 	float						m_flTimeCreated;
 	float						m_flTimeExploded;
 
+	bool						m_bFallSoundPlayed;
+
 	CEntityHandle<CDigitank>	m_hOwner;
 	float						m_flDamage;
 

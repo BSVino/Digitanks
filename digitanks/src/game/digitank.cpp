@@ -875,6 +875,8 @@ CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 	m_flTimeCreated = DigitanksGame()->GetGameTime();
 	m_flTimeExploded = 0;
 
+	m_bFallSoundPlayed = false;
+
 	m_hOwner = pOwner;
 	m_flDamage = flDamage;
 	SetVelocity(vecForce);
@@ -889,10 +891,17 @@ CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 void CProjectile::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
+	PrecacheSound("sound/bomb-drop.wav");
 }
 
 void CProjectile::Think()
 {
+	if (GetVelocity().y < 10.0f && !m_bFallSoundPlayed)
+	{
+		EmitSound("sound/bomb-drop.wav");
+		m_bFallSoundPlayed = true;
+	}
+
 	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 5.0f && m_flTimeExploded == 0.0f)
 		Delete();
 
@@ -986,4 +995,5 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	m_flTimeExploded = Game()->GetGameTime();
 
 	Game()->GetCamera()->Shake(GetOrigin(), 3);
+	StopSound("sound/bomb-drop.wav");
 }
