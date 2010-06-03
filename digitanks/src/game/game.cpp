@@ -4,6 +4,7 @@
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <renderer/dissolver.h>
+#include <sound/sound.h>
 
 #include "camera.h"
 
@@ -130,8 +131,10 @@ void CGame::Render()
 	m_pRenderer->FinishRendering();
 }
 
-void CGame::Delete(class CBaseEntity* pEntity)
+void CGame::Delete(CBaseEntity* pEntity)
 {
+	CSoundLibrary::EntityDeleted(pEntity);
+
 	for (size_t i = 0; i < m_ahDeletedEntities.size(); i++)
 		if (m_ahDeletedEntities[i] == pEntity)
 			return;

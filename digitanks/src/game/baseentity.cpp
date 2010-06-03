@@ -125,7 +125,6 @@ void CBaseEntity::Render()
 
 void CBaseEntity::Delete()
 {
-	CSoundLibrary::EntityDeleted(this);
 	Game()->Delete(this);
 }
 

@@ -63,6 +63,8 @@ void CDigitank::Precache()
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
 	PrecacheSound("sound/tank-fire.wav");
+	PrecacheSound("sound/shield-damage.wav");
+	PrecacheSound("sound/tank-damage.wav");
 
 	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
@@ -606,6 +608,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	{
 		*pflShield -= flDamage;
 
+		EmitSound("sound/shield-damage.wav");
+		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
+
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage);
 
 		return;
@@ -614,6 +619,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	flDamage -= flDamageBlocked;
 
 	*pflShield = 0;
+
+	EmitSound("sound/tank-damage.wav");
+	SetSoundVolume("sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
 
 	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked);
 
@@ -900,7 +908,7 @@ void CProjectile::Precache()
 
 void CProjectile::Think()
 {
-	if (GetVelocity().y < 10.0f && !m_bFallSoundPlayed)
+	if (GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
 	{
 		EmitSound("sound/bomb-drop.wav");
 		SetSoundVolume("sound/bomb-drop.wav", 0.5f);
