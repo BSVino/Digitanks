@@ -91,6 +91,8 @@ public:
 
 	virtual void				Think();
 
+	void						OnCurrentTank();
+
 	void						Move();
 	void						Fire();
 	void						FireProjectile();

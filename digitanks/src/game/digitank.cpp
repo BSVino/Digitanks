@@ -65,6 +65,9 @@ void CDigitank::Precache()
 	PrecacheSound("sound/tank-fire.wav");
 	PrecacheSound("sound/shield-damage.wav");
 	PrecacheSound("sound/tank-damage.wav");
+	PrecacheSound("sound/tank-active.wav");
+	PrecacheSound("sound/tank-active2.wav");
+	PrecacheSound("sound/tank-move.wav");
 
 	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
@@ -351,6 +354,9 @@ void CDigitank::SetDesiredMove()
 	m_bDesiredMove = true;
 
 	m_flStartedMove = DigitanksGame()->GetGameTime();
+
+	EmitSound("sound/tank-move.wav");
+	SetSoundVolume("sound/tank-move.wav", 0.5f);
 }
 
 void CDigitank::CancelDesiredMove()
@@ -510,6 +516,14 @@ void CDigitank::Think()
 		m_flFireProjectileTime = 0;
 		FireProjectile();
 	}
+}
+
+void CDigitank::OnCurrentTank()
+{
+	if (rand()%2 == 0)
+		EmitSound("sound/tank-active.wav");
+	else
+		EmitSound("sound/tank-active2.wav");
 }
 
 void CDigitank::Move()

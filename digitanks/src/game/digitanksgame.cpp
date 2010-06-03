@@ -212,6 +212,9 @@ void CDigitanksGame::SetCurrentTank(CDigitank* pCurrentTank)
 			break;
 	}
 
+	if (GetCurrentTank())
+		GetCurrentTank()->OnCurrentTank();
+
 	if (m_pListener)
 		m_pListener->NewCurrentTank();
 }
@@ -338,6 +341,9 @@ void CDigitanksGame::NextTank()
 
 	if (++m_iCurrentTank >= GetCurrentTeam()->GetNumTanks())
 		m_iCurrentTank = 0;
+
+	if (GetCurrentTank())
+		GetCurrentTank()->OnCurrentTank();
 
 	if (m_pListener)
 		m_pListener->NewCurrentTank();
