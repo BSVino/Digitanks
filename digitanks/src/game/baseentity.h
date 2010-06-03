@@ -75,6 +75,7 @@ public:
 	void									EmitSound(const char* pszFilename);
 	void									StopSound(const char* pszFilename);
 	bool									IsSoundPlaying(const char* pszFilename);
+	void									SetSoundVolume(const char* pszFilename, float flVolume);
 
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
 	virtual void							SetCollisionGroup(int iCollisionGroup) { m_iCollisionGroup = iCollisionGroup; }

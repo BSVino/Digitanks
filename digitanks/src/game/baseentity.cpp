@@ -125,6 +125,7 @@ void CBaseEntity::Render()
 
 void CBaseEntity::Delete()
 {
+	CSoundLibrary::EntityDeleted(this);
 	Game()->Delete(this);
 }
 
@@ -141,6 +142,11 @@ void CBaseEntity::StopSound(const char* pszFilename)
 bool CBaseEntity::IsSoundPlaying(const char* pszFilename)
 {
 	return CSoundLibrary::IsSoundPlaying(this, pszFilename);
+}
+
+void CBaseEntity::SetSoundVolume(const char* pszFilename, float flVolume)
+{
+	CSoundLibrary::SetSoundVolume(this, pszFilename, flVolume);
 }
 
 void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)

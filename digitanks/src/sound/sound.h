@@ -35,7 +35,10 @@ public:
 	static void				StopSound(CBaseEntity* pEntity, const char* pszFilename);
 	static bool				IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename);
 
+	static void				SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume);
+
 	static void				ChannelFinished(int iChannel);
+	static void				EntityDeleted(CBaseEntity* pEntity);
 
 	static CSoundLibrary*	Get() { return s_pSoundLibrary; };
 

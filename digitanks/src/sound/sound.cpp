@@ -109,6 +109,17 @@ bool CSoundLibrary::IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename
 	return true;
 }
 
+void CSoundLibrary::SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume)
+{
+	if (Get()->m_aiActiveSounds.find(pEntity) == Get()->m_aiActiveSounds.end())
+		return;
+
+	if (Get()->m_aiActiveSounds[pEntity].find(pszFilename) == Get()->m_aiActiveSounds[pEntity].end())
+		return;
+
+	Mix_Volume(Get()->m_aiActiveSounds[pEntity][pszFilename], (int)(flVolume*MIX_MAX_VOLUME));
+}
+
 void CSoundLibrary::ChannelFinished(int iChannel)
 {
 	std::map<CEntityHandle<CBaseEntity>, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
@@ -133,6 +144,13 @@ void CSoundLibrary::ChannelFinished(int iChannel)
 
 		it++;
 	}
+}
+
+void CSoundLibrary::EntityDeleted(CBaseEntity* pEntity)
+{
+	// Remove from the active sound list. Let the sounds finish what they're playing.
+	if (Get()->m_aiActiveSounds.find(pEntity) != Get()->m_aiActiveSounds.end())
+		Get()->m_aiActiveSounds.erase(Get()->m_aiActiveSounds.find(pEntity));
 }
 
 CSound::CSound(const char* pszFilename)

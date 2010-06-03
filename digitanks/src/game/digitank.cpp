@@ -62,6 +62,7 @@ void CDigitank::Precache()
 	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
+	PrecacheSound("sound/tank-fire.wav");
 
 	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
@@ -589,6 +590,8 @@ void CDigitank::FireProjectile()
 
 	CProjectile* pProjectile = new CProjectile(this, GetAttackPower(), vecForce);
 	pProjectile->SetGravity(Vector(0, flGravity, 0));
+
+	EmitSound("sound/tank-fire.wav");
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
@@ -892,6 +895,7 @@ void CProjectile::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
 	PrecacheSound("sound/bomb-drop.wav");
+	PrecacheSound("sound/explosion.wav");
 }
 
 void CProjectile::Think()
@@ -899,6 +903,7 @@ void CProjectile::Think()
 	if (GetVelocity().y < 10.0f && !m_bFallSoundPlayed)
 	{
 		EmitSound("sound/bomb-drop.wav");
+		SetSoundVolume("sound/bomb-drop.wav", 0.5f);
 		m_bFallSoundPlayed = true;
 	}
 
@@ -996,4 +1001,5 @@ void CProjectile::Touching(CBaseEntity* pOther)
 
 	Game()->GetCamera()->Shake(GetOrigin(), 3);
 	StopSound("sound/bomb-drop.wav");
+	EmitSound("sound/explosion.wav");
 }
