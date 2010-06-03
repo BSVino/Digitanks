@@ -29,6 +29,7 @@ class CSystemInstance
 {
 public:
 									CSystemInstance(class CParticleSystem* pSystem, Vector vecOrigin);
+									~CSystemInstance();
 
 public:
 	void							Simulate();
@@ -38,13 +39,15 @@ public:
 
 	void							FollowEntity(CBaseEntity* pFollow);
 
-	void							Stop() { m_bStopped = true; };
+	void							Stop();
 	bool							IsStopped() { return m_bStopped; };
 
-	size_t							GetNumParticles() { return m_iNumParticlesAlive; };
+	size_t							GetNumParticles();
 
 protected:
 	CParticleSystem*				m_pSystem;
+	std::vector<CSystemInstance*>	m_apChildren;
+
 	Vector							m_vecOrigin;
 	Vector							m_vecInheritedVelocity;
 
@@ -101,8 +104,15 @@ public:
 	void							SetRandomVelocity(const AABB& oRandomVelocity) { m_oRandomVelocity = oRandomVelocity; }
 	inline AABB						GetRandomVelocity() { return m_oRandomVelocity; }
 
+	void							SetDrag(float flDrag) { m_flDrag = flDrag; }
+	inline float					GetDrag() { return m_flDrag; }
+
 	void							SetRandomBillboardYaw(bool bYaw) { m_bRandomBillboardYaw = bYaw; }
 	bool							GetRandomBillboardYaw() { return m_bRandomBillboardYaw; }
+
+	void							AddChild(size_t iSystem);
+	size_t							GetNumChildren() { return m_aiChildren.size(); };
+	size_t							GetChild(size_t iChild) { return m_aiChildren[iChild]; };
 
 protected:
 	bool							m_bLoaded;
@@ -120,7 +130,10 @@ protected:
 	float							m_flFadeOut;
 	float							m_flInheritedVelocity;
 	AABB							m_oRandomVelocity;
+	float							m_flDrag;
 	bool							m_bRandomBillboardYaw;
+
+	std::vector<size_t>				m_aiChildren;
 };
 
 class CParticleSystemLibrary

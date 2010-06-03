@@ -116,7 +116,13 @@ void CParticleSystemLibrary::StopInstance(size_t iInstance)
 
 void CParticleSystemLibrary::RemoveInstance(size_t iInstance)
 {
-	Get()->m_apInstances.erase(Get()->m_apInstances.find(iInstance));
+	std::map<size_t, CSystemInstance*>::iterator it = Get()->m_apInstances.find(iInstance);
+
+	if (it == Get()->m_apInstances.end())
+		return;
+
+	delete (*it).second;
+	Get()->m_apInstances.erase(it);
 }
 
 CSystemInstance* CParticleSystemLibrary::GetInstance(size_t iInstance)
@@ -141,6 +147,7 @@ CParticleSystem::CParticleSystem(std::wstring sName)
 	m_flEndRadius = 1.0f;
 	m_flFadeOut = 0.25f;
 	m_flInheritedVelocity = 1.0f;
+	m_flDrag = 1.0f;
 	m_bRandomBillboardYaw = false;
 }
 
@@ -152,6 +159,14 @@ void CParticleSystem::Load()
 	m_bLoaded = true;
 
 	SetTexture(CRenderer::LoadTextureIntoGL(GetTextureName()));
+
+	for (size_t i = 0; i < GetNumChildren(); i++)
+		CParticleSystemLibrary::Get()->GetParticleSystem(GetChild(i))->Load();
+}
+
+void CParticleSystem::AddChild(size_t iSystem)
+{
+	m_aiChildren.push_back(iSystem);
 }
 
 CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
@@ -164,6 +179,17 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 	m_iNumParticlesAlive = 0;
 
 	m_flLastEmission = 0;
+
+	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();
+
+	for (size_t i = 0; i < m_pSystem->GetNumChildren(); i++)
+		m_apChildren.push_back(new CSystemInstance(pPSL->GetParticleSystem(m_pSystem->GetChild(i)), vecOrigin));
+}
+
+CSystemInstance::~CSystemInstance()
+{
+	for (size_t i = 0; i < m_pSystem->GetNumChildren(); i++)
+		delete m_apChildren[i];
 }
 
 void CSystemInstance::Simulate()
@@ -194,6 +220,7 @@ void CSystemInstance::Simulate()
 
 		pParticle->m_vecOrigin += pParticle->m_vecVelocity * flFrameTime;
 		pParticle->m_vecVelocity += Vector(0, -10, 0) * flFrameTime;
+		pParticle->m_vecVelocity *= (1-((1-m_pSystem->GetDrag()) * flFrameTime));
 
 		float flLifeTimeRamp = flLifeTime / m_pSystem->GetLifeTime();
 
@@ -203,11 +230,14 @@ void CSystemInstance::Simulate()
 		pParticle->m_flRadius = RemapVal(flLifeTimeRamp, 0, 1, m_pSystem->GetStartRadius(), m_pSystem->GetEndRadius());
 	}
 
-	if (!m_bStopped && flGameTime - m_flLastEmission > m_pSystem->GetEmissionRate())
+	if (!m_bStopped && flGameTime - m_flLastEmission > m_pSystem->GetEmissionRate() && m_pSystem->GetTexture())
 	{
 		SpawnParticle();
 		m_flLastEmission = flGameTime;
 	}
+
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		m_apChildren[i]->Simulate();
 }
 
 void CSystemInstance::SpawnParticle()
@@ -255,6 +285,10 @@ void CSystemInstance::SpawnParticle()
 
 void CSystemInstance::Render()
 {
+	// Render children first so that the contexts don't muss each other up.
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		m_apChildren[i]->Render();
+
 	CRenderer* pRenderer = Game()->GetRenderer();
 
 	Vector vecForward, vecRight, vecUp;
@@ -322,6 +356,26 @@ void CSystemInstance::Render()
 void CSystemInstance::FollowEntity(CBaseEntity* pFollow)
 {
 	m_hFollow = pFollow;
+
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		m_apChildren[i]->FollowEntity(pFollow);
+}
+
+void CSystemInstance::Stop()
+{
+	m_bStopped = true;
+
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		m_apChildren[i]->Stop();
+}
+
+size_t CSystemInstance::GetNumParticles()
+{
+	size_t iAlive = 0;
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		iAlive += m_apChildren[i]->GetNumParticles();
+
+	return iAlive + m_iNumParticlesAlive;
 }
 
 CParticle::CParticle()
