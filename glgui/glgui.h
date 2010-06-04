@@ -529,6 +529,8 @@ namespace glgui
 		virtual void	Paint() { CButton::Paint(); };
 		virtual void	Paint(int x, int y, int w, int h);
 
+		virtual void	SetTexture(size_t iTexture) { m_iTexture = iTexture; };
+
 	protected:
 		size_t			m_iTexture;
 	};

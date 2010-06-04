@@ -108,11 +108,11 @@ protected:
 
 	menumode_t					m_eMenuMode;
 
-	glgui::CButton*				m_pButton1;
-	glgui::CButton*				m_pButton2;
-	glgui::CButton*				m_pButton3;
-	glgui::CButton*				m_pButton4;
-	glgui::CButton*				m_pButton5;
+	glgui::CPictureButton*		m_pButton1;
+	glgui::CPictureButton*		m_pButton2;
+	glgui::CPictureButton*		m_pButton3;
+	glgui::CPictureButton*		m_pButton4;
+	glgui::CPictureButton*		m_pButton5;
 
 	glgui::CLabel*				m_pButtonHelp1;
 	glgui::CLabel*				m_pButtonHelp2;
@@ -144,6 +144,13 @@ protected:
 
 	size_t						m_iAvatarIcon;
 	size_t						m_iShieldIcon;
+
+	size_t						m_iCancelIcon;
+	size_t						m_iMoveIcon;
+	size_t						m_iTurnIcon;
+	size_t						m_iAimIcon;
+	size_t						m_iFireIcon;
+	size_t						m_iPromoteIcon;
 };
 
 #endif

@@ -90,19 +90,19 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_pButton1 = new CButton(0, 0, 50, 50, "");
+	m_pButton1 = new CPictureButton("");
 	AddControl(m_pButton1);
 
-	m_pButton2 = new CButton(0, 0, 50, 50, "");
+	m_pButton2 = new CPictureButton("");
 	AddControl(m_pButton2);
 
-	m_pButton3 = new CButton(0, 0, 50, 50, "");
+	m_pButton3 = new CPictureButton("");
 	AddControl(m_pButton3);
 
-	m_pButton4 = new CButton(0, 0, 50, 50, "");
+	m_pButton4 = new CPictureButton("");
 	AddControl(m_pButton4);
 
-	m_pButton5 = new CButton(0, 0, 50, 50, "");
+	m_pButton5 = new CPictureButton("");
 	AddControl(m_pButton5);
 
 	m_pButtonHelp1 = new CLabel(0, 0, 50, 50, "");
@@ -165,6 +165,13 @@ CHUD::CHUD()
 
 	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
+
+	m_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
+	m_iMoveIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-move.png");
+	m_iTurnIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-turn.png");
+	m_iAimIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-aim.png");
+	m_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
+	m_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
 }
 
 void CHUD::Layout()
@@ -192,6 +199,12 @@ void CHUD::Layout()
 
 	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
+
+	m_pButton1->SetSize(50, 50);
+	m_pButton2->SetSize(50, 50);
+	m_pButton3->SetSize(50, 50);
+	m_pButton4->SetSize(50, 50);
+	m_pButton5->SetSize(50, 50);
 
 	m_pButton1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
 	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
@@ -292,20 +305,27 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (m_bAutoProceed)
-		{
-			m_pButton1->SetText("Auto");
-			m_pButton2->SetText("Auto");
-			m_pButton3->SetText("Auto");
-			m_pButton4->SetText("Auto");
-		}
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+			m_pButton1->SetTexture(m_iCancelIcon);
 		else
-		{
-			m_pButton1->SetText("");
-			m_pButton2->SetText("");
-			m_pButton3->SetText("");
-			m_pButton4->SetText("");
-		}
+			m_pButton1->SetTexture(m_iMoveIcon);
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+			m_pButton2->SetTexture(m_iCancelIcon);
+		else
+			m_pButton2->SetTexture(m_iTurnIcon);
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+			m_pButton3->SetTexture(m_iCancelIcon);
+		else
+			m_pButton3->SetTexture(m_iAimIcon);
+
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+			m_pButton4->SetTexture(m_iCancelIcon);
+		else
+			m_pButton4->SetTexture(m_iFireIcon);
+
+		m_pButton5->SetTexture(m_iPromoteIcon);
 
 		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 			m_pButton1->SetButtonColor(Color(150, 150, 0));
@@ -343,6 +363,12 @@ void CHUD::Think()
 		m_pButton2->SetText("");
 		m_pButton3->SetText("");
 		m_pButton4->SetText("");
+
+		m_pButton1->SetTexture(0);
+		m_pButton2->SetTexture(0);
+		m_pButton3->SetTexture(0);
+		m_pButton4->SetTexture(0);
+		m_pButton5->SetTexture(m_iCancelIcon);
 
 		if (pCurrentTank && pCurrentTank->HasBonusPoints())
 		{
@@ -609,96 +635,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
 		CRootPanel::PaintRect((int)vecMax.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
 		CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
-	}
-
-	if (m_eMenuMode == MENUMODE_MAIN)
-	{
-		if (m_bAutoProceed)
-		{
-			// Nothing. The word "Auto" will appear.
-		}
-		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		}
-		else
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 30.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 700 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		}
-
-		if (m_bAutoProceed)
-		{
-			// Nothing. The word "Auto" will appear.
-		}
-		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		}
-		else
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 10.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 20.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 30.0f, iHeight - 100 + 30.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 760 + 40.0f, iHeight - 100 + 30.0f, 0), Color(255, 255, 255));
-		}
-
-		if (m_bAutoProceed)
-		{
-			// Nothing. The word "Auto" will appear.
-		}
-		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		}
-		else
-		{
-			glPushMatrix();
-			glTranslatef(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 25.0f, 0);
-			glRotatef(90, 1, 0, 0);
-			DebugCircle(Vector(0, 0, 0), 15, Color(255, 255, 255));
-			glPopMatrix();
-			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 5.0f, iHeight - 100 + 25.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 45.0f, iHeight - 100 + 25.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 5.0f, 0), Vector(iWidth/2 - 1024/2 + 820 + 25.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-		}
-
-		if (m_bAutoProceed)
-		{
-			// Nothing. The word "Auto" will appear.
-		}
-		else if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
-		}
-		else
-		{
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 5.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 880 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-			DebugLine(Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 880 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-		}
-
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 5.0f, 0),  Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 25.0f, iHeight - 100 + 5.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 20.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 20.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 30.0f, iHeight - 100 + 45.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 20.0f, iHeight - 100 + 45.0f, 0), Color(255, 255, 255));
-	}
-	else
-	{
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 10.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 40.0f, 0), Color(255, 255, 255));
-		DebugLine(Vector(iWidth/2 - 1024/2 + 940 + 10.0f, iHeight - 100 + 40.0f, 0), Vector(iWidth/2 - 1024/2 + 940 + 40.0f, iHeight - 100 + 10.0f, 0), Color(255, 255, 255));
 	}
 }
 

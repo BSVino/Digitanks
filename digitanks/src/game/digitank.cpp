@@ -449,6 +449,7 @@ void CDigitank::SetDesiredAim()
 	m_bDesiredAim = true;
 
 	EmitSound("sound/tank-aim.wav");
+	SetSoundVolume("sound/tank-aim.wav", 0.5f);
 }
 
 void CDigitank::CancelDesiredAim()
