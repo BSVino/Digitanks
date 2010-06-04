@@ -59,6 +59,7 @@ CDigitank::CDigitank()
 
 void CDigitank::Precache()
 {
+	PrecacheParticleSystem(L"tank-fire");
 	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
@@ -608,6 +609,11 @@ void CDigitank::FireProjectile()
 	pProjectile->SetGravity(Vector(0, flGravity, 0));
 
 	EmitSound("sound/tank-fire.wav");
+
+	Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
+	size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
+	if (iFire != ~0)
+		CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
@@ -909,8 +915,9 @@ CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
 	SetSimulated(true);
 	SetCollisionGroup(CG_POWERUP);
 
-	m_iParticleSystem = CParticleSystemLibrary::AddInstance(CParticleSystemLibrary::Get()->FindParticleSystem(L"shell-trail"), GetOrigin());
-	CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
+	m_iParticleSystem = CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
+	if (m_iParticleSystem != ~0)
+		CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 }
 
 void CProjectile::Precache()
@@ -964,7 +971,8 @@ void CProjectile::OnRender()
 
 void CProjectile::OnDeleted()
 {
-	CParticleSystemLibrary::StopInstance(m_iParticleSystem);
+	if (m_iParticleSystem != ~0)
+		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 }
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
@@ -1017,7 +1025,8 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	SetVelocity(Vector());
 	SetGravity(Vector());
 
-	CParticleSystemLibrary::StopInstance(m_iParticleSystem);
+	if (m_iParticleSystem != ~0)
+		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 
 	m_flTimeExploded = Game()->GetGameTime();
 

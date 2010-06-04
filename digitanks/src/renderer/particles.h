@@ -38,9 +38,10 @@ public:
 	void							Render();
 
 	void							FollowEntity(CBaseEntity* pFollow);
+	void							SetInheritedVelocity(Vector vecInheritedVelocity);
 
 	void							Stop();
-	bool							IsStopped() { return m_bStopped; };
+	bool							IsStopped();
 
 	size_t							GetNumParticles();
 
@@ -57,6 +58,7 @@ protected:
 	size_t							m_iNumParticlesAlive;
 
 	float							m_flLastEmission;
+	int								m_iTotalEmitted;
 
 	CEntityHandle<CBaseEntity>		m_hFollow;
 };
@@ -83,6 +85,9 @@ public:
 
 	void							SetEmissionRate(float flEmissionRate) { m_flEmissionRate = flEmissionRate; }
 	inline float					GetEmissionRate() { return m_flEmissionRate; }
+
+	void							SetEmissionMax(int iEmissionMax) { m_iEmissionMax = iEmissionMax; }
+	inline int						GetEmissionMax() { return m_iEmissionMax; }
 
 	void							SetAlpha(float flAlpha) { m_flAlpha = flAlpha; }
 	inline float					GetAlpha() { return m_flAlpha; }
@@ -124,6 +129,7 @@ protected:
 
 	float							m_flLifeTime;
 	float							m_flEmissionRate;
+	int								m_iEmissionMax;
 	float							m_flAlpha;
 	float							m_flStartRadius;
 	float							m_flEndRadius;
@@ -154,6 +160,7 @@ public:
 	static void						Simulate();
 	static void						Render();
 
+	static size_t					AddInstance(const std::wstring& sName, Vector vecOrigin);
 	static size_t					AddInstance(size_t iParticleSystem, Vector vecOrigin);
 	static void						StopInstance(size_t iInstance);
 	static void						RemoveInstance(size_t iInstance);
