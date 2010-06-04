@@ -69,6 +69,7 @@ void CDigitank::Precache()
 	PrecacheSound("sound/tank-active.wav");
 	PrecacheSound("sound/tank-active2.wav");
 	PrecacheSound("sound/tank-move.wav");
+	PrecacheSound("sound/tank-aim.wav");
 
 	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
@@ -446,6 +447,8 @@ void CDigitank::SetDesiredAim()
 	m_vecDesiredAim = m_vecPreviewAim;
 
 	m_bDesiredAim = true;
+
+	EmitSound("sound/tank-aim.wav");
 }
 
 void CDigitank::CancelDesiredAim()
