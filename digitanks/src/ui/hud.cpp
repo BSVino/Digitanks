@@ -342,7 +342,7 @@ void CHUD::Think()
 		else
 			m_pButton3->SetButtonColor(Color(100, 100, 100));
 
-		if (m_bHUDActive && (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE))
+		if (m_bHUDActive && pCurrentTank && pCurrentTank->HasDesiredAim() && (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE))
 			m_pButton4->SetButtonColor(Color(150, 0, 150));
 		else
 			m_pButton4->SetButtonColor(Color(100, 100, 100));
