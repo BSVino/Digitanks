@@ -775,9 +775,10 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 				m_aflHeights[x][z] = flNewY;
 
 				m_abTerrainNeedsRegenerate[x/TERRAIN_SECTOR_SIZE][z/TERRAIN_SECTOR_SIZE] = true;
-				m_abTerrainNeedsRegenerate[x/TERRAIN_SECTOR_SIZE][(z+1)/TERRAIN_SECTOR_SIZE] = true;
-				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][z/TERRAIN_SECTOR_SIZE] = true;
+				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z-1)/TERRAIN_SECTOR_SIZE] = true;
+				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z-1)/TERRAIN_SECTOR_SIZE] = true;
 				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z+1)/TERRAIN_SECTOR_SIZE] = true;
+				m_abTerrainNeedsRegenerate[(x-1)/TERRAIN_SECTOR_SIZE][(z-1)/TERRAIN_SECTOR_SIZE] = true;
 			}
 		}
 	}
