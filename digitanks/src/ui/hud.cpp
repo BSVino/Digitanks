@@ -751,12 +751,14 @@ void CHUD::UpdateAttackInfo()
 	if (!pClosestTarget)
 		return;
 
+	vecAttack = vecOrigin - pClosestTarget->GetOrigin();
+
 	float flTargetDistance = (vecAim - pClosestTarget->GetOrigin()).Length();
 
 	if (flTargetDistance > flRadius)
 		return;
 
-	float flShieldStrength = (*pClosestTarget->GetShieldForAttackDirection(vecAttack/flAttackDistance));
+	float flShieldStrength = (*pClosestTarget->GetShieldForAttackDirection(vecAttack.Normalized()));
 	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
 	float flAttackDamage = pCurrentTank->GetAttackPower(true);
 

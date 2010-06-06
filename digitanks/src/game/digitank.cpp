@@ -265,11 +265,11 @@ float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
 	float flForwardDot = vecForward.Dot(vecAttack);
 	float flRightDot = vecRight.Dot(vecAttack);
 
-	if (flForwardDot > 0.5f)
+	if (flForwardDot > 0.7f)
 		return &m_flFrontShieldStrength;
-	else if (flForwardDot < -0.5f)
+	else if (flForwardDot < -0.7f)
 		return &m_flBackShieldStrength;
-	else if (flRightDot < -0.5f)
+	else if (flRightDot < -0.7f)
 		return &m_flRightShieldStrength;
 	else
 		return &m_flLeftShieldStrength;
