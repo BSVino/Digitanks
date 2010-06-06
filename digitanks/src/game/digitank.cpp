@@ -622,6 +622,16 @@ void CDigitank::FireProjectile()
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
 {
+	size_t iDifficulty = DigitanksGame()->GetDifficulty();
+
+	if (iDifficulty == 0)
+	{
+		if (GetTeam() == DigitanksGame()->GetTeam(0))
+			flDamage *= 0.5f;
+		else if (dynamic_cast<CDigitank*>(pAttacker) && dynamic_cast<CDigitank*>(pAttacker)->GetTeam() == DigitanksGame()->GetTeam(0))
+			flDamage *= 2.0f;
+	}
+
 	Vector vecAttackDirection = (pAttacker->GetOrigin() - GetOrigin()).Normalized();
 
 	float* pflShield = GetShieldForAttackDirection(vecAttackDirection);

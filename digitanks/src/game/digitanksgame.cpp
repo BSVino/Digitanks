@@ -23,6 +23,8 @@ CDigitanksGame::CDigitanksGame()
 	m_iWaitingForProjectiles = 0;
 
 	m_iPowerups = 0;
+
+	m_iDifficulty = 1;
 }
 
 CDigitanksGame::~CDigitanksGame()

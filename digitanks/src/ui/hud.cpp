@@ -90,6 +90,10 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
+	m_pAutoButton = new CButton(0, 0, 0, 0, "Auto");
+	m_pAutoButton->SetClickedListener(this, Auto);
+	AddControl(m_pAutoButton);
+
 	m_pButton1 = new CPictureButton("");
 	AddControl(m_pButton1);
 
@@ -155,7 +159,7 @@ CHUD::CHUD()
 
 	SetupMenu(MENUMODE_MAIN);
 
-	m_pOpenTutorial = new CLabel(0, 0, 100, 20, "Press 't' to start the tutorial");
+	m_pOpenTutorial = new CLabel(0, 0, 100, 20, "Press 't' to view the tutorial");
 	AddControl(m_pOpenTutorial);
 
 	m_pFPS = new CLabel(0, 0, 100, 20, "");
@@ -206,6 +210,9 @@ void CHUD::Layout()
 	m_pButton3->SetSize(50, 50);
 	m_pButton4->SetSize(50, 50);
 	m_pButton5->SetSize(50, 50);
+
+	m_pAutoButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 135);
+	m_pAutoButton->SetSize(50, 20);
 
 	m_pButton1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
 	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
@@ -302,6 +309,25 @@ void CHUD::Think()
 	else
 	{
 		m_pLowShieldsWarning->SetVisible(false);
+	}
+
+	if (m_bHUDActive)
+	{
+		if (ShouldAutoProceed())
+		{
+			m_pAutoButton->SetText("Auto on");
+			m_pAutoButton->SetButtonColor(Color(0, 0, 150));
+		}
+		else
+		{
+			m_pAutoButton->SetText("Auto off");
+			m_pAutoButton->SetButtonColor(Color(100, 100, 100));
+		}
+	}
+	else
+	{
+		m_pAutoButton->SetText("Auto off");
+		m_pAutoButton->SetButtonColor(Color(100, 100, 100));
 	}
 
 	if (m_eMenuMode == MENUMODE_MAIN)
@@ -895,6 +921,24 @@ void CHUD::SetHUDActive(bool bActive)
 
 	if (!bActive)
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+}
+
+void CHUD::AutoCallback()
+{
+	if (!ShouldAutoProceed())
+	{
+		CTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+		for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
+		{
+			CDigitank* pTank = pTeam->GetTank(t);
+			pTank->CancelDesiredMove();
+			pTank->CancelDesiredAim();
+		}
+
+		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
+	}
+
+	SetAutoProceed(!ShouldAutoProceed());
 }
 
 void CHUD::MoveCallback()

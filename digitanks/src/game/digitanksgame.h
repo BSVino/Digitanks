@@ -77,6 +77,9 @@ public:
 	void					GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus);
 	void					ClearTankAims();
 
+	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
+	size_t					GetDifficulty() { return m_iDifficulty; };
+
 protected:
 	std::vector<CEntityHandle<CTeam>>	m_ahTeams;
 
@@ -97,6 +100,8 @@ protected:
 	std::vector<Vector>		m_avecTankAims;
 	std::vector<float>		m_aflTankAimRadius;
 	size_t					m_iTankAimFocus;
+
+	size_t					m_iDifficulty;
 };
 
 inline class CDigitanksGame* DigitanksGame()

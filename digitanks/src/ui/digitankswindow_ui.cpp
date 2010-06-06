@@ -1,6 +1,7 @@
 #include "digitankswindow.h"
 
-#include "glgui/glgui.h"
+#include <glgui/glgui.h>
+#include <game/digitanksgame.h>
 
 #include "menu.h"
 #include "instructor.h"
@@ -26,7 +27,7 @@ void CDigitanksWindow::Layout()
 CDigitanksMenu::CDigitanksMenu()
 	: CPanel(0, 0, 300, 400)
 {
-	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS\n \nCopyright © 2010, Jorge Rodriguez <bs.vino@gmail.com>");
+	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS\n \nCopyright © 2010, Jorge Rodriguez <bs.vino@gmail.com>\n \nThanks for trying out the Digitanks demo! This game is still in development. If you want to learn more about the game, please visit the website, http://digitanks.com");
 	AddControl(m_pDigitanks);
 
 	m_pNumberOfPlayers = new CScrollSelector<int>();
@@ -55,6 +56,15 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pTanksLabel = new CLabel(0, 0, 32, 32, "Tanks per team");
 	AddControl(m_pTanksLabel);
 
+	m_pDifficulty = new CScrollSelector<int>();
+	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
+	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
+	m_pDifficulty->SetSelection(1);
+	AddControl(m_pDifficulty);
+
+	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, "Difficulty");
+	AddControl(m_pDifficultyLabel);
+
 	m_pTutorialBox = new CCheckBox();
 	m_pTutorialBox->SetClickedListener(this, Tutorial);
 	m_pTutorialBox->SetUnclickedListener(this, Tutorial);
@@ -79,32 +89,38 @@ void CDigitanksMenu::Layout()
 {
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
-	m_pDigitanks->SetPos(0, 0);
-	m_pDigitanks->SetSize(GetWidth(), 100);
-	m_pDigitanks->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pDigitanks->SetPos(0, 20);
+	m_pDigitanks->SetSize(GetWidth(), GetHeight());
+	m_pDigitanks->SetAlign(CLabel::TA_TOPCENTER);
 
 	m_pPlayersLabel->EnsureTextFits();
-	m_pPlayersLabel->SetPos(5, 150);
+	m_pPlayersLabel->SetPos(5, 190);
 
 	int iSelectorSize = m_pPlayersLabel->GetHeight() - 4;
 
 	m_pNumberOfPlayers->SetSize(GetWidth() - m_pPlayersLabel->GetWidth() - 20, iSelectorSize);
-	m_pNumberOfPlayers->SetPos(GetWidth() - m_pNumberOfPlayers->GetWidth() - 20/2, 150);
+	m_pNumberOfPlayers->SetPos(GetWidth() - m_pNumberOfPlayers->GetWidth() - 20/2, 190);
 
 	m_pTanksLabel->EnsureTextFits();
-	m_pTanksLabel->SetPos(5, 200);
+	m_pTanksLabel->SetPos(5, 220);
 
 	m_pNumberOfTanks->SetSize(GetWidth() - m_pTanksLabel->GetWidth() - 20, iSelectorSize);
-	m_pNumberOfTanks->SetPos(GetWidth() - m_pNumberOfTanks->GetWidth() - 20/2, 200);
+	m_pNumberOfTanks->SetPos(GetWidth() - m_pNumberOfTanks->GetWidth() - 20/2, 220);
 
-	m_pTutorialLabel->SetPos(110, 250);
+	m_pDifficultyLabel->EnsureTextFits();
+	m_pDifficultyLabel->SetPos(75, 250);
+
+	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 250);
+
+	m_pTutorialLabel->SetPos(110, 310);
 	m_pTutorialLabel->SetSize(100, 20);
-	m_pTutorialBox->SetPos(100, 250 + m_pTutorialLabel->GetHeight()/2 - m_pTutorialBox->GetHeight()/2);
+	m_pTutorialBox->SetPos(100, 310 + m_pTutorialLabel->GetHeight()/2 - m_pTutorialBox->GetHeight()/2);
 
-	m_pStartGame->SetPos(100, 300);
+	m_pStartGame->SetPos(100, 340);
 	m_pStartGame->SetSize(100, 20);
 
-	m_pExit->SetPos(100, 350);
+	m_pExit->SetPos(100, 370);
 	m_pExit->SetSize(100, 20);
 
 	BaseClass::Layout();
@@ -156,6 +172,7 @@ void CDigitanksMenu::StartGameCallback()
 {
 	CDigitanksWindow::Get()->CreateGame(m_pNumberOfPlayers->GetSelectionValue(), m_pNumberOfTanks->GetSelectionValue());
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(m_pTutorialBox->GetState());
+	DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 	SetVisible(false);
 }
 

@@ -90,6 +90,7 @@ public:
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
 	void						SetAutoProceed(bool bAuto) { m_bAutoProceed = bAuto; };
 
+	EVENT_CALLBACK(CHUD, Auto);
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
 	EVENT_CALLBACK(CHUD, Aim);
@@ -109,6 +110,8 @@ protected:
 	CPowerBar*					m_pMovementPower;
 
 	menumode_t					m_eMenuMode;
+
+	glgui::CButton*				m_pAutoButton;
 
 	glgui::CPictureButton*		m_pButton1;
 	glgui::CPictureButton*		m_pButton2;

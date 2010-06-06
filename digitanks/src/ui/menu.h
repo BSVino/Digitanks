@@ -30,6 +30,9 @@ protected:
 	glgui::CScrollSelector<int>*	m_pNumberOfTanks;
 	glgui::CLabel*					m_pTanksLabel;
 
+	glgui::CScrollSelector<int>*	m_pDifficulty;
+	glgui::CLabel*					m_pDifficultyLabel;
+
 	glgui::CCheckBox*				m_pTutorialBox;
 	glgui::CLabel*					m_pTutorialLabel;
 
