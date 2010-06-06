@@ -158,10 +158,11 @@ CHUD::CHUD()
 	m_pOpenTutorial = new CLabel(0, 0, 100, 20, "Press 't' to start the tutorial");
 	AddControl(m_pOpenTutorial);
 
-#ifdef _DEBUG
 	m_pFPS = new CLabel(0, 0, 100, 20, "");
 	AddControl(m_pFPS);
-#endif
+
+	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
+	m_pFPS->SetPos(20, 20);
 
 	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
@@ -417,10 +418,12 @@ void CHUD::Think()
 
 	m_pOpenTutorial->SetVisible(!CDigitanksWindow::Get()->GetInstructor()->GetActive());
 
+	m_pFPS->SetText(L"Free Demo");
+
 #ifdef _DEBUG
 	char szFPS[100];
-	sprintf(szFPS, "%d fps", (int)(1/Game()->GetFrameTime()));
-	m_pFPS->SetText(szFPS);
+	sprintf(szFPS, "\n%d fps", (int)(1/Game()->GetFrameTime()));
+	m_pFPS->AppendText(szFPS);
 #endif
 }
 
