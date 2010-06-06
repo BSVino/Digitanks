@@ -19,6 +19,8 @@ public:
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage)=0;
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage)=0;
+
+	virtual void			SetHUDActive(bool bActive)=0;
 };
 
 class CDigitanksGame : public CGame

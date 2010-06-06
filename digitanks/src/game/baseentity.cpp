@@ -84,12 +84,12 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	Game()->OnTakeDamage(this, pAttacker, pInflictor, flDamage);
 
 	if (m_flHealth <= 0)
-		Killed();
+		Killed(pAttacker);
 }
 
-void CBaseEntity::Killed()
+void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 {
-	OnKilled();
+	OnKilled(pKilledBy);
 	Game()->OnKilled(this);
 	Game()->Delete(this);
 }

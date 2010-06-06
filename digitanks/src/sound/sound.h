@@ -32,7 +32,7 @@ public:
 
 public:
 	static void				PlaySound(CBaseEntity* pEntity, const char* pszFilename);
-	static void				StopSound(CBaseEntity* pEntity, const char* pszFilename);
+	static void				StopSound(CBaseEntity* pEntity = NULL, const char* pszFilename = NULL);
 	static bool				IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename);
 
 	static void				SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume);

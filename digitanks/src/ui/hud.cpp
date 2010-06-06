@@ -267,7 +267,7 @@ void CHUD::Think()
 	Vector vecPoint;
 	bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
 
-	if (bMouseOnGrid)
+	if (m_bHUDActive && bMouseOnGrid)
 	{
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE || CDigitanksWindow::Get()->GetControlMode() == MODE_TURN || CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
 			UpdateAttackInfo();
@@ -292,7 +292,7 @@ void CHUD::Think()
 			pCurrentTank->SetPreviewAim(vecPoint);
 	}
 
-	if (pCurrentTank && pCurrentTank->GetDefenseScale(true) < 0.3f)
+	if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDefenseScale(true) < 0.3f)
 	{
 		m_pLowShieldsWarning->SetVisible(true);
 		int c = (int)RemapVal(fabs((float)(glutGet(GLUT_ELAPSED_TIME)%1000-500)/500), 0, 1, 128, 255);
@@ -305,49 +305,49 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && m_bHUDActive)
 			m_pButton1->SetTexture(m_iCancelIcon);
 		else
 			m_pButton1->SetTexture(m_iMoveIcon);
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN && m_bHUDActive)
 			m_pButton2->SetTexture(m_iCancelIcon);
 		else
 			m_pButton2->SetTexture(m_iTurnIcon);
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM && m_bHUDActive)
 			m_pButton3->SetTexture(m_iCancelIcon);
 		else
 			m_pButton3->SetTexture(m_iAimIcon);
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE && m_bHUDActive)
 			m_pButton4->SetTexture(m_iCancelIcon);
 		else
 			m_pButton4->SetTexture(m_iFireIcon);
 
 		m_pButton5->SetTexture(m_iPromoteIcon);
 
-		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+		if (m_bHUDActive && (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE))
 			m_pButton1->SetButtonColor(Color(150, 150, 0));
 		else
 			m_pButton1->SetButtonColor(Color(100, 100, 100));
 
-		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		if (m_bHUDActive && (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_TURN))
 			m_pButton2->SetButtonColor(Color(150, 150, 0));
 		else
 			m_pButton2->SetButtonColor(Color(100, 100, 100));
 
-		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
+		if (m_bHUDActive && (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_AIM))
 			m_pButton3->SetButtonColor(Color(150, 0, 0));
 		else
 			m_pButton3->SetButtonColor(Color(100, 100, 100));
 
-		if (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+		if (m_bHUDActive && (!CDigitanksWindow::Get()->GetControlMode() || CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE))
 			m_pButton4->SetButtonColor(Color(150, 0, 150));
 		else
 			m_pButton4->SetButtonColor(Color(100, 100, 100));
 
-		if (pCurrentTank && pCurrentTank->HasBonusPoints())
+		if (m_bHUDActive && pCurrentTank && pCurrentTank->HasBonusPoints())
 		{
 			float flRamp = 1;
 			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
@@ -436,10 +436,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 	// Nobody runs resolutions under 1024x768 anymore.
 	// Show me my constraints!
 	CRootPanel::PaintRect(iWidth/2 - 1024/2, iHeight - 150, 1024, 200, Color(255, 255, 255, 100));
-#endif
 
 	// This is where the minimap will be.
 	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 10, iHeight - 150 - 30, 170, 170, Color(0, 0, 0, 100));
+#endif
 
 	// Shield schematic
 	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 150, 130, Color(0, 0, 0, 100));
@@ -478,7 +478,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*flAttackPower), (int)vecScreen.y - 50, (int)(100.0f*flDefensePower), 3, Color(0, 0, 255));
 			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*(1-flMovementPower)), (int)vecScreen.y - 50, (int)(100.0f*flMovementPower), 3, Color(255, 255, 0));
 
-			if (pTank == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
+			if (m_bHUDActive && pTank == DigitanksGame()->GetCurrentTank() && CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
 			{
 				int iHeight = (int)(200 * (pTank->GetBasePower()-pTank->GetBaseMovementPower())/pTank->GetBasePower());
 
@@ -592,7 +592,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		while (false);
 	}
 
-	if (pTank)
+	if (m_bHUDActive && pTank)
 	{
 		Vector vecMin;
 		Vector vecMax;
@@ -690,6 +690,8 @@ void CHUD::UpdateAttackInfo()
 		m_pTankInfo->AppendText(szShieldInfo);
 	}
 
+	m_pAttackInfo->SetText(L"No targets");
+
 	Vector vecOrigin;
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMoveTurnPower() <= pCurrentTank->GetTotalMovementPower())
 		vecOrigin = pCurrentTank->GetPreviewMove();
@@ -747,33 +749,12 @@ void CHUD::UpdateAttackInfo()
 	}
 
 	if (!pClosestTarget)
-	{
-		m_pAttackInfo->SetText("Hit odds: 0%");
 		return;
-	}
 
 	float flTargetDistance = (vecAim - pClosestTarget->GetOrigin()).Length();
 
 	if (flTargetDistance > flRadius)
-	{
-		m_pAttackInfo->SetText("Hit odds: 0%");
 		return;
-	}
-
-	float flArea = flRadius*2*flRadius*2;			// It's really a square!
-	float flHitProbability = 2*4*M_PI / flArea;		// 2 * pi * tank radius
-
-	// If the target is close to the edge, fade the probability down
-	flHitProbability = RemapValClamped(flRadius - flTargetDistance, 0, 2, 0, flHitProbability);
-
-	if (flHitProbability <= 0)
-	{
-		m_pAttackInfo->SetText("Hit odds: 0%");
-		return;
-	}
-
-	if (flHitProbability > 1)
-		flHitProbability = 1;
 
 	float flShieldStrength = (*pClosestTarget->GetShieldForAttackDirection(vecAttack/flAttackDistance));
 	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
@@ -791,11 +772,8 @@ void CHUD::UpdateAttackInfo()
 
 	char szAttackInfo[1024];
 	sprintf(szAttackInfo,
-		"Hit odds: %d%%\n"
-		" \n"
 		"Shield Damage: %.1f/%.1f\n"
 		"Digitank Damage: %.1f/%.1f\n",
-		(int)(flHitProbability*100),
 		flShieldDamage, flShieldStrength * pClosestTarget->GetDefenseScale(true),
 		flTankDamage, pClosestTarget->GetHealth()
 	);
@@ -856,7 +834,10 @@ void CHUD::NewCurrentTeam()
 {
 	m_bAutoProceed = true;
 
-	CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
+	if (m_bHUDActive)
+		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
+	else
+		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 
 	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTeam()->GetTank(0)->GetOrigin());
 }
@@ -903,8 +884,19 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 	new CDamageIndicator(pVictim, flDamage, false);
 }
 
+void CHUD::SetHUDActive(bool bActive)
+{
+	m_bHUDActive = bActive;
+
+	if (!bActive)
+		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+}
+
 void CHUD::MoveCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	m_bAutoProceed = false;
 
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
@@ -915,6 +907,9 @@ void CHUD::MoveCallback()
 
 void CHUD::TurnCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	m_bAutoProceed = false;
 
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
@@ -925,6 +920,9 @@ void CHUD::TurnCallback()
 
 void CHUD::AimCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	m_bAutoProceed = false;
 
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
@@ -935,6 +933,9 @@ void CHUD::AimCallback()
 
 void CHUD::FireCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	m_bAutoProceed = false;
 
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_FIRE)
@@ -947,11 +948,17 @@ void CHUD::FireCallback()
 
 void CHUD::PromoteCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	SetupMenu(MENUMODE_PROMOTE);
 }
 
 void CHUD::PromoteAttackCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	if (!DigitanksGame())
 		return;
 
@@ -971,6 +978,9 @@ void CHUD::PromoteAttackCallback()
 
 void CHUD::PromoteDefenseCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	if (!DigitanksGame())
 		return;
 
@@ -990,6 +1000,9 @@ void CHUD::PromoteDefenseCallback()
 
 void CHUD::PromoteMovementCallback()
 {
+	if (!m_bHUDActive)
+		return;
+
 	if (!DigitanksGame())
 		return;
 

@@ -85,6 +85,8 @@ public:
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage);
 
+	virtual void				SetHUDActive(bool bActive);
+
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
 	void						SetAutoProceed(bool bAuto) { m_bAutoProceed = bAuto; };
 
@@ -137,6 +139,7 @@ protected:
 	glgui::CLabel*				m_pPressEnter;
 
 	bool						m_bAutoProceed;
+	bool						m_bHUDActive;
 
 	glgui::CLabel*				m_pOpenTutorial;
 

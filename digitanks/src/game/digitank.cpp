@@ -642,19 +642,28 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	flDamage -= flDamageBlocked;
 
-	*pflShield = 0;
-
 	EmitSound("sound/tank-damage.wav");
 	SetSoundVolume("sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
+
+	if (*pflShield > 1.0f)
+	{
+		EmitSound("sound/shield-damage.wav");
+		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(*pflShield, 0, 5, 0, 1));
+	}
+
+	*pflShield = 0;
 
 	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked);
 
 	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage);
 }
 
-void CDigitank::OnKilled()
+void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 {
 	CModelDissolver::AddModel(this);
+
+	if (dynamic_cast<CDigitank*>(pKilledBy))
+		dynamic_cast<CDigitank*>(pKilledBy)->GiveBonusPoints(1);
 }
 
 Vector CDigitank::GetRenderOrigin() const

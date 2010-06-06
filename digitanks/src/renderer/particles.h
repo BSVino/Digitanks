@@ -166,6 +166,8 @@ public:
 	static void						RemoveInstance(size_t iInstance);
 	static CSystemInstance*			GetInstance(size_t iInstance);
 
+	static void						ClearInstances();
+
 	static CParticleSystemLibrary*	Get() { return s_pParticleSystemLibrary; };
 
 private:

@@ -143,6 +143,13 @@ CSystemInstance* CParticleSystemLibrary::GetInstance(size_t iInstance)
 	return Get()->m_apInstances[iInstance];
 }
 
+void CParticleSystemLibrary::ClearInstances()
+{
+	CParticleSystemLibrary* pPSL = Get();
+	while (pPSL->m_apInstances.size())
+		RemoveInstance((*pPSL->m_apInstances.begin()).first);
+}
+
 CParticleSystem::CParticleSystem(std::wstring sName)
 {
 	m_bLoaded = false;

@@ -72,7 +72,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 				if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
 					SetControlMode(MODE_AIM);
 
-				DigitanksGame()->NextTank();
+				if (m_pHUD->ShouldAutoProceed())
+					DigitanksGame()->NextTank();
 
 				m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 
@@ -132,7 +133,6 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (DigitanksGame() && c == 13)
 	{
-		m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_KEYS);
 		DigitanksGame()->EndTurn();
 	}
 

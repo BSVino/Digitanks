@@ -98,7 +98,7 @@ public:
 	void						FireProjectile();
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
-	virtual void				OnKilled();
+	virtual void				OnKilled(CBaseEntity* pKilledBy);
 
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;

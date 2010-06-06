@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <maths.h>
 #include <models/models.h>
+#include <sound/sound.h>
+#include <renderer/particles.h>
 
 #include "powerup.h"
 #include "terrain.h"
@@ -31,6 +33,9 @@ CDigitanksGame::~CDigitanksGame()
 
 void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 {
+	CSoundLibrary::StopSound();
+	CParticleSystemLibrary::ClearInstances();
+
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 		m_ahTeams[i]->Delete();
 
@@ -136,9 +141,14 @@ void CDigitanksGame::StartGame()
 
 	m_iCurrentTeam = 0;
 	m_iCurrentTank = 0;
+	m_bWaitingForMoving = false;
+	m_bWaitingForProjectiles = false;
 
 	if (m_pListener)
+	{
+		m_pListener->SetHUDActive(true);
 		m_pListener->NewCurrentTeam();
+	}
 
 	GetCurrentTeam()->StartTurn();
 
@@ -354,6 +364,9 @@ void CDigitanksGame::EndTurn()
 	if (m_bWaitingForProjectiles || m_bWaitingForMoving)
 		return;
 
+	if (m_pListener)
+		m_pListener->SetHUDActive(false);
+
 	GetCurrentTeam()->MoveTanks();
 	m_bWaitingForMoving = true;
 
@@ -393,7 +406,10 @@ void CDigitanksGame::StartTurn()
 		m_iCurrentTeam = 0;
 
 	if (m_pListener)
+	{
+		m_pListener->SetHUDActive(true);
 		m_pListener->NewCurrentTeam();
+	}
 
 	GetCurrentTeam()->StartTurn();
 

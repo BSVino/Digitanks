@@ -52,8 +52,8 @@ public:
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
-	void									Killed();
-	virtual void							OnKilled() {};
+	void									Killed(CBaseEntity* pKilledBy);
+	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
 
 	virtual void							PreRender() {};
 	virtual void							ModifyContext(class CRenderingContext* pContext) {};

@@ -59,7 +59,7 @@ void CInstructor::Initialize()
 		L"POWER YOUR CANNON\n \nNow you can choose how to divide your remaining Power between your cannon and your shields. Don't forget to leave enough shields up to defend yourself!\n \nIf you have aimed your tank, you can press the 'Set Power' button to change your power selection.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_POWERBARS, 250, true,
-		L"UPGRADE YOUR TANK\n \nYour tanks have some bonus points that you can use to upgrade their Power. Press the 'Promote' button to choose how to allocate your bonus points.\n \nPicking up powerups can grant you additional bonus points.")));
+		L"UPGRADE YOUR TANK\n \nYour tanks have some bonus points that you can use to upgrade their Power. Press the 'Promote' button to choose how to allocate your bonus points.\n \nPicking up powerups (those spinny prisms!) or killing other tanks can grant you additional bonus points.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_KEYS, new CTutorial(this, TUTORIAL_KEYS, POSITION_TOPLEFT, 200, false,
 		L"ADDITIONAL KEYS\n \nHold Shift: Command all tanks\nSpacebar: Next tank\nTab: Next command\nAlt: Show Power/HP bars\nEnter: End turn\nRight mouse button: Drag camera\n \nYou can leave this window open for reference.\n \nEnjoy Digitanks!")));
