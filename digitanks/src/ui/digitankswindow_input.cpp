@@ -143,7 +143,11 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		{
 			// Set desired move so that the tank knows the player selected something.
 			if (GetControlMode() == MODE_MOVE)
+			{
+				if (DigitanksGame()->GetCurrentTank())
+					DigitanksGame()->GetCurrentTank()->SetPreviewMove(Vector(9999, 9999, 9999));	// Make sure the mouse isn't hovering a legal move.
 				DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
+			}
 		}
 		else
 			SetControlMode(MODE_NONE);
