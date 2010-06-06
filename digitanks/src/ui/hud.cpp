@@ -834,7 +834,7 @@ void CHUD::NewCurrentTeam()
 {
 	m_bAutoProceed = true;
 
-	if (m_bHUDActive)
+	if (m_bHUDActive && DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetTeam(0))
 		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
 	else
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
