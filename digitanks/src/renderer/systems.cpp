@@ -49,13 +49,13 @@ void CParticleSystemLibrary::InitSystems()
 	pTankFire->AddChild(iTankFireFlash);
 	pTankFire->AddChild(iTankFireSmoke);
 
-	pTankFire->SetTexture(L"textures/particles/tank-fire.png");
-	pTankFire->SetLifeTime(0.1f);
-	pTankFire->SetEmissionMax(1);
-	pTankFire->SetAlpha(0.5f);
-	pTankFire->SetRadius(4.0f);
-	pTankFire->SetFadeOut(1.0f);
-	pTankFire->SetRandomBillboardYaw(true);
+	pTankFireFlash->SetTexture(L"textures/particles/tank-fire.png");
+	pTankFireFlash->SetLifeTime(0.1f);
+	pTankFireFlash->SetEmissionMax(1);
+	pTankFireFlash->SetAlpha(0.5f);
+	pTankFireFlash->SetRadius(4.0f);
+	pTankFireFlash->SetFadeOut(1.0f);
+	pTankFireFlash->SetRandomBillboardYaw(true);
 
 	pTankFireSmoke->SetTexture(L"textures/particles/haze-white.png");
 	pTankFireSmoke->SetLifeTime(0.5f);
@@ -69,4 +69,38 @@ void CParticleSystemLibrary::InitSystems()
 	pTankFireSmoke->SetRandomVelocity(AABB(Vector(-6, -6, -6), Vector(6, 6, 6)));
 	pTankFireSmoke->SetDrag(0.3f);
 	pTankFireSmoke->SetRandomBillboardYaw(true);
+
+	size_t iPromotion = pPSL->AddParticleSystem(L"promotion");
+	size_t iPromotionStar = pPSL->AddParticleSystem(L"promotion-star");
+	size_t iPromotionGlow = pPSL->AddParticleSystem(L"promotion-glow");
+
+	CParticleSystem* pPromotion = pPSL->GetParticleSystem(iPromotion);
+	CParticleSystem* pPromotionStar = pPSL->GetParticleSystem(iPromotionStar);
+	CParticleSystem* pPromotionGlow = pPSL->GetParticleSystem(iPromotionGlow);
+
+	pPromotion->AddChild(iPromotionStar);
+	pPromotion->AddChild(iPromotionGlow);
+
+	pPromotionStar->SetTexture(L"textures/particles/promotion.png");
+	pPromotionStar->SetLifeTime(2.0f);
+	pPromotionStar->SetEmissionMax(1);
+	pPromotionStar->SetAlpha(0.5f);
+	pPromotionStar->SetRadius(3.0f);
+	pPromotionStar->SetFadeOut(0.5f);
+	pPromotionStar->SetSpawnOffset(Vector(0, 6, 0));
+	pPromotionStar->SetRandomVelocity(AABB(Vector(0, 0.5f, 0), Vector(0, 0.5f, 0)));
+	pPromotionStar->SetGravity(Vector(0, 3, 0));
+
+	pPromotionGlow->SetTexture(L"textures/particles/haze-white.png");
+	pPromotionGlow->SetLifeTime(1.5f);
+	pPromotionGlow->SetEmissionMax(3);
+	pPromotionGlow->SetEmissionRate(0.01f);
+	pPromotionGlow->SetAlpha(0.3f);
+	pPromotionGlow->SetColor(Color(250, 200, 0));
+	pPromotionGlow->SetRadius(8.0f);
+	pPromotionGlow->SetFadeOut(0.5f);
+	pPromotionGlow->SetSpawnOffset(Vector(0, 3, 0));
+	pPromotionGlow->SetRandomVelocity(AABB(Vector(-0.1f, -0.1f, -0.1f), Vector(0.1f, 0.1f, 0.1f)));
+	pPromotionGlow->SetGravity(Vector(0, 0, 0));
+	pPromotionGlow->SetRandomBillboardYaw(true);
 }

@@ -118,7 +118,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 
 			pTank->SetOrigin(vecTank);
 			pTank->SetAngles(angTank);
-			pTank->GiveBonusPoints(1);
+			pTank->GiveBonusPoints(1, false);
 		}
 	}
 

@@ -161,10 +161,12 @@ CParticleSystem::CParticleSystem(std::wstring sName)
 	m_flEmissionRate = 0.1f;
 	m_iEmissionMax = 0;
 	m_flAlpha = 1.0f;
+	m_clrColor = Color(255, 255, 255, 255);
 	m_flStartRadius = 1.0f;
 	m_flEndRadius = 1.0f;
 	m_flFadeOut = 0.25f;
 	m_flInheritedVelocity = 0.0f;
+	m_vecGravity = Vector(0, -10, 0);
 	m_flDrag = 1.0f;
 	m_bRandomBillboardYaw = false;
 }
@@ -238,12 +240,12 @@ void CSystemInstance::Simulate()
 		}
 
 		pParticle->m_vecOrigin += pParticle->m_vecVelocity * flFrameTime;
-		pParticle->m_vecVelocity += Vector(0, -10, 0) * flFrameTime;
+		pParticle->m_vecVelocity += m_pSystem->GetGravity() * flFrameTime;
 		pParticle->m_vecVelocity *= (1-((1-m_pSystem->GetDrag()) * flFrameTime));
 
 		float flLifeTimeRamp = flLifeTime / m_pSystem->GetLifeTime();
 
-		if (flLifeTimeRamp < m_pSystem->GetFadeOut())
+		if (flLifeTimeRamp > 1-m_pSystem->GetFadeOut())
 			pParticle->m_flAlpha = RemapVal(flLifeTimeRamp, 1-m_pSystem->GetFadeOut(), 1, m_pSystem->GetAlpha(), 0);
 
 		pParticle->m_flRadius = RemapVal(flLifeTimeRamp, 0, 1, m_pSystem->GetStartRadius(), m_pSystem->GetEndRadius());
@@ -261,7 +263,7 @@ void CSystemInstance::Simulate()
 	for (size_t i = 0; i < m_apChildren.size(); i++)
 		m_apChildren[i]->Simulate();
 
-	if (m_pSystem->GetEmissionMax() && m_iTotalEmitted >= m_pSystem->GetEmissionMax())
+	if (m_pSystem->GetEmissionMax() && m_iTotalEmitted >= m_pSystem->GetEmissionMax() || !m_pSystem->GetTexture())
 		m_bStopped = true;
 }
 
@@ -290,7 +292,7 @@ void CSystemInstance::SpawnParticle()
 	}
 
 	pNewParticle->Reset();
-	pNewParticle->m_vecOrigin = m_vecOrigin;
+	pNewParticle->m_vecOrigin = m_vecOrigin + m_pSystem->GetSpawnOffset();
 	pNewParticle->m_vecVelocity = m_vecInheritedVelocity * m_pSystem->GetInheritedVelocity();
 
 	if (m_pSystem->GetRandomVelocity().Size().LengthSqr() > 0)
@@ -363,6 +365,8 @@ void CSystemInstance::Render()
 		Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
 
 		c.SetUniform("flAlpha", pParticle->m_flAlpha);
+
+		c.SetColor(m_pSystem->GetColor());
 
 		c.BeginRenderQuads();
 

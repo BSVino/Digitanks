@@ -60,6 +60,7 @@ CDigitank::CDigitank()
 void CDigitank::Precache()
 {
 	PrecacheParticleSystem(L"tank-fire");
+	PrecacheParticleSystem(L"promotion");
 	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
@@ -70,6 +71,7 @@ void CDigitank::Precache()
 	PrecacheSound("sound/tank-active2.wav");
 	PrecacheSound("sound/tank-move.wav");
 	PrecacheSound("sound/tank-aim.wav");
+	PrecacheSound("sound/tank-promoted.wav");
 
 	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
@@ -890,9 +892,15 @@ void CDigitank::PostRender()
 	}
 }
 
-void CDigitank::GiveBonusPoints(size_t i)
+void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 {
 	m_iBonusPoints += i;
+
+	if (bPlayEffects)
+	{
+		EmitSound("sound/tank-promoted.wav");
+		CParticleSystemLibrary::AddInstance(L"promotion", GetOrigin());
+	}
 }
 
 void CDigitank::PromoteAttack()

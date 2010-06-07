@@ -848,13 +848,13 @@ void CRenderer::GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector*
 		(*pvecForward) = vecForward;
 
 	if (pvecRight || pvecUp)
-		vecRight = vecForward.Cross(Vector(0, 1, 0));
+		vecRight = vecForward.Cross(Vector(0, 1, 0)).Normalized();
 
 	if (pvecRight)
 		(*pvecRight) = vecRight;
 
 	if (pvecUp)
-		(*pvecUp) = vecRight.Cross(vecForward);
+		(*pvecUp) = vecRight.Cross(vecForward).Normalized();
 }
 
 void CRenderer::SetSize(int w, int h)

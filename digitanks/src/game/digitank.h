@@ -108,7 +108,7 @@ public:
 	virtual void				RenderShield(float flAlpha, float flAngle);
 	virtual void				PostRender();
 
-	void						GiveBonusPoints(size_t i);
+	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
 	bool						HasBonusPoints() { return m_iBonusPoints > 0; };
 	size_t						GetBonusPoints() { return m_iBonusPoints; };
 	void						PromoteAttack();

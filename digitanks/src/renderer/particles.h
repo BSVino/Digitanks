@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <vector.h>
+#include <color.h>
 #include <geometry.h>
 #include <game/baseentity.h>
 
@@ -92,6 +93,9 @@ public:
 	void							SetAlpha(float flAlpha) { m_flAlpha = flAlpha; }
 	inline float					GetAlpha() { return m_flAlpha; }
 
+	void							SetColor(const Color& clrColor) { m_clrColor = clrColor; }
+	inline Color					GetColor() { return m_clrColor; }
+
 	void							SetRadius(float flRadius) { m_flStartRadius = m_flEndRadius = flRadius; }
 
 	void							SetStartRadius(float flStartRadius) { m_flStartRadius = flStartRadius; }
@@ -103,11 +107,17 @@ public:
 	void							SetFadeOut(float flFadeOut) { m_flFadeOut = flFadeOut; }
 	inline float					GetFadeOut() { return m_flFadeOut; }
 
+	void							SetSpawnOffset(const Vector& vecSpawnOffset) { m_vecSpawnOffset = vecSpawnOffset; }
+	inline Vector					GetSpawnOffset() { return m_vecSpawnOffset; }
+
 	void							SetInheritedVelocity(float flInheritedVelocity) { m_flInheritedVelocity = flInheritedVelocity; }
 	inline float					GetInheritedVelocity() { return m_flInheritedVelocity; }
 
 	void							SetRandomVelocity(const AABB& oRandomVelocity) { m_oRandomVelocity = oRandomVelocity; }
 	inline AABB						GetRandomVelocity() { return m_oRandomVelocity; }
+
+	void							SetGravity(const Vector& vecGravity) { m_vecGravity = vecGravity; }
+	inline Vector					GetGravity() { return m_vecGravity; }
 
 	void							SetDrag(float flDrag) { m_flDrag = flDrag; }
 	inline float					GetDrag() { return m_flDrag; }
@@ -131,11 +141,14 @@ protected:
 	float							m_flEmissionRate;
 	int								m_iEmissionMax;
 	float							m_flAlpha;
+	Color							m_clrColor;
 	float							m_flStartRadius;
 	float							m_flEndRadius;
 	float							m_flFadeOut;
+	Vector							m_vecSpawnOffset;
 	float							m_flInheritedVelocity;
 	AABB							m_oRandomVelocity;
+	Vector							m_vecGravity;
 	float							m_flDrag;
 	bool							m_bRandomBillboardYaw;
 
