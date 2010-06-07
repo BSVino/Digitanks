@@ -768,7 +768,10 @@ void CHUD::UpdateAttackInfo()
 		if (pTargetTank->GetTeam() == pCurrentTank->GetTeam())
 			continue;
 
-		if ((pTargetTank->GetOrigin() - vecAim).LengthSqr() > flRadius*flRadius)
+		Vector vecOrigin2D = pTargetTank->GetOrigin();
+		Vector vecAim2D = vecAim;
+		vecOrigin2D.y = vecAim2D.y = 0;
+		if ((vecOrigin2D - vecAim2D).LengthSqr() > flRadius*flRadius)
 			continue;
 
 		if (!pClosestTarget)
@@ -786,7 +789,10 @@ void CHUD::UpdateAttackInfo()
 
 	vecAttack = vecOrigin - pClosestTarget->GetOrigin();
 
-	float flTargetDistance = (vecAim - pClosestTarget->GetOrigin()).Length();
+	Vector vecOrigin2D = pClosestTarget->GetOrigin();
+	Vector vecAim2D = vecAim;
+	vecOrigin2D.y = vecAim2D.y = 0;
+	float flTargetDistance = (vecAim2D - vecOrigin2D).Length();
 
 	if (flTargetDistance > flRadius)
 		return;
@@ -861,8 +867,9 @@ void CHUD::GameStart()
 	CDigitanksWindow::Get()->GetInstructor()->DisplayFirstTutorial();
 }
 
-void CHUD::GameOver()
+void CHUD::GameOver(bool bPlayerWon)
 {
+	CDigitanksWindow::Get()->GameOver(bPlayerWon);
 }
 
 void CHUD::NewCurrentTeam()
@@ -1102,6 +1109,12 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 	int iDamage = (int)flDamage;
 	if (flDamage > 0 && iDamage < 1)
 		iDamage = 1;
+
+	if (flDamage < 0.5f)
+	{
+		m_flTime = 0;
+		SetVisible(false);
+	}
 
 	char szDamage[100];
 	sprintf(szDamage, "-%d", iDamage);

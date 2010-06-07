@@ -11,8 +11,10 @@ using namespace glgui;
 void CDigitanksWindow::InitUI()
 {
 	m_pMenu = new CDigitanksMenu();
+	m_pVictory = new CVictoryPanel();
 
 	CRootPanel::Get()->AddControl(m_pMenu);
+	CRootPanel::Get()->AddControl(m_pVictory);
 
 	CRootPanel::Get()->Layout();
 
@@ -27,7 +29,7 @@ void CDigitanksWindow::Layout()
 CDigitanksMenu::CDigitanksMenu()
 	: CPanel(0, 0, 300, 400)
 {
-	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS\n \nCopyright © 2010, Jorge Rodriguez <bs.vino@gmail.com>\n \nThanks for trying out the Digitanks demo! This game is still in development. If you want to learn more about the game, please visit the website, http://digitanks.com");
+	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS\n \nCopyright © 2010, Jorge Rodriguez <bs.vino@gmail.com>\n \nhttp://digitanks.com");
 	AddControl(m_pDigitanks);
 
 	m_pNumberOfPlayers = new CScrollSelector<int>();
@@ -94,33 +96,33 @@ void CDigitanksMenu::Layout()
 	m_pDigitanks->SetAlign(CLabel::TA_TOPCENTER);
 
 	m_pPlayersLabel->EnsureTextFits();
-	m_pPlayersLabel->SetPos(5, 190);
+	m_pPlayersLabel->SetPos(5, 180);
 
 	int iSelectorSize = m_pPlayersLabel->GetHeight() - 4;
 
 	m_pNumberOfPlayers->SetSize(GetWidth() - m_pPlayersLabel->GetWidth() - 20, iSelectorSize);
-	m_pNumberOfPlayers->SetPos(GetWidth() - m_pNumberOfPlayers->GetWidth() - 20/2, 190);
+	m_pNumberOfPlayers->SetPos(GetWidth() - m_pNumberOfPlayers->GetWidth() - 20/2, 180);
 
 	m_pTanksLabel->EnsureTextFits();
-	m_pTanksLabel->SetPos(5, 220);
+	m_pTanksLabel->SetPos(5, 210);
 
 	m_pNumberOfTanks->SetSize(GetWidth() - m_pTanksLabel->GetWidth() - 20, iSelectorSize);
-	m_pNumberOfTanks->SetPos(GetWidth() - m_pNumberOfTanks->GetWidth() - 20/2, 220);
+	m_pNumberOfTanks->SetPos(GetWidth() - m_pNumberOfTanks->GetWidth() - 20/2, 210);
 
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 250);
+	m_pDifficultyLabel->SetPos(75, 240);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 250);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 240);
 
-	m_pTutorialLabel->SetPos(110, 310);
+	m_pTutorialLabel->SetPos(110, 300);
 	m_pTutorialLabel->SetSize(100, 20);
-	m_pTutorialBox->SetPos(100, 310 + m_pTutorialLabel->GetHeight()/2 - m_pTutorialBox->GetHeight()/2);
+	m_pTutorialBox->SetPos(100, 300 + m_pTutorialLabel->GetHeight()/2 - m_pTutorialBox->GetHeight()/2);
 
-	m_pStartGame->SetPos(100, 340);
+	m_pStartGame->SetPos(100, 330);
 	m_pStartGame->SetSize(100, 20);
 
-	m_pExit->SetPos(100, 370);
+	m_pExit->SetPos(100, 360);
 	m_pExit->SetSize(100, 20);
 
 	BaseClass::Layout();
@@ -179,4 +181,70 @@ void CDigitanksMenu::StartGameCallback()
 void CDigitanksMenu::ExitCallback()
 {
 	exit(0);
+}
+
+CVictoryPanel::CVictoryPanel()
+	: CPanel(0, 0, 400, 300)
+{
+	m_pVictory = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pVictory);
+
+	SetVisible(false);
+
+	Layout();
+}
+
+void CVictoryPanel::Layout()
+{
+	SetSize(500, 400);
+	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
+
+	m_pVictory->SetPos(10, 20);
+	m_pVictory->SetSize(GetWidth()-20, GetHeight());
+	m_pVictory->SetAlign(CLabel::TA_TOPCENTER);
+}
+
+void CVictoryPanel::Paint(int x, int y, int w, int h)
+{
+	CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+bool CVictoryPanel::MousePressed(int code, int mx, int my)
+{
+	if (BaseClass::MousePressed(code, mx, my))
+		return true;
+
+	SetVisible(false);
+	return true;
+}
+
+bool CVictoryPanel::KeyPressed(int iKey)
+{
+	SetVisible(false);
+	// Pass the keypress through so that the menu opens.
+	return false;
+}
+
+void CVictoryPanel::GameOver(bool bPlayerWon)
+{
+	Layout();
+
+	if (bPlayerWon)
+		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the digital universe!\n \n \n");
+	else
+		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n \n");
+
+	m_pVictory->AppendText(L"Thanks for playing Digitanks. You can close this window to continue playing, or you can press escape to start a new game.\n \n"
+		L"This is just a demo of the full game, which will have many more features:\n"
+		L"* 4X-style gameplay - Explore, expand, exploit, exterminate\n"
+		L"* Fleet construction - Design and build a fleet of tanks\n"
+		L"* Base building - Find resources and expand your territory\n"
+		L"* More weapons - Big bombs, small bombs, short bombs, tall bombs\n"
+		L"* More tank classes - Artillery, light tanks, and more\n"
+
+		L" \nIf you would like to see this game completed and you want to help out, please visit our website. There you can read more about Digitanks development and donate to the cause.\n \nhttp://digitanks.com");
+
+	SetVisible(true);
 }

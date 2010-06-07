@@ -12,7 +12,7 @@ class IDigitanksGameListener
 {
 public:
 	virtual void			GameStart()=0;
-	virtual void			GameOver()=0;
+	virtual void			GameOver(bool bPlayerWon)=0;
 
 	virtual void			NewCurrentTeam()=0;
 	virtual void			NewCurrentTank()=0;

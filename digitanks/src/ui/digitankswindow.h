@@ -69,6 +69,8 @@ public:
 
 	bool						GetMouseGridPosition(Vector& vecPoint);
 
+	void						GameOver(bool bPlayerWon);
+
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
 	class CDigitanksGame*		GetGame() { return m_pDigitanksGame; };
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
@@ -86,6 +88,7 @@ protected:
 	size_t						m_iWindowHeight;
 
 	class CDigitanksMenu*		m_pMenu;
+	class CVictoryPanel*		m_pVictory;
 
 	class CDigitanksGame*		m_pDigitanksGame;
 

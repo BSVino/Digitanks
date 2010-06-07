@@ -186,7 +186,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 #ifdef _DEBUG
 	if (c == 'x')
-		DigitanksGame()->GetCurrentTank()->GiveBonusPoints(1);
+		GameOver(false);
 #endif
 
 	if (GetGame() && GetGame()->GetCamera())

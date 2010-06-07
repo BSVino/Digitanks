@@ -77,7 +77,7 @@ public:
 	void						SetupMenu(menumode_t eMenuMode);
 
 	virtual void				GameStart();
-	virtual void				GameOver();
+	virtual void				GameOver(bool bPlayerWon);
 
 	virtual void				NewCurrentTeam();
 	virtual void				NewCurrentTank();

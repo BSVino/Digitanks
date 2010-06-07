@@ -772,6 +772,9 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 				if (flNewY < m_flLowest)
 					flNewY = m_flLowest+0.01f;
 
+				if (flNewY > m_aflHeights[x][z])
+					continue;
+
 				m_aflHeights[x][z] = flNewY;
 
 				m_abTerrainNeedsRegenerate[x/TERRAIN_SECTOR_SIZE][z/TERRAIN_SECTOR_SIZE] = true;
@@ -782,6 +785,25 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 			}
 		}
 	}
+
+	bool bTerrainDeformed = false;
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		{
+			if (m_abTerrainNeedsRegenerate[i][j])
+			{
+				bTerrainDeformed = true;
+				break;
+			}
+		}
+
+		if (bTerrainDeformed)
+			break;
+	}
+
+	if (!bTerrainDeformed)
+		return;
 
 	Vector vecMins(vecOrigin.x - flRadius + 0.1f, -10000, vecOrigin.z - flRadius + 0.1f);
 	Vector vecMaxs(vecOrigin.x + flRadius +-0.1f, 10000,  vecOrigin.z + flRadius - 0.1f);

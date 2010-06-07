@@ -185,6 +185,13 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 	return DigitanksGame()->GetTerrain()->Collide(Ray(vecCameraVector, vecRay), vecPoint);
 }
 
+void CDigitanksWindow::GameOver(bool bPlayerWon)
+{
+	SetControlMode(MODE_NONE);
+	GetInstructor()->SetActive(false);
+	m_pVictory->GameOver(bPlayerWon);
+}
+
 controlmode_t CDigitanksWindow::GetControlMode()
 {
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetTeam(0))
@@ -196,6 +203,9 @@ controlmode_t CDigitanksWindow::GetControlMode()
 void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 {
 	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
+	if (m_pVictory->IsVisible())
 		return;
 
 	if (m_eControlMode == MODE_MOVE)

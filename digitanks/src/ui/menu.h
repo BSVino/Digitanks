@@ -40,4 +40,25 @@ protected:
 	glgui::CButton*					m_pExit;
 };
 
+class CVictoryPanel : public glgui::CPanel
+{
+	DECLARE_CLASS(CVictoryPanel, glgui::CPanel);
+
+public:
+									CVictoryPanel();
+
+public:
+	virtual void					Layout();
+	virtual void					Paint(int x, int y, int w, int h);
+
+	virtual bool					IsCursorListener() {return true;};
+	virtual bool					MousePressed(int code, int mx, int my);
+	virtual bool					KeyPressed(int iKey);
+
+	virtual void					GameOver(bool bPlayerWon);
+
+protected:
+	glgui::CLabel*					m_pVictory;
+};
+
 #endif

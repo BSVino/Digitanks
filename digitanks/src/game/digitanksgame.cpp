@@ -565,19 +565,24 @@ void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 
 void CDigitanksGame::CheckWinConditions()
 {
+	bool bPlayerLost = false;
+
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (m_ahTeams[i]->GetNumTanksAlive() == 0)
 		{
 			m_ahTeams[i]->Delete();
 			m_ahTeams.erase(m_ahTeams.begin()+i);
+
+			if (i == 0)
+				bPlayerLost = true;
 		}
 	}
 
-	if (m_ahTeams.size() <= 1)
+	if (bPlayerLost || m_ahTeams.size() <= 1)
 	{
 		if (m_pListener)
-			m_pListener->GameOver();
+			m_pListener->GameOver(!bPlayerLost);
 	}
 }
 
