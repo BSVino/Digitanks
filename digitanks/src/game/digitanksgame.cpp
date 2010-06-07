@@ -110,11 +110,12 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 		for (int j = 0; j < iTanks; j++)
 		{
 			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
-			vecTank.y = m_hTerrain->GetHeight(vecTank.x, vecTank.z);
 			EAngle angTank = VectorAngles(-vecTank.Normalized());
 
 			m_ahTeams[i]->AddTank(new CDigitank());
 			CDigitank* pTank = m_ahTeams[i]->m_ahTanks[j];
+
+			vecTank.y = pTank->FindHoverHeight(vecTank);
 
 			pTank->SetOrigin(vecTank);
 			pTank->SetAngles(angTank);
@@ -255,7 +256,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 			Vector vecTankMove = vecMove;
 
 			Vector vecNewPosition = pTank->GetOrigin() + vecTankMove;
-			vecNewPosition.y = GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+			vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
 
 			pTank->SetPreviewMove(vecNewPosition);
 
@@ -268,7 +269,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 					break;
 
 				vecNewPosition = pTank->GetOrigin() + vecTankMove;
-				vecNewPosition.y = GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+				vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
 
 				pTank->SetPreviewMove(vecNewPosition);
 			}
@@ -334,7 +335,7 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 			if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
 			{
 				vecTankAim = pTank->GetDesiredMove() + (vecTankAim - pTank->GetDesiredMove()).Normalized() * pTank->GetMaxRange() * 0.99f;
-				vecTankAim.y = GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+				vecTankAim.y = pTank->FindHoverHeight(vecTankAim);
 			}
 
 			pTank->SetPreviewAim(vecTankAim);
@@ -485,7 +486,7 @@ void CDigitanksGame::Bot_ExecuteTurn()
 			vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
 
 			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-			vecDesiredMove.y = GetTerrain()->GetHeight(vecDesiredMove.x, vecDesiredMove.z);
+			vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
 
 			pTank->SetPreviewMove(vecDesiredMove);
 			pTank->SetDesiredMove();

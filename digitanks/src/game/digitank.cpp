@@ -387,7 +387,7 @@ Vector CDigitank::GetDesiredMove() const
 	{
 		float flLerp = SLerp(RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1), 0.2f);
 		Vector vecNewOrigin = m_vecPreviousOrigin * (1-flLerp) + m_vecDesiredMove * flLerp;
-		DigitanksGame()->GetTerrain()->SetPointHeight(vecNewOrigin);
+		vecNewOrigin.y = FindHoverHeight(vecNewOrigin);
 		return vecNewOrigin;
 	}
 
@@ -844,7 +844,7 @@ void CDigitank::PostRender()
 					vecTankMove = vecTankMove.Normalized() * GetTotalMovementPower() * 0.95f;
 
 				Vector vecNewPosition = GetOrigin() + vecTankMove;
-				vecNewPosition.y = DigitanksGame()->GetTerrain()->GetHeight(vecNewPosition.x, vecNewPosition.z);
+				vecNewPosition.y = FindHoverHeight(vecNewPosition);
 
 				CRenderingContext r(Game()->GetRenderer());
 				r.Translate(vecNewPosition + Vector(0, 1, 0));
@@ -933,6 +933,33 @@ void CDigitank::PromoteMovement()
 
 	m_iBonusPoints--;
 	m_flBonusMovementPower++;
+}
+
+float CDigitank::FindHoverHeight(Vector vecPosition) const
+{
+	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
+
+	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.z);
+
+	float flTerrain;
+
+	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z+2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
+
+	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z-2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
+
+	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z+2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
+
+	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z-2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
+
+	return flHighestTerrain;
 }
 
 REGISTER_ENTITY(CProjectile);

@@ -281,7 +281,11 @@ void CHUD::Think()
 			UpdateAttackInfo();
 
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
-			pCurrentTank->SetPreviewMove(vecPoint);
+		{
+			Vector vecMove = vecPoint;
+			vecMove.y = pCurrentTank->FindHoverHeight(vecMove);
+			pCurrentTank->SetPreviewMove(vecMove);
+		}
 
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
 		{

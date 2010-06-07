@@ -118,6 +118,8 @@ public:
 	void						PromoteDefense();
 	void						PromoteMovement();
 
+	float						FindHoverHeight(Vector vecPosition) const;
+
 	class CTeam*				GetTeam() const { return m_pTeam; };
 	void						SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
 
