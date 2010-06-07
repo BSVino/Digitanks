@@ -589,7 +589,7 @@ inline void FindLaunchVelocity(const Vector& vecOrigin, const Vector& vecTarget,
 	vecDistance.y = 0;
 	float flX = vecDistance.Length();
 
-	float flA = -0.04f;
+	float flA = -0.03f;
 	float flH = (flX*flX - (flY/flA))/(2*flX);
 	float flK = -flA*flH*flH;
 	float flB = -2*flH*flA;

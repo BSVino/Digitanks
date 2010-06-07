@@ -60,23 +60,23 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 
 	Vector avecStartingPositions[] =
 	{
-		Vector(35, 0, 84),
-		Vector(-35, 0, 84),
-		Vector(-84, 0, 35),
-		Vector(-84, 0, -35),
-		Vector(-35, 0, -84),
-		Vector(35, 0, -84),
-		Vector(84, 0, -35),
-		Vector(84, 0, 35),
+		Vector(45, 0, 110),
+		Vector(-45, 0, 110),
+		Vector(-110, 0, 45),
+		Vector(-110, 0, -45),
+		Vector(-45, 0, -110),
+		Vector(45, 0, -110),
+		Vector(110, 0, -45),
+		Vector(110, 0, 45),
 	};
 
 	Vector avecTankPositions[] =
 	{
 		Vector(0, 0, 0),
-		Vector(10, 0, 10),
-		Vector(-10, 0, -10),
-		Vector(10, 0, -10),
-		Vector(-10, 0, 10),
+		Vector(15, 0, 15),
+		Vector(-15, 0, -15),
+		Vector(15, 0, -15),
+		Vector(-15, 0, 15),
 	};
 
 	Color aclrTeamColors[] =
@@ -123,13 +123,13 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 	}
 
 	CPowerup* pPowerup = new CPowerup();
-	pPowerup->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, 10), 10));
+	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
 	pPowerup = new CPowerup();
-	pPowerup->SetOrigin(Vector(10, m_hTerrain->GetHeight(10, -10), -10));
+	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, -70), -70));
 	pPowerup = new CPowerup();
-	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, 10), 10));
+	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, 70), 70));
 	pPowerup = new CPowerup();
-	pPowerup->SetOrigin(Vector(-10, m_hTerrain->GetHeight(-10, -10), -10));
+	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
 
 	m_iPowerups = 4;
 
@@ -261,7 +261,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 			do
 			{
-				if (pTank->GetPreviewMovePower() > pTank->GetTotalMovementPower())
+				if (pTank->GetPreviewMovePower() > pTank->GetMaxMovementDistance())
 					vecTankMove = vecTankMove * 0.95f;
 
 				if (vecTankMove.Length() < 1)
@@ -272,7 +272,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 				pTank->SetPreviewMove(vecNewPosition);
 			}
-			while (pTank->GetPreviewMovePower() > pTank->GetTotalMovementPower());
+			while (pTank->GetPreviewMovePower() > pTank->GetMaxMovementDistance());
 
 			pTank->SetDesiredMove();
 		}
@@ -480,9 +480,9 @@ void CDigitanksGame::Bot_ExecuteTurn()
 		// If we are not within the min range, use 1/3 of our available movement power to move towards our target.
 		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetMinRange()*pTank->GetMinRange())
 		{
-			float flMovementPower = pTank->GetBasePower() + pTank->GetBonusMovementPower();
+			float flMovementDistance = pTank->GetMaxMovementDistance();
 			Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
-			vecDirection = vecDirection.Normalized() * (flMovementPower/3);
+			vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
 
 			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
 			vecDesiredMove.y = GetTerrain()->GetHeight(vecDesiredMove.x, vecDesiredMove.z);
@@ -504,16 +504,54 @@ void CDigitanksGame::Bot_ExecuteTurn()
 	EndTurn();
 }
 
-void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+void CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
 {
-	if (m_pListener)
-		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, pInflictor, flDamage);
+	std::vector<CBaseEntity*> apHit;
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		if (!pEntity)
+			continue;
+
+		if (pEntity == pIgnore)
+			continue;
+
+		if (dynamic_cast<CDigitank*>(pEntity) && dynamic_cast<CDigitank*>(pEntity)->GetTeam() == pTeamIgnore)
+			continue;
+
+		if (!pInflictor->ShouldTouch(pEntity))
+			continue;
+
+		float flDistanceSqr = (pInflictor->GetOrigin() - pEntity->GetOrigin()).LengthSqr();
+
+		float flTotalRadius = flRadius + pEntity->GetBoundingRadius();
+		if (flDistanceSqr < flTotalRadius*flTotalRadius)
+			apHit.push_back(pEntity);
+	}
+
+	for (size_t i = 0; i < apHit.size(); i++)
+	{
+		float flDistance = (pInflictor->GetOrigin() - apHit[i]->GetOrigin()).Length();
+
+		float flFalloffDamage = RemapVal(flDistance, 0, flRadius + apHit[i]->GetBoundingRadius(), flDamage, 0);
+		if (flFalloffDamage <= 0)
+			continue;
+
+		apHit[i]->TakeDamage(pAttacker, pInflictor, flFalloffDamage, false);
+	}
 }
 
-void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	if (m_pListener)
-		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage);
+		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit);
+}
+
+void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+{
+	if (m_pListener)
+		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit);
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

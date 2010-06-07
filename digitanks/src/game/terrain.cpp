@@ -552,7 +552,7 @@ void CTerrain::OnRender()
 		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
 
 		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
-		glUniform1f(flMoveDistance, pCurrentTank->GetTotalMovementPower());
+		glUniform1f(flMoveDistance, pCurrentTank->GetMaxMovementDistance());
 
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
 		glUniform1i(bMovement, true);
@@ -717,7 +717,7 @@ void CTerrain::SetPointHeight(Vector& vecPoint)
 	vecPoint.y = GetHeight(vecPoint.x, vecPoint.z);
 }
 
-float CTerrain::GetMapSize()
+float CTerrain::GetMapSize() const
 {
 	return 200;
 }
@@ -732,7 +732,7 @@ int CTerrain::WorldToArraySpace(float f)
 	return (int)RemapVal(f, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
 }
 
-void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	float flRadius = 4.0f;
 	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;

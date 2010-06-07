@@ -15,6 +15,8 @@ public:
 							~CTerrain();
 
 public:
+	virtual float			GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
+
 	void					GenerateTerrainCallLists();
 	void					GenerateCallLists();
 
@@ -23,11 +25,11 @@ public:
 	float					GetRealHeight(int x, int y);
 	float					GetHeight(float x, float y);
 	void					SetPointHeight(Vector& vecPoint);
-	float					GetMapSize();
+	float					GetMapSize() const;
 	float					ArrayToWorldSpace(int i);
 	int						WorldToArraySpace(float f);
 
-	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
+	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
 
 	bool					Collide(const Ray& rayTrace, Vector& vecPoint);
 	bool					Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);

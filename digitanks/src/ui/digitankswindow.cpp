@@ -234,7 +234,7 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
 
-		GetGame()->GetCamera()->SetDistance(120);
+		GetGame()->GetCamera()->SetDistance(140);
 		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_AIM);
 	}
 

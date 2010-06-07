@@ -179,6 +179,11 @@ float CDigitank::GetTotalMovementPower() const
 	return m_flBasePower + m_flBonusMovementPower;
 }
 
+float CDigitank::GetMaxMovementDistance() const
+{
+	return GetTotalMovementPower() * GetTankSpeed();
+}
+
 void CDigitank::SetAttackPower(float flAttackPower)
 {
 	if (flAttackPower > m_flBasePower - m_flMovementPower)
@@ -217,9 +222,9 @@ float CDigitank::GetPreviewTurnPower() const
 float CDigitank::GetPreviewBaseMovePower() const
 {
 	if (HasDesiredMove())
-		return (m_vecDesiredMove - GetOrigin()).Length();
+		return (m_vecDesiredMove - GetOrigin()).Length() / GetTankSpeed();
 
-	return (m_vecPreviewMove - GetOrigin()).Length();
+	return (m_vecPreviewMove - GetOrigin()).Length() / GetTankSpeed();
 }
 
 float CDigitank::GetPreviewBaseTurnPower() const
@@ -622,7 +627,7 @@ void CDigitank::FireProjectile()
 		CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 }
 
-void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
@@ -634,7 +639,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 			flDamage *= 2.0f;
 	}
 
-	Vector vecAttackDirection = (pAttacker->GetOrigin() - GetOrigin()).Normalized();
+	Vector vecAttackDirection = ((bDirectHit?pAttacker:pInflictor)->GetOrigin() - GetOrigin()).Normalized();
 
 	float* pflShield = GetShieldForAttackDirection(vecAttackDirection);
 
@@ -647,7 +652,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 		EmitSound("sound/shield-damage.wav");
 		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
 
-		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage);
+		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage, bDirectHit);
 
 		return;
 	}
@@ -665,9 +670,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	*pflShield = 0;
 
-	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked);
+	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit);
 
-	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage);
+	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage, bDirectHit);
 }
 
 void CDigitank::OnKilled(CBaseEntity* pKilledBy)
@@ -835,7 +840,7 @@ void CDigitank::PostRender()
 			else if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == pCurrentTank->GetTeam())
 			{
 				Vector vecTankMove = pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin();
-				if (vecTankMove.Length() > GetTotalMovementPower())
+				if (vecTankMove.Length() > GetMaxMovementDistance())
 					vecTankMove = vecTankMove.Normalized() * GetTotalMovementPower() * 0.95f;
 
 				Vector vecNewPosition = GetOrigin() + vecTankMove;
@@ -1038,7 +1043,7 @@ bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 	{
 	case CG_TANK:
 		vecPoint = GetOrigin();
-		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < 4*4)
+		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < pOther->GetBoundingRadius()*pOther->GetBoundingRadius())
 			return true;
 		break;
 
@@ -1058,6 +1063,8 @@ void CProjectile::Touching(CBaseEntity* pOther)
 
 	if (m_iParticleSystem != ~0)
 		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
+
+	DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pOther, m_hOwner->GetTeam());
 
 	m_flTimeExploded = Game()->GetGameTime();
 

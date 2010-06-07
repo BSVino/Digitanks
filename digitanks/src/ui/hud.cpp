@@ -903,13 +903,13 @@ void CHUD::NewCurrentTank()
 	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
-void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 }
 
-void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage)
+void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);

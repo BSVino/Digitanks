@@ -21,6 +21,8 @@ public:
 public:
 	virtual void							Precache() {};
 
+	virtual float							GetBoundingRadius() const { return 0; };
+
 	void									SetModel(const wchar_t* pszModel);
 	size_t									GetModel() { return m_iModel; };
 
@@ -51,7 +53,7 @@ public:
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
-	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
+	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
 

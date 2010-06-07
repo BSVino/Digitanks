@@ -17,6 +17,8 @@ public:
 public:
 	void						Precache();
 
+	virtual float				GetBoundingRadius() const { return 4; };
+
 	float						GetBasePower() { return m_flBasePower; };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
@@ -28,6 +30,7 @@ public:
 	float						GetTotalAttackPower();
 	float						GetTotalDefensePower();
 	float						GetTotalMovementPower() const;
+	float						GetMaxMovementDistance() const;
 
 	float						GetAttackScale(bool bPreview = false) { return GetAttackPower(bPreview) / 10; };
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
@@ -97,7 +100,7 @@ public:
 	void						Fire();
 	void						FireProjectile();
 
-	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage);
+	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
 
 	virtual Vector				GetRenderOrigin() const;
@@ -118,10 +121,11 @@ public:
 	class CTeam*				GetTeam() const { return m_pTeam; };
 	void						SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
 
-	virtual float				ShieldRechargeRate() { return 1.0f; }
-	virtual float				HealthRechargeRate() { return 0.2f; }
-	virtual float				GetMinRange() { return 30.0f; };
-	virtual float				GetMaxRange() { return 50.0f; };
+	virtual float				ShieldRechargeRate() const { return 1.0f; }
+	virtual float				HealthRechargeRate() const { return 0.2f; }
+	virtual float				GetTankSpeed() const { return 2.0f; }
+	virtual float				GetMinRange() const { return 50.0f; };
+	virtual float				GetMaxRange() const { return 70.0f; };
 	virtual float				TurnPerPower() const { return 45; }
 	virtual float				GetTransitionTime() const { return 2.0f; }
 
