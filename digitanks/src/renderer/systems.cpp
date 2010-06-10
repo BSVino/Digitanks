@@ -148,4 +148,17 @@ void CParticleSystemLibrary::InitSystems()
 	pPromotionGlow->SetRandomVelocity(AABB(Vector(-0.1f, -0.1f, -0.1f), Vector(0.1f, 0.1f, 0.1f)));
 	pPromotionGlow->SetGravity(Vector(0, 0, 0));
 	pPromotionGlow->SetRandomBillboardYaw(true);
+
+	size_t iTankHover = pPSL->AddParticleSystem(L"tank-hover");
+	CParticleSystem* pTankHover = pPSL->GetParticleSystem(iTankHover);
+
+	pTankHover->SetTexture(L"textures/particles/haze-white.png");
+	pTankHover->SetLifeTime(0.5f);
+	pTankHover->SetEmissionRate(0.1f);
+	pTankHover->SetAlpha(0.2f);
+	pTankHover->SetRadius(3.5f);
+	pTankHover->SetFadeOut(0.5f);
+	pTankHover->SetSpawnOffset(Vector(0, -1, 0));
+	pTankHover->SetRandomVelocity(AABB(Vector(0, -1, 0), Vector(0, -2, 0)));
+	pTankHover->SetGravity(Vector(0, 10, 0));
 }

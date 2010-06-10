@@ -55,12 +55,21 @@ CDigitank::CDigitank()
 	SetModel(L"models/digitanks/digitank-body.obj");
 	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+
+	m_iHoverParticles = ~0;
+}
+
+CDigitank::~CDigitank()
+{
+	if (m_iHoverParticles != ~0)
+		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
 }
 
 void CDigitank::Precache()
 {
 	PrecacheParticleSystem(L"tank-fire");
 	PrecacheParticleSystem(L"promotion");
+	PrecacheParticleSystem(L"tank-hover");
 	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
@@ -366,6 +375,13 @@ void CDigitank::SetDesiredMove()
 
 	EmitSound("sound/tank-move.wav");
 	SetSoundVolume("sound/tank-move.wav", 0.5f);
+
+	if (m_iHoverParticles != ~0)
+		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
+
+	m_iHoverParticles = CParticleSystemLibrary::AddInstance(L"tank-hover", GetOrigin());
+	if (m_iHoverParticles != ~0)
+		CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
 }
 
 void CDigitank::CancelDesiredMove()
@@ -377,6 +393,12 @@ void CDigitank::CancelDesiredMove()
 	CalculateAttackDefense();
 
 	ClearPreviewMove();
+
+	if (m_iHoverParticles != ~0)
+	{
+		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
+		m_iHoverParticles = ~0;
+	}
 }
 
 Vector CDigitank::GetDesiredMove() const
@@ -527,6 +549,17 @@ void CDigitank::Think()
 	{
 		m_flFireProjectileTime = 0;
 		FireProjectile();
+	}
+
+	if (m_iHoverParticles != ~0)
+	{
+		float flTransitionTime = GetTransitionTime();
+		float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
+		if (m_flStartedMove && flTimeSinceMove > flTransitionTime)
+		{
+			CParticleSystemLibrary::StopInstance(m_iHoverParticles);
+			m_iHoverParticles = ~0;
+		}
 	}
 }
 

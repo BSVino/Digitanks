@@ -220,7 +220,7 @@ void CSystemInstance::Simulate()
 
 	if (m_hFollow != NULL)
 	{
-		m_vecOrigin = m_hFollow->GetOrigin();
+		m_vecOrigin = m_hFollow->GetRenderOrigin();
 		m_vecInheritedVelocity = m_hFollow->GetVelocity();
 	}
 

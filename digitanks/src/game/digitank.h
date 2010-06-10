@@ -13,6 +13,7 @@ class CDigitank : public CBaseEntity
 
 public:
 								CDigitank();
+								~CDigitank();
 
 public:
 	void						Precache();
@@ -182,6 +183,8 @@ protected:
 
 	size_t						m_iTurretModel;
 	size_t						m_iShieldModel;
+
+	size_t						m_iHoverParticles;
 
 	static size_t				s_iAimBeam;
 };
