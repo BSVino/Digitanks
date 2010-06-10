@@ -198,7 +198,7 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 
 	m_iNumParticlesAlive = 0;
 
-	m_flLastEmission = 0;
+	m_flLastEmission = Game()->GetGameTime() - RemapVal((float)(rand()%100), 0, 100, 0, m_pSystem->GetEmissionRate());
 	m_iTotalEmitted = 0;
 
 	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();

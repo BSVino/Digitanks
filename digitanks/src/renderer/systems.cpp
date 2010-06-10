@@ -7,13 +7,22 @@ void CParticleSystemLibrary::InitSystems()
 	size_t iTrail = pPSL->AddParticleSystem(L"shell-trail");
 	size_t iTrailSparks = pPSL->AddParticleSystem(L"shell-trail-sparks");
 	size_t iTrailAura = pPSL->AddParticleSystem(L"shell-trail-aura");
+	size_t iTrailWireframe1 = pPSL->AddParticleSystem(L"shell-trail-wf1");
+	size_t iTrailWireframe2 = pPSL->AddParticleSystem(L"shell-trail-wf2");
+	size_t iTrailWireframe3 = pPSL->AddParticleSystem(L"shell-trail-wf3");
 
 	CParticleSystem* pTrail = pPSL->GetParticleSystem(iTrail);
 	CParticleSystem* pTrailSparks = pPSL->GetParticleSystem(iTrailSparks);
 	CParticleSystem* pTrailAura = pPSL->GetParticleSystem(iTrailAura);
+	CParticleSystem* pTrailWireframe1 = pPSL->GetParticleSystem(iTrailWireframe1);
+	CParticleSystem* pTrailWireframe2 = pPSL->GetParticleSystem(iTrailWireframe2);
+	CParticleSystem* pTrailWireframe3 = pPSL->GetParticleSystem(iTrailWireframe3);
 
 	pTrail->AddChild(iTrailSparks);
 	pTrail->AddChild(iTrailAura);
+	pTrail->AddChild(iTrailWireframe1);
+	pTrail->AddChild(iTrailWireframe2);
+	pTrail->AddChild(iTrailWireframe3);
 
 	pTrailSparks->SetTexture(L"textures/particles/cloud-white.png");
 	pTrailSparks->SetLifeTime(1.0f);
@@ -37,6 +46,42 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailAura->SetInheritedVelocity(0.7f);
 	pTrailAura->SetDrag(0.8f);
 	pTrailAura->SetRandomBillboardYaw(true);
+
+	pTrailWireframe1->SetTexture(L"textures/particles/wireframe1.png");
+	pTrailWireframe1->SetLifeTime(1.0f);
+	pTrailWireframe1->SetEmissionRate(1.0f);
+	pTrailWireframe1->SetAlpha(0.2f);
+	pTrailWireframe1->SetStartRadius(0.8f);
+	pTrailWireframe1->SetEndRadius(0.6f);
+	pTrailWireframe1->SetFadeOut(0.5f);
+	pTrailWireframe1->SetInheritedVelocity(0.5f);
+	pTrailWireframe1->SetRandomVelocity(AABB(Vector(-6, -6, -6), Vector(6, 6, 6)));
+	pTrailWireframe1->SetDrag(0.7f);
+	pTrailWireframe1->SetRandomBillboardYaw(true);
+
+	pTrailWireframe2->SetTexture(L"textures/particles/wireframe2.png");
+	pTrailWireframe2->SetLifeTime(1.0f);
+	pTrailWireframe2->SetEmissionRate(1.0f);
+	pTrailWireframe2->SetAlpha(0.2f);
+	pTrailWireframe2->SetStartRadius(0.8f);
+	pTrailWireframe2->SetEndRadius(0.6f);
+	pTrailWireframe2->SetFadeOut(0.5f);
+	pTrailWireframe2->SetInheritedVelocity(0.5f);
+	pTrailWireframe2->SetRandomVelocity(AABB(Vector(-6, -6, -6), Vector(6, 6, 6)));
+	pTrailWireframe2->SetDrag(0.7f);
+	pTrailWireframe2->SetRandomBillboardYaw(true);
+
+	pTrailWireframe3->SetTexture(L"textures/particles/wireframe3.png");
+	pTrailWireframe3->SetLifeTime(1.0f);
+	pTrailWireframe3->SetEmissionRate(1.0f);
+	pTrailWireframe3->SetAlpha(0.2f);
+	pTrailWireframe3->SetStartRadius(0.8f);
+	pTrailWireframe3->SetEndRadius(0.6f);
+	pTrailWireframe3->SetFadeOut(0.5f);
+	pTrailWireframe3->SetInheritedVelocity(0.5f);
+	pTrailWireframe3->SetRandomVelocity(AABB(Vector(-6, -6, -6), Vector(6, 6, 6)));
+	pTrailWireframe3->SetDrag(0.7f);
+	pTrailWireframe3->SetRandomBillboardYaw(true);
 
 	size_t iTankFire = pPSL->AddParticleSystem(L"tank-fire");
 	size_t iTankFireFlash = pPSL->AddParticleSystem(L"tank-fire-flash");
