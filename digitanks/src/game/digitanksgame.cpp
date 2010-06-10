@@ -239,9 +239,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 	if (bAllTanks)
 	{
-		float flMovePower = GetCurrentTank()->GetPreviewMovePower();
-
-		if (flMovePower > GetCurrentTank()->GetBasePower())
+		if (!GetCurrentTank()->IsPreviewMoveValid())
 			return;
 
 		Vector vecPreview = GetCurrentTank()->GetPreviewMove();
@@ -547,16 +545,16 @@ void CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	}
 }
 
-void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
 	if (m_pListener)
-		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit);
+		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit, bShieldOnly);
 }
 
-void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
 	if (m_pListener)
-		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit);
+		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit, bKilled);
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

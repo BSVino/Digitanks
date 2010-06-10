@@ -20,7 +20,7 @@ public:
 
 	virtual float				GetBoundingRadius() const { return 4; };
 
-	float						GetBasePower() { return m_flBasePower; };
+	float						GetBasePower() const { return m_flBasePower; };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
 	float						GetBaseMovementPower(bool bPreview = false);
@@ -48,6 +48,8 @@ public:
 	float						GetPreviewTurnPower() const;
 	float						GetPreviewBaseMovePower() const;
 	float						GetPreviewBaseTurnPower() const;
+
+	bool						IsPreviewMoveValid() const;
 
 	void						CalculateAttackDefense();
 

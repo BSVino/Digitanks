@@ -108,6 +108,7 @@ protected:
 	bool									m_bTakeDamage;
 	float									m_flTotalHealth;
 	float									m_flHealth;
+	float									m_flTimeKilled;
 
 	bool									m_bDeleted;
 

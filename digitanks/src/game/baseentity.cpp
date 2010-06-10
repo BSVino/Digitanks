@@ -23,6 +23,7 @@ CBaseEntity::CBaseEntity()
 	m_bTakeDamage = false;
 	m_flTotalHealth = 1;
 	m_flHealth = 1;
+	m_flTimeKilled = 0;
 
 	m_bDeleted = false;
 
@@ -79,19 +80,22 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	if (!m_bTakeDamage)
 		return;
 
+	bool bWasAlive = IsAlive();
+
 	m_flHealth -= flDamage;
 
-	Game()->OnTakeDamage(this, pAttacker, pInflictor, flDamage, bDirectHit);
+	Game()->OnTakeDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, !IsAlive() && bWasAlive);
 
-	if (m_flHealth <= 0)
+	if (bWasAlive && m_flHealth <= 0)
 		Killed(pAttacker);
 }
 
 void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 {
+	m_flTimeKilled = Game()->GetGameTime();
+
 	OnKilled(pKilledBy);
 	Game()->OnKilled(this);
-	Game()->Delete(this);
 }
 
 void CBaseEntity::Render()

@@ -244,6 +244,13 @@ float CDigitank::GetPreviewBaseTurnPower() const
 	return fabs(AngleDifference(m_flPreviewTurn, GetAngles().y)/TurnPerPower());
 }
 
+bool CDigitank::IsPreviewMoveValid() const
+{
+	if (GetPreviewMovePower() > GetBasePower())
+		return false;
+	return true;
+}
+
 void CDigitank::CalculateAttackDefense()
 {
 	if (m_flAttackPower + m_flDefensePower == 0)
@@ -433,6 +440,9 @@ void CDigitank::SetDesiredTurn()
 {
 	float flMovePower = GetPreviewMoveTurnPower();
 
+	if (!IsPreviewMoveValid())
+		flMovePower = GetPreviewTurnPower();
+
 	if (flMovePower > m_flBasePower)
 		return;
 
@@ -561,6 +571,12 @@ void CDigitank::Think()
 			m_iHoverParticles = ~0;
 		}
 	}
+
+	if (!IsAlive() && Game()->GetGameTime() > m_flTimeKilled + 1.0f)
+	{
+		CModelDissolver::AddModel(this);
+		Game()->Delete(this);
+	}
 }
 
 void CDigitank::OnCurrentTank()
@@ -685,7 +701,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 		EmitSound("sound/shield-damage.wav");
 		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
 
-		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage, bDirectHit);
+		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, true);
 
 		return;
 	}
@@ -703,15 +719,13 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	*pflShield = 0;
 
-	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit);
+	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit, false);
 
 	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage, bDirectHit);
 }
 
 void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 {
-	CModelDissolver::AddModel(this);
-
 	if (dynamic_cast<CDigitank*>(pKilledBy))
 		dynamic_cast<CDigitank*>(pKilledBy)->GiveBonusPoints(1);
 }
@@ -856,7 +870,7 @@ void CDigitank::PostRender()
 
 	if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 	{
-		if (pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
+		if (pCurrentTank->IsPreviewMoveValid())
 		{
 			if (this == pCurrentTank)
 			{

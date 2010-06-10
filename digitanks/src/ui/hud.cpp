@@ -914,21 +914,24 @@ void CHUD::NewCurrentTank()
 	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
-void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 
-	if (bDirectHit)
+	if (!pVictim->IsAlive() && bDirectHit)
+		new CHitIndicator(pVictim, L"OVERKILL!");
+
+	else if (bShieldOnly && bDirectHit)
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
-void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);
 
-	if (bDirectHit)
+	if ((pVictim->IsAlive() || bKilled) && bDirectHit)
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 

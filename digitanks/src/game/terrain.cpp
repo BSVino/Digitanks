@@ -590,7 +590,10 @@ void CTerrain::OnRender()
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 			float flTankTurn = AngleDifference(flYaw, pCurrentTank->GetAngles().y);
-			if (pCurrentTank->GetPreviewMovePower() + fabs(flTankTurn)/pCurrentTank->TurnPerPower() > pCurrentTank->GetTotalMovementPower())
+
+			if (!pCurrentTank->IsPreviewMoveValid())
+				glUniform1i(bTurnValid, true);
+			else if (pCurrentTank->GetPreviewMovePower() + fabs(flTankTurn)/pCurrentTank->TurnPerPower() > pCurrentTank->GetTotalMovementPower())
 				glUniform1i(bTurnValid, false);
 			else
 				glUniform1i(bTurnValid, true);
