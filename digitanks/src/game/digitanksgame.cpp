@@ -289,7 +289,7 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 
 	if (bAllTanks)
 	{
-		bool bNoTurn = (vecLookAt - GetCurrentTank()->GetDesiredMove()).LengthSqr() < 3*3;
+		bool bNoTurn = (vecLookAt - GetCurrentTank()->GetDesiredMove()).LengthSqr() < 4*4;
 
 		CTeam* pTeam = GetCurrentTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -518,11 +518,15 @@ void CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		if (pEntity == pIgnore)
 			continue;
 
-		if (dynamic_cast<CDigitank*>(pEntity) && dynamic_cast<CDigitank*>(pEntity)->GetTeam() == pTeamIgnore)
-			continue;
+		// Fire too close to yourself and the explosion can rock you.
+		if (pEntity != pAttacker)
+		{
+			if (dynamic_cast<CDigitank*>(pEntity) && dynamic_cast<CDigitank*>(pEntity)->GetTeam() == pTeamIgnore)
+				continue;
 
-		if (!pInflictor->ShouldTouch(pEntity))
-			continue;
+			if (!pInflictor->ShouldTouch(pEntity))
+				continue;
+		}
 
 		float flDistanceSqr = (pInflictor->GetOrigin() - pEntity->GetOrigin()).LengthSqr();
 

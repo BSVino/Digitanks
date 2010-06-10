@@ -106,6 +106,10 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"		flColorStrength = 0.7;"
 
 		"	float flTargetColorStrength = RemapVal(flDistanceSqr, 0.0, flRadius*flRadius, 0.0, 1.0);"
+
+		"	if (flRadius > 2.0 && flRadius < 10.0)"
+		"		flColorStrength = RemapVal(flRadius, 2.0, 10.0, flColorStrength, flColorStrength/4.0);"
+
 		"	return Lerp(flTargetColorStrength, 0.8) * flColorStrength;"
 		"}"
 
@@ -146,7 +150,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"	if (bTurning)"
 		"	{"
-		"		float flInside = 3.0;"
+		"		float flInside = 4.0;"
 		"		float flOutside = 10.0;"
 
 				// Draw the turning indicator

@@ -289,7 +289,7 @@ void CHUD::Think()
 
 		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
 		{
-			if ((vecPoint - pCurrentTank->GetDesiredMove()).LengthSqr() > 3*3)
+			if ((vecPoint - pCurrentTank->GetDesiredMove()).LengthSqr() > 4*4)
 			{
 				Vector vecTurn = vecPoint - pCurrentTank->GetDesiredMove();
 				vecTurn.Normalize();
