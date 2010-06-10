@@ -918,12 +918,18 @@ void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseE
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
+
+	if (bDirectHit)
+		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
 void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);
+
+	if (bDirectHit)
+		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
 void CHUD::SetHUDActive(bool bActive)
@@ -1163,6 +1169,70 @@ void CDamageIndicator::Paint(int x, int y, int w, int h)
 		int iHeight = (int)GetTextHeight();
 		CRootPanel::PaintRect(x, y-iHeight/2, iWidth, iHeight, Color(0, 0, 0, GetAlpha()/2));
 	}
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+CHitIndicator::CHitIndicator(CBaseEntity* pVictim, std::wstring sMessage)
+	: CLabel(0, 0, 200, 100, "")
+{
+	m_hVictim = pVictim;
+	m_flTime = DigitanksGame()->GetGameTime();
+	m_vecLastOrigin = pVictim->GetOrigin();
+
+	glgui::CRootPanel::Get()->AddControl(this, true);
+
+	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
+	vecScreen.x -= 20;
+	vecScreen.y -= 20;
+	SetPos((int)vecScreen.x, (int)vecScreen.y);
+
+	SetFGColor(Color(255, 255, 255));
+
+	SetText(sMessage.c_str());
+	SetWrap(false);
+
+	SetFontFaceSize(20);
+	SetAlign(CLabel::TA_TOPLEFT);
+}
+
+void CHitIndicator::Destructor()
+{
+	glgui::CRootPanel::Get()->RemoveControl(this);
+}
+
+void CHitIndicator::Think()
+{
+	float flFadeTime = 1.0f;
+
+	if (DigitanksGame()->GetGameTime() - m_flTime > flFadeTime)
+	{
+		Destructor();
+		Delete();
+		return;
+	}
+
+	if (m_hVictim != NULL)
+		m_vecLastOrigin = m_hVictim->GetOrigin();
+
+	float flOffset = RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
+
+	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
+	vecScreen.x -= 20;
+	vecScreen.y -= 20;
+
+	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
+
+	SetAlpha((int)RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+
+	BaseClass::Think();
+}
+
+void CHitIndicator::Paint(int x, int y, int w, int h)
+{
+	int iWidth = GetTextWidth();
+	int iHeight = (int)GetTextHeight();
+	CRootPanel::PaintRect(x, y-iHeight/2, iWidth, iHeight, Color(0, 0, 0, GetAlpha()/2));
 
 	BaseClass::Paint(x, y, w, h);
 }

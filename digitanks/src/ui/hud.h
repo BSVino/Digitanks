@@ -51,6 +51,27 @@ protected:
 	Vector						m_vecLastOrigin;
 };
 
+class CHitIndicator : public glgui::CLabel
+{
+	DECLARE_CLASS(CHitIndicator, glgui::CLabel);
+
+public:
+								CHitIndicator(CBaseEntity* pVictim, std::wstring sMessage);
+
+public:
+	virtual void				Destructor();
+	virtual void				Delete() { delete this; };
+
+public:
+	void						Think();
+	void						Paint(int x, int y, int w, int h);
+
+protected:
+	CEntityHandle<CBaseEntity>	m_hVictim;
+	float						m_flTime;
+	Vector						m_vecLastOrigin;
+};
+
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
