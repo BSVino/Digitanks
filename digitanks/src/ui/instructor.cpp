@@ -94,7 +94,10 @@ void CInstructor::DisplayTutorial(size_t iTutorial)
 		return;
 
 	if (m_apTutorials.find(iTutorial) == m_apTutorials.end())
+	{
+		SetActive(false);
 		return;
+	}
 
 	// May not skip or go back tutorials!
 	if (iTutorial < m_iCurrentTutorial || iTutorial > m_iCurrentTutorial+1)
