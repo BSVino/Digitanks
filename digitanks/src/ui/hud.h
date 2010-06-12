@@ -178,6 +178,8 @@ protected:
 	size_t						m_iAimIcon;
 	size_t						m_iFireIcon;
 	size_t						m_iPromoteIcon;
+
+	size_t						m_iCompetitionWatermark;
 };
 
 #endif

@@ -177,6 +177,8 @@ CHUD::CHUD()
 	m_iAimIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-aim.png");
 	m_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
 	m_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
+
+	m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
 
 void CHUD::Layout()
@@ -669,6 +671,14 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect((int)vecMax.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
 		CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
 	}
+
+	while (true)
+	{
+		CRenderingContext c(Game()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintTexture(m_iCompetitionWatermark, 40, 40, 128, 128);
+		break;
+	}
 }
 
 void CHUD::UpdateAttackInfo()
@@ -865,11 +875,15 @@ void CHUD::GameStart()
 	CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	CDigitanksWindow::Get()->GetInstructor()->Initialize();
 	CDigitanksWindow::Get()->GetInstructor()->DisplayFirstTutorial();
+
+	m_pOpenTutorial->SetText(L"Press 't' to view the tutorial");
 }
 
 void CHUD::GameOver(bool bPlayerWon)
 {
 	CDigitanksWindow::Get()->GameOver(bPlayerWon);
+
+	m_pOpenTutorial->SetText(L"Press 'Esc' to restart the game");
 }
 
 void CHUD::NewCurrentTeam()
