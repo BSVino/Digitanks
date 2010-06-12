@@ -50,3 +50,8 @@ void SleepMS(size_t iMS)
 {
 	Sleep(1);
 }
+
+void OpenBrowser(const wchar_t* pszAddress)
+{
+	ShellExecute(NULL, L"open", pszAddress, NULL, NULL, SW_SHOWNORMAL);
+}

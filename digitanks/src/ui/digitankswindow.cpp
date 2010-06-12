@@ -92,12 +92,7 @@ CDigitanksWindow::~CDigitanksWindow()
 {
 	delete m_pMenu;
 
-	if (m_pDigitanksGame)
-		delete m_pDigitanksGame;
-	if (m_pHUD)
-		delete m_pHUD;
-	if (m_pInstructor)
-		delete m_pInstructor;
+	DestroyGame();
 }
 
 void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
@@ -121,12 +116,36 @@ void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
 	glgui::CRootPanel::Get()->Layout();
 }
 
+void CDigitanksWindow::DestroyGame()
+{
+	if (m_pDigitanksGame)
+		delete m_pDigitanksGame;
+
+	if (m_pHUD)
+	{
+		glgui::CRootPanel::Get()->RemoveControl(m_pHUD);
+		delete m_pHUD;
+	}
+
+	if (m_pInstructor)
+		delete m_pInstructor;
+
+	m_pDigitanksGame = NULL;
+	m_pHUD = NULL;
+	m_pInstructor = NULL;
+}
+
 void CDigitanksWindow::Run()
 {
 	while (true)
 	{
 		glutMainLoopEvent();
-		if (GetGame())
+		if (m_pDonate->IsVisible())
+		{
+			// Clear the buffer for the gui.
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+		}
+		else if (GetGame())
 		{
 			Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
 			Render();
@@ -190,6 +209,17 @@ void CDigitanksWindow::GameOver(bool bPlayerWon)
 	SetControlMode(MODE_NONE);
 	GetInstructor()->SetActive(false);
 	m_pVictory->GameOver(bPlayerWon);
+}
+
+void CDigitanksWindow::CloseApplication()
+{
+	if (m_pDonate->IsVisible())
+		exit(0);
+
+	DestroyGame();
+
+	m_pMenu->SetVisible(false);
+	m_pDonate->ClosingApplication();
 }
 
 controlmode_t CDigitanksWindow::GetControlMode()

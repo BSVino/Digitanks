@@ -2,6 +2,7 @@
 
 #include <glgui/glgui.h>
 #include <game/digitanksgame.h>
+#include <platform.h>
 
 #include "menu.h"
 #include "instructor.h"
@@ -12,9 +13,11 @@ void CDigitanksWindow::InitUI()
 {
 	m_pMenu = new CDigitanksMenu();
 	m_pVictory = new CVictoryPanel();
+	m_pDonate = new CDonatePanel();
 
 	CRootPanel::Get()->AddControl(m_pMenu);
 	CRootPanel::Get()->AddControl(m_pVictory);
+	CRootPanel::Get()->AddControl(m_pDonate);
 
 	CRootPanel::Get()->Layout();
 
@@ -180,7 +183,7 @@ void CDigitanksMenu::StartGameCallback()
 
 void CDigitanksMenu::ExitCallback()
 {
-	exit(0);
+	CDigitanksWindow::Get()->CloseApplication();
 }
 
 CVictoryPanel::CVictoryPanel()
@@ -196,7 +199,7 @@ CVictoryPanel::CVictoryPanel()
 
 void CVictoryPanel::Layout()
 {
-	SetSize(500, 400);
+	SetSize(250, 250);
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
 	m_pVictory->SetPos(10, 20);
@@ -232,19 +235,75 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 	Layout();
 
 	if (bPlayerWon)
-		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the digital universe!\n \n \n");
+		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the digital universe!\n \n");
 	else
-		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n \n");
+		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n");
 
-	m_pVictory->AppendText(L"Thanks for playing Digitanks. You can close this window to continue playing, or you can press escape to start a new game.\n \n"
-		L"This is just a demo of the full game, which will have many more features:\n"
-		L"* 4X-style gameplay - Explore, expand, exploit, exterminate\n"
-		L"* Fleet construction - Design and build a fleet of tanks\n"
-		L"* Base building - Find resources and expand your territory\n"
-		L"* More weapons - Big bombs, small bombs, short bombs, tall bombs\n"
-		L"* More tank classes - Artillery, light tanks, and more\n"
-
-		L" \nIf you would like to see this game completed and you want to help out, please visit our website. There you can read more about Digitanks development and donate to the cause.\n \nhttp://digitanks.com");
+	m_pVictory->AppendText(L"Thanks for playing Digitanks. You can close this window to continue playing, or you can press escape to start a new game.");
 
 	SetVisible(true);
+}
+
+CDonatePanel::CDonatePanel()
+	: CPanel(0, 0, 400, 300)
+{
+	m_pDonate = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pDonate);
+
+	m_pDonateButton = new CButton(0, 0, 100, 100, "Donate!");
+	m_pDonateButton->SetClickedListener(this, Donate);
+	AddControl(m_pDonateButton);
+
+	m_pExitButton = new CButton(0, 0, 100, 100, "Quit");
+	m_pExitButton->SetClickedListener(this, Exit);
+	AddControl(m_pExitButton);
+
+	SetVisible(false);
+
+	Layout();
+}
+
+void CDonatePanel::Layout()
+{
+	SetSize(500, 250);
+	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
+
+	m_pDonate->SetPos(10, 20);
+	m_pDonate->SetSize(GetWidth()-20, GetHeight());
+	m_pDonate->SetAlign(CLabel::TA_TOPCENTER);
+
+	m_pDonateButton->SetSize(100, 30);
+	m_pDonateButton->SetPos(GetWidth()/2-150, GetHeight() - 50);
+
+	m_pExitButton->SetSize(100, 30);
+	m_pExitButton->SetPos(GetWidth()/2+50, GetHeight() - 50);
+}
+
+void CDonatePanel::Paint(int x, int y, int w, int h)
+{
+	CRootPanel::PaintRect(x, y, w, h, Color(120, 130, 120, 255));
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+void CDonatePanel::ClosingApplication()
+{
+	Layout();
+
+	m_pDonate->SetText(L"HELP ME FINISH DIGITANKS!\n \n"
+		L"The full version of Digitanks will have more tanks, more weapons, and even bases to build and conquer! All that stuff is really expensive though, and I need your help to build it.\n \n"
+		L"Donating to the Digitanks development effort will earn you a FREE copy of the game when it's released, your name in the credits, and the satisfaction of having helped out for a good cause!");
+
+	SetVisible(true);
+}
+
+void CDonatePanel::DonateCallback()
+{
+	OpenBrowser(L"http://digitanks.com/gamelanding/");
+	exit(0);
+}
+
+void CDonatePanel::ExitCallback()
+{
+	exit(0);
 }

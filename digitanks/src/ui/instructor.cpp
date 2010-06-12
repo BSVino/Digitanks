@@ -18,6 +18,7 @@ CInstructor::CInstructor()
 
 CInstructor::~CInstructor()
 {
+	HideTutorial();
 	Clear();
 }
 

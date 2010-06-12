@@ -178,7 +178,7 @@ CHUD::CHUD()
 	m_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
 	m_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
 
-	m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
+	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
 
 void CHUD::Layout()
@@ -672,13 +672,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
 	}
 
-	while (true)
+/*	while (true)
 	{
 		CRenderingContext c(Game()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 		CRootPanel::PaintTexture(m_iCompetitionWatermark, 40, 40, 128, 128);
 		break;
-	}
+	}*/
 }
 
 void CHUD::UpdateAttackInfo()

@@ -61,4 +61,27 @@ protected:
 	glgui::CLabel*					m_pVictory;
 };
 
+class CDonatePanel : public glgui::CPanel, public glgui::IEventListener
+{
+	DECLARE_CLASS(CDonatePanel, glgui::CPanel);
+
+public:
+									CDonatePanel();
+
+public:
+	virtual void					Layout();
+	virtual void					Paint(int x, int y, int w, int h);
+
+	virtual void					ClosingApplication();
+
+	EVENT_CALLBACK(CDonatePanel, Donate);
+	EVENT_CALLBACK(CDonatePanel, Exit);
+
+protected:
+	glgui::CLabel*					m_pDonate;
+
+	glgui::CButton*					m_pDonateButton;
+	glgui::CButton*					m_pExitButton;
+};
+
 #endif

@@ -24,6 +24,7 @@ public:
 	void						InitUI();
 
 	void						CreateGame(int iPlayers, int iTanks);
+	void						DestroyGame();
 
 	void						Run();	// Doesn't return
 
@@ -71,6 +72,8 @@ public:
 
 	void						GameOver(bool bPlayerWon);
 
+	void						CloseApplication();
+
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
 	class CDigitanksGame*		GetGame() { return m_pDigitanksGame; };
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
@@ -89,6 +92,7 @@ protected:
 
 	class CDigitanksMenu*		m_pMenu;
 	class CVictoryPanel*		m_pVictory;
+	class CDonatePanel*			m_pDonate;
 
 	class CDigitanksGame*		m_pDigitanksGame;
 

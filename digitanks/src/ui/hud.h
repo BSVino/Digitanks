@@ -179,7 +179,7 @@ protected:
 	size_t						m_iFireIcon;
 	size_t						m_iPromoteIcon;
 
-	size_t						m_iCompetitionWatermark;
+//	size_t						m_iCompetitionWatermark;
 };
 
 #endif

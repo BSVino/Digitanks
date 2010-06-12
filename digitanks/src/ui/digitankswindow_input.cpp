@@ -204,7 +204,7 @@ void CDigitanksWindow::Special(int k, int x, int y)
 	FakeCtrlAltShift();
 
 	if (k == GLUT_KEY_F4 && (glutGetModifiers()&GLUT_ACTIVE_ALT))
-		exit(0);
+		CloseApplication();
 
 	glutPostRedisplay();
 }
