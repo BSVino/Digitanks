@@ -250,7 +250,7 @@ CDonatePanel::CDonatePanel()
 	m_pDonate = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pDonate);
 
-	m_pDonateButton = new CButton(0, 0, 100, 100, "Donate!");
+	m_pDonateButton = new CButton(0, 0, 100, 100, "Website!");
 	m_pDonateButton->SetClickedListener(this, Donate);
 	AddControl(m_pDonateButton);
 
@@ -291,8 +291,8 @@ void CDonatePanel::ClosingApplication()
 	Layout();
 
 	m_pDonate->SetText(L"HELP ME FINISH DIGITANKS!\n \n"
-		L"The full version of Digitanks will have more tanks, more weapons, and even bases to build and conquer! All that stuff is really expensive though, and I need your help to build it.\n \n"
-		L"Donating to the Digitanks development effort will earn you a FREE copy of the game when it's released, your name in the credits, and the satisfaction of having helped out for a good cause!");
+		L"The full version of Digitanks will have more tanks, more weapons, and even bases to build and conquer! All that stuff is really hard though, and I need your help to build it.\n \n"
+		L"Please visit the website to contribute feedback from your playing experience by filling out a short survey. You can also donate to the Digitanks development effort, which will earn you a FREE copy of the game when it's released, your name in the credits, and the satisfaction of having helped out for a good cause!");
 
 	SetVisible(true);
 }
