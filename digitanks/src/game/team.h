@@ -11,7 +11,10 @@ class CTeam : public CBaseEntity
 {
 	friend class CDigitanksGame;
 
+	REGISTER_ENTITY_CLASS(CTeam, CBaseEntity);
+
 public:
+								CTeam();
 								~CTeam();
 
 public:
@@ -22,11 +25,17 @@ public:
 	void						MoveTanks();
 	void						FireTanks();
 
+	virtual void				ClientUpdate(int iClient);
+
 	virtual void				OnKilled(class CBaseEntity* pEntity);
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	size_t						GetNumTanksAlive();
+
+	bool						IsPlayerControlled() { return m_bClientControlled; };
+	void						SetClient(int iClient);
+	void						SetLocalClient();
 
 	Color						GetColor() { return m_clrTeam; };
 
@@ -37,6 +46,9 @@ protected:
 	Color						m_clrTeam;
 
 	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
+
+	bool						m_bClientControlled;
+	int							m_iClient;
 };
 
 #endif

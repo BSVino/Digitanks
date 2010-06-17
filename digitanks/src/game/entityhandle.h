@@ -17,6 +17,11 @@ public:
 		m_iHandle = pEntity->GetHandle();
 	}
 
+	CEntityHandle(size_t iHandle)
+	{
+		m_iHandle = iHandle;
+	}
+
 public:
 	inline const CEntityHandle& operator=(const C* pEntity)
 	{

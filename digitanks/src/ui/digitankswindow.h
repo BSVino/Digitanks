@@ -2,6 +2,7 @@
 #define DT_DIGITANKSWINDOW_H
 
 #include <string>
+#include <vector>
 #include <vector.h>
 #include <color.h>
 
@@ -17,7 +18,7 @@ typedef enum
 class CDigitanksWindow
 {
 public:
-								CDigitanksWindow();
+								CDigitanksWindow(int argc, char** argv);
 								~CDigitanksWindow();
 
 public:
@@ -81,6 +82,9 @@ public:
 	controlmode_t				GetControlMode();
 	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
 
+	bool						HasCommandLineSwitch(const char* pszSwitch);
+	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
+
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 
 protected:
@@ -107,6 +111,8 @@ protected:
 	bool						m_bCtrl;
 	bool						m_bAlt;
 	bool						m_bShift;
+
+	std::vector<const char*>	m_apszCommandLine;
 };
 
 #endif

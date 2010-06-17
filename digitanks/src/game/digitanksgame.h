@@ -34,7 +34,14 @@ public:
 public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
 
+	virtual void			RegisterNetworkFunctions();
+
+	virtual void			OnClientConnect(CNetworkParameters* p);
+	virtual void			OnClientDisconnect(CNetworkParameters* p);
+
 	void					SetupGame(int iPlayers, int iTanks);
+	void					SetupEntities();
+	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
 	void					StartGame();
 
@@ -63,13 +70,18 @@ public:
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
 
 	size_t					GetNumTeams() { return m_ahTeams.size(); };
-	CTeam*					GetTeam(size_t i) { return m_ahTeams[i]; };
+	CTeam*					GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
 
 	CTeam*					GetCurrentTeam();
 	CDigitank*				GetCurrentTank();
 	size_t					GetCurrentTankId();
 
-	CTerrain*				GetTerrain() { return m_hTerrain; };
+	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
+	NET_CALLBACK(CDigitanksGame, SetTerrain);
+
+	NET_CALLBACK(CDigitanksGame, AddTeam);
+	NET_CALLBACK(CDigitanksGame, SetTeamColor);
+	NET_CALLBACK(CDigitanksGame, AddTankToTeam);
 
 	float					GetGravity();
 

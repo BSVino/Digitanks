@@ -1,6 +1,8 @@
 #ifndef _SIMPLEX_H
 #define _SIMPLEX_H
 
+#include <mtrand.h>
+
 class CSimplexNoise
 {
 public:
@@ -42,9 +44,9 @@ private:
 
 inline CSimplexNoise::CSimplexNoise(size_t iSeed)
 {
-	srand((unsigned int)iSeed);
+	mtsrand(iSeed);
 	for (size_t i = 0; i < 256; i++)
-		m_aiRand[i] = rand()%255;
+		m_aiRand[i] = (unsigned char)(mtrand()%255);
 	memcpy(&m_aiRand[256], &m_aiRand[0], 256);
 }
 

@@ -665,7 +665,10 @@ void CDigitank::FireProjectile()
 	Vector vecForce;
 	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime);
 
-	CProjectile* pProjectile = new CProjectile(this, GetAttackPower(), vecForce);
+	CProjectile* pProjectile = Game()->Create<CProjectile>("CProjectile");
+	pProjectile->SetOwner(this);
+	pProjectile->SetDamage(GetAttackPower());
+	pProjectile->SetForce(vecForce);
 	pProjectile->SetGravity(Vector(0, flGravity, 0));
 
 	EmitSound("sound/tank-fire.wav");
@@ -674,6 +677,11 @@ void CDigitank::FireProjectile()
 	size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
 	if (iFire != ~0)
 		CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
+}
+
+void CDigitank::ClientUpdate(int iClient)
+{
+	BaseClass::ClientUpdate(iClient);
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
@@ -770,6 +778,9 @@ EAngle CDigitank::GetRenderAngles() const
 
 void CDigitank::ModifyContext(CRenderingContext* pContext)
 {
+	if (!GetTeam())
+		return;
+
 	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
@@ -1011,23 +1022,12 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 
 REGISTER_ENTITY(CProjectile);
 
-CProjectile::CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce)
+CProjectile::CProjectile()
 {
-	m_flTimeCreated = DigitanksGame()->GetGameTime();
+	m_flTimeCreated = DigitanksGame()?DigitanksGame()->GetGameTime():0;
 	m_flTimeExploded = 0;
 
 	m_bFallSoundPlayed = false;
-
-	m_hOwner = pOwner;
-	m_flDamage = flDamage;
-	SetVelocity(vecForce);
-	SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
-	SetSimulated(true);
-	SetCollisionGroup(CG_POWERUP);
-
-	m_iParticleSystem = CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 }
 
 void CProjectile::Precache()
@@ -1145,4 +1145,16 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	Game()->GetCamera()->Shake(GetOrigin(), 3);
 	StopSound("sound/bomb-drop.wav");
 	EmitSound("sound/explosion.wav");
+}
+
+void CProjectile::SetOwner(CDigitank* pOwner)
+{
+	m_hOwner = pOwner;
+	SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
+	SetSimulated(true);
+	SetCollisionGroup(CG_POWERUP);
+
+	m_iParticleSystem = CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
+	if (m_iParticleSystem != ~0)
+		CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 }

@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	CDigitanksWindow oWindow;
+	CDigitanksWindow oWindow(argc, argv);
 
 	oWindow.Run();
 }

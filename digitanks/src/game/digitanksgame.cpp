@@ -6,6 +6,7 @@
 #include <sound/sound.h>
 #include <renderer/particles.h>
 
+#include <network/network.h>
 #include "powerup.h"
 #include "terrain.h"
 #include "camera.h"
@@ -33,20 +34,48 @@ CDigitanksGame::~CDigitanksGame()
 		m_ahTeams[i]->Delete();
 }
 
-void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
+void CDigitanksGame::RegisterNetworkFunctions()
 {
-	CSoundLibrary::StopSound();
-	CParticleSystemLibrary::ClearInstances();
+	BaseClass::RegisterNetworkFunctions();
+
+	CNetwork::RegisterFunction("SetupEntities", this, SetupEntitiesCallback, 0);
+	CNetwork::RegisterFunction("SetTerrain", this, SetTerrainCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
+	CNetwork::RegisterFunction("AddTankToTeam", this, AddTankToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
+}
+
+void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
+{
+	CNetwork::CallFunction(p->i2, "SetTerrain", GetTerrain()->GetHandle());
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
-		m_ahTeams[i]->Delete();
+	{
+		CNetwork::CallFunction(p->i2, "AddTeam", GetTeam(i)->GetHandle());
 
-	m_ahTeams.clear();
+		if (!m_ahTeams[i]->IsPlayerControlled())
+		{
+			p->p1 = (void*)i;
+			m_ahTeams[i]->SetClient(p->i2);
+		}
+	}
+}
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Delete();
+void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
+{
+	m_ahTeams[p->i1]->SetClient(-1);
+}
 
-	m_hTerrain = new CTerrain();
+void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
+{
+	m_bLoading = true;
+
+	SetupEntities();
+
+	if (!CNetwork::IsHost())
+		return;
+
+	m_hTerrain = Game()->Create<CTerrain>("CTerrain");
 
 	if (iPlayers > 8)
 		iPlayers = 8;
@@ -103,7 +132,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 
 	for (int i = 0; i < iPlayers; i++)
 	{
-		m_ahTeams.push_back(new CTeam());
+		m_ahTeams.push_back(Game()->Create<CTeam>("CTeam"));
 
 		m_ahTeams[i]->m_clrTeam = aclrTeamColors[i];
 
@@ -112,7 +141,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
 			EAngle angTank = VectorAngles(-vecTank.Normalized());
 
-			m_ahTeams[i]->AddTank(new CDigitank());
+			m_ahTeams[i]->AddTank(Game()->Create<CDigitank>("CDigitank"));
 			CDigitank* pTank = m_ahTeams[i]->m_ahTanks[j];
 
 			vecTank.y = pTank->FindHoverHeight(vecTank);
@@ -123,18 +152,45 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 		}
 	}
 
-	CPowerup* pPowerup = new CPowerup();
+	m_ahTeams[0]->SetLocalClient();
+
+	CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
-	pPowerup = new CPowerup();
+	pPowerup = Game()->Create<CPowerup>("CPowerup");
 	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, -70), -70));
-	pPowerup = new CPowerup();
+	pPowerup = Game()->Create<CPowerup>("CPowerup");
 	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, 70), 70));
-	pPowerup = new CPowerup();
+	pPowerup = Game()->Create<CPowerup>("CPowerup");
 	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
 
 	m_iPowerups = 4;
 
 	StartGame();
+}
+
+void CDigitanksGame::SetupEntities()
+{
+	if (!CNetwork::ShouldRunClientFunction())
+		return;
+
+	CNetwork::CallFunction(-1, "SetupEntities");
+
+	CNetworkParameters p;
+	SetupEntities(&p);
+}
+
+void CDigitanksGame::SetupEntities(CNetworkParameters* p)
+{
+	CSoundLibrary::StopSound();
+	CParticleSystemLibrary::ClearInstances();
+
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		m_ahTeams[i]->Delete();
+
+	m_ahTeams.clear();
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Delete();
 }
 
 void CDigitanksGame::StartGame()
@@ -162,6 +218,8 @@ void CDigitanksGame::StartGame()
 	EAngle angCamera = VectorAngles(GetCurrentTank()->GetOrigin().Normalized());
 	angCamera.p = 45;
 	GetCamera()->SnapAngle(angCamera);
+
+	m_bLoading = false;
 }
 
 void CDigitanksGame::Think()
@@ -395,7 +453,7 @@ void CDigitanksGame::StartTurn()
 		float flX = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 
-		CPowerup* pPowerup = new CPowerup();
+		CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 		pPowerup->SetOrigin(Vector(flX, m_hTerrain->GetHeight(flX, flZ), flZ));
 
 		m_iPowerups++;
@@ -414,7 +472,7 @@ void CDigitanksGame::StartTurn()
 
 	GetCurrentTeam()->StartTurn();
 
-	if (m_iCurrentTeam == 0)
+	if (GetCurrentTeam()->IsPlayerControlled())
 	{
 		if (m_pListener)
 			m_pListener->NewCurrentTank();
@@ -625,6 +683,32 @@ CDigitank* CDigitanksGame::GetCurrentTank()
 size_t CDigitanksGame::GetCurrentTankId()
 {
 	return m_iCurrentTank;
+}
+
+void CDigitanksGame::SetTerrain(CNetworkParameters* p)
+{
+	m_hTerrain = CEntityHandle<CTerrain>(p->ui1);
+}
+
+void CDigitanksGame::AddTeam(CNetworkParameters* p)
+{
+	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
+}
+
+void CDigitanksGame::SetTeamColor(CNetworkParameters* p)
+{
+	CEntityHandle<CTeam> hTeam(p->ui1);
+	
+	if (hTeam.GetPointer() != NULL)
+		hTeam->m_clrTeam = Color(p->i2, p->i3, p->i4);
+}
+
+void CDigitanksGame::AddTankToTeam(CNetworkParameters* p)
+{
+	CEntityHandle<CTeam> hTeam(p->ui1);
+
+	if (hTeam.GetPointer() != NULL)
+		hTeam->AddTank(CEntityHandle<CDigitank>(p->ui2));
 }
 
 float CDigitanksGame::GetGravity()

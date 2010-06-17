@@ -10,11 +10,15 @@
 
 class CTerrain : public CBaseEntity
 {
+	REGISTER_ENTITY_CLASS(CTerrain, CBaseEntity);
+
 public:
 							CTerrain();
 							~CTerrain();
 
 public:
+	virtual void			Spawn();
+
 	virtual float			GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
 
 	void					GenerateTerrainCallLists();

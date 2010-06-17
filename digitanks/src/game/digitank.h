@@ -9,7 +9,7 @@
 
 class CDigitank : public CBaseEntity
 {
-	DECLARE_CLASS(CDigitank, CBaseEntity);
+	REGISTER_ENTITY_CLASS(CDigitank, CBaseEntity);
 
 public:
 								CDigitank();
@@ -103,6 +103,8 @@ public:
 	void						Fire();
 	void						FireProjectile();
 
+	virtual void				ClientUpdate(int iClient);
+
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
 
@@ -193,9 +195,10 @@ protected:
 
 class CProjectile : public CBaseEntity
 {
+	REGISTER_ENTITY_CLASS(CProjectile, CBaseEntity);
+
 public:
-								CProjectile() {};
-								CProjectile(CDigitank* pOwner, float flDamage, Vector vecForce);
+								CProjectile();
 
 public:
 	virtual void				Precache();
@@ -212,6 +215,10 @@ public:
 	virtual void				Touching(CBaseEntity* pOther);
 
 	void						Explode();
+
+	virtual void				SetOwner(CDigitank* pOwner);
+	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; };
+	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
 
 protected:
 	float						m_flTimeCreated;

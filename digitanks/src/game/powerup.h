@@ -5,6 +5,8 @@
 
 class CPowerup : public CBaseEntity
 {
+	REGISTER_ENTITY_CLASS(CPowerup, CBaseEntity);
+
 public:
 					CPowerup();
 

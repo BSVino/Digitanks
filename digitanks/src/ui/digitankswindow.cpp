@@ -8,6 +8,7 @@
 #include <time.h>
 #include <vector.h>
 
+#include <network/network.h>
 #include "glgui/glgui.h"
 #include "game/digitanksgame.h"
 #include "debugdraw.h"
@@ -20,21 +21,21 @@
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
-CDigitanksWindow::CDigitanksWindow()
+CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 {
 	s_pDigitanksWindow = this;
 
 	srand((unsigned int)time(NULL));
 
-	int argc = 1;
-	char* argv = "digitanks";
+	for (int i = 0; i < argc; i++)
+		m_apszCommandLine.push_back(argv[i]);
 
 	m_iMouseStartX = 0;
 	m_iMouseStartY = 0;
 
 	m_bCtrl = m_bAlt = m_bShift = false;
 
-	glutInit(&argc, &argv);
+	glutInit(&argc, argv);
 
 	int iScreenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	int iScreenHeight = glutGet(GLUT_SCREEN_HEIGHT);
@@ -86,10 +87,14 @@ CDigitanksWindow::CDigitanksWindow()
 	glLineWidth(1.0);
 
 	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
+
+	CNetwork::Initialize();
 }
 
 CDigitanksWindow::~CDigitanksWindow()
 {
+	CNetwork::Deinitialize();
+
 	delete m_pMenu;
 
 	DestroyGame();
@@ -97,19 +102,27 @@ CDigitanksWindow::~CDigitanksWindow()
 
 void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
 {
-	if (m_pDigitanksGame)
+	if (!m_pDigitanksGame)
 	{
-		m_pDigitanksGame->SetupGame(iPlayers, iTanks);
-		return;
+		m_pDigitanksGame = new CDigitanksGame();
+
+		m_pHUD = new CHUD();
+		m_pHUD->SetGame(m_pDigitanksGame);
+		glgui::CRootPanel::Get()->AddControl(m_pHUD);
+
+		m_pInstructor = new CInstructor();
 	}
 
-	m_pDigitanksGame = new CDigitanksGame();
+	m_pDigitanksGame->RegisterNetworkFunctions();
 
-	m_pHUD = new CHUD();
-	m_pHUD->SetGame(m_pDigitanksGame);
-	glgui::CRootPanel::Get()->AddControl(m_pHUD);
+	const char* pszPort = GetCommandLineSwitchValue("-port");
+	int iPort = pszPort?atoi(pszPort):0;
 
-	m_pInstructor = new CInstructor();
+	if (HasCommandLineSwitch("-host"))
+		CNetwork::CreateHost(iPort, m_pDigitanksGame, CGame::ClientConnectCallback, CGame::ClientDisconnectCallback);
+
+	if (HasCommandLineSwitch("-connect"))
+		CNetwork::ConnectToHost(GetCommandLineSwitchValue("-connect"), iPort);
 
 	m_pDigitanksGame->SetupGame(iPlayers, iTanks);
 
@@ -118,6 +131,8 @@ void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
 
 void CDigitanksWindow::DestroyGame()
 {
+	CNetwork::Disconnect();
+
 	if (m_pDigitanksGame)
 		delete m_pDigitanksGame;
 
@@ -145,10 +160,15 @@ void CDigitanksWindow::Run()
 			// Clear the buffer for the gui.
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		}
-		else if (GetGame())
+		else if (Game())
 		{
-			Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
-			Render();
+			if (Game()->IsLoading())
+				CNetwork::Think();
+			else
+			{
+				Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
+				Render();
+			}
 		}
 		else
 			// Clear the buffer for the gui.
@@ -156,6 +176,7 @@ void CDigitanksWindow::Run()
 
 		glgui::CRootPanel::Get()->Think();
 		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+
 		glutSwapBuffers();
 	}
 }
@@ -192,6 +213,9 @@ void CDigitanksWindow::Visible(int vis)
 
 bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 {
+	if (!DigitanksGame()->GetTerrain())
+		return false;
+
 	int x, y;
 	glgui::CRootPanel::Get()->GetFullscreenMousePos(x, y);
 
@@ -224,6 +248,9 @@ void CDigitanksWindow::CloseApplication()
 
 controlmode_t CDigitanksWindow::GetControlMode()
 {
+	if (Game()->IsLoading())
+		return MODE_NONE;
+
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetTeam(0))
 		return m_eControlMode;
 
@@ -288,4 +315,27 @@ void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 		GetGame()->GetCamera()->SetDistance(100);
 
 	m_eControlMode = eMode;
+}
+
+bool CDigitanksWindow::HasCommandLineSwitch(const char* pszSwitch)
+{
+	for (size_t i = 0; i < m_apszCommandLine.size(); i++)
+	{
+		if (strcmp(m_apszCommandLine[i], pszSwitch) == 0)
+			return true;
+	}
+
+	return false;
+}
+
+const char* CDigitanksWindow::GetCommandLineSwitchValue(const char* pszSwitch)
+{
+	// -1 to prevent buffer overrun
+	for (size_t i = 0; i < m_apszCommandLine.size()-1; i++)
+	{
+		if (strcmp(m_apszCommandLine[i], pszSwitch) == 0)
+			return m_apszCommandLine[i+1];
+	}
+
+	return NULL;
 }

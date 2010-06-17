@@ -6,13 +6,45 @@
 #include <vector.h>
 #include <assert.h>
 
+#include <common.h>
+
 #include "entityhandle.h"
 
 typedef void (*EntityRegisterCallback)();
+typedef size_t (*EntityCreateCallback)();
+
+template<typename T>
+size_t CreateEntity()
+{
+	T* pT = new T();
+	return pT->GetHandle();
+}
+
+class CEntityRegistration
+{
+public:
+	const char*				m_pszEntityName;
+	EntityRegisterCallback	m_pfnRegisterCallback;
+	EntityCreateCallback	m_pfnCreateCallback;
+};
+
+#define REGISTER_ENTITY_CLASS(entity, base) \
+DECLARE_CLASS(entity, base); \
+public: \
+static void RegisterCallback##entity() \
+{ \
+	entity* pEntity = new entity(); \
+	CBaseEntity::Register(pEntity); \
+	delete pEntity; \
+} \
+ \
+virtual const char* GetClassName() { return #entity; } \
 
 class CBaseEntity
 {
 	friend class CGame;
+
+	REGISTER_ENTITY_CLASS(CBaseEntity, CBaseEntity);
 
 public:
 											CBaseEntity();
@@ -20,6 +52,7 @@ public:
 
 public:
 	virtual void							Precache() {};
+	virtual void							Spawn() {};
 
 	virtual float							GetBoundingRadius() const { return 0; };
 
@@ -29,19 +62,19 @@ public:
 	virtual Vector							GetRenderOrigin() const { return GetOrigin(); };
 	virtual EAngle							GetRenderAngles() const { return GetAngles(); };
 
-	Vector									GetOrigin() const { return m_vecOrigin; };
+	inline Vector							GetOrigin() const { return m_vecOrigin; };
 	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
 
-	Vector									GetLastOrigin() const { return m_vecLastOrigin; };
+	inline Vector							GetLastOrigin() const { return m_vecLastOrigin; };
 	void									SetLastOrigin(const Vector& vecOrigin) { m_vecLastOrigin = vecOrigin; };
 
-	Vector									GetVelocity() const { return m_vecVelocity; };
+	inline Vector							GetVelocity() const { return m_vecVelocity; };
 	void									SetVelocity(const Vector& vecVelocity) { m_vecVelocity = vecVelocity; };
 
-	EAngle									GetAngles() const { return m_angAngles; };
+	inline EAngle							GetAngles() const { return m_angAngles; };
 	void									SetAngles(const EAngle& angAngles) { m_angAngles = angAngles; };
 
-	Vector									GetGravity() const { return m_vecGravity; };
+	inline Vector							GetGravity() const { return m_vecGravity; };
 	void									SetGravity(Vector vecGravity) { m_vecGravity = vecGravity; };
 
 	bool									GetSimulated() { return m_bSimulated; };
@@ -52,6 +85,8 @@ public:
 	virtual float							GetTotalHealth() { return m_flTotalHealth; }
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
+
+	virtual void							ClientUpdate(int iClient);
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	void									Killed(CBaseEntity* pKilledBy);
@@ -82,6 +117,9 @@ public:
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
 	virtual void							SetCollisionGroup(int iCollisionGroup) { m_iCollisionGroup = iCollisionGroup; }
 
+	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
+	virtual void							SetSpawnSeed(size_t iSpawnSeed) { m_iSpawnSeed = iSpawnSeed; }
+
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
 	static CBaseEntity*						GetEntityNumber(size_t i);
@@ -91,8 +129,9 @@ public:
 	static void								PrecacheParticleSystem(const wchar_t* pszSystem);
 	static void								PrecacheSound(const char* pszSound);
 
-	static void								RegisterEntity(EntityRegisterCallback pfnCallback);
-	static void								RegisterEntity(CBaseEntity* pEntity);
+	static void								RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
+	static void								Register(CBaseEntity* pEntity);
+	static size_t							FindRegisteredEntity(const char* pszEntityName);
 
 protected:
 	Vector									m_vecOrigin;
@@ -118,28 +157,24 @@ protected:
 
 	size_t									m_iModel;
 
+	size_t									m_iSpawnSeed;
+
 private:
 	static std::map<size_t, CBaseEntity*>	s_apEntityList;
+	static size_t							s_iOverrideEntityListIndex;
 	static size_t							s_iNextEntityListIndex;
 
-	static std::vector<EntityRegisterCallback>	s_apfnEntityRegisterCallbacks;
+	static std::vector<CEntityRegistration>	s_aEntityRegistration;
 };
 
 #define REGISTER_ENTITY(entity) \
-void RegisterCallback##entity() \
-{ \
-	entity* pEntity = new entity(); \
-	CBaseEntity::RegisterEntity(pEntity); \
-	delete pEntity; \
-} \
- \
 class CRegister##entity \
 { \
 public: \
 	CRegister##entity() \
 	{ \
-		CBaseEntity::RegisterEntity(&RegisterCallback##entity); \
+		CBaseEntity::RegisterEntity(#entity, &CreateEntity<entity>, &entity::RegisterCallback##entity); \
 	} \
-} g_Register##entity = CRegister##entity(); \
+} s_Register##entity = CRegister##entity(); \
 
 #endif

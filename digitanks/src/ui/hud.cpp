@@ -270,6 +270,9 @@ void CHUD::Layout()
 
 void CHUD::Think()
 {
+	if (Game()->IsLoading())
+		return;
+
 	BaseClass::Think();
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
@@ -462,6 +465,9 @@ void CHUD::Think()
 void CHUD::Paint(int x, int y, int w, int h)
 {
 	if (!DigitanksGame())
+		return;
+
+	if (Game()->IsLoading())
 		return;
 
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();

@@ -3,15 +3,26 @@
 
 #include <vector>
 
+#include <network/network.h>
+
 #include "baseentity.h"
 
-class CGame
+class CGame : public INetworkListener
 {
 public:
 												CGame();
 												~CGame();
 
 public:
+	virtual void								RegisterNetworkFunctions();
+
+	NET_CALLBACK(CGame,							ClientConnect);
+	NET_CALLBACK(CGame,							LoadingDone);
+	NET_CALLBACK(CGame,							ClientDisconnect);
+
+	virtual void								OnClientConnect(CNetworkParameters* p) {};
+	virtual void								OnClientDisconnect(CNetworkParameters* p) {};
+
 	void										Think(float flRealTime);
 	void										Simulate();
 	void										Render();
@@ -22,13 +33,28 @@ public:
 	virtual void								OnKilled(class CBaseEntity* pEntity) {};
 	virtual void								OnDeleted(class CBaseEntity* pEntity) {};
 
+	CEntityHandle<CBaseEntity>					Create(const char* pszEntityName);
+	size_t										CreateEntity(size_t iRegisteredEntity, size_t iHandle = ~0, size_t iSpawnSeed = 0);
 	void										Delete(class CBaseEntity* pEntity);
+
+	NET_CALLBACK(CGame,							CreateEntity);
+	NET_CALLBACK(CGame,							DestroyEntity);
+
+	template<class T>
+	T*											Create(const char* pszEntityName)
+	{
+		return dynamic_cast<T*>(Create(pszEntityName).GetPointer());
+	}
+
+	NET_CALLBACK(CGame,							SetOrigin);
 
 	float										GetFrameTime() { return m_flFrameTime; };
 	float										GetGameTime() { return m_flGameTime; };
 
 	class CCamera*								GetCamera() { return m_pCamera; };
 	class CRenderer*							GetRenderer() { return m_pRenderer; };
+
+	bool										IsLoading() { return m_bLoading; };
 
 	static CGame*								GetGame() { return s_pGame; };
 
@@ -43,6 +69,8 @@ protected:
 
 	class CCamera*								m_pCamera;
 	class CRenderer*							m_pRenderer;
+
+	bool										m_bLoading;
 };
 
 inline class CGame* Game()

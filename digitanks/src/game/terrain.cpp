@@ -18,8 +18,22 @@ REGISTER_ENTITY(CTerrain);
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);
+	m_pTracer = NULL;
+	m_iCallList = 0;
+}
 
-	size_t iSeed = (size_t)time(NULL);
+CTerrain::~CTerrain()
+{
+	if (m_pTracer)
+		delete m_pTracer;
+
+	if (m_iCallList)
+		glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
+}
+
+void CTerrain::Spawn()
+{
+	size_t iSeed = GetSpawnSeed();
 
 	CSimplexNoise n1(iSeed);
 	CSimplexNoise n2(iSeed+1);
@@ -82,7 +96,7 @@ CTerrain::CTerrain()
 
 	m_pTracer->BuildTree();
 
-	switch (rand()%4)
+	switch (mtrand()%4)
 	{
 	case 0:
 		m_avecTerrainColors[0] = Vector(0.40f, 0.50f, 1.0f);
@@ -120,12 +134,6 @@ CTerrain::CTerrain()
 	}
 
 	GenerateCallLists();
-}
-
-CTerrain::~CTerrain()
-{
-	delete m_pTracer;
-	glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
 }
 
 void CTerrain::GenerateTerrainCallLists()

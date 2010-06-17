@@ -8,15 +8,20 @@
 #include "game.h"
 
 std::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
+size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
-std::vector<EntityRegisterCallback> CBaseEntity::s_apfnEntityRegisterCallbacks;
+std::vector<CEntityRegistration> CBaseEntity::s_aEntityRegistration;
 
 REGISTER_ENTITY(CBaseEntity);
 
 CBaseEntity::CBaseEntity()
 {
-	m_iHandle = s_iNextEntityListIndex;
-	s_apEntityList.insert(std::pair<size_t, CBaseEntity*>(s_iNextEntityListIndex++, this));
+	if (s_iOverrideEntityListIndex == ~0)
+		m_iHandle = s_iNextEntityListIndex++;
+	else
+		m_iHandle = s_iOverrideEntityListIndex;
+
+	s_apEntityList[m_iHandle] = this;
 
 	m_iCollisionGroup = 0;
 
@@ -30,6 +35,8 @@ CBaseEntity::CBaseEntity()
 	m_bSimulated = false;
 
 	m_iModel = ~0;
+
+	m_iSpawnSeed = 0;
 }
 
 CBaseEntity::~CBaseEntity()
@@ -73,6 +80,11 @@ CBaseEntity* CBaseEntity::GetEntityNumber(size_t i)
 size_t CBaseEntity::GetNumEntities()
 {
 	return s_apEntityList.size();
+}
+
+void CBaseEntity::ClientUpdate(int iClient)
+{
+	CNetwork::CallFunction(iClient, "SetOrigin", GetHandle(), GetOrigin().x, GetOrigin().y, GetOrigin().z);
 }
 
 void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
@@ -168,12 +180,28 @@ void CBaseEntity::PrecacheSound(const char* pszSound)
 	CSoundLibrary::Get()->AddSound(pszSound);
 }
 
-void CBaseEntity::RegisterEntity(EntityRegisterCallback pfnCallback)
+void CBaseEntity::RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)
 {
-	s_apfnEntityRegisterCallbacks.push_back(pfnCallback);
+	s_aEntityRegistration.push_back(CEntityRegistration());
+	CEntityRegistration* pEntity = &s_aEntityRegistration[s_aEntityRegistration.size()-1];
+	pEntity->m_pszEntityName = pszEntityName;
+	pEntity->m_pfnCreateCallback = pfnCreateCallback;
+	pEntity->m_pfnRegisterCallback = pfnRegisterCallback;
 }
 
-void CBaseEntity::RegisterEntity(CBaseEntity* pEntity)
+void CBaseEntity::Register(CBaseEntity* pEntity)
 {
 	pEntity->Precache();
+}
+
+size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
+{
+	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
+	{
+		if (strcmp(CBaseEntity::s_aEntityRegistration[i].m_pszEntityName, pszEntityName) == 0)
+		{
+			return i;
+		}
+	}
+	return ~0;
 }

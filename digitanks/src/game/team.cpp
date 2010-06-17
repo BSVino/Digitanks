@@ -1,6 +1,13 @@
 #include "team.h"
 
+#include <network/network.h>
+
 REGISTER_ENTITY(CTeam);
+
+CTeam::CTeam()
+{
+	m_bClientControlled = false;
+}
 
 CTeam::~CTeam()
 {
@@ -47,6 +54,16 @@ void CTeam::FireTanks()
 	}
 }
 
+void CTeam::ClientUpdate(int iClient)
+{
+	BaseClass::ClientUpdate(iClient);
+
+	CNetwork::CallFunction(iClient, "SetTeamColor", GetHandle(), GetColor().r(), GetColor().g(), GetColor().b());
+
+	for (size_t i = 0; i < GetNumTanks(); i++)
+		CNetwork::CallFunction(iClient, "AddTankToTeam", GetHandle(), GetTank(i)->GetHandle());
+}
+
 void CTeam::OnKilled(CBaseEntity* pEntity)
 {
 }
@@ -70,4 +87,22 @@ size_t CTeam::GetNumTanksAlive()
 	}
 
 	return iTanksAlive;
+}
+
+void CTeam::SetClient(int iClient)
+{
+	if (iClient < 0)
+	{
+		m_bClientControlled = false;
+		return;
+	}
+
+	m_bClientControlled = true;
+	m_iClient = iClient;
+}
+
+void CTeam::SetLocalClient()
+{
+	m_bClientControlled = true;
+	m_iClient = -1;
 }
