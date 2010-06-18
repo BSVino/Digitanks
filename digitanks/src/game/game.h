@@ -21,6 +21,7 @@ public:
 	NET_CALLBACK(CGame,							ClientDisconnect);
 
 	virtual void								OnClientConnect(CNetworkParameters* p) {};
+	virtual void								OnClientUpdate(CNetworkParameters* p) {};
 	virtual void								OnClientDisconnect(CNetworkParameters* p) {};
 
 	void										Think(float flRealTime);
@@ -46,6 +47,7 @@ public:
 		return dynamic_cast<T*>(Create(pszEntityName).GetPointer());
 	}
 
+	NET_CALLBACK(CGame,							ClientInfo);
 	NET_CALLBACK(CGame,							SetOrigin);
 
 	float										GetFrameTime() { return m_flFrameTime; };
@@ -71,6 +73,8 @@ protected:
 	class CRenderer*							m_pRenderer;
 
 	bool										m_bLoading;
+
+	int											m_iClient;
 };
 
 inline class CGame* Game()

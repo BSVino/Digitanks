@@ -688,11 +688,11 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 {
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
-	if (iDifficulty == 0)
+	if (!CNetwork::IsConnected() && iDifficulty == 0)
 	{
-		if (GetTeam() == DigitanksGame()->GetTeam(0))
+		if (DigitanksGame()->IsTeamControlledByMe(GetTeam()))
 			flDamage *= 0.5f;
-		else if (dynamic_cast<CDigitank*>(pAttacker) && dynamic_cast<CDigitank*>(pAttacker)->GetTeam() == DigitanksGame()->GetTeam(0))
+		else if (dynamic_cast<CDigitank*>(pAttacker) && DigitanksGame()->IsTeamControlledByMe(dynamic_cast<CDigitank*>(pAttacker)->GetTeam()))
 			flDamage *= 2.0f;
 	}
 

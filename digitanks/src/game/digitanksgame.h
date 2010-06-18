@@ -37,6 +37,7 @@ public:
 	virtual void			RegisterNetworkFunctions();
 
 	virtual void			OnClientConnect(CNetworkParameters* p);
+	virtual void			OnClientUpdate(CNetworkParameters* p);
 	virtual void			OnClientDisconnect(CNetworkParameters* p);
 
 	void					SetupGame(int iPlayers, int iTanks);
@@ -44,6 +45,7 @@ public:
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
 	void					StartGame();
+	NET_CALLBACK(CDigitanksGame, EnterGame);
 
 	virtual void			Think();
 
@@ -79,8 +81,10 @@ public:
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, SetTerrain);
 
+	NET_CALLBACK(CDigitanksGame, SetCurrentTeam);
 	NET_CALLBACK(CDigitanksGame, AddTeam);
 	NET_CALLBACK(CDigitanksGame, SetTeamColor);
+	NET_CALLBACK(CDigitanksGame, SetTeamClient);
 	NET_CALLBACK(CDigitanksGame, AddTankToTeam);
 
 	float					GetGravity();
@@ -90,6 +94,8 @@ public:
 	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
 	void					GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus);
 	void					ClearTankAims();
+
+	bool					IsTeamControlledByMe(CTeam* pTeam);
 
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };

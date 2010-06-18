@@ -896,12 +896,13 @@ void CHUD::NewCurrentTeam()
 {
 	m_bAutoProceed = true;
 
-	if (m_bHUDActive && DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetTeam(0))
+	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 		CDigitanksWindow::Get()->SetControlMode(MODE_MOVE);
 	else
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 
-	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTeam()->GetTank(0)->GetOrigin());
+	if (DigitanksGame()->GetCurrentTank())
+		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetOrigin());
 }
 
 void CHUD::NewCurrentTank()
@@ -931,7 +932,8 @@ void CHUD::NewCurrentTank()
 
 	UpdateAttackInfo();
 
-	Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
+	if (DigitanksGame()->GetCurrentTank())
+		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
 }
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)

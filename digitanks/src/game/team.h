@@ -35,7 +35,8 @@ public:
 
 	bool						IsPlayerControlled() { return m_bClientControlled; };
 	void						SetClient(int iClient);
-	void						SetLocalClient();
+	void						SetBot();
+	int							GetClient() { return m_iClient; };
 
 	Color						GetColor() { return m_clrTeam; };
 

@@ -59,6 +59,7 @@ void CTeam::ClientUpdate(int iClient)
 	BaseClass::ClientUpdate(iClient);
 
 	CNetwork::CallFunction(iClient, "SetTeamColor", GetHandle(), GetColor().r(), GetColor().g(), GetColor().b());
+	CNetwork::CallFunction(iClient, "SetTeamClient", GetHandle(), GetClient());
 
 	for (size_t i = 0; i < GetNumTanks(); i++)
 		CNetwork::CallFunction(iClient, "AddTankToTeam", GetHandle(), GetTank(i)->GetHandle());
@@ -91,18 +92,11 @@ size_t CTeam::GetNumTanksAlive()
 
 void CTeam::SetClient(int iClient)
 {
-	if (iClient < 0)
-	{
-		m_bClientControlled = false;
-		return;
-	}
-
 	m_bClientControlled = true;
 	m_iClient = iClient;
 }
 
-void CTeam::SetLocalClient()
+void CTeam::SetBot()
 {
-	m_bClientControlled = true;
-	m_iClient = -1;
+	m_bClientControlled = false;
 }

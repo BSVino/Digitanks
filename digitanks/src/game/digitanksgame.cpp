@@ -39,9 +39,12 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	BaseClass::RegisterNetworkFunctions();
 
 	CNetwork::RegisterFunction("SetupEntities", this, SetupEntitiesCallback, 0);
+	CNetwork::RegisterFunction("EnterGame", this, EnterGameCallback, 0);
+	CNetwork::RegisterFunction("SetCurrentTeam", this, SetCurrentTeamCallback, NET_INT);
 	CNetwork::RegisterFunction("SetTerrain", this, SetTerrainCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
+	CNetwork::RegisterFunction("SetTeamClient", this, SetTeamClientCallback, 2, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("AddTankToTeam", this, AddTankToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
 }
 
@@ -59,6 +62,11 @@ void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
 			m_ahTeams[i]->SetClient(p->i2);
 		}
 	}
+}
+
+void CDigitanksGame::OnClientUpdate(CNetworkParameters* p)
+{
+	CNetwork::CallFunction(p->i2, "EnterGame");
 }
 
 void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
@@ -152,7 +160,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 		}
 	}
 
-	m_ahTeams[0]->SetLocalClient();
+	m_ahTeams[0]->SetClient(-1);
 
 	CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
@@ -195,13 +203,29 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 
 void CDigitanksGame::StartGame()
 {
-	if (m_pListener)
-		m_pListener->GameStart();
-
 	m_iCurrentTeam = 0;
+
+	CNetwork::CallFunction(-1, "SetCurrentTeam", 0);
+
+	EnterGame(NULL);
+
+	m_bLoading = false;
+}
+
+void CDigitanksGame::EnterGame(CNetworkParameters* p)
+{
+	if (!CNetwork::ShouldRunClientFunction())
+		return;
+
+	if (CNetwork::IsHost())
+		CNetwork::CallFunction(-1, "EnterGame");
+
 	m_iCurrentTank = 0;
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;
+
+	if (m_pListener)
+		m_pListener->GameStart();
 
 	if (m_pListener)
 	{
@@ -218,8 +242,6 @@ void CDigitanksGame::StartGame()
 	EAngle angCamera = VectorAngles(GetCurrentTank()->GetOrigin().Normalized());
 	angCamera.p = 45;
 	GetCamera()->SnapAngle(angCamera);
-
-	m_bLoading = false;
 }
 
 void CDigitanksGame::Think()
@@ -690,6 +712,11 @@ void CDigitanksGame::SetTerrain(CNetworkParameters* p)
 	m_hTerrain = CEntityHandle<CTerrain>(p->ui1);
 }
 
+void CDigitanksGame::SetCurrentTeam(CNetworkParameters* p)
+{
+	m_iCurrentTeam = p->i1;
+}
+
 void CDigitanksGame::AddTeam(CNetworkParameters* p)
 {
 	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
@@ -701,6 +728,14 @@ void CDigitanksGame::SetTeamColor(CNetworkParameters* p)
 	
 	if (hTeam.GetPointer() != NULL)
 		hTeam->m_clrTeam = Color(p->i2, p->i3, p->i4);
+}
+
+void CDigitanksGame::SetTeamClient(CNetworkParameters* p)
+{
+	CEntityHandle<CTeam> hTeam(p->ui1);
+	
+	if (hTeam.GetPointer() != NULL)
+		hTeam->SetClient(p->i2);
 }
 
 void CDigitanksGame::AddTankToTeam(CNetworkParameters* p)
@@ -736,4 +771,12 @@ void CDigitanksGame::ClearTankAims()
 {
 	m_avecTankAims.clear();
 	m_aflTankAimRadius.clear();
+}
+
+bool CDigitanksGame::IsTeamControlledByMe(CTeam* pTeam)
+{
+	if (pTeam->IsPlayerControlled() && pTeam->GetClient() == m_iClient)
+		return true;
+
+	return false;
 }

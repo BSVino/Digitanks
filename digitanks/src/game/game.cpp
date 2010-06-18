@@ -29,6 +29,8 @@ CGame::CGame()
 	m_pCamera->SnapDistance(120);
 	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
 
+	m_iClient = -1;
+
 #ifdef _DEBUG
 	CParticleSystemLibrary::Get()->LoadParticleSystem(0);
 #endif
@@ -44,6 +46,7 @@ CGame::~CGame()
 
 void CGame::RegisterNetworkFunctions()
 {
+	CNetwork::RegisterFunction("ClientInfo", this, ClientInfoCallback, 1, NET_INT);
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
 	CNetwork::RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
@@ -52,6 +55,8 @@ void CGame::RegisterNetworkFunctions()
 
 void CGame::ClientConnect(CNetworkParameters* p)
 {
+	CNetwork::CallFunction(p->i2, "ClientInfo", p->i2);
+
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
@@ -66,6 +71,8 @@ void CGame::ClientConnect(CNetworkParameters* p)
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
 		pEntity->ClientUpdate(p->i2);
 	}
+
+	OnClientUpdate(p);
 
 	CNetwork::CallFunction(p->i2, "LoadingDone");
 }
@@ -242,6 +249,11 @@ void CGame::DestroyEntity(CNetworkParameters* p)
 	OnDeleted(pEntity);
 	pEntity->SetDeleted();
 	m_ahDeletedEntities.push_back(pEntity);
+}
+
+void CGame::ClientInfo(CNetworkParameters* p)
+{
+	m_iClient = p->i1;
 }
 
 void CGame::SetOrigin(CNetworkParameters* p)

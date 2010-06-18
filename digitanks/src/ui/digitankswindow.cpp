@@ -251,7 +251,7 @@ controlmode_t CDigitanksWindow::GetControlMode()
 	if (Game()->IsLoading())
 		return MODE_NONE;
 
-	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetTeam(0))
+	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 		return m_eControlMode;
 
 	return MODE_NONE;
