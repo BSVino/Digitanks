@@ -87,6 +87,14 @@ public:
 	NET_CALLBACK(CDigitanksGame, SetTeamClient);
 	NET_CALLBACK(CDigitanksGame, AddTankToTeam);
 
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredMove);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredMove);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredTurn);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredTurn);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredAim);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredAim);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetAttackPower);
+
 	float					GetGravity();
 
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };

@@ -42,6 +42,7 @@ public:
 	float						GetBonusMovementPower() { return m_flBonusMovementPower; };
 
 	void						SetAttackPower(float flAttackPower);
+	void						SetAttackPower(class CNetworkParameters* p);
 
 	float						GetPreviewMoveTurnPower();
 	float						GetPreviewMovePower() const;
@@ -77,19 +78,25 @@ public:
 	bool						IsPreviewAimValid();
 
 	void						SetDesiredMove();
+	void						SetDesiredMove(class CNetworkParameters* p);
 	void						CancelDesiredMove();
+	void						CancelDesiredMove(class CNetworkParameters* p);
 	bool						HasDesiredMove() const { return m_bDesiredMove; };
 	Vector						GetDesiredMove() const;
 	bool						HasSelectedMove() { return m_bSelectedMove; };
 	bool						IsMoving();
 
 	void						SetDesiredTurn();
+	void						SetDesiredTurn(class CNetworkParameters* p);
 	void						CancelDesiredTurn();
+	void						CancelDesiredTurn(class CNetworkParameters* p);
 	bool						HasDesiredTurn() const { return m_bDesiredTurn; };
 	float						GetDesiredTurn() const;
 
 	void						SetDesiredAim();
+	void						SetDesiredAim(class CNetworkParameters* p);
 	void						CancelDesiredAim();
+	void						CancelDesiredAim(class CNetworkParameters* p);
 	bool						HasDesiredAim() { return m_bDesiredAim; };
 	Vector						GetDesiredAim();
 

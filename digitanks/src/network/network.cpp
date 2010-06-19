@@ -122,6 +122,8 @@ bool CNetwork::IsRunningClientFunctions()
 
 void CNetwork::Disconnect()
 {
+	s_bConnected = false;
+
 	if (g_pClient)
 	{
 		enet_host_destroy(g_pClient);

@@ -14,6 +14,18 @@
 		((type*)obj)->pfn(p); \
 	}
 
+#define NET_CALLBACK_ENTITY(type, entity, pfn) \
+	virtual void pfn(CNetworkParameters* p) \
+	{ \
+	CEntityHandle<entity> hEntity(p->ui1); \
+	if (hEntity.GetPointer() != NULL && hEntity != NULL) \
+		hEntity->pfn(p); \
+	} \
+	static void pfn##Callback(INetworkListener* obj, CNetworkParameters* p) \
+	{ \
+		((type*)obj)->pfn(p); \
+	}
+
 class CNetworkParameters
 {
 public:
@@ -110,6 +122,7 @@ public:
 
 	static bool				IsRunningClientFunctions();
 	static bool				ShouldRunClientFunction() { return IsHost() || IsRunningClientFunctions(); };
+	static bool				ShouldReplicateClientFunction() { return !IsRunningClientFunctions(); };
 
 	static void				Disconnect();
 

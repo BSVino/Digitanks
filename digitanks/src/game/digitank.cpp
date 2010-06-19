@@ -198,7 +198,18 @@ void CDigitank::SetAttackPower(float flAttackPower)
 	if (flAttackPower > m_flBasePower - m_flMovementPower)
 		return;
 
-	m_flAttackPower = flAttackPower;
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "SetAttackPower", GetHandle(), flAttackPower);
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.fl2 = flAttackPower;
+	SetAttackPower(&p);
+}
+
+void CDigitank::SetAttackPower(CNetworkParameters* p)
+{
+	m_flAttackPower = p->fl2;
 	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
 
 	m_bChoseFirepower = true;
@@ -254,10 +265,9 @@ bool CDigitank::IsPreviewMoveValid() const
 void CDigitank::CalculateAttackDefense()
 {
 	if (m_flAttackPower + m_flDefensePower == 0)
-		m_flAttackPower = 0;
+		SetAttackPower(0.0f);
 	else
-		m_flAttackPower = RemapVal(m_flMovementPower, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
-	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
+		SetAttackPower(RemapVal(m_flMovementPower, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0));
 }
 
 float CDigitank::GetFrontShieldStrength()
@@ -359,9 +369,7 @@ void CDigitank::SetDesiredMove()
 {
 	m_bSelectedMove = true;
 
-	float flMovePower = GetPreviewMovePower();
-
-	if (flMovePower > m_flBasePower)
+	if (GetPreviewMovePower() > m_flBasePower)
 		return;
 
 	if (fabs(m_vecPreviewMove.x) > DigitanksGame()->GetTerrain()->GetMapSize())
@@ -370,10 +378,25 @@ void CDigitank::SetDesiredMove()
 	if (fabs(m_vecPreviewMove.z) > DigitanksGame()->GetTerrain()->GetMapSize())
 		return;
 
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "SetDesiredMove", GetHandle(), m_vecPreviewMove.x, m_vecPreviewMove.y, m_vecPreviewMove.z);
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.fl2 = m_vecPreviewMove.x;
+	p.fl3 = m_vecPreviewMove.y;
+	p.fl4 = m_vecPreviewMove.z;
+	SetDesiredMove(&p);
+}
+
+void CDigitank::SetDesiredMove(CNetworkParameters* p)
+{
+	m_vecPreviewMove = Vector(p->fl2, p->fl3, p->fl4);
+
 	m_vecPreviousOrigin = GetOrigin();
 	m_vecDesiredMove = m_vecPreviewMove;
 
-	m_flMovementPower = flMovePower;
+	m_flMovementPower = GetPreviewMovePower();
 	CalculateAttackDefense();
 
 	m_bDesiredMove = true;
@@ -392,6 +415,14 @@ void CDigitank::SetDesiredMove()
 }
 
 void CDigitank::CancelDesiredMove()
+{
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "CancelDesiredMove", GetHandle());
+
+	CancelDesiredMove(NULL);
+}
+
+void CDigitank::CancelDesiredMove(CNetworkParameters* p)
 {
 	m_bDesiredMove = false;
 	m_bSelectedMove = false;
@@ -446,7 +477,25 @@ void CDigitank::SetDesiredTurn()
 	if (flMovePower > m_flBasePower)
 		return;
 
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "SetDesiredTurn", GetHandle(), m_flPreviewTurn);
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.fl2 = m_flPreviewTurn;
+	SetDesiredTurn(&p);
+}
+
+void CDigitank::SetDesiredTurn(CNetworkParameters* p)
+{
+	m_flPreviewTurn = p->fl2;
+
 	m_flDesiredTurn = m_flPreviewTurn;
+
+	float flMovePower = GetPreviewMoveTurnPower();
+
+	if (!IsPreviewMoveValid())
+		flMovePower = GetPreviewTurnPower();
 
 	m_flMovementPower = flMovePower;
 	CalculateAttackDefense();
@@ -455,6 +504,14 @@ void CDigitank::SetDesiredTurn()
 }
 
 void CDigitank::CancelDesiredTurn()
+{
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "CancelDesiredTurn", GetHandle());
+
+	CancelDesiredTurn(NULL);
+}
+
+void CDigitank::CancelDesiredTurn(CNetworkParameters* p)
 {
 	m_bDesiredTurn = false;
 
@@ -483,6 +540,21 @@ void CDigitank::SetDesiredAim()
 	if ((GetPreviewAim() - GetDesiredMove()).Length() > GetMaxRange())
 		return;
 
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "SetDesiredAim", GetHandle(), m_vecPreviewAim.x, m_vecPreviewAim.y, m_vecPreviewAim.z);
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.fl2 = m_vecPreviewAim.x;
+	p.fl3 = m_vecPreviewAim.y;
+	p.fl4 = m_vecPreviewAim.z;
+	SetDesiredAim(&p);
+}
+
+void CDigitank::SetDesiredAim(CNetworkParameters* p)
+{
+	m_vecPreviewAim = Vector(p->fl2, p->fl3, p->fl4);
+
 	m_vecDesiredAim = m_vecPreviewAim;
 
 	m_bDesiredAim = true;
@@ -492,6 +564,14 @@ void CDigitank::SetDesiredAim()
 }
 
 void CDigitank::CancelDesiredAim()
+{
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "CancelDesiredAim", GetHandle());
+
+	CancelDesiredAim(NULL);
+}
+
+void CDigitank::CancelDesiredAim(CNetworkParameters* p)
 {
 	m_bDesiredAim = false;
 
@@ -602,10 +682,7 @@ void CDigitank::Move()
 	}
 
 	if (!m_bDesiredAim)
-	{
-		m_flAttackPower = 0;
-		CalculateAttackDefense();
-	}
+		SetAttackPower(0.0f);
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -682,6 +759,23 @@ void CDigitank::FireProjectile()
 void CDigitank::ClientUpdate(int iClient)
 {
 	BaseClass::ClientUpdate(iClient);
+
+	if (HasDesiredMove())
+	{
+		Vector vecDesiredMove = GetDesiredMove();
+		CNetwork::CallFunction(iClient, "SetDesiredMove", GetHandle(), vecDesiredMove.x, vecDesiredMove.y, vecDesiredMove.z);
+	}
+
+	if (HasDesiredTurn())
+		CNetwork::CallFunction(iClient, "SetDesiredTurn", GetHandle(), GetDesiredTurn());
+
+	if (HasDesiredAim())
+	{
+		Vector vecDesiredAim = GetDesiredAim();
+		CNetwork::CallFunction(iClient, "SetDesiredAim", GetHandle(), vecDesiredAim.x, vecDesiredAim.y, vecDesiredAim.z);
+	}
+
+	CNetwork::CallFunction(iClient, "SetAttackPower", GetHandle(), m_flAttackPower);
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)

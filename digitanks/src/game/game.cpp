@@ -46,7 +46,7 @@ CGame::~CGame()
 
 void CGame::RegisterNetworkFunctions()
 {
-	CNetwork::RegisterFunction("ClientInfo", this, ClientInfoCallback, 1, NET_INT);
+	CNetwork::RegisterFunction("ClientInfo", this, ClientInfoCallback, 2, NET_INT, NET_FLOAT);
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
 	CNetwork::RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
@@ -55,7 +55,7 @@ void CGame::RegisterNetworkFunctions()
 
 void CGame::ClientConnect(CNetworkParameters* p)
 {
-	CNetwork::CallFunction(p->i2, "ClientInfo", p->i2);
+	CNetwork::CallFunction(p->i2, "ClientInfo", p->i2, GetGameTime());
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -254,6 +254,7 @@ void CGame::DestroyEntity(CNetworkParameters* p)
 void CGame::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
+	m_flGameTime = p->fl2;
 }
 
 void CGame::SetOrigin(CNetworkParameters* p)

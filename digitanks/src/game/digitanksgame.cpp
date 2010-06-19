@@ -46,6 +46,13 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
 	CNetwork::RegisterFunction("SetTeamClient", this, SetTeamClientCallback, 2, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("AddTankToTeam", this, AddTankToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
+	CNetwork::RegisterFunction("SetDesiredMove", this, SetDesiredMoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("CancelDesiredMove", this, CancelDesiredMoveCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetDesiredTurn", this, SetDesiredTurnCallback, 2, NET_HANDLE, NET_FLOAT);
+	CNetwork::RegisterFunction("CancelDesiredTurn", this, CancelDesiredTurnCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetDesiredAim", this, SetDesiredAimCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("CancelDesiredAim", this, CancelDesiredAimCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetAttackPower", this, SetAttackPowerCallback, 2, NET_HANDLE, NET_FLOAT);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
@@ -205,6 +212,8 @@ void CDigitanksGame::StartGame()
 {
 	m_iCurrentTeam = 0;
 
+	GetCurrentTeam()->StartTurn();
+
 	CNetwork::CallFunction(-1, "SetCurrentTeam", 0);
 
 	EnterGame(NULL);
@@ -225,18 +234,14 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	m_bWaitingForProjectiles = false;
 
 	if (m_pListener)
+	{
 		m_pListener->GameStart();
 
-	if (m_pListener)
-	{
 		m_pListener->SetHUDActive(true);
 		m_pListener->NewCurrentTeam();
-	}
 
-	GetCurrentTeam()->StartTurn();
-
-	if (m_pListener)
 		m_pListener->NewCurrentTank();
+	}
 
 	// Point the camera in to the center
 	EAngle angCamera = VectorAngles(GetCurrentTank()->GetOrigin().Normalized());
