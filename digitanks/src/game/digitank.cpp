@@ -714,7 +714,9 @@ void CDigitank::Fire()
 		return;
 
 	DigitanksGame()->AddProjectileToWaitFor();
-	m_flFireProjectileTime = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 0, 1);
+
+	if (CNetwork::IsHost())
+		m_flFireProjectileTime = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 0, 1);
 }
 
 void CDigitank::FireProjectile()
@@ -726,7 +728,7 @@ void CDigitank::FireProjectile()
 	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
 
-	float flDistance = sqrt(flDistanceSqr);
+	float flDistance = (GetDesiredAim() - GetOrigin()).Length();
 	Vector vecLandingSpot = GetDesiredAim();
 
 	if (flDistance > GetMinRange())
@@ -737,16 +739,35 @@ void CDigitank::FireProjectile()
 		vecLandingSpot += Vector(x, 0, z);
 	}
 
+	m_hProjectile = Game()->Create<CProjectile>("CProjectile");
+
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "FireProjectile", GetHandle(), m_hProjectile->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = m_hProjectile->GetHandle();
+	p.fl3 = vecLandingSpot.x;
+	p.fl4 = vecLandingSpot.y;
+	p.fl5 = vecLandingSpot.z;
+	FireProjectile(&p);
+}
+
+void CDigitank::FireProjectile(CNetworkParameters* p)
+{
+	m_hProjectile = CEntityHandle<CProjectile>(p->ui2);
+
+	Vector vecLandingSpot = Vector(p->fl3, p->fl4, p->fl5);
+
 	float flGravity = DigitanksGame()->GetGravity();
 	float flTime;
 	Vector vecForce;
 	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime);
 
-	CProjectile* pProjectile = Game()->Create<CProjectile>("CProjectile");
-	pProjectile->SetOwner(this);
-	pProjectile->SetDamage(GetAttackPower());
-	pProjectile->SetForce(vecForce);
-	pProjectile->SetGravity(Vector(0, flGravity, 0));
+	m_hProjectile->SetOwner(this);
+	m_hProjectile->SetDamage(GetAttackPower());
+	m_hProjectile->SetForce(vecForce);
+	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
 
 	EmitSound("sound/tank-fire.wav");
 

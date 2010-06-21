@@ -40,6 +40,8 @@ void CDigitanksGame::RegisterNetworkFunctions()
 
 	CNetwork::RegisterFunction("SetupEntities", this, SetupEntitiesCallback, 0);
 	CNetwork::RegisterFunction("EnterGame", this, EnterGameCallback, 0);
+	CNetwork::RegisterFunction("EndTurn", this, EndTurnCallback, 0);
+	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
 	CNetwork::RegisterFunction("SetCurrentTeam", this, SetCurrentTeamCallback, NET_INT);
 	CNetwork::RegisterFunction("SetTerrain", this, SetTerrainCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
@@ -53,6 +55,7 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("SetDesiredAim", this, SetDesiredAimCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("CancelDesiredAim", this, CancelDesiredAimCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetAttackPower", this, SetAttackPowerCallback, 2, NET_HANDLE, NET_FLOAT);
+	CNetwork::RegisterFunction("FireProjectile", this, FireProjectileCallback, 5, NET_HANDLE, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
@@ -62,11 +65,15 @@ void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		CNetwork::CallFunction(p->i2, "AddTeam", GetTeam(i)->GetHandle());
+	}
 
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
 		if (!m_ahTeams[i]->IsPlayerControlled())
 		{
 			p->p1 = (void*)i;
 			m_ahTeams[i]->SetClient(p->i2);
+			break;
 		}
 	}
 }
@@ -450,6 +457,16 @@ void CDigitanksGame::EndTurn()
 	if (m_bWaitingForProjectiles || m_bWaitingForMoving)
 		return;
 
+	CNetwork::CallFunction(-1, "EndTurn");
+
+	EndTurn(NULL);
+}
+
+void CDigitanksGame::EndTurn(CNetworkParameters* p)
+{
+	if (!CNetwork::ShouldRunClientFunction())
+		return;
+
 	if (m_pListener)
 		m_pListener->SetHUDActive(false);
 
@@ -475,6 +492,9 @@ void CDigitanksGame::EndTurn()
 
 void CDigitanksGame::StartTurn()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	if (m_iPowerups < 10 && rand()%6 == 0)
 	{
 		float flX = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
@@ -485,6 +505,16 @@ void CDigitanksGame::StartTurn()
 
 		m_iPowerups++;
 	}
+
+	CNetwork::CallFunction(-1, "StartTurn");
+
+	StartTurn(NULL);
+}
+
+void CDigitanksGame::StartTurn(CNetworkParameters* p)
+{
+	if (!CNetwork::ShouldRunClientFunction())
+		return;
 
 	m_iCurrentTank = 0;
 
@@ -504,7 +534,7 @@ void CDigitanksGame::StartTurn()
 		if (m_pListener)
 			m_pListener->NewCurrentTank();
 	}
-	else
+	else if (CNetwork::IsHost())
 		Bot_ExecuteTurn();
 }
 

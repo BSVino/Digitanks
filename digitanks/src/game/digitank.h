@@ -109,6 +109,7 @@ public:
 	void						Move();
 	void						Fire();
 	void						FireProjectile();
+	void						FireProjectile(class CNetworkParameters* p);
 
 	virtual void				ClientUpdate(int iClient);
 
@@ -189,6 +190,7 @@ protected:
 	bool						m_bChoseFirepower;
 
 	float						m_flFireProjectileTime;
+	CEntityHandle<class CProjectile>	m_hProjectile;
 
 	class CTeam*				m_pTeam;
 

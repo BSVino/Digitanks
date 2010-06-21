@@ -57,7 +57,9 @@ public:
 
 	void					NextTank();
 	void					EndTurn();
+	NET_CALLBACK(CDigitanksGame, EndTurn);
 	void					StartTurn();
+	NET_CALLBACK(CDigitanksGame, StartTurn);
 
 	void					Bot_ExecuteTurn();
 
@@ -94,6 +96,7 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredAim);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredAim);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetAttackPower);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, FireProjectile);
 
 	float					GetGravity();
 

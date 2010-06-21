@@ -51,6 +51,7 @@ void CGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
 	CNetwork::RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
 	CNetwork::RegisterFunction("SetOrigin", this, SetOriginCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 }
 
 void CGame::ClientConnect(CNetworkParameters* p)
@@ -260,7 +261,15 @@ void CGame::ClientInfo(CNetworkParameters* p)
 void CGame::SetOrigin(CNetworkParameters* p)
 {
 	CEntityHandle<CBaseEntity> hEntity(p->ui1);
-	
+
 	if (hEntity != NULL)
 		hEntity->SetOrigin(Vector(p->fl2, p->fl3, p->fl4));
+}
+
+void CGame::SetAngles(CNetworkParameters* p)
+{
+	CEntityHandle<CBaseEntity> hEntity(p->ui1);
+
+	if (hEntity != NULL)
+		hEntity->SetAngles(EAngle(p->fl2, p->fl3, p->fl4));
 }

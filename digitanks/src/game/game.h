@@ -49,6 +49,7 @@ public:
 
 	NET_CALLBACK(CGame,							ClientInfo);
 	NET_CALLBACK(CGame,							SetOrigin);
+	NET_CALLBACK(CGame,							SetAngles);
 
 	float										GetFrameTime() { return m_flFrameTime; };
 	float										GetGameTime() { return m_flGameTime; };

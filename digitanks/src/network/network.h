@@ -69,6 +69,14 @@ public:
 				size_t ui4;
 				void* p4;
 			};
+
+			union
+			{
+				float fl5;
+				int i5;
+				size_t ui5;
+				void* p5;
+			};
 		};
 
 		struct
@@ -80,7 +88,7 @@ public:
 				size_t ui;
 				void* p;
 			};
-		} p[4];
+		} p[5];
 	};
 };
 
