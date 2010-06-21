@@ -797,6 +797,7 @@ void CDigitank::ClientUpdate(int iClient)
 	}
 
 	CNetwork::CallFunction(iClient, "SetAttackPower", GetHandle(), m_flAttackPower);
+	CNetwork::CallFunction(iClient, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 }
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
@@ -1072,40 +1073,107 @@ void CDigitank::PostRender()
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iBonusPoints += i;
 
 	if (bPlayEffects)
 	{
-		EmitSound("sound/tank-promoted.wav");
-		CParticleSystemLibrary::AddInstance(L"promotion", GetOrigin());
+		TankPromoted(NULL);
+		CNetwork::CallFunction(-1, "TankPromoted", GetHandle());
 	}
+
+	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 }
 
 void CDigitank::PromoteAttack()
 {
+	if (!CNetwork::IsHost())
+	{
+		CNetwork::CallFunction(-1, "PromoteAttack", GetHandle());
+		return;
+	}
+
 	if (m_iBonusPoints <= 0)
 		return;
 
 	m_iBonusPoints--;
 	m_flBonusAttackPower++;
+
+	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 }
 
 void CDigitank::PromoteDefense()
 {
+	if (!CNetwork::IsHost())
+	{
+		CNetwork::CallFunction(-1, "PromoteDefense", GetHandle());
+		return;
+	}
+
 	if (m_iBonusPoints <= 0)
 		return;
 
 	m_iBonusPoints--;
 	m_flBonusDefensePower++;
+
+	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 }
 
 void CDigitank::PromoteMovement()
 {
+	if (!CNetwork::IsHost())
+	{
+		CNetwork::CallFunction(-1, "PromoteMovement", GetHandle());
+		return;
+	}
+
 	if (m_iBonusPoints <= 0)
 		return;
 
 	m_iBonusPoints--;
 	m_flBonusMovementPower++;
+
+	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
+}
+
+void CDigitank::SetBonusPoints(class CNetworkParameters* p)
+{
+	m_iBonusPoints = p->i2;
+	m_flBonusAttackPower = p->fl3;
+	m_flBonusDefensePower = p->fl4;
+	m_flBonusMovementPower = p->fl5;
+}
+
+void CDigitank::TankPromoted(class CNetworkParameters* p)
+{
+	EmitSound("sound/tank-promoted.wav");
+	CParticleSystemLibrary::AddInstance(L"promotion", GetOrigin());
+}
+
+void CDigitank::PromoteAttack(class CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
+	PromoteAttack();
+}
+
+void CDigitank::PromoteDefense(class CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
+	PromoteDefense();
+}
+
+void CDigitank::PromoteMovement(class CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
+	PromoteMovement();
 }
 
 float CDigitank::FindHoverHeight(Vector vecPosition) const

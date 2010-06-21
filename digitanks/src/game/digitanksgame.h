@@ -97,6 +97,11 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredAim);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetAttackPower);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, FireProjectile);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetBonusPoints);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, TankPromoted);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteAttack);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteDefense);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteMovement);
 
 	float					GetGravity();
 

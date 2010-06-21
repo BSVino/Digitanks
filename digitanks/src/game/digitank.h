@@ -130,6 +130,11 @@ public:
 	void						PromoteAttack();
 	void						PromoteDefense();
 	void						PromoteMovement();
+	void						SetBonusPoints(class CNetworkParameters* p);
+	void						TankPromoted(class CNetworkParameters* p);
+	void						PromoteAttack(class CNetworkParameters* p);
+	void						PromoteDefense(class CNetworkParameters* p);
+	void						PromoteMovement(class CNetworkParameters* p);
 
 	float						FindHoverHeight(Vector vecPosition) const;
 
