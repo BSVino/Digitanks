@@ -3,7 +3,7 @@
 #include <maths.h>
 #include <renderer/renderer.h>
 
-#include "digitanksgame.h"
+#include "digitanks/digitanksgame.h"
 
 CCamera::CCamera()
 {

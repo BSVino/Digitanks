@@ -1,7 +1,7 @@
 #ifndef DT_DIGITANK_H
 #define DT_DIGITANK_H
 
-#include "baseentity.h"
+#include <baseentity.h>
 #include <common.h>
 
 #define TANK_SHIELDS 4
