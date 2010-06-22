@@ -10,7 +10,7 @@
 
 #include <network/network.h>
 #include "glgui/glgui.h"
-#include "game/digitanksgame.h"
+#include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
 #include "hud.h"
 #include "instructor.h"

@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..;../..;&quot;../../freeglut-2.4.0\include&quot;;../../glew/include;..\..\common\math;../../DevIL/include;&quot;../..\ftgl-2.1.3~rc5\src&quot;;&quot;../..\freetype-2.3.11\include&quot;;../..\common;&quot;..\..\SDL_mixer-1.2.11\include&quot;;&quot;..\..\SDL-1.2.14\include&quot;;&quot;..\..\enet-1.3.0\include&quot;"
+				AdditionalIncludeDirectories=".;..;../..;game;&quot;../../freeglut-2.4.0\include&quot;;../../glew/include;..\..\common\math;../../DevIL/include;&quot;../..\ftgl-2.1.3~rc5\src&quot;;&quot;../..\freetype-2.3.11\include&quot;;../..\common;&quot;..\..\SDL_mixer-1.2.11\include&quot;;&quot;..\..\SDL-1.2.14\include&quot;;&quot;..\..\enet-1.3.0\include&quot;"
 				PreprocessorDefinitions="_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;FREEGLUT_STATIC;FTGL_LIBRARY_STATIC;WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".;..;../..;&quot;../../freeglut-2.4.0\include&quot;;../../glew/include;../..\common\math;../../DevIL/include;&quot;../..\ftgl-2.1.3~rc5\src&quot;;&quot;../..\freetype-2.3.11\include&quot;;../..\common;&quot;..\..\SDL_mixer-1.2.11\include&quot;;&quot;..\..\SDL-1.2.14\include&quot;;&quot;..\..\enet-1.3.0\include&quot;"
+				AdditionalIncludeDirectories=".;..;../..;game;&quot;../../freeglut-2.4.0\include&quot;;../../glew/include;../..\common\math;../../DevIL/include;&quot;../..\ftgl-2.1.3~rc5\src&quot;;&quot;../..\freetype-2.3.11\include&quot;;../..\common;&quot;..\..\SDL_mixer-1.2.11\include&quot;;&quot;..\..\SDL-1.2.14\include&quot;;&quot;..\..\enet-1.3.0\include&quot;"
 				PreprocessorDefinitions="_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;FREEGLUT_STATIC;FTGL_LIBRARY_STATIC;WIN32"
 				RuntimeLibrary="0"
 				WarningLevel="3"
@@ -272,22 +272,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\game\digitank.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\game\digitank.h"
-					>
-				</File>
-				<File
-					RelativePath=".\game\digitanksgame.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\game\digitanksgame.h"
-					>
-				</File>
-				<File
 					RelativePath=".\game\game.cpp"
 					>
 				</File>
@@ -295,30 +279,50 @@
 					RelativePath=".\game\game.h"
 					>
 				</File>
-				<File
-					RelativePath=".\game\powerup.cpp"
+				<Filter
+					Name="digitanks"
 					>
-				</File>
-				<File
-					RelativePath=".\game\powerup.h"
-					>
-				</File>
-				<File
-					RelativePath=".\game\team.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\game\team.h"
-					>
-				</File>
-				<File
-					RelativePath=".\game\terrain.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\game\terrain.h"
-					>
-				</File>
+					<File
+						RelativePath=".\game\digitanks\digitank.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\digitank.h"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\digitanksgame.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\digitanksgame.h"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\powerup.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\powerup.h"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\team.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\team.h"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\terrain.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\terrain.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="glgui"

@@ -3,7 +3,7 @@
 #include <GL/glut.h>
 
 #include "glgui/glgui.h"
-#include "game/digitanksgame.h"
+#include "digitanks/digitanksgame.h"
 #include "instructor.h"
 #include "game/camera.h"
 #include "hud.h"

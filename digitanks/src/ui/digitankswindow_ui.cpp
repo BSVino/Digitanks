@@ -1,7 +1,7 @@
 #include "digitankswindow.h"
 
 #include <glgui/glgui.h>
-#include <game/digitanksgame.h>
+#include <digitanks/digitanksgame.h>
 #include <platform.h>
 
 #include "menu.h"

@@ -3,7 +3,7 @@
 
 #include "glgui/glgui.h"
 #include <common.h>
-#include "game/digitanksgame.h"
+#include "digitanks/digitanksgame.h"
 
 typedef enum
 {

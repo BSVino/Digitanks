@@ -2,8 +2,8 @@
 
 #include <glgui/glgui.h>
 
-#include "game/digitank.h"
-#include "game/digitanksgame.h"
+#include "digitanks/digitank.h"
+#include "digitanks/digitanksgame.h"
 #include "digitankswindow.h"
 #include "renderer/renderer.h"
 

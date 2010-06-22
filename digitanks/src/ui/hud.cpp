@@ -4,7 +4,7 @@
 #include <GL/freeglut.h>
 
 #include "digitankswindow.h"
-#include "game/digitanksgame.h"
+#include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
 #include "instructor.h"
 #include "game/camera.h"
