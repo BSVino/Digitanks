@@ -178,6 +178,8 @@ CHUD::CHUD()
 	m_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
 	m_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
 
+	m_iSpeechBubble = CRenderer::LoadTextureIntoGL(L"textures/hud/bubble.png");
+
 	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
 
@@ -957,6 +959,12 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
+void CHUD::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
+{
+	// Cleans itself up.
+	new CSpeechBubble(pTank, sSpeech, m_iSpeechBubble);
+}
+
 void CHUD::SetHUDActive(bool bActive)
 {
 	m_bHUDActive = bActive;
@@ -1258,6 +1266,66 @@ void CHitIndicator::Paint(int x, int y, int w, int h)
 	int iWidth = GetTextWidth();
 	int iHeight = (int)GetTextHeight();
 	CRootPanel::PaintRect(x, y-iHeight/2, iWidth, iHeight, Color(0, 0, 0, GetAlpha()/2));
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+CSpeechBubble::CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iBubble)
+	: CLabel(0, 0, 83*2/3, 47*2/3, "")
+{
+	m_hSpeaker = pSpeaker;
+	m_flTime = DigitanksGame()->GetGameTime();
+	m_vecLastOrigin = pSpeaker->GetOrigin();
+	m_iBubble = iBubble;
+
+	glgui::CRootPanel::Get()->AddControl(this, true);
+
+	SetFGColor(Color(255, 255, 255));
+
+	SetText(sSpeech.c_str());
+	SetWrap(false);
+
+	SetFontFaceSize(18);
+	SetAlign(CLabel::TA_MIDDLECENTER);
+}
+
+void CSpeechBubble::Destructor()
+{
+	glgui::CRootPanel::Get()->RemoveControl(this);
+}
+
+void CSpeechBubble::Think()
+{
+	float flFadeTime = 3.0f;
+
+	if (DigitanksGame()->GetGameTime() - m_flTime > flFadeTime)
+	{
+		Destructor();
+		Delete();
+		return;
+	}
+
+	if (m_hSpeaker != NULL)
+		m_vecLastOrigin = m_hSpeaker->GetDesiredMove();
+
+	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
+	vecScreen.x += 40;
+	vecScreen.y -= 70;
+
+	SetPos((int)(vecScreen.x), (int)(vecScreen.y));
+
+	SetAlpha((int)RemapValClamped(DigitanksGame()->GetGameTime() - m_flTime, flFadeTime-1, flFadeTime, 255, 0));
+
+	BaseClass::Think();
+}
+
+void CSpeechBubble::Paint(int x, int y, int w, int h)
+{
+	do {
+		CRenderingContext c(Game()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintTexture(m_iBubble, x, y, w, h, Color(255, 255, 255, GetAlpha()));
+	} while (false);
 
 	BaseClass::Paint(x, y, w, h);
 }

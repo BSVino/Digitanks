@@ -20,6 +20,8 @@ public:
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)=0;
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)=0;
 
+	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech)=0;
+
 	virtual void			SetHUDActive(bool bActive)=0;
 };
 
@@ -63,7 +65,7 @@ public:
 
 	void					Bot_ExecuteTurn();
 
-	virtual void			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore);
+	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore);
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 
@@ -72,6 +74,8 @@ public:
 	void					CheckWinConditions();
 
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
+
+	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
 
 	size_t					GetNumTeams() { return m_ahTeams.size(); };
 	CTeam*					GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
@@ -102,6 +106,7 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteAttack);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteDefense);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteMovement);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Speak);
 
 	float					GetGravity();
 

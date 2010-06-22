@@ -72,6 +72,28 @@ protected:
 	Vector						m_vecLastOrigin;
 };
 
+class CSpeechBubble : public glgui::CLabel
+{
+	DECLARE_CLASS(CSpeechBubble, glgui::CLabel);
+
+public:
+								CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iBubble);
+
+public:
+	virtual void				Destructor();
+	virtual void				Delete() { delete this; };
+
+public:
+	void						Think();
+	void						Paint(int x, int y, int w, int h);
+
+protected:
+	CEntityHandle<CDigitank>	m_hSpeaker;
+	float						m_flTime;
+	Vector						m_vecLastOrigin;
+	size_t						m_iBubble;
+};
+
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
@@ -106,6 +128,8 @@ public:
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 
+	virtual void				TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
+
 	virtual void				SetHUDActive(bool bActive);
 
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
@@ -121,6 +145,8 @@ public:
 	EVENT_CALLBACK(CHUD, PromoteDefense);
 	EVENT_CALLBACK(CHUD, PromoteMovement);
 	EVENT_CALLBACK(CHUD, GoToMain);
+
+	size_t						GetSpeechBubble() { return m_iSpeechBubble; };
 
 protected:
 	class CDigitanksGame*		m_pGame;
@@ -178,6 +204,7 @@ protected:
 	size_t						m_iAimIcon;
 	size_t						m_iFireIcon;
 	size_t						m_iPromoteIcon;
+	size_t						m_iSpeechBubble;
 
 //	size_t						m_iCompetitionWatermark;
 };

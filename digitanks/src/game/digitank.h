@@ -7,6 +7,40 @@
 #define TANK_SHIELDS 4
 #define TANK_MAX_RANGE_RADIUS 10
 
+// Tank speech
+typedef enum
+{
+	TANKSPEECH_SELECTED,
+	TANKSPEECH_MOVED,
+	TANKSPEECH_ATTACK,
+	TANKSPEECH_DAMAGED,
+	TANKSPEECH_KILL,
+	TANKSPEECH_MISSED,
+	TANKSPEECH_IDLE,
+	TANKSPEECH_PROMOTED,
+};
+
+typedef enum
+{
+	TANKLINE_CUTE,
+	TANKLINE_LOVE,
+	TANKLINE_HAPPY,
+	TANKLINE_CHEER,
+	TANKLINE_EVIL,
+	TANKLINE_SQUINT,
+	TANKLINE_COOL,
+	TANKLINE_DEAD,
+	TANKLINE_DEAD2,
+	TANKLINE_DEAD3,
+	TANKLINE_FROWN,
+	TANKLINE_SAD,
+	TANKLINE_ASLEEP,
+	TANKLINE_CONFUSED,
+	TANKLINE_DOTDOTDOT,
+	TANKLINE_SURPRISED,
+	TANKLINE_THRILLED,
+};
+
 class CDigitank : public CBaseEntity
 {
 	REGISTER_ENTITY_CLASS(CDigitank, CBaseEntity);
@@ -136,6 +170,9 @@ public:
 	void						PromoteDefense(class CNetworkParameters* p);
 	void						PromoteMovement(class CNetworkParameters* p);
 
+	void						Speak(size_t iSpeech);
+	void						Speak(class CNetworkParameters* p);
+
 	float						FindHoverHeight(Vector vecPosition) const;
 
 	class CTeam*				GetTeam() const { return m_pTeam; };
@@ -199,12 +236,17 @@ protected:
 
 	class CTeam*				m_pTeam;
 
+	float						m_flLastSpeech;
+	float						m_flNextIdle;
+
 	size_t						m_iTurretModel;
 	size_t						m_iShieldModel;
 
 	size_t						m_iHoverParticles;
 
 	static size_t				s_iAimBeam;
+
+	static const char*			s_apszTankLines[];
 };
 
 class CProjectile : public CBaseEntity

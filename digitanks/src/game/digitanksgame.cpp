@@ -61,6 +61,7 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("PromoteAttack", this, PromoteAttackCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("PromoteDefense", this, PromoteDefenseCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
@@ -534,6 +535,9 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	GetCurrentTeam()->StartTurn();
 
+	if (GetCurrentTank())
+		GetCurrentTank()->OnCurrentTank();
+
 	if (GetCurrentTeam()->IsPlayerControlled())
 	{
 		if (m_pListener)
@@ -623,7 +627,7 @@ void CDigitanksGame::Bot_ExecuteTurn()
 	EndTurn();
 }
 
-void CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
+bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
 {
 	std::vector<CBaseEntity*> apHit;
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -653,6 +657,8 @@ void CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 			apHit.push_back(pEntity);
 	}
 
+	bool bHit = false;
+
 	for (size_t i = 0; i < apHit.size(); i++)
 	{
 		float flDistance = (pInflictor->GetOrigin() - apHit[i]->GetOrigin()).Length();
@@ -661,8 +667,12 @@ void CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		if (flFalloffDamage <= 0)
 			continue;
 
+		bHit = true;
+
 		apHit[i]->TakeDamage(pAttacker, pInflictor, flFalloffDamage, false);
 	}
+
+	return bHit;
 }
 
 void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
@@ -721,6 +731,12 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 
 	if (dynamic_cast<class CPowerup*>(pEntity) != NULL)
 		m_iPowerups--;
+}
+
+void CDigitanksGame::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
+{
+	if (m_pListener)
+		m_pListener->TankSpeak(pTank, sSpeech);
 }
 
 CTeam* CDigitanksGame::GetCurrentTeam()
