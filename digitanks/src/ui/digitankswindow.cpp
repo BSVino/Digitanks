@@ -122,7 +122,14 @@ void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
 		CNetwork::CreateHost(iPort, m_pDigitanksGame, CGame::ClientConnectCallback, CGame::ClientDisconnectCallback);
 
 	if (HasCommandLineSwitch("-connect"))
+	{
 		CNetwork::ConnectToHost(GetCommandLineSwitchValue("-connect"), iPort);
+		if (!CNetwork::IsConnected())
+		{
+			DestroyGame();
+			return;
+		}
+	}
 
 	m_pDigitanksGame->SetupGame(iPlayers, iTanks);
 
@@ -164,6 +171,11 @@ void CDigitanksWindow::Run()
 		{
 			if (Game()->IsLoading())
 				CNetwork::Think();
+			else if (Game()->IsClient() && !CNetwork::IsConnected())
+			{
+				DestroyGame();
+				m_pMenu->SetVisible(true);
+			}
 			else
 			{
 				Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);

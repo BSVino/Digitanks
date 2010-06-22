@@ -176,6 +176,10 @@ void CDigitanksMenu::TutorialCallback()
 void CDigitanksMenu::StartGameCallback()
 {
 	CDigitanksWindow::Get()->CreateGame(m_pNumberOfPlayers->GetSelectionValue(), m_pNumberOfTanks->GetSelectionValue());
+
+	if (!Game())
+		return;
+
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(m_pTutorialBox->GetState());
 	DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 	SetVisible(false);

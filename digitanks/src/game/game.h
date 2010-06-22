@@ -58,6 +58,7 @@ public:
 	class CRenderer*							GetRenderer() { return m_pRenderer; };
 
 	bool										IsLoading() { return m_bLoading; };
+	bool										IsClient() { return m_iClient >= 0; };
 
 	static CGame*								GetGame() { return s_pGame; };
 

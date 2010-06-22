@@ -121,6 +121,9 @@ bool CNetwork::IsRunningClientFunctions()
 
 void CNetwork::Disconnect()
 {
+	if (!s_bConnected)
+		return;
+
 	s_bConnected = false;
 
 	if (g_pClient)
@@ -187,6 +190,11 @@ void CNetwork::Think()
 						break;
 					}
 				}
+			}
+			else
+			{
+				Disconnect();
+				return;
 			}
 			break;
         }
