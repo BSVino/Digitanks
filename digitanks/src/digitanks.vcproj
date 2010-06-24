@@ -299,11 +299,35 @@
 						>
 					</File>
 					<File
+						RelativePath=".\game\digitanks\maintank.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\maintank.h"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\mechinf.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\mechinf.h"
+						>
+					</File>
+					<File
 						RelativePath=".\game\digitanks\powerup.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\game\digitanks\powerup.h"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\projectile.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\projectile.h"
 						>
 					</File>
 					<File

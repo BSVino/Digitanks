@@ -43,6 +43,8 @@ public:
 
 	float	Length() const;
 	float	LengthSqr() const;
+	float	Length2D() const;
+	float	Length2DSqr() const;
 	void	Normalize();
 	Vector	Normalized() const;
 
@@ -149,6 +151,16 @@ inline float Vector::Length() const
 inline float Vector::LengthSqr() const
 {
 	return x*x + y*y + z*z;
+}
+
+inline float Vector::Length2D() const
+{
+	return sqrt(x*x + z*z);
+}
+
+inline float Vector::Length2DSqr() const
+{
+	return x*x + z*z;
 }
 
 inline void Vector::Normalize()

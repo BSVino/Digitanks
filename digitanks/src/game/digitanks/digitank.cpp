@@ -1,5 +1,8 @@
 #include "digitank.h"
 
+// Must be above freeglut because windows.h causes problems
+#include "projectile.h"
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <maths.h>
@@ -12,7 +15,6 @@
 #include "ui/digitankswindow.h"
 #include "powerup.h"
 #include "ui/debugdraw.h"
-#include "camera.h"
 
 REGISTER_ENTITY(CDigitank);
 
@@ -67,7 +69,8 @@ CDigitank::CDigitank()
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
 
-	m_flMaxShieldStrength = m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flBackShieldStrength = 15;
+	m_flFrontMaxShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = 15;
+	m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 15;
 
 	m_flFireProjectileTime = 0;
 
@@ -78,9 +81,7 @@ CDigitank::CDigitank()
 
 	SetCollisionGroup(CG_TANK);
 
-	SetModel(L"models/digitanks/digitank-body.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
-	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+	m_iTurretModel = m_iShieldModel = ~0;
 
 	m_iHoverParticles = ~0;
 }
@@ -96,9 +97,6 @@ void CDigitank::Precache()
 	PrecacheParticleSystem(L"tank-fire");
 	PrecacheParticleSystem(L"promotion");
 	PrecacheParticleSystem(L"tank-hover");
-	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
-	PrecacheModel(L"models/digitanks/digitank-turret.obj");
-	PrecacheModel(L"models/digitanks/digitank-shield.obj");
 	PrecacheSound("sound/tank-fire.wav");
 	PrecacheSound("sound/shield-damage.wav");
 	PrecacheSound("sound/tank-damage.wav");
@@ -214,32 +212,32 @@ float CDigitank::GetBaseMovementPower(bool bPreview)
 
 float CDigitank::GetAttackPower(bool bPreview)
 {
-	return GetBaseAttackPower(bPreview)+m_flBonusAttackPower;
+	return GetBaseAttackPower(bPreview)+GetBonusAttackPower();
 }
 
 float CDigitank::GetDefensePower(bool bPreview)
 {
-	return GetBaseDefensePower(bPreview)+m_flBonusDefensePower;
+	return GetBaseDefensePower(bPreview)+GetBonusDefensePower();
 }
 
 float CDigitank::GetMovementPower(bool bPreview)
 {
-	return GetBaseMovementPower(bPreview)+m_flBonusMovementPower;
+	return GetBaseMovementPower(bPreview)+GetBonusMovementPower();
 }
 
 float CDigitank::GetTotalAttackPower()
 {
-	return m_flBasePower + m_flBonusAttackPower;
+	return m_flBasePower + GetBonusAttackPower();
 }
 
 float CDigitank::GetTotalDefensePower()
 {
-	return m_flBasePower + m_flBonusDefensePower;
+	return m_flBasePower + GetBonusDefensePower();
 }
 
 float CDigitank::GetTotalMovementPower() const
 {
-	return m_flBasePower + m_flBonusMovementPower;
+	return m_flBasePower + GetBonusMovementPower();
 }
 
 float CDigitank::GetMaxMovementDistance() const
@@ -326,22 +324,22 @@ void CDigitank::CalculateAttackDefense()
 
 float CDigitank::GetFrontShieldStrength()
 {
-	return m_flFrontShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
+	return m_flFrontShieldStrength/GetFrontShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float CDigitank::GetLeftShieldStrength()
 {
-	return m_flLeftShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
+	return m_flLeftShieldStrength/GetLeftShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float CDigitank::GetRightShieldStrength()
 {
-	return m_flRightShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
+	return m_flRightShieldStrength/GetRightShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float CDigitank::GetRearShieldStrength()
 {
-	return m_flBackShieldStrength/m_flMaxShieldStrength * GetDefenseScale(true);
+	return m_flRearShieldStrength/GetRearShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
@@ -355,7 +353,7 @@ float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
 	if (flForwardDot > 0.7f)
 		return &m_flFrontShieldStrength;
 	else if (flForwardDot < -0.7f)
-		return &m_flBackShieldStrength;
+		return &m_flRearShieldStrength;
 	else if (flRightDot < -0.7f)
 		return &m_flRightShieldStrength;
 	else
@@ -368,7 +366,7 @@ void CDigitank::StartTurn()
 	CalculateAttackDefense();
 
 	for (size_t i = 0; i < TANK_SHIELDS; i++)
-		m_flShieldStrengths[i] = Approach(m_flMaxShieldStrength, m_flShieldStrengths[i], ShieldRechargeRate());
+		m_flShieldStrengths[i] = Approach(m_flMaxShieldStrengths[i], m_flShieldStrengths[i], ShieldRechargeRate());
 
 	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
 
@@ -819,7 +817,7 @@ void CDigitank::FireProjectile()
 
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
-	m_hProjectile = Game()->Create<CProjectile>("CProjectile");
+	m_hProjectile = CreateProjectile();
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(-1, "FireProjectile", GetHandle(), m_hProjectile->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
@@ -845,7 +843,7 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime);
 
 	m_hProjectile->SetOwner(this);
-	m_hProjectile->SetDamage(GetAttackPower());
+	m_hProjectile->SetDamage(GetProjectileDamage());
 	m_hProjectile->SetForce(vecForce);
 	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
 
@@ -857,6 +855,16 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 		CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+}
+
+CProjectile* CDigitank::CreateProjectile()
+{
+	return Game()->Create<CShell>("CShell");
+}
+
+float CDigitank::GetProjectileDamage()
+{
+	return GetAttackPower();
 }
 
 void CDigitank::ClientUpdate(int iClient)
@@ -983,6 +991,16 @@ EAngle CDigitank::GetRenderAngles() const
 	return EAngle(0, GetDesiredTurn(), 0);
 }
 
+void CDigitank::PreRender()
+{
+#ifdef _DEBUG
+	CRenderingContext r(Game()->GetRenderer());
+	r.Translate(GetFortifyPoint() + Vector(0, 2, 0));
+	r.SetColor(GetTeam()->GetColor());
+	glutWireCube(4);
+#endif
+}
+
 void CDigitank::ModifyContext(CRenderingContext* pContext)
 {
 	if (!GetTeam())
@@ -995,14 +1013,24 @@ void CDigitank::OnRender()
 {
 	RenderTurret();
 
-	RenderShield(GetFrontShieldStrength(), 0);
-	RenderShield(GetLeftShieldStrength(), 90);
-	RenderShield(GetRearShieldStrength(), 180);
-	RenderShield(GetRightShieldStrength(), 270);
+	if (GetFrontShieldStrength() > 0)
+		RenderShield(GetFrontShieldStrength(), 0);
+
+	if (GetLeftShieldStrength() > 0)
+		RenderShield(GetLeftShieldStrength(), 90);
+
+	if (GetRearShieldStrength() > 0)
+		RenderShield(GetRearShieldStrength(), 180);
+
+	if (GetRightShieldStrength() > 0)
+		RenderShield(GetRightShieldStrength(), 270);
 }
 
 void CDigitank::RenderTurret(float flAlpha)
 {
+	if (m_iTurretModel == ~0)
+		return;
+
 	CRenderingContext r(Game()->GetRenderer());
 	r.SetAlpha(flAlpha);
 	r.SetBlend(BLEND_ALPHA);
@@ -1029,10 +1057,14 @@ void CDigitank::RenderTurret(float flAlpha)
 
 void CDigitank::RenderShield(float flAlpha, float flAngle)
 {
+	if (m_iShieldModel == ~0)
+		return;
+
 	CRenderingContext r(Game()->GetRenderer());
 	r.SetAlpha(flAlpha);
 	r.Rotate(flAngle, Vector(0, 1, 0));
 	r.SetBlend(BLEND_ADDITIVE);
+	r.Scale(RenderShieldScale(), 1, RenderShieldScale());
 	r.RenderModel(m_iShieldModel);
 }
 
@@ -1333,148 +1365,4 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 		flHighestTerrain = flTerrain;
 
 	return flHighestTerrain;
-}
-
-REGISTER_ENTITY(CProjectile);
-
-CProjectile::CProjectile()
-{
-	m_flTimeCreated = DigitanksGame()?DigitanksGame()->GetGameTime():0;
-	m_flTimeExploded = 0;
-
-	m_bFallSoundPlayed = false;
-}
-
-void CProjectile::Precache()
-{
-	PrecacheParticleSystem(L"shell-trail");
-	PrecacheSound("sound/bomb-drop.wav");
-	PrecacheSound("sound/explosion.wav");
-}
-
-void CProjectile::Think()
-{
-	if (GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
-	{
-		EmitSound("sound/bomb-drop.wav");
-		SetSoundVolume("sound/bomb-drop.wav", 0.5f);
-		m_bFallSoundPlayed = true;
-	}
-
-	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 5.0f && m_flTimeExploded == 0.0f)
-		Delete();
-
-	else if (m_flTimeExploded != 0.0f && DigitanksGame()->GetGameTime() - m_flTimeExploded > 2.0f)
-		Delete();
-}
-
-void CProjectile::ModifyContext(class CRenderingContext* pContext)
-{
-	if (m_flTimeExploded > 0.0f)
-	{
-		pContext->UseFrameBuffer(Game()->GetRenderer()->GetExplosionBuffer()->m_iFB);
-	}
-}
-
-void CProjectile::OnRender()
-{
-	if (m_flTimeExploded == 0.0f)
-	{
-		glColor4ubv(Color(255, 255, 255));
-		glutSolidSphere(0.5f, 4, 4);
-	}
-	else
-	{
-		float flAlpha = RemapValClamped(DigitanksGame()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
-		if (flAlpha > 0)
-		{
-			glColor4ubv(Color(255, 255, 255, (int)(flAlpha*255)));
-			glutSolidSphere(4.0f, 20, 10);
-		}
-	}
-}
-
-void CProjectile::OnDeleted()
-{
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
-}
-
-bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
-{
-	if (m_flTimeExploded != 0)
-		return false;
-
-	if (pOther == m_hOwner)
-		return false;
-
-	if (pOther->GetCollisionGroup() == CG_TANK)
-	{
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pOther);
-		if (!pTank)	// ?
-			return false;
-
-		if (pTank->GetTeam() == m_hOwner->GetTeam())
-			return false;
-
-		return true;
-	}
-
-	if (pOther->GetCollisionGroup() == CG_TERRAIN)
-		return true;
-
-	return false;
-}
-
-bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
-{
-	switch (pOther->GetCollisionGroup())
-	{
-	case CG_TANK:
-		vecPoint = GetOrigin();
-		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < pOther->GetBoundingRadius()*pOther->GetBoundingRadius())
-			return true;
-		break;
-
-	case CG_TERRAIN:
-		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
-	}
-
-	return false;
-};
-
-void CProjectile::Touching(CBaseEntity* pOther)
-{
-	pOther->TakeDamage(m_hOwner, this, m_flDamage);
-
-	SetVelocity(Vector());
-	SetGravity(Vector());
-
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
-
-	bool bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pOther, m_hOwner->GetTeam());
-
-	m_flTimeExploded = Game()->GetGameTime();
-
-	Game()->GetCamera()->Shake(GetOrigin(), 3);
-	StopSound("sound/bomb-drop.wav");
-	EmitSound("sound/explosion.wav");
-
-	if (dynamic_cast<CTerrain*>(pOther) && !bHit)
-	{
-		m_hOwner->Speak(TANKSPEECH_MISSED);
-	}
-}
-
-void CProjectile::SetOwner(CDigitank* pOwner)
-{
-	m_hOwner = pOwner;
-	SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
-	SetSimulated(true);
-	SetCollisionGroup(CG_POWERUP);
-
-	m_iParticleSystem = CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 }

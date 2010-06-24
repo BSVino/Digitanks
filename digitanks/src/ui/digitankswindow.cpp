@@ -115,15 +115,15 @@ void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
 
 	m_pDigitanksGame->RegisterNetworkFunctions();
 
-	const char* pszPort = GetCommandLineSwitchValue("-port");
+	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
-	if (HasCommandLineSwitch("-host"))
+	if (HasCommandLineSwitch("--host"))
 		CNetwork::CreateHost(iPort, m_pDigitanksGame, CGame::ClientConnectCallback, CGame::ClientDisconnectCallback);
 
-	if (HasCommandLineSwitch("-connect"))
+	if (HasCommandLineSwitch("--connect"))
 	{
-		CNetwork::ConnectToHost(GetCommandLineSwitchValue("-connect"), iPort);
+		CNetwork::ConnectToHost(GetCommandLineSwitchValue("--connect"), iPort);
 		if (!CNetwork::IsConnected())
 		{
 			DestroyGame();

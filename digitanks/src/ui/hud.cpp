@@ -699,20 +699,30 @@ void CHUD::UpdateAttackInfo()
 		return;
 
 	char szShieldInfo[1024];
-	float flShieldMax = pCurrentTank->GetShieldMaxStrength() * pCurrentTank->GetDefenseScale(true);
-	sprintf(szShieldInfo, "%.1f/%.1f", pCurrentTank->GetFrontShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	sprintf(szShieldInfo, "%.1f/%.1f",
+		pCurrentTank->GetFrontShieldStrength() * pCurrentTank->GetFrontShieldMaxStrength(),
+		pCurrentTank->GetFrontShieldMaxStrength() * pCurrentTank->GetDefenseScale(true));
 	m_pFrontShieldInfo->SetText(szShieldInfo);
 
-	sprintf(szShieldInfo, "%.1f/%.1f", pCurrentTank->GetRearShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	sprintf(szShieldInfo, "%.1f/%.1f",
+		pCurrentTank->GetRearShieldStrength() * pCurrentTank->GetRearShieldMaxStrength(),
+		pCurrentTank->GetRearShieldMaxStrength() * pCurrentTank->GetDefenseScale(true));
 	m_pRearShieldInfo->SetText(szShieldInfo);
 
-	sprintf(szShieldInfo, "%.1f/\n%.1f", pCurrentTank->GetLeftShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	sprintf(szShieldInfo, "%.1f/\n%.1f",
+		pCurrentTank->GetLeftShieldStrength() * pCurrentTank->GetLeftShieldMaxStrength(),
+		pCurrentTank->GetLeftShieldMaxStrength() * pCurrentTank->GetDefenseScale(true));
 	m_pLeftShieldInfo->SetText(szShieldInfo);
 
-	sprintf(szShieldInfo, "%.1f/\n%.1f", pCurrentTank->GetRightShieldStrength() * pCurrentTank->GetShieldMaxStrength(), flShieldMax);
+	sprintf(szShieldInfo, "%.1f/\n%.1f",
+		pCurrentTank->GetRightShieldStrength() * pCurrentTank->GetRightShieldMaxStrength(),
+		pCurrentTank->GetRightShieldMaxStrength() * pCurrentTank->GetDefenseScale(true));
 	m_pRightShieldInfo->SetText(szShieldInfo);
 
 	m_pTankInfo->SetText("TANK INFO");
+
+	if (pCurrentTank->IsFortified() || pCurrentTank->IsFortifying())
+		m_pTankInfo->AppendText("\n \n[Fortified]");
 
 	if (pCurrentTank->HasBonusPoints())
 	{
@@ -727,12 +737,24 @@ void CHUD::UpdateAttackInfo()
 	{
 		sprintf(szShieldInfo, "\n \n+%d attack power", (int)pCurrentTank->GetBonusAttackPower());
 		m_pTankInfo->AppendText(szShieldInfo);
+
+		if (pCurrentTank->IsFortified())
+		{
+			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pCurrentTank->GetFortifyAttackPowerBonus());
+			m_pTankInfo->AppendText(szShieldInfo);
+		}
 	}
 
 	if (pCurrentTank->GetBonusDefensePower())
 	{
 		sprintf(szShieldInfo, "\n \n+%d defense power", (int)pCurrentTank->GetBonusDefensePower());
 		m_pTankInfo->AppendText(szShieldInfo);
+
+		if (pCurrentTank->IsFortified())
+		{
+			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pCurrentTank->GetFortifyDefensePowerBonus());
+			m_pTankInfo->AppendText(szShieldInfo);
+		}
 	}
 
 	if (pCurrentTank->GetBonusMovementPower())
@@ -850,16 +872,34 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 {
 	if (eMenuMode == MENUMODE_MAIN)
 	{
-		m_pButton1->SetClickedListener(this, Move);
-		m_pButton2->SetClickedListener(this, Turn);
-		m_pButton3->SetClickedListener(this, Aim);
-		m_pButton4->SetClickedListener(this, Fire);
-		m_pButton5->SetClickedListener(this, Promote);
-		m_pButtonHelp1->SetText("Move");
-		m_pButtonHelp2->SetText("Turn");
-		m_pButtonHelp3->SetText("Aim");
-		m_pButtonHelp4->SetText("Set Power");
-		m_pButtonHelp5->SetText("Promote");
+		if (DigitanksGame()->GetCurrentTank())
+		{
+			CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+
+			m_pButton1->SetClickedListener(this, Move);
+			m_pButton2->SetClickedListener(this, Turn);
+
+			if (pTank->UseFortifyMenu())
+			{
+				m_pButton3->SetClickedListener(this, Fortify);
+				if (pTank->IsFortified() || pTank->IsFortifying())
+					m_pButtonHelp3->SetText("Mobilize");
+				else
+					m_pButtonHelp3->SetText("Fortify");
+			}
+			else
+			{
+				m_pButton3->SetClickedListener(this, Aim);
+				m_pButtonHelp3->SetText("Aim");
+			}
+
+			m_pButton4->SetClickedListener(this, Fire);
+			m_pButton5->SetClickedListener(this, Promote);
+			m_pButtonHelp1->SetText("Move");
+			m_pButtonHelp2->SetText("Turn");
+			m_pButtonHelp4->SetText("Set Power");
+			m_pButtonHelp5->SetText("Promote");
+		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
@@ -936,6 +976,8 @@ void CHUD::NewCurrentTank()
 
 	if (DigitanksGame()->GetCurrentTank())
 		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
+
+	SetupMenu(MENUMODE_MAIN);
 }
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
@@ -1028,6 +1070,20 @@ void CHUD::AimCallback()
 		CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
 	else
 		CDigitanksWindow::Get()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::FortifyCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame()->GetCurrentTank())
+		return;
+
+	DigitanksGame()->GetCurrentTank()->Fortify();
+	CDigitanksWindow::Get()->SetControlMode(MODE_NONE);
+	SetupMenu(MENUMODE_MAIN);
+	UpdateAttackInfo();
 }
 
 void CHUD::FireCallback()

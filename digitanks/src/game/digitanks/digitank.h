@@ -50,7 +50,7 @@ public:
 								~CDigitank();
 
 public:
-	void						Precache();
+	virtual void				Precache();
 
 	virtual float				GetBoundingRadius() const { return 4; };
 
@@ -71,9 +71,9 @@ public:
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
 	float						GetMovementScale(bool bPreview = false) { return GetMovementPower(bPreview) / 10; };
 
-	float						GetBonusAttackPower() { return m_flBonusAttackPower; };
-	float						GetBonusDefensePower() { return m_flBonusDefensePower; };
-	float						GetBonusMovementPower() { return m_flBonusMovementPower; };
+	virtual float				GetBonusAttackPower() { return m_flBonusAttackPower; };
+	virtual float				GetBonusDefensePower() { return m_flBonusDefensePower; };
+	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower; };
 
 	void						SetAttackPower(float flAttackPower);
 	void						SetAttackPower(class CNetworkParameters* p);
@@ -88,22 +88,25 @@ public:
 
 	void						CalculateAttackDefense();
 
-	float						GetShieldMaxStrength() { return m_flMaxShieldStrength; };
-	float						GetFrontShieldStrength();
-	float						GetLeftShieldStrength();
-	float						GetRightShieldStrength();
-	float						GetRearShieldStrength();
+	virtual float				GetFrontShieldMaxStrength() { return m_flFrontMaxShieldStrength; };
+	virtual float				GetLeftShieldMaxStrength() { return m_flLeftMaxShieldStrength; };
+	virtual float				GetRightShieldMaxStrength() { return m_flRightMaxShieldStrength; };
+	virtual float				GetRearShieldMaxStrength() { return m_flRearMaxShieldStrength; };
+	virtual float				GetFrontShieldStrength();
+	virtual float				GetLeftShieldStrength();
+	virtual float				GetRightShieldStrength();
+	virtual float				GetRearShieldStrength();
 
-	float*						GetShieldForAttackDirection(Vector vecAttack);
+	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
 
-	void						StartTurn();
+	virtual void				StartTurn();
 
 	Vector						GetPreviewMove() { return m_vecPreviewMove; };
-	void						SetPreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
+	virtual void				SetPreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
 	void						ClearPreviewMove();
 
 	float						GetPreviewTurn() const { return m_flPreviewTurn; };
-	void						SetPreviewTurn(float flPreviewTurn) { m_flPreviewTurn = flPreviewTurn; };
+	virtual void				SetPreviewTurn(float flPreviewTurn) { m_flPreviewTurn = flPreviewTurn; };
 	void						ClearPreviewTurn();
 
 	Vector						GetPreviewAim() { return m_vecPreviewAim; };
@@ -111,7 +114,7 @@ public:
 	void						ClearPreviewAim();
 	bool						IsPreviewAimValid();
 
-	void						SetDesiredMove();
+	virtual void				SetDesiredMove();
 	void						SetDesiredMove(class CNetworkParameters* p);
 	void						CancelDesiredMove();
 	void						CancelDesiredMove(class CNetworkParameters* p);
@@ -120,7 +123,7 @@ public:
 	bool						HasSelectedMove() { return m_bSelectedMove; };
 	bool						IsMoving();
 
-	void						SetDesiredTurn();
+	virtual void				SetDesiredTurn();
 	void						SetDesiredTurn(class CNetworkParameters* p);
 	void						CancelDesiredTurn();
 	void						CancelDesiredTurn(class CNetworkParameters* p);
@@ -136,14 +139,24 @@ public:
 
 	bool						ChoseFirepower() { return m_bChoseFirepower; };
 
+	virtual void				Fortify() {};
+	virtual bool				CanFortify() { return false; };
+	virtual bool				UseFortifyMenu() { return false; };
+	virtual bool				IsFortified() const { return false; };
+	virtual bool				IsFortifying() const { return false; };
+	virtual float				GetFortifyAttackPowerBonus() { return 0; };
+	virtual float				GetFortifyDefensePowerBonus() { return 0; };
+
 	virtual void				Think();
 
 	void						OnCurrentTank();
 
 	void						Move();
-	void						Fire();
+	virtual void				Fire();
 	void						FireProjectile();
 	void						FireProjectile(class CNetworkParameters* p);
+	virtual class CProjectile*	CreateProjectile();
+	virtual float				GetProjectileDamage();
 
 	virtual void				ClientUpdate(int iClient);
 
@@ -152,10 +165,12 @@ public:
 
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
+	virtual void				PreRender();
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 	virtual void				OnRender();
 	virtual void				RenderTurret(float flAlpha = 1.0f);
 	virtual void				RenderShield(float flAlpha, float flAngle);
+	virtual float				RenderShieldScale() { return 1.0f; };
 	virtual void				PostRender();
 
 	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
@@ -178,13 +193,17 @@ public:
 	class CTeam*				GetTeam() const { return m_pTeam; };
 	void						SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
 
-	virtual float				ShieldRechargeRate() const { return 1.0f; }
-	virtual float				HealthRechargeRate() const { return 0.2f; }
-	virtual float				GetTankSpeed() const { return 2.0f; }
-	virtual float				GetMinRange() const { return 50.0f; };
+	virtual float				HealthRechargeRate() const { return 0.2f; };
+	virtual float				ShieldRechargeRate() const { return 1.0f; };
+	virtual float				GetTankSpeed() const { return 2.0f; };
+	virtual float				TurnPerPower() const { return 45; };
 	virtual float				GetMaxRange() const { return 70.0f; };
-	virtual float				TurnPerPower() const { return 45; }
-	virtual float				GetTransitionTime() const { return 2.0f; }
+	virtual float				GetMinRange() const { return 50.0f; };
+	virtual float				GetTransitionTime() const { return 2.0f; };
+
+	// AI stuff
+	virtual void				SetFortifyPoint(Vector vecFortify) { m_vecFortifyPoint = vecFortify; }
+	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
 protected:
 	float						m_flBasePower;
@@ -197,14 +216,22 @@ protected:
 	float						m_flBonusMovementPower;
 	size_t						m_iBonusPoints;
 
-	float						m_flMaxShieldStrength;
+	union {
+		struct {
+			float				m_flFrontMaxShieldStrength;
+			float				m_flLeftMaxShieldStrength;
+			float				m_flRightMaxShieldStrength;
+			float				m_flRearMaxShieldStrength;
+		};
+		float					m_flMaxShieldStrengths[TANK_SHIELDS];
+	};
 
 	union {
 		struct {
 			float				m_flFrontShieldStrength;
 			float				m_flLeftShieldStrength;
 			float				m_flRightShieldStrength;
-			float				m_flBackShieldStrength;
+			float				m_flRearShieldStrength;
 		};
 		float					m_flShieldStrengths[TANK_SHIELDS];
 	};
@@ -244,48 +271,12 @@ protected:
 
 	size_t						m_iHoverParticles;
 
+	// AI stuff
+	Vector						m_vecFortifyPoint;
+
 	static size_t				s_iAimBeam;
 
 	static const char*			s_apszTankLines[];
-};
-
-class CProjectile : public CBaseEntity
-{
-	REGISTER_ENTITY_CLASS(CProjectile, CBaseEntity);
-
-public:
-								CProjectile();
-
-public:
-	virtual void				Precache();
-
-	virtual void				Think();
-
-	virtual void				ModifyContext(class CRenderingContext* pContext);
-	virtual void				OnRender();
-
-	virtual void				OnDeleted();
-
-	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
-	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
-	virtual void				Touching(CBaseEntity* pOther);
-
-	void						Explode();
-
-	virtual void				SetOwner(CDigitank* pOwner);
-	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; };
-	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
-
-protected:
-	float						m_flTimeCreated;
-	float						m_flTimeExploded;
-
-	bool						m_bFallSoundPlayed;
-
-	CEntityHandle<CDigitank>	m_hOwner;
-	float						m_flDamage;
-
-	size_t						m_iParticleSystem;
 };
 
 #endif

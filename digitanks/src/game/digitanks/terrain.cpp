@@ -5,7 +5,6 @@
 #include <time.h>
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
@@ -554,7 +553,7 @@ void CTerrain::OnRender()
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
 
-	if (pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+	if (pCurrentTank && !pCurrentTank->IsFortified() && CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
 	{
 		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
 		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
@@ -571,7 +570,7 @@ void CTerrain::OnRender()
 		glUniform1i(bMovement, false);
 	}
 
-	if (pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+	if (pCurrentTank && !pCurrentTank->IsFortified() && CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
 	{
 		Vector vecPoint;
 		bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);

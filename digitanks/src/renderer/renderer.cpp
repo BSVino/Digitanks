@@ -138,6 +138,9 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
 
+	if (!pModel)
+		return;
+
 	if (pModel->m_bStatic && !bNewCallList)
 	{
 		GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
