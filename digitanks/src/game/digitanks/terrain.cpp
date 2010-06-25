@@ -633,8 +633,20 @@ void CTerrain::OnRender()
 		GLuint flTankMaxRange = glGetUniformLocation(iTerrainProgram, "flTankMaxRange");
 		glUniform1f(flTankMaxRange, pCurrentTank->GetMaxRange());
 
+		GLuint flTankEffRange = glGetUniformLocation(iTerrainProgram, "flTankEffRange");
+		glUniform1f(flTankEffRange, pCurrentTank->GetEffRange());
+
 		GLuint flTankMinRange = glGetUniformLocation(iTerrainProgram, "flTankMinRange");
 		glUniform1f(flTankMinRange, pCurrentTank->GetMinRange());
+
+		GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
+		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+			glUniform1f(flTankYaw, pCurrentTank->GetPreviewTurn());
+		else
+			glUniform1f(flTankYaw, pCurrentTank->GetDesiredTurn());
+
+		GLuint flTankFiringCone = glGetUniformLocation(iTerrainProgram, "flTankFiringCone");
+		glUniform1f(flTankFiringCone, pCurrentTank->FiringCone());
 	}
 	else
 	{
@@ -722,9 +734,10 @@ float CTerrain::GetHeight(float flX, float flY)
 	return RemapVal(flXLerp, 0, 1, l1, l2);
 }
 
-void CTerrain::SetPointHeight(Vector& vecPoint)
+Vector CTerrain::SetPointHeight(Vector& vecPoint)
 {
 	vecPoint.y = GetHeight(vecPoint.x, vecPoint.z);
+	return vecPoint;
 }
 
 float CTerrain::GetMapSize() const

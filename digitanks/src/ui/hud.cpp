@@ -738,7 +738,7 @@ void CHUD::UpdateAttackInfo()
 		sprintf(szShieldInfo, "\n \n+%d attack power", (int)pCurrentTank->GetBonusAttackPower());
 		m_pTankInfo->AppendText(szShieldInfo);
 
-		if (pCurrentTank->IsFortified())
+		if (pCurrentTank->IsFortified() && (int)pCurrentTank->GetFortifyAttackPowerBonus() > 0)
 		{
 			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pCurrentTank->GetFortifyAttackPowerBonus());
 			m_pTankInfo->AppendText(szShieldInfo);
@@ -750,7 +750,7 @@ void CHUD::UpdateAttackInfo()
 		sprintf(szShieldInfo, "\n \n+%d defense power", (int)pCurrentTank->GetBonusDefensePower());
 		m_pTankInfo->AppendText(szShieldInfo);
 
-		if (pCurrentTank->IsFortified())
+		if (pCurrentTank->IsFortified() && (int)pCurrentTank->GetFortifyDefensePowerBonus() > 0)
 		{
 			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pCurrentTank->GetFortifyDefensePowerBonus());
 			m_pTankInfo->AppendText(szShieldInfo);
@@ -783,10 +783,13 @@ void CHUD::UpdateAttackInfo()
 	if (flAttackDistance > pCurrentTank->GetMaxRange())
 		return;
 
+	if (flAttackDistance < pCurrentTank->GetMinRange())
+		return;
+
 	if (!pCurrentTank->HasDesiredAim() && !pCurrentTank->IsPreviewAimValid())
 		return;
 
-	float flRadius = RemapValClamped(flAttackDistance, pCurrentTank->GetMinRange(), pCurrentTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+	float flRadius = RemapValClamped(flAttackDistance, pCurrentTank->GetEffRange(), pCurrentTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
 
 	CDigitank* pClosestTarget = NULL;
 
@@ -879,7 +882,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 			m_pButton1->SetClickedListener(this, Move);
 			m_pButton2->SetClickedListener(this, Turn);
 
-			if (pTank->UseFortifyMenu())
+			if (pTank->UseFortifyMenuAim())
 			{
 				m_pButton3->SetClickedListener(this, Fortify);
 				if (pTank->IsFortified() || pTank->IsFortifying())
@@ -893,11 +896,23 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 				m_pButtonHelp3->SetText("Aim");
 			}
 
-			m_pButton4->SetClickedListener(this, Fire);
+			if (pTank->UseFortifyMenuFire())
+			{
+				m_pButton4->SetClickedListener(this, Fortify);
+				if (pTank->IsFortified() || pTank->IsFortifying())
+					m_pButtonHelp4->SetText("Mobilize");
+				else
+					m_pButtonHelp4->SetText("Deploy");
+			}
+			else
+			{
+				m_pButton4->SetClickedListener(this, Fire);
+				m_pButtonHelp4->SetText("Set Power");
+			}
+
 			m_pButton5->SetClickedListener(this, Promote);
 			m_pButtonHelp1->SetText("Move");
 			m_pButtonHelp2->SetText("Turn");
-			m_pButtonHelp4->SetText("Set Power");
 			m_pButtonHelp5->SetText("Promote");
 		}
 	}

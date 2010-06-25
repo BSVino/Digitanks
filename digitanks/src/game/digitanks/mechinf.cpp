@@ -18,8 +18,6 @@ CMechInfantry::CMechInfantry()
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 15;
 	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 2;
 
-	m_bFortified = false;
-
 	m_iFireProjectiles = 0;
 	m_flLastProjectileFire = 0;
 }
@@ -105,6 +103,9 @@ void CMechInfantry::Fire()
 	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
 
+	if (flDistanceSqr < GetMinRange()*GetMinRange())
+		return;
+
 	SetPreviewAim(pClosest->GetOrigin());
 	SetDesiredAim();
 
@@ -125,62 +126,6 @@ CProjectile* CMechInfantry::CreateProjectile()
 float CMechInfantry::GetProjectileDamage()
 {
 	return GetAttackPower()/20;
-}
-
-void CMechInfantry::StartTurn()
-{
-	if (m_bFortified)
-	{
-		if (m_iFortifyLevel < 5)
-			m_iFortifyLevel++;
-	}
-
-	BaseClass::StartTurn();
-}
-
-void CMechInfantry::SetPreviewMove(Vector vecPreviewMove)
-{
-	if (IsFortified())
-		return;
-
-	BaseClass::SetPreviewMove(vecPreviewMove);
-}
-
-void CMechInfantry::SetPreviewTurn(float flPreviewTurn)
-{
-	if (IsFortified())
-		return;
-
-	BaseClass::SetPreviewTurn(flPreviewTurn);
-}
-
-void CMechInfantry::SetDesiredMove()
-{
-	if (IsFortified())
-		return;
-
-	BaseClass::SetDesiredMove();
-}
-
-void CMechInfantry::SetDesiredTurn()
-{
-	if (IsFortified())
-		return;
-
-	BaseClass::SetDesiredTurn();
-}
-
-void CMechInfantry::Fortify()
-{
-	if (m_bFortified)
-	{
-		m_bFortified = false;
-		return;
-	}
-
-	m_bFortified = true;
-
-	m_iFortifyLevel = 0;
 }
 
 float CMechInfantry::GetBonusAttackPower()

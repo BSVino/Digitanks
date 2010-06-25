@@ -139,6 +139,19 @@ inline const char* CShaderLibrary::GetVSPassShader()
 		"return flResult;" \
 	"}" \
 
+#define ANGLE_DIFFERENCE \
+	"float AngleDifference(float a, float b)" \
+	"{" \
+		"float flYawDifference = a - b;" \
+		"if ( a > b )" \
+		"	while ( flYawDifference >= 180.0 )" \
+		"		flYawDifference -= 360.0;" \
+		"else" \
+		"	while ( flYawDifference <= -180.0 )" \
+		"		flYawDifference += 360.0;" \
+		"return flYawDifference;" \
+	"}" \
+
 /*
 	struct gl_LightSourceParameters {
 		vec4 ambient; 

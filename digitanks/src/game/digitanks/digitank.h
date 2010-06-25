@@ -75,7 +75,7 @@ public:
 	virtual float				GetBonusDefensePower() { return m_flBonusDefensePower; };
 	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower; };
 
-	void						SetAttackPower(float flAttackPower);
+	virtual void				SetAttackPower(float flAttackPower);
 	void						SetAttackPower(class CNetworkParameters* p);
 
 	float						GetPreviewMoveTurnPower();
@@ -102,11 +102,11 @@ public:
 	virtual void				StartTurn();
 
 	Vector						GetPreviewMove() { return m_vecPreviewMove; };
-	virtual void				SetPreviewMove(Vector vecPreviewMove) { m_vecPreviewMove = vecPreviewMove; };
+	virtual void				SetPreviewMove(Vector vecPreviewMove);
 	void						ClearPreviewMove();
 
 	float						GetPreviewTurn() const { return m_flPreviewTurn; };
-	virtual void				SetPreviewTurn(float flPreviewTurn) { m_flPreviewTurn = flPreviewTurn; };
+	virtual void				SetPreviewTurn(float flPreviewTurn);
 	void						ClearPreviewTurn();
 
 	Vector						GetPreviewAim() { return m_vecPreviewAim; };
@@ -139,11 +139,16 @@ public:
 
 	bool						ChoseFirepower() { return m_bChoseFirepower; };
 
-	virtual void				Fortify() {};
+	virtual void				Fortify();
 	virtual bool				CanFortify() { return false; };
-	virtual bool				UseFortifyMenu() { return false; };
-	virtual bool				IsFortified() const { return false; };
-	virtual bool				IsFortifying() const { return false; };
+	virtual bool				IsArtillery() { return false; };
+	virtual bool				UseFortifyMenuAim() { return false; };
+	virtual bool				UseFortifyMenuFire() { return false; };
+	virtual bool				IsFortified() const { return m_bFortified && m_iFortifyLevel; };
+	virtual bool				IsFortifying() const { return m_bFortified && m_iFortifyLevel == 0; };
+	virtual bool				CanMoveFortified() { return false; };
+	virtual bool				CanTurnFortified() { return false; };
+	virtual bool				CanAimMobilized() { return true; };
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
 
@@ -198,8 +203,11 @@ public:
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				GetMaxRange() const { return 70.0f; };
-	virtual float				GetMinRange() const { return 50.0f; };
+	virtual float				GetEffRange() const { return 50.0f; };
+	virtual float				GetMinRange() const { return 4.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
+	virtual float				ProjectileCurve() const { return -0.03f; };
+	virtual float				FiringCone() const { return 360; };
 
 	// AI stuff
 	virtual void				SetFortifyPoint(Vector vecFortify) { m_vecFortifyPoint = vecFortify; }
@@ -270,6 +278,9 @@ protected:
 	size_t						m_iShieldModel;
 
 	size_t						m_iHoverParticles;
+
+	bool						m_bFortified;
+	size_t						m_iFortifyLevel;
 
 	// AI stuff
 	Vector						m_vecFortifyPoint;

@@ -65,6 +65,8 @@ CDigitank::CDigitank()
 
 	m_flStartedMove = 0;
 
+	m_bFortified = false;
+
 	m_bTakeDamage = true;
 	m_flTotalHealth = 10;
 	m_flHealth = 10;
@@ -324,21 +326,33 @@ void CDigitank::CalculateAttackDefense()
 
 float CDigitank::GetFrontShieldStrength()
 {
+	if (GetFrontShieldMaxStrength() == 0)
+		return 0;
+
 	return m_flFrontShieldStrength/GetFrontShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float CDigitank::GetLeftShieldStrength()
 {
+	if (GetLeftShieldMaxStrength() == 0)
+		return 0;
+
 	return m_flLeftShieldStrength/GetLeftShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float CDigitank::GetRightShieldStrength()
 {
+	if (GetRightShieldMaxStrength() == 0)
+		return 0;
+
 	return m_flRightShieldStrength/GetRightShieldMaxStrength() * GetDefenseScale(true);
 }
 
 float CDigitank::GetRearShieldStrength()
 {
+	if (GetRearShieldMaxStrength() == 0)
+		return 0;
+
 	return m_flRearShieldStrength/GetRearShieldMaxStrength() * GetDefenseScale(true);
 }
 
@@ -362,6 +376,12 @@ float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
 
 void CDigitank::StartTurn()
 {
+	if (m_bFortified)
+	{
+		if (m_iFortifyLevel < 5)
+			m_iFortifyLevel++;
+	}
+
 	m_flMovementPower = 0;
 	CalculateAttackDefense();
 
@@ -382,9 +402,25 @@ void CDigitank::StartTurn()
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 }
 
+void CDigitank::SetPreviewMove(Vector vecPreviewMove)
+{
+	if (IsFortified() && !CanMoveFortified())
+		return;
+
+	m_vecPreviewMove = vecPreviewMove;
+}
+
 void CDigitank::ClearPreviewMove()
 {
 	m_vecPreviewMove = GetOrigin();
+}
+
+void CDigitank::SetPreviewTurn(float flPreviewTurn)
+{
+	if (IsFortified() && !CanTurnFortified())
+		return;
+
+	m_flPreviewTurn = flPreviewTurn;
 }
 
 void CDigitank::ClearPreviewTurn()
@@ -394,11 +430,20 @@ void CDigitank::ClearPreviewTurn()
 
 void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 {
+	if (CanFortify() && !IsFortified() && !CanAimMobilized())
+		return;
+
 	m_bPreviewAim = true;
 
 	if ((vecPreviewAim - GetDesiredMove()).LengthSqr() > GetMaxRange()*GetMaxRange())
 	{
 		vecPreviewAim = GetDesiredMove() + (vecPreviewAim - GetDesiredMove()).Normalized() * GetMaxRange() * 0.99f;
+		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
+	}
+
+	if ((vecPreviewAim - GetDesiredMove()).LengthSqr() < GetMinRange()*GetMinRange())
+	{
+		vecPreviewAim = GetDesiredMove() + (vecPreviewAim - GetDesiredMove()).Normalized() * GetMinRange() * 1.01f;
 		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
 	}
 
@@ -416,12 +461,21 @@ bool CDigitank::IsPreviewAimValid()
 	if (!m_bPreviewAim)
 		return false;
 
-	return (GetPreviewAim() - GetDesiredMove()).LengthSqr() < GetMaxRange()*GetMaxRange();
+	if ((GetPreviewAim() - GetDesiredMove()).LengthSqr() > GetMaxRange()*GetMaxRange())
+		return false;
+
+	if ((GetPreviewAim() - GetDesiredMove()).LengthSqr() < GetMinRange()*GetMinRange())
+		return false;
+
+	return true;
 }
 
 void CDigitank::SetDesiredMove()
 {
 	m_bSelectedMove = true;
+
+	if (IsFortified() && !CanMoveFortified())
+		return;
 
 	if (GetPreviewMovePower() > m_flBasePower)
 		return;
@@ -526,6 +580,9 @@ bool CDigitank::IsMoving()
 
 void CDigitank::SetDesiredTurn()
 {
+	if (IsFortified() && !CanTurnFortified())
+		return;
+
 	float flMovePower = GetPreviewMoveTurnPower();
 
 	if (!IsPreviewMoveValid())
@@ -592,9 +649,18 @@ float CDigitank::GetDesiredTurn() const
 
 void CDigitank::SetDesiredAim()
 {
+	if (CanFortify() && !IsFortified() && !CanAimMobilized())
+		return;
+
 	m_bDesiredAim = false;
 
 	if ((GetPreviewAim() - GetDesiredMove()).Length() > GetMaxRange())
+		return;
+
+	if ((GetPreviewAim() - GetDesiredMove()).Length() < GetMinRange())
+		return;
+
+	if (AngleDifference(GetDesiredTurn(), VectorAngles((GetPreviewAim()-GetDesiredMove()).Normalized()).y) > FiringCone())
 		return;
 
 	Speak(TANKSPEECH_ATTACK);
@@ -646,6 +712,22 @@ Vector CDigitank::GetDesiredAim()
 	return m_vecDesiredAim;
 }
 
+void CDigitank::Fortify()
+{
+	if (!CanFortify())
+		return;
+
+	if (m_bFortified)
+	{
+		m_bFortified = false;
+		return;
+	}
+
+	m_bFortified = true;
+
+	m_iFortifyLevel = 0;
+}
+
 void CDigitank::Think()
 {
 	m_bDisplayAim = false;
@@ -684,9 +766,15 @@ void CDigitank::Think()
 				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
 			}
 
+			if ((vecTankAim - GetDesiredMove()).Length() < GetMinRange())
+			{
+				vecTankAim = GetDesiredMove() + (vecTankAim - GetDesiredMove()).Normalized() * GetMinRange() * 1.01f;
+				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+			}
+
 			float flDistance = (vecTankAim - GetDesiredMove()).Length();
 
-			float flRadius = RemapValClamped(flDistance, GetMinRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+			float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
 			DigitanksGame()->AddTankAim(vecTankAim, flRadius, this == pCurrentTank && CDigitanksWindow::Get()->GetControlMode() == MODE_AIM);
 
 			m_bDisplayAim = true;
@@ -787,6 +875,9 @@ void CDigitank::Fire()
 	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
 
+	if (flDistanceSqr < GetMinRange()*GetMinRange())
+		return;
+
 	DigitanksGame()->AddProjectileToWaitFor();
 
 	if (CNetwork::IsHost())
@@ -804,16 +895,19 @@ void CDigitank::FireProjectile()
 	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
 
+	if (flDistanceSqr < GetMinRange()*GetMinRange())
+		return;
+
 	float flDistance = (GetDesiredAim() - GetOrigin()).Length();
 	Vector vecLandingSpot = GetDesiredAim();
 
-	if (flDistance > GetMinRange())
-	{
-		float flFactor = RemapVal(flDistance, GetMinRange(), GetMaxRange(), 0, TANK_MAX_RANGE_RADIUS);
-		float x = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
-		float z = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
-		vecLandingSpot += Vector(x, 0, z);
-	}
+	float flFactor = 1;
+	if (flDistance > GetEffRange())
+		float flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, TANK_MAX_RANGE_RADIUS);
+
+	float x = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
+	float z = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
+	vecLandingSpot += Vector(x, 0, z);
 
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
@@ -840,7 +934,7 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	float flGravity = DigitanksGame()->GetGravity();
 	float flTime;
 	Vector vecForce;
-	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime);
+	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime, ProjectileCurve());
 
 	m_hProjectile->SetOwner(this);
 	m_hProjectile->SetDamage(GetProjectileDamage());
@@ -1171,7 +1265,7 @@ void CDigitank::PostRender()
 		float flGravity = DigitanksGame()->GetGravity();
 		float flTime;
 		Vector vecForce;
-		FindLaunchVelocity(vecTankOrigin, m_vecDisplayAim, flGravity, vecForce, flTime);
+		FindLaunchVelocity(vecTankOrigin, m_vecDisplayAim, flGravity, vecForce, flTime, ProjectileCurve());
 
 		CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, vecTankOrigin);
 		oRope.SetWidth(0.5f);

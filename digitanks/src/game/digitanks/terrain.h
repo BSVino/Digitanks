@@ -28,7 +28,7 @@ public:
 
 	float					GetRealHeight(int x, int y);
 	float					GetHeight(float x, float y);
-	void					SetPointHeight(Vector& vecPoint);
+	Vector					SetPointHeight(Vector& vecPoint);
 	float					GetMapSize() const;
 	float					ArrayToWorldSpace(int i);
 	int						WorldToArraySpace(float f);

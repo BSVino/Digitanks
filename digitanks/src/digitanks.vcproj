@@ -283,6 +283,14 @@
 					Name="digitanks"
 					>
 					<File
+						RelativePath=".\game\digitanks\artillery.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\artillery.h"
+						>
+					</File>
+					<File
 						RelativePath=".\game\digitanks\digitank.cpp"
 						>
 					</File>

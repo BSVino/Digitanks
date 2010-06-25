@@ -20,7 +20,7 @@ public:
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				GetMaxRange() const { return 70.0f; };
-	virtual float				GetMinRange() const { return 35.0f; };
+	virtual float				GetEffRange() const { return 35.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 };
 
