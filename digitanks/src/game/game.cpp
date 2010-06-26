@@ -38,6 +38,9 @@ CGame::CGame()
 
 CGame::~CGame()
 {
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		m_ahTeams[i]->Delete();
+
 	delete m_pRenderer;
 	delete m_pCamera;
 	assert(s_pGame == this);
@@ -52,6 +55,10 @@ void CGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
 	CNetwork::RegisterFunction("SetOrigin", this, SetOriginCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
+	CNetwork::RegisterFunction("SetTeamClient", this, SetTeamClientCallback, 2, NET_HANDLE, NET_INT);
+	CNetwork::RegisterFunction("AddEntityToTeam", this, AddEntityToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
 }
 
 void CGame::ClientConnect(CNetworkParameters* p)
@@ -272,4 +279,20 @@ void CGame::SetAngles(CNetworkParameters* p)
 
 	if (hEntity != NULL)
 		hEntity->SetAngles(EAngle(p->fl2, p->fl3, p->fl4));
+}
+
+void CGame::AddTeam(CNetworkParameters* p)
+{
+	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
+}
+
+bool CGame::IsTeamControlledByMe(CTeam* pTeam)
+{
+	if (!pTeam)
+		return false;
+
+	if (pTeam->IsPlayerControlled() && pTeam->GetClient() == m_iClient)
+		return true;
+
+	return false;
 }

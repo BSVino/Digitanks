@@ -4,9 +4,10 @@
 #include <vector>
 
 #include "game.h"
-#include "team.h"
+#include "digitank.h"
 #include <common.h>
 #include "terrain.h"
+#include "digitanksteam.h"
 
 class IDigitanksGameListener
 {
@@ -42,7 +43,7 @@ public:
 	virtual void			OnClientUpdate(CNetworkParameters* p);
 	virtual void			OnClientDisconnect(CNetworkParameters* p);
 
-	void					SetupGame(int iPlayers, int iTanks);
+	void					SetupGame();
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
@@ -77,10 +78,9 @@ public:
 
 	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
 
-	size_t					GetNumTeams() { return m_ahTeams.size(); };
-	CTeam*					GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
+	CDigitanksTeam*			GetDigitanksTeam(size_t i);
 
-	CTeam*					GetCurrentTeam();
+	CDigitanksTeam*			GetCurrentTeam();
 	CDigitank*				GetCurrentTank();
 	size_t					GetCurrentTankId();
 
@@ -88,10 +88,6 @@ public:
 	NET_CALLBACK(CDigitanksGame, SetTerrain);
 
 	NET_CALLBACK(CDigitanksGame, SetCurrentTeam);
-	NET_CALLBACK(CDigitanksGame, AddTeam);
-	NET_CALLBACK(CDigitanksGame, SetTeamColor);
-	NET_CALLBACK(CDigitanksGame, SetTeamClient);
-	NET_CALLBACK(CDigitanksGame, AddTankToTeam);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredMove);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredMove);
@@ -116,14 +112,10 @@ public:
 	void					GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus);
 	void					ClearTankAims();
 
-	bool					IsTeamControlledByMe(CTeam* pTeam);
-
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
 protected:
-	std::vector<CEntityHandle<CTeam>>	m_ahTeams;
-
 	size_t					m_iCurrentTeam;
 	size_t					m_iCurrentTank;
 

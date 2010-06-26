@@ -86,6 +86,9 @@ public:
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
+	class CTeam*							GetTeam() const { return m_pTeam; };
+	void									SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
+
 	virtual void							ClientUpdate(int iClient);
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
@@ -148,6 +151,8 @@ protected:
 	float									m_flTotalHealth;
 	float									m_flHealth;
 	float									m_flTimeKilled;
+
+	class CTeam*							m_pTeam;
 
 	bool									m_bDeleted;
 

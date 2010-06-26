@@ -35,32 +35,6 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS\n \nCopyright © 2010, Jorge Rodriguez <bs.vino@gmail.com>\n \nhttp://digitanks.com");
 	AddControl(m_pDigitanks);
 
-	m_pNumberOfPlayers = new CScrollSelector<int>();
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(5, L"5"));
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
-	m_pNumberOfPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
-	m_pNumberOfPlayers->SetSelection(2);
-	AddControl(m_pNumberOfPlayers);
-
-	m_pPlayersLabel = new CLabel(0, 0, 32, 32, "Number of teams");
-	AddControl(m_pPlayersLabel);
-
-	m_pNumberOfTanks = new CScrollSelector<int>();
-	m_pNumberOfTanks->AddSelection(CScrollSelection<int>(1, L"1"));
-	m_pNumberOfTanks->AddSelection(CScrollSelection<int>(2, L"2"));
-	m_pNumberOfTanks->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pNumberOfTanks->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pNumberOfTanks->AddSelection(CScrollSelection<int>(5, L"5"));
-	m_pNumberOfTanks->SetSelection(2);
-	AddControl(m_pNumberOfTanks);
-
-	m_pTanksLabel = new CLabel(0, 0, 32, 32, "Tanks per team");
-	AddControl(m_pTanksLabel);
-
 	m_pDifficulty = new CScrollSelector<int>();
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
@@ -98,19 +72,7 @@ void CDigitanksMenu::Layout()
 	m_pDigitanks->SetSize(GetWidth(), GetHeight());
 	m_pDigitanks->SetAlign(CLabel::TA_TOPCENTER);
 
-	m_pPlayersLabel->EnsureTextFits();
-	m_pPlayersLabel->SetPos(5, 180);
-
-	int iSelectorSize = m_pPlayersLabel->GetHeight() - 4;
-
-	m_pNumberOfPlayers->SetSize(GetWidth() - m_pPlayersLabel->GetWidth() - 20, iSelectorSize);
-	m_pNumberOfPlayers->SetPos(GetWidth() - m_pNumberOfPlayers->GetWidth() - 20/2, 180);
-
-	m_pTanksLabel->EnsureTextFits();
-	m_pTanksLabel->SetPos(5, 210);
-
-	m_pNumberOfTanks->SetSize(GetWidth() - m_pTanksLabel->GetWidth() - 20, iSelectorSize);
-	m_pNumberOfTanks->SetPos(GetWidth() - m_pNumberOfTanks->GetWidth() - 20/2, 210);
+	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
 	m_pDifficultyLabel->EnsureTextFits();
 	m_pDifficultyLabel->SetPos(75, 240);
@@ -175,7 +137,7 @@ void CDigitanksMenu::TutorialCallback()
 
 void CDigitanksMenu::StartGameCallback()
 {
-	CDigitanksWindow::Get()->CreateGame(m_pNumberOfPlayers->GetSelectionValue(), m_pNumberOfTanks->GetSelectionValue());
+	CDigitanksWindow::Get()->CreateGame();
 
 	if (!Game())
 		return;

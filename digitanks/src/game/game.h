@@ -6,6 +6,7 @@
 #include <network/network.h>
 
 #include "baseentity.h"
+#include "team.h"
 
 class CGame : public INetworkListener
 {
@@ -50,6 +51,15 @@ public:
 	NET_CALLBACK(CGame,							ClientInfo);
 	NET_CALLBACK(CGame,							SetOrigin);
 	NET_CALLBACK(CGame,							SetAngles);
+	NET_CALLBACK(CGame,							AddTeam);
+
+	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamColor);
+	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamClient);
+	NET_CALLBACK_ENTITY(CGame, CTeam,			AddEntityToTeam);
+
+	size_t										GetNumTeams() { return m_ahTeams.size(); };
+	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
+	bool										IsTeamControlledByMe(CTeam* pTeam);
 
 	float										GetFrameTime() { return m_flFrameTime; };
 	float										GetGameTime() { return m_flGameTime; };
@@ -63,6 +73,8 @@ public:
 	static CGame*								GetGame() { return s_pGame; };
 
 protected:
+	std::vector<CEntityHandle<CTeam> >			m_ahTeams;
+
 	std::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
 
 	static CGame*								s_pGame;

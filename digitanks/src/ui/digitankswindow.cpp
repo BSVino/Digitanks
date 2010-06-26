@@ -100,7 +100,7 @@ CDigitanksWindow::~CDigitanksWindow()
 	DestroyGame();
 }
 
-void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
+void CDigitanksWindow::CreateGame()
 {
 	if (!m_pDigitanksGame)
 	{
@@ -131,7 +131,7 @@ void CDigitanksWindow::CreateGame(int iPlayers, int iTanks)
 		}
 	}
 
-	m_pDigitanksGame->SetupGame(iPlayers, iTanks);
+	m_pDigitanksGame->SetupGame();
 
 	glgui::CRootPanel::Get()->Layout();
 }

@@ -13,7 +13,7 @@
 
 #include "digitanks/mechinf.h"
 #include "digitanks/maintank.h"
-#include "digitanks/artillery.h"
+#include "digitanks/cpu.h"
 #include "digitanks/projectile.h"
 
 CDigitanksGame::CDigitanksGame()
@@ -35,8 +35,6 @@ CDigitanksGame::CDigitanksGame()
 
 CDigitanksGame::~CDigitanksGame()
 {
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-		m_ahTeams[i]->Delete();
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -49,10 +47,6 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
 	CNetwork::RegisterFunction("SetCurrentTeam", this, SetCurrentTeamCallback, NET_INT);
 	CNetwork::RegisterFunction("SetTerrain", this, SetTerrainCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
-	CNetwork::RegisterFunction("SetTeamClient", this, SetTeamClientCallback, 2, NET_HANDLE, NET_INT);
-	CNetwork::RegisterFunction("AddTankToTeam", this, AddTankToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
 	CNetwork::RegisterFunction("SetDesiredMove", this, SetDesiredMoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("CancelDesiredMove", this, CancelDesiredMoveCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetDesiredTurn", this, SetDesiredTurnCallback, 2, NET_HANDLE, NET_FLOAT);
@@ -99,7 +93,7 @@ void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
 	m_ahTeams[p->i1]->SetClient(-1);
 }
 
-void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
+void CDigitanksGame::SetupGame()
 {
 	m_bLoading = true;
 
@@ -110,36 +104,7 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 
 	m_hTerrain = Game()->Create<CTerrain>("CTerrain");
 
-	if (iPlayers > 8)
-		iPlayers = 8;
-	if (iPlayers < 2)
-		iPlayers = 2;
-
-	if (iTanks > 5)
-		iTanks = 5;
-	if (iTanks < 1)
-		iTanks = 1;
-
-	Vector avecStartingPositions[] =
-	{
-		Vector(45, 0, 110),
-		Vector(-45, 0, 110),
-		Vector(-110, 0, 45),
-		Vector(-110, 0, -45),
-		Vector(-45, 0, -110),
-		Vector(45, 0, -110),
-		Vector(110, 0, -45),
-		Vector(110, 0, 45),
-	};
-
-	Vector avecTankPositions[] =
-	{
-		Vector(0, 0, 0),
-		Vector(15, 0, 15),
-		Vector(-15, 0, -15),
-		Vector(15, 0, -15),
-		Vector(-15, 0, 15),
-	};
+	float flReflection = 1;
 
 	Color aclrTeamColors[] =
 	{
@@ -153,42 +118,61 @@ void CDigitanksGame::SetupGame(int iPlayers, int iTanks)
 		Color(255, 255, 255),
 	};
 
-	std::vector<Vector> avecRandomStartingPositions;
-	for (int i = 0; i < iPlayers; i++)
+	for (int i = 0; i < 2; i++)
 	{
-		// 8 random starting positions.
-		if (rand()%2)
-			avecRandomStartingPositions.push_back(avecStartingPositions[i]);
-		else
-			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
-	}
+		m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
-	for (int i = 0; i < iPlayers; i++)
-	{
-		m_ahTeams.push_back(Game()->Create<CTeam>("CTeam"));
+		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
 
-		m_ahTeams[i]->m_clrTeam = aclrTeamColors[i];
+		CCPU* pCPU = Game()->Create<CCPU>("CCPU");
+		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(100, 0, 100) * flReflection));
+		m_ahTeams[i]->AddEntity(pCPU);
 
-		for (int j = 0; j < iTanks; j++)
-		{
-			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
-			EAngle angTank = VectorAngles(-vecTank.Normalized());
+		CDigitank* pTank;
+		Vector vecTank;
+		EAngle angTank;
 
-			if (iTanks >= 3 && j == iTanks-1)
-				m_ahTeams[i]->AddTank(Game()->Create<CArtillery>("CArtillery"));
-			else if (j != 0 && j >= iTanks/3)
-				m_ahTeams[i]->AddTank(Game()->Create<CMechInfantry>("CMechInfantry"));
-			else
-				m_ahTeams[i]->AddTank(Game()->Create<CMainBattleTank>("CMainBattleTank"));
+		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
+		m_ahTeams[i]->AddEntity(pTank);
 
-			CDigitank* pTank = m_ahTeams[i]->m_ahTanks[j];
+		vecTank = Vector(60, 0, 60);
+		angTank = VectorAngles(-vecTank.Normalized());
 
-			vecTank.y = pTank->FindHoverHeight(vecTank);
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
 
-			pTank->SetOrigin(vecTank);
-			pTank->SetAngles(angTank);
-			pTank->GiveBonusPoints(1, false);
-		}
+		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
+		m_ahTeams[i]->AddEntity(pTank);
+
+		vecTank = Vector(80, 0, 60);
+		angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
+
+		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
+		m_ahTeams[i]->AddEntity(pTank);
+
+		vecTank = Vector(60, 0, 80);
+		angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
+
+		pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[i]->AddEntity(pTank);
+
+		vecTank = Vector(80, 0, 80);
+		angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
+
+		flReflection = -flReflection;
 	}
 
 	m_ahTeams[0]->SetClient(-1);
@@ -329,7 +313,7 @@ void CDigitanksGame::SetCurrentTank(CDigitank* pCurrentTank)
 	bool bFoundNew = false;
 	for (size_t i = 0; i < GetNumTeams(); i++)
 	{
-		CTeam* pTeam = GetTeam(i);
+		CDigitanksTeam* pTeam = GetDigitanksTeam(i);
 		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
 		{
 			CDigitank* pTank = pTeam->GetTank(j);
@@ -371,7 +355,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		Vector vecOrigin = GetCurrentTank()->GetOrigin();
 		Vector vecMove = vecPreview - vecOrigin;
 
-		CTeam* pTeam = GetCurrentTeam();
+		CDigitanksTeam* pTeam = GetCurrentTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
@@ -414,7 +398,7 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 	{
 		bool bNoTurn = (vecLookAt - GetCurrentTank()->GetDesiredMove()).LengthSqr() < 4*4;
 
-		CTeam* pTeam = GetCurrentTeam();
+		CDigitanksTeam* pTeam = GetCurrentTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
@@ -449,7 +433,7 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 	{
 		Vector vecPreviewAim = GetCurrentTank()->GetPreviewAim();
 
-		CTeam* pTeam = GetCurrentTeam();
+		CDigitanksTeam* pTeam = GetCurrentTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
@@ -605,9 +589,9 @@ void CDigitanksGame::Bot_ExecuteTurn()
 	Vector vecFortifyPoint;
 
 	// Find the closest fortification point. Each enemy tank is examined to find the closest spot outside of all enemy tank ranges.
-	for (size_t i = 0; i < pTarget->GetTeam()->GetNumTanks(); i++)
+	for (size_t i = 0; i < pTarget->GetDigitanksTeam()->GetNumTanks(); i++)
 	{
-		CDigitank* pTank = pTarget->GetTeam()->GetTank(i);
+		CDigitank* pTank = pTarget->GetDigitanksTeam()->GetTank(i);
 
 		// Artillery isn't a big deal, and they have huge ranges.
 		if (pTank->IsArtillery())
@@ -849,7 +833,7 @@ void CDigitanksGame::CheckWinConditions()
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_ahTeams[i]->GetNumTanksAlive() == 0)
+		if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
 		{
 			m_ahTeams[i]->Delete();
 			m_ahTeams.erase(m_ahTeams.begin()+i);
@@ -887,12 +871,17 @@ void CDigitanksGame::TankSpeak(class CDigitank* pTank, const std::string& sSpeec
 		m_pListener->TankSpeak(pTank, sSpeech);
 }
 
-CTeam* CDigitanksGame::GetCurrentTeam()
+CDigitanksTeam* CDigitanksGame::GetDigitanksTeam(size_t i)
+{
+	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam(i));
+}
+
+CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
 {
 	if (m_iCurrentTeam >= m_ahTeams.size())
 		return NULL;
 
-	return m_ahTeams[m_iCurrentTeam];
+	return dynamic_cast<CDigitanksTeam*>(m_ahTeams[m_iCurrentTeam].GetPointer());
 }
 
 CDigitank* CDigitanksGame::GetCurrentTank()
@@ -921,35 +910,6 @@ void CDigitanksGame::SetCurrentTeam(CNetworkParameters* p)
 	m_iCurrentTeam = p->i1;
 }
 
-void CDigitanksGame::AddTeam(CNetworkParameters* p)
-{
-	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
-}
-
-void CDigitanksGame::SetTeamColor(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-	
-	if (hTeam.GetPointer() != NULL)
-		hTeam->m_clrTeam = Color(p->i2, p->i3, p->i4);
-}
-
-void CDigitanksGame::SetTeamClient(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-	
-	if (hTeam.GetPointer() != NULL)
-		hTeam->SetClient(p->i2);
-}
-
-void CDigitanksGame::AddTankToTeam(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-
-	if (hTeam.GetPointer() != NULL)
-		hTeam->AddTank(CEntityHandle<CDigitank>(p->ui2));
-}
-
 float CDigitanksGame::GetGravity()
 {
 	return -20;
@@ -975,15 +935,4 @@ void CDigitanksGame::ClearTankAims()
 {
 	m_avecTankAims.clear();
 	m_aflTankAimRadius.clear();
-}
-
-bool CDigitanksGame::IsTeamControlledByMe(CTeam* pTeam)
-{
-	if (!pTeam)
-		return false;
-
-	if (pTeam->IsPlayerControlled() && pTeam->GetClient() == m_iClient)
-		return true;
-
-	return false;
 }

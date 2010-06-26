@@ -195,8 +195,7 @@ public:
 
 	float						FindHoverHeight(Vector vecPosition) const;
 
-	class CTeam*				GetTeam() const { return m_pTeam; };
-	void						SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
+	class CDigitanksTeam*		GetDigitanksTeam();
 
 	virtual float				HealthRechargeRate() const { return 0.2f; };
 	virtual float				ShieldRechargeRate() const { return 1.0f; };
@@ -269,8 +268,6 @@ protected:
 	float						m_flFireProjectileTime;
 	CEntityHandle<class CProjectile>	m_hProjectile;
 
-	class CTeam*				m_pTeam;
-
 	float						m_flLastSpeech;
 	float						m_flNextIdle;
 
@@ -281,6 +278,8 @@ protected:
 
 	bool						m_bFortified;
 	size_t						m_iFortifyLevel;
+
+	CEntityHandle<class CSupplier>	m_hSupplier;
 
 	// AI stuff
 	Vector						m_vecFortifyPoint;

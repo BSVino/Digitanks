@@ -24,7 +24,7 @@ public:
 public:
 	void						InitUI();
 
-	void						CreateGame(int iPlayers, int iTanks);
+	void						CreateGame();
 	void						DestroyGame();
 
 	void						Run();	// Doesn't return

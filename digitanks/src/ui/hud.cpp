@@ -427,7 +427,7 @@ void CHUD::Think()
 	if (pCurrentTank)
 	{
 		bool bShowEnter = true;
-		CTeam* pTeam = pCurrentTank->GetTeam();
+		CDigitanksTeam* pTeam = pCurrentTank->GetDigitanksTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
@@ -495,7 +495,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
-		CTeam* pTeam = DigitanksGame()->GetTeam(i);
+		CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
 		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
 		{
 			CDigitank* pTank = pTeam->GetTank(j);
@@ -559,7 +559,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 				if (CDigitanksWindow::Get()->IsShiftDown())
 				{
-					CTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+					CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
 					for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
 					{
 						CDigitank* pTank = pTeam->GetTank(t);
@@ -1034,7 +1034,7 @@ void CHUD::AutoCallback()
 {
 	if (!ShouldAutoProceed())
 	{
-		CTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
 		for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
 		{
 			CDigitank* pTank = pTeam->GetTank(t);

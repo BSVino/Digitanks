@@ -279,25 +279,17 @@
 					RelativePath=".\game\game.h"
 					>
 				</File>
+				<File
+					RelativePath=".\game\team.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\game\team.h"
+					>
+				</File>
 				<Filter
 					Name="digitanks"
 					>
-					<File
-						RelativePath=".\game\digitanks\artillery.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\game\digitanks\artillery.h"
-						>
-					</File>
-					<File
-						RelativePath=".\game\digitanks\digitank.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\game\digitanks\digitank.h"
-						>
-					</File>
 					<File
 						RelativePath=".\game\digitanks\digitanksgame.cpp"
 						>
@@ -307,19 +299,11 @@
 						>
 					</File>
 					<File
-						RelativePath=".\game\digitanks\maintank.cpp"
+						RelativePath=".\game\digitanks\digitanksteam.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\game\digitanks\maintank.h"
-						>
-					</File>
-					<File
-						RelativePath=".\game\digitanks\mechinf.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\game\digitanks\mechinf.h"
+						RelativePath=".\game\digitanks\digitanksteam.h"
 						>
 					</File>
 					<File
@@ -339,14 +323,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\game\digitanks\team.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\game\digitanks\team.h"
-						>
-					</File>
-					<File
 						RelativePath=".\game\digitanks\terrain.cpp"
 						>
 					</File>
@@ -354,6 +330,70 @@
 						RelativePath=".\game\digitanks\terrain.h"
 						>
 					</File>
+					<Filter
+						Name="units"
+						>
+						<File
+							RelativePath=".\game\digitanks\artillery.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\artillery.h"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\digitank.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\digitank.h"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\maintank.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\maintank.h"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\mechinf.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\mechinf.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="structures"
+						>
+						<File
+							RelativePath=".\game\digitanks\buffer.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\buffer.h"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\cpu.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\cpu.h"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\structure.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\structure.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 			</Filter>
 			<Filter

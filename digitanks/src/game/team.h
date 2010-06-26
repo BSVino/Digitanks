@@ -1,7 +1,6 @@
 #ifndef DT_TEAM_H
 #define DT_TEAM_H
 
-#include "digitank.h"
 #include "baseentity.h"
 
 #include "color.h"
@@ -9,8 +8,6 @@
 
 class CTeam : public CBaseEntity
 {
-	friend class CDigitanksGame;
-
 	REGISTER_ENTITY_CLASS(CTeam, CBaseEntity);
 
 public:
@@ -18,35 +15,32 @@ public:
 								~CTeam();
 
 public:
-	void						AddTank(CDigitank* pTank);
+	void						AddEntity(CBaseEntity* pEntity);
+	virtual void				OnAddEntity(CBaseEntity* pEntity) {};
 
 	void						StartTurn();
 
-	void						MoveTanks();
-	void						FireTanks();
-
 	virtual void				ClientUpdate(int iClient);
 
-	virtual void				OnKilled(class CBaseEntity* pEntity);
-
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
-
-	size_t						GetNumTanksAlive();
 
 	bool						IsPlayerControlled() { return m_bClientControlled; };
 	void						SetClient(int iClient);
 	void						SetBot();
 	int							GetClient() { return m_iClient; };
 
+	void						SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
 	Color						GetColor() { return m_clrTeam; };
 
-	size_t						GetNumTanks() { return m_ahTanks.size(); };
-	CDigitank*					GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return (CDigitank*)m_ahTanks[i]; };
+	void						AddTeam(class CNetworkParameters* p);
+	void						SetTeamColor(class CNetworkParameters* p);
+	void						SetTeamClient(class CNetworkParameters* p);
+	void						AddEntityToTeam(class CNetworkParameters* p);
 
 protected:
 	Color						m_clrTeam;
 
-	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
+	std::vector<CEntityHandle<CBaseEntity> >	m_ahMembers;
 
 	bool						m_bClientControlled;
 	int							m_iClient;

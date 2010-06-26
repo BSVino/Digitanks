@@ -1460,3 +1460,8 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 
 	return flHighestTerrain;
 }
+
+CDigitanksTeam* CDigitank::GetDigitanksTeam()
+{
+	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
+}

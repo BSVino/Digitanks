@@ -24,12 +24,6 @@ public:
 protected:
 	glgui::CLabel*					m_pDigitanks;
 
-	glgui::CScrollSelector<int>*	m_pNumberOfPlayers;
-	glgui::CLabel*					m_pPlayersLabel;
-
-	glgui::CScrollSelector<int>*	m_pNumberOfTanks;
-	glgui::CLabel*					m_pTanksLabel;
-
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
