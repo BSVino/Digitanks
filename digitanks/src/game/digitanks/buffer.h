@@ -6,6 +6,9 @@
 class CBuffer : public CStructure
 {
 	REGISTER_ENTITY_CLASS(CBuffer, CStructure);
+
+public:
+	virtual void				OnRender();
 };
 
 #endif

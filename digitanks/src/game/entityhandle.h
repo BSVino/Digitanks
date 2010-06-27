@@ -25,7 +25,10 @@ public:
 public:
 	inline const CEntityHandle& operator=(const C* pEntity)
 	{
-		m_iHandle = pEntity->GetHandle();
+		if (!pEntity)
+			m_iHandle = ~0;
+		else
+			m_iHandle = pEntity->GetHandle();
 		return *this;
 	}
 

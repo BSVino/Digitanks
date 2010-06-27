@@ -2,6 +2,9 @@
 
 #include <network/network.h>
 
+#include "digitank.h"
+#include "structure.h"
+
 REGISTER_ENTITY(CDigitanksTeam);
 
 CDigitanksTeam::CDigitanksTeam()
@@ -21,12 +24,47 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 
 void CDigitanksTeam::StartTurn()
 {
-	for (size_t i = 0; i < m_ahTanks.size(); i++)
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
-		if (m_ahTanks[i] == NULL)
+		if (m_ahMembers[i] == NULL)
 			continue;
 
-		m_ahTanks[i]->StartTurn();
+		CDigitank* pTank = dynamic_cast<CDigitank*>(m_ahMembers[i].GetPointer());
+		if (pTank)
+		{
+			pTank->StartTurn();
+			continue;
+		}
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
+		if (pStructure)
+		{
+			pStructure->StartTurn();
+			continue;
+		}
+	}
+}
+
+void CDigitanksTeam::PostStartTurn()
+{
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(m_ahMembers[i].GetPointer());
+		if (pTank)
+		{
+			pTank->PostStartTurn();
+			continue;
+		}
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
+		if (pStructure)
+		{
+			pStructure->PostStartTurn();
+			continue;
+		}
 	}
 }
 

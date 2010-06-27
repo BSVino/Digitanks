@@ -32,6 +32,9 @@ public:
 	void						SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
 	Color						GetColor() { return m_clrTeam; };
 
+	size_t						GetNumMembers() { return m_ahMembers.size(); };
+	CBaseEntity*				GetMember(size_t i) { if (!m_ahMembers.size()) return NULL; return m_ahMembers[i]; };
+
 	void						AddTeam(class CNetworkParameters* p);
 	void						SetTeamColor(class CNetworkParameters* p);
 	void						SetTeamClient(class CNetworkParameters* p);

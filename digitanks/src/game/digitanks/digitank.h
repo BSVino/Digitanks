@@ -1,7 +1,7 @@
 #ifndef DT_DIGITANK_H
 #define DT_DIGITANK_H
 
-#include <baseentity.h>
+#include "selectable.h"
 #include <common.h>
 
 #define TANK_SHIELDS 4
@@ -41,9 +41,9 @@ typedef enum
 	TANKLINE_THRILLED,
 };
 
-class CDigitank : public CBaseEntity
+class CDigitank : public CSelectable
 {
-	REGISTER_ENTITY_CLASS(CDigitank, CBaseEntity);
+	REGISTER_ENTITY_CLASS(CDigitank, CSelectable);
 
 public:
 								CDigitank();
@@ -100,6 +100,7 @@ public:
 	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
 
 	virtual void				StartTurn();
+	virtual void				PostStartTurn() {};
 
 	Vector						GetPreviewMove() { return m_vecPreviewMove; };
 	virtual void				SetPreviewMove(Vector vecPreviewMove);
@@ -154,7 +155,23 @@ public:
 
 	virtual void				Think();
 
-	void						OnCurrentTank();
+	// CSelectable
+	virtual void				OnCurrentSelection();
+	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
+
+	virtual const char*			GetPowerBar1Text() { return "Attack Power"; }
+	virtual const char*			GetPowerBar2Text() { return "Defense Power"; }
+	virtual const char*			GetPowerBar3Text() { return "Movement Power"; }
+
+	virtual float				GetPowerBar1Value();
+	virtual float				GetPowerBar2Value();
+	virtual float				GetPowerBar3Value();
+
+	virtual float				GetPowerBar1Size();
+	virtual float				GetPowerBar2Size();
+	virtual float				GetPowerBar3Size();
+
+	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	void						Move();
 	virtual void				Fire();
@@ -285,6 +302,12 @@ protected:
 	Vector						m_vecFortifyPoint;
 
 	static size_t				s_iAimBeam;
+	static size_t				s_iCancelIcon;
+	static size_t				s_iMoveIcon;
+	static size_t				s_iTurnIcon;
+	static size_t				s_iAimIcon;
+	static size_t				s_iFireIcon;
+	static size_t				s_iPromoteIcon;
 
 	static const char*			s_apszTankLines[];
 };

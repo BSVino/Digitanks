@@ -7,6 +7,9 @@
 #include <renderer/particles.h>
 
 #include <network/network.h>
+#include <ui/digitankswindow.h>
+#include <ui/menu.h>
+#include <ui/instructor.h>
 #include "powerup.h"
 #include "terrain.h"
 #include "camera.h"
@@ -19,7 +22,7 @@
 CDigitanksGame::CDigitanksGame()
 {
 	m_iCurrentTeam = 0;
-	m_iCurrentTank = 0;
+	m_iCurrentSelection = 0;
 
 	m_pListener = NULL;
 
@@ -135,40 +138,40 @@ void CDigitanksGame::SetupGame()
 		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(60, 0, 60);
+		vecTank = Vector(60, 0, 60)* flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank ));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
 
 		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(80, 0, 60);
+		vecTank = Vector(80, 0, 60)* flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
 
 		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(60, 0, 80);
+		vecTank = Vector(60, 0, 80) * flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
 
 		pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(80, 0, 80);
+		vecTank = Vector(80, 0, 80) * flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank * flReflection));
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
 
@@ -237,7 +240,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (CNetwork::IsHost())
 		CNetwork::CallFunction(-1, "EnterGame");
 
-	m_iCurrentTank = 0;
+	m_iCurrentSelection = 0;
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;
 
@@ -248,11 +251,11 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		m_pListener->SetHUDActive(true);
 		m_pListener->NewCurrentTeam();
 
-		m_pListener->NewCurrentTank();
+		m_pListener->NewCurrentSelection();
 	}
 
 	// Point the camera in to the center
-	EAngle angCamera = VectorAngles(GetCurrentTank()->GetOrigin().Normalized());
+	EAngle angCamera = VectorAngles(GetCurrentSelection()->GetOrigin().Normalized());
 	angCamera.p = 45;
 	GetCamera()->SnapAngle(angCamera);
 }
@@ -308,51 +311,22 @@ void CDigitanksGame::Think()
 	}
 }
 
-void CDigitanksGame::SetCurrentTank(CDigitank* pCurrentTank)
-{
-	bool bFoundNew = false;
-	for (size_t i = 0; i < GetNumTeams(); i++)
-	{
-		CDigitanksTeam* pTeam = GetDigitanksTeam(i);
-		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
-		{
-			CDigitank* pTank = pTeam->GetTank(j);
-
-			if (GetCurrentTeam() != pTank->GetTeam())
-				continue;
-
-			if (pTank == pCurrentTank)
-			{
-				m_iCurrentTeam = i;
-				m_iCurrentTank = j;
-				bFoundNew = true;
-				break;
-			}
-		}
-
-		if (bFoundNew)
-			break;
-	}
-
-	if (GetCurrentTank())
-		GetCurrentTank()->OnCurrentTank();
-
-	if (m_pListener)
-		m_pListener->NewCurrentTank();
-}
-
 void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 {
-	if (!GetCurrentTank())
+	if (!GetCurrentSelection())
+		return;
+
+	CDigitank* pCurrentTank = dynamic_cast<CDigitank*>(GetCurrentSelection());
+	if (!pCurrentTank)
 		return;
 
 	if (bAllTanks)
 	{
-		if (!GetCurrentTank()->IsPreviewMoveValid())
+		if (!pCurrentTank->IsPreviewMoveValid())
 			return;
 
-		Vector vecPreview = GetCurrentTank()->GetPreviewMove();
-		Vector vecOrigin = GetCurrentTank()->GetOrigin();
+		Vector vecPreview = pCurrentTank->GetPreviewMove();
+		Vector vecOrigin = pCurrentTank->GetOrigin();
 		Vector vecMove = vecPreview - vecOrigin;
 
 		CDigitanksTeam* pTeam = GetCurrentTeam();
@@ -386,17 +360,21 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		}
 	}
 	else
-		GetCurrentTank()->SetDesiredMove();
+		pCurrentTank->SetDesiredMove();
 }
 
 void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 {
-	if (!GetCurrentTank())
+	if (!GetCurrentSelection())
+		return;
+
+	CDigitank* pCurrentTank = dynamic_cast<CDigitank*>(GetCurrentSelection());
+	if (!pCurrentTank)
 		return;
 
 	if (bAllTanks)
 	{
-		bool bNoTurn = (vecLookAt - GetCurrentTank()->GetDesiredMove()).LengthSqr() < 4*4;
+		bool bNoTurn = (vecLookAt - pCurrentTank->GetDesiredMove()).LengthSqr() < 4*4;
 
 		CDigitanksTeam* pTeam = GetCurrentTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -421,17 +399,21 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 		}
 	}
 	else
-		GetCurrentTank()->SetDesiredTurn();
+		pCurrentTank->SetDesiredTurn();
 }
 
 void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 {
-	if (!GetCurrentTank())
+	if (!GetCurrentSelection())
+		return;
+
+	CDigitank* pCurrentTank = dynamic_cast<CDigitank*>(GetCurrentSelection());
+	if (!pCurrentTank)
 		return;
 
 	if (bAllTanks)
 	{
-		Vector vecPreviewAim = GetCurrentTank()->GetPreviewAim();
+		Vector vecPreviewAim = pCurrentTank->GetPreviewAim();
 
 		CDigitanksTeam* pTeam = GetCurrentTeam();
 		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -450,23 +432,27 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 		}
 	}
 	else
-		GetCurrentTank()->SetDesiredAim();
+		pCurrentTank->SetDesiredAim();
 }
 
 void CDigitanksGame::NextTank()
 {
-	assert(GetCurrentTank());
-	if (!GetCurrentTank())
+	assert(GetCurrentSelection());
+	if (!GetCurrentSelection())
 		return;
 
-	if (++m_iCurrentTank >= GetCurrentTeam()->GetNumTanks())
-		m_iCurrentTank = 0;
+	do
+	{
+		if (++m_iCurrentSelection >= GetCurrentTeam()->GetNumMembers())
+			m_iCurrentSelection = 0;
+	}
+	while (!GetCurrentSelection());
 
-	if (GetCurrentTank())
-		GetCurrentTank()->OnCurrentTank();
+	if (GetCurrentSelection())
+		GetCurrentSelection()->OnCurrentSelection();
 
 	if (m_pListener)
-		m_pListener->NewCurrentTank();
+		m_pListener->NewCurrentSelection();
 }
 
 void CDigitanksGame::EndTurn()
@@ -531,7 +517,7 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	m_iCurrentTank = 0;
+	m_iCurrentSelection = 0;
 
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
@@ -544,13 +530,15 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	GetCurrentTeam()->StartTurn();
 
-	if (GetCurrentTank())
-		GetCurrentTank()->OnCurrentTank();
+	GetCurrentTeam()->PostStartTurn();
+
+	if (GetCurrentSelection())
+		GetCurrentSelection()->OnCurrentSelection();
 
 	if (GetCurrentTeam()->IsPlayerControlled())
 	{
 		if (m_pListener)
-			m_pListener->NewCurrentTank();
+			m_pListener->NewCurrentSelection();
 	}
 	else if (CNetwork::IsHost())
 		Bot_ExecuteTurn();
@@ -884,20 +872,88 @@ CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
 	return dynamic_cast<CDigitanksTeam*>(m_ahTeams[m_iCurrentTeam].GetPointer());
 }
 
-CDigitank* CDigitanksGame::GetCurrentTank()
+CSelectable* CDigitanksGame::GetCurrentSelection()
 {
 	if (!GetCurrentTeam())
 		return NULL;
 
-	if (m_iCurrentTank >= GetCurrentTeam()->GetNumTanks())
+	if (m_iCurrentSelection >= GetCurrentTeam()->GetNumMembers())
 		return NULL;
 
-	return GetCurrentTeam()->GetTank(m_iCurrentTank);
+	CBaseEntity* pEntity = GetCurrentTeam()->GetMember(m_iCurrentSelection);
+
+	return dynamic_cast<CSelectable*>(pEntity);
 }
 
-size_t CDigitanksGame::GetCurrentTankId()
+CDigitank* CDigitanksGame::GetCurrentTank()
 {
-	return m_iCurrentTank;
+	return dynamic_cast<CDigitank*>(GetCurrentSelection());
+}
+
+CStructure* CDigitanksGame::GetCurrentStructure()
+{
+	return dynamic_cast<CStructure*>(GetCurrentSelection());
+}
+
+size_t CDigitanksGame::GetCurrentSelectionId()
+{
+	return m_iCurrentSelection;
+}
+
+bool CDigitanksGame::IsCurrentSelection(const CSelectable* pEntity)
+{
+	return GetCurrentSelection() == pEntity;
+}
+
+controlmode_t CDigitanksGame::GetControlMode()
+{
+	if (IsLoading())
+		return MODE_NONE;
+
+	if (IsTeamControlledByMe(GetCurrentTeam()))
+		return m_eControlMode;
+
+	return MODE_NONE;
+}
+
+void CDigitanksGame::SetControlMode(controlmode_t eMode, bool bAutoProceed)
+{
+	if (!GetCurrentSelection())
+		return;
+
+	if (CDigitanksWindow::Get()->GetVictoryPanel()->IsVisible())
+		return;
+
+	GetCurrentSelection()->OnControlModeChange(m_eControlMode, eMode);
+
+	if (eMode == MODE_MOVE)
+	{
+		GetCamera()->SetDistance(100);
+		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_MOVE);
+	}
+
+	if (eMode == MODE_TURN)
+	{
+		GetCamera()->SetDistance(80);
+//		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_TURN);
+	}
+
+	if (eMode == MODE_AIM)
+	{
+		GetCamera()->SetDistance(140);
+		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_AIM);
+	}
+
+	if (eMode == MODE_FIRE)
+	{
+		GetCamera()->SetDistance(80);
+		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_POWER);
+	}
+
+	if (eMode == MODE_NONE)
+		GetCamera()->SetDistance(100);
+
+	m_eControlMode = eMode;
 }
 
 void CDigitanksGame::SetTerrain(CNetworkParameters* p)

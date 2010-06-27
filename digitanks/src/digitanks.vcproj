@@ -323,6 +323,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\game\digitanks\selectable.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\selectable.h"
+						>
+					</File>
+					<File
 						RelativePath=".\game\digitanks\terrain.cpp"
 						>
 					</File>

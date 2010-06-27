@@ -242,7 +242,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 
 void CDigitanksWindow::GameOver(bool bPlayerWon)
 {
-	SetControlMode(MODE_NONE);
+	DigitanksGame()->SetControlMode(MODE_NONE);
 	GetInstructor()->SetActive(false);
 	m_pVictory->GameOver(bPlayerWon);
 }
@@ -256,77 +256,6 @@ void CDigitanksWindow::CloseApplication()
 
 	m_pMenu->SetVisible(false);
 	m_pDonate->ClosingApplication();
-}
-
-controlmode_t CDigitanksWindow::GetControlMode()
-{
-	if (Game()->IsLoading())
-		return MODE_NONE;
-
-	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
-		return m_eControlMode;
-
-	return MODE_NONE;
-}
-
-void CDigitanksWindow::SetControlMode(controlmode_t eMode, bool bAutoProceed)
-{
-	if (!DigitanksGame()->GetCurrentTank())
-		return;
-
-	if (m_pVictory->IsVisible())
-		return;
-
-	if (m_eControlMode == MODE_MOVE)
-	{
-		if (eMode == MODE_NONE)
-			DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
-		else
-			DigitanksGame()->GetCurrentTank()->ClearPreviewMove();
-	}
-
-	if (m_eControlMode == MODE_TURN)
-		DigitanksGame()->GetCurrentTank()->ClearPreviewTurn();
-
-	if (m_eControlMode == MODE_AIM)
-		DigitanksGame()->GetCurrentTank()->ClearPreviewAim();
-
-	if (eMode == MODE_MOVE)
-	{
-		DigitanksGame()->GetCurrentTank()->CancelDesiredMove();
-		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
-		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
-
-		GetGame()->GetCamera()->SetDistance(100);
-		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_MOVE);
-	}
-
-	if (eMode == MODE_TURN)
-	{
-		DigitanksGame()->GetCurrentTank()->CancelDesiredTurn();
-
-		GetGame()->GetCamera()->SetDistance(80);
-//		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_TURN);
-	}
-
-	if (eMode == MODE_AIM)
-	{
-		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
-
-		GetGame()->GetCamera()->SetDistance(140);
-		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_AIM);
-	}
-
-	if (eMode == MODE_FIRE)
-	{
-		GetGame()->GetCamera()->SetDistance(80);
-		m_pInstructor->DisplayTutorial(CInstructor::TUTORIAL_POWER);
-	}
-
-	if (eMode == MODE_NONE)
-		GetGame()->GetCamera()->SetDistance(100);
-
-	m_eControlMode = eMode;
 }
 
 bool CDigitanksWindow::HasCommandLineSwitch(const char* pszSwitch)

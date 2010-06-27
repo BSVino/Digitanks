@@ -2,7 +2,6 @@
 #define DT_DIGITANKSTEAM_H
 
 #include <game/team.h>
-#include "digitank.h"
 
 class CDigitanksTeam : public CTeam
 {
@@ -18,6 +17,7 @@ public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
 	void						StartTurn();
+	void						PostStartTurn();
 
 	void						MoveTanks();
 	void						FireTanks();
@@ -27,10 +27,10 @@ public:
 	size_t						GetNumTanksAlive();
 
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
-	CDigitank*					GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return (CDigitank*)m_ahTanks[i]; };
+	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return (class CDigitank*)m_ahTanks[i]; };
 
 protected:
-	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
+	std::vector<CEntityHandle<class CDigitank> >	m_ahTanks;
 };
 
 #endif

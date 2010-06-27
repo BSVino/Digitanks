@@ -98,12 +98,6 @@ class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
 
-	typedef enum
-	{
-		MENUMODE_MAIN,
-		MENUMODE_PROMOTE,
-	} menumode_t;
-
 public:
 								CHUD();
 
@@ -113,17 +107,43 @@ public:
 
 	void						Paint(int x, int y, int w, int h);
 
-	void						UpdateAttackInfo();
+	void						UpdateInfo();
+	void						UpdateTankInfo(CDigitank* pTank);
 
 	void						SetGame(class CDigitanksGame* pGame);
 
+	void						SetupMenu();
 	void						SetupMenu(menumode_t eMenuMode);
+
+	void						SetButton1Listener(IEventListener::Callback pfnCallback);
+	void						SetButton2Listener(IEventListener::Callback pfnCallback);
+	void						SetButton3Listener(IEventListener::Callback pfnCallback);
+	void						SetButton4Listener(IEventListener::Callback pfnCallback);
+	void						SetButton5Listener(IEventListener::Callback pfnCallback);
+
+	void						SetButton1Help(const char* pszHelp);
+	void						SetButton2Help(const char* pszHelp);
+	void						SetButton3Help(const char* pszHelp);
+	void						SetButton4Help(const char* pszHelp);
+	void						SetButton5Help(const char* pszHelp);
+
+	void						SetButton1Texture(size_t iTexture);
+	void						SetButton2Texture(size_t iTexture);
+	void						SetButton3Texture(size_t iTexture);
+	void						SetButton4Texture(size_t iTexture);
+	void						SetButton5Texture(size_t iTexture);
+
+	void						SetButton1Color(Color clrButton);
+	void						SetButton2Color(Color clrButton);
+	void						SetButton3Color(Color clrButton);
+	void						SetButton4Color(Color clrButton);
+	void						SetButton5Color(Color clrButton);
 
 	virtual void				GameStart();
 	virtual void				GameOver(bool bPlayerWon);
 
 	virtual void				NewCurrentTeam();
-	virtual void				NewCurrentTank();
+	virtual void				NewCurrentSelection();
 
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
@@ -135,6 +155,8 @@ public:
 	bool						ShouldAutoProceed() { return m_bAutoProceed; };
 	void						SetAutoProceed(bool bAuto) { m_bAutoProceed = bAuto; };
 
+	bool						IsActive() { return m_bHUDActive; };
+
 	EVENT_CALLBACK(CHUD, Auto);
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
@@ -145,6 +167,8 @@ public:
 	EVENT_CALLBACK(CHUD, PromoteAttack);
 	EVENT_CALLBACK(CHUD, PromoteDefense);
 	EVENT_CALLBACK(CHUD, PromoteMovement);
+	EVENT_CALLBACK(CHUD, BuildBuffer);
+	EVENT_CALLBACK(CHUD, CancelBuild);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
 	size_t						GetSpeechBubble() { return m_iSpeechBubble; };
@@ -199,12 +223,6 @@ protected:
 	size_t						m_iAvatarIcon;
 	size_t						m_iShieldIcon;
 
-	size_t						m_iCancelIcon;
-	size_t						m_iMoveIcon;
-	size_t						m_iTurnIcon;
-	size_t						m_iAimIcon;
-	size_t						m_iFireIcon;
-	size_t						m_iPromoteIcon;
 	size_t						m_iSpeechBubble;
 
 //	size_t						m_iCompetitionWatermark;

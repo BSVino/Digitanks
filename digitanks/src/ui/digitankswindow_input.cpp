@@ -8,6 +8,7 @@
 #include "game/camera.h"
 #include "hud.h"
 #include "menu.h"
+#include <game/digitanks/cpu.h>
 
 #include <renderer/dissolver.h>
 
@@ -63,14 +64,14 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		Vector vecMousePosition;
 		bool bFound = GetMouseGridPosition(vecMousePosition);
 
-		if (GetControlMode() == MODE_MOVE)
+		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		{
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 
 			if (DigitanksGame()->GetCurrentTank()->HasDesiredMove())
 			{
 				if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-					SetControlMode(MODE_AIM);
+					DigitanksGame()->SetControlMode(MODE_AIM);
 
 				if (m_pHUD->ShouldAutoProceed())
 					DigitanksGame()->NextTank();
@@ -80,45 +81,56 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 				GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
 			}
 		}
-		else if (GetControlMode() == MODE_TURN)
+		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
 		{
 			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
 
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-				SetControlMode(MODE_NONE);
+				DigitanksGame()->SetControlMode(MODE_NONE);
 			else
 				DigitanksGame()->NextTank();
 
 //			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 		}
-		else if (GetControlMode() == MODE_AIM)
+		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->SetDesiredAim(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
-				SetControlMode(MODE_FIRE);
+				DigitanksGame()->SetControlMode(MODE_FIRE);
 			else if (!m_pHUD->ShouldAutoProceed())
-				SetControlMode(MODE_NONE);
+				DigitanksGame()->SetControlMode(MODE_NONE);
 			else
 				DigitanksGame()->NextTank();
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 		}
-		else if (GetControlMode() == MODE_FIRE)
+		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
 			{
-				SetControlMode(MODE_NONE);
+				DigitanksGame()->SetControlMode(MODE_NONE);
 				m_pHUD->SetAutoProceed(false);
 			}
 			else if (!m_pHUD->ShouldAutoProceed())
-				SetControlMode(MODE_NONE);
+				DigitanksGame()->SetControlMode(MODE_NONE);
 			else
 				DigitanksGame()->NextTank();
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 		}
+		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+		{
+			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetCurrentStructure());
+			if (pCPU && pCPU->IsPreviewBuildValid())
+			{
+				pCPU->BeginConstruction();
+				DigitanksGame()->SetControlMode(MODE_NONE);
+			}
+		}
 	}
+
+	GetHUD()->SetupMenu();
 }
 
 void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
@@ -142,7 +154,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		if (m_pHUD->ShouldAutoProceed())
 		{
 			// Set desired move so that the tank knows the player selected something.
-			if (GetControlMode() == MODE_MOVE)
+			if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 			{
 				if (DigitanksGame()->GetCurrentTank())
 					DigitanksGame()->GetCurrentTank()->SetPreviewMove(Vector(9999, 9999, 9999));	// Make sure the mouse isn't hovering a legal move.
@@ -150,35 +162,35 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			}
 		}
 		else
-			SetControlMode(MODE_NONE);
+			DigitanksGame()->SetControlMode(MODE_NONE);
 		DigitanksGame()->NextTank();
 	}
 
 	if (DigitanksGame() && c == 9)
 	{
-		if (GetControlMode() == MODE_MOVE)
-			SetControlMode(MODE_AIM);
-		else if (GetControlMode() == MODE_AIM)
+		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+			DigitanksGame()->SetControlMode(MODE_AIM);
+		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			if (DigitanksGame()->GetCurrentTank() && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
-				SetControlMode(MODE_FIRE);
+				DigitanksGame()->SetControlMode(MODE_FIRE);
 			else
-				SetControlMode(MODE_MOVE);
+				DigitanksGame()->SetControlMode(MODE_MOVE);
 		}
-		else if (GetControlMode() == MODE_FIRE)
-			SetControlMode(MODE_MOVE);
+		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+			DigitanksGame()->SetControlMode(MODE_MOVE);
 		else
-			SetControlMode(MODE_MOVE);
+			DigitanksGame()->SetControlMode(MODE_MOVE);
 	}
 
 	if (c == 27)
 	{
 		if (GetMenu()->IsVisible())
 			GetMenu()->SetVisible(false);
-		else if (GetControlMode() == MODE_NONE)
+		else if (DigitanksGame()->GetControlMode() == MODE_NONE)
 			GetMenu()->SetVisible(true);
 		else
-			SetControlMode(MODE_NONE);
+			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
 	if (c == 't')

@@ -8,6 +8,7 @@
 #include <common.h>
 #include "terrain.h"
 #include "digitanksteam.h"
+#include "dt_common.h"
 
 class IDigitanksGameListener
 {
@@ -16,7 +17,7 @@ public:
 	virtual void			GameOver(bool bPlayerWon)=0;
 
 	virtual void			NewCurrentTeam()=0;
-	virtual void			NewCurrentTank()=0;
+	virtual void			NewCurrentSelection()=0;
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)=0;
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)=0;
@@ -52,8 +53,6 @@ public:
 
 	virtual void			Think();
 
-	void					SetCurrentTank(CDigitank* pTank);
-
 	void					SetDesiredMove(bool bAllTanks = false);
 	void					SetDesiredTurn(bool bAllTanks = false, Vector vecLookAt = Vector());
 	void					SetDesiredAim(bool bAllTanks = false);
@@ -81,8 +80,14 @@ public:
 	CDigitanksTeam*			GetDigitanksTeam(size_t i);
 
 	CDigitanksTeam*			GetCurrentTeam();
-	CDigitank*				GetCurrentTank();
-	size_t					GetCurrentTankId();
+	class CSelectable*		GetCurrentSelection();
+	class CDigitank*		GetCurrentTank();
+	class CStructure*		GetCurrentStructure();
+	size_t					GetCurrentSelectionId();
+	bool					IsCurrentSelection(const class CSelectable* pEntity);
+
+	controlmode_t			GetControlMode();
+	void					SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
 
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, SetTerrain);
@@ -117,7 +122,9 @@ public:
 
 protected:
 	size_t					m_iCurrentTeam;
-	size_t					m_iCurrentTank;
+	size_t					m_iCurrentSelection;
+
+	controlmode_t			m_eControlMode;
 
 	CEntityHandle<CTerrain>	m_hTerrain;
 

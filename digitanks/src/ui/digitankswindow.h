@@ -6,15 +6,6 @@
 #include <vector.h>
 #include <color.h>
 
-typedef enum
-{
-	MODE_NONE = 0,
-	MODE_MOVE,
-	MODE_TURN,
-	MODE_AIM,
-	MODE_FIRE,
-} controlmode_t;
-
 class CDigitanksWindow
 {
 public:
@@ -77,10 +68,9 @@ public:
 
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
 	class CDigitanksGame*		GetGame() { return m_pDigitanksGame; };
+	class CHUD*					GetHUD() { return m_pHUD; };
 	class CInstructor*			GetInstructor() { return m_pInstructor; };
-
-	controlmode_t				GetControlMode();
-	void						SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
+	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
 
 	bool						HasCommandLineSwitch(const char* pszSwitch);
 	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
@@ -105,8 +95,6 @@ protected:
 	class CInstructor*			m_pInstructor;
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
-
-	controlmode_t				m_eControlMode;
 
 	bool						m_bCtrl;
 	bool						m_bAlt;

@@ -553,7 +553,7 @@ void CTerrain::OnRender()
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
 
-	if (pCurrentTank && !pCurrentTank->IsFortified() && CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE)
+	if (pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_MOVE)
 	{
 		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
 		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
@@ -570,7 +570,7 @@ void CTerrain::OnRender()
 		glUniform1i(bMovement, false);
 	}
 
-	if (pCurrentTank && !pCurrentTank->IsFortified() && CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+	if (pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
 		Vector vecPoint;
 		bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
@@ -621,10 +621,10 @@ void CTerrain::OnRender()
 		glUniform1i(bShowRanges, true);
 
 		GLuint bFocusRanges = glGetUniformLocation(iTerrainProgram, "bFocusRanges");
-		glUniform1i(bFocusRanges, CDigitanksWindow::Get()->GetControlMode() == MODE_AIM);
+		glUniform1i(bFocusRanges, DigitanksGame()->GetControlMode() == MODE_AIM);
 
 		Vector vecRangeOrigin = pCurrentTank->GetDesiredMove();
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
+		if (DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
 			vecRangeOrigin = pCurrentTank->GetPreviewMove();
 
 		GLuint vecTankPreviewOrigin = glGetUniformLocation(iTerrainProgram, "vecTankPreviewOrigin");
@@ -640,7 +640,7 @@ void CTerrain::OnRender()
 		glUniform1f(flTankMinRange, pCurrentTank->GetMinRange());
 
 		GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_TURN)
+		if (DigitanksGame()->GetControlMode() == MODE_TURN)
 			glUniform1f(flTankYaw, pCurrentTank->GetPreviewTurn());
 		else
 			glUniform1f(flTankYaw, pCurrentTank->GetDesiredTurn());
@@ -682,8 +682,8 @@ void CTerrain::OnRender()
 		glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
 		glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
 
-		if (CDigitanksWindow::Get()->GetControlMode() == MODE_AIM)
-			glUniform1i(iFocusTarget, (GLint)DigitanksGame()->GetCurrentTankId());
+		if (DigitanksGame()->GetControlMode() == MODE_AIM)
+			glUniform1i(iFocusTarget, (GLint)iTankAimFocus);
 		else
 			glUniform1i(iFocusTarget, -1);
 	}

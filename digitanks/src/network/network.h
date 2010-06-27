@@ -17,7 +17,7 @@
 #define NET_CALLBACK_ENTITY(type, entity, pfn) \
 	virtual void pfn(CNetworkParameters* p) \
 	{ \
-	CEntityHandle<entity> hEntity(p->ui1); \
+	CEntityHandle<class entity> hEntity(p->ui1); \
 	if (hEntity.GetPointer() != NULL && hEntity != NULL) \
 		hEntity->pfn(p); \
 	} \

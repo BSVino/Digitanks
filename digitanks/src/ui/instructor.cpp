@@ -185,9 +185,11 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 
 	case CInstructor::POSITION_ACTIVETANK:
 	{
-		CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
-		Vector vecCurrentTank = Game()->GetRenderer()->ScreenPosition(pCurrentTank->GetOrigin());
-		SetPos((int)vecCurrentTank.x - GetWidth() - 100, (int)vecCurrentTank.y - 50);
+		CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
+
+		Vector vecCurrentSelectable = Game()->GetRenderer()->ScreenPosition(pSelection->GetOrigin());
+
+		SetPos((int)vecCurrentSelectable.x - GetWidth() - 100, (int)vecCurrentSelectable.y - 50);
 		if (GetLeft() < 0)
 			SetPos(0, GetTop());
 		if (GetTop() < 0)
