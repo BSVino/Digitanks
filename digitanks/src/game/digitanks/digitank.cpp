@@ -820,7 +820,7 @@ void CDigitank::Think()
 	if (IsAlive() && Game()->GetGameTime() > m_flNextIdle)
 	{
 		// A little bit less often if we're not on the current team.
-		if (DigitanksGame()->GetCurrentTeam() == GetTeam() && rand()%2 == 0)
+		if (DigitanksGame()->GetCurrentTeam() == GetTeam() && rand()%2 == 0 || rand()%4 == 0)
 			Speak(TANKSPEECH_IDLE);
 
 		m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
