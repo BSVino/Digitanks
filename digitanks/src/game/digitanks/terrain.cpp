@@ -119,10 +119,10 @@ void CTerrain::Spawn()
 		break;
 
 	case 3:
-		m_avecTerrainColors[0] = Vector(0.70f, 0.0f, 0.25f);
-		m_avecTerrainColors[1] = Vector(0.70f, 0.0f, 0.23f);
-		m_avecTerrainColors[2] = Vector(0.73f, 0.0f, 0.25f);
-		m_avecTerrainColors[3] = Vector(0.73f, 0.0f, 0.27f);
+		m_avecTerrainColors[0] = Vector(0.55f, 0.0f, 0.23f);
+		m_avecTerrainColors[1] = Vector(0.55f, 0.0f, 0.21f);
+		m_avecTerrainColors[2] = Vector(0.58f, 0.0f, 0.23f);
+		m_avecTerrainColors[3] = Vector(0.58f, 0.0f, 0.25f);
 		break;
 	}
 
