@@ -7,6 +7,7 @@
 #include "game/camera.h"
 #include "renderer/renderer.h"
 #include <game/digitanks/cpu.h>
+#include <game/digitanks/projectile.h>
 
 // windows.h screws up virtual functions in some of the above headers
 #include <GL/glew.h>
@@ -1002,6 +1003,10 @@ void CHUD::NewCurrentSelection()
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	if (pProjectile && !pProjectile->SendsNotifications())
+		return;
+
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 
@@ -1014,6 +1019,10 @@ void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseE
 
 void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	if (pProjectile && !pProjectile->SendsNotifications())
+		return;
+
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);
 

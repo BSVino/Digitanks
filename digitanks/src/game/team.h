@@ -18,6 +18,8 @@ public:
 	void						AddEntity(CBaseEntity* pEntity);
 	virtual void				OnAddEntity(CBaseEntity* pEntity) {};
 
+	void						RemoveEntity(CBaseEntity* pEntity);
+
 	void						StartTurn();
 
 	virtual void				ClientUpdate(int iClient);

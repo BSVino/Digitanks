@@ -16,6 +16,8 @@
 #include "powerup.h"
 #include "ui/debugdraw.h"
 #include "ui/hud.h"
+#include "structure.h"
+#include "supplyline.h"
 
 REGISTER_ENTITY(CDigitank);
 
@@ -389,6 +391,13 @@ float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
 
 void CDigitank::StartTurn()
 {
+	m_hSupplier = CSupplier::FindClosestSupplier(this);
+
+	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
+		m_hSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
+
+	m_hSupplyLine->SetEntities(m_hSupplier, this);
+
 	if (m_bFortified)
 	{
 		if (m_iFortifyLevel < 5)

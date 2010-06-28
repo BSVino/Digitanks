@@ -3,9 +3,9 @@
 
 #include "structure.h"
 
-class CBuffer : public CStructure
+class CBuffer : public CSupplier
 {
-	REGISTER_ENTITY_CLASS(CBuffer, CStructure);
+	REGISTER_ENTITY_CLASS(CBuffer, CSupplier);
 
 public:
 	virtual void				OnRender();

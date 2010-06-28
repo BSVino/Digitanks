@@ -16,6 +16,7 @@ public:
 public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
+	void						PreStartTurn();
 	void						StartTurn();
 	void						PostStartTurn();
 

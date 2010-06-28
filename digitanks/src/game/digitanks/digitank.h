@@ -99,6 +99,7 @@ public:
 
 	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
 
+	virtual void				PreStartTurn() {};
 	virtual void				StartTurn();
 	virtual void				PostStartTurn() {};
 
@@ -296,7 +297,8 @@ protected:
 	bool						m_bFortified;
 	size_t						m_iFortifyLevel;
 
-	CEntityHandle<class CSupplier>	m_hSupplier;
+	CEntityHandle<class CSupplier>		m_hSupplier;
+	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
 	// AI stuff
 	Vector						m_vecFortifyPoint;

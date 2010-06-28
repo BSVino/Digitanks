@@ -528,8 +528,8 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 		m_pListener->NewCurrentTeam();
 	}
 
+	GetCurrentTeam()->PreStartTurn();
 	GetCurrentTeam()->StartTurn();
-
 	GetCurrentTeam()->PostStartTurn();
 
 	if (GetCurrentSelection())

@@ -20,10 +20,26 @@ CTeam::~CTeam()
 
 void CTeam::AddEntity(CBaseEntity* pEntity)
 {
+	if (pEntity->GetTeam())
+		RemoveEntity(pEntity);
+
 	pEntity->SetTeam(this);
 	m_ahMembers.push_back(pEntity);
 
 	OnAddEntity(pEntity);
+}
+
+void CTeam::RemoveEntity(CBaseEntity* pEntity)
+{
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (pEntity == m_ahMembers[i])
+		{
+			m_ahMembers.erase(m_ahMembers.begin()+i);
+			pEntity->SetTeam(NULL);
+			return;
+		}
+	}
 }
 
 void CTeam::ClientUpdate(int iClient)

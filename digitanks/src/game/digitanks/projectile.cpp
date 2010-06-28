@@ -126,7 +126,7 @@ void CProjectile::Touching(CBaseEntity* pOther)
 			pOther->TakeDamage(m_hOwner, this, m_flDamage);
 	}
 	else
-		pOther->TakeDamage(m_hOwner, this, m_flDamage, ShouldExplode());
+		pOther->TakeDamage(m_hOwner, this, m_flDamage);
 
 	SetVelocity(Vector());
 	SetGravity(Vector());

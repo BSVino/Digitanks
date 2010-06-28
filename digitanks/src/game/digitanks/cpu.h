@@ -3,9 +3,9 @@
 
 #include "structure.h"
 
-class CCPU : public CStructure
+class CCPU : public CSupplier
 {
-	REGISTER_ENTITY_CLASS(CCPU, CStructure);
+	REGISTER_ENTITY_CLASS(CCPU, CSupplier);
 
 public:
 								CCPU();

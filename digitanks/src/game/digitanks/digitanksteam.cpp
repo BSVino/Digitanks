@@ -22,6 +22,29 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 		m_ahTanks.push_back(pTank);
 }
 
+void CDigitanksTeam::PreStartTurn()
+{
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(m_ahMembers[i].GetPointer());
+		if (pTank)
+		{
+			pTank->PreStartTurn();
+			continue;
+		}
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
+		if (pStructure)
+		{
+			pStructure->PreStartTurn();
+			continue;
+		}
+	}
+}
+
 void CDigitanksTeam::StartTurn()
 {
 	for (size_t i = 0; i < m_ahMembers.size(); i++)

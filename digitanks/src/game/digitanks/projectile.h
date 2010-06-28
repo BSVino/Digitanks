@@ -31,6 +31,8 @@ public:
 	virtual bool				ShouldExplode() { return true; };
 	void						Explode();
 
+	virtual bool				SendsNotifications() { return true; };
+
 	virtual void				SetOwner(CDigitank* pOwner);
 	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; };
 	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
@@ -62,6 +64,7 @@ public:
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual bool				ShouldExplode() { return false; };
+	virtual bool				SendsNotifications() { return false; };
 	virtual size_t				CreateParticleSystem();
 };
 

@@ -331,6 +331,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\game\digitanks\supplyline.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\supplyline.h"
+						>
+					</File>
+					<File
 						RelativePath=".\game\digitanks\terrain.cpp"
 						>
 					</File>

@@ -75,6 +75,19 @@ public:
 		return m_iHandle == pOther->GetHandle();
 	}
 
+	inline bool IsEqual(const C* pOther) const
+	{
+		if (!pOther)
+		{
+			if (!CBaseEntity::GetEntity(m_iHandle))
+				return true;
+
+			return m_iHandle == ~0;
+		}
+
+		return m_iHandle == pOther->GetHandle();
+	}
+
 	inline C* GetPointer() const
 	{
 		assert(CBaseEntity::GetEntity(m_iHandle));

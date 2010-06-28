@@ -53,7 +53,12 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 bool CCPU::IsPreviewBuildValid() const
 {
-	return (GetPreviewBuild() - GetOrigin()).Length() < 40;
+	CSupplier* pSupplier = FindClosestSupplier(GetPreviewBuild(), GetTeam());
+
+	if (!pSupplier)
+		return false;
+
+	return (GetPreviewBuild() - pSupplier->GetOrigin()).Length() < 40;
 }
 
 void CCPU::SetPreviewBuild(Vector vecPreviewBuild)
@@ -75,6 +80,7 @@ void CCPU::BeginConstruction()
 	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->BeginConstruction(3);
 	m_hConstructing->SetOrigin(GetPreviewBuild());
+	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
 }
 
 void CCPU::CancelConstruction()
