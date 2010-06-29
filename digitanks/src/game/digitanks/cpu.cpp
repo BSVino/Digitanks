@@ -58,7 +58,7 @@ bool CCPU::IsPreviewBuildValid() const
 	if (!pSupplier)
 		return false;
 
-	return (GetPreviewBuild() - pSupplier->GetOrigin()).Length() < 40;
+	return CSupplier::GetDataFlow(GetPreviewBuild(), GetTeam()) > 0;
 }
 
 void CCPU::SetPreviewBuild(Vector vecPreviewBuild)
@@ -81,6 +81,11 @@ void CCPU::BeginConstruction()
 	m_hConstructing->BeginConstruction(3);
 	m_hConstructing->SetOrigin(GetPreviewBuild());
 	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
+	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
+
+	CSupplier* pSupplier = dynamic_cast<CSupplier*>(m_hConstructing.GetPointer());
+	if (pSupplier)
+		pSupplier->GiveDataStrength((size_t)pSupplier->GetSupplier()->GetDataFlow(pSupplier->GetOrigin()));
 }
 
 void CCPU::CancelConstruction()
@@ -92,8 +97,15 @@ void CCPU::CancelConstruction()
 	}
 }
 
+void CCPU::StartTurn()
+{
+	CalculateDataFlow();
+}
+
 void CCPU::PostStartTurn()
 {
+	BaseClass::PostStartTurn();
+
 	if (m_hConstructing != NULL && !m_hConstructing->IsConstructing())
 	{
 		m_hConstructing = NULL;
@@ -108,6 +120,8 @@ void CCPU::OnRender()
 
 void CCPU::PostRender()
 {
+	BaseClass::PostRender();
+
 	if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 	{
 		if (IsPreviewBuildValid())

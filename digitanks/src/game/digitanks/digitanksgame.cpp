@@ -223,7 +223,9 @@ void CDigitanksGame::StartGame()
 {
 	m_iCurrentTeam = 0;
 
+	GetCurrentTeam()->PreStartTurn();
 	GetCurrentTeam()->StartTurn();
+	GetCurrentTeam()->PostStartTurn();
 
 	CNetwork::CallFunction(-1, "SetCurrentTeam", 0);
 
