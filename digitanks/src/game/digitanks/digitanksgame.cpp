@@ -130,6 +130,7 @@ void CDigitanksGame::SetupGame()
 		CCPU* pCPU = Game()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(100, 0, 100) * flReflection));
 		m_ahTeams[i]->AddEntity(pCPU);
+		pCPU->UpdateTendrils();
 
 		CDigitank* pTank;
 		Vector vecTank;

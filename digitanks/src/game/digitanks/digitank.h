@@ -71,9 +71,15 @@ public:
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
 	float						GetMovementScale(bool bPreview = false) { return GetMovementPower(bPreview) / 10; };
 
-	virtual float				GetBonusAttackPower() { return m_flBonusAttackPower; };
-	virtual float				GetBonusDefensePower() { return m_flBonusDefensePower; };
+	virtual float				GetBonusAttackPower();
+	virtual float				GetBonusDefensePower();
 	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower; };
+
+	virtual float				GetSupportAttackPowerBonus();
+	virtual float				GetSupportDefensePowerBonus();
+
+	virtual float				GetSupportHealthRechargeBonus() const;
+	virtual float				GetSupportShieldRechargeBonus() const;
 
 	virtual void				SetAttackPower(float flAttackPower);
 	void						SetAttackPower(class CNetworkParameters* p);
@@ -99,9 +105,7 @@ public:
 
 	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
 
-	virtual void				PreStartTurn() {};
 	virtual void				StartTurn();
-	virtual void				PostStartTurn() {};
 
 	Vector						GetPreviewMove() { return m_vecPreviewMove; };
 	virtual void				SetPreviewMove(Vector vecPreviewMove);
@@ -215,8 +219,8 @@ public:
 
 	class CDigitanksTeam*		GetDigitanksTeam();
 
-	virtual float				HealthRechargeRate() const { return 0.2f; };
-	virtual float				ShieldRechargeRate() const { return 1.0f; };
+	virtual float				HealthRechargeRate() const;
+	virtual float				ShieldRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				GetMaxRange() const { return 70.0f; };

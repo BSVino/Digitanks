@@ -673,9 +673,9 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (pTank->HasBonusPoints())
 	{
 		if (pTank->GetBonusPoints() > 1)
-			sprintf(szShieldInfo, "\n \n%d bonus points available", pTank->GetBonusPoints());
+			sprintf(szShieldInfo, "\n \n%d bonus points", pTank->GetBonusPoints());
 		else
-			sprintf(szShieldInfo, "\n \n1 bonus point available");
+			sprintf(szShieldInfo, "\n \n1 bonus point");
 		m_pTankInfo->AppendText(szShieldInfo);
 	}
 
@@ -689,6 +689,12 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pTank->GetFortifyAttackPowerBonus());
 			m_pTankInfo->AppendText(szShieldInfo);
 		}
+
+		if ((int)pTank->GetSupportAttackPowerBonus() > 0)
+		{
+			sprintf(szShieldInfo, "\n (+%d from support)", (int)pTank->GetSupportAttackPowerBonus());
+			m_pTankInfo->AppendText(szShieldInfo);
+		}
 	}
 
 	if (pTank->GetBonusDefensePower())
@@ -699,6 +705,12 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 		if (pTank->IsFortified() && (int)pTank->GetFortifyDefensePowerBonus() > 0)
 		{
 			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pTank->GetFortifyDefensePowerBonus());
+			m_pTankInfo->AppendText(szShieldInfo);
+		}
+
+		if ((int)pTank->GetSupportDefensePowerBonus() > 0)
+		{
+			sprintf(szShieldInfo, "\n (+%d from support)", (int)pTank->GetSupportDefensePowerBonus());
 			m_pTankInfo->AppendText(szShieldInfo);
 		}
 	}

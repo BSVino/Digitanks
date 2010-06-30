@@ -25,15 +25,13 @@ void CStructure::BeginConstruction(size_t iTurns)
 
 void CStructure::PreStartTurn()
 {
+	BaseClass::PreStartTurn();
+
 	if (IsConstructing())
 	{
 		if (--m_iTurnsToConstruct == 0)
 			m_bConstructing = false;
 	}
-}
-
-void CStructure::StartTurn()
-{
 }
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)

@@ -12,6 +12,10 @@
 
 #include <renderer/dissolver.h>
 
+#ifdef _DEBUG
+#include <game/digitanks/maintank.h>
+#endif
+
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
 	FakeCtrlAltShift();
@@ -199,7 +203,17 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 #ifdef _DEBUG
 	if (c == 'x')
-		GameOver(false);
+	{
+		// Make a supertank at the given location.
+		Vector vecPoint;
+		if (GetMouseGridPosition(vecPoint))
+		{
+			CMainBattleTank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+			DigitanksGame()->GetCurrentTeam()->AddEntity(pTank);
+			pTank->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(vecPoint));
+			pTank->GiveBonusPoints(10, false);
+		}
+	}
 #endif
 
 	if (GetGame() && GetGame()->GetCamera())

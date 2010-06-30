@@ -1,13 +1,13 @@
 #ifndef DT_SELECTABLE_H
 #define DT_SELECTABLE_H
 
-#include <baseentity.h>
+#include "digitanksentity.h"
 
 #include "dt_common.h"
 
-class CSelectable : public CBaseEntity
+class CSelectable : public CDigitanksEntity
 {
-	REGISTER_ENTITY_CLASS(CSelectable, CBaseEntity);
+	REGISTER_ENTITY_CLASS(CSelectable, CDigitanksEntity);
 
 public:
 	virtual float				GetBoundingRadius() const { return 4; };

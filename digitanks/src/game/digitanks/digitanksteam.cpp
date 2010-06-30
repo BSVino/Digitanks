@@ -29,17 +29,10 @@ void CDigitanksTeam::PreStartTurn()
 		if (m_ahMembers[i] == NULL)
 			continue;
 
-		CDigitank* pTank = dynamic_cast<CDigitank*>(m_ahMembers[i].GetPointer());
-		if (pTank)
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (pEntity)
 		{
-			pTank->PreStartTurn();
-			continue;
-		}
-
-		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
-		if (pStructure)
-		{
-			pStructure->PreStartTurn();
+			pEntity->PreStartTurn();
 			continue;
 		}
 	}
@@ -52,17 +45,10 @@ void CDigitanksTeam::StartTurn()
 		if (m_ahMembers[i] == NULL)
 			continue;
 
-		CDigitank* pTank = dynamic_cast<CDigitank*>(m_ahMembers[i].GetPointer());
-		if (pTank)
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (pEntity)
 		{
-			pTank->StartTurn();
-			continue;
-		}
-
-		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
-		if (pStructure)
-		{
-			pStructure->StartTurn();
+			pEntity->StartTurn();
 			continue;
 		}
 	}
@@ -75,17 +61,10 @@ void CDigitanksTeam::PostStartTurn()
 		if (m_ahMembers[i] == NULL)
 			continue;
 
-		CDigitank* pTank = dynamic_cast<CDigitank*>(m_ahMembers[i].GetPointer());
-		if (pTank)
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (pEntity)
 		{
-			pTank->PostStartTurn();
-			continue;
-		}
-
-		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
-		if (pStructure)
-		{
-			pStructure->PostStartTurn();
+			pEntity->PostStartTurn();
 			continue;
 		}
 	}

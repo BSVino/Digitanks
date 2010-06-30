@@ -75,6 +75,16 @@ float CArtillery::GetProjectileDamage()
 	return GetAttackPower()/6;
 }
 
+float CArtillery::ShieldRechargeRate() const
+{
+	return 0;
+}
+
+float CArtillery::HealthRechargeRate() const
+{
+	return 0.2f + GetSupportHealthRechargeBonus();
+}
+
 float CArtillery::TurnPerPower() const
 {
 	if (IsFortified())

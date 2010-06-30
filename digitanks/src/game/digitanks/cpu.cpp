@@ -99,6 +99,8 @@ void CCPU::CancelConstruction()
 
 void CCPU::StartTurn()
 {
+	BaseClass::StartTurn();
+
 	CalculateDataFlow();
 }
 

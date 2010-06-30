@@ -262,6 +262,60 @@ float CDigitank::GetMaxMovementDistance() const
 	return GetTotalMovementPower() * GetTankSpeed();
 }
 
+float CDigitank::GetBonusAttackPower()
+{
+	return m_flBonusAttackPower + GetSupportAttackPowerBonus();
+}
+
+float CDigitank::GetBonusDefensePower()
+{
+	return m_flBonusDefensePower + GetSupportDefensePowerBonus();
+}
+
+float CDigitank::GetSupportAttackPowerBonus()
+{
+	if (m_hSupplier == NULL)
+		return 0;
+
+	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
+		return 8;
+
+	return 4;
+}
+
+float CDigitank::GetSupportDefensePowerBonus()
+{
+	if (m_hSupplier == NULL)
+		return 0;
+
+	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
+		return 8;
+
+	return 4;
+}
+
+float CDigitank::GetSupportHealthRechargeBonus() const
+{
+	if (m_hSupplier == NULL)
+		return 0.0f;
+
+	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
+		return 1.0f;
+
+	return 0.5f;
+}
+
+float CDigitank::GetSupportShieldRechargeBonus() const
+{
+	if (m_hSupplier == NULL)
+		return 0.0f;
+
+	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
+		return 5.0f;
+
+	return 2.5f;
+}
+
 void CDigitank::SetAttackPower(float flAttackPower)
 {
 	if (flAttackPower > m_flBasePower - m_flMovementPower)
@@ -391,6 +445,8 @@ float* CDigitank::GetShieldForAttackDirection(Vector vecAttack)
 
 void CDigitank::StartTurn()
 {
+	BaseClass::StartTurn();
+
 	m_hSupplier = CSupplier::FindClosestSupplier(this);
 
 	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
@@ -1234,7 +1290,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	if (flDamage - flDamageBlocked <= 0)
 	{
-		*pflShield -= flDamage;
+		*pflShield -= flDamage / GetDefenseScale();
 
 		EmitSound("sound/shield-damage.wav");
 		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
@@ -1272,6 +1328,9 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 		pKiller->Speak(TANKSPEECH_KILL);
 		pKiller->m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 	}
+
+	if (m_hSupplyLine != NULL)
+		m_hSupplyLine->Delete();
 }
 
 Vector CDigitank::GetRenderOrigin() const
@@ -1692,4 +1751,14 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 CDigitanksTeam* CDigitank::GetDigitanksTeam()
 {
 	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
+}
+
+float CDigitank::HealthRechargeRate() const
+{
+	return 0.2f + GetSupportHealthRechargeBonus();
+}
+
+float CDigitank::ShieldRechargeRate() const
+{
+	return 0.2f + GetSupportShieldRechargeBonus();
 }

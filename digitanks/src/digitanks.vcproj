@@ -291,6 +291,14 @@
 					Name="digitanks"
 					>
 					<File
+						RelativePath=".\game\digitanks\digitanksentity.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\digitanksentity.h"
+						>
+					</File>
+					<File
 						RelativePath=".\game\digitanks\digitanksgame.cpp"
 						>
 					</File>

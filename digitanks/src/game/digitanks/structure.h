@@ -19,8 +19,6 @@ public:
 	bool						IsConstructing() { return m_bConstructing; };
 
 	virtual void				PreStartTurn();
-	virtual void				StartTurn();
-	virtual void				PostStartTurn() {};
 
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { return m_hSupplier; };
