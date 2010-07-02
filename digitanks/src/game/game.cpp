@@ -27,7 +27,6 @@ CGame::CGame()
 
 	m_pCamera = new CCamera();
 	m_pCamera->SnapDistance(120);
-	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
 
 	m_iClient = -1;
 
@@ -284,6 +283,11 @@ void CGame::SetAngles(CNetworkParameters* p)
 void CGame::AddTeam(CNetworkParameters* p)
 {
 	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
+}
+
+void CGame::CreateRenderer()
+{
+	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
 }
 
 bool CGame::IsTeamControlledByMe(CTeam* pTeam)

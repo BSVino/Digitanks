@@ -1,5 +1,6 @@
 #include "digitanksteam.h"
 
+#include <maths.h>
 #include <network/network.h>
 
 #include "digitank.h"
@@ -24,6 +25,7 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 
 void CDigitanksTeam::PreStartTurn()
 {
+	m_aflVisibilities.clear();
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == NULL)
@@ -68,6 +70,42 @@ void CDigitanksTeam::PostStartTurn()
 			continue;
 		}
 	}
+
+	// For every entity in the game, calculate the visibility to this team
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (!pEntity)
+			continue;
+
+		if (pEntity->GetTeam() == ((CTeam*)this))
+		{
+			m_aflVisibilities[pEntity->GetHandle()] = 1;
+			continue;
+		}
+
+		m_aflVisibilities[pEntity->GetHandle()] = 0;
+
+		// For every entity on this team, see what the visibility is
+		for (size_t j = 0; j < m_ahMembers.size(); j++)
+		{
+			if (m_ahMembers[j] == NULL)
+				continue;
+
+			CDigitanksEntity* pTeammate = dynamic_cast<CDigitanksEntity*>(m_ahMembers[j].GetPointer());
+			if (!pTeammate)
+				continue;
+
+			if (pTeammate->VisibleRange() == 0)
+				continue;
+
+			float flVisibility = RemapValClamped((pTeammate->GetOrigin() - pEntity->GetOrigin()).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+10, 1, 0);
+
+			// Use the brightest visibility
+			if (flVisibility > m_aflVisibilities[pEntity->GetHandle()])
+				m_aflVisibilities[pEntity->GetHandle()] = flVisibility;
+		}
+	}
 }
 
 void CDigitanksTeam::MoveTanks()
@@ -109,4 +147,12 @@ size_t CDigitanksTeam::GetNumTanksAlive()
 	}
 
 	return iTanksAlive;
+}
+
+float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
+{
+	if (m_aflVisibilities.find(iHandle) == m_aflVisibilities.end())
+		return 0;
+
+	return m_aflVisibilities[iHandle];
 }

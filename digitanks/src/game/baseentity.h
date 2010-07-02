@@ -62,7 +62,7 @@ public:
 	virtual Vector							GetRenderOrigin() const { return GetOrigin(); };
 	virtual EAngle							GetRenderAngles() const { return GetAngles(); };
 
-	inline Vector							GetOrigin() const { return m_vecOrigin; };
+	virtual inline Vector					GetOrigin() const { return m_vecOrigin; };
 	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
 
 	inline Vector							GetLastOrigin() const { return m_vecLastOrigin; };

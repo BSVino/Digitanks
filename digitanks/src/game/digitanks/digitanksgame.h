@@ -109,6 +109,9 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteMovement);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Speak);
 
+	virtual void			CreateRenderer();
+	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
+
 	float					GetGravity();
 
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };

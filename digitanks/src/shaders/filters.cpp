@@ -30,3 +30,28 @@ const char* CShaderLibrary::GetFSBrightPassShader()
 		"	gl_FragColor = vecFragmentColor*flScale;"
 		"}";
 }
+
+const char* CShaderLibrary::GetFSDarkenShader()
+{
+	return
+		"uniform sampler2D iDarkMap;"
+		"uniform sampler2D iImage;"
+		"uniform float flFactor;"
+
+		"void main(void)"
+		"{"
+		"	vec4 vecDarkColor = texture2D(iDarkMap, gl_TexCoord[0].xy);"
+		"	vec4 vecImageColor = texture2D(iImage, gl_TexCoord[0].xy);"
+
+		"	vec4 vecFactor = ((vec4(1.0, 1.0, 1.0, 1.0) - vecDarkColor) * flFactor);"
+
+		"	if (vecFactor.x < 1.0)"
+		"		vecFactor.x = 1.0;"
+		"	if (vecFactor.y < 1.0)"
+		"		vecFactor.y = 1.0;"
+		"	if (vecFactor.z < 1.0)"
+		"		vecFactor.z = 1.0;"
+
+		"	gl_FragColor = vecImageColor / vecFactor;"
+		"}";
+}

@@ -121,15 +121,15 @@ public:
 
 	void			CreateNoise();
 
-	void			SetupFrame();
+	virtual void	SetupFrame();
 	void			DrawBackground();
 	void			StartRendering();
-	void			FinishRendering();
+	virtual void	FinishRendering();
+	virtual void	RenderOffscreenBuffers() {};
+	virtual void	RenderFullscreenBuffers() {};
 
 	void			RenderMapFullscreen(size_t iMap);
 	void			RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer);
-
-	void			RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal);
 
 	void			SetCameraPosition(Vector vecCameraPosition) { m_vecCameraPosition = vecCameraPosition; };
 	void			SetCameraTarget(Vector vecCameraTarget) { m_vecCameraTarget = vecCameraTarget; };
@@ -143,7 +143,6 @@ public:
 	Vector			WorldPosition(Vector vecScreen);
 
 	const CFrameBuffer*	GetSceneBuffer() { return &m_oSceneBuffer; }
-	const CFrameBuffer*	GetExplosionBuffer() { return &m_oExplosionBuffer; }
 
 public:
 	static size_t	CreateCallList(size_t iModel);
@@ -166,7 +165,6 @@ protected:
 	CFrameBuffer	m_oBloom2Buffers[BLOOM_FILTERS];
 
 	CFrameBuffer	m_oNoiseBuffer;
-	CFrameBuffer	m_oExplosionBuffer;
 };
 
 #endif

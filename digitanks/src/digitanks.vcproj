@@ -315,6 +315,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\game\digitanks\dt_renderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\game\digitanks\dt_renderer.h"
+						>
+					</File>
+					<File
 						RelativePath=".\game\digitanks\powerup.cpp"
 						>
 					</File>

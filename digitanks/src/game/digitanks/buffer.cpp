@@ -9,7 +9,6 @@ REGISTER_ENTITY(CBuffer);
 
 void CBuffer::OnRender()
 {
-	glColor4ubv(GetTeam()->GetColor());
 	glutSolidCube(6);
 }
 

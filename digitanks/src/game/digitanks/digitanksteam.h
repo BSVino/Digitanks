@@ -27,11 +27,15 @@ public:
 
 	size_t						GetNumTanksAlive();
 
+	float						GetEntityVisibility(size_t iHandle);
+
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
 	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return (class CDigitank*)m_ahTanks[i]; };
 
 protected:
 	std::vector<CEntityHandle<class CDigitank> >	m_ahTanks;
+
+	std::map<size_t, float>		m_aflVisibilities;
 };
 
 #endif

@@ -63,6 +63,9 @@ void CSupplyLine::OnRender()
 	if (m_hSupplier == NULL || m_hEntity == NULL)
 		return;
 
+	if (GetVisibility() == 0)
+		return;
+
 	Vector vecDestination;
 	CDigitank* pTank = dynamic_cast<CDigitank*>(m_hEntity.GetPointer());
 	if (pTank)
@@ -80,11 +83,9 @@ void CSupplyLine::OnRender()
 	CRenderingContext r(Game()->GetRenderer());
 	Color clrTeam = GetTeam()->GetColor();
 	r.SetColor(clrTeam);
-	r.SetBlend(BLEND_ALPHA);
+	r.SetBlend(BLEND_NONE);
 
 	glBegin(GL_LINE_STRIP);
-
-	glVertex3fv(DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 1, 0));
 
 	for (size_t i = 0; i < iSegments; i++)
 	{

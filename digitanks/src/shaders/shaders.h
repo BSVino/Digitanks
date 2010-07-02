@@ -51,6 +51,9 @@ public:
 	static const char*		GetFSBrightPassShader();
 	static size_t			GetBrightPassProgram() { return GetProgram(Get()->m_iBrightPass); };
 
+	static const char*		GetFSDarkenShader();
+	static size_t			GetDarkenProgram() { return GetProgram(Get()->m_iDarken); };
+
 	static void				CompileShaders();
 
 	static CShaderLibrary*	Get() { return s_pShaderLibrary; };
@@ -70,6 +73,7 @@ protected:
 	size_t					m_iExplosion;
 	size_t					m_iBlur;
 	size_t					m_iBrightPass;
+	size_t					m_iDarken;
 
 	bool					m_bLogNeedsClearing;
 

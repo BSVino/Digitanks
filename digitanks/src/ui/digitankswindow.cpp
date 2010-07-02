@@ -105,6 +105,7 @@ void CDigitanksWindow::CreateGame()
 	if (!m_pDigitanksGame)
 	{
 		m_pDigitanksGame = new CDigitanksGame();
+		m_pDigitanksGame->CreateRenderer();
 
 		m_pHUD = new CHUD();
 		m_pHUD->SetGame(m_pDigitanksGame);

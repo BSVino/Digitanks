@@ -4,11 +4,11 @@
 #include <GL/freeglut.h>
 #include <maths.h>
 
-#include <renderer/renderer.h>
 #include <renderer/particles.h>
 
 #include "digitanksgame.h"
 #include "camera.h"
+#include "dt_renderer.h"
 
 REGISTER_ENTITY(CProjectile);
 
@@ -45,9 +45,11 @@ void CProjectile::Think()
 
 void CProjectile::ModifyContext(class CRenderingContext* pContext)
 {
+	BaseClass::ModifyContext(pContext);
+
 	if (m_flTimeExploded > 0.0f)
 	{
-		pContext->UseFrameBuffer(Game()->GetRenderer()->GetExplosionBuffer()->m_iFB);
+		pContext->UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer()->m_iFB);
 	}
 }
 

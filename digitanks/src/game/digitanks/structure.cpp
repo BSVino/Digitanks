@@ -50,11 +50,15 @@ void CStructure::SetSupplier(class CSupplier* pSupplier)
 
 void CStructure::ModifyContext(class CRenderingContext* pContext)
 {
+	BaseClass::ModifyContext(pContext);
+
 	if (IsConstructing())
 	{
-		pContext->SetAlpha(0.7f);
-		pContext->SetBlend(BLEND_ADDITIVE);
+		pContext->SetBlend(BLEND_NONE);
+		pContext->SetColor(Color(128, 128, 128));
 	}
+	else
+		pContext->SetColor(GetTeam()->GetColor());
 }
 
 REGISTER_ENTITY(CSupplier);
@@ -72,7 +76,7 @@ float CSupplier::GetDataFlowRate()
 	return BaseDataFlowPerTurn() + m_flBonusDataFlow;
 }
 
-float CSupplier::GetDataFlowRadius()
+float CSupplier::GetDataFlowRadius() const
 {
 	// Opposite of formula for area of a circle.
 	return sqrt(m_iDataStrength/M_PI) + GetBoundingRadius();
@@ -145,6 +149,9 @@ void CSupplier::PostStartTurn()
 
 void CSupplier::PostRender()
 {
+	if (GetVisibility() == 0)
+		return;
+
 	for (size_t i = 0; i < m_aTendrils.size(); i++)
 	{
 		CTendril* pTendril = &m_aTendrils[i];
@@ -161,12 +168,11 @@ void CSupplier::PostRender()
 		CRenderingContext r(Game()->GetRenderer());
 		Color clrTeam = GetTeam()->GetColor();
 		clrTeam.SetAlpha(100);
+		r.SetAlpha(GetVisibility());
 		r.SetColor(clrTeam);
 		r.SetBlend(BLEND_ADDITIVE);
 
 		glBegin(GL_LINE_STRIP);
-
-		glVertex3fv(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 
 		for (size_t i = 0; i < iSegments; i++)
 		{
@@ -267,4 +273,12 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 	}
 
 	return pClosest;
+}
+
+float CSupplier::VisibleRange() const
+{
+	if (GetDataFlowRadius() < 30)
+		return 30;
+	else
+		return GetDataFlowRadius();
 }

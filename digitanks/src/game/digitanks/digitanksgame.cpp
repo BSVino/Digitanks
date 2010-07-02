@@ -16,8 +16,10 @@
 
 #include "digitanks/mechinf.h"
 #include "digitanks/maintank.h"
+#include "digitanks/artillery.h"
 #include "digitanks/cpu.h"
 #include "digitanks/projectile.h"
+#include "digitanks/dt_renderer.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -170,6 +172,26 @@ void CDigitanksGame::SetupGame()
 		m_ahTeams[i]->AddEntity(pTank);
 
 		vecTank = Vector(80, 0, 80) * flReflection;
+		angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
+
+		pTank = Game()->Create<CArtillery>("CArtillery");
+		m_ahTeams[i]->AddEntity(pTank);
+
+		vecTank = Vector(60, 0, 100) * flReflection;
+		angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
+
+		pTank = Game()->Create<CArtillery>("CArtillery");
+		m_ahTeams[i]->AddEntity(pTank);
+
+		vecTank = Vector(100, 0, 60) * flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -567,6 +589,9 @@ void CDigitanksGame::Bot_ExecuteTurn()
 		if (pTank->GetTeam() == pHeadTank->GetTeam())
 			continue;
 
+		if (GetCurrentTeam()->GetEntityVisibility(pTank->GetHandle()) == 0)
+			continue;
+
 		if (!pTarget)
 		{
 			pTarget = pTank;
@@ -575,6 +600,12 @@ void CDigitanksGame::Bot_ExecuteTurn()
 
 		if ((pHeadTank->GetOrigin() - pTank->GetOrigin()).Length2DSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).Length2DSqr())
 			pTarget = pTank;
+	}
+
+	if (!pTarget)
+	{
+		EndTurn();
+		return;
 	}
 
 	Vector vecFortifyPoint;
@@ -967,6 +998,16 @@ void CDigitanksGame::SetTerrain(CNetworkParameters* p)
 void CDigitanksGame::SetCurrentTeam(CNetworkParameters* p)
 {
 	m_iCurrentTeam = p->i1;
+}
+
+void CDigitanksGame::CreateRenderer()
+{
+	m_pRenderer = new CDigitanksRenderer();
+}
+
+CDigitanksRenderer*	CDigitanksGame::GetDigitanksRenderer()
+{
+	return dynamic_cast<CDigitanksRenderer*>(GetRenderer());
 }
 
 float CDigitanksGame::GetGravity()

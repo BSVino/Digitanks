@@ -56,5 +56,7 @@ void CPowerup::PreRender()
 
 void CPowerup::ModifyContext(class CRenderingContext* pContext)
 {
+	BaseClass::ModifyContext(pContext);
+
 	pContext->SetBlend(BLEND_ADDITIVE);
 }

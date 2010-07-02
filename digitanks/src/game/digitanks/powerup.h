@@ -1,11 +1,11 @@
 #ifndef POWERUP_H
 #define POWERUP_H
 
-#include "baseentity.h"
+#include "digitanksentity.h"
 
-class CPowerup : public CBaseEntity
+class CPowerup : public CDigitanksEntity
 {
-	REGISTER_ENTITY_CLASS(CPowerup, CBaseEntity);
+	REGISTER_ENTITY_CLASS(CPowerup, CDigitanksEntity);
 
 public:
 					CPowerup();

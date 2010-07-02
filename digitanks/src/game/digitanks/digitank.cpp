@@ -1383,6 +1383,8 @@ void CDigitank::PreRender()
 
 void CDigitank::ModifyContext(CRenderingContext* pContext)
 {
+	BaseClass::ModifyContext(pContext);
+
 	if (!GetTeam())
 		return;
 
@@ -1411,8 +1413,11 @@ void CDigitank::RenderTurret(float flAlpha)
 	if (m_iTurretModel == ~0)
 		return;
 
+	if (GetVisibility() == 0 || flAlpha == 0)
+		return;
+
 	CRenderingContext r(Game()->GetRenderer());
-	r.SetAlpha(flAlpha);
+	r.SetAlpha(flAlpha*GetVisibility());
 	r.SetBlend(BLEND_ALPHA);
 	r.Translate(Vector(-0.527677f, 0.810368f, 0));
 
@@ -1440,8 +1445,11 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	if (m_iShieldModel == ~0)
 		return;
 
+	if (GetVisibility() == 0 || flAlpha == 0)
+		return;
+
 	CRenderingContext r(Game()->GetRenderer());
-	r.SetAlpha(flAlpha);
+	r.SetAlpha(flAlpha*GetVisibility());
 	r.Rotate(flAngle, Vector(0, 1, 0));
 	r.SetBlend(BLEND_ADDITIVE);
 	r.Scale(RenderShieldScale(), 1, RenderShieldScale());

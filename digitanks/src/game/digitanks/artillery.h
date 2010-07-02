@@ -37,6 +37,7 @@ public:
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				FiringCone() const { return 15; };
+	virtual float				VisibleRange() const { return 45; };
 
 protected:
 	bool						m_bFortified;

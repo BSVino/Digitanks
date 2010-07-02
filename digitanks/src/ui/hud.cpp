@@ -992,7 +992,7 @@ void CHUD::NewCurrentTeam()
 {
 	m_bAutoProceed = true;
 
-	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) && DigitanksGame()->GetCurrentTank())
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);

@@ -57,6 +57,8 @@ public:
 	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamClient);
 	NET_CALLBACK_ENTITY(CGame, CTeam,			AddEntityToTeam);
 
+	virtual void								CreateRenderer();
+
 	size_t										GetNumTeams() { return m_ahTeams.size(); };
 	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
 	bool										IsTeamControlledByMe(CTeam* pTeam);

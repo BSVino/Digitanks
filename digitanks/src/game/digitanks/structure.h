@@ -25,6 +25,8 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
+	virtual float				VisibleRange() const { return 50; };
+
 protected:
 	bool						m_bConstructing;
 	size_t						m_iTurnsToConstruct;
@@ -43,7 +45,7 @@ public:
 	virtual size_t				InitialDataStrength() { return 100; };
 	virtual size_t				BaseDataFlowPerTurn() { return 20; };
 	virtual float				GetDataFlowRate();
-	float						GetDataFlowRadius();
+	float						GetDataFlowRadius() const;
 	float						GetDataFlow(Vector vecPoint);
 	static float				GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore = NULL);
 	void						CalculateDataFlow();
@@ -56,6 +58,8 @@ public:
 	void						UpdateTendrils();
 
 	void						AddChild(CStructure* pChild);
+
+	virtual float				VisibleRange() const;
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);

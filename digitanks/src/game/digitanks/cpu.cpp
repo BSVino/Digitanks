@@ -116,7 +116,9 @@ void CCPU::PostStartTurn()
 
 void CCPU::OnRender()
 {
-	glColor4ubv(GetTeam()->GetColor());
+	if (GetVisibility() == 0)
+		return;
+
 	glutSolidCube(12);
 }
 
