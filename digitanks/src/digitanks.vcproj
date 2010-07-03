@@ -410,11 +410,27 @@
 							>
 						</File>
 						<File
+							RelativePath=".\game\digitanks\collector.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\collector.h"
+							>
+						</File>
+						<File
 							RelativePath=".\game\digitanks\cpu.cpp"
 							>
 						</File>
 						<File
 							RelativePath=".\game\digitanks\cpu.h"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\resource.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\resource.h"
 							>
 						</File>
 						<File

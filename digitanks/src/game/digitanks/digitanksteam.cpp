@@ -21,11 +21,15 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 	CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
 	if (pTank)
 		m_ahTanks.push_back(pTank);
+
+	m_aflVisibilities[pEntity->GetHandle()] = 1;
 }
 
 void CDigitanksTeam::PreStartTurn()
 {
+	m_iProduction = 0;
 	m_aflVisibilities.clear();
+
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == NULL)
@@ -124,6 +128,11 @@ void CDigitanksTeam::FireTanks()
 		if (m_ahTanks[i] != NULL)
 			m_ahTanks[i]->Fire();
 	}
+}
+
+void CDigitanksTeam::AddProduction(size_t iProduction)
+{
+	m_iProduction += iProduction;
 }
 
 void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)

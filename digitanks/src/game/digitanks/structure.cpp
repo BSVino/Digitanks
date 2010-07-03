@@ -57,8 +57,10 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 		pContext->SetBlend(BLEND_NONE);
 		pContext->SetColor(Color(128, 128, 128));
 	}
-	else
+	else if (GetTeam())
 		pContext->SetColor(GetTeam()->GetColor());
+	else
+		pContext->SetColor(Color(128, 128, 128));
 }
 
 REGISTER_ENTITY(CSupplier);

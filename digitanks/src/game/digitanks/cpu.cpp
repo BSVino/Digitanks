@@ -9,6 +9,7 @@
 #include <ui/hud.h>
 
 #include "buffer.h"
+#include "collector.h"
 
 REGISTER_ENTITY(CCPU);
 
@@ -20,22 +21,28 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
 
-	pHUD->SetButton1Listener(NULL);
-	pHUD->SetButton2Listener(NULL);
-	pHUD->SetButton3Listener(NULL);
 	if (m_hConstructing == NULL)
-		pHUD->SetButton4Listener(CHUD::BuildBuffer);
+		pHUD->SetButton1Listener(CHUD::BuildBuffer);
 	else
-		pHUD->SetButton4Listener(CHUD::CancelBuild);
+		pHUD->SetButton1Listener(CHUD::CancelBuild);
+	if (m_hConstructing == NULL)
+		pHUD->SetButton2Listener(CHUD::BuildPSU);
+	else
+		pHUD->SetButton2Listener(CHUD::CancelBuild);
+	pHUD->SetButton3Listener(NULL);
+	pHUD->SetButton4Listener(NULL);
 	pHUD->SetButton5Listener(NULL);
 
-	pHUD->SetButton1Help("");
-	pHUD->SetButton2Help("");
-	pHUD->SetButton3Help("");
 	if (m_hConstructing == NULL)
-		pHUD->SetButton4Help("Build\nBuffer");
+		pHUD->SetButton1Help("Build\nBuffer");
 	else
-		pHUD->SetButton4Help("Cancel\nBuild");
+		pHUD->SetButton1Help("Cancel\nBuild");
+	if (m_hConstructing == NULL)
+		pHUD->SetButton2Help("Build\nPwr Supply");
+	else
+		pHUD->SetButton2Help("Cancel\nBuild");
+	pHUD->SetButton3Help("");
+	pHUD->SetButton4Help("");
 	pHUD->SetButton5Help("");
 
 	pHUD->SetButton1Texture(0);
@@ -44,16 +51,24 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	pHUD->SetButton4Texture(0);
 	pHUD->SetButton5Texture(0);
 
-	pHUD->SetButton1Color(glgui::g_clrBox);
-	pHUD->SetButton2Color(glgui::g_clrBox);
+	pHUD->SetButton1Color(Color(150, 150, 150));
+	pHUD->SetButton2Color(Color(150, 150, 150));
 	pHUD->SetButton3Color(glgui::g_clrBox);
-	pHUD->SetButton4Color(Color(150, 150, 150));
+	pHUD->SetButton4Color(glgui::g_clrBox);
 	pHUD->SetButton5Color(glgui::g_clrBox);
 }
 
 bool CCPU::IsPreviewBuildValid() const
 {
 	CSupplier* pSupplier = FindClosestSupplier(GetPreviewBuild(), GetTeam());
+
+	if (m_ePreviewStructure == STRUCTURE_PSU)
+	{
+		CResource* pResource = CResource::FindClosestResource(GetPreviewBuild(), RESOURCE_ELECTRONODE);
+		float flDistance = (pResource->GetOrigin() - GetPreviewBuild()).Length();
+		if (flDistance > 15)
+			return false;
+	}
 
 	if (!pSupplier)
 		return false;
@@ -76,7 +91,11 @@ void CCPU::BeginConstruction()
 	if (m_hConstructing != NULL)
 		CancelConstruction();
 
-	m_hConstructing = Game()->Create<CBuffer>("CBuffer");
+	if (m_ePreviewStructure == STRUCTURE_BUFFER)
+		m_hConstructing = Game()->Create<CBuffer>("CBuffer");
+	else if (m_ePreviewStructure == STRUCTURE_PSU)
+		m_hConstructing = Game()->Create<CCollector>("CCollector");
+
 	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->BeginConstruction(3);
 	m_hConstructing->SetOrigin(GetPreviewBuild());
@@ -86,6 +105,10 @@ void CCPU::BeginConstruction()
 	CSupplier* pSupplier = dynamic_cast<CSupplier*>(m_hConstructing.GetPointer());
 	if (pSupplier)
 		pSupplier->GiveDataStrength((size_t)pSupplier->GetSupplier()->GetDataFlow(pSupplier->GetOrigin()));
+
+	CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
+	if (pCollector)
+		pCollector->SetResource(CResource::FindClosestResource(GetPreviewBuild(), pCollector->GetResource()));
 }
 
 void CCPU::CancelConstruction()

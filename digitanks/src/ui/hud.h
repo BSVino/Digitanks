@@ -168,6 +168,7 @@ public:
 	EVENT_CALLBACK(CHUD, PromoteDefense);
 	EVENT_CALLBACK(CHUD, PromoteMovement);
 	EVENT_CALLBACK(CHUD, BuildBuffer);
+	EVENT_CALLBACK(CHUD, BuildPSU);
 	EVENT_CALLBACK(CHUD, CancelBuild);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
@@ -219,6 +220,8 @@ protected:
 	glgui::CLabel*				m_pOpenTutorial;
 
 	glgui::CLabel*				m_pFPS;
+
+	glgui::CLabel*				m_pTeamInfo;
 
 	size_t						m_iAvatarIcon;
 	size_t						m_iShieldIcon;

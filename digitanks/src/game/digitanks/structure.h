@@ -4,6 +4,12 @@
 #include "selectable.h"
 #include "supplyline.h"
 
+typedef enum
+{
+	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
+} structure_t;
+
 class CStructure : public CSelectable
 {
 	REGISTER_ENTITY_CLASS(CStructure, CSelectable);

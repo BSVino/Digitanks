@@ -22,6 +22,7 @@ public:
 
 	Vector						GetPreviewBuild() const { return m_vecPreviewBuild; };
 	virtual void				SetPreviewBuild(Vector vecPreviewBuild);
+	virtual void				SetPreviewStructure(structure_t ePreviewStructure) { m_ePreviewStructure = ePreviewStructure; };
 	void						ClearPreviewBuild();
 
 	void						BeginConstruction();
@@ -36,6 +37,7 @@ public:
 protected:
 	Vector						m_vecPreviewBuild;
 
+	structure_t					m_ePreviewStructure;
 	CEntityHandle<CStructure>	m_hConstructing;
 };
 

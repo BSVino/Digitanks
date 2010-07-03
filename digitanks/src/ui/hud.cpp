@@ -1,5 +1,7 @@
 #include "hud.h"
 
+#include <sstream>
+
 #include "digitankswindow.h"
 #include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
@@ -171,6 +173,12 @@ CHUD::CHUD()
 	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
 	m_pFPS->SetPos(20, 20);
 
+	m_pTeamInfo = new CLabel(0, 0, 200, 20, "");
+	AddControl(m_pTeamInfo);
+
+	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
+	m_pTeamInfo->SetPos(200, 20);
+
 	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
 
@@ -264,6 +272,10 @@ void CHUD::Layout()
 	m_pOpenTutorial->SetPos(iWidth/2 - 100/2, 0);
 	m_pOpenTutorial->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pOpenTutorial->SetWrap(false);
+
+	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
+	m_pTeamInfo->SetPos(iWidth - 220, 20);
+	m_pTeamInfo->SetWrap(false);
 }
 
 void CHUD::Think()
@@ -389,6 +401,14 @@ void CHUD::Think()
 	}
 
 	m_pOpenTutorial->SetVisible(!CDigitanksWindow::Get()->GetInstructor()->GetActive());
+
+	if (DigitanksGame()->GetCurrentTeam())
+	{
+		std::stringstream s;
+		s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetProduction();
+		m_pTeamInfo->SetText(s.str().c_str());
+		m_pTeamInfo->SetPos(GetWidth() - 200, 20);
+	}
 
 	m_pFPS->SetText(L"Free Demo");
 
@@ -1237,6 +1257,30 @@ void CHUD::BuildBufferCallback()
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
 		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_BUFFER);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+}
+
+void CHUD::BuildPSUCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_PSU);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 }

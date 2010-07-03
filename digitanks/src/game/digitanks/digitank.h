@@ -217,8 +217,6 @@ public:
 
 	float						FindHoverHeight(Vector vecPosition) const;
 
-	class CDigitanksTeam*		GetDigitanksTeam();
-
 	virtual float				HealthRechargeRate() const;
 	virtual float				ShieldRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; };

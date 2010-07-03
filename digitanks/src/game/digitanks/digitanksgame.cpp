@@ -20,6 +20,7 @@
 #include "digitanks/cpu.h"
 #include "digitanks/projectile.h"
 #include "digitanks/dt_renderer.h"
+#include "digitanks/resource.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -109,6 +110,15 @@ void CDigitanksGame::SetupGame()
 
 	m_hTerrain = Game()->Create<CTerrain>("CTerrain");
 
+	for (int i = 0; i < 8; i++)
+	{
+		float x = RemapVal((float)(rand()%1000), 0, 1000, -m_hTerrain->GetMapSize(), m_hTerrain->GetMapSize());
+		float z = RemapVal((float)(rand()%1000), 0, 1000, -m_hTerrain->GetMapSize(), m_hTerrain->GetMapSize());
+
+		CResource* pResource = Game()->Create<CResource>("CResource");
+		pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+	}
+
 	float flReflection = 1;
 
 	Color aclrTeamColors[] =
@@ -133,6 +143,10 @@ void CDigitanksGame::SetupGame()
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(100, 0, 100) * flReflection));
 		m_ahTeams[i]->AddEntity(pCPU);
 		pCPU->UpdateTendrils();
+
+		CResource* pResource = Game()->Create<CResource>("CResource");
+		float y = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+		pResource->SetOrigin(m_hTerrain->SetPointHeight(pCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
 
 		CDigitank* pTank;
 		Vector vecTank;

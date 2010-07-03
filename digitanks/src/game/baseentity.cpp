@@ -37,6 +37,8 @@ CBaseEntity::CBaseEntity()
 	m_iModel = ~0;
 
 	m_iSpawnSeed = 0;
+
+	m_pTeam = NULL;
 }
 
 CBaseEntity::~CBaseEntity()

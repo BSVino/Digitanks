@@ -9,6 +9,11 @@
 
 REGISTER_ENTITY(CDigitanksEntity);
 
+CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam()
+{
+	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
+}
+
 void CDigitanksEntity::RenderVisibleArea()
 {
 	if (VisibleRange() == 0)

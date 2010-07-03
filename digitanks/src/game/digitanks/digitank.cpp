@@ -85,8 +85,6 @@ CDigitank::CDigitank()
 
 	m_flFireProjectileTime = 0;
 
-	m_pTeam = NULL;
-
 	m_flLastSpeech = 0;
 	m_flNextIdle = 10.0f;
 
@@ -1754,11 +1752,6 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 		flHighestTerrain = flTerrain;
 
 	return flHighestTerrain;
-}
-
-CDigitanksTeam* CDigitank::GetDigitanksTeam()
-{
-	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
 }
 
 float CDigitank::HealthRechargeRate() const
