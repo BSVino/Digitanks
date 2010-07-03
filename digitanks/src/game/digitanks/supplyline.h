@@ -14,7 +14,7 @@ public:
 
 	virtual void					StartTurn();
 
-	virtual void					OnRender();
+	virtual void					PostRender();
 
 protected:
 	CEntityHandle<CSupplier>		m_hSupplier;

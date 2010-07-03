@@ -58,8 +58,10 @@ void CSupplyLine::StartTurn()
 	}
 }
 
-void CSupplyLine::OnRender()
+void CSupplyLine::PostRender()
 {
+	BaseClass::PostRender();
+
 	if (m_hSupplier == NULL || m_hEntity == NULL)
 		return;
 
