@@ -551,6 +551,8 @@ IDraggable* CDroppablePanel::GetDraggable(int i)
 	return m_apDraggables[i];
 }
 
+FTGLPixmapFont* CLabel::s_pFont = NULL;
+
 CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 	: CBaseControl(x, y, w, h)
 {
@@ -561,11 +563,15 @@ CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 	m_eAlign = TA_MIDDLECENTER;
 	m_FGColor = Color(255, 255, 255, 255);
 
-	static char szFont[1024];
-	sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
+	if (!s_pFont)
+	{
+		char szFont[1024];
+		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
 
-	m_pFont = new FTGLPixmapFont(szFont);
-	m_pFont->FaceSize(13);
+		s_pFont = new FTGLPixmapFont(szFont);
+	}
+
+	SetFontFaceSize(13);
 
 	SetText(pszText);
 }
@@ -574,8 +580,6 @@ void CLabel::Destructor()
 {
 	if (m_pszText)
 		free(m_pszText);
-
-	delete m_pFont;
 
 	CBaseControl::Destructor();
 }
@@ -600,12 +604,14 @@ void CLabel::Paint(int x, int y, int w, int h)
 	wchar_t* pszTok = wcstok(pszText, pszSeps);
 	m_iLine = 0;
 
+	s_pFont->FaceSize(m_iFontFaceSize);
+
 	while (pszTok)
 	{
 		glColor4ubv(FGColor);
 
-		float tw = m_pFont->Advance(pszTok);
-		float t = m_pFont->LineHeight();
+		float tw = s_pFont->Advance(pszTok);
+		float t = s_pFont->LineHeight();
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iLine+1)*t > h)
 		{
@@ -623,7 +629,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 				wchar_t szChar[2];
 				szChar[0] = pszTok[iSource];
 				szChar[1] = L'\0';
-				float cw = m_pFont->Advance(szChar);
+				float cw = s_pFont->Advance(szChar);
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iLine+1)*t > h)
 				{
 					iLength++;
@@ -667,11 +673,11 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
 {
-	float lw = m_pFont->Advance(pszText, iLength);
-	float t = m_pFont->LineHeight();
+	float lw = s_pFont->Advance(pszText, iLength);
+	float t = s_pFont->LineHeight();
 	float th = GetTextHeight() - t;
 
-	float flBaseline = (float)m_pFont->FaceSize()/2 + m_pFont->Descender()/2;
+	float flBaseline = (float)s_pFont->FaceSize()/2 + s_pFont->Descender()/2;
 
 	if (m_eAlign == TA_MIDDLECENTER)
 		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + flBaseline + h/2 - th/2 + m_iLine*t);
@@ -684,7 +690,7 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	else	// TA_TOPLEFT
 		glRasterPos2f((float)x, (float)y + flBaseline + m_iLine*t);
 
-	m_pFont->Render(pszText, iLength);
+	s_pFont->Render(pszText, iLength);
 }
 
 void CLabel::SetSize(int w, int h)
@@ -760,17 +766,17 @@ void CLabel::AppendText(const char* pszText)
 
 void CLabel::SetFontFaceSize(int iSize)
 {
-	m_pFont->FaceSize(iSize);
+	m_iFontFaceSize = iSize;
 }
 
 int CLabel::GetTextWidth()
 {
-	return (int)m_pFont->Advance(m_pszText);
+	return (int)s_pFont->Advance(m_pszText);
 }
 
 float CLabel::GetTextHeight()
 {
-	return (m_pFont->LineHeight()) * m_iTotalLines;
+	return (s_pFont->LineHeight()) * m_iTotalLines;
 }
 
 void CLabel::ComputeLines(int w, int h)
@@ -799,8 +805,8 @@ void CLabel::ComputeLines(int w, int h)
 
 	while (pszTok)
 	{
-		float tw = m_pFont->Advance(pszTok);
-		float t = m_pFont->LineHeight();
+		float tw = s_pFont->Advance(pszTok);
+		float t = s_pFont->LineHeight();
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iTotalLines+1)*t > h)
 		{
@@ -816,7 +822,7 @@ void CLabel::ComputeLines(int w, int h)
 				wchar_t szChar[2];
 				szChar[0] = pszTok[iSource];
 				szChar[1] = L'\0';
-				float cw = m_pFont->Advance(szChar);
+				float cw = s_pFont->Advance(szChar);
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iTotalLines+1)*t > h)
 				{
 					iLength++;
