@@ -1,6 +1,7 @@
 #include "digitankswindow.h"
 
-#include <GL/glut.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
@@ -33,6 +34,8 @@ void CDigitanksWindow::MouseDragged(int x, int y)
 {
 	FakeCtrlAltShift();
 
+	m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
+
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
 	if (GetGame() && GetGame()->GetCamera())
@@ -47,7 +50,20 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	FakeCtrlAltShift();
 
 	if (GetGame() && GetGame()->GetCamera())
-		GetGame()->GetCamera()->MouseButton(iButton, iState);
+	{
+		if (iButton == 3)		// mw up
+		{
+			GetGame()->GetCamera()->ZoomIn();
+			return;
+		}
+		else if (iButton == 4)	// mw down
+		{
+			GetGame()->GetCamera()->ZoomOut();
+			return;
+		}
+		else
+			GetGame()->GetCamera()->MouseButton(iButton, iState);
+	}
 
 	if (iState == GLUT_DOWN)
 	{
@@ -63,11 +79,19 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (!DigitanksGame())
 		return;
 
-	if (iState == GLUT_DOWN && iButton == 0)
-	{
-		Vector vecMousePosition;
-		bool bFound = GetMouseGridPosition(vecMousePosition);
+	Vector vecMousePosition;
+	bool bFound = GetMouseGridPosition(vecMousePosition);
 
+	if (iState == GLUT_DOWN)
+		m_iMouseMoved = 0;
+	else
+	{
+		if (m_iMouseMoved < 10 && GetGame() && GetGame()->GetCamera())
+			GetGame()->GetCamera()->SetTarget(vecMousePosition);
+	}
+
+	if (iState == GLUT_DOWN && iButton == 2)
+	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		{
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);

@@ -15,6 +15,9 @@ public:
 	void		SnapDistance(float flDistance);
 	void		SnapAngle(EAngle angCamera);
 
+	void		ZoomOut();
+	void		ZoomIn();
+
 	void		Shake(Vector vecLocation, float flMagnitude);
 
 	void		Think();

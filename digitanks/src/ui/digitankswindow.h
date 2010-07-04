@@ -99,6 +99,7 @@ protected:
 	bool						m_bCtrl;
 	bool						m_bAlt;
 	bool						m_bShift;
+	int							m_iMouseMoved;
 
 	std::vector<const char*>	m_apszCommandLine;
 };

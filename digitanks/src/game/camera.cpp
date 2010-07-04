@@ -29,6 +29,12 @@ void CCamera::SnapTarget(Vector vecTarget)
 
 void CCamera::SetDistance(float flDistance)
 {
+	if (flDistance < 40)
+		flDistance = 40;
+
+	if (flDistance > 300)
+		flDistance = 300;
+
 	m_flDistanceRamp = DigitanksGame()->GetGameTime();
 	m_flOldDistance = m_flDistance;
 	m_flNewDistance = flDistance;
@@ -43,6 +49,16 @@ void CCamera::SnapDistance(float flDistance)
 void CCamera::SnapAngle(EAngle angCamera)
 {
 	m_angCamera = angCamera;
+}
+
+void CCamera::ZoomOut()
+{
+	SetDistance(m_flNewDistance+1);
+}
+
+void CCamera::ZoomIn()
+{
+	SetDistance(m_flNewDistance-1);
 }
 
 void CCamera::Shake(Vector vecLocation, float flMagnitude)
@@ -168,7 +184,7 @@ void CCamera::MouseInput(int x, int y)
 
 void CCamera::MouseButton(int iButton, int iState)
 {
-	if (iButton == 2)
+	if (iButton == 0)
 		m_bRotatingCamera = !iState;
 }
 
