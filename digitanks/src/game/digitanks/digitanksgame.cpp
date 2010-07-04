@@ -561,15 +561,15 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
 
+	GetCurrentTeam()->PreStartTurn();
+	GetCurrentTeam()->StartTurn();
+	GetCurrentTeam()->PostStartTurn();
+
 	if (m_pListener)
 	{
 		m_pListener->SetHUDActive(true);
 		m_pListener->NewCurrentTeam();
 	}
-
-	GetCurrentTeam()->PreStartTurn();
-	GetCurrentTeam()->StartTurn();
-	GetCurrentTeam()->PostStartTurn();
 
 	if (GetCurrentSelection())
 		GetCurrentSelection()->OnCurrentSelection();

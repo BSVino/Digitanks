@@ -67,9 +67,24 @@ size_t CBaseEntity::GetEntityHandle(size_t i)
 	if (i > s_apEntityList.size())
 		return ~0;
 
-	std::map<size_t, CBaseEntity*>::iterator it = s_apEntityList.begin();
-	while (i--)
+	static std::map<size_t, CBaseEntity*>::iterator it;
+	static size_t iLastRequest = ~0;
+
+	size_t iThisRequest = i;
+
+	// Perf. Most GetEntityHandle requests come in sequentially,
+	// so saving the last iterator can save O(n!) search time.
+	if (iLastRequest == ~0 || iLastRequest != i-1)
+	{
+		it = s_apEntityList.begin();
+
+		while (i--)
+			it++;
+	}
+	else
 		it++;
+
+	iLastRequest = iThisRequest;
 
 	return (*it).first;
 }

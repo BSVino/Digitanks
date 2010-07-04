@@ -277,6 +277,10 @@ void CHUD::Layout()
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pTeamInfo->SetPos(iWidth - 220, 20);
 	m_pTeamInfo->SetWrap(false);
+
+#ifndef _DEBUG
+	m_pFPS->SetText(L"Free Demo");
+#endif
 }
 
 void CHUD::Think()
@@ -342,25 +346,6 @@ void CHUD::Think()
 		m_pLowShieldsWarning->SetVisible(false);
 	}
 
-	if (m_bHUDActive)
-	{
-		if (ShouldAutoProceed())
-		{
-			m_pAutoButton->SetText("Auto on");
-			m_pAutoButton->SetButtonColor(Color(0, 0, 150));
-		}
-		else
-		{
-			m_pAutoButton->SetText("Auto off");
-			m_pAutoButton->SetButtonColor(Color(100, 100, 100));
-		}
-	}
-	else
-	{
-		m_pAutoButton->SetText("Auto off");
-		m_pAutoButton->SetButtonColor(Color(100, 100, 100));
-	}
-
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
 		if (m_bHUDActive && pCurrentTank && pCurrentTank->HasBonusPoints())
@@ -403,17 +388,9 @@ void CHUD::Think()
 
 	m_pOpenTutorial->SetVisible(!CDigitanksWindow::Get()->GetInstructor()->GetActive());
 
-	if (DigitanksGame()->GetCurrentTeam())
-	{
-		std::stringstream s;
-		s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetProduction();
-		m_pTeamInfo->SetText(s.str().c_str());
-		m_pTeamInfo->SetPos(GetWidth() - 200, 20);
-	}
-
+#ifdef _DEBUG
 	m_pFPS->SetText(L"Free Demo");
 
-#ifdef _DEBUG
 	char szFPS[100];
 	sprintf(szFPS, "\n%d fps", (int)(1/Game()->GetFrameTime()));
 	m_pFPS->AppendText(szFPS);
@@ -1020,6 +997,11 @@ void CHUD::NewCurrentTeam()
 
 	if (DigitanksGame()->GetCurrentSelection())
 		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
+
+	std::stringstream s;
+	s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetProduction();
+	m_pTeamInfo->SetText(s.str().c_str());
+	m_pTeamInfo->SetPos(GetWidth() - 200, 20);
 }
 
 void CHUD::NewCurrentSelection()
@@ -1077,6 +1059,16 @@ void CHUD::SetHUDActive(bool bActive)
 
 	if (!bActive)
 		DigitanksGame()->SetControlMode(MODE_NONE);
+}
+
+void CHUD::SetAutoProceed(bool bAuto)
+{
+	m_bAutoProceed = bAuto;
+
+	if (bAuto)
+		m_pAutoButton->SetText("Auto on");
+	else
+		m_pAutoButton->SetText("Auto off");
 }
 
 void CHUD::AutoCallback()
