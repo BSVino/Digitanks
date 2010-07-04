@@ -426,6 +426,14 @@
 							>
 						</File>
 						<File
+							RelativePath=".\game\digitanks\loader.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\game\digitanks\loader.h"
+							>
+						</File>
+						<File
 							RelativePath=".\game\digitanks\resource.cpp"
 							>
 						</File>

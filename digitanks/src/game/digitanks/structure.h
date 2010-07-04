@@ -8,6 +8,8 @@ typedef enum
 {
 	STRUCTURE_BUFFER,
 	STRUCTURE_PSU,
+	STRUCTURE_INFANTRYLOADER,
+	STRUCTURE_TANKLOADER,
 } structure_t;
 
 class CStructure : public CSelectable

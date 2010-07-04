@@ -169,7 +169,11 @@ public:
 	EVENT_CALLBACK(CHUD, PromoteMovement);
 	EVENT_CALLBACK(CHUD, BuildBuffer);
 	EVENT_CALLBACK(CHUD, BuildPSU);
+	EVENT_CALLBACK(CHUD, BuildTankLoader);
+	EVENT_CALLBACK(CHUD, BuildInfantryLoader);
 	EVENT_CALLBACK(CHUD, CancelBuild);
+	EVENT_CALLBACK(CHUD, BuildUnit);
+	EVENT_CALLBACK(CHUD, CancelBuildUnit);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
 	size_t						GetSpeechBubble() { return m_iSpeechBubble; };

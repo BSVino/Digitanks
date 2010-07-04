@@ -10,6 +10,7 @@
 #include "renderer/renderer.h"
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/projectile.h>
+#include <game/digitanks/loader.h>
 
 // windows.h screws up virtual functions in some of the above headers
 #include <GL/glew.h>
@@ -1285,6 +1286,50 @@ void CHUD::BuildPSUCallback()
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 }
 
+void CHUD::BuildInfantryLoaderCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_INFANTRYLOADER);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+}
+
+void CHUD::BuildTankLoaderCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_TANKLOADER);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+}
+
 void CHUD::CancelBuildCallback()
 {
 	if (!m_bHUDActive)
@@ -1306,6 +1351,48 @@ void CHUD::CancelBuildCallback()
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 
+	SetupMenu();
+}
+
+void CHUD::BuildUnitCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CLoader* pLoader = dynamic_cast<CLoader*>(pStructure);
+	if (!pLoader)
+		return;
+
+	pLoader->BeginConstruction();
+	SetupMenu();
+}
+
+void CHUD::CancelBuildUnitCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CLoader* pLoader = dynamic_cast<CLoader*>(pStructure);
+	if (!pLoader)
+		return;
+
+	pLoader->CancelConstruction();
 	SetupMenu();
 }
 

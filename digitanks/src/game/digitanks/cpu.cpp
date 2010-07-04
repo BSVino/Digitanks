@@ -10,6 +10,7 @@
 
 #include "buffer.h"
 #include "collector.h"
+#include "loader.h"
 
 REGISTER_ENTITY(CCPU);
 
@@ -29,8 +30,14 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton2Listener(CHUD::BuildPSU);
 	else
 		pHUD->SetButton2Listener(CHUD::CancelBuild);
-	pHUD->SetButton3Listener(NULL);
-	pHUD->SetButton4Listener(NULL);
+	if (m_hConstructing == NULL)
+		pHUD->SetButton3Listener(CHUD::BuildInfantryLoader);
+	else
+		pHUD->SetButton3Listener(CHUD::CancelBuild);
+	if (m_hConstructing == NULL)
+		pHUD->SetButton4Listener(CHUD::BuildTankLoader);
+	else
+		pHUD->SetButton4Listener(CHUD::CancelBuild);
 	pHUD->SetButton5Listener(NULL);
 
 	if (m_hConstructing == NULL)
@@ -41,8 +48,14 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton2Help("Build\nPwr Supply");
 	else
 		pHUD->SetButton2Help("Cancel\nBuild");
-	pHUD->SetButton3Help("");
-	pHUD->SetButton4Help("");
+	if (m_hConstructing == NULL)
+		pHUD->SetButton3Help("Build\nInf Ldr");
+	else
+		pHUD->SetButton3Help("Cancel\nBuild");
+	if (m_hConstructing == NULL)
+		pHUD->SetButton4Help("Build\nTank Ldr");
+	else
+		pHUD->SetButton4Help("Cancel\nBuild");
 	pHUD->SetButton5Help("");
 
 	pHUD->SetButton1Texture(0);
@@ -53,8 +66,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 	pHUD->SetButton1Color(Color(150, 150, 150));
 	pHUD->SetButton2Color(Color(150, 150, 150));
-	pHUD->SetButton3Color(glgui::g_clrBox);
-	pHUD->SetButton4Color(glgui::g_clrBox);
+	pHUD->SetButton3Color(Color(150, 150, 150));
+	pHUD->SetButton4Color(Color(150, 150, 150));
 	pHUD->SetButton5Color(glgui::g_clrBox);
 }
 
@@ -95,6 +108,10 @@ void CCPU::BeginConstruction()
 		m_hConstructing = Game()->Create<CBuffer>("CBuffer");
 	else if (m_ePreviewStructure == STRUCTURE_PSU)
 		m_hConstructing = Game()->Create<CCollector>("CCollector");
+	else if (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER)
+		m_hConstructing = Game()->Create<CLoader>("CLoader");
+	else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
+		m_hConstructing = Game()->Create<CLoader>("CLoader");
 
 	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->BeginConstruction(3);
@@ -109,6 +126,15 @@ void CCPU::BeginConstruction()
 	CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
 	if (pCollector)
 		pCollector->SetResource(CResource::FindClosestResource(GetPreviewBuild(), pCollector->GetResource()));
+
+	CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+	if (pLoader)
+	{
+		if (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER)
+			pLoader->SetBuildUnit(BUILDUNIT_INFANTRY);
+		else
+			pLoader->SetBuildUnit(BUILDUNIT_TANK);
+	}
 }
 
 void CCPU::CancelConstruction()
