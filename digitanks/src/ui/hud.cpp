@@ -995,7 +995,7 @@ void CHUD::NewCurrentTeam()
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
-	if (DigitanksGame()->GetCurrentSelection())
+	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) && DigitanksGame()->GetCurrentSelection())
 		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
 
 	std::stringstream s;

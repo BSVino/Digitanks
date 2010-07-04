@@ -512,9 +512,6 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 	if (m_pListener)
 		m_pListener->SetHUDActive(false);
 
-	GetCurrentTeam()->MoveTanks();
-	m_bWaitingForMoving = true;
-
 	size_t iSum = 0;
 	Vector vecSum;
 	for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
@@ -522,12 +519,19 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 		CDigitank* pTank = GetCurrentTeam()->GetTank(i);
 		if (!pTank)
 			continue;
+
+		if (!pTank->HasDesiredMove())
+			continue;
+
 		vecSum += pTank->GetDesiredMove();
 		iSum += 1;
 	}
 
 	if (iSum)
 		GetCamera()->SetTarget(vecSum/(float)iSum);
+
+	GetCurrentTeam()->MoveTanks();
+	m_bWaitingForMoving = true;
 }
 
 void CDigitanksGame::StartTurn()
@@ -616,35 +620,46 @@ void CDigitanksGame::Bot_ExecuteTurn()
 			pTarget = pTank;
 	}
 
-	if (!pTarget)
-	{
-		EndTurn();
-		return;
-	}
+	Vector vecTargetOrigin;
+	if (pTarget)
+		vecTargetOrigin = pTarget->GetOrigin();
+	else
+		vecTargetOrigin = GetDigitanksTeam(0)->GetMember(0)->GetOrigin();	// Should be the CPU
 
 	Vector vecFortifyPoint;
+	bool bShouldFortify;
 
-	// Find the closest fortification point. Each enemy tank is examined to find the closest spot outside of all enemy tank ranges.
-	for (size_t i = 0; i < pTarget->GetDigitanksTeam()->GetNumTanks(); i++)
+	if (pTarget)
 	{
-		CDigitank* pTank = pTarget->GetDigitanksTeam()->GetTank(i);
+		bShouldFortify = true;
 
-		// Artillery isn't a big deal, and they have huge ranges.
-		if (pTank->IsArtillery())
-			continue;
-
-		Vector vecDirection = (pHeadTank->GetOrigin() - pTank->GetOrigin()).Normalized();
-		Vector vecTryFortifyPoint = pTank->GetOrigin() + vecDirection * (pTank->GetMaxRange() + pTank->GetMaxMovementDistance());
-
-		if (i == 0)
+		// Find the closest fortification point. Each enemy tank is examined to find the closest spot outside of all enemy tank ranges.
+		for (size_t i = 0; i < pTarget->GetDigitanksTeam()->GetNumTanks(); i++)
 		{
-			vecFortifyPoint = vecTryFortifyPoint;
-			continue;
-		}
+			CDigitank* pTank = pTarget->GetDigitanksTeam()->GetTank(i);
 
-		if ((pHeadTank->GetOrigin() - vecTryFortifyPoint).Length2DSqr() < (pHeadTank->GetOrigin() - vecFortifyPoint).Length2DSqr())
-			vecFortifyPoint = vecTryFortifyPoint;
+			// Artillery isn't a big deal, and they have huge ranges.
+			if (pTank->IsArtillery())
+				continue;
+
+			if (GetCurrentTeam()->GetEntityVisibility(pTank->GetHandle()) == 0)
+				continue;
+
+			Vector vecDirection = (pHeadTank->GetOrigin() - pTank->GetOrigin()).Normalized();
+			Vector vecTryFortifyPoint = pTank->GetOrigin() + vecDirection * (pTank->GetMaxRange() + pTank->GetMaxMovementDistance());
+
+			if (i == 0)
+			{
+				vecFortifyPoint = vecTryFortifyPoint;
+				continue;
+			}
+
+			if ((pHeadTank->GetOrigin() - vecTryFortifyPoint).Length2DSqr() < (pHeadTank->GetOrigin() - vecFortifyPoint).Length2DSqr())
+				vecFortifyPoint = vecTryFortifyPoint;
+		}
 	}
+	else
+		bShouldFortify = false;
 
 	size_t iFortifies = 0;
 
@@ -674,54 +689,56 @@ void CDigitanksGame::Bot_ExecuteTurn()
 		if (pTank->IsArtillery())
 		{
 			// If we're fortified and our target is too close, get the fuck outta there!
-			if (pTank->IsFortified() && (pTank->GetOrigin() - pTarget->GetOrigin()).Length() < pTank->GetMinRange())
+			if (pTank->IsFortified() && (pTank->GetOrigin() - vecTargetOrigin).Length() < pTank->GetMinRange())
 				pTank->Fortify();
 
 			if (!pTank->IsFortified())
 			{
-				if ((pTank->GetOrigin() - pTarget->GetOrigin()).Length() > pTank->GetMinRange())
+				if ((pTank->GetOrigin() - vecTargetOrigin).Length() > pTank->GetMinRange())
 				{
 					// Deploy so we can rain some hell down.
-					pTank->SetPreviewTurn(VectorAngles(pTarget->GetOrigin() - pTank->GetOrigin()).y);
+					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
 					pTank->SetDesiredTurn();
 					pTank->Fortify();
 				}
+				else
+				{
+					// Head away from enemies at full speed
+					float flMovementDistance = pTank->GetMaxMovementDistance();
+					Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
+					vecDirection = -vecDirection.Normalized() * (flMovementDistance*0.90f);
 
-				// Head away from enemies at full speed
-				float flMovementDistance = pTank->GetMaxMovementDistance();
-				Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
-				vecDirection = -vecDirection.Normalized() * (flMovementDistance*0.90f);
+					Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
 
-				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+					pTank->SetPreviewMove(vecDesiredMove);
+					pTank->SetDesiredMove();
 
-				pTank->SetPreviewMove(vecDesiredMove);
-				pTank->SetDesiredMove();
-
-				pTank->SetPreviewTurn(VectorAngles(pTarget->GetOrigin() - pTank->GetDesiredMove()).y);
-				pTank->SetDesiredTurn();
+					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
+					pTank->SetDesiredTurn();
+				}
 			}
 
 			// If we are within the max range, try to fire.
-			if ((pTarget->GetOrigin() - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			if ((vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 			{
-				pTank->SetPreviewAim(GetTerrain()->SetPointHeight(pTarget->GetOrigin()));
+				pTank->SetPreviewAim(GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->SetDesiredAim();
 			}
 		}
-		else if (pTank->CanFortify())
+		else if (pTank->CanFortify() && bShouldFortify)
 		{
 			Vector vecTankFortifyPoint;
 			if (iFortifies == 0)
 				vecTankFortifyPoint = vecFortifyPoint;
 			else if (iFortifies%2 == 0)
 			{
-				Vector vecSide = (pTarget->GetOrigin() - vecFortifyPoint).Normalized().Cross(Vector(0,1,0)).Normalized();
+				Vector vecSide = (vecTargetOrigin - vecFortifyPoint).Normalized().Cross(Vector(0,1,0)).Normalized();
 				vecTankFortifyPoint = vecFortifyPoint + vecSide * (float)((iFortifies/2)*pTank->GetMaxRange()/2);
 			}
 			else
 			{
-				Vector vecSide = -(pTarget->GetOrigin() - vecFortifyPoint).Normalized().Cross(Vector(0,1,0)).Normalized();
+				Vector vecSide = -(vecTargetOrigin - vecFortifyPoint).Normalized().Cross(Vector(0,1,0)).Normalized();
 				vecTankFortifyPoint = vecFortifyPoint + vecSide * (float)((iFortifies/2+1)*pTank->GetMaxRange()/2);
 			}
 
@@ -735,13 +752,13 @@ void CDigitanksGame::Bot_ExecuteTurn()
 			//	pTank->Fortify();
 
 			// If our target is behind us, we have to mobilize so we can turn around to face them.
-			if (pTank->IsFortified() && (pTarget->GetOrigin() - pTank->GetOrigin()).Normalized().Dot(AngleVector(pTank->GetAngles())) < 0)
+			if (pTank->IsFortified() && (vecTargetOrigin - pTank->GetOrigin()).Normalized().Dot(AngleVector(pTank->GetAngles())) < 0)
 				pTank->Fortify();
 
 			if (!pTank->IsFortified() && (pTank->GetOrigin() - vecTankFortifyPoint).Length2D() < pTank->GetBoundingRadius()*2)
 			{
 				// Face the enemy and fortify before he gets here.
-				pTank->SetPreviewTurn(VectorAngles(pTarget->GetOrigin() - pTank->GetOrigin()).y);
+				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
 				pTank->SetDesiredTurn();
 				pTank->Fortify();
 			}
@@ -758,17 +775,17 @@ void CDigitanksGame::Bot_ExecuteTurn()
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->SetDesiredMove();
 
-				pTank->SetPreviewTurn(VectorAngles(pTarget->GetOrigin() - pTank->GetDesiredMove()).y);
+				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
 				pTank->SetDesiredTurn();
 			}
 		}
 		else
 		{
 			// If we are not within the effective range, use 1/3 of our available movement power to move towards our target.
-			if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
 				float flMovementDistance = pTank->GetMaxMovementDistance();
-				Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
+				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
 
 				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
@@ -779,14 +796,14 @@ void CDigitanksGame::Bot_ExecuteTurn()
 			}
 
 			// If we are within the max range, try to fire.
-			if ((pTarget->GetOrigin() - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			if ((vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 			{
-				pTank->SetPreviewAim(GetTerrain()->SetPointHeight(pTarget->GetOrigin()));
+				pTank->SetPreviewAim(GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->SetDesiredAim();
 			}
 		}
 
-		if (pTarget->IsFortified())
+		if (pTarget && pTarget->IsFortified())
 			pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetBaseMovementPower())*3/4);
 		else
 			pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetBaseMovementPower())/2);
