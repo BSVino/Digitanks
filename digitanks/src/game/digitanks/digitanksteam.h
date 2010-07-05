@@ -4,6 +4,9 @@
 #include <game/team.h>
 #include "digitank.h"
 
+// AI stuff
+#include "cpu.h"
+
 class CDigitanksTeam : public CTeam
 {
 	friend class CDigitanksGame;
@@ -35,6 +38,7 @@ public:
 
 	// AI stuff
 	void						Bot_ExecuteTurn();
+	void						Bot_ExpandBase();
 
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
 	CDigitank*					GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
@@ -45,6 +49,9 @@ protected:
 	std::map<size_t, float>		m_aflVisibilities;
 
 	size_t						m_iProduction;
+
+	// AI stuff
+	CEntityHandle<CCPU>			m_hPrimaryCPU;
 };
 
 #endif

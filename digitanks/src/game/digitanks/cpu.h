@@ -29,6 +29,8 @@ public:
 
 	void						BeginConstruction();
 	void						CancelConstruction();
+	bool						HasConstruction() { return m_hConstructing != NULL; }
+	CStructure*					GetConstructing() { return m_hConstructing; }
 
 	virtual void				StartTurn();
 	virtual void				PostStartTurn();

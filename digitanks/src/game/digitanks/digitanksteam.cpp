@@ -23,6 +23,10 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 		m_ahTanks.push_back(pTank);
 
 	m_aflVisibilities[pEntity->GetHandle()] = 1;
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pEntity);
+	if (m_hPrimaryCPU == NULL && pCPU)
+		m_hPrimaryCPU = pCPU;
 }
 
 void CDigitanksTeam::PreStartTurn()

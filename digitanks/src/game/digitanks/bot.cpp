@@ -1,9 +1,47 @@
 #include "digitanksteam.h"
 
 #include "digitanksgame.h"
+#include "resource.h"
+
+void CDigitanksTeam::Bot_ExpandBase()
+{
+	// If currently building something, don't think about it this turn.
+	if (m_hPrimaryCPU->HasConstruction())
+		return;
+
+	if (m_iProduction == 0)
+	{
+		// Find the closest electronode and build a collector.
+		CResource* pClosest = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin());
+		if (pClosest)
+		{
+			if ((pClosest->GetOrigin() - m_hPrimaryCPU->GetOrigin()).Length() < m_hPrimaryCPU->GetDataFlowRadius())
+			{
+				Vector vecForward = pClosest->GetOrigin() - m_hPrimaryCPU->GetOrigin();
+				Vector vecRight;
+				AngleVectors(VectorAngles(vecForward.Normalized()), NULL, &vecRight, NULL);
+
+				// A pretty spot midway between the supplier and the resource.
+				Vector vecPSU = (pClosest->GetOrigin() + m_hPrimaryCPU->GetOrigin())/2 + vecRight*vecForward.Length2D();
+
+				// Move that spot near to the resource so we know we can get it built.
+				Vector vecPSUDirection = vecPSU - pClosest->GetOrigin();
+				vecPSU = pClosest->GetOrigin() + vecPSUDirection.Normalized() * 10;
+
+				DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
+
+				m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_PSU);
+				m_hPrimaryCPU->SetPreviewBuild(vecPSU);
+				m_hPrimaryCPU->BeginConstruction();
+			}
+		}
+	}
+}
 
 void CDigitanksTeam::Bot_ExecuteTurn()
 {
+	Bot_ExpandBase();
+
 	CDigitank* pHeadTank = GetTank(0);
 
 	CDigitank* pTarget = NULL;

@@ -112,6 +112,9 @@ void CCPU::ClearPreviewBuild()
 
 void CCPU::BeginConstruction()
 {
+	if (!IsPreviewBuildValid())
+		return;
+
 	if (m_hConstructing != NULL)
 		CancelConstruction();
 
