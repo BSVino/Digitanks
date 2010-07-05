@@ -33,6 +33,9 @@ public:
 
 	float						GetEntityVisibility(size_t iHandle);
 
+	// AI stuff
+	void						Bot_ExecuteTurn();
+
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
 	CDigitank*					GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
 
