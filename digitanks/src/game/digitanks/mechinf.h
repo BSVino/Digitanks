@@ -24,6 +24,8 @@ public:
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
+	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
+
 	virtual float				RenderShieldScale() { return 2.0f; };
 
 	virtual bool				CanFortify() { return true; };

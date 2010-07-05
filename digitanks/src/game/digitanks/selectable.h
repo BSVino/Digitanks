@@ -13,7 +13,7 @@ public:
 	virtual float				GetBoundingRadius() const { return 4; };
 
 	virtual void				OnCurrentSelection() {};
-	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode) {};
+	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode) { return eNewMode == MODE_NONE; };
 
 	virtual const char*			GetPowerBar1Text() { return ""; }
 	virtual const char*			GetPowerBar2Text() { return ""; }

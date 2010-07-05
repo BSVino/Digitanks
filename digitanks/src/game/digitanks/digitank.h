@@ -162,7 +162,7 @@ public:
 
 	// CSelectable
 	virtual void				OnCurrentSelection();
-	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
+	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
 
 	virtual const char*			GetPowerBar1Text() { return "Attack Power"; }
 	virtual const char*			GetPowerBar2Text() { return "Defense Power"; }

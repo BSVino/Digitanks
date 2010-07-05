@@ -90,6 +90,39 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			GetGame()->GetCamera()->SetTarget(vecMousePosition);
 	}
 
+	if (iState == GLUT_UP && iButton == 0 && m_iMouseMoved < 10)
+	{
+		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+			if (!pEntity)
+				continue;
+
+			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
+			if (!pSelectable)
+				continue;
+
+			if (pSelectable->GetTeam() != (CTeam*)DigitanksGame()->GetCurrentTeam())
+				continue;
+
+			if ((pSelectable->GetOrigin() - vecMousePosition).Length() > pSelectable->GetBoundingRadius())
+			{
+				CDigitank* pTank = dynamic_cast<CDigitank*>(pSelectable);
+				if (!pTank)
+					continue;
+
+				if (!pTank->HasDesiredMove())
+					continue;
+
+				if ((pTank->GetDesiredMove() - vecMousePosition).Length() > pTank->GetBoundingRadius())
+					continue;
+			}
+
+			DigitanksGame()->SetCurrentSelection(pSelectable);
+			break;
+		}
+	}
+
 	if (iState == GLUT_DOWN && iButton == 2)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)

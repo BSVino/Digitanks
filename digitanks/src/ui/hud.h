@@ -152,7 +152,7 @@ public:
 
 	virtual void				SetHUDActive(bool bActive);
 
-	bool						ShouldAutoProceed() { return m_bAutoProceed; };
+	bool						ShouldAutoProceed() { return false; };
 	void						SetAutoProceed(bool bAuto);
 
 	bool						IsActive() { return m_bHUDActive; };

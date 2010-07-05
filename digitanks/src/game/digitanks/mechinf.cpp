@@ -128,6 +128,14 @@ float CMechInfantry::GetProjectileDamage()
 	return GetAttackPower()/20;
 }
 
+bool CMechInfantry::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
+{
+	if (eNewMode == MODE_AIM)
+		return false;
+
+	return BaseClass::OnControlModeChange(eOldMode, eNewMode);
+}
+
 float CMechInfantry::GetBonusAttackPower()
 {
 	if (!m_bFortified)

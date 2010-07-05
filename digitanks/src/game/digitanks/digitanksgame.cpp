@@ -965,6 +965,32 @@ size_t CDigitanksGame::GetCurrentSelectionId()
 	return m_iCurrentSelection;
 }
 
+void CDigitanksGame::SetCurrentSelection(CSelectable* pCurrent)
+{
+	for (size_t i = 0; i < GetCurrentTeam()->GetNumMembers(); i++)
+	{
+		CBaseEntity* pMember = GetCurrentTeam()->GetMember(i);
+		if (!pMember)
+			continue;
+
+		CSelectable* pSelectable = dynamic_cast<CSelectable*>(pMember);
+		if (!pSelectable)
+			continue;
+
+		if (pSelectable == pCurrent)
+		{
+			m_iCurrentSelection = i;
+			break;
+		}
+	}
+
+	if (GetCurrentSelection())
+		GetCurrentSelection()->OnCurrentSelection();
+
+	if (m_pListener)
+		m_pListener->NewCurrentSelection();
+}
+
 bool CDigitanksGame::IsCurrentSelection(const CSelectable* pEntity)
 {
 	return GetCurrentSelection() == pEntity;
@@ -989,7 +1015,8 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	if (CDigitanksWindow::Get()->GetVictoryPanel()->IsVisible())
 		return;
 
-	GetCurrentSelection()->OnControlModeChange(m_eControlMode, eMode);
+	if (!GetCurrentSelection()->OnControlModeChange(m_eControlMode, eMode))
+		return;
 
 	if (eMode == MODE_MOVE)
 	{

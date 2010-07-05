@@ -96,9 +96,10 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_pAutoButton = new CButton(0, 0, 0, 0, "Auto");
+	// TODO: Remove entirely if not needed
+/*	m_pAutoButton = new CButton(0, 0, 0, 0, "Auto");
 	m_pAutoButton->SetClickedListener(this, Auto);
-	AddControl(m_pAutoButton);
+	AddControl(m_pAutoButton);*/
 
 	m_pButton1 = new CPictureButton("");
 	AddControl(m_pButton1);
@@ -220,8 +221,8 @@ void CHUD::Layout()
 	m_pButton4->SetSize(50, 50);
 	m_pButton5->SetSize(50, 50);
 
-	m_pAutoButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 135);
-	m_pAutoButton->SetSize(50, 20);
+//	m_pAutoButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 135);
+//	m_pAutoButton->SetSize(50, 20);
 
 	m_pButton1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
 	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
@@ -1065,10 +1066,10 @@ void CHUD::SetAutoProceed(bool bAuto)
 {
 	m_bAutoProceed = bAuto;
 
-	if (bAuto)
-		m_pAutoButton->SetText("Auto on");
-	else
-		m_pAutoButton->SetText("Auto off");
+//	if (bAuto)
+//		m_pAutoButton->SetText("Auto on");
+//	else
+//		m_pAutoButton->SetText("Auto off");
 }
 
 void CHUD::AutoCallback()

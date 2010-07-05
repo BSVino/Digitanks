@@ -916,9 +916,17 @@ void CDigitank::OnCurrentSelection()
 
 	if (DigitanksGame()->GetControlMode() == MODE_FIRE && ChoseFirepower())
 		DigitanksGame()->SetControlMode(MODE_NONE);
+
+	if (DigitanksGame()->GetControlMode() == MODE_NONE)
+	{
+		if (!HasDesiredMove())
+			DigitanksGame()->SetControlMode(MODE_MOVE);
+		else if (!HasDesiredAim())
+			DigitanksGame()->SetControlMode(MODE_AIM);
+	}
 }
 
-void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
+bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
 {
 	if (eOldMode == MODE_MOVE)
 	{
@@ -939,17 +947,28 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 		CancelDesiredMove();
 		CancelDesiredTurn();
 		CancelDesiredAim();
+
+		return true;
 	}
 
 	if (eNewMode == MODE_TURN)
 	{
 		CancelDesiredTurn();
+
+		return true;
 	}
 
 	if (eNewMode == MODE_AIM)
 	{
 		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
+
+		return true;
 	}
+
+	if (eNewMode == MODE_NONE)
+		return true;
+
+	return false;
 }
 
 float CDigitank::GetPowerBar1Value()

@@ -85,6 +85,7 @@ public:
 	class CStructure*		GetCurrentStructure();
 	size_t					GetCurrentSelectionId();
 	bool					IsCurrentSelection(const class CSelectable* pEntity);
+	void					SetCurrentSelection(CSelectable* pCurrent);
 
 	controlmode_t			GetControlMode();
 	void					SetControlMode(controlmode_t eMode, bool bAutoProceed = false);

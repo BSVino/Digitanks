@@ -71,6 +71,17 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	pHUD->SetButton5Color(glgui::g_clrBox);
 }
 
+bool CCPU::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
+{
+	if (eNewMode == MODE_BUILD)
+		return true;
+
+	if (eNewMode == MODE_NONE)
+		return true;
+
+	return false;
+}
+
 bool CCPU::IsPreviewBuildValid() const
 {
 	CSupplier* pSupplier = FindClosestSupplier(GetPreviewBuild(), GetTeam());
