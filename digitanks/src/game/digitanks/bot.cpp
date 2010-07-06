@@ -1,7 +1,22 @@
 #include "digitanksteam.h"
 
+#include <maths.h>
+
 #include "digitanksgame.h"
 #include "resource.h"
+
+structure_t g_aeBuildOrder[] =
+{
+	STRUCTURE_BUFFER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_INFANTRYLOADER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_TANKLOADER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
+};
 
 void CDigitanksTeam::Bot_ExpandBase()
 {
@@ -9,33 +24,122 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU->HasConstruction())
 		return;
 
+	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(structure_t))
+		m_iBuildPosition = 0;
+
 	if (m_iProduction == 0)
 	{
 		// Find the closest electronode and build a collector.
 		CResource* pClosest = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin());
 		if (pClosest)
-		{
-			if ((pClosest->GetOrigin() - m_hPrimaryCPU->GetOrigin()).Length() < m_hPrimaryCPU->GetDataFlowRadius())
-			{
-				Vector vecForward = pClosest->GetOrigin() - m_hPrimaryCPU->GetOrigin();
-				Vector vecRight;
-				AngleVectors(VectorAngles(vecForward.Normalized()), NULL, &vecRight, NULL);
+			BuildCollector(m_hPrimaryCPU, pClosest);
 
-				// A pretty spot midway between the supplier and the resource.
-				Vector vecPSU = (pClosest->GetOrigin() + m_hPrimaryCPU->GetOrigin())/2 + vecRight*vecForward.Length2D();
-
-				// Move that spot near to the resource so we know we can get it built.
-				Vector vecPSUDirection = vecPSU - pClosest->GetOrigin();
-				vecPSU = pClosest->GetOrigin() + vecPSUDirection.Normalized() * 10;
-
-				DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
-
-				m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_PSU);
-				m_hPrimaryCPU->SetPreviewBuild(vecPSU);
-				m_hPrimaryCPU->BeginConstruction();
-			}
-		}
+		return;
 	}
+
+	if (g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_PSU)
+	{
+		CResource* pTargetResource = NULL;
+		while (true)
+		{
+			pTargetResource = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin(), pTargetResource);
+
+			if (!pTargetResource)
+				break;
+
+			if (pTargetResource->HasCollector())
+				continue;
+
+			break;
+		}
+
+		if (!pTargetResource)
+		{
+			m_iBuildPosition++;
+			return;
+		}
+
+		CSupplier* pClosestSupplier = NULL;
+		while (true)
+		{
+			pClosestSupplier = CBaseEntity::FindClosest<CSupplier>(pTargetResource->GetOrigin(), pClosestSupplier);
+
+			if (!pClosestSupplier)
+				break;
+
+			if (pClosestSupplier->GetDigitanksTeam() != this)
+				continue;
+
+			break;
+		}
+
+		// Don't know how this is possible but watev.
+		if (!pClosestSupplier)
+		{
+			m_iBuildPosition++;
+			return;
+		}
+
+		// Too damn far? Don't bother.
+		if ((pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
+		{
+			m_iBuildPosition++;
+			return;
+		}
+
+		if (CSupplier::GetDataFlow(pTargetResource->GetOrigin(), this) > 1)
+		{
+			BuildCollector(pClosestSupplier, pTargetResource);
+			m_iBuildPosition++;
+			return;
+		}
+		else
+		{
+			Vector vecStructureDirection = pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin();
+			Vector vecStructure = pClosestSupplier->GetOrigin();
+			vecStructure += vecStructureDirection.Normalized() * pClosestSupplier->GetDataFlowRadius()*2/3;
+
+			DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
+
+			m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_BUFFER);
+			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+			m_hPrimaryCPU->BeginConstruction();
+		}
+
+		return;
+	}
+
+	CSupplier* pUnused = NULL;
+
+	if (g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_BUFFER)
+		pUnused = FindUnusedSupplier(4, false);
+	else
+		pUnused = FindUnusedSupplier(2);
+
+	float flYaw;
+	if (pUnused == m_hPrimaryCPU)
+		flYaw = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+	else
+	{
+		flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
+		flYaw = RemapVal((float)(rand()%1000), 0, 1000, flYaw-90, flYaw+90);
+	}
+
+	// Pick a random direction facing more or less away from the CPU so that we spread outwards.
+	Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
+	Vector vecStructure = pUnused->GetOrigin();
+	if (g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_BUFFER)
+		vecStructure += vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
+	else
+		vecStructure += vecStructureDirection.Normalized() * 20;
+
+	DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
+
+	m_hPrimaryCPU->SetPreviewStructure(g_aeBuildOrder[m_iBuildPosition]);
+	m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+	m_hPrimaryCPU->BeginConstruction();
+
+	m_iBuildPosition++;
 }
 
 void CDigitanksTeam::Bot_ExecuteTurn()
@@ -263,4 +367,67 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	}
 
 	DigitanksGame()->EndTurn();
+}
+
+CSupplier* CDigitanksTeam::FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
+{
+	std::vector<CSupplier*> apSuppliers;
+
+	// Find an appropriate supplier to build from.
+	for (size_t i = 0; i < GetNumMembers(); i++)
+	{
+		CBaseEntity* pEntity = GetMember(i);
+		if (!pEntity)
+			continue;
+
+		CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
+		if (!pSupplier)
+			continue;
+
+		if (iMaxDependents != ~0)
+		{
+			size_t iDependents = 0;
+			for (size_t j = 0; j < pSupplier->GetNumChildren(); j++)
+			{
+				CStructure* pChild = pSupplier->GetChild(j);
+				if (!pChild)
+					continue;
+
+				if (bNoSuppliers && dynamic_cast<CSupplier*>(pChild))
+					continue;
+
+				iDependents++;
+			}
+
+			if (iDependents >= iMaxDependents)
+				continue;
+		}
+
+		apSuppliers.push_back(pSupplier);
+	}
+
+	return apSuppliers[rand()%apSuppliers.size()];
+}
+
+void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
+{
+	if (CSupplier::GetDataFlow(pResource->GetOrigin(), this) < 1)
+		return;
+
+	Vector vecForward = pResource->GetOrigin() - pSupplier->GetOrigin();
+	Vector vecRight;
+	AngleVectors(VectorAngles(vecForward.Normalized()), NULL, &vecRight, NULL);
+
+	// A pretty spot midway between the supplier and the resource.
+	Vector vecPSU = (pResource->GetOrigin() + pSupplier->GetOrigin())/2 + vecRight*vecForward.Length2D();
+
+	// Move that spot near to the resource so we know we can get it built.
+	Vector vecPSUDirection = vecPSU - pResource->GetOrigin();
+	vecPSU = pResource->GetOrigin() + vecPSUDirection.Normalized() * 10;
+
+	DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
+
+	m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_PSU);
+	m_hPrimaryCPU->SetPreviewBuild(vecPSU);
+	m_hPrimaryCPU->BeginConstruction();
 }

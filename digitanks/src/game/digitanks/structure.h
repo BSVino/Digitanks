@@ -12,6 +12,12 @@ typedef enum
 	STRUCTURE_TANKLOADER,
 } structure_t;
 
+typedef enum
+{
+	RESOURCE_ELECTRONODE,
+	RESOURCE_BITWELL,
+} resource_t;
+
 class CStructure : public CSelectable
 {
 	REGISTER_ENTITY_CLASS(CStructure, CSelectable);
@@ -66,6 +72,8 @@ public:
 	void						UpdateTendrils();
 
 	void						AddChild(CStructure* pChild);
+	size_t						GetNumChildren() { return m_ahChildren.size(); };
+	CStructure*					GetChild(size_t i) { return m_ahChildren[i]; };
 
 	virtual float				VisibleRange() const;
 

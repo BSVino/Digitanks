@@ -92,6 +92,9 @@ bool CCPU::IsPreviewBuildValid() const
 		float flDistance = (pResource->GetOrigin() - GetPreviewBuild()).Length();
 		if (flDistance > 15)
 			return false;
+
+		if (pResource->HasCollector())
+			return false;
 	}
 
 	if (!pSupplier)
@@ -139,7 +142,10 @@ void CCPU::BeginConstruction()
 
 	CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
 	if (pCollector)
-		pCollector->SetResource(CResource::FindClosestResource(GetPreviewBuild(), pCollector->GetResource()));
+	{
+		pCollector->SetResource(CResource::FindClosestResource(GetPreviewBuild(), pCollector->GetResourceType()));
+		pCollector->GetResource()->SetCollector(pCollector);
+	}
 
 	CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 	if (pLoader)

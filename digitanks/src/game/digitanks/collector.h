@@ -12,8 +12,9 @@ public:
 
 	virtual void				OnRender();
 
-	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
-	void						SetResource(CResource* pResource) { m_hResource = pResource; };
+	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
+	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
+	class CResource*			GetResource() { return m_hResource; };
 
 protected:
 	CEntityHandle<CResource>	m_hResource;

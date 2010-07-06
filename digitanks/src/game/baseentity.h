@@ -136,6 +136,9 @@ public:
 	static void								Register(CBaseEntity* pEntity);
 	static size_t							FindRegisteredEntity(const char* pszEntityName);
 
+	template <class T>
+	static T*								FindClosest(Vector vecPoint, CBaseEntity* pFurther = NULL);
+
 protected:
 	Vector									m_vecOrigin;
 	Vector									m_vecLastOrigin;
@@ -181,5 +184,41 @@ public: \
 		CBaseEntity::RegisterEntity(#entity, &CreateEntity<entity>, &entity::RegisterCallback##entity); \
 	} \
 } s_Register##entity = CRegister##entity(); \
+
+template <class T>
+T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
+{
+	T* pClosest = NULL;
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		if (!pEntity)
+			continue;
+
+		T* pT = dynamic_cast<T*>(pEntity);
+
+		if (!pT)
+			continue;
+
+		if (pT == pFurther)
+			continue;
+
+		if (pFurther && (pT->GetOrigin() - vecPoint).LengthSqr() <= (pFurther->GetOrigin() - vecPoint).LengthSqr())
+			continue;
+
+		if (!pClosest)
+		{
+			pClosest = pT;
+			continue;
+		}
+
+		if ((pT->GetOrigin() - vecPoint).LengthSqr() < (pClosest->GetOrigin() - vecPoint).LengthSqr())
+			pClosest = pT;
+	}
+
+	return pClosest;
+}
 
 #endif
