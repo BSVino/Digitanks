@@ -37,13 +37,15 @@ public:
 	float						GetEntityVisibility(size_t iHandle);
 
 	// AI stuff
-	void						Bot_ExecuteTurn();
 	void						Bot_ExpandBase();
+	void						Bot_BuildUnits();
+	void						Bot_AssignDefenders();
+	void						Bot_ExecuteTurn();
 	CSupplier*					FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
 	void						BuildCollector(CSupplier* pSupplier, class CResource* pResource);
 
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
-	CDigitank*					GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
+	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
 
 protected:
 	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
@@ -55,6 +57,7 @@ protected:
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;
 	size_t						m_iBuildPosition;
+	std::vector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
 };
 
 #endif

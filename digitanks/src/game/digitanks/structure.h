@@ -41,12 +41,25 @@ public:
 
 	virtual float				VisibleRange() const { return 50; };
 
+	// AI stuff
+	void						AddDefender(class CDigitank* pTank);
+	size_t						GetNumLivingDefenders();
+
 protected:
 	bool						m_bConstructing;
 	size_t						m_iTurnsToConstruct;
 
 	CEntityHandle<CSupplier>		m_hSupplier;
 	CEntityHandle<CSupplyLine>		m_hSupplyLine;
+
+	typedef struct
+	{
+		CEntityHandle<CDigitank>	m_hDefender;
+		float						m_flPosition;
+	} defender_t;
+
+	// AI stuff
+	std::vector<defender_t>		m_aoDefenders;
 };
 
 class CSupplier : public CStructure

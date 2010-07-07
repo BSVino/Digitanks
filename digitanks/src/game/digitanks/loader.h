@@ -23,8 +23,9 @@ public:
 
 	virtual void				OnRender();
 
-	void						BeginConstruction();
-	void						CancelConstruction();
+	void						BeginProduction();
+	void						CancelProduction();
+	bool						IsProducing() { return m_bProducing; };
 
 	void						SetBuildUnit(buildunit_t eBuildUnit) { m_eBuildUnit = eBuildUnit; };
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };

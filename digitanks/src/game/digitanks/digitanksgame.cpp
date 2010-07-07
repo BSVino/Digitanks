@@ -155,16 +155,6 @@ void CDigitanksGame::SetupGame()
 		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(60, 0, 60)* flReflection;
-		angTank = VectorAngles(-vecTank.Normalized());
-
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank ));
-		pTank->SetAngles(angTank);
-		pTank->GiveBonusPoints(1, false);
-
-		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
-		m_ahTeams[i]->AddEntity(pTank);
-
 		vecTank = Vector(80, 0, 60)* flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
@@ -176,16 +166,6 @@ void CDigitanksGame::SetupGame()
 		m_ahTeams[i]->AddEntity(pTank);
 
 		vecTank = Vector(60, 0, 80) * flReflection;
-		angTank = VectorAngles(-vecTank.Normalized());
-
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
-		pTank->SetAngles(angTank);
-		pTank->GiveBonusPoints(1, false);
-
-		pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
-		m_ahTeams[i]->AddEntity(pTank);
-
-		vecTank = Vector(80, 0, 80) * flReflection;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));

@@ -93,6 +93,8 @@ CDigitank::CDigitank()
 	m_iTurretModel = m_iShieldModel = ~0;
 
 	m_iHoverParticles = ~0;
+
+	m_bFortifyPoint = false;
 }
 
 CDigitank::~CDigitank()
@@ -1391,10 +1393,13 @@ EAngle CDigitank::GetRenderAngles() const
 void CDigitank::PreRender()
 {
 #ifdef _DEBUG
-	CRenderingContext r(Game()->GetRenderer());
-	r.Translate(GetFortifyPoint() + Vector(0, 2, 0));
-	r.SetColor(GetTeam()->GetColor());
-	glutWireCube(4);
+	if (HasFortifyPoint())
+	{
+		CRenderingContext r(Game()->GetRenderer());
+		r.Translate(GetFortifyPoint() + Vector(0, 2, 0));
+		r.SetColor(GetTeam()->GetColor());
+		glutWireCube(4);
+	}
 #endif
 }
 
@@ -1781,4 +1786,10 @@ float CDigitank::HealthRechargeRate() const
 float CDigitank::ShieldRechargeRate() const
 {
 	return 0.2f + GetSupportShieldRechargeBonus();
+}
+
+void CDigitank::SetFortifyPoint(Vector vecFortify)
+{
+	m_bFortifyPoint = true;
+	m_vecFortifyPoint = vecFortify;
 }

@@ -230,7 +230,8 @@ public:
 	virtual float				VisibleRange() const { return 75; };
 
 	// AI stuff
-	virtual void				SetFortifyPoint(Vector vecFortify) { m_vecFortifyPoint = vecFortify; }
+	virtual void				SetFortifyPoint(Vector vecFortify);
+	virtual bool				HasFortifyPoint() { return m_bFortifyPoint; };
 	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
 protected:
@@ -304,6 +305,7 @@ protected:
 	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
 	// AI stuff
+	bool						m_bFortifyPoint;
 	Vector						m_vecFortifyPoint;
 
 	static size_t				s_iAimBeam;

@@ -1364,7 +1364,7 @@ void CHUD::BuildUnitCallback()
 	if (!pLoader)
 		return;
 
-	pLoader->BeginConstruction();
+	pLoader->BeginProduction();
 	SetupMenu();
 }
 
@@ -1385,7 +1385,7 @@ void CHUD::CancelBuildUnitCallback()
 	if (!pLoader)
 		return;
 
-	pLoader->CancelConstruction();
+	pLoader->CancelProduction();
 	SetupMenu();
 }
 

@@ -4,6 +4,7 @@
 
 #include "digitanksgame.h"
 #include "resource.h"
+#include "loader.h"
 
 structure_t g_aeBuildOrder[] =
 {
@@ -142,9 +143,83 @@ void CDigitanksTeam::Bot_ExpandBase()
 	m_iBuildPosition++;
 }
 
+void CDigitanksTeam::Bot_BuildUnits()
+{
+	// Find the nearest enemy to the head tank, he's our target.
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		CBaseEntity* pEntity = m_ahMembers[i];
+		if (!pEntity)
+			continue;
+
+		CLoader* pLoader = dynamic_cast<CLoader*>(pEntity);
+		if (!pLoader)
+			continue;
+
+		if (pLoader->IsConstructing())
+			continue;
+
+		if (!pLoader->IsProducing())
+			pLoader->BeginProduction();
+	}
+}
+
+void CDigitanksTeam::Bot_AssignDefenders()
+{
+	std::vector<CStructure*> apDefend;
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		CBaseEntity* pEntity = m_ahMembers[i];
+		if (!pEntity)
+			continue;
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		if (!pStructure)
+			continue;
+
+		CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
+
+		// Only non-suppliers or suppliers with no children should be defended, so that structures in the center of the base aren't defended unnecessarily.
+		if (!pSupplier || pSupplier->GetNumChildren() == 0)
+			apDefend.push_back(pStructure);
+	}
+
+	if (apDefend.size() == 0)
+		return;
+
+	for (size_t i = 0; i < m_ahTanks.size(); i++)
+	{
+		CDigitank* pTank = m_ahTanks[i];
+		if (!pTank)
+			continue;
+
+		if (!pTank->CanFortify())
+			continue;
+
+		if (pTank->IsArtillery())
+			continue;
+
+		if (pTank->HasFortifyPoint())
+			continue;
+
+		size_t iFirst = rand()%apDefend.size();
+		size_t iStructure = iFirst;
+		CStructure* pDefendStructure;
+		do
+		{
+			pDefendStructure = apDefend[iStructure++];
+			iStructure = iStructure%apDefend.size();
+		} while (pDefendStructure->GetNumLivingDefenders() > 2 && iStructure != iFirst);
+
+		pDefendStructure->AddDefender(pTank);
+	}
+}
+
 void CDigitanksTeam::Bot_ExecuteTurn()
 {
 	Bot_ExpandBase();
+	Bot_BuildUnits();
+	Bot_AssignDefenders();
 
 	CDigitank* pHeadTank = GetTank(0);
 
@@ -183,43 +258,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	else
 		vecTargetOrigin = DigitanksGame()->GetDigitanksTeam(0)->GetMember(0)->GetOrigin();	// Should be the CPU
 
-	Vector vecFortifyPoint;
-	bool bShouldFortify;
-
-	if (pTarget)
-	{
-		bShouldFortify = true;
-
-		// Find the closest fortification point. Each enemy tank is examined to find the closest spot outside of all enemy tank ranges.
-		for (size_t i = 0; i < pTarget->GetDigitanksTeam()->GetNumTanks(); i++)
-		{
-			CDigitank* pTank = pTarget->GetDigitanksTeam()->GetTank(i);
-
-			// Artillery isn't a big deal, and they have huge ranges.
-			if (pTank->IsArtillery())
-				continue;
-
-			if (GetEntityVisibility(pTank->GetHandle()) == 0)
-				continue;
-
-			Vector vecDirection = (pHeadTank->GetOrigin() - pTank->GetOrigin()).Normalized();
-			Vector vecTryFortifyPoint = pTank->GetOrigin() + vecDirection * (pTank->GetMaxRange() + pTank->GetMaxMovementDistance());
-
-			if (i == 0)
-			{
-				vecFortifyPoint = vecTryFortifyPoint;
-				continue;
-			}
-
-			if ((pHeadTank->GetOrigin() - vecTryFortifyPoint).Length2DSqr() < (pHeadTank->GetOrigin() - vecFortifyPoint).Length2DSqr())
-				vecFortifyPoint = vecTryFortifyPoint;
-		}
-	}
-	else
-		bShouldFortify = false;
-
-	size_t iFortifies = 0;
-
 	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
 		CDigitank* pTank = GetTank(i);
@@ -243,7 +281,33 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 		}
 
-		if (pTank->IsArtillery())
+		if (pTank->HasFortifyPoint() && !pTank->IsFortified())
+		{
+			if (!pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
+			{
+				CStructure* pDefend = CBaseEntity::FindClosest<CStructure>(pTank->GetOrigin());
+				pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
+				pTank->SetDesiredTurn();
+				pTank->Fortify();
+			}
+			else
+			{
+				// Head to the fortify point
+				float flMovementDistance = pTank->GetMaxMovementDistance();
+				Vector vecDirection = pTank->GetFortifyPoint() - pTank->GetOrigin();
+				vecDirection = vecDirection.Normalized() * (flMovementDistance*2/3);
+
+				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+				pTank->SetPreviewMove(vecDesiredMove);
+				pTank->SetDesiredMove();
+
+				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
+				pTank->SetDesiredTurn();
+			}
+		}
+		else if (pTank->IsArtillery())
 		{
 			// If we're fortified and our target is too close, get the fuck outta there!
 			if (pTank->IsFortified() && (pTank->GetOrigin() - vecTargetOrigin).Length() < pTank->GetMinRange())
@@ -283,58 +347,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				pTank->SetDesiredAim();
 			}
 		}
-		else if (pTank->CanFortify() && bShouldFortify)
+		else if (pTank->CanFortify())
 		{
-			Vector vecTankFortifyPoint;
-			if (iFortifies == 0)
-				vecTankFortifyPoint = vecFortifyPoint;
-			else if (iFortifies%2 == 0)
-			{
-				Vector vecSide = (vecTargetOrigin - vecFortifyPoint).Normalized().Cross(Vector(0,1,0)).Normalized();
-				vecTankFortifyPoint = vecFortifyPoint + vecSide * (float)((iFortifies/2)*pTank->GetMaxRange()/2);
-			}
-			else
-			{
-				Vector vecSide = -(vecTargetOrigin - vecFortifyPoint).Normalized().Cross(Vector(0,1,0)).Normalized();
-				vecTankFortifyPoint = vecFortifyPoint + vecSide * (float)((iFortifies/2+1)*pTank->GetMaxRange()/2);
-			}
-
-			DigitanksGame()->GetTerrain()->SetPointHeight(vecTankFortifyPoint);
-
-			pTank->SetFortifyPoint(vecTankFortifyPoint);
-
-			iFortifies++;
-
-			//if (pTank->IsFortified() && (pTank->GetOrigin() - vecTankFortifyPoint).Length2D() > pTank->GetMaxMovementDistance()*2)
-			//	pTank->Fortify();
-
-			// If our target is behind us, we have to mobilize so we can turn around to face them.
-			if (pTank->IsFortified() && (vecTargetOrigin - pTank->GetOrigin()).Normalized().Dot(AngleVector(pTank->GetAngles())) < 0)
+			// If the fortify point has moved, we must move.
+			if (pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() > pTank->GetMaxMovementDistance()*2)
 				pTank->Fortify();
-
-			if (!pTank->IsFortified() && (pTank->GetOrigin() - vecTankFortifyPoint).Length2D() < pTank->GetBoundingRadius()*2)
-			{
-				// Face the enemy and fortify before he gets here.
-				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
-				pTank->SetDesiredTurn();
-				pTank->Fortify();
-			}
-			else
-			{
-				// Head to the fortify point
-				float flMovementDistance = pTank->GetMaxMovementDistance();
-				Vector vecDirection = vecTankFortifyPoint - pTank->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance*2/3);
-
-				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
-
-				pTank->SetPreviewMove(vecDesiredMove);
-				pTank->SetDesiredMove();
-
-				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
-				pTank->SetDesiredTurn();
-			}
 		}
 		else
 		{
@@ -430,4 +447,57 @@ void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
 	m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_PSU);
 	m_hPrimaryCPU->SetPreviewBuild(vecPSU);
 	m_hPrimaryCPU->BeginConstruction();
+}
+
+void CStructure::AddDefender(CDigitank* pTank)
+{
+	for (size_t i = 0; i < m_aoDefenders.size(); i++)
+	{
+		if (m_aoDefenders[i].m_hDefender == NULL)
+		{
+			m_aoDefenders[i].m_hDefender = pTank;
+			Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
+			DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+			pTank->SetFortifyPoint(vecFortify);
+			return;
+		}
+	}
+
+	// Member 0 is typically the CPU.
+	float flYaw = VectorAngles(GetOrigin() - pTank->GetDigitanksTeam()->GetMember(0)->GetOrigin()).y;
+
+	size_t iFortifies = m_aoDefenders.size();
+	if (iFortifies == 0)
+	{
+		// Default value
+	}
+	else if (iFortifies%2 == 0)
+		flYaw += 30*iFortifies/2;
+	else
+		flYaw -= 30*(iFortifies/2+1);
+
+	Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
+
+	DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+
+	m_aoDefenders.push_back(defender_t());
+	defender_t* pDefender = &m_aoDefenders[m_aoDefenders.size()-1];
+	pDefender->m_flPosition = flYaw;
+	pDefender->m_hDefender = pTank;
+	pTank->SetFortifyPoint(vecFortify);
+}
+
+size_t CStructure::GetNumLivingDefenders()
+{
+	size_t iDefenders = 0;
+	for (size_t i = 0; i < m_aoDefenders.size(); i++)
+	{
+		if (m_aoDefenders[i].m_hDefender == NULL)
+			continue;
+
+		if (m_aoDefenders[i].m_hDefender->IsAlive())
+			iDefenders++;
+	}
+
+	return iDefenders;
 }

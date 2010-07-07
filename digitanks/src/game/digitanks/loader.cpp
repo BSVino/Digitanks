@@ -44,7 +44,7 @@ void CLoader::StartTurn()
 			float y = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
 			pTank->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, y, 0)) * 10));
 
-			pTank->SetTeam(GetTeam());
+			GetTeam()->AddEntity(pTank);
 
 			m_bProducing = false;
 		}
@@ -91,13 +91,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	pHUD->SetButton5Color(glgui::g_clrBox);
 }
 
-void CLoader::BeginConstruction()
+void CLoader::BeginProduction()
 {
+	if (IsConstructing())
+		return;
+
 	m_iProductionStored = 0;
 	m_bProducing = true;
 }
 
-void CLoader::CancelConstruction()
+void CLoader::CancelProduction()
 {
 	m_iProductionStored = 0;
 	m_bProducing = false;
