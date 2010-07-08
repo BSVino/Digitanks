@@ -931,12 +931,7 @@ void CDigitank::OnCurrentSelection()
 bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
 {
 	if (eOldMode == MODE_MOVE)
-	{
-		if (eNewMode == MODE_NONE)
-			CancelDesiredMove();
-		else
-			ClearPreviewMove();
-	}
+		ClearPreviewMove();
 
 	if (eOldMode == MODE_TURN)
 		ClearPreviewTurn();
