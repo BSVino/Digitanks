@@ -34,6 +34,7 @@ void CDigitanksTeam::PreStartTurn()
 {
 	m_iProduction = 0;
 	m_aflVisibilities.clear();
+	m_iLoadersProducing = 0;
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
@@ -138,6 +139,14 @@ void CDigitanksTeam::FireTanks()
 void CDigitanksTeam::AddProduction(size_t iProduction)
 {
 	m_iProduction += iProduction;
+}
+
+float CDigitanksTeam::GetProductionPerLoader()
+{
+	if (m_iLoadersProducing == 0)
+		return (float)m_iProduction;
+
+	return (float)m_iProduction / (float)m_iLoadersProducing;
 }
 
 void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)

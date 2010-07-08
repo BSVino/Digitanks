@@ -17,11 +17,14 @@ class CLoader : public CStructure
 public:
 	virtual void				Spawn();
 
+	virtual void				PreStartTurn();
 	virtual void				StartTurn();
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	virtual void				OnRender();
+
+	virtual void				UpdateInfo(std::string& sInfo);
 
 	void						BeginProduction();
 	void						CancelProduction();

@@ -11,6 +11,8 @@ public:
 	virtual size_t				InitialDataStrength() { return 300; };
 
 	virtual void				OnRender();
+
+	virtual void				UpdateInfo(std::string& sInfo);
 };
 
 #endif

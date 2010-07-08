@@ -1,5 +1,7 @@
 #include "resource.h"
 
+#include <sstream>
+
 #include <renderer/renderer.h>
 #include <game/game.h>
 
@@ -7,6 +9,11 @@
 #include <GL/freeglut.h>
 
 REGISTER_ENTITY(CResource);
+
+void CResource::Spawn()
+{
+	m_iProduction = 4;
+}
 
 void CResource::OnRender()
 {
@@ -17,6 +24,18 @@ void CResource::OnRender()
 	c.Scale(1, 3, 1);
 
 	glutSolidCube(3);
+}
+
+void CResource::UpdateInfo(std::string& sInfo)
+{
+	std::stringstream s;
+
+	s << "ELECTRONODE\n";
+	s << "Digital resource\n \n";
+
+	s << "Yield: " << (int)(GetProduction()) << "%\n";
+
+	sInfo = s.str();
 }
 
 CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)

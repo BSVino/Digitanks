@@ -1,5 +1,7 @@
 #include "loader.h"
 
+#include <sstream>
+
 #include <renderer/renderer.h>
 #include <game/game.h>
 
@@ -16,7 +18,7 @@
 REGISTER_ENTITY(CLoader);
 
 size_t g_aiTurnsToLoad[] = {
-	30, // BUILDUNIT_INFANTRY,
+	40, // BUILDUNIT_INFANTRY,
 	80, // BUILDUNIT_TANK,
 	100, // BUILDUNIT_ARTILLERY,
 };
@@ -26,11 +28,21 @@ void CLoader::Spawn()
 	m_bProducing = false;
 }
 
+void CLoader::PreStartTurn()
+{
+	BaseClass::PreStartTurn();
+
+	if (IsProducing())
+		GetDigitanksTeam()->AddProducer();
+}
+
 void CLoader::StartTurn()
 {
-	if (m_bProducing)
+	BaseClass::StartTurn();
+
+	if (m_bProducing && m_hSupplier != NULL)
 	{
-		m_iProductionStored += GetDigitanksTeam()->GetProduction();
+		m_iProductionStored += (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
 		if (m_iProductionStored > g_aiTurnsToLoad[GetBuildUnit()])
 		{
 			CDigitank* pTank;
@@ -114,3 +126,35 @@ void CLoader::OnRender()
 	glutSolidCube(6);
 }
 
+void CLoader::UpdateInfo(std::string& sInfo)
+{
+	std::stringstream s;
+
+	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+		s << "MECH. INFANTRY LOADER\n";
+	else
+		s << "MAIN BATTLE TANK LOADER\n";
+
+	s << "Unit producer\n \n";
+
+	if (IsConstructing())
+	{
+		s << "(Constructing)\n";
+		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		return;
+	}
+
+	if (IsProducing())
+	{
+		s << "(Producing)\n";
+		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
+		s << "Production/turn: " << iProduction << "\n";
+		size_t iProductionLeft = g_aiTurnsToLoad[GetBuildUnit()] - m_iProductionStored;
+		s << "Production left: " << iProductionLeft << "\n";
+		s << "Turns left: " << (iProductionLeft/iProduction) << "\n";
+	}
+
+	s << "Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << "%\n";
+
+	sInfo = s.str();
+}

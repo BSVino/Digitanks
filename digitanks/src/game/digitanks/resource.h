@@ -9,10 +9,15 @@ class CResource : public CStructure
 	REGISTER_ENTITY_CLASS(CResource, CStructure);
 
 public:
+	virtual void				Spawn();
+
 	virtual void				OnRender();
 
+	virtual void				UpdateInfo(std::string& sInfo);
+
 	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
-	size_t						GetProduction() { return 8; };
+	size_t						GetProduction() { return m_iProduction; };
+	void						SetProduction(size_t iProduction) { m_iProduction = iProduction; };
 
 	bool						HasCollector() { return m_hCollector != NULL; }
 	class CCollector*			GetCollector() { return m_hCollector; }
@@ -22,6 +27,8 @@ public:
 
 protected:
 	CEntityHandle<CCollector>	m_hCollector;
+
+	size_t						m_iProduction;
 };
 
 #endif

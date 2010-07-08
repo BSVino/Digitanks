@@ -28,7 +28,9 @@ public:
 	void						FireTanks();
 
 	void						AddProduction(size_t iProduction);
-	size_t						GetProduction() { return m_iProduction; };
+	void						AddProducer() { m_iLoadersProducing++; };
+	float						GetProductionPerLoader();
+	size_t						GetTotalProduction() { return m_iProduction; };
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
@@ -53,6 +55,7 @@ protected:
 	std::map<size_t, float>		m_aflVisibilities;
 
 	size_t						m_iProduction;
+	size_t						m_iLoadersProducing;
 
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;

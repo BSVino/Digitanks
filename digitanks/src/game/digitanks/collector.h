@@ -12,6 +12,8 @@ public:
 
 	virtual void				OnRender();
 
+	virtual void				UpdateInfo(std::string& sInfo);
+
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };

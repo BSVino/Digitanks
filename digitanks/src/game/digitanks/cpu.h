@@ -38,6 +38,8 @@ public:
 	virtual void				OnRender();
 	virtual void				PostRender();
 
+	virtual void				UpdateInfo(std::string& sInfo);
+
 protected:
 	Vector						m_vecPreviewBuild;
 

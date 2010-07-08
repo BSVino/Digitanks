@@ -39,6 +39,8 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
+	virtual void				UpdateInfo(std::string& sInfo) {};
+
 	virtual float				VisibleRange() const { return 50; };
 
 	// AI stuff
@@ -77,6 +79,8 @@ public:
 	static float				GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore = NULL);
 	void						CalculateDataFlow();
 	void						GiveDataStrength(size_t iStrength) { m_iDataStrength += iStrength; };
+
+	float						GetChildEfficiency();
 
 	virtual void				PostStartTurn();
 

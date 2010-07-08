@@ -139,6 +139,27 @@ void CSupplier::CalculateDataFlow()
 	}
 }
 
+float CSupplier::GetChildEfficiency()
+{
+	size_t iConsumingChildren = 0;
+	for (size_t i = 0; i < m_ahChildren.size(); i++)
+	{
+		if (!dynamic_cast<CStructure*>(m_ahChildren[i].GetPointer()))
+			continue;
+
+		if (dynamic_cast<CSupplier*>(m_ahChildren[i].GetPointer()))
+			continue;
+
+		iConsumingChildren++;
+	}
+
+	if (iConsumingChildren <= 2)
+		return 1;
+
+	// 3 == 0.5, 4 == 0.25, 5 == .2, and so on.
+	return 1/((float)iConsumingChildren-1);
+}
+
 void CSupplier::PostStartTurn()
 {
 	BaseClass::PostStartTurn();

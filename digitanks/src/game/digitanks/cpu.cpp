@@ -1,5 +1,6 @@
 #include "cpu.h"
 
+#include <sstream>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <renderer/renderer.h>
@@ -209,4 +210,26 @@ void CCPU::PostRender()
 			r.RenderModel(GetModel());
 		}
 	}
+}
+
+void CCPU::UpdateInfo(std::string& sInfo)
+{
+	std::stringstream s;
+
+	s << "CENTRAL PROCESSING UNIT\n";
+	s << "Command center\n \n";
+
+	if (IsConstructing())
+	{
+		s << "(Constructing)\n";
+		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		return;
+	}
+
+	s << "Strength: " << m_iDataStrength << "\n";
+	s << "Growth: " << (int)GetDataFlowRate() << "\n";
+	s << "Size: " << (int)GetDataFlowRadius() << "\n";
+	s << "Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
+
+	sInfo = s.str();
 }

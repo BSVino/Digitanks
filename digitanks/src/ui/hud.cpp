@@ -639,6 +639,15 @@ void CHUD::UpdateInfo()
 
 	if (pCurrentTank)
 		UpdateTankInfo(pCurrentTank);
+
+	CStructure* pCurrentStructure = DigitanksGame()->GetCurrentStructure();
+
+	if (pCurrentStructure)
+	{
+		std::string sInfo;
+		pCurrentStructure->UpdateInfo(sInfo);
+		m_pTankInfo->SetText(sInfo.c_str());
+	}
 }
 
 void CHUD::UpdateTankInfo(CDigitank* pTank)
@@ -1000,7 +1009,7 @@ void CHUD::NewCurrentTeam()
 		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
 
 	std::stringstream s;
-	s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetProduction();
+	s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetTotalProduction();
 	m_pTeamInfo->SetText(s.str().c_str());
 	m_pTeamInfo->SetPos(GetWidth() - 200, 20);
 }

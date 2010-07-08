@@ -147,6 +147,7 @@ void CDigitanksGame::SetupGame()
 		CResource* pResource = Game()->Create<CResource>("CResource");
 		float y = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
 		pResource->SetOrigin(m_hTerrain->SetPointHeight(pCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
+		pResource->SetProduction(8);
 
 		CDigitank* pTank;
 		Vector vecTank;
@@ -489,9 +490,6 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	if (m_pListener)
-		m_pListener->SetHUDActive(false);
-
 	size_t iSum = 0;
 	Vector vecSum;
 	for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
@@ -512,6 +510,9 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 
 	GetCurrentTeam()->MoveTanks();
 	m_bWaitingForMoving = true;
+
+	if (m_pListener)
+		m_pListener->SetHUDActive(false);
 }
 
 void CDigitanksGame::StartTurn()

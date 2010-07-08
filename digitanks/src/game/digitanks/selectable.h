@@ -27,7 +27,7 @@ public:
 	virtual float				GetPowerBar2Size() { return 0; }
 	virtual float				GetPowerBar3Size() { return 0; }
 
-	virtual void				SetupMenu(menumode_t eMenuMode) {};
+	virtual void				SetupMenu(menumode_t eMenuMode);
 };
 
 #endif
