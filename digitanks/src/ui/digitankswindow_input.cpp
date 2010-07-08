@@ -132,7 +132,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			if (DigitanksGame()->GetCurrentTank()->HasDesiredMove())
 			{
 				if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-					DigitanksGame()->SetControlMode(MODE_AIM);
+				{
+					if (DigitanksGame()->GetCurrentTank()->CanAim())
+						DigitanksGame()->SetControlMode(MODE_AIM);
+					else
+						DigitanksGame()->SetControlMode(MODE_NONE);
+				}
 
 				if (m_pHUD->ShouldAutoProceed())
 					DigitanksGame()->NextTank();
