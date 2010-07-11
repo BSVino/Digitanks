@@ -17,7 +17,6 @@ class CLoader : public CStructure
 public:
 	virtual void				Spawn();
 
-	virtual void				PreStartTurn();
 	virtual void				StartTurn();
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
@@ -32,6 +31,9 @@ public:
 
 	void						SetBuildUnit(buildunit_t eBuildUnit) { m_eBuildUnit = eBuildUnit; };
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
+
+	virtual const char*			GetName();
+	virtual size_t				ConstructionCost() const { return 70; };
 
 protected:
 	buildunit_t					m_eBuildUnit;

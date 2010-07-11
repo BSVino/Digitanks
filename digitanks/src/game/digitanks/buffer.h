@@ -13,6 +13,9 @@ public:
 	virtual void				OnRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
+
+	virtual const char*			GetName() { return "Buffer"; };
+	virtual size_t				ConstructionCost() const { return 20; };
 };
 
 #endif

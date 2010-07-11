@@ -8,9 +8,7 @@ class CDigitanksEntity : public CBaseEntity
 	REGISTER_ENTITY_CLASS(CDigitanksEntity, CBaseEntity);
 
 public:
-	virtual void					PreStartTurn() {};
 	virtual void					StartTurn() {};
-	virtual void					PostStartTurn() {};
 
 	class CDigitanksTeam*			GetDigitanksTeam();
 

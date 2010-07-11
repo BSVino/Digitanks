@@ -266,15 +266,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 #ifdef _DEBUG
 	if (c == 'x')
 	{
-		// Make a supertank at the given location.
-		Vector vecPoint;
-		if (GetMouseGridPosition(vecPoint))
-		{
-			CMainBattleTank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
-			DigitanksGame()->GetCurrentTeam()->AddEntity(pTank);
-			pTank->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(vecPoint));
-			pTank->GiveBonusPoints(10, false);
-		}
+		DigitanksGame()->SetRenderFogOfWar(false);
 	}
 #endif
 

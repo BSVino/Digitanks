@@ -23,6 +23,8 @@ public:
 	class CCollector*			GetCollector() { return m_hCollector; }
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
+	virtual const char*			GetName() { return "Electronode"; };
+
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
 
 protected:

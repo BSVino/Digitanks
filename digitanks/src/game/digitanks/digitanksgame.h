@@ -24,6 +24,9 @@ public:
 
 	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech)=0;
 
+	virtual void			ClearTurnInfo()=0;
+	virtual void			AppendTurnInfo(const char* pszInfo)=0;
+
 	virtual void			SetHUDActive(bool bActive)=0;
 };
 
@@ -124,6 +127,11 @@ public:
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
+	void					AppendTurnInfo(const char* pszTurnInfo);
+
+	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
+	bool					ShouldRenderFogOfWar() { return m_bRenderFogOfWar; };
+
 protected:
 	size_t					m_iCurrentTeam;
 	size_t					m_iCurrentSelection;
@@ -146,6 +154,8 @@ protected:
 	size_t					m_iTankAimFocus;
 
 	size_t					m_iDifficulty;
+
+	bool					m_bRenderFogOfWar;
 };
 
 inline class CDigitanksGame* DigitanksGame()

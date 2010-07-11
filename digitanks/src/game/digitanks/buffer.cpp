@@ -23,7 +23,9 @@ void CBuffer::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
+		s << "Production left: " << GetProductionRemaining() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
 		return;
 	}
 

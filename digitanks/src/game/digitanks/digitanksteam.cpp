@@ -5,6 +5,8 @@
 
 #include "digitank.h"
 #include "structure.h"
+#include "loader.h"
+#include "collector.h"
 
 REGISTER_ENTITY(CDigitanksTeam);
 
@@ -30,28 +32,55 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 		m_hPrimaryCPU = pCPU;
 }
 
-void CDigitanksTeam::PreStartTurn()
+void CDigitanksTeam::StartTurn()
 {
 	m_iProduction = 0;
 	m_aflVisibilities.clear();
 	m_iLoadersProducing = 0;
 
+	// Find and count producers and accumulate production points
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == NULL)
 			continue;
 
 		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
-		if (pEntity)
-		{
-			pEntity->PreStartTurn();
+		if (!pEntity)
 			continue;
-		}
-	}
-}
 
-void CDigitanksTeam::StartTurn()
-{
+		CLoader* pLoader = dynamic_cast<CLoader*>(m_ahMembers[i].GetPointer());
+		if (pLoader && pLoader->IsProducing())
+			AddProducer();
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
+		if (pStructure && pStructure->IsConstructing())
+			AddProducer();
+
+		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
+		if (pCollector && !pCollector->IsConstructing())
+			AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
+
+		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());
+		if (pCPU && !pCPU->IsConstructing())
+			AddProduction(4);
+	}
+
+	// Tell CPU's to calculate data flow before StartTurn logic, which updates tendrils and data strengths.
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (!pEntity)
+			continue;
+
+		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());
+		if (pCPU && !pCPU->IsConstructing())
+			pCPU->CalculateDataFlow();
+	}
+
+	// Construct and produce and update and shit.
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == NULL)
@@ -61,22 +90,6 @@ void CDigitanksTeam::StartTurn()
 		if (pEntity)
 		{
 			pEntity->StartTurn();
-			continue;
-		}
-	}
-}
-
-void CDigitanksTeam::PostStartTurn()
-{
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
-	{
-		if (m_ahMembers[i] == NULL)
-			continue;
-
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
-		if (pEntity)
-		{
-			pEntity->PostStartTurn();
 			continue;
 		}
 	}

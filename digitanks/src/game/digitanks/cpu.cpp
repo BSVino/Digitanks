@@ -132,7 +132,7 @@ void CCPU::BeginConstruction()
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
 
 	GetTeam()->AddEntity(m_hConstructing);
-	m_hConstructing->BeginConstruction(3);
+	m_hConstructing->BeginConstruction();
 	m_hConstructing->SetOrigin(GetPreviewBuild());
 	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
@@ -171,16 +171,29 @@ void CCPU::StartTurn()
 {
 	BaseClass::StartTurn();
 
-	CalculateDataFlow();
-}
-
-void CCPU::PostStartTurn()
-{
-	BaseClass::PostStartTurn();
-
-	if (m_hConstructing != NULL && !m_hConstructing->IsConstructing())
+	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
 	{
-		m_hConstructing = NULL;
+		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionRemaining())
+		{
+			std::stringstream s;
+			s << "Construction finished on " << m_hConstructing->GetName();
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+
+			CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
+			if (pCollector)
+				GetDigitanksTeam()->AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
+
+			m_hConstructing->CompleteConstruction();
+			m_hConstructing = NULL;
+		}
+		else
+		{
+			m_hConstructing->AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
+
+			std::stringstream s;
+			s << "Constructing " << m_hConstructing->GetName() << " (" << m_hConstructing->GetTurnsToConstruct() << " turns left)";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+		}
 	}
 }
 
@@ -222,7 +235,9 @@ void CCPU::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
+		s << "Production left: " << GetProductionRemaining() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
 		return;
 	}
 

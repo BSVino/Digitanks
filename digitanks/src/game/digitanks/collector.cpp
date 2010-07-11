@@ -9,16 +9,6 @@
 
 REGISTER_ENTITY(CCollector);
 
-void CCollector::PreStartTurn()
-{
-	BaseClass::PreStartTurn();
-
-	if (!IsConstructing() && GetTeam())
-	{
-		GetDigitanksTeam()->AddProduction((size_t)(m_hResource->GetProduction() * m_hSupplier->GetChildEfficiency()));
-	}
-}
-
 void CCollector::OnRender()
 {
 	if (GetVisibility() == 0)
@@ -38,6 +28,7 @@ void CCollector::UpdateInfo(std::string& sInfo)
 	{
 		s << "(Constructing)\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
 		return;
 	}
 

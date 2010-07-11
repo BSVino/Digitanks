@@ -29,6 +29,9 @@ void CDigitanksEntity::RenderVisibleArea()
 
 float CDigitanksEntity::GetVisibility() const
 {
+	if (!DigitanksGame()->ShouldRenderFogOfWar())
+		return 1;
+
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
 
 	return pTeam->GetEntityVisibility(GetHandle());

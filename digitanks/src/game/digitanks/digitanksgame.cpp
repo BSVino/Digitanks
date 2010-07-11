@@ -37,6 +37,8 @@ CDigitanksGame::CDigitanksGame()
 	m_iPowerups = 0;
 
 	m_iDifficulty = 1;
+
+	m_bRenderFogOfWar = true;
 }
 
 CDigitanksGame::~CDigitanksGame()
@@ -110,13 +112,25 @@ void CDigitanksGame::SetupGame()
 
 	m_hTerrain = Game()->Create<CTerrain>("CTerrain");
 
-	for (int i = 0; i < 8; i++)
+	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 50)
 	{
-		float x = RemapVal((float)(rand()%1000), 0, 1000, -m_hTerrain->GetMapSize(), m_hTerrain->GetMapSize());
-		float z = RemapVal((float)(rand()%1000), 0, 1000, -m_hTerrain->GetMapSize(), m_hTerrain->GetMapSize());
+		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 50)
+		{
+			if (rand()%2 == 0)
+				continue;
 
-		CResource* pResource = Game()->Create<CResource>("CResource");
-		pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			float x = RemapVal((float)(rand()%1000), 0, 1000, (float)i, (float)i+50);
+			float z = RemapVal((float)(rand()%1000), 0, 1000, (float)j, (float)j+50);
+
+			if (x < -m_hTerrain->GetMapSize()+10 || z < -m_hTerrain->GetMapSize()+10)
+				continue;
+
+			if (x > m_hTerrain->GetMapSize()-10 || z > m_hTerrain->GetMapSize()-10)
+				continue;
+
+			CResource* pResource = Game()->Create<CResource>("CResource");
+			pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+		}
 	}
 
 	float flReflection = 1;
@@ -144,10 +158,27 @@ void CDigitanksGame::SetupGame()
 		m_ahTeams[i]->AddEntity(pCPU);
 		pCPU->UpdateTendrils();
 
+		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(j);
+			if (!pEntity)
+				continue;
+
+			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+			if (!pStructure)
+				continue;
+
+			if ((CStructure*)pCPU == pStructure)
+				continue;
+
+			if ((pStructure->GetOrigin() - pCPU->GetOrigin()).Length2D() < pStructure->GetBoundingRadius() + pCPU->GetBoundingRadius())
+				pEntity->Delete();
+		}
+
 		CResource* pResource = Game()->Create<CResource>("CResource");
 		float y = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
 		pResource->SetOrigin(m_hTerrain->SetPointHeight(pCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
-		pResource->SetProduction(8);
+		pResource->SetProduction(4);
 
 		CDigitank* pTank;
 		Vector vecTank;
@@ -241,9 +272,7 @@ void CDigitanksGame::StartGame()
 {
 	m_iCurrentTeam = 0;
 
-	GetCurrentTeam()->PreStartTurn();
 	GetCurrentTeam()->StartTurn();
-	GetCurrentTeam()->PostStartTurn();
 
 	CNetwork::CallFunction(-1, "SetCurrentTeam", 0);
 
@@ -461,12 +490,18 @@ void CDigitanksGame::NextTank()
 	if (!GetCurrentSelection())
 		return;
 
-	do
+	size_t iOriginal = m_iCurrentSelection;
+	while (++m_iCurrentSelection != iOriginal)
 	{
-		if (++m_iCurrentSelection >= GetCurrentTeam()->GetNumMembers())
-			m_iCurrentSelection = 0;
+ 		m_iCurrentSelection = m_iCurrentSelection%GetCurrentTeam()->GetNumMembers();
+		if (!GetCurrentTank())
+			continue;
+
+		if (GetCurrentTank()->IsFortified())
+			continue;
+
+		break;
 	}
-	while (!GetCurrentSelection());
 
 	if (GetCurrentSelection())
 		GetCurrentSelection()->OnCurrentSelection();
@@ -541,14 +576,15 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
+	if (m_pListener)
+		m_pListener->ClearTurnInfo();
+
 	m_iCurrentSelection = 0;
 
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
 
-	GetCurrentTeam()->PreStartTurn();
 	GetCurrentTeam()->StartTurn();
-	GetCurrentTeam()->PostStartTurn();
 
 	if (m_pListener)
 	{
@@ -776,30 +812,23 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 
 	if (eMode == MODE_MOVE)
 	{
-		GetCamera()->SetDistance(100);
 		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_MOVE);
 	}
 
 	if (eMode == MODE_TURN)
 	{
-		GetCamera()->SetDistance(80);
 //		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_TURN);
 	}
 
 	if (eMode == MODE_AIM)
 	{
-		GetCamera()->SetDistance(140);
 		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_AIM);
 	}
 
 	if (eMode == MODE_FIRE)
 	{
-		GetCamera()->SetDistance(80);
 		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_POWER);
 	}
-
-	if (eMode == MODE_NONE)
-		GetCamera()->SetDistance(100);
 
 	m_eControlMode = eMode;
 }
@@ -849,4 +878,10 @@ void CDigitanksGame::ClearTankAims()
 {
 	m_avecTankAims.clear();
 	m_aflTankAimRadius.clear();
+}
+
+void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
+{
+	if (m_pListener)
+		m_pListener->AppendTurnInfo(pszTurnInfo);
 }

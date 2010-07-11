@@ -8,8 +8,6 @@ class CCollector : public CStructure
 	REGISTER_ENTITY_CLASS(CCollector, CStructure);
 
 public:
-	virtual void				PreStartTurn();
-
 	virtual void				OnRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
@@ -17,6 +15,9 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
+
+	virtual const char*			GetName() { return "Power Supply Unit"; };
+	virtual size_t				ConstructionCost() const { return 30; };
 
 protected:
 	CEntityHandle<CResource>	m_hResource;

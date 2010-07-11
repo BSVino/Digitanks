@@ -161,6 +161,9 @@ CHUD::CHUD()
 	m_pTankInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pTankInfo);
 
+	m_pTurnInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pTurnInfo);
+
 	m_pPressEnter = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pPressEnter);
 
@@ -265,6 +268,11 @@ void CHUD::Layout()
 	m_pTankInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTankInfo->SetWrap(true);
 	m_pTankInfo->SetFontFaceSize(10);
+
+	m_pTurnInfo->SetDimensions(20, iHeight/2 - 100, 250, 150);
+	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	m_pTurnInfo->SetWrap(true);
+	m_pTurnInfo->SetFontFaceSize(10);
 
 	m_pPressEnter->SetDimensions(iWidth/2 - 100/2, iHeight*2/3, 100, 50);
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
@@ -426,6 +434,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	// Background for the attack info label
 	CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, 100));
+
+	// Turn info panel
+	CRootPanel::PaintRect(10, iHeight/2 - 110, 270, 170, Color(0, 0, 0, 100));
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
@@ -1061,6 +1072,18 @@ void CHUD::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
 	new CSpeechBubble(pTank, sSpeech, m_iSpeechBubble);
 }
 
+void CHUD::ClearTurnInfo()
+{
+	m_pTurnInfo->SetText("TURN REPORT\n \n");
+}
+
+void CHUD::AppendTurnInfo(const char* pszInfo)
+{
+	m_pTurnInfo->AppendText("* ");
+	m_pTurnInfo->AppendText(pszInfo);
+	m_pTurnInfo->AppendText("\n");
+}
+
 void CHUD::SetHUDActive(bool bActive)
 {
 	m_bHUDActive = bActive;
@@ -1375,6 +1398,7 @@ void CHUD::BuildUnitCallback()
 
 	pLoader->BeginProduction();
 	SetupMenu();
+	UpdateInfo();
 }
 
 void CHUD::CancelBuildUnitCallback()
@@ -1396,6 +1420,7 @@ void CHUD::CancelBuildUnitCallback()
 
 	pLoader->CancelProduction();
 	SetupMenu();
+	UpdateInfo();
 }
 
 void CHUD::GoToMainCallback()

@@ -28,11 +28,12 @@ public:
 public:
 	virtual float				GetBoundingRadius() const { return 5; };
 
-	void						BeginConstruction(size_t iTurnsToConstruct);
-	size_t						GetTurnsToConstruct() { return m_iTurnsToConstruct; };
+	void						BeginConstruction();
+	void						CompleteConstruction();
+	size_t						GetTurnsToConstruct();
 	bool						IsConstructing() { return m_bConstructing; };
-
-	virtual void				PreStartTurn();
+	size_t						GetProductionRemaining() { return m_iProductionToConstruct; };
+	void						AddProduction(size_t iProduction);
 
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { return m_hSupplier; };
@@ -43,13 +44,16 @@ public:
 
 	virtual float				VisibleRange() const { return 50; };
 
+	virtual const char*			GetName() { return "Structure"; };
+	virtual size_t				ConstructionCost() const { return 20; };
+
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);
 	size_t						GetNumLivingDefenders();
 
 protected:
 	bool						m_bConstructing;
-	size_t						m_iTurnsToConstruct;
+	size_t						m_iProductionToConstruct;
 
 	CEntityHandle<CSupplier>		m_hSupplier;
 	CEntityHandle<CSupplyLine>		m_hSupplyLine;
@@ -82,7 +86,7 @@ public:
 
 	float						GetChildEfficiency();
 
-	virtual void				PostStartTurn();
+	virtual void				StartTurn();
 
 	virtual void				PostRender();
 

@@ -28,14 +28,6 @@ void CLoader::Spawn()
 	m_bProducing = false;
 }
 
-void CLoader::PreStartTurn()
-{
-	BaseClass::PreStartTurn();
-
-	if (IsProducing())
-		GetDigitanksTeam()->AddProducer();
-}
-
 void CLoader::StartTurn()
 {
 	BaseClass::StartTurn();
@@ -59,6 +51,24 @@ void CLoader::StartTurn()
 			GetTeam()->AddEntity(pTank);
 
 			m_bProducing = false;
+
+			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+				DigitanksGame()->AppendTurnInfo("Production finished on Mechanized Infantry");
+			else if (GetBuildUnit() == BUILDUNIT_TANK)
+				DigitanksGame()->AppendTurnInfo("Production finished on Main Battle Tank");
+			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
+				DigitanksGame()->AppendTurnInfo("Production finished on Artillery");
+		}
+		else
+		{
+			size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
+			std::stringstream s;
+			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+				s << "Producing Mechanized Infantry (" << (m_iProductionStored/iPerTurn) << " turns left)";
+			else if (GetBuildUnit() == BUILDUNIT_TANK)
+				s << "Producing Main Battle Tank (" << (m_iProductionStored/iPerTurn) << " turns left)";
+			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
+				s << "Producing Artillery (" << (m_iProductionStored/iPerTurn) << " turns left)";
 		}
 	}
 }
@@ -140,7 +150,9 @@ void CLoader::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
+		s << "Production left: " << GetProductionRemaining() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
 		return;
 	}
 
@@ -148,13 +160,20 @@ void CLoader::UpdateInfo(std::string& sInfo)
 	{
 		s << "(Producing)\n";
 		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
-		s << "Production/turn: " << iProduction << "\n";
 		size_t iProductionLeft = g_aiTurnsToLoad[GetBuildUnit()] - m_iProductionStored;
 		s << "Production left: " << iProductionLeft << "\n";
-		s << "Turns left: " << (iProductionLeft/iProduction) << "\n";
+		s << "Turns left: " << (iProductionLeft/iProduction)+1 << "\n \n";
 	}
 
 	s << "Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << "%\n";
 
 	sInfo = s.str();
+}
+
+const char* CLoader::GetName()
+{
+	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+		return "Mechanized Infantry Loader";
+	else
+		return "Main Battle Tank Loader";
 }

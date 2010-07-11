@@ -33,12 +33,13 @@ public:
 	CStructure*					GetConstructing() { return m_hConstructing; }
 
 	virtual void				StartTurn();
-	virtual void				PostStartTurn();
 
 	virtual void				OnRender();
 	virtual void				PostRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
+
+	virtual const char*			GetName() { return "Central Processing Unit"; };
 
 protected:
 	Vector						m_vecPreviewBuild;

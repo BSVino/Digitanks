@@ -1,5 +1,7 @@
 #include "structure.h"
 
+#include <sstream>
+
 #include <maths.h>
 
 #include <renderer/renderer.h>
@@ -14,24 +16,28 @@ REGISTER_ENTITY(CStructure);
 CStructure::CStructure()
 {
 	m_bConstructing = false;
-	m_iTurnsToConstruct = 0;
+	m_iProductionToConstruct = 0;
 }
 
-void CStructure::BeginConstruction(size_t iTurns)
+void CStructure::BeginConstruction()
 {
-	m_iTurnsToConstruct = iTurns;
+	m_iProductionToConstruct = ConstructionCost();
 	m_bConstructing = true;
 }
 
-void CStructure::PreStartTurn()
+void CStructure::CompleteConstruction()
 {
-	BaseClass::PreStartTurn();
+	m_bConstructing = false;
+}
 
-	if (IsConstructing())
-	{
-		if (--m_iTurnsToConstruct == 0)
-			m_bConstructing = false;
-	}
+size_t CStructure::GetTurnsToConstruct()
+{
+	return (size_t)(m_iProductionToConstruct/GetDigitanksTeam()->GetProductionPerLoader())+1;
+}
+
+void CStructure::AddProduction(size_t iProduction)
+{
+	m_iProductionToConstruct -= iProduction;
 }
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)
@@ -160,9 +166,9 @@ float CSupplier::GetChildEfficiency()
 	return 1/((float)iConsumingChildren-1);
 }
 
-void CSupplier::PostStartTurn()
+void CSupplier::StartTurn()
 {
-	BaseClass::PostStartTurn();
+	BaseClass::StartTurn();
 
 	if (!IsConstructing())
 		m_iDataStrength += (size_t)GetDataFlowRate();

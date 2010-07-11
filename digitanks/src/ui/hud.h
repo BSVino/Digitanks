@@ -150,6 +150,9 @@ public:
 
 	virtual void				TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
 
+	virtual void				ClearTurnInfo();
+	virtual void				AppendTurnInfo(const char* pszInfo);
+
 	virtual void				SetHUDActive(bool bActive);
 
 	bool						ShouldAutoProceed() { return false; };
@@ -215,6 +218,7 @@ protected:
 	glgui::CLabel*				m_pRightShieldInfo;
 
 	glgui::CLabel*				m_pTankInfo;
+	glgui::CLabel*				m_pTurnInfo;
 
 	glgui::CLabel*				m_pPressEnter;
 

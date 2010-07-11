@@ -7,6 +7,7 @@
 
 #include <shaders/shaders.h>
 #include <game/digitanks/digitanksentity.h>
+#include <game/digitanks/digitanksgame.h>
 
 #include <ui/digitankswindow.h>
 
@@ -50,6 +51,9 @@ void CDigitanksRenderer::FinishRendering()
 
 void CDigitanksRenderer::RenderFogOfWar()
 {
+	if (!DigitanksGame()->ShouldRenderFogOfWar())
+		return;
+
 	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -137,33 +141,35 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 	// Draw the fog of war.
 	// Explosion buffer's not in use anymore, reduce reuse recycle!
-	RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oExplosionBuffer);
+	if (DigitanksGame()->ShouldRenderFogOfWar())
+	{
+		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oExplosionBuffer);
 
-	glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)m_oVisibility2Buffer.m_iMap);
+		glActiveTexture(GL_TEXTURE1);
+	    glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_oVisibility2Buffer.m_iMap);
 
-	GLuint iDarkenProgram = (GLuint)CShaderLibrary::GetDarkenProgram();
-	glUseProgram(iDarkenProgram);
+		GLuint iDarkenProgram = (GLuint)CShaderLibrary::GetDarkenProgram();
+		glUseProgram(iDarkenProgram);
 
-	GLint iDarkMap = glGetUniformLocation(iDarkenProgram, "iDarkMap");
-    glUniform1i(iDarkMap, 1);
+		GLint iDarkMap = glGetUniformLocation(iDarkenProgram, "iDarkMap");
+	    glUniform1i(iDarkMap, 1);
 
-	GLint iImage = glGetUniformLocation(iDarkenProgram, "iImage");
-    glUniform1i(iImage, 0);
+		GLint iImage = glGetUniformLocation(iDarkenProgram, "iImage");
+	    glUniform1i(iImage, 0);
 
-	GLint flFactor = glGetUniformLocation(iDarkenProgram, "flFactor");
-    glUniform1f(flFactor, 3.0f);
+		GLint flFactor = glGetUniformLocation(iDarkenProgram, "flFactor");
+	    glUniform1f(flFactor, 3.0f);
 
-	RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
+		RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
 
-	glUseProgram(0);
+		glUseProgram(0);
 
-	glActiveTexture(GL_TEXTURE1);
-    glDisable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE0);
-
+		glActiveTexture(GL_TEXTURE1);
+	    glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glActiveTexture(GL_TEXTURE0);
+	}
 
 	// Use a bright-pass filter to catch only the bright areas of the image
 	GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
