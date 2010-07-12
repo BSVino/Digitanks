@@ -8,9 +8,18 @@
 
 REGISTER_ENTITY(CBuffer);
 
-void CBuffer::OnRender()
+void CBuffer::Spawn()
 {
-	glutSolidCube(6);
+	BaseClass::Spawn();
+
+	SetModel(L"models/structures/buffer.obj");
+}
+
+void CBuffer::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/buffer.obj", false);
 }
 
 void CBuffer::UpdateInfo(std::string& sInfo)

@@ -9,12 +9,18 @@
 
 REGISTER_ENTITY(CCollector);
 
-void CCollector::OnRender()
+void CCollector::Spawn()
 {
-	if (GetVisibility() == 0)
-		return;
+	BaseClass::Spawn();
 
-	glutSolidCube(8);
+	SetModel(L"models/structures/psu.obj");
+}
+
+void CCollector::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/psu.obj", false);
 }
 
 void CCollector::UpdateInfo(std::string& sInfo)

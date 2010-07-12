@@ -8,9 +8,10 @@ class CBuffer : public CSupplier
 	REGISTER_ENTITY_CLASS(CBuffer, CSupplier);
 
 public:
-	virtual size_t				InitialDataStrength() { return 300; };
+	virtual void				Spawn();
+	virtual void				Precache();
 
-	virtual void				OnRender();
+	virtual size_t				InitialDataStrength() { return 300; };
 
 	virtual void				UpdateInfo(std::string& sInfo);
 

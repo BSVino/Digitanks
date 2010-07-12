@@ -15,8 +15,18 @@
 
 REGISTER_ENTITY(CCPU);
 
-CCPU::CCPU()
+void CCPU::Spawn()
 {
+	BaseClass::Spawn();
+
+	SetModel(L"models/structures/cpu.obj");
+}
+
+void CCPU::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/cpu.obj", false);
 }
 
 void CCPU::SetupMenu(menumode_t eMenuMode)
@@ -132,8 +142,8 @@ void CCPU::BeginConstruction()
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
 
 	GetTeam()->AddEntity(m_hConstructing);
-	m_hConstructing->BeginConstruction();
 	m_hConstructing->SetOrigin(GetPreviewBuild());
+	m_hConstructing->BeginConstruction();
 	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
 
@@ -197,14 +207,6 @@ void CCPU::StartTurn()
 	}
 }
 
-void CCPU::OnRender()
-{
-	if (GetVisibility() == 0)
-		return;
-
-	glutSolidCube(12);
-}
-
 void CCPU::PostRender()
 {
 	BaseClass::PostRender();
@@ -220,7 +222,6 @@ void CCPU::PostRender()
 			r.SetBlend(BLEND_ALPHA);
 			r.SetColor(Color(255, 255, 255));
 			glutSolidCube(4);
-			r.RenderModel(GetModel());
 		}
 	}
 }

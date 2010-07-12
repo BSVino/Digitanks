@@ -8,7 +8,8 @@ class CCollector : public CStructure
 	REGISTER_ENTITY_CLASS(CCollector, CStructure);
 
 public:
-	virtual void				OnRender();
+	virtual void				Spawn();
+	virtual void				Precache();
 
 	virtual void				UpdateInfo(std::string& sInfo);
 

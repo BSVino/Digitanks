@@ -225,8 +225,6 @@ protected:
 	bool						m_bAutoProceed;
 	bool						m_bHUDActive;
 
-	glgui::CLabel*				m_pOpenTutorial;
-
 	glgui::CLabel*				m_pFPS;
 
 	glgui::CLabel*				m_pTeamInfo;

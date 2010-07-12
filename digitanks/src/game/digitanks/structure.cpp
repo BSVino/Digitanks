@@ -19,10 +19,43 @@ CStructure::CStructure()
 	m_iProductionToConstruct = 0;
 }
 
+void CStructure::StartTurn()
+{
+	BaseClass::StartTurn();
+
+	FindGround();
+}
+
+void CStructure::FindGround()
+{
+	float flHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z);
+	float flCornerHeight;
+
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x + GetBoundingRadius(), GetOrigin().z + GetBoundingRadius());
+	if (flCornerHeight > flHeight)
+		flHeight = flCornerHeight;
+
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x + GetBoundingRadius(), GetOrigin().z - GetBoundingRadius());
+	if (flCornerHeight > flHeight)
+		flHeight = flCornerHeight;
+
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x - GetBoundingRadius(), GetOrigin().z + GetBoundingRadius());
+	if (flCornerHeight > flHeight)
+		flHeight = flCornerHeight;
+
+	flCornerHeight = DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x - GetBoundingRadius(), GetOrigin().z - GetBoundingRadius());
+	if (flCornerHeight > flHeight)
+		flHeight = flCornerHeight;
+
+	SetOrigin(Vector(GetOrigin().x, flHeight, GetOrigin().z));
+}
+
 void CStructure::BeginConstruction()
 {
 	m_iProductionToConstruct = ConstructionCost();
 	m_bConstructing = true;
+
+	FindGround();
 }
 
 void CStructure::CompleteConstruction()
@@ -61,10 +94,10 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 	if (IsConstructing())
 	{
 		pContext->SetBlend(BLEND_NONE);
-		pContext->SetColor(Color(128, 128, 128));
+		pContext->SetColorSwap(Color(128, 128, 128));
 	}
 	else if (GetTeam())
-		pContext->SetColor(GetTeam()->GetColor());
+		pContext->SetColorSwap(GetTeam()->GetColor());
 	else
 		pContext->SetColor(Color(128, 128, 128));
 }
@@ -233,6 +266,15 @@ void CSupplier::UpdateTendrils()
 void CSupplier::AddChild(CStructure* pChild)
 {
 	m_ahChildren.push_back(pChild);
+}
+
+void CSupplier::OnDeleted(CBaseEntity* pEntity)
+{
+	for (size_t i = 0; i < m_ahChildren.size(); i++)
+	{
+		if (m_ahChildren[i] == pEntity)
+			m_ahChildren.erase(m_ahChildren.begin()+i);
+	}
 }
 
 CSupplier* CSupplier::FindClosestSupplier(CBaseEntity* pUnit)

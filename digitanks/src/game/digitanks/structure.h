@@ -28,6 +28,9 @@ public:
 public:
 	virtual float				GetBoundingRadius() const { return 5; };
 
+	virtual void				StartTurn();
+	virtual void				FindGround();
+
 	void						BeginConstruction();
 	void						CompleteConstruction();
 	size_t						GetTurnsToConstruct();
@@ -95,6 +98,7 @@ public:
 	void						AddChild(CStructure* pChild);
 	size_t						GetNumChildren() { return m_ahChildren.size(); };
 	CStructure*					GetChild(size_t i) { return m_ahChildren[i]; };
+	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	virtual float				VisibleRange() const;
 

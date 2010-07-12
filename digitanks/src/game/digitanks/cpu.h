@@ -8,9 +8,9 @@ class CCPU : public CSupplier
 	REGISTER_ENTITY_CLASS(CCPU, CSupplier);
 
 public:
-								CCPU();
+	virtual void				Spawn();
+	virtual void				Precache();
 
-public:
 	virtual size_t				InitialDataStrength() { return 3200; };
 	virtual size_t				BaseDataFlowPerTurn() { return 50; };
 
@@ -34,7 +34,6 @@ public:
 
 	virtual void				StartTurn();
 
-	virtual void				OnRender();
 	virtual void				PostRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
