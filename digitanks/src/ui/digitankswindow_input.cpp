@@ -266,7 +266,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 #ifdef _DEBUG
 	if (c == 'x')
 	{
-		DigitanksGame()->SetRenderFogOfWar(false);
+		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
 	}
 #endif
 

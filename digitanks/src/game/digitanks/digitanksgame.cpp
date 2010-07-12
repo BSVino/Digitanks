@@ -133,8 +133,6 @@ void CDigitanksGame::SetupGame()
 		}
 	}
 
-	float flReflection = 1;
-
 	Color aclrTeamColors[] =
 	{
 		Color(0, 0, 255),
@@ -147,14 +145,22 @@ void CDigitanksGame::SetupGame()
 		Color(255, 255, 255),
 	};
 
-	for (int i = 0; i < 2; i++)
+	Vector avecStartingPositions[] =
+	{
+		Vector(130, 0, 130),
+		Vector(130, 0, -130),
+		Vector(-130, 0, 130),
+		Vector(-130, 0, -130),
+	};
+
+	for (int i = 0; i < 4; i++)
 	{
 		m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
 
 		CCPU* pCPU = Game()->Create<CCPU>("CCPU");
-		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(100, 0, 100) * flReflection));
+		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecStartingPositions[i]));
 		m_ahTeams[i]->AddEntity(pCPU);
 		pCPU->UpdateTendrils();
 
@@ -184,10 +190,13 @@ void CDigitanksGame::SetupGame()
 		Vector vecTank;
 		EAngle angTank;
 
+		Vector vecForward = (Vector(0,0,0) - avecStartingPositions[i]).Normalized();
+		Vector vecRight = vecForward.Cross(Vector(0,1,0)).Normalized();
+
 		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(80, 0, 60)* flReflection;
+		vecTank = avecStartingPositions[i] + vecForward * 20 + vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -197,7 +206,7 @@ void CDigitanksGame::SetupGame()
 		pTank = Game()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(60, 0, 80) * flReflection;
+		vecTank = avecStartingPositions[i] + vecForward * 20 - vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -207,7 +216,7 @@ void CDigitanksGame::SetupGame()
 		pTank = Game()->Create<CArtillery>("CArtillery");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(60, 0, 100) * flReflection;
+		vecTank = avecStartingPositions[i] + vecRight * 40;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -217,14 +226,12 @@ void CDigitanksGame::SetupGame()
 		pTank = Game()->Create<CArtillery>("CArtillery");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = Vector(100, 0, 60) * flReflection;
+		vecTank = avecStartingPositions[i] - vecRight * 40;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
-
-		flReflection = -flReflection;
 	}
 
 	m_ahTeams[0]->SetClient(-1);
