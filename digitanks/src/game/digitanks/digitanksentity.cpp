@@ -19,22 +19,22 @@ void CDigitanksEntity::RenderVisibleArea()
 	if (VisibleRange() == 0)
 		return;
 
-	if ((CTeam*)DigitanksGame()->GetCurrentTeam() != GetTeam())
-		return;
-
 	CRenderingContext c(Game()->GetRenderer());
 	c.Translate(GetOrigin());
 	glutSolidSphere(VisibleRange(), 20, 10);
 }
 
-float CDigitanksEntity::GetVisibility() const
+float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 {
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 		return 1;
 
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-
 	return pTeam->GetEntityVisibility(GetHandle());
+}
+
+float CDigitanksEntity::GetVisibility() const
+{
+	return GetVisibility(CDigitanksGame::GetLocalDigitanksTeam());
 }
 
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext)

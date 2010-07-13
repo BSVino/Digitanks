@@ -10,6 +10,7 @@
 #include "camera.h"
 
 CGame* CGame::s_pGame = NULL;
+CEntityHandle<CTeam> CGame::s_hLocalTeam;
 
 CGame::CGame()
 {
@@ -299,4 +300,22 @@ bool CGame::IsTeamControlledByMe(CTeam* pTeam)
 		return true;
 
 	return false;
+}
+
+CTeam* CGame::GetLocalTeam()
+{
+	if (s_hLocalTeam == NULL)
+	{
+		CGame* pGame = Game();
+		for (size_t i = 0; i < pGame->m_ahTeams.size(); i++)
+		{
+			if (!pGame->m_ahTeams[i]->IsPlayerControlled())
+				continue;
+
+			if (pGame->m_ahTeams[i]->GetClient() == pGame->m_iClient)
+				s_hLocalTeam = pGame->m_ahTeams[i];
+		}
+	}
+
+	return s_hLocalTeam;
 }

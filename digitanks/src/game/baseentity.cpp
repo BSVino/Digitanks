@@ -148,10 +148,13 @@ void CBaseEntity::Render()
 
 		ModifyContext(&r);
 
-		if (m_iModel != ~0)
-			r.RenderModel(GetModel());
+		if (r.GetAlpha() > 0)
+		{
+			if (m_iModel != ~0)
+				r.RenderModel(GetModel());
 
-		OnRender();
+			OnRender();
+		}
 	} while (false);
 
 	PostRender();

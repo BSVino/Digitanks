@@ -30,6 +30,8 @@ public:
 	void		SetBackCulling(bool bCull);
 	void		SetColorSwap(Color clrSwap);
 
+	float		GetAlpha() { return m_flAlpha; };
+
 	void		RenderModel(size_t iModel, bool bNewCallList = false);
 	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
 	void		RenderMeshInstance(class CModel* pModel, class CConversionScene* pScene, class CConversionMeshInstance* pMeshInstance, bool bNewCallList);

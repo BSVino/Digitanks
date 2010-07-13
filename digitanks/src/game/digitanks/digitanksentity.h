@@ -13,6 +13,7 @@ public:
 	class CDigitanksTeam*			GetDigitanksTeam();
 
 	virtual void					RenderVisibleArea();
+	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;
 
 	virtual void					ModifyContext(class CRenderingContext* pContext);

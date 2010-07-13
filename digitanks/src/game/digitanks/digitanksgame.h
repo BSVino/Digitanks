@@ -132,6 +132,8 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar() { return m_bRenderFogOfWar; };
 
+	static CDigitanksTeam*	GetLocalDigitanksTeam();
+
 protected:
 	size_t					m_iCurrentTeam;
 	size_t					m_iCurrentSelection;

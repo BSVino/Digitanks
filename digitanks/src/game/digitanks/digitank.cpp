@@ -592,15 +592,21 @@ void CDigitank::SetDesiredMove(CNetworkParameters* p)
 
 	m_flStartedMove = DigitanksGame()->GetGameTime();
 
-	EmitSound("sound/tank-move.wav");
-	SetSoundVolume("sound/tank-move.wav", 0.5f);
+	if (GetVisibility() > 0)
+	{
+		EmitSound("sound/tank-move.wav");
+		SetSoundVolume("sound/tank-move.wav", 0.5f);
+	}
 
 	if (m_iHoverParticles != ~0)
 		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
 
-	m_iHoverParticles = CParticleSystemLibrary::AddInstance(L"tank-hover", GetOrigin());
-	if (m_iHoverParticles != ~0)
-		CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
+	if (GetVisibility() > 0)
+	{
+		m_iHoverParticles = CParticleSystemLibrary::AddInstance(L"tank-hover", GetOrigin());
+		if (m_iHoverParticles != ~0)
+			CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
+	}
 }
 
 void CDigitank::CancelDesiredMove()
@@ -631,6 +637,10 @@ void CDigitank::CancelDesiredMove(CNetworkParameters* p)
 Vector CDigitank::GetDesiredMove() const
 {
 	float flTransitionTime = GetTransitionTime();
+
+	if (GetVisibility() == 0)
+		flTransitionTime = 0;
+
 	float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
 	{
@@ -649,6 +659,10 @@ Vector CDigitank::GetDesiredMove() const
 bool CDigitank::IsMoving()
 {
 	float flTransitionTime = GetTransitionTime();
+
+	if (GetVisibility() == 0)
+		flTransitionTime = 0;
+
 	float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
 		return true;
@@ -763,8 +777,11 @@ void CDigitank::SetDesiredAim(CNetworkParameters* p)
 
 	m_bDesiredAim = true;
 
-	EmitSound("sound/tank-aim.wav");
-	SetSoundVolume("sound/tank-aim.wav", 0.5f);
+	if (GetVisibility() > 0)
+	{
+		EmitSound("sound/tank-aim.wav");
+		SetSoundVolume("sound/tank-aim.wav", 0.5f);
+	}
 }
 
 void CDigitank::CancelDesiredAim()
@@ -894,10 +911,13 @@ void CDigitank::Think()
 
 void CDigitank::OnCurrentSelection()
 {
-	if (rand()%2 == 0)
-		EmitSound("sound/tank-active.wav");
-	else
-		EmitSound("sound/tank-active2.wav");
+	if (GetVisibility() > 0)
+	{
+		if (rand()%2 == 0)
+			EmitSound("sound/tank-active.wav");
+		else
+			EmitSound("sound/tank-active2.wav");
+	}
 
 	Speak(TANKSPEECH_SELECTED);
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
@@ -1238,7 +1258,8 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	m_hProjectile->SetForce(vecForce);
 	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
 
-	EmitSound("sound/tank-fire.wav");
+	if (GetVisibility() > 0)
+		EmitSound("sound/tank-fire.wav");
 
 	Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
 	size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
@@ -1306,8 +1327,11 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	{
 		*pflShield -= flDamage / GetDefenseScale();
 
-		EmitSound("sound/shield-damage.wav");
-		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
+		if (GetVisibility() > 0)
+		{
+			EmitSound("sound/shield-damage.wav");
+			SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
+		}
 
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, true);
 
@@ -1316,13 +1340,19 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	flDamage -= flDamageBlocked;
 
-	EmitSound("sound/tank-damage.wav");
-	SetSoundVolume("sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
+	if (GetVisibility() > 0)
+	{
+		EmitSound("sound/tank-damage.wav");
+		SetSoundVolume("sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
+	}
 
 	if (*pflShield > 1.0f)
 	{
-		EmitSound("sound/shield-damage.wav");
-		SetSoundVolume("sound/shield-damage.wav", RemapValClamped(*pflShield, 0, 5, 0, 1));
+		if (GetVisibility() > 0)
+		{
+			EmitSound("sound/shield-damage.wav");
+			SetSoundVolume("sound/shield-damage.wav", RemapValClamped(*pflShield, 0, 5, 0, 1));
+		}
 	}
 
 	*pflShield = 0;
@@ -1690,8 +1720,11 @@ void CDigitank::SetBonusPoints(class CNetworkParameters* p)
 
 void CDigitank::TankPromoted(class CNetworkParameters* p)
 {
-	EmitSound("sound/tank-promoted.wav");
-	CParticleSystemLibrary::AddInstance(L"promotion", GetOrigin());
+	if (GetVisibility() > 0)
+	{
+		EmitSound("sound/tank-promoted.wav");
+		CParticleSystemLibrary::AddInstance(L"promotion", GetOrigin());
+	}
 }
 
 void CDigitank::PromoteAttack(class CNetworkParameters* p)

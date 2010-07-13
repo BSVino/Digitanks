@@ -1047,17 +1047,26 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 
 void CHUD::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
 {
+	if (pTank->GetVisibility() == 0)
+		return;
+
 	// Cleans itself up.
 	new CSpeechBubble(pTank, sSpeech, m_iSpeechBubble);
 }
 
 void CHUD::ClearTurnInfo()
 {
+	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+		return;
+
 	m_pTurnInfo->SetText("TURN REPORT\n \n");
 }
 
 void CHUD::AppendTurnInfo(const char* pszInfo)
 {
+	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+		return;
+
 	m_pTurnInfo->AppendText("* ");
 	m_pTurnInfo->AppendText(pszInfo);
 	m_pTurnInfo->AppendText("\n");

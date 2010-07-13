@@ -892,3 +892,8 @@ void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
 	if (m_pListener)
 		m_pListener->AppendTurnInfo(pszTurnInfo);
 }
+
+CDigitanksTeam* CDigitanksGame::GetLocalDigitanksTeam()
+{
+	return dynamic_cast<CDigitanksTeam*>(GetLocalTeam());
+}

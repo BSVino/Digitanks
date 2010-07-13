@@ -74,6 +74,8 @@ public:
 
 	static CGame*								GetGame() { return s_pGame; };
 
+	static CTeam*								GetLocalTeam();
+
 protected:
 	std::vector<CEntityHandle<CTeam> >			m_ahTeams;
 
@@ -91,6 +93,8 @@ protected:
 	bool										m_bLoading;
 
 	int											m_iClient;
+
+	static CEntityHandle<CTeam>					s_hLocalTeam;
 };
 
 inline class CGame* Game()
