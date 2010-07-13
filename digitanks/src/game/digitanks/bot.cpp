@@ -9,14 +9,11 @@
 structure_t g_aeBuildOrder[] =
 {
 	STRUCTURE_BUFFER,
-	STRUCTURE_BUFFER,
 	STRUCTURE_INFANTRYLOADER,
 	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
 	STRUCTURE_BUFFER,
 	STRUCTURE_TANKLOADER,
-	STRUCTURE_BUFFER,
-	STRUCTURE_BUFFER,
-	STRUCTURE_PSU,
 };
 
 void CDigitanksTeam::Bot_ExpandBase()
@@ -28,7 +25,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(structure_t))
 		m_iBuildPosition = 0;
 
-	if (m_iProduction == 0)
+	if (m_iProduction < 8)
 	{
 		// Find the closest electronode and build a collector.
 		CResource* pClosest = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin());
@@ -285,7 +282,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		{
 			if (!pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
 			{
-				CStructure* pDefend = CBaseEntity::FindClosest<CStructure>(pTank->GetOrigin());
+				CCPU* pDefend = m_hPrimaryCPU;
 				pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
 				pTank->SetDesiredTurn();
 				pTank->Fortify();
@@ -472,9 +469,9 @@ void CStructure::AddDefender(CDigitank* pTank)
 		// Default value
 	}
 	else if (iFortifies%2 == 0)
-		flYaw += 30*iFortifies/2;
+		flYaw += 45*iFortifies/2;
 	else
-		flYaw -= 30*(iFortifies/2+1);
+		flYaw -= 45*(iFortifies/2+1);
 
 	Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
 
