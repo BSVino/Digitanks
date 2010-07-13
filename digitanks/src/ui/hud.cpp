@@ -279,10 +279,6 @@ void CHUD::Layout()
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pTeamInfo->SetPos(iWidth - 220, 20);
 	m_pTeamInfo->SetWrap(false);
-
-#ifndef _DEBUG
-	m_pFPS->SetText(L"Free Demo");
-#endif
 }
 
 void CHUD::Think()
@@ -388,13 +384,9 @@ void CHUD::Think()
 		m_pFireDefend->SetWrap(false);
 	}
 
-#ifdef _DEBUG
-	m_pFPS->SetText(L"Free Demo");
-
 	char szFPS[100];
-	sprintf(szFPS, "\n%d fps", (int)(1/Game()->GetFrameTime()));
-	m_pFPS->AppendText(szFPS);
-#endif
+	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
+	m_pFPS->SetText(szFPS);
 }
 
 void CHUD::Paint(int x, int y, int w, int h)

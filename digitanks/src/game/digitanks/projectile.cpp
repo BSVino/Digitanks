@@ -49,7 +49,7 @@ void CProjectile::ModifyContext(class CRenderingContext* pContext)
 
 	if (m_flTimeExploded > 0.0f)
 	{
-		pContext->UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer()->m_iFB);
+		pContext->UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
 	}
 }
 

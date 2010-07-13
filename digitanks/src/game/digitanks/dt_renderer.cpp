@@ -71,7 +71,7 @@ void CDigitanksRenderer::RenderFogOfWar()
 		CRenderingContext c(this);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
-		c.UseFrameBuffer(m_oVisibility1Buffer.m_iFB);
+		c.UseFrameBuffer(&m_oVisibility1Buffer);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		c.SetDepthMask(false);

@@ -98,10 +98,10 @@ void CTerrain::Spawn()
 	switch (mtrand()%4)
 	{
 	case 0:
-		m_avecTerrainColors[0] = Vector(0.40f, 0.50f, 1.0f);
-		m_avecTerrainColors[1] = Vector(0.40f, 0.48f, 1.0f);
-		m_avecTerrainColors[2] = Vector(0.43f, 0.50f, 1.0f);
-		m_avecTerrainColors[3] = Vector(0.43f, 0.52f, 1.0f);
+		m_avecTerrainColors[0] = Vector(0.24f, 0.30f, 0.55f);
+		m_avecTerrainColors[1] = Vector(0.24f, 0.28f, 0.55f);
+		m_avecTerrainColors[2] = Vector(0.27f, 0.30f, 0.55f);
+		m_avecTerrainColors[3] = Vector(0.27f, 0.32f, 0.55f);
 		break;
 
 	case 1:

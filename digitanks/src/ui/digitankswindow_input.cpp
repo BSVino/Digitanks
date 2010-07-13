@@ -263,12 +263,10 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	if (c == 't')
 		GetInstructor()->SetActive(true);
 
-#ifdef _DEBUG
 	if (c == 'x')
 	{
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
 	}
-#endif
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);

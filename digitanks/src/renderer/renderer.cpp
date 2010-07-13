@@ -36,7 +36,10 @@ CRenderingContext::~CRenderingContext()
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (m_bFBO)
+	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_pRenderer->GetSceneBuffer()->m_iFB);
+		glViewport(0, 0, (GLsizei)m_pRenderer->GetSceneBuffer()->m_iWidth, (GLsizei)m_pRenderer->GetSceneBuffer()->m_iHeight);
+	}
 
 	if (m_iProgram)
 		glUseProgram(0);
@@ -281,10 +284,11 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 	}
 }
 
-void CRenderingContext::UseFrameBuffer(size_t iFBO)
+void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 {
 	m_bFBO = true;
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)iFBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)pBuffer->m_iFB);
+	glViewport(0, 0, (GLsizei)pBuffer->m_iWidth, (GLsizei)pBuffer->m_iHeight);
 }
 
 void CRenderingContext::UseProgram(size_t iProgram)
@@ -731,7 +735,7 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 	glLoadIdentity();
 
 	glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, (GLuint)iMap);
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, (GLuint)pBuffer->m_iFB);
@@ -745,7 +749,6 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 	glEnd();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();   

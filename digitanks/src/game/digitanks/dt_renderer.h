@@ -28,6 +28,7 @@ protected:
 	CFrameBuffer	m_oExplosionBuffer;
 	CFrameBuffer	m_oVisibility1Buffer;
 	CFrameBuffer	m_oVisibility2Buffer;
+	CFrameBuffer	m_oVisibilityDepthBuffer;
 };
 
 #endif
