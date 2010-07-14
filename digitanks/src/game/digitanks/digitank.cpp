@@ -922,30 +922,12 @@ void CDigitank::OnCurrentSelection()
 	Speak(TANKSPEECH_SELECTED);
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
-	if (DigitanksGame()->GetControlMode() == MODE_MOVE && HasSelectedMove())
+	if (!HasDesiredMove() && !IsFortified())
+		DigitanksGame()->SetControlMode(MODE_MOVE);
+	else if (!HasDesiredAim() && CanAim())
 		DigitanksGame()->SetControlMode(MODE_AIM);
-
-	if (DigitanksGame()->GetControlMode() == MODE_TURN && HasDesiredTurn())
+	else
 		DigitanksGame()->SetControlMode(MODE_NONE);
-
-	if (DigitanksGame()->GetControlMode() == MODE_AIM && HasDesiredAim())
-	{
-		if (!ChoseFirepower())
-			DigitanksGame()->SetControlMode(MODE_FIRE);
-		else
-			DigitanksGame()->SetControlMode(MODE_NONE);
-	}
-
-	if (DigitanksGame()->GetControlMode() == MODE_FIRE && ChoseFirepower())
-		DigitanksGame()->SetControlMode(MODE_NONE);
-
-	if (DigitanksGame()->GetControlMode() == MODE_NONE)
-	{
-		if (!HasDesiredMove())
-			DigitanksGame()->SetControlMode(MODE_MOVE);
-		else if (!HasDesiredAim())
-			DigitanksGame()->SetControlMode(MODE_AIM);
-	}
 }
 
 bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)

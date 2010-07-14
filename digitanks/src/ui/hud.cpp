@@ -995,9 +995,6 @@ void CHUD::NewCurrentTeam()
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
-	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) && DigitanksGame()->GetCurrentSelection())
-		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
-
 	std::stringstream s;
 	s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetTotalProduction();
 	m_pTeamInfo->SetText(s.str().c_str());

@@ -131,6 +131,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 			if (DigitanksGame()->GetCurrentTank()->HasDesiredMove())
 			{
+				GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
+
 				if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
 				{
 					if (DigitanksGame()->GetCurrentTank()->CanAim())
@@ -143,9 +145,6 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 					DigitanksGame()->NextTank();
 
 				m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
-
-				if (DigitanksGame()->GetCurrentTank())
-					GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
 			}
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
@@ -228,8 +227,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 				DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
 			}
 		}
-		else
-			DigitanksGame()->SetControlMode(MODE_NONE);
+
 		DigitanksGame()->NextTank();
 	}
 

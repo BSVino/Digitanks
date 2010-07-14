@@ -174,10 +174,13 @@ void CDigitanksGame::SetupGame()
 			if (!pStructure)
 				continue;
 
-			if ((CStructure*)pCPU == pStructure)
+			if (pCPU->GetTeam() == pStructure->GetTeam())
 				continue;
 
-			if ((pStructure->GetOrigin() - pCPU->GetOrigin()).Length2D() < pStructure->GetBoundingRadius() + pCPU->GetBoundingRadius())
+			// 80 units because the default CPU has a network radius of 40 units,
+			// then add 20 because collectors can be built within 20 units and another 20 as a buffer.
+			// The idea is, players have to grow their base to find more resources.
+			if ((pStructure->GetOrigin() - pCPU->GetOrigin()).Length2D() < 80)
 				pEntity->Delete();
 		}
 
@@ -207,26 +210,6 @@ void CDigitanksGame::SetupGame()
 		m_ahTeams[i]->AddEntity(pTank);
 
 		vecTank = avecStartingPositions[i] + vecForward * 20 - vecRight * 20;
-		angTank = VectorAngles(-vecTank.Normalized());
-
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
-		pTank->SetAngles(angTank);
-		pTank->GiveBonusPoints(1, false);
-
-		pTank = Game()->Create<CArtillery>("CArtillery");
-		m_ahTeams[i]->AddEntity(pTank);
-
-		vecTank = avecStartingPositions[i] + vecRight * 40;
-		angTank = VectorAngles(-vecTank.Normalized());
-
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
-		pTank->SetAngles(angTank);
-		pTank->GiveBonusPoints(1, false);
-
-		pTank = Game()->Create<CArtillery>("CArtillery");
-		m_ahTeams[i]->AddEntity(pTank);
-
-		vecTank = avecStartingPositions[i] - vecRight * 40;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -541,6 +524,9 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 			continue;
 
 		if (!pTank->HasDesiredMove())
+			continue;
+
+		if (pTank->GetVisibility() == 0)
 			continue;
 
 		vecSum += pTank->GetDesiredMove();
