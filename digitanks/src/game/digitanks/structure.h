@@ -39,16 +39,16 @@ public:
 	void						AddProduction(size_t iProduction);
 
 	virtual void				SetSupplier(class CSupplier* pSupplier);
-	virtual class CSupplier*	GetSupplier() { return m_hSupplier; };
+	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
 	virtual void				UpdateInfo(std::string& sInfo) {};
 
 	virtual float				VisibleRange() const { return 50; };
-
 	virtual const char*			GetName() { return "Structure"; };
 	virtual size_t				ConstructionCost() const { return 20; };
+	virtual float				TotalHealth() const { return 50; };
 
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);

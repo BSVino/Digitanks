@@ -28,12 +28,14 @@ public:
 	void						BeginProduction();
 	void						CancelProduction();
 	bool						IsProducing() { return m_bProducing; };
+	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 
 	void						SetBuildUnit(buildunit_t eBuildUnit) { m_eBuildUnit = eBuildUnit; };
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
 
 	virtual const char*			GetName();
 	virtual size_t				ConstructionCost() const { return 70; };
+	virtual float				TotalHealth() const { return 70; };
 
 protected:
 	buildunit_t					m_eBuildUnit;

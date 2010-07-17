@@ -21,6 +21,7 @@
 #include "digitanks/projectile.h"
 #include "digitanks/dt_renderer.h"
 #include "digitanks/resource.h"
+#include "digitanks/loader.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -476,14 +477,9 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 
 void CDigitanksGame::NextTank()
 {
-	assert(GetCurrentSelection());
-	if (!GetCurrentSelection())
-		return;
-
 	size_t iOriginal = m_iCurrentSelection;
-	while (++m_iCurrentSelection != iOriginal)
+	while ((++m_iCurrentSelection)%GetCurrentTeam()->GetNumMembers() != iOriginal)
 	{
- 		m_iCurrentSelection = m_iCurrentSelection%GetCurrentTeam()->GetNumMembers();
 		if (!GetCurrentTank())
 			continue;
 
@@ -590,8 +586,8 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (GetCurrentTeam()->IsPlayerControlled())
 	{
-		if (m_pListener)
-			m_pListener->NewCurrentSelection();
+		// Find the first selectable tank.
+		NextTank();
 	}
 	else if (CNetwork::IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();
@@ -690,8 +686,7 @@ void CDigitanksGame::CheckWinConditions()
 
 void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 {
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-		m_ahTeams[i]->OnDeleted(pEntity);
+	BaseClass::OnDeleted(pEntity);
 
 	if (dynamic_cast<class CProjectile*>(pEntity) != NULL)
 	{
@@ -877,6 +872,30 @@ void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
 {
 	if (m_pListener)
 		m_pListener->AppendTurnInfo(pszTurnInfo);
+}
+
+void CDigitanksGame::CompleteProductions()
+{
+	for (size_t i = 0; i < GetCurrentTeam()->GetNumMembers(); i++)
+	{
+		CBaseEntity* pMember = GetCurrentTeam()->GetMember(i);
+		if (!pMember)
+			continue;
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pMember);
+		if (pStructure)
+		{
+			if (pStructure->IsConstructing())
+				pStructure->AddProduction(pStructure->ConstructionCost());
+		}
+
+		CLoader* pLoader = dynamic_cast<CLoader*>(pMember);
+		if (pLoader)
+		{
+			if (pLoader->IsProducing())
+				pLoader->AddProduction(99999);
+		}
+	}
 }
 
 CDigitanksTeam* CDigitanksGame::GetLocalDigitanksTeam()

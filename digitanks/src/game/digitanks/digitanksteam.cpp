@@ -57,7 +57,7 @@ void CDigitanksTeam::StartTurn()
 			AddProducer();
 
 		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
-		if (pCollector && !pCollector->IsConstructing())
+		if (pCollector && !pCollector->IsConstructing() && pCollector->GetSupplier())
 			AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
 
 		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());

@@ -25,6 +25,8 @@ size_t g_aiTurnsToLoad[] = {
 
 void CLoader::Spawn()
 {
+	BaseClass::Spawn();
+
 	m_bProducing = false;
 }
 

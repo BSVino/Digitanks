@@ -85,13 +85,9 @@ bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 	if (pOther == m_hOwner)
 		return false;
 
-	if (pOther->GetCollisionGroup() == CG_TANK)
+	if (pOther->GetCollisionGroup() == CG_ENTITY)
 	{
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pOther);
-		if (!pTank)	// ?
-			return false;
-
-		if (pTank->GetTeam() == m_hOwner->GetTeam())
+		if (pOther->GetTeam() == m_hOwner->GetTeam())
 			return false;
 
 		return true;
@@ -107,7 +103,7 @@ bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 {
 	switch (pOther->GetCollisionGroup())
 	{
-	case CG_TANK:
+	case CG_ENTITY:
 		vecPoint = GetOrigin();
 		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < pOther->GetBoundingRadius()*pOther->GetBoundingRadius())
 			return true;

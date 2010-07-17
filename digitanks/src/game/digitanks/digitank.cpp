@@ -9,7 +9,6 @@
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
-#include <renderer/dissolver.h>
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
@@ -76,10 +75,6 @@ CDigitank::CDigitank()
 
 	m_bFortified = false;
 
-	m_bTakeDamage = true;
-	m_flTotalHealth = 10;
-	m_flHealth = 10;
-
 	m_flFrontMaxShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = 15;
 	m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 15;
 
@@ -88,7 +83,7 @@ CDigitank::CDigitank()
 	m_flLastSpeech = 0;
 	m_flNextIdle = 10.0f;
 
-	SetCollisionGroup(CG_TANK);
+	SetCollisionGroup(CG_ENTITY);
 
 	m_iTurretModel = m_iShieldModel = ~0;
 
@@ -825,6 +820,8 @@ void CDigitank::Fortify()
 
 void CDigitank::Think()
 {
+	BaseClass::Think();
+
 	m_bDisplayAim = false;
 
 	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
@@ -893,12 +890,6 @@ void CDigitank::Think()
 		}
 	}
 
-	if (!IsAlive() && Game()->GetGameTime() > m_flTimeKilled + 1.0f)
-	{
-		CModelDissolver::AddModel(this);
-		Game()->Delete(this);
-	}
-
 	if (IsAlive() && Game()->GetGameTime() > m_flNextIdle)
 	{
 		// A little bit less often if we're not on the current team.
@@ -963,6 +954,9 @@ bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 
 		return true;
 	}
+
+	if (eNewMode == MODE_FIRE)
+		return true;
 
 	if (eNewMode == MODE_NONE)
 		return true;

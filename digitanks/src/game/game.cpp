@@ -189,6 +189,15 @@ void CGame::Render()
 	m_pRenderer->FinishRendering();
 }
 
+void CGame::OnDeleted(CBaseEntity* pEntity)
+{
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pNotify = CBaseEntity::GetEntityNumber(i);
+		pNotify->OnDeleted(pEntity);
+	}
+}
+
 CEntityHandle<CBaseEntity> CGame::Create(const char* pszEntityName)
 {
 	if (!CNetwork::ShouldRunClientFunction())

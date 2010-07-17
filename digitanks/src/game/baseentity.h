@@ -103,6 +103,7 @@ public:
 
 	void									Delete();
 	virtual void							OnDeleted() {};
+	virtual void							OnDeleted(class CBaseEntity* pEntity) {};
 	bool									IsDeleted() { return m_bDeleted; }
 	void									SetDeleted() { m_bDeleted = true; }
 

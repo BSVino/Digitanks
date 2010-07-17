@@ -17,6 +17,8 @@ CStructure::CStructure()
 {
 	m_bConstructing = false;
 	m_iProductionToConstruct = 0;
+
+	SetCollisionGroup(CG_ENTITY);
 }
 
 void CStructure::StartTurn()
@@ -70,7 +72,10 @@ size_t CStructure::GetTurnsToConstruct()
 
 void CStructure::AddProduction(size_t iProduction)
 {
-	m_iProductionToConstruct -= iProduction;
+	if (iProduction > m_iProductionToConstruct)
+		m_iProductionToConstruct = 0;
+	else
+		m_iProductionToConstruct -= iProduction;
 }
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)
@@ -183,6 +188,9 @@ float CSupplier::GetChildEfficiency()
 	size_t iConsumingChildren = 0;
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{
+		if (m_ahChildren[i] == NULL)
+			continue;
+
 		if (!dynamic_cast<CStructure*>(m_ahChildren[i].GetPointer()))
 			continue;
 

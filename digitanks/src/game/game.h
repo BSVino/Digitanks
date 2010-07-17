@@ -33,7 +33,7 @@ public:
 
 	virtual void								OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled) {};
 	virtual void								OnKilled(class CBaseEntity* pEntity) {};
-	virtual void								OnDeleted(class CBaseEntity* pEntity) {};
+	virtual void								OnDeleted(class CBaseEntity* pEntity);
 
 	CEntityHandle<CBaseEntity>					Create(const char* pszEntityName);
 	size_t										CreateEntity(size_t iRegisteredEntity, size_t iHandle = ~0, size_t iSpawnSeed = 0);

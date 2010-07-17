@@ -8,6 +8,10 @@ class CDigitanksEntity : public CBaseEntity
 	REGISTER_ENTITY_CLASS(CDigitanksEntity, CBaseEntity);
 
 public:
+	virtual void					Spawn();
+
+	virtual void					Think();
+
 	virtual void					StartTurn() {};
 
 	class CDigitanksTeam*			GetDigitanksTeam();
@@ -19,6 +23,7 @@ public:
 	virtual void					ModifyContext(class CRenderingContext* pContext);
 
 	virtual float					VisibleRange() const { return 0; };
+	virtual float					TotalHealth() const { return 10; };
 };
 
 #endif

@@ -4,10 +4,31 @@
 #include <GL/freeglut.h>
 
 #include <renderer/renderer.h>
+#include <renderer/dissolver.h>
 
 #include "digitanksgame.h"
 
 REGISTER_ENTITY(CDigitanksEntity);
+
+void CDigitanksEntity::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_bTakeDamage = true;
+	m_flTotalHealth = TotalHealth();
+	m_flHealth = m_flTotalHealth;
+}
+
+void CDigitanksEntity::Think()
+{
+	BaseClass::Think();
+
+	if (!IsAlive() && Game()->GetGameTime() > m_flTimeKilled + 1.0f)
+	{
+		CModelDissolver::AddModel(this);
+		Game()->Delete(this);
+	}
+}
 
 CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam()
 {

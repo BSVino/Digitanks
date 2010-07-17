@@ -32,6 +32,8 @@ CTerrain::~CTerrain()
 
 void CTerrain::Spawn()
 {
+	BaseClass::Spawn();
+
 	size_t iSeed = GetSpawnSeed();
 
 	CSimplexNoise n1(iSeed);

@@ -1007,7 +1007,7 @@ void CHUD::NewCurrentSelection()
 
 	if (DigitanksGame()->GetCurrentTank())
 		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
-	else
+	else if (DigitanksGame()->GetCurrentSelection())
 		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
 
 	SetupMenu(MENUMODE_MAIN);
@@ -1172,8 +1172,6 @@ void CHUD::FireCallback()
 
 	if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 		DigitanksGame()->SetControlMode(MODE_NONE);
-	else if (DigitanksGame()->GetCurrentTank() && !DigitanksGame()->GetCurrentTank()->HasDesiredAim())
-		DigitanksGame()->SetControlMode(MODE_AIM);
 	else
 		DigitanksGame()->SetControlMode(MODE_FIRE);
 }

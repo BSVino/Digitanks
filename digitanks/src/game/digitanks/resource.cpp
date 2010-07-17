@@ -12,7 +12,10 @@ REGISTER_ENTITY(CResource);
 
 void CResource::Spawn()
 {
+	BaseClass::Spawn();
+
 	m_iProduction = 4;
+	m_bTakeDamage = false;
 }
 
 void CResource::OnRender()

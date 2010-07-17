@@ -132,6 +132,9 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar() { return m_bRenderFogOfWar; };
 
+	// CHEAT!
+	void					CompleteProductions();
+
 	static CDigitanksTeam*	GetLocalDigitanksTeam();
 
 protected:
@@ -170,7 +173,7 @@ inline class CDigitanksGame* DigitanksGame()
 
 enum
 {
-	CG_TANK = 1,
+	CG_ENTITY = 1,
 	CG_TERRAIN,
 	CG_PROJECTILE,
 	CG_POWERUP,

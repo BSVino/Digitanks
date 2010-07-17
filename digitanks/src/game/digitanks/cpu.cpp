@@ -190,7 +190,7 @@ void CCPU::StartTurn()
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 
 			CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
-			if (pCollector)
+			if (pCollector && pCollector->GetSupplier())
 				GetDigitanksTeam()->AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
 
 			m_hConstructing->CompleteConstruction();
