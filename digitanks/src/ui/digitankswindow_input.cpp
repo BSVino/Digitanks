@@ -79,15 +79,47 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (!DigitanksGame())
 		return;
 
+	if (iState == GLUT_DOWN && (iButton == 2 || iButton == 0))
+	{
+		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+		{
+			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
+			{
+				DigitanksGame()->SetControlMode(MODE_NONE);
+				m_pHUD->SetAutoProceed(false);
+			}
+			else if (!m_pHUD->ShouldAutoProceed())
+				DigitanksGame()->SetControlMode(MODE_NONE);
+			else
+				DigitanksGame()->NextTank();
+
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+
+			return;	// Don't center camera
+		}
+		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+		{
+			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetCurrentStructure());
+			if (pCPU && pCPU->IsPreviewBuildValid())
+			{
+				pCPU->BeginConstruction();
+				DigitanksGame()->SetControlMode(MODE_NONE);
+			}
+		}
+	}
+
 	Vector vecMousePosition;
 	bool bFound = GetMouseGridPosition(vecMousePosition);
 
-	if (iState == GLUT_DOWN)
-		m_iMouseMoved = 0;
-	else
+	if (iButton == 0)
 	{
-		if (m_iMouseMoved < 10 && GetGame() && GetGame()->GetCamera())
-			GetGame()->GetCamera()->SetTarget(vecMousePosition);
+		if (iState == GLUT_DOWN)
+			m_iMouseMoved = 0;
+		else
+		{
+			if (m_iMouseMoved < 10 && GetGame() && GetGame()->GetCamera())
+				GetGame()->GetCamera()->SetTarget(vecMousePosition);
+		}
 	}
 
 	if (iState == GLUT_UP && iButton == 0 && m_iMouseMoved < 10)
@@ -170,29 +202,6 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 				DigitanksGame()->NextTank();
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_AIM);
-		}
-		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-		{
-			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
-			{
-				DigitanksGame()->SetControlMode(MODE_NONE);
-				m_pHUD->SetAutoProceed(false);
-			}
-			else if (!m_pHUD->ShouldAutoProceed())
-				DigitanksGame()->SetControlMode(MODE_NONE);
-			else
-				DigitanksGame()->NextTank();
-
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
-		}
-		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
-		{
-			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetCurrentStructure());
-			if (pCPU && pCPU->IsPreviewBuildValid())
-			{
-				pCPU->BeginConstruction();
-				DigitanksGame()->SetControlMode(MODE_NONE);
-			}
 		}
 	}
 

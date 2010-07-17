@@ -216,6 +216,16 @@ void CDigitanksGame::SetupGame()
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
+
+		pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[i]->AddEntity(pTank);
+
+		vecTank = avecStartingPositions[i] + vecForward * 30;
+		angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
+		pTank->SetAngles(angTank);
+		pTank->GiveBonusPoints(1, false);
 	}
 
 	m_ahTeams[0]->SetClient(-1);

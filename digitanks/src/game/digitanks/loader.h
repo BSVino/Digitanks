@@ -30,6 +30,8 @@ public:
 	bool						IsProducing() { return m_bProducing; };
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 
+	size_t						GetTurnsToProduce();
+
 	void						SetBuildUnit(buildunit_t eBuildUnit) { m_eBuildUnit = eBuildUnit; };
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
 

@@ -18,9 +18,9 @@
 REGISTER_ENTITY(CLoader);
 
 size_t g_aiTurnsToLoad[] = {
-	40, // BUILDUNIT_INFANTRY,
-	80, // BUILDUNIT_TANK,
-	100, // BUILDUNIT_ARTILLERY,
+	25, // BUILDUNIT_INFANTRY,
+	50, // BUILDUNIT_TANK,
+	60, // BUILDUNIT_ARTILLERY,
 };
 
 void CLoader::Spawn()
@@ -63,20 +63,27 @@ void CLoader::StartTurn()
 		}
 		else
 		{
-			size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
 			std::stringstream s;
 			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-				s << "Producing Mechanized Infantry (" << (m_iProductionStored/iPerTurn) << " turns left)";
+				s << "Producing Mechanized Infantry (" << GetTurnsToProduce() << " turns left)";
 			else if (GetBuildUnit() == BUILDUNIT_TANK)
-				s << "Producing Main Battle Tank (" << (m_iProductionStored/iPerTurn) << " turns left)";
+				s << "Producing Main Battle Tank (" << GetTurnsToProduce() << " turns left)";
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
-				s << "Producing Artillery (" << (m_iProductionStored/iPerTurn) << " turns left)";
+				s << "Producing Artillery (" << GetTurnsToProduce() << " turns left)";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
 }
 
 void CLoader::SetupMenu(menumode_t eMenuMode)
 {
+	if (IsConstructing())
+	{
+		// Base class is empty.
+		BaseClass::SetupMenu(eMenuMode);
+		return;
+	}
+
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
 
 	if (m_bProducing)
@@ -128,6 +135,15 @@ void CLoader::CancelProduction()
 {
 	m_iProductionStored = 0;
 	m_bProducing = false;
+}
+
+size_t CLoader::GetTurnsToProduce()
+{
+	if (m_hSupplier == NULL)
+		return -1;
+
+	size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
+	return (size_t)((g_aiTurnsToLoad[GetBuildUnit()]-m_iProductionStored)/iPerTurn)+1;
 }
 
 void CLoader::OnRender()
