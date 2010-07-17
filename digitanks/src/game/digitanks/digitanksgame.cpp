@@ -478,7 +478,7 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 void CDigitanksGame::NextTank()
 {
 	size_t iOriginal = m_iCurrentSelection;
-	while ((++m_iCurrentSelection)%GetCurrentTeam()->GetNumMembers() != iOriginal)
+	while ((m_iCurrentSelection = ++m_iCurrentSelection%GetCurrentTeam()->GetNumMembers()) != iOriginal)
 	{
 		if (!GetCurrentTank())
 			continue;
