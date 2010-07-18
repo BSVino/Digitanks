@@ -1122,7 +1122,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		else
 		{
 			pHUD->SetButton4Listener(CHUD::Fire);
-			pHUD->SetButton4Help("Set Power");
+			pHUD->SetButton4Help("Set Energy");
 		}
 
 		if (HasDesiredAim() && (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE))
