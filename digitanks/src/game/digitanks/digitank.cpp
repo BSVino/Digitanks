@@ -12,6 +12,7 @@
 
 #include "digitanksgame.h"
 #include "ui/digitankswindow.h"
+#include "ui/instructor.h"
 #include "powerup.h"
 #include "ui/debugdraw.h"
 #include "ui/hud.h"
@@ -447,9 +448,10 @@ void CDigitank::StartTurn()
 	m_hSupplier = CSupplier::FindClosestSupplier(this);
 
 	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
+	{
 		m_hSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
-
-	m_hSupplyLine->SetEntities(m_hSupplier, this);
+		m_hSupplyLine->SetEntities(m_hSupplier, this);
+	}
 
 	if (m_bFortified)
 	{
@@ -478,6 +480,13 @@ void CDigitank::StartTurn()
 
 	if (HasGoalMovePosition())
 		MoveTowardsGoalMovePosition();
+
+	if (DigitanksGame()->GetLocalDigitanksTeam() == GetDigitanksTeam())
+	{
+		size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
+			CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+	}
 }
 
 void CDigitank::SetPreviewMove(Vector vecPreviewMove)
@@ -1214,6 +1223,8 @@ void CDigitank::Move()
 		{
 			pPowerup->Delete();
 			GiveBonusPoints(1);
+
+			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
 		}
 	}
 
@@ -1343,6 +1354,14 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 {
 	CancelGoalMovePosition();
 
+	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
+	{
+		// BOT MUST DIE
+		if (GetDigitanksTeam() != DigitanksGame()->GetLocalDigitanksTeam())
+			flDamage += 50;
+	}
+
 	Speak(TANKSPEECH_DAMAGED);
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
@@ -1403,6 +1422,10 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 {
+	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
+		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+
 	CDigitank* pKiller = dynamic_cast<CDigitank*>(pKilledBy);
 
 	if (pKiller)

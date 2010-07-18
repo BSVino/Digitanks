@@ -5,6 +5,9 @@
 
 #include "digitanks/digitanksgame.h"
 
+#include <ui/digitankswindow.h>
+#include <ui/instructor.h>
+
 CCamera::CCamera()
 {
 	m_bFPSMode = false;
@@ -54,11 +57,15 @@ void CCamera::SnapAngle(EAngle angCamera)
 void CCamera::ZoomOut()
 {
 	SetDistance(m_flNewDistance+1);
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
 
 void CCamera::ZoomIn()
 {
 	SetDistance(m_flNewDistance-1);
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
 
 void CCamera::Shake(Vector vecLocation, float flMagnitude)

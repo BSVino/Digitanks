@@ -6,6 +6,8 @@
 #include <vector.h>
 #include <color.h>
 
+#include <game/digitanks/digitanksgame.h>
+
 class CDigitanksWindow
 {
 public:
@@ -15,7 +17,7 @@ public:
 public:
 	void						InitUI();
 
-	void						CreateGame();
+	void						CreateGame(gametype_t eGameType);
 	void						DestroyGame();
 
 	void						Run();	// Doesn't return
@@ -100,6 +102,7 @@ protected:
 	bool						m_bAlt;
 	bool						m_bShift;
 	int							m_iMouseMoved;
+	int							m_bCameraMouseDown;
 
 	std::vector<const char*>	m_apszCommandLine;
 };

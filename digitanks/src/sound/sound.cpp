@@ -94,7 +94,7 @@ void CSoundLibrary::StopSound(CBaseEntity* pEntity, const char* pszFilename)
 		// Un-register the channel finish callback for the time being because we clear the active sound list by ourselves.
 		Mix_ChannelFinished(NULL);
 
-		std::map<CEntityHandle<CBaseEntity>, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
+		std::map<CBaseEntity*, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
 
 		while (it != Get()->m_aiActiveSounds.end())
 		{
@@ -165,20 +165,20 @@ void CSoundLibrary::SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename
 
 void CSoundLibrary::ChannelFinished(int iChannel)
 {
-	std::map<CEntityHandle<CBaseEntity>, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
+	std::map<CBaseEntity*, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
 
 	while (it != Get()->m_aiActiveSounds.end())
 	{
-		CEntityHandle<CBaseEntity> hEntity = (*it).first;
-		std::map<const char*, int>::iterator it2 = Get()->m_aiActiveSounds[hEntity].begin();
-		while (it2 != Get()->m_aiActiveSounds[hEntity].end())
+		CBaseEntity* pEntity = (*it).first;
+		std::map<const char*, int>::iterator it2 = Get()->m_aiActiveSounds[pEntity].begin();
+		while (it2 != Get()->m_aiActiveSounds[pEntity].end())
 		{
 			const char* pszFilename = (*it2).first;
-			if (iChannel == Get()->m_aiActiveSounds[hEntity][(*it2).first])
+			if (iChannel == Get()->m_aiActiveSounds[pEntity][(*it2).first])
 			{
-				Get()->m_aiActiveSounds[hEntity].erase(Get()->m_aiActiveSounds[hEntity].find(pszFilename));
-				if (Get()->m_aiActiveSounds[hEntity].size() == 0)
-					Get()->m_aiActiveSounds.erase(Get()->m_aiActiveSounds.find(hEntity));
+				Get()->m_aiActiveSounds[pEntity].erase(Get()->m_aiActiveSounds[pEntity].find(pszFilename));
+				if (Get()->m_aiActiveSounds[pEntity].size() == 0)
+					Get()->m_aiActiveSounds.erase(Get()->m_aiActiveSounds.find(pEntity));
 				return;
 			}
 

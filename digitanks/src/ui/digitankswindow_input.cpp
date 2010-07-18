@@ -114,11 +114,26 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (iButton == 0)
 	{
 		if (iState == GLUT_DOWN)
+		{
+			// Prevent UI interactions from affecting the camera target.
+			// If the mouse was used on the UI, m_bCameraMouseDown will
+			// remain false.
+			m_bCameraMouseDown = true;
 			m_iMouseMoved = 0;
+		}
 		else
 		{
-			if (m_iMouseMoved < 10 && GetGame() && GetGame()->GetCamera())
-				GetGame()->GetCamera()->SetTarget(vecMousePosition);
+			if (m_iMouseMoved < 20 && GetGame() && GetGame()->GetCamera())
+			{
+				if (m_bCameraMouseDown)
+				{
+					GetGame()->GetCamera()->SetTarget(vecMousePosition);
+					m_bCameraMouseDown = false;
+					CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+				}
+			}
+			else if (m_iMouseMoved > 20)
+				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
 		}
 	}
 
@@ -188,7 +203,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			else
 				DigitanksGame()->NextTank();
 
-//			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
@@ -221,6 +236,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	if (DigitanksGame() && c == 13)
 	{
 		DigitanksGame()->EndTurn();
+		m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
 	}
 
 	if (DigitanksGame() && c == 32)

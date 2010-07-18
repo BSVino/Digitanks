@@ -6,6 +6,7 @@
 #include "digitanks/digitanksgame.h"
 #include "digitankswindow.h"
 #include "renderer/renderer.h"
+#include "sound/sound.h"
 
 using namespace glgui;
 
@@ -13,7 +14,10 @@ CInstructor::CInstructor()
 {
 	m_bActive = true;
 	m_pCurrentPanel = NULL;
+	m_iLastTutorial = -1;
 	Initialize();
+
+	CSoundLibrary::Get()->AddSound("sound/lesson-learned.wav");
 }
 
 CInstructor::~CInstructor()
@@ -42,28 +46,52 @@ void CInstructor::Initialize()
 	Clear();
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INTRO, new CTutorial(this, TUTORIAL_INTRO, POSITION_TOPCENTER, 200, true,
-		L"Welcome to Digitanks!\n \nThis quick tutorial will help you get accustomed to the game.\n \nClick here to continue.")));
+		L"Welcome to Digitanks!\n \nThis tutorial will help you get accustomed to the game.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 200, true,
+		L"TANK SELECTION\n \nThis is your tank. Select it by clicking on it with the left mouse button.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 200, true,
+		L"CAMERA CONTROLS\n \nFirst, let's take a look around. Left click on open terrain to move the camera.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURNCAMERA, new CTutorial(this, TUTORIAL_TURNCAMERA, POSITION_TOPCENTER, 200, true,
+		L"CAMERA CONTROLS\n \nHold down the left mouse button and drag to rotate the camera.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ZOOMCAMERA, new CTutorial(this, TUTORIAL_ZOOMCAMERA, POSITION_TOPCENTER, 200, true,
+		L"CAMERA CONTROLS\n \nYou can use the mouse wheel to zoom the camera in and out.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVE, new CTutorial(this, TUTORIAL_MOVE, POSITION_ACTIVETANK, 300, true,
+		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. Move your tank closer to him so you can get a better shot. Right click inside the yellow area to move your tank. You can only move once per turn. You can go into move mode at any time by clicking the 'Move' button on the bottom right.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 200, true,
+		L"AIM YOUR TANK\n \nYou're closing in for the kill! Now aim at the enemy tank by right clicking on him. You can also enter aim mode by pressing the 'Aim' button.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_RANGE, new CTutorial(this, TUTORIAL_RANGE, POSITION_TOPLEFT, 300, true,
+		L"TANK RANGE\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_ACTIVETANK, 300, true,
+		L"ENERGIZE YOUR CANNON\n \nNow choose how much Energy you want to use on your attack. Press the 'Set Energy' button to open up the Energy sliders. Move the slider to the desired level and click the left mouse button to select a setting.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERPOINTS, new CTutorial(this, TUTORIAL_POWERPOINTS, POSITION_POWERBARS, 300, true,
-		L"TANK POWER\n \nEach Digitank has a limited amount of Power which can be used for attack, defense, or movement.\n \nChoose how you use your Power carefully, because using your Power in one area means it can't be used in another. You can't save your power for the next turn, but any power used will be available again next turn.\n \nClick here to continue.")));
+		L"TANK ENERGY\n \nEach Digitank has a limited amount of Energy which can be used for attack, defense, or movement. The bars in your HUD show the selected tank's Energy.\n \nChoose how you use your Energy carefully, because using your Energy in one area means it can't be used in another. You can't save your Energy for the next turn, but any Energy used will be available again next turn.\n \nClick here to continue.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVE, new CTutorial(this, TUTORIAL_MOVE, POSITION_ACTIVETANK, 250, false,
-		L"MOVE YOUR TANKS\n \nClick within the yellow area to move your tank. Don't move your tank too far, or you won't have enough Power for shooting and defense.\n \nIf you don't want to move your tank, press space bar to skip your move.")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ENTERKEY, new CTutorial(this, TUTORIAL_ENTERKEY, POSITION_TOPCENTER, 200, false,
+		L"END YOUR TURN\n \nNow press the 'Enter' key to end your turn and fire your tank.")));
 
-	//m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURN, new CTutorial(this, TUTORIAL_TURN, POSITION_ACTIVETANK, 200, false,
-	//	L"TURN YOUR TANKS\n \nClick a spot to turn your tank. Your tank will aim its body directly at that spot. Turning your tank takes some movement power.\n \nClicking on your tank will cancel the move.")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURN, new CTutorial(this, TUTORIAL_TURN, POSITION_ACTIVETANK, 300, true,
+		L"TURN YOUR TANK\n \nGood job, you messed that guy up pretty good! However, his return fire damaged your shields. You can rotate your tank to bring another shield to bear. Click the turn button and right click a spot to turn your tank. Your tank will aim its body directly at that spot. Turning your tank takes some Energy.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 300, false,
-		L"AIM YOUR TANKS\n \nClick a spot to aim your tank. At the end of your turn, your tank will fire on this spot.\n \nYour tank has very good accuracy inside the green area. Outside that area, accuracy will decrease. Your tank's maximum range is the red circle.\n \nIf you don't want to fire your tanks, you can press enter at any time to end your turn.")));
-
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_ACTIVETANK, 200, true,
-		L"POWER YOUR CANNON\n \nNow you can choose how to divide your remaining Power between your cannon and your shields. Don't forget to leave enough shields up to defend yourself!\n \nIf you have aimed your tank, you can press the 'Set Power' button to change your power selection.")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FINISHHIM, new CTutorial(this, TUTORIAL_FINISHHIM, POSITION_TOPLEFT, 200, false,
+		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and press enter to end your turn and fire.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_POWERBARS, 250, true,
-		L"UPGRADE YOUR TANK\n \nYour tanks have some bonus points that you can use to upgrade their Power. Press the 'Promote' button to choose how to allocate your bonus points.\n \nPicking up powerups (those spinny prisms!) or killing other tanks can grant you additional bonus points.")));
+		L"UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received a promotion! Your promotion gives you bonus points that you can use to upgrade your tank's Energy. Press the Upgrade button to show a list of upgrade options, and upgrade your tank. Press the 'Promote' button to choose how to allocate your bonus points.\n \nKilling enemy tanks can grant you additional bonus points.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_KEYS, new CTutorial(this, TUTORIAL_KEYS, POSITION_TOPLEFT, 200, false,
-		L"ADDITIONAL KEYS\n \nHold Shift: Command all tanks\nSpacebar: Next tank\nTab: Next command\nAlt: Show Power/HP bars\nEnter: End turn\nRight mouse button: Drag camera\n \nYou can leave this window open for reference.\n \nEnjoy Digitanks!")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERUP, new CTutorial(this, TUTORIAL_POWERUP, POSITION_TOPCENTER, 250, true,
+		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Move your tank on top of the powerup and it will turn green. Keep the tank in this position and you'll be able to use the bonus points next turn.\n \nPicking up more powerups can grant you additional bonus points.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND, new CTutorial(this, TUTORIAL_THEEND, POSITION_TOPCENTER, 250, true,
+		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -106,6 +134,11 @@ void CInstructor::DisplayTutorial(size_t iTutorial)
 
 	m_iCurrentTutorial = iTutorial;
 
+	if (m_iLastTutorial != m_iCurrentTutorial)
+		DigitanksGame()->OnDisplayTutorial(iTutorial);
+
+	m_iLastTutorial = m_iCurrentTutorial;
+
 	if (m_pCurrentPanel)
 	{
 		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
@@ -138,6 +171,9 @@ void CInstructor::FinishedTutorial(size_t iTutorial)
 
 	if (m_pCurrentPanel)
 	{
+		// Only play the sound if the current panel is showing so we don't play it multiple times.
+		CSoundLibrary::PlaySound(NULL, "sound/lesson-learned.wav");
+
 		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
 		m_pCurrentPanel->Delete();
 	}
@@ -186,6 +222,9 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 	case CInstructor::POSITION_ACTIVETANK:
 	{
 		CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
+
+		if (!pSelection)
+			break;
 
 		Vector vecCurrentSelectable = Game()->GetRenderer()->ScreenPosition(pSelection->GetOrigin());
 

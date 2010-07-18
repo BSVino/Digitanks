@@ -14,7 +14,10 @@ public:
 
 	CEntityHandle(C* pEntity)
 	{
-		m_iHandle = pEntity->GetHandle();
+		if (!pEntity)
+			m_iHandle = ~0;
+		else
+			m_iHandle = pEntity->GetHandle();
 	}
 
 	CEntityHandle(size_t iHandle)

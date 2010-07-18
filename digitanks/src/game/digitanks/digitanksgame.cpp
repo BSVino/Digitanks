@@ -102,7 +102,7 @@ void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
 	m_ahTeams[p->i1]->SetClient(-1);
 }
 
-void CDigitanksGame::SetupGame()
+void CDigitanksGame::SetupGame(gametype_t eGameType)
 {
 	m_bLoading = true;
 
@@ -113,6 +113,18 @@ void CDigitanksGame::SetupGame()
 
 	m_hTerrain = Game()->Create<CTerrain>("CTerrain");
 
+	m_eGameType = eGameType;
+
+	if (eGameType == GAMETYPE_STANDARD)
+		SetupStandard();
+	else if (eGameType == GAMETYPE_TUTORIAL)
+		SetupTutorial();
+
+	StartGame();
+}
+
+void CDigitanksGame::ScatterResources()
+{
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 50)
 	{
 		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 50)
@@ -133,6 +145,11 @@ void CDigitanksGame::SetupGame()
 			pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
 		}
 	}
+}
+
+void CDigitanksGame::SetupStandard()
+{
+	ScatterResources();
 
 	Color aclrTeamColors[] =
 	{
@@ -240,8 +257,24 @@ void CDigitanksGame::SetupGame()
 	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
 
 	m_iPowerups = 4;
+}
 
-	StartGame();
+void CDigitanksGame::SetupTutorial()
+{
+	m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	m_ahTeams[0]->SetColor(Color(0, 0, 255));
+
+	m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	m_ahTeams[1]->SetColor(Color(255, 0, 0));
+
+	CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+	m_ahTeams[0]->AddEntity(pTank);
+
+	pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+
+	m_ahTeams[0]->SetClient(-1);
+
+	m_iPowerups = 0;
 }
 
 void CDigitanksGame::SetupEntities()
@@ -290,7 +323,12 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (CNetwork::IsHost())
 		CNetwork::CallFunction(-1, "EnterGame");
 
-	m_iCurrentSelection = 0;
+	// Leave an invalid selection for the tutorial so the player can select the tank himself.
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		m_iCurrentSelection = -1;
+	else
+		m_iCurrentSelection = 0;
+
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;
 
@@ -304,10 +342,15 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		m_pListener->NewCurrentSelection();
 	}
 
-	// Point the camera in to the center
-	EAngle angCamera = VectorAngles(GetCurrentSelection()->GetOrigin().Normalized());
-	angCamera.p = 45;
-	GetCamera()->SnapAngle(angCamera);
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		GetCamera()->SnapAngle(EAngle(45, 0, 0));
+	else
+	{
+		// Point the camera in to the center
+		EAngle angCamera = VectorAngles(GetCurrentSelection()->GetOrigin().Normalized());
+		angCamera.p = 45;
+		GetCamera()->SnapAngle(angCamera);
+	}
 }
 
 void CDigitanksGame::Think()
@@ -681,6 +724,9 @@ void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 
 void CDigitanksGame::CheckWinConditions()
 {
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		return;
+
 	bool bPlayerLost = false;
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
@@ -783,7 +829,11 @@ void CDigitanksGame::SetCurrentSelection(CSelectable* pCurrent)
 	}
 
 	if (GetCurrentSelection())
+	{
 		GetCurrentSelection()->OnCurrentSelection();
+
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
+	}
 
 	if (m_pListener)
 		m_pListener->NewCurrentSelection();
@@ -815,26 +865,6 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 
 	if (!GetCurrentSelection()->OnControlModeChange(m_eControlMode, eMode))
 		return;
-
-	if (eMode == MODE_MOVE)
-	{
-		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_MOVE);
-	}
-
-	if (eMode == MODE_TURN)
-	{
-//		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_TURN);
-	}
-
-	if (eMode == MODE_AIM)
-	{
-		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_AIM);
-	}
-
-	if (eMode == MODE_FIRE)
-	{
-		CDigitanksWindow::Get()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_POWER);
-	}
 
 	m_eControlMode = eMode;
 }
@@ -890,6 +920,32 @@ void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
 {
 	if (m_pListener)
 		m_pListener->AppendTurnInfo(pszTurnInfo);
+}
+
+void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
+{
+	if (iTutorial == CInstructor::TUTORIAL_MOVE)
+	{
+		// Make an enemy for us to clobber. Close enough that moving out of the way won't move us out of range
+		CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[1]->AddEntity(pTank);
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, -50)));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_POWERUP)
+	{
+		CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
+		pPowerup->SetOrigin(GetTerrain()->SetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
+	}
+}
+
+bool CDigitanksGame::ShouldRenderFogOfWar()
+{
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		return false;
+
+	else
+		return m_bRenderFogOfWar;
 }
 
 void CDigitanksGame::CompleteProductions()

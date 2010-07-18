@@ -67,18 +67,27 @@ public:
 
 	enum {
 		TUTORIAL_INTRO,
-		TUTORIAL_POWERPOINTS,
+		TUTORIAL_SELECTION,
+		TUTORIAL_MOVECAMERA,
+		TUTORIAL_TURNCAMERA,
+		TUTORIAL_ZOOMCAMERA,
 		TUTORIAL_MOVE,
-		//TUTORIAL_TURN,
 		TUTORIAL_AIM,
+		TUTORIAL_RANGE,
 		TUTORIAL_POWER,
+		TUTORIAL_POWERPOINTS,
+		TUTORIAL_ENTERKEY,
+		TUTORIAL_TURN,
+		TUTORIAL_FINISHHIM,
 		TUTORIAL_UPGRADE,
-		TUTORIAL_KEYS,
+		TUTORIAL_POWERUP,
+		TUTORIAL_THEEND,
 	};
 
 protected:
 	bool							m_bActive;
 	std::map<size_t, CTutorial*>	m_apTutorials;
+	size_t							m_iLastTutorial;
 	size_t							m_iCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;
 };

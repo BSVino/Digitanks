@@ -18,6 +18,9 @@ structure_t g_aeBuildOrder[] =
 
 void CDigitanksTeam::Bot_ExpandBase()
 {
+	if (m_hPrimaryCPU == NULL)
+		return;
+
 	// If currently building something, don't think about it this turn.
 	if (m_hPrimaryCPU->HasConstruction())
 		return;
@@ -219,6 +222,12 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	Bot_AssignDefenders();
 
 	CDigitank* pHeadTank = GetTank(0);
+
+	if (!pHeadTank)
+	{
+		DigitanksGame()->EndTurn();
+		return;
+	}
 
 	CDigitank* pTarget = NULL;
 

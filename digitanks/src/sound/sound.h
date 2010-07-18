@@ -44,7 +44,7 @@ public:
 
 protected:
 	std::vector<CSound*>	m_apSounds;
-	std::map<CEntityHandle<CBaseEntity>, std::map<const char*, int> >	m_aiActiveSounds;
+	std::map<CBaseEntity*, std::map<const char*, int> >	m_aiActiveSounds;
 
 private:
 	static CSoundLibrary*	s_pSoundLibrary;

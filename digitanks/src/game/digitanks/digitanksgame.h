@@ -10,6 +10,12 @@
 #include "digitanksteam.h"
 #include "dt_common.h"
 
+typedef enum
+{
+	GAMETYPE_TUTORIAL,
+	GAMETYPE_STANDARD,
+} gametype_t;
+
 class IDigitanksGameListener
 {
 public:
@@ -47,9 +53,13 @@ public:
 	virtual void			OnClientUpdate(CNetworkParameters* p);
 	virtual void			OnClientDisconnect(CNetworkParameters* p);
 
-	void					SetupGame();
+	void					SetupGame(gametype_t eGameType);
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
+
+	void					ScatterResources();
+	void					SetupStandard();
+	void					SetupTutorial();
 
 	void					StartGame();
 	NET_CALLBACK(CDigitanksGame, EnterGame);
@@ -129,8 +139,10 @@ public:
 
 	void					AppendTurnInfo(const char* pszTurnInfo);
 
+	void					OnDisplayTutorial(size_t iTutorial);
+
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
-	bool					ShouldRenderFogOfWar() { return m_bRenderFogOfWar; };
+	bool					ShouldRenderFogOfWar();
 
 	// CHEAT!
 	void					CompleteProductions();
@@ -161,6 +173,8 @@ protected:
 	size_t					m_iDifficulty;
 
 	bool					m_bRenderFogOfWar;
+
+	gametype_t				m_eGameType;
 };
 
 inline class CDigitanksGame* DigitanksGame()

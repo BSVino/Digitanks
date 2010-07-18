@@ -32,6 +32,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	m_iMouseStartX = 0;
 	m_iMouseStartY = 0;
+	m_bCameraMouseDown = false;
 
 	m_bCtrl = m_bAlt = m_bShift = false;
 
@@ -100,7 +101,7 @@ CDigitanksWindow::~CDigitanksWindow()
 	DestroyGame();
 }
 
-void CDigitanksWindow::CreateGame()
+void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	if (!m_pDigitanksGame)
 	{
@@ -132,7 +133,7 @@ void CDigitanksWindow::CreateGame()
 		}
 	}
 
-	m_pDigitanksGame->SetupGame();
+	m_pDigitanksGame->SetupGame(eGameType);
 
 	glgui::CRootPanel::Get()->Layout();
 }
