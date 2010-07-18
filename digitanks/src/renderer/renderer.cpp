@@ -170,6 +170,10 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 		for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
 			RenderSceneNode(pModel, pModel->m_pScene, pModel->m_pScene->GetScene(i), bNewCallList);
 	}
+
+	if (!bNewCallList)
+		glUseProgram(0);
+
 }
 
 void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, bool bNewCallList)
@@ -276,9 +280,6 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 			glTexCoord2fv(pMesh->GetUV(pVertex->vu));
 			glVertex3fv(pMesh->GetVertex(pVertex->v));
 		}
-
-		if (!bNewCallList)
-			glUseProgram(0);
 
 		glEnd();
 	}
@@ -467,9 +468,9 @@ void CRopeRenderer::Finish(Vector vecLink)
 		m_flTextureOffset += flAddV;
 
 		m_oContext.TexCoord(1, m_flTextureOffset);
-		m_oContext.Vertex(vecLink-vecRight);
-		m_oContext.TexCoord(0, m_flTextureOffset);
 		m_oContext.Vertex(vecLink+vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(vecLink-vecRight);
 	}
 
 	m_oContext.EndRender();

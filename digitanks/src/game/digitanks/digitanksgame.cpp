@@ -410,7 +410,12 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		}
 	}
 	else
+	{
 		pCurrentTank->SetDesiredMove();
+
+		if (!pCurrentTank->HasDesiredMove())
+			pCurrentTank->SetGoalMovePosition(pCurrentTank->GetPreviewMove());
+	}
 }
 
 void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
@@ -494,6 +499,9 @@ void CDigitanksGame::NextTank()
 			continue;
 
 		if (GetCurrentTank()->IsFortified())
+			continue;
+
+		if (GetCurrentTank()->HasGoalMovePosition())
 			continue;
 
 		break;

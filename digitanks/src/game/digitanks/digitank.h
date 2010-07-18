@@ -143,6 +143,12 @@ public:
 	bool						HasDesiredAim() { return m_bDesiredAim; };
 	Vector						GetDesiredAim();
 
+	void						SetGoalMovePosition(const Vector& vecPosition);
+	void						MoveTowardsGoalMovePosition();
+	void						CancelGoalMovePosition();
+	bool						HasGoalMovePosition() { return m_bGoalMovePosition; };
+	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition; };
+
 	bool						ChoseFirepower() { return m_bChoseFirepower; };
 
 	virtual void				Fortify();
@@ -285,6 +291,9 @@ protected:
 	bool						m_bDisplayAim;
 	Vector						m_vecDisplayAim;
 	float						m_flDisplayAimRadius;
+
+	bool						m_bGoalMovePosition;
+	Vector						m_vecGoalMovePosition;
 
 	bool						m_bChoseFirepower;
 

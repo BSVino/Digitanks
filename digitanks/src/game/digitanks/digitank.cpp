@@ -71,6 +71,8 @@ CDigitank::CDigitank()
 	m_bDesiredAim = false;
 	m_bSelectedMove = false;
 
+	m_bGoalMovePosition = false;
+
 	m_flStartedMove = 0;
 
 	m_bFortified = false;
@@ -473,6 +475,9 @@ void CDigitank::StartTurn()
 	m_bChoseFirepower = false;
 
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+
+	if (HasGoalMovePosition())
+		MoveTowardsGoalMovePosition();
 }
 
 void CDigitank::SetPreviewMove(Vector vecPreviewMove)
@@ -550,7 +555,7 @@ void CDigitank::SetDesiredMove()
 	if (IsFortified() && !CanMoveFortified())
 		return;
 
-	if (GetPreviewMovePower() > m_flBasePower)
+	if (!IsPreviewMoveValid())
 		return;
 
 	if (fabs(m_vecPreviewMove.x) > DigitanksGame()->GetTerrain()->GetMapSize())
@@ -627,6 +632,8 @@ void CDigitank::CancelDesiredMove(CNetworkParameters* p)
 		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
 		m_iHoverParticles = ~0;
 	}
+
+	CancelGoalMovePosition();
 }
 
 Vector CDigitank::GetDesiredMove() const
@@ -800,6 +807,60 @@ Vector CDigitank::GetDesiredAim()
 		return GetOrigin();
 
 	return m_vecDesiredAim;
+}
+
+void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
+{
+	if (IsFortified() && !CanMoveFortified())
+		return;
+
+	if (fabs(vecPosition.x) > DigitanksGame()->GetTerrain()->GetMapSize())
+		return;
+
+	if (fabs(vecPosition.z) > DigitanksGame()->GetTerrain()->GetMapSize())
+		return;
+
+	m_bGoalMovePosition = true;
+	m_vecGoalMovePosition = vecPosition;
+
+	MoveTowardsGoalMovePosition();
+}
+
+void CDigitank::MoveTowardsGoalMovePosition()
+{
+	if ((GetOrigin() - GetGoalMovePosition()).LengthSqr() < 1)
+	{
+		m_bGoalMovePosition = false;
+		return;
+	}
+
+	Vector vecGoal = GetGoalMovePosition();
+	Vector vecOrigin = GetOrigin();
+	Vector vecMove = vecGoal - vecOrigin;
+
+	Vector vecNewPosition = GetOrigin() + vecMove;
+
+	do
+	{
+		vecMove = vecMove * 0.95f;
+
+		if (vecMove.Length() < 1)
+			break;
+
+		vecNewPosition = GetOrigin() + vecMove;
+		vecNewPosition.y = FindHoverHeight(vecNewPosition);
+
+		SetPreviewMove(vecNewPosition);
+	}
+	while (!IsPreviewMoveValid());
+
+	SetPreviewMove(vecNewPosition);
+	SetDesiredMove();
+}
+
+void CDigitank::CancelGoalMovePosition()
+{
+	m_bGoalMovePosition = false;
 }
 
 void CDigitank::Fortify()
@@ -1280,6 +1341,8 @@ void CDigitank::ClientUpdate(int iClient)
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
+	CancelGoalMovePosition();
+
 	Speak(TANKSPEECH_DAMAGED);
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
@@ -1603,6 +1666,51 @@ void CDigitank::PostRender()
 		oRope.Finish(m_vecDisplayAim);
 
 		glPopAttrib();
+	}
+
+	bool bShowGoalMove = false;
+	Vector vecGoalMove;
+	int iAlpha = 255;
+	if (HasGoalMovePosition())
+	{
+		bShowGoalMove = true;
+		vecGoalMove = GetGoalMovePosition();
+	}
+	else if (this == pCurrentTank && DigitanksGame()->GetControlMode() == MODE_MOVE)
+	{
+		if (!pCurrentTank->IsPreviewMoveValid())
+		{
+			bShowGoalMove = true;
+			vecGoalMove = GetPreviewMove();
+			iAlpha = 100;
+		}
+	}
+
+	if (bShowGoalMove)
+	{
+		CRenderingContext r(Game()->GetRenderer());
+		r.SetBlend(BLEND_ADDITIVE);
+
+		CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, GetDesiredMove());
+		oRope.SetWidth(1.5f);
+		oRope.SetColor(Color(255, 255, 255, iAlpha));
+		oRope.SetTextureScale(5);
+		oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
+
+		Vector vecPath = vecGoalMove - GetDesiredMove();
+		vecPath.y = 0;
+
+		float flDistance = vecPath.Length2D();
+		Vector vecDirection = vecPath.Normalized();
+		size_t iSegments = (size_t)(flDistance/3);
+
+		for (size_t i = 0; i < iSegments; i++)
+		{
+			float flCurrentDistance = ((float)i*flDistance)/iSegments;
+			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetDesiredMove() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+		}
+
+		oRope.Finish(vecGoalMove);
 	}
 }
 
