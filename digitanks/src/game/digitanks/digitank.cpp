@@ -983,12 +983,16 @@ void CDigitank::OnCurrentSelection()
 	Speak(TANKSPEECH_SELECTED);
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
-	if (!HasDesiredMove() && !IsFortified())
-		DigitanksGame()->SetControlMode(MODE_MOVE);
-	else if (!HasDesiredAim() && CanAim())
-		DigitanksGame()->SetControlMode(MODE_AIM);
-	else
-		DigitanksGame()->SetControlMode(MODE_NONE);
+	// So the escape key works.
+	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND)
+	{
+		if (!HasDesiredMove() && !IsFortified())
+			DigitanksGame()->SetControlMode(MODE_MOVE);
+		else if (!HasDesiredAim() && CanAim())
+			DigitanksGame()->SetControlMode(MODE_AIM);
+		else
+			DigitanksGame()->SetControlMode(MODE_NONE);
+	}
 }
 
 bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)

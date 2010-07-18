@@ -931,11 +931,20 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		m_ahTeams[1]->AddEntity(pTank);
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, -50)));
+
+		GetCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
+		GetCamera()->SetDistance(100);
+		GetCamera()->SetAngle(EAngle(45, 0, 0));
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_POWERUP)
 	{
 		CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 		pPowerup->SetOrigin(GetTerrain()->SetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_THEEND)
+	{
+		// So that pressing the escape key works the first time.
+		SetControlMode(MODE_NONE);
 	}
 }
 

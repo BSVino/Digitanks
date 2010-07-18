@@ -11,7 +11,7 @@
 CCamera::CCamera()
 {
 	m_bFPSMode = false;
-	m_flTargetRamp = m_flDistanceRamp = 0;
+	m_flTargetRamp = m_flDistanceRamp = m_flAngleRamp = 0;
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
 	m_flShakeMagnitude = 0;
@@ -47,6 +47,13 @@ void CCamera::SnapDistance(float flDistance)
 {
 	m_flDistanceRamp = 0;
 	m_flNewDistance = flDistance;
+}
+
+void CCamera::SetAngle(EAngle angCamera)
+{
+	m_flAngleRamp = DigitanksGame()->GetGameTime();
+	m_angOldAngle = m_angCamera;
+	m_angNewAngle = angCamera;
 }
 
 void CCamera::SnapAngle(EAngle angCamera)
@@ -95,6 +102,15 @@ void CCamera::Think()
 	}
 	else
 		m_flDistance = m_flNewDistance;
+
+	if (m_flAngleRamp && flGameTime - m_flAngleRamp < flLerpTime)
+	{
+		float flLerp = Lerp((flGameTime - m_flAngleRamp)/flLerpTime, flLerpAmount);
+		float flPitch = m_angOldAngle.p + AngleDifference(m_angNewAngle.p, m_angOldAngle.p) * flLerp;
+		float flYaw = m_angOldAngle.y + AngleDifference(m_angNewAngle.y, m_angOldAngle.y) * flLerp;
+		float flRoll = m_angOldAngle.r + AngleDifference(m_angNewAngle.r, m_angOldAngle.r) * flLerp;
+		m_angCamera = EAngle(flPitch, flYaw, flRoll);
+	}
 
 	m_vecCamera = AngleVector(m_angCamera) * m_flDistance + m_vecTarget;
 

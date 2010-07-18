@@ -13,6 +13,7 @@ public:
 	void		SnapTarget(Vector vecTarget);
 	void		SetDistance(float flDistance);
 	void		SnapDistance(float flDistance);
+	void		SetAngle(EAngle angCamera);
 	void		SnapAngle(EAngle angCamera);
 
 	void		ZoomOut();
@@ -41,6 +42,10 @@ public:
 	float		m_flOldDistance;
 	float		m_flNewDistance;
 	float		m_flDistanceRamp;
+
+	EAngle		m_angOldAngle;
+	EAngle		m_angNewAngle;
+	float		m_flAngleRamp;
 
 	Vector		m_vecShakeLocation;
 	float		m_flShakeMagnitude;
