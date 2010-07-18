@@ -168,7 +168,7 @@ void CLoader::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
-		s << "Production left: " << GetProductionRemaining() << "\n";
+		s << "Power to build: " << GetProductionRemaining() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
 		sInfo = s.str();
 		return;
@@ -179,7 +179,7 @@ void CLoader::UpdateInfo(std::string& sInfo)
 		s << "(Producing)\n";
 		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
 		size_t iProductionLeft = g_aiTurnsToLoad[GetBuildUnit()] - m_iProductionStored;
-		s << "Production left: " << iProductionLeft << "\n";
+		s << "Power to build: " << iProductionLeft << "\n";
 		s << "Turns left: " << (iProductionLeft/iProduction)+1 << "\n \n";
 	}
 

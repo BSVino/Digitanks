@@ -38,7 +38,7 @@ void CCollector::UpdateInfo(std::string& sInfo)
 		return;
 	}
 
-	s << "Production: " << (size_t)(m_hResource->GetProduction() * m_hSupplier->GetChildEfficiency()) << "\n";
+	s << "Power supplied: " << (size_t)(m_hResource->GetProduction() * m_hSupplier->GetChildEfficiency()) << "\n";
 	s << "Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << "%\n";
 
 	sInfo = s.str();

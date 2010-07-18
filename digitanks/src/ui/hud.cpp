@@ -996,7 +996,7 @@ void CHUD::NewCurrentTeam()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
 	std::stringstream s;
-	s << "Production per turn: " << DigitanksGame()->GetCurrentTeam()->GetTotalProduction();
+	s << "Power per turn: " << DigitanksGame()->GetCurrentTeam()->GetTotalProduction();
 	m_pTeamInfo->SetText(s.str().c_str());
 	m_pTeamInfo->SetPos(GetWidth() - 200, 20);
 }
