@@ -37,7 +37,7 @@ void CPowerBar::Think()
 	char szLabel[100];
 	if (m_ePowerbarType == POWERBAR_HEALTH)
 	{
-		sprintf(szLabel, "Health: %.1f/%.1f", pSelection->GetHealth(), pSelection->GetTotalHealth());
+		sprintf(szLabel, "Hull Strength: %.1f/%.1f", pSelection->GetHealth(), pSelection->GetTotalHealth());
 		SetText(szLabel);
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
@@ -201,7 +201,7 @@ void CHUD::Layout()
 
 	m_pLowShieldsWarning->SetPos(iWidth/2 - 1024/2 + 590, iHeight - 150 - 10 - 80);
 	m_pLowShieldsWarning->SetSize(200, 80);
-	m_pLowShieldsWarning->SetText("WARNING: Shields Low!\nIncrease Defense Power");
+	m_pLowShieldsWarning->SetText("WARNING: Shields Low!\nIncrease Defense Energy");
 
 	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 140);
 	m_pHealthBar->SetSize(200, 20);
@@ -683,7 +683,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	if (pTank->GetBonusAttackPower())
 	{
-		sprintf(szShieldInfo, "\n \n+%d attack power", (int)pTank->GetBonusAttackPower());
+		sprintf(szShieldInfo, "\n \n+%d attack energy", (int)pTank->GetBonusAttackPower());
 		m_pTankInfo->AppendText(szShieldInfo);
 
 		if (pTank->IsFortified() && (int)pTank->GetFortifyAttackPowerBonus() > 0)
@@ -701,7 +701,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	if (pTank->GetBonusDefensePower())
 	{
-		sprintf(szShieldInfo, "\n \n+%d defense power", (int)pTank->GetBonusDefensePower());
+		sprintf(szShieldInfo, "\n \n+%d defense energy", (int)pTank->GetBonusDefensePower());
 		m_pTankInfo->AppendText(szShieldInfo);
 
 		if (pTank->IsFortified() && (int)pTank->GetFortifyDefensePowerBonus() > 0)
@@ -719,7 +719,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	if (pTank->GetBonusMovementPower())
 	{
-		sprintf(szShieldInfo, "\n \n+%d movement power", (int)pTank->GetBonusMovementPower());
+		sprintf(szShieldInfo, "\n \n+%d movement energy", (int)pTank->GetBonusMovementPower());
 		m_pTankInfo->AppendText(szShieldInfo);
 	}
 

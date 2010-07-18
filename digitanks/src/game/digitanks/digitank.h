@@ -171,9 +171,9 @@ public:
 	virtual void				OnCurrentSelection();
 	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
 
-	virtual const char*			GetPowerBar1Text() { return "Attack Power"; }
-	virtual const char*			GetPowerBar2Text() { return "Defense Power"; }
-	virtual const char*			GetPowerBar3Text() { return "Movement Power"; }
+	virtual const char*			GetPowerBar1Text() { return "Attack Energy"; }
+	virtual const char*			GetPowerBar2Text() { return "Defense Energy"; }
+	virtual const char*			GetPowerBar3Text() { return "Movement Energy"; }
 
 	virtual float				GetPowerBar1Value();
 	virtual float				GetPowerBar2Value();
