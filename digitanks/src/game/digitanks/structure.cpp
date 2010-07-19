@@ -98,10 +98,12 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 
 	if (IsConstructing())
 	{
-		pContext->SetBlend(BLEND_NONE);
-		pContext->SetColorSwap(Color(128, 128, 128));
+		pContext->SetBlend(BLEND_ALPHA);
+		pContext->SetColor(Color(255, 255, 255));
+		pContext->SetAlpha(0.3f);
 	}
-	else if (GetTeam())
+
+	if (GetTeam())
 		pContext->SetColorSwap(GetTeam()->GetColor());
 	else
 		pContext->SetColor(Color(128, 128, 128));
