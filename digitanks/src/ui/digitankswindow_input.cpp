@@ -277,7 +277,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 	{
 		if (GetMenu()->IsVisible())
 			GetMenu()->SetVisible(false);
-		else if (DigitanksGame()->GetControlMode() == MODE_NONE)
+		else if (DigitanksGame()->GetControlMode() == MODE_NONE || DigitanksGame()->GetCurrentSelection() == NULL)
 			GetMenu()->SetVisible(true);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
