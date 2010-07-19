@@ -4,6 +4,12 @@
 #include <map>
 #include <glgui/glgui.h>
 
+typedef enum
+{
+	DISABLE_ROTATE = (1<<0),
+	DISABLE_ENTER = (1<<1),
+} disable_t;
+
 class CTutorial
 {
 public:
@@ -58,6 +64,9 @@ public:
 
 	size_t							GetCurrentTutorial() { return m_iCurrentTutorial; };
 
+	disable_t						GetDisabledFeatures();
+	bool							IsFeatureDisabled(disable_t eFeature);
+
 	enum {
 		POSITION_TOPCENTER,
 		POSITION_POWERBARS,
@@ -74,6 +83,7 @@ public:
 		TUTORIAL_MOVE,
 		TUTORIAL_AIM,
 		TUTORIAL_RANGE,
+		TUTORIAL_BUTTONS,
 		TUTORIAL_POWER,
 		TUTORIAL_POWERPOINTS,
 		TUTORIAL_ENTERKEY,

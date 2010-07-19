@@ -374,6 +374,9 @@ void CHUD::Think()
 			bShowEnter = false;
 		}
 
+		if (!CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_ENTER))
+			bShowEnter = false;
+
 		m_pPressEnter->SetVisible(bShowEnter);
 
 		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE);

@@ -62,7 +62,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			return;
 		}
 		else
-			GetGame()->GetCamera()->MouseButton(iButton, iState);
+		{
+			// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
+			if (!m_pInstructor->IsFeatureDisabled(DISABLE_ROTATE))
+				GetGame()->GetCamera()->MouseButton(iButton, iState);
+		}
 	}
 
 	if (iState == GLUT_DOWN)
@@ -235,8 +239,11 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (DigitanksGame() && c == 13)
 	{
-		DigitanksGame()->EndTurn();
-		m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER))
+		{
+			DigitanksGame()->EndTurn();
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+		}
 	}
 
 	if (DigitanksGame() && c == 32)

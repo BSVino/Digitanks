@@ -605,7 +605,7 @@ void CDigitanksGame::StartTurn()
 	if (!CNetwork::IsHost())
 		return;
 
-	if (m_iPowerups < 10 && rand()%6 == 0)
+	if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
 	{
 		float flX = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
@@ -924,7 +924,13 @@ void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
 
 void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 {
-	if (iTutorial == CInstructor::TUTORIAL_MOVE)
+	if (iTutorial == CInstructor::TUTORIAL_INTRO)
+	{
+		GetCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
+		GetCamera()->SetDistance(100);
+		GetCamera()->SetAngle(EAngle(45, 0, 0));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_MOVE)
 	{
 		// Make an enemy for us to clobber. Close enough that moving out of the way won't move us out of range
 		CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
