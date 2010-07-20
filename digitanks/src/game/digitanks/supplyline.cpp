@@ -50,6 +50,10 @@ void CSupplyLine::StartTurn()
 		if (pDigitank->GetTeam() == GetTeam())
 			continue;
 
+		// Supplier got blowed up?
+		if (m_hSupplier == NULL)
+			continue;
+
 		if (DistanceToLineSegment(pDigitank->GetOrigin(), m_hSupplier->GetOrigin(), m_hEntity->GetOrigin()) < pDigitank->GetBoundingRadius()*2)
 		{
 			m_bIntercepted = true;
