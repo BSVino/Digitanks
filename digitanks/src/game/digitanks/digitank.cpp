@@ -450,10 +450,10 @@ void CDigitank::StartTurn()
 	m_hSupplier = CSupplier::FindClosestSupplier(this);
 
 	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
-	{
 		m_hSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
+
+	if (m_hSupplyLine != NULL && m_hSupplier != NULL)
 		m_hSupplyLine->SetEntities(m_hSupplier, this);
-	}
 
 	if (m_bFortified)
 	{
