@@ -103,6 +103,8 @@ CDigitank::~CDigitank()
 
 void CDigitank::Precache()
 {
+	BaseClass::Precache();
+
 	PrecacheParticleSystem(L"tank-fire");
 	PrecacheParticleSystem(L"promotion");
 	PrecacheParticleSystem(L"tank-hover");
@@ -984,7 +986,7 @@ void CDigitank::OnCurrentSelection()
 	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
 
 	// So the escape key works.
-	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND)
+	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
 	{
 		if (!HasDesiredMove() && !IsFortified())
 			DigitanksGame()->SetControlMode(MODE_MOVE);

@@ -71,7 +71,7 @@ public:
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
 	class CDigitanksGame*		GetGame() { return m_pDigitanksGame; };
 	class CHUD*					GetHUD() { return m_pHUD; };
-	class CInstructor*			GetInstructor() { return m_pInstructor; };
+	class CInstructor*			GetInstructor();
 	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
 
 	bool						HasCommandLineSwitch(const char* pszSwitch);

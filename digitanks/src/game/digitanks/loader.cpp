@@ -6,6 +6,7 @@
 #include <game/game.h>
 
 #include <ui/digitankswindow.h>
+#include <ui/instructor.h>
 #include <ui/hud.h>
 
 #include "mechinf.h"
@@ -129,6 +130,12 @@ void CLoader::BeginProduction()
 
 	m_iProductionStored = 0;
 	m_bProducing = true;
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PRODUCING_UNITS);
+
+	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	if (iTutorial == CInstructor::TUTORIAL_PRODUCING_UNITS)
+		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 }
 
 void CLoader::CancelProduction()

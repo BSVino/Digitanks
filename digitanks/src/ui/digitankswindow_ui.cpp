@@ -44,9 +44,13 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, "Difficulty");
 	AddControl(m_pDifficultyLabel);
 
-	m_pStartTutorial = new CButton(0, 0, 100, 100, "Start Tutorial");
-	m_pStartTutorial->SetClickedListener(this, StartTutorial);
-	AddControl(m_pStartTutorial);
+	m_pStartTutorialBasics = new CButton(0, 0, 100, 100, "Tutorial - Basics");
+	m_pStartTutorialBasics->SetClickedListener(this, StartTutorialBasics);
+	AddControl(m_pStartTutorialBasics);
+
+	m_pStartTutorialBases = new CButton(0, 0, 100, 100, "Tutorial - Bases");
+	m_pStartTutorialBases->SetClickedListener(this, StartTutorialBases);
+	AddControl(m_pStartTutorialBases);
 
 	m_pStartGame = new CButton(0, 0, 100, 100, "Start Game");
 	m_pStartGame->SetClickedListener(this, StartGame);
@@ -69,14 +73,17 @@ void CDigitanksMenu::Layout()
 
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
+	m_pStartTutorialBasics->SetPos(100, 200);
+	m_pStartTutorialBasics->SetSize(100, 20);
+
+	m_pStartTutorialBases->SetPos(100, 230);
+	m_pStartTutorialBases->SetSize(100, 20);
+
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 240);
+	m_pDifficultyLabel->SetPos(75, 280);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 240);
-
-	m_pStartTutorial->SetPos(100, 300);
-	m_pStartTutorial->SetSize(100, 20);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 280);
 
 	m_pStartGame->SetPos(100, 330);
 	m_pStartGame->SetSize(100, 20);
@@ -118,18 +125,33 @@ void CDigitanksMenu::SetVisible(bool bVisible)
 	BaseClass::SetVisible(bVisible);
 }
 
-void CDigitanksMenu::StartTutorialCallback()
+void CDigitanksMenu::StartTutorialBasicsCallback()
 {
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
-	DigitanksGame()->SetDifficulty(0);
-
 	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
-
-	if (!pInstructor)
-		return;
 
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
+
+	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksGame()->SetDifficulty(0);
+
+	pInstructor->DisplayFirstBasicsTutorial();
+
+	SetVisible(false);
+}
+
+void CDigitanksMenu::StartTutorialBasesCallback()
+{
+	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
+
+	pInstructor->SetActive(true);
+	pInstructor->Initialize();
+
+	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksGame()->SetDifficulty(0);
+
+	pInstructor->DisplayFirstBasesTutorial();
+
 	SetVisible(false);
 }
 

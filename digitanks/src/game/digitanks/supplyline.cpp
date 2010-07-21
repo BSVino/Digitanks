@@ -12,6 +12,22 @@
 
 REGISTER_ENTITY(CSupplyLine);
 
+size_t CSupplyLine::s_iSupplyBeam = 0;
+
+void CSupplyLine::Precache()
+{
+	BaseClass::Precache();
+
+	s_iSupplyBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
+}
+
+void CSupplyLine::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_bIntercepted = false;
+}
+
 void CSupplyLine::SetEntities(CSupplier* pSupplier, CBaseEntity* pEntity)
 {
 	pSupplier->GetTeam()->AddEntity(this);
@@ -88,25 +104,27 @@ void CSupplyLine::PostRender()
 
 	CRenderingContext r(Game()->GetRenderer());
 	Color clrTeam = GetTeam()->GetColor();
-	r.SetColor(clrTeam);
-	r.SetBlend(BLEND_NONE);
+	r.SetBlend(BLEND_ADDITIVE);
 
-	glBegin(GL_LINE_STRIP);
+	CRopeRenderer oRope(Game()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
+	oRope.SetWidth(2);
+	oRope.SetTextureScale(5);
+	oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
 
-	for (size_t i = 0; i < iSegments; i++)
+	for (size_t i = 1; i < iSegments; i++)
 	{
 		if (m_bIntercepted && i%2 == 0)
 			clrTeam.SetAlpha(50);
 		else
 			clrTeam.SetAlpha(255);
 
-		r.SetColor(clrTeam);
+		oRope.SetColor(clrTeam);
 
 		float flCurrentDistance = ((float)i*flDistance)/iSegments;
-		glVertex3fv(DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+		oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 2, 0));
 	}
 
-	glVertex3fv(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
+	oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 2, 0));
 
 	glEnd();
 }

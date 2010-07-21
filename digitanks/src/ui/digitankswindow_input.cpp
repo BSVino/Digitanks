@@ -83,7 +83,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (!DigitanksGame())
 		return;
 
-	if (iState == GLUT_DOWN && (iButton == 2 || iButton == 0))
+	if (iState == GLUT_DOWN && iButton == 2)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
@@ -97,7 +97,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			else
 				DigitanksGame()->NextTank();
 
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENERGY);
 
 			return;	// Don't center camera
 		}
@@ -243,6 +243,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		{
 			DigitanksGame()->EndTurn();
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 		}
 	}
 
@@ -289,9 +290,6 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
-
-	if (c == 't')
-		GetInstructor()->SetActive(true);
 
 	if (c == 'x')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());

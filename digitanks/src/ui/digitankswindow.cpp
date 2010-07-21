@@ -112,7 +112,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		m_pHUD->SetGame(m_pDigitanksGame);
 		glgui::CRootPanel::Get()->AddControl(m_pHUD);
 
-		m_pInstructor = new CInstructor();
+		if (!m_pInstructor)
+			m_pInstructor = new CInstructor();
 	}
 
 	m_pDigitanksGame->RegisterNetworkFunctions();
@@ -258,6 +259,14 @@ void CDigitanksWindow::CloseApplication()
 
 	m_pMenu->SetVisible(false);
 	m_pDonate->ClosingApplication();
+}
+
+CInstructor* CDigitanksWindow::GetInstructor()
+{
+	if (!m_pInstructor)
+		m_pInstructor = new CInstructor();
+
+	return m_pInstructor;
 }
 
 bool CDigitanksWindow::HasCommandLineSwitch(const char* pszSwitch)

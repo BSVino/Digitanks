@@ -76,6 +76,7 @@ class CSupplier : public CStructure
 	REGISTER_ENTITY_CLASS(CSupplier, CStructure);
 
 public:
+	virtual void				Precache();
 	virtual void				Spawn();
 
 	virtual size_t				InitialDataStrength() { return 100; };
@@ -114,10 +115,15 @@ protected:
 	public:
 		float					m_flLength;
 		Vector					m_vecEndPoint;
+		float					m_flScale;
+		float					m_flOffset;
+		float					m_flSpeed;
 	};
 
 	std::vector<CTendril>		m_aTendrils;
 	std::vector<CEntityHandle<CStructure> >	m_ahChildren;
+
+	static size_t				s_iTendrilBeam;
 };
 
 #endif

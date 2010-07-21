@@ -981,7 +981,6 @@ void CHUD::GameStart()
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);
 	CDigitanksWindow::Get()->GetInstructor()->Initialize();
-	CDigitanksWindow::Get()->GetInstructor()->DisplayFirstTutorial();
 }
 
 void CHUD::GameOver(bool bPlayerWon)
@@ -995,7 +994,7 @@ void CHUD::NewCurrentTeam()
 
 	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) &&
 			DigitanksGame()->GetCurrentTank() &&
-			CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND)	// Don't set control mode if it's the end so we can open the menu.
+			CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)	// Don't set control mode if it's the end so we can open the menu.
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);

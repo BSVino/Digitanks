@@ -8,6 +8,9 @@ typedef enum
 {
 	DISABLE_ROTATE = (1<<0),
 	DISABLE_ENTER = (1<<1),
+	DISABLE_BUFFER = (1<<2),
+	DISABLE_PSU = (1<<3),
+	DISABLE_LOADERS = (1<<4),
 } disable_t;
 
 class CTutorial
@@ -54,7 +57,8 @@ public:
 	void							SetActive(bool bActive);
 	bool							GetActive() { return m_bActive; };
 
-	void							DisplayFirstTutorial();
+	void							DisplayFirstBasicsTutorial();
+	void							DisplayFirstBasesTutorial();
 	void							NextTutorial();
 
 	void							DisplayTutorial(size_t iTutorial);
@@ -75,7 +79,7 @@ public:
 	};
 
 	enum {
-		TUTORIAL_INTRO,
+		TUTORIAL_INTRO_BASICS,
 		TUTORIAL_SELECTION,
 		TUTORIAL_MOVECAMERA,
 		TUTORIAL_TURNCAMERA,
@@ -84,14 +88,27 @@ public:
 		TUTORIAL_AIM,
 		TUTORIAL_RANGE,
 		TUTORIAL_BUTTONS,
-		TUTORIAL_POWER,
+		TUTORIAL_ENERGY,
 		TUTORIAL_POWERPOINTS,
 		TUTORIAL_ENTERKEY,
 		TUTORIAL_TURN,
 		TUTORIAL_FINISHHIM,
 		TUTORIAL_UPGRADE,
 		TUTORIAL_POWERUP,
-		TUTORIAL_THEEND,
+		TUTORIAL_THEEND_BASICS,
+
+		TUTORIAL_INTRO_BASES,
+		TUTORIAL_CPU,
+		TUTORIAL_BUFFER,
+		TUTORIAL_POWER,
+		TUTORIAL_NETWORK,
+		TUTORIAL_PSU,
+		TUTORIAL_SUPPLY,
+		TUTORIAL_LOADER,
+		TUTORIAL_EFFICIENCY,
+		TUTORIAL_PRODUCING_UNITS,
+		TUTORIAL_LIMITED_POWER,
+		TUTORIAL_THEEND_BASES,
 	};
 
 protected:

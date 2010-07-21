@@ -17,7 +17,8 @@ public:
 
 	virtual void					SetVisible(bool bVisible);
 
-	EVENT_CALLBACK(CDigitanksMenu, StartTutorial);
+	EVENT_CALLBACK(CDigitanksMenu, StartTutorialBasics);
+	EVENT_CALLBACK(CDigitanksMenu, StartTutorialBases);
 	EVENT_CALLBACK(CDigitanksMenu, StartGame);
 	EVENT_CALLBACK(CDigitanksMenu, Exit);
 
@@ -27,7 +28,8 @@ protected:
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
-	glgui::CButton*					m_pStartTutorial;
+	glgui::CButton*					m_pStartTutorialBasics;
+	glgui::CButton*					m_pStartTutorialBases;
 	glgui::CButton*					m_pStartGame;
 	glgui::CButton*					m_pExit;
 };

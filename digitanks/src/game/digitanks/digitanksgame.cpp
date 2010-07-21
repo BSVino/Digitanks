@@ -10,6 +10,7 @@
 #include <ui/digitankswindow.h>
 #include <ui/menu.h>
 #include <ui/instructor.h>
+#include <ui/hud.h>
 #include "powerup.h"
 #include "terrain.h"
 #include "camera.h"
@@ -266,11 +267,6 @@ void CDigitanksGame::SetupTutorial()
 
 	m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[1]->SetColor(Color(255, 0, 0));
-
-	CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
-	m_ahTeams[0]->AddEntity(pTank);
-
-	pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
 
 	m_ahTeams[0]->SetClient(-1);
 
@@ -924,9 +920,14 @@ void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
 
 void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 {
-	if (iTutorial == CInstructor::TUTORIAL_INTRO)
+	if (iTutorial == CInstructor::TUTORIAL_INTRO_BASICS)
 	{
-		GetCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
+		CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[0]->AddEntity(pTank);
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+
+		GetCamera()->SetTarget(pTank->GetOrigin());
 		GetCamera()->SetDistance(100);
 		GetCamera()->SetAngle(EAngle(45, 0, 0));
 	}
@@ -947,11 +948,35 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 		pPowerup->SetOrigin(GetTerrain()->SetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_THEEND)
+	else if (iTutorial == CInstructor::TUTORIAL_THEEND_BASICS)
 	{
 		// So that pressing the escape key works the first time.
 		SetControlMode(MODE_NONE);
 	}
+	else if (iTutorial == CInstructor::TUTORIAL_INTRO_BASES)
+	{
+		CCPU* pCPU = Game()->Create<CCPU>("CCPU");
+		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+		m_ahTeams[0]->AddEntity(pCPU);
+		pCPU->UpdateTendrils();
+
+		CResource* pResource = Game()->Create<CResource>("CResource");
+		pResource->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 20)));
+
+		GetCamera()->SetTarget(pCPU->GetOrigin());
+		GetCamera()->SetDistance(100);
+		GetCamera()->SetAngle(EAngle(45, 0, 0));
+
+		EndTurn();	// Force structure height and power updates.
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_THEEND_BASES)
+	{
+		// So that pressing the escape key works the first time.
+		SetControlMode(MODE_NONE);
+	}
+
+	// Make sure that features now enabled are turned on.
+	CDigitanksWindow::Get()->GetHUD()->SetupMenu();
 }
 
 bool CDigitanksGame::ShouldRenderFogOfWar()

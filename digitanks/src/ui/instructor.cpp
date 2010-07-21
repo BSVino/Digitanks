@@ -45,16 +45,16 @@ void CInstructor::Initialize()
 
 	Clear();
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INTRO, new CTutorial(this, TUTORIAL_INTRO, POSITION_TOPCENTER, 200, true,
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INTRO_BASICS, new CTutorial(this, TUTORIAL_INTRO_BASICS, POSITION_TOPCENTER, 200, true,
 		L"Welcome to Digitanks!\n \nThis tutorial will help you get accustomed to the game.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 200, true,
 		L"TANK SELECTION\n \nThis is your tank. Select it by clicking on it with the left mouse button.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 200, true,
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 220, true,
 		L"VIEW CONTROLS\n \nFirst, let's take a look around. Left click on open terrain to re-center the view.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURNCAMERA, new CTutorial(this, TUTORIAL_TURNCAMERA, POSITION_TOPCENTER, 200, true,
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURNCAMERA, new CTutorial(this, TUTORIAL_TURNCAMERA, POSITION_TOPCENTER, 210, true,
 		L"VIEW CONTROLS\n \nHold down the left mouse button and drag to rotate the view.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ZOOMCAMERA, new CTutorial(this, TUTORIAL_ZOOMCAMERA, POSITION_TOPCENTER, 200, true,
@@ -72,7 +72,7 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BUTTONS, new CTutorial(this, TUTORIAL_BUTTONS, POSITION_TOPLEFT, 200, true,
 		L"CONTROL BUTTONS\n \nYou can enter move mode and aim mode at any time by using the buttons on the lower right of the screen.\n \nClick here to continue.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_TOPLEFT, 300, true,
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ENERGY, new CTutorial(this, TUTORIAL_ENERGY, POSITION_TOPLEFT, 300, true,
 		L"ENERGIZE YOUR CANNON\n \nNow choose how much Energy you want to use on your attack. Press the 'Set Energy' button and the Energy sliders will appear next to your tank. Move the slider to the desired level and click the left mouse button to select a setting.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERPOINTS, new CTutorial(this, TUTORIAL_POWERPOINTS, POSITION_TOPCENTER, 300, true,
@@ -93,7 +93,43 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERUP, new CTutorial(this, TUTORIAL_POWERUP, POSITION_TOPLEFT, 250, true,
 		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Move your tank on top of the powerup and it will turn green. Keep the tank in this position and you'll be able to use the bonus points next turn. Picking up more powerups can grant you additional bonus points.\n \nPress the 'Enter' key to end your turn and pick up the powerup.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND, new CTutorial(this, TUTORIAL_THEEND, POSITION_TOPCENTER, 250, true,
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASICS, new CTutorial(this, TUTORIAL_THEEND_BASICS, POSITION_TOPCENTER, 250, false,
+		L"END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Bases tutorial. You can also start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INTRO_BASES, new CTutorial(this, TUTORIAL_INTRO_BASES, POSITION_TOPCENTER, 250, true,
+		L"Welcome to Digitanks!\n \nThis tutorial will help you learn how to build bases. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_CPU, new CTutorial(this, TUTORIAL_CPU, POSITION_TOPCENTER, 250, true,
+		L"THE CENTRAL PROCESSING UNIT (CPU)\n \nThis is your CPU. It is your command center. If it is destroyed then you lose the game, so protect it well.\n \nThe CPU is the source of your Network. Your Network is represented by the glowy tendrils that come from your CPU.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BUFFER, new CTutorial(this, TUTORIAL_BUFFER, POSITION_TOPCENTER, 250, false,
+		L"CONSTRUCTING\n \nYou can use your CPU to construct other structures. Construct a Buffer by clicking the 'Build Buffer' button and then right-clicking on open terrain inside your Network.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_TOPCENTER, 250, false,
+		L"POWER\n \nYour buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you are accumulating this turn at the top right of the screen. After enough Power has accumulated, the structure is complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_NETWORK, new CTutorial(this, TUTORIAL_NETWORK, POSITION_TOPCENTER, 250, true,
+		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. Friendly units inside your Network will receive combat bonuses. You can only build more structures inside your Network.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_PSU, new CTutorial(this, TUTORIAL_PSU, POSITION_TOPCENTER, 250, false,
+		L"POWER SUPPLIES\n \nPower Supplies can extract Power from Electronodes. They must be built close to an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU. Press the 'Power Supply' button and right click near the Electronode to build a Power Supply. Then press the 'Enter' key to complete construction.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SUPPLY, new CTutorial(this, TUTORIAL_SUPPLY, POSITION_TOPCENTER, 250, true,
+		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_LOADER, new CTutorial(this, TUTORIAL_LOADER, POSITION_TOPCENTER, 250, false,
+		L"LOADERS\n \nLoaders are specialized structures that produce combat units. Build a Loader by pressing one of the Loader buttons and right clicking on your Network. Then press the 'Enter' key to complete construction.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_EFFICIENCY, new CTutorial(this, TUTORIAL_EFFICIENCY, POSITION_TOPCENTER, 250, true,
+		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer or CPU will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_PRODUCING_UNITS, new CTutorial(this, TUTORIAL_PRODUCING_UNITS, POSITION_TOPCENTER, 250, false,
+		L"PRODUCING UNITS\n \nNow that your Loader has finished constructing, it can start producing units. Select the Loader and click the build button to begin producing a unit.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_LIMITED_POWER, new CTutorial(this, TUTORIAL_LIMITED_POWER, POSITION_TOPCENTER, 250, true,
+		L"LIMITED POWER\n \nSince Power is shared by all structures, building too many structures and units at once can consume too much Power and slow down production. Be sure to pace yourself when issuing commands to construct and produce units.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASES, new CTutorial(this, TUTORIAL_THEEND_BASES, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
 }
 
@@ -103,15 +139,18 @@ void CInstructor::SetActive(bool bActive)
 	if (!bActive)
 		HideTutorial();
 	else
-	{
 		Initialize();
-		DisplayFirstTutorial();
-	}
 }
 
-void CInstructor::DisplayFirstTutorial()
+void CInstructor::DisplayFirstBasicsTutorial()
 {
-	m_iCurrentTutorial = TUTORIAL_INTRO;
+	m_iCurrentTutorial = TUTORIAL_INTRO_BASICS;
+	DisplayTutorial(m_iCurrentTutorial);
+}
+
+void CInstructor::DisplayFirstBasesTutorial()
+{
+	m_iCurrentTutorial = TUTORIAL_INTRO_BASES;
 	DisplayTutorial(m_iCurrentTutorial);
 }
 
@@ -137,7 +176,7 @@ void CInstructor::DisplayTutorial(size_t iTutorial)
 
 	m_iCurrentTutorial = iTutorial;
 
-	if (m_iLastTutorial != m_iCurrentTutorial)
+	if (DigitanksGame() && m_iLastTutorial != m_iCurrentTutorial)
 		DigitanksGame()->OnDisplayTutorial(iTutorial);
 
 	m_iLastTutorial = m_iCurrentTutorial;
@@ -196,6 +235,15 @@ disable_t CInstructor::GetDisabledFeatures()
 
 	if (GetCurrentTutorial() < TUTORIAL_ENTERKEY)
 		iDisabled |= DISABLE_ENTER;
+
+	if (GetCurrentTutorial() < TUTORIAL_BUFFER)
+		iDisabled |= DISABLE_BUFFER;
+
+	if (GetCurrentTutorial() < TUTORIAL_PSU)
+		iDisabled |= DISABLE_PSU;
+
+	if (GetCurrentTutorial() < TUTORIAL_LOADER)
+		iDisabled |= DISABLE_LOADERS;
 
 	return (disable_t)iDisabled;
 }

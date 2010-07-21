@@ -8,6 +8,9 @@
 #include "digitanksgame.h"
 #include "supplyline.h"
 
+#include <ui/digitankswindow.h>
+#include <ui/instructor.h>
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
@@ -63,6 +66,12 @@ void CStructure::BeginConstruction()
 void CStructure::CompleteConstruction()
 {
 	m_bConstructing = false;
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+
+	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	if (iTutorial == CInstructor::TUTORIAL_POWER)
+		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 }
 
 size_t CStructure::GetTurnsToConstruct()
@@ -110,6 +119,15 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 }
 
 REGISTER_ENTITY(CSupplier);
+
+size_t CSupplier::s_iTendrilBeam = 0;
+
+void CSupplier::Precache()
+{
+	BaseClass::Precache();
+
+	s_iTendrilBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
+}
 
 void CSupplier::Spawn()
 {
@@ -241,20 +259,20 @@ void CSupplier::PostRender()
 		Color clrTeam = GetTeam()->GetColor();
 		clrTeam.SetAlpha(100);
 		r.SetAlpha(GetVisibility());
-		r.SetColor(clrTeam);
 		r.SetBlend(BLEND_ADDITIVE);
 
-		glBegin(GL_LINE_STRIP);
+		CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+		oRope.SetColor(clrTeam);
+		oRope.SetTextureScale(pTendril->m_flScale);
+		oRope.SetTextureOffset(pTendril->m_flOffset - fmod(Game()->GetGameTime()*pTendril->m_flSpeed, 1));
 
-		for (size_t i = 0; i < iSegments; i++)
+		for (size_t i = 1; i < iSegments; i++)
 		{
 			float flCurrentDistance = ((float)i*flDistance)/iSegments;
-			glVertex3fv(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
 		}
 
-		glVertex3fv(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
-
-		glEnd();
+		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
 	}
 }
 
@@ -270,6 +288,9 @@ void CSupplier::UpdateTendrils()
 		CTendril* pTendril = &m_aTendrils[m_aTendrils.size()-1];
 		pTendril->m_flLength = (float)m_aTendrils.size() + GetBoundingRadius();
 		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, (float)(rand()%3600)/10, 0)) * pTendril->m_flLength);
+		pTendril->m_flScale = RemapVal((float)(rand()%100), 0, 100, 3, 7);
+		pTendril->m_flOffset = RemapVal((float)(rand()%100), 0, 100, 0, 1);
+		pTendril->m_flSpeed = RemapVal((float)(rand()%100), 0, 100, 0.5f, 2);
 	}
 }
 
