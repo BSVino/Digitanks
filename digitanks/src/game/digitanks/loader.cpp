@@ -24,6 +24,15 @@ size_t g_aiTurnsToLoad[] = {
 	60, // BUILDUNIT_ARTILLERY,
 };
 
+void CLoader::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/loader-infantry.obj", false);
+	PrecacheModel(L"models/structures/loader-main.obj", false);
+	PrecacheModel(L"models/structures/loader-artillery.obj", false);
+}
+
 void CLoader::Spawn()
 {
 	BaseClass::Spawn();
@@ -153,12 +162,24 @@ size_t CLoader::GetTurnsToProduce()
 	return (size_t)((g_aiTurnsToLoad[GetBuildUnit()]-m_iProductionStored)/iPerTurn)+1;
 }
 
-void CLoader::OnRender()
+void CLoader::SetBuildUnit(buildunit_t eBuildUnit)
 {
-	if (GetVisibility() == 0)
-		return;
+	m_eBuildUnit = eBuildUnit;
 
-	glutSolidCube(6);
+	switch (m_eBuildUnit)
+	{
+	case BUILDUNIT_INFANTRY:
+		SetModel(L"models/structures/loader-infantry.obj");
+		break;
+
+	case BUILDUNIT_TANK:
+		SetModel(L"models/structures/loader-main.obj");
+		break;
+
+	case BUILDUNIT_ARTILLERY:
+		SetModel(L"models/structures/loader-artillery.obj");
+		break;
+	}
 }
 
 void CLoader::UpdateInfo(std::string& sInfo)

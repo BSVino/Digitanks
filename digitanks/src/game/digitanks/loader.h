@@ -15,13 +15,12 @@ class CLoader : public CStructure
 	REGISTER_ENTITY_CLASS(CLoader, CStructure);
 
 public:
+	virtual void				Precache();
 	virtual void				Spawn();
 
 	virtual void				StartTurn();
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
-
-	virtual void				OnRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
 
@@ -32,7 +31,7 @@ public:
 
 	size_t						GetTurnsToProduce();
 
-	void						SetBuildUnit(buildunit_t eBuildUnit) { m_eBuildUnit = eBuildUnit; };
+	void						SetBuildUnit(buildunit_t eBuildUnit);
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
 
 	virtual const char*			GetName();
