@@ -159,6 +159,11 @@ bool CCPU::IsPreviewBuildValid() const
 			return false;
 	}
 
+	// Don't allow construction too close to other structures.
+	CStructure* pClosestStructure = CBaseEntity::FindClosest<CStructure>(GetPreviewBuild());
+	if ((pClosestStructure->GetOrigin() - GetPreviewBuild()).Length() < pClosestStructure->GetBoundingRadius()+5)
+		return false;
+
 	if (!pSupplier)
 		return false;
 
@@ -319,14 +324,16 @@ void CCPU::PostRender()
 
 	if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 	{
+		CRenderingContext r(Game()->GetRenderer());
+		r.Translate(GetPreviewBuild() + Vector(0, 1, 0));
+		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
+
 		if (IsPreviewBuildValid())
-		{
-			CRenderingContext r(Game()->GetRenderer());
-			r.Translate(GetPreviewBuild() + Vector(0, 1, 0));
-			r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 			r.SetColor(Color(255, 255, 255));
-			glutSolidCube(4);
-		}
+		else
+			r.SetColor(Color(255, 0, 0));
+
+		glutSolidCube(4);
 	}
 }
 

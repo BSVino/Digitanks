@@ -35,6 +35,9 @@ public:
 	static void				StopSound(CBaseEntity* pEntity = NULL, const char* pszFilename = NULL);
 	static bool				IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename);
 
+	static void				PlayMusic(const char* pszFilename);
+	static void				StopMusic();
+
 	static void				SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume);
 
 	static void				ChannelFinished(int iChannel);

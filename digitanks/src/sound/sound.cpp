@@ -152,6 +152,28 @@ bool CSoundLibrary::IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename
 	return true;
 }
 
+Mix_Music *g_pMusic = NULL;
+void CSoundLibrary::PlayMusic(const char* pszFilename)
+{
+	if (g_pMusic)
+		StopMusic();
+
+	g_pMusic = Mix_LoadMUS(pszFilename);
+
+	Mix_PlayMusic(g_pMusic, 0);
+}
+
+void CSoundLibrary::StopMusic()
+{
+	if (!g_pMusic)
+		return;
+
+	Mix_HaltMusic();
+	Mix_FreeMusic(g_pMusic);	// Because music wants to be free!
+
+	g_pMusic = NULL;
+}
+
 void CSoundLibrary::SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume)
 {
 	if (Get()->m_aiActiveSounds.find(pEntity) == Get()->m_aiActiveSounds.end())

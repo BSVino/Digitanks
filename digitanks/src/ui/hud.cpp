@@ -96,40 +96,43 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
+	m_pButtonPanel = new CMouseCapturePanel();
+	AddControl(m_pButtonPanel);
+
 	// TODO: Remove entirely if not needed
 /*	m_pAutoButton = new CButton(0, 0, 0, 0, "Auto");
 	m_pAutoButton->SetClickedListener(this, Auto);
 	AddControl(m_pAutoButton);*/
 
 	m_pButton1 = new CPictureButton("");
-	AddControl(m_pButton1);
+	m_pButtonPanel->AddControl(m_pButton1);
 
 	m_pButton2 = new CPictureButton("");
-	AddControl(m_pButton2);
+	m_pButtonPanel->AddControl(m_pButton2);
 
 	m_pButton3 = new CPictureButton("");
-	AddControl(m_pButton3);
+	m_pButtonPanel->AddControl(m_pButton3);
 
 	m_pButton4 = new CPictureButton("");
-	AddControl(m_pButton4);
+	m_pButtonPanel->AddControl(m_pButton4);
 
 	m_pButton5 = new CPictureButton("");
-	AddControl(m_pButton5);
+	m_pButtonPanel->AddControl(m_pButton5);
 
 	m_pButtonHelp1 = new CLabel(0, 0, 50, 50, "");
-	AddControl(m_pButtonHelp1);
+	m_pButtonPanel->AddControl(m_pButtonHelp1);
 
 	m_pButtonHelp2 = new CLabel(0, 0, 50, 50, "");
-	AddControl(m_pButtonHelp2);
+	m_pButtonPanel->AddControl(m_pButtonHelp2);
 
 	m_pButtonHelp3 = new CLabel(0, 0, 50, 50, "");
-	AddControl(m_pButtonHelp3);
+	m_pButtonPanel->AddControl(m_pButtonHelp3);
 
 	m_pButtonHelp4 = new CLabel(0, 0, 50, 50, "");
-	AddControl(m_pButtonHelp4);
+	m_pButtonPanel->AddControl(m_pButtonHelp4);
 
 	m_pButtonHelp5 = new CLabel(0, 0, 50, 50, "");
-	AddControl(m_pButtonHelp5);
+	m_pButtonPanel->AddControl(m_pButtonHelp5);
 
 	m_pFireAttack = new CLabel(0, 0, 50, 50, "");
 	m_pFireDefend = new CLabel(0, 0, 50, 50, "");
@@ -215,6 +218,10 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
+	m_pButtonPanel->SetPos(iWidth/2 - 1024/2 + 680, iHeight - 140);
+	m_pButtonPanel->SetRight(iWidth/2 - 1024/2 + 1010);
+	m_pButtonPanel->SetBottom(iHeight - 10);
+
 	m_pButton1->SetSize(50, 50);
 	m_pButton2->SetSize(50, 50);
 	m_pButton3->SetSize(50, 50);
@@ -224,17 +231,17 @@ void CHUD::Layout()
 //	m_pAutoButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 135);
 //	m_pAutoButton->SetSize(50, 20);
 
-	m_pButton1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 100);
-	m_pButton2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 100);
-	m_pButton3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 100);
-	m_pButton4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 100);
-	m_pButton5->SetPos(iWidth/2 - 1024/2 + 940, iHeight - 100);
+	m_pButton1->SetPos(20, 20);
+	m_pButton2->SetPos(80, 20);
+	m_pButton3->SetPos(140, 20);
+	m_pButton4->SetPos(200, 20);
+	m_pButton5->SetPos(260, 20);
 
-	m_pButtonHelp1->SetPos(iWidth/2 - 1024/2 + 700, iHeight - 50);
-	m_pButtonHelp2->SetPos(iWidth/2 - 1024/2 + 760, iHeight - 50);
-	m_pButtonHelp3->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 50);
-	m_pButtonHelp4->SetPos(iWidth/2 - 1024/2 + 880, iHeight - 50);
-	m_pButtonHelp5->SetPos(iWidth/2 - 1024/2 + 940, iHeight - 50);
+	m_pButtonHelp1->SetPos(20, 70);
+	m_pButtonHelp2->SetPos(80, 70);
+	m_pButtonHelp3->SetPos(140, 70);
+	m_pButtonHelp4->SetPos(200, 70);
+	m_pButtonHelp5->SetPos(260, 70);
 	m_pButtonHelp1->SetWrap(false);
 	m_pButtonHelp2->SetWrap(false);
 	m_pButtonHelp3->SetWrap(false);
@@ -423,6 +430,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	// Turn info panel
 	CRootPanel::PaintRect(10, iHeight/2 - 110, 270, 170, Color(0, 0, 0, 100));
+
+	CRootPanel::PaintRect(m_pButtonPanel->GetLeft(), m_pButtonPanel->GetTop(), m_pButtonPanel->GetWidth(), m_pButtonPanel->GetHeight(), Color(0, 0, 0, 100));
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{

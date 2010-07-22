@@ -229,7 +229,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		return;
 	}
 
-	CDigitank* pTarget = NULL;
+	CDigitanksEntity* pTarget = NULL;
 
 	// Find the nearest enemy to the head tank, he's our target.
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -239,23 +239,30 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			continue;
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
-		if (!pTank)
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		if (!pTank && !pStructure)
 			continue;
 
-		if (pTank->GetTeam() == pHeadTank->GetTeam())
+		if (pEntity->GetTeam() == pHeadTank->GetTeam())
 			continue;
 
-		if (GetEntityVisibility(pTank->GetHandle()) == 0)
+		// Don't fire on neutral structures.
+		if (pEntity->GetTeam() == NULL)
 			continue;
+
+		if (GetEntityVisibility(pEntity->GetHandle()) == 0)
+			continue;
+
+		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
 
 		if (!pTarget)
 		{
-			pTarget = pTank;
+			pTarget = pDTEntity;
 			continue;
 		}
 
-		if ((pHeadTank->GetOrigin() - pTank->GetOrigin()).Length2DSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).Length2DSqr())
-			pTarget = pTank;
+		if ((pHeadTank->GetOrigin() - pDTEntity->GetOrigin()).Length2DSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).Length2DSqr())
+			pTarget = pDTEntity;
 	}
 
 	Vector vecTargetOrigin;
@@ -383,7 +390,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 		}
 
-		if (pTarget && pTarget->IsFortified())
+		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
+
+		if (pTankTarget && pTankTarget->IsFortified() && !pTankTarget->IsArtillery())
 			pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetBaseMovementPower())*3/4);
 		else
 			pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetBaseMovementPower())/2);

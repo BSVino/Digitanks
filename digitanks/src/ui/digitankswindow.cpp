@@ -9,6 +9,7 @@
 #include <vector.h>
 
 #include <network/network.h>
+#include <sound/sound.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
@@ -90,6 +91,9 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
 
 	CNetwork::Initialize();
+
+	if (!HasCommandLineSwitch("--nomusic"))
+		CSoundLibrary::PlayMusic("sound/digitanks-march.ogg");
 }
 
 CDigitanksWindow::~CDigitanksWindow()
@@ -103,6 +107,8 @@ CDigitanksWindow::~CDigitanksWindow()
 
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
+	CSoundLibrary::StopMusic();
+
 	if (!m_pDigitanksGame)
 	{
 		m_pDigitanksGame = new CDigitanksGame();

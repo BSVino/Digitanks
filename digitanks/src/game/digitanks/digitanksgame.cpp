@@ -455,6 +455,24 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		if (!pCurrentTank->HasDesiredMove())
 			pCurrentTank->SetGoalMovePosition(pCurrentTank->GetPreviewMove());
 	}
+
+	if (pCurrentTank->HasDesiredMove())
+	{
+		GetGame()->GetCamera()->SetTarget(pCurrentTank->GetPreviewMove());
+
+		if (bAllTanks || !CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
+		{
+			if (GetCurrentTank()->CanAim())
+				SetControlMode(MODE_AIM);
+			else
+				SetControlMode(MODE_NONE);
+		}
+
+		if (CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
+			NextTank();
+
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+	}
 }
 
 void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
@@ -494,6 +512,13 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 	}
 	else
 		pCurrentTank->SetDesiredTurn();
+
+	if (bAllTanks || !CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
+		SetControlMode(MODE_NONE);
+	else
+		NextTank();
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 }
 
 void CDigitanksGame::SetDesiredAim(bool bAllTanks)
@@ -527,6 +552,15 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 	}
 	else
 		pCurrentTank->SetDesiredAim();
+
+	if (bAllTanks)
+		SetControlMode(MODE_FIRE);
+	else if (!CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
+		SetControlMode(MODE_NONE);
+	else
+		NextTank();
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 }
 
 void CDigitanksGame::NextTank()

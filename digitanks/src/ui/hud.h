@@ -94,6 +94,15 @@ protected:
 	size_t						m_iBubble;
 };
 
+class CMouseCapturePanel : public glgui::CPanel
+{
+public:
+	CMouseCapturePanel() : CPanel(0, 0, 0, 0) {};
+
+	virtual bool			MousePressed(int code, int mx, int my) { return true; }
+	virtual bool			MouseReleased(int code, int mx, int my) { return true; }
+};
+
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
@@ -190,6 +199,8 @@ protected:
 	CPowerBar*					m_pMovementPower;
 
 	menumode_t					m_eMenuMode;
+
+	CMouseCapturePanel*			m_pButtonPanel;
 
 	glgui::CButton*				m_pAutoButton;
 

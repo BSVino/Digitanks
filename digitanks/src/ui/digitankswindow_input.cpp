@@ -177,51 +177,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (iState == GLUT_DOWN && iButton == 2)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-		{
 			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
-
-			if (DigitanksGame()->GetCurrentTank()->HasDesiredMove())
-			{
-				GetGame()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetPreviewMove());
-
-				if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-				{
-					if (DigitanksGame()->GetCurrentTank()->CanAim())
-						DigitanksGame()->SetControlMode(MODE_AIM);
-					else
-						DigitanksGame()->SetControlMode(MODE_NONE);
-				}
-
-				if (m_pHUD->ShouldAutoProceed())
-					DigitanksGame()->NextTank();
-
-				m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
-			}
-		}
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-		{
 			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
-
-			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT || !m_pHUD->ShouldAutoProceed())
-				DigitanksGame()->SetControlMode(MODE_NONE);
-			else
-				DigitanksGame()->NextTank();
-
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_TURN);
-		}
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-		{
 			DigitanksGame()->SetDesiredAim(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
-
-			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
-				DigitanksGame()->SetControlMode(MODE_FIRE);
-			else if (!m_pHUD->ShouldAutoProceed())
-				DigitanksGame()->SetControlMode(MODE_NONE);
-			else
-				DigitanksGame()->NextTank();
-
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_AIM);
-		}
 	}
 
 	GetHUD()->SetupMenu();
@@ -239,7 +199,16 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (DigitanksGame() && c == 13)
 	{
-		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER))
+		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+			DigitanksGame()->SetDesiredMove();
+		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
+			DigitanksGame()->SetDesiredTurn();
+		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
+			DigitanksGame()->SetDesiredAim();
+		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+			DigitanksGame()->SetControlMode(MODE_NONE);
+
+		else if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER))
 		{
 			DigitanksGame()->EndTurn();
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
