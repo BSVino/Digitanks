@@ -35,6 +35,7 @@ public:
 
 	virtual void				StartTurn();
 
+	virtual void				OnRender();
 	virtual void				PostRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
@@ -46,6 +47,10 @@ protected:
 
 	structure_t					m_ePreviewStructure;
 	CEntityHandle<CStructure>	m_hConstructing;
+
+	size_t						m_iFanModel;
+	float						m_flFanRotationSpeed;
+	float						m_flFanRotation;
 };
 
 #endif

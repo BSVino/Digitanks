@@ -236,7 +236,8 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 		bool bTexture = false;
 		if (pMaterial)
 		{
-			vecDiffuse = pMaterial->m_vecDiffuse;
+			//vecDiffuse = pMaterial->m_vecDiffuse;
+			vecDiffuse = Vector(1, 1, 1);
 			GLuint iTexture = (GLuint)pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial];
 			glBindTexture(GL_TEXTURE_2D, iTexture);
 

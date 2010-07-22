@@ -9,6 +9,7 @@
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
 #include <ui/hud.h>
+#include <models/models.h>
 
 #include "buffer.h"
 #include "collector.h"
@@ -21,6 +22,10 @@ void CCPU::Spawn()
 	BaseClass::Spawn();
 
 	SetModel(L"models/structures/cpu.obj");
+	m_iFanModel = CModelLibrary::Get()->FindModel(L"models/structures/cpu-fan.obj");
+
+	m_flFanRotationSpeed = 0;
+	m_flFanRotation = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
 }
 
 void CCPU::Precache()
@@ -28,6 +33,7 @@ void CCPU::Precache()
 	BaseClass::Precache();
 
 	PrecacheModel(L"models/structures/cpu.obj", false);
+	PrecacheModel(L"models/structures/cpu-fan.obj", false);
 }
 
 void CCPU::SetupMenu(menumode_t eMenuMode)
@@ -279,6 +285,32 @@ void CCPU::StartTurn()
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
+}
+
+void CCPU::OnRender()
+{
+	if (m_iFanModel == ~0)
+		return;
+
+	if (GetVisibility() == 0)
+		return;
+
+	CRenderingContext r(Game()->GetRenderer());
+	r.SetColorSwap(GetTeam()->GetColor());
+
+	r.SetAlpha(GetVisibility());
+	if (r.GetAlpha() < 1)
+		r.SetBlend(BLEND_ALPHA);
+
+	float flSlowSpeed = 50.0f;
+	float flFastSpeed = 200.0f;
+
+	m_flFanRotationSpeed = Approach(HasConstruction()?flFastSpeed:flSlowSpeed, m_flFanRotationSpeed, Game()->GetFrameTime()*(flFastSpeed-flSlowSpeed));
+	m_flFanRotation += RemapVal(Game()->GetFrameTime(), 0, 1, 0, m_flFanRotationSpeed);
+
+	r.Rotate(m_flFanRotation, Vector(0, 1, 0));
+
+	r.RenderModel(m_iFanModel);
 }
 
 void CCPU::PostRender()
