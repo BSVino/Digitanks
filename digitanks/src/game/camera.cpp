@@ -1,6 +1,7 @@
 #include "camera.h"
 
 #include <maths.h>
+#include <mtrand.h>
 #include <renderer/renderer.h>
 
 #include "digitanks/digitanksgame.h"
@@ -129,8 +130,8 @@ void CCamera::Think()
 		Vector vecRight, vecUp;
 		Game()->GetRenderer()->GetCameraVectors(NULL, &vecRight, &vecUp);
 
-		float flX = RemapVal((float)(rand()%1000), 0, 1000, -m_flShakeMagnitude, m_flShakeMagnitude);
-		float flY = RemapVal((float)(rand()%1000), 0, 1000, -m_flShakeMagnitude, m_flShakeMagnitude);
+		float flX = RandomFloat(-m_flShakeMagnitude, m_flShakeMagnitude);
+		float flY = RandomFloat(-m_flShakeMagnitude, m_flShakeMagnitude);
 		m_vecShake = vecRight * flX + vecUp * flY;
 
 		float flDistance = (m_vecTarget-m_vecShakeLocation).Length();

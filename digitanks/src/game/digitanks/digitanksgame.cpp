@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <maths.h>
+#include <mtrand.h>
 #include <models/models.h>
 #include <sound/sound.h>
 #include <renderer/particles.h>
@@ -133,8 +134,8 @@ void CDigitanksGame::ScatterResources()
 			if (rand()%2 == 0)
 				continue;
 
-			float x = RemapVal((float)(rand()%1000), 0, 1000, (float)i, (float)i+50);
-			float z = RemapVal((float)(rand()%1000), 0, 1000, (float)j, (float)j+50);
+			float x = RandomFloat((float)i, (float)i+50);
+			float z = RandomFloat((float)j, (float)j+50);
 
 			if (x < -m_hTerrain->GetMapSize()+10 || z < -m_hTerrain->GetMapSize()+10)
 				continue;
@@ -204,7 +205,7 @@ void CDigitanksGame::SetupStandard()
 		}
 
 		CResource* pResource = Game()->Create<CResource>("CResource");
-		float y = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+		float y = RandomFloat(0, 360);
 		pResource->SetOrigin(m_hTerrain->SetPointHeight(pCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
 		pResource->SetProduction(4);
 
@@ -637,8 +638,8 @@ void CDigitanksGame::StartTurn()
 
 	if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
 	{
-		float flX = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
-		float flZ = RemapVal((float)(rand()%1000), 0, 1000, -GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
+		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
+		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 
 		CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 		pPowerup->SetOrigin(Vector(flX, m_hTerrain->GetHeight(flX, flZ), flZ));

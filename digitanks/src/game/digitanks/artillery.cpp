@@ -1,6 +1,7 @@
 #include "artillery.h"
 
 #include <maths.h>
+#include <mtrand.h>
 
 #include <network/network.h>
 
@@ -62,7 +63,7 @@ void CArtillery::Fire()
 	for (size_t i = 0; i < m_iFireProjectiles; i++)
 		DigitanksGame()->AddProjectileToWaitFor();
 
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 CProjectile* CArtillery::CreateProjectile()

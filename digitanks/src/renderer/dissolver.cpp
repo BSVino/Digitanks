@@ -1,6 +1,8 @@
 #include "dissolver.h"
 
 #include <maths.h>
+#include <mtrand.h>
+
 #include <game/baseentity.h>
 #include <models/models.h>
 #include <shaders/shaders.h>
@@ -122,9 +124,9 @@ void CModelDissolver::AddTriangle(CConversionMeshInstance* pMeshInstance, CConve
 	Vector vecVelocity = vecAverage - pMeshInstance->m_pScene->m_oExtends.Center();
 	pNewTri->m_mVelocity.SetTranslation(vecVelocity);
 	pNewTri->m_mVelocity.SetRotation(EAngle(
-		RemapVal((float)(rand()%10000), 0, 10000, -90, 90),
-		RemapVal((float)(rand()%10000), 0, 10000, -180, 180),
-		RemapVal((float)(rand()%10000), 0, 10000, -90, 90)
+		RandomFloat(-90, 90),
+		RandomFloat(-180, 180),
+		RandomFloat(-90, 90)
 		));
 }
 

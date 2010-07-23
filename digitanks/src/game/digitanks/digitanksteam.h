@@ -59,6 +59,10 @@ protected:
 	CEntityHandle<CCPU>			m_hPrimaryCPU;
 	size_t						m_iBuildPosition;
 	std::vector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
+	Vector						m_vecExplore;
+
+	bool						m_bLKV;
+	Vector						m_vecLKV;
 };
 
 #endif

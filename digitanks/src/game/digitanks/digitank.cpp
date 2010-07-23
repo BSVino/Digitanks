@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <maths.h>
+#include <mtrand.h>
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
@@ -478,7 +479,7 @@ void CDigitank::StartTurn()
 	m_bSelectedMove = false;
 	m_bChoseFirepower = false;
 
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	if (HasGoalMovePosition())
 		MoveTowardsGoalMovePosition();
@@ -576,7 +577,7 @@ void CDigitank::SetDesiredMove()
 		return;
 
 	Speak(TANKSPEECH_MOVED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(-1, "SetDesiredMove", GetHandle(), m_vecPreviewMove.x, m_vecPreviewMove.y, m_vecPreviewMove.z);
@@ -769,7 +770,7 @@ void CDigitank::SetDesiredAim()
 		return;
 
 	Speak(TANKSPEECH_ATTACK);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(-1, "SetDesiredAim", GetHandle(), m_vecPreviewAim.x, m_vecPreviewAim.y, m_vecPreviewAim.z);
@@ -968,7 +969,7 @@ void CDigitank::Think()
 		if (DigitanksGame()->GetCurrentTeam() == GetTeam() && rand()%2 == 0 || rand()%4 == 0)
 			Speak(TANKSPEECH_IDLE);
 
-		m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 	}
 }
 
@@ -983,7 +984,7 @@ void CDigitank::OnCurrentSelection()
 	}
 
 	Speak(TANKSPEECH_SELECTED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	// So the escape key works.
 	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
@@ -1234,7 +1235,7 @@ void CDigitank::Move()
 		}
 	}
 
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::Fire()
@@ -1252,9 +1253,9 @@ void CDigitank::Fire()
 	DigitanksGame()->AddProjectileToWaitFor();
 
 	if (CNetwork::IsHost())
-		m_flFireProjectileTime = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 0, 1);
+		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
 
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::FireProjectile()
@@ -1276,11 +1277,11 @@ void CDigitank::FireProjectile()
 	if (flDistance > GetEffRange())
 		float flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, TANK_MAX_RANGE_RADIUS);
 
-	float x = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
-	float z = RemapVal((float)(rand()%1000), 0, 1000, -flFactor, flFactor);
+	float x = RandomFloat(-flFactor, flFactor);
+	float z = RandomFloat(-flFactor, flFactor);
 	vecLandingSpot += Vector(x, 0, z);
 
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	m_hProjectile = CreateProjectile();
 
@@ -1320,7 +1321,7 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	if (iFire != ~0)
 		CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 CProjectile* CDigitank::CreateProjectile()
@@ -1369,7 +1370,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	}
 
 	Speak(TANKSPEECH_DAMAGED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
@@ -1438,7 +1439,7 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 	{
 		pKiller->GiveBonusPoints(1);
 		pKiller->Speak(TANKSPEECH_KILL);
-		pKiller->m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+		pKiller->m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 	}
 
 	if (m_hSupplyLine != NULL)
@@ -1761,7 +1762,7 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
 	Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::PromoteAttack()
@@ -1782,7 +1783,7 @@ void CDigitank::PromoteAttack()
 
 	if (GetTeam()->IsPlayerControlled())
 		Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::PromoteDefense()
@@ -1802,7 +1803,7 @@ void CDigitank::PromoteDefense()
 	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
 	Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::PromoteMovement()
@@ -1822,7 +1823,7 @@ void CDigitank::PromoteMovement()
 	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
 	Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::SetBonusPoints(class CNetworkParameters* p)
@@ -1880,7 +1881,7 @@ void CDigitank::Speak(size_t iSpeech)
 	size_t iLine = g_aiSpeechLines[iSpeech][rand()%g_aiSpeechLines[iSpeech].size()];
 
 	m_flLastSpeech = Game()->GetGameTime();
-	m_flNextIdle = Game()->GetGameTime() + RemapVal((float)(rand()%100), 0, 100, 10, 20);
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	CNetwork::CallFunction(-1, "TankSpeak", GetHandle(), iLine);
 

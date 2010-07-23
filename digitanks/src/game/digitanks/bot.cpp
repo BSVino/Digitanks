@@ -1,6 +1,7 @@
 #include "digitanksteam.h"
 
 #include <maths.h>
+#include <mtrand.h>
 
 #include "digitanksgame.h"
 #include "resource.h"
@@ -119,11 +120,11 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 	float flYaw;
 	if (pUnused == m_hPrimaryCPU)
-		flYaw = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+		flYaw = RandomFloat(0, 360);
 	else
 	{
 		flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
-		flYaw = RemapVal((float)(rand()%1000), 0, 1000, flYaw-90, flYaw+90);
+		flYaw = RandomFloat(flYaw-90, flYaw+90);
 	}
 
 	// Pick a random direction facing more or less away from the CPU so that we spread outwards.
@@ -267,9 +268,51 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 	Vector vecTargetOrigin;
 	if (pTarget)
+	{
 		vecTargetOrigin = pTarget->GetOrigin();
+		m_bLKV = true;
+		m_vecLKV = vecTargetOrigin;
+	}
+	else if (m_bLKV)
+	{
+		bool bCloseToLKV = false;
+		for (size_t i = 0; i < GetNumTanks(); i++)
+		{
+			if ((GetTank(i)->GetOrigin() - m_vecLKV).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
+			{
+				bCloseToLKV = true;
+				break;
+			}
+		}
+
+		// Close to the LKV? Lose it, fall back to explore mode.
+		if (bCloseToLKV)
+			m_bLKV = false;
+
+		vecTargetOrigin = m_vecLKV;
+	}
 	else
-		vecTargetOrigin = DigitanksGame()->GetDigitanksTeam(0)->GetMember(0)->GetOrigin();	// Should be the CPU
+	{
+		bool bCloseToExplorePoint = false;
+		for (size_t i = 0; i < GetNumTanks(); i++)
+		{
+			if ((GetTank(i)->GetOrigin() - m_vecExplore).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
+			{
+				bCloseToExplorePoint = true;
+				break;
+			}
+		}
+
+		if (m_vecExplore.Length() < 1 || bCloseToExplorePoint)
+		{
+			float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
+			m_vecExplore.x = RandomFloat(-flMapSize, flMapSize);
+			m_vecExplore.z = RandomFloat(-flMapSize, flMapSize);
+			DigitanksGame()->GetTerrain()->SetPointHeight(m_vecExplore);
+		}
+
+		vecTargetOrigin = m_vecExplore;
+	}
 
 	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
@@ -383,7 +426,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 
 			// If we are within the max range, try to fire.
-			if ((vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			if (pTarget && (vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->SetDesiredAim();

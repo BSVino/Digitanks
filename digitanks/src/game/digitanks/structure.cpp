@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include <maths.h>
+#include <mtrand.h>
 
 #include <renderer/renderer.h>
 #include "digitanksgame.h"
@@ -287,10 +288,10 @@ void CSupplier::UpdateTendrils()
 		m_aTendrils.push_back(CTendril());
 		CTendril* pTendril = &m_aTendrils[m_aTendrils.size()-1];
 		pTendril->m_flLength = (float)m_aTendrils.size() + GetBoundingRadius();
-		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, (float)(rand()%3600)/10, 0)) * pTendril->m_flLength);
-		pTendril->m_flScale = RemapVal((float)(rand()%100), 0, 100, 3, 7);
-		pTendril->m_flOffset = RemapVal((float)(rand()%100), 0, 100, 0, 1);
-		pTendril->m_flSpeed = RemapVal((float)(rand()%100), 0, 100, 0.5f, 2);
+		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, RandomFloat(0, 360), 0)) * pTendril->m_flLength);
+		pTendril->m_flScale = RandomFloat(3, 7);
+		pTendril->m_flOffset = RandomFloat(0, 1);
+		pTendril->m_flSpeed = RandomFloat(0.5f, 2);
 	}
 }
 

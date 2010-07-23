@@ -144,6 +144,8 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar();
 
+	gametype_t				GetGameType() { return m_eGameType; }
+
 	// CHEAT!
 	void					CompleteProductions();
 

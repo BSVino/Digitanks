@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include <mtrand.h>
+
 #include <renderer/renderer.h>
 #include <game/game.h>
 
@@ -57,7 +59,7 @@ void CLoader::StartTurn()
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				pTank = Game()->Create<CArtillery>("CArtillery");
 			
-			float y = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+			float y = RandomFloat(0, 360);
 			pTank->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, y, 0)) * 10));
 
 			GetTeam()->AddEntity(pTank);

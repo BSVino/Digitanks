@@ -3,6 +3,8 @@
 #include <sstream>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+
+#include <mtrand.h>
 #include <renderer/renderer.h>
 
 #include <game/team.h>
@@ -25,7 +27,7 @@ void CCPU::Spawn()
 	m_iFanModel = CModelLibrary::Get()->FindModel(L"models/structures/cpu-fan.obj");
 
 	m_flFanRotationSpeed = 0;
-	m_flFanRotation = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+	m_flFanRotation = RandomFloat(0, 360);
 }
 
 void CCPU::Precache()

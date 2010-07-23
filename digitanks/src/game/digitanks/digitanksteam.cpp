@@ -13,6 +13,8 @@ REGISTER_ENTITY(CDigitanksTeam);
 CDigitanksTeam::CDigitanksTeam()
 {
 	m_iBuildPosition = 0;
+
+	m_bLKV = false;
 }
 
 CDigitanksTeam::~CDigitanksTeam()

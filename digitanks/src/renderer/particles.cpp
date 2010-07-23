@@ -1,6 +1,7 @@
 #include "particles.h"
 
 #include <maths.h>
+#include <mtrand.h>
 #include <game/game.h>
 #include <shaders/shaders.h>
 
@@ -198,7 +199,7 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 
 	m_iNumParticlesAlive = 0;
 
-	m_flLastEmission = Game()->GetGameTime() - RemapVal((float)(rand()%100), 0, 100, 0, m_pSystem->GetEmissionRate());
+	m_flLastEmission = Game()->GetGameTime() - RandomFloat(0, m_pSystem->GetEmissionRate());
 	m_iTotalEmitted = 0;
 
 	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();
@@ -297,16 +298,18 @@ void CSystemInstance::SpawnParticle()
 
 	if (m_pSystem->GetRandomVelocity().Size().LengthSqr() > 0)
 	{
-		pNewParticle->m_vecVelocity.x += RemapVal((float)(rand()%1000), 0, 1000, m_pSystem->GetRandomVelocity().m_vecMins.x, m_pSystem->GetRandomVelocity().m_vecMaxs.x);
-		pNewParticle->m_vecVelocity.y += RemapVal((float)(rand()%1000), 0, 1000, m_pSystem->GetRandomVelocity().m_vecMins.y, m_pSystem->GetRandomVelocity().m_vecMaxs.y);
-		pNewParticle->m_vecVelocity.z += RemapVal((float)(rand()%1000), 0, 1000, m_pSystem->GetRandomVelocity().m_vecMins.z, m_pSystem->GetRandomVelocity().m_vecMaxs.z);
+		Vector vecMins = m_pSystem->GetRandomVelocity().m_vecMins;
+		Vector vecMaxs = m_pSystem->GetRandomVelocity().m_vecMaxs;
+		pNewParticle->m_vecVelocity.x += RandomFloat(vecMins.x, vecMaxs.x);
+		pNewParticle->m_vecVelocity.y += RandomFloat(vecMins.y, vecMaxs.y);
+		pNewParticle->m_vecVelocity.z += RandomFloat(vecMins.z, vecMaxs.z);
 	}
 
 	pNewParticle->m_flAlpha = m_pSystem->GetAlpha();
 	pNewParticle->m_flRadius = m_pSystem->GetStartRadius();
 
 	if (m_pSystem->GetRandomBillboardYaw())
-		pNewParticle->m_flBillboardYaw = RemapVal((float)(rand()%1000), 0, 1000, 0, 360);
+		pNewParticle->m_flBillboardYaw = RandomFloat(0, 360);
 	else
 		pNewParticle->m_flBillboardYaw = 0;
 }

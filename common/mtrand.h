@@ -4,4 +4,11 @@
 void mtsrand(size_t iSeed);
 size_t mtrand();
 
+#include <maths.h>
+
+inline float RandomFloat(float flLow, float flHigh)
+{
+	return RemapVal((float)(mtrand()%999999), 0, 999999, flLow, flHigh);
+}
+
 #endif
