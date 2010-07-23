@@ -113,7 +113,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	}
 
 	Vector vecMousePosition;
-	bool bFound = GetMouseGridPosition(vecMousePosition);
+	CBaseEntity* pClickedEntity = NULL;
+	bool bFound = GetMouseGridPosition(vecMousePosition, &pClickedEntity);
 
 	if (iButton == 0)
 	{
@@ -143,34 +144,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 	if (iState == GLUT_UP && iButton == 0 && m_iMouseMoved < 10)
 	{
-		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		if (pClickedEntity)
 		{
-			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-			if (!pEntity)
-				continue;
+			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
-			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
-			if (!pSelectable)
-				continue;
-
-			if (pSelectable->GetTeam() != (CTeam*)DigitanksGame()->GetCurrentTeam())
-				continue;
-
-			if ((pSelectable->GetOrigin() - vecMousePosition).Length() > pSelectable->GetBoundingRadius())
-			{
-				CDigitank* pTank = dynamic_cast<CDigitank*>(pSelectable);
-				if (!pTank)
-					continue;
-
-				if (!pTank->HasDesiredMove())
-					continue;
-
-				if ((pTank->GetDesiredMove() - vecMousePosition).Length() > pTank->GetBoundingRadius())
-					continue;
-			}
-
-			DigitanksGame()->SetCurrentSelection(pSelectable);
-			break;
+			if (pSelectable)
+				DigitanksGame()->SetCurrentSelection(pSelectable);
 		}
 	}
 

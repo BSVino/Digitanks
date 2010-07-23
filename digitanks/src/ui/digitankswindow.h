@@ -62,7 +62,7 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
-	bool						GetMouseGridPosition(Vector& vecPoint);
+	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL);
 
 	void						GameOver(bool bPlayerWon);
 

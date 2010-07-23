@@ -1225,7 +1225,7 @@ void CDigitank::Move()
 		if (!pPowerup)
 			continue;
 
-		if ((pPowerup->GetOrigin() - GetOrigin()).LengthSqr() < 3*3)
+		if ((pPowerup->GetOrigin() - GetOrigin()).LengthSqr() < pPowerup->GetBoundingRadius()*pPowerup->GetBoundingRadius())
 		{
 			pPowerup->Delete();
 			GiveBonusPoints(1);
@@ -1508,6 +1508,8 @@ void CDigitank::ModifyContext(CRenderingContext* pContext)
 
 void CDigitank::OnRender()
 {
+	BaseClass::OnRender();
+
 	RenderTurret();
 
 	if (GetFrontShieldStrength() > 0)

@@ -298,7 +298,9 @@ void CHUD::Think()
 	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
 
 	Vector vecPoint;
-	bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
+	bool bMouseOnGrid = false;
+	if (DigitanksGame()->GetControlMode() != MODE_NONE)
+		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
 	{

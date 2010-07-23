@@ -65,7 +65,10 @@ CModel::CModel(const wchar_t* pszFilename)
 
 	m_aiTextures.resize(m_pScene->GetNumMaterials());
 	for (size_t i = 0; i < m_pScene->GetNumMaterials(); i++)
+	{
 		m_aiTextures[i] = LoadTextureIntoGL(i);
+		m_pScene->GetMaterial(i)->m_vecDiffuse = Vector(1, 1, 1);
+	}
 }
 
 CModel::~CModel()

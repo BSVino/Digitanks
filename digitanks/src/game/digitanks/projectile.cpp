@@ -55,6 +55,8 @@ void CProjectile::ModifyContext(class CRenderingContext* pContext)
 
 void CProjectile::OnRender()
 {
+	BaseClass::OnRender();
+
 	if (m_flTimeExploded == 0.0f)
 	{
 		glColor4ubv(Color(255, 255, 255));

@@ -300,6 +300,32 @@ void CGame::CreateRenderer()
 	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
 }
 
+bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit)
+{
+	Vector vecClosest = s2;
+	bool bHit = false;
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		Vector vecPoint;
+		if (pEntity->Collide(s1, s2, vecPoint))
+		{
+			if (!bHit || (vecPoint - s1).LengthSqr() < (vecClosest - s1).LengthSqr())
+			{
+				vecClosest = vecPoint;
+				bHit = true;
+				if (pHit)
+					*pHit = pEntity;
+			}
+		}
+	}
+
+	if (bHit)
+		vecHit = vecClosest;
+
+	return bHit;
+}
+
 bool CGame::IsTeamControlledByMe(CTeam* pTeam)
 {
 	if (!pTeam)

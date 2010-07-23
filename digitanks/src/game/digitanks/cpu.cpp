@@ -294,6 +294,8 @@ void CCPU::StartTurn()
 
 void CCPU::OnRender()
 {
+	BaseClass::OnRender();
+
 	if (m_iFanModel == ~0)
 		return;
 

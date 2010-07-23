@@ -548,6 +548,8 @@ void CTerrain::GenerateCallLists()
 
 void CTerrain::OnRender()
 {
+	BaseClass::OnRender();
+
 	glPushAttrib(GL_ENABLE_BIT);
 
 	GLuint iTerrainProgram = (GLuint)CShaderLibrary::GetTerrainProgram();
@@ -859,15 +861,6 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
 
 	GenerateTerrainCallLists();
-}
-
-bool CTerrain::Collide(const Ray& rayTrace, Vector &vecHit)
-{
-	CTraceResult tr;
-	bool bHit = m_pTracer->Raytrace(rayTrace, &tr);
-	if (bHit)
-		vecHit = tr.m_vecHit;
-	return bHit;
 }
 
 bool CTerrain::Collide(const Vector& s1, const Vector& s2, Vector &vecHit)

@@ -35,8 +35,7 @@ public:
 
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
 
-	bool					Collide(const Ray& rayTrace, Vector& vecPoint);
-	bool					Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
+	virtual bool			Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
 
 protected:
 	float					m_aflHeights[TERRAIN_SIZE][TERRAIN_SIZE];

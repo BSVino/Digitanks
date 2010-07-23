@@ -59,6 +59,8 @@ public:
 
 	virtual void								CreateRenderer();
 
+	virtual bool								TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit);
+
 	size_t										GetNumTeams() { return m_ahTeams.size(); };
 	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
 	bool										IsTeamControlledByMe(CTeam* pTeam);

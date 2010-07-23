@@ -118,6 +118,8 @@ public:
 	bool									IsSoundPlaying(const char* pszFilename);
 	void									SetSoundVolume(const char* pszFilename, float flVolume);
 
+	virtual bool							Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
+
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
 	virtual void							SetCollisionGroup(int iCollisionGroup) { m_iCollisionGroup = iCollisionGroup; }
 

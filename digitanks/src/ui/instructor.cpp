@@ -70,7 +70,7 @@ void CInstructor::Initialize()
 		L"TANK RANGE\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BUTTONS, new CTutorial(this, TUTORIAL_BUTTONS, POSITION_TOPLEFT, 200, true,
-		L"CONTROL BUTTONS\n \nYou can enter move mode and aim mode at any time by using the buttons on the lower right of the screen.\n \nClick here to continue.")));
+		L"CONTROL BUTTONS\n \nYou can enter move mode and aim mode at any time by using the buttons on the lower right of the screen.\n \nYou can exit move turn or aim mode by pressing the 'Escape' key.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ENERGY, new CTutorial(this, TUTORIAL_ENERGY, POSITION_TOPLEFT, 300, true,
 		L"ENERGIZE YOUR CANNON\n \nNow choose how much Energy you want to use on your attack. Press the 'Set Energy' button and the Energy sliders will appear next to your tank. Move the slider to the desired level and click the left mouse button to select a setting.")));
@@ -244,6 +244,10 @@ disable_t CInstructor::GetDisabledFeatures()
 
 	if (GetCurrentTutorial() < TUTORIAL_LOADER)
 		iDisabled |= DISABLE_LOADERS;
+
+	// Keep people from killing the enemy tank before the turn dialogue goes away.
+	if (GetCurrentTutorial() == TUTORIAL_TURN)
+		iDisabled |= DISABLE_ENTER;
 
 	return (disable_t)iDisabled;
 }

@@ -11,6 +11,8 @@ public:
 					CPowerup();
 
 public:
+	virtual float	GetBoundingRadius() const { return 4; };
+
 	void			Precache();
 
 	virtual EAngle	GetRenderAngles() const;

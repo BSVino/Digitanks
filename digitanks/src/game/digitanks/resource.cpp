@@ -20,6 +20,8 @@ void CResource::Spawn()
 
 void CResource::OnRender()
 {
+	BaseClass::OnRender();
+
 	if (GetVisibility() == 0)
 		return;
 

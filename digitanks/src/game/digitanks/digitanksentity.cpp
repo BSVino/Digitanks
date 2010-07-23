@@ -71,3 +71,16 @@ void CDigitanksEntity::ModifyContext(CRenderingContext* pContext)
 		pContext->SetBlend(BLEND_ALPHA);
 	}
 }
+
+void CDigitanksEntity::OnRender()
+{
+	BaseClass::OnRender();
+
+#if defined(_DEBUG) && defined(SHOW_BOUNDING_SPHERES)
+	CRenderingContext r(Game()->GetRenderer());
+	r.SetBlend(BLEND_ALPHA);
+	r.SetColor(Color(255, 255, 255, 100));
+	r.SetAlpha(0.2f);
+	glutSolidSphere(GetBoundingRadius(), 8, 4);
+#endif
+}

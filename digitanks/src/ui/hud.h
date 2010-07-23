@@ -96,11 +96,13 @@ protected:
 
 class CMouseCapturePanel : public glgui::CPanel
 {
+	DECLARE_CLASS(CMouseCapturePanel, glgui::CPanel);
+
 public:
 	CMouseCapturePanel() : CPanel(0, 0, 0, 0) {};
 
-	virtual bool			MousePressed(int code, int mx, int my) { return true; }
-	virtual bool			MouseReleased(int code, int mx, int my) { return true; }
+	virtual bool			MousePressed(int code, int mx, int my) { BaseClass::MousePressed(code, mx, my); return true; }
+	virtual bool			MouseReleased(int code, int mx, int my) { BaseClass::MouseReleased(code, mx, my); return true; }
 };
 
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener

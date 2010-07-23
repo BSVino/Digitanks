@@ -21,6 +21,7 @@ public:
 	virtual float					GetVisibility() const;
 
 	virtual void					ModifyContext(class CRenderingContext* pContext);
+	virtual void					OnRender();
 
 	virtual float					VisibleRange() const { return 0; };
 	virtual float					TotalHealth() const { return 10; };

@@ -232,7 +232,7 @@ void CDigitanksWindow::Visible(int vis)
 {
 }
 
-bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
+bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit)
 {
 	if (!DigitanksGame()->GetTerrain())
 		return false;
@@ -246,7 +246,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint)
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	return DigitanksGame()->GetTerrain()->Collide(Ray(vecCameraVector, vecRay), vecPoint);
+	return Game()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit);
 }
 
 void CDigitanksWindow::GameOver(bool bPlayerWon)
