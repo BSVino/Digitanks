@@ -192,8 +192,10 @@ void CLoader::UpdateInfo(std::string& sInfo)
 
 	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 		s << "MECH. INFANTRY LOADER\n";
-	else
+	else if (GetBuildUnit() == BUILDUNIT_TANK)
 		s << "MAIN BATTLE TANK LOADER\n";
+	else
+		s << "ARTILLERY LOADER\n";
 
 	s << "Unit producer\n \n";
 

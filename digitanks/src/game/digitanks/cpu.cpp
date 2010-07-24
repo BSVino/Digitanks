@@ -78,7 +78,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton2Listener(CHUD::BuildTankLoader);
 		pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
 		pHUD->SetButton4Listener(NULL);
-		pHUD->SetButton5Listener(NULL);
+		pHUD->SetButton5Listener(CHUD::GoToMain);
 
 		pHUD->SetButton1Texture(0);
 		pHUD->SetButton2Texture(0);

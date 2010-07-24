@@ -12,9 +12,15 @@ structure_t g_aeBuildOrder[] =
 	STRUCTURE_BUFFER,
 	STRUCTURE_INFANTRYLOADER,
 	STRUCTURE_BUFFER,
+	STRUCTURE_BUFFER,
 	STRUCTURE_PSU,
 	STRUCTURE_BUFFER,
 	STRUCTURE_TANKLOADER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
+	STRUCTURE_BUFFER,
+	STRUCTURE_BUFFER,
+	STRUCTURE_ARTILLERYLOADER,
 };
 
 void CDigitanksTeam::Bot_ExpandBase()
@@ -178,9 +184,20 @@ void CDigitanksTeam::Bot_AssignDefenders()
 		if (!pStructure)
 			continue;
 
+		if (pStructure != m_hPrimaryCPU)
+		{
+			// Don't defend structures that face the back wall.
+			Vector vecStructure = pStructure->GetOrigin() - m_hPrimaryCPU->GetOrigin();
+			float flDot = -m_hPrimaryCPU->GetOrigin().Normalized().Dot(vecStructure.Normalized());
+			if (flDot < 0)
+				continue;
+		}
+
 		CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
 
-		// Only non-suppliers or suppliers with no children should be defended, so that structures in the center of the base aren't defended unnecessarily.
+		apDefend.push_back(pStructure);
+
+		// Non-suppliers and suppliers with no children should be defended with higher priority, to avoid defending structures in the center of the base.
 		if (!pSupplier || pSupplier->GetNumChildren() == 0)
 			apDefend.push_back(pStructure);
 	}
@@ -493,12 +510,14 @@ void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
 	Vector vecRight;
 	AngleVectors(VectorAngles(vecForward.Normalized()), NULL, &vecRight, NULL);
 
+	float flDistance = 12;
+
 	// A pretty spot midway between the supplier and the resource.
-	Vector vecPSU = (pResource->GetOrigin() + pSupplier->GetOrigin())/2 + vecRight*vecForward.Length2D();
+	Vector vecPSU = (pResource->GetOrigin() + pSupplier->GetOrigin())/2 + vecRight * flDistance;
 
 	// Move that spot near to the resource so we know we can get it built.
 	Vector vecPSUDirection = vecPSU - pResource->GetOrigin();
-	vecPSU = pResource->GetOrigin() + vecPSUDirection.Normalized() * 10;
+	vecPSU = pResource->GetOrigin() + vecPSUDirection.Normalized() * flDistance;
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
 
@@ -522,7 +541,11 @@ void CStructure::AddDefender(CDigitank* pTank)
 	}
 
 	// Member 0 is typically the CPU.
-	float flYaw = VectorAngles(GetOrigin() - pTank->GetDigitanksTeam()->GetMember(0)->GetOrigin()).y;
+	float flYaw;
+	if (dynamic_cast<CCPU*>(this))
+		flYaw = VectorAngles(-GetOrigin()).y;
+	else
+		flYaw = VectorAngles(GetOrigin() - pTank->GetDigitanksTeam()->GetMember(0)->GetOrigin()).y;
 
 	size_t iFortifies = m_aoDefenders.size();
 	if (iFortifies == 0)
