@@ -346,7 +346,7 @@ void CCPU::OnRender()
 	float flFastSpeed = 200.0f;
 
 	m_flFanRotationSpeed = Approach(HasConstruction()?flFastSpeed:flSlowSpeed, m_flFanRotationSpeed, Game()->GetFrameTime()*(flFastSpeed-flSlowSpeed));
-	m_flFanRotation += RemapVal(Game()->GetFrameTime(), 0, 1, 0, m_flFanRotationSpeed);
+	m_flFanRotation -= RemapVal(Game()->GetFrameTime(), 0, 1, 0, m_flFanRotationSpeed);
 
 	r.Rotate(m_flFanRotation, Vector(0, 1, 0));
 
