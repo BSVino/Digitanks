@@ -46,93 +46,120 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	bool bDisablePSU = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
 	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 
-	if (bDisableBuffer)
+	if (m_hConstructing != NULL)
+	{
 		pHUD->SetButton1Listener(NULL);
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton1Listener(CHUD::BuildBuffer);
-	else
-		pHUD->SetButton1Listener(CHUD::CancelBuild);
-
-	if (bDisablePSU)
 		pHUD->SetButton2Listener(NULL);
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton2Listener(CHUD::BuildPSU);
-	else
-		pHUD->SetButton2Listener(CHUD::CancelBuild);
-
-	if (bDisableLoaders)
 		pHUD->SetButton3Listener(NULL);
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton3Listener(CHUD::BuildInfantryLoader);
-	else
-		pHUD->SetButton3Listener(CHUD::CancelBuild);
-
-	if (bDisableLoaders)
 		pHUD->SetButton4Listener(NULL);
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton4Listener(CHUD::BuildTankLoader);
-	else
-		pHUD->SetButton4Listener(CHUD::CancelBuild);
+		pHUD->SetButton5Listener(CHUD::CancelBuild);
 
-	pHUD->SetButton5Listener(NULL);
+		pHUD->SetButton1Texture(0);
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton5Texture(0);
 
-	if (bDisableBuffer)
 		pHUD->SetButton1Help("");
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton1Help("Build\nBuffer");
-	else
-		pHUD->SetButton1Help("Cancel\nBuild");
-
-	if (bDisablePSU)
 		pHUD->SetButton2Help("");
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton2Help("Build\nPwr Supply");
-	else
-		pHUD->SetButton2Help("Cancel\nBuild");
-
-	if (bDisableLoaders)
 		pHUD->SetButton3Help("");
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton3Help("Build\nInf Ldr");
-	else
-		pHUD->SetButton3Help("Cancel\nBuild");
-
-	if (bDisableLoaders)
 		pHUD->SetButton4Help("");
-	else if (m_hConstructing == NULL)
-		pHUD->SetButton4Help("Build\nTank Ldr");
-	else
-		pHUD->SetButton4Help("Cancel\nBuild");
+		pHUD->SetButton5Help("Cancel\nBuild");
 
-	pHUD->SetButton5Help("");
-
-	pHUD->SetButton1Texture(0);
-	pHUD->SetButton2Texture(0);
-	pHUD->SetButton3Texture(0);
-	pHUD->SetButton4Texture(0);
-	pHUD->SetButton5Texture(0);
-
-	if (bDisableBuffer)
 		pHUD->SetButton1Color(glgui::g_clrBox);
-	else
-		pHUD->SetButton1Color(Color(150, 150, 150));
-
-	if (bDisablePSU)
 		pHUD->SetButton2Color(glgui::g_clrBox);
-	else
-		pHUD->SetButton2Color(Color(150, 150, 150));
-
-	if (bDisableLoaders)
 		pHUD->SetButton3Color(glgui::g_clrBox);
-	else
-		pHUD->SetButton3Color(Color(150, 150, 150));
-
-	if (bDisableLoaders)
 		pHUD->SetButton4Color(glgui::g_clrBox);
-	else
-		pHUD->SetButton4Color(Color(150, 150, 150));
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
+	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
+	{
+		pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
+		pHUD->SetButton2Listener(CHUD::BuildTankLoader);
+		pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
+		pHUD->SetButton4Listener(NULL);
+		pHUD->SetButton5Listener(NULL);
 
-	pHUD->SetButton5Color(glgui::g_clrBox);
+		pHUD->SetButton1Texture(0);
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton5Texture(0);
+
+		pHUD->SetButton1Help("Infantry\nLoader");
+		pHUD->SetButton2Help("Main Tank\nLoader");
+		pHUD->SetButton3Help("Artillery\nLoader");
+		pHUD->SetButton4Help("");
+		pHUD->SetButton5Help("Return");
+
+		pHUD->SetButton1Color(Color(150, 150, 150));
+		pHUD->SetButton2Color(Color(150, 150, 150));
+		pHUD->SetButton3Color(Color(150, 150, 150));
+		pHUD->SetButton4Color(glgui::g_clrBox);
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
+	else
+	{
+		if (bDisableBuffer)
+			pHUD->SetButton1Listener(NULL);
+		else
+			pHUD->SetButton1Listener(CHUD::BuildBuffer);
+
+		if (bDisablePSU)
+			pHUD->SetButton2Listener(NULL);
+		else
+			pHUD->SetButton2Listener(CHUD::BuildPSU);
+
+		if (bDisableLoaders)
+			pHUD->SetButton3Listener(NULL);
+		else
+			pHUD->SetButton3Listener(CHUD::BuildLoader);
+
+		pHUD->SetButton4Listener(NULL);
+		pHUD->SetButton5Listener(NULL);
+
+		if (bDisableBuffer)
+			pHUD->SetButton1Help("");
+		else
+			pHUD->SetButton1Help("Build\nBuffer");
+
+		if (bDisablePSU)
+			pHUD->SetButton2Help("");
+		else
+			pHUD->SetButton2Help("Build\nPwr Supply");
+
+		if (bDisableLoaders)
+			pHUD->SetButton3Help("");
+		else
+			pHUD->SetButton3Help("Build\nLoader");
+
+		pHUD->SetButton4Help("");
+		pHUD->SetButton5Help("");
+
+		pHUD->SetButton1Texture(0);
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton5Texture(0);
+
+		if (bDisableBuffer)
+			pHUD->SetButton1Color(glgui::g_clrBox);
+		else
+			pHUD->SetButton1Color(Color(150, 150, 150));
+
+		if (bDisablePSU)
+			pHUD->SetButton2Color(glgui::g_clrBox);
+		else
+			pHUD->SetButton2Color(Color(150, 150, 150));
+
+		if (bDisableLoaders)
+			pHUD->SetButton3Color(glgui::g_clrBox);
+		else
+			pHUD->SetButton3Color(Color(150, 150, 150));
+
+		pHUD->SetButton4Color(glgui::g_clrBox);
+		pHUD->SetButton5Color(glgui::g_clrBox);
+	}
 }
 
 bool CCPU::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
@@ -198,6 +225,8 @@ void CCPU::BeginConstruction()
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
 	else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+	else if (m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER)
+		m_hConstructing = Game()->Create<CLoader>("CLoader");
 
 	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->SetOrigin(GetPreviewBuild());
@@ -221,8 +250,10 @@ void CCPU::BeginConstruction()
 	{
 		if (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER)
 			pLoader->SetBuildUnit(BUILDUNIT_INFANTRY);
-		else
+		else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
 			pLoader->SetBuildUnit(BUILDUNIT_TANK);
+		else
+			pLoader->SetBuildUnit(BUILDUNIT_ARTILLERY);
 	}
 
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
@@ -245,7 +276,7 @@ void CCPU::BeginConstruction()
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionRemaining());
 	}
 
-	if (iTutorial == CInstructor::TUTORIAL_LOADER && (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER || m_ePreviewStructure == STRUCTURE_TANKLOADER))
+	if (iTutorial == CInstructor::TUTORIAL_LOADER && (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER || m_ePreviewStructure == STRUCTURE_TANKLOADER || m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER))
 	{
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_LOADER);
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();

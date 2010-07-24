@@ -118,7 +118,7 @@ void CInstructor::Initialize()
 		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_LOADER, new CTutorial(this, TUTORIAL_LOADER, POSITION_TOPCENTER, 250, false,
-		L"LOADERS\n \nLoaders are specialized structures that produce combat units. Build a Loader by pressing one of the Loader buttons and right clicking on your Network. Then press the 'Enter' key to complete construction.")));
+		L"LOADERS\n \nLoaders are specialized structures that produce combat units. Build a Loader by pressing one the 'Build Loader' button, selecting any loader, and right clicking on your Network. Then press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_EFFICIENCY, new CTutorial(this, TUTORIAL_EFFICIENCY, POSITION_TOPCENTER, 250, true,
 		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer or CPU will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nClick here to continue.")));

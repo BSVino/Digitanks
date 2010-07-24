@@ -15,6 +15,7 @@ typedef enum
 {
 	MENUMODE_MAIN,
 	MENUMODE_PROMOTE,
+	MENUMODE_LOADERS,
 } menumode_t;
 
 #endif

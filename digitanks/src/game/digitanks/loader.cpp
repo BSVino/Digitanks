@@ -113,8 +113,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	{
 		if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 			pHUD->SetButton1Help("Build\nMech. Inf");
-		else
+		else if (GetBuildUnit() == BUILDUNIT_TANK)
 			pHUD->SetButton1Help("Build\nMain Tank");
+		else
+			pHUD->SetButton1Help("Build\nArtillery Tank");
 	}
 	pHUD->SetButton2Help("");
 	pHUD->SetButton3Help("");
@@ -222,6 +224,8 @@ const char* CLoader::GetName()
 {
 	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 		return "Mechanized Infantry Loader";
-	else
+	else if (GetBuildUnit() == BUILDUNIT_TANK)
 		return "Main Battle Tank Loader";
+	else
+		return "Artillery Loader";
 }

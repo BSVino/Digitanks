@@ -1309,6 +1309,14 @@ void CHUD::BuildPSUCallback()
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 }
 
+void CHUD::BuildLoaderCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	SetupMenu(MENUMODE_LOADERS);
+}
+
 void CHUD::BuildInfantryLoaderCallback()
 {
 	if (!m_bHUDActive)
@@ -1349,6 +1357,28 @@ void CHUD::BuildTankLoaderCallback()
 		return;
 
 	pCPU->SetPreviewStructure(STRUCTURE_TANKLOADER);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+}
+
+void CHUD::BuildArtilleryLoaderCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_ARTILLERYLOADER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 }
