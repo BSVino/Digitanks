@@ -43,8 +43,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\common;..\common\math;&quot;\Program Files\Feeling Software\FCollada\&quot;;\Program Files\Feeling Software\FCollada\LibXML\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
+				AdditionalIncludeDirectories="..\common;..\common\math;&quot;$(PROGRAMFILES)\Feeling Software\FCollada\&quot;;&quot;$(PROGRAMFILES)\Feeling Software\FCollada\LibXML\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -111,8 +111,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\common;..\common\math;&quot;\Program Files\Feeling Software\FCollada\&quot;;&quot;\Program Files\Feeling Software\FCollada\LibXML\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;"
+				AdditionalIncludeDirectories="..\common;..\common\math;&quot;$(PROGRAMFILES)\Feeling Software\FCollada\&quot;;&quot;$(PROGRAMFILES)\Feeling Software\FCollada\LibXML\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
