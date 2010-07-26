@@ -169,7 +169,8 @@ public:
 
 	// CSelectable
 	virtual void				OnCurrentSelection();
-	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
+	virtual bool				AllowControlMode(controlmode_t eMode);
+	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
 
 	virtual const char*			GetPowerBar1Text() { return "Attack Energy"; }
 	virtual const char*			GetPowerBar2Text() { return "Defense Energy"; }
@@ -223,6 +224,8 @@ public:
 	void						Speak(class CNetworkParameters* p);
 
 	float						FindHoverHeight(Vector vecPosition) const;
+
+	virtual bool				Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 
 	virtual float				HealthRechargeRate() const;
 	virtual float				ShieldRechargeRate() const;

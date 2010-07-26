@@ -159,7 +159,7 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 {
 	float flMovementLength;
 
-	if (DigitanksGame()->IsCurrentSelection(this) && bPreview)
+	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
 	{
 		if (!HasDesiredAim() && !IsPreviewAimValid())
 			return 0;
@@ -179,7 +179,7 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 {
 	float flMovementLength;
 
-	if (DigitanksGame()->IsCurrentSelection(this) && bPreview)
+	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
 	{
 		flMovementLength = GetPreviewMoveTurnPower();
 
@@ -215,7 +215,7 @@ float CDigitank::GetBaseMovementPower(bool bPreview)
 {
 	float flMovementLength;
 
-	if (DigitanksGame()->IsCurrentSelection(this) && bPreview)
+	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
 	{
 		flMovementLength = GetPreviewMoveTurnPower();
 
@@ -899,7 +899,7 @@ void CDigitank::Think()
 
 	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
 	bool bAimMode = DigitanksGame()->GetControlMode() == MODE_AIM;
-	bool bShowThisTank = HasDesiredAim() || (bAimMode && (DigitanksGame()->IsCurrentSelection(this) || bShiftDown));
+	bool bShowThisTank = HasDesiredAim() || (bAimMode && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown));
 	if (GetTeam() != DigitanksGame()->GetCurrentTeam())
 		bShowThisTank = false;
 
@@ -914,10 +914,10 @@ void CDigitank::Think()
 
 		if (bMouseOK && bAimMode)
 		{
-			if (DigitanksGame()->IsCurrentSelection(this))
+			if (GetDigitanksTeam()->IsCurrentSelection(this))
 				vecTankAim = vecMouseAim;
 
-			if (!DigitanksGame()->IsCurrentSelection(this) && bShiftDown)
+			if (!GetDigitanksTeam()->IsCurrentSelection(this) && bShiftDown)
 				vecTankAim = vecMouseAim;
 		}
 
@@ -938,7 +938,7 @@ void CDigitank::Think()
 			float flDistance = (vecTankAim - GetDesiredMove()).Length();
 
 			float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
-			DigitanksGame()->AddTankAim(vecTankAim, flRadius, DigitanksGame()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
+			DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 			m_bDisplayAim = true;
 			m_vecDisplayAim = vecTankAim;
@@ -975,7 +975,9 @@ void CDigitank::Think()
 
 void CDigitank::OnCurrentSelection()
 {
-	if (GetVisibility() > 0)
+	BaseClass::OnCurrentSelection();
+
+	if (GetDigitanksTeam() == DigitanksGame()->GetLocalDigitanksTeam() && GetVisibility() > 0)
 	{
 		if (rand()%2 == 0)
 			EmitSound("sound/tank-active.wav");
@@ -998,7 +1000,24 @@ void CDigitank::OnCurrentSelection()
 	}
 }
 
-bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
+bool CDigitank::AllowControlMode(controlmode_t eMode)
+{
+	if (eMode == MODE_MOVE)
+		return true;
+
+	if (eMode == MODE_TURN)
+		return true;
+
+	if (eMode == MODE_AIM)
+		return true;
+
+	if (eMode == MODE_FIRE)
+		return true;
+
+	return BaseClass::AllowControlMode(eMode);
+}
+
+void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
 {
 	if (eOldMode == MODE_MOVE)
 		ClearPreviewMove();
@@ -1014,31 +1033,13 @@ bool CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 		CancelDesiredMove();
 		CancelDesiredTurn();
 		CancelDesiredAim();
-
-		return true;
 	}
 
 	if (eNewMode == MODE_TURN)
-	{
 		CancelDesiredTurn();
 
-		return true;
-	}
-
 	if (eNewMode == MODE_AIM)
-	{
-		DigitanksGame()->GetCurrentTank()->CancelDesiredAim();
-
-		return true;
-	}
-
-	if (eNewMode == MODE_FIRE)
-		return true;
-
-	if (eNewMode == MODE_NONE)
-		return true;
-
-	return false;
+		CancelDesiredAim();
 }
 
 float CDigitank::GetPowerBar1Value()
@@ -1275,7 +1276,7 @@ void CDigitank::FireProjectile()
 
 	float flFactor = 1;
 	if (flDistance > GetEffRange())
-		float flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, TANK_MAX_RANGE_RADIUS);
+		flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, TANK_MAX_RANGE_RADIUS);
 
 	float x = RandomFloat(-flFactor, flFactor);
 	float z = RandomFloat(-flFactor, flFactor);
@@ -1314,12 +1315,14 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
 
 	if (GetVisibility() > 0)
+	{
 		EmitSound("sound/tank-fire.wav");
 
-	Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
-	size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
-	if (iFire != ~0)
-		CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
+		Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
+		size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
+		if (iFire != ~0)
+			CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
+	}
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
@@ -1453,7 +1456,7 @@ Vector CDigitank::GetRenderOrigin() const
 
 EAngle CDigitank::GetRenderAngles() const
 {
-	if (DigitanksGame()->IsCurrentSelection(this))
+	if (GetDigitanksTeam()->IsCurrentSelection(this))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
 			return EAngle(0, GetPreviewTurn(), 0);
@@ -1539,10 +1542,10 @@ void CDigitank::RenderTurret(float flAlpha)
 	r.SetBlend(BLEND_ALPHA);
 	r.Translate(Vector(-0.527677f, 0.810368f, 0));
 
-	if ((DigitanksGame()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || HasDesiredAim())
+	if ((GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || HasDesiredAim())
 	{
 		Vector vecAimTarget;
-		if (DigitanksGame()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
+		if (GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 			vecAimTarget = GetPreviewAim();
 		else
 			vecAimTarget = GetDesiredAim();
@@ -1629,7 +1632,7 @@ void CDigitank::PostRender()
 	{
 		if (pCurrentTank->IsPreviewMoveValid())
 		{
-			if (DigitanksGame()->IsCurrentSelection(this))
+			if (GetDigitanksTeam()->IsCurrentSelection(this))
 			{
 				CRenderingContext r(Game()->GetRenderer());
 				r.Translate(GetPreviewMove() + Vector(0, 1, 0));
@@ -1670,7 +1673,7 @@ void CDigitank::PostRender()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		int iAlpha = 100;
-		if (DigitanksGame()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
+		if (GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 			iAlpha = 255;
 
 		Vector vecTankOrigin = GetDesiredMove();
@@ -1717,6 +1720,9 @@ void CDigitank::PostRender()
 			iAlpha = 100;
 		}
 	}
+
+	if (GetTeam() != Game()->GetLocalTeam())
+		bShowGoalMove = false;
 
 	if (bShowGoalMove)
 	{
@@ -1920,6 +1926,17 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 		flHighestTerrain = flTerrain;
 
 	return flHighestTerrain;
+}
+
+bool CDigitank::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
+{
+	if (BaseClass::Collide(v1, v2, vecPoint))
+		return true;
+
+	if (GetBoundingRadius() == 0)
+		return false;
+
+	return LineSegmentIntersectsSphere(v1, v2, GetDesiredMove(), GetBoundingRadius(), vecPoint);
 }
 
 float CDigitank::HealthRechargeRate() const

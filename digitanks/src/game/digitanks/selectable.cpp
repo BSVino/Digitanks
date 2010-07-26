@@ -5,6 +5,15 @@
 
 REGISTER_ENTITY(CSelectable);
 
+void CSelectable::OnCurrentSelection()
+{
+	if (!AllowControlMode(DigitanksGame()->GetControlMode()))
+		DigitanksGame()->SetControlMode(MODE_NONE);
+
+	if (DigitanksGame()->GetListener())
+		DigitanksGame()->GetListener()->NewCurrentSelection();
+}
+
 void CSelectable::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();

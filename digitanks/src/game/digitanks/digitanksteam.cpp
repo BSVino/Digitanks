@@ -1,7 +1,10 @@
 #include "digitanksteam.h"
 
 #include <maths.h>
+
+#include <ui/digitankswindow.h>
 #include <network/network.h>
+#include <ui/instructor.h>
 
 #include "digitank.h"
 #include "structure.h"
@@ -12,6 +15,8 @@ REGISTER_ENTITY(CDigitanksTeam);
 
 CDigitanksTeam::CDigitanksTeam()
 {
+	m_iCurrentSelection = -1;
+
 	m_iBuildPosition = 0;
 
 	m_bLKV = false;
@@ -32,6 +37,92 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 	CCPU* pCPU = dynamic_cast<CCPU*>(pEntity);
 	if (m_hPrimaryCPU == NULL && pCPU)
 		m_hPrimaryCPU = pCPU;
+}
+
+CSelectable* CDigitanksTeam::GetCurrentSelection()
+{
+	CBaseEntity* pEntity = CBaseEntity::GetEntity(m_iCurrentSelection);
+
+	if (!pEntity)
+		return NULL;
+
+	return dynamic_cast<CSelectable*>(pEntity);
+}
+
+CDigitank* CDigitanksTeam::GetCurrentTank()
+{
+	return dynamic_cast<CDigitank*>(GetCurrentSelection());
+}
+
+CStructure* CDigitanksTeam::GetCurrentStructure()
+{
+	return dynamic_cast<CStructure*>(GetCurrentSelection());
+}
+
+size_t CDigitanksTeam::GetCurrentSelectionId()
+{
+	return m_iCurrentSelection;
+}
+
+void CDigitanksTeam::SetCurrentSelection(CSelectable* pCurrent)
+{
+	m_iCurrentSelection = pCurrent->GetHandle();
+
+	if (GetCurrentSelection())
+	{
+		GetCurrentSelection()->OnCurrentSelection();
+
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
+	}
+}
+
+bool CDigitanksTeam::IsCurrentSelection(const CSelectable* pEntity)
+{
+	return GetCurrentSelection() == pEntity;
+}
+
+void CDigitanksTeam::NextTank()
+{
+	size_t iTank = ~0;
+	if (GetCurrentTank())
+	{
+		for (size_t i = 0; i < GetNumTanks(); i++)
+		{
+			if (GetCurrentTank() == GetTank(i))
+			{
+				iTank = i;
+				break;
+			}
+		}
+	}
+
+	if (iTank == ~0)
+	{
+		if (GetNumTanks() == 0)
+			return;
+
+		m_iCurrentSelection = GetTank(0)->GetHandle();
+		return;
+	}
+
+	size_t iOriginal = GetTank(iTank)->GetHandle();
+
+	while ((m_iCurrentSelection = GetTank(++iTank%GetNumTanks())->GetHandle()) != iOriginal)
+	{
+		if (!GetCurrentTank())
+			continue;
+
+		if (GetCurrentTank()->IsFortified())
+			continue;
+
+		if (GetCurrentTank()->HasGoalMovePosition())
+			continue;
+
+		break;
+	}
+
+	if (GetCurrentSelection())
+		GetCurrentSelection()->OnCurrentSelection();
 }
 
 void CDigitanksTeam::StartTurn()

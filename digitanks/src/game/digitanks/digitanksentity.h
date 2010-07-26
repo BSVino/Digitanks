@@ -14,7 +14,7 @@ public:
 
 	virtual void					StartTurn() {};
 
-	class CDigitanksTeam*			GetDigitanksTeam();
+	class CDigitanksTeam*			GetDigitanksTeam() const;
 
 	virtual void					RenderVisibleArea();
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;

@@ -76,12 +76,12 @@ float CArtillery::GetProjectileDamage()
 	return GetAttackPower()/6;
 }
 
-bool CArtillery::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
+bool CArtillery::AllowControlMode(controlmode_t eMode)
 {
-	if (eNewMode == MODE_FIRE)
+	if (eMode == MODE_FIRE)
 		return false;
 
-	return BaseClass::OnControlModeChange(eOldMode, eNewMode);
+	return BaseClass::AllowControlMode(eMode);
 }
 
 float CArtillery::ShieldRechargeRate() const

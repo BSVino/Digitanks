@@ -72,6 +72,8 @@ void CLoader::StartTurn()
 				DigitanksGame()->AppendTurnInfo("Production finished on Main Battle Tank");
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo("Production finished on Artillery");
+
+			GetDigitanksTeam()->SetCurrentSelection(this);
 		}
 		else
 		{

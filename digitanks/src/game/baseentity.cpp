@@ -185,43 +185,12 @@ void CBaseEntity::SetSoundVolume(const char* pszFilename, float flVolume)
 	CSoundLibrary::SetSoundVolume(this, pszFilename, flVolume);
 }
 
-bool CBaseEntity::Collide(const Vector& s1, const Vector& s2, Vector& vecPoint)
+bool CBaseEntity::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 {
 	if (GetBoundingRadius() == 0)
 		return false;
 
-	float flDistance = DistanceToLineSegment(GetOrigin(), s1, s2);
-
-	if (flDistance > GetBoundingRadius())
-		return false;
-
-	Vector vecLine = s2 - s1;
-	Vector vecSphere = s1 - GetOrigin();
-
-	float flA = vecLine.LengthSqr();
-	float flB = 2 * vecSphere.Dot(vecLine);
-	float flC = vecSphere.LengthSqr() - GetBoundingRadius()*GetBoundingRadius();
-
-	float flBB4AC = flB*flB - 4*flA*flC;
-	if (flBB4AC < 0)
-		return false;
-
-	float flSqrt = sqrt(flBB4AC);
-	float flPlus = (-flB + flSqrt)/(2*flA);
-	float flMinus = (-flB - flSqrt)/(2*flA);
-
-	flDistance = vecLine.Length();
-
-	Vector vecDirection = vecLine / flDistance;
-	Vector vecPlus = s1 + vecDirection * (flPlus * flDistance);
-	Vector vecMinus = s1 + vecDirection * (flMinus * flDistance);
-
-	if ((vecPlus - s1).LengthSqr() < (vecMinus - s1).LengthSqr())
-		vecPoint = vecPlus;
-	else
-		vecPoint = vecMinus;
-
-	return true;
+	return LineSegmentIntersectsSphere(v1, v2, GetOrigin(), GetBoundingRadius(), vecPoint);
 }
 
 void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)

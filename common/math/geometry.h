@@ -410,6 +410,37 @@ inline bool LineSegmentIntersectsTriangle(Vector s0, Vector s1, Vector v0, Vecto
 	return true;
 }
 
+inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, const Vector& s, float flRadius, Vector& vecPoint)
+{
+	Vector vecLine = v2 - v1;
+	Vector vecSphere = v1 - s;
+
+	float flA = vecLine.LengthSqr();
+	float flB = 2 * vecSphere.Dot(vecLine);
+	float flC = vecSphere.LengthSqr() - flRadius*flRadius;
+
+	float flBB4AC = flB*flB - 4*flA*flC;
+	if (flBB4AC < 0)
+		return false;
+
+	float flSqrt = sqrt(flBB4AC);
+	float flPlus = (-flB + flSqrt)/(2*flA);
+	float flMinus = (-flB - flSqrt)/(2*flA);
+
+	float flDistance = vecLine.Length();
+
+	Vector vecDirection = vecLine / flDistance;
+	Vector vecPlus = v1 + vecDirection * (flPlus * flDistance);
+	Vector vecMinus = v1 + vecDirection * (flMinus * flDistance);
+
+	if ((vecPlus - v1).LengthSqr() < (vecMinus - v1).LengthSqr())
+		vecPoint = vecPlus;
+	else
+		vecPoint = vecMinus;
+
+	return true;
+}
+
 inline bool PointInsideAABB( AABB oBox, Vector v )
 {
 	const float flEpsilon = 1e-4f;

@@ -38,7 +38,7 @@ void CResource::UpdateInfo(std::string& sInfo)
 	s << "ELECTRONODE\n";
 	s << "Digital resource\n \n";
 
-	s << "Yield: " << (int)(GetProduction()) << "%\n";
+	s << "Yield: " << (int)(GetProduction()) << " Power\n";
 
 	sInfo = s.str();
 }

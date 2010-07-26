@@ -463,7 +463,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*flAttackPower), (int)vecScreen.y - 50, (int)(100.0f*flDefensePower), 3, Color(0, 0, 255));
 			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*(1-flMovementPower)), (int)vecScreen.y - 50, (int)(100.0f*flMovementPower), 3, Color(255, 255, 0));
 
-			if (m_bHUDActive && DigitanksGame()->IsCurrentSelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+			if (m_bHUDActive && DigitanksGame()->GetCurrentTeam()->IsCurrentSelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 			{
 				int iHeight = (int)(200 * (pTank->GetBasePower()-pTank->GetBaseMovementPower())/pTank->GetBasePower());
 
@@ -852,7 +852,7 @@ void CHUD::SetupMenu()
 
 void CHUD::SetupMenu(menumode_t eMenuMode)
 {
-	if (!IsActive() || !DigitanksGame()->GetCurrentSelection())
+	if (!IsActive() || !DigitanksGame()->GetCurrentSelection() || DigitanksGame()->GetCurrentSelection()->GetTeam() != Game()->GetLocalTeam())
 	{
 		m_pButton1->SetClickedListener(NULL, NULL);
 		m_pButton2->SetClickedListener(NULL, NULL);
@@ -865,6 +865,18 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_pButtonHelp3->SetText("");
 		m_pButtonHelp4->SetText("");
 		m_pButtonHelp5->SetText("");
+
+		SetButton1Color(glgui::g_clrBox);
+		SetButton2Color(glgui::g_clrBox);
+		SetButton3Color(glgui::g_clrBox);
+		SetButton4Color(glgui::g_clrBox);
+		SetButton5Color(glgui::g_clrBox);
+
+		SetButton1Texture(0);
+		SetButton2Texture(0);
+		SetButton3Texture(0);
+		SetButton4Texture(0);
+		SetButton5Texture(0);
 		return;
 	}
 

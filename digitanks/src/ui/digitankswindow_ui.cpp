@@ -281,6 +281,8 @@ void CDonatePanel::ClosingApplication()
 		L"Please visit the website to contribute feedback from your playing experience by filling out a short survey. You can also donate to the Digitanks development effort, which will earn you a FREE copy of the game when it's released, your name in the credits, and the satisfaction of having helped out for a good cause!");
 
 	SetVisible(true);
+
+	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
 }
 
 void CDonatePanel::DonateCallback()

@@ -46,6 +46,7 @@ public:
 
 public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
+	IDigitanksGameListener*	GetListener() { return m_pListener; };
 
 	virtual void			RegisterNetworkFunctions();
 
@@ -70,7 +71,6 @@ public:
 	void					SetDesiredTurn(bool bAllTanks = false, Vector vecLookAt = Vector());
 	void					SetDesiredAim(bool bAllTanks = false);
 
-	void					NextTank();
 	void					EndTurn();
 	NET_CALLBACK(CDigitanksGame, EndTurn);
 	void					StartTurn();
@@ -93,12 +93,9 @@ public:
 	CDigitanksTeam*			GetDigitanksTeam(size_t i);
 
 	CDigitanksTeam*			GetCurrentTeam();
-	class CSelectable*		GetCurrentSelection();
-	class CDigitank*		GetCurrentTank();
-	class CStructure*		GetCurrentStructure();
-	size_t					GetCurrentSelectionId();
-	bool					IsCurrentSelection(const class CSelectable* pEntity);
-	void					SetCurrentSelection(CSelectable* pCurrent);
+	CSelectable*			GetCurrentSelection();
+	CDigitank*				GetCurrentTank();
+	CStructure*				GetCurrentStructure();
 
 	controlmode_t			GetControlMode();
 	void					SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
@@ -153,7 +150,6 @@ public:
 
 protected:
 	size_t					m_iCurrentTeam;
-	size_t					m_iCurrentSelection;
 
 	controlmode_t			m_eControlMode;
 

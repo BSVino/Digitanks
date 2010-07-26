@@ -20,6 +20,14 @@ public:
 public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
+	class CSelectable*			GetCurrentSelection();
+	class CDigitank*			GetCurrentTank();
+	class CStructure*			GetCurrentStructure();
+	size_t						GetCurrentSelectionId();
+	bool						IsCurrentSelection(const class CSelectable* pEntity);
+	void						SetCurrentSelection(CSelectable* pCurrent);
+	void						NextTank();
+
 	void						StartTurn();
 
 	void						MoveTanks();
@@ -49,6 +57,8 @@ public:
 
 protected:
 	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
+
+	size_t						m_iCurrentSelection;
 
 	std::map<size_t, float>		m_aflVisibilities;
 

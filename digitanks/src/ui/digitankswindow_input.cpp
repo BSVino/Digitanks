@@ -95,7 +95,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			else if (!m_pHUD->ShouldAutoProceed())
 				DigitanksGame()->SetControlMode(MODE_NONE);
 			else
-				DigitanksGame()->NextTank();
+				DigitanksGame()->GetCurrentTeam()->NextTank();
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENERGY);
 
@@ -149,7 +149,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
 			if (pSelectable)
-				DigitanksGame()->SetCurrentSelection(pSelectable);
+				DigitanksGame()->GetCurrentTeam()->SetCurrentSelection(pSelectable);
 		}
 	}
 
@@ -209,7 +209,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			}
 		}
 
-		DigitanksGame()->NextTank();
+		DigitanksGame()->GetCurrentTeam()->NextTank();
 	}
 
 	if (DigitanksGame() && c == 9)

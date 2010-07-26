@@ -28,7 +28,6 @@
 CDigitanksGame::CDigitanksGame()
 {
 	m_iCurrentTeam = 0;
-	m_iCurrentSelection = 0;
 
 	m_pListener = NULL;
 
@@ -320,12 +319,6 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (CNetwork::IsHost())
 		CNetwork::CallFunction(-1, "EnterGame");
 
-	// Leave an invalid selection for the tutorial so the player can select the tank himself.
-	if (m_eGameType == GAMETYPE_TUTORIAL)
-		m_iCurrentSelection = -1;
-	else
-		m_iCurrentSelection = 0;
-
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;
 
@@ -341,13 +334,15 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 
 	if (m_eGameType == GAMETYPE_TUTORIAL)
 		GetCamera()->SnapAngle(EAngle(45, 0, 0));
-	else
+	else if (GetCurrentSelection())
 	{
 		// Point the camera in to the center
 		EAngle angCamera = VectorAngles(GetCurrentSelection()->GetOrigin().Normalized());
 		angCamera.p = 45;
 		GetCamera()->SnapAngle(angCamera);
 	}
+
+	GetCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
 }
 
 void CDigitanksGame::Think()
@@ -380,8 +375,13 @@ void CDigitanksGame::Think()
 				CDigitank* pTank = GetCurrentTeam()->GetTank(i);
 				if (!pTank)
 					continue;
+
 				if (!pTank->HasDesiredAim())
 					continue;
+
+				if (pTank->GetVisibility() == 0)
+					continue;
+
 				vecSum += pTank->GetDesiredMove() + pTank->GetDesiredAim();
 				iSum += 2;
 			}
@@ -408,6 +408,9 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 	CDigitank* pCurrentTank = dynamic_cast<CDigitank*>(GetCurrentSelection());
 	if (!pCurrentTank)
+		return;
+
+	if (pCurrentTank->GetTeam() != GetLocalTeam())
 		return;
 
 	if (bAllTanks)
@@ -470,7 +473,7 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		}
 
 		if (CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
-			NextTank();
+			GetCurrentTeam()->NextTank();
 
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 	}
@@ -483,6 +486,9 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 
 	CDigitank* pCurrentTank = dynamic_cast<CDigitank*>(GetCurrentSelection());
 	if (!pCurrentTank)
+		return;
+
+	if (pCurrentTank->GetTeam() != GetLocalTeam())
 		return;
 
 	if (bAllTanks)
@@ -517,7 +523,7 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 	if (bAllTanks || !CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
 		SetControlMode(MODE_NONE);
 	else
-		NextTank();
+		GetCurrentTeam()->NextTank();
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 }
@@ -529,6 +535,9 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 
 	CDigitank* pCurrentTank = dynamic_cast<CDigitank*>(GetCurrentSelection());
 	if (!pCurrentTank)
+		return;
+
+	if (pCurrentTank->GetTeam() != GetLocalTeam())
 		return;
 
 	if (bAllTanks)
@@ -559,33 +568,9 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 	else if (!CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
 		SetControlMode(MODE_NONE);
 	else
-		NextTank();
+		GetCurrentTeam()->NextTank();
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
-}
-
-void CDigitanksGame::NextTank()
-{
-	size_t iOriginal = m_iCurrentSelection;
-	while ((m_iCurrentSelection = ++m_iCurrentSelection%GetCurrentTeam()->GetNumMembers()) != iOriginal)
-	{
-		if (!GetCurrentTank())
-			continue;
-
-		if (GetCurrentTank()->IsFortified())
-			continue;
-
-		if (GetCurrentTank()->HasGoalMovePosition())
-			continue;
-
-		break;
-	}
-
-	if (GetCurrentSelection())
-		GetCurrentSelection()->OnCurrentSelection();
-
-	if (m_pListener)
-		m_pListener->NewCurrentSelection();
 }
 
 void CDigitanksGame::EndTurn()
@@ -660,8 +645,6 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (m_pListener)
 		m_pListener->ClearTurnInfo();
 
-	m_iCurrentSelection = 0;
-
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
 
@@ -678,8 +661,9 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (GetCurrentTeam()->IsPlayerControlled())
 	{
-		// Find the first selectable tank.
-		NextTank();
+		// If the game hasn't specified a selection, find the first selectable tank.
+		if (!GetCurrentSelection())
+			GetCurrentTeam()->NextTank();
 	}
 	else if (CNetwork::IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();
@@ -762,13 +746,31 @@ void CDigitanksGame::CheckWinConditions()
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
+		if (m_eGameType == GAMETYPE_STANDARD)
 		{
-			m_ahTeams[i]->Delete();
-			m_ahTeams.erase(m_ahTeams.begin()+i);
-
+			bool bHasCPU = false;
+			for (size_t j = 0; j < m_ahTeams[i]->GetNumMembers(); j++)
+			{
+				CBaseEntity* pEntity = m_ahTeams[i]->GetMember(j);
+				if (dynamic_cast<CCPU*>(pEntity))
+				{
+					bHasCPU = true;
+					break;
+				}
+			}
 			if (i == 0)
 				bPlayerLost = true;
+		}
+		else	// Artillery mode
+		{
+			if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
+			{
+				m_ahTeams[i]->Delete();
+				m_ahTeams.erase(m_ahTeams.begin()+i);
+
+				if (i == 0)
+					bPlayerLost = true;
+			}
 		}
 	}
 
@@ -817,12 +819,7 @@ CSelectable* CDigitanksGame::GetCurrentSelection()
 	if (!GetCurrentTeam())
 		return NULL;
 
-	if (m_iCurrentSelection >= GetCurrentTeam()->GetNumMembers())
-		return NULL;
-
-	CBaseEntity* pEntity = GetCurrentTeam()->GetMember(m_iCurrentSelection);
-
-	return dynamic_cast<CSelectable*>(pEntity);
+	return GetCurrentTeam()->GetCurrentSelection();
 }
 
 CDigitank* CDigitanksGame::GetCurrentTank()
@@ -833,46 +830,6 @@ CDigitank* CDigitanksGame::GetCurrentTank()
 CStructure* CDigitanksGame::GetCurrentStructure()
 {
 	return dynamic_cast<CStructure*>(GetCurrentSelection());
-}
-
-size_t CDigitanksGame::GetCurrentSelectionId()
-{
-	return m_iCurrentSelection;
-}
-
-void CDigitanksGame::SetCurrentSelection(CSelectable* pCurrent)
-{
-	for (size_t i = 0; i < GetCurrentTeam()->GetNumMembers(); i++)
-	{
-		CBaseEntity* pMember = GetCurrentTeam()->GetMember(i);
-		if (!pMember)
-			continue;
-
-		CSelectable* pSelectable = dynamic_cast<CSelectable*>(pMember);
-		if (!pSelectable)
-			continue;
-
-		if (pSelectable == pCurrent)
-		{
-			m_iCurrentSelection = i;
-			break;
-		}
-	}
-
-	if (GetCurrentSelection())
-	{
-		GetCurrentSelection()->OnCurrentSelection();
-
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
-	}
-
-	if (m_pListener)
-		m_pListener->NewCurrentSelection();
-}
-
-bool CDigitanksGame::IsCurrentSelection(const CSelectable* pEntity)
-{
-	return GetCurrentSelection() == pEntity;
 }
 
 controlmode_t CDigitanksGame::GetControlMode()
@@ -894,8 +851,10 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode, bool bAutoProceed)
 	if (CDigitanksWindow::Get()->GetVictoryPanel()->IsVisible())
 		return;
 
-	if (!GetCurrentSelection()->OnControlModeChange(m_eControlMode, eMode))
+	if (!GetCurrentSelection()->AllowControlMode(eMode))
 		return;
+
+	GetCurrentSelection()->OnControlModeChange(m_eControlMode, eMode);
 
 	m_eControlMode = eMode;
 }

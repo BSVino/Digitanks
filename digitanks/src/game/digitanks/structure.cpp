@@ -73,6 +73,8 @@ void CStructure::CompleteConstruction()
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_POWER)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+
+	GetDigitanksTeam()->SetCurrentSelection(this);
 }
 
 size_t CStructure::GetTurnsToConstruct()

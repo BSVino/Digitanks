@@ -64,14 +64,14 @@ void CCamera::SnapAngle(EAngle angCamera)
 
 void CCamera::ZoomOut()
 {
-	SetDistance(m_flNewDistance+1);
+	SetDistance(m_flNewDistance+2);
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
 
 void CCamera::ZoomIn()
 {
-	SetDistance(m_flNewDistance-1);
+	SetDistance(m_flNewDistance-2);
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }

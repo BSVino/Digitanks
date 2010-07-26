@@ -557,7 +557,11 @@ void CTerrain::OnRender()
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
 
-	if (pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_MOVE)
+	bool bIsCurrentTeam = false;
+	if (pCurrentTank && pCurrentTank->GetTeam() == Game()->GetLocalTeam())
+		bIsCurrentTeam = true;
+
+	if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_MOVE)
 	{
 		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
 		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
@@ -574,7 +578,7 @@ void CTerrain::OnRender()
 		glUniform1i(bMovement, false);
 	}
 
-	if (pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_TURN)
+	if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
 		Vector vecPoint;
 		bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
@@ -625,10 +629,10 @@ void CTerrain::OnRender()
 		glUniform1i(bShowRanges, true);
 
 		GLuint bFocusRanges = glGetUniformLocation(iTerrainProgram, "bFocusRanges");
-		glUniform1i(bFocusRanges, DigitanksGame()->GetControlMode() == MODE_AIM);
+		glUniform1i(bFocusRanges, bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 		Vector vecRangeOrigin = pCurrentTank->GetDesiredMove();
-		if (DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
+		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
 			vecRangeOrigin = pCurrentTank->GetPreviewMove();
 
 		GLuint vecTankPreviewOrigin = glGetUniformLocation(iTerrainProgram, "vecTankPreviewOrigin");
@@ -644,7 +648,7 @@ void CTerrain::OnRender()
 		glUniform1f(flTankMinRange, pCurrentTank->GetMinRange());
 
 		GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
-		if (DigitanksGame()->GetControlMode() == MODE_TURN)
+		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_TURN)
 			glUniform1f(flTankYaw, pCurrentTank->GetPreviewTurn());
 		else
 			glUniform1f(flTankYaw, pCurrentTank->GetDesiredTurn());

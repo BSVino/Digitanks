@@ -21,7 +21,7 @@ public:
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
-	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
+	virtual bool				AllowControlMode(controlmode_t eMode);
 
 	virtual bool				CanFortify() { return true; };
 	virtual bool				IsArtillery() { return true; };

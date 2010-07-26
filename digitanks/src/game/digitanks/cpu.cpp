@@ -162,15 +162,12 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 }
 
-bool CCPU::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode)
+bool CCPU::AllowControlMode(controlmode_t eMode)
 {
-	if (eNewMode == MODE_BUILD)
+	if (eMode == MODE_BUILD)
 		return true;
 
-	if (eNewMode == MODE_NONE)
-		return true;
-
-	return false;
+	return BaseClass::AllowControlMode(eMode);
 }
 
 bool CCPU::IsPreviewBuildValid() const

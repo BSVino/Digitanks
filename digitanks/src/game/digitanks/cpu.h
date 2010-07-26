@@ -17,7 +17,7 @@ public:
 
 	virtual float				GetBoundingRadius() const { return 8; };
 
-	virtual bool				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
+	virtual bool				AllowControlMode(controlmode_t eMode);
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 

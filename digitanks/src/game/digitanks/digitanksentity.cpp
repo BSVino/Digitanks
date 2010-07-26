@@ -30,7 +30,7 @@ void CDigitanksEntity::Think()
 	}
 }
 
-CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam()
+CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const
 {
 	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
 }
