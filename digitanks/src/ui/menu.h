@@ -32,6 +32,8 @@ protected:
 	glgui::CButton*					m_pStartTutorialBases;
 	glgui::CButton*					m_pStartGame;
 	glgui::CButton*					m_pExit;
+
+	size_t							m_iLunarWorkshop;
 };
 
 class CVictoryPanel : public glgui::CPanel

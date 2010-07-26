@@ -3,6 +3,7 @@
 #include <glgui/glgui.h>
 #include <digitanks/digitanksgame.h>
 #include <platform.h>
+#include <renderer/renderer.h>
 
 #include "menu.h"
 #include "instructor.h"
@@ -60,6 +61,8 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pExit->SetClickedListener(this, Exit);
 	AddControl(m_pExit);
 
+	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
+
 	Layout();
 }
 
@@ -96,6 +99,9 @@ void CDigitanksMenu::Layout()
 
 void CDigitanksMenu::Paint(int x, int y, int w, int h)
 {
+	if (!CDigitanksWindow::Get()->GetGame())
+		CRootPanel::PaintTexture(m_iLunarWorkshop, 20, CRootPanel::Get()->GetHeight()-200, 200, 200);
+
 	if (CDigitanksWindow::Get()->GetGame())
 		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
 	else
