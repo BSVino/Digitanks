@@ -1016,7 +1016,7 @@ void CHUD::NewCurrentTeam()
 	m_bAutoProceed = true;
 
 	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) &&
-			DigitanksGame()->GetCurrentTank() &&
+			DigitanksGame()->GetCurrentTank() && !DigitanksGame()->GetCurrentTank()->HasGoalMovePosition() &&
 			CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)	// Don't set control mode if it's the end so we can open the menu.
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 	else
