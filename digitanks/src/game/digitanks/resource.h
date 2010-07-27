@@ -9,6 +9,8 @@ class CResource : public CStructure
 	REGISTER_ENTITY_CLASS(CResource, CStructure);
 
 public:
+	virtual float				GetBoundingRadius() const { return 2; };
+
 	virtual void				Spawn();
 
 	virtual void				OnRender();
