@@ -66,6 +66,9 @@ size_t CDigitanksTeam::GetCurrentSelectionId()
 
 void CDigitanksTeam::SetCurrentSelection(CSelectable* pCurrent)
 {
+	if (pCurrent->GetVisibility() == 0)
+		return;
+
 	m_iCurrentSelection = pCurrent->GetHandle();
 
 	if (GetCurrentSelection())

@@ -62,6 +62,9 @@ void CLoader::StartTurn()
 			float y = RandomFloat(0, 360);
 			pTank->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, y, 0)) * 10));
 
+			// Face him toward the center.
+			pTank->SetAngles(EAngle(0, VectorAngles(-GetOrigin().Normalized()).y, 0));
+
 			GetTeam()->AddEntity(pTank);
 
 			m_bProducing = false;
@@ -73,7 +76,7 @@ void CLoader::StartTurn()
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo("Production finished on Artillery");
 
-			GetDigitanksTeam()->SetCurrentSelection(this);
+			GetDigitanksTeam()->SetCurrentSelection(pTank);
 		}
 		else
 		{

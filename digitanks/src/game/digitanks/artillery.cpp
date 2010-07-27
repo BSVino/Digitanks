@@ -81,6 +81,9 @@ bool CArtillery::AllowControlMode(controlmode_t eMode)
 	if (eMode == MODE_FIRE)
 		return false;
 
+	if (!IsFortified() && eMode == MODE_AIM)
+		return false;
+
 	return BaseClass::AllowControlMode(eMode);
 }
 

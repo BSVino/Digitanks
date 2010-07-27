@@ -83,9 +83,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	if (!DigitanksGame())
 		return;
 
-	if (iState == GLUT_DOWN && iButton == 2)
+	if (iState == GLUT_DOWN)
 	{
-		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+		if ((iButton == 0 || iButton == 2) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
 			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
 			{
@@ -101,7 +101,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 			return;	// Don't center camera
 		}
-		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+		else if (iButton == 2 && DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
 			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetCurrentStructure());
 			if (pCPU && pCPU->IsPreviewBuildValid())

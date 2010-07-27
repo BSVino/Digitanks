@@ -891,6 +891,11 @@ void CDigitank::Fortify()
 	m_iFortifyLevel = 0;
 }
 
+bool CDigitank::CanAim()
+{
+	return AllowControlMode(MODE_AIM);
+}
+
 void CDigitank::Think()
 {
 	BaseClass::Think();

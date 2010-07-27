@@ -758,7 +758,8 @@ void CDigitanksGame::CheckWinConditions()
 					break;
 				}
 			}
-			if (i == 0)
+
+			if (!bHasCPU && i == 0)
 				bPlayerLost = true;
 		}
 		else	// Artillery mode

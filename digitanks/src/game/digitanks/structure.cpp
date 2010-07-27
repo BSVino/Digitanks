@@ -112,7 +112,7 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 		pContext->SetColor(Color(255, 255, 255));
-		pContext->SetAlpha(0.3f);
+		pContext->SetAlpha(0.3f * GetVisibility());
 	}
 
 	if (GetTeam())

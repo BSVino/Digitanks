@@ -30,7 +30,6 @@ public:
 
 	virtual bool				CanFortify() { return true; };
 	virtual bool				UseFortifyMenuAim() { return true; };
-	virtual bool				CanAim() { return false; };
 
 	virtual float				GetBonusAttackPower();
 	virtual float				GetBonusDefensePower();

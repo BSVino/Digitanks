@@ -20,6 +20,19 @@ CCamera::CCamera()
 
 void CCamera::SetTarget(Vector vecTarget)
 {
+	if (vecTarget.x < -DigitanksGame()->GetTerrain()->GetMapSize())
+		vecTarget.x = -DigitanksGame()->GetTerrain()->GetMapSize();
+	if (vecTarget.z < -DigitanksGame()->GetTerrain()->GetMapSize())
+		vecTarget.z = -DigitanksGame()->GetTerrain()->GetMapSize();
+	if (vecTarget.x > DigitanksGame()->GetTerrain()->GetMapSize())
+		vecTarget.x = DigitanksGame()->GetTerrain()->GetMapSize();
+	if (vecTarget.z > DigitanksGame()->GetTerrain()->GetMapSize())
+		vecTarget.z = DigitanksGame()->GetTerrain()->GetMapSize();
+	if (vecTarget.y < -100)
+		vecTarget.y = -100;
+	if (vecTarget.y > 100)
+		vecTarget.y = 100;
+
 	m_flTargetRamp = DigitanksGame()->GetGameTime();
 	m_vecOldTarget = m_vecTarget;
 	m_vecNewTarget = vecTarget;

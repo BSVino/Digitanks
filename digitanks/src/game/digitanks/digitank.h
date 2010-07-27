@@ -161,7 +161,7 @@ public:
 	virtual bool				CanMoveFortified() { return false; };
 	virtual bool				CanTurnFortified() { return false; };
 	virtual bool				CanAimMobilized() { return true; };
-	virtual bool				CanAim() { return true; };
+	virtual bool				CanAim();
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
 

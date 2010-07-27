@@ -141,6 +141,16 @@ void CDigitanksTeam::Bot_ExpandBase()
 	else
 		vecStructure += vecStructureDirection.Normalized() * 20;
 
+	// Don't build structures too close to the map edges.
+	if (vecStructure.x < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
+		return;
+	if (vecStructure.z < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
+		return;
+	if (vecStructure.x > DigitanksGame()->GetTerrain()->GetMapSize()-15)
+		return;
+	if (vecStructure.z > DigitanksGame()->GetTerrain()->GetMapSize()-15)
+		return;
+
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
 
 	m_hPrimaryCPU->SetPreviewStructure(g_aeBuildOrder[m_iBuildPosition]);
