@@ -17,8 +17,6 @@ public:
 	virtual float				GetRightShieldMaxStrength();
 	virtual float				GetRearShieldMaxStrength();
 
-	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
-
 	virtual void				Think();
 	virtual void				Fire();
 	virtual class CProjectile*	CreateProjectile();

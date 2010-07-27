@@ -161,9 +161,6 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 
 	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
 	{
-		if (!HasDesiredAim() && !IsPreviewAimValid())
-			return 0;
-
 		flMovementLength = GetPreviewMoveTurnPower();
 
 		if (flMovementLength > m_flBasePower)
@@ -201,9 +198,6 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 			else
 				return m_flDefensePower;
 		}
-
-		if (!HasDesiredAim() && !bPreviewAimValid)
-			return m_flBasePower - flMovementLength;
 
 		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
 	}
@@ -263,14 +257,30 @@ float CDigitank::GetMaxMovementDistance() const
 	return GetTotalMovementPower() * GetTankSpeed();
 }
 
+float CDigitank::GetBonusAttackScale()
+{
+	if (m_flBasePower < 0.001f)
+		return 0;
+
+	return m_flAttackPower/m_flBasePower;
+}
+
+float CDigitank::GetBonusDefenseScale()
+{
+	if (m_flBasePower < 0.001f)
+		return 0;
+
+	return m_flDefensePower/m_flBasePower;
+}
+
 float CDigitank::GetBonusAttackPower()
 {
-	return m_flBonusAttackPower + GetSupportAttackPowerBonus();
+	return (m_flBonusAttackPower + GetSupportAttackPowerBonus())*GetBonusAttackScale();
 }
 
 float CDigitank::GetBonusDefensePower()
 {
-	return m_flBonusDefensePower + GetSupportDefensePowerBonus();
+	return (m_flBonusDefensePower + GetSupportDefensePowerBonus())*GetBonusDefenseScale();
 }
 
 float CDigitank::GetSupportAttackPowerBonus()
@@ -1216,9 +1226,6 @@ void CDigitank::Move()
 		m_bDesiredTurn = false;
 		SetAngles(EAngle(0, m_flDesiredTurn, 0));
 	}
-
-	if (!m_bDesiredAim)
-		SetAttackPower(0.0f);
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{

@@ -17,7 +17,8 @@ CMechInfantry::CMechInfantry()
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
 
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 15;
-	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 2;
+	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 8;
+	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
 
 	m_iFireProjectiles = 0;
 	m_flLastProjectileFire = 0;
@@ -42,19 +43,6 @@ float CMechInfantry::GetRightShieldMaxStrength()
 float CMechInfantry::GetRearShieldMaxStrength()
 {
 	return GetFrontShieldMaxStrength();
-}
-
-float* CMechInfantry::GetShieldForAttackDirection(Vector vecAttack)
-{
-	Vector vecForward;
-	AngleVectors(GetAngles(), &vecForward, NULL, NULL);
-
-	float flForwardDot = vecForward.Dot(vecAttack);
-
-	if (flForwardDot > 0.0f)
-		return &m_flFrontShieldStrength;
-	else
-		return &m_flRearShieldStrength;
 }
 
 void CMechInfantry::Think()
@@ -139,28 +127,28 @@ bool CMechInfantry::AllowControlMode(controlmode_t eMode)
 
 float CMechInfantry::GetBonusAttackPower()
 {
-	if (!m_bFortified)
-		return BaseClass::GetBonusAttackPower();
-
-	return BaseClass::GetBonusAttackPower() + GetFortifyAttackPowerBonus();
+	return BaseClass::GetBonusAttackPower() + GetFortifyAttackPowerBonus()*GetBonusAttackScale();
 }
 
 float CMechInfantry::GetBonusDefensePower()
 {
-	if (!m_bFortified)
-		return BaseClass::GetBonusDefensePower();
-
-	return BaseClass::GetBonusDefensePower() + GetFortifyDefensePowerBonus();
+	return BaseClass::GetBonusDefensePower() + GetFortifyDefensePowerBonus()*GetBonusDefenseScale();
 }
 
 float CMechInfantry::GetFortifyAttackPowerBonus()
 {
-	return (float)m_iFortifyLevel;
+	if (m_bFortified)
+		return (float)m_iFortifyLevel;
+	else
+		return 0;
 }
 
 float CMechInfantry::GetFortifyDefensePowerBonus()
 {
-	return (float)m_iFortifyLevel*2;
+	if (m_bFortified)
+		return (float)m_iFortifyLevel*2;
+	else
+		return 0;
 }
 
 float CMechInfantry::ShieldRechargeRate() const
