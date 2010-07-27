@@ -266,18 +266,12 @@ void CCPU::BeginConstruction()
 
 	if (m_ePreviewStructure == STRUCTURE_PSU && iTutorial == CInstructor::TUTORIAL_PSU)
 	{
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PSU);
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
-
 		// Make sure it's done next turn.
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionRemaining());
 	}
 
 	if (iTutorial == CInstructor::TUTORIAL_LOADER && (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER || m_ePreviewStructure == STRUCTURE_TANKLOADER || m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER))
 	{
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_LOADER);
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
-
 		// Make sure it's done next turn.
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionRemaining());
 	}

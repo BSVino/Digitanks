@@ -23,6 +23,8 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode);
 
+	virtual const char*			GetName() { return "Artillery"; };
+
 	virtual bool				CanFortify() { return true; };
 	virtual bool				IsArtillery() { return true; };
 	virtual bool				UseFortifyMenuFire() { return true; };

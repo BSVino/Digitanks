@@ -23,6 +23,9 @@ public:
 	virtual void					ModifyContext(class CRenderingContext* pContext);
 	virtual void					OnRender();
 
+	virtual void					UpdateInfo(std::string& sInfo) {};
+	virtual const char*				GetName() { return "Entity"; };
+
 	virtual float					VisibleRange() const { return 0; };
 	virtual float					TotalHealth() const { return 10; };
 };

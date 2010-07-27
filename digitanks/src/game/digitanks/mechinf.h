@@ -24,6 +24,8 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode);
 
+	virtual const char*			GetName() { return "Mechanized Infantry"; };
+
 	virtual float				RenderShieldScale() { return 2.0f; };
 
 	virtual bool				CanFortify() { return true; };

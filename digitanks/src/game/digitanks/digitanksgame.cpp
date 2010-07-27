@@ -342,7 +342,8 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		GetCamera()->SnapAngle(angCamera);
 	}
 
-	GetCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
+	if (GetLocalDigitanksTeam()->GetMember(0))
+		GetCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
 }
 
 void CDigitanksGame::Think()

@@ -210,6 +210,8 @@ public:
 	virtual float				RenderShieldScale() { return 1.0f; };
 	virtual void				PostRender();
 
+	virtual void				UpdateInfo(std::string& sInfo);
+
 	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
 	bool						HasBonusPoints() { return m_iBonusPoints > 0; };
 	size_t						GetBonusPoints() { return m_iBonusPoints; };

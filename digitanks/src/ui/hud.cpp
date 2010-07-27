@@ -648,12 +648,12 @@ void CHUD::UpdateInfo()
 	if (pCurrentTank)
 		UpdateTankInfo(pCurrentTank);
 
-	CStructure* pCurrentStructure = DigitanksGame()->GetCurrentStructure();
+	CSelectable* pCurrentSelection = DigitanksGame()->GetCurrentSelection();
 
-	if (pCurrentStructure)
+	if (pCurrentSelection)
 	{
 		std::string sInfo;
-		pCurrentStructure->UpdateInfo(sInfo);
+		pCurrentSelection->UpdateInfo(sInfo);
 		m_pTankInfo->SetText(sInfo.c_str());
 	}
 }
@@ -680,63 +680,6 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 		pTank->GetRightShieldStrength() * pTank->GetRightShieldMaxStrength(),
 		pTank->GetRightShieldMaxStrength() * pTank->GetDefenseScale(true));
 	m_pRightShieldInfo->SetText(szShieldInfo);
-
-	m_pTankInfo->SetText("TANK INFO");
-
-	if (pTank->IsFortified() || pTank->IsFortifying())
-		m_pTankInfo->AppendText("\n \n[Fortified]");
-
-	if (pTank->HasBonusPoints())
-	{
-		if (pTank->GetBonusPoints() > 1)
-			sprintf(szShieldInfo, "\n \n%d bonus points", pTank->GetBonusPoints());
-		else
-			sprintf(szShieldInfo, "\n \n1 bonus point");
-		m_pTankInfo->AppendText(szShieldInfo);
-	}
-
-	if (pTank->GetBonusAttackPower())
-	{
-		sprintf(szShieldInfo, "\n \n+%d attack energy", (int)pTank->GetBonusAttackPower());
-		m_pTankInfo->AppendText(szShieldInfo);
-
-		if (pTank->IsFortified() && (int)pTank->GetFortifyAttackPowerBonus() > 0)
-		{
-			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pTank->GetFortifyAttackPowerBonus());
-			m_pTankInfo->AppendText(szShieldInfo);
-		}
-
-		if ((int)pTank->GetSupportAttackPowerBonus() > 0)
-		{
-			sprintf(szShieldInfo, "\n (+%d from support)", (int)pTank->GetSupportAttackPowerBonus());
-			m_pTankInfo->AppendText(szShieldInfo);
-		}
-	}
-
-	if (pTank->GetBonusDefensePower())
-	{
-		sprintf(szShieldInfo, "\n \n+%d defense energy", (int)pTank->GetBonusDefensePower());
-		m_pTankInfo->AppendText(szShieldInfo);
-
-		if (pTank->IsFortified() && (int)pTank->GetFortifyDefensePowerBonus() > 0)
-		{
-			sprintf(szShieldInfo, "\n (+%d from fortify)", (int)pTank->GetFortifyDefensePowerBonus());
-			m_pTankInfo->AppendText(szShieldInfo);
-		}
-
-		if ((int)pTank->GetSupportDefensePowerBonus() > 0)
-		{
-			sprintf(szShieldInfo, "\n (+%d from support)", (int)pTank->GetSupportDefensePowerBonus());
-			m_pTankInfo->AppendText(szShieldInfo);
-		}
-	}
-
-	if (pTank->GetBonusMovementPower())
-	{
-		sprintf(szShieldInfo, "\n \n+%d movement energy", (int)pTank->GetBonusMovementPower());
-		m_pTankInfo->AppendText(szShieldInfo);
-	}
-
 	m_pAttackInfo->SetText(L"No targets");
 
 	Vector vecOrigin;

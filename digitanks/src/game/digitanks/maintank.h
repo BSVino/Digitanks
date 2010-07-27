@@ -13,6 +13,8 @@ public:
 public:
 	virtual void				Precache();
 
+	virtual const char*			GetName() { return "Main Battle Tank"; };
+
 	virtual float				RenderShieldScale() { return 1.3f; };
 
 	virtual float				HealthRechargeRate() const { return 0.2f; };

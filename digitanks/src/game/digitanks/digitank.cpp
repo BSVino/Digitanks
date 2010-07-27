@@ -1,5 +1,7 @@
 #include "digitank.h"
 
+#include <sstream>
+
 // Must be above freeglut because windows.h causes problems
 #include "projectile.h"
 
@@ -1762,6 +1764,51 @@ void CDigitank::PostRender()
 
 		oRope.Finish(vecGoalMove);
 	}
+}
+
+void CDigitank::UpdateInfo(std::string& sInfo)
+{
+	std::stringstream s;
+
+	s << GetName();
+
+	if (IsFortified() || IsFortifying())
+		s << "\n \n[Fortified]";
+
+	if (HasBonusPoints())
+	{
+		if (GetBonusPoints() > 1)
+			s << "\n \n" << GetBonusPoints() << " bonus points";
+		else
+			s << "\n \n1 bonus point";
+	}
+
+	if (GetBonusAttackPower())
+	{
+		s << "\n \n+" << (int)GetBonusAttackPower() << " attack energy";
+
+		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
+			s << "\n (+" << (int)GetFortifyAttackPowerBonus() << " from fortify)";
+
+		if ((int)GetSupportAttackPowerBonus() > 0)
+			s << "\n (+" << (int)GetSupportAttackPowerBonus() << " from support)";
+	}
+
+	if (GetBonusDefensePower())
+	{
+		s << "\n \n+" << (int)GetBonusDefensePower() << " defense energy";
+
+		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
+			s << "\n (+" << (int)GetFortifyDefensePowerBonus() << " from fortify)";
+
+		if ((int)GetSupportDefensePowerBonus() > 0)
+			s << "\n (+" << (int)GetSupportDefensePowerBonus() << " from support)";
+	}
+
+	if (GetBonusMovementPower())
+		s << "\n \n+" << (int)GetBonusMovementPower() << " movement energy";
+
+	sInfo = s.str();
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)

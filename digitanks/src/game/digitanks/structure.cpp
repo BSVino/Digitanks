@@ -12,6 +12,9 @@
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
 
+#include "collector.h"
+#include "loader.h"
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
@@ -69,12 +72,20 @@ void CStructure::CompleteConstruction()
 	m_bConstructing = false;
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PSU);
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_LOADER);
 
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_POWER)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 
 	GetDigitanksTeam()->SetCurrentSelection(this);
+
+	if (dynamic_cast<CCollector*>(this) && iTutorial == CInstructor::TUTORIAL_PSU)
+		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+
+	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
+		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 }
 
 size_t CStructure::GetTurnsToConstruct()

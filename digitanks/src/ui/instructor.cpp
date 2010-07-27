@@ -112,13 +112,13 @@ void CInstructor::Initialize()
 		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. Friendly units inside your Network will receive combat bonuses. You can only build more structures inside your Network.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_PSU, new CTutorial(this, TUTORIAL_PSU, POSITION_TOPCENTER, 250, false,
-		L"POWER SUPPLIES\n \nPower Supplies can extract Power from Electronodes. They must be built close to an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU. Press the 'Power Supply' button and right click near the Electronode to build a Power Supply. Then press the 'Enter' key to complete construction.")));
+		L"POWER SUPPLIES\n \nPower Supplies can extract Power from Electronodes. They must be built close to an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Power Supply' button and right click near the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SUPPLY, new CTutorial(this, TUTORIAL_SUPPLY, POSITION_TOPCENTER, 250, true,
 		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_LOADER, new CTutorial(this, TUTORIAL_LOADER, POSITION_TOPCENTER, 250, false,
-		L"LOADERS\n \nLoaders are specialized structures that produce combat units. Build a Loader by pressing one the 'Build Loader' button, selecting any loader, and right clicking on your Network. Then press the 'Enter' key to complete construction.")));
+		L"LOADERS\n \nLoaders are specialized structures that produce combat units. With the CPU selected, build a Loader by pressing one the 'Build Loader' button, selecting any loader, and right clicking on your Network. Then press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_EFFICIENCY, new CTutorial(this, TUTORIAL_EFFICIENCY, POSITION_TOPCENTER, 250, true,
 		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer or CPU will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nClick here to continue.")));
@@ -144,12 +144,14 @@ void CInstructor::SetActive(bool bActive)
 
 void CInstructor::DisplayFirstBasicsTutorial()
 {
+	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_BASICS;
 	DisplayTutorial(m_iCurrentTutorial);
 }
 
 void CInstructor::DisplayFirstBasesTutorial()
 {
+	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_BASES;
 	DisplayTutorial(m_iCurrentTutorial);
 }

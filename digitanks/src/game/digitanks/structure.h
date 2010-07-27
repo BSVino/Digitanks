@@ -44,10 +44,7 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
-	virtual void				UpdateInfo(std::string& sInfo) {};
-
 	virtual float				VisibleRange() const { return 50; };
-	virtual const char*			GetName() { return "Structure"; };
 	virtual size_t				ConstructionCost() const { return 20; };
 	virtual float				TotalHealth() const { return 50; };
 
