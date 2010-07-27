@@ -299,8 +299,9 @@ void CHUD::Think()
 
 	Vector vecPoint;
 	bool bMouseOnGrid = false;
+	CBaseEntity* pHit = NULL;
 	if (DigitanksGame()->GetControlMode() != MODE_NONE)
-		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
+		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint, &pHit);
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
 	{
@@ -328,7 +329,12 @@ void CHUD::Think()
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			pCurrentTank->SetPreviewAim(vecPoint);
+		{
+			if (dynamic_cast<CDigitanksEntity*>(pHit))
+				pCurrentTank->SetPreviewAim(pHit->GetOrigin());
+			else
+				pCurrentTank->SetPreviewAim(vecPoint);
+		}
 	}
 
 	CStructure* pCurrentStructure = DigitanksGame()->GetCurrentStructure();

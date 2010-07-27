@@ -923,7 +923,8 @@ void CDigitank::Think()
 	if (bShowThisTank)
 	{
 		Vector vecMouseAim;
-		bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecMouseAim);
+		CBaseEntity* pHit = NULL;
+		bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecMouseAim, &pHit);
 
 		Vector vecTankAim;
 		if (HasDesiredAim())
@@ -931,11 +932,13 @@ void CDigitank::Think()
 
 		if (bMouseOK && bAimMode)
 		{
-			if (GetDigitanksTeam()->IsCurrentSelection(this))
-				vecTankAim = vecMouseAim;
-
-			if (!GetDigitanksTeam()->IsCurrentSelection(this) && bShiftDown)
-				vecTankAim = vecMouseAim;
+			if (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown)
+			{
+				if (pHit && dynamic_cast<CDigitanksEntity*>(pHit))
+					vecTankAim = pHit->GetOrigin();
+				else
+					vecTankAim = vecMouseAim;
+			}
 		}
 
 		if (HasDesiredAim() || bMouseOK)
