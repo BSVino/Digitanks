@@ -13,7 +13,7 @@ CMainBattleTank::CMainBattleTank()
 
 void CMainBattleTank::Precache()
 {
-	PrecacheModel(L"models/digitanks/digitank-body.obj", false);
+	PrecacheModel(L"models/digitanks/digitank-body.obj");
 	PrecacheModel(L"models/digitanks/digitank-turret.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
 }

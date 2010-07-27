@@ -551,7 +551,7 @@ IDraggable* CDroppablePanel::GetDraggable(int i)
 	return m_apDraggables[i];
 }
 
-FTGLPixmapFont* CLabel::s_pFont = NULL;
+FTGLBitmapFont* CLabel::s_pFont = NULL;
 
 CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 	: CBaseControl(x, y, w, h)
@@ -568,7 +568,7 @@ CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 		char szFont[1024];
 		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
 
-		s_pFont = new FTGLPixmapFont(szFont);
+		s_pFont = new FTGLBitmapFont(szFont);
 	}
 
 	SetFontFaceSize(13);

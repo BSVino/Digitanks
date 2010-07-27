@@ -459,7 +459,7 @@ namespace glgui
 
 		int				m_iFontFaceSize;
 
-		static FTGLPixmapFont*	s_pFont;
+		static FTGLBitmapFont*	s_pFont;
 	};
 
 	class CButton : public CLabel

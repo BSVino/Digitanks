@@ -34,8 +34,8 @@ void CCPU::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/cpu.obj", false);
-	PrecacheModel(L"models/structures/cpu-fan.obj", false);
+	PrecacheModel(L"models/structures/cpu.obj");
+	PrecacheModel(L"models/structures/cpu-fan.obj");
 }
 
 void CCPU::SetupMenu(menumode_t eMenuMode)

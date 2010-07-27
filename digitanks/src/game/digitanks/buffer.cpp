@@ -19,7 +19,7 @@ void CBuffer::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/buffer.obj", false);
+	PrecacheModel(L"models/structures/buffer.obj");
 }
 
 void CBuffer::UpdateInfo(std::string& sInfo)

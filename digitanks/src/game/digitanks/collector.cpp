@@ -20,7 +20,7 @@ void CCollector::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/psu.obj", false);
+	PrecacheModel(L"models/structures/psu.obj");
 }
 
 void CCollector::UpdateInfo(std::string& sInfo)

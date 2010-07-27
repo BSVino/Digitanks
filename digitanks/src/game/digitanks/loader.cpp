@@ -30,9 +30,9 @@ void CLoader::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/loader-infantry.obj", false);
-	PrecacheModel(L"models/structures/loader-main.obj", false);
-	PrecacheModel(L"models/structures/loader-artillery.obj", false);
+	PrecacheModel(L"models/structures/loader-infantry.obj");
+	PrecacheModel(L"models/structures/loader-main.obj");
+	PrecacheModel(L"models/structures/loader-artillery.obj");
 }
 
 void CLoader::Spawn()

@@ -159,7 +159,14 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 		glUniform1f(flAlpha, m_flAlpha);
 
 		GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
-		glUniform1i(bColorSwapInAlpha, false);
+		glUniform1i(bColorSwapInAlpha, m_bColorSwap);
+
+		if (m_bColorSwap)
+		{
+			GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
+			Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
+			glUniform3fv(vecColorSwap, 1, vecColor);
+		}
 
 		glCallList((GLuint)pModel->m_iCallList);
 
