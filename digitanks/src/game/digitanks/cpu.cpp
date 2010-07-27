@@ -361,11 +361,43 @@ void CCPU::PostRender()
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 
 		if (IsPreviewBuildValid())
-			r.SetColor(Color(255, 255, 255));
+		{
+			r.SetColorSwap(Color(255, 255, 255));
+			r.SetAlpha(0.5f);
+			r.SetBlend(BLEND_ALPHA);
+		}
 		else
-			r.SetColor(Color(255, 0, 0));
+		{
+			r.SetColorSwap(Color(255, 0, 0));
+			r.SetAlpha(0.3f);
+			r.SetBlend(BLEND_ADDITIVE);
+		}
 
-		glutSolidCube(4);
+		size_t iModel = 0;
+		switch (m_ePreviewStructure)
+		{
+		case STRUCTURE_BUFFER:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/buffer.obj");
+			break;
+
+		case STRUCTURE_PSU:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/psu.obj");
+			break;
+
+		case STRUCTURE_INFANTRYLOADER:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-infantry.obj");
+			break;
+
+		case STRUCTURE_TANKLOADER:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-main.obj");
+			break;
+
+		case STRUCTURE_ARTILLERYLOADER:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-artillery.obj");
+			break;
+		}
+
+		r.RenderModel(iModel);
 	}
 }
 
