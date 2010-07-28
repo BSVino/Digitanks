@@ -324,9 +324,9 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 		return 0.0f;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 5.0f;
+		return 3.0f;
 
-	return 2.5f;
+	return 1.5f;
 }
 
 void CDigitank::SetAttackPower(float flAttackPower)
@@ -478,9 +478,19 @@ void CDigitank::StartTurn()
 	CalculateAttackDefense();
 
 	for (size_t i = 0; i < TANK_SHIELDS; i++)
+	{
+		float flShieldStrength = m_flShieldStrengths[i];
 		m_flShieldStrengths[i] = Approach(m_flMaxShieldStrengths[i], m_flShieldStrengths[i], ShieldRechargeRate());
 
+		if (flShieldStrength - m_flShieldStrengths[i] < 0)
+			DigitanksGame()->OnTakeDamage(this, NULL, NULL, flShieldStrength - m_flShieldStrengths[i], true, false);
+	}
+
+	float flHealth = m_flHealth;
 	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
+
+	if (flHealth - m_flHealth < 0)
+		DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flHealth - m_flHealth, true, false);
 
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
@@ -1295,9 +1305,11 @@ void CDigitank::FireProjectile()
 	if (flDistance > GetEffRange())
 		flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, TANK_MAX_RANGE_RADIUS);
 
-	float x = RandomFloat(-flFactor, flFactor);
-	float z = RandomFloat(-flFactor, flFactor);
-	vecLandingSpot += Vector(x, 0, z);
+	float flYaw = RandomFloat(0, 360);
+	float flRadius = RandomFloat(1, flFactor);
+
+	// Don't use uniform distribution, I like how it's clustered on the target.
+	vecLandingSpot += Vector(flRadius*cos(flYaw), 0, flRadius*sin(flYaw));
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 

@@ -998,10 +998,10 @@ void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseE
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 
-	if (!pVictim->IsAlive() && bDirectHit)
+	if (!pVictim->IsAlive() && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"OVERKILL!");
 
-	else if (bShieldOnly && bDirectHit)
+	else if (bShieldOnly && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
@@ -1014,7 +1014,7 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);
 
-	if ((pVictim->IsAlive() || bKilled) && bDirectHit)
+	if ((pVictim->IsAlive() || bKilled) && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
@@ -1435,21 +1435,30 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 
 	if (m_bShield)
 		SetFGColor(Color(255, 255, 255));
+	else if (flDamage < 0)
+		SetFGColor(Color(0, 255, 0));
 	else
 		SetFGColor(Color(255, 0, 0));
 
 	int iDamage = (int)flDamage;
+
+	// Don't let it say 0
 	if (flDamage > 0 && iDamage < 1)
 		iDamage = 1;
+	if (flDamage < 0 && iDamage > -1)
+		iDamage = -1;
 
-	if (flDamage < 0.5f)
+	if (flDamage < 0.5f && flDamage > -0.1f)
 	{
 		m_flTime = 0;
 		SetVisible(false);
 	}
 
 	char szDamage[100];
-	sprintf(szDamage, "-%d", iDamage);
+	if (iDamage < 0)
+		sprintf(szDamage, "+%d", -iDamage);
+	else
+		sprintf(szDamage, "-%d", iDamage);
 	SetText(szDamage);
 
 	SetFontFaceSize(18);
