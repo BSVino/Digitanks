@@ -25,6 +25,9 @@ public:
 	virtual float				GetMaxRange() const { return 60.0f; };
 	virtual float				GetEffRange() const { return 30.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
+
+	virtual size_t				FleetPoints() const { return MainTankFleetPoints(); };
+	static size_t				MainTankFleetPoints() { return 4; };
 };
 
 #endif

@@ -44,7 +44,10 @@ public:
 	virtual float				TurnPerPower() const { return 45; }
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
-	virtual float				VisibleRange() const { return 50; };
+	virtual float				VisibleRange() const { return 60.0f; };
+
+	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
+	static size_t				InfantryFleetPoints() { return 2; };
 
 protected:
 	size_t						m_iFireProjectiles;

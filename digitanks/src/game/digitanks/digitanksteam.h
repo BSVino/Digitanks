@@ -38,6 +38,11 @@ public:
 	float						GetProductionPerLoader();
 	size_t						GetTotalProduction() { return m_iProduction; };
 
+	void						CountFleetPoints();
+	size_t						GetTotalFleetPoints() { return m_iTotalFleetPoints; };
+	size_t						GetUsedFleetPoints() { return m_iUsedFleetPoints; };
+	size_t						GetUnusedFleetPoints() { return GetTotalFleetPoints() - GetUsedFleetPoints(); };
+
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	size_t						GetNumTanksAlive();
@@ -64,6 +69,9 @@ protected:
 
 	size_t						m_iProduction;
 	size_t						m_iLoadersProducing;
+
+	size_t						m_iTotalFleetPoints;
+	size_t						m_iUsedFleetPoints;
 
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;

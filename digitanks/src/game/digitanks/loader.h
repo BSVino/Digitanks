@@ -29,6 +29,9 @@ public:
 	bool						IsProducing() { return m_bProducing; };
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 
+	size_t						GetFleetPointsRequired();
+	bool						HasEnoughFleetPoints();
+
 	size_t						GetTurnsToProduce();
 
 	void						SetBuildUnit(buildunit_t eBuildUnit);

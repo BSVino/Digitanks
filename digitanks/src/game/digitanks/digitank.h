@@ -242,6 +242,7 @@ public:
 	virtual float				ProjectileCurve() const { return -0.03f; };
 	virtual float				FiringCone() const { return 360; };
 	virtual float				VisibleRange() const { return 75; };
+	virtual size_t				FleetPoints() const { return 2; };
 
 	// AI stuff
 	virtual void				SetFortifyPoint(Vector vecFortify);

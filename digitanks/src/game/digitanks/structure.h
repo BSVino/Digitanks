@@ -47,6 +47,7 @@ public:
 	virtual float				VisibleRange() const { return 50; };
 	virtual size_t				ConstructionCost() const { return 20; };
 	virtual float				TotalHealth() const { return 50; };
+	virtual size_t				FleetPoints() const { return 0; };
 
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);

@@ -14,6 +14,7 @@ public:
 	virtual size_t				InitialDataStrength() { return 3200; };
 	virtual size_t				BaseDataFlowPerTurn() { return 50; };
 	virtual float				TotalHealth() const { return 100; };
+	virtual size_t				FleetPoints() const { return 10; };
 
 	virtual float				GetBoundingRadius() const { return 8; };
 

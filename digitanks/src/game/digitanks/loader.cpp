@@ -105,8 +105,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 	if (m_bProducing)
 		pHUD->SetButton1Listener(CHUD::CancelBuildUnit);
-	else
+	else if (HasEnoughFleetPoints())
 		pHUD->SetButton1Listener(CHUD::BuildUnit);
+	else
+		pHUD->SetButton1Listener(NULL);
 	pHUD->SetButton2Listener(NULL);
 	pHUD->SetButton3Listener(NULL);
 	pHUD->SetButton4Listener(NULL);
@@ -134,7 +136,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	pHUD->SetButton4Texture(0);
 	pHUD->SetButton5Texture(0);
 
-	pHUD->SetButton1Color(Color(150, 150, 150));
+	if (HasEnoughFleetPoints())
+		pHUD->SetButton1Color(Color(150, 150, 150));
+	else
+		pHUD->SetButton1Color(glgui::g_clrBox);
 	pHUD->SetButton2Color(glgui::g_clrBox);
 	pHUD->SetButton3Color(glgui::g_clrBox);
 	pHUD->SetButton4Color(glgui::g_clrBox);
@@ -146,6 +151,9 @@ void CLoader::BeginProduction()
 	if (IsConstructing())
 		return;
 
+	if (!HasEnoughFleetPoints())
+		return;
+
 	m_iProductionStored = 0;
 	m_bProducing = true;
 
@@ -154,12 +162,33 @@ void CLoader::BeginProduction()
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_PRODUCING_UNITS)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+
+	GetDigitanksTeam()->CountFleetPoints();
 }
 
 void CLoader::CancelProduction()
 {
 	m_iProductionStored = 0;
 	m_bProducing = false;
+
+	GetDigitanksTeam()->CountFleetPoints();
+}
+
+size_t CLoader::GetFleetPointsRequired()
+{
+	if (m_eBuildUnit == BUILDUNIT_INFANTRY)
+		return CMechInfantry::InfantryFleetPoints();
+	else if (m_eBuildUnit == BUILDUNIT_ARTILLERY)
+		return CArtillery::ArtilleryFleetPoints();
+	else if (m_eBuildUnit == BUILDUNIT_TANK)
+		return CMainBattleTank::MainTankFleetPoints();
+
+	return 0;
+}
+
+bool CLoader::HasEnoughFleetPoints()
+{
+	return GetFleetPointsRequired() <= GetDigitanksTeam()->GetUnusedFleetPoints();
 }
 
 size_t CLoader::GetTurnsToProduce()

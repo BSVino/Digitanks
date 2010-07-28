@@ -129,6 +129,9 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_LIMITED_POWER, new CTutorial(this, TUTORIAL_LIMITED_POWER, POSITION_TOPCENTER, 250, true,
 		L"LIMITED POWER\n \nSince Power is shared by all structures, building too many structures and units at once can consume too much Power and slow down production. Be sure to pace yourself when issuing commands to construct and produce units.\n \nClick here to continue.")));
 
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FLEET_POINTS, new CTutorial(this, TUTORIAL_FLEET_POINTS, POSITION_TOPCENTER, 250, true,
+		L"FLEET POINTS\n \nYour fleet points can be seen on the upper right. When tanks are produced, they use up these fleet points. To get more fleet points, just build more buffers.\n \nClick here to continue.")));
+
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASES, new CTutorial(this, TUTORIAL_THEEND_BASES, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
 }

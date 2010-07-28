@@ -43,6 +43,9 @@ public:
 	virtual float				FiringCone() const { return 15; };
 	virtual float				VisibleRange() const { return 45; };
 
+	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
+	static size_t				ArtilleryFleetPoints() { return 5; };
+
 protected:
 	bool						m_bFortified;
 	size_t						m_iFortifyLevel;
