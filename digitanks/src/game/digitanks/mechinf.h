@@ -40,7 +40,7 @@ public:
 	virtual float				HealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 1.5f; }
 	virtual float				GetEffRange() const { return 30.0f; };
-	virtual float				GetMaxRange() const { return 55.0f; };
+	virtual float				GetMaxRange() const { return 60.0f; };
 	virtual float				TurnPerPower() const { return 45; }
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };

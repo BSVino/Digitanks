@@ -16,8 +16,8 @@ CMechInfantry::CMechInfantry()
 	SetModel(L"models/digitanks/infantry-body.obj");
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
 
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 15;
-	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 8;
+	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 10;
+	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 5;
 	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
 
 	m_iFireProjectiles = 0;
@@ -114,7 +114,7 @@ CProjectile* CMechInfantry::CreateProjectile()
 
 float CMechInfantry::GetProjectileDamage()
 {
-	return GetAttackPower()/20;
+	return GetAttackPower()/100;
 }
 
 bool CMechInfantry::AllowControlMode(controlmode_t eMode)
@@ -138,7 +138,7 @@ float CMechInfantry::GetBonusDefensePower()
 float CMechInfantry::GetFortifyAttackPowerBonus()
 {
 	if (m_bFortified)
-		return (float)m_iFortifyLevel;
+		return ((float)m_iFortifyLevel)/2;
 	else
 		return 0;
 }
@@ -146,7 +146,7 @@ float CMechInfantry::GetFortifyAttackPowerBonus()
 float CMechInfantry::GetFortifyDefensePowerBonus()
 {
 	if (m_bFortified)
-		return (float)m_iFortifyLevel*2;
+		return (float)m_iFortifyLevel;
 	else
 		return 0;
 }
@@ -154,7 +154,7 @@ float CMechInfantry::GetFortifyDefensePowerBonus()
 float CMechInfantry::ShieldRechargeRate() const
 {
 	if (IsFortified())
-		return 1.0f + ((float)m_iFortifyLevel)/2 + GetSupportShieldRechargeBonus();
+		return 1.0f + ((float)m_iFortifyLevel)/5 + GetSupportShieldRechargeBonus();
 
 	return 1.0f + GetSupportShieldRechargeBonus();
 }
@@ -162,7 +162,7 @@ float CMechInfantry::ShieldRechargeRate() const
 float CMechInfantry::HealthRechargeRate() const
 {
 	if (IsFortified())
-		return 0.2f + ((float)m_iFortifyLevel)/5 + GetSupportHealthRechargeBonus();
+		return 0.2f + ((float)m_iFortifyLevel)/25 + GetSupportHealthRechargeBonus();
 
 	return 0.2f + GetSupportHealthRechargeBonus();
 }

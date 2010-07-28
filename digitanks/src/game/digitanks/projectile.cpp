@@ -174,6 +174,8 @@ size_t CProjectile::CreateParticleSystem()
 
 REGISTER_ENTITY(CShell);
 
+REGISTER_ENTITY(CArtilleryShell);
+
 REGISTER_ENTITY(CInfantryFlak);
 
 size_t CInfantryFlak::CreateParticleSystem()

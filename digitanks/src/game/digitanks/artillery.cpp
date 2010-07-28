@@ -68,7 +68,7 @@ void CArtillery::Fire()
 
 CProjectile* CArtillery::CreateProjectile()
 {
-	return Game()->Create<CShell>("CShell");
+	return Game()->Create<CArtilleryShell>("CArtilleryShell");
 }
 
 float CArtillery::GetProjectileDamage()

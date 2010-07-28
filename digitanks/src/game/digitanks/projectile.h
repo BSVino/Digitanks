@@ -29,7 +29,7 @@ public:
 	virtual void				Touching(CBaseEntity* pOther);
 
 	virtual bool				ShouldExplode() { return true; };
-	void						Explode();
+	virtual bool				CreatesCraters() { return true; };
 
 	virtual bool				SendsNotifications() { return true; };
 
@@ -56,6 +56,14 @@ class CShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CShell, CProjectile);
 };
 
+class CArtilleryShell : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CArtilleryShell, CProjectile);
+
+public:
+	virtual bool				CreatesCraters() { return false; };
+};
+
 class CInfantryFlak : public CProjectile
 {
 	REGISTER_ENTITY_CLASS(CInfantryFlak, CProjectile);
@@ -64,6 +72,7 @@ public:
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual bool				ShouldExplode() { return false; };
+	virtual bool				CreatesCraters() { return false; };
 	virtual bool				SendsNotifications() { return false; };
 	virtual size_t				CreateParticleSystem();
 };

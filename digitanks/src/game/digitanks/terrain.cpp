@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 
 #include "digitanksgame.h"
+#include "projectile.h"
 #include "ui/digitankswindow.h"
 #include "shaders/shaders.h"
 
@@ -765,6 +766,10 @@ int CTerrain::WorldToArraySpace(float f)
 
 void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	if (pProjectile && !pProjectile->CreatesCraters())
+		return;
+
 	float flRadius = 4.0f;
 	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
 

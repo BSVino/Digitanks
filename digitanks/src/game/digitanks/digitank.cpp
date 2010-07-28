@@ -291,9 +291,9 @@ float CDigitank::GetSupportAttackPowerBonus()
 		return 0;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 8;
+		return 3;
 
-	return 4;
+	return 2;
 }
 
 float CDigitank::GetSupportDefensePowerBonus()
@@ -302,9 +302,9 @@ float CDigitank::GetSupportDefensePowerBonus()
 		return 0;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 8;
+		return 3;
 
-	return 4;
+	return 2;
 }
 
 float CDigitank::GetSupportHealthRechargeBonus() const
@@ -313,9 +313,9 @@ float CDigitank::GetSupportHealthRechargeBonus() const
 		return 0.0f;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 1.0f;
+		return 0.2f;
 
-	return 0.5f;
+	return 0.1f;
 }
 
 float CDigitank::GetSupportShieldRechargeBonus() const
@@ -324,9 +324,9 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 		return 0.0f;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 3.0f;
+		return 1.0f;
 
-	return 1.5f;
+	return 0.5f;
 }
 
 void CDigitank::SetAttackPower(float flAttackPower)
@@ -483,14 +483,14 @@ void CDigitank::StartTurn()
 		m_flShieldStrengths[i] = Approach(m_flMaxShieldStrengths[i], m_flShieldStrengths[i], ShieldRechargeRate());
 
 		if (flShieldStrength - m_flShieldStrengths[i] < 0)
-			DigitanksGame()->OnTakeDamage(this, NULL, NULL, flShieldStrength - m_flShieldStrengths[i], true, false);
+			DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flShieldStrength - m_flShieldStrengths[i], true, false);
 	}
 
 	float flHealth = m_flHealth;
 	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
 
 	if (flHealth - m_flHealth < 0)
-		DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flHealth - m_flHealth, true, false);
+		DigitanksGame()->OnTakeDamage(this, NULL, NULL, flHealth - m_flHealth, true, false);
 
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
