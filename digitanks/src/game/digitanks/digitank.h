@@ -71,10 +71,10 @@ public:
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
 	float						GetMovementScale(bool bPreview = false) { return GetMovementPower(bPreview) / 10; };
 
-	virtual float				GetBonusAttackScale();
-	virtual float				GetBonusDefenseScale();
-	virtual float				GetBonusAttackPower();
-	virtual float				GetBonusDefensePower();
+	virtual float				GetBonusAttackScale(bool bPreview = false);
+	virtual float				GetBonusDefenseScale(bool bPreview = false);
+	virtual float				GetBonusAttackPower(bool bPreview = false);
+	virtual float				GetBonusDefensePower(bool bPreview = false);
 	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower; };
 
 	virtual float				GetSupportAttackPowerBonus();

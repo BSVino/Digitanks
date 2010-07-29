@@ -467,7 +467,28 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 		if (bAllTanks || !CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
 		{
-			if (GetCurrentTank()->CanAim())
+			CDigitank* pClosestEnemy = NULL;
+			while (true)
+			{
+				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pCurrentTank->GetOrigin(), pClosestEnemy);
+
+				if (!pClosestEnemy)
+					break;
+
+				if (pClosestEnemy->GetTeam() == pCurrentTank->GetTeam())
+					continue;
+
+				if ((pClosestEnemy->GetOrigin() - pCurrentTank->GetOrigin()).Length() > pCurrentTank->VisibleRange())
+				{
+					pClosestEnemy = NULL;
+					break;
+				}
+
+				break;
+			}
+
+			// Only go to aim mode if there is an enemy in range.
+			if (pClosestEnemy && GetCurrentTank()->CanAim())
 				SetControlMode(MODE_AIM);
 			else
 				SetControlMode(MODE_NONE);

@@ -57,7 +57,7 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pStartGame->SetClickedListener(this, StartGame);
 	AddControl(m_pStartGame);
 
-	m_pExit = new CButton(0, 0, 100, 100, "Exit");
+	m_pExit = new CButton(0, 0, 100, 100, "Exit To Desktop");
 	m_pExit->SetClickedListener(this, Exit);
 	AddControl(m_pExit);
 

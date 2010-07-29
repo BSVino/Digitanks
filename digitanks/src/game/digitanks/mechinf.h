@@ -31,8 +31,8 @@ public:
 	virtual bool				CanFortify() { return true; };
 	virtual bool				UseFortifyMenuAim() { return true; };
 
-	virtual float				GetBonusAttackPower();
-	virtual float				GetBonusDefensePower();
+	virtual float				GetBonusAttackPower(bool bPreview = false);
+	virtual float				GetBonusDefensePower(bool bPreview = false);
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
 

@@ -125,14 +125,14 @@ bool CMechInfantry::AllowControlMode(controlmode_t eMode)
 	return BaseClass::AllowControlMode(eMode);
 }
 
-float CMechInfantry::GetBonusAttackPower()
+float CMechInfantry::GetBonusAttackPower(bool bPreview)
 {
-	return BaseClass::GetBonusAttackPower() + GetFortifyAttackPowerBonus()*GetBonusAttackScale();
+	return BaseClass::GetBonusAttackPower(bPreview) + GetFortifyAttackPowerBonus()*GetBonusAttackScale(bPreview);
 }
 
-float CMechInfantry::GetBonusDefensePower()
+float CMechInfantry::GetBonusDefensePower(bool bPreview)
 {
-	return BaseClass::GetBonusDefensePower() + GetFortifyDefensePowerBonus()*GetBonusDefenseScale();
+	return BaseClass::GetBonusDefensePower(bPreview) + GetFortifyDefensePowerBonus()*GetBonusDefenseScale(bPreview);
 }
 
 float CMechInfantry::GetFortifyAttackPowerBonus()

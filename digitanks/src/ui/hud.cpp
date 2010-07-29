@@ -373,21 +373,9 @@ void CHUD::Think()
 	if (pCurrentTank)
 	{
 		bool bShowEnter = true;
-		CDigitanksTeam* pTeam = pCurrentTank->GetDigitanksTeam();
-		for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
-		{
-			CDigitank* pTank = pTeam->GetTank(i);
-			if (!pTank)
-				continue;
 
-			if (!pTank->IsAlive())
-				continue;
-
-			if (pTank->HasDesiredMove() || pTank->HasDesiredTurn() || pTank->HasDesiredAim())
-				continue;
-
+		if (DigitanksGame()->GetControlMode() != MODE_NONE)
 			bShowEnter = false;
-		}
 
 		if (!CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_ENTER))
 			bShowEnter = false;

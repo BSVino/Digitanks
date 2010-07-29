@@ -166,7 +166,7 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 		flMovementLength = GetPreviewMoveTurnPower();
 
 		if (flMovementLength > m_flBasePower)
-			return m_flAttackPower;
+			return 0;
 
 		return RemapVal(flMovementLength, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
 	}
@@ -189,7 +189,7 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 			if (!HasDesiredAim() && !bPreviewAimValid)
 			{
 				if (!HasDesiredMove())
-					return m_flBasePower;
+					return 0;
 
 				float flPower = m_flBasePower - GetPreviewMovePower();
 				if (flPower < 0)
@@ -198,7 +198,7 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 					return flPower;
 			}
 			else
-				return m_flDefensePower;
+				return 0;
 		}
 
 		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
@@ -216,7 +216,7 @@ float CDigitank::GetBaseMovementPower(bool bPreview)
 		flMovementLength = GetPreviewMoveTurnPower();
 
 		if (flMovementLength > m_flBasePower)
-			return m_flMovementPower;
+			return m_flBasePower;
 
 		return flMovementLength;
 	}
@@ -226,12 +226,12 @@ float CDigitank::GetBaseMovementPower(bool bPreview)
 
 float CDigitank::GetAttackPower(bool bPreview)
 {
-	return GetBaseAttackPower(bPreview)+GetBonusAttackPower();
+	return GetBaseAttackPower(bPreview)+GetBonusAttackPower(bPreview);
 }
 
 float CDigitank::GetDefensePower(bool bPreview)
 {
-	return GetBaseDefensePower(bPreview)+GetBonusDefensePower();
+	return GetBaseDefensePower(bPreview)+GetBonusDefensePower(bPreview);
 }
 
 float CDigitank::GetMovementPower(bool bPreview)
@@ -259,30 +259,52 @@ float CDigitank::GetMaxMovementDistance() const
 	return GetTotalMovementPower() * GetTankSpeed();
 }
 
-float CDigitank::GetBonusAttackScale()
+float CDigitank::GetBonusAttackScale(bool bPreview)
 {
 	if (m_flBasePower < 0.001f)
 		return 0;
+
+	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
+	{
+		float flMovementLength = GetPreviewMoveTurnPower();
+
+		if (flMovementLength > m_flBasePower)
+			return 0;
+
+		return RemapVal(flMovementLength, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0)/m_flBasePower;
+	}
 
 	return m_flAttackPower/m_flBasePower;
 }
 
-float CDigitank::GetBonusDefenseScale()
+float CDigitank::GetBonusDefenseScale(bool bPreview)
 {
 	if (m_flBasePower < 0.001f)
 		return 0;
 
+	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
+	{
+		float flMovementLength = GetPreviewMoveTurnPower();
+
+		bool bPreviewAimValid = IsPreviewAimValid();
+
+		if (flMovementLength > m_flBasePower)
+			return 0;
+
+		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0)/m_flBasePower;
+	}
+
 	return m_flDefensePower/m_flBasePower;
 }
 
-float CDigitank::GetBonusAttackPower()
+float CDigitank::GetBonusAttackPower(bool bPreview)
 {
-	return (m_flBonusAttackPower + GetSupportAttackPowerBonus())*GetBonusAttackScale();
+	return (m_flBonusAttackPower + GetSupportAttackPowerBonus())*GetBonusAttackScale(bPreview);
 }
 
-float CDigitank::GetBonusDefensePower()
+float CDigitank::GetBonusDefensePower(bool bPreview)
 {
-	return (m_flBonusDefensePower + GetSupportDefensePowerBonus())*GetBonusDefenseScale();
+	return (m_flBonusDefensePower + GetSupportDefensePowerBonus())*GetBonusDefenseScale(bPreview);
 }
 
 float CDigitank::GetSupportAttackPowerBonus()
@@ -503,7 +525,27 @@ void CDigitank::StartTurn()
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
-	if (HasGoalMovePosition())
+	CDigitank* pClosestEnemy = NULL;
+	while (true)
+	{
+		pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestEnemy);
+
+		if (!pClosestEnemy)
+			break;
+
+		if (pClosestEnemy->GetTeam() == GetTeam())
+			continue;
+
+		if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
+		{
+			pClosestEnemy = NULL;
+			break;
+		}
+
+		break;
+	}
+
+	if (HasGoalMovePosition() && !pClosestEnemy)
 		MoveTowardsGoalMovePosition();
 
 	if (DigitanksGame()->GetLocalDigitanksTeam() == GetDigitanksTeam())
@@ -944,7 +986,7 @@ void CDigitank::Think()
 		{
 			if (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown)
 			{
-				if (pHit && dynamic_cast<CDigitanksEntity*>(pHit))
+				if (pHit && dynamic_cast<CDigitanksEntity*>(pHit) && pHit->GetTeam() && pHit->GetTeam() != GetTeam())
 					vecTankAim = pHit->GetOrigin();
 				else
 					vecTankAim = vecMouseAim;
@@ -1021,9 +1063,29 @@ void CDigitank::OnCurrentSelection()
 	// So the escape key works.
 	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
 	{
-		if (!HasDesiredMove() && !IsFortified())
+		CDigitank* pClosestEnemy = NULL;
+		while (true)
+		{
+			pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestEnemy);
+
+			if (!pClosestEnemy)
+				break;
+
+			if (pClosestEnemy->GetTeam() == GetTeam())
+				continue;
+
+			if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
+			{
+				pClosestEnemy = NULL;
+				break;
+			}
+
+			break;
+		}
+
+		if (!HasDesiredMove() && !IsFortified() && !HasDesiredAim())
 			DigitanksGame()->SetControlMode(MODE_MOVE);
-		else if (!HasDesiredAim() && CanAim())
+		else if (!HasDesiredAim() && CanAim() && pClosestEnemy)
 			DigitanksGame()->SetControlMode(MODE_AIM);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1108,31 +1170,53 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 	if (eMenuMode == MENUMODE_MAIN)
 	{
-		pHUD->SetButton1Help("Move");
-		pHUD->SetButton1Listener(CHUD::Move);
+		if (IsFortified())
+		{
+			pHUD->SetButton1Help("");
+			pHUD->SetButton1Listener(NULL);
 
-		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
-			pHUD->SetButton1Color(Color(150, 150, 0));
+			pHUD->SetButton1Color(glgui::g_clrBox);
+			pHUD->SetButton1Texture(0);
+		}
 		else
-			pHUD->SetButton1Color(Color(100, 100, 100));
+		{
+			pHUD->SetButton1Help("Move");
+			pHUD->SetButton1Listener(CHUD::Move);
 
-		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			pHUD->SetButton1Texture(s_iCancelIcon);
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
+				pHUD->SetButton1Color(Color(150, 150, 0));
+			else
+				pHUD->SetButton1Color(Color(100, 100, 100));
+
+			if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+				pHUD->SetButton1Texture(s_iCancelIcon);
+			else
+				pHUD->SetButton1Texture(s_iMoveIcon);
+		}
+
+		if (IsFortified())
+		{
+			pHUD->SetButton2Help("");
+			pHUD->SetButton2Listener(NULL);
+
+			pHUD->SetButton2Color(glgui::g_clrBox);
+			pHUD->SetButton2Texture(0);
+		}
 		else
-			pHUD->SetButton1Texture(s_iMoveIcon);
+		{
+			pHUD->SetButton2Help("Rotate");
+			pHUD->SetButton2Listener(CHUD::Turn);
 
-		pHUD->SetButton2Help("Turn");
-		pHUD->SetButton2Listener(CHUD::Turn);
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_TURN)
+				pHUD->SetButton2Color(Color(150, 150, 0));
+			else
+				pHUD->SetButton2Color(Color(100, 100, 100));
 
-		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_TURN)
-			pHUD->SetButton2Color(Color(150, 150, 0));
-		else
-			pHUD->SetButton2Color(Color(100, 100, 100));
-
-		if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			pHUD->SetButton2Texture(s_iCancelIcon);
-		else
-			pHUD->SetButton2Texture(s_iTurnIcon);
+			if (DigitanksGame()->GetControlMode() == MODE_TURN)
+				pHUD->SetButton2Texture(s_iCancelIcon);
+			else
+				pHUD->SetButton2Texture(s_iTurnIcon);
+		}
 
 		if (UseFortifyMenuAim())
 		{
@@ -1787,8 +1871,11 @@ void CDigitank::UpdateInfo(std::string& sInfo)
 
 	s << GetName();
 
-	if (IsFortified() || IsFortifying())
-		s << "\n \n[Fortified]";
+	if (IsFortified())
+		s << "\n[Fortified]";
+
+	else if (IsFortifying())
+		s << "\n[Fortifying...]";
 
 	if (HasBonusPoints())
 	{

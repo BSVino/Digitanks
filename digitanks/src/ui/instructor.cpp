@@ -82,7 +82,7 @@ void CInstructor::Initialize()
 		L"END YOUR TURN\n \nNow press the 'Enter' key to end your turn and fire your tank.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURN, new CTutorial(this, TUTORIAL_TURN, POSITION_TOPLEFT, 300, true,
-		L"TURN YOUR TANK\n \nGood job, you messed that guy up pretty good! However, his return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Turn' button and right click a spot to turn your tank. Your tank will aim its body directly at that spot.")));
+		L"ROTATE YOUR TANK\n \nGood job, you messed that guy up pretty good! However, his return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Rotate' button and right click a spot to rotate your tank. Your tank will aim its body directly at that spot.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FINISHHIM, new CTutorial(this, TUTORIAL_FINISHHIM, POSITION_TOPLEFT, 200, false,
 		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and press enter to end your turn and fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
