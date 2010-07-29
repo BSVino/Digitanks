@@ -26,7 +26,7 @@ CMechInfantry::CMechInfantry()
 
 void CMechInfantry::Precache()
 {
-	PrecacheModel(L"models/digitanks/infantry-body.obj", false);
+	PrecacheModel(L"models/digitanks/infantry-body.obj");
 	PrecacheModel(L"models/digitanks/digitank-shield.obj");
 }
 
