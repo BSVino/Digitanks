@@ -345,7 +345,8 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (GetLocalDigitanksTeam()->GetMember(0))
 		GetCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
 
-	CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
+	if (m_eGameType == GAMETYPE_STANDARD)
+		CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
 }
 
 void CDigitanksGame::Think()

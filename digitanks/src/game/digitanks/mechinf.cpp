@@ -88,6 +88,9 @@ void CMechInfantry::Fire()
 			pClosest = pDigitank;
 	}
 
+	if (!pClosest)
+		return;
+
 	float flDistanceSqr = (pClosest->GetOrigin() - GetOrigin()).LengthSqr();
 	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
 		return;
