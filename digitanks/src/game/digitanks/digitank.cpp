@@ -601,6 +601,12 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
 	}
 
+	if (fabs(AngleDifference(GetDesiredTurn(), VectorAngles((vecPreviewAim-GetDesiredMove()).Normalized()).y)) > FiringCone())
+	{
+		m_bPreviewAim = false;
+		return;
+	}
+
 	m_vecPreviewAim = vecPreviewAim;
 }
 
@@ -830,7 +836,7 @@ void CDigitank::SetDesiredAim()
 	if ((GetPreviewAim() - GetDesiredMove()).Length() < GetMinRange())
 		return;
 
-	if (AngleDifference(GetDesiredTurn(), VectorAngles((GetPreviewAim()-GetDesiredMove()).Normalized()).y) > FiringCone())
+	if (fabs(AngleDifference(GetDesiredTurn(), VectorAngles((GetPreviewAim()-GetDesiredMove()).Normalized()).y)) > FiringCone())
 		return;
 
 	Speak(TANKSPEECH_ATTACK);
@@ -1007,14 +1013,19 @@ void CDigitank::Think()
 				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
 			}
 
-			float flDistance = (vecTankAim - GetDesiredMove()).Length();
+			if (fabs(AngleDifference(GetDesiredTurn(), VectorAngles((vecTankAim-GetDesiredMove()).Normalized()).y)) > FiringCone())
+				m_bDisplayAim = false;
+			else
+			{
+				float flDistance = (vecTankAim - GetDesiredMove()).Length();
 
-			float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
-			DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
+				float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+				DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
 
-			m_bDisplayAim = true;
-			m_vecDisplayAim = vecTankAim;
-			m_flDisplayAimRadius = flRadius;
+				m_bDisplayAim = true;
+				m_vecDisplayAim = vecTankAim;
+				m_flDisplayAimRadius = flRadius;
+			}
 		}
 	}
 
