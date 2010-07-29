@@ -1484,7 +1484,8 @@ void CDigitank::ClientUpdate(int iClient)
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
-	CancelGoalMovePosition();
+	if (flDamage > 0)
+		CancelGoalMovePosition();
 
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)

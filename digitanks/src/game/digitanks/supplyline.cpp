@@ -2,7 +2,7 @@
 
 #include <geometry.h>
 
-#include <renderer/renderer.h>
+#include "dt_renderer.h"
 #include "structure.h"
 #include <team.h>
 #include "digitanksgame.h"
@@ -85,9 +85,6 @@ void CSupplyLine::PostRender()
 	if (m_hSupplier == NULL || m_hEntity == NULL)
 		return;
 
-	if (GetVisibility() == 0)
-		return;
-
 	Vector vecDestination;
 	CDigitank* pTank = dynamic_cast<CDigitank*>(m_hEntity.GetPointer());
 	if (pTank)
@@ -103,8 +100,9 @@ void CSupplyLine::PostRender()
 	size_t iSegments = (size_t)(flDistance/3);
 
 	CRenderingContext r(Game()->GetRenderer());
+	r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
+
 	Color clrTeam = GetTeam()->GetColor();
-	r.SetBlend(BLEND_ADDITIVE);
 
 	CRopeRenderer oRope(Game()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
 	oRope.SetWidth(2);

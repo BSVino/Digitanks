@@ -17,14 +17,14 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 	m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 	m_oVisibility2Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+	m_oVisibilityMaskedBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 
-	// Bind the regular scene's depth buffer to the explosion buffer so we can use it for depth compares.
+	// Bind the regular scene's depth buffer to these buffers so we can use it for depth compares.
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-
-	// Same for visibility.
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility1Buffer.m_iFB);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 }
@@ -35,6 +35,9 @@ void CDigitanksRenderer::SetupFrame()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility2Buffer.m_iFB);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	BaseClass::SetupFrame();
@@ -165,6 +168,21 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 	    glUniform1f(flFactor, 3.0f);
 
 		RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
+
+		// Render the visibility-masked buffer, using the shadow volumes as a stencil.
+		GLuint iStencilProgram = (GLuint)CShaderLibrary::GetStencilProgram();
+		glUseProgram(iStencilProgram);
+
+		GLint iStencilMap = glGetUniformLocation(iStencilProgram, "iStencilMap");
+	    glUniform1i(iStencilMap, 1);
+
+		iImage = glGetUniformLocation(iStencilProgram, "iImage");
+	    glUniform1i(iImage, 0);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		RenderMapToBuffer(m_oVisibilityMaskedBuffer.m_iMap, &m_oSceneBuffer);
+		glDisable(GL_BLEND);
 
 		glUseProgram(0);
 

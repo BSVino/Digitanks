@@ -23,12 +23,13 @@ public:
 	const CFrameBuffer*	GetExplosionBuffer() { return &m_oExplosionBuffer; }
 	const CFrameBuffer*	GetVisibility1Buffer() { return &m_oVisibility1Buffer; }
 	const CFrameBuffer*	GetVisibility2Buffer() { return &m_oVisibility2Buffer; }
+	const CFrameBuffer*	GetVisibilityMaskedBuffer() { return &m_oVisibilityMaskedBuffer; }
 
 protected:
 	CFrameBuffer	m_oExplosionBuffer;
 	CFrameBuffer	m_oVisibility1Buffer;
 	CFrameBuffer	m_oVisibility2Buffer;
-	CFrameBuffer	m_oVisibilityDepthBuffer;
+	CFrameBuffer	m_oVisibilityMaskedBuffer;
 };
 
 #endif

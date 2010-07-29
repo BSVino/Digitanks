@@ -55,3 +55,18 @@ const char* CShaderLibrary::GetFSDarkenShader()
 		"	gl_FragColor = vecImageColor / vecFactor;"
 		"}";
 }
+
+const char* CShaderLibrary::GetFSStencilShader()
+{
+	return
+		"uniform sampler2D iStencilMap;"
+		"uniform sampler2D iImage;"
+
+		"void main(void)"
+		"{"
+		"	vec4 vecStencilColor = texture2D(iStencilMap, gl_TexCoord[0].xy);"
+		"	vec4 vecImageColor = texture2D(iImage, gl_TexCoord[0].xy);"
+
+		"	gl_FragColor = vecImageColor * vecStencilColor;"
+		"}";
+}

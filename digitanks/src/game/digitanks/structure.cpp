@@ -5,7 +5,7 @@
 #include <maths.h>
 #include <mtrand.h>
 
-#include <renderer/renderer.h>
+#include "dt_renderer.h"
 #include "digitanksgame.h"
 #include "supplyline.h"
 
@@ -253,9 +253,6 @@ void CSupplier::StartTurn()
 
 void CSupplier::PostRender()
 {
-	if (GetVisibility() == 0)
-		return;
-
 	for (size_t i = 0; i < m_aTendrils.size(); i++)
 	{
 		CTendril* pTendril = &m_aTendrils[i];
@@ -270,10 +267,10 @@ void CSupplier::PostRender()
 		size_t iSegments = (size_t)(flDistance/2);
 
 		CRenderingContext r(Game()->GetRenderer());
+		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
+		r.SetDepthMask(false);
+
 		Color clrTeam = GetTeam()->GetColor();
-		clrTeam.SetAlpha(100);
-		r.SetAlpha(GetVisibility());
-		r.SetBlend(BLEND_ADDITIVE);
 
 		CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 		oRope.SetColor(clrTeam);

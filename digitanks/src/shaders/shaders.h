@@ -54,6 +54,9 @@ public:
 	static const char*		GetFSDarkenShader();
 	static size_t			GetDarkenProgram() { return GetProgram(Get()->m_iDarken); };
 
+	static const char*		GetFSStencilShader();
+	static size_t			GetStencilProgram() { return GetProgram(Get()->m_iStencil); };
+
 	static void				CompileShaders();
 
 	static CShaderLibrary*	Get() { return s_pShaderLibrary; };
@@ -74,6 +77,7 @@ protected:
 	size_t					m_iBlur;
 	size_t					m_iBrightPass;
 	size_t					m_iDarken;
+	size_t					m_iStencil;
 
 	bool					m_bLogNeedsClearing;
 
