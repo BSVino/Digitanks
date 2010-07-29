@@ -80,4 +80,23 @@ protected:
 	glgui::CButton*					m_pExitButton;
 };
 
+class CStoryPanel : public glgui::CPanel
+{
+	DECLARE_CLASS(CStoryPanel, glgui::CPanel);
+
+public:
+									CStoryPanel();
+
+public:
+	virtual void					Layout();
+	virtual void					Paint(int x, int y, int w, int h);
+
+	virtual bool					IsCursorListener() {return true;};
+	virtual bool					MousePressed(int code, int mx, int my);
+	virtual bool					KeyPressed(int iKey);
+
+protected:
+	glgui::CLabel*					m_pStory;
+};
+
 #endif

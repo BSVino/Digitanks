@@ -73,6 +73,7 @@ public:
 	class CHUD*					GetHUD() { return m_pHUD; };
 	class CInstructor*			GetInstructor();
 	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
+	class CStoryPanel*			GetStoryPanel() { return m_pStory; };
 
 	bool						HasCommandLineSwitch(const char* pszSwitch);
 	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
@@ -89,6 +90,7 @@ protected:
 	class CDigitanksMenu*		m_pMenu;
 	class CVictoryPanel*		m_pVictory;
 	class CDonatePanel*			m_pDonate;
+	class CStoryPanel*			m_pStory;
 
 	class CDigitanksGame*		m_pDigitanksGame;
 

@@ -15,10 +15,12 @@ void CDigitanksWindow::InitUI()
 	m_pMenu = new CDigitanksMenu();
 	m_pVictory = new CVictoryPanel();
 	m_pDonate = new CDonatePanel();
+	m_pStory = new CStoryPanel();
 
 	CRootPanel::Get()->AddControl(m_pMenu);
 	CRootPanel::Get()->AddControl(m_pVictory);
 	CRootPanel::Get()->AddControl(m_pDonate);
+	CRootPanel::Get()->AddControl(m_pStory);
 
 	CRootPanel::Get()->Layout();
 
@@ -294,3 +296,72 @@ void CDonatePanel::ExitCallback()
 {
 	exit(0);
 }
+
+CStoryPanel::CStoryPanel()
+	: CPanel(0, 0, 400, 300)
+{
+	m_pStory = new CLabel(0, 0, 100, 100,
+		"THE STORY OF DIGIVILLE\n \n"
+
+		"The Digizens of Digiville were happy and content.\n"
+		"They ate in tiny bits and bytes and always paid their rent.\n"
+		"They shared every Electronode and Data Wells were free,\n"
+		"But that's not very interesting, as you're about to see.\n \n "
+
+		"One day the shortest Digizen in all the Digiverse\n"
+		"He cried, \"U nubs OLOL i h4x j0ur m3g4hu|2tz!\"\n"
+		"The Digizens of Digiville just laughed and said, \"That's great!\"\n"
+		"\"You're way too short and you're just trying to overcompensate!\"\n \n"
+
+		"Our little man was not so pleased, retreating to his lair\n"
+		"He powered up his Trolling Rage Machine with utmost care.\n"
+		"It sputtered up to life with a cacophony of clanks\n"
+		"And shortly then thereafter it began to spit out tanks.\n \n"
+
+		"The Digizens were sleeping when there came a sudden chill\n"
+		"And when they woke there was no longer any Digiville.\n"
+		"It's up to you now! You must act before it gets much worse,\n"
+		"And while you're there, why not conquer the whole damn Digiverse?\n \n"
+
+		"Click here to begin."
+		);
+	AddControl(m_pStory);
+
+	SetVisible(false);
+
+	Layout();
+}
+
+void CStoryPanel::Layout()
+{
+	SetSize(450, 450);
+	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
+
+	m_pStory->SetPos(10, 20);
+	m_pStory->SetSize(GetWidth()-20, GetHeight());
+	m_pStory->SetAlign(CLabel::TA_TOPCENTER);
+}
+
+void CStoryPanel::Paint(int x, int y, int w, int h)
+{
+	CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+bool CStoryPanel::MousePressed(int code, int mx, int my)
+{
+	if (BaseClass::MousePressed(code, mx, my))
+		return true;
+
+	SetVisible(false);
+	return true;
+}
+
+bool CStoryPanel::KeyPressed(int iKey)
+{
+	SetVisible(false);
+	// Pass the keypress through so that the menu opens.
+	return false;
+}
+
