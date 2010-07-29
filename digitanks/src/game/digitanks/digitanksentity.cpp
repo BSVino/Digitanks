@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+#include <maths.h>
+
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>
 
@@ -28,6 +30,15 @@ void CDigitanksEntity::Think()
 		CModelDissolver::AddModel(this);
 		Game()->Delete(this);
 	}
+}
+
+void CDigitanksEntity::StartTurn()
+{
+	float flHealth = m_flHealth;
+	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
+
+	if (flHealth - m_flHealth < 0)
+		DigitanksGame()->OnTakeDamage(this, NULL, NULL, flHealth - m_flHealth, true, false);
 }
 
 CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const

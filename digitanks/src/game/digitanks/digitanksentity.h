@@ -12,7 +12,7 @@ public:
 
 	virtual void					Think();
 
-	virtual void					StartTurn() {};
+	virtual void					StartTurn();
 
 	class CDigitanksTeam*			GetDigitanksTeam() const;
 
@@ -26,6 +26,7 @@ public:
 	virtual void					UpdateInfo(std::string& sInfo) {};
 	virtual const char*				GetName() { return "Entity"; };
 
+	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					VisibleRange() const { return 0; };
 	virtual float					TotalHealth() const { return 10; };
 };

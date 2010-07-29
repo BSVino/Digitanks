@@ -512,12 +512,6 @@ void CDigitank::StartTurn()
 			DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flShieldStrength - m_flShieldStrengths[i], true, false);
 	}
 
-	float flHealth = m_flHealth;
-	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
-
-	if (flHealth - m_flHealth < 0)
-		DigitanksGame()->OnTakeDamage(this, NULL, NULL, flHealth - m_flHealth, true, false);
-
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
 

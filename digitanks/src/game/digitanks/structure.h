@@ -44,6 +44,7 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
+	virtual float				HealthRechargeRate() const { return 1.0f; };
 	virtual float				VisibleRange() const { return 50; };
 	virtual size_t				ConstructionCost() const { return 20; };
 	virtual float				TotalHealth() const { return 50; };
