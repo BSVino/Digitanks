@@ -10,25 +10,21 @@
 
 REGISTER_ENTITY(CResource);
 
+void CResource::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/electronode.obj");
+}
+
 void CResource::Spawn()
 {
 	BaseClass::Spawn();
 
 	m_iProduction = 4;
 	m_bTakeDamage = false;
-}
 
-void CResource::OnRender()
-{
-	BaseClass::OnRender();
-
-	if (GetVisibility() == 0)
-		return;
-
-	CRenderingContext c(Game()->GetRenderer());
-	c.Scale(1, 3, 1);
-
-	glutSolidCube(3);
+	SetModel(L"models/structures/electronode.obj");
 }
 
 void CResource::UpdateInfo(std::string& sInfo)

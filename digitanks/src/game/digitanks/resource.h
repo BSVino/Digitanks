@@ -11,9 +11,8 @@ class CResource : public CStructure
 public:
 	virtual float				GetBoundingRadius() const { return 2; };
 
+	virtual void				Precache();
 	virtual void				Spawn();
-
-	virtual void				OnRender();
 
 	virtual void				UpdateInfo(std::string& sInfo);
 

@@ -128,8 +128,6 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 
 	if (GetTeam())
 		pContext->SetColorSwap(GetTeam()->GetColor());
-	else
-		pContext->SetColor(Color(128, 128, 128));
 }
 
 REGISTER_ENTITY(CSupplier);
