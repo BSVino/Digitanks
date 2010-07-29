@@ -334,6 +334,8 @@ protected:
 	static size_t				s_iFireIcon;
 	static size_t				s_iPromoteIcon;
 
+	static size_t				s_iAutoMove;
+
 	static const char*			s_apszTankLines[];
 };
 

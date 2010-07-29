@@ -32,6 +32,8 @@ size_t CDigitank::s_iAimIcon = 0;
 size_t CDigitank::s_iFireIcon = 0;
 size_t CDigitank::s_iPromoteIcon = 0;
 
+size_t CDigitank::s_iAutoMove = 0;
+
 const char* CDigitank::s_apszTankLines[] =
 {
 	"^.^",	// TANKLINE_CUTE
@@ -127,6 +129,8 @@ void CDigitank::Precache()
 	s_iAimIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-aim.png");
 	s_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
 	s_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
+
+	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
 
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_HAPPY);
@@ -1851,12 +1855,12 @@ void CDigitank::PostRender()
 	if (bShowGoalMove)
 	{
 		CRenderingContext r(Game()->GetRenderer());
-		r.SetBlend(BLEND_ADDITIVE);
+		r.SetBlend(BLEND_ALPHA);
 
-		CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, GetDesiredMove());
-		oRope.SetWidth(1.5f);
+		CRopeRenderer oRope(Game()->GetRenderer(), s_iAutoMove, GetDesiredMove());
+		oRope.SetWidth(2.0f);
 		oRope.SetColor(Color(255, 255, 255, iAlpha));
-		oRope.SetTextureScale(5);
+		oRope.SetTextureScale(3);
 		oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
 
 		Vector vecPath = vecGoalMove - GetDesiredMove();

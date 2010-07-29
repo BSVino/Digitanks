@@ -53,7 +53,8 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pStartTutorialBases->SetClickedListener(this, StartTutorialBases);
 	AddControl(m_pStartTutorialBases);
 
-	m_pStartGame = new CButton(0, 0, 100, 100, "Start Game");
+	m_pStartGame = new CButton(0, 0, 100, 100, "New Game");
+	m_pStartGame->SetText("New Game");
 	m_pStartGame->SetClickedListener(this, StartGame);
 	AddControl(m_pStartGame);
 
@@ -112,14 +113,6 @@ void CDigitanksMenu::Paint(int x, int y, int w, int h)
 
 void CDigitanksMenu::SetVisible(bool bVisible)
 {
-	if (bVisible)
-	{
-		if (CDigitanksWindow::Get()->GetGame())
-			m_pStartGame->SetText("Restart Game");
-		else
-			m_pStartGame->SetText("Start Game");
-	}
-
 	if (CDigitanksWindow::Get()->GetInstructor())
 	{
 		if (bVisible)
