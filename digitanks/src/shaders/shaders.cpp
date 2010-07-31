@@ -34,6 +34,7 @@ void CShaderLibrary::AddShaders()
 {
 	m_iTerrain = AddShader(GetVSTerrainShader(), GetFSTerrainShader());
 	m_iModel = AddShader(GetVSModelShader(), GetFSModelShader());
+	m_iScrollingTexture = AddShader(GetVSScrollingTextureShader(), GetFSScrollingTextureShader());
 
 	m_iExplosion = AddShader(GetVSPassShader(), GetFSExplosionShader());
 	m_iBlur = AddShader(GetVSPassShader(), GetFSBlurShader());

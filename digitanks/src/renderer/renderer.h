@@ -83,6 +83,8 @@ public:
 	void				SetTextureScale(float flTextureScale) { m_flTextureScale = flTextureScale; };
 	void				SetTextureOffset(float flTextureOffset) { m_flTextureOffset = flTextureOffset; };
 
+	void				SetForward(Vector vecForward);
+
 protected:
 	CRenderer*			m_pRenderer;
 	CRenderingContext	m_oContext;
@@ -95,6 +97,9 @@ protected:
 	Color				m_clrRope;
 	float				m_flTextureScale;
 	float				m_flTextureOffset;
+
+	bool				m_bUseForward;
+	Vector				m_vecForward;
 };
 
 class CFrameBuffer

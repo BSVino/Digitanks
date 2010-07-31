@@ -393,6 +393,8 @@ CRopeRenderer::CRopeRenderer(CRenderer *pRenderer, size_t iTexture, Vector vecSt
 	m_flTextureScale = 1;
 	m_flTextureOffset = 0;
 
+	m_bUseForward = false;
+
 	m_oContext.SetBlend(BLEND_ADDITIVE);
 	m_oContext.SetDepthMask(false);
 
@@ -402,7 +404,11 @@ CRopeRenderer::CRopeRenderer(CRenderer *pRenderer, size_t iTexture, Vector vecSt
 
 void CRopeRenderer::AddLink(Vector vecLink)
 {
-	Vector vecForward = m_pRenderer->GetCameraVector();
+	Vector vecForward;
+	if (m_bUseForward)
+		vecForward = m_vecForward;
+	else
+		vecForward = m_pRenderer->GetCameraVector();
 
 	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
 	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
@@ -435,7 +441,11 @@ void CRopeRenderer::AddLink(Vector vecLink)
 
 void CRopeRenderer::Finish(Vector vecLink)
 {
-	Vector vecForward = m_pRenderer->GetCameraVector();
+	Vector vecForward;
+	if (m_bUseForward)
+		vecForward = m_vecForward;
+	else
+		vecForward = m_pRenderer->GetCameraVector();
 
 	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
 	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
@@ -481,6 +491,12 @@ void CRopeRenderer::Finish(Vector vecLink)
 	}
 
 	m_oContext.EndRender();
+}
+
+void CRopeRenderer::SetForward(Vector vecForward)
+{
+	m_bUseForward = true;
+	m_vecForward = vecForward;
 }
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)

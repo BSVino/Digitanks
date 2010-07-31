@@ -11,6 +11,7 @@
 
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
+#include <shaders/shaders.h>
 
 #include "collector.h"
 #include "loader.h"
@@ -154,6 +155,8 @@ void CSupplier::Spawn()
 
 	m_iDataStrength = InitialDataStrength();
 	m_flBonusDataFlow = 0;
+
+	m_iTendrilsCallList = 0;
 }
 
 float CSupplier::GetDataFlowRate()
@@ -258,38 +261,23 @@ void CSupplier::StartTurn()
 
 void CSupplier::PostRender()
 {
-	for (size_t i = 0; i < m_aTendrils.size(); i++)
-	{
-		CTendril* pTendril = &m_aTendrils[i];
+	CRenderingContext r(Game()->GetRenderer());
+	r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
+	r.SetDepthMask(false);
+	r.BindTexture(s_iTendrilBeam);
 
-		Vector vecDestination = pTendril->m_vecEndPoint;
+	GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
+	glUseProgram(iScrollingTextureProgram);
 
-		Vector vecPath = vecDestination - GetOrigin();
-		vecPath.y = 0;
+	GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
+	glUniform1f(flTime, Game()->GetGameTime());
 
-		float flDistance = vecPath.Length2D();
-		Vector vecDirection = vecPath.Normalized();
-		size_t iSegments = (size_t)(flDistance/2);
+	GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
+	glUniform1f(iTexture, 0);
 
-		CRenderingContext r(Game()->GetRenderer());
-		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
-		r.SetDepthMask(false);
+	glCallList((GLuint)m_iTendrilsCallList);
 
-		Color clrTeam = GetTeam()->GetColor();
-
-		CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
-		oRope.SetColor(clrTeam);
-		oRope.SetTextureScale(pTendril->m_flScale);
-		oRope.SetTextureOffset(pTendril->m_flOffset - fmod(Game()->GetGameTime()*pTendril->m_flSpeed, 1));
-
-		for (size_t i = 1; i < iSegments; i++)
-		{
-			float flCurrentDistance = ((float)i*flDistance)/iSegments;
-			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
-		}
-
-		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
-	}
+	glUseProgram(0);
 }
 
 void CSupplier::UpdateTendrils()
@@ -308,6 +296,48 @@ void CSupplier::UpdateTendrils()
 		pTendril->m_flOffset = RandomFloat(0, 1);
 		pTendril->m_flSpeed = RandomFloat(0.5f, 2);
 	}
+
+	if (m_iTendrilsCallList)
+		glDeleteLists((GLuint)m_iTendrilsCallList, 1);
+
+	m_iTendrilsCallList = glGenLists(1);
+
+	glNewList((GLuint)m_iTendrilsCallList, GL_COMPILE);
+	for (size_t i = 0; i < m_aTendrils.size(); i++)
+	{
+		CTendril* pTendril = &m_aTendrils[i];
+
+		Vector vecDestination = pTendril->m_vecEndPoint;
+
+		Vector vecPath = vecDestination - GetOrigin();
+		vecPath.y = 0;
+
+		float flDistance = vecPath.Length2D();
+		Vector vecDirection = vecPath.Normalized();
+		size_t iSegments = (size_t)(flDistance/2);
+
+		Color clrTeam = GetTeam()->GetColor();
+
+		GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
+
+		GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
+		glUniform1f(flSpeed, pTendril->m_flSpeed);
+
+		CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+		oRope.SetColor(clrTeam);
+		oRope.SetTextureScale(pTendril->m_flScale);
+		oRope.SetTextureOffset(pTendril->m_flOffset);
+		oRope.SetForward(Vector(0, -1, 0));
+
+		for (size_t i = 1; i < iSegments; i++)
+		{
+			float flCurrentDistance = ((float)i*flDistance)/iSegments;
+			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+		}
+
+		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
+	}
+	glEndList();
 }
 
 void CSupplier::AddChild(CStructure* pChild)

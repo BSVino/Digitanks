@@ -126,6 +126,8 @@ protected:
 	std::vector<CTendril>		m_aTendrils;
 	std::vector<CEntityHandle<CStructure> >	m_ahChildren;
 
+	size_t						m_iTendrilsCallList;
+
 	static size_t				s_iTendrilBeam;
 };
 

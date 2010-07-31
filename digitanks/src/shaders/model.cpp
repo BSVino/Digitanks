@@ -36,3 +36,29 @@ const char* CShaderLibrary::GetFSModelShader()
 		"	gl_FragColor.a *= flAlpha;"
 		"}";
 }
+
+const char* CShaderLibrary::GetVSScrollingTextureShader()
+{
+	return
+		"uniform float flTime;"
+		"uniform float flSpeed;"
+
+		"void main()"
+		"{"
+		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+		"	gl_TexCoord[0] = gl_MultiTexCoord0;"
+		"	gl_TexCoord[0].t -= mod(flTime*flSpeed, 1.0);"
+		"	gl_FrontColor = gl_Color;"
+		"}";
+}
+
+const char* CShaderLibrary::GetFSScrollingTextureShader()
+{
+	return
+		"uniform sampler2D iTexture;"
+
+		"void main()"
+		"{"
+		"	gl_FragColor = gl_Color * texture2D(iTexture, gl_TexCoord[0].st);"
+		"}";
+}
