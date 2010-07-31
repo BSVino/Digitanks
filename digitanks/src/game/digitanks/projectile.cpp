@@ -18,6 +18,8 @@ CProjectile::CProjectile()
 	m_flTimeExploded = 0;
 
 	m_bFallSoundPlayed = false;
+
+	m_bShouldRender = true;
 }
 
 void CProjectile::Precache()
@@ -31,8 +33,12 @@ void CProjectile::Think()
 {
 	if (MakesSounds() && GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
 	{
-		EmitSound("sound/bomb-drop.wav");
-		SetSoundVolume("sound/bomb-drop.wav", 0.5f);
+		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+		{
+			EmitSound("sound/bomb-drop.wav");
+			SetSoundVolume("sound/bomb-drop.wav", 0.5f);
+		}
+
 		m_bFallSoundPlayed = true;
 	}
 
@@ -55,6 +61,9 @@ void CProjectile::ModifyContext(class CRenderingContext* pContext)
 
 void CProjectile::OnRender()
 {
+	if (!m_bShouldRender)
+		return;
+
 	BaseClass::OnRender();
 
 	if (m_flTimeExploded == 0.0f)
@@ -135,12 +144,14 @@ void CProjectile::Touching(CBaseEntity* pOther)
 		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 
 	bool bHit = false;
-	
+
 	if (ShouldExplode())
 	{
 		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pOther, m_hOwner->GetTeam());
 		m_flTimeExploded = Game()->GetGameTime();
-		Game()->GetCamera()->Shake(GetOrigin(), 3);
+
+		if (m_bShouldRender)
+			Game()->GetCamera()->Shake(GetOrigin(), 3);
 	}
 	else
 		m_flTimeExploded = 1;	// Remove immediately.
@@ -148,7 +159,9 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	if (MakesSounds())
 	{
 		StopSound("sound/bomb-drop.wav");
-		EmitSound("sound/explosion.wav");
+
+		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+			EmitSound("sound/explosion.wav");
 	}
 
 	if (dynamic_cast<CTerrain*>(pOther) && !bHit)
@@ -162,9 +175,17 @@ void CProjectile::SetOwner(CDigitank* pOwner)
 	SetSimulated(true);
 	SetCollisionGroup(CG_POWERUP);
 
-	m_iParticleSystem = CreateParticleSystem();
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
+	if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+		m_bShouldRender = true;
+	else
+		m_bShouldRender = false;
+
+	if (m_bShouldRender)
+	{
+		m_iParticleSystem = CreateParticleSystem();
+		if (m_iParticleSystem != ~0)
+			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
+	}
 }
 
 size_t CProjectile::CreateParticleSystem()

@@ -1435,6 +1435,7 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	m_hProjectile->SetDamage(GetProjectileDamage());
 	m_hProjectile->SetForce(vecForce);
 	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
+	m_hProjectile->SetLandingSpot(vecLandingSpot);
 
 	if (GetVisibility() > 0)
 	{
@@ -2053,6 +2054,9 @@ void CDigitank::Speak(size_t iSpeech)
 		return;
 
 	if (Game()->GetGameTime() < m_flLastSpeech + 5.0f)
+		return;
+
+	if (GetVisibility() > 0)
 		return;
 
 	size_t iLine = g_aiSpeechLines[iSpeech][rand()%g_aiSpeechLines[iSpeech].size()];

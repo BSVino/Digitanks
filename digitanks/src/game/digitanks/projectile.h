@@ -36,6 +36,7 @@ public:
 	virtual void				SetOwner(CDigitank* pOwner);
 	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; };
 	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
+	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };
 
 	virtual size_t				CreateParticleSystem();
 
@@ -47,6 +48,8 @@ protected:
 
 	CEntityHandle<CDigitank>	m_hOwner;
 	float						m_flDamage;
+	Vector						m_vecLandingSpot;
+	bool						m_bShouldRender;
 
 	size_t						m_iParticleSystem;
 };

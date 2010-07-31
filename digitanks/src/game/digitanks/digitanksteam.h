@@ -48,6 +48,7 @@ public:
 	size_t						GetNumTanksAlive();
 
 	float						GetEntityVisibility(size_t iHandle);
+	float						GetVisibilityAtPoint(Vector vecPoint);
 
 	// AI stuff
 	void						Bot_ExpandBase();

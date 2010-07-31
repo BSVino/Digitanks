@@ -148,27 +148,7 @@ void CDigitanksTeam::StartTurn()
 			continue;
 		}
 
-		m_aflVisibilities[pEntity->GetHandle()] = 0;
-
-		// For every entity on this team, see what the visibility is
-		for (size_t j = 0; j < m_ahMembers.size(); j++)
-		{
-			if (m_ahMembers[j] == NULL)
-				continue;
-
-			CDigitanksEntity* pTeammate = dynamic_cast<CDigitanksEntity*>(m_ahMembers[j].GetPointer());
-			if (!pTeammate)
-				continue;
-
-			if (pTeammate->VisibleRange() == 0)
-				continue;
-
-			float flVisibility = RemapValClamped((pTeammate->GetOrigin() - pEntity->GetOrigin()).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+10, 1, 0);
-
-			// Use the brightest visibility
-			if (flVisibility > m_aflVisibilities[pEntity->GetHandle()])
-				m_aflVisibilities[pEntity->GetHandle()] = flVisibility;
-		}
+		m_aflVisibilities[pEntity->GetHandle()] = GetVisibilityAtPoint(pEntity->GetOrigin());
 	}
 
 	// Find and count producers and accumulate production points
@@ -317,4 +297,31 @@ float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 		return 0;
 
 	return m_aflVisibilities[iHandle];
+}
+
+float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint)
+{
+	float flFinalVisibility = 0;
+
+	// For every entity on this team, see what the visibility is
+	for (size_t j = 0; j < m_ahMembers.size(); j++)
+	{
+		if (m_ahMembers[j] == NULL)
+			continue;
+
+		CDigitanksEntity* pTeammate = dynamic_cast<CDigitanksEntity*>(m_ahMembers[j].GetPointer());
+		if (!pTeammate)
+			continue;
+
+		if (pTeammate->VisibleRange() == 0)
+			continue;
+
+		float flVisibility = RemapValClamped((pTeammate->GetOrigin() - vecPoint).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+10, 1, 0);
+
+		// Use the brightest visibility
+		if (flVisibility > flFinalVisibility)
+			flFinalVisibility = flVisibility;
+	}
+
+	return flFinalVisibility;
 }
