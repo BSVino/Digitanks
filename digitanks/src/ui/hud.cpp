@@ -1129,6 +1129,8 @@ void CHUD::MoveCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_MOVE);
+
+	SetupMenu();
 }
 
 void CHUD::TurnCallback()
@@ -1142,6 +1144,8 @@ void CHUD::TurnCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_TURN);
+
+	SetupMenu();
 }
 
 void CHUD::AimCallback()
@@ -1155,6 +1159,8 @@ void CHUD::AimCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_AIM);
+
+	SetupMenu();
 }
 
 void CHUD::FortifyCallback()
@@ -1185,6 +1191,8 @@ void CHUD::FireCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_FIRE);
+
+	SetupMenu();
 }
 
 void CHUD::PromoteCallback()

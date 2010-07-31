@@ -1265,7 +1265,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton4Help("Set Energy");
 		}
 
-		if (HasDesiredAim() && (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE))
+		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
 			pHUD->SetButton4Color(Color(150, 0, 150));
 		else
 			pHUD->SetButton4Color(Color(100, 100, 100));
