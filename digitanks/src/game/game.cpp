@@ -272,6 +272,7 @@ void CGame::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
 	m_flGameTime = p->fl2;
+	s_hLocalTeam = NULL;
 }
 
 void CGame::SetOrigin(CNetworkParameters* p)
@@ -339,7 +340,7 @@ bool CGame::IsTeamControlledByMe(CTeam* pTeam)
 
 CTeam* CGame::GetLocalTeam()
 {
-	if (s_hLocalTeam == NULL)
+	if (s_hLocalTeam == NULL || s_hLocalTeam->IsDeleted())
 	{
 		CGame* pGame = Game();
 		for (size_t i = 0; i < pGame->m_ahTeams.size(); i++)
@@ -348,7 +349,10 @@ CTeam* CGame::GetLocalTeam()
 				continue;
 
 			if (pGame->m_ahTeams[i]->GetClient() == pGame->m_iClient)
+			{
 				s_hLocalTeam = pGame->m_ahTeams[i];
+				break;
+			}
 		}
 	}
 

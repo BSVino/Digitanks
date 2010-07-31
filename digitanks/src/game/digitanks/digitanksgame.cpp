@@ -947,7 +947,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
 
-		GetCamera()->SetTarget(pTank->GetOrigin());
+		GetCamera()->SnapTarget(pTank->GetOrigin());
 		GetCamera()->SetDistance(100);
 		GetCamera()->SetAngle(EAngle(45, 0, 0));
 	}
@@ -983,7 +983,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		CResource* pResource = Game()->Create<CResource>("CResource");
 		pResource->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 20)));
 
-		GetCamera()->SetTarget(pCPU->GetOrigin());
+		GetCamera()->SnapTarget(pCPU->GetOrigin());
 		GetCamera()->SetDistance(100);
 		GetCamera()->SetAngle(EAngle(45, 0, 0));
 
