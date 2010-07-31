@@ -44,6 +44,9 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
+	virtual void				OnDeleted();
+	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
+
 	virtual float				HealthRechargeRate() const { return 1.0f; };
 	virtual float				VisibleRange() const { return 50; };
 	virtual size_t				ConstructionCost() const { return 20; };

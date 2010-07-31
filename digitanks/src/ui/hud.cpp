@@ -42,18 +42,33 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
-		sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar1Text(), (int)(pSelection->GetPowerBar1Value()*100));
-		SetText(szLabel);
+		if (strlen(pSelection->GetPowerBar1Text()))
+		{
+			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar1Text(), (int)(pSelection->GetPowerBar1Value()*100));
+			SetText(szLabel);
+		}
+		else
+			SetText("");
 	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
 	{
-		sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar2Text(), (int)(pSelection->GetPowerBar2Value()*100));
-		SetText(szLabel);
+		if (strlen(pSelection->GetPowerBar2Text()))
+		{
+			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar2Text(), (int)(pSelection->GetPowerBar2Value()*100));
+			SetText(szLabel);
+		}
+		else
+			SetText("");
 	}
 	else
 	{
-		sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar3Text(), (int)(pSelection->GetPowerBar3Value()*100));
-		SetText(szLabel);
+		if (strlen(pSelection->GetPowerBar3Text()))
+		{
+			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar3Text(), (int)(pSelection->GetPowerBar3Value()*100));
+			SetText(szLabel);
+		}
+		else
+			SetText("");
 	}
 }
 
@@ -177,6 +192,7 @@ CHUD::CHUD()
 
 	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
 	m_pFPS->SetPos(20, 20);
+	m_pFPS->SetText("Free Demo");
 
 	m_pTeamInfo = new CLabel(0, 0, 200, 20, "");
 	AddControl(m_pTeamInfo);
@@ -370,7 +386,7 @@ void CHUD::Think()
 		}
 	}
 
-	if (pCurrentTank)
+	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
 	{
 		bool bShowEnter = true;
 
@@ -381,7 +397,14 @@ void CHUD::Think()
 			bShowEnter = false;
 
 		m_pPressEnter->SetVisible(bShowEnter);
+	}
+	else
+	{
+		m_pPressEnter->SetVisible(true);
+	}
 
+	if (pCurrentTank)
+	{
 		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE);
 		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE);
 		m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
@@ -390,9 +413,11 @@ void CHUD::Think()
 		m_pFireDefend->SetWrap(false);
 	}
 
+#if 0
 	char szFPS[100];
 	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
 	m_pFPS->SetText(szFPS);
+#endif
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -642,6 +667,11 @@ void CHUD::UpdateInfo()
 	if (pCurrentTank)
 		UpdateTankInfo(pCurrentTank);
 
+	CStructure* pCurrentStructure = DigitanksGame()->GetCurrentStructure();
+
+	if (pCurrentStructure)
+		UpdateStructureInfo(pCurrentStructure);
+
 	CSelectable* pCurrentSelection = DigitanksGame()->GetCurrentSelection();
 
 	if (pCurrentSelection)
@@ -774,6 +804,16 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	);
 
 	m_pAttackInfo->SetText(szAttackInfo);
+}
+
+void CHUD::UpdateStructureInfo(CStructure* pStructure)
+{
+	m_pFrontShieldInfo->SetText("");
+	m_pRearShieldInfo->SetText("");
+	m_pLeftShieldInfo->SetText("");
+	m_pRightShieldInfo->SetText("");
+
+	m_pAttackInfo->SetText(L"");
 }
 
 void CHUD::SetGame(CDigitanksGame *pGame)
@@ -965,6 +1005,11 @@ void CHUD::NewCurrentTeam()
 	s << "Fleet Points: " << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints();
 	m_pTeamInfo->SetText(s.str().c_str());
 	m_pTeamInfo->SetPos(GetWidth() - 200, 20);
+
+	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
+		m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
+	else
+		m_pPressEnter->SetText("Other players are taking their turns...");
 }
 
 void CHUD::NewCurrentSelection()

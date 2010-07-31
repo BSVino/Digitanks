@@ -130,6 +130,13 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 		pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
+void CStructure::OnDeleted()
+{
+	BaseClass::OnDeleted();
+
+	SetSupplier(NULL);
+}
+
 REGISTER_ENTITY(CSupplier);
 
 size_t CSupplier::s_iTendrilBeam = 0;
@@ -310,6 +317,8 @@ void CSupplier::AddChild(CStructure* pChild)
 
 void CSupplier::OnDeleted(CBaseEntity* pEntity)
 {
+	BaseClass::OnDeleted(pEntity);
+
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{
 		if (m_ahChildren[i] == pEntity)

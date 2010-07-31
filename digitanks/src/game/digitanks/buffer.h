@@ -13,6 +13,7 @@ public:
 
 	virtual size_t				InitialDataStrength() { return 300; };
 	virtual size_t				FleetPoints() const { return 4; };
+	virtual float				TotalHealth() const { return 25; };
 
 	virtual void				UpdateInfo(std::string& sInfo);
 

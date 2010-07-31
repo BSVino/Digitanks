@@ -292,6 +292,14 @@ void CCPU::StartTurn()
 
 	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
 	{
+		if (!m_hConstructing->GetSupplier() || m_hConstructing->GetSupplier()->IsDeleted())
+		{
+			CancelConstruction();
+		}
+	}
+
+	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
+	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionRemaining())
 		{
 			std::stringstream s;

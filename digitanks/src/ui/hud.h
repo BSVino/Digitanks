@@ -120,6 +120,7 @@ public:
 
 	void						UpdateInfo();
 	void						UpdateTankInfo(CDigitank* pTank);
+	void						UpdateStructureInfo(CStructure* pStructure);
 
 	void						SetGame(class CDigitanksGame* pGame);
 

@@ -149,7 +149,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
 			if (pSelectable)
-				DigitanksGame()->GetCurrentTeam()->SetCurrentSelection(pSelectable);
+				DigitanksGame()->GetLocalDigitanksTeam()->SetCurrentSelection(pSelectable);
 		}
 	}
 
@@ -244,6 +244,12 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 
 	if (c == 'c')
 		DigitanksGame()->CompleteProductions();
+
+	if (c == 'v')
+	{
+		if (DigitanksGame()->GetCurrentSelection())
+			DigitanksGame()->GetCurrentSelection()->Delete();
+	}
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
