@@ -2056,7 +2056,7 @@ void CDigitank::Speak(size_t iSpeech)
 	if (Game()->GetGameTime() < m_flLastSpeech + 5.0f)
 		return;
 
-	if (GetVisibility() > 0)
+	if (GetVisibility() == 0)
 		return;
 
 	size_t iLine = g_aiSpeechLines[iSpeech][rand()%g_aiSpeechLines[iSpeech].size()];
