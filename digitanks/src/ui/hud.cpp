@@ -1016,10 +1016,13 @@ void CHUD::NewCurrentSelection()
 {
 	UpdateInfo();
 
-	if (DigitanksGame()->GetCurrentTank())
-		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
-	else if (DigitanksGame()->GetCurrentSelection())
-		Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
+	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
+	{
+		if (DigitanksGame()->GetCurrentTank())
+			Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
+		else if (DigitanksGame()->GetCurrentSelection())
+			Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
+	}
 
 	SetupMenu(MENUMODE_MAIN);
 }

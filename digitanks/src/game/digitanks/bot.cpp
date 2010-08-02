@@ -7,6 +7,10 @@
 #include "resource.h"
 #include "loader.h"
 
+#include "artillery.h"
+#include "maintank.h"
+#include "mechinf.h"
+
 structure_t g_aeBuildOrder[] =
 {
 	STRUCTURE_BUFFER,
@@ -162,7 +166,32 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 void CDigitanksTeam::Bot_BuildUnits()
 {
-	// Find the nearest enemy to the head tank, he's our target.
+	size_t iInfantry = 0;
+	size_t iMainTanks = 0;
+	size_t iArtillery = 0;
+
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		CBaseEntity* pEntity = m_ahMembers[i];
+		if (!pEntity)
+			continue;
+
+		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
+
+		if (dynamic_cast<CMechInfantry*>(pEntity))
+			iInfantry += pDigitank->FleetPoints();
+		else if (dynamic_cast<CMainBattleTank*>(pEntity))
+			iMainTanks += pDigitank->FleetPoints();
+		else if (dynamic_cast<CArtillery*>(pEntity))
+			iArtillery += pDigitank->FleetPoints();
+	}
+
+	size_t iRatioTotal = CMechInfantry::InfantryFleetPoints() + CMainBattleTank::MainTankFleetPoints() + CArtillery::ArtilleryFleetPoints();
+	float flInfantryRatio = (float)iRatioTotal/CMechInfantry::InfantryFleetPoints();
+	float flMainTankRatio = (float)iRatioTotal/CMainBattleTank::MainTankFleetPoints();
+	float flArtilleryRatio = (float)iRatioTotal/CArtillery::ArtilleryFleetPoints();
+	float flRatioTotal = flInfantryRatio + flMainTankRatio + flArtilleryRatio;
+
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		CBaseEntity* pEntity = m_ahMembers[i];
@@ -174,6 +203,30 @@ void CDigitanksTeam::Bot_BuildUnits()
 			continue;
 
 		if (pLoader->IsConstructing())
+			continue;
+
+		size_t iTanks;
+		float flValue;
+		if (pLoader->GetBuildUnit() == BUILDUNIT_INFANTRY)
+		{
+			iTanks = iInfantry;
+			flValue = flInfantryRatio;
+		}
+		else if (pLoader->GetBuildUnit() == BUILDUNIT_TANK)
+		{
+			iTanks = iMainTanks;
+			flValue = flMainTankRatio;
+		}
+		else if (pLoader->GetBuildUnit() == BUILDUNIT_ARTILLERY)
+		{
+			iTanks = iArtillery;
+			flValue = flArtilleryRatio;
+		}
+
+		// Build a ratio of tanks similar to the cost of constructing the tanks. This way we won't build a bajillion infantry and only one or two other tanks.
+		float flTanksRatio = ((float)iTanks+1)/GetTotalFleetPoints();
+		float flBuildRatio = flValue/flRatioTotal;
+		if (flTanksRatio > flBuildRatio)
 			continue;
 
 		if (!pLoader->IsProducing())
