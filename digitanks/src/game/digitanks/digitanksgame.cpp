@@ -639,6 +639,8 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 
 	if (m_pListener)
 		m_pListener->SetHUDActive(false);
+
+	CheckWinConditions();
 }
 
 void CDigitanksGame::StartTurn()
@@ -768,6 +770,7 @@ void CDigitanksGame::CheckWinConditions()
 		return;
 
 	bool bPlayerLost = false;
+	size_t iTeamsLeft = 0;
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
@@ -780,6 +783,7 @@ void CDigitanksGame::CheckWinConditions()
 				if (dynamic_cast<CCPU*>(pEntity))
 				{
 					bHasCPU = true;
+					iTeamsLeft++;
 					break;
 				}
 			}
@@ -791,16 +795,17 @@ void CDigitanksGame::CheckWinConditions()
 		{
 			if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
 			{
-				m_ahTeams[i]->Delete();
-				m_ahTeams.erase(m_ahTeams.begin()+i);
-
 				if (i == 0)
 					bPlayerLost = true;
+			}
+			else
+			{
+				iTeamsLeft++;
 			}
 		}
 	}
 
-	if (bPlayerLost || m_ahTeams.size() <= 1)
+	if (bPlayerLost || iTeamsLeft <= 1)
 	{
 		if (m_pListener)
 			m_pListener->GameOver(!bPlayerLost);

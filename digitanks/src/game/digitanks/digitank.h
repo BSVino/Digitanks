@@ -174,9 +174,9 @@ public:
 	virtual bool				AllowControlMode(controlmode_t eMode);
 	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
 
-	virtual const char*			GetPowerBar1Text() { return "Attack Energy"; }
-	virtual const char*			GetPowerBar2Text() { return "Defense Energy"; }
-	virtual const char*			GetPowerBar3Text() { return "Movement Energy"; }
+	virtual const char*			GetPowerBar1Text() { return "Attack"; }
+	virtual const char*			GetPowerBar2Text() { return "Defense"; }
+	virtual const char*			GetPowerBar3Text() { return "Movement"; }
 
 	virtual float				GetPowerBar1Value();
 	virtual float				GetPowerBar2Value();

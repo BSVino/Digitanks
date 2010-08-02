@@ -128,7 +128,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		}
 		else
 		{
-			if (m_iMouseMoved < 20 && GetGame() && GetGame()->GetCamera())
+			if (m_iMouseMoved < 30 && GetGame() && GetGame()->GetCamera())
 			{
 				if (m_bCameraMouseDown)
 				{
@@ -137,12 +137,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 					CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 				}
 			}
-			else if (m_iMouseMoved > 20)
+			else if (m_iMouseMoved > 30)
 				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
 		}
 	}
 
-	if (iState == GLUT_UP && iButton == 0 && m_iMouseMoved < 10)
+	if (iState == GLUT_UP && iButton == 0 && m_iMouseMoved < 30)
 	{
 		if (pClickedEntity)
 		{

@@ -30,6 +30,7 @@ public:
 
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				CreatesCraters() { return true; };
+	virtual bool				BombDropNoise() { return true; };
 
 	virtual bool				SendsNotifications() { return true; };
 
@@ -76,6 +77,7 @@ public:
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual bool				ShouldExplode() { return false; };
 	virtual bool				CreatesCraters() { return false; };
+	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return false; };
 	virtual size_t				CreateParticleSystem();
 };

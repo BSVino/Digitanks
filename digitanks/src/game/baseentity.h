@@ -92,6 +92,7 @@ public:
 	virtual void							ClientUpdate(int iClient);
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
+	virtual bool							TakesDamage() { return m_bTakeDamage; };
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
 

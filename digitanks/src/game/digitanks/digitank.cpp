@@ -1203,7 +1203,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButton1Texture(s_iMoveIcon);
 		}
 
-		if (IsFortified())
+		if (IsFortified() && !CanTurnFortified())
 		{
 			pHUD->SetButton2Help("");
 			pHUD->SetButton2Listener(NULL);
@@ -1234,22 +1234,36 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				pHUD->SetButton3Help("Fortify");
 			pHUD->SetButton3Listener(CHUD::Fortify);
+
+			pHUD->SetButton3Color(Color(0, 0, 150));
+			pHUD->SetButton3Texture(0);
 		}
 		else
 		{
-			pHUD->SetButton3Help("Aim");
-			pHUD->SetButton3Listener(CHUD::Aim);
+			if (!IsFortified() && !CanAimMobilized())
+			{
+				pHUD->SetButton3Help("");
+				pHUD->SetButton3Listener(NULL);
+
+				pHUD->SetButton3Color(glgui::g_clrBox);
+				pHUD->SetButton3Texture(0);
+			}
+			else
+			{
+				pHUD->SetButton3Help("Aim");
+				pHUD->SetButton3Listener(CHUD::Aim);
+
+				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
+					pHUD->SetButton3Color(Color(150, 0, 0));
+				else
+					pHUD->SetButton3Color(Color(100, 100, 100));
+
+				if (DigitanksGame()->GetControlMode() == MODE_AIM)
+					pHUD->SetButton3Texture(s_iCancelIcon);
+				else
+					pHUD->SetButton3Texture(s_iAimIcon);
+			}
 		}
-
-		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
-			pHUD->SetButton3Color(Color(150, 0, 0));
-		else
-			pHUD->SetButton3Color(Color(100, 100, 100));
-
-		if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			pHUD->SetButton3Texture(s_iCancelIcon);
-		else
-			pHUD->SetButton3Texture(s_iAimIcon);
 
 		if (UseFortifyMenuFire())
 		{
@@ -1258,25 +1272,28 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButton4Help("Mobilize");
 			else
 				pHUD->SetButton4Help("Deploy");
+
+			pHUD->SetButton4Color(Color(0, 0, 150));
+			pHUD->SetButton4Texture(0);
 		}
 		else
 		{
 			pHUD->SetButton4Listener(CHUD::Fire);
 			pHUD->SetButton4Help("Set Energy");
+
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
+				pHUD->SetButton4Color(Color(150, 0, 150));
+			else
+				pHUD->SetButton4Color(Color(100, 100, 100));
+
+			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+				pHUD->SetButton4Texture(s_iCancelIcon);
+			else
+				pHUD->SetButton4Texture(s_iFireIcon);
 		}
 
-		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
-			pHUD->SetButton4Color(Color(150, 0, 150));
-		else
-			pHUD->SetButton4Color(Color(100, 100, 100));
-
-		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			pHUD->SetButton4Texture(s_iCancelIcon);
-		else
-			pHUD->SetButton4Texture(s_iFireIcon);
-
 		pHUD->SetButton5Listener(CHUD::Promote);
-		pHUD->SetButton5Help("Promote");
+		pHUD->SetButton5Help("Upgrade");
 
 		pHUD->SetButton5Texture(s_iPromoteIcon);
 
@@ -1288,9 +1305,18 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton1Listener(CHUD::PromoteAttack);
 		pHUD->SetButton1Texture(0);
 
-		pHUD->SetButton2Help("Upgrade\nDefense");
-		pHUD->SetButton2Listener(CHUD::PromoteDefense);
-		pHUD->SetButton2Texture(0);
+		if (IsArtillery())
+		{
+			pHUD->SetButton2Help("");
+			pHUD->SetButton2Listener(NULL);
+			pHUD->SetButton2Texture(0);
+		}
+		else
+		{
+			pHUD->SetButton2Help("Upgrade\nDefense");
+			pHUD->SetButton2Listener(CHUD::PromoteDefense);
+			pHUD->SetButton2Texture(0);
+		}
 
 		pHUD->SetButton3Help("Upgrade\nMovement");
 		pHUD->SetButton3Listener(CHUD::PromoteMovement);
@@ -1299,7 +1325,10 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (HasBonusPoints())
 		{
 			pHUD->SetButton1Color(Color(200, 0, 0));
-			pHUD->SetButton2Color(Color(0, 0, 200));
+			if (IsArtillery())
+				pHUD->SetButton2Color(glgui::g_clrBox);
+			else
+				pHUD->SetButton2Color(Color(0, 0, 200));
 			pHUD->SetButton3Color(Color(200, 200, 0));
 		}
 		else
@@ -1891,9 +1920,9 @@ void CDigitank::UpdateInfo(std::string& sInfo)
 	if (HasBonusPoints())
 	{
 		if (GetBonusPoints() > 1)
-			s << "\n \n" << GetBonusPoints() << " bonus points";
+			s << "\n \n" << GetBonusPoints() << " upgrades";
 		else
-			s << "\n \n1 bonus point";
+			s << "\n \n1 upgrade";
 	}
 
 	if (GetBonusAttackPower())

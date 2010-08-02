@@ -37,8 +37,13 @@ void CPowerBar::Think()
 	char szLabel[100];
 	if (m_ePowerbarType == POWERBAR_HEALTH)
 	{
-		sprintf(szLabel, "Hull Strength: %.1f/%.1f", pSelection->GetHealth(), pSelection->GetTotalHealth());
-		SetText(szLabel);
+		if (pSelection->TakesDamage())
+		{
+			sprintf(szLabel, "Hull Strength: %.1f/%.1f", pSelection->GetHealth(), pSelection->GetTotalHealth());
+			SetText(szLabel);
+		}
+		else
+			SetText("");
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
@@ -777,6 +782,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	char szAttackInfo[1024];
 	sprintf(szAttackInfo,
+		"ATTACK REPORT\n \n"
 		"Shield Damage: %.1f/%.1f\n"
 		"Digitank Damage: %.1f/%.1f\n",
 		flShieldDamage, flShieldStrength * pClosestTarget->GetDefenseScale(true),

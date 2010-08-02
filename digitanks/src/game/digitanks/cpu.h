@@ -41,6 +41,8 @@ public:
 
 	virtual void				UpdateInfo(std::string& sInfo);
 
+	virtual void				OnDeleted();
+
 	virtual const char*			GetName() { return "Central Processing Unit"; };
 
 protected:

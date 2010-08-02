@@ -6,6 +6,7 @@
 
 #include <mtrand.h>
 #include <renderer/renderer.h>
+#include <renderer/dissolver.h>
 
 #include <game/team.h>
 #include <ui/digitankswindow.h>
@@ -419,10 +420,31 @@ void CCPU::UpdateInfo(std::string& sInfo)
 		return;
 	}
 
+	if (HasConstruction())
+	{
+		s << "[Constructing " << m_hConstructing->GetName() << "...]\n";
+		s << "Power to build: " << m_hConstructing->GetProductionRemaining() << "\n";
+		s << "Turns left: " << m_hConstructing->GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
+		return;
+	}
+
 	s << "Strength: " << m_iDataStrength << "\n";
 	s << "Growth: " << (int)GetDataFlowRate() << "\n";
 	s << "Size: " << (int)GetDataFlowRadius() << "\n";
 	s << "Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
 
 	sInfo = s.str();
+}
+
+void CCPU::OnDeleted()
+{
+	for (size_t i = GetTeam()->GetNumMembers()-1; i < GetTeam()->GetNumMembers(); i--)
+	{
+		if (GetTeam()->GetMember(i) == this)
+			continue;
+
+		CModelDissolver::AddModel(GetTeam()->GetMember(i));
+		GetTeam()->GetMember(i)->Delete();
+	}
 }

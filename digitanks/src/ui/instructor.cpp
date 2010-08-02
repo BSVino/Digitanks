@@ -88,10 +88,10 @@ void CInstructor::Initialize()
 		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and press enter to end your turn and fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_TOPCENTER, 250, true,
-		L"UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received a promotion! Your promotion gives you bonus points that you can use to upgrade your tank's Energy. Press the 'Promote' button to show a list of upgrade options, and then select an upgrade.\n \nKilling enemy tanks can grant you additional bonus points.")));
+		L"UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received an upgrade! With this you can upgrade your tank's Energy. Press the 'Upgrade' button to show a list of upgrade options, and then select an upgrade.\n \nKilling enemy tanks can grant you additional upgrades.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERUP, new CTutorial(this, TUTORIAL_POWERUP, POSITION_TOPLEFT, 250, true,
-		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Move your tank on top of the powerup and it will turn green. Keep the tank in this position and you'll be able to use the bonus points next turn. Picking up more powerups can grant you additional bonus points.\n \nPress the 'Enter' key to end your turn and pick up the powerup.")));
+		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Move your tank on top of the powerup and it will turn green. Keep the tank in this position and you'll be able to use the upgrade next turn. Picking up more powerups can grant you additional upgrades.\n \nPress the 'Enter' key to end your turn and pick up the powerup.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASICS, new CTutorial(this, TUTORIAL_THEEND_BASICS, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Bases tutorial. You can also start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
@@ -103,16 +103,16 @@ void CInstructor::Initialize()
 		L"THE CENTRAL PROCESSING UNIT (CPU)\n \nThis is your CPU. It is your command center. If it is destroyed then you lose the game, so protect it well.\n \nThe CPU is the source of your Network. Your Network is represented by the glowy tendrils that come from your CPU.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BUFFER, new CTutorial(this, TUTORIAL_BUFFER, POSITION_TOPCENTER, 250, false,
-		L"CONSTRUCTING\n \nYou can use your CPU to construct other structures. Construct a Buffer by clicking the 'Build Buffer' button and then right-clicking on open terrain inside your Network.")));
+		L"CONSTRUCTING\n \nYou can use your CPU to construct other structures. A 'Buffer' is a special structure that extends your Network and buffs your units. Construct a Buffer by clicking the 'Build Buffer' button and then right-clicking on open terrain inside your Network.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_TOPCENTER, 250, false,
-		L"POWER\n \nYour buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you are accumulating this turn at the top right of the screen. After enough Power has accumulated, the structure is complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
+		L"POWER\n \nYour Buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you are accumulating this turn at the top right of the screen. After enough Power has accumulated, the structure is complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_NETWORK, new CTutorial(this, TUTORIAL_NETWORK, POSITION_TOPCENTER, 250, true,
-		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. Friendly units inside your Network will receive combat bonuses. You can only build more structures inside your Network.\n \nClick here to continue.")));
+		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. You can only build more structures inside your Network. Friendly units inside your Network will receive combat bonuses.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_PSU, new CTutorial(this, TUTORIAL_PSU, POSITION_TOPCENTER, 250, false,
-		L"POWER SUPPLIES\n \nPower Supplies can extract Power from Electronodes. They must be built close to an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Power Supply' button and right click near the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
+		L"POWER SUPPLIES\n \nElectronodes are digital resources that contain Power. Power Supplies can extract Power from Electronodes. They must be built close to an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Power Supply' button and right click near the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SUPPLY, new CTutorial(this, TUTORIAL_SUPPLY, POSITION_TOPCENTER, 250, true,
 		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));

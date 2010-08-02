@@ -60,6 +60,10 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pStartGame->SetClickedListener(this, StartGame);
 	AddControl(m_pStartGame);
 
+	m_pReturnToGame = new CButton(0, 0, 100, 100, "Return To Game");
+	m_pReturnToGame->SetClickedListener(this, Close);
+	AddControl(m_pReturnToGame);
+
 	m_pExit = new CButton(0, 0, 100, 100, "Exit To Desktop");
 	m_pExit->SetClickedListener(this, Exit);
 	AddControl(m_pExit);
@@ -79,20 +83,24 @@ void CDigitanksMenu::Layout()
 
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
-	m_pStartTutorialBasics->SetPos(100, 200);
+	m_pStartTutorialBasics->SetPos(100, 170);
 	m_pStartTutorialBasics->SetSize(100, 20);
 
-	m_pStartTutorialBases->SetPos(100, 230);
+	m_pStartTutorialBases->SetPos(100, 200);
 	m_pStartTutorialBases->SetSize(100, 20);
 
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 280);
+	m_pDifficultyLabel->SetPos(75, 250);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 280);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 250);
 
-	m_pStartGame->SetPos(100, 330);
+	m_pStartGame->SetPos(100, 300);
 	m_pStartGame->SetSize(100, 20);
+
+	m_pReturnToGame->SetPos(100, 330);
+	m_pReturnToGame->SetSize(100, 20);
+	m_pReturnToGame->SetVisible(!!Game());
 
 	m_pExit->SetPos(100, 360);
 	m_pExit->SetSize(100, 20);
@@ -122,6 +130,8 @@ void CDigitanksMenu::SetVisible(bool bVisible)
 		else
 			CDigitanksWindow::Get()->GetInstructor()->ShowTutorial();
 	}
+
+	m_pReturnToGame->SetVisible(!!Game());
 
 	BaseClass::SetVisible(bVisible);
 }
@@ -165,6 +175,11 @@ void CDigitanksMenu::StartGameCallback()
 
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
 	DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
+	SetVisible(false);
+}
+
+void CDigitanksMenu::CloseCallback()
+{
 	SetVisible(false);
 }
 
@@ -222,11 +237,15 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 	Layout();
 
 	if (bPlayerWon)
+	{
 		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the Digiverse!\n \n");
+		m_pVictory->AppendText(L"Thanks for playing Digitanks. Press escape to start a new game.");
+	}
 	else
+	{
 		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n");
-
-	m_pVictory->AppendText(L"Thanks for playing Digitanks. You can close this window to continue playing, or you can press escape to start a new game.");
+		m_pVictory->AppendText(L"Thanks for playing Digitanks. You can close this window to continue playing, or you can press escape to start a new game.");
+	}
 
 	SetVisible(true);
 }

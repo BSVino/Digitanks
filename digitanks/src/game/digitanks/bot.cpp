@@ -298,6 +298,12 @@ void CDigitanksTeam::Bot_AssignDefenders()
 
 void CDigitanksTeam::Bot_ExecuteTurn()
 {
+	if (m_hPrimaryCPU == NULL)
+	{
+		DigitanksGame()->EndTurn();
+		return;
+	}
+
 	Bot_ExpandBase();
 	Bot_BuildUnits();
 	Bot_AssignDefenders();
