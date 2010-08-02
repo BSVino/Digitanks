@@ -180,7 +180,6 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 
 	if (!bNewCallList)
 		glUseProgram(0);
-
 }
 
 void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, bool bNewCallList)
@@ -208,6 +207,8 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 {
 	if (!pMeshInstance->IsVisible())
 		return;
+
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 
 	// It uses this color if the texture is missing.
 	GLfloat flMaterialColor[] = {0.7f, 0.7f, 0.7f, m_flAlpha};
@@ -290,6 +291,8 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 
 		glEnd();
 	}
+
+	glPopAttrib();
 }
 
 void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)

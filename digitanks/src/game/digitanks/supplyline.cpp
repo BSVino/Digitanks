@@ -100,7 +100,8 @@ void CSupplyLine::PostRender()
 	size_t iSegments = (size_t)(flDistance/3);
 
 	CRenderingContext r(Game()->GetRenderer());
-	r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
+	if (DigitanksGame()->ShouldRenderFogOfWar())
+		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 
 	Color clrTeam = GetTeam()->GetColor();
 

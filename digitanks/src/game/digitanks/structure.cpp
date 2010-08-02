@@ -262,7 +262,8 @@ void CSupplier::StartTurn()
 void CSupplier::PostRender()
 {
 	CRenderingContext r(Game()->GetRenderer());
-	r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
+	if (DigitanksGame()->ShouldRenderFogOfWar())
+		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 	r.SetDepthMask(false);
 	r.BindTexture(s_iTendrilBeam);
 

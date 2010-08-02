@@ -993,6 +993,8 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetCamera()->SetAngle(EAngle(45, 0, 0));
 
 		EndTurn();	// Force structure height and power updates.
+
+		GetDigitanksTeam(0)->SetCurrentSelection(pCPU);
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_THEEND_BASES)
 	{
@@ -1006,7 +1008,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 bool CDigitanksGame::ShouldRenderFogOfWar()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL)
+	if (m_eGameType == GAMETYPE_TUTORIAL && CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_THEEND_BASICS)
 		return false;
 
 	else

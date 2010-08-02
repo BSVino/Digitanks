@@ -181,7 +181,7 @@ void CGame::Render()
 	m_pRenderer->StartRendering();
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-		CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i))->Render();
+		CBaseEntity::GetEntityNumber(i)->Render();
 
 	CParticleSystemLibrary::Render();
 	CModelDissolver::Render();
