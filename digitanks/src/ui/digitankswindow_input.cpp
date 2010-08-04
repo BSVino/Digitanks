@@ -239,6 +239,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
+#ifdef _DEBUG
 	if (c == 'x')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
 
@@ -250,6 +251,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		if (DigitanksGame()->GetCurrentSelection())
 			DigitanksGame()->GetCurrentSelection()->Delete();
 	}
+#endif
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
