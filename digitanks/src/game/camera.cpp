@@ -28,20 +28,22 @@ void CCamera::SetTarget(Vector vecTarget)
 		vecTarget.x = DigitanksGame()->GetTerrain()->GetMapSize();
 	if (vecTarget.z > DigitanksGame()->GetTerrain()->GetMapSize())
 		vecTarget.z = DigitanksGame()->GetTerrain()->GetMapSize();
-	if (vecTarget.y < -100)
-		vecTarget.y = -100;
-	if (vecTarget.y > 100)
-		vecTarget.y = 100;
 
-	m_flTargetRamp = DigitanksGame()->GetGameTime();
+	DigitanksGame()->GetTerrain()->SetPointHeight(vecTarget);
+
+	m_flTargetRamp = Game()->GetGameTime();
 	m_vecOldTarget = m_vecTarget;
 	m_vecNewTarget = vecTarget;
+	m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
 }
 
 void CCamera::SnapTarget(Vector vecTarget)
 {
+	DigitanksGame()->GetTerrain()->SetPointHeight(vecTarget);
+
 	m_flTargetRamp = 0;
-	m_vecNewTarget = vecTarget;
+	m_vecNewTarget = m_vecTarget = vecTarget;
+	m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
 }
 
 void CCamera::SetDistance(float flDistance)
@@ -52,7 +54,7 @@ void CCamera::SetDistance(float flDistance)
 	if (flDistance > 300)
 		flDistance = 300;
 
-	m_flDistanceRamp = DigitanksGame()->GetGameTime();
+	m_flDistanceRamp = Game()->GetGameTime();
 	m_flOldDistance = m_flDistance;
 	m_flNewDistance = flDistance;
 }
@@ -65,7 +67,7 @@ void CCamera::SnapDistance(float flDistance)
 
 void CCamera::SetAngle(EAngle angCamera)
 {
-	m_flAngleRamp = DigitanksGame()->GetGameTime();
+	m_flAngleRamp = Game()->GetGameTime();
 	m_angOldAngle = m_angCamera;
 	m_angNewAngle = angCamera;
 }
@@ -97,17 +99,47 @@ void CCamera::Shake(Vector vecLocation, float flMagnitude)
 
 void CCamera::Think()
 {
-	float flGameTime = DigitanksGame()->GetGameTime();
+	float flGameTime = Game()->GetGameTime();
+	float flFrameTime = Game()->GetFrameTime();
 	float flLerpTime = 0.5f;
 	float flLerpAmount = 0.7f;
+
+	m_vecVelocity.x = Approach(m_vecGoalVelocity.x, m_vecVelocity.x, flFrameTime*200);
+	m_vecVelocity.z = Approach(m_vecGoalVelocity.z, m_vecVelocity.z, flFrameTime*200);
 
 	if (m_flTargetRamp && flGameTime - m_flTargetRamp < flLerpTime)
 	{
 		float flLerp = Lerp((flGameTime - m_flTargetRamp)/flLerpTime, flLerpAmount);
 		m_vecTarget = m_vecNewTarget * flLerp + m_vecOldTarget * (1-flLerp);
+		m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
 	}
 	else
-		m_vecTarget = m_vecNewTarget;
+	{
+		if (m_flTargetRamp)
+		{
+			m_vecTarget = m_vecNewTarget;
+			m_flTargetRamp = 0;
+		}
+		else
+		{
+			Matrix4x4 mRotation;
+			mRotation.SetRotation(EAngle(0, m_angCamera.y, 0));
+			Vector vecVelocity = mRotation * m_vecVelocity;
+
+			m_vecTarget = m_vecTarget + vecVelocity * flFrameTime;
+
+			if (m_vecTarget.x < -DigitanksGame()->GetTerrain()->GetMapSize())
+				m_vecTarget.x = -DigitanksGame()->GetTerrain()->GetMapSize();
+			if (m_vecTarget.z < -DigitanksGame()->GetTerrain()->GetMapSize())
+				m_vecTarget.z = -DigitanksGame()->GetTerrain()->GetMapSize();
+			if (m_vecTarget.x > DigitanksGame()->GetTerrain()->GetMapSize())
+				m_vecTarget.x = DigitanksGame()->GetTerrain()->GetMapSize();
+			if (m_vecTarget.z > DigitanksGame()->GetTerrain()->GetMapSize())
+				m_vecTarget.z = DigitanksGame()->GetTerrain()->GetMapSize();
+
+			DigitanksGame()->GetTerrain()->SetPointHeight(m_vecTarget);
+		}
+	}
 
 	if (m_flDistanceRamp && flGameTime - m_flDistanceRamp < flLerpTime)
 	{
@@ -133,8 +165,8 @@ void CCamera::Think()
 		Vector vecForward, vecRight;
 		AngleVectors(m_angFPSCamera, &vecForward, &vecRight, NULL);
 
-		m_vecFPSCamera += vecForward * m_vecFPSVelocity.x * DigitanksGame()->GetFrameTime() * 20;
-		m_vecFPSCamera -= vecRight * m_vecFPSVelocity.z * DigitanksGame()->GetFrameTime() * 20;
+		m_vecFPSCamera += vecForward * m_vecFPSVelocity.x * Game()->GetFrameTime() * 20;
+		m_vecFPSCamera -= vecRight * m_vecFPSVelocity.z * Game()->GetFrameTime() * 20;
 	}
 
 	m_flShakeMagnitude = Approach(0, m_flShakeMagnitude, Game()->GetFrameTime()*5);
@@ -246,6 +278,17 @@ void CCamera::KeyDown(int c)
 		if (c == 'a')
 			m_vecFPSVelocity.z = -10.0f;
 	}
+	else
+	{
+		if (c == 'w')
+			m_vecGoalVelocity.x = -80.0f;
+		if (c == 's')
+			m_vecGoalVelocity.x = 80.0f;
+		if (c == 'd')
+			m_vecGoalVelocity.z = -80.0f;
+		if (c == 'a')
+			m_vecGoalVelocity.z = 80.0f;
+	}
 }
 
 void CCamera::KeyUp(int c)
@@ -260,5 +303,16 @@ void CCamera::KeyUp(int c)
 			m_vecFPSVelocity.z = 0.0f;
 		if (c == 'a')
 			m_vecFPSVelocity.z = 0.0f;
+	}
+	else
+	{
+		if (c == 'w')
+			m_vecGoalVelocity.x = 0.0f;
+		if (c == 's')
+			m_vecGoalVelocity.x = 0.0f;
+		if (c == 'd')
+			m_vecGoalVelocity.z = 0.0f;
+		if (c == 'a')
+			m_vecGoalVelocity.z = 0.0f;
 	}
 }

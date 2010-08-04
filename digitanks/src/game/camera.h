@@ -57,6 +57,9 @@ public:
 	Vector		m_vecCamera;
 	EAngle		m_angCamera;
 
+	Vector		m_vecVelocity;
+	Vector		m_vecGoalVelocity;
+
 	bool		m_bRotatingCamera;
 
 	bool		m_bFPSMode;
