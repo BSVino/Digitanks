@@ -69,7 +69,7 @@ void CProjectile::OnRender()
 	if (m_flTimeExploded == 0.0f)
 	{
 		glColor4ubv(Color(255, 255, 255));
-		glutSolidSphere(ShellRadius(), 4, 4);
+		//glutSolidSphere(ShellRadius(), 4, 4);
 	}
 	else
 	{
@@ -77,7 +77,7 @@ void CProjectile::OnRender()
 		if (flAlpha > 0)
 		{
 			glColor4ubv(Color(255, 255, 255, (int)(flAlpha*255)));
-			glutSolidSphere(4.0f, 20, 10);
+			//glutSolidSphere(4.0f, 20, 10);
 		}
 	}
 }

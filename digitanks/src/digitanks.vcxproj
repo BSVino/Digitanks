@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1E1190AF-8C70-4639-94F6-C9B2219043EC}</ProjectGuid>
+    <RootNamespace>digitanks</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;..;../..;game;../../freeglut-2.4.0\include;../../glew/include;..\..\common\math;../../DevIL/include;../..\ftgl-2.1.3~rc5\src;../..\freetype-2.3.11\include;../..\common;..\..\SDL_mixer-1.2.11\include;..\..\SDL-1.2.14\include;..\..\enet-1.3.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC;FREEGLUT_STATIC;FTGL_LIBRARY_STATIC;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ftgl_static_D.lib;freetype2311MT_D.lib;raytracer.lib;modelconverter.lib;SDL_mixer.lib;SDL.lib;SDLmain.lib;Iphlpapi.lib;enet.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../freeglut-2.4.0/DebugStatic;../../lib/debug;../..\freetype-2.3.11\objs\win32\vc2010;../..\ftgl-2.1.3~rc5\msvc\build;../..\DevIL\lib\unicode;$(PROGRAMFILES)\Feeling Software\FCollada\Output\Debug Unicode Win32;..\..\SDL-1.2.14\lib;..\..\SDL_mixer-1.2.11\lib;..\..\enet-1.3.0\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;../..;game;../../freeglut-2.4.0\include;../../glew/include;../..\common\math;../../DevIL/include;../..\ftgl-2.1.3~rc5\src;../..\freetype-2.3.11\include;../..\common;..\..\SDL_mixer-1.2.11\include;..\..\SDL-1.2.14\include;..\..\enet-1.3.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC;FREEGLUT_STATIC;FTGL_LIBRARY_STATIC;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ftgl_static.lib;freetype2311MT.lib;raytracer.lib;modelconverter.lib;SDL_mixer.lib;SDL.lib;SDLmain.lib;Iphlpapi.lib;enet.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../freeglut-2.4.0/ReleaseStatic;../../lib/release;../..\DevIL\lib\unicode;../..\freetype-2.3.11\objs\win32\vc2010;../..\ftgl-2.1.3~rc5\msvc\build;$(PROGRAMFILES)\Feeling Software\FCollada\Output\Retail Unicode Win32;..\..\SDL-1.2.14\lib;..\..\SDL_mixer-1.2.11\lib;..\..\enet-1.3.0\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)"digitanks.exe copy "$(TargetDir)"digitanks.exe "../install\digitanks.exe"</Command>
+      <Message>Copying to destination folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ui\debugdraw.cpp" />
+    <ClCompile Include="ui\digitankswindow.cpp">
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <ClCompile Include="ui\digitankswindow_input.cpp" />
+    <ClCompile Include="ui\digitankswindow_ui.cpp" />
+    <ClCompile Include="ui\hud.cpp" />
+    <ClCompile Include="ui\instructor.cpp" />
+    <ClCompile Include="..\..\glew\src\glew.c" />
+    <ClCompile Include="game\baseentity.cpp" />
+    <ClCompile Include="game\camera.cpp" />
+    <ClCompile Include="game\game.cpp" />
+    <ClCompile Include="game\team.cpp" />
+    <ClCompile Include="game\digitanks\bot.cpp" />
+    <ClCompile Include="game\digitanks\digitanksentity.cpp" />
+    <ClCompile Include="game\digitanks\digitanksgame.cpp" />
+    <ClCompile Include="game\digitanks\digitanksteam.cpp" />
+    <ClCompile Include="game\digitanks\dt_renderer.cpp" />
+    <ClCompile Include="game\digitanks\powerup.cpp" />
+    <ClCompile Include="game\digitanks\projectile.cpp" />
+    <ClCompile Include="game\digitanks\selectable.cpp" />
+    <ClCompile Include="game\digitanks\supplyline.cpp" />
+    <ClCompile Include="game\digitanks\terrain.cpp" />
+    <ClCompile Include="game\digitanks\artillery.cpp" />
+    <ClCompile Include="game\digitanks\digitank.cpp" />
+    <ClCompile Include="game\digitanks\maintank.cpp" />
+    <ClCompile Include="game\digitanks\mechinf.cpp" />
+    <ClCompile Include="game\digitanks\buffer.cpp" />
+    <ClCompile Include="game\digitanks\collector.cpp" />
+    <ClCompile Include="game\digitanks\cpu.cpp" />
+    <ClCompile Include="game\digitanks\loader.cpp" />
+    <ClCompile Include="game\digitanks\resource.cpp" />
+    <ClCompile Include="game\digitanks\structure.cpp" />
+    <ClCompile Include="..\..\glgui\glgui.cpp" />
+    <ClCompile Include="shaders\blur.cpp" />
+    <ClCompile Include="shaders\explosion.cpp" />
+    <ClCompile Include="shaders\filters.cpp" />
+    <ClCompile Include="shaders\model.cpp" />
+    <ClCompile Include="shaders\shaders.cpp" />
+    <ClCompile Include="shaders\terrain.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="models\models.cpp" />
+    <ClCompile Include="renderer\dissolver.cpp" />
+    <ClCompile Include="renderer\particles.cpp" />
+    <ClCompile Include="renderer\renderer.cpp" />
+    <ClCompile Include="renderer\systems.cpp" />
+    <ClCompile Include="sound\sound.cpp" />
+    <ClCompile Include="..\..\common\mtrand.cpp" />
+    <ClCompile Include="..\..\common\platform_win32.cpp" />
+    <ClCompile Include="network\network.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ui\debugdraw.h" />
+    <ClInclude Include="ui\digitankswindow.h" />
+    <ClInclude Include="ui\hud.h" />
+    <ClInclude Include="ui\instructor.h" />
+    <ClInclude Include="ui\menu.h" />
+    <ClInclude Include="game\baseentity.h" />
+    <ClInclude Include="game\camera.h" />
+    <ClInclude Include="game\game.h" />
+    <ClInclude Include="game\team.h" />
+    <ClInclude Include="game\digitanks\digitanksentity.h" />
+    <ClInclude Include="game\digitanks\digitanksgame.h" />
+    <ClInclude Include="game\digitanks\digitanksteam.h" />
+    <ClInclude Include="game\digitanks\dt_renderer.h" />
+    <ClInclude Include="game\digitanks\powerup.h" />
+    <ClInclude Include="game\digitanks\projectile.h" />
+    <ClInclude Include="game\digitanks\selectable.h" />
+    <ClInclude Include="game\digitanks\supplyline.h" />
+    <ClInclude Include="game\digitanks\terrain.h" />
+    <ClInclude Include="game\digitanks\artillery.h" />
+    <ClInclude Include="game\digitanks\digitank.h" />
+    <ClInclude Include="game\digitanks\maintank.h" />
+    <ClInclude Include="game\digitanks\mechinf.h" />
+    <ClInclude Include="game\digitanks\buffer.h" />
+    <ClInclude Include="game\digitanks\collector.h" />
+    <ClInclude Include="game\digitanks\cpu.h" />
+    <ClInclude Include="game\digitanks\loader.h" />
+    <ClInclude Include="game\digitanks\resource.h" />
+    <ClInclude Include="game\digitanks\structure.h" />
+    <ClInclude Include="..\..\glgui\glgui.h" />
+    <ClInclude Include="shaders\shaders.h" />
+    <ClInclude Include="models\models.h" />
+    <ClInclude Include="renderer\dissolver.h" />
+    <ClInclude Include="renderer\particles.h" />
+    <ClInclude Include="renderer\renderer.h" />
+    <ClInclude Include="sound\sound.h" />
+    <ClInclude Include="..\..\common\mtrand.h" />
+    <ClInclude Include="..\..\common\platform.h" />
+    <ClInclude Include="network\network.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\modelconverter\modelconverter.vcxproj">
+      <Project>{e5304f25-b6f8-4bca-bc3a-df1ecaf35f28}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\raytracer\raytracer.vcxproj">
+      <Project>{e351902a-0ab8-477c-8fc1-09c56e0bf57f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

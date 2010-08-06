@@ -53,7 +53,7 @@ void CDigitanksEntity::RenderVisibleArea()
 
 	CRenderingContext c(Game()->GetRenderer());
 	c.Translate(GetOrigin());
-	glutSolidSphere(VisibleRange(), 20, 10);
+//	glutSolidSphere(VisibleRange(), 20, 10);
 }
 
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
@@ -92,6 +92,6 @@ void CDigitanksEntity::OnRender()
 	r.SetBlend(BLEND_ALPHA);
 	r.SetColor(Color(255, 255, 255, 100));
 	r.SetAlpha(0.2f);
-	glutSolidSphere(GetBoundingRadius(), 8, 4);
+	//glutSolidSphere(GetBoundingRadius(), 8, 4);
 #endif
 }

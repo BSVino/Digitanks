@@ -36,14 +36,14 @@ std::wstring CModelConverter::GetFilename(std::wstring sPathFilename)
 	int iLastChar = -1;
 	int i = -1;
 
-	while (sPathFilename[++i])
+	while (++i < (int)sPathFilename.length())
 		if (sPathFilename[i] == L'\\' || sPathFilename[i] == L'/')
 			iLastChar = i;
 
 	std::wstring sReturn = sPathFilename.c_str() + iLastChar + 1;
 
 	i = -1;
-	while (sReturn[++i])
+	while (++i < (int)sReturn.length())
 		if (sReturn[i] == L'.')
 			iLastChar = i;
 
@@ -59,7 +59,7 @@ std::wstring CModelConverter::GetDirectory(std::wstring sFilename)
 	int i = -1;
 	std::wstring sResult = sFilename;
 
-	while (sResult[++i])
+	while (++i < (int)sResult.length())
 		if (sResult[i] == L'\\' || sResult[i] == L'/')
 			iLastSlash = i;
 

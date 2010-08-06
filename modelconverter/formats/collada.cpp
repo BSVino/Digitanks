@@ -1,3 +1,17 @@
+#ifdef NO_COLLADA
+
+#include "../modelconverter.h"
+
+void CModelConverter::ReadDAE(const wchar_t* pszFilename)
+{
+}
+
+void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode* pScene)
+{
+}
+
+#else
+
 #include <assert.h>
 
 #include <FCollada.h>
@@ -323,3 +337,5 @@ void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode
 		ReadDAESceneTree(pChildNode, pScene->GetChild(iNode));
 	}
 }
+
+#endif

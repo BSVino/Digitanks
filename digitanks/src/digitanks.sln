@@ -1,26 +1,19 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "digitanks", "digitanks.vcproj", "{1E1190AF-8C70-4639-94F6-C9B2219043EC}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "digitanks", "digitanks.vcxproj", "{1E1190AF-8C70-4639-94F6-C9B2219043EC}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{E351902A-0AB8-477C-8FC1-09C56E0BF57F} = {E351902A-0AB8-477C-8FC1-09C56E0BF57F}
-		{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28} = {E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}
-	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raytracer", "..\..\raytracer\raytracer.vcproj", "{E351902A-0AB8-477C-8FC1-09C56E0BF57F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raytracer", "..\..\raytracer\raytracer.vcxproj", "{E351902A-0AB8-477C-8FC1-09C56E0BF57F}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28} = {E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}
-	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modelconverter", "..\..\modelconverter\modelconverter.vcproj", "{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}"\..
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modelconverter", "..\..\modelconverter\modelconverter.vcxproj", "{E5304F25-B6F8-4BCA-BC3A-DF1ECAF35F28}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"

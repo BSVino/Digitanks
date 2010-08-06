@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\ui">
+      <UniqueIdentifier>{705c11c5-936a-44c9-99f0-5eb948be7c01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glew">
+      <UniqueIdentifier>{570722e3-49b9-4f24-9b7a-9b3a2e434163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{ed7408d1-b561-456b-a374-acb2af02d64f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\digitanks">
+      <UniqueIdentifier>{0388ae3c-ff09-4da9-974d-99a4322d7801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\digitanks\units">
+      <UniqueIdentifier>{0d76a98a-c416-4a8a-8a84-310998358f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\digitanks\structures">
+      <UniqueIdentifier>{d1fe78ab-08b1-45ea-8cc9-6f00d4d073ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glgui">
+      <UniqueIdentifier>{f1f587b9-3077-4b9f-90af-691f223e87e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{bdcc1399-af03-46d6-bad6-3e45cf1e4a7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\models">
+      <UniqueIdentifier>{3a6daff1-1821-4569-a290-c1e2e4755dce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer">
+      <UniqueIdentifier>{7803e6ee-d54c-4881-bbd8-c649eeef644c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sound">
+      <UniqueIdentifier>{dd673f75-0658-4ce5-93ea-7366844cb50a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{f8c94ca3-b0c5-4244-a1e0-588c08c5790e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\network">
+      <UniqueIdentifier>{57d33585-401b-494b-aa0f-b5b63f11ae8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\debugdraw.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\digitankswindow.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\digitankswindow_input.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\digitankswindow_ui.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\hud.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\instructor.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\glew\src\glew.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="game\baseentity.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\camera.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\game.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\team.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\bot.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\digitanksentity.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\digitanksgame.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\digitanksteam.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\dt_renderer.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\powerup.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\projectile.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\selectable.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\supplyline.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\terrain.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\artillery.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\digitank.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\maintank.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\mechinf.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\buffer.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\collector.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\cpu.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\loader.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\resource.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structure.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\glgui\glgui.cpp">
+      <Filter>Source Files\glgui</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\blur.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\explosion.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\filters.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\model.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\shaders.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\terrain.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="models\models.cpp">
+      <Filter>Source Files\models</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\dissolver.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\particles.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\systems.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="sound\sound.cpp">
+      <Filter>Source Files\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\mtrand.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\platform_win32.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ui\debugdraw.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\digitankswindow.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\hud.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\instructor.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\menu.h">
+      <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="game\baseentity.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\camera.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\game.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\team.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\digitanksentity.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\digitanksgame.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\digitanksteam.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\dt_renderer.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\powerup.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\projectile.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\selectable.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\supplyline.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\terrain.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\artillery.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\digitank.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\maintank.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\mechinf.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\buffer.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\collector.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\cpu.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\loader.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\resource.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structure.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\glgui\glgui.h">
+      <Filter>Source Files\glgui</Filter>
+    </ClInclude>
+    <ClInclude Include="shaders\shaders.h">
+      <Filter>Source Files\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="models\models.h">
+      <Filter>Source Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\dissolver.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\particles.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="sound\sound.h">
+      <Filter>Source Files\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\mtrand.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\platform.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="network\network.h">
+      <Filter>Source Files\network</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
