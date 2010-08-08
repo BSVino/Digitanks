@@ -197,6 +197,11 @@ CHUD::CHUD()
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pTeamInfo->SetPos(200, 20);
 
+	m_flAttackInfoAlpha = m_flAttackInfoAlphaGoal = 0;
+
+	m_flTurnInfoLerp = m_flTurnInfoLerpGoal = 0;
+	m_flTurnInfoHeight = m_flTurnInfoHeightGoal = 0;
+
 	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
 
@@ -212,23 +217,23 @@ void CHUD::Layout()
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
-	m_pAttackInfo->SetPos(iWidth/2 - 1024/2 + 190 + 3, iHeight - 150 - 10 - 80 + 3);
-	m_pAttackInfo->SetSize(200, 80);
+	m_pAttackInfo->SetPos(iWidth - 180, iHeight - 150 - 10 - 100 + 3);
+	m_pAttackInfo->SetSize(170, 100);
 
-	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 140);
+	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 140);
 	m_pHealthBar->SetSize(200, 20);
 
-	m_pAttackPower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 90);
+	m_pAttackPower->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 90);
 	m_pAttackPower->SetSize(200, 20);
 
-	m_pDefensePower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 60);
+	m_pDefensePower->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 60);
 	m_pDefensePower->SetSize(200, 20);
 
-	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 470, iHeight - 30);
+	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
-	m_pButtonPanel->SetPos(iWidth/2 - 1024/2 + 680, iHeight - 140);
-	m_pButtonPanel->SetRight(iWidth/2 - 1024/2 + 1010);
+	m_pButtonPanel->SetPos(iWidth/2 - 1024/2 + 560, iHeight - 140);
+	m_pButtonPanel->SetRight(m_pButtonPanel->GetLeft() + 330);
 	m_pButtonPanel->SetBottom(iHeight - 10);
 
 	m_pButton1->SetSize(50, 50);
@@ -277,12 +282,14 @@ void CHUD::Layout()
 	m_pRearShieldInfo->SetWrap(false);
 	m_pFrontShieldInfo->SetWrap(false);
 
-	m_pTankInfo->SetDimensions(iWidth/2 - 1024/2 + 350 + 2, iHeight - 150 + 10 + 7, 96, 126);
+	m_pTankInfo->SetSize(150, 250);
+	m_pTankInfo->SetPos(10, iHeight - m_pTankInfo->GetHeight() + 10 + 7);
 	m_pTankInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTankInfo->SetWrap(true);
 	m_pTankInfo->SetFontFaceSize(10);
 
-	m_pTurnInfo->SetDimensions(20, iHeight/2 - 100, 250, 150);
+	m_pTurnInfo->SetSize(270, 150);
+	m_pTurnInfo->SetPos(iWidth/2 - m_pTurnInfo->GetWidth()/2, 0);
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
 	m_pTurnInfo->SetFontFaceSize(10);
@@ -395,6 +402,21 @@ void CHUD::Think()
 		m_pFireDefend->SetWrap(false);
 	}
 
+	if (wcslen(m_pAttackInfo->GetText()))
+		m_flAttackInfoAlphaGoal = 1.0f;
+	else
+		m_flAttackInfoAlphaGoal = 0.0f;
+
+	m_flAttackInfoAlpha = Approach(m_flAttackInfoAlphaGoal, m_flAttackInfoAlpha, Game()->GetFrameTime());
+
+	m_flTurnInfoHeightGoal = m_pTurnInfo->GetTextHeight();
+	m_flTurnInfoLerp = Approach(m_flTurnInfoLerpGoal, m_flTurnInfoLerp, Game()->GetFrameTime());
+	m_flTurnInfoHeight = Approach(m_flTurnInfoHeightGoal, m_flTurnInfoHeight, Game()->GetFrameTime()*100);
+
+	float flTurnInfoHeight = m_flTurnInfoHeight+10;
+	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
+	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
+
 #if 0
 	char szFPS[100];
 	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
@@ -413,26 +435,22 @@ void CHUD::Paint(int x, int y, int w, int h)
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
-#ifdef _DEBUG
 	// Nobody runs resolutions under 1024x768 anymore.
 	// Show me my constraints!
-	CRootPanel::PaintRect(iWidth/2 - 1024/2, iHeight - 150, 1024, 200, Color(255, 255, 255, 100));
-
-	// This is where the minimap will be.
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 10, iHeight - 150 - 30, 170, 170, Color(0, 0, 0, 100));
-#endif
+	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 180, iHeight - 150, 720, 200, Color(255, 255, 255, 100));
 
 	// Shield schematic
 	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 150, 130, Color(0, 0, 0, 100));
 
 	// Tank data
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 350, iHeight - 150 + 10, 100, 130, Color(0, 0, 0, 100));
+	CRootPanel::PaintRect(m_pTankInfo->GetLeft()-5, m_pTankInfo->GetTop()-10, m_pTankInfo->GetWidth(), m_pTankInfo->GetHeight(), Color(0, 0, 0, 100));
 
-	// Background for the attack info label
-	CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, 100));
+	if (m_flAttackInfoAlpha > 0)
+		// Background for the attack info label
+		CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, (int)(100*m_flAttackInfoAlpha)));
 
 	// Turn info panel
-	CRootPanel::PaintRect(10, iHeight/2 - 110, 270, 170, Color(0, 0, 0, 100));
+	CRootPanel::PaintRect(m_pTurnInfo->GetLeft()-5, m_pTurnInfo->GetTop()-10, m_pTurnInfo->GetWidth(), m_pTurnInfo->GetHeight(), Color(0, 0, 0, 100));
 
 	CRootPanel::PaintRect(m_pButtonPanel->GetLeft(), m_pButtonPanel->GetTop(), m_pButtonPanel->GetWidth(), m_pButtonPanel->GetHeight(), Color(0, 0, 0, 100));
 
@@ -686,7 +704,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 		pTank->GetRightShieldStrength() * pTank->GetRightShieldMaxStrength(),
 		pTank->GetRightShieldMaxStrength() * pTank->GetDefenseScale(true));
 	m_pRightShieldInfo->SetText(szShieldInfo);
-	m_pAttackInfo->SetText(L"No targets");
+	m_pAttackInfo->SetText(L"");
 
 	Vector vecOrigin;
 	if (DigitanksGame()->GetControlMode() == MODE_MOVE && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalMovementPower())
@@ -797,6 +815,15 @@ void CHUD::UpdateStructureInfo(CStructure* pStructure)
 	m_pRightShieldInfo->SetText("");
 
 	m_pAttackInfo->SetText(L"");
+}
+
+void CHUD::UpdateTeamInfo()
+{
+	std::stringstream s;
+	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+	s << "Power per turn: " << pTeam->GetTotalProduction() << "\n";
+	s << "Fleet Points: " << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints();
+	m_pTeamInfo->SetText(s.str().c_str());
 }
 
 void CHUD::SetGame(CDigitanksGame *pGame)
@@ -982,17 +1009,18 @@ void CHUD::NewCurrentTeam()
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
-	std::stringstream s;
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-	s << "Power per turn: " << pTeam->GetTotalProduction() << "\n";
-	s << "Fleet Points: " << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints();
-	m_pTeamInfo->SetText(s.str().c_str());
+	UpdateTeamInfo();
 	m_pTeamInfo->SetPos(GetWidth() - 200, 20);
 
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
 		m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
 	else
 		m_pPressEnter->SetText("Other players are taking their turns...");
+
+	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+		m_flTurnInfoLerpGoal = 1;
+	else
+		m_flTurnInfoLerpGoal = 0;
 }
 
 void CHUD::NewCurrentSelection()
@@ -1417,6 +1445,7 @@ void CHUD::BuildUnitCallback()
 	pLoader->BeginProduction();
 	SetupMenu();
 	UpdateInfo();
+	UpdateTeamInfo();
 }
 
 void CHUD::CancelBuildUnitCallback()
@@ -1439,6 +1468,7 @@ void CHUD::CancelBuildUnitCallback()
 	pLoader->CancelProduction();
 	SetupMenu();
 	UpdateInfo();
+	UpdateTeamInfo();
 }
 
 void CHUD::GoToMainCallback()

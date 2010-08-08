@@ -243,6 +243,9 @@ float CDigitanksTeam::GetProductionPerLoader()
 
 void CDigitanksTeam::CountFleetPoints()
 {
+	m_iTotalFleetPoints = 0;
+	m_iUsedFleetPoints = 0;
+
 	// Find and count fleet points
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{

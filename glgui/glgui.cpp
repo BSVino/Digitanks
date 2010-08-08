@@ -791,16 +791,20 @@ void CLabel::SetFontFaceSize(int iSize)
 
 int CLabel::GetTextWidth()
 {
+	s_pFont->FaceSize(m_iFontFaceSize);
 	return (int)s_pFont->Advance(m_pszText);
 }
 
 float CLabel::GetTextHeight()
 {
+	s_pFont->FaceSize(m_iFontFaceSize);
 	return (s_pFont->LineHeight()) * m_iTotalLines;
 }
 
 void CLabel::ComputeLines(int w, int h)
 {
+	s_pFont->FaceSize(m_iFontFaceSize);
+
 	if (w == -1)
 		w = m_iW;
 

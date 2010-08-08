@@ -167,7 +167,7 @@ void CDigitanksWindow::KeyPress(int c)
 	if (glgui::CRootPanel::Get()->KeyPressed(c))
 		return;
 
-	if (DigitanksGame() && c == GLFW_KEY_ENTER)
+	if (DigitanksGame() && (c == GLFW_KEY_ENTER || c == GLFW_KEY_KP_ENTER))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 			DigitanksGame()->SetDesiredMove();

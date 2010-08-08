@@ -121,6 +121,7 @@ public:
 	void						UpdateInfo();
 	void						UpdateTankInfo(CDigitank* pTank);
 	void						UpdateStructureInfo(CStructure* pStructure);
+	void						UpdateTeamInfo();
 
 	void						SetGame(class CDigitanksGame* pGame);
 
@@ -225,6 +226,8 @@ protected:
 	glgui::CLabel*				m_pFireDefend;
 
 	glgui::CLabel*				m_pAttackInfo;
+	float						m_flAttackInfoAlpha;
+	float						m_flAttackInfoAlphaGoal;
 
 	glgui::CLabel*				m_pFrontShieldInfo;
 	glgui::CLabel*				m_pRearShieldInfo;
@@ -233,6 +236,10 @@ protected:
 
 	glgui::CLabel*				m_pTankInfo;
 	glgui::CLabel*				m_pTurnInfo;
+	float						m_flTurnInfoHeight;
+	float						m_flTurnInfoHeightGoal;
+	float						m_flTurnInfoLerp;
+	float						m_flTurnInfoLerpGoal;
 
 	glgui::CLabel*				m_pPressEnter;
 
