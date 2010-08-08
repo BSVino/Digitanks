@@ -2,7 +2,7 @@
 
 #include <assert.h>
 #include <algorithm>
-#include <GL/freeglut.h>
+#include <GL/glew.h>
 #include <maths.h>
 #include <vector.h>
 
@@ -1437,18 +1437,18 @@ CRootPanel*	CRootPanel::Get()
 	return s_pRootPanel;
 }
 
-void CRootPanel::Think()
+void CRootPanel::Think(float flNewTime)
 {
-	static int iTime = 0;
+	static float flTime = 0;
 
-	if (iTime == glutGet(GLUT_ELAPSED_TIME))
+	if (flTime == flNewTime)
 		return;
 
-	m_flFrameTime = ((float)glutGet(GLUT_ELAPSED_TIME) - iTime)/1000;
+	m_flFrameTime = (flNewTime - flTime);
 
 	CPanel::Think();
 
-	iTime = glutGet(GLUT_ELAPSED_TIME);
+	flTime = flNewTime;
 }
 
 void CRootPanel::Paint(int x, int y, int w, int h)

@@ -45,6 +45,7 @@ CDigitanksMenu::CDigitanksMenu()
 	AddControl(m_pDifficulty);
 
 	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, "Difficulty");
+	m_pDifficultyLabel->SetWrap(false);
 	AddControl(m_pDifficultyLabel);
 
 	m_pStartTutorialBasics = new CButton(0, 0, 100, 100, "Tutorial - Basics");

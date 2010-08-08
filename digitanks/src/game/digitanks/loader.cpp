@@ -16,7 +16,6 @@
 #include "artillery.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 REGISTER_ENTITY(CLoader);
 

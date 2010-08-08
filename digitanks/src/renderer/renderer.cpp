@@ -1,7 +1,6 @@
 #include "renderer.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <maths.h>
@@ -295,6 +294,13 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 	glPopAttrib();
 }
 
+void CRenderingContext::RenderSphere()
+{
+	static GLUquadricObj* pQuadric = gluNewQuadric();
+
+	gluSphere(pQuadric, 1, 20, 10);
+}
+
 void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 {
 	m_bFBO = true;
@@ -549,6 +555,7 @@ CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bD
     GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 		printf("Framebuffer not complete!\n");
+
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 	oBuffer.m_iWidth = iWidth;

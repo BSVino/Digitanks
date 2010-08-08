@@ -1,7 +1,6 @@
 #include "debugdraw.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 void DebugLine(Vector a, Vector b, Color c)
 {

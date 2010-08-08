@@ -30,34 +30,27 @@ public:
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	void						WindowResize(int x, int y);
 
-	static void					DisplayCallback() { Get()->Display(); };
-	void						Display();
-
 	static void					MouseMotionCallback(int x, int y) { Get()->MouseMotion(x, y); };
 	void						MouseMotion(int x, int y);
 
-	static void					MouseDraggedCallback(int x, int y) { Get()->MouseDragged(x, y); };
-	void						MouseDragged(int x, int y);
+	static void					MouseInputCallback(int iButton, int iState) { Get()->MouseInput(iButton, iState); };
+	void						MouseInput(int iButton, int iState);
 
-	static void					MouseInputCallback(int iButton, int iState, int x, int y) { Get()->MouseInput(iButton, iState, x, y); };
-	void						MouseInput(int iButton, int iState, int x, int y);
+	static void					MouseWheelCallback(int iState) { Get()->MouseWheel(iState); };
+	void						MouseWheel(int iState);
 
-	static void					VisibleCallback(int vis) { Get()->Visible(vis); };
-	void						Visible(int vis);
+	static void					KeyEventCallback(int c, int e) { Get()->KeyEvent(c, e); };
+	void						KeyEvent(int c, int e);
 
-	static void					KeyPressCallback(unsigned char c, int x, int y) { Get()->KeyPress(c, x, y); };
-	void						KeyPress(unsigned char c, int x, int y);
-
-	static void					KeyReleaseCallback(unsigned char c, int x, int y) { Get()->KeyRelease(c, x, y); };
-	void						KeyRelease(unsigned char c, int x, int y);
+	void						KeyPress(int c);
+	void						KeyRelease(int c);
 
 	static void					SpecialCallback(int k, int x, int y) { Get()->Special(k, x, y); };
 	void						Special(int k, int x, int y);
 
-	void						FakeCtrlAltShift();
-	bool						IsCtrlDown() { return m_bCtrl; };
-	bool						IsAltDown() { return m_bAlt; };
-	bool						IsShiftDown() { return m_bShift; };
+	bool						IsCtrlDown();
+	bool						IsAltDown();
+	bool						IsShiftDown();
 
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
@@ -100,9 +93,6 @@ protected:
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
 
-	bool						m_bCtrl;
-	bool						m_bAlt;
-	bool						m_bShift;
 	int							m_iMouseMoved;
 	int							m_bCameraMouseDown;
 

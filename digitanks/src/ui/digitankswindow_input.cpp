@@ -1,7 +1,7 @@
 #include "digitankswindow.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
+#include <GL/glfw.h>
 
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
@@ -19,75 +19,48 @@
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {
-	FakeCtrlAltShift();
-
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
-	m_iMouseStartX = x;
-	m_iMouseStartY = y;
-}
-
-void CDigitanksWindow::MouseDragged(int x, int y)
-{
-	FakeCtrlAltShift();
-
-	m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
-
-	glgui::CRootPanel::Get()->CursorMoved(x, y);
-
-	if (GetGame() && GetGame()->GetCamera())
-		GetGame()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
 }
 
-void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
+void CDigitanksWindow::MouseInput(int iButton, int iState)
 {
-	FakeCtrlAltShift();
-
 	if (GetGame() && GetGame()->GetCamera())
 	{
-		if (iButton == 3)		// mw up
-		{
-			GetGame()->GetCamera()->ZoomIn();
-			return;
-		}
-		else if (iButton == 4)	// mw down
-		{
-			GetGame()->GetCamera()->ZoomOut();
-			return;
-		}
-		else
-		{
-			// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
-			if (!m_pInstructor->IsFeatureDisabled(DISABLE_ROTATE))
-				GetGame()->GetCamera()->MouseButton(iButton, iState);
-		}
+		// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
+		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ROTATE))
+			GetGame()->GetCamera()->MouseButton(iButton, iState);
 	}
 
-	if (iState == GLUT_DOWN)
+	int mx, my;
+	glfwGetMousePos(&mx, &my);
+	if (iState == GLFW_PRESS)
 	{
-		if (glgui::CRootPanel::Get()->MousePressed(iButton, x, y))
+		if (glgui::CRootPanel::Get()->MousePressed(iButton, mx, my))
 			return;
 	}
 	else
 	{
-		if (glgui::CRootPanel::Get()->MouseReleased(iButton, x, y))
+		if (glgui::CRootPanel::Get()->MouseReleased(iButton, mx, my))
 			return;
 	}
 
 	if (!DigitanksGame())
 		return;
 
-	if (iState == GLUT_DOWN)
+	if (iState == GLFW_PRESS)
 	{
-		if ((iButton == 0 || iButton == 2) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+		if ((iButton == GLFW_MOUSE_BUTTON_1 || iButton == GLFW_MOUSE_BUTTON_2) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
-			if (glutGetModifiers()&GLUT_ACTIVE_SHIFT)
+			if (IsShiftDown())
 			{
 				DigitanksGame()->SetControlMode(MODE_NONE);
 				m_pHUD->SetAutoProceed(false);
@@ -101,7 +74,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 
 			return;	// Don't center camera
 		}
-		else if (iButton == 2 && DigitanksGame()->GetControlMode() == MODE_BUILD)
+		else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
 			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetCurrentStructure());
 			if (pCPU && pCPU->IsPreviewBuildValid())
@@ -116,9 +89,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 	CBaseEntity* pClickedEntity = NULL;
 	bool bFound = GetMouseGridPosition(vecMousePosition, &pClickedEntity);
 
-	if (iButton == 0)
+	if (iButton == GLFW_MOUSE_BUTTON_1)
 	{
-		if (iState == GLUT_DOWN)
+		if (iState == GLFW_PRESS)
 		{
 			// Prevent UI interactions from affecting the camera target.
 			// If the mouse was used on the UI, m_bCameraMouseDown will
@@ -142,7 +115,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		}
 	}
 
-	if (iState == GLUT_UP && iButton == 0 && m_iMouseMoved < 30)
+	if (iState == GLFW_RELEASE && iButton == GLFW_MOUSE_BUTTON_1 && m_iMouseMoved < 30)
 	{
 		if (pClickedEntity)
 		{
@@ -153,30 +126,48 @@ void CDigitanksWindow::MouseInput(int iButton, int iState, int x, int y)
 		}
 	}
 
-	if (iState == GLUT_DOWN && iButton == 2)
+	if (iState == GLFW_PRESS && iButton == GLFW_MOUSE_BUTTON_2)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
+			DigitanksGame()->SetDesiredMove(IsShiftDown());
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			DigitanksGame()->SetDesiredTurn(bFound && glutGetModifiers()&GLUT_ACTIVE_SHIFT, vecMousePosition);
+			DigitanksGame()->SetDesiredTurn(bFound && IsShiftDown(), vecMousePosition);
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			DigitanksGame()->SetDesiredAim(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
+			DigitanksGame()->SetDesiredAim(IsShiftDown());
 	}
 
 	GetHUD()->SetupMenu();
 }
 
-void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
+void CDigitanksWindow::MouseWheel(int iState)
 {
-	FakeCtrlAltShift();
+	static int iOldState = 0;
 
-	if (glgui::CRootPanel::Get()->KeyPressed(c))
+	if (GetGame() && GetGame()->GetCamera())
 	{
-		glutPostRedisplay();
-		return;
+		if (iState > iOldState)
+			GetGame()->GetCamera()->ZoomIn();
+		else
+			GetGame()->GetCamera()->ZoomOut();
 	}
 
-	if (DigitanksGame() && c == 13)
+	iOldState = iState;
+}
+
+void CDigitanksWindow::KeyEvent(int c, int e)
+{
+	if (e == GLFW_PRESS)
+		KeyPress(c);
+	else
+		KeyRelease(c);
+}
+
+void CDigitanksWindow::KeyPress(int c)
+{
+	if (glgui::CRootPanel::Get()->KeyPressed(c))
+		return;
+
+	if (DigitanksGame() && c == GLFW_KEY_ENTER)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 			DigitanksGame()->SetDesiredMove();
@@ -195,7 +186,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 		}
 	}
 
-	if (DigitanksGame() && c == 32)
+	if (DigitanksGame() && c == GLFW_KEY_SPACE)
 	{
 		// Don't clobber existing commands when scrolling through tanks.
 		if (m_pHUD->ShouldAutoProceed())
@@ -205,14 +196,14 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			{
 				if (DigitanksGame()->GetCurrentTank())
 					DigitanksGame()->GetCurrentTank()->SetPreviewMove(Vector(9999, 9999, 9999));	// Make sure the mouse isn't hovering a legal move.
-				DigitanksGame()->SetDesiredMove(glutGetModifiers()&GLUT_ACTIVE_SHIFT);
+				DigitanksGame()->SetDesiredMove(IsShiftDown());
 			}
 		}
 
 		DigitanksGame()->GetCurrentTeam()->NextTank();
 	}
 
-	if (DigitanksGame() && c == 9)
+	if (DigitanksGame() && c == GLFW_KEY_TAB)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 			DigitanksGame()->SetControlMode(MODE_AIM);
@@ -229,7 +220,7 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 	}
 
-	if (c == 27)
+	if (c == GLFW_KEY_ESC)
 	{
 		if (GetMenu()->IsVisible())
 			GetMenu()->SetVisible(false);
@@ -239,56 +230,40 @@ void CDigitanksWindow::KeyPress(unsigned char c, int x, int y)
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
-#ifdef _DEBUG
-	if (c == 'x')
+	if (c == 'X')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
 
-	if (c == 'c')
+	if (c == 'C')
 		DigitanksGame()->CompleteProductions();
 
-	if (c == 'v')
+	if (c == 'V')
 	{
 		if (DigitanksGame()->GetCurrentSelection())
 			DigitanksGame()->GetCurrentSelection()->Delete();
 	}
-#endif
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
 }
 
-void CDigitanksWindow::KeyRelease(unsigned char c, int x, int y)
+void CDigitanksWindow::KeyRelease(int c)
 {
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyUp(c);
 }
 
-void CDigitanksWindow::Special(int k, int x, int y)
+bool CDigitanksWindow::IsCtrlDown()
 {
-	FakeCtrlAltShift();
-
-	if (k == GLUT_KEY_F4 && (glutGetModifiers()&GLUT_ACTIVE_ALT))
-		CloseApplication();
-
-	glutPostRedisplay();
+	return glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_LCTRL);
 }
 
-void CDigitanksWindow::FakeCtrlAltShift()
+bool CDigitanksWindow::IsAltDown()
 {
-	int iModifiers = glutGetModifiers();
-
-	if ((iModifiers&GLUT_ACTIVE_CTRL) && !m_bCtrl)
-		m_bCtrl = true;
-	else if (!(iModifiers&GLUT_ACTIVE_CTRL) && m_bCtrl)
-		m_bCtrl = false;
- 
-	if ((iModifiers&GLUT_ACTIVE_ALT) && !m_bAlt)
-		m_bAlt = true;
-	else if (!(iModifiers&GLUT_ACTIVE_ALT) && m_bAlt)
-		m_bAlt = false;
-
-	if ((iModifiers&GLUT_ACTIVE_SHIFT) && !m_bShift)
-		m_bShift = true;
-	else if (!(iModifiers&GLUT_ACTIVE_SHIFT) && m_bShift)
-		m_bShift = false;
+	return glfwGetKey(GLFW_KEY_LALT) || glfwGetKey(GLFW_KEY_LALT);
 }
+
+bool CDigitanksWindow::IsShiftDown()
+{
+	return glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_LSHIFT);
+}
+

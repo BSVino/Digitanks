@@ -1,8 +1,5 @@
 #include "shaders.h"
 
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-
 const char* CShaderLibrary::GetVSTerrainShader()
 {
 	return

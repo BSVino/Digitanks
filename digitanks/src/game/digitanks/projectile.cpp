@@ -1,7 +1,6 @@
 #include "projectile.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <maths.h>
 
 #include <renderer/particles.h>
@@ -68,16 +67,20 @@ void CProjectile::OnRender()
 
 	if (m_flTimeExploded == 0.0f)
 	{
-		glColor4ubv(Color(255, 255, 255));
-		//glutSolidSphere(ShellRadius(), 4, 4);
+		CRenderingContext c(Game()->GetRenderer());
+		c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
+		c.SetColor(Color(255, 255, 255));
+		c.RenderSphere();
 	}
 	else
 	{
 		float flAlpha = RemapValClamped(DigitanksGame()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
 		if (flAlpha > 0)
 		{
-			glColor4ubv(Color(255, 255, 255, (int)(flAlpha*255)));
-			//glutSolidSphere(4.0f, 20, 10);
+			CRenderingContext c(Game()->GetRenderer());
+			c.Scale(4.0f, 4.0f, 4.0f);
+			c.SetColor(Color(255, 255, 255, (int)(flAlpha*255)));
+			c.RenderSphere();
 		}
 	}
 }

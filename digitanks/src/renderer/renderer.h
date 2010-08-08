@@ -36,6 +36,8 @@ public:
 	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
 	void		RenderMeshInstance(class CModel* pModel, class CConversionScene* pScene, class CConversionMeshInstance* pMeshInstance, bool bNewCallList);
 
+	void		RenderSphere();
+
 	void		UseFrameBuffer(const class CFrameBuffer* pBuffer);
 	void		UseProgram(size_t iProgram);
 	void		SetUniform(const char* pszName, int iValue);
@@ -125,8 +127,6 @@ public:
 
 public:
 	CFrameBuffer	CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear);
-	CFrameBuffer	CreateFrameBufferTextureDepth(size_t iWidth, size_t iHeight, bool bLinear);
-	CFrameBuffer	CreateFrameBufferTexture(size_t iWidth, size_t iHeight, size_t iTexture);
 
 	void			CreateNoise();
 

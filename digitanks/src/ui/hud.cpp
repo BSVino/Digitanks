@@ -1,5 +1,6 @@
 #include "hud.h"
 
+#include <GL/glew.h>
 #include <sstream>
 
 #include "digitankswindow.h"
@@ -11,10 +12,6 @@
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/projectile.h>
 #include <game/digitanks/loader.h>
-
-// windows.h screws up virtual functions in some of the above headers
-#include <GL/glew.h>
-#include <GL/freeglut.h>
 
 using namespace glgui;
 

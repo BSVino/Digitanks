@@ -2,11 +2,7 @@
 
 #include <sstream>
 
-// Must be above freeglut because windows.h causes problems
-#include "projectile.h"
-
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <maths.h>
 #include <mtrand.h>
 #include <models/models.h>
@@ -21,6 +17,7 @@
 #include "ui/hud.h"
 #include "structure.h"
 #include "supplyline.h"
+#include "projectile.h"
 
 REGISTER_ENTITY(CDigitank);
 
@@ -1648,7 +1645,7 @@ void CDigitank::PreRender()
 		CRenderingContext r(Game()->GetRenderer());
 		r.Translate(GetFortifyPoint() + Vector(0, 2, 0));
 		r.SetColor(GetTeam()->GetColor());
-		glutWireCube(4);
+		//glutWireCube(4);
 	}
 #endif
 }

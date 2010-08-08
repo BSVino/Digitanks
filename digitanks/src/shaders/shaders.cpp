@@ -1,7 +1,6 @@
 #include "shaders.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <assert.h>
 #include <time.h>
 

@@ -6,7 +6,6 @@
 
 //#define DEBUG_WITH_GL
 #ifdef DEBUG_WITH_GL
-#include <GL/freeglut.h>
 
 void DrawBox(AABB& b, float c);
 void DrawTri(Vector v1, Vector v2, Vector v3, float r, float g, float b);

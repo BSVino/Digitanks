@@ -1,7 +1,5 @@
 #include "powerup.h"
 
-#include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <color.h>
 #include <models/models.h>
 #include <renderer/renderer.h>
@@ -25,8 +23,8 @@ void CPowerup::Precache()
 
 EAngle CPowerup::GetRenderAngles() const
 {
-	int iRotate = glutGet(GLUT_ELAPSED_TIME)%3600;
-	return EAngle(0, iRotate/10.0f, 0);
+	float flRotate = fmod(Game()->GetGameTime(), 3.6f)*100.0f;
+	return EAngle(0, flRotate, 0);
 }
 
 void CPowerup::PreRender()

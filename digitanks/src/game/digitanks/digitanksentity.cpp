@@ -1,7 +1,6 @@
 #include "digitanksentity.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <maths.h>
 
@@ -53,7 +52,8 @@ void CDigitanksEntity::RenderVisibleArea()
 
 	CRenderingContext c(Game()->GetRenderer());
 	c.Translate(GetOrigin());
-//	glutSolidSphere(VisibleRange(), 20, 10);
+	c.Scale(VisibleRange(), VisibleRange(), VisibleRange());
+	c.RenderSphere();
 }
 
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const

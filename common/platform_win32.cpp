@@ -39,6 +39,12 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 	paiAddresses = &aiAddresses[0][0];
 }
 
+void GetScreenSize(int& iWidth, int& iHeight)
+{
+	iWidth = GetSystemMetrics(SM_CXSCREEN);
+	iHeight = GetSystemMetrics(SM_CYSCREEN);
+}
+
 size_t GetNumberOfProcessors()
 {
 	SYSTEM_INFO SystemInfo;

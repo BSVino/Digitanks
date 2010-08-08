@@ -6,7 +6,6 @@
 #include <game/game.h>
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 REGISTER_ENTITY(CResource);
 

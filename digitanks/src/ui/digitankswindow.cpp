@@ -2,12 +2,13 @@
 
 #include <assert.h>
 #include <GL/glew.h>
-#include <GL/freeglut.h>
+#include <GL/glfw.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <time.h>
 #include <vector.h>
 
+#include <platform.h>
 #include <network/network.h>
 #include <sound/sound.h>
 #include "glgui/glgui.h"
@@ -26,6 +27,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 {
 	s_pDigitanksWindow = this;
 
+	m_pDigitanksGame = NULL;
+	m_pHUD = NULL;
+	m_pInstructor = NULL;
+
 	srand((unsigned int)time(NULL));
 
 	for (int i = 0; i < argc; i++)
@@ -35,14 +40,12 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_iMouseStartY = 0;
 	m_bCameraMouseDown = false;
 
-	m_bCtrl = m_bAlt = m_bShift = false;
+	glfwInit();
 
-	glutInit(&argc, argv);
+	int iScreenWidth = 1024;
+	int iScreenHeight = 768;
 
-	int iScreenWidth = glutGet(GLUT_SCREEN_WIDTH);
-	int iScreenHeight = glutGet(GLUT_SCREEN_HEIGHT);
-
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA | GLUT_MULTISAMPLE);
+	GetScreenSize(iScreenWidth, iScreenHeight);
 
 	m_iWindowWidth = iScreenWidth*2/3;
 	m_iWindowHeight = iScreenHeight*2/3;
@@ -53,10 +56,36 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
 
-	glutInitWindowPosition((int)(iScreenWidth/2-m_iWindowWidth/2), (int)(iScreenHeight/2-m_iWindowHeight/2));
-	glutInitWindowSize((int)m_iWindowWidth, (int)m_iWindowHeight);
+#ifdef _DEBUG
+	int iMode = GLFW_WINDOW;
+#else
+	int iMode = GLFW_FULLSCREEN;
+#endif
 
-	glutCreateWindow("Digitanks!");
+	if (HasCommandLineSwitch("--fullscreen"))
+		iMode = GLFW_FULLSCREEN;
+
+	if (HasCommandLineSwitch("--windowed"))
+		iMode = GLFW_WINDOW;
+
+	glfwEnable( GLFW_MOUSE_CURSOR );
+
+	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, GLFW_WINDOW))
+	{
+		glfwTerminate();
+		return;
+	}
+
+	glfwSetWindowTitle( "Digitanks!" );
+	glfwSetWindowPos((int)(iScreenWidth/2-m_iWindowWidth/2), (int)(iScreenHeight/2-m_iWindowHeight/2));
+
+	glfwSetWindowSizeCallback(&CDigitanksWindow::WindowResizeCallback);
+	glfwSetKeyCallback(&CDigitanksWindow::KeyEventCallback);
+	glfwSetMousePosCallback(&CDigitanksWindow::MouseMotionCallback);
+	glfwSetMouseButtonCallback(&CDigitanksWindow::MouseInputCallback);
+	glfwSetMouseWheelCallback(&CDigitanksWindow::MouseWheelCallback);
+	glfwSwapInterval( 1 );
+	glfwSetTime( 0.0 );
 
 	ilInit();
 
@@ -68,27 +97,11 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	InitUI();
 
-	m_pDigitanksGame = NULL;
-	m_pHUD = NULL;
-	m_pInstructor = NULL;
-
-	glutPassiveMotionFunc(&CDigitanksWindow::MouseMotionCallback);
-	glutMotionFunc(&CDigitanksWindow::MouseDraggedCallback);
-	glutMouseFunc(&CDigitanksWindow::MouseInputCallback);
-	glutReshapeFunc(&CDigitanksWindow::WindowResizeCallback);
-	glutDisplayFunc(&CDigitanksWindow::DisplayCallback);
-	glutVisibilityFunc(&CDigitanksWindow::VisibleCallback);
-	glutKeyboardFunc(&CDigitanksWindow::KeyPressCallback);
-	glutKeyboardUpFunc(&CDigitanksWindow::KeyReleaseCallback);
-	glutSpecialFunc(&CDigitanksWindow::SpecialCallback);
-
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
-
-	WindowResize(iScreenWidth*2/3, iScreenHeight*2/3);
 
 	CNetwork::Initialize();
 
@@ -103,6 +116,8 @@ CDigitanksWindow::~CDigitanksWindow()
 	delete m_pMenu;
 
 	DestroyGame();
+
+	glfwTerminate();
 }
 
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
@@ -168,9 +183,9 @@ void CDigitanksWindow::DestroyGame()
 
 void CDigitanksWindow::Run()
 {
-	while (true)
+	while (glfwGetWindowParam( GLFW_OPENED ))
 	{
-		glutMainLoopEvent();
+		float flTime = (float)glfwGetTime();
 		if (m_pDonate->IsVisible())
 		{
 			// Clear the buffer for the gui.
@@ -187,7 +202,7 @@ void CDigitanksWindow::Run()
 			}
 			else
 			{
-				Game()->Think((float)(glutGet(GLUT_ELAPSED_TIME))/1000.0f);
+				Game()->Think(flTime);
 				Render();
 			}
 		}
@@ -195,10 +210,10 @@ void CDigitanksWindow::Run()
 			// Clear the buffer for the gui.
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-		glgui::CRootPanel::Get()->Think();
+		glgui::CRootPanel::Get()->Think(flTime);
 		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
-		glutSwapBuffers();
+		glfwSwapBuffers();
 	}
 }
 
@@ -209,7 +224,7 @@ void CDigitanksWindow::Render()
 
 void CDigitanksWindow::WindowResize(int w, int h)
 {
-	if (GetGame())
+	if (GetGame() && GetGame()->GetRenderer())
 		GetGame()->GetRenderer()->SetSize(w, h);
 
 	m_iWindowWidth = w;
@@ -221,15 +236,7 @@ void CDigitanksWindow::WindowResize(int w, int h)
 	glgui::CRootPanel::Get()->Layout();
 	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
-	glutSwapBuffers();
-}
-
-void CDigitanksWindow::Display()
-{
-}
-
-void CDigitanksWindow::Visible(int vis)
-{
+	glfwSwapBuffers();
 }
 
 bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit)

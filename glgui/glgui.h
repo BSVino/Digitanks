@@ -328,7 +328,7 @@ namespace glgui
 		virtual void				Destructor( );
 		virtual void				Delete() { delete this; };
 
-		virtual void				Think();
+		virtual void				Think(float flTime);
 		virtual void				Paint(int x, int y, int w, int h);
 		virtual void				Layout();
 

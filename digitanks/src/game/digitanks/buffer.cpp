@@ -1,7 +1,6 @@
 #include "buffer.h"
 
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <sstream>
 
 #include <game/team.h>

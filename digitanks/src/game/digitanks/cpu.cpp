@@ -2,7 +2,6 @@
 
 #include <sstream>
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <mtrand.h>
 #include <renderer/renderer.h>

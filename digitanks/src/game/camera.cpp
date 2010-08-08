@@ -79,14 +79,14 @@ void CCamera::SnapAngle(EAngle angCamera)
 
 void CCamera::ZoomOut()
 {
-	SetDistance(m_flNewDistance+2);
+	SetDistance(m_flNewDistance+20);
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
 
 void CCamera::ZoomIn()
 {
-	SetDistance(m_flNewDistance-2);
+	SetDistance(m_flNewDistance-20);
 
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
@@ -254,39 +254,38 @@ void CCamera::MouseInput(int x, int y)
 void CCamera::MouseButton(int iButton, int iState)
 {
 	if (iButton == 0)
-		m_bRotatingCamera = !iState;
+		m_bRotatingCamera = !!iState;
 }
 
 void CCamera::KeyDown(int c)
 {
 #ifdef _DEBUG
-	if (c == 'z')
+	if (c == 'Z')
 	{
 		SetFPSMode(!m_bFPSMode);
-		//glutSetCursor(m_bFPSMode?GLUT_CURSOR_NONE:GLUT_CURSOR_LEFT_ARROW);
 	}
 #endif
 
 	if (m_bFPSMode)
 	{
-		if (c == 'w')
+		if (c == 'W')
 			m_vecFPSVelocity.x = 10.0f;
-		if (c == 's')
+		if (c == 'S')
 			m_vecFPSVelocity.x = -10.0f;
-		if (c == 'd')
+		if (c == 'D')
 			m_vecFPSVelocity.z = 10.0f;
-		if (c == 'a')
+		if (c == 'A')
 			m_vecFPSVelocity.z = -10.0f;
 	}
 	else
 	{
-		if (c == 'w')
+		if (c == 'W')
 			m_vecGoalVelocity.x = -80.0f;
-		if (c == 's')
+		if (c == 'S')
 			m_vecGoalVelocity.x = 80.0f;
-		if (c == 'd')
+		if (c == 'D')
 			m_vecGoalVelocity.z = -80.0f;
-		if (c == 'a')
+		if (c == 'A')
 			m_vecGoalVelocity.z = 80.0f;
 	}
 }
@@ -295,24 +294,24 @@ void CCamera::KeyUp(int c)
 {
 	if (m_bFPSMode)
 	{
-		if (c == 'w')
+		if (c == 'W')
 			m_vecFPSVelocity.x = 0.0f;
-		if (c == 's')
+		if (c == 'S')
 			m_vecFPSVelocity.x = 0.0f;
-		if (c == 'd')
+		if (c == 'D')
 			m_vecFPSVelocity.z = 0.0f;
-		if (c == 'a')
+		if (c == 'A')
 			m_vecFPSVelocity.z = 0.0f;
 	}
 	else
 	{
-		if (c == 'w')
+		if (c == 'W')
 			m_vecGoalVelocity.x = 0.0f;
-		if (c == 's')
+		if (c == 'S')
 			m_vecGoalVelocity.x = 0.0f;
-		if (c == 'd')
+		if (c == 'D')
 			m_vecGoalVelocity.z = 0.0f;
-		if (c == 'a')
+		if (c == 'A')
 			m_vecGoalVelocity.z = 0.0f;
 	}
 }
