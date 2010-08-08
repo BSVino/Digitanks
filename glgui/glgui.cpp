@@ -551,7 +551,7 @@ IDraggable* CDroppablePanel::GetDraggable(int i)
 	return m_apDraggables[i];
 }
 
-FTGLBitmapFont* CLabel::s_pFont = NULL;
+FTFont* CLabel::s_pFont = NULL;
 
 CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 	: CBaseControl(x, y, w, h)
@@ -568,7 +568,7 @@ CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
 		char szFont[1024];
 		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
 
-		s_pFont = new FTGLBitmapFont(szFont);
+		s_pFont = new FTBitmapFont(szFont);
 	}
 
 	SetFontFaceSize(13);
@@ -679,18 +679,38 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 
 	float flBaseline = (float)s_pFont->FaceSize()/2 + s_pFont->Descender()/2;
 
-	if (m_eAlign == TA_MIDDLECENTER)
-		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + flBaseline + h/2 - th/2 + m_iLine*t);
-	else if (m_eAlign == TA_LEFTCENTER)
-		glRasterPos2f((float)x, (float)y + flBaseline + h/2 - th/2 + m_iLine*t);
-	else if (m_eAlign == TA_RIGHTCENTER)
-		glRasterPos2f((float)x + (float)w - lw, y + flBaseline + h/2 - th/2 + m_iLine*t);
-	else if (m_eAlign == TA_TOPCENTER)
-		glRasterPos2f((float)x + (float)w/2 - lw/2, (float)y + flBaseline + m_iLine*t);
-	else	// TA_TOPLEFT
-		glRasterPos2f((float)x, (float)y + flBaseline + m_iLine*t);
+	Vector vecPosition;
 
+	if (m_eAlign == TA_MIDDLECENTER)
+		vecPosition = Vector((float)x + (float)w/2 - lw/2, (float)y + flBaseline + h/2 - th/2 + m_iLine*t, 0);
+	else if (m_eAlign == TA_LEFTCENTER)
+		vecPosition = Vector((float)x, (float)y + flBaseline + h/2 - th/2 + m_iLine*t, 0);
+	else if (m_eAlign == TA_RIGHTCENTER)
+		vecPosition = Vector((float)x + (float)w - lw, y + flBaseline + h/2 - th/2 + m_iLine*t, 0);
+	else if (m_eAlign == TA_TOPCENTER)
+		vecPosition = Vector((float)x + (float)w/2 - lw/2, (float)y + flBaseline + m_iLine*t, 0);
+	else	// TA_TOPLEFT
+		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
+
+	glRasterPos2f(vecPosition.x, vecPosition.y);
 	s_pFont->Render(pszText, iLength);
+
+#if 0
+	// FWTextureFont code. Spurious calls to CreateTexture (deep in FW) during Advance() cause unacceptable slowdowns
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, CRootPanel::Get()->GetRight(), 0, CRootPanel::Get()->GetBottom(), -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	s_pFont->Render(pszText, iLength, FTPoint(vecPosition.x, CRootPanel::Get()->GetBottom()-vecPosition.y));
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+#endif
 }
 
 void CLabel::SetSize(int w, int h)
