@@ -40,9 +40,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
 
-	bool bDisableBuffer = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
-	bool bDisablePSU = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
-	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	bool bDisableBuffer = !GetDigitanksTeam()->CanBuildBuffers();
+	bool bDisablePSU = !GetDigitanksTeam()->CanBuildPSUs();
+	bool bDisableLoaders = !GetDigitanksTeam()->CanBuildLoaders();
 
 	if (m_hConstructing != NULL)
 	{
@@ -98,28 +98,59 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
-		pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
-		pHUD->SetButton2Listener(CHUD::BuildTankLoader);
-		pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
+		if (DigitanksGame()->CanBuildInfantryLoaders())
+		{
+			pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("Infantry\nLoader");
+			pHUD->SetButton1Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton1Listener(NULL);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("");
+			pHUD->SetButton1Color(glgui::g_clrBox);
+		}
+
+		if (DigitanksGame()->CanBuildTankLoaders())
+		{
+			pHUD->SetButton2Listener(CHUD::BuildTankLoader);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("Main Tank\nLoader");
+			pHUD->SetButton2Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton2Listener(NULL);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("");
+			pHUD->SetButton2Color(glgui::g_clrBox);
+		}
+
+		if (DigitanksGame()->CanBuildArtilleryLoaders())
+		{
+			pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
+			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Help("Artillery\nLoader");
+			pHUD->SetButton3Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton3Listener(NULL);
+			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Help("");
+			pHUD->SetButton3Color(glgui::g_clrBox);
+		}
+
 		pHUD->SetButton4Listener(NULL);
-		pHUD->SetButton5Listener(CHUD::GoToMain);
-
-		pHUD->SetButton1Texture(0);
-		pHUD->SetButton2Texture(0);
-		pHUD->SetButton3Texture(0);
 		pHUD->SetButton4Texture(0);
-		pHUD->SetButton5Texture(0);
-
-		pHUD->SetButton1Help("Infantry\nLoader");
-		pHUD->SetButton2Help("Main Tank\nLoader");
-		pHUD->SetButton3Help("Artillery\nLoader");
 		pHUD->SetButton4Help("");
-		pHUD->SetButton5Help("Return");
-
-		pHUD->SetButton1Color(Color(150, 150, 150));
-		pHUD->SetButton2Color(Color(150, 150, 150));
-		pHUD->SetButton3Color(Color(150, 150, 150));
 		pHUD->SetButton4Color(glgui::g_clrBox);
+
+		pHUD->SetButton5Listener(CHUD::GoToMain);
+		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Help("Return");
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)

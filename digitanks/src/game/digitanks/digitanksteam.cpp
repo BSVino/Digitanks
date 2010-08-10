@@ -24,6 +24,8 @@ CDigitanksTeam::CDigitanksTeam()
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 	memset(&m_abUpdates[0][0], 0, sizeof(m_abUpdates));
 	m_iUpdateDownloaded = 0;
+
+	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
 }
 
 CDigitanksTeam::~CDigitanksTeam()
@@ -404,6 +406,8 @@ void CDigitanksTeam::DownloadComplete()
 	if (!DigitanksGame()->GetUpdateGrid())
 		return;
 
+	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
+
 	m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY] = true;
 
 	for (size_t i = 0; i < GetNumMembers(); i++)
@@ -412,7 +416,33 @@ void CDigitanksTeam::DownloadComplete()
 		if (!pEntity)
 			continue;
 
-		pEntity->DownloadComplete(&DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY]);
+		pEntity->DownloadComplete(pItem);
+	}
+
+	if (pItem->m_eUpdateClass == UPDATECLASS_STRUCTURE)
+	{
+		switch (pItem->m_eStructure)
+		{
+		case STRUCTURE_BUFFER:
+			m_bCanBuildBuffers = true;
+			break;
+
+		case STRUCTURE_PSU:
+			m_bCanBuildPSUs = true;
+			break;
+
+		case STRUCTURE_INFANTRYLOADER:
+			m_bCanBuildInfantryLoaders = true;
+			break;
+
+		case STRUCTURE_TANKLOADER:
+			m_bCanBuildTankLoaders = true;
+			break;
+
+		case STRUCTURE_ARTILLERYLOADER:
+			m_bCanBuildArtilleryLoaders = true;
+			break;
+		}
 	}
 
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
@@ -458,4 +488,58 @@ CUpdateItem* CDigitanksTeam::GetUpdateInstalling()
 size_t CDigitanksTeam::GetTurnsToInstall()
 {
 	return (size_t)((GetUpdateSize()-m_iUpdateDownloaded)/GetBandwidth())+1;
+}
+
+bool CDigitanksTeam::CanBuildBuffers()
+{
+	if (!DigitanksGame()->CanBuildBuffers())
+		return false;
+
+	return m_bCanBuildBuffers;
+}
+
+bool CDigitanksTeam::CanBuildPSUs()
+{
+	if (!DigitanksGame()->CanBuildPSUs())
+		return false;
+
+	return m_bCanBuildPSUs;
+}
+
+bool CDigitanksTeam::CanBuildLoaders()
+{
+	if (!CanBuildInfantryLoaders())
+		return false;
+
+	if (!CanBuildInfantryLoaders())
+		return false;
+
+	if (!CanBuildInfantryLoaders())
+		return false;
+
+	return true;
+}
+
+bool CDigitanksTeam::CanBuildInfantryLoaders()
+{
+	if (!DigitanksGame()->CanBuildInfantryLoaders())
+		return false;
+
+	return m_bCanBuildInfantryLoaders;
+}
+
+bool CDigitanksTeam::CanBuildTankLoaders()
+{
+	if (!DigitanksGame()->CanBuildTankLoaders())
+		return false;
+
+	return m_bCanBuildTankLoaders;
+}
+
+bool CDigitanksTeam::CanBuildArtilleryLoaders()
+{
+	if (!DigitanksGame()->CanBuildArtilleryLoaders())
+		return false;
+
+	return m_bCanBuildArtilleryLoaders;
 }

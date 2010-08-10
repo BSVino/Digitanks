@@ -16,7 +16,7 @@ public:
 	virtual float				TotalHealth() const { return 100; };
 	virtual size_t				InitialFleetPoints() const { return 10; };
 	virtual size_t				InitialBandwidth() const { return 4; };
-	virtual size_t				InitialPower() const { return 4; };
+	virtual size_t				InitialPower() const { return 2; };
 
 	virtual float				GetBoundingRadius() const { return 8; };
 

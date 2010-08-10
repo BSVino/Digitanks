@@ -142,6 +142,12 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar();
 
+	bool					CanBuildBuffers();
+	bool					CanBuildPSUs();
+	bool					CanBuildInfantryLoaders();
+	bool					CanBuildTankLoaders();
+	bool					CanBuildArtilleryLoaders();
+
 	CUpdateGrid*			GetUpdateGrid() { return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }

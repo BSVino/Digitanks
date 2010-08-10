@@ -435,11 +435,9 @@ void CHUD::Think()
 	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
 	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
-#if 0
 	char szFPS[100];
 	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
 	m_pFPS->SetText(szFPS);
-#endif
 }
 
 void CHUD::Paint(int x, int y, int w, int h)

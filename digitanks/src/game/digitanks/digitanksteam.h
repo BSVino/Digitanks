@@ -64,6 +64,13 @@ public:
 	class CUpdateItem*			GetUpdateInstalling();
 	size_t						GetTurnsToInstall();
 
+	bool						CanBuildBuffers();
+	bool						CanBuildPSUs();
+	bool						CanBuildLoaders();
+	bool						CanBuildInfantryLoaders();
+	bool						CanBuildTankLoaders();
+	bool						CanBuildArtilleryLoaders();
+
 	// AI stuff
 	void						Bot_ExpandBase();
 	void						Bot_BuildUnits();
@@ -102,6 +109,12 @@ protected:
 	bool						m_abUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];
 	size_t						m_iUpdateDownloaded;
 	size_t						m_iBandwidth;
+
+	bool						m_bCanBuildBuffers;
+	bool						m_bCanBuildPSUs;
+	bool						m_bCanBuildInfantryLoaders;
+	bool						m_bCanBuildTankLoaders;
+	bool						m_bCanBuildArtilleryLoaders;
 };
 
 #endif

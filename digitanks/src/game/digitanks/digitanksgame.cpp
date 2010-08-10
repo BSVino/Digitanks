@@ -1018,6 +1018,36 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 		return m_bRenderFogOfWar;
 }
 
+bool CDigitanksGame::CanBuildBuffers()
+{
+	bool bDisableBuffer = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
+	return !bDisableBuffer;
+}
+
+bool CDigitanksGame::CanBuildPSUs()
+{
+	bool bDisablePSU = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
+	return !bDisablePSU;
+}
+
+bool CDigitanksGame::CanBuildInfantryLoaders()
+{
+	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	return !bDisableLoaders;
+}
+
+bool CDigitanksGame::CanBuildTankLoaders()
+{
+	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	return !bDisableLoaders;
+}
+
+bool CDigitanksGame::CanBuildArtilleryLoaders()
+{
+	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	return !bDisableLoaders;
+}
+
 void CDigitanksGame::CompleteProductions()
 {
 	for (size_t i = 0; i < GetCurrentTeam()->GetNumMembers(); i++)
