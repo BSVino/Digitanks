@@ -198,6 +198,15 @@
     <ClCompile Include="network\network.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\updates.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\updatespanel.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\digitanks_register.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -313,6 +322,12 @@
     </ClInclude>
     <ClInclude Include="network\network.h">
       <Filter>Source Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\updates.h">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\updatespanel.h">
+      <Filter>Source Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

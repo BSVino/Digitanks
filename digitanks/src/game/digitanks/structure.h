@@ -1,17 +1,10 @@
 #ifndef DT_STRUCTURE_H
 #define DT_STRUCTURE_H
 
+#include "dt_common.h"
 #include "selectable.h"
 #include "supplyline.h"
-
-typedef enum
-{
-	STRUCTURE_BUFFER,
-	STRUCTURE_PSU,
-	STRUCTURE_INFANTRYLOADER,
-	STRUCTURE_TANKLOADER,
-	STRUCTURE_ARTILLERYLOADER,
-} structure_t;
+#include "updates.h"
 
 typedef enum
 {
@@ -27,6 +20,8 @@ public:
 								CStructure();
 
 public:
+	virtual void				Spawn();
+
 	virtual float				GetBoundingRadius() const { return 5; };
 
 	virtual void				StartTurn();
@@ -36,8 +31,18 @@ public:
 	void						CompleteConstruction();
 	size_t						GetTurnsToConstruct();
 	bool						IsConstructing() { return m_bConstructing; };
-	size_t						GetProductionRemaining() { return m_iProductionToConstruct; };
+	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
 	void						AddProduction(size_t iProduction);
+
+	void						InstallUpdate(updatetype_t eUpdate);
+	void						InstallComplete();
+	void						CancelInstall();
+	size_t						GetTurnsToInstall();
+	bool						IsInstalling() { return m_bInstalling; };
+	size_t						GetProductionToInstall() { return m_iProductionToInstall; };
+	int							GetFirstUninstalledUpdate(updatetype_t eUpdate);
+	class CUpdateItem*			GetUpdateInstalling();
+	bool						HasUpdatesAvailable();
 
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
@@ -51,7 +56,15 @@ public:
 	virtual float				VisibleRange() const { return 50; };
 	virtual size_t				ConstructionCost() const { return 20; };
 	virtual float				TotalHealth() const { return 50; };
-	virtual size_t				FleetPoints() const { return 0; };
+
+	virtual size_t				InitialFleetPoints() const { return 0; };
+	virtual size_t				FleetPoints() const { return m_iFleetSupply; };
+
+	virtual size_t				InitialBandwidth() const { return 0; };
+	virtual size_t				Bandwidth() const { return m_iBandwidth; };
+
+	virtual size_t				InitialPower() const { return 0; };
+	virtual size_t				Power() const { return m_iPower; };
 
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);
@@ -61,8 +74,17 @@ protected:
 	bool						m_bConstructing;
 	size_t						m_iProductionToConstruct;
 
+	bool						m_bInstalling;
+	updatetype_t				m_eInstallingType;
+	int							m_iInstallingUpdate;
+	size_t						m_iProductionToInstall;
+
 	CEntityHandle<CSupplier>		m_hSupplier;
 	CEntityHandle<CSupplyLine>		m_hSupplyLine;
+
+	size_t						m_iFleetSupply;
+	size_t						m_iBandwidth;
+	size_t						m_iPower;
 
 	typedef struct
 	{

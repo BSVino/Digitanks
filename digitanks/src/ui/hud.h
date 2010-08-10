@@ -4,6 +4,7 @@
 #include "glgui/glgui.h"
 #include <common.h>
 #include "digitanks/digitanksgame.h"
+#include "updatespanel.h"
 
 typedef enum
 {
@@ -173,6 +174,7 @@ public:
 
 	bool						IsActive() { return m_bHUDActive; };
 
+	EVENT_CALLBACK(CHUD, OpenUpdates);
 	EVENT_CALLBACK(CHUD, Auto);
 	EVENT_CALLBACK(CHUD, Move);
 	EVENT_CALLBACK(CHUD, Turn);
@@ -192,6 +194,11 @@ public:
 	EVENT_CALLBACK(CHUD, CancelBuild);
 	EVENT_CALLBACK(CHUD, BuildUnit);
 	EVENT_CALLBACK(CHUD, CancelBuildUnit);
+	EVENT_CALLBACK(CHUD, InstallMenu);
+	EVENT_CALLBACK(CHUD, InstallProduction);
+	EVENT_CALLBACK(CHUD, InstallBandwidth);
+	EVENT_CALLBACK(CHUD, InstallFleetSupply);
+	EVENT_CALLBACK(CHUD, CancelInstall);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
 	size_t						GetSpeechBubble() { return m_iSpeechBubble; };
@@ -249,6 +256,9 @@ protected:
 	glgui::CLabel*				m_pFPS;
 
 	glgui::CLabel*				m_pTeamInfo;
+
+	glgui::CButton*				m_pUpdatesButton;
+	CUpdatesPanel*				m_pUpdatesPanel;
 
 	size_t						m_iAvatarIcon;
 	size_t						m_iShieldIcon;

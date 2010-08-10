@@ -19,8 +19,6 @@
 #include "supplyline.h"
 #include "projectile.h"
 
-REGISTER_ENTITY(CDigitank);
-
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iCancelIcon = 0;
 size_t CDigitank::s_iMoveIcon = 0;

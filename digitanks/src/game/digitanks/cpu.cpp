@@ -17,8 +17,6 @@
 #include "collector.h"
 #include "loader.h"
 
-REGISTER_ENTITY(CCPU);
-
 void CCPU::Spawn()
 {
 	BaseClass::Spawn();
@@ -72,6 +70,32 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton4Color(glgui::g_clrBox);
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
+	else if (IsInstalling())
+	{
+		pHUD->SetButton1Listener(NULL);
+		pHUD->SetButton2Listener(NULL);
+		pHUD->SetButton3Listener(NULL);
+		pHUD->SetButton4Listener(NULL);
+		pHUD->SetButton5Listener(CHUD::CancelInstall);
+
+		pHUD->SetButton1Texture(0);
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton5Texture(0);
+
+		pHUD->SetButton1Help("");
+		pHUD->SetButton2Help("");
+		pHUD->SetButton3Help("");
+		pHUD->SetButton4Help("");
+		pHUD->SetButton5Help("Cancel\nInstall");
+
+		pHUD->SetButton1Color(glgui::g_clrBox);
+		pHUD->SetButton2Color(glgui::g_clrBox);
+		pHUD->SetButton3Color(glgui::g_clrBox);
+		pHUD->SetButton4Color(glgui::g_clrBox);
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
 		pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
@@ -98,66 +122,128 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton4Color(glgui::g_clrBox);
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
+	else if (eMenuMode == MENUMODE_INSTALL)
+	{
+		if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
+		{
+			pHUD->SetButton1Listener(CHUD::InstallProduction);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("Install\nPower");
+			pHUD->SetButton1Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton1Listener(NULL);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("");
+			pHUD->SetButton1Color(glgui::g_clrBox);
+		}
+
+		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
+		{
+			pHUD->SetButton2Listener(CHUD::InstallBandwidth);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("Install\nBandwidth");
+			pHUD->SetButton2Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton2Listener(NULL);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("");
+			pHUD->SetButton2Color(glgui::g_clrBox);
+		}
+
+		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
+		{
+			pHUD->SetButton3Listener(CHUD::InstallFleetSupply);
+			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Help("Install\nFleet Sply");
+			pHUD->SetButton3Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton3Listener(NULL);
+			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Help("");
+			pHUD->SetButton3Color(glgui::g_clrBox);
+		}
+
+		pHUD->SetButton4Listener(NULL);
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton4Help("");
+		pHUD->SetButton4Color(glgui::g_clrBox);
+
+		pHUD->SetButton5Listener(CHUD::GoToMain);
+		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Help("Return");
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
 	else
 	{
 		if (bDisableBuffer)
+		{
 			pHUD->SetButton1Listener(NULL);
-		else
-			pHUD->SetButton1Listener(CHUD::BuildBuffer);
-
-		if (bDisablePSU)
-			pHUD->SetButton2Listener(NULL);
-		else
-			pHUD->SetButton2Listener(CHUD::BuildPSU);
-
-		if (bDisableLoaders)
-			pHUD->SetButton3Listener(NULL);
-		else
-			pHUD->SetButton3Listener(CHUD::BuildLoader);
-
-		pHUD->SetButton4Listener(NULL);
-		pHUD->SetButton5Listener(NULL);
-
-		if (bDisableBuffer)
 			pHUD->SetButton1Help("");
-		else
-			pHUD->SetButton1Help("Build\nBuffer");
-
-		if (bDisablePSU)
-			pHUD->SetButton2Help("");
-		else
-			pHUD->SetButton2Help("Build\nPwr Supply");
-
-		if (bDisableLoaders)
-			pHUD->SetButton3Help("");
-		else
-			pHUD->SetButton3Help("Build\nLoader");
-
-		pHUD->SetButton4Help("");
-		pHUD->SetButton5Help("");
-
-		pHUD->SetButton1Texture(0);
-		pHUD->SetButton2Texture(0);
-		pHUD->SetButton3Texture(0);
-		pHUD->SetButton4Texture(0);
-		pHUD->SetButton5Texture(0);
-
-		if (bDisableBuffer)
+			pHUD->SetButton1Texture(0);
 			pHUD->SetButton1Color(glgui::g_clrBox);
+		}
 		else
+		{
+			pHUD->SetButton1Listener(CHUD::BuildBuffer);
+			pHUD->SetButton1Help("Build\nBuffer");
+			pHUD->SetButton1Texture(0);
 			pHUD->SetButton1Color(Color(150, 150, 150));
+		}
 
 		if (bDisablePSU)
+		{
+			pHUD->SetButton2Listener(NULL);
+			pHUD->SetButton2Help("");
+			pHUD->SetButton2Texture(0);
 			pHUD->SetButton2Color(glgui::g_clrBox);
+		}
 		else
+		{
+			pHUD->SetButton2Listener(CHUD::BuildPSU);
+			pHUD->SetButton2Help("Build\nPwr Supply");
+			pHUD->SetButton2Texture(0);
 			pHUD->SetButton2Color(Color(150, 150, 150));
+		}
 
 		if (bDisableLoaders)
+		{
+			pHUD->SetButton3Listener(NULL);
+			pHUD->SetButton3Help("");
+			pHUD->SetButton3Texture(0);
 			pHUD->SetButton3Color(glgui::g_clrBox);
+		}
 		else
+		{
+			pHUD->SetButton3Listener(CHUD::BuildLoader);
+			pHUD->SetButton3Help("Build\nLoader");
+			pHUD->SetButton3Texture(0);
 			pHUD->SetButton3Color(Color(150, 150, 150));
+		}
 
-		pHUD->SetButton4Color(glgui::g_clrBox);
+		if (HasUpdatesAvailable())
+		{
+			pHUD->SetButton4Listener(CHUD::InstallMenu);
+			pHUD->SetButton4Help("Install\nUpdates");
+			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton4Listener(NULL);
+			pHUD->SetButton4Help("");
+			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Color(glgui::g_clrBox);
+		}
+
+		pHUD->SetButton5Listener(NULL);
+		pHUD->SetButton5Help("");
+		pHUD->SetButton5Texture(0);
 		pHUD->SetButton5Color(glgui::g_clrBox);
 	}
 }
@@ -261,19 +347,19 @@ void CCPU::BeginConstruction()
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 
 		// Make sure it's done next turn.
-		m_hConstructing->AddProduction(m_hConstructing->GetProductionRemaining());
+		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
 
 	if (m_ePreviewStructure == STRUCTURE_PSU && iTutorial == CInstructor::TUTORIAL_PSU)
 	{
 		// Make sure it's done next turn.
-		m_hConstructing->AddProduction(m_hConstructing->GetProductionRemaining());
+		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
 
 	if (iTutorial == CInstructor::TUTORIAL_LOADER && (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER || m_ePreviewStructure == STRUCTURE_TANKLOADER || m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER))
 	{
 		// Make sure it's done next turn.
-		m_hConstructing->AddProduction(m_hConstructing->GetProductionRemaining());
+		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
 }
 
@@ -300,7 +386,7 @@ void CCPU::StartTurn()
 
 	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
 	{
-		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionRemaining())
+		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionToConstruct())
 		{
 			std::stringstream s;
 			s << "Construction finished on " << m_hConstructing->GetName();
@@ -413,7 +499,7 @@ void CCPU::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
-		s << "Power to build: " << GetProductionRemaining() << "\n";
+		s << "Power to build: " << GetProductionToConstruct() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
 		sInfo = s.str();
 		return;
@@ -422,8 +508,17 @@ void CCPU::UpdateInfo(std::string& sInfo)
 	if (HasConstruction())
 	{
 		s << "[Constructing " << m_hConstructing->GetName() << "...]\n";
-		s << "Power to build: " << m_hConstructing->GetProductionRemaining() << "\n";
+		s << "Power to build: " << m_hConstructing->GetProductionToConstruct() << "\n";
 		s << "Turns left: " << m_hConstructing->GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
+		return;
+	}
+
+	if (IsInstalling())
+	{
+		s << "[Installing update '" << GetUpdateInstalling()->GetName() << "'...]\n";
+		s << "Power to install: " << GetProductionToInstall() << "\n";
+		s << "Turns left: " << GetTurnsToInstall() << "\n";
 		sInfo = s.str();
 		return;
 	}

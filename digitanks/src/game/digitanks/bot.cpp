@@ -11,7 +11,7 @@
 #include "maintank.h"
 #include "mechinf.h"
 
-structure_t g_aeBuildOrder[] =
+unittype_t g_aeBuildOrder[] =
 {
 	STRUCTURE_BUFFER,
 	STRUCTURE_INFANTRYLOADER,
@@ -36,7 +36,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU->HasConstruction())
 		return;
 
-	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(structure_t))
+	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(unittype_t))
 		m_iBuildPosition = 0;
 
 	if (m_iProduction < 8)

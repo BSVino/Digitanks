@@ -9,8 +9,6 @@
 
 #include <GL/glew.h>
 
-REGISTER_ENTITY(CSupplyLine);
-
 size_t CSupplyLine::s_iSupplyBeam = 0;
 
 void CSupplyLine::Precache()

@@ -9,8 +9,6 @@
 #include "camera.h"
 #include "dt_renderer.h"
 
-REGISTER_ENTITY(CProjectile);
-
 CProjectile::CProjectile()
 {
 	m_flTimeCreated = DigitanksGame()?DigitanksGame()->GetGameTime():0;
@@ -195,12 +193,6 @@ size_t CProjectile::CreateParticleSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
 }
-
-REGISTER_ENTITY(CShell);
-
-REGISTER_ENTITY(CArtilleryShell);
-
-REGISTER_ENTITY(CInfantryFlak);
 
 size_t CInfantryFlak::CreateParticleSystem()
 {

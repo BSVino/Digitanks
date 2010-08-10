@@ -25,6 +25,7 @@ public:
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
 	virtual const char*			GetName() { return "Electronode"; };
+	virtual unittype_t			GetUnitType() { return STRUCTURE_ELECTRONODE; };
 
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
 

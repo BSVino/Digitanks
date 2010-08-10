@@ -1,5 +1,7 @@
 #include "digitanksteam.h"
 
+#include <sstream>
+
 #include <maths.h>
 
 #include <ui/digitankswindow.h>
@@ -11,8 +13,6 @@
 #include "loader.h"
 #include "collector.h"
 
-REGISTER_ENTITY(CDigitanksTeam);
-
 CDigitanksTeam::CDigitanksTeam()
 {
 	m_iCurrentSelection = -1;
@@ -20,6 +20,10 @@ CDigitanksTeam::CDigitanksTeam()
 	m_iBuildPosition = 0;
 
 	m_bLKV = false;
+
+	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
+	memset(&m_abUpdates[0][0], 0, sizeof(m_abUpdates));
+	m_iUpdateDownloaded = 0;
 }
 
 CDigitanksTeam::~CDigitanksTeam()
@@ -169,13 +173,12 @@ void CDigitanksTeam::StartTurn()
 		if (pStructure && pStructure->IsConstructing())
 			AddProducer();
 
+		if (pStructure && pStructure->Power())
+			AddProduction(pStructure->Power());
+
 		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
 		if (pCollector && !pCollector->IsConstructing() && pCollector->GetSupplier())
 			AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
-
-		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());
-		if (pCPU && !pCPU->IsConstructing())
-			AddProduction(4);
 	}
 
 	// Tell CPU's to calculate data flow before StartTurn logic, which updates tendrils and data strengths.
@@ -208,6 +211,26 @@ void CDigitanksTeam::StartTurn()
 	}
 
 	CountFleetPoints();
+	CountBandwidth();
+
+	if (GetUpdateSize())
+	{
+		m_iUpdateDownloaded += m_iBandwidth;
+		if (GetUpdateDownloaded() >= GetUpdateSize())
+		{
+			std::stringstream s;
+			s << "'" << GetUpdateInstalling()->GetName() << "' finished downloading.";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+
+			DownloadComplete();
+		}
+		else
+		{
+			std::stringstream s;
+			s << "Downloading '" << GetUpdateInstalling()->GetName() << "' (" << GetTurnsToInstall() << " turns left)";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+		}
+	}
 }
 
 void CDigitanksTeam::MoveTanks()
@@ -271,6 +294,26 @@ void CDigitanksTeam::CountFleetPoints()
 	}
 }
 
+void CDigitanksTeam::CountBandwidth()
+{
+	m_iBandwidth = 0;
+
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (!pEntity)
+			continue;
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+
+		if (pStructure)
+			m_iBandwidth += pStructure->Bandwidth();
+	}
+}
+
 void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)
 {
 	BaseClass::OnDeleted(pEntity);
@@ -327,4 +370,92 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint)
 	}
 
 	return flFinalVisibility;
+}
+
+void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
+{
+	if (m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY)
+		return;
+
+	if (bCheckValid && !CanDownloadUpdate(iX, iY))
+		return;
+
+	m_iCurrentUpdateX = iX;
+	m_iCurrentUpdateY = iY;
+	m_iUpdateDownloaded = 0;
+}
+
+size_t CDigitanksTeam::GetUpdateSize()
+{
+	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
+		return 0;
+
+	if (!DigitanksGame()->GetUpdateGrid())
+		return 0;
+
+	return DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY].m_iSize;
+}
+
+void CDigitanksTeam::DownloadComplete()
+{
+	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
+		return;
+
+	if (!DigitanksGame()->GetUpdateGrid())
+		return;
+
+	m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY] = true;
+
+	for (size_t i = 0; i < GetNumMembers(); i++)
+	{
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(GetMember(i));
+		if (!pEntity)
+			continue;
+
+		pEntity->DownloadComplete(&DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY]);
+	}
+
+	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
+
+	m_iUpdateDownloaded = 0;
+}
+
+bool CDigitanksTeam::HasDownloadedUpdate(int iX, int iY)
+{
+	return m_abUpdates[iX][iY];
+}
+
+bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY)
+{
+	if (iX > 0 && m_abUpdates[iX-1][iY])
+		return true;
+
+	if (iY > 0 && m_abUpdates[iX][iY-1])
+		return true;
+
+	if (iX < UPDATE_GRID_SIZE-1 && m_abUpdates[iX+1][iY])
+		return true;
+
+	if (iY < UPDATE_GRID_SIZE-1 && m_abUpdates[iX][iY+1])
+		return true;
+
+	return false;
+}
+
+bool CDigitanksTeam::IsDownloading(int iX, int iY)
+{
+	return m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY;
+}
+
+CUpdateItem* CDigitanksTeam::GetUpdateInstalling()
+{
+	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
+		return NULL;
+
+	return &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
+}
+
+size_t CDigitanksTeam::GetTurnsToInstall()
+{
+	return (size_t)((GetUpdateSize()-m_iUpdateDownloaded)/GetBandwidth())+1;
 }

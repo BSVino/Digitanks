@@ -38,6 +38,7 @@ public:
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
 
 	virtual const char*			GetName();
+	virtual unittype_t			GetUnitType();
 	virtual size_t				ConstructionCost() const { return 70; };
 	virtual float				TotalHealth() const { return 70; };
 

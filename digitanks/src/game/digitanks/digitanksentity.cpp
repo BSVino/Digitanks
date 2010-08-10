@@ -9,8 +9,6 @@
 
 #include "digitanksgame.h"
 
-REGISTER_ENTITY(CDigitanksEntity);
-
 void CDigitanksEntity::Spawn()
 {
 	BaseClass::Spawn();
@@ -94,4 +92,15 @@ void CDigitanksEntity::OnRender()
 	r.SetAlpha(0.2f);
 	//glutSolidSphere(GetBoundingRadius(), 8, 4);
 #endif
+}
+
+void CDigitanksEntity::DownloadComplete(CUpdateItem* pItem)
+{
+	if (pItem->m_eStructure != GetUnitType())
+		return;
+
+	if (pItem->m_eUpdateClass != UPDATECLASS_STRUCTUREUPDATE)
+		return;
+
+	m_apUpdates[pItem->m_eUpdateType].push_back(pItem);
 }

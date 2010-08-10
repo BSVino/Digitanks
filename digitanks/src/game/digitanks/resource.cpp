@@ -7,8 +7,6 @@
 
 #include <GL/glew.h>
 
-REGISTER_ENTITY(CResource);
-
 void CResource::Precache()
 {
 	BaseClass::Precache();

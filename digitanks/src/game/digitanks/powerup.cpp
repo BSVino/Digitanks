@@ -7,8 +7,6 @@
 #include "digitank.h"
 #include "digitanksgame.h"
 
-REGISTER_ENTITY(CPowerup);
-
 CPowerup::CPowerup()
 {
 	SetCollisionGroup(CG_POWERUP);

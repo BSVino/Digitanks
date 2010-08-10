@@ -18,6 +18,7 @@ public:
 	class CResource*			GetResource() { return m_hResource; };
 
 	virtual const char*			GetName() { return "Power Supply Unit"; };
+	virtual unittype_t			GetUnitType() { return STRUCTURE_PSU; };
 	virtual size_t				ConstructionCost() const { return 30; };
 
 protected:

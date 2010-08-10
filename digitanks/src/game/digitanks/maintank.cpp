@@ -2,8 +2,6 @@
 
 #include <models/models.h>
 
-REGISTER_ENTITY(CMainBattleTank);
-
 CMainBattleTank::CMainBattleTank()
 {
 	SetModel(L"models/digitanks/digitank-body.obj");

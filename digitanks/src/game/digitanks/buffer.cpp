@@ -5,8 +5,6 @@
 
 #include <game/team.h>
 
-REGISTER_ENTITY(CBuffer);
-
 void CBuffer::Spawn()
 {
 	BaseClass::Spawn();
@@ -31,7 +29,7 @@ void CBuffer::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
-		s << "Power to build: " << GetProductionRemaining() << "\n";
+		s << "Power to build: " << GetProductionToConstruct() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
 		sInfo = s.str();
 		return;

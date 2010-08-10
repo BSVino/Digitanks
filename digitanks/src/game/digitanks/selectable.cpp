@@ -3,8 +3,6 @@
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 
-REGISTER_ENTITY(CSelectable);
-
 void CSelectable::OnCurrentSelection()
 {
 	if (!AllowControlMode(DigitanksGame()->GetControlMode()))

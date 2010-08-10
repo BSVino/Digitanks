@@ -3,6 +3,21 @@
 
 #include <baseentity.h>
 
+typedef enum
+{
+	UNITTYPE_UNDEFINED = 0,
+	STRUCTURE_CPU,
+	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
+	STRUCTURE_INFANTRYLOADER,
+	STRUCTURE_TANKLOADER,
+	STRUCTURE_ARTILLERYLOADER,
+	STRUCTURE_ELECTRONODE,
+	UNIT_INFANTRY,
+	UNIT_TANK,
+	UNIT_ARTILLERY,
+} unittype_t;
+
 class CDigitanksEntity : public CBaseEntity
 {
 	REGISTER_ENTITY_CLASS(CDigitanksEntity, CBaseEntity);
@@ -23,12 +38,19 @@ public:
 	virtual void					ModifyContext(class CRenderingContext* pContext);
 	virtual void					OnRender();
 
+	virtual void					DownloadComplete(class CUpdateItem* pItem);
+
 	virtual void					UpdateInfo(std::string& sInfo) {};
 	virtual const char*				GetName() { return "Entity"; };
+	virtual unittype_t				GetUnitType() { return UNITTYPE_UNDEFINED; };
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					VisibleRange() const { return 0; };
 	virtual float					TotalHealth() const { return 10; };
+
+protected:
+	std::map<size_t, std::vector<class CUpdateItem*> >	m_apUpdates;
+	std::map<size_t, size_t>		m_aiUpdatesInstalled;
 };
 
 #endif

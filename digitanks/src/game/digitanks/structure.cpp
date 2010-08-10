@@ -18,14 +18,24 @@
 
 #include <GL/glew.h>
 
-REGISTER_ENTITY(CStructure);
-
 CStructure::CStructure()
 {
 	m_bConstructing = false;
 	m_iProductionToConstruct = 0;
 
+	m_bInstalling = false;
+	m_iProductionToInstall = 0;
+
 	SetCollisionGroup(CG_ENTITY);
+}
+
+void CStructure::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_iFleetSupply = InitialFleetPoints();
+	m_iBandwidth = InitialBandwidth();
+	m_iPower = InitialPower();
 }
 
 void CStructure::StartTurn()
@@ -33,6 +43,26 @@ void CStructure::StartTurn()
 	BaseClass::StartTurn();
 
 	FindGround();
+
+	if (IsInstalling())
+	{
+		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToInstall())
+		{
+			std::stringstream s;
+			s << "'" << GetUpdateInstalling()->GetName() << "' finished installing on " << GetName();
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+
+			InstallComplete();
+		}
+		else
+		{
+			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
+
+			std::stringstream s;
+			s << "Installing '" << GetUpdateInstalling()->GetName() << "' on " << GetName() << " (" << GetTurnsToInstall() << " turns left)";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+		}
+	}
 }
 
 void CStructure::FindGround()
@@ -95,10 +125,108 @@ size_t CStructure::GetTurnsToConstruct()
 
 void CStructure::AddProduction(size_t iProduction)
 {
-	if (iProduction > m_iProductionToConstruct)
-		m_iProductionToConstruct = 0;
-	else
-		m_iProductionToConstruct -= iProduction;
+	if (IsConstructing())
+	{
+		if (iProduction > m_iProductionToConstruct)
+			m_iProductionToConstruct = 0;
+		else
+			m_iProductionToConstruct -= iProduction;
+	}
+	else if (IsInstalling())
+	{
+		if (iProduction > m_iProductionToInstall)
+			m_iProductionToInstall = 0;
+		else
+			m_iProductionToInstall -= iProduction;
+	}
+}
+
+void CStructure::InstallUpdate(updatetype_t eUpdate)
+{
+	m_bInstalling = true;
+
+	int iUninstalled = GetFirstUninstalledUpdate(eUpdate);
+	if (iUninstalled < 0)
+		return;
+
+	m_eInstallingType = eUpdate;
+	m_iInstallingUpdate = iUninstalled;
+
+	m_iProductionToInstall = m_apUpdates[eUpdate][iUninstalled]->m_iProductionToInstall;
+}
+
+void CStructure::InstallComplete()
+{
+	m_bInstalling = false;
+
+	m_aiUpdatesInstalled[m_eInstallingType] = m_iInstallingUpdate+1;
+
+	CUpdateItem* pUpdate = m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
+
+	switch (pUpdate->m_eUpdateType)
+	{
+	case UPDATETYPE_BANDWIDTH:
+		m_iBandwidth += pUpdate->m_iValue;
+		break;
+
+	case UPDATETYPE_PRODUCTION:
+		m_iPower += pUpdate->m_iValue;
+		break;
+
+	case UPDATETYPE_FLEETSUPPLY:
+		m_iBandwidth += pUpdate->m_iValue;
+		break;
+	}
+
+	GetDigitanksTeam()->SetCurrentSelection(this);
+}
+
+void CStructure::CancelInstall()
+{
+	m_bInstalling = false;
+
+	m_iProductionToInstall = 0;
+}
+
+size_t CStructure::GetTurnsToInstall()
+{
+	return (size_t)(m_iProductionToInstall/GetDigitanksTeam()->GetProductionPerLoader())+1;
+}
+
+int CStructure::GetFirstUninstalledUpdate(updatetype_t eUpdate)
+{
+	std::vector<class CUpdateItem*>& aUpdates = m_apUpdates[eUpdate];
+	size_t iUpdatesInstalled = m_aiUpdatesInstalled[eUpdate];
+
+	if (iUpdatesInstalled >= aUpdates.size())
+		return -1;
+
+	if (aUpdates.size() == 0)
+		return -1;
+
+	return (int)iUpdatesInstalled;
+}
+
+CUpdateItem* CStructure::GetUpdateInstalling()
+{
+	if (IsInstalling())
+		return m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
+
+	return NULL;
+}
+
+bool CStructure::HasUpdatesAvailable()
+{
+	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
+		return true;
+
+	return false;
 }
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)
@@ -136,8 +264,6 @@ void CStructure::OnDeleted()
 
 	SetSupplier(NULL);
 }
-
-REGISTER_ENTITY(CSupplier);
 
 size_t CSupplier::s_iTendrilBeam = 0;
 

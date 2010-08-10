@@ -8,8 +8,6 @@
 #include "digitanksgame.h"
 #include "projectile.h"
 
-REGISTER_ENTITY(CArtillery);
-
 CArtillery::CArtillery()
 {
 	SetModel(L"models/digitanks/artillery.obj");

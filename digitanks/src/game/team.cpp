@@ -2,8 +2,6 @@
 
 #include <network/network.h>
 
-REGISTER_ENTITY(CTeam);
-
 CTeam::CTeam()
 {
 	m_bClientControlled = false;

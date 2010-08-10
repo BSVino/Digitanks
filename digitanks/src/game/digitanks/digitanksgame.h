@@ -9,6 +9,7 @@
 #include "terrain.h"
 #include "digitanksteam.h"
 #include "dt_common.h"
+#include "updates.h"
 
 typedef enum
 {
@@ -141,6 +142,8 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar();
 
+	CUpdateGrid*			GetUpdateGrid() { return m_hUpdates; };
+
 	gametype_t				GetGameType() { return m_eGameType; }
 
 	// CHEAT!
@@ -173,6 +176,8 @@ protected:
 	bool					m_bRenderFogOfWar;
 
 	gametype_t				m_eGameType;
+
+	CEntityHandle<CUpdateGrid>	m_hUpdates;
 };
 
 inline class CDigitanksGame* DigitanksGame()

@@ -9,8 +9,6 @@
 #include "digitanksgame.h"
 #include "projectile.h"
 
-REGISTER_ENTITY(CMechInfantry);
-
 CMechInfantry::CMechInfantry()
 {
 	SetModel(L"models/digitanks/infantry-body.obj");

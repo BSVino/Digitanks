@@ -10,9 +10,6 @@
 std::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
 size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
-std::vector<CEntityRegistration> CBaseEntity::s_aEntityRegistration;
-
-REGISTER_ENTITY(CBaseEntity);
 
 CBaseEntity::CBaseEntity()
 {

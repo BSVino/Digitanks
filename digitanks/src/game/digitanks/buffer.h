@@ -12,12 +12,13 @@ public:
 	virtual void				Precache();
 
 	virtual size_t				InitialDataStrength() { return 300; };
-	virtual size_t				FleetPoints() const { return 4; };
+	virtual size_t				InitialFleetPoints() const { return 4; };
 	virtual float				TotalHealth() const { return 25; };
 
 	virtual void				UpdateInfo(std::string& sInfo);
 
 	virtual const char*			GetName() { return "Buffer"; };
+	virtual unittype_t			GetUnitType() { return STRUCTURE_BUFFER; };
 	virtual size_t				ConstructionCost() const { return 20; };
 };
 

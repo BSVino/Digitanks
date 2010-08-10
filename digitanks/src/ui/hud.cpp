@@ -197,6 +197,14 @@ CHUD::CHUD()
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pTeamInfo->SetPos(200, 20);
 
+	m_pUpdatesButton = new CButton(0, 0, 140, 30, "Download Updates");
+	m_pUpdatesButton->SetClickedListener(this, OpenUpdates);
+	AddControl(m_pUpdatesButton);
+
+	m_pUpdatesPanel = new CUpdatesPanel();
+	m_pUpdatesPanel->SetVisible(false);
+	AddControl(m_pUpdatesPanel, true);
+
 	m_flAttackInfoAlpha = m_flAttackInfoAlphaGoal = 0;
 
 	m_flTurnInfoLerp = m_flTurnInfoLerpGoal = 0;
@@ -294,6 +302,12 @@ void CHUD::Layout()
 	m_pTurnInfo->SetWrap(true);
 	m_pTurnInfo->SetFontFaceSize(10);
 
+	m_pUpdatesButton->SetPos(m_pTurnInfo->GetRight() + 20, 0);
+	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pUpdatesButton->SetWrap(false);
+
+	m_pUpdatesPanel->Layout();
+
 	m_pPressEnter->SetDimensions(iWidth/2 - 100/2, iHeight*2/3, 100, 50);
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pPressEnter->SetWrap(false);
@@ -302,6 +316,10 @@ void CHUD::Layout()
 	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pTeamInfo->SetPos(iWidth - 220, 20);
 	m_pTeamInfo->SetWrap(false);
+
+	UpdateTeamInfo();
+	UpdateInfo();
+	SetupMenu();
 }
 
 void CHUD::Think()
@@ -822,7 +840,8 @@ void CHUD::UpdateTeamInfo()
 	std::stringstream s;
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
 	s << "Power per turn: " << pTeam->GetTotalProduction() << "\n";
-	s << "Fleet Points: " << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints();
+	s << "Fleet Points: " << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints() << "\n";
+	s << "Download: " << pTeam->GetUpdateDownloaded() << "/" << pTeam->GetUpdateSize() << "mb @" << pTeam->GetBandwidth() << "mb/turn";
 	m_pTeamInfo->SetText(s.str().c_str());
 }
 
@@ -1112,6 +1131,15 @@ void CHUD::SetAutoProceed(bool bAuto)
 //		m_pAutoButton->SetText("Auto on");
 //	else
 //		m_pAutoButton->SetText("Auto off");
+}
+
+void CHUD::OpenUpdatesCallback()
+{
+	if (m_pUpdatesPanel)
+	{
+		m_pUpdatesPanel->Layout();
+		m_pUpdatesPanel->SetVisible(true);
+	}
 }
 
 void CHUD::AutoCallback()
@@ -1469,6 +1497,91 @@ void CHUD::CancelBuildUnitCallback()
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
+}
+
+void CHUD::InstallMenuCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	SetupMenu(MENUMODE_INSTALL);
+}
+
+void CHUD::InstallProductionCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_PRODUCTION);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallBandwidthCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_BANDWIDTH);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallFleetSupplyCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_FLEETSUPPLY);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::CancelInstallCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	pStructure->CancelInstall();
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	SetupMenu();
+	UpdateInfo();
 }
 
 void CHUD::GoToMainCallback()

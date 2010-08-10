@@ -6,8 +6,6 @@
 
 #include <GL/glew.h>
 
-REGISTER_ENTITY(CCollector);
-
 void CCollector::Spawn()
 {
 	BaseClass::Spawn();

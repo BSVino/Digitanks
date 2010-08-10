@@ -258,6 +258,9 @@ void CDigitanksGame::SetupStandard()
 	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
 
 	m_iPowerups = 4;
+
+	m_hUpdates = Game()->Create<CUpdateGrid>("CUpdateGrid");
+	m_hUpdates->SetupStandardUpdates();
 }
 
 void CDigitanksGame::SetupTutorial()
@@ -1028,6 +1031,9 @@ void CDigitanksGame::CompleteProductions()
 		{
 			if (pStructure->IsConstructing())
 				pStructure->AddProduction(pStructure->ConstructionCost());
+
+			if (pStructure->IsInstalling())
+				pStructure->AddProduction(pStructure->GetProductionToInstall()+10);
 		}
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(pMember);

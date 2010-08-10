@@ -17,8 +17,6 @@
 
 #include <GL/glew.h>
 
-REGISTER_ENTITY(CLoader);
-
 size_t g_aiTurnsToLoad[] = {
 	25, // BUILDUNIT_INFANTRY,
 	50, // BUILDUNIT_TANK,
@@ -235,7 +233,7 @@ void CLoader::UpdateInfo(std::string& sInfo)
 	if (IsConstructing())
 	{
 		s << "(Constructing)\n";
-		s << "Power to build: " << GetProductionRemaining() << "\n";
+		s << "Power to build: " << GetProductionToConstruct() << "\n";
 		s << "Turns left: " << GetTurnsToConstruct() << "\n";
 		sInfo = s.str();
 		return;
@@ -263,4 +261,14 @@ const char* CLoader::GetName()
 		return "Main Battle Tank Loader";
 	else
 		return "Artillery Loader";
+}
+
+unittype_t CLoader::GetUnitType()
+{
+	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+		return UNIT_INFANTRY;
+	else if (GetBuildUnit() == BUILDUNIT_TANK)
+		return UNIT_TANK;
+	else
+		return UNIT_ARTILLERY;
 }
