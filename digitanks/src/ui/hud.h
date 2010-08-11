@@ -204,6 +204,7 @@ public:
 	EVENT_CALLBACK(CHUD, InstallTankDefense);
 	EVENT_CALLBACK(CHUD, InstallTankMovement);
 	EVENT_CALLBACK(CHUD, InstallTankHealth);
+	EVENT_CALLBACK(CHUD, InstallTankRange);
 	EVENT_CALLBACK(CHUD, CancelInstall);
 	EVENT_CALLBACK(CHUD, GoToMain);
 

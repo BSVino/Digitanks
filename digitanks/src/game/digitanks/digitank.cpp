@@ -61,6 +61,8 @@ CDigitank::CDigitank()
 
 	m_flBonusAttackPower = m_flBonusDefensePower = m_flBonusMovementPower = 0;
 
+	m_flRangeBonus = 0;
+
 	m_iBonusPoints = 0;
 
 	m_flPreviewTurn = 0;

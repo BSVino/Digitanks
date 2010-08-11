@@ -22,8 +22,8 @@ public:
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				VisibleRange() const { return 75; };
-	virtual float				GetMaxRange() const { return 60.0f; };
-	virtual float				GetEffRange() const { return 30.0f; };
+	virtual float				InitialMaxRange() const { return 60.0f; };
+	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 
 	virtual size_t				FleetPoints() const { return MainTankFleetPoints(); };

@@ -77,6 +77,8 @@ public:
 	virtual float				GetBonusDefensePower(bool bPreview = false);
 	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower; };
 
+	virtual void				AddRangeBonus(float flAmount) { m_flRangeBonus += flAmount; };
+
 	virtual float				GetSupportAttackPowerBonus();
 	virtual float				GetSupportDefensePowerBonus();
 
@@ -235,8 +237,10 @@ public:
 	virtual float				ShieldRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
-	virtual float				GetMaxRange() const { return 70.0f; };
-	virtual float				GetEffRange() const { return 50.0f; };
+	virtual float				InitialMaxRange() const { return 70.0f; };
+	virtual float				GetMaxRange() const { return InitialMaxRange() + m_flRangeBonus; };
+	virtual float				InitialEffRange() const { return 50.0f; };
+	virtual float				GetEffRange() const { return InitialEffRange() + m_flRangeBonus/2; };
 	virtual float				GetMinRange() const { return 4.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const { return -0.03f; };
@@ -259,6 +263,8 @@ protected:
 	float						m_flBonusDefensePower;
 	float						m_flBonusMovementPower;
 	size_t						m_iBonusPoints;
+
+	float						m_flRangeBonus;
 
 	union {
 		struct {

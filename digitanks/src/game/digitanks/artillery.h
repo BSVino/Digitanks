@@ -35,8 +35,8 @@ public:
 	virtual float				HealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 1.3f; }
 	virtual float				GetMinRange() const { return 50.0f; };
-	virtual float				GetEffRange() const { return 100.0f; };
-	virtual float				GetMaxRange() const { return 200.0f; };
+	virtual float				InitialEffRange() const { return 100.0f; };
+	virtual float				InitialMaxRange() const { return 200.0f; };
 	virtual float				TurnPerPower() const;
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };

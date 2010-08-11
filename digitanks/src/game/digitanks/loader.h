@@ -55,6 +55,7 @@ protected:
 	size_t						m_iTankDefense;
 	size_t						m_iTankMovement;
 	size_t						m_iTankHealth;
+	size_t						m_iTankRange;
 };
 
 #endif

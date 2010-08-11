@@ -38,7 +38,7 @@ void CLoader::Spawn()
 
 	m_bProducing = false;
 
-	m_iTankAttack = m_iTankDefense = m_iTankMovement = m_iTankHealth = 0;
+	m_iTankAttack = m_iTankDefense = m_iTankMovement = m_iTankHealth = m_iTankRange = 0;
 }
 
 void CLoader::StartTurn()
@@ -82,8 +82,8 @@ void CLoader::StartTurn()
 				pTank->PromoteMovement();
 			}
 
-			for (size_t i = 0; i < m_iTankHealth; i++)
-				pTank->SetTotalHealth(pTank->GetTotalHealth()+1);
+			pTank->SetTotalHealth(pTank->GetTotalHealth()+m_iTankHealth);
+			pTank->AddRangeBonus((float)m_iTankRange);
 
 			GetTeam()->AddEntity(pTank);
 
@@ -166,7 +166,14 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Color(glgui::g_clrBox);
 		}
 
-		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
+		if (GetUnitType() == STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
+		{
+			pHUD->SetButton2Listener(CHUD::InstallTankRange);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("Install\nRange");
+			pHUD->SetButton2Color(Color(150, 150, 150));
+		}
+		else if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
 		{
 			pHUD->SetButton2Listener(CHUD::InstallTankDefense);
 			pHUD->SetButton2Texture(0);
@@ -347,6 +354,10 @@ void CLoader::InstallComplete()
 	case UPDATETYPE_TANKHEALTH:
 		m_iTankHealth += (size_t)pUpdate->m_flValue;
 		break;
+
+	case UPDATETYPE_TANKRANGE:
+		m_iTankRange += (size_t)pUpdate->m_flValue;
+		break;
 	}
 
 	GetDigitanksTeam()->SetCurrentSelection(this);
@@ -364,6 +375,9 @@ bool CLoader::HasUpdatesAvailable()
 		return true;
 
 	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
+		return true;
+
+	if (m_eBuildUnit == BUILDUNIT_ARTILLERY && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
 		return true;
 
 	return false;

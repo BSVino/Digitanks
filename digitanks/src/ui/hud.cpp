@@ -1680,6 +1680,25 @@ void CHUD::InstallTankHealthCallback()
 	UpdateTeamInfo();
 }
 
+void CHUD::InstallTankRangeCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_TANKRANGE);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
 void CHUD::CancelInstallCallback()
 {
 	if (!m_bHUDActive)
