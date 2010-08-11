@@ -98,7 +98,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
-		if (DigitanksGame()->CanBuildInfantryLoaders())
+		if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
 			pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
 			pHUD->SetButton1Texture(0);
@@ -113,7 +113,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Color(glgui::g_clrBox);
 		}
 
-		if (DigitanksGame()->CanBuildTankLoaders())
+		if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
 			pHUD->SetButton2Listener(CHUD::BuildTankLoader);
 			pHUD->SetButton2Texture(0);
@@ -128,7 +128,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Color(glgui::g_clrBox);
 		}
 
-		if (DigitanksGame()->CanBuildArtilleryLoaders())
+		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
 			pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
 			pHUD->SetButton3Texture(0);
