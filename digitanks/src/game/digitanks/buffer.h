@@ -15,6 +15,8 @@ public:
 
 	virtual void				UpdateInfo(std::string& sInfo);
 
+	virtual bool				HasUpdatesAvailable();
+
 	virtual size_t				InitialDataStrength() { return 300; };
 	virtual size_t				InitialFleetPoints() const { return 1; };
 	virtual size_t				InitialBandwidth() const { return 0; };

@@ -179,3 +179,20 @@ void CBuffer::UpdateInfo(std::string& sInfo)
 
 	sInfo = s.str();
 }
+
+bool CBuffer::HasUpdatesAvailable()
+{
+	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE) >= 0)
+		return true;
+
+	return false;
+}

@@ -29,6 +29,9 @@ public:
 	bool						IsProducing() { return m_bProducing; };
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 
+	virtual void				InstallComplete();
+	virtual bool				HasUpdatesAvailable();
+
 	size_t						GetFleetPointsRequired();
 	bool						HasEnoughFleetPoints();
 
@@ -47,6 +50,11 @@ protected:
 
 	bool						m_bProducing;
 	size_t						m_iProductionStored;
+
+	size_t						m_iTankAttack;
+	size_t						m_iTankDefense;
+	size_t						m_iTankMovement;
+	size_t						m_iTankHealth;
 };
 
 #endif

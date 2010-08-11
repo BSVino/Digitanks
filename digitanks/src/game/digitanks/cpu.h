@@ -36,6 +36,8 @@ public:
 	bool						HasConstruction() { return m_hConstructing != NULL; }
 	CStructure*					GetConstructing() { return m_hConstructing; }
 
+	virtual bool				HasUpdatesAvailable();
+
 	virtual void				StartTurn();
 
 	virtual void				OnRender();

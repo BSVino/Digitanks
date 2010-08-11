@@ -1604,6 +1604,82 @@ void CHUD::InstallRechargeBonusCallback()
 	UpdateTeamInfo();
 }
 
+void CHUD::InstallTankAttackCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_TANKATTACK);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallTankDefenseCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_TANKDEFENSE);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallTankMovementCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_TANKMOVEMENT);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallTankHealthCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_TANKHEALTH);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
 void CHUD::CancelInstallCallback()
 {
 	if (!m_bHUDActive)

@@ -35,14 +35,15 @@ public:
 	void						AddProduction(size_t iProduction);
 
 	void						InstallUpdate(updatetype_t eUpdate);
-	void						InstallComplete();
+	virtual void				InstallComplete();
 	void						CancelInstall();
 	size_t						GetTurnsToInstall();
 	bool						IsInstalling() { return m_bInstalling; };
 	size_t						GetProductionToInstall() { return m_iProductionToInstall; };
 	int							GetFirstUninstalledUpdate(updatetype_t eUpdate);
 	class CUpdateItem*			GetUpdateInstalling();
-	bool						HasUpdatesAvailable();
+	virtual bool				HasUpdatesAvailable() { return false; };
+	virtual void				DownloadComplete(class CUpdateItem* pItem);
 
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
@@ -93,6 +94,9 @@ protected:
 	size_t						m_iPower;
 	size_t						m_iEnergyBonus;
 	float						m_flRechargeBonus;
+
+	std::map<size_t, std::vector<class CUpdateItem*> >	m_apUpdates;
+	std::map<size_t, size_t>		m_aiUpdatesInstalled;
 
 	typedef struct
 	{

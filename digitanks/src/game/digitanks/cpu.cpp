@@ -403,6 +403,20 @@ void CCPU::CancelConstruction()
 	}
 }
 
+bool CCPU::HasUpdatesAvailable()
+{
+	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
+		return true;
+
+	return false;
+}
+
 void CCPU::StartTurn()
 {
 	BaseClass::StartTurn();

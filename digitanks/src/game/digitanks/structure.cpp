@@ -188,7 +188,7 @@ void CStructure::InstallComplete()
 		break;
 
 	case UPDATETYPE_FLEETSUPPLY:
-		m_iBandwidth += (size_t)pUpdate->m_flValue;
+		m_iFleetSupply += (size_t)pUpdate->m_flValue;
 		break;
 
 	case UPDATETYPE_SUPPORTENERGY:
@@ -237,18 +237,18 @@ CUpdateItem* CStructure::GetUpdateInstalling()
 	return NULL;
 }
 
-bool CStructure::HasUpdatesAvailable()
+void CStructure::DownloadComplete(CUpdateItem* pItem)
 {
-	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
-		return true;
+	if (IsConstructing())
+		return;
 
-	if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
-		return true;
+	if (pItem->m_eStructure != GetUnitType())
+		return;
 
-	if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
-		return true;
+	if (pItem->m_eUpdateClass != UPDATECLASS_STRUCTUREUPDATE)
+		return;
 
-	return false;
+	m_apUpdates[pItem->m_eUpdateType].push_back(pItem);
 }
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)

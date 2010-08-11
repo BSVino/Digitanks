@@ -94,13 +94,3 @@ void CDigitanksEntity::OnRender()
 #endif
 }
 
-void CDigitanksEntity::DownloadComplete(CUpdateItem* pItem)
-{
-	if (pItem->m_eStructure != GetUnitType())
-		return;
-
-	if (pItem->m_eUpdateClass != UPDATECLASS_STRUCTUREUPDATE)
-		return;
-
-	m_apUpdates[pItem->m_eUpdateType].push_back(pItem);
-}

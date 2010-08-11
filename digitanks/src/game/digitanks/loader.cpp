@@ -37,6 +37,8 @@ void CLoader::Spawn()
 	BaseClass::Spawn();
 
 	m_bProducing = false;
+
+	m_iTankAttack = m_iTankDefense = m_iTankMovement = m_iTankHealth = 0;
 }
 
 void CLoader::StartTurn()
@@ -61,6 +63,27 @@ void CLoader::StartTurn()
 
 			// Face him toward the center.
 			pTank->SetAngles(EAngle(0, VectorAngles(-GetOrigin().Normalized()).y, 0));
+
+			for (size_t i = 0; i < m_iTankAttack; i++)
+			{
+				pTank->GiveBonusPoints(1, false);
+				pTank->PromoteAttack();
+			}
+
+			for (size_t i = 0; i < m_iTankDefense; i++)
+			{
+				pTank->GiveBonusPoints(1, false);
+				pTank->PromoteDefense();
+			}
+
+			for (size_t i = 0; i < m_iTankMovement; i++)
+			{
+				pTank->GiveBonusPoints(1, false);
+				pTank->PromoteMovement();
+			}
+
+			for (size_t i = 0; i < m_iTankHealth; i++)
+				pTank->SetTotalHealth(pTank->GetTotalHealth()+1);
 
 			GetTeam()->AddEntity(pTank);
 
@@ -100,47 +123,177 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
 
-	if (m_bProducing)
-		pHUD->SetButton1Listener(CHUD::CancelBuildUnit);
-	else if (HasEnoughFleetPoints())
-		pHUD->SetButton1Listener(CHUD::BuildUnit);
-	else
+	if (IsInstalling())
+	{
 		pHUD->SetButton1Listener(NULL);
-	pHUD->SetButton2Listener(NULL);
-	pHUD->SetButton3Listener(NULL);
-	pHUD->SetButton4Listener(NULL);
-	pHUD->SetButton5Listener(NULL);
+		pHUD->SetButton2Listener(NULL);
+		pHUD->SetButton3Listener(NULL);
+		pHUD->SetButton4Listener(NULL);
+		pHUD->SetButton5Listener(CHUD::CancelInstall);
 
-	if (m_bProducing)
-		pHUD->SetButton1Help("Cancel\nBuild");
+		pHUD->SetButton1Texture(0);
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton5Texture(0);
+
+		pHUD->SetButton1Help("");
+		pHUD->SetButton2Help("");
+		pHUD->SetButton3Help("");
+		pHUD->SetButton4Help("");
+		pHUD->SetButton5Help("Cancel\nInstall");
+
+		pHUD->SetButton1Color(glgui::g_clrBox);
+		pHUD->SetButton2Color(glgui::g_clrBox);
+		pHUD->SetButton3Color(glgui::g_clrBox);
+		pHUD->SetButton4Color(glgui::g_clrBox);
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
+	else if (eMenuMode == MENUMODE_INSTALL)
+	{
+		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK) >= 0)
+		{
+			pHUD->SetButton1Listener(CHUD::InstallTankAttack);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("Install\nAttack");
+			pHUD->SetButton1Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton1Listener(NULL);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("");
+			pHUD->SetButton1Color(glgui::g_clrBox);
+		}
+
+		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
+		{
+			pHUD->SetButton2Listener(CHUD::InstallTankDefense);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("Install\nDefense");
+			pHUD->SetButton2Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton2Listener(NULL);
+			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Help("");
+			pHUD->SetButton2Color(glgui::g_clrBox);
+		}
+
+		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
+		{
+			pHUD->SetButton3Listener(CHUD::InstallTankMovement);
+			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Help("Install\nMovement");
+			pHUD->SetButton3Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton3Listener(NULL);
+			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Help("");
+			pHUD->SetButton3Color(glgui::g_clrBox);
+		}
+
+		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
+		{
+			pHUD->SetButton4Listener(CHUD::InstallTankHealth);
+			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Help("Install\nHealth");
+			pHUD->SetButton4Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton4Listener(NULL);
+			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Help("");
+			pHUD->SetButton4Color(glgui::g_clrBox);
+		}
+
+		pHUD->SetButton5Listener(CHUD::GoToMain);
+		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Help("Return");
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
+	else if (m_bProducing)
+	{
+		pHUD->SetButton1Listener(NULL);
+		pHUD->SetButton1Help("");
+		pHUD->SetButton1Texture(0);
+		pHUD->SetButton1Color(glgui::g_clrBox);
+
+		pHUD->SetButton2Listener(NULL);
+		pHUD->SetButton2Help("");
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton2Color(glgui::g_clrBox);
+
+		pHUD->SetButton3Listener(NULL);
+		pHUD->SetButton3Help("");
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton3Color(glgui::g_clrBox);
+
+		pHUD->SetButton4Listener(NULL);
+		pHUD->SetButton4Help("");
+		pHUD->SetButton4Texture(0);
+		pHUD->SetButton4Color(glgui::g_clrBox);
+
+		pHUD->SetButton5Listener(CHUD::CancelBuildUnit);
+		pHUD->SetButton5Help("Cancel\nBuild");
+		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Color(Color(100, 0, 0));
+	}
 	else
 	{
+		if (HasEnoughFleetPoints())
+			pHUD->SetButton1Listener(CHUD::BuildUnit);
+		else
+			pHUD->SetButton1Listener(NULL);
+
 		if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 			pHUD->SetButton1Help("Build\nMech. Inf");
 		else if (GetBuildUnit() == BUILDUNIT_TANK)
 			pHUD->SetButton1Help("Build\nMain Tank");
 		else
 			pHUD->SetButton1Help("Build\nArtillery Tank");
+
+		pHUD->SetButton1Texture(0);
+
+		if (HasEnoughFleetPoints())
+			pHUD->SetButton1Color(Color(150, 150, 150));
+		else
+			pHUD->SetButton1Color(glgui::g_clrBox);
+
+		pHUD->SetButton2Listener(NULL);
+		pHUD->SetButton2Help("");
+		pHUD->SetButton2Texture(0);
+		pHUD->SetButton2Color(glgui::g_clrBox);
+
+		pHUD->SetButton3Listener(NULL);
+		pHUD->SetButton3Help("");
+		pHUD->SetButton3Texture(0);
+		pHUD->SetButton3Color(glgui::g_clrBox);
+
+		if (HasUpdatesAvailable())
+		{
+			pHUD->SetButton4Listener(CHUD::InstallMenu);
+			pHUD->SetButton4Help("Install\nUpdates");
+			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Color(Color(150, 150, 150));
+		}
+		else
+		{
+			pHUD->SetButton4Listener(NULL);
+			pHUD->SetButton4Help("");
+			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Color(glgui::g_clrBox);
+		}
+
+		pHUD->SetButton5Listener(NULL);
+		pHUD->SetButton5Help("");
+		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Color(glgui::g_clrBox);
 	}
-	pHUD->SetButton2Help("");
-	pHUD->SetButton3Help("");
-	pHUD->SetButton4Help("");
-	pHUD->SetButton5Help("");
-
-	pHUD->SetButton1Texture(0);
-	pHUD->SetButton2Texture(0);
-	pHUD->SetButton3Texture(0);
-	pHUD->SetButton4Texture(0);
-	pHUD->SetButton5Texture(0);
-
-	if (HasEnoughFleetPoints())
-		pHUD->SetButton1Color(Color(150, 150, 150));
-	else
-		pHUD->SetButton1Color(glgui::g_clrBox);
-	pHUD->SetButton2Color(glgui::g_clrBox);
-	pHUD->SetButton3Color(glgui::g_clrBox);
-	pHUD->SetButton4Color(glgui::g_clrBox);
-	pHUD->SetButton5Color(glgui::g_clrBox);
 }
 
 void CLoader::BeginProduction()
@@ -169,6 +322,51 @@ void CLoader::CancelProduction()
 	m_bProducing = false;
 
 	GetDigitanksTeam()->CountFleetPoints();
+}
+
+void CLoader::InstallComplete()
+{
+	BaseClass::InstallComplete();
+
+	CUpdateItem* pUpdate = m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
+
+	switch (pUpdate->m_eUpdateType)
+	{
+	case UPDATETYPE_TANKATTACK:
+		m_iTankAttack += (size_t)pUpdate->m_flValue;
+		break;
+
+	case UPDATETYPE_TANKDEFENSE:
+		m_iTankDefense += (size_t)pUpdate->m_flValue;
+		break;
+
+	case UPDATETYPE_TANKMOVEMENT:
+		m_iTankMovement += (size_t)pUpdate->m_flValue;
+		break;
+
+	case UPDATETYPE_TANKHEALTH:
+		m_iTankHealth += (size_t)pUpdate->m_flValue;
+		break;
+	}
+
+	GetDigitanksTeam()->SetCurrentSelection(this);
+}
+
+bool CLoader::HasUpdatesAvailable()
+{
+	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
+		return true;
+
+	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
+		return true;
+
+	return false;
 }
 
 size_t CLoader::GetFleetPointsRequired()
@@ -248,6 +446,14 @@ void CLoader::UpdateInfo(std::string& sInfo)
 		s << "Turns left: " << (iProductionLeft/iProduction)+1 << "\n \n";
 	}
 
+	if (IsInstalling())
+	{
+		s << "[Installing update '" << GetUpdateInstalling()->GetName() << "'...]\n";
+		s << "Power to install: " << GetProductionToInstall() << "\n";
+		s << "Turns left: " << GetTurnsToInstall() << "\n";
+		sInfo = s.str();
+	}
+
 	s << "Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << "%\n";
 
 	sInfo = s.str();
@@ -266,9 +472,9 @@ const char* CLoader::GetName()
 unittype_t CLoader::GetUnitType()
 {
 	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-		return UNIT_INFANTRY;
+		return STRUCTURE_INFANTRYLOADER;
 	else if (GetBuildUnit() == BUILDUNIT_TANK)
-		return UNIT_TANK;
+		return STRUCTURE_TANKLOADER;
 	else
-		return UNIT_ARTILLERY;
+		return STRUCTURE_ARTILLERYLOADER;
 }

@@ -38,7 +38,7 @@ public:
 	virtual void					ModifyContext(class CRenderingContext* pContext);
 	virtual void					OnRender();
 
-	virtual void					DownloadComplete(class CUpdateItem* pItem);
+	virtual void					DownloadComplete(class CUpdateItem* pItem) {};
 
 	virtual void					UpdateInfo(std::string& sInfo) {};
 	virtual const char*				GetName() { return "Entity"; };
@@ -47,10 +47,6 @@ public:
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					VisibleRange() const { return 0; };
 	virtual float					TotalHealth() const { return 10; };
-
-protected:
-	std::map<size_t, std::vector<class CUpdateItem*> >	m_apUpdates;
-	std::map<size_t, size_t>		m_aiUpdatesInstalled;
 };
 
 #endif

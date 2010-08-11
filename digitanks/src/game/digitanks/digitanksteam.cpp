@@ -508,16 +508,16 @@ bool CDigitanksTeam::CanBuildPSUs()
 
 bool CDigitanksTeam::CanBuildLoaders()
 {
-	if (!CanBuildInfantryLoaders())
-		return false;
+	if (CanBuildInfantryLoaders())
+		return true;
 
-	if (!CanBuildInfantryLoaders())
-		return false;
+	if (CanBuildTankLoaders())
+		return true;
 
-	if (!CanBuildInfantryLoaders())
-		return false;
+	if (CanBuildArtilleryLoaders())
+		return true;
 
-	return true;
+	return false;
 }
 
 bool CDigitanksTeam::CanBuildInfantryLoaders()

@@ -83,6 +83,7 @@ public:
 	size_t									GetHandle() const { return m_iHandle; }
 
 	virtual float							GetTotalHealth() { return m_flTotalHealth; }
+	virtual void							SetTotalHealth(float flHealth) { m_flTotalHealth = m_flHealth = flHealth; }
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
