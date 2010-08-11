@@ -66,6 +66,12 @@ public:
 	virtual size_t				InitialPower() const { return 0; };
 	virtual size_t				Power() const { return m_iPower; };
 
+	virtual size_t				InitialEnergyBonus() const { return 0; };
+	virtual size_t				EnergyBonus() const { return m_iEnergyBonus; };
+
+	virtual float				InitialRechargeBonus() const { return 0; };
+	virtual float				RechargeBonus() const { return m_flRechargeBonus; };
+
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);
 	size_t						GetNumLivingDefenders();
@@ -85,6 +91,8 @@ protected:
 	size_t						m_iFleetSupply;
 	size_t						m_iBandwidth;
 	size_t						m_iPower;
+	size_t						m_iEnergyBonus;
+	float						m_flRechargeBonus;
 
 	typedef struct
 	{
@@ -103,6 +111,9 @@ class CSupplier : public CStructure
 public:
 	virtual void				Precache();
 	virtual void				Spawn();
+
+	virtual size_t				InitialEnergyBonus() const { return 1; };
+	virtual float				InitialRechargeBonus() const { return 0.5f; };
 
 	virtual size_t				InitialDataStrength() { return 100; };
 	virtual size_t				BaseDataFlowPerTurn() { return 20; };

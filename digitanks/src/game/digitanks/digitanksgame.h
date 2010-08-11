@@ -151,6 +151,7 @@ public:
 	CUpdateGrid*			GetUpdateGrid() { return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }
+	size_t					GetTurn() { return m_iTurn; }
 
 	// CHEAT!
 	void					CompleteProductions();
@@ -182,6 +183,7 @@ protected:
 	bool					m_bRenderFogOfWar;
 
 	gametype_t				m_eGameType;
+	size_t					m_iTurn;
 
 	CEntityHandle<CUpdateGrid>	m_hUpdates;
 };

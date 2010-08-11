@@ -1038,6 +1038,13 @@ void CHUD::NewCurrentTeam()
 		m_flTurnInfoLerpGoal = 1;
 	else
 		m_flTurnInfoLerpGoal = 0;
+
+	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+	{
+		// Don't open the research window on the first turn, give the player a chance to see the game grid first.
+		if (DigitanksGame()->GetTurn() >= 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateInstalling())
+			m_pUpdatesPanel->SetVisible(true);
+	}
 }
 
 void CHUD::NewCurrentSelection()
@@ -1134,10 +1141,7 @@ void CHUD::SetAutoProceed(bool bAuto)
 void CHUD::OpenUpdatesCallback()
 {
 	if (m_pUpdatesPanel)
-	{
-		m_pUpdatesPanel->Layout();
 		m_pUpdatesPanel->SetVisible(true);
-	}
 }
 
 void CHUD::AutoCallback()
@@ -1557,6 +1561,44 @@ void CHUD::InstallFleetSupplyCallback()
 	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_FLEETSUPPLY);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallEnergyBonusCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_SUPPORTENERGY);
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::InstallRechargeBonusCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	pStructure->InstallUpdate(UPDATETYPE_SUPPORTRECHARGE);
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();

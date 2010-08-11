@@ -36,6 +36,8 @@ void CStructure::Spawn()
 	m_iFleetSupply = InitialFleetPoints();
 	m_iBandwidth = InitialBandwidth();
 	m_iPower = InitialPower();
+	m_iEnergyBonus = InitialEnergyBonus();
+	m_flRechargeBonus = InitialRechargeBonus();
 }
 
 void CStructure::StartTurn()
@@ -111,6 +113,18 @@ void CStructure::CompleteConstruction()
 
 	GetDigitanksTeam()->SetCurrentSelection(this);
 
+	if (DigitanksGame()->GetUpdateGrid())
+	{
+		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+		{
+			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+			{
+				if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+					DownloadComplete(&DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y]);
+			}
+		}
+	}
+
 	if (dynamic_cast<CCollector*>(this) && iTutorial == CInstructor::TUTORIAL_PSU)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 
@@ -166,15 +180,23 @@ void CStructure::InstallComplete()
 	switch (pUpdate->m_eUpdateType)
 	{
 	case UPDATETYPE_BANDWIDTH:
-		m_iBandwidth += pUpdate->m_iValue;
+		m_iBandwidth += (size_t)pUpdate->m_flValue;
 		break;
 
 	case UPDATETYPE_PRODUCTION:
-		m_iPower += pUpdate->m_iValue;
+		m_iPower += (size_t)pUpdate->m_flValue;
 		break;
 
 	case UPDATETYPE_FLEETSUPPLY:
-		m_iBandwidth += pUpdate->m_iValue;
+		m_iBandwidth += (size_t)pUpdate->m_flValue;
+		break;
+
+	case UPDATETYPE_SUPPORTENERGY:
+		m_iEnergyBonus += (size_t)pUpdate->m_flValue;
+		break;
+
+	case UPDATETYPE_SUPPORTRECHARGE:
+		m_flRechargeBonus += (size_t)pUpdate->m_flValue;
 		break;
 	}
 

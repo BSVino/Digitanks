@@ -311,10 +311,11 @@ float CDigitank::GetSupportAttackPowerBonus()
 	if (m_hSupplier == NULL)
 		return 0;
 
+	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 3;
+		flBonus = (float)m_hSupplier->EnergyBonus();
 
-	return 2;
+	return 2 + flBonus;
 }
 
 float CDigitank::GetSupportDefensePowerBonus()
@@ -322,10 +323,11 @@ float CDigitank::GetSupportDefensePowerBonus()
 	if (m_hSupplier == NULL)
 		return 0;
 
+	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 3;
+		flBonus = (float)m_hSupplier->EnergyBonus();
 
-	return 2;
+	return 2 + flBonus;
 }
 
 float CDigitank::GetSupportHealthRechargeBonus() const
@@ -333,10 +335,11 @@ float CDigitank::GetSupportHealthRechargeBonus() const
 	if (m_hSupplier == NULL)
 		return 0.0f;
 
+	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 0.2f;
+		flBonus = m_hSupplier->RechargeBonus()/5;
 
-	return 0.1f;
+	return 0.1f + flBonus;
 }
 
 float CDigitank::GetSupportShieldRechargeBonus() const
@@ -344,10 +347,11 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 	if (m_hSupplier == NULL)
 		return 0.0f;
 
+	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		return 1.0f;
+		flBonus = m_hSupplier->RechargeBonus();
 
-	return 0.5f;
+	return 0.5f + flBonus;
 }
 
 void CDigitank::SetAttackPower(float flAttackPower)

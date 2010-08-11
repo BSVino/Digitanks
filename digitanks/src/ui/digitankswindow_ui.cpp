@@ -235,8 +235,6 @@ bool CVictoryPanel::KeyPressed(int iKey)
 
 void CVictoryPanel::GameOver(bool bPlayerWon)
 {
-	Layout();
-
 	if (bPlayerWon)
 	{
 		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the Digiverse!\n \n");
@@ -295,8 +293,6 @@ void CDonatePanel::Paint(int x, int y, int w, int h)
 
 void CDonatePanel::ClosingApplication()
 {
-	Layout();
-
 	m_pDonate->SetText(L"HELP ME FINISH DIGITANKS!\n \n"
 		L"The full version of Digitanks will have more tanks, more weapons, bases to build and conquer, and even online multiplayer! All that stuff is really hard though, and I need your help to build it.\n \n"
 		L"Please visit the website to contribute feedback from your playing experience by filling out a short survey. You can also donate to the Digitanks development effort, which will earn you a FREE copy of the game when it's released, your name in the credits, and the satisfaction of having helped out for a good cause!");

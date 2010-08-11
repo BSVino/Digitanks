@@ -21,42 +21,42 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-3][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-3][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-3][iCPU].m_eUpdateType = UPDATETYPE_BANDWIDTH;
-	m_aUpdates[iCPU-3][iCPU].m_iValue = 2;
+	m_aUpdates[iCPU-3][iCPU].m_flValue = 2;
 	m_aUpdates[iCPU-3][iCPU].m_iSize = 30;
 	m_aUpdates[iCPU-3][iCPU].m_iProductionToInstall = 30;
 
 	m_aUpdates[iCPU-2][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-2][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-2][iCPU].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
-	m_aUpdates[iCPU-2][iCPU].m_iValue = 4;
+	m_aUpdates[iCPU-2][iCPU].m_flValue = 4;
 	m_aUpdates[iCPU-2][iCPU].m_iSize = 12;
 	m_aUpdates[iCPU-2][iCPU].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU-1][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-1][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-1][iCPU].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU-1][iCPU].m_iValue = 1;
+	m_aUpdates[iCPU-1][iCPU].m_flValue = 1;
 	m_aUpdates[iCPU-1][iCPU].m_iSize = 6;
 	m_aUpdates[iCPU-1][iCPU].m_iProductionToInstall = 10;
 
 	m_aUpdates[iCPU+1][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+1][iCPU].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+1][iCPU].m_iValue = 1;
+	m_aUpdates[iCPU+1][iCPU].m_flValue = 1;
 	m_aUpdates[iCPU+1][iCPU].m_iSize = 6;
 	m_aUpdates[iCPU+1][iCPU].m_iProductionToInstall = 10;
 
 	m_aUpdates[iCPU+2][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+2][iCPU].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
-	m_aUpdates[iCPU+2][iCPU].m_iValue = 3;
+	m_aUpdates[iCPU+2][iCPU].m_flValue = 3;
 	m_aUpdates[iCPU+2][iCPU].m_iSize = 9;
 	m_aUpdates[iCPU+2][iCPU].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU+3][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+3][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+3][iCPU].m_eUpdateType = UPDATETYPE_BANDWIDTH;
-	m_aUpdates[iCPU+3][iCPU].m_iValue = 2;
+	m_aUpdates[iCPU+3][iCPU].m_flValue = 2;
 	m_aUpdates[iCPU+3][iCPU].m_iSize = 18;
 	m_aUpdates[iCPU+3][iCPU].m_iProductionToInstall = 30;
 
@@ -64,35 +64,35 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-2][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-2][iCPU-1].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-2][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU-2][iCPU-1].m_iValue = 2;
+	m_aUpdates[iCPU-2][iCPU-1].m_flValue = 2;
 	m_aUpdates[iCPU-2][iCPU-1].m_iSize = 12;
 	m_aUpdates[iCPU-2][iCPU-1].m_iProductionToInstall = 20;
 
 	m_aUpdates[iCPU-1][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-1][iCPU-1].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-1][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
-	m_aUpdates[iCPU-1][iCPU-1].m_iValue = 3;
+	m_aUpdates[iCPU-1][iCPU-1].m_flValue = 3;
 	m_aUpdates[iCPU-1][iCPU-1].m_iSize = 9;
 	m_aUpdates[iCPU-1][iCPU-1].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU][iCPU-1].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU][iCPU-1].m_iValue = 1;
+	m_aUpdates[iCPU][iCPU-1].m_flValue = 1;
 	m_aUpdates[iCPU][iCPU-1].m_iSize = 6;
 	m_aUpdates[iCPU][iCPU-1].m_iProductionToInstall = 10;
 
 	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU-1].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
-	m_aUpdates[iCPU+1][iCPU-1].m_iValue = 3;
+	m_aUpdates[iCPU+1][iCPU-1].m_flValue = 3;
 	m_aUpdates[iCPU+1][iCPU-1].m_iSize = 9;
 	m_aUpdates[iCPU+1][iCPU-1].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU+2][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU-1].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+2][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+2][iCPU-1].m_iValue = 2;
+	m_aUpdates[iCPU+2][iCPU-1].m_flValue = 2;
 	m_aUpdates[iCPU+2][iCPU-1].m_iSize = 12;
 	m_aUpdates[iCPU+2][iCPU-1].m_iProductionToInstall = 20;
 
@@ -100,21 +100,21 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-1][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-1][iCPU-2].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-1][iCPU-2].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU-1][iCPU-2].m_iValue = 2;
+	m_aUpdates[iCPU-1][iCPU-2].m_flValue = 2;
 	m_aUpdates[iCPU-1][iCPU-2].m_iSize = 12;
 	m_aUpdates[iCPU-1][iCPU-2].m_iProductionToInstall = 20;
 
 	m_aUpdates[iCPU][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU][iCPU-2].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU][iCPU-2].m_eUpdateType = UPDATETYPE_BANDWIDTH;
-	m_aUpdates[iCPU][iCPU-2].m_iValue = 1;
+	m_aUpdates[iCPU][iCPU-2].m_flValue = 1;
 	m_aUpdates[iCPU][iCPU-2].m_iSize = 9;
 	m_aUpdates[iCPU][iCPU-2].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU+1][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU-2].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+1][iCPU-2].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+1][iCPU-2].m_iValue = 2;
+	m_aUpdates[iCPU+1][iCPU-2].m_flValue = 2;
 	m_aUpdates[iCPU+1][iCPU-2].m_iSize = 12;
 	m_aUpdates[iCPU+1][iCPU-2].m_iProductionToInstall = 20;
 
@@ -122,14 +122,14 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU][iCPU-3].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU][iCPU-3].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
-	m_aUpdates[iCPU][iCPU-3].m_iValue = 4;
+	m_aUpdates[iCPU][iCPU-3].m_flValue = 4;
 	m_aUpdates[iCPU][iCPU-3].m_iSize = 12;
 	m_aUpdates[iCPU][iCPU-3].m_iProductionToInstall = 20;
 
 
 	m_aUpdates[iCPU+3][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTURE;
-	m_aUpdates[iCPU+2][iCPU-1].m_eStructure = STRUCTURE_PSU;
-	m_aUpdates[iCPU+2][iCPU-1].m_iSize = 30;
+	m_aUpdates[iCPU+3][iCPU-1].m_eStructure = STRUCTURE_PSU;
+	m_aUpdates[iCPU+3][iCPU-1].m_iSize = 30;
 
 	m_aUpdates[iCPU+2][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTURE;
 	m_aUpdates[iCPU+2][iCPU-2].m_eStructure = STRUCTURE_BUFFER;
@@ -146,6 +146,49 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-3][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTURE;
 	m_aUpdates[iCPU-3][iCPU-1].m_eStructure = STRUCTURE_TANKLOADER;
 	m_aUpdates[iCPU-3][iCPU-1].m_iSize = 50;
+
+
+	m_aUpdates[iCPU+2][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+2][iCPU-3].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+2][iCPU-3].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
+	m_aUpdates[iCPU+2][iCPU-3].m_flValue = 1;
+	m_aUpdates[iCPU+2][iCPU-3].m_iSize = 18;
+	m_aUpdates[iCPU+2][iCPU-3].m_iProductionToInstall = 35;
+
+	m_aUpdates[iCPU+2][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+2][iCPU-4].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+2][iCPU-4].m_eUpdateType = UPDATETYPE_BANDWIDTH;
+	m_aUpdates[iCPU+2][iCPU-4].m_flValue = 1;
+	m_aUpdates[iCPU+2][iCPU-4].m_iSize = 21;
+	m_aUpdates[iCPU+2][iCPU-4].m_iProductionToInstall = 40;
+
+	m_aUpdates[iCPU+2][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+2][iCPU-5].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+2][iCPU-5].m_eUpdateType = UPDATETYPE_SUPPORTENERGY;
+	m_aUpdates[iCPU+2][iCPU-5].m_flValue = 1;
+	m_aUpdates[iCPU+2][iCPU-5].m_iSize = 24;
+	m_aUpdates[iCPU+2][iCPU-5].m_iProductionToInstall = 45;
+
+	m_aUpdates[iCPU+3][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+3][iCPU-4].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+3][iCPU-4].m_eUpdateType = UPDATETYPE_SUPPORTRECHARGE;
+	m_aUpdates[iCPU+3][iCPU-4].m_flValue = 0.5f;
+	m_aUpdates[iCPU+3][iCPU-4].m_iSize = 24;
+	m_aUpdates[iCPU+3][iCPU-4].m_iProductionToInstall = 45;
+
+	m_aUpdates[iCPU+3][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+3][iCPU-5].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+3][iCPU-5].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
+	m_aUpdates[iCPU+3][iCPU-5].m_flValue = 2;
+	m_aUpdates[iCPU+3][iCPU-5].m_iSize = 27;
+	m_aUpdates[iCPU+3][iCPU-5].m_iProductionToInstall = 50;
+
+	m_aUpdates[iCPU+4][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+4][iCPU-4].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+4][iCPU-4].m_eUpdateType = UPDATETYPE_SUPPORTENERGY;
+	m_aUpdates[iCPU+4][iCPU-4].m_flValue = 2;
+	m_aUpdates[iCPU+4][iCPU-4].m_iSize = 27;
+	m_aUpdates[iCPU+4][iCPU-4].m_iProductionToInstall = 50;
 
 
 	m_iLowestX = UPDATE_GRID_SIZE;
@@ -248,6 +291,14 @@ std::string CUpdateItem::GetName()
 
 		case UPDATETYPE_FLEETSUPPLY:
 			sResult.append("Fleet Supply");
+			break;
+
+		case UPDATETYPE_SUPPORTENERGY:
+			sResult.append("Support Energy Bonus");
+			break;
+
+		case UPDATETYPE_SUPPORTRECHARGE:
+			sResult.append("Support Recharge Bonus");
 			break;
 		}
 	}

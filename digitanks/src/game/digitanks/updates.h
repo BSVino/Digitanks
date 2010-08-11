@@ -15,7 +15,7 @@ public:
 	unittype_t		m_eStructure;
 
 	updatetype_t	m_eUpdateType;
-	size_t			m_iValue;
+	float			m_flValue;
 
 	size_t			m_iSize;
 

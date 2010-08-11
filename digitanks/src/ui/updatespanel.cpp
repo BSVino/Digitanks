@@ -67,7 +67,7 @@ void CUpdatesPanel::Layout()
 
 			m_apUpdates.push_back(new CUpdateButton(this));
 			CUpdateButton* pUpdate = m_apUpdates[m_apUpdates.size()-1];
-			pUpdate->SetSize(iButtonSize, iButtonSize);
+			pUpdate->SetSize(iButtonSize-2, iButtonSize-1);
 			pUpdate->SetPos((i-iLowestX)*iButtonSize, (j-iLowestY)*iButtonSize);
 			pUpdate->SetFontFaceSize(10);
 			pUpdate->SetLocation(i, j);
@@ -146,7 +146,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	std::stringstream s;
 	s << pInfo->GetName() << "\n \n";
-	s << "Increase: " << pInfo->m_iValue << "\n";
+	s << "Increase: " << pInfo->m_flValue << "\n";
 	s << "Download size: " << pInfo->m_iSize << "\n";
 	s << "Power to install: " << pInfo->m_iProductionToInstall << "\n";
 

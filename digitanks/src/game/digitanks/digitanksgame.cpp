@@ -115,6 +115,7 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	m_hTerrain = Game()->Create<CTerrain>("CTerrain");
 
 	m_eGameType = eGameType;
+	m_iTurn = 0;
 
 	if (eGameType == GAMETYPE_STANDARD)
 		SetupStandard();
@@ -671,6 +672,9 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 {
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
+
+	if (m_iCurrentTeam == 0)
+		m_iTurn++;
 
 	if (m_pListener)
 		m_pListener->ClearTurnInfo();

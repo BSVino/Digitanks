@@ -11,11 +11,14 @@ public:
 	virtual void				Spawn();
 	virtual void				Precache();
 
-	virtual size_t				InitialDataStrength() { return 300; };
-	virtual size_t				InitialFleetPoints() const { return 4; };
-	virtual float				TotalHealth() const { return 25; };
+	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	virtual void				UpdateInfo(std::string& sInfo);
+
+	virtual size_t				InitialDataStrength() { return 300; };
+	virtual size_t				InitialFleetPoints() const { return 1; };
+	virtual size_t				InitialBandwidth() const { return 0; };
+	virtual float				TotalHealth() const { return 25; };
 
 	virtual const char*			GetName() { return "Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BUFFER; };

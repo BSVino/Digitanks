@@ -198,6 +198,8 @@ public:
 	EVENT_CALLBACK(CHUD, InstallProduction);
 	EVENT_CALLBACK(CHUD, InstallBandwidth);
 	EVENT_CALLBACK(CHUD, InstallFleetSupply);
+	EVENT_CALLBACK(CHUD, InstallEnergyBonus);
+	EVENT_CALLBACK(CHUD, InstallRechargeBonus);
 	EVENT_CALLBACK(CHUD, CancelInstall);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
