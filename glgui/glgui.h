@@ -197,7 +197,7 @@ namespace glgui
 		virtual int		GetRight() { return m_iX + m_iW; };
 		virtual int		GetBottom() { return m_iY + m_iH; };
 
-		virtual void	SetVisible(bool bVis) { m_bVisible = bVis; };
+		virtual void	SetVisible(bool bVis);
 		virtual bool	IsVisible();
 
 		virtual void	LevelShutdown( void ) { return; };

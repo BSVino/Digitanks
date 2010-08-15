@@ -36,6 +36,7 @@ public:
 
 	void						AddProduction(size_t iProduction);
 	void						AddProducer() { m_iLoadersProducing++; };
+	size_t						GetNumProducers() { return m_iLoadersProducing; };
 	float						GetProductionPerLoader();
 	size_t						GetTotalProduction() { return m_iProduction; };
 
@@ -57,12 +58,12 @@ public:
 	void						DownloadUpdate(int iX, int iY, bool bCheck = true);
 	size_t						GetUpdateDownloaded() { return m_iUpdateDownloaded; };
 	size_t						GetUpdateSize();
-	void						DownloadComplete();
+	void						DownloadComplete(bool bInformMembers = true);
 	bool						HasDownloadedUpdate(int iX, int iY);
 	bool						CanDownloadUpdate(int iX, int iY);
 	bool						IsDownloading(int iX, int iY);
-	class CUpdateItem*			GetUpdateInstalling();
-	size_t						GetTurnsToInstall();
+	class CUpdateItem*			GetUpdateDownloading();
+	size_t						GetTurnsToDownload();
 
 	bool						CanBuildBuffers();
 	bool						CanBuildPSUs();
@@ -72,6 +73,7 @@ public:
 	bool						CanBuildArtilleryLoaders();
 
 	// AI stuff
+	void						Bot_DownloadUpdates();
 	void						Bot_ExpandBase();
 	void						Bot_BuildUnits();
 	void						Bot_AssignDefenders();

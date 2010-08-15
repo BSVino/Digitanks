@@ -64,6 +64,8 @@ void CLoader::StartTurn()
 			// Face him toward the center.
 			pTank->SetAngles(EAngle(0, VectorAngles(-GetOrigin().Normalized()).y, 0));
 
+			GetTeam()->AddEntity(pTank);
+
 			for (size_t i = 0; i < m_iTankAttack; i++)
 			{
 				pTank->GiveBonusPoints(1, false);
@@ -84,8 +86,6 @@ void CLoader::StartTurn()
 
 			pTank->SetTotalHealth(pTank->GetTotalHealth()+m_iTankHealth);
 			pTank->AddRangeBonus((float)m_iTankRange);
-
-			GetTeam()->AddEntity(pTank);
 
 			m_bProducing = false;
 
@@ -329,6 +329,14 @@ void CLoader::CancelProduction()
 	m_bProducing = false;
 
 	GetDigitanksTeam()->CountFleetPoints();
+}
+
+void CLoader::InstallUpdate(updatetype_t eUpdate)
+{
+	if (m_bProducing)
+		return;
+
+	BaseClass::InstallUpdate(eUpdate);
 }
 
 void CLoader::InstallComplete()

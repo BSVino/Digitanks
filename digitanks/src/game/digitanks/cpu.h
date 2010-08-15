@@ -37,6 +37,7 @@ public:
 	CStructure*					GetConstructing() { return m_hConstructing; }
 
 	virtual bool				HasUpdatesAvailable();
+	virtual void				InstallUpdate(updatetype_t eUpdate);
 
 	virtual void				StartTurn();
 

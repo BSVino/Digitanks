@@ -1990,8 +1990,10 @@ void CDigitank::PromoteAttack()
 	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
 	if (GetTeam()->IsPlayerControlled())
+	{
 		Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	}
 }
 
 void CDigitank::PromoteDefense()
@@ -2010,8 +2012,11 @@ void CDigitank::PromoteDefense()
 
 	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
-	Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	if (GetTeam()->IsPlayerControlled())
+	{
+		Speak(TANKSPEECH_PROMOTED);
+		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	}
 }
 
 void CDigitank::PromoteMovement()
@@ -2030,8 +2035,11 @@ void CDigitank::PromoteMovement()
 
 	CNetwork::CallFunction(-1, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
-	Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	if (GetTeam()->IsPlayerControlled())
+	{
+		Speak(TANKSPEECH_PROMOTED);
+		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	}
 }
 
 void CDigitank::SetBonusPoints(class CNetworkParameters* p)

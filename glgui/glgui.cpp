@@ -67,6 +67,14 @@ void CBaseControl::SetBottom(int b)
 	m_iH = b - m_iY;
 }
 
+void CBaseControl::SetVisible(bool bVis)
+{
+	if (bVis && !m_bVisible)
+		Layout();
+
+	m_bVisible = bVis;
+}
+
 bool CBaseControl::IsVisible()
 {
 	if (GetParent() && !GetParent()->IsVisible())

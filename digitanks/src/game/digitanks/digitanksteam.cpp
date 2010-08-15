@@ -175,6 +175,9 @@ void CDigitanksTeam::StartTurn()
 		if (pStructure && pStructure->IsConstructing())
 			AddProducer();
 
+		if (pStructure && pStructure->IsInstalling())
+			AddProducer();
+
 		if (pStructure && pStructure->Power())
 			AddProduction(pStructure->Power());
 
@@ -221,7 +224,7 @@ void CDigitanksTeam::StartTurn()
 		if (GetUpdateDownloaded() >= GetUpdateSize())
 		{
 			std::stringstream s;
-			s << "'" << GetUpdateInstalling()->GetName() << "' finished downloading.";
+			s << "'" << GetUpdateDownloading()->GetName() << "' finished downloading.";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 
 			DownloadComplete();
@@ -229,7 +232,7 @@ void CDigitanksTeam::StartTurn()
 		else
 		{
 			std::stringstream s;
-			s << "Downloading '" << GetUpdateInstalling()->GetName() << "' (" << GetTurnsToInstall() << " turns left)";
+			s << "Downloading '" << GetUpdateDownloading()->GetName() << "' (" << GetTurnsToDownload() << " turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
@@ -398,7 +401,7 @@ size_t CDigitanksTeam::GetUpdateSize()
 	return DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY].m_iSize;
 }
 
-void CDigitanksTeam::DownloadComplete()
+void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 {
 	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
 		return;
@@ -410,13 +413,16 @@ void CDigitanksTeam::DownloadComplete()
 
 	m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY] = true;
 
-	for (size_t i = 0; i < GetNumMembers(); i++)
+	if (bInformMembers)
 	{
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(GetMember(i));
-		if (!pEntity)
-			continue;
+		for (size_t i = 0; i < GetNumMembers(); i++)
+		{
+			CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(GetMember(i));
+			if (!pEntity)
+				continue;
 
-		pEntity->DownloadComplete(pItem);
+			pEntity->DownloadComplete(pItem);
+		}
 	}
 
 	if (pItem->m_eUpdateClass == UPDATECLASS_STRUCTURE)
@@ -457,6 +463,17 @@ bool CDigitanksTeam::HasDownloadedUpdate(int iX, int iY)
 
 bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY)
 {
+	if (HasDownloadedUpdate(iX, iY))
+		return false;
+
+	CUpdateGrid* pGrid = DigitanksGame()->GetUpdateGrid();
+
+	if (!pGrid)
+		return false;
+
+	if (pGrid->m_aUpdates[iX][iY].m_eUpdateClass == UPDATECLASS_EMPTY)
+		return false;
+
 	if (iX > 0 && m_abUpdates[iX-1][iY])
 		return true;
 
@@ -477,7 +494,7 @@ bool CDigitanksTeam::IsDownloading(int iX, int iY)
 	return m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY;
 }
 
-CUpdateItem* CDigitanksTeam::GetUpdateInstalling()
+CUpdateItem* CDigitanksTeam::GetUpdateDownloading()
 {
 	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
 		return NULL;
@@ -485,7 +502,7 @@ CUpdateItem* CDigitanksTeam::GetUpdateInstalling()
 	return &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
 }
 
-size_t CDigitanksTeam::GetTurnsToInstall()
+size_t CDigitanksTeam::GetTurnsToDownload()
 {
 	return (size_t)((GetUpdateSize()-m_iUpdateDownloaded)/GetBandwidth())+1;
 }

@@ -328,19 +328,47 @@ void CCPU::BeginConstruction()
 	if (!IsPreviewBuildValid())
 		return;
 
+	if (IsInstalling())
+		return;
+
 	if (m_hConstructing != NULL)
 		CancelConstruction();
 
 	if (m_ePreviewStructure == STRUCTURE_BUFFER)
+	{
+		if (!GetDigitanksTeam()->CanBuildBuffers())
+			return;
+
 		m_hConstructing = Game()->Create<CBuffer>("CBuffer");
+	}
 	else if (m_ePreviewStructure == STRUCTURE_PSU)
+	{
+		if (!GetDigitanksTeam()->CanBuildPSUs())
+			return;
+
 		m_hConstructing = Game()->Create<CCollector>("CCollector");
+	}
 	else if (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER)
+	{
+		if (!GetDigitanksTeam()->CanBuildInfantryLoaders())
+			return;
+
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+	}
 	else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
+	{
+		if (!GetDigitanksTeam()->CanBuildTankLoaders())
+			return;
+
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+	}
 	else if (m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER)
+	{
+		if (!GetDigitanksTeam()->CanBuildArtilleryLoaders())
+			return;
+
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+	}
 
 	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->SetOrigin(GetPreviewBuild());
@@ -415,6 +443,14 @@ bool CCPU::HasUpdatesAvailable()
 		return true;
 
 	return false;
+}
+
+void CCPU::InstallUpdate(updatetype_t eUpdate)
+{
+	if (HasConstruction())
+		return;
+
+	BaseClass::InstallUpdate(eUpdate);
 }
 
 void CCPU::StartTurn()

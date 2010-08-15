@@ -34,7 +34,7 @@ public:
 	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
 	void						AddProduction(size_t iProduction);
 
-	void						InstallUpdate(updatetype_t eUpdate);
+	virtual void				InstallUpdate(updatetype_t eUpdate);
 	virtual void				InstallComplete();
 	void						CancelInstall();
 	size_t						GetTurnsToInstall();

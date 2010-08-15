@@ -29,6 +29,7 @@ public:
 	bool						IsProducing() { return m_bProducing; };
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 
+	virtual void				InstallUpdate(updatetype_t eUpdate);
 	virtual void				InstallComplete();
 	virtual bool				HasUpdatesAvailable();
 

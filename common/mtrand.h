@@ -11,4 +11,9 @@ inline float RandomFloat(float flLow, float flHigh)
 	return RemapVal((float)(mtrand()%999999), 0, 999999, flLow, flHigh);
 }
 
+inline int RandomInt(int iLow, int iHigh)
+{
+	return mtrand()%(iHigh-iLow) + iLow;
+}
+
 #endif

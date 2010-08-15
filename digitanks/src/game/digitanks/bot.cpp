@@ -4,6 +4,7 @@
 #include <mtrand.h>
 
 #include "digitanksgame.h"
+#include "updates.h"
 #include "resource.h"
 #include "loader.h"
 
@@ -14,21 +15,106 @@
 unittype_t g_aeBuildOrder[] =
 {
 	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
 	STRUCTURE_INFANTRYLOADER,
 	STRUCTURE_BUFFER,
-	STRUCTURE_BUFFER,
 	STRUCTURE_PSU,
-	STRUCTURE_BUFFER,
 	STRUCTURE_TANKLOADER,
 	STRUCTURE_BUFFER,
 	STRUCTURE_PSU,
-	STRUCTURE_BUFFER,
-	STRUCTURE_BUFFER,
 	STRUCTURE_ARTILLERYLOADER,
+	STRUCTURE_BUFFER,
 };
+
+typedef struct
+{
+	size_t x;
+	size_t y;
+} update_coordinate_t;
+
+void CDigitanksTeam::Bot_DownloadUpdates()
+{
+	CUpdateGrid* pGrid = DigitanksGame()->GetUpdateGrid();
+	if (!pGrid)
+		return;
+
+	if (GetUpdateDownloading())
+		return;
+
+	std::vector<update_coordinate_t> aUpdatesAvailable;
+
+	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+	{
+		for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+		{
+			if (!CanDownloadUpdate(x, y))
+				continue;
+
+			if (pGrid->m_aUpdates[x][y].m_eUpdateClass == UPDATECLASS_STRUCTURE)
+			{
+				// If it's a structure we need then it's top priority, grab it NAOW.
+				if (pGrid->m_aUpdates[x][y].m_eStructure == g_aeBuildOrder[m_iBuildPosition])
+				{
+					DownloadUpdate(x, y);
+					return;
+				}
+				// Otherwise skip it for now. We don't want it downloading artilleries when we really need power supplies.
+				else
+					continue;
+			}
+
+			aUpdatesAvailable.push_back(update_coordinate_t());
+			aUpdatesAvailable[aUpdatesAvailable.size()-1].x = x;
+			aUpdatesAvailable[aUpdatesAvailable.size()-1].y = y;
+		}
+	}
+
+	if (!aUpdatesAvailable.size())
+		return;
+
+	size_t iRandom = RandomInt(0, aUpdatesAvailable.size()-1);
+	size_t x, y;
+	x = aUpdatesAvailable[iRandom].x;
+	y = aUpdatesAvailable[iRandom].y;
+	DownloadUpdate(x, y);
+}
 
 void CDigitanksTeam::Bot_ExpandBase()
 {
+	if (GetNumProducers() < 3)
+	{
+		for (size_t i = 0; i < m_ahMembers.size(); i++)
+		{
+			CBaseEntity* pEntity = m_ahMembers[i];
+			if (!pEntity)
+				continue;
+
+			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+			if (!pStructure)
+				continue;
+
+			if (!pStructure->HasUpdatesAvailable())
+				continue;
+
+			if (pStructure->IsInstalling())
+				continue;
+
+			// Give the CPU a chance to build structures.
+			if (dynamic_cast<CCPU*>(pStructure) && mtrand()%2 == 0)
+				continue;
+
+			for (size_t u = 0; u < UPDATETYPE_SIZE; u++)
+			{
+				int iUpdate = pStructure->GetFirstUninstalledUpdate((updatetype_t)u);
+				if (iUpdate < 0)
+					continue;
+
+				pStructure->InstallUpdate((updatetype_t)u);
+				break;
+			}
+		}
+	}
+
 	if (m_hPrimaryCPU == NULL)
 		return;
 
@@ -36,20 +122,31 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU->HasConstruction())
 		return;
 
-	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(unittype_t))
-		m_iBuildPosition = 0;
-
-	if (m_iProduction < 8)
-	{
-		// Find the closest electronode and build a collector.
-		CResource* pClosest = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin());
-		if (pClosest)
-			BuildCollector(m_hPrimaryCPU, pClosest);
-
+	if (m_hPrimaryCPU->IsInstalling())
 		return;
+
+	if (GetNumProducers() >= 3)
+		return;
+
+	unittype_t iNextBuild;
+	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(unittype_t))
+		iNextBuild = STRUCTURE_PSU;
+	else
+		iNextBuild = g_aeBuildOrder[m_iBuildPosition];
+
+	bool bBumpBuildPosition = true;
+
+	if (iNextBuild == STRUCTURE_PSU)
+	{
+		if (!CanBuildPSUs())
+		{
+			// If we can build PSU's we can build buffers. Build buffers while we wait.
+			iNextBuild = STRUCTURE_BUFFER;
+			bBumpBuildPosition = false;
+		}
 	}
 
-	if (g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_PSU)
+	if (iNextBuild == STRUCTURE_PSU)
 	{
 		CResource* pTargetResource = NULL;
 		while (true)
@@ -92,10 +189,40 @@ void CDigitanksTeam::Bot_ExpandBase()
 			return;
 		}
 
-		// Too damn far? Don't bother.
+		// Too damn far? Do a random buffer instead.
 		if ((pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
 		{
-			m_iBuildPosition++;
+			CSupplier* pUnused = FindUnusedSupplier(4, false);
+
+			float flYaw;
+			if (pUnused == m_hPrimaryCPU)
+				flYaw = RandomFloat(0, 360);
+			else
+			{
+				flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
+				flYaw = RandomFloat(flYaw-90, flYaw+90);
+			}
+
+			// Pick a random direction facing more or less away from the CPU so that we spread outwards.
+			Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
+			Vector vecStructure = pUnused->GetOrigin();
+			vecStructure += vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
+
+			// Don't build structures too close to the map edges.
+			if (vecStructure.x < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
+				return;
+			if (vecStructure.z < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
+				return;
+			if (vecStructure.x > DigitanksGame()->GetTerrain()->GetMapSize()-15)
+				return;
+			if (vecStructure.z > DigitanksGame()->GetTerrain()->GetMapSize()-15)
+				return;
+
+			DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
+
+			m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_BUFFER);
+			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+			m_hPrimaryCPU->BeginConstruction();
 			return;
 		}
 
@@ -121,9 +248,41 @@ void CDigitanksTeam::Bot_ExpandBase()
 		return;
 	}
 
+	// If we can't build this kind of structure then return without trying to do anything
+	// and wait until we can.
+	if (iNextBuild == STRUCTURE_BUFFER)
+	{
+		if (!CanBuildBuffers())
+			return;
+	}
+	else if (iNextBuild == STRUCTURE_TANKLOADER)
+	{
+		if (!CanBuildTankLoaders())
+		{
+			iNextBuild = STRUCTURE_BUFFER;
+			bBumpBuildPosition = false;
+		}
+	}
+	else if (iNextBuild == STRUCTURE_INFANTRYLOADER)
+	{
+		if (!CanBuildInfantryLoaders())
+		{
+			iNextBuild = STRUCTURE_BUFFER;
+			bBumpBuildPosition = false;
+		}
+	}
+	else if (iNextBuild == STRUCTURE_ARTILLERYLOADER)
+	{
+		if (!CanBuildArtilleryLoaders())
+		{
+			iNextBuild = STRUCTURE_BUFFER;
+			bBumpBuildPosition = false;
+		}
+	}
+
 	CSupplier* pUnused = NULL;
 
-	if (g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_BUFFER)
+	if (iNextBuild == STRUCTURE_BUFFER)
 		pUnused = FindUnusedSupplier(4, false);
 	else
 		pUnused = FindUnusedSupplier(2);
@@ -140,8 +299,14 @@ void CDigitanksTeam::Bot_ExpandBase()
 	// Pick a random direction facing more or less away from the CPU so that we spread outwards.
 	Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
 	Vector vecStructure = pUnused->GetOrigin();
-	if (g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_BUFFER)
-		vecStructure += vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
+	if (iNextBuild == STRUCTURE_BUFFER)
+	{
+		Vector vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*9/10;
+		if (CSupplier::GetDataFlow(vecPreview, this) <= 0)
+			vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
+
+		vecStructure = vecPreview;
+	}
 	else
 		vecStructure += vecStructureDirection.Normalized() * 20;
 
@@ -157,15 +322,20 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
 
-	m_hPrimaryCPU->SetPreviewStructure(g_aeBuildOrder[m_iBuildPosition]);
+	m_hPrimaryCPU->SetPreviewStructure(iNextBuild);
 	m_hPrimaryCPU->SetPreviewBuild(vecStructure);
 	m_hPrimaryCPU->BeginConstruction();
 
-	m_iBuildPosition++;
+	if (bBumpBuildPosition)
+		m_iBuildPosition++;
 }
 
 void CDigitanksTeam::Bot_BuildUnits()
 {
+	// Above code is capped at 3 producers, but we make this 4 so we always have a guarantee to be creating units.
+	if (GetNumProducers() >= 4)
+		return;
+
 	size_t iInfantry = 0;
 	size_t iMainTanks = 0;
 	size_t iArtillery = 0;
@@ -194,6 +364,9 @@ void CDigitanksTeam::Bot_BuildUnits()
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
+		if (GetNumProducers() >= 4)
+			continue;
+
 		CBaseEntity* pEntity = m_ahMembers[i];
 		if (!pEntity)
 			continue;
@@ -304,6 +477,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		return;
 	}
 
+	Bot_DownloadUpdates();
 	Bot_ExpandBase();
 	Bot_BuildUnits();
 	Bot_AssignDefenders();

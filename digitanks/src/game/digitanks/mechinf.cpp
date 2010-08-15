@@ -115,7 +115,7 @@ CProjectile* CMechInfantry::CreateProjectile()
 
 float CMechInfantry::GetProjectileDamage()
 {
-	return GetAttackPower()/100;
+	return GetAttackPower()/80;
 }
 
 bool CMechInfantry::AllowControlMode(controlmode_t eMode)
@@ -139,7 +139,7 @@ float CMechInfantry::GetBonusDefensePower(bool bPreview)
 float CMechInfantry::GetFortifyAttackPowerBonus()
 {
 	if (m_bFortified)
-		return ((float)m_iFortifyLevel)/2;
+		return (float)m_iFortifyLevel;
 	else
 		return 0;
 }

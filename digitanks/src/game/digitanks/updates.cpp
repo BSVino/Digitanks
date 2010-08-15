@@ -8,12 +8,6 @@ void CUpdateGrid::SetupStandardUpdates()
 
 	memset(&m_aUpdates[0][0], 0, sizeof(m_aUpdates));
 
-	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
-	{
-		DigitanksGame()->GetDigitanksTeam(i)->DownloadUpdate(iCPU, iCPU, false);
-		DigitanksGame()->GetDigitanksTeam(i)->DownloadComplete();
-	}
-
 	m_aUpdates[iCPU][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTURE;
 	m_aUpdates[iCPU][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU][iCPU].m_iSize = 0;
@@ -63,35 +57,35 @@ void CUpdateGrid::SetupStandardUpdates()
 
 	m_aUpdates[iCPU-2][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-2][iCPU-1].m_eStructure = STRUCTURE_CPU;
-	m_aUpdates[iCPU-2][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
+	m_aUpdates[iCPU-2][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
 	m_aUpdates[iCPU-2][iCPU-1].m_flValue = 2;
 	m_aUpdates[iCPU-2][iCPU-1].m_iSize = 12;
 	m_aUpdates[iCPU-2][iCPU-1].m_iProductionToInstall = 20;
 
 	m_aUpdates[iCPU-1][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-1][iCPU-1].m_eStructure = STRUCTURE_CPU;
-	m_aUpdates[iCPU-1][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
+	m_aUpdates[iCPU-1][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
 	m_aUpdates[iCPU-1][iCPU-1].m_flValue = 3;
 	m_aUpdates[iCPU-1][iCPU-1].m_iSize = 9;
 	m_aUpdates[iCPU-1][iCPU-1].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU][iCPU-1].m_eStructure = STRUCTURE_CPU;
-	m_aUpdates[iCPU][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
+	m_aUpdates[iCPU][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
 	m_aUpdates[iCPU][iCPU-1].m_flValue = 1;
 	m_aUpdates[iCPU][iCPU-1].m_iSize = 6;
 	m_aUpdates[iCPU][iCPU-1].m_iProductionToInstall = 10;
 
 	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU-1].m_eStructure = STRUCTURE_CPU;
-	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
+	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
 	m_aUpdates[iCPU+1][iCPU-1].m_flValue = 3;
 	m_aUpdates[iCPU+1][iCPU-1].m_iSize = 9;
 	m_aUpdates[iCPU+1][iCPU-1].m_iProductionToInstall = 15;
 
 	m_aUpdates[iCPU+2][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU-1].m_eStructure = STRUCTURE_CPU;
-	m_aUpdates[iCPU+2][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
+	m_aUpdates[iCPU+2][iCPU-1].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
 	m_aUpdates[iCPU+2][iCPU-1].m_flValue = 2;
 	m_aUpdates[iCPU+2][iCPU-1].m_iSize = 12;
 	m_aUpdates[iCPU+2][iCPU-1].m_iProductionToInstall = 20;
@@ -319,6 +313,21 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-1][iCPU-7].m_iSize = 27;
 	m_aUpdates[iCPU-1][iCPU-7].m_iProductionToInstall = 50;
 
+
+	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	{
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadUpdate(iCPU, iCPU, false);
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadComplete(false);
+
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadUpdate(iCPU+1, iCPU, false);
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadComplete(false);
+
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadUpdate(iCPU-1, iCPU, false);
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadComplete(false);
+
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadUpdate(iCPU, iCPU-1, false);
+		DigitanksGame()->GetDigitanksTeam(i)->DownloadComplete(false);
+	}
 
 	m_iLowestX = UPDATE_GRID_SIZE;
 	m_iHighestX = 0;

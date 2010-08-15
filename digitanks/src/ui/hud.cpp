@@ -1042,7 +1042,7 @@ void CHUD::NewCurrentTeam()
 	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 	{
 		// Don't open the research window on the first turn, give the player a chance to see the game grid first.
-		if (DigitanksGame()->GetTurn() >= 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateInstalling())
+		if (DigitanksGame()->GetTurn() >= 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
 			m_pUpdatesPanel->SetVisible(true);
 	}
 }
