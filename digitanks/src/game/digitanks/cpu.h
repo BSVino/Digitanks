@@ -60,6 +60,9 @@ protected:
 	size_t						m_iFanModel;
 	float						m_flFanRotationSpeed;
 	float						m_flFanRotation;
+
+	static size_t				s_iCancelIcon;
+	static size_t				s_iBuildPSUIcon;
 };
 
 #endif

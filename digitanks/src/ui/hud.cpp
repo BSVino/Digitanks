@@ -84,8 +84,6 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 
 	CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
 
-	CRootPanel::PaintRect(x, y, w, h, Color(255, 255, 255, 128));
-
 	if (m_ePowerbarType == POWERBAR_HEALTH)
 		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetHealth() / pSelection->GetTotalHealth())-2, h-2, Color(0, 150, 0));
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
@@ -191,11 +189,23 @@ CHUD::CHUD()
 	m_pFPS->SetPos(20, 20);
 	m_pFPS->SetText("Free Demo");
 
-	m_pTeamInfo = new CLabel(0, 0, 200, 20, "");
-	AddControl(m_pTeamInfo);
+	m_pPowerInfo = new CLabel(0, 0, 200, 20, "");
+	AddControl(m_pPowerInfo);
 
-	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
-	m_pTeamInfo->SetPos(200, 20);
+	m_pPowerInfo->SetAlign(CLabel::TA_TOPCENTER);
+	m_pPowerInfo->SetPos(200, 20);
+
+	m_pFleetInfo = new CLabel(0, 0, 200, 20, "");
+	AddControl(m_pFleetInfo);
+
+	m_pFleetInfo->SetAlign(CLabel::TA_TOPCENTER);
+	m_pFleetInfo->SetPos(200, 20);
+
+	m_pBandwidthInfo = new CLabel(0, 0, 200, 20, "");
+	AddControl(m_pBandwidthInfo);
+
+	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPCENTER);
+	m_pBandwidthInfo->SetPos(200, 20);
 
 	m_pUpdatesButton = new CButton(0, 0, 140, 30, "Download Updates");
 	m_pUpdatesButton->SetClickedListener(this, OpenUpdates);
@@ -210,10 +220,16 @@ CHUD::CHUD()
 	m_flTurnInfoLerp = m_flTurnInfoLerpGoal = 0;
 	m_flTurnInfoHeight = m_flTurnInfoHeightGoal = 0;
 
+	m_iHUDGraphic = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main.png");
+
 	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
 
 	m_iSpeechBubble = CRenderer::LoadTextureIntoGL(L"textures/hud/bubble.png");
+
+	m_iPowerIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-power.png");
+	m_iFleetPointsIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fleet.png");
+	m_iBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-bandwidth.png");
 
 	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
@@ -228,19 +244,19 @@ void CHUD::Layout()
 	m_pAttackInfo->SetPos(iWidth - 180, iHeight - 150 - 10 - 100 + 3);
 	m_pAttackInfo->SetSize(170, 100);
 
-	m_pHealthBar->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 140);
+	m_pHealthBar->SetPos(iWidth/2 - 720/2 + 170, iHeight - 140);
 	m_pHealthBar->SetSize(200, 20);
 
-	m_pAttackPower->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 90);
+	m_pAttackPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 90);
 	m_pAttackPower->SetSize(200, 20);
 
-	m_pDefensePower->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 60);
+	m_pDefensePower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 60);
 	m_pDefensePower->SetSize(200, 20);
 
-	m_pMovementPower->SetPos(iWidth/2 - 1024/2 + 350, iHeight - 30);
+	m_pMovementPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
-	m_pButtonPanel->SetPos(iWidth/2 - 1024/2 + 560, iHeight - 140);
+	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
 	m_pButtonPanel->SetRight(m_pButtonPanel->GetLeft() + 330);
 	m_pButtonPanel->SetBottom(iHeight - 10);
 
@@ -275,10 +291,10 @@ void CHUD::Layout()
 	m_pButtonHelp4->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pButtonHelp5->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 
-	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
-	m_pRightShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
-	m_pRearShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 25, 50, 10);
-	m_pFrontShieldInfo->SetDimensions(iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 35, 50, 10);
+	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
+	m_pRightShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
+	m_pRearShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 25, 50, 10);
+	m_pFrontShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 35, 50, 10);
 
 	m_pLeftShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pRightShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
@@ -313,9 +329,17 @@ void CHUD::Layout()
 	m_pPressEnter->SetWrap(false);
 	m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
 
-	m_pTeamInfo->SetAlign(CLabel::TA_TOPCENTER);
-	m_pTeamInfo->SetPos(iWidth - 220, 20);
-	m_pTeamInfo->SetWrap(false);
+	m_pPowerInfo->SetAlign(CLabel::TA_TOPLEFT);
+	m_pPowerInfo->SetPos(iWidth - 290, 20);
+	m_pPowerInfo->SetWrap(false);
+
+	m_pFleetInfo->SetAlign(CLabel::TA_TOPLEFT);
+	m_pFleetInfo->SetPos(iWidth - 220, 20);
+	m_pFleetInfo->SetWrap(false);
+
+	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPLEFT);
+	m_pBandwidthInfo->SetPos(iWidth - 150, 20);
+	m_pBandwidthInfo->SetWrap(false);
 
 	UpdateTeamInfo();
 	UpdateInfo();
@@ -451,12 +475,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
-	// Nobody runs resolutions under 1024x768 anymore.
-	// Show me my constraints!
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 180, iHeight - 150, 720, 200, Color(255, 255, 255, 100));
+	do {
+		CRenderingContext c(Game()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintTexture(m_iHUDGraphic, iWidth/2 - 720/2, iHeight-160, 720, 160);
 
-	// Shield schematic
-	CRootPanel::PaintRect(iWidth/2 - 1024/2 + 190, iHeight - 150 + 10, 150, 130, Color(0, 0, 0, 100));
+		CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
+		CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
+		CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
+	} while (false);
 
 	// Tank data
 	CRootPanel::PaintRect(m_pTankInfo->GetLeft()-5, m_pTankInfo->GetTop()-10, m_pTankInfo->GetWidth(), m_pTankInfo->GetHeight(), Color(0, 0, 0, 100));
@@ -467,8 +494,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	// Turn info panel
 	CRootPanel::PaintRect(m_pTurnInfo->GetLeft()-5, m_pTurnInfo->GetTop()-10, m_pTurnInfo->GetWidth(), m_pTurnInfo->GetHeight(), Color(0, 0, 0, 100));
-
-	CRootPanel::PaintRect(m_pButtonPanel->GetLeft(), m_pButtonPanel->GetTop(), m_pButtonPanel->GetWidth(), m_pButtonPanel->GetHeight(), Color(0, 0, 0, 100));
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
@@ -560,11 +585,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(Game()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		CRootPanel::PaintTexture(m_iAvatarIcon, iWidth/2 - 1024/2 + 190 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
+		CRootPanel::PaintTexture(m_iAvatarIcon, iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
 
 		c.SetBlend(BLEND_ADDITIVE);
 
-		c.Translate(Vector((float)(iWidth/2 - 1024/2 + 190 + 150/2), (float)(iHeight - 150 + 10 + 130/2), 0));
+		c.Translate(Vector((float)(iWidth/2 - 720/2 + 10 + 150/2), (float)(iHeight - 150 + 10 + 130/2), 0));
 
 		do
 		{
@@ -835,12 +860,18 @@ void CHUD::UpdateStructureInfo(CStructure* pStructure)
 
 void CHUD::UpdateTeamInfo()
 {
-	std::stringstream s;
+	std::stringstream s1;
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-	s << "Power per turn: " << pTeam->GetTotalProduction() << "\n";
-	s << "Fleet Points: " << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints() << "\n";
-	s << "Download: " << pTeam->GetUpdateDownloaded() << "/" << pTeam->GetUpdateSize() << "mb @" << pTeam->GetBandwidth() << "mb/turn";
-	m_pTeamInfo->SetText(s.str().c_str());
+	s1 << pTeam->GetTotalProduction() << "\n";
+	m_pPowerInfo->SetText(s1.str().c_str());
+
+	std::stringstream s2;
+	s2 << pTeam->GetUsedFleetPoints() << "/" << pTeam->GetTotalFleetPoints() << "\n";
+	m_pFleetInfo->SetText(s2.str().c_str());
+
+	std::stringstream s3;
+	s3 << pTeam->GetUpdateDownloaded() << "/" << pTeam->GetUpdateSize() << "mb @" << pTeam->GetBandwidth() << "mbps";
+	m_pBandwidthInfo->SetText(s3.str().c_str());
 }
 
 void CHUD::SetGame(CDigitanksGame *pGame)
@@ -1027,7 +1058,6 @@ void CHUD::NewCurrentTeam()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
 	UpdateTeamInfo();
-	m_pTeamInfo->SetPos(GetWidth() - 200, 20);
 
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
 		m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");

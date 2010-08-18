@@ -262,15 +262,23 @@ protected:
 
 	glgui::CLabel*				m_pFPS;
 
-	glgui::CLabel*				m_pTeamInfo;
+	glgui::CLabel*				m_pPowerInfo;
+	glgui::CLabel*				m_pFleetInfo;
+	glgui::CLabel*				m_pBandwidthInfo;
 
 	glgui::CButton*				m_pUpdatesButton;
 	CUpdatesPanel*				m_pUpdatesPanel;
+
+	size_t						m_iHUDGraphic;
 
 	size_t						m_iAvatarIcon;
 	size_t						m_iShieldIcon;
 
 	size_t						m_iSpeechBubble;
+
+	size_t						m_iPowerIcon;
+	size_t						m_iFleetPointsIcon;
+	size_t						m_iBandwidthIcon;
 
 //	size_t						m_iCompetitionWatermark;
 };

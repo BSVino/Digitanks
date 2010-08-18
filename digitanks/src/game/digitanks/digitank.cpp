@@ -26,6 +26,7 @@ size_t CDigitank::s_iTurnIcon = 0;
 size_t CDigitank::s_iAimIcon = 0;
 size_t CDigitank::s_iFireIcon = 0;
 size_t CDigitank::s_iPromoteIcon = 0;
+size_t CDigitank::s_iFortifyIcon = 0;
 
 size_t CDigitank::s_iAutoMove = 0;
 
@@ -126,6 +127,7 @@ void CDigitank::Precache()
 	s_iAimIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-aim.png");
 	s_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
 	s_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
+	s_iFortifyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fortify.png");
 
 	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
 
@@ -1231,13 +1233,18 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (UseFortifyMenuAim())
 		{
 			if (IsFortified() || IsFortifying())
+			{
 				pHUD->SetButton3Help("Mobilize");
+				pHUD->SetButton3Texture(0);
+			}
 			else
+			{
 				pHUD->SetButton3Help("Fortify");
+				pHUD->SetButton3Texture(s_iFortifyIcon);
+			}
 			pHUD->SetButton3Listener(CHUD::Fortify);
 
 			pHUD->SetButton3Color(Color(0, 0, 150));
-			pHUD->SetButton3Texture(0);
 		}
 		else
 		{

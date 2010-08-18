@@ -17,6 +17,9 @@
 #include "collector.h"
 #include "loader.h"
 
+size_t CCPU::s_iCancelIcon = 0;
+size_t CCPU::s_iBuildPSUIcon = 0;
+
 void CCPU::Spawn()
 {
 	BaseClass::Spawn();
@@ -34,6 +37,9 @@ void CCPU::Precache()
 
 	PrecacheModel(L"models/structures/cpu.obj");
 	PrecacheModel(L"models/structures/cpu-fan.obj");
+
+	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
+	s_iBuildPSUIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-psu.png");
 }
 
 void CCPU::SetupMenu(menumode_t eMenuMode)
@@ -56,7 +62,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton2Texture(0);
 		pHUD->SetButton3Texture(0);
 		pHUD->SetButton4Texture(0);
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 
 		pHUD->SetButton1Help("");
 		pHUD->SetButton2Help("");
@@ -82,7 +88,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton2Texture(0);
 		pHUD->SetButton3Texture(0);
 		pHUD->SetButton4Texture(0);
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 
 		pHUD->SetButton1Help("");
 		pHUD->SetButton2Help("");
@@ -238,7 +244,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton2Listener(CHUD::BuildPSU);
 			pHUD->SetButton2Help("Build\nPwr Supply");
-			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Texture(s_iBuildPSUIcon);
 			pHUD->SetButton2Color(Color(150, 150, 150));
 		}
 
