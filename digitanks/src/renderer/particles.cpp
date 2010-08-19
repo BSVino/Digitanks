@@ -206,6 +206,8 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 
 	for (size_t i = 0; i < m_pSystem->GetNumChildren(); i++)
 		m_apChildren.push_back(new CSystemInstance(pPSL->GetParticleSystem(m_pSystem->GetChild(i)), vecOrigin));
+
+	m_bColorOverride = false;
 }
 
 CSystemInstance::~CSystemInstance()
@@ -369,7 +371,10 @@ void CSystemInstance::Render()
 
 		c.SetUniform("flAlpha", pParticle->m_flAlpha);
 
-		c.SetColor(m_pSystem->GetColor());
+		if (m_bColorOverride)
+			c.SetColor(m_clrOverride);
+		else
+			c.SetColor(m_pSystem->GetColor());
 
 		c.BeginRenderQuads();
 
@@ -428,6 +433,12 @@ size_t CSystemInstance::GetNumParticles()
 		iAlive += m_apChildren[i]->GetNumParticles();
 
 	return iAlive + m_iNumParticlesAlive;
+}
+
+void CSystemInstance::SetColor(Color c)
+{
+	m_bColorOverride = true;
+	m_clrOverride = c;
 }
 
 CParticle::CParticle()

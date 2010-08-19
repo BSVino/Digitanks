@@ -33,6 +33,8 @@ public:
 									~CSystemInstance();
 
 public:
+	void							SetOrigin(Vector vecOrigin) { m_vecOrigin = vecOrigin; }
+
 	void							Simulate();
 	void							SpawnParticle();
 
@@ -45,6 +47,8 @@ public:
 	bool							IsStopped();
 
 	size_t							GetNumParticles();
+
+	void							SetColor(Color c);
 
 protected:
 	CParticleSystem*				m_pSystem;
@@ -62,6 +66,9 @@ protected:
 	int								m_iTotalEmitted;
 
 	CEntityHandle<CBaseEntity>		m_hFollow;
+
+	bool							m_bColorOverride;
+	Color							m_clrOverride;
 };
 
 class CParticleSystem

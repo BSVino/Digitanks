@@ -13,6 +13,7 @@ public:
 
 	virtual void				Precache();
 	virtual void				Spawn();
+	virtual void				Think();
 
 	virtual void				UpdateInfo(std::string& sInfo);
 
@@ -35,6 +36,8 @@ protected:
 	CEntityHandle<CCollector>	m_hCollector;
 
 	size_t						m_iProduction;
+
+	size_t						m_iSpark;
 };
 
 #endif

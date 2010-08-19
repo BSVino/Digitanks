@@ -4,6 +4,7 @@
 
 #include <renderer/renderer.h>
 #include <game/game.h>
+#include <renderer/particles.h>
 
 #include <GL/glew.h>
 
@@ -11,6 +12,7 @@ void CResource::Precache()
 {
 	BaseClass::Precache();
 
+	PrecacheParticleSystem(L"electronode-spark");
 	PrecacheModel(L"models/structures/electronode.obj");
 }
 
@@ -22,6 +24,39 @@ void CResource::Spawn()
 	m_bTakeDamage = false;
 
 	SetModel(L"models/structures/electronode.obj");
+
+	m_iSpark = ~0;
+}
+
+void CResource::Think()
+{
+	if (m_iSpark != ~0)
+	{
+		CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetOrigin(GetOrigin());
+
+		if (HasCollector())
+			CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(GetCollector()->GetTeam()->GetColor());
+		else
+			CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(255,255,255));
+
+		if (GetVisibility() <= 0)
+		{
+			CParticleSystemLibrary::Get()->StopInstance(m_iSpark);
+			m_iSpark = ~0;
+		}
+	}
+	else
+	{
+		if (GetVisibility() > 0)
+		{
+			m_iSpark = CParticleSystemLibrary::AddInstance(L"electronode-spark", GetOrigin());
+
+			if (HasCollector())
+				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(GetCollector()->GetTeam()->GetColor());
+			else
+				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(255,255,255));
+		}
+	}
 }
 
 void CResource::UpdateInfo(std::string& sInfo)

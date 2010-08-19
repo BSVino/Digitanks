@@ -161,4 +161,17 @@ void CParticleSystemLibrary::InitSystems()
 	pTankHover->SetSpawnOffset(Vector(0, -1, 0));
 	pTankHover->SetRandomVelocity(AABB(Vector(0, -1, 0), Vector(0, -2, 0)));
 	pTankHover->SetGravity(Vector(0, 10, 0));
+
+	size_t iElectronodeSpark = pPSL->AddParticleSystem(L"electronode-spark");
+	CParticleSystem* pElectronodeSpark = pPSL->GetParticleSystem(iElectronodeSpark);
+
+	pElectronodeSpark->SetTexture(L"textures/particles/electrospark.png");
+	pElectronodeSpark->SetLifeTime(2.0f);
+	pElectronodeSpark->SetEmissionRate(0.4f);
+	pElectronodeSpark->SetAlpha(0.5f);
+	pElectronodeSpark->SetRadius(1.0f);
+	pElectronodeSpark->SetFadeOut(0.5f);
+	pElectronodeSpark->SetSpawnOffset(Vector(0, 6, 0));
+	pElectronodeSpark->SetRandomVelocity(AABB(Vector(-1, 0.5f, -1), Vector(1, 1.5f, 1)));
+	pElectronodeSpark->SetGravity(Vector(0, 3, 0));
 }
