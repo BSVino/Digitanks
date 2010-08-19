@@ -575,8 +575,5 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 
 float CSupplier::VisibleRange() const
 {
-	if (GetDataFlowRadius() < 30)
-		return 30;
-	else
-		return GetDataFlowRadius();
+	return GetDataFlowRadius() + 5;
 }

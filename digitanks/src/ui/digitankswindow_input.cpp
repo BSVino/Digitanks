@@ -242,6 +242,23 @@ void CDigitanksWindow::KeyPress(int c)
 			DigitanksGame()->GetCurrentSelection()->Delete();
 	}
 
+	if (c == 'H')
+	{
+		if (DigitanksGame()->GetLocalDigitanksTeam())
+		{
+			for (size_t i = 0; i < DigitanksGame()->GetLocalDigitanksTeam()->GetNumMembers(); i++)
+			{
+				CBaseEntity* pMember = DigitanksGame()->GetLocalDigitanksTeam()->GetMember(i);
+				CCPU* pCPU = dynamic_cast<CCPU*>(pMember);
+				if (pCPU)
+				{
+					DigitanksGame()->GetLocalDigitanksTeam()->SetCurrentSelection(pCPU);
+					break;
+				}
+			}
+		}
+	}
+
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
 }

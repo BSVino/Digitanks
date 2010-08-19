@@ -26,6 +26,8 @@ CDigitanksRenderer::CDigitanksRenderer()
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	m_iVignetting = CRenderer::LoadTextureIntoGL(L"textures/vignetting.png");
 }
 
 void CDigitanksRenderer::SetupFrame()
@@ -221,9 +223,14 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 void CDigitanksRenderer::RenderFullscreenBuffers()
 {
 	glEnable(GL_BLEND);
+
 	glBlendFunc(GL_ONE, GL_ONE);
 	for (size_t i = 0; i < BLOOM_FILTERS; i++)
 		RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	RenderMapFullscreen(m_iVignetting);
+
 	glDisable(GL_BLEND);
 }
 

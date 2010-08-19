@@ -30,6 +30,8 @@ protected:
 	CFrameBuffer	m_oVisibility1Buffer;
 	CFrameBuffer	m_oVisibility2Buffer;
 	CFrameBuffer	m_oVisibilityMaskedBuffer;
+
+	size_t			m_iVignetting;
 };
 
 #endif
