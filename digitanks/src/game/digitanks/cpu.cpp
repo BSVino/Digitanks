@@ -19,6 +19,15 @@
 
 size_t CCPU::s_iCancelIcon = 0;
 size_t CCPU::s_iBuildPSUIcon = 0;
+size_t CCPU::s_iBuildBufferIcon = 0;
+size_t CCPU::s_iBuildLoaderIcon = 0;
+size_t CCPU::s_iBuildInfantryLoaderIcon = 0;
+size_t CCPU::s_iBuildTankLoaderIcon = 0;
+size_t CCPU::s_iBuildArtilleryLoaderIcon = 0;
+size_t CCPU::s_iInstallIcon = 0;
+size_t CCPU::s_iInstallPowerIcon = 0;
+size_t CCPU::s_iInstallBandwidthIcon = 0;
+size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 
 void CCPU::Spawn()
 {
@@ -40,6 +49,15 @@ void CCPU::Precache()
 
 	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
 	s_iBuildPSUIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-psu.png");
+	s_iBuildBufferIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-buffer.png");
+	s_iBuildLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-loader.png");
+	s_iBuildInfantryLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-infantry-loader.png");
+	s_iBuildTankLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-tank-loader.png");
+	s_iBuildArtilleryLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-artillery-loader.png");
+	s_iInstallIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install.png");
+	s_iInstallPowerIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-power.png");
+	s_iInstallBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-bandwidth.png");
+	s_iInstallFleetSupplyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-fleet.png");
 }
 
 void CCPU::SetupMenu(menumode_t eMenuMode)
@@ -107,7 +125,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
 			pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
-			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Texture(s_iBuildInfantryLoaderIcon);
 			pHUD->SetButton1Help("Infantry\nLoader");
 			pHUD->SetButton1Color(Color(150, 150, 150));
 		}
@@ -122,7 +140,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
 			pHUD->SetButton2Listener(CHUD::BuildTankLoader);
-			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Texture(s_iBuildTankLoaderIcon);
 			pHUD->SetButton2Help("Main Tank\nLoader");
 			pHUD->SetButton2Color(Color(150, 150, 150));
 		}
@@ -137,7 +155,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
 			pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
-			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Texture(s_iBuildArtilleryLoaderIcon);
 			pHUD->SetButton3Help("Artillery\nLoader");
 			pHUD->SetButton3Color(Color(150, 150, 150));
 		}
@@ -155,7 +173,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton4Color(glgui::g_clrBox);
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 		pHUD->SetButton5Help("Return");
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
@@ -164,7 +182,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
 		{
 			pHUD->SetButton1Listener(CHUD::InstallProduction);
-			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Texture(s_iInstallPowerIcon);
 			pHUD->SetButton1Help("Install\nPower");
 			pHUD->SetButton1Color(Color(150, 150, 150));
 		}
@@ -179,7 +197,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
 		{
 			pHUD->SetButton2Listener(CHUD::InstallBandwidth);
-			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Texture(s_iInstallBandwidthIcon);
 			pHUD->SetButton2Help("Install\nBandwidth");
 			pHUD->SetButton2Color(Color(150, 150, 150));
 		}
@@ -194,7 +212,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
 		{
 			pHUD->SetButton3Listener(CHUD::InstallFleetSupply);
-			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Texture(s_iInstallFleetSupplyIcon);
 			pHUD->SetButton3Help("Install\nFleet Sply");
 			pHUD->SetButton3Color(Color(150, 150, 150));
 		}
@@ -212,7 +230,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton4Color(glgui::g_clrBox);
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 		pHUD->SetButton5Help("Return");
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
@@ -229,7 +247,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton1Listener(CHUD::BuildBuffer);
 			pHUD->SetButton1Help("Build\nBuffer");
-			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Texture(s_iBuildBufferIcon);
 			pHUD->SetButton1Color(Color(150, 150, 150));
 		}
 
@@ -259,7 +277,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton3Listener(CHUD::BuildLoader);
 			pHUD->SetButton3Help("Build\nLoader");
-			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Texture(s_iBuildLoaderIcon);
 			pHUD->SetButton3Color(Color(150, 150, 150));
 		}
 
@@ -267,7 +285,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton4Listener(CHUD::InstallMenu);
 			pHUD->SetButton4Help("Install\nUpdates");
-			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Texture(s_iInstallIcon);
 			pHUD->SetButton4Color(Color(150, 150, 150));
 		}
 		else
@@ -301,11 +319,13 @@ bool CCPU::IsPreviewBuildValid() const
 	{
 		CResource* pResource = CResource::FindClosestResource(GetPreviewBuild(), RESOURCE_ELECTRONODE);
 		float flDistance = (pResource->GetOrigin() - GetPreviewBuild()).Length();
-		if (flDistance > 15)
+		if (flDistance > 5)
 			return false;
 
 		if (pResource->HasCollector())
 			return false;
+
+		return true;
 	}
 
 	// Don't allow construction too close to other structures.
@@ -377,10 +397,23 @@ void CCPU::BeginConstruction()
 	}
 
 	GetTeam()->AddEntity(m_hConstructing);
-	m_hConstructing->SetOrigin(GetPreviewBuild());
 	m_hConstructing->BeginConstruction();
 	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
+
+	m_hConstructing->SetOrigin(GetPreviewBuild());
+	if (m_ePreviewStructure == STRUCTURE_PSU)
+	{
+		Vector vecPSU = GetPreviewBuild();
+
+		CResource* pResource = CBaseEntity::FindClosest<CResource>(vecPSU);
+
+		if (pResource)
+		{
+			if ((pResource->GetOrigin() - vecPSU).Length() <= 6)
+				m_hConstructing->SetOrigin(pResource->GetOrigin());
+		}
+	}
 
 	CSupplier* pSupplier = dynamic_cast<CSupplier*>(m_hConstructing.GetPointer());
 	if (pSupplier)

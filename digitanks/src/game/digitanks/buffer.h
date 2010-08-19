@@ -25,6 +25,14 @@ public:
 	virtual const char*			GetName() { return "Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BUFFER; };
 	virtual size_t				ConstructionCost() const { return 20; };
+
+protected:
+	static size_t				s_iCancelIcon;
+	static size_t				s_iInstallIcon;
+	static size_t				s_iInstallBandwidthIcon;
+	static size_t				s_iInstallFleetSupplyIcon;
+	static size_t				s_iInstallEnergyBonusIcon;
+	static size_t				s_iInstallRechargeBonusIcon;
 };
 
 #endif

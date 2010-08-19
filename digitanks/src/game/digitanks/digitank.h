@@ -339,7 +339,12 @@ protected:
 	static size_t				s_iAimIcon;
 	static size_t				s_iFireIcon;
 	static size_t				s_iPromoteIcon;
+	static size_t				s_iPromoteAttackIcon;
+	static size_t				s_iPromoteDefenseIcon;
+	static size_t				s_iPromoteMoveIcon;
 	static size_t				s_iFortifyIcon;
+	static size_t				s_iDeployIcon;
+	static size_t				s_iMobilizeIcon;
 
 	static size_t				s_iAutoMove;
 

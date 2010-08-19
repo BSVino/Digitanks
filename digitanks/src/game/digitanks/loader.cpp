@@ -23,6 +23,17 @@ size_t g_aiTurnsToLoad[] = {
 	60, // BUILDUNIT_ARTILLERY,
 };
 
+size_t CLoader::s_iCancelIcon = 0;
+size_t CLoader::s_iInstallIcon = 0;
+size_t CLoader::s_iInstallAttackIcon = 0;
+size_t CLoader::s_iInstallDefenseIcon = 0;
+size_t CLoader::s_iInstallMovementIcon = 0;
+size_t CLoader::s_iInstallRangeIcon = 0;
+size_t CLoader::s_iInstallHealthIcon = 0;
+size_t CLoader::s_iBuildInfantryIcon = 0;
+size_t CLoader::s_iBuildTankIcon = 0;
+size_t CLoader::s_iBuildArtilleryIcon = 0;
+
 void CLoader::Precache()
 {
 	BaseClass::Precache();
@@ -30,6 +41,17 @@ void CLoader::Precache()
 	PrecacheModel(L"models/structures/loader-infantry.obj");
 	PrecacheModel(L"models/structures/loader-main.obj");
 	PrecacheModel(L"models/structures/loader-artillery.obj");
+
+	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
+	s_iInstallIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install.png");
+	s_iInstallAttackIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-attack.png");
+	s_iInstallDefenseIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-defense.png");
+	s_iInstallMovementIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-movement.png");
+	s_iInstallRangeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-range.png");
+	s_iInstallHealthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-health.png");
+	s_iBuildInfantryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-infantry.png");
+	s_iBuildTankIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-tank.png");
+	s_iBuildArtilleryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-artillery.png");
 }
 
 void CLoader::Spawn()
@@ -135,7 +157,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton2Texture(0);
 		pHUD->SetButton3Texture(0);
 		pHUD->SetButton4Texture(0);
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 
 		pHUD->SetButton1Help("");
 		pHUD->SetButton2Help("");
@@ -154,7 +176,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK) >= 0)
 		{
 			pHUD->SetButton1Listener(CHUD::InstallTankAttack);
-			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Texture(s_iInstallAttackIcon);
 			pHUD->SetButton1Help("Install\nAttack");
 			pHUD->SetButton1Color(Color(150, 150, 150));
 		}
@@ -169,14 +191,14 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		if (GetUnitType() == STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
 		{
 			pHUD->SetButton2Listener(CHUD::InstallTankRange);
-			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Texture(s_iInstallRangeIcon);
 			pHUD->SetButton2Help("Install\nRange");
 			pHUD->SetButton2Color(Color(150, 150, 150));
 		}
 		else if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
 		{
 			pHUD->SetButton2Listener(CHUD::InstallTankDefense);
-			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Texture(s_iInstallDefenseIcon);
 			pHUD->SetButton2Help("Install\nDefense");
 			pHUD->SetButton2Color(Color(150, 150, 150));
 		}
@@ -191,7 +213,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
 		{
 			pHUD->SetButton3Listener(CHUD::InstallTankMovement);
-			pHUD->SetButton3Texture(0);
+			pHUD->SetButton3Texture(s_iInstallMovementIcon);
 			pHUD->SetButton3Help("Install\nMovement");
 			pHUD->SetButton3Color(Color(150, 150, 150));
 		}
@@ -206,7 +228,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
 		{
 			pHUD->SetButton4Listener(CHUD::InstallTankHealth);
-			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Texture(s_iInstallHealthIcon);
 			pHUD->SetButton4Help("Install\nHealth");
 			pHUD->SetButton4Color(Color(150, 150, 150));
 		}
@@ -219,7 +241,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		}
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 		pHUD->SetButton5Help("Return");
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
@@ -247,7 +269,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		pHUD->SetButton5Listener(CHUD::CancelBuildUnit);
 		pHUD->SetButton5Help("Cancel\nBuild");
-		pHUD->SetButton5Texture(0);
+		pHUD->SetButton5Texture(s_iCancelIcon);
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
 	else
@@ -258,13 +280,20 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Listener(NULL);
 
 		if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+		{
 			pHUD->SetButton1Help("Build\nMech. Inf");
+			pHUD->SetButton1Texture(s_iBuildInfantryIcon);
+		}
 		else if (GetBuildUnit() == BUILDUNIT_TANK)
+		{
 			pHUD->SetButton1Help("Build\nMain Tank");
+			pHUD->SetButton1Texture(s_iBuildTankIcon);
+		}
 		else
+		{
 			pHUD->SetButton1Help("Build\nArtillery Tank");
-
-		pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Texture(s_iBuildArtilleryIcon);
+		}
 
 		if (HasEnoughFleetPoints())
 			pHUD->SetButton1Color(Color(150, 150, 150));
@@ -285,7 +314,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton4Listener(CHUD::InstallMenu);
 			pHUD->SetButton4Help("Install\nUpdates");
-			pHUD->SetButton4Texture(0);
+			pHUD->SetButton4Texture(s_iInstallIcon);
 			pHUD->SetButton4Color(Color(150, 150, 150));
 		}
 		else

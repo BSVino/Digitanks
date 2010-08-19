@@ -26,7 +26,12 @@ size_t CDigitank::s_iTurnIcon = 0;
 size_t CDigitank::s_iAimIcon = 0;
 size_t CDigitank::s_iFireIcon = 0;
 size_t CDigitank::s_iPromoteIcon = 0;
+size_t CDigitank::s_iPromoteAttackIcon = 0;
+size_t CDigitank::s_iPromoteDefenseIcon = 0;
+size_t CDigitank::s_iPromoteMoveIcon = 0;
 size_t CDigitank::s_iFortifyIcon = 0;
+size_t CDigitank::s_iDeployIcon = 0;
+size_t CDigitank::s_iMobilizeIcon = 0;
 
 size_t CDigitank::s_iAutoMove = 0;
 
@@ -127,7 +132,12 @@ void CDigitank::Precache()
 	s_iAimIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-aim.png");
 	s_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
 	s_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
+	s_iPromoteAttackIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-attack.png");
+	s_iPromoteDefenseIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-defense.png");
+	s_iPromoteMoveIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-move.png");
 	s_iFortifyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fortify.png");
+	s_iDeployIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-deploy.png");
+	s_iMobilizeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-mobilize.png");
 
 	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
 
@@ -1235,7 +1245,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (IsFortified() || IsFortifying())
 			{
 				pHUD->SetButton3Help("Mobilize");
-				pHUD->SetButton3Texture(0);
+				pHUD->SetButton3Texture(s_iMobilizeIcon);
 			}
 			else
 			{
@@ -1277,12 +1287,17 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton4Listener(CHUD::Fortify);
 			if (IsFortified() || IsFortifying())
+			{
 				pHUD->SetButton4Help("Mobilize");
+				pHUD->SetButton4Texture(s_iMobilizeIcon);
+			}
 			else
+			{
 				pHUD->SetButton4Help("Deploy");
+				pHUD->SetButton4Texture(s_iDeployIcon);
+			}
 
 			pHUD->SetButton4Color(Color(0, 0, 150));
-			pHUD->SetButton4Texture(0);
 		}
 		else
 		{
@@ -1311,7 +1326,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 	{
 		pHUD->SetButton1Help("Upgrade\nAttack");
 		pHUD->SetButton1Listener(CHUD::PromoteAttack);
-		pHUD->SetButton1Texture(0);
+		pHUD->SetButton1Texture(s_iPromoteAttackIcon);
 
 		if (IsArtillery())
 		{
@@ -1323,12 +1338,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButton2Help("Upgrade\nDefense");
 			pHUD->SetButton2Listener(CHUD::PromoteDefense);
-			pHUD->SetButton2Texture(0);
+			pHUD->SetButton2Texture(s_iPromoteDefenseIcon);
 		}
 
 		pHUD->SetButton3Help("Upgrade\nMovement");
 		pHUD->SetButton3Listener(CHUD::PromoteMovement);
-		pHUD->SetButton3Texture(0);
+		pHUD->SetButton3Texture(s_iPromoteMoveIcon);
 
 		if (HasBonusPoints())
 		{

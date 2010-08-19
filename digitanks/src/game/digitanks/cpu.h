@@ -63,6 +63,15 @@ protected:
 
 	static size_t				s_iCancelIcon;
 	static size_t				s_iBuildPSUIcon;
+	static size_t				s_iBuildBufferIcon;
+	static size_t				s_iBuildLoaderIcon;
+	static size_t				s_iBuildInfantryLoaderIcon;
+	static size_t				s_iBuildTankLoaderIcon;
+	static size_t				s_iBuildArtilleryLoaderIcon;
+	static size_t				s_iInstallIcon;
+	static size_t				s_iInstallPowerIcon;
+	static size_t				s_iInstallBandwidthIcon;
+	static size_t				s_iInstallFleetSupplyIcon;
 };
 
 #endif

@@ -36,6 +36,14 @@ void CResource::UpdateInfo(std::string& sInfo)
 	sInfo = s.str();
 }
 
+void CResource::ModifyContext(class CRenderingContext* pContext)
+{
+	BaseClass::ModifyContext(pContext);
+
+	if (HasCollector())
+		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());
+}
+
 CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)
 {
 	CResource* pClosest = NULL;

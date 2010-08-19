@@ -16,6 +16,8 @@ public:
 
 	virtual void				UpdateInfo(std::string& sInfo);
 
+	virtual void				ModifyContext(class CRenderingContext* pContext);
+
 	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
 	size_t						GetProduction() { return m_iProduction; };
 	void						SetProduction(size_t iProduction) { m_iProduction = iProduction; };
