@@ -12,6 +12,7 @@
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/projectile.h>
 #include <game/digitanks/loader.h>
+#include <sound/sound.h>
 
 using namespace glgui;
 
@@ -215,10 +216,16 @@ CHUD::CHUD()
 	m_pUpdatesPanel->SetVisible(false);
 	AddControl(m_pUpdatesPanel, true);
 
+	m_pTurnButton = new CPictureButton("TURN", CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png"));
+	m_pTurnButton->SetClickedListener(this, EndTurn);
+	AddControl(m_pTurnButton);
+
 	m_flAttackInfoAlpha = m_flAttackInfoAlphaGoal = 0;
 
 	m_flTurnInfoLerp = m_flTurnInfoLerpGoal = 0;
 	m_flTurnInfoHeight = m_flTurnInfoHeightGoal = 0;
+
+	m_iTurnSound = CSoundLibrary::Get()->AddSound("sound/turn.wav");
 
 	m_iHUDGraphic = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main.png");
 
@@ -318,7 +325,7 @@ void CHUD::Layout()
 	m_pTurnInfo->SetWrap(true);
 	m_pTurnInfo->SetFontFaceSize(10);
 
-	m_pUpdatesButton->SetPos(m_pTurnInfo->GetRight() + 20, 0);
+	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 0);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pUpdatesButton->SetWrap(false);
 
@@ -340,6 +347,9 @@ void CHUD::Layout()
 	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPLEFT);
 	m_pBandwidthInfo->SetPos(iWidth - 150, 20);
 	m_pBandwidthInfo->SetWrap(false);
+
+	m_pTurnButton->SetPos(iWidth - 140, iHeight - 100);
+	m_pTurnButton->SetSize(120, 90);
 
 	UpdateTeamInfo();
 	UpdateInfo();
@@ -1173,6 +1183,12 @@ void CHUD::SetAutoProceed(bool bAuto)
 //		m_pAutoButton->SetText("Auto on");
 //	else
 //		m_pAutoButton->SetText("Auto off");
+}
+
+void CHUD::EndTurnCallback()
+{
+	CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
+	DigitanksGame()->EndTurn();
 }
 
 void CHUD::OpenUpdatesCallback()

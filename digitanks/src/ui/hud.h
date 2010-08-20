@@ -174,6 +174,7 @@ public:
 
 	bool						IsActive() { return m_bHUDActive; };
 
+	EVENT_CALLBACK(CHUD, EndTurn);
 	EVENT_CALLBACK(CHUD, OpenUpdates);
 	EVENT_CALLBACK(CHUD, Auto);
 	EVENT_CALLBACK(CHUD, Move);
@@ -269,7 +270,11 @@ protected:
 	glgui::CButton*				m_pUpdatesButton;
 	CUpdatesPanel*				m_pUpdatesPanel;
 
+	glgui::CPictureButton*		m_pTurnButton;
+
 	size_t						m_iHUDGraphic;
+
+	size_t						m_iTurnSound;
 
 	size_t						m_iAvatarIcon;
 	size_t						m_iShieldIcon;

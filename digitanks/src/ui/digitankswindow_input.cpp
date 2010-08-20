@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GL/glfw.h>
 
+#include <sound/sound.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
 #include "instructor.h"
@@ -180,6 +181,7 @@ void CDigitanksWindow::KeyPress(int c)
 
 		else if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER))
 		{
+			CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
 			DigitanksGame()->EndTurn();
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
