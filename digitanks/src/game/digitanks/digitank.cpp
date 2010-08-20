@@ -1192,15 +1192,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 	if (eMenuMode == MENUMODE_MAIN)
 	{
-		if (IsFortified())
-		{
-			pHUD->SetButton1Help("");
-			pHUD->SetButton1Listener(NULL);
-
-			pHUD->SetButton1Color(glgui::g_clrBox);
-			pHUD->SetButton1Texture(0);
-		}
-		else
+		if (!IsFortified())
 		{
 			pHUD->SetButton1Help("Move");
 			pHUD->SetButton1Listener(CHUD::Move);
@@ -1216,15 +1208,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButton1Texture(s_iMoveIcon);
 		}
 
-		if (IsFortified() && !CanTurnFortified())
-		{
-			pHUD->SetButton2Help("");
-			pHUD->SetButton2Listener(NULL);
-
-			pHUD->SetButton2Color(glgui::g_clrBox);
-			pHUD->SetButton2Texture(0);
-		}
-		else
+		if (!IsFortified() || CanTurnFortified())
 		{
 			pHUD->SetButton2Help("Rotate");
 			pHUD->SetButton2Listener(CHUD::Turn);
@@ -1258,15 +1242,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		}
 		else
 		{
-			if (!IsFortified() && !CanAimMobilized())
-			{
-				pHUD->SetButton3Help("");
-				pHUD->SetButton3Listener(NULL);
-
-				pHUD->SetButton3Color(glgui::g_clrBox);
-				pHUD->SetButton3Texture(0);
-			}
-			else
+			if (CanAimMobilized() || IsFortified())
 			{
 				pHUD->SetButton3Help("Aim");
 				pHUD->SetButton3Listener(CHUD::Aim);
@@ -1315,12 +1291,13 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButton4Texture(s_iFireIcon);
 		}
 
-		pHUD->SetButton5Listener(CHUD::Promote);
-		pHUD->SetButton5Help("Upgrade");
-
-		pHUD->SetButton5Texture(s_iPromoteIcon);
-
-		pHUD->SetButton5Color(glgui::g_clrBox);
+		if (HasBonusPoints())
+		{
+			pHUD->SetButton5Listener(CHUD::Promote);
+			pHUD->SetButton5Help("Upgrade");
+			pHUD->SetButton5Texture(s_iPromoteIcon);
+			pHUD->SetButton5Color(glgui::g_clrBox);
+		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
@@ -1328,13 +1305,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton1Listener(CHUD::PromoteAttack);
 		pHUD->SetButton1Texture(s_iPromoteAttackIcon);
 
-		if (IsArtillery())
-		{
-			pHUD->SetButton2Help("");
-			pHUD->SetButton2Listener(NULL);
-			pHUD->SetButton2Texture(0);
-		}
-		else
+		if (!IsArtillery())
 		{
 			pHUD->SetButton2Help("Upgrade\nDefense");
 			pHUD->SetButton2Listener(CHUD::PromoteDefense);
@@ -1344,27 +1315,6 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton3Help("Upgrade\nMovement");
 		pHUD->SetButton3Listener(CHUD::PromoteMovement);
 		pHUD->SetButton3Texture(s_iPromoteMoveIcon);
-
-		if (HasBonusPoints())
-		{
-			pHUD->SetButton1Color(Color(200, 0, 0));
-			if (IsArtillery())
-				pHUD->SetButton2Color(glgui::g_clrBox);
-			else
-				pHUD->SetButton2Color(Color(0, 0, 200));
-			pHUD->SetButton3Color(Color(200, 200, 0));
-		}
-		else
-		{
-			pHUD->SetButton1Color(glgui::g_clrBox);
-			pHUD->SetButton2Color(glgui::g_clrBox);
-			pHUD->SetButton3Color(glgui::g_clrBox);
-		}
-
-		pHUD->SetButton4Help("");
-		pHUD->SetButton4Listener(NULL);
-		pHUD->SetButton4Texture(0);
-		pHUD->SetButton4Color(glgui::g_clrBox);
 
 		pHUD->SetButton5Help("Return");
 		pHUD->SetButton5Listener(CHUD::GoToMain);

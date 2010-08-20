@@ -388,8 +388,9 @@ void CHUD::Think()
 
 		if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
-			if (dynamic_cast<CDigitanksEntity*>(pHit))
-				pCurrentTank->SetPreviewAim(pHit->GetOrigin());
+			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
+			if (pDTHit && pDTHit->GetVisibility() > 0)
+				pCurrentTank->SetPreviewAim(pDTHit->GetOrigin());
 			else
 				pCurrentTank->SetPreviewAim(vecPoint);
 		}
@@ -501,6 +502,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
 		{
 			CDigitank* pTank = pTeam->GetTank(j);
+
+			if (pTank->GetVisibility() == 0)
+				continue;
 
 			Vector vecOrigin = pTank->GetDesiredMove();
 			Vector vecScreen = Game()->GetRenderer()->ScreenPosition(vecOrigin);
@@ -799,6 +803,9 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 		if ((vecOrigin2D - vecAim2D).LengthSqr() > flRadius*flRadius)
 			continue;
 
+		if (pTargetTank->GetVisibility() == 0)
+			continue;
+
 		if (!pClosestTarget)
 		{
 			pClosestTarget = pTargetTank;
@@ -861,7 +868,7 @@ void CHUD::UpdateStructureInfo(CStructure* pStructure)
 void CHUD::UpdateTeamInfo()
 {
 	std::stringstream s1;
-	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+	CDigitanksTeam* pTeam = DigitanksGame()->GetLocalDigitanksTeam();
 	s1 << pTeam->GetTotalProduction() << "\n";
 	m_pPowerInfo->SetText(s1.str().c_str());
 
@@ -887,33 +894,32 @@ void CHUD::SetupMenu()
 
 void CHUD::SetupMenu(menumode_t eMenuMode)
 {
+	m_pButton1->SetClickedListener(NULL, NULL);
+	m_pButton2->SetClickedListener(NULL, NULL);
+	m_pButton3->SetClickedListener(NULL, NULL);
+	m_pButton4->SetClickedListener(NULL, NULL);
+	m_pButton5->SetClickedListener(NULL, NULL);
+
+	m_pButtonHelp1->SetText("");
+	m_pButtonHelp2->SetText("");
+	m_pButtonHelp3->SetText("");
+	m_pButtonHelp4->SetText("");
+	m_pButtonHelp5->SetText("");
+
+	SetButton1Color(glgui::g_clrBox);
+	SetButton2Color(glgui::g_clrBox);
+	SetButton3Color(glgui::g_clrBox);
+	SetButton4Color(glgui::g_clrBox);
+	SetButton5Color(glgui::g_clrBox);
+
+	SetButton1Texture(0);
+	SetButton2Texture(0);
+	SetButton3Texture(0);
+	SetButton4Texture(0);
+	SetButton5Texture(0);
+
 	if (!IsActive() || !DigitanksGame()->GetCurrentSelection() || DigitanksGame()->GetCurrentSelection()->GetTeam() != Game()->GetLocalTeam())
-	{
-		m_pButton1->SetClickedListener(NULL, NULL);
-		m_pButton2->SetClickedListener(NULL, NULL);
-		m_pButton3->SetClickedListener(NULL, NULL);
-		m_pButton4->SetClickedListener(NULL, NULL);
-		m_pButton5->SetClickedListener(NULL, NULL);
-
-		m_pButtonHelp1->SetText("");
-		m_pButtonHelp2->SetText("");
-		m_pButtonHelp3->SetText("");
-		m_pButtonHelp4->SetText("");
-		m_pButtonHelp5->SetText("");
-
-		SetButton1Color(glgui::g_clrBox);
-		SetButton2Color(glgui::g_clrBox);
-		SetButton3Color(glgui::g_clrBox);
-		SetButton4Color(glgui::g_clrBox);
-		SetButton5Color(glgui::g_clrBox);
-
-		SetButton1Texture(0);
-		SetButton2Texture(0);
-		SetButton3Texture(0);
-		SetButton4Texture(0);
-		SetButton5Texture(0);
 		return;
-	}
 
 	DigitanksGame()->GetCurrentSelection()->SetupMenu(eMenuMode);
 
@@ -1039,6 +1045,7 @@ void CHUD::GameStart()
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);
 	CDigitanksWindow::Get()->GetInstructor()->Initialize();
+	ClearTurnInfo();
 }
 
 void CHUD::GameOver(bool bPlayerWon)

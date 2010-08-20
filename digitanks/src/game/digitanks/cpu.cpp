@@ -70,54 +70,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 	if (m_hConstructing != NULL)
 	{
-		pHUD->SetButton1Listener(NULL);
-		pHUD->SetButton2Listener(NULL);
-		pHUD->SetButton3Listener(NULL);
-		pHUD->SetButton4Listener(NULL);
 		pHUD->SetButton5Listener(CHUD::CancelBuild);
-
-		pHUD->SetButton1Texture(0);
-		pHUD->SetButton2Texture(0);
-		pHUD->SetButton3Texture(0);
-		pHUD->SetButton4Texture(0);
 		pHUD->SetButton5Texture(s_iCancelIcon);
-
-		pHUD->SetButton1Help("");
-		pHUD->SetButton2Help("");
-		pHUD->SetButton3Help("");
-		pHUD->SetButton4Help("");
 		pHUD->SetButton5Help("Cancel\nBuild");
-
-		pHUD->SetButton1Color(glgui::g_clrBox);
-		pHUD->SetButton2Color(glgui::g_clrBox);
-		pHUD->SetButton3Color(glgui::g_clrBox);
-		pHUD->SetButton4Color(glgui::g_clrBox);
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
 	else if (IsInstalling())
 	{
-		pHUD->SetButton1Listener(NULL);
-		pHUD->SetButton2Listener(NULL);
-		pHUD->SetButton3Listener(NULL);
-		pHUD->SetButton4Listener(NULL);
 		pHUD->SetButton5Listener(CHUD::CancelInstall);
-
-		pHUD->SetButton1Texture(0);
-		pHUD->SetButton2Texture(0);
-		pHUD->SetButton3Texture(0);
-		pHUD->SetButton4Texture(0);
 		pHUD->SetButton5Texture(s_iCancelIcon);
-
-		pHUD->SetButton1Help("");
-		pHUD->SetButton2Help("");
-		pHUD->SetButton3Help("");
-		pHUD->SetButton4Help("");
 		pHUD->SetButton5Help("Cancel\nInstall");
-
-		pHUD->SetButton1Color(glgui::g_clrBox);
-		pHUD->SetButton2Color(glgui::g_clrBox);
-		pHUD->SetButton3Color(glgui::g_clrBox);
-		pHUD->SetButton4Color(glgui::g_clrBox);
 		pHUD->SetButton5Color(Color(100, 0, 0));
 	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
@@ -129,13 +91,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Help("Infantry\nLoader");
 			pHUD->SetButton1Color(Color(150, 150, 150));
 		}
-		else
-		{
-			pHUD->SetButton1Listener(NULL);
-			pHUD->SetButton1Texture(0);
-			pHUD->SetButton1Help("");
-			pHUD->SetButton1Color(glgui::g_clrBox);
-		}
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
@@ -143,13 +98,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Texture(s_iBuildTankLoaderIcon);
 			pHUD->SetButton2Help("Main Tank\nLoader");
 			pHUD->SetButton2Color(Color(150, 150, 150));
-		}
-		else
-		{
-			pHUD->SetButton2Listener(NULL);
-			pHUD->SetButton2Texture(0);
-			pHUD->SetButton2Help("");
-			pHUD->SetButton2Color(glgui::g_clrBox);
 		}
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
@@ -159,18 +107,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton3Help("Artillery\nLoader");
 			pHUD->SetButton3Color(Color(150, 150, 150));
 		}
-		else
-		{
-			pHUD->SetButton3Listener(NULL);
-			pHUD->SetButton3Texture(0);
-			pHUD->SetButton3Help("");
-			pHUD->SetButton3Color(glgui::g_clrBox);
-		}
-
-		pHUD->SetButton4Listener(NULL);
-		pHUD->SetButton4Texture(0);
-		pHUD->SetButton4Help("");
-		pHUD->SetButton4Color(glgui::g_clrBox);
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
 		pHUD->SetButton5Texture(s_iCancelIcon);
