@@ -470,6 +470,8 @@ void CHUD::Think()
 	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
 	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
+	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
+
 	char szFPS[100];
 	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
 	m_pFPS->SetText(szFPS);
@@ -1187,6 +1189,9 @@ void CHUD::SetAutoProceed(bool bAuto)
 
 void CHUD::EndTurnCallback()
 {
+	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+		return;
+
 	CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
 	DigitanksGame()->EndTurn();
 }

@@ -119,6 +119,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 	if (eGameType == GAMETYPE_STANDARD)
 		SetupStandard();
+	else if (eGameType == GAMETYPE_ARTILLERY)
+		SetupArtillery();
 	else if (eGameType == GAMETYPE_TUTORIAL)
 		SetupTutorial();
 
@@ -147,6 +149,99 @@ void CDigitanksGame::ScatterResources()
 			pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
 		}
 	}
+}
+
+void CDigitanksGame::SetupArtillery()
+{
+	int iPlayers = 8;
+	if (iPlayers > 8)
+		iPlayers = 8;
+	if (iPlayers < 2)
+		iPlayers = 2;
+
+	int iTanks = 5;
+	if (iTanks > 5)
+		iTanks = 5;
+	if (iTanks < 1)
+		iTanks = 1;
+
+	Vector avecStartingPositions[] =
+	{
+		Vector(45, 0, 110),
+		Vector(-45, 0, 110),
+		Vector(-110, 0, 45),
+		Vector(-110, 0, -45),
+		Vector(-45, 0, -110),
+		Vector(45, 0, -110),
+		Vector(110, 0, -45),
+		Vector(110, 0, 45),
+	};
+
+	Vector avecTankPositions[] =
+	{
+		Vector(0, 0, 0),
+		Vector(15, 0, 15),
+		Vector(-15, 0, -15),
+		Vector(15, 0, -15),
+		Vector(-15, 0, 15),
+	};
+
+	Color aclrTeamColors[] =
+	{
+		Color(0, 0, 255),
+		Color(255, 255, 0),
+		Color(255, 0, 255),
+		Color(255, 0, 0),
+		Color(0, 255, 0),
+		Color(0, 255, 255),
+		Color(0, 0, 0),
+		Color(255, 255, 255),
+	};
+
+	std::vector<Vector> avecRandomStartingPositions;
+	for (int i = 0; i < iPlayers; i++)
+	{
+		// 8 random starting positions.
+		if (rand()%2)
+			avecRandomStartingPositions.push_back(avecStartingPositions[i]);
+		else
+			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
+	}
+
+	for (int i = 0; i < iPlayers; i++)
+	{
+		m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
+
+		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
+
+		for (int j = 0; j < iTanks; j++)
+		{
+			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
+			EAngle angTank = VectorAngles(-vecTank.Normalized());
+
+			CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+			m_ahTeams[i]->AddEntity(pTank);
+
+			vecTank.y = pTank->FindHoverHeight(vecTank);
+
+			pTank->SetOrigin(vecTank);
+			pTank->SetAngles(angTank);
+			pTank->GiveBonusPoints(1, false);
+		}
+	}
+
+	m_ahTeams[0]->SetClient(-1);
+
+	CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
+	pPowerup = Game()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, -70), -70));
+	pPowerup = Game()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, 70), 70));
+	pPowerup = Game()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
+
+	m_iPowerups = 4;
 }
 
 void CDigitanksGame::SetupStandard()
@@ -1015,6 +1110,9 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 bool CDigitanksGame::ShouldRenderFogOfWar()
 {
+	if (m_eGameType == GAMETYPE_ARTILLERY)
+		return false;
+
 	if (m_eGameType == GAMETYPE_TUTORIAL && CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_THEEND_BASICS)
 		return false;
 

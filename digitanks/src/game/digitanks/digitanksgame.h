@@ -14,6 +14,7 @@
 typedef enum
 {
 	GAMETYPE_TUTORIAL,
+	GAMETYPE_ARTILLERY,
 	GAMETYPE_STANDARD,
 } gametype_t;
 
@@ -60,6 +61,7 @@ public:
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
 	void					ScatterResources();
+	void					SetupArtillery();
 	void					SetupStandard();
 	void					SetupTutorial();
 
@@ -148,7 +150,7 @@ public:
 	bool					CanBuildTankLoaders();
 	bool					CanBuildArtilleryLoaders();
 
-	CUpdateGrid*			GetUpdateGrid() { return m_hUpdates; };
+	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }
 	size_t					GetTurn() { return m_iTurn; }

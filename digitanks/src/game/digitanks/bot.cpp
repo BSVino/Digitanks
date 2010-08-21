@@ -471,16 +471,13 @@ void CDigitanksTeam::Bot_AssignDefenders()
 
 void CDigitanksTeam::Bot_ExecuteTurn()
 {
-	if (m_hPrimaryCPU == NULL)
+	if (m_hPrimaryCPU != NULL)
 	{
-		DigitanksGame()->EndTurn();
-		return;
+		Bot_DownloadUpdates();
+		Bot_ExpandBase();
+		Bot_BuildUnits();
+		Bot_AssignDefenders();
 	}
-
-	Bot_DownloadUpdates();
-	Bot_ExpandBase();
-	Bot_BuildUnits();
-	Bot_AssignDefenders();
 
 	CDigitank* pHeadTank = GetTank(0);
 
@@ -602,8 +599,12 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (!pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
 			{
 				CCPU* pDefend = m_hPrimaryCPU;
-				pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
-				pTank->SetDesiredTurn();
+				if (pDefend)
+				{
+					pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
+					pTank->SetDesiredTurn();
+				}
+
 				pTank->Fortify();
 			}
 			else

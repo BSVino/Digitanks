@@ -56,10 +56,13 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pStartTutorialBases->SetClickedListener(this, StartTutorialBases);
 	AddControl(m_pStartTutorialBases);
 
-	m_pStartGame = new CButton(0, 0, 100, 100, "New Game");
-	m_pStartGame->SetText("New Game");
-	m_pStartGame->SetClickedListener(this, StartGame);
-	AddControl(m_pStartGame);
+	m_pStartArtilleryGame = new CButton(0, 0, 100, 100, "New Artillery Game");
+	m_pStartArtilleryGame->SetClickedListener(this, StartArtilleryGame);
+	AddControl(m_pStartArtilleryGame);
+
+	m_pStartBasesGame = new CButton(0, 0, 100, 100, "New Strategy Game");
+	m_pStartBasesGame->SetClickedListener(this, StartBasesGame);
+	AddControl(m_pStartBasesGame);
 
 	m_pReturnToGame = new CButton(0, 0, 100, 100, "Return To Game");
 	m_pReturnToGame->SetClickedListener(this, Close);
@@ -84,20 +87,23 @@ void CDigitanksMenu::Layout()
 
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
-	m_pStartTutorialBasics->SetPos(100, 170);
+	m_pStartTutorialBasics->SetPos(100, 140);
 	m_pStartTutorialBasics->SetSize(100, 20);
 
-	m_pStartTutorialBases->SetPos(100, 200);
+	m_pStartTutorialBases->SetPos(100, 170);
 	m_pStartTutorialBases->SetSize(100, 20);
 
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 250);
+	m_pDifficultyLabel->SetPos(75, 220);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 250);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 220);
 
-	m_pStartGame->SetPos(100, 300);
-	m_pStartGame->SetSize(100, 20);
+	m_pStartArtilleryGame->SetPos(75, 270);
+	m_pStartArtilleryGame->SetSize(150, 20);
+
+	m_pStartBasesGame->SetPos(75, 300);
+	m_pStartBasesGame->SetSize(150, 20);
 
 	m_pReturnToGame->SetPos(100, 330);
 	m_pReturnToGame->SetSize(100, 20);
@@ -167,7 +173,19 @@ void CDigitanksMenu::StartTutorialBasesCallback()
 	SetVisible(false);
 }
 
-void CDigitanksMenu::StartGameCallback()
+void CDigitanksMenu::StartArtilleryGameCallback()
+{
+	CDigitanksWindow::Get()->CreateGame(GAMETYPE_ARTILLERY);
+
+	if (!Game())
+		return;
+
+	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
+	DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
+	SetVisible(false);
+}
+
+void CDigitanksMenu::StartBasesGameCallback()
 {
 	CDigitanksWindow::Get()->CreateGame(GAMETYPE_STANDARD);
 

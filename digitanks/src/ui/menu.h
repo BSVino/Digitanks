@@ -19,7 +19,8 @@ public:
 
 	EVENT_CALLBACK(CDigitanksMenu, StartTutorialBasics);
 	EVENT_CALLBACK(CDigitanksMenu, StartTutorialBases);
-	EVENT_CALLBACK(CDigitanksMenu, StartGame);
+	EVENT_CALLBACK(CDigitanksMenu, StartArtilleryGame);
+	EVENT_CALLBACK(CDigitanksMenu, StartBasesGame);
 	EVENT_CALLBACK(CDigitanksMenu, Close);
 	EVENT_CALLBACK(CDigitanksMenu, Exit);
 
@@ -31,7 +32,8 @@ protected:
 
 	glgui::CButton*					m_pStartTutorialBasics;
 	glgui::CButton*					m_pStartTutorialBases;
-	glgui::CButton*					m_pStartGame;
+	glgui::CButton*					m_pStartArtilleryGame;
+	glgui::CButton*					m_pStartBasesGame;
 	glgui::CButton*					m_pReturnToGame;
 	glgui::CButton*					m_pExit;
 

@@ -352,6 +352,9 @@ float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 
 float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint)
 {
+	if (!DigitanksGame()->ShouldRenderFogOfWar())
+		return 1;
+
 	float flFinalVisibility = 0;
 
 	// For every entity on this team, see what the visibility is
