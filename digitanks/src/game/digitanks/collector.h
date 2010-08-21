@@ -19,7 +19,7 @@ public:
 
 	virtual const char*			GetName() { return "Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_PSU; };
-	virtual size_t				ConstructionCost() const { return 30; };
+	virtual size_t				ConstructionCost() const { return 25; };
 
 protected:
 	CEntityHandle<CResource>	m_hResource;

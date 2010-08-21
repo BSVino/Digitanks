@@ -32,17 +32,24 @@ void CResource::Think()
 {
 	if (m_iSpark != ~0)
 	{
-		CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetOrigin(GetOrigin());
+		CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSpark);
 
-		if (HasCollector())
-			CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(GetCollector()->GetTeam()->GetColor());
-		else
-			CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(255,255,255));
-
-		if (GetVisibility() <= 0)
-		{
-			CParticleSystemLibrary::Get()->StopInstance(m_iSpark);
+		if (!pInstance)
 			m_iSpark = ~0;
+		else
+		{
+			pInstance->SetOrigin(GetOrigin());
+
+			if (HasCollector())
+				pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
+			else
+				pInstance->SetColor(Color(255,255,255));
+
+			if (GetVisibility() <= 0)
+			{
+				CParticleSystemLibrary::Get()->StopInstance(m_iSpark);
+				m_iSpark = ~0;
+			}
 		}
 	}
 	else

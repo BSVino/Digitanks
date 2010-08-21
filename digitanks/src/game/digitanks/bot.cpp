@@ -81,7 +81,7 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 
 void CDigitanksTeam::Bot_ExpandBase()
 {
-	if (GetNumProducers() < 3)
+	if (GetNumProducers() < 2)
 	{
 		for (size_t i = 0; i < m_ahMembers.size(); i++)
 		{
@@ -125,7 +125,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU->IsInstalling())
 		return;
 
-	if (GetNumProducers() >= 3)
+	if (GetNumProducers() >= 2)
 		return;
 
 	unittype_t iNextBuild;
@@ -332,8 +332,8 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 void CDigitanksTeam::Bot_BuildUnits()
 {
-	// Above code is capped at 3 producers, but we make this 4 so we always have a guarantee to be creating units.
-	if (GetNumProducers() >= 4)
+	// Above code is capped at 2 producers, but we make this one more so we always have a guarantee to be creating units.
+	if (GetNumProducers() >= 3)
 		return;
 
 	size_t iInfantry = 0;
@@ -364,7 +364,7 @@ void CDigitanksTeam::Bot_BuildUnits()
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
-		if (GetNumProducers() >= 4)
+		if (GetNumProducers() >= 3)
 			continue;
 
 		CBaseEntity* pEntity = m_ahMembers[i];
@@ -749,18 +749,7 @@ void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
 	if (CSupplier::GetDataFlow(pResource->GetOrigin(), this) < 1)
 		return;
 
-	Vector vecForward = pResource->GetOrigin() - pSupplier->GetOrigin();
-	Vector vecRight;
-	AngleVectors(VectorAngles(vecForward.Normalized()), NULL, &vecRight, NULL);
-
-	float flDistance = 12;
-
-	// A pretty spot midway between the supplier and the resource.
-	Vector vecPSU = (pResource->GetOrigin() + pSupplier->GetOrigin())/2 + vecRight * flDistance;
-
-	// Move that spot near to the resource so we know we can get it built.
-	Vector vecPSUDirection = vecPSU - pResource->GetOrigin();
-	vecPSU = pResource->GetOrigin() + vecPSUDirection.Normalized() * flDistance;
+	Vector vecPSU = pResource->GetOrigin();
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
 
