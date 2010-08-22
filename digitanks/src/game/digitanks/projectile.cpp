@@ -94,12 +94,15 @@ bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 	if (m_flTimeExploded != 0)
 		return false;
 
+	if (!pOther)
+		return false;
+
 	if (pOther == m_hOwner)
 		return false;
 
 	if (pOther->GetCollisionGroup() == CG_ENTITY)
 	{
-		if (pOther->GetTeam() == m_hOwner->GetTeam())
+		if (m_hOwner != NULL && pOther->GetTeam() == m_hOwner->GetTeam())
 			return false;
 
 		return true;

@@ -506,19 +506,19 @@ std::wstring CUpdateItem::GetInfo()
 			return L"When this update is installed, units supported by this buffer will recharge more health and shields each turn.";
 
 		case UPDATETYPE_TANKATTACK:
-			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its Attack Energy.";
+			return L"This update once installed gives every tank that is produced from this loader an automatic increase to its Attack Energy.";
 
 		case UPDATETYPE_TANKDEFENSE:
-			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its Defense Energy.";
+			return L"This update once installed gives every tank that is produced from this loader an automatic increase to its Defense Energy.";
 
 		case UPDATETYPE_TANKMOVEMENT:
-			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its Movement Energy.";
+			return L"This update once installed gives every tank that is produced from this loader an automatic increase to its Movement Energy.";
 
 		case UPDATETYPE_TANKHEALTH:
-			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its health.";
+			return L"This update once installed gives every tank that is produced from this loader an automatic increase to its health.";
 
 		case UPDATETYPE_TANKRANGE:
-			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its maximum firing range.";
+			return L"This update once installed gives every tank that is produced from this loader an automatic increase to its maximum firing range.";
 		}
 	}
 
