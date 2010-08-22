@@ -205,10 +205,13 @@ namespace glgui
 		virtual bool	KeyReleased(int iKey) { return false; };
 		virtual bool	MousePressed(int iButton, int mx, int my) { return false; };
 		virtual bool	MouseReleased(int iButton, int mx, int my) { return false; };
-		virtual bool	IsCursorListener() { return false; };
+		virtual bool	IsCursorListener();
 		virtual void	CursorMoved(int x, int y) {};
-		virtual void	CursorIn() {};
-		virtual void	CursorOut() {};
+		virtual void	CursorIn();
+		virtual void	CursorOut();
+
+		virtual void	SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+		virtual void	SetCursorOutListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 
 		static void		PaintRect(int x, int y, int w, int h, const Color& c = g_clrBox);
 		static void		PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c = Color(255, 255, 255, 255));
@@ -224,6 +227,12 @@ namespace glgui
 		int				m_iAlpha;
 
 		bool			m_bVisible;
+
+		IEventListener::Callback m_pfnCursorInCallback;
+		IEventListener*	m_pCursorInListener;
+
+		IEventListener::Callback m_pfnCursorOutCallback;
+		IEventListener*	m_pCursorOutListener;
 	};
 
 	// A panel is a container for other controls. It is for organization

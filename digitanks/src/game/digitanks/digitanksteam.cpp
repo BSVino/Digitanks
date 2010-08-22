@@ -223,16 +223,16 @@ void CDigitanksTeam::StartTurn()
 		m_iUpdateDownloaded += m_iBandwidth;
 		if (GetUpdateDownloaded() >= GetUpdateSize())
 		{
-			std::stringstream s;
-			s << "'" << GetUpdateDownloading()->GetName() << "' finished downloading.";
+			std::wstringstream s;
+			s << L"'" << GetUpdateDownloading()->GetName() << L"' finished downloading.";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 
 			DownloadComplete();
 		}
 		else
 		{
-			std::stringstream s;
-			s << "Downloading '" << GetUpdateDownloading()->GetName() << "' (" << GetTurnsToDownload() << " turns left)";
+			std::wstringstream s;
+			s << L"Downloading '" << GetUpdateDownloading()->GetName() << L"' (" << GetTurnsToDownload() << L" turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}

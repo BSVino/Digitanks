@@ -121,13 +121,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Texture(s_iInstallPowerIcon);
 			pHUD->SetButton1Help("Install\nPower");
 			pHUD->SetButton1Color(Color(150, 150, 150));
-		}
-		else
-		{
-			pHUD->SetButton1Listener(NULL);
-			pHUD->SetButton1Texture(0);
-			pHUD->SetButton1Help("");
-			pHUD->SetButton1Color(glgui::g_clrBox);
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_PRODUCTION][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL POWER INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Power increase: " << pUpdate->m_flValue << " Power\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
@@ -136,13 +139,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Texture(s_iInstallBandwidthIcon);
 			pHUD->SetButton2Help("Install\nBandwidth");
 			pHUD->SetButton2Color(Color(150, 150, 150));
-		}
-		else
-		{
-			pHUD->SetButton2Listener(NULL);
-			pHUD->SetButton2Texture(0);
-			pHUD->SetButton2Help("");
-			pHUD->SetButton2Color(glgui::g_clrBox);
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_BANDWIDTH][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL BANDWIDTH INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Bandwidth increase: " << pUpdate->m_flValue << " Bandwidth\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
@@ -151,19 +157,17 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton3Texture(s_iInstallFleetSupplyIcon);
 			pHUD->SetButton3Help("Install\nFleet Sply");
 			pHUD->SetButton3Color(Color(150, 150, 150));
-		}
-		else
-		{
-			pHUD->SetButton3Listener(NULL);
-			pHUD->SetButton3Texture(0);
-			pHUD->SetButton3Help("");
-			pHUD->SetButton3Color(glgui::g_clrBox);
-		}
 
-		pHUD->SetButton4Listener(NULL);
-		pHUD->SetButton4Texture(0);
-		pHUD->SetButton4Help("");
-		pHUD->SetButton4Color(glgui::g_clrBox);
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_FLEETSUPPLY][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Fleet Supply increase: " << pUpdate->m_flValue << " Supply\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(2, s.str().c_str());
+		}
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
 		pHUD->SetButton5Texture(s_iCancelIcon);
@@ -444,8 +448,8 @@ void CCPU::StartTurn()
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionToConstruct())
 		{
-			std::stringstream s;
-			s << "Construction finished on " << m_hConstructing->GetName();
+			std::wstringstream s;
+			s << L"Construction finished on " << m_hConstructing->GetName();
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 
 			CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
@@ -459,8 +463,8 @@ void CCPU::StartTurn()
 		{
 			m_hConstructing->AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
 
-			std::stringstream s;
-			s << "Constructing " << m_hConstructing->GetName() << " (" << m_hConstructing->GetTurnsToConstruct() << " turns left)";
+			std::wstringstream s;
+			s << L"Constructing " << m_hConstructing->GetName() << L" (" << m_hConstructing->GetTurnsToConstruct() << L" turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
@@ -545,44 +549,44 @@ void CCPU::PostRender()
 	}
 }
 
-void CCPU::UpdateInfo(std::string& sInfo)
+void CCPU::UpdateInfo(std::wstring& sInfo)
 {
-	std::stringstream s;
+	std::wstringstream s;
 
-	s << "CENTRAL PROCESSING UNIT\n";
-	s << "Command center\n \n";
+	s << L"CENTRAL PROCESSING UNIT\n";
+	s << L"Command center\n \n";
 
 	if (IsConstructing())
 	{
-		s << "(Constructing)\n";
-		s << "Power to build: " << GetProductionToConstruct() << "\n";
-		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		s << L"(Constructing)\n";
+		s << L"Power to build: " << GetProductionToConstruct() << L"\n";
+		s << L"Turns left: " << GetTurnsToConstruct() << L"\n";
 		sInfo = s.str();
 		return;
 	}
 
 	if (HasConstruction())
 	{
-		s << "[Constructing " << m_hConstructing->GetName() << "...]\n";
-		s << "Power to build: " << m_hConstructing->GetProductionToConstruct() << "\n";
-		s << "Turns left: " << m_hConstructing->GetTurnsToConstruct() << "\n";
+		s << L"[Constructing " << m_hConstructing->GetName() << L"...]\n";
+		s << L"Power to build: " << m_hConstructing->GetProductionToConstruct() << L"\n";
+		s << L"Turns left: " << m_hConstructing->GetTurnsToConstruct() << L"\n";
 		sInfo = s.str();
 		return;
 	}
 
 	if (IsInstalling())
 	{
-		s << "[Installing update '" << GetUpdateInstalling()->GetName() << "'...]\n";
-		s << "Power to install: " << GetProductionToInstall() << "\n";
-		s << "Turns left: " << GetTurnsToInstall() << "\n";
+		s << L"[Installing update '" << GetUpdateInstalling()->GetName() << L"'...]\n";
+		s << L"Power to install: " << GetProductionToInstall() << L"\n";
+		s << L"Turns left: " << GetTurnsToInstall() << L"\n";
 		sInfo = s.str();
 		return;
 	}
 
-	s << "Strength: " << m_iDataStrength << "\n";
-	s << "Growth: " << (int)GetDataFlowRate() << "\n";
-	s << "Size: " << (int)GetDataFlowRadius() << "\n";
-	s << "Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
+	s << L"Strength: " << m_iDataStrength << L"\n";
+	s << L"Growth: " << (int)GetDataFlowRate() << L"\n";
+	s << L"Size: " << (int)GetDataFlowRadius() << L"\n";
+	s << L"Efficiency: " << (int)(GetChildEfficiency()*100) << L"%\n";
 
 	sInfo = s.str();
 }

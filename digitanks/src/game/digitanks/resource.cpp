@@ -66,14 +66,14 @@ void CResource::Think()
 	}
 }
 
-void CResource::UpdateInfo(std::string& sInfo)
+void CResource::UpdateInfo(std::wstring& sInfo)
 {
-	std::stringstream s;
+	std::wstringstream s;
 
-	s << "ELECTRONODE\n";
-	s << "Digital resource\n \n";
+	s << L"ELECTRONODE\n";
+	s << L"Digital resource\n \n";
 
-	s << "Yield: " << (int)(GetProduction()) << " Power\n";
+	s << L"Yield: " << (int)(GetProduction()) << L" Power\n";
 
 	sInfo = s.str();
 }

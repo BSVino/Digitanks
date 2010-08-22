@@ -1039,7 +1039,7 @@ void CDigitanksGame::ClearTankAims()
 	m_aflTankAimRadius.clear();
 }
 
-void CDigitanksGame::AppendTurnInfo(const char* pszTurnInfo)
+void CDigitanksGame::AppendTurnInfo(const wchar_t* pszTurnInfo)
 {
 	if (m_pListener)
 		m_pListener->AppendTurnInfo(pszTurnInfo);

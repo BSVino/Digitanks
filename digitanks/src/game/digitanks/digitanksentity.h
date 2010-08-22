@@ -40,8 +40,8 @@ public:
 
 	virtual void					DownloadComplete(class CUpdateItem* pItem) {};
 
-	virtual void					UpdateInfo(std::string& sInfo) {};
-	virtual const char*				GetName() { return "Entity"; };
+	virtual void					UpdateInfo(std::wstring& sInfo) {};
+	virtual const wchar_t*			GetName() { return L"Entity"; };
 	virtual unittype_t				GetUnitType() { return UNITTYPE_UNDEFINED; };
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };

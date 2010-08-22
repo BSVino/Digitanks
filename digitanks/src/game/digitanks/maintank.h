@@ -13,7 +13,7 @@ public:
 public:
 	virtual void				Precache();
 
-	virtual const char*			GetName() { return "Main Battle Tank"; };
+	virtual const wchar_t*		GetName() { return L"Main Battle Tank"; };
 
 	virtual float				RenderShieldScale() { return 1.3f; };
 

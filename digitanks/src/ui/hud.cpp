@@ -121,18 +121,28 @@ CHUD::CHUD()
 	AddControl(m_pAutoButton);*/
 
 	m_pButton1 = new CPictureButton("");
+	m_pButton1->SetCursorInListener(this, Button1CursorIn);
+	m_pButton1->SetCursorOutListener(this, Button1CursorOut);
 	m_pButtonPanel->AddControl(m_pButton1);
 
 	m_pButton2 = new CPictureButton("");
+	m_pButton2->SetCursorInListener(this, Button2CursorIn);
+	m_pButton2->SetCursorOutListener(this, Button2CursorOut);
 	m_pButtonPanel->AddControl(m_pButton2);
 
 	m_pButton3 = new CPictureButton("");
+	m_pButton3->SetCursorInListener(this, Button3CursorIn);
+	m_pButton3->SetCursorOutListener(this, Button3CursorOut);
 	m_pButtonPanel->AddControl(m_pButton3);
 
 	m_pButton4 = new CPictureButton("");
+	m_pButton4->SetCursorInListener(this, Button4CursorIn);
+	m_pButton4->SetCursorOutListener(this, Button4CursorOut);
 	m_pButtonPanel->AddControl(m_pButton4);
 
 	m_pButton5 = new CPictureButton("");
+	m_pButton5->SetCursorInListener(this, Button5CursorIn);
+	m_pButton5->SetCursorOutListener(this, Button5CursorOut);
 	m_pButtonPanel->AddControl(m_pButton5);
 
 	m_pButtonHelp1 = new CLabel(0, 0, 50, 50, "");
@@ -177,6 +187,9 @@ CHUD::CHUD()
 
 	m_pTurnInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pTurnInfo);
+
+	m_pButtonInfo = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pButtonInfo);
 
 	m_pPressEnter = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pPressEnter);
@@ -324,6 +337,11 @@ void CHUD::Layout()
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
 	m_pTurnInfo->SetFontFaceSize(10);
+
+	m_pButtonInfo->SetSize(250, 250);
+	m_pButtonInfo->SetPos(iWidth/2, iHeight - 400);
+	m_pButtonInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	m_pButtonInfo->SetWrap(true);
 
 	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 0);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
@@ -507,6 +525,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	// Turn info panel
 	CRootPanel::PaintRect(m_pTurnInfo->GetLeft()-5, m_pTurnInfo->GetTop()-10, m_pTurnInfo->GetWidth(), m_pTurnInfo->GetHeight(), Color(0, 0, 0, 100));
+
+	if (m_pButtonInfo->GetText()[0] != L'\0')
+		// Background for the attack info label
+		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
@@ -733,7 +755,7 @@ void CHUD::UpdateInfo()
 
 	if (pCurrentSelection)
 	{
-		std::string sInfo;
+		std::wstring sInfo;
 		pCurrentSelection->UpdateInfo(sInfo);
 		m_pTankInfo->SetText(sInfo.c_str());
 	}
@@ -930,6 +952,12 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 	SetButton4Texture(0);
 	SetButton5Texture(0);
 
+	SetButtonInfo(0, L"");
+	SetButtonInfo(1, L"");
+	SetButtonInfo(2, L"");
+	SetButtonInfo(3, L"");
+	SetButtonInfo(4, L"");
+
 	if (!IsActive() || !DigitanksGame()->GetCurrentSelection() || DigitanksGame()->GetCurrentSelection()->GetTeam() != Game()->GetLocalTeam())
 		return;
 
@@ -1053,6 +1081,11 @@ void CHUD::SetButton5Color(Color clrButton)
 	m_pButton5->SetButtonColor(clrButton);
 }
 
+void CHUD::SetButtonInfo(int iButton, const wchar_t* pszInfo)
+{
+	m_aszButtonInfos[iButton] = pszInfo;
+}
+
 void CHUD::GameStart()
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1157,7 +1190,7 @@ void CHUD::ClearTurnInfo()
 	m_pTurnInfo->SetText("TURN REPORT\n \n");
 }
 
-void CHUD::AppendTurnInfo(const char* pszInfo)
+void CHUD::AppendTurnInfo(const wchar_t* pszInfo)
 {
 	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
@@ -1185,6 +1218,76 @@ void CHUD::SetAutoProceed(bool bAuto)
 //		m_pAutoButton->SetText("Auto on");
 //	else
 //		m_pAutoButton->SetText("Auto off");
+}
+
+void CHUD::ShowButtonInfo(int iButton)
+{
+	if (iButton < 0 || iButton > 4)
+		return;
+
+	m_pButtonInfo->SetText(m_aszButtonInfos[iButton].c_str());
+	m_pButtonInfo->SetSize(m_pButtonInfo->GetWidth(), 9999);
+	m_pButtonInfo->SetSize(m_pButtonInfo->GetWidth(), (int)m_pButtonInfo->GetTextHeight());
+
+	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
+	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
+
+	m_pButtonInfo->SetPos(iWidth/2 + 720/2 - m_pButtonInfo->GetWidth() - 50, iHeight - 160 - m_pButtonInfo->GetHeight());
+}
+
+void CHUD::HideButtonInfo()
+{
+	m_pButtonInfo->SetText("");
+}
+
+void CHUD::Button1CursorInCallback()
+{
+	ShowButtonInfo(0);
+}
+
+void CHUD::Button1CursorOutCallback()
+{
+	HideButtonInfo();
+}
+
+void CHUD::Button2CursorInCallback()
+{
+	ShowButtonInfo(1);
+}
+
+void CHUD::Button2CursorOutCallback()
+{
+	HideButtonInfo();
+}
+
+void CHUD::Button3CursorInCallback()
+{
+	ShowButtonInfo(2);
+}
+
+void CHUD::Button3CursorOutCallback()
+{
+	HideButtonInfo();
+}
+
+void CHUD::Button4CursorInCallback()
+{
+	ShowButtonInfo(3);
+}
+
+void CHUD::Button4CursorOutCallback()
+{
+	HideButtonInfo();
+}
+
+void CHUD::Button5CursorInCallback()
+{
+	ShowButtonInfo(4);
+}
+
+void CHUD::Button5CursorOutCallback()
+{
+	HideButtonInfo();
 }
 
 void CHUD::EndTurnCallback()

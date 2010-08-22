@@ -21,6 +21,11 @@ CBaseControl::CBaseControl(int x, int y, int w, int h)
 	m_iH = h;
 	m_bVisible = true;
 	SetAlpha(255);
+
+	m_pfnCursorInCallback = NULL;
+	m_pCursorInListener = NULL;
+	m_pfnCursorOutCallback = NULL;
+	m_pCursorOutListener = NULL;
 }
 
 CBaseControl::CBaseControl(const CRect& Rect)
@@ -172,6 +177,40 @@ void CBaseControl::PaintTexture(size_t iTexture, int x, int y, int w, int h, con
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glPopAttrib();
+}
+
+bool CBaseControl::IsCursorListener()
+{
+	if (m_pfnCursorInCallback || m_pfnCursorOutCallback)
+		return true;
+
+	return false;
+}
+
+void CBaseControl::CursorIn()
+{
+	if (m_pfnCursorInCallback)
+		m_pfnCursorInCallback(m_pCursorInListener);
+}
+
+void CBaseControl::CursorOut()
+{
+	if (m_pfnCursorOutCallback)
+		m_pfnCursorOutCallback(m_pCursorOutListener);
+}
+
+void CBaseControl::SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	m_pCursorInListener = pListener;
+	m_pfnCursorInCallback = pfnCallback;
+}
+
+void CBaseControl::SetCursorOutListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	m_pCursorOutListener = pListener;
+	m_pfnCursorOutCallback = pfnCallback;
 }
 
 CPanel::CPanel(int x, int y, int w, int h)

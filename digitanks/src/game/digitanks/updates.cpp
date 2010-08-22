@@ -346,34 +346,34 @@ void CUpdateGrid::SetupStandardUpdates()
 	}
 }
 
-std::string CUpdateItem::GetName()
+std::wstring CUpdateItem::GetName()
 {
-	std::string sResult;
+	std::wstring sResult;
 
 	if (m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
 		switch (m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			return "CPU";
+			return L"CPU";
 
 		case STRUCTURE_BUFFER:
-			return "Buffer";
+			return L"Buffer";
 
 		case STRUCTURE_PSU:
-			return "Power Supply";
+			return L"Power Supply";
 
 		case STRUCTURE_INFANTRYLOADER:
-			return "Infantry Loader";
+			return L"Infantry Loader";
 
 		case STRUCTURE_TANKLOADER:
-			return "Main Battle Tank Loader";
+			return L"Main Battle Tank Loader";
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return "Artillery Loader";
+			return L"Artillery Loader";
 
 		default:
-			return "Structure";
+			return L"Structure";
 		}
 	}
 	else if (m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
@@ -381,77 +381,146 @@ std::string CUpdateItem::GetName()
 		switch (m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			sResult = "CPU ";
+			sResult = L"CPU ";
 			break;
 
 		case STRUCTURE_BUFFER:
-			sResult = "Buffer ";
+			sResult = L"Buffer ";
 			break;
 
 		case STRUCTURE_PSU:
-			sResult = "Power Supply ";
+			sResult = L"Power Supply ";
 			break;
 
 		case STRUCTURE_INFANTRYLOADER:
-			sResult = "Infantry Loader ";
+			sResult = L"Infantry Loader ";
 			break;
 
 		case STRUCTURE_TANKLOADER:
-			sResult = "Tank Loader ";
+			sResult = L"Tank Loader ";
 			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
-			sResult = "Artillery Loader ";
+			sResult = L"Artillery Loader ";
 			break;
 
 		default:
-			sResult = "Structure ";
+			sResult = L"Structure ";
 		}
 
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			sResult.append("Production");
+			sResult.append(L"Power");
 			break;
 
 		case UPDATETYPE_BANDWIDTH:
-			sResult.append("Bandwidth");
+			sResult.append(L"Bandwidth");
 			break;
 
 		case UPDATETYPE_FLEETSUPPLY:
-			sResult.append("Fleet Supply");
+			sResult.append(L"Fleet Supply");
 			break;
 
 		case UPDATETYPE_SUPPORTENERGY:
-			sResult.append("Support Energy Bonus");
+			sResult.append(L"Support Energy Bonus");
 			break;
 
 		case UPDATETYPE_SUPPORTRECHARGE:
-			sResult.append("Support Recharge Bonus");
+			sResult.append(L"Support Recharge Bonus");
 			break;
 
 		case UPDATETYPE_TANKATTACK:
-			sResult.append("Attack Bonus");
+			sResult.append(L"Attack Bonus");
 			break;
 
 		case UPDATETYPE_TANKDEFENSE:
-			sResult.append("Defense Bonus");
+			sResult.append(L"Defense Bonus");
 			break;
 
 		case UPDATETYPE_TANKMOVEMENT:
-			sResult.append("Movement Bonus");
+			sResult.append(L"Movement Bonus");
 			break;
 
 		case UPDATETYPE_TANKHEALTH:
-			sResult.append("Health Bonus");
+			sResult.append(L"Health Bonus");
 			break;
 
 		case UPDATETYPE_TANKRANGE:
-			sResult.append("Range Bonus");
+			sResult.append(L"Range Bonus");
 			break;
 
 		}
 	}
 
 	return sResult;
+}
+
+std::wstring CUpdateItem::GetInfo()
+{
+	std::wstring sResult;
+
+	if (m_eUpdateClass == UPDATECLASS_STRUCTURE)
+	{
+		switch (m_eStructure)
+		{
+		case STRUCTURE_CPU:
+			return L"This program allows the player to construct a CPU. The CPU is the life and brains of your operation. It allows you to build structures and units.";
+
+		case STRUCTURE_BUFFER:
+			return L"This program allows the player to construct Buffers, which expand your territory and provide support to your tanks. They can be upgraded to provide additional fleet supply points and bandwidth as well.";
+
+		case STRUCTURE_PSU:
+			return L"This program allows the player to construct Power Supplies to mine the valuable Electronodes that provide your base with more Power. Then you can further your nefarious plans to construct units and erect structures.";
+
+		case STRUCTURE_INFANTRYLOADER:
+			return L"This program allows the player to construct Infantry Loaders, which provide the Mechanized Infantry unit, an essential defensive unit that can be fortified to defend your base.";
+
+		case STRUCTURE_TANKLOADER:
+			return L"This program allows the player to construct the Main Battle Tank Loader which produces Main Battle Tanks (unsurprisingly) which are the primary tool of defeating your enemies, or your allies should you choose.";
+
+		case STRUCTURE_ARTILLERYLOADER:
+			return L"This program allows the player to construct Artillery Loaders. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar.";
+
+		default:
+			return L"Somehow you have found a way to construct an edifice which shouldn't exist. Please be careful not to open a wormhole while you're doing it.";
+		}
+	}
+	else if (m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
+	{
+		switch (m_eUpdateType)
+		{
+		case UPDATETYPE_PRODUCTION:
+			return L"This update increases the amount of power that you generate per turn. Power helps you build structures and units faster, so that you won't have to press the 'Turn' button so much.";
+
+		case UPDATETYPE_BANDWIDTH:
+			return L"This update increases the amount of bandwidth available to you. Increased bandwidth helps you download updates and programs faster.";
+
+		case UPDATETYPE_FLEETSUPPLY:
+			return L"This update increases your maximum fleet capacity, so that you can build more tanks, which is the point of this game isn't it?";
+
+		case UPDATETYPE_SUPPORTENERGY:
+			return L"With this update installed, units supported by this buffer will receive bonuses to Attack and Defense energy.";
+
+		case UPDATETYPE_SUPPORTRECHARGE:
+			return L"When this update is installed, units supported by this buffer will recharge more health and shields each turn.";
+
+		case UPDATETYPE_TANKATTACK:
+			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its Attack Energy.";
+
+		case UPDATETYPE_TANKDEFENSE:
+			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its Defense Energy.";
+
+		case UPDATETYPE_TANKMOVEMENT:
+			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its Movement Energy.";
+
+		case UPDATETYPE_TANKHEALTH:
+			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its health.";
+
+		case UPDATETYPE_TANKRANGE:
+			return L"This update once installed gives every tank that is produced from this buffer an automatic increase to its maximum firing range.";
+		}
+	}
+
+	return L"If you can figure out what hell this thing does, please feel free to let me know.";
 }

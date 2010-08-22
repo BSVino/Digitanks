@@ -13,7 +13,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(std::string& sInfo);
+	virtual void				UpdateInfo(std::wstring& sInfo);
 
 	virtual bool				HasUpdatesAvailable();
 
@@ -22,7 +22,7 @@ public:
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual float				TotalHealth() const { return 25; };
 
-	virtual const char*			GetName() { return "Buffer"; };
+	virtual const wchar_t*		GetName() { return L"Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BUFFER; };
 	virtual size_t				ConstructionCost() const { return 20; };
 

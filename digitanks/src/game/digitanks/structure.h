@@ -37,6 +37,7 @@ public:
 	virtual void				InstallUpdate(updatetype_t eUpdate);
 	virtual void				InstallComplete();
 	void						CancelInstall();
+	size_t						GetTurnsToInstall(class CUpdateItem* pItem);
 	size_t						GetTurnsToInstall();
 	bool						IsInstalling() { return m_bInstalling; };
 	size_t						GetProductionToInstall() { return m_iProductionToInstall; };

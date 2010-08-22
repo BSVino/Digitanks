@@ -50,8 +50,8 @@ void CStructure::StartTurn()
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToInstall())
 		{
-			std::stringstream s;
-			s << "'" << GetUpdateInstalling()->GetName() << "' finished installing on " << GetName();
+			std::wstringstream s;
+			s << L"'" << GetUpdateInstalling()->GetName() << L"' finished installing on " << GetName();
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 
 			InstallComplete();
@@ -60,8 +60,8 @@ void CStructure::StartTurn()
 		{
 			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
 
-			std::stringstream s;
-			s << "Installing '" << GetUpdateInstalling()->GetName() << "' on " << GetName() << " (" << GetTurnsToInstall() << " turns left)";
+			std::wstringstream s;
+			s << L"Installing '" << GetUpdateInstalling()->GetName() << L"' on " << GetName() << L" (" << GetTurnsToInstall() << L" turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
@@ -208,6 +208,11 @@ void CStructure::CancelInstall()
 	m_bInstalling = false;
 
 	m_iProductionToInstall = 0;
+}
+
+size_t CStructure::GetTurnsToInstall(CUpdateItem* pItem)
+{
+	return (size_t)(pItem->m_iProductionToInstall/GetDigitanksTeam()->GetProductionPerLoader())+1;
 }
 
 size_t CStructure::GetTurnsToInstall()

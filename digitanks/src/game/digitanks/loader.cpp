@@ -112,23 +112,23 @@ void CLoader::StartTurn()
 			m_bProducing = false;
 
 			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-				DigitanksGame()->AppendTurnInfo("Production finished on Mechanized Infantry");
+				DigitanksGame()->AppendTurnInfo(L"Production finished on Mechanized Infantry");
 			else if (GetBuildUnit() == BUILDUNIT_TANK)
-				DigitanksGame()->AppendTurnInfo("Production finished on Main Battle Tank");
+				DigitanksGame()->AppendTurnInfo(L"Production finished on Main Battle Tank");
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
-				DigitanksGame()->AppendTurnInfo("Production finished on Artillery");
+				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
 			GetDigitanksTeam()->SetCurrentSelection(pTank);
 		}
 		else
 		{
-			std::stringstream s;
+			std::wstringstream s;
 			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-				s << "Producing Mechanized Infantry (" << GetTurnsToProduce() << " turns left)";
+				s << L"Producing Mechanized Infantry (" << GetTurnsToProduce() << L" turns left)";
 			else if (GetBuildUnit() == BUILDUNIT_TANK)
-				s << "Producing Main Battle Tank (" << GetTurnsToProduce() << " turns left)";
+				s << L"Producing Main Battle Tank (" << GetTurnsToProduce() << L" turns left)";
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
-				s << "Producing Artillery (" << GetTurnsToProduce() << " turns left)";
+				s << L"Producing Artillery (" << GetTurnsToProduce() << L" turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
@@ -160,6 +160,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Texture(s_iInstallAttackIcon);
 			pHUD->SetButton1Help("Install\nAttack");
 			pHUD->SetButton1Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL ATTACK ENERGY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Attack Energy increase: " << pUpdate->m_flValue << "0%\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
 		if (GetUnitType() == STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
@@ -168,6 +178,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Texture(s_iInstallRangeIcon);
 			pHUD->SetButton2Help("Install\nRange");
 			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKRANGE][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL ATTACK RANGE INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Attack Range increase: " << pUpdate->m_flValue << " Units\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 		else if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
 		{
@@ -175,6 +195,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Texture(s_iInstallDefenseIcon);
 			pHUD->SetButton2Help("Install\nDefense");
 			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKDEFENSE][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL DEFENSE ENERGY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Defense Energy increase: " << pUpdate->m_flValue << "0%\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
@@ -183,6 +213,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton3Texture(s_iInstallMovementIcon);
 			pHUD->SetButton3Help("Install\nMovement");
 			pHUD->SetButton3Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL MOVEMENT ENERGY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Movement Energy increase: " << pUpdate->m_flValue << "0%\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
@@ -191,6 +231,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton4Texture(s_iInstallHealthIcon);
 			pHUD->SetButton4Help("Install\nHealth");
 			pHUD->SetButton4Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL HEALTH INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Health increase: " << pUpdate->m_flValue << " Hull Strength\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(3, s.str().c_str());
 		}
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
@@ -373,58 +423,58 @@ void CLoader::SetBuildUnit(buildunit_t eBuildUnit)
 	}
 }
 
-void CLoader::UpdateInfo(std::string& sInfo)
+void CLoader::UpdateInfo(std::wstring& sInfo)
 {
-	std::stringstream s;
+	std::wstringstream s;
 
 	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-		s << "MECH. INFANTRY LOADER\n";
+		s << L"MECH. INFANTRY LOADER\n";
 	else if (GetBuildUnit() == BUILDUNIT_TANK)
-		s << "MAIN BATTLE TANK LOADER\n";
+		s << L"MAIN BATTLE TANK LOADER\n";
 	else
-		s << "ARTILLERY LOADER\n";
+		s << L"ARTILLERY LOADER\n";
 
-	s << "Unit producer\n \n";
+	s << L"Unit producer\n \n";
 
 	if (IsConstructing())
 	{
-		s << "(Constructing)\n";
-		s << "Power to build: " << GetProductionToConstruct() << "\n";
-		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		s << L"(Constructing)\n";
+		s << L"Power to build: " << GetProductionToConstruct() << L"\n";
+		s << L"Turns left: " << GetTurnsToConstruct() << L"\n";
 		sInfo = s.str();
 		return;
 	}
 
 	if (IsProducing() && GetSupplier())
 	{
-		s << "(Producing)\n";
+		s << L"(Producing)\n";
 		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * GetSupplier()->GetChildEfficiency());
 		size_t iProductionLeft = g_aiTurnsToLoad[GetBuildUnit()] - m_iProductionStored;
-		s << "Power to build: " << iProductionLeft << "\n";
-		s << "Turns left: " << (iProductionLeft/iProduction)+1 << "\n \n";
+		s << L"Power to build: " << iProductionLeft << L"\n";
+		s << L"Turns left: " << (iProductionLeft/iProduction)+1 << L"\n \n";
 	}
 
 	if (IsInstalling())
 	{
-		s << "[Installing update '" << GetUpdateInstalling()->GetName() << "'...]\n";
-		s << "Power to install: " << GetProductionToInstall() << "\n";
-		s << "Turns left: " << GetTurnsToInstall() << "\n";
+		s << L"[Installing update '" << GetUpdateInstalling()->GetName() << L"'...]\n";
+		s << L"Power to install: " << GetProductionToInstall() << L"\n";
+		s << L"Turns left: " << GetTurnsToInstall() << L"\n";
 		sInfo = s.str();
 	}
 
-	s << "Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << "%\n";
+	s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
 
 	sInfo = s.str();
 }
 
-const char* CLoader::GetName()
+const wchar_t* CLoader::GetName()
 {
 	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-		return "Mechanized Infantry Loader";
+		return L"Mechanized Infantry Loader";
 	else if (GetBuildUnit() == BUILDUNIT_TANK)
-		return "Main Battle Tank Loader";
+		return L"Main Battle Tank Loader";
 	else
-		return "Artillery Loader";
+		return L"Artillery Loader";
 }
 
 unittype_t CLoader::GetUnitType()

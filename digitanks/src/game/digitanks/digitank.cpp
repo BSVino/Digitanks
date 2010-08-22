@@ -1304,17 +1304,38 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButton1Help("Upgrade\nAttack");
 		pHUD->SetButton1Listener(CHUD::PromoteAttack);
 		pHUD->SetButton1Texture(s_iPromoteAttackIcon);
+		pHUD->SetButton1Color(Color(150, 150, 150));
+
+		std::wstringstream s1;
+		s1 << "UPGRADE ATTACK ENERGY\n \n"
+			<< "This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n"
+			<< "Attack Energy increase: 10%\n";
+		pHUD->SetButtonInfo(0, s1.str().c_str());
 
 		if (!IsArtillery())
 		{
 			pHUD->SetButton2Help("Upgrade\nDefense");
 			pHUD->SetButton2Listener(CHUD::PromoteDefense);
 			pHUD->SetButton2Texture(s_iPromoteDefenseIcon);
+			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "UPGRADE DEFENSE ENERGY\n \n"
+				<< "This upgrade strengthens your tank's shield generator, increasing the maximum Defense Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n"
+				<< "Defense Energy increase: 10%\n";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
 		pHUD->SetButton3Help("Upgrade\nMovement");
 		pHUD->SetButton3Listener(CHUD::PromoteMovement);
 		pHUD->SetButton3Texture(s_iPromoteMoveIcon);
+		pHUD->SetButton3Color(Color(150, 150, 150));
+
+		std::wstringstream s2;
+		s2 << "UPGRADE MOVEMENT ENERGY\n \n"
+			<< "This upgrade overclocks your tank's engines, increasing the maximum Movement Energy available to your tank past its normal levels. With this you'll spend less energy moving your tank around.\n \n"
+			<< "Movement Energy increase: 10%\n";
+		pHUD->SetButtonInfo(2, s2.str().c_str());
 
 		pHUD->SetButton5Help("Return");
 		pHUD->SetButton5Listener(CHUD::GoToMain);
@@ -1878,50 +1899,50 @@ void CDigitank::PostRender()
 	}
 }
 
-void CDigitank::UpdateInfo(std::string& sInfo)
+void CDigitank::UpdateInfo(std::wstring& sInfo)
 {
-	std::stringstream s;
+	std::wstringstream s;
 
 	s << GetName();
 
 	if (IsFortified())
-		s << "\n[Fortified]";
+		s << L"\n[Fortified]";
 
 	else if (IsFortifying())
-		s << "\n[Fortifying...]";
+		s << L"\n[Fortifying...]";
 
 	if (HasBonusPoints())
 	{
 		if (GetBonusPoints() > 1)
-			s << "\n \n" << GetBonusPoints() << " upgrades";
+			s << L"\n \n" << GetBonusPoints() << L" upgrades";
 		else
-			s << "\n \n1 upgrade";
+			s << L"\n \n1 upgrade";
 	}
 
 	if (GetBonusAttackPower())
 	{
-		s << "\n \n+" << (int)GetBonusAttackPower() << " attack energy";
+		s << L"\n \n+" << (int)GetBonusAttackPower() << L" attack energy";
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s << "\n (+" << (int)GetFortifyAttackPowerBonus() << " from fortify)";
+			s << L"\n (+" << (int)GetFortifyAttackPowerBonus() << L" from fortify)";
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s << "\n (+" << (int)GetSupportAttackPowerBonus() << " from support)";
+			s << L"\n (+" << (int)GetSupportAttackPowerBonus() << L" from support)";
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s << "\n \n+" << (int)GetBonusDefensePower() << " defense energy";
+		s << L"\n \n+" << (int)GetBonusDefensePower() << L" defense energy";
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s << "\n (+" << (int)GetFortifyDefensePowerBonus() << " from fortify)";
+			s << L"\n (+" << (int)GetFortifyDefensePowerBonus() << L" from fortify)";
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s << "\n (+" << (int)GetSupportDefensePowerBonus() << " from support)";
+			s << L"\n (+" << (int)GetSupportDefensePowerBonus() << L" from support)";
 	}
 
 	if (GetBonusMovementPower())
-		s << "\n \n+" << (int)GetBonusMovementPower() << " movement energy";
+		s << L"\n \n+" << (int)GetBonusMovementPower() << L" movement energy";
 
 	sInfo = s.str();
 }

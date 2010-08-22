@@ -153,6 +153,8 @@ public:
 	void						SetButton4Color(Color clrButton);
 	void						SetButton5Color(Color clrButton);
 
+	void						SetButtonInfo(int iButton, const wchar_t* pszInfo);
+
 	virtual void				GameStart();
 	virtual void				GameOver(bool bPlayerWon);
 
@@ -165,7 +167,7 @@ public:
 	virtual void				TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
 
 	virtual void				ClearTurnInfo();
-	virtual void				AppendTurnInfo(const char* pszInfo);
+	virtual void				AppendTurnInfo(const wchar_t* pszInfo);
 
 	virtual void				SetHUDActive(bool bActive);
 
@@ -173,6 +175,20 @@ public:
 	void						SetAutoProceed(bool bAuto);
 
 	bool						IsActive() { return m_bHUDActive; };
+
+	void						ShowButtonInfo(int iButton);
+	void						HideButtonInfo();
+
+	EVENT_CALLBACK(CHUD, Button1CursorIn);
+	EVENT_CALLBACK(CHUD, Button1CursorOut);
+	EVENT_CALLBACK(CHUD, Button2CursorIn);
+	EVENT_CALLBACK(CHUD, Button2CursorOut);
+	EVENT_CALLBACK(CHUD, Button3CursorIn);
+	EVENT_CALLBACK(CHUD, Button3CursorOut);
+	EVENT_CALLBACK(CHUD, Button4CursorIn);
+	EVENT_CALLBACK(CHUD, Button4CursorOut);
+	EVENT_CALLBACK(CHUD, Button5CursorIn);
+	EVENT_CALLBACK(CHUD, Button5CursorOut);
 
 	EVENT_CALLBACK(CHUD, EndTurn);
 	EVENT_CALLBACK(CHUD, OpenUpdates);
@@ -255,6 +271,9 @@ protected:
 	float						m_flTurnInfoHeightGoal;
 	float						m_flTurnInfoLerp;
 	float						m_flTurnInfoLerpGoal;
+
+	glgui::CLabel*				m_pButtonInfo;
+	std::wstring				m_aszButtonInfos[5];
 
 	glgui::CLabel*				m_pPressEnter;
 

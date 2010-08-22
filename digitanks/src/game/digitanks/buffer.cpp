@@ -56,6 +56,16 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Texture(s_iInstallBandwidthIcon);
 			pHUD->SetButton1Help("Install\nBandwidth");
 			pHUD->SetButton1Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_BANDWIDTH][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL BANDWIDTH INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Bandwidth increase: " << pUpdate->m_flValue << " mbps\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
@@ -64,6 +74,16 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Texture(s_iInstallFleetSupplyIcon);
 			pHUD->SetButton2Help("Install\nFleet Sply");
 			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_FLEETSUPPLY][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Fleet Supply increase: " << pUpdate->m_flValue << "\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY) >= 0)
@@ -72,6 +92,17 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton3Texture(s_iInstallEnergyBonusIcon);
 			pHUD->SetButton3Help("Install\nEnrg Bonus");
 			pHUD->SetButton3Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_SUPPORTENERGY][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL SUPPORT ENERGY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Attack Energy Buff increase: +" << pUpdate->m_flValue << "\n"
+				<< "Defense Energy Buff increase: +" << pUpdate->m_flValue << "\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE) >= 0)
@@ -80,6 +111,17 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton4Texture(s_iInstallRechargeBonusIcon);
 			pHUD->SetButton4Help("Install\nRchg Bonus");
 			pHUD->SetButton4Color(Color(150, 150, 150));
+
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_SUPPORTRECHARGE][iUpdate];
+
+			std::wstringstream s;
+			s << "INSTALL HEALTH ENERGY INCREASE\n \n"
+				<< pUpdate->GetInfo() << "\n \n"
+				<< "Health Recharge Buff increase: +" << pUpdate->m_flValue/5 << " per turn\n"
+				<< "Shield Recharge Buff increase: +" << pUpdate->m_flValue << " per turn\n"
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+			pHUD->SetButtonInfo(3, s.str().c_str());
 		}
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
@@ -99,26 +141,26 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 	}
 }
 
-void CBuffer::UpdateInfo(std::string& sInfo)
+void CBuffer::UpdateInfo(std::wstring& sInfo)
 {
-	std::stringstream s;
+	std::wstringstream s;
 
-	s << "BUFFER INFO\n";
-	s << "Network extender\n \n";
+	s << L"BUFFER INFO\n";
+	s << L"Network extender\n \n";
 
 	if (IsConstructing())
 	{
-		s << "(Constructing)\n";
-		s << "Power to build: " << GetProductionToConstruct() << "\n";
-		s << "Turns left: " << GetTurnsToConstruct() << "\n";
+		s << L"(Constructing)\n";
+		s << L"Power to build: " << GetProductionToConstruct() << "\n";
+		s << L"Turns left: " << GetTurnsToConstruct() << "\n";
 		sInfo = s.str();
 		return;
 	}
 
-	s << "Strength: " << m_iDataStrength << "\n";
-	s << "Growth: " << (int)GetDataFlowRate() << "\n";
-	s << "Size: " << (int)GetDataFlowRadius() << "\n";
-	s << "Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
+	s << L"Strength: " << m_iDataStrength << "\n";
+	s << L"Growth: " << (int)GetDataFlowRate() << "\n";
+	s << L"Size: " << (int)GetDataFlowRadius() << "\n";
+	s << L"Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
 
 	sInfo = s.str();
 }

@@ -33,7 +33,7 @@ public:
 	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech)=0;
 
 	virtual void			ClearTurnInfo()=0;
-	virtual void			AppendTurnInfo(const char* pszInfo)=0;
+	virtual void			AppendTurnInfo(const wchar_t* pszInfo)=0;
 
 	virtual void			SetHUDActive(bool bActive)=0;
 };
@@ -137,7 +137,7 @@ public:
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
-	void					AppendTurnInfo(const char* pszTurnInfo);
+	void					AppendTurnInfo(const wchar_t* pszTurnInfo);
 
 	void					OnDisplayTutorial(size_t iTutorial);
 

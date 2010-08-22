@@ -44,11 +44,11 @@ public:
 	virtual void				OnRender();
 	virtual void				PostRender();
 
-	virtual void				UpdateInfo(std::string& sInfo);
+	virtual void				UpdateInfo(std::wstring& sInfo);
 
 	virtual void				OnDeleted();
 
-	virtual const char*			GetName() { return "Central Processing Unit"; };
+	virtual const wchar_t*		GetName() { return L"Central Processing Unit"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_CPU; };
 
 protected:

@@ -22,7 +22,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(std::string& sInfo);
+	virtual void				UpdateInfo(std::wstring& sInfo);
 
 	void						BeginProduction();
 	void						CancelProduction();
@@ -41,7 +41,7 @@ public:
 	void						SetBuildUnit(buildunit_t eBuildUnit);
 	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
 
-	virtual const char*			GetName();
+	virtual const wchar_t*		GetName();
 	virtual unittype_t			GetUnitType();
 	virtual size_t				ConstructionCost() const { return 70; };
 	virtual float				TotalHealth() const { return 70; };

@@ -144,13 +144,20 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		return;
 	}
 
-	std::stringstream s;
-	s << pInfo->GetName() << "\n \n";
-	s << "Increase: " << pInfo->m_flValue << "\n";
-	s << "Download size: " << pInfo->m_iSize << "\n";
-	s << "Power to install: " << pInfo->m_iProductionToInstall << "\n";
+	std::wstringstream s;
+	s << pInfo->GetName() << L"\n \n";
+	s << pInfo->GetInfo() << L"\n \n";
+
+	if (pInfo->m_eUpdateClass != UPDATECLASS_STRUCTURE)
+		s << L"Increase: " << pInfo->m_flValue << L"\n";
+
+	s << L"Download size: " << pInfo->m_iSize << L"\n";
+	s << L"Power to install: " << pInfo->m_iProductionToInstall << L"\n";
 
 	m_pInfo->SetText(s.str().c_str());
+
+	m_pInfo->SetSize(m_pInfo->GetWidth(), 9999);
+	m_pInfo->SetSize(m_pInfo->GetWidth(), (int)m_pInfo->GetTextHeight()+20);
 }
 
 CUpdateButton::CUpdateButton(CUpdatesPanel* pPanel)
