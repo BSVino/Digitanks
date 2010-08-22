@@ -73,10 +73,11 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <AdditionalOptions>/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>DevIL.lib;ILU.lib;ftgl_static.lib;freetype2311MT.lib;raytracer.lib;modelconverter.lib;SDL_mixer.lib;SDL.lib;SDLmain.lib;Iphlpapi.lib;enet.lib;Ws2_32.lib;GLFW.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ftgl_static.lib;freetype2311MT.lib;raytracer.lib;modelconverter.lib;SDL_mixer.lib;SDL.lib;SDLmain.lib;Iphlpapi.lib;enet.lib;Ws2_32.lib;GLFW.lib;opengl32.lib;glu32.lib;Winmm.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../glfw/support/msvc2010/Release;../../lib/release;../..\DevIL\lib\unicode;../..\freetype-2.3.11\objs\win32\vc2010;../..\ftgl-2.1.3~rc5\msvc\build;$(PROGRAMFILES)\Feeling Software\FCollada\Output\Retail Unicode Win32;..\..\SDL-1.2.14\lib;..\..\SDL_mixer-1.2.11\lib;..\..\enet-1.3.0\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>

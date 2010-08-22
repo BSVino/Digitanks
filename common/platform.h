@@ -6,5 +6,6 @@ void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
 void OpenBrowser(const wchar_t* pszAddress);
+void CreateMinidump(void* pInfo);
 
 #endif
