@@ -13,6 +13,12 @@ inline float RandomFloat(float flLow, float flHigh)
 
 inline int RandomInt(int iLow, int iHigh)
 {
+	if (iLow == iHigh)
+		return iLow;
+
+	if (iLow > iHigh)
+		return iLow;
+
 	return mtrand()%(iHigh-iLow) + iLow;
 }
 

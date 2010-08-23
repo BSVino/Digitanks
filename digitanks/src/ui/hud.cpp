@@ -1190,6 +1190,8 @@ void CHUD::NewCurrentTeam()
 	}
 
 	UpdateScoreboard();
+
+	CRootPanel::Get()->Layout();
 }
 
 void CHUD::NewCurrentSelection()

@@ -1188,7 +1188,7 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 		glEnable(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
-		glColor4f(1,1,1,1);
+		glColor4f(1,1,1,(float)GetAlpha()/255);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0, 1);
 			glVertex2d(x, y);
