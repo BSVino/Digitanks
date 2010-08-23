@@ -42,6 +42,9 @@ public:
 	void						SetTeamClient(class CNetworkParameters* p);
 	void						AddEntityToTeam(class CNetworkParameters* p);
 
+	void						SetName(std::wstring& szName) { m_szName = szName; };
+	std::wstring&				GetName() { return m_szName; }
+
 protected:
 	Color						m_clrTeam;
 
@@ -49,6 +52,8 @@ protected:
 
 	bool						m_bClientControlled;
 	int							m_iClient;
+
+	std::wstring				m_szName;
 };
 
 #endif

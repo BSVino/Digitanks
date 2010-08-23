@@ -46,6 +46,8 @@ public:
 	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
 	static size_t				ArtilleryFleetPoints() { return 5; };
 
+	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_ARTILLERY; }
+
 protected:
 	bool						m_bFortified;
 	size_t						m_iFortifyLevel;

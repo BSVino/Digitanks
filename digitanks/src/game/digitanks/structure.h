@@ -45,6 +45,7 @@ public:
 	class CUpdateItem*			GetUpdateInstalling();
 	virtual bool				HasUpdatesAvailable() { return false; };
 	virtual void				DownloadComplete(class CUpdateItem* pItem);
+	size_t						GetUpdatesScore();
 
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };

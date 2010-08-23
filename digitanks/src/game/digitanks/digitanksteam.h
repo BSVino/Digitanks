@@ -46,6 +46,9 @@ public:
 	size_t						GetUsedFleetPoints() { return m_iUsedFleetPoints; };
 	size_t						GetUnusedFleetPoints() { return GetTotalFleetPoints() - GetUsedFleetPoints(); };
 
+	void						CountScore();
+	size_t						GetScore() { return m_iScore; };
+
 	void						CountBandwidth();
 	size_t						GetBandwidth() { return m_iBandwidth; };
 
@@ -97,6 +100,8 @@ protected:
 
 	size_t						m_iTotalFleetPoints;
 	size_t						m_iUsedFleetPoints;
+
+	size_t						m_iScore;
 
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;

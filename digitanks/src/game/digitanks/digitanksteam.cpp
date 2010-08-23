@@ -209,6 +209,8 @@ void CDigitanksTeam::StartTurn()
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
+
+	CountScore();
 }
 
 void CDigitanksTeam::MoveTanks()
@@ -301,6 +303,34 @@ void CDigitanksTeam::CountFleetPoints()
 		CLoader* pLoader = dynamic_cast<CLoader*>(pStructure);
 		if (pLoader && pLoader->IsProducing())
 			m_iUsedFleetPoints += pLoader->GetFleetPointsRequired();
+	}
+}
+
+void CDigitanksTeam::CountScore()
+{
+	m_iScore = 0;
+
+	// Find and count fleet points
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (!pEntity)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+
+		if (pTank)
+			m_iScore += CLoader::GetUnitProductionCost(pTank->GetBuildUnit());
+
+		if (pStructure && !pStructure->IsConstructing())
+		{
+			m_iScore += pStructure->ConstructionCost();
+			m_iScore += pStructure->GetUpdatesScore();
+		}
 	}
 }
 

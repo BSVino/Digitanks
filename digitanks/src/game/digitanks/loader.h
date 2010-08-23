@@ -46,6 +46,8 @@ public:
 	virtual size_t				ConstructionCost() const { return 70; };
 	virtual float				TotalHealth() const { return 70; };
 
+	static size_t				GetUnitProductionCost(buildunit_t eBuildUnit);
+
 protected:
 	buildunit_t					m_eBuildUnit;
 

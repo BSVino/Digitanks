@@ -487,3 +487,8 @@ unittype_t CLoader::GetUnitType()
 	else
 		return STRUCTURE_ARTILLERYLOADER;
 }
+
+size_t CLoader::GetUnitProductionCost(buildunit_t eBuildUnit)
+{
+	return g_aiTurnsToLoad[eBuildUnit];
+}

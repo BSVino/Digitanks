@@ -123,6 +123,7 @@ public:
 	void						UpdateTankInfo(CDigitank* pTank);
 	void						UpdateStructureInfo(CStructure* pStructure);
 	void						UpdateTeamInfo();
+	void						UpdateScoreboard();
 
 	void						SetGame(class CDigitanksGame* pGame);
 
@@ -290,6 +291,8 @@ protected:
 	CUpdatesPanel*				m_pUpdatesPanel;
 
 	glgui::CPictureButton*		m_pTurnButton;
+
+	glgui::CLabel*				m_pScoreboard;
 
 	size_t						m_iHUDGraphic;
 

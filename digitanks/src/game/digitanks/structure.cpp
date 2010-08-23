@@ -258,6 +258,21 @@ void CStructure::DownloadComplete(CUpdateItem* pItem)
 	m_apUpdates[pItem->m_eUpdateType].push_back(pItem);
 }
 
+size_t CStructure::GetUpdatesScore()
+{
+	size_t iScore = 0;
+	for (size_t i = 0; i < UPDATETYPE_SIZE; i++)
+	{
+		for (size_t j = 0; j < m_apUpdates[i].size(); j++)
+		{
+			if (m_aiUpdatesInstalled[i] > j)
+				iScore += m_apUpdates[i][j]->m_iProductionToInstall;
+		}
+	}
+
+	return iScore;
+}
+
 void CStructure::SetSupplier(class CSupplier* pSupplier)
 {
 	m_hSupplier = pSupplier;

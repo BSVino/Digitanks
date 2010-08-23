@@ -170,6 +170,12 @@ CHUD::CHUD()
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pAttackInfo);
 
+	m_pScoreboard = new CLabel(0, 0, 100, 150, "");
+	m_pScoreboard->SetWrap(false);
+	m_pScoreboard->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	m_pScoreboard->SetFontFaceSize(10);
+	AddControl(m_pScoreboard);
+
 	m_pFrontShieldInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pFrontShieldInfo);
 
@@ -522,6 +528,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (m_flAttackInfoAlpha > 0)
 		// Background for the attack info label
 		CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, (int)(100*m_flAttackInfoAlpha)));
+
+	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
 	// Turn info panel
 	CRootPanel::PaintRect(m_pTurnInfo->GetLeft()-5, m_pTurnInfo->GetTop()-10, m_pTurnInfo->GetWidth(), m_pTurnInfo->GetHeight(), Color(0, 0, 0, 100));
@@ -915,6 +923,59 @@ void CHUD::UpdateTeamInfo()
 	m_pBandwidthInfo->SetText(s3.str().c_str());
 }
 
+void CHUD::UpdateScoreboard()
+{
+	std::vector<CDigitanksTeam*> apSortedTeams;
+
+	// Prob not the fastest sorting algorithm but it doesn't need to be.
+	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	{
+		CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+		if (apSortedTeams.size() == 0)
+		{
+			apSortedTeams.push_back(pTeam);
+			continue;
+		}
+
+		bool bFound = false;
+		for (size_t j = 0; j < apSortedTeams.size(); j++)
+		{
+			if (pTeam->GetScore() > apSortedTeams[j]->GetScore())
+			{
+				apSortedTeams.insert(apSortedTeams.begin()+j, pTeam);
+				bFound = true;
+				break;
+			}
+		}
+
+		if (!bFound)
+			apSortedTeams.push_back(pTeam);
+	}
+
+	std::wstringstream s;
+	for (size_t i = 0; i < apSortedTeams.size(); i++)
+	{
+		CDigitanksTeam* pTeam = apSortedTeams[i];
+
+		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
+			s << "[";
+		s << pTeam->GetName();
+		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
+			s << "]";
+
+		s << ": " << pTeam->GetScore() << "\n";
+	}
+
+	m_pScoreboard->SetText(s.str().c_str());
+
+	m_pScoreboard->SetSize(100, 9999);
+	m_pScoreboard->SetSize(m_pScoreboard->GetWidth(), (int)m_pScoreboard->GetTextHeight());
+
+	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
+
+	m_pScoreboard->SetPos(iWidth - m_pScoreboard->GetWidth() - 10, m_pAttackInfo->GetTop() - m_pScoreboard->GetHeight() - 20);
+}
+
 void CHUD::SetGame(CDigitanksGame *pGame)
 {
 	m_pGame = pGame;
@@ -1127,6 +1188,8 @@ void CHUD::NewCurrentTeam()
 		if (DigitanksGame()->GetTurn() >= 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
 			m_pUpdatesPanel->SetVisible(true);
 	}
+
+	UpdateScoreboard();
 }
 
 void CHUD::NewCurrentSelection()

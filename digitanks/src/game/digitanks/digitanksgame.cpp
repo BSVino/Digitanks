@@ -260,6 +260,14 @@ void CDigitanksGame::SetupStandard()
 		Color(255, 255, 255),
 	};
 
+	std::wstring aszTeamNames[] =
+	{
+		L"Blue",
+		L"Yellow",
+		L"Pink",
+		L"Red",
+	};
+
 	Vector avecStartingPositions[] =
 	{
 		Vector(130, 0, 130),
@@ -273,6 +281,7 @@ void CDigitanksGame::SetupStandard()
 		m_ahTeams.push_back(Game()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
+		m_ahTeams[i]->SetName(aszTeamNames[i]);
 
 		CCPU* pCPU = Game()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecStartingPositions[i]));
@@ -417,6 +426,9 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 
 	if (CNetwork::IsHost())
 		CNetwork::CallFunction(-1, "EnterGame");
+
+	for (size_t i = 0; i < GetNumTeams(); i++)
+		GetDigitanksTeam(i)->CountScore();
 
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;

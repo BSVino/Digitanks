@@ -2,6 +2,7 @@
 #define DT_DIGITANK_H
 
 #include "selectable.h"
+#include "loader.h"
 #include <common.h>
 
 #define TANK_SHIELDS 4
@@ -247,6 +248,8 @@ public:
 	virtual float				FiringCone() const { return 360; };
 	virtual float				VisibleRange() const { return 75; };
 	virtual size_t				FleetPoints() const { return 2; };
+
+	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_TANK; }
 
 	// AI stuff
 	virtual void				SetFortifyPoint(Vector vecFortify);

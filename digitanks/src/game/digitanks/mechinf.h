@@ -49,6 +49,8 @@ public:
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
 	static size_t				InfantryFleetPoints() { return 2; };
 
+	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_INFANTRY; }
+
 protected:
 	size_t						m_iFireProjectiles;
 	float						m_flLastProjectileFire;
