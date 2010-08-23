@@ -17,10 +17,9 @@ unittype_t g_aeBuildOrder[] =
 	STRUCTURE_BUFFER,
 	STRUCTURE_PSU,
 	STRUCTURE_INFANTRYLOADER,
-	STRUCTURE_BUFFER,
 	STRUCTURE_PSU,
 	STRUCTURE_TANKLOADER,
-	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
 	STRUCTURE_PSU,
 	STRUCTURE_ARTILLERYLOADER,
 	STRUCTURE_BUFFER,
@@ -81,10 +80,14 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 
 void CDigitanksTeam::Bot_ExpandBase()
 {
-	if (GetNumProducers() < 2)
+	// Never install more than one thing at a time so we don't get bogged down in installations.
+	if (GetNumProducers() < 1)
 	{
 		for (size_t i = 0; i < m_ahMembers.size(); i++)
 		{
+			if (GetNumProducers() >= 1)
+				break;
+
 			CBaseEntity* pEntity = m_ahMembers[i];
 			if (!pEntity)
 				continue;
@@ -100,7 +103,11 @@ void CDigitanksTeam::Bot_ExpandBase()
 				continue;
 
 			// Give the CPU a chance to build structures.
-			if (dynamic_cast<CCPU*>(pStructure) && mtrand()%2 == 0)
+			if (mtrand()%2 == 0)
+				continue;
+
+			// PSU's are highest priority.
+			if (m_iBuildPosition < sizeof(g_aeBuildOrder)/sizeof(unittype_t) && g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_PSU)
 				continue;
 
 			for (size_t u = 0; u < UPDATETYPE_SIZE; u++)
@@ -146,9 +153,10 @@ void CDigitanksTeam::Bot_ExpandBase()
 		}
 	}
 
+	CResource* pTargetResource = NULL;
+	CSupplier* pClosestSupplier = NULL;
 	if (iNextBuild == STRUCTURE_PSU)
 	{
-		CResource* pTargetResource = NULL;
 		while (true)
 		{
 			pTargetResource = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin(), pTargetResource);
@@ -168,7 +176,6 @@ void CDigitanksTeam::Bot_ExpandBase()
 			return;
 		}
 
-		CSupplier* pClosestSupplier = NULL;
 		while (true)
 		{
 			pClosestSupplier = CBaseEntity::FindClosest<CSupplier>(pTargetResource->GetOrigin(), pClosestSupplier);
@@ -191,41 +198,11 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 		// Too damn far? Do a random buffer instead.
 		if ((pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
-		{
-			CSupplier* pUnused = FindUnusedSupplier(4, false);
+			iNextBuild = STRUCTURE_BUFFER;
+	}
 
-			float flYaw;
-			if (pUnused == m_hPrimaryCPU)
-				flYaw = RandomFloat(0, 360);
-			else
-			{
-				flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
-				flYaw = RandomFloat(flYaw-90, flYaw+90);
-			}
-
-			// Pick a random direction facing more or less away from the CPU so that we spread outwards.
-			Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
-			Vector vecStructure = pUnused->GetOrigin();
-			vecStructure += vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
-
-			// Don't build structures too close to the map edges.
-			if (vecStructure.x < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
-				return;
-			if (vecStructure.z < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
-				return;
-			if (vecStructure.x > DigitanksGame()->GetTerrain()->GetMapSize()-15)
-				return;
-			if (vecStructure.z > DigitanksGame()->GetTerrain()->GetMapSize()-15)
-				return;
-
-			DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
-
-			m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_BUFFER);
-			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
-			m_hPrimaryCPU->BeginConstruction();
-			return;
-		}
-
+	if (iNextBuild == STRUCTURE_PSU)
+	{
 		if (CSupplier::GetDataFlow(pTargetResource->GetOrigin(), this) > 1)
 		{
 			BuildCollector(pClosestSupplier, pTargetResource);
@@ -242,11 +219,17 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 			m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_BUFFER);
 			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
-			m_hPrimaryCPU->BeginConstruction();
-		}
 
-		return;
+			// If we can't build this PSU for some reason, build a random buffer instead.
+			if (!m_hPrimaryCPU->IsPreviewBuildValid())
+				iNextBuild = STRUCTURE_BUFFER;
+			else
+				m_hPrimaryCPU->BeginConstruction();
+		}
 	}
+
+	if (iNextBuild == STRUCTURE_PSU)
+		return;
 
 	// If we can't build this kind of structure then return without trying to do anything
 	// and wait until we can.
@@ -324,6 +307,11 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 	m_hPrimaryCPU->SetPreviewStructure(iNextBuild);
 	m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+
+	// If we can't build for some reason, don't bump the build position and skip this structure.
+	if (!m_hPrimaryCPU->IsPreviewBuildValid())
+		return;
+
 	m_hPrimaryCPU->BeginConstruction();
 
 	if (bBumpBuildPosition)
@@ -378,6 +366,13 @@ void CDigitanksTeam::Bot_BuildUnits()
 		if (pLoader->IsConstructing())
 			continue;
 
+		// Don't just build infantry all the time.
+		if (mtrand()%2 == 0)
+			continue;
+
+		if (pLoader->IsProducing())
+			continue;
+
 		size_t iTanks;
 		float flValue;
 		if (pLoader->GetBuildUnit() == BUILDUNIT_INFANTRY)
@@ -402,8 +397,7 @@ void CDigitanksTeam::Bot_BuildUnits()
 		if (flTanksRatio > flBuildRatio)
 			continue;
 
-		if (!pLoader->IsProducing())
-			pLoader->BeginProduction();
+		pLoader->BeginProduction();
 	}
 }
 

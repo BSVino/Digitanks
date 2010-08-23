@@ -167,6 +167,8 @@ void CStructure::InstallUpdate(updatetype_t eUpdate)
 	m_iInstallingUpdate = iUninstalled;
 
 	m_iProductionToInstall = m_apUpdates[eUpdate][iUninstalled]->m_iProductionToInstall;
+
+	GetDigitanksTeam()->CountProducers();
 }
 
 void CStructure::InstallComplete()

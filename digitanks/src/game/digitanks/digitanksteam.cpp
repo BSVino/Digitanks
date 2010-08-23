@@ -157,34 +157,7 @@ void CDigitanksTeam::StartTurn()
 		m_aflVisibilities[pEntity->GetHandle()] = GetVisibilityAtPoint(pEntity->GetOrigin());
 	}
 
-	// Find and count producers and accumulate production points
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
-	{
-		if (m_ahMembers[i] == NULL)
-			continue;
-
-		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
-		if (!pEntity)
-			continue;
-
-		CLoader* pLoader = dynamic_cast<CLoader*>(m_ahMembers[i].GetPointer());
-		if (pLoader && pLoader->IsProducing())
-			AddProducer();
-
-		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
-		if (pStructure && pStructure->IsConstructing())
-			AddProducer();
-
-		if (pStructure && pStructure->IsInstalling())
-			AddProducer();
-
-		if (pStructure && pStructure->Power())
-			AddProduction(pStructure->Power());
-
-		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
-		if (pCollector && !pCollector->IsConstructing() && pCollector->GetSupplier())
-			AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
-	}
+	CountProducers();
 
 	// Tell CPU's to calculate data flow before StartTurn logic, which updates tendrils and data strengths.
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -253,6 +226,38 @@ void CDigitanksTeam::FireTanks()
 	{
 		if (m_ahTanks[i] != NULL)
 			m_ahTanks[i]->Fire();
+	}
+}
+
+void CDigitanksTeam::CountProducers()
+{
+	// Find and count producers and accumulate production points
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (!pEntity)
+			continue;
+
+		CLoader* pLoader = dynamic_cast<CLoader*>(m_ahMembers[i].GetPointer());
+		if (pLoader && pLoader->IsProducing())
+			AddProducer();
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
+		if (pStructure && pStructure->IsConstructing())
+			AddProducer();
+
+		if (pStructure && pStructure->IsInstalling())
+			AddProducer();
+
+		if (pStructure && pStructure->Power())
+			AddProduction(pStructure->Power());
+
+		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
+		if (pCollector && !pCollector->IsConstructing() && pCollector->GetSupplier())
+			AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
 	}
 }
 

@@ -377,6 +377,8 @@ void CCPU::BeginConstruction()
 			pLoader->SetBuildUnit(BUILDUNIT_ARTILLERY);
 	}
 
+	GetDigitanksTeam()->CountProducers();
+
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 
 	if (m_ePreviewStructure == STRUCTURE_BUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)

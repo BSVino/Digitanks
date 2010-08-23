@@ -34,6 +34,7 @@ public:
 	void						MoveTanks();
 	void						FireTanks();
 
+	void						CountProducers();
 	void						AddProduction(size_t iProduction);
 	void						AddProducer() { m_iLoadersProducing++; };
 	size_t						GetNumProducers() { return m_iLoadersProducing; };

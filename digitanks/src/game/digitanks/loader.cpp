@@ -307,6 +307,7 @@ void CLoader::BeginProduction()
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 
 	GetDigitanksTeam()->CountFleetPoints();
+	GetDigitanksTeam()->CountProducers();
 }
 
 void CLoader::CancelProduction()
