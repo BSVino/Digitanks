@@ -67,6 +67,9 @@ void CLoader::StartTurn()
 {
 	BaseClass::StartTurn();
 
+	if (!m_bProducing)
+		m_iProductionStored = 0;
+
 	if (m_bProducing && m_hSupplier != NULL)
 	{
 		m_iProductionStored += (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
@@ -214,8 +217,8 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton3Help("Install\nMovement");
 			pHUD->SetButton3Color(Color(150, 150, 150));
 
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKMOVEMENT][iUpdate];
 
 			std::wstringstream s;
 			s << "INSTALL MOVEMENT ENERGY INCREASE\n \n"
@@ -232,8 +235,8 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton4Help("Install\nHealth");
 			pHUD->SetButton4Color(Color(150, 150, 150));
 
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
+			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH);
+			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKHEALTH][iUpdate];
 
 			std::wstringstream s;
 			s << "INSTALL HEALTH INCREASE\n \n"
@@ -260,21 +263,33 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		if (HasEnoughFleetPoints())
 			pHUD->SetButton1Listener(CHUD::BuildUnit);
 
+		std::wstringstream s;
+
 		if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 		{
 			pHUD->SetButton1Help("Build\nMech. Inf");
 			pHUD->SetButton1Texture(s_iBuildInfantryIcon);
+			s << "BUILD MECHANIZED INFANTRY\n \n";
+			s << "Mechanized infantry can fortify, gaining defense and attack energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
 		}
 		else if (GetBuildUnit() == BUILDUNIT_TANK)
 		{
 			pHUD->SetButton1Help("Build\nMain Tank");
 			pHUD->SetButton1Texture(s_iBuildTankIcon);
+			s << "BUILD MAIN BATTLE TANK\n \n";
+			s << "Main Battle Tanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
 		}
 		else
 		{
-			pHUD->SetButton1Help("Build\nArtillery Tank");
+			pHUD->SetButton1Help("Build\nArtillery");
 			pHUD->SetButton1Texture(s_iBuildArtilleryIcon);
+			s << "BUILD ARTILLERY\n \n";
+			s << "Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Use them to soften enemy positions before moving in.\n \n";
 		}
+
+		s << "Fleet supply required: " << GetFleetPointsRequired() << "\n";
+		s << "Turns to produce: " << GetTurnsToProduce() << " Turns";
+		pHUD->SetButtonInfo(0, s.str().c_str());
 
 		if (HasEnoughFleetPoints())
 			pHUD->SetButton1Color(Color(150, 150, 150));
@@ -316,6 +331,15 @@ void CLoader::CancelProduction()
 	m_bProducing = false;
 
 	GetDigitanksTeam()->CountFleetPoints();
+}
+
+size_t CLoader::GetUnitProductionCost()
+{
+	size_t iUpdates = 0;
+	for (size_t i = 0; i < m_aiUpdatesInstalled.size(); i++)
+		iUpdates += m_aiUpdatesInstalled[i];
+
+	return g_aiTurnsToLoad[m_eBuildUnit] + iUpdates*4;
 }
 
 void CLoader::InstallUpdate(updatetype_t eUpdate)
@@ -401,7 +425,7 @@ size_t CLoader::GetTurnsToProduce()
 		return -1;
 
 	size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
-	return (size_t)((g_aiTurnsToLoad[GetBuildUnit()]-m_iProductionStored)/iPerTurn)+1;
+	return (size_t)((GetUnitProductionCost()-m_iProductionStored)/iPerTurn)+1;
 }
 
 void CLoader::SetBuildUnit(buildunit_t eBuildUnit)
@@ -450,7 +474,7 @@ void CLoader::UpdateInfo(std::wstring& sInfo)
 	{
 		s << L"(Producing)\n";
 		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * GetSupplier()->GetChildEfficiency());
-		size_t iProductionLeft = g_aiTurnsToLoad[GetBuildUnit()] - m_iProductionStored;
+		size_t iProductionLeft = GetUnitProductionCost() - m_iProductionStored;
 		s << L"Power to build: " << iProductionLeft << L"\n";
 		s << L"Turns left: " << (iProductionLeft/iProduction)+1 << L"\n \n";
 	}

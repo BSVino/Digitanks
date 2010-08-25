@@ -136,9 +136,7 @@ void CDigitanksTeam::NextTank()
 
 void CDigitanksTeam::StartTurn()
 {
-	m_iProduction = 0;
 	m_aflVisibilities.clear();
-	m_iLoadersProducing = 0;
 	m_iTotalFleetPoints = m_iUsedFleetPoints = 0;
 
 	// For every entity in the game, calculate the visibility to this team
@@ -188,6 +186,8 @@ void CDigitanksTeam::StartTurn()
 		}
 	}
 
+	// Recount producers in case updates have been installed.
+	CountProducers();
 	CountFleetPoints();
 	CountBandwidth();
 
@@ -233,6 +233,9 @@ void CDigitanksTeam::FireTanks()
 
 void CDigitanksTeam::CountProducers()
 {
+	m_iProduction = 0;
+	m_iLoadersProducing = 0;
+
 	// Find and count producers and accumulate production points
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{

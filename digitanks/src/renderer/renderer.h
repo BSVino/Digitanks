@@ -155,7 +155,7 @@ public:
 
 public:
 	static size_t	CreateCallList(size_t iModel);
-	static size_t	LoadTextureIntoGL(std::wstring sFilename);
+	static size_t	LoadTextureIntoGL(std::wstring sFilename, bool bClamp = false);
 
 protected:
 	size_t			m_iWidth;

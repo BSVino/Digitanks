@@ -852,7 +852,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 	return iCallList;
 }
 
-size_t CRenderer::LoadTextureIntoGL(std::wstring sFilename)
+size_t CRenderer::LoadTextureIntoGL(std::wstring sFilename, bool bClamp)
 {
 	if (!sFilename.length())
 		return 0;
@@ -886,6 +886,13 @@ size_t CRenderer::LoadTextureIntoGL(std::wstring sFilename)
 	glBindTexture(GL_TEXTURE_2D, iGLId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	if (bClamp)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	}
+
 	gluBuild2DMipmaps(GL_TEXTURE_2D,
 		ilGetInteger(IL_IMAGE_BPP),
 		ilGetInteger(IL_IMAGE_WIDTH),

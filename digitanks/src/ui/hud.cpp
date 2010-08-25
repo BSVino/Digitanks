@@ -246,7 +246,7 @@ CHUD::CHUD()
 
 	m_iTurnSound = CSoundLibrary::Get()->AddSound("sound/turn.wav");
 
-	m_iHUDGraphic = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main.png");
+	m_iHUDGraphic = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main.png", true);
 
 	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
@@ -358,7 +358,6 @@ void CHUD::Layout()
 	m_pPressEnter->SetDimensions(iWidth/2 - 100/2, iHeight*2/3, 100, 50);
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pPressEnter->SetWrap(false);
-	m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
 
 	m_pPowerInfo->SetAlign(CLabel::TA_TOPLEFT);
 	m_pPowerInfo->SetPos(iWidth - 290, 20);

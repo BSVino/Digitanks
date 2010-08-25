@@ -126,13 +126,13 @@ void CUpdatesPanel::Layout()
 					pUpdate->SetButtonColor(Color(250/2, 100/2, 100/2));
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(250/6, 100/6, 100/6));
+					pUpdate->SetButtonColor(Color(250/10, 100/10, 100/10));
 					pUpdate->SetAlpha(200/6);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(250/2, 100/2, 100/2));
-					pUpdate->SetAlpha(200/2);
+					pUpdate->SetButtonColor(Color(250/3, 100/3, 100/3));
+					pUpdate->SetAlpha(200*2/3);
 				}
 			}
 			else if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
@@ -141,13 +141,13 @@ void CUpdatesPanel::Layout()
 					pUpdate->SetButtonColor(Color(200/2, 200/2, 200/2));
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(200/6, 200/6, 200/6));
+					pUpdate->SetButtonColor(Color(200/10, 200/10, 200/10));
 					pUpdate->SetAlpha(200/6);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(200/2, 200/2, 200/2));
-					pUpdate->SetAlpha(200/2);
+					pUpdate->SetButtonColor(Color(200/3, 200/3, 200/3));
+					pUpdate->SetAlpha(200*2/3);
 				}
 			}
 

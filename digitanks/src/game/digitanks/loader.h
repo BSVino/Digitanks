@@ -28,6 +28,7 @@ public:
 	void						CancelProduction();
 	bool						IsProducing() { return m_bProducing; };
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
+	size_t						GetUnitProductionCost();
 
 	virtual void				InstallUpdate(updatetype_t eUpdate);
 	virtual void				InstallComplete();
@@ -43,7 +44,7 @@ public:
 
 	virtual const wchar_t*		GetName();
 	virtual unittype_t			GetUnitType();
-	virtual size_t				ConstructionCost() const { return 70; };
+	virtual size_t				ConstructionCost() const { return 100; };
 	virtual float				TotalHealth() const { return 70; };
 
 	static size_t				GetUnitProductionCost(buildunit_t eBuildUnit);
