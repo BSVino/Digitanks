@@ -181,3 +181,103 @@ bool CBuffer::HasUpdatesAvailable()
 
 	return false;
 }
+
+size_t CMiniBuffer::s_iCancelIcon = 0;
+
+void CMiniBuffer::Spawn()
+{
+	BaseClass::Spawn();
+
+	SetModel(L"models/structures/minibuffer.obj");
+}
+
+void CMiniBuffer::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/minibuffer.obj");
+}
+
+void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
+{
+	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+
+	if (!IsConstructing() && CanStructureUpgrade())
+	{
+		if (IsUpgrading())
+		{
+			pHUD->SetButton5Listener(CHUD::CancelUpgrade);
+			pHUD->SetButton5Texture(s_iCancelIcon);
+			pHUD->SetButton5Help("Cancel\nUpgrade");
+			pHUD->SetButton5Color(Color(100, 0, 0));
+		}
+		else
+		{
+			pHUD->SetButton1Listener(CHUD::BeginUpgrade);
+			pHUD->SetButton1Texture(0);
+			pHUD->SetButton1Help("Upgrade to\nBuffer");
+			pHUD->SetButton1Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "UPGRADE TO BUFFER\n \n"
+				<< "Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n"
+				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns";
+
+			pHUD->SetButtonInfo(0, s.str().c_str());
+		}
+	}
+}
+
+void CMiniBuffer::UpdateInfo(std::wstring& sInfo)
+{
+	std::wstringstream s;
+
+	s << L"MINIBUFFER INFO\n";
+	s << L"Network extender\n \n";
+
+	if (IsConstructing())
+	{
+		s << L"(Constructing)\n";
+		s << L"Power to build: " << GetProductionToConstruct() << "\n";
+		s << L"Turns left: " << GetTurnsToConstruct() << "\n";
+		sInfo = s.str();
+		return;
+	}
+
+	if (IsUpgrading())
+	{
+		s << L"(Upgrading to Buffer)\n";
+		s << L"Power to upgrade: " << GetProductionToUpgrade() << "\n";
+		s << L"Turns left: " << GetTurnsToUpgrade() << "\n";
+		sInfo = s.str();
+		return;
+	}
+
+	s << L"Strength: " << m_iDataStrength << "\n";
+	s << L"Growth: " << (int)GetDataFlowRate() << "\n";
+	s << L"Size: " << (int)GetDataFlowRadius() << "\n";
+	s << L"Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
+
+	sInfo = s.str();
+}
+
+bool CMiniBuffer::CanStructureUpgrade()
+{
+	return GetDigitanksTeam()->CanBuildBuffers();
+}
+
+void CMiniBuffer::UpgradeComplete()
+{
+	CBuffer* pBuffer = DigitanksGame()->Create<CBuffer>("CBuffer");
+	pBuffer->SetOrigin(GetOrigin());
+	pBuffer->SetSupplier(GetSupplier());
+	GetTeam()->AddEntity(pBuffer);
+	pBuffer->GiveDataStrength(pBuffer->InitialDataStrength() - InitialDataStrength());	// Give the difference
+	pBuffer->GiveDataStrength(m_iDataStrength - InitialDataStrength());					// Give what I've earned so far
+	pBuffer->AddFleetPoints(pBuffer->InitialFleetPoints() - InitialFleetPoints());
+	pBuffer->AddBandwidth(pBuffer->InitialBandwidth() - InitialBandwidth());
+
+	Delete();
+
+	DigitanksGame()->GetCurrentTeam()->SetCurrentSelection(pBuffer);
+}

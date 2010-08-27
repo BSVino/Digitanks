@@ -1538,6 +1538,28 @@ void CHUD::PromoteMovementCallback()
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
+void CHUD::BuildMiniBufferCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_MINIBUFFER);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+}
+
 void CHUD::BuildBufferCallback()
 {
 	if (!m_bHUDActive)
@@ -1556,6 +1578,28 @@ void CHUD::BuildBufferCallback()
 		return;
 
 	pCPU->SetPreviewStructure(STRUCTURE_BUFFER);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+}
+
+void CHUD::BuildBatteryCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_BATTERY);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 }
@@ -1942,6 +1986,48 @@ void CHUD::CancelInstallCallback()
 
 	SetupMenu();
 	UpdateInfo();
+}
+
+void CHUD::BeginUpgradeCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	pStructure->BeginUpgrade();
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::CancelUpgradeCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	pStructure->CancelUpgrade();
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
 }
 
 void CHUD::GoToMainCallback()

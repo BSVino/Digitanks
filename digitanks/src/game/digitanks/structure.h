@@ -47,6 +47,14 @@ public:
 	virtual void				DownloadComplete(class CUpdateItem* pItem);
 	size_t						GetUpdatesScore();
 
+	virtual bool				CanStructureUpgrade() { return false; };
+	void						BeginUpgrade();
+	void						CancelUpgrade();
+	virtual void				UpgradeComplete() {};
+	size_t						GetTurnsToUpgrade();
+	bool						IsUpgrading() { return m_bUpgrading; };
+	size_t						GetProductionToUpgrade() { return m_iProductionToUpgrade; };
+
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
 
@@ -62,9 +70,11 @@ public:
 
 	virtual size_t				InitialFleetPoints() const { return 0; };
 	virtual size_t				FleetPoints() const { return m_iFleetSupply; };
+	virtual void				AddFleetPoints(size_t iAddPoints) { m_iFleetSupply += iAddPoints; };
 
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual size_t				Bandwidth() const { return m_iBandwidth; };
+	virtual void				AddBandwidth(size_t iAddBandwidth) { m_iBandwidth += iAddBandwidth; };
 
 	virtual size_t				InitialPower() const { return 0; };
 	virtual size_t				Power() const { return m_iPower; };
@@ -87,6 +97,9 @@ protected:
 	updatetype_t				m_eInstallingType;
 	int							m_iInstallingUpdate;
 	size_t						m_iProductionToInstall;
+
+	bool						m_bUpgrading;
+	size_t						m_iProductionToUpgrade;
 
 	CEntityHandle<CSupplier>		m_hSupplier;
 	CEntityHandle<CSupplyLine>		m_hSupplyLine;

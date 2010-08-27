@@ -311,7 +311,6 @@ void CDigitanksGame::SetupStandard()
 		CResource* pResource = Game()->Create<CResource>("CResource");
 		float y = RandomFloat(0, 360);
 		pResource->SetOrigin(m_hTerrain->SetPointHeight(pCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
-		pResource->SetProduction(4);
 
 		CDigitank* pTank;
 		Vector vecTank;
@@ -1181,6 +1180,9 @@ void CDigitanksGame::CompleteProductions()
 
 			if (pStructure->IsInstalling())
 				pStructure->AddProduction(pStructure->GetProductionToInstall()+10);
+
+			if (pStructure->IsUpgrading())
+				pStructure->AddProduction(pStructure->GetProductionToUpgrade()+10);
 		}
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(pMember);

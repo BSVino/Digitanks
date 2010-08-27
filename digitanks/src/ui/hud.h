@@ -203,7 +203,9 @@ public:
 	EVENT_CALLBACK(CHUD, PromoteAttack);
 	EVENT_CALLBACK(CHUD, PromoteDefense);
 	EVENT_CALLBACK(CHUD, PromoteMovement);
+	EVENT_CALLBACK(CHUD, BuildMiniBuffer);
 	EVENT_CALLBACK(CHUD, BuildBuffer);
+	EVENT_CALLBACK(CHUD, BuildBattery);
 	EVENT_CALLBACK(CHUD, BuildPSU);
 	EVENT_CALLBACK(CHUD, BuildLoader);
 	EVENT_CALLBACK(CHUD, BuildTankLoader);
@@ -224,6 +226,8 @@ public:
 	EVENT_CALLBACK(CHUD, InstallTankHealth);
 	EVENT_CALLBACK(CHUD, InstallTankRange);
 	EVENT_CALLBACK(CHUD, CancelInstall);
+	EVENT_CALLBACK(CHUD, BeginUpgrade);
+	EVENT_CALLBACK(CHUD, CancelUpgrade);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
 	size_t						GetSpeechBubble() { return m_iSpeechBubble; };

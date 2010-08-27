@@ -35,4 +35,35 @@ protected:
 	static size_t				s_iInstallRechargeBonusIcon;
 };
 
+class CMiniBuffer : public CSupplier
+{
+	REGISTER_ENTITY_CLASS(CMiniBuffer, CSupplier);
+
+public:
+	virtual void				Spawn();
+	virtual void				Precache();
+
+	virtual void				SetupMenu(menumode_t eMenuMode);
+
+	virtual void				UpdateInfo(std::wstring& sInfo);
+
+	virtual bool				HasUpdatesAvailable() { return false; };
+
+	virtual bool				CanStructureUpgrade();
+	virtual void				UpgradeComplete();
+
+	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
+	virtual size_t				InitialDataStrength() { return 250; };
+	virtual size_t				InitialFleetPoints() const { return 0; };
+	virtual size_t				InitialBandwidth() const { return 0; };
+	virtual float				TotalHealth() const { return 15; };
+
+	virtual const wchar_t*		GetName() { return L"Mini-Buffer"; };
+	virtual unittype_t			GetUnitType() { return STRUCTURE_MINIBUFFER; };
+	virtual size_t				ConstructionCost() const { return 20; };
+
+protected:
+	static size_t				s_iCancelIcon;
+};
+
 #endif

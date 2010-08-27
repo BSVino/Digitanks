@@ -14,10 +14,10 @@
 
 unittype_t g_aeBuildOrder[] =
 {
-	STRUCTURE_BUFFER,
-	STRUCTURE_PSU,
+	STRUCTURE_BATTERY,
 	STRUCTURE_INFANTRYLOADER,
 	STRUCTURE_PSU,
+	STRUCTURE_BUFFER,
 	STRUCTURE_TANKLOADER,
 	STRUCTURE_PSU,
 	STRUCTURE_PSU,
@@ -96,15 +96,21 @@ void CDigitanksTeam::Bot_ExpandBase()
 			if (!pStructure)
 				continue;
 
-			if (!pStructure->HasUpdatesAvailable())
+			if (!pStructure->HasUpdatesAvailable() && !pStructure->CanStructureUpgrade())
 				continue;
 
-			if (pStructure->IsInstalling())
+			if (pStructure->IsInstalling() || pStructure->IsUpgrading())
 				continue;
 
 			// Give the CPU a chance to build structures.
 			if (mtrand()%2 == 0)
 				continue;
+
+			if (pStructure->CanStructureUpgrade())
+			{
+				pStructure->BeginUpgrade();
+				break;
+			}
 
 			// PSU's are highest priority.
 			if (m_iBuildPosition < sizeof(g_aeBuildOrder)/sizeof(unittype_t) && g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_PSU)
@@ -147,15 +153,23 @@ void CDigitanksTeam::Bot_ExpandBase()
 	{
 		if (!CanBuildPSUs())
 		{
-			// If we can build PSU's we can build buffers. Build buffers while we wait.
-			iNextBuild = STRUCTURE_BUFFER;
-			bBumpBuildPosition = false;
+			if (RandomInt(0, 1) == 0)
+			{
+				// Build buffers while we wait.
+				iNextBuild = CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER;
+				bBumpBuildPosition = false;
+			}
+			else
+			{
+				iNextBuild = STRUCTURE_BATTERY;
+				bBumpBuildPosition = false;
+			}
 		}
 	}
 
 	CResource* pTargetResource = NULL;
 	CSupplier* pClosestSupplier = NULL;
-	if (iNextBuild == STRUCTURE_PSU)
+	if (iNextBuild == STRUCTURE_PSU || iNextBuild == STRUCTURE_BATTERY)
 	{
 		while (true)
 		{
@@ -201,7 +215,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 			iNextBuild = STRUCTURE_BUFFER;
 	}
 
-	if (iNextBuild == STRUCTURE_PSU)
+	if (iNextBuild == STRUCTURE_PSU || iNextBuild == STRUCTURE_BATTERY)
 	{
 		if (CSupplier::GetDataFlow(pTargetResource->GetOrigin(), this) > 1)
 		{
@@ -217,10 +231,10 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 			DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
 
-			m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_BUFFER);
+			m_hPrimaryCPU->SetPreviewStructure(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
 			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
 
-			// If we can't build this PSU for some reason, build a random buffer instead.
+			// If we can't build this for some reason, build a random buffer instead.
 			if (!m_hPrimaryCPU->IsPreviewBuildValid())
 				iNextBuild = STRUCTURE_BUFFER;
 			else
@@ -228,8 +242,17 @@ void CDigitanksTeam::Bot_ExpandBase()
 		}
 	}
 
-	if (iNextBuild == STRUCTURE_PSU)
+	if (iNextBuild == STRUCTURE_PSU || iNextBuild == STRUCTURE_BATTERY)
 		return;
+
+	if (iNextBuild == STRUCTURE_MINIBUFFER && CanBuildBuffers())
+		iNextBuild = STRUCTURE_BUFFER;
+
+	if (iNextBuild == STRUCTURE_BUFFER && !CanBuildBuffers())
+	{
+		iNextBuild = STRUCTURE_MINIBUFFER;
+		bBumpBuildPosition = false;	// Must not bump build position or we might skip researching buffers.
+	}
 
 	// If we can't build this kind of structure then return without trying to do anything
 	// and wait until we can.
@@ -263,9 +286,15 @@ void CDigitanksTeam::Bot_ExpandBase()
 		}
 	}
 
+	if (iNextBuild == STRUCTURE_BUFFER && !CanBuildBuffers())
+	{
+		iNextBuild = STRUCTURE_MINIBUFFER;
+		bBumpBuildPosition = false;	// Must not bump build position or we might skip researching buffers.
+	}
+
 	CSupplier* pUnused = NULL;
 
-	if (iNextBuild == STRUCTURE_BUFFER)
+	if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
 		pUnused = FindUnusedSupplier(4, false);
 	else
 		pUnused = FindUnusedSupplier(2);
@@ -282,7 +311,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 	// Pick a random direction facing more or less away from the CPU so that we spread outwards.
 	Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
 	Vector vecStructure = pUnused->GetOrigin();
-	if (iNextBuild == STRUCTURE_BUFFER)
+	if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
 	{
 		Vector vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*9/10;
 		if (CSupplier::GetDataFlow(vecPreview, this) <= 0)
@@ -752,7 +781,7 @@ void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
 
-	m_hPrimaryCPU->SetPreviewStructure(STRUCTURE_PSU);
+	m_hPrimaryCPU->SetPreviewStructure(CanBuildPSUs()?STRUCTURE_PSU:STRUCTURE_BATTERY);
 	m_hPrimaryCPU->SetPreviewBuild(vecPSU);
 	m_hPrimaryCPU->BeginConstruction();
 }

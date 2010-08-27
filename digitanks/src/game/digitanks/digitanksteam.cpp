@@ -257,15 +257,15 @@ void CDigitanksTeam::CountProducers()
 		if (pStructure && pStructure->IsConstructing())
 			AddProducer();
 
-		if (pStructure && pStructure->IsInstalling())
+		if (pStructure && (pStructure->IsInstalling() || pStructure->IsUpgrading()))
 			AddProducer();
 
 		if (pStructure && pStructure->Power())
 			AddProduction(pStructure->Power());
 
 		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
-		if (pCollector && !pCollector->IsConstructing() && pCollector->GetSupplier())
-			AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
+		if (pCollector && !pCollector->IsConstructing() && !pCollector->IsUpgrading() && pCollector->GetSupplier())
+			AddProduction((size_t)(pCollector->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
 	}
 }
 

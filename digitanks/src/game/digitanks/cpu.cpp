@@ -178,10 +178,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	{
 		if (bDisableBuffer)
 		{
-			pHUD->SetButton1Listener(NULL);
-			pHUD->SetButton1Help("");
-			pHUD->SetButton1Texture(0);
-			pHUD->SetButton1Color(glgui::g_clrBox);
+			pHUD->SetButton1Listener(CHUD::BuildMiniBuffer);
+			pHUD->SetButton1Help("Build\nMiniBuffer");
+			pHUD->SetButton1Texture(s_iBuildBufferIcon);
+			pHUD->SetButton1Color(Color(150, 150, 150));
 		}
 		else
 		{
@@ -193,10 +193,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (bDisablePSU)
 		{
-			pHUD->SetButton2Listener(NULL);
-			pHUD->SetButton2Help("");
-			pHUD->SetButton2Texture(0);
-			pHUD->SetButton2Color(glgui::g_clrBox);
+			pHUD->SetButton2Listener(CHUD::BuildBattery);
+			pHUD->SetButton2Help("Build\nBattery");
+			pHUD->SetButton2Texture(s_iBuildPSUIcon);
+			pHUD->SetButton2Color(Color(150, 150, 150));
 		}
 		else
 		{
@@ -255,7 +255,7 @@ bool CCPU::IsPreviewBuildValid() const
 {
 	CSupplier* pSupplier = FindClosestSupplier(GetPreviewBuild(), GetTeam());
 
-	if (m_ePreviewStructure == STRUCTURE_PSU)
+	if (m_ePreviewStructure == STRUCTURE_PSU || m_ePreviewStructure == STRUCTURE_BATTERY)
 	{
 		CResource* pResource = CResource::FindClosestResource(GetPreviewBuild(), RESOURCE_ELECTRONODE);
 		float flDistance = (pResource->GetOrigin() - GetPreviewBuild()).Length();
@@ -300,12 +300,20 @@ void CCPU::BeginConstruction()
 	if (m_hConstructing != NULL)
 		CancelConstruction();
 
-	if (m_ePreviewStructure == STRUCTURE_BUFFER)
+	if (m_ePreviewStructure == STRUCTURE_MINIBUFFER)
+	{
+		m_hConstructing = Game()->Create<CMiniBuffer>("CMiniBuffer");
+	}
+	else if (m_ePreviewStructure == STRUCTURE_BUFFER)
 	{
 		if (!GetDigitanksTeam()->CanBuildBuffers())
 			return;
 
 		m_hConstructing = Game()->Create<CBuffer>("CBuffer");
+	}
+	else if (m_ePreviewStructure == STRUCTURE_BATTERY)
+	{
+		m_hConstructing = Game()->Create<CBattery>("CBattery");
 	}
 	else if (m_ePreviewStructure == STRUCTURE_PSU)
 	{
@@ -342,7 +350,7 @@ void CCPU::BeginConstruction()
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
 
 	m_hConstructing->SetOrigin(GetPreviewBuild());
-	if (m_ePreviewStructure == STRUCTURE_PSU)
+	if (m_ePreviewStructure == STRUCTURE_PSU || m_ePreviewStructure == STRUCTURE_BATTERY)
 	{
 		Vector vecPSU = GetPreviewBuild();
 
@@ -456,7 +464,7 @@ void CCPU::StartTurn()
 
 			CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
 			if (pCollector && pCollector->GetSupplier())
-				GetDigitanksTeam()->AddProduction((size_t)(pCollector->GetResource()->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
+				GetDigitanksTeam()->AddProduction((size_t)(pCollector->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
 
 			m_hConstructing->CompleteConstruction();
 			m_hConstructing = NULL;
@@ -526,8 +534,16 @@ void CCPU::PostRender()
 		size_t iModel = 0;
 		switch (m_ePreviewStructure)
 		{
+		case STRUCTURE_MINIBUFFER:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/minibuffer.obj");
+			break;
+
 		case STRUCTURE_BUFFER:
 			iModel = CModelLibrary::Get()->FindModel(L"models/structures/buffer.obj");
+			break;
+
+		case STRUCTURE_BATTERY:
+			iModel = CModelLibrary::Get()->FindModel(L"models/structures/battery.obj");
 			break;
 
 		case STRUCTURE_PSU:

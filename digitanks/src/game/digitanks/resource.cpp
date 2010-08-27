@@ -20,7 +20,6 @@ void CResource::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_iProduction = 4;
 	m_bTakeDamage = false;
 
 	SetModel(L"models/structures/electronode.obj");
@@ -73,7 +72,7 @@ void CResource::UpdateInfo(std::wstring& sInfo)
 	s << L"ELECTRONODE\n";
 	s << L"Digital resource\n \n";
 
-	s << L"Yield: " << (int)(GetProduction()) << L" Power\n";
+	s << L"Build a Battery or Power Supply Unit to harness this Electronode's Power resource\n";
 
 	sInfo = s.str();
 }

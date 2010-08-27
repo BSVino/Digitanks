@@ -26,6 +26,9 @@ CStructure::CStructure()
 	m_bInstalling = false;
 	m_iProductionToInstall = 0;
 
+	m_bUpgrading = false;
+	m_iProductionToUpgrade = 0;
+
 	SetCollisionGroup(CG_ENTITY);
 }
 
@@ -62,6 +65,26 @@ void CStructure::StartTurn()
 
 			std::wstringstream s;
 			s << L"Installing '" << GetUpdateInstalling()->GetName() << L"' on " << GetName() << L" (" << GetTurnsToInstall() << L" turns left)";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+		}
+	}
+
+	if (IsUpgrading())
+	{
+		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToUpgrade())
+		{
+			std::wstringstream s;
+			s << L"" << GetName() << L" finished upgrading.";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+
+			UpgradeComplete();
+		}
+		else
+		{
+			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
+
+			std::wstringstream s;
+			s << L"Upgrading " << GetName() << L" (" << GetTurnsToUpgrade() << L" turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
 	}
@@ -153,10 +176,20 @@ void CStructure::AddProduction(size_t iProduction)
 		else
 			m_iProductionToInstall -= iProduction;
 	}
+	else if (IsUpgrading())
+	{
+		if (iProduction > m_iProductionToUpgrade)
+			m_iProductionToUpgrade = 0;
+		else
+			m_iProductionToUpgrade -= iProduction;
+	}
 }
 
 void CStructure::InstallUpdate(updatetype_t eUpdate)
 {
+	if (IsUpgrading())
+		return;
+
 	m_bInstalling = true;
 
 	int iUninstalled = GetFirstUninstalledUpdate(eUpdate);
@@ -273,6 +306,38 @@ size_t CStructure::GetUpdatesScore()
 	return iScore;
 }
 
+void CStructure::BeginUpgrade()
+{
+	if (!CanStructureUpgrade())
+		return;
+
+	if (IsInstalling())
+		return;
+
+	m_bUpgrading = true;
+
+	m_iProductionToUpgrade = ConstructionCost();
+
+	GetDigitanksTeam()->CountProducers();
+}
+
+void CStructure::CancelUpgrade()
+{
+	m_bUpgrading = false;
+
+	m_iProductionToUpgrade = 0;
+
+	GetDigitanksTeam()->CountProducers();
+}
+
+size_t CStructure::GetTurnsToUpgrade()
+{
+	if (IsUpgrading())
+		return (size_t)(m_iProductionToUpgrade/GetDigitanksTeam()->GetProductionPerLoader())+1;
+	else
+		return (size_t)(ConstructionCost()/GetDigitanksTeam()->GetProductionPerLoader())+1;
+}
+
 void CStructure::SetSupplier(class CSupplier* pSupplier)
 {
 	m_hSupplier = pSupplier;
@@ -291,7 +356,7 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 {
 	BaseClass::ModifyContext(pContext);
 
-	if (IsConstructing())
+	if (IsConstructing() || IsUpgrading())
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 		pContext->SetColor(Color(255, 255, 255));

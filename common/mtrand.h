@@ -19,7 +19,7 @@ inline int RandomInt(int iLow, int iHigh)
 	if (iLow > iHigh)
 		return iLow;
 
-	return mtrand()%(iHigh-iLow) + iLow;
+	return mtrand()%(iHigh-iLow+1) + iLow;
 }
 
 #endif

@@ -14,7 +14,9 @@
 #include "registered_entities.h"
 
 REGISTER_ENTITY(CDigitanksEntity);
+REGISTER_ENTITY(CMiniBuffer);
 REGISTER_ENTITY(CBuffer);
+REGISTER_ENTITY(CBattery);
 REGISTER_ENTITY(CCollector);
 REGISTER_ENTITY(CCPU);
 REGISTER_ENTITY(CLoader);
