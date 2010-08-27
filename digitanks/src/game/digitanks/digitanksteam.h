@@ -108,6 +108,7 @@ protected:
 	size_t						m_iBuildPosition;
 	std::vector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
 	Vector						m_vecExplore;
+	size_t						m_iTurnToStartExploring;
 
 	bool						m_bLKV;
 	Vector						m_vecLKV;

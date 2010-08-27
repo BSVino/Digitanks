@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include <maths.h>
+#include <mtrand.h>
 
 #include <ui/digitankswindow.h>
 #include <network/network.h>
@@ -26,6 +27,8 @@ CDigitanksTeam::CDigitanksTeam()
 	m_iUpdateDownloaded = 0;
 
 	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
+
+	m_iTurnToStartExploring = RandomInt(0, 15);
 }
 
 CDigitanksTeam::~CDigitanksTeam()
@@ -191,7 +194,7 @@ void CDigitanksTeam::StartTurn()
 	CountFleetPoints();
 	CountBandwidth();
 
-	if (GetUpdateSize())
+	if (GetUpdateDownloading())
 	{
 		m_iUpdateDownloaded += m_iBandwidth;
 		if (GetUpdateDownloaded() >= GetUpdateSize())
@@ -545,6 +548,9 @@ CUpdateItem* CDigitanksTeam::GetUpdateDownloading()
 
 size_t CDigitanksTeam::GetTurnsToDownload()
 {
+	if (GetBandwidth() == 0)
+		return 0;
+
 	return (size_t)((GetUpdateSize()-m_iUpdateDownloaded)/GetBandwidth())+1;
 }
 

@@ -581,21 +581,24 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 		if (bAllTanks || !CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
 		{
-			CDigitank* pClosestEnemy = NULL;
+			CDigitanksEntity* pClosestEnemy = NULL;
 			while (true)
 			{
-				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pCurrentTank->GetOrigin(), pClosestEnemy);
+				pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(pCurrentTank->GetOrigin(), pClosestEnemy);
 
-				if (!pClosestEnemy)
-					break;
-
-				if (pClosestEnemy->GetTeam() == pCurrentTank->GetTeam())
-					continue;
-
-				if ((pClosestEnemy->GetOrigin() - pCurrentTank->GetOrigin()).Length() > pCurrentTank->VisibleRange())
+				if (pClosestEnemy)
 				{
-					pClosestEnemy = NULL;
-					break;
+					if (pClosestEnemy->GetTeam() == pCurrentTank->GetTeam())
+						continue;
+
+					if (!pClosestEnemy->GetTeam())
+						continue;
+
+					if ((pClosestEnemy->GetOrigin() - pCurrentTank->GetOrigin()).Length() > pCurrentTank->VisibleRange())
+					{
+						pClosestEnemy = NULL;
+						break;
+					}
 				}
 
 				break;

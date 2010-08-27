@@ -542,7 +542,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		vecTargetOrigin = m_vecLKV;
 	}
-	else
+	else if (DigitanksGame()->GetTurn() >= m_iTurnToStartExploring)
 	{
 		bool bCloseToExplorePoint = false;
 		for (size_t i = 0; i < GetNumTanks(); i++)
@@ -666,8 +666,12 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else
 		{
+			if (DigitanksGame()->GetTurn() < m_iTurnToStartExploring)
+			{
+				// Hang out.
+			}
 			// If we are not within the effective range, use 1/3 of our available movement power to move towards our target.
-			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+			else if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
 				float flMovementDistance = pTank->GetMaxMovementDistance();
 				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
