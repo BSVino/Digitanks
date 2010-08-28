@@ -180,6 +180,8 @@ public:
 	void						ShowButtonInfo(int iButton);
 	void						HideButtonInfo();
 
+	bool						IsUpdatesPanelOpen();
+
 	EVENT_CALLBACK(CHUD, Button1CursorIn);
 	EVENT_CALLBACK(CHUD, Button1CursorOut);
 	EVENT_CALLBACK(CHUD, Button2CursorIn);

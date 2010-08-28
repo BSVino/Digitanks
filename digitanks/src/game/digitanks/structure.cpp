@@ -380,7 +380,7 @@ void CSupplier::Precache()
 {
 	BaseClass::Precache();
 
-	s_iTendrilBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
+	s_iTendrilBeam = CRenderer::LoadTextureIntoGL(L"textures/tendril.png");
 }
 
 void CSupplier::Spawn()
@@ -566,6 +566,8 @@ void CSupplier::UpdateTendrils()
 
 		for (size_t i = 1; i < iSegments; i++)
 		{
+			oRope.SetColor(Color(clrTeam.r(), clrTeam.g(), clrTeam.b(), (int)RemapVal((float)i, 1, (float)iSegments, 155, 50)));
+
 			float flCurrentDistance = ((float)i*flDistance)/iSegments;
 			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
 		}

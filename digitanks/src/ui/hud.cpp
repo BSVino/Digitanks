@@ -550,7 +550,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			Vector vecOrigin = pTank->GetDesiredMove();
 			Vector vecScreen = Game()->GetRenderer()->ScreenPosition(vecOrigin);
 
-			if (!CDigitanksWindow::Get()->IsAltDown() && pTank->GetTeam() != DigitanksGame()->GetCurrentTeam())
+			if (!CDigitanksWindow::Get()->IsAltDown() && pTank->GetTeam() != DigitanksGame()->GetLocalDigitanksTeam())
 				continue;
 
 			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 61, 102, 5, Color(255, 255, 255, 128));
@@ -682,9 +682,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 		while (false);
 	}
 
-	CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
+	CSelectable* pSelection = DigitanksGame()->GetLocalDigitanksTeam()->GetCurrentSelection();
 
-	if (m_bHUDActive && pSelection)
+	if (pSelection && !IsUpdatesPanelOpen())
 	{
 		Vector vecMin;
 		Vector vecMax;
@@ -1302,6 +1302,14 @@ void CHUD::ShowButtonInfo(int iButton)
 void CHUD::HideButtonInfo()
 {
 	m_pButtonInfo->SetText("");
+}
+
+bool CHUD::IsUpdatesPanelOpen()
+{
+	if (!m_pUpdatesPanel)
+		return false;
+
+	return m_pUpdatesPanel->IsVisible();
 }
 
 void CHUD::Button1CursorInCallback()
@@ -2241,6 +2249,9 @@ void CSpeechBubble::Think()
 
 void CSpeechBubble::Paint(int x, int y, int w, int h)
 {
+	if (CDigitanksWindow::Get()->GetHUD()->IsUpdatesPanelOpen())
+		return;
+
 	do {
 		CRenderingContext c(Game()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);

@@ -15,7 +15,7 @@ void CSupplyLine::Precache()
 {
 	BaseClass::Precache();
 
-	s_iSupplyBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
+	s_iSupplyBeam = CRenderer::LoadTextureIntoGL(L"textures/tendril.png");
 }
 
 void CSupplyLine::Spawn()
@@ -103,9 +103,9 @@ void CSupplyLine::PostRender()
 	Color clrTeam = GetTeam()->GetColor();
 
 	CRopeRenderer oRope(Game()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
-	oRope.SetWidth(2);
+	oRope.SetWidth(2.5);
 	oRope.SetTextureScale(5);
-	oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
+	oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1)*2);
 
 	for (size_t i = 1; i < iSegments; i++)
 	{
