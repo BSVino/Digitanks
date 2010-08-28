@@ -64,7 +64,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
 
+	bool bDisableMiniBuffer = !GetDigitanksTeam()->CanBuildMiniBuffers();
 	bool bDisableBuffer = !GetDigitanksTeam()->CanBuildBuffers();
+	bool bDisableBattery = !GetDigitanksTeam()->CanBuildBatteries();
 	bool bDisablePSU = !GetDigitanksTeam()->CanBuildPSUs();
 	bool bDisableLoaders = !GetDigitanksTeam()->CanBuildLoaders();
 
@@ -199,17 +201,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	{
 		if (bDisableBuffer)
 		{
-			pHUD->SetButton1Listener(CHUD::BuildMiniBuffer);
-			pHUD->SetButton1Help("Build\nMiniBuffer");
-			pHUD->SetButton1Texture(s_iBuildBufferIcon);
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			if (!bDisableMiniBuffer)
+			{
+				pHUD->SetButton1Listener(CHUD::BuildMiniBuffer);
+				pHUD->SetButton1Help("Build\nMiniBuffer");
+				pHUD->SetButton1Texture(s_iBuildBufferIcon);
+				pHUD->SetButton1Color(Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD MINIBUFFER\n \n"
-				<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
-				<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns";
-			pHUD->SetButtonInfo(0, s.str().c_str());
+				std::wstringstream s;
+				s << "BUILD MINIBUFFER\n \n"
+					<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
+					<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
+					<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns";
+				pHUD->SetButtonInfo(0, s.str().c_str());
+			}
 		}
 		else
 		{
@@ -228,17 +233,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (bDisablePSU)
 		{
-			pHUD->SetButton2Listener(CHUD::BuildBattery);
-			pHUD->SetButton2Help("Build\nBattery");
-			pHUD->SetButton2Texture(s_iBuildPSUIcon);
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			if (!bDisableBattery)
+			{
+				pHUD->SetButton2Listener(CHUD::BuildBattery);
+				pHUD->SetButton2Help("Build\nBattery");
+				pHUD->SetButton2Texture(s_iBuildPSUIcon);
+				pHUD->SetButton2Color(Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD BATTERY\n \n"
-				<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
-				<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+				std::wstringstream s;
+				s << "BUILD BATTERY\n \n"
+					<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
+					<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
+					<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
+				pHUD->SetButtonInfo(1, s.str().c_str());
+			}
 		}
 		else
 		{

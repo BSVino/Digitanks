@@ -1134,10 +1134,31 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 		return m_bRenderFogOfWar;
 }
 
+bool CDigitanksGame::ShouldShowScores()
+{
+	return m_eGameType == GAMETYPE_STANDARD;
+}
+
+bool CDigitanksGame::CanBuildMiniBuffers()
+{
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		return false;
+
+	return true;
+}
+
 bool CDigitanksGame::CanBuildBuffers()
 {
 	bool bDisableBuffer = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
 	return !bDisableBuffer;
+}
+
+bool CDigitanksGame::CanBuildBatteries()
+{
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		return false;
+
+	return true;
 }
 
 bool CDigitanksGame::CanBuildPSUs()

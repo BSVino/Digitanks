@@ -69,7 +69,9 @@ public:
 	class CUpdateItem*			GetUpdateDownloading();
 	size_t						GetTurnsToDownload();
 
+	bool						CanBuildMiniBuffers();
 	bool						CanBuildBuffers();
+	bool						CanBuildBatteries();
 	bool						CanBuildPSUs();
 	bool						CanBuildLoaders();
 	bool						CanBuildInfantryLoaders();

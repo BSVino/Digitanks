@@ -554,18 +554,40 @@ size_t CDigitanksTeam::GetTurnsToDownload()
 	return (size_t)((GetUpdateSize()-m_iUpdateDownloaded)/GetBandwidth())+1;
 }
 
+bool CDigitanksTeam::CanBuildMiniBuffers()
+{
+	if (!DigitanksGame()->CanBuildMiniBuffers())
+		return false;
+
+	return true;
+}
+
 bool CDigitanksTeam::CanBuildBuffers()
 {
 	if (!DigitanksGame()->CanBuildBuffers())
 		return false;
 
+	if (!DigitanksGame()->GetUpdateGrid())
+		return true;
+
 	return m_bCanBuildBuffers;
+}
+
+bool CDigitanksTeam::CanBuildBatteries()
+{
+	if (!DigitanksGame()->CanBuildBatteries())
+		return false;
+
+	return true;
 }
 
 bool CDigitanksTeam::CanBuildPSUs()
 {
 	if (!DigitanksGame()->CanBuildPSUs())
 		return false;
+
+	if (!DigitanksGame()->GetUpdateGrid())
+		return true;
 
 	return m_bCanBuildPSUs;
 }
@@ -589,6 +611,9 @@ bool CDigitanksTeam::CanBuildInfantryLoaders()
 	if (!DigitanksGame()->CanBuildInfantryLoaders())
 		return false;
 
+	if (!DigitanksGame()->GetUpdateGrid())
+		return true;
+
 	return m_bCanBuildInfantryLoaders;
 }
 
@@ -597,6 +622,9 @@ bool CDigitanksTeam::CanBuildTankLoaders()
 	if (!DigitanksGame()->CanBuildTankLoaders())
 		return false;
 
+	if (!DigitanksGame()->GetUpdateGrid())
+		return true;
+
 	return m_bCanBuildTankLoaders;
 }
 
@@ -604,6 +632,9 @@ bool CDigitanksTeam::CanBuildArtilleryLoaders()
 {
 	if (!DigitanksGame()->CanBuildArtilleryLoaders())
 		return false;
+
+	if (!DigitanksGame()->GetUpdateGrid())
+		return true;
 
 	return m_bCanBuildArtilleryLoaders;
 }

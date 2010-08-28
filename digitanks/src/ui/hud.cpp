@@ -495,6 +495,8 @@ void CHUD::Think()
 
 	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
 
+	m_pScoreboard->SetVisible(DigitanksGame()->ShouldShowScores());
+
 	char szFPS[100];
 	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
 	m_pFPS->SetText(szFPS);

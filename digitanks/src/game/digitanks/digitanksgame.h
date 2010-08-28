@@ -144,7 +144,11 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar();
 
+	bool					ShouldShowScores();
+
+	bool					CanBuildMiniBuffers();
 	bool					CanBuildBuffers();
+	bool					CanBuildBatteries();
 	bool					CanBuildPSUs();
 	bool					CanBuildInfantryLoaders();
 	bool					CanBuildTankLoaders();
