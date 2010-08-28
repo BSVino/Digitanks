@@ -116,8 +116,11 @@ void CBattery::UpdateInfo(std::wstring& sInfo)
 		return;
 	}
 
-	s << L"Power supplied: " << (size_t)(GetProduction() * m_hSupplier->GetChildEfficiency()) << L"\n";
-	s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+	if (m_hSupplier != NULL)
+	{
+		s << L"Power supplied: " << (size_t)(GetProduction() * m_hSupplier->GetChildEfficiency()) << L"\n";
+		s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+	}
 
 	sInfo = s.str();
 }

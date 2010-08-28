@@ -44,10 +44,11 @@ public:
 
 	virtual const wchar_t*		GetName();
 	virtual unittype_t			GetUnitType();
-	virtual size_t				ConstructionCost() const { return 100; };
+	virtual size_t				ConstructionCost() const { return GetLoaderConstructionCost(); };
 	virtual float				TotalHealth() const { return 70; };
 
 	static size_t				GetUnitProductionCost(buildunit_t eBuildUnit);
+	static size_t				GetLoaderConstructionCost() { return 100; };
 
 protected:
 	buildunit_t					m_eBuildUnit;

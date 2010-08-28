@@ -20,7 +20,9 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_PSU; };
-	virtual size_t				ConstructionCost() const { return 60; };
+	virtual size_t				ConstructionCost() const { return GetCollectorConstructionCost(); };
+
+	static size_t				GetCollectorConstructionCost() { return 60; };
 
 protected:
 	CEntityHandle<CResource>	m_hResource;
@@ -48,7 +50,9 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Battery"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BATTERY; };
-	virtual size_t				ConstructionCost() const { return 30; };
+	virtual size_t				ConstructionCost() const { return GetBatteryConstructionCost(); };
+
+	static size_t				GetBatteryConstructionCost() { return 20; };
 
 protected:
 	static size_t				s_iCancelIcon;

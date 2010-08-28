@@ -33,6 +33,7 @@ public:
 	bool						IsConstructing() { return m_bConstructing; };
 	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
 	void						AddProduction(size_t iProduction);
+	size_t						GetTurnsToConstruct(size_t iPower);
 
 	virtual void				InstallUpdate(updatetype_t eUpdate);
 	virtual void				InstallComplete();

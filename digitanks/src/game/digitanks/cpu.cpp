@@ -90,6 +90,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Texture(s_iBuildInfantryLoaderIcon);
 			pHUD->SetButton1Help("Infantry\nLoader");
 			pHUD->SetButton1Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD INFANTRY LOADER\n \n"
+				<< "This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n"
+				<< "Power to construct: " << CLoader::GetLoaderConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
@@ -98,6 +105,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Texture(s_iBuildTankLoaderIcon);
 			pHUD->SetButton2Help("Main Tank\nLoader");
 			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD MAIN BATTLE TANK LOADER\n \n"
+				<< "This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n"
+				<< "Power to construct: " << CLoader::GetLoaderConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
@@ -106,6 +120,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton3Texture(s_iBuildArtilleryLoaderIcon);
 			pHUD->SetButton3Help("Artillery\nLoader");
 			pHUD->SetButton3Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD ARTILLERY LOADER\n \n"
+				<< "This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n"
+				<< "Power to construct: " << CLoader::GetLoaderConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
 		pHUD->SetButton5Listener(CHUD::GoToMain);
@@ -182,6 +203,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Help("Build\nMiniBuffer");
 			pHUD->SetButton1Texture(s_iBuildBufferIcon);
 			pHUD->SetButton1Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD MINIBUFFER\n \n"
+				<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
+				<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 		else
 		{
@@ -189,6 +217,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Help("Build\nBuffer");
 			pHUD->SetButton1Texture(s_iBuildBufferIcon);
 			pHUD->SetButton1Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD BUFFER\n \n"
+				<< "Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n"
+				<< "Power to construct: " << CBuffer::GetBufferConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CBuffer::GetBufferConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
 		if (bDisablePSU)
@@ -197,6 +232,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Help("Build\nBattery");
 			pHUD->SetButton2Texture(s_iBuildPSUIcon);
 			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD BATTERY\n \n"
+				<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
+				<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 		else
 		{
@@ -204,9 +246,17 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton2Help("Build\nPwr Supply");
 			pHUD->SetButton2Texture(s_iBuildPSUIcon);
 			pHUD->SetButton2Color(Color(150, 150, 150));
+
+			std::wstringstream s;
+			s << "BUILD POWER SUPPLY UNIT\n \n"
+				<< "PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
+				<< "Power to construct: " << CCollector::GetCollectorConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CCollector::GetCollectorConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
 		if (bDisableLoaders)
+
 		{
 			pHUD->SetButton3Listener(NULL);
 			pHUD->SetButton3Help("");
@@ -611,12 +661,21 @@ void CCPU::UpdateInfo(std::wstring& sInfo)
 
 void CCPU::OnDeleted()
 {
-	for (size_t i = GetTeam()->GetNumMembers()-1; i < GetTeam()->GetNumMembers(); i--)
+	std::vector<CBaseEntity*> apDeleteThese;
+
+	for (size_t i = 0; i < GetTeam()->GetNumMembers(); i++)
 	{
-		if (GetTeam()->GetMember(i) == this)
+		CBaseEntity* pMember = GetTeam()->GetMember(i);
+		if (pMember == this)
 			continue;
 
-		CModelDissolver::AddModel(GetTeam()->GetMember(i));
-		GetTeam()->GetMember(i)->Delete();
+		apDeleteThese.push_back(pMember);
+	}
+
+	for (size_t i = 0; i < apDeleteThese.size(); i++)
+	{
+		CBaseEntity* pMember = apDeleteThese[i];
+		CModelDissolver::AddModel(pMember);
+		pMember->Delete();
 	}
 }

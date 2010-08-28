@@ -277,6 +277,12 @@ void CMiniBuffer::UpgradeComplete()
 	pBuffer->AddFleetPoints(pBuffer->InitialFleetPoints() - InitialFleetPoints());
 	pBuffer->AddBandwidth(pBuffer->InitialBandwidth() - InitialBandwidth());
 
+	for (size_t i = 0; i < m_ahChildren.size(); i++)
+	{
+		m_ahChildren[i]->SetSupplier(pBuffer);
+		pBuffer->AddChild(m_ahChildren[i]);
+	}
+
 	Delete();
 
 	DigitanksGame()->GetCurrentTeam()->SetCurrentSelection(pBuffer);

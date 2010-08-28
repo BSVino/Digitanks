@@ -185,6 +185,11 @@ void CStructure::AddProduction(size_t iProduction)
 	}
 }
 
+size_t CStructure::GetTurnsToConstruct(size_t iPower)
+{
+	return (size_t)(iPower/GetDigitanksTeam()->GetProductionPerLoader())+1;
+}
+
 void CStructure::InstallUpdate(updatetype_t eUpdate)
 {
 	if (IsUpgrading())

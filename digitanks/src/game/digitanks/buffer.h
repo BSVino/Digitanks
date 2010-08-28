@@ -24,7 +24,9 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BUFFER; };
-	virtual size_t				ConstructionCost() const { return 30; };
+	virtual size_t				ConstructionCost() const { return GetBufferConstructionCost(); };
+
+	static size_t				GetBufferConstructionCost() { return 30; };
 
 protected:
 	static size_t				s_iCancelIcon;
@@ -60,7 +62,9 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Mini-Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_MINIBUFFER; };
-	virtual size_t				ConstructionCost() const { return 20; };
+	virtual size_t				ConstructionCost() const { return GetMiniBufferConstructionCost(); };
+
+	static size_t				GetMiniBufferConstructionCost() { return 10; };
 
 protected:
 	static size_t				s_iCancelIcon;
