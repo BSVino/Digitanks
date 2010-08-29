@@ -242,7 +242,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 				std::wstringstream s;
 				s << "BUILD BATTERY\n \n"
-					<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
+					<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n"
 					<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
 					<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
 				pHUD->SetButtonInfo(1, s.str().c_str());
@@ -322,17 +322,17 @@ bool CCPU::IsPreviewBuildValid() const
 
 		if (pResource->HasCollector())
 			return false;
-
-		return true;
 	}
+	else
+	{
+		// Don't allow construction too close to other structures.
+		CStructure* pClosestStructure = CBaseEntity::FindClosest<CStructure>(GetPreviewBuild());
+		if ((pClosestStructure->GetOrigin() - GetPreviewBuild()).Length() < pClosestStructure->GetBoundingRadius()+5)
+			return false;
 
-	// Don't allow construction too close to other structures.
-	CStructure* pClosestStructure = CBaseEntity::FindClosest<CStructure>(GetPreviewBuild());
-	if ((pClosestStructure->GetOrigin() - GetPreviewBuild()).Length() < pClosestStructure->GetBoundingRadius()+5)
-		return false;
-
-	if (!pSupplier)
-		return false;
+		if (!pSupplier)
+			return false;
+	}
 
 	return CSupplier::GetDataFlow(GetPreviewBuild(), GetTeam()) > 0;
 }
