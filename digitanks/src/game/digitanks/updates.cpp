@@ -184,6 +184,41 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+4][iCPU-4].m_iSize = 27;
 	m_aUpdates[iCPU+4][iCPU-4].m_iProductionToInstall = 50;
 
+	m_aUpdates[iCPU+3][iCPU-6].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+3][iCPU-6].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+3][iCPU-6].m_eUpdateType = UPDATETYPE_BANDWIDTH;
+	m_aUpdates[iCPU+3][iCPU-6].m_flValue = 2;
+	m_aUpdates[iCPU+3][iCPU-6].m_iSize = 30;
+	m_aUpdates[iCPU+3][iCPU-6].m_iProductionToInstall = 55;
+
+	m_aUpdates[iCPU+4][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+4][iCPU-5].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+4][iCPU-5].m_eUpdateType = UPDATETYPE_SUPPORTRECHARGE;
+	m_aUpdates[iCPU+4][iCPU-5].m_flValue = 1;
+	m_aUpdates[iCPU+4][iCPU-5].m_iSize = 30;
+	m_aUpdates[iCPU+4][iCPU-5].m_iProductionToInstall = 55;
+
+	m_aUpdates[iCPU+3][iCPU-7].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+3][iCPU-7].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+3][iCPU-7].m_eUpdateType = UPDATETYPE_SUPPORTRECHARGE;
+	m_aUpdates[iCPU+3][iCPU-7].m_flValue = 3;
+	m_aUpdates[iCPU+3][iCPU-7].m_iSize = 33;
+	m_aUpdates[iCPU+3][iCPU-7].m_iProductionToInstall = 60;
+
+	m_aUpdates[iCPU+4][iCPU-6].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+4][iCPU-6].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+4][iCPU-6].m_eUpdateType = UPDATETYPE_SUPPORTENERGY;
+	m_aUpdates[iCPU+4][iCPU-6].m_flValue = 3;
+	m_aUpdates[iCPU+4][iCPU-6].m_iSize = 33;
+	m_aUpdates[iCPU+4][iCPU-6].m_iProductionToInstall = 60;
+
+	m_aUpdates[iCPU+5][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+5][iCPU-5].m_eStructure = STRUCTURE_BUFFER;
+	m_aUpdates[iCPU+5][iCPU-5].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
+	m_aUpdates[iCPU+5][iCPU-5].m_flValue = 3;
+	m_aUpdates[iCPU+5][iCPU-5].m_iSize = 33;
+	m_aUpdates[iCPU+5][iCPU-5].m_iProductionToInstall = 60;
+
 
 	m_aUpdates[iCPU-4][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-4][iCPU-1].m_eStructure = STRUCTURE_TANKLOADER;
@@ -227,6 +262,41 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-5][iCPU-3].m_iSize = 54;
 	m_aUpdates[iCPU-5][iCPU-3].m_iProductionToInstall = 50;
 
+	m_aUpdates[iCPU-7][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-7][iCPU-1].m_eStructure = STRUCTURE_TANKLOADER;
+	m_aUpdates[iCPU-7][iCPU-1].m_eUpdateType = UPDATETYPE_TANKMOVEMENT;
+	m_aUpdates[iCPU-7][iCPU-1].m_flValue = 1;
+	m_aUpdates[iCPU-7][iCPU-1].m_iSize = 54;
+	m_aUpdates[iCPU-7][iCPU-1].m_iProductionToInstall = 50;
+
+	m_aUpdates[iCPU-7][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-7][iCPU-2].m_eStructure = STRUCTURE_TANKLOADER;
+	m_aUpdates[iCPU-7][iCPU-2].m_eUpdateType = UPDATETYPE_TANKDEFENSE;
+	m_aUpdates[iCPU-7][iCPU-2].m_flValue = 1;
+	m_aUpdates[iCPU-7][iCPU-2].m_iSize = 60;
+	m_aUpdates[iCPU-7][iCPU-2].m_iProductionToInstall = 55;
+
+	m_aUpdates[iCPU-6][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-6][iCPU-3].m_eStructure = STRUCTURE_TANKLOADER;
+	m_aUpdates[iCPU-6][iCPU-3].m_eUpdateType = UPDATETYPE_TANKHEALTH;
+	m_aUpdates[iCPU-6][iCPU-3].m_flValue = 1;
+	m_aUpdates[iCPU-6][iCPU-3].m_iSize = 60;
+	m_aUpdates[iCPU-6][iCPU-3].m_iProductionToInstall = 55;
+
+	m_aUpdates[iCPU-7][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-7][iCPU-3].m_eStructure = STRUCTURE_TANKLOADER;
+	m_aUpdates[iCPU-7][iCPU-3].m_eUpdateType = UPDATETYPE_TANKATTACK;
+	m_aUpdates[iCPU-7][iCPU-3].m_flValue = 1;
+	m_aUpdates[iCPU-7][iCPU-3].m_iSize = 66;
+	m_aUpdates[iCPU-7][iCPU-3].m_iProductionToInstall = 60;
+
+	m_aUpdates[iCPU-6][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-6][iCPU-4].m_eStructure = STRUCTURE_TANKLOADER;
+	m_aUpdates[iCPU-6][iCPU-4].m_eUpdateType = UPDATETYPE_TANKDEFENSE;
+	m_aUpdates[iCPU-6][iCPU-4].m_flValue = 1;
+	m_aUpdates[iCPU-6][iCPU-4].m_iSize = 66;
+	m_aUpdates[iCPU-6][iCPU-4].m_iProductionToInstall = 60;
+
 
 	m_aUpdates[iCPU-2][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-2][iCPU-3].m_eStructure = STRUCTURE_INFANTRYLOADER;
@@ -247,28 +317,63 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-2][iCPU-5].m_eUpdateType = UPDATETYPE_TANKATTACK;
 	m_aUpdates[iCPU-2][iCPU-5].m_flValue = 1;
 	m_aUpdates[iCPU-2][iCPU-5].m_iSize = 24;
-	m_aUpdates[iCPU-2][iCPU-5].m_iProductionToInstall = 22;
+	m_aUpdates[iCPU-2][iCPU-5].m_iProductionToInstall = 23;
 
 	m_aUpdates[iCPU-3][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-3][iCPU-4].m_eStructure = STRUCTURE_INFANTRYLOADER;
 	m_aUpdates[iCPU-3][iCPU-4].m_eUpdateType = UPDATETYPE_TANKMOVEMENT;
 	m_aUpdates[iCPU-3][iCPU-4].m_flValue = 1;
 	m_aUpdates[iCPU-3][iCPU-4].m_iSize = 24;
-	m_aUpdates[iCPU-3][iCPU-4].m_iProductionToInstall = 22;
+	m_aUpdates[iCPU-3][iCPU-4].m_iProductionToInstall = 23;
 
 	m_aUpdates[iCPU-3][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-3][iCPU-5].m_eStructure = STRUCTURE_INFANTRYLOADER;
 	m_aUpdates[iCPU-3][iCPU-5].m_eUpdateType = UPDATETYPE_TANKDEFENSE;
 	m_aUpdates[iCPU-3][iCPU-5].m_flValue = 1;
 	m_aUpdates[iCPU-3][iCPU-5].m_iSize = 26;
-	m_aUpdates[iCPU-3][iCPU-5].m_iProductionToInstall = 25;
+	m_aUpdates[iCPU-3][iCPU-5].m_iProductionToInstall = 26;
 
 	m_aUpdates[iCPU-4][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-4][iCPU-4].m_eStructure = STRUCTURE_INFANTRYLOADER;
 	m_aUpdates[iCPU-4][iCPU-4].m_eUpdateType = UPDATETYPE_TANKHEALTH;
 	m_aUpdates[iCPU-4][iCPU-4].m_flValue = 1;
 	m_aUpdates[iCPU-4][iCPU-4].m_iSize = 26;
-	m_aUpdates[iCPU-4][iCPU-4].m_iProductionToInstall = 25;
+	m_aUpdates[iCPU-4][iCPU-4].m_iProductionToInstall = 26;
+
+	m_aUpdates[iCPU-3][iCPU-6].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-3][iCPU-6].m_eStructure = STRUCTURE_INFANTRYLOADER;
+	m_aUpdates[iCPU-3][iCPU-6].m_eUpdateType = UPDATETYPE_TANKMOVEMENT;
+	m_aUpdates[iCPU-3][iCPU-6].m_flValue = 1;
+	m_aUpdates[iCPU-3][iCPU-6].m_iSize = 28;
+	m_aUpdates[iCPU-3][iCPU-6].m_iProductionToInstall = 29;
+
+	m_aUpdates[iCPU-4][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-4][iCPU-5].m_eStructure = STRUCTURE_INFANTRYLOADER;
+	m_aUpdates[iCPU-4][iCPU-5].m_eUpdateType = UPDATETYPE_TANKATTACK;
+	m_aUpdates[iCPU-4][iCPU-5].m_flValue = 1;
+	m_aUpdates[iCPU-4][iCPU-5].m_iSize = 28;
+	m_aUpdates[iCPU-4][iCPU-5].m_iProductionToInstall = 29;
+
+	m_aUpdates[iCPU-5][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-5][iCPU-5].m_eStructure = STRUCTURE_INFANTRYLOADER;
+	m_aUpdates[iCPU-5][iCPU-5].m_eUpdateType = UPDATETYPE_TANKDEFENSE;
+	m_aUpdates[iCPU-5][iCPU-5].m_flValue = 1;
+	m_aUpdates[iCPU-5][iCPU-5].m_iSize = 30;
+	m_aUpdates[iCPU-5][iCPU-5].m_iProductionToInstall = 32;
+
+	m_aUpdates[iCPU-4][iCPU-6].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-4][iCPU-6].m_eStructure = STRUCTURE_INFANTRYLOADER;
+	m_aUpdates[iCPU-4][iCPU-6].m_eUpdateType = UPDATETYPE_TANKHEALTH;
+	m_aUpdates[iCPU-4][iCPU-6].m_flValue = 1;
+	m_aUpdates[iCPU-4][iCPU-6].m_iSize = 30;
+	m_aUpdates[iCPU-4][iCPU-6].m_iProductionToInstall = 32;
+
+	m_aUpdates[iCPU-3][iCPU-7].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-3][iCPU-7].m_eStructure = STRUCTURE_INFANTRYLOADER;
+	m_aUpdates[iCPU-3][iCPU-7].m_eUpdateType = UPDATETYPE_TANKATTACK;
+	m_aUpdates[iCPU-3][iCPU-7].m_flValue = 1;
+	m_aUpdates[iCPU-3][iCPU-7].m_iSize = 30;
+	m_aUpdates[iCPU-3][iCPU-7].m_iProductionToInstall = 32;
 
 
 	m_aUpdates[iCPU][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -299,6 +404,13 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-1][iCPU-6].m_iSize = 48;
 	m_aUpdates[iCPU-1][iCPU-6].m_iProductionToInstall = 45;
 
+	m_aUpdates[iCPU][iCPU-7].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU][iCPU-7].m_eStructure = STRUCTURE_ARTILLERYLOADER;
+	m_aUpdates[iCPU][iCPU-7].m_eUpdateType = UPDATETYPE_TANKMOVEMENT;
+	m_aUpdates[iCPU][iCPU-7].m_flValue = 1;
+	m_aUpdates[iCPU][iCPU-7].m_iSize = 48;
+	m_aUpdates[iCPU][iCPU-7].m_iProductionToInstall = 45;
+
 	m_aUpdates[iCPU+1][iCPU-7].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU-7].m_eStructure = STRUCTURE_ARTILLERYLOADER;
 	m_aUpdates[iCPU+1][iCPU-7].m_eUpdateType = UPDATETYPE_TANKRANGE;
@@ -312,6 +424,34 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU-1][iCPU-7].m_flValue = 1;
 	m_aUpdates[iCPU-1][iCPU-7].m_iSize = 54;
 	m_aUpdates[iCPU-1][iCPU-7].m_iProductionToInstall = 50;
+
+	m_aUpdates[iCPU][iCPU-8].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU][iCPU-8].m_eStructure = STRUCTURE_ARTILLERYLOADER;
+	m_aUpdates[iCPU][iCPU-8].m_eUpdateType = UPDATETYPE_TANKHEALTH;
+	m_aUpdates[iCPU][iCPU-8].m_flValue = 1;
+	m_aUpdates[iCPU][iCPU-8].m_iSize = 54;
+	m_aUpdates[iCPU][iCPU-8].m_iProductionToInstall = 50;
+
+	m_aUpdates[iCPU-1][iCPU-8].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-1][iCPU-8].m_eStructure = STRUCTURE_ARTILLERYLOADER;
+	m_aUpdates[iCPU-1][iCPU-8].m_eUpdateType = UPDATETYPE_TANKRANGE;
+	m_aUpdates[iCPU-1][iCPU-8].m_flValue = 1;
+	m_aUpdates[iCPU-1][iCPU-8].m_iSize = 54;
+	m_aUpdates[iCPU-1][iCPU-8].m_iProductionToInstall = 50;
+
+	m_aUpdates[iCPU][iCPU-9].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU][iCPU-9].m_eStructure = STRUCTURE_ARTILLERYLOADER;
+	m_aUpdates[iCPU][iCPU-9].m_eUpdateType = UPDATETYPE_TANKMOVEMENT;
+	m_aUpdates[iCPU][iCPU-9].m_flValue = 1;
+	m_aUpdates[iCPU][iCPU-9].m_iSize = 54;
+	m_aUpdates[iCPU][iCPU-9].m_iProductionToInstall = 50;
+
+	m_aUpdates[iCPU+1][iCPU-8].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU+1][iCPU-8].m_eStructure = STRUCTURE_ARTILLERYLOADER;
+	m_aUpdates[iCPU+1][iCPU-8].m_eUpdateType = UPDATETYPE_TANKATTACK;
+	m_aUpdates[iCPU+1][iCPU-8].m_flValue = 1;
+	m_aUpdates[iCPU+1][iCPU-8].m_iSize = 54;
+	m_aUpdates[iCPU+1][iCPU-8].m_iProductionToInstall = 50;
 
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)

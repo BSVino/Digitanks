@@ -71,10 +71,10 @@ void CUpdatesPanel::Layout()
 	int iLowestX = pUpdates->m_iLowestX;
 	int iLowestY = pUpdates->m_iLowestY;
 
-	int iXSize = pUpdates->m_iHighestX - iLowestX;
-	int iYSize = pUpdates->m_iHighestY - iLowestY;
+	int iXSize = pUpdates->m_iHighestX - iLowestX + 1;
+	int iYSize = pUpdates->m_iHighestY - iLowestY + 1;
 
-	int iLarger = (iXSize > iYSize) ? iXSize : iYSize;
+	int iLarger = ((iXSize > iYSize) ? iXSize : iYSize);
 
 	if (iLarger < 11)
 	{
@@ -83,7 +83,11 @@ void CUpdatesPanel::Layout()
 		iLowestY = (pUpdates->m_iHighestY + pUpdates->m_iLowestY)/2 - iLarger/2;
 	}
 
-	int iButtonSize = GetWidth()/iLarger;
+	int iButtonSize = GetWidth()/(iLarger+1);
+	int iXWidth = iButtonSize*iXSize;
+	int iYWidth = iButtonSize*iYSize;
+	int iXBuffer = (GetWidth() - iXWidth)/2;
+	int iYBuffer = (GetWidth() - iYWidth)/2;
 
 	for (int i = pUpdates->m_iLowestX; i <= pUpdates->m_iHighestX; i++)
 	{
@@ -95,7 +99,7 @@ void CUpdatesPanel::Layout()
 			m_apUpdates.push_back(new CUpdateButton(this));
 			CUpdateButton* pUpdate = m_apUpdates[m_apUpdates.size()-1];
 			pUpdate->SetSize(iButtonSize-2, iButtonSize-1);
-			pUpdate->SetPos((i-iLowestX)*iButtonSize, (j-iLowestY)*iButtonSize);
+			pUpdate->SetPos((i-iLowestX)*iButtonSize + iXBuffer, (j-iLowestY)*iButtonSize + iYBuffer);
 			pUpdate->SetFontFaceSize(10);
 			pUpdate->SetLocation(i, j);
 			AddControl(pUpdate);
@@ -166,6 +170,8 @@ void CUpdatesPanel::Layout()
 			}
 		}
 	}
+
+	UpdateInfo(NULL);
 }
 
 void CUpdatesPanel::Paint(int x, int y, int w, int h)
