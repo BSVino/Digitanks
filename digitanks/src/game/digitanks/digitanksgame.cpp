@@ -541,6 +541,9 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
 
+			if (!pTank->MovesWith(pCurrentTank))
+				continue;
+
 			Vector vecTankMove = vecMove;
 
 			Vector vecNewPosition = pTank->GetOrigin() + vecTankMove;
@@ -638,6 +641,9 @@ void CDigitanksGame::SetDesiredTurn(bool bAllTanks, Vector vecLookAt)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
 
+			if (!pTank->TurnsWith(pCurrentTank))
+				continue;
+
 			if (bNoTurn)
 				pTank->SetPreviewTurn(pTank->GetAngles().y);
 			else
@@ -687,6 +693,9 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 		{
 			CDigitank* pTank = pTeam->GetTank(i);
 
+			if (!pTank->AimsWith(pCurrentTank))
+				continue;
+
 			Vector vecTankAim = vecPreviewAim;
 			if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
 			{
@@ -701,9 +710,7 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 	else
 		pCurrentTank->SetDesiredAim();
 
-	if (bAllTanks)
-		SetControlMode(MODE_FIRE);
-	else if (!CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
+	if (!CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
 		SetControlMode(MODE_NONE);
 	else
 		GetCurrentTeam()->NextTank();

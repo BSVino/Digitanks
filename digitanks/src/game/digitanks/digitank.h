@@ -170,6 +170,10 @@ public:
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
 
+	virtual bool				MovesWith(CDigitank* pOther);
+	virtual bool				TurnsWith(CDigitank* pOther);
+	virtual bool				AimsWith(CDigitank* pOther);
+
 	virtual void				Think();
 
 	// CSelectable

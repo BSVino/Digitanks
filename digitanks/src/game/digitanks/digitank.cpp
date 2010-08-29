@@ -977,6 +977,85 @@ bool CDigitank::CanAim()
 	return AllowControlMode(MODE_AIM);
 }
 
+bool CDigitank::MovesWith(CDigitank* pOther)
+{
+	if (!pOther)
+		return false;
+
+	if (this == pOther)
+		return true;
+
+	// Only same team.
+	if (GetTeam() != pOther->GetTeam())
+		return false;
+
+	// Not fortified tanks.
+	if (IsFortified() || IsFortifying())
+		return false;
+
+	// Only closeby tanks.
+	if ((GetOrigin() - pOther->GetOrigin()).Length() > 100)
+		return false;
+
+	// Only same class tanks.
+	if (GetBuildUnit() != pOther->GetBuildUnit())
+		return false;
+
+	return true;
+}
+
+bool CDigitank::TurnsWith(CDigitank* pOther)
+{
+	if (!pOther)
+		return false;
+
+	if (this == pOther)
+		return true;
+
+	// Only same team.
+	if (GetTeam() != pOther->GetTeam())
+		return false;
+
+	// Only closeby tanks.
+	if ((GetOrigin() - pOther->GetOrigin()).Length() > 100)
+		return false;
+
+	// Only same class tanks.
+	if (GetBuildUnit() != pOther->GetBuildUnit())
+		return false;
+
+	return true;
+}
+
+bool CDigitank::AimsWith(CDigitank* pOther)
+{
+	if (!pOther)
+		return false;
+
+	if (this == pOther)
+		return true;
+
+	// Only same team.
+	if (GetTeam() != pOther->GetTeam())
+		return false;
+
+	// Only closeby tanks.
+	if ((GetOrigin() - pOther->GetOrigin()).Length() > 100)
+		return false;
+
+	// Only same class tanks.
+	if (GetBuildUnit() != pOther->GetBuildUnit())
+		return false;
+
+	if (!CanAim())
+		return false;
+
+	if (!IsFortified() && !CanAimMobilized())
+		return false;
+
+	return true;
+}
+
 void CDigitank::Think()
 {
 	BaseClass::Think();
@@ -985,9 +1064,9 @@ void CDigitank::Think()
 
 	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
 	bool bAimMode = DigitanksGame()->GetControlMode() == MODE_AIM;
-	bool bShowThisTank = HasDesiredAim() || (bAimMode && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown));
-	if (GetTeam() != DigitanksGame()->GetCurrentTeam())
-		bShowThisTank = false;
+	bool bShowThisTank = HasDesiredAim();
+	if (bAimMode && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown) && AimsWith(GetDigitanksTeam()->GetCurrentTank()))
+		bShowThisTank = true;
 
 	if (bShowThisTank)
 	{
@@ -1001,7 +1080,7 @@ void CDigitank::Think()
 
 		if (bMouseOK && bAimMode)
 		{
-			if (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown)
+			if (AimsWith(GetDigitanksTeam()->GetCurrentTank()) && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown))
 			{
 				if (pHit && dynamic_cast<CDigitanksEntity*>(pHit) && pHit->GetTeam() && pHit->GetTeam() != GetTeam())
 					vecTankAim = pHit->GetOrigin();
@@ -1745,7 +1824,7 @@ void CDigitank::PostRender()
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
 		EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
-		if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == pCurrentSelection->GetTeam())
+		if (CDigitanksWindow::Get()->IsShiftDown() && TurnsWith(pCurrentTank))
 		{
 			Vector vecLookAt;
 			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
@@ -1791,7 +1870,7 @@ void CDigitank::PostRender()
 
 				RenderTurret(50.0f/255);
 			}
-			else if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == pCurrentSelection->GetTeam())
+			else if (CDigitanksWindow::Get()->IsShiftDown() && MovesWith(pCurrentTank))
 			{
 				Vector vecTankMove = pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin();
 				if (vecTankMove.Length() > GetMaxMovementDistance())

@@ -1187,7 +1187,26 @@ void CHUD::NewCurrentTeam()
 	{
 		// Don't open the research window on the first turn, give the player a chance to see the game grid first.
 		if (DigitanksGame()->GetTurn() >= 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
-			m_pUpdatesPanel->SetVisible(true);
+		{
+			bool bShouldOpen = false;
+			for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+			{
+				for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+				{
+					if (DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y].m_eUpdateClass != UPDATECLASS_EMPTY && !DigitanksGame()->GetCurrentTeam()->HasDownloadedUpdate(x, y))
+					{
+						bShouldOpen = true;
+						break;
+					}
+				}
+
+				if (bShouldOpen)
+					break;
+			}
+			
+			if (bShouldOpen)
+				m_pUpdatesPanel->SetVisible(true);
+		}
 	}
 
 	UpdateScoreboard();

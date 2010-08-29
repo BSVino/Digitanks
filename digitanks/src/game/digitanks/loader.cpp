@@ -425,6 +425,9 @@ size_t CLoader::GetTurnsToProduce()
 		return -1;
 
 	size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
+	if (iPerTurn == 0)
+		return 9999;
+
 	return (size_t)((GetUnitProductionCost()-m_iProductionStored)/iPerTurn)+1;
 }
 
@@ -476,7 +479,10 @@ void CLoader::UpdateInfo(std::wstring& sInfo)
 		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * GetSupplier()->GetChildEfficiency());
 		size_t iProductionLeft = GetUnitProductionCost() - m_iProductionStored;
 		s << L"Power to build: " << iProductionLeft << L"\n";
-		s << L"Turns left: " << (iProductionLeft/iProduction)+1 << L"\n \n";
+		if (iProduction == 0)
+			s << L"Turns left: " << 9999 << L"\n \n";
+		else
+			s << L"Turns left: " << (iProductionLeft/iProduction)+1 << L"\n \n";
 	}
 
 	if (IsInstalling())

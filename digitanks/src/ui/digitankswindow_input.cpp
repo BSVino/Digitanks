@@ -232,18 +232,6 @@ void CDigitanksWindow::KeyPress(int c)
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
-	if (c == 'X')
-		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
-
-	if (c == 'C')
-		DigitanksGame()->CompleteProductions();
-
-	if (c == 'V')
-	{
-		if (DigitanksGame()->GetCurrentSelection())
-			DigitanksGame()->GetCurrentSelection()->Delete();
-	}
-
 	if (c == 'H')
 	{
 		if (DigitanksGame()->GetLocalDigitanksTeam())
@@ -263,6 +251,35 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
+
+	// Cheats from here on out
+	if (c == 'X')
+		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
+
+	if (c == 'C')
+		DigitanksGame()->CompleteProductions();
+
+	if (c == 'V')
+	{
+		if (DigitanksGame()->GetCurrentSelection())
+			DigitanksGame()->GetCurrentSelection()->Delete();
+	}
+
+	if (c == 'B')
+	{
+		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+		{
+			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+			{
+				if (DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y].m_eUpdateClass == UPDATECLASS_EMPTY)
+					continue;
+
+				pTeam->DownloadUpdate(x, y, false);
+				pTeam->DownloadComplete();
+			}
+		}
+	}
 }
 
 void CDigitanksWindow::KeyRelease(int c)
