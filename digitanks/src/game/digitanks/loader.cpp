@@ -284,7 +284,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButton1Help("Build\nArtillery");
 			pHUD->SetButton1Texture(s_iBuildArtilleryIcon);
 			s << "BUILD ARTILLERY\n \n";
-			s << "Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Use them to soften enemy positions before moving in.\n \n";
+			s << "Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n";
 		}
 
 		s << "Fleet supply required: " << GetFleetPointsRequired() << "\n";

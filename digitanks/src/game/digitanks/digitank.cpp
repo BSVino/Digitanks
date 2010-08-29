@@ -10,6 +10,7 @@
 #include <renderer/particles.h>
 
 #include "digitanksgame.h"
+#include "camera.h"
 #include "ui/digitankswindow.h"
 #include "ui/instructor.h"
 #include "powerup.h"
@@ -1232,7 +1233,15 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 		CancelDesiredTurn();
 
 	if (eNewMode == MODE_AIM)
+	{
 		CancelDesiredAim();
+
+		if (IsArtillery())
+		{
+			Vector vecCenter = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(GetAngles()) * GetMaxRange()/2);
+			DigitanksGame()->GetCamera()->SetTarget(vecCenter);
+		}
+	}
 }
 
 float CDigitank::GetPowerBar1Value()
@@ -1603,6 +1612,8 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+
 	if (!CNetwork::IsConnected() && iDifficulty == 0)
 	{
 		if (DigitanksGame()->IsTeamControlledByMe(GetTeam()))
@@ -1616,6 +1627,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	float* pflShield = GetShieldForAttackDirection(vecAttackDirection);
 
 	float flDamageBlocked = (*pflShield) * GetDefenseScale();
+
+	if (pProjectile)
+		flDamageBlocked *= pProjectile->ShieldDamageScale();
 
 	if (flDamage - flDamageBlocked <= 0)
 	{
@@ -1633,6 +1647,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	}
 
 	flDamage -= flDamageBlocked;
+
+	if (pProjectile)
+		flDamage *= pProjectile->HealthDamageScale();
 
 	if (GetVisibility() > 0)
 	{

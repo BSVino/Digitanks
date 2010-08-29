@@ -41,6 +41,9 @@ public:
 
 	virtual size_t				CreateParticleSystem();
 
+	virtual float				ShieldDamageScale() { return 1; };
+	virtual float				HealthDamageScale() { return 1; };
+
 protected:
 	float						m_flTimeCreated;
 	float						m_flTimeExploded;
@@ -66,6 +69,9 @@ class CArtilleryShell : public CProjectile
 
 public:
 	virtual bool				CreatesCraters() { return false; };
+
+	virtual float				ShieldDamageScale() { return 2; };
+	virtual float				HealthDamageScale() { return 0.5f; };
 };
 
 class CInfantryFlak : public CProjectile

@@ -620,7 +620,7 @@ std::wstring CUpdateItem::GetInfo()
 			return L"This program allows the player to construct the Main Battle Tank Loader which produces Main Battle Tanks (unsurprisingly) which are the primary tool of defeating your enemies, or your allies should you choose.";
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return L"This program allows the player to construct Artillery Loaders. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar.";
+			return L"This program allows the player to construct Artillery Loaders. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar. Artillery do double damage to shields, but only half damage to structures and tank hulls.";
 
 		default:
 			return L"Somehow you have found a way to construct an edifice which shouldn't exist. Please be careful not to open a wormhole while you're doing it.";
