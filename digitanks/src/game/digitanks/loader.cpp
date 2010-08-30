@@ -493,7 +493,8 @@ void CLoader::UpdateInfo(std::wstring& sInfo)
 		sInfo = s.str();
 	}
 
-	s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+	if (GetSupplier())
+		s << L"Efficiency: " << (int)(GetSupplier()->GetChildEfficiency()*100) << L"%\n";
 
 	sInfo = s.str();
 }

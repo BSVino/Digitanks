@@ -154,7 +154,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+2][iCPU-4].m_eUpdateType = UPDATETYPE_BANDWIDTH;
 	m_aUpdates[iCPU+2][iCPU-4].m_flValue = 1;
 	m_aUpdates[iCPU+2][iCPU-4].m_iSize = 21;
-	m_aUpdates[iCPU+2][iCPU-4].m_iProductionToInstall = 40;
+	m_aUpdates[iCPU+2][iCPU-4].m_iProductionToInstall = 80;
 
 	m_aUpdates[iCPU+2][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU-5].m_eStructure = STRUCTURE_BUFFER;
@@ -189,7 +189,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+3][iCPU-6].m_eUpdateType = UPDATETYPE_BANDWIDTH;
 	m_aUpdates[iCPU+3][iCPU-6].m_flValue = 2;
 	m_aUpdates[iCPU+3][iCPU-6].m_iSize = 30;
-	m_aUpdates[iCPU+3][iCPU-6].m_iProductionToInstall = 55;
+	m_aUpdates[iCPU+3][iCPU-6].m_iProductionToInstall = 110;
 
 	m_aUpdates[iCPU+4][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+4][iCPU-5].m_eStructure = STRUCTURE_BUFFER;

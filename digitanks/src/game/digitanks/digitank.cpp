@@ -995,7 +995,7 @@ bool CDigitank::MovesWith(CDigitank* pOther)
 		return false;
 
 	// Only closeby tanks.
-	if ((GetOrigin() - pOther->GetOrigin()).Length() > 100)
+	if ((GetOrigin() - pOther->GetOrigin()).Length() > 40)
 		return false;
 
 	// Only same class tanks.
@@ -1018,7 +1018,7 @@ bool CDigitank::TurnsWith(CDigitank* pOther)
 		return false;
 
 	// Only closeby tanks.
-	if ((GetOrigin() - pOther->GetOrigin()).Length() > 100)
+	if ((GetOrigin() - pOther->GetOrigin()).Length() > 40)
 		return false;
 
 	// Only same class tanks.
@@ -1041,7 +1041,7 @@ bool CDigitank::AimsWith(CDigitank* pOther)
 		return false;
 
 	// Only closeby tanks.
-	if ((GetOrigin() - pOther->GetOrigin()).Length() > 100)
+	if ((GetOrigin() - pOther->GetOrigin()).Length() > 40)
 		return false;
 
 	// Only same class tanks.
@@ -1052,6 +1052,10 @@ bool CDigitank::AimsWith(CDigitank* pOther)
 		return false;
 
 	if (!IsFortified() && !CanAimMobilized())
+		return false;
+
+	// If we're fortified artillery, only aim with other artillery that are pointing in our general direction.
+	if (IsArtillery() && IsFortified() && fabs(AngleDifference(pOther->GetAngles().y, GetAngles().y)) > 15)
 		return false;
 
 	return true;
@@ -1068,6 +1072,8 @@ void CDigitank::Think()
 	bool bShowThisTank = HasDesiredAim();
 	if (bAimMode && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown) && AimsWith(GetDigitanksTeam()->GetCurrentTank()))
 		bShowThisTank = true;
+	if (GetDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+		bShowThisTank = false;
 
 	if (bShowThisTank)
 	{
