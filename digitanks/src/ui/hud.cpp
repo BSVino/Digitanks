@@ -194,6 +194,8 @@ CHUD::CHUD()
 	m_pTurnInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pTurnInfo);
 
+	m_iTurnInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-turn-report.png", true);
+
 	m_pButtonInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pButtonInfo);
 
@@ -227,16 +229,18 @@ CHUD::CHUD()
 	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pBandwidthInfo->SetPos(200, 20);
 
-	m_pUpdatesButton = new CButton(0, 0, 140, 30, "Download Updates");
+	m_pUpdatesButton = new CPictureButton("Download Updates", CRenderer::LoadTextureIntoGL(L"textures/hud/hud-download-updates.png", true));
 	m_pUpdatesButton->SetClickedListener(this, OpenUpdates);
+	m_pUpdatesButton->ShowBackground(false);
 	AddControl(m_pUpdatesButton);
 
 	m_pUpdatesPanel = new CUpdatesPanel();
 	m_pUpdatesPanel->SetVisible(false);
 	AddControl(m_pUpdatesPanel, true);
 
-	m_pTurnButton = new CPictureButton("TURN", CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png"));
+	m_pTurnButton = new CPictureButton("TURN", CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png", true));
 	m_pTurnButton->SetClickedListener(this, EndTurn);
+	m_pTurnButton->ShowBackground(false);
 	AddControl(m_pTurnButton);
 
 	m_flAttackInfoAlpha = m_flAttackInfoAlphaGoal = 0;
@@ -338,7 +342,7 @@ void CHUD::Layout()
 	m_pTankInfo->SetWrap(true);
 	m_pTankInfo->SetFontFaceSize(10);
 
-	m_pTurnInfo->SetSize(270, 150);
+	m_pTurnInfo->SetSize(278, 150);
 	m_pTurnInfo->SetPos(iWidth/2 - m_pTurnInfo->GetWidth()/2, 0);
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
@@ -349,6 +353,7 @@ void CHUD::Layout()
 	m_pButtonInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pButtonInfo->SetWrap(true);
 
+	m_pUpdatesButton->SetSize(175, 40);
 	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 0);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pUpdatesButton->SetWrap(false);
@@ -521,6 +526,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
 		CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
 		CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
+
+		// Turn info panel
+		CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
 	} while (false);
 
 	// Tank data
@@ -531,9 +539,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, (int)(100*m_flAttackInfoAlpha)));
 
 	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
-
-	// Turn info panel
-	CRootPanel::PaintRect(m_pTurnInfo->GetLeft()-5, m_pTurnInfo->GetTop()-10, m_pTurnInfo->GetWidth(), m_pTurnInfo->GetHeight(), Color(0, 0, 0, 100));
 
 	if (m_pButtonInfo->GetText()[0] != L'\0')
 		// Background for the attack info label

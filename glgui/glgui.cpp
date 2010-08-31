@@ -1169,6 +1169,7 @@ CPictureButton::CPictureButton(const char* pszText, size_t iTexture, bool bToggl
 	: CButton(0, 0, 32, 32, pszText, bToggle)
 {
 	m_iTexture = iTexture;
+	m_bShowBackground = true;
 }
 
 void CPictureButton::Paint(int x, int y, int w, int h)
@@ -1176,7 +1177,8 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 	if (!IsVisible())
 		return;
 
-	PaintButton(x, y, w, h);
+	if (m_bShowBackground)
+		PaintButton(x, y, w, h);
 
 	if (m_iTexture)
 	{

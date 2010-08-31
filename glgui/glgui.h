@@ -541,9 +541,11 @@ namespace glgui
 		virtual void	Paint(int x, int y, int w, int h);
 
 		virtual void	SetTexture(size_t iTexture) { m_iTexture = iTexture; };
+		virtual void	ShowBackground(bool bShow) { m_bShowBackground = bShow; };
 
 	protected:
 		size_t			m_iTexture;
+		bool			m_bShowBackground;
 	};
 
 	class CCheckBox : public CButton

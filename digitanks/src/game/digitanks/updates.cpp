@@ -614,10 +614,10 @@ std::wstring CUpdateItem::GetInfo()
 			return L"This program allows the player to construct Power Supplies to mine the valuable Electronodes that provide your base with more Power. Then you can further your nefarious plans to construct units and erect structures.";
 
 		case STRUCTURE_INFANTRYLOADER:
-			return L"This program allows the player to construct Infantry Loaders, which provide the Mechanized Infantry unit, an essential defensive unit that can be fortified to defend your base.";
+			return L"This program allows the player to construct Infantry Loaders, which provide the Mechanized Infantry unit, an cheap but essential defensive unit that can be fortified to defend your base.";
 
 		case STRUCTURE_TANKLOADER:
-			return L"This program allows the player to construct the Main Battle Tank Loader which produces Main Battle Tanks (unsurprisingly) which are the primary tool of defeating your enemies, or your allies should you choose.";
+			return L"This program allows the player to construct the Main Battle Tank Loader which produces Main Battle Tanks, the primary tool of defeating your enemies. These units are more expensive to build.";
 
 		case STRUCTURE_ARTILLERYLOADER:
 			return L"This program allows the player to construct Artillery Loaders. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar. Artillery do double damage to shields, but only half damage to structures and tank hulls.";
@@ -631,13 +631,13 @@ std::wstring CUpdateItem::GetInfo()
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			return L"This update increases the amount of power that you generate per turn. Power helps you build structures and units faster, so that you won't have to press the 'Turn' button so much.";
+			return L"This update increases the amount of power that you generate per turn. Power helps you build structures and units faster. This update must be installed before use.";
 
 		case UPDATETYPE_BANDWIDTH:
-			return L"This update increases the amount of bandwidth available to you. Increased bandwidth helps you download updates and programs faster.";
+			return L"This update increases the amount of bandwidth available to you. Increased bandwidth helps you download updates and programs faster. This update must be installed before use.";
 
 		case UPDATETYPE_FLEETSUPPLY:
-			return L"This update increases your maximum fleet capacity, so that you can build more tanks, which is the point of this game isn't it?";
+			return L"This update increases your maximum fleet capacity, so that you can build more tanks. This update must be installed before use.";
 
 		case UPDATETYPE_SUPPORTENERGY:
 			return L"With this update installed, units supported by this buffer will receive bonuses to Attack and Defense energy.";

@@ -278,6 +278,7 @@ protected:
 	float						m_flTurnInfoHeightGoal;
 	float						m_flTurnInfoLerp;
 	float						m_flTurnInfoLerpGoal;
+	size_t						m_iTurnInfoPanel;
 
 	glgui::CLabel*				m_pButtonInfo;
 	std::wstring				m_aszButtonInfos[5];
@@ -293,7 +294,7 @@ protected:
 	glgui::CLabel*				m_pFleetInfo;
 	glgui::CLabel*				m_pBandwidthInfo;
 
-	glgui::CButton*				m_pUpdatesButton;
+	glgui::CPictureButton*		m_pUpdatesButton;
 	CUpdatesPanel*				m_pUpdatesPanel;
 
 	glgui::CPictureButton*		m_pTurnButton;
