@@ -614,7 +614,7 @@ bool CDigitanksTeam::CanBuildInfantryLoaders()
 	if (!DigitanksGame()->GetUpdateGrid())
 		return true;
 
-	return m_bCanBuildInfantryLoaders;
+	return true; //m_bCanBuildInfantryLoaders;
 }
 
 bool CDigitanksTeam::CanBuildTankLoaders()

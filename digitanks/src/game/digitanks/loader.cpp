@@ -523,3 +523,15 @@ size_t CLoader::GetUnitProductionCost(buildunit_t eBuildUnit)
 {
 	return g_aiTurnsToLoad[eBuildUnit];
 }
+
+size_t CLoader::GetLoaderConstructionCost(buildunit_t eBuildUnit)
+{
+	if (eBuildUnit == BUILDUNIT_INFANTRY)
+		return 40;
+	if (eBuildUnit == BUILDUNIT_TANK)
+		return 80;
+	if (eBuildUnit == BUILDUNIT_ARTILLERY)
+		return 100;
+	else
+		return 100;
+}

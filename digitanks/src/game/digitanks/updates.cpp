@@ -91,6 +91,13 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+2][iCPU-1].m_iProductionToInstall = 20;
 
 
+	m_aUpdates[iCPU-2][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
+	m_aUpdates[iCPU-2][iCPU-2].m_eStructure = STRUCTURE_CPU;
+	m_aUpdates[iCPU-2][iCPU-2].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
+	m_aUpdates[iCPU-2][iCPU-2].m_flValue = 3;
+	m_aUpdates[iCPU-2][iCPU-2].m_iSize = 15;
+	m_aUpdates[iCPU-2][iCPU-2].m_iProductionToInstall = 25;
+
 	m_aUpdates[iCPU-1][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-1][iCPU-2].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-1][iCPU-2].m_eUpdateType = UPDATETYPE_PRODUCTION;
@@ -133,9 +140,9 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU][iCPU-4].m_eStructure = STRUCTURE_ARTILLERYLOADER;
 	m_aUpdates[iCPU][iCPU-4].m_iSize = 70;
 
-	m_aUpdates[iCPU-2][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTURE;
-	m_aUpdates[iCPU-2][iCPU-2].m_eStructure = STRUCTURE_INFANTRYLOADER;
-	m_aUpdates[iCPU-2][iCPU-2].m_iSize = 20;
+//	m_aUpdates[iCPU-2][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTURE;
+//	m_aUpdates[iCPU-2][iCPU-2].m_eStructure = STRUCTURE_INFANTRYLOADER;
+//	m_aUpdates[iCPU-2][iCPU-2].m_iSize = 20;
 
 	m_aUpdates[iCPU-3][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTURE;
 	m_aUpdates[iCPU-3][iCPU-1].m_eStructure = STRUCTURE_TANKLOADER;

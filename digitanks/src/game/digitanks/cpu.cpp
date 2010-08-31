@@ -96,8 +96,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s;
 			s << "BUILD INFANTRY LOADER\n \n"
 				<< "This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n"
-				<< "Power to construct: " << CLoader::GetLoaderConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost()) << " Turns";
+				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY) << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY)) << " Turns";
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
@@ -111,8 +111,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s;
 			s << "BUILD MAIN BATTLE TANK LOADER\n \n"
 				<< "This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n"
-				<< "Power to construct: " << CLoader::GetLoaderConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost()) << " Turns";
+				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK) << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK)) << " Turns";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
@@ -126,8 +126,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s;
 			s << "BUILD ARTILLERY LOADER\n \n"
 				<< "This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n"
-				<< "Power to construct: " << CLoader::GetLoaderConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost()) << " Turns";
+				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY) << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY)) << " Turns";
 			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
@@ -386,6 +386,10 @@ void CCPU::BeginConstruction()
 			return;
 
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+
+		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+		if (pLoader)
+			pLoader->SetBuildUnit(BUILDUNIT_INFANTRY);
 	}
 	else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
 	{
@@ -393,6 +397,10 @@ void CCPU::BeginConstruction()
 			return;
 
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+
+		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+		if (pLoader)
+			pLoader->SetBuildUnit(BUILDUNIT_TANK);
 	}
 	else if (m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER)
 	{
@@ -400,6 +408,10 @@ void CCPU::BeginConstruction()
 			return;
 
 		m_hConstructing = Game()->Create<CLoader>("CLoader");
+
+		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+		if (pLoader)
+			pLoader->SetBuildUnit(BUILDUNIT_ARTILLERY);
 	}
 
 	GetTeam()->AddEntity(m_hConstructing);
@@ -430,17 +442,6 @@ void CCPU::BeginConstruction()
 	{
 		pCollector->SetResource(CResource::FindClosestResource(GetPreviewBuild(), pCollector->GetResourceType()));
 		pCollector->GetResource()->SetCollector(pCollector);
-	}
-
-	CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
-	if (pLoader)
-	{
-		if (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER)
-			pLoader->SetBuildUnit(BUILDUNIT_INFANTRY);
-		else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
-			pLoader->SetBuildUnit(BUILDUNIT_TANK);
-		else
-			pLoader->SetBuildUnit(BUILDUNIT_ARTILLERY);
 	}
 
 	GetDigitanksTeam()->CountProducers();
