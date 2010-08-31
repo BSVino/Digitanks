@@ -86,6 +86,7 @@ protected:
 	static CGame*								s_pGame;
 
 	float										m_flGameTime;
+	float										m_flSimulationTime;
 	float										m_flFrameTime;
 	float										m_flRealTime;
 

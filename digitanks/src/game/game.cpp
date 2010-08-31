@@ -21,6 +21,7 @@ CGame::CGame()
 
 	m_flRealTime = 0;
 	m_flGameTime = 0;
+	m_flSimulationTime = 0;
 	m_flFrameTime = 0;
 
 	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
@@ -132,15 +133,35 @@ void CGame::Think(float flRealTime)
 
 void CGame::Simulate()
 {
-	// Move all entities
+	float flSimulationFrameTime = 0.01f;
+
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
 
 		pEntity->SetLastOrigin(pEntity->GetOrigin());
-		pEntity->SetOrigin(pEntity->GetOrigin() + pEntity->GetVelocity() * m_flFrameTime);
-		pEntity->SetVelocity(pEntity->GetVelocity() + pEntity->GetGravity() * m_flFrameTime);
 	}
+
+	// Move all entities
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
+
+		if (!pEntity->ShouldSimulate())
+			continue;
+
+		// Break simulations up into very small steps in order to preserve accuracy.
+		// I think floating point precision causes this problem but I'm not sure. Anyway this works better for my projectiles.
+		for (float flCurrentSimulationTime = m_flSimulationTime; flCurrentSimulationTime < m_flGameTime; flCurrentSimulationTime += flSimulationFrameTime)
+		{
+			Vector vecVelocity = pEntity->GetVelocity();
+			pEntity->SetOrigin(pEntity->GetOrigin() + vecVelocity * flSimulationFrameTime);
+			pEntity->SetVelocity(vecVelocity + pEntity->GetGravity() * flSimulationFrameTime);
+		}
+	}
+
+	while (m_flSimulationTime < m_flGameTime)
+		m_flSimulationTime += flSimulationFrameTime;
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -271,7 +292,7 @@ void CGame::DestroyEntity(CNetworkParameters* p)
 void CGame::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
-	m_flGameTime = p->fl2;
+	m_flGameTime = m_flSimulationTime = p->fl2;
 	s_hLocalTeam = NULL;
 }
 

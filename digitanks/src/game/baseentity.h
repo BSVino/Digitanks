@@ -111,6 +111,7 @@ public:
 
 	virtual void							Think() {};
 
+	virtual bool							ShouldSimulate() const { return false; };
 	virtual bool							ShouldTouch(CBaseEntity* pOther) const { return false; };
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};

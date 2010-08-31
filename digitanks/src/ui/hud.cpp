@@ -169,6 +169,7 @@ CHUD::CHUD()
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pAttackInfo);
+	m_iAttackInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-attack-info.png", true);
 
 	m_pScoreboard = new CLabel(0, 0, 100, 150, "");
 	m_pScoreboard->SetWrap(false);
@@ -190,10 +191,10 @@ CHUD::CHUD()
 
 	m_pTankInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pTankInfo);
+	m_iTankInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-tank-info.png", true);
 
 	m_pTurnInfo = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pTurnInfo);
-
 	m_iTurnInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-turn-report.png", true);
 
 	m_pButtonInfo = new CLabel(0, 0, 100, 100, "");
@@ -271,8 +272,8 @@ void CHUD::Layout()
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
-	m_pAttackInfo->SetPos(iWidth - 180, iHeight - 150 - 10 - 100 + 3);
-	m_pAttackInfo->SetSize(170, 100);
+	m_pAttackInfo->SetPos(iWidth - 165, iHeight - 150 - 90 - 10);
+	m_pAttackInfo->SetSize(165, 90);
 
 	m_pHealthBar->SetPos(iWidth/2 - 720/2 + 170, iHeight - 140);
 	m_pHealthBar->SetSize(200, 20);
@@ -336,7 +337,7 @@ void CHUD::Layout()
 	m_pRearShieldInfo->SetWrap(false);
 	m_pFrontShieldInfo->SetWrap(false);
 
-	m_pTankInfo->SetSize(150, 250);
+	m_pTankInfo->SetSize(140, 240);
 	m_pTankInfo->SetPos(10, iHeight - m_pTankInfo->GetHeight() + 10 + 7);
 	m_pTankInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTankInfo->SetWrap(true);
@@ -527,21 +528,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
 		CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
 
-		// Turn info panel
 		CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
+
+		if (m_flAttackInfoAlpha > 0)
+			CRootPanel::PaintTexture(m_iAttackInfoPanel, iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
+
+		CRootPanel::PaintTexture(m_iTankInfoPanel, 0, iHeight-250, 150, 250);
 	} while (false);
-
-	// Tank data
-	CRootPanel::PaintRect(m_pTankInfo->GetLeft()-5, m_pTankInfo->GetTop()-10, m_pTankInfo->GetWidth(), m_pTankInfo->GetHeight(), Color(0, 0, 0, 100));
-
-	if (m_flAttackInfoAlpha > 0)
-		// Background for the attack info label
-		CRootPanel::PaintRect(m_pAttackInfo->GetLeft()-3, m_pAttackInfo->GetTop()-9, m_pAttackInfo->GetWidth()+6, m_pAttackInfo->GetHeight()+6, Color(0, 0, 0, (int)(100*m_flAttackInfoAlpha)));
 
 	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
 	if (m_pButtonInfo->GetText()[0] != L'\0')
-		// Background for the attack info label
 		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
 
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)

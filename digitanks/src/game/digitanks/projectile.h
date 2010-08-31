@@ -24,6 +24,7 @@ public:
 
 	virtual void				OnDeleted();
 
+	virtual bool				ShouldSimulate() const { return true; };
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	virtual void				Touching(CBaseEntity* pOther);

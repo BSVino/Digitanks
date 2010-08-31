@@ -1938,13 +1938,13 @@ void CDigitank::PostRender()
 		oRope.SetTextureScale(50);
 		oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
 
-		Vector vecProjectile = vecTankOrigin;
 		size_t iLinks = 20;
-		for (size_t i = 0; i < iLinks; i++)
+		float flTimePerLink = flTime/iLinks;
+		for (size_t i = 1; i < iLinks; i++)
 		{
-			oRope.AddLink(vecProjectile + vecForce*(flTime/iLinks));
-			vecProjectile += vecForce*(flTime/iLinks);
-			vecForce.y += flGravity*flTime/iLinks;
+			float flCurrentTime = flTimePerLink*i;
+			Vector vecCurrentOrigin = vecTankOrigin + vecForce*flCurrentTime + Vector(0, flGravity*flCurrentTime*flCurrentTime/2, 0);
+			oRope.AddLink(vecCurrentOrigin);
 		}
 
 		oRope.Finish(m_vecDisplayAim);
