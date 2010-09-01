@@ -38,6 +38,7 @@ protected:
 	glgui::CButton*					m_pExit;
 
 	size_t							m_iLunarWorkshop;
+	size_t							m_iDigitanks;
 };
 
 class CVictoryPanel : public glgui::CPanel

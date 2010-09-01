@@ -35,7 +35,7 @@ void CDigitanksWindow::Layout()
 CDigitanksMenu::CDigitanksMenu()
 	: CPanel(0, 0, 300, 400)
 {
-	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS\n \nCopyright © 2010, Jorge Rodriguez <bs.vino@gmail.com>\n \nhttp://digitanks.com");
+	m_pDigitanks = new CLabel(0, 0, 100, 100, "Copyright © 2010, Lunar Workshop\nJorge Rodriguez <jorge@lunarworkshop.net>\n \nhttp://digitanks.com\nhttp://lunarworkshop.net");
 	AddControl(m_pDigitanks);
 
 	m_pDifficulty = new CScrollSelector<int>();
@@ -73,13 +73,14 @@ CDigitanksMenu::CDigitanksMenu()
 	AddControl(m_pExit);
 
 	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
+	m_iDigitanks = CRenderer::LoadTextureIntoGL(L"textures/digitanks.png");
 
 	Layout();
 }
 
 void CDigitanksMenu::Layout()
 {
-	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
+	SetPos(50, 250);
 
 	m_pDigitanks->SetPos(0, 20);
 	m_pDigitanks->SetSize(GetWidth(), GetHeight());
@@ -118,12 +119,13 @@ void CDigitanksMenu::Layout()
 void CDigitanksMenu::Paint(int x, int y, int w, int h)
 {
 	if (!CDigitanksWindow::Get()->GetGame())
-		CRootPanel::PaintTexture(m_iLunarWorkshop, 20, CRootPanel::Get()->GetHeight()-200, 200, 200);
+	{
+		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
+		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 410, 205);
+	}
 
 	if (CDigitanksWindow::Get()->GetGame())
 		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
-	else
-		CRootPanel::PaintRect(x, y, w, h, Color(120, 130, 120, 255));
 
 	BaseClass::Paint(x, y, w, h);
 }
@@ -304,7 +306,7 @@ void CDonatePanel::Layout()
 
 void CDonatePanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::PaintRect(x, y, w, h, Color(120, 130, 120, 255));
+	CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
 
 	BaseClass::Paint(x, y, w, h);
 }
