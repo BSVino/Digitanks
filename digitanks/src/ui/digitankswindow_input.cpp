@@ -252,6 +252,7 @@ void CDigitanksWindow::KeyPress(int c)
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
 
+#if 0
 	// Cheats from here on out
 	if (c == 'X')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
@@ -280,6 +281,10 @@ void CDigitanksWindow::KeyPress(int c)
 			}
 		}
 	}
+
+	if (c == 'N')
+		CDigitanksWindow::Get()->GetHUD()->SetVisible(!CDigitanksWindow::Get()->GetHUD()->IsVisible());
+#endif
 }
 
 void CDigitanksWindow::KeyRelease(int c)

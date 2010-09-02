@@ -52,7 +52,7 @@ public:
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BATTERY; };
 	virtual size_t				ConstructionCost() const { return GetBatteryConstructionCost(); };
 
-	static size_t				GetBatteryConstructionCost() { return 20; };
+	static size_t				GetBatteryConstructionCost() { return 15; };
 
 protected:
 	static size_t				s_iCancelIcon;

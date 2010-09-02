@@ -350,7 +350,7 @@ CStoryPanel::CStoryPanel()
 		"\"You're way too short and you're just trying to overcompensate!\"\n \n"
 
 		"Our little man was not so pleased, retreating to his lair\n"
-		"He powered up his Trolling Rage Machine with utmost care.\n"
+		"He powered up his Trolling Rage Machine with utmost flair.\n"
 		"It sputtered up to life with a cacophony of clanks\n"
 		"And shortly then thereafter it began to spit out tanks.\n \n"
 

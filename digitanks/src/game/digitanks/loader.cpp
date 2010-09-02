@@ -289,6 +289,8 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		s << "Fleet supply required: " << GetFleetPointsRequired() << "\n";
 		s << "Turns to produce: " << GetTurnsToProduce() << " Turns";
+		if (GetDigitanksTeam()->GetUnusedFleetPoints() < GetFleetPointsRequired())
+			s << "\n \nNOT ENOUGH FLEET POINTS";
 		pHUD->SetButtonInfo(0, s.str().c_str());
 
 		if (HasEnoughFleetPoints())
@@ -527,7 +529,7 @@ size_t CLoader::GetUnitProductionCost(buildunit_t eBuildUnit)
 size_t CLoader::GetLoaderConstructionCost(buildunit_t eBuildUnit)
 {
 	if (eBuildUnit == BUILDUNIT_INFANTRY)
-		return 40;
+		return 20;
 	if (eBuildUnit == BUILDUNIT_TANK)
 		return 80;
 	if (eBuildUnit == BUILDUNIT_ARTILLERY)
