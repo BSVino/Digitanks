@@ -12,6 +12,7 @@
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
 #include <shaders/shaders.h>
+#include <models/models.h>
 
 #include "collector.h"
 #include "loader.h"
@@ -32,6 +33,13 @@ CStructure::CStructure()
 	SetCollisionGroup(CG_ENTITY);
 }
 
+void CStructure::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheModel(L"models/structures/scaffolding.obj");
+}
+
 void CStructure::Spawn()
 {
 	BaseClass::Spawn();
@@ -41,6 +49,9 @@ void CStructure::Spawn()
 	m_iPower = InitialPower();
 	m_iEnergyBonus = InitialEnergyBonus();
 	m_flRechargeBonus = InitialRechargeBonus();
+
+	m_iScaffolding = CModelLibrary::Get()->FindModel(L"models/structures/scaffolding.obj");
+	m_flScaffoldingSize = 10;
 }
 
 void CStructure::StartTurn()
@@ -114,12 +125,33 @@ void CStructure::FindGround()
 	SetOrigin(Vector(GetOrigin().x, flHeight, GetOrigin().z));
 }
 
+void CStructure::PostRender()
+{
+	BaseClass::PostRender();
+
+	if (IsConstructing() && GetVisibility() > 0)
+	{
+		CRenderingContext c(Game()->GetRenderer());
+		c.Translate(GetOrigin() - Vector(0, 10, 0));
+		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
+		c.SetBlend(BLEND_ADDITIVE);
+		c.SetAlpha(GetVisibility() * 0.3f);
+		c.RenderModel(m_iScaffolding);
+	}
+}
+
 void CStructure::BeginConstruction()
 {
 	m_iProductionToConstruct = ConstructionCost();
 	m_bConstructing = true;
 
 	FindGround();
+
+	if (GetModel() != ~0)
+	{
+		Vector vecScaffoldingSize = CModelLibrary::Get()->GetModel(GetModel())->m_pScene->m_oExtends.Size();
+		m_flScaffoldingSize = vecScaffoldingSize.Length()/2;
+	}
 }
 
 void CStructure::CompleteConstruction()
@@ -511,6 +543,8 @@ void CSupplier::CompleteConstruction()
 
 void CSupplier::PostRender()
 {
+	BaseClass::PostRender();
+
 	CRenderingContext r(Game()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());

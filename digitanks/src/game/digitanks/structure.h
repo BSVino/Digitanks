@@ -20,12 +20,15 @@ public:
 								CStructure();
 
 public:
+	virtual void				Precache();
 	virtual void				Spawn();
 
 	virtual float				GetBoundingRadius() const { return 5; };
 
 	virtual void				StartTurn();
 	virtual void				FindGround();
+
+	virtual void				PostRender();
 
 	void						BeginConstruction();
 	virtual void				CompleteConstruction();
@@ -113,6 +116,9 @@ protected:
 
 	std::map<size_t, std::vector<class CUpdateItem*> >	m_apUpdates;
 	std::map<size_t, size_t>		m_aiUpdatesInstalled;
+
+	size_t						m_iScaffolding;
+	float						m_flScaffoldingSize;
 
 	typedef struct
 	{
