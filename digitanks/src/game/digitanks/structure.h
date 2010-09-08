@@ -28,7 +28,7 @@ public:
 	virtual void				FindGround();
 
 	void						BeginConstruction();
-	void						CompleteConstruction();
+	virtual void				CompleteConstruction();
 	size_t						GetTurnsToConstruct();
 	bool						IsConstructing() { return m_bConstructing; };
 	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
@@ -132,6 +132,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual void				CompleteConstruction();
+
 	virtual size_t				InitialEnergyBonus() const { return 1; };
 	virtual float				InitialRechargeBonus() const { return 0.5f; };
 
@@ -151,6 +153,7 @@ public:
 	virtual void				PostRender();
 
 	void						UpdateTendrils();
+	void						BeginTendrilGrowth();
 
 	void						AddChild(CStructure* pChild);
 	size_t						GetNumChildren() { return m_ahChildren.size(); };
@@ -180,6 +183,7 @@ protected:
 	std::vector<CEntityHandle<CStructure> >	m_ahChildren;
 
 	size_t						m_iTendrilsCallList;
+	float						m_flTendrilGrowthStartTime;
 
 	static size_t				s_iTendrilBeam;
 };

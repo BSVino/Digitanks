@@ -396,6 +396,8 @@ void CSupplier::Spawn()
 	m_flBonusDataFlow = 0;
 
 	m_iTendrilsCallList = 0;
+
+	m_flTendrilGrowthStartTime = 0;
 }
 
 float CSupplier::GetDataFlowRate()
@@ -498,6 +500,15 @@ void CSupplier::StartTurn()
 	UpdateTendrils();
 }
 
+void CSupplier::CompleteConstruction()
+{
+	m_flTendrilGrowthStartTime = Game()->GetGameTime();
+
+	BaseClass::CompleteConstruction();
+}
+
+#define GROWTH_TIME 3
+
 void CSupplier::PostRender()
 {
 	CRenderingContext r(Game()->GetRenderer());
@@ -515,7 +526,58 @@ void CSupplier::PostRender()
 	GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
 	glUniform1f(iTexture, 0);
 
-	glCallList((GLuint)m_iTendrilsCallList);
+	float flGrowthTime = Game()->GetGameTime() - m_flTendrilGrowthStartTime;
+	if (flGrowthTime >= GROWTH_TIME)
+		m_flTendrilGrowthStartTime = 0;
+
+	if (m_flTendrilGrowthStartTime > 0)
+	{
+		float flTotalSize = (float)m_aTendrils.size() + GetBoundingRadius();
+
+		for (size_t i = 0; i < m_aTendrils.size(); i++)
+		{
+			CTendril* pTendril = &m_aTendrils[i];
+
+			float flGrowthLength = RemapVal(flGrowthTime, 0, GROWTH_TIME, pTendril->m_flLength-flTotalSize, pTendril->m_flLength);
+
+			if (flGrowthLength < 0)
+				continue;
+
+			Vector vecDestination = GetOrigin() + (pTendril->m_vecEndPoint - GetOrigin()).Normalized() * flGrowthLength;
+
+			Vector vecPath = vecDestination - GetOrigin();
+			vecPath.y = 0;
+
+			float flDistance = vecPath.Length2D();
+			Vector vecDirection = vecPath.Normalized();
+			size_t iSegments = (size_t)(flDistance/2);
+
+			Color clrTeam = GetTeam()->GetColor();
+
+			GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
+
+			GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
+			glUniform1f(flSpeed, pTendril->m_flSpeed);
+
+			CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+			oRope.SetColor(clrTeam);
+			oRope.SetTextureScale(pTendril->m_flScale);
+			oRope.SetTextureOffset(pTendril->m_flOffset);
+			oRope.SetForward(Vector(0, -1, 0));
+
+			for (size_t i = 1; i < iSegments; i++)
+			{
+				oRope.SetColor(Color(clrTeam.r(), clrTeam.g(), clrTeam.b(), (int)RemapVal((float)i, 1, (float)iSegments, 155, 50)));
+
+				float flCurrentDistance = ((float)i*flDistance)/iSegments;
+				oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+			}
+
+			oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
+		}
+	}
+	else
+		glCallList((GLuint)m_iTendrilsCallList);
 
 	glUseProgram(0);
 }
@@ -580,6 +642,11 @@ void CSupplier::UpdateTendrils()
 		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
 	}
 	glEndList();
+}
+
+void CSupplier::BeginTendrilGrowth()
+{
+	m_flTendrilGrowthStartTime = Game()->GetGameTime();
 }
 
 void CSupplier::AddChild(CStructure* pChild)
