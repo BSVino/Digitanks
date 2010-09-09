@@ -84,6 +84,7 @@ CDigitank::CDigitank()
 	m_bGoalMovePosition = false;
 
 	m_flStartedMove = 0;
+	m_flStartedTurn = 0;
 
 	m_bFortified = false;
 
@@ -794,6 +795,9 @@ void CDigitank::SetDesiredTurn(CNetworkParameters* p)
 
 	m_flDesiredTurn = m_flPreviewTurn;
 
+	m_flPreviousTurn = GetAngles().y;
+	m_flStartedTurn = DigitanksGame()->GetGameTime();
+
 	float flMovePower = GetPreviewMoveTurnPower();
 
 	if (!IsPreviewMoveValid())
@@ -829,6 +833,19 @@ void CDigitank::CancelDesiredTurn(CNetworkParameters* p)
 
 float CDigitank::GetDesiredTurn() const
 {
+	float flTransitionTime = GetTransitionTime();
+
+	if (GetVisibility() == 0)
+		flTransitionTime = 0;
+
+	float flTimeSinceTurn = DigitanksGame()->GetGameTime() - m_flStartedTurn;
+	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
+	{
+		float flLerp = SLerp(RemapVal(flTimeSinceTurn, 0, flTransitionTime, 0, 1), 0.2f);
+		float flNewTurn = m_flPreviousTurn * (1-flLerp) + m_flDesiredTurn * flLerp;
+		return flNewTurn;
+	}
+
 	if (!HasDesiredTurn())
 		return GetAngles().y;
 
@@ -1136,7 +1153,8 @@ void CDigitank::Think()
 	{
 		float flTransitionTime = GetTransitionTime();
 		float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
-		if (m_flStartedMove && flTimeSinceMove > flTransitionTime)
+		float flTimeSinceTurn = DigitanksGame()->GetGameTime() - m_flStartedTurn;
+		if (m_flStartedMove && flTimeSinceMove > flTransitionTime || m_flStartedTurn && flTimeSinceTurn > flTransitionTime)
 		{
 			CParticleSystemLibrary::StopInstance(m_iHoverParticles);
 			m_iHoverParticles = ~0;

@@ -302,7 +302,9 @@ protected:
 
 	float						m_flPreviewTurn;
 	bool						m_bDesiredTurn;
+	float						m_flPreviousTurn;
 	float						m_flDesiredTurn;
+	float						m_flStartedTurn;
 
 	bool						m_bPreviewAim;
 	Vector						m_vecPreviewAim;

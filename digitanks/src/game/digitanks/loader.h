@@ -20,6 +20,8 @@ public:
 
 	virtual void				StartTurn();
 
+	virtual void				PostRender();
+
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	virtual void				UpdateInfo(std::wstring& sInfo);
@@ -52,6 +54,7 @@ public:
 
 protected:
 	buildunit_t					m_eBuildUnit;
+	size_t						m_iBuildUnitModel;
 
 	bool						m_bProducing;
 	size_t						m_iProductionStored;

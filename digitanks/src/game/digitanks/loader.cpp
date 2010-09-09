@@ -4,6 +4,7 @@
 
 #include <mtrand.h>
 
+#include <models/models.h>
 #include <renderer/renderer.h>
 #include <game/game.h>
 
@@ -61,6 +62,8 @@ void CLoader::Spawn()
 	m_bProducing = false;
 
 	m_iTankAttack = m_iTankDefense = m_iTankMovement = m_iTankHealth = m_iTankRange = 0;
+
+	m_iBuildUnitModel = ~0;
 }
 
 void CLoader::StartTurn()
@@ -83,11 +86,7 @@ void CLoader::StartTurn()
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				pTank = Game()->Create<CArtillery>("CArtillery");
 			
-			float y = RandomFloat(0, 360);
-			pTank->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, y, 0)) * 10));
-
-			// Face him toward the center.
-			pTank->SetAngles(EAngle(0, VectorAngles(-GetOrigin().Normalized()).y, 0));
+			pTank->SetOrigin(GetOrigin());
 
 			GetTeam()->AddEntity(pTank);
 
@@ -122,6 +121,15 @@ void CLoader::StartTurn()
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
 			GetDigitanksTeam()->SetCurrentSelection(pTank);
+
+			pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
+			pTank->SetDesiredMove();
+
+			// Face him toward the center.
+			pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
+			pTank->SetDesiredTurn();
+
+			pTank->Move();
 		}
 		else
 		{
@@ -134,6 +142,22 @@ void CLoader::StartTurn()
 				s << L"Producing Artillery (" << GetTurnsToProduce() << L" turns left)";
 			DigitanksGame()->AppendTurnInfo(s.str().c_str());
 		}
+	}
+}
+
+void CLoader::PostRender()
+{
+	BaseClass::PostRender();
+
+	if (IsProducing() && GetVisibility() > 0)
+	{
+		CRenderingContext c(Game()->GetRenderer());
+		c.Translate(GetOrigin());
+		c.SetAlpha(GetVisibility() * 0.3f);
+		c.SetBlend(BLEND_ADDITIVE);
+		if (GetTeam())
+			c.SetColorSwap(GetTeam()->GetColor());
+		c.RenderModel(m_iBuildUnitModel);
 	}
 }
 
@@ -441,14 +465,17 @@ void CLoader::SetBuildUnit(buildunit_t eBuildUnit)
 	{
 	case BUILDUNIT_INFANTRY:
 		SetModel(L"models/structures/loader-infantry.obj");
+		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-body.obj");
 		break;
 
 	case BUILDUNIT_TANK:
 		SetModel(L"models/structures/loader-main.obj");
+		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-body.obj");
 		break;
 
 	case BUILDUNIT_ARTILLERY:
 		SetModel(L"models/structures/loader-artillery.obj");
+		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(L"models/digitanks/artillery.obj");
 		break;
 	}
 }
