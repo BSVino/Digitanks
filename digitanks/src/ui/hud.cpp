@@ -205,12 +205,12 @@ CHUD::CHUD()
 
 	SetupMenu(MENUMODE_MAIN);
 
-	m_pFPS = new CLabel(0, 0, 100, 20, "");
-	AddControl(m_pFPS);
+	//m_pFPS = new CLabel(0, 0, 100, 20, "");
+	//AddControl(m_pFPS);
 
-	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
-	m_pFPS->SetPos(20, 20);
-	m_pFPS->SetText("Free Demo");
+	//m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
+	//m_pFPS->SetPos(20, 20);
+	//m_pFPS->SetText("Free Demo");
 
 	m_pPowerInfo = new CLabel(0, 0, 200, 20, "");
 	AddControl(m_pPowerInfo);
@@ -503,9 +503,9 @@ void CHUD::Think()
 
 	m_pScoreboard->SetVisible(DigitanksGame()->ShouldShowScores());
 
-	char szFPS[100];
-	sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
-	m_pFPS->SetText(szFPS);
+	//char szFPS[100];
+	//sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
+	//m_pFPS->SetText(szFPS);
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -541,87 +541,118 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (m_pButtonInfo->GetText()[0] != L'\0')
 		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
 
-	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
-		CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
-		for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+
+		if (!pDTEntity)
+			continue;
+
+		if (pDTEntity->GetVisibility() == 0)
+			continue;
+
+		CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
+
+		if (!pSelectable)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+
+		Vector vecOrigin = pEntity->GetOrigin();
+		if (pTank)
+			vecOrigin = pTank->GetDesiredMove();
+
+		Vector vecScreen = Game()->GetRenderer()->ScreenPosition(vecOrigin);
+
+		float flRadius = pDTEntity->GetBoundingRadius();
+
+		Vector vecUp;
+		Game()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
+
+		Vector vecTop = Game()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
+		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
+
+		if (DigitanksGame()->GetLocalDigitanksTeam()->IsCurrentSelection(pSelectable) && !IsUpdatesPanelOpen())
 		{
-			CDigitank* pTank = pTeam->GetTank(j);
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)flWidth, 1, Color(255, 255, 255));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, Color(255, 255, 255));
+			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, Color(255, 255, 255));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, Color(255, 255, 255));
+		}
 
-			if (pTank->GetVisibility() == 0)
-				continue;
+		if (CDigitanksWindow::Get()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsCurrentSelection(pSelectable))
+		{
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 11), (int)flWidth + 2, 5, Color(255, 255, 255, 128));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 10), (int)(flWidth*pEntity->GetHealth()/pEntity->GetTotalHealth()), 3, Color(100, 255, 100));
 
-			Vector vecOrigin = pTank->GetDesiredMove();
-			Vector vecScreen = Game()->GetRenderer()->ScreenPosition(vecOrigin);
-
-			if (!CDigitanksWindow::Get()->IsAltDown() && pTank->GetTeam() != DigitanksGame()->GetLocalDigitanksTeam())
-				continue;
-
-			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 61, 102, 5, Color(255, 255, 255, 128));
-			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 60, (int)(100.0f*pTank->GetHealth()/pTank->GetTotalHealth()), 3, Color(100, 255, 100));
-
-			float flAttackPower = pTank->GetAttackPower(true);
-			float flDefensePower = pTank->GetDefensePower(true);
-			float flMovementPower = pTank->GetMovementPower(true);
-			float flTotalPower = flAttackPower + flDefensePower + flMovementPower;
-			flAttackPower = flAttackPower/flTotalPower;
-			flDefensePower = flDefensePower/flTotalPower;
-			flMovementPower = flMovementPower/flTotalPower;
-			CRootPanel::PaintRect((int)vecScreen.x - 51, (int)vecScreen.y - 51, 102, 5, Color(255, 255, 255, 128));
-			CRootPanel::PaintRect((int)vecScreen.x - 50, (int)vecScreen.y - 50, (int)(100.0f*flAttackPower), 3, Color(255, 0, 0));
-			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*flAttackPower), (int)vecScreen.y - 50, (int)(100.0f*flDefensePower), 3, Color(0, 0, 255));
-			CRootPanel::PaintRect((int)vecScreen.x - 50 + (int)(100.0f*(1-flMovementPower)), (int)vecScreen.y - 50, (int)(100.0f*flMovementPower), 3, Color(255, 255, 0));
-
-			if (m_bHUDActive && DigitanksGame()->GetCurrentTeam()->IsCurrentSelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+			if (pTank)
 			{
-				int iHeight = (int)(200 * (pTank->GetBasePower()-pTank->GetBaseMovementPower())/pTank->GetBasePower());
-
-				if (iHeight < 20)
-					iHeight = 20;
-
-				int iTop = (int)vecScreen.y - iHeight/2;
-				int iBottom = (int)vecScreen.y + iHeight/2;
-
-				m_pFireAttack->SetSize(0, 20);
-				m_pFireDefend->SetSize(0, 20);
-
-				char szLabel[100];
-				sprintf(szLabel, "Damage: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
-				m_pFireAttack->SetText(szLabel);
-				sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetBasePower()*100));
-				m_pFireDefend->SetText(szLabel);
-
-				m_pFireAttack->EnsureTextFits();
-				m_pFireDefend->EnsureTextFits();
-
-				m_pFireAttack->SetPos((int)vecScreen.x + 70 - m_pFireAttack->GetWidth()/2, iTop-20);
-				m_pFireDefend->SetPos((int)vecScreen.x + 70 - m_pFireDefend->GetWidth()/2, iBottom);
-
-				int mx, my;
-				glgui::CRootPanel::GetFullscreenMousePos(mx, my);
-
-				float flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 1, 0);
-
-				CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
-
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
-				CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
-
-				if (CDigitanksWindow::Get()->IsShiftDown())
-				{
-					CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-					for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
-					{
-						CDigitank* pTank = pTeam->GetTank(t);
-						pTank->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
-					}
-				}
-				else
-					DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
-
-				UpdateInfo();
+				float flAttackPower = pTank->GetAttackPower(true);
+				float flDefensePower = pTank->GetDefensePower(true);
+				float flMovementPower = pTank->GetMovementPower(true);
+				float flTotalPower = flAttackPower + flDefensePower + flMovementPower;
+				flAttackPower = flAttackPower/flTotalPower;
+				flDefensePower = flDefensePower/flTotalPower;
+				flMovementPower = flMovementPower/flTotalPower;
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 1), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flAttackPower), 3, Color(255, 0, 0));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*flAttackPower), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flDefensePower), 3, Color(0, 0, 255));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*(1-flMovementPower)), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flMovementPower), 3, Color(255, 255, 0));
 			}
+		}
+
+		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsCurrentSelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+		{
+			int iHeight = (int)(200 * (pTank->GetBasePower()-pTank->GetBaseMovementPower())/pTank->GetBasePower());
+
+			if (iHeight < 20)
+				iHeight = 20;
+
+			int iTop = (int)vecScreen.y - iHeight/2;
+			int iBottom = (int)vecScreen.y + iHeight/2;
+
+			m_pFireAttack->SetSize(0, 20);
+			m_pFireDefend->SetSize(0, 20);
+
+			char szLabel[100];
+			sprintf(szLabel, "Damage: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
+			m_pFireAttack->SetText(szLabel);
+			sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetBasePower()*100));
+			m_pFireDefend->SetText(szLabel);
+
+			m_pFireAttack->EnsureTextFits();
+			m_pFireDefend->EnsureTextFits();
+
+			m_pFireAttack->SetPos((int)vecScreen.x + 70 - m_pFireAttack->GetWidth()/2, iTop-20);
+			m_pFireDefend->SetPos((int)vecScreen.x + 70 - m_pFireDefend->GetWidth()/2, iBottom);
+
+			int mx, my;
+			glgui::CRootPanel::GetFullscreenMousePos(mx, my);
+
+			float flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 1, 0);
+
+			CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
+
+			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
+			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
+			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
+
+			if (CDigitanksWindow::Get()->IsShiftDown())
+			{
+				CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+				for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
+				{
+					CDigitank* pTank = pTeam->GetTank(t);
+					pTank->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
+				}
+			}
+			else
+				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
+
+			UpdateInfo();
 		}
 	}
 
@@ -684,59 +715,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
 		}
 		while (false);
-	}
-
-	CSelectable* pSelection = DigitanksGame()->GetLocalDigitanksTeam()->GetCurrentSelection();
-
-	if (pSelection && !IsUpdatesPanelOpen())
-	{
-		Vector vecMin;
-		Vector vecMax;
-
-		float flBound = pSelection->GetBoundingRadius();
-
-		std::vector<Vector> aVecs;
-		aVecs.push_back(Vector(-flBound, -1, -flBound));
-		aVecs.push_back(Vector(flBound, -1, -flBound));
-		aVecs.push_back(Vector(-flBound, flBound, -flBound));
-		aVecs.push_back(Vector(flBound, flBound, -flBound));
-		aVecs.push_back(Vector(-flBound, -1, flBound));
-		aVecs.push_back(Vector(-flBound, flBound, flBound));
-		aVecs.push_back(Vector(flBound, -1, flBound));
-		aVecs.push_back(Vector(flBound, flBound, flBound));
-
-		Vector vecOrigin;
-		if (pTank)
-			vecOrigin = pTank->GetDesiredMove();
-		else
-			vecOrigin = pSelection->GetOrigin();
-
-		for (size_t v = 0; v < aVecs.size(); v++)
-		{
-			Vector vecCorner = Game()->GetRenderer()->ScreenPosition(vecOrigin+aVecs[v]);
-			if (v == 0)
-			{
-				vecMin = vecMax = vecCorner;
-				continue;
-			}
-
-			for (size_t x = 0; x < 3; x++)
-			{
-				if (vecCorner.x < vecMin.x)
-					vecMin.x = vecCorner.x;
-				if (vecCorner.y < vecMin.y)
-					vecMin.y = vecCorner.y;
-				if (vecCorner.x > vecMax.x)
-					vecMax.x = vecCorner.x;
-				if (vecCorner.y > vecMax.y)
-					vecMax.y = vecCorner.y;
-			}
-		}
-
-		CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
-		CRootPanel::PaintRect((int)vecMin.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
-		CRootPanel::PaintRect((int)vecMax.x, (int)vecMin.y, 1, (int)(vecMax.y-vecMin.y), Color(255, 255, 255));
-		CRootPanel::PaintRect((int)vecMin.x, (int)vecMax.y, (int)(vecMax.x-vecMin.x), 1, Color(255, 255, 255));
 	}
 
 /*	while (true)
@@ -2229,6 +2207,11 @@ CSpeechBubble::CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iB
 	m_vecLastOrigin = pSpeaker->GetOrigin();
 	m_iBubble = iBubble;
 
+	if (pSpeaker)
+		m_flRadius = pSpeaker->GetBoundingRadius();
+	else
+		m_flRadius = 10;
+
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
 	SetFGColor(Color(255, 255, 255));
@@ -2259,9 +2242,15 @@ void CSpeechBubble::Think()
 	if (m_hSpeaker != NULL)
 		m_vecLastOrigin = m_hSpeaker->GetDesiredMove();
 
+	Vector vecUp;
+	Game()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
+
 	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
-	vecScreen.x += 40;
-	vecScreen.y -= 70;
+	Vector vecTop = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin + vecUp*m_flRadius);
+	float flWidth = (vecTop - vecScreen).Length()*2 + 10;
+
+	vecScreen.x += flWidth/2 - 10;
+	vecScreen.y -= flWidth/2;
 
 	SetPos((int)(vecScreen.x), (int)(vecScreen.y));
 

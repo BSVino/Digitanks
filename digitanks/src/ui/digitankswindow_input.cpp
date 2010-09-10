@@ -208,7 +208,13 @@ void CDigitanksWindow::KeyPress(int c)
 	if (DigitanksGame() && c == GLFW_KEY_TAB)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->SetControlMode(MODE_AIM);
+		{
+			if (DigitanksGame()->GetCurrentTank())
+			{
+				if (!DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+					DigitanksGame()->SetControlMode(MODE_AIM);
+			}
+		}
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			if (DigitanksGame()->GetCurrentTank() && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
@@ -219,7 +225,15 @@ void CDigitanksWindow::KeyPress(int c)
 		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 		else
-			DigitanksGame()->SetControlMode(MODE_MOVE);
+		{
+			if (DigitanksGame()->GetCurrentTank())
+			{
+				if (!DigitanksGame()->GetCurrentTank()->HasDesiredMove())
+					DigitanksGame()->SetControlMode(MODE_MOVE);
+				else if (!DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+					DigitanksGame()->SetControlMode(MODE_AIM);
+			}
+		}
 	}
 
 	if (c == GLFW_KEY_ESC)
@@ -283,6 +297,12 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (c == 'N')
 		CDigitanksWindow::Get()->GetHUD()->SetVisible(!CDigitanksWindow::Get()->GetHUD()->IsVisible());
+
+	if (c == 'M')
+	{
+		if (DigitanksGame()->GetCurrentTank())
+			DigitanksGame()->TankSpeak(DigitanksGame()->GetCurrentTank(), ":D!");
+	}
 }
 
 void CDigitanksWindow::KeyRelease(int c)

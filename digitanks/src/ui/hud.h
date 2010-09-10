@@ -92,6 +92,7 @@ protected:
 	CEntityHandle<CDigitank>	m_hSpeaker;
 	float						m_flTime;
 	Vector						m_vecLastOrigin;
+	float						m_flRadius;
 	size_t						m_iBubble;
 };
 
