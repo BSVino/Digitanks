@@ -2,6 +2,7 @@
 #define GLGUI_H
 
 #include <vector>
+#include <map>
 #include <color.h>
 #include <FTGL/ftgl.h>
 #include <maths.h>
@@ -468,7 +469,7 @@ namespace glgui
 
 		int				m_iFontFaceSize;
 
-		static FTFont*	s_pFont;
+		static std::map<size_t, FTFont*>	s_apFonts;
 	};
 
 	class CButton : public CLabel
