@@ -337,6 +337,8 @@ protected:
 	CEntityHandle<class CSupplier>		m_hSupplier;
 	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
+	float						m_flFortifyTime;
+
 	// AI stuff
 	bool						m_bFortifyPoint;
 	Vector						m_vecFortifyPoint;

@@ -403,7 +403,7 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 		pContext->SetColor(Color(255, 255, 255));
-		pContext->SetAlpha(0.3f * GetVisibility() * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
+		pContext->SetAlpha(GetVisibility() * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
 		pContext->Translate(Vector(0, RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 3, -3, 0), 0));
 	}
 

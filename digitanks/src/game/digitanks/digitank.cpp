@@ -103,6 +103,8 @@ CDigitank::CDigitank()
 	m_iHoverParticles = ~0;
 
 	m_bFortifyPoint = false;
+
+	m_flFortifyTime = 0;
 }
 
 CDigitank::~CDigitank()
@@ -988,6 +990,7 @@ void CDigitank::Fortify()
 	m_bFortified = true;
 
 	m_iFortifyLevel = 0;
+	m_flFortifyTime = Game()->GetGameTime();
 }
 
 bool CDigitank::CanAim()

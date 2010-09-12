@@ -12,6 +12,7 @@ public:
 
 public:
 	virtual void				Precache();
+	virtual void				Spawn();
 
 	virtual float				GetLeftShieldMaxStrength();
 	virtual float				GetRightShieldMaxStrength();
@@ -21,6 +22,8 @@ public:
 	virtual void				Fire();
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
+
+	virtual void				PostRender();
 
 	virtual bool				AllowControlMode(controlmode_t eMode);
 
@@ -54,6 +57,9 @@ public:
 protected:
 	size_t						m_iFireProjectiles;
 	float						m_flLastProjectileFire;
+
+	size_t						m_iFortifyShieldModel;
+	size_t						m_iFortifyWallModel;
 };
 
 #endif

@@ -5,6 +5,7 @@
 
 #include <models/models.h>
 #include <network/network.h>
+#include "dt_renderer.h"
 
 #include "digitanksgame.h"
 #include "projectile.h"
@@ -26,6 +27,16 @@ void CMechInfantry::Precache()
 {
 	PrecacheModel(L"models/digitanks/infantry-body.obj", true);
 	PrecacheModel(L"models/digitanks/digitank-shield.obj", true);
+	PrecacheModel(L"models/digitanks/infantry-fortify-base.obj", true);
+	PrecacheModel(L"models/digitanks/infantry-fortify-shield.obj", true);
+}
+
+void CMechInfantry::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_iFortifyShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-fortify-shield.obj");
+	m_iFortifyWallModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-fortify-base.obj");
 }
 
 float CMechInfantry::GetLeftShieldMaxStrength()
@@ -116,6 +127,44 @@ CProjectile* CMechInfantry::CreateProjectile()
 float CMechInfantry::GetProjectileDamage()
 {
 	return GetAttackPower()/80;
+}
+
+void CMechInfantry::PostRender()
+{
+	BaseClass::PostRender();
+
+	if ((IsFortifying() || IsFortified()) && GetVisibility() > 0)
+	{
+		float flTimeSinceFortify = Game()->GetGameTime() - m_flFortifyTime;
+		CRenderingContext c(Game()->GetRenderer());
+		c.Translate(GetDesiredMove() + Vector(0, 3, 0) - Vector(0, RemapValClamped(flTimeSinceFortify, 0, 1, 5, 0), 0));
+		c.Rotate(-GetDesiredTurn(), Vector(0, 1, 0));
+		c.Scale(2, 2, 2);
+		float flAlpha = GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1);
+		flAlpha *= GetFrontShieldStrength();
+		if (flAlpha < 1.0f)
+		{
+			c.SetBlend(BLEND_ALPHA);
+			c.SetAlpha(flAlpha);
+		}
+		c.SetColorSwap(GetTeam()->GetColor());
+		c.RenderModel(m_iFortifyWallModel);
+	}
+
+	if ((IsFortifying() || IsFortified()) && GetVisibility() > 0)
+	{
+		float flTimeSinceFortify = Game()->GetGameTime() - m_flFortifyTime;
+		float flShieldScale = RemapValClamped(flTimeSinceFortify, 0, 1, 0, 2);
+		CRenderingContext c(Game()->GetRenderer());
+		c.Translate(GetDesiredMove() + Vector(0, 3, 0));
+		c.Rotate(-GetDesiredTurn(), Vector(0, 1, 0));
+		c.Scale(flShieldScale, flShieldScale, flShieldScale);
+		c.SetBlend(BLEND_ADDITIVE);
+		c.SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1) * GetFrontShieldStrength());
+		c.SetDepthMask(false);
+		c.SetBackCulling(false);
+		c.RenderModel(m_iFortifyShieldModel);
+	}
 }
 
 bool CMechInfantry::AllowControlMode(controlmode_t eMode)
