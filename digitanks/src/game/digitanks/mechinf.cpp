@@ -24,8 +24,8 @@ CMechInfantry::CMechInfantry()
 
 void CMechInfantry::Precache()
 {
-	PrecacheModel(L"models/digitanks/infantry-body.obj");
-	PrecacheModel(L"models/digitanks/digitank-shield.obj");
+	PrecacheModel(L"models/digitanks/infantry-body.obj", true);
+	PrecacheModel(L"models/digitanks/digitank-shield.obj", true);
 }
 
 float CMechInfantry::GetLeftShieldMaxStrength()

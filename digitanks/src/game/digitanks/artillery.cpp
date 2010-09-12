@@ -22,7 +22,7 @@ CArtillery::CArtillery()
 
 void CArtillery::Precache()
 {
-	PrecacheModel(L"models/digitanks/artillery.obj");
+	PrecacheModel(L"models/digitanks/artillery.obj", true);
 }
 
 void CArtillery::SetAttackPower(float flAttackPower)

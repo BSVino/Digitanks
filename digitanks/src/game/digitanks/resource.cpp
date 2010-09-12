@@ -13,7 +13,7 @@ void CResource::Precache()
 	BaseClass::Precache();
 
 	PrecacheParticleSystem(L"electronode-spark");
-	PrecacheModel(L"models/structures/electronode.obj");
+	PrecacheModel(L"models/structures/electronode.obj", true);
 }
 
 void CResource::Spawn()
