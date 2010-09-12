@@ -120,6 +120,8 @@ protected:
 	size_t						m_iScaffolding;
 	float						m_flScaffoldingSize;
 
+	float						m_flConstructionStartTime;
+
 	typedef struct
 	{
 		CEntityHandle<CDigitank>	m_hDefender;

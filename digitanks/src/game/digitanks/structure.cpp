@@ -52,6 +52,8 @@ void CStructure::Spawn()
 
 	m_iScaffolding = CModelLibrary::Get()->FindModel(L"models/structures/scaffolding.obj");
 	m_flScaffoldingSize = 10;
+
+	m_flConstructionStartTime = 0;
 }
 
 void CStructure::StartTurn()
@@ -135,7 +137,9 @@ void CStructure::PostRender()
 		c.Translate(GetOrigin() - Vector(0, 10, 0));
 		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
 		c.SetBlend(BLEND_ADDITIVE);
-		c.SetAlpha(GetVisibility() * 0.3f);
+		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 2, 4, 0, 1));
+		c.SetDepthMask(false);
+		c.SetBackCulling(false);
 		c.RenderModel(m_iScaffolding);
 	}
 }
@@ -152,6 +156,8 @@ void CStructure::BeginConstruction()
 		Vector vecScaffoldingSize = CModelLibrary::Get()->GetModel(GetModel())->m_pScene->m_oExtends.Size();
 		m_flScaffoldingSize = vecScaffoldingSize.Length()/2;
 	}
+
+	m_flConstructionStartTime = Game()->GetGameTime();
 }
 
 void CStructure::CompleteConstruction()
@@ -397,7 +403,8 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 		pContext->SetColor(Color(255, 255, 255));
-		pContext->SetAlpha(0.3f * GetVisibility());
+		pContext->SetAlpha(0.3f * GetVisibility() * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
+		pContext->Translate(Vector(0, RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 3, -3, 0), 0));
 	}
 
 	if (GetTeam())
