@@ -137,7 +137,7 @@ void CStructure::PostRender()
 		c.Translate(GetOrigin() - Vector(0, 10, 0));
 		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
 		c.SetBlend(BLEND_ADDITIVE);
-		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 2, 4, 0, 1));
+		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 3, 0, 1));
 		c.SetDepthMask(false);
 		c.SetBackCulling(false);
 		c.RenderModel(m_iScaffolding);

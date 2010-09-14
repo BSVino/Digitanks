@@ -174,19 +174,17 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 	if (IsInstalling())
 	{
-		pHUD->SetButton5Listener(CHUD::CancelInstall);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Cancel\nInstall");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::CancelInstall);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK) >= 0)
 		{
-			pHUD->SetButton1Listener(CHUD::InstallTankAttack);
-			pHUD->SetButton1Texture(s_iInstallAttackIcon);
-			pHUD->SetButton1Help("Install\nAttack");
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::InstallTankAttack);
+			pHUD->SetButtonTexture(0, s_iInstallAttackIcon);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
@@ -201,10 +199,9 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		if (GetUnitType() == STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
 		{
-			pHUD->SetButton2Listener(CHUD::InstallTankRange);
-			pHUD->SetButton2Texture(s_iInstallRangeIcon);
-			pHUD->SetButton2Help("Install\nRange");
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::InstallTankRange);
+			pHUD->SetButtonTexture(1, s_iInstallRangeIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKRANGE][iUpdate];
@@ -218,10 +215,9 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		}
 		else if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
 		{
-			pHUD->SetButton2Listener(CHUD::InstallTankDefense);
-			pHUD->SetButton2Texture(s_iInstallDefenseIcon);
-			pHUD->SetButton2Help("Install\nDefense");
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::InstallTankDefense);
+			pHUD->SetButtonTexture(1, s_iInstallDefenseIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKDEFENSE][iUpdate];
@@ -236,10 +232,9 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
 		{
-			pHUD->SetButton3Listener(CHUD::InstallTankMovement);
-			pHUD->SetButton3Texture(s_iInstallMovementIcon);
-			pHUD->SetButton3Help("Install\nMovement");
-			pHUD->SetButton3Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(2, CHUD::InstallTankMovement);
+			pHUD->SetButtonTexture(2, s_iInstallMovementIcon);
+			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKMOVEMENT][iUpdate];
@@ -254,10 +249,9 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
 		{
-			pHUD->SetButton4Listener(CHUD::InstallTankHealth);
-			pHUD->SetButton4Texture(s_iInstallHealthIcon);
-			pHUD->SetButton4Help("Install\nHealth");
-			pHUD->SetButton4Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(3, CHUD::InstallTankHealth);
+			pHUD->SetButtonTexture(3, s_iInstallHealthIcon);
+			pHUD->SetButtonColor(3, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKHEALTH][iUpdate];
@@ -270,43 +264,38 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(3, s.str().c_str());
 		}
 
-		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Return");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::GoToMain);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else if (m_bProducing)
 	{
-		pHUD->SetButton5Listener(CHUD::CancelBuildUnit);
-		pHUD->SetButton5Help("Cancel\nBuild");
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::CancelBuildUnit);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else
 	{
 		if (HasEnoughFleetPoints())
-			pHUD->SetButton1Listener(CHUD::BuildUnit);
+			pHUD->SetButtonListener(0, CHUD::BuildUnit);
 
 		std::wstringstream s;
 
 		if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 		{
-			pHUD->SetButton1Help("Build\nMech. Inf");
-			pHUD->SetButton1Texture(s_iBuildInfantryIcon);
+			pHUD->SetButtonTexture(0, s_iBuildInfantryIcon);
 			s << "BUILD MECHANIZED INFANTRY\n \n";
 			s << "Mechanized infantry can fortify, gaining defense and attack energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
 		}
 		else if (GetBuildUnit() == BUILDUNIT_TANK)
 		{
-			pHUD->SetButton1Help("Build\nMain Tank");
-			pHUD->SetButton1Texture(s_iBuildTankIcon);
+			pHUD->SetButtonTexture(0, s_iBuildTankIcon);
 			s << "BUILD MAIN BATTLE TANK\n \n";
 			s << "Main Battle Tanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
 		}
 		else
 		{
-			pHUD->SetButton1Help("Build\nArtillery");
-			pHUD->SetButton1Texture(s_iBuildArtilleryIcon);
+			pHUD->SetButtonTexture(0, s_iBuildArtilleryIcon);
 			s << "BUILD ARTILLERY\n \n";
 			s << "Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n";
 		}
@@ -318,14 +307,13 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonInfo(0, s.str().c_str());
 
 		if (HasEnoughFleetPoints())
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 		if (HasUpdatesAvailable())
 		{
-			pHUD->SetButton4Listener(CHUD::InstallMenu);
-			pHUD->SetButton4Help("Install\nUpdates");
-			pHUD->SetButton4Texture(s_iInstallIcon);
-			pHUD->SetButton4Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(3, CHUD::InstallMenu);
+			pHUD->SetButtonTexture(3, s_iInstallIcon);
+			pHUD->SetButtonColor(3, Color(150, 150, 150));
 		}
 	}
 }

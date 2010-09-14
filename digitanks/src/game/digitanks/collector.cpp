@@ -70,17 +70,15 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 	{
 		if (IsUpgrading())
 		{
-			pHUD->SetButton5Listener(CHUD::CancelUpgrade);
-			pHUD->SetButton5Texture(s_iCancelIcon);
-			pHUD->SetButton5Help("Cancel\nUpgrade");
-			pHUD->SetButton5Color(Color(100, 0, 0));
+			pHUD->SetButtonListener(4, CHUD::CancelUpgrade);
+			pHUD->SetButtonTexture(4, s_iCancelIcon);
+			pHUD->SetButtonColor(4, Color(100, 0, 0));
 		}
 		else
 		{
-			pHUD->SetButton1Listener(CHUD::BeginUpgrade);
-			pHUD->SetButton1Texture(0);
-			pHUD->SetButton1Help("Upgrade to\nPSU");
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
+			pHUD->SetButtonTexture(0, 0);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "UPGRADE TO POWER SUPPLY UNIT\n \n"

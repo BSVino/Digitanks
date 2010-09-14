@@ -43,19 +43,17 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 
 	if (IsInstalling())
 	{
-		pHUD->SetButton5Listener(CHUD::CancelInstall);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Cancel\nInstall");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::CancelInstall);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
 		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
 		{
-			pHUD->SetButton1Listener(CHUD::InstallBandwidth);
-			pHUD->SetButton1Texture(s_iInstallBandwidthIcon);
-			pHUD->SetButton1Help("Install\nBandwidth");
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::InstallBandwidth);
+			pHUD->SetButtonTexture(0, s_iInstallBandwidthIcon);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_BANDWIDTH][iUpdate];
@@ -70,10 +68,9 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
 		{
-			pHUD->SetButton2Listener(CHUD::InstallFleetSupply);
-			pHUD->SetButton2Texture(s_iInstallFleetSupplyIcon);
-			pHUD->SetButton2Help("Install\nFleet Sply");
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::InstallFleetSupply);
+			pHUD->SetButtonTexture(1, s_iInstallFleetSupplyIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_FLEETSUPPLY][iUpdate];
@@ -88,10 +85,9 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY) >= 0)
 		{
-			pHUD->SetButton3Listener(CHUD::InstallEnergyBonus);
-			pHUD->SetButton3Texture(s_iInstallEnergyBonusIcon);
-			pHUD->SetButton3Help("Install\nEnrg Bonus");
-			pHUD->SetButton3Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(2, CHUD::InstallEnergyBonus);
+			pHUD->SetButtonTexture(2, s_iInstallEnergyBonusIcon);
+			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_SUPPORTENERGY][iUpdate];
@@ -107,10 +103,9 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE) >= 0)
 		{
-			pHUD->SetButton4Listener(CHUD::InstallRechargeBonus);
-			pHUD->SetButton4Texture(s_iInstallRechargeBonusIcon);
-			pHUD->SetButton4Help("Install\nRchg Bonus");
-			pHUD->SetButton4Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(3, CHUD::InstallRechargeBonus);
+			pHUD->SetButtonTexture(3, s_iInstallRechargeBonusIcon);
+			pHUD->SetButtonColor(3, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_SUPPORTRECHARGE][iUpdate];
@@ -124,19 +119,17 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(3, s.str().c_str());
 		}
 
-		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Return");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::GoToMain);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else
 	{
 		if (HasUpdatesAvailable())
 		{
-			pHUD->SetButton4Listener(CHUD::InstallMenu);
-			pHUD->SetButton4Help("Install\nUpdates");
-			pHUD->SetButton4Texture(s_iInstallIcon);
-			pHUD->SetButton4Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(3, CHUD::InstallMenu);
+			pHUD->SetButtonTexture(3, s_iInstallIcon);
+			pHUD->SetButtonColor(3, Color(150, 150, 150));
 		}
 	}
 }
@@ -206,17 +199,15 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 	{
 		if (IsUpgrading())
 		{
-			pHUD->SetButton5Listener(CHUD::CancelUpgrade);
-			pHUD->SetButton5Texture(s_iCancelIcon);
-			pHUD->SetButton5Help("Cancel\nUpgrade");
-			pHUD->SetButton5Color(Color(100, 0, 0));
+			pHUD->SetButtonListener(4, CHUD::CancelUpgrade);
+			pHUD->SetButtonTexture(4, s_iCancelIcon);
+			pHUD->SetButtonColor(4, Color(100, 0, 0));
 		}
 		else
 		{
-			pHUD->SetButton1Listener(CHUD::BeginUpgrade);
-			pHUD->SetButton1Texture(0);
-			pHUD->SetButton1Help("Upgrade to\nBuffer");
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
+			pHUD->SetButtonTexture(0, 0);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "UPGRADE TO BUFFER\n \n"

@@ -1309,117 +1309,107 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 	{
 		if (!IsFortified())
 		{
-			pHUD->SetButton1Help("Move");
-			pHUD->SetButton1Listener(CHUD::Move);
+			pHUD->SetButtonListener(0, CHUD::Move);
 
 			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
-				pHUD->SetButton1Color(Color(150, 150, 0));
+				pHUD->SetButtonColor(0, Color(150, 150, 0));
 			else
-				pHUD->SetButton1Color(Color(100, 100, 100));
+				pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 			if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-				pHUD->SetButton1Texture(s_iCancelIcon);
+				pHUD->SetButtonTexture(0, s_iCancelIcon);
 			else
-				pHUD->SetButton1Texture(s_iMoveIcon);
+				pHUD->SetButtonTexture(0, s_iMoveIcon);
 		}
 
 		if (!IsFortified() || CanTurnFortified())
 		{
-			pHUD->SetButton2Help("Rotate");
-			pHUD->SetButton2Listener(CHUD::Turn);
+			pHUD->SetButtonListener(1, CHUD::Turn);
 
 			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_TURN)
-				pHUD->SetButton2Color(Color(150, 150, 0));
+				pHUD->SetButtonColor(1, Color(150, 150, 0));
 			else
-				pHUD->SetButton2Color(Color(100, 100, 100));
+				pHUD->SetButtonColor(1, Color(100, 100, 100));
 
 			if (DigitanksGame()->GetControlMode() == MODE_TURN)
-				pHUD->SetButton2Texture(s_iCancelIcon);
+				pHUD->SetButtonTexture(1, s_iCancelIcon);
 			else
-				pHUD->SetButton2Texture(s_iTurnIcon);
+				pHUD->SetButtonTexture(1, s_iTurnIcon);
 		}
 
 		if (UseFortifyMenuAim())
 		{
 			if (IsFortified() || IsFortifying())
 			{
-				pHUD->SetButton3Help("Mobilize");
-				pHUD->SetButton3Texture(s_iMobilizeIcon);
+				pHUD->SetButtonTexture(2, s_iMobilizeIcon);
 			}
 			else
 			{
-				pHUD->SetButton3Help("Fortify");
-				pHUD->SetButton3Texture(s_iFortifyIcon);
+				pHUD->SetButtonTexture(2, s_iFortifyIcon);
 			}
-			pHUD->SetButton3Listener(CHUD::Fortify);
+			pHUD->SetButtonListener(2, CHUD::Fortify);
 
-			pHUD->SetButton3Color(Color(0, 0, 150));
+			pHUD->SetButtonColor(2, Color(0, 0, 150));
 		}
 		else
 		{
 			if (CanAimMobilized() || IsFortified())
 			{
-				pHUD->SetButton3Help("Aim");
-				pHUD->SetButton3Listener(CHUD::Aim);
+				pHUD->SetButtonListener(2, CHUD::Aim);
 
 				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
-					pHUD->SetButton3Color(Color(150, 0, 0));
+					pHUD->SetButtonColor(2, Color(150, 0, 0));
 				else
-					pHUD->SetButton3Color(Color(100, 100, 100));
+					pHUD->SetButtonColor(2, Color(100, 100, 100));
 
 				if (DigitanksGame()->GetControlMode() == MODE_AIM)
-					pHUD->SetButton3Texture(s_iCancelIcon);
+					pHUD->SetButtonTexture(2, s_iCancelIcon);
 				else
-					pHUD->SetButton3Texture(s_iAimIcon);
+					pHUD->SetButtonTexture(2, s_iAimIcon);
 			}
 		}
 
 		if (UseFortifyMenuFire())
 		{
-			pHUD->SetButton4Listener(CHUD::Fortify);
+			pHUD->SetButtonListener(3, CHUD::Fortify);
 			if (IsFortified() || IsFortifying())
 			{
-				pHUD->SetButton4Help("Mobilize");
-				pHUD->SetButton4Texture(s_iMobilizeIcon);
+				pHUD->SetButtonTexture(3, s_iMobilizeIcon);
 			}
 			else
 			{
-				pHUD->SetButton4Help("Deploy");
-				pHUD->SetButton4Texture(s_iDeployIcon);
+				pHUD->SetButtonTexture(3, s_iDeployIcon);
 			}
 
-			pHUD->SetButton4Color(Color(0, 0, 150));
+			pHUD->SetButtonColor(3, Color(0, 0, 150));
 		}
 		else
 		{
-			pHUD->SetButton4Listener(CHUD::Fire);
-			pHUD->SetButton4Help("Set Energy");
+			pHUD->SetButtonListener(3, CHUD::Fire);
 
 			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
-				pHUD->SetButton4Color(Color(150, 0, 150));
+				pHUD->SetButtonColor(3, Color(150, 0, 150));
 			else
-				pHUD->SetButton4Color(Color(100, 100, 100));
+				pHUD->SetButtonColor(3, Color(100, 100, 100));
 
 			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-				pHUD->SetButton4Texture(s_iCancelIcon);
+				pHUD->SetButtonTexture(3, s_iCancelIcon);
 			else
-				pHUD->SetButton4Texture(s_iFireIcon);
+				pHUD->SetButtonTexture(3, s_iFireIcon);
 		}
 
 		if (HasBonusPoints())
 		{
-			pHUD->SetButton5Listener(CHUD::Promote);
-			pHUD->SetButton5Help("Upgrade");
-			pHUD->SetButton5Texture(s_iPromoteIcon);
-			pHUD->SetButton5Color(glgui::g_clrBox);
+			pHUD->SetButtonListener(4, CHUD::Promote);
+			pHUD->SetButtonTexture(4, s_iPromoteIcon);
+			pHUD->SetButtonColor(4, glgui::g_clrBox);
 		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
-		pHUD->SetButton1Help("Upgrade\nAttack");
-		pHUD->SetButton1Listener(CHUD::PromoteAttack);
-		pHUD->SetButton1Texture(s_iPromoteAttackIcon);
-		pHUD->SetButton1Color(Color(150, 150, 150));
+		pHUD->SetButtonListener(0, CHUD::PromoteAttack);
+		pHUD->SetButtonTexture(0, s_iPromoteAttackIcon);
+		pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 		std::wstringstream s1;
 		s1 << "UPGRADE ATTACK ENERGY\n \n"
@@ -1429,10 +1419,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 		if (!IsArtillery())
 		{
-			pHUD->SetButton2Help("Upgrade\nDefense");
-			pHUD->SetButton2Listener(CHUD::PromoteDefense);
-			pHUD->SetButton2Texture(s_iPromoteDefenseIcon);
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::PromoteDefense);
+			pHUD->SetButtonTexture(1, s_iPromoteDefenseIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "UPGRADE DEFENSE ENERGY\n \n"
@@ -1441,10 +1430,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
-		pHUD->SetButton3Help("Upgrade\nMovement");
-		pHUD->SetButton3Listener(CHUD::PromoteMovement);
-		pHUD->SetButton3Texture(s_iPromoteMoveIcon);
-		pHUD->SetButton3Color(Color(150, 150, 150));
+		pHUD->SetButtonListener(2, CHUD::PromoteMovement);
+		pHUD->SetButtonTexture(2, s_iPromoteMoveIcon);
+		pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 		std::wstringstream s2;
 		s2 << "UPGRADE MOVEMENT ENERGY\n \n"
@@ -1452,10 +1440,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			<< "Movement Energy increase: 10%\n";
 		pHUD->SetButtonInfo(2, s2.str().c_str());
 
-		pHUD->SetButton5Help("Return");
-		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::GoToMain);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 }
 

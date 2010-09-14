@@ -6,6 +6,8 @@
 #include "digitanks/digitanksgame.h"
 #include "updatespanel.h"
 
+#define NUM_BUTTONS 10
+
 typedef enum
 {
 	POWERBAR_HEALTH,
@@ -131,30 +133,9 @@ public:
 	void						SetupMenu();
 	void						SetupMenu(menumode_t eMenuMode);
 
-	void						SetButton1Listener(IEventListener::Callback pfnCallback);
-	void						SetButton2Listener(IEventListener::Callback pfnCallback);
-	void						SetButton3Listener(IEventListener::Callback pfnCallback);
-	void						SetButton4Listener(IEventListener::Callback pfnCallback);
-	void						SetButton5Listener(IEventListener::Callback pfnCallback);
-
-	void						SetButton1Help(const char* pszHelp);
-	void						SetButton2Help(const char* pszHelp);
-	void						SetButton3Help(const char* pszHelp);
-	void						SetButton4Help(const char* pszHelp);
-	void						SetButton5Help(const char* pszHelp);
-
-	void						SetButton1Texture(size_t iTexture);
-	void						SetButton2Texture(size_t iTexture);
-	void						SetButton3Texture(size_t iTexture);
-	void						SetButton4Texture(size_t iTexture);
-	void						SetButton5Texture(size_t iTexture);
-
-	void						SetButton1Color(Color clrButton);
-	void						SetButton2Color(Color clrButton);
-	void						SetButton3Color(Color clrButton);
-	void						SetButton4Color(Color clrButton);
-	void						SetButton5Color(Color clrButton);
-
+	void						SetButtonListener(int iButton, IEventListener::Callback pfnCallback);
+	void						SetButtonTexture(int iButton, size_t iTexture);
+	void						SetButtonColor(int iButton, Color clrButton);
 	void						SetButtonInfo(int iButton, const wchar_t* pszInfo);
 
 	virtual void				GameStart();
@@ -183,16 +164,17 @@ public:
 
 	bool						IsUpdatesPanelOpen();
 
-	EVENT_CALLBACK(CHUD, Button1CursorIn);
-	EVENT_CALLBACK(CHUD, Button1CursorOut);
-	EVENT_CALLBACK(CHUD, Button2CursorIn);
-	EVENT_CALLBACK(CHUD, Button2CursorOut);
-	EVENT_CALLBACK(CHUD, Button3CursorIn);
-	EVENT_CALLBACK(CHUD, Button3CursorOut);
-	EVENT_CALLBACK(CHUD, Button4CursorIn);
-	EVENT_CALLBACK(CHUD, Button4CursorOut);
-	EVENT_CALLBACK(CHUD, Button5CursorIn);
-	EVENT_CALLBACK(CHUD, Button5CursorOut);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn0);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn1);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn2);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn3);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn4);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn5);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn6);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn7);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn8);
+	EVENT_CALLBACK(CHUD, ButtonCursorIn9);
+	EVENT_CALLBACK(CHUD, ButtonCursorOut);
 
 	EVENT_CALLBACK(CHUD, EndTurn);
 	EVENT_CALLBACK(CHUD, OpenUpdates);
@@ -249,17 +231,7 @@ protected:
 
 	glgui::CButton*				m_pAutoButton;
 
-	glgui::CPictureButton*		m_pButton1;
-	glgui::CPictureButton*		m_pButton2;
-	glgui::CPictureButton*		m_pButton3;
-	glgui::CPictureButton*		m_pButton4;
-	glgui::CPictureButton*		m_pButton5;
-
-	glgui::CLabel*				m_pButtonHelp1;
-	glgui::CLabel*				m_pButtonHelp2;
-	glgui::CLabel*				m_pButtonHelp3;
-	glgui::CLabel*				m_pButtonHelp4;
-	glgui::CLabel*				m_pButtonHelp5;
+	glgui::CPictureButton*		m_apButtons[10];
 
 	glgui::CLabel*				m_pFireAttack;
 	glgui::CLabel*				m_pFireDefend;

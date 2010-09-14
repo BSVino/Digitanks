@@ -120,45 +120,23 @@ CHUD::CHUD()
 	m_pAutoButton->SetClickedListener(this, Auto);
 	AddControl(m_pAutoButton);*/
 
-	m_pButton1 = new CPictureButton("");
-	m_pButton1->SetCursorInListener(this, Button1CursorIn);
-	m_pButton1->SetCursorOutListener(this, Button1CursorOut);
-	m_pButtonPanel->AddControl(m_pButton1);
+	for (size_t i = 0; i < NUM_BUTTONS; i++)
+	{
+		m_apButtons[i] = new CPictureButton("");
+		m_apButtons[i]->SetCursorOutListener(this, ButtonCursorOut);
+		m_pButtonPanel->AddControl(m_apButtons[i]);
+	}
 
-	m_pButton2 = new CPictureButton("");
-	m_pButton2->SetCursorInListener(this, Button2CursorIn);
-	m_pButton2->SetCursorOutListener(this, Button2CursorOut);
-	m_pButtonPanel->AddControl(m_pButton2);
-
-	m_pButton3 = new CPictureButton("");
-	m_pButton3->SetCursorInListener(this, Button3CursorIn);
-	m_pButton3->SetCursorOutListener(this, Button3CursorOut);
-	m_pButtonPanel->AddControl(m_pButton3);
-
-	m_pButton4 = new CPictureButton("");
-	m_pButton4->SetCursorInListener(this, Button4CursorIn);
-	m_pButton4->SetCursorOutListener(this, Button4CursorOut);
-	m_pButtonPanel->AddControl(m_pButton4);
-
-	m_pButton5 = new CPictureButton("");
-	m_pButton5->SetCursorInListener(this, Button5CursorIn);
-	m_pButton5->SetCursorOutListener(this, Button5CursorOut);
-	m_pButtonPanel->AddControl(m_pButton5);
-
-	m_pButtonHelp1 = new CLabel(0, 0, 50, 50, "");
-	m_pButtonPanel->AddControl(m_pButtonHelp1);
-
-	m_pButtonHelp2 = new CLabel(0, 0, 50, 50, "");
-	m_pButtonPanel->AddControl(m_pButtonHelp2);
-
-	m_pButtonHelp3 = new CLabel(0, 0, 50, 50, "");
-	m_pButtonPanel->AddControl(m_pButtonHelp3);
-
-	m_pButtonHelp4 = new CLabel(0, 0, 50, 50, "");
-	m_pButtonPanel->AddControl(m_pButtonHelp4);
-
-	m_pButtonHelp5 = new CLabel(0, 0, 50, 50, "");
-	m_pButtonPanel->AddControl(m_pButtonHelp5);
+	m_apButtons[0]->SetCursorInListener(this, ButtonCursorIn0);
+	m_apButtons[1]->SetCursorInListener(this, ButtonCursorIn1);
+	m_apButtons[2]->SetCursorInListener(this, ButtonCursorIn2);
+	m_apButtons[3]->SetCursorInListener(this, ButtonCursorIn3);
+	m_apButtons[4]->SetCursorInListener(this, ButtonCursorIn4);
+	m_apButtons[5]->SetCursorInListener(this, ButtonCursorIn5);
+	m_apButtons[6]->SetCursorInListener(this, ButtonCursorIn6);
+	m_apButtons[7]->SetCursorInListener(this, ButtonCursorIn7);
+	m_apButtons[8]->SetCursorInListener(this, ButtonCursorIn8);
+	m_apButtons[9]->SetCursorInListener(this, ButtonCursorIn9);
 
 	m_pFireAttack = new CLabel(0, 0, 50, 50, "");
 	m_pFireDefend = new CLabel(0, 0, 50, 50, "");
@@ -291,36 +269,14 @@ void CHUD::Layout()
 	m_pButtonPanel->SetRight(m_pButtonPanel->GetLeft() + 330);
 	m_pButtonPanel->SetBottom(iHeight - 10);
 
-	m_pButton1->SetSize(50, 50);
-	m_pButton2->SetSize(50, 50);
-	m_pButton3->SetSize(50, 50);
-	m_pButton4->SetSize(50, 50);
-	m_pButton5->SetSize(50, 50);
-
 //	m_pAutoButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 135);
 //	m_pAutoButton->SetSize(50, 20);
 
-	m_pButton1->SetPos(20, 20);
-	m_pButton2->SetPos(80, 20);
-	m_pButton3->SetPos(140, 20);
-	m_pButton4->SetPos(200, 20);
-	m_pButton5->SetPos(260, 20);
-
-	m_pButtonHelp1->SetPos(20, 70);
-	m_pButtonHelp2->SetPos(80, 70);
-	m_pButtonHelp3->SetPos(140, 70);
-	m_pButtonHelp4->SetPos(200, 70);
-	m_pButtonHelp5->SetPos(260, 70);
-	m_pButtonHelp1->SetWrap(false);
-	m_pButtonHelp2->SetWrap(false);
-	m_pButtonHelp3->SetWrap(false);
-	m_pButtonHelp4->SetWrap(false);
-	m_pButtonHelp5->SetWrap(false);
-	m_pButtonHelp1->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pButtonHelp2->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pButtonHelp3->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pButtonHelp4->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pButtonHelp5->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	for (size_t i = 0; i < NUM_BUTTONS; i++)
+	{
+		m_apButtons[i]->SetSize(50, 50);
+		m_apButtons[i]->SetPos(20 + 60*(i%5), 10 + 60*(i/5));
+	}
 
 	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
 	m_pRightShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
@@ -448,12 +404,12 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (m_bHUDActive && pCurrentTank && pCurrentTank->HasBonusPoints())
+		if (m_bHUDActive && pCurrentTank && DigitanksGame()->IsTeamControlledByMe(pCurrentTank->GetTeam()) && pCurrentTank->HasBonusPoints())
 		{
 			float flRamp = 1;
 			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
 				flRamp = fabs(fmod(DigitanksGame()->GetGameTime(), 2)-1);
-			m_pButton5->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
+			m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 		}
 	}
 
@@ -970,35 +926,13 @@ void CHUD::SetupMenu()
 
 void CHUD::SetupMenu(menumode_t eMenuMode)
 {
-	m_pButton1->SetClickedListener(NULL, NULL);
-	m_pButton2->SetClickedListener(NULL, NULL);
-	m_pButton3->SetClickedListener(NULL, NULL);
-	m_pButton4->SetClickedListener(NULL, NULL);
-	m_pButton5->SetClickedListener(NULL, NULL);
-
-	m_pButtonHelp1->SetText("");
-	m_pButtonHelp2->SetText("");
-	m_pButtonHelp3->SetText("");
-	m_pButtonHelp4->SetText("");
-	m_pButtonHelp5->SetText("");
-
-	SetButton1Color(glgui::g_clrBox);
-	SetButton2Color(glgui::g_clrBox);
-	SetButton3Color(glgui::g_clrBox);
-	SetButton4Color(glgui::g_clrBox);
-	SetButton5Color(glgui::g_clrBox);
-
-	SetButton1Texture(0);
-	SetButton2Texture(0);
-	SetButton3Texture(0);
-	SetButton4Texture(0);
-	SetButton5Texture(0);
-
-	SetButtonInfo(0, L"");
-	SetButtonInfo(1, L"");
-	SetButtonInfo(2, L"");
-	SetButtonInfo(3, L"");
-	SetButtonInfo(4, L"");
+	for (size_t i = 0; i < NUM_BUTTONS; i++)
+	{
+		m_apButtons[i]->SetClickedListener(NULL, NULL);
+		SetButtonColor(i, glgui::g_clrBox);
+		SetButtonTexture(i, 0);
+		SetButtonInfo(0, L"");
+	}
 
 	if (!IsActive() || !DigitanksGame()->GetCurrentSelection() || DigitanksGame()->GetCurrentSelection()->GetTeam() != Game()->GetLocalTeam())
 		return;
@@ -1008,119 +942,22 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 	m_eMenuMode = eMenuMode;
 }
 
-void CHUD::SetButton1Listener(IEventListener::Callback pfnCallback)
+void CHUD::SetButtonListener(int i, IEventListener::Callback pfnCallback)
 {
 	if (pfnCallback)
-		m_pButton1->SetClickedListener(this, pfnCallback);
+		m_apButtons[i]->SetClickedListener(this, pfnCallback);
 	else
-		m_pButton1->SetClickedListener(NULL, NULL);
+		m_apButtons[i]->SetClickedListener(NULL, NULL);
 }
 
-void CHUD::SetButton2Listener(IEventListener::Callback pfnCallback)
+void CHUD::SetButtonTexture(int i, size_t iTexture)
 {
-	if (pfnCallback)
-		m_pButton2->SetClickedListener(this, pfnCallback);
-	else
-		m_pButton2->SetClickedListener(NULL, NULL);
+	m_apButtons[i]->SetTexture(iTexture);
 }
 
-void CHUD::SetButton3Listener(IEventListener::Callback pfnCallback)
+void CHUD::SetButtonColor(int i, Color clrButton)
 {
-	if (pfnCallback)
-		m_pButton3->SetClickedListener(this, pfnCallback);
-	else
-		m_pButton3->SetClickedListener(NULL, NULL);
-}
-
-void CHUD::SetButton4Listener(IEventListener::Callback pfnCallback)
-{
-	if (pfnCallback)
-		m_pButton4->SetClickedListener(this, pfnCallback);
-	else
-		m_pButton4->SetClickedListener(NULL, NULL);
-}
-
-void CHUD::SetButton5Listener(IEventListener::Callback pfnCallback)
-{
-	if (pfnCallback)
-		m_pButton5->SetClickedListener(this, pfnCallback);
-	else
-		m_pButton5->SetClickedListener(NULL, NULL);
-}
-
-void CHUD::SetButton1Help(const char* pszHelp)
-{
-	m_pButtonHelp1->SetText(pszHelp);
-}
-
-void CHUD::SetButton2Help(const char* pszHelp)
-{
-	m_pButtonHelp2->SetText(pszHelp);
-}
-
-void CHUD::SetButton3Help(const char* pszHelp)
-{
-	m_pButtonHelp3->SetText(pszHelp);
-}
-
-void CHUD::SetButton4Help(const char* pszHelp)
-{
-	m_pButtonHelp4->SetText(pszHelp);
-}
-
-void CHUD::SetButton5Help(const char* pszHelp)
-{
-	m_pButtonHelp5->SetText(pszHelp);
-}
-
-void CHUD::SetButton1Texture(size_t iTexture)
-{
-	m_pButton1->SetTexture(iTexture);
-}
-
-void CHUD::SetButton2Texture(size_t iTexture)
-{
-	m_pButton2->SetTexture(iTexture);
-}
-
-void CHUD::SetButton3Texture(size_t iTexture)
-{
-	m_pButton3->SetTexture(iTexture);
-}
-
-void CHUD::SetButton4Texture(size_t iTexture)
-{
-	m_pButton4->SetTexture(iTexture);
-}
-
-void CHUD::SetButton5Texture(size_t iTexture)
-{
-	m_pButton5->SetTexture(iTexture);
-}
-
-void CHUD::SetButton1Color(Color clrButton)
-{
-	m_pButton1->SetButtonColor(clrButton);
-}
-
-void CHUD::SetButton2Color(Color clrButton)
-{
-	m_pButton2->SetButtonColor(clrButton);
-}
-
-void CHUD::SetButton3Color(Color clrButton)
-{
-	m_pButton3->SetButtonColor(clrButton);
-}
-
-void CHUD::SetButton4Color(Color clrButton)
-{
-	m_pButton4->SetButtonColor(clrButton);
-}
-
-void CHUD::SetButton5Color(Color clrButton)
-{
-	m_pButton5->SetButtonColor(clrButton);
+	m_apButtons[i]->SetButtonColor(clrButton);
 }
 
 void CHUD::SetButtonInfo(int iButton, const wchar_t* pszInfo)
@@ -1313,52 +1150,57 @@ bool CHUD::IsUpdatesPanelOpen()
 	return m_pUpdatesPanel->IsVisible();
 }
 
-void CHUD::Button1CursorInCallback()
+void CHUD::ButtonCursorIn0Callback()
 {
 	ShowButtonInfo(0);
 }
 
-void CHUD::Button1CursorOutCallback()
-{
-	HideButtonInfo();
-}
-
-void CHUD::Button2CursorInCallback()
+void CHUD::ButtonCursorIn1Callback()
 {
 	ShowButtonInfo(1);
 }
 
-void CHUD::Button2CursorOutCallback()
-{
-	HideButtonInfo();
-}
-
-void CHUD::Button3CursorInCallback()
+void CHUD::ButtonCursorIn2Callback()
 {
 	ShowButtonInfo(2);
 }
 
-void CHUD::Button3CursorOutCallback()
-{
-	HideButtonInfo();
-}
-
-void CHUD::Button4CursorInCallback()
+void CHUD::ButtonCursorIn3Callback()
 {
 	ShowButtonInfo(3);
 }
 
-void CHUD::Button4CursorOutCallback()
-{
-	HideButtonInfo();
-}
-
-void CHUD::Button5CursorInCallback()
+void CHUD::ButtonCursorIn4Callback()
 {
 	ShowButtonInfo(4);
 }
 
-void CHUD::Button5CursorOutCallback()
+void CHUD::ButtonCursorIn5Callback()
+{
+	ShowButtonInfo(5);
+}
+
+void CHUD::ButtonCursorIn6Callback()
+{
+	ShowButtonInfo(6);
+}
+
+void CHUD::ButtonCursorIn7Callback()
+{
+	ShowButtonInfo(7);
+}
+
+void CHUD::ButtonCursorIn8Callback()
+{
+	ShowButtonInfo(8);
+}
+
+void CHUD::ButtonCursorIn9Callback()
+{
+	ShowButtonInfo(9);
+}
+
+void CHUD::ButtonCursorOutCallback()
 {
 	HideButtonInfo();
 }

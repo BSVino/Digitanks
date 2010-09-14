@@ -72,26 +72,23 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 	if (m_hConstructing != NULL)
 	{
-		pHUD->SetButton5Listener(CHUD::CancelBuild);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Cancel\nBuild");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::CancelBuild);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else if (IsInstalling())
 	{
-		pHUD->SetButton5Listener(CHUD::CancelInstall);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Cancel\nInstall");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::CancelInstall);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
 		if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
-			pHUD->SetButton1Listener(CHUD::BuildInfantryLoader);
-			pHUD->SetButton1Texture(s_iBuildInfantryLoaderIcon);
-			pHUD->SetButton1Help("Infantry\nLoader");
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::BuildInfantryLoader);
+			pHUD->SetButtonTexture(0, s_iBuildInfantryLoaderIcon);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "BUILD INFANTRY LOADER\n \n"
@@ -103,10 +100,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
-			pHUD->SetButton2Listener(CHUD::BuildTankLoader);
-			pHUD->SetButton2Texture(s_iBuildTankLoaderIcon);
-			pHUD->SetButton2Help("Main Tank\nLoader");
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::BuildTankLoader);
+			pHUD->SetButtonTexture(1, s_iBuildTankLoaderIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "BUILD MAIN BATTLE TANK LOADER\n \n"
@@ -118,10 +114,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
-			pHUD->SetButton3Listener(CHUD::BuildArtilleryLoader);
-			pHUD->SetButton3Texture(s_iBuildArtilleryLoaderIcon);
-			pHUD->SetButton3Help("Artillery\nLoader");
-			pHUD->SetButton3Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(2, CHUD::BuildArtilleryLoader);
+			pHUD->SetButtonTexture(2, s_iBuildArtilleryLoaderIcon);
+			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "BUILD ARTILLERY LOADER\n \n"
@@ -131,19 +126,17 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
-		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Return");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::GoToMain);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
 		if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
 		{
-			pHUD->SetButton1Listener(CHUD::InstallProduction);
-			pHUD->SetButton1Texture(s_iInstallPowerIcon);
-			pHUD->SetButton1Help("Install\nPower");
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::InstallProduction);
+			pHUD->SetButtonTexture(0, s_iInstallPowerIcon);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_PRODUCTION][iUpdate];
@@ -158,10 +151,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
 		{
-			pHUD->SetButton2Listener(CHUD::InstallBandwidth);
-			pHUD->SetButton2Texture(s_iInstallBandwidthIcon);
-			pHUD->SetButton2Help("Install\nBandwidth");
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::InstallBandwidth);
+			pHUD->SetButtonTexture(1, s_iInstallBandwidthIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_BANDWIDTH][iUpdate];
@@ -176,10 +168,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
 		{
-			pHUD->SetButton3Listener(CHUD::InstallFleetSupply);
-			pHUD->SetButton3Texture(s_iInstallFleetSupplyIcon);
-			pHUD->SetButton3Help("Install\nFleet Sply");
-			pHUD->SetButton3Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(2, CHUD::InstallFleetSupply);
+			pHUD->SetButtonTexture(2, s_iInstallFleetSupplyIcon);
+			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_FLEETSUPPLY][iUpdate];
@@ -192,10 +183,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
-		pHUD->SetButton5Listener(CHUD::GoToMain);
-		pHUD->SetButton5Texture(s_iCancelIcon);
-		pHUD->SetButton5Help("Return");
-		pHUD->SetButton5Color(Color(100, 0, 0));
+		pHUD->SetButtonListener(4, CHUD::GoToMain);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
 	else
 	{
@@ -203,10 +193,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			if (!bDisableMiniBuffer)
 			{
-				pHUD->SetButton1Listener(CHUD::BuildMiniBuffer);
-				pHUD->SetButton1Help("Build\nMiniBuffer");
-				pHUD->SetButton1Texture(s_iBuildBufferIcon);
-				pHUD->SetButton1Color(Color(150, 150, 150));
+				pHUD->SetButtonListener(0, CHUD::BuildMiniBuffer);
+				pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
+				pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 				std::wstringstream s;
 				s << "BUILD MINIBUFFER\n \n"
@@ -218,10 +207,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		}
 		else
 		{
-			pHUD->SetButton1Listener(CHUD::BuildBuffer);
-			pHUD->SetButton1Help("Build\nBuffer");
-			pHUD->SetButton1Texture(s_iBuildBufferIcon);
-			pHUD->SetButton1Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(0, CHUD::BuildBuffer);
+			pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "BUILD BUFFER\n \n"
@@ -235,10 +223,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			if (!bDisableBattery)
 			{
-				pHUD->SetButton2Listener(CHUD::BuildBattery);
-				pHUD->SetButton2Help("Build\nBattery");
-				pHUD->SetButton2Texture(s_iBuildPSUIcon);
-				pHUD->SetButton2Color(Color(150, 150, 150));
+				pHUD->SetButtonListener(1, CHUD::BuildBattery);
+				pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
+				pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 				std::wstringstream s;
 				s << "BUILD BATTERY\n \n"
@@ -250,10 +237,9 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		}
 		else
 		{
-			pHUD->SetButton2Listener(CHUD::BuildPSU);
-			pHUD->SetButton2Help("Build\nPwr Supply");
-			pHUD->SetButton2Texture(s_iBuildPSUIcon);
-			pHUD->SetButton2Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(1, CHUD::BuildPSU);
+			pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
+			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			std::wstringstream s;
 			s << "BUILD POWER SUPPLY UNIT\n \n"
@@ -263,41 +249,19 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
-		if (bDisableLoaders)
-
+		if (!bDisableLoaders)
 		{
-			pHUD->SetButton3Listener(NULL);
-			pHUD->SetButton3Help("");
-			pHUD->SetButton3Texture(0);
-			pHUD->SetButton3Color(glgui::g_clrBox);
-		}
-		else
-		{
-			pHUD->SetButton3Listener(CHUD::BuildLoader);
-			pHUD->SetButton3Help("Build\nLoader");
-			pHUD->SetButton3Texture(s_iBuildLoaderIcon);
-			pHUD->SetButton3Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(2, CHUD::BuildLoader);
+			pHUD->SetButtonTexture(2, s_iBuildLoaderIcon);
+			pHUD->SetButtonColor(2, Color(150, 150, 150));
 		}
 
 		if (HasUpdatesAvailable())
 		{
-			pHUD->SetButton4Listener(CHUD::InstallMenu);
-			pHUD->SetButton4Help("Install\nUpdates");
-			pHUD->SetButton4Texture(s_iInstallIcon);
-			pHUD->SetButton4Color(Color(150, 150, 150));
+			pHUD->SetButtonListener(3, CHUD::InstallMenu);
+			pHUD->SetButtonTexture(3, s_iInstallIcon);
+			pHUD->SetButtonColor(3, Color(150, 150, 150));
 		}
-		else
-		{
-			pHUD->SetButton4Listener(NULL);
-			pHUD->SetButton4Help("");
-			pHUD->SetButton4Texture(0);
-			pHUD->SetButton4Color(glgui::g_clrBox);
-		}
-
-		pHUD->SetButton5Listener(NULL);
-		pHUD->SetButton5Help("");
-		pHUD->SetButton5Texture(0);
-		pHUD->SetButton5Color(glgui::g_clrBox);
 	}
 }
 
