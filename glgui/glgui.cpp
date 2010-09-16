@@ -729,10 +729,6 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	else	// TA_TOPLEFT
 		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
 
-	glRasterPos2f(vecPosition.x, vecPosition.y);
-	s_apFonts[m_iFontFaceSize]->Render(pszText, iLength);
-
-#if 0
 	// FWTextureFont code. Spurious calls to CreateTexture (deep in FW) during Advance() cause unacceptable slowdowns
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -747,7 +743,6 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	glPopMatrix();
 
 	glMatrixMode(GL_MODELVIEW);
-#endif
 }
 
 void CLabel::SetSize(int w, int h)
@@ -828,7 +823,7 @@ void CLabel::SetFontFaceSize(int iSize)
 		char szFont[1024];
 		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
 
-		s_apFonts[iSize] = new FTBitmapFont(szFont);
+		s_apFonts[iSize] = new FTTextureFont(szFont);
 		s_apFonts[iSize]->FaceSize(iSize);
 	}
 
