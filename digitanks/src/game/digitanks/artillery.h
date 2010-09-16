@@ -27,7 +27,6 @@ public:
 
 	virtual bool				CanFortify() { return true; };
 	virtual bool				IsArtillery() { return true; };
-	virtual bool				UseFortifyMenuFire() { return true; };
 	virtual bool				CanTurnFortified() { return true; };
 	virtual bool				CanAimMobilized() { return false; };
 

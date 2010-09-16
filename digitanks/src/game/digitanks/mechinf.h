@@ -32,7 +32,6 @@ public:
 	virtual float				RenderShieldScale() { return 2.0f; };
 
 	virtual bool				CanFortify() { return true; };
-	virtual bool				UseFortifyMenuAim() { return true; };
 
 	virtual float				GetBonusAttackPower(bool bPreview = false);
 	virtual float				GetBonusDefensePower(bool bPreview = false);

@@ -28,7 +28,7 @@ void CArtillery::Precache()
 void CArtillery::SetAttackPower(float flAttackPower)
 {
 	// No defense power.
-	BaseClass::SetAttackPower(m_flBasePower - m_flMovementPower);
+	BaseClass::SetAttackPower(1);
 }
 
 void CArtillery::Think()

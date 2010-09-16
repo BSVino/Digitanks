@@ -546,10 +546,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 			if (pTank)
 			{
-				float flAttackPower = pTank->GetAttackPower(true);
-				float flDefensePower = pTank->GetDefensePower(true);
-				float flMovementPower = pTank->GetMovementPower(true);
-				float flTotalPower = flAttackPower + flDefensePower + flMovementPower;
+				float flAttackPower = pTank->GetBaseAttackPower(true);
+				float flDefensePower = pTank->GetBaseDefensePower(true);
+				float flMovementPower = pTank->GetBaseMovementPower(true);
+				float flTotalPower = pTank->GetStartingPower();
 				flAttackPower = flAttackPower/flTotalPower;
 				flDefensePower = flDefensePower/flTotalPower;
 				flMovementPower = flMovementPower/flTotalPower;
@@ -562,7 +562,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsCurrentSelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
-			int iHeight = (int)(200 * (pTank->GetBasePower()-pTank->GetBaseMovementPower())/pTank->GetBasePower());
+			int iHeight = (int)(200 * pTank->GetTotalPower()/pTank->GetStartingPower());
 
 			if (iHeight < 20)
 				iHeight = 20;
@@ -574,9 +574,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 			m_pFireDefend->SetSize(0, 20);
 
 			char szLabel[100];
-			sprintf(szLabel, "Damage: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetBasePower()*100));
+			sprintf(szLabel, "Damage: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetStartingPower()*100));
 			m_pFireAttack->SetText(szLabel);
-			sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetBasePower()*100));
+			sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetStartingPower()*100));
 			m_pFireDefend->SetText(szLabel);
 
 			m_pFireAttack->EnsureTextFits();
@@ -602,11 +602,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 				for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
 				{
 					CDigitank* pTank = pTeam->GetTank(t);
-					pTank->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
+					pTank->SetAttackPower(flAttackPercentage);
 				}
 			}
 			else
-				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage * (pTank->GetBasePower()-pTank->GetBaseMovementPower()));
+				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage);
 
 			UpdateInfo();
 		}
@@ -931,7 +931,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_apButtons[i]->SetClickedListener(NULL, NULL);
 		SetButtonColor(i, glgui::g_clrBox);
 		SetButtonTexture(i, 0);
-		SetButtonInfo(0, L"");
+		SetButtonInfo(i, L"");
 	}
 
 	if (!IsActive() || !DigitanksGame()->GetCurrentSelection() || DigitanksGame()->GetCurrentSelection()->GetTeam() != Game()->GetLocalTeam())

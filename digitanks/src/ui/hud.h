@@ -257,7 +257,7 @@ protected:
 	size_t						m_iTurnInfoPanel;
 
 	glgui::CLabel*				m_pButtonInfo;
-	std::wstring				m_aszButtonInfos[5];
+	std::wstring				m_aszButtonInfos[NUM_BUTTONS];
 
 	glgui::CLabel*				m_pPressEnter;
 

@@ -139,24 +139,9 @@ void CDigitanksTeam::NextTank()
 
 void CDigitanksTeam::StartTurn()
 {
-	m_aflVisibilities.clear();
 	m_iTotalFleetPoints = m_iUsedFleetPoints = 0;
 
-	// For every entity in the game, calculate the visibility to this team
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-		if (!pEntity)
-			continue;
-
-		if (pEntity->GetTeam() == ((CTeam*)this))
-		{
-			m_aflVisibilities[pEntity->GetHandle()] = 1;
-			continue;
-		}
-
-		m_aflVisibilities[pEntity->GetHandle()] = GetVisibilityAtPoint(pEntity->GetOrigin());
-	}
+	CalculateVisibility();
 
 	CountProducers();
 
@@ -216,21 +201,19 @@ void CDigitanksTeam::StartTurn()
 	CountScore();
 }
 
-void CDigitanksTeam::MoveTanks()
+void CDigitanksTeam::EndTurn()
 {
-	for (size_t i = 0; i < m_ahTanks.size(); i++)
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
-		if (m_ahTanks[i] != NULL)
-			m_ahTanks[i]->Move();
-	}
-}
+		if (m_ahMembers[i] == NULL)
+			continue;
 
-void CDigitanksTeam::FireTanks()
-{
-	for (size_t i = 0; i < m_ahTanks.size(); i++)
-	{
-		if (m_ahTanks[i] != NULL)
-			m_ahTanks[i]->Fire();
+		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
+		if (pEntity)
+		{
+			pEntity->EndTurn();
+			continue;
+		}
 	}
 }
 
@@ -381,6 +364,26 @@ size_t CDigitanksTeam::GetNumTanksAlive()
 	}
 
 	return iTanksAlive;
+}
+
+void CDigitanksTeam::CalculateVisibility()
+{
+	m_aflVisibilities.clear();
+	// For every entity in the game, calculate the visibility to this team
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (!pEntity)
+			continue;
+
+		if (pEntity->GetTeam() == ((CTeam*)this))
+		{
+			m_aflVisibilities[pEntity->GetHandle()] = 1;
+			continue;
+		}
+
+		m_aflVisibilities[pEntity->GetHandle()] = GetVisibilityAtPoint(pEntity->GetOrigin());
+	}
 }
 
 float CDigitanksTeam::GetEntityVisibility(size_t iHandle)

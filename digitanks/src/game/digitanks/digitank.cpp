@@ -61,12 +61,17 @@ std::map<size_t, std::vector<size_t> > g_aiSpeechLines;
 
 CDigitank::CDigitank()
 {
-	m_flBasePower = 10;
-	m_flAttackPower = 4.5f;
-	m_flDefensePower = 5.5f;
+	m_flStartingPower = 10;
+
+	// If I haven't gotten a turn yet, shields up.
+	m_flAttackPower = 0;
+	m_flDefensePower = 10;
 	m_flMovementPower = 0;
+	m_flTotalPower = 0;
 
 	m_flBonusAttackPower = m_flBonusDefensePower = m_flBonusMovementPower = 0;
+
+	m_flAttackSplit = 0.5f;
 
 	m_flRangeBonus = 0;
 
@@ -176,66 +181,36 @@ void CDigitank::Precache()
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
 {
-	float flMovementLength;
-
-	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
-	{
-		flMovementLength = GetPreviewMoveTurnPower();
-
-		if (flMovementLength > m_flBasePower)
-			return 0;
-
-		return RemapVal(flMovementLength, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
-	}
-
 	return m_flAttackPower;
 }
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
-	float flMovementLength;
-
 	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
 	{
-		flMovementLength = GetPreviewMoveTurnPower();
+		float flMovementLength = GetPreviewMoveTurnPower();
 
-		bool bPreviewAimValid = IsPreviewAimValid();
+		if (flMovementLength > m_flDefensePower + m_flTotalPower)
+			return 0;
 
-		if (flMovementLength > m_flBasePower)
-		{
-			if (!HasDesiredAim() && !bPreviewAimValid)
-			{
-				if (!HasDesiredMove())
-					return 0;
-
-				float flPower = m_flBasePower - GetPreviewMovePower();
-				if (flPower < 0)
-					return 0;
-				else
-					return flPower;
-			}
-			else
-				return 0;
-		}
-
-		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0);
+		// Any power that hasn't been used so far goes to defense.
+		return m_flDefensePower + m_flTotalPower - flMovementLength;
 	}
 
-	return m_flDefensePower;
+	// Any unallocated power will go into defense anyway.
+	return m_flDefensePower + m_flTotalPower;
 }
 
 float CDigitank::GetBaseMovementPower(bool bPreview)
 {
-	float flMovementLength;
-
 	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
 	{
-		flMovementLength = GetPreviewMoveTurnPower();
+		float flMovementLength = GetPreviewMoveTurnPower();
 
-		if (flMovementLength > m_flBasePower)
-			return m_flBasePower;
+		if (flMovementLength > m_flTotalPower)
+			return m_flTotalPower + m_flMovementPower;
 
-		return flMovementLength;
+		return flMovementLength + m_flMovementPower;
 	}
 
 	return m_flMovementPower;
@@ -258,60 +233,32 @@ float CDigitank::GetMovementPower(bool bPreview)
 
 float CDigitank::GetTotalAttackPower()
 {
-	return m_flBasePower + GetBonusAttackPower();
+	return m_flStartingPower + GetBonusAttackPower();
 }
 
 float CDigitank::GetTotalDefensePower()
 {
-	return m_flBasePower + GetBonusDefensePower();
+	return m_flStartingPower + GetBonusDefensePower();
 }
 
 float CDigitank::GetTotalMovementPower() const
 {
-	return m_flBasePower + GetBonusMovementPower();
+	return m_flStartingPower + GetBonusMovementPower();
 }
 
 float CDigitank::GetMaxMovementDistance() const
 {
-	return GetTotalMovementPower() * GetTankSpeed();
+	return (GetTotalPower() + GetBonusMovementPower()) * GetTankSpeed();
 }
 
 float CDigitank::GetBonusAttackScale(bool bPreview)
 {
-	if (m_flBasePower < 0.001f)
-		return 0;
-
-	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
-	{
-		float flMovementLength = GetPreviewMoveTurnPower();
-
-		if (flMovementLength > m_flBasePower)
-			return 0;
-
-		return RemapVal(flMovementLength, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0)/m_flBasePower;
-	}
-
-	return m_flAttackPower/m_flBasePower;
+	return m_flAttackPower/m_flStartingPower;
 }
 
 float CDigitank::GetBonusDefenseScale(bool bPreview)
 {
-	if (m_flBasePower < 0.001f)
-		return 0;
-
-	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
-	{
-		float flMovementLength = GetPreviewMoveTurnPower();
-
-		bool bPreviewAimValid = IsPreviewAimValid();
-
-		if (flMovementLength > m_flBasePower)
-			return 0;
-
-		return RemapVal(flMovementLength, 0, m_flBasePower, m_flDefensePower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0)/m_flBasePower;
-	}
-
-	return m_flDefensePower/m_flBasePower;
+	return m_flDefensePower/m_flStartingPower;
 }
 
 float CDigitank::GetBonusAttackPower(bool bPreview)
@@ -374,8 +321,10 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 
 void CDigitank::SetAttackPower(float flAttackPower)
 {
-	if (flAttackPower > m_flBasePower - m_flMovementPower)
-		return;
+	if (flAttackPower > 1)
+		flAttackPower = 1;
+	if (flAttackPower < 0)
+		flAttackPower = 0;
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(-1, "SetAttackPower", GetHandle(), flAttackPower);
@@ -388,8 +337,7 @@ void CDigitank::SetAttackPower(float flAttackPower)
 
 void CDigitank::SetAttackPower(CNetworkParameters* p)
 {
-	m_flAttackPower = p->fl2;
-	m_flDefensePower = m_flBasePower - m_flMovementPower - m_flAttackPower;
+	m_flAttackSplit = p->fl2;
 
 	m_bChoseFirepower = true;
 }
@@ -436,17 +384,9 @@ float CDigitank::GetPreviewBaseTurnPower() const
 
 bool CDigitank::IsPreviewMoveValid() const
 {
-	if (GetPreviewMovePower() > GetBasePower())
+	if (GetPreviewMovePower() > GetTotalPower())
 		return false;
 	return true;
-}
-
-void CDigitank::CalculateAttackDefense()
-{
-	if (m_flAttackPower + m_flDefensePower == 0)
-		SetAttackPower(0.0f);
-	else
-		SetAttackPower(RemapVal(m_flMovementPower, 0, m_flBasePower, m_flAttackPower/(m_flAttackPower+m_flDefensePower)*m_flBasePower, 0));
 }
 
 float CDigitank::GetFrontShieldStrength()
@@ -511,14 +451,14 @@ void CDigitank::StartTurn()
 	if (m_hSupplyLine != NULL && m_hSupplier != NULL)
 		m_hSupplyLine->SetEntities(m_hSupplier, this);
 
+	m_flTotalPower = m_flStartingPower;
+	m_flMovementPower = m_flAttackPower = m_flDefensePower = 0;
+
 	if (m_bFortified)
 	{
 		if (m_iFortifyLevel < 5)
 			m_iFortifyLevel++;
 	}
-
-	m_flMovementPower = 0;
-	CalculateAttackDefense();
 
 	for (size_t i = 0; i < TANK_SHIELDS; i++)
 	{
@@ -537,6 +477,7 @@ void CDigitank::StartTurn()
 	m_bDesiredAim = false;
 	m_bSelectedMove = false;
 	m_bChoseFirepower = false;
+	m_bFiredWeapon = false;
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
@@ -569,6 +510,14 @@ void CDigitank::StartTurn()
 		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
 			CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 	}
+}
+
+void CDigitank::EndTurn()
+{
+	BaseClass::EndTurn();
+
+	m_flDefensePower = m_flTotalPower;
+	m_flTotalPower = 0;
 }
 
 void CDigitank::SetPreviewMove(Vector vecPreviewMove)
@@ -682,9 +631,6 @@ void CDigitank::SetDesiredMove(CNetworkParameters* p)
 	m_vecPreviousOrigin = GetOrigin();
 	m_vecDesiredMove = m_vecPreviewMove;
 
-	m_flMovementPower = GetPreviewMovePower();
-	CalculateAttackDefense();
-
 	m_bDesiredMove = true;
 
 	m_flStartedMove = DigitanksGame()->GetGameTime();
@@ -718,9 +664,6 @@ void CDigitank::CancelDesiredMove(CNetworkParameters* p)
 {
 	m_bDesiredMove = false;
 	m_bSelectedMove = false;
-
-	m_flMovementPower = GetPreviewTurnPower();
-	CalculateAttackDefense();
 
 	ClearPreviewMove();
 
@@ -779,7 +722,7 @@ void CDigitank::SetDesiredTurn()
 	if (!IsPreviewMoveValid())
 		flMovePower = GetPreviewTurnPower();
 
-	if (flMovePower > m_flBasePower)
+	if (flMovePower > m_flTotalPower)
 		return;
 
 	if (CNetwork::ShouldReplicateClientFunction())
@@ -805,9 +748,6 @@ void CDigitank::SetDesiredTurn(CNetworkParameters* p)
 	if (!IsPreviewMoveValid())
 		flMovePower = GetPreviewTurnPower();
 
-	m_flMovementPower = flMovePower;
-	CalculateAttackDefense();
-
 	m_bDesiredTurn = true;
 }
 
@@ -822,13 +762,6 @@ void CDigitank::CancelDesiredTurn()
 void CDigitank::CancelDesiredTurn(CNetworkParameters* p)
 {
 	m_bDesiredTurn = false;
-
-	if (HasDesiredMove())
-		m_flMovementPower = (GetOrigin() - m_vecDesiredMove).Length();
-	else
-		m_flMovementPower = 0;
-
-	CalculateAttackDefense();
 
 	ClearPreviewTurn();
 }
@@ -868,6 +801,9 @@ void CDigitank::SetDesiredAim()
 		return;
 
 	if (fabs(AngleDifference(GetDesiredTurn(), VectorAngles((GetPreviewAim()-GetDesiredMove()).Normalized()).y)) > FiringCone())
+		return;
+
+	if (m_bFiredWeapon)
 		return;
 
 	Speak(TANKSPEECH_ATTACK);
@@ -1273,17 +1209,17 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 
 float CDigitank::GetPowerBar1Value()
 {
-	return GetAttackPower(true) / GetBasePower();
+	return GetAttackPower(true) / m_flStartingPower;
 }
 
 float CDigitank::GetPowerBar2Value()
 {
-	return GetDefensePower(true) / GetBasePower();
+	return GetDefensePower(true) / m_flStartingPower;
 }
 
 float CDigitank::GetPowerBar3Value()
 {
-	return GetMovementPower(true) / GetBasePower();
+	return GetMovementPower(true) / m_flStartingPower;
 }
 
 float CDigitank::GetPowerBar1Size()
@@ -1307,7 +1243,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 	if (eMenuMode == MENUMODE_MAIN)
 	{
-		if (!IsFortified())
+		if (!IsFortified() && m_flTotalPower > 1)
 		{
 			pHUD->SetButtonListener(0, CHUD::Move);
 
@@ -1322,7 +1258,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(0, s_iMoveIcon);
 		}
 
-		if (!IsFortified() || CanTurnFortified())
+		if ((!IsFortified() || CanTurnFortified()) && m_flTotalPower > 1)
 		{
 			pHUD->SetButtonListener(1, CHUD::Turn);
 
@@ -1337,66 +1273,49 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(1, s_iTurnIcon);
 		}
 
-		if (UseFortifyMenuAim())
+		if (CanFortify())
 		{
 			if (IsFortified() || IsFortifying())
 			{
-				pHUD->SetButtonTexture(2, s_iMobilizeIcon);
+				pHUD->SetButtonTexture(8, s_iMobilizeIcon);
 			}
 			else
 			{
-				pHUD->SetButtonTexture(2, s_iFortifyIcon);
-			}
-			pHUD->SetButtonListener(2, CHUD::Fortify);
-
-			pHUD->SetButtonColor(2, Color(0, 0, 150));
-		}
-		else
-		{
-			if (CanAimMobilized() || IsFortified())
-			{
-				pHUD->SetButtonListener(2, CHUD::Aim);
-
-				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
-					pHUD->SetButtonColor(2, Color(150, 0, 0));
+				if (IsArtillery())
+					pHUD->SetButtonTexture(8, s_iDeployIcon);
 				else
-					pHUD->SetButtonColor(2, Color(100, 100, 100));
-
-				if (DigitanksGame()->GetControlMode() == MODE_AIM)
-					pHUD->SetButtonTexture(2, s_iCancelIcon);
-				else
-					pHUD->SetButtonTexture(2, s_iAimIcon);
+					pHUD->SetButtonTexture(8, s_iFortifyIcon);
 			}
+			pHUD->SetButtonListener(8, CHUD::Fortify);
+			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if (UseFortifyMenuFire())
+		if (CanAimMobilized() || IsFortified())
 		{
-			pHUD->SetButtonListener(3, CHUD::Fortify);
-			if (IsFortified() || IsFortifying())
-			{
-				pHUD->SetButtonTexture(3, s_iMobilizeIcon);
-			}
-			else
-			{
-				pHUD->SetButtonTexture(3, s_iDeployIcon);
-			}
+			pHUD->SetButtonListener(2, CHUD::Aim);
 
-			pHUD->SetButtonColor(3, Color(0, 0, 150));
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
+				pHUD->SetButtonColor(2, Color(150, 0, 0));
+			else
+				pHUD->SetButtonColor(2, Color(100, 100, 100));
+
+			if (DigitanksGame()->GetControlMode() == MODE_AIM)
+				pHUD->SetButtonTexture(2, s_iCancelIcon);
+			else
+				pHUD->SetButtonTexture(2, s_iAimIcon);
 		}
+
+		pHUD->SetButtonListener(3, CHUD::Fire);
+
+		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
+			pHUD->SetButtonColor(3, Color(150, 0, 150));
 		else
-		{
-			pHUD->SetButtonListener(3, CHUD::Fire);
+			pHUD->SetButtonColor(3, Color(100, 100, 100));
 
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
-				pHUD->SetButtonColor(3, Color(150, 0, 150));
-			else
-				pHUD->SetButtonColor(3, Color(100, 100, 100));
-
-			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-				pHUD->SetButtonTexture(3, s_iCancelIcon);
-			else
-				pHUD->SetButtonTexture(3, s_iFireIcon);
-		}
+		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+			pHUD->SetButtonTexture(3, s_iCancelIcon);
+		else
+			pHUD->SetButtonTexture(3, s_iFireIcon);
 
 		if (HasBonusPoints())
 		{
@@ -1448,16 +1367,18 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 void CDigitank::Move()
 {
+	float flMovePower = GetPreviewMovePower();
+
+	if (flMovePower > m_flTotalPower)
+		return;
+
+	m_flTotalPower -= flMovePower;
+	m_flMovementPower += flMovePower;
+
 	if (m_bDesiredMove)
 	{
 		m_bDesiredMove = false;
 		SetOrigin(m_vecDesiredMove);
-	}
-
-	if (m_bDesiredTurn)
-	{
-		m_bDesiredTurn = false;
-		SetAngles(EAngle(0, m_flDesiredTurn, 0));
 	}
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -1481,6 +1402,27 @@ void CDigitank::Move()
 		}
 	}
 
+	GetDigitanksTeam()->CalculateVisibility();
+
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+}
+
+void CDigitank::Turn()
+{
+	float flMovePower = GetPreviewTurnPower();
+
+	if (flMovePower > m_flTotalPower)
+		return;
+
+	m_flTotalPower -= flMovePower;
+	m_flMovementPower += flMovePower;
+
+	if (m_bDesiredTurn)
+	{
+		m_bDesiredTurn = false;
+		SetAngles(EAngle(0, m_flDesiredTurn, 0));
+	}
+
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
@@ -1495,6 +1437,15 @@ void CDigitank::Fire()
 
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
+
+	if (m_bFiredWeapon)
+		return;
+
+	m_bFiredWeapon = true;
+
+	float flAttackPower = m_flTotalPower * m_flAttackSplit;
+	m_flTotalPower -= flAttackPower;
+	m_flAttackPower += flAttackPower;
 
 	DigitanksGame()->AddProjectileToWaitFor();
 

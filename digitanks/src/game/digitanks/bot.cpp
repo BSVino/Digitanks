@@ -645,6 +645,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
 				pTank->SetDesiredTurn();
+				pTank->Move();
 			}
 		}
 		else if (pTank->IsArtillery())
@@ -660,6 +661,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					// Deploy so we can rain some hell down.
 					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
 					pTank->SetDesiredTurn();
+					pTank->Move();
 					pTank->Fortify();
 				}
 				else
@@ -677,6 +679,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
 					pTank->SetDesiredTurn();
+					pTank->Move();
 				}
 			}
 
@@ -685,6 +688,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->SetDesiredAim();
+				pTank->Fire();
 			}
 		}
 		else if (pTank->CanFortify())
@@ -695,7 +699,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else
 		{
-			if (DigitanksGame()->GetTurn() < m_iTurnToStartExploring)
+			if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && DigitanksGame()->GetTurn() < m_iTurnToStartExploring)
 			{
 				// Hang out.
 			}
@@ -711,6 +715,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->SetDesiredMove();
+				pTank->Move();
 			}
 
 			// If we are within the max range, try to fire.
@@ -718,15 +723,16 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->SetDesiredAim();
+				pTank->Fire();
 			}
 		}
 
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 
 		if (pTankTarget && pTankTarget->IsFortified() && !pTankTarget->IsArtillery())
-			pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetBaseMovementPower())*3/4);
+			pTank->SetAttackPower(3.0f/4.0f);
 		else
-			pTank->SetAttackPower((pTank->GetBasePower() - pTank->GetBaseMovementPower())/2);
+			pTank->SetAttackPower(1.0f/2.0f);
 	}
 
 	DigitanksGame()->EndTurn();

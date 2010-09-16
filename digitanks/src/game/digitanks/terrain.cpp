@@ -631,7 +631,7 @@ void CTerrain::OnRender()
 		glUniform1i(bFocusRanges, bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 		Vector vecRangeOrigin = pCurrentTank->GetDesiredMove();
-		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetBasePower())
+		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetTotalPower())
 			vecRangeOrigin = pCurrentTank->GetPreviewMove();
 
 		GLuint vecTankPreviewOrigin = glGetUniformLocation(iTerrainProgram, "vecTankPreviewOrigin");

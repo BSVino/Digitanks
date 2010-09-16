@@ -30,6 +30,7 @@ public:
 	virtual void					Think();
 
 	virtual void					StartTurn();
+	virtual void					EndTurn();
 
 	class CDigitanksTeam*			GetDigitanksTeam() const;
 

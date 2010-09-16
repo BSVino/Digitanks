@@ -178,6 +178,8 @@ protected:
 	bool					m_bWaitingForProjectiles;
 	size_t					m_iWaitingForProjectiles;
 
+	bool					m_bTurnActive;
+
 	size_t					m_iPowerups;
 
 	std::vector<Vector>		m_avecTankAims;

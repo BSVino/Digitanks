@@ -30,9 +30,7 @@ public:
 	void						NextTank();
 
 	void						StartTurn();
-
-	void						MoveTanks();
-	void						FireTanks();
+	void						EndTurn();
 
 	void						CountProducers();
 	void						AddProduction(size_t iProduction);
@@ -56,6 +54,7 @@ public:
 
 	size_t						GetNumTanksAlive();
 
+	void						CalculateVisibility();
 	float						GetEntityVisibility(size_t iHandle);
 	float						GetVisibilityAtPoint(Vector vecPoint);
 

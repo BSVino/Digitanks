@@ -36,6 +36,8 @@ CDigitanksGame::CDigitanksGame()
 	m_bWaitingForProjectiles = false;
 	m_iWaitingForProjectiles = 0;
 
+	m_bTurnActive = true;
+
 	m_iPowerups = 0;
 
 	m_iDifficulty = 1;
@@ -409,6 +411,9 @@ void CDigitanksGame::StartGame()
 {
 	m_iCurrentTeam = 0;
 
+	m_iWaitingForProjectiles = 0;
+	m_bWaitingForProjectiles = true;
+
 	GetCurrentTeam()->StartTurn();
 
 	CNetwork::CallFunction(-1, "SetCurrentTeam", 0);
@@ -476,43 +481,17 @@ void CDigitanksGame::Think()
 		}
 
 		if (!bMoving)
-		{
 			m_bWaitingForMoving = false;
-			m_iWaitingForProjectiles = 0;
-			GetCurrentTeam()->FireTanks();
-			m_bWaitingForProjectiles = true;
-
-			size_t iSum = 0;
-			Vector vecSum;
-			for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
-			{
-				CDigitank* pTank = GetCurrentTeam()->GetTank(i);
-				if (!pTank)
-					continue;
-
-				if (!pTank->HasDesiredAim())
-					continue;
-
-				if (pTank->GetVisibility() == 0)
-					continue;
-
-				vecSum += pTank->GetDesiredMove() + pTank->GetDesiredAim();
-				iSum += 2;
-			}
-
-			if (iSum)
-				GetCamera()->SetTarget(vecSum/(float)iSum);
-		}
 	}
 
 	if (m_bWaitingForProjectiles)
 	{
 		if (m_iWaitingForProjectiles == 0)
-		{
 			m_bWaitingForProjectiles = false;
-			StartTurn();
-		}
 	}
+
+	if (!m_bTurnActive && !m_bWaitingForMoving && !m_bWaitingForProjectiles)
+		StartTurn();
 }
 
 void CDigitanksGame::SetDesiredMove(bool bAllTanks)
@@ -526,6 +505,8 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 	if (pCurrentTank->GetTeam() != GetLocalTeam())
 		return;
+
+	bool bMoved = false;
 
 	if (bAllTanks)
 	{
@@ -567,6 +548,12 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 			while (pTank->GetPreviewMovePower() > pTank->GetMaxMovementDistance());
 
 			pTank->SetDesiredMove();
+			if (pTank->HasDesiredMove())
+			{
+				if (pTank == pCurrentTank)
+					bMoved = true;
+				pTank->Move();
+			}
 		}
 	}
 	else
@@ -575,46 +562,46 @@ void CDigitanksGame::SetDesiredMove(bool bAllTanks)
 
 		if (!pCurrentTank->HasDesiredMove())
 			pCurrentTank->SetGoalMovePosition(pCurrentTank->GetPreviewMove());
+
+		if (pCurrentTank->HasDesiredMove())
+		{
+			bMoved = true;
+			pCurrentTank->Move();
+		}
 	}
 
-	if (pCurrentTank->HasDesiredMove())
+	if (bMoved)
 	{
 		GetGame()->GetCamera()->SetTarget(pCurrentTank->GetPreviewMove());
 
-		if (bAllTanks || !CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
+		CDigitanksEntity* pClosestEnemy = NULL;
+		while (true)
 		{
-			CDigitanksEntity* pClosestEnemy = NULL;
-			while (true)
+			pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(pCurrentTank->GetOrigin(), pClosestEnemy);
+
+			if (pClosestEnemy)
 			{
-				pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(pCurrentTank->GetOrigin(), pClosestEnemy);
+				if (pClosestEnemy->GetTeam() == pCurrentTank->GetTeam())
+					continue;
 
-				if (pClosestEnemy)
+				if (!pClosestEnemy->GetTeam())
+					continue;
+
+				if ((pClosestEnemy->GetOrigin() - pCurrentTank->GetOrigin()).Length() > pCurrentTank->VisibleRange())
 				{
-					if (pClosestEnemy->GetTeam() == pCurrentTank->GetTeam())
-						continue;
-
-					if (!pClosestEnemy->GetTeam())
-						continue;
-
-					if ((pClosestEnemy->GetOrigin() - pCurrentTank->GetOrigin()).Length() > pCurrentTank->VisibleRange())
-					{
-						pClosestEnemy = NULL;
-						break;
-					}
+					pClosestEnemy = NULL;
+					break;
 				}
-
-				break;
 			}
 
-			// Only go to aim mode if there is an enemy in range.
-			if (pClosestEnemy && GetCurrentTank()->CanAim())
-				SetControlMode(MODE_AIM);
-			else
-				SetControlMode(MODE_NONE);
+			break;
 		}
 
-		if (CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
-			GetCurrentTeam()->NextTank();
+		// Only go to aim mode if there is an enemy in range.
+		if (pClosestEnemy && GetCurrentTank()->CanAim())
+			SetControlMode(MODE_AIM);
+		else
+			SetControlMode(MODE_NONE);
 
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 	}
@@ -705,10 +692,14 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 
 			pTank->SetPreviewAim(vecTankAim);
 			pTank->SetDesiredAim();
+			pTank->Fire();
 		}
 	}
 	else
+	{
 		pCurrentTank->SetDesiredAim();
+		pCurrentTank->Fire();
+	}
 
 	if (!CDigitanksWindow::Get()->GetHUD()->ShouldAutoProceed())
 		SetControlMode(MODE_NONE);
@@ -720,9 +711,6 @@ void CDigitanksGame::SetDesiredAim(bool bAllTanks)
 
 void CDigitanksGame::EndTurn()
 {
-	if (m_bWaitingForProjectiles || m_bWaitingForMoving)
-		return;
-
 	CNetwork::CallFunction(-1, "EndTurn");
 
 	EndTurn(NULL);
@@ -733,28 +721,10 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	size_t iSum = 0;
-	Vector vecSum;
-	for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
-	{
-		CDigitank* pTank = GetCurrentTeam()->GetTank(i);
-		if (!pTank)
-			continue;
+	GetCurrentTeam()->EndTurn();
 
-		if (!pTank->HasDesiredMove())
-			continue;
-
-		if (pTank->GetVisibility() == 0)
-			continue;
-
-		vecSum += pTank->GetDesiredMove();
-		iSum += 1;
-	}
-
-	if (iSum)
-		GetCamera()->SetTarget(vecSum/(float)iSum);
-
-	GetCurrentTeam()->MoveTanks();
+	m_bTurnActive = false;
+	m_bWaitingForProjectiles = true;
 	m_bWaitingForMoving = true;
 
 	if (m_pListener)
@@ -797,6 +767,10 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
+
+	m_iWaitingForProjectiles = 0;
+
+	m_bTurnActive = true;
 
 	GetCurrentTeam()->StartTurn();
 

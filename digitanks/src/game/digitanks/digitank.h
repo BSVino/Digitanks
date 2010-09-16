@@ -55,7 +55,8 @@ public:
 
 	virtual float				GetBoundingRadius() const { return 4; };
 
-	float						GetBasePower() const { return m_flBasePower; };
+	float						GetTotalPower() const { return m_flTotalPower; };
+	float						GetStartingPower() const { return m_flStartingPower; };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
 	float						GetBaseMovementPower(bool bPreview = false);
@@ -97,8 +98,6 @@ public:
 
 	bool						IsPreviewMoveValid() const;
 
-	void						CalculateAttackDefense();
-
 	virtual float				GetFrontShieldMaxStrength() { return m_flFrontMaxShieldStrength; };
 	virtual float				GetLeftShieldMaxStrength() { return m_flLeftMaxShieldStrength; };
 	virtual float				GetRightShieldMaxStrength() { return m_flRightMaxShieldStrength; };
@@ -111,6 +110,7 @@ public:
 	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
 
 	virtual void				StartTurn();
+	virtual void				EndTurn();
 
 	Vector						GetPreviewMove() { return m_vecPreviewMove; };
 	virtual void				SetPreviewMove(Vector vecPreviewMove);
@@ -159,8 +159,6 @@ public:
 	virtual void				Fortify();
 	virtual bool				CanFortify() { return false; };
 	virtual bool				IsArtillery() { return false; };
-	virtual bool				UseFortifyMenuAim() { return false; };
-	virtual bool				UseFortifyMenuFire() { return false; };
 	virtual bool				IsFortified() const { return m_bFortified && m_iFortifyLevel; };
 	virtual bool				IsFortifying() const { return m_bFortified && m_iFortifyLevel == 0; };
 	virtual bool				CanMoveFortified() { return false; };
@@ -196,6 +194,7 @@ public:
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	void						Move();
+	void						Turn();
 	virtual void				Fire();
 	void						FireProjectile();
 	void						FireProjectile(class CNetworkParameters* p);
@@ -261,10 +260,16 @@ public:
 	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
 protected:
-	float						m_flBasePower;
+	// Power remaining for this turn
+	float						m_flStartingPower;
+	float						m_flTotalPower;
+
+	// Power used so far
 	float						m_flAttackPower;
 	float						m_flDefensePower;
 	float						m_flMovementPower;
+
+	float						m_flAttackSplit;
 
 	float						m_flBonusAttackPower;
 	float						m_flBonusDefensePower;
@@ -319,6 +324,7 @@ protected:
 	Vector						m_vecGoalMovePosition;
 
 	bool						m_bChoseFirepower;
+	bool						m_bFiredWeapon;
 
 	float						m_flFireProjectileTime;
 	CEntityHandle<class CProjectile>	m_hProjectile;

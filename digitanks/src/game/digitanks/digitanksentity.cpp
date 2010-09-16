@@ -38,6 +38,10 @@ void CDigitanksEntity::StartTurn()
 		DigitanksGame()->OnTakeDamage(this, NULL, NULL, flHealth - m_flHealth, true, false);
 }
 
+void CDigitanksEntity::EndTurn()
+{
+}
+
 CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const
 {
 	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
