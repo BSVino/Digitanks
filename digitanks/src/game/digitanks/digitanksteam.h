@@ -21,13 +21,14 @@ public:
 public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
-	class CSelectable*			GetCurrentSelection();
-	class CDigitank*			GetCurrentTank();
-	class CStructure*			GetCurrentStructure();
-	size_t						GetCurrentSelectionId();
-	bool						IsCurrentSelection(const class CSelectable* pEntity);
-	void						SetCurrentSelection(CSelectable* pCurrent);
-	void						NextTank();
+	class CSelectable*			GetPrimarySelection();
+	class CDigitank*			GetPrimarySelectionTank();
+	class CStructure*			GetPrimarySelectionStructure();
+	size_t						GetPrimarySelectionId();
+	void						SetPrimarySelection(const CSelectable* pCurrent);
+	bool						IsPrimarySelection(const class CSelectable* pEntity);
+	void						AddToSelection(const CSelectable* pCurrent);
+	bool						IsSelected(const class CSelectable* pEntity);
 
 	void						StartTurn();
 	void						EndTurn();
@@ -92,7 +93,7 @@ public:
 protected:
 	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
 
-	size_t						m_iCurrentSelection;
+	std::vector<size_t>			m_aiCurrentSelection;
 
 	std::map<size_t, float>		m_aflVisibilities;
 

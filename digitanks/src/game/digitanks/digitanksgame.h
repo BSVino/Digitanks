@@ -70,9 +70,9 @@ public:
 
 	virtual void			Think();
 
-	void					SetDesiredMove(bool bAllTanks = false);
-	void					SetDesiredTurn(bool bAllTanks = false, Vector vecLookAt = Vector());
-	void					SetDesiredAim(bool bAllTanks = false);
+	void					SetDesiredMove();
+	void					SetDesiredTurn(Vector vecLookAt = Vector());
+	void					SetDesiredAim();
 
 	void					EndTurn();
 	NET_CALLBACK(CDigitanksGame, EndTurn);
@@ -96,12 +96,12 @@ public:
 	CDigitanksTeam*			GetDigitanksTeam(size_t i);
 
 	CDigitanksTeam*			GetCurrentTeam();
-	CSelectable*			GetCurrentSelection();
-	CDigitank*				GetCurrentTank();
-	CStructure*				GetCurrentStructure();
+	CSelectable*			GetPrimarySelection();
+	CDigitank*				GetPrimarySelectionTank();
+	CStructure*				GetPrimarySelectionStructure();
 
 	controlmode_t			GetControlMode();
-	void					SetControlMode(controlmode_t eMode, bool bAutoProceed = false);
+	void					SetControlMode(controlmode_t eMode);
 
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, SetTerrain);

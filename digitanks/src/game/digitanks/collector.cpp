@@ -138,6 +138,4 @@ void CBattery::UpgradeComplete()
 	GetResource()->SetCollector(pCollector);
 
 	Delete();
-
-	DigitanksGame()->GetCurrentTeam()->SetCurrentSelection(pCollector);
 }

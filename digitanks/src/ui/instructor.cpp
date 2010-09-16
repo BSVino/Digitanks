@@ -302,7 +302,7 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 
 	case CInstructor::POSITION_ACTIVETANK:
 	{
-		CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
+		CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
 
 		if (!pSelection)
 			break;

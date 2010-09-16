@@ -276,5 +276,5 @@ void CMiniBuffer::UpgradeComplete()
 
 	Delete();
 
-	DigitanksGame()->GetCurrentTeam()->SetCurrentSelection(pBuffer);
+	DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(pBuffer);
 }

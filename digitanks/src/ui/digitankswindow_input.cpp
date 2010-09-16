@@ -61,15 +61,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	{
 		if ((iButton == GLFW_MOUSE_BUTTON_1 || iButton == GLFW_MOUSE_BUTTON_2) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
-			if (IsShiftDown())
-			{
-				DigitanksGame()->SetControlMode(MODE_NONE);
-				m_pHUD->SetAutoProceed(false);
-			}
-			else if (!m_pHUD->ShouldAutoProceed())
-				DigitanksGame()->SetControlMode(MODE_NONE);
-			else
-				DigitanksGame()->GetCurrentTeam()->NextTank();
+			DigitanksGame()->SetControlMode(MODE_NONE);
 
 			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENERGY);
 
@@ -77,7 +69,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 		else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
-			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetCurrentStructure());
+			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
 			if (pCPU && pCPU->IsPreviewBuildValid())
 			{
 				pCPU->BeginConstruction();
@@ -123,18 +115,23 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
 			if (pSelectable)
-				DigitanksGame()->GetLocalDigitanksTeam()->SetCurrentSelection(pSelectable);
+			{
+				if (IsShiftDown())
+					DigitanksGame()->GetLocalDigitanksTeam()->AddToSelection(pSelectable);
+				else
+					DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
+			}
 		}
 	}
 
 	if (iState == GLFW_PRESS && iButton == GLFW_MOUSE_BUTTON_2)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->SetDesiredMove(IsShiftDown());
+			DigitanksGame()->SetDesiredMove();
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			DigitanksGame()->SetDesiredTurn(bFound && IsShiftDown(), vecMousePosition);
+			DigitanksGame()->SetDesiredTurn(vecMousePosition);
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			DigitanksGame()->SetDesiredAim(IsShiftDown());
+			DigitanksGame()->SetDesiredAim();
 	}
 
 	GetHUD()->SetupMenu();
@@ -188,36 +185,19 @@ void CDigitanksWindow::KeyPress(int c)
 		}
 	}
 
-	if (DigitanksGame() && c == GLFW_KEY_SPACE)
-	{
-		// Don't clobber existing commands when scrolling through tanks.
-		if (m_pHUD->ShouldAutoProceed())
-		{
-			// Set desired move so that the tank knows the player selected something.
-			if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			{
-				if (DigitanksGame()->GetCurrentTank())
-					DigitanksGame()->GetCurrentTank()->SetPreviewMove(Vector(9999, 9999, 9999));	// Make sure the mouse isn't hovering a legal move.
-				DigitanksGame()->SetDesiredMove(IsShiftDown());
-			}
-		}
-
-		DigitanksGame()->GetCurrentTeam()->NextTank();
-	}
-
 	if (DigitanksGame() && c == GLFW_KEY_TAB)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		{
-			if (DigitanksGame()->GetCurrentTank())
+			if (DigitanksGame()->GetPrimarySelectionTank())
 			{
-				if (!DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+				if (!DigitanksGame()->GetPrimarySelectionTank()->HasDesiredAim())
 					DigitanksGame()->SetControlMode(MODE_AIM);
 			}
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
-			if (DigitanksGame()->GetCurrentTank() && DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+			if (DigitanksGame()->GetPrimarySelectionTank() && DigitanksGame()->GetPrimarySelectionTank()->HasDesiredAim())
 				DigitanksGame()->SetControlMode(MODE_FIRE);
 			else
 				DigitanksGame()->SetControlMode(MODE_MOVE);
@@ -226,11 +206,11 @@ void CDigitanksWindow::KeyPress(int c)
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 		else
 		{
-			if (DigitanksGame()->GetCurrentTank())
+			if (DigitanksGame()->GetPrimarySelectionTank())
 			{
-				if (!DigitanksGame()->GetCurrentTank()->HasDesiredMove())
+				if (!DigitanksGame()->GetPrimarySelectionTank()->HasDesiredMove())
 					DigitanksGame()->SetControlMode(MODE_MOVE);
-				else if (!DigitanksGame()->GetCurrentTank()->HasDesiredAim())
+				else if (!DigitanksGame()->GetPrimarySelectionTank()->HasDesiredAim())
 					DigitanksGame()->SetControlMode(MODE_AIM);
 			}
 		}
@@ -240,7 +220,7 @@ void CDigitanksWindow::KeyPress(int c)
 	{
 		if (GetMenu()->IsVisible())
 			GetMenu()->SetVisible(false);
-		else if (DigitanksGame()->GetControlMode() == MODE_NONE || DigitanksGame()->GetCurrentSelection() == NULL)
+		else if (DigitanksGame()->GetControlMode() == MODE_NONE || DigitanksGame()->GetPrimarySelection() == NULL)
 			GetMenu()->SetVisible(true);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
@@ -256,7 +236,7 @@ void CDigitanksWindow::KeyPress(int c)
 				CCPU* pCPU = dynamic_cast<CCPU*>(pMember);
 				if (pCPU)
 				{
-					DigitanksGame()->GetLocalDigitanksTeam()->SetCurrentSelection(pCPU);
+					DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(pCPU);
 					break;
 				}
 			}
@@ -275,8 +255,8 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (c == 'V')
 	{
-		if (DigitanksGame()->GetCurrentSelection())
-			DigitanksGame()->GetCurrentSelection()->Delete();
+		if (DigitanksGame()->GetPrimarySelection())
+			DigitanksGame()->GetPrimarySelection()->Delete();
 	}
 
 	if (c == 'B')
@@ -300,8 +280,8 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (c == 'M')
 	{
-		if (DigitanksGame()->GetCurrentTank())
-			DigitanksGame()->TankSpeak(DigitanksGame()->GetCurrentTank(), ":D!");
+		if (DigitanksGame()->GetPrimarySelection())
+			DigitanksGame()->TankSpeak(DigitanksGame()->GetPrimarySelectionTank(), ":D!");
 	}
 }
 

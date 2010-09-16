@@ -120,8 +120,6 @@ void CLoader::StartTurn()
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
-			GetDigitanksTeam()->SetCurrentSelection(pTank);
-
 			pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
 			pTank->SetDesiredMove();
 
@@ -392,8 +390,6 @@ void CLoader::InstallComplete()
 		m_iTankRange += (size_t)pUpdate->m_flValue;
 		break;
 	}
-
-	GetDigitanksTeam()->SetCurrentSelection(this);
 }
 
 bool CLoader::HasUpdatesAvailable()

@@ -127,6 +127,7 @@ public:
 	void						UpdateStructureInfo(CStructure* pStructure);
 	void						UpdateTeamInfo();
 	void						UpdateScoreboard();
+	void						UpdateTurnButton();
 
 	void						SetGame(class CDigitanksGame* pGame);
 
@@ -153,9 +154,6 @@ public:
 	virtual void				AppendTurnInfo(const wchar_t* pszInfo);
 
 	virtual void				SetHUDActive(bool bActive);
-
-	bool						ShouldAutoProceed() { return false; };
-	void						SetAutoProceed(bool bAuto);
 
 	bool						IsActive() { return m_bHUDActive; };
 
@@ -261,7 +259,6 @@ protected:
 
 	glgui::CLabel*				m_pPressEnter;
 
-	bool						m_bAutoProceed;
 	bool						m_bHUDActive;
 
 	glgui::CLabel*				m_pFPS;
@@ -289,6 +286,9 @@ protected:
 	size_t						m_iPowerIcon;
 	size_t						m_iFleetPointsIcon;
 	size_t						m_iBandwidthIcon;
+
+	size_t						m_iTurnButton;
+	size_t						m_iTurnCompleteButton;
 
 //	size_t						m_iCompetitionWatermark;
 };

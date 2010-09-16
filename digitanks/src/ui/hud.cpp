@@ -27,10 +27,10 @@ void CPowerBar::Think()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentSelection())
+	if (!DigitanksGame()->GetPrimarySelection())
 		return;
 
-	CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
+	CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
 
 	char szLabel[100];
 	if (m_ePowerbarType == POWERBAR_HEALTH)
@@ -80,10 +80,10 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentSelection())
+	if (!DigitanksGame()->GetPrimarySelection())
 		return;
 
-	CSelectable* pSelection = DigitanksGame()->GetCurrentSelection();
+	CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
 
 	if (m_ePowerbarType == POWERBAR_HEALTH)
 		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetHealth() / pSelection->GetTotalHealth())-2, h-2, Color(0, 150, 0));
@@ -217,7 +217,9 @@ CHUD::CHUD()
 	m_pUpdatesPanel->SetVisible(false);
 	AddControl(m_pUpdatesPanel, true);
 
-	m_pTurnButton = new CPictureButton("TURN", CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png", true));
+	m_iTurnButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png", true);
+	m_iTurnCompleteButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn-complete.png", true);
+	m_pTurnButton = new CPictureButton("TURN", m_iTurnButton);
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
 	AddControl(m_pTurnButton);
@@ -348,7 +350,7 @@ void CHUD::Think()
 
 	BaseClass::Think();
 
-	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	Vector vecPoint;
 	bool bMouseOnGrid = false;
@@ -391,7 +393,7 @@ void CHUD::Think()
 		}
 	}
 
-	CStructure* pCurrentStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pCurrentStructure = DigitanksGame()->GetPrimarySelectionStructure();
 	if (m_bHUDActive && bMouseOnGrid && pCurrentStructure)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD)
@@ -531,15 +533,19 @@ void CHUD::Paint(int x, int y, int w, int h)
 		Vector vecTop = Game()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
 		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
-		if (DigitanksGame()->GetLocalDigitanksTeam()->IsCurrentSelection(pSelectable) && !IsUpdatesPanelOpen())
+		if (DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable) && !IsUpdatesPanelOpen())
 		{
-			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)flWidth, 1, Color(255, 255, 255));
-			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, Color(255, 255, 255));
-			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, Color(255, 255, 255));
-			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, Color(255, 255, 255));
+			Color clrSelection(255, 255, 255, 128);
+			if (DigitanksGame()->GetLocalDigitanksTeam()->IsPrimarySelection(pSelectable))
+				clrSelection = Color(255, 255, 255, 255);
+
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)flWidth, 1, clrSelection);
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
+			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
 		}
 
-		if (CDigitanksWindow::Get()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsCurrentSelection(pSelectable))
+		if (CDigitanksWindow::Get()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable))
 		{
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 11), (int)flWidth + 2, 5, Color(255, 255, 255, 128));
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 10), (int)(flWidth*pEntity->GetHealth()/pEntity->GetTotalHealth()), 3, Color(100, 255, 100));
@@ -560,7 +566,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			}
 		}
 
-		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsCurrentSelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsPrimarySelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
 			int iHeight = (int)(200 * pTank->GetTotalPower()/pTank->GetStartingPower());
 
@@ -596,17 +602,18 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
 
-			if (CDigitanksWindow::Get()->IsShiftDown())
+			CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+			for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
 			{
-				CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-				for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
-				{
-					CDigitank* pTank = pTeam->GetTank(t);
-					pTank->SetAttackPower(flAttackPercentage);
-				}
+				CDigitank* pTank = pTeam->GetTank(t);
+				if (!pTank)
+					continue;
+
+				if (!pTank->GetDigitanksTeam()->IsSelected(pTank))
+					continue;
+
+				pTank->SetAttackPower(flAttackPercentage);
 			}
-			else
-				DigitanksGame()->GetCurrentTank()->SetAttackPower(flAttackPercentage);
 
 			UpdateInfo();
 		}
@@ -614,7 +621,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CPanel::Paint(x, y, w, h);
 
-	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	if (pTank)
 	{
@@ -686,17 +693,17 @@ void CHUD::UpdateInfo()
 {
 	m_pAttackInfo->SetText("");
 
-	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	if (pCurrentTank)
 		UpdateTankInfo(pCurrentTank);
 
-	CStructure* pCurrentStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pCurrentStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	if (pCurrentStructure)
 		UpdateStructureInfo(pCurrentStructure);
 
-	CSelectable* pCurrentSelection = DigitanksGame()->GetCurrentSelection();
+	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
 
 	if (pCurrentSelection)
 	{
@@ -913,6 +920,58 @@ void CHUD::UpdateScoreboard()
 	m_pScoreboard->SetPos(iWidth - m_pScoreboard->GetWidth() - 10, m_pAttackInfo->GetTop() - m_pScoreboard->GetHeight() - 20);
 }
 
+void CHUD::UpdateTurnButton()
+{
+	bool bTurnComplete = true;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumMembers(); i++)
+	{
+		CDigitank* pTank = dynamic_cast<CDigitank*>(DigitanksGame()->GetCurrentTeam()->GetMember(i));
+
+		if (pTank)
+		{
+			if (pTank->GetBaseMovementPower() == 0)
+			{
+				if (!pTank->IsFortified() && !pTank->IsFortifying())
+					bTurnComplete = false;
+			}
+
+			if (pTank->GetBaseAttackPower() == 0)
+			{
+				CDigitanksEntity* pClosestEnemy = NULL;
+				while (true)
+				{
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(pTank->GetOrigin(), pClosestEnemy);
+
+					if (pClosestEnemy)
+					{
+						if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+							continue;
+
+						if (!pClosestEnemy->GetTeam())
+							continue;
+
+						if ((pClosestEnemy->GetOrigin() - pTank->GetOrigin()).Length() > pTank->VisibleRange())
+						{
+							pClosestEnemy = NULL;
+							break;
+						}
+					}
+					break;
+				}
+
+				if (pClosestEnemy)
+					bTurnComplete = false;
+			}
+		}
+	}
+
+	if (bTurnComplete)
+		m_pTurnButton->SetTexture(m_iTurnCompleteButton);
+	else
+		m_pTurnButton->SetTexture(m_iTurnButton);
+}
+
 void CHUD::SetGame(CDigitanksGame *pGame)
 {
 	m_pGame = pGame;
@@ -934,10 +993,10 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		SetButtonInfo(i, L"");
 	}
 
-	if (!IsActive() || !DigitanksGame()->GetCurrentSelection() || DigitanksGame()->GetCurrentSelection()->GetTeam() != Game()->GetLocalTeam())
+	if (!IsActive() || !DigitanksGame()->GetPrimarySelection() || DigitanksGame()->GetPrimarySelection()->GetTeam() != Game()->GetLocalTeam())
 		return;
 
-	DigitanksGame()->GetCurrentSelection()->SetupMenu(eMenuMode);
+	DigitanksGame()->GetPrimarySelection()->SetupMenu(eMenuMode);
 
 	m_eMenuMode = eMenuMode;
 }
@@ -979,15 +1038,14 @@ void CHUD::GameOver(bool bPlayerWon)
 
 void CHUD::NewCurrentTeam()
 {
-	m_bAutoProceed = true;
-
 	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) &&
-			DigitanksGame()->GetCurrentTank() && !DigitanksGame()->GetCurrentTank()->HasGoalMovePosition() &&
+			DigitanksGame()->GetPrimarySelectionTank() && !DigitanksGame()->GetPrimarySelectionTank()->HasGoalMovePosition() &&
 			CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)	// Don't set control mode if it's the end so we can open the menu.
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
+	UpdateTurnButton();
 	UpdateTeamInfo();
 
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
@@ -1037,10 +1095,10 @@ void CHUD::NewCurrentSelection()
 
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
 	{
-		if (DigitanksGame()->GetCurrentTank())
-			Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentTank()->GetDesiredMove());
-		else if (DigitanksGame()->GetCurrentSelection())
-			Game()->GetCamera()->SetTarget(DigitanksGame()->GetCurrentSelection()->GetOrigin());
+		if (DigitanksGame()->GetPrimarySelectionTank())
+			Game()->GetCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetDesiredMove());
+		else if (DigitanksGame()->GetPrimarySelection())
+			Game()->GetCamera()->SetTarget(DigitanksGame()->GetPrimarySelection()->GetOrigin());
 	}
 
 	SetupMenu(MENUMODE_MAIN);
@@ -1110,16 +1168,6 @@ void CHUD::SetHUDActive(bool bActive)
 
 	if (!bActive)
 		DigitanksGame()->SetControlMode(MODE_NONE);
-}
-
-void CHUD::SetAutoProceed(bool bAuto)
-{
-	m_bAutoProceed = bAuto;
-
-//	if (bAuto)
-//		m_pAutoButton->SetText("Auto on");
-//	else
-//		m_pAutoButton->SetText("Auto off");
 }
 
 void CHUD::ShowButtonInfo(int iButton)
@@ -1220,30 +1268,10 @@ void CHUD::OpenUpdatesCallback()
 		m_pUpdatesPanel->SetVisible(true);
 }
 
-void CHUD::AutoCallback()
-{
-	if (!ShouldAutoProceed())
-	{
-		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-		for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
-		{
-			CDigitank* pTank = pTeam->GetTank(t);
-			pTank->CancelDesiredMove();
-			pTank->CancelDesiredAim();
-		}
-
-		DigitanksGame()->SetControlMode(MODE_MOVE);
-	}
-
-	SetAutoProceed(!ShouldAutoProceed());
-}
-
 void CHUD::MoveCallback()
 {
 	if (!m_bHUDActive)
 		return;
-
-	m_bAutoProceed = false;
 
 	if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1258,8 +1286,6 @@ void CHUD::TurnCallback()
 	if (!m_bHUDActive)
 		return;
 
-	m_bAutoProceed = false;
-
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
@@ -1272,8 +1298,6 @@ void CHUD::AimCallback()
 {
 	if (!m_bHUDActive)
 		return;
-
-	m_bAutoProceed = false;
 
 	if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1288,10 +1312,10 @@ void CHUD::FortifyCallback()
 	if (!m_bHUDActive)
 		return;
 
-	if (!DigitanksGame()->GetCurrentTank())
+	if (!DigitanksGame()->GetPrimarySelectionTank())
 		return;
 
-	DigitanksGame()->GetCurrentTank()->Fortify();
+	DigitanksGame()->GetPrimarySelectionTank()->Fortify();
 	DigitanksGame()->SetControlMode(MODE_NONE);
 	SetupMenu(MENUMODE_MAIN);
 	UpdateInfo();
@@ -1302,10 +1326,8 @@ void CHUD::FireCallback()
 	if (!m_bHUDActive)
 		return;
 
-	if (!DigitanksGame()->GetCurrentTank())
+	if (!DigitanksGame()->GetPrimarySelectionTank())
 		return;
-
-	m_bAutoProceed = false;
 
 	if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 		DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1331,10 +1353,10 @@ void CHUD::PromoteAttackCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentTank())
+	if (!DigitanksGame()->GetPrimarySelectionTank())
 		return;
 
-	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	pTank->PromoteAttack();
 
@@ -1353,10 +1375,10 @@ void CHUD::PromoteDefenseCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentTank())
+	if (!DigitanksGame()->GetPrimarySelectionTank())
 		return;
 
-	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	pTank->PromoteDefense();
 
@@ -1375,10 +1397,10 @@ void CHUD::PromoteMovementCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentTank())
+	if (!DigitanksGame()->GetPrimarySelectionTank())
 		return;
 
-	CDigitank* pTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	pTank->PromoteMovement();
 
@@ -1397,10 +1419,10 @@ void CHUD::BuildMiniBufferCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1419,10 +1441,10 @@ void CHUD::BuildBufferCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1441,10 +1463,10 @@ void CHUD::BuildBatteryCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1463,10 +1485,10 @@ void CHUD::BuildPSUCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1493,10 +1515,10 @@ void CHUD::BuildInfantryLoaderCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1515,10 +1537,10 @@ void CHUD::BuildTankLoaderCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1537,10 +1559,10 @@ void CHUD::BuildArtilleryLoaderCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1559,10 +1581,10 @@ void CHUD::CancelBuildCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
 	if (!pCPU)
@@ -1583,10 +1605,10 @@ void CHUD::BuildUnitCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CLoader* pLoader = dynamic_cast<CLoader*>(pStructure);
 	if (!pLoader)
@@ -1606,10 +1628,10 @@ void CHUD::CancelBuildUnitCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	CLoader* pLoader = dynamic_cast<CLoader*>(pStructure);
 	if (!pLoader)
@@ -1637,10 +1659,10 @@ void CHUD::InstallProductionCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_PRODUCTION);
 	SetupMenu();
@@ -1656,10 +1678,10 @@ void CHUD::InstallBandwidthCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_BANDWIDTH);
 	SetupMenu();
@@ -1675,10 +1697,10 @@ void CHUD::InstallFleetSupplyCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_FLEETSUPPLY);
 	SetupMenu();
@@ -1694,10 +1716,10 @@ void CHUD::InstallEnergyBonusCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_SUPPORTENERGY);
 	SetupMenu();
@@ -1713,10 +1735,10 @@ void CHUD::InstallRechargeBonusCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_SUPPORTRECHARGE);
 	SetupMenu();
@@ -1732,10 +1754,10 @@ void CHUD::InstallTankAttackCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_TANKATTACK);
 	SetupMenu();
@@ -1751,10 +1773,10 @@ void CHUD::InstallTankDefenseCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_TANKDEFENSE);
 	SetupMenu();
@@ -1770,10 +1792,10 @@ void CHUD::InstallTankMovementCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_TANKMOVEMENT);
 	SetupMenu();
@@ -1789,10 +1811,10 @@ void CHUD::InstallTankHealthCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_TANKHEALTH);
 	SetupMenu();
@@ -1808,10 +1830,10 @@ void CHUD::InstallTankRangeCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 
 	pStructure->InstallUpdate(UPDATETYPE_TANKRANGE);
 	SetupMenu();
@@ -1827,10 +1849,10 @@ void CHUD::CancelInstallCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 	pStructure->CancelInstall();
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1847,10 +1869,10 @@ void CHUD::BeginUpgradeCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 	pStructure->BeginUpgrade();
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1868,10 +1890,10 @@ void CHUD::CancelUpgradeCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetCurrentStructure())
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetCurrentStructure();
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 	pStructure->CancelUpgrade();
 
 	DigitanksGame()->SetControlMode(MODE_NONE);

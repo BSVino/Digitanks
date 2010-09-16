@@ -186,7 +186,7 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
-	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
+	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
 	{
 		float flMovementLength = GetPreviewMoveTurnPower();
 
@@ -203,7 +203,7 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 
 float CDigitank::GetBaseMovementPower(bool bPreview)
 {
-	if (GetDigitanksTeam()->IsCurrentSelection(this) && bPreview)
+	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
 	{
 		float flMovementLength = GetPreviewMoveTurnPower();
 
@@ -950,12 +950,11 @@ bool CDigitank::MovesWith(CDigitank* pOther)
 	if (IsFortified() || IsFortifying())
 		return false;
 
-	// Only closeby tanks.
-	if ((GetOrigin() - pOther->GetOrigin()).Length() > 40)
-		return false;
-
 	// Only same class tanks.
 	if (GetBuildUnit() != pOther->GetBuildUnit())
+		return false;
+
+	if (!GetDigitanksTeam()->IsSelected(this))
 		return false;
 
 	return true;
@@ -973,8 +972,7 @@ bool CDigitank::TurnsWith(CDigitank* pOther)
 	if (GetTeam() != pOther->GetTeam())
 		return false;
 
-	// Only closeby tanks.
-	if ((GetOrigin() - pOther->GetOrigin()).Length() > 40)
+	if (!GetDigitanksTeam()->IsSelected(this))
 		return false;
 
 	// Only same class tanks.
@@ -996,8 +994,7 @@ bool CDigitank::AimsWith(CDigitank* pOther)
 	if (GetTeam() != pOther->GetTeam())
 		return false;
 
-	// Only closeby tanks.
-	if ((GetOrigin() - pOther->GetOrigin()).Length() > 40)
+	if (!GetDigitanksTeam()->IsSelected(this))
 		return false;
 
 	// Only same class tanks.
@@ -1023,10 +1020,9 @@ void CDigitank::Think()
 
 	m_bDisplayAim = false;
 
-	bool bShiftDown = CDigitanksWindow::Get()->IsShiftDown();
 	bool bAimMode = DigitanksGame()->GetControlMode() == MODE_AIM;
 	bool bShowThisTank = HasDesiredAim();
-	if (bAimMode && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown) && AimsWith(GetDigitanksTeam()->GetCurrentTank()))
+	if (bAimMode && GetDigitanksTeam()->IsSelected(this) && AimsWith(GetDigitanksTeam()->GetPrimarySelectionTank()))
 		bShowThisTank = true;
 	if (GetDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		bShowThisTank = false;
@@ -1043,7 +1039,7 @@ void CDigitank::Think()
 
 		if (bMouseOK && bAimMode)
 		{
-			if (AimsWith(GetDigitanksTeam()->GetCurrentTank()) && (GetDigitanksTeam()->IsCurrentSelection(this) || bShiftDown))
+			if (AimsWith(GetDigitanksTeam()->GetPrimarySelectionTank()) && GetDigitanksTeam()->IsSelected(this))
 			{
 				if (pHit && dynamic_cast<CDigitanksEntity*>(pHit) && pHit->GetTeam() && pHit->GetTeam() != GetTeam())
 					vecTankAim = pHit->GetOrigin();
@@ -1073,7 +1069,7 @@ void CDigitank::Think()
 				float flDistance = (vecTankAim - GetDesiredMove()).Length();
 
 				float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
-				DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
+				DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 				m_bDisplayAim = true;
 				m_vecDisplayAim = vecTankAim;
@@ -1405,6 +1401,8 @@ void CDigitank::Move()
 	GetDigitanksTeam()->CalculateVisibility();
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 void CDigitank::Turn()
@@ -1424,6 +1422,8 @@ void CDigitank::Turn()
 	}
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 void CDigitank::Fire()
@@ -1453,6 +1453,8 @@ void CDigitank::Fire()
 		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 void CDigitank::FireProjectile()
@@ -1664,7 +1666,7 @@ Vector CDigitank::GetRenderOrigin() const
 
 EAngle CDigitank::GetRenderAngles() const
 {
-	if (GetDigitanksTeam()->IsCurrentSelection(this))
+	if (GetDigitanksTeam()->IsSelected(this))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
 			return EAngle(0, GetPreviewTurn(), 0);
@@ -1672,11 +1674,11 @@ EAngle CDigitank::GetRenderAngles() const
 
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
-		if (CDigitanksWindow::Get()->IsShiftDown() && GetTeam() == DigitanksGame()->GetCurrentSelection()->GetTeam())
+		if (GetTeam() == DigitanksGame()->GetPrimarySelection()->GetTeam())
 		{
 			Vector vecLookAt;
 			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
-			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetCurrentTank()->GetDesiredMove()).LengthSqr() < 3*3;
+			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetDesiredMove()).LengthSqr() < 3*3;
 
 			if (!bNoTurn && bMouseOK)
 			{
@@ -1750,10 +1752,10 @@ void CDigitank::RenderTurret(float flAlpha)
 	r.SetBlend(BLEND_ALPHA);
 	r.Translate(Vector(-0.527677f, 0.810368f, 0));
 
-	if ((GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || HasDesiredAim())
+	if ((GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || HasDesiredAim())
 	{
 		Vector vecAimTarget;
-		if (GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
+		if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 			vecAimTarget = GetPreviewAim();
 		else
 			vecAimTarget = GetDesiredAim();
@@ -1800,17 +1802,17 @@ void CDigitank::PostRender()
 		RenderTurret(50.0f/255);
 	}
 
-	CSelectable* pCurrentSelection = DigitanksGame()->GetCurrentSelection();
-	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
 		EAngle angTurn = EAngle(0, GetDesiredTurn(), 0);
-		if (CDigitanksWindow::Get()->IsShiftDown() && TurnsWith(pCurrentTank))
+		if (TurnsWith(pCurrentTank))
 		{
 			Vector vecLookAt;
 			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
-			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetCurrentTank()->GetDesiredMove()).LengthSqr() < 3*3;
+			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetDesiredMove()).LengthSqr() < 3*3;
 
 			if (!bNoTurn && bMouseOK)
 			{
@@ -1840,19 +1842,7 @@ void CDigitank::PostRender()
 	{
 		if (pCurrentTank->IsPreviewMoveValid())
 		{
-			if (GetDigitanksTeam()->IsCurrentSelection(this))
-			{
-				CRenderingContext r(Game()->GetRenderer());
-				r.Translate(GetPreviewMove() + Vector(0, 1, 0));
-				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
-				r.SetAlpha(50.0f/255);
-				r.SetBlend(BLEND_ALPHA);
-				r.SetColorSwap(GetTeam()->GetColor());
-				r.RenderModel(GetModel());
-
-				RenderTurret(50.0f/255);
-			}
-			else if (CDigitanksWindow::Get()->IsShiftDown() && MovesWith(pCurrentTank))
+			if (GetDigitanksTeam()->IsSelected(this) && MovesWith(pCurrentTank))
 			{
 				Vector vecTankMove = pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin();
 				if (vecTankMove.Length() > GetMaxMovementDistance())
@@ -1881,7 +1871,7 @@ void CDigitank::PostRender()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		int iAlpha = 100;
-		if (GetDigitanksTeam()->IsCurrentSelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
+		if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 			iAlpha = 255;
 
 		Vector vecTankOrigin = GetDesiredMove();

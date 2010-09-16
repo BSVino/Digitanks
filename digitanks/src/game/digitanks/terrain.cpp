@@ -554,7 +554,7 @@ void CTerrain::OnRender()
 	GLuint iTerrainProgram = (GLuint)CShaderLibrary::GetTerrainProgram();
 	glUseProgram(iTerrainProgram);
 
-	CDigitank* pCurrentTank = DigitanksGame()->GetCurrentTank();
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	bool bIsCurrentTeam = false;
 	if (pCurrentTank && pCurrentTank->GetTeam() == Game()->GetLocalTeam())

@@ -172,8 +172,6 @@ void CStructure::CompleteConstruction()
 	if (iTutorial == CInstructor::TUTORIAL_POWER)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
 
-	GetDigitanksTeam()->SetCurrentSelection(this);
-
 	if (DigitanksGame()->GetUpdateGrid())
 	{
 		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
@@ -277,8 +275,6 @@ void CStructure::InstallComplete()
 		m_flRechargeBonus += (size_t)pUpdate->m_flValue;
 		break;
 	}
-
-	GetDigitanksTeam()->SetCurrentSelection(this);
 }
 
 void CStructure::CancelInstall()

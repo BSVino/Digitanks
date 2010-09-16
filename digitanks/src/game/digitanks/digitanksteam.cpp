@@ -16,8 +16,6 @@
 
 CDigitanksTeam::CDigitanksTeam()
 {
-	m_iCurrentSelection = -1;
-
 	m_iBuildPosition = 0;
 
 	m_bLKV = false;
@@ -48,9 +46,12 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 		m_hPrimaryCPU = pCPU;
 }
 
-CSelectable* CDigitanksTeam::GetCurrentSelection()
+CSelectable* CDigitanksTeam::GetPrimarySelection()
 {
-	CBaseEntity* pEntity = CBaseEntity::GetEntity(m_iCurrentSelection);
+	if (m_aiCurrentSelection.size() == 0)
+		return NULL;
+
+	CBaseEntity* pEntity = CBaseEntity::GetEntity(m_aiCurrentSelection[0]);
 
 	if (!pEntity)
 		return NULL;
@@ -58,83 +59,66 @@ CSelectable* CDigitanksTeam::GetCurrentSelection()
 	return dynamic_cast<CSelectable*>(pEntity);
 }
 
-CDigitank* CDigitanksTeam::GetCurrentTank()
+CDigitank* CDigitanksTeam::GetPrimarySelectionTank()
 {
-	return dynamic_cast<CDigitank*>(GetCurrentSelection());
+	return dynamic_cast<CDigitank*>(GetPrimarySelection());
 }
 
-CStructure* CDigitanksTeam::GetCurrentStructure()
+CStructure* CDigitanksTeam::GetPrimarySelectionStructure()
 {
-	return dynamic_cast<CStructure*>(GetCurrentSelection());
+	return dynamic_cast<CStructure*>(GetPrimarySelection());
 }
 
-size_t CDigitanksTeam::GetCurrentSelectionId()
+size_t CDigitanksTeam::GetPrimarySelectionId()
 {
-	return m_iCurrentSelection;
+	if (m_aiCurrentSelection.size() == 0)
+		return -1;
+
+	return m_aiCurrentSelection[0];
 }
 
-void CDigitanksTeam::SetCurrentSelection(CSelectable* pCurrent)
+void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 {
 	if (pCurrent->GetVisibility() == 0)
 		return;
 
-	m_iCurrentSelection = pCurrent->GetHandle();
+	m_aiCurrentSelection.clear();
 
-	if (GetCurrentSelection())
+	m_aiCurrentSelection.push_back(pCurrent->GetHandle());
+
+	if (GetPrimarySelection())
 	{
-		GetCurrentSelection()->OnCurrentSelection();
+		GetPrimarySelection()->OnCurrentSelection();
 
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
 	}
 }
 
-bool CDigitanksTeam::IsCurrentSelection(const CSelectable* pEntity)
+bool CDigitanksTeam::IsPrimarySelection(const CSelectable* pEntity)
 {
-	return GetCurrentSelection() == pEntity;
+	return GetPrimarySelection() == pEntity;
 }
 
-void CDigitanksTeam::NextTank()
+void CDigitanksTeam::AddToSelection(const CSelectable* pEntity)
 {
-	size_t iTank = ~0;
-	if (GetCurrentTank())
-	{
-		for (size_t i = 0; i < GetNumTanks(); i++)
-		{
-			if (GetCurrentTank() == GetTank(i))
-			{
-				iTank = i;
-				break;
-			}
-		}
-	}
-
-	if (iTank == ~0)
-	{
-		if (GetNumTanks() == 0)
-			return;
-
-		m_iCurrentSelection = GetTank(0)->GetHandle();
+	if (!pEntity)
 		return;
-	}
 
-	size_t iOriginal = GetTank(iTank)->GetHandle();
+	m_aiCurrentSelection.push_back(pEntity->GetHandle());
+}
 
-	while ((m_iCurrentSelection = GetTank(++iTank%GetNumTanks())->GetHandle()) != iOriginal)
+bool CDigitanksTeam::IsSelected(const CSelectable* pEntity)
+{
+	if (!pEntity)
+		return false;
+
+	for (size_t i = 0; i < m_aiCurrentSelection.size(); i++)
 	{
-		if (!GetCurrentTank())
-			continue;
-
-		if (GetCurrentTank()->IsFortified())
-			continue;
-
-		if (GetCurrentTank()->HasGoalMovePosition())
-			continue;
-
-		break;
+		if (pEntity->GetHandle() == m_aiCurrentSelection[i])
+			return true;
 	}
 
-	if (GetCurrentSelection())
-		GetCurrentSelection()->OnCurrentSelection();
+	return false;
 }
 
 void CDigitanksTeam::StartTurn()
