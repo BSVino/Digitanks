@@ -62,6 +62,19 @@ void CStructure::StartTurn()
 
 	FindGround();
 
+	if (!GetSupplier() && !dynamic_cast<CCPU*>(this))
+	{
+		GetTeam()->RemoveEntity(this);
+		SetSupplier(NULL);
+	}
+
+	if (GetSupplier() && !GetSupplier()->GetTeam())
+	{
+		GetSupplier()->RemoveChild(this);
+		GetTeam()->RemoveEntity(this);
+		SetSupplier(NULL);
+	}
+
 	if (IsInstalling())
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToInstall())
@@ -525,6 +538,12 @@ float CSupplier::GetChildEfficiency()
 	return 1/((float)iConsumingChildren-1);
 }
 
+void CSupplier::OnTeamChange()
+{
+	BaseClass::OnTeamChange();
+	UpdateTendrils();
+}
+
 void CSupplier::StartTurn()
 {
 	BaseClass::StartTurn();
@@ -533,6 +552,43 @@ void CSupplier::StartTurn()
 		m_iDataStrength += (size_t)GetDataFlowRate();
 
 	UpdateTendrils();
+
+	// This can happen if it was removed this same turn by lack of supplier.
+	if (!GetDigitanksTeam())
+		return;
+
+	if (IsConstructing())
+		return;
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (!pEntity)
+			continue;
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		if (!pStructure)
+			continue;
+
+		// Just in case!
+		if (this == pStructure)
+			continue;
+
+		if (dynamic_cast<CResource*>(pStructure))
+			continue;
+
+		if (pStructure->GetTeam())
+			continue;
+
+		float flFlow = GetDataFlow(pStructure->GetOrigin());
+
+		if (flFlow < 10)
+			continue;
+
+		// You will join us... OR DIE
+		GetDigitanksTeam()->AddEntity(pStructure);
+		pStructure->SetSupplier(this);
+	}
 }
 
 void CSupplier::CompleteConstruction()
@@ -613,7 +669,7 @@ void CSupplier::PostRender()
 			oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
 		}
 	}
-	else
+	else if (m_iTendrilsCallList)
 		glCallList((GLuint)m_iTendrilsCallList);
 
 	glUseProgram(0);
@@ -623,6 +679,15 @@ void CSupplier::UpdateTendrils()
 {
 	if (IsConstructing())
 		return;
+
+	if (!GetTeam())
+	{
+		if (m_iTendrilsCallList)
+			glDeleteLists((GLuint)m_iTendrilsCallList, 1);
+
+		m_iTendrilsCallList = 0;
+		return;
+	}
 
 	size_t iRadius = (size_t)GetDataFlowRadius();
 	while (m_aTendrils.size() < iRadius)
@@ -689,6 +754,15 @@ void CSupplier::BeginTendrilGrowth()
 void CSupplier::AddChild(CStructure* pChild)
 {
 	m_ahChildren.push_back(pChild);
+}
+
+void CSupplier::RemoveChild(CStructure* pChild)
+{
+	for (size_t i = 0; i < m_ahChildren.size(); i++)
+	{
+		if (m_ahChildren[i] == pChild)
+			m_ahChildren.erase(m_ahChildren.begin()+i);
+	}
 }
 
 void CSupplier::OnDeleted(CBaseEntity* pEntity)

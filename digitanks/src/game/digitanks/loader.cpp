@@ -66,6 +66,13 @@ void CLoader::Spawn()
 	m_iBuildUnitModel = ~0;
 }
 
+void CLoader::OnTeamChange()
+{
+	BaseClass::OnTeamChange();
+
+	CancelProduction();
+}
+
 void CLoader::StartTurn()
 {
 	BaseClass::StartTurn();

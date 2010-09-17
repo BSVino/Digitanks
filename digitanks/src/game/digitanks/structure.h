@@ -156,6 +156,8 @@ public:
 
 	float						GetChildEfficiency();
 
+	virtual void				OnTeamChange();
+
 	virtual void				StartTurn();
 
 	virtual void				PostRender();
@@ -164,8 +166,10 @@ public:
 	void						BeginTendrilGrowth();
 
 	void						AddChild(CStructure* pChild);
+	void						RemoveChild(CStructure* pChild);
 	size_t						GetNumChildren() { return m_ahChildren.size(); };
 	CStructure*					GetChild(size_t i) { return m_ahChildren[i]; };
+
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	virtual float				VisibleRange() const;

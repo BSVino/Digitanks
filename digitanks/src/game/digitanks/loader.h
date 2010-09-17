@@ -18,6 +18,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual void				OnTeamChange();
+
 	virtual void				StartTurn();
 
 	virtual void				PostRender();

@@ -88,7 +88,8 @@ public:
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
 	class CTeam*							GetTeam() const { return m_pTeam; };
-	void									SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; };
+	void									SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; OnTeamChange(); };
+	virtual void							OnTeamChange() {};
 
 	virtual void							ClientUpdate(int iClient);
 

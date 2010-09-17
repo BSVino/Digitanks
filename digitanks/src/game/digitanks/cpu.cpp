@@ -378,8 +378,8 @@ void CCPU::BeginConstruction()
 			pLoader->SetBuildUnit(BUILDUNIT_ARTILLERY);
 	}
 
-	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->BeginConstruction();
+	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
 
@@ -514,7 +514,10 @@ void CCPU::OnRender()
 		return;
 
 	CRenderingContext r(Game()->GetRenderer());
-	r.SetColorSwap(GetTeam()->GetColor());
+	if (GetTeam())
+		r.SetColorSwap(GetTeam()->GetColor());
+	else
+		r.SetColorSwap(Color(255, 255, 255, 255));
 
 	r.SetAlpha(GetVisibility());
 	if (r.GetAlpha() < 1)
@@ -648,7 +651,17 @@ void CCPU::OnDeleted()
 	for (size_t i = 0; i < apDeleteThese.size(); i++)
 	{
 		CBaseEntity* pMember = apDeleteThese[i];
-		CModelDissolver::AddModel(pMember);
-		pMember->Delete();
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pMember);
+		// Delete? I meant... repurpose.
+		if (pStructure && !pStructure->IsConstructing())
+		{
+			GetTeam()->RemoveEntity(pStructure);
+		}
+		else
+		{
+			CModelDissolver::AddModel(pMember);
+			pMember->Delete();
+		}
 	}
 }

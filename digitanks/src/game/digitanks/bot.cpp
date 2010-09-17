@@ -626,6 +626,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				{
 					pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
 					pTank->SetDesiredTurn();
+					pTank->Turn();
 				}
 
 				pTank->Fortify();
@@ -642,10 +643,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->SetDesiredMove();
+				pTank->Move();
 
 				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
 				pTank->SetDesiredTurn();
-				pTank->Move();
+				pTank->Turn();
 			}
 		}
 		else if (pTank->IsArtillery())
@@ -661,7 +663,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					// Deploy so we can rain some hell down.
 					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
 					pTank->SetDesiredTurn();
-					pTank->Move();
+					pTank->Turn();
 					pTank->Fortify();
 				}
 				else
@@ -676,10 +678,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 					pTank->SetPreviewMove(vecDesiredMove);
 					pTank->SetDesiredMove();
+					pTank->Move();
 
 					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
 					pTank->SetDesiredTurn();
-					pTank->Move();
+					pTank->Turn();
 				}
 			}
 

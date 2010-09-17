@@ -144,7 +144,9 @@ void CDigitanksTeam::StartTurn()
 			pCPU->CalculateDataFlow();
 	}
 
-	// Construct and produce and update and shit.
+	std::vector<CDigitanksEntity*> apMembers;
+
+	// Form a list so that members added during another member's startturn aren't considered this turn.
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == NULL)
@@ -152,10 +154,16 @@ void CDigitanksTeam::StartTurn()
 
 		CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(m_ahMembers[i].GetPointer());
 		if (pEntity)
-		{
-			pEntity->StartTurn();
+			apMembers.push_back(pEntity);
+	}
+
+	// Construct and produce and update and shit.
+	for (size_t i = 0; i < apMembers.size(); i++)
+	{
+		if (apMembers[i] == NULL)
 			continue;
-		}
+
+		apMembers[i]->StartTurn();
 	}
 
 	// Recount producers in case updates have been installed.

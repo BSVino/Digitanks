@@ -39,7 +39,7 @@ void CResource::Think()
 		{
 			pInstance->SetOrigin(GetOrigin());
 
-			if (HasCollector())
+			if (HasCollector() && GetCollector()->GetTeam())
 				pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
 			else
 				pInstance->SetColor(Color(255,255,255));
@@ -57,7 +57,7 @@ void CResource::Think()
 		{
 			m_iSpark = CParticleSystemLibrary::AddInstance(L"electronode-spark", GetOrigin());
 
-			if (HasCollector())
+			if (HasCollector() && GetCollector()->GetTeam())
 				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(GetCollector()->GetTeam()->GetColor());
 			else
 				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(255,255,255));
@@ -81,7 +81,7 @@ void CResource::ModifyContext(class CRenderingContext* pContext)
 {
 	BaseClass::ModifyContext(pContext);
 
-	if (HasCollector())
+	if (HasCollector() && GetCollector()->GetTeam())
 		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());
 }
 
