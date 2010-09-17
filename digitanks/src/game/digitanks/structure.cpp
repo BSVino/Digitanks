@@ -202,6 +202,8 @@ void CStructure::CompleteConstruction()
 
 	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+
+	DigitanksGame()->AddActionItem(this, ACTIONTYPE_CONSTRUCTION);
 }
 
 size_t CStructure::GetTurnsToConstruct()
@@ -288,6 +290,8 @@ void CStructure::InstallComplete()
 		m_flRechargeBonus += (size_t)pUpdate->m_flValue;
 		break;
 	}
+
+	DigitanksGame()->AddActionItem(this, ACTIONTYPE_INSTALLATION);
 }
 
 void CStructure::CancelInstall()

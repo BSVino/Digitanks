@@ -18,6 +18,21 @@ typedef enum
 	GAMETYPE_STANDARD,
 } gametype_t;
 
+typedef enum
+{
+	ACTIONTYPE_UNITORDERS,
+	ACTIONTYPE_UNITAUTOMOVE,
+	ACTIONTYPE_CONSTRUCTION,
+	ACTIONTYPE_INSTALLATION,
+	ACTIONTYPE_UPGRADE,
+} actiontype_t;
+
+typedef struct
+{
+	size_t			iUnit;
+	actiontype_t	eActionType;
+} actionitem_t;
+
 class IDigitanksGameListener
 {
 public:
@@ -154,6 +169,9 @@ public:
 	bool					CanBuildTankLoaders();
 	bool					CanBuildArtilleryLoaders();
 
+	void					AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
+	std::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
+
 	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }
@@ -194,6 +212,8 @@ protected:
 	size_t					m_iTurn;
 
 	CEntityHandle<CUpdateGrid>	m_hUpdates;
+
+	std::vector<actionitem_t>	m_aActionItems;
 };
 
 inline class CDigitanksGame* DigitanksGame()

@@ -112,13 +112,13 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
+	m_pActionItem = new CLabel(0, 0, 10, 10, "");
+	m_pNextActionItem = new CButton(0, 0, 100, 50, "Next");
+	AddControl(m_pActionItem);
+	AddControl(m_pNextActionItem);
+
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
-
-	// TODO: Remove entirely if not needed
-/*	m_pAutoButton = new CButton(0, 0, 0, 0, "Auto");
-	m_pAutoButton->SetClickedListener(this, Auto);
-	AddControl(m_pAutoButton);*/
 
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
@@ -267,12 +267,16 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
+	m_pActionItem->SetPos(iWidth - 250, 60);
+	m_pActionItem->SetSize(200, 200);
+	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
+	m_pNextActionItem->SetSize(100, 30);
+	m_pNextActionItem->SetPos(iWidth - 200, 270);
+	m_pNextActionItem->SetClickedListener(this, NextActionItem);
+
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
 	m_pButtonPanel->SetRight(m_pButtonPanel->GetLeft() + 330);
 	m_pButtonPanel->SetBottom(iHeight - 10);
-
-//	m_pAutoButton->SetPos(iWidth/2 - 1024/2 + 820, iHeight - 135);
-//	m_pAutoButton->SetSize(50, 20);
 
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
@@ -415,23 +419,6 @@ void CHUD::Think()
 		}
 	}
 
-	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
-	{
-		bool bShowEnter = true;
-
-		if (DigitanksGame()->GetControlMode() != MODE_NONE)
-			bShowEnter = false;
-
-		if (!CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_ENTER))
-			bShowEnter = false;
-
-		m_pPressEnter->SetVisible(bShowEnter);
-	}
-	else
-	{
-		m_pPressEnter->SetVisible(true);
-	}
-
 	if (pCurrentTank)
 	{
 		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE);
@@ -498,6 +485,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (m_pButtonInfo->GetText()[0] != L'\0')
 		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
+
+	if (m_pActionItem->GetText()[0] != L'\0')
+		CRootPanel::PaintRect(m_pActionItem->GetLeft()-13, m_pActionItem->GetTop()-19, m_pActionItem->GetWidth()+26, m_pActionItem->GetHeight()+26, Color(0, 0, 0, 200));
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -930,46 +920,21 @@ void CHUD::UpdateTurnButton()
 
 		if (pTank)
 		{
-			if (pTank->GetBaseMovementPower() == 0)
-			{
-				if (!pTank->IsFortified() && !pTank->IsFortifying())
-					bTurnComplete = false;
-			}
-
-			if (pTank->GetBaseAttackPower() == 0)
-			{
-				CDigitanksEntity* pClosestEnemy = NULL;
-				while (true)
-				{
-					pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(pTank->GetOrigin(), pClosestEnemy);
-
-					if (pClosestEnemy)
-					{
-						if (pClosestEnemy->GetTeam() == pTank->GetTeam())
-							continue;
-
-						if (!pClosestEnemy->GetTeam())
-							continue;
-
-						if ((pClosestEnemy->GetOrigin() - pTank->GetOrigin()).Length() > pTank->VisibleRange())
-						{
-							pClosestEnemy = NULL;
-							break;
-						}
-					}
-					break;
-				}
-
-				if (pClosestEnemy)
-					bTurnComplete = false;
-			}
+			if (pTank->NeedsOrders())
+				bTurnComplete = false;
 		}
 	}
 
 	if (bTurnComplete)
+	{
 		m_pTurnButton->SetTexture(m_iTurnCompleteButton);
+		m_pPressEnter->SetVisible(true);
+	}
 	else
+	{
 		m_pTurnButton->SetTexture(m_iTurnButton);
+		m_pPressEnter->SetVisible(false);
+	}
 }
 
 void CHUD::SetGame(CDigitanksGame *pGame)
@@ -1049,7 +1014,7 @@ void CHUD::NewCurrentTeam()
 	UpdateTeamInfo();
 
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
-		m_pPressEnter->SetText("Press <ENTER> to move and fire tanks");
+		m_pPressEnter->SetText("Press <ENTER> to end your turn...");
 	else
 		m_pPressEnter->SetText("Other players are taking their turns...");
 
@@ -1086,6 +1051,15 @@ void CHUD::NewCurrentTeam()
 
 	UpdateScoreboard();
 
+	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+	if (aActionItems.size())
+	{
+		m_iCurrentActionItem = 0;
+		ShowActionItem(m_iCurrentActionItem);
+	}
+	else
+		m_pActionItem->SetText("");
+
 	CRootPanel::Get()->Layout();
 }
 
@@ -1102,6 +1076,93 @@ void CHUD::NewCurrentSelection()
 	}
 
 	SetupMenu(MENUMODE_MAIN);
+}
+
+void CHUD::ShowNextActionItem()
+{
+	do
+	{
+		m_iCurrentActionItem++;
+
+		std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+		if (m_iCurrentActionItem >= aActionItems.size())
+		{
+			m_pActionItem->SetText("");
+			m_pNextActionItem->SetVisible(false);
+			return;
+		}
+
+		actionitem_t* pItem = &aActionItems[m_iCurrentActionItem];
+		CEntityHandle<CSelectable> hSelection(pItem->iUnit);
+
+		if (hSelection->NeedsOrders())
+		{
+			ShowActionItem(m_iCurrentActionItem);
+			return;
+		}
+	}
+	while (true);
+}
+
+void CHUD::ShowActionItem(size_t iActionItem)
+{
+	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+	if (iActionItem >= aActionItems.size())
+	{
+		m_pActionItem->SetText("");
+		m_pNextActionItem->SetVisible(false);
+		return;
+	}
+
+	actionitem_t* pItem = &aActionItems[iActionItem];
+
+	switch (pItem->eActionType)
+	{
+	case ACTIONTYPE_UNITORDERS:
+		m_pActionItem->SetText(
+			"UNIT NEEDS ORDERS\n \n"
+			"This unit needs new orders. You can move it and fire on enemies in range.\n");
+		break;
+
+	case ACTIONTYPE_UNITAUTOMOVE:
+		m_pActionItem->SetText(
+			"UNIT AUTO-MOVE COMPLETE\n \n"
+			"This unit has finished its auto-move task. Please assign it new orders.\n");
+		break;
+
+	case ACTIONTYPE_CONSTRUCTION:
+		m_pActionItem->SetText(
+			"CONSTRUCTION COMPELTE\n \n"
+			"This structure has completed its construction. You can return to your CPU to build another structure by pressing the 'H' key.\n");
+		break;
+
+	case ACTIONTYPE_INSTALLATION:
+		m_pActionItem->SetText(
+			"INSTALLATION COMPELTE\n \n"
+			"This structure has completed installing an update. You may wish to install more updates now.\n");
+		break;
+
+	case ACTIONTYPE_UPGRADE:
+		m_pActionItem->SetText(
+			"UPRGADE COMPELTE\n \n"
+			"This structure has completed its upgrade. You may wish to install updates now.\n");
+		break;
+	}
+
+	CEntityHandle<CSelectable> hSelection(pItem->iUnit);
+
+	DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
+	DigitanksGame()->GetCamera()->SetTarget(hSelection->GetOrigin());
+
+	if (iActionItem == aActionItems.size()-1)
+		m_pNextActionItem->SetText("Close");
+	else
+	{
+		m_pNextActionItem->SetText("Next");
+		m_pActionItem->AppendText(" \nPress 'Next' to continue.");
+	}
+
+	m_pNextActionItem->SetVisible(true);
 }
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
@@ -1196,6 +1257,11 @@ bool CHUD::IsUpdatesPanelOpen()
 		return false;
 
 	return m_pUpdatesPanel->IsVisible();
+}
+
+void CHUD::NextActionItemCallback()
+{
+	ShowNextActionItem();
 }
 
 void CHUD::ButtonCursorIn0Callback()

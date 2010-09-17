@@ -138,4 +138,6 @@ void CBattery::UpgradeComplete()
 	GetResource()->SetCollector(pCollector);
 
 	Delete();
+
+	DigitanksGame()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
 }

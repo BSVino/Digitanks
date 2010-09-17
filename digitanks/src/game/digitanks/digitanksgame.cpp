@@ -508,9 +508,6 @@ void CDigitanksGame::SetDesiredMove()
 
 	bool bMoved = false;
 
-	if (!pCurrentTank->IsPreviewMoveValid())
-		return;
-
 	Vector vecPreview = pCurrentTank->GetPreviewMove();
 	Vector vecOrigin = pCurrentTank->GetOrigin();
 	Vector vecMove = vecPreview - vecOrigin;
@@ -530,27 +527,20 @@ void CDigitanksGame::SetDesiredMove()
 
 		pTank->SetPreviewMove(vecNewPosition);
 
-		do
+		if (!pTank->IsPreviewMoveValid())
 		{
-			if (pTank->GetPreviewMovePower() > pTank->GetMaxMovementDistance())
-				vecTankMove = vecTankMove * 0.95f;
-
-			if (vecTankMove.Length() < 1)
-				break;
-
-			vecNewPosition = pTank->GetOrigin() + vecTankMove;
-			vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
-
-			pTank->SetPreviewMove(vecNewPosition);
+			pTank->SetGoalMovePosition(vecNewPosition);
 		}
-		while (pTank->GetPreviewMovePower() > pTank->GetMaxMovementDistance());
-
-		pTank->SetDesiredMove();
-		if (pTank->HasDesiredMove())
+		else
 		{
-			if (pTank == pCurrentTank)
-				bMoved = true;
-			pTank->Move();
+			pTank->SetDesiredMove();
+
+			if (pTank->HasDesiredMove())
+			{
+				if (pTank == pCurrentTank)
+					bMoved = true;
+				pTank->Move();
+			}
 		}
 	}
 
@@ -737,6 +727,8 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	m_iWaitingForProjectiles = 0;
 
 	m_bTurnActive = true;
+
+	m_aActionItems.clear();
 
 	GetCurrentTeam()->StartTurn();
 
@@ -1124,6 +1116,17 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
 	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
+}
+
+void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
+{
+	if (!IsTeamControlledByMe(GetCurrentTeam()))
+		return;
+
+	m_aActionItems.push_back(actionitem_t());
+	actionitem_t* pActionItem = &m_aActionItems[m_aActionItems.size()-1];
+	pActionItem->iUnit = pUnit->GetHandle();
+	pActionItem->eActionType = eActionType;
 }
 
 void CDigitanksGame::CompleteProductions()

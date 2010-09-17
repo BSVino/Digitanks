@@ -501,6 +501,10 @@ void CDigitank::StartTurn()
 		break;
 	}
 
+	// Artillery gets unit orders even if fortified but infantry doesn't.
+	if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()))
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
+
 	if (HasGoalMovePosition() && !pClosestEnemy)
 		MoveTowardsGoalMovePosition();
 
@@ -877,12 +881,6 @@ void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
 
 void CDigitank::MoveTowardsGoalMovePosition()
 {
-	if ((GetOrigin() - GetGoalMovePosition()).LengthSqr() < 1)
-	{
-		m_bGoalMovePosition = false;
-		return;
-	}
-
 	Vector vecGoal = GetGoalMovePosition();
 	Vector vecOrigin = GetOrigin();
 	Vector vecMove = vecGoal - vecOrigin;
@@ -905,6 +903,14 @@ void CDigitank::MoveTowardsGoalMovePosition()
 
 	SetPreviewMove(vecNewPosition);
 	SetDesiredMove();
+	Move();
+
+	if ((GetOrigin() - GetGoalMovePosition()).LengthSqr() < 1)
+	{
+		m_bGoalMovePosition = false;
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITAUTOMOVE);
+		return;
+	}
 }
 
 void CDigitank::CancelGoalMovePosition()
@@ -1231,6 +1237,54 @@ float CDigitank::GetPowerBar2Size()
 float CDigitank::GetPowerBar3Size()
 {
 	return GetMovementPower(true) / GetTotalMovementPower();
+}
+
+bool CDigitank::NeedsOrders()
+{
+	bool bNeedsToMove = true;
+	if (GetBaseMovementPower() > 0)
+		bNeedsToMove = false;
+	else
+	{
+		if (IsFortified() || IsFortifying())
+			bNeedsToMove = false;
+	}
+
+	bool bNeedsToAttack = true;
+	if (GetBaseAttackPower() > 0)
+		bNeedsToAttack = false;
+	else
+	{
+		CDigitanksEntity* pClosestEnemy = NULL;
+		while (true)
+		{
+			pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pClosestEnemy);
+
+			if (pClosestEnemy)
+			{
+				if (pClosestEnemy->GetTeam() == GetTeam())
+					continue;
+
+				if (!pClosestEnemy->GetTeam())
+					continue;
+
+				if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
+				{
+					pClosestEnemy = NULL;
+					break;
+				}
+			}
+			break;
+		}
+
+		if (!pClosestEnemy)
+			bNeedsToAttack = false;
+	}
+
+	if (IsFortified() && !IsArtillery())
+		bNeedsToAttack = false;
+
+	return bNeedsToMove || bNeedsToAttack;
 }
 
 void CDigitank::SetupMenu(menumode_t eMenuMode)

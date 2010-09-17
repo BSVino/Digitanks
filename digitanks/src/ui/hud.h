@@ -145,6 +145,9 @@ public:
 	virtual void				NewCurrentTeam();
 	virtual void				NewCurrentSelection();
 
+	void						ShowNextActionItem();
+	void						ShowActionItem(size_t iActionItem);
+
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 
@@ -161,6 +164,8 @@ public:
 	void						HideButtonInfo();
 
 	bool						IsUpdatesPanelOpen();
+
+	EVENT_CALLBACK(CHUD, NextActionItem);
 
 	EVENT_CALLBACK(CHUD, ButtonCursorIn0);
 	EVENT_CALLBACK(CHUD, ButtonCursorIn1);
@@ -225,9 +230,11 @@ protected:
 
 	menumode_t					m_eMenuMode;
 
-	CMouseCapturePanel*			m_pButtonPanel;
+	glgui::CLabel*				m_pActionItem;
+	glgui::CButton*				m_pNextActionItem;
+	size_t						m_iCurrentActionItem;
 
-	glgui::CButton*				m_pAutoButton;
+	CMouseCapturePanel*			m_pButtonPanel;
 
 	glgui::CPictureButton*		m_apButtons[10];
 

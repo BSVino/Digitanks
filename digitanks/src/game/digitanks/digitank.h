@@ -191,6 +191,8 @@ public:
 	virtual float				GetPowerBar2Size();
 	virtual float				GetPowerBar3Size();
 
+	virtual bool				NeedsOrders();
+
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	void						Move();

@@ -28,6 +28,8 @@ public:
 	virtual float				GetPowerBar2Size() { return 0; }
 	virtual float				GetPowerBar3Size() { return 0; }
 
+	virtual bool				NeedsOrders() { return false; }
+
 	virtual void				SetupMenu(menumode_t eMenuMode);
 };
 
