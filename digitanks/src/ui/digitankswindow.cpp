@@ -108,8 +108,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	CNetwork::Initialize();
 
-	if (!HasCommandLineSwitch("--nomusic"))
-		CSoundLibrary::PlayMusic("sound/digitanks-march.ogg");
+//	if (!HasCommandLineSwitch("--nomusic"))
+//		CSoundLibrary::PlayMusic("sound/digitanks-march.ogg");
 }
 
 CDigitanksWindow::~CDigitanksWindow()
