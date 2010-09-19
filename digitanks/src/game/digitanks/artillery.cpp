@@ -5,6 +5,8 @@
 
 #include <network/network.h>
 
+#include "ui/digitankswindow.h"
+#include "ui/hud.h"
 #include "digitanksgame.h"
 #include "projectile.h"
 
@@ -55,6 +57,15 @@ void CArtillery::Fire()
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
 
+	if (m_bFiredWeapon)
+		return;
+
+	m_bFiredWeapon = true;
+
+	float flAttackPower = m_flTotalPower * m_flAttackSplit;
+	m_flTotalPower -= flAttackPower;
+	m_flAttackPower += flAttackPower;
+
 	if (CNetwork::IsHost())
 		m_iFireProjectiles = 3;
 
@@ -62,6 +73,8 @@ void CArtillery::Fire()
 		DigitanksGame()->AddProjectileToWaitFor();
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CArtillery::CreateProjectile()

@@ -406,7 +406,7 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint)
 		if (pTeammate->VisibleRange() == 0)
 			continue;
 
-		float flVisibility = RemapValClamped((pTeammate->GetOrigin() - vecPoint).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+10, 1, 0);
+		float flVisibility = RemapValClamped((pTeammate->GetOrigin() - vecPoint).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+DigitanksGame()->FogPenetrationDistance(), 1, 0);
 
 		// Use the brightest visibility
 		if (flVisibility > flFinalVisibility)

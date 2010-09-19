@@ -7,6 +7,8 @@
 #include <network/network.h>
 #include "dt_renderer.h"
 
+#include "ui/digitankswindow.h"
+#include "ui/hud.h"
 #include "digitanksgame.h"
 #include "projectile.h"
 
@@ -68,34 +70,7 @@ void CMechInfantry::Think()
 
 void CMechInfantry::Fire()
 {
-	CDigitank* pClosest = NULL;
-
-	// Fire at the closest enemy.
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-		if (!pEntity)
-			continue;
-
-		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
-		if (!pDigitank)
-			continue;
-
-		if (pDigitank == this)
-			continue;
-
-		if (pDigitank->GetTeam() == GetTeam())
-			continue;
-
-		if (!pClosest)
-		{
-			pClosest = pDigitank;
-			continue;
-		}
-
-		if ((pDigitank->GetOrigin() - GetOrigin()).LengthSqr() < (pClosest->GetOrigin() - GetOrigin()).LengthSqr())
-			pClosest = pDigitank;
-	}
+	CDigitank* pClosest = FindClosestVisibleEnemyTank();
 
 	if (!pClosest)
 		return;
@@ -107,8 +82,17 @@ void CMechInfantry::Fire()
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
 
+	if (m_bFiredWeapon)
+		return;
+
 	SetPreviewAim(pClosest->GetOrigin());
 	SetDesiredAim();
+
+	m_bFiredWeapon = true;
+
+	float flAttackPower = m_flTotalPower * m_flAttackSplit;
+	m_flTotalPower -= flAttackPower;
+	m_flAttackPower += flAttackPower;
 
 	if (CNetwork::IsHost())
 		m_iFireProjectiles = 20;
@@ -117,6 +101,8 @@ void CMechInfantry::Fire()
 		DigitanksGame()->AddProjectileToWaitFor();
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CMechInfantry::CreateProjectile()

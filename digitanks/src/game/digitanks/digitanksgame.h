@@ -22,6 +22,7 @@ typedef enum
 {
 	ACTIONTYPE_UNITORDERS,
 	ACTIONTYPE_UNITAUTOMOVE,
+	ACTIONTYPE_AUTOMOVECANCELED,
 	ACTIONTYPE_CONSTRUCTION,
 	ACTIONTYPE_INSTALLATION,
 	ACTIONTYPE_UPGRADE,
@@ -176,6 +177,8 @@ public:
 
 	gametype_t				GetGameType() { return m_eGameType; }
 	size_t					GetTurn() { return m_iTurn; }
+
+	float					FogPenetrationDistance() { return 10; }
 
 	// CHEAT!
 	void					CompleteProductions();

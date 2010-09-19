@@ -1095,6 +1095,9 @@ void CHUD::ShowNextActionItem()
 		actionitem_t* pItem = &aActionItems[m_iCurrentActionItem];
 		CEntityHandle<CSelectable> hSelection(pItem->iUnit);
 
+		if (hSelection == NULL)
+			continue;
+
 		if (hSelection->NeedsOrders())
 		{
 			ShowActionItem(m_iCurrentActionItem);
@@ -1128,6 +1131,12 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		m_pActionItem->SetText(
 			"UNIT AUTO-MOVE COMPLETE\n \n"
 			"This unit has finished its auto-move task. Please assign it new orders.\n");
+		break;
+
+	case ACTIONTYPE_AUTOMOVECANCELED:
+		m_pActionItem->SetText(
+			"UNIT AUTO-MOVE CANCELED\n \n"
+			"This unit's auto-move has been canceled, as it encountered an enemy unit. Please assign it new orders.\n");
 		break;
 
 	case ACTIONTYPE_CONSTRUCTION:
@@ -1399,6 +1408,20 @@ void CHUD::FireCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_FIRE);
+
+	SetupMenu();
+}
+
+void CHUD::InfantryFireCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame()->GetPrimarySelectionTank())
+		return;
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+	DigitanksGame()->GetPrimarySelectionTank()->Fire();
 
 	SetupMenu();
 }

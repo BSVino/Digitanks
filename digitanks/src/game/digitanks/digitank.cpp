@@ -26,6 +26,7 @@ size_t CDigitank::s_iMoveIcon = 0;
 size_t CDigitank::s_iTurnIcon = 0;
 size_t CDigitank::s_iAimIcon = 0;
 size_t CDigitank::s_iFireIcon = 0;
+size_t CDigitank::s_iEnergyIcon = 0;
 size_t CDigitank::s_iPromoteIcon = 0;
 size_t CDigitank::s_iPromoteAttackIcon = 0;
 size_t CDigitank::s_iPromoteDefenseIcon = 0;
@@ -140,6 +141,7 @@ void CDigitank::Precache()
 	s_iTurnIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-turn.png");
 	s_iAimIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-aim.png");
 	s_iFireIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fire.png");
+	s_iEnergyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-energy.png");
 	s_iPromoteIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote.png");
 	s_iPromoteAttackIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-attack.png");
 	s_iPromoteDefenseIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-defense.png");
@@ -481,26 +483,14 @@ void CDigitank::StartTurn()
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
-	CDigitank* pClosestEnemy = NULL;
-	while (true)
+	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
+
+	if (HasGoalMovePosition() && pClosestEnemy)
 	{
-		pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestEnemy);
-
-		if (!pClosestEnemy)
-			break;
-
-		if (pClosestEnemy->GetTeam() == GetTeam())
-			continue;
-
-		if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
-		{
-			pClosestEnemy = NULL;
-			break;
-		}
-
-		break;
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
+		CancelGoalMovePosition();
 	}
-
+	else
 	// Artillery gets unit orders even if fortified but infantry doesn't.
 	if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()))
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
@@ -522,6 +512,28 @@ void CDigitank::EndTurn()
 
 	m_flDefensePower = m_flTotalPower;
 	m_flTotalPower = 0;
+}
+
+CDigitank* CDigitank::FindClosestVisibleEnemyTank()
+{
+	CDigitank* pClosestEnemy = NULL;
+	while (true)
+	{
+		pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestEnemy);
+
+		if (!pClosestEnemy)
+			break;
+
+		if (pClosestEnemy->GetTeam() == GetTeam())
+			continue;
+
+		if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange()+DigitanksGame()->FogPenetrationDistance())
+			return NULL;
+
+		break;
+	}
+
+	return pClosestEnemy;
 }
 
 void CDigitank::SetPreviewMove(Vector vecPreviewMove)
@@ -1150,7 +1162,7 @@ void CDigitank::OnCurrentSelection()
 			break;
 		}
 
-		if (!HasDesiredMove() && !IsFortified() && !HasDesiredAim())
+		if (!HasDesiredMove() && !IsFortified() && !HasDesiredAim() && !HasGoalMovePosition())
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 		else if (!HasDesiredAim() && CanAim() && pClosestEnemy)
 			DigitanksGame()->SetControlMode(MODE_AIM);
@@ -1281,9 +1293,6 @@ bool CDigitank::NeedsOrders()
 			bNeedsToAttack = false;
 	}
 
-	if (IsFortified() && !IsArtillery())
-		bNeedsToAttack = false;
-
 	return bNeedsToMove || bNeedsToAttack;
 }
 
@@ -1340,7 +1349,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if (CanAimMobilized() || IsFortified())
+		if ((CanAimMobilized() || IsFortified()) && m_flTotalPower > 1 && !m_bFiredWeapon)
 		{
 			pHUD->SetButtonListener(2, CHUD::Aim);
 
@@ -1351,6 +1360,11 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(2, s_iCancelIcon);
+			else if (IsInfantry())
+			{
+				pHUD->SetButtonListener(2, CHUD::InfantryFire);
+				pHUD->SetButtonTexture(2, s_iFireIcon);
+			}
 			else
 				pHUD->SetButtonTexture(2, s_iAimIcon);
 		}
@@ -1365,7 +1379,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 			pHUD->SetButtonTexture(3, s_iCancelIcon);
 		else
-			pHUD->SetButtonTexture(3, s_iFireIcon);
+			pHUD->SetButtonTexture(3, s_iEnergyIcon);
 
 		if (HasBonusPoints())
 		{
@@ -1453,6 +1467,13 @@ void CDigitank::Move()
 	}
 
 	GetDigitanksTeam()->CalculateVisibility();
+
+	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
+	if (HasGoalMovePosition() && pClosestEnemy)
+	{
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
+		CancelGoalMovePosition();
+	}
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 

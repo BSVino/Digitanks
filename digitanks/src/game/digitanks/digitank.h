@@ -112,6 +112,8 @@ public:
 	virtual void				StartTurn();
 	virtual void				EndTurn();
 
+	virtual CDigitank*			FindClosestVisibleEnemyTank();
+
 	Vector						GetPreviewMove() { return m_vecPreviewMove; };
 	virtual void				SetPreviewMove(Vector vecPreviewMove);
 	void						ClearPreviewMove();
@@ -159,6 +161,7 @@ public:
 	virtual void				Fortify();
 	virtual bool				CanFortify() { return false; };
 	virtual bool				IsArtillery() { return false; };
+	virtual bool				IsInfantry() { return false; };
 	virtual bool				IsFortified() const { return m_bFortified && m_iFortifyLevel; };
 	virtual bool				IsFortifying() const { return m_bFortified && m_iFortifyLevel == 0; };
 	virtual bool				CanMoveFortified() { return false; };
@@ -357,6 +360,7 @@ protected:
 	static size_t				s_iTurnIcon;
 	static size_t				s_iAimIcon;
 	static size_t				s_iFireIcon;
+	static size_t				s_iEnergyIcon;
 	static size_t				s_iPromoteIcon;
 	static size_t				s_iPromoteAttackIcon;
 	static size_t				s_iPromoteDefenseIcon;
