@@ -228,6 +228,10 @@ void CDigitanksTeam::CountProducers()
 		if (pLoader && pLoader->IsProducing())
 			AddProducer();
 
+		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());
+		if (pCPU && pCPU->IsProducing())
+			AddProducer();
+
 		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
 		if (pStructure && pStructure->IsConstructing())
 			AddProducer();

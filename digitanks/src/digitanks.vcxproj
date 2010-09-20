@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
+    <ClCompile Include="game\digitanks\scout.cpp" />
     <ClCompile Include="game\digitanks\updates.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="ui\updatespanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="game\digitanks\scout.h" />
     <ClInclude Include="game\digitanks\updates.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />

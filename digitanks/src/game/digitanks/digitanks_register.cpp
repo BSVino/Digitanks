@@ -5,6 +5,7 @@
 #include "artillery.h"
 #include "maintank.h"
 #include "mechinf.h"
+#include "scout.h"
 #include "digitanksteam.h"
 #include "powerup.h"
 #include "projectile.h"
@@ -27,6 +28,7 @@ REGISTER_ENTITY(CArtillery);
 REGISTER_ENTITY(CDigitank);
 REGISTER_ENTITY(CMainBattleTank);
 REGISTER_ENTITY(CMechInfantry);
+REGISTER_ENTITY(CScout);
 REGISTER_ENTITY(CDigitanksTeam);
 REGISTER_ENTITY(CPowerup);
 REGISTER_ENTITY(CProjectile);

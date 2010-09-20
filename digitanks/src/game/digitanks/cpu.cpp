@@ -16,6 +16,7 @@
 #include "buffer.h"
 #include "collector.h"
 #include "loader.h"
+#include "scout.h"
 
 size_t CCPU::s_iCancelIcon = 0;
 size_t CCPU::s_iBuildPSUIcon = 0;
@@ -38,6 +39,8 @@ void CCPU::Spawn()
 
 	m_flFanRotationSpeed = 0;
 	m_flFanRotation = RandomFloat(0, 360);
+
+	m_bProducing = false;
 }
 
 void CCPU::Precache()
@@ -79,6 +82,12 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	else if (IsInstalling())
 	{
 		pHUD->SetButtonListener(4, CHUD::CancelInstall);
+		pHUD->SetButtonTexture(4, s_iCancelIcon);
+		pHUD->SetButtonColor(4, Color(100, 0, 0));
+	}
+	else if (IsProducing())
+	{
+		pHUD->SetButtonListener(4, CHUD::CancelBuildScout);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
 	}
@@ -262,6 +271,17 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(3, s_iInstallIcon);
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
 		}
+
+		pHUD->SetButtonListener(6, CHUD::BuildScout);
+		pHUD->SetButtonTexture(6, 0);
+		pHUD->SetButtonColor(6, Color(150, 150, 150));
+
+		std::wstringstream s;
+		s << "BUILD ROGUE\n \n"
+			<< "Rogues are a cheap reconnaisance unit with good speed but little defense and no attacking capabilities. Use them to scout the enemy positions!\n \n"
+			<< "Power to construct: " << g_aiTurnsToLoad[BUILDUNIT_SCOUT] << " Power\n"
+			<< "Turns to install: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]) << " Turns";
+		pHUD->SetButtonInfo(6, s.str().c_str());
 	}
 }
 
@@ -317,6 +337,9 @@ void CCPU::BeginConstruction()
 		return;
 
 	if (IsInstalling())
+		return;
+
+	if (IsProducing())
 		return;
 
 	if (m_hConstructing != NULL)
@@ -443,6 +466,29 @@ void CCPU::CancelConstruction()
 	}
 }
 
+void CCPU::BeginProduction()
+{
+	if (IsInstalling())
+		return;
+
+	if (HasConstruction())
+		return;
+
+	m_iProduction = 0;
+	m_bProducing = true;
+
+	GetDigitanksTeam()->CountFleetPoints();
+	GetDigitanksTeam()->CountProducers();
+}
+
+void CCPU::CancelProduction()
+{
+	m_iProduction = 0;
+	m_bProducing = false;
+
+	GetDigitanksTeam()->CountFleetPoints();
+}
+
 bool CCPU::HasUpdatesAvailable()
 {
 	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
@@ -462,12 +508,60 @@ void CCPU::InstallUpdate(updatetype_t eUpdate)
 	if (HasConstruction())
 		return;
 
+	if (IsProducing())
+		return;
+
 	BaseClass::InstallUpdate(eUpdate);
 }
 
 void CCPU::StartTurn()
 {
 	BaseClass::StartTurn();
+
+	if (!m_bProducing)
+		m_iProduction = 0;
+
+	if (m_bProducing)
+	{
+		m_iProduction += (size_t)(GetDigitanksTeam()->GetProductionPerLoader());
+		if (m_iProduction > g_aiTurnsToLoad[BUILDUNIT_SCOUT])
+		{
+			CDigitank* pTank = Game()->Create<CScout>("CScout");
+			
+			pTank->SetOrigin(GetOrigin());
+
+			GetTeam()->AddEntity(pTank);
+
+			m_bProducing = false;
+
+			DigitanksGame()->AppendTurnInfo(L"Production finished on Rogue");
+
+			// All of these StartTurn calls will probably cause problems later but for now they're
+			// the only way to refresh the tank's energy so it has enough to leave the loader.
+			pTank->StartTurn();
+
+			pTank->SetPreviewMove(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
+			pTank->SetDesiredMove();
+			pTank->Move();
+
+			pTank->StartTurn();
+
+			// Face him toward the center.
+			pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
+			pTank->SetDesiredTurn();
+			pTank->Turn();
+
+			pTank->StartTurn();
+
+			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_UNITREADY);
+		}
+		else
+		{
+			std::wstringstream s;
+			s << L"Producing Rogue (" << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction) << L" turns left)";
+			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+		}
+	}
 
 	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
 	{
@@ -625,6 +719,13 @@ void CCPU::UpdateInfo(std::wstring& sInfo)
 		s << L"Turns left: " << GetTurnsToInstall() << L"\n";
 		sInfo = s.str();
 		return;
+	}
+
+	if (IsProducing())
+	{
+		s << L"(Producing Rogue)\n";
+		s << L"Power to build: " << m_iProduction << L"\n";
+		s << L"Turns left: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction) << L"\n \n";
 	}
 
 	s << L"Strength: " << m_iDataStrength << L"\n";

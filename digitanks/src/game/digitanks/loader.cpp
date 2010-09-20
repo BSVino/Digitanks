@@ -22,6 +22,7 @@ size_t g_aiTurnsToLoad[] = {
 	25, // BUILDUNIT_INFANTRY,
 	50, // BUILDUNIT_TANK,
 	60, // BUILDUNIT_ARTILLERY,
+	8, // BUILDUNIT_SCOUT,
 };
 
 size_t CLoader::s_iCancelIcon = 0;
@@ -127,14 +128,24 @@ void CLoader::StartTurn()
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
+			// All of these StartTurn calls will probably cause problems later but for now they're
+			// the only way to refresh the tank's energy so it has enough to leave the loader.
+			pTank->StartTurn();
+
 			pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
 			pTank->SetDesiredMove();
+			pTank->Move();
+
+			pTank->StartTurn();
 
 			// Face him toward the center.
 			pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
 			pTank->SetDesiredTurn();
+			pTank->Turn();
 
-			pTank->Move();
+			pTank->StartTurn();
+
+			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_UNITREADY);
 		}
 		else
 		{

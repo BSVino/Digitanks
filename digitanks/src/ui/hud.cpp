@@ -1156,6 +1156,12 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"UPRGADE COMPELTE\n \n"
 			"This structure has completed its upgrade. You may wish to install updates now.\n");
 		break;
+
+	case ACTIONTYPE_UNITREADY:
+		m_pActionItem->SetText(
+			"UNIT READY\n \n"
+			"This unit has just been completed, you can now issue its orders. You may wish to begin production on additional units as well.\n");
+		break;
 	}
 
 	CEntityHandle<CSelectable> hSelection(pItem->iUnit);
@@ -1242,7 +1248,7 @@ void CHUD::SetHUDActive(bool bActive)
 
 void CHUD::ShowButtonInfo(int iButton)
 {
-	if (iButton < 0 || iButton > 4)
+	if (iButton < 0 || iButton >= NUM_BUTTONS)
 		return;
 
 	m_pButtonInfo->SetText(m_aszButtonInfos[iButton].c_str());
@@ -1727,6 +1733,52 @@ void CHUD::CancelBuildUnitCallback()
 		return;
 
 	pLoader->CancelProduction();
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::BuildScoutCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->BeginProduction();
+	SetupMenu();
+	UpdateInfo();
+	UpdateTeamInfo();
+}
+
+void CHUD::CancelBuildScoutCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetPrimarySelectionStructure())
+		return;
+
+	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
+
+	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	if (!pCPU)
+		return;
+
+	pCPU->CancelProduction();
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();

@@ -203,6 +203,8 @@ public:
 	EVENT_CALLBACK(CHUD, CancelBuild);
 	EVENT_CALLBACK(CHUD, BuildUnit);
 	EVENT_CALLBACK(CHUD, CancelBuildUnit);
+	EVENT_CALLBACK(CHUD, BuildScout);
+	EVENT_CALLBACK(CHUD, CancelBuildScout);
 	EVENT_CALLBACK(CHUD, InstallMenu);
 	EVENT_CALLBACK(CHUD, InstallProduction);
 	EVENT_CALLBACK(CHUD, InstallBandwidth);

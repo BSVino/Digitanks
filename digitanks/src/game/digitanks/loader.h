@@ -8,7 +8,10 @@ typedef enum
 	BUILDUNIT_INFANTRY,
 	BUILDUNIT_TANK,
 	BUILDUNIT_ARTILLERY,
+	BUILDUNIT_SCOUT,
 } buildunit_t;
+
+extern size_t g_aiTurnsToLoad[];
 
 class CLoader : public CStructure
 {

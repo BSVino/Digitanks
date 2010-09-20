@@ -36,6 +36,10 @@ public:
 	bool						HasConstruction() { return m_hConstructing != NULL; }
 	CStructure*					GetConstructing() { return m_hConstructing; }
 
+	void						BeginProduction();
+	void						CancelProduction();
+	bool						IsProducing() { return m_bProducing; }
+
 	virtual bool				HasUpdatesAvailable();
 	virtual void				InstallUpdate(updatetype_t eUpdate);
 
@@ -56,6 +60,9 @@ protected:
 
 	unittype_t					m_ePreviewStructure;
 	CEntityHandle<CStructure>	m_hConstructing;
+
+	bool						m_bProducing;
+	size_t						m_iProduction;
 
 	size_t						m_iFanModel;
 	float						m_flFanRotationSpeed;
