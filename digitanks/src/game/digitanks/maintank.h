@@ -29,7 +29,7 @@ public:
 	virtual size_t				FleetPoints() const { return MainTankFleetPoints(); };
 	static size_t				MainTankFleetPoints() { return 4; };
 
-	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_TANK; }
+	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_TANK; }
 };
 
 #endif

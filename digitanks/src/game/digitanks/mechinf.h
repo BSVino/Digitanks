@@ -25,14 +25,14 @@ public:
 
 	virtual void				PostRender();
 
-	virtual bool				AllowControlMode(controlmode_t eMode);
+	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
 	virtual const wchar_t*		GetName() { return L"Mechanized Infantry"; };
 
 	virtual float				RenderShieldScale() { return 2.0f; };
 
 	virtual bool				CanFortify() { return true; };
-	virtual bool				IsInfantry() { return true; };
+	virtual bool				IsInfantry() const { return true; };
 
 	virtual float				GetBonusAttackPower(bool bPreview = false);
 	virtual float				GetBonusDefensePower(bool bPreview = false);
@@ -46,13 +46,13 @@ public:
 	virtual float				InitialMaxRange() const { return 60.0f; };
 	virtual float				TurnPerPower() const { return 45; }
 	virtual float				GetTransitionTime() const { return 2.5f; }
-	virtual float				ProjectileCurve() const { return -0.006f; };
+	virtual float				ProjectileCurve() const { return -0.01f; };
 	virtual float				VisibleRange() const { return 60.0f; };
 
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
 	static size_t				InfantryFleetPoints() { return 2; };
 
-	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_INFANTRY; }
+	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_INFANTRY; }
 
 protected:
 	size_t						m_iFireProjectiles;

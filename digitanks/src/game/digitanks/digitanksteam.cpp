@@ -25,8 +25,6 @@ CDigitanksTeam::CDigitanksTeam()
 	m_iUpdateDownloaded = 0;
 
 	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
-
-	m_iTurnToStartExploring = RandomInt(0, 15);
 }
 
 CDigitanksTeam::~CDigitanksTeam()

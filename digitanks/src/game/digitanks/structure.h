@@ -160,6 +160,8 @@ public:
 
 	virtual void				StartTurn();
 
+	// Even if we're invisible our tendrils might not be, we should still render those.
+	virtual bool				ShouldRender() const { return true; };
 	virtual void				PostRender();
 
 	void						UpdateTendrils();

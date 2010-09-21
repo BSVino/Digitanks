@@ -47,7 +47,7 @@ public:
 	size_t						GetTurnsToProduce();
 
 	void						SetBuildUnit(buildunit_t eBuildUnit);
-	buildunit_t					GetBuildUnit() { return m_eBuildUnit; };
+	buildunit_t					GetBuildUnit() const { return m_eBuildUnit; };
 
 	virtual const wchar_t*		GetName();
 	virtual unittype_t			GetUnitType();

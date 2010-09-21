@@ -487,15 +487,14 @@ void CDigitank::StartTurn()
 
 	if (HasGoalMovePosition() && pClosestEnemy)
 	{
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
-		CancelGoalMovePosition();
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
 	}
 	else
 	// Artillery gets unit orders even if fortified but infantry doesn't.
 	if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()))
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
 
-	if (HasGoalMovePosition() && !pClosestEnemy)
+	if (HasGoalMovePosition())
 		MoveTowardsGoalMovePosition();
 
 	if (DigitanksGame()->GetLocalDigitanksTeam() == GetDigitanksTeam())
@@ -947,12 +946,12 @@ void CDigitank::Fortify()
 	m_flFortifyTime = Game()->GetGameTime();
 }
 
-bool CDigitank::CanAim()
+bool CDigitank::CanAim() const
 {
 	return AllowControlMode(MODE_AIM);
 }
 
-bool CDigitank::MovesWith(CDigitank* pOther)
+bool CDigitank::MovesWith(CDigitank* pOther) const
 {
 	if (!pOther)
 		return false;
@@ -978,7 +977,7 @@ bool CDigitank::MovesWith(CDigitank* pOther)
 	return true;
 }
 
-bool CDigitank::TurnsWith(CDigitank* pOther)
+bool CDigitank::TurnsWith(CDigitank* pOther) const
 {
 	if (!pOther)
 		return false;
@@ -1000,7 +999,7 @@ bool CDigitank::TurnsWith(CDigitank* pOther)
 	return true;
 }
 
-bool CDigitank::AimsWith(CDigitank* pOther)
+bool CDigitank::AimsWith(CDigitank* pOther) const
 {
 	if (!pOther)
 		return false;
@@ -1171,7 +1170,7 @@ void CDigitank::OnCurrentSelection()
 	}
 }
 
-bool CDigitank::AllowControlMode(controlmode_t eMode)
+bool CDigitank::AllowControlMode(controlmode_t eMode) const
 {
 	if (eMode == MODE_MOVE)
 		return true;
@@ -1315,6 +1314,15 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(0, s_iCancelIcon);
 			else
 				pHUD->SetButtonTexture(0, s_iMoveIcon);
+
+			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Right click inside the yellow area to move this unit.");
+		}
+		else if (HasGoalMovePosition())
+		{
+			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
+			pHUD->SetButtonColor(0, Color(100, 100, 100));
+			pHUD->SetButtonTexture(0, s_iCancelIcon);
+			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.");
 		}
 
 		if ((!IsFortified() || CanTurnFortified()) && m_flTotalPower > 1)
@@ -1330,6 +1338,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(1, s_iCancelIcon);
 			else
 				pHUD->SetButtonTexture(1, s_iTurnIcon);
+			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.");
 		}
 
 		if (CanFortify())
@@ -1347,6 +1356,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			}
 			pHUD->SetButtonListener(8, CHUD::Fortify);
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
+			pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.");
 		}
 
 		if ((CanAimMobilized() || IsFortified()) && m_flTotalPower > 1 && !m_bFiredWeapon)
@@ -1367,25 +1377,31 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			}
 			else
 				pHUD->SetButtonTexture(2, s_iAimIcon);
+			pHUD->SetButtonInfo(2, L"FIRE UNIT\n \nGo into Aim mode. Right click any spot on the terrain to fire on that location.");
 		}
 
-		pHUD->SetButtonListener(3, CHUD::Fire);
+		if (GetFrontShieldMaxStrength() > 0)
+		{
+			pHUD->SetButtonListener(3, CHUD::Fire);
 
-		if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
-			pHUD->SetButtonColor(3, Color(150, 0, 150));
-		else
-			pHUD->SetButtonColor(3, Color(100, 100, 100));
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
+				pHUD->SetButtonColor(3, Color(150, 0, 150));
+			else
+				pHUD->SetButtonColor(3, Color(100, 100, 100));
 
-		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			pHUD->SetButtonTexture(3, s_iCancelIcon);
-		else
-			pHUD->SetButtonTexture(3, s_iEnergyIcon);
+			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+				pHUD->SetButtonTexture(3, s_iCancelIcon);
+			else
+				pHUD->SetButtonTexture(3, s_iEnergyIcon);
+			pHUD->SetButtonInfo(3, L"SET UNIT ENERGY\n \nChoose how this unit's energy is split between attacking energy and shield energy.");
+		}
 
 		if (HasBonusPoints())
 		{
 			pHUD->SetButtonListener(4, CHUD::Promote);
 			pHUD->SetButtonTexture(4, s_iPromoteIcon);
 			pHUD->SetButtonColor(4, glgui::g_clrBox);
+			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.");
 		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
@@ -1436,6 +1452,9 @@ void CDigitank::Move()
 	if (flMovePower > m_flTotalPower)
 		return;
 
+	if (m_flTotalPower < 0.5f)
+		return;
+
 	m_flTotalPower -= flMovePower;
 	m_flMovementPower += flMovePower;
 
@@ -1445,24 +1464,27 @@ void CDigitank::Move()
 		SetOrigin(m_vecDesiredMove);
 	}
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	if (CanGetPowerups())
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
-
-		if (!pEntity)
-			continue;
-
-		CPowerup* pPowerup = dynamic_cast<CPowerup*>(pEntity);
-
-		if (!pPowerup)
-			continue;
-
-		if ((pPowerup->GetOrigin() - GetOrigin()).LengthSqr() < pPowerup->GetBoundingRadius()*pPowerup->GetBoundingRadius())
+		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		{
-			pPowerup->Delete();
-			GiveBonusPoints(1);
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
 
-			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
+			if (!pEntity)
+				continue;
+
+			CPowerup* pPowerup = dynamic_cast<CPowerup*>(pEntity);
+
+			if (!pPowerup)
+				continue;
+
+			if ((pPowerup->GetOrigin() - GetOrigin()).LengthSqr() < pPowerup->GetBoundingRadius()*pPowerup->GetBoundingRadius())
+			{
+				pPowerup->Delete();
+				GiveBonusPoints(1);
+
+				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
+			}
 		}
 	}
 
@@ -1471,8 +1493,7 @@ void CDigitank::Move()
 	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
 	if (HasGoalMovePosition() && pClosestEnemy)
 	{
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
-		CancelGoalMovePosition();
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
 	}
 
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
@@ -1485,6 +1506,9 @@ void CDigitank::Turn()
 	float flMovePower = GetPreviewTurnPower();
 
 	if (flMovePower > m_flTotalPower)
+		return;
+
+	if (m_flTotalPower < 0.5f)
 		return;
 
 	m_flTotalPower -= flMovePower;
@@ -1514,6 +1538,9 @@ void CDigitank::Fire()
 		return;
 
 	if (m_bFiredWeapon)
+		return;
+
+	if (m_flTotalPower < 0.5f)
 		return;
 
 	m_bFiredWeapon = true;
@@ -1639,7 +1666,10 @@ void CDigitank::ClientUpdate(int iClient)
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	if (flDamage > 0)
+	{
 		CancelGoalMovePosition();
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
+	}
 
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
@@ -1741,7 +1771,7 @@ Vector CDigitank::GetRenderOrigin() const
 
 EAngle CDigitank::GetRenderAngles() const
 {
-	if (GetDigitanksTeam()->IsSelected(this))
+	if (GetDigitanksTeam()->IsPrimarySelection(this))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
 			return EAngle(0, GetPreviewTurn(), 0);
@@ -1749,7 +1779,7 @@ EAngle CDigitank::GetRenderAngles() const
 
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
-		if (GetTeam() == DigitanksGame()->GetPrimarySelection()->GetTeam())
+		if (TurnsWith(DigitanksGame()->GetPrimarySelectionTank()))
 		{
 			Vector vecLookAt;
 			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);

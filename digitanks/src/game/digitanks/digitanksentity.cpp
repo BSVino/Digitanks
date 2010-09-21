@@ -47,6 +47,11 @@ CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const
 	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
 }
 
+bool CDigitanksEntity::ShouldRender() const
+{
+	return GetVisibility(DigitanksGame()->GetLocalDigitanksTeam()) > 0;
+}
+
 void CDigitanksEntity::RenderVisibleArea()
 {
 	if (VisibleRange() == 0)

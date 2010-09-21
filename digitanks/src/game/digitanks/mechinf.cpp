@@ -153,7 +153,7 @@ void CMechInfantry::PostRender()
 	}
 }
 
-bool CMechInfantry::AllowControlMode(controlmode_t eMode)
+bool CMechInfantry::AllowControlMode(controlmode_t eMode) const
 {
 	if (eMode == MODE_AIM)
 		return false;

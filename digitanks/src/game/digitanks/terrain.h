@@ -24,6 +24,7 @@ public:
 	void					GenerateTerrainCallLists();
 	void					GenerateCallLists();
 
+	virtual bool			ShouldRender() const { return true; };
 	virtual void			OnRender();
 
 	float					GetRealHeight(int x, int y);

@@ -98,6 +98,7 @@ public:
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
 
+	virtual bool							ShouldRender() const { return false; };
 	virtual void							PreRender() {};
 	virtual void							ModifyContext(class CRenderingContext* pContext) {};
 	void									Render();

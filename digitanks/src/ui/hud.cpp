@@ -1139,6 +1139,12 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"This unit's auto-move has been canceled, as it encountered an enemy unit. Please assign it new orders.\n");
 		break;
 
+	case ACTIONTYPE_AUTOMOVEENEMY:
+		m_pActionItem->SetText(
+			"UNIT AUTO-MOVE THREAT\n \n"
+			"This unit is auto-moving to a new location, but an enemy is visible. You may wish to cancel this auto move.\n");
+		break;
+
 	case ACTIONTYPE_CONSTRUCTION:
 		m_pActionItem->SetText(
 			"CONSTRUCTION COMPELTE\n \n"
@@ -1358,6 +1364,20 @@ void CHUD::MoveCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_MOVE);
+
+	SetupMenu();
+}
+
+void CHUD::CancelAutoMoveCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (DigitanksGame()->GetPrimarySelectionTank())
+	{
+		DigitanksGame()->SetControlMode(MODE_NONE);
+		DigitanksGame()->GetPrimarySelectionTank()->CancelGoalMovePosition();
+	}
 
 	SetupMenu();
 }

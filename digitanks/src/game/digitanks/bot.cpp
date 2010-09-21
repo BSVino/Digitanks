@@ -14,7 +14,9 @@
 
 unittype_t g_aeBuildOrder[] =
 {
+	UNIT_SCOUT,
 	STRUCTURE_BATTERY,
+	UNIT_SCOUT,
 	STRUCTURE_INFANTRYLOADER,
 	STRUCTURE_PSU,
 	STRUCTURE_BUFFER,
@@ -138,6 +140,9 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU->IsInstalling())
 		return;
 
+	if (m_hPrimaryCPU->IsProducing())
+		return;
+
 	if (GetNumProducers() >= 2)
 		return;
 
@@ -148,6 +153,13 @@ void CDigitanksTeam::Bot_ExpandBase()
 		iNextBuild = g_aeBuildOrder[m_iBuildPosition];
 
 	bool bBumpBuildPosition = true;
+
+	if (iNextBuild == UNIT_SCOUT)
+	{
+		m_hPrimaryCPU->BeginProduction();
+		m_iBuildPosition++;
+		return;
+	}
 
 	if (iNextBuild == STRUCTURE_PSU)
 	{
@@ -571,7 +583,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		vecTargetOrigin = m_vecLKV;
 	}
-	else if (DigitanksGame()->GetTurn() >= m_iTurnToStartExploring)
+	else
 	{
 		bool bCloseToExplorePoint = false;
 		for (size_t i = 0; i < GetNumTanks(); i++)
@@ -617,7 +629,27 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 		}
 
-		if (pTank->HasFortifyPoint() && !pTank->IsFortified())
+		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
+
+		if (pTankTarget && pTankTarget->IsFortified() && !pTankTarget->IsArtillery())
+			pTank->SetAttackPower(3.0f/4.0f);
+		else
+			pTank->SetAttackPower(1.0f/2.0f);
+
+		if (pTank->IsScout())
+		{
+			float flMovementDistance = pTank->GetMaxMovementDistance();
+			Vector vecDirection = m_vecExplore - pTank->GetOrigin();
+			vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+
+			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+			vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+			pTank->SetPreviewMove(vecDesiredMove);
+			pTank->SetDesiredMove();
+			pTank->Move();
+		}
+		else if (pTank->HasFortifyPoint() && !pTank->IsFortified())
 		{
 			if (!pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
 			{
@@ -702,12 +734,8 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else
 		{
-			if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && DigitanksGame()->GetTurn() < m_iTurnToStartExploring)
-			{
-				// Hang out.
-			}
 			// If we are not within the effective range, use 1/3 of our available movement power to move towards our target.
-			else if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
 				float flMovementDistance = pTank->GetMaxMovementDistance();
 				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
@@ -730,12 +758,8 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 		}
 
-		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
-
-		if (pTankTarget && pTankTarget->IsFortified() && !pTankTarget->IsArtillery())
-			pTank->SetAttackPower(3.0f/4.0f);
-		else
-			pTank->SetAttackPower(1.0f/2.0f);
+		if (pTank->IsInfantry())
+			pTank->Fire();
 	}
 
 	DigitanksGame()->EndTurn();

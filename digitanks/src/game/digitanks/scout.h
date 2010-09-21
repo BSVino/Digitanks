@@ -13,11 +13,12 @@ public:
 public:
 	virtual void				Precache();
 
-	virtual bool				AllowControlMode(controlmode_t eMode);
+	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
 	virtual const wchar_t*		GetName() { return L"Rogue"; };
 
-	virtual bool				CanAimMobilized() { return false; };
+	virtual bool				IsScout() const { return true; };
+	virtual bool				CanAimMobilized() const { return false; };
 
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
@@ -28,11 +29,12 @@ public:
 	virtual float				GetTransitionTime() const { return 1.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				VisibleRange() const { return 65; };
+	virtual bool				CanGetPowerups() const { return false; };
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };
 	static size_t				ScoutFleetPoints() { return 1; };
 
-	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_SCOUT; }
+	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_SCOUT; }
 };
 
 #endif

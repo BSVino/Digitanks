@@ -360,7 +360,8 @@ void CLoader::CancelProduction()
 	m_iProductionStored = 0;
 	m_bProducing = false;
 
-	GetDigitanksTeam()->CountFleetPoints();
+	if (GetDigitanksTeam())
+		GetDigitanksTeam()->CountFleetPoints();
 }
 
 size_t CLoader::GetUnitProductionCost()

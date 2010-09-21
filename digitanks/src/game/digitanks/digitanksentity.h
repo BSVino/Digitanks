@@ -18,6 +18,7 @@ typedef enum
 	UNIT_INFANTRY,
 	UNIT_TANK,
 	UNIT_ARTILLERY,
+	UNIT_SCOUT,
 } unittype_t;
 
 class CDigitanksEntity : public CBaseEntity
@@ -34,6 +35,7 @@ public:
 
 	class CDigitanksTeam*			GetDigitanksTeam() const;
 
+	virtual bool					ShouldRender() const;
 	virtual void					RenderVisibleArea();
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;

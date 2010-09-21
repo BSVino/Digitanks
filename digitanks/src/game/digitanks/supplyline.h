@@ -17,6 +17,7 @@ public:
 
 	virtual void					StartTurn();
 
+	virtual bool					ShouldRender() const { return true; };
 	virtual void					PostRender();
 
 protected:

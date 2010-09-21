@@ -20,6 +20,7 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 	virtual float				ShellRadius() { return 0.5f; };
+	virtual bool				ShouldRender() const { return true; };
 	virtual void				OnRender();
 
 	virtual void				OnDeleted();

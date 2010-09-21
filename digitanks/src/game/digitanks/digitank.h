@@ -160,26 +160,28 @@ public:
 
 	virtual void				Fortify();
 	virtual bool				CanFortify() { return false; };
-	virtual bool				IsArtillery() { return false; };
-	virtual bool				IsInfantry() { return false; };
+	virtual bool				IsArtillery() const { return false; };
+	virtual bool				IsInfantry() const { return false; };
+	virtual bool				IsScout() const { return false; };
 	virtual bool				IsFortified() const { return m_bFortified && m_iFortifyLevel; };
 	virtual bool				IsFortifying() const { return m_bFortified && m_iFortifyLevel == 0; };
 	virtual bool				CanMoveFortified() { return false; };
 	virtual bool				CanTurnFortified() { return false; };
-	virtual bool				CanAimMobilized() { return true; };
-	virtual bool				CanAim();
+	virtual bool				CanAimMobilized() const { return true; };
+	virtual bool				CanAim() const;
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
+	virtual bool				CanGetPowerups() const { return true; };
 
-	virtual bool				MovesWith(CDigitank* pOther);
-	virtual bool				TurnsWith(CDigitank* pOther);
-	virtual bool				AimsWith(CDigitank* pOther);
+	virtual bool				MovesWith(CDigitank* pOther) const;
+	virtual bool				TurnsWith(CDigitank* pOther) const;
+	virtual bool				AimsWith(CDigitank* pOther) const;
 
 	virtual void				Think();
 
 	// CSelectable
 	virtual void				OnCurrentSelection();
-	virtual bool				AllowControlMode(controlmode_t eMode);
+	virtual bool				AllowControlMode(controlmode_t eMode) const;
 	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode);
 
 	virtual const char*			GetPowerBar1Text() { return "Attack"; }
@@ -257,7 +259,7 @@ public:
 	virtual float				VisibleRange() const { return 75; };
 	virtual size_t				FleetPoints() const { return 2; };
 
-	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_TANK; }
+	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_TANK; }
 
 	// AI stuff
 	virtual void				SetFortifyPoint(Vector vecFortify);

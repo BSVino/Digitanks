@@ -40,6 +40,9 @@ void CPowerup::PreRender()
 		if (!pTank)
 			continue;
 
+		if (!pTank->CanGetPowerups())
+			continue;
+
 		if ((pTank->GetDesiredMove() - GetOrigin()).LengthSqr() < GetBoundingRadius()*GetBoundingRadius())
 			clrPowerup = Vector(0, 255, 0);
 

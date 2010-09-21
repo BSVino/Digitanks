@@ -87,7 +87,7 @@ float CArtillery::GetProjectileDamage()
 	return GetAttackPower()/6;
 }
 
-bool CArtillery::AllowControlMode(controlmode_t eMode)
+bool CArtillery::AllowControlMode(controlmode_t eMode) const
 {
 	if (eMode == MODE_FIRE)
 		return false;

@@ -285,7 +285,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 }
 
-bool CCPU::AllowControlMode(controlmode_t eMode)
+bool CCPU::AllowControlMode(controlmode_t eMode) const
 {
 	if (eMode == MODE_BUILD)
 		return true;

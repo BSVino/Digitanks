@@ -21,14 +21,14 @@ public:
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
-	virtual bool				AllowControlMode(controlmode_t eMode);
+	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
 	virtual const wchar_t*		GetName() { return L"Artillery"; };
 
 	virtual bool				CanFortify() { return true; };
-	virtual bool				IsArtillery() { return true; };
+	virtual bool				IsArtillery() const { return true; };
 	virtual bool				CanTurnFortified() { return true; };
-	virtual bool				CanAimMobilized() { return false; };
+	virtual bool				CanAimMobilized() const { return false; };
 
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
@@ -45,7 +45,7 @@ public:
 	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
 	static size_t				ArtilleryFleetPoints() { return 5; };
 
-	virtual buildunit_t			GetBuildUnit() { return BUILDUNIT_ARTILLERY; }
+	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_ARTILLERY; }
 
 protected:
 	bool						m_bFortified;

@@ -19,7 +19,7 @@ void CScout::Precache()
 	PrecacheModel(L"models/digitanks/scout.obj", true);
 }
 
-bool CScout::AllowControlMode(controlmode_t eMode)
+bool CScout::AllowControlMode(controlmode_t eMode) const
 {
 	if (eMode == MODE_FIRE)
 		return false;
