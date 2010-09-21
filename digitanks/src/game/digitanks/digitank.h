@@ -200,8 +200,8 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	void						Move();
-	void						Turn();
+	virtual void				Move();
+	virtual void				Turn();
 	virtual void				Fire();
 	void						FireProjectile();
 	void						FireProjectile(class CNetworkParameters* p);

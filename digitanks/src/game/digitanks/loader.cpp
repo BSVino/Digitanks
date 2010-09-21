@@ -409,6 +409,8 @@ void CLoader::InstallComplete()
 		m_iTankRange += (size_t)pUpdate->m_flValue;
 		break;
 	}
+
+	DigitanksGame()->AddActionItem(this, ACTIONTYPE_INSTALLATION);
 }
 
 bool CLoader::HasUpdatesAvailable()

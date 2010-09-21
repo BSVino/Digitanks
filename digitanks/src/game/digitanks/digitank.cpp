@@ -792,7 +792,8 @@ float CDigitank::GetDesiredTurn() const
 	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
 	{
 		float flLerp = SLerp(RemapVal(flTimeSinceTurn, 0, flTransitionTime, 0, 1), 0.2f);
-		float flNewTurn = m_flPreviousTurn * (1-flLerp) + m_flDesiredTurn * flLerp;
+		float flAngleDiff = AngleDifference(m_flDesiredTurn, m_flPreviousTurn);
+		float flNewTurn = m_flPreviousTurn + flAngleDiff * flLerp;
 		return flNewTurn;
 	}
 
@@ -1264,7 +1265,7 @@ bool CDigitank::NeedsOrders()
 	bool bNeedsToAttack = true;
 	if (GetBaseAttackPower() > 0)
 		bNeedsToAttack = false;
-	else
+	else if (!IsScout())
 	{
 		CDigitanksEntity* pClosestEnemy = NULL;
 		while (true)
@@ -1291,6 +1292,9 @@ bool CDigitank::NeedsOrders()
 		if (!pClosestEnemy)
 			bNeedsToAttack = false;
 	}
+
+	if (IsScout())
+		bNeedsToAttack = false;
 
 	return bNeedsToMove || bNeedsToAttack;
 }

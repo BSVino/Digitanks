@@ -30,6 +30,18 @@ bool CScout::AllowControlMode(controlmode_t eMode) const
 	return BaseClass::AllowControlMode(eMode);
 }
 
+void CScout::Move()
+{
+	Vector vecStart = GetOrigin();
+	Vector vecEnd = m_vecDesiredMove;
+
+	BaseClass::Move();
+
+	SetPreviewTurn(VectorAngles(vecEnd-vecStart).y);
+	SetDesiredTurn();
+	Turn();
+}
+
 float CScout::ShieldRechargeRate() const
 {
 	return 0;

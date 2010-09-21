@@ -935,6 +935,9 @@ void CHUD::UpdateTurnButton()
 		m_pTurnButton->SetTexture(m_iTurnButton);
 		m_pPressEnter->SetVisible(false);
 	}
+
+	if (DigitanksGame()->GetCurrentTeam() != DigitanksGame()->GetLocalDigitanksTeam())
+		m_pPressEnter->SetVisible(true);
 }
 
 void CHUD::SetGame(CDigitanksGame *pGame)

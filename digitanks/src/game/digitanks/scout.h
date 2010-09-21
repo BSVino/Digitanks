@@ -17,12 +17,15 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Rogue"; };
 
+	virtual void				Move();
+
 	virtual bool				IsScout() const { return true; };
 	virtual bool				CanAimMobilized() const { return false; };
 
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; }
+	virtual float				TurnPerPower() const { return 9999; };
 	virtual float				GetMinRange() const { return 0.0f; };
 	virtual float				InitialEffRange() const { return 0.0f; };
 	virtual float				InitialMaxRange() const { return 0.0f; };

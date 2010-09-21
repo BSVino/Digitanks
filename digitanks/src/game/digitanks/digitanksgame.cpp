@@ -1113,6 +1113,13 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 	if (!IsTeamControlledByMe(GetCurrentTeam()))
 		return;
 
+	// Prevent duplicates
+	for (size_t i = 0; i < m_aActionItems.size(); i++)
+	{
+		if (m_aActionItems[i].eActionType == eActionType && m_aActionItems[i].iUnit == pUnit->GetHandle())
+			return;
+	}
+
 	m_aActionItems.push_back(actionitem_t());
 	actionitem_t* pActionItem = &m_aActionItems[m_aActionItems.size()-1];
 	pActionItem->iUnit = pUnit->GetHandle();
