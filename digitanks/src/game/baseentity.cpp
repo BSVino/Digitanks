@@ -182,6 +182,15 @@ void CBaseEntity::SetSoundVolume(const char* pszFilename, float flVolume)
 	CSoundLibrary::SetSoundVolume(this, pszFilename, flVolume);
 }
 
+float CBaseEntity::Distance(Vector vecSpot)
+{
+	float flDistance = (GetOrigin() - vecSpot).Length();
+	if (flDistance < GetBoundingRadius())
+		return 0;
+
+	return flDistance - GetBoundingRadius();
+}
+
 bool CBaseEntity::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 {
 	if (GetBoundingRadius() == 0)

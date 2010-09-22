@@ -1,7 +1,10 @@
 #include "scout.h"
 
 #include <network/network.h>
+#include <mtrand.h>
 
+#include "ui/digitankswindow.h"
+#include "ui/hud.h"
 #include "digitanksgame.h"
 #include "projectile.h"
 
@@ -17,6 +20,7 @@ CScout::CScout()
 void CScout::Precache()
 {
 	PrecacheModel(L"models/digitanks/scout.obj", true);
+	PrecacheSound("sound/torpedo-drop.wav");
 }
 
 bool CScout::AllowControlMode(controlmode_t eMode) const
@@ -40,6 +44,89 @@ void CScout::Move()
 	SetPreviewTurn(VectorAngles(vecEnd-vecStart).y);
 	SetDesiredTurn();
 	Turn();
+}
+
+void CScout::Fire()
+{
+	CSupplyLine* pClosest = NULL;
+	while (true)
+	{
+		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetOrigin(), pClosest);
+
+		if (!pClosest)
+			break;
+
+		if (pClosest->GetTeam() == GetTeam())
+			continue;
+
+		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
+			continue;
+
+		if (pClosest->Distance(GetOrigin()) > GetMaxRange())
+		{
+			pClosest = NULL;
+			break;
+		}
+
+		// This one will do.
+		break;
+	}
+
+	if (!pClosest)
+		return;
+
+	float flDistance = pClosest->Distance(GetOrigin());
+	if (flDistance > GetMaxRange())
+		return;
+
+	if (m_bFiredWeapon)
+		return;
+
+	Vector vecIntersection;
+	DistanceToLineSegment(GetOrigin(), pClosest->GetSupplier()->GetOrigin(), pClosest->GetEntity()->GetOrigin(), &vecIntersection);
+
+	SetPreviewAim(vecIntersection);
+	SetDesiredAim();
+
+	m_bFiredWeapon = true;
+
+	float flAttackPower = m_flTotalPower * m_flAttackSplit;
+	m_flTotalPower -= flAttackPower;
+	m_flAttackPower += flAttackPower;
+
+	DigitanksGame()->AddProjectileToWaitFor();
+
+	if (CNetwork::IsHost())
+		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
+
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+}
+
+CProjectile* CScout::CreateProjectile()
+{
+	return Game()->Create<CTorpedo>("CTorpedo");
+}
+
+void CScout::FireProjectile(CNetworkParameters* p)
+{
+	m_hProjectile = CEntityHandle<CProjectile>(p->ui2);
+
+	Vector vecLandingSpot = Vector(p->fl3, p->fl4, p->fl5);
+
+	float flGravity = DigitanksGame()->GetGravity();
+
+	// FIRE PROTON TORPEDO NUMBER ONE NUMBER TWO
+	m_hProjectile->SetOwner(this);
+	m_hProjectile->SetForce(Vector(0,0,0));
+	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
+	m_hProjectile->SetLandingSpot(vecLandingSpot);
+
+	if (GetVisibility() > 0)
+		EmitSound("sound/torpedo-drop.wav");
+
+	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 }
 
 float CScout::ShieldRechargeRate() const

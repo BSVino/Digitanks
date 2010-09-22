@@ -123,6 +123,8 @@ public:
 	bool									IsSoundPlaying(const char* pszFilename);
 	void									SetSoundVolume(const char* pszFilename, float flVolume);
 
+	virtual float							Distance(Vector vecSpot);
+
 	virtual bool							Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
@@ -213,7 +215,8 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 		if (pT == pFurther)
 			continue;
 
-		if (pFurther && (pT->GetOrigin() - vecPoint).LengthSqr() <= (pFurther->GetOrigin() - vecPoint).LengthSqr())
+		float flEntityDistance = pT->Distance(vecPoint);
+		if (pFurther && (flEntityDistance <= pFurther->Distance(vecPoint)))
 			continue;
 
 		if (!pClosest)
@@ -222,7 +225,7 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 			continue;
 		}
 
-		if ((pT->GetOrigin() - vecPoint).LengthSqr() < (pClosest->GetOrigin() - vecPoint).LengthSqr())
+		if (flEntityDistance < pClosest->Distance(vecPoint))
 			pClosest = pT;
 	}
 

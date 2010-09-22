@@ -141,22 +141,8 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	else
 		pOther->TakeDamage(m_hOwner, this, m_flDamage);
 
-	SetVelocity(Vector());
-	SetGravity(Vector());
-
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
-
-	bool bHit = false;
-
 	if (ShouldExplode())
-	{
-		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pOther, m_hOwner->GetTeam());
-		m_flTimeExploded = Game()->GetGameTime();
-
-		if (m_bShouldRender)
-			Game()->GetCamera()->Shake(GetOrigin(), 3);
-	}
+		Explode(pOther);
 	else
 		m_flTimeExploded = 1;	// Remove immediately.
 
@@ -167,9 +153,33 @@ void CProjectile::Touching(CBaseEntity* pOther)
 		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
 			EmitSound("sound/explosion.wav");
 	}
+}
 
-	if (dynamic_cast<CTerrain*>(pOther) && !bHit)
+void CProjectile::Explode(CBaseEntity* pInstigator)
+{
+	SetVelocity(Vector());
+	SetGravity(Vector());
+
+	bool bHit = false;
+	if (m_flDamage > 0)
+		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pInstigator, m_hOwner->GetTeam());
+
+	m_flTimeExploded = Game()->GetGameTime();
+
+	if (m_bShouldRender)
+		Game()->GetCamera()->Shake(GetOrigin(), 3);
+
+	if (MakesSounds() && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+		EmitSound("sound/explosion.wav");
+
+	if (dynamic_cast<CTerrain*>(pInstigator) && !bHit)
 		m_hOwner->Speak(TANKSPEECH_MISSED);
+
+	if (m_iParticleSystem != ~0)
+	{
+		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
+		m_iParticleSystem = 0;
+	}
 }
 
 void CProjectile::SetOwner(CDigitank* pOwner)
@@ -200,4 +210,79 @@ size_t CProjectile::CreateParticleSystem()
 size_t CInfantryFlak::CreateParticleSystem()
 {
 	return ~0;
+}
+
+CTorpedo::CTorpedo()
+{
+	m_bBurrowing = false;
+
+	m_flDamage = 0;
+}
+
+void CTorpedo::Think()
+{
+	if (m_bBurrowing)
+	{
+		float flDistance = Game()->GetFrameTime() * 10;
+		Vector vecDirection = m_vecLandingSpot - GetOrigin();
+		vecDirection.y = 0;
+
+		if (vecDirection.LengthSqr() < flDistance*flDistance*2)
+		{
+			m_bBurrowing = false;
+			Explode();
+		}
+
+		// Insert Jaws theme here.
+		Vector vecPosition = GetOrigin() + vecDirection.Normalized() * flDistance;
+		SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(vecPosition));
+	}
+
+	if (!m_bBurrowing)
+		BaseClass::Think();
+}
+
+bool CTorpedo::ShouldTouch(CBaseEntity* pOther) const
+{
+	if (m_bBurrowing && pOther && pOther->GetCollisionGroup() == CG_TERRAIN)
+		return false;
+
+	return BaseClass::ShouldTouch(pOther);
+}
+
+void CTorpedo::Touching(CBaseEntity* pOther)
+{
+	if (pOther->GetCollisionGroup() == CG_TERRAIN)
+	{
+		m_bBurrowing = true;
+		SetVelocity(Vector());
+		SetGravity(Vector());
+	}
+
+	// Don't call superclass!
+}
+
+void CTorpedo::Explode(CBaseEntity* pInstigator)
+{
+	CSupplyLine* pClosest = NULL;
+	while (true)
+	{
+		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetOrigin(), pClosest);
+
+		if (!pClosest)
+			break;
+
+		if (pClosest->GetTeam() == GetTeam())
+			continue;
+
+		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
+			continue;
+
+		if (pClosest->Distance(GetOrigin()) > 4)
+			break;
+
+		pClosest->Intercept(0.5f);
+	}
+
+	BaseClass::Explode(pInstigator);
 }

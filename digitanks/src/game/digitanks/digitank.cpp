@@ -278,11 +278,14 @@ float CDigitank::GetSupportAttackPowerBonus()
 	if (m_hSupplier == NULL)
 		return 0;
 
+	if (m_hSupplyLine == NULL)
+		return 0;
+
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = (float)m_hSupplier->EnergyBonus();
+		flBonus = (float)m_hSupplier->EnergyBonus() * m_hSupplyLine->GetIntegrity();
 
-	return 2 + flBonus;
+	return flBonus;
 }
 
 float CDigitank::GetSupportDefensePowerBonus()
@@ -290,11 +293,14 @@ float CDigitank::GetSupportDefensePowerBonus()
 	if (m_hSupplier == NULL)
 		return 0;
 
+	if (m_hSupplyLine == NULL)
+		return 0;
+
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = (float)m_hSupplier->EnergyBonus();
+		flBonus = (float)m_hSupplier->EnergyBonus() * m_hSupplyLine->GetIntegrity();
 
-	return 2 + flBonus;
+	return flBonus;
 }
 
 float CDigitank::GetSupportHealthRechargeBonus() const
@@ -302,11 +308,14 @@ float CDigitank::GetSupportHealthRechargeBonus() const
 	if (m_hSupplier == NULL)
 		return 0.0f;
 
+	if (m_hSupplyLine == NULL)
+		return 0;
+
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = m_hSupplier->RechargeBonus()/5;
+		flBonus = m_hSupplier->RechargeBonus()/5 * m_hSupplyLine->GetIntegrity();
 
-	return 0.1f + flBonus;
+	return flBonus;
 }
 
 float CDigitank::GetSupportShieldRechargeBonus() const
@@ -314,11 +323,14 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 	if (m_hSupplier == NULL)
 		return 0.0f;
 
+	if (m_hSupplyLine == NULL)
+		return 0;
+
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = m_hSupplier->RechargeBonus();
+		flBonus = m_hSupplier->RechargeBonus() * m_hSupplyLine->GetIntegrity();
 
-	return 0.5f + flBonus;
+	return flBonus;
 }
 
 void CDigitank::SetAttackPower(float flAttackPower)
@@ -938,6 +950,7 @@ void CDigitank::Fortify()
 	if (m_bFortified)
 	{
 		m_bFortified = false;
+		CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 		return;
 	}
 
@@ -945,6 +958,8 @@ void CDigitank::Fortify()
 
 	m_iFortifyLevel = 0;
 	m_flFortifyTime = Game()->GetGameTime();
+
+	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 bool CDigitank::CanAim() const
@@ -1164,8 +1179,8 @@ void CDigitank::OnCurrentSelection()
 
 		if (!HasDesiredMove() && !IsFortified() && !HasDesiredAim() && !HasGoalMovePosition())
 			DigitanksGame()->SetControlMode(MODE_MOVE);
-		else if (!HasDesiredAim() && CanAim() && pClosestEnemy)
-			DigitanksGame()->SetControlMode(MODE_AIM);
+		//else if (!HasDesiredAim() && CanAim() && pClosestEnemy)
+		//	DigitanksGame()->SetControlMode(MODE_AIM);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
@@ -1274,17 +1289,17 @@ bool CDigitank::NeedsOrders()
 
 			if (pClosestEnemy)
 			{
-				if (pClosestEnemy->GetTeam() == GetTeam())
-					continue;
-
-				if (!pClosestEnemy->GetTeam())
-					continue;
-
 				if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
 				{
 					pClosestEnemy = NULL;
 					break;
 				}
+
+				if (pClosestEnemy->GetTeam() == GetTeam())
+					continue;
+
+				if (!pClosestEnemy->GetTeam())
+					continue;
 			}
 			break;
 		}
@@ -1329,7 +1344,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.");
 		}
 
-		if ((!IsFortified() || CanTurnFortified()) && m_flTotalPower > 1)
+		if (!IsScout() && (!IsFortified() || CanTurnFortified()) && m_flTotalPower > 1)
 		{
 			pHUD->SetButtonListener(1, CHUD::Turn);
 
@@ -1374,7 +1389,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(2, s_iCancelIcon);
-			else if (IsInfantry())
+			else if (IsInfantry() || IsScout())
 			{
 				pHUD->SetButtonListener(2, CHUD::InfantryFire);
 				pHUD->SetButtonTexture(2, s_iFireIcon);

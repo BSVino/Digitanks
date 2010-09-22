@@ -81,9 +81,9 @@ void CLoader::StartTurn()
 	if (!m_bProducing)
 		m_iProductionStored = 0;
 
-	if (m_bProducing && m_hSupplier != NULL)
+	if (m_bProducing && m_hSupplier != NULL && m_hSupplyLine != NULL)
 	{
-		m_iProductionStored += (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
+		m_iProductionStored += (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity());
 		if (m_iProductionStored > g_aiTurnsToLoad[GetBuildUnit()])
 		{
 			CDigitank* pTank;
@@ -455,7 +455,10 @@ size_t CLoader::GetTurnsToProduce()
 	if (m_hSupplier == NULL)
 		return -1;
 
-	size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency());
+	if (m_hSupplyLine == NULL)
+		return -1;
+
+	size_t iPerTurn = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity());
 	if (iPerTurn == 0)
 		return 9999;
 
@@ -507,10 +510,10 @@ void CLoader::UpdateInfo(std::wstring& sInfo)
 		return;
 	}
 
-	if (IsProducing() && GetSupplier())
+	if (IsProducing() && GetSupplier() && GetSupplyLine())
 	{
 		s << L"(Producing)\n";
-		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * GetSupplier()->GetChildEfficiency());
+		size_t iProduction = (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * GetSupplier()->GetChildEfficiency() * m_hSupplyLine->GetIntegrity());
 		size_t iProductionLeft = GetUnitProductionCost() - m_iProductionStored;
 		s << L"Power to build: " << iProductionLeft << L"\n";
 		if (iProduction == 0)
@@ -527,8 +530,8 @@ void CLoader::UpdateInfo(std::wstring& sInfo)
 		sInfo = s.str();
 	}
 
-	if (GetSupplier())
-		s << L"Efficiency: " << (int)(GetSupplier()->GetChildEfficiency()*100) << L"%\n";
+	if (GetSupplier() && GetSupplyLine())
+		s << L"Efficiency: " << (int)(GetSupplier()->GetChildEfficiency()*m_hSupplyLine->GetIntegrity()*100) << L"%\n";
 
 	sInfo = s.str();
 }

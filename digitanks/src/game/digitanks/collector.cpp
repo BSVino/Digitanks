@@ -44,6 +44,14 @@ void CCollector::UpdateInfo(std::wstring& sInfo)
 	sInfo = s.str();
 }
 
+size_t CCollector::GetProduction()
+{
+	if (m_hSupplyLine == NULL)
+		return 0;
+
+	return (size_t)(4 * m_hSupplyLine->GetIntegrity());
+}
+
 size_t CBattery::s_iCancelIcon = 0;
 
 void CBattery::Spawn()
@@ -140,4 +148,12 @@ void CBattery::UpgradeComplete()
 	Delete();
 
 	DigitanksGame()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
+}
+
+size_t CBattery::GetProduction()
+{
+	if (m_hSupplyLine == NULL)
+		return 0;
+
+	return (size_t)(2 * m_hSupplyLine->GetIntegrity());
 }

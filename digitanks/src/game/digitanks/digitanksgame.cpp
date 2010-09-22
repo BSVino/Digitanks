@@ -562,9 +562,9 @@ void CDigitanksGame::SetDesiredMove()
 		}
 
 		// Only go to aim mode if there is an enemy in range.
-		if (pClosestEnemy && GetPrimarySelectionTank()->CanAim())
-			SetControlMode(MODE_AIM);
-		else
+		//if (pClosestEnemy && GetPrimarySelectionTank()->CanAim())
+		//	SetControlMode(MODE_AIM);
+		//else
 			SetControlMode(MODE_NONE);
 
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);

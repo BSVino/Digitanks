@@ -30,6 +30,8 @@ public:
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	virtual void				Touching(CBaseEntity* pOther);
 
+	virtual void				Explode(CBaseEntity* pInstigator = NULL);
+
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				CreatesCraters() { return true; };
 	virtual bool				BombDropNoise() { return true; };
@@ -88,6 +90,32 @@ public:
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return false; };
 	virtual size_t				CreateParticleSystem();
+};
+
+class CTorpedo : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CTorpedo, CProjectile);
+
+public:
+								CTorpedo();
+
+public:
+	virtual void				Think();
+
+	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
+	virtual void				Touching(CBaseEntity* pOther);
+
+	virtual void				Explode(CBaseEntity* pInstigator = NULL);
+
+	virtual bool				MakesSounds() { return true; };
+	virtual float				ShellRadius() { return 0.35f; };
+	virtual bool				ShouldExplode() { return true; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual bool				BombDropNoise() { return false; };
+	virtual bool				SendsNotifications() { return false; };
+
+protected:
+	bool						m_bBurrowing;
 };
 
 #endif

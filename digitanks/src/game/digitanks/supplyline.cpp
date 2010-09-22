@@ -22,7 +22,8 @@ void CSupplyLine::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_bIntercepted = false;
+	m_flIntegrity = 1.0f;
+	m_bDelayRecharge= false;
 }
 
 void CSupplyLine::SetEntities(CSupplier* pSupplier, CBaseEntity* pEntity)
@@ -41,6 +42,30 @@ Vector CSupplyLine::GetOrigin() const
 	return m_hSupplier->GetOrigin();
 }
 
+float CSupplyLine::Distance(Vector vecSpot)
+{
+	if (m_hSupplier == NULL || m_hEntity == NULL)
+		return BaseClass::Distance(vecSpot);
+
+	Vector vecSupplier = m_hSupplier->GetOrigin();
+	Vector vecEntity = m_hEntity->GetOrigin();
+
+	Vector vecSupplierFlat = vecSupplier;
+	Vector vecEntityFlat = vecEntity;
+	Vector vecSpotFlat = vecSpot;
+
+	vecSupplierFlat.y = 0;
+	vecEntityFlat.y = 0;
+	vecSpotFlat.y = 0;
+
+	Vector vecIntersection;
+	float flDistance = DistanceToLineSegment(vecSpotFlat, vecSupplierFlat, vecEntityFlat, &vecIntersection);
+
+	DigitanksGame()->GetTerrain()->SetPointHeight(vecIntersection);
+
+	return vecSpot.Distance(vecIntersection);
+}
+
 void CSupplyLine::StartTurn()
 {
 	BaseClass::StartTurn();
@@ -48,7 +73,9 @@ void CSupplyLine::StartTurn()
 	if (m_hEntity == NULL)
 		return;
 
-	m_bIntercepted = false;
+	// Supplier got blowed up?
+	if (m_hSupplier == NULL)
+		return;
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -56,23 +83,46 @@ void CSupplyLine::StartTurn()
 		if (!pEntity)
 			continue;
 
-		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
-		if (!pDigitank)
+		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+		if (!pDTEntity)
 			continue;
 
-		if (pDigitank->GetTeam() == GetTeam())
+		if (pDTEntity->GetTeam() == GetTeam())
 			continue;
 
-		// Supplier got blowed up?
-		if (m_hSupplier == NULL)
+		if (!pDTEntity->GetTeam())
 			continue;
 
-		if (DistanceToLineSegment(pDigitank->GetOrigin(), m_hSupplier->GetOrigin(), m_hEntity->GetOrigin()) < pDigitank->GetBoundingRadius()*2)
-		{
-			m_bIntercepted = true;
-			break;
-		}
+		Vector vecEntity = pDTEntity->GetOrigin();
+		vecEntity.y = 0;
+
+		Vector vecSupplier = m_hSupplier->GetOrigin();
+		vecSupplier.y = 0;
+
+		Vector vecUnit = m_hEntity->GetOrigin();
+		vecUnit.y = 0;
+
+		if (DistanceToLineSegment(vecEntity, vecSupplier, vecUnit) < pDTEntity->GetBoundingRadius()*2)
+			Intercept(0.2f);
 	}
+
+	if (!m_bDelayRecharge)
+	{
+		m_flIntegrity += 0.2f;
+		if (m_flIntegrity > 1)
+			m_flIntegrity = 1;
+	}
+
+	m_bDelayRecharge = false;
+}
+
+void CSupplyLine::Intercept(float flIntercept)
+{
+	m_flIntegrity -= flIntercept;
+	if (m_flIntegrity < 0)
+		m_flIntegrity = 0;
+
+	m_bDelayRecharge = true;
 }
 
 void CSupplyLine::PostRender()
@@ -109,10 +159,10 @@ void CSupplyLine::PostRender()
 
 	for (size_t i = 1; i < iSegments; i++)
 	{
-		if (m_bIntercepted && i%2 == 0)
-			clrTeam.SetAlpha(50);
+		if (m_flIntegrity < 1 && i%2 == 0)
+			clrTeam.SetAlpha((int)(50 * m_flIntegrity));
 		else
-			clrTeam.SetAlpha(255);
+			clrTeam.SetAlpha((int)(255 * m_flIntegrity));
 
 		oRope.SetColor(clrTeam);
 
@@ -123,4 +173,14 @@ void CSupplyLine::PostRender()
 	oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 2, 0));
 
 	glEnd();
+}
+
+CSupplier* CSupplyLine::GetSupplier()
+{
+	return m_hSupplier;
+}
+
+CBaseEntity* CSupplyLine::GetEntity()
+{
+	return m_hEntity;
 }

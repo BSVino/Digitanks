@@ -62,6 +62,8 @@ public:
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
 
+	virtual class CSupplyLine*	GetSupplyLine() { if (m_hSupplyLine == NULL) return NULL; return m_hSupplyLine; };
+
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
 	virtual void				OnDeleted();
@@ -83,10 +85,10 @@ public:
 	virtual size_t				InitialPower() const { return 0; };
 	virtual size_t				Power() const { return m_iPower; };
 
-	virtual size_t				InitialEnergyBonus() const { return 0; };
+	virtual size_t				InitialEnergyBonus() const { return 4; };
 	virtual size_t				EnergyBonus() const { return m_iEnergyBonus; };
 
-	virtual float				InitialRechargeBonus() const { return 0; };
+	virtual float				InitialRechargeBonus() const { return 0.5f; };
 	virtual float				RechargeBonus() const { return m_flRechargeBonus; };
 
 	// AI stuff

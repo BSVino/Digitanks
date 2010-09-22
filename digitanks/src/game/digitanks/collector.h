@@ -16,7 +16,7 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
-	virtual size_t				GetProduction() { return 4; };
+	virtual size_t				GetProduction();
 
 	virtual const wchar_t*		GetName() { return L"Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_PSU; };
@@ -46,7 +46,7 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
-	virtual size_t				GetProduction() { return 2; };
+	virtual size_t				GetProduction();
 
 	virtual const wchar_t*		GetName() { return L"Battery"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BATTERY; };

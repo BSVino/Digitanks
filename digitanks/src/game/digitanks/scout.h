@@ -18,17 +18,19 @@ public:
 	virtual const wchar_t*		GetName() { return L"Rogue"; };
 
 	virtual void				Move();
+	virtual void				Fire();
+	virtual class CProjectile*	CreateProjectile();
+	virtual void				FireProjectile(class CNetworkParameters* p);
 
 	virtual bool				IsScout() const { return true; };
-	virtual bool				CanAimMobilized() const { return false; };
 
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; }
 	virtual float				TurnPerPower() const { return 9999; };
-	virtual float				GetMinRange() const { return 0.0f; };
-	virtual float				InitialEffRange() const { return 0.0f; };
-	virtual float				InitialMaxRange() const { return 0.0f; };
+	virtual float				GetMinRange() const { return 5.0f; };
+	virtual float				InitialEffRange() const { return 27.0f; };
+	virtual float				InitialMaxRange() const { return 30.0f; };
 	virtual float				GetTransitionTime() const { return 1.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				VisibleRange() const { return 65; };

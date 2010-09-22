@@ -48,6 +48,9 @@ public:
 	void	Normalize();
 	Vector	Normalized() const;
 
+	float	Distance(const Vector& v) const;
+	float	DistanceSqr(const Vector& v) const;
+
 	float	Dot(const Vector& v) const;
 	Vector	Cross(const Vector& v) const;
 
@@ -187,6 +190,16 @@ inline Vector Vector::Normalized() const
 		return Vector(0,0,1);
 	else
 		return *this/flLength;
+}
+
+inline float Vector::Distance(const Vector& v) const
+{
+	return (*this - v).Length();
+}
+
+inline float Vector::DistanceSqr(const Vector& v) const
+{
+	return (*this - v).LengthSqr();
 }
 
 inline float Vector::Dot(const Vector& v) const

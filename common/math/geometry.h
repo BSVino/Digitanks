@@ -125,7 +125,7 @@ inline float DistanceToLine(Vector p, Vector v1, Vector v2)
 	return (vb - p).Length();
 }
 
-inline float DistanceToLineSegment(Vector p, Vector v1, Vector v2)
+inline float DistanceToLineSegment(Vector p, Vector v1, Vector v2, Vector* i = NULL)
 {
 	Vector v = v2 - v1;
 	Vector w = p - v1;
@@ -133,15 +133,27 @@ inline float DistanceToLineSegment(Vector p, Vector v1, Vector v2)
 	float c1 = w.Dot(v);
 
 	if (c1 < 0)
+	{
+		if (i)
+			*i = v1;
 		return (v1-p).Length();
+	}
 
 	float c2 = v.Dot(v);
 	if (c2 < c1)
+	{
+		if (i)
+			*i = v2;
 		return (v2-p).Length();
+	}
 
 	float b = c1/c2;
 
 	Vector vb = v1 + v*b;
+
+	if (i)
+		*i = vb;
+
 	return (vb - p).Length();
 }
 

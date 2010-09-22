@@ -14,17 +14,25 @@ public:
 	void							SetEntities(class CSupplier* pSupplier, CBaseEntity* pEntity);
 
 	virtual Vector					GetOrigin() const;
+	virtual float					Distance(Vector vecSpot);
 
 	virtual void					StartTurn();
 
+	void							Intercept(float flIntercept);
+	float							GetIntegrity() { return m_flIntegrity; };
+
 	virtual bool					ShouldRender() const { return true; };
 	virtual void					PostRender();
+
+	CSupplier*						GetSupplier();
+	CBaseEntity*					GetEntity();
 
 protected:
 	CEntityHandle<CSupplier>		m_hSupplier;
 	CEntityHandle<CBaseEntity>		m_hEntity;
 
-	bool							m_bIntercepted;
+	float							m_flIntegrity;
+	bool							m_bDelayRecharge;
 
 	static size_t					s_iSupplyBeam;
 };

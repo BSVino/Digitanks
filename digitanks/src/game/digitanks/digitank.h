@@ -204,7 +204,7 @@ public:
 	virtual void				Turn();
 	virtual void				Fire();
 	void						FireProjectile();
-	void						FireProjectile(class CNetworkParameters* p);
+	virtual void				FireProjectile(class CNetworkParameters* p);
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
