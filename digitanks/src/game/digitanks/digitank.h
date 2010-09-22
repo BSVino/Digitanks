@@ -90,6 +90,8 @@ public:
 	virtual void				SetAttackPower(float flAttackPower);
 	void						SetAttackPower(class CNetworkParameters* p);
 
+	float						GetPowerAttackSplit() { return m_flAttackSplit; }
+
 	float						GetPreviewMoveTurnPower();
 	float						GetPreviewMovePower() const;
 	float						GetPreviewTurnPower() const;
@@ -114,7 +116,7 @@ public:
 
 	virtual CDigitank*			FindClosestVisibleEnemyTank();
 
-	Vector						GetPreviewMove() { return m_vecPreviewMove; };
+	Vector						GetPreviewMove() const { return m_vecPreviewMove; };
 	virtual void				SetPreviewMove(Vector vecPreviewMove);
 	void						ClearPreviewMove();
 

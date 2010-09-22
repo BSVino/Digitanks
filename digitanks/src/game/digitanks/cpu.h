@@ -17,6 +17,7 @@ public:
 	virtual size_t				InitialFleetPoints() const { return 8; };
 	virtual size_t				InitialBandwidth() const { return 4; };
 	virtual size_t				InitialPower() const { return 4; };
+	virtual bool				IsDataFlowSource() { return true; };
 
 	virtual float				GetBoundingRadius() const { return 8; };
 

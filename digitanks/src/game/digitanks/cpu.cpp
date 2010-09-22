@@ -278,7 +278,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		std::wstringstream s;
 		s << "BUILD ROGUE\n \n"
-			<< "Rogues are a cheap reconnaisance unit with good speed but little defense and no attacking capabilities. Use them to scout the enemy positions!\n \n"
+			<< "Rogues are a cheap reconnaisance unit with good speed but shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n"
 			<< "Power to construct: " << g_aiTurnsToLoad[BUILDUNIT_SCOUT] << " Power\n"
 			<< "Turns to install: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]) << " Turns";
 		pHUD->SetButtonInfo(6, s.str().c_str());

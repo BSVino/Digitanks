@@ -11,6 +11,7 @@
 #include "artillery.h"
 #include "maintank.h"
 #include "mechinf.h"
+#include "scout.h"
 
 unittype_t g_aeBuildOrder[] =
 {
@@ -583,28 +584,27 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		vecTargetOrigin = m_vecLKV;
 	}
-	else
+
+	bool bCloseToExplorePoint = false;
+	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
-		bool bCloseToExplorePoint = false;
-		for (size_t i = 0; i < GetNumTanks(); i++)
+		if ((GetTank(i)->GetOrigin() - m_vecExplore).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
 		{
-			if ((GetTank(i)->GetOrigin() - m_vecExplore).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
-			{
-				bCloseToExplorePoint = true;
-				break;
-			}
+			bCloseToExplorePoint = true;
+			break;
 		}
-
-		if (m_vecExplore.Length() < 1 || bCloseToExplorePoint)
-		{
-			float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
-			m_vecExplore.x = RandomFloat(-flMapSize, flMapSize);
-			m_vecExplore.z = RandomFloat(-flMapSize, flMapSize);
-			DigitanksGame()->GetTerrain()->SetPointHeight(m_vecExplore);
-		}
-
-		vecTargetOrigin = m_vecExplore;
 	}
+
+	if (m_vecExplore.Length() < 1 || bCloseToExplorePoint)
+	{
+		float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
+		m_vecExplore.x = RandomFloat(-flMapSize, flMapSize);
+		m_vecExplore.z = RandomFloat(-flMapSize, flMapSize);
+		DigitanksGame()->GetTerrain()->SetPointHeight(m_vecExplore);
+	}
+
+	if (!pTarget && !m_bLKV)
+		vecTargetOrigin = m_vecExplore;
 
 	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
@@ -638,16 +638,66 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		if (pTank->IsScout())
 		{
-			float flMovementDistance = pTank->GetMaxMovementDistance();
-			Vector vecDirection = m_vecExplore - pTank->GetOrigin();
-			vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+			// We HATE infantry, so always know where the closest one is.
+			CMechInfantry* pClosestInfantry = NULL;
+			while (true)
+			{
+				pClosestInfantry = CBaseEntity::FindClosest<CMechInfantry>(pTank->GetOrigin(), pClosestInfantry);
 
-			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-			vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				if (!pClosestInfantry)
+					break;
 
-			pTank->SetPreviewMove(vecDesiredMove);
-			pTank->SetDesiredMove();
-			pTank->Move();
+				if (pClosestInfantry->GetTeam() == pTank->GetTeam())
+					continue;
+
+				if (pClosestInfantry->Distance(pTank->GetOrigin()) > pClosestInfantry->GetMaxRange())
+				{
+					pClosestInfantry = NULL;
+					break;
+				}
+
+				break;
+			}
+
+			CSupplyLine* pClosestSupply = dynamic_cast<CScout*>(pTank)->FindClosestEnemySupplyLine();
+			bool bSupplyIsForScout = pClosestSupply && pClosestSupply->GetEntity() && dynamic_cast<CDigitank*>(pClosestSupply->GetEntity()) && dynamic_cast<CDigitank*>(pClosestSupply->GetEntity())->IsScout();
+
+			Vector vecDesiredMove;
+			bool bMove = false;
+			if (pClosestInfantry)
+			{
+				// Scouts hate infantry! Move directly away from them.
+				float flMovementDistance = pTank->GetMaxMovementDistance();
+				Vector vecDirection = pTank->GetOrigin() - pClosestInfantry->GetOrigin();
+				vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+
+				vecDesiredMove = pTank->GetOrigin() + vecDirection;
+				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				bMove = true;
+			}
+			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
+			else if (pClosestSupply && !bSupplyIsForScout && pClosestSupply->GetIntegrity() > 0.3f)
+			{
+				// FIRE ZE MISSILES
+				pTank->Fire();
+			}
+			else
+			{
+				float flMovementDistance = pTank->GetMaxMovementDistance();
+				Vector vecDirection = m_vecExplore - pTank->GetOrigin();
+				vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+
+				vecDesiredMove = pTank->GetOrigin() + vecDirection;
+				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				bMove = true;
+			}
+
+			if (bMove)
+			{
+				pTank->SetPreviewMove(vecDesiredMove);
+				pTank->SetDesiredMove();
+				pTank->Move();
+			}
 		}
 		else if (pTank->HasFortifyPoint() && !pTank->IsFortified())
 		{

@@ -25,6 +25,8 @@ public:
 
 	virtual float				GetBoundingRadius() const { return 5; };
 
+	virtual void				OnTeamChange();
+
 	virtual void				StartTurn();
 	virtual void				FindGround();
 
@@ -149,6 +151,7 @@ public:
 
 	virtual size_t				InitialDataStrength() { return 100; };
 	virtual size_t				BaseDataFlowPerTurn() { return 20; };
+	virtual bool				IsDataFlowSource() { return false; };
 	virtual float				GetDataFlowRate();
 	float						GetDataFlowRadius() const;
 	float						GetDataFlow(Vector vecPoint);

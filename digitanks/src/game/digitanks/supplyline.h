@@ -20,6 +20,7 @@ public:
 
 	void							Intercept(float flIntercept);
 	float							GetIntegrity() { return m_flIntegrity; };
+	void							SetIntegrity(float flIntegrity) { m_flIntegrity = flIntegrity; m_bDelayRecharge = false; };
 
 	virtual bool					ShouldRender() const { return true; };
 	virtual void					PostRender();

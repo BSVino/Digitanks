@@ -56,6 +56,13 @@ void CStructure::Spawn()
 	m_flConstructionStartTime = 0;
 }
 
+void CStructure::OnTeamChange()
+{
+	BaseClass::OnTeamChange();
+
+	SetSupplier(NULL);
+}
+
 void CStructure::StartTurn()
 {
 	BaseClass::StartTurn();
@@ -553,7 +560,21 @@ void CSupplier::StartTurn()
 	BaseClass::StartTurn();
 
 	if (!IsConstructing())
-		m_iDataStrength += (size_t)GetDataFlowRate();
+	{
+		if (IsDataFlowSource())
+			m_iDataStrength += (size_t)GetDataFlowRate();
+		else if (GetSupplyLine())
+			m_iDataStrength += (size_t)(GetDataFlowRate() * GetSupplyLine()->GetIntegrity());
+	}
+
+	if (GetDigitanksTeam() && !IsDataFlowSource())
+	{
+		if (!GetSupplyLine() || GetSupplyLine()->GetIntegrity() <= 0.25f)
+		{
+			GetDigitanksTeam()->RemoveEntity(this);
+			return;
+		}
+	}
 
 	UpdateTendrils();
 
@@ -592,6 +613,7 @@ void CSupplier::StartTurn()
 		// You will join us... OR DIE
 		GetDigitanksTeam()->AddEntity(pStructure);
 		pStructure->SetSupplier(this);
+		pStructure->GetSupplyLine()->SetIntegrity(0.5f);
 	}
 }
 

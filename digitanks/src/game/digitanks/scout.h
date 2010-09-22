@@ -17,6 +17,8 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Rogue"; };
 
+	CSupplyLine*				FindClosestEnemySupplyLine(bool bInRange = false);
+
 	virtual void				Move();
 	virtual void				Fire();
 	virtual class CProjectile*	CreateProjectile();
@@ -33,7 +35,7 @@ public:
 	virtual float				InitialMaxRange() const { return 30.0f; };
 	virtual float				GetTransitionTime() const { return 1.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
-	virtual float				VisibleRange() const { return 65; };
+	virtual float				VisibleRange() const { return 75; };
 	virtual bool				CanGetPowerups() const { return false; };
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };

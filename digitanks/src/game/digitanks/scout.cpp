@@ -46,7 +46,7 @@ void CScout::Move()
 	Turn();
 }
 
-void CScout::Fire()
+CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 {
 	CSupplyLine* pClosest = NULL;
 	while (true)
@@ -54,24 +54,39 @@ void CScout::Fire()
 		pClosest = CBaseEntity::FindClosest<CSupplyLine>(GetOrigin(), pClosest);
 
 		if (!pClosest)
-			break;
+			return NULL;
 
 		if (pClosest->GetTeam() == GetTeam())
+			continue;
+
+		if (!pClosest->GetTeam())
 			continue;
 
 		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
 			continue;
 
-		if (pClosest->Distance(GetOrigin()) > GetMaxRange())
+		if (pClosest->GetIntegrity() < 0.5f)
+			continue;
+
+		if (bInRange)
 		{
-			pClosest = NULL;
-			break;
+			if (pClosest->Distance(GetOrigin()) > GetMaxRange())
+				return NULL;
+		}
+		else
+		{
+			if (pClosest->Distance(GetOrigin()) > VisibleRange())
+				return NULL;
 		}
 
 		// This one will do.
-		break;
+		return pClosest;
 	}
+}
 
+void CScout::Fire()
+{
+	CSupplyLine* pClosest = FindClosestEnemySupplyLine(true);
 	if (!pClosest)
 		return;
 

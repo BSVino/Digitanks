@@ -1110,7 +1110,7 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 
 void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 {
-	if (!IsTeamControlledByMe(GetCurrentTeam()))
+	if (pUnit && !IsTeamControlledByMe(pUnit->GetTeam()))
 		return;
 
 	// Prevent duplicates

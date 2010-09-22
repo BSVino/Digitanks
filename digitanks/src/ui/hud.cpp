@@ -421,8 +421,8 @@ void CHUD::Think()
 
 	if (pCurrentTank)
 	{
-		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE);
-		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE);
+		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE || DigitanksGame()->GetControlMode() == MODE_AIM);
+		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE || DigitanksGame()->GetControlMode() == MODE_AIM);
 		m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
 		m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
 		m_pFireAttack->SetWrap(false);
@@ -556,7 +556,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 			}
 		}
 
-		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsPrimarySelection(pTank) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+		bool bShowEnergy = false;
+		if (DigitanksGame()->GetControlMode() == MODE_AIM)
+		{
+			if (pTank && !pTank->IsArtillery())
+				bShowEnergy = true;
+		}
+
+		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+			bShowEnergy = true;
+
+		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsPrimarySelection(pTank) && bShowEnergy)
 		{
 			int iHeight = (int)(200 * pTank->GetTotalPower()/pTank->GetStartingPower());
 
@@ -581,10 +591,16 @@ void CHUD::Paint(int x, int y, int w, int h)
 			m_pFireAttack->SetPos((int)vecScreen.x + 70 - m_pFireAttack->GetWidth()/2, iTop-20);
 			m_pFireDefend->SetPos((int)vecScreen.x + 70 - m_pFireDefend->GetWidth()/2, iBottom);
 
-			int mx, my;
-			glgui::CRootPanel::GetFullscreenMousePos(mx, my);
+			float flAttackPercentage;
+			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
+			{
+				int mx, my;
+				glgui::CRootPanel::GetFullscreenMousePos(mx, my);
 
-			float flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 1, 0);
+				flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 1, 0);
+			}
+			else
+				flAttackPercentage = DigitanksGame()->GetPrimarySelectionTank()->GetPowerAttackSplit();
 
 			CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
 
@@ -592,17 +608,20 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
 
-			CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-			for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
+			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 			{
-				CDigitank* pTank = pTeam->GetTank(t);
-				if (!pTank)
-					continue;
+				CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+				for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
+				{
+					CDigitank* pTank = pTeam->GetTank(t);
+					if (!pTank)
+						continue;
 
-				if (!pTank->GetDigitanksTeam()->IsSelected(pTank))
-					continue;
-
-				pTank->SetAttackPower(flAttackPercentage);
+					if (!pTank->GetDigitanksTeam()->IsSelected(pTank))
+							continue;
+	
+					pTank->SetAttackPower(flAttackPercentage);
+				}
 			}
 
 			UpdateInfo();
@@ -1068,6 +1087,7 @@ void CHUD::NewCurrentTeam()
 
 void CHUD::NewCurrentSelection()
 {
+	UpdateTurnButton();
 	UpdateInfo();
 
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())

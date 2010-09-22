@@ -19,6 +19,7 @@
 #include "structure.h"
 #include "supplyline.h"
 #include "projectile.h"
+#include "scout.h"
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iCancelIcon = 0;
@@ -183,11 +184,17 @@ void CDigitank::Precache()
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
 {
+	if (GetDigitanksTeam()->IsSelected(this) && bPreview && (DigitanksGame()->GetControlMode() == MODE_AIM || DigitanksGame()->GetControlMode() == MODE_FIRE))
+		return m_flTotalPower * m_flAttackSplit;
+
 	return m_flAttackPower;
 }
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
+	if (GetDigitanksTeam()->IsSelected(this) && bPreview && (DigitanksGame()->GetControlMode() == MODE_AIM || DigitanksGame()->GetControlMode() == MODE_FIRE))
+		return m_flTotalPower * (1-m_flAttackSplit);
+
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
 	{
 		float flMovementLength = GetPreviewMoveTurnPower();
@@ -400,6 +407,18 @@ bool CDigitank::IsPreviewMoveValid() const
 {
 	if (GetPreviewMovePower() > GetTotalPower())
 		return false;
+
+	float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
+
+	if (GetPreviewMove().x > flMapSize)
+		return false;
+	if (GetPreviewMove().x < -flMapSize)
+		return false;
+	if (GetPreviewMove().z > flMapSize)
+		return false;
+	if (GetPreviewMove().z < -flMapSize)
+		return false;
+
 	return true;
 }
 
@@ -1307,9 +1326,17 @@ bool CDigitank::NeedsOrders()
 		if (!pClosestEnemy)
 			bNeedsToAttack = false;
 	}
+	else
+	{
+		// I'm a scout. BAM!
+		CSupplyLine* pClosest = dynamic_cast<CScout*>(this)->FindClosestEnemySupplyLine(true);
 
-	if (IsScout())
-		bNeedsToAttack = false;
+		if (!pClosest)
+			bNeedsToAttack = false;
+	}
+
+	if (m_bFiredWeapon)
+		bNeedsToMove = false;
 
 	return bNeedsToMove || bNeedsToAttack;
 }
@@ -1393,10 +1420,16 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonListener(2, CHUD::InfantryFire);
 				pHUD->SetButtonTexture(2, s_iFireIcon);
+				if (IsInfantry())
+					pHUD->SetButtonInfo(2, L"FIRE ON NEAREST TARGET\n \nPressing this button will command the infantry to automatically fire on the nearest enemy target.");
+				else
+					pHUD->SetButtonInfo(2, L"TORPEDO SUPPLY LINES\n \nPressing this button will command the rogue to torpedo nearby enemy supply lines.");
 			}
 			else
+			{
 				pHUD->SetButtonTexture(2, s_iAimIcon);
-			pHUD->SetButtonInfo(2, L"FIRE UNIT\n \nGo into Aim mode. Right click any spot on the terrain to fire on that location.");
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE\n \nGo into Aim mode. Right click any spot on the terrain to fire on that location.");
+			}
 		}
 
 		if (GetFrontShieldMaxStrength() > 0)
@@ -1525,9 +1558,6 @@ void CDigitank::Turn()
 	float flMovePower = GetPreviewTurnPower();
 
 	if (flMovePower > m_flTotalPower)
-		return;
-
-	if (m_flTotalPower < 0.5f)
 		return;
 
 	m_flTotalPower -= flMovePower;

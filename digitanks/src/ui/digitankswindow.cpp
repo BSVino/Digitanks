@@ -56,9 +56,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
 
-	m_iWindowWidth = 1280;
-	m_iWindowHeight = 720;
-
 #ifdef _DEBUG
 	int iMode = GLFW_WINDOW;
 #else
