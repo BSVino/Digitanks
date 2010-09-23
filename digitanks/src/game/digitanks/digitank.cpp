@@ -112,6 +112,8 @@ CDigitank::CDigitank()
 	m_bFortifyPoint = false;
 
 	m_flFortifyTime = 0;
+
+	m_flBobOffset = RandomFloat(0, 10);
 }
 
 CDigitank::~CDigitank()
@@ -1829,7 +1831,15 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 
 Vector CDigitank::GetRenderOrigin() const
 {
-	return GetDesiredMove() + Vector(0, 1, 0);
+	float flLerp = 0;
+	
+	if (!IsFortified() && !IsFortifying())
+	{
+		float flScale = fabs(fmod(Game()->GetGameTime()+m_flBobOffset, 4)-2)/2;
+		flLerp = SLerp(flScale, 0.2f);
+	}
+
+	return GetDesiredMove() + Vector(0, 1 + flLerp*BobHeight(), 0);
 }
 
 EAngle CDigitank::GetRenderAngles() const

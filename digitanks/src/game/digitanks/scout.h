@@ -37,6 +37,7 @@ public:
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				VisibleRange() const { return 75; };
 	virtual bool				CanGetPowerups() const { return false; };
+	virtual float				BobHeight() const { return 1.0f; };
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };
 	static size_t				ScoutFleetPoints() { return 1; };

@@ -261,6 +261,7 @@ public:
 	virtual float				FiringCone() const { return 360; };
 	virtual float				VisibleRange() const { return 75; };
 	virtual size_t				FleetPoints() const { return 2; };
+	virtual float				BobHeight() const { return 0.5f; };
 
 	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_TANK; }
 
@@ -354,6 +355,8 @@ protected:
 	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
 	float						m_flFortifyTime;
+
+	float						m_flBobOffset;
 
 	// AI stuff
 	bool						m_bFortifyPoint;
