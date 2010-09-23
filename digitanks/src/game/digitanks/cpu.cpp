@@ -285,6 +285,23 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 }
 
+bool CCPU::NeedsOrders()
+{
+	if (HasConstruction() || IsProducing())
+		return false;
+
+	bool bDisableMiniBuffer = !GetDigitanksTeam()->CanBuildMiniBuffers();
+	bool bDisableBuffer = !GetDigitanksTeam()->CanBuildBuffers();
+	bool bDisableBattery = !GetDigitanksTeam()->CanBuildBatteries();
+	bool bDisablePSU = !GetDigitanksTeam()->CanBuildPSUs();
+	bool bDisableLoaders = !GetDigitanksTeam()->CanBuildLoaders();
+
+	if (bDisableMiniBuffer && bDisableBuffer && bDisableBattery && bDisablePSU && bDisableLoaders)
+		return BaseClass::NeedsOrders();
+
+	return true;
+}
+
 bool CCPU::AllowControlMode(controlmode_t eMode) const
 {
 	if (eMode == MODE_BUILD)

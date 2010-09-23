@@ -28,6 +28,8 @@ public:
 	CSupplier*						GetSupplier();
 	CBaseEntity*					GetEntity();
 
+	static float					MinimumIntegrity() { return 0.25f; }
+
 protected:
 	CEntityHandle<CSupplier>		m_hSupplier;
 	CEntityHandle<CBaseEntity>		m_hEntity;

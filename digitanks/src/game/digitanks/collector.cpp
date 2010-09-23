@@ -38,8 +38,11 @@ void CCollector::UpdateInfo(std::wstring& sInfo)
 		return;
 	}
 
-	s << L"Power supplied: " << (size_t)(GetProduction() * m_hSupplier->GetChildEfficiency()) << L"\n";
-	s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+	if (GetSupplier())
+	{
+		s << L"Power supplied: " << (size_t)(GetProduction() * GetSupplier()->GetChildEfficiency()) << L"\n";
+		s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+	}
 
 	sInfo = s.str();
 }

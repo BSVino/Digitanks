@@ -334,6 +334,17 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	}
 }
 
+bool CLoader::NeedsOrders()
+{
+	if (IsProducing())
+		return false;
+
+	if (!HasEnoughFleetPoints())
+		return BaseClass::NeedsOrders();
+
+	return true;
+}
+
 void CLoader::BeginProduction()
 {
 	if (IsConstructing())

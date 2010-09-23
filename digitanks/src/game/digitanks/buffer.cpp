@@ -261,8 +261,8 @@ void CMiniBuffer::UpgradeComplete()
 {
 	CBuffer* pBuffer = DigitanksGame()->Create<CBuffer>("CBuffer");
 	pBuffer->SetOrigin(GetOrigin());
-	pBuffer->SetSupplier(GetSupplier());
 	GetTeam()->AddEntity(pBuffer);
+	pBuffer->SetSupplier(GetSupplier());
 	pBuffer->GiveDataStrength(pBuffer->InitialDataStrength() - InitialDataStrength());	// Give the difference
 	pBuffer->GiveDataStrength(m_iDataStrength - InitialDataStrength());					// Give what I've earned so far
 	pBuffer->AddFleetPoints(pBuffer->InitialFleetPoints() - InitialFleetPoints());

@@ -1,6 +1,7 @@
 #include "digitanksteam.h"
 
 #include <maths.h>
+#include <geometry.h>
 #include <mtrand.h>
 
 #include "digitanksgame.h"
@@ -659,8 +660,52 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				break;
 			}
 
-			CSupplyLine* pClosestSupply = dynamic_cast<CScout*>(pTank)->FindClosestEnemySupplyLine();
-			bool bSupplyIsForScout = pClosestSupply && pClosestSupply->GetEntity() && dynamic_cast<CDigitank*>(pClosestSupply->GetEntity()) && dynamic_cast<CDigitank*>(pClosestSupply->GetEntity())->IsScout();
+			CSupplyLine* pClosestSupply = NULL;
+			while (true)
+			{
+				pClosestSupply = CBaseEntity::FindClosest<CSupplyLine>(pTank->GetOrigin(), pClosestSupply);
+
+				if (!pClosestSupply)
+					break;
+
+				if (pClosestSupply->GetTeam() == pTank->GetTeam())
+					continue;
+
+				if (!pClosestSupply->GetTeam())
+					continue;
+
+				if (!pClosestSupply->GetSupplier() || !pClosestSupply->GetEntity())
+					continue;
+
+				// Who cares about scouts
+				bool bSupplyIsForScout = dynamic_cast<CDigitank*>(pClosestSupply->GetEntity()) && dynamic_cast<CDigitank*>(pClosestSupply->GetEntity())->IsScout();
+				if (bSupplyIsForScout)
+					continue;
+
+				// Don't fuck with infantry
+				bool bSupplyIsForInfantry = dynamic_cast<CDigitank*>(pClosestSupply->GetEntity()) && dynamic_cast<CDigitank*>(pClosestSupply->GetEntity())->IsInfantry();
+				if (bSupplyIsForInfantry)
+					continue;
+
+				if (pClosestSupply->GetIntegrity() < 0.3f)
+					continue;
+
+				if (pClosestSupply->Distance(pTank->GetOrigin()) > pTank->VisibleRange())
+				{
+					pClosestSupply = NULL;
+					break;
+				}
+
+				// This one will do.
+				break;
+			}
+
+			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
+			if (pClosestSupply && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
+			{
+				// FIRE ZE MISSILES
+				pTank->Fire();
+			}
 
 			Vector vecDesiredMove;
 			bool bMove = false;
@@ -675,11 +720,23 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
 				bMove = true;
 			}
-			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
-			else if (pClosestSupply && !bSupplyIsForScout && pClosestSupply->GetIntegrity() > 0.3f)
+			else if (pClosestSupply)
 			{
-				// FIRE ZE MISSILES
-				pTank->Fire();
+				if (pClosestSupply->Distance(pTank->GetOrigin()) > pTank->GetMaxRange())
+				{
+					Vector vecPoint;
+					DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
+
+					float flMovementDistance = pTank->GetMaxMovementDistance();
+					Vector vecDirection = vecPoint - pTank->GetOrigin();
+					vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+
+					vecDesiredMove = pTank->GetOrigin() + vecDirection;
+					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+					bMove = true;
+				}
+
+				// Otherwise just wait for it to get bombed enough.
 			}
 			else
 			{
@@ -697,6 +754,13 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->SetDesiredMove();
 				pTank->Move();
+			}
+
+			// Maybe now that we've moved closer we can try to fire again.
+			if (pClosestSupply && pClosestSupply->GetIntegrity() > 0.3f && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
+			{
+				// FIRE ZE MISSILES
+				pTank->Fire();
 			}
 		}
 		else if (pTank->HasFortifyPoint() && !pTank->IsFortified())

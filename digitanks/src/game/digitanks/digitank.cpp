@@ -1396,13 +1396,18 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 			{
 				if (IsArtillery())
+				{
 					pHUD->SetButtonTexture(8, s_iDeployIcon);
+					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.");
+				}
 				else
+				{
 					pHUD->SetButtonTexture(8, s_iFortifyIcon);
+					pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.");
+				}
 			}
 			pHUD->SetButtonListener(8, CHUD::Fortify);
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
-			pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.");
 		}
 
 		if ((CanAimMobilized() || IsFortified()) && m_flTotalPower > 1 && !m_bFiredWeapon)
@@ -1507,6 +1512,13 @@ void CDigitank::Move()
 	if (m_flTotalPower < 0.5f)
 		return;
 
+	// Am I waiting to fire something? Fire now. Shoot and scoot baby!
+	if (m_flFireProjectileTime)
+	{
+		m_flFireProjectileTime = 0;
+		FireProjectile();
+	}
+
 	m_flTotalPower -= flMovePower;
 	m_flMovementPower += flMovePower;
 
@@ -1541,6 +1553,8 @@ void CDigitank::Move()
 	}
 
 	GetDigitanksTeam()->CalculateVisibility();
+
+	InterceptSupplyLines();
 
 	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
 	if (HasGoalMovePosition() && pClosestEnemy)
@@ -1598,8 +1612,6 @@ void CDigitank::Fire()
 	m_flTotalPower -= flAttackPower;
 	m_flAttackPower += flAttackPower;
 
-	DigitanksGame()->AddProjectileToWaitFor();
-
 	if (CNetwork::IsHost())
 		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
 
@@ -1639,6 +1651,8 @@ void CDigitank::FireProjectile()
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(-1, "FireProjectile", GetHandle(), m_hProjectile->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
+
+	DigitanksGame()->AddProjectileToWaitFor();
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();

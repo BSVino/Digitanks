@@ -33,6 +33,8 @@ public:
 	virtual void					StartTurn();
 	virtual void					EndTurn();
 
+	virtual void					InterceptSupplyLines();
+
 	class CDigitanksTeam*			GetDigitanksTeam() const;
 
 	virtual bool					ShouldRender() const;
@@ -52,6 +54,9 @@ public:
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					VisibleRange() const { return 0; };
 	virtual float					TotalHealth() const { return 10; };
+
+protected:
+	std::vector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;
 };
 
 #endif

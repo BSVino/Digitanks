@@ -477,7 +477,21 @@ void CDigitanksGame::Think()
 	if (m_bWaitingForProjectiles)
 	{
 		if (m_iWaitingForProjectiles == 0)
-			m_bWaitingForProjectiles = false;
+		{
+			bool bTanksWaiting = false;
+			for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
+			{
+				CDigitank* pTank = GetCurrentTeam()->GetTank(i);
+				if (pTank->IsWaitingToFire())
+				{
+					bTanksWaiting = true;
+					break;
+				}
+			}
+
+			if (!bTanksWaiting)
+				m_bWaitingForProjectiles = false;
+		}
 	}
 
 	if (!m_bTurnActive && !m_bWaitingForMoving && !m_bWaitingForProjectiles)

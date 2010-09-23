@@ -209,6 +209,7 @@ public:
 	virtual void				FireProjectile(class CNetworkParameters* p);
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
+	virtual bool				IsWaitingToFire() { return m_flFireProjectileTime != 0; };
 
 	virtual void				ClientUpdate(int iClient);
 

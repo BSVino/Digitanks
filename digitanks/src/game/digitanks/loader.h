@@ -29,6 +29,8 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
+	virtual bool				NeedsOrders();
+
 	virtual void				UpdateInfo(std::wstring& sInfo);
 
 	void						BeginProduction();

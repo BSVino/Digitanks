@@ -97,9 +97,6 @@ void CMechInfantry::Fire()
 	if (CNetwork::IsHost())
 		m_iFireProjectiles = 20;
 
-	for (size_t i = 0; i < m_iFireProjectiles; i++)
-		DigitanksGame()->AddProjectileToWaitFor();
-
 	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
@@ -112,7 +109,7 @@ CProjectile* CMechInfantry::CreateProjectile()
 
 float CMechInfantry::GetProjectileDamage()
 {
-	return GetAttackPower()/80;
+	return GetAttackPower()/50;
 }
 
 void CMechInfantry::PostRender()

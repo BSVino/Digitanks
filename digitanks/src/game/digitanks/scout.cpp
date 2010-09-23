@@ -109,8 +109,6 @@ void CScout::Fire()
 	m_flTotalPower -= flAttackPower;
 	m_flAttackPower += flAttackPower;
 
-	DigitanksGame()->AddProjectileToWaitFor();
-
 	if (CNetwork::IsHost())
 		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
 

@@ -401,6 +401,20 @@ size_t CStructure::GetTurnsToUpgrade()
 		return (size_t)(ConstructionCost()/GetDigitanksTeam()->GetProductionPerLoader())+1;
 }
 
+bool CStructure::NeedsOrders()
+{
+	if (IsUpgrading() || IsConstructing() || IsInstalling())
+		return false;
+
+	if (CanStructureUpgrade())
+		return true;
+
+	if (HasUpdatesAvailable())
+		return true;
+
+	return BaseClass::NeedsOrders();
+}
+
 void CStructure::SetSupplier(class CSupplier* pSupplier)
 {
 	m_hSupplier = pSupplier;
@@ -569,7 +583,7 @@ void CSupplier::StartTurn()
 
 	if (GetDigitanksTeam() && !IsDataFlowSource())
 	{
-		if (!GetSupplyLine() || GetSupplyLine()->GetIntegrity() <= 0.25f)
+		if (!GetSupplyLine() || GetSupplyLine()->GetIntegrity() <= CSupplyLine::MinimumIntegrity())
 		{
 			GetDigitanksTeam()->RemoveEntity(this);
 			return;
@@ -585,35 +599,38 @@ void CSupplier::StartTurn()
 	if (IsConstructing())
 		return;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	if (GetSupplyLine() && GetSupplyLine()->GetIntegrity() >= 0.7f || IsDataFlowSource())
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-		if (!pEntity)
-			continue;
+		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+			if (!pEntity)
+				continue;
 
-		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
-		if (!pStructure)
-			continue;
+			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+			if (!pStructure)
+				continue;
 
-		// Just in case!
-		if (this == pStructure)
-			continue;
+			// Just in case!
+			if (this == pStructure)
+				continue;
 
-		if (dynamic_cast<CResource*>(pStructure))
-			continue;
+			if (dynamic_cast<CResource*>(pStructure))
+				continue;
 
-		if (pStructure->GetTeam())
-			continue;
+			if (pStructure->GetTeam())
+				continue;
 
-		float flFlow = GetDataFlow(pStructure->GetOrigin());
+			float flFlow = GetDataFlow(pStructure->GetOrigin());
 
-		if (flFlow < 10)
-			continue;
+			if (flFlow < 10)
+				continue;
 
-		// You will join us... OR DIE
-		GetDigitanksTeam()->AddEntity(pStructure);
-		pStructure->SetSupplier(this);
-		pStructure->GetSupplyLine()->SetIntegrity(0.5f);
+			// You will join us... OR DIE
+			GetDigitanksTeam()->AddEntity(pStructure);
+			pStructure->SetSupplier(this);
+			pStructure->GetSupplyLine()->SetIntegrity(0.5f);
+		}
 	}
 }
 

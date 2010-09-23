@@ -77,35 +77,6 @@ void CSupplyLine::StartTurn()
 	if (m_hSupplier == NULL)
 		return;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-		if (!pEntity)
-			continue;
-
-		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
-		if (!pDTEntity)
-			continue;
-
-		if (pDTEntity->GetTeam() == GetTeam())
-			continue;
-
-		if (!pDTEntity->GetTeam())
-			continue;
-
-		Vector vecEntity = pDTEntity->GetOrigin();
-		vecEntity.y = 0;
-
-		Vector vecSupplier = m_hSupplier->GetOrigin();
-		vecSupplier.y = 0;
-
-		Vector vecUnit = m_hEntity->GetOrigin();
-		vecUnit.y = 0;
-
-		if (DistanceToLineSegment(vecEntity, vecSupplier, vecUnit) < pDTEntity->GetBoundingRadius()*2)
-			Intercept(0.2f);
-	}
-
 	if (!m_bDelayRecharge)
 	{
 		m_flIntegrity += 0.2f;
@@ -123,6 +94,11 @@ void CSupplyLine::Intercept(float flIntercept)
 		m_flIntegrity = 0;
 
 	m_bDelayRecharge = true;
+
+	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()))
+	{
+		GetEntity()->GetTeam()->RemoveEntity(GetEntity());
+	}
 }
 
 void CSupplyLine::PostRender()
@@ -177,10 +153,16 @@ void CSupplyLine::PostRender()
 
 CSupplier* CSupplyLine::GetSupplier()
 {
+	if (m_hSupplier == NULL)
+		return NULL;
+
 	return m_hSupplier;
 }
 
 CBaseEntity* CSupplyLine::GetEntity()
 {
+	if (m_hEntity == NULL)
+		return NULL;
+
 	return m_hEntity;
 }

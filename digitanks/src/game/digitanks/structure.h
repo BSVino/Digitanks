@@ -61,6 +61,8 @@ public:
 	bool						IsUpgrading() { return m_bUpgrading; };
 	size_t						GetProductionToUpgrade() { return m_iProductionToUpgrade; };
 
+	virtual bool				NeedsOrders();
+
 	virtual void				SetSupplier(class CSupplier* pSupplier);
 	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
 

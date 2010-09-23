@@ -25,6 +25,8 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
+	virtual bool				NeedsOrders();
+
 	bool						IsPreviewBuildValid() const;
 
 	Vector						GetPreviewBuild() const { return m_vecPreviewBuild; };
