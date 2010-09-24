@@ -1349,7 +1349,14 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 	if (eMenuMode == MENUMODE_MAIN)
 	{
-		if (!IsFortified() && m_flTotalPower > 1)
+		if (HasGoalMovePosition())
+		{
+			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
+			pHUD->SetButtonColor(0, Color(100, 100, 100));
+			pHUD->SetButtonTexture(0, s_iCancelIcon);
+			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.");
+		}
+		else if (!IsFortified() && !IsFortifying())
 		{
 			pHUD->SetButtonListener(0, CHUD::Move);
 
@@ -1365,15 +1372,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Right click inside the yellow area to move this unit.");
 		}
-		else if (HasGoalMovePosition())
-		{
-			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
-			pHUD->SetButtonColor(0, Color(100, 100, 100));
-			pHUD->SetButtonTexture(0, s_iCancelIcon);
-			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.");
-		}
 
-		if (!IsScout() && (!IsFortified() || CanTurnFortified()) && m_flTotalPower > 1)
+		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && m_flTotalPower > 1)
 		{
 			pHUD->SetButtonListener(1, CHUD::Turn);
 
@@ -1430,7 +1430,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (IsInfantry())
 					pHUD->SetButtonInfo(2, L"FIRE ON NEAREST TARGET\n \nPressing this button will command the infantry to automatically fire on the nearest enemy target.");
 				else
-					pHUD->SetButtonInfo(2, L"TORPEDO SUPPLY LINES\n \nPressing this button will command the rogue to torpedo nearby enemy supply lines.");
+					pHUD->SetButtonInfo(2, L"TORPEDO SUPPLY LINES\n \nPressing this button will command the rogue to torpedo nearby enemy supply lines.\n \nThis attack requires 30% of the unit's energy.");
 			}
 			else
 			{
@@ -1465,17 +1465,20 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
-		pHUD->SetButtonListener(0, CHUD::PromoteAttack);
-		pHUD->SetButtonTexture(0, s_iPromoteAttackIcon);
-		pHUD->SetButtonColor(0, Color(150, 150, 150));
+		if (!IsScout())
+		{
+			pHUD->SetButtonListener(0, CHUD::PromoteAttack);
+			pHUD->SetButtonTexture(0, s_iPromoteAttackIcon);
+			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-		std::wstringstream s1;
-		s1 << "UPGRADE ATTACK ENERGY\n \n"
-			<< "This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n"
-			<< "Attack Energy increase: 10%\n";
-		pHUD->SetButtonInfo(0, s1.str().c_str());
+			std::wstringstream s1;
+			s1 << "UPGRADE ATTACK ENERGY\n \n"
+				<< "This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n"
+				<< "Attack Energy increase: 10%\n";
+			pHUD->SetButtonInfo(0, s1.str().c_str());
+		}
 
-		if (!IsArtillery())
+		if (!IsArtillery() && !IsScout())
 		{
 			pHUD->SetButtonListener(1, CHUD::PromoteDefense);
 			pHUD->SetButtonTexture(1, s_iPromoteDefenseIcon);
@@ -1904,7 +1907,7 @@ void CDigitank::OnRender()
 
 	RenderTurret();
 
-	if (GetFrontShieldStrength() > 0)
+	if (GetFrontShieldStrength() > 0 && !(IsFortifying() || IsFortified()))
 		RenderShield(GetFrontShieldStrength(), 0);
 
 	if (GetLeftShieldStrength() > 0)

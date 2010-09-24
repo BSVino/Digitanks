@@ -198,23 +198,21 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 	else
 	{
-		if (bDisableBuffer)
+		if (!bDisableMiniBuffer)
 		{
-			if (!bDisableMiniBuffer)
-			{
-				pHUD->SetButtonListener(0, CHUD::BuildMiniBuffer);
-				pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
-				pHUD->SetButtonColor(0, Color(150, 150, 150));
+			pHUD->SetButtonListener(5, CHUD::BuildMiniBuffer);
+			pHUD->SetButtonTexture(5, s_iBuildBufferIcon);
+			pHUD->SetButtonColor(5, Color(150, 150, 150));
 
-				std::wstringstream s;
-				s << "BUILD MINIBUFFER\n \n"
-					<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
-					<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
-					<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns";
-				pHUD->SetButtonInfo(0, s.str().c_str());
-			}
+			std::wstringstream s;
+			s << "BUILD MINIBUFFER\n \n"
+				<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
+				<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(5, s.str().c_str());
 		}
-		else
+
+		if (!bDisableBuffer)
 		{
 			pHUD->SetButtonListener(0, CHUD::BuildBuffer);
 			pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
@@ -228,23 +226,21 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
-		if (bDisablePSU)
+		if (!bDisableBattery)
 		{
-			if (!bDisableBattery)
-			{
-				pHUD->SetButtonListener(1, CHUD::BuildBattery);
-				pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
-				pHUD->SetButtonColor(1, Color(150, 150, 150));
+			pHUD->SetButtonListener(6, CHUD::BuildBattery);
+			pHUD->SetButtonTexture(6, s_iBuildPSUIcon);
+			pHUD->SetButtonColor(6, Color(150, 150, 150));
 
-				std::wstringstream s;
-				s << "BUILD BATTERY\n \n"
-					<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n"
-					<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
-					<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
-				pHUD->SetButtonInfo(1, s.str().c_str());
-			}
+			std::wstringstream s;
+			s << "BUILD BATTERY\n \n"
+				<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n"
+				<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
+				<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
+			pHUD->SetButtonInfo(6, s.str().c_str());
 		}
-		else
+
+		if (!bDisablePSU)
 		{
 			pHUD->SetButtonListener(1, CHUD::BuildPSU);
 			pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
@@ -272,16 +268,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
 		}
 
-		pHUD->SetButtonListener(6, CHUD::BuildScout);
-		pHUD->SetButtonTexture(6, 0);
-		pHUD->SetButtonColor(6, Color(150, 150, 150));
+		pHUD->SetButtonListener(7, CHUD::BuildScout);
+		pHUD->SetButtonTexture(7, 0);
+		pHUD->SetButtonColor(7, Color(150, 150, 150));
 
 		std::wstringstream s;
 		s << "BUILD ROGUE\n \n"
 			<< "Rogues are a cheap reconnaisance unit with good speed but shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n"
 			<< "Power to construct: " << g_aiTurnsToLoad[BUILDUNIT_SCOUT] << " Power\n"
 			<< "Turns to install: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]) << " Turns";
-		pHUD->SetButtonInfo(6, s.str().c_str());
+		pHUD->SetButtonInfo(7, s.str().c_str());
 	}
 }
 

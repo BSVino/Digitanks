@@ -28,7 +28,7 @@ public:
 
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
-	virtual float				GetTankSpeed() const { return 2.0f; }
+	virtual float				GetTankSpeed() const { return 2.5f; }
 	virtual float				TurnPerPower() const { return 9999; };
 	virtual float				GetMinRange() const { return 5.0f; };
 	virtual float				InitialEffRange() const { return 27.0f; };
@@ -36,8 +36,9 @@ public:
 	virtual float				GetTransitionTime() const { return 1.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				VisibleRange() const { return 75; };
-	virtual bool				CanGetPowerups() const { return false; };
+	virtual bool				CanGetPowerups() const { return true; };
 	virtual float				BobHeight() const { return 1.0f; };
+	virtual float				TorpedoAttackPower() const { return 3.0f; };
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };
 	static size_t				ScoutFleetPoints() { return 1; };

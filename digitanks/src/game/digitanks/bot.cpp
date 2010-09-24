@@ -700,11 +700,14 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				break;
 			}
 
+			float flMovementPower = 0.69f;
+
 			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
 			if (pClosestSupply && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
 			{
 				// FIRE ZE MISSILES
 				pTank->Fire();
+				flMovementPower = 0.95f;
 			}
 
 			Vector vecDesiredMove;
@@ -714,7 +717,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				// Scouts hate infantry! Move directly away from them.
 				float flMovementDistance = pTank->GetMaxMovementDistance();
 				Vector vecDirection = pTank->GetOrigin() - pClosestInfantry->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+				vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
 				vecDesiredMove = pTank->GetOrigin() + vecDirection;
 				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
@@ -724,12 +727,15 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				if (pClosestSupply->Distance(pTank->GetOrigin()) > pTank->GetMaxRange())
 				{
+					if (!pTank->HasFiredWeapon())
+						flMovementPower = 0.69f;
+
 					Vector vecPoint;
 					DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
 
 					float flMovementDistance = pTank->GetMaxMovementDistance();
 					Vector vecDirection = vecPoint - pTank->GetOrigin();
-					vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+					vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
 					vecDesiredMove = pTank->GetOrigin() + vecDirection;
 					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
@@ -742,7 +748,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				float flMovementDistance = pTank->GetMaxMovementDistance();
 				Vector vecDirection = m_vecExplore - pTank->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance*0.8f);
+				vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
 				vecDesiredMove = pTank->GetOrigin() + vecDirection;
 				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);

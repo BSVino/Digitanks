@@ -65,7 +65,7 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
 			continue;
 
-		if (pClosest->GetIntegrity() < 0.5f)
+		if (pClosest->GetIntegrity() < 0.25f)
 			continue;
 
 		if (bInRange)
@@ -97,6 +97,9 @@ void CScout::Fire()
 	if (m_bFiredWeapon)
 		return;
 
+	if (m_flTotalPower < TorpedoAttackPower())
+		return;
+
 	Vector vecIntersection;
 	DistanceToLineSegment(GetOrigin(), pClosest->GetSupplier()->GetOrigin(), pClosest->GetEntity()->GetOrigin(), &vecIntersection);
 
@@ -105,9 +108,8 @@ void CScout::Fire()
 
 	m_bFiredWeapon = true;
 
-	float flAttackPower = m_flTotalPower * m_flAttackSplit;
-	m_flTotalPower -= flAttackPower;
-	m_flAttackPower += flAttackPower;
+	m_flTotalPower -= TorpedoAttackPower();
+	m_flAttackPower += TorpedoAttackPower();
 
 	if (CNetwork::IsHost())
 		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);

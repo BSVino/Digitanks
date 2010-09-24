@@ -263,6 +263,8 @@ public:
 	virtual size_t				FleetPoints() const { return 2; };
 	virtual float				BobHeight() const { return 0.5f; };
 
+	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
+
 	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_TANK; }
 
 	// AI stuff

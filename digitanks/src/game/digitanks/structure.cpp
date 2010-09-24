@@ -151,7 +151,7 @@ void CStructure::PostRender()
 {
 	BaseClass::PostRender();
 
-	if (IsConstructing() && GetVisibility() > 0)
+	if ((IsConstructing() || IsUpgrading()) && GetVisibility() > 0)
 	{
 		CRenderingContext c(Game()->GetRenderer());
 		c.Translate(GetOrigin() - Vector(0, 10, 0));

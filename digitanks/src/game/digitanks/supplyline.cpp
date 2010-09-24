@@ -95,7 +95,7 @@ void CSupplyLine::Intercept(float flIntercept)
 
 	m_bDelayRecharge = true;
 
-	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()))
+	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()) && GetEntity()->GetTeam())
 	{
 		GetEntity()->GetTeam()->RemoveEntity(GetEntity());
 	}
