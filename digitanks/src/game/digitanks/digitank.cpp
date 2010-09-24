@@ -1122,7 +1122,7 @@ void CDigitank::Think()
 			{
 				float flDistance = (vecTankAim - GetDesiredMove()).Length();
 
-				float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+				float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, MaxRangeRadius());
 				DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 				m_bDisplayAim = true;
@@ -1642,7 +1642,7 @@ void CDigitank::FireProjectile()
 
 	float flFactor = 1;
 	if (flDistance > GetEffRange())
-		flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, TANK_MAX_RANGE_RADIUS);
+		flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, MaxRangeRadius());
 
 	float flYaw = RandomFloat(0, 360);
 	float flRadius = RandomFloat(1, flFactor);

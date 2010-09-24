@@ -254,6 +254,9 @@ void CMiniBuffer::UpdateInfo(std::wstring& sInfo)
 
 bool CMiniBuffer::CanStructureUpgrade()
 {
+	if (!GetDigitanksTeam())
+		return false;
+
 	return GetDigitanksTeam()->CanBuildBuffers();
 }
 

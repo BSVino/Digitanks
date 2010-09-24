@@ -71,14 +71,16 @@ void CStructure::StartTurn()
 
 	if (!GetSupplier() && !dynamic_cast<CCPU*>(this))
 	{
-		GetTeam()->RemoveEntity(this);
+		if (GetTeam())
+			GetTeam()->RemoveEntity(this);
 		SetSupplier(NULL);
 	}
 
 	if (GetSupplier() && !GetSupplier()->GetTeam())
 	{
 		GetSupplier()->RemoveChild(this);
-		GetTeam()->RemoveEntity(this);
+		if (GetTeam())
+			GetTeam()->RemoveEntity(this);
 		SetSupplier(NULL);
 	}
 
@@ -565,6 +567,23 @@ float CSupplier::GetChildEfficiency()
 
 void CSupplier::OnTeamChange()
 {
+	if (!GetTeam())
+	{
+		for (size_t i = 0; i < m_ahChildren.size(); i++)
+		{
+			if (m_ahChildren[i] == NULL)
+				continue;
+
+			m_ahChildren[i]->SetSupplier(NULL);
+
+			CStructure* pStructure = dynamic_cast<CStructure*>(m_ahChildren[i].GetPointer());
+			if (!pStructure)
+				continue;
+
+			pStructure->SetTeam(NULL);
+		}
+	}
+
 	BaseClass::OnTeamChange();
 	UpdateTendrils();
 }

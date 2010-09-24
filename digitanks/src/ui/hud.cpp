@@ -773,7 +773,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (!pTank->HasDesiredAim() && !pTank->IsPreviewAimValid())
 		return;
 
-	float flRadius = RemapValClamped(flAttackDistance, pTank->GetEffRange(), pTank->GetMaxRange(), 2, TANK_MAX_RANGE_RADIUS);
+	float flRadius = RemapValClamped(flAttackDistance, pTank->GetEffRange(), pTank->GetMaxRange(), 2, pTank->MaxRangeRadius());
 
 	CDigitank* pClosestTarget = NULL;
 

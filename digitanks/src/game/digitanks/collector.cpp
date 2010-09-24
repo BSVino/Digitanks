@@ -136,6 +136,9 @@ void CBattery::UpdateInfo(std::wstring& sInfo)
 
 bool CBattery::CanStructureUpgrade()
 {
+	if (!GetDigitanksTeam())
+		return false;
+
 	return GetDigitanksTeam()->CanBuildPSUs();
 }
 

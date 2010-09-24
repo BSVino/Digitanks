@@ -6,7 +6,6 @@
 #include <common.h>
 
 #define TANK_SHIELDS 4
-#define TANK_MAX_RANGE_RADIUS 10
 
 // Tank speech
 typedef enum
@@ -262,6 +261,7 @@ public:
 	virtual float				VisibleRange() const { return 75; };
 	virtual size_t				FleetPoints() const { return 2; };
 	virtual float				BobHeight() const { return 0.5f; };
+	virtual float				MaxRangeRadius() const { return 10; };
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 
