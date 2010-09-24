@@ -5,6 +5,7 @@
 #include <platform.h>
 #include <renderer/renderer.h>
 
+#include "hud.h"
 #include "menu.h"
 #include "instructor.h"
 
@@ -391,6 +392,13 @@ bool CStoryPanel::MousePressed(int code, int mx, int my)
 		return true;
 
 	SetVisible(false);
+
+	// Now that it's closed, open our first action item!
+	DigitanksGame()->AllowActionItems(true);
+	DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
+	DigitanksGame()->AllowActionItems(false);
+	CDigitanksWindow::Get()->GetHUD()->ShowFirstActionItem();
+
 	return true;
 }
 

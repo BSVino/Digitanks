@@ -20,10 +20,15 @@ typedef enum
 
 typedef enum
 {
-	ACTIONTYPE_UNITORDERS,
-	ACTIONTYPE_UNITAUTOMOVE,
+	ACTIONTYPE_WELCOME,
+	ACTIONTYPE_NEWUNIT,
+	ACTIONTYPE_NEWSTRUCTURE,
 	ACTIONTYPE_AUTOMOVECANCELED,
 	ACTIONTYPE_AUTOMOVEENEMY,
+	ACTIONTYPE_UNITDAMAGED,
+	ACTIONTYPE_FORTIFIEDENEMY,
+	ACTIONTYPE_UNITAUTOMOVE,
+	ACTIONTYPE_UNITORDERS,
 	ACTIONTYPE_CONSTRUCTION,
 	ACTIONTYPE_INSTALLATION,
 	ACTIONTYPE_UPGRADE,
@@ -34,6 +39,7 @@ typedef struct
 {
 	size_t			iUnit;
 	actiontype_t	eActionType;
+	bool			bHandled;
 } actionitem_t;
 
 class IDigitanksGameListener
@@ -174,6 +180,7 @@ public:
 
 	void					AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
 	std::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
+	void					AllowActionItems(bool bAllow) { m_bAllowActionItems = bAllow; };
 
 	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
 
@@ -219,6 +226,7 @@ protected:
 	CEntityHandle<CUpdateGrid>	m_hUpdates;
 
 	std::vector<actionitem_t>	m_aActionItems;
+	bool					m_bAllowActionItems;
 };
 
 inline class CDigitanksGame* DigitanksGame()

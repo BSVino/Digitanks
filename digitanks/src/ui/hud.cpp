@@ -268,11 +268,11 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
-	m_pActionItem->SetPos(iWidth - 250, 60);
-	m_pActionItem->SetSize(200, 200);
+	m_pActionItem->SetPos(iWidth - 260, 60);
+	m_pActionItem->SetSize(220, 250);
 	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
 	m_pNextActionItem->SetSize(100, 30);
-	m_pNextActionItem->SetPos(iWidth - 200, 270);
+	m_pNextActionItem->SetPos(iWidth - 200, 320);
 	m_pNextActionItem->SetClickedListener(this, NextActionItem);
 
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
@@ -1081,15 +1081,7 @@ void CHUD::NewCurrentTeam()
 	}
 
 	UpdateScoreboard();
-
-	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
-	if (aActionItems.size())
-	{
-		m_iCurrentActionItem = 0;
-		ShowActionItem(m_iCurrentActionItem);
-	}
-	else
-		m_pActionItem->SetText("");
+	ShowFirstActionItem();
 
 	CRootPanel::Get()->Layout();
 }
@@ -1108,39 +1100,96 @@ void CHUD::NewCurrentSelection()
 	}
 
 	SetupMenu(MENUMODE_MAIN);
+
+	ShowActionItem(DigitanksGame()->GetPrimarySelection());
+}
+
+void CHUD::ShowFirstActionItem()
+{
+	m_bAllActionItemsHandled = false;
+	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+
+	if (aActionItems.size())
+	{
+		m_iCurrentActionItem = 0;
+		ShowActionItem(m_iCurrentActionItem);
+	}
+	else
+	{
+		m_pActionItem->SetText("");
+		m_pNextActionItem->SetVisible(false);
+		m_bAllActionItemsHandled = true;
+	}
 }
 
 void CHUD::ShowNextActionItem()
 {
+	if (m_bAllActionItemsHandled)
+		return;
+
+	size_t iOriginalActionItem = m_iCurrentActionItem;
+	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+
 	do
 	{
-		m_iCurrentActionItem++;
+		m_iCurrentActionItem = (m_iCurrentActionItem+1)%aActionItems.size();
 
-		std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
-		if (m_iCurrentActionItem >= aActionItems.size())
+		if (m_iCurrentActionItem == iOriginalActionItem)
 		{
+			// We're done!
+			m_bAllActionItemsHandled = true;
 			m_pActionItem->SetText("");
 			m_pNextActionItem->SetVisible(false);
 			return;
 		}
 
 		actionitem_t* pItem = &aActionItems[m_iCurrentActionItem];
-		CEntityHandle<CSelectable> hSelection(pItem->iUnit);
 
-		if (hSelection == NULL)
+		if (pItem->bHandled)
 			continue;
 
-		if (hSelection->NeedsOrders())
-		{
-			ShowActionItem(m_iCurrentActionItem);
-			return;
-		}
+		ShowActionItem(m_iCurrentActionItem);
+		return;
 	}
 	while (true);
 }
 
+void CHUD::ShowActionItem(CSelectable* pSelectable)
+{
+	if (m_bAllActionItemsHandled)
+		return;
+
+	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+
+	// Force the welcome message.
+	if (aActionItems.size() && aActionItems[0].eActionType == ACTIONTYPE_WELCOME)
+		return;
+
+	if (pSelectable)
+	{
+		for (size_t i = 0; i < aActionItems.size(); i++)
+		{
+			if (aActionItems[i].iUnit == pSelectable->GetHandle())
+			{
+				if (i == m_iCurrentActionItem)
+					return;
+
+				m_iCurrentActionItem = i;
+				ShowActionItem(m_iCurrentActionItem);
+				return;
+			}
+		}
+	}
+
+	m_pActionItem->SetText("Press 'Next' to see more action items.");
+	m_pNextActionItem->SetVisible(true);
+}
+
 void CHUD::ShowActionItem(size_t iActionItem)
 {
+	if (m_bAllActionItemsHandled)
+		return;
+
 	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
 	if (iActionItem >= aActionItems.size())
 	{
@@ -1153,6 +1202,26 @@ void CHUD::ShowActionItem(size_t iActionItem)
 
 	switch (pItem->eActionType)
 	{
+	case ACTIONTYPE_WELCOME:
+		m_pActionItem->SetText(
+			"WELCOME TO DIGITANKS\n \n"
+			"This is the 'Action Items' window. It will help guide you through the tasks you need to complete each turn.\n \n"
+			"First you need to begin building your base. Select your CPU and choose a construction option. You can also explore with your mechanized infantry, or fortify them to gain defensive bonuses.\n \n"
+			"When you're done, press the 'End Turn' button to continue.\n");
+		break;
+
+	case ACTIONTYPE_NEWUNIT:
+		m_pActionItem->SetText(
+			"NEW UNIT READY\n \n"
+			"This unit has just been completed and needs orders.\n");
+		break;
+
+	case ACTIONTYPE_NEWSTRUCTURE:
+		m_pActionItem->SetText(
+			"NEW STRUCTURE COMPLETED\n \n"
+			"This structure has just been completed.\n");
+		break;
+
 	case ACTIONTYPE_UNITORDERS:
 		m_pActionItem->SetText(
 			"UNIT NEEDS ORDERS\n \n"
@@ -1168,7 +1237,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_AUTOMOVECANCELED:
 		m_pActionItem->SetText(
 			"UNIT AUTO-MOVE CANCELED\n \n"
-			"This unit's auto-move has been canceled, as it encountered an enemy unit. Please assign it new orders.\n");
+			"This unit's auto-move has been canceled, due to it taking damage from enemy fire. Please assign it new orders.\n");
 		break;
 
 	case ACTIONTYPE_AUTOMOVEENEMY:
@@ -1177,10 +1246,22 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"This unit is auto-moving to a new location, but an enemy is visible. You may wish to cancel this auto move.\n");
 		break;
 
+	case ACTIONTYPE_UNITDAMAGED:
+		m_pActionItem->SetText(
+			"UNIT DAMAGED\n \n"
+			"This unit has been damaged by enemy fire. Take evasive action!\n");
+		break;
+
+	case ACTIONTYPE_FORTIFIEDENEMY:
+		m_pActionItem->SetText(
+			"ENEMY SIGHTED\n \n"
+			"An enemy has been sighted in range of this fortified unit. Strike while the iron is hot.\n");
+		break;
+
 	case ACTIONTYPE_CONSTRUCTION:
 		m_pActionItem->SetText(
 			"CONSTRUCTION COMPELTE\n \n"
-			"This structure has completed its construction. You can return to your CPU to build another structure by pressing the 'H' key.\n");
+			"Your CPU has completed construction of a new structure for your base. You can choose what to build next.\n");
 		break;
 
 	case ACTIONTYPE_INSTALLATION:
@@ -1197,22 +1278,37 @@ void CHUD::ShowActionItem(size_t iActionItem)
 
 	case ACTIONTYPE_UNITREADY:
 		m_pActionItem->SetText(
-			"UNIT READY\n \n"
-			"This unit has just been completed, you can now issue its orders. You may wish to begin production on additional units as well.\n");
+			"UNIT COMPLETED\n \n"
+			"A new unit was just constructed here and is now finish. Please choose the next construction task.\n");
 		break;
 	}
 
 	CEntityHandle<CSelectable> hSelection(pItem->iUnit);
 
-	DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
-	DigitanksGame()->GetCamera()->SetTarget(hSelection->GetOrigin());
+	if (hSelection != NULL)
+	{
+		DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
+		DigitanksGame()->GetCamera()->SetTarget(hSelection->GetOrigin());
+	}
 
-	if (iActionItem == aActionItems.size()-1)
-		m_pNextActionItem->SetText("Close");
-	else
+	bool bMore = false;
+	for (size_t i = 0; i < aActionItems.size(); i++)
+	{
+		if (i != iActionItem && !aActionItems[i].bHandled)
+		{
+			bMore = true;
+			break;
+		}
+	}
+
+	if (bMore)
 	{
 		m_pNextActionItem->SetText("Next");
 		m_pActionItem->AppendText(" \nPress 'Next' to continue.");
+	}
+	else
+	{
+		m_pNextActionItem->SetText("Close");
 	}
 
 	m_pNextActionItem->SetVisible(true);
@@ -1314,6 +1410,12 @@ bool CHUD::IsUpdatesPanelOpen()
 
 void CHUD::NextActionItemCallback()
 {
+	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+
+	// Since we hit the next button that means this shit is done. Mark it off the list!
+	if (m_iCurrentActionItem < aActionItems.size())
+		aActionItems[m_iCurrentActionItem].bHandled = true;
+
 	ShowNextActionItem();
 }
 

@@ -211,8 +211,6 @@ void CStructure::CompleteConstruction()
 
 	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
-
-	DigitanksGame()->AddActionItem(this, ACTIONTYPE_CONSTRUCTION);
 }
 
 size_t CStructure::GetTurnsToConstruct()

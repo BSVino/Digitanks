@@ -526,6 +526,10 @@ void CDigitank::StartTurn()
 	// Artillery gets unit orders even if fortified but infantry doesn't.
 	if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()))
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
+	else
+	// Notify if infantry can see an enemy they can shoot.
+	if (IsInfantry() && IsFortified() && FindClosestVisibleEnemyTank(true))
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
 
 	if (HasGoalMovePosition())
 		MoveTowardsGoalMovePosition();
@@ -546,7 +550,7 @@ void CDigitank::EndTurn()
 	m_flTotalPower = 0;
 }
 
-CDigitank* CDigitank::FindClosestVisibleEnemyTank()
+CDigitank* CDigitank::FindClosestVisibleEnemyTank(bool bInRange)
 {
 	CDigitank* pClosestEnemy = NULL;
 	while (true)
@@ -559,8 +563,16 @@ CDigitank* CDigitank::FindClosestVisibleEnemyTank()
 		if (pClosestEnemy->GetTeam() == GetTeam())
 			continue;
 
-		if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange()+DigitanksGame()->FogPenetrationDistance())
-			return NULL;
+		if (bInRange)
+		{
+			if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > GetMaxRange())
+				return NULL;
+		}
+		else
+		{
+			if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange()+DigitanksGame()->FogPenetrationDistance())
+				return NULL;
+		}
 
 		break;
 	}
@@ -1738,6 +1750,8 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 		CancelGoalMovePosition();
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
 	}
+	else
+		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
 
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)

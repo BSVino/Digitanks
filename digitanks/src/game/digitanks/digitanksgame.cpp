@@ -43,6 +43,8 @@ CDigitanksGame::CDigitanksGame()
 	m_iDifficulty = 1;
 
 	m_bRenderFogOfWar = true;
+
+	m_bAllowActionItems = false;
 }
 
 CDigitanksGame::~CDigitanksGame()
@@ -729,8 +731,11 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	m_bTurnActive = true;
 
 	m_aActionItems.clear();
+	m_bAllowActionItems = true;
 
 	GetCurrentTeam()->StartTurn();
+
+	m_bAllowActionItems = false;
 
 	if (m_pListener)
 	{
@@ -1123,17 +1128,30 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 	if (pUnit && !IsTeamControlledByMe(pUnit->GetTeam()))
 		return;
 
+	if (!m_bAllowActionItems)
+		return;
+
 	// Prevent duplicates
 	for (size_t i = 0; i < m_aActionItems.size(); i++)
 	{
-		if (m_aActionItems[i].eActionType == eActionType && m_aActionItems[i].iUnit == pUnit->GetHandle())
+		if (!pUnit && m_aActionItems[i].iUnit == ~0 && eActionType == m_aActionItems[i].eActionType)
 			return;
+
+		if (m_aActionItems[i].iUnit == pUnit->GetHandle())
+		{
+			// Use the lowest value, that list is sorted that way.
+			if (eActionType < m_aActionItems[i].eActionType)
+				m_aActionItems[i].eActionType = eActionType;
+
+			return;
+		}
 	}
 
 	m_aActionItems.push_back(actionitem_t());
 	actionitem_t* pActionItem = &m_aActionItems[m_aActionItems.size()-1];
-	pActionItem->iUnit = pUnit->GetHandle();
+	pActionItem->iUnit = pUnit?pUnit->GetHandle():~0;
 	pActionItem->eActionType = eActionType;
+	pActionItem->bHandled = false;
 }
 
 void CDigitanksGame::CompleteProductions()

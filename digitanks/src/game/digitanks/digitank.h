@@ -113,7 +113,7 @@ public:
 	virtual void				StartTurn();
 	virtual void				EndTurn();
 
-	virtual CDigitank*			FindClosestVisibleEnemyTank();
+	virtual CDigitank*			FindClosestVisibleEnemyTank(bool bInRange = false);
 
 	Vector						GetPreviewMove() const { return m_vecPreviewMove; };
 	virtual void				SetPreviewMove(Vector vecPreviewMove);

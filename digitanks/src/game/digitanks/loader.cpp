@@ -145,7 +145,8 @@ void CLoader::StartTurn()
 
 			pTank->StartTurn();
 
-			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_UNITREADY);
+			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
+			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
 		else
 		{

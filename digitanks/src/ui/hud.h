@@ -145,7 +145,9 @@ public:
 	virtual void				NewCurrentTeam();
 	virtual void				NewCurrentSelection();
 
+	void						ShowFirstActionItem();
 	void						ShowNextActionItem();
+	void						ShowActionItem(CSelectable* pSelectable);
 	void						ShowActionItem(size_t iActionItem);
 
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
@@ -237,6 +239,7 @@ protected:
 	glgui::CLabel*				m_pActionItem;
 	glgui::CButton*				m_pNextActionItem;
 	size_t						m_iCurrentActionItem;
+	bool						m_bAllActionItemsHandled;
 
 	CMouseCapturePanel*			m_pButtonPanel;
 

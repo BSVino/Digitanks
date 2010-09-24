@@ -573,7 +573,8 @@ void CCPU::StartTurn()
 
 			pTank->StartTurn();
 
-			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_UNITREADY);
+			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
+			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
 		else
 		{
@@ -604,6 +605,10 @@ void CCPU::StartTurn()
 				GetDigitanksTeam()->AddProduction((size_t)(pCollector->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
 
 			m_hConstructing->CompleteConstruction();
+
+			DigitanksGame()->AddActionItem(m_hConstructing, ACTIONTYPE_NEWSTRUCTURE);
+			DigitanksGame()->AddActionItem(this, ACTIONTYPE_CONSTRUCTION);
+
 			m_hConstructing = NULL;
 		}
 		else
