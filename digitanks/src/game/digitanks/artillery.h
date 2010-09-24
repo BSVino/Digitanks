@@ -12,6 +12,7 @@ public:
 
 public:
 	virtual void				Precache();
+	virtual void				Spawn();
 
 	virtual void				SetAttackPower(float flAttackPower);
 
@@ -25,6 +26,7 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Artillery"; };
 
+	virtual void				Fortify();
 	virtual bool				CanFortify() { return true; };
 	virtual bool				IsArtillery() const { return true; };
 	virtual bool				CanTurnFortified() { return true; };

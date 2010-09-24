@@ -4,6 +4,7 @@
 #include <mtrand.h>
 
 #include <network/network.h>
+#include <models/models.h>
 
 #include "ui/digitankswindow.h"
 #include "ui/hud.h"
@@ -12,8 +13,6 @@
 
 CArtillery::CArtillery()
 {
-	SetModel(L"models/digitanks/artillery.obj");
-
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
 
 	m_bFortified = false;
@@ -25,6 +24,12 @@ CArtillery::CArtillery()
 void CArtillery::Precache()
 {
 	PrecacheModel(L"models/digitanks/artillery.obj", true);
+	PrecacheModel(L"models/digitanks/artillery-move.obj", true);
+}
+
+void CArtillery::Spawn()
+{
+	SetModel(L"models/digitanks/artillery-move.obj");
 }
 
 void CArtillery::SetAttackPower(float flAttackPower)
@@ -93,6 +98,16 @@ bool CArtillery::AllowControlMode(controlmode_t eMode) const
 		return false;
 
 	return BaseClass::AllowControlMode(eMode);
+}
+
+void CArtillery::Fortify()
+{
+	BaseClass::Fortify();
+
+	if (IsFortified() || IsFortifying())
+		SetModel(L"models/digitanks/artillery.obj");
+	else
+		SetModel(L"models/digitanks/artillery-move.obj");
 }
 
 float CArtillery::ShieldRechargeRate() const
