@@ -29,6 +29,7 @@ public:
 	virtual float				GetPowerBar3Size() { return 0; }
 
 	virtual bool				NeedsOrders() { return false; }
+	virtual bool				ShowHealthBar() { return true; }
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 };

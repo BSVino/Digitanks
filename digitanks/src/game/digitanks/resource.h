@@ -20,6 +20,7 @@ public:
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
 	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
+	virtual bool				ShowHealthBar() { return false; }
 
 	bool						HasCollector() { return m_hCollector != NULL; }
 	class CCollector*			GetCollector() { return m_hCollector; }

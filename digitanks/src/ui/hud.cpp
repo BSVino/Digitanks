@@ -464,31 +464,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
-	do {
-		CRenderingContext c(Game()->GetRenderer());
-		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iHUDGraphic, iWidth/2 - 720/2, iHeight-160, 720, 160);
-
-		CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
-		CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
-		CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
-
-		CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
-
-		if (m_flAttackInfoAlpha > 0)
-			CRootPanel::PaintTexture(m_iAttackInfoPanel, iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
-
-		CRootPanel::PaintTexture(m_iTankInfoPanel, 0, iHeight-250, 150, 250);
-	} while (false);
-
-	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
-
-	if (m_pButtonInfo->GetText()[0] != L'\0')
-		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
-
-	if (m_pActionItem->GetText()[0] != L'\0')
-		CRootPanel::PaintRect(m_pActionItem->GetLeft()-13, m_pActionItem->GetTop()-19, m_pActionItem->GetWidth()+26, m_pActionItem->GetHeight()+26, Color(0, 0, 0, 200));
-
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
@@ -537,8 +512,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (CDigitanksWindow::Get()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable))
 		{
-			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 11), (int)flWidth + 2, 5, Color(255, 255, 255, 128));
-			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 10), (int)(flWidth*pEntity->GetHealth()/pEntity->GetTotalHealth()), 3, Color(100, 255, 100));
+			if (pSelectable->ShowHealthBar())
+			{
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 11), (int)flWidth + 2, 5, Color(255, 255, 255, 128));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 10), (int)(flWidth*pEntity->GetHealth()/pEntity->GetTotalHealth()), 3, Color(100, 255, 100));
+			}
 
 			if (pTank)
 			{
@@ -627,6 +605,31 @@ void CHUD::Paint(int x, int y, int w, int h)
 			UpdateInfo();
 		}
 	}
+
+	do {
+		CRenderingContext c(Game()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintTexture(m_iHUDGraphic, iWidth/2 - 720/2, iHeight-160, 720, 160);
+
+		CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
+		CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
+		CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
+
+		CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
+
+		if (m_flAttackInfoAlpha > 0)
+			CRootPanel::PaintTexture(m_iAttackInfoPanel, iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
+
+		CRootPanel::PaintTexture(m_iTankInfoPanel, 0, iHeight-250, 150, 250);
+	} while (false);
+
+	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
+
+	if (m_pButtonInfo->GetText()[0] != L'\0')
+		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
+
+	if (m_pActionItem->GetText()[0] != L'\0')
+		CRootPanel::PaintRect(m_pActionItem->GetLeft()-13, m_pActionItem->GetTop()-19, m_pActionItem->GetWidth()+26, m_pActionItem->GetHeight()+26, Color(0, 0, 0, 200));
 
 	CPanel::Paint(x, y, w, h);
 
