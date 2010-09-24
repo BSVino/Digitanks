@@ -219,6 +219,7 @@ CHUD::CHUD()
 
 	m_iTurnButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png", true);
 	m_iTurnCompleteButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn-complete.png", true);
+	m_iTurnThinkingButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn-thinking.png", true);
 	m_pTurnButton = new CPictureButton("TURN", m_iTurnButton);
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
@@ -947,7 +948,12 @@ void CHUD::UpdateTurnButton()
 		}
 	}
 
-	if (bTurnComplete)
+	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+	{
+		m_pTurnButton->SetTexture(m_iTurnThinkingButton);
+		m_pPressEnter->SetVisible(true);
+	}
+	else if (bTurnComplete)
 	{
 		m_pTurnButton->SetTexture(m_iTurnCompleteButton);
 		m_pPressEnter->SetVisible(true);
