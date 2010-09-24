@@ -193,6 +193,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonListener(4, CHUD::CancelInstall);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"CANCEL INSTALLATION");
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
@@ -283,12 +284,14 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonListener(4, CHUD::GoToMain);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"RETURN");
 	}
 	else if (m_bProducing)
 	{
 		pHUD->SetButtonListener(4, CHUD::CancelBuildUnit);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"CANCEL UNIT PRODUCTION");
 	}
 	else
 	{
@@ -330,6 +333,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(3, CHUD::InstallMenu);
 			pHUD->SetButtonTexture(3, s_iInstallIcon);
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
+			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU");
 		}
 	}
 }

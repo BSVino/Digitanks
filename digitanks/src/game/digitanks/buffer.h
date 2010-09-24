@@ -67,6 +67,7 @@ public:
 	static size_t				GetMiniBufferConstructionCost() { return 10; };
 
 protected:
+	static size_t				s_iUpgradeIcon;
 	static size_t				s_iCancelIcon;
 };
 

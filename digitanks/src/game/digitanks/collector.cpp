@@ -55,6 +55,7 @@ size_t CCollector::GetProduction()
 	return (size_t)(4 * m_hSupplyLine->GetIntegrity());
 }
 
+size_t CBattery::s_iUpgradeIcon = 0;
 size_t CBattery::s_iCancelIcon = 0;
 
 void CBattery::Spawn()
@@ -71,6 +72,7 @@ void CBattery::Precache()
 	PrecacheModel(L"models/structures/battery.obj");
 
 	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
+	s_iUpgradeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-psu.png");
 }
 
 void CBattery::SetupMenu(menumode_t eMenuMode)
@@ -84,11 +86,12 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(4, CHUD::CancelUpgrade);
 			pHUD->SetButtonTexture(4, s_iCancelIcon);
 			pHUD->SetButtonColor(4, Color(100, 0, 0));
+			pHUD->SetButtonInfo(4, L"CANCEL UPGRADE");
 		}
 		else
 		{
 			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
-			pHUD->SetButtonTexture(0, 0);
+			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			std::wstringstream s;

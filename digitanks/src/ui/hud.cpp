@@ -340,8 +340,8 @@ void CHUD::Layout()
 	m_pBandwidthInfo->SetPos(iWidth - 150, 20);
 	m_pBandwidthInfo->SetWrap(false);
 
-	m_pTurnButton->SetPos(iWidth - 140, iHeight - 100);
-	m_pTurnButton->SetSize(120, 90);
+	m_pTurnButton->SetPos(iWidth - 140, iHeight - 105);
+	m_pTurnButton->SetSize(140, 105);
 
 	UpdateTeamInfo();
 	UpdateInfo();

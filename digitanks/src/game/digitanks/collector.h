@@ -55,6 +55,7 @@ public:
 	static size_t				GetBatteryConstructionCost() { return 15; };
 
 protected:
+	static size_t				s_iUpgradeIcon;
 	static size_t				s_iCancelIcon;
 };
 

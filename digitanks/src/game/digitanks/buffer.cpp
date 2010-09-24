@@ -175,6 +175,7 @@ bool CBuffer::HasUpdatesAvailable()
 	return false;
 }
 
+size_t CMiniBuffer::s_iUpgradeIcon = 0;
 size_t CMiniBuffer::s_iCancelIcon = 0;
 
 void CMiniBuffer::Spawn()
@@ -187,6 +188,9 @@ void CMiniBuffer::Spawn()
 void CMiniBuffer::Precache()
 {
 	BaseClass::Precache();
+
+	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
+	s_iUpgradeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-buffer.png");
 
 	PrecacheModel(L"models/structures/minibuffer.obj");
 }
@@ -202,11 +206,12 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(4, CHUD::CancelUpgrade);
 			pHUD->SetButtonTexture(4, s_iCancelIcon);
 			pHUD->SetButtonColor(4, Color(100, 0, 0));
+			pHUD->SetButtonInfo(4, L"CANCEL UPGRADE");
 		}
 		else
 		{
 			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
-			pHUD->SetButtonTexture(0, 0);
+			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			std::wstringstream s;

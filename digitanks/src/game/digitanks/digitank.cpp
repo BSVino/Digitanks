@@ -1830,6 +1830,9 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 
 	if (m_hSupplyLine != NULL)
 		m_hSupplyLine->Delete();
+
+	// Make sure we can see that we got a promotion.
+	CDigitanksWindow::Get()->GetHUD()->Layout();
 }
 
 Vector CDigitank::GetRenderOrigin() const

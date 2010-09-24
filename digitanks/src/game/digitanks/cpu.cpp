@@ -78,18 +78,21 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonListener(4, CHUD::CancelBuild);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"CANCEL CONSTRUCTION");
 	}
 	else if (IsInstalling())
 	{
 		pHUD->SetButtonListener(4, CHUD::CancelInstall);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"CANCEL INSTALLATION");
 	}
 	else if (IsProducing())
 	{
 		pHUD->SetButtonListener(4, CHUD::CancelBuildScout);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"CANCEL UNIT PRODUCTION");
 	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
@@ -138,6 +141,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonListener(4, CHUD::GoToMain);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"RETURN");
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
@@ -195,6 +199,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonListener(4, CHUD::GoToMain);
 		pHUD->SetButtonTexture(4, s_iCancelIcon);
 		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonInfo(4, L"RETURN");
 	}
 	else
 	{
@@ -259,6 +264,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(2, CHUD::BuildLoader);
 			pHUD->SetButtonTexture(2, s_iBuildLoaderIcon);
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
+			pHUD->SetButtonInfo(2, L"OPEN LOADER CONSTRUCTION MENU");
 		}
 
 		if (HasUpdatesAvailable())
@@ -266,6 +272,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(3, CHUD::InstallMenu);
 			pHUD->SetButtonTexture(3, s_iInstallIcon);
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
+			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU");
 		}
 
 		pHUD->SetButtonListener(7, CHUD::BuildScout);
