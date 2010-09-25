@@ -28,9 +28,6 @@ bool CScout::AllowControlMode(controlmode_t eMode) const
 	if (eMode == MODE_FIRE)
 		return false;
 
-	if (eMode == MODE_AIM)
-		return false;
-
 	return BaseClass::AllowControlMode(eMode);
 }
 
@@ -86,25 +83,11 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 
 void CScout::Fire()
 {
-	CSupplyLine* pClosest = FindClosestEnemySupplyLine(true);
-	if (!pClosest)
-		return;
-
-	float flDistance = pClosest->Distance(GetOrigin());
-	if (flDistance > GetMaxRange())
-		return;
-
 	if (m_bFiredWeapon)
 		return;
 
 	if (m_flTotalPower < TorpedoAttackPower())
 		return;
-
-	Vector vecIntersection;
-	DistanceToLineSegment(GetOrigin(), pClosest->GetSupplier()->GetOrigin(), pClosest->GetEntity()->GetOrigin(), &vecIntersection);
-
-	SetPreviewAim(vecIntersection);
-	SetDesiredAim();
 
 	m_bFiredWeapon = true;
 

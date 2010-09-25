@@ -25,8 +25,6 @@ public:
 
 	virtual void				PostRender();
 
-	virtual bool				AllowControlMode(controlmode_t eMode) const;
-
 	virtual const wchar_t*		GetName() { return L"Mechanized Infantry"; };
 
 	virtual float				RenderShieldScale() { return 2.0f; };

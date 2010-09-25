@@ -1433,22 +1433,16 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				pHUD->SetButtonColor(2, Color(100, 100, 100));
 
+			pHUD->SetButtonTexture(2, s_iAimIcon);
+
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(2, s_iCancelIcon);
-			else if (IsInfantry() || IsScout())
-			{
-				pHUD->SetButtonListener(2, CHUD::InfantryFire);
-				pHUD->SetButtonTexture(2, s_iFireIcon);
-				if (IsInfantry())
-					pHUD->SetButtonInfo(2, L"FIRE ON NEAREST TARGET\n \nPressing this button will command the infantry to automatically fire on the nearest enemy target.");
-				else
-					pHUD->SetButtonInfo(2, L"TORPEDO SUPPLY LINES\n \nPressing this button will command the rogue to torpedo nearby enemy supply lines.\n \nThis attack requires 30% of the unit's energy.");
-			}
+			else if (IsInfantry())
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.");
+			else if (IsScout())
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.");
 			else
-			{
-				pHUD->SetButtonTexture(2, s_iAimIcon);
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE\n \nGo into Aim mode. Right click any spot on the terrain to fire on that location.");
-			}
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.");
 		}
 
 		if (GetFrontShieldMaxStrength() > 0)

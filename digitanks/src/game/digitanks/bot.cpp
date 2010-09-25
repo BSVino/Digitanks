@@ -702,10 +702,16 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 			float flMovementPower = 0.69f;
 
+			Vector vecPoint;
+			if (pClosestSupply)
+				DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
+
 			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
 			if (pClosestSupply && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
 			{
 				// FIRE ZE MISSILES
+				pTank->SetPreviewAim(vecPoint);
+				pTank->SetDesiredAim();
 				pTank->Fire();
 				flMovementPower = 0.95f;
 			}
@@ -729,9 +735,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				{
 					if (!pTank->HasFiredWeapon())
 						flMovementPower = 0.69f;
-
-					Vector vecPoint;
-					DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
 
 					float flMovementDistance = pTank->GetMaxMovementDistance();
 					Vector vecDirection = vecPoint - pTank->GetOrigin();
@@ -762,10 +765,15 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				pTank->Move();
 			}
 
+			if (pClosestSupply)
+				DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
+
 			// Maybe now that we've moved closer we can try to fire again.
 			if (pClosestSupply && pClosestSupply->GetIntegrity() > 0.3f && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
 			{
 				// FIRE ZE MISSILES
+				pTank->SetPreviewAim(vecPoint);
+				pTank->SetDesiredAim();
 				pTank->Fire();
 			}
 		}
@@ -879,7 +887,14 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 
 		if (pTank->IsInfantry())
-			pTank->Fire();
+		{
+			if (pTarget && (vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			{
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->SetDesiredAim();
+				pTank->Fire();
+			}
+		}
 	}
 
 	DigitanksGame()->EndTurn();

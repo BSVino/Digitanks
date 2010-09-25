@@ -539,7 +539,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		bool bShowEnergy = false;
 		if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
-			if (pTank && !pTank->IsArtillery())
+			if (pTank && !pTank->IsArtillery() && !pTank->IsScout())
 				bShowEnergy = true;
 		}
 
@@ -1574,20 +1574,6 @@ void CHUD::FireCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_FIRE);
-
-	SetupMenu();
-}
-
-void CHUD::InfantryFireCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionTank())
-		return;
-
-	DigitanksGame()->SetControlMode(MODE_NONE);
-	DigitanksGame()->GetPrimarySelectionTank()->Fire();
 
 	SetupMenu();
 }

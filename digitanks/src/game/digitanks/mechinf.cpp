@@ -70,23 +70,8 @@ void CMechInfantry::Think()
 
 void CMechInfantry::Fire()
 {
-	CDigitank* pClosest = FindClosestVisibleEnemyTank();
-
-	if (!pClosest)
-		return;
-
-	float flDistanceSqr = (pClosest->GetOrigin() - GetOrigin()).LengthSqr();
-	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
-		return;
-
-	if (flDistanceSqr < GetMinRange()*GetMinRange())
-		return;
-
 	if (m_bFiredWeapon)
 		return;
-
-	SetPreviewAim(pClosest->GetOrigin());
-	SetDesiredAim();
 
 	m_bFiredWeapon = true;
 
@@ -147,14 +132,6 @@ void CMechInfantry::PostRender()
 		c.SetBackCulling(false);
 		c.RenderModel(m_iFortifyShieldModel);
 	}
-}
-
-bool CMechInfantry::AllowControlMode(controlmode_t eMode) const
-{
-	if (eMode == MODE_AIM)
-		return false;
-
-	return BaseClass::AllowControlMode(eMode);
 }
 
 float CMechInfantry::GetBonusAttackPower(bool bPreview)
