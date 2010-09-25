@@ -85,6 +85,7 @@ public:
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
 	void					ScatterResources();
+	void					ScatterProps();
 	void					SetupArtillery();
 	void					SetupStandard();
 	void					SetupTutorial();

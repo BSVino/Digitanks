@@ -210,6 +210,9 @@
     <ClCompile Include="game\digitanks\scout.cpp">
       <Filter>Source Files\game\digitanks\units</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\props.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -334,6 +337,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\scout.h">
       <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\props.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

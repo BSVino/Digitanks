@@ -24,6 +24,7 @@
 #include "digitanks/dt_renderer.h"
 #include "digitanks/resource.h"
 #include "digitanks/loader.h"
+#include "digitanks/props.h"
 
 CDigitanksGame::CDigitanksGame()
 {
@@ -155,6 +156,36 @@ void CDigitanksGame::ScatterResources()
 	}
 }
 
+void CDigitanksGame::ScatterProps()
+{
+	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
+	{
+		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)
+		{
+			if (rand()%2 == 0)
+				continue;
+
+			float x = RandomFloat((float)i, (float)i+100);
+			float z = RandomFloat((float)j, (float)j+100);
+
+			if (x < -m_hTerrain->GetMapSize()+10 || z < -m_hTerrain->GetMapSize()+10)
+				continue;
+
+			if (x > m_hTerrain->GetMapSize()-10 || z > m_hTerrain->GetMapSize()-10)
+				continue;
+
+			CStaticProp* pProp = Game()->Create<CStaticProp>("CStaticProp");
+			pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			pProp->SetAngles(EAngle(0, RandomFloat(0, 360), 0));
+
+			pProp->SetModel(L"models/props/prop01.obj");
+			pProp->SetAdditive(true);
+			pProp->SetBackCulling(false);
+			pProp->SetDepthMask(false);
+		}
+	}
+}
+
 void CDigitanksGame::SetupArtillery()
 {
 	int iPlayers = 8;
@@ -251,6 +282,7 @@ void CDigitanksGame::SetupArtillery()
 void CDigitanksGame::SetupStandard()
 {
 	ScatterResources();
+	ScatterProps();
 
 	Color aclrTeamColors[] =
 	{
@@ -294,17 +326,16 @@ void CDigitanksGame::SetupStandard()
 			if (!pEntity)
 				continue;
 
-			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
-			if (!pStructure)
+			CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+			if (!pDTEntity)
 				continue;
 
-			if (pCPU->GetTeam() == pStructure->GetTeam())
+			if (pCPU->GetTeam() == pDTEntity->GetTeam())
 				continue;
 
-			// 80 units because the default CPU has a network radius of 40 units,
-			// then add 20 because collectors can be built within 20 units and another 20 as a buffer.
+			// The default CPU has a network radius of 40 units, and then add a bit more as a buffer.
 			// The idea is, players have to grow their base to find more resources.
-			if ((pStructure->GetOrigin() - pCPU->GetOrigin()).Length2D() < 80)
+			if ((pDTEntity->GetOrigin() - pCPU->GetOrigin()).Length2D() < 60)
 				pEntity->Delete();
 		}
 
@@ -421,6 +452,8 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 
 	for (size_t i = 0; i < GetNumTeams(); i++)
 		GetDigitanksTeam(i)->CountScore();
+
+	m_aActionItems.clear();
 
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;
@@ -1137,7 +1170,7 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 		if (!pUnit && m_aActionItems[i].iUnit == ~0 && eActionType == m_aActionItems[i].eActionType)
 			return;
 
-		if (m_aActionItems[i].iUnit == pUnit->GetHandle())
+		if (pUnit && m_aActionItems[i].iUnit == pUnit->GetHandle())
 		{
 			// Use the lowest value, that list is sorted that way.
 			if (eActionType < m_aActionItems[i].eActionType)
