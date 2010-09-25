@@ -116,6 +116,7 @@ CHUD::CHUD()
 	m_pNextActionItem = new CButton(0, 0, 100, 50, "Next");
 	AddControl(m_pActionItem);
 	AddControl(m_pNextActionItem);
+	m_iActionItemPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-action-items.png", true);
 
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
@@ -268,11 +269,11 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
-	m_pActionItem->SetPos(iWidth - 260, 60);
+	m_pActionItem->SetPos(iWidth - 270, 70);
 	m_pActionItem->SetSize(220, 250);
 	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
-	m_pNextActionItem->SetSize(100, 30);
-	m_pNextActionItem->SetPos(iWidth - 200, 320);
+	m_pNextActionItem->SetSize(130, 25);
+	m_pNextActionItem->SetPos(iWidth - 226, 342);
 	m_pNextActionItem->SetClickedListener(this, NextActionItem);
 
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
@@ -607,6 +608,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 	}
 
+	m_pNextActionItem->Paint();
+
 	do {
 		CRenderingContext c(Game()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
@@ -621,6 +624,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (m_flAttackInfoAlpha > 0)
 			CRootPanel::PaintTexture(m_iAttackInfoPanel, iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
+		if (m_pActionItem->GetText()[0] != L'\0')
+			CRootPanel::PaintTexture(m_iActionItemPanel, m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, 280, 340);
+
 		CRootPanel::PaintTexture(m_iTankInfoPanel, 0, iHeight-250, 150, 250);
 	} while (false);
 
@@ -629,10 +635,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (m_pButtonInfo->GetText()[0] != L'\0')
 		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
 
-	if (m_pActionItem->GetText()[0] != L'\0')
-		CRootPanel::PaintRect(m_pActionItem->GetLeft()-13, m_pActionItem->GetTop()-19, m_pActionItem->GetWidth()+26, m_pActionItem->GetHeight()+26, Color(0, 0, 0, 200));
-
+	bool bVisible = m_pNextActionItem->IsVisible();
+	m_pNextActionItem->SetVisible(false);
 	CPanel::Paint(x, y, w, h);
+	m_pNextActionItem->SetVisible(bVisible);
 
 	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 

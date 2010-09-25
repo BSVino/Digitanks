@@ -240,6 +240,7 @@ protected:
 	glgui::CButton*				m_pNextActionItem;
 	size_t						m_iCurrentActionItem;
 	bool						m_bAllActionItemsHandled;
+	size_t						m_iActionItemPanel;
 
 	CMouseCapturePanel*			m_pButtonPanel;
 
