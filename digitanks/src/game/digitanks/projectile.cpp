@@ -6,7 +6,7 @@
 #include <renderer/particles.h>
 
 #include "digitanksgame.h"
-#include "camera.h"
+#include "dt_camera.h"
 #include "dt_renderer.h"
 
 CProjectile::CProjectile()
@@ -167,7 +167,7 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 	m_flTimeExploded = Game()->GetGameTime();
 
 	if (m_bShouldRender)
-		Game()->GetCamera()->Shake(GetOrigin(), 3);
+		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
 
 	if (MakesSounds() && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
 		EmitSound("sound/explosion.wav");

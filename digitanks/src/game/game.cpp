@@ -27,9 +27,6 @@ CGame::CGame()
 	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
 		CBaseEntity::s_aEntityRegistration[i].m_pfnRegisterCallback();
 
-	m_pCamera = new CCamera();
-	m_pCamera->SnapDistance(120);
-
 	m_iClient = -1;
 
 #ifdef _DEBUG
@@ -324,6 +321,11 @@ void CGame::AddTeam(CNetworkParameters* p)
 void CGame::CreateRenderer()
 {
 	m_pRenderer = new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
+}
+
+void CGame::CreateCamera()
+{
+	m_pCamera = new CCamera();
 }
 
 bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit)

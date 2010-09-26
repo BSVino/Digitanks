@@ -9,63 +9,24 @@ public:
 				CCamera();
 
 public:
-	void		SetTarget(Vector vecTarget);
-	void		SnapTarget(Vector vecTarget);
-	void		SetDistance(float flDistance);
-	void		SnapDistance(float flDistance);
-	void		SetAngle(EAngle angCamera);
-	void		SnapAngle(EAngle angCamera);
+	virtual void	Think();
 
-	void		ZoomOut();
-	void		ZoomIn();
+	virtual Vector	GetCameraPosition();
+	virtual Vector	GetCameraTarget();
 
-	void		Shake(Vector vecLocation, float flMagnitude);
+	void			SetFreeMode(bool bOn);
+	bool			GetFreeMode() { return m_bFreeMode; };
 
-	void		Think();
-
-	Vector		GetCameraPosition();
-	Vector		GetCameraTarget();
-
-	void		SetFPSMode(bool bOn);
-	bool		GetFPSMode() { return m_bFPSMode; };
-
-	void		MouseInput(int x, int y);
-	void		MouseButton(int iButton, int iState);
-	void		KeyDown(int c);
-	void		KeyUp(int c);
+	virtual void	MouseInput(int x, int y);
+	virtual void	MouseButton(int iButton, int iState) {};
+	virtual void	KeyDown(int c);
+	virtual void	KeyUp(int c);
 
 public:
-	Vector		m_vecOldTarget;
-	Vector		m_vecNewTarget;
-	float		m_flTargetRamp;
-
-	float		m_flOldDistance;
-	float		m_flNewDistance;
-	float		m_flDistanceRamp;
-
-	EAngle		m_angOldAngle;
-	EAngle		m_angNewAngle;
-	float		m_flAngleRamp;
-
-	Vector		m_vecShakeLocation;
-	float		m_flShakeMagnitude;
-	Vector		m_vecShake;
-
-	Vector		m_vecTarget;
-	float		m_flDistance;
-
-	Vector		m_vecCamera;
-	EAngle		m_angCamera;
-
-	Vector		m_vecVelocity;
-	Vector		m_vecGoalVelocity;
-
-	bool		m_bRotatingCamera;
-
-	bool		m_bFPSMode;
-	Vector		m_vecFPSCamera;
-	EAngle		m_angFPSCamera;
-	Vector		m_vecFPSVelocity;
+	bool			m_bFreeMode;
+	Vector			m_vecFreeCamera;
+	EAngle			m_angFreeCamera;
+	Vector			m_vecFreeVelocity;
 };
 
 #endif

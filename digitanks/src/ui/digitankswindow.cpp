@@ -128,6 +128,7 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	{
 		m_pDigitanksGame = new CDigitanksGame();
 		m_pDigitanksGame->CreateRenderer();
+		m_pDigitanksGame->CreateCamera();
 
 		m_pHUD = new CHUD();
 		m_pHUD->SetGame(m_pDigitanksGame);

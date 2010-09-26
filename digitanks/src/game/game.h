@@ -58,6 +58,7 @@ public:
 	NET_CALLBACK_ENTITY(CGame, CTeam,			AddEntityToTeam);
 
 	virtual void								CreateRenderer();
+	virtual void								CreateCamera();
 
 	virtual bool								TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit);
 
@@ -68,8 +69,8 @@ public:
 	float										GetFrameTime() { return m_flFrameTime; };
 	float										GetGameTime() { return m_flGameTime; };
 
-	class CCamera*								GetCamera() { return m_pCamera; };
 	class CRenderer*							GetRenderer() { return m_pRenderer; };
+	class CCamera*								GetCamera() { return m_pCamera; };
 
 	bool										IsLoading() { return m_bLoading; };
 	bool										IsClient() { return m_iClient >= 0; };

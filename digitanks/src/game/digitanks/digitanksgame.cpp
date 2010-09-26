@@ -14,7 +14,7 @@
 #include <ui/hud.h>
 #include "powerup.h"
 #include "terrain.h"
-#include "camera.h"
+#include "dt_camera.h"
 
 #include "digitanks/mechinf.h"
 #include "digitanks/maintank.h"
@@ -29,22 +29,14 @@
 CDigitanksGame::CDigitanksGame()
 {
 	m_iCurrentTeam = 0;
-
 	m_pListener = NULL;
-
 	m_bWaitingForMoving = false;
-
 	m_bWaitingForProjectiles = false;
 	m_iWaitingForProjectiles = 0;
-
 	m_bTurnActive = true;
-
 	m_iPowerups = 0;
-
 	m_iDifficulty = 1;
-
 	m_bRenderFogOfWar = true;
-
 	m_bAllowActionItems = false;
 }
 
@@ -469,17 +461,17 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	}
 
 	if (m_eGameType == GAMETYPE_TUTORIAL)
-		GetCamera()->SnapAngle(EAngle(45, 0, 0));
+		GetDigitanksCamera()->SnapAngle(EAngle(45, 0, 0));
 	else if (GetPrimarySelection())
 	{
 		// Point the camera in to the center
 		EAngle angCamera = VectorAngles(GetPrimarySelection()->GetOrigin().Normalized());
 		angCamera.p = 45;
-		GetCamera()->SnapAngle(angCamera);
+		GetDigitanksCamera()->SnapAngle(angCamera);
 	}
 
 	if (GetLocalDigitanksTeam()->GetMember(0))
-		GetCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
+		GetDigitanksCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
 
 	if (m_eGameType == GAMETYPE_STANDARD)
 		CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
@@ -581,7 +573,7 @@ void CDigitanksGame::SetDesiredMove()
 
 	if (bMoved)
 	{
-		GetGame()->GetCamera()->SetTarget(pCurrentTank->GetPreviewMove());
+		GetDigitanksCamera()->SetTarget(pCurrentTank->GetPreviewMove());
 
 		CDigitanksEntity* pClosestEnemy = NULL;
 		while (true)
@@ -997,6 +989,18 @@ CDigitanksRenderer*	CDigitanksGame::GetDigitanksRenderer()
 	return dynamic_cast<CDigitanksRenderer*>(GetRenderer());
 }
 
+void CDigitanksGame::CreateCamera()
+{
+	m_pCamera = new CDigitanksCamera();
+	GetDigitanksCamera()->SnapDistance(120);
+}
+
+CDigitanksCamera* CDigitanksGame::GetDigitanksCamera()
+{
+	CCamera* pCamera = GetCamera();
+	return dynamic_cast<CDigitanksCamera*>(pCamera);
+}
+
 float CDigitanksGame::GetGravity()
 {
 	return -20;
@@ -1039,9 +1043,9 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
 
-		GetCamera()->SnapTarget(pTank->GetOrigin());
-		GetCamera()->SetDistance(100);
-		GetCamera()->SetAngle(EAngle(45, 0, 0));
+		GetDigitanksCamera()->SnapTarget(pTank->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_MOVE)
 	{
@@ -1051,9 +1055,9 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, -50)));
 
-		GetCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
-		GetCamera()->SetDistance(100);
-		GetCamera()->SetAngle(EAngle(45, 0, 0));
+		GetDigitanksCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_POWERUP)
 	{
@@ -1075,9 +1079,9 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		CResource* pResource = Game()->Create<CResource>("CResource");
 		pResource->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 20)));
 
-		GetCamera()->SnapTarget(pCPU->GetOrigin());
-		GetCamera()->SetDistance(100);
-		GetCamera()->SetAngle(EAngle(45, 0, 0));
+		GetDigitanksCamera()->SnapTarget(pCPU->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 
 		EndTurn();	// Force structure height and power updates.
 

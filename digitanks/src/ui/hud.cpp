@@ -7,11 +7,11 @@
 #include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
 #include "instructor.h"
-#include "game/camera.h"
 #include "renderer/renderer.h"
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/projectile.h>
 #include <game/digitanks/loader.h>
+#include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
 
 using namespace glgui;
@@ -1106,9 +1106,9 @@ void CHUD::NewCurrentSelection()
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
 	{
 		if (DigitanksGame()->GetPrimarySelectionTank())
-			Game()->GetCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetDesiredMove());
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetDesiredMove());
 		else if (DigitanksGame()->GetPrimarySelection())
-			Game()->GetCamera()->SetTarget(DigitanksGame()->GetPrimarySelection()->GetOrigin());
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelection()->GetOrigin());
 	}
 
 	SetupMenu(MENUMODE_MAIN);
@@ -1300,7 +1300,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	if (hSelection != NULL)
 	{
 		DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
-		DigitanksGame()->GetCamera()->SetTarget(hSelection->GetOrigin());
+		DigitanksGame()->GetDigitanksCamera()->SetTarget(hSelection->GetOrigin());
 	}
 
 	bool bMore = false;

@@ -10,7 +10,7 @@
 #include <renderer/particles.h>
 
 #include "digitanksgame.h"
-#include "camera.h"
+#include "dt_camera.h"
 #include "ui/digitankswindow.h"
 #include "ui/instructor.h"
 #include "powerup.h"
@@ -1264,7 +1264,7 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 		if (IsArtillery())
 		{
 			Vector vecCenter = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(GetAngles()) * GetMaxRange()/2);
-			DigitanksGame()->GetCamera()->SetTarget(vecCenter);
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecCenter);
 		}
 	}
 }

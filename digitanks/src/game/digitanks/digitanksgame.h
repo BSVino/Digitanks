@@ -151,6 +151,9 @@ public:
 	virtual void			CreateRenderer();
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
 
+	virtual void			CreateCamera();
+	virtual class CDigitanksCamera*	GetDigitanksCamera();
+
 	float					GetGravity();
 
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };

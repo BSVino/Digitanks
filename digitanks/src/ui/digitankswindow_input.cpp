@@ -7,10 +7,10 @@
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
 #include "instructor.h"
-#include "game/camera.h"
 #include "hud.h"
 #include "menu.h"
 #include <game/digitanks/cpu.h>
+#include <game/digitanks/dt_camera.h>
 
 #include <renderer/dissolver.h>
 
@@ -98,7 +98,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			{
 				if (m_bCameraMouseDown)
 				{
-					GetGame()->GetCamera()->SetTarget(vecMousePosition);
+					DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
 					m_bCameraMouseDown = false;
 					CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 				}
@@ -144,9 +144,9 @@ void CDigitanksWindow::MouseWheel(int iState)
 	if (GetGame() && GetGame()->GetCamera())
 	{
 		if (iState > iOldState)
-			GetGame()->GetCamera()->ZoomIn();
+			DigitanksGame()->GetDigitanksCamera()->ZoomIn();
 		else
-			GetGame()->GetCamera()->ZoomOut();
+			DigitanksGame()->GetDigitanksCamera()->ZoomOut();
 	}
 
 	iOldState = iState;
