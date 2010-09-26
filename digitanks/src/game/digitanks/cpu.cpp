@@ -75,24 +75,24 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 	if (m_hConstructing != NULL)
 	{
-		pHUD->SetButtonListener(4, CHUD::CancelBuild);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"CANCEL CONSTRUCTION");
+		pHUD->SetButtonListener(9, CHUD::CancelBuild);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"CANCEL CONSTRUCTION\n \nShortcut: G");
 	}
 	else if (IsInstalling())
 	{
-		pHUD->SetButtonListener(4, CHUD::CancelInstall);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"CANCEL INSTALLATION");
+		pHUD->SetButtonListener(9, CHUD::CancelInstall);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"CANCEL INSTALLATION\n \nShortcut: G");
 	}
 	else if (IsProducing())
 	{
-		pHUD->SetButtonListener(4, CHUD::CancelBuildScout);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"CANCEL UNIT PRODUCTION");
+		pHUD->SetButtonListener(9, CHUD::CancelBuildScout);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"CANCEL UNIT PRODUCTION\n \nShortcut: G");
 	}
 	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
@@ -106,7 +106,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD INFANTRY LOADER\n \n"
 				<< "This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n"
 				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY) << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY)) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY)) << " Turns\n \n"
+				<< "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
@@ -120,7 +121,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD MAIN BATTLE TANK LOADER\n \n"
 				<< "This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n"
 				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK) << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK)) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK)) << " Turns\n \n"
+				<< "Shortcut: W";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
@@ -134,14 +136,15 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD ARTILLERY LOADER\n \n"
 				<< "This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n"
 				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY) << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY)) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY)) << " Turns\n \n"
+				<< "Shortcut: E";
 			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
-		pHUD->SetButtonListener(4, CHUD::GoToMain);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"RETURN");
+		pHUD->SetButtonListener(9, CHUD::GoToMain);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
@@ -158,7 +161,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL POWER INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Power increase: " << pUpdate->m_flValue << " Power\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
@@ -175,7 +179,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL BANDWIDTH INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Bandwidth increase: " << pUpdate->m_flValue << " Bandwidth\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: W";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
@@ -192,14 +197,15 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Fleet Supply increase: " << pUpdate->m_flValue << " Supply\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: E";
 			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
-		pHUD->SetButtonListener(4, CHUD::GoToMain);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"RETURN");
+		pHUD->SetButtonListener(9, CHUD::GoToMain);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 	}
 	else
 	{
@@ -213,7 +219,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD MINIBUFFER\n \n"
 				<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
 				<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns\n \n"
+				<< "Shortcut: A";
 			pHUD->SetButtonInfo(5, s.str().c_str());
 		}
 
@@ -227,7 +234,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD BUFFER\n \n"
 				<< "Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n"
 				<< "Power to construct: " << CBuffer::GetBufferConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CBuffer::GetBufferConstructionCost()) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CBuffer::GetBufferConstructionCost()) << " Turns\n \n"
+				<< "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
@@ -241,7 +249,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD BATTERY\n \n"
 				<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n"
 				<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns\n \n"
+				<< "Shortcut: S";
 			pHUD->SetButtonInfo(6, s.str().c_str());
 		}
 
@@ -255,7 +264,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s << "BUILD POWER SUPPLY UNIT\n \n"
 				<< "PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
 				<< "Power to construct: " << CCollector::GetCollectorConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CCollector::GetCollectorConstructionCost()) << " Turns";
+				<< "Turns to install: " << GetTurnsToConstruct(CCollector::GetCollectorConstructionCost()) << " Turns\n \n"
+				<< "Shortcut: W";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
@@ -264,7 +274,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(2, CHUD::BuildLoader);
 			pHUD->SetButtonTexture(2, s_iBuildLoaderIcon);
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
-			pHUD->SetButtonInfo(2, L"OPEN LOADER CONSTRUCTION MENU");
+			pHUD->SetButtonInfo(2, L"OPEN LOADER CONSTRUCTION MENU\n \nShortcut: E");
 		}
 
 		if (HasUpdatesAvailable())
@@ -272,7 +282,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(3, CHUD::InstallMenu);
 			pHUD->SetButtonTexture(3, s_iInstallIcon);
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
-			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU");
+			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU\n \nShortcut: R");
 		}
 
 		pHUD->SetButtonListener(7, CHUD::BuildScout);
@@ -283,7 +293,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		s << "BUILD ROGUE\n \n"
 			<< "Rogues are a cheap reconnaisance unit with good speed but shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n"
 			<< "Power to construct: " << g_aiTurnsToLoad[BUILDUNIT_SCOUT] << " Power\n"
-			<< "Turns to install: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]) << " Turns";
+			<< "Turns to install: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]) << " Turns\n"
+			<< "Shortcut: D";
 		pHUD->SetButtonInfo(7, s.str().c_str());
 	}
 }

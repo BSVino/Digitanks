@@ -83,10 +83,10 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 	{
 		if (IsUpgrading())
 		{
-			pHUD->SetButtonListener(4, CHUD::CancelUpgrade);
-			pHUD->SetButtonTexture(4, s_iCancelIcon);
-			pHUD->SetButtonColor(4, Color(100, 0, 0));
-			pHUD->SetButtonInfo(4, L"CANCEL UPGRADE");
+			pHUD->SetButtonListener(9, CHUD::CancelUpgrade);
+			pHUD->SetButtonTexture(9, s_iCancelIcon);
+			pHUD->SetButtonColor(9, Color(100, 0, 0));
+			pHUD->SetButtonInfo(9, L"CANCEL UPGRADE\n \nShortcut: G");
 		}
 		else
 		{
@@ -97,7 +97,8 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s;
 			s << "UPGRADE TO POWER SUPPLY UNIT\n \n"
 				<< "Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n"
-				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns";
+				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns\n \n"
+				<< "Shortcut: Q";
 
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}

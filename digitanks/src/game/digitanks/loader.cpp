@@ -191,10 +191,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 	if (IsInstalling())
 	{
-		pHUD->SetButtonListener(4, CHUD::CancelInstall);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"CANCEL INSTALLATION");
+		pHUD->SetButtonListener(9, CHUD::CancelInstall);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"CANCEL INSTALLATION\n \nShortcut: G");
 	}
 	else if (eMenuMode == MENUMODE_INSTALL)
 	{
@@ -211,7 +211,8 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL ATTACK ENERGY INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Attack Energy increase: " << pUpdate->m_flValue << "0%\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
@@ -228,14 +229,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL ATTACK RANGE INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Attack Range increase: " << pUpdate->m_flValue << " Units\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: W";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
-		else if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
+
+		if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
 		{
-			pHUD->SetButtonListener(1, CHUD::InstallTankDefense);
-			pHUD->SetButtonTexture(1, s_iInstallDefenseIcon);
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
+			pHUD->SetButtonListener(2, CHUD::InstallTankDefense);
+			pHUD->SetButtonTexture(2, s_iInstallDefenseIcon);
+			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKDEFENSE][iUpdate];
@@ -244,15 +247,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL DEFENSE ENERGY INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Defense Energy increase: " << pUpdate->m_flValue << "0%\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: E";
+			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
 		{
-			pHUD->SetButtonListener(2, CHUD::InstallTankMovement);
-			pHUD->SetButtonTexture(2, s_iInstallMovementIcon);
-			pHUD->SetButtonColor(2, Color(150, 150, 150));
+			pHUD->SetButtonListener(3, CHUD::InstallTankMovement);
+			pHUD->SetButtonTexture(3, s_iInstallMovementIcon);
+			pHUD->SetButtonColor(3, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKMOVEMENT][iUpdate];
@@ -261,15 +265,16 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL MOVEMENT ENERGY INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Movement Energy increase: " << pUpdate->m_flValue << "0%\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
-			pHUD->SetButtonInfo(2, s.str().c_str());
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: R";
+			pHUD->SetButtonInfo(3, s.str().c_str());
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
 		{
-			pHUD->SetButtonListener(3, CHUD::InstallTankHealth);
-			pHUD->SetButtonTexture(3, s_iInstallHealthIcon);
-			pHUD->SetButtonColor(3, Color(150, 150, 150));
+			pHUD->SetButtonListener(4, CHUD::InstallTankHealth);
+			pHUD->SetButtonTexture(4, s_iInstallHealthIcon);
+			pHUD->SetButtonColor(4, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH);
 			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKHEALTH][iUpdate];
@@ -278,21 +283,22 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL HEALTH INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Health increase: " << pUpdate->m_flValue << " Hull Strength\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
-			pHUD->SetButtonInfo(3, s.str().c_str());
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: T";
+			pHUD->SetButtonInfo(4, s.str().c_str());
 		}
 
-		pHUD->SetButtonListener(4, CHUD::GoToMain);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"RETURN");
+		pHUD->SetButtonListener(9, CHUD::GoToMain);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 	}
 	else if (m_bProducing)
 	{
-		pHUD->SetButtonListener(4, CHUD::CancelBuildUnit);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-		pHUD->SetButtonInfo(4, L"CANCEL UNIT PRODUCTION");
+		pHUD->SetButtonListener(9, CHUD::CancelBuildUnit);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"CANCEL UNIT PRODUCTION\n \nShortcut: G");
 	}
 	else
 	{
@@ -321,9 +327,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		}
 
 		s << "Fleet supply required: " << GetFleetPointsRequired() << "\n";
-		s << "Turns to produce: " << GetTurnsToProduce() << " Turns";
+		s << "Turns to produce: " << GetTurnsToProduce() << " Turns\n \n";
 		if (GetDigitanksTeam()->GetUnusedFleetPoints() < GetFleetPointsRequired())
-			s << "\n \nNOT ENOUGH FLEET POINTS";
+			s << "NOT ENOUGH FLEET POINTS\n \n";
+		s << "Shortcut: Q";
 		pHUD->SetButtonInfo(0, s.str().c_str());
 
 		if (HasEnoughFleetPoints())
@@ -334,7 +341,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(3, CHUD::InstallMenu);
 			pHUD->SetButtonTexture(3, s_iInstallIcon);
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
-			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU");
+			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU\n \nShortcut: R");
 		}
 	}
 }

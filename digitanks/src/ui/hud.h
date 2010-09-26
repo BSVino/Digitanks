@@ -138,6 +138,7 @@ public:
 	void						SetButtonTexture(int iButton, size_t iTexture);
 	void						SetButtonColor(int iButton, Color clrButton);
 	void						SetButtonInfo(int iButton, const wchar_t* pszInfo);
+	void						ButtonCallback(int iButton);
 
 	virtual void				GameStart();
 	virtual void				GameOver(bool bPlayerWon);

@@ -1366,7 +1366,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
 			pHUD->SetButtonColor(0, Color(100, 100, 100));
 			pHUD->SetButtonTexture(0, s_iCancelIcon);
-			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.");
+			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q");
 		}
 		else if (!IsFortified() && !IsFortifying())
 		{
@@ -1382,7 +1382,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				pHUD->SetButtonTexture(0, s_iMoveIcon);
 
-			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Right click inside the yellow area to move this unit.");
+			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Right click inside the yellow area to move this unit.\n \nShortcut: Q");
 		}
 
 		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && m_flTotalPower > 1)
@@ -1398,7 +1398,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(1, s_iCancelIcon);
 			else
 				pHUD->SetButtonTexture(1, s_iTurnIcon);
-			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.");
+			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 		}
 
 		if (CanFortify())
@@ -1412,12 +1412,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (IsArtillery())
 				{
 					pHUD->SetButtonTexture(8, s_iDeployIcon);
-					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.");
+					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.\n \nShortcut: F");
 				}
 				else
 				{
 					pHUD->SetButtonTexture(8, s_iFortifyIcon);
-					pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.");
+					pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.\n \nShortcut: F");
 				}
 			}
 			pHUD->SetButtonListener(8, CHUD::Fortify);
@@ -1438,11 +1438,11 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(2, s_iCancelIcon);
 			else if (IsInfantry())
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.");
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nShortcut: E");
 			else if (IsScout())
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.");
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.\n \nShortcut: E");
 			else
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.");
+				pHUD->SetButtonInfo(2, L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nShortcut: E");
 		}
 
 		if (GetFrontShieldMaxStrength() > 0)
@@ -1458,7 +1458,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(3, s_iCancelIcon);
 			else
 				pHUD->SetButtonTexture(3, s_iEnergyIcon);
-			pHUD->SetButtonInfo(3, L"SET UNIT ENERGY\n \nChoose how this unit's energy is split between attacking energy and shield energy.");
+			pHUD->SetButtonInfo(3, L"SET UNIT ENERGY\n \nChoose how this unit's energy is split between attacking energy and shield energy.\n \nShortcut: R");
 		}
 
 		if (HasBonusPoints())
@@ -1466,7 +1466,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(4, CHUD::Promote);
 			pHUD->SetButtonTexture(4, s_iPromoteIcon);
 			pHUD->SetButtonColor(4, glgui::g_clrBox);
-			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.");
+			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T");
 		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
@@ -1480,7 +1480,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s1;
 			s1 << "UPGRADE ATTACK ENERGY\n \n"
 				<< "This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n"
-				<< "Attack Energy increase: 10%\n";
+				<< "Attack Energy increase: 10%\n \n"
+				<< "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s1.str().c_str());
 		}
 
@@ -1493,7 +1494,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s;
 			s << "UPGRADE DEFENSE ENERGY\n \n"
 				<< "This upgrade strengthens your tank's shield generator, increasing the maximum Defense Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n"
-				<< "Defense Energy increase: 10%\n";
+				<< "Defense Energy increase: 10%\n \n"
+				<< "Shortcut: W";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
@@ -1504,12 +1506,14 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		std::wstringstream s2;
 		s2 << "UPGRADE MOVEMENT ENERGY\n \n"
 			<< "This upgrade overclocks your tank's engines, increasing the maximum Movement Energy available to your tank past its normal levels. With this you'll spend less energy moving your tank around.\n \n"
-			<< "Movement Energy increase: 10%\n";
+			<< "Movement Energy increase: 10%\n \n"
+			<< "Shortcut: E";
 		pHUD->SetButtonInfo(2, s2.str().c_str());
 
-		pHUD->SetButtonListener(4, CHUD::GoToMain);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonListener(9, CHUD::GoToMain);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 	}
 }
 

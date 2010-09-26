@@ -1,5 +1,8 @@
 #include "camera.h"
 
+// This shouldn't be here!
+#include <GL/glfw.h>
+
 #include <maths.h>
 #include <mtrand.h>
 #include <renderer/renderer.h>
@@ -279,13 +282,13 @@ void CCamera::KeyDown(int c)
 	}
 	else
 	{
-		if (c == 'W')
+		if (c == GLFW_KEY_UP)
 			m_vecGoalVelocity.x = -80.0f;
-		if (c == 'S')
+		if (c == GLFW_KEY_DOWN)
 			m_vecGoalVelocity.x = 80.0f;
-		if (c == 'D')
+		if (c == GLFW_KEY_RIGHT)
 			m_vecGoalVelocity.z = -80.0f;
-		if (c == 'A')
+		if (c == GLFW_KEY_LEFT)
 			m_vecGoalVelocity.z = 80.0f;
 	}
 }
@@ -305,13 +308,13 @@ void CCamera::KeyUp(int c)
 	}
 	else
 	{
-		if (c == 'W')
+		if (c == GLFW_KEY_UP)
 			m_vecGoalVelocity.x = 0.0f;
-		if (c == 'S')
+		if (c == GLFW_KEY_DOWN)
 			m_vecGoalVelocity.x = 0.0f;
-		if (c == 'D')
+		if (c == GLFW_KEY_RIGHT)
 			m_vecGoalVelocity.z = 0.0f;
-		if (c == 'A')
+		if (c == GLFW_KEY_LEFT)
 			m_vecGoalVelocity.z = 0.0f;
 	}
 }

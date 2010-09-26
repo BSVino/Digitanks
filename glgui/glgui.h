@@ -507,6 +507,8 @@ namespace glgui
 		virtual void	SetClickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 		// Toggle buttons only
 		virtual void	SetUnclickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+		virtual IEventListener::Callback	GetClickedListenerCallback() { return m_pfnClickCallback; };
+		virtual IEventListener*				GetClickedListener() { return m_pClickListener; };
 
 		virtual bool	IsHighlighted() {return m_flHighlight > 0;};
 

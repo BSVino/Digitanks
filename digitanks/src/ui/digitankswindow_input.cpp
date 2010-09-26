@@ -246,6 +246,36 @@ void CDigitanksWindow::KeyPress(int c)
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->KeyDown(c);
 
+	if (c == 'Q')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(0);
+
+	if (c == 'W')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(1);
+
+	if (c == 'E')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(2);
+
+	if (c == 'R')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(3);
+
+	if (c == 'T')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(4);
+
+	if (c == 'A')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(5);
+
+	if (c == 'S')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(6);
+
+	if (c == 'D')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(7);
+
+	if (c == 'F')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(8);
+
+	if (c == 'G')
+		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(9);
+
 	// Cheats from here on out
 	if (c == 'X')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
@@ -293,16 +323,16 @@ void CDigitanksWindow::KeyRelease(int c)
 
 bool CDigitanksWindow::IsCtrlDown()
 {
-	return glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_LCTRL);
+	return glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
 }
 
 bool CDigitanksWindow::IsAltDown()
 {
-	return glfwGetKey(GLFW_KEY_LALT) || glfwGetKey(GLFW_KEY_LALT);
+	return glfwGetKey(GLFW_KEY_LALT) || glfwGetKey(GLFW_KEY_RALT);
 }
 
 bool CDigitanksWindow::IsShiftDown()
 {
-	return glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_LSHIFT);
+	return glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT);
 }
 

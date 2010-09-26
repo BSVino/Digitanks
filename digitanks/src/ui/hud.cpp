@@ -1026,6 +1026,12 @@ void CHUD::SetButtonInfo(int iButton, const wchar_t* pszInfo)
 	m_aszButtonInfos[iButton] = pszInfo;
 }
 
+void CHUD::ButtonCallback(int iButton)
+{
+	if (m_apButtons[iButton]->GetClickedListener())
+		m_apButtons[iButton]->GetClickedListenerCallback()(m_apButtons[iButton]->GetClickedListener());
+}
+
 void CHUD::GameStart()
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);

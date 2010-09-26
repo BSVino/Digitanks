@@ -62,7 +62,8 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL BANDWIDTH INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Bandwidth increase: " << pUpdate->m_flValue << " mbps\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
 
@@ -79,7 +80,8 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Fleet Supply increase: " << pUpdate->m_flValue << "\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: W";
 			pHUD->SetButtonInfo(1, s.str().c_str());
 		}
 
@@ -97,7 +99,8 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Attack Energy Buff increase: +" << pUpdate->m_flValue << "\n"
 				<< "Defense Energy Buff increase: +" << pUpdate->m_flValue << "\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: E";
 			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
@@ -115,13 +118,15 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 				<< pUpdate->GetInfo() << "\n \n"
 				<< "Health Recharge Buff increase: +" << pUpdate->m_flValue/5 << " per turn\n"
 				<< "Shield Recharge Buff increase: +" << pUpdate->m_flValue << " per turn\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns";
+				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
+				<< "Shortcut: R";
 			pHUD->SetButtonInfo(3, s.str().c_str());
 		}
 
-		pHUD->SetButtonListener(4, CHUD::GoToMain);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
+		pHUD->SetButtonListener(9, CHUD::GoToMain);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 	}
 	else
 	{
@@ -130,6 +135,7 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(3, CHUD::InstallMenu);
 			pHUD->SetButtonTexture(3, s_iInstallIcon);
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
+			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU\n \nShortcut: E");
 		}
 	}
 }
@@ -203,10 +209,10 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 	{
 		if (IsUpgrading())
 		{
-			pHUD->SetButtonListener(4, CHUD::CancelUpgrade);
-			pHUD->SetButtonTexture(4, s_iCancelIcon);
-			pHUD->SetButtonColor(4, Color(100, 0, 0));
-			pHUD->SetButtonInfo(4, L"CANCEL UPGRADE");
+			pHUD->SetButtonListener(9, CHUD::CancelUpgrade);
+			pHUD->SetButtonTexture(9, s_iCancelIcon);
+			pHUD->SetButtonColor(9, Color(100, 0, 0));
+			pHUD->SetButtonInfo(9, L"CANCEL UPGRADE\n \nShortcut: G");
 		}
 		else
 		{
@@ -217,7 +223,8 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 			std::wstringstream s;
 			s << "UPGRADE TO BUFFER\n \n"
 				<< "Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n"
-				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns";
+				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns\n \n"
+				<< "Shortcut: Q";
 
 			pHUD->SetButtonInfo(0, s.str().c_str());
 		}
