@@ -25,7 +25,7 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 	if (GetGame() && GetGame()->GetCamera())
 		GetGame()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
 
 	m_iMouseStartX = x;
@@ -67,7 +67,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 			return;	// Don't center camera
 		}
-		else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD)
+		else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == GLFW_RELEASE && m_iMouseMoved < 30)
 		{
 			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
 			if (pCPU && pCPU->IsPreviewBuildValid())
@@ -82,33 +82,22 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	CBaseEntity* pClickedEntity = NULL;
 	bool bFound = GetMouseGridPosition(vecMousePosition, &pClickedEntity);
 
-	if (iButton == GLFW_MOUSE_BUTTON_1)
+	if (iButton == GLFW_MOUSE_BUTTON_2)
 	{
 		if (iState == GLFW_PRESS)
-		{
-			// Prevent UI interactions from affecting the camera target.
-			// If the mouse was used on the UI, m_bCameraMouseDown will
-			// remain false.
-			m_bCameraMouseDown = true;
 			m_iMouseMoved = 0;
-		}
-		else
+	}
+
+	if (iButton == GLFW_MOUSE_BUTTON_1)
+	{
+		if (GetGame() && GetGame()->GetCamera())
 		{
-			if (m_iMouseMoved < 30 && GetGame() && GetGame()->GetCamera())
-			{
-				if (m_bCameraMouseDown)
-				{
-					DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
-					m_bCameraMouseDown = false;
-					CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
-				}
-			}
-			else if (m_iMouseMoved > 30)
-				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
+			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 		}
 	}
 
-	if (iState == GLFW_RELEASE && iButton == GLFW_MOUSE_BUTTON_1 && m_iMouseMoved < 30)
+	if (iState == GLFW_PRESS && iButton == GLFW_MOUSE_BUTTON_1)
 	{
 		if (pClickedEntity)
 		{
@@ -124,7 +113,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 	}
 
-	if (iState == GLFW_PRESS && iButton == GLFW_MOUSE_BUTTON_2)
+	if (iButton == GLFW_MOUSE_BUTTON_2 && iState == GLFW_RELEASE && m_iMouseMoved < 30)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 			DigitanksGame()->SetDesiredMove();

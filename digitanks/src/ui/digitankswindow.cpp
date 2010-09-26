@@ -38,7 +38,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	m_iMouseStartX = 0;
 	m_iMouseStartY = 0;
-	m_bCameraMouseDown = false;
 
 	glfwInit();
 

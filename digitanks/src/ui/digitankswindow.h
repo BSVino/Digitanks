@@ -94,7 +94,6 @@ protected:
 	static CDigitanksWindow*	s_pDigitanksWindow;
 
 	int							m_iMouseMoved;
-	int							m_bCameraMouseDown;
 
 	std::vector<const char*>	m_apszCommandLine;
 };

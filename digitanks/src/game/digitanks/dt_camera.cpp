@@ -225,7 +225,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 
 void CDigitanksCamera::MouseButton(int iButton, int iState)
 {
-	if (iButton == 0)
+	if (iButton == GLFW_MOUSE_BUTTON_2)
 		m_bRotatingCamera = !!iState;
 
 	BaseClass::MouseButton(iButton, iState);
