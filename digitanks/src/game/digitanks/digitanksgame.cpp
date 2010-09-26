@@ -688,8 +688,6 @@ void CDigitanksGame::SetDesiredAim()
 	}
 
 	SetControlMode(MODE_NONE);
-
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 }
 
 void CDigitanksGame::EndTurn()
@@ -967,6 +965,9 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 	GetPrimarySelection()->OnControlModeChange(m_eControlMode, eMode);
 
 	m_eControlMode = eMode;
+
+	if (eMode == MODE_AIM)
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 }
 
 void CDigitanksGame::SetTerrain(CNetworkParameters* p)
@@ -1040,6 +1041,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 	{
 		CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[0]->AddEntity(pTank);
+		pTank->StartTurn();
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
 
@@ -1047,6 +1049,8 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SetDistance(100);
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 	}
+	else if (iTutorial == CInstructor::TUTORIAL_SELECTION)
+		GetDigitanksCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
 	else if (iTutorial == CInstructor::TUTORIAL_MOVE)
 	{
 		// Make an enemy for us to clobber. Close enough that moving out of the way won't move us out of range
@@ -1063,6 +1067,18 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 	{
 		CPowerup* pPowerup = Game()->Create<CPowerup>("CPowerup");
 		pPowerup->SetOrigin(GetTerrain()->SetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_SHIFTSELECT)
+	{
+		CDigitank* pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[0]->AddEntity(pTank);
+		pTank->StartTurn();
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(-15, 0, 15)));
+
+		pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[0]->AddEntity(pTank);
+		pTank->StartTurn();
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(15, 0, -15)));
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_THEEND_BASICS)
 	{

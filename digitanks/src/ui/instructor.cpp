@@ -48,50 +48,56 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INTRO_BASICS, new CTutorial(this, TUTORIAL_INTRO_BASICS, POSITION_TOPCENTER, 200, true,
 		L"Welcome to Digitanks!\n \nThis tutorial will help you get accustomed to the game.\n \nClick here to continue.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 200, true,
-		L"TANK SELECTION\n \nThis is your tank. Select it by clicking on it with the left mouse button.")));
-
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 220, true,
 		L"VIEW CONTROLS\n \nFirst, let's take a look around. Left click on open terrain to re-center the view.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURNCAMERA, new CTutorial(this, TUTORIAL_TURNCAMERA, POSITION_TOPCENTER, 210, true,
-		L"VIEW CONTROLS\n \nHold down the left mouse button and drag to rotate the view.")));
+		L"VIEW CONTROLS\n \nHold down the right mouse button and drag to rotate the view.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ZOOMCAMERA, new CTutorial(this, TUTORIAL_ZOOMCAMERA, POSITION_TOPCENTER, 200, true,
 		L"VIEW CONTROLS\n \nYou can use the mouse wheel to zoom in and out.")));
 
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 250, true,
+		L"TANK SELECTION\n \nThe cute guy you see here is your ever obedient Digitank. He would die fearlessly at your command, but you'd never send him to his death would you? He's so cute!\n \nSelect him by clicking on him with the left mouse button.")));
+
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_MOVE, new CTutorial(this, TUTORIAL_MOVE, POSITION_TOPLEFT, 300, true,
-		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. You are now in 'move mode' and can move your tank closer to get a better shot. You can only move once per turn. Right click inside the yellow area to move your tank.")));
+		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. You are now in 'move mode' and can move your tank closer to get a better shot. Right click inside the yellow area to move your tank.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 200, true,
-		L"AIM YOUR TANK\n \nYou're closing in for the kill! Now aim at the enemy tank by right clicking on him.")));
+		L"AIM YOUR TANK\n \nYou're closing in for the kill! Now press the red 'Aim' button to enter Aim Mode. The 'Aim' button is located in the command dock on the bottom of the screen.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_RANGE, new CTutorial(this, TUTORIAL_RANGE, POSITION_TOPLEFT, 300, true,
-		L"TANK RANGE\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nClick here to continue.")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ATTACK, new CTutorial(this, TUTORIAL_ATTACK, POSITION_TOPLEFT, 300, true,
+		L"ATTACK!!!\n \nYou're ready to attack!\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nRight click on the enemy tank to fire at him.")));
 
-	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BUTTONS, new CTutorial(this, TUTORIAL_BUTTONS, POSITION_TOPLEFT, 200, true,
-		L"CONTROL BUTTONS\n \nYou can enter move mode and aim mode at any time by using the buttons on the lower right of the screen.\n \nYou can exit move turn or aim mode by pressing the 'Escape' key.\n \nClick here to continue.")));
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BUTTONS, new CTutorial(this, TUTORIAL_BUTTONS, POSITION_TOPLEFT, 250, true,
+		L"CONTROL BUTTONS\n \nGood job, you messed that guy up pretty good! Don't forget you can enter move mode and aim mode at any time by using the buttons in the command dock on the bottom of the screen.\n \nYou can exit move turn or aim mode by pressing the 'Escape' key.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ENERGY, new CTutorial(this, TUTORIAL_ENERGY, POSITION_TOPLEFT, 300, true,
-		L"ENERGIZE YOUR CANNON\n \nNow choose how much Energy you want to use on your attack. Press the 'Set Energy' button and the Energy sliders will appear next to your tank. Move the slider to the desired level and click the left mouse button to select a setting.")));
+		L"MANAGE YOUR ENERGY\n \nYou can control how much energy your tank is using for attack and defense. By default it's split 50/50, but you can change this if you like. Press the purple 'Set Energy' button and the Energy sliders will appear next to your tank. Move the slider to the desired level and click the left mouse button to select a setting.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERPOINTS, new CTutorial(this, TUTORIAL_POWERPOINTS, POSITION_TOPCENTER, 300, true,
 		L"TANK ENERGY\n \nEach Digitank has a limited amount of Energy which can be used for attack, defense, or movement. The bars at the bottom of the screen show the selected tank's Energy.\n \nChoose how you use your Energy carefully, because using your Energy in one area means it can't be used in another. You can't save your Energy for the next turn, but any Energy used will be available again next turn.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ENTERKEY, new CTutorial(this, TUTORIAL_ENTERKEY, POSITION_TOPCENTER, 200, false,
-		L"END YOUR TURN\n \nNow press the 'Enter' key to end your turn and fire your tank.")));
+		L"END YOUR TURN\n \nThat's it! Now press the 'Enter' key to end your turn.\n \nAlternatively, you can depress the large friendly green 'END TURN' button on the bottom right.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TURN, new CTutorial(this, TUTORIAL_TURN, POSITION_TOPLEFT, 300, true,
-		L"ROTATE YOUR TANK\n \nGood job, you messed that guy up pretty good! However, his return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Rotate' button and right click a spot to rotate your tank. Your tank will aim its body directly at that spot.")));
+		L"ROTATE YOUR TANK\n \nOuch! It looks like your enemy's return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Rotate' button and right click a spot to rotate your tank. Your tank will aim directly at that spot.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FINISHHIM, new CTutorial(this, TUTORIAL_FINISHHIM, POSITION_TOPLEFT, 200, false,
-		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and press enter to end your turn and fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
+		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and right click on him to fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_TOPCENTER, 250, true,
 		L"UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received an upgrade! With this you can upgrade your tank's Energy. Press the 'Upgrade' button to show a list of upgrade options, and then select an upgrade.\n \nKilling enemy tanks can grant you additional upgrades.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_POWERUP, new CTutorial(this, TUTORIAL_POWERUP, POSITION_TOPLEFT, 250, true,
-		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Move your tank on top of the powerup and it will turn green. Keep the tank in this position and you'll be able to use the upgrade next turn. Picking up more powerups can grant you additional upgrades.\n \nPress the 'Enter' key to end your turn and pick up the powerup.")));
+		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Press the 'Move' button and move your tank on top of the powerup to retrieve it. It will turn green to show that you can pick it up. If you can't move far enough, you may need to end your turn to get your power back.\n \nPicking up more powerups can grant you additional upgrades.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SHIFTSELECT, new CTutorial(this, TUTORIAL_SHIFTSELECT, POSITION_TOPLEFT, 250, true,
+		L"SHIFT SELECTION\n \nGood news! Reinforcements have arrived. You are now in command of three friendly tanks.\n \nManaging multiple tanks can be tricky, but you can command them all at the same time by selecting multiple tanks. Hold the 'Shift' key while clicking the tanks to select all three tanks at once.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_BOXSELECT, new CTutorial(this, TUTORIAL_BOXSELECT, POSITION_TOPLEFT, 250, true,
+		L"BOX SELECTION\n \nGood work. You can also use box selection to select all three tanks with one click. Use the left mouse button to drag a selection box around all of the tanks so you can issue orders to all three at once.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASICS, new CTutorial(this, TUTORIAL_THEEND_BASICS, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Bases tutorial. You can also start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
@@ -112,7 +118,7 @@ void CInstructor::Initialize()
 		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. You can only build more structures inside your Network. Friendly units inside your Network will receive combat bonuses.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_PSU, new CTutorial(this, TUTORIAL_PSU, POSITION_TOPCENTER, 250, false,
-		L"POWER SUPPLIES\n \nElectronodes are digital resources that contain Power. Batteries and Power Supplies can extract Power from Electronodes. They must be built directly on top of an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Pwr Supply' button and right click on the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
+		L"POWER SUPPLIES\n \nElectronodes are digital resources that contain Power. Batteries and Power Supplies can extract Power from Electronodes. They must be built directly on top of an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Power Supply' button and right click on the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_SUPPLY, new CTutorial(this, TUTORIAL_SUPPLY, POSITION_TOPCENTER, 250, true,
 		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));

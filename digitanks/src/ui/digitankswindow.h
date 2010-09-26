@@ -103,6 +103,8 @@ protected:
 
 	int							m_iMouseMoved;
 
+	bool						m_bMouseDownInGUI;
+
 	std::vector<const char*>	m_apszCommandLine;
 };
 

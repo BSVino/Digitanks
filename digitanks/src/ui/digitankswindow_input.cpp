@@ -53,11 +53,19 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (iState == GLFW_PRESS)
 	{
 		if (glgui::CRootPanel::Get()->MousePressed(iButton, mx, my))
+		{
+			m_bMouseDownInGUI = true;
 			return;
+		}
+		else
+			m_bMouseDownInGUI = false;
 	}
 	else
 	{
 		if (glgui::CRootPanel::Get()->MouseReleased(iButton, mx, my))
+			return;
+
+		if (m_bMouseDownInGUI)
 			return;
 	}
 
@@ -74,14 +82,14 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 			return;	// Don't center camera
 		}
-		else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == GLFW_RELEASE && m_iMouseMoved < 30)
+	}
+	else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == GLFW_RELEASE && m_iMouseMoved < 30)
+	{
+		CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
+		if (pCPU && pCPU->IsPreviewBuildValid())
 		{
-			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
-			if (pCPU && pCPU->IsPreviewBuildValid())
-			{
-				pCPU->BeginConstruction();
-				DigitanksGame()->SetControlMode(MODE_NONE);
-			}
+			pCPU->BeginConstruction();
+			DigitanksGame()->SetControlMode(MODE_NONE);
 		}
 	}
 
@@ -93,6 +101,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	{
 		if (iState == GLFW_PRESS)
 			m_iMouseMoved = 0;
+		else
+		{
+			if (m_iMouseMoved > 30)
+				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
+		}
 	}
 
 	size_t iDifference = abs((int)m_iMouseCurrentX - (int)m_iMouseInitialX) + abs((int)m_iMouseCurrentY - (int)m_iMouseInitialY);
@@ -109,11 +122,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 		else if (GetGame() && GetGame()->GetCamera() && iDifference < 30)
 		{
-			if (!m_bBoxSelect)
-			{
-				DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
-				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
-			}
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
+			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 		}
 	}
 
@@ -146,6 +156,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 				DigitanksGame()->GetLocalDigitanksTeam()->AddToSelection(pSelectable);
 			}
+
+			if (DigitanksGame()->GetLocalDigitanksTeam()->GetNumSelected() == 3)
+				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
 		}
 		else if (pClickedEntity)
 		{
@@ -158,6 +171,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				else
 					DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
 			}
+
+			if (DigitanksGame()->GetLocalDigitanksTeam()->GetNumSelected() == 3)
+				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
 		}
 
 		m_bBoxSelect = false;
@@ -170,7 +186,10 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
 			DigitanksGame()->SetDesiredTurn(vecMousePosition);
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
+		{
 			DigitanksGame()->SetDesiredAim();
+			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
+		}
 	}
 
 	GetHUD()->SetupMenu();

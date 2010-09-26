@@ -1215,6 +1215,9 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	if (m_bAllActionItemsHandled)
 		return;
 
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+		return;
+
 	std::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
 	if (iActionItem >= aActionItems.size())
 	{

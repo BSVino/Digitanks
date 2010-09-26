@@ -29,6 +29,7 @@ public:
 	bool						IsPrimarySelection(const class CSelectable* pEntity);
 	void						AddToSelection(const CSelectable* pCurrent);
 	bool						IsSelected(const class CSelectable* pEntity);
+	size_t						GetNumSelected() { return m_aiCurrentSelection.size(); }
 
 	void						StartTurn();
 	void						EndTurn();
