@@ -36,6 +36,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	for (int i = 0; i < argc; i++)
 		m_apszCommandLine.push_back(argv[i]);
 
+	m_bBoxSelect = false;
+
 	m_iMouseStartX = 0;
 	m_iMouseStartY = 0;
 

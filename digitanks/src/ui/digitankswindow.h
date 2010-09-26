@@ -52,6 +52,8 @@ public:
 	bool						IsAltDown();
 	bool						IsShiftDown();
 
+	bool						GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
+
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
@@ -92,6 +94,12 @@ protected:
 	class CInstructor*			m_pInstructor;
 
 	static CDigitanksWindow*	s_pDigitanksWindow;
+
+	bool						m_bBoxSelect;
+	int							m_iMouseInitialX;
+	int							m_iMouseInitialY;
+	int							m_iMouseCurrentX;
+	int							m_iMouseCurrentY;
 
 	int							m_iMouseMoved;
 

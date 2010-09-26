@@ -12,6 +12,7 @@
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/dt_camera.h>
 
+#include <renderer/renderer.h>
 #include <renderer/dissolver.h>
 
 #ifdef _DEBUG
@@ -27,6 +28,12 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
+
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		m_iMouseCurrentX = x;
+		m_iMouseCurrentY = y;
+	}
 
 	m_iMouseStartX = x;
 	m_iMouseStartY = y;
@@ -88,18 +95,59 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseMoved = 0;
 	}
 
+	size_t iDifference = abs((int)m_iMouseCurrentX - (int)m_iMouseInitialX) + abs((int)m_iMouseCurrentY - (int)m_iMouseInitialY);
+
 	if (iButton == GLFW_MOUSE_BUTTON_1)
 	{
-		if (GetGame() && GetGame()->GetCamera())
+		if (iState == GLFW_PRESS)
 		{
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
-			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			// Prevent UI interactions from affecting the camera target.
+			// If the mouse was used no the UI, this will remain false.
+			m_bBoxSelect = true;
+			m_iMouseInitialX = m_iMouseCurrentX = mx;
+			m_iMouseInitialY = m_iMouseCurrentY = my;
+		}
+		else if (GetGame() && GetGame()->GetCamera() && iDifference < 30)
+		{
+			if (!m_bBoxSelect)
+			{
+				DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
+				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			}
 		}
 	}
 
-	if (iState == GLFW_PRESS && iButton == GLFW_MOUSE_BUTTON_1)
+	if (iState == GLFW_RELEASE && iButton == GLFW_MOUSE_BUTTON_1)
 	{
-		if (pClickedEntity)
+		if (m_bBoxSelect && iDifference > 30)
+		{
+			if (!IsShiftDown())
+				DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(NULL);
+
+			size_t iLowerX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
+			size_t iLowerY = (m_iMouseInitialY < m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
+			size_t iHigherX = (m_iMouseInitialX > m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
+			size_t iHigherY = (m_iMouseInitialY > m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
+
+			for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+			{
+				CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+				if (!pEntity)
+					continue;
+
+				CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
+				if (!pSelectable)
+					continue;
+
+				Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
+
+				if (vecScreen.x < iLowerX || vecScreen.y < iLowerY || vecScreen.x > iHigherX || vecScreen.y > iHigherY)
+					continue;
+
+				DigitanksGame()->GetLocalDigitanksTeam()->AddToSelection(pSelectable);
+			}
+		}
+		else if (pClickedEntity)
 		{
 			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
@@ -111,6 +159,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 					DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
 			}
 		}
+
+		m_bBoxSelect = false;
 	}
 
 	if (iButton == GLFW_MOUSE_BUTTON_2 && iState == GLFW_RELEASE && m_iMouseMoved < 30)
@@ -325,3 +375,16 @@ bool CDigitanksWindow::IsShiftDown()
 	return glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT);
 }
 
+bool CDigitanksWindow::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2)
+{
+	if (m_bBoxSelect)
+	{
+		iX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
+		iY = (m_iMouseInitialY < m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
+		iX2 = (m_iMouseInitialX > m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
+		iY2 = (m_iMouseInitialY > m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
+		return true;
+	}
+
+	return false;
+}

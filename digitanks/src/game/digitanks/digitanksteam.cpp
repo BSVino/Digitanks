@@ -77,10 +77,13 @@ size_t CDigitanksTeam::GetPrimarySelectionId()
 
 void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 {
-	if (pCurrent->GetVisibility() == 0)
+	m_aiCurrentSelection.clear();
+
+	if (!pCurrent)
 		return;
 
-	m_aiCurrentSelection.clear();
+	if (pCurrent->GetVisibility() == 0)
+		return;
 
 	m_aiCurrentSelection.push_back(pCurrent->GetHandle());
 
@@ -101,6 +104,27 @@ void CDigitanksTeam::AddToSelection(const CSelectable* pEntity)
 {
 	if (!pEntity)
 		return;
+
+	if (GetPrimarySelection())
+	{
+		// Don't pick teamless entities up in this selection if there's a team up front.
+		if (pEntity->GetTeam() && !GetPrimarySelection()->GetTeam())
+		{
+			SetPrimarySelection(pEntity);
+			return;
+		}
+
+		// Prioritize our own team over enemy teams.
+		if (pEntity->GetTeam() && DigitanksGame()->IsTeamControlledByMe(pEntity->GetTeam()) && !DigitanksGame()->IsTeamControlledByMe(GetPrimarySelection()->GetTeam()))
+		{
+			SetPrimarySelection(pEntity);
+			return;
+		}
+
+		// Only pick up one team at a time.
+		if (pEntity->GetTeam() != GetPrimarySelection()->GetTeam())
+			return;
+	}
 
 	m_aiCurrentSelection.push_back(pEntity->GetHandle());
 }

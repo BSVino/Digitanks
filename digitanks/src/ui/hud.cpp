@@ -635,6 +635,19 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (m_pButtonInfo->GetText()[0] != L'\0')
 		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
 
+	size_t iX, iY, iX2, iY2;
+	if (CDigitanksWindow::Get()->GetBoxSelection(iX, iY, iX2, iY2))
+	{
+		Color clrSelection(255, 255, 255, 255);
+
+		size_t iWidth = iX2 - iX;
+		size_t iHeight = iY2 - iY;
+		CRootPanel::PaintRect(iX, iY, iWidth, 1, clrSelection);
+		CRootPanel::PaintRect(iX, iY, 1, iHeight, clrSelection);
+		CRootPanel::PaintRect(iX + iWidth, iY, 1, iHeight, clrSelection);
+		CRootPanel::PaintRect(iX, iY + iHeight, iWidth, 1, clrSelection);
+	}
+
 	bool bVisible = m_pNextActionItem->IsVisible();
 	m_pNextActionItem->SetVisible(false);
 	CPanel::Paint(x, y, w, h);
