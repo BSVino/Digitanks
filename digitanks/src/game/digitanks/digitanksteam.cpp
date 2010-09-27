@@ -80,7 +80,10 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	m_aiCurrentSelection.clear();
 
 	if (!pCurrent)
+	{
+		DigitanksGame()->SetControlMode(MODE_NONE);
 		return;
+	}
 
 	if (pCurrent->GetVisibility() == 0)
 		return;

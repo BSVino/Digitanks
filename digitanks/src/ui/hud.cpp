@@ -184,12 +184,12 @@ CHUD::CHUD()
 
 	SetupMenu(MENUMODE_MAIN);
 
-	//m_pFPS = new CLabel(0, 0, 100, 20, "");
-	//AddControl(m_pFPS);
+	m_pFPS = new CLabel(0, 0, 100, 20, "");
+	AddControl(m_pFPS);
 
-	//m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
-	//m_pFPS->SetPos(20, 20);
-	//m_pFPS->SetText("Free Demo");
+	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
+	m_pFPS->SetPos(20, 20);
+	m_pFPS->SetText("Press Preview");
 
 	m_pPowerInfo = new CLabel(0, 0, 200, 20, "");
 	AddControl(m_pPowerInfo);
@@ -273,7 +273,7 @@ void CHUD::Layout()
 	m_pActionItem->SetSize(220, 250);
 	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
 	m_pNextActionItem->SetSize(130, 25);
-	m_pNextActionItem->SetPos(iWidth - 226, 342);
+	m_pNextActionItem->SetPos(iWidth - 225, 341);
 	m_pNextActionItem->SetClickedListener(this, NextActionItem);
 
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
@@ -429,6 +429,11 @@ void CHUD::Think()
 		m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
 		m_pFireAttack->SetWrap(false);
 		m_pFireDefend->SetWrap(false);
+	}
+	else
+	{
+		m_pFireAttack->SetVisible(false);
+		m_pFireDefend->SetVisible(false);
 	}
 
 	if (wcslen(m_pAttackInfo->GetText()))
@@ -1173,6 +1178,15 @@ void CHUD::ShowNextActionItem()
 		if (pItem->bHandled)
 			continue;
 
+		CEntityHandle<CSelectable> hSelectable(pItem->iUnit);
+
+		if (hSelectable != NULL && !hSelectable->NeedsOrders())
+		{
+			// If must have been handled already.
+			pItem->bHandled = true;
+			continue;
+		}
+
 		ShowActionItem(m_iCurrentActionItem);
 		return;
 	}
@@ -1207,6 +1221,7 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 	}
 
 	m_pActionItem->SetText("Press 'Next' to see more action items.");
+	m_pNextActionItem->SetText("Next");
 	m_pNextActionItem->SetVisible(true);
 }
 

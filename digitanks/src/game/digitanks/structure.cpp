@@ -215,6 +215,9 @@ void CStructure::CompleteConstruction()
 
 size_t CStructure::GetTurnsToConstruct()
 {
+	if (!GetDigitanksTeam())
+		return 9999;
+
 	return (size_t)(m_iProductionToConstruct/GetDigitanksTeam()->GetProductionPerLoader())+1;
 }
 

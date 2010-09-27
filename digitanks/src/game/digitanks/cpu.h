@@ -78,6 +78,7 @@ protected:
 	static size_t				s_iBuildInfantryLoaderIcon;
 	static size_t				s_iBuildTankLoaderIcon;
 	static size_t				s_iBuildArtilleryLoaderIcon;
+	static size_t				s_iBuildRogueIcon;
 	static size_t				s_iInstallIcon;
 	static size_t				s_iInstallPowerIcon;
 	static size_t				s_iInstallBandwidthIcon;

@@ -25,6 +25,7 @@ size_t CCPU::s_iBuildLoaderIcon = 0;
 size_t CCPU::s_iBuildInfantryLoaderIcon = 0;
 size_t CCPU::s_iBuildTankLoaderIcon = 0;
 size_t CCPU::s_iBuildArtilleryLoaderIcon = 0;
+size_t CCPU::s_iBuildRogueIcon = 0;
 size_t CCPU::s_iInstallIcon = 0;
 size_t CCPU::s_iInstallPowerIcon = 0;
 size_t CCPU::s_iInstallBandwidthIcon = 0;
@@ -57,6 +58,7 @@ void CCPU::Precache()
 	s_iBuildInfantryLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-infantry-loader.png");
 	s_iBuildTankLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-tank-loader.png");
 	s_iBuildArtilleryLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-artillery-loader.png");
+	s_iBuildRogueIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-rogue.png");
 	s_iInstallIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install.png");
 	s_iInstallPowerIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-power.png");
 	s_iInstallBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-bandwidth.png");
@@ -286,7 +288,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		}
 
 		pHUD->SetButtonListener(7, CHUD::BuildScout);
-		pHUD->SetButtonTexture(7, 0);
+		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
 		pHUD->SetButtonColor(7, Color(150, 150, 150));
 
 		std::wstringstream s;

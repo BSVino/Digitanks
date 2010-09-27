@@ -71,6 +71,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	glfwEnable( GLFW_MOUSE_CURSOR );
 
+	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
 	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, GLFW_WINDOW))
 	{
 		glfwTerminate();

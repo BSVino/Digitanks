@@ -1210,7 +1210,7 @@ void CDigitank::OnCurrentSelection()
 			break;
 		}
 
-		if (!HasDesiredMove() && !IsFortified() && !HasDesiredAim() && !HasGoalMovePosition())
+		if (!HasDesiredMove() && !IsFortified() && !IsFortifying() && !HasDesiredAim() && !HasGoalMovePosition())
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 		//else if (!HasDesiredAim() && CanAim() && pClosestEnemy)
 		//	DigitanksGame()->SetControlMode(MODE_AIM);

@@ -954,7 +954,12 @@ controlmode_t CDigitanksGame::GetControlMode()
 void CDigitanksGame::SetControlMode(controlmode_t eMode)
 {
 	if (!GetPrimarySelection())
+	{
+		if (eMode == MODE_NONE)
+			m_eControlMode = eMode;
+
 		return;
+	}
 
 	if (CDigitanksWindow::Get()->GetVictoryPanel()->IsVisible())
 		return;
