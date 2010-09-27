@@ -15,7 +15,7 @@ public:
 	virtual size_t				BaseDataFlowPerTurn() { return 50; };
 	virtual float				TotalHealth() const { return 100; };
 	virtual size_t				InitialFleetPoints() const { return 8; };
-	virtual size_t				InitialBandwidth() const { return 4; };
+	virtual size_t				InitialBandwidth() const { return 5; };
 	virtual size_t				InitialPower() const { return 4; };
 	virtual bool				IsDataFlowSource() { return true; };
 
