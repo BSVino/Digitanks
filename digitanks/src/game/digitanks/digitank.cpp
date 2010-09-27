@@ -1406,6 +1406,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (IsFortified() || IsFortifying())
 			{
 				pHUD->SetButtonTexture(8, s_iMobilizeIcon);
+				pHUD->SetButtonInfo(8, L"MOBILIZE\n \nAllows this unit to move again.\n \nShortcut: F");
 			}
 			else
 			{
