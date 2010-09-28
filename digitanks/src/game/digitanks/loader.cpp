@@ -470,6 +470,9 @@ size_t CLoader::GetFleetPointsRequired()
 
 bool CLoader::HasEnoughFleetPoints()
 {
+	if (!GetDigitanksTeam())
+		return false;
+
 	return GetFleetPointsRequired() <= GetDigitanksTeam()->GetUnusedFleetPoints();
 }
 

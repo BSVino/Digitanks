@@ -421,7 +421,7 @@ void CHUD::Think()
 		}
 	}
 
-	if (pCurrentTank)
+	if (pCurrentTank && !pCurrentTank->IsArtillery() && !pCurrentTank->IsScout())
 	{
 		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE || DigitanksGame()->GetControlMode() == MODE_AIM);
 		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE || DigitanksGame()->GetControlMode() == MODE_AIM);
@@ -1141,8 +1141,8 @@ void CHUD::ShowFirstActionItem()
 
 	if (aActionItems.size())
 	{
-		m_iCurrentActionItem = 0;
-		ShowActionItem(m_iCurrentActionItem);
+		m_iCurrentActionItem = -1;
+		ShowNextActionItem();
 	}
 	else
 	{

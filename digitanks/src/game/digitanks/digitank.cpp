@@ -8,6 +8,7 @@
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
+#include <glgui/glgui.h>
 
 #include "digitanksgame.h"
 #include "dt_camera.h"
@@ -1073,10 +1074,6 @@ bool CDigitank::AimsWith(CDigitank* pOther) const
 	if (!IsFortified() && !CanAimMobilized())
 		return false;
 
-	// If we're fortified artillery, only aim with other artillery that are pointing in our general direction.
-	if (IsArtillery() && IsFortified() && fabs(AngleDifference(pOther->GetAngles().y, GetAngles().y)) > 15)
-		return false;
-
 	return true;
 }
 
@@ -1322,7 +1319,7 @@ bool CDigitank::NeedsOrders()
 
 			if (pClosestEnemy)
 			{
-				if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
+				if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > GetMaxRange())
 				{
 					pClosestEnemy = NULL;
 					break;
@@ -1332,6 +1329,12 @@ bool CDigitank::NeedsOrders()
 					continue;
 
 				if (!pClosestEnemy->GetTeam())
+					continue;
+
+				if (pClosestEnemy->GetVisibility() == 0)
+					continue;
+
+				if (IsArtillery() && fabs(AngleDifference(GetAngles().y, VectorAngles((pClosestEnemy->GetOrigin()-GetOrigin()).Normalized()).y)) > FiringCone())
 					continue;
 			}
 			break;
@@ -1348,6 +1351,9 @@ bool CDigitank::NeedsOrders()
 		if (!pClosest)
 			bNeedsToAttack = false;
 	}
+
+	if (IsArtillery() && !IsFortified())
+		bNeedsToAttack = false;
 
 	if (m_bFiredWeapon)
 		bNeedsToMove = false;
@@ -1425,7 +1431,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if ((CanAimMobilized() || IsFortified()) && m_flTotalPower > 1 && !m_bFiredWeapon)
+		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon)
 		{
 			pHUD->SetButtonListener(2, CHUD::Aim);
 
@@ -1438,12 +1444,24 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(2, s_iCancelIcon);
-			else if (IsInfantry())
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nShortcut: E");
+
+			std::wstringstream s;
+			if (IsInfantry())
+				s << L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
 			else if (IsScout())
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.\n \nShortcut: E");
+				s << L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.";
 			else
-				pHUD->SetButtonInfo(2, L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nShortcut: E");
+				s << L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
+
+			if (IsScout() && m_flTotalPower < CScout::TorpedoAttackPower() || m_flTotalPower < 1)
+			{
+				pHUD->SetButtonColor(2, glgui::g_clrBox);
+				s << "\n \nNOT ENOUGH ENERGY";
+			}
+
+			s << "\n \nShortcut: E";
+
+			pHUD->SetButtonInfo(2, s.str().c_str());
 		}
 
 		if (GetFrontShieldMaxStrength() > 0)
