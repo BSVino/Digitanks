@@ -278,6 +278,7 @@ void CMiniBuffer::UpgradeComplete()
 	pBuffer->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pBuffer);
 	pBuffer->SetSupplier(GetSupplier());
+	GetSupplier()->AddChild(pBuffer);
 	pBuffer->GiveDataStrength(pBuffer->InitialDataStrength() - InitialDataStrength());	// Give the difference
 	pBuffer->GiveDataStrength(m_iDataStrength - InitialDataStrength());					// Give what I've earned so far
 	pBuffer->AddFleetPoints(pBuffer->InitialFleetPoints() - InitialFleetPoints());

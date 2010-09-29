@@ -18,6 +18,14 @@ CTeam::~CTeam()
 
 void CTeam::AddEntity(CBaseEntity* pEntity)
 {
+	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		// If we're already on this team, forget it.
+		// Calling the OnTeamChange() hooks just to stay on this team can be dangerous.
+		if (pEntity == m_ahMembers[i])
+			return;
+	}
+
 	if (pEntity->GetTeam())
 		RemoveEntity(pEntity);
 

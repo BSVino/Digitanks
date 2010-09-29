@@ -581,7 +581,8 @@ void CSupplier::OnTeamChange()
 			if (!pStructure)
 				continue;
 
-			pStructure->SetTeam(NULL);
+			if (pStructure->GetTeam())
+				pStructure->GetTeam()->RemoveEntity(pStructure);
 		}
 	}
 
