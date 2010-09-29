@@ -37,6 +37,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_apszCommandLine.push_back(argv[i]);
 
 	m_bBoxSelect = false;
+	m_bCheatsOn = false;
 
 	m_iMouseStartX = 0;
 	m_iMouseStartY = 0;

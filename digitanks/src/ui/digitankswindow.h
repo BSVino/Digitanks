@@ -106,6 +106,8 @@ protected:
 	bool						m_bMouseDownInGUI;
 
 	std::vector<const char*>	m_apszCommandLine;
+
+	bool						m_bCheatsOn;
 };
 
 #endif

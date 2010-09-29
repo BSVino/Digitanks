@@ -334,6 +334,15 @@ void CDigitanksWindow::KeyPress(int c)
 	if (c == 'G')
 		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(9);
 
+	if (c == '`')
+	{
+		m_bCheatsOn = !m_bCheatsOn;
+		return;
+	}
+
+	if (!m_bCheatsOn)
+		return;
+
 	// Cheats from here on out
 	if (c == 'X')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
