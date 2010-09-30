@@ -150,6 +150,7 @@ void CDigitanksGame::ScatterResources()
 
 void CDigitanksGame::ScatterProps()
 {
+	return;
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
 		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)

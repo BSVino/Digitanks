@@ -306,7 +306,7 @@ protected:
 	size_t						m_iTurnCompleteButton;
 	size_t						m_iTurnThinkingButton;
 
-//	size_t						m_iCompetitionWatermark;
+	size_t						m_iCompetitionWatermark;
 };
 
 #endif

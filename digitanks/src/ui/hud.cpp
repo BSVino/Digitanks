@@ -184,12 +184,12 @@ CHUD::CHUD()
 
 	SetupMenu(MENUMODE_MAIN);
 
-	m_pFPS = new CLabel(0, 0, 100, 20, "");
-	AddControl(m_pFPS);
+	//m_pFPS = new CLabel(0, 0, 100, 20, "");
+	//AddControl(m_pFPS);
 
-	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
-	m_pFPS->SetPos(20, 20);
-	m_pFPS->SetText("Press Preview");
+	//m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
+	//m_pFPS->SetPos(20, 20);
+	//m_pFPS->SetText("Press Preview");
 
 	m_pPowerInfo = new CLabel(0, 0, 200, 20, "");
 	AddControl(m_pPowerInfo);
@@ -244,7 +244,7 @@ CHUD::CHUD()
 	m_iFleetPointsIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fleet.png");
 	m_iBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-bandwidth.png");
 
-	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
+	m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
 
 void CHUD::Layout()
@@ -717,13 +717,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		while (false);
 	}
 
-/*	while (true)
+	while (true)
 	{
 		CRenderingContext c(Game()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iCompetitionWatermark, 40, 40, 128, 128);
+		CRootPanel::PaintTexture(m_iCompetitionWatermark, 20, 20, 125/2, 184/2);
 		break;
-	}*/
+	}
 }
 
 void CHUD::UpdateInfo()
