@@ -878,3 +878,9 @@ bool CTerrain::Collide(const Vector& s1, const Vector& s2, Vector &vecHit)
 		vecHit = tr.m_vecHit;
 	return bHit;
 }
+
+Color CTerrain::GetPrimaryTerrainColor()
+{
+	Color clr = Color((int)(m_avecTerrainColors[0].x*255), (int)(m_avecTerrainColors[0].y*255), (int)(m_avecTerrainColors[0].z*255), 255);
+	return clr;
+}

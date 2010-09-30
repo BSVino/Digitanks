@@ -3,6 +3,7 @@
 
 #include <raytracer/raytracer.h>
 #include "baseentity.h"
+#include "color.h"
 
 #define TERRAIN_SIZE 200
 #define TERRAIN_GEN_SECTORS 4
@@ -37,6 +38,8 @@ public:
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
 
 	virtual bool			Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
+
+	Color					GetPrimaryTerrainColor();
 
 protected:
 	float					m_aflHeights[TERRAIN_SIZE][TERRAIN_SIZE];

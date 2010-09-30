@@ -169,11 +169,27 @@ void CDigitanksGame::ScatterProps()
 			CStaticProp* pProp = Game()->Create<CStaticProp>("CStaticProp");
 			pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
 			pProp->SetAngles(EAngle(0, RandomFloat(0, 360), 0));
+			pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
 
-			pProp->SetModel(L"models/props/prop01.obj");
-			pProp->SetAdditive(true);
-			pProp->SetBackCulling(false);
-			pProp->SetDepthMask(false);
+			switch (RandomInt(0, 3))
+			{
+			case 0:
+				pProp->SetModel(L"models/props/prop01.obj");
+				pProp->SetBackCulling(false);
+				break;
+
+			case 1:
+				pProp->SetModel(L"models/props/prop02.obj");
+				break;
+
+			case 2:
+				pProp->SetModel(L"models/props/prop03.obj");
+				break;
+
+			case 3:
+				pProp->SetModel(L"models/props/prop04.obj");
+				break;
+			}
 		}
 	}
 }
