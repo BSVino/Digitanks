@@ -57,9 +57,9 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pStartTutorialBases->SetClickedListener(this, StartTutorialBases);
 	AddControl(m_pStartTutorialBases);
 
-//	m_pStartArtilleryGame = new CButton(0, 0, 100, 100, "New Artillery Game");
-//	m_pStartArtilleryGame->SetClickedListener(this, StartArtilleryGame);
-//	AddControl(m_pStartArtilleryGame);
+	m_pStartArtilleryGame = new CButton(0, 0, 100, 100, "New Artillery Game");
+	m_pStartArtilleryGame->SetClickedListener(this, StartArtilleryGame);
+	AddControl(m_pStartArtilleryGame);
 
 	m_pStartBasesGame = new CButton(0, 0, 100, 100, "New Game");
 	m_pStartBasesGame->SetClickedListener(this, StartBasesGame);
@@ -101,10 +101,10 @@ void CDigitanksMenu::Layout()
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 220);
 
-//	m_pStartArtilleryGame->SetPos(75, 270);
-//	m_pStartArtilleryGame->SetSize(150, 20);
+	m_pStartArtilleryGame->SetPos(75, 270);
+	m_pStartArtilleryGame->SetSize(150, 20);
 
-	m_pStartBasesGame->SetPos(75, 270);
+	m_pStartBasesGame->SetPos(75, 300);
 	m_pStartBasesGame->SetSize(150, 20);
 
 	m_pReturnToGame->SetPos(100, 330);
