@@ -61,7 +61,7 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pStartArtilleryGame->SetClickedListener(this, StartArtilleryGame);
 	AddControl(m_pStartArtilleryGame);
 
-	m_pStartBasesGame = new CButton(0, 0, 100, 100, "New Game");
+	m_pStartBasesGame = new CButton(0, 0, 100, 100, "New Strategy Game");
 	m_pStartBasesGame->SetClickedListener(this, StartBasesGame);
 	AddControl(m_pStartBasesGame);
 

@@ -1173,6 +1173,11 @@ void CHUD::ShowNextActionItem()
 			return;
 		}
 
+		// Bit of a hack. If m_iCurrentActionItem was -1 (or ~0 unsigned) then it'll now be 0.
+		// Once it loops back around to 0 again the second time we'll consider it done.
+		if (iOriginalActionItem == -1)
+			iOriginalActionItem = 0;
+
 		actionitem_t* pItem = &aActionItems[m_iCurrentActionItem];
 
 		if (pItem->bHandled)
