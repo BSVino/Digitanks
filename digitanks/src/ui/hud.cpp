@@ -235,8 +235,11 @@ CHUD::CHUD()
 
 	m_iHUDGraphic = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main.png", true);
 
-	m_iAvatarIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar.png");
-	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/tank-avatar-shield.png");
+	m_iAvatarTankIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-tank.png");
+	m_iAvatarInfantryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-infantry.png");
+	m_iAvatarScoutIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-rogue.png");
+	m_iAvatarArtilleryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-artillery.png");
+	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-shield.png");
 
 	m_iSpeechBubble = CRenderer::LoadTextureIntoGL(L"textures/hud/bubble.png");
 
@@ -665,7 +668,28 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(Game()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		CRootPanel::PaintTexture(m_iAvatarIcon, iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
+		size_t iIcon;
+		switch (pTank->GetBuildUnit())
+		{
+		default:
+		case BUILDUNIT_TANK:
+			iIcon = m_iAvatarTankIcon;
+			break;
+
+		case BUILDUNIT_INFANTRY:
+			iIcon = m_iAvatarInfantryIcon;
+			break;
+
+		case BUILDUNIT_ARTILLERY:
+			iIcon = m_iAvatarArtilleryIcon;
+			break;
+
+		case BUILDUNIT_SCOUT:
+			iIcon = m_iAvatarScoutIcon;
+			break;
+		}
+
+		CRootPanel::PaintTexture(iIcon, iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
 
 		c.SetBlend(BLEND_ADDITIVE);
 

@@ -293,7 +293,10 @@ protected:
 
 	size_t						m_iTurnSound;
 
-	size_t						m_iAvatarIcon;
+	size_t						m_iAvatarTankIcon;
+	size_t						m_iAvatarInfantryIcon;
+	size_t						m_iAvatarScoutIcon;
+	size_t						m_iAvatarArtilleryIcon;
 	size_t						m_iShieldIcon;
 
 	size_t						m_iSpeechBubble;

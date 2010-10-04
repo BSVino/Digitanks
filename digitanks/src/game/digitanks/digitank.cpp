@@ -1064,10 +1064,6 @@ bool CDigitank::AimsWith(CDigitank* pOther) const
 	if (!GetDigitanksTeam()->IsSelected(this))
 		return false;
 
-	// Only same class tanks.
-	if (GetBuildUnit() != pOther->GetBuildUnit())
-		return false;
-
 	if (!CanAim())
 		return false;
 
