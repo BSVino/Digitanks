@@ -147,6 +147,9 @@ inline float DistanceToLineSegment(Vector p, Vector v1, Vector v2, Vector* i = N
 		return (v2-p).Length();
 	}
 
+	if (c2 < 0.001f)
+		return 0;
+
 	float b = c1/c2;
 
 	Vector vb = v1 + v*b;
