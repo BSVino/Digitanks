@@ -141,6 +141,9 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredAim);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredAim);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetAttackPower);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Move);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Turn);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Fire);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, FireProjectile);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetBonusPoints);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, TankPromoted);

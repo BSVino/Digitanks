@@ -1542,6 +1542,16 @@ void CDigitank::Move()
 	if (m_flTotalPower < 0.5f)
 		return;
 
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "Move", GetHandle());
+
+	Move(NULL);
+}
+
+void CDigitank::Move(CNetworkParameters* p)
+{
+	float flMovePower = GetPreviewMovePower();
+
 	// Am I waiting to fire something? Fire now. Shoot and scoot baby!
 	if (m_flFireProjectileTime)
 	{
@@ -1604,6 +1614,16 @@ void CDigitank::Turn()
 	if (flMovePower > m_flTotalPower)
 		return;
 
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "Turn", GetHandle());
+
+	Turn(NULL);
+}
+
+void CDigitank::Turn(CNetworkParameters* p)
+{
+	float flMovePower = GetPreviewTurnPower();
+
 	m_flTotalPower -= flMovePower;
 	m_flMovementPower += flMovePower;
 
@@ -1636,6 +1656,14 @@ void CDigitank::Fire()
 	if (m_flTotalPower < 0.5f)
 		return;
 
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(-1, "Fire", GetHandle());
+
+	Fire(NULL);
+}
+
+void CDigitank::Fire(CNetworkParameters* p)
+{
 	m_bFiredWeapon = true;
 
 	float flAttackPower = m_flTotalPower * m_flAttackSplit;
