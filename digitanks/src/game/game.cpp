@@ -378,9 +378,11 @@ CTeam* CGame::GetLocalTeam()
 			if (pGame->m_ahTeams[i]->GetClient() == pGame->m_iClient)
 			{
 				s_hLocalTeam = pGame->m_ahTeams[i];
-				break;
+				return s_hLocalTeam;
 			}
 		}
+
+		return NULL;
 	}
 
 	return s_hLocalTeam;

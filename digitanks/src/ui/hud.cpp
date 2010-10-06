@@ -916,6 +916,10 @@ void CHUD::UpdateTeamInfo()
 {
 	std::stringstream s1;
 	CDigitanksTeam* pTeam = DigitanksGame()->GetLocalDigitanksTeam();
+
+	if (!pTeam)
+		return;
+
 	s1 << pTeam->GetTotalProduction() << "\n";
 	m_pPowerInfo->SetText(s1.str().c_str());
 

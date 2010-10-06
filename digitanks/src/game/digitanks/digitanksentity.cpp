@@ -129,6 +129,9 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 		return 1;
 
+	if (!pTeam)
+		return 0;
+
 	return pTeam->GetEntityVisibility(GetHandle());
 }
 

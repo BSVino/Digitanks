@@ -839,13 +839,101 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 	if (!bTerrainDeformed)
 		return;
 
-	Vector vecMins(vecOrigin.x - flRadius + 0.1f, -10000, vecOrigin.z - flRadius + 0.1f);
-	Vector vecMaxs(vecOrigin.x + flRadius +-0.1f, 10000,  vecOrigin.z + flRadius - 0.1f);
-	m_pTracer->RemoveArea(AABB(vecMins, vecMaxs));
+	UpdateTerrainData();
 
-	for (int x = iX-iRadius; x <= iX+iRadius; x++)
+	m_avecCraterMarks.push_back(vecOrigin - Vector(0, flRadius, 0));
+	if (m_avecCraterMarks.size() > 10)
+		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
+}
+
+bool CTerrain::Collide(const Vector& s1, const Vector& s2, Vector &vecHit)
+{
+	CTraceResult tr;
+	bool bHit = m_pTracer->Raytrace(s1, s2, &tr);
+	if (bHit)
+		vecHit = tr.m_vecHit;
+	return bHit;
+}
+
+Color CTerrain::GetPrimaryTerrainColor()
+{
+	Color clr = Color((int)(m_avecTerrainColors[0].x*255), (int)(m_avecTerrainColors[0].y*255), (int)(m_avecTerrainColors[0].z*255), 255);
+	return clr;
+}
+
+void CTerrain::UpdateTerrainData()
+{
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
 	{
-		for (int z = iZ-iRadius; z <= iZ+iRadius; z++)
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		{
+			if (!m_abTerrainNeedsRegenerate[i][j])
+				continue;
+
+			CNetworkParameters p;
+			p.ui1 = i;
+			p.ui2 = j;
+
+			p.CreateExtraData(sizeof(float)*TERRAIN_SECTOR_SIZE*TERRAIN_SECTOR_SIZE);
+
+			size_t iPosition = 0;
+			float* flHeightData = (float*)p.m_pExtraData;
+
+			// Serialize the height data
+			for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
+			{
+				for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
+					flHeightData[iPosition++] = m_aflHeights[x][z];
+			}
+
+			if (CNetwork::ShouldReplicateClientFunction())
+				CNetwork::CallFunctionParameters(-1, "TerrainData", &p);
+
+			TerrainData(&p);
+		}
+	}
+}
+
+void CTerrain::TerrainData(class CNetworkParameters* p)
+{
+	size_t i = p->ui1;
+	size_t j = p->ui2;
+
+	size_t iPosition = 0;
+	float* flHeightData = (float*)p->m_pExtraData;
+
+	// Unserialize the height data
+	for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
+	{
+		for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
+		{
+			if (fabs(m_aflHeights[x][z] - flHeightData[iPosition]) > 0.01f)
+				m_abTerrainNeedsRegenerate[i][j] = true;
+
+			m_aflHeights[x][z] = flHeightData[iPosition++];
+		}
+	}
+
+	if (!m_abTerrainNeedsRegenerate[i][j])
+		return;
+
+	int iXMin = (int)(TERRAIN_SECTOR_SIZE*i);
+	int iYMin = (int)(TERRAIN_SECTOR_SIZE*j);
+	int iXMax = (int)(TERRAIN_SECTOR_SIZE*(i+1)-1);
+	int iYMax = (int)(TERRAIN_SECTOR_SIZE*(j+1)-1);
+
+	float flXMin = ArrayToWorldSpace(iXMin);
+	float flYMin = ArrayToWorldSpace(iYMin);
+	float flXMax = ArrayToWorldSpace(iXMax);
+	float flYMax = ArrayToWorldSpace(iYMax);
+
+	Vector vecMins(flXMin, -10000, flYMin);
+	Vector vecMaxs(flXMax, 10000,  flYMax);
+
+	m_pTracer->RemoveArea(AABB(vecMins, vecMaxs));
+	for (int x = iXMin; x < iXMax; x++)
+	{
+		for (int z = iYMin; z < iYMax; z++)
 		{
 			float flX = ArrayToWorldSpace(x);
 			float flZ = ArrayToWorldSpace(z);
@@ -863,24 +951,32 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 		}
 	}
 
-	m_avecCraterMarks.push_back(vecOrigin - Vector(0, flRadius, 0));
-	if (m_avecCraterMarks.size() > 10)
-		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
-
 	GenerateTerrainCallLists();
 }
 
-bool CTerrain::Collide(const Vector& s1, const Vector& s2, Vector &vecHit)
+void CTerrain::ResyncClientTerrainData(int iClient)
 {
-	CTraceResult tr;
-	bool bHit = m_pTracer->Raytrace(s1, s2, &tr);
-	if (bHit)
-		vecHit = tr.m_vecHit;
-	return bHit;
-}
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		{
+			CNetworkParameters p;
+			p.ui1 = i;
+			p.ui2 = j;
 
-Color CTerrain::GetPrimaryTerrainColor()
-{
-	Color clr = Color((int)(m_avecTerrainColors[0].x*255), (int)(m_avecTerrainColors[0].y*255), (int)(m_avecTerrainColors[0].z*255), 255);
-	return clr;
+			p.CreateExtraData(sizeof(float)*TERRAIN_SECTOR_SIZE*TERRAIN_SECTOR_SIZE);
+
+			size_t iPosition = 0;
+			float* flHeightData = (float*)p.m_pExtraData;
+
+			// Serialize the height data
+			for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
+			{
+				for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
+					flHeightData[iPosition++] = m_aflHeights[x][z];
+			}
+
+			CNetwork::CallFunctionParameters(iClient, "TerrainData", &p);
+		}
+	}
 }

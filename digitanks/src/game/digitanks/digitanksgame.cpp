@@ -68,11 +68,14 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("PromoteDefense", this, PromoteDefenseCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
+	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 3, NET_INT, NET_INT, NET_DATA);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
 {
 	CNetwork::CallFunction(p->i2, "SetTerrain", GetTerrain()->GetHandle());
+
+	GetTerrain()->ResyncClientTerrainData(p->i2);
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
@@ -995,6 +998,11 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 void CDigitanksGame::SetTerrain(CNetworkParameters* p)
 {
 	m_hTerrain = CEntityHandle<CTerrain>(p->ui1);
+}
+
+void CDigitanksGame::TerrainData(class CNetworkParameters* p)
+{
+	GetTerrain()->TerrainData(p);
 }
 
 void CDigitanksGame::SetCurrentTeam(CNetworkParameters* p)

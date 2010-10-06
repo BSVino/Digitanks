@@ -130,6 +130,7 @@ public:
 
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, SetTerrain);
+	NET_CALLBACK(CDigitanksGame, TerrainData);
 
 	NET_CALLBACK(CDigitanksGame, SetCurrentTeam);
 

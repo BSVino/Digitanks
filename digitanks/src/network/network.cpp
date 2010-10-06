@@ -233,17 +233,28 @@ void CNetwork::CallFunction(int iClient, const char* pszFunction, ...)
 	CallFunction(iClient, pFunction, &p);
 }
 
+void CNetwork::CallFunctionParameters(int iClient, const char* pszFunction, CNetworkParameters* p)
+{
+	CRegisteredFunction* pFunction = &s_aFunctions[pszFunction];
+	CallFunction(iClient, pFunction, p);
+}
+
 void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p)
 {
 	if (!s_bConnected)
 		return;
 
-	size_t iSize = sizeof(*p) + strlen(pFunction->m_pszFunction) + 1;
+	size_t iPSize = p?p->SizeOf():0;
+	size_t iSize = iPSize + strlen(pFunction->m_pszFunction) + 1;
 
 	ENetPacket* pPacket = enet_packet_create(NULL, iSize, ENET_PACKET_FLAG_RELIABLE);
 
 	strcpy((char*)pPacket->data, pFunction->m_pszFunction);
-	memcpy(pPacket->data+strlen(pFunction->m_pszFunction)+1, p, sizeof(*p));
+	if (p)
+	{
+		memcpy(pPacket->data+strlen(pFunction->m_pszFunction)+1, p, sizeof(*p));
+		memcpy(pPacket->data+strlen(pFunction->m_pszFunction)+1+sizeof(*p), p->m_pExtraData, p->m_iExtraDataSize);
+	}
 
 	if (g_pServer)
 	{
@@ -268,6 +279,10 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 {
 	if (s_aFunctions.find(pszName) == s_aFunctions.end())
 		return;
+
+	// Since CallbackFunction is called by casting the second argument (p) and the CNetworkParameters destructor won't run.
+	// If it did this next line would be a problem!
+	p->m_pExtraData = ((unsigned char*)p) + sizeof(*p);
 
 	CRegisteredFunction* pFunction = &s_aFunctions[pszName];
 

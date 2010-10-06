@@ -18,7 +18,7 @@
 	virtual void pfn(CNetworkParameters* p) \
 	{ \
 	CEntityHandle<class entity> hEntity(p->ui1); \
-	if (hEntity.GetPointer() != NULL && hEntity != NULL) \
+	if (hEntity != NULL) \
 		hEntity->pfn(p); \
 	} \
 	static void pfn##Callback(INetworkListener* obj, CNetworkParameters* p) \
@@ -32,7 +32,35 @@ public:
 	CNetworkParameters()
 	{
 		memset(this, 0, sizeof(CNetworkParameters));
+
+		m_pExtraData = NULL;
+		m_iExtraDataSize = 0;
 	}
+
+	~CNetworkParameters()
+	{
+		if (m_pExtraData)
+			free(m_pExtraData);
+	}
+
+public:
+	void CreateExtraData(size_t iSize)
+	{
+		if (m_pExtraData)
+			free(m_pExtraData);
+
+		m_pExtraData = malloc(iSize);
+		m_iExtraDataSize = iSize;
+	}
+
+	size_t SizeOf()
+	{
+		return sizeof(*this) + m_iExtraDataSize;
+	}
+
+public:
+	size_t		m_iExtraDataSize;
+	void*		m_pExtraData;
 
 	union
 	{
@@ -112,6 +140,7 @@ enum
 	NET_INT,
 	NET_FLOAT,
 	NET_HANDLE,
+	NET_DATA,
 };
 
 class CNetwork
@@ -137,6 +166,7 @@ public:
 	static void				Think();
 
 	static void				CallFunction(int iClient, const char* pszName, ...);
+	static void				CallFunctionParameters(int iClient, const char* pszName, CNetworkParameters* p);
 	static void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p);
 	static void				CallbackFunction(const char* pszName, CNetworkParameters* p);
 

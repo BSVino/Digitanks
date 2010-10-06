@@ -6,7 +6,7 @@
 #include "color.h"
 
 #define TERRAIN_SIZE 200
-#define TERRAIN_GEN_SECTORS 4
+#define TERRAIN_GEN_SECTORS 10
 #define TERRAIN_SECTOR_SIZE (TERRAIN_SIZE/TERRAIN_GEN_SECTORS)
 
 class CTerrain : public CBaseEntity
@@ -40,6 +40,10 @@ public:
 	virtual bool			Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
 
 	Color					GetPrimaryTerrainColor();
+
+	void					UpdateTerrainData();
+	void					TerrainData(class CNetworkParameters* p);
+	void					ResyncClientTerrainData(int iClient);
 
 protected:
 	float					m_aflHeights[TERRAIN_SIZE][TERRAIN_SIZE];
