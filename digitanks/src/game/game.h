@@ -48,6 +48,8 @@ public:
 		return dynamic_cast<T*>(Create(pszEntityName).GetPointer());
 	}
 
+	NET_CALLBACK(CGame,							UpdateValue);
+
 	NET_CALLBACK(CGame,							ClientInfo);
 	NET_CALLBACK(CGame,							SetOrigin);
 	NET_CALLBACK(CGame,							SetAngles);

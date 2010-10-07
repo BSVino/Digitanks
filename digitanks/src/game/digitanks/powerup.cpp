@@ -7,6 +7,9 @@
 #include "digitank.h"
 #include "digitanksgame.h"
 
+NETVAR_TABLE_BEGIN(CPowerup);
+NETVAR_TABLE_END();
+
 CPowerup::CPowerup()
 {
 	SetCollisionGroup(CG_POWERUP);

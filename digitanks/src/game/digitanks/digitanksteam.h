@@ -107,7 +107,7 @@ protected:
 	size_t						m_iTotalFleetPoints;
 	size_t						m_iUsedFleetPoints;
 
-	size_t						m_iScore;
+	CNetworkedVariable<size_t>	m_iScore;
 
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;

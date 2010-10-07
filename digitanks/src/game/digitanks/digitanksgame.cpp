@@ -721,7 +721,7 @@ void CDigitanksGame::SetDesiredAim()
 
 void CDigitanksGame::EndTurn()
 {
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "EndTurn");
+	CNetwork::CallFunction(NETWORK_TOEVERYONE, "EndTurn");
 
 	EndTurn(NULL);
 }

@@ -3,12 +3,15 @@
 #include <enet/enet.h>
 #include <assert.h>
 
+#include <baseentity.h>
+
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
 std::map<std::string, CRegisteredFunction> CNetwork::s_aFunctions;
 INetworkListener* CNetwork::s_pClientListener = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientConnect = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientDisconnect = NULL;
+std::vector<CNetworkedVariableBase*> CNetwork::s_apNetworkedVariables;
 
 static ENetHost* g_pClient = NULL;
 static ENetPeer* g_pClientPeer = NULL;
@@ -47,6 +50,51 @@ void CNetwork::RegisterFunction(const char* pszName, INetworkListener* pListener
 
 	s_aFunctions[pszName].m_pListener = pListener;
 	s_aFunctions[pszName].m_pfnCallback = pfnCallback;
+}
+
+void CNetwork::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
+{
+	s_apNetworkedVariables.push_back(pVariable);
+}
+
+void CNetwork::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
+{
+	for (size_t i = 0; i < s_apNetworkedVariables.size(); i++)
+	{
+		if (s_apNetworkedVariables[i] == pVariable)
+		{
+			s_apNetworkedVariables.erase(s_apNetworkedVariables.begin()+i);
+			return;
+		}
+	}
+}
+
+void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
+{
+	for (size_t i = 0; i < s_apNetworkedVariables.size(); i++)
+	{
+		CNetworkedVariableBase* pVariable = s_apNetworkedVariables[i];
+
+		if (!bForceAll && !pVariable->IsDirty())
+			continue;
+
+		CNetworkParameters p;
+		p.ui1 = pVariable->GetParent()->GetHandle();
+
+		size_t iDataSize;
+		void* pValue = pVariable->Serialize(iDataSize);
+
+		p.CreateExtraData(iDataSize + strlen(pVariable->GetName())+1);
+		strcpy((char*)p.m_pExtraData, pVariable->GetName());
+		memcpy((unsigned char*)(p.m_pExtraData) + strlen(pVariable->GetName())+1, pValue, iDataSize);
+
+		// UV stands for UpdateValue
+		CallFunctionParameters(iClient, "UV", &p);
+
+		// Only reset the dirty flag if all clients got the message.
+		if (iClient == NETWORK_TOCLIENTS)
+			pVariable->SetDirty(false);
+	}
 }
 
 void CNetwork::CreateHost(int iPort, INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect)
@@ -155,6 +203,9 @@ void CNetwork::Think()
 		pHost = g_pServer;
 	if (!pHost)
 		return;
+
+	if (IsHost())
+		UpdateNetworkVariables(NETWORK_TOCLIENTS);
 
 	CNetworkParameters p;
 
@@ -313,4 +364,22 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 	// If I'm host and I got this message from a client, forward it to all of the other clients.
 	if (IsHost())
 		CallFunction(-1, pFunction, p);
+}
+
+CNetworkedVariableBase::CNetworkedVariableBase()
+{
+	m_bDirty = true;
+	m_pParent = NULL;
+}
+
+CNetworkedVariableBase::~CNetworkedVariableBase()
+{
+	if (m_pParent)
+		m_pParent->DeregisterNetworkVariable(this);
+}
+
+void CNetworkedVariableBase::SetParent(CBaseEntity* pParent)
+{
+	m_pParent = pParent;
+	pParent->RegisterNetworkVariable(this);
 }

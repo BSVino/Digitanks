@@ -62,6 +62,9 @@ const char* CDigitank::s_apszTankLines[] =
 
 std::map<size_t, std::vector<size_t> > g_aiSpeechLines;
 
+NETVAR_TABLE_BEGIN(CDigitank);
+NETVAR_TABLE_END();
+
 CDigitank::CDigitank()
 {
 	m_flStartingPower = 10;
@@ -1616,7 +1619,8 @@ void CDigitank::Move(CNetworkParameters* p)
 		}
 	}
 
-	GetDigitanksTeam()->CalculateVisibility();
+	if (GetDigitanksTeam())
+		GetDigitanksTeam()->CalculateVisibility();
 
 	InterceptSupplyLines();
 

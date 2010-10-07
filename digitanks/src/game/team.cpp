@@ -2,6 +2,9 @@
 
 #include <network/network.h>
 
+NETVAR_TABLE_BEGIN(CTeam);
+NETVAR_TABLE_END();
+
 CTeam::CTeam()
 {
 	m_bClientControlled = false;

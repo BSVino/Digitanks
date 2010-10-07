@@ -11,6 +11,9 @@ std::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
 size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
+NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
+NETVAR_TABLE_END();
+
 CBaseEntity::CBaseEntity()
 {
 	if (s_iOverrideEntityListIndex == ~0)
@@ -197,6 +200,25 @@ bool CBaseEntity::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 		return false;
 
 	return LineSegmentIntersectsSphere(v1, v2, GetOrigin(), GetBoundingRadius(), vecPoint);
+}
+
+void CBaseEntity::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
+{
+	CNetwork::RegisterNetworkVariable(pVariable);
+
+	m_apNetworkVariables[pVariable->GetName()] = pVariable;
+}
+
+void CBaseEntity::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
+{
+	CNetwork::DeregisterNetworkVariable(pVariable);
+
+	// Don't bother removing it from the list, this entity is about to die anyway.
+}
+
+CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
+{
+	return m_apNetworkVariables[pszName];
 }
 
 void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)

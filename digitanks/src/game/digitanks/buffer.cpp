@@ -16,6 +16,9 @@ size_t CBuffer::s_iInstallFleetSupplyIcon = 0;
 size_t CBuffer::s_iInstallEnergyBonusIcon = 0;
 size_t CBuffer::s_iInstallRechargeBonusIcon = 0;
 
+NETVAR_TABLE_BEGIN(CBuffer);
+NETVAR_TABLE_END();
+
 void CBuffer::Spawn()
 {
 	BaseClass::Spawn();
@@ -183,6 +186,9 @@ bool CBuffer::HasUpdatesAvailable()
 
 size_t CMiniBuffer::s_iUpgradeIcon = 0;
 size_t CMiniBuffer::s_iCancelIcon = 0;
+
+NETVAR_TABLE_BEGIN(CMiniBuffer);
+NETVAR_TABLE_END();
 
 void CMiniBuffer::Spawn()
 {

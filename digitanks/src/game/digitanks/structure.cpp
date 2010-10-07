@@ -19,6 +19,9 @@
 
 #include <GL/glew.h>
 
+NETVAR_TABLE_BEGIN(CStructure);
+NETVAR_TABLE_END();
+
 CStructure::CStructure()
 {
 	m_bConstructing = false;
@@ -456,6 +459,9 @@ void CStructure::OnDeleted()
 }
 
 size_t CSupplier::s_iTendrilBeam = 0;
+
+NETVAR_TABLE_BEGIN(CSupplier);
+NETVAR_TABLE_END();
 
 void CSupplier::Precache()
 {

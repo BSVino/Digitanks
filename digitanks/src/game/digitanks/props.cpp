@@ -2,6 +2,9 @@
 
 #include <renderer/renderer.h>
 
+NETVAR_TABLE_BEGIN(CStaticProp);
+NETVAR_TABLE_END();
+
 void CStaticProp::Precache()
 {
 	PrecacheModel(L"models/props/prop01.obj", true);

@@ -2,6 +2,9 @@
 
 #include <models/models.h>
 
+NETVAR_TABLE_BEGIN(CMainBattleTank);
+NETVAR_TABLE_END();
+
 CMainBattleTank::CMainBattleTank()
 {
 	SetModel(L"models/digitanks/digitank-body.obj");

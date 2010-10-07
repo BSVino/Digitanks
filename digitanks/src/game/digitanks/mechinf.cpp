@@ -12,6 +12,9 @@
 #include "digitanksgame.h"
 #include "projectile.h"
 
+NETVAR_TABLE_BEGIN(CMechInfantry);
+NETVAR_TABLE_END();
+
 CMechInfantry::CMechInfantry()
 {
 	SetModel(L"models/digitanks/infantry-body.obj");

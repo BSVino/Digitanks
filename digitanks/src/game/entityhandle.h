@@ -65,6 +65,11 @@ public:
 		return GetPointer();
 	}
 
+	inline bool operator!() const
+	{
+		return IsEqual(NULL);
+	}
+
 	inline bool IsEqual(const C* pOther)
 	{
 		if (!pOther)

@@ -14,6 +14,10 @@
 #include "loader.h"
 #include "collector.h"
 
+NETVAR_TABLE_BEGIN(CDigitanksTeam);
+	NETVAR_DEFINE(size_t, m_iScore);
+NETVAR_TABLE_END();
+
 CDigitanksTeam::CDigitanksTeam()
 {
 	m_iBuildPosition = 0;

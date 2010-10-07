@@ -36,6 +36,9 @@ size_t CLoader::s_iBuildInfantryIcon = 0;
 size_t CLoader::s_iBuildTankIcon = 0;
 size_t CLoader::s_iBuildArtilleryIcon = 0;
 
+NETVAR_TABLE_BEGIN(CLoader);
+NETVAR_TABLE_END();
+
 void CLoader::Precache()
 {
 	BaseClass::Precache();

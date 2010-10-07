@@ -8,6 +8,9 @@
 
 #include <GL/glew.h>
 
+NETVAR_TABLE_BEGIN(CResource);
+NETVAR_TABLE_END();
+
 void CResource::Precache()
 {
 	BaseClass::Precache();

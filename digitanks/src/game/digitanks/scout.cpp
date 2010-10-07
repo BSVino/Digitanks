@@ -8,6 +8,9 @@
 #include "digitanksgame.h"
 #include "projectile.h"
 
+NETVAR_TABLE_BEGIN(CScout);
+NETVAR_TABLE_END();
+
 CScout::CScout()
 {
 	SetModel(L"models/digitanks/scout.obj");

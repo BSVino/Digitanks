@@ -47,6 +47,8 @@ CGame::~CGame()
 
 void CGame::RegisterNetworkFunctions()
 {
+	CNetwork::RegisterFunction("UV", this, UpdateValueCallback, 2, NET_HANDLE, NET_HANDLE);
+
 	CNetwork::RegisterFunction("ClientInfo", this, ClientInfoCallback, 2, NET_INT, NET_FLOAT);
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
@@ -68,6 +70,8 @@ void CGame::ClientConnect(CNetworkParameters* p)
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
 		CNetwork::CallFunction(p->i2, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
 	}
+
+	CNetwork::UpdateNetworkVariables(p->i2, true);
 
 	OnClientConnect(p);
 
@@ -252,6 +256,8 @@ size_t CGame::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_t iSpa
 	else
 		hEntity->SetSpawnSeed(rand()%99999);	// Don't pick a number so large that it can't fit in (int)
 
+	hEntity->RegisterNetworkVariables();
+
 	hEntity->Spawn();
 	return iHandle;
 }
@@ -290,6 +296,21 @@ void CGame::DestroyEntity(CNetworkParameters* p)
 	OnDeleted(pEntity);
 	pEntity->SetDeleted();
 	m_ahDeletedEntities.push_back(pEntity);
+}
+
+void CGame::UpdateValue(CNetworkParameters* p)
+{
+	CEntityHandle<CBaseEntity> hEntity(p->ui1);
+
+	if (!hEntity)
+		return;
+
+	CNetworkedVariableBase* pVariable = hEntity->GetNetworkVariable((char*)p->m_pExtraData);
+
+	if (!pVariable)
+		return;
+
+	pVariable->Unserialize((unsigned char*)p->m_pExtraData + strlen((char*)p->m_pExtraData)+1);
 }
 
 void CGame::ClientInfo(CNetworkParameters* p)

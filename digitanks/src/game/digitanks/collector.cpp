@@ -9,6 +9,9 @@
 #include "digitanksteam.h"
 #include "digitanksgame.h"
 
+NETVAR_TABLE_BEGIN(CCollector);
+NETVAR_TABLE_END();
+
 void CCollector::Spawn()
 {
 	BaseClass::Spawn();
@@ -57,6 +60,9 @@ size_t CCollector::GetProduction()
 
 size_t CBattery::s_iUpgradeIcon = 0;
 size_t CBattery::s_iCancelIcon = 0;
+
+NETVAR_TABLE_BEGIN(CBattery);
+NETVAR_TABLE_END();
 
 void CBattery::Spawn()
 {

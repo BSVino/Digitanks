@@ -4,6 +4,9 @@
 
 #include "digitanksgame.h"
 
+NETVAR_TABLE_BEGIN(CUpdateGrid);
+NETVAR_TABLE_END();
+
 void CUpdateGrid::SetupStandardUpdates()
 {
 	int iCPU = UPDATE_GRID_SIZE/2;

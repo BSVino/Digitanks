@@ -3,6 +3,9 @@
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 
+NETVAR_TABLE_BEGIN(CSelectable);
+NETVAR_TABLE_END();
+
 void CSelectable::OnCurrentSelection()
 {
 	if (!AllowControlMode(DigitanksGame()->GetControlMode()))

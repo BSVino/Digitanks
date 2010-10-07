@@ -13,6 +13,9 @@
 
 using namespace raytrace;
 
+NETVAR_TABLE_BEGIN(CTerrain);
+NETVAR_TABLE_END();
+
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);

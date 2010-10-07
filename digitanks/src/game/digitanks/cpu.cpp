@@ -31,6 +31,9 @@ size_t CCPU::s_iInstallPowerIcon = 0;
 size_t CCPU::s_iInstallBandwidthIcon = 0;
 size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 
+NETVAR_TABLE_BEGIN(CCPU);
+NETVAR_TABLE_END();
+
 void CCPU::Spawn()
 {
 	BaseClass::Spawn();
@@ -390,6 +393,9 @@ void CCPU::BeginConstruction()
 
 void CCPU::BeginConstruction(CNetworkParameters* p)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	unittype_t ePreviewStructure = (unittype_t)p->i2;
 	Vector vecPreview(p->fl3, p->fl4, p->fl5);
 

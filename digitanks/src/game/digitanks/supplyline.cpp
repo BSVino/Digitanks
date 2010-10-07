@@ -11,6 +11,9 @@
 
 size_t CSupplyLine::s_iSupplyBeam = 0;
 
+NETVAR_TABLE_BEGIN(CSupplyLine);
+NETVAR_TABLE_END();
+
 void CSupplyLine::Precache()
 {
 	BaseClass::Precache();

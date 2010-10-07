@@ -149,6 +149,111 @@ enum
 	NETWORK_TOEVERYONE	= -3,	// This message is all of the above.
 };
 
+class CNetworkedVariableBase
+{
+public:
+	CNetworkedVariableBase();
+	~CNetworkedVariableBase();
+
+public:
+	bool				IsDirty() { return m_bDirty; }
+	void				SetDirty(bool bDirty) { m_bDirty = bDirty; }
+
+	class CBaseEntity*	GetParent() { return m_pParent; }
+	void				SetParent(CBaseEntity* pParent);
+
+	virtual const char*	GetName() { return m_pszName; }
+	virtual void		SetName(const char* pszName) { m_pszName = pszName; }
+
+	virtual void*		Serialize(size_t& iSize) { return NULL; }
+	virtual void		Unserialize(void* pValue) {}
+
+public:
+	bool				m_bDirty;
+
+	// Not using a handle because this object can't exist without its parent.
+	class CBaseEntity*	m_pParent;
+
+	const char*			m_pszName;
+};
+
+template <class C>
+class CNetworkedVariable : public CNetworkedVariableBase
+{
+public:
+	CNetworkedVariable()
+	{
+		memset(&m_oVariable, 0, sizeof(C));
+	}
+
+	CNetworkedVariable(const C& c)
+	{
+		m_oVariable = c;
+	}
+
+public:
+	inline const C& operator=(const C& c)
+	{
+		if (c == m_oVariable)
+			return m_oVariable;
+
+		m_bDirty = true;
+		m_oVariable = c;
+		return m_oVariable;
+	}
+
+	inline bool operator==(const C& c)
+	{
+		return c == m_oVariable;
+	}
+
+	inline bool operator==(const C& c) const
+	{
+		return c == m_oVariable;
+	}
+
+	inline bool operator!=(const C& c)
+	{
+		return c != m_oVariable;
+	}
+
+	inline bool operator!=(const C& c) const
+	{
+		return c != m_oVariable;
+	}
+
+	inline const C& operator+=(const C& c)
+	{
+		if (c == 0)
+			return m_oVariable;
+
+		m_bDirty = true;
+		m_oVariable += c;
+		return m_oVariable;
+	}
+
+	inline const C& operator-=(const C& c)
+	{
+		if (c == 0)
+			return m_oVariable;
+
+		m_bDirty = true;
+		m_oVariable -= c;
+		return m_oVariable;
+	}
+
+	inline operator const C&()
+	{
+		return m_oVariable;
+	}
+
+	virtual void*		Serialize(size_t& iSize) { iSize = sizeof(C); return &m_oVariable; }
+	virtual void		Unserialize(void* pValue) { m_oVariable = *(C*)pValue; }
+
+public:
+	C					m_oVariable;
+};
+
 class CNetwork
 {
 public:
@@ -156,6 +261,9 @@ public:
 	static void				Deinitialize();
 
 	static void				RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...);
+	static void				RegisterNetworkVariable(CNetworkedVariableBase* pVariable);
+	static void				DeregisterNetworkVariable(CNetworkedVariableBase* pVariable);
+	static void				UpdateNetworkVariables(int iClient, bool bForceAll = false);
 
 	static void				CreateHost(int iPort, INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect);
 	static void				ConnectToHost(const char* pszHost, int iPort);
@@ -183,6 +291,7 @@ protected:
 	static INetworkListener* s_pClientListener;
 	static INetworkListener::Callback s_pfnClientConnect;
 	static INetworkListener::Callback s_pfnClientDisconnect;
+	static std::vector<CNetworkedVariableBase*> s_apNetworkedVariables;
 };
 
 #endif

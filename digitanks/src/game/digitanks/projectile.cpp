@@ -9,6 +9,9 @@
 #include "dt_camera.h"
 #include "dt_renderer.h"
 
+NETVAR_TABLE_BEGIN(CProjectile);
+NETVAR_TABLE_END();
+
 CProjectile::CProjectile()
 {
 	m_flTimeCreated = DigitanksGame()?DigitanksGame()->GetGameTime():0;
@@ -207,10 +210,22 @@ size_t CProjectile::CreateParticleSystem()
 	return CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
 }
 
+NETVAR_TABLE_BEGIN(CShell);
+NETVAR_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CArtilleryShell);
+NETVAR_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CInfantryFlak);
+NETVAR_TABLE_END();
+
 size_t CInfantryFlak::CreateParticleSystem()
 {
 	return ~0;
 }
+
+NETVAR_TABLE_BEGIN(CTorpedo);
+NETVAR_TABLE_END();
 
 CTorpedo::CTorpedo()
 {

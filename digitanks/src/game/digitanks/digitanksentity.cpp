@@ -9,6 +9,9 @@
 
 #include "digitanksgame.h"
 
+NETVAR_TABLE_BEGIN(CDigitanksEntity);
+NETVAR_TABLE_END();
+
 void CDigitanksEntity::Spawn()
 {
 	BaseClass::Spawn();

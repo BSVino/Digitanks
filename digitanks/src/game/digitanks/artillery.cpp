@@ -11,6 +11,9 @@
 #include "digitanksgame.h"
 #include "projectile.h"
 
+NETVAR_TABLE_BEGIN(CArtillery);
+NETVAR_TABLE_END();
+
 CArtillery::CArtillery()
 {
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;

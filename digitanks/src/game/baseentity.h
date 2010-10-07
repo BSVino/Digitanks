@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include <common.h>
+#include <network/network.h>
 
 #include "entityhandle.h"
 
@@ -39,6 +40,23 @@ static void RegisterCallback##entity() \
 } \
  \
 virtual const char* GetClassName() { return #entity; } \
+virtual void RegisterNetworkVariables(); \
+
+#define NETVAR_TABLE_BEGIN(entity) \
+void entity::RegisterNetworkVariables() \
+{ \
+	BaseClass::RegisterNetworkVariables(); \
+
+#define NETVAR_TABLE_BEGIN_NOBASE(entity) \
+void entity::RegisterNetworkVariables() \
+{ \
+
+#define NETVAR_DEFINE(type, name) \
+	name.SetName(#name); \
+	name.SetParent(this); \
+
+#define NETVAR_TABLE_END() \
+} \
 
 class CBaseEntity
 {
@@ -133,6 +151,10 @@ public:
 	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
 	virtual void							SetSpawnSeed(size_t iSpawnSeed) { m_iSpawnSeed = iSpawnSeed; }
 
+	void									RegisterNetworkVariable(class CNetworkedVariableBase* pVariable);
+	void									DeregisterNetworkVariable(class CNetworkedVariableBase* pVariable);
+	CNetworkedVariableBase*					GetNetworkVariable(const char* pszName);
+
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
 	static CBaseEntity*						GetEntityNumber(size_t i);
@@ -176,6 +198,8 @@ protected:
 	size_t									m_iModel;
 
 	size_t									m_iSpawnSeed;
+
+	std::map<std::string, class CNetworkedVariableBase*>	m_apNetworkVariables;
 
 private:
 	static std::map<size_t, CBaseEntity*>	s_apEntityList;
