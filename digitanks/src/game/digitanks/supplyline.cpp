@@ -28,6 +28,9 @@ void CSupplyLine::Spawn()
 
 void CSupplyLine::SetEntities(CSupplier* pSupplier, CBaseEntity* pEntity)
 {
+	if (pSupplier == m_hSupplier && pEntity == m_hEntity)
+		return;
+
 	pSupplier->GetTeam()->AddEntity(this);
 
 	m_hSupplier = pSupplier;

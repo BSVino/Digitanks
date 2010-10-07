@@ -113,6 +113,9 @@ public:
 	virtual void				StartTurn();
 	virtual void				EndTurn();
 
+	void						ManageSupplyLine();
+	void						ManageSupplyLine(class CNetworkParameters* p);
+
 	virtual CDigitank*			FindClosestVisibleEnemyTank(bool bInRange = false);
 
 	Vector						GetPreviewMove() const { return m_vecPreviewMove; };

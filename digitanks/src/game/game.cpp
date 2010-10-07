@@ -222,6 +222,8 @@ void CGame::OnDeleted(CBaseEntity* pEntity)
 
 CEntityHandle<CBaseEntity> CGame::Create(const char* pszEntityName)
 {
+	assert(CNetwork::IsHost());
+
 	if (!CNetwork::ShouldRunClientFunction())
 		return CEntityHandle<CBaseEntity>();
 

@@ -753,6 +753,9 @@ void CSupplier::UpdateTendrils()
 		return;
 	}
 
+	if (Game()->IsLoading())
+		return;
+
 	size_t iRadius = (size_t)GetDataFlowRadius();
 	while (m_aTendrils.size() < iRadius)
 	{

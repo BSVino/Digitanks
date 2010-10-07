@@ -479,13 +479,7 @@ void CDigitank::StartTurn()
 {
 	BaseClass::StartTurn();
 
-	m_hSupplier = CSupplier::FindClosestSupplier(this);
-
-	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
-		m_hSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
-
-	if (m_hSupplyLine != NULL && m_hSupplier != NULL)
-		m_hSupplyLine->SetEntities(m_hSupplier, this);
+	ManageSupplyLine();
 
 	m_flTotalPower = m_flStartingPower;
 	m_flMovementPower = m_flAttackPower = m_flDefensePower = 0;
@@ -549,6 +543,36 @@ void CDigitank::EndTurn()
 
 	m_flDefensePower = m_flTotalPower;
 	m_flTotalPower = 0;
+}
+
+void CDigitank::ManageSupplyLine()
+{
+	if (!CNetwork::IsHost())
+		return;
+
+	CSupplier* pSupplier = CSupplier::FindClosestSupplier(this);
+	CSupplyLine* pSupplyLine = m_hSupplyLine;
+
+	if (pSupplyLine == NULL && pSupplier != NULL)
+		pSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = pSupplier?pSupplier->GetHandle():~0;
+	p.ui3 = pSupplyLine?pSupplyLine->GetHandle():~0;
+
+	CNetwork::CallFunction(-1, "ManageSupplyLine", &p);
+
+	ManageSupplyLine(&p);
+}
+
+void CDigitank::ManageSupplyLine(CNetworkParameters* p)
+{
+	m_hSupplier = CEntityHandle<CSupplier>(p->ui2);
+	m_hSupplyLine = CEntityHandle<CSupplyLine>(p->ui3);
+
+	if (m_hSupplyLine != NULL && m_hSupplier != NULL)
+		m_hSupplyLine->SetEntities(m_hSupplier, this);
 }
 
 CDigitank* CDigitank::FindClosestVisibleEnemyTank(bool bInRange)

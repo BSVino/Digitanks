@@ -93,7 +93,6 @@ public:
 
 	inline C* GetPointer() const
 	{
-		assert(CBaseEntity::GetEntity(m_iHandle));
 		return dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle));
 	}
 

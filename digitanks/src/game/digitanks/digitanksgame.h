@@ -134,6 +134,7 @@ public:
 
 	NET_CALLBACK(CDigitanksGame, SetCurrentTeam);
 
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, ManageSupplyLine);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredMove);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredMove);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredTurn);
