@@ -234,7 +234,7 @@ CEntityHandle<CBaseEntity> CGame::Create(const char* pszEntityName)
 
 	CEntityHandle<CBaseEntity> hEntity(CreateEntity(iRegisteredEntity));
 
-	CNetwork::CallFunction(-1, "CreateEntity", iRegisteredEntity, hEntity->GetHandle(), hEntity->GetSpawnSeed());
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "CreateEntity", iRegisteredEntity, hEntity->GetHandle(), hEntity->GetSpawnSeed());
 
 	return hEntity;
 }
@@ -261,7 +261,7 @@ void CGame::Delete(CBaseEntity* pEntity)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	CNetwork::CallFunction(-1, "DestroyEntity", pEntity->GetHandle());
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "DestroyEntity", pEntity->GetHandle());
 
 	CNetworkParameters p;
 	p.i1 = (int)pEntity->GetHandle();

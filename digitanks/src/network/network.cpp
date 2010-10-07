@@ -1,6 +1,7 @@
 #include "network.h"
 
 #include <enet/enet.h>
+#include <assert.h>
 
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
@@ -258,20 +259,25 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 
 	if (g_pServer)
 	{
-		if (iClient == -1)
+		assert(iClient != NETWORK_TOSERVER);
+		if (iClient == NETWORK_TOCLIENTS || iClient == NETWORK_TOEVERYONE)
 		{
 			for (size_t i = 0; i < g_apServerPeers.size(); i++)
 				enet_peer_send(g_apServerPeers[i], 0, pPacket);
 		}
-		else
+		else if (iClient >= 0)
 			enet_peer_send(g_apServerPeers[iClient], 0, pPacket);
 
 		enet_host_flush(g_pServer);
 	}
 	else
 	{
-		enet_peer_send(g_pClientPeer, 0, pPacket);
-		enet_host_flush(g_pClient);
+		assert(iClient != NETWORK_TOCLIENTS);
+		if (iClient == NETWORK_TOSERVER || iClient == NETWORK_TOEVERYONE)
+		{
+			enet_peer_send(g_pClientPeer, 0, pPacket);
+			enet_host_flush(g_pClient);
+		}
 	}
 }
 

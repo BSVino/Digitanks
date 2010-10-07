@@ -422,7 +422,7 @@ void CDigitanksGame::SetupEntities()
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	CNetwork::CallFunction(-1, "SetupEntities");
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetupEntities");
 
 	CNetworkParameters p;
 	SetupEntities(&p);
@@ -451,7 +451,7 @@ void CDigitanksGame::StartGame()
 
 	GetCurrentTeam()->StartTurn();
 
-	CNetwork::CallFunction(-1, "SetCurrentTeam", 0);
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetCurrentTeam", 0);
 
 	EnterGame(NULL);
 
@@ -464,7 +464,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		return;
 
 	if (CNetwork::IsHost())
-		CNetwork::CallFunction(-1, "EnterGame");
+		CNetwork::CallFunction(NETWORK_TOCLIENTS, "EnterGame");
 
 	for (size_t i = 0; i < GetNumTeams(); i++)
 		GetDigitanksTeam(i)->CountScore();
@@ -716,7 +716,7 @@ void CDigitanksGame::SetDesiredAim()
 
 void CDigitanksGame::EndTurn()
 {
-	CNetwork::CallFunction(-1, "EndTurn");
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "EndTurn");
 
 	EndTurn(NULL);
 }
@@ -754,7 +754,7 @@ void CDigitanksGame::StartTurn()
 		m_iPowerups++;
 	}
 
-	CNetwork::CallFunction(-1, "StartTurn");
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "StartTurn");
 
 	StartTurn(NULL);
 }

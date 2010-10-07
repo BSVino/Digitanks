@@ -143,6 +143,13 @@ enum
 	NET_DATA,
 };
 
+enum
+{
+	NETWORK_TOCLIENTS	= -1,	// This message is replicated to all clients when run on the server.
+	NETWORK_TOSERVER	= -2,	// This message is a command sent to the server.
+	NETWORK_TOEVERYONE	= -3,	// This message is all of the above.
+};
+
 class CNetwork
 {
 public:

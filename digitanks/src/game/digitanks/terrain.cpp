@@ -773,6 +773,13 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 
 	Vector vecOrigin = pInflictor->GetOrigin();
 
+	m_avecCraterMarks.push_back(vecOrigin - Vector(0, flRadius, 0));
+	if (m_avecCraterMarks.size() > 10)
+		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
+
+	if (!CNetwork::IsHost())
+		return;
+
 	int iX = WorldToArraySpace(vecOrigin.x);
 	int iZ = WorldToArraySpace(vecOrigin.z);
 
@@ -840,10 +847,6 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 		return;
 
 	UpdateTerrainData();
-
-	m_avecCraterMarks.push_back(vecOrigin - Vector(0, flRadius, 0));
-	if (m_avecCraterMarks.size() > 10)
-		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
 }
 
 bool CTerrain::Collide(const Vector& s1, const Vector& s2, Vector &vecHit)
@@ -887,7 +890,7 @@ void CTerrain::UpdateTerrainData()
 			}
 
 			if (CNetwork::ShouldReplicateClientFunction())
-				CNetwork::CallFunctionParameters(-1, "TerrainData", &p);
+				CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "TerrainData", &p);
 
 			TerrainData(&p);
 		}
