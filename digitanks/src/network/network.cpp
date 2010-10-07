@@ -15,6 +15,7 @@ static ENetPeer* g_pClientPeer = NULL;
 static ENetHost* g_pServer = NULL;
 static std::vector<ENetPeer*> g_apServerPeers;
 static bool g_bIsRunningClientFunctions = false;
+static size_t g_iCurrentClient = 0;
 
 void CNetwork::Initialize()
 {
@@ -173,6 +174,16 @@ void CNetwork::Think()
 
 		case ENET_EVENT_TYPE_RECEIVE:
 			g_bIsRunningClientFunctions = true;
+
+			for (size_t i = 0; i < g_apServerPeers.size(); i++)
+			{
+				if (oEvent.peer == g_apServerPeers[i])
+				{
+					g_iCurrentClient = i;
+					break;
+				}
+			}
+
 			CallbackFunction((const char*)oEvent.packet->data, (CNetworkParameters*)(oEvent.packet->data+strlen((const char*)oEvent.packet->data)+1));
 			g_bIsRunningClientFunctions = false;
 			enet_packet_destroy(oEvent.packet);
@@ -263,7 +274,12 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 		if (iClient == NETWORK_TOCLIENTS || iClient == NETWORK_TOEVERYONE)
 		{
 			for (size_t i = 0; i < g_apServerPeers.size(); i++)
+			{
+				if (g_bIsRunningClientFunctions && g_iCurrentClient == i)
+					continue;
+
 				enet_peer_send(g_apServerPeers[i], 0, pPacket);
+			}
 		}
 		else if (iClient >= 0)
 			enet_peer_send(g_apServerPeers[iClient], 0, pPacket);

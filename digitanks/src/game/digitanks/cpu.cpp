@@ -375,32 +375,50 @@ void CCPU::BeginConstruction()
 	if (IsProducing())
 		return;
 
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.i2 = m_ePreviewStructure;
+	p.fl3 = GetPreviewBuild().x;
+	p.fl4 = GetPreviewBuild().y;
+	p.fl5 = GetPreviewBuild().z;
+
+	if (CNetwork::IsHost())
+		BeginConstruction(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginConstruction", &p);
+}
+
+void CCPU::BeginConstruction(CNetworkParameters* p)
+{
+	unittype_t ePreviewStructure = (unittype_t)p->i2;
+	Vector vecPreview(p->fl3, p->fl4, p->fl5);
+
 	if (m_hConstructing != NULL)
 		CancelConstruction();
 
-	if (m_ePreviewStructure == STRUCTURE_MINIBUFFER)
+	if (ePreviewStructure == STRUCTURE_MINIBUFFER)
 	{
 		m_hConstructing = Game()->Create<CMiniBuffer>("CMiniBuffer");
 	}
-	else if (m_ePreviewStructure == STRUCTURE_BUFFER)
+	else if (ePreviewStructure == STRUCTURE_BUFFER)
 	{
 		if (!GetDigitanksTeam()->CanBuildBuffers())
 			return;
 
 		m_hConstructing = Game()->Create<CBuffer>("CBuffer");
 	}
-	else if (m_ePreviewStructure == STRUCTURE_BATTERY)
+	else if (ePreviewStructure == STRUCTURE_BATTERY)
 	{
 		m_hConstructing = Game()->Create<CBattery>("CBattery");
 	}
-	else if (m_ePreviewStructure == STRUCTURE_PSU)
+	else if (ePreviewStructure == STRUCTURE_PSU)
 	{
 		if (!GetDigitanksTeam()->CanBuildPSUs())
 			return;
 
 		m_hConstructing = Game()->Create<CCollector>("CCollector");
 	}
-	else if (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER)
+	else if (ePreviewStructure == STRUCTURE_INFANTRYLOADER)
 	{
 		if (!GetDigitanksTeam()->CanBuildInfantryLoaders())
 			return;
@@ -411,7 +429,7 @@ void CCPU::BeginConstruction()
 		if (pLoader)
 			pLoader->SetBuildUnit(BUILDUNIT_INFANTRY);
 	}
-	else if (m_ePreviewStructure == STRUCTURE_TANKLOADER)
+	else if (ePreviewStructure == STRUCTURE_TANKLOADER)
 	{
 		if (!GetDigitanksTeam()->CanBuildTankLoaders())
 			return;
@@ -422,7 +440,7 @@ void CCPU::BeginConstruction()
 		if (pLoader)
 			pLoader->SetBuildUnit(BUILDUNIT_TANK);
 	}
-	else if (m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER)
+	else if (ePreviewStructure == STRUCTURE_ARTILLERYLOADER)
 	{
 		if (!GetDigitanksTeam()->CanBuildArtilleryLoaders())
 			return;
@@ -436,13 +454,13 @@ void CCPU::BeginConstruction()
 
 	m_hConstructing->BeginConstruction();
 	GetTeam()->AddEntity(m_hConstructing);
-	m_hConstructing->SetSupplier(FindClosestSupplier(GetPreviewBuild(), GetTeam()));
+	m_hConstructing->SetSupplier(FindClosestSupplier(vecPreview, GetTeam()));
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
 
-	m_hConstructing->SetOrigin(GetPreviewBuild());
-	if (m_ePreviewStructure == STRUCTURE_PSU || m_ePreviewStructure == STRUCTURE_BATTERY)
+	m_hConstructing->SetOrigin(vecPreview);
+	if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
 	{
-		Vector vecPSU = GetPreviewBuild();
+		Vector vecPSU = vecPreview;
 
 		CResource* pResource = CBaseEntity::FindClosest<CResource>(vecPSU);
 
@@ -460,7 +478,7 @@ void CCPU::BeginConstruction()
 	CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
 	if (pCollector)
 	{
-		pCollector->SetResource(CResource::FindClosestResource(GetPreviewBuild(), pCollector->GetResourceType()));
+		pCollector->SetResource(CResource::FindClosestResource(vecPreview, pCollector->GetResourceType()));
 		pCollector->GetResource()->SetCollector(pCollector);
 	}
 
@@ -468,7 +486,7 @@ void CCPU::BeginConstruction()
 
 	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
 
-	if (m_ePreviewStructure == STRUCTURE_BUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)
+	if (ePreviewStructure == STRUCTURE_BUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)
 	{
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BUFFER);
 		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
@@ -477,13 +495,13 @@ void CCPU::BeginConstruction()
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
 
-	if (m_ePreviewStructure == STRUCTURE_PSU && iTutorial == CInstructor::TUTORIAL_PSU)
+	if (ePreviewStructure == STRUCTURE_PSU && iTutorial == CInstructor::TUTORIAL_PSU)
 	{
 		// Make sure it's done next turn.
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
 
-	if (iTutorial == CInstructor::TUTORIAL_LOADER && (m_ePreviewStructure == STRUCTURE_INFANTRYLOADER || m_ePreviewStructure == STRUCTURE_TANKLOADER || m_ePreviewStructure == STRUCTURE_ARTILLERYLOADER))
+	if (iTutorial == CInstructor::TUTORIAL_LOADER && (ePreviewStructure == STRUCTURE_INFANTRYLOADER || ePreviewStructure == STRUCTURE_TANKLOADER || ePreviewStructure == STRUCTURE_ARTILLERYLOADER))
 	{
 		// Make sure it's done next turn.
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());

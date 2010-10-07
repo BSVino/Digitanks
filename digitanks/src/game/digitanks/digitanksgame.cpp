@@ -75,6 +75,9 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 0);
 	CNetwork::RegisterFunction("UpdatesData", this, UpdatesDataCallback, 0);
 	CNetwork::RegisterFunction("TeamUpdatesData", this, TeamUpdatesDataCallback, 0);
+
+	// CPU
+	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)

@@ -157,6 +157,8 @@ public:
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, TeamUpdatesData);
 
+	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginConstruction);
+
 	virtual void			CreateRenderer();
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
 
