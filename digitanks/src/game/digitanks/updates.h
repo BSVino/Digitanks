@@ -32,6 +32,9 @@ class CUpdateGrid : public CBaseEntity
 public:
 	void			SetupStandardUpdates();
 
+	virtual void	ClientUpdate(int iClient);
+	void			UpdatesData(class CNetworkParameters* p);
+
 public:
 	CUpdateItem		m_aUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];
 

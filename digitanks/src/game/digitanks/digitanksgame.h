@@ -129,9 +129,9 @@ public:
 	void					SetControlMode(controlmode_t eMode);
 
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
-	NET_CALLBACK(CDigitanksGame, SetTerrain);
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
+	NET_CALLBACK(CDigitanksGame, SetGlobals);
 	NET_CALLBACK(CDigitanksGame, SetCurrentTeam);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, ManageSupplyLine);
@@ -152,6 +152,10 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteDefense);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteMovement);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Speak);
+
+	NET_CALLBACK_ENTITY(CDigitanksGame, CUpdateGrid, UpdatesData);
+
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, TeamUpdatesData);
 
 	virtual void			CreateRenderer();
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();

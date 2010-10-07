@@ -21,6 +21,9 @@ public:
 public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
+	virtual void				ClientUpdate(int iClient);
+	void						TeamUpdatesData(class CNetworkParameters* p);
+
 	class CSelectable*			GetPrimarySelection();
 	class CDigitank*			GetPrimarySelectionTank();
 	class CStructure*			GetPrimarySelectionStructure();

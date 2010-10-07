@@ -140,7 +140,6 @@ enum
 	NET_INT,
 	NET_FLOAT,
 	NET_HANDLE,
-	NET_DATA,
 };
 
 enum

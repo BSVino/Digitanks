@@ -1,5 +1,7 @@
 #include "updates.h"
 
+#include <network/network.h>
+
 #include "digitanksgame.h"
 
 void CUpdateGrid::SetupStandardUpdates()
@@ -491,6 +493,32 @@ void CUpdateGrid::SetupStandardUpdates()
 				m_iHighestY = j;
 		}
 	}
+}
+
+void CUpdateGrid::ClientUpdate(int iClient)
+{
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.i2 = m_iLowestX;
+	p.i3 = m_iHighestX;
+	p.i4 = m_iLowestY;
+	p.i5 = m_iHighestY;
+
+	p.CreateExtraData(sizeof(m_aUpdates));
+
+	memcpy(p.m_pExtraData, &m_aUpdates[0][0], sizeof(m_aUpdates));
+
+	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "UpdatesData", &p);
+}
+
+void CUpdateGrid::UpdatesData(CNetworkParameters* p)
+{
+	m_iLowestX = p->i2;
+	m_iHighestX = p->i3;
+	m_iLowestY = p->i4;
+	m_iHighestY = p->i5;
+
+	memcpy(&m_aUpdates[0][0], p->m_pExtraData, sizeof(m_aUpdates));
 }
 
 std::wstring CUpdateItem::GetName()

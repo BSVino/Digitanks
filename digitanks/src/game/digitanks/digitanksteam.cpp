@@ -44,6 +44,23 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 		m_hPrimaryCPU = pCPU;
 }
 
+void CDigitanksTeam::ClientUpdate(int iClient)
+{
+	BaseClass::ClientUpdate(iClient);
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.CreateExtraData(sizeof(m_abUpdates));
+	memcpy(p.m_pExtraData, &m_abUpdates[0][0], sizeof(m_abUpdates));
+
+	CNetwork::CallFunctionParameters(iClient, "TeamUpdatesData", &p);
+}
+
+void CDigitanksTeam::TeamUpdatesData(CNetworkParameters* p)
+{
+	memcpy(&m_abUpdates[0][0], p->m_pExtraData, sizeof(m_abUpdates));
+}
+
 CSelectable* CDigitanksTeam::GetPrimarySelection()
 {
 	if (m_aiCurrentSelection.size() == 0)

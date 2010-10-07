@@ -54,7 +54,7 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
 	CNetwork::RegisterFunction("ManageSupplyLine", this, ManageSupplyLineCallback, 3, NET_HANDLE, NET_HANDLE, NET_HANDLE);
 	CNetwork::RegisterFunction("SetCurrentTeam", this, SetCurrentTeamCallback, 1, NET_INT);
-	CNetwork::RegisterFunction("SetTerrain", this, SetTerrainCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetGlobals", this, SetGlobalsCallback, 2, NET_HANDLE, NET_HANDLE);
 	CNetwork::RegisterFunction("SetDesiredMove", this, SetDesiredMoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("CancelDesiredMove", this, CancelDesiredMoveCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetDesiredTurn", this, SetDesiredTurnCallback, 2, NET_HANDLE, NET_FLOAT);
@@ -72,12 +72,14 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("PromoteDefense", this, PromoteDefenseCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
-	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 3, NET_INT, NET_INT, NET_DATA);
+	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 0);
+	CNetwork::RegisterFunction("UpdatesData", this, UpdatesDataCallback, 0);
+	CNetwork::RegisterFunction("TeamUpdatesData", this, TeamUpdatesDataCallback, 0);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
 {
-	CNetwork::CallFunction(p->i2, "SetTerrain", GetTerrain()->GetHandle());
+	CNetwork::CallFunction(p->i2, "SetGlobals", GetTerrain()->GetHandle(), GetUpdateGrid()->GetHandle());
 
 	GetTerrain()->ResyncClientTerrainData(p->i2);
 
@@ -999,14 +1001,15 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 }
 
-void CDigitanksGame::SetTerrain(CNetworkParameters* p)
-{
-	m_hTerrain = CEntityHandle<CTerrain>(p->ui1);
-}
-
 void CDigitanksGame::TerrainData(class CNetworkParameters* p)
 {
 	GetTerrain()->TerrainData(p);
+}
+
+void CDigitanksGame::SetGlobals(CNetworkParameters* p)
+{
+	m_hTerrain = CEntityHandle<CTerrain>(p->ui1);
+	m_hUpdates = CEntityHandle<CUpdateGrid>(p->ui2);
 }
 
 void CDigitanksGame::SetCurrentTeam(CNetworkParameters* p)
