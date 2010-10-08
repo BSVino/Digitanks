@@ -31,10 +31,10 @@ public:
 	static float					MinimumIntegrity() { return 0.25f; }
 
 protected:
-	CEntityHandle<CSupplier>		m_hSupplier;
-	CEntityHandle<CBaseEntity>		m_hEntity;
+	CNetworkedHandle<CSupplier>		m_hSupplier;
+	CNetworkedHandle<CBaseEntity>	m_hEntity;
 
-	float							m_flIntegrity;
+	CNetworkedVariable<float>		m_flIntegrity;
 	bool							m_bDelayRecharge;
 
 	static size_t					s_iSupplyBeam;

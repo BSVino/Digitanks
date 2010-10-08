@@ -81,6 +81,10 @@ void CDigitanksGame::RegisterNetworkFunctions()
 
 	// CStructure
 	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
+
+	// CSupplier
+	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
+	CNetwork::RegisterFunction("RemoveChild", this, RemoveChildCallback, 2, NET_HANDLE, NET_HANDLE);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)

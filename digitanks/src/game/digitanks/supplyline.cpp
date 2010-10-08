@@ -12,6 +12,9 @@
 size_t CSupplyLine::s_iSupplyBeam = 0;
 
 NETVAR_TABLE_BEGIN(CSupplyLine);
+	NETVAR_DEFINE(CEntityHandle<CSupplier>, m_hSupplier);
+	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_hEntity);
+	NETVAR_DEFINE(float, m_flIntegrity);
 NETVAR_TABLE_END();
 
 void CSupplyLine::Precache()
@@ -83,6 +86,9 @@ void CSupplyLine::StartTurn()
 	if (m_hSupplier == NULL)
 		return;
 
+	if (!CNetwork::IsHost())
+		return;
+
 	if (!m_bDelayRecharge)
 	{
 		m_flIntegrity += 0.2f;
@@ -95,6 +101,9 @@ void CSupplyLine::StartTurn()
 
 void CSupplyLine::Intercept(float flIntercept)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_flIntegrity -= flIntercept;
 	if (m_flIntegrity < 0)
 		m_flIntegrity = 0;

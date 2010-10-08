@@ -844,15 +844,57 @@ void CSupplier::BeginTendrilGrowth()
 
 void CSupplier::AddChild(CStructure* pChild)
 {
-	m_ahChildren.push_back(pChild);
+	if (!CNetwork::IsHost())
+		return;
+
+	if (!pChild)
+		return;
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = pChild->GetHandle();
+
+	AddChild(&p);
+
+	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "AddChild", &p);
+}
+
+void CSupplier::AddChild(CNetworkParameters* p)
+{
+	CEntityHandle<CStructure> hChild(p->ui2);
+
+	// Just in case of dupes.
+	RemoveChild(p);
+
+	m_ahChildren.push_back(hChild.GetPointer());
 }
 
 void CSupplier::RemoveChild(CStructure* pChild)
 {
+	if (!CNetwork::IsHost())
+		return;
+
+	if (!pChild)
+		return;
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = pChild->GetHandle();
+
+	AddChild(&p);
+
+	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "RemoveChild", &p);
+}
+
+void CSupplier::RemoveChild(CNetworkParameters* p)
+{
+	CEntityHandle<CStructure> hChild(p->ui2);
+
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{
-		if (m_ahChildren[i] == pChild)
+		if (m_ahChildren[i] == hChild)
 			m_ahChildren.erase(m_ahChildren.begin()+i);
+		// Don't return as soon as we find it in case of dupes.
 	}
 }
 

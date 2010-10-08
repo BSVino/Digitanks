@@ -176,7 +176,9 @@ public:
 	void						BeginTendrilGrowth();
 
 	void						AddChild(CStructure* pChild);
+	void						AddChild(CNetworkParameters* p);
 	void						RemoveChild(CStructure* pChild);
+	void						RemoveChild(CNetworkParameters* p);
 	size_t						GetNumChildren() { return m_ahChildren.size(); };
 	CStructure*					GetChild(size_t i) { return m_ahChildren[i]; };
 
