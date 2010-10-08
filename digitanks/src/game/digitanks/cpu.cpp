@@ -32,6 +32,7 @@ size_t CCPU::s_iInstallBandwidthIcon = 0;
 size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 
 NETVAR_TABLE_BEGIN(CCPU);
+	NETVAR_DEFINE(CEntityHandle<CStructure>, m_hConstructing);
 NETVAR_TABLE_END();
 
 void CCPU::Spawn()

@@ -281,7 +281,7 @@ public:
 
 	static void				CallFunction(int iClient, const char* pszName, ...);
 	static void				CallFunctionParameters(int iClient, const char* pszName, CNetworkParameters* p);
-	static void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p);
+	static void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false);
 	static void				CallbackFunction(const char* pszName, CNetworkParameters* p);
 
 protected:

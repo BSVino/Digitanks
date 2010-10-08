@@ -302,7 +302,7 @@ void CNetwork::CallFunctionParameters(int iClient, const char* pszFunction, CNet
 	CallFunction(iClient, pFunction, p);
 }
 
-void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p)
+void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient)
 {
 	if (!s_bConnected)
 		return;
@@ -326,7 +326,7 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 		{
 			for (size_t i = 0; i < g_apServerPeers.size(); i++)
 			{
-				if (g_bIsRunningClientFunctions && g_iCurrentClient == i)
+				if (g_bIsRunningClientFunctions && bNoCurrentClient && g_iCurrentClient == i)
 					continue;
 
 				enet_peer_send(g_apServerPeers[i], 0, pPacket);
@@ -363,7 +363,7 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 
 	// If I'm host and I got this message from a client, forward it to all of the other clients.
 	if (IsHost())
-		CallFunction(-1, pFunction, p);
+		CallFunction(-1, pFunction, p, true);
 }
 
 CNetworkedVariableBase::CNetworkedVariableBase()

@@ -63,7 +63,7 @@ protected:
 	Vector						m_vecPreviewBuild;
 
 	unittype_t					m_ePreviewStructure;
-	CEntityHandle<CStructure>	m_hConstructing;
+	CNetworkedHandle<CStructure>	m_hConstructing;
 
 	bool						m_bProducing;
 	size_t						m_iProduction;
