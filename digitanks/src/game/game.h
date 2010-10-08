@@ -51,7 +51,6 @@ public:
 	NET_CALLBACK(CGame,							UpdateValue);
 
 	NET_CALLBACK(CGame,							ClientInfo);
-	NET_CALLBACK(CGame,							SetOrigin);
 	NET_CALLBACK(CGame,							SetAngles);
 	NET_CALLBACK(CGame,							AddTeam);
 

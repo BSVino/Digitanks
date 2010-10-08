@@ -20,6 +20,11 @@
 #include <GL/glew.h>
 
 NETVAR_TABLE_BEGIN(CStructure);
+	NETVAR_DEFINE(bool, m_bConstructing);
+	NETVAR_DEFINE(size_t, m_iProductionToConstruct);
+
+	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplier);
+	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
 NETVAR_TABLE_END();
 
 CStructure::CStructure()
@@ -423,6 +428,9 @@ bool CStructure::NeedsOrders()
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_hSupplier = pSupplier;
 
 	if (m_hSupplyLine == NULL && m_hSupplier != NULL)

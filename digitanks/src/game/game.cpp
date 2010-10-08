@@ -53,7 +53,6 @@ void CGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
 	CNetwork::RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
-	CNetwork::RegisterFunction("SetOrigin", this, SetOriginCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
@@ -296,6 +295,8 @@ void CGame::DestroyEntity(CNetworkParameters* p)
 	OnDeleted(pEntity);
 	pEntity->SetDeleted();
 	m_ahDeletedEntities.push_back(pEntity);
+
+	pEntity->DeregisterNetworkVariables();
 }
 
 void CGame::UpdateValue(CNetworkParameters* p)
@@ -318,14 +319,6 @@ void CGame::ClientInfo(CNetworkParameters* p)
 	m_iClient = p->i1;
 	m_flGameTime = m_flSimulationTime = p->fl2;
 	s_hLocalTeam = NULL;
-}
-
-void CGame::SetOrigin(CNetworkParameters* p)
-{
-	CEntityHandle<CBaseEntity> hEntity(p->ui1);
-
-	if (hEntity != NULL)
-		hEntity->SetOrigin(Vector(p->fl2, p->fl3, p->fl4));
 }
 
 void CGame::SetAngles(CNetworkParameters* p)

@@ -372,12 +372,6 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 	m_pParent = NULL;
 }
 
-CNetworkedVariableBase::~CNetworkedVariableBase()
-{
-	if (m_pParent)
-		m_pParent->DeregisterNetworkVariable(this);
-}
-
 void CNetworkedVariableBase::SetParent(CBaseEntity* pParent)
 {
 	m_pParent = pParent;

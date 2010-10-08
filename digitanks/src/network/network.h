@@ -6,6 +6,7 @@
 #include <string>
 
 #include <color.h>
+#include <vector.h>
 
 #define NET_CALLBACK(type, pfn) \
 	virtual void pfn(CNetworkParameters* p); \
@@ -153,7 +154,6 @@ class CNetworkedVariableBase
 {
 public:
 	CNetworkedVariableBase();
-	~CNetworkedVariableBase();
 
 public:
 	bool				IsDirty() { return m_bDirty; }
@@ -252,6 +252,38 @@ public:
 
 public:
 	C					m_oVariable;
+};
+
+class CNetworkedVector : public CNetworkedVariable<Vector>
+{
+public:
+	inline const CNetworkedVector& operator=(const Vector v)
+	{
+		m_bDirty = true;
+		m_oVariable = v;
+		return *this;
+	}
+
+	inline operator Vector() const
+	{
+		return m_oVariable;
+	}
+};
+
+class CNetworkedEAngle : public CNetworkedVariable<EAngle>
+{
+public:
+	inline const CNetworkedEAngle& operator=(const EAngle v)
+	{
+		m_bDirty = true;
+		m_oVariable = v;
+		return *this;
+	}
+
+	inline operator EAngle() const
+	{
+		return m_oVariable;
+	}
 };
 
 class CNetwork

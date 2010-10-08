@@ -12,6 +12,7 @@ size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
 NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
+	NETVAR_DEFINE(Vector, m_vecOrigin);
 NETVAR_TABLE_END();
 
 CBaseEntity::CBaseEntity()
@@ -101,7 +102,6 @@ size_t CBaseEntity::GetNumEntities()
 
 void CBaseEntity::ClientUpdate(int iClient)
 {
-	CNetwork::CallFunction(iClient, "SetOrigin", GetHandle(), GetOrigin().x, GetOrigin().y, GetOrigin().z);
 	CNetwork::CallFunction(iClient, "SetAngles", GetHandle(), GetAngles().p, GetAngles().y, GetAngles().r);
 }
 
@@ -209,11 +209,25 @@ void CBaseEntity::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
 	m_apNetworkVariables[pVariable->GetName()] = pVariable;
 }
 
+void CBaseEntity::DeregisterNetworkVariables()
+{
+	static std::map<std::string, CNetworkedVariableBase*>::iterator it;
+
+	it = m_apNetworkVariables.begin();
+
+	while (it != m_apNetworkVariables.end())
+	{
+		DeregisterNetworkVariable(it->second);
+
+		it++;
+	}
+}
+
 void CBaseEntity::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
 {
 	CNetwork::DeregisterNetworkVariable(pVariable);
 
-	// Don't bother removing it from the list, this entity is about to die anyway.
+	// Don't bother removing it from the entity list, this entity is about to die anyway.
 }
 
 CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)

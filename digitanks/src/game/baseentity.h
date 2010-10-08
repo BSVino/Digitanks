@@ -153,6 +153,7 @@ public:
 
 	void									RegisterNetworkVariable(class CNetworkedVariableBase* pVariable);
 	void									DeregisterNetworkVariable(class CNetworkedVariableBase* pVariable);
+	void									DeregisterNetworkVariables();
 	CNetworkedVariableBase*					GetNetworkVariable(const char* pszName);
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
@@ -172,7 +173,7 @@ public:
 	static T*								FindClosest(Vector vecPoint, CBaseEntity* pFurther = NULL);
 
 protected:
-	Vector									m_vecOrigin;
+	CNetworkedVector						m_vecOrigin;
 	Vector									m_vecLastOrigin;
 	EAngle									m_angAngles;
 	Vector									m_vecVelocity;

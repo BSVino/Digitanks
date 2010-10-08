@@ -100,8 +100,8 @@ public:
 	size_t						GetNumLivingDefenders();
 
 protected:
-	bool						m_bConstructing;
-	size_t						m_iProductionToConstruct;
+	CNetworkedVariable<bool>	m_bConstructing;
+	CNetworkedVariable<size_t>	m_iProductionToConstruct;
 
 	bool						m_bInstalling;
 	updatetype_t				m_eInstallingType;
@@ -111,8 +111,8 @@ protected:
 	bool						m_bUpgrading;
 	size_t						m_iProductionToUpgrade;
 
-	CEntityHandle<CSupplier>		m_hSupplier;
-	CEntityHandle<CSupplyLine>		m_hSupplyLine;
+	CNetworkedHandle<CSupplier>		m_hSupplier;
+	CNetworkedHandle<CSupplyLine>	m_hSupplyLine;
 
 	size_t						m_iFleetSupply;
 	size_t						m_iBandwidth;
