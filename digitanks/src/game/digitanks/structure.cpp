@@ -13,6 +13,7 @@
 #include <ui/instructor.h>
 #include <shaders/shaders.h>
 #include <models/models.h>
+#include <network/network.h>
 
 #include "collector.h"
 #include "loader.h"
@@ -25,6 +26,8 @@ NETVAR_TABLE_BEGIN(CStructure);
 
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplier);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
+
+	NETVAR_DEFINE(float, m_flScaffoldingSize);
 NETVAR_TABLE_END();
 
 CStructure::CStructure()
@@ -187,6 +190,13 @@ void CStructure::BeginConstruction()
 		m_flScaffoldingSize = vecScaffoldingSize.Length()/2;
 	}
 
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "BeginStructureConstruction", GetHandle());
+
+	BeginStructureConstruction(NULL);
+}
+
+void CStructure::BeginStructureConstruction(CNetworkParameters* p)
+{
 	m_flConstructionStartTime = Game()->GetGameTime();
 }
 

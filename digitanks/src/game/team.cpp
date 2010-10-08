@@ -21,21 +21,42 @@ CTeam::~CTeam()
 
 void CTeam::AddEntity(CBaseEntity* pEntity)
 {
+	if (!pEntity)
+		return;
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = pEntity->GetHandle();
+
+	AddEntityToTeam(&p);
+
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "AddEntityToTeam", &p);
+}
+
+void CTeam::AddEntityToTeam(CNetworkParameters* p)
+{
+	CEntityHandle<CTeam> hTeam(p->ui1);
+	CEntityHandle<CBaseEntity> hEntity(p->ui2);
+
+	if (hTeam.GetPointer() == NULL)
+		return;
+
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		// If we're already on this team, forget it.
 		// Calling the OnTeamChange() hooks just to stay on this team can be dangerous.
-		if (pEntity == m_ahMembers[i])
+		if (hEntity == m_ahMembers[i])
 			return;
 	}
 
-	if (pEntity->GetTeam())
-		RemoveEntity(pEntity);
+	if (hEntity->GetTeam())
+		RemoveEntity(hEntity);
 
-	pEntity->SetTeam(this);
-	m_ahMembers.push_back(pEntity);
+	hEntity->SetTeam(this);
+	m_ahMembers.push_back(hEntity);
 
-	OnAddEntity(pEntity);
+	OnAddEntity(hEntity);
 }
 
 void CTeam::RemoveEntity(CBaseEntity* pEntity)
@@ -106,12 +127,4 @@ void CTeam::SetTeamClient(CNetworkParameters* p)
 	
 	if (hTeam.GetPointer() != NULL)
 		hTeam->SetClient(p->i2);
-}
-
-void CTeam::AddEntityToTeam(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-
-	if (hTeam.GetPointer() != NULL)
-		hTeam->AddEntity(CEntityHandle<CBaseEntity>(p->ui2));
 }

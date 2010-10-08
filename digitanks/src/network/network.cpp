@@ -169,6 +169,11 @@ bool CNetwork::IsRunningClientFunctions()
 	return g_bIsRunningClientFunctions;
 }
 
+void CNetwork::SetRunningClientFunctions(bool bRunningClientFunctions)
+{
+	g_bIsRunningClientFunctions = bRunningClientFunctions;
+}
+
 void CNetwork::Disconnect()
 {
 	if (!s_bConnected)

@@ -33,6 +33,7 @@ public:
 	virtual void				PostRender();
 
 	void						BeginConstruction();
+	void						BeginStructureConstruction(CNetworkParameters* p);
 	virtual void				CompleteConstruction();
 	size_t						GetTurnsToConstruct();
 	bool						IsConstructing() { return m_bConstructing; };
@@ -124,7 +125,7 @@ protected:
 	std::map<size_t, size_t>		m_aiUpdatesInstalled;
 
 	size_t						m_iScaffolding;
-	float						m_flScaffoldingSize;
+	CNetworkedVariable<float>	m_flScaffoldingSize;
 
 	float						m_flConstructionStartTime;
 

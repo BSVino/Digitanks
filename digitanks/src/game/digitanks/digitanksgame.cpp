@@ -78,6 +78,9 @@ void CDigitanksGame::RegisterNetworkFunctions()
 
 	// CPU
 	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
+
+	// CStructure
+	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)

@@ -397,6 +397,9 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	if (!CNetwork::IsHost())
 		return;
 
+	// Overload this so that things this function calls get replicated.
+	CNetwork::SetRunningClientFunctions(false);
+
 	unittype_t ePreviewStructure = (unittype_t)p->i2;
 	Vector vecPreview(p->fl3, p->fl4, p->fl5);
 

@@ -304,6 +304,7 @@ public:
 	static bool				IsHost();
 
 	static bool				IsRunningClientFunctions();
+	static void				SetRunningClientFunctions(bool bRunningClientFunctions);
 	static bool				ShouldRunClientFunction() { return IsHost() || IsRunningClientFunctions(); };
 	static bool				ShouldReplicateClientFunction() { return !IsRunningClientFunctions(); };
 
