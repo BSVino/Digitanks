@@ -60,7 +60,7 @@ void entity::RegisterNetworkVariables() \
 
 class CBaseEntity
 {
-	friend class CGame;
+	friend class CGameServer;
 
 	REGISTER_ENTITY_CLASS(CBaseEntity, CBaseEntity);
 
@@ -110,6 +110,7 @@ public:
 	virtual void							OnTeamChange() {};
 
 	virtual void							ClientUpdate(int iClient);
+	virtual void							ClientEnterGame() {};
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	virtual bool							TakesDamage() { return m_bTakeDamage; };

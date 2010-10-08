@@ -64,7 +64,7 @@ public:
 	void						CloseApplication();
 
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
-	class CDigitanksGame*		GetGame() { return m_pDigitanksGame; };
+	class CGameServer*			GetGameServer() { return m_pGameServer; };
 	class CHUD*					GetHUD() { return m_pHUD; };
 	class CInstructor*			GetInstructor();
 	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
@@ -87,7 +87,7 @@ protected:
 	class CDonatePanel*			m_pDonate;
 	class CStoryPanel*			m_pStory;
 
-	class CDigitanksGame*		m_pDigitanksGame;
+	class CGameServer*			m_pGameServer;
 
 	class CHUD*					m_pHUD;
 

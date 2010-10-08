@@ -19,8 +19,8 @@ void CCamera::Think()
 		Vector vecForward, vecRight;
 		AngleVectors(m_angFreeCamera, &vecForward, &vecRight, NULL);
 
-		m_vecFreeCamera += vecForward * m_vecFreeVelocity.x * Game()->GetFrameTime() * 20;
-		m_vecFreeCamera -= vecRight * m_vecFreeVelocity.z * Game()->GetFrameTime() * 20;
+		m_vecFreeCamera += vecForward * m_vecFreeVelocity.x * GameServer()->GetFrameTime() * 20;
+		m_vecFreeCamera -= vecRight * m_vecFreeVelocity.z * GameServer()->GetFrameTime() * 20;
 	}
 }
 

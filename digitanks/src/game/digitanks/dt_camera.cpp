@@ -33,7 +33,7 @@ void CDigitanksCamera::SetTarget(Vector vecTarget)
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecTarget);
 
-	m_flTargetRamp = Game()->GetGameTime();
+	m_flTargetRamp = GameServer()->GetGameTime();
 	m_vecOldTarget = m_vecTarget;
 	m_vecNewTarget = vecTarget;
 	m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
@@ -56,7 +56,7 @@ void CDigitanksCamera::SetDistance(float flDistance)
 	if (flDistance > 300)
 		flDistance = 300;
 
-	m_flDistanceRamp = Game()->GetGameTime();
+	m_flDistanceRamp = GameServer()->GetGameTime();
 	m_flOldDistance = m_flDistance;
 	m_flNewDistance = flDistance;
 }
@@ -69,7 +69,7 @@ void CDigitanksCamera::SnapDistance(float flDistance)
 
 void CDigitanksCamera::SetAngle(EAngle angCamera)
 {
-	m_flAngleRamp = Game()->GetGameTime();
+	m_flAngleRamp = GameServer()->GetGameTime();
 	m_angOldAngle = m_angCamera;
 	m_angNewAngle = angCamera;
 }
@@ -103,8 +103,8 @@ void CDigitanksCamera::Think()
 {
 	BaseClass::Think();
 
-	float flGameTime = Game()->GetGameTime();
-	float flFrameTime = Game()->GetFrameTime();
+	float flGameTime = GameServer()->GetGameTime();
+	float flFrameTime = GameServer()->GetFrameTime();
 	float flLerpTime = 0.5f;
 	float flLerpAmount = 0.7f;
 
@@ -164,11 +164,11 @@ void CDigitanksCamera::Think()
 
 	m_vecCamera = AngleVector(m_angCamera) * m_flDistance + m_vecTarget;
 
-	m_flShakeMagnitude = Approach(0, m_flShakeMagnitude, Game()->GetFrameTime()*5);
+	m_flShakeMagnitude = Approach(0, m_flShakeMagnitude, GameServer()->GetFrameTime()*5);
 	if (m_flShakeMagnitude)
 	{
 		Vector vecRight, vecUp;
-		Game()->GetRenderer()->GetCameraVectors(NULL, &vecRight, &vecUp);
+		GameServer()->GetRenderer()->GetCameraVectors(NULL, &vecRight, &vecUp);
 
 		float flX = RandomFloat(-m_flShakeMagnitude, m_flShakeMagnitude);
 		float flY = RandomFloat(-m_flShakeMagnitude, m_flShakeMagnitude);

@@ -60,6 +60,11 @@ void CDigitanksTeam::ClientUpdate(int iClient)
 	CNetwork::CallFunctionParameters(iClient, "TeamUpdatesData", &p);
 }
 
+void CDigitanksTeam::ClientEnterGame()
+{
+	CalculateVisibility();
+}
+
 void CDigitanksTeam::TeamUpdatesData(CNetworkParameters* p)
 {
 	memcpy(&m_abUpdates[0][0], p->m_pExtraData, sizeof(m_abUpdates));

@@ -98,16 +98,16 @@ void CScout::Fire()
 	m_flAttackPower += TorpedoAttackPower();
 
 	if (CNetwork::IsHost())
-		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
+		m_flFireProjectileTime = GameServer()->GetGameTime() + RandomFloat(0, 1);
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CScout::CreateProjectile()
 {
-	return Game()->Create<CTorpedo>("CTorpedo");
+	return GameServer()->Create<CTorpedo>("CTorpedo");
 }
 
 void CScout::FireProjectile(CNetworkParameters* p)
@@ -127,7 +127,7 @@ void CScout::FireProjectile(CNetworkParameters* p)
 	if (GetVisibility() > 0)
 		EmitSound("sound/torpedo-drop.wav");
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }
 
 float CScout::ShieldRechargeRate() const

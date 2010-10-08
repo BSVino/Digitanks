@@ -45,11 +45,11 @@ void CArtillery::Think()
 {
 	BaseClass::Think();
 
-	if (m_iFireProjectiles && Game()->GetGameTime() > m_flLastProjectileFire + 0.3f)
+	if (m_iFireProjectiles && GameServer()->GetGameTime() > m_flLastProjectileFire + 0.3f)
 	{
 		m_iFireProjectiles--;
 		FireProjectile();
-		m_flLastProjectileFire = Game()->GetGameTime();
+		m_flLastProjectileFire = GameServer()->GetGameTime();
 	}
 }
 
@@ -77,14 +77,14 @@ void CArtillery::Fire()
 	if (CNetwork::IsHost())
 		m_iFireProjectiles = 3;
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CArtillery::CreateProjectile()
 {
-	return Game()->Create<CArtilleryShell>("CArtilleryShell");
+	return GameServer()->Create<CArtilleryShell>("CArtilleryShell");
 }
 
 float CArtillery::GetProjectileDamage()

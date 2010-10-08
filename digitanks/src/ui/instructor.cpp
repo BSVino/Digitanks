@@ -313,7 +313,7 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 		if (!pSelection)
 			break;
 
-		Vector vecCurrentSelectable = Game()->GetRenderer()->ScreenPosition(pSelection->GetOrigin());
+		Vector vecCurrentSelectable = GameServer()->GetRenderer()->ScreenPosition(pSelection->GetOrigin());
 
 		SetPos((int)vecCurrentSelectable.x - GetWidth() - 100, (int)vecCurrentSelectable.y - 50);
 		if (GetLeft() < 0)

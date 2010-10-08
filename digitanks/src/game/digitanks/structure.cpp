@@ -166,11 +166,11 @@ void CStructure::PostRender()
 
 	if ((IsConstructing() || IsUpgrading()) && GetVisibility() > 0)
 	{
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin() - Vector(0, 10, 0));
 		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
 		c.SetBlend(BLEND_ADDITIVE);
-		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 3, 0, 1));
+		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 3, 0, 1));
 		c.SetDepthMask(false);
 		c.SetBackCulling(false);
 		c.RenderModel(m_iScaffolding);
@@ -197,7 +197,7 @@ void CStructure::BeginConstruction()
 
 void CStructure::BeginStructureConstruction(CNetworkParameters* p)
 {
-	m_flConstructionStartTime = Game()->GetGameTime();
+	m_flConstructionStartTime = GameServer()->GetGameTime();
 }
 
 void CStructure::CompleteConstruction()
@@ -444,10 +444,10 @@ void CStructure::SetSupplier(class CSupplier* pSupplier)
 	m_hSupplier = pSupplier;
 
 	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
-		m_hSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
+		m_hSupplyLine = GameServer()->Create<CSupplyLine>("CSupplyLine");
 
 	if (m_hSupplyLine != NULL && m_hSupplier == NULL)
-		Game()->Delete(m_hSupplyLine);
+		GameServer()->Delete(m_hSupplyLine);
 
 	if (m_hSupplyLine != NULL && m_hSupplier != NULL)
 		m_hSupplyLine->SetEntities(m_hSupplier, this);
@@ -461,8 +461,8 @@ void CStructure::ModifyContext(class CRenderingContext* pContext)
 	{
 		pContext->SetBlend(BLEND_ALPHA);
 		pContext->SetColor(Color(255, 255, 255));
-		pContext->SetAlpha(GetVisibility() * RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
-		pContext->Translate(Vector(0, RemapValClamped(Game()->GetGameTime() - m_flConstructionStartTime, 0, 3, -3, 0), 0));
+		pContext->SetAlpha(GetVisibility() * RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
+		pContext->Translate(Vector(0, RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 3, -3, 0), 0));
 	}
 
 	if (GetTeam())
@@ -498,6 +498,11 @@ void CSupplier::Spawn()
 	m_iTendrilsCallList = 0;
 
 	m_flTendrilGrowthStartTime = 0;
+}
+
+void CSupplier::ClientEnterGame()
+{
+	UpdateTendrils();
 }
 
 float CSupplier::GetDataFlowRate()
@@ -681,7 +686,7 @@ void CSupplier::StartTurn()
 
 void CSupplier::CompleteConstruction()
 {
-	m_flTendrilGrowthStartTime = Game()->GetGameTime();
+	m_flTendrilGrowthStartTime = GameServer()->GetGameTime();
 
 	BaseClass::CompleteConstruction();
 }
@@ -692,7 +697,7 @@ void CSupplier::PostRender()
 {
 	BaseClass::PostRender();
 
-	CRenderingContext r(Game()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 	r.SetDepthMask(false);
@@ -702,12 +707,12 @@ void CSupplier::PostRender()
 	glUseProgram(iScrollingTextureProgram);
 
 	GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
-	glUniform1f(flTime, Game()->GetGameTime());
+	glUniform1f(flTime, GameServer()->GetGameTime());
 
 	GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
 	glUniform1f(iTexture, 0);
 
-	float flGrowthTime = Game()->GetGameTime() - m_flTendrilGrowthStartTime;
+	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
 	if (flGrowthTime >= GROWTH_TIME)
 		m_flTendrilGrowthStartTime = 0;
 
@@ -740,7 +745,7 @@ void CSupplier::PostRender()
 			GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
 			glUniform1f(flSpeed, pTendril->m_flSpeed);
 
-			CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 			oRope.SetColor(clrTeam);
 			oRope.SetTextureScale(pTendril->m_flScale);
 			oRope.SetTextureOffset(pTendril->m_flOffset);
@@ -777,7 +782,7 @@ void CSupplier::UpdateTendrils()
 		return;
 	}
 
-	if (Game()->IsLoading())
+	if (GameServer()->IsLoading())
 		return;
 
 	size_t iRadius = (size_t)GetDataFlowRadius();
@@ -818,7 +823,7 @@ void CSupplier::UpdateTendrils()
 		GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
 		glUniform1f(flSpeed, pTendril->m_flSpeed);
 
-		CRopeRenderer oRope(Game()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 		oRope.SetColor(clrTeam);
 		oRope.SetTextureScale(pTendril->m_flScale);
 		oRope.SetTextureOffset(pTendril->m_flOffset);
@@ -839,7 +844,7 @@ void CSupplier::UpdateTendrils()
 
 void CSupplier::BeginTendrilGrowth()
 {
-	m_flTendrilGrowthStartTime = Game()->GetGameTime();
+	m_flTendrilGrowthStartTime = GameServer()->GetGameTime();
 }
 
 void CSupplier::AddChild(CStructure* pChild)

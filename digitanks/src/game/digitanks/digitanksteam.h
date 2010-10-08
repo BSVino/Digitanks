@@ -22,6 +22,7 @@ public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
 	virtual void				ClientUpdate(int iClient);
+	virtual void				ClientEnterGame();
 	void						TeamUpdatesData(class CNetworkParameters* p);
 
 	class CSelectable*			GetPrimarySelection();

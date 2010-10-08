@@ -72,7 +72,7 @@ void CDigitanksRenderer::RenderFogOfWar()
 		if (pDTEntity->VisibleRange() == 0)
 			continue;
 
-		if (CDigitanksGame::GetLocalDigitanksTeam() != pDTEntity->GetDigitanksTeam())
+		if (DigitanksGame()->GetLocalDigitanksTeam() != pDTEntity->GetDigitanksTeam())
 			continue;
 
 		CRenderingContext c(this);

@@ -24,7 +24,7 @@ void CPowerup::Precache()
 
 EAngle CPowerup::GetRenderAngles() const
 {
-	float flRotate = fmod(Game()->GetGameTime(), 3.6f)*100.0f;
+	float flRotate = fmod(GameServer()->GetGameTime(), 3.6f)*100.0f;
 	return EAngle(0, flRotate, 0);
 }
 

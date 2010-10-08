@@ -95,6 +95,7 @@
     <ClCompile Include="game\digitanks\props.cpp" />
     <ClCompile Include="game\digitanks\scout.cpp" />
     <ClCompile Include="game\digitanks\updates.cpp" />
+    <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />
     <ClCompile Include="ui\digitankswindow.cpp">
@@ -158,6 +159,7 @@
     <ClInclude Include="game\digitanks\props.h" />
     <ClInclude Include="game\digitanks\scout.h" />
     <ClInclude Include="game\digitanks\updates.h" />
+    <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />
     <ClInclude Include="ui\hud.h" />

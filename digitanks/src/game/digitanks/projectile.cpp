@@ -14,7 +14,7 @@ NETVAR_TABLE_END();
 
 CProjectile::CProjectile()
 {
-	m_flTimeCreated = DigitanksGame()?DigitanksGame()->GetGameTime():0;
+	m_flTimeCreated = GameServer()?GameServer()->GetGameTime():0;
 	m_flTimeExploded = 0;
 
 	m_bFallSoundPlayed = false;
@@ -42,10 +42,10 @@ void CProjectile::Think()
 		m_bFallSoundPlayed = true;
 	}
 
-	if (DigitanksGame()->GetGameTime() - m_flTimeCreated > 5.0f && m_flTimeExploded == 0.0f)
+	if (GameServer()->GetGameTime() - m_flTimeCreated > 5.0f && m_flTimeExploded == 0.0f)
 		Delete();
 
-	else if (m_flTimeExploded != 0.0f && DigitanksGame()->GetGameTime() - m_flTimeExploded > 2.0f)
+	else if (m_flTimeExploded != 0.0f && GameServer()->GetGameTime() - m_flTimeExploded > 2.0f)
 		Delete();
 }
 
@@ -68,17 +68,17 @@ void CProjectile::OnRender()
 
 	if (m_flTimeExploded == 0.0f)
 	{
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
 		c.SetColor(Color(255, 255, 255));
 		c.RenderSphere();
 	}
 	else
 	{
-		float flAlpha = RemapValClamped(DigitanksGame()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
+		float flAlpha = RemapValClamped(GameServer()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
 		if (flAlpha > 0)
 		{
-			CRenderingContext c(Game()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer());
 			c.Scale(4.0f, 4.0f, 4.0f);
 			c.SetColor(Color(255, 255, 255, (int)(flAlpha*255)));
 			c.RenderSphere();
@@ -167,7 +167,7 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 	if (m_flDamage > 0)
 		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pInstigator, m_hOwner->GetTeam());
 
-	m_flTimeExploded = Game()->GetGameTime();
+	m_flTimeExploded = GameServer()->GetGameTime();
 
 	if (m_bShouldRender)
 		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
@@ -238,7 +238,7 @@ void CTorpedo::Think()
 {
 	if (m_bBurrowing)
 	{
-		float flDistance = Game()->GetFrameTime() * 10;
+		float flDistance = GameServer()->GetFrameTime() * 10;
 		Vector vecDirection = m_vecLandingSpot - GetOrigin();
 		vecDirection.y = 0;
 

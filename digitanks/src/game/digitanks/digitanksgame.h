@@ -64,7 +64,7 @@ public:
 
 class CDigitanksGame : public CGame
 {
-	DECLARE_CLASS(CDigitanksGame, CGame);
+	REGISTER_ENTITY_CLASS(CDigitanksGame, CGame);
 
 public:
 							CDigitanksGame();
@@ -77,7 +77,6 @@ public:
 	virtual void			RegisterNetworkFunctions();
 
 	virtual void			OnClientConnect(CNetworkParameters* p);
-	virtual void			OnClientUpdate(CNetworkParameters* p);
 	virtual void			OnClientDisconnect(CNetworkParameters* p);
 
 	void					SetupGame(gametype_t eGameType);
@@ -164,10 +163,10 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, AddChild);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, RemoveChild);
 
-	virtual void			CreateRenderer();
+	virtual CRenderer*		CreateRenderer();
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
 
-	virtual void			CreateCamera();
+	virtual CCamera*		CreateCamera();
 	virtual class CDigitanksCamera*	GetDigitanksCamera();
 
 	float					GetGravity();
@@ -212,7 +211,7 @@ public:
 	// CHEAT!
 	void					CompleteProductions();
 
-	static CDigitanksTeam*	GetLocalDigitanksTeam();
+	CDigitanksTeam*			GetLocalDigitanksTeam();
 
 protected:
 	size_t					m_iCurrentTeam;

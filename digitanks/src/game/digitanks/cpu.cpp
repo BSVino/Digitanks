@@ -408,32 +408,32 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	if (ePreviewStructure == STRUCTURE_MINIBUFFER)
 	{
-		m_hConstructing = Game()->Create<CMiniBuffer>("CMiniBuffer");
+		m_hConstructing = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
 	}
 	else if (ePreviewStructure == STRUCTURE_BUFFER)
 	{
 		if (!GetDigitanksTeam()->CanBuildBuffers())
 			return;
 
-		m_hConstructing = Game()->Create<CBuffer>("CBuffer");
+		m_hConstructing = GameServer()->Create<CBuffer>("CBuffer");
 	}
 	else if (ePreviewStructure == STRUCTURE_BATTERY)
 	{
-		m_hConstructing = Game()->Create<CBattery>("CBattery");
+		m_hConstructing = GameServer()->Create<CBattery>("CBattery");
 	}
 	else if (ePreviewStructure == STRUCTURE_PSU)
 	{
 		if (!GetDigitanksTeam()->CanBuildPSUs())
 			return;
 
-		m_hConstructing = Game()->Create<CCollector>("CCollector");
+		m_hConstructing = GameServer()->Create<CCollector>("CCollector");
 	}
 	else if (ePreviewStructure == STRUCTURE_INFANTRYLOADER)
 	{
 		if (!GetDigitanksTeam()->CanBuildInfantryLoaders())
 			return;
 
-		m_hConstructing = Game()->Create<CLoader>("CLoader");
+		m_hConstructing = GameServer()->Create<CLoader>("CLoader");
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 		if (pLoader)
@@ -444,7 +444,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		if (!GetDigitanksTeam()->CanBuildTankLoaders())
 			return;
 
-		m_hConstructing = Game()->Create<CLoader>("CLoader");
+		m_hConstructing = GameServer()->Create<CLoader>("CLoader");
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 		if (pLoader)
@@ -455,7 +455,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		if (!GetDigitanksTeam()->CanBuildArtilleryLoaders())
 			return;
 
-		m_hConstructing = Game()->Create<CLoader>("CLoader");
+		m_hConstructing = GameServer()->Create<CLoader>("CLoader");
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 		if (pLoader)
@@ -522,7 +522,7 @@ void CCPU::CancelConstruction()
 {
 	if (m_hConstructing != NULL)
 	{
-		Game()->Delete(m_hConstructing);
+		GameServer()->Delete(m_hConstructing);
 		m_hConstructing = NULL;
 	}
 }
@@ -587,7 +587,7 @@ void CCPU::StartTurn()
 		m_iProduction += (size_t)(GetDigitanksTeam()->GetProductionPerLoader());
 		if (m_iProduction > g_aiTurnsToLoad[BUILDUNIT_SCOUT])
 		{
-			CDigitank* pTank = Game()->Create<CScout>("CScout");
+			CDigitank* pTank = GameServer()->Create<CScout>("CScout");
 			
 			pTank->SetOrigin(GetOrigin());
 
@@ -673,7 +673,7 @@ void CCPU::OnRender()
 	if (GetVisibility() == 0)
 		return;
 
-	CRenderingContext r(Game()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer());
 	if (GetTeam())
 		r.SetColorSwap(GetTeam()->GetColor());
 	else
@@ -686,8 +686,8 @@ void CCPU::OnRender()
 	float flSlowSpeed = 50.0f;
 	float flFastSpeed = 200.0f;
 
-	m_flFanRotationSpeed = Approach(HasConstruction()?flFastSpeed:flSlowSpeed, m_flFanRotationSpeed, Game()->GetFrameTime()*(flFastSpeed-flSlowSpeed));
-	m_flFanRotation -= RemapVal(Game()->GetFrameTime(), 0, 1, 0, m_flFanRotationSpeed);
+	m_flFanRotationSpeed = Approach(HasConstruction()?flFastSpeed:flSlowSpeed, m_flFanRotationSpeed, GameServer()->GetFrameTime()*(flFastSpeed-flSlowSpeed));
+	m_flFanRotation -= RemapVal(GameServer()->GetFrameTime(), 0, 1, 0, m_flFanRotationSpeed);
 
 	r.Rotate(m_flFanRotation, Vector(0, 1, 0));
 
@@ -700,7 +700,7 @@ void CCPU::PostRender()
 
 	if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 	{
-		CRenderingContext r(Game()->GetRenderer());
+		CRenderingContext r(GameServer()->GetRenderer());
 		r.Translate(GetPreviewBuild() + Vector(0, 1, 0));
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 

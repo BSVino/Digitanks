@@ -137,16 +137,16 @@ void CSupplyLine::PostRender()
 	Vector vecDirection = vecPath.Normalized();
 	size_t iSegments = (size_t)(flDistance/3);
 
-	CRenderingContext r(Game()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 
 	Color clrTeam = GetTeam()->GetColor();
 
-	CRopeRenderer oRope(Game()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
+	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
 	oRope.SetWidth(2.5);
 	oRope.SetTextureScale(5);
-	oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1)*2);
+	oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1)*2);
 
 	for (size_t i = 1; i < iSegments; i++)
 	{

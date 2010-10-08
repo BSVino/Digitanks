@@ -109,7 +109,7 @@ void CDigitanksMenu::Layout()
 
 	m_pReturnToGame->SetPos(100, 330);
 	m_pReturnToGame->SetSize(100, 20);
-	m_pReturnToGame->SetVisible(!!Game());
+	m_pReturnToGame->SetVisible(!!GameServer());
 
 	m_pExit->SetPos(100, 360);
 	m_pExit->SetSize(100, 20);
@@ -119,13 +119,13 @@ void CDigitanksMenu::Layout()
 
 void CDigitanksMenu::Paint(int x, int y, int w, int h)
 {
-	if (!CDigitanksWindow::Get()->GetGame())
+	if (!GameServer())
 	{
 		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
 		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 410, 205);
 	}
 
-	if (CDigitanksWindow::Get()->GetGame())
+	if (GameServer())
 		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
 
 	BaseClass::Paint(x, y, w, h);
@@ -141,7 +141,7 @@ void CDigitanksMenu::SetVisible(bool bVisible)
 			CDigitanksWindow::Get()->GetInstructor()->ShowTutorial();
 	}
 
-	m_pReturnToGame->SetVisible(!!Game());
+	m_pReturnToGame->SetVisible(!!GameServer());
 
 	BaseClass::SetVisible(bVisible);
 }
@@ -180,7 +180,7 @@ void CDigitanksMenu::StartArtilleryGameCallback()
 {
 	CDigitanksWindow::Get()->CreateGame(GAMETYPE_ARTILLERY);
 
-	if (!Game())
+	if (!GameServer())
 		return;
 
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
@@ -192,7 +192,7 @@ void CDigitanksMenu::StartBasesGameCallback()
 {
 	CDigitanksWindow::Get()->CreateGame(GAMETYPE_STANDARD);
 
-	if (!Game())
+	if (!GameServer())
 		return;
 
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);

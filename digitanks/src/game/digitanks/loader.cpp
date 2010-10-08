@@ -91,11 +91,11 @@ void CLoader::StartTurn()
 		{
 			CDigitank* pTank;
 			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-				pTank = Game()->Create<CMechInfantry>("CMechInfantry");
+				pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
 			else if (GetBuildUnit() == BUILDUNIT_TANK)
-				pTank = Game()->Create<CMainBattleTank>("CMainBattleTank");
+				pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
-				pTank = Game()->Create<CArtillery>("CArtillery");
+				pTank = GameServer()->Create<CArtillery>("CArtillery");
 			
 			pTank->SetOrigin(GetOrigin());
 
@@ -171,7 +171,7 @@ void CLoader::PostRender()
 
 	if (IsProducing() && GetVisibility() > 0)
 	{
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin());
 		c.SetAlpha(GetVisibility() * 0.3f);
 		c.SetBlend(BLEND_ADDITIVE);

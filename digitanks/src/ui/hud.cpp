@@ -354,7 +354,7 @@ void CHUD::Layout()
 
 void CHUD::Think()
 {
-	if (Game()->IsLoading())
+	if (GameServer()->IsLoading())
 		return;
 
 	BaseClass::Think();
@@ -419,7 +419,7 @@ void CHUD::Think()
 		{
 			float flRamp = 1;
 			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
-				flRamp = fabs(fmod(DigitanksGame()->GetGameTime(), 2)-1);
+				flRamp = fabs(fmod(GameServer()->GetGameTime(), 2)-1);
 			m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 		}
 	}
@@ -444,11 +444,11 @@ void CHUD::Think()
 	else
 		m_flAttackInfoAlphaGoal = 0.0f;
 
-	m_flAttackInfoAlpha = Approach(m_flAttackInfoAlphaGoal, m_flAttackInfoAlpha, Game()->GetFrameTime());
+	m_flAttackInfoAlpha = Approach(m_flAttackInfoAlphaGoal, m_flAttackInfoAlpha, GameServer()->GetFrameTime());
 
 	m_flTurnInfoHeightGoal = m_pTurnInfo->GetTextHeight();
-	m_flTurnInfoLerp = Approach(m_flTurnInfoLerpGoal, m_flTurnInfoLerp, Game()->GetFrameTime());
-	m_flTurnInfoHeight = Approach(m_flTurnInfoHeightGoal, m_flTurnInfoHeight, Game()->GetFrameTime()*100);
+	m_flTurnInfoLerp = Approach(m_flTurnInfoLerpGoal, m_flTurnInfoLerp, GameServer()->GetFrameTime());
+	m_flTurnInfoHeight = Approach(m_flTurnInfoHeightGoal, m_flTurnInfoHeight, GameServer()->GetFrameTime()*100);
 
 	float flTurnInfoHeight = m_flTurnInfoHeight+10;
 	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
@@ -468,7 +468,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (!DigitanksGame())
 		return;
 
-	if (Game()->IsLoading())
+	if (GameServer()->IsLoading())
 		return;
 
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
@@ -498,14 +498,14 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (pTank)
 			vecOrigin = pTank->GetDesiredMove();
 
-		Vector vecScreen = Game()->GetRenderer()->ScreenPosition(vecOrigin);
+		Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(vecOrigin);
 
 		float flRadius = pDTEntity->GetBoundingRadius();
 
 		Vector vecUp;
-		Game()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
+		GameServer()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
 
-		Vector vecTop = Game()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
+		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
 		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
 		if (DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable) && !IsUpdatesPanelOpen())
@@ -619,7 +619,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	m_pNextActionItem->Paint();
 
 	do {
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 		CRootPanel::PaintTexture(m_iHUDGraphic, iWidth/2 - 720/2, iHeight-160, 720, 160);
 
@@ -665,7 +665,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (pTank)
 	{
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
 		size_t iIcon;
@@ -706,7 +706,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		do
 		{
-			CRenderingContext c(Game()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer());
 			c.Rotate(90, Vector(0, 0, 1));
 
 			int iShield = (int)(255*pTank->GetRightShieldStrength());
@@ -718,7 +718,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		do
 		{
-			CRenderingContext c(Game()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer());
 			c.Rotate(180, Vector(0, 0, 1));
 
 			int iShield = (int)(255*pTank->GetRearShieldStrength());
@@ -730,7 +730,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		do
 		{
-			CRenderingContext c(Game()->GetRenderer());
+			CRenderingContext c(GameServer()->GetRenderer());
 			c.Rotate(270, Vector(0, 0, 1));
 
 			int iShield = (int)(255*pTank->GetLeftShieldStrength());
@@ -743,7 +743,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 //	while (true)
 //	{
-//		CRenderingContext c(Game()->GetRenderer());
+//		CRenderingContext c(GameServer()->GetRenderer());
 //		c.SetBlend(BLEND_ALPHA);
 //		CRootPanel::PaintTexture(m_iCompetitionWatermark, 20, 20, 125/2, 184/2);
 //		break;
@@ -1430,7 +1430,7 @@ void CHUD::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
 
 void CHUD::ClearTurnInfo()
 {
-	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
 
 	m_pTurnInfo->SetText("TURN REPORT\n \n");
@@ -1438,7 +1438,7 @@ void CHUD::ClearTurnInfo()
 
 void CHUD::AppendTurnInfo(const wchar_t* pszInfo)
 {
-	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
 
 	m_pTurnInfo->AppendText("* ");
@@ -1552,7 +1552,7 @@ void CHUD::ButtonCursorOutCallback()
 
 void CHUD::EndTurnCallback()
 {
-	if (CDigitanksGame::GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
 
 	CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
@@ -2271,12 +2271,12 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 	m_hVictim = pVictim;
 	m_flDamage = flDamage;
 	m_bShield = bShield;
-	m_flTime = DigitanksGame()->GetGameTime();
+	m_flTime = GameServer()->GetGameTime();
 	m_vecLastOrigin = pVictim->GetOrigin();
 
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
-	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
+	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
 	if (bShield)
 		vecScreen += Vector(10, 10, 0);
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
@@ -2322,7 +2322,7 @@ void CDamageIndicator::Think()
 {
 	float flFadeTime = 1.0f;
 
-	if (DigitanksGame()->GetGameTime() - m_flTime > flFadeTime)
+	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
 		Destructor();
 		Delete();
@@ -2332,14 +2332,14 @@ void CDamageIndicator::Think()
 	if (m_hVictim != NULL)
 		m_vecLastOrigin = m_hVictim->GetOrigin();
 
-	float flOffset = RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
+	float flOffset = RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
 
-	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
+	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	if (m_bShield)
 		vecScreen += Vector(10, 10, 0);
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
-	SetAlpha((int)RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
 
 	BaseClass::Think();
 }
@@ -2360,12 +2360,12 @@ CHitIndicator::CHitIndicator(CBaseEntity* pVictim, std::wstring sMessage)
 	: CLabel(0, 0, 200, 100, "")
 {
 	m_hVictim = pVictim;
-	m_flTime = DigitanksGame()->GetGameTime();
+	m_flTime = GameServer()->GetGameTime();
 	m_vecLastOrigin = pVictim->GetOrigin();
 
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
-	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
+	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
 	vecScreen.x -= 20;
 	vecScreen.y -= 20;
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
@@ -2388,7 +2388,7 @@ void CHitIndicator::Think()
 {
 	float flFadeTime = 1.0f;
 
-	if (DigitanksGame()->GetGameTime() - m_flTime > flFadeTime)
+	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
 		Destructor();
 		Delete();
@@ -2398,15 +2398,15 @@ void CHitIndicator::Think()
 	if (m_hVictim != NULL)
 		m_vecLastOrigin = m_hVictim->GetOrigin();
 
-	float flOffset = RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
+	float flOffset = RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 10, 20);
 
-	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
+	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	vecScreen.x -= 20;
 	vecScreen.y -= 20;
 
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
-	SetAlpha((int)RemapVal(DigitanksGame()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
 
 	BaseClass::Think();
 }
@@ -2424,7 +2424,7 @@ CSpeechBubble::CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iB
 	: CLabel(0, 0, 83*2/3, 47*2/3, "")
 {
 	m_hSpeaker = pSpeaker;
-	m_flTime = DigitanksGame()->GetGameTime();
+	m_flTime = GameServer()->GetGameTime();
 	m_vecLastOrigin = pSpeaker->GetOrigin();
 	m_iBubble = iBubble;
 
@@ -2453,7 +2453,7 @@ void CSpeechBubble::Think()
 {
 	float flFadeTime = 3.0f;
 
-	if (DigitanksGame()->GetGameTime() - m_flTime > flFadeTime)
+	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
 		Destructor();
 		Delete();
@@ -2464,10 +2464,10 @@ void CSpeechBubble::Think()
 		m_vecLastOrigin = m_hSpeaker->GetDesiredMove();
 
 	Vector vecUp;
-	Game()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
+	GameServer()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
 
-	Vector vecScreen = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
-	Vector vecTop = Game()->GetRenderer()->ScreenPosition(m_vecLastOrigin + vecUp*m_flRadius);
+	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
+	Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin + vecUp*m_flRadius);
 	float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
 	vecScreen.x += flWidth/2 - 10;
@@ -2475,7 +2475,7 @@ void CSpeechBubble::Think()
 
 	SetPos((int)(vecScreen.x), (int)(vecScreen.y));
 
-	SetAlpha((int)RemapValClamped(DigitanksGame()->GetGameTime() - m_flTime, flFadeTime-1, flFadeTime, 255, 0));
+	SetAlpha((int)RemapValClamped(GameServer()->GetGameTime() - m_flTime, flFadeTime-1, flFadeTime, 255, 0));
 
 	BaseClass::Think();
 }
@@ -2486,7 +2486,7 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 		return;
 
 	do {
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 		CRootPanel::PaintTexture(m_iBubble, x, y, w, h, Color(255, 255, 255, GetAlpha()));
 	} while (false);

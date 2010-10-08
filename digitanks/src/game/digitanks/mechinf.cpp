@@ -63,11 +63,11 @@ void CMechInfantry::Think()
 {
 	BaseClass::Think();
 
-	if (m_iFireProjectiles && Game()->GetGameTime() > m_flLastProjectileFire + 0.1f)
+	if (m_iFireProjectiles && GameServer()->GetGameTime() > m_flLastProjectileFire + 0.1f)
 	{
 		m_iFireProjectiles--;
 		FireProjectile();
-		m_flLastProjectileFire = Game()->GetGameTime();
+		m_flLastProjectileFire = GameServer()->GetGameTime();
 	}
 }
 
@@ -85,14 +85,14 @@ void CMechInfantry::Fire()
 	if (CNetwork::IsHost())
 		m_iFireProjectiles = 20;
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CMechInfantry::CreateProjectile()
 {
-	return Game()->Create<CInfantryFlak>("CInfantryFlak");
+	return GameServer()->Create<CInfantryFlak>("CInfantryFlak");
 }
 
 float CMechInfantry::GetProjectileDamage()
@@ -106,8 +106,8 @@ void CMechInfantry::PostRender()
 
 	if ((IsFortifying() || IsFortified()) && GetVisibility() > 0)
 	{
-		float flTimeSinceFortify = Game()->GetGameTime() - m_flFortifyTime;
-		CRenderingContext c(Game()->GetRenderer());
+		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin() - Vector(0, RemapValClamped(flTimeSinceFortify, 0, 1, 5, 0), 0));
 		c.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		float flAlpha = GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1);
@@ -123,9 +123,9 @@ void CMechInfantry::PostRender()
 
 	if ((IsFortifying() || IsFortified()) && GetVisibility() > 0)
 	{
-		float flTimeSinceFortify = Game()->GetGameTime() - m_flFortifyTime;
+		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
 		float flShieldScale = RemapValClamped(flTimeSinceFortify, 0, 1, 0, 1);
-		CRenderingContext c(Game()->GetRenderer());
+		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin());
 		c.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		c.Scale(flShieldScale, flShieldScale, flShieldScale);

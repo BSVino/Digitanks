@@ -280,7 +280,7 @@ bool CMiniBuffer::CanStructureUpgrade()
 
 void CMiniBuffer::UpgradeComplete()
 {
-	CBuffer* pBuffer = DigitanksGame()->Create<CBuffer>("CBuffer");
+	CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");
 	pBuffer->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pBuffer);
 	pBuffer->SetSupplier(GetSupplier());

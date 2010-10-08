@@ -27,7 +27,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 {
 	s_pDigitanksWindow = this;
 
-	m_pDigitanksGame = NULL;
+	m_pGameServer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
 
@@ -127,27 +127,24 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	CSoundLibrary::StopMusic();
 
-	if (!m_pDigitanksGame)
+	if (!m_pGameServer)
 	{
-		m_pDigitanksGame = new CDigitanksGame();
-		m_pDigitanksGame->CreateRenderer();
-		m_pDigitanksGame->CreateCamera();
+		m_pGameServer = new CGameServer();
+		m_pGameServer->Initialize();
 
 		m_pHUD = new CHUD();
-		m_pHUD->SetGame(m_pDigitanksGame);
+		m_pHUD->SetGame(DigitanksGame());
 		glgui::CRootPanel::Get()->AddControl(m_pHUD);
 
 		if (!m_pInstructor)
 			m_pInstructor = new CInstructor();
 	}
 
-	m_pDigitanksGame->RegisterNetworkFunctions();
-
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
 	if (HasCommandLineSwitch("--host"))
-		CNetwork::CreateHost(iPort, m_pDigitanksGame, CGame::ClientConnectCallback, CGame::ClientDisconnectCallback);
+		CNetwork::CreateHost(iPort, m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
 
 	if (HasCommandLineSwitch("--connect"))
 	{
@@ -159,7 +156,7 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		}
 	}
 
-	m_pDigitanksGame->SetupGame(eGameType);
+	DigitanksGame()->SetupGame(eGameType);
 
 	glgui::CRootPanel::Get()->Layout();
 }
@@ -168,8 +165,8 @@ void CDigitanksWindow::DestroyGame()
 {
 	CNetwork::Disconnect();
 
-	if (m_pDigitanksGame)
-		delete m_pDigitanksGame;
+	if (m_pGameServer)
+		delete m_pGameServer;
 
 	if (m_pHUD)
 	{
@@ -180,7 +177,7 @@ void CDigitanksWindow::DestroyGame()
 	if (m_pInstructor)
 		delete m_pInstructor;
 
-	m_pDigitanksGame = NULL;
+	m_pGameServer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
 }
@@ -195,18 +192,18 @@ void CDigitanksWindow::Run()
 			// Clear the buffer for the gui.
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		}
-		else if (Game())
+		else if (GameServer())
 		{
-			if (Game()->IsLoading())
+			if (GameServer()->IsLoading())
 				CNetwork::Think();
-			else if (Game()->IsClient() && !CNetwork::IsConnected())
+			else if (GameServer()->IsClient() && !CNetwork::IsConnected())
 			{
 				DestroyGame();
 				m_pMenu->SetVisible(true);
 			}
 			else
 			{
-				Game()->Think(flTime);
+				GameServer()->Think(flTime);
 				Render();
 			}
 		}
@@ -223,18 +220,18 @@ void CDigitanksWindow::Run()
 
 void CDigitanksWindow::Render()
 {
-	Game()->Render();
+	GameServer()->Render();
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
 {
-	if (GetGame() && GetGame()->GetRenderer())
-		GetGame()->GetRenderer()->SetSize(w, h);
+	if (GameServer() && GameServer()->GetRenderer())
+		GameServer()->GetRenderer()->SetSize(w, h);
 
 	m_iWindowWidth = w;
 	m_iWindowHeight = h;
 
-	if (GetGame())
+	if (GameServer())
 		Render();
 
 	glgui::CRootPanel::Get()->Layout();
@@ -251,13 +248,13 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit
 	int x, y;
 	glgui::CRootPanel::Get()->GetFullscreenMousePos(x, y);
 
-	Vector vecWorld = GetGame()->GetRenderer()->WorldPosition(Vector((float)x, (float)y, 1));
+	Vector vecWorld = GameServer()->GetRenderer()->WorldPosition(Vector((float)x, (float)y, 1));
 
-	Vector vecCameraVector = GetGame()->GetCamera()->GetCameraPosition();
+	Vector vecCameraVector = GameServer()->GetCamera()->GetCameraPosition();
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	return Game()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit);
+	return GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit);
 }
 
 void CDigitanksWindow::GameOver(bool bPlayerWon)

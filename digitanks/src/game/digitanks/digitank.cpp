@@ -512,7 +512,7 @@ void CDigitank::StartTurn()
 	m_bChoseFirepower = false;
 	m_bFiredWeapon = false;
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
 
@@ -557,7 +557,7 @@ void CDigitank::ManageSupplyLine()
 	CSupplyLine* pSupplyLine = m_hSupplyLine;
 
 	if (pSupplyLine == NULL && pSupplier != NULL)
-		pSupplyLine = Game()->Create<CSupplyLine>("CSupplyLine");
+		pSupplyLine = GameServer()->Create<CSupplyLine>("CSupplyLine");
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -699,7 +699,7 @@ void CDigitank::SetDesiredMove()
 		return;
 
 	Speak(TANKSPEECH_MOVED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(NETWORK_TOEVERYONE, "SetDesiredMove", GetHandle(), m_vecPreviewMove.x, m_vecPreviewMove.y, m_vecPreviewMove.z);
@@ -721,7 +721,7 @@ void CDigitank::SetDesiredMove(CNetworkParameters* p)
 
 	m_bDesiredMove = true;
 
-	m_flStartedMove = DigitanksGame()->GetGameTime();
+	m_flStartedMove = GameServer()->GetGameTime();
 
 	if (GetVisibility() > 0)
 	{
@@ -771,7 +771,7 @@ Vector CDigitank::GetDesiredMove() const
 	if (GetVisibility() == 0)
 		flTransitionTime = 0;
 
-	float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
+	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
 	{
 		float flLerp = SLerp(RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1), 0.2f);
@@ -793,7 +793,7 @@ bool CDigitank::IsMoving()
 	if (GetVisibility() == 0)
 		flTransitionTime = 0;
 
-	float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
+	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
 		return true;
 
@@ -829,7 +829,7 @@ void CDigitank::SetDesiredTurn(CNetworkParameters* p)
 	m_flDesiredTurn = m_flPreviewTurn;
 
 	m_flPreviousTurn = GetAngles().y;
-	m_flStartedTurn = DigitanksGame()->GetGameTime();
+	m_flStartedTurn = GameServer()->GetGameTime();
 
 	float flMovePower = GetPreviewMoveTurnPower();
 
@@ -861,7 +861,7 @@ float CDigitank::GetDesiredTurn() const
 	if (GetVisibility() == 0)
 		flTransitionTime = 0;
 
-	float flTimeSinceTurn = DigitanksGame()->GetGameTime() - m_flStartedTurn;
+	float flTimeSinceTurn = GameServer()->GetGameTime() - m_flStartedTurn;
 	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
 	{
 		float flLerp = SLerp(RemapVal(flTimeSinceTurn, 0, flTransitionTime, 0, 1), 0.2f);
@@ -896,7 +896,7 @@ void CDigitank::SetDesiredAim()
 		return;
 
 	Speak(TANKSPEECH_ATTACK);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	if (CNetwork::ShouldReplicateClientFunction())
 		CNetwork::CallFunction(NETWORK_TOEVERYONE, "SetDesiredAim", GetHandle(), m_vecPreviewAim.x, m_vecPreviewAim.y, m_vecPreviewAim.z);
@@ -1018,7 +1018,7 @@ void CDigitank::Fortify()
 	m_bFortified = true;
 
 	m_iFortifyLevel = 0;
-	m_flFortifyTime = Game()->GetGameTime();
+	m_flFortifyTime = GameServer()->GetGameTime();
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
@@ -1164,7 +1164,7 @@ void CDigitank::Think()
 		}
 	}
 
-	if (m_flFireProjectileTime && Game()->GetGameTime() > m_flFireProjectileTime)
+	if (m_flFireProjectileTime && GameServer()->GetGameTime() > m_flFireProjectileTime)
 	{
 		m_flFireProjectileTime = 0;
 		FireProjectile();
@@ -1173,8 +1173,8 @@ void CDigitank::Think()
 	if (m_iHoverParticles != ~0)
 	{
 		float flTransitionTime = GetTransitionTime();
-		float flTimeSinceMove = DigitanksGame()->GetGameTime() - m_flStartedMove;
-		float flTimeSinceTurn = DigitanksGame()->GetGameTime() - m_flStartedTurn;
+		float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
+		float flTimeSinceTurn = GameServer()->GetGameTime() - m_flStartedTurn;
 		if (m_flStartedMove && flTimeSinceMove > flTransitionTime || m_flStartedTurn && flTimeSinceTurn > flTransitionTime)
 		{
 			CParticleSystemLibrary::StopInstance(m_iHoverParticles);
@@ -1182,13 +1182,13 @@ void CDigitank::Think()
 		}
 	}
 
-	if (IsAlive() && Game()->GetGameTime() > m_flNextIdle)
+	if (IsAlive() && GameServer()->GetGameTime() > m_flNextIdle)
 	{
 		// A little bit less often if we're not on the current team.
 		if (DigitanksGame()->GetCurrentTeam() == GetTeam() && rand()%2 == 0 || rand()%4 == 0)
 			Speak(TANKSPEECH_IDLE);
 
-		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
 }
 
@@ -1205,7 +1205,7 @@ void CDigitank::OnCurrentSelection()
 	}
 
 	Speak(TANKSPEECH_SELECTED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	// So the escape key works.
 	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
@@ -1630,7 +1630,7 @@ void CDigitank::Move(CNetworkParameters* p)
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
 	}
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
@@ -1661,7 +1661,7 @@ void CDigitank::Turn(CNetworkParameters* p)
 		SetAngles(EAngle(0, m_flDesiredTurn, 0));
 	}
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
@@ -1699,9 +1699,9 @@ void CDigitank::Fire(CNetworkParameters* p)
 	m_flAttackPower += flAttackPower;
 
 	if (CNetwork::IsHost())
-		m_flFireProjectileTime = Game()->GetGameTime() + RandomFloat(0, 1);
+		m_flFireProjectileTime = GameServer()->GetGameTime() + RandomFloat(0, 1);
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
@@ -1731,7 +1731,7 @@ void CDigitank::FireProjectile()
 	// Don't use uniform distribution, I like how it's clustered on the target.
 	vecLandingSpot += Vector(flRadius*cos(flYaw), 0, flRadius*sin(flYaw));
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	m_hProjectile = CreateProjectile();
 
@@ -1776,12 +1776,12 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 			CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 	}
 
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }
 
 CProjectile* CDigitank::CreateProjectile()
 {
-	return Game()->Create<CShell>("CShell");
+	return GameServer()->Create<CShell>("CShell");
 }
 
 float CDigitank::GetProjectileDamage()
@@ -1831,7 +1831,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	}
 
 	Speak(TANKSPEECH_DAMAGED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
@@ -1908,7 +1908,7 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 	{
 		pKiller->GiveBonusPoints(1);
 		pKiller->Speak(TANKSPEECH_KILL);
-		pKiller->m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+		pKiller->m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
 
 	if (m_hSupplyLine != NULL)
@@ -1924,7 +1924,7 @@ Vector CDigitank::GetRenderOrigin() const
 	
 	if (!IsFortified() && !IsFortifying())
 	{
-		float flScale = fabs(fmod(Game()->GetGameTime()+m_flBobOffset, 4)-2)/2;
+		float flScale = fabs(fmod(GameServer()->GetGameTime()+m_flBobOffset, 4)-2)/2;
 		flLerp = SLerp(flScale, 0.2f);
 	}
 
@@ -1969,7 +1969,7 @@ void CDigitank::PreRender()
 #ifdef _DEBUG
 	if (HasFortifyPoint())
 	{
-		CRenderingContext r(Game()->GetRenderer());
+		CRenderingContext r(GameServer()->GetRenderer());
 		r.Translate(GetFortifyPoint() + Vector(0, 2, 0));
 		r.SetColor(GetTeam()->GetColor());
 		//glutWireCube(4);
@@ -2014,7 +2014,7 @@ void CDigitank::RenderTurret(float flAlpha)
 	if (GetVisibility() == 0 || flAlpha == 0)
 		return;
 
-	CRenderingContext r(Game()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer());
 	r.SetAlpha(flAlpha*GetVisibility());
 	r.SetBlend(BLEND_ALPHA);
 	r.Translate(Vector(-0.527677f, 0.810368f, 0));
@@ -2046,7 +2046,7 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	if (GetVisibility() == 0 || flAlpha == 0)
 		return;
 
-	CRenderingContext r(Game()->GetRenderer());
+	CRenderingContext r(GameServer()->GetRenderer());
 	r.SetAlpha(flAlpha*GetVisibility());
 	r.Rotate(flAngle, Vector(0, 1, 0));
 	r.SetBlend(BLEND_ADDITIVE);
@@ -2058,7 +2058,7 @@ void CDigitank::PostRender()
 {
 	if (HasDesiredMove() || HasDesiredTurn())
 	{
-		CRenderingContext r(Game()->GetRenderer());
+		CRenderingContext r(GameServer()->GetRenderer());
 		r.Translate(GetOrigin() + Vector(0, 1, 0));
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		r.SetAlpha(50.0f/255);
@@ -2093,7 +2093,7 @@ void CDigitank::PostRender()
 				angTurn = EAngle(0, GetAngles().y + flTankTurn, 0);
 			}
 
-			CRenderingContext r(Game()->GetRenderer());
+			CRenderingContext r(GameServer()->GetRenderer());
 			r.Translate(GetRenderOrigin());
 			r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 			r.SetAlpha(50.0f/255);
@@ -2118,7 +2118,7 @@ void CDigitank::PostRender()
 				Vector vecNewPosition = GetOrigin() + vecTankMove;
 				vecNewPosition.y = FindHoverHeight(vecNewPosition);
 
-				CRenderingContext r(Game()->GetRenderer());
+				CRenderingContext r(GameServer()->GetRenderer());
 				r.Translate(vecNewPosition + Vector(0, 1, 0));
 				r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 				r.SetAlpha(50.0f/255);
@@ -2148,11 +2148,11 @@ void CDigitank::PostRender()
 		Vector vecForce;
 		FindLaunchVelocity(vecTankOrigin, m_vecDisplayAim, flGravity, vecForce, flTime, ProjectileCurve());
 
-		CRopeRenderer oRope(Game()->GetRenderer(), s_iAimBeam, vecTankOrigin);
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAimBeam, vecTankOrigin);
 		oRope.SetWidth(0.5f);
 		oRope.SetColor(Color(255, 0, 0, iAlpha));
 		oRope.SetTextureScale(50);
-		oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
+		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
 
 		size_t iLinks = 20;
 		float flTimePerLink = flTime/iLinks;
@@ -2191,14 +2191,14 @@ void CDigitank::PostRender()
 
 	if (bShowGoalMove)
 	{
-		CRenderingContext r(Game()->GetRenderer());
+		CRenderingContext r(GameServer()->GetRenderer());
 		r.SetBlend(BLEND_ALPHA);
 
-		CRopeRenderer oRope(Game()->GetRenderer(), s_iAutoMove, GetDesiredMove());
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAutoMove, GetDesiredMove());
 		oRope.SetWidth(2.0f);
 		oRope.SetColor(Color(255, 255, 255, iAlpha));
 		oRope.SetTextureScale(3);
-		oRope.SetTextureOffset(-fmod(Game()->GetGameTime(), 1));
+		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
 
 		Vector vecPath = vecGoalMove - GetDesiredMove();
 		vecPath.y = 0;
@@ -2281,7 +2281,7 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
 
 	Speak(TANKSPEECH_PROMOTED);
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }
 
 void CDigitank::PromoteAttack()
@@ -2303,7 +2303,7 @@ void CDigitank::PromoteAttack()
 	if (GetTeam()->IsPlayerControlled())
 	{
 		Speak(TANKSPEECH_PROMOTED);
-		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
 }
 
@@ -2326,7 +2326,7 @@ void CDigitank::PromoteDefense()
 	if (GetTeam()->IsPlayerControlled())
 	{
 		Speak(TANKSPEECH_PROMOTED);
-		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
 }
 
@@ -2349,7 +2349,7 @@ void CDigitank::PromoteMovement()
 	if (GetTeam()->IsPlayerControlled())
 	{
 		Speak(TANKSPEECH_PROMOTED);
-		m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
 }
 
@@ -2402,7 +2402,7 @@ void CDigitank::Speak(size_t iSpeech)
 	if (rand()%4 != 0)
 		return;
 
-	if (Game()->GetGameTime() < m_flLastSpeech + 5.0f)
+	if (GameServer()->GetGameTime() < m_flLastSpeech + 5.0f)
 		return;
 
 	if (GetVisibility() == 0)
@@ -2410,8 +2410,8 @@ void CDigitank::Speak(size_t iSpeech)
 
 	size_t iLine = g_aiSpeechLines[iSpeech][rand()%g_aiSpeechLines[iSpeech].size()];
 
-	m_flLastSpeech = Game()->GetGameTime();
-	m_flNextIdle = Game()->GetGameTime() + RandomFloat(10, 20);
+	m_flLastSpeech = GameServer()->GetGameTime();
+	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CNetwork::CallFunction(NETWORK_TOCLIENTS, "TankSpeak", GetHandle(), iLine);
 

@@ -1,3 +1,4 @@
+#include "digitanksgame.h"
 #include "buffer.h"
 #include "collector.h"
 #include "cpu.h"
@@ -15,6 +16,7 @@
 
 #include "registered_entities.h"
 
+REGISTER_ENTITY(CDigitanksGame);
 REGISTER_ENTITY(CDigitanksEntity);
 REGISTER_ENTITY(CMiniBuffer);
 REGISTER_ENTITY(CBuffer);

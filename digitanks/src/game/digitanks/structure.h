@@ -147,6 +147,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual void				ClientEnterGame();
+
 	virtual void				CompleteConstruction();
 
 	virtual size_t				InitialEnergyBonus() const { return 1; };

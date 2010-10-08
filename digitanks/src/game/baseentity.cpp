@@ -122,7 +122,7 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 {
-	m_flTimeKilled = Game()->GetGameTime();
+	m_flTimeKilled = GameServer()->GetGameTime();
 
 	OnKilled(pKilledBy);
 	Game()->OnKilled(this);
@@ -133,7 +133,7 @@ void CBaseEntity::Render()
 	PreRender();
 
 	do {
-		CRenderingContext r(Game()->GetRenderer());
+		CRenderingContext r(GameServer()->GetRenderer());
 		r.Translate(GetRenderOrigin());
 
 		EAngle angRender = GetRenderAngles();
@@ -162,7 +162,7 @@ void CBaseEntity::Render()
 
 void CBaseEntity::Delete()
 {
-	Game()->Delete(this);
+	GameServer()->Delete(this);
 }
 
 void CBaseEntity::EmitSound(const char* pszFilename)

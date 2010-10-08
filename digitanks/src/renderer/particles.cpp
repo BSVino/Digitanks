@@ -199,7 +199,7 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 
 	m_iNumParticlesAlive = 0;
 
-	m_flLastEmission = Game()->GetGameTime() - RandomFloat(0, m_pSystem->GetEmissionRate());
+	m_flLastEmission = GameServer()->GetGameTime() - RandomFloat(0, m_pSystem->GetEmissionRate());
 	m_iTotalEmitted = 0;
 
 	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();
@@ -218,8 +218,8 @@ CSystemInstance::~CSystemInstance()
 
 void CSystemInstance::Simulate()
 {
-	float flGameTime = Game()->GetGameTime();
-	float flFrameTime = Game()->GetFrameTime();
+	float flGameTime = GameServer()->GetGameTime();
+	float flFrameTime = GameServer()->GetFrameTime();
 
 	if (m_hFollow != NULL)
 	{
@@ -322,12 +322,12 @@ void CSystemInstance::Render()
 	for (size_t i = 0; i < m_apChildren.size(); i++)
 		m_apChildren[i]->Render();
 
-	CRenderer* pRenderer = Game()->GetRenderer();
+	CRenderer* pRenderer = GameServer()->GetRenderer();
 
 	Vector vecForward, vecRight, vecUp;
 	pRenderer->GetCameraVectors(&vecForward, &vecRight, &vecUp);
 
-	CRenderingContext c(Game()->GetRenderer());
+	CRenderingContext c(GameServer()->GetRenderer());
 
 	c.BindTexture(m_pSystem->GetTexture());
 	c.SetBlend(BLEND_ADDITIVE);
@@ -452,5 +452,5 @@ void CParticle::Reset()
 	m_flAlpha = 1;
 	m_flRadius = 1;
 	m_bActive = true;
-	m_flSpawnTime = Game()->GetGameTime();
+	m_flSpawnTime = GameServer()->GetGameTime();
 }

@@ -23,8 +23,8 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 {
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
-	if (GetGame() && GetGame()->GetCamera())
-		GetGame()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
@@ -41,11 +41,11 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 
 void CDigitanksWindow::MouseInput(int iButton, int iState)
 {
-	if (GetGame() && GetGame()->GetCamera())
+	if (GameServer() && GameServer()->GetCamera())
 	{
 		// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
 		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ROTATE))
-			GetGame()->GetCamera()->MouseButton(iButton, iState);
+			GameServer()->GetCamera()->MouseButton(iButton, iState);
 	}
 
 	int mx, my;
@@ -120,7 +120,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseInitialX = m_iMouseCurrentX = mx;
 			m_iMouseInitialY = m_iMouseCurrentY = my;
 		}
-		else if (GetGame() && GetGame()->GetCamera() && iDifference < 30)
+		else if (GameServer() && GameServer()->GetCamera() && iDifference < 30)
 		{
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
 			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
@@ -149,7 +149,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				if (!pSelectable)
 					continue;
 
-				Vector vecScreen = Game()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
+				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
 
 				if (vecScreen.x < iLowerX || vecScreen.y < iLowerY || vecScreen.x > iHigherX || vecScreen.y > iHigherY)
 					continue;
@@ -199,7 +199,7 @@ void CDigitanksWindow::MouseWheel(int iState)
 {
 	static int iOldState = 0;
 
-	if (GetGame() && GetGame()->GetCamera())
+	if (GameServer() && GameServer()->GetCamera())
 	{
 		if (iState > iOldState)
 			DigitanksGame()->GetDigitanksCamera()->ZoomIn();
@@ -301,8 +301,8 @@ void CDigitanksWindow::KeyPress(int c)
 		}
 	}
 
-	if (GetGame() && GetGame()->GetCamera())
-		GetGame()->GetCamera()->KeyDown(c);
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->KeyDown(c);
 
 	if (c == 'Q')
 		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(0);
@@ -384,8 +384,8 @@ void CDigitanksWindow::KeyPress(int c)
 
 void CDigitanksWindow::KeyRelease(int c)
 {
-	if (GetGame() && GetGame()->GetCamera())
-		GetGame()->GetCamera()->KeyUp(c);
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->KeyUp(c);
 }
 
 bool CDigitanksWindow::IsCtrlDown()

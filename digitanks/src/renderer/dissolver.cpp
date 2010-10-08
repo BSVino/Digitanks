@@ -134,8 +134,8 @@ void CModelDissolver::Simulate()
 {
 	CModelDissolver* pDissolver = Get();
 
-	float flGameTime = Game()->GetGameTime();
-	float flFrameTime = Game()->GetFrameTime();
+	float flGameTime = GameServer()->GetGameTime();
+	float flFrameTime = GameServer()->GetFrameTime();
 
 	if (!Get()->m_iNumTrianglesAlive)
 		return;
@@ -173,7 +173,7 @@ void CModelDissolver::Simulate()
 
 void CModelDissolver::Render()
 {
-	CRenderer* pRenderer = Game()->GetRenderer();
+	CRenderer* pRenderer = GameServer()->GetRenderer();
 
 	CRenderingContext c(pRenderer);
 
@@ -227,7 +227,7 @@ void CDissolveTri::Reset()
 {
 	m_flAlpha = 1;
 	m_bActive = true;
-	m_flSpawnTime = Game()->GetGameTime();
+	m_flSpawnTime = GameServer()->GetGameTime();
 	m_mPosition.Identity();
 	m_mVelocity.Identity();
 }

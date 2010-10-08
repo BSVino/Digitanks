@@ -6,10 +6,13 @@
 #include <network/network.h>
 
 #include "baseentity.h"
+#include "gameserver.h"
 #include "team.h"
 
-class CGame : public INetworkListener
+class CGame : public CBaseEntity, public INetworkListener
 {
+	REGISTER_ENTITY_CLASS(CGame, CBaseEntity);
+
 public:
 												CGame();
 												~CGame();
@@ -17,40 +20,9 @@ public:
 public:
 	virtual void								RegisterNetworkFunctions();
 
-	NET_CALLBACK(CGame,							ClientConnect);
-	NET_CALLBACK(CGame,							LoadingDone);
-	NET_CALLBACK(CGame,							ClientDisconnect);
+	virtual class CRenderer*					CreateRenderer();
+	virtual class CCamera*						CreateCamera();
 
-	virtual void								OnClientConnect(CNetworkParameters* p) {};
-	virtual void								OnClientUpdate(CNetworkParameters* p) {};
-	virtual void								OnClientDisconnect(CNetworkParameters* p) {};
-
-	void										Think(float flRealTime);
-	void										Simulate();
-	void										Render();
-
-	virtual void								Think() {};
-
-	virtual void								OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled) {};
-	virtual void								OnKilled(class CBaseEntity* pEntity) {};
-	virtual void								OnDeleted(class CBaseEntity* pEntity);
-
-	CEntityHandle<CBaseEntity>					Create(const char* pszEntityName);
-	size_t										CreateEntity(size_t iRegisteredEntity, size_t iHandle = ~0, size_t iSpawnSeed = 0);
-	void										Delete(class CBaseEntity* pEntity);
-
-	NET_CALLBACK(CGame,							CreateEntity);
-	NET_CALLBACK(CGame,							DestroyEntity);
-
-	template<class T>
-	T*											Create(const char* pszEntityName)
-	{
-		return dynamic_cast<T*>(Create(pszEntityName).GetPointer());
-	}
-
-	NET_CALLBACK(CGame,							UpdateValue);
-
-	NET_CALLBACK(CGame,							ClientInfo);
 	NET_CALLBACK(CGame,							SetAngles);
 	NET_CALLBACK(CGame,							AddTeam);
 
@@ -58,8 +30,10 @@ public:
 	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamClient);
 	NET_CALLBACK_ENTITY(CGame, CTeam,			AddEntityToTeam);
 
-	virtual void								CreateRenderer();
-	virtual void								CreateCamera();
+	virtual void								OnDeleted();
+
+	virtual void								OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled) {};
+	virtual void								OnDeleted(class CBaseEntity* pEntity);
 
 	virtual bool								TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit);
 
@@ -67,44 +41,23 @@ public:
 	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
 	bool										IsTeamControlledByMe(CTeam* pTeam);
 
-	float										GetFrameTime() { return m_flFrameTime; };
-	float										GetGameTime() { return m_flGameTime; };
-
-	class CRenderer*							GetRenderer() { return m_pRenderer; };
-	class CCamera*								GetCamera() { return m_pCamera; };
-
-	bool										IsLoading() { return m_bLoading; };
-	bool										IsClient() { return m_iClient >= 0; };
-
-	static CGame*								GetGame() { return s_pGame; };
-
-	static CTeam*								GetLocalTeam();
+	CTeam*										GetLocalTeam();
 
 protected:
 	std::vector<CEntityHandle<CTeam> >			m_ahTeams;
 
-	std::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
-
-	static CGame*								s_pGame;
-
-	float										m_flGameTime;
-	float										m_flSimulationTime;
-	float										m_flFrameTime;
-	float										m_flRealTime;
-
-	class CCamera*								m_pCamera;
-	class CRenderer*							m_pRenderer;
-
-	bool										m_bLoading;
-
-	int											m_iClient;
-
-	static CEntityHandle<CTeam>					s_hLocalTeam;
+	CEntityHandle<CTeam>						m_hLocalTeam;
 };
 
 inline class CGame* Game()
 {
-	return CGame::GetGame();
+	if (!GameServer())
+		return NULL;
+
+	if (!GameServer()->GetGame())
+		return NULL;
+
+	return GameServer()->GetGame();
 }
 
 #endif

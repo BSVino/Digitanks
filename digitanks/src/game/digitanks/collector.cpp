@@ -154,7 +154,7 @@ bool CBattery::CanStructureUpgrade()
 
 void CBattery::UpgradeComplete()
 {
-	CCollector* pCollector = DigitanksGame()->Create<CCollector>("CCollector");
+	CCollector* pCollector = GameServer()->Create<CCollector>("CCollector");
 	pCollector->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pCollector);
 	pCollector->SetSupplier(GetSupplier());
