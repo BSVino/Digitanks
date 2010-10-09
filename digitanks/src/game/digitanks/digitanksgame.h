@@ -152,6 +152,8 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CUpdateGrid, UpdatesData);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, TeamUpdatesData);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadUpdate);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadComplete);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginConstruction);
 

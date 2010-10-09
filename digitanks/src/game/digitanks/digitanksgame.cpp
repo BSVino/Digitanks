@@ -101,8 +101,14 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 0);
+
+	// CUpdateGrid
 	CNetwork::RegisterFunction("UpdatesData", this, UpdatesDataCallback, 0);
+
+	// CDigitanksTeam
 	CNetwork::RegisterFunction("TeamUpdatesData", this, TeamUpdatesDataCallback, 0);
+	CNetwork::RegisterFunction("DownloadUpdate", this, DownloadUpdateCallback, 0);
+	CNetwork::RegisterFunction("DownloadComplete", this, DownloadCompleteCallback, 0);
 
 	// CPU
 	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);

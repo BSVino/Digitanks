@@ -65,9 +65,11 @@ public:
 	float						GetVisibilityAtPoint(Vector vecPoint);
 
 	void						DownloadUpdate(int iX, int iY, bool bCheck = true);
+	void						DownloadUpdate(class CNetworkParameters* p);
 	size_t						GetUpdateDownloaded() { return m_iUpdateDownloaded; };
 	size_t						GetUpdateSize();
 	void						DownloadComplete(bool bInformMembers = true);
+	void						DownloadComplete(class CNetworkParameters* p);
 	bool						HasDownloadedUpdate(int iX, int iY);
 	bool						CanDownloadUpdate(int iX, int iY);
 	bool						IsDownloading(int iX, int iY);
@@ -102,11 +104,11 @@ protected:
 
 	std::map<size_t, float>		m_aflVisibilities;
 
-	size_t						m_iProduction;
-	size_t						m_iLoadersProducing;
+	CNetworkedVariable<size_t>	m_iProduction;
+	CNetworkedVariable<size_t>	m_iLoadersProducing;
 
-	size_t						m_iTotalFleetPoints;
-	size_t						m_iUsedFleetPoints;
+	CNetworkedVariable<size_t>	m_iTotalFleetPoints;
+	CNetworkedVariable<size_t>	m_iUsedFleetPoints;
 
 	CNetworkedVariable<size_t>	m_iScore;
 
@@ -122,14 +124,14 @@ protected:
 	int							m_iCurrentUpdateX;
 	int							m_iCurrentUpdateY;
 	bool						m_abUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];
-	size_t						m_iUpdateDownloaded;
-	size_t						m_iBandwidth;
+	CNetworkedVariable<size_t>	m_iUpdateDownloaded;
+	CNetworkedVariable<size_t>	m_iBandwidth;
 
-	bool						m_bCanBuildBuffers;
-	bool						m_bCanBuildPSUs;
-	bool						m_bCanBuildInfantryLoaders;
-	bool						m_bCanBuildTankLoaders;
-	bool						m_bCanBuildArtilleryLoaders;
+	CNetworkedVariable<bool>	m_bCanBuildBuffers;
+	CNetworkedVariable<bool>	m_bCanBuildPSUs;
+	CNetworkedVariable<bool>	m_bCanBuildInfantryLoaders;
+	CNetworkedVariable<bool>	m_bCanBuildTankLoaders;
+	CNetworkedVariable<bool>	m_bCanBuildArtilleryLoaders;
 };
 
 #endif

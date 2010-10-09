@@ -15,7 +15,18 @@
 #include "collector.h"
 
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
+	NETVAR_DEFINE(size_t, m_iProduction);
+	NETVAR_DEFINE(size_t, m_iLoadersProducing);
+	NETVAR_DEFINE(size_t, m_iTotalFleetPoints);
+	NETVAR_DEFINE(size_t, m_iUsedFleetPoints);
 	NETVAR_DEFINE(size_t, m_iScore);
+	NETVAR_DEFINE(size_t, m_iUpdateDownloaded);
+	NETVAR_DEFINE(size_t, m_iBandwidth);
+	NETVAR_DEFINE(bool, m_bCanBuildBuffers);
+	NETVAR_DEFINE(bool, m_bCanBuildPSUs);
+	NETVAR_DEFINE(bool, m_bCanBuildInfantryLoaders);
+	NETVAR_DEFINE(bool, m_bCanBuildTankLoaders);
+	NETVAR_DEFINE(bool, m_bCanBuildArtilleryLoaders);
 NETVAR_TABLE_END();
 
 CDigitanksTeam::CDigitanksTeam()
@@ -224,7 +235,9 @@ void CDigitanksTeam::StartTurn()
 
 	if (GetUpdateDownloading())
 	{
-		m_iUpdateDownloaded += m_iBandwidth;
+		if (CNetwork::IsHost())
+			m_iUpdateDownloaded += m_iBandwidth;
+
 		if (GetUpdateDownloaded() >= GetUpdateSize())
 		{
 			std::wstringstream s;
@@ -262,6 +275,9 @@ void CDigitanksTeam::EndTurn()
 
 void CDigitanksTeam::CountProducers()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iProduction = 0;
 	m_iLoadersProducing = 0;
 
@@ -301,12 +317,15 @@ void CDigitanksTeam::CountProducers()
 
 void CDigitanksTeam::AddProduction(size_t iProduction)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iProduction += iProduction;
 }
 
 float CDigitanksTeam::GetProductionPerLoader()
 {
-	if (m_iLoadersProducing == 0)
+	if (m_iLoadersProducing == (size_t)0)
 		return (float)m_iProduction;
 
 	return (float)m_iProduction / (float)m_iLoadersProducing;
@@ -314,6 +333,9 @@ float CDigitanksTeam::GetProductionPerLoader()
 
 void CDigitanksTeam::CountFleetPoints()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iTotalFleetPoints = 0;
 	m_iUsedFleetPoints = 0;
 
@@ -344,6 +366,9 @@ void CDigitanksTeam::CountFleetPoints()
 
 void CDigitanksTeam::CountScore()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iScore = 0;
 
 	// Find and count fleet points
@@ -372,6 +397,9 @@ void CDigitanksTeam::CountScore()
 
 void CDigitanksTeam::CountBandwidth()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iBandwidth = 0;
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -479,6 +507,30 @@ void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 	if (bCheckValid && !CanDownloadUpdate(iX, iY))
 		return;
 
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = iX;
+	p.ui3 = iY;
+	p.i4 = !!bCheckValid;
+
+	DownloadUpdate(&p);
+
+	if (!CNetwork::IsHost())
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "DownloadUpdate", &p);
+}
+
+void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
+{
+	size_t iX = p->ui2;
+	size_t iY = p->ui3;
+	bool bCheckValid = !!p->i4;
+
+	if (m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY)
+		return;
+
+	if (bCheckValid && !CanDownloadUpdate(iX, iY))
+		return;
+
 	m_iCurrentUpdateX = iX;
 	m_iCurrentUpdateY = iY;
 	m_iUpdateDownloaded = 0;
@@ -503,9 +555,23 @@ void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 	if (!DigitanksGame()->GetUpdateGrid())
 		return;
 
-	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
+	if (!CNetwork::IsHost())
+		return;
 
-	m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY] = true;
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.i2 = !!bInformMembers;
+
+	DownloadComplete(&p);
+
+	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "DownloadComplete", &p);
+}
+
+void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
+{
+	bool bInformMembers = !!p->i2;
+
+	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
 
 	if (bInformMembers)
 	{
@@ -518,6 +584,17 @@ void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 			pEntity->DownloadComplete(pItem);
 		}
 	}
+
+	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
+
+	if (!CNetwork::IsHost())
+		return;
+
+	// Host-only shit from here on out, gets auto-sent to the clients.
+
+	m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY] = true;
+
+	ClientUpdate(GetClient());	// Force my team to receive my m_abUpdates
 
 	if (pItem->m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
@@ -544,8 +621,6 @@ void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 			break;
 		}
 	}
-
-	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 
 	m_iUpdateDownloaded = 0;
 }
