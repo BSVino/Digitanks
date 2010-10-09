@@ -235,6 +235,8 @@ CKDNode::CKDNode(CKDNode* pParent, AABB oBounds, CKDTree* pTree)
 
 	m_pLeft = NULL;
 	m_pRight = NULL;
+
+	m_iTriangles = 0;
 }
 
 CKDNode::~CKDNode()
@@ -247,14 +249,15 @@ CKDNode::~CKDNode()
 
 void CKDNode::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance)
 {
-	m_iTriangles++;
-
 	if (m_pTree->IsBuilt())
 	{
 		// Keep the tree built.
 
 		if (!m_pLeft)
+		{
 			m_aTris.push_back(CKDTri(v1, v2, v3, pFace, pMeshInstance));
+			m_iTriangles = m_aTris.size();
+		}
 
 		if (m_aTris.size() == MIN_TRIS_NODE+1)
 		{
@@ -275,6 +278,9 @@ void CKDNode::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFac
 	}
 	else
 		m_aTris.push_back(CKDTri(v1, v2, v3, pFace, pMeshInstance));
+
+	if (m_pLeft)
+		m_iTriangles = m_pLeft->m_iTriangles + m_pRight->m_iTriangles;
 }
 
 void CKDNode::RemoveArea(const AABB& oBox)
@@ -286,6 +292,7 @@ void CKDNode::RemoveArea(const AABB& oBox)
 		CKDNode* pParent = m_pParent;
 		while (pParent)
 		{
+			assert(iTrianglesDeleted <= pParent->m_iTriangles);
 			pParent->m_iTriangles -= iTrianglesDeleted;
 			pParent = pParent->m_pParent;
 		}
@@ -310,14 +317,10 @@ void CKDNode::RemoveArea(const AABB& oBox)
 			}
 		}
 
-		m_iTriangles -= iTrianglesDeleted;
+		assert(iTrianglesDeleted == m_iTriangles - m_aTris.size());
+		assert(iTrianglesDeleted <= m_iTriangles);
 
-		CKDNode* pParent = m_pParent;
-		while (pParent)
-		{
-			pParent->m_iTriangles -= iTrianglesDeleted;
-			pParent = pParent->m_pParent;
-		}
+		m_iTriangles = m_aTris.size();
 	}
 
 	if (!m_pLeft)
@@ -328,6 +331,8 @@ void CKDNode::RemoveArea(const AABB& oBox)
 
 	if (m_pRight->GetBounds().Intersects(oBox))
 		m_pRight->RemoveArea(oBox);
+
+	m_iTriangles = m_pLeft->m_iTriangles + m_pRight->m_iTriangles;
 
 	if (m_iTriangles <= MIN_TRIS_NODE)
 	{
@@ -385,6 +390,8 @@ void CKDNode::BuildTriList()
 				m_aTris.push_back(CKDTri(oTri.v[0], oTri.v[1], oTri.v[2], oTri.m_pFace, oTri.m_pMeshInstance));
 		}
 	}
+
+	m_iTriangles = m_aTris.size();
 }
 
 void CKDNode::PassTriList()
@@ -440,6 +447,8 @@ void CKDNode::Build()
 
 	m_pLeft->Build();
 	m_pRight->Build();
+
+	m_iTriangles = m_pLeft->m_iTriangles + m_pRight->m_iTriangles;
 }
 
 bool CKDNode::Raytrace(const Ray& rayTrace, CTraceResult* pTR)
