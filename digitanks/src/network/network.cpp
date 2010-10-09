@@ -97,13 +97,9 @@ void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 	}
 }
 
-void CNetwork::CreateHost(int iPort, INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect)
+void CNetwork::CreateHost(int iPort)
 {
 	s_bConnected = false;
-
-	s_pClientListener = pListener;
-	s_pfnClientConnect = pfnClientConnect;
-	s_pfnClientDisconnect = pfnClientDisconnect;
 
 	ENetAddress oAddress;
 
@@ -120,6 +116,13 @@ void CNetwork::CreateHost(int iPort, INetworkListener* pListener, INetworkListen
 		return;
 
 	s_bConnected = true;
+}
+
+void CNetwork::SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect)
+{
+	s_pClientListener = pListener;
+	s_pfnClientConnect = pfnClientConnect;
+	s_pfnClientDisconnect = pfnClientDisconnect;
 }
 
 void CNetwork::ConnectToHost(const char* pszHost, int iPort)

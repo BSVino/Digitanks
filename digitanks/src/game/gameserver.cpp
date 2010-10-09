@@ -43,9 +43,11 @@ CGameServer::~CGameServer()
 
 void CGameServer::Initialize()
 {
-	m_hGame = CreateGame();
-	m_pRenderer = GetGame()->CreateRenderer();
-	m_pCamera = GetGame()->CreateCamera();
+	if (CNetwork::IsHost())
+		m_hGame = CreateGame();
+
+	m_pRenderer = CreateRenderer();
+	m_pCamera = CreateCamera();
 
 	RegisterNetworkFunctions();
 }
@@ -58,8 +60,6 @@ void CGameServer::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
 	CNetwork::RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
-
-	GetGame()->RegisterNetworkFunctions();
 }
 
 void CGameServer::ClientConnect(CNetworkParameters* p)
@@ -74,7 +74,7 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 
 	CNetwork::UpdateNetworkVariables(p->i2, true);
 
-	OnClientConnect(p);
+	GetGame()->OnClientConnect(p);
 
 	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -95,7 +95,7 @@ void CGameServer::LoadingDone(CNetworkParameters* p)
 
 void CGameServer::ClientDisconnect(CNetworkParameters* p)
 {
-	OnClientDisconnect(p);
+	GetGame()->OnClientDisconnect(p);
 }
 
 void CGameServer::Think(float flRealTime)
@@ -251,6 +251,10 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 	hEntity->RegisterNetworkVariables();
 
 	hEntity->Spawn();
+
+	if (dynamic_cast<CGame*>(hEntity.GetPointer()))
+		m_hGame = CEntityHandle<CGame>(hEntity->GetHandle());
+
 	return iHandle;
 }
 

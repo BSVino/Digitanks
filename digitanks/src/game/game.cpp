@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include <ui/digitankswindow.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <renderer/dissolver.h>
@@ -22,23 +21,40 @@ CGame::~CGame()
 		m_ahTeams[i]->Delete();
 }
 
+void CGame::Spawn()
+{
+	RegisterNetworkFunctions();
+}
+
 void CGame::RegisterNetworkFunctions()
 {
 	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("RemoveTeam", this, RemoveTeamCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
 	CNetwork::RegisterFunction("SetTeamClient", this, SetTeamClientCallback, 2, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("AddEntityToTeam", this, AddEntityToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
 }
 
-CRenderer* CGame::CreateRenderer()
+void CGame::OnClientConnect(CNetworkParameters* p)
 {
-	return new CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+		CNetwork::CallFunction(p->i2, "AddTeam", GetTeam(i)->GetHandle());
+
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
+		if (!m_ahTeams[i]->IsPlayerControlled())
+		{
+			p->p1 = (void*)i;
+			m_ahTeams[i]->SetClient(p->i2);
+			break;
+		}
+	}
 }
 
-CCamera* CGame::CreateCamera()
+void CGame::OnClientDisconnect(CNetworkParameters* p)
 {
-	return new CCamera();
+	m_ahTeams[p->i1]->SetClient(-1);
 }
 
 void CGame::SetAngles(CNetworkParameters* p)
@@ -49,9 +65,54 @@ void CGame::SetAngles(CNetworkParameters* p)
 		hEntity->SetAngles(EAngle(p->fl2, p->fl3, p->fl4));
 }
 
+void CGame::AddTeamToList(CTeam* pTeam)
+{
+	if (!pTeam)
+		return;
+
+	CNetworkParameters p;
+	p.ui1 = pTeam->GetHandle();
+
+	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "AddTeam",  &p);
+
+	AddTeam(&p);
+}
+
 void CGame::AddTeam(CNetworkParameters* p)
 {
+	// Prevent dupes
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
+		if (m_ahTeams[i] == CEntityHandle<CTeam>(p->ui1))
+			return;
+	}
+
 	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
+}
+
+void CGame::RemoveTeamFromList(CTeam* pTeam)
+{
+	if (!pTeam)
+		return;
+
+	CNetworkParameters p;
+	p.ui1 = pTeam->GetHandle();
+
+	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "RemoveTeam",  &p);
+
+	RemoveTeam(&p);
+}
+
+void CGame::RemoveTeam(CNetworkParameters* p)
+{
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
+		if (m_ahTeams[i] == CEntityHandle<CTeam>(p->ui1))
+		{
+			m_ahTeams.erase(m_ahTeams.begin()+i);
+			return;
+		}
+	}
 }
 
 void CGame::OnDeleted()

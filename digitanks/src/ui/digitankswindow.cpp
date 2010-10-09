@@ -127,24 +127,11 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	CSoundLibrary::StopMusic();
 
-	if (!m_pGameServer)
-	{
-		m_pGameServer = new CGameServer();
-		m_pGameServer->Initialize();
-
-		m_pHUD = new CHUD();
-		m_pHUD->SetGame(DigitanksGame());
-		glgui::CRootPanel::Get()->AddControl(m_pHUD);
-
-		if (!m_pInstructor)
-			m_pInstructor = new CInstructor();
-	}
-
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
 	if (HasCommandLineSwitch("--host"))
-		CNetwork::CreateHost(iPort, m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
+		CNetwork::CreateHost(iPort);
 
 	if (HasCommandLineSwitch("--connect"))
 	{
@@ -156,7 +143,22 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		}
 	}
 
-	DigitanksGame()->SetupGame(eGameType);
+	if (!m_pGameServer)
+	{
+		m_pHUD = new CHUD();
+
+		m_pGameServer = new CGameServer();
+		m_pGameServer->Initialize();
+		CNetwork::SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
+
+		glgui::CRootPanel::Get()->AddControl(m_pHUD);
+
+		if (!m_pInstructor)
+			m_pInstructor = new CInstructor();
+	}
+
+	if (CNetwork::IsHost() && DigitanksGame())
+		DigitanksGame()->SetupGame(eGameType);
 
 	glgui::CRootPanel::Get()->Layout();
 }

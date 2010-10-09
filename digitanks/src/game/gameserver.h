@@ -23,9 +23,6 @@ public:
 	NET_CALLBACK(CGameServer,					LoadingDone);
 	NET_CALLBACK(CGameServer,					ClientDisconnect);
 
-	virtual void								OnClientConnect(CNetworkParameters* p) {};
-	virtual void								OnClientDisconnect(CNetworkParameters* p) {};
-
 	void										Think(float flRealTime);
 	void										Simulate();
 	void										Render();
@@ -89,5 +86,7 @@ inline class CGameServer* GameServer()
 
 // Let the game directory define this.
 extern class CGame* CreateGame();
+extern class CRenderer* CreateRenderer();
+extern class CCamera* CreateCamera();
 
 #endif

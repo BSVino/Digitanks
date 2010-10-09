@@ -130,9 +130,6 @@ public:
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
-	NET_CALLBACK(CDigitanksGame, SetGlobals);
-	NET_CALLBACK(CDigitanksGame, SetCurrentTeam);
-
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, ManageSupplyLine);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredMove);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredMove);
@@ -214,11 +211,11 @@ public:
 	CDigitanksTeam*			GetLocalDigitanksTeam();
 
 protected:
-	size_t					m_iCurrentTeam;
+	CNetworkedVariable<size_t> m_iCurrentTeam;
 
 	controlmode_t			m_eControlMode;
 
-	CEntityHandle<CTerrain>	m_hTerrain;
+	CNetworkedHandle<CTerrain> m_hTerrain;
 
 	IDigitanksGameListener*	m_pListener;
 
@@ -235,14 +232,14 @@ protected:
 	std::vector<float>		m_aflTankAimRadius;
 	size_t					m_iTankAimFocus;
 
-	size_t					m_iDifficulty;
+	CNetworkedVariable<size_t> m_iDifficulty;
 
-	bool					m_bRenderFogOfWar;
+	CNetworkedVariable<bool> m_bRenderFogOfWar;
 
-	gametype_t				m_eGameType;
-	size_t					m_iTurn;
+	CNetworkedVariable<gametype_t> m_eGameType;
+	CNetworkedVariable<size_t> m_iTurn;
 
-	CEntityHandle<CUpdateGrid>	m_hUpdates;
+	CNetworkedHandle<CUpdateGrid>	m_hUpdates;
 
 	std::vector<actionitem_t>	m_aActionItems;
 	bool					m_bAllowActionItems;

@@ -242,6 +242,40 @@ public:
 		return m_oVariable;
 	}
 
+	// Suffix
+	inline C operator++(int)
+	{
+		m_bDirty = true;
+		C oReturn = m_oVariable;
+		m_oVariable++;
+		return oReturn;
+	}
+
+	// Prefix
+	inline const C& operator++()
+	{
+		m_bDirty = true;
+		m_oVariable++;
+		return m_oVariable;
+	}
+
+	// Suffix
+	inline C operator--(int)
+	{
+		m_bDirty = true;
+		C oReturn = m_oVariable;
+		m_oVariable--;
+		return oReturn;
+	}
+
+	// Prefix
+	inline const C& operator--()
+	{
+		m_bDirty = true;
+		m_oVariable--;
+		return m_oVariable;
+	}
+
 	inline operator const C&()
 	{
 		return m_oVariable;
@@ -297,7 +331,8 @@ public:
 	static void				DeregisterNetworkVariable(CNetworkedVariableBase* pVariable);
 	static void				UpdateNetworkVariables(int iClient, bool bForceAll = false);
 
-	static void				CreateHost(int iPort, INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect);
+	static void				CreateHost(int iPort);
+	static void				SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect);
 	static void				ConnectToHost(const char* pszHost, int iPort);
 
 	static bool				IsConnected() { return s_bConnected; };

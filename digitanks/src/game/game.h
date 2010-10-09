@@ -18,13 +18,20 @@ public:
 												~CGame();
 
 public:
+	virtual void								Spawn();
+
 	virtual void								RegisterNetworkFunctions();
 
-	virtual class CRenderer*					CreateRenderer();
-	virtual class CCamera*						CreateCamera();
+	virtual void								OnClientConnect(CNetworkParameters* p);
+	virtual void								OnClientDisconnect(CNetworkParameters* p);
 
 	NET_CALLBACK(CGame,							SetAngles);
+
+	void										AddTeamToList(CTeam* pTeam);
 	NET_CALLBACK(CGame,							AddTeam);
+
+	void										RemoveTeamFromList(CTeam* pTeam);
+	NET_CALLBACK(CGame,							RemoveTeam);
 
 	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamColor);
 	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamClient);

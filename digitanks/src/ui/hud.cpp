@@ -100,8 +100,6 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 CHUD::CHUD()
 	: CPanel(0, 0, 100, 100)
 {
-	m_pGame = NULL;
-
 	m_pHealthBar = new CPowerBar(POWERBAR_HEALTH);
 	m_pAttackPower = new CPowerBar(POWERBAR_ATTACK);
 	m_pDefensePower = new CPowerBar(POWERBAR_DEFENSE);
@@ -752,6 +750,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 void CHUD::UpdateInfo()
 {
+	if (!DigitanksGame())
+		return;
+
 	m_pAttackInfo->SetText("");
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
@@ -914,12 +915,15 @@ void CHUD::UpdateStructureInfo(CStructure* pStructure)
 
 void CHUD::UpdateTeamInfo()
 {
-	std::stringstream s1;
+	if (!DigitanksGame())
+		return;
+
 	CDigitanksTeam* pTeam = DigitanksGame()->GetLocalDigitanksTeam();
 
 	if (!pTeam)
 		return;
 
+	std::stringstream s1;
 	s1 << pTeam->GetTotalProduction() << "\n";
 	m_pPowerInfo->SetText(s1.str().c_str());
 
@@ -987,6 +991,12 @@ void CHUD::UpdateScoreboard()
 
 void CHUD::UpdateTurnButton()
 {
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentTeam())
+		return;
+
 	bool bTurnComplete = true;
 
 	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumMembers(); i++)
@@ -1020,12 +1030,6 @@ void CHUD::UpdateTurnButton()
 		m_pPressEnter->SetVisible(true);
 }
 
-void CHUD::SetGame(CDigitanksGame *pGame)
-{
-	m_pGame = pGame;
-	m_pGame->SetListener(this);
-}
-
 void CHUD::SetupMenu()
 {
 	SetupMenu(m_eMenuMode);
@@ -1033,6 +1037,9 @@ void CHUD::SetupMenu()
 
 void CHUD::SetupMenu(menumode_t eMenuMode)
 {
+	if (!DigitanksGame())
+		return;
+
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
 		m_apButtons[i]->SetClickedListener(NULL, NULL);

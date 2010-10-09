@@ -183,8 +183,10 @@ void CDigitanksMenu::StartArtilleryGameCallback()
 	if (!GameServer())
 		return;
 
+	if (CNetwork::IsHost() && DigitanksGame())
+		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
+
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 	SetVisible(false);
 }
 
@@ -195,8 +197,10 @@ void CDigitanksMenu::StartBasesGameCallback()
 	if (!GameServer())
 		return;
 
+	if (CNetwork::IsHost() && DigitanksGame())
+		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
+
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 	SetVisible(false);
 }
 

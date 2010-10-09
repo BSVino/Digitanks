@@ -63,7 +63,7 @@ void CUpdatesPanel::Layout()
 
 	m_apUpdates.clear();
 
-	if (!DigitanksGame()->GetUpdateGrid())
+	if (!DigitanksGame() || !DigitanksGame()->GetUpdateGrid())
 		return;
 
 	CUpdateGrid* pUpdates = DigitanksGame()->GetUpdateGrid();

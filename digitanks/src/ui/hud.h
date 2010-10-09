@@ -227,8 +227,6 @@ public:
 	size_t						GetSpeechBubble() { return m_iSpeechBubble; };
 
 protected:
-	class CDigitanksGame*		m_pGame;
-
 	CPowerBar*					m_pHealthBar;
 	CPowerBar*					m_pAttackPower;
 	CPowerBar*					m_pDefensePower;

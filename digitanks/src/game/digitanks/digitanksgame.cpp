@@ -32,7 +32,26 @@ CGame* CreateGame()
 	return GameServer()->Create<CDigitanksGame>("CDigitanksGame");
 }
 
+CRenderer* CreateRenderer()
+{
+	return new CDigitanksRenderer();
+}
+
+CCamera* CreateCamera()
+{
+	CDigitanksCamera* pCamera = new CDigitanksCamera();
+	pCamera->SnapDistance(120);
+	return pCamera;
+}
+
 NETVAR_TABLE_BEGIN(CDigitanksGame);
+	NETVAR_DEFINE(size_t, m_iCurrentTeam);
+	NETVAR_DEFINE(CEntityHandle<CTerrain>, m_hTerrain);
+	NETVAR_DEFINE(size_t, m_iDifficulty);
+	NETVAR_DEFINE(bool, m_bRenderFogOfWar);
+	NETVAR_DEFINE(gametype_t, m_eGameType);
+	NETVAR_DEFINE(size_t, m_iTurn);
+	NETVAR_DEFINE(CEntityHandle<CUpdateGrid>, m_hUpdates);
 NETVAR_TABLE_END();
 
 CDigitanksGame::CDigitanksGame()
@@ -47,6 +66,8 @@ CDigitanksGame::CDigitanksGame()
 	m_iDifficulty = 1;
 	m_bRenderFogOfWar = true;
 	m_bAllowActionItems = false;
+
+	SetListener(CDigitanksWindow::Get()->GetHUD());
 }
 
 CDigitanksGame::~CDigitanksGame()
@@ -62,8 +83,6 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("EndTurn", this, EndTurnCallback, 0);
 	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
 	CNetwork::RegisterFunction("ManageSupplyLine", this, ManageSupplyLineCallback, 3, NET_HANDLE, NET_HANDLE, NET_HANDLE);
-	CNetwork::RegisterFunction("SetCurrentTeam", this, SetCurrentTeamCallback, 1, NET_INT);
-	CNetwork::RegisterFunction("SetGlobals", this, SetGlobalsCallback, 2, NET_HANDLE, NET_HANDLE);
 	CNetwork::RegisterFunction("SetDesiredMove", this, SetDesiredMoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("CancelDesiredMove", this, CancelDesiredMoveCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetDesiredTurn", this, SetDesiredTurnCallback, 2, NET_HANDLE, NET_FLOAT);
@@ -98,29 +117,13 @@ void CDigitanksGame::RegisterNetworkFunctions()
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
 {
-	CNetwork::CallFunction(p->i2, "SetGlobals", GetTerrain()->GetHandle(), GetUpdateGrid()->GetHandle());
+	BaseClass::OnClientConnect(p);
 
 	GetTerrain()->ResyncClientTerrainData(p->i2);
-
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-	{
-		CNetwork::CallFunction(p->i2, "AddTeam", GetTeam(i)->GetHandle());
-	}
-
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-	{
-		if (!m_ahTeams[i]->IsPlayerControlled())
-		{
-			p->p1 = (void*)i;
-			m_ahTeams[i]->SetClient(p->i2);
-			break;
-		}
-	}
 }
 
 void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
 {
-	m_ahTeams[p->i1]->SetClient(-1);
 }
 
 void CDigitanksGame::SetupGame(gametype_t eGameType)
@@ -277,7 +280,7 @@ void CDigitanksGame::SetupArtillery()
 
 	for (int i = 0; i < iPlayers; i++)
 	{
-		m_ahTeams.push_back(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
 
@@ -342,7 +345,7 @@ void CDigitanksGame::SetupStandard()
 
 	for (int i = 0; i < 4; i++)
 	{
-		m_ahTeams.push_back(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
 		m_ahTeams[i]->SetName(aszTeamNames[i]);
@@ -421,10 +424,10 @@ void CDigitanksGame::SetupStandard()
 
 void CDigitanksGame::SetupTutorial()
 {
-	m_ahTeams.push_back(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
-	m_ahTeams.push_back(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[1]->SetColor(Color(255, 0, 0));
 
 	m_ahTeams[0]->SetClient(-1);
@@ -448,9 +451,15 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 	CSoundLibrary::StopSound();
 	CParticleSystemLibrary::ClearInstances();
 
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-		m_ahTeams[i]->Delete();
+	while (m_ahTeams.size())
+	{
+		CTeam* pTeam = m_ahTeams[0];
+		RemoveTeamFromList(pTeam);
+		pTeam->Delete();
+	}
 
+	// Just in case!
+	assert(m_ahTeams.size() == 0);
 	m_ahTeams.clear();
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -471,8 +480,6 @@ void CDigitanksGame::StartGame()
 	m_bWaitingForProjectiles = true;
 
 	GetCurrentTeam()->StartTurn();
-
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetCurrentTeam", 0);
 
 	GameServer()->SetLoading(false);
 
@@ -791,7 +798,7 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	if (m_iCurrentTeam == 0)
+	if (m_iCurrentTeam == (size_t)0)
 		m_iTurn++;
 
 	if (m_pListener)
@@ -1028,18 +1035,10 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 
 void CDigitanksGame::TerrainData(class CNetworkParameters* p)
 {
+	if (!GetTerrain())
+		return;
+
 	GetTerrain()->TerrainData(p);
-}
-
-void CDigitanksGame::SetGlobals(CNetworkParameters* p)
-{
-	m_hTerrain = CEntityHandle<CTerrain>(p->ui1);
-	m_hUpdates = CEntityHandle<CUpdateGrid>(p->ui2);
-}
-
-void CDigitanksGame::SetCurrentTeam(CNetworkParameters* p)
-{
-	m_iCurrentTeam = p->i1;
 }
 
 CRenderer* CDigitanksGame::CreateRenderer()
