@@ -572,6 +572,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 	bool bInformMembers = !!p->i2;
 
 	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
+	bool* pbTeamUpdate = &m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
 
 	if (bInformMembers)
 	{
@@ -592,7 +593,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 
 	// Host-only shit from here on out, gets auto-sent to the clients.
 
-	m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY] = true;
+	*pbTeamUpdate = true;
 
 	ClientUpdate(GetClient());	// Force my team to receive my m_abUpdates
 
