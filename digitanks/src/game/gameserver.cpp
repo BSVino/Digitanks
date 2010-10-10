@@ -315,6 +315,9 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 		return;
 
 	pVariable->Unserialize((unsigned char*)p->m_pExtraData + strlen((char*)p->m_pExtraData)+1);
+
+	if (pVariable->m_pfnChanged)
+		pVariable->m_pfnChanged(pVariable);
 }
 
 void CGameServer::ClientInfo(CNetworkParameters* p)

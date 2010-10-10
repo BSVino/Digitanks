@@ -150,6 +150,8 @@ enum
 	NETWORK_TOEVERYONE	= -3,	// This message is all of the above.
 };
 
+typedef void (*NetVarChangeCallback)(class CNetworkedVariableBase* pVariable);
+
 class CNetworkedVariableBase
 {
 public:
@@ -165,6 +167,8 @@ public:
 	virtual const char*	GetName() { return m_pszName; }
 	virtual void		SetName(const char* pszName) { m_pszName = pszName; }
 
+	virtual void		SetCallback(NetVarChangeCallback pfnCallback) { m_pfnChanged = pfnCallback; }
+
 	virtual void*		Serialize(size_t& iSize) { return NULL; }
 	virtual void		Unserialize(void* pValue) {}
 
@@ -175,6 +179,8 @@ public:
 	class CBaseEntity*	m_pParent;
 
 	const char*			m_pszName;
+
+	NetVarChangeCallback	m_pfnChanged;
 };
 
 template <class C>

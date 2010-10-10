@@ -207,6 +207,8 @@ public:
 
 	float					FogPenetrationDistance() { return 10; }
 
+	static void				UpdateHUD(CNetworkedVariableBase* pVariable);
+
 	// CHEAT!
 	void					CompleteProductions();
 

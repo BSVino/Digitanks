@@ -15,18 +15,18 @@
 #include "collector.h"
 
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
-	NETVAR_DEFINE(size_t, m_iProduction);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iProduction, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iLoadersProducing);
-	NETVAR_DEFINE(size_t, m_iTotalFleetPoints);
-	NETVAR_DEFINE(size_t, m_iUsedFleetPoints);
-	NETVAR_DEFINE(size_t, m_iScore);
-	NETVAR_DEFINE(size_t, m_iUpdateDownloaded);
-	NETVAR_DEFINE(size_t, m_iBandwidth);
-	NETVAR_DEFINE(bool, m_bCanBuildBuffers);
-	NETVAR_DEFINE(bool, m_bCanBuildPSUs);
-	NETVAR_DEFINE(bool, m_bCanBuildInfantryLoaders);
-	NETVAR_DEFINE(bool, m_bCanBuildTankLoaders);
-	NETVAR_DEFINE(bool, m_bCanBuildArtilleryLoaders);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iTotalFleetPoints, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iUpdateDownloaded, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iBandwidth, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildBuffers, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildPSUs, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildInfantryLoaders, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildTankLoaders, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildArtilleryLoaders, &CDigitanksGame::UpdateHUD);
 NETVAR_TABLE_END();
 
 CDigitanksTeam::CDigitanksTeam()

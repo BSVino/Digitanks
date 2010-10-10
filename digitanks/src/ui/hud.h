@@ -226,6 +226,8 @@ public:
 
 	size_t						GetSpeechBubble() { return m_iSpeechBubble; };
 
+	static void					SetNeedsUpdate();
+
 protected:
 	CPowerBar*					m_pHealthBar;
 	CPowerBar*					m_pAttackPower;
@@ -273,6 +275,8 @@ protected:
 	glgui::CLabel*				m_pPressEnter;
 
 	bool						m_bHUDActive;
+
+	bool						m_bNeedsUpdate;
 
 	glgui::CLabel*				m_pFPS;
 

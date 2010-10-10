@@ -378,6 +378,7 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 {
 	m_bDirty = true;
 	m_pParent = NULL;
+	m_pfnChanged = NULL;
 }
 
 void CNetworkedVariableBase::SetParent(CBaseEntity* pParent)

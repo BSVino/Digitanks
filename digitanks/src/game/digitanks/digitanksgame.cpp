@@ -1309,3 +1309,8 @@ CDigitanksTeam* CDigitanksGame::GetLocalDigitanksTeam()
 {
 	return dynamic_cast<CDigitanksTeam*>(GetLocalTeam());
 }
+
+void CDigitanksGame::UpdateHUD(CNetworkedVariableBase* pVariable)
+{
+	CHUD::SetNeedsUpdate();
+}

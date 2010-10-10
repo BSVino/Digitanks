@@ -55,6 +55,10 @@ void entity::RegisterNetworkVariables() \
 	name.SetName(#name); \
 	name.SetParent(this); \
 
+#define NETVAR_DEFINE_CALLBACK(type, name, callback) \
+	NETVAR_DEFINE(type, name); \
+	name.SetCallback(callback); \
+
 #define NETVAR_TABLE_END() \
 } \
 

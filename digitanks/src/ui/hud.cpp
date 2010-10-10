@@ -100,6 +100,8 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 CHUD::CHUD()
 	: CPanel(0, 0, 100, 100)
 {
+	m_bNeedsUpdate = false;
+
 	m_pHealthBar = new CPowerBar(POWERBAR_HEALTH);
 	m_pAttackPower = new CPowerBar(POWERBAR_ATTACK);
 	m_pDefensePower = new CPowerBar(POWERBAR_DEFENSE);
@@ -459,6 +461,12 @@ void CHUD::Think()
 	//char szFPS[100];
 	//sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
 	//m_pFPS->SetText(szFPS);
+
+	if (m_bNeedsUpdate)
+	{
+		glgui::CRootPanel::Get()->Layout();
+		m_bNeedsUpdate = false;
+	}
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -2270,6 +2278,11 @@ void CHUD::CancelUpgradeCallback()
 void CHUD::GoToMainCallback()
 {
 	SetupMenu(MENUMODE_MAIN);
+}
+
+void CHUD::SetNeedsUpdate()
+{
+	CDigitanksWindow::Get()->GetHUD()->m_bNeedsUpdate = true;
 }
 
 CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bShield)
