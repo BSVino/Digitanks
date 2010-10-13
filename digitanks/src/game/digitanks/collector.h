@@ -25,7 +25,7 @@ public:
 	static size_t				GetCollectorConstructionCost() { return 60; };
 
 protected:
-	CEntityHandle<CResource>	m_hResource;
+	CNetworkedHandle<CResource>	m_hResource;
 };
 
 class CBattery : public CCollector

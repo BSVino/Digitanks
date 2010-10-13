@@ -10,6 +10,7 @@
 #include "digitanksgame.h"
 
 NETVAR_TABLE_BEGIN(CCollector);
+	NETVAR_DEFINE(CEntityHandle<CResource>, m_hResource);
 NETVAR_TABLE_END();
 
 void CCollector::Spawn()
