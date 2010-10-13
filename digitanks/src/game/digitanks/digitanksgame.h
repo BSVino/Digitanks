@@ -157,6 +157,8 @@ public:
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginConstruction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelConstruction);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginProduction);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelProduction);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginStructureConstruction);
 

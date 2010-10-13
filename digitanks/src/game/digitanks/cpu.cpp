@@ -33,6 +33,8 @@ size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 
 NETVAR_TABLE_BEGIN(CCPU);
 	NETVAR_DEFINE(CEntityHandle<CStructure>, m_hConstructing);
+	NETVAR_DEFINE(bool, m_bProducing);
+	NETVAR_DEFINE(size_t, m_iProduction);
 NETVAR_TABLE_END();
 
 void CCPU::Spawn()
@@ -549,6 +551,17 @@ void CCPU::BeginProduction()
 	if (HasConstruction())
 		return;
 
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		BeginProduction(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginProduction", &p);
+}
+
+void CCPU::BeginProduction(class CNetworkParameters* p)
+{
 	m_iProduction = 0;
 	m_bProducing = true;
 
@@ -558,10 +571,22 @@ void CCPU::BeginProduction()
 
 void CCPU::CancelProduction()
 {
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		CancelProduction(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelProduction", &p);
+}
+
+void CCPU::CancelProduction(class CNetworkParameters* p)
+{
 	m_iProduction = 0;
 	m_bProducing = false;
 
 	GetDigitanksTeam()->CountFleetPoints();
+	GetDigitanksTeam()->CountProducers();
 }
 
 bool CCPU::HasUpdatesAvailable()
@@ -601,34 +626,35 @@ void CCPU::StartTurn()
 		m_iProduction += (size_t)(GetDigitanksTeam()->GetProductionPerLoader());
 		if (m_iProduction > g_aiTurnsToLoad[BUILDUNIT_SCOUT])
 		{
-			CDigitank* pTank = GameServer()->Create<CScout>("CScout");
-			
-			pTank->SetOrigin(GetOrigin());
+			if (CNetwork::IsHost())
+			{
+				CDigitank* pTank = GameServer()->Create<CScout>("CScout");
+				pTank->SetOrigin(GetOrigin());
+				GetTeam()->AddEntity(pTank);
 
-			GetTeam()->AddEntity(pTank);
+				// All of these StartTurn calls will probably cause problems later but for now they're
+				// the only way to refresh the tank's energy so it has enough to leave the loader.
+				pTank->StartTurn();
+
+				pTank->SetPreviewMove(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
+				pTank->SetDesiredMove();
+				pTank->Move();
+
+				pTank->StartTurn();
+
+				// Face him toward the center.
+				pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
+				pTank->SetDesiredTurn();
+				pTank->Turn();
+
+				pTank->StartTurn();
+			}
 
 			m_bProducing = false;
 
 			DigitanksGame()->AppendTurnInfo(L"Production finished on Rogue");
 
-			// All of these StartTurn calls will probably cause problems later but for now they're
-			// the only way to refresh the tank's energy so it has enough to leave the loader.
-			pTank->StartTurn();
-
-			pTank->SetPreviewMove(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
-			pTank->SetDesiredMove();
-			pTank->Move();
-
-			pTank->StartTurn();
-
-			// Face him toward the center.
-			pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
-			pTank->SetDesiredTurn();
-			pTank->Turn();
-
-			pTank->StartTurn();
-
-			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
+//			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
 			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
 		else

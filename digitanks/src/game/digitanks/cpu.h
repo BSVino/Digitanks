@@ -42,7 +42,9 @@ public:
 	CStructure*					GetConstructing() { return m_hConstructing; }
 
 	void						BeginProduction();
+	void						BeginProduction(class CNetworkParameters* p);
 	void						CancelProduction();
+	void						CancelProduction(class CNetworkParameters* p);
 	bool						IsProducing() { return m_bProducing; }
 
 	virtual bool				HasUpdatesAvailable();
@@ -66,8 +68,8 @@ protected:
 	unittype_t					m_ePreviewStructure;
 	CNetworkedHandle<CStructure>	m_hConstructing;
 
-	bool						m_bProducing;
-	size_t						m_iProduction;
+	CNetworkedVariable<bool>	m_bProducing;
+	CNetworkedVariable<size_t>	m_iProduction;
 
 	size_t						m_iFanModel;
 	float						m_flFanRotationSpeed;

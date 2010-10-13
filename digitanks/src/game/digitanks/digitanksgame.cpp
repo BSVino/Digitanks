@@ -113,6 +113,8 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	// CPU
 	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
 	CNetwork::RegisterFunction("CancelConstruction", this, CancelConstructionCallback, 0);
+	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 0);
+	CNetwork::RegisterFunction("CancelProduction", this, CancelProductionCallback, 0);
 
 	// CStructure
 	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
