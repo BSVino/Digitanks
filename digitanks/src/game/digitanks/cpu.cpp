@@ -520,6 +520,20 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 void CCPU::CancelConstruction()
 {
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		CancelConstruction(NULL);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelConstruction", &p);
+}
+
+void CCPU::CancelConstruction(class CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
 	if (m_hConstructing != NULL)
 	{
 		GameServer()->Delete(m_hConstructing);

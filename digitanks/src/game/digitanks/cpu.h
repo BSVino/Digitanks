@@ -37,6 +37,7 @@ public:
 	void						BeginConstruction();
 	void						BeginConstruction(class CNetworkParameters* p);
 	void						CancelConstruction();
+	void						CancelConstruction(class CNetworkParameters* p);
 	bool						HasConstruction() { return m_hConstructing != NULL; }
 	CStructure*					GetConstructing() { return m_hConstructing; }
 

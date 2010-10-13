@@ -243,7 +243,11 @@ void CNetwork::Think()
 				}
 			}
 
-			CallbackFunction((const char*)oEvent.packet->data, (CNetworkParameters*)(oEvent.packet->data+strlen((const char*)oEvent.packet->data)+1));
+			if (oEvent.packet->dataLength > (size_t)strlen((const char*)oEvent.packet->data)+1)
+				CallbackFunction((const char*)oEvent.packet->data, (CNetworkParameters*)(oEvent.packet->data+strlen((const char*)oEvent.packet->data)+1));
+			else
+				CallbackFunction((const char*)oEvent.packet->data, NULL);
+
 			g_bIsRunningClientFunctions = false;
 			enet_packet_destroy(oEvent.packet);
 			break;
@@ -363,7 +367,8 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 
 	// Since CallbackFunction is called by casting the second argument (p) and the CNetworkParameters destructor won't run.
 	// If it did this next line would be a problem!
-	p->m_pExtraData = ((unsigned char*)p) + sizeof(*p);
+	if (p)
+		p->m_pExtraData = ((unsigned char*)p) + sizeof(*p);
 
 	CRegisteredFunction* pFunction = &s_aFunctions[pszName];
 
