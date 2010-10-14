@@ -120,6 +120,8 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("InstallUpdate", this, InstallUpdateCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("CancelInstall", this, CancelInstallCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("BeginUpgrade", this, BeginUpgradeCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("CancelUpgrade", this, CancelUpgradeCallback, 1, NET_HANDLE);
 
 	// CSupplier
 	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);

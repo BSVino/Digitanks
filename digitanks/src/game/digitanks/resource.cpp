@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 
 NETVAR_TABLE_BEGIN(CResource);
+	NETVAR_DEFINE(CEntityHandle<CCollector>, m_hCollector);
 NETVAR_TABLE_END();
 
 void CResource::Precache()

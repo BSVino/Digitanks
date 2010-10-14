@@ -280,6 +280,9 @@ bool CMiniBuffer::CanStructureUpgrade()
 
 void CMiniBuffer::UpgradeComplete()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");
 	pBuffer->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pBuffer);

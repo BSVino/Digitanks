@@ -155,6 +155,9 @@ bool CBattery::CanStructureUpgrade()
 
 void CBattery::UpgradeComplete()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	CCollector* pCollector = GameServer()->Create<CCollector>("CCollector");
 	pCollector->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pCollector);

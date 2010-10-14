@@ -32,7 +32,7 @@ public:
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
 
 protected:
-	CEntityHandle<CCollector>	m_hCollector;
+	CNetworkedHandle<CCollector> m_hCollector;
 
 	size_t						m_iSpark;
 };

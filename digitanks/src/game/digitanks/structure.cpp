@@ -29,6 +29,9 @@ NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(int, m_iInstallingUpdate);
 	NETVAR_DEFINE(size_t, m_iProductionToInstall);
 
+	NETVAR_DEFINE(bool, m_bUpgrading);
+	NETVAR_DEFINE(size_t, m_iProductionToUpgrade);
+
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplier);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
 
@@ -429,6 +432,17 @@ void CStructure::BeginUpgrade()
 	if (IsInstalling())
 		return;
 
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		BeginUpgrade(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginUpgrade", &p);
+}
+
+void CStructure::BeginUpgrade(CNetworkParameters* p)
+{
 	m_bUpgrading = true;
 
 	m_iProductionToUpgrade = ConstructionCost();
@@ -437,6 +451,17 @@ void CStructure::BeginUpgrade()
 }
 
 void CStructure::CancelUpgrade()
+{
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		CancelUpgrade(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelUpgrade", &p);
+}
+
+void CStructure::CancelUpgrade(CNetworkParameters* p)
 {
 	m_bUpgrading = false;
 

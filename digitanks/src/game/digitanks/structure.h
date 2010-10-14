@@ -59,7 +59,9 @@ public:
 
 	virtual bool				CanStructureUpgrade() { return false; };
 	void						BeginUpgrade();
+	void						BeginUpgrade(CNetworkParameters* p);
 	void						CancelUpgrade();
+	void						CancelUpgrade(CNetworkParameters* p);
 	virtual void				UpgradeComplete() {};
 	size_t						GetTurnsToUpgrade();
 	bool						IsUpgrading() { return m_bUpgrading; };
@@ -112,8 +114,8 @@ protected:
 	CNetworkedVariable<int>		m_iInstallingUpdate;
 	CNetworkedVariable<size_t>	m_iProductionToInstall;
 
-	bool						m_bUpgrading;
-	size_t						m_iProductionToUpgrade;
+	CNetworkedVariable<bool>	m_bUpgrading;
+	CNetworkedVariable<size_t>	m_iProductionToUpgrade;
 
 	CNetworkedHandle<CSupplier>		m_hSupplier;
 	CNetworkedHandle<CSupplyLine>	m_hSupplyLine;
