@@ -35,6 +35,12 @@ NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplier);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
 
+	NETVAR_DEFINE(size_t, m_iFleetSupply);
+	NETVAR_DEFINE(size_t, m_iBandwidth);
+	NETVAR_DEFINE(size_t, m_iPower);
+	NETVAR_DEFINE(size_t, m_iEnergyBonus);
+	NETVAR_DEFINE(float, m_flRechargeBonus);
+
 	NETVAR_DEFINE(float, m_flScaffoldingSize);
 NETVAR_TABLE_END();
 
@@ -338,7 +344,7 @@ void CStructure::InstallComplete()
 		break;
 
 	case UPDATETYPE_SUPPORTRECHARGE:
-		m_flRechargeBonus += (size_t)pUpdate->m_flValue;
+		m_flRechargeBonus += (float)pUpdate->m_flValue;
 		break;
 	}
 
@@ -535,6 +541,8 @@ void CStructure::OnDeleted()
 size_t CSupplier::s_iTendrilBeam = 0;
 
 NETVAR_TABLE_BEGIN(CSupplier);
+	NETVAR_DEFINE(size_t, m_iDataStrength);
+	NETVAR_DEFINE(float, m_flBonusDataFlow);
 NETVAR_TABLE_END();
 
 void CSupplier::Precache()
@@ -569,7 +577,7 @@ float CSupplier::GetDataFlowRate()
 float CSupplier::GetDataFlowRadius() const
 {
 	// Opposite of formula for area of a circle.
-	return sqrt(m_iDataStrength/M_PI) + GetBoundingRadius();
+	return sqrt((float)m_iDataStrength.Get()/M_PI) + GetBoundingRadius();
 }
 
 float CSupplier::GetDataFlow(Vector vecPoint)

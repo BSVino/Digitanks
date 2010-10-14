@@ -85,21 +85,21 @@ public:
 	virtual float				TotalHealth() const { return 50; };
 
 	virtual size_t				InitialFleetPoints() const { return 0; };
-	virtual size_t				FleetPoints() const { return m_iFleetSupply; };
+	virtual size_t				FleetPoints() const { return m_iFleetSupply.Get(); };
 	virtual void				AddFleetPoints(size_t iAddPoints) { m_iFleetSupply += iAddPoints; };
 
 	virtual size_t				InitialBandwidth() const { return 0; };
-	virtual size_t				Bandwidth() const { return m_iBandwidth; };
+	virtual size_t				Bandwidth() const { return m_iBandwidth.Get(); };
 	virtual void				AddBandwidth(size_t iAddBandwidth) { m_iBandwidth += iAddBandwidth; };
 
 	virtual size_t				InitialPower() const { return 0; };
-	virtual size_t				Power() const { return m_iPower; };
+	virtual size_t				Power() const { return m_iPower.Get(); };
 
 	virtual size_t				InitialEnergyBonus() const { return 4; };
-	virtual size_t				EnergyBonus() const { return m_iEnergyBonus; };
+	virtual size_t				EnergyBonus() const { return m_iEnergyBonus.Get(); };
 
 	virtual float				InitialRechargeBonus() const { return 0.5f; };
-	virtual float				RechargeBonus() const { return m_flRechargeBonus; };
+	virtual float				RechargeBonus() const { return m_flRechargeBonus.Get(); };
 
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);
@@ -120,11 +120,11 @@ protected:
 	CNetworkedHandle<CSupplier>		m_hSupplier;
 	CNetworkedHandle<CSupplyLine>	m_hSupplyLine;
 
-	size_t						m_iFleetSupply;
-	size_t						m_iBandwidth;
-	size_t						m_iPower;
-	size_t						m_iEnergyBonus;
-	float						m_flRechargeBonus;
+	CNetworkedVariable<size_t>	m_iFleetSupply;
+	CNetworkedVariable<size_t>	m_iBandwidth;
+	CNetworkedVariable<size_t>	m_iPower;
+	CNetworkedVariable<size_t>	m_iEnergyBonus;
+	CNetworkedVariable<float>	m_flRechargeBonus;
 
 	std::map<size_t, std::vector<class CUpdateItem*> >	m_apUpdates;
 	std::map<size_t, size_t>		m_aiUpdatesInstalled;
@@ -197,8 +197,8 @@ public:
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);
 
 protected:
-	size_t						m_iDataStrength;
-	float						m_flBonusDataFlow;
+	CNetworkedVariable<size_t>	m_iDataStrength;
+	CNetworkedVariable<float>	m_flBonusDataFlow;
 
 	class CTendril
 	{
