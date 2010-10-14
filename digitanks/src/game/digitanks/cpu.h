@@ -41,10 +41,10 @@ public:
 	bool						HasConstruction() { return m_hConstructing != NULL; }
 	CStructure*					GetConstructing() { return m_hConstructing; }
 
-	void						BeginProduction();
-	void						BeginProduction(class CNetworkParameters* p);
-	void						CancelProduction();
-	void						CancelProduction(class CNetworkParameters* p);
+	void						BeginRogueProduction();
+	void						BeginRogueProduction(class CNetworkParameters* p);
+	void						CancelRogueProduction();
+	void						CancelRogueProduction(class CNetworkParameters* p);
 	bool						IsProducing() { return m_bProducing; }
 
 	virtual bool				HasUpdatesAvailable();

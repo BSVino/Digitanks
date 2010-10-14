@@ -13,6 +13,7 @@ size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
 NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
 	NETVAR_DEFINE(Vector, m_vecOrigin);
+	NETVAR_DEFINE(size_t, m_iModel);
 NETVAR_TABLE_END();
 
 CBaseEntity::CBaseEntity()
@@ -150,7 +151,7 @@ void CBaseEntity::Render()
 
 		if (r.GetAlpha() > 0)
 		{
-			if (m_iModel != ~0)
+			if (m_iModel != (size_t)~0)
 				r.RenderModel(GetModel());
 
 			OnRender();

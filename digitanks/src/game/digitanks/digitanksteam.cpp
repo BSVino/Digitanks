@@ -515,8 +515,7 @@ void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 
 	DownloadUpdate(&p);
 
-	if (!CNetwork::IsHost())
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "DownloadUpdate", &p);
+	CNetwork::CallFunctionParameters(NETWORK_TOEVERYONE, "DownloadUpdate", &p);
 }
 
 void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)

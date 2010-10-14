@@ -287,6 +287,16 @@ public:
 		return m_oVariable;
 	}
 
+	inline C Get()
+	{
+		return m_oVariable;
+	}
+
+	inline C Get() const
+	{
+		return m_oVariable;
+	}
+
 	virtual void*		Serialize(size_t& iSize) { iSize = sizeof(C); return &m_oVariable; }
 	virtual void		Unserialize(void* pValue) { m_oVariable = *(C*)pValue; }
 

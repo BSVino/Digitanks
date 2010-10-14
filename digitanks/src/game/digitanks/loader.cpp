@@ -37,6 +37,15 @@ size_t CLoader::s_iBuildTankIcon = 0;
 size_t CLoader::s_iBuildArtilleryIcon = 0;
 
 NETVAR_TABLE_BEGIN(CLoader);
+	NETVAR_DEFINE(buildunit_t, m_eBuildUnit);
+	NETVAR_DEFINE(size_t, m_iBuildUnitModel);
+	NETVAR_DEFINE(bool, m_bProducing);
+	NETVAR_DEFINE(size_t, m_iProductionStored);
+	NETVAR_DEFINE(size_t, m_iTankAttack);
+	NETVAR_DEFINE(size_t, m_iTankDefense);
+	NETVAR_DEFINE(size_t, m_iTankMovement);
+	NETVAR_DEFINE(size_t, m_iTankHealth);
+	NETVAR_DEFINE(size_t, m_iTankRange);
 NETVAR_TABLE_END();
 
 void CLoader::Precache()
@@ -89,41 +98,6 @@ void CLoader::StartTurn()
 		m_iProductionStored += (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity());
 		if (m_iProductionStored > g_aiTurnsToLoad[GetBuildUnit()])
 		{
-			CDigitank* pTank;
-			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
-				pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
-			else if (GetBuildUnit() == BUILDUNIT_TANK)
-				pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
-			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
-				pTank = GameServer()->Create<CArtillery>("CArtillery");
-			
-			pTank->SetOrigin(GetOrigin());
-
-			GetTeam()->AddEntity(pTank);
-
-			for (size_t i = 0; i < m_iTankAttack; i++)
-			{
-				pTank->GiveBonusPoints(1, false);
-				pTank->PromoteAttack();
-			}
-
-			for (size_t i = 0; i < m_iTankDefense; i++)
-			{
-				pTank->GiveBonusPoints(1, false);
-				pTank->PromoteDefense();
-			}
-
-			for (size_t i = 0; i < m_iTankMovement; i++)
-			{
-				pTank->GiveBonusPoints(1, false);
-				pTank->PromoteMovement();
-			}
-
-			pTank->SetTotalHealth(pTank->GetTotalHealth()+m_iTankHealth);
-			pTank->AddRangeBonus((float)m_iTankRange);
-
-			m_bProducing = false;
-
 			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Mechanized Infantry");
 			else if (GetBuildUnit() == BUILDUNIT_TANK)
@@ -131,25 +105,63 @@ void CLoader::StartTurn()
 			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
-			// All of these StartTurn calls will probably cause problems later but for now they're
-			// the only way to refresh the tank's energy so it has enough to leave the loader.
-			pTank->StartTurn();
-
-			pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
-			pTank->SetDesiredMove();
-			pTank->Move();
-
-			pTank->StartTurn();
-
-			// Face him toward the center.
-			pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
-			pTank->SetDesiredTurn();
-			pTank->Turn();
-
-			pTank->StartTurn();
-
-			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
+			//DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
 			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
+
+			if (CNetwork::IsHost())
+			{
+				CDigitank* pTank;
+				if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+					pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+				else if (GetBuildUnit() == BUILDUNIT_TANK)
+					pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+				else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
+					pTank = GameServer()->Create<CArtillery>("CArtillery");
+			
+				pTank->SetOrigin(GetOrigin());
+
+				GetTeam()->AddEntity(pTank);
+
+				for (size_t i = 0; i < m_iTankAttack; i++)
+				{
+					pTank->GiveBonusPoints(1, false);
+					pTank->PromoteAttack();
+				}
+
+				for (size_t i = 0; i < m_iTankDefense; i++)
+				{
+					pTank->GiveBonusPoints(1, false);
+					pTank->PromoteDefense();
+				}
+
+				for (size_t i = 0; i < m_iTankMovement; i++)
+				{
+					pTank->GiveBonusPoints(1, false);
+					pTank->PromoteMovement();
+				}
+
+				pTank->SetTotalHealth(pTank->GetTotalHealth()+m_iTankHealth);
+				pTank->AddRangeBonus((float)m_iTankRange);
+
+				m_bProducing = false;
+
+				// All of these StartTurn calls will probably cause problems later but for now they're
+				// the only way to refresh the tank's energy so it has enough to leave the loader.
+				pTank->StartTurn();
+
+				pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
+				pTank->SetDesiredMove();
+				pTank->Move();
+
+				pTank->StartTurn();
+
+				// Face him toward the center.
+				pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
+				pTank->SetDesiredTurn();
+				pTank->Turn();
+
+				pTank->StartTurn();
+			}
 		}
 		else
 		{
@@ -368,6 +380,20 @@ void CLoader::BeginProduction()
 	if (!HasEnoughFleetPoints())
 		return;
 
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		BeginProduction(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginProduction", &p);
+}
+
+void CLoader::BeginProduction(class CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iProductionStored = 0;
 	m_bProducing = true;
 
@@ -383,11 +409,28 @@ void CLoader::BeginProduction()
 
 void CLoader::CancelProduction()
 {
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		CancelProduction(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelProduction", &p);
+}
+
+void CLoader::CancelProduction(class CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
 	m_iProductionStored = 0;
 	m_bProducing = false;
 
 	if (GetDigitanksTeam())
+	{
 		GetDigitanksTeam()->CountFleetPoints();
+		GetDigitanksTeam()->CountProducers();
+	}
 }
 
 size_t CLoader::GetUnitProductionCost()

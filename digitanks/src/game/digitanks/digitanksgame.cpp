@@ -113,15 +113,21 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	// CPU
 	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
 	CNetwork::RegisterFunction("CancelConstruction", this, CancelConstructionCallback, 0);
-	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 0);
-	CNetwork::RegisterFunction("CancelProduction", this, CancelProductionCallback, 0);
+	CNetwork::RegisterFunction("BeginRogueProduction", this, BeginRogueProductionCallback, 0);
+	CNetwork::RegisterFunction("CancelRogueProduction", this, CancelRogueProductionCallback, 0);
 
 	// CStructure
 	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("InstallUpdate", this, InstallUpdateCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("CancelInstall", this, CancelInstallCallback, 1, NET_HANDLE);
 
 	// CSupplier
 	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
 	CNetwork::RegisterFunction("RemoveChild", this, RemoveChildCallback, 2, NET_HANDLE, NET_HANDLE);
+
+	// CLoader
+	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("CancelProduction", this, CancelProductionCallback, 1, NET_HANDLE);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)

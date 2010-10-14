@@ -158,7 +158,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 	if (iNextBuild == UNIT_SCOUT)
 	{
-		m_hPrimaryCPU->BeginProduction();
+		m_hPrimaryCPU->BeginRogueProduction();
 		m_iBuildPosition++;
 		return;
 	}

@@ -42,8 +42,11 @@ public:
 	size_t						GetTurnsToConstruct(size_t iPower);
 
 	virtual void				InstallUpdate(updatetype_t eUpdate);
+	void						InstallUpdate(CNetworkParameters* p);
 	virtual void				InstallComplete();
+	void						InstallComplete(CNetworkParameters* p);
 	void						CancelInstall();
+	void						CancelInstall(CNetworkParameters* p);
 	size_t						GetTurnsToInstall(class CUpdateItem* pItem);
 	size_t						GetTurnsToInstall();
 	bool						IsInstalling() { return m_bInstalling; };
@@ -104,10 +107,10 @@ protected:
 	CNetworkedVariable<bool>	m_bConstructing;
 	CNetworkedVariable<size_t>	m_iProductionToConstruct;
 
-	bool						m_bInstalling;
-	updatetype_t				m_eInstallingType;
-	int							m_iInstallingUpdate;
-	size_t						m_iProductionToInstall;
+	CNetworkedVariable<bool>	m_bInstalling;
+	CNetworkedVariable<updatetype_t> m_eInstallingType;
+	CNetworkedVariable<int>		m_iInstallingUpdate;
+	CNetworkedVariable<size_t>	m_iProductionToInstall;
 
 	bool						m_bUpgrading;
 	size_t						m_iProductionToUpgrade;

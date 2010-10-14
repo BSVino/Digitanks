@@ -157,13 +157,18 @@ public:
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginConstruction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelConstruction);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginProduction);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelProduction);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginRogueProduction);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelRogueProduction);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginStructureConstruction);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, InstallUpdate);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, CancelInstall);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, AddChild);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, RemoveChild);
+
+	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, BeginProduction);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, CancelProduction);
 
 	virtual CRenderer*		CreateRenderer();
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();

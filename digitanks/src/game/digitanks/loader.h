@@ -34,7 +34,9 @@ public:
 	virtual void				UpdateInfo(std::wstring& sInfo);
 
 	void						BeginProduction();
+	void						BeginProduction(class CNetworkParameters* p);
 	void						CancelProduction();
+	void						CancelProduction(class CNetworkParameters* p);
 	bool						IsProducing() { return m_bProducing; };
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 	size_t						GetUnitProductionCost();
@@ -49,28 +51,28 @@ public:
 	size_t						GetTurnsToProduce();
 
 	void						SetBuildUnit(buildunit_t eBuildUnit);
-	buildunit_t					GetBuildUnit() const { return m_eBuildUnit; };
+	buildunit_t					GetBuildUnit() const { return m_eBuildUnit.Get(); };
 
 	virtual const wchar_t*		GetName();
 	virtual unittype_t			GetUnitType();
-	virtual size_t				ConstructionCost() const { return GetLoaderConstructionCost(m_eBuildUnit); };
+	virtual size_t				ConstructionCost() const { return GetLoaderConstructionCost(GetBuildUnit()); };
 	virtual float				TotalHealth() const { return 70; };
 
 	static size_t				GetUnitProductionCost(buildunit_t eBuildUnit);
 	static size_t				GetLoaderConstructionCost(buildunit_t eBuildUnit);
 
 protected:
-	buildunit_t					m_eBuildUnit;
-	size_t						m_iBuildUnitModel;
+	CNetworkedVariable<buildunit_t> m_eBuildUnit;
+	CNetworkedVariable<size_t>	m_iBuildUnitModel;
 
-	bool						m_bProducing;
-	size_t						m_iProductionStored;
+	CNetworkedVariable<bool>	m_bProducing;
+	CNetworkedVariable<size_t>	m_iProductionStored;
 
-	size_t						m_iTankAttack;
-	size_t						m_iTankDefense;
-	size_t						m_iTankMovement;
-	size_t						m_iTankHealth;
-	size_t						m_iTankRange;
+	CNetworkedVariable<size_t>	m_iTankAttack;
+	CNetworkedVariable<size_t>	m_iTankDefense;
+	CNetworkedVariable<size_t>	m_iTankMovement;
+	CNetworkedVariable<size_t>	m_iTankHealth;
+	CNetworkedVariable<size_t>	m_iTankRange;
 
 	static size_t				s_iCancelIcon;
 	static size_t				s_iInstallIcon;

@@ -201,7 +201,7 @@ protected:
 
 	int										m_iCollisionGroup;
 
-	size_t									m_iModel;
+	CNetworkedVariable<size_t>				m_iModel;
 
 	size_t									m_iSpawnSeed;
 

@@ -24,6 +24,11 @@ NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(bool, m_bConstructing);
 	NETVAR_DEFINE(size_t, m_iProductionToConstruct);
 
+	NETVAR_DEFINE(bool, m_bInstalling);
+	NETVAR_DEFINE(updatetype_t, m_eInstallingType);
+	NETVAR_DEFINE(int, m_iInstallingUpdate);
+	NETVAR_DEFINE(size_t, m_iProductionToInstall);
+
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplier);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
 
@@ -274,12 +279,27 @@ void CStructure::InstallUpdate(updatetype_t eUpdate)
 	if (IsUpgrading())
 		return;
 
-	m_bInstalling = true;
-
 	int iUninstalled = GetFirstUninstalledUpdate(eUpdate);
 	if (iUninstalled < 0)
 		return;
 
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.i2 = eUpdate;
+
+	if (CNetwork::IsHost())
+		InstallUpdate(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "InstallUpdate", &p);
+}
+
+void CStructure::InstallUpdate(CNetworkParameters* p)
+{
+	updatetype_t eUpdate = (updatetype_t)p->i2;
+
+	m_bInstalling = true;
+
+	int iUninstalled = GetFirstUninstalledUpdate(eUpdate);
 	m_eInstallingType = eUpdate;
 	m_iInstallingUpdate = iUninstalled;
 
@@ -323,6 +343,17 @@ void CStructure::InstallComplete()
 }
 
 void CStructure::CancelInstall()
+{
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+
+	if (CNetwork::IsHost())
+		CancelInstall(&p);
+	else
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelInstall", &p);
+}
+
+void CStructure::CancelInstall(CNetworkParameters* p)
 {
 	m_bInstalling = false;
 

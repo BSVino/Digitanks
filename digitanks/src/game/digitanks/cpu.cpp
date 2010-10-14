@@ -543,7 +543,7 @@ void CCPU::CancelConstruction(class CNetworkParameters* p)
 	}
 }
 
-void CCPU::BeginProduction()
+void CCPU::BeginRogueProduction()
 {
 	if (IsInstalling())
 		return;
@@ -555,12 +555,12 @@ void CCPU::BeginProduction()
 	p.ui1 = GetHandle();
 
 	if (CNetwork::IsHost())
-		BeginProduction(&p);
+		BeginRogueProduction(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginProduction", &p);
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginRogueProduction", &p);
 }
 
-void CCPU::BeginProduction(class CNetworkParameters* p)
+void CCPU::BeginRogueProduction(class CNetworkParameters* p)
 {
 	m_iProduction = 0;
 	m_bProducing = true;
@@ -569,18 +569,18 @@ void CCPU::BeginProduction(class CNetworkParameters* p)
 	GetDigitanksTeam()->CountProducers();
 }
 
-void CCPU::CancelProduction()
+void CCPU::CancelRogueProduction()
 {
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
 
 	if (CNetwork::IsHost())
-		CancelProduction(&p);
+		CancelRogueProduction(&p);
 	else
 		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelProduction", &p);
 }
 
-void CCPU::CancelProduction(class CNetworkParameters* p)
+void CCPU::CancelRogueProduction(class CNetworkParameters* p)
 {
 	m_iProduction = 0;
 	m_bProducing = false;

@@ -1986,7 +1986,7 @@ void CHUD::BuildScoutCallback()
 	if (!pCPU)
 		return;
 
-	pCPU->BeginProduction();
+	pCPU->BeginRogueProduction();
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
@@ -2009,7 +2009,7 @@ void CHUD::CancelBuildScoutCallback()
 	if (!pCPU)
 		return;
 
-	pCPU->CancelProduction();
+	pCPU->CancelRogueProduction();
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
