@@ -205,6 +205,8 @@ bool CBaseEntity::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 
 void CBaseEntity::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
 {
+	assert(m_apNetworkVariables.find(pVariable->GetName()) == m_apNetworkVariables.end());
+
 	CNetwork::RegisterNetworkVariable(pVariable);
 
 	m_apNetworkVariables[pVariable->GetName()] = pVariable;

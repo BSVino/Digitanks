@@ -19,13 +19,14 @@ public:
 	void			SetBackCulling(bool bBackCulling) { m_bBackCulling = bBackCulling; };
 
 	void			SetColorSwap(Color clrSwap) { m_bSwap = true; m_clrSwap = clrSwap; }
-protected:
-	bool			m_bAdditive;
-	bool			m_bDepthMask;
-	bool			m_bBackCulling;
 
-	bool			m_bSwap;
-	Color			m_clrSwap;
+protected:
+	CNetworkedVariable<bool>	m_bAdditive;
+	CNetworkedVariable<bool>	m_bDepthMask;
+	CNetworkedVariable<bool>	m_bBackCulling;
+
+	CNetworkedVariable<bool>	m_bSwap;
+	CNetworkedVariable<Color>	m_clrSwap;
 };
 
 #endif

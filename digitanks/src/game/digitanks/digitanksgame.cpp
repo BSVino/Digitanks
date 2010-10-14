@@ -191,7 +191,6 @@ void CDigitanksGame::ScatterResources()
 
 void CDigitanksGame::ScatterProps()
 {
-	return;
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
 		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)
@@ -368,6 +367,7 @@ void CDigitanksGame::SetupStandard()
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecStartingPositions[i]));
 		m_ahTeams[i]->AddEntity(pCPU);
+
 
 		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
 		{

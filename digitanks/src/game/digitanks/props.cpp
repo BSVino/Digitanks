@@ -3,6 +3,11 @@
 #include <renderer/renderer.h>
 
 NETVAR_TABLE_BEGIN(CStaticProp);
+	NETVAR_DEFINE(bool, m_bAdditive);
+	NETVAR_DEFINE(bool, m_bDepthMask);
+	NETVAR_DEFINE(bool, m_bBackCulling);
+	NETVAR_DEFINE(bool, m_bSwap);
+	NETVAR_DEFINE(Color, m_clrSwap);
 NETVAR_TABLE_END();
 
 void CStaticProp::Precache()

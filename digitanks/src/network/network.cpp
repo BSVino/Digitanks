@@ -67,6 +67,7 @@ void CNetwork::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
 			return;
 		}
 	}
+	assert(!"Couldn't find networked variable to delete.");
 }
 
 void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
