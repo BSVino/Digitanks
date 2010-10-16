@@ -8,6 +8,7 @@ NETVAR_TABLE_END();
 CTeam::CTeam()
 {
 	m_bClientControlled = false;
+	m_iClient = -1;
 }
 
 CTeam::~CTeam()
