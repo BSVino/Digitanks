@@ -8,10 +8,8 @@ class CMainBattleTank : public CDigitank
 	REGISTER_ENTITY_CLASS(CMainBattleTank, CDigitank);
 
 public:
-								CMainBattleTank();
-
-public:
 	virtual void				Precache();
+	virtual void				Spawn();
 
 	virtual const wchar_t*		GetName() { return L"Main Battle Tank"; };
 

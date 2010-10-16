@@ -11,19 +11,21 @@
 NETVAR_TABLE_BEGIN(CScout);
 NETVAR_TABLE_END();
 
-CScout::CScout()
+void CScout::Precache()
 {
+	PrecacheModel(L"models/digitanks/scout.obj", true);
+	PrecacheSound("sound/torpedo-drop.wav");
+}
+
+void CScout::Spawn()
+{
+	BaseClass::Spawn();
+
 	SetModel(L"models/digitanks/scout.obj");
 
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
 
 	m_bFortified = false;
-}
-
-void CScout::Precache()
-{
-	PrecacheModel(L"models/digitanks/scout.obj", true);
-	PrecacheSound("sound/torpedo-drop.wav");
 }
 
 bool CScout::AllowControlMode(controlmode_t eMode) const
@@ -37,12 +39,11 @@ bool CScout::AllowControlMode(controlmode_t eMode) const
 void CScout::Move()
 {
 	Vector vecStart = GetOrigin();
-	Vector vecEnd = m_vecDesiredMove;
+	Vector vecEnd = m_vecPreviewMove;
 
 	BaseClass::Move();
 
 	SetPreviewTurn(VectorAngles(vecEnd-vecStart).y);
-	SetDesiredTurn();
 	Turn();
 }
 

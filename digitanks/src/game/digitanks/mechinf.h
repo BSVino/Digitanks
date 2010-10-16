@@ -8,9 +8,6 @@ class CMechInfantry : public CDigitank
 	REGISTER_ENTITY_CLASS(CMechInfantry, CDigitank);
 
 public:
-								CMechInfantry();
-
-public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
@@ -18,8 +15,6 @@ public:
 	virtual float				GetRightShieldMaxStrength();
 	virtual float				GetRearShieldMaxStrength();
 
-	virtual void				Think();
-	virtual void				Fire();
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
@@ -46,6 +41,9 @@ public:
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.01f; };
 	virtual float				VisibleRange() const { return 60.0f; };
+	virtual size_t				ProjectileCount() const { return 20; };
+	virtual float				FirstProjectileTime() const;
+	virtual float				FireProjectileTime() const;
 
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
 	static size_t				InfantryFleetPoints() { return 2; };
@@ -53,9 +51,6 @@ public:
 	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_INFANTRY; }
 
 protected:
-	size_t						m_iFireProjectiles;
-	float						m_flLastProjectileFire;
-
 	size_t						m_iFortifyShieldModel;
 	size_t						m_iFortifyWallModel;
 };

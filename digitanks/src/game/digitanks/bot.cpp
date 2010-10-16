@@ -711,7 +711,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				// FIRE ZE MISSILES
 				pTank->SetPreviewAim(vecPoint);
-				pTank->SetDesiredAim();
 				pTank->Fire();
 				flMovementPower = 0.95f;
 			}
@@ -761,7 +760,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (bMove)
 			{
 				pTank->SetPreviewMove(vecDesiredMove);
-				pTank->SetDesiredMove();
 				pTank->Move();
 			}
 
@@ -773,7 +771,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				// FIRE ZE MISSILES
 				pTank->SetPreviewAim(vecPoint);
-				pTank->SetDesiredAim();
 				pTank->Fire();
 			}
 		}
@@ -785,7 +782,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pDefend)
 				{
 					pTank->SetPreviewTurn(VectorAngles(pTank->GetOrigin() - pDefend->GetOrigin()).y);
-					pTank->SetDesiredTurn();
 					pTank->Turn();
 				}
 
@@ -802,11 +798,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
 
 				pTank->SetPreviewMove(vecDesiredMove);
-				pTank->SetDesiredMove();
 				pTank->Move();
 
-				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
-				pTank->SetDesiredTurn();
+				pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
 				pTank->Turn();
 			}
 		}
@@ -822,7 +816,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				{
 					// Deploy so we can rain some hell down.
 					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
-					pTank->SetDesiredTurn();
 					pTank->Turn();
 					pTank->Fortify();
 				}
@@ -837,11 +830,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
 
 					pTank->SetPreviewMove(vecDesiredMove);
-					pTank->SetDesiredMove();
 					pTank->Move();
 
-					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetDesiredMove()).y);
-					pTank->SetDesiredTurn();
+					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
 					pTank->Turn();
 				}
 			}
@@ -850,7 +841,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if ((vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
-				pTank->SetDesiredAim();
 				pTank->Fire();
 			}
 		}
@@ -873,7 +863,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
 
 				pTank->SetPreviewMove(vecDesiredMove);
-				pTank->SetDesiredMove();
 				pTank->Move();
 			}
 
@@ -881,7 +870,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (pTarget && (vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
-				pTank->SetDesiredAim();
 				pTank->Fire();
 			}
 		}
@@ -891,7 +879,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (pTarget && (vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
-				pTank->SetDesiredAim();
 				pTank->Fire();
 			}
 		}

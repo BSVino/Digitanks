@@ -150,14 +150,12 @@ void CLoader::StartTurn()
 				pTank->StartTurn();
 
 				pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
-				pTank->SetDesiredMove();
 				pTank->Move();
 
 				pTank->StartTurn();
 
 				// Face him toward the center.
 				pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
-				pTank->SetDesiredTurn();
 				pTank->Turn();
 
 				pTank->StartTurn();

@@ -83,16 +83,10 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("EndTurn", this, EndTurnCallback, 0);
 	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
 	CNetwork::RegisterFunction("ManageSupplyLine", this, ManageSupplyLineCallback, 3, NET_HANDLE, NET_HANDLE, NET_HANDLE);
-	CNetwork::RegisterFunction("SetDesiredMove", this, SetDesiredMoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("CancelDesiredMove", this, CancelDesiredMoveCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("SetDesiredTurn", this, SetDesiredTurnCallback, 2, NET_HANDLE, NET_FLOAT);
-	CNetwork::RegisterFunction("CancelDesiredTurn", this, CancelDesiredTurnCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("SetDesiredAim", this, SetDesiredAimCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("CancelDesiredAim", this, CancelDesiredAimCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("Move", this, MoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("Turn", this, TurnCallback, 2, NET_HANDLE, NET_FLOAT);
+	CNetwork::RegisterFunction("Fire", this, FireCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("SetAttackPower", this, SetAttackPowerCallback, 2, NET_HANDLE, NET_FLOAT);
-	CNetwork::RegisterFunction("Move", this, MoveCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("Turn", this, TurnCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("Fire", this, FireCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("FireProjectile", this, FireProjectileCallback, 5, NET_HANDLE, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("SetBonusPoints", this, SetBonusPointsCallback, 5, NET_HANDLE, NET_INT, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("TankPromoted", this, TankPromotedCallback, 1, NET_HANDLE);
@@ -596,7 +590,7 @@ void CDigitanksGame::Think()
 		StartTurn();
 }
 
-void CDigitanksGame::SetDesiredMove()
+void CDigitanksGame::MoveTanks()
 {
 	if (!GetPrimarySelection())
 		return;
@@ -635,14 +629,10 @@ void CDigitanksGame::SetDesiredMove()
 		}
 		else
 		{
-			pTank->SetDesiredMove();
+			pTank->Move();
 
-			if (pTank->HasDesiredMove())
-			{
-				if (pTank == pCurrentTank)
-					bMoved = true;
-				pTank->Move();
-			}
+			if (pTank == pCurrentTank)
+				bMoved = true;
 		}
 	}
 
@@ -683,7 +673,7 @@ void CDigitanksGame::SetDesiredMove()
 	}
 }
 
-void CDigitanksGame::SetDesiredTurn(Vector vecLookAt)
+void CDigitanksGame::TurnTanks(Vector vecLookAt)
 {
 	if (!GetPrimarySelection())
 		return;
@@ -695,7 +685,7 @@ void CDigitanksGame::SetDesiredTurn(Vector vecLookAt)
 	if (pCurrentTank->GetTeam() != GetLocalTeam())
 		return;
 
-	bool bNoTurn = (vecLookAt - pCurrentTank->GetDesiredMove()).LengthSqr() < 4*4;
+	bool bNoTurn = (vecLookAt - pCurrentTank->GetOrigin()).LengthSqr() < 4*4;
 
 	CDigitanksTeam* pTeam = GetCurrentTeam();
 	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -709,7 +699,7 @@ void CDigitanksGame::SetDesiredTurn(Vector vecLookAt)
 			pTank->SetPreviewTurn(pTank->GetAngles().y);
 		else
 		{
-			Vector vecDirection = (vecLookAt - pTank->GetDesiredMove()).Normalized();
+			Vector vecDirection = (vecLookAt - pTank->GetOrigin()).Normalized();
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 			float flTankTurn = AngleDifference(flYaw, pTank->GetAngles().y);
@@ -719,7 +709,6 @@ void CDigitanksGame::SetDesiredTurn(Vector vecLookAt)
 			pTank->SetPreviewTurn(pTank->GetAngles().y + flTankTurn);
 		}
 
-		pTank->SetDesiredTurn();
 		pTank->Turn();
 	}
 
@@ -728,7 +717,7 @@ void CDigitanksGame::SetDesiredTurn(Vector vecLookAt)
 	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 }
 
-void CDigitanksGame::SetDesiredAim()
+void CDigitanksGame::FireTanks()
 {
 	if (!GetPrimarySelection())
 		return;
@@ -751,14 +740,13 @@ void CDigitanksGame::SetDesiredAim()
 			continue;
 
 		Vector vecTankAim = vecPreviewAim;
-		if ((vecTankAim - pTank->GetDesiredMove()).Length() > pTank->GetMaxRange())
+		if ((vecTankAim - pTank->GetOrigin()).Length() > pTank->GetMaxRange())
 		{
-			vecTankAim = pTank->GetDesiredMove() + (vecTankAim - pTank->GetDesiredMove()).Normalized() * pTank->GetMaxRange() * 0.99f;
+			vecTankAim = pTank->GetOrigin() + (vecTankAim - pTank->GetOrigin()).Normalized() * pTank->GetMaxRange() * 0.99f;
 			vecTankAim.y = pTank->FindHoverHeight(vecTankAim);
 		}
 
 		pTank->SetPreviewAim(vecTankAim);
-		pTank->SetDesiredAim();
 		pTank->Fire();
 	}
 

@@ -123,12 +123,7 @@ void CSupplyLine::PostRender()
 	if (m_hSupplier == NULL || m_hEntity == NULL)
 		return;
 
-	Vector vecDestination;
-	CDigitank* pTank = dynamic_cast<CDigitank*>(m_hEntity.GetPointer());
-	if (pTank)
-		vecDestination = pTank->GetDesiredMove();
-	else
-		vecDestination = m_hEntity->GetOrigin();
+	Vector vecDestination = m_hEntity->GetOrigin();
 
 	Vector vecPath = vecDestination - m_hSupplier->GetOrigin();
 	vecPath.y = 0;

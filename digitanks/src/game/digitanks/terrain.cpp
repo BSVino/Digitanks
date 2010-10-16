@@ -588,7 +588,7 @@ void CTerrain::OnRender()
 		if (bMouseOnGrid)
 		{
 			GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
-			glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetDesiredMove());
+			glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
 
 			GLuint vecTurnPosition = glGetUniformLocation(iTerrainProgram, "vecTurnPosition");
 			glUniform3fv(vecTurnPosition, 1, vecPoint);
@@ -603,7 +603,7 @@ void CTerrain::OnRender()
 			GLuint flTankMaxYaw = glGetUniformLocation(iTerrainProgram, "flTankMaxYaw");
 			glUniform1f(flTankMaxYaw, flMaxTurnWithLeftoverPower);
 
-			Vector vecDirection = (vecPoint - pCurrentTank->GetDesiredMove()).Normalized();
+			Vector vecDirection = (vecPoint - pCurrentTank->GetOrigin()).Normalized();
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 			float flTankTurn = AngleDifference(flYaw, pCurrentTank->GetAngles().y);
@@ -633,7 +633,7 @@ void CTerrain::OnRender()
 		GLuint bFocusRanges = glGetUniformLocation(iTerrainProgram, "bFocusRanges");
 		glUniform1i(bFocusRanges, bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_AIM);
 
-		Vector vecRangeOrigin = pCurrentTank->GetDesiredMove();
+		Vector vecRangeOrigin = pCurrentTank->GetOrigin();
 		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetTotalPower())
 			vecRangeOrigin = pCurrentTank->GetPreviewMove();
 
@@ -653,7 +653,7 @@ void CTerrain::OnRender()
 		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_TURN)
 			glUniform1f(flTankYaw, pCurrentTank->GetPreviewTurn());
 		else
-			glUniform1f(flTankYaw, pCurrentTank->GetDesiredTurn());
+			glUniform1f(flTankYaw, pCurrentTank->GetAngles().y);
 
 		GLuint flTankFiringCone = glGetUniformLocation(iTerrainProgram, "flTankFiringCone");
 		glUniform1f(flTankFiringCone, pCurrentTank->FiringCone());

@@ -94,9 +94,9 @@ public:
 
 	virtual void			Think();
 
-	void					SetDesiredMove();
-	void					SetDesiredTurn(Vector vecLookAt = Vector());
-	void					SetDesiredAim();
+	void					MoveTanks();
+	void					TurnTanks(Vector vecLookAt = Vector());
+	void					FireTanks();
 
 	void					EndTurn();
 	NET_CALLBACK(CDigitanksGame, EndTurn);
@@ -131,12 +131,6 @@ public:
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, ManageSupplyLine);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredMove);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredMove);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredTurn);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredTurn);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetDesiredAim);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelDesiredAim);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetAttackPower);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Move);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Turn);

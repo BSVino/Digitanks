@@ -46,16 +46,16 @@ class CDigitank : public CSelectable
 	REGISTER_ENTITY_CLASS(CDigitank, CSelectable);
 
 public:
-								CDigitank();
 								~CDigitank();
 
 public:
 	virtual void				Precache();
+	virtual void				Spawn();
 
 	virtual float				GetBoundingRadius() const { return 4; };
 
-	float						GetTotalPower() const { return m_flTotalPower; };
-	float						GetStartingPower() const { return m_flStartingPower; };
+	float						GetTotalPower() const { return m_flTotalPower.Get(); };
+	float						GetStartingPower() const { return m_flStartingPower.Get(); };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
 	float						GetBaseMovementPower(bool bPreview = false);
@@ -76,7 +76,7 @@ public:
 	virtual float				GetBonusDefenseScale(bool bPreview = false);
 	virtual float				GetBonusAttackPower(bool bPreview = false);
 	virtual float				GetBonusDefensePower(bool bPreview = false);
-	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower; };
+	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower.Get(); };
 
 	virtual void				AddRangeBonus(float flAmount) { m_flRangeBonus += flAmount; };
 
@@ -108,7 +108,11 @@ public:
 	virtual float				GetRightShieldStrength();
 	virtual float				GetRearShieldStrength();
 
-	virtual float*				GetShieldForAttackDirection(Vector vecAttack);
+	virtual float				GetShieldValueForAttackDirection(Vector vecAttack);
+	virtual void				SetShieldValueForAttackDirection(Vector vecAttack, float flValue);
+
+	virtual float				GetShieldValue(size_t i);
+	virtual void				SetShieldValue(size_t i, float flValue);
 
 	virtual void				StartTurn();
 	virtual void				EndTurn();
@@ -130,29 +134,14 @@ public:
 	void						SetPreviewAim(Vector vecPreviewAim);
 	void						ClearPreviewAim();
 	bool						IsPreviewAimValid();
+	Vector						GetLastAim() { return m_vecLastAim.Get(); };
 
-	virtual void				SetDesiredMove();
-	void						SetDesiredMove(class CNetworkParameters* p);
-	void						CancelDesiredMove();
-	void						CancelDesiredMove(class CNetworkParameters* p);
-	bool						HasDesiredMove() const { return m_bDesiredMove; };
-	Vector						GetDesiredMove() const;
-	bool						HasSelectedMove() { return m_bSelectedMove; };
+	virtual void				Move();
+	virtual void				Move(class CNetworkParameters* p);
 	bool						IsMoving();
 
-	virtual void				SetDesiredTurn();
-	void						SetDesiredTurn(class CNetworkParameters* p);
-	void						CancelDesiredTurn();
-	void						CancelDesiredTurn(class CNetworkParameters* p);
-	bool						HasDesiredTurn() const { return m_bDesiredTurn; };
-	float						GetDesiredTurn() const;
-
-	void						SetDesiredAim();
-	void						SetDesiredAim(class CNetworkParameters* p);
-	void						CancelDesiredAim();
-	void						CancelDesiredAim(class CNetworkParameters* p);
-	bool						HasDesiredAim() { return m_bDesiredAim; };
-	Vector						GetDesiredAim();
+	virtual void				Turn();
+	virtual void				Turn(class CNetworkParameters* p);
 
 	void						SetGoalMovePosition(const Vector& vecPosition);
 	void						MoveTowardsGoalMovePosition();
@@ -204,10 +193,6 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				Move();
-	virtual void				Move(class CNetworkParameters* p);
-	virtual void				Turn();
-	virtual void				Turn(class CNetworkParameters* p);
 	virtual void				Fire();
 	virtual void				Fire(class CNetworkParameters* p);
 	void						FireProjectile();
@@ -220,6 +205,9 @@ public:
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
+
+	virtual Vector				GetOrigin() const;
+	virtual EAngle				GetAngles() const;
 
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
@@ -257,9 +245,9 @@ public:
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				InitialMaxRange() const { return 70.0f; };
-	virtual float				GetMaxRange() const { return InitialMaxRange() + m_flRangeBonus; };
+	virtual float				GetMaxRange() const { return InitialMaxRange() + m_flRangeBonus.Get(); };
 	virtual float				InitialEffRange() const { return 50.0f; };
-	virtual float				GetEffRange() const { return InitialEffRange() + m_flRangeBonus/2; };
+	virtual float				GetEffRange() const { return InitialEffRange() + m_flRangeBonus.Get()/2; };
 	virtual float				GetMinRange() const { return 4.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const { return -0.03f; };
@@ -268,6 +256,9 @@ public:
 	virtual size_t				FleetPoints() const { return 2; };
 	virtual float				BobHeight() const { return 0.5f; };
 	virtual float				MaxRangeRadius() const { return 10; };
+	virtual size_t				ProjectileCount() const { return 1; };
+	virtual float				FirstProjectileTime() const;
+	virtual float				FireProjectileTime() const;
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 
@@ -280,22 +271,22 @@ public:
 
 protected:
 	// Power remaining for this turn
-	float						m_flStartingPower;
-	float						m_flTotalPower;
+	CNetworkedVariable<float>	m_flStartingPower;
+	CNetworkedVariable<float>	m_flTotalPower;
 
 	// Power used so far
-	float						m_flAttackPower;
-	float						m_flDefensePower;
-	float						m_flMovementPower;
+	CNetworkedVariable<float>	m_flAttackPower;
+	CNetworkedVariable<float>	m_flDefensePower;
+	CNetworkedVariable<float>	m_flMovementPower;
 
-	float						m_flAttackSplit;
+	CNetworkedVariable<float>	m_flAttackSplit;
 
-	float						m_flBonusAttackPower;
-	float						m_flBonusDefensePower;
-	float						m_flBonusMovementPower;
-	size_t						m_iBonusPoints;
+	CNetworkedVariable<float>	m_flBonusAttackPower;
+	CNetworkedVariable<float>	m_flBonusDefensePower;
+	CNetworkedVariable<float>	m_flBonusMovementPower;
+	CNetworkedVariable<size_t>	m_iBonusPoints;
 
-	float						m_flRangeBonus;
+	CNetworkedVariable<float>	m_flRangeBonus;
 
 	union {
 		struct {
@@ -307,33 +298,22 @@ protected:
 		float					m_flMaxShieldStrengths[TANK_SHIELDS];
 	};
 
-	union {
-		struct {
-			float				m_flFrontShieldStrength;
-			float				m_flLeftShieldStrength;
-			float				m_flRightShieldStrength;
-			float				m_flRearShieldStrength;
-		};
-		float					m_flShieldStrengths[TANK_SHIELDS];
-	};
+	CNetworkedVariable<float>	m_flFrontShieldStrength;
+	CNetworkedVariable<float>	m_flLeftShieldStrength;
+	CNetworkedVariable<float>	m_flRightShieldStrength;
+	CNetworkedVariable<float>	m_flRearShieldStrength;
 
 	Vector						m_vecPreviewMove;
-	bool						m_bDesiredMove;
-	Vector						m_vecPreviousOrigin;
-	Vector						m_vecDesiredMove;
-	bool						m_bSelectedMove;
+	CNetworkedVector			m_vecPreviousOrigin;
 	float						m_flStartedMove;
 
 	float						m_flPreviewTurn;
-	bool						m_bDesiredTurn;
-	float						m_flPreviousTurn;
-	float						m_flDesiredTurn;
+	CNetworkedVariable<float>	m_flPreviousTurn;
 	float						m_flStartedTurn;
 
 	bool						m_bPreviewAim;
 	Vector						m_vecPreviewAim;
-	bool						m_bDesiredAim;
-	Vector						m_vecDesiredAim;
+	CNetworkedVector			m_vecLastAim;
 
 	bool						m_bDisplayAim;
 	Vector						m_vecDisplayAim;
@@ -346,6 +326,7 @@ protected:
 	bool						m_bFiredWeapon;
 
 	float						m_flFireProjectileTime;
+	size_t						m_iFireProjectiles;
 	CEntityHandle<class CProjectile>	m_hProjectile;
 
 	float						m_flLastSpeech;

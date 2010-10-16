@@ -8,10 +8,8 @@ class CScout : public CDigitank
 	REGISTER_ENTITY_CLASS(CScout, CDigitank);
 
 public:
-								CScout();
-
-public:
 	virtual void				Precache();
+	virtual void				Spawn();
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 

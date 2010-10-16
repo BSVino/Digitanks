@@ -182,12 +182,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (iButton == GLFW_MOUSE_BUTTON_2 && iState == GLFW_RELEASE && m_iMouseMoved < 30)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->SetDesiredMove();
+			DigitanksGame()->MoveTanks();
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			DigitanksGame()->SetDesiredTurn(vecMousePosition);
+			DigitanksGame()->TurnTanks(vecMousePosition);
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
-			DigitanksGame()->SetDesiredAim();
+			DigitanksGame()->FireTanks();
 			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
 		}
 	}
@@ -226,11 +226,11 @@ void CDigitanksWindow::KeyPress(int c)
 	if (DigitanksGame() && (c == GLFW_KEY_ENTER || c == GLFW_KEY_KP_ENTER))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->SetDesiredMove();
+			DigitanksGame()->MoveTanks();
 		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			DigitanksGame()->SetDesiredTurn();
+			DigitanksGame()->TurnTanks();
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			DigitanksGame()->SetDesiredAim();
+			DigitanksGame()->FireTanks();
 		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 			DigitanksGame()->SetControlMode(MODE_NONE);
 
@@ -245,33 +245,6 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (DigitanksGame() && c == GLFW_KEY_TAB)
 	{
-		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-		{
-			if (DigitanksGame()->GetPrimarySelectionTank())
-			{
-				if (!DigitanksGame()->GetPrimarySelectionTank()->HasDesiredAim())
-					DigitanksGame()->SetControlMode(MODE_AIM);
-			}
-		}
-		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-		{
-			if (DigitanksGame()->GetPrimarySelectionTank() && DigitanksGame()->GetPrimarySelectionTank()->HasDesiredAim())
-				DigitanksGame()->SetControlMode(MODE_FIRE);
-			else
-				DigitanksGame()->SetControlMode(MODE_MOVE);
-		}
-		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			DigitanksGame()->SetControlMode(MODE_MOVE);
-		else
-		{
-			if (DigitanksGame()->GetPrimarySelectionTank())
-			{
-				if (!DigitanksGame()->GetPrimarySelectionTank()->HasDesiredMove())
-					DigitanksGame()->SetControlMode(MODE_MOVE);
-				else if (!DigitanksGame()->GetPrimarySelectionTank()->HasDesiredAim())
-					DigitanksGame()->SetControlMode(MODE_AIM);
-			}
-		}
 	}
 
 	if (c == GLFW_KEY_ESC)

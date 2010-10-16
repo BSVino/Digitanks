@@ -637,14 +637,12 @@ void CCPU::StartTurn()
 				pTank->StartTurn();
 
 				pTank->SetPreviewMove(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
-				pTank->SetDesiredMove();
 				pTank->Move();
 
 				pTank->StartTurn();
 
 				// Face him toward the center.
 				pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
-				pTank->SetDesiredTurn();
 				pTank->Turn();
 
 				pTank->StartTurn();

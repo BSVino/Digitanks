@@ -14,16 +14,6 @@
 NETVAR_TABLE_BEGIN(CArtillery);
 NETVAR_TABLE_END();
 
-CArtillery::CArtillery()
-{
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
-
-	m_bFortified = false;
-
-	m_iFireProjectiles = 0;
-	m_flLastProjectileFire = 0;
-}
-
 void CArtillery::Precache()
 {
 	PrecacheModel(L"models/digitanks/artillery.obj", true);
@@ -32,54 +22,19 @@ void CArtillery::Precache()
 
 void CArtillery::Spawn()
 {
+	BaseClass::Spawn();
+
 	SetModel(L"models/digitanks/artillery-move.obj");
+
+	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
+
+	m_bFortified = false;
 }
 
 void CArtillery::SetAttackPower(float flAttackPower)
 {
 	// No defense power.
 	BaseClass::SetAttackPower(1);
-}
-
-void CArtillery::Think()
-{
-	BaseClass::Think();
-
-	if (m_iFireProjectiles && GameServer()->GetGameTime() > m_flLastProjectileFire + 0.3f)
-	{
-		m_iFireProjectiles--;
-		FireProjectile();
-		m_flLastProjectileFire = GameServer()->GetGameTime();
-	}
-}
-
-void CArtillery::Fire()
-{
-	if (!HasDesiredAim())
-		return;
-
-	float flDistanceSqr = (GetDesiredAim() - GetOrigin()).LengthSqr();
-	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
-		return;
-
-	if (flDistanceSqr < GetMinRange()*GetMinRange())
-		return;
-
-	if (m_bFiredWeapon)
-		return;
-
-	m_bFiredWeapon = true;
-
-	float flAttackPower = m_flTotalPower * m_flAttackSplit;
-	m_flTotalPower -= flAttackPower;
-	m_flAttackPower += flAttackPower;
-
-	if (CNetwork::IsHost())
-		m_iFireProjectiles = 3;
-
-	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
-
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CArtillery::CreateProjectile()
@@ -121,6 +76,16 @@ float CArtillery::ShieldRechargeRate() const
 float CArtillery::HealthRechargeRate() const
 {
 	return 0.2f + GetSupportHealthRechargeBonus();
+}
+
+float CArtillery::FirstProjectileTime() const
+{
+	return RandomFloat(0.1f, 0.15f);
+}
+
+float CArtillery::FireProjectileTime() const
+{
+	return RandomFloat(0.25f, 0.3f);
 }
 
 float CArtillery::TurnPerPower() const

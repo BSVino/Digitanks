@@ -15,21 +15,10 @@
 NETVAR_TABLE_BEGIN(CMechInfantry);
 NETVAR_TABLE_END();
 
-CMechInfantry::CMechInfantry()
-{
-	SetModel(L"models/digitanks/infantry-body.obj");
-	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
-
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 10;
-	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 5;
-	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
-
-	m_iFireProjectiles = 0;
-	m_flLastProjectileFire = 0;
-}
-
 void CMechInfantry::Precache()
 {
+	BaseClass::Precache();
+
 	PrecacheModel(L"models/digitanks/infantry-body.obj", true);
 	PrecacheModel(L"models/digitanks/digitank-shield.obj", true);
 	PrecacheModel(L"models/digitanks/infantry-fortify-base.obj", true);
@@ -42,6 +31,13 @@ void CMechInfantry::Spawn()
 
 	m_iFortifyShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-fortify-shield.obj");
 	m_iFortifyWallModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-fortify-base.obj");
+
+	SetModel(L"models/digitanks/infantry-body.obj");
+	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+
+	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 10;
+	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 5;
+	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
 }
 
 float CMechInfantry::GetLeftShieldMaxStrength()
@@ -57,37 +53,6 @@ float CMechInfantry::GetRightShieldMaxStrength()
 float CMechInfantry::GetRearShieldMaxStrength()
 {
 	return GetFrontShieldMaxStrength();
-}
-
-void CMechInfantry::Think()
-{
-	BaseClass::Think();
-
-	if (m_iFireProjectiles && GameServer()->GetGameTime() > m_flLastProjectileFire + 0.1f)
-	{
-		m_iFireProjectiles--;
-		FireProjectile();
-		m_flLastProjectileFire = GameServer()->GetGameTime();
-	}
-}
-
-void CMechInfantry::Fire()
-{
-	if (m_bFiredWeapon)
-		return;
-
-	m_bFiredWeapon = true;
-
-	float flAttackPower = m_flTotalPower * m_flAttackSplit;
-	m_flTotalPower -= flAttackPower;
-	m_flAttackPower += flAttackPower;
-
-	if (CNetwork::IsHost())
-		m_iFireProjectiles = 20;
-
-	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
-
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
 
 CProjectile* CMechInfantry::CreateProjectile()
@@ -177,4 +142,14 @@ float CMechInfantry::HealthRechargeRate() const
 		return 0.2f + ((float)m_iFortifyLevel)/25 + GetSupportHealthRechargeBonus();
 
 	return 0.2f + GetSupportHealthRechargeBonus();
+}
+
+float CMechInfantry::FirstProjectileTime() const
+{
+	return RandomFloat(0.1f, 0.15f);
+}
+
+float CMechInfantry::FireProjectileTime() const
+{
+	return RandomFloat(0.05f, 0.1f);
 }

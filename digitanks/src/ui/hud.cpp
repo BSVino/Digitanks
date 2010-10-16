@@ -381,9 +381,9 @@ void CHUD::Think()
 
 		if (DigitanksGame()->GetControlMode() == MODE_TURN)
 		{
-			if ((vecPoint - pCurrentTank->GetDesiredMove()).LengthSqr() > 4*4)
+			if ((vecPoint - pCurrentTank->GetOrigin()).LengthSqr() > 4*4)
 			{
-				Vector vecTurn = vecPoint - pCurrentTank->GetDesiredMove();
+				Vector vecTurn = vecPoint - pCurrentTank->GetOrigin();
 				vecTurn.Normalize();
 				float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
 				pCurrentTank->SetPreviewTurn(flTurn);
@@ -502,7 +502,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		Vector vecOrigin = pEntity->GetOrigin();
 		if (pTank)
-			vecOrigin = pTank->GetDesiredMove();
+			vecOrigin = pTank->GetOrigin();
 
 		Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(vecOrigin);
 
@@ -811,13 +811,13 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (DigitanksGame()->GetControlMode() == MODE_MOVE && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalMovementPower())
 		vecOrigin = pTank->GetPreviewMove();
 	else
-		vecOrigin = pTank->GetDesiredMove();
+		vecOrigin = pTank->GetOrigin();
 
 	Vector vecAim;
 	if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		vecAim = pTank->GetPreviewAim();
 	else
-		vecAim = pTank->GetDesiredAim();
+		vecAim = pTank->GetLastAim();
 
 	Vector vecAttack = vecOrigin - vecAim;
 	float flAttackDistance = vecAttack.Length();
@@ -828,7 +828,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (flAttackDistance < pTank->GetMinRange())
 		return;
 
-	if (!pTank->HasDesiredAim() && !pTank->IsPreviewAimValid())
+	if (!pTank->IsPreviewAimValid())
 		return;
 
 	float flRadius = RemapValClamped(flAttackDistance, pTank->GetEffRange(), pTank->GetMaxRange(), 2, pTank->MaxRangeRadius());
@@ -885,7 +885,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (flTargetDistance > flRadius)
 		return;
 
-	float flShieldStrength = (*pClosestTarget->GetShieldForAttackDirection(vecAttack.Normalized()));
+	float flShieldStrength = pClosestTarget->GetShieldValueForAttackDirection(vecAttack.Normalized());
 	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
 	float flAttackDamage = pTank->GetAttackPower(true);
 
@@ -1167,7 +1167,7 @@ void CHUD::NewCurrentSelection()
 	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
 	{
 		if (DigitanksGame()->GetPrimarySelectionTank())
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetDesiredMove());
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetOrigin());
 		else if (DigitanksGame()->GetPrimarySelection())
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelection()->GetOrigin());
 	}
@@ -2481,7 +2481,7 @@ void CSpeechBubble::Think()
 	}
 
 	if (m_hSpeaker != NULL)
-		m_vecLastOrigin = m_hSpeaker->GetDesiredMove();
+		m_vecLastOrigin = m_hSpeaker->GetOrigin();
 
 	Vector vecUp;
 	GameServer()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);

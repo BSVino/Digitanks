@@ -208,6 +208,16 @@ public:
 		return m_oVariable;
 	}
 
+	inline const C& operator=(const CNetworkedVariable<C>& c)
+	{
+		if (c.m_oVariable == m_oVariable)
+			return m_oVariable;
+
+		m_bDirty = true;
+		m_oVariable = c.m_oVariable;
+		return m_oVariable;
+	}
+
 	inline bool operator==(const C& c)
 	{
 		return c == m_oVariable;
