@@ -142,6 +142,9 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteDefense);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteMovement);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Speak);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Fortify);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetGoalMovePosition);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelGoalMovePosition);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CUpdateGrid, UpdatesData);
 

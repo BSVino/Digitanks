@@ -20,7 +20,7 @@ public:
 
 	virtual const wchar_t*		GetName() { return L"Artillery"; };
 
-	virtual void				Fortify();
+	virtual void				OnFortify();
 	virtual bool				CanFortify() { return true; };
 	virtual bool				IsArtillery() const { return true; };
 	virtual bool				CanTurnFortified() { return true; };

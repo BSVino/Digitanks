@@ -136,28 +136,32 @@ public:
 	bool						IsPreviewAimValid();
 	Vector						GetLastAim() { return m_vecLastAim.Get(); };
 
-	virtual void				Move();
-	virtual void				Move(class CNetworkParameters* p);
+	void						Move();
+	void						Move(class CNetworkParameters* p);
 	bool						IsMoving();
 
-	virtual void				Turn();
-	virtual void				Turn(class CNetworkParameters* p);
+	void						Turn();
+	void						Turn(class CNetworkParameters* p);
 
 	void						SetGoalMovePosition(const Vector& vecPosition);
+	void						SetGoalMovePosition(CNetworkParameters* p);
 	void						MoveTowardsGoalMovePosition();
 	void						CancelGoalMovePosition();
-	bool						HasGoalMovePosition() { return m_bGoalMovePosition; };
-	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition; };
+	void						CancelGoalMovePosition(CNetworkParameters* p);
+	bool						HasGoalMovePosition() { return m_bGoalMovePosition.Get(); };
+	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition.Get(); };
 
 	bool						ChoseFirepower() { return m_bChoseFirepower; };
 
-	virtual void				Fortify();
+	void						Fortify();
+	void						Fortify(CNetworkParameters* p);
+	virtual void				OnFortify() {};
 	virtual bool				CanFortify() { return false; };
 	virtual bool				IsArtillery() const { return false; };
 	virtual bool				IsInfantry() const { return false; };
 	virtual bool				IsScout() const { return false; };
-	virtual bool				IsFortified() const { return m_bFortified && m_iFortifyLevel; };
-	virtual bool				IsFortifying() const { return m_bFortified && m_iFortifyLevel == 0; };
+	virtual bool				IsFortified() const { return m_bFortified.Get() && m_iFortifyLevel.Get(); };
+	virtual bool				IsFortifying() const { return m_bFortified.Get() && m_iFortifyLevel.Get() == 0; };
 	virtual bool				CanMoveFortified() { return false; };
 	virtual bool				CanTurnFortified() { return false; };
 	virtual bool				CanAimMobilized() const { return true; };
@@ -319,8 +323,8 @@ protected:
 	Vector						m_vecDisplayAim;
 	float						m_flDisplayAimRadius;
 
-	bool						m_bGoalMovePosition;
-	Vector						m_vecGoalMovePosition;
+	CNetworkedVariable<bool>	m_bGoalMovePosition;
+	CNetworkedVector			m_vecGoalMovePosition;
 
 	bool						m_bChoseFirepower;
 	bool						m_bFiredWeapon;
@@ -337,13 +341,12 @@ protected:
 
 	size_t						m_iHoverParticles;
 
-	bool						m_bFortified;
-	size_t						m_iFortifyLevel;
+	CNetworkedVariable<bool>	m_bFortified;
+	CNetworkedVariable<size_t>	m_iFortifyLevel;
+	float						m_flFortifyTime;
 
 	CEntityHandle<class CSupplier>		m_hSupplier;
 	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
-
-	float						m_flFortifyTime;
 
 	float						m_flBobOffset;
 

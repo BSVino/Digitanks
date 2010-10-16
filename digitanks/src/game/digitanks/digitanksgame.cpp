@@ -94,6 +94,10 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("PromoteDefense", this, PromoteDefenseCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
+	CNetwork::RegisterFunction("Fortify", this, FortifyCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("SetGoalMovePosition", this, SetGoalMovePositionCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("CancelGoalMovePosition", this, CancelGoalMovePositionCallback, 1, NET_HANDLE);
+
 	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 0);
 
 	// CUpdateGrid

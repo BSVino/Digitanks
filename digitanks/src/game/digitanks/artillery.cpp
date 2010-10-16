@@ -58,9 +58,9 @@ bool CArtillery::AllowControlMode(controlmode_t eMode) const
 	return BaseClass::AllowControlMode(eMode);
 }
 
-void CArtillery::Fortify()
+void CArtillery::OnFortify()
 {
-	BaseClass::Fortify();
+	BaseClass::OnFortify();
 
 	if (IsFortified() || IsFortifying())
 		SetModel(L"models/digitanks/artillery.obj");

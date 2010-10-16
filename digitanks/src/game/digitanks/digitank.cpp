@@ -86,6 +86,12 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(float, m_flPreviousTurn);
 
 	NETVAR_DEFINE(Vector, m_vecLastAim);
+
+	NETVAR_DEFINE(bool, m_bGoalMovePosition);
+	NETVAR_DEFINE(Vector, m_vecGoalMovePosition);
+
+	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE(size_t, m_iFortifyLevel);
 NETVAR_TABLE_END();
 
 CDigitank::~CDigitank()
@@ -445,7 +451,7 @@ float CDigitank::GetPreviewBaseTurnPower() const
 
 bool CDigitank::IsPreviewMoveValid() const
 {
-	if (GetPreviewMovePower() > GetTotalPower())
+	if (GetPreviewBaseMovePower() > GetTotalPower())
 		return false;
 
 	float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
@@ -562,7 +568,7 @@ void CDigitank::StartTurn()
 
 	ManageSupplyLine();
 
-	if (m_bFortified)
+	if (CNetwork::IsHost() && m_bFortified)
 	{
 		if (m_iFortifyLevel < 5)
 			m_iFortifyLevel++;
@@ -928,14 +934,36 @@ void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
 	if (fabs(vecPosition.z) > DigitanksGame()->GetTerrain()->GetMapSize())
 		return;
 
+	if (CNetwork::IsHost())
+	{
+		CNetworkParameters p;
+		p.fl2 = vecPosition.x;
+		p.fl3 = vecPosition.y;
+		p.fl4 = vecPosition.z;
+		SetGoalMovePosition(&p);
+	}
+	else
+		CNetwork::CallFunction(NETWORK_TOSERVER, "SetGoalMovePosition", GetHandle(), vecPosition.x, vecPosition.y, vecPosition.z);
+}
+
+void CDigitank::SetGoalMovePosition(CNetworkParameters* p)
+{
+	if (!CNetwork::IsHost())
+		return;
+
 	m_bGoalMovePosition = true;
-	m_vecGoalMovePosition = vecPosition;
+	m_vecGoalMovePosition = Vector(p->fl2, p->fl3, p->fl4);
 
 	MoveTowardsGoalMovePosition();
 }
 
 void CDigitank::MoveTowardsGoalMovePosition()
 {
+	if (!CNetwork::IsHost())
+		return;
+
+	CNetwork::SetRunningClientFunctions(false);
+
 	Vector vecGoal = GetGoalMovePosition();
 	Vector vecOrigin = GetOrigin();
 	Vector vecMove = vecGoal - vecOrigin;
@@ -969,6 +997,14 @@ void CDigitank::MoveTowardsGoalMovePosition()
 
 void CDigitank::CancelGoalMovePosition()
 {
+	if (CNetwork::IsHost())
+		CancelGoalMovePosition(NULL);
+	else
+		CNetwork::CallFunction(NETWORK_TOSERVER, "CancelGoalMovePosition", GetHandle());
+}
+
+void CDigitank::CancelGoalMovePosition(CNetworkParameters* p)
+{
 	m_bGoalMovePosition = false;
 }
 
@@ -976,6 +1012,17 @@ void CDigitank::Fortify()
 {
 	if (!CanFortify())
 		return;
+
+	CNetwork::CallFunction(NETWORK_TOEVERYONE, "Fortify", GetHandle());
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	Fortify(&p);
+}
+
+void CDigitank::Fortify(CNetworkParameters* p)
+{
+	m_flFortifyTime = GameServer()->GetGameTime();
 
 	if (m_bFortified)
 	{
@@ -987,7 +1034,8 @@ void CDigitank::Fortify()
 	m_bFortified = true;
 
 	m_iFortifyLevel = 0;
-	m_flFortifyTime = GameServer()->GetGameTime();
+
+	OnFortify();
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
 }
