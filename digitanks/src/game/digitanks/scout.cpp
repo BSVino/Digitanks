@@ -87,23 +87,10 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 
 void CScout::Fire()
 {
-	if (m_bFiredWeapon)
-		return;
-
 	if (m_flTotalPower < TorpedoAttackPower())
 		return;
 
-	m_bFiredWeapon = true;
-
-	m_flTotalPower -= TorpedoAttackPower();
-	m_flAttackPower += TorpedoAttackPower();
-
-	if (CNetwork::IsHost())
-		m_flFireProjectileTime = GameServer()->GetGameTime() + RandomFloat(0, 1);
-
-	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
-
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+	BaseClass::Fire();
 }
 
 CProjectile* CScout::CreateProjectile()
