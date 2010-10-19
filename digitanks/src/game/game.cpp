@@ -54,7 +54,16 @@ void CGame::OnClientConnect(CNetworkParameters* p)
 
 void CGame::OnClientDisconnect(CNetworkParameters* p)
 {
-	m_ahTeams[p->i1]->SetClient(-1);
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
+		if (m_ahTeams[i]->GetClient() == p->i1)
+		{
+			m_ahTeams[i]->SetClient(-2);
+			return;
+		}
+	}
+
+	assert(!"Couldn't find the guy who just quit!");
 }
 
 void CGame::SetAngles(CNetworkParameters* p)

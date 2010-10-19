@@ -1,8 +1,6 @@
 #include "dt_renderer.h"
 
 #include <GL/glew.h>
-#include <IL/il.h>
-#include <IL/ilu.h>
 
 #include <shaders/shaders.h>
 #include <game/digitanks/digitanksentity.h>

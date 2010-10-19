@@ -225,9 +225,27 @@ void CNetwork::Think()
 		case ENET_EVENT_TYPE_CONNECT:
 			if (IsHost())
 			{
-				g_apServerPeers.push_back(oEvent.peer);
+				// Find the first unused peer.
+				int iPeer = -1;
+				for (size_t i = 0; i < g_apServerPeers.size(); i++)
+				{
+					if (!g_apServerPeers[i])
+					{
+						g_apServerPeers[i] = oEvent.peer;
+						iPeer = i;
+						break;
+					}
+				}
+
+				if (iPeer < 0)
+				{
+					g_apServerPeers.push_back(oEvent.peer);
+					iPeer = (int)g_apServerPeers.size()-1;
+				}
+
 				p.p1 = &oEvent.data;
-				p.i2 = (int)g_apServerPeers.size()-1;
+				p.i2 = iPeer;
+
 				s_pfnClientConnect(s_pClientListener, &p);
 			}
             break;
@@ -260,7 +278,7 @@ void CNetwork::Think()
 				{
 					if (oEvent.peer == g_apServerPeers[i])
 					{
-						g_apServerPeers.erase(g_apServerPeers.begin()+i);
+						g_apServerPeers[i] = NULL;
 						p.i1 = (int)i;
 						s_pfnClientDisconnect(s_pClientListener, &p);
 						break;
@@ -339,6 +357,9 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 		{
 			for (size_t i = 0; i < g_apServerPeers.size(); i++)
 			{
+				if (!g_apServerPeers[i])
+					continue;
+
 				if (g_bIsRunningClientFunctions && bNoCurrentClient && g_iCurrentClient == i)
 					continue;
 
@@ -346,7 +367,12 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 			}
 		}
 		else if (iClient >= 0)
-			enet_peer_send(g_apServerPeers[iClient], 0, pPacket);
+		{
+			assert (g_apServerPeers[iClient]);
+
+			if (g_apServerPeers[iClient])
+				enet_peer_send(g_apServerPeers[iClient], 0, pPacket);
+		}
 
 		enet_host_flush(g_pServer);
 	}

@@ -139,6 +139,7 @@ void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
 
 void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
 {
+	BaseClass::OnClientDisconnect(p);
 }
 
 void CDigitanksGame::SetupGame(gametype_t eGameType)
@@ -554,6 +555,9 @@ void CDigitanksGame::Think()
 {
 	BaseClass::Think();
 
+	if (m_bTurnActive && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
+		GetCurrentTeam()->Bot_ExecuteTurn();
+
 	if (m_bWaitingForMoving)
 	{
 		bool bMoving = false;
@@ -835,9 +839,6 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (GetPrimarySelection())
 		GetPrimarySelection()->OnCurrentSelection();
-
-	if (!GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
-		GetCurrentTeam()->Bot_ExecuteTurn();
 }
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
