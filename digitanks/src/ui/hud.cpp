@@ -310,7 +310,7 @@ void CHUD::Layout()
 	m_pTankInfo->SetWrap(true);
 	m_pTankInfo->SetFontFaceSize(10);
 
-	m_pTurnInfo->SetSize(278, 150);
+	m_pTurnInfo->SetSize(248, 150);
 	m_pTurnInfo->SetPos(iWidth/2 - m_pTurnInfo->GetWidth()/2, 0);
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
@@ -646,9 +646,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
-	if (m_pButtonInfo->GetText()[0] != L'\0')
-		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
-
 	size_t iX, iY, iX2, iY2;
 	if (CDigitanksWindow::Get()->GetBoxSelection(iX, iY, iX2, iY2))
 	{
@@ -664,8 +661,16 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	bool bVisible = m_pNextActionItem->IsVisible();
 	m_pNextActionItem->SetVisible(false);
+	m_pButtonInfo->SetVisible(false);
 	CPanel::Paint(x, y, w, h);
 	m_pNextActionItem->SetVisible(bVisible);
+
+	if (m_pButtonInfo->GetText()[0] != L'\0')
+	{
+		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
+		m_pButtonInfo->SetVisible(true);
+		m_pButtonInfo->Paint();
+	}
 
 	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 
@@ -1598,10 +1603,12 @@ void CHUD::CancelAutoMoveCallback()
 	if (!m_bHUDActive)
 		return;
 
-	if (DigitanksGame()->GetPrimarySelectionTank())
+	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
 	{
-		DigitanksGame()->SetControlMode(MODE_NONE);
-		DigitanksGame()->GetPrimarySelectionTank()->CancelGoalMovePosition();
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->CancelGoalMovePosition();
 	}
 
 	SetupMenu();
@@ -1641,8 +1648,14 @@ void CHUD::FortifyCallback()
 	if (!DigitanksGame()->GetPrimarySelectionTank())
 		return;
 
-	DigitanksGame()->GetPrimarySelectionTank()->Fortify();
 	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Fortify();
+	}
+
 	SetupMenu(MENUMODE_MAIN);
 	UpdateInfo();
 }

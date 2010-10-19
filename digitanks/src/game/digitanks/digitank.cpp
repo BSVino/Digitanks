@@ -1490,6 +1490,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonColor(2, glgui::g_clrBox);
 				s << "\n \nNOT ENOUGH ENERGY";
+
+				pHUD->SetButtonListener(2, NULL);
 			}
 
 			s << "\n \nShortcut: E";

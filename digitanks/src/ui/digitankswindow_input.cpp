@@ -149,6 +149,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				if (!pSelectable)
 					continue;
 
+				if (pSelectable->GetVisibility() == 0)
+					continue;
+
 				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
 
 				if (vecScreen.x < iLowerX || vecScreen.y < iLowerY || vecScreen.x > iHigherX || vecScreen.y > iHigherY)

@@ -261,15 +261,11 @@ bool CVictoryPanel::KeyPressed(int iKey)
 void CVictoryPanel::GameOver(bool bPlayerWon)
 {
 	if (bPlayerWon)
-	{
 		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the Digiverse!\n \n");
-		m_pVictory->AppendText(L"Thanks for playing Digitanks. Press escape to start a new game.");
-	}
 	else
-	{
 		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n");
-		m_pVictory->AppendText(L"Thanks for playing Digitanks. You can close this window to continue playing, or you can press escape to start a new game.");
-	}
+
+	m_pVictory->AppendText(L"Thanks for playing Digitanks. Press escape to start a new game.");
 
 	SetVisible(true);
 }
