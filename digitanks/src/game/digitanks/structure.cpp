@@ -109,7 +109,7 @@ void CStructure::StartTurn()
 		SetSupplier(NULL);
 	}
 
-	if (IsInstalling())
+	if (IsInstalling() && GetUpdateInstalling())
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToInstall())
 		{
@@ -395,6 +395,12 @@ int CStructure::GetFirstUninstalledUpdate(updatetype_t eUpdate)
 
 CUpdateItem* CStructure::GetUpdateInstalling()
 {
+	if (m_apUpdates.find(m_eInstallingType) == m_apUpdates.end())
+		return NULL;
+
+	if (m_iInstallingUpdate >= (int)m_apUpdates[m_eInstallingType].size())
+		return NULL;
+
 	if (IsInstalling())
 		return m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
 
