@@ -93,7 +93,12 @@ void CTeam::ClientUpdate(int iClient)
 		CNetwork::CallFunction(iClient, "SetTeamClient", GetHandle(), -2);	// Bot
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
+	{
+		if (m_ahMembers[i] == NULL)
+			continue;
+
 		CNetwork::CallFunction(iClient, "AddEntityToTeam", GetHandle(), m_ahMembers[i]->GetHandle());
+	}
 }
 
 void CTeam::OnDeleted(CBaseEntity* pEntity)

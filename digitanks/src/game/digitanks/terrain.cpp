@@ -93,31 +93,31 @@ void CTerrain::GenerateTerrain()
 	switch (mtrand()%4)
 	{
 	case 0:
-		m_avecTerrainColors[0] = Vector(0.24f, 0.30f, 0.55f);
-		m_avecTerrainColors[1] = Vector(0.24f, 0.28f, 0.55f);
-		m_avecTerrainColors[2] = Vector(0.27f, 0.30f, 0.55f);
-		m_avecTerrainColors[3] = Vector(0.27f, 0.32f, 0.55f);
+		m_avecTerrainColors[0] = Vector(0.40f, 0.41f, 0.55f);
+		m_avecTerrainColors[1] = Vector(0.40f, 0.40f, 0.55f);
+		m_avecTerrainColors[2] = Vector(0.41f, 0.41f, 0.55f);
+		m_avecTerrainColors[3] = Vector(0.41f, 0.40f, 0.55f);
 		break;
 
 	case 1:
-		m_avecTerrainColors[0] = Vector(0.55f, 0.40f, 0.0f);
-		m_avecTerrainColors[1] = Vector(0.55f, 0.38f, 0.0f);
-		m_avecTerrainColors[2] = Vector(0.58f, 0.40f, 0.0f);
-		m_avecTerrainColors[3] = Vector(0.58f, 0.42f, 0.0f);
+		m_avecTerrainColors[0] = Vector(0.55f, 0.47f, 0.28f);
+		m_avecTerrainColors[1] = Vector(0.55f, 0.45f, 0.28f);
+		m_avecTerrainColors[2] = Vector(0.58f, 0.47f, 0.28f);
+		m_avecTerrainColors[3] = Vector(0.58f, 0.49f, 0.28f);
 		break;
 
 	case 2:
-		m_avecTerrainColors[0] = Vector(0.0, 0.55f, 0.40f);
-		m_avecTerrainColors[1] = Vector(0.0, 0.55f, 0.38f);
-		m_avecTerrainColors[2] = Vector(0.0, 0.58f, 0.40f);
-		m_avecTerrainColors[3] = Vector(0.0, 0.58f, 0.42f);
+		m_avecTerrainColors[0] = Vector(0.28f, 0.55f, 0.47f);
+		m_avecTerrainColors[1] = Vector(0.28f, 0.55f, 0.45f);
+		m_avecTerrainColors[2] = Vector(0.28f, 0.58f, 0.47f);
+		m_avecTerrainColors[3] = Vector(0.28f, 0.58f, 0.49f);
 		break;
 
 	case 3:
-		m_avecTerrainColors[0] = Vector(0.55f, 0.0f, 0.23f);
-		m_avecTerrainColors[1] = Vector(0.55f, 0.0f, 0.21f);
-		m_avecTerrainColors[2] = Vector(0.58f, 0.0f, 0.23f);
-		m_avecTerrainColors[3] = Vector(0.58f, 0.0f, 0.25f);
+		m_avecTerrainColors[0] = Vector(0.55f, 0.25f, 0.27f);
+		m_avecTerrainColors[1] = Vector(0.55f, 0.25f, 0.29f);
+		m_avecTerrainColors[2] = Vector(0.58f, 0.25f, 0.27f);
+		m_avecTerrainColors[3] = Vector(0.58f, 0.25f, 0.25f);
 		break;
 	}
 
