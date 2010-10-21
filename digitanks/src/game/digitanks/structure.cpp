@@ -421,10 +421,10 @@ int CStructure::GetFirstUninstalledUpdate(updatetype_t eUpdate)
 
 CUpdateItem* CStructure::GetUpdateInstalling()
 {
-	if (m_apUpdates.find(m_eInstallingType) == m_apUpdates.end())
+	if (m_aUpdates.find(m_eInstallingType) == m_aUpdates.end())
 		return NULL;
 
-	if (m_iInstallingUpdate >= (int)m_apUpdates[m_eInstallingType].size())
+	if (m_iInstallingUpdate >= (int)m_aUpdates[m_eInstallingType].size())
 		return NULL;
 
 	if (IsInstalling())
