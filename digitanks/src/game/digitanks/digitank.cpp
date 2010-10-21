@@ -94,6 +94,60 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(size_t, m_iFortifyLevel);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CDigitank);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartingPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTotalPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flAttackPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDefensePower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flMovementPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flAttackSplit);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusAttackPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusDefensePower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusMovementPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBonusPoints);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRangeBonus);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFrontMaxShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLeftMaxShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRightMaxShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRearMaxShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flFrontShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flLeftShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRightShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRearShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecPreviewMove);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecPreviousOrigin);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedMove);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPreviewTurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPreviousTurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedTurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bPreviewAim);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecPreviewAim);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecLastAim);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDisplayAim);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecDisplayAim);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flDisplayAimRadius);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bGoalMovePosition);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bChoseFirepower);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireProjectileTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireProjectiles);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CProjectile>, m_hProjectile);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastSpeech);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextIdle);
+	//size_t						m_iTurretModel;	// Set in Spawn()
+	//size_t						m_iShieldModel;	// Set in Spawn()
+	//size_t						m_iHoverParticles;	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplier>, m_hSupplier);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplyLine>, m_hSupplyLine);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
+SAVEDATA_TABLE_END();
+
 CDigitank::~CDigitank()
 {
 	if (m_iHoverParticles != ~0)

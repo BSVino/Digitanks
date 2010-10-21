@@ -53,8 +53,9 @@ public:
 	size_t						GetProductionToInstall() { return m_iProductionToInstall; };
 	int							GetFirstUninstalledUpdate(updatetype_t eUpdate);
 	class CUpdateItem*			GetUpdateInstalling();
+	class CUpdateItem*			GetUpdate(size_t iType, size_t iUpdate);
 	virtual bool				HasUpdatesAvailable() { return false; };
-	virtual void				DownloadComplete(class CUpdateItem* pItem);
+	virtual void				DownloadComplete(size_t x, size_t y);
 	size_t						GetUpdatesScore();
 
 	virtual bool				CanStructureUpgrade() { return false; };
@@ -78,6 +79,9 @@ public:
 
 	virtual void				OnDeleted();
 	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
+
+	virtual void				OnSerialize(std::ostream& o);
+	virtual bool				OnUnserialize(std::istream& i);
 
 	virtual float				HealthRechargeRate() const { return 1.0f; };
 	virtual float				VisibleRange() const { return 50; };
@@ -126,7 +130,14 @@ protected:
 	CNetworkedVariable<size_t>	m_iEnergyBonus;
 	CNetworkedVariable<float>	m_flRechargeBonus;
 
-	std::map<size_t, std::vector<class CUpdateItem*> >	m_apUpdates;
+	class CUpdateCoordinate
+	{
+	public:
+		size_t x;
+		size_t y;
+	};
+
+	std::map<size_t, std::vector<CUpdateCoordinate> >	m_aUpdates;
 	std::map<size_t, size_t>		m_aiUpdatesInstalled;
 
 	size_t						m_iScaffolding;
@@ -192,6 +203,8 @@ public:
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	virtual float				VisibleRange() const;
+
+	virtual void				GameLoaded();
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);

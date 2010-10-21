@@ -1,5 +1,10 @@
 #include "game.h"
 
+#include <iostream>
+#include <fstream>
+
+#include <mtrand.h>
+
 #include <ui/digitankswindow.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
@@ -16,6 +21,8 @@ CGameServer::CGameServer()
 	assert(!s_pGameServer);
 	s_pGameServer = this;
 
+	m_iSaveCRC = 0;
+
 	m_bLoading = true;
 
 	m_flRealTime = 0;
@@ -25,6 +32,8 @@ CGameServer::CGameServer()
 
 	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
 		CBaseEntity::s_aEntityRegistration[i].m_pfnRegisterCallback();
+
+	CBaseEntity::s_iNextEntityListIndex = 0;
 
 	m_iClient = -1;
 
@@ -216,6 +225,90 @@ void CGameServer::Render()
 	m_pRenderer->FinishRendering();
 }
 
+void CGameServer::GenerateSaveCRC(size_t iInput)
+{
+	mtsrand(m_iSaveCRC^iInput);
+	m_iSaveCRC = mtrand();
+}
+
+void CGameServer::SaveToFile(const wchar_t* pFileName)
+{
+	if (!GameServer())
+		return;
+
+	std::ofstream o;
+	o.open(pFileName, std::ios_base::binary|std::ios_base::out);
+
+	o.write("GameSave", 8);
+
+	CGameServer* pGameServer = GameServer();
+
+	o.write((char*)&pGameServer->m_iSaveCRC, sizeof(pGameServer->m_iSaveCRC));
+
+	o.write((char*)&pGameServer->m_flGameTime, sizeof(pGameServer->m_flGameTime));
+	o.write((char*)&pGameServer->m_flSimulationTime, sizeof(pGameServer->m_flSimulationTime));
+
+	std::vector<CBaseEntity*> apSaveEntities;
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (pEntity->IsDeleted())
+			continue;
+
+		apSaveEntities.push_back(pEntity);
+	}
+
+	size_t iEntities = apSaveEntities.size();
+	o.write((char*)&iEntities, sizeof(iEntities));
+
+	for (size_t i = 0; i < apSaveEntities.size(); i++)
+	{
+		CBaseEntity::SerializeEntity(o, apSaveEntities[i]);
+	}
+}
+
+bool CGameServer::LoadFromFile(const wchar_t* pFileName)
+{
+	if (!GameServer())
+		return false;
+
+	// Erase all existing entites. We're going to load in new ones!
+	GameServer()->DestroyAllEntities();
+
+	std::ifstream i;
+	i.open(pFileName, std::ios_base::binary|std::ios_base::in);
+
+	char szTag[8];
+	i.read(szTag, 8);
+	if (strncmp(szTag, "GameSave", 8) != 0)
+		return false;
+
+	CGameServer* pGameServer = GameServer();
+
+	size_t iLoadCRC;
+	i.read((char*)&iLoadCRC, sizeof(iLoadCRC));
+
+	if (iLoadCRC != pGameServer->m_iSaveCRC)
+		return false;
+
+	i.read((char*)&pGameServer->m_flGameTime, sizeof(pGameServer->m_flGameTime));
+	i.read((char*)&pGameServer->m_flSimulationTime, sizeof(pGameServer->m_flSimulationTime));
+
+	size_t iEntities;
+	i.read((char*)&iEntities, sizeof(iEntities));
+
+	for (size_t j = 0; j < iEntities; j++)
+	{
+		if (!CBaseEntity::UnserializeEntity(i))
+			return false;
+	}
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		CBaseEntity::GetEntityNumber(i)->GameLoaded();
+
+	return true;
+}
+
 CEntityHandle<CBaseEntity> CGameServer::Create(const char* pszEntityName)
 {
 	assert(CNetwork::IsHost());
@@ -302,6 +395,25 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 	pEntity->DeregisterNetworkVariables();
 }
 
+void CGameServer::DestroyAllEntities(bool bRemakeGame)
+{
+	if (!CNetwork::IsHost())
+		return;
+
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		CBaseEntity::GetEntityNumber(i)->Delete();
+
+	for (size_t i = 0; i < GameServer()->m_ahDeletedEntities.size(); i++)
+		delete GameServer()->m_ahDeletedEntities[i];
+
+	GameServer()->m_ahDeletedEntities.clear();
+
+	CBaseEntity::s_iNextEntityListIndex = 0;
+
+	if (bRemakeGame)
+		m_hGame = CreateGame();
+}
+
 void CGameServer::UpdateValue(CNetworkParameters* p)
 {
 	CEntityHandle<CBaseEntity> hEntity(p->ui1);
@@ -324,4 +436,9 @@ void CGameServer::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
 	m_flGameTime = m_flSimulationTime = p->fl2;
+}
+
+CGame* CGameServer::GetGame()
+{
+	return m_hGame;
 }

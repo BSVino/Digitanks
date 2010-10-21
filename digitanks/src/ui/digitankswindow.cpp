@@ -156,6 +156,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		if (!m_pInstructor)
 			m_pInstructor = new CInstructor();
 	}
+	else
+		m_pGameServer->DestroyAllEntities(true);
 
 	if (CNetwork::IsHost() && DigitanksGame())
 		DigitanksGame()->SetupGame(eGameType);

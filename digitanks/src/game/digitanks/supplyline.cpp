@@ -17,6 +17,13 @@ NETVAR_TABLE_BEGIN(CSupplyLine);
 	NETVAR_DEFINE(float, m_flIntegrity);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CSupplyLine);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplier>, m_hSupplier);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CBaseEntity>, m_hEntity);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flIntegrity);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDelayRecharge);
+SAVEDATA_TABLE_END();
+
 void CSupplyLine::Precache()
 {
 	BaseClass::Precache();

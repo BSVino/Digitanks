@@ -37,6 +37,17 @@ NETVAR_TABLE_BEGIN(CCPU);
 	NETVAR_DEFINE(size_t, m_iProduction);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CCPU);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecPreviewBuild);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, unittype_t, m_ePreviewStructure);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CStructure>, m_hConstructing);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bProducing);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProduction);
+	//size_t						m_iFanModel;	// Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotationSpeed);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotation);
+SAVEDATA_TABLE_END();
+
 void CCPU::Spawn()
 {
 	BaseClass::Spawn();
@@ -163,7 +174,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_PRODUCTION][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_PRODUCTION, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL POWER INCREASE\n \n"
@@ -181,7 +192,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_BANDWIDTH][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_BANDWIDTH, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL BANDWIDTH INCREASE\n \n"
@@ -199,7 +210,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_FLEETSUPPLY][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_FLEETSUPPLY, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL FLEET SUPPLY INCREASE\n \n"

@@ -9,6 +9,7 @@
 #include <functional>
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 
 // It's inline so I don't have to make a strutils.cpp :P
 inline void strtok(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " \r\n\t")
@@ -83,6 +84,54 @@ inline std::string& rtrim(std::string &s)
 inline std::string& trim(std::string &s)
 {
 	return ltrim(rtrim(s));
+}
+
+inline void writestring(std::ostream& o, const std::string& s)
+{
+	size_t iStringSize = s.length();
+	o.write((char*)&iStringSize, sizeof(iStringSize));
+	o.write(s.c_str(), iStringSize);
+}
+
+inline std::string readstring(std::istream& i)
+{
+	size_t iStringSize;
+	i.read((char*)&iStringSize, sizeof(iStringSize));
+
+	std::string s;
+	char c[2];
+	c[1] = '\0';
+	for (size_t j = 0; j < iStringSize; j++)
+	{
+		i.read(&c[0], 1);
+		s.append(c);
+	}
+
+	return s;
+}
+
+inline void writewstring(std::ostream& o, const std::wstring& s)
+{
+	size_t iStringSize = s.length();
+	o.write((char*)&iStringSize, sizeof(iStringSize));
+	o.write((char*)s.c_str(), s.size()*sizeof(wchar_t));
+}
+
+inline std::wstring readwstring(std::istream& i)
+{
+	size_t iStringSize;
+	i.read((char*)&iStringSize, sizeof(iStringSize));
+
+	std::wstring s;
+	wchar_t c[2];
+	c[1] = L'\0';
+	for (size_t j = 0; j < iStringSize; j++)
+	{
+		i.read((char*)&c[0], sizeof(wchar_t));
+		s.append(c);
+	}
+
+	return s;
 }
 
 #endif

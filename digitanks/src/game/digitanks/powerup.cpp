@@ -10,6 +10,9 @@
 NETVAR_TABLE_BEGIN(CPowerup);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CPowerup);
+SAVEDATA_TABLE_END();
+
 CPowerup::CPowerup()
 {
 	SetCollisionGroup(CG_POWERUP);

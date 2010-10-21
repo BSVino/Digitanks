@@ -12,6 +12,17 @@
 NETVAR_TABLE_BEGIN(CProjectile);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CProjectile);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeCreated);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeExploded);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitank>, m_hOwner);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flDamage);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLandingSpot);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
+//	size_t						m_iParticleSystem;	// Generated on load
+SAVEDATA_TABLE_END();
+
 CProjectile::CProjectile()
 {
 	m_flTimeCreated = GameServer()?GameServer()->GetGameTime():0;
@@ -210,14 +221,35 @@ size_t CProjectile::CreateParticleSystem()
 	return CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
 }
 
+void CProjectile::GameLoaded()
+{
+	BaseClass::GameLoaded();
+
+	if (m_bShouldRender)
+	{
+		m_iParticleSystem = CreateParticleSystem();
+		if (m_iParticleSystem != ~0)
+			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
+	}
+}
+
 NETVAR_TABLE_BEGIN(CShell);
 NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CShell);
+SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CArtilleryShell);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CArtilleryShell);
+SAVEDATA_TABLE_END();
+
 NETVAR_TABLE_BEGIN(CInfantryFlak);
 NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CInfantryFlak);
+SAVEDATA_TABLE_END();
 
 size_t CInfantryFlak::CreateParticleSystem()
 {
@@ -226,6 +258,10 @@ size_t CInfantryFlak::CreateParticleSystem()
 
 NETVAR_TABLE_BEGIN(CTorpedo);
 NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CTorpedo);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bBurrowing);
+SAVEDATA_TABLE_END();
 
 CTorpedo::CTorpedo()
 {

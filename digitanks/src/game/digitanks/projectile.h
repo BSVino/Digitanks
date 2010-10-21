@@ -45,6 +45,8 @@ public:
 
 	virtual size_t				CreateParticleSystem();
 
+	virtual void				GameLoaded();
+
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
 

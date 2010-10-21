@@ -6,6 +6,9 @@
 NETVAR_TABLE_BEGIN(CSelectable);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CSelectable);
+SAVEDATA_TABLE_END();
+
 void CSelectable::OnCurrentSelection()
 {
 	if (!AllowControlMode(DigitanksGame()->GetControlMode()))

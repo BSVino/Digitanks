@@ -13,6 +13,10 @@ NETVAR_TABLE_BEGIN(CCollector);
 	NETVAR_DEFINE(CEntityHandle<CResource>, m_hResource);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CCollector);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CResource>, m_hResource);
+SAVEDATA_TABLE_END();
+
 void CCollector::Spawn()
 {
 	BaseClass::Spawn();
@@ -64,6 +68,9 @@ size_t CBattery::s_iCancelIcon = 0;
 
 NETVAR_TABLE_BEGIN(CBattery);
 NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CBattery);
+SAVEDATA_TABLE_END();
 
 void CBattery::Spawn()
 {

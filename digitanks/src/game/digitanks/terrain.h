@@ -22,6 +22,8 @@ public:
 
 	virtual float			GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
 
+	void					GenerateTerrain();
+	void					GenerateCollision();
 	void					GenerateTerrainCallLists();
 	void					GenerateCallLists();
 
@@ -44,6 +46,8 @@ public:
 	void					UpdateTerrainData();
 	void					TerrainData(class CNetworkParameters* p);
 	void					ResyncClientTerrainData(int iClient);
+
+	virtual void			GameLoaded();
 
 protected:
 	float					m_aflHeights[TERRAIN_SIZE][TERRAIN_SIZE];

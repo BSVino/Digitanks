@@ -44,6 +44,32 @@ NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(float, m_flScaffoldingSize);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CStructure);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bConstructing);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToConstruct);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bInstalling);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, updatetype_t, m_eInstallingType);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iInstallingUpdate);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToInstall);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bUpgrading);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToUpgrade);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplier>, m_hSupplier);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplyLine>, m_hSupplyLine);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFleetSupply);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iEnergyBonus);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRechargeBonus);
+
+	//std::map<size_t, std::vector<whateveritisnow> >	m_aUpdates;	// OnSerialize()
+	//std::map<size_t, size_t>		m_aiUpdatesInstalled;	// OnSerialize()
+
+	//size_t						m_iScaffolding;	// In Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flScaffoldingSize);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flConstructionStartTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, defender_t, m_aoDefenders);
+SAVEDATA_TABLE_END();
+
 CStructure::CStructure()
 {
 	m_bConstructing = false;
@@ -233,7 +259,7 @@ void CStructure::CompleteConstruction()
 			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
 			{
 				if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
-					DownloadComplete(&DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y]);
+					DownloadComplete(x, y);
 			}
 		}
 	}
@@ -312,7 +338,7 @@ void CStructure::InstallUpdate(CNetworkParameters* p)
 	m_eInstallingType = eUpdate;
 	m_iInstallingUpdate = iUninstalled;
 
-	m_iProductionToInstall = m_apUpdates[eUpdate][iUninstalled]->m_iProductionToInstall;
+	m_iProductionToInstall = GetUpdate(eUpdate, iUninstalled)->m_iProductionToInstall;
 
 	GetDigitanksTeam()->CountProducers();
 }
@@ -323,7 +349,7 @@ void CStructure::InstallComplete()
 
 	m_aiUpdatesInstalled[m_eInstallingType] = m_iInstallingUpdate+1;
 
-	CUpdateItem* pUpdate = m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
+	CUpdateItem* pUpdate = GetUpdate(m_eInstallingType, m_iInstallingUpdate);
 
 	switch (pUpdate->m_eUpdateType)
 	{
@@ -381,7 +407,7 @@ size_t CStructure::GetTurnsToInstall()
 
 int CStructure::GetFirstUninstalledUpdate(updatetype_t eUpdate)
 {
-	std::vector<class CUpdateItem*>& aUpdates = m_apUpdates[eUpdate];
+	std::vector<CUpdateCoordinate>& aUpdates = m_aUpdates[eUpdate];
 	size_t iUpdatesInstalled = m_aiUpdatesInstalled[eUpdate];
 
 	if (iUpdatesInstalled >= aUpdates.size())
@@ -402,13 +428,22 @@ CUpdateItem* CStructure::GetUpdateInstalling()
 		return NULL;
 
 	if (IsInstalling())
-		return m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
+		return GetUpdate(m_eInstallingType, m_iInstallingUpdate);
 
 	return NULL;
 }
 
-void CStructure::DownloadComplete(CUpdateItem* pItem)
+CUpdateItem* CStructure::GetUpdate(size_t iType, size_t iUpdate)
 {
+	CUpdateCoordinate* pCoordinates = &m_aUpdates[iType][iUpdate];
+
+	return &DigitanksGame()->GetUpdateGrid()->m_aUpdates[pCoordinates->x][pCoordinates->y];
+}
+
+void CStructure::DownloadComplete(size_t x, size_t y)
+{
+	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y];
+
 	if (IsConstructing())
 		return;
 
@@ -418,7 +453,10 @@ void CStructure::DownloadComplete(CUpdateItem* pItem)
 	if (pItem->m_eUpdateClass != UPDATECLASS_STRUCTUREUPDATE)
 		return;
 
-	m_apUpdates[pItem->m_eUpdateType].push_back(pItem);
+	m_aUpdates[pItem->m_eUpdateType].push_back(CUpdateCoordinate());
+	CUpdateCoordinate* pC = &m_aUpdates[pItem->m_eUpdateType][m_aUpdates[pItem->m_eUpdateType].size()-1];
+	pC->x = x;
+	pC->y = y;
 }
 
 size_t CStructure::GetUpdatesScore()
@@ -426,10 +464,10 @@ size_t CStructure::GetUpdatesScore()
 	size_t iScore = 0;
 	for (size_t i = 0; i < UPDATETYPE_SIZE; i++)
 	{
-		for (size_t j = 0; j < m_apUpdates[i].size(); j++)
+		for (size_t j = 0; j < m_aUpdates[i].size(); j++)
 		{
 			if (m_aiUpdatesInstalled[i] > j)
-				iScore += m_apUpdates[i][j]->m_iProductionToInstall;
+				iScore += GetUpdate(i, j)->m_iProductionToInstall;
 		}
 	}
 
@@ -544,12 +582,88 @@ void CStructure::OnDeleted()
 	SetSupplier(NULL);
 }
 
+void CStructure::OnSerialize(std::ostream& o)
+{
+	size_t iUpdates = m_aUpdates.size();
+	o.write((char*)&iUpdates, sizeof(iUpdates));
+
+	std::map<size_t, std::vector<CUpdateCoordinate> >::iterator it;
+	for (it = m_aUpdates.begin(); it != m_aUpdates.end(); it++)
+	{
+		iUpdates--;
+
+		size_t iCategory = it->first;
+		o.write((char*)&iCategory, sizeof(iCategory));
+
+		size_t iItemsInstalled = m_aiUpdatesInstalled[it->first];
+		o.write((char*)&iItemsInstalled, sizeof(iItemsInstalled));
+
+		size_t iItemsInCategory = it->second.size();
+		o.write((char*)&iItemsInCategory, sizeof(iItemsInCategory));
+
+		for (size_t k = 0; k < iItemsInCategory; k++)
+		{
+			size_t x = m_aUpdates[it->first][k].x;
+			size_t y = m_aUpdates[it->first][k].y;
+
+			o.write((char*)&x, sizeof(x));
+			o.write((char*)&y, sizeof(y));
+		}
+	}
+
+	assert(iUpdates == 0);
+
+	BaseClass::OnSerialize(o);
+}
+
+bool CStructure::OnUnserialize(std::istream& i)
+{
+	size_t iUpdates;
+	i.read((char*)&iUpdates, sizeof(iUpdates));
+
+	for (size_t j = 0; j < iUpdates; j++)
+	{
+		size_t iCategory;
+		i.read((char*)&iCategory, sizeof(iCategory));
+
+		size_t iItemsInstalled;
+		i.read((char*)&iItemsInstalled, sizeof(iItemsInstalled));
+		m_aiUpdatesInstalled[iCategory] = iItemsInstalled;
+
+		size_t iItemsInCategory;
+		i.read((char*)&iItemsInCategory, sizeof(iItemsInCategory));
+
+		for (size_t k = 0; k < iItemsInCategory; k++)
+		{
+			size_t x, y;
+			i.read((char*)&x, sizeof(x));
+			i.read((char*)&y, sizeof(y));
+
+			m_aUpdates[iCategory].push_back(CUpdateCoordinate());
+			CUpdateCoordinate* pC = &m_aUpdates[iCategory][m_aUpdates[iCategory].size()-1];
+			pC->x = x;
+			pC->y = y;
+		}
+	}
+
+	return BaseClass::OnUnserialize(i);
+}
+
 size_t CSupplier::s_iTendrilBeam = 0;
 
 NETVAR_TABLE_BEGIN(CSupplier);
 	NETVAR_DEFINE(size_t, m_iDataStrength);
 	NETVAR_DEFINE(float, m_flBonusDataFlow);
 NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CSupplier);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iDataStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusDataFlow);
+	//std::vector<CTendril>		m_aTendrils;	// Generated
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CStructure>, m_ahChildren);
+	//size_t						m_iTendrilsCallList;	// Generated
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTendrilGrowthStartTime);
+SAVEDATA_TABLE_END();
 
 void CSupplier::Precache()
 {
@@ -1056,4 +1170,11 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 float CSupplier::VisibleRange() const
 {
 	return GetDataFlowRadius() + 5;
+}
+
+void CSupplier::GameLoaded()
+{
+	BaseClass::GameLoaded();
+
+	UpdateTendrils();
 }

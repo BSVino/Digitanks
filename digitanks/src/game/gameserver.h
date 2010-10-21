@@ -29,6 +29,10 @@ public:
 
 	virtual void								Think() {};
 
+	void										GenerateSaveCRC(size_t iInput);
+	static void									SaveToFile(const wchar_t* pFileName);
+	static bool									LoadFromFile(const wchar_t* pFileName);
+
 	CEntityHandle<CBaseEntity>					Create(const char* pszEntityName);
 	size_t										CreateEntity(size_t iRegisteredEntity, size_t iHandle = ~0, size_t iSpawnSeed = 0);
 	void										Delete(class CBaseEntity* pEntity);
@@ -41,6 +45,8 @@ public:
 	{
 		return dynamic_cast<T*>(Create(pszEntityName).GetPointer());
 	}
+
+	void										DestroyAllEntities(bool bRemakeGame = false);
 
 	NET_CALLBACK(CGameServer,					UpdateValue);
 	NET_CALLBACK(CGameServer,					ClientInfo);
@@ -57,7 +63,7 @@ public:
 	bool										IsClient() { return m_iClient >= 0; };
 
 	static CGameServer*							GetGameServer() { return s_pGameServer; };
-	class CGame*								GetGame() { return m_hGame; };
+	class CGame*								GetGame();
 
 protected:
 	std::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
@@ -65,6 +71,8 @@ protected:
 	static CGameServer*							s_pGameServer;
 
 	CEntityHandle<class CGame>					m_hGame;
+
+	size_t										m_iSaveCRC;
 
 	float										m_flGameTime;
 	float										m_flSimulationTime;

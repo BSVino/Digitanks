@@ -29,6 +29,34 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildArtilleryLoaders, &CDigitanksGame::UpdateHUD);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CDigitank>, m_ahTanks);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, size_t, m_aiCurrentSelection);
+	//std::map<size_t, float>		m_aflVisibilities;	// Automatically generated
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProduction);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iLoadersProducing);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTotalFleetPoints);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUsedFleetPoints);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iScore);
+
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CCPU>, m_hPrimaryCPU);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBuildPosition);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecExplore);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLKV);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLKV);
+
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCurrentUpdateX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCurrentUpdateY);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abUpdates);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUpdateDownloaded);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildBuffers);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildPSUs);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildTankLoaders);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildArtilleryLoaders);
+SAVEDATA_TABLE_END();
+
 CDigitanksTeam::CDigitanksTeam()
 {
 	m_iBuildPosition = 0;
@@ -581,7 +609,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 			if (!pEntity)
 				continue;
 
-			pEntity->DownloadComplete(pItem);
+			pEntity->DownloadComplete(m_iCurrentUpdateX, m_iCurrentUpdateY);
 		}
 	}
 
@@ -762,4 +790,11 @@ bool CDigitanksTeam::CanBuildArtilleryLoaders()
 		return true;
 
 	return m_bCanBuildArtilleryLoaders;
+}
+
+void CDigitanksTeam::GameLoaded()
+{
+	BaseClass::GameLoaded();
+
+	CalculateVisibility();
 }

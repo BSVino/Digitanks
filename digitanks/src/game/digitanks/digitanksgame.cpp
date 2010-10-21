@@ -54,6 +54,28 @@ NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(CEntityHandle<CUpdateGrid>, m_hUpdates);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CDigitanksGame);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iCurrentTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, controlmode_t, m_eControlMode);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CTerrain>, m_hTerrain);
+//	IDigitanksGameListener*	m_pListener;	// Set by constructor
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bWaitingForMoving);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bWaitingForProjectiles);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iWaitingForProjectiles);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bTurnActive);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iPowerups);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, Vector, m_avecTankAims);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, float, m_aflTankAimRadius);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iTankAimFocus);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iDifficulty);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bRenderFogOfWar);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, gametype_t, m_eGameType);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, actionitem_t, m_aActionItems);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bAllowActionItems);
+SAVEDATA_TABLE_END();
+
 CDigitanksGame::CDigitanksGame()
 {
 	m_iCurrentTeam = 0;
@@ -151,7 +173,11 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	if (!CNetwork::IsHost())
 		return;
 
-	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+	if (eGameType != GAMETYPE_EMPTY)
+	{
+		m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+		m_hTerrain->GenerateTerrain();
+	}
 
 	m_eGameType = eGameType;
 	m_iTurn = 0;
@@ -163,7 +189,10 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	else if (eGameType == GAMETYPE_TUTORIAL)
 		SetupTutorial();
 
-	StartGame();
+	GameServer()->SetLoading(false);
+
+	if (eGameType != GAMETYPE_EMPTY)
+		StartGame();
 }
 
 void CDigitanksGame::ScatterResources()
@@ -496,8 +525,6 @@ void CDigitanksGame::StartGame()
 	m_bWaitingForProjectiles = true;
 
 	GetCurrentTeam()->StartTurn();
-
-	GameServer()->SetLoading(false);
 
 	EnterGame(NULL);
 }

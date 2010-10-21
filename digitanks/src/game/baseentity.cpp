@@ -1,5 +1,7 @@
 #include "baseentity.h"
 
+#include <strutils.h>
+
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
@@ -16,12 +18,35 @@ NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
 	NETVAR_DEFINE(size_t, m_iModel);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CBaseEntity);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecOrigin);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLastOrigin);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angAngles);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecVelocity);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecGravity);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bSimulated);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bTakeDamage);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTotalHealth);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHealth);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeKilled);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CTeam>, m_hTeam);
+	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDeleted);	// Deleted entities are not saved.
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahTouching);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCollisionGroup);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iModel);
+SAVEDATA_TABLE_END();
+
 CBaseEntity::CBaseEntity()
 {
 	if (s_iOverrideEntityListIndex == ~0)
 		m_iHandle = s_iNextEntityListIndex++;
 	else
+	{
 		m_iHandle = s_iOverrideEntityListIndex;
+
+		if (s_iNextEntityListIndex < m_iHandle+1)
+			s_iNextEntityListIndex = m_iHandle+1;
+	}
 
 	s_apEntityList[m_iHandle] = this;
 
@@ -39,8 +64,6 @@ CBaseEntity::CBaseEntity()
 	m_iModel = ~0;
 
 	m_iSpawnSeed = 0;
-
-	m_pTeam = NULL;
 }
 
 CBaseEntity::~CBaseEntity()
@@ -99,6 +122,17 @@ CBaseEntity* CBaseEntity::GetEntityNumber(size_t i)
 size_t CBaseEntity::GetNumEntities()
 {
 	return s_apEntityList.size();
+}
+
+CTeam* CBaseEntity::GetTeam() const
+{
+	return m_hTeam;
+}
+
+void CBaseEntity::SetTeam(class CTeam* pTeam)
+{
+	m_hTeam = pTeam;
+	OnTeamChange();
 }
 
 void CBaseEntity::ClientUpdate(int iClient)
@@ -238,6 +272,156 @@ CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
 	return m_apNetworkVariables[pszName];
 }
 
+void CBaseEntity::SerializeEntity(std::ostream& o, CBaseEntity* pEntity)
+{
+	size_t iRegistration = FindRegisteredEntity(pEntity->GetClassName());
+	o.write((char*)&iRegistration, sizeof(iRegistration));
+
+	size_t iHandle = pEntity->GetHandle();
+	o.write((char*)&iHandle, sizeof(iHandle));
+
+	size_t iSpawnSeed = pEntity->GetSpawnSeed();
+	o.write((char*)&iSpawnSeed, sizeof(iSpawnSeed));
+
+	pEntity->Serialize(o);
+	pEntity->OnSerialize(o);
+}
+
+bool CBaseEntity::UnserializeEntity(std::istream& i)
+{
+	size_t iRegistration;
+	i.read((char*)&iRegistration, sizeof(iRegistration));
+
+	size_t iHandle;
+	i.read((char*)&iHandle, sizeof(iHandle));
+
+	size_t iSpawnSeed;
+	i.read((char*)&iSpawnSeed, sizeof(iSpawnSeed));
+
+	size_t iNewHandle = GameServer()->CreateEntity(iRegistration, iHandle, iSpawnSeed);
+	assert(iNewHandle == iHandle);
+
+	CEntityHandle<CBaseEntity> hEntity(iNewHandle);
+
+	if (!hEntity->Unserialize(i))
+		return false;
+
+	return hEntity->OnUnserialize(i);
+}
+
+void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEntity)
+{
+	size_t iEntity = CBaseEntity::FindRegisteredEntity(pszClassName);
+	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(iEntity);
+
+	size_t iSaveDataSize = pRegistration->m_aSaveData.size();
+	o.write((char*)&iSaveDataSize, sizeof(iSaveDataSize));
+
+	for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
+	{
+		CSaveData* pSaveData = &pRegistration->m_aSaveData[i];
+
+		o.write((char*)&i, sizeof(i));
+
+		char* pData = (char*)pEntity + pSaveData->m_iOffset;
+		switch(pSaveData->m_eType)
+		{
+		case CSaveData::DATA_COPYTYPE:
+			o.write(pData, pSaveData->m_iSizeOfType);
+			break;
+
+		case CSaveData::DATA_COPYARRAY:
+			o.write(pData, pSaveData->m_iSizeOfVariable);
+			break;
+
+		case CSaveData::DATA_COPYVECTOR:
+		{
+			std::vector<size_t>* pVector = (std::vector<size_t>*)pData;
+			size_t iSize = pVector->size();
+			o.write((char*)&iSize, sizeof(iSize));
+			if (iSize)
+				o.write((char*)pVector->data(), pSaveData->m_iSizeOfType*iSize);
+			break;
+		}
+
+		case CSaveData::DATA_NETVAR:
+		{
+			size_t iDataLength;
+			CNetworkedVariableBase* pVariable = (CNetworkedVariableBase*)pData;
+			char* pRealData = (char*)pVariable->Serialize(iDataLength);
+			o.write((char*)&iDataLength, sizeof(iDataLength));
+			o.write(pRealData, iDataLength);
+			break;
+		}
+
+		case CSaveData::DATA_WSTRING:
+			writewstring(o, *(std::wstring*)pData);
+			break;
+		}
+	}
+}
+
+bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* pEntity)
+{
+	size_t iEntity = CBaseEntity::FindRegisteredEntity(pszClassName);
+	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(iEntity);
+
+	size_t iSaveDataSize;
+	i.read((char*)&iSaveDataSize, sizeof(iSaveDataSize));
+
+	for (size_t j = 0; j < iSaveDataSize; j++)
+	{
+		size_t iSaveData;
+		i.read((char*)&iSaveData, sizeof(iSaveData));
+
+		CSaveData* pSaveData = &pRegistration->m_aSaveData[iSaveData];
+
+		char* pData = (char*)pEntity + pSaveData->m_iOffset;
+		switch(pSaveData->m_eType)
+		{
+		case CSaveData::DATA_COPYTYPE:
+			i.read(pData, pSaveData->m_iSizeOfType);
+			break;
+
+		case CSaveData::DATA_COPYARRAY:
+			i.read(pData, pSaveData->m_iSizeOfVariable);
+			break;
+
+		case CSaveData::DATA_COPYVECTOR:
+		{
+			std::vector<size_t>* pVector = (std::vector<size_t>*)pData;
+			size_t iSize;
+			i.read((char*)&iSize, sizeof(iSize));
+			if (iSize)
+			{
+				pSaveData->m_pfnResizeVector(pData, iSize);
+				i.read((char*)pVector->data(), pSaveData->m_iSizeOfType*iSize);
+			}
+			break;
+		}
+
+		case CSaveData::DATA_NETVAR:
+		{
+			size_t iDataLength;
+			i.read((char*)&iDataLength, sizeof(iDataLength));
+
+			CNetworkedVariableBase* pVariable = (CNetworkedVariableBase*)pData;
+			char* pRealData = new char[iDataLength];
+			i.read(pRealData, iDataLength);
+			pVariable->Unserialize(pRealData);
+			delete[] pRealData;
+			break;
+		}
+
+		case CSaveData::DATA_WSTRING:
+			((std::wstring*)pData)->assign(readwstring(i));
+			break;
+		}
+	}
+
+	return true;
+}
+
 void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)
 {
 	CModelLibrary::Get()->AddModel(pszModel, bStatic);
@@ -266,6 +450,7 @@ void CBaseEntity::RegisterEntity(const char* pszEntityName, EntityCreateCallback
 void CBaseEntity::Register(CBaseEntity* pEntity)
 {
 	pEntity->Precache();
+	pEntity->RegisterSaveData();
 }
 
 size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
@@ -278,4 +463,9 @@ size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
 		}
 	}
 	return ~0;
+}
+
+CEntityRegistration* CBaseEntity::GetRegisteredEntity(size_t iEntity)
+{
+	return &s_aEntityRegistration[iEntity];
 }

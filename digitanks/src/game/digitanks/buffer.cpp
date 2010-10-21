@@ -19,6 +19,9 @@ size_t CBuffer::s_iInstallRechargeBonusIcon = 0;
 NETVAR_TABLE_BEGIN(CBuffer);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CBuffer);
+SAVEDATA_TABLE_END();
+
 void CBuffer::Spawn()
 {
 	BaseClass::Spawn();
@@ -59,7 +62,7 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_BANDWIDTH][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_BANDWIDTH, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL BANDWIDTH INCREASE\n \n"
@@ -77,7 +80,7 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_FLEETSUPPLY][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_FLEETSUPPLY, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
@@ -95,7 +98,7 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_SUPPORTENERGY][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_SUPPORTENERGY, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL SUPPORT ENERGY INCREASE\n \n"
@@ -114,7 +117,7 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_SUPPORTRECHARGE][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_SUPPORTRECHARGE, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL HEALTH ENERGY INCREASE\n \n"
@@ -189,6 +192,9 @@ size_t CMiniBuffer::s_iCancelIcon = 0;
 
 NETVAR_TABLE_BEGIN(CMiniBuffer);
 NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CMiniBuffer);
+SAVEDATA_TABLE_END();
 
 void CMiniBuffer::Spawn()
 {

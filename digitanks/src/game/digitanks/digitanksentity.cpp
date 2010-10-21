@@ -12,6 +12,10 @@
 NETVAR_TABLE_BEGIN(CDigitanksEntity);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<class CSupplyLine>, m_ahSupplyLinesIntercepted);
+SAVEDATA_TABLE_END();
+
 void CDigitanksEntity::Spawn()
 {
 	BaseClass::Spawn();

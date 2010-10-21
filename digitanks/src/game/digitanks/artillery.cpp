@@ -14,6 +14,9 @@
 NETVAR_TABLE_BEGIN(CArtillery);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CArtillery);
+SAVEDATA_TABLE_END();
+
 void CArtillery::Precache()
 {
 	PrecacheModel(L"models/digitanks/artillery.obj", true);
@@ -27,8 +30,6 @@ void CArtillery::Spawn()
 	SetModel(L"models/digitanks/artillery-move.obj");
 
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
-
-	m_bFortified = false;
 }
 
 void CArtillery::SetAttackPower(float flAttackPower)

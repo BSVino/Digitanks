@@ -48,6 +48,18 @@ NETVAR_TABLE_BEGIN(CLoader);
 	NETVAR_DEFINE(size_t, m_iTankRange);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CLoader);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, buildunit_t, m_eBuildUnit);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBuildUnitModel);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bProducing);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionStored);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTankAttack);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTankDefense);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTankMovement);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTankHealth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTankRange);
+SAVEDATA_TABLE_END();
+
 void CLoader::Precache()
 {
 	BaseClass::Precache();
@@ -218,7 +230,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKATTACK][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKATTACK, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL ATTACK ENERGY INCREASE\n \n"
@@ -236,7 +248,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKRANGE][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKRANGE, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL ATTACK RANGE INCREASE\n \n"
@@ -254,7 +266,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKDEFENSE][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKDEFENSE, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL DEFENSE ENERGY INCREASE\n \n"
@@ -272,7 +284,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(3, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKMOVEMENT][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKMOVEMENT, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL MOVEMENT ENERGY INCREASE\n \n"
@@ -290,7 +302,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(4, Color(150, 150, 150));
 
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH);
-			CUpdateItem* pUpdate = m_apUpdates[UPDATETYPE_TANKHEALTH][iUpdate];
+			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKHEALTH, iUpdate);
 
 			std::wstringstream s;
 			s << "INSTALL HEALTH INCREASE\n \n"
@@ -452,7 +464,7 @@ void CLoader::InstallComplete()
 {
 	BaseClass::InstallComplete();
 
-	CUpdateItem* pUpdate = m_apUpdates[m_eInstallingType][m_iInstallingUpdate];
+	CUpdateItem* pUpdate = GetUpdate(m_eInstallingType, m_iInstallingUpdate);
 
 	switch (pUpdate->m_eUpdateType)
 	{

@@ -15,6 +15,9 @@
 NETVAR_TABLE_BEGIN(CMechInfantry);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CMechInfantry);
+SAVEDATA_TABLE_END();
+
 void CMechInfantry::Precache()
 {
 	BaseClass::Precache();

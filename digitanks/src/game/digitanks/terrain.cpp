@@ -16,6 +16,17 @@ using namespace raytrace;
 NETVAR_TABLE_BEGIN(CTerrain);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CTerrain);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, float, m_aflHeights);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHighest);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
+	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecTerrainColors);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, Vector, m_avecCraterMarks);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abTerrainNeedsRegenerate);
+SAVEDATA_TABLE_END();
+
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);
@@ -36,13 +47,16 @@ void CTerrain::Spawn()
 {
 	BaseClass::Spawn();
 
-	size_t iSeed = GetSpawnSeed();
+	m_pTracer = new raytrace::CRaytracer();
+}
 
-	CSimplexNoise n1(iSeed);
-	CSimplexNoise n2(iSeed+1);
-	CSimplexNoise n3(iSeed+2);
-	CSimplexNoise n4(iSeed+3);
-	CSimplexNoise n5(iSeed+4);
+void CTerrain::GenerateTerrain()
+{
+	CSimplexNoise n1(m_iSpawnSeed);
+	CSimplexNoise n2(m_iSpawnSeed+1);
+	CSimplexNoise n3(m_iSpawnSeed+2);
+	CSimplexNoise n4(m_iSpawnSeed+3);
+	CSimplexNoise n5(m_iSpawnSeed+4);
 
 	float flSpaceFactor1 = 0.01f;
 	float flHeightFactor1 = 50.0f;
@@ -76,29 +90,6 @@ void CTerrain::Spawn()
 		}
 	}
 
-	m_pTracer = new raytrace::CRaytracer();
-
-	for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
-	{
-		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
-		{
-			float flX = ArrayToWorldSpace((int)x);
-			float flY = ArrayToWorldSpace((int)y);
-			float flX1 = ArrayToWorldSpace((int)x+1);
-			float flY1 = ArrayToWorldSpace((int)y+1);
-
-			Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
-			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
-			Vector v3 = Vector(flX1, m_aflHeights[x+1][y+1], flY1);
-			Vector v4 = Vector(flX1, m_aflHeights[x+1][y], flY);
-
-			m_pTracer->AddTriangle(v1, v2, v3);
-			m_pTracer->AddTriangle(v1, v3, v4);
-		}
-	}
-
-	m_pTracer->BuildTree();
-
 	switch (mtrand()%4)
 	{
 	case 0:
@@ -129,6 +120,34 @@ void CTerrain::Spawn()
 		m_avecTerrainColors[3] = Vector(0.58f, 0.0f, 0.25f);
 		break;
 	}
+
+	GenerateCollision();
+}
+
+void CTerrain::GenerateCollision()
+{
+	m_pTracer->RemoveArea(AABB(Vector(-GetMapSize(), -99999, -GetMapSize()), Vector(GetMapSize(), 99999, GetMapSize())));
+
+	for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
+	{
+		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
+		{
+			float flX = ArrayToWorldSpace((int)x);
+			float flY = ArrayToWorldSpace((int)y);
+			float flX1 = ArrayToWorldSpace((int)x+1);
+			float flY1 = ArrayToWorldSpace((int)y+1);
+
+			Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
+			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
+			Vector v3 = Vector(flX1, m_aflHeights[x+1][y+1], flY1);
+			Vector v4 = Vector(flX1, m_aflHeights[x+1][y], flY);
+
+			m_pTracer->AddTriangle(v1, v2, v3);
+			m_pTracer->AddTriangle(v1, v3, v4);
+		}
+	}
+
+	m_pTracer->BuildTree();
 
 	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
 	{
@@ -985,4 +1004,11 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 			CNetwork::CallFunctionParameters(iClient, "TerrainData", &p);
 		}
 	}
+}
+
+void CTerrain::GameLoaded()
+{
+	BaseClass::GameLoaded();
+
+	GenerateCollision();
 }

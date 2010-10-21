@@ -11,6 +11,9 @@
 NETVAR_TABLE_BEGIN(CScout);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CScout);
+SAVEDATA_TABLE_END();
+
 void CScout::Precache()
 {
 	PrecacheModel(L"models/digitanks/scout.obj", true);

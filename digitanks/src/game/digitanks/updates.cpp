@@ -7,6 +7,15 @@
 NETVAR_TABLE_BEGIN(CUpdateGrid);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CUpdateGrid);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CUpdateItem, m_aUpdates);
+
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iLowestX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iHighestX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iLowestY);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iHighestY);
+SAVEDATA_TABLE_END();
+
 void CUpdateGrid::SetupStandardUpdates()
 {
 	int iCPU = UPDATE_GRID_SIZE/2;

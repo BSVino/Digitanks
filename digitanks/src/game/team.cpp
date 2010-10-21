@@ -5,6 +5,14 @@
 NETVAR_TABLE_BEGIN(CTeam);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Color, m_clrTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahMembers);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientControlled);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iClient);
+	SAVEDATA_DEFINE(CSaveData::DATA_WSTRING, std::wstring, m_szName);
+SAVEDATA_TABLE_END();
+
 CTeam::CTeam()
 {
 	m_bClientControlled = false;

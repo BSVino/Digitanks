@@ -109,6 +109,9 @@ void CRaytracer::BuildTree()
 
 void CRaytracer::RemoveArea(const AABB& oBox)
 {
+	if (!m_pTree)
+		return;
+
 	m_pTree->RemoveArea(oBox);
 }
 

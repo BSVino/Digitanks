@@ -12,6 +12,10 @@ NETVAR_TABLE_BEGIN(CResource);
 	NETVAR_DEFINE(CEntityHandle<CCollector>, m_hCollector);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CResource);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCollector>, m_hCollector);
+SAVEDATA_TABLE_END();
+
 void CResource::Precache()
 {
 	BaseClass::Precache();

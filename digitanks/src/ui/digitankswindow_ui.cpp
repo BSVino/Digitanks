@@ -34,7 +34,7 @@ void CDigitanksWindow::Layout()
 }
 
 CDigitanksMenu::CDigitanksMenu()
-	: CPanel(0, 0, 300, 400)
+	: CPanel(0, 0, 300, 460)
 {
 	m_pDigitanks = new CLabel(0, 0, 100, 100, "Copyright © 2010, Lunar Workshop\nJorge Rodriguez <jorge@lunarworkshop.net>\n \nhttp://digitanks.com\nhttp://lunarworkshop.net");
 	AddControl(m_pDigitanks);
@@ -69,6 +69,14 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pReturnToGame->SetClickedListener(this, Close);
 	AddControl(m_pReturnToGame);
 
+	m_pSaveGame = new CButton(0, 0, 100, 100, "Save Game");
+	m_pSaveGame->SetClickedListener(this, Save);
+	AddControl(m_pSaveGame);
+
+	m_pLoadGame = new CButton(0, 0, 100, 100, "Load Game");
+	m_pLoadGame->SetClickedListener(this, Load);
+	AddControl(m_pLoadGame);
+
 	m_pExit = new CButton(0, 0, 100, 100, "Exit To Desktop");
 	m_pExit->SetClickedListener(this, Exit);
 	AddControl(m_pExit);
@@ -81,7 +89,7 @@ CDigitanksMenu::CDigitanksMenu()
 
 void CDigitanksMenu::Layout()
 {
-	SetPos(50, 250);
+	SetPos(50, 280);
 
 	m_pDigitanks->SetPos(0, 20);
 	m_pDigitanks->SetSize(GetWidth(), GetHeight());
@@ -107,11 +115,17 @@ void CDigitanksMenu::Layout()
 	m_pStartBasesGame->SetPos(75, 300);
 	m_pStartBasesGame->SetSize(150, 20);
 
-	m_pReturnToGame->SetPos(100, 330);
+	m_pSaveGame->SetPos(100, 330);
+	m_pSaveGame->SetSize(100, 20);
+
+	m_pLoadGame->SetPos(100, 360);
+	m_pLoadGame->SetSize(100, 20);
+
+	m_pReturnToGame->SetPos(100, 390);
 	m_pReturnToGame->SetSize(100, 20);
 	m_pReturnToGame->SetVisible(!!GameServer());
 
-	m_pExit->SetPos(100, 360);
+	m_pExit->SetPos(100, 420);
 	m_pExit->SetSize(100, 20);
 
 	BaseClass::Layout();
@@ -207,6 +221,22 @@ void CDigitanksMenu::StartBasesGameCallback()
 void CDigitanksMenu::CloseCallback()
 {
 	SetVisible(false);
+}
+
+void CDigitanksMenu::SaveCallback()
+{
+	CGameServer::SaveToFile(L"digitanks.sav");
+}
+
+void CDigitanksMenu::LoadCallback()
+{
+	if (!GameServer())
+		CDigitanksWindow::Get()->CreateGame(GAMETYPE_EMPTY);
+
+	if (CGameServer::LoadFromFile(L"digitanks.sav"))
+		SetVisible(false);
+	else
+		CDigitanksWindow::Get()->DestroyGame();
 }
 
 void CDigitanksMenu::ExitCallback()

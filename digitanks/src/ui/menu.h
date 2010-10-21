@@ -22,6 +22,8 @@ public:
 	EVENT_CALLBACK(CDigitanksMenu, StartArtilleryGame);
 	EVENT_CALLBACK(CDigitanksMenu, StartBasesGame);
 	EVENT_CALLBACK(CDigitanksMenu, Close);
+	EVENT_CALLBACK(CDigitanksMenu, Save);
+	EVENT_CALLBACK(CDigitanksMenu, Load);
 	EVENT_CALLBACK(CDigitanksMenu, Exit);
 
 protected:
@@ -35,6 +37,8 @@ protected:
 	glgui::CButton*					m_pStartArtilleryGame;
 	glgui::CButton*					m_pStartBasesGame;
 	glgui::CButton*					m_pReturnToGame;
+	glgui::CButton*					m_pSaveGame;
+	glgui::CButton*					m_pLoadGame;
 	glgui::CButton*					m_pExit;
 
 	size_t							m_iLunarWorkshop;

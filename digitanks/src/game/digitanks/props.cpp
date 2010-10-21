@@ -10,6 +10,14 @@ NETVAR_TABLE_BEGIN(CStaticProp);
 	NETVAR_DEFINE(Color, m_clrSwap);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CStaticProp);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bAdditive);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bDepthMask);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bBackCulling);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSwap);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Color, m_clrSwap);
+SAVEDATA_TABLE_END();
+
 void CStaticProp::Precache()
 {
 	PrecacheModel(L"models/props/prop01.obj", true);

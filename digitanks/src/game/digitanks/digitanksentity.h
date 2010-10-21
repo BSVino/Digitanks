@@ -45,7 +45,7 @@ public:
 	virtual void					ModifyContext(class CRenderingContext* pContext);
 	virtual void					OnRender();
 
-	virtual void					DownloadComplete(class CUpdateItem* pItem) {};
+	virtual void					DownloadComplete(size_t x, size_t y) {};
 
 	virtual void					UpdateInfo(std::wstring& sInfo) {};
 	virtual const wchar_t*			GetName() { return L"Entity"; };

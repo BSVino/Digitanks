@@ -11,6 +11,11 @@
 NETVAR_TABLE_BEGIN(CGame);
 NETVAR_TABLE_END();
 
+SAVEDATA_TABLE_BEGIN(CGame);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CTeam>, m_ahTeams);
+	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CTeam>, m_hLocalTeam);	// Detected on the fly.
+SAVEDATA_TABLE_END();
+
 CGame::CGame()
 {
 }

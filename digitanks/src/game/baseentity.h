@@ -21,12 +21,42 @@ size_t CreateEntity()
 	return pT->GetHandle();
 }
 
+template <class C>
+void ResizeVectorTmpl(char* pData, size_t iVectorSize)
+{
+	std::vector<C>* pVector = (std::vector<C>*)pData;
+	pVector->resize(iVectorSize);
+}
+
+class CSaveData
+{
+public:
+	typedef enum
+	{
+		DATA_COPYTYPE,
+		DATA_COPYARRAY,
+		DATA_COPYVECTOR,
+		DATA_NETVAR,
+		DATA_WSTRING,
+	} datatype_t;
+
+	typedef void (*ResizeVector)(char* pData, size_t iVectorSize);
+
+	datatype_t				m_eType;
+	const char*				m_pszVariableName;
+	size_t					m_iOffset;
+	size_t					m_iSizeOfVariable;
+	size_t					m_iSizeOfType;
+	ResizeVector			m_pfnResizeVector;
+};
+
 class CEntityRegistration
 {
 public:
 	const char*				m_pszEntityName;
 	EntityRegisterCallback	m_pfnRegisterCallback;
 	EntityCreateCallback	m_pfnCreateCallback;
+	std::vector<CSaveData>	m_aSaveData;
 };
 
 #define REGISTER_ENTITY_CLASS(entity, base) \
@@ -41,6 +71,26 @@ static void RegisterCallback##entity() \
  \
 virtual const char* GetClassName() { return #entity; } \
 virtual void RegisterNetworkVariables(); \
+virtual void RegisterSaveData(); \
+ \
+virtual void Serialize(std::ostream& o) \
+{ \
+	if (strcmp(#entity, #base) != 0) \
+		BaseClass::Serialize(o); \
+ \
+	CBaseEntity::Serialize(o, #entity, this); \
+} \
+ \
+virtual bool Unserialize(std::istream& i) \
+{ \
+	if (strcmp(#entity, #base) != 0) \
+	{ \
+		if (!BaseClass::Unserialize(i)) \
+			return false; \
+	} \
+ \
+	return CBaseEntity::Unserialize(i, #entity, this); \
+} \
 
 #define NETVAR_TABLE_BEGIN(entity) \
 void entity::RegisterNetworkVariables() \
@@ -61,6 +111,37 @@ void entity::RegisterNetworkVariables() \
 
 #define NETVAR_TABLE_END() \
 } \
+
+#define SAVEDATA_TABLE_BEGIN(entity) \
+void entity::RegisterSaveData() \
+{ \
+	size_t iRegisteredEntity = FindRegisteredEntity(#entity); \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(iRegisteredEntity); \
+	pRegistration->m_aSaveData.clear(); \
+	CGameServer* pGameServer = GameServer(); \
+	CSaveData* pSaveData = NULL; \
+
+#define SAVEDATA_DEFINE(copy, type, name) \
+	pRegistration->m_aSaveData.push_back(CSaveData()); \
+	pSaveData = &pRegistration->m_aSaveData[pRegistration->m_aSaveData.size()-1]; \
+	pSaveData->m_eType = copy; \
+	pSaveData->m_pszVariableName = #name; \
+	if (copy == CSaveData::DATA_NETVAR) \
+		pSaveData->m_iOffset = (((size_t)((void*)((CNetworkedVariableBase*)&name)))) - ((size_t)((void*)this)); \
+	else \
+		pSaveData->m_iOffset = (((size_t)((void*)&name))) - ((size_t)((void*)this)); \
+	pSaveData->m_iSizeOfVariable = sizeof(name); \
+	pSaveData->m_iSizeOfType = sizeof(type); \
+	pSaveData->m_pfnResizeVector = &ResizeVectorTmpl<type>; \
+	pGameServer->GenerateSaveCRC(pSaveData->m_eType); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iOffset); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfVariable); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfType); \
+
+#define SAVEDATA_TABLE_END() \
+} \
+
+class CTeam;
 
 class CBaseEntity
 {
@@ -109,8 +190,8 @@ public:
 	virtual float							GetHealth() { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
-	class CTeam*							GetTeam() const { return m_pTeam; };
-	void									SetTeam(class CTeam* pTeam) { m_pTeam = pTeam; OnTeamChange(); };
+	class CTeam*							GetTeam() const;
+	void									SetTeam(class CTeam* pTeam);
 	virtual void							OnTeamChange() {};
 
 	virtual void							ClientUpdate(int iClient);
@@ -161,6 +242,10 @@ public:
 	void									DeregisterNetworkVariables();
 	CNetworkedVariableBase*					GetNetworkVariable(const char* pszName);
 
+	virtual void							OnSerialize(std::ostream& o) {};
+	virtual bool							OnUnserialize(std::istream& i) { return true; };
+	virtual void							GameLoaded() {};
+
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
 	static CBaseEntity*						GetEntityNumber(size_t i);
@@ -173,6 +258,13 @@ public:
 	static void								RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
 	static void								Register(CBaseEntity* pEntity);
 	static size_t							FindRegisteredEntity(const char* pszEntityName);
+	static CEntityRegistration*				GetRegisteredEntity(size_t iEntity);
+
+	static void								SerializeEntity(std::ostream& o, CBaseEntity* pEntity);
+	static bool								UnserializeEntity(std::istream& i);
+
+	static void								Serialize(std::ostream& o, const char* pszClassName, void* pEntity);
+	static bool								Unserialize(std::istream& i, const char* pszClassName, void* pEntity);
 
 	template <class T>
 	static T*								FindClosest(Vector vecPoint, CBaseEntity* pFurther = NULL);
@@ -193,7 +285,7 @@ protected:
 	float									m_flHealth;
 	float									m_flTimeKilled;
 
-	class CTeam*							m_pTeam;
+	CEntityHandle<CTeam>					m_hTeam;
 
 	bool									m_bDeleted;
 
@@ -261,5 +353,7 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 
 	return pClosest;
 }
+
+#include "gameserver.h"
 
 #endif
