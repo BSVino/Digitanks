@@ -10,7 +10,7 @@
 #include <game/gameserver.h>
 #include <network/network.h>
 #include <ui/digitankswindow.h>
-#include <ui/menu.h>
+#include <ui/ui.h>
 #include <ui/instructor.h>
 #include <ui/hud.h>
 #include "powerup.h"

@@ -66,9 +66,6 @@
     <ClCompile Include="ui\digitankswindow_input.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\digitankswindow_ui.cpp">
-      <Filter>Source Files\ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\hud.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
@@ -222,6 +219,9 @@
     <ClCompile Include="game\digitanks\menumarcher.cpp">
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -234,9 +234,6 @@
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\instructor.h">
-      <Filter>Source Files\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\menu.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="game\baseentity.h">
@@ -358,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\menumarcher.h">
       <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui.h">
+      <Filter>Source Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

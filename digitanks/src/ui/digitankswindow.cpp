@@ -18,7 +18,7 @@
 #include "instructor.h"
 #include "game/camera.h"
 #include "shaders/shaders.h"
-#include "menu.h"
+#include "ui.h"
 #include "renderer/renderer.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;

@@ -104,7 +104,6 @@
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <ClCompile Include="ui\digitankswindow_input.cpp" />
-    <ClCompile Include="ui\digitankswindow_ui.cpp" />
     <ClCompile Include="ui\hud.cpp" />
     <ClCompile Include="ui\instructor.cpp" />
     <ClCompile Include="..\..\glew\src\glew.c" />
@@ -153,6 +152,7 @@
     <ClCompile Include="..\..\common\mtrand.cpp" />
     <ClCompile Include="..\..\common\platform_win32.cpp" />
     <ClCompile Include="network\network.cpp" />
+    <ClCompile Include="ui\ui.cpp" />
     <ClCompile Include="ui\updatespanel.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -166,7 +166,6 @@
     <ClInclude Include="ui\digitankswindow.h" />
     <ClInclude Include="ui\hud.h" />
     <ClInclude Include="ui\instructor.h" />
-    <ClInclude Include="ui\menu.h" />
     <ClInclude Include="game\baseentity.h" />
     <ClInclude Include="game\camera.h" />
     <ClInclude Include="game\game.h" />
@@ -200,6 +199,7 @@
     <ClInclude Include="..\..\common\mtrand.h" />
     <ClInclude Include="..\..\common\platform.h" />
     <ClInclude Include="network\network.h" />
+    <ClInclude Include="ui\ui.h" />
     <ClInclude Include="ui\updatespanel.h" />
   </ItemGroup>
   <ItemGroup>

@@ -8,7 +8,7 @@
 #include "digitanks/digitanksgame.h"
 #include "instructor.h"
 #include "hud.h"
-#include "menu.h"
+#include "ui.h"
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/dt_camera.h>
 

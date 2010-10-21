@@ -6,7 +6,7 @@
 #include <renderer/renderer.h>
 
 #include "hud.h"
-#include "menu.h"
+#include "ui.h"
 #include "instructor.h"
 
 using namespace glgui;
@@ -89,7 +89,10 @@ CDigitanksMenu::CDigitanksMenu()
 
 void CDigitanksMenu::Layout()
 {
-	SetPos(50, 280);
+	size_t iWidth = CDigitanksWindow::Get()->GetWindowWidth();
+	size_t iHeight = CDigitanksWindow::Get()->GetWindowHeight();
+
+	SetPos(iWidth/2-GetWidth()/2, iHeight/2-GetHeight()/2);
 
 	m_pDigitanks->SetPos(0, 20);
 	m_pDigitanks->SetSize(GetWidth(), GetHeight());
