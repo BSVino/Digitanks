@@ -21,6 +21,8 @@ CGameServer::CGameServer()
 	assert(!s_pGameServer);
 	s_pGameServer = this;
 
+	m_pRenderer = NULL;
+
 	m_iSaveCRC = 0;
 
 	m_bLoading = true;
@@ -44,7 +46,9 @@ CGameServer::CGameServer()
 
 CGameServer::~CGameServer()
 {
-	delete m_pRenderer;
+	if (m_pRenderer)
+		delete m_pRenderer;
+
 	delete m_pCamera;
 	assert(s_pGameServer == this);
 	s_pGameServer = NULL;
@@ -55,7 +59,9 @@ void CGameServer::Initialize()
 	if (CNetwork::IsHost())
 		m_hGame = CreateGame();
 
-	m_pRenderer = CreateRenderer();
+	if (!m_pRenderer)
+		m_pRenderer = CreateRenderer();
+
 	m_pCamera = CreateCamera();
 
 	RegisterNetworkFunctions();
@@ -436,6 +442,16 @@ void CGameServer::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
 	m_flGameTime = m_flSimulationTime = p->fl2;
+}
+
+CRenderer* CGameServer::GetRenderer()
+{
+	if (m_pRenderer)
+		return m_pRenderer;
+
+	m_pRenderer = CreateRenderer();
+
+	return m_pRenderer;
 }
 
 CGame* CGameServer::GetGame()

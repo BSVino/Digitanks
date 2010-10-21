@@ -54,7 +54,7 @@ public:
 	float										GetFrameTime() { return m_flFrameTime; };
 	float										GetGameTime() { return m_flGameTime; };
 
-	class CRenderer*							GetRenderer() { return m_pRenderer; };
+	class CRenderer*							GetRenderer();
 	class CCamera*								GetCamera() { return m_pCamera; };
 
 	bool										IsLoading() { return m_bLoading; };

@@ -13,6 +13,7 @@
 #include "terrain.h"
 #include "updates.h"
 #include "props.h"
+#include "menumarcher.h"
 
 #include "registered_entities.h"
 
@@ -44,3 +45,4 @@ REGISTER_ENTITY(CSupplyLine);
 REGISTER_ENTITY(CTerrain);
 REGISTER_ENTITY(CUpdateGrid);
 REGISTER_ENTITY(CStaticProp);
+REGISTER_ENTITY(CMenuMarcher);

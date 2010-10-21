@@ -17,6 +17,7 @@
 #include "terrain.h"
 #include "dt_camera.h"
 
+#include "digitanks/menumarcher.h"
 #include "digitanks/mechinf.h"
 #include "digitanks/maintank.h"
 #include "digitanks/artillery.h"
@@ -188,6 +189,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 		SetupArtillery();
 	else if (eGameType == GAMETYPE_TUTORIAL)
 		SetupTutorial();
+	else if (eGameType == GAMETYPE_MENU)
+		SetupMenuMarch();
 
 	GameServer()->SetLoading(false);
 
@@ -480,6 +483,30 @@ void CDigitanksGame::SetupTutorial()
 	m_iPowerups = 0;
 }
 
+void CDigitanksGame::SetupMenuMarch()
+{
+	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	m_ahTeams[0]->SetColor(Color(0, 0, 255));
+
+	CMenuMarcher* pMarcher;
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		for (size_t j = 0; j < 6; j++)
+		{
+			pMarcher = GameServer()->Create<CMenuMarcher>("CMenuMarcher");
+			m_ahTeams[0]->AddEntity(pMarcher);
+
+			pMarcher->SetOrigin(GetTerrain()->SetPointHeight(Vector(RemapVal((float)i, 0, 10, -70, 35), 0, RemapVal((float)j, 0, 6, -79, 79))));
+			pMarcher->SetAngles(EAngle(0,90,0));
+		}
+	}
+
+	m_ahTeams[0]->SetClient(-2);
+
+	m_iPowerups = 0;
+}
+
 void CDigitanksGame::SetupEntities()
 {
 	if (!CNetwork::ShouldRunClientFunction())
@@ -565,11 +592,18 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		GetDigitanksCamera()->SnapAngle(angCamera);
 	}
 
-	if (GetLocalDigitanksTeam()->GetMember(0))
+	if (GetLocalDigitanksTeam() && GetLocalDigitanksTeam()->GetMember(0))
 		GetDigitanksCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
 
 	if (m_eGameType == GAMETYPE_STANDARD)
 		CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
+
+	if (m_eGameType == GAMETYPE_MENU)
+	{
+		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
+		GetDigitanksCamera()->SnapAngle(EAngle(55,0,0));
+		GetDigitanksCamera()->SnapDistance(80);
+	}
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -938,7 +972,7 @@ void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 
 void CDigitanksGame::CheckWinConditions()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL)
+	if (m_eGameType == GAMETYPE_TUTORIAL || m_eGameType == GAMETYPE_MENU)
 		return;
 
 	bool bPlayerLost = false;
@@ -998,7 +1032,7 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 		m_iPowerups--;
 }
 
-void CDigitanksGame::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
+void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech)
 {
 	if (m_pListener)
 		m_pListener->TankSpeak(pTank, sSpeech);
@@ -1215,6 +1249,9 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 bool CDigitanksGame::ShouldRenderFogOfWar()
 {
 	if (m_eGameType == GAMETYPE_ARTILLERY)
+		return false;
+
+	if (m_eGameType == GAMETYPE_MENU)
 		return false;
 
 	if (m_eGameType == GAMETYPE_TUTORIAL && CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_THEEND_BASICS)

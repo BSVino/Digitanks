@@ -23,6 +23,9 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 {
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
+	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+		return;
+
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
 
@@ -70,6 +73,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	}
 
 	if (!DigitanksGame())
+		return;
+
+	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
 	if (iState == GLFW_PRESS)
@@ -224,6 +230,9 @@ void CDigitanksWindow::KeyEvent(int c, int e)
 void CDigitanksWindow::KeyPress(int c)
 {
 	if (glgui::CRootPanel::Get()->KeyPressed(c))
+		return;
+
+	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
 	if (DigitanksGame() && (c == GLFW_KEY_ENTER || c == GLFW_KEY_KP_ENTER))

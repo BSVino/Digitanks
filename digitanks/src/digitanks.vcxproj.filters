@@ -219,6 +219,9 @@
     <ClCompile Include="game\gameserver.cpp">
       <Filter>Source Files\game</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\menumarcher.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -352,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="game\gameserver.h">
       <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\menumarcher.h">
+      <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

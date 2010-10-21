@@ -477,6 +477,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (GameServer()->IsLoading())
 		return;
 
+	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+		return;
+
 	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
 	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
 
@@ -1439,9 +1442,10 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
-void CHUD::TankSpeak(class CDigitank* pTank, const std::string& sSpeech)
+void CHUD::TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech)
 {
-	if (pTank->GetVisibility() == 0)
+	CDigitank* pDigitank = dynamic_cast<CDigitank*>(pTank);
+	if (pDigitank && pDigitank->GetVisibility() == 0)
 		return;
 
 	// Cleans itself up.
@@ -2453,7 +2457,7 @@ void CHitIndicator::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-CSpeechBubble::CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iBubble)
+CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, std::string sSpeech, size_t iBubble)
 	: CLabel(0, 0, 83*2/3, 47*2/3, "")
 {
 	m_hSpeaker = pSpeaker;
@@ -2466,7 +2470,7 @@ CSpeechBubble::CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iB
 	else
 		m_flRadius = 10;
 
-	glgui::CRootPanel::Get()->AddControl(this, true);
+	glgui::CRootPanel::Get()->AddControl(this, (DigitanksGame()->GetGameType() == GAMETYPE_MENU)?false:true);
 
 	SetFGColor(Color(255, 255, 255));
 

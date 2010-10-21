@@ -17,6 +17,7 @@ typedef enum
 	GAMETYPE_TUTORIAL,
 	GAMETYPE_ARTILLERY,
 	GAMETYPE_STANDARD,
+	GAMETYPE_MENU,
 } gametype_t;
 
 typedef enum
@@ -55,7 +56,7 @@ public:
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)=0;
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)=0;
 
-	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech)=0;
+	virtual void			TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech)=0;
 
 	virtual void			ClearTurnInfo()=0;
 	virtual void			AppendTurnInfo(const wchar_t* pszInfo)=0;
@@ -89,6 +90,7 @@ public:
 	void					SetupArtillery();
 	void					SetupStandard();
 	void					SetupTutorial();
+	void					SetupMenuMarch();
 
 	void					StartGame();
 	NET_CALLBACK(CDigitanksGame, EnterGame);
@@ -116,7 +118,7 @@ public:
 
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
 
-	virtual void			TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
+	virtual void			TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech);
 
 	CDigitanksTeam*			GetDigitanksTeam(size_t i);
 

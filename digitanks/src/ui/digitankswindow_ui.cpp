@@ -133,10 +133,13 @@ void CDigitanksMenu::Layout()
 
 void CDigitanksMenu::Paint(int x, int y, int w, int h)
 {
-	if (!GameServer())
+	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
 		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
-		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 410, 205);
+		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 350, 175);
 	}
 
 	if (GameServer())
@@ -236,7 +239,10 @@ void CDigitanksMenu::LoadCallback()
 	if (CGameServer::LoadFromFile(L"digitanks.sav"))
 		SetVisible(false);
 	else
+	{
 		CDigitanksWindow::Get()->DestroyGame();
+		CDigitanksWindow::Get()->CreateGame(GAMETYPE_MENU);
+	}
 }
 
 void CDigitanksMenu::ExitCallback()

@@ -107,9 +107,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	glLineWidth(1.0);
 
 	CNetwork::Initialize();
-
-//	if (!HasCommandLineSwitch("--nomusic"))
-//		CSoundLibrary::PlayMusic("sound/digitanks-march.ogg");
 }
 
 CDigitanksWindow::~CDigitanksWindow()
@@ -130,16 +127,18 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
-	if (HasCommandLineSwitch("--host"))
-		CNetwork::CreateHost(iPort);
-
-	if (HasCommandLineSwitch("--connect"))
+	if (eGameType != GAMETYPE_MENU)
 	{
-		CNetwork::ConnectToHost(GetCommandLineSwitchValue("--connect"), iPort);
-		if (!CNetwork::IsConnected())
+		if (HasCommandLineSwitch("--host"))
+			CNetwork::CreateHost(iPort);
+
+		if (HasCommandLineSwitch("--connect"))
 		{
-			DestroyGame();
-			return;
+			CNetwork::ConnectToHost(GetCommandLineSwitchValue("--connect"), iPort);
+			if (!CNetwork::IsConnected())
+			{
+				return;
+			}
 		}
 	}
 
@@ -188,6 +187,11 @@ void CDigitanksWindow::DestroyGame()
 
 void CDigitanksWindow::Run()
 {
+	CreateGame(GAMETYPE_MENU);
+
+	if (!HasCommandLineSwitch("--nomusic"))
+		CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
+
 	while (glfwGetWindowParam( GLFW_OPENED ))
 	{
 		float flTime = (float)glfwGetTime();
@@ -204,6 +208,7 @@ void CDigitanksWindow::Run()
 			{
 				DestroyGame();
 				m_pMenu->SetVisible(true);
+				CreateGame(GAMETYPE_MENU);
 			}
 			else
 			{

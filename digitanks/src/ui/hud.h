@@ -80,7 +80,7 @@ class CSpeechBubble : public glgui::CLabel
 	DECLARE_CLASS(CSpeechBubble, glgui::CLabel);
 
 public:
-								CSpeechBubble(CDigitank* pSpeaker, std::string sSpeech, size_t iBubble);
+								CSpeechBubble(CBaseEntity* pSpeaker, std::string sSpeech, size_t iBubble);
 
 public:
 	virtual void				Destructor();
@@ -91,7 +91,7 @@ public:
 	void						Paint(int x, int y, int w, int h);
 
 protected:
-	CEntityHandle<CDigitank>	m_hSpeaker;
+	CEntityHandle<CBaseEntity>	m_hSpeaker;
 	float						m_flTime;
 	Vector						m_vecLastOrigin;
 	float						m_flRadius;
@@ -154,7 +154,7 @@ public:
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 
-	virtual void				TankSpeak(class CDigitank* pTank, const std::string& sSpeech);
+	virtual void				TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech);
 
 	virtual void				ClearTurnInfo();
 	virtual void				AppendTurnInfo(const wchar_t* pszInfo);
