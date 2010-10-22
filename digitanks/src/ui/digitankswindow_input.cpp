@@ -232,7 +232,7 @@ void CDigitanksWindow::KeyPress(int c)
 	if (glgui::CRootPanel::Get()->KeyPressed(c))
 		return;
 
-	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
 	if (DigitanksGame() && (c == GLFW_KEY_ENTER || c == GLFW_KEY_KP_ENTER))

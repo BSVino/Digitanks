@@ -52,6 +52,11 @@ void CNetwork::RegisterFunction(const char* pszName, INetworkListener* pListener
 	s_aFunctions[pszName].m_pfnCallback = pfnCallback;
 }
 
+void CNetwork::ClearRegisteredFunctions()
+{
+	s_aFunctions.clear();
+}
+
 void CNetwork::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
 {
 	s_apNetworkedVariables.push_back(pVariable);

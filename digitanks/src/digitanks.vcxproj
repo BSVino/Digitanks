@@ -152,6 +152,7 @@
     <ClCompile Include="..\..\common\mtrand.cpp" />
     <ClCompile Include="..\..\common\platform_win32.cpp" />
     <ClCompile Include="network\network.cpp" />
+    <ClCompile Include="ui\menu.cpp" />
     <ClCompile Include="ui\ui.cpp" />
     <ClCompile Include="ui\updatespanel.cpp" />
   </ItemGroup>
@@ -199,6 +200,7 @@
     <ClInclude Include="..\..\common\mtrand.h" />
     <ClInclude Include="..\..\common\platform.h" />
     <ClInclude Include="network\network.h" />
+    <ClInclude Include="ui\menu.h" />
     <ClInclude Include="ui\ui.h" />
     <ClInclude Include="ui\updatespanel.h" />
   </ItemGroup>

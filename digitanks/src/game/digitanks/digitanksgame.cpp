@@ -270,13 +270,13 @@ void CDigitanksGame::ScatterProps()
 
 void CDigitanksGame::SetupArtillery()
 {
-	int iPlayers = 8;
+	int iPlayers = m_iPlayers;
 	if (iPlayers > 8)
 		iPlayers = 8;
 	if (iPlayers < 2)
 		iPlayers = 2;
 
-	int iTanks = 5;
+	int iTanks = m_iTanks;
 	if (iTanks > 5)
 		iTanks = 5;
 	if (iTanks < 1)
@@ -366,6 +366,12 @@ void CDigitanksGame::SetupStandard()
 	ScatterResources();
 	ScatterProps();
 
+	int iPlayers = m_iPlayers;
+	if (iPlayers > 4)
+		iPlayers = 4;
+	if (iPlayers < 2)
+		iPlayers = 2;
+
 	Color aclrTeamColors[] =
 	{
 		Color(0, 0, 255),
@@ -390,7 +396,16 @@ void CDigitanksGame::SetupStandard()
 		Vector(-130, 0, -130),
 	};
 
+	std::vector<Vector> avecRandomStartingPositions;
 	for (int i = 0; i < 4; i++)
+	{
+		if (rand()%2)
+			avecRandomStartingPositions.push_back(avecStartingPositions[i]);
+		else
+			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
+	}
+
+	for (int i = 0; i < iPlayers; i++)
 	{
 		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
@@ -398,7 +413,7 @@ void CDigitanksGame::SetupStandard()
 		m_ahTeams[i]->SetName(aszTeamNames[i]);
 
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecStartingPositions[i]));
+		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecRandomStartingPositions[i]));
 		m_ahTeams[i]->AddEntity(pCPU);
 
 
@@ -429,13 +444,13 @@ void CDigitanksGame::SetupStandard()
 		Vector vecTank;
 		EAngle angTank;
 
-		Vector vecForward = (Vector(0,0,0) - avecStartingPositions[i]).Normalized();
+		Vector vecForward = (Vector(0,0,0) - avecRandomStartingPositions[i]).Normalized();
 		Vector vecRight = vecForward.Cross(Vector(0,1,0)).Normalized();
 
 		pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = avecStartingPositions[i] + vecForward * 20 + vecRight * 20;
+		vecTank = avecRandomStartingPositions[i] + vecForward * 20 + vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -445,7 +460,7 @@ void CDigitanksGame::SetupStandard()
 		pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[i]->AddEntity(pTank);
 
-		vecTank = avecStartingPositions[i] + vecForward * 20 - vecRight * 20;
+		vecTank = avecRandomStartingPositions[i] + vecForward * 20 - vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
@@ -488,6 +503,7 @@ void CDigitanksGame::SetupMenuMarch()
 	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
+#ifndef _DEBUG
 	CMenuMarcher* pMarcher;
 
 	for (size_t i = 0; i < 10; i++)
@@ -501,6 +517,7 @@ void CDigitanksGame::SetupMenuMarch()
 			pMarcher->SetAngles(EAngle(0,90,0));
 		}
 	}
+#endif
 
 	m_ahTeams[0]->SetClient(-2);
 
@@ -603,6 +620,10 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
 		GetDigitanksCamera()->SnapAngle(EAngle(55,0,0));
 		GetDigitanksCamera()->SnapDistance(80);
+	}
+	else
+	{
+		GetDigitanksCamera()->SnapDistance(120);
 	}
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
@@ -851,7 +872,7 @@ void CDigitanksGame::StartTurn()
 	if (!CNetwork::IsHost())
 		return;
 
-	if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
+	if (GetGameType() != GAMETYPE_MENU && !CDigitanksWindow::Get()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());

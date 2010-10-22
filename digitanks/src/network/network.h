@@ -352,6 +352,7 @@ public:
 	static void				Initialize();
 	static void				Deinitialize();
 
+	static void				ClearRegisteredFunctions();
 	static void				RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...);
 	static void				RegisterNetworkVariable(CNetworkedVariableBase* pVariable);
 	static void				DeregisterNetworkVariable(CNetworkedVariableBase* pVariable);

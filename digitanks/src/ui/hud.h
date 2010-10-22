@@ -163,6 +163,8 @@ public:
 
 	bool						IsActive() { return m_bHUDActive; };
 
+	virtual bool				IsVisible();
+
 	void						ShowButtonInfo(int iButton);
 	void						HideButtonInfo();
 

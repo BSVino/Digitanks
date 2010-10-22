@@ -2415,6 +2415,9 @@ void CDigitank::Speak(class CNetworkParameters* p)
 
 float CDigitank::FindHoverHeight(Vector vecPosition) const
 {
+	if (!DigitanksGame())
+		return vecPosition.y;
+
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
 	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.z);

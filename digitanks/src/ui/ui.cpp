@@ -1,11 +1,10 @@
 #include "digitankswindow.h"
 
 #include <glgui/glgui.h>
-#include <digitanks/digitanksgame.h>
 #include <platform.h>
-#include <renderer/renderer.h>
 
 #include "hud.h"
+#include "menu.h"
 #include "ui.h"
 #include "instructor.h"
 
@@ -13,11 +12,13 @@ using namespace glgui;
 
 void CDigitanksWindow::InitUI()
 {
+	m_pMainMenu = new CMainMenu();
 	m_pMenu = new CDigitanksMenu();
 	m_pVictory = new CVictoryPanel();
 	m_pDonate = new CDonatePanel();
 	m_pStory = new CStoryPanel();
 
+	CRootPanel::Get()->AddControl(m_pMainMenu);
 	CRootPanel::Get()->AddControl(m_pMenu);
 	CRootPanel::Get()->AddControl(m_pVictory);
 	CRootPanel::Get()->AddControl(m_pDonate);
@@ -49,21 +50,9 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pDifficultyLabel->SetWrap(false);
 	AddControl(m_pDifficultyLabel);
 
-	m_pStartTutorialBasics = new CButton(0, 0, 100, 100, "Tutorial - Basics");
-	m_pStartTutorialBasics->SetClickedListener(this, StartTutorialBasics);
-	AddControl(m_pStartTutorialBasics);
-
-	m_pStartTutorialBases = new CButton(0, 0, 100, 100, "Tutorial - Bases");
-	m_pStartTutorialBases->SetClickedListener(this, StartTutorialBases);
-	AddControl(m_pStartTutorialBases);
-
-	m_pStartArtilleryGame = new CButton(0, 0, 100, 100, "New Artillery Game");
-	m_pStartArtilleryGame->SetClickedListener(this, StartArtilleryGame);
-	AddControl(m_pStartArtilleryGame);
-
-	m_pStartBasesGame = new CButton(0, 0, 100, 100, "New Strategy Game");
-	m_pStartBasesGame->SetClickedListener(this, StartBasesGame);
-	AddControl(m_pStartBasesGame);
+	m_pReturnToMenu = new CButton(0, 0, 100, 100, "Exit Game");
+	m_pReturnToMenu->SetClickedListener(this, Exit);
+	AddControl(m_pReturnToMenu);
 
 	m_pReturnToGame = new CButton(0, 0, 100, 100, "Return To Game");
 	m_pReturnToGame->SetClickedListener(this, Close);
@@ -77,14 +66,13 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pLoadGame->SetClickedListener(this, Load);
 	AddControl(m_pLoadGame);
 
-	m_pExit = new CButton(0, 0, 100, 100, "Exit To Desktop");
-	m_pExit->SetClickedListener(this, Exit);
+	m_pExit = new CButton(0, 0, 100, 100, "Quit To Desktop");
+	m_pExit->SetClickedListener(this, Quit);
 	AddControl(m_pExit);
 
-	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
-	m_iDigitanks = CRenderer::LoadTextureIntoGL(L"textures/digitanks.png");
-
 	Layout();
+
+	SetVisible(false);
 }
 
 void CDigitanksMenu::Layout()
@@ -100,29 +88,21 @@ void CDigitanksMenu::Layout()
 
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
-	m_pStartTutorialBasics->SetPos(100, 140);
-	m_pStartTutorialBasics->SetSize(100, 20);
-
-	m_pStartTutorialBases->SetPos(100, 170);
-	m_pStartTutorialBases->SetSize(100, 20);
-
 	m_pDifficultyLabel->EnsureTextFits();
 	m_pDifficultyLabel->SetPos(75, 220);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 220);
 
-	m_pStartArtilleryGame->SetPos(75, 270);
-	m_pStartArtilleryGame->SetSize(150, 20);
-
-	m_pStartBasesGame->SetPos(75, 300);
-	m_pStartBasesGame->SetSize(150, 20);
-
-	m_pSaveGame->SetPos(100, 330);
+	m_pSaveGame->SetPos(100, 300);
 	m_pSaveGame->SetSize(100, 20);
 
-	m_pLoadGame->SetPos(100, 360);
+	m_pLoadGame->SetPos(100, 330);
 	m_pLoadGame->SetSize(100, 20);
+
+	m_pReturnToMenu->SetPos(100, 360);
+	m_pReturnToMenu->SetSize(100, 20);
+	m_pReturnToMenu->SetVisible(!!GameServer());
 
 	m_pReturnToGame->SetPos(100, 390);
 	m_pReturnToGame->SetSize(100, 20);
@@ -136,15 +116,6 @@ void CDigitanksMenu::Layout()
 
 void CDigitanksMenu::Paint(int x, int y, int w, int h)
 {
-	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
-	{
-		CRenderingContext c(GameServer()->GetRenderer());
-		c.SetBlend(BLEND_ALPHA);
-
-		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
-		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 350, 175);
-	}
-
 	if (GameServer())
 		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
 
@@ -164,64 +135,6 @@ void CDigitanksMenu::SetVisible(bool bVisible)
 	m_pReturnToGame->SetVisible(!!GameServer());
 
 	BaseClass::SetVisible(bVisible);
-}
-
-void CDigitanksMenu::StartTutorialBasicsCallback()
-{
-	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
-
-	pInstructor->SetActive(true);
-	pInstructor->Initialize();
-
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
-	DigitanksGame()->SetDifficulty(0);
-
-	pInstructor->DisplayFirstBasicsTutorial();
-
-	SetVisible(false);
-}
-
-void CDigitanksMenu::StartTutorialBasesCallback()
-{
-	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
-
-	pInstructor->SetActive(true);
-	pInstructor->Initialize();
-
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
-	DigitanksGame()->SetDifficulty(0);
-
-	pInstructor->DisplayFirstBasesTutorial();
-
-	SetVisible(false);
-}
-
-void CDigitanksMenu::StartArtilleryGameCallback()
-{
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_ARTILLERY);
-
-	if (!GameServer())
-		return;
-
-	if (CNetwork::IsHost() && DigitanksGame())
-		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
-
-	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	SetVisible(false);
-}
-
-void CDigitanksMenu::StartBasesGameCallback()
-{
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_STANDARD);
-
-	if (!GameServer())
-		return;
-
-	if (CNetwork::IsHost() && DigitanksGame())
-		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
-
-	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	SetVisible(false);
 }
 
 void CDigitanksMenu::CloseCallback()
@@ -249,6 +162,14 @@ void CDigitanksMenu::LoadCallback()
 }
 
 void CDigitanksMenu::ExitCallback()
+{
+	CDigitanksWindow::Get()->DestroyGame();
+	CDigitanksWindow::Get()->CreateGame(GAMETYPE_MENU);
+	SetVisible(false);
+	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(true);
+}
+
+void CDigitanksMenu::QuitCallback()
 {
 	CDigitanksWindow::Get()->CloseApplication();
 }

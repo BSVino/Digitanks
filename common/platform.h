@@ -7,5 +7,7 @@ size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
 void OpenBrowser(const wchar_t* pszAddress);
 void CreateMinidump(void* pInfo);
+wchar_t* OpenFileDialog(wchar_t* pszFileTypes);
+wchar_t* SaveFileDialog(wchar_t* pszFileTypes);
 
 #endif

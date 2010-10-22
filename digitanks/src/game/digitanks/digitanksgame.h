@@ -85,6 +85,9 @@ public:
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
+	void					SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
+	void					SetTanks(int iTanks) { m_iTanks = iTanks; };
+
 	void					ScatterResources();
 	void					ScatterProps();
 	void					SetupArtillery();
@@ -249,6 +252,9 @@ protected:
 	CNetworkedVariable<size_t> m_iDifficulty;
 
 	CNetworkedVariable<bool> m_bRenderFogOfWar;
+
+	int							m_iPlayers;
+	int							m_iTanks;
 
 	CNetworkedVariable<gametype_t> m_eGameType;
 	CNetworkedVariable<size_t> m_iTurn;

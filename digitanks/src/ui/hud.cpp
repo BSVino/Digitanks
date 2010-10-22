@@ -1480,6 +1480,14 @@ void CHUD::SetHUDActive(bool bActive)
 		DigitanksGame()->SetControlMode(MODE_NONE);
 }
 
+bool CHUD::IsVisible()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+		return false;
+
+	return BaseClass::IsVisible();
+}
+
 void CHUD::ShowButtonInfo(int iButton)
 {
 	if (iButton < 0 || iButton >= NUM_BUTTONS)

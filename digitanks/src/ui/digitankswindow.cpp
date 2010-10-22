@@ -18,6 +18,7 @@
 #include "instructor.h"
 #include "game/camera.h"
 #include "shaders/shaders.h"
+#include "menu.h"
 #include "ui.h"
 #include "renderer/renderer.h"
 
@@ -114,6 +115,7 @@ CDigitanksWindow::~CDigitanksWindow()
 	CNetwork::Deinitialize();
 
 	delete m_pMenu;
+	delete m_pMainMenu;
 
 	DestroyGame();
 
@@ -129,16 +131,14 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 	if (eGameType != GAMETYPE_MENU)
 	{
-		if (HasCommandLineSwitch("--host"))
+		if (m_eServerType == SERVER_HOST)
 			CNetwork::CreateHost(iPort);
 
-		if (HasCommandLineSwitch("--connect"))
+		if (m_eServerType == SERVER_CLIENT)
 		{
 			CNetwork::ConnectToHost(GetCommandLineSwitchValue("--connect"), iPort);
 			if (!CNetwork::IsConnected())
-			{
 				return;
-			}
 		}
 	}
 
@@ -156,10 +156,14 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 			m_pInstructor = new CInstructor();
 	}
 	else
-		m_pGameServer->DestroyAllEntities(true);
+		m_pGameServer->Initialize();
 
 	if (CNetwork::IsHost() && DigitanksGame())
+	{
+		DigitanksGame()->SetPlayers(m_iPlayers);
+		DigitanksGame()->SetTanks(m_iTanks);
 		DigitanksGame()->SetupGame(eGameType);
+	}
 
 	glgui::CRootPanel::Get()->Layout();
 }
@@ -207,7 +211,7 @@ void CDigitanksWindow::Run()
 			else if (GameServer()->IsClient() && !CNetwork::IsConnected())
 			{
 				DestroyGame();
-				m_pMenu->SetVisible(true);
+				m_pMainMenu->SetVisible(true);
 				CreateGame(GAMETYPE_MENU);
 			}
 			else
@@ -281,6 +285,7 @@ void CDigitanksWindow::CloseApplication()
 	DestroyGame();
 
 	m_pMenu->SetVisible(false);
+	m_pMainMenu->SetVisible(false);
 	m_pDonate->ClosingApplication();
 }
 

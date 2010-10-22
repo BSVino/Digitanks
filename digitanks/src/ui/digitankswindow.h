@@ -8,6 +8,13 @@
 
 #include <game/digitanks/digitanksgame.h>
 
+typedef enum
+{
+	SERVER_LOCAL,
+	SERVER_HOST,
+	SERVER_CLIENT,
+} servertype_t;
+
 class CDigitanksWindow
 {
 public:
@@ -16,6 +23,10 @@ public:
 
 public:
 	void						InitUI();
+
+	void						SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
+	void						SetTanks(int iTanks) { m_iTanks = iTanks; };
+	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 
 	void						CreateGame(gametype_t eGameType);
 	void						DestroyGame();
@@ -63,6 +74,7 @@ public:
 
 	void						CloseApplication();
 
+	class CMainMenu*			GetMainMenu() { return m_pMainMenu; };
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
 	class CGameServer*			GetGameServer() { return m_pGameServer; };
 	class CHUD*					GetHUD() { return m_pHUD; };
@@ -82,10 +94,16 @@ protected:
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
 
+	class CMainMenu*			m_pMainMenu;
 	class CDigitanksMenu*		m_pMenu;
 	class CVictoryPanel*		m_pVictory;
 	class CDonatePanel*			m_pDonate;
 	class CStoryPanel*			m_pStory;
+
+	int							m_iPlayers;
+	int							m_iTanks;
+
+	servertype_t				m_eServerType;
 
 	class CGameServer*			m_pGameServer;
 

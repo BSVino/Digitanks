@@ -1,5 +1,5 @@
-#ifndef DT_MENU_H
-#define DT_MENU_H
+#ifndef DT_UI_H
+#define DT_UI_H
 
 #include <common.h>
 #include "glgui/glgui.h"
@@ -17,14 +17,11 @@ public:
 
 	virtual void					SetVisible(bool bVisible);
 
-	EVENT_CALLBACK(CDigitanksMenu, StartTutorialBasics);
-	EVENT_CALLBACK(CDigitanksMenu, StartTutorialBases);
-	EVENT_CALLBACK(CDigitanksMenu, StartArtilleryGame);
-	EVENT_CALLBACK(CDigitanksMenu, StartBasesGame);
+	EVENT_CALLBACK(CDigitanksMenu, Exit);
 	EVENT_CALLBACK(CDigitanksMenu, Close);
 	EVENT_CALLBACK(CDigitanksMenu, Save);
 	EVENT_CALLBACK(CDigitanksMenu, Load);
-	EVENT_CALLBACK(CDigitanksMenu, Exit);
+	EVENT_CALLBACK(CDigitanksMenu, Quit);
 
 protected:
 	glgui::CLabel*					m_pDigitanks;
@@ -32,17 +29,11 @@ protected:
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
-	glgui::CButton*					m_pStartTutorialBasics;
-	glgui::CButton*					m_pStartTutorialBases;
-	glgui::CButton*					m_pStartArtilleryGame;
-	glgui::CButton*					m_pStartBasesGame;
+	glgui::CButton*					m_pReturnToMenu;
 	glgui::CButton*					m_pReturnToGame;
 	glgui::CButton*					m_pSaveGame;
 	glgui::CButton*					m_pLoadGame;
 	glgui::CButton*					m_pExit;
-
-	size_t							m_iLunarWorkshop;
-	size_t							m_iDigitanks;
 };
 
 class CVictoryPanel : public glgui::CPanel

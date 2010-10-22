@@ -28,6 +28,8 @@ CGame::~CGame()
 
 void CGame::Spawn()
 {
+	BaseClass::Spawn();
+
 	RegisterNetworkFunctions();
 }
 
