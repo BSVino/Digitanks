@@ -280,17 +280,17 @@ public:
 protected:
 	CNetworkedVector						m_vecOrigin;
 	Vector									m_vecLastOrigin;
-	EAngle									m_angAngles;
-	Vector									m_vecVelocity;
-	Vector									m_vecGravity;
+	CNetworkedEAngle						m_angAngles;
+	CNetworkedVector						m_vecVelocity;
+	CNetworkedVector						m_vecGravity;
 
 	bool									m_bSimulated;
 
 	size_t									m_iHandle;
 
-	bool									m_bTakeDamage;
-	float									m_flTotalHealth;
-	float									m_flHealth;
+	CNetworkedVariable<bool>				m_bTakeDamage;
+	CNetworkedVariable<float>				m_flTotalHealth;
+	CNetworkedVariable<float>				m_flHealth;
 	float									m_flTimeKilled;
 
 	CEntityHandle<CTeam>					m_hTeam;
@@ -299,7 +299,7 @@ protected:
 
 	std::vector<CEntityHandle<CBaseEntity> >	m_ahTouching;
 
-	int										m_iCollisionGroup;
+	CNetworkedVariable<int>					m_iCollisionGroup;
 	class raytrace::CRaytracer*				m_pTracer;
 
 	CNetworkedVariable<size_t>				m_iModel;

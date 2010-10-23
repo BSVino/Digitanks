@@ -16,6 +16,13 @@ size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
 NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
 	NETVAR_DEFINE(Vector, m_vecOrigin);
+	NETVAR_DEFINE(EAngle, m_angAngles);
+	NETVAR_DEFINE(Vector, m_vecVelocity);
+	NETVAR_DEFINE(Vector, m_vecGravity);
+	NETVAR_DEFINE(bool, m_bTakeDamage);
+	NETVAR_DEFINE(float, m_flTotalHealth);
+	NETVAR_DEFINE(float, m_flHealth);
+	NETVAR_DEFINE(int, m_iCollisionGroup);
 	NETVAR_DEFINE(size_t, m_iModel);
 NETVAR_TABLE_END();
 

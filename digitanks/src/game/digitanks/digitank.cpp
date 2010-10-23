@@ -73,7 +73,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(float, m_flBonusAttackPower);
 	NETVAR_DEFINE(float, m_flBonusDefensePower);
 	NETVAR_DEFINE(float, m_flBonusMovementPower);
-	NETVAR_DEFINE(size_t, m_iBonusPoints);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iBonusPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(float, m_flRangeBonus);
 
 	NETVAR_DEFINE(float, m_flFrontShieldStrength);
