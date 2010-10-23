@@ -40,6 +40,9 @@ public:
 
 	static void				SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume);
 
+	static void				SetSoundVolume(float flVolume);
+	static void				SetMusicVolume(float flVolume);
+
 	static void				ChannelFinished(int iChannel);
 	static void				EntityDeleted(CBaseEntity* pEntity);
 

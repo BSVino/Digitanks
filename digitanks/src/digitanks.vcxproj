@@ -90,6 +90,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\common\configfile.cpp" />
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="ui\updatespanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\common\configfile.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
     <ClInclude Include="game\digitanks\props.h" />

@@ -68,11 +68,17 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
+	void						SetConfigWindowDimensions(int iWidth, int iHeight) { m_iCfgWidth = iWidth; m_iCfgHeight = iHeight; };
+	void						SetFullscreen(bool bFullscreen) { m_bFullscreen = bFullscreen; };
+	bool						IsFullscreen() { return m_bFullscreen; };
+
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL);
 
 	void						GameOver(bool bPlayerWon);
 
 	void						CloseApplication();
+
+	void						SaveConfig();
 
 	class CMainMenu*			GetMainMenu() { return m_pMainMenu; };
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
@@ -84,6 +90,12 @@ public:
 
 	bool						HasCommandLineSwitch(const char* pszSwitch);
 	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
+
+	float						GetSoundVolume() { return m_flSoundVolume; };
+	void						SetSoundVolume(float flSoundVolume);
+
+	float						GetMusicVolume() { return m_flMusicVolume; };
+	void						SetMusicVolume(float flMusicVolume);
 
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 
@@ -126,6 +138,13 @@ protected:
 	std::vector<const char*>	m_apszCommandLine;
 
 	bool						m_bCheatsOn;
+
+	bool						m_bFullscreen;
+	int							m_iCfgWidth;
+	int							m_iCfgHeight;
+
+	float						m_flSoundVolume;
+	float						m_flMusicVolume;
 };
 
 #endif

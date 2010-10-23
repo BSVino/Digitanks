@@ -225,6 +225,9 @@
     <ClCompile Include="ui\menu.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\configfile.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -364,6 +367,9 @@
     </ClInclude>
     <ClInclude Include="ui\menu.h">
       <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\configfile.h">
+      <Filter>Source Files\common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

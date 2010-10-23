@@ -151,6 +151,36 @@ protected:
 	glgui::CButton*					m_pBeginGame;
 };
 
+class COptionsPanel : public glgui::CPanel, public glgui::IEventListener
+{
+	DECLARE_CLASS(COptionsPanel, glgui::CPanel);
+
+public:
+									COptionsPanel();
+
+public:
+	virtual void					Layout();
+
+	EVENT_CALLBACK(COptionsPanel,	SoundVolumeChanged);
+	EVENT_CALLBACK(COptionsPanel,	MusicVolumeChanged);
+	EVENT_CALLBACK(COptionsPanel,	VideoModeChosen);
+	EVENT_CALLBACK(COptionsPanel,	WindowedChanged);
+
+protected:
+	glgui::CScrollSelector<float>*	m_pSoundVolume;
+	glgui::CLabel*					m_pSoundVolumeLabel;
+
+	glgui::CScrollSelector<float>*	m_pMusicVolume;
+	glgui::CLabel*					m_pMusicVolumeLabel;
+
+	glgui::CMenu*					m_pVideoModes;
+
+	glgui::CCheckBox*				m_pWindowed;
+	glgui::CLabel*					m_pWindowedLabel;
+
+	glgui::CLabel*					m_pVideoChangedNotice;
+};
+
 class CMainMenu : public glgui::CPanel, public glgui::IEventListener
 {
 	DECLARE_CLASS(CMainMenu, glgui::CPanel);
@@ -167,6 +197,7 @@ public:
 	EVENT_CALLBACK(CMainMenu,		OpenTutorialsPanel);
 	EVENT_CALLBACK(CMainMenu,		OpenGamesPanel);
 	EVENT_CALLBACK(CMainMenu,		OpenMultiplayerPanel);
+	EVENT_CALLBACK(CMainMenu,		OpenOptionsPanel);
 	EVENT_CALLBACK(CMainMenu,		Quit);
 
 	CDockPanel*						GetDockPanel();

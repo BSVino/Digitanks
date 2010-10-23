@@ -249,7 +249,6 @@ void CDigitanksGame::ScatterProps()
 			{
 			case 0:
 				pProp->SetModel(L"models/props/prop01.obj");
-				pProp->SetBackCulling(false);
 				break;
 
 			case 1:
@@ -506,15 +505,20 @@ void CDigitanksGame::SetupMenuMarch()
 #ifndef _DEBUG
 	CMenuMarcher* pMarcher;
 
-	for (size_t i = 0; i < 10; i++)
+	for (size_t i = 0; i < 4; i++)
 	{
-		for (size_t j = 0; j < 6; j++)
-		{
-			pMarcher = GameServer()->Create<CMenuMarcher>("CMenuMarcher");
-			m_ahTeams[0]->AddEntity(pMarcher);
+		float flZ = RemapVal((float)i, 0, 4, -79, 79);
 
-			pMarcher->SetOrigin(GetTerrain()->SetPointHeight(Vector(RemapVal((float)i, 0, 10, -70, 35), 0, RemapVal((float)j, 0, 6, -79, 79))));
-			pMarcher->SetAngles(EAngle(0,90,0));
+		for (size_t j = 0; j < 5; j++)
+		{
+			for (size_t k = 0; k < 4; k++)
+			{
+				pMarcher = GameServer()->Create<CMenuMarcher>("CMenuMarcher");
+				m_ahTeams[0]->AddEntity(pMarcher);
+
+				pMarcher->SetOrigin(GetTerrain()->SetPointHeight(Vector(RemapVal((float)j, 0, 5, -15, 15), 0, flZ + RemapVal((float)k, 0, 4, -15, 15))));
+				pMarcher->SetAngles(EAngle(0,90,0));
+			}
 		}
 	}
 #endif
@@ -618,7 +622,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (m_eGameType == GAMETYPE_MENU)
 	{
 		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
-		GetDigitanksCamera()->SnapAngle(EAngle(55,0,0));
+		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
 		GetDigitanksCamera()->SnapDistance(80);
 	}
 	else
@@ -636,6 +640,9 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 void CDigitanksGame::Think()
 {
 	BaseClass::Think();
+
+	if (GetGameType() == GAMETYPE_MENU)
+		return;
 
 	if (m_bTurnActive && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();

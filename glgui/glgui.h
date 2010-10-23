@@ -664,6 +664,8 @@ namespace glgui
 
 		virtual void				AddSubmenu(const char* pszTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
+		virtual size_t				GetSelectedMenu();
+
 	protected:
 		class CSubmenuPanel : public CPanel
 		{
@@ -872,6 +874,9 @@ namespace glgui
 		{
 			if (i >= m_aSelections.size())
 				i = m_aSelections.size() - 1;
+
+			if (i == m_iSelection)
+				return;
 
 			m_iSelection = i;
 			m_flHandlePositionGoal = m_flHandlePosition = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();

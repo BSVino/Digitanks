@@ -185,6 +185,16 @@ void CSoundLibrary::SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename
 	Mix_Volume(Get()->m_aiActiveSounds[pEntity][pszFilename], (int)(flVolume*MIX_MAX_VOLUME));
 }
 
+void CSoundLibrary::SetSoundVolume(float flVolume)
+{
+	Mix_Volume(-1, (int)(flVolume*128));
+}
+
+void CSoundLibrary::SetMusicVolume(float flVolume)
+{
+	Mix_VolumeMusic((int)(flVolume*128));
+}
+
 void CSoundLibrary::ChannelFinished(int iChannel)
 {
 	std::map<CBaseEntity*, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();

@@ -2498,6 +2498,9 @@ void CSpeechBubble::Think()
 {
 	float flFadeTime = 3.0f;
 
+	if (!GameServer())
+		return;
+
 	if (GameServer()->GetGameTime() - m_flTime > flFadeTime)
 	{
 		Destructor();
@@ -2527,6 +2530,9 @@ void CSpeechBubble::Think()
 
 void CSpeechBubble::Paint(int x, int y, int w, int h)
 {
+	if (!GameServer())
+		return;
+
 	if (CDigitanksWindow::Get()->GetHUD()->IsUpdatesPanelOpen())
 		return;
 

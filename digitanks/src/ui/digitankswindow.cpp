@@ -8,6 +8,7 @@
 #include <time.h>
 #include <vector.h>
 
+#include <configfile.h>
 #include <platform.h>
 #include <network/network.h>
 #include <sound/sound.h>
@@ -23,6 +24,8 @@
 #include "renderer/renderer.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
+
+ConfigFile c( "options.cfg" );
 
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 {
@@ -45,13 +48,38 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	glfwInit();
 
-	int iScreenWidth = 1024;
-	int iScreenHeight = 768;
+	bool bFullscreen;
+
+	int iScreenWidth;
+	int iScreenHeight;
 
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
-	m_iWindowWidth = iScreenWidth*2/3;
-	m_iWindowHeight = iScreenHeight*2/3;
+	if (c.isFileValid())
+	{
+		m_iWindowWidth = c.read<int>("width", 1024);
+		m_iWindowHeight = c.read<int>("height", 768);
+
+		bFullscreen = m_bFullscreen = !c.read<bool>("windowed", false);
+
+		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
+		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
+	}
+	else
+	{
+		m_iWindowWidth = iScreenWidth*2/3;
+		m_iWindowHeight = iScreenHeight*2/3;
+
+#ifdef _DEBUG
+		bFullscreen = false;
+#else
+		bFullscreen = true;
+#endif
+		m_bFullscreen = true;
+
+		SetSoundVolume(0.8f);
+		SetMusicVolume(0.8f);
+	}
 
 	if (m_iWindowWidth < 1024)
 		m_iWindowWidth = 1024;
@@ -59,22 +87,16 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
 
-#ifdef _DEBUG
-	int iMode = GLFW_WINDOW;
-#else
-	int iMode = GLFW_FULLSCREEN;
-#endif
-
 	if (HasCommandLineSwitch("--fullscreen"))
-		iMode = GLFW_FULLSCREEN;
+		bFullscreen = true;
 
 	if (HasCommandLineSwitch("--windowed"))
-		iMode = GLFW_WINDOW;
+		bFullscreen = false;
 
 	glfwEnable( GLFW_MOUSE_CURSOR );
 
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
-	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, GLFW_WINDOW))
+	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
 	{
 		glfwTerminate();
 		return;
@@ -90,6 +112,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	glfwSetMouseWheelCallback(&CDigitanksWindow::MouseWheelCallback);
 	glfwSwapInterval( 1 );
 	glfwSetTime( 0.0 );
+	glfwEnable( GLFW_MOUSE_CURSOR );
 
 	ilInit();
 
@@ -108,6 +131,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	glLineWidth(1.0);
 
 	CNetwork::Initialize();
+
+	// Save out the configuration file now that we know this config loads properly.
+	SetConfigWindowDimensions(m_iWindowWidth, m_iWindowHeight);
+	SaveConfig();
 }
 
 CDigitanksWindow::~CDigitanksWindow()
@@ -287,6 +314,20 @@ void CDigitanksWindow::CloseApplication()
 	m_pMenu->SetVisible(false);
 	m_pMainMenu->SetVisible(false);
 	m_pDonate->ClosingApplication();
+
+	SaveConfig();
+}
+
+void CDigitanksWindow::SaveConfig()
+{
+	c.add<float>("soundvolume", GetSoundVolume());
+	c.add<float>("musicvolume", GetMusicVolume());
+	c.add<bool>("windowed", !m_bFullscreen);
+	c.add<int>("width", m_iCfgWidth);
+	c.add<int>("height", m_iCfgHeight);
+	std::ofstream o;
+	o.open("options.cfg", std::ios_base::out);
+	o << c;
 }
 
 CInstructor* CDigitanksWindow::GetInstructor()
@@ -318,4 +359,16 @@ const char* CDigitanksWindow::GetCommandLineSwitchValue(const char* pszSwitch)
 	}
 
 	return NULL;
+}
+
+void CDigitanksWindow::SetSoundVolume(float flSoundVolume)
+{
+	m_flSoundVolume = flSoundVolume;
+	CSoundLibrary::SetSoundVolume(m_flSoundVolume);
+}
+
+void CDigitanksWindow::SetMusicVolume(float flMusicVolume)
+{
+	m_flMusicVolume = flMusicVolume;
+	CSoundLibrary::SetMusicVolume(m_flMusicVolume);
 }

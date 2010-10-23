@@ -1,5 +1,7 @@
 #include "menu.h"
 
+#include <GL/glfw.h>
+
 #include <platform.h>
 
 #include <digitanks/digitanksgame.h>
@@ -29,7 +31,7 @@ CMainMenu::CMainMenu()
 	AddControl(m_pMultiplayer);
 
 	m_pOptions = new CButton(0, 0, 100, 100, "Options");
-	m_pOptions->SetClickedListener(this, OpenTutorialsPanel);
+	m_pOptions->SetClickedListener(this, OpenOptionsPanel);
 	m_pOptions->SetFontFaceSize(36);
 	AddControl(m_pOptions);
 
@@ -49,8 +51,6 @@ CMainMenu::CMainMenu()
 
 void CMainMenu::Layout()
 {
-	BaseClass::Layout();
-
 	SetPos(40, 230);
 
 	m_pTutorial->SetPos(20, 20);
@@ -76,6 +76,8 @@ void CMainMenu::Layout()
 
 	m_pHint->SetPos(375, 340);
 	m_pHint->SetSize(350, 160);
+
+	BaseClass::Layout();
 }
 
 void CMainMenu::Paint(int x, int y, int w, int h)
@@ -128,6 +130,13 @@ void CMainMenu::OpenMultiplayerPanelCallback()
 {
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CMultiplayerPanel());
+	pDock->SetVisible(true);
+}
+
+void CMainMenu::OpenOptionsPanelCallback()
+{
+	CDockPanel* pDock = GetDockPanel();
+	pDock->SetDockedPanel(new COptionsPanel());
 	pDock->SetVisible(true);
 }
 
@@ -217,13 +226,13 @@ CTutorialsPanel::CTutorialsPanel()
 
 void CTutorialsPanel::Layout()
 {
-	BaseClass::Layout();
-
 	m_pBasics->SetPos(100, 60);
 	m_pBasics->SetSize(135, 40);
 
 	m_pBases->SetPos(100, 120);
 	m_pBases->SetSize(135, 40);
+
+	BaseClass::Layout();
 }
 
 void CTutorialsPanel::BasicsCallback()
@@ -295,8 +304,6 @@ CGamesPanel::CGamesPanel()
 
 void CGamesPanel::Layout()
 {
-	BaseClass::Layout();
-
 	m_pArtillery->SetPos(20, 20);
 	m_pArtillery->SetSize(135, 40);
 
@@ -308,6 +315,8 @@ void CGamesPanel::Layout()
 
 	m_pDockPanel->SetSize(GetWidth() - 20 - 135 - 20 - 20, GetHeight() - 40);
 	m_pDockPanel->SetPos(20 + 135 + 20, 20);
+
+	BaseClass::Layout();
 }
 
 void CGamesPanel::ArtilleryCallback()
@@ -379,8 +388,6 @@ CMultiplayerPanel::CMultiplayerPanel()
 
 void CMultiplayerPanel::Layout()
 {
-	BaseClass::Layout();
-
 	m_pConnect->SetPos(20, 20);
 	m_pConnect->SetSize(135, 40);
 
@@ -395,6 +402,8 @@ void CMultiplayerPanel::Layout()
 
 	m_pDockPanel->SetSize(GetWidth() - 20 - 135 - 20 - 20, GetHeight() - 40);
 	m_pDockPanel->SetPos(20 + 135 + 20, 20);
+
+	BaseClass::Layout();
 }
 
 void CMultiplayerPanel::ConnectCallback()
@@ -496,8 +505,6 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 
 void CArtilleryGamePanel::Layout()
 {
-	BaseClass::Layout();
-
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
 	m_pDifficultyLabel->EnsureTextFits();
@@ -520,6 +527,8 @@ void CArtilleryGamePanel::Layout()
 
 	m_pBeginGame->SetSize(135, 40);
 	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
+
+	BaseClass::Layout();
 }
 
 void CArtilleryGamePanel::BeginGameCallback()
@@ -575,8 +584,6 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 
 void CStrategyGamePanel::Layout()
 {
-	BaseClass::Layout();
-
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
 	m_pDifficultyLabel->EnsureTextFits();
@@ -593,6 +600,8 @@ void CStrategyGamePanel::Layout()
 
 	m_pBeginGame->SetSize(135, 40);
 	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
+
+	BaseClass::Layout();
 }
 
 void CStrategyGamePanel::BeginGameCallback()
@@ -608,4 +617,163 @@ void CStrategyGamePanel::BeginGameCallback()
 
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
 	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+}
+
+// HOLY CRAP A GLOBAL! Yeah it's bad. Sue me.
+std::vector<GLFWvidmode> g_aVideoModes;
+
+COptionsPanel::COptionsPanel()
+	: CPanel(0, 0, 570, 520)
+{
+	m_pSoundVolume = new CScrollSelector<float>();
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.2f, L"1\20%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.3f, L"30%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.4f, L"40%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.5f, L"50%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.6f, L"60%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.7f, L"70%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.8f, L"80%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.9f, L"90%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(1.0f, L"100%"));
+	m_pSoundVolume->SetSelection(1);
+	m_pSoundVolume->SetSelectedListener(this, SoundVolumeChanged);
+	AddControl(m_pSoundVolume);
+
+	m_pSoundVolumeLabel = new CLabel(0, 0, 32, 32, "Sound Volume");
+	m_pSoundVolumeLabel->SetWrap(false);
+	AddControl(m_pSoundVolumeLabel);
+
+	m_pMusicVolume = new CScrollSelector<float>();
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.2f, L"1\20%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.3f, L"30%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.4f, L"40%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.5f, L"50%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.6f, L"60%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.7f, L"70%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.8f, L"80%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.9f, L"90%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(1.0f, L"100%"));
+	m_pMusicVolume->SetSelection(1);
+	m_pMusicVolume->SetSelectedListener(this, MusicVolumeChanged);
+	AddControl(m_pMusicVolume);
+
+	m_pMusicVolumeLabel = new CLabel(0, 0, 32, 32, "Music Volume");
+	m_pMusicVolumeLabel->SetWrap(false);
+	AddControl(m_pMusicVolumeLabel);
+
+	m_pVideoChangedNotice = new CLabel(0, 0, 32, 32, "Changes to the video settings will take effect after the game has been restarted.");
+	m_pVideoChangedNotice->SetVisible(false);
+	AddControl(m_pVideoChangedNotice);
+
+	m_pWindowed = new CCheckBox();
+	m_pWindowed->SetClickedListener(this, WindowedChanged);
+	m_pWindowed->SetUnclickedListener(this, WindowedChanged);
+	AddControl(m_pWindowed);
+
+	m_pWindowedLabel = new CLabel(0, 0, 100, 100, "Run in a window");
+	AddControl(m_pWindowedLabel);
+
+	m_pVideoModes = new CMenu("Change Resolution");
+	AddControl(m_pVideoModes);
+
+	GLFWvidmode aModes[ 20 ];
+    int iModes;
+
+	g_aVideoModes.clear();
+
+	iModes = glfwGetVideoModes( aModes, 20 );
+    for( int i = 0; i < iModes; i ++ )
+    {
+		if (aModes[i].Width < 1024)
+			continue;
+
+		if (aModes[i].Height < 768)
+			continue;
+
+		if (aModes[i].BlueBits < 8)
+			continue;
+
+		char szMode[100];
+		sprintf(szMode, "%dx%d", aModes[i].Width, aModes[i].Height);
+		m_pVideoModes->AddSubmenu(szMode, this, VideoModeChosen);
+		g_aVideoModes.push_back(aModes[i]);
+    }
+}
+
+void COptionsPanel::Layout()
+{
+	int iSelectorSize = m_pMusicVolumeLabel->GetHeight() - 4;
+
+	m_pSoundVolumeLabel->EnsureTextFits();
+	m_pSoundVolumeLabel->SetPos(75, 80);
+
+	m_pSoundVolume->SetSize(GetWidth() - m_pSoundVolumeLabel->GetLeft()*2 - m_pSoundVolumeLabel->GetWidth(), iSelectorSize);
+	m_pSoundVolume->SetPos(m_pSoundVolumeLabel->GetRight(), 80);
+
+	m_pSoundVolume->SetSelection((size_t)(CDigitanksWindow::Get()->GetSoundVolume()*10));
+
+	m_pMusicVolumeLabel->EnsureTextFits();
+	m_pMusicVolumeLabel->SetPos(75, 160);
+
+	m_pMusicVolume->SetSize(GetWidth() - m_pMusicVolumeLabel->GetLeft()*2 - m_pMusicVolumeLabel->GetWidth(), iSelectorSize);
+	m_pMusicVolume->SetPos(m_pMusicVolumeLabel->GetRight(), 160);
+
+	m_pMusicVolume->SetSelection((size_t)(CDigitanksWindow::Get()->GetMusicVolume()*10));
+
+	m_pVideoChangedNotice->SetSize(GetWidth()-50, 30);
+	m_pVideoChangedNotice->SetPos(25, GetHeight()-290);
+
+	m_pVideoModes->SetSize(120, 30);
+	m_pVideoModes->SetPos(GetWidth()/2 - m_pVideoModes->GetWidth() - 40, GetHeight()-230);
+
+	m_pWindowedLabel->SetWrap(false);
+	m_pWindowedLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pWindowedLabel->SetSize(10, 10);
+	m_pWindowedLabel->EnsureTextFits();
+	m_pWindowedLabel->SetPos(GetWidth()/2 - m_pWindowedLabel->GetWidth()/2 + 10 + 40, GetHeight()-230);
+	m_pWindowed->SetPos(m_pWindowedLabel->GetLeft() - 15, GetHeight()-230 + m_pWindowedLabel->GetHeight()/2 - m_pWindowed->GetHeight()/2);
+	m_pWindowed->SetState(!CDigitanksWindow::Get()->IsFullscreen(), false);
+
+	BaseClass::Layout();
+}
+
+void COptionsPanel::SoundVolumeChangedCallback()
+{
+	CDigitanksWindow::Get()->SetSoundVolume(m_pSoundVolume->GetSelectionValue());
+	CDigitanksWindow::Get()->SaveConfig();
+}
+
+void COptionsPanel::MusicVolumeChangedCallback()
+{
+	CDigitanksWindow::Get()->SetMusicVolume(m_pMusicVolume->GetSelectionValue());
+	CDigitanksWindow::Get()->SaveConfig();
+}
+
+void COptionsPanel::VideoModeChosenCallback()
+{
+	size_t iMode = m_pVideoModes->GetSelectedMenu();
+
+	if (iMode >= g_aVideoModes.size())
+		return;
+
+	int iHeight = g_aVideoModes[iMode].Height;
+	int iWidth = g_aVideoModes[iMode].Width;
+	CDigitanksWindow::Get()->SetConfigWindowDimensions(iWidth, iHeight);
+	CDigitanksWindow::Get()->SaveConfig();
+
+	m_pVideoChangedNotice->SetVisible(true);
+
+	m_pVideoModes->Pop(true, true);
+}
+
+void COptionsPanel::WindowedChangedCallback()
+{
+	CDigitanksWindow::Get()->SetFullscreen(!m_pWindowed->GetState());
+	CDigitanksWindow::Get()->SaveConfig();
+
+	m_pVideoChangedNotice->SetVisible(true);
 }

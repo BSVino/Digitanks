@@ -1888,7 +1888,7 @@ void CMenu::Layout()
 	GetAbsPos(x, y);
 
 	m_pMenu->SetSize(iWidth, iHeight);
-	m_pMenu->SetPos(x, y + 5 + MENU_HEIGHT);
+	m_pMenu->SetPos(x, y + 5 + GetHeight());
 
 	m_pMenu->Layout();
 }
@@ -1985,6 +1985,27 @@ void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventLi
 		pMenu->SetMenuListener(pListener, pfnCallback);
 
 	m_pMenu->AddControl(pMenu, true);
+
+	m_apEntries.push_back(pMenu);
+}
+
+size_t CMenu::GetSelectedMenu()
+{
+	for (size_t i = 0; i < m_apEntries.size(); i++)
+	{
+		int cx, cy, cw, ch, mx, my;
+		m_apEntries[i]->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::GetFullscreenMousePos(mx, my);
+		if (mx >= cx &&
+			my >= cy &&
+			mx < cx + cw &&
+			my < cy + ch)
+		{
+			return i;
+		}
+	}
+
+	return ~0;
 }
 
 CMenu::CSubmenuPanel::CSubmenuPanel()
