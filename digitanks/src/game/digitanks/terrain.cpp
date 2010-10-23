@@ -6,6 +6,8 @@
 
 #include <GL/glew.h>
 
+#include <raytracer/raytracer.h>
+
 #include "digitanksgame.h"
 #include "projectile.h"
 #include "ui/digitankswindow.h"
@@ -36,9 +38,6 @@ CTerrain::CTerrain()
 
 CTerrain::~CTerrain()
 {
-	if (m_pTracer)
-		delete m_pTracer;
-
 	if (m_iCallList)
 		glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
 }
@@ -869,15 +868,6 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 		return;
 
 	UpdateTerrainData();
-}
-
-bool CTerrain::Collide(const Vector& s1, const Vector& s2, Vector &vecHit)
-{
-	CTraceResult tr;
-	bool bHit = m_pTracer->Raytrace(s1, s2, &tr);
-	if (bHit)
-		vecHit = tr.m_vecHit;
-	return bHit;
 }
 
 Color CTerrain::GetPrimaryTerrainColor()

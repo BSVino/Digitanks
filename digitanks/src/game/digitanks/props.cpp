@@ -2,6 +2,8 @@
 
 #include <renderer/renderer.h>
 
+#include "digitanksgame.h"
+
 NETVAR_TABLE_BEGIN(CStaticProp);
 	NETVAR_DEFINE(bool, m_bAdditive);
 	NETVAR_DEFINE(bool, m_bDepthMask);
@@ -28,6 +30,8 @@ void CStaticProp::Precache()
 
 void CStaticProp::Spawn()
 {
+	SetCollisionGroup(CG_PROP);
+
 	m_bAdditive = false;
 	m_bDepthMask = true;
 	m_bBackCulling = true;

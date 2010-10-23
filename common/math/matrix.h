@@ -339,9 +339,13 @@ inline void Matrix4x4::InvertTR()
 		for (int v = 0; v < 3; v++)
 			t.m[h][v] = m[v][h];
 
+	float fl03 = m[0][3];
+	float fl13 = m[1][3];
+	float fl23 = m[2][3];
+
 	Init(t);
 
-	SetColumn(3, t*Vector(-m[0][3], -m[1][3], -m[2][3]));
+	SetColumn(3, t*Vector(-fl03, -fl13, -fl23));
 }
 
 inline float Matrix4x4::Trace()

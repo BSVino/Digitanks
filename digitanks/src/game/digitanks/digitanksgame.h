@@ -279,6 +279,7 @@ enum
 	CG_TERRAIN,
 	CG_PROJECTILE,
 	CG_POWERUP,
+	CG_PROP,
 };
 
 #endif

@@ -12,6 +12,8 @@ public:
 	void			Precache();
 	virtual void	Spawn();
 
+	virtual bool	UsesRaytracedCollision() { return true; }
+
 	virtual void	ModifyContext(CRenderingContext* pContext);
 
 	void			SetAdditive(bool bAdditive) { m_bAdditive = bAdditive; };

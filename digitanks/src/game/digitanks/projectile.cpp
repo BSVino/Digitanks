@@ -114,6 +114,9 @@ bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 	if (pOther == m_hOwner)
 		return false;
 
+	if (pOther->GetCollisionGroup() == CG_PROP)
+		return true;
+
 	if (pOther->GetCollisionGroup() == CG_ENTITY)
 	{
 		if (m_hOwner != NULL && pOther->GetTeam() == m_hOwner->GetTeam())
@@ -140,6 +143,9 @@ bool CProjectile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 
 	case CG_TERRAIN:
 		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
+
+	case CG_PROP:
+		return pOther->Collide(GetLastOrigin(), GetOrigin(), vecPoint);
 	}
 
 	return false;

@@ -2,6 +2,7 @@
 
 #include <strutils.h>
 
+#include <raytracer/raytracer.h>
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
@@ -51,6 +52,7 @@ CBaseEntity::CBaseEntity()
 	s_apEntityList[m_iHandle] = this;
 
 	m_iCollisionGroup = 0;
+	m_pTracer = NULL;
 
 	m_bTakeDamage = false;
 	m_flTotalHealth = 1;
@@ -69,11 +71,32 @@ CBaseEntity::CBaseEntity()
 CBaseEntity::~CBaseEntity()
 {
 	s_apEntityList.erase(s_apEntityList.find(m_iHandle));
+
+	if (m_pTracer)
+		delete m_pTracer;
 }
 
 void CBaseEntity::SetModel(const wchar_t* pszModel)
 {
-	m_iModel = CModelLibrary::Get()->FindModel(pszModel);
+	SetModel(CModelLibrary::Get()->FindModel(pszModel));
+}
+
+void CBaseEntity::SetModel(size_t iModel)
+{
+	m_iModel = iModel;
+
+	if (m_iModel.Get() == ~0)
+		return;
+
+	if (UsesRaytracedCollision())
+	{
+		if (m_pTracer)
+			delete m_pTracer;
+
+		m_pTracer = new raytrace::CRaytracer(CModelLibrary::Get()->GetModel(m_iModel)->m_pScene);
+		m_pTracer->AddMeshesFromNode(CModelLibrary::Get()->GetModel(m_iModel)->m_pScene->GetScene(0));
+		m_pTracer->BuildTree();
+	}
 }
 
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
@@ -231,6 +254,23 @@ float CBaseEntity::Distance(Vector vecSpot)
 
 bool CBaseEntity::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 {
+	if (m_pTracer)
+	{
+		// Got to translate from world space to object space and back again. The collision mesh is in object space!
+		Matrix4x4 m;
+		m.SetTranslation(GetOrigin());
+		m.SetRotation(GetAngles());
+
+		Matrix4x4 i(m);
+		i.InvertTR();
+
+		raytrace::CTraceResult tr;
+		bool bHit = m_pTracer->Raytrace(i*v1, i*v2, &tr);
+		if (bHit)
+			vecPoint = m*tr.m_vecHit;
+		return bHit;
+	}
+
 	if (GetBoundingRadius() == 0)
 		return false;
 
@@ -270,6 +310,11 @@ void CBaseEntity::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
 CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
 {
 	return m_apNetworkVariables[pszName];
+}
+
+void CBaseEntity::GameLoaded()
+{
+	SetModel(m_iModel);
 }
 
 void CBaseEntity::SerializeEntity(std::ostream& o, CBaseEntity* pEntity)

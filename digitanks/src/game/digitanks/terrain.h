@@ -1,7 +1,6 @@
 #ifndef DT_TERRAIN_H
 #define DT_TERRAIN_H
 
-#include <raytracer/raytracer.h>
 #include "baseentity.h"
 #include "color.h"
 
@@ -39,8 +38,6 @@ public:
 
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
 
-	virtual bool			Collide(const Vector& s1, const Vector& s2, Vector& vecPoint);
-
 	Color					GetPrimaryTerrainColor();
 
 	void					UpdateTerrainData();
@@ -56,8 +53,6 @@ protected:
 	float					m_flLowest;
 
 	size_t					m_iCallList;
-
-	raytrace::CRaytracer*	m_pTracer;
 
 	Vector					m_avecTerrainColors[4];
 

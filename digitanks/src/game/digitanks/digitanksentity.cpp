@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include <maths.h>
+#include <geometry.h>
 
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>

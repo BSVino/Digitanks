@@ -11,6 +11,11 @@
 
 #include "entityhandle.h"
 
+namespace raytrace
+{
+	class CRaytracer;
+};
+
 typedef void (*EntityRegisterCallback)();
 typedef size_t (*EntityCreateCallback)();
 
@@ -160,6 +165,7 @@ public:
 	virtual float							GetBoundingRadius() const { return 0; };
 
 	void									SetModel(const wchar_t* pszModel);
+	void									SetModel(size_t iModel);
 	size_t									GetModel() { return m_iModel; };
 
 	virtual Vector							GetRenderOrigin() const { return GetOrigin(); };
@@ -234,6 +240,8 @@ public:
 	virtual int								GetCollisionGroup() { return m_iCollisionGroup; }
 	virtual void							SetCollisionGroup(int iCollisionGroup) { m_iCollisionGroup = iCollisionGroup; }
 
+	virtual bool							UsesRaytracedCollision() { return false; }
+
 	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
 	virtual void							SetSpawnSeed(size_t iSpawnSeed) { m_iSpawnSeed = iSpawnSeed; }
 
@@ -244,7 +252,7 @@ public:
 
 	virtual void							OnSerialize(std::ostream& o) {};
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
-	virtual void							GameLoaded() {};
+	virtual void							GameLoaded();
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
@@ -292,6 +300,7 @@ protected:
 	std::vector<CEntityHandle<CBaseEntity> >	m_ahTouching;
 
 	int										m_iCollisionGroup;
+	class raytrace::CRaytracer*				m_pTracer;
 
 	CNetworkedVariable<size_t>				m_iModel;
 
