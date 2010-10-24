@@ -962,9 +962,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	Vector vecMaxs(flXMax, 10000,  flYMax);
 
 	m_pTracer->RemoveArea(AABB(vecMins, vecMaxs));
-	for (int x = iXMin; x < iXMax; x++)
+	for (int x = iXMin-1; x <= iXMax; x++)
 	{
-		for (int z = iYMin; z < iYMax; z++)
+		for (int z = iYMin-1; z <= iYMax; z++)
 		{
 			float flX = ArrayToWorldSpace(x);
 			float flZ = ArrayToWorldSpace(z);

@@ -6,6 +6,7 @@
 
 //#define DEBUG_WITH_GL
 #ifdef DEBUG_WITH_GL
+//#include <../../glew/include/GL/glew.h>
 
 void DrawBox(AABB& b, float c);
 void DrawTri(Vector v1, Vector v2, Vector v3, float r, float g, float b);
@@ -188,6 +189,9 @@ void CKDTree::RemoveArea(const AABB& oBox)
 
 void CKDTree::BuildTree()
 {
+	if (IsBuilt())
+		return;
+
 	m_pTop->CalcBounds();
 	m_pTop->Build();
 
