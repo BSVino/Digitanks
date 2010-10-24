@@ -1,5 +1,8 @@
 #include "glgui.h"
 
+#include <GL/glew.h>
+#include <GL/glfw.h>
+
 #include <assert.h>
 #include <algorithm>
 #include <GL/glew.h>
@@ -26,6 +29,8 @@ CBaseControl::CBaseControl(int x, int y, int w, int h)
 	m_pCursorInListener = NULL;
 	m_pfnCursorOutCallback = NULL;
 	m_pCursorOutListener = NULL;
+
+	m_bFocus = false;
 }
 
 CBaseControl::CBaseControl(const CRect& Rect)
@@ -35,6 +40,9 @@ CBaseControl::CBaseControl(const CRect& Rect)
 
 void CBaseControl::Destructor()
 {
+	if (HasFocus())
+		CRootPanel::Get()->SetFocus(NULL);
+
 	if (GetParent())
 	{
 		CPanel *pPanel = dynamic_cast<CPanel*>(GetParent());
@@ -86,6 +94,12 @@ bool CBaseControl::IsVisible()
 		return false;
 	
 	return m_bVisible;
+}
+
+bool CBaseControl::MousePressed(int iButton, int mx, int my)
+{
+	CRootPanel::Get()->SetFocus(this);
+	return false;
 }
 
 void CBaseControl::Paint()
@@ -276,6 +290,25 @@ bool CPanel::KeyReleased(int code)
 		if (pControl->KeyReleased(code))
 			return true;
 	}
+	return false;
+}
+
+bool CPanel::CharPressed(int code)
+{
+	int iCount = (int)m_apControls.size();
+
+	// Start at the end of the list so that items drawn last are tested for keyboard events first.
+	for (int i = iCount-1; i >= 0; i--)
+	{
+		IControl* pControl = m_apControls[i];
+
+		if (!pControl->IsVisible())
+			continue;
+
+		if (pControl->CharPressed(code))
+			return true;
+	}
+
 	return false;
 }
 
@@ -819,13 +852,7 @@ void CLabel::AppendText(const char* pszText)
 void CLabel::SetFontFaceSize(int iSize)
 {
 	if (!s_apFonts[iSize])
-	{
-		char szFont[1024];
-		sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
-
-		s_apFonts[iSize] = new FTTextureFont(szFont);
-		s_apFonts[iSize]->FaceSize(iSize);
-	}
+		AddFont(iSize);
 
 	m_iFontFaceSize = iSize;
 }
@@ -933,17 +960,6 @@ void CLabel::EnsureTextFits()
 		SetSize(w, m_iH);
 }
 
-int CLabel::GetTextWidth( /*vgui::HFont& font,*/ const wchar_t *str, int iLength )
-{
-	int pixels = 0;
-	wchar_t *p = (wchar_t *)str;
-	while ( *p && p-str < iLength )
-	{
-//		pixels += vgui::surface()->GetCharacterWidth( font, *p++ );
-	}
-	return pixels;
-}
-
 const wchar_t* CLabel::GetText()
 {
 	if (!m_pszText)
@@ -967,6 +983,15 @@ void CLabel::SetAlpha(int a)
 {
 	CBaseControl::SetAlpha(a);
 	m_FGColor.SetAlpha(a);
+}
+
+void CLabel::AddFont(size_t iSize)
+{
+	char szFont[1024];
+	sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
+
+	s_apFonts[iSize] = new FTTextureFont(szFont);
+	s_apFonts[iSize]->FaceSize(iSize);
 }
 
 CButton::CButton(int x, int y, int w, int h, const char* pszText, bool bToggle)
@@ -1452,9 +1477,8 @@ CRootPanel::CRootPanel() :
 	CPanel::SetBorder(BT_NONE);
 
 	m_pButtonDown = NULL;
-
+	m_pFocus = NULL;
 	m_pDragging = NULL;
-
 	m_pPopup = NULL;
 
 	m_pMenuBar = new CMenuBar();
@@ -1500,16 +1524,14 @@ CRootPanel*	CRootPanel::Get()
 
 void CRootPanel::Think(float flNewTime)
 {
-	static float flTime = 0;
-
-	if (flTime == flNewTime)
+	if (m_flTime == flNewTime)
 		return;
 
-	m_flFrameTime = (flNewTime - flTime);
+	m_flFrameTime = (flNewTime - m_flTime);
 
 	CPanel::Think();
 
-	flTime = flNewTime;
+	m_flTime = flNewTime;
 }
 
 void CRootPanel::Paint(int x, int y, int w, int h)
@@ -1735,6 +1757,17 @@ bool CRootPanel::DropDraggable()
 	m_pDragging = NULL;
 
 	return false;
+}
+
+void CRootPanel::SetFocus(CBaseControl* pFocus)
+{
+	if (m_pFocus)
+		m_pFocus->SetFocus(false);
+
+	if (pFocus)
+		pFocus->SetFocus(true);
+
+	m_pFocus = pFocus;
 }
 
 void CRootPanel::Popup(IPopup* pPopup)
@@ -2462,4 +2495,341 @@ void CTreeNode::CExpandButton::SetExpanded(bool bExpanded)
 {
 	m_bExpanded = bExpanded;
 	m_flExpandedGoal = m_bExpanded?1.0f:0.0f;
+}
+
+CTextField::CTextField()
+	: CBaseControl(0, 0, 140, 30)
+{
+	m_bEnabled = true;
+	m_FGColor = Color(255, 255, 255, 255);
+
+	SetFontFaceSize(13);
+
+	SetSize(GetWidth(), (int)(GetTextHeight() + 8.0f));
+
+	m_iCursor = 0;
+
+	m_flBlinkTime = 0;
+
+	m_flRenderOffset = 0;
+}
+
+void CTextField::Paint(int x, int y, int w, int h)
+{
+	if (!IsVisible())
+		return;
+
+	if (m_iAlpha == 0)
+		return;
+
+	glPushAttrib(GL_ENABLE_BIT);
+	glDisable(GL_LIGHTING);
+
+	Color FGColor = m_FGColor;
+	if (!m_bEnabled)
+		FGColor.SetColor(m_FGColor.r()/2, m_FGColor.g()/2, m_FGColor.b()/2, m_iAlpha);
+
+	glColor4ubv(FGColor);
+
+	FTFont* pFont = CLabel::GetFont(m_iFontFaceSize);
+
+	DrawLine(m_sText.c_str(), (unsigned int)m_sText.length(), x+4, y, w-8, h);
+
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glColor4ubv(Color(200, 200, 200, 255));
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, Vector(0.0f, 0.0f, 0.0f));
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, Vector(1.0f, 1.0f, 1.0f));
+	glMaterialfv(GL_FRONT, GL_SPECULAR, Vector(0.2f, 0.2f, 0.3f));
+	glMaterialfv(GL_FRONT, GL_EMISSION, Vector(0.0f, 0.0f, 0.0f));
+	glMaterialf(GL_FRONT, GL_SHININESS, 20.0f);
+
+	glLineWidth(1);
+
+	glBegin(GL_LINES);
+		// Bottom line
+		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x, y);
+		glNormal3f(0.707106781f, 0.707106781f, 0);
+		glVertex2d(x+w-1, y);
+
+		// Top line
+		glNormal3f(-0.707106781f, -0.707106781f, 0);
+		glVertex2d(x, y+h-1);
+		glNormal3f(0.707106781f, -0.707106781f, 0);
+		glVertex2d(x+w-1, y+h-1);
+
+		// Left line
+		glNormal3f(-0.707106781f, 0.707106781f, 0);
+		glVertex2d(x, y+1);
+		glNormal3f(-0.707106781f, -0.707106781f, 0);
+		glVertex2d(x, y+h-1);
+
+		// Right line
+		glNormal3f(0.707106781f, 0.707106781f, 0);
+		glVertex2d(x+w, y+1);
+		glNormal3f(0.707106781f, -0.707106781f, 0);
+		glVertex2d(x+w, y+h-1);
+
+		float flCursor = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
+		if (HasFocus() && (fmod(CRootPanel::Get()->GetTime() - m_flBlinkTime, 1) < 0.5f))
+		{
+			glNormal3f(0.707106781f, 0.707106781f, 0);
+			glVertex2d(x + 4 + flCursor + m_flRenderOffset, y+5);
+			glNormal3f(0.707106781f, -0.707106781f, 0);
+			glVertex2d(x + 4 + flCursor + m_flRenderOffset, y+h-5);
+		}
+
+	glEnd();
+
+	glDisable(GL_BLEND);
+
+	glPopAttrib();
+}
+
+void CTextField::DrawLine(const wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
+{
+	FTFont* pFont = CLabel::GetFont(m_iFontFaceSize);
+
+	float lw = pFont->Advance(pszText, iLength);
+	float t = pFont->LineHeight();
+
+	float th = GetTextHeight() - t;
+
+	float flBaseline = (float)pFont->FaceSize()/2 + pFont->Descender()/2;
+
+	Vector vecPosition = Vector((float)x + m_flRenderOffset, (float)y + flBaseline + h/2 - th/2, 0);
+
+	// FWTextureFont code. Spurious calls to CreateTexture (deep in FW) during Advance() cause unacceptable slowdowns
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, CRootPanel::Get()->GetRight(), 0, CRootPanel::Get()->GetBottom(), -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	int cx, cy;
+	GetAbsPos(cx, cy);
+	glScissor(cx+4, cy, GetWidth()-8, 1000);
+	glEnable(GL_SCISSOR_TEST);
+	pFont->Render(pszText, iLength, FTPoint(vecPosition.x, CRootPanel::Get()->GetBottom()-vecPosition.y));
+	glDisable(GL_SCISSOR_TEST);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void CTextField::SetFocus(bool bFocus)
+{
+	CBaseControl::SetFocus(bFocus);
+
+	if (bFocus)
+	{
+		int mx, my;
+		CRootPanel::GetFullscreenMousePos(mx, my);
+
+		int cx, cy;
+		GetAbsPos(cx, cy);
+
+		float flCursor = (float)(mx-cx);
+		for (size_t i = 1; i < m_sText.length(); i++)
+		{
+			float flText = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str(), i);
+			if (flCursor < flText)
+			{
+				m_iCursor = i-1;
+				return;
+			}
+		}
+
+		m_iCursor = m_sText.length();
+	}
+}
+
+bool CTextField::CharPressed(int iKey)
+{
+	if (HasFocus())
+	{
+		if (iKey <= GLFW_KEY_SPECIAL)
+			m_sText.insert(m_iCursor++, 1, iKey);
+
+		m_flBlinkTime = CRootPanel::Get()->GetTime();
+
+		FindRenderOffset();
+
+		return true;
+	}
+
+	return CBaseControl::CharPressed(iKey);
+}
+
+bool CTextField::KeyPressed(int iKey)
+{
+	if (HasFocus())
+	{
+		if (iKey == GLFW_KEY_ESC || iKey == GLFW_KEY_ENTER)
+			CRootPanel::Get()->SetFocus(NULL);
+		else if (iKey == GLFW_KEY_LEFT)
+		{
+			if (m_iCursor > 0)
+				m_iCursor--;
+		}
+		else if (iKey == GLFW_KEY_RIGHT)
+		{
+			if (m_iCursor < m_sText.length())
+				m_iCursor++;
+		}
+		else if (iKey == GLFW_KEY_BACKSPACE)
+		{
+			if (m_iCursor > 0)
+			{
+				m_sText.erase(m_iCursor-1, 1);
+				m_iCursor--;
+			}
+		}
+		else if (iKey == GLFW_KEY_DEL)
+		{
+			if (m_iCursor < m_sText.length())
+				m_sText.erase(m_iCursor, 1);
+		}
+		else if (iKey == GLFW_KEY_HOME)
+		{
+			m_iCursor = 0;
+		}
+		else if (iKey == GLFW_KEY_END)
+		{
+			m_iCursor = m_sText.length();
+		}
+
+		m_flBlinkTime = CRootPanel::Get()->GetTime();
+
+		FindRenderOffset();
+
+		return true;
+	}
+
+	return CBaseControl::KeyPressed(iKey);
+}
+
+void CTextField::FindRenderOffset()
+{
+	int cx, cy;
+	GetAbsPos(cx, cy);
+
+	float flTextWidth = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str());
+	float flCursorOffset = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
+
+	float flTextLeft = (cx + 4) + m_flRenderOffset;
+	float flTextRight = flTextLeft + flTextWidth + m_flRenderOffset;
+	float flCursorPosition = flTextLeft + flCursorOffset;
+
+	float flLeftOverrun = (cx + 4) - flCursorPosition;
+	float flRightOverrun = flCursorPosition - (cx + GetWidth() - 4);
+
+	if (flLeftOverrun > 0)
+	{
+		m_flRenderOffset += (flLeftOverrun+25);
+		if (m_flRenderOffset > 0)
+			m_flRenderOffset = 0;
+	}
+	else if (flRightOverrun > 0)
+		m_flRenderOffset -= flRightOverrun;
+}
+
+void CTextField::SetText(const wchar_t* pszText)
+{
+	m_sText = pszText;
+}
+
+void CTextField::SetText(const char* pszText)
+{
+	if (!pszText)
+		SetText(L"");
+	else
+	{
+		size_t iSize = (strlen(pszText) + 1) * sizeof(wchar_t);
+		wchar_t* pszBuf = (wchar_t*)malloc(iSize);
+
+		mbstowcs(pszBuf, pszText, strlen(pszText)+1);
+
+		SetText(pszBuf);
+		free(pszBuf);
+	}
+}
+
+void CTextField::AppendText(const wchar_t* pszText)
+{
+	if (!pszText)
+		return;
+
+	m_sText.append(pszText);
+}
+
+void CTextField::AppendText(const char* pszText)
+{
+	if (!pszText)
+		return;
+
+	size_t iSize = (strlen(pszText) + 1) * sizeof(wchar_t);
+	wchar_t* pszBuf = (wchar_t*)malloc(iSize);
+	mbstowcs(pszBuf, pszText, strlen(pszText)+1);
+	AppendText(pszBuf);
+	free(pszBuf);
+}
+
+void CTextField::SetFontFaceSize(int iSize)
+{
+	if (!CLabel::GetFont(iSize))
+		CLabel::AddFont(iSize);
+
+	m_iFontFaceSize = iSize;
+}
+
+int CTextField::GetTextWidth()
+{
+	return (int)CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str());
+}
+
+float CTextField::GetTextHeight()
+{
+	return CLabel::GetFont(m_iFontFaceSize)->LineHeight();
+}
+
+// Make the label tall enough for one line of text to fit inside.
+void CTextField::EnsureTextFits()
+{
+	int w = GetTextWidth()+4;
+	int h = (int)GetTextHeight()+4;
+
+	if (m_iH < h)
+		SetSize(m_iW, h);
+
+	if (m_iW < w)
+		SetSize(w, m_iH);
+}
+
+const wchar_t* CTextField::GetText()
+{
+	return m_sText.c_str();
+}
+
+Color CTextField::GetFGColor()
+{
+	return m_FGColor;
+}
+
+void CTextField::SetFGColor(Color FGColor)
+{
+	m_FGColor = FGColor;
+	SetAlpha(FGColor.a());
+}
+
+void CTextField::SetAlpha(int a)
+{
+	CBaseControl::SetAlpha(a);
+	m_FGColor.SetAlpha(a);
 }

@@ -13,6 +13,7 @@ public:
 
 public:
 	virtual void					Destructor();
+	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
 	virtual void					Paint(int x, int y, int w, int h);
@@ -35,6 +36,8 @@ public:
 									CTutorialsPanel();
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CTutorialsPanel,	Basics);
@@ -56,6 +59,8 @@ public:
 									CGamesPanel();
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CGamesPanel,	Artillery);
@@ -82,6 +87,8 @@ public:
 									CMultiplayerPanel();
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CMultiplayerPanel,	Connect);
@@ -104,6 +111,27 @@ protected:
 	CDockPanel*						m_pDockPanel;
 };
 
+class CConnectPanel : public glgui::CPanel, public glgui::IEventListener
+{
+	DECLARE_CLASS(CConnectPanel, glgui::CPanel);
+
+public:
+									CConnectPanel();
+
+public:
+	virtual void					Delete() { delete this; };
+
+	virtual void					Layout();
+
+	EVENT_CALLBACK(CConnectPanel,	Connect);
+
+protected:
+	glgui::CLabel*					m_pHostnameLabel;
+	glgui::CTextField*				m_pHostname;
+
+	glgui::CButton*					m_pConnect;
+};
+
 class CArtilleryGamePanel : public glgui::CPanel, public glgui::IEventListener
 {
 	DECLARE_CLASS(CArtilleryGamePanel, glgui::CPanel);
@@ -112,6 +140,8 @@ public:
 									CArtilleryGamePanel(bool bMultiplayer = false);
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CArtilleryGamePanel,	BeginGame);
@@ -137,6 +167,8 @@ public:
 									CStrategyGamePanel(bool bMultiplayer = false);
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CStrategyGamePanel,	BeginGame);
@@ -159,6 +191,8 @@ public:
 									COptionsPanel();
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 
 	EVENT_CALLBACK(COptionsPanel,	SoundVolumeChanged);
@@ -189,6 +223,8 @@ public:
 									CMainMenu();
 
 public:
+	virtual void					Delete() { delete this; };
+
 	virtual void					Layout();
 	virtual void					Paint(int x, int y, int w, int h);
 

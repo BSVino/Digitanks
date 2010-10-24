@@ -78,6 +78,7 @@ namespace glgui
 
 		virtual bool		KeyPressed(int iKey)=0;
 		virtual bool		KeyReleased(int iKey)=0;
+		virtual bool		CharPressed(int iKey)=0;
 		virtual bool		MousePressed(int iButton, int mx, int my)=0;
 		virtual bool		MouseReleased(int iButton, int mx, int my)=0;
 		virtual bool		IsCursorListener()=0;
@@ -204,12 +205,16 @@ namespace glgui
 		virtual void	LevelShutdown( void ) { return; };
 		virtual bool	KeyPressed(int iKey) { return false; };
 		virtual bool	KeyReleased(int iKey) { return false; };
-		virtual bool	MousePressed(int iButton, int mx, int my) { return false; };
+		virtual bool	CharPressed(int iKey) { return false; };
+		virtual bool	MousePressed(int iButton, int mx, int my);
 		virtual bool	MouseReleased(int iButton, int mx, int my) { return false; };
 		virtual bool	IsCursorListener();
 		virtual void	CursorMoved(int x, int y) {};
 		virtual void	CursorIn();
 		virtual void	CursorOut();
+
+		virtual void	SetFocus(bool bFocus) { m_bFocus = bFocus; };
+		virtual bool	HasFocus() { return m_bFocus; };
 
 		virtual void	SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 		virtual void	SetCursorOutListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
@@ -234,6 +239,8 @@ namespace glgui
 
 		IEventListener::Callback m_pfnCursorOutCallback;
 		IEventListener*	m_pCursorOutListener;
+
+		bool			m_bFocus;
 	};
 
 	// A panel is a container for other controls. It is for organization
@@ -261,6 +268,7 @@ namespace glgui
 
 		virtual bool			KeyPressed(int code);
 		virtual bool			KeyReleased(int code);
+		virtual bool			CharPressed(int iKey);
 		virtual bool			MousePressed(int code, int mx, int my);
 		virtual bool			MouseReleased(int code, int mx, int my);
 		virtual bool			IsCursorListener() {return true;};
@@ -355,6 +363,8 @@ namespace glgui
 		virtual IDraggable*			GetCurrentDraggable() { return m_pDragging?m_pDragging->GetCurrentDraggable():NULL; };
 		virtual IDroppable*			GetCurrentDroppable() { return m_pDragging; };
 
+		void						SetFocus(CBaseControl* pControl);
+
 		virtual void				Popup(IPopup* pControl);
 
 		void						SetButtonDown(class CButton* pButton);
@@ -366,6 +376,7 @@ namespace glgui
 		void						SetLighting(bool bLighting) { m_bUseLighting = bLighting; };
 
 		float						GetFrameTime() { return m_flFrameTime; };
+		float						GetTime() { return m_flTime; };
 
 		static CRootPanel*			Get();
 
@@ -388,9 +399,12 @@ namespace glgui
 		// If the mouse is released over nothing, then try popping this button.
 		CButton*					m_pButtonDown;
 
+		CBaseControl*				m_pFocus;
+
 		class CMenuBar*				m_pMenuBar;
 
 		float						m_flFrameTime;
+		float						m_flTime;
 
 		int							m_iMX;
 		int							m_iMY;
@@ -450,11 +464,13 @@ namespace glgui
 		virtual float	GetTextHeight();
 		virtual void	ComputeLines(int w = -1, int h = -1);
 		virtual void	EnsureTextFits();
-		static int		GetTextWidth( /*vgui::HFont& font,*/ const wchar_t *str, int iLength );
 
 		virtual Color	GetFGColor();
 		virtual void	SetFGColor(Color FGColor);
 		virtual void	SetAlpha(int a);
+
+		static FTFont*	GetFont(size_t iSize) { return s_apFonts[iSize]; };
+		static void		AddFont(size_t iSize);
 
 	protected:
 		bool			m_bEnabled;
@@ -1168,6 +1184,61 @@ namespace glgui
 	{
 		m_pfnCallback(m_pObject);
 	}
+
+	class CTextField : public CBaseControl
+	{
+		friend CRootPanel;
+
+	public:
+						CTextField();
+		virtual void	Delete() { delete this; };
+
+		virtual void	Paint() { int x = 0, y = 0; GetAbsPos(x, y); Paint(x, y); };
+		virtual void	Paint(int x, int y) { Paint(x, y, m_iW, m_iH); };
+		virtual void	Paint(int x, int y, int w, int h);
+		virtual void	DrawLine(const wchar_t* pszText, unsigned iLength, int x, int y, int w, int h);
+
+		virtual bool	IsCursorListener() {return true;};
+
+		virtual void	SetFocus(bool bFocus);
+
+		virtual bool	CharPressed(int iKey);
+		virtual bool	KeyPressed(int iKey);
+
+		virtual void	FindRenderOffset();
+
+		virtual bool	IsEnabled() {return m_bEnabled;};
+		virtual void	SetEnabled(bool bEnabled) {m_bEnabled = bEnabled;};
+
+		virtual void	SetText(const wchar_t* pszText);
+		virtual void	SetText(const char* pszText);
+		virtual void	AppendText(const char* pszText);
+		virtual void	AppendText(const wchar_t* pszText);
+		virtual const wchar_t*	GetText();
+
+		virtual void	SetFontFaceSize(int iSize);
+
+		virtual int		GetTextWidth();
+		virtual float	GetTextHeight();
+		virtual void	EnsureTextFits();
+
+		virtual Color	GetFGColor();
+		virtual void	SetFGColor(Color FGColor);
+		virtual void	SetAlpha(int a);
+
+	protected:
+		bool			m_bEnabled;
+		std::wstring	m_sText;
+		Color			m_FGColor;
+
+		float			m_flBlinkTime;
+
+		int				m_iFontFaceSize;
+
+		size_t			m_iCursor;
+
+		float			m_flRenderOffset;
+	};
 };
 
 #endif

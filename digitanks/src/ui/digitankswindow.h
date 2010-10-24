@@ -27,6 +27,7 @@ public:
 	void						SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
 	void						SetTanks(int iTanks) { m_iTanks = iTanks; };
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
+	void						SetConnectHost(const std::wstring sHost) { m_sConnectHost = sHost; };
 
 	void						CreateGame(gametype_t eGameType);
 	void						DestroyGame();
@@ -53,8 +54,13 @@ public:
 	static void					KeyEventCallback(int c, int e) { Get()->KeyEvent(c, e); };
 	void						KeyEvent(int c, int e);
 
+	static void					CharEventCallback(int c, int e) { Get()->CharEvent(c, e); };
+	void						CharEvent(int c, int e);
+
 	void						KeyPress(int c);
 	void						KeyRelease(int c);
+
+	void						CharPress(int c);
 
 	static void					SpecialCallback(int k, int x, int y) { Get()->Special(k, x, y); };
 	void						Special(int k, int x, int y);
@@ -116,6 +122,8 @@ protected:
 	int							m_iTanks;
 
 	servertype_t				m_eServerType;
+
+	std::wstring				m_sConnectHost;
 
 	class CGameServer*			m_pGameServer;
 

@@ -408,7 +408,7 @@ void CMultiplayerPanel::Layout()
 
 void CMultiplayerPanel::ConnectCallback()
 {
-	CDigitanksWindow::Get()->SetServerType(SERVER_CLIENT);
+	m_pDockPanel->SetDockedPanel(new CConnectPanel());
 }
 
 void CMultiplayerPanel::ArtilleryCallback()
@@ -449,6 +449,41 @@ void CMultiplayerPanel::HostHintCallback()
 void CMultiplayerPanel::LoadHintCallback()
 {
 	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"You can load any saved game here to host it in multiplayer.");
+}
+
+CConnectPanel::CConnectPanel()
+	: CPanel(0, 0, 570, 520)
+{
+	CDigitanksWindow::Get()->SetServerType(SERVER_CLIENT);
+
+	m_pHostnameLabel = new CLabel(0, 0, 32, 32, "Host:");
+	m_pHostnameLabel->SetWrap(false);
+	AddControl(m_pHostnameLabel);
+
+	m_pHostname = new CTextField();
+	AddControl(m_pHostname);
+
+	m_pConnect = new CButton(0, 0, 100, 100, "Connect");
+	m_pConnect->SetClickedListener(this, Connect);
+	m_pConnect->SetFontFaceSize(12);
+	AddControl(m_pConnect);
+}
+
+void CConnectPanel::Layout()
+{
+	m_pHostnameLabel->SetPos(GetWidth()/2-m_pHostnameLabel->GetWidth()/2, GetHeight()-330);
+	m_pHostname->SetPos(GetWidth()/2-m_pHostname->GetWidth()/2, GetHeight()-300);
+
+	m_pConnect->SetSize(135, 40);
+	m_pConnect->SetPos(GetWidth()/2-135/2, GetHeight()-160);
+
+	BaseClass::Layout();
+}
+
+void CConnectPanel::ConnectCallback()
+{
+	CDigitanksWindow::Get()->SetConnectHost(m_pHostname->GetText());
+	CDigitanksWindow::Get()->CreateGame(GAMETYPE_EMPTY);
 }
 
 CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)

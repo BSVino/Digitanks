@@ -227,6 +227,12 @@ void CDigitanksWindow::KeyEvent(int c, int e)
 		KeyRelease(c);
 }
 
+void CDigitanksWindow::CharEvent(int c, int e)
+{
+	if (e == GLFW_PRESS)
+		CharPress(c);
+}
+
 void CDigitanksWindow::KeyPress(int c)
 {
 	if (glgui::CRootPanel::Get()->KeyPressed(c))
@@ -371,6 +377,12 @@ void CDigitanksWindow::KeyRelease(int c)
 {
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyUp(c);
+}
+
+void CDigitanksWindow::CharPress(int c)
+{
+	if (glgui::CRootPanel::Get()->CharPressed(c))
+		return;
 }
 
 bool CDigitanksWindow::IsCtrlDown()

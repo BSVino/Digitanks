@@ -107,6 +107,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	glfwSetWindowSizeCallback(&CDigitanksWindow::WindowResizeCallback);
 	glfwSetKeyCallback(&CDigitanksWindow::KeyEventCallback);
+	glfwSetCharCallback(&CDigitanksWindow::CharEventCallback);
 	glfwSetMousePosCallback(&CDigitanksWindow::MouseMotionCallback);
 	glfwSetMouseButtonCallback(&CDigitanksWindow::MouseInputCallback);
 	glfwSetMouseWheelCallback(&CDigitanksWindow::MouseWheelCallback);
@@ -163,7 +164,9 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 		if (m_eServerType == SERVER_CLIENT)
 		{
-			CNetwork::ConnectToHost(GetCommandLineSwitchValue("--connect"), iPort);
+			std::string sHost;
+			sHost.assign(m_sConnectHost.begin(), m_sConnectHost.end());
+			CNetwork::ConnectToHost(sHost.c_str(), iPort);
 			if (!CNetwork::IsConnected())
 				return;
 		}
