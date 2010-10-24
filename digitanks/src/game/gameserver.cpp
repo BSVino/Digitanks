@@ -59,9 +59,13 @@ CGameServer::~CGameServer()
 
 void CGameServer::Initialize()
 {
+	m_bLoading = true;
+
 	CNetwork::ClearRegisteredFunctions();
 
 	DestroyAllEntities(true);
+
+	CParticleSystemLibrary::ClearInstances();
 
 	if (!m_pRenderer)
 		m_pRenderer = CreateRenderer();
@@ -411,7 +415,7 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 
 void CGameServer::DestroyAllEntities(bool bRemakeGame)
 {
-	if (!CNetwork::IsHost())
+	if (!CNetwork::IsHost() && !m_bLoading)
 		return;
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)

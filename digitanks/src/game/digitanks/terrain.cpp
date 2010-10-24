@@ -20,9 +20,10 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, float, m_aflHeights);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bHeightsInitialized);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHighest);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
+	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
 	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecTerrainColors);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, Vector, m_avecCraterMarks);
@@ -47,47 +48,6 @@ void CTerrain::Spawn()
 	BaseClass::Spawn();
 
 	m_pTracer = new raytrace::CRaytracer();
-}
-
-void CTerrain::GenerateTerrain()
-{
-	CSimplexNoise n1(m_iSpawnSeed);
-	CSimplexNoise n2(m_iSpawnSeed+1);
-	CSimplexNoise n3(m_iSpawnSeed+2);
-	CSimplexNoise n4(m_iSpawnSeed+3);
-	CSimplexNoise n5(m_iSpawnSeed+4);
-
-	float flSpaceFactor1 = 0.01f;
-	float flHeightFactor1 = 50.0f;
-	float flSpaceFactor2 = flSpaceFactor1*3;
-	float flHeightFactor2 = flHeightFactor1/3;
-	float flSpaceFactor3 = flSpaceFactor2*3;
-	float flHeightFactor3 = flHeightFactor2/3;
-	float flSpaceFactor4 = flSpaceFactor3*3;
-	float flHeightFactor4 = flHeightFactor3/3;
-	float flSpaceFactor5 = flSpaceFactor4*3;
-	float flHeightFactor5 = flHeightFactor4/3;
-
-	for (size_t x = 0; x < TERRAIN_SIZE; x++)
-	{
-		for (size_t y = 0; y < TERRAIN_SIZE; y++)
-		{
-			m_aflHeights[x][y]  = n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
-			m_aflHeights[x][y] += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
-			m_aflHeights[x][y] += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
-			m_aflHeights[x][y] += n4.Noise(x*flSpaceFactor4, y*flSpaceFactor4) * flHeightFactor4;
-			m_aflHeights[x][y] += n5.Noise(x*flSpaceFactor5, y*flSpaceFactor5) * flHeightFactor5;
-
-			if (x == 0 && y == 0)
-				m_flHighest = m_flLowest = m_aflHeights[x][y];
-
-			if (m_aflHeights[x][y] < m_flLowest)
-				m_flLowest = m_aflHeights[x][y];
-
-			if (m_aflHeights[x][y] > m_flHighest)
-				m_flHighest = m_aflHeights[x][y];
-		}
-	}
 
 	switch (mtrand()%4)
 	{
@@ -120,33 +80,79 @@ void CTerrain::GenerateTerrain()
 		break;
 	}
 
-	GenerateCollision();
+	m_bHeightsInitialized = false;
+}
+
+void CTerrain::GenerateTerrain()
+{
+	CSimplexNoise n1(m_iSpawnSeed);
+	CSimplexNoise n2(m_iSpawnSeed+1);
+	CSimplexNoise n3(m_iSpawnSeed+2);
+	CSimplexNoise n4(m_iSpawnSeed+3);
+	CSimplexNoise n5(m_iSpawnSeed+4);
+
+	float flSpaceFactor1 = 0.01f;
+	float flHeightFactor1 = 50.0f;
+	float flSpaceFactor2 = flSpaceFactor1*3;
+	float flHeightFactor2 = flHeightFactor1/3;
+	float flSpaceFactor3 = flSpaceFactor2*3;
+	float flHeightFactor3 = flHeightFactor2/3;
+	float flSpaceFactor4 = flSpaceFactor3*3;
+	float flHeightFactor4 = flHeightFactor3/3;
+	float flSpaceFactor5 = flSpaceFactor4*3;
+	float flHeightFactor5 = flHeightFactor4/3;
+
+	for (size_t x = 0; x < TERRAIN_SIZE; x++)
+	{
+		for (size_t y = 0; y < TERRAIN_SIZE; y++)
+		{
+			m_aflHeights[x][y]  = n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
+			m_aflHeights[x][y] += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
+			m_aflHeights[x][y] += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
+			m_aflHeights[x][y] += n4.Noise(x*flSpaceFactor4, y*flSpaceFactor4) * flHeightFactor4;
+			m_aflHeights[x][y] += n5.Noise(x*flSpaceFactor5, y*flSpaceFactor5) * flHeightFactor5;
+
+			if (!m_bHeightsInitialized)
+				m_flHighest = m_flLowest = m_aflHeights[x][y];
+			m_bHeightsInitialized = true;
+
+			if (m_aflHeights[x][y] < m_flLowest)
+				m_flLowest = m_aflHeights[x][y];
+
+			if (m_aflHeights[x][y] > m_flHighest)
+				m_flHighest = m_aflHeights[x][y];
+		}
+	}
 }
 
 void CTerrain::GenerateCollision()
 {
 	m_pTracer->RemoveArea(AABB(Vector(-GetMapSize(), -99999, -GetMapSize()), Vector(GetMapSize(), 99999, GetMapSize())));
 
-	for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
+	// Don't need the collision mesh in the menu
+	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
-		for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
+		for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
 		{
-			float flX = ArrayToWorldSpace((int)x);
-			float flY = ArrayToWorldSpace((int)y);
-			float flX1 = ArrayToWorldSpace((int)x+1);
-			float flY1 = ArrayToWorldSpace((int)y+1);
+			for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
+			{
+				float flX = ArrayToWorldSpace((int)x);
+				float flY = ArrayToWorldSpace((int)y);
+				float flX1 = ArrayToWorldSpace((int)x+1);
+				float flY1 = ArrayToWorldSpace((int)y+1);
 
-			Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
-			Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
-			Vector v3 = Vector(flX1, m_aflHeights[x+1][y+1], flY1);
-			Vector v4 = Vector(flX1, m_aflHeights[x+1][y], flY);
+				Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
+				Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
+				Vector v3 = Vector(flX1, m_aflHeights[x+1][y+1], flY1);
+				Vector v4 = Vector(flX1, m_aflHeights[x+1][y], flY);
 
-			m_pTracer->AddTriangle(v1, v2, v3);
-			m_pTracer->AddTriangle(v1, v3, v4);
+				m_pTracer->AddTriangle(v1, v2, v3);
+				m_pTracer->AddTriangle(v1, v3, v4);
+			}
 		}
-	}
 
-	m_pTracer->BuildTree();
+		m_pTracer->BuildTree();
+	}
 
 	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
 	{
@@ -926,6 +932,16 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 				m_abTerrainNeedsRegenerate[i][j] = true;
 
 			m_aflHeights[x][z] = flHeightData[iPosition++];
+
+			if (!m_bHeightsInitialized)
+				m_flHighest = m_flLowest = m_aflHeights[x][z];
+			m_bHeightsInitialized = true;
+
+			if (m_aflHeights[x][z] < m_flLowest)
+				m_flLowest = m_aflHeights[x][z];
+
+			if (m_aflHeights[x][z] > m_flHighest)
+				m_flHighest = m_aflHeights[x][z];
 		}
 	}
 
@@ -966,7 +982,11 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 		}
 	}
 
-	GenerateTerrainCallLists();
+	if (!GameServer()->IsLoading())
+	{
+		m_pTracer->BuildTree();
+		GenerateTerrainCallLists();
+	}
 }
 
 void CTerrain::ResyncClientTerrainData(int iClient)
@@ -999,6 +1019,13 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 void CTerrain::GameLoaded()
 {
 	BaseClass::GameLoaded();
+
+	GenerateCollision();
+}
+
+void CTerrain::ClientEnterGame()
+{
+	BaseClass::ClientEnterGame();
 
 	GenerateCollision();
 }

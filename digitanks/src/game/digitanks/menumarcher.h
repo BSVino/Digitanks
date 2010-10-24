@@ -14,6 +14,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual void				OnDeleted();
+
 	virtual float				GetBoundingRadius() const { return 4; };
 
 	virtual void				Think();

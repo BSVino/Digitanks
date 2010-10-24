@@ -644,7 +644,7 @@ void CDigitanksGame::Think()
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (m_bTurnActive && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
+	if (m_bTurnActive && GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();
 
 	if (m_bWaitingForMoving)

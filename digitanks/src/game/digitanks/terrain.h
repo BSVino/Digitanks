@@ -45,10 +45,12 @@ public:
 	void					ResyncClientTerrainData(int iClient);
 
 	virtual void			GameLoaded();
+	virtual void			ClientEnterGame();
 
 protected:
 	float					m_aflHeights[TERRAIN_SIZE][TERRAIN_SIZE];
 
+	bool					m_bHeightsInitialized;
 	float					m_flHighest;
 	float					m_flLowest;
 

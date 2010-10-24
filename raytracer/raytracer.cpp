@@ -37,6 +37,9 @@ bool CRaytracer::Raytrace(const Ray& rayTrace, CTraceResult* pTR)
 
 bool CRaytracer::Raytrace(const Vector& vecStart, const Vector& vecEnd, CTraceResult* pTR)
 {
+	if (!m_pTree)
+		return false;
+
 	return m_pTree->Raytrace(vecStart, vecEnd, pTR);
 }
 
@@ -320,8 +323,12 @@ void CKDNode::RemoveArea(const AABB& oBox)
 			}
 		}
 
-		assert(iTrianglesDeleted == m_iTriangles - m_aTris.size());
-		assert(iTrianglesDeleted <= m_iTriangles);
+		// If we're the parent then sometimes this is called when the tree isn't built yet and there's no problem then if the asserts fail.
+		if (m_pParent)
+		{
+			assert(iTrianglesDeleted == m_iTriangles - m_aTris.size());
+			assert(iTrianglesDeleted <= m_iTriangles);
+		}
 
 		m_iTriangles = m_aTris.size();
 	}

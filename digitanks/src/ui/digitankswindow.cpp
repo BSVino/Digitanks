@@ -154,6 +154,9 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	CSoundLibrary::StopMusic();
 
+	if (GameServer())
+		GameServer()->Initialize();
+
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
@@ -185,8 +188,6 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		if (!m_pInstructor)
 			m_pInstructor = new CInstructor();
 	}
-	else
-		m_pGameServer->Initialize();
 
 	if (CNetwork::IsHost() && DigitanksGame())
 	{
@@ -196,6 +197,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	}
 
 	glgui::CRootPanel::Get()->Layout();
+
+	m_pMainMenu->SetVisible(eGameType == GAMETYPE_MENU);
 }
 
 void CDigitanksWindow::DestroyGame()

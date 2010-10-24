@@ -48,6 +48,17 @@ void CMenuMarcher::Spawn()
 		CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
 }
 
+void CMenuMarcher::OnDeleted()
+{
+	BaseClass::OnDeleted();
+
+	if (m_iHoverParticles != ~0)
+	{
+		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
+		m_iHoverParticles = ~0;
+	}
+}
+
 void CMenuMarcher::Think()
 {
 	BaseClass::Think();
