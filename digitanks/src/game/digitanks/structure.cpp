@@ -82,6 +82,8 @@ CStructure::CStructure()
 	m_iProductionToUpgrade = 0;
 
 	SetCollisionGroup(CG_ENTITY);
+
+	m_bConstructing = true;
 }
 
 void CStructure::Precache()
