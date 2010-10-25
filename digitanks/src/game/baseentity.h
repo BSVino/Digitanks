@@ -243,7 +243,7 @@ public:
 	virtual bool							UsesRaytracedCollision() { return false; }
 
 	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
-	virtual void							SetSpawnSeed(size_t iSpawnSeed) { m_iSpawnSeed = iSpawnSeed; }
+	virtual void							SetSpawnSeed(size_t iSpawnSeed);
 
 	void									RegisterNetworkVariable(class CNetworkedVariableBase* pVariable);
 	void									DeregisterNetworkVariable(class CNetworkedVariableBase* pVariable);

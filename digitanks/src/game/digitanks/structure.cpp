@@ -105,6 +105,8 @@ void CStructure::Spawn()
 	m_flScaffoldingSize = 10;
 
 	m_flConstructionStartTime = 0;
+
+	m_bConstructing = true;
 }
 
 void CStructure::OnTeamChange()

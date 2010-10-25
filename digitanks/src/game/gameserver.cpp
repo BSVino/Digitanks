@@ -354,12 +354,12 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 
 	CEntityHandle<CBaseEntity> hEntity(iHandle);
 
+	hEntity->RegisterNetworkVariables();
+
 	if (iSpawnSeed)
 		hEntity->SetSpawnSeed(iSpawnSeed);
 	else
-		hEntity->SetSpawnSeed(rand()%99999);	// Don't pick a number so large that it can't fit in (int)
-
-	hEntity->RegisterNetworkVariables();
+		hEntity->SetSpawnSeed(mtrand()%99999);	// Don't pick a number so large that it can't fit in (int)
 
 	hEntity->Spawn();
 

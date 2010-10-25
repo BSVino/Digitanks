@@ -33,6 +33,8 @@ void CResource::Spawn()
 	SetModel(L"models/structures/electronode.obj");
 
 	m_iSpark = ~0;
+
+	m_bConstructing = false;
 }
 
 void CResource::Think()

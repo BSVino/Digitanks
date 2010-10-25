@@ -1,6 +1,7 @@
 #include "baseentity.h"
 
 #include <strutils.h>
+#include <mtrand.h>
 
 #include <raytracer/raytracer.h>
 #include <models/models.h>
@@ -283,6 +284,13 @@ bool CBaseEntity::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 		return false;
 
 	return LineSegmentIntersectsSphere(v1, v2, GetOrigin(), GetBoundingRadius(), vecPoint);
+}
+
+void CBaseEntity::SetSpawnSeed(size_t iSpawnSeed)
+{
+	m_iSpawnSeed = iSpawnSeed;
+
+	mtsrand(iSpawnSeed);
 }
 
 void CBaseEntity::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)

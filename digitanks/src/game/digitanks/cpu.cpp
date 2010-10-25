@@ -59,6 +59,8 @@ void CCPU::Spawn()
 	m_flFanRotation = RandomFloat(0, 360);
 
 	m_bProducing = false;
+
+	m_bConstructing = false;
 }
 
 void CCPU::Precache()
