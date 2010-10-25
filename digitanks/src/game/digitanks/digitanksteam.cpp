@@ -20,6 +20,8 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iTotalFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUpdateDownloaded, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iBandwidth, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildBuffers, &CDigitanksGame::UpdateHUD);
@@ -537,8 +539,8 @@ void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
-	p.ui2 = iX;
-	p.ui3 = iY;
+	p.i2 = iX;
+	p.i3 = iY;
 	p.i4 = !!bCheckValid;
 
 	DownloadUpdate(&p);
@@ -548,8 +550,8 @@ void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 
 void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 {
-	size_t iX = p->ui2;
-	size_t iY = p->ui3;
+	int iX = p->i2;
+	int iY = p->i3;
 	bool bCheckValid = !!p->i4;
 
 	if (m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY)

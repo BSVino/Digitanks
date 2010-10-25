@@ -495,7 +495,7 @@ void CStructure::BeginUpgrade(CNetworkParameters* p)
 {
 	m_bUpgrading = true;
 
-	m_iProductionToUpgrade = ConstructionCost();
+	m_iProductionToUpgrade = UpgradeCost();
 
 	GetDigitanksTeam()->CountProducers();
 }
@@ -525,7 +525,7 @@ size_t CStructure::GetTurnsToUpgrade()
 	if (IsUpgrading())
 		return (size_t)(m_iProductionToUpgrade/GetDigitanksTeam()->GetProductionPerLoader())+1;
 	else
-		return (size_t)(ConstructionCost()/GetDigitanksTeam()->GetProductionPerLoader())+1;
+		return (size_t)(UpgradeCost()/GetDigitanksTeam()->GetProductionPerLoader())+1;
 }
 
 bool CStructure::NeedsOrders()
@@ -580,6 +580,49 @@ void CStructure::OnDeleted()
 	BaseClass::OnDeleted();
 
 	SetSupplier(NULL);
+}
+
+void CStructure::ClientUpdate(int iClient)
+{
+	BaseClass::ClientUpdate(iClient);
+
+	for (std::map<size_t, std::vector<CUpdateCoordinate> >::iterator i = m_aUpdates.begin(); i != m_aUpdates.end(); i++)
+	{
+		CNetworkParameters p;
+		p.ui1 = GetHandle();
+		p.ui2 = i->first;
+		p.ui3 = i->second.size();
+		p.ui4 = m_aiUpdatesInstalled[i->first];
+		p.CreateExtraData(sizeof(size_t) * i->second.size() * 2);
+
+		size_t* pCoordinates = (size_t*)p.m_pExtraData;
+		for (size_t j = 0; j < i->second.size(); j++)
+		{
+			pCoordinates[j*2] = i->second[j].x;
+			pCoordinates[j*2+1] = i->second[j].y;
+		}
+
+		CNetwork::CallFunctionParameters(iClient, "AddStructureUpdate", &p);
+	}
+}
+
+void CStructure::AddStructureUpdate(CNetworkParameters* p)
+{
+	size_t iKey = p->ui2;
+	size_t iCoordinates = p->ui3;
+	size_t iInstalled = p->ui4;
+
+	m_aiUpdatesInstalled[iKey] = iInstalled;
+
+	m_aUpdates[iKey].clear();
+	for (size_t i = 0; i < iCoordinates; i++)
+	{
+		size_t* pCoordinates = (size_t*)p->m_pExtraData;
+		m_aUpdates[iKey].push_back(CUpdateCoordinate());
+		CUpdateCoordinate* pCoordinate = &m_aUpdates[iKey][m_aUpdates[iKey].size()-1];
+		pCoordinate->x = pCoordinates[i*2];
+		pCoordinate->y = pCoordinates[i*2+1];
+	}
 }
 
 void CStructure::OnSerialize(std::ostream& o)

@@ -632,11 +632,14 @@ void CHUD::Paint(int x, int y, int w, int h)
 		c.SetBlend(BLEND_ALPHA);
 		CRootPanel::PaintTexture(m_iHUDGraphic, iWidth/2 - 720/2, iHeight-160, 720, 160);
 
-		CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
-		CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
-		CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		{
+			CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
+			CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
+			CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
 
-		CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
+			CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
+		}
 
 		if (m_flAttackInfoAlpha > 0)
 			CRootPanel::PaintTexture(m_iAttackInfoPanel, iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
@@ -647,7 +650,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintTexture(m_iTankInfoPanel, 0, iHeight-250, 150, 250);
 	} while (false);
 
-	CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
 	size_t iX, iY, iX2, iY2;
 	if (CDigitanksWindow::Get()->GetBoxSelection(iX, iY, iX2, iY2))
@@ -934,6 +938,14 @@ void CHUD::UpdateTeamInfo()
 	if (!DigitanksGame())
 		return;
 
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+	{
+		m_pPowerInfo->SetText("");
+		m_pFleetInfo->SetText("");
+		m_pBandwidthInfo->SetText("");
+		return;
+	}
+
 	CDigitanksTeam* pTeam = DigitanksGame()->GetLocalDigitanksTeam();
 
 	if (!pTeam)
@@ -954,6 +966,12 @@ void CHUD::UpdateTeamInfo()
 
 void CHUD::UpdateScoreboard()
 {
+	if (!DigitanksGame())
+		return;
+
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+		return;
+
 	std::vector<CDigitanksTeam*> apSortedTeams;
 
 	// Prob not the fastest sorting algorithm but it doesn't need to be.
@@ -1454,7 +1472,12 @@ void CHUD::TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech)
 
 void CHUD::ClearTurnInfo()
 {
+	m_pTurnInfo->SetText("");
+
 	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+		return;
+
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
 		return;
 
 	m_pTurnInfo->SetText("TURN REPORT\n \n");
@@ -1463,6 +1486,9 @@ void CHUD::ClearTurnInfo()
 void CHUD::AppendTurnInfo(const wchar_t* pszInfo)
 {
 	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+		return;
+
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
 		return;
 
 	m_pTurnInfo->AppendText("* ");

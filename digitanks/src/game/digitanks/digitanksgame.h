@@ -168,6 +168,7 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, CancelInstall);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginUpgrade);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, CancelUpgrade);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, AddStructureUpdate);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, AddChild);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, RemoveChild);

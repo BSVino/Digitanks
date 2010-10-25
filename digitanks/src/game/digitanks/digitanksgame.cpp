@@ -143,6 +143,7 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("CancelInstall", this, CancelInstallCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("BeginUpgrade", this, BeginUpgradeCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("CancelUpgrade", this, CancelUpgradeCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("AddStructureUpdate", this, AddStructureUpdateCallback, 0);
 
 	// CSupplier
 	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
@@ -616,7 +617,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (GetLocalDigitanksTeam() && GetLocalDigitanksTeam()->GetMember(0))
 		GetDigitanksCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
 
-	if (m_eGameType == GAMETYPE_STANDARD)
+	if (m_eGameType == GAMETYPE_STANDARD && !CNetwork::IsConnected())
 		CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
 
 	if (m_eGameType == GAMETYPE_MENU)

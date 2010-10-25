@@ -51,8 +51,10 @@ public:
 	virtual const wchar_t*		GetName() { return L"Battery"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BATTERY; };
 	virtual size_t				ConstructionCost() const { return GetBatteryConstructionCost(); };
+	virtual size_t				UpgradeCost() const { return GetBatteryUpgradeCost(); };
 
 	static size_t				GetBatteryConstructionCost() { return 15; };
+	static size_t				GetBatteryUpgradeCost() { return 50; };
 
 protected:
 	static size_t				s_iUpgradeIcon;

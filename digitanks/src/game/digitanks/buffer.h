@@ -63,8 +63,10 @@ public:
 	virtual const wchar_t*		GetName() { return L"Mini-Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_MINIBUFFER; };
 	virtual size_t				ConstructionCost() const { return GetMiniBufferConstructionCost(); };
+	virtual size_t				UpgradeCost() const { return GetMiniBufferUpgradeCost(); };
 
 	static size_t				GetMiniBufferConstructionCost() { return 10; };
+	static size_t				GetMiniBufferUpgradeCost() { return 25; };
 
 protected:
 	static size_t				s_iUpgradeIcon;
