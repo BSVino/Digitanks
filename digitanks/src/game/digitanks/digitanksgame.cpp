@@ -893,6 +893,9 @@ void CDigitanksGame::StartTurn()
 	CNetwork::CallFunction(NETWORK_TOCLIENTS, "StartTurn");
 
 	StartTurn(NULL);
+
+	if (GetGameType() == GAMETYPE_ARTILLERY && GetCurrentTeam()->GetNumTanks() == 0)
+		EndTurn();
 }
 
 void CDigitanksGame::StartTurn(CNetworkParameters* p)

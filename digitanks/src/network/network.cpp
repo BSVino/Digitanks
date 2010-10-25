@@ -40,6 +40,8 @@ void CNetwork::RegisterFunction(const char* pszName, INetworkListener* pListener
 {
 	s_aFunctions[pszName].m_pszFunction = pszName;
 
+	s_aFunctions[pszName].m_pParameters.clear();
+
 	va_list args;
 	va_start(args, iParameters);
 

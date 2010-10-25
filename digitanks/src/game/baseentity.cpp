@@ -177,7 +177,8 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 	bool bWasAlive = IsAlive();
 
-	m_flHealth -= flDamage;
+	if (CNetwork::IsHost())
+		m_flHealth -= flDamage;
 
 	Game()->OnTakeDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, !IsAlive() && bWasAlive);
 
