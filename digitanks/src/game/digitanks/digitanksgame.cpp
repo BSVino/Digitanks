@@ -897,11 +897,11 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (m_iCurrentTeam == (size_t)0)
 		m_iTurn++;
 
-	if (m_pListener)
-		m_pListener->ClearTurnInfo();
-
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
+
+	if (m_pListener)
+		m_pListener->ClearTurnInfo();
 
 	m_iWaitingForProjectiles = 0;
 
@@ -1340,6 +1340,9 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 		return;
 
 	if (!m_bAllowActionItems)
+		return;
+
+	if (GetGameType() != GAMETYPE_STANDARD)
 		return;
 
 	// Prevent duplicates
