@@ -8,6 +8,7 @@
 #include <time.h>
 #include <vector.h>
 
+#include <mtrand.h>
 #include <configfile.h>
 #include <platform.h>
 #include <network/network.h>
@@ -153,6 +154,8 @@ CDigitanksWindow::~CDigitanksWindow()
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	CSoundLibrary::StopMusic();
+
+	mtsrand((size_t)glfwGetTime());
 
 	if (GameServer())
 		GameServer()->Initialize();

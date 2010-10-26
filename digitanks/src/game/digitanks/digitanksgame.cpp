@@ -316,14 +316,9 @@ void CDigitanksGame::SetupArtillery()
 	};
 
 	std::vector<Vector> avecRandomStartingPositions;
+	// 8 random starting positions.
 	for (int i = 0; i < iPlayers; i++)
-	{
-		// 8 random starting positions.
-		if (rand()%2)
-			avecRandomStartingPositions.push_back(avecStartingPositions[i]);
-		else
-			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
-	}
+		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
 
 	for (int i = 0; i < iPlayers; i++)
 	{
@@ -398,12 +393,7 @@ void CDigitanksGame::SetupStandard()
 
 	std::vector<Vector> avecRandomStartingPositions;
 	for (int i = 0; i < 4; i++)
-	{
-		if (rand()%2)
-			avecRandomStartingPositions.push_back(avecStartingPositions[i]);
-		else
-			avecRandomStartingPositions.insert(avecRandomStartingPositions.begin(), avecStartingPositions[i]);
-	}
+		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
 
 	for (int i = 0; i < iPlayers; i++)
 	{

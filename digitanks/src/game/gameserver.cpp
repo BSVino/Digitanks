@@ -33,8 +33,12 @@ CGameServer::CGameServer()
 	m_flSimulationTime = 0;
 	m_flFrameTime = 0;
 
+	size_t iPostSeed = mtrand();
+
 	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
 		CBaseEntity::s_aEntityRegistration[i].m_pfnRegisterCallback();
+
+	mtsrand(iPostSeed);
 
 	CBaseEntity::s_iNextEntityListIndex = 0;
 
@@ -356,12 +360,16 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 
 	hEntity->RegisterNetworkVariables();
 
+	size_t iPostSeed = mtrand();
+
 	if (iSpawnSeed)
 		hEntity->SetSpawnSeed(iSpawnSeed);
 	else
 		hEntity->SetSpawnSeed(mtrand()%99999);	// Don't pick a number so large that it can't fit in (int)
 
 	hEntity->Spawn();
+
+	mtsrand(iPostSeed);
 
 	if (dynamic_cast<CGame*>(hEntity.GetPointer()))
 		m_hGame = CEntityHandle<CGame>(hEntity->GetHandle());
