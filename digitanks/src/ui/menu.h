@@ -42,13 +42,16 @@ public:
 
 	EVENT_CALLBACK(CTutorialsPanel,	Basics);
 	EVENT_CALLBACK(CTutorialsPanel,	Bases);
+	EVENT_CALLBACK(CTutorialsPanel,	Units);
 
 	EVENT_CALLBACK(CTutorialsPanel,	BasicsHint);
 	EVENT_CALLBACK(CTutorialsPanel,	BasesHint);
+	EVENT_CALLBACK(CTutorialsPanel,	UnitsHint);
 
 protected:
 	glgui::CButton*					m_pBasics;
 	glgui::CButton*					m_pBases;
+	glgui::CButton*					m_pUnits;
 };
 
 class CGamesPanel : public glgui::CPanel, public glgui::IEventListener

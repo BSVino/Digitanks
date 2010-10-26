@@ -139,6 +139,45 @@ void CInstructor::Initialize()
 		L"FLEET POINTS\n \nYour fleet points can be seen on the upper right. When tanks are produced, they use up these fleet points. To get more fleet points, just build more buffers.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASES, new CTutorial(this, TUTORIAL_THEEND_BASES, POSITION_TOPCENTER, 250, false,
+		L"END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Units tutorial. You can return to the main menu by pressing the 'Escape' key.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INTRO_UNITS, new CTutorial(this, TUTORIAL_INTRO_UNITS, POSITION_TOPCENTER, 250, true,
+		L"Welcome to Digitanks!\n \nThis tutorial will help you learn the individual units. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_INFANTRY, new CTutorial(this, TUTORIAL_INFANTRY, POSITION_TOPCENTER, 250, true,
+		L"MECHANIZED INFANTRY\n \nThis unit is a Mechanized Infantry. They are a mobile support and defense platform. They have powerful shields in the front but little protection from attacks to the rear.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING, new CTutorial(this, TUTORIAL_FORTIFYING, POSITION_TOPCENTER, 250, true,
+		L"FORTIFYING\n \nInfantry can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and defense energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING2, new CTutorial(this, TUTORIAL_FORTIFYING2, POSITION_TOPCENTER, 250, true,
+		L"FORTIFYING\n \nGreat! That energy wall is incredibly strong and regenerates faster when the unit is fortified. Fortified units can't rotate, but if you position them well they won't need to. Infantry also get bonuses to their attack when they're fortified.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ARTILLERY, new CTutorial(this, TUTORIAL_ARTILLERY, POSITION_TOPCENTER, 250, true,
+		L"ARTILLERY\n \nArtillery are a long-range support unit. They are best used to soften up enemy positions before moving in with your tanks. However, they must be deployed before you can use them.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_DEPLOYING, new CTutorial(this, TUTORIAL_DEPLOYING, POSITION_TOPCENTER, 250, false,
+		L"DEPLOYING\n \nOnce deployed your artillery can't move, and turning is more expensive, so consider your deploy spot carefully.\n \nWhen you are ready, select the unit and then press the 'Deploy Unit' button.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_DEPLOYING2, new CTutorial(this, TUTORIAL_DEPLOYING2, POSITION_TOPCENTER, 250, false,
+		L"DEPLOYING\n \nGood work. Your artillery is deployed, but it won't be ready to use until next turn. Press the 'END TURN' button on the bottom right to proceed.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_FIRE_ARTILLERY, new CTutorial(this, TUTORIAL_FIRE_ARTILLERY, POSITION_TOPLEFT, 250, false,
+		L"ATTACK!\n \nNow that your artillery is ready to fire, you'll notice it has an incredible range. It has some drawbacks though, the cone of fire is limited. Also, artillery can't see into the fog of war and will need spotters. You have been given a spotter to help you see your target.\n \nPress the 'Fire' button and right click on the red tank to fire.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ARTILLERY_SHIELDS, new CTutorial(this, TUTORIAL_ARTILLERY_SHIELDS, POSITION_TOPLEFT, 250, true,
+		L"SHELLING SHIELDS\n \nArtillery are great for shelling enemy tanks and infantry positions, but while their EMP shells are extremely effective against shields, they are rather weak against tank hulls and structures. After the enemy shields are down it's time to move in with your tanks.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_ROGUE, new CTutorial(this, TUTORIAL_ROGUE, POSITION_TOPCENTER, 250, true,
+		L"THE ROGUE\n \nThe Rogue is a light reconnaissance unit. It lacks shields and can't do any damage to other units. However, its torpedo attack can be a dangerous threat to enemies.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_TORPEDO, new CTutorial(this, TUTORIAL_TORPEDO, POSITION_TOPCENTER, 250, true,
+		L"FIRE TORPEDO NUMBER ONE\n \nThe Rogue's torpedos attack supply lines. Hey look, there's an enemy supply line now! Select the Rogue and press the 'Fire' button. Then right click on the supply line to attack it.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_DISCONNECTING_SUPPLIES, new CTutorial(this, TUTORIAL_DISCONNECTING_SUPPLIES, POSITION_TOPCENTER, 250, true,
+		L"DISCONNECTING SUPPLY LINES\n \nYou can force an enemy structure to become neutral by destroying its supply line and disconnecting it from the enemy base. Any neutral structure can then be taken over if you build a buffer nearby.\n \nClick here to continue.")));
+
+	m_apTutorials.insert(std::pair<size_t, CTutorial*>(TUTORIAL_THEEND_UNITS, new CTutorial(this, TUTORIAL_THEEND_UNITS, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
 }
 
@@ -162,6 +201,13 @@ void CInstructor::DisplayFirstBasesTutorial()
 {
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_BASES;
+	DisplayTutorial(m_iCurrentTutorial);
+}
+
+void CInstructor::DisplayFirstUnitsTutorial()
+{
+	m_iLastTutorial = -1;
+	m_iCurrentTutorial = TUTORIAL_INTRO_UNITS;
 	DisplayTutorial(m_iCurrentTutorial);
 }
 
@@ -217,7 +263,7 @@ void CInstructor::HideTutorial()
 	}
 }
 
-void CInstructor::FinishedTutorial(size_t iTutorial)
+void CInstructor::FinishedTutorial(size_t iTutorial, bool bForceNext)
 {
 	if (iTutorial != m_iCurrentTutorial)
 		return;
@@ -233,7 +279,7 @@ void CInstructor::FinishedTutorial(size_t iTutorial)
 
 	m_pCurrentPanel = NULL;
 
-	if (m_apTutorials[iTutorial]->m_bAutoNext)
+	if (m_apTutorials[iTutorial]->m_bAutoNext || bForceNext)
 		m_apTutorials[iTutorial]->m_pInstructor->NextTutorial();
 }
 

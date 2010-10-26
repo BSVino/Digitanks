@@ -907,8 +907,11 @@ void CDigitank::Move(CNetworkParameters* p)
 		}
 	}
 
-	if (GetDigitanksTeam())
-		GetDigitanksTeam()->CalculateVisibility();
+	for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+	{
+		if (Game()->GetTeam(i))
+			DigitanksGame()->GetDigitanksTeam(i)->CalculateVisibility();
+	}
 
 	InterceptSupplyLines();
 
@@ -1092,6 +1095,9 @@ void CDigitank::Fortify(CNetworkParameters* p)
 	OnFortify();
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FORTIFYING);
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING, true);
 }
 
 bool CDigitank::CanAim() const
@@ -1688,6 +1694,9 @@ void CDigitank::Fire(CNetworkParameters* p)
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+
+	if (IsArtillery())
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FIRE_ARTILLERY, true);
 }
 
 void CDigitank::FireProjectile()

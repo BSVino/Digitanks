@@ -217,7 +217,11 @@ void CDigitanksTeam::StartTurn()
 {
 	m_iTotalFleetPoints = m_iUsedFleetPoints = 0;
 
-	CalculateVisibility();
+	for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+	{
+		if (Game()->GetTeam(i))
+			DigitanksGame()->GetDigitanksTeam(i)->CalculateVisibility();
+	}
 
 	CountProducers();
 

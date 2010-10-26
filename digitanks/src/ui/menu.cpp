@@ -222,6 +222,12 @@ CTutorialsPanel::CTutorialsPanel()
 	m_pBases->SetCursorInListener(this, BasesHint);
 	m_pBases->SetFontFaceSize(18);
 	AddControl(m_pBases);
+
+	m_pUnits = new CButton(0, 0, 100, 100, "Meet the Units");
+	m_pUnits->SetClickedListener(this, Units);
+	m_pUnits->SetCursorInListener(this, UnitsHint);
+	m_pUnits->SetFontFaceSize(18);
+	AddControl(m_pUnits);
 }
 
 void CTutorialsPanel::Layout()
@@ -231,6 +237,9 @@ void CTutorialsPanel::Layout()
 
 	m_pBases->SetPos(100, 120);
 	m_pBases->SetSize(135, 40);
+
+	m_pUnits->SetPos(100, 180);
+	m_pUnits->SetSize(135, 40);
 
 	BaseClass::Layout();
 }
@@ -267,6 +276,22 @@ void CTutorialsPanel::BasesCallback()
 	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
 }
 
+void CTutorialsPanel::UnitsCallback()
+{
+	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
+
+	pInstructor->SetActive(true);
+	pInstructor->Initialize();
+
+	CDigitanksWindow::Get()->SetServerType(SERVER_LOCAL);
+	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksGame()->SetDifficulty(0);
+
+	pInstructor->DisplayFirstUnitsTutorial();
+
+	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+}
+
 void CTutorialsPanel::BasicsHintCallback()
 {
 	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Learn the basics of Digitanks. This tutorial includes view control and basic tank manipulation. After this tutorial you should know enough to play an Artillery game.");
@@ -275,6 +300,11 @@ void CTutorialsPanel::BasicsHintCallback()
 void CTutorialsPanel::BasesHintCallback()
 {
 	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Learn how to set up a base. In this tutorial you'll learn how to construct buildings and produce units. It's a good idea to play through this tutorial before beginning Strategy mode.");
+}
+
+void CTutorialsPanel::UnitsHintCallback()
+{
+	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Learn the special units. In this tutorial you'll learn how to use the Mechanized Infantry, Artillery and Rogues to their highest effectiveness. It's a good idea to play through this tutorial before beginning Strategy mode.");
 }
 
 CGamesPanel::CGamesPanel()

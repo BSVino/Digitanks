@@ -21,7 +21,9 @@
 #include "digitanks/mechinf.h"
 #include "digitanks/maintank.h"
 #include "digitanks/artillery.h"
+#include "digitanks/scout.h"
 #include "digitanks/cpu.h"
+#include "digitanks/buffer.h"
 #include "digitanks/projectile.h"
 #include "digitanks/dt_renderer.h"
 #include "digitanks/resource.h"
@@ -846,6 +848,11 @@ void CDigitanksGame::EndTurn()
 	CNetwork::CallFunction(NETWORK_TOEVERYONE, "EndTurn");
 
 	EndTurn(NULL);
+
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+	if (GetCurrentTeam() == GetLocalTeam())
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING2, true);
 }
 
 void CDigitanksGame::EndTurn(CNetworkParameters* p)
@@ -1263,6 +1270,92 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		// So that pressing the escape key works the first time.
 		SetControlMode(MODE_NONE);
 	}
+	else if (iTutorial == CInstructor::TUTORIAL_INTRO_UNITS)
+	{
+		CDigitank* pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+		m_ahTeams[0]->AddEntity(pTank);
+		pTank->StartTurn();
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+
+		GetDigitanksCamera()->SnapTarget(pTank->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_ARTILLERY)
+	{
+		// Kill the infantry, spawn an artillery.
+		m_ahTeams[0]->GetMember(0)->Delete();
+
+		CDigitank* pTank = GameServer()->Create<CArtillery>("CArtillery");
+		m_ahTeams[0]->AddEntity(pTank);
+		pTank->StartTurn();
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+
+		GetDigitanksCamera()->SetTarget(pTank->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_FIRE_ARTILLERY)
+	{
+		// Kill the infantry, spawn an artillery.
+		CDigitank* pArtillery = GetDigitanksTeam(0)->GetTank(0);
+
+		CDigitank* pTarget = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[1]->AddEntity(pTarget);
+		pTarget->StartTurn();
+
+		Vector vecOrigin = pArtillery->GetOrigin() + AngleVector(pTarget->GetAngles()) * pArtillery->GetEffRange();
+		pTarget->SetOrigin(GetTerrain()->SetPointHeight(vecOrigin));
+
+		CDigitank* pSpotter = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+		m_ahTeams[0]->AddEntity(pSpotter);
+		pSpotter->StartTurn();
+
+		vecOrigin = pArtillery->GetOrigin() + AngleVector(pTarget->GetAngles()) * (pArtillery->GetMinRange() + pArtillery->GetEffRange())/2;
+		pSpotter->SetOrigin(GetTerrain()->SetPointHeight(vecOrigin));
+
+		GetDigitanksCamera()->SetTarget(pTarget->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, pArtillery->GetAngles().y-45, 0));
+
+		// So we can see the new guy
+		GetDigitanksTeam(0)->CalculateVisibility();
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_ROGUE)
+	{
+		if (m_ahTeams[1]->GetMember(0))
+			m_ahTeams[1]->GetMember(0)->Delete();
+		if (m_ahTeams[0]->GetMember(1))
+			m_ahTeams[0]->GetMember(1)->Delete();
+		if (m_ahTeams[0]->GetMember(0))
+			m_ahTeams[0]->GetMember(0)->Delete();
+
+		CDigitank* pTank = GameServer()->Create<CScout>("CScout");
+		m_ahTeams[0]->AddEntity(pTank);
+		pTank->StartTurn();
+
+		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0.0f, 0, 0.0f)));
+
+		GetDigitanksCamera()->SetTarget(pTank->GetOrigin());
+		GetDigitanksCamera()->SetDistance(100);
+		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_TORPEDO)
+	{
+		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
+		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(20, 0, 20)));
+		m_ahTeams[1]->AddEntity(pCPU);
+
+		CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");
+		pBuffer->CompleteConstruction();
+		pBuffer->SetOrigin(GetTerrain()->SetPointHeight(Vector(-20, 0, 20)));
+		m_ahTeams[1]->AddEntity(pBuffer);
+		pBuffer->SetSupplier(pCPU);
+
+		GetDigitanksTeam(0)->CalculateVisibility();
+	}
 
 	// Make sure that features now enabled are turned on.
 	CDigitanksWindow::Get()->GetHUD()->SetupMenu();
@@ -1276,8 +1369,14 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 	if (m_eGameType == GAMETYPE_MENU)
 		return false;
 
-	if (m_eGameType == GAMETYPE_TUTORIAL && CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_THEEND_BASICS)
-		return false;
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+	{
+		size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+		if (iTutorial >= CInstructor::TUTORIAL_INTRO_BASES)
+			return true;
+		else
+			return false;
+	}
 
 	else
 		return m_bRenderFogOfWar;

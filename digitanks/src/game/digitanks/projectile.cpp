@@ -8,6 +8,8 @@
 #include "digitanksgame.h"
 #include "dt_camera.h"
 #include "dt_renderer.h"
+#include "ui/instructor.h"
+#include "ui/digitankswindow.h"
 
 NETVAR_TABLE_BEGIN(CProjectile);
 NETVAR_TABLE_END();
@@ -44,7 +46,13 @@ void CProjectile::Think()
 {
 	if (MakesSounds() && BombDropNoise() && GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
 	{
-		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+		bool bCanSeeOwner;
+		if (m_hOwner != NULL && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+			bCanSeeOwner = true;
+		else
+			bCanSeeOwner = false;
+
+		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || bCanSeeOwner)
 		{
 			EmitSound("sound/bomb-drop.wav");
 			SetSoundVolume("sound/bomb-drop.wav", 0.5f);
@@ -170,7 +178,13 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	{
 		StopSound("sound/bomb-drop.wav");
 
-		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+		bool bCanSeeOwner;
+		if (m_hOwner != NULL && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+			bCanSeeOwner = true;
+		else
+			bCanSeeOwner = false;
+
+		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || bCanSeeOwner)
 			EmitSound("sound/explosion.wav");
 	}
 }
@@ -182,17 +196,23 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 
 	bool bHit = false;
 	if (m_flDamage > 0)
-		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pInstigator, m_hOwner->GetTeam());
+		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
 
 	m_flTimeExploded = GameServer()->GetGameTime();
 
 	if (m_bShouldRender)
 		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
 
-	if (MakesSounds() && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+	bool bCanSeeOwner;
+	if (m_hOwner != NULL && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
+		bCanSeeOwner = true;
+	else
+		bCanSeeOwner = false;
+
+	if (MakesSounds() && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || bCanSeeOwner)
 		EmitSound("sound/explosion.wav");
 
-	if (dynamic_cast<CTerrain*>(pInstigator) && !bHit)
+	if (m_hOwner != NULL && dynamic_cast<CTerrain*>(pInstigator) && !bHit)
 		m_hOwner->Speak(TANKSPEECH_MISSED);
 
 	if (m_iParticleSystem != ~0)
@@ -294,6 +314,12 @@ void CTorpedo::Think()
 		Vector vecPosition = GetOrigin() + vecDirection.Normalized() * flDistance;
 		SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(vecPosition));
 	}
+	else
+	{
+		// Sometimes the collide raytrace fails. Fuck that jazz.
+		if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z))
+			Touching(DigitanksGame()->GetTerrain());
+	}
 
 	if (!m_bBurrowing)
 		BaseClass::Think();
@@ -339,6 +365,8 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 			break;
 
 		pClosest->Intercept(0.5f);
+
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
 	}
 
 	BaseClass::Explode(pInstigator);

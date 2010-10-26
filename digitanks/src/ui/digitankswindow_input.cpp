@@ -256,8 +256,6 @@ void CDigitanksWindow::KeyPress(int c)
 		{
 			CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
 			DigitanksGame()->EndTurn();
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 		}
 	}
 

@@ -59,12 +59,13 @@ public:
 
 	void							DisplayFirstBasicsTutorial();
 	void							DisplayFirstBasesTutorial();
+	void							DisplayFirstUnitsTutorial();
 	void							NextTutorial();
 
 	void							DisplayTutorial(size_t iTutorial);
 	void							HideTutorial();
 	void							ShowTutorial();
-	void							FinishedTutorial(size_t iTutorial);
+	void							FinishedTutorial(size_t iTutorial, bool bForceNext = false);
 
 	size_t							GetCurrentTutorial() { return m_iCurrentTutorial; };
 
@@ -112,6 +113,20 @@ public:
 		TUTORIAL_LIMITED_POWER,
 		TUTORIAL_FLEET_POINTS,
 		TUTORIAL_THEEND_BASES,
+
+		TUTORIAL_INTRO_UNITS,
+		TUTORIAL_INFANTRY,
+		TUTORIAL_FORTIFYING,
+		TUTORIAL_FORTIFYING2,
+		TUTORIAL_ARTILLERY,
+		TUTORIAL_DEPLOYING,
+		TUTORIAL_DEPLOYING2,
+		TUTORIAL_FIRE_ARTILLERY,
+		TUTORIAL_ARTILLERY_SHIELDS,
+		TUTORIAL_ROGUE,
+		TUTORIAL_TORPEDO,
+		TUTORIAL_DISCONNECTING_SUPPLIES,
+		TUTORIAL_THEEND_UNITS,
 	};
 
 protected:
