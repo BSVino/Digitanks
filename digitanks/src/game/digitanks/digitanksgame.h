@@ -69,10 +69,8 @@ class CDigitanksGame : public CGame
 	REGISTER_ENTITY_CLASS(CDigitanksGame, CGame);
 
 public:
-							CDigitanksGame();
-							~CDigitanksGame();
+	virtual void 			Spawn();
 
-public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
 	IDigitanksGameListener*	GetListener() { return m_pListener; };
 
@@ -118,6 +116,7 @@ public:
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 	virtual void			OnKilled(class CBaseEntity* pEntity);
 	void					CheckWinConditions();
+	void					GameOver();
 
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
 
@@ -221,6 +220,8 @@ public:
 
 	float					FogPenetrationDistance() { return 10; }
 
+	bool					IsPartyMode() { return m_bPartyMode; };
+
 	static void				UpdateHUD(CNetworkedVariableBase* pVariable);
 
 	// CHEAT!
@@ -264,6 +265,9 @@ protected:
 
 	std::vector<actionitem_t>	m_aActionItems;
 	bool					m_bAllowActionItems;
+
+	CNetworkedVariable<bool>	m_bPartyMode;
+	float						m_flLastFireworks;
 };
 
 inline class CDigitanksGame* DigitanksGame()

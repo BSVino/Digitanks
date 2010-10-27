@@ -120,4 +120,14 @@ protected:
 	bool						m_bBurrowing;
 };
 
+class CFireworks : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CFireworks, CProjectile);
+
+public:
+	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
+
+	virtual bool				BombDropNoise() { return false; };
+};
+
 #endif

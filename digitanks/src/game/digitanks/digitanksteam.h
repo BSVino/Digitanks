@@ -19,6 +19,8 @@ public:
 								~CDigitanksTeam();
 
 public:
+	virtual void				Spawn();
+
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 
 	virtual void				ClientUpdate(int iClient);
@@ -52,6 +54,9 @@ public:
 
 	void						CountScore();
 	size_t						GetScore() { return m_iScore; };
+
+	void						YouLoseSirGoodDay();
+	bool						HasLost() { return m_bLost; }
 
 	void						CountBandwidth();
 	size_t						GetBandwidth() { return m_iBandwidth; };
@@ -113,6 +118,8 @@ protected:
 	CNetworkedVariable<size_t>	m_iUsedFleetPoints;
 
 	CNetworkedVariable<size_t>	m_iScore;
+
+	CNetworkedVariable<bool>	m_bLost;
 
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;

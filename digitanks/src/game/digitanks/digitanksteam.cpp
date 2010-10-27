@@ -20,6 +20,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iTotalFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bLost, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateY, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUpdateDownloaded, &CDigitanksGame::UpdateHUD);
@@ -40,6 +41,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTotalFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUsedFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iScore);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLost);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CCPU>, m_hPrimaryCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBuildPosition);
@@ -65,15 +67,22 @@ CDigitanksTeam::CDigitanksTeam()
 
 	m_bLKV = false;
 
-	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 	memset(&m_abUpdates[0][0], 0, sizeof(m_abUpdates));
-	m_iUpdateDownloaded = 0;
-
-	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
 }
 
 CDigitanksTeam::~CDigitanksTeam()
 {
+}
+
+void CDigitanksTeam::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_bLost = false;
+
+	m_iUpdateDownloaded = 0;
+	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
+	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
 }
 
 void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
@@ -427,6 +436,14 @@ void CDigitanksTeam::CountScore()
 			m_iScore += pStructure->GetUpdatesScore();
 		}
 	}
+}
+
+void CDigitanksTeam::YouLoseSirGoodDay()
+{
+	m_bLost = true;
+
+	if (DigitanksGame()->GetLocalDigitanksTeam() == this)
+		DigitanksGame()->GetListener()->GameOver(false);
 }
 
 void CDigitanksTeam::CountBandwidth()

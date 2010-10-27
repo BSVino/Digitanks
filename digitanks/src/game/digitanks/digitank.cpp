@@ -1817,7 +1817,16 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 			flDamage *= 2.0f;
 	}
 
-	Vector vecAttackDirection = ((bDirectHit?pAttacker:pInflictor)->GetOrigin() - GetOrigin()).Normalized();
+	Vector vecAttackOrigin;
+	if (bDirectHit)
+	{
+		if (pAttacker)
+			vecAttackOrigin = pAttacker->GetOrigin();
+	}
+	else if (pInflictor)
+		vecAttackOrigin = pInflictor->GetOrigin();
+
+	Vector vecAttackDirection = (vecAttackOrigin - GetOrigin()).Normalized();
 
 	float flShield = GetShieldValueForAttackDirection(vecAttackDirection);
 

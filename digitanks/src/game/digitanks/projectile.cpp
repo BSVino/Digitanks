@@ -225,7 +225,8 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 void CProjectile::SetOwner(CDigitank* pOwner)
 {
 	m_hOwner = pOwner;
-	SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
+	if (pOwner)
+		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
 	SetSimulated(true);
 	SetCollisionGroup(CG_POWERUP);
 
@@ -370,4 +371,21 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	}
 
 	BaseClass::Explode(pInstigator);
+}
+
+NETVAR_TABLE_BEGIN(CFireworks);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CFireworks);
+SAVEDATA_TABLE_END();
+
+bool CFireworks::ShouldTouch(CBaseEntity* pOther) const
+{
+	if (!pOther)
+		return false;
+
+	if (pOther->GetCollisionGroup() == CG_TERRAIN)
+		return true;
+
+	return false;
 }

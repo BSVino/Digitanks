@@ -225,7 +225,10 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 	else
 		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n");
 
-	m_pVictory->AppendText(L"Thanks for playing Digitanks. Press escape to start a new game.");
+	if (CNetwork::IsConnected())
+		m_pVictory->AppendText(L"Thanks for playing Digitanks. You can now spectate while the remaining players finish their game.");
+	else
+		m_pVictory->AppendText(L"Thanks for playing Digitanks. Return to the main menu to start a new game.");
 
 	SetVisible(true);
 }

@@ -55,6 +55,7 @@ NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(gametype_t, m_eGameType);
 	NETVAR_DEFINE(size_t, m_iTurn);
 	NETVAR_DEFINE(CEntityHandle<CUpdateGrid>, m_hUpdates);
+	NETVAR_DEFINE(bool, m_bPartyMode);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksGame);
@@ -77,9 +78,11 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, actionitem_t, m_aActionItems);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bAllowActionItems);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bPartyMode);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
 SAVEDATA_TABLE_END();
 
-CDigitanksGame::CDigitanksGame()
+void CDigitanksGame::Spawn()
 {
 	m_iCurrentTeam = 0;
 	m_pListener = NULL;
@@ -93,10 +96,8 @@ CDigitanksGame::CDigitanksGame()
 	m_bAllowActionItems = false;
 
 	SetListener(CDigitanksWindow::Get()->GetHUD());
-}
 
-CDigitanksGame::~CDigitanksGame()
-{
+	m_flLastFireworks = 0;
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -678,6 +679,46 @@ void CDigitanksGame::Think()
 
 	if (!m_bTurnActive && !m_bWaitingForMoving && !m_bWaitingForProjectiles)
 		StartTurn();
+
+	if (m_bPartyMode)
+	{
+		EAngle angCamera = GetDigitanksCamera()->GetAngles();
+		angCamera.y += GameServer()->GetFrameTime()*2;
+		GetDigitanksCamera()->SnapAngle(angCamera);
+
+		if (CNetwork::IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
+		{
+			std::vector<CEntityHandle<CDigitanksEntity> > ahEntities;
+			for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+			{
+				CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(CBaseEntity::GetEntityNumber(i));
+				if (!pEntity)
+					continue;
+				
+				if (dynamic_cast<CPowerup*>(pEntity))
+					continue;
+
+				if (dynamic_cast<CResource*>(pEntity))
+					continue;
+
+				if (dynamic_cast<CStaticProp*>(pEntity))
+					continue;
+
+				ahEntities.push_back(pEntity);
+			}
+
+			CDigitanksEntity* pEntity = ahEntities[RandomInt(0, ahEntities.size()-1)];
+
+			CFireworks* pFireworks = GameServer()->Create<CFireworks>("CFireworks");
+			pFireworks->SetOrigin(pEntity->GetOrigin());
+			pFireworks->SetOwner(NULL);
+			pFireworks->SetDamage(0);
+			pFireworks->SetForce(Vector(RandomFloat(-8, 8), 45, RandomFloat(-8, 8)));
+			pFireworks->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
+
+			m_flLastFireworks = GameServer()->GetGameTime();
+		}
+	}
 }
 
 void CDigitanksGame::MoveTanks()
@@ -892,7 +933,7 @@ void CDigitanksGame::StartTurn()
 
 	StartTurn(NULL);
 
-	if (GetGameType() == GAMETYPE_ARTILLERY && GetCurrentTeam()->GetNumTanks() == 0)
+	if (GetCurrentTeam()->HasLost())
 		EndTurn();
 }
 
@@ -1004,11 +1045,17 @@ void CDigitanksGame::CheckWinConditions()
 	if (m_eGameType == GAMETYPE_TUTORIAL || m_eGameType == GAMETYPE_MENU)
 		return;
 
+	if (m_bPartyMode)
+		return;
+
 	bool bPlayerLost = false;
 	size_t iTeamsLeft = 0;
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
+		if (GetDigitanksTeam(i)->HasLost())
+			continue;
+
 		if (m_eGameType == GAMETYPE_STANDARD)
 		{
 			bool bHasCPU = false;
@@ -1023,15 +1070,15 @@ void CDigitanksGame::CheckWinConditions()
 				}
 			}
 
-			if (!bHasCPU && i == 0)
-				bPlayerLost = true;
+			if (!bHasCPU)
+				GetDigitanksTeam(i)->YouLoseSirGoodDay();
 		}
 		else	// Artillery mode
 		{
 			if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
 			{
 				if (i == 0)
-					bPlayerLost = true;
+					GetDigitanksTeam(i)->YouLoseSirGoodDay();
 			}
 			else
 			{
@@ -1040,11 +1087,22 @@ void CDigitanksGame::CheckWinConditions()
 		}
 	}
 
-	if (bPlayerLost || iTeamsLeft <= 1)
-	{
-		if (m_pListener)
-			m_pListener->GameOver(!bPlayerLost);
-	}
+	if (iTeamsLeft <= 1)
+		GameOver();
+}
+
+void CDigitanksGame::GameOver()
+{
+	if (GameServer()->IsLoading())
+		return;
+
+	if (m_pListener && GetLocalDigitanksTeam() && !GetLocalDigitanksTeam()->HasLost())
+		m_pListener->GameOver(!GetLocalDigitanksTeam()->HasLost());
+
+	m_bPartyMode = true;
+
+	GetDigitanksCamera()->SetDistance(250);
+	GetDigitanksCamera()->SetTarget(Vector(0,0,0));
 }
 
 void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
@@ -1378,6 +1436,8 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 			return false;
 	}
 
+	if (IsPartyMode())
+		return false;
 	else
 		return m_bRenderFogOfWar;
 }

@@ -19,6 +19,8 @@ public:
 	void			SetAngle(EAngle angCamera);
 	void			SnapAngle(EAngle angCamera);
 
+	EAngle			GetAngles() { return m_angCamera; }
+
 	void			ZoomOut();
 	void			ZoomIn();
 
