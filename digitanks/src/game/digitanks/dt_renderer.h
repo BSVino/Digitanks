@@ -25,6 +25,8 @@ public:
 	const CFrameBuffer*	GetVisibility2Buffer() { return &m_oVisibility2Buffer; }
 	const CFrameBuffer*	GetVisibilityMaskedBuffer() { return &m_oVisibilityMaskedBuffer; }
 
+	void			BloomPulse();
+
 protected:
 	CFrameBuffer	m_oExplosionBuffer;
 	CFrameBuffer	m_oVisibility1Buffer;
@@ -32,6 +34,8 @@ protected:
 	CFrameBuffer	m_oVisibilityMaskedBuffer;
 
 	size_t			m_iVignetting;
+
+	float			m_flLastBloomPulse;
 };
 
 #endif

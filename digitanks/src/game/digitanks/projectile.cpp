@@ -220,6 +220,9 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 		m_iParticleSystem = 0;
 	}
+
+	if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.5f)
+		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
 }
 
 void CProjectile::SetOwner(CDigitank* pOwner)
@@ -371,6 +374,9 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	}
 
 	BaseClass::Explode(pInstigator);
+
+	if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.5f)
+		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
 }
 
 NETVAR_TABLE_BEGIN(CFireworks);

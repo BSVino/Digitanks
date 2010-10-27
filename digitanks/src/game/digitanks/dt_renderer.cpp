@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include <maths.h>
+
 #include <shaders/shaders.h>
 #include <game/digitanks/digitanksentity.h>
 #include <game/digitanks/digitanksgame.h>
@@ -26,6 +28,8 @@ CDigitanksRenderer::CDigitanksRenderer()
 	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 	m_iVignetting = CRenderer::LoadTextureIntoGL(L"textures/vignetting.png");
+
+	m_flLastBloomPulse = 0;
 }
 
 void CDigitanksRenderer::SetupFrame()
@@ -226,6 +230,22 @@ void CDigitanksRenderer::RenderFullscreenBuffers()
 	for (size_t i = 0; i < BLOOM_FILTERS; i++)
 		RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
 
+	float flBloomPulseLength = 2.0f;
+	float flGameTime = GameServer()->GetGameTime();
+	float flPulseStrength = Lerp(RemapValClamped(flGameTime, m_flLastBloomPulse, m_flLastBloomPulse + flBloomPulseLength, 1, 0), 0.2f);
+	if (flPulseStrength > 0)
+	{
+		glPushAttrib(GL_CURRENT_BIT);
+		glColor4f(flPulseStrength, flPulseStrength, flPulseStrength, flPulseStrength);
+		for (size_t i = 0; i < BLOOM_FILTERS; i++)
+		{
+			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+		}
+		glPopAttrib();
+	}
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	RenderMapFullscreen(m_iVignetting);
 
@@ -264,4 +284,9 @@ void CDigitanksRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* 
     }
 
 	glUseProgram(0);
+}
+
+void CDigitanksRenderer::BloomPulse()
+{
+	m_flLastBloomPulse = GameServer()->GetGameTime();
 }
