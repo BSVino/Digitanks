@@ -84,6 +84,8 @@ SAVEDATA_TABLE_END();
 
 void CDigitanksGame::Spawn()
 {
+	BaseClass::Spawn();
+
 	m_iCurrentTeam = 0;
 	m_pListener = NULL;
 	m_bWaitingForMoving = false;
