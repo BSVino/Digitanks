@@ -531,6 +531,8 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		// Make sure it's done next turn.
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
+
+	m_hConstructing->FindGround();
 }
 
 void CCPU::CancelConstruction()

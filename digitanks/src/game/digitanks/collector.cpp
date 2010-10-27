@@ -166,6 +166,7 @@ void CBattery::UpgradeComplete()
 		return;
 
 	CCollector* pCollector = GameServer()->Create<CCollector>("CCollector");
+	pCollector->SetConstructing(false);
 	pCollector->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pCollector);
 	pCollector->SetSupplier(GetSupplier());

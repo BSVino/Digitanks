@@ -693,6 +693,10 @@ void CDigitank::ManageSupplyLine()
 	if (!CNetwork::IsHost())
 		return;
 
+	// Scouts don't get supply lines. They give away your base's location in the early game!
+	if (IsScout())
+		return;
+
 	CSupplier* pSupplier = CSupplier::FindClosestSupplier(this);
 	CSupplyLine* pSupplyLine = m_hSupplyLine;
 

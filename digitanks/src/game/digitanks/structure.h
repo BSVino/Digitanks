@@ -37,6 +37,7 @@ public:
 	virtual void				CompleteConstruction();
 	size_t						GetTurnsToConstruct();
 	bool						IsConstructing() { return m_bConstructing; };
+	void						SetConstructing(bool bConstructing) { m_bConstructing = bConstructing; };
 	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
 	void						AddProduction(size_t iProduction);
 	size_t						GetTurnsToConstruct(size_t iPower);

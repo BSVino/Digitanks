@@ -290,6 +290,7 @@ void CMiniBuffer::UpgradeComplete()
 		return;
 
 	CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");
+	pBuffer->SetConstructing(false);
 	pBuffer->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pBuffer);
 	pBuffer->SetSupplier(GetSupplier());

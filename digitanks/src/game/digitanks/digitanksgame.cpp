@@ -224,6 +224,7 @@ void CDigitanksGame::ScatterResources()
 
 			CResource* pResource = GameServer()->Create<CResource>("CResource");
 			pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			pResource->FindGround();
 		}
 	}
 }
@@ -409,6 +410,7 @@ void CDigitanksGame::SetupStandard()
 
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecRandomStartingPositions[i]));
+		pCPU->FindGround();
 		m_ahTeams[i]->AddEntity(pCPU);
 
 
