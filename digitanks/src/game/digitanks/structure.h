@@ -209,8 +209,6 @@ public:
 
 	virtual float				VisibleRange() const;
 
-	virtual void				GameLoaded();
-
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);
 

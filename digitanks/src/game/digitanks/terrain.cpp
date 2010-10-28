@@ -1022,13 +1022,6 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 	}
 }
 
-void CTerrain::GameLoaded()
-{
-	BaseClass::GameLoaded();
-
-	GenerateCollision();
-}
-
 void CTerrain::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();

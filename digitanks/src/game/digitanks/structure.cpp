@@ -733,6 +733,8 @@ void CSupplier::Spawn()
 
 void CSupplier::ClientEnterGame()
 {
+	BaseClass::ClientEnterGame();
+
 	UpdateTendrils();
 }
 
@@ -1217,11 +1219,4 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 float CSupplier::VisibleRange() const
 {
 	return GetDataFlowRadius() + 5;
-}
-
-void CSupplier::GameLoaded()
-{
-	BaseClass::GameLoaded();
-
-	UpdateTendrils();
 }

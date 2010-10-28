@@ -201,7 +201,7 @@ public:
 	virtual void							OnTeamChange() {};
 
 	virtual void							ClientUpdate(int iClient);
-	virtual void							ClientEnterGame() {};
+	virtual void							ClientEnterGame();
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	virtual bool							TakesDamage() { return m_bTakeDamage; };
@@ -252,7 +252,6 @@ public:
 
 	virtual void							OnSerialize(std::ostream& o) {};
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
-	virtual void							GameLoaded();
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);

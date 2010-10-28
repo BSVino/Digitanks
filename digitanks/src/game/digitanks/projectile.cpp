@@ -251,9 +251,9 @@ size_t CProjectile::CreateParticleSystem()
 	return CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
 }
 
-void CProjectile::GameLoaded()
+void CProjectile::ClientEnterGame()
 {
-	BaseClass::GameLoaded();
+	BaseClass::ClientEnterGame();
 
 	if (m_bShouldRender)
 	{

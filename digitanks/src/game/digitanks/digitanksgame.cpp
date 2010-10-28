@@ -601,32 +601,8 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		m_pListener->NewCurrentSelection();
 	}
 
-	if (m_eGameType == GAMETYPE_TUTORIAL)
-		GetDigitanksCamera()->SnapAngle(EAngle(45, 0, 0));
-	else if (GetPrimarySelection())
-	{
-		// Point the camera in to the center
-		EAngle angCamera = VectorAngles(GetPrimarySelection()->GetOrigin().Normalized());
-		angCamera.p = 45;
-		GetDigitanksCamera()->SnapAngle(angCamera);
-	}
-
-	if (GetLocalDigitanksTeam() && GetLocalDigitanksTeam()->GetMember(0))
-		GetDigitanksCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
-
 	if (m_eGameType == GAMETYPE_STANDARD && !CNetwork::IsConnected())
 		CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
-
-	if (m_eGameType == GAMETYPE_MENU)
-	{
-		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
-		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
-		GetDigitanksCamera()->SnapDistance(80);
-	}
-	else
-	{
-		GetDigitanksCamera()->SnapDistance(120);
-	}
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -1421,6 +1397,35 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 	// Make sure that features now enabled are turned on.
 	CDigitanksWindow::Get()->GetHUD()->SetupMenu();
+}
+
+void CDigitanksGame::ClientEnterGame()
+{
+	BaseClass::ClientEnterGame();
+
+	if (m_eGameType == GAMETYPE_MENU)
+	{
+		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
+		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
+		GetDigitanksCamera()->SnapDistance(80);
+	}
+	else if (m_eGameType == GAMETYPE_TUTORIAL)
+	{
+		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
+		GetDigitanksCamera()->SnapAngle(EAngle(45, 0, 0));
+		GetDigitanksCamera()->SnapDistance(80);
+	}
+	else
+	{
+		if (GetLocalDigitanksTeam() && GetLocalDigitanksTeam()->GetMember(0))
+			GetDigitanksCamera()->SnapTarget(GetLocalDigitanksTeam()->GetMember(0)->GetOrigin());
+		else
+			GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
+		GetDigitanksCamera()->SnapAngle(EAngle(45,0,0));
+		GetDigitanksCamera()->SnapDistance(120);
+	}
+
+	glgui::CRootPanel::Get()->Layout();
 }
 
 bool CDigitanksGame::ShouldRenderFogOfWar()

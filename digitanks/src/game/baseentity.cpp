@@ -30,13 +30,13 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLastOrigin);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angAngles);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecVelocity);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecGravity);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, EAngle, m_angAngles);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecVelocity);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGravity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bSimulated);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bTakeDamage);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTotalHealth);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHealth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bTakeDamage);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTotalHealth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flHealth);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeKilled);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CTeam>, m_hTeam);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDeleted);	// Deleted entities are not saved.
@@ -328,7 +328,7 @@ CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
 	return m_apNetworkVariables[pszName];
 }
 
-void CBaseEntity::GameLoaded()
+void CBaseEntity::ClientEnterGame()
 {
 	SetModel(m_iModel);
 }

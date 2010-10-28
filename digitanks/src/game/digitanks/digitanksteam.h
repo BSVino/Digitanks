@@ -102,8 +102,6 @@ public:
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
 	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
 
-	virtual void				GameLoaded();
-
 protected:
 	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
 

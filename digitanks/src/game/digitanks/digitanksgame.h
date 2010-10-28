@@ -196,6 +196,8 @@ public:
 
 	void					OnDisplayTutorial(size_t iTutorial);
 
+	virtual void			ClientEnterGame();
+
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar();
 

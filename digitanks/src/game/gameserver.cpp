@@ -326,7 +326,7 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 	}
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-		CBaseEntity::GetEntityNumber(i)->GameLoaded();
+		CBaseEntity::GetEntityNumber(i)->ClientEnterGame();
 
 	return true;
 }

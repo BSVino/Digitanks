@@ -44,7 +44,6 @@ public:
 	void					TerrainData(class CNetworkParameters* p);
 	void					ResyncClientTerrainData(int iClient);
 
-	virtual void			GameLoaded();
 	virtual void			ClientEnterGame();
 
 protected:

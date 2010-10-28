@@ -112,6 +112,8 @@ void CDigitanksTeam::ClientUpdate(int iClient)
 
 void CDigitanksTeam::ClientEnterGame()
 {
+	BaseClass::ClientEnterGame();
+
 	CalculateVisibility();
 }
 
@@ -813,11 +815,4 @@ bool CDigitanksTeam::CanBuildArtilleryLoaders()
 		return true;
 
 	return m_bCanBuildArtilleryLoaders;
-}
-
-void CDigitanksTeam::GameLoaded()
-{
-	BaseClass::GameLoaded();
-
-	CalculateVisibility();
 }
