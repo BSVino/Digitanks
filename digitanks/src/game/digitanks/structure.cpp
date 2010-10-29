@@ -882,7 +882,7 @@ void CSupplier::StartTurn()
 	if (IsConstructing())
 		return;
 
-	if (GetSupplyLine() && GetSupplyLine()->GetIntegrity() >= 0.7f || IsDataFlowSource())
+	if (CNetwork::IsHost() && GetSupplyLine() && GetSupplyLine()->GetIntegrity() >= 0.7f || IsDataFlowSource())
 	{
 		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		{
