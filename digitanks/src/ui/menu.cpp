@@ -47,7 +47,7 @@ CMainMenu::CMainMenu()
 	m_pDockPanel = NULL;
 
 	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
-	m_iDigitanks = CRenderer::LoadTextureIntoGL(L"textures/digitanks.png");
+	m_iDigitanks = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main-menu.png");
 }
 
 void CMainMenu::Layout()
@@ -83,23 +83,21 @@ void CMainMenu::Layout()
 
 void CMainMenu::Paint(int x, int y, int w, int h)
 {
-	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
-	{
-		CRenderingContext c(GameServer()->GetRenderer());
-
-		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
-		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 350, 175);
-	}
-
-	CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, 255));
-
 	int hx, hy;
 	m_pHint->GetAbsPos(hx, hy);
 	if (wcslen(m_pHint->GetText()))
 		CRootPanel::PaintRect(hx-25, hy-3, m_pHint->GetWidth()+50, m_pHint->GetHeight()+6, Color(0, 0, 0, 255));
 
 	BaseClass::Paint(x, y, w, h);
+
+	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
+		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 350, 730);
+	}
 }
 
 void CMainMenu::SetVisible(bool bVisible)
