@@ -44,6 +44,8 @@ CGameServer::CGameServer()
 
 	m_iClient = -1;
 
+	m_bHalting = false;
+
 #ifdef _DEBUG
 	CParticleSystemLibrary::Get()->LoadParticleSystem(0);
 #endif
@@ -153,6 +155,9 @@ void CGameServer::Think(float flRealTime)
 			continue;
 
 		pEntity->Think();
+
+		if (m_bHalting)
+			break;
 	}
 
 	Think();

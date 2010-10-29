@@ -2,6 +2,7 @@
 #include <iphlpapi.h>
 #include <tchar.h>
 #include <dbghelp.h>
+#include <string>
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 {
@@ -191,4 +192,39 @@ wchar_t* SaveFileDialog(wchar_t* pszFileTypes)
 		return opf.lpstrFile;
 
 	return NULL;
+}
+
+std::string GetClipboard()
+{
+	if (!OpenClipboard(NULL))
+		return "";
+
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	char* szBuffer = (char*)GlobalLock(hData);
+	GlobalUnlock(hData);
+	CloseClipboard();
+
+	std::string sClipboard(szBuffer);
+
+	return sClipboard;
+}
+
+void SetClipboard(const std::string& sBuf)
+{
+	if (!OpenClipboard(NULL))
+		return;
+
+	EmptyClipboard();
+
+	HGLOBAL hClipboard;
+	hClipboard = GlobalAlloc(GMEM_MOVEABLE, sBuf.length()+1);
+
+	char* pszBuffer = (char*)GlobalLock(hClipboard);
+	strcpy(pszBuffer, LPCSTR(sBuf.c_str()));
+
+	GlobalUnlock(hClipboard);
+
+	SetClipboardData(CF_TEXT, hClipboard);
+
+	CloseClipboard();
 }

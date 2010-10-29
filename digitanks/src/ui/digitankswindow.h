@@ -115,7 +115,7 @@ protected:
 	class CMainMenu*			m_pMainMenu;
 	class CDigitanksMenu*		m_pMenu;
 	class CVictoryPanel*		m_pVictory;
-	class CDonatePanel*			m_pDonate;
+	class CPurchasePanel*		m_pPurchase;
 	class CStoryPanel*			m_pStory;
 
 	int							m_iPlayers;

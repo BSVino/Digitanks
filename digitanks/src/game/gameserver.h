@@ -17,6 +17,9 @@ public:
 public:
 	void										Initialize();
 
+	void										Halt() { m_bHalting = true; };
+	bool										IsHalting() { return m_bHalting; };
+
 	void										RegisterNetworkFunctions();
 
 	NET_CALLBACK(CGameServer,					ClientConnect);
@@ -85,6 +88,8 @@ protected:
 	bool										m_bLoading;
 
 	int											m_iClient;
+
+	bool										m_bHalting;
 };
 
 inline class CGameServer* GameServer()

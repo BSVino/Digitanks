@@ -23,6 +23,7 @@
 #include "menu.h"
 #include "ui.h"
 #include "renderer/renderer.h"
+#include "register.h"
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
@@ -137,6 +138,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	// Save out the configuration file now that we know this config loads properly.
 	SetConfigWindowDimensions(m_iWindowWidth, m_iWindowHeight);
 	SaveConfig();
+
+	ReadProductCode();
 }
 
 CDigitanksWindow::~CDigitanksWindow()
@@ -229,25 +232,31 @@ void CDigitanksWindow::Run()
 {
 	CreateGame(GAMETYPE_MENU);
 
+	if (!IsRegistered())
+	{
+		m_pMainMenu->SetVisible(false);
+		m_pPurchase->OpeningApplication();
+	}
+
 	if (!HasCommandLineSwitch("--nomusic"))
 		CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
 
 	while (glfwGetWindowParam( GLFW_OPENED ))
 	{
-		float flTime = (float)glfwGetTime();
-		if (m_pDonate->IsVisible())
+		if (GameServer()->IsHalting())
 		{
-			// Clear the buffer for the gui.
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+			DestroyGame();
+			CreateGame(GAMETYPE_MENU);
 		}
-		else if (GameServer())
+
+		float flTime = (float)glfwGetTime();
+		if (GameServer())
 		{
 			if (GameServer()->IsLoading())
 				CNetwork::Think();
 			else if (GameServer()->IsClient() && !CNetwork::IsConnected())
 			{
 				DestroyGame();
-				m_pMainMenu->SetVisible(true);
 				CreateGame(GAMETYPE_MENU);
 			}
 			else
@@ -269,7 +278,8 @@ void CDigitanksWindow::Run()
 
 void CDigitanksWindow::Render()
 {
-	GameServer()->Render();
+	if (GameServer())
+		GameServer()->Render();
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
@@ -315,14 +325,15 @@ void CDigitanksWindow::GameOver(bool bPlayerWon)
 
 void CDigitanksWindow::CloseApplication()
 {
-	if (m_pDonate->IsVisible())
+	if (IsRegistered())
 		exit(0);
 
-	DestroyGame();
+	if (m_pPurchase->IsVisible())
+		exit(0);
 
 	m_pMenu->SetVisible(false);
 	m_pMainMenu->SetVisible(false);
-	m_pDonate->ClosingApplication();
+	m_pPurchase->ClosingApplication();
 
 	SaveConfig();
 }

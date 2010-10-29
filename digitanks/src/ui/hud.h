@@ -280,7 +280,7 @@ protected:
 
 	bool						m_bNeedsUpdate;
 
-	glgui::CLabel*				m_pFPS;
+	glgui::CLabel*				m_pDemoNotice;
 
 	glgui::CLabel*				m_pPowerInfo;
 	glgui::CLabel*				m_pFleetInfo;

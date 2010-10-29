@@ -9,6 +9,7 @@
 
 #include "instructor.h"
 #include "digitankswindow.h"
+#include "register.h"
 
 using namespace glgui;
 
@@ -107,7 +108,7 @@ void CMainMenu::SetVisible(bool bVisible)
 
 	if (!bVisible)
 	{
-		m_pDockPanel->SetVisible(bVisible);
+		GetDockPanel()->SetVisible(bVisible);
 		m_pHint->SetText("");
 	}
 }
@@ -399,11 +400,14 @@ CMultiplayerPanel::CMultiplayerPanel()
 	m_pArtillery->SetFontFaceSize(18);
 	AddControl(m_pArtillery);
 
-	m_pStrategy = new CButton(0, 0, 100, 100, "Host Strategy");
-	m_pStrategy->SetClickedListener(this, Strategy);
-	m_pStrategy->SetCursorInListener(this, HostHint);
-	m_pStrategy->SetFontFaceSize(18);
-	AddControl(m_pStrategy);
+	if (IsRegistered())
+	{
+		m_pStrategy = new CButton(0, 0, 100, 100, "Host Strategy");
+		m_pStrategy->SetClickedListener(this, Strategy);
+		m_pStrategy->SetCursorInListener(this, HostHint);
+		m_pStrategy->SetFontFaceSize(18);
+		AddControl(m_pStrategy);
+	}
 
 //	m_pLoad = new CButton(0, 0, 100, 100, "Load");
 //	m_pLoad->SetClickedListener(this, Load);
@@ -424,8 +428,11 @@ void CMultiplayerPanel::Layout()
 	m_pArtillery->SetPos(20, 100);
 	m_pArtillery->SetSize(135, 40);
 
-	m_pStrategy->SetPos(20, 160);
-	m_pStrategy->SetSize(135, 40);
+	if (IsRegistered())
+	{
+		m_pStrategy->SetPos(20, 160);
+		m_pStrategy->SetSize(135, 40);
+	}
 
 //	m_pLoad->SetPos(20, GetHeight() - 60);
 //	m_pLoad->SetSize(135, 40);

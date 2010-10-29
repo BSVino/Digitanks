@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include <maths.h>
 #include <vector.h>
+#include <platform.h>
 
 using namespace glgui;
 
@@ -2703,6 +2704,14 @@ bool CTextField::KeyPressed(int iKey)
 		else if (iKey == GLFW_KEY_END)
 		{
 			m_iCursor = m_sText.length();
+		}
+		else if (iKey == 'V' && (glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL)))
+		{
+			std::string sClipboard = GetClipboard();
+			std::wstring sCopy;
+			sCopy.assign(sClipboard.begin(), sClipboard.end());
+			m_sText.insert(m_sText.begin()+m_iCursor, sCopy.begin(), sCopy.end());
+			m_iCursor += sCopy.length();
 		}
 
 		m_flBlinkTime = CRootPanel::Get()->GetTime();

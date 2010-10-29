@@ -57,26 +57,39 @@ protected:
 	glgui::CLabel*					m_pVictory;
 };
 
-class CDonatePanel : public glgui::CPanel, public glgui::IEventListener
+class CPurchasePanel : public glgui::CPanel, public glgui::IEventListener
 {
-	DECLARE_CLASS(CDonatePanel, glgui::CPanel);
+	DECLARE_CLASS(CPurchasePanel, glgui::CPanel);
 
 public:
-									CDonatePanel();
+									CPurchasePanel();
 
 public:
 	virtual void					Layout();
 	virtual void					Paint(int x, int y, int w, int h);
 
 	virtual void					ClosingApplication();
+	virtual void					OpeningApplication();
 
-	EVENT_CALLBACK(CDonatePanel, Donate);
-	EVENT_CALLBACK(CDonatePanel, Exit);
+	EVENT_CALLBACK(CPurchasePanel, Purchase);
+	EVENT_CALLBACK(CPurchasePanel, Exit);
+	EVENT_CALLBACK(CPurchasePanel, MainMenu);
+	EVENT_CALLBACK(CPurchasePanel, Register);
+	EVENT_CALLBACK(CPurchasePanel, RegisterOffline);
+	EVENT_CALLBACK(CPurchasePanel, CopyProductCode);
+	EVENT_CALLBACK(CPurchasePanel, SetKey);
 
 protected:
-	glgui::CLabel*					m_pDonate;
+	glgui::CLabel*					m_pPurchase;
 
-	glgui::CButton*					m_pDonateButton;
+	glgui::CTextField*				m_pRegistrationKey;
+	glgui::CButton*					m_pRegister;
+	glgui::CLabel*					m_pRegisterResult;
+
+	glgui::CButton*					m_pRegisterOffline;
+	glgui::CLabel*					m_pProductCode;
+
+	glgui::CButton*					m_pPurchaseButton;
 	glgui::CButton*					m_pExitButton;
 };
 

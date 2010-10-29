@@ -13,6 +13,7 @@
 #include <game/digitanks/loader.h>
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
+#include "register.h"
 
 using namespace glgui;
 
@@ -184,12 +185,12 @@ CHUD::CHUD()
 
 	SetupMenu(MENUMODE_MAIN);
 
-	m_pFPS = new CLabel(0, 0, 100, 20, "");
-	AddControl(m_pFPS);
+	m_pDemoNotice = new CLabel(0, 0, 100, 20, "");
+	AddControl(m_pDemoNotice);
 
-	m_pFPS->SetAlign(CLabel::TA_TOPLEFT);
-	m_pFPS->SetPos(20, 20);
-	m_pFPS->SetText("Press Preview");
+	m_pDemoNotice->SetAlign(CLabel::TA_TOPLEFT);
+	m_pDemoNotice->SetPos(20, 20);
+	m_pDemoNotice->SetText("");
 
 	m_pPowerInfo = new CLabel(0, 0, 200, 20, "");
 	AddControl(m_pPowerInfo);
@@ -457,10 +458,6 @@ void CHUD::Think()
 	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
 
 	m_pScoreboard->SetVisible(DigitanksGame()->ShouldShowScores());
-
-	//char szFPS[100];
-	//sprintf(szFPS, "Free Demo\n%d fps", (int)(1/Game()->GetFrameTime()));
-	//m_pFPS->SetText(szFPS);
 
 	if (m_bNeedsUpdate)
 	{
@@ -1176,6 +1173,13 @@ void CHUD::NewCurrentTeam()
 			
 			if (bShouldOpen)
 				m_pUpdatesPanel->SetVisible(true);
+		}
+
+		if (!IsRegistered())
+		{
+			std::wstringstream s;
+			s << "Demo turns left: " << DigitanksGame()->GetDemoTurns() - DigitanksGame()->GetTurn();
+			m_pDemoNotice->SetText(s.str().c_str());
 		}
 	}
 

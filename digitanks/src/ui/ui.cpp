@@ -7,6 +7,7 @@
 #include "menu.h"
 #include "ui.h"
 #include "instructor.h"
+#include "register.h"
 
 using namespace glgui;
 
@@ -15,13 +16,13 @@ void CDigitanksWindow::InitUI()
 	m_pMainMenu = new CMainMenu();
 	m_pMenu = new CDigitanksMenu();
 	m_pVictory = new CVictoryPanel();
-	m_pDonate = new CDonatePanel();
+	m_pPurchase = new CPurchasePanel();
 	m_pStory = new CStoryPanel();
 
 	CRootPanel::Get()->AddControl(m_pMainMenu);
 	CRootPanel::Get()->AddControl(m_pMenu);
 	CRootPanel::Get()->AddControl(m_pVictory);
-	CRootPanel::Get()->AddControl(m_pDonate);
+	CRootPanel::Get()->AddControl(m_pPurchase);
 	CRootPanel::Get()->AddControl(m_pStory);
 
 	CRootPanel::Get()->Layout();
@@ -233,18 +234,32 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 	SetVisible(true);
 }
 
-CDonatePanel::CDonatePanel()
+CPurchasePanel::CPurchasePanel()
 	: CPanel(0, 0, 400, 300)
 {
-	m_pDonate = new CLabel(0, 0, 100, 100, "");
-	AddControl(m_pDonate);
+	m_pPurchase = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pPurchase);
 
-	m_pDonateButton = new CButton(0, 0, 100, 100, "Website!");
-	m_pDonateButton->SetClickedListener(this, Donate);
-	AddControl(m_pDonateButton);
+	m_pRegistrationKey = new CTextField();
+	AddControl(m_pRegistrationKey);
 
-	m_pExitButton = new CButton(0, 0, 100, 100, "Quit");
-	m_pExitButton->SetClickedListener(this, Exit);
+	m_pRegister = new CButton(0, 0, 100, 100, "Register");
+	m_pRegister->SetClickedListener(this, Register);
+	AddControl(m_pRegister);
+
+	m_pRegisterResult = new CLabel(0, 0, 100, 100, "");
+	AddControl(m_pRegisterResult);
+
+	m_pRegisterOffline = new CButton(0, 0, 100, 100, "Register Offline");
+	m_pRegisterOffline->SetFontFaceSize(11);
+	m_pRegisterOffline->SetClickedListener(this, RegisterOffline);
+	AddControl(m_pRegisterOffline);
+
+	m_pPurchaseButton = new CButton(0, 0, 100, 100, "Website!");
+	m_pPurchaseButton->SetClickedListener(this, Purchase);
+	AddControl(m_pPurchaseButton);
+
+	m_pExitButton = new CButton(0, 0, 100, 100, "Maybe later");
 	AddControl(m_pExitButton);
 
 	SetVisible(false);
@@ -252,49 +267,153 @@ CDonatePanel::CDonatePanel()
 	Layout();
 }
 
-void CDonatePanel::Layout()
+void CPurchasePanel::Layout()
 {
-	SetSize(500, 250);
+	SetSize(500, 300);
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
-	m_pDonate->SetPos(10, 20);
-	m_pDonate->SetSize(GetWidth()-20, GetHeight());
-	m_pDonate->SetAlign(CLabel::TA_TOPCENTER);
+	m_pPurchase->SetPos(10, 20);
+	m_pPurchase->SetSize(GetWidth()-20, GetHeight());
+	m_pPurchase->SetAlign(CLabel::TA_TOPCENTER);
 
-	m_pDonateButton->SetSize(100, 30);
-	m_pDonateButton->SetPos(GetWidth()/2-150, GetHeight() - 50);
+	m_pRegistrationKey->SetPos(GetWidth()/2 - m_pRegistrationKey->GetWidth()/2, 100);
+
+	m_pRegister->SetSize(100, 30);
+	m_pRegister->SetPos(GetWidth()/2 - m_pRegister->GetWidth()/2, 140);
+
+	m_pRegisterResult->SetPos(10, 180);
+	m_pRegisterResult->SetSize(GetWidth()-20, GetHeight());
+	m_pRegisterResult->SetAlign(CLabel::TA_TOPCENTER);
+
+	m_pRegisterOffline->SetSize(60, 40);
+	m_pRegisterOffline->SetPos(GetWidth()-80, GetHeight()-100);
+
+	m_pPurchaseButton->SetSize(100, 30);
+	m_pPurchaseButton->SetPos(GetWidth()/2-150, GetHeight() - 50);
 
 	m_pExitButton->SetSize(100, 30);
 	m_pExitButton->SetPos(GetWidth()/2+50, GetHeight() - 50);
 }
 
-void CDonatePanel::Paint(int x, int y, int w, int h)
+void CPurchasePanel::Paint(int x, int y, int w, int h)
 {
 	CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
 
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CDonatePanel::ClosingApplication()
+void CPurchasePanel::ClosingApplication()
 {
-	m_pDonate->SetText(L"HELP ME FINISH DIGITANKS!\n \n"
-		L"The full version of Digitanks will have more tanks, more weapons, bases to build and conquer, and even online multiplayer! All that stuff is really hard though, and I need your help to build it.\n \n"
-		L"Please visit the website to contribute feedback from your playing experience by filling out a short survey. You can also donate to the Digitanks development effort, which will earn you a FREE copy of the game when it's released, your name in the credits, and the satisfaction of having helped out for a good cause!");
+	m_pPurchase->SetText(L"SUPPORT THE WAR EFFORT!\n \n"
+		L"What you've seen is just the beginning for Digitanks. Buying and registering your copy can help us add:\n \n"
+		L" * More tanks\n"
+		L" * More weapons\n"
+		L" * More scenarios\n"
+		L" * More structures to build and conquer\n"
+		L" * And hopefully not more bugs!\n \n"
+		L"All that stuff is really hard though, and we need your help to build it.");
 
 	SetVisible(true);
+	m_pRegistrationKey->SetVisible(false);
+	m_pRegister->SetVisible(false);
+	m_pRegisterOffline->SetVisible(false);
+
+	m_pExitButton->SetClickedListener(this, Exit);
 
 	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
+	CDigitanksWindow::Get()->GetVictoryPanel()->SetVisible(false);
 }
 
-void CDonatePanel::DonateCallback()
+void CPurchasePanel::OpeningApplication()
+{
+	m_pPurchase->SetText(L"REGISTER DIGITANKS!\n \n"
+		L"If you've purchased the game, please paste your registration key into the box below. Otherwise please enjoy this demo with a 50 move turn limit.");
+
+	SetVisible(true);
+	m_pRegistrationKey->SetVisible(true);
+	m_pRegister->SetVisible(true);
+
+	m_pExitButton->SetClickedListener(this, MainMenu);
+
+	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
+	CDigitanksWindow::Get()->GetVictoryPanel()->SetVisible(false);
+}
+
+void CPurchasePanel::PurchaseCallback()
 {
 	OpenBrowser(L"http://digitanks.com/gamelanding/");
 	exit(0);
 }
 
-void CDonatePanel::ExitCallback()
+void CPurchasePanel::ExitCallback()
 {
 	exit(0);
+}
+
+void CPurchasePanel::MainMenuCallback()
+{
+	SetVisible(false);
+	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(true);
+}
+
+void CPurchasePanel::RegisterCallback()
+{
+	std::wstring sError;
+	bool bSucceeded = QueryRegistrationKey(m_pRegistrationKey->GetText(), sError);
+	m_pRegisterResult->SetText(sError.c_str());
+
+	if (bSucceeded)
+	{
+		m_pRegister->SetVisible(false);
+		m_pRegisterOffline->SetVisible(false);
+		m_pRegistrationKey->SetVisible(false);
+		m_pExitButton->SetText(L"Awesome!");
+	}
+}
+
+void CPurchasePanel::RegisterOfflineCallback()
+{
+	m_pRegistrationKey->SetSize(400, m_pRegister->GetHeight());
+	m_pRegistrationKey->SetPos(GetWidth()/2 - m_pRegistrationKey->GetWidth()/2, 140);
+	m_pRegister->SetPos(GetWidth()/2 - m_pRegister->GetWidth()/2, 180);
+	m_pRegister->SetClickedListener(this, SetKey);
+	m_pRegisterResult->SetPos(10, 220);
+
+	m_pRegisterOffline->SetSize(60, 20);
+	m_pRegisterOffline->SetText(L"Copy");
+	m_pRegisterOffline->SetPos(GetWidth()-80, 100);
+	m_pRegisterOffline->SetClickedListener(this, CopyProductCode);
+
+	m_pProductCode = new CLabel(0, 110, GetWidth(), GetHeight(), "");
+	m_pProductCode->SetAlign(CLabel::TA_TOPCENTER);
+	m_pProductCode->SetText(L"Product Code: ");
+	m_pProductCode->AppendText(GetProductCode().c_str());
+	AddControl(m_pProductCode);
+}
+
+void CPurchasePanel::CopyProductCodeCallback()
+{
+	SetClipboard(GetProductCode());
+}
+
+void CPurchasePanel::SetKeyCallback()
+{
+	std::wstring sText = m_pRegistrationKey->GetText();
+	std::string sKey;
+	sKey.assign(sText.begin(), sText.end());
+	SetLicenseKey(sKey);
+
+	if (IsRegistered())
+	{
+		m_pRegisterResult->SetText(L"Thank you for registering Digitanks!");
+		m_pRegister->SetVisible(false);
+		m_pRegisterOffline->SetVisible(false);
+		m_pRegistrationKey->SetVisible(false);
+		m_pProductCode->SetVisible(false);
+		m_pExitButton->SetText(L"Awesome!");
+	}
+	else
+		m_pRegisterResult->SetText(L"Sorry, that key didn't seem to work. Try again!");
 }
 
 CStoryPanel::CStoryPanel()
