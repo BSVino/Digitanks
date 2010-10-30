@@ -31,10 +31,17 @@ void SaveProductCode()
 	r.add("code", g_sCode);
 	r.add("key", g_sKey);
 
-	std::ofstream o;
-	o.open("reg.cfg", std::ios_base::out);
-	o << r;
-	o.close();
+	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
+#ifdef _WIN32
+	SetFileAttributes(L"reg.cfg", FILE_ATTRIBUTE_NORMAL);
+#endif
+
+	do
+	{
+		std::ofstream o;
+		o.open("reg.cfg", std::ios_base::out);
+		o << r;
+	} while (false);
 
 #ifdef _WIN32
 	SetFileAttributes(L"reg.cfg", FILE_ATTRIBUTE_HIDDEN);
@@ -74,26 +81,6 @@ std::string GenerateCode()
 		'D',
 		'E',
 		'F',
-		'G',
-		'H',
-		'I',
-		'J',
-		'K',
-		'L',
-		'M',
-		'N',
-		'O',
-		'P',
-		'Q',
-		'R',
-		'S',
-		'T',
-		'U',
-		'V',
-		'W',
-		'X',
-		'Y',
-		'Z',
 	};
 
 	for (size_t i = 0; i < 16; i++)
@@ -135,6 +122,9 @@ std::string GetProductCode()
 void SetLicenseKey(std::string sKey)
 {
 	g_sKey = trim(sKey);
+
+	if (IsRegistered())
+		SaveProductCode();
 }
 
 bool QueryRegistrationKey(std::wstring sKey, std::wstring& sError)

@@ -317,6 +317,7 @@ void CPurchasePanel::ClosingApplication()
 	m_pRegistrationKey->SetVisible(false);
 	m_pRegister->SetVisible(false);
 	m_pRegisterOffline->SetVisible(false);
+	m_pRegisterResult->SetVisible(false);
 
 	m_pExitButton->SetClickedListener(this, Exit);
 
