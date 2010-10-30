@@ -510,7 +510,12 @@ void CDigitanksTeam::CalculateVisibility()
 			continue;
 		}
 
-		m_aflVisibilities[pEntity->GetHandle()] = GetVisibilityAtPoint(pEntity->GetOrigin());
+		Vector vecOrigin = pEntity->GetOrigin();
+		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
+		if (pDigitank)
+			vecOrigin = pDigitank->GetRealOrigin();
+
+		m_aflVisibilities[pEntity->GetHandle()] = GetVisibilityAtPoint(vecOrigin);
 	}
 }
 
@@ -542,7 +547,12 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint)
 		if (pTeammate->VisibleRange() == 0)
 			continue;
 
-		float flVisibility = RemapValClamped((pTeammate->GetOrigin() - vecPoint).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+DigitanksGame()->FogPenetrationDistance(), 1, 0);
+		Vector vecOrigin = pTeammate->GetOrigin();
+		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pTeammate);
+		if (pDigitank)
+			vecOrigin = pDigitank->GetRealOrigin();
+
+		float flVisibility = RemapValClamped((vecOrigin - vecPoint).Length(), pTeammate->VisibleRange(), pTeammate->VisibleRange()+DigitanksGame()->FogPenetrationDistance(), 1, 0);
 
 		// Use the brightest visibility
 		if (flVisibility > flFinalVisibility)

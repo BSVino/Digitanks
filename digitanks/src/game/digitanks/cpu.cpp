@@ -32,8 +32,8 @@ size_t CCPU::s_iInstallBandwidthIcon = 0;
 size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 
 NETVAR_TABLE_BEGIN(CCPU);
-	NETVAR_DEFINE(CEntityHandle<CStructure>, m_hConstructing);
-	NETVAR_DEFINE(bool, m_bProducing);
+	NETVAR_DEFINE_CALLBACK(CEntityHandle<CStructure>, m_hConstructing, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_bProducing, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iProduction);
 NETVAR_TABLE_END();
 
@@ -592,7 +592,7 @@ void CCPU::CancelRogueProduction()
 	if (CNetwork::IsHost())
 		CancelRogueProduction(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelProduction", &p);
+		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelRogueProduction", &p);
 }
 
 void CCPU::CancelRogueProduction(class CNetworkParameters* p)

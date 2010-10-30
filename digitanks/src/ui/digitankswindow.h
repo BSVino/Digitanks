@@ -78,7 +78,7 @@ public:
 	void						SetFullscreen(bool bFullscreen) { m_bFullscreen = bFullscreen; };
 	bool						IsFullscreen() { return m_bFullscreen; };
 
-	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL);
+	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
 	void						GameOver(bool bPlayerWon);
 

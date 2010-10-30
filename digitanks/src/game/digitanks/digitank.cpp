@@ -87,7 +87,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE(Vector, m_vecLastAim);
 
-	NETVAR_DEFINE(bool, m_bGoalMovePosition);
+	NETVAR_DEFINE_CALLBACK(bool, m_bGoalMovePosition, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(Vector, m_vecGoalMovePosition);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
@@ -187,6 +187,14 @@ void CDigitank::Precache()
 
 	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
 
+	SetupSpeechLines();
+}
+
+void CDigitank::SetupSpeechLines()
+{
+	if (g_aiSpeechLines.size())
+		return;
+
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_HAPPY);
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_COOL);
@@ -214,58 +222,46 @@ void CDigitank::Precache()
 	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_LOVE);
 	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_COOL);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_HAPPY);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_LOVE);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_CUTE);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_COOL);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_THRILLED);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_CHEER);
 }
 
 void CDigitank::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_flStartingPower = 10;
+	SetCollisionGroup(CG_ENTITY);
 
-	// If I haven't gotten a turn yet, shields up.
+	m_flStartingPower = 10;
 	m_flAttackPower = 0;
 	m_flDefensePower = 10;
 	m_flMovementPower = 0;
 	m_flTotalPower = 0;
-
 	m_flBonusAttackPower = m_flBonusDefensePower = m_flBonusMovementPower = 0;
-
 	m_flAttackSplit = 0.5f;
-
 	m_flRangeBonus = 0;
-
 	m_iBonusPoints = 0;
-
 	m_flPreviewTurn = 0;
-
 	m_bPreviewAim = false;
-
 	m_bGoalMovePosition = false;
-
+	m_bFiredWeapon = false;
 	m_flStartedMove = 0;
 	m_flStartedTurn = 0;
-
 	m_bFortified = false;
-
 	m_flFrontMaxShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = 15;
 	m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 15;
-
 	m_flFireProjectileTime = 0;
 	m_iFireProjectiles = 0;
-
 	m_flLastSpeech = 0;
 	m_flNextIdle = 10.0f;
-
-	SetCollisionGroup(CG_ENTITY);
-
 	m_iTurretModel = m_iShieldModel = ~0;
-
 	m_iHoverParticles = ~0;
-
 	m_bFortifyPoint = false;
-
 	m_flFortifyTime = 0;
-
 	m_flBobOffset = RandomFloat(0, 10);
 }
 
@@ -505,7 +501,7 @@ float CDigitank::GetPreviewBaseTurnPower() const
 
 bool CDigitank::IsPreviewMoveValid() const
 {
-	if (GetPreviewBaseMovePower() > GetTotalPower())
+	if (GetPreviewBaseMovePower() > GetTotalPower() + GetBonusMovementPower())
 		return false;
 
 	float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
@@ -901,7 +897,9 @@ void CDigitank::Move(CNetworkParameters* p)
 			if (!pPowerup)
 				continue;
 
-			if ((pPowerup->GetOrigin() - GetOrigin()).LengthSqr() < pPowerup->GetBoundingRadius()*pPowerup->GetBoundingRadius())
+			Vector vecDistance = pPowerup->GetOrigin() - GetRealOrigin();
+			vecDistance.y = 0;
+			if (vecDistance.Length() < pPowerup->GetBoundingRadius() + GetBoundingRadius())
 			{
 				pPowerup->Delete();
 				GiveBonusPoints(1);
@@ -1272,7 +1270,12 @@ void CDigitank::Think()
 	{
 		// A little bit less often if we're not on the current team.
 		if (DigitanksGame()->GetCurrentTeam() == GetTeam() && rand()%2 == 0 || rand()%4 == 0)
-			Speak(TANKSPEECH_IDLE);
+		{
+			if (DigitanksGame()->IsPartyMode())
+				Speak(TANKSPEECH_IDLE);
+			else
+				Speak(TANKSPEECH_PARTY);
+		}
 
 		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
@@ -1922,6 +1925,11 @@ Vector CDigitank::GetOrigin() const
 	return BaseClass::GetOrigin();
 }
 
+Vector CDigitank::GetRealOrigin() const
+{
+	return BaseClass::GetOrigin();
+}
+
 EAngle CDigitank::GetAngles() const
 {
 	float flTransitionTime = GetTransitionTime();
@@ -2376,7 +2384,7 @@ void CDigitank::TankPromoted(class CNetworkParameters* p)
 	if (GetVisibility() > 0)
 	{
 		EmitSound("sound/tank-promoted.wav");
-		CParticleSystemLibrary::AddInstance(L"promotion", GetOrigin());
+		CParticleSystemLibrary::AddInstance(L"promotion", GetRealOrigin());
 	}
 }
 

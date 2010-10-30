@@ -362,11 +362,14 @@ void CHUD::Think()
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
-	Vector vecPoint;
+	Vector vecTerrainPoint, vecEntityPoint;
 	bool bMouseOnGrid = false;
 	CBaseEntity* pHit = NULL;
 	if (DigitanksGame()->GetControlMode() != MODE_NONE)
-		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint, &pHit);
+	{
+		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecEntityPoint, &pHit);
+		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN);
+	}
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
 	{
@@ -375,16 +378,16 @@ void CHUD::Think()
 
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		{
-			Vector vecMove = vecPoint;
+			Vector vecMove = vecTerrainPoint;
 			vecMove.y = pCurrentTank->FindHoverHeight(vecMove);
 			pCurrentTank->SetPreviewMove(vecMove);
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_TURN)
 		{
-			if ((vecPoint - pCurrentTank->GetOrigin()).LengthSqr() > 4*4)
+			if ((vecTerrainPoint - pCurrentTank->GetOrigin()).LengthSqr() > 4*4)
 			{
-				Vector vecTurn = vecPoint - pCurrentTank->GetOrigin();
+				Vector vecTurn = vecTerrainPoint - pCurrentTank->GetOrigin();
 				vecTurn.Normalize();
 				float flTurn = atan2(vecTurn.z, vecTurn.x) * 180/M_PI;
 				pCurrentTank->SetPreviewTurn(flTurn);
@@ -399,7 +402,7 @@ void CHUD::Think()
 			if (pDTHit && pDTHit->GetVisibility() > 0)
 				pCurrentTank->SetPreviewAim(pDTHit->GetOrigin());
 			else
-				pCurrentTank->SetPreviewAim(vecPoint);
+				pCurrentTank->SetPreviewAim(vecEntityPoint);
 		}
 	}
 
@@ -410,7 +413,7 @@ void CHUD::Think()
 		{
 			CCPU* pCPU = dynamic_cast<CCPU*>(pCurrentStructure);
 			if (pCPU)
-				pCPU->SetPreviewBuild(vecPoint);
+				pCPU->SetPreviewBuild(vecTerrainPoint);
 		}
 	}
 

@@ -18,6 +18,7 @@ typedef enum
 	TANKSPEECH_MISSED,
 	TANKSPEECH_IDLE,
 	TANKSPEECH_PROMOTED,
+	TANKSPEECH_PARTY,
 };
 
 typedef enum
@@ -50,6 +51,7 @@ public:
 
 public:
 	virtual void				Precache();
+	virtual void				SetupSpeechLines();
 	virtual void				Spawn();
 
 	virtual float				GetBoundingRadius() const { return 4; };
@@ -211,6 +213,7 @@ public:
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
 
 	virtual Vector				GetOrigin() const;
+	virtual Vector				GetRealOrigin() const;
 	virtual EAngle				GetAngles() const;
 
 	virtual Vector				GetRenderOrigin() const;

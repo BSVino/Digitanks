@@ -139,13 +139,17 @@ void CGame::OnDeleted(CBaseEntity* pEntity)
 {
 }
 
-bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit)
+bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit, int iCollisionGroup)
 {
 	Vector vecClosest = s2;
 	bool bHit = false;
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		if (iCollisionGroup && pEntity->GetCollisionGroup() != iCollisionGroup)
+			continue;
+
 		Vector vecPoint;
 		if (pEntity->Collide(s1, s2, vecPoint))
 		{

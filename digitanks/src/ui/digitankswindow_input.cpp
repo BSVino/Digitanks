@@ -101,7 +101,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 	Vector vecMousePosition;
 	CBaseEntity* pClickedEntity = NULL;
-	bool bFound = GetMouseGridPosition(vecMousePosition, &pClickedEntity);
+	GetMouseGridPosition(vecMousePosition, &pClickedEntity);
+	GetMouseGridPosition(vecMousePosition, NULL, CG_TERRAIN);
 
 	if (iButton == GLFW_MOUSE_BUTTON_2)
 	{
@@ -255,7 +256,7 @@ void CDigitanksWindow::KeyPress(int c)
 		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
 			DigitanksGame()->SetControlMode(MODE_NONE);
 
-		else if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER))
+		else if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
 		{
 			CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
 			DigitanksGame()->EndTurn();

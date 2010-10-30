@@ -299,7 +299,7 @@ void CDigitanksWindow::WindowResize(int w, int h)
 	glfwSwapBuffers();
 }
 
-bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit)
+bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit, int iCollisionGroup)
 {
 	if (!DigitanksGame()->GetTerrain())
 		return false;
@@ -313,7 +313,7 @@ bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit
 
 	Vector vecRay = (vecWorld - vecCameraVector).Normalized();
 
-	return GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit);
+	return GameServer()->GetGame()->TraceLine(vecCameraVector, vecCameraVector+vecRay*1000, vecPoint, pHit, iCollisionGroup);
 }
 
 void CDigitanksWindow::GameOver(bool bPlayerWon)
