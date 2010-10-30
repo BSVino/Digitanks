@@ -36,9 +36,9 @@ void CDigitanksWindow::Layout()
 }
 
 CDigitanksMenu::CDigitanksMenu()
-	: CPanel(0, 0, 300, 460)
+	: CPanel(0, 0, 200, 300)
 {
-	m_pDigitanks = new CLabel(0, 0, 100, 100, "Copyright © 2010, Lunar Workshop\nJorge Rodriguez <jorge@lunarworkshop.net>\n \nhttp://digitanks.com\nhttp://lunarworkshop.net");
+	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS");
 	AddControl(m_pDigitanks);
 
 	m_pDifficulty = new CScrollSelector<int>();
@@ -55,7 +55,7 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pReturnToMenu->SetClickedListener(this, Exit);
 	AddControl(m_pReturnToMenu);
 
-	m_pReturnToGame = new CButton(0, 0, 100, 100, "Return To Game");
+	m_pReturnToGame = new CButton(0, 0, 100, 100, "X");
 	m_pReturnToGame->SetClickedListener(this, Close);
 	AddControl(m_pReturnToGame);
 
@@ -90,26 +90,27 @@ void CDigitanksMenu::Layout()
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 220);
+	m_pDifficultyLabel->SetPos(25, 60);
+	m_pDifficultyLabel->SetVisible(!CNetwork::IsConnected());
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 220);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 60);
+	m_pDifficulty->SetVisible(!CNetwork::IsConnected());
 
-	m_pSaveGame->SetPos(100, 300);
+	m_pSaveGame->SetPos(50, 130);
 	m_pSaveGame->SetSize(100, 20);
 
-	m_pLoadGame->SetPos(100, 330);
+	m_pLoadGame->SetPos(50, 160);
 	m_pLoadGame->SetSize(100, 20);
 
-	m_pReturnToMenu->SetPos(100, 360);
+	m_pReturnToMenu->SetPos(50, 210);
 	m_pReturnToMenu->SetSize(100, 20);
-	m_pReturnToMenu->SetVisible(!!GameServer());
 
-	m_pReturnToGame->SetPos(100, 390);
-	m_pReturnToGame->SetSize(100, 20);
-	m_pReturnToGame->SetVisible(!!GameServer());
+	m_pReturnToGame->SetPos(GetWidth()-20, 10);
+	m_pReturnToGame->SetSize(10, 10);
+	m_pReturnToGame->SetButtonColor(Color(255, 0, 0));
 
-	m_pExit->SetPos(100, 420);
+	m_pExit->SetPos(50, 250);
 	m_pExit->SetSize(100, 20);
 
 	BaseClass::Layout();
@@ -145,7 +146,11 @@ void CDigitanksMenu::CloseCallback()
 
 void CDigitanksMenu::SaveCallback()
 {
-	CGameServer::SaveToFile(L"digitanks.sav");
+	wchar_t* pszFilename = SaveFileDialog(L"Save Games *.sav\0*.sav\0");
+	if (!pszFilename)
+		return;
+
+	CGameServer::SaveToFile(pszFilename);
 }
 
 void CDigitanksMenu::LoadCallback()
@@ -153,7 +158,11 @@ void CDigitanksMenu::LoadCallback()
 	if (!GameServer())
 		CDigitanksWindow::Get()->CreateGame(GAMETYPE_EMPTY);
 
-	if (CGameServer::LoadFromFile(L"digitanks.sav"))
+	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
+	if (!pszFilename)
+		return;
+
+	if (CGameServer::LoadFromFile(pszFilename))
 		SetVisible(false);
 	else
 	{

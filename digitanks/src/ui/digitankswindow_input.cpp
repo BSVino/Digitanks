@@ -206,6 +206,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 void CDigitanksWindow::MouseWheel(int iState)
 {
+	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+		return;
+
 	static int iOldState = 0;
 
 	if (GameServer() && GameServer()->GetCamera())
