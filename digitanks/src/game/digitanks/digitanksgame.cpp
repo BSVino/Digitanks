@@ -1417,7 +1417,7 @@ void CDigitanksGame::ClientEnterGame()
 	{
 		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
 		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
-		GetDigitanksCamera()->SnapDistance(40);
+		GetDigitanksCamera()->SnapDistance(60);
 	}
 	else if (m_eGameType == GAMETYPE_TUTORIAL)
 	{

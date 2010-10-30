@@ -1,6 +1,8 @@
 #include "menu.h"
 
 #include <GL/glfw.h>
+#include <iostream>
+#include <fstream>
 
 #include <platform.h>
 
@@ -14,7 +16,7 @@
 using namespace glgui;
 
 CMainMenu::CMainMenu()
-	: CPanel(0, 0, 310, 520)
+	: CPanel(0, 0, 310, 620)
 {
 	m_pTutorial = new CButton(0, 0, 100, 100, "Tutorials");
 	m_pTutorial->SetClickedListener(this, OpenTutorialsPanel);
@@ -44,6 +46,16 @@ CMainMenu::CMainMenu()
 	m_pHint = new CLabel(0, 0, 100, 100, "");
 	AddControl(m_pHint);
 
+	m_pShowCredits = new CButton(0, 0, 100, 100, "Credits");
+	m_pShowCredits->SetClickedListener(this, Credits);
+	m_pShowCredits->SetFontFaceSize(11);
+	AddControl(m_pShowCredits);
+
+	m_pCredits = new CLabel(0, 0, 100, 100, "");
+	m_pCredits->SetFontFaceSize(18);
+	m_pCredits->SetAlign(CLabel::TA_TOPCENTER);
+	AddControl(m_pCredits);
+
 	m_pDockPanel = NULL;
 
 	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
@@ -52,21 +64,21 @@ CMainMenu::CMainMenu()
 
 void CMainMenu::Layout()
 {
-	SetPos(40, 230);
+	SetPos(40, 130);
 
-	m_pTutorial->SetPos(20, 20);
+	m_pTutorial->SetPos(20, 120);
 	m_pTutorial->SetSize(270, 80);
 
-	m_pPlay->SetPos(20, 120);
+	m_pPlay->SetPos(20, 220);
 	m_pPlay->SetSize(270, 80);
 
-	m_pMultiplayer->SetPos(20, 220);
+	m_pMultiplayer->SetPos(20, 320);
 	m_pMultiplayer->SetSize(270, 80);
 
-	m_pOptions->SetPos(20, 320);
+	m_pOptions->SetPos(20, 420);
 	m_pOptions->SetSize(270, 80);
 
-	m_pQuit->SetPos(20, 420);
+	m_pQuit->SetPos(20, 520);
 	m_pQuit->SetSize(270, 80);
 
 	if (m_pDockPanel)
@@ -75,10 +87,25 @@ void CMainMenu::Layout()
 		m_pDockPanel->SetPos(390, 30);
 	}
 
-	m_pHint->SetPos(375, 340);
+	m_pHint->SetPos(375, 440);
 	m_pHint->SetSize(350, 160);
 
+	m_pShowCredits->SetPos(130, 80);
+	m_pShowCredits->SetSize(50, 20);
+
+	m_pCredits->SetVisible(false);
+
 	BaseClass::Layout();
+}
+
+void CMainMenu::Think()
+{
+	BaseClass::Think();
+
+	m_flCreditsRoll += GameServer()->GetFrameTime()*30;
+	int x, y;
+	GetAbsPos(x, y);
+	m_pCredits->SetPos(370 - x, (int)(CDigitanksWindow::Get()->GetWindowHeight() - y - m_flCreditsRoll));
 }
 
 void CMainMenu::Paint(int x, int y, int w, int h)
@@ -95,8 +122,9 @@ void CMainMenu::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
 		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 350, 730);
+		if (!m_pCredits->IsVisible())
+			CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
 	}
 }
 
@@ -109,6 +137,8 @@ void CMainMenu::SetVisible(bool bVisible)
 		GetDockPanel()->SetVisible(bVisible);
 		m_pHint->SetText("");
 	}
+
+	m_pCredits->SetVisible(false);
 }
 
 void CMainMenu::OpenTutorialsPanelCallback()
@@ -116,6 +146,8 @@ void CMainMenu::OpenTutorialsPanelCallback()
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CTutorialsPanel());
 	pDock->SetVisible(true);
+
+	m_pCredits->SetVisible(false);
 }
 
 void CMainMenu::OpenGamesPanelCallback()
@@ -123,6 +155,8 @@ void CMainMenu::OpenGamesPanelCallback()
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CGamesPanel());
 	pDock->SetVisible(true);
+
+	m_pCredits->SetVisible(false);
 }
 
 void CMainMenu::OpenMultiplayerPanelCallback()
@@ -130,6 +164,8 @@ void CMainMenu::OpenMultiplayerPanelCallback()
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CMultiplayerPanel());
 	pDock->SetVisible(true);
+
+	m_pCredits->SetVisible(false);
 }
 
 void CMainMenu::OpenOptionsPanelCallback()
@@ -137,11 +173,42 @@ void CMainMenu::OpenOptionsPanelCallback()
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new COptionsPanel());
 	pDock->SetVisible(true);
+
+	m_pCredits->SetVisible(false);
 }
 
 void CMainMenu::QuitCallback()
 {
 	CDigitanksWindow::Get()->CloseApplication();
+}
+
+void CMainMenu::CreditsCallback()
+{
+	std::ifstream i;
+	i.open("credits.txt");
+	std::string sCredits;
+	if (i.is_open())
+	{
+		while (i.good())
+		{
+			std::string sLine;
+			getline(i, sLine);
+			if (sLine.length())
+				sCredits.append(sLine);
+			else
+				sCredits.append(" ");	// The text render skips empty lines
+			sCredits.append("\n");
+		}
+	}
+
+	m_pCredits->SetText(sCredits.c_str());
+
+	m_pCredits->SetSize(CDigitanksWindow::Get()->GetWindowWidth()-m_pCredits->GetLeft()-40, 9999);
+	m_pCredits->SetVisible(true);
+	m_flCreditsRoll = 0;
+
+	GetDockPanel()->SetVisible(false);
+	m_pHint->SetText("");
 }
 
 CDockPanel* CMainMenu::GetDockPanel()

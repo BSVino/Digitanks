@@ -229,6 +229,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
+	virtual void					Think();
 	virtual void					Paint(int x, int y, int w, int h);
 
 	virtual void					SetVisible(bool bVisible);
@@ -238,6 +239,7 @@ public:
 	EVENT_CALLBACK(CMainMenu,		OpenMultiplayerPanel);
 	EVENT_CALLBACK(CMainMenu,		OpenOptionsPanel);
 	EVENT_CALLBACK(CMainMenu,		Quit);
+	EVENT_CALLBACK(CMainMenu,		Credits);
 
 	CDockPanel*						GetDockPanel();
 
@@ -252,10 +254,15 @@ protected:
 
 	glgui::CLabel*					m_pHint;
 
+	glgui::CButton*					m_pShowCredits;
+	glgui::CLabel*					m_pCredits;
+
 	CDockPanel*						m_pDockPanel;
 
 	size_t							m_iLunarWorkshop;
 	size_t							m_iDigitanks;
+
+	float							m_flCreditsRoll;
 };
 
 #endif
