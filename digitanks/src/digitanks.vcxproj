@@ -99,6 +99,7 @@
     <ClCompile Include="game\digitanks\scout.cpp" />
     <ClCompile Include="game\digitanks\updates.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
+    <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="register.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />

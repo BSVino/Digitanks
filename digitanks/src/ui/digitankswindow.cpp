@@ -156,9 +156,10 @@ CDigitanksWindow::~CDigitanksWindow()
 
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
-	CSoundLibrary::StopMusic();
+	if (eGameType != GAMETYPE_MENU)
+		CSoundLibrary::StopMusic();
 
-	mtsrand((size_t)glfwGetTime());
+	mtsrand((size_t)time(NULL));
 
 	if (GameServer())
 		GameServer()->Initialize();
@@ -237,9 +238,6 @@ void CDigitanksWindow::Run()
 		m_pMainMenu->SetVisible(false);
 		m_pPurchase->OpeningApplication();
 	}
-
-	if (!HasCommandLineSwitch("--nomusic"))
-		CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
 
 	while (glfwGetWindowParam( GLFW_OPENED ))
 	{

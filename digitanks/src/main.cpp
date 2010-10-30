@@ -5,8 +5,12 @@
 #include <Windows.h>
 #endif
 
+extern void RunIntro();
+
 void CreateApplication(int argc, char** argv)
 {
+	RunIntro();
+
 	CDigitanksWindow oWindow(argc, argv);
 
 	oWindow.Run();

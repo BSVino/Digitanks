@@ -234,6 +234,9 @@
     <ClCompile Include="..\..\license\license.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="intro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
