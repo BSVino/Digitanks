@@ -76,8 +76,8 @@ Vector CMenuMarcher::GetRenderOrigin() const
 {
 	float flLerp = 0;
 	
-	float flScale = fabs(fmod(GameServer()->GetGameTime()+m_flBobOffset, 4)-2)/2;
-	flLerp = SLerp(flScale, 0.2f);
+	float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
+	flLerp = SLerp(flOscillate, 0.2f);
 
 	return GetOrigin() + Vector(0, 1 + flLerp*0.5f, 0);
 }

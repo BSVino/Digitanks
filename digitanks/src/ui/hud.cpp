@@ -423,7 +423,7 @@ void CHUD::Think()
 		{
 			float flRamp = 1;
 			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
-				flRamp = fabs(fmod(GameServer()->GetGameTime(), 2)-1);
+				flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 		}
 	}
@@ -460,7 +460,7 @@ void CHUD::Think()
 
 	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
 	if (m_bUpdatesBlinking)
-		m_pUpdatesButton->SetAlpha((int)(RemapVal(Blink(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1)*255));
+		m_pUpdatesButton->SetAlpha((int)(RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1)*255));
 	else
 		m_pUpdatesButton->SetAlpha(255);
 

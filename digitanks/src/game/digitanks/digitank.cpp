@@ -1955,8 +1955,8 @@ Vector CDigitank::GetRenderOrigin() const
 	
 	if (!IsFortified() && !IsFortifying())
 	{
-		float flScale = fabs(fmod(GameServer()->GetGameTime()+m_flBobOffset, 4)-2)/2;
-		flLerp = SLerp(flScale, 0.2f);
+		float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
+		flLerp = SLerp(flOscillate, 0.2f);
 	}
 
 	return GetOrigin() + Vector(0, 1 + flLerp*BobHeight(), 0);
