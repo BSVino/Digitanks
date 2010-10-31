@@ -35,8 +35,9 @@ public:
 	static void				StopSound(CBaseEntity* pEntity = NULL, const char* pszFilename = NULL);
 	static bool				IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename);
 
-	static void				PlayMusic(const char* pszFilename);
+	static void				PlayMusic(const char* pszFilename, bool bLoop = false);
 	static void				StopMusic();
+	static bool				IsMusicPlaying();
 
 	static void				SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume);
 

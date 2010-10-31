@@ -159,6 +159,14 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	if (eGameType != GAMETYPE_MENU)
 		CSoundLibrary::StopMusic();
 
+	if (eGameType == GAMETYPE_MENU)
+	{
+		if (!CSoundLibrary::IsMusicPlaying() && !HasCommandLineSwitch("--no-music"))
+			CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
+	}
+	else
+		CSoundLibrary::PlayMusic("sound/network-rise-network-fall.ogg", true);
+
 	mtsrand((size_t)time(NULL));
 
 	std::string sHost;
@@ -228,6 +236,8 @@ void CDigitanksWindow::DestroyGame()
 	m_pGameServer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
+
+	CSoundLibrary::StopMusic();
 }
 
 void CDigitanksWindow::Run()
