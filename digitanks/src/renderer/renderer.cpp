@@ -566,9 +566,9 @@ CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bD
 
 void CRenderer::CreateNoise()
 {
-	CSimplexNoise n1(0);
-	CSimplexNoise n2(1);
-	CSimplexNoise n3(2);
+	CSimplexNoise n1(mtrand()+0);
+	CSimplexNoise n2(mtrand()+1);
+	CSimplexNoise n3(mtrand()+2);
 
 	float flSpaceFactor1 = 0.1f;
 	float flHeightFactor1 = 0.5f;
