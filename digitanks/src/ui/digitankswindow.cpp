@@ -161,25 +161,19 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 	mtsrand((size_t)time(NULL));
 
-	if (GameServer())
-		GameServer()->Initialize();
-
+	std::string sHost;
+	sHost.assign(m_sConnectHost.begin(), m_sConnectHost.end());
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
-	if (eGameType != GAMETYPE_MENU)
+	if (GameServer())
 	{
-		if (m_eServerType == SERVER_HOST)
-			CNetwork::CreateHost(iPort);
-
-		if (m_eServerType == SERVER_CLIENT)
-		{
-			std::string sHost;
-			sHost.assign(m_sConnectHost.begin(), m_sConnectHost.end());
-			CNetwork::ConnectToHost(sHost.c_str(), iPort);
-			if (!CNetwork::IsConnected())
-				return;
-		}
+		GameServer()->SetConnectHost(sHost);
+		GameServer()->SetServerType(m_eServerType);
+		if (eGameType == GAMETYPE_MENU)
+			GameServer()->SetServerType(SERVER_LOCAL);
+		GameServer()->SetServerPort(iPort);
+		GameServer()->Initialize();
 	}
 
 	if (!m_pGameServer)
@@ -187,7 +181,14 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		m_pHUD = new CHUD();
 
 		m_pGameServer = new CGameServer();
-		m_pGameServer->Initialize();
+
+		GameServer()->SetConnectHost(sHost);
+		GameServer()->SetServerType(m_eServerType);
+		if (eGameType == GAMETYPE_MENU)
+			GameServer()->SetServerType(SERVER_LOCAL);
+		GameServer()->SetServerPort(iPort);
+		GameServer()->Initialize();
+
 		CNetwork::SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
 
 		glgui::CRootPanel::Get()->AddControl(m_pHUD);

@@ -79,7 +79,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, actionitem_t, m_aActionItems);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bAllowActionItems);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bPartyMode);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bPartyMode);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
 SAVEDATA_TABLE_END();
 
@@ -236,9 +236,6 @@ void CDigitanksGame::ScatterProps()
 	{
 		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)
 		{
-			if (rand()%2 == 0)
-				continue;
-
 			float x = RandomFloat((float)i, (float)i+100);
 			float z = RandomFloat((float)j, (float)j+100);
 
@@ -1435,6 +1432,7 @@ void CDigitanksGame::ClientEnterGame()
 		GetDigitanksCamera()->SnapDistance(120);
 	}
 
+	CDigitanksWindow::Get()->GetHUD()->ClientEnterGame();
 	glgui::CRootPanel::Get()->Layout();
 }
 

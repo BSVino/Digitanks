@@ -49,8 +49,8 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLKV);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLKV);
 
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCurrentUpdateX);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCurrentUpdateY);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateX);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abUpdates);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUpdateDownloaded);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);

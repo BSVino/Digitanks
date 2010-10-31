@@ -474,11 +474,11 @@ CMultiplayerPanel::CMultiplayerPanel()
 		AddControl(m_pStrategy);
 	}
 
-//	m_pLoad = new CButton(0, 0, 100, 100, "Load");
-//	m_pLoad->SetClickedListener(this, Load);
-//	m_pLoad->SetCursorInListener(this, LoadHint);
-//	m_pLoad->SetFontFaceSize(18);
-//	AddControl(m_pLoad);
+	m_pLoad = new CButton(0, 0, 100, 100, "Load");
+	m_pLoad->SetClickedListener(this, Load);
+	m_pLoad->SetCursorInListener(this, LoadHint);
+	m_pLoad->SetFontFaceSize(18);
+	AddControl(m_pLoad);
 
 	m_pDockPanel = new CDockPanel();
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 255));
@@ -499,8 +499,8 @@ void CMultiplayerPanel::Layout()
 		m_pStrategy->SetSize(135, 40);
 	}
 
-//	m_pLoad->SetPos(20, GetHeight() - 60);
-//	m_pLoad->SetSize(135, 40);
+	m_pLoad->SetPos(20, GetHeight() - 60);
+	m_pLoad->SetSize(135, 40);
 
 	m_pDockPanel->SetSize(GetWidth() - 20 - 135 - 20 - 20, GetHeight() - 40);
 	m_pDockPanel->SetPos(20 + 135 + 20, 20);
@@ -528,6 +528,8 @@ void CMultiplayerPanel::LoadCallback()
 	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
 	if (!pszFilename)
 		return;
+
+	GameServer()->SetServerType(SERVER_HOST);
 
 	if (CGameServer::LoadFromFile(pszFilename))
 		CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);

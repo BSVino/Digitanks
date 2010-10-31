@@ -768,6 +768,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 //	}
 }
 
+void CHUD::ClientEnterGame()
+{
+	UpdateInfo();
+	UpdateTeamInfo();
+	UpdateScoreboard();
+	UpdateTurnButton();
+	SetupMenu();
+
+	m_pPressEnter->SetText("");
+}
+
 void CHUD::UpdateInfo()
 {
 	if (!DigitanksGame())

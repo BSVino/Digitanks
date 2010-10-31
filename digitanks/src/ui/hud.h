@@ -122,6 +122,8 @@ public:
 
 	void						Paint(int x, int y, int w, int h);
 
+	void						ClientEnterGame();
+
 	void						UpdateInfo();
 	void						UpdateTankInfo(CDigitank* pTank);
 	void						UpdateStructureInfo(CStructure* pStructure);

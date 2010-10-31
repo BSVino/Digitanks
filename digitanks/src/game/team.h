@@ -15,6 +15,8 @@ public:
 								~CTeam();
 
 public:
+	virtual bool				OnUnserialize(std::istream& i);
+
 	void						AddEntity(CBaseEntity* pEntity);
 	virtual void				OnAddEntity(CBaseEntity* pEntity) {};
 

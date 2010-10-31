@@ -8,13 +8,6 @@
 
 #include <game/digitanks/digitanksgame.h>
 
-typedef enum
-{
-	SERVER_LOCAL,
-	SERVER_HOST,
-	SERVER_CLIENT,
-} servertype_t;
-
 class CDigitanksWindow
 {
 public:
@@ -122,7 +115,6 @@ protected:
 	int							m_iTanks;
 
 	servertype_t				m_eServerType;
-
 	std::wstring				m_sConnectHost;
 
 	class CGameServer*			m_pGameServer;

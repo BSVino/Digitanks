@@ -80,6 +80,18 @@ void CGameServer::Initialize()
 		m_pCamera = CreateCamera();
 
 	RegisterNetworkFunctions();
+
+	int iPort = m_iPort;
+
+	if (m_eServerType == SERVER_HOST)
+		CNetwork::CreateHost(iPort);
+
+	if (m_eServerType == SERVER_CLIENT)
+	{
+		CNetwork::ConnectToHost(m_sConnectHost.c_str(), iPort);
+		if (!CNetwork::IsConnected())
+			return;
+	}
 }
 
 void CGameServer::RegisterNetworkFunctions()
@@ -296,11 +308,10 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 	if (!GameServer())
 		return false;
 
+	GameServer()->Initialize();
+
 	// Erase all existing entites. We're going to load in new ones!
 	GameServer()->DestroyAllEntities();
-
-	CNetwork::ClearRegisteredFunctions();
-	GameServer()->RegisterNetworkFunctions();
 
 	std::ifstream i;
 	i.open(pFileName, std::ios_base::binary|std::ios_base::in);
@@ -332,6 +343,8 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		CBaseEntity::GetEntityNumber(i)->ClientEnterGame();
+
+	GameServer()->SetLoading(false);
 
 	return true;
 }

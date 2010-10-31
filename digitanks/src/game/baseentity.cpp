@@ -41,7 +41,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CTeam>, m_hTeam);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDeleted);	// Deleted entities are not saved.
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahTouching);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCollisionGroup);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCollisionGroup);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iModel);
 SAVEDATA_TABLE_END();
 
@@ -325,7 +325,32 @@ void CBaseEntity::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
 
 CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
 {
+	if (m_apNetworkVariables.find(pszName) == m_apNetworkVariables.end())
+		return NULL;
+
 	return m_apNetworkVariables[pszName];
+}
+
+void CBaseEntity::CheckTables(char* pszEntity)
+{
+#ifndef _DEBUG
+	return;
+#endif
+
+	CEntityRegistration* pRegistration = GetRegisteredEntity(FindRegisteredEntity(pszEntity));
+
+	std::vector<CSaveData>& aSaveData = pRegistration->m_aSaveData;
+
+	for (size_t i = 0; i < aSaveData.size(); i++)
+	{
+		CNetworkedVariableBase* pVariable = GetNetworkVariable(aSaveData[i].m_pszVariableName);
+		if (aSaveData[i].m_eType == CSaveData::DATA_NETVAR)
+			// I better be finding this in the network tables or yer gon have some 'splainin to do!
+			assert(pVariable);
+		else
+			// I better NOT be finding this in the network tables or yer gon have some 'splainin to do!
+			assert(!pVariable);
+	}
 }
 
 void CBaseEntity::ClientEnterGame()

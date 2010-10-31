@@ -28,6 +28,14 @@ CTeam::~CTeam()
 	}
 }
 
+bool CTeam::OnUnserialize(std::istream& i)
+{
+	if (IsPlayerControlled() && m_iClient >= 0)
+		SetClient(-2);
+
+	return BaseClass::OnUnserialize(i);
+}
+
 void CTeam::AddEntity(CBaseEntity* pEntity)
 {
 	if (!pEntity)

@@ -100,11 +100,13 @@ virtual bool Unserialize(std::istream& i) \
 #define NETVAR_TABLE_BEGIN(entity) \
 void entity::RegisterNetworkVariables() \
 { \
+	char* pszEntity = #entity; \
 	BaseClass::RegisterNetworkVariables(); \
 
 #define NETVAR_TABLE_BEGIN_NOBASE(entity) \
 void entity::RegisterNetworkVariables() \
 { \
+	char* pszEntity = #entity; \
 
 #define NETVAR_DEFINE(type, name) \
 	name.SetName(#name); \
@@ -115,6 +117,7 @@ void entity::RegisterNetworkVariables() \
 	name.SetCallback(callback); \
 
 #define NETVAR_TABLE_END() \
+	CheckTables(pszEntity); \
 } \
 
 #define SAVEDATA_TABLE_BEGIN(entity) \
@@ -252,6 +255,8 @@ public:
 
 	virtual void							OnSerialize(std::ostream& o) {};
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
+
+	void									CheckTables(char* pszEntity);
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	static size_t							GetEntityHandle(size_t i);
