@@ -1200,6 +1200,9 @@ void CHUD::NewCurrentTeam()
 	UpdateScoreboard();
 	ShowFirstActionItem();
 
+	if (CNetwork::IsConnected() && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+		CSoundLibrary::PlaySound(NULL, "sound/lesson-learned.wav");	// No time to make a new sound.
+
 	CRootPanel::Get()->Layout();
 }
 

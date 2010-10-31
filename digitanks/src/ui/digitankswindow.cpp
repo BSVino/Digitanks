@@ -164,7 +164,7 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		if (!CSoundLibrary::IsMusicPlaying() && !HasCommandLineSwitch("--no-music"))
 			CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
 	}
-	else
+	else if (!HasCommandLineSwitch("--no-music"))
 		CSoundLibrary::PlayMusic("sound/network-rise-network-fall.ogg", true);
 
 	mtsrand((size_t)time(NULL));
