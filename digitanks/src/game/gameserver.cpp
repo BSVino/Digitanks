@@ -308,6 +308,8 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 	if (!GameServer())
 		return false;
 
+	CDigitanksWindow::Get()->RenderLoading();
+
 	GameServer()->Initialize();
 
 	// Erase all existing entites. We're going to load in new ones!

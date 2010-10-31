@@ -22,6 +22,8 @@ public:
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 	void						SetConnectHost(const std::wstring sHost) { m_sConnectHost = sHost; };
 
+	void						RenderLoading();
+
 	void						CreateGame(gametype_t eGameType);
 	void						DestroyGame();
 
@@ -104,6 +106,8 @@ protected:
 
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
+
+	size_t						m_iLoading;
 
 	class CMainMenu*			m_pMainMenu;
 	class CDigitanksMenu*		m_pMenu;

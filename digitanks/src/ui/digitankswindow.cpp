@@ -123,6 +123,9 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	if (GLEW_OK != err)
 		exit(0);
 
+	m_iLoading = CRenderer::LoadTextureIntoGL(L"textures/loading.png");
+	RenderLoading();
+
 	CShaderLibrary::CompileShaders();
 
 	InitUI();
@@ -154,8 +157,43 @@ CDigitanksWindow::~CDigitanksWindow()
 	glfwTerminate();
 }
 
+void CDigitanksWindow::RenderLoading()
+{
+	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, m_iWindowWidth, m_iWindowHeight, 0, -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glgui::CRootPanel::PaintTexture(m_iLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();   
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glPopAttrib();
+	glfwSwapBuffers();
+}
+
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
+	RenderLoading();
+
 	if (eGameType != GAMETYPE_MENU)
 		CSoundLibrary::StopMusic();
 
@@ -219,6 +257,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 void CDigitanksWindow::DestroyGame()
 {
+	RenderLoading();
+
 	CNetwork::Disconnect();
 
 	if (m_pGameServer)
@@ -278,10 +318,15 @@ void CDigitanksWindow::Run()
 			// Clear the buffer for the gui.
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-		glgui::CRootPanel::Get()->Think(flTime);
-		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+		if (!GameServer() || GameServer()->IsLoading())
+			RenderLoading();
+		else
+		{
+			glgui::CRootPanel::Get()->Think(flTime);
+			glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
-		glfwSwapBuffers();
+			glfwSwapBuffers();
+		}
 	}
 }
 
