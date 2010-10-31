@@ -658,12 +658,6 @@ void CArtilleryGamePanel::Layout()
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
 
-	if (bMultiplayer)
-	{
-		m_pDifficulty->SetVisible(false);
-		m_pDifficultyLabel->SetVisible(false);
-	}
-
 	m_pPlayersLabel->EnsureTextFits();
 	m_pPlayersLabel->SetPos(75, 180);
 
@@ -715,6 +709,12 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, "Difficulty");
 	m_pDifficultyLabel->SetWrap(false);
 	AddControl(m_pDifficultyLabel);
+
+	if (bMultiplayer)
+	{
+		m_pDifficulty->SetVisible(false);
+		m_pDifficultyLabel->SetVisible(false);
+	}
 
 	m_pPlayers = new CScrollSelector<int>();
 	m_pPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
