@@ -459,6 +459,10 @@ void CHUD::Think()
 	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
 	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
+	if (m_bUpdatesBlinking)
+		m_pUpdatesButton->SetAlpha((int)(RemapVal(Blink(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1)*255));
+	else
+		m_pUpdatesButton->SetAlpha(255);
 
 	m_pScoreboard->SetVisible(DigitanksGame()->ShouldShowScores());
 
@@ -1184,9 +1188,8 @@ void CHUD::NewCurrentTeam()
 				if (bShouldOpen)
 					break;
 			}
-			
-			if (bShouldOpen)
-				m_pUpdatesPanel->SetVisible(true);
+
+			m_bUpdatesBlinking = bShouldOpen;
 		}
 
 		if (!IsRegistered())
@@ -1642,6 +1645,8 @@ void CHUD::OpenUpdatesCallback()
 {
 	if (m_pUpdatesPanel)
 		m_pUpdatesPanel->SetVisible(true);
+
+	m_bUpdatesBlinking = false;
 }
 
 void CHUD::MoveCallback()

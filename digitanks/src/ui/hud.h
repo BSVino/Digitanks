@@ -290,6 +290,7 @@ protected:
 
 	glgui::CPictureButton*		m_pUpdatesButton;
 	CUpdatesPanel*				m_pUpdatesPanel;
+	bool						m_bUpdatesBlinking;
 
 	glgui::CPictureButton*		m_pTurnButton;
 

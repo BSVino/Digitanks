@@ -42,6 +42,11 @@ inline float RemapValClamped(float flInput, float flInLo, float flInHi, float fl
 	return RemapVal(flInput, flInLo, flInHi, flOutLo, flOutHi);
 }
 
+inline float Blink(float flTime, float flLength)
+{
+	return fabs(RemapVal(fmod(flTime, flLength), 0, flLength, -1, 1));
+}
+
 inline float Approach(float flGoal, float flInput, float flAmount)
 {
 	float flDifference = flGoal - flInput;
