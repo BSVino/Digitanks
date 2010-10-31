@@ -220,7 +220,7 @@ public:
 	gametype_t				GetGameType() { return m_eGameType; }
 	size_t					GetTurn() { return m_iTurn; }
 
-	size_t					GetDemoTurns() { return 5; }
+	size_t					GetDemoTurns() { return 50; }
 
 	float					FogPenetrationDistance() { return 10; }
 
