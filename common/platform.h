@@ -1,6 +1,8 @@
 #ifndef _CF_PLATFORM
 #define _CF_PLATFORM
 
+#include <string>
+
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses);
 void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
