@@ -1,3 +1,5 @@
+#include <platform.h>
+
 #include <windows.h>
 #include <iphlpapi.h>
 #include <tchar.h>
@@ -99,7 +101,7 @@ void CreateMinidump(void* pInfo)
 			g_iMinidumpsWritten++
 			);
 
-	HANDLE hFile = CreateFile( szFileName, GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile( GetAppDataDirectory(L"Digitanks", szFileName).c_str(), GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
 	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) )
@@ -232,4 +234,31 @@ void SetClipboard(const std::string& sBuf)
 void ShowMessage(const wchar_t* pszMessage)
 {
 	MessageBox(NULL, pszMessage, L"Digitanks!", MB_OK|MB_ICONINFORMATION);
+}
+
+std::wstring GetAppDataDirectory(const std::wstring& sDirectory, const std::wstring& sFile)
+{
+	size_t iSize;
+	_wgetenv_s(&iSize, NULL, 0, L"APPDATA");
+
+	std::wstring sSuffix;
+	sSuffix.append(sDirectory).append(L"\\").append(sFile);
+
+	if (!iSize)
+		return sSuffix;
+
+	wchar_t* pszVar = (wchar_t*)malloc(iSize * sizeof(wchar_t));
+	if (!pszVar)
+		return sSuffix;
+
+	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
+
+	std::wstring sReturn(pszVar);
+
+	free(pszVar);
+
+	CreateDirectory(std::wstring(sReturn).append(L"\\").append(sDirectory).c_str(), NULL);
+
+	sReturn.append(L"\\").append(sSuffix);
+	return sReturn;
 }

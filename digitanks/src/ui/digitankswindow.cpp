@@ -28,7 +28,7 @@
 
 CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
 
-ConfigFile c( "options.cfg" );
+ConfigFile c( GetAppDataDirectory(L"Digitanks", L"options.cfg") );
 
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 {
@@ -170,12 +170,12 @@ void CDigitanksWindow::DumpGLInfo()
 {
 	glewInit();
 
-	std::ifstream i("glinfo.txt");
+	std::ifstream i(GetAppDataDirectory(L"Digitanks", L"glinfo.txt"));
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o("glinfo.txt");
+	std::ofstream o(GetAppDataDirectory(L"Digitanks", L"glinfo.txt"));
 	if (!o || !o.is_open())
 		return;
 
@@ -544,7 +544,7 @@ void CDigitanksWindow::SaveConfig()
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
 	std::ofstream o;
-	o.open("options.cfg", std::ios_base::out);
+	o.open(GetAppDataDirectory(L"Digitanks", L"options.cfg"), std::ios_base::out);
 	o << c;
 }
 

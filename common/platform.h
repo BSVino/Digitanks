@@ -14,5 +14,6 @@ wchar_t* SaveFileDialog(wchar_t* pszFileTypes);
 std::string GetClipboard();
 void SetClipboard(const std::string& sBuf);
 void ShowMessage(const wchar_t* pszMessage);
+std::wstring GetAppDataDirectory(const std::wstring& sDirectory, const std::wstring& sFile);
 
 #endif

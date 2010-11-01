@@ -50,6 +50,7 @@
 #include <sstream>
 
 using std::string;
+using std::wstring;
 
 class ConfigFile {
 // Data
@@ -66,7 +67,7 @@ protected:
 
 // Methods
 public:
-	ConfigFile( string filename,
+	ConfigFile( wstring filename,
 	            string delimiter = "=",
 	            string comment = "#",
 				string sentry = "EndConfigFile" );

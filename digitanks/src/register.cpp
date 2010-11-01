@@ -7,6 +7,7 @@
 #include <license.h>
 #include <configfile.h>
 #include <mtrand.h>
+#include <platform.h>
 
 #ifdef _WIN32
 #include "winsock2.h"
@@ -15,7 +16,7 @@
 #define closesocket close
 #endif
 
-ConfigFile r( "reg.cfg" );
+ConfigFile r( GetAppDataDirectory(L"Digitanks", L"reg.cfg") );
 std::string g_sCode;
 std::string g_sKey;
 
@@ -33,18 +34,18 @@ void SaveProductCode()
 
 	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
 #ifdef _WIN32
-	SetFileAttributes(L"reg.cfg", FILE_ATTRIBUTE_NORMAL);
+	SetFileAttributes(GetAppDataDirectory(L"Digitanks", L"reg.cfg").c_str(), FILE_ATTRIBUTE_NORMAL);
 #endif
 
 	do
 	{
 		std::ofstream o;
-		o.open("reg.cfg", std::ios_base::out);
+		o.open(GetAppDataDirectory(L"Digitanks", L"reg.cfg"), std::ios_base::out);
 		o << r;
 	} while (false);
 
 #ifdef _WIN32
-	SetFileAttributes(L"reg.cfg", FILE_ATTRIBUTE_HIDDEN);
+	SetFileAttributes(GetAppDataDirectory(L"Digitanks", L"reg.cfg").c_str(), FILE_ATTRIBUTE_HIDDEN);
 #endif
 }
 

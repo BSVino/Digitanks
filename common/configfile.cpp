@@ -4,7 +4,7 @@
 
 using std::string;
 
-ConfigFile::ConfigFile( string filename, string delimiter,
+ConfigFile::ConfigFile( wstring filename, string delimiter,
                         string comment, string sentry )
 	: myDelimiter(delimiter), myComment(comment), mySentry(sentry)
 {
