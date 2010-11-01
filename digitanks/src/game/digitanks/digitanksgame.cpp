@@ -899,7 +899,7 @@ void CDigitanksGame::StartTurn()
 	if (!CNetwork::IsHost())
 		return;
 
-	if (GetGameType() != GAMETYPE_ARTILLERY && !IsRegistered() && GetTurn() > GetDemoTurns())
+	if (GetGameType() == GAMETYPE_STANDARD && !IsRegistered() && GetTurn() > GetDemoTurns())
 	{
 		GameServer()->Halt();
 		return;

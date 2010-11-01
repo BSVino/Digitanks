@@ -1192,12 +1192,14 @@ void CHUD::NewCurrentTeam()
 			m_bUpdatesBlinking = bShouldOpen;
 		}
 
-		if (!IsRegistered())
+		if (!IsRegistered() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
 			std::wstringstream s;
 			s << "Demo turns left: " << DigitanksGame()->GetDemoTurns() - DigitanksGame()->GetTurn();
 			m_pDemoNotice->SetText(s.str().c_str());
 		}
+		else
+			m_pDemoNotice->SetText("");
 	}
 
 	UpdateScoreboard();
