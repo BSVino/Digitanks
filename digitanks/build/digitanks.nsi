@@ -62,6 +62,13 @@ Section "Start Menu Shortcuts"
   
 SectionEnd
 
+; Optional section (can be disabled by the user)
+Section "Desktop Shortcut"
+
+  CreateShortCut "$DESKTOP\Digitanks.lnk" "$INSTDIR\digitanks.exe" "" "$INSTDIR\digitanks.exe" 0
+
+SectionEnd
+
 ;--------------------------------
 
 ; Uninstaller
