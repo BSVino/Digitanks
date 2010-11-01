@@ -10,6 +10,9 @@
 CCamera::CCamera()
 {
 	m_bFreeMode = false;
+
+	m_iMouseLastX = 0;
+	m_iMouseLastY = 0;
 }
 
 void CCamera::Think()
@@ -49,10 +52,15 @@ Vector CCamera::GetCameraTarget()
 
 void CCamera::MouseInput(int x, int y)
 {
+	int dx, dy;
+
+	dx = x - m_iMouseLastX;
+	dy = y - m_iMouseLastY;
+
 	if (m_bFreeMode)
 	{
-		m_angFreeCamera.y += (x/5.0f);
-		m_angFreeCamera.p -= (y/5.0f);
+		m_angFreeCamera.y += (dx/5.0f);
+		m_angFreeCamera.p -= (dy/5.0f);
 
 		if (m_angFreeCamera.p > 89)
 			m_angFreeCamera.p = 89;
@@ -66,6 +74,9 @@ void CCamera::MouseInput(int x, int y)
 		while (m_angFreeCamera.y < -180)
 			m_angFreeCamera.y += 360;
 	}
+
+	m_iMouseLastX = x;
+	m_iMouseLastY = y;
 }
 
 void CCamera::KeyDown(int c)

@@ -202,6 +202,7 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	MusicVolumeChanged);
 	EVENT_CALLBACK(COptionsPanel,	VideoModeChosen);
 	EVENT_CALLBACK(COptionsPanel,	WindowedChanged);
+	EVENT_CALLBACK(COptionsPanel,	ConstrainChanged);
 
 protected:
 	glgui::CScrollSelector<float>*	m_pSoundVolume;
@@ -214,6 +215,9 @@ protected:
 
 	glgui::CCheckBox*				m_pWindowed;
 	glgui::CLabel*					m_pWindowedLabel;
+
+	glgui::CCheckBox*				m_pConstrain;
+	glgui::CLabel*					m_pConstrainLabel;
 
 	glgui::CLabel*					m_pVideoChangedNotice;
 };

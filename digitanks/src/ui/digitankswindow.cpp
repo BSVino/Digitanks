@@ -1,5 +1,9 @@
 #include "digitankswindow.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <assert.h>
 #include <GL/glew.h>
 #include <GL/glfw.h>
@@ -46,12 +50,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_bBoxSelect = false;
 	m_bCheatsOn = false;
 
-	m_iMouseStartX = 0;
-	m_iMouseStartY = 0;
+	m_iMouseLastX = 0;
+	m_iMouseLastY = 0;
 
 	glfwInit();
-
-	bool bFullscreen;
 
 	int iScreenWidth;
 	int iScreenHeight;
@@ -63,7 +65,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowWidth = c.read<int>("width", 1024);
 		m_iWindowHeight = c.read<int>("height", 768);
 
-		bFullscreen = m_bFullscreen = !c.read<bool>("windowed", false);
+		m_bFullscreen = m_bCfgFullscreen = !c.read<bool>("windowed", false);
+		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
 
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
 		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
@@ -74,11 +77,12 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowHeight = iScreenHeight*2/3;
 
 #ifdef _DEBUG
-		bFullscreen = false;
+		m_bFullscreen = false;
 #else
-		bFullscreen = true;
-#endif
 		m_bFullscreen = true;
+#endif
+		m_bCfgFullscreen = true;
+		m_bConstrainMouse = true;
 
 		SetSoundVolume(0.8f);
 		SetMusicVolume(0.8f);
@@ -91,22 +95,25 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowHeight = 768;
 
 	if (HasCommandLineSwitch("--fullscreen"))
-		bFullscreen = true;
+		m_bFullscreen = true;
 
 	if (HasCommandLineSwitch("--windowed"))
-		bFullscreen = false;
+		m_bFullscreen = false;
 
 	glfwEnable( GLFW_MOUSE_CURSOR );
 
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
-	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
+	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
 	{
 		glfwTerminate();
 		return;
 	}
 
 	glfwSetWindowTitle( "Digitanks!" );
-	glfwSetWindowPos((int)(iScreenWidth/2-m_iWindowWidth/2), (int)(iScreenHeight/2-m_iWindowHeight/2));
+
+	int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
+	int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
+	glfwSetWindowPos(iWindowX, iWindowY);
 
 	glfwSetWindowSizeCallback(&CDigitanksWindow::WindowResizeCallback);
 	glfwSetKeyCallback(&CDigitanksWindow::KeyEventCallback);
@@ -436,6 +443,8 @@ void CDigitanksWindow::Run()
 
 	while (glfwGetWindowParam( GLFW_OPENED ))
 	{
+		ConstrainMouse();
+
 		if (GameServer()->IsHalting())
 		{
 			DestroyGame();
@@ -472,6 +481,38 @@ void CDigitanksWindow::Run()
 			glfwSwapBuffers();
 		}
 	}
+}
+
+void CDigitanksWindow::ConstrainMouse()
+{
+#ifdef _WIN32
+	if (IsFullscreen())
+		return;
+
+	HWND hWindow = FindWindow(NULL, L"Digitanks!");
+
+	if (!hWindow)
+		return;
+
+	HWND hActiveWindow = GetActiveWindow();
+	if (ShouldConstrainMouse() && hActiveWindow == hWindow && GameServer() && !GameServer()->IsLoading() && DigitanksGame()->GetGameType() != GAMETYPE_MENU && !GetMenu()->IsVisible())
+	{
+		RECT rc;
+		GetClientRect(hWindow, &rc);
+
+		// Convert the client area to screen coordinates.
+		POINT pt = { rc.left, rc.top };
+		POINT pt2 = { rc.right, rc.bottom };
+		ClientToScreen(hWindow, &pt);
+		ClientToScreen(hWindow, &pt2);
+		SetRect(&rc, pt.x, pt.y, pt2.x, pt2.y);
+
+		// Confine the cursor.
+		ClipCursor(&rc);
+	}
+	else
+		ClipCursor(NULL);
+#endif
 }
 
 void CDigitanksWindow::Render()
@@ -540,7 +581,8 @@ void CDigitanksWindow::SaveConfig()
 {
 	c.add<float>("soundvolume", GetSoundVolume());
 	c.add<float>("musicvolume", GetMusicVolume());
-	c.add<bool>("windowed", !m_bFullscreen);
+	c.add<bool>("windowed", !m_bCfgFullscreen);
+	c.add<bool>("constrainmouse", m_bConstrainMouse);
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
 	std::ofstream o;

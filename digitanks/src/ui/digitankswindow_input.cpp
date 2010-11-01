@@ -27,10 +27,10 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 		return;
 
 	if (GameServer() && GameServer()->GetCamera())
-		GameServer()->GetCamera()->MouseInput(x-m_iMouseStartX, y-m_iMouseStartY);
+		GameServer()->GetCamera()->MouseInput(x, y);
 
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-		m_iMouseMoved += (int)(fabs((float)x-m_iMouseStartX) + fabs((float)y-m_iMouseStartY));
+		m_iMouseMoved += (int)(fabs((float)x-m_iMouseLastX) + fabs((float)y-m_iMouseLastY));
 
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
@@ -38,8 +38,8 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 		m_iMouseCurrentY = y;
 	}
 
-	m_iMouseStartX = x;
-	m_iMouseStartY = y;
+	m_iMouseLastX = x;
+	m_iMouseLastY = y;
 }
 
 void CDigitanksWindow::MouseInput(int iButton, int iState)

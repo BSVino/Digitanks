@@ -31,6 +31,8 @@ public:
 
 	void						Run();	// Doesn't return
 
+	void						ConstrainMouse();
+
 	void						Layout();
 
 	static void					RenderCallback() { Get()->Render(); };
@@ -71,9 +73,14 @@ public:
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 
+	int							GetMouseCurrentX() { return m_iMouseCurrentX; };
+	int							GetMouseCurrentY() { return m_iMouseCurrentX; };
+
 	void						SetConfigWindowDimensions(int iWidth, int iHeight) { m_iCfgWidth = iWidth; m_iCfgHeight = iHeight; };
-	void						SetFullscreen(bool bFullscreen) { m_bFullscreen = bFullscreen; };
+	void						SetConfigFullscreen(bool bFullscreen) { m_bCfgFullscreen = bFullscreen; };
 	bool						IsFullscreen() { return m_bFullscreen; };
+	void						SetConstrainMouse(bool bConstrain) { m_bConstrainMouse = bConstrain; };
+	bool						ShouldConstrainMouse() { return m_bConstrainMouse; };
 
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
@@ -103,11 +110,12 @@ public:
 	static CDigitanksWindow*	Get() { return s_pDigitanksWindow; };
 
 protected:
-	int							m_iMouseStartX;
-	int							m_iMouseStartY;
+	int							m_iMouseLastX;
+	int							m_iMouseLastY;
 
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
+	bool						m_bFullscreen;
 
 	size_t						m_iLoading;
 
@@ -145,9 +153,10 @@ protected:
 
 	bool						m_bCheatsOn;
 
-	bool						m_bFullscreen;
+	bool						m_bCfgFullscreen;
 	int							m_iCfgWidth;
 	int							m_iCfgHeight;
+	bool						m_bConstrainMouse;
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;

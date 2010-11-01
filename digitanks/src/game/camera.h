@@ -27,6 +27,9 @@ public:
 	Vector			m_vecFreeCamera;
 	EAngle			m_angFreeCamera;
 	Vector			m_vecFreeVelocity;
+
+	int				m_iMouseLastX;
+	int				m_iMouseLastY;
 };
 
 #endif

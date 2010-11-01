@@ -18,6 +18,8 @@ CDigitanksCamera::CDigitanksCamera()
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
 	m_flShakeMagnitude = 0;
+
+	m_bMouseDragLeft = m_bMouseDragRight = m_bMouseDragUp = m_bMouseDragDown = false;
 }
 
 void CDigitanksCamera::SetTarget(Vector vecTarget)
@@ -202,10 +204,15 @@ Vector CDigitanksCamera::GetCameraTarget()
 
 void CDigitanksCamera::MouseInput(int x, int y)
 {
+	int dx, dy;
+
+	dx = x - m_iMouseLastX;
+	dy = y - m_iMouseLastY;
+
 	if (m_bRotatingCamera)
 	{
-		m_angCamera.y += (x/5.0f);
-		m_angCamera.p += (y/5.0f);
+		m_angCamera.y += (dx/5.0f);
+		m_angCamera.p += (dy/5.0f);
 
 		if (m_angCamera.p > 89)
 			m_angCamera.p = 89;
@@ -218,6 +225,58 @@ void CDigitanksCamera::MouseInput(int x, int y)
 
 		while (m_angCamera.y < -180)
 			m_angCamera.y += 360;
+	}
+
+	if (!m_bMouseDragLeft && x < 30)
+	{
+		m_bMouseDragLeft = true;
+		m_vecGoalVelocity.z = 80.0f;
+	}
+
+	if (m_bMouseDragLeft && x > 30)
+	{
+		m_bMouseDragLeft = false;
+		m_vecGoalVelocity.z = 0;
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+	}
+
+	if (!m_bMouseDragUp && y < 30)
+	{
+		m_bMouseDragUp = true;
+		m_vecGoalVelocity.x = -80.0f;
+	}
+
+	if (m_bMouseDragUp && y > 30)
+	{
+		m_bMouseDragUp = false;
+		m_vecGoalVelocity.x = 0;
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+	}
+
+	if (!m_bMouseDragRight && x > CDigitanksWindow::Get()->GetWindowWidth()-30)
+	{
+		m_bMouseDragRight = true;
+		m_vecGoalVelocity.z = -80.0f;
+	}
+
+	if (m_bMouseDragRight && x < CDigitanksWindow::Get()->GetWindowWidth()-30)
+	{
+		m_bMouseDragRight = false;
+		m_vecGoalVelocity.z = 0;
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+	}
+
+	if (!m_bMouseDragDown && y > CDigitanksWindow::Get()->GetWindowHeight()-30)
+	{
+		m_bMouseDragDown = true;
+		m_vecGoalVelocity.x = 80.0f;
+	}
+
+	if (m_bMouseDragDown && y < CDigitanksWindow::Get()->GetWindowHeight()-30)
+	{
+		m_bMouseDragDown = false;
+		m_vecGoalVelocity.x = 0;
+		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
 	BaseClass::MouseInput(x, y);

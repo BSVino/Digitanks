@@ -3,6 +3,7 @@
 #include <GL/glfw.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <platform.h>
 
@@ -852,7 +853,15 @@ COptionsPanel::COptionsPanel()
 		sprintf(szMode, "%dx%d", aModes[i].Width, aModes[i].Height);
 		m_pVideoModes->AddSubmenu(szMode, this, VideoModeChosen);
 		g_aVideoModes.push_back(aModes[i]);
-    }
+	}
+
+	m_pConstrain = new CCheckBox();
+	m_pConstrain->SetClickedListener(this, ConstrainChanged);
+	m_pConstrain->SetUnclickedListener(this, ConstrainChanged);
+	AddControl(m_pConstrain);
+
+	m_pConstrainLabel = new CLabel(0, 0, 100, 100, "Constrain mouse to screen edges");
+	AddControl(m_pConstrainLabel);
 }
 
 void COptionsPanel::Layout()
@@ -881,6 +890,12 @@ void COptionsPanel::Layout()
 	m_pVideoModes->SetSize(120, 30);
 	m_pVideoModes->SetPos(GetWidth()/2 - m_pVideoModes->GetWidth() - 40, GetHeight()-230);
 
+	std::stringstream sVideoMode;
+	sVideoMode << CDigitanksWindow::Get()->GetWindowWidth();
+	sVideoMode << "x";
+	sVideoMode << CDigitanksWindow::Get()->GetWindowHeight();
+	m_pVideoModes->SetText(sVideoMode.str().c_str());
+
 	m_pWindowedLabel->SetWrap(false);
 	m_pWindowedLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pWindowedLabel->SetSize(10, 10);
@@ -888,6 +903,14 @@ void COptionsPanel::Layout()
 	m_pWindowedLabel->SetPos(GetWidth()/2 - m_pWindowedLabel->GetWidth()/2 + 10 + 40, GetHeight()-230);
 	m_pWindowed->SetPos(m_pWindowedLabel->GetLeft() - 15, GetHeight()-230 + m_pWindowedLabel->GetHeight()/2 - m_pWindowed->GetHeight()/2);
 	m_pWindowed->SetState(!CDigitanksWindow::Get()->IsFullscreen(), false);
+
+	m_pConstrainLabel->SetWrap(false);
+	m_pConstrainLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pConstrainLabel->SetSize(10, 10);
+	m_pConstrainLabel->EnsureTextFits();
+	m_pConstrainLabel->SetPos(GetWidth()/2 - m_pConstrainLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
+	m_pConstrain->SetPos(m_pConstrainLabel->GetLeft() - 15, GetHeight()-180 + m_pConstrainLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
+	m_pConstrain->SetState(CDigitanksWindow::Get()->ShouldConstrainMouse(), false);
 
 	BaseClass::Layout();
 }
@@ -923,8 +946,14 @@ void COptionsPanel::VideoModeChosenCallback()
 
 void COptionsPanel::WindowedChangedCallback()
 {
-	CDigitanksWindow::Get()->SetFullscreen(!m_pWindowed->GetState());
+	CDigitanksWindow::Get()->SetConfigFullscreen(!m_pWindowed->GetState());
 	CDigitanksWindow::Get()->SaveConfig();
 
 	m_pVideoChangedNotice->SetVisible(true);
+}
+
+void COptionsPanel::ConstrainChangedCallback()
+{
+	CDigitanksWindow::Get()->SetConstrainMouse(m_pConstrain->GetState());
+	CDigitanksWindow::Get()->SaveConfig();
 }
