@@ -182,7 +182,10 @@ void CDigitanksWindow::DumpGLInfo()
 	o << "Vendor: " << (char*)glGetString(GL_VENDOR) << ENDL;
 	o << "Renderer: " << (char*)glGetString(GL_RENDERER) << ENDL;
 	o << "Version: " << (char*)glGetString(GL_VERSION) << ENDL;
-	o << "Shading Language Version: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << ENDL;
+
+	char* pszShadingLanguageVersion = (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+	if (pszShadingLanguageVersion)
+		o << "Shading Language Version: " << pszShadingLanguageVersion << ENDL;
 
 	std::string sExtensions = (char*)glGetString(GL_EXTENSIONS);
 	std::vector<std::string> asExtensions;
