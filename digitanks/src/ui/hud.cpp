@@ -1320,6 +1320,10 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 		}
 	}
 
+	// There is no action item for the current unit. If the current action item has no unit, don't clobber it just to show the "press next" message.
+	if (m_iCurrentActionItem >= 0 && m_iCurrentActionItem < aActionItems.size() && aActionItems[m_iCurrentActionItem].iUnit == ~0)
+		return;
+
 	m_pActionItem->SetText("Press 'Next' to see more action items.");
 	m_pNextActionItem->SetText("Next");
 	m_pNextActionItem->SetVisible(true);

@@ -24,6 +24,12 @@ CModelDissolver::CModelDissolver()
 
 void CModelDissolver::AddModel(CBaseEntity* pEntity)
 {
+	if (!Get())
+		return;
+
+	if (!CModelLibrary::Get())
+		return;
+
 	size_t iModel = pEntity->GetModel();
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
 
