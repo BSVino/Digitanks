@@ -1424,6 +1424,18 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"UNIT COMPLETED\n \n"
 			"A new unit was just constructed here and is now finish. Please choose the next construction task.\n");
 		break;
+
+	case ACTIONTYPE_DOWNLOADCOMPLETE:
+		m_pActionItem->SetText(
+			"DOWNLOAD COMPLETE\n \n"
+			"A download has just been completed in your updates grid. Press the 'Download Updates' button to download more updates.\n");
+		break;
+
+	case ACTIONTYPE_DOWNLOADUPDATES:
+		m_pActionItem->SetText(
+			"DOWNLOAD UPDATES\n \n"
+			"You can download updates for your structures. Press the 'Download Updates' button to choose an update.\n");
+		break;
 	}
 
 	CEntityHandle<CSelectable> hSelection(pItem->iUnit);

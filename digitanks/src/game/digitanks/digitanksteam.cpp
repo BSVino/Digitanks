@@ -300,6 +300,9 @@ void CDigitanksTeam::StartTurn()
 	}
 
 	CountScore();
+
+	if (DigitanksGame()->GetTurn() == 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
+		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
 }
 
 void CDigitanksTeam::EndTurn()
@@ -649,6 +652,8 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 	}
 
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
+
+	DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADCOMPLETE);
 
 	if (!CNetwork::IsHost())
 		return;
