@@ -247,16 +247,7 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (DigitanksGame() && (c == GLFW_KEY_ENTER || c == GLFW_KEY_KP_ENTER))
 	{
-		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->MoveTanks();
-		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			DigitanksGame()->TurnTanks();
-		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			DigitanksGame()->FireTanks();
-		else if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			DigitanksGame()->SetControlMode(MODE_NONE);
-
-		else if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
+		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
 		{
 			CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
 			DigitanksGame()->EndTurn();
