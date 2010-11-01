@@ -1,5 +1,9 @@
 #include <GL/glew.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <platform.h>
 
 #include "ui/digitankswindow.h"
