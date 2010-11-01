@@ -175,6 +175,9 @@ GLuint MakeTexture(ILuint iTex)
 
 	ilBindImage(iTex);
 
+	if (!ilGetData())
+		return;
+
 	gluBuild2DMipmaps(GL_TEXTURE_2D,
 		ilGetInteger(IL_IMAGE_BPP),
 		ilGetInteger(IL_IMAGE_WIDTH),
@@ -270,7 +273,6 @@ void RunIntro()
 	glewInit();
 
 	ilInit();
-	ilInit();
 
 	ILuint iErrorWindow = LoadImage(L"textures/intro/error.png");
 	ILuint iTankImage = LoadImage(L"textures/intro/tank.png");
@@ -335,7 +337,9 @@ void RunIntro()
 		{
 			ilBindImage(iErrorWindow);
 	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
-			glDrawPixels(366, 168, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+
+			if (ilGetData())
+				glDrawPixels(366, 168, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
 		}
 		else if (flTime < 30.0f)
 		{
