@@ -120,7 +120,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	DumpGLInfo();
 
-	if (strcmp((const char*)glGetString(GL_VENDOR), "Intel") == 0 || strcmp((const char*)glGetString(GL_VENDOR), "INTEL") == 0)
+	if (strstr((const char*)glGetString(GL_VENDOR), "Intel") == 0 || strstr((const char*)glGetString(GL_VENDOR), "INTEL") == 0)
 		ShowMessage(L"You are running an Intel graphics card. These cards are unsupported and may crash or display Digitanks incorrectly. You're welcome to try but you really need to get an ATI or NVidia card if you want to play.");
 
 	ilInit();
