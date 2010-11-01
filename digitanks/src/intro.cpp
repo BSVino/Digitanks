@@ -175,9 +175,6 @@ GLuint MakeTexture(ILuint iTex)
 
 	ilBindImage(iTex);
 
-	if (!ilGetData())
-		return;
-
 	gluBuild2DMipmaps(GL_TEXTURE_2D,
 		ilGetInteger(IL_IMAGE_BPP),
 		ilGetInteger(IL_IMAGE_WIDTH),
@@ -272,6 +269,12 @@ void RunIntro()
 
 	glewInit();
 
+	if (!GLEW_ARB_texture_non_power_of_two)
+	{
+		ShowMessage(L"Looks like your video card doesn't support the features needed by Digitanks! We're terribly sorry.");
+		exit(0);
+	}
+
 	ilInit();
 
 	ILuint iErrorWindow = LoadImage(L"textures/intro/error.png");
@@ -337,9 +340,7 @@ void RunIntro()
 		{
 			ilBindImage(iErrorWindow);
 	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
-
-			if (ilGetData())
-				glDrawPixels(366, 168, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+			glDrawPixels(366, 168, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
 		}
 		else if (flTime < 30.0f)
 		{
