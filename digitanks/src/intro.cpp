@@ -106,7 +106,7 @@ static LRESULT CALLBACK IntroWindowCallback( HWND hWnd, UINT uMsg, WPARAM wParam
 		case WM_SYSKEYDOWN:
 		{
 			// escape
-			if (wParam == 27)
+			if (wParam == VK_ESCAPE && !(GetKeyState(VK_CONTROL) & 0x8000))
 				g_bSkip = true;
             return 0;
 		}  
@@ -136,6 +136,42 @@ static LRESULT CALLBACK IntroWindowCallback( HWND hWnd, UINT uMsg, WPARAM wParam
     }
 
 	return DefWindowProc( hWnd, uMsg, wParam, lParam );
+}
+
+HHOOK g_hKeyboardHook;
+HWND g_hWindow;
+
+LRESULT CALLBACK LowLevelKeyboardProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+	bool bSpecialKey = false;
+	PKBDLLHOOKSTRUCT p = (PKBDLLHOOKSTRUCT) lParam;
+
+	if( nCode == HC_ACTION )
+	{
+		switch( wParam )
+		{
+			case WM_KEYDOWN:
+			case WM_SYSKEYDOWN:
+			case WM_KEYUP:
+			case WM_SYSKEYUP:
+				// Block these keystrokes: ALT+TAB, ALT+ESC, ALT+F4, CTRL+ESC, LWIN, RWIN, APPS (mysterious menu key)
+				bSpecialKey = ( p->vkCode == VK_TAB && p->flags & LLKHF_ALTDOWN ) ||
+						( p->vkCode == VK_ESCAPE && p->flags & LLKHF_ALTDOWN ) ||
+						( p->vkCode == VK_F4 && p->flags & LLKHF_ALTDOWN ) ||
+						( p->vkCode == VK_ESCAPE && (GetKeyState(VK_CONTROL) & 0x8000)) ||
+						p->vkCode == VK_LWIN || p->vkCode == VK_RWIN || p->vkCode == VK_APPS;
+				break;
+		}
+	}
+
+	if( bSpecialKey )
+	{
+		// Send it to the main window callback
+		PostMessage( g_hWindow, (UINT) wParam, p->vkCode, 0 );
+        return 1;
+    }
+    else
+        return CallNextHookEx( g_hKeyboardHook, nCode, wParam, lParam );
 }
 
 ILuint LoadImage(wchar_t* pszFilename)
@@ -237,7 +273,7 @@ void RunIntro()
     if( !hAtom )
         return;
 
-	HWND hWindow = CreateWindowEx(
+	g_hWindow = CreateWindowEx(
                WS_EX_APPWINDOW,	// |WS_EX_TOPMOST
                wc.lpszClassName,
                L"",
@@ -250,7 +286,7 @@ void RunIntro()
                NULL,
                NULL );
 
-	HDC hdcWindow = GetDC(hWindow);
+	HDC hdcWindow = GetDC(g_hWindow);
 
 	PIXELFORMATDESCRIPTOR pfd;
 	ZeroMemory( &pfd, sizeof( pfd ) );
@@ -276,6 +312,9 @@ void RunIntro()
 	}
 
 	ilInit();
+
+	// Disable system keys so people can't alt-tab out.
+	g_hKeyboardHook = SetWindowsHookEx( WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0 );
 
 	ILuint iErrorWindow = LoadImage(L"textures/intro/error.png");
 	ILuint iTankImage = LoadImage(L"textures/intro/tank.png");
@@ -405,10 +444,12 @@ void RunIntro()
 	ilDeleteImages(1, &iTankImage);
 	glDeleteTextures(1, &iTankTexture);
 
+	UnhookWindowsHookEx( g_hKeyboardHook );
+
 	wglMakeCurrent( NULL, NULL );
 	wglDeleteContext( hrcWindow );
 
 	DeleteDC(hdcWindow);
-	DestroyWindow(hWindow);
+	DestroyWindow(g_hWindow);
 	UnregisterClass( L"dtintro", NULL );
 }
