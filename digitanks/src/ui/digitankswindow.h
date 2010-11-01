@@ -15,6 +15,8 @@ public:
 								~CDigitanksWindow();
 
 public:
+	void						DumpGLInfo();
+
 	void						InitUI();
 
 	void						SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };

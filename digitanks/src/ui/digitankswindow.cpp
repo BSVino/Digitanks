@@ -7,6 +7,7 @@
 #include <IL/ilu.h>
 #include <time.h>
 #include <vector.h>
+#include <strutils.h>
 
 #include <mtrand.h>
 #include <configfile.h>
@@ -117,6 +118,11 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	glfwSetTime( 0.0 );
 	glfwEnable( GLFW_MOUSE_CURSOR );
 
+	DumpGLInfo();
+
+	if (strcmp((const char*)glGetString(GL_VENDOR), "Intel") == 0 || strcmp((const char*)glGetString(GL_VENDOR), "INTEL") == 0)
+		ShowMessage(L"You are running an Intel graphics card. These cards are unsupported and may crash or display Digitanks incorrectly. You're welcome to try but you really need to get an ATI or NVidia card if you want to play.");
+
 	ilInit();
 
 	GLenum err = glewInit();
@@ -155,6 +161,141 @@ CDigitanksWindow::~CDigitanksWindow()
 	DestroyGame();
 
 	glfwTerminate();
+}
+
+#define MAKE_PARAMETER(name) \
+{ #name, name } \
+
+void CDigitanksWindow::DumpGLInfo()
+{
+	glewInit();
+
+	std::ifstream i("glinfo.txt");
+	if (i)
+		return;
+	i.close();
+
+	std::ofstream o("glinfo.txt");
+	if (!o || !o.is_open())
+		return;
+
+	o << "Vendor: " << (char*)glGetString(GL_VENDOR) << ENDL;
+	o << "Renderer: " << (char*)glGetString(GL_RENDERER) << ENDL;
+	o << "Version: " << (char*)glGetString(GL_VERSION) << ENDL;
+	o << "Shading Language Version: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << ENDL;
+
+	std::string sExtensions = (char*)glGetString(GL_EXTENSIONS);
+	std::vector<std::string> asExtensions;
+	strtok(sExtensions, asExtensions);
+	o << "Extensions:" << ENDL;
+	for (size_t i = 0; i < asExtensions.size(); i++)
+		o << "\t" << asExtensions[i] << ENDL;
+
+	typedef struct
+	{
+		char* pszName;
+		int iParameter;
+	} GLParameter;
+
+	GLParameter aParameters[] =
+	{
+		MAKE_PARAMETER(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_ATTRIB_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_CLIP_PLANES),
+		MAKE_PARAMETER(GL_MAX_LIGHTS),
+		MAKE_PARAMETER(GL_MAX_COLOR_MATRIX_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_MODELVIEW_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_PROJECTION_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_SIZE),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_3D_TEXTURE_SIZE),
+		MAKE_PARAMETER(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB),
+		MAKE_PARAMETER(GL_MAX_RECTANGLE_TEXTURE_SIZE_NV),
+		MAKE_PARAMETER(GL_MAX_ELEMENTS_VERTICES),
+		MAKE_PARAMETER(GL_MAX_ELEMENTS_INDICES),
+		MAKE_PARAMETER(GL_MAX_EVAL_ORDER),
+		MAKE_PARAMETER(GL_MAX_LIST_NESTING),
+		MAKE_PARAMETER(GL_MAX_NAME_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_PIXEL_MAP_TABLE),
+		MAKE_PARAMETER(GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_UNITS_ARB),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_LOD_BIAS_EXT),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT),
+		MAKE_PARAMETER(GL_MAX_DRAW_BUFFERS_ARB),
+
+		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS),
+		MAKE_PARAMETER(GL_MAX_VARYING_FLOATS_ARB),
+		MAKE_PARAMETER(GL_MAX_VERTEX_ATTRIBS_ARB),
+		MAKE_PARAMETER(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_COORDS_ARB),
+		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_COORDS_ARB),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_IMAGE_UNITS_ARB),
+	};
+
+	// Clear it
+	glGetError();
+
+	o << ENDL;
+
+	for (size_t i = 0; i < sizeof(aParameters)/sizeof(GLParameter); i++)
+	{
+		GLint iValue;
+		glGetIntegerv(aParameters[i].iParameter, &iValue);
+
+		if (glGetError() != GL_NO_ERROR)
+			continue;
+
+		o << aParameters[i].pszName << ": " << iValue << ENDL;
+	}
+
+	GLParameter aProgramParameters[] =
+	{
+		MAKE_PARAMETER(GL_MAX_PROGRAM_INSTRUCTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_TEMPORARIES_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_PARAMETERS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_ATTRIBS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_ENV_PARAMETERS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_ALU_INSTRUCTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_TEX_INSTRUCTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_TEX_INDIRECTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB),
+		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB),
+	};
+
+	o << ENDL;
+	o << "Vertex programs:" << ENDL;
+
+	for (size_t i = 0; i < sizeof(aProgramParameters)/sizeof(GLParameter); i++)
+	{
+		GLint iValue;
+		glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, aProgramParameters[i].iParameter, &iValue);
+
+		if (glGetError() == GL_NO_ERROR)
+			o << aProgramParameters[i].pszName << ": " << iValue << ENDL;
+	}
+
+	o << ENDL;
+	o << "Fragment programs:" << ENDL;
+
+	for (size_t i = 0; i < sizeof(aProgramParameters)/sizeof(GLParameter); i++)
+	{
+		GLint iValue;
+		glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, aProgramParameters[i].iParameter, &iValue);
+
+		if (glGetError() == GL_NO_ERROR)
+			o << aProgramParameters[i].pszName << ": " << iValue << ENDL;
+	}
 }
 
 void CDigitanksWindow::RenderLoading()

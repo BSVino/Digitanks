@@ -1,9 +1,8 @@
-#include "ui/digitankswindow.h"
+#include <GL/glew.h>
+
 #include <platform.h>
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
+#include "ui/digitankswindow.h"
 
 extern void RunIntro();
 

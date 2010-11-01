@@ -228,3 +228,8 @@ void SetClipboard(const std::string& sBuf)
 
 	CloseClipboard();
 }
+
+void ShowMessage(const wchar_t* pszMessage)
+{
+	MessageBox(NULL, pszMessage, L"Digitanks!", MB_OK|MB_ICONINFORMATION);
+}

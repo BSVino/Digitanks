@@ -13,5 +13,6 @@ wchar_t* OpenFileDialog(wchar_t* pszFileTypes);
 wchar_t* SaveFileDialog(wchar_t* pszFileTypes);
 std::string GetClipboard();
 void SetClipboard(const std::string& sBuf);
+void ShowMessage(const wchar_t* pszMessage);
 
 #endif
