@@ -343,7 +343,7 @@ void RunIntro()
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, lpCapture);
 		else if (flTime < 2.3f)
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_BGRA, GL_UNSIGNED_BYTE, lpCapture);
-		else if (flTime < 3.0f)
+		else if (flTime < 2.8f)
 		{
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, lpCapture);
 			glDrawPixels(iScreenWidth*8/10, iScreenHeight, GL_BGRA, GL_UNSIGNED_BYTE, lpCapture);
@@ -354,7 +354,7 @@ void RunIntro()
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_BGRA, GL_UNSIGNED_BYTE, lpCapture);
 			if (iFrame++ == 30)
 				glDrawPixels(iScreenWidth*6/10, iScreenHeight/2, GL_RGB, GL_UNSIGNED_BYTE, lpCapture);
-			else if (iFrame++ == 90)
+			else if (iFrame++ == 80)
 				glDrawPixels(iScreenWidth*6/10, iScreenHeight/2, GL_RGB, GL_UNSIGNED_BYTE, lpCapture);
 		}
 		else if (flTime < 4.0f)
@@ -367,15 +367,15 @@ void RunIntro()
 		{
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
-		else if (flTime < 5.0f)
+		else if (flTime < 4.8f)
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_RGB, GL_UNSIGNED_BYTE, lpCapture);
-		else if (flTime < 5.2f)
+		else if (flTime < 5.0f)
 		{
 			static int iFrame = 0;
 			if (iFrame++ == 0)
 				PlaySound(L"SystemAsterisk", 0, SND_ALIAS);
 		}
-		else if (flTime < 9.0f)
+		else if (flTime < 8.0f)
 		{
 			ilBindImage(iErrorWindow);
 	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
@@ -395,7 +395,7 @@ void RunIntro()
 
 	        glWindowPos2i(0, 0);
 
-			float flDistance = (flTime - 9)*20;
+			float flDistance = (flTime - 8)*20;
 			int iColumns = 10;
 			int iSpace = 60;
 			float flTopLeftX = iScreenWidth - iColumns*iSpace/2.0f;
