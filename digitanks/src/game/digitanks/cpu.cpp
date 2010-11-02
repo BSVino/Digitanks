@@ -872,6 +872,9 @@ void CCPU::OnDeleted()
 	{
 		CBaseEntity* pMember = apDeleteThese[i];
 
+		if (!pMember)
+			continue;
+
 		CStructure* pStructure = dynamic_cast<CStructure*>(pMember);
 		// Delete? I meant... repurpose.
 		if (pStructure && !pStructure->IsConstructing())
