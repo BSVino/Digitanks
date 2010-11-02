@@ -323,7 +323,7 @@ void CHUD::Layout()
 	m_pButtonInfo->SetWrap(true);
 
 	m_pUpdatesButton->SetSize(175, 40);
-	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 0);
+	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 5);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pUpdatesButton->SetWrap(false);
 

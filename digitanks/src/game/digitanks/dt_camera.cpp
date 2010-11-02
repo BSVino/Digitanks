@@ -227,52 +227,52 @@ void CDigitanksCamera::MouseInput(int x, int y)
 			m_angCamera.y += 360;
 	}
 
-	if (!m_bMouseDragLeft && x < 30)
+	if (!m_bMouseDragLeft && x < 15)
 	{
 		m_bMouseDragLeft = true;
 		m_vecGoalVelocity.z = 80.0f;
 	}
 
-	if (m_bMouseDragLeft && x > 30)
+	if (m_bMouseDragLeft && x > 15)
 	{
 		m_bMouseDragLeft = false;
 		m_vecGoalVelocity.z = 0;
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
-	if (!m_bMouseDragUp && y < 30)
+	if (!m_bMouseDragUp && y < 15)
 	{
 		m_bMouseDragUp = true;
 		m_vecGoalVelocity.x = -80.0f;
 	}
 
-	if (m_bMouseDragUp && y > 30)
+	if (m_bMouseDragUp && y > 15)
 	{
 		m_bMouseDragUp = false;
 		m_vecGoalVelocity.x = 0;
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
-	if (!m_bMouseDragRight && x > CDigitanksWindow::Get()->GetWindowWidth()-30)
+	if (!m_bMouseDragRight && x > CDigitanksWindow::Get()->GetWindowWidth()-15)
 	{
 		m_bMouseDragRight = true;
 		m_vecGoalVelocity.z = -80.0f;
 	}
 
-	if (m_bMouseDragRight && x < CDigitanksWindow::Get()->GetWindowWidth()-30)
+	if (m_bMouseDragRight && x < CDigitanksWindow::Get()->GetWindowWidth()-15)
 	{
 		m_bMouseDragRight = false;
 		m_vecGoalVelocity.z = 0;
 		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
-	if (!m_bMouseDragDown && y > CDigitanksWindow::Get()->GetWindowHeight()-30)
+	if (!m_bMouseDragDown && y > CDigitanksWindow::Get()->GetWindowHeight()-15)
 	{
 		m_bMouseDragDown = true;
 		m_vecGoalVelocity.x = 80.0f;
 	}
 
-	if (m_bMouseDragDown && y < CDigitanksWindow::Get()->GetWindowHeight()-30)
+	if (m_bMouseDragDown && y < CDigitanksWindow::Get()->GetWindowHeight()-15)
 	{
 		m_bMouseDragDown = false;
 		m_vecGoalVelocity.x = 0;
