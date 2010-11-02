@@ -87,6 +87,7 @@ Section "Uninstall"
 
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\Digitanks\*.*"
+  Delete "$DESKTOP\Digitanks.lnk"
 
   ; Remove directories used
   RMDir "$SMPROGRAMS\Digitanks"
