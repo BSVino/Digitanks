@@ -305,11 +305,9 @@ void RunIntro()
 
 	glewInit();
 
+	// Skip the intro so we have a chance to write the GLInfo.
 	if (!GLEW_ARB_texture_non_power_of_two)
-	{
-		ShowMessage(L"Looks like your video card doesn't support the features needed by Digitanks! We're terribly sorry.");
-		exit(0);
-	}
+		g_bSkip = true;
 
 	ilInit();
 
