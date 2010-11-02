@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\common\configfile.h" />
     <ClInclude Include="..\..\license\license.h" />
+    <ClInclude Include="dt_version.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
     <ClInclude Include="game\digitanks\props.h" />

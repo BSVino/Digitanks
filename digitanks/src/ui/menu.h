@@ -267,6 +267,8 @@ protected:
 	size_t							m_iDigitanks;
 
 	float							m_flCreditsRoll;
+
+	glgui::CLabel*					m_pVersion;
 };
 
 #endif

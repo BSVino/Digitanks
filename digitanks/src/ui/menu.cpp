@@ -7,6 +7,7 @@
 
 #include <platform.h>
 
+#include <dt_version.h>
 #include <digitanks/digitanksgame.h>
 #include <renderer/renderer.h>
 
@@ -57,6 +58,11 @@ CMainMenu::CMainMenu()
 	m_pCredits->SetAlign(CLabel::TA_TOPCENTER);
 	AddControl(m_pCredits);
 
+	m_pVersion = new CLabel(0, 0, 100, 100, "");
+	m_pVersion->SetFontFaceSize(11);
+	m_pVersion->SetAlign(CLabel::TA_LEFTCENTER);
+	AddControl(m_pVersion);
+
 	m_pDockPanel = NULL;
 
 	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
@@ -95,6 +101,10 @@ void CMainMenu::Layout()
 	m_pShowCredits->SetSize(50, 20);
 
 	m_pCredits->SetVisible(false);
+
+	m_pVersion->SetPos(-GetLeft()+5, -GetTop());
+	m_pVersion->SetSize(80, 20);
+	m_pVersion->SetText(DIGITANKS_VERSION);
 
 	BaseClass::Layout();
 }

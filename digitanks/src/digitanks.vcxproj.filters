@@ -386,6 +386,9 @@
     <ClInclude Include="..\..\license\license.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="dt_version.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\build\digitanks.ico">
