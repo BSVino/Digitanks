@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <time.h>
 
+#include <platform.h>
+
 CShaderLibrary* CShaderLibrary::s_pShaderLibrary = NULL;
 static CShaderLibrary g_ShaderLibrary = CShaderLibrary();
 
@@ -115,10 +117,12 @@ void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
 	assert(!strlen(pszLog));
 #endif
 
+	std::wstring sFile = GetAppDataDirectory(L"Digitanks", L"shaders.txt");
+
 	if (m_bLogNeedsClearing)
 	{
 		// Only clear it if we're actually going to write to it so we don't create the file.
-		FILE* fp = fopen("shaders.txt", "w");
+		FILE* fp = _wfopen(sFile.c_str(), L"w");
 		fclose(fp);
 		m_bLogNeedsClearing = false;
 	}
@@ -127,7 +131,7 @@ void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
 	strncpy(szText, pszShaderText, 99);
 	szText[99] = '\0';
 
-	FILE* fp = fopen("shaders.txt", "a");
+	FILE* fp = _wfopen(sFile.c_str(), L"a");
 	fprintf(fp, "Shader compile output %d\n", time(NULL));
 	fprintf(fp, "%s\n\n", pszLog);
 	fprintf(fp, "%s...\n\n", szText);
