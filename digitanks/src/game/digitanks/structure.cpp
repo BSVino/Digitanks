@@ -242,13 +242,13 @@ void CStructure::CompleteConstruction()
 {
 	m_bConstructing = false;
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PSU);
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_LOADER);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PSU);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_LOADER);
 
-	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_POWER)
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+		DigitanksWindow()->GetInstructor()->NextTutorial();
 
 	if (DigitanksGame()->GetUpdateGrid())
 	{
@@ -263,10 +263,10 @@ void CStructure::CompleteConstruction()
 	}
 
 	if (dynamic_cast<CCollector*>(this) && iTutorial == CInstructor::TUTORIAL_PSU)
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+		DigitanksWindow()->GetInstructor()->NextTutorial();
 
 	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+		DigitanksWindow()->GetInstructor()->NextTutorial();
 }
 
 size_t CStructure::GetTurnsToConstruct()

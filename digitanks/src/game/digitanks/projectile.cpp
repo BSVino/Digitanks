@@ -370,7 +370,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 
 		pClosest->Intercept(0.5f);
 
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
 	}
 
 	BaseClass::Explode(pInstigator);

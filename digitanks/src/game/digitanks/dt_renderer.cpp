@@ -11,7 +11,7 @@
 #include <ui/digitankswindow.h>
 
 CDigitanksRenderer::CDigitanksRenderer()
-	: CRenderer(CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight())
+	: CRenderer(DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight())
 {
 	m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 	m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);

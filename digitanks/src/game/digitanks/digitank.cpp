@@ -667,9 +667,9 @@ void CDigitank::StartTurn()
 
 	if (DigitanksGame()->GetLocalDigitanksTeam() == GetDigitanksTeam())
 	{
-		size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+		size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
-			CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+			DigitanksWindow()->GetInstructor()->NextTutorial();
 	}
 }
 
@@ -904,7 +904,7 @@ void CDigitank::Move(CNetworkParameters* p)
 				pPowerup->Delete();
 				GiveBonusPoints(1);
 
-				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
+				DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
 			}
 		}
 	}
@@ -925,7 +925,7 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
 bool CDigitank::IsMoving()
@@ -979,7 +979,7 @@ void CDigitank::Turn(CNetworkParameters* p)
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
 void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
@@ -1086,7 +1086,7 @@ void CDigitank::Fortify(CNetworkParameters* p)
 	if (m_bFortified)
 	{
 		m_bFortified = false;
-		CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+		DigitanksWindow()->GetHUD()->UpdateTurnButton();
 		return;
 	}
 
@@ -1096,10 +1096,10 @@ void CDigitank::Fortify(CNetworkParameters* p)
 
 	OnFortify();
 
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FORTIFYING);
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FORTIFYING);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING, true);
 }
 
 bool CDigitank::CanAim() const
@@ -1196,7 +1196,7 @@ void CDigitank::Think()
 	{
 		Vector vecMouseAim;
 		CBaseEntity* pHit = NULL;
-		bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecMouseAim, &pHit);
+		bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecMouseAim, &pHit);
 
 		Vector vecTankAim;
 		if (m_bFiredWeapon)
@@ -1297,7 +1297,7 @@ void CDigitank::OnCurrentSelection()
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	// So the escape key works.
-	if (CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
+	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
 	{
 		CDigitank* pClosestEnemy = NULL;
 		while (true)
@@ -1463,7 +1463,7 @@ bool CDigitank::NeedsOrders()
 
 void CDigitank::SetupMenu(menumode_t eMenuMode)
 {
-	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	CHUD* pHUD = DigitanksWindow()->GetHUD();
 
 	if (eMenuMode == MENUMODE_MAIN)
 	{
@@ -1700,10 +1700,10 @@ void CDigitank::Fire(CNetworkParameters* p)
 	Speak(TANKSPEECH_ATTACK);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	CDigitanksWindow::Get()->GetHUD()->UpdateTurnButton();
+	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 
 	if (IsArtillery())
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FIRE_ARTILLERY, true);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FIRE_ARTILLERY, true);
 }
 
 void CDigitank::FireProjectile()
@@ -1801,7 +1801,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	else
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
 
-	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
 	{
 		// BOT MUST DIE
@@ -1886,9 +1886,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 {
-	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+		DigitanksWindow()->GetInstructor()->NextTutorial();
 
 	CDigitank* pKiller = dynamic_cast<CDigitank*>(pKilledBy);
 
@@ -1903,7 +1903,7 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 		m_hSupplyLine->Delete();
 
 	// Make sure we can see that we got a promotion.
-	CDigitanksWindow::Get()->GetHUD()->Layout();
+	DigitanksWindow()->GetHUD()->Layout();
 }
 
 Vector CDigitank::GetOrigin() const
@@ -1975,7 +1975,7 @@ EAngle CDigitank::GetRenderAngles() const
 		if (TurnsWith(DigitanksGame()->GetPrimarySelectionTank()))
 		{
 			Vector vecLookAt;
-			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
+			bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
 			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetOrigin()).LengthSqr() < 3*3;
 
 			if (!bNoTurn && bMouseOK)
@@ -2096,7 +2096,7 @@ void CDigitank::PostRender()
 		if (TurnsWith(pCurrentTank))
 		{
 			Vector vecLookAt;
-			bool bMouseOK = CDigitanksWindow::Get()->GetMouseGridPosition(vecLookAt);
+			bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
 			bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetOrigin()).LengthSqr() < 3*3;
 
 			if (!bNoTurn && bMouseOK)

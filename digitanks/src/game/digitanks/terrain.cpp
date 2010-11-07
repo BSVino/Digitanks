@@ -607,7 +607,7 @@ void CTerrain::OnRender()
 	if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
 		Vector vecPoint;
-		bool bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecPoint);
+		bool bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecPoint);
 
 		if (bMouseOnGrid)
 		{

@@ -55,6 +55,9 @@
     <Filter Include="Source Files\eastl">
       <UniqueIdentifier>{9d711938-ce8f-4e54-a12c-0255058f1bf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\tinker">
+      <UniqueIdentifier>{4e7ebff5-aa7b-4e77-9451-a290f3c54fef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -261,6 +264,9 @@
     <ClCompile Include="..\..\EASTL\src\assert.cpp">
       <Filter>Source Files\eastl</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tinker\application.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -412,6 +418,12 @@
     </ClInclude>
     <ClInclude Include="dt_version.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\application.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\keys.h">
+      <Filter>Source Files\tinker</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

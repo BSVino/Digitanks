@@ -1,8 +1,5 @@
 #include "digitankswindow.h"
 
-#include <GL/glew.h>
-#include <GL/glfw.h>
-
 #include <sound/sound.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
@@ -11,9 +8,9 @@
 #include "ui.h"
 #include <game/digitanks/cpu.h>
 #include <game/digitanks/dt_camera.h>
-
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>
+#include <tinker/keys.h>
 
 #ifdef _DEBUG
 #include <game/digitanks/maintank.h>
@@ -29,10 +26,10 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->MouseInput(x, y);
 
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	if (IsMouseRightDown())
 		m_iMouseMoved += (int)(fabs((float)x-m_iMouseLastX) + fabs((float)y-m_iMouseLastY));
 
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (IsMouseLeftDown())
 	{
 		m_iMouseCurrentX = x;
 		m_iMouseCurrentY = y;
@@ -52,8 +49,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	}
 
 	int mx, my;
-	glfwGetMousePos(&mx, &my);
-	if (iState == GLFW_PRESS)
+	GetMousePosition(mx, my);
+	if (iState == 1)
 	{
 		if (glgui::CRootPanel::Get()->MousePressed(iButton, mx, my))
 		{
@@ -78,9 +75,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (iState == GLFW_PRESS)
+	if (iState == 1)
 	{
-		if ((iButton == GLFW_MOUSE_BUTTON_1 || iButton == GLFW_MOUSE_BUTTON_2) && DigitanksGame()->GetControlMode() == MODE_FIRE)
+		if ((iButton == TINKER_KEY_MOUSE_LEFT || iButton == TINKER_KEY_MOUSE_RIGHT) && DigitanksGame()->GetControlMode() == MODE_FIRE)
 		{
 			DigitanksGame()->SetControlMode(MODE_NONE);
 
@@ -89,7 +86,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			return;	// Don't center camera
 		}
 	}
-	else if (iButton == GLFW_MOUSE_BUTTON_2 && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == GLFW_RELEASE && m_iMouseMoved < 30)
+	else if (iButton == TINKER_KEY_MOUSE_RIGHT && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == 0 && m_iMouseMoved < 30)
 	{
 		CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
 		if (pCPU && pCPU->IsPreviewBuildValid())
@@ -104,22 +101,22 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	GetMouseGridPosition(vecMousePosition, &pClickedEntity);
 	GetMouseGridPosition(vecMousePosition, NULL, CG_TERRAIN);
 
-	if (iButton == GLFW_MOUSE_BUTTON_2)
+	if (iButton == TINKER_KEY_MOUSE_RIGHT)
 	{
-		if (iState == GLFW_PRESS)
+		if (iState == 1)
 			m_iMouseMoved = 0;
 		else
 		{
 			if (m_iMouseMoved > 30)
-				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
+				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
 		}
 	}
 
 	size_t iDifference = abs((int)m_iMouseCurrentX - (int)m_iMouseInitialX) + abs((int)m_iMouseCurrentY - (int)m_iMouseInitialY);
 
-	if (iButton == GLFW_MOUSE_BUTTON_1)
+	if (iButton == TINKER_KEY_MOUSE_LEFT)
 	{
-		if (iState == GLFW_PRESS)
+		if (iState == 1)
 		{
 			// Prevent UI interactions from affecting the camera target.
 			// If the mouse was used no the UI, this will remain false.
@@ -130,11 +127,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else if (GameServer() && GameServer()->GetCamera() && iDifference < 30)
 		{
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
-			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 		}
 	}
 
-	if (iState == GLFW_RELEASE && iButton == GLFW_MOUSE_BUTTON_1)
+	if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT)
 	{
 		if (m_bBoxSelect && iDifference > 30)
 		{
@@ -168,7 +165,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			}
 
 			if (DigitanksGame()->GetLocalDigitanksTeam()->GetNumSelected() == 3)
-				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
+				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
 		}
 		else if (pClickedEntity)
 		{
@@ -183,13 +180,13 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			}
 
 			if (DigitanksGame()->GetLocalDigitanksTeam()->GetNumSelected() == 3)
-				CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
+				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
 		}
 
 		m_bBoxSelect = false;
 	}
 
-	if (iButton == GLFW_MOUSE_BUTTON_2 && iState == GLFW_RELEASE && m_iMouseMoved < 30)
+	if (iButton == TINKER_KEY_MOUSE_RIGHT && iState == 0 && m_iMouseMoved < 30)
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 			DigitanksGame()->MoveTanks();
@@ -198,7 +195,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->FireTanks();
-			CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
+			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
 		}
 	}
 
@@ -223,29 +220,15 @@ void CDigitanksWindow::MouseWheel(int iState)
 	iOldState = iState;
 }
 
-void CDigitanksWindow::KeyEvent(int c, int e)
-{
-	if (e == GLFW_PRESS)
-		KeyPress(c);
-	else
-		KeyRelease(c);
-}
-
-void CDigitanksWindow::CharEvent(int c, int e)
-{
-	if (e == GLFW_PRESS)
-		CharPress(c);
-}
-
 void CDigitanksWindow::KeyPress(int c)
 {
-	if (glgui::CRootPanel::Get()->KeyPressed(c))
+	if (glgui::CRootPanel::Get()->KeyPressed(c, IsCtrlDown()))
 		return;
 
 	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (DigitanksGame() && (c == GLFW_KEY_ENTER || c == GLFW_KEY_KP_ENTER))
+	if (DigitanksGame() && (c == TINKER_KEY_ENTER || c == TINKER_KEY_KP_ENTER))
 	{
 		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
 		{
@@ -254,11 +237,7 @@ void CDigitanksWindow::KeyPress(int c)
 		}
 	}
 
-	if (DigitanksGame() && c == GLFW_KEY_TAB)
-	{
-	}
-
-	if (c == GLFW_KEY_ESC)
+	if (c == TINKER_KEY_ESCAPE)
 	{
 		if (GetMenu()->IsVisible())
 			GetMenu()->SetVisible(false);
@@ -267,8 +246,20 @@ void CDigitanksWindow::KeyPress(int c)
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
+}
 
-	if (c == 'H')
+void CDigitanksWindow::KeyRelease(int c)
+{
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->KeyUp(c);
+}
+
+void CDigitanksWindow::CharPress(int c)
+{
+	if (glgui::CRootPanel::Get()->CharPressed(c))
+		return;
+
+	if (c == 'h')
 	{
 		if (DigitanksGame()->GetLocalDigitanksTeam())
 		{
@@ -288,35 +279,35 @@ void CDigitanksWindow::KeyPress(int c)
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyDown(c);
 
-	if (c == 'Q')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(0);
+	if (c == 'q')
+		GetHUD()->ButtonCallback(0);
 
-	if (c == 'W')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(1);
+	if (c == 'w')
+		GetHUD()->ButtonCallback(1);
 
-	if (c == 'E')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(2);
+	if (c == 'e')
+		GetHUD()->ButtonCallback(2);
 
-	if (c == 'R')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(3);
+	if (c == 'r')
+		GetHUD()->ButtonCallback(3);
 
-	if (c == 'T')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(4);
+	if (c == 't')
+		GetHUD()->ButtonCallback(4);
 
-	if (c == 'A')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(5);
+	if (c == 'a')
+		GetHUD()->ButtonCallback(5);
 
-	if (c == 'S')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(6);
+	if (c == 's')
+		GetHUD()->ButtonCallback(6);
 
-	if (c == 'D')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(7);
+	if (c == 'd')
+		GetHUD()->ButtonCallback(7);
 
-	if (c == 'F')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(8);
+	if (c == 'f')
+		GetHUD()->ButtonCallback(8);
 
-	if (c == 'G')
-		CDigitanksWindow::Get()->GetHUD()->ButtonCallback(9);
+	if (c == 'g')
+		GetHUD()->ButtonCallback(9);
 
 	if (c == '`')
 	{
@@ -328,19 +319,19 @@ void CDigitanksWindow::KeyPress(int c)
 		return;
 
 	// Cheats from here on out
-	if (c == 'X')
+	if (c == 'x')
 		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
 
-	if (c == 'C')
+	if (c == 'c')
 		DigitanksGame()->CompleteProductions();
 
-	if (c == 'V')
+	if (c == 'v')
 	{
 		if (DigitanksGame()->GetPrimarySelection())
 			DigitanksGame()->GetPrimarySelection()->Delete();
 	}
 
-	if (c == 'B')
+	if (c == 'b')
 	{
 		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
 		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
@@ -356,41 +347,14 @@ void CDigitanksWindow::KeyPress(int c)
 		}
 	}
 
-	if (c == 'N')
-		CDigitanksWindow::Get()->GetHUD()->SetVisible(!CDigitanksWindow::Get()->GetHUD()->IsVisible());
+	if (c == 'n')
+		GetHUD()->SetVisible(!GetHUD()->IsVisible());
 
-	if (c == 'M')
+	if (c == 'm')
 	{
 		if (DigitanksGame()->GetPrimarySelection())
 			DigitanksGame()->TankSpeak(DigitanksGame()->GetPrimarySelectionTank(), ":D!");
 	}
-}
-
-void CDigitanksWindow::KeyRelease(int c)
-{
-	if (GameServer() && GameServer()->GetCamera())
-		GameServer()->GetCamera()->KeyUp(c);
-}
-
-void CDigitanksWindow::CharPress(int c)
-{
-	if (glgui::CRootPanel::Get()->CharPressed(c))
-		return;
-}
-
-bool CDigitanksWindow::IsCtrlDown()
-{
-	return glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
-}
-
-bool CDigitanksWindow::IsAltDown()
-{
-	return glfwGetKey(GLFW_KEY_LALT) || glfwGetKey(GLFW_KEY_RALT);
-}
-
-bool CDigitanksWindow::IsShiftDown()
-{
-	return glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT);
 }
 
 bool CDigitanksWindow::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2)

@@ -116,14 +116,14 @@ void CMainMenu::Think()
 	m_flCreditsRoll += GameServer()->GetFrameTime()*30;
 	int x, y;
 	GetAbsPos(x, y);
-	m_pCredits->SetPos(370 - x, (int)(CDigitanksWindow::Get()->GetWindowHeight() - y - m_flCreditsRoll));
+	m_pCredits->SetPos(370 - x, (int)(DigitanksWindow()->GetWindowHeight() - y - m_flCreditsRoll));
 }
 
 void CMainMenu::Paint(int x, int y, int w, int h)
 {
 	int hx, hy;
 	m_pHint->GetAbsPos(hx, hy);
-	if (m_pHint->GetText().length())
+	if (m_pHint->GetText().length() > 1)
 		CRootPanel::PaintRect(hx-25, hy-3, m_pHint->GetWidth()+50, m_pHint->GetHeight()+6, Color(0, 0, 0, 255));
 
 	BaseClass::Paint(x, y, w, h);
@@ -190,7 +190,7 @@ void CMainMenu::OpenOptionsPanelCallback()
 
 void CMainMenu::QuitCallback()
 {
-	CDigitanksWindow::Get()->CloseApplication();
+	DigitanksWindow()->CloseApplication();
 }
 
 void CMainMenu::CreditsCallback()
@@ -214,7 +214,7 @@ void CMainMenu::CreditsCallback()
 
 	m_pCredits->SetText(sCredits.c_str());
 
-	m_pCredits->SetSize(CDigitanksWindow::Get()->GetWindowWidth()-m_pCredits->GetLeft()-40, 9999);
+	m_pCredits->SetSize(DigitanksWindow()->GetWindowWidth()-m_pCredits->GetLeft()-40, 9999);
 	m_pCredits->SetVisible(true);
 	m_flCreditsRoll = 0;
 
@@ -323,65 +323,65 @@ void CTutorialsPanel::Layout()
 
 void CTutorialsPanel::BasicsCallback()
 {
-	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
 
-	CDigitanksWindow::Get()->SetServerType(SERVER_LOCAL);
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksWindow()->SetServerType(SERVER_LOCAL);
+	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
 	DigitanksGame()->SetDifficulty(0);
 
 	pInstructor->DisplayFirstBasicsTutorial();
 
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
 void CTutorialsPanel::BasesCallback()
 {
-	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
 
-	CDigitanksWindow::Get()->SetServerType(SERVER_LOCAL);
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksWindow()->SetServerType(SERVER_LOCAL);
+	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
 	DigitanksGame()->SetDifficulty(0);
 
 	pInstructor->DisplayFirstBasesTutorial();
 
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
 void CTutorialsPanel::UnitsCallback()
 {
-	CInstructor* pInstructor = CDigitanksWindow::Get()->GetInstructor();
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
 
-	CDigitanksWindow::Get()->SetServerType(SERVER_LOCAL);
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksWindow()->SetServerType(SERVER_LOCAL);
+	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
 	DigitanksGame()->SetDifficulty(0);
 
 	pInstructor->DisplayFirstUnitsTutorial();
 
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
 void CTutorialsPanel::BasicsHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Learn the basics of Digitanks. This tutorial includes view control and basic tank manipulation. After this tutorial you should know enough to play an Artillery game.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn the basics of Digitanks. This tutorial includes view control and basic tank manipulation. After this tutorial you should know enough to play an Artillery game.");
 }
 
 void CTutorialsPanel::BasesHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Learn how to set up a base. In this tutorial you'll learn how to construct buildings and produce units. It's a good idea to play through this tutorial before beginning Strategy mode.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn how to set up a base. In this tutorial you'll learn how to construct buildings and produce units. It's a good idea to play through this tutorial before beginning Strategy mode.");
 }
 
 void CTutorialsPanel::UnitsHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Learn the special units. In this tutorial you'll learn how to use the Mechanized Infantry, Artillery and Rogues to their highest effectiveness. It's a good idea to play through this tutorial before beginning Strategy mode.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn the special units. In this tutorial you'll learn how to use the Mechanized Infantry, Artillery and Rogues to their highest effectiveness. It's a good idea to play through this tutorial before beginning Strategy mode.");
 }
 
 CGamesPanel::CGamesPanel()
@@ -443,22 +443,22 @@ void CGamesPanel::LoadCallback()
 		return;
 
 	if (CGameServer::LoadFromFile(pszFilename))
-		CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+		DigitanksWindow()->GetMainMenu()->SetVisible(false);
 	else
 	{
-		CDigitanksWindow::Get()->DestroyGame();
-		CDigitanksWindow::Get()->CreateGame(GAMETYPE_MENU);
+		DigitanksWindow()->DestroyGame();
+		DigitanksWindow()->CreateGame(GAMETYPE_MENU);
 	}
 }
 
 void CGamesPanel::ArtilleryHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Artillery mode is a quick game mode. You control 2 to 5 tanks in a heads-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Artillery mode is a quick game mode. You control 2 to 5 tanks in a heads-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
 }
 
 void CGamesPanel::StrategyHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs.");
 }
 
 CMultiplayerPanel::CMultiplayerPanel()
@@ -543,33 +543,33 @@ void CMultiplayerPanel::LoadCallback()
 	GameServer()->SetServerType(SERVER_HOST);
 
 	if (CGameServer::LoadFromFile(pszFilename))
-		CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+		DigitanksWindow()->GetMainMenu()->SetVisible(false);
 	else
 	{
-		CDigitanksWindow::Get()->DestroyGame();
-		CDigitanksWindow::Get()->CreateGame(GAMETYPE_MENU);
+		DigitanksWindow()->DestroyGame();
+		DigitanksWindow()->CreateGame(GAMETYPE_MENU);
 	}
 }
 
 void CMultiplayerPanel::ClientHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Enter a hostname and port to connect to a remote host and play.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Enter a hostname and port to connect to a remote host and play.");
 }
 
 void CMultiplayerPanel::HostHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"Start a game here to set up your own host in this game mode.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Start a game here to set up your own host in this game mode.");
 }
 
 void CMultiplayerPanel::LoadHintCallback()
 {
-	CDigitanksWindow::Get()->GetMainMenu()->SetHint(L"You can load any saved game here to host it in multiplayer.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"You can load any saved game here to host it in multiplayer.");
 }
 
 CConnectPanel::CConnectPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	CDigitanksWindow::Get()->SetServerType(SERVER_CLIENT);
+	DigitanksWindow()->SetServerType(SERVER_CLIENT);
 
 	m_pHostnameLabel = new CLabel(0, 0, 32, 32, L"Host:");
 	m_pHostnameLabel->SetWrap(false);
@@ -597,17 +597,17 @@ void CConnectPanel::Layout()
 
 void CConnectPanel::ConnectCallback()
 {
-	CDigitanksWindow::Get()->SetConnectHost(m_pHostname->GetText());
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_EMPTY);
+	DigitanksWindow()->SetConnectHost(m_pHostname->GetText());
+	DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 }
 
 CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	: CPanel(0, 0, 570, 520)
 {
 	if (bMultiplayer)
-		CDigitanksWindow::Get()->SetServerType(SERVER_HOST);
+		DigitanksWindow()->SetServerType(SERVER_HOST);
 	else
-		CDigitanksWindow::Get()->SetServerType(SERVER_LOCAL);
+		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
 	m_pDifficulty = new CScrollSelector<int>();
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
@@ -689,9 +689,9 @@ void CArtilleryGamePanel::Layout()
 
 void CArtilleryGamePanel::BeginGameCallback()
 {
-	CDigitanksWindow::Get()->SetPlayers(m_pPlayers->GetSelectionValue());
-	CDigitanksWindow::Get()->SetTanks(m_pTanks->GetSelectionValue());
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_ARTILLERY);
+	DigitanksWindow()->SetPlayers(m_pPlayers->GetSelectionValue());
+	DigitanksWindow()->SetTanks(m_pTanks->GetSelectionValue());
+	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
 
 	if (!GameServer())
 		return;
@@ -699,17 +699,17 @@ void CArtilleryGamePanel::BeginGameCallback()
 	if (CNetwork::IsHost() && DigitanksGame())
 		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 
-	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+	DigitanksWindow()->GetInstructor()->SetActive(false);
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
 CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	: CPanel(0, 0, 570, 520)
 {
 	if (bMultiplayer)
-		CDigitanksWindow::Get()->SetServerType(SERVER_HOST);
+		DigitanksWindow()->SetServerType(SERVER_HOST);
 	else
-		CDigitanksWindow::Get()->SetServerType(SERVER_LOCAL);
+		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
 	m_pDifficulty = new CScrollSelector<int>();
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
@@ -768,8 +768,8 @@ void CStrategyGamePanel::Layout()
 
 void CStrategyGamePanel::BeginGameCallback()
 {
-	CDigitanksWindow::Get()->SetPlayers(m_pPlayers->GetSelectionValue());
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_STANDARD);
+	DigitanksWindow()->SetPlayers(m_pPlayers->GetSelectionValue());
+	DigitanksWindow()->CreateGame(GAMETYPE_STANDARD);
 
 	if (!GameServer())
 		return;
@@ -777,8 +777,8 @@ void CStrategyGamePanel::BeginGameCallback()
 	if (CNetwork::IsHost() && DigitanksGame())
 		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 
-	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(false);
+	DigitanksWindow()->GetInstructor()->SetActive(false);
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
 // HOLY CRAP A GLOBAL! Yeah it's bad. Sue me.
@@ -884,7 +884,7 @@ void COptionsPanel::Layout()
 	m_pSoundVolume->SetSize(GetWidth() - m_pSoundVolumeLabel->GetLeft()*2 - m_pSoundVolumeLabel->GetWidth(), iSelectorSize);
 	m_pSoundVolume->SetPos(m_pSoundVolumeLabel->GetRight(), 80);
 
-	m_pSoundVolume->SetSelection((size_t)(CDigitanksWindow::Get()->GetSoundVolume()*10));
+	m_pSoundVolume->SetSelection((size_t)(DigitanksWindow()->GetSoundVolume()*10));
 
 	m_pMusicVolumeLabel->EnsureTextFits();
 	m_pMusicVolumeLabel->SetPos(75, 160);
@@ -892,7 +892,7 @@ void COptionsPanel::Layout()
 	m_pMusicVolume->SetSize(GetWidth() - m_pMusicVolumeLabel->GetLeft()*2 - m_pMusicVolumeLabel->GetWidth(), iSelectorSize);
 	m_pMusicVolume->SetPos(m_pMusicVolumeLabel->GetRight(), 160);
 
-	m_pMusicVolume->SetSelection((size_t)(CDigitanksWindow::Get()->GetMusicVolume()*10));
+	m_pMusicVolume->SetSelection((size_t)(DigitanksWindow()->GetMusicVolume()*10));
 
 	m_pVideoChangedNotice->SetSize(GetWidth()-50, 30);
 	m_pVideoChangedNotice->SetPos(25, GetHeight()-290);
@@ -901,7 +901,7 @@ void COptionsPanel::Layout()
 	m_pVideoModes->SetPos(GetWidth()/2 - m_pVideoModes->GetWidth() - 40, GetHeight()-230);
 
 	eastl::string16 sVideoMode;
-	sVideoMode.sprintf(L"%dx%d", CDigitanksWindow::Get()->GetWindowWidth(), CDigitanksWindow::Get()->GetWindowHeight());
+	sVideoMode.sprintf(L"%dx%d", DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight());
 	m_pVideoModes->SetText(sVideoMode);
 
 	m_pWindowedLabel->SetWrap(false);
@@ -910,7 +910,7 @@ void COptionsPanel::Layout()
 	m_pWindowedLabel->EnsureTextFits();
 	m_pWindowedLabel->SetPos(GetWidth()/2 - m_pWindowedLabel->GetWidth()/2 + 10 + 40, GetHeight()-230);
 	m_pWindowed->SetPos(m_pWindowedLabel->GetLeft() - 15, GetHeight()-230 + m_pWindowedLabel->GetHeight()/2 - m_pWindowed->GetHeight()/2);
-	m_pWindowed->SetState(!CDigitanksWindow::Get()->IsFullscreen(), false);
+	m_pWindowed->SetState(!DigitanksWindow()->IsFullscreen(), false);
 
 	m_pConstrainLabel->SetWrap(false);
 	m_pConstrainLabel->SetAlign(CLabel::TA_LEFTCENTER);
@@ -918,21 +918,21 @@ void COptionsPanel::Layout()
 	m_pConstrainLabel->EnsureTextFits();
 	m_pConstrainLabel->SetPos(GetWidth()/2 - m_pConstrainLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
 	m_pConstrain->SetPos(m_pConstrainLabel->GetLeft() - 15, GetHeight()-180 + m_pConstrainLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
-	m_pConstrain->SetState(CDigitanksWindow::Get()->ShouldConstrainMouse(), false);
+	m_pConstrain->SetState(DigitanksWindow()->ShouldConstrainMouse(), false);
 
 	BaseClass::Layout();
 }
 
 void COptionsPanel::SoundVolumeChangedCallback()
 {
-	CDigitanksWindow::Get()->SetSoundVolume(m_pSoundVolume->GetSelectionValue());
-	CDigitanksWindow::Get()->SaveConfig();
+	DigitanksWindow()->SetSoundVolume(m_pSoundVolume->GetSelectionValue());
+	DigitanksWindow()->SaveConfig();
 }
 
 void COptionsPanel::MusicVolumeChangedCallback()
 {
-	CDigitanksWindow::Get()->SetMusicVolume(m_pMusicVolume->GetSelectionValue());
-	CDigitanksWindow::Get()->SaveConfig();
+	DigitanksWindow()->SetMusicVolume(m_pMusicVolume->GetSelectionValue());
+	DigitanksWindow()->SaveConfig();
 }
 
 void COptionsPanel::VideoModeChosenCallback()
@@ -944,8 +944,8 @@ void COptionsPanel::VideoModeChosenCallback()
 
 	int iHeight = g_aVideoModes[iMode].Height;
 	int iWidth = g_aVideoModes[iMode].Width;
-	CDigitanksWindow::Get()->SetConfigWindowDimensions(iWidth, iHeight);
-	CDigitanksWindow::Get()->SaveConfig();
+	DigitanksWindow()->SetConfigWindowDimensions(iWidth, iHeight);
+	DigitanksWindow()->SaveConfig();
 
 	m_pVideoChangedNotice->SetVisible(true);
 
@@ -954,14 +954,14 @@ void COptionsPanel::VideoModeChosenCallback()
 
 void COptionsPanel::WindowedChangedCallback()
 {
-	CDigitanksWindow::Get()->SetConfigFullscreen(!m_pWindowed->GetState());
-	CDigitanksWindow::Get()->SaveConfig();
+	DigitanksWindow()->SetConfigFullscreen(!m_pWindowed->GetState());
+	DigitanksWindow()->SaveConfig();
 
 	m_pVideoChangedNotice->SetVisible(true);
 }
 
 void COptionsPanel::ConstrainChangedCallback()
 {
-	CDigitanksWindow::Get()->SetConstrainMouse(m_pConstrain->GetState());
-	CDigitanksWindow::Get()->SaveConfig();
+	DigitanksWindow()->SetConstrainMouse(m_pConstrain->GetState());
+	DigitanksWindow()->SaveConfig();
 }

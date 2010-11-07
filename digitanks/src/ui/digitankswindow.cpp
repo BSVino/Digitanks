@@ -6,7 +6,6 @@
 
 #include <assert.h>
 #include <GL/glew.h>
-#include <GL/glfw.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <time.h>
@@ -30,30 +29,20 @@
 #include "renderer/renderer.h"
 #include "register.h"
 
-CDigitanksWindow* CDigitanksWindow::s_pDigitanksWindow = NULL;
-
 ConfigFile c( GetAppDataDirectory(L"Digitanks", L"options.cfg") );
 
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
+	: CApplication(argc, argv)
 {
-	s_pDigitanksWindow = this;
-
 	m_pGameServer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
-
-	srand((unsigned int)time(NULL));
-
-	for (int i = 0; i < argc; i++)
-		m_apszCommandLine.push_back(argv[i]);
 
 	m_bBoxSelect = false;
 	m_bCheatsOn = false;
 
 	m_iMouseLastX = 0;
 	m_iMouseLastY = 0;
-
-	glfwInit();
 
 	int iScreenWidth;
 	int iScreenHeight;
@@ -65,7 +54,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowWidth = c.read<int>("width", 1024);
 		m_iWindowHeight = c.read<int>("height", 768);
 
-		m_bFullscreen = m_bCfgFullscreen = !c.read<bool>("windowed", false);
+		m_bCfgFullscreen = !c.read<bool>("windowed", false);
 		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
 
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
@@ -77,11 +66,11 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowHeight = iScreenHeight*2/3;
 
 #ifdef _DEBUG
-		m_bFullscreen = false;
+		m_bCfgFullscreen = false;
 #else
-		m_bFullscreen = true;
-#endif
 		m_bCfgFullscreen = true;
+#endif
+
 		m_bConstrainMouse = true;
 
 		SetSoundVolume(0.8f);
@@ -93,39 +82,11 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
+}
 
-	if (HasCommandLineSwitch("--fullscreen"))
-		m_bFullscreen = true;
-
-	if (HasCommandLineSwitch("--windowed"))
-		m_bFullscreen = false;
-
-	glfwEnable( GLFW_MOUSE_CURSOR );
-
-	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
-	if (!glfwOpenWindow(m_iWindowWidth, m_iWindowHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
-	{
-		glfwTerminate();
-		return;
-	}
-
-	glfwSetWindowTitle( "Digitanks!" );
-
-	int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
-	int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
-	glfwSetWindowPos(iWindowX, iWindowY);
-
-	glfwSetWindowSizeCallback(&CDigitanksWindow::WindowResizeCallback);
-	glfwSetKeyCallback(&CDigitanksWindow::KeyEventCallback);
-	glfwSetCharCallback(&CDigitanksWindow::CharEventCallback);
-	glfwSetMousePosCallback(&CDigitanksWindow::MouseMotionCallback);
-	glfwSetMouseButtonCallback(&CDigitanksWindow::MouseInputCallback);
-	glfwSetMouseWheelCallback(&CDigitanksWindow::MouseWheelCallback);
-	glfwSwapInterval( 1 );
-	glfwSetTime( 0.0 );
-	glfwEnable( GLFW_MOUSE_CURSOR );
-
-	DumpGLInfo();
+void CDigitanksWindow::OpenWindow()
+{
+	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen);
 
 	if (!GLEW_ARB_texture_non_power_of_two)
 	{
@@ -138,22 +99,12 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	ilInit();
 
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-		exit(0);
-
 	m_iLoading = CRenderer::LoadTextureIntoGL(L"textures/loading.png");
 	RenderLoading();
 
 	CShaderLibrary::CompileShaders();
 
 	InitUI();
-
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glLineWidth(1.0);
 
 	CNetwork::Initialize();
 
@@ -172,146 +123,6 @@ CDigitanksWindow::~CDigitanksWindow()
 	delete m_pMainMenu;
 
 	DestroyGame();
-
-	glfwTerminate();
-}
-
-#define MAKE_PARAMETER(name) \
-{ #name, name } \
-
-void CDigitanksWindow::DumpGLInfo()
-{
-	glewInit();
-
-	std::ifstream i(GetAppDataDirectory(L"Digitanks", L"glinfo.txt").c_str());
-	if (i)
-		return;
-	i.close();
-
-	std::ofstream o(GetAppDataDirectory(L"Digitanks", L"glinfo.txt").c_str());
-	if (!o || !o.is_open())
-		return;
-
-	o << "Vendor: " << (char*)glGetString(GL_VENDOR) << ENDL;
-	o << "Renderer: " << (char*)glGetString(GL_RENDERER) << ENDL;
-	o << "Version: " << (char*)glGetString(GL_VERSION) << ENDL;
-
-	char* pszShadingLanguageVersion = (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-	if (pszShadingLanguageVersion)
-		o << "Shading Language Version: " << pszShadingLanguageVersion << ENDL;
-
-	eastl::string sExtensions = (char*)glGetString(GL_EXTENSIONS);
-	eastl::vector<eastl::string> asExtensions;
-	strtok(sExtensions, asExtensions);
-	o << "Extensions:" << ENDL;
-	for (size_t i = 0; i < asExtensions.size(); i++)
-		o << "\t" << asExtensions[i].c_str() << ENDL;
-
-	typedef struct
-	{
-		char* pszName;
-		int iParameter;
-	} GLParameter;
-
-	GLParameter aParameters[] =
-	{
-		MAKE_PARAMETER(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_ATTRIB_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_CLIP_PLANES),
-		MAKE_PARAMETER(GL_MAX_LIGHTS),
-		MAKE_PARAMETER(GL_MAX_COLOR_MATRIX_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_MODELVIEW_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_PROJECTION_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_SIZE),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_3D_TEXTURE_SIZE),
-		MAKE_PARAMETER(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB),
-		MAKE_PARAMETER(GL_MAX_RECTANGLE_TEXTURE_SIZE_NV),
-		MAKE_PARAMETER(GL_MAX_ELEMENTS_VERTICES),
-		MAKE_PARAMETER(GL_MAX_ELEMENTS_INDICES),
-		MAKE_PARAMETER(GL_MAX_EVAL_ORDER),
-		MAKE_PARAMETER(GL_MAX_LIST_NESTING),
-		MAKE_PARAMETER(GL_MAX_NAME_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_PIXEL_MAP_TABLE),
-		MAKE_PARAMETER(GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_UNITS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_LOD_BIAS_EXT),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT),
-		MAKE_PARAMETER(GL_MAX_DRAW_BUFFERS_ARB),
-
-		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_COMPONENTS),
-		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS),
-		MAKE_PARAMETER(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS),
-		MAKE_PARAMETER(GL_MAX_VARYING_FLOATS_ARB),
-		MAKE_PARAMETER(GL_MAX_VERTEX_ATTRIBS_ARB),
-		MAKE_PARAMETER(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_COORDS_ARB),
-		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_COORDS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_IMAGE_UNITS_ARB),
-	};
-
-	// Clear it
-	glGetError();
-
-	o << ENDL;
-
-	for (size_t i = 0; i < sizeof(aParameters)/sizeof(GLParameter); i++)
-	{
-		GLint iValue;
-		glGetIntegerv(aParameters[i].iParameter, &iValue);
-
-		if (glGetError() != GL_NO_ERROR)
-			continue;
-
-		o << aParameters[i].pszName << ": " << iValue << ENDL;
-	}
-
-	GLParameter aProgramParameters[] =
-	{
-		MAKE_PARAMETER(GL_MAX_PROGRAM_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_TEMPORARIES_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ATTRIBS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ENV_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ALU_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_TEX_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_TEX_INDIRECTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB),
-	};
-
-	o << ENDL;
-	o << "Vertex programs:" << ENDL;
-
-	for (size_t i = 0; i < sizeof(aProgramParameters)/sizeof(GLParameter); i++)
-	{
-		GLint iValue;
-		glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, aProgramParameters[i].iParameter, &iValue);
-
-		if (glGetError() == GL_NO_ERROR)
-			o << aProgramParameters[i].pszName << ": " << iValue << ENDL;
-	}
-
-	o << ENDL;
-	o << "Fragment programs:" << ENDL;
-
-	for (size_t i = 0; i < sizeof(aProgramParameters)/sizeof(GLParameter); i++)
-	{
-		GLint iValue;
-		glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, aProgramParameters[i].iParameter, &iValue);
-
-		if (glGetError() == GL_NO_ERROR)
-			o << aProgramParameters[i].pszName << ": " << iValue << ENDL;
-	}
 }
 
 void CDigitanksWindow::RenderLoading()
@@ -344,7 +155,8 @@ void CDigitanksWindow::RenderLoading()
 	glPopMatrix();
 
 	glPopAttrib();
-	glfwSwapBuffers();
+
+	SwapBuffers();
 }
 
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
@@ -368,22 +180,15 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
-	if (GameServer())
-	{
-		GameServer()->SetConnectHost(sHost);
-		GameServer()->SetServerType(m_eServerType);
-		if (eGameType == GAMETYPE_MENU)
-			GameServer()->SetServerType(SERVER_LOCAL);
-		GameServer()->SetServerPort(iPort);
-		GameServer()->Initialize();
-	}
-
 	if (!m_pGameServer)
 	{
 		m_pHUD = new CHUD();
 
 		m_pGameServer = new CGameServer();
+	}
 
+	if (GameServer())
+	{
 		GameServer()->SetConnectHost(sHost);
 		GameServer()->SetServerType(m_eServerType);
 		if (eGameType == GAMETYPE_MENU)
@@ -446,7 +251,7 @@ void CDigitanksWindow::Run()
 		m_pPurchase->OpeningApplication();
 	}
 
-	while (glfwGetWindowParam( GLFW_OPENED ))
+	while (IsOpen())
 	{
 		ConstrainMouse();
 
@@ -456,7 +261,7 @@ void CDigitanksWindow::Run()
 			CreateGame(GAMETYPE_MENU);
 		}
 
-		float flTime = (float)glfwGetTime();
+		float flTime = GetTime();
 		if (GameServer())
 		{
 			if (GameServer()->IsLoading())
@@ -483,7 +288,7 @@ void CDigitanksWindow::Run()
 			glgui::CRootPanel::Get()->Think(flTime);
 			glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
-			glfwSwapBuffers();
+			SwapBuffers();
 		}
 	}
 }
@@ -524,6 +329,9 @@ void CDigitanksWindow::Render()
 {
 	if (GameServer())
 		GameServer()->Render();
+
+	glgui::CRootPanel::Get()->Layout();
+	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
@@ -531,16 +339,7 @@ void CDigitanksWindow::WindowResize(int w, int h)
 	if (GameServer() && GameServer()->GetRenderer())
 		GameServer()->GetRenderer()->SetSize(w, h);
 
-	m_iWindowWidth = w;
-	m_iWindowHeight = h;
-
-	if (GameServer())
-		Render();
-
-	glgui::CRootPanel::Get()->Layout();
-	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
-
-	glfwSwapBuffers();
+	BaseClass::WindowResize(w, h);
 }
 
 bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit, int iCollisionGroup)
@@ -601,29 +400,6 @@ CInstructor* CDigitanksWindow::GetInstructor()
 		m_pInstructor = new CInstructor();
 
 	return m_pInstructor;
-}
-
-bool CDigitanksWindow::HasCommandLineSwitch(const char* pszSwitch)
-{
-	for (size_t i = 0; i < m_apszCommandLine.size(); i++)
-	{
-		if (strcmp(m_apszCommandLine[i], pszSwitch) == 0)
-			return true;
-	}
-
-	return false;
-}
-
-const char* CDigitanksWindow::GetCommandLineSwitchValue(const char* pszSwitch)
-{
-	// -1 to prevent buffer overrun
-	for (size_t i = 0; i < m_apszCommandLine.size()-1; i++)
-	{
-		if (strcmp(m_apszCommandLine[i], pszSwitch) == 0)
-			return m_apszCommandLine[i+1];
-	}
-
-	return NULL;
 }
 
 void CDigitanksWindow::SetSoundVolume(float flSoundVolume)

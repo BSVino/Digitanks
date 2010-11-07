@@ -254,8 +254,8 @@ void CHUD::Layout()
 {
 	SetSize(GetParent()->GetWidth(), GetParent()->GetHeight());
 
-	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
-	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
+	int iWidth = DigitanksWindow()->GetWindowWidth();
+	int iHeight = DigitanksWindow()->GetWindowHeight();
 
 	m_pAttackInfo->SetPos(iWidth - 165, iHeight - 150 - 90 - 10);
 	m_pAttackInfo->SetSize(165, 90);
@@ -366,8 +366,8 @@ void CHUD::Think()
 	CBaseEntity* pHit = NULL;
 	if (DigitanksGame()->GetControlMode() != MODE_NONE)
 	{
-		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecEntityPoint, &pHit);
-		bMouseOnGrid = CDigitanksWindow::Get()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN);
+		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
+		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN);
 	}
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
@@ -421,7 +421,7 @@ void CHUD::Think()
 		if (m_bHUDActive && pCurrentTank && DigitanksGame()->IsTeamControlledByMe(pCurrentTank->GetTeam()) && pCurrentTank->HasBonusPoints())
 		{
 			float flRamp = 1;
-			if (!CDigitanksWindow::Get()->GetInstructor()->GetActive() || CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
+			if (!DigitanksWindow()->GetInstructor()->GetActive() || DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
 				flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 		}
@@ -483,8 +483,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
-	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
-	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
+	int iWidth = DigitanksWindow()->GetWindowWidth();
+	int iHeight = DigitanksWindow()->GetWindowHeight();
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -532,7 +532,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
 		}
 
-		if (CDigitanksWindow::Get()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable))
+		if (DigitanksWindow()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable))
 		{
 			if (pSelectable->ShowHealthBar())
 			{
@@ -657,7 +657,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
 	size_t iX, iY, iX2, iY2;
-	if (CDigitanksWindow::Get()->GetBoxSelection(iX, iY, iX2, iY2))
+	if (DigitanksWindow()->GetBoxSelection(iX, iY, iX2, iY2))
 	{
 		Color clrSelection(255, 255, 255, 255);
 
@@ -1033,7 +1033,7 @@ void CHUD::UpdateScoreboard()
 	m_pScoreboard->SetSize(100, 9999);
 	m_pScoreboard->SetSize(m_pScoreboard->GetWidth(), (int)m_pScoreboard->GetTextHeight());
 
-	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
+	int iWidth = DigitanksWindow()->GetWindowWidth();
 
 	m_pScoreboard->SetPos(iWidth - m_pScoreboard->GetWidth() - 10, m_pAttackInfo->GetTop() - m_pScoreboard->GetHeight() - 20);
 }
@@ -1137,20 +1137,20 @@ void CHUD::ButtonCallback(int iButton)
 void CHUD::GameStart()
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);
-	CDigitanksWindow::Get()->GetInstructor()->Initialize();
+	DigitanksWindow()->GetInstructor()->Initialize();
 	ClearTurnInfo();
 }
 
 void CHUD::GameOver(bool bPlayerWon)
 {
-	CDigitanksWindow::Get()->GameOver(bPlayerWon);
+	DigitanksWindow()->GameOver(bPlayerWon);
 }
 
 void CHUD::NewCurrentTeam()
 {
 	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) &&
 			DigitanksGame()->GetPrimarySelectionTank() && !DigitanksGame()->GetPrimarySelectionTank()->HasGoalMovePosition() &&
-			CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)	// Don't set control mode if it's the end so we can open the menu.
+			DigitanksWindow()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)	// Don't set control mode if it's the end so we can open the menu.
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 	else
 		DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1565,8 +1565,8 @@ void CHUD::ShowButtonInfo(int iButton)
 	m_pButtonInfo->SetSize(m_pButtonInfo->GetWidth(), 9999);
 	m_pButtonInfo->SetSize(m_pButtonInfo->GetWidth(), (int)m_pButtonInfo->GetTextHeight());
 
-	int iWidth = CDigitanksWindow::Get()->GetWindowWidth();
-	int iHeight = CDigitanksWindow::Get()->GetWindowHeight();
+	int iWidth = DigitanksWindow()->GetWindowWidth();
+	int iHeight = DigitanksWindow()->GetWindowHeight();
 
 	m_pButtonInfo->SetPos(iWidth/2 + 720/2 - m_pButtonInfo->GetWidth() - 50, iHeight - 160 - m_pButtonInfo->GetHeight());
 }
@@ -1785,7 +1785,7 @@ void CHUD::PromoteAttackCallback()
 
 	UpdateInfo();
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::PromoteDefenseCallback()
@@ -1807,7 +1807,7 @@ void CHUD::PromoteDefenseCallback()
 
 	UpdateInfo();
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::PromoteMovementCallback()
@@ -1829,7 +1829,7 @@ void CHUD::PromoteMovementCallback()
 
 	UpdateInfo();
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::BuildMiniBufferCallback()
@@ -2377,7 +2377,7 @@ void CHUD::GoToMainCallback()
 
 void CHUD::SetNeedsUpdate()
 {
-	CDigitanksWindow::Get()->GetHUD()->m_bNeedsUpdate = true;
+	DigitanksWindow()->GetHUD()->m_bNeedsUpdate = true;
 }
 
 CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bShield)
@@ -2603,7 +2603,7 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 	if (!GameServer())
 		return;
 
-	if (CDigitanksWindow::Get()->GetHUD()->IsUpdatesPanelOpen())
+	if (DigitanksWindow()->GetHUD()->IsUpdatesPanelOpen())
 		return;
 
 	do {

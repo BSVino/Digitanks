@@ -170,7 +170,7 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	{
 		GetPrimarySelection()->OnCurrentSelection();
 
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
 	}
 }
 

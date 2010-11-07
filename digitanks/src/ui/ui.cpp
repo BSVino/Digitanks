@@ -79,8 +79,8 @@ CDigitanksMenu::CDigitanksMenu()
 
 void CDigitanksMenu::Layout()
 {
-	size_t iWidth = CDigitanksWindow::Get()->GetWindowWidth();
-	size_t iHeight = CDigitanksWindow::Get()->GetWindowHeight();
+	size_t iWidth = DigitanksWindow()->GetWindowWidth();
+	size_t iHeight = DigitanksWindow()->GetWindowHeight();
 
 	SetPos(iWidth/2-GetWidth()/2, iHeight/2-GetHeight()/2);
 
@@ -127,12 +127,12 @@ void CDigitanksMenu::Paint(int x, int y, int w, int h)
 
 void CDigitanksMenu::SetVisible(bool bVisible)
 {
-	if (CDigitanksWindow::Get()->GetInstructor())
+	if (DigitanksWindow()->GetInstructor())
 	{
 		if (bVisible)
-			CDigitanksWindow::Get()->GetInstructor()->HideTutorial();
+			DigitanksWindow()->GetInstructor()->HideTutorial();
 		else
-			CDigitanksWindow::Get()->GetInstructor()->ShowTutorial();
+			DigitanksWindow()->GetInstructor()->ShowTutorial();
 	}
 
 	m_pReturnToGame->SetVisible(!!GameServer());
@@ -157,7 +157,7 @@ void CDigitanksMenu::SaveCallback()
 void CDigitanksMenu::LoadCallback()
 {
 	if (!GameServer())
-		CDigitanksWindow::Get()->CreateGame(GAMETYPE_EMPTY);
+		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 
 	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
 	if (!pszFilename)
@@ -167,22 +167,22 @@ void CDigitanksMenu::LoadCallback()
 		SetVisible(false);
 	else
 	{
-		CDigitanksWindow::Get()->DestroyGame();
-		CDigitanksWindow::Get()->CreateGame(GAMETYPE_MENU);
+		DigitanksWindow()->DestroyGame();
+		DigitanksWindow()->CreateGame(GAMETYPE_MENU);
 	}
 }
 
 void CDigitanksMenu::ExitCallback()
 {
-	CDigitanksWindow::Get()->DestroyGame();
-	CDigitanksWindow::Get()->CreateGame(GAMETYPE_MENU);
+	DigitanksWindow()->DestroyGame();
+	DigitanksWindow()->CreateGame(GAMETYPE_MENU);
 	SetVisible(false);
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(true);
+	DigitanksWindow()->GetMainMenu()->SetVisible(true);
 }
 
 void CDigitanksMenu::QuitCallback()
 {
-	CDigitanksWindow::Get()->CloseApplication();
+	DigitanksWindow()->CloseApplication();
 }
 
 CVictoryPanel::CVictoryPanel()
@@ -222,7 +222,7 @@ bool CVictoryPanel::MousePressed(int code, int mx, int my)
 	return true;
 }
 
-bool CVictoryPanel::KeyPressed(int iKey)
+bool CVictoryPanel::KeyPressed(int iKey, bool bCtrlDown)
 {
 	SetVisible(false);
 	// Pass the keypress through so that the menu opens.
@@ -331,14 +331,14 @@ void CPurchasePanel::ClosingApplication()
 
 	m_pExitButton->SetClickedListener(this, Exit);
 
-	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	CDigitanksWindow::Get()->GetVictoryPanel()->SetVisible(false);
+	DigitanksWindow()->GetInstructor()->SetActive(false);
+	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
 }
 
 void CPurchasePanel::OpeningApplication()
 {
 	m_pPurchase->SetText(L"REGISTER DIGITANKS!\n \n"
-		L"If you've purchased the game, please paste your registration key into the box below. Otherwise please enjoy this demo with a 50 move turn limit.");
+		L"If you've purchased the game, please paste your registration key into the box below. Otherwise please enjoy this demo with a 80 move turn limit.");
 
 	SetVisible(true);
 	m_pRegistrationKey->SetVisible(true);
@@ -346,8 +346,8 @@ void CPurchasePanel::OpeningApplication()
 
 	m_pExitButton->SetClickedListener(this, MainMenu);
 
-	CDigitanksWindow::Get()->GetInstructor()->SetActive(false);
-	CDigitanksWindow::Get()->GetVictoryPanel()->SetVisible(false);
+	DigitanksWindow()->GetInstructor()->SetActive(false);
+	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
 }
 
 void CPurchasePanel::PurchaseCallback()
@@ -364,7 +364,7 @@ void CPurchasePanel::ExitCallback()
 void CPurchasePanel::MainMenuCallback()
 {
 	SetVisible(false);
-	CDigitanksWindow::Get()->GetMainMenu()->SetVisible(true);
+	DigitanksWindow()->GetMainMenu()->SetVisible(true);
 }
 
 void CPurchasePanel::RegisterCallback()
@@ -487,12 +487,12 @@ bool CStoryPanel::MousePressed(int code, int mx, int my)
 	DigitanksGame()->AllowActionItems(true);
 	DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
 	DigitanksGame()->AllowActionItems(false);
-	CDigitanksWindow::Get()->GetHUD()->ShowFirstActionItem();
+	DigitanksWindow()->GetHUD()->ShowFirstActionItem();
 
 	return true;
 }
 
-bool CStoryPanel::KeyPressed(int iKey)
+bool CStoryPanel::KeyPressed(int iKey, bool bCtrlDown)
 {
 	SetVisible(false);
 	// Pass the keypress through so that the menu opens.

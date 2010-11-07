@@ -77,7 +77,7 @@ namespace glgui
 		virtual void		Think()=0;
 		virtual void		UpdateScene()=0;
 
-		virtual bool		KeyPressed(int iKey)=0;
+		virtual bool		KeyPressed(int iKey, bool bCtrlDown = false)=0;
 		virtual bool		KeyReleased(int iKey)=0;
 		virtual bool		CharPressed(int iKey)=0;
 		virtual bool		MousePressed(int iButton, int mx, int my)=0;
@@ -204,7 +204,7 @@ namespace glgui
 		virtual bool	IsVisible();
 
 		virtual void	LevelShutdown( void ) { return; };
-		virtual bool	KeyPressed(int iKey) { return false; };
+		virtual bool	KeyPressed(int iKey, bool bCtrlDown = false) { return false; };
 		virtual bool	KeyReleased(int iKey) { return false; };
 		virtual bool	CharPressed(int iKey) { return false; };
 		virtual bool	MousePressed(int iButton, int mx, int my);
@@ -267,7 +267,7 @@ namespace glgui
 		virtual void			Think();
 		virtual void			UpdateScene();
 
-		virtual bool			KeyPressed(int code);
+		virtual bool			KeyPressed(int code, bool bCtrlDown = false);
 		virtual bool			KeyReleased(int code);
 		virtual bool			CharPressed(int iKey);
 		virtual bool			MousePressed(int code, int mx, int my);
@@ -1204,7 +1204,7 @@ namespace glgui
 		virtual void	SetFocus(bool bFocus);
 
 		virtual bool	CharPressed(int iKey);
-		virtual bool	KeyPressed(int iKey);
+		virtual bool	KeyPressed(int iKey, bool bCtrlDown = false);
 
 		virtual void	FindRenderOffset();
 

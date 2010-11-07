@@ -82,7 +82,7 @@ void CCamera::MouseInput(int x, int y)
 void CCamera::KeyDown(int c)
 {
 #ifdef _DEBUG
-	if (c == 'Z')
+	if (c == 'z')
 	{
 		SetFreeMode(!m_bFreeMode);
 	}
@@ -90,13 +90,13 @@ void CCamera::KeyDown(int c)
 
 	if (m_bFreeMode)
 	{
-		if (c == 'W')
+		if (c == 'w')
 			m_vecFreeVelocity.x = 10.0f;
-		if (c == 'S')
+		if (c == 's')
 			m_vecFreeVelocity.x = -10.0f;
-		if (c == 'D')
+		if (c == 'd')
 			m_vecFreeVelocity.z = 10.0f;
-		if (c == 'A')
+		if (c == 'a')
 			m_vecFreeVelocity.z = -10.0f;
 	}
 }
@@ -105,13 +105,13 @@ void CCamera::KeyUp(int c)
 {
 	if (m_bFreeMode)
 	{
-		if (c == 'W')
+		if (c == 'w')
 			m_vecFreeVelocity.x = 0.0f;
-		if (c == 'S')
+		if (c == 's')
 			m_vecFreeVelocity.x = 0.0f;
-		if (c == 'D')
+		if (c == 'd')
 			m_vecFreeVelocity.z = 0.0f;
-		if (c == 'A')
+		if (c == 'a')
 			m_vecFreeVelocity.z = 0.0f;
 	}
 }

@@ -98,7 +98,7 @@ void CDigitanksGame::Spawn()
 	m_bRenderFogOfWar = true;
 	m_bAllowActionItems = false;
 
-	SetListener(CDigitanksWindow::Get()->GetHUD());
+	SetListener(DigitanksWindow()->GetHUD());
 
 	m_flLastFireworks = 0;
 }
@@ -600,7 +600,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	}
 
 	if (m_eGameType == GAMETYPE_STANDARD && !CNetwork::IsConnected())
-		CDigitanksWindow::Get()->GetStoryPanel()->SetVisible(true);
+		DigitanksWindow()->GetStoryPanel()->SetVisible(true);
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -781,7 +781,7 @@ void CDigitanksGame::MoveTanks()
 		//else
 			SetControlMode(MODE_NONE);
 
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
 	}
 }
 
@@ -826,7 +826,7 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 
 	SetControlMode(MODE_NONE);
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 }
 
 void CDigitanksGame::FireTanks()
@@ -871,10 +871,10 @@ void CDigitanksGame::EndTurn()
 
 	EndTurn(NULL);
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 	if (GetCurrentTeam() == GetLocalTeam())
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING2, true);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING2, true);
 }
 
 void CDigitanksGame::EndTurn(CNetworkParameters* p)
@@ -905,7 +905,7 @@ void CDigitanksGame::StartTurn()
 		return;
 	}
 
-	if (GetGameType() != GAMETYPE_MENU && !CDigitanksWindow::Get()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
+	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
@@ -1164,7 +1164,7 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 		return;
 	}
 
-	if (CDigitanksWindow::Get()->GetVictoryPanel()->IsVisible())
+	if (DigitanksWindow()->GetVictoryPanel()->IsVisible())
 		return;
 
 	if (!GetPrimarySelection()->AllowControlMode(eMode))
@@ -1175,7 +1175,7 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 	m_eControlMode = eMode;
 
 	if (eMode == MODE_AIM)
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 }
 
 void CDigitanksGame::TerrainData(class CNetworkParameters* p)
@@ -1403,7 +1403,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 	}
 
 	// Make sure that features now enabled are turned on.
-	CDigitanksWindow::Get()->GetHUD()->SetupMenu();
+	DigitanksWindow()->GetHUD()->SetupMenu();
 }
 
 void CDigitanksGame::ClientEnterGame()
@@ -1432,7 +1432,7 @@ void CDigitanksGame::ClientEnterGame()
 		GetDigitanksCamera()->SnapDistance(120);
 	}
 
-	CDigitanksWindow::Get()->GetHUD()->ClientEnterGame();
+	DigitanksWindow()->GetHUD()->ClientEnterGame();
 	glgui::CRootPanel::Get()->Layout();
 }
 
@@ -1446,7 +1446,7 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 
 	if (m_eGameType == GAMETYPE_TUTORIAL)
 	{
-		size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+		size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 		if (iTutorial >= CInstructor::TUTORIAL_INTRO_BASES)
 			return true;
 		else
@@ -1474,7 +1474,7 @@ bool CDigitanksGame::CanBuildMiniBuffers()
 
 bool CDigitanksGame::CanBuildBuffers()
 {
-	bool bDisableBuffer = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
+	bool bDisableBuffer = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
 	return !bDisableBuffer;
 }
 
@@ -1488,25 +1488,25 @@ bool CDigitanksGame::CanBuildBatteries()
 
 bool CDigitanksGame::CanBuildPSUs()
 {
-	bool bDisablePSU = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
+	bool bDisablePSU = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
 	return !bDisablePSU;
 }
 
 bool CDigitanksGame::CanBuildInfantryLoaders()
 {
-	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
 }
 
 bool CDigitanksGame::CanBuildTankLoaders()
 {
-	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
 }
 
 bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
-	bool bDisableLoaders = CDigitanksWindow::Get()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
+	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
 }
 

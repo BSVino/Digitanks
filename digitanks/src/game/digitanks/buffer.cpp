@@ -45,7 +45,7 @@ void CBuffer::Precache()
 
 void CBuffer::SetupMenu(menumode_t eMenuMode)
 {
-	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
 	if (IsInstalling())
@@ -214,7 +214,7 @@ void CMiniBuffer::Precache()
 
 void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 {
-	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
 	if (!IsConstructing() && CanStructureUpgrade())

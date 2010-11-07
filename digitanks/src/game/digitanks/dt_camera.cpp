@@ -1,8 +1,5 @@
 #include "dt_camera.h"
 
-// This shouldn't be here!
-#include <GL/glfw.h>
-
 #include <maths.h>
 #include <mtrand.h>
 #include <renderer/renderer.h>
@@ -11,6 +8,7 @@
 
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
+#include <tinker/keys.h>
 
 CDigitanksCamera::CDigitanksCamera()
 {
@@ -85,14 +83,14 @@ void CDigitanksCamera::ZoomOut()
 {
 	SetDistance(m_flNewDistance+20);
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
 
 void CDigitanksCamera::ZoomIn()
 {
 	SetDistance(m_flNewDistance-20);
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ZOOMCAMERA);
 }
 
 void CDigitanksCamera::Shake(Vector vecLocation, float flMagnitude)
@@ -237,7 +235,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 	{
 		m_bMouseDragLeft = false;
 		m_vecGoalVelocity.z = 0;
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
 	if (!m_bMouseDragUp && y < 15)
@@ -250,33 +248,33 @@ void CDigitanksCamera::MouseInput(int x, int y)
 	{
 		m_bMouseDragUp = false;
 		m_vecGoalVelocity.x = 0;
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
-	if (!m_bMouseDragRight && x > CDigitanksWindow::Get()->GetWindowWidth()-15)
+	if (!m_bMouseDragRight && x > DigitanksWindow()->GetWindowWidth()-15)
 	{
 		m_bMouseDragRight = true;
 		m_vecGoalVelocity.z = -80.0f;
 	}
 
-	if (m_bMouseDragRight && x < CDigitanksWindow::Get()->GetWindowWidth()-15)
+	if (m_bMouseDragRight && x < DigitanksWindow()->GetWindowWidth()-15)
 	{
 		m_bMouseDragRight = false;
 		m_vecGoalVelocity.z = 0;
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
-	if (!m_bMouseDragDown && y > CDigitanksWindow::Get()->GetWindowHeight()-15)
+	if (!m_bMouseDragDown && y > DigitanksWindow()->GetWindowHeight()-15)
 	{
 		m_bMouseDragDown = true;
 		m_vecGoalVelocity.x = 80.0f;
 	}
 
-	if (m_bMouseDragDown && y < CDigitanksWindow::Get()->GetWindowHeight()-15)
+	if (m_bMouseDragDown && y < DigitanksWindow()->GetWindowHeight()-15)
 	{
 		m_bMouseDragDown = false;
 		m_vecGoalVelocity.x = 0;
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 	}
 
 	BaseClass::MouseInput(x, y);
@@ -284,7 +282,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 
 void CDigitanksCamera::MouseButton(int iButton, int iState)
 {
-	if (iButton == GLFW_MOUSE_BUTTON_2)
+	if (iButton == TINKER_KEY_MOUSE_RIGHT)
 		m_bRotatingCamera = !!iState;
 
 	BaseClass::MouseButton(iButton, iState);
@@ -294,13 +292,13 @@ void CDigitanksCamera::KeyDown(int c)
 {
 	if (!m_bFreeMode)
 	{
-		if (c == GLFW_KEY_UP)
+		if (c == TINKER_KEY_UP)
 			m_vecGoalVelocity.x = -80.0f;
-		if (c == GLFW_KEY_DOWN)
+		if (c == TINKER_KEY_DOWN)
 			m_vecGoalVelocity.x = 80.0f;
-		if (c == GLFW_KEY_RIGHT)
+		if (c == TINKER_KEY_RIGHT)
 			m_vecGoalVelocity.z = -80.0f;
-		if (c == GLFW_KEY_LEFT)
+		if (c == TINKER_KEY_LEFT)
 			m_vecGoalVelocity.z = 80.0f;
 	}
 
@@ -311,13 +309,13 @@ void CDigitanksCamera::KeyUp(int c)
 {
 	if (!m_bFreeMode)
 	{
-		if (c == GLFW_KEY_UP)
+		if (c == TINKER_KEY_UP)
 			m_vecGoalVelocity.x = 0.0f;
-		if (c == GLFW_KEY_DOWN)
+		if (c == TINKER_KEY_DOWN)
 			m_vecGoalVelocity.x = 0.0f;
-		if (c == GLFW_KEY_RIGHT)
+		if (c == TINKER_KEY_RIGHT)
 			m_vecGoalVelocity.z = 0.0f;
-		if (c == GLFW_KEY_LEFT)
+		if (c == TINKER_KEY_LEFT)
 			m_vecGoalVelocity.z = 0.0f;
 	}
 

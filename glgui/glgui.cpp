@@ -1,8 +1,5 @@
 #include "glgui.h"
 
-#include <GL/glew.h>
-#include <GL/glfw.h>
-
 #include <assert.h>
 #include <EASTL/algorithm.h>
 #include <GL/glew.h>
@@ -10,6 +7,7 @@
 #include <vector.h>
 #include <platform.h>
 #include <strutils.h>
+#include <tinker/keys.h>
 
 using namespace glgui;
 
@@ -259,7 +257,7 @@ void CPanel::Destructor()
 	CBaseControl::Destructor();
 }
 
-bool CPanel::KeyPressed(int code)
+bool CPanel::KeyPressed(int code, bool bCtrlDown)
 {
 	int iCount = (int)m_apControls.size();
 
@@ -271,7 +269,7 @@ bool CPanel::KeyPressed(int code)
 		if (!pControl->IsVisible())
 			continue;
 
-		if (pControl->KeyPressed(code))
+		if (pControl->KeyPressed(code, bCtrlDown))
 			return true;
 	}
 	return false;
@@ -1051,7 +1049,7 @@ bool CButton::MousePressed(int code, int mx, int my)
 		return CLabel::MousePressed(code, mx, my);
 
 	bool bUsed = false;
-	if (code == 0)
+	if (code == TINKER_KEY_MOUSE_LEFT)
 	{
 		bUsed = Push();
 		CRootPanel::Get()->SetButtonDown(this);
@@ -1068,7 +1066,7 @@ bool CButton::MouseReleased(int code, int mx, int my)
 		return false;
 
 	bool bUsed = false;
-	if (code == 0)
+	if (code == TINKER_KEY_MOUSE_LEFT)
 	{
 		bUsed = Pop();
 		CRootPanel::Get()->SetButtonDown(NULL);
@@ -2607,7 +2605,7 @@ bool CTextField::CharPressed(int iKey)
 {
 	if (HasFocus())
 	{
-		if (iKey <= GLFW_KEY_SPECIAL)
+		if (iKey <= TINKER_KEY_FIRST)
 			m_sText.insert(m_iCursor++, 1, iKey);
 
 		m_flBlinkTime = CRootPanel::Get()->GetTime();
@@ -2620,23 +2618,23 @@ bool CTextField::CharPressed(int iKey)
 	return CBaseControl::CharPressed(iKey);
 }
 
-bool CTextField::KeyPressed(int iKey)
+bool CTextField::KeyPressed(int iKey, bool bCtrlDown)
 {
 	if (HasFocus())
 	{
-		if (iKey == GLFW_KEY_ESC || iKey == GLFW_KEY_ENTER)
+		if (iKey == TINKER_KEY_ESCAPE || iKey == TINKER_KEY_ENTER)
 			CRootPanel::Get()->SetFocus(NULL);
-		else if (iKey == GLFW_KEY_LEFT)
+		else if (iKey == TINKER_KEY_LEFT)
 		{
 			if (m_iCursor > 0)
 				m_iCursor--;
 		}
-		else if (iKey == GLFW_KEY_RIGHT)
+		else if (iKey == TINKER_KEY_RIGHT)
 		{
 			if (m_iCursor < m_sText.length())
 				m_iCursor++;
 		}
-		else if (iKey == GLFW_KEY_BACKSPACE)
+		else if (iKey == TINKER_KEY_BACKSPACE)
 		{
 			if (m_iCursor > 0)
 			{
@@ -2644,20 +2642,20 @@ bool CTextField::KeyPressed(int iKey)
 				m_iCursor--;
 			}
 		}
-		else if (iKey == GLFW_KEY_DEL)
+		else if (iKey == TINKER_KEY_DEL)
 		{
 			if (m_iCursor < m_sText.length())
 				m_sText.erase(m_iCursor, 1);
 		}
-		else if (iKey == GLFW_KEY_HOME)
+		else if (iKey == TINKER_KEY_HOME)
 		{
 			m_iCursor = 0;
 		}
-		else if (iKey == GLFW_KEY_END)
+		else if (iKey == TINKER_KEY_END)
 		{
 			m_iCursor = m_sText.length();
 		}
-		else if (iKey == 'V' && (glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL)))
+		else if (iKey == 'v' && bCtrlDown)
 		{
 			eastl::string16 sClipboard = convertstring<char, char16_t>(GetClipboard());
 			m_sText.insert(m_sText.begin()+m_iCursor, sClipboard.begin(), sClipboard.end());
@@ -2671,7 +2669,7 @@ bool CTextField::KeyPressed(int iKey)
 		return true;
 	}
 
-	return CBaseControl::KeyPressed(iKey);
+	return CBaseControl::KeyPressed(iKey, bCtrlDown);
 }
 
 void CTextField::FindRenderOffset()

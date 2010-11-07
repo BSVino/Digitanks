@@ -49,7 +49,7 @@ public:
 
 	virtual bool					IsCursorListener() {return true;};
 	virtual bool					MousePressed(int code, int mx, int my);
-	virtual bool					KeyPressed(int iKey);
+	virtual bool					KeyPressed(int iKey, bool bCtrlDown = false);
 
 	virtual void					GameOver(bool bPlayerWon);
 
@@ -106,7 +106,7 @@ public:
 
 	virtual bool					IsCursorListener() {return true;};
 	virtual bool					MousePressed(int code, int mx, int my);
-	virtual bool					KeyPressed(int iKey);
+	virtual bool					KeyPressed(int iKey, bool bCtrlDown = false);
 
 protected:
 	glgui::CLabel*					m_pStory;

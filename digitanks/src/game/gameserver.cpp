@@ -308,7 +308,7 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 	if (!GameServer())
 		return false;
 
-	CDigitanksWindow::Get()->RenderLoading();
+	DigitanksWindow()->RenderLoading();
 
 	GameServer()->Initialize();
 

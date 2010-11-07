@@ -210,7 +210,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		return;
 	}
 
-	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
 	if (IsInstalling())
@@ -406,11 +406,11 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 	m_iProductionStored = 0;
 	m_bProducing = true;
 
-	CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PRODUCING_UNITS);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PRODUCING_UNITS);
 
-	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_PRODUCING_UNITS)
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+		DigitanksWindow()->GetInstructor()->NextTutorial();
 
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();

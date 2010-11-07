@@ -12,10 +12,12 @@ extern void RunIntro();
 
 void CreateApplication(int argc, char** argv)
 {
-	RunIntro();
-
 	CDigitanksWindow oWindow(argc, argv);
 
+	if (!oWindow.HasCommandLineSwitch("--no-intro"))
+		RunIntro();
+
+	oWindow.OpenWindow();
 	oWindow.Run();
 }
 

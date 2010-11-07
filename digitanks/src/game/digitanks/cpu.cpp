@@ -85,7 +85,7 @@ void CCPU::Precache()
 
 void CCPU::SetupMenu(menumode_t eMenuMode)
 {
-	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
 	bool bDisableMiniBuffer = !GetDigitanksTeam()->CanBuildMiniBuffers();
@@ -509,12 +509,12 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	GetDigitanksTeam()->CountProducers();
 
-	size_t iTutorial = CDigitanksWindow::Get()->GetInstructor()->GetCurrentTutorial();
+	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 
 	if (ePreviewStructure == STRUCTURE_BUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)
 	{
-		CDigitanksWindow::Get()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BUFFER);
-		CDigitanksWindow::Get()->GetInstructor()->NextTutorial();
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BUFFER);
+		DigitanksWindow()->GetInstructor()->NextTutorial();
 
 		// Make sure it's done next turn.
 		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());

@@ -99,6 +99,7 @@
     <ClCompile Include="..\..\EASTL\src\red_black_tree.cpp" />
     <ClCompile Include="..\..\EASTL\src\string.cpp" />
     <ClCompile Include="..\..\license\license.cpp" />
+    <ClCompile Include="..\..\tinker\application.cpp" />
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
@@ -170,6 +171,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\common\configfile.h" />
     <ClInclude Include="..\..\license\license.h" />
+    <ClInclude Include="..\..\tinker\application.h" />
+    <ClInclude Include="..\..\tinker\keys.h" />
     <ClInclude Include="dt_version.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
