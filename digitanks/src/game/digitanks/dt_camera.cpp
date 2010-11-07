@@ -302,6 +302,11 @@ void CDigitanksCamera::KeyDown(int c)
 			m_vecGoalVelocity.z = 80.0f;
 	}
 
+	if (c == TINKER_KEY_PAGEUP)
+		ZoomIn();
+	if (c == TINKER_KEY_PAGEDOWN)
+		ZoomOut();
+
 	BaseClass::KeyDown(c);
 }
 

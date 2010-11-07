@@ -848,7 +848,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	Vector vecAttack = vecOrigin - vecAim;
 	float flAttackDistance = vecAttack.Length();
 
-	if (flAttackDistance > pTank->GetMaxRange())
+	if (!pTank->IsInsideMaxRange(vecAim))
 		return;
 
 	if (flAttackDistance < pTank->GetMinRange())
@@ -857,7 +857,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (!pTank->IsPreviewAimValid())
 		return;
 
-	float flRadius = RemapValClamped(flAttackDistance, pTank->GetEffRange(), pTank->GetMaxRange(), 2, pTank->MaxRangeRadius());
+	float flRadius = pTank->FindAimRadius(vecAim);
 
 	CDigitank* pClosestTarget = NULL;
 

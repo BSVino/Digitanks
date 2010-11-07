@@ -74,7 +74,7 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 
 		if (bInRange)
 		{
-			if (pClosest->Distance(GetOrigin()) > GetMaxRange())
+			if (!IsInsideMaxRange(pClosest->GetOrigin()))
 				return NULL;
 		}
 		else

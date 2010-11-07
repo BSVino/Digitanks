@@ -651,7 +651,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestInfantry->GetTeam() == pTank->GetTeam())
 					continue;
 
-				if (pClosestInfantry->Distance(pTank->GetOrigin()) > pClosestInfantry->GetMaxRange())
+				if (!pClosestInfantry->IsInsideMaxRange(pTank->GetOrigin()))
 				{
 					pClosestInfantry = NULL;
 					break;
@@ -707,7 +707,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
 
 			// Bomb it until it's below 1/3 and then our job is done, move to the next one.
-			if (pClosestSupply && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
+			if (pClosestSupply && pTank->IsInsideMaxRange(vecPoint))
 			{
 				// FIRE ZE MISSILES
 				pTank->SetPreviewAim(vecPoint);
@@ -730,7 +730,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 			else if (pClosestSupply)
 			{
-				if (pClosestSupply->Distance(pTank->GetOrigin()) > pTank->GetMaxRange())
+				if (!pTank->IsInsideMaxRange(pClosestSupply->GetOrigin()))
 				{
 					if (!pTank->HasFiredWeapon())
 						flMovementPower = 0.69f;
@@ -767,7 +767,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				DistanceToLineSegment(pTank->GetOrigin(), pClosestSupply->GetEntity()->GetOrigin(), pClosestSupply->GetSupplier()->GetOrigin(), &vecPoint);
 
 			// Maybe now that we've moved closer we can try to fire again.
-			if (pClosestSupply && pClosestSupply->GetIntegrity() > 0.3f && pClosestSupply->Distance(pTank->GetOrigin()) < pTank->GetMaxRange())
+			if (pClosestSupply && pClosestSupply->GetIntegrity() > 0.3f && pTank->IsInsideMaxRange(vecPoint))
 			{
 				// FIRE ZE MISSILES
 				pTank->SetPreviewAim(vecPoint);
@@ -838,7 +838,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 
 			// If we are within the max range, try to fire.
-			if ((vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			if (pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
@@ -867,7 +867,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 
 			// If we are within the max range, try to fire.
-			if (pTarget && (vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
@@ -876,7 +876,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		if (pTank->IsInfantry())
 		{
-			if (pTarget && (vecTargetOrigin - pTank->GetPreviewMove()).LengthSqr() < pTank->GetMaxRange()*pTank->GetMaxRange())
+			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();

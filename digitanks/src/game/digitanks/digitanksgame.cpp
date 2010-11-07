@@ -852,10 +852,11 @@ void CDigitanksGame::FireTanks()
 			continue;
 
 		Vector vecTankAim = vecPreviewAim;
-		if ((vecTankAim - pTank->GetOrigin()).Length() > pTank->GetMaxRange())
+		while (!pTank->IsInsideMaxRange(vecTankAim))
 		{
-			vecTankAim = pTank->GetOrigin() + (vecTankAim - pTank->GetOrigin()).Normalized() * pTank->GetMaxRange() * 0.99f;
-			vecTankAim.y = pTank->FindHoverHeight(vecTankAim);
+			Vector vecDirection = vecTankAim - pTank->GetOrigin();
+			vecDirection.y = 0;
+			vecTankAim = DigitanksGame()->GetTerrain()->SetPointHeight(pTank->GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 		}
 
 		pTank->SetPreviewAim(vecTankAim);

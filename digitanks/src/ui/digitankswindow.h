@@ -49,6 +49,7 @@ public:
 	virtual void				KeyPress(int c);
 	virtual void				KeyRelease(int c);
 	virtual void				CharPress(int c);
+	virtual void				CharRelease(int c);
 
 	bool						GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
 

@@ -401,6 +401,9 @@ tinker_keys_t MapKey(int c)
 		return TINKER_KEY_KP_ENTER;
 	}
 
+	if (c < 256)
+		return (tinker_keys_t)c;
+
 	return TINKER_KEY_UKNOWN;
 }
 
@@ -476,6 +479,8 @@ void CApplication::CharEvent(int c, int e)
 {
 	if (e == GLFW_PRESS)
 		CharPress(c);
+	else
+		CharRelease(c);
 }
 
 bool CApplication::IsCtrlDown()

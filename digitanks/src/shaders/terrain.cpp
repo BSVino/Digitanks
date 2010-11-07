@@ -58,6 +58,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		REMAPVAL
 		LERP
 		LENGTHSQR
+		LENGTH2DSQR
 		DISTANCE_TO_SEGMENT_SQR
 		ANGLE_DIFFERENCE
 
@@ -212,6 +213,9 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"		vec3 vecDirection = vecPosition - vecTankPreviewOrigin;"
 		"		float flPreviewDistanceSqr = LengthSqr(vecDirection);"
+		"		float flPreviewDistance2DSqr = Length2DSqr(vecDirection);"
+		"		float flHeightToTank = vecDirection.y;"
+
 		"		vecDirection = normalize(vecDirection);"
 
 		"		float flYaw = atan(vecDirection.z, vecDirection.x) * 180.0/3.14159;"
@@ -219,23 +223,56 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"		if (abs(flYawDifference) < flTankFiringCone)"
 		"		{"
-		"			if (flPreviewDistanceSqr <= flTankEffRange*flTankEffRange && flPreviewDistanceSqr >= flTankMinRange*flTankMinRange)"
+		"			float flMoveColorStrength;"
+
+					// The inner part of the green fade
+		"			if (flHeightToTank*flHeightToTank > ((flPreviewDistanceSqr/2.0) * (flPreviewDistanceSqr/2.0)))"
+		"				flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMinRange*flTankMinRange, flTankEffRange*flTankEffRange, 0.0, 1.0);"
+		"			else"
 		"			{"
-		"				float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMinRange*flTankMinRange, flTankEffRange*flTankEffRange, 0.0, 1.0);"
+		"				float flTankRangeInside = flTankMinRange;"
+						// *1.115 because (1-cos(30)) is .133974596	but it doesn't line up perfectly like that for some reason.
+		"				float flTankRangeOutside = flTankEffRange*1.115-(flHeightToTank/2.0);"
+		"				flMoveColorStrength = RemapVal(flPreviewDistance2DSqr, flTankRangeInside*flTankRangeInside, flTankRangeOutside*flTankRangeOutside, 0.0, 1.0);"
+		"			}"
+
+		"			if (flMoveColorStrength <= 1.0 && flMoveColorStrength >= 0.0)"
+		"			{"
 		"				flMoveColorStrength = Lerp(flMoveColorStrength, 0.8) * flColorStrength;"
 		"				vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"			}"
-		"			if (flPreviewDistanceSqr <= flTankMaxRange*flTankMaxRange && flPreviewDistanceSqr >= flTankEffRange*flTankEffRange)"
+
+					// The outer part of the green fade
+		"			if (flHeightToTank*flHeightToTank > ((flPreviewDistanceSqr/2.0) * (flPreviewDistanceSqr/2.0)))"
+		"				flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRange*flTankMaxRange, flTankEffRange*flTankEffRange, 0.0, 1.0);"
+		"			else"
 		"			{"
-		"				float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRange*flTankMaxRange, flTankEffRange*flTankEffRange, 0.0, 1.0);"
+		"				float flTankRangeInside = flTankEffRange*1.115-(flHeightToTank/2.0);"
+		"				float flTankRangeOutside = flTankMaxRange*1.115-(flHeightToTank/2.0);"
+		"				flMoveColorStrength = RemapVal(flPreviewDistance2DSqr, flTankRangeInside*flTankRangeInside, flTankRangeOutside*flTankRangeOutside, 1.0, 0.0);"
+		"			}"
+
+		"			if (flMoveColorStrength <= 1.0 && flMoveColorStrength >= 0.0)"
+		"			{"
 		"				flMoveColorStrength = Lerp(flMoveColorStrength, 0.1) * flColorStrength;"
 		"				vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.0, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"			}"
 
-		"			float flTankMaxRangeInside = flTankMaxRange-3.0;"
-		"			if (flPreviewDistanceSqr <= flTankMaxRange*flTankMaxRange && flPreviewDistanceSqr >= flTankMaxRangeInside*flTankMaxRangeInside)"
+					// The big red circle
+		"			if (flHeightToTank*flHeightToTank > ((flPreviewDistanceSqr/2.0) * (flPreviewDistanceSqr/2.0)))"
 		"			{"
-		"				float flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRangeInside*flTankMaxRangeInside, flTankMaxRange*flTankMaxRange, 0.0, 1.0);"
+		"				float flTankMaxRangeInside = flTankMaxRange-3.0;"
+		"				flMoveColorStrength = RemapVal(flPreviewDistanceSqr, flTankMaxRangeInside*flTankMaxRangeInside, flTankMaxRange*flTankMaxRange, 0.0, 1.0);"
+		"			}"
+		"			else"
+		"			{"
+		"				float flTankMaxRangeInside = flTankMaxRange*1.115-3.0-(flHeightToTank/2.0);"
+		"				float flTankMaxRangeOutside = flTankMaxRange*1.115-(flHeightToTank/2.0);"
+		"				flMoveColorStrength = RemapVal(flPreviewDistance2DSqr, flTankMaxRangeInside*flTankMaxRangeInside, flTankMaxRangeOutside*flTankMaxRangeOutside, 0.0, 1.0);"
+		"			}"
+
+		"			if (flMoveColorStrength <= 1.0 && flMoveColorStrength >= 0.0)"
+		"			{"
 		"				flMoveColorStrength = Lerp(flMoveColorStrength, 0.2) * flColorStrength;"
 		"				vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.0, 0.0, 1.0) * flMoveColorStrength;"
 		"			}"

@@ -183,8 +183,12 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	if (!m_pGameServer)
 	{
 		m_pHUD = new CHUD();
+		glgui::CRootPanel::Get()->AddControl(m_pHUD);
 
 		m_pGameServer = new CGameServer();
+
+		if (!m_pInstructor)
+			m_pInstructor = new CInstructor();
 	}
 
 	if (GameServer())
@@ -197,11 +201,6 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		GameServer()->Initialize();
 
 		CNetwork::SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
-
-		glgui::CRootPanel::Get()->AddControl(m_pHUD);
-
-		if (!m_pInstructor)
-			m_pInstructor = new CInstructor();
 	}
 
 	if (CNetwork::IsHost() && DigitanksGame())

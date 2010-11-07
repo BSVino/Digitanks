@@ -46,6 +46,7 @@ public:
 	static void					CharEventCallback(int c, int e) { Get()->CharEvent(c, e); };
 	void						CharEvent(int c, int e);
 	virtual void				CharPress(int c) {};
+	virtual void				CharRelease(int c) {};
 
 	bool						IsCtrlDown();
 	bool						IsAltDown();

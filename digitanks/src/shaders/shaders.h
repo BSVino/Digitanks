@@ -120,6 +120,12 @@ inline const char* CShaderLibrary::GetVSPassShader()
 	"	return v.x*v.x + v.y*v.y;" \
 	"}" \
 
+#define LENGTH2DSQR \
+	"float Length2DSqr(vec3 v)" \
+	"{" \
+	"	return v.x*v.x + v.z*v.z;" \
+	"}" \
+
 #define LERP \
 	"float Lerp(float x, float flLerp)" \
 	"{" \

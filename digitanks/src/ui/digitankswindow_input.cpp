@@ -246,6 +246,9 @@ void CDigitanksWindow::KeyPress(int c)
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
+
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->KeyDown(c);
 }
 
 void CDigitanksWindow::KeyRelease(int c)
@@ -275,9 +278,6 @@ void CDigitanksWindow::CharPress(int c)
 			}
 		}
 	}
-
-	if (GameServer() && GameServer()->GetCamera())
-		GameServer()->GetCamera()->KeyDown(c);
 
 	if (c == 'q')
 		GetHUD()->ButtonCallback(0);
@@ -355,6 +355,10 @@ void CDigitanksWindow::CharPress(int c)
 		if (DigitanksGame()->GetPrimarySelection())
 			DigitanksGame()->TankSpeak(DigitanksGame()->GetPrimarySelectionTank(), ":D!");
 	}
+}
+
+void CDigitanksWindow::CharRelease(int c)
+{
 }
 
 bool CDigitanksWindow::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2)

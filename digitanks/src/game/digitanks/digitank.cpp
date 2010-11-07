@@ -733,7 +733,7 @@ CDigitank* CDigitank::FindClosestVisibleEnemyTank(bool bInRange)
 
 		if (bInRange)
 		{
-			if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > GetMaxRange())
+			if (!IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				return NULL;
 		}
 		else
@@ -781,13 +781,14 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 
 	m_bPreviewAim = true;
 
-	if ((vecPreviewAim - GetOrigin()).LengthSqr() > GetMaxRange()*GetMaxRange())
+	while (!IsInsideMaxRange(vecPreviewAim))
 	{
-		vecPreviewAim = GetOrigin() + (vecPreviewAim - GetOrigin()).Normalized() * GetMaxRange() * 0.99f;
-		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
+		Vector vecDirection = vecPreviewAim - GetOrigin();
+		vecDirection.y = 0;
+		vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 	}
 
-	if ((vecPreviewAim - GetOrigin()).LengthSqr() < GetMinRange()*GetMinRange())
+	if ((vecPreviewAim - GetOrigin()).Length2DSqr() < GetMinRange()*GetMinRange())
 	{
 		vecPreviewAim = GetOrigin() + (vecPreviewAim - GetOrigin()).Normalized() * GetMinRange() * 1.01f;
 		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
@@ -813,13 +814,52 @@ bool CDigitank::IsPreviewAimValid()
 	if (!m_bPreviewAim)
 		return false;
 
-	if ((GetPreviewAim() - GetOrigin()).LengthSqr() > GetMaxRange()*GetMaxRange())
+	if (!IsInsideMaxRange(GetPreviewAim()))
 		return false;
 
 	if ((GetPreviewAim() - GetOrigin()).LengthSqr() < GetMinRange()*GetMinRange())
 		return false;
 
 	return true;
+}
+
+bool CDigitank::IsInsideMaxRange(Vector vecPoint)
+{
+	Vector vecDirection = vecPoint - GetOrigin();
+	float flPreviewDistanceSqr = vecDirection.LengthSqr();
+	float flPreviewDistance2DSqr = vecDirection.Length2DSqr();
+	float flHeightToTank = vecDirection.y;
+	if (flHeightToTank*flHeightToTank > ((flPreviewDistanceSqr/2) * (flPreviewDistanceSqr/2)))
+	{
+		if (flPreviewDistanceSqr > GetMaxRange()*GetMaxRange())
+			return false;
+		else
+			return true;
+	}
+	else
+	{
+		float flMaxRange = GetMaxRange()*1.115f-(flHeightToTank/2);
+		if (flPreviewDistance2DSqr > flMaxRange*flMaxRange)
+			return false;
+		else
+			return true;
+	}
+}
+
+float CDigitank::FindAimRadius(Vector vecPoint, float flMin)
+{
+	Vector vecDirection = vecPoint - GetOrigin();
+	float flPreviewDistanceSqr = vecDirection.LengthSqr();
+	float flPreviewDistance2DSqr = vecDirection.Length2DSqr();
+	float flHeightToTank = vecDirection.y;
+	if (flHeightToTank*flHeightToTank > ((flPreviewDistanceSqr/2) * (flPreviewDistanceSqr/2)))
+		return RemapValClamped(flPreviewDistanceSqr, GetEffRange()*GetEffRange(), GetMaxRange()*GetMaxRange(), flMin, MaxRangeRadius());
+	else
+	{
+		float flMaxRange = GetMaxRange()*1.115f-(flHeightToTank/2);
+		float flEffRange = GetEffRange()*1.115f-(flHeightToTank/2);
+		return RemapValClamped(flPreviewDistance2DSqr, flEffRange*flEffRange, flMaxRange*flMaxRange, flMin, MaxRangeRadius());
+	}
 }
 
 void CDigitank::Move()
@@ -1215,10 +1255,11 @@ void CDigitank::Think()
 
 		if (m_bFiredWeapon || bMouseOK)
 		{
-			if ((vecTankAim - GetOrigin()).Length() > GetMaxRange())
+			while (!IsInsideMaxRange(vecTankAim))
 			{
-				vecTankAim = GetOrigin() + (vecTankAim - GetOrigin()).Normalized() * GetMaxRange() * 0.99f;
-				vecTankAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecTankAim.x, vecTankAim.z);
+				Vector vecDirection = vecTankAim - GetOrigin();
+				vecDirection.y = 0;
+				vecTankAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 			}
 
 			if ((vecTankAim - GetOrigin()).Length() < GetMinRange())
@@ -1231,9 +1272,7 @@ void CDigitank::Think()
 				m_bDisplayAim = false;
 			else
 			{
-				float flDistance = (vecTankAim - GetOrigin()).Length();
-
-				float flRadius = RemapValClamped(flDistance, GetEffRange(), GetMaxRange(), 2, MaxRangeRadius());
+				float flRadius = FindAimRadius(vecTankAim);
 				DigitanksGame()->AddTankAim(vecTankAim, flRadius, GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 				m_bDisplayAim = true;
@@ -1419,7 +1458,7 @@ bool CDigitank::NeedsOrders()
 
 			if (pClosestEnemy)
 			{
-				if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > GetMaxRange())
+				if (!IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
 					pClosestEnemy = NULL;
 					break;
@@ -1641,7 +1680,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 void CDigitank::Fire()
 {
 	float flDistanceSqr = (m_vecPreviewAim - GetOrigin()).LengthSqr();
-	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
+	if (!IsInsideMaxRange(m_vecPreviewAim))
 		return;
 
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
@@ -1709,18 +1748,15 @@ void CDigitank::Fire(CNetworkParameters* p)
 void CDigitank::FireProjectile()
 {
 	float flDistanceSqr = (m_vecLastAim.Get() - GetOrigin()).LengthSqr();
-	if (flDistanceSqr > GetMaxRange()*GetMaxRange())
+	if (!IsInsideMaxRange(m_vecLastAim.Get()))
 		return;
 
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
 
-	float flDistance = (m_vecLastAim.Get() - GetOrigin()).Length();
 	Vector vecLandingSpot = m_vecLastAim.Get();
 
-	float flFactor = 1;
-	if (flDistance > GetEffRange())
-		flFactor = RemapVal(flDistance, GetEffRange(), GetMaxRange(), 1, MaxRangeRadius());
+	float flFactor = FindAimRadius(m_vecLastAim.Get(), 1);
 
 	float flYaw = RandomFloat(0, 360);
 	float flRadius = RandomFloat(1, flFactor);

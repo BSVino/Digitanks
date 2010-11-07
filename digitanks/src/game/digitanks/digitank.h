@@ -138,6 +138,9 @@ public:
 	bool						IsPreviewAimValid();
 	Vector						GetLastAim() { return m_vecLastAim.Get(); };
 
+	bool						IsInsideMaxRange(Vector vecPoint);
+	float						FindAimRadius(Vector vecPoint, float flMin = 2.0f);
+
 	void						Move();
 	void						Move(class CNetworkParameters* p);
 	bool						IsMoving();

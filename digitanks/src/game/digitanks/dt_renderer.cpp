@@ -29,7 +29,7 @@ CDigitanksRenderer::CDigitanksRenderer()
 
 	m_iVignetting = CRenderer::LoadTextureIntoGL(L"textures/vignetting.png");
 
-	m_flLastBloomPulse = 0;
+	m_flLastBloomPulse = -100;
 }
 
 void CDigitanksRenderer::SetupFrame()
