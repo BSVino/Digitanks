@@ -33,14 +33,14 @@ CParticleSystemLibrary::~CParticleSystemLibrary()
 	s_pParticleSystemLibrary = NULL;
 }
 
-size_t CParticleSystemLibrary::AddParticleSystem(const std::wstring& sName)
+size_t CParticleSystemLibrary::AddParticleSystem(const eastl::string16& sName)
 {
 	m_apParticleSystems.push_back(new CParticleSystem(sName));
 
 	return m_apParticleSystems.size()-1;
 }
 
-size_t CParticleSystemLibrary::FindParticleSystem(const std::wstring& sName)
+size_t CParticleSystemLibrary::FindParticleSystem(const eastl::string16& sName)
 {
 	for (size_t i = 0; i < m_apParticleSystems.size(); i++)
 	{
@@ -71,9 +71,9 @@ void CParticleSystemLibrary::Simulate()
 {
 	CParticleSystemLibrary* pPSL = Get();
 
-	std::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
+	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
 
-	std::vector<size_t> aiDeleted;
+	eastl::vector<size_t> aiDeleted;
 
 	for (; it != pPSL->m_apInstances.end(); it++)
 	{
@@ -92,13 +92,13 @@ void CParticleSystemLibrary::Simulate()
 void CParticleSystemLibrary::Render()
 {
 	CParticleSystemLibrary* pPSL = Get();
-	std::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
+	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
 
 	for (; it != pPSL->m_apInstances.end(); it++)
 		(*it).second->Render();
 }
 
-size_t CParticleSystemLibrary::AddInstance(const std::wstring& sName, Vector vecOrigin)
+size_t CParticleSystemLibrary::AddInstance(const eastl::string16& sName, Vector vecOrigin)
 {
 	return AddInstance(CParticleSystemLibrary::Get()->FindParticleSystem(sName), vecOrigin);
 }
@@ -111,7 +111,7 @@ size_t CParticleSystemLibrary::AddInstance(size_t iParticleSystem, Vector vecOri
 	if (!pSystem)
 		return ~0;
 
-	pPSL->m_apInstances.insert(std::pair<size_t, CSystemInstance*>(pPSL->m_iSystemInstanceIndex++, new CSystemInstance(pSystem, vecOrigin)));
+	pPSL->m_apInstances.insert(eastl::pair<size_t, CSystemInstance*>(pPSL->m_iSystemInstanceIndex++, new CSystemInstance(pSystem, vecOrigin)));
 	return pPSL->m_iSystemInstanceIndex-1;
 }
 
@@ -127,7 +127,7 @@ void CParticleSystemLibrary::StopInstance(size_t iInstance)
 
 void CParticleSystemLibrary::RemoveInstance(size_t iInstance)
 {
-	std::map<size_t, CSystemInstance*>::iterator it = Get()->m_apInstances.find(iInstance);
+	eastl::map<size_t, CSystemInstance*>::iterator it = Get()->m_apInstances.find(iInstance);
 
 	if (it == Get()->m_apInstances.end())
 		return;
@@ -151,7 +151,7 @@ void CParticleSystemLibrary::ClearInstances()
 		RemoveInstance((*pPSL->m_apInstances.begin()).first);
 }
 
-CParticleSystem::CParticleSystem(std::wstring sName)
+CParticleSystem::CParticleSystem(eastl::string16 sName)
 {
 	m_bLoaded = false;
 	m_sName = sName;

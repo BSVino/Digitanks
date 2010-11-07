@@ -142,8 +142,8 @@ protected:
 		size_t y;
 	};
 
-	std::map<size_t, std::vector<CUpdateCoordinate> >	m_aUpdates;
-	std::map<size_t, size_t>		m_aiUpdatesInstalled;
+	eastl::map<size_t, eastl::vector<CUpdateCoordinate> >	m_aUpdates;
+	eastl::map<size_t, size_t>	m_aiUpdatesInstalled;
 
 	size_t						m_iScaffolding;
 	CNetworkedVariable<float>	m_flScaffoldingSize;
@@ -157,7 +157,7 @@ protected:
 	} defender_t;
 
 	// AI stuff
-	std::vector<defender_t>		m_aoDefenders;
+	eastl::vector<defender_t>	m_aoDefenders;
 };
 
 class CSupplier : public CStructure
@@ -226,8 +226,8 @@ protected:
 		float					m_flSpeed;
 	};
 
-	std::vector<CTendril>		m_aTendrils;
-	std::vector<CEntityHandle<CStructure> >	m_ahChildren;
+	eastl::vector<CTendril>		m_aTendrils;
+	eastl::vector<CEntityHandle<CStructure> >	m_ahChildren;
 
 	size_t						m_iTendrilsCallList;
 	float						m_flTendrilGrowthStartTime;

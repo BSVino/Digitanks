@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#include <strutils.h>
+
 CSoundLibrary* CSoundLibrary::s_pSoundLibrary = NULL;
 static CSoundLibrary g_SoundLibrary = CSoundLibrary();
 
@@ -31,7 +33,7 @@ CSoundLibrary::~CSoundLibrary()
 	s_pSoundLibrary = NULL;
 }
 
-size_t CSoundLibrary::AddSound(const char* pszFilename)
+size_t CSoundLibrary::AddSound(const eastl::string16& pszFilename)
 {
 	size_t iSound = FindSound(pszFilename);
 	if (iSound != ~0)
@@ -51,18 +53,18 @@ CSound* CSoundLibrary::GetSound(size_t i)
 	return m_apSounds[i];
 }
 
-size_t CSoundLibrary::FindSound(const char* pszFilename)
+size_t CSoundLibrary::FindSound(const eastl::string16& pszFilename)
 {
 	for (size_t i = 0; i < m_apSounds.size(); i++)
 	{
-		if (strcmp(m_apSounds[i]->m_sFilename.c_str(), pszFilename) == 0)
+		if (m_apSounds[i]->m_sFilename == pszFilename)
 			return i;
 	}
 
 	return ~0;
 }
 
-void CSoundLibrary::PlaySound(CBaseEntity* pEntity, const char* pszFilename)
+void CSoundLibrary::PlaySound(CBaseEntity* pEntity, const eastl::string16& pszFilename)
 {
 	if (Get()->m_aiActiveSounds.find(pEntity) != Get()->m_aiActiveSounds.end())
 	{
@@ -87,18 +89,18 @@ void CSoundLibrary::PlaySound(CBaseEntity* pEntity, const char* pszFilename)
 	Get()->m_aiActiveSounds[pEntity][pszFilename] = iChannel;
 }
 
-void CSoundLibrary::StopSound(CBaseEntity* pEntity, const char* pszFilename)
+void CSoundLibrary::StopSound(CBaseEntity* pEntity, const eastl::string16& pszFilename)
 {
 	if (!pEntity)
 	{
 		// Un-register the channel finish callback for the time being because we clear the active sound list by ourselves.
 		Mix_ChannelFinished(NULL);
 
-		std::map<CBaseEntity*, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
+		eastl::map<CBaseEntity*, eastl::map<eastl::string16, int> >::iterator it = Get()->m_aiActiveSounds.begin();
 
 		while (it != Get()->m_aiActiveSounds.end())
 		{
-			std::map<const char*, int>::iterator it2 = Get()->m_aiActiveSounds[(*it).first].begin();
+			eastl::map<eastl::string16, int>::iterator it2 = Get()->m_aiActiveSounds[(*it).first].begin();
 			while (it2 != Get()->m_aiActiveSounds[(*it).first].end())
 			{
 				Mix_HaltChannel(Get()->m_aiActiveSounds[(*it).first][(*it2).first]);
@@ -117,12 +119,12 @@ void CSoundLibrary::StopSound(CBaseEntity* pEntity, const char* pszFilename)
 	if (Get()->m_aiActiveSounds.find(pEntity) == Get()->m_aiActiveSounds.end())
 		return;
 
-	if (!pszFilename)
+	if (pszFilename != L"")
 	{
 		// Un-register the channel finish callback for the time being because we clear the active sound list by ourselves.
 		Mix_ChannelFinished(NULL);
 
-		std::map<const char*, int>::iterator it2 = Get()->m_aiActiveSounds[pEntity].begin();
+		eastl::map<eastl::string16, int>::iterator it2 = Get()->m_aiActiveSounds[pEntity].begin();
 		while (it2 != Get()->m_aiActiveSounds[pEntity].end())
 		{
 			Mix_HaltChannel(Get()->m_aiActiveSounds[pEntity][(*it2).first]);
@@ -141,7 +143,7 @@ void CSoundLibrary::StopSound(CBaseEntity* pEntity, const char* pszFilename)
 	Mix_HaltChannel(Get()->m_aiActiveSounds[pEntity][pszFilename]);
 }
 
-bool CSoundLibrary::IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename)
+bool CSoundLibrary::IsSoundPlaying(CBaseEntity* pEntity, const eastl::string16& pszFilename)
 {
 	if (Get()->m_aiActiveSounds.find(pEntity) == Get()->m_aiActiveSounds.end())
 		return false;
@@ -153,12 +155,12 @@ bool CSoundLibrary::IsSoundPlaying(CBaseEntity* pEntity, const char* pszFilename
 }
 
 Mix_Music *g_pMusic = NULL;
-void CSoundLibrary::PlayMusic(const char* pszFilename, bool bLoop)
+void CSoundLibrary::PlayMusic(const eastl::string16& pszFilename, bool bLoop)
 {
 	if (g_pMusic)
 		StopMusic();
 
-	g_pMusic = Mix_LoadMUS(pszFilename);
+	g_pMusic = Mix_LoadMUS(convertstring<char16_t, char>(pszFilename).c_str());
 
 	Mix_PlayMusic(g_pMusic, bLoop?-1:0);
 }
@@ -179,7 +181,7 @@ bool CSoundLibrary::IsMusicPlaying()
 	return !!Mix_PlayingMusic();
 }
 
-void CSoundLibrary::SetSoundVolume(CBaseEntity* pEntity, const char* pszFilename, float flVolume)
+void CSoundLibrary::SetSoundVolume(CBaseEntity* pEntity, const eastl::string16& pszFilename, float flVolume)
 {
 	if (Get()->m_aiActiveSounds.find(pEntity) == Get()->m_aiActiveSounds.end())
 		return;
@@ -202,15 +204,15 @@ void CSoundLibrary::SetMusicVolume(float flVolume)
 
 void CSoundLibrary::ChannelFinished(int iChannel)
 {
-	std::map<CBaseEntity*, std::map<const char*, int> >::iterator it = Get()->m_aiActiveSounds.begin();
+	eastl::map<CBaseEntity*, eastl::map<eastl::string16, int> >::iterator it = Get()->m_aiActiveSounds.begin();
 
 	while (it != Get()->m_aiActiveSounds.end())
 	{
 		CBaseEntity* pEntity = (*it).first;
-		std::map<const char*, int>::iterator it2 = Get()->m_aiActiveSounds[pEntity].begin();
+		eastl::map<eastl::string16, int>::iterator it2 = Get()->m_aiActiveSounds[pEntity].begin();
 		while (it2 != Get()->m_aiActiveSounds[pEntity].end())
 		{
-			const char* pszFilename = (*it2).first;
+			eastl::string16 pszFilename = (*it2).first;
 			if (iChannel == Get()->m_aiActiveSounds[pEntity][(*it2).first])
 			{
 				Get()->m_aiActiveSounds[pEntity].erase(Get()->m_aiActiveSounds[pEntity].find(pszFilename));
@@ -233,9 +235,9 @@ void CSoundLibrary::EntityDeleted(CBaseEntity* pEntity)
 		Get()->m_aiActiveSounds.erase(Get()->m_aiActiveSounds.find(pEntity));
 }
 
-CSound::CSound(const char* pszFilename)
+CSound::CSound(const eastl::string16& pszFilename)
 {
-	SDL_RWops* pRW = SDL_RWFromFile(pszFilename, "rb");
+	SDL_RWops* pRW = SDL_RWFromFile(convertstring<char16_t, char>(pszFilename).c_str(), "rb");
 
 	m_pSound = Mix_LoadWAV_RW(pRW, 1);
 

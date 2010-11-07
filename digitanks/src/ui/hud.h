@@ -59,7 +59,7 @@ class CHitIndicator : public glgui::CLabel
 	DECLARE_CLASS(CHitIndicator, glgui::CLabel);
 
 public:
-								CHitIndicator(CBaseEntity* pVictim, std::wstring sMessage);
+								CHitIndicator(CBaseEntity* pVictim, eastl::string16 sMessage);
 
 public:
 	virtual void				Destructor();
@@ -80,7 +80,7 @@ class CSpeechBubble : public glgui::CLabel
 	DECLARE_CLASS(CSpeechBubble, glgui::CLabel);
 
 public:
-								CSpeechBubble(CBaseEntity* pSpeaker, std::string sSpeech, size_t iBubble);
+								CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech, size_t iBubble);
 
 public:
 	virtual void				Destructor();
@@ -139,7 +139,7 @@ public:
 	void						SetButtonListener(int iButton, IEventListener::Callback pfnCallback);
 	void						SetButtonTexture(int iButton, size_t iTexture);
 	void						SetButtonColor(int iButton, Color clrButton);
-	void						SetButtonInfo(int iButton, const wchar_t* pszInfo);
+	void						SetButtonInfo(int iButton, const eastl::string16& pszInfo);
 	void						ButtonCallback(int iButton);
 
 	virtual void				GameStart();
@@ -156,10 +156,10 @@ public:
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 
-	virtual void				TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech);
+	virtual void				TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
 
 	virtual void				ClearTurnInfo();
-	virtual void				AppendTurnInfo(const wchar_t* pszInfo);
+	virtual void				AppendTurnInfo(const eastl::string16& pszInfo);
 
 	virtual void				SetHUDActive(bool bActive);
 
@@ -274,7 +274,7 @@ protected:
 	size_t						m_iTurnInfoPanel;
 
 	glgui::CLabel*				m_pButtonInfo;
-	std::wstring				m_aszButtonInfos[NUM_BUTTONS];
+	eastl::string16				m_aszButtonInfos[NUM_BUTTONS];
 
 	glgui::CLabel*				m_pPressEnter;
 

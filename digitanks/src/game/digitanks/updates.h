@@ -7,8 +7,8 @@
 class CUpdateItem
 {
 public:
-	std::wstring	GetName();
-	std::wstring	GetInfo();
+	eastl::string16	GetName();
+	eastl::string16	GetInfo();
 
 public:
 	updateclass_t	m_eUpdateClass;

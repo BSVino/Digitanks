@@ -31,7 +31,7 @@ public:
 
 	virtual bool				NeedsOrders();
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	void						BeginProduction();
 	void						BeginProduction(class CNetworkParameters* p);
@@ -53,7 +53,7 @@ public:
 	void						SetBuildUnit(buildunit_t eBuildUnit);
 	buildunit_t					GetBuildUnit() const { return m_eBuildUnit.Get(); };
 
-	virtual const wchar_t*		GetName();
+	virtual eastl::string16		GetName();
 	virtual unittype_t			GetUnitType();
 	virtual size_t				ConstructionCost() const { return GetLoaderConstructionCost(GetBuildUnit()); };
 	virtual float				TotalHealth() const { return 70; };

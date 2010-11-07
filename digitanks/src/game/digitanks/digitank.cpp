@@ -60,7 +60,7 @@ const char* CDigitank::s_apszTankLines[] =
 	"!!",	// TANKLINE_THRILLED
 };
 
-std::map<size_t, std::vector<size_t> > g_aiSpeechLines;
+eastl::map<size_t, eastl::vector<size_t> > g_aiSpeechLines;
 
 NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(float, m_flStartingPower);
@@ -161,14 +161,14 @@ void CDigitank::Precache()
 	PrecacheParticleSystem(L"tank-fire");
 	PrecacheParticleSystem(L"promotion");
 	PrecacheParticleSystem(L"tank-hover");
-	PrecacheSound("sound/tank-fire.wav");
-	PrecacheSound("sound/shield-damage.wav");
-	PrecacheSound("sound/tank-damage.wav");
-	PrecacheSound("sound/tank-active.wav");
-	PrecacheSound("sound/tank-active2.wav");
-	PrecacheSound("sound/tank-move.wav");
-	PrecacheSound("sound/tank-aim.wav");
-	PrecacheSound("sound/tank-promoted.wav");
+	PrecacheSound(L"sound/tank-fire.wav");
+	PrecacheSound(L"sound/shield-damage.wav");
+	PrecacheSound(L"sound/tank-damage.wav");
+	PrecacheSound(L"sound/tank-active.wav");
+	PrecacheSound(L"sound/tank-active2.wav");
+	PrecacheSound(L"sound/tank-move.wav");
+	PrecacheSound(L"sound/tank-aim.wav");
+	PrecacheSound(L"sound/tank-promoted.wav");
 
 	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
@@ -862,8 +862,8 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound("sound/tank-move.wav");
-		SetSoundVolume("sound/tank-move.wav", 0.5f);
+		EmitSound(L"sound/tank-move.wav");
+		SetSoundVolume(L"sound/tank-move.wav", 0.5f);
 
 		m_iHoverParticles = CParticleSystemLibrary::AddInstance(L"tank-hover", GetOrigin());
 		if (m_iHoverParticles != ~0)
@@ -1288,9 +1288,9 @@ void CDigitank::OnCurrentSelection()
 	if (GetDigitanksTeam() == DigitanksGame()->GetLocalDigitanksTeam() && GetVisibility() > 0)
 	{
 		if (rand()%2 == 0)
-			EmitSound("sound/tank-active.wav");
+			EmitSound(L"sound/tank-active.wav");
 		else
-			EmitSound("sound/tank-active2.wav");
+			EmitSound(L"sound/tank-active2.wav");
 	}
 
 	Speak(TANKSPEECH_SELECTED);
@@ -1545,25 +1545,25 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(2, s_iCancelIcon);
 
-			std::wstringstream s;
+			eastl::string16 s;
 			if (IsInfantry())
-				s << L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
+				s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
 			else if (IsScout())
-				s << L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.";
+				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.";
 			else
-				s << L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
+				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
 
 			if (IsScout() && m_flTotalPower < CScout::TorpedoAttackPower() || m_flTotalPower < 1)
 			{
 				pHUD->SetButtonColor(2, glgui::g_clrBox);
-				s << "\n \nNOT ENOUGH ENERGY";
+				s += L"\n \nNOT ENOUGH ENERGY";
 
 				pHUD->SetButtonListener(2, NULL);
 			}
 
-			s << "\n \nShortcut: E";
+			s += L"\n \nShortcut: E";
 
-			pHUD->SetButtonInfo(2, s.str().c_str());
+			pHUD->SetButtonInfo(2, s);
 		}
 
 		if (GetFrontShieldMaxStrength() > 0)
@@ -1598,12 +1598,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, s_iPromoteAttackIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-			std::wstringstream s1;
-			s1 << "UPGRADE ATTACK ENERGY\n \n"
-				<< "This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n"
-				<< "Attack Energy increase: 10%\n \n"
-				<< "Shortcut: Q";
-			pHUD->SetButtonInfo(0, s1.str().c_str());
+			eastl::string16 s1;
+			s1 += L"UPGRADE ATTACK ENERGY\n \n";
+			s1 += L"This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n";
+			s1 += L"Attack Energy increase: 10%\n \n";
+			s1 += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s1);
 		}
 
 		if (!IsArtillery() && !IsScout())
@@ -1612,24 +1612,24 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(1, s_iPromoteDefenseIcon);
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "UPGRADE DEFENSE ENERGY\n \n"
-				<< "This upgrade strengthens your tank's shield generator, increasing the maximum Defense Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n"
-				<< "Defense Energy increase: 10%\n \n"
-				<< "Shortcut: W";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+			eastl::string16 s;
+			s += L"UPGRADE DEFENSE ENERGY\n \n";
+			s += L"This upgrade strengthens your tank's shield generator, increasing the maximum Defense Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n";
+			s += L"Defense Energy increase: 10%\n \n";
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
 		}
 
 		pHUD->SetButtonListener(2, CHUD::PromoteMovement);
 		pHUD->SetButtonTexture(2, s_iPromoteMoveIcon);
 		pHUD->SetButtonColor(2, Color(150, 150, 150));
 
-		std::wstringstream s2;
-		s2 << "UPGRADE MOVEMENT ENERGY\n \n"
-			<< "This upgrade overclocks your tank's engines, increasing the maximum Movement Energy available to your tank past its normal levels. With this you'll spend less energy moving your tank around.\n \n"
-			<< "Movement Energy increase: 10%\n \n"
-			<< "Shortcut: E";
-		pHUD->SetButtonInfo(2, s2.str().c_str());
+		eastl::string16 s2;
+		s2 += L"UPGRADE MOVEMENT ENERGY\n \n";
+		s2 += L"This upgrade overclocks your tank's engines, increasing the maximum Movement Energy available to your tank past its normal levels. With this you'll spend less energy moving your tank around.\n \n";
+		s2 += L"Movement Energy increase: 10%\n \n";
+		s2 += L"Shortcut: E";
+		pHUD->SetButtonInfo(2, s2);
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
 		pHUD->SetButtonTexture(9, s_iCancelIcon);
@@ -1687,8 +1687,8 @@ void CDigitank::Fire(CNetworkParameters* p)
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound("sound/tank-aim.wav");
-		SetSoundVolume("sound/tank-aim.wav", 0.5f);
+		EmitSound(L"sound/tank-aim.wav");
+		SetSoundVolume(L"sound/tank-aim.wav", 0.5f);
 	}
 
 	if (CNetwork::IsHost())
@@ -1765,7 +1765,7 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound("sound/tank-fire.wav");
+		EmitSound(L"sound/tank-fire.wav");
 
 		Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
 		size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
@@ -1848,8 +1848,8 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 		if (GetVisibility() > 0)
 		{
-			EmitSound("sound/shield-damage.wav");
-			SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
+			EmitSound(L"sound/shield-damage.wav");
+			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
 		}
 
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, true);
@@ -1864,16 +1864,16 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound("sound/tank-damage.wav");
-		SetSoundVolume("sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
+		EmitSound(L"sound/tank-damage.wav");
+		SetSoundVolume(L"sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
 	}
 
 	if (flShield > 1.0f)
 	{
 		if (GetVisibility() > 0)
 		{
-			EmitSound("sound/shield-damage.wav");
-			SetSoundVolume("sound/shield-damage.wav", RemapValClamped(flShield, 0, 5, 0, 1));
+			EmitSound(L"sound/shield-damage.wav");
+			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flShield, 0, 5, 0, 1));
 		}
 	}
 
@@ -2235,52 +2235,51 @@ void CDigitank::PostRender()
 	}
 }
 
-void CDigitank::UpdateInfo(std::wstring& sInfo)
+void CDigitank::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
+	s = L"";
+	eastl::string16 p;
 
-	s << GetName();
+	s += GetName();
 
 	if (IsFortified())
-		s << L"\n[Fortified]";
+		s += L"\n[Fortified]";
 
 	else if (IsFortifying())
-		s << L"\n[Fortifying...]";
+		s += L"\n[Fortifying...]";
 
 	if (HasBonusPoints())
 	{
 		if (GetBonusPoints() > 1)
-			s << L"\n \n" << GetBonusPoints() << L" upgrades";
+			s += p.sprintf(L"\n \n%d upgrades", GetBonusPoints());
 		else
-			s << L"\n \n1 upgrade";
+			s += L"\n \n1 upgrade";
 	}
 
 	if (GetBonusAttackPower())
 	{
-		s << L"\n \n+" << (int)GetBonusAttackPower() << L" attack energy";
+		s += p.sprintf(L"\n \n+%d attack energy", (int)GetBonusAttackPower());
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s << L"\n (+" << (int)GetFortifyAttackPowerBonus() << L" from fortify)";
+			s += p.sprintf(L"\n \n (+%d from fortify)", (int)GetFortifyAttackPowerBonus());
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s << L"\n (+" << (int)GetSupportAttackPowerBonus() << L" from support)";
+			s += p.sprintf(L"\n \n (+%d from support)", (int)GetSupportAttackPowerBonus());
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s << L"\n \n+" << (int)GetBonusDefensePower() << L" defense energy";
+		s += p.sprintf(L"\n \n+%d defense energy", (int)GetBonusDefensePower());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s << L"\n (+" << (int)GetFortifyDefensePowerBonus() << L" from fortify)";
+			s += p.sprintf(L"\n \n (+%d from fortify)", (int)GetFortifyDefensePowerBonus());
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s << L"\n (+" << (int)GetSupportDefensePowerBonus() << L" from support)";
+			s += p.sprintf(L"\n \n (+%d from support)", (int)GetSupportDefensePowerBonus());
 	}
 
 	if (GetBonusMovementPower())
-		s << L"\n \n+" << (int)GetBonusMovementPower() << L" movement energy";
-
-	sInfo = s.str();
+		s += p.sprintf(L"\n \n+%d movement energy", (int)GetBonusMovementPower());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
@@ -2383,7 +2382,7 @@ void CDigitank::TankPromoted(class CNetworkParameters* p)
 {
 	if (GetVisibility() > 0)
 	{
-		EmitSound("sound/tank-promoted.wav");
+		EmitSound(L"sound/tank-promoted.wav");
 		CParticleSystemLibrary::AddInstance(L"promotion", GetRealOrigin());
 	}
 }

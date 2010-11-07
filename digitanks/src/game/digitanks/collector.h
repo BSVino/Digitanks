@@ -11,14 +11,14 @@ public:
 	virtual void				Spawn();
 	virtual void				Precache();
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
 	virtual size_t				GetProduction();
 
-	virtual const wchar_t*		GetName() { return L"Power Supply Unit"; };
+	virtual eastl::string16		GetName() { return L"Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_PSU; };
 	virtual size_t				ConstructionCost() const { return GetCollectorConstructionCost(); };
 
@@ -38,7 +38,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual bool				CanStructureUpgrade();
 	virtual void				UpgradeComplete();
@@ -48,7 +48,7 @@ public:
 	class CResource*			GetResource() { return m_hResource; };
 	virtual size_t				GetProduction();
 
-	virtual const wchar_t*		GetName() { return L"Battery"; };
+	virtual eastl::string16		GetName() { return L"Battery"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BATTERY; };
 	virtual size_t				ConstructionCost() const { return GetBatteryConstructionCost(); };
 	virtual size_t				UpgradeCost() const { return GetBatteryUpgradeCost(); };

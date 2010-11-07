@@ -7,16 +7,16 @@
 
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
-std::map<std::string, CRegisteredFunction> CNetwork::s_aFunctions;
+eastl::map<eastl::string, CRegisteredFunction> CNetwork::s_aFunctions;
 INetworkListener* CNetwork::s_pClientListener = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientConnect = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientDisconnect = NULL;
-std::vector<CNetworkedVariableBase*> CNetwork::s_apNetworkedVariables;
+eastl::vector<CNetworkedVariableBase*> CNetwork::s_apNetworkedVariables;
 
 static ENetHost* g_pClient = NULL;
 static ENetPeer* g_pClientPeer = NULL;
 static ENetHost* g_pServer = NULL;
-static std::vector<ENetPeer*> g_apServerPeers;
+static eastl::vector<ENetPeer*> g_apServerPeers;
 static bool g_bIsRunningClientFunctions = false;
 static size_t g_iCurrentClient = 0;
 

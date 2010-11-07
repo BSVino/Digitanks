@@ -1,7 +1,5 @@
 #include "collector.h"
 
-#include <sstream>
-
 #include <renderer/renderer.h>
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
@@ -31,28 +29,27 @@ void CCollector::Precache()
 	PrecacheModel(L"models/structures/psu.obj");
 }
 
-void CCollector::UpdateInfo(std::wstring& sInfo)
+void CCollector::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
+	eastl::string16 p;
+	s = L"";
 
-	s << L"POWER SUPPLY UNIT\n";
-	s << L"Resource collector\n \n";
+	s += L"POWER SUPPLY UNIT\n";
+	s += L"Resource collector\n \n";
 
 	if (IsConstructing())
 	{
-		s << L"(Constructing)\n";
-		s << L"Turns left: " << GetTurnsToConstruct() << "\n";
-		sInfo = s.str();
+		s += L"(Constructing)\n";
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
 		return;
 	}
 
 	if (GetSupplier())
 	{
-		s << L"Power supplied: " << (size_t)(GetProduction() * GetSupplier()->GetChildEfficiency()) << L"\n";
-		s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+		s += p.sprintf(L"Power supplied: %d\n", (size_t)(GetProduction() * GetSupplier()->GetChildEfficiency()));
+		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency()*100));
+		return;
 	}
-
-	sInfo = s.str();
 }
 
 size_t CCollector::GetProduction()
@@ -92,6 +89,7 @@ void CBattery::Precache()
 void CBattery::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	eastl::string16 p;
 
 	if (!IsConstructing() && CanStructureUpgrade())
 	{
@@ -108,48 +106,45 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "UPGRADE TO POWER SUPPLY UNIT\n \n"
-				<< "Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n"
-				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns\n \n"
-				<< "Shortcut: Q";
+			eastl::string16 s;
+			s += L"UPGRADE TO POWER SUPPLY UNIT\n \n";
+			s += L"Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+			s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
+			s += L"Shortcut: Q";
 
-			pHUD->SetButtonInfo(0, s.str().c_str());
+			pHUD->SetButtonInfo(0, s);
 		}
 	}
 }
 
-void CBattery::UpdateInfo(std::wstring& sInfo)
+void CBattery::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
-
-	s << L"BATTERY\n";
-	s << L"Resource collector\n \n";
+	eastl::string16 p;
+	s = L"";
+	s += L"BATTERY\n";
+	s += L"Resource collector\n \n";
 
 	if (IsConstructing())
 	{
-		s << L"(Constructing)\n";
-		s << L"Turns left: " << GetTurnsToConstruct() << "\n";
-		sInfo = s.str();
+		s += L"(Constructing)\n";
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
-		s << L"(Upgrading to Power Supply Unit)\n";
-		s << L"Power to upgrade: " << GetProductionToUpgrade() << "\n";
-		s << L"Turns left: " << GetTurnsToUpgrade() << "\n";
-		sInfo = s.str();
+		s += L"(Upgrading to Power Supply Unit)\n";
+		s += p.sprintf(L"Power to upgrade: %d\n", GetProductionToUpgrade());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToUpgrade());
 		return;
 	}
 
 	if (m_hSupplier != NULL)
 	{
-		s << L"Power supplied: " << (size_t)(GetProduction() * m_hSupplier->GetChildEfficiency()) << L"\n";
-		s << L"Efficiency: " << (int)(m_hSupplier->GetChildEfficiency()*100) << L"%\n";
+		s += p.sprintf(L"Power supplied: %d\n", (size_t)(GetProduction() * m_hSupplier->GetChildEfficiency()));
+		s += p.sprintf(L"Efficiency: %d%\n", (int)(m_hSupplier->GetChildEfficiency()*100));
+		return;
 	}
-
-	sInfo = s.str();
 }
 
 bool CBattery::CanStructureUpgrade()

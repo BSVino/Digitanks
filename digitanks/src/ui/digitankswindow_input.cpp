@@ -249,7 +249,7 @@ void CDigitanksWindow::KeyPress(int c)
 	{
 		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
 		{
-			CSoundLibrary::PlaySound(NULL, "sound/turn.wav");
+			CSoundLibrary::PlaySound(NULL, L"sound/turn.wav");
 			DigitanksGame()->EndTurn();
 		}
 	}

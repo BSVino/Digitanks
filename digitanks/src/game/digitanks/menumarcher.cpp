@@ -1,7 +1,5 @@
 #include "menumarcher.h"
 
-#include <sstream>
-
 #include <maths.h>
 #include <mtrand.h>
 #include <models/models.h>

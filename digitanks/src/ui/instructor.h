@@ -1,7 +1,7 @@
 #ifndef DT_INSTRUCTOR_H
 #define DT_INSTRUCTOR_H
 
-#include <map>
+#include <EASTL/map.h>
 #include <glgui/glgui.h>
 
 typedef enum
@@ -16,13 +16,13 @@ typedef enum
 class CTutorial
 {
 public:
-									CTutorial(class CInstructor* pInstructor, size_t iTutorial, int iPosition, int iWidth, bool bAutoNext, std::wstring sText);
+									CTutorial(class CInstructor* pInstructor, size_t iTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText);
 
 public:
 	class CInstructor*				m_pInstructor;
 	size_t							m_iTutorial;
 	int								m_iPosition;
-	std::wstring					m_sText;
+	eastl::string16					m_sText;
 	int								m_iWidth;
 	bool							m_bAutoNext;
 };
@@ -131,7 +131,7 @@ public:
 
 protected:
 	bool							m_bActive;
-	std::map<size_t, CTutorial*>	m_apTutorials;
+	eastl::map<size_t, CTutorial*>	m_apTutorials;
 	size_t							m_iLastTutorial;
 	size_t							m_iCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;

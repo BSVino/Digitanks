@@ -4,11 +4,12 @@
 #include <GL/glfw.h>
 
 #include <assert.h>
-#include <algorithm>
+#include <EASTL/algorithm.h>
 #include <GL/glew.h>
 #include <maths.h>
 #include <vector.h>
 #include <platform.h>
+#include <strutils.h>
 
 using namespace glgui;
 
@@ -444,7 +445,7 @@ void CPanel::RemoveControl(IControl* pControl)
 		for (size_t i = 0; i < m_apControls.size(); i++)
 		{
 			if (m_apControls[i] == pControl)
-				m_apControls.erase(std::remove(m_apControls.begin(), m_apControls.end(), pControl), m_apControls.end());
+				m_apControls.erase(eastl::remove(m_apControls.begin(), m_apControls.end(), pControl), m_apControls.end());
 		}
 	}
 
@@ -632,28 +633,25 @@ IDraggable* CDroppablePanel::GetDraggable(int i)
 	return m_apDraggables[i];
 }
 
-std::map<size_t, FTFont*> CLabel::s_apFonts;
+eastl::map<size_t, FTFont*> CLabel::s_apFonts;
 
-CLabel::CLabel(int x, int y, int w, int h, const char* pszText)
+CLabel::CLabel(int x, int y, int w, int h, const eastl::string16& sText)
 	: CBaseControl(x, y, w, h)
 {
 	m_bEnabled = true;
 	m_bWrap = true;
-	m_pszText = NULL;
+	m_sText = L"";
 	m_iTotalLines = 0;
 	m_eAlign = TA_MIDDLECENTER;
 	m_FGColor = Color(255, 255, 255, 255);
 
 	SetFontFaceSize(13);
 
-	SetText(pszText);
+	SetText(sText);
 }
 
 void CLabel::Destructor()
 {
-	if (m_pszText)
-		free(m_pszText);
-
 	CBaseControl::Destructor();
 }
 
@@ -673,7 +671,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 		FGColor.SetColor(m_FGColor.r()/2, m_FGColor.g()/2, m_FGColor.b()/2, m_iAlpha);
 
 	wchar_t* pszSeps = L"\n";
-	wchar_t* pszText = _wcsdup(m_pszText);
+	wchar_t* pszText = _wcsdup(m_sText.c_str());
 	wchar_t* pszTok = wcstok(pszText, pszSeps);
 	m_iLine = 0;
 
@@ -785,69 +783,26 @@ void CLabel::SetSize(int w, int h)
 	ComputeLines();
 }
 
-void CLabel::SetText(const wchar_t* pszText)
+void CLabel::SetText(const eastl::string16& sText)
 {
-	if (m_pszText)
-		free(m_pszText);
-	m_pszText = NULL;
-
-	if (!pszText)
-		m_pszText = _wcsdup(L"");
-	else
-		m_pszText = _wcsdup(pszText);
+	m_sText = sText;
 
 	ComputeLines();
 }
 
-void CLabel::SetText(const char* pszText)
+void CLabel::SetText(const eastl::string& sText)
 {
-	if (m_pszText)
-		free(m_pszText);
-	m_pszText = NULL;
-
-	if (!pszText)
-		SetText(L"");
-	else
-	{
-		size_t iSize = (strlen(pszText) + 1) * sizeof(wchar_t);
-		wchar_t* pszBuf = (wchar_t*)malloc(iSize);
-
-		mbstowcs(pszBuf, pszText, strlen(pszText)+1);
-
-		SetText(pszBuf);
-		free(pszBuf);
-	}
+	SetText(convertstring<char, char16_t>(sText));
 }
 
-void CLabel::AppendText(const wchar_t* pszText)
+void CLabel::AppendText(const eastl::string16& sText)
 {
-	if (!pszText)
-		return;
-
-	const wchar_t* pszCurr = GetText();
-
-	size_t iLength = wcslen(pszText) + wcslen(pszCurr) + 1;
-
-	size_t iSize = iLength * sizeof(wchar_t);
-	wchar_t* pszBuf = (wchar_t*)malloc(iSize);
-
-	wcscpy(pszBuf, pszCurr);
-	wcscat(pszBuf, pszText);
-
-	SetText(pszBuf);
-	free(pszBuf);
+	m_sText.append(sText);
 }
 
-void CLabel::AppendText(const char* pszText)
+void CLabel::AppendText(const eastl::string& sText)
 {
-	if (!pszText)
-		return;
-
-	size_t iSize = (strlen(pszText) + 1) * sizeof(wchar_t);
-	wchar_t* pszBuf = (wchar_t*)malloc(iSize);
-	mbstowcs(pszBuf, pszText, strlen(pszText)+1);
-	AppendText(pszBuf);
-	free(pszBuf);
+	AppendText(convertstring<char, char16_t>(sText));
 }
 
 void CLabel::SetFontFaceSize(int iSize)
@@ -860,7 +815,7 @@ void CLabel::SetFontFaceSize(int iSize)
 
 int CLabel::GetTextWidth()
 {
-	return (int)s_apFonts[m_iFontFaceSize]->Advance(m_pszText);
+	return (int)s_apFonts[m_iFontFaceSize]->Advance(m_sText.c_str());
 }
 
 float CLabel::GetTextHeight()
@@ -877,7 +832,7 @@ void CLabel::ComputeLines(int w, int h)
 		h = m_iH;
 
 	wchar_t* pszSeps = L"\n";
-	wchar_t* pszText = _wcsdup(m_pszText);
+	wchar_t* pszText = _wcsdup(m_sText.c_str());
 
 	// Cut off any ending line returns so that labels don't have hanging space below.
 	if (pszText[wcslen(pszText)-1] == L'\n')
@@ -961,12 +916,9 @@ void CLabel::EnsureTextFits()
 		SetSize(w, m_iH);
 }
 
-const wchar_t* CLabel::GetText()
+eastl::string16 CLabel::GetText()
 {
-	if (!m_pszText)
-		return L"";
-	else
-		return m_pszText;
+	return m_sText;
 }
 
 Color CLabel::GetFGColor()
@@ -995,8 +947,8 @@ void CLabel::AddFont(size_t iSize)
 	s_apFonts[iSize]->FaceSize(iSize);
 }
 
-CButton::CButton(int x, int y, int w, int h, const char* pszText, bool bToggle)
-	: CLabel(x, y, w, h, pszText)
+CButton::CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle)
+	: CLabel(x, y, w, h, sText)
 {
 	m_bToggle = bToggle;
 	m_bToggleOn = false;
@@ -1181,8 +1133,8 @@ void CButton::PaintButton(int x, int y, int w, int h)
 	}
 }
 
-CPictureButton::CPictureButton(const char* pszText, size_t iTexture, bool bToggle)
-	: CButton(0, 0, 32, 32, pszText, bToggle)
+CPictureButton::CPictureButton(const eastl::string16& sText, size_t iTexture, bool bToggle)
+	: CButton(0, 0, 32, 32, sText, bToggle)
 {
 	m_iTexture = iTexture;
 	m_bShowBackground = true;
@@ -1229,7 +1181,7 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 }
 
 CCheckBox::CCheckBox()
-	: CButton(0, 0, 10, 10, "", true)
+	: CButton(0, 0, 10, 10, L"", true)
 {
 }
 
@@ -1705,7 +1657,7 @@ void CRootPanel::RemoveDroppable(IDroppable* pDroppable)
 	{
 		for (size_t i = 0; i < m_apDroppables.size(); i++)
 			if (m_apDroppables[i] == pDroppable)
-				m_apDroppables.erase(std::remove(m_apDroppables.begin(), m_apDroppables.end(), pDroppable), m_apDroppables.end());
+				m_apDroppables.erase(eastl::remove(m_apDroppables.begin(), m_apDroppables.end(), pDroppable), m_apDroppables.end());
 	}
 }
 
@@ -1786,12 +1738,12 @@ void CRootPanel::DrawRect(int x, int y, int x2, int y2)
 {
 }
 
-CMenu* CRootPanel::AddMenu(const char* pszTitle)
+CMenu* CRootPanel::AddMenu(const eastl::string16& sText)
 {
 	if (!m_pMenuBar)
 		return NULL;
 
-	CMenu* pMenu = new CMenu(pszTitle);
+	CMenu* pMenu = new CMenu(sText);
 	pMenu->SetWrap(false);
 	m_pMenuBar->AddControl(pMenu, true);
 
@@ -1835,8 +1787,8 @@ void CMenuBar::SetActive( CMenu* pActiveMenu )
 	}
 }
 
-CMenu::CMenu(const char* pszTitle, bool bSubmenu)
-	: CButton(0, 0, 41, MENU_HEIGHT, pszTitle, true)
+CMenu::CMenu(const eastl::string16& sText, bool bSubmenu)
+	: CButton(0, 0, 41, MENU_HEIGHT, sText, true)
 {
 	m_bSubmenu = bSubmenu;
 
@@ -1909,7 +1861,7 @@ void CMenu::Layout()
 {
 	int iHeight = 0;
 	int iWidth = 0;
-	std::vector<IControl*> apControls = m_pMenu->GetControls();
+	eastl::vector<IControl*> apControls = m_pMenu->GetControls();
 	for (size_t i = 0; i < apControls.size(); i++)
 	{
 		apControls[i]->SetPos(5, (int)(i*MENU_HEIGHT));
@@ -2005,9 +1957,9 @@ void CMenu::ClickedCallback()
 		m_pfnMenuCallback(m_pMenuListener);
 }
 
-void CMenu::AddSubmenu(const char* pszTitle, IEventListener* pListener, IEventListener::Callback pfnCallback)
+void CMenu::AddSubmenu(const eastl::string16& sTitle, IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	CMenu* pMenu = new CMenu(pszTitle, true);
+	CMenu* pMenu = new CMenu(sTitle, true);
 	pMenu->SetAlign(TA_LEFTCENTER);
 	pMenu->SetWrap(false);
 	pMenu->EnsureTextFits();
@@ -2226,7 +2178,7 @@ void CTree::ClearTree()
 	m_apNodes.clear();
 }
 
-size_t CTree::AddNode(const std::wstring& sName)
+size_t CTree::AddNode(const eastl::string16& sName)
 {
 	return AddNode(new CTreeNode(NULL, this, sName));
 }
@@ -2280,7 +2232,7 @@ void CTree::SetSelectedListener(IEventListener* pListener, IEventListener::Callb
 	m_pfnSelectedCallback = pfnCallback;
 }
 
-CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText)
+CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const eastl::string16& sText)
 	: CPanel(0, 0, 10, 10)
 {
 	m_pParent = pParent;
@@ -2289,7 +2241,7 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const std::wstring& sText
 	m_pVisibilityButton = NULL;
 	m_pEditButton = NULL;
 
-	m_pLabel = new CLabel(0, 0, GetWidth(), GetHeight(), "");
+	m_pLabel = new CLabel(0, 0, GetWidth(), GetHeight(), L"");
 	m_pLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pLabel->SetText(sText.c_str());
 	m_pLabel->SetFontFaceSize(11);
@@ -2387,7 +2339,7 @@ void CTreeNode::Paint(int x, int y, int w, int h)
 		m_pEditButton->Paint();
 }
 
-size_t CTreeNode::AddNode(const std::wstring& sName)
+size_t CTreeNode::AddNode(const eastl::string16& sName)
 {
 	return AddNode(new CTreeNode(this, m_pTree, sName));
 }
@@ -2446,7 +2398,7 @@ void CTreeNode::ExpandCallback()
 }
 
 CTreeNode::CExpandButton::CExpandButton(size_t iTexture)
-	: CPictureButton("*", iTexture, false)
+	: CPictureButton(L"*", iTexture, false)
 {
 	m_bExpanded = false;
 	m_flExpandedGoal = m_flExpandedCurrent = 0;
@@ -2707,11 +2659,9 @@ bool CTextField::KeyPressed(int iKey)
 		}
 		else if (iKey == 'V' && (glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL)))
 		{
-			std::string sClipboard = GetClipboard();
-			std::wstring sCopy;
-			sCopy.assign(sClipboard.begin(), sClipboard.end());
-			m_sText.insert(m_sText.begin()+m_iCursor, sCopy.begin(), sCopy.end());
-			m_iCursor += sCopy.length();
+			eastl::string16 sClipboard = convertstring<char, char16_t>(GetClipboard());
+			m_sText.insert(m_sText.begin()+m_iCursor, sClipboard.begin(), sClipboard.end());
+			m_iCursor += sClipboard.length();
 		}
 
 		m_flBlinkTime = CRootPanel::Get()->GetTime();
@@ -2749,9 +2699,9 @@ void CTextField::FindRenderOffset()
 		m_flRenderOffset -= flRightOverrun;
 }
 
-void CTextField::SetText(const wchar_t* pszText)
+void CTextField::SetText(const eastl::string16& sText)
 {
-	m_sText = pszText;
+	m_sText = sText;
 }
 
 void CTextField::SetText(const char* pszText)
@@ -2821,7 +2771,7 @@ void CTextField::EnsureTextFits()
 		SetSize(w, m_iH);
 }
 
-const wchar_t* CTextField::GetText()
+eastl::string16 CTextField::GetText()
 {
 	return m_sText.c_str();
 }

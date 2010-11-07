@@ -1,11 +1,11 @@
 #include <assert.h>
-#include <algorithm>
-#include <utility>
+#include <EASTL/algorithm.h>
+#include <EASTL/utility.h>
 
 #include "convmesh.h"
 #include <geometry.h>
 
-CConversionMesh::CConversionMesh(class CConversionScene* pScene, const std::wstring& sName)
+CConversionMesh::CConversionMesh(class CConversionScene* pScene, const eastl::string16& sName)
 {
 	m_pScene = pScene;
 	m_sName = sName;
@@ -15,7 +15,7 @@ CConversionMesh::CConversionMesh(class CConversionScene* pScene, const std::wstr
 
 void CConversionMesh::Clear()
 {
-	m_sName = std::wstring(L"");
+	m_sName = eastl::string16(L"");
 
 	m_aVertices.clear();
 	m_aNormals.clear();
@@ -47,7 +47,7 @@ void CConversionMesh::CalculateEdgeData()
 					iAdjVertex = iVertex+1;
 
 				// Find the other face with these two vertices!
-				std::vector<size_t>& aFaces = m_aaVertexFaceMap[pFace->GetVertex(iVertex)->v];
+				eastl::vector<size_t>& aFaces = m_aaVertexFaceMap[pFace->GetVertex(iVertex)->v];
 				for (size_t iFace2 = 0; iFace2 < aFaces.size(); iFace2++)
 				{
 					if (iFace == aFaces[iFace2])
@@ -87,9 +87,9 @@ void CConversionMesh::CalculateEdgeData()
 						// By Jove we found it.
 						iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
 						CConversionEdge* pEdge = GetEdge(iEdge);
-						if (std::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
+						if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
 							pEdge->m_aiFaces.push_back(iFace);
-						if (std::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
+						if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
 							pEdge->m_aiFaces.push_back(aFaces[iFace2]);
 						AddEdgeToFace(iFace, iEdge);
 						AddEdgeToFace(aFaces[iFace2], iEdge);
@@ -169,7 +169,7 @@ void CConversionMesh::CalculateVertexNormals()
 			CConversionVertex* pVertex = pFace->GetVertex(iVertex);
 
 			// Build a list of faces that this vertex should use to calculate normals with.
-			std::vector<size_t> aNormalFaces;
+			eastl::vector<size_t> aNormalFaces;
 			pFace->FindAdjacentFaces(aNormalFaces, pVertex->v, true);
 
 			Vector vecNormal = Vector();
@@ -338,7 +338,7 @@ void CConversionScene::CalculateExtends()
 	}
 }
 
-size_t CConversionScene::AddMaterial(const std::wstring& sName)
+size_t CConversionScene::AddMaterial(const eastl::string16& sName)
 {
 	m_aMaterials.push_back(CConversionMaterial(sName));
 	return m_aMaterials.size()-1;
@@ -350,7 +350,7 @@ size_t CConversionScene::AddMaterial(CConversionMaterial& oMaterial)
 	return m_aMaterials.size()-1;
 }
 
-size_t CConversionScene::FindMaterial(const std::wstring& sName)
+size_t CConversionScene::FindMaterial(const eastl::string16& sName)
 {
 	for (size_t i = 0; i < m_aMaterials.size(); i++)
 		if (sName.compare(m_aMaterials[i].m_sName) == 0)
@@ -359,13 +359,13 @@ size_t CConversionScene::FindMaterial(const std::wstring& sName)
 	return ((size_t)~0);
 }
 
-size_t CConversionScene::AddMesh(const std::wstring& sName)
+size_t CConversionScene::AddMesh(const eastl::string16& sName)
 {
 	m_aMeshes.push_back(CConversionMesh(this, sName));
 	return m_aMeshes.size()-1;
 }
 
-size_t CConversionScene::FindMesh(const std::wstring& sName)
+size_t CConversionScene::FindMesh(const eastl::string16& sName)
 {
 	for (size_t i = 0; i < m_aMeshes.size(); i++)
 		if (sName.compare(m_aMeshes[i].m_sName) == 0)
@@ -383,7 +383,7 @@ size_t CConversionScene::FindMesh(CConversionMesh* pMesh)
 	return ((size_t)~0);
 }
 
-size_t CConversionScene::AddScene(const std::wstring& sName)
+size_t CConversionScene::AddScene(const eastl::string16& sName)
 {
 	m_apScenes.push_back(new CConversionSceneNode(sName, this, NULL));
 	return m_apScenes.size()-1;
@@ -406,13 +406,13 @@ CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionS
 	return pScene->GetChild(iChild);
 }
 
-size_t CConversionScene::AddDefaultSceneMaterial(CConversionSceneNode* pScene, CConversionMesh* pMesh, const std::wstring& sName)
+size_t CConversionScene::AddDefaultSceneMaterial(CConversionSceneNode* pScene, CConversionMesh* pMesh, const eastl::string16& sName)
 {
 	CConversionMeshInstance* pMeshInstance = GetDefaultSceneMeshInstance(pScene, pMesh)->GetMeshInstance(0);
 
 	size_t iMaterialStub = pMesh->AddMaterialStub(sName);
 	size_t iMaterial = AddMaterial(sName);
-	pMeshInstance->m_aiMaterialsMap.insert(std::pair<size_t, CConversionMaterialMap>(iMaterialStub, CConversionMaterialMap(iMaterialStub, iMaterial)));
+	pMeshInstance->m_aiMaterialsMap.insert(eastl::pair<size_t, CConversionMaterialMap>(iMaterialStub, CConversionMaterialMap(iMaterialStub, iMaterial)));
 
 	return iMaterialStub;
 }
@@ -434,7 +434,7 @@ bool CConversionScene::DoesFaceHaveValidMaterial(CConversionFace* pFace, CConver
 	return true;
 }
 
-CConversionSceneNode::CConversionSceneNode(const std::wstring& sName, CConversionScene* pScene, CConversionSceneNode* pParent)
+CConversionSceneNode::CConversionSceneNode(const eastl::string16& sName, CConversionScene* pScene, CConversionSceneNode* pParent)
 {
 	m_sName = sName;
 	m_pScene = pScene;
@@ -536,7 +536,7 @@ bool CConversionSceneNode::IsEmpty()
 	return true;
 }
 
-size_t CConversionSceneNode::AddChild(const std::wstring& sName)
+size_t CConversionSceneNode::AddChild(const eastl::string16& sName)
 {
 	m_apChildren.push_back(new CConversionSceneNode(sName, m_pScene, this));
 	return m_apChildren.size()-1;
@@ -576,7 +576,7 @@ CConversionMesh* CConversionMeshInstance::GetMesh()
 
 void CConversionMeshInstance::AddMappedMaterial(size_t s, size_t m)
 {
-	m_aiMaterialsMap.insert(std::pair<size_t, CConversionMaterialMap>(s, CConversionMaterialMap(s, m)));
+	m_aiMaterialsMap.insert(eastl::pair<size_t, CConversionMaterialMap>(s, CConversionMaterialMap(s, m)));
 }
 
 CConversionMaterialMap* CConversionMeshInstance::GetMappedMaterial(size_t m)
@@ -645,7 +645,7 @@ CConversionMaterialMap::CConversionMaterialMap(size_t iStub, size_t iMaterial)
 size_t CConversionMesh::AddVertex(float x, float y, float z)
 {
 	m_aVertices.push_back(Vector(x, y, z));
-	m_aaVertexFaceMap.push_back(std::vector<size_t>());
+	m_aaVertexFaceMap.push_back(eastl::vector<size_t>());
 	return m_aVertices.size()-1;
 }
 
@@ -673,7 +673,7 @@ size_t CConversionMesh::AddUV(float u, float v)
 	return m_aUVs.size()-1;
 }
 
-size_t CConversionMesh::AddBone(const std::wstring& sName)
+size_t CConversionMesh::AddBone(const eastl::string16& sName)
 {
 	m_aBones.push_back(CConversionBone(sName));
 	return m_aBones.size()-1;
@@ -685,13 +685,13 @@ size_t CConversionMesh::AddEdge(size_t v1, size_t v2)
 	return m_aEdges.size()-1;
 }
 
-size_t CConversionMesh::AddMaterialStub(const std::wstring& sName)
+size_t CConversionMesh::AddMaterialStub(const eastl::string16& sName)
 {
 	m_aMaterialStubs.push_back(CConversionMaterialStub(sName));
 	return m_aMaterialStubs.size()-1;
 }
 
-CConversionMaterialStub::CConversionMaterialStub(const std::wstring& sName)
+CConversionMaterialStub::CConversionMaterialStub(const eastl::string16& sName)
 {
 	m_sName = sName;
 }
@@ -771,13 +771,13 @@ float CConversionFace::GetUVArea()
 	return flArea;
 }
 
-void CConversionFace::FindAdjacentFaces(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
+void CConversionFace::FindAdjacentFaces(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
 	aResult.push_back(m_pScene->GetMesh(m_iMesh)->FindFace(this));
 	FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 }
 
-void CConversionFace::FindAdjacentFacesInternal(std::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
+void CConversionFace::FindAdjacentFacesInternal(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
 	// Crawl along each edge to find adjacent faces.
 	for (size_t iEdge = 0; iEdge < GetNumEdges(); iEdge++)
@@ -792,7 +792,7 @@ void CConversionFace::FindAdjacentFacesInternal(std::vector<size_t>& aResult, si
 
 		for (size_t iEdgeFace = 0; iEdgeFace < pEdge->m_aiFaces.size(); iEdgeFace++)
 		{
-			std::vector<size_t>::iterator it = find(aResult.begin(), aResult.end(), pEdge->m_aiFaces[iEdgeFace]);
+			eastl::vector<size_t>::iterator it = eastl::find(aResult.begin(), aResult.end(), pEdge->m_aiFaces[iEdgeFace]);
 			if (it == aResult.end())
 			{
 				aResult.push_back(pEdge->m_aiFaces[iEdgeFace]);
@@ -824,7 +824,7 @@ size_t CConversionFace::FindVertex(size_t i)
 	return ~0;
 }
 
-std::vector<Vector>& CConversionFace::GetVertices(std::vector<Vector>& avecVertices)
+eastl::vector<Vector>& CConversionFace::GetVertices(eastl::vector<Vector>& avecVertices)
 {
 	avecVertices.clear();
 
@@ -966,7 +966,7 @@ size_t CConversionMesh::FindFace(CConversionFace* pFace)
 	return ((size_t)~0);
 }
 
-size_t CConversionMesh::FindMaterialStub(const std::wstring& sName)
+size_t CConversionMesh::FindMaterialStub(const eastl::string16& sName)
 {
 	for (size_t i = 0; i < m_aMaterialStubs.size(); i++)
 		if (m_aMaterialStubs[i].GetName().compare(sName) == 0)
@@ -975,12 +975,12 @@ size_t CConversionMesh::FindMaterialStub(const std::wstring& sName)
 	return ((size_t)~0);
 }
 
-CConversionBone::CConversionBone(const std::wstring& sName)
+CConversionBone::CConversionBone(const eastl::string16& sName)
 {
 	m_sName = sName;
 }
 
-CConversionMaterial::CConversionMaterial(const std::wstring& sName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
+CConversionMaterial::CConversionMaterial(const eastl::string16& sName, Vector vecAmbient, Vector vecDiffuse, Vector vecSpecular, Vector vecEmissive, float flTransparency, float flShininess)
 {
 	m_sName = sName;
 

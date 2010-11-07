@@ -15,7 +15,7 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
 
@@ -26,7 +26,7 @@ public:
 	class CCollector*			GetCollector() { return m_hCollector; }
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
-	virtual const wchar_t*		GetName() { return L"Electronode"; };
+	virtual eastl::string16		GetName() { return L"Electronode"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_ELECTRONODE; };
 
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);

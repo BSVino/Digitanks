@@ -20,7 +20,7 @@ public:
 
 	virtual void				PostRender();
 
-	virtual const wchar_t*		GetName() { return L"Mechanized Infantry"; };
+	virtual eastl::string16		GetName() { return L"Mechanized Infantry"; };
 
 	virtual float				RenderShieldScale() { return 2.0f; };
 

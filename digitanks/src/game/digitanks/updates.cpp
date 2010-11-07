@@ -533,9 +533,9 @@ void CUpdateGrid::UpdatesData(CNetworkParameters* p)
 	memcpy(&m_aUpdates[0][0], p->m_pExtraData, sizeof(m_aUpdates));
 }
 
-std::wstring CUpdateItem::GetName()
+eastl::string16 CUpdateItem::GetName()
 {
-	std::wstring sResult;
+	eastl::string16 sResult;
 
 	if (m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
@@ -598,43 +598,43 @@ std::wstring CUpdateItem::GetName()
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			sResult.append(L"Power");
+			sResult += L"Power";
 			break;
 
 		case UPDATETYPE_BANDWIDTH:
-			sResult.append(L"Bandwidth");
+			sResult += L"Bandwidth";
 			break;
 
 		case UPDATETYPE_FLEETSUPPLY:
-			sResult.append(L"Fleet Supply");
+			sResult += L"Fleet Supply";
 			break;
 
 		case UPDATETYPE_SUPPORTENERGY:
-			sResult.append(L"Support Energy Bonus");
+			sResult += L"Support Energy Bonus";
 			break;
 
 		case UPDATETYPE_SUPPORTRECHARGE:
-			sResult.append(L"Support Recharge Bonus");
+			sResult += L"Support Recharge Bonus";
 			break;
 
 		case UPDATETYPE_TANKATTACK:
-			sResult.append(L"Attack Bonus");
+			sResult += L"Attack Bonus";
 			break;
 
 		case UPDATETYPE_TANKDEFENSE:
-			sResult.append(L"Defense Bonus");
+			sResult += L"Defense Bonus";
 			break;
 
 		case UPDATETYPE_TANKMOVEMENT:
-			sResult.append(L"Movement Bonus");
+			sResult += L"Movement Bonus";
 			break;
 
 		case UPDATETYPE_TANKHEALTH:
-			sResult.append(L"Health Bonus");
+			sResult += L"Health Bonus";
 			break;
 
 		case UPDATETYPE_TANKRANGE:
-			sResult.append(L"Range Bonus");
+			sResult += L"Range Bonus";
 			break;
 
 		}
@@ -643,10 +643,8 @@ std::wstring CUpdateItem::GetName()
 	return sResult;
 }
 
-std::wstring CUpdateItem::GetInfo()
+eastl::string16 CUpdateItem::GetInfo()
 {
-	std::wstring sResult;
-
 	if (m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
 		switch (m_eStructure)

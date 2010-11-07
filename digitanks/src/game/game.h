@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <vector>
+#include <EASTL/vector.h>
 
 #include <network/network.h>
 
@@ -51,7 +51,7 @@ public:
 	CTeam*										GetLocalTeam();
 
 protected:
-	std::vector<CEntityHandle<CTeam> >			m_ahTeams;
+	eastl::vector<CEntityHandle<CTeam> >		m_ahTeams;
 
 	CEntityHandle<CTeam>						m_hLocalTeam;
 };

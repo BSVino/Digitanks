@@ -13,7 +13,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual bool				HasUpdatesAvailable();
 
@@ -22,7 +22,7 @@ public:
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual float				TotalHealth() const { return 25; };
 
-	virtual const wchar_t*		GetName() { return L"Buffer"; };
+	virtual eastl::string16		GetName() { return L"Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_BUFFER; };
 	virtual size_t				ConstructionCost() const { return GetBufferConstructionCost(); };
 
@@ -47,7 +47,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual bool				HasUpdatesAvailable() { return false; };
 
@@ -60,7 +60,7 @@ public:
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual float				TotalHealth() const { return 15; };
 
-	virtual const wchar_t*		GetName() { return L"Mini-Buffer"; };
+	virtual eastl::string16		GetName() { return L"Mini-Buffer"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_MINIBUFFER; };
 	virtual size_t				ConstructionCost() const { return GetMiniBufferConstructionCost(); };
 	virtual size_t				UpgradeCost() const { return GetMiniBufferUpgradeCost(); };

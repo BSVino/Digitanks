@@ -852,7 +852,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 	return iCallList;
 }
 
-size_t CRenderer::LoadTextureIntoGL(std::wstring sFilename, bool bHUD)
+size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD)
 {
 	if (!sFilename.length())
 		return 0;

@@ -1,8 +1,9 @@
 #ifndef GLGUI_H
 #define GLGUI_H
 
-#include <vector>
-#include <map>
+#include <EASTL/vector.h>
+#include <EASTL/map.h>
+#include <EASTL/string.h>
 #include <color.h>
 #include <FTGL/ftgl.h>
 #include <maths.h>
@@ -277,7 +278,7 @@ namespace glgui
 
 		virtual void			AddControl(IControl* pControl, bool bToTail = false);
 		virtual void			RemoveControl(IControl* pControl);
-		virtual std::vector<IControl*>&	GetControls() { return m_apControls; };
+		virtual eastl::vector<IControl*>&	GetControls() { return m_apControls; };
 
 		virtual void			SetHighlighted(bool bHighlight) { m_bHighlight = bHighlight; };
 		virtual bool			IsHighlighted() { return m_bHighlight; };
@@ -293,7 +294,7 @@ namespace glgui
 	protected:
 		virtual void			PaintBorder(int x, int y, int w, int h);
 
-		std::vector<IControl*>	m_apControls;
+		eastl::vector<IControl*>	m_apControls;
 
 		// If two controls in the same panel are never layered, a single
 		// pointer should suffice. Otherwise a list must be created.
@@ -335,7 +336,7 @@ namespace glgui
 	protected:
 		bool				m_bGrabbable;
 
-		std::vector<IDraggable*>	m_apDraggables;
+		eastl::vector<IDraggable*>	m_apDraggables;
 	};
 
 	class CRootPanel : public CPanel
@@ -371,7 +372,7 @@ namespace glgui
 		class CButton*				GetButtonDown();
 
 		class CMenuBar*				GetMenuBar() { return m_pMenuBar; };
-		class CMenu*				AddMenu(const char* pszTitle);
+		class CMenu*				AddMenu(const eastl::string16& sText);
 
 		void						SetLighting(bool bLighting) { m_bUseLighting = bLighting; };
 
@@ -391,7 +392,7 @@ namespace glgui
 	private:
 		static CRootPanel*			s_pRootPanel;
 
-		std::vector<IDroppable*>	m_apDroppables;
+		eastl::vector<IDroppable*>	m_apDroppables;
 		IDroppable*					m_pDragging;
 
 		IPopup*						m_pPopup;
@@ -417,7 +418,7 @@ namespace glgui
 		friend CRootPanel;
 
 	public:
-						CLabel(int x, int y, int w, int h, const char* pszText);
+						CLabel(int x, int y, int w, int h, const eastl::string16& sText);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -452,11 +453,11 @@ namespace glgui
 		virtual bool	GetWrap() { return m_bWrap; };
 		virtual void	SetWrap(bool bWrap) { m_bWrap = bWrap; ComputeLines(); };
 
-		virtual void	SetText(const wchar_t* pszText);
-		virtual void	SetText(const char* pszText);
-		virtual void	AppendText(const char* pszText);
-		virtual void	AppendText(const wchar_t* pszText);
-		virtual const wchar_t*	GetText();
+		virtual void	SetText(const eastl::string16& sText);
+		virtual void	SetText(const eastl::string& sText);
+		virtual void	AppendText(const eastl::string& sText);
+		virtual void	AppendText(const eastl::string16& sText);
+		virtual eastl::string16	GetText();
 
 		virtual void	SetFontFaceSize(int iSize);
 
@@ -475,7 +476,7 @@ namespace glgui
 	protected:
 		bool			m_bEnabled;
 		bool			m_bWrap;
-		wchar_t*		m_pszText;
+		eastl::string16	m_sText;
 		Color			m_FGColor;
 
 		TextAlign		m_eAlign;
@@ -485,7 +486,7 @@ namespace glgui
 
 		int				m_iFontFaceSize;
 
-		static std::map<size_t, FTFont*>	s_apFonts;
+		static eastl::map<size_t, FTFont*>	s_apFonts;
 	};
 
 	class CButton : public CLabel
@@ -494,7 +495,7 @@ namespace glgui
 		friend class CSlidingPanel;
 
 	public:
-						CButton(int x, int y, int w, int h, const char* szText, bool bToggle = false);
+						CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle = false);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -552,7 +553,7 @@ namespace glgui
 	class CPictureButton : public CButton
 	{
 	public:
-						CPictureButton(const char* szText, size_t iTexture = 0, bool bToggle = false);
+						CPictureButton(const eastl::string16& sText, size_t iTexture = 0, bool bToggle = false);
 		virtual void	Delete() { delete this; };
 
 	public:
@@ -662,7 +663,7 @@ namespace glgui
 	class CMenu : public CButton, public IEventListener
 	{
 	public:
-									CMenu(const char* pszTitle, bool bSubmenu = false);
+									CMenu(const eastl::string16& sTitle, bool bSubmenu = false);
 
 		virtual void				Think();
 		virtual void				Layout();
@@ -678,7 +679,7 @@ namespace glgui
 		EVENT_CALLBACK(CMenu, Close);
 		EVENT_CALLBACK(CMenu, Clicked);
 
-		virtual void				AddSubmenu(const char* pszTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
+		virtual void				AddSubmenu(const eastl::string16& sTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
 		virtual size_t				GetSelectedMenu();
 
@@ -695,8 +696,8 @@ namespace glgui
 		protected:
 			float					m_flFakeHeight;
 
-			std::vector<float>		m_aflControlHighlightGoal;
-			std::vector<float>		m_aflControlHighlight;
+			eastl::vector<float>	m_aflControlHighlightGoal;
+			eastl::vector<float>	m_aflControlHighlight;
 		};
 
 		bool						m_bSubmenu;
@@ -718,7 +719,7 @@ namespace glgui
 
 		CSubmenuPanel*				m_pMenu;
 
-		std::vector<CMenu*>			m_apEntries;
+		eastl::vector<CMenu*>		m_apEntries;
 	};
 
 	template <typename T>
@@ -732,7 +733,7 @@ namespace glgui
 		}
 
 		T									m_oParam;
-		std::wstring						m_sLabel;
+		eastl::string16						m_sLabel;
 	};
 
 	template <typename T>
@@ -751,7 +752,7 @@ namespace glgui
 			m_pfnSelectedCallback = NULL;
 			m_pSelectedListener = NULL;
 
-			m_pOption = new CLabel(0, 0, 100, 100, "");
+			m_pOption = new CLabel(0, 0, 100, 100, L"");
 			m_pOption->SetWrap(false);
 			AddControl(m_pOption);
 		}
@@ -761,7 +762,7 @@ namespace glgui
 			m_pOption->SetSize(1, 1);
 
 			// Make sure there's some text to be fit to.
-			if (wcscmp(m_pOption->GetText(), L"") == 0)
+			if (m_pOption->GetText() == L"")
 				m_pOption->SetText(L"-");
 
 			m_pOption->EnsureTextFits();
@@ -967,7 +968,7 @@ namespace glgui
 		}
 
 	protected:
-		std::vector<CScrollSelection<T>>	m_aSelections;
+		eastl::vector<CScrollSelection<T>>	m_aSelections;
 
 		CLabel*								m_pOption;
 
@@ -985,7 +986,7 @@ namespace glgui
 	class CTreeNode : public CPanel, public glgui::IEventListener
 	{
 	public:
-											CTreeNode(CTreeNode* pParent, class CTree* pTree, const std::wstring& sText);
+											CTreeNode(CTreeNode* pParent, class CTree* pTree, const eastl::string16& sText);
 
 	public:
 		virtual void						Destructor();
@@ -995,9 +996,9 @@ namespace glgui
 		void								Paint() { CPanel::Paint(); };
 		void								Paint(int x, int y, int w, int h);
 
-		size_t								AddNode(const std::wstring& sName);
+		size_t								AddNode(const eastl::string16& sName);
 		template <typename T>
-		size_t								AddNode(const std::wstring& sName, T* pObject)
+		size_t								AddNode(const eastl::string16& sName, T* pObject)
 		{
 			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
 			// Who the hell knows, it's the magick of templates.
@@ -1022,7 +1023,7 @@ namespace glgui
 		EVENT_CALLBACK(CTreeNode, Expand);
 
 	public:
-		std::vector<CTreeNode*>				m_apNodes;
+		eastl::vector<CTreeNode*>			m_apNodes;
 		CTreeNode*							m_pParent;
 		class CTree*						m_pTree;
 		CLabel*								m_pLabel;
@@ -1075,9 +1076,9 @@ namespace glgui
 
 		void								ClearTree();
 
-		size_t								AddNode(const std::wstring& sName);
+		size_t								AddNode(const eastl::string16& sName);
 		template <typename T>
-		size_t								AddNode(const std::wstring& sName, T* pObject)
+		size_t								AddNode(const eastl::string16& sName, T* pObject)
 		{
 			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
 			// Who the hell knows, it's the magick of templates.
@@ -1093,7 +1094,7 @@ namespace glgui
 		void								SetBackgroundColor(const Color& clrBackground) { m_clrBackground = clrBackground; }
 
 	public:
-		std::vector<CTreeNode*>				m_apNodes;
+		eastl::vector<CTreeNode*>			m_apNodes;
 
 		int									m_iCurrentHeight;
 		int									m_iCurrentDepth;
@@ -1115,7 +1116,7 @@ namespace glgui
 	class CTreeNodeObject : public CTreeNode
 	{
 	public:
-		CTreeNodeObject(T* pObject, CTreeNode* pParent, class CTree* pTree, const std::wstring& sName)
+		CTreeNodeObject(T* pObject, CTreeNode* pParent, class CTree* pTree, const eastl::string16& sName)
 			: CTreeNode(pParent, pTree, sName)
 		{
 			m_pObject = pObject;
@@ -1210,11 +1211,11 @@ namespace glgui
 		virtual bool	IsEnabled() {return m_bEnabled;};
 		virtual void	SetEnabled(bool bEnabled) {m_bEnabled = bEnabled;};
 
-		virtual void	SetText(const wchar_t* pszText);
+		virtual void	SetText(const eastl::string16& pszText);
 		virtual void	SetText(const char* pszText);
 		virtual void	AppendText(const char* pszText);
 		virtual void	AppendText(const wchar_t* pszText);
-		virtual const wchar_t*	GetText();
+		virtual eastl::string16	GetText();
 
 		virtual void	SetFontFaceSize(int iSize);
 
@@ -1228,7 +1229,7 @@ namespace glgui
 
 	protected:
 		bool			m_bEnabled;
-		std::wstring	m_sText;
+		eastl::string16	m_sText;
 		Color			m_FGColor;
 
 		float			m_flBlinkTime;

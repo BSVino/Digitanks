@@ -17,7 +17,7 @@ SAVEDATA_TABLE_END();
 void CScout::Precache()
 {
 	PrecacheModel(L"models/digitanks/scout.obj", true);
-	PrecacheSound("sound/torpedo-drop.wav");
+	PrecacheSound(L"sound/torpedo-drop.wav");
 }
 
 void CScout::Spawn()
@@ -116,7 +116,7 @@ void CScout::FireProjectile(CNetworkParameters* p)
 	m_hProjectile->SetLandingSpot(vecLandingSpot);
 
 	if (GetVisibility() > 0)
-		EmitSound("sound/torpedo-drop.wav");
+		EmitSound(L"sound/torpedo-drop.wav");
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }

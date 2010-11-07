@@ -2,7 +2,7 @@
 #define CF_GEOMETRY_H
 
 #include "vector.h"
-#include <vector>
+#include <EASTL/vector.h>
 
 class Ray
 {
@@ -172,7 +172,7 @@ inline float DistanceToPlane(Vector p, Vector v, Vector n)
 	return (p - b).Length();
 }
 
-inline float DistanceToPolygon(Vector p, std::vector<Vector>& v, Vector n)
+inline float DistanceToPolygon(Vector p, eastl::vector<Vector>& v, Vector n)
 {
 	float flPlaneDistance = DistanceToPlane(p, v[0], n);
 
@@ -509,7 +509,7 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 	Vector c7 = oBox.m_vecMaxs;
 
 	// Build a list of line segments in the cube to test against the triangle.
-	std::vector<Vector> aLines;
+	eastl::vector<Vector> aLines;
 
 	// Bottom four
 	aLines.push_back(c0);
@@ -573,7 +573,7 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 	return false;
 }
 
-inline size_t FindEar(const std::vector<Vector>& avecPoints)
+inline size_t FindEar(const eastl::vector<Vector>& avecPoints)
 {
 	size_t iPoints = avecPoints.size();
 

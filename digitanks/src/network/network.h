@@ -1,9 +1,9 @@
 #ifndef _NETWORK_H
 #define _NETWORK_H
 
-#include <map>
-#include <vector>
-#include <string>
+#include <EASTL/map.h>
+#include <EASTL/vector.h>
+#include <EASTL/string.h>
 
 #include <color.h>
 #include <vector.h>
@@ -133,7 +133,7 @@ public:
 	const char*						m_pszFunction;
 	INetworkListener*				m_pListener;
 	INetworkListener::Callback		m_pfnCallback;
-	std::vector<size_t>				m_pParameters;
+	eastl::vector<size_t>			m_pParameters;
 };
 
 enum
@@ -382,11 +382,11 @@ public:
 protected:
 	static bool				s_bInitialized;
 	static bool				s_bConnected;
-	static std::map<std::string, CRegisteredFunction> s_aFunctions;
+	static eastl::map<eastl::string, CRegisteredFunction> s_aFunctions;
 	static INetworkListener* s_pClientListener;
 	static INetworkListener::Callback s_pfnClientConnect;
 	static INetworkListener::Callback s_pfnClientDisconnect;
-	static std::vector<CNetworkedVariableBase*> s_apNetworkedVariables;
+	static eastl::vector<CNetworkedVariableBase*> s_apNetworkedVariables;
 };
 
 #endif

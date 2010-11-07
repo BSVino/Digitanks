@@ -697,8 +697,8 @@ void CTerrain::OnRender()
 	GLuint iCraterMarks = glGetUniformLocation(iTerrainProgram, "iCraterMarks");
 	glUniform1i(iCraterMarks, (GLint)m_avecCraterMarks.size());
 
-	std::vector<Vector> avecTankAims;
-	std::vector<float> aflTankAimRadius;
+	eastl::vector<Vector> avecTankAims;
+	eastl::vector<float> aflTankAimRadius;
 	size_t iTankAimFocus;
 
 	DigitanksGame()->GetTankAims(avecTankAims, aflTankAimRadius, iTankAimFocus);

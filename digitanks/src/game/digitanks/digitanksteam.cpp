@@ -1,7 +1,5 @@
 #include "digitanksteam.h"
 
-#include <sstream>
-
 #include <maths.h>
 #include <mtrand.h>
 
@@ -251,7 +249,7 @@ void CDigitanksTeam::StartTurn()
 			pCPU->CalculateDataFlow();
 	}
 
-	std::vector<CDigitanksEntity*> apMembers;
+	eastl::vector<CDigitanksEntity*> apMembers;
 
 	// Form a list so that members added during another member's startturn aren't considered this turn.
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -285,17 +283,15 @@ void CDigitanksTeam::StartTurn()
 
 		if (GetUpdateDownloaded() >= GetUpdateSize())
 		{
-			std::wstringstream s;
-			s << L"'" << GetUpdateDownloading()->GetName() << L"' finished downloading.";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			DigitanksGame()->AppendTurnInfo(L"'" + GetUpdateDownloading()->GetName() + L"' finished downloading.");
 
 			DownloadComplete();
 		}
 		else
 		{
-			std::wstringstream s;
-			s << L"Downloading '" << GetUpdateDownloading()->GetName() << L"' (" << GetTurnsToDownload() << L" turns left)";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			eastl::string16 s;
+			s.sprintf((L"Downloading '" + GetUpdateDownloading()->GetName() + L"' (%d turns left)").c_str(), GetTurnsToDownload());
+			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
 

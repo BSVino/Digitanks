@@ -47,8 +47,8 @@ public:
 
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 
-	virtual void					UpdateInfo(std::wstring& sInfo) {};
-	virtual const wchar_t*			GetName() { return L"Entity"; };
+	virtual void					UpdateInfo(eastl::string16& sInfo) {};
+	virtual eastl::string16			GetName() { return L"Entity"; };
 	virtual unittype_t				GetUnitType() { return UNITTYPE_UNDEFINED; };
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };
@@ -56,7 +56,7 @@ public:
 	virtual float					TotalHealth() const { return 10; };
 
 protected:
-	std::vector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;
+	eastl::vector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;
 };
 
 #endif

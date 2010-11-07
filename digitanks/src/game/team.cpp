@@ -10,7 +10,7 @@ SAVEDATA_TABLE_BEGIN(CTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahMembers);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientControlled);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iClient);
-	SAVEDATA_DEFINE(CSaveData::DATA_WSTRING, std::wstring, m_szName);
+	SAVEDATA_DEFINE(CSaveData::DATA_STRING16, eastl::string16, m_szName);
 SAVEDATA_TABLE_END();
 
 CTeam::CTeam()

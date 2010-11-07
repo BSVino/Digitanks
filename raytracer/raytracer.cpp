@@ -142,7 +142,7 @@ void CRaytracer::AddMeshInstance(CConversionMeshInstance* pMeshInstance)
 	for (size_t f = 0; f < pMeshInstance->GetMesh()->GetNumFaces(); f++)
 	{
 		CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(f);
-		std::vector<Vector> avecPoints;
+		eastl::vector<Vector> avecPoints;
 		for (size_t t = 0; t < pFace->GetNumVertices(); t++)
 			avecPoints.push_back(pMeshInstance->GetVertex(pFace->GetVertex(t)->v));
 
@@ -704,7 +704,7 @@ float CKDNode::Closest(const Vector& vecPoint)
 	{
 		CKDTri oTri = m_aTris[i];
 
-		std::vector<Vector> avecTri;
+		eastl::vector<Vector> avecTri;
 		avecTri.push_back(oTri.v[0]);
 		avecTri.push_back(oTri.v[1]);
 		avecTri.push_back(oTri.v[2]);

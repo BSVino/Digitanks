@@ -1,8 +1,8 @@
 #ifndef DT_BASEENTITY_H
 #define DT_BASEENTITY_H
 
-#include <map>
-#include <vector>
+#include <EASTL/map.h>
+#include <EASTL/vector.h>
 #include <vector.h>
 #include <assert.h>
 
@@ -29,7 +29,7 @@ size_t CreateEntity()
 template <class C>
 void ResizeVectorTmpl(char* pData, size_t iVectorSize)
 {
-	std::vector<C>* pVector = (std::vector<C>*)pData;
+	eastl::vector<C>* pVector = (eastl::vector<C>*)pData;
 	pVector->resize(iVectorSize);
 }
 
@@ -42,7 +42,7 @@ public:
 		DATA_COPYARRAY,
 		DATA_COPYVECTOR,
 		DATA_NETVAR,
-		DATA_WSTRING,
+		DATA_STRING16,
 	} datatype_t;
 
 	typedef void (*ResizeVector)(char* pData, size_t iVectorSize);
@@ -61,7 +61,7 @@ public:
 	const char*				m_pszEntityName;
 	EntityRegisterCallback	m_pfnRegisterCallback;
 	EntityCreateCallback	m_pfnCreateCallback;
-	std::vector<CSaveData>	m_aSaveData;
+	eastl::vector<CSaveData>	m_aSaveData;
 };
 
 #define REGISTER_ENTITY_CLASS(entity, base) \
@@ -167,7 +167,7 @@ public:
 
 	virtual float							GetBoundingRadius() const { return 0; };
 
-	void									SetModel(const wchar_t* pszModel);
+	void									SetModel(const eastl::string16& sModel);
 	void									SetModel(size_t iModel);
 	size_t									GetModel() { return m_iModel; };
 
@@ -231,10 +231,10 @@ public:
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};
 
-	void									EmitSound(const char* pszFilename);
-	void									StopSound(const char* pszFilename);
-	bool									IsSoundPlaying(const char* pszFilename);
-	void									SetSoundVolume(const char* pszFilename, float flVolume);
+	void									EmitSound(const eastl::string16& sModel);
+	void									StopSound(const eastl::string16& sModel);
+	bool									IsSoundPlaying(const eastl::string16& sModel);
+	void									SetSoundVolume(const eastl::string16& sModel, float flVolume);
 
 	virtual float							Distance(Vector vecSpot);
 
@@ -263,9 +263,9 @@ public:
 	static CBaseEntity*						GetEntityNumber(size_t i);
 	static size_t							GetNumEntities();
 
-	static void								PrecacheModel(const wchar_t* pszModel, bool bStatic = true);
-	static void								PrecacheParticleSystem(const wchar_t* pszSystem);
-	static void								PrecacheSound(const char* pszSound);
+	static void								PrecacheModel(const eastl::string16& sModel, bool bStatic = true);
+	static void								PrecacheParticleSystem(const eastl::string16& sSystem);
+	static void								PrecacheSound(const eastl::string16& sSound);
 
 	static void								RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
 	static void								Register(CBaseEntity* pEntity);
@@ -301,7 +301,7 @@ protected:
 
 	bool									m_bDeleted;
 
-	std::vector<CEntityHandle<CBaseEntity> >	m_ahTouching;
+	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahTouching;
 
 	CNetworkedVariable<int>					m_iCollisionGroup;
 	class raytrace::CRaytracer*				m_pTracer;
@@ -310,14 +310,14 @@ protected:
 
 	size_t									m_iSpawnSeed;
 
-	std::map<std::string, class CNetworkedVariableBase*>	m_apNetworkVariables;
+	eastl::map<eastl::string, class CNetworkedVariableBase*>	m_apNetworkVariables;
 
 private:
-	static std::map<size_t, CBaseEntity*>	s_apEntityList;
+	static eastl::map<size_t, CBaseEntity*>	s_apEntityList;
 	static size_t							s_iOverrideEntityListIndex;
 	static size_t							s_iNextEntityListIndex;
 
-	static std::vector<CEntityRegistration>	s_aEntityRegistration;
+	static eastl::vector<CEntityRegistration>	s_aEntityRegistration;
 };
 
 #define REGISTER_ENTITY(entity) \

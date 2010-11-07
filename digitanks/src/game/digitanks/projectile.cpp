@@ -38,8 +38,8 @@ CProjectile::CProjectile()
 void CProjectile::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
-	PrecacheSound("sound/bomb-drop.wav");
-	PrecacheSound("sound/explosion.wav");
+	PrecacheSound(L"sound/bomb-drop.wav");
+	PrecacheSound(L"sound/explosion.wav");
 }
 
 void CProjectile::Think()
@@ -54,8 +54,8 @@ void CProjectile::Think()
 
 		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || bCanSeeOwner)
 		{
-			EmitSound("sound/bomb-drop.wav");
-			SetSoundVolume("sound/bomb-drop.wav", 0.5f);
+			EmitSound(L"sound/bomb-drop.wav");
+			SetSoundVolume(L"sound/bomb-drop.wav", 0.5f);
 		}
 
 		m_bFallSoundPlayed = true;
@@ -176,7 +176,7 @@ void CProjectile::Touching(CBaseEntity* pOther)
 
 	if (MakesSounds())
 	{
-		StopSound("sound/bomb-drop.wav");
+		StopSound(L"sound/bomb-drop.wav");
 
 		bool bCanSeeOwner;
 		if (m_hOwner != NULL && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_hOwner->GetOrigin()) > 0)
@@ -185,7 +185,7 @@ void CProjectile::Touching(CBaseEntity* pOther)
 			bCanSeeOwner = false;
 
 		if (DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || bCanSeeOwner)
-			EmitSound("sound/explosion.wav");
+			EmitSound(L"sound/explosion.wav");
 	}
 }
 
@@ -210,7 +210,7 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 		bCanSeeOwner = false;
 
 	if (MakesSounds() && DigitanksGame()->GetLocalDigitanksTeam()->GetVisibilityAtPoint(m_vecLandingSpot) > 0 || bCanSeeOwner)
-		EmitSound("sound/explosion.wav");
+		EmitSound(L"sound/explosion.wav");
 
 	if (m_hOwner != NULL && dynamic_cast<CTerrain*>(pInstigator) && !bHit)
 		m_hOwner->Speak(TANKSPEECH_MISSED);

@@ -383,7 +383,7 @@ void RunIntro()
 		{
 			static int iFrame = 0;
 			if (iFrame++ == 80)
-				CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
+				CSoundLibrary::PlayMusic(L"sound/assemble-for-victory.ogg");
 
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_RGB, GL_UNSIGNED_BYTE, lpCapture);
 

@@ -1,6 +1,6 @@
 #include "buffer.h"
 
-#include <sstream>
+#include <EASTL/string.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
@@ -46,6 +46,7 @@ void CBuffer::Precache()
 void CBuffer::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	eastl::string16 p;
 
 	if (IsInstalling())
 	{
@@ -64,13 +65,13 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_BANDWIDTH, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL BANDWIDTH INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Bandwidth increase: " << pUpdate->m_flValue << " mbps\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: Q";
-			pHUD->SetButtonInfo(0, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL BANDWIDTH INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Bandwidth increase: %f\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s);
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
@@ -82,13 +83,13 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_FLEETSUPPLY, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Fleet Supply increase: " << pUpdate->m_flValue << "\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: W";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL FLEET SUPPLY INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Fleet Supply increase: %f\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY) >= 0)
@@ -100,14 +101,14 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_SUPPORTENERGY, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL SUPPORT ENERGY INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Attack Energy Buff increase: +" << pUpdate->m_flValue << "\n"
-				<< "Defense Energy Buff increase: +" << pUpdate->m_flValue << "\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: E";
-			pHUD->SetButtonInfo(2, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL SUPPORT ENERGY INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Attack Energy Buff increase: %f\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Defense Energy Buff increase: %f\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: E";
+			pHUD->SetButtonInfo(2, s);
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE) >= 0)
@@ -119,14 +120,14 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_SUPPORTRECHARGE, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL HEALTH ENERGY INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Health Recharge Buff increase: +" << pUpdate->m_flValue/5 << " per turn\n"
-				<< "Shield Recharge Buff increase: +" << pUpdate->m_flValue << " per turn\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: R";
-			pHUD->SetButtonInfo(3, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL HEALTH ENERGY INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Health Recharge Buff increase: %f per turn\n", pUpdate->m_flValue/5);
+			s += p.sprintf(L"Shield Recharge Buff increase: %f per turn\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: R";
+			pHUD->SetButtonInfo(3, s);
 		}
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
@@ -146,28 +147,26 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 	}
 }
 
-void CBuffer::UpdateInfo(std::wstring& sInfo)
+void CBuffer::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
+	eastl::string16 p;
 
-	s << L"BUFFER INFO\n";
-	s << L"Network extender\n \n";
+	s = L"";
+	s += L"BUFFER INFO\n";
+	s += L"Network extender\n \n";
 
 	if (IsConstructing())
 	{
-		s << L"(Constructing)\n";
-		s << L"Power to build: " << GetProductionToConstruct() << "\n";
-		s << L"Turns left: " << GetTurnsToConstruct() << "\n";
-		sInfo = s.str();
+		s += L"(Constructing)\n";
+		s += p.sprintf(L"Power to build: %d\n", GetProductionToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
 		return;
 	}
 
-	s << L"Strength: " << m_iDataStrength << "\n";
-	s << L"Growth: " << (int)GetDataFlowRate() << "\n";
-	s << L"Size: " << (int)GetDataFlowRadius() << "\n";
-	s << L"Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
-
-	sInfo = s.str();
+	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
+	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
+	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 
 bool CBuffer::HasUpdatesAvailable()
@@ -216,6 +215,7 @@ void CMiniBuffer::Precache()
 void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	eastl::string16 p;
 
 	if (!IsConstructing() && CanStructureUpgrade())
 	{
@@ -232,48 +232,44 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "UPGRADE TO BUFFER\n \n"
-				<< "Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n"
-				<< "Turns to upgrade: " << GetTurnsToUpgrade() << " Turns\n \n"
-				<< "Shortcut: Q";
+			eastl::string16 s;
+			s += L"UPGRADE TO BUFFER\n \n";
+			s += L"Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+			s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
+			s += L"Shortcut: Q";
 
-			pHUD->SetButtonInfo(0, s.str().c_str());
+			pHUD->SetButtonInfo(0, s);
 		}
 	}
 }
 
-void CMiniBuffer::UpdateInfo(std::wstring& sInfo)
+void CMiniBuffer::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
-
-	s << L"MINIBUFFER INFO\n";
-	s << L"Network extender\n \n";
+	eastl::string16 p;
+	s = L"";
+	s += L"MINIBUFFER INFO\n";
+	s += L"Network extender\n \n";
 
 	if (IsConstructing())
 	{
-		s << L"(Constructing)\n";
-		s << L"Power to build: " << GetProductionToConstruct() << "\n";
-		s << L"Turns left: " << GetTurnsToConstruct() << "\n";
-		sInfo = s.str();
+		s += L"(Constructing)\n";
+		s += p.sprintf(L"Power to build: %d\n", GetProductionToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
-		s << L"(Upgrading to Buffer)\n";
-		s << L"Power to upgrade: " << GetProductionToUpgrade() << "\n";
-		s << L"Turns left: " << GetTurnsToUpgrade() << "\n";
-		sInfo = s.str();
+		s += L"(Upgrading to Buffer)\n";
+		s += p.sprintf(L"Power to upgrade: %d\n", GetProductionToUpgrade());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
 		return;
 	}
 
-	s << L"Strength: " << m_iDataStrength << "\n";
-	s << L"Growth: " << (int)GetDataFlowRate() << "\n";
-	s << L"Size: " << (int)GetDataFlowRadius() << "\n";
-	s << L"Efficiency: " << (int)(GetChildEfficiency()*100) << "%\n";
-
-	sInfo = s.str();
+	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
+	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
+	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 
 bool CMiniBuffer::CanStructureUpgrade()

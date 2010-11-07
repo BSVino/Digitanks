@@ -1,6 +1,5 @@
 #include "register.h"
 
-#include <sstream>
 #include <time.h>
 
 #include <strutils.h>
@@ -17,20 +16,20 @@
 #endif
 
 ConfigFile r( GetAppDataDirectory(L"Digitanks", L"reg.cfg") );
-std::string g_sCode;
-std::string g_sKey;
+eastl::string g_sCode;
+eastl::string g_sKey;
 
 bool IsRegistered()
 {
-	std::string sKey;
+	eastl::string sKey;
 	GenerateKey(g_sCode, sKey);
 	return sKey == g_sKey;
 }
 
 void SaveProductCode()
 {
-	r.add("code", g_sCode);
-	r.add("key", g_sKey);
+	r.add("code", g_sCode.c_str());
+	r.add("key", g_sKey.c_str());
 
 	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
 #ifdef _WIN32
@@ -40,7 +39,7 @@ void SaveProductCode()
 	do
 	{
 		std::ofstream o;
-		o.open(GetAppDataDirectory(L"Digitanks", L"reg.cfg"), std::ios_base::out);
+		o.open(GetAppDataDirectory(L"Digitanks", L"reg.cfg").c_str(), std::ios_base::out);
 		o << r;
 	} while (false);
 
@@ -49,11 +48,11 @@ void SaveProductCode()
 #endif
 }
 
-std::string GenerateCode()
+eastl::string GenerateCode()
 {
 	mtsrand((size_t)time(NULL));
 
-	std::string sCode;
+	eastl::string sCode;
 	char szChar[2];
 	szChar[1] = '\0';
 	for (size_t i = 0; i < 8; i++)
@@ -98,12 +97,12 @@ void ReadProductCode()
 	if (r.isFileValid())
 	{
 		if (r.keyExists("code"))
-			g_sCode = r.read<std::string>("code");
+			g_sCode = r.read<eastl::string>("code");
 		else
 			g_sCode = GenerateCode();
 
 		if (r.keyExists("key"))
-			g_sKey = r.read<std::string>("key");
+			g_sKey = r.read<eastl::string>("key");
 	}
 	else
 		g_sCode = GenerateCode();
@@ -115,12 +114,12 @@ void ReadProductCode()
 	SaveProductCode();
 }
 
-std::string GetProductCode()
+eastl::string GetProductCode()
 {
 	return g_sCode;
 }
 
-void SetLicenseKey(std::string sKey)
+void SetLicenseKey(eastl::string sKey)
 {
 	g_sKey = trim(sKey);
 
@@ -128,7 +127,7 @@ void SetLicenseKey(std::string sKey)
 		SaveProductCode();
 }
 
-bool QueryRegistrationKey(std::wstring sKey, std::wstring& sError)
+bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
 {
 	int iResult;
 
@@ -197,21 +196,19 @@ bool QueryRegistrationKey(std::wstring sKey, std::wstring& sError)
 		return false;
 	}
 
-	std::wstring sContent;
+	eastl::string16 sContent;
 	sContent.append(L"key=");
 	sContent.append(sKey);
 
-	std::wstringstream sPost;
-	sPost << L"POST /reg/reg.php HTTP/1.1\n";
-	sPost << L"Host: digitanks.com\n";
-	sPost << L"Content-Length: " << sContent.length() << "\n";
-	sPost << L"Content-Type: application/x-www-form-urlencoded\n\n";
-	sPost << sContent << "\n\n";
+	eastl::string16 sPost;
+	eastl::string16 p;
+	sPost += L"POST /reg/reg.php HTTP/1.1\n";
+	sPost += L"Host: digitanks.com\n";
+	sPost += p.sprintf(L"Content-Length: %d\n", sContent.length());
+	sPost += L"Content-Type: application/x-www-form-urlencoded\n\n";
+	sPost += sContent + L"\n\n";
 
-	std::wstring sPostString = sPost.str();
-
-	std::string sSend;
-	sSend.assign(sPostString.begin(), sPostString.end());
+	eastl::string sSend = convertstring<char16_t, char>(sPost);
 
 	iResult = send( iSocket, sSend.c_str(), sSend.length(), 0 );
 	if (iResult == SOCKET_ERROR)
@@ -236,7 +233,7 @@ bool QueryRegistrationKey(std::wstring sKey, std::wstring& sError)
 		return false;
 	}
 
-	std::string sResult;
+	eastl::string sResult;
 	do {
 		char szBuf[1000];
 		iResult = recv(iSocket, szBuf, 1000, 0);
@@ -245,16 +242,16 @@ bool QueryRegistrationKey(std::wstring sKey, std::wstring& sError)
 		sResult.append(szBuf);
 	} while( iResult > 0 );
 
-	std::vector<std::string> asTokens;
+	eastl::vector<eastl::string> asTokens;
 	strtok(sResult, asTokens);
 
 	int iCode = -1;
 	for (size_t i = 0; i < asTokens.size(); i++)
 	{
-		std::string sToken = asTokens[i];
+		eastl::string sToken = asTokens[i];
 		if (sToken.substr(0, 4) == "code")
 		{
-			std::string sCode = asTokens[i+1];
+			eastl::string sCode = asTokens[i+1];
 			iCode = atoi(sCode.c_str());
 			break;
 		}

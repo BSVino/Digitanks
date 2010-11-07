@@ -2,7 +2,7 @@
 
 #include "../modelconverter.h"
 
-void CModelConverter::ReadDAE(const wchar_t* pszFilename)
+void CModelConverter::ReadDAE(const eastl::string16& sFilename)
 {
 }
 

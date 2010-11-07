@@ -57,7 +57,7 @@ protected:
 
 	Vector					m_avecTerrainColors[4];
 
-	std::vector<Vector>		m_avecCraterMarks;
+	eastl::vector<Vector>	m_avecCraterMarks;
 
 	bool					m_abTerrainNeedsRegenerate[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
 };

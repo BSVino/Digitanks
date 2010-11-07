@@ -247,7 +247,7 @@ public:
 
 	CDockPanel*						GetDockPanel();
 
-	virtual void					SetHint(const std::wstring &sHint);
+	virtual void					SetHint(const eastl::string16 &sHint);
 
 protected:
 	glgui::CButton*					m_pTutorial;

@@ -1,7 +1,8 @@
 #ifndef DT_SHADERS_H
 #define DT_SHADERS_H
 
-#include <vector>
+#include <EASTL/vector.h>
+#include <EASTL/string.h>
 
 class CShader
 {
@@ -9,8 +10,8 @@ public:
 							CShader(const char* pszVS, const char* pszFS);
 
 public:
-	std::string				m_sVS;
-	std::string				m_sFS;
+	eastl::string			m_sVS;
+	eastl::string			m_sFS;
 	size_t					m_iVShader;
 	size_t					m_iFShader;
 	size_t					m_iProgram;
@@ -72,7 +73,7 @@ protected:
 	void					WriteLog(const char* pszLog, const char* pszShaderText);
 
 protected:
-	std::vector<CShader>	m_aShaders;
+	eastl::vector<CShader>	m_aShaders;
 	bool					m_bCompiled;
 
 	size_t					m_iTerrain;

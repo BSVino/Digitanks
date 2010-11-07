@@ -1,7 +1,5 @@
 #include "updatespanel.h"
 
-#include <sstream>
-
 #include <game/digitanks/digitanksgame.h>
 #include <renderer/renderer.h>
 
@@ -10,11 +8,11 @@ using namespace glgui;
 CUpdatesPanel::CUpdatesPanel()
 	: CPanel(0, 0, 600, 600)
 {
-	m_pCloseButton = new CButton(0, 0, 100, 20, "Close");
+	m_pCloseButton = new CButton(0, 0, 100, 20, L"Close");
 	m_pCloseButton->SetClickedListener(this, Close);
 	AddControl(m_pCloseButton);
 
-	m_pInfo = new CLabel(0, 0, 100, 300, "");
+	m_pInfo = new CLabel(0, 0, 100, 300, L"");
 	AddControl(m_pInfo);
 
 	m_iIconCPU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu.png");
@@ -198,19 +196,20 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		return;
 	}
 
-	std::wstringstream s;
-	s << pInfo->GetName() << L"\n \n";
-	s << pInfo->GetInfo() << L"\n \n";
+	eastl::string16 s;
+	eastl::string16 p;
+	s += pInfo->GetName() + L"\n \n";
+	s += pInfo->GetInfo() + L"\n \n";
 
 	if (pInfo->m_eUpdateClass != UPDATECLASS_STRUCTURE)
-		s << L"Increase: " << pInfo->m_flValue << L"\n";
+		s += p.sprintf(L"Increase: %f\n", pInfo->m_flValue);
 
-	s << L"Download size: " << pInfo->m_iSize << L"\n";
+	s += p.sprintf(L"Download size: %d\n", pInfo->m_iSize);
 
 	if (pInfo->m_eUpdateClass != UPDATECLASS_STRUCTURE)
-		s << L"Power to install: " << pInfo->m_iProductionToInstall << L"\n";
+		s += p.sprintf(L"Power to install: %d\n", pInfo->m_iProductionToInstall);
 
-	m_pInfo->SetText(s.str().c_str());
+	m_pInfo->SetText(s);
 
 	m_pInfo->SetSize(m_pInfo->GetWidth(), 9999);
 	m_pInfo->SetSize(m_pInfo->GetWidth(), (int)m_pInfo->GetTextHeight()+20);
@@ -308,7 +307,7 @@ size_t CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo)
 }
 
 CUpdateButton::CUpdateButton(CUpdatesPanel* pPanel)
-	: CPictureButton("")
+	: CPictureButton(L"")
 {
 	m_pUpdatesPanel = pPanel;
 	m_iX = m_iY = 0;

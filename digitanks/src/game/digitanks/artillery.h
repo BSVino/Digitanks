@@ -18,7 +18,7 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
-	virtual const wchar_t*		GetName() { return L"Artillery"; };
+	virtual eastl::string16		GetName() { return L"Artillery"; };
 
 	virtual void				OnFortify();
 	virtual bool				CanFortify() { return true; };

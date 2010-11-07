@@ -284,7 +284,7 @@ void CGameServer::SaveToFile(const wchar_t* pFileName)
 	o.write((char*)&pGameServer->m_flGameTime, sizeof(pGameServer->m_flGameTime));
 	o.write((char*)&pGameServer->m_flSimulationTime, sizeof(pGameServer->m_flSimulationTime));
 
-	std::vector<CBaseEntity*> apSaveEntities;
+	eastl::vector<CBaseEntity*> apSaveEntities;
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);

@@ -1,8 +1,8 @@
 #ifndef DT_DIGITANKSWINDOW_H
 #define DT_DIGITANKSWINDOW_H
 
-#include <string>
-#include <vector>
+#include <EASTL/string.h>
+#include <EASTL/vector.h>
 #include <vector.h>
 #include <color.h>
 
@@ -22,7 +22,7 @@ public:
 	void						SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
 	void						SetTanks(int iTanks) { m_iTanks = iTanks; };
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
-	void						SetConnectHost(const std::wstring sHost) { m_sConnectHost = sHost; };
+	void						SetConnectHost(const eastl::string16 sHost) { m_sConnectHost = sHost; };
 
 	void						RenderLoading();
 
@@ -129,7 +129,7 @@ protected:
 	int							m_iTanks;
 
 	servertype_t				m_eServerType;
-	std::wstring				m_sConnectHost;
+	eastl::string16				m_sConnectHost;
 
 	class CGameServer*			m_pGameServer;
 
@@ -149,7 +149,7 @@ protected:
 
 	bool						m_bMouseDownInGUI;
 
-	std::vector<const char*>	m_apszCommandLine;
+	eastl::vector<const char*>	m_apszCommandLine;
 
 	bool						m_bCheatsOn;
 

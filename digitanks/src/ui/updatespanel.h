@@ -41,7 +41,7 @@ protected:
 	glgui::CButton*					m_pCloseButton;
 	glgui::CLabel*					m_pInfo;
 
-	std::vector<CUpdateButton*>		m_apUpdates;
+	eastl::vector<CUpdateButton*>	m_apUpdates;
 
 	size_t							m_iIconCPU;
 	size_t							m_iIconBuffer;

@@ -11,7 +11,7 @@
 
 #include "game.h"
 
-std::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
+eastl::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
 size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
@@ -84,9 +84,9 @@ CBaseEntity::~CBaseEntity()
 		delete m_pTracer;
 }
 
-void CBaseEntity::SetModel(const wchar_t* pszModel)
+void CBaseEntity::SetModel(const eastl::string16& sModel)
 {
-	SetModel(CModelLibrary::Get()->FindModel(pszModel));
+	SetModel(CModelLibrary::Get()->FindModel(sModel));
 }
 
 void CBaseEntity::SetModel(size_t iModel)
@@ -123,7 +123,7 @@ size_t CBaseEntity::GetEntityHandle(size_t i)
 	if (i > s_apEntityList.size())
 		return ~0;
 
-	static std::map<size_t, CBaseEntity*>::iterator it;
+	static eastl::map<size_t, CBaseEntity*>::iterator it;
 	static size_t iLastRequest = ~0;
 
 	size_t iThisRequest = i;
@@ -232,24 +232,24 @@ void CBaseEntity::Delete()
 	GameServer()->Delete(this);
 }
 
-void CBaseEntity::EmitSound(const char* pszFilename)
+void CBaseEntity::EmitSound(const eastl::string16& sFilename)
 {
-	CSoundLibrary::PlaySound(this, pszFilename);
+	CSoundLibrary::PlaySound(this, sFilename);
 }
 
-void CBaseEntity::StopSound(const char* pszFilename)
+void CBaseEntity::StopSound(const eastl::string16& sFilename)
 {
-	CSoundLibrary::StopSound(this, pszFilename);
+	CSoundLibrary::StopSound(this, sFilename);
 }
 
-bool CBaseEntity::IsSoundPlaying(const char* pszFilename)
+bool CBaseEntity::IsSoundPlaying(const eastl::string16& sFilename)
 {
-	return CSoundLibrary::IsSoundPlaying(this, pszFilename);
+	return CSoundLibrary::IsSoundPlaying(this, sFilename);
 }
 
-void CBaseEntity::SetSoundVolume(const char* pszFilename, float flVolume)
+void CBaseEntity::SetSoundVolume(const eastl::string16& sFilename, float flVolume)
 {
-	CSoundLibrary::SetSoundVolume(this, pszFilename, flVolume);
+	CSoundLibrary::SetSoundVolume(this, sFilename, flVolume);
 }
 
 float CBaseEntity::Distance(Vector vecSpot)
@@ -304,7 +304,7 @@ void CBaseEntity::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
 
 void CBaseEntity::DeregisterNetworkVariables()
 {
-	static std::map<std::string, CNetworkedVariableBase*>::iterator it;
+	static eastl::map<eastl::string, CNetworkedVariableBase*>::iterator it;
 
 	it = m_apNetworkVariables.begin();
 
@@ -339,7 +339,7 @@ void CBaseEntity::CheckTables(char* pszEntity)
 
 	CEntityRegistration* pRegistration = GetRegisteredEntity(FindRegisteredEntity(pszEntity));
 
-	std::vector<CSaveData>& aSaveData = pRegistration->m_aSaveData;
+	eastl::vector<CSaveData>& aSaveData = pRegistration->m_aSaveData;
 
 	for (size_t i = 0; i < aSaveData.size(); i++)
 	{
@@ -422,7 +422,7 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 
 		case CSaveData::DATA_COPYVECTOR:
 		{
-			std::vector<size_t>* pVector = (std::vector<size_t>*)pData;
+			eastl::vector<size_t>* pVector = (eastl::vector<size_t>*)pData;
 			size_t iSize = pVector->size();
 			o.write((char*)&iSize, sizeof(iSize));
 			if (iSize)
@@ -440,8 +440,8 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 			break;
 		}
 
-		case CSaveData::DATA_WSTRING:
-			writewstring(o, *(std::wstring*)pData);
+		case CSaveData::DATA_STRING16:
+			writestring16(o, *(eastl::string16*)pData);
 			break;
 		}
 	}
@@ -475,7 +475,7 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 
 		case CSaveData::DATA_COPYVECTOR:
 		{
-			std::vector<size_t>* pVector = (std::vector<size_t>*)pData;
+			eastl::vector<size_t>* pVector = (eastl::vector<size_t>*)pData;
 			size_t iSize;
 			i.read((char*)&iSize, sizeof(iSize));
 			if (iSize)
@@ -499,8 +499,8 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 			break;
 		}
 
-		case CSaveData::DATA_WSTRING:
-			((std::wstring*)pData)->assign(readwstring(i));
+		case CSaveData::DATA_STRING16:
+			((eastl::string16*)pData)->assign(readstring16(i));
 			break;
 		}
 	}
@@ -508,20 +508,20 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 	return true;
 }
 
-void CBaseEntity::PrecacheModel(const wchar_t* pszModel, bool bStatic)
+void CBaseEntity::PrecacheModel(const eastl::string16& sModel, bool bStatic)
 {
-	CModelLibrary::Get()->AddModel(pszModel, bStatic);
+	CModelLibrary::Get()->AddModel(sModel, bStatic);
 }
 
-void CBaseEntity::PrecacheParticleSystem(const wchar_t* pszParticleSystem)
+void CBaseEntity::PrecacheParticleSystem(const eastl::string16& sSystem)
 {
-	size_t iSystem = CParticleSystemLibrary::Get()->FindParticleSystem(pszParticleSystem);
+	size_t iSystem = CParticleSystemLibrary::Get()->FindParticleSystem(sSystem);
 	CParticleSystemLibrary::Get()->LoadParticleSystem(iSystem);
 }
 
-void CBaseEntity::PrecacheSound(const char* pszSound)
+void CBaseEntity::PrecacheSound(const eastl::string16& sSound)
 {
-	CSoundLibrary::Get()->AddSound(pszSound);
+	CSoundLibrary::Get()->AddSound(sSound);
 }
 
 void CBaseEntity::RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)

@@ -319,7 +319,7 @@ void CDigitanksGame::SetupArtillery()
 		Color(255, 255, 255),
 	};
 
-	std::vector<Vector> avecRandomStartingPositions;
+	eastl::vector<Vector> avecRandomStartingPositions;
 	// 8 random starting positions.
 	for (int i = 0; i < iPlayers; i++)
 		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
@@ -379,7 +379,7 @@ void CDigitanksGame::SetupStandard()
 		Color(255, 0, 0),
 	};
 
-	std::wstring aszTeamNames[] =
+	eastl::string16 aszTeamNames[] =
 	{
 		L"Blue",
 		L"Yellow",
@@ -395,7 +395,7 @@ void CDigitanksGame::SetupStandard()
 		Vector(-130, 0, -130),
 	};
 
-	std::vector<Vector> avecRandomStartingPositions;
+	eastl::vector<Vector> avecRandomStartingPositions;
 	for (int i = 0; i < 4; i++)
 		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
 
@@ -669,7 +669,7 @@ void CDigitanksGame::Think()
 
 		if (CNetwork::IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
 		{
-			std::vector<CEntityHandle<CDigitanksEntity> > ahEntities;
+			eastl::vector<CEntityHandle<CDigitanksEntity> > ahEntities;
 			for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 			{
 				CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(CBaseEntity::GetEntityNumber(i));
@@ -961,7 +961,7 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
 {
-	std::vector<CBaseEntity*> apHit;
+	eastl::vector<CBaseEntity*> apHit;
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
@@ -1106,7 +1106,7 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 		m_iPowerups--;
 }
 
-void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech)
+void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)
 {
 	if (m_pListener)
 		m_pListener->TankSpeak(pTank, sSpeech);
@@ -1223,7 +1223,7 @@ void CDigitanksGame::AddTankAim(Vector vecAim, float flRadius, bool bFocus)
 		m_iTankAimFocus = m_avecTankAims.size()-1;
 }
 
-void CDigitanksGame::GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus)
+void CDigitanksGame::GetTankAims(eastl::vector<Vector>& avecAims, eastl::vector<float>& aflAimRadius, size_t& iFocus)
 {
 	avecAims = m_avecTankAims;
 	aflAimRadius = m_aflTankAimRadius;
@@ -1236,7 +1236,7 @@ void CDigitanksGame::ClearTankAims()
 	m_aflTankAimRadius.clear();
 }
 
-void CDigitanksGame::AppendTurnInfo(const wchar_t* pszTurnInfo)
+void CDigitanksGame::AppendTurnInfo(const eastl::string16& pszTurnInfo)
 {
 	if (m_pListener)
 		m_pListener->AppendTurnInfo(pszTurnInfo);

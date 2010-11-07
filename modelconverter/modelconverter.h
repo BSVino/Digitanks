@@ -1,9 +1,10 @@
 #ifndef CF_MODELCONVERTER_H
 #define CF_MODELCONVERTER_H
 
+#include <EASTL/vector.h>
+#include <EASTL/string.h>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include <worklistener.h>
 #include "convmesh.h"
@@ -14,27 +15,26 @@ public:
 						CModelConverter(CConversionScene* pScene);
 
 public:
-	bool				ReadModel(const wchar_t* pszFilename);
+	bool				ReadModel(const eastl::string16& sFilename);
 
-	void				ReadOBJ(const wchar_t* pszFilename);
-	void				ReadMTL(const wchar_t* pszFilename);
+	void				ReadOBJ(const eastl::string16& sFilename);
+	void				ReadMTL(const eastl::string16& sFilename);
 
 	// SIA and its utility functions.
-	void				ReadSIA(const wchar_t* pszFilename);
-	void				ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const wchar_t* pszFilename);
+	void				ReadSIA(const eastl::string16& sFilename);
+	void				ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const eastl::string16& sFilename);
 	void				ReadSIAShape(std::wifstream& infile, CConversionSceneNode* pScene, bool bCare = true);
 
-	void				ReadDAE(const wchar_t* pszFilename);
+	void				ReadDAE(const eastl::string16& sFilename);
 	void				ReadDAESceneTree(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
 
-	void				WriteSMDs(const wchar_t* pszFilename = NULL);
-	void				WriteSMD(size_t iMesh, const wchar_t* pszFilename = NULL);
+	void				WriteSMDs(const eastl::string16& sFilename = L"");
+	void				WriteSMD(size_t iMesh, const eastl::string16& sFilename = L"");
 
-	std::wstring		GetFilename(std::wstring sPathFilename);
-	std::wstring		GetDirectory(std::wstring sFilename);
-	bool				IsWhitespace(wchar_t cChar);
-	wchar_t*			StripWhitespace(wchar_t* pszLine);
-	std::wstring		StripWhitespace(std::wstring sLine);
+	eastl::string16		GetFilename(const eastl::string16& sFilename);
+	eastl::string16		GetDirectory(const eastl::string16& sFilename);
+	bool				IsWhitespace(eastl::string16::value_type cChar);
+	eastl::string16		StripWhitespace(eastl::string16 sLine);
 
 	void				SetScene(CConversionScene* pScene) { m_pScene = pScene; };
 	CConversionScene*	GetScene() { return m_pScene; };

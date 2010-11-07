@@ -103,11 +103,11 @@ public:
 	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
 
 protected:
-	std::vector<CEntityHandle<CDigitank> >	m_ahTanks;
+	eastl::vector<CEntityHandle<CDigitank> >	m_ahTanks;
 
-	std::vector<size_t>			m_aiCurrentSelection;
+	eastl::vector<size_t>		m_aiCurrentSelection;
 
-	std::map<size_t, float>		m_aflVisibilities;
+	eastl::map<size_t, float>	m_aflVisibilities;
 
 	CNetworkedVariable<size_t>	m_iProduction;
 	CNetworkedVariable<size_t>	m_iLoadersProducing;

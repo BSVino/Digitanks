@@ -75,16 +75,12 @@ void CResource::Think()
 	}
 }
 
-void CResource::UpdateInfo(std::wstring& sInfo)
+void CResource::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
+	s = L"ELECTRONODE\n";
+	s += L"Digital resource\n \n";
 
-	s << L"ELECTRONODE\n";
-	s << L"Digital resource\n \n";
-
-	s << L"Build a Battery or Power Supply Unit to harness this Electronode's Power resource\n";
-
-	sInfo = s.str();
+	s += L"Build a Battery or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 
 void CResource::ModifyContext(class CRenderingContext* pContext)

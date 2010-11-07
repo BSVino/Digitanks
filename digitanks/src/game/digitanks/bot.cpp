@@ -44,7 +44,7 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 	if (GetUpdateDownloading())
 		return;
 
-	std::vector<update_coordinate_t> aUpdatesAvailable;
+	eastl::vector<update_coordinate_t> aUpdatesAvailable;
 
 	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
 	{
@@ -446,7 +446,7 @@ void CDigitanksTeam::Bot_BuildUnits()
 
 void CDigitanksTeam::Bot_AssignDefenders()
 {
-	std::vector<CStructure*> apDefend;
+	eastl::vector<CStructure*> apDefend;
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		CBaseEntity* pEntity = m_ahMembers[i];
@@ -889,7 +889,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 CSupplier* CDigitanksTeam::FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
 {
-	std::vector<CSupplier*> apSuppliers;
+	eastl::vector<CSupplier*> apSuppliers;
 
 	// Find an appropriate supplier to build from.
 	for (size_t i = 0; i < GetNumMembers(); i++)

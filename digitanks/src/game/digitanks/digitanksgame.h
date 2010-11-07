@@ -1,7 +1,7 @@
 #ifndef DT_DIGITANKSGAME_H
 #define DT_DIGITANKSGAME_H
 
-#include <vector>
+#include <EASTL/vector.h>
 
 #include "game.h"
 #include "digitank.h"
@@ -58,10 +58,10 @@ public:
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)=0;
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)=0;
 
-	virtual void			TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech)=0;
+	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)=0;
 
 	virtual void			ClearTurnInfo()=0;
-	virtual void			AppendTurnInfo(const wchar_t* pszInfo)=0;
+	virtual void			AppendTurnInfo(const eastl::string16& sInfo)=0;
 
 	virtual void			SetHUDActive(bool bActive)=0;
 };
@@ -122,7 +122,7 @@ public:
 
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
 
-	virtual void			TankSpeak(class CBaseEntity* pTank, const std::string& sSpeech);
+	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
 
 	CDigitanksTeam*			GetDigitanksTeam(size_t i);
 
@@ -188,13 +188,13 @@ public:
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
 
 	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
-	void					GetTankAims(std::vector<Vector>& avecAims, std::vector<float>& aflAimRadius, size_t& iFocus);
+	void					GetTankAims(eastl::vector<Vector>& avecAims, eastl::vector<float>& aflAimRadius, size_t& iFocus);
 	void					ClearTankAims();
 
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
-	void					AppendTurnInfo(const wchar_t* pszTurnInfo);
+	void					AppendTurnInfo(const eastl::string16& sTurnInfo);
 
 	void					OnDisplayTutorial(size_t iTutorial);
 
@@ -214,7 +214,7 @@ public:
 	bool					CanBuildArtilleryLoaders();
 
 	void					AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
-	std::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
+	eastl::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
 	void					AllowActionItems(bool bAllow) { m_bAllowActionItems = bAllow; };
 
 	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
@@ -253,8 +253,8 @@ protected:
 
 	size_t					m_iPowerups;
 
-	std::vector<Vector>		m_avecTankAims;
-	std::vector<float>		m_aflTankAimRadius;
+	eastl::vector<Vector>	m_avecTankAims;
+	eastl::vector<float>	m_aflTankAimRadius;
 	size_t					m_iTankAimFocus;
 
 	CNetworkedVariable<size_t> m_iDifficulty;
@@ -269,7 +269,7 @@ protected:
 
 	CNetworkedHandle<CUpdateGrid>	m_hUpdates;
 
-	std::vector<actionitem_t>	m_aActionItems;
+	eastl::vector<actionitem_t>	m_aActionItems;
 	bool					m_bAllowActionItems;
 
 	CNetworkedVariable<bool>	m_bPartyMode;

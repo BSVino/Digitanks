@@ -1,7 +1,7 @@
 #ifndef _CF_PLATFORM
 #define _CF_PLATFORM
 
-#include <string>
+#include <EASTL/string.h>
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses);
 void GetScreenSize(int& iWidth, int& iHeight);
@@ -11,9 +11,9 @@ void OpenBrowser(const wchar_t* pszAddress);
 void CreateMinidump(void* pInfo);
 wchar_t* OpenFileDialog(wchar_t* pszFileTypes);
 wchar_t* SaveFileDialog(wchar_t* pszFileTypes);
-std::string GetClipboard();
-void SetClipboard(const std::string& sBuf);
+eastl::string GetClipboard();
+void SetClipboard(const eastl::string& sBuf);
 void ShowMessage(const wchar_t* pszMessage);
-std::wstring GetAppDataDirectory(const std::wstring& sDirectory, const std::wstring& sFile);
+eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eastl::string16& sFile);
 
 #endif

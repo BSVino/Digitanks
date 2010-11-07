@@ -4,7 +4,7 @@
 #include <iphlpapi.h>
 #include <tchar.h>
 #include <dbghelp.h>
-#include <string>
+#include <EASTL/string.h>
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 {
@@ -196,7 +196,7 @@ wchar_t* SaveFileDialog(wchar_t* pszFileTypes)
 	return NULL;
 }
 
-std::string GetClipboard()
+eastl::string GetClipboard()
 {
 	if (!OpenClipboard(NULL))
 		return "";
@@ -206,12 +206,12 @@ std::string GetClipboard()
 	GlobalUnlock(hData);
 	CloseClipboard();
 
-	std::string sClipboard(szBuffer);
+	eastl::string sClipboard(szBuffer);
 
 	return sClipboard;
 }
 
-void SetClipboard(const std::string& sBuf)
+void SetClipboard(const eastl::string& sBuf)
 {
 	if (!OpenClipboard(NULL))
 		return;
@@ -236,12 +236,12 @@ void ShowMessage(const wchar_t* pszMessage)
 	MessageBox(NULL, pszMessage, L"Digitanks!", MB_OK|MB_ICONINFORMATION);
 }
 
-std::wstring GetAppDataDirectory(const std::wstring& sDirectory, const std::wstring& sFile)
+eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eastl::string16& sFile)
 {
 	size_t iSize;
 	_wgetenv_s(&iSize, NULL, 0, L"APPDATA");
 
-	std::wstring sSuffix;
+	eastl::string16 sSuffix;
 	sSuffix.append(sDirectory).append(L"\\").append(sFile);
 
 	if (!iSize)
@@ -253,11 +253,11 @@ std::wstring GetAppDataDirectory(const std::wstring& sDirectory, const std::wstr
 
 	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
 
-	std::wstring sReturn(pszVar);
+	eastl::string16 sReturn(pszVar);
 
 	free(pszVar);
 
-	CreateDirectory(std::wstring(sReturn).append(L"\\").append(sDirectory).c_str(), NULL);
+	CreateDirectory(eastl::string16(sReturn).append(L"\\").append(sDirectory).c_str(), NULL);
 
 	sReturn.append(L"\\").append(sSuffix);
 	return sReturn;

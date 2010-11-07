@@ -52,6 +52,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Source Files\eastl">
+      <UniqueIdentifier>{9d711938-ce8f-4e54-a12c-0255058f1bf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -236,6 +239,27 @@
     </ClCompile>
     <ClCompile Include="intro.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\eastl.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EASTL\src\fixed_pool.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EASTL\src\hashtable.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EASTL\src\red_black_tree.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EASTL\src\string.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EASTL\src\allocator.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EASTL\src\assert.cpp">
+      <Filter>Source Files\eastl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

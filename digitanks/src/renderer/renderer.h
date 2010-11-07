@@ -1,7 +1,7 @@
 #ifndef DT_RENDERER_H
 #define DT_RENDERER_H
 
-#include <string>
+#include <EASTL/string.h>
 #include <vector.h>
 #include <matrix.h>
 #include <color.h>
@@ -155,7 +155,7 @@ public:
 
 public:
 	static size_t	CreateCallList(size_t iModel);
-	static size_t	LoadTextureIntoGL(std::wstring sFilename, bool bHUD = false);
+	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD = false);
 
 protected:
 	size_t			m_iWidth;

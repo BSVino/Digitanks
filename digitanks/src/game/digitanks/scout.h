@@ -13,7 +13,7 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
-	virtual const wchar_t*		GetName() { return L"Rogue"; };
+	virtual eastl::string16		GetName() { return L"Rogue"; };
 
 	CSupplyLine*				FindClosestEnemySupplyLine(bool bInRange = false);
 

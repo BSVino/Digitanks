@@ -5,20 +5,20 @@
 #include "../modelconverter.h"
 #include "strutils.h"
 
-void CModelConverter::WriteSMDs(const wchar_t* pszFilename)
+void CModelConverter::WriteSMDs(const eastl::string16& sFilename)
 {
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
-		WriteSMD(i, pszFilename);
+		WriteSMD(i, sFilename);
 }
 
-void CModelConverter::WriteSMD(size_t iMesh, const wchar_t* pszFilename)
+void CModelConverter::WriteSMD(size_t iMesh, const eastl::string16& sFilename)
 {
 	CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 
-	std::wstring sFile;
-	if (pszFilename)
+	eastl::string16 sFile;
+	if (sFilename.length())
 	{
-		sFile.append(pszFilename);
+		sFile.append(sFilename);
 		sFile.append(L"_");
 	}
 	sFile.append(pMesh->GetBoneName(0));

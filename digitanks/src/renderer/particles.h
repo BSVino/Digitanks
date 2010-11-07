@@ -1,6 +1,6 @@
 #ifndef DT_PARTICLES_H
 
-#include <vector>
+#include <EASTL/vector.h>
 #include <vector.h>
 #include <color.h>
 #include <geometry.h>
@@ -52,14 +52,14 @@ public:
 
 protected:
 	CParticleSystem*				m_pSystem;
-	std::vector<CSystemInstance*>	m_apChildren;
+	eastl::vector<CSystemInstance*>	m_apChildren;
 
 	Vector							m_vecOrigin;
 	Vector							m_vecInheritedVelocity;
 
 	bool							m_bStopped;
 
-	std::vector<CParticle>			m_aParticles;
+	eastl::vector<CParticle>		m_aParticles;
 	size_t							m_iNumParticlesAlive;
 
 	float							m_flLastEmission;
@@ -74,7 +74,7 @@ protected:
 class CParticleSystem
 {
 public:
-									CParticleSystem(std::wstring sName);
+									CParticleSystem(eastl::string16 sName);
 
 public:
 	bool							IsLoaded() { return m_bLoaded; }
@@ -82,7 +82,7 @@ public:
 
 	const wchar_t*					GetName() { return m_sName.c_str(); }
 
-	void							SetTexture(std::wstring sTexture) { m_sTexture = sTexture; };
+	void							SetTexture(eastl::string16 sTexture) { m_sTexture = sTexture; };
 	void							SetTexture(size_t iTexture) { m_iTexture = iTexture; };
 
 	const wchar_t*					GetTextureName() { return m_sTexture.c_str(); }
@@ -139,9 +139,9 @@ public:
 protected:
 	bool							m_bLoaded;
 
-	std::wstring					m_sName;
+	eastl::string16					m_sName;
 
-	std::wstring					m_sTexture;
+	eastl::string16					m_sTexture;
 	size_t							m_iTexture;
 
 	float							m_flLifeTime;
@@ -159,7 +159,7 @@ protected:
 	float							m_flDrag;
 	bool							m_bRandomBillboardYaw;
 
-	std::vector<size_t>				m_aiChildren;
+	eastl::vector<size_t>				m_aiChildren;
 };
 
 class CParticleSystemLibrary
@@ -171,8 +171,8 @@ public:
 public:
 	size_t							GetNumParticleSystems() { return m_apParticleSystems.size(); };
 
-	size_t							AddParticleSystem(const std::wstring& sName);
-	size_t							FindParticleSystem(const std::wstring& sName);
+	size_t							AddParticleSystem(const eastl::string16& sName);
+	size_t							FindParticleSystem(const eastl::string16& sName);
 	void							LoadParticleSystem(size_t iSystem);
 	CParticleSystem*				GetParticleSystem(size_t i);
 
@@ -180,7 +180,7 @@ public:
 	static void						Simulate();
 	static void						Render();
 
-	static size_t					AddInstance(const std::wstring& sName, Vector vecOrigin);
+	static size_t					AddInstance(const eastl::string16& sName, Vector vecOrigin);
 	static size_t					AddInstance(size_t iParticleSystem, Vector vecOrigin);
 	static void						StopInstance(size_t iInstance);
 	static void						RemoveInstance(size_t iInstance);
@@ -194,8 +194,8 @@ private:
 	static void						InitSystems();
 
 protected:
-	std::vector<CParticleSystem*>	m_apParticleSystems;
-	std::map<size_t, CSystemInstance*>	m_apInstances;
+	eastl::vector<CParticleSystem*>	m_apParticleSystems;
+	eastl::map<size_t, CSystemInstance*>	m_apInstances;
 	size_t							m_iSystemInstanceIndex;
 
 private:

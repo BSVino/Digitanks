@@ -4,7 +4,7 @@
 #include "baseentity.h"
 
 #include "color.h"
-#include <vector>
+#include <EASTL/vector.h>
 
 class CTeam : public CBaseEntity
 {
@@ -44,18 +44,18 @@ public:
 	void						SetTeamClient(class CNetworkParameters* p);
 	void						AddEntityToTeam(class CNetworkParameters* p);
 
-	void						SetName(std::wstring& szName) { m_szName = szName; };
-	std::wstring&				GetName() { return m_szName; }
+	void						SetName(eastl::string16& szName) { m_szName = szName; };
+	eastl::string16				GetName() { return m_szName; }
 
 protected:
 	Color						m_clrTeam;
 
-	std::vector<CEntityHandle<CBaseEntity> >	m_ahMembers;
+	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahMembers;
 
 	bool						m_bClientControlled;
 	int							m_iClient;
 
-	std::wstring				m_szName;
+	eastl::string16				m_szName;
 };
 
 #endif

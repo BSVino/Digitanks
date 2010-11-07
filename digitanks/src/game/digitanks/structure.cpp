@@ -1,7 +1,5 @@
 #include "structure.h"
 
-#include <sstream>
-
 #include <maths.h>
 #include <mtrand.h>
 
@@ -143,9 +141,7 @@ void CStructure::StartTurn()
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToInstall())
 		{
-			std::wstringstream s;
-			s << L"'" << GetUpdateInstalling()->GetName() << L"' finished installing on " << GetName();
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			DigitanksGame()->AppendTurnInfo(L"'" + GetUpdateInstalling()->GetName() + L"' finished installing on " + GetName());
 
 			InstallComplete();
 		}
@@ -153,9 +149,9 @@ void CStructure::StartTurn()
 		{
 			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
 
-			std::wstringstream s;
-			s << L"Installing '" << GetUpdateInstalling()->GetName() << L"' on " << GetName() << L" (" << GetTurnsToInstall() << L" turns left)";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			eastl::string16 s;
+			s.sprintf((L"Installing '" + GetUpdateInstalling()->GetName() + L"' on " + GetName() + L" (%d turns left)").c_str(), GetTurnsToInstall());
+			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
 
@@ -163,9 +159,7 @@ void CStructure::StartTurn()
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToUpgrade())
 		{
-			std::wstringstream s;
-			s << L"" << GetName() << L" finished upgrading.";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			DigitanksGame()->AppendTurnInfo(GetName() + L" finished upgrading.");
 
 			UpgradeComplete();
 		}
@@ -173,9 +167,9 @@ void CStructure::StartTurn()
 		{
 			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
 
-			std::wstringstream s;
-			s << L"Upgrading " << GetName() << L" (" << GetTurnsToUpgrade() << L" turns left)";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			eastl::string16 s;
+			s.sprintf((L"Upgrading " + GetName() + L" (%d turns left)").c_str(), GetTurnsToUpgrade());
+			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
 }
@@ -411,7 +405,7 @@ size_t CStructure::GetTurnsToInstall()
 
 int CStructure::GetFirstUninstalledUpdate(updatetype_t eUpdate)
 {
-	std::vector<CUpdateCoordinate>& aUpdates = m_aUpdates[eUpdate];
+	eastl::vector<CUpdateCoordinate>& aUpdates = m_aUpdates[eUpdate];
 	size_t iUpdatesInstalled = m_aiUpdatesInstalled[eUpdate];
 
 	if (iUpdatesInstalled >= aUpdates.size())
@@ -590,7 +584,7 @@ void CStructure::ClientUpdate(int iClient)
 {
 	BaseClass::ClientUpdate(iClient);
 
-	for (std::map<size_t, std::vector<CUpdateCoordinate> >::iterator i = m_aUpdates.begin(); i != m_aUpdates.end(); i++)
+	for (eastl::map<size_t, eastl::vector<CUpdateCoordinate> >::iterator i = m_aUpdates.begin(); i != m_aUpdates.end(); i++)
 	{
 		CNetworkParameters p;
 		p.ui1 = GetHandle();
@@ -634,7 +628,7 @@ void CStructure::OnSerialize(std::ostream& o)
 	size_t iUpdates = m_aUpdates.size();
 	o.write((char*)&iUpdates, sizeof(iUpdates));
 
-	std::map<size_t, std::vector<CUpdateCoordinate> >::iterator it;
+	eastl::map<size_t, eastl::vector<CUpdateCoordinate> >::iterator it;
 	for (it = m_aUpdates.begin(); it != m_aUpdates.end(); it++)
 	{
 		iUpdates--;

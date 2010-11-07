@@ -1,6 +1,6 @@
 #ifndef DT_DISSOLVER_H
 
-#include <vector>
+#include <EASTL/vector.h>
 #include <vector.h>
 #include <matrix.h>
 
@@ -53,7 +53,7 @@ public:
 	static CModelDissolver*			Get() { return s_pModelDissolver; };
 
 protected:
-	std::vector<CDissolveTri>		m_aTriangles;
+	eastl::vector<CDissolveTri>		m_aTriangles;
 
 	size_t							m_iNumTrianglesAlive;
 

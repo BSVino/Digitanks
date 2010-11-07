@@ -55,11 +55,11 @@ public:
 	virtual void				OnRender();
 	virtual void				PostRender();
 
-	virtual void				UpdateInfo(std::wstring& sInfo);
+	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual void				OnDeleted();
 
-	virtual const wchar_t*		GetName() { return L"Central Processing Unit"; };
+	virtual eastl::string16		GetName() { return L"Central Processing Unit"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_CPU; };
 
 protected:

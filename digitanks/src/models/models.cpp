@@ -21,13 +21,13 @@ CModelLibrary::~CModelLibrary()
 	s_pModelLibrary = NULL;
 }
 
-size_t CModelLibrary::AddModel(const wchar_t* pszFilename, bool bStatic)
+size_t CModelLibrary::AddModel(const eastl::string16& sModel, bool bStatic)
 {
-	size_t iModel = FindModel(pszFilename);
+	size_t iModel = FindModel(sModel);
 	if (iModel != ~0)
 		return iModel;
 
-	m_apModels.push_back(new CModel(pszFilename));
+	m_apModels.push_back(new CModel(sModel));
 
 	iModel = m_apModels.size()-1;
 	m_apModels[iModel]->m_iCallList = CRenderer::CreateCallList(iModel);
@@ -43,25 +43,25 @@ CModel* CModelLibrary::GetModel(size_t i)
 	return m_apModels[i];
 }
 
-size_t CModelLibrary::FindModel(const wchar_t* pszFilename)
+size_t CModelLibrary::FindModel(const eastl::string16& sModel)
 {
 	for (size_t i = 0; i < m_apModels.size(); i++)
 	{
-		if (wcscmp(m_apModels[i]->m_sFilename.c_str(), pszFilename) == 0)
+		if (m_apModels[i]->m_sFilename == sModel)
 			return i;
 	}
 
 	return ~0;
 }
 
-CModel::CModel(const wchar_t* pszFilename)
+CModel::CModel(const eastl::string16& sFilename)
 {
-	m_sFilename = pszFilename;
+	m_sFilename = sFilename;
 	m_pScene = new CConversionScene();
 	m_bStatic = false;
 	m_iCallList = 0;
 	CModelConverter c(m_pScene);
-	c.ReadModel(pszFilename);
+	c.ReadModel(sFilename);
 
 	m_aiTextures.resize(m_pScene->GetNumMaterials());
 	for (size_t i = 0; i < m_pScene->GetNumMaterials(); i++)

@@ -1,6 +1,5 @@
 #include "cpu.h"
 
-#include <sstream>
 #include <GL/glew.h>
 
 #include <mtrand.h>
@@ -87,6 +86,7 @@ void CCPU::Precache()
 void CCPU::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = CDigitanksWindow::Get()->GetHUD();
+	eastl::string16 p;
 
 	bool bDisableMiniBuffer = !GetDigitanksTeam()->CanBuildMiniBuffers();
 	bool bDisableBuffer = !GetDigitanksTeam()->CanBuildBuffers();
@@ -123,13 +123,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, s_iBuildInfantryLoaderIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD INFANTRY LOADER\n \n"
-				<< "This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n"
-				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY) << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY)) << " Turns\n \n"
-				<< "Shortcut: Q";
-			pHUD->SetButtonInfo(0, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD INFANTRY LOADER\n \n";
+			s += L"This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY)));
+			s += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s);
 		}
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
@@ -138,13 +138,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(1, s_iBuildTankLoaderIcon);
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD MAIN BATTLE TANK LOADER\n \n"
-				<< "This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n"
-				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK) << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK)) << " Turns\n \n"
-				<< "Shortcut: W";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD MAIN BATTLE TANK LOADER\n \n";
+			s += L"This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK)));
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
 		}
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
@@ -153,13 +153,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(2, s_iBuildArtilleryLoaderIcon);
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD ARTILLERY LOADER\n \n"
-				<< "This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n"
-				<< "Power to construct: " << CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY) << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY)) << " Turns\n \n"
-				<< "Shortcut: E";
-			pHUD->SetButtonInfo(2, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD ARTILLERY LOADER\n \n";
+			s += L"This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY)));
+			s += L"Shortcut: E";
+			pHUD->SetButtonInfo(2, s);
 		}
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
@@ -178,13 +178,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_PRODUCTION, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL POWER INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Power increase: " << pUpdate->m_flValue << " Power\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: Q";
-			pHUD->SetButtonInfo(0, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL POWER INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Power increase: %d Power\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s);
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
@@ -196,13 +196,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_BANDWIDTH, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL BANDWIDTH INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Bandwidth increase: " << pUpdate->m_flValue << " Bandwidth\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: W";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL BANDWIDTH INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Bandwidth increase: %d Bandwidth\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
 		}
 
 		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
@@ -214,13 +214,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
 			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_FLEETSUPPLY, iUpdate);
 
-			std::wstringstream s;
-			s << "INSTALL FLEET SUPPLY INCREASE\n \n"
-				<< pUpdate->GetInfo() << "\n \n"
-				<< "Fleet Supply increase: " << pUpdate->m_flValue << " Supply\n"
-				<< "Turns to install: " << GetTurnsToInstall(pUpdate) << " Turns\n \n"
-				<< "Shortcut: E";
-			pHUD->SetButtonInfo(2, s.str().c_str());
+			eastl::string16 s;
+			s += L"INSTALL FLEET SUPPLY INCREASE\n \n";
+			s += pUpdate->GetInfo() + L"\n \n";
+			s += p.sprintf(L"Fleet Supply increase: %d Supply\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
+			s += L"Shortcut: E";
+			pHUD->SetButtonInfo(2, s);
 		}
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
@@ -236,13 +236,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(5, s_iBuildBufferIcon);
 			pHUD->SetButtonColor(5, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD MINIBUFFER\n \n"
-				<< "MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n"
-				<< "Power to construct: " << CMiniBuffer::GetMiniBufferConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()) << " Turns\n \n"
-				<< "Shortcut: A";
-			pHUD->SetButtonInfo(5, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD MINIBUFFER\n \n";
+			s += L"MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CMiniBuffer::GetMiniBufferConstructionCost());
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()));
+			s += L"Shortcut: A";
+			pHUD->SetButtonInfo(5, s);
 		}
 
 		if (!bDisableBuffer)
@@ -251,13 +251,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD BUFFER\n \n"
-				<< "Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n"
-				<< "Power to construct: " << CBuffer::GetBufferConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CBuffer::GetBufferConstructionCost()) << " Turns\n \n"
-				<< "Shortcut: Q";
-			pHUD->SetButtonInfo(0, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD MINIBUFFER\n \n";
+			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CBuffer::GetBufferConstructionCost());
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CBuffer::GetBufferConstructionCost()));
+			s += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s);
 		}
 
 		if (!bDisableBattery)
@@ -266,13 +266,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(6, s_iBuildPSUIcon);
 			pHUD->SetButtonColor(6, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD BATTERY\n \n"
-				<< "Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n"
-				<< "Power to construct: " << CBattery::GetBatteryConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()) << " Turns\n \n"
-				<< "Shortcut: S";
-			pHUD->SetButtonInfo(6, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD BATTERY\n \n";
+			s += L"Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CBattery::GetBatteryConstructionCost());
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()));
+			s += L"Shortcut: S";
+			pHUD->SetButtonInfo(6, s);
 		}
 
 		if (!bDisablePSU)
@@ -281,13 +281,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
-			std::wstringstream s;
-			s << "BUILD POWER SUPPLY UNIT\n \n"
-				<< "PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n"
-				<< "Power to construct: " << CCollector::GetCollectorConstructionCost() << " Power\n"
-				<< "Turns to install: " << GetTurnsToConstruct(CCollector::GetCollectorConstructionCost()) << " Turns\n \n"
-				<< "Shortcut: W";
-			pHUD->SetButtonInfo(1, s.str().c_str());
+			eastl::string16 s;
+			s += L"BUILD POWER SUPPLY UNIT\n \n";
+			s += L"PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n";
+			s += p.sprintf(L"Power to construct: %d Power\n", CCollector::GetCollectorConstructionCost());
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CCollector::GetCollectorConstructionCost()));
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
 		}
 
 		if (!bDisableLoaders)
@@ -310,13 +310,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
 		pHUD->SetButtonColor(7, Color(150, 150, 150));
 
-		std::wstringstream s;
-		s << "BUILD ROGUE\n \n"
-			<< "Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n"
-			<< "Power to construct: " << g_aiTurnsToLoad[BUILDUNIT_SCOUT] << " Power\n"
-			<< "Turns to install: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]) << " Turns\n"
-			<< "Shortcut: D";
-		pHUD->SetButtonInfo(7, s.str().c_str());
+		eastl::string16 s;
+		s += L"BUILD ROGUE\n \n";
+		s += L"Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n";
+		s += p.sprintf(L"Power to construct: %d Power\n", g_aiTurnsToLoad[BUILDUNIT_SCOUT]);
+		s += p.sprintf(L"Turns to construct: %d Turns\n \n", GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]));
+		s += L"Shortcut: D";
+		pHUD->SetButtonInfo(7, s);
 	}
 }
 
@@ -672,9 +672,9 @@ void CCPU::StartTurn()
 		}
 		else
 		{
-			std::wstringstream s;
-			s << L"Producing Rogue (" << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction) << L" turns left)";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			eastl::string16 s;
+			s.sprintf(L"Producing Rogue (%d turns left)", GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction));
+			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
 
@@ -690,9 +690,9 @@ void CCPU::StartTurn()
 	{
 		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionToConstruct())
 		{
-			std::wstringstream s;
-			s << L"Construction finished on " << m_hConstructing->GetName();
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			eastl::string16 s;
+			s += L"Construction finished on " + m_hConstructing->GetName();
+			DigitanksGame()->AppendTurnInfo(s);
 
 			CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
 			if (pCollector && pCollector->GetSupplier())
@@ -709,9 +709,9 @@ void CCPU::StartTurn()
 		{
 			m_hConstructing->AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
 
-			std::wstringstream s;
-			s << L"Constructing " << m_hConstructing->GetName() << L" (" << m_hConstructing->GetTurnsToConstruct() << L" turns left)";
-			DigitanksGame()->AppendTurnInfo(s.str().c_str());
+			eastl::string16 s;
+			s.sprintf((L"Constructing " + m_hConstructing->GetName() + L" (%d turns left)").c_str(), m_hConstructing->GetTurnsToConstruct());
+			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
 }
@@ -806,58 +806,53 @@ void CCPU::PostRender()
 	}
 }
 
-void CCPU::UpdateInfo(std::wstring& sInfo)
+void CCPU::UpdateInfo(eastl::string16& s)
 {
-	std::wstringstream s;
-
-	s << L"CENTRAL PROCESSING UNIT\n";
-	s << L"Command center\n \n";
+	eastl::string16 p;
+	s = L"";
+	s += L"CENTRAL PROCESSING UNIT\n";
+	s += L"Command center\n \n";
 
 	if (IsConstructing())
 	{
-		s << L"(Constructing)\n";
-		s << L"Power to build: " << GetProductionToConstruct() << L"\n";
-		s << L"Turns left: " << GetTurnsToConstruct() << L"\n";
-		sInfo = s.str();
+		s += L"(Constructing)\n";
+		s += p.sprintf(L"Power to build: %d\n", GetProductionToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
 		return;
 	}
 
 	if (HasConstruction())
 	{
-		s << L"[Constructing " << m_hConstructing->GetName() << L"...]\n";
-		s << L"Power to build: " << m_hConstructing->GetProductionToConstruct() << L"\n";
-		s << L"Turns left: " << m_hConstructing->GetTurnsToConstruct() << L"\n";
-		sInfo = s.str();
+		s += L"[Constructing " + m_hConstructing->GetName() + L"...]\n";
+		s += p.sprintf(L"Power to build: %d\n", m_hConstructing->GetProductionToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", m_hConstructing->GetTurnsToConstruct());
 		return;
 	}
 
 	if (IsInstalling())
 	{
-		s << L"[Installing update '" << GetUpdateInstalling()->GetName() << L"'...]\n";
-		s << L"Power to install: " << GetProductionToInstall() << L"\n";
-		s << L"Turns left: " << GetTurnsToInstall() << L"\n";
-		sInfo = s.str();
+		s += L"[Installing update '" + GetUpdateInstalling()->GetName() + L"'...]\n";
+		s += p.sprintf(L"Power to install: %d\n", GetProductionToInstall());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsToInstall());
 		return;
 	}
 
 	if (IsProducing())
 	{
-		s << L"(Producing Rogue)\n";
-		s << L"Power to build: " << m_iProduction << L"\n";
-		s << L"Turns left: " << GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction) << L"\n \n";
+		s += L"[Producing Rogue]\n";
+		s += p.sprintf(L"Power to build: %d\n", m_iProduction);
+		s += p.sprintf(L"Turns left: %d\n \n", GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction));
 	}
 
-	s << L"Strength: " << m_iDataStrength << L"\n";
-	s << L"Growth: " << (int)GetDataFlowRate() << L"\n";
-	s << L"Size: " << (int)GetDataFlowRadius() << L"\n";
-	s << L"Efficiency: " << (int)(GetChildEfficiency()*100) << L"%\n";
-
-	sInfo = s.str();
+	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
+	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
+	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(L"Efficiency: %d%\n", (int)(GetChildEfficiency()*100));
 }
 
 void CCPU::OnDeleted()
 {
-	std::vector<CBaseEntity*> apDeleteThese;
+	eastl::vector<CBaseEntity*> apDeleteThese;
 
 	for (size_t i = 0; i < GetTeam()->GetNumMembers(); i++)
 	{

@@ -23,7 +23,7 @@ public:
 
 public:
 	void										SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
-	void										SetConnectHost(const std::string sHost) { m_sConnectHost = sHost; };
+	void										SetConnectHost(const eastl::string sHost) { m_sConnectHost = sHost; };
 	void										SetServerPort(int iPort) { m_iPort = iPort; };
 
 	void										Initialize();
@@ -80,7 +80,7 @@ public:
 	class CGame*								GetGame();
 
 protected:
-	std::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
+	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
 
 	static CGameServer*							s_pGameServer;
 
@@ -101,7 +101,7 @@ protected:
 	int											m_iClient;
 
 	servertype_t								m_eServerType;
-	std::string									m_sConnectHost;
+	eastl::string								m_sConnectHost;
 	int											m_iPort;
 
 	bool										m_bHalting;

@@ -5,14 +5,16 @@
 #include "../modelconverter.h"
 #include "strutils.h"
 
+#include <string>
+
 // Silo ascii
-void CModelConverter::ReadSIA(const wchar_t* pszFilename)
+void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
 
 	std::wifstream infile;
-	infile.open(pszFilename, std::wifstream::in);
+	infile.open(sFilename.c_str(), std::wifstream::in);
 
 	if (!infile.is_open())
 	{
@@ -20,19 +22,19 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		return;
 	}
 
-	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(pszFilename).append(L".sia")));
+	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(sFilename).append(L".sia")));
 
-	std::wstring sLine;
+	std::wstring sGetLine;
 	while (infile.good())
 	{
-		std::getline(infile, sLine);
+		std::getline(infile, sGetLine);
 
-		sLine = StripWhitespace(sLine);
+		eastl::string16 sLine = StripWhitespace(sLine.c_str());
 
 		if (sLine.length() == 0)
 			continue;
 
-		std::vector<std::wstring> aTokens;
+		eastl::vector<eastl::string16> aTokens;
 		wcstok(sLine, aTokens, L" ");
 		const wchar_t* pszToken = aTokens[0].c_str();
 
@@ -46,7 +48,7 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		}
 		else if (wcscmp(pszToken, L"-Mat") == 0)
 		{
-			ReadSIAMat(infile, pScene, pszFilename);
+			ReadSIAMat(infile, pScene, sFilename);
 		}
 		else if (wcscmp(pszToken, L"-Shape") == 0)
 		{
@@ -76,7 +78,7 @@ void CModelConverter::ReadSIA(const wchar_t* pszFilename)
 		m_pWorkListener->EndProgress();
 }
 
-void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const wchar_t* pszFilename)
+void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const eastl::string16& sFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(L"Reading materials", 0);
@@ -84,25 +86,25 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 	size_t iCurrentMaterial = m_pScene->AddMaterial(L"");
 	CConversionMaterial* pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
-	std::wstring sLine;
+	std::wstring sGetLine;
 	while (infile.good())
 	{
-		std::getline(infile, sLine);
+		std::getline(infile, sGetLine);
 
+		eastl::string16 sLine = sGetLine.c_str();
 		sLine = StripWhitespace(sLine);
 
 		if (sLine.length() == 0)
 			continue;
 
-		std::vector<std::wstring> aTokens;
+		eastl::vector<eastl::string16> aTokens;
 		wcstok(sLine, aTokens, L" ");
 		const wchar_t* pszToken = aTokens[0].c_str();
 
 		if (wcscmp(pszToken, L"-name") == 0)
 		{
-			const wchar_t* pszMaterial = sLine.c_str()+6;
-			std::wstring sName = pszMaterial;
-			std::vector<std::wstring> aName;
+			eastl::string16 sName = sLine.c_str()+6;
+			eastl::vector<eastl::string16> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
 			pMaterial->m_sName = aName[0];
@@ -149,11 +151,11 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		{
 			const wchar_t* pszTexture = sLine.c_str()+5;
 
-			std::wstring sName = pszTexture;
-			std::vector<std::wstring> aName;
+			eastl::string16 sName = pszTexture;
+			eastl::vector<eastl::string16> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
-			std::wstring sDirectory = GetDirectory(pszFilename);
+			eastl::string16 sDirectory = GetDirectory(sFilename);
 			wchar_t szTexture[1024];
 			swprintf(szTexture, L"%s/%s", sDirectory.c_str(), aName[0].c_str());
 
@@ -177,19 +179,20 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 	size_t iAddUV = 0;
 	size_t iAddN = 0;
 
-	std::wstring sLastTask;
+	eastl::string16 sLastTask;
 
-	std::wstring sLine;
+	std::wstring sGetLine;
 	while (infile.good())
 	{
-		std::getline(infile, sLine);
+		std::getline(infile, sGetLine);
 
+		eastl::string16 sLine = sGetLine.c_str();
 		sLine = StripWhitespace(sLine);
 
 		if (sLine.length() == 0)
 			continue;
 
-		std::vector<std::wstring> aTokens;
+		eastl::vector<eastl::string16> aTokens;
 		wcstok(sLine, aTokens, L" ");
 		const wchar_t* pszToken = aTokens[0].c_str();
 
@@ -204,8 +207,8 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 		if (wcscmp(pszToken, L"-snam") == 0)
 		{
 			// We name our mesh.
-			std::wstring sName = sLine.c_str()+6;
-			std::vector<std::wstring> aName;
+			eastl::string16 sName = sLine.c_str()+6;
+			eastl::vector<eastl::string16> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
 			if (bCare)
@@ -238,7 +241,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 				else
 					m_pWorkListener->SetAction(L"Reading vertex data", 0);
 			}
-			sLastTask = std::wstring(pszToken);
+			sLastTask = eastl::string16(pszToken);
 
 			// A vertex.
 			float x, y, z;
@@ -254,7 +257,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 				else
 					m_pWorkListener->SetAction(L"Reading edge data", 0);
 			}
-			sLastTask = std::wstring(pszToken);
+			sLastTask = eastl::string16(pszToken);
 
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
 			int v1, v2;
@@ -264,8 +267,8 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 		else if (wcscmp(pszToken, L"-creas") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
-			std::wstring sCreases = sLine.c_str()+7;
-			std::vector<std::wstring> aCreases;
+			eastl::string16 sCreases = sLine.c_str()+7;
+			eastl::vector<eastl::string16> aCreases;
 			wcstok(sCreases, aCreases, L" ");
 
 			for (size_t i = 1; i < aCreases.size(); i++)
@@ -304,7 +307,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 				else
 					m_pWorkListener->SetAction(L"Reading polygon data", 0);
 			}
-			sLastTask = std::wstring(pszToken);
+			sLastTask = eastl::string16(pszToken);
 
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
@@ -312,8 +315,8 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
 			wcstok(sLine, aTokens, L" ");
 
-			std::wstring sFaces = sLine.c_str()+8;
-			std::vector<std::wstring> aFaces;
+			eastl::string16 sFaces = sLine.c_str()+8;
+			eastl::vector<eastl::string16> aFaces;
 			wcstok(sFaces, aFaces, L" ");
 
 			for (size_t i = 0; i < aFaces.size(); i += 4)

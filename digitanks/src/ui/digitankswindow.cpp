@@ -183,12 +183,12 @@ void CDigitanksWindow::DumpGLInfo()
 {
 	glewInit();
 
-	std::ifstream i(GetAppDataDirectory(L"Digitanks", L"glinfo.txt"));
+	std::ifstream i(GetAppDataDirectory(L"Digitanks", L"glinfo.txt").c_str());
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o(GetAppDataDirectory(L"Digitanks", L"glinfo.txt"));
+	std::ofstream o(GetAppDataDirectory(L"Digitanks", L"glinfo.txt").c_str());
 	if (!o || !o.is_open())
 		return;
 
@@ -200,12 +200,12 @@ void CDigitanksWindow::DumpGLInfo()
 	if (pszShadingLanguageVersion)
 		o << "Shading Language Version: " << pszShadingLanguageVersion << ENDL;
 
-	std::string sExtensions = (char*)glGetString(GL_EXTENSIONS);
-	std::vector<std::string> asExtensions;
+	eastl::string sExtensions = (char*)glGetString(GL_EXTENSIONS);
+	eastl::vector<eastl::string> asExtensions;
 	strtok(sExtensions, asExtensions);
 	o << "Extensions:" << ENDL;
 	for (size_t i = 0; i < asExtensions.size(); i++)
-		o << "\t" << asExtensions[i] << ENDL;
+		o << "\t" << asExtensions[i].c_str() << ENDL;
 
 	typedef struct
 	{
@@ -357,15 +357,14 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	if (eGameType == GAMETYPE_MENU)
 	{
 		if (!CSoundLibrary::IsMusicPlaying() && !HasCommandLineSwitch("--no-music"))
-			CSoundLibrary::PlayMusic("sound/assemble-for-victory.ogg");
+			CSoundLibrary::PlayMusic(L"sound/assemble-for-victory.ogg");
 	}
 	else if (!HasCommandLineSwitch("--no-music"))
-		CSoundLibrary::PlayMusic("sound/network-rise-network-fall.ogg", true);
+		CSoundLibrary::PlayMusic(L"sound/network-rise-network-fall.ogg", true);
 
 	mtsrand((size_t)time(NULL));
 
-	std::string sHost;
-	sHost.assign(m_sConnectHost.begin(), m_sConnectHost.end());
+	eastl::string sHost = convertstring<char16_t, char>(m_sConnectHost);
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
@@ -592,7 +591,7 @@ void CDigitanksWindow::SaveConfig()
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
 	std::ofstream o;
-	o.open(GetAppDataDirectory(L"Digitanks", L"options.cfg"), std::ios_base::out);
+	o.open(GetAppDataDirectory(L"Digitanks", L"options.cfg").c_str(), std::ios_base::out);
 	o << c;
 }
 

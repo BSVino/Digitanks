@@ -2,6 +2,7 @@
 
 #include <glgui/glgui.h>
 #include <platform.h>
+#include <strutils.h>
 
 #include "hud.h"
 #include "menu.h"
@@ -38,7 +39,7 @@ void CDigitanksWindow::Layout()
 CDigitanksMenu::CDigitanksMenu()
 	: CPanel(0, 0, 200, 300)
 {
-	m_pDigitanks = new CLabel(0, 0, 100, 100, "DIGITANKS");
+	m_pDigitanks = new CLabel(0, 0, 100, 100, L"DIGITANKS");
 	AddControl(m_pDigitanks);
 
 	m_pDifficulty = new CScrollSelector<int>();
@@ -47,27 +48,27 @@ CDigitanksMenu::CDigitanksMenu()
 	m_pDifficulty->SetSelection(1);
 	AddControl(m_pDifficulty);
 
-	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, "Difficulty");
+	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, L"Difficulty");
 	m_pDifficultyLabel->SetWrap(false);
 	AddControl(m_pDifficultyLabel);
 
-	m_pReturnToMenu = new CButton(0, 0, 100, 100, "Exit Game");
+	m_pReturnToMenu = new CButton(0, 0, 100, 100, L"Exit Game");
 	m_pReturnToMenu->SetClickedListener(this, Exit);
 	AddControl(m_pReturnToMenu);
 
-	m_pReturnToGame = new CButton(0, 0, 100, 100, "X");
+	m_pReturnToGame = new CButton(0, 0, 100, 100, L"X");
 	m_pReturnToGame->SetClickedListener(this, Close);
 	AddControl(m_pReturnToGame);
 
-	m_pSaveGame = new CButton(0, 0, 100, 100, "Save Game");
+	m_pSaveGame = new CButton(0, 0, 100, 100, L"Save Game");
 	m_pSaveGame->SetClickedListener(this, Save);
 	AddControl(m_pSaveGame);
 
-	m_pLoadGame = new CButton(0, 0, 100, 100, "Load Game");
+	m_pLoadGame = new CButton(0, 0, 100, 100, L"Load Game");
 	m_pLoadGame->SetClickedListener(this, Load);
 	AddControl(m_pLoadGame);
 
-	m_pExit = new CButton(0, 0, 100, 100, "Quit To Desktop");
+	m_pExit = new CButton(0, 0, 100, 100, L"Quit To Desktop");
 	m_pExit->SetClickedListener(this, Quit);
 	AddControl(m_pExit);
 
@@ -187,7 +188,7 @@ void CDigitanksMenu::QuitCallback()
 CVictoryPanel::CVictoryPanel()
 	: CPanel(0, 0, 400, 300)
 {
-	m_pVictory = new CLabel(0, 0, 100, 100, "");
+	m_pVictory = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pVictory);
 
 	SetVisible(false);
@@ -246,29 +247,29 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 CPurchasePanel::CPurchasePanel()
 	: CPanel(0, 0, 400, 300)
 {
-	m_pPurchase = new CLabel(0, 0, 100, 100, "");
+	m_pPurchase = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pPurchase);
 
 	m_pRegistrationKey = new CTextField();
 	AddControl(m_pRegistrationKey);
 
-	m_pRegister = new CButton(0, 0, 100, 100, "Register");
+	m_pRegister = new CButton(0, 0, 100, 100, L"Register");
 	m_pRegister->SetClickedListener(this, Register);
 	AddControl(m_pRegister);
 
-	m_pRegisterResult = new CLabel(0, 0, 100, 100, "");
+	m_pRegisterResult = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pRegisterResult);
 
-	m_pRegisterOffline = new CButton(0, 0, 100, 100, "Register Offline");
+	m_pRegisterOffline = new CButton(0, 0, 100, 100, L"Register Offline");
 	m_pRegisterOffline->SetFontFaceSize(11);
 	m_pRegisterOffline->SetClickedListener(this, RegisterOffline);
 	AddControl(m_pRegisterOffline);
 
-	m_pPurchaseButton = new CButton(0, 0, 100, 100, "Website!");
+	m_pPurchaseButton = new CButton(0, 0, 100, 100, L"Website!");
 	m_pPurchaseButton->SetClickedListener(this, Purchase);
 	AddControl(m_pPurchaseButton);
 
-	m_pExitButton = new CButton(0, 0, 100, 100, "Maybe later");
+	m_pExitButton = new CButton(0, 0, 100, 100, L"Maybe later");
 	AddControl(m_pExitButton);
 
 	SetVisible(false);
@@ -368,7 +369,7 @@ void CPurchasePanel::MainMenuCallback()
 
 void CPurchasePanel::RegisterCallback()
 {
-	std::wstring sError;
+	eastl::string16 sError;
 	bool bSucceeded = QueryRegistrationKey(m_pRegistrationKey->GetText(), sError);
 	m_pRegisterResult->SetText(sError.c_str());
 
@@ -394,7 +395,7 @@ void CPurchasePanel::RegisterOfflineCallback()
 	m_pRegisterOffline->SetPos(GetWidth()-80, 100);
 	m_pRegisterOffline->SetClickedListener(this, CopyProductCode);
 
-	m_pProductCode = new CLabel(0, 110, GetWidth(), GetHeight(), "");
+	m_pProductCode = new CLabel(0, 110, GetWidth(), GetHeight(), L"");
 	m_pProductCode->SetAlign(CLabel::TA_TOPCENTER);
 	m_pProductCode->SetText(L"Product Code: ");
 	m_pProductCode->AppendText(GetProductCode().c_str());
@@ -408,10 +409,7 @@ void CPurchasePanel::CopyProductCodeCallback()
 
 void CPurchasePanel::SetKeyCallback()
 {
-	std::wstring sText = m_pRegistrationKey->GetText();
-	std::string sKey;
-	sKey.assign(sText.begin(), sText.end());
-	SetLicenseKey(sKey);
+	SetLicenseKey(convertstring<char16_t, char>(m_pRegistrationKey->GetText()));
 
 	if (IsRegistered())
 	{
@@ -430,29 +428,29 @@ CStoryPanel::CStoryPanel()
 	: CPanel(0, 0, 400, 300)
 {
 	m_pStory = new CLabel(0, 0, 100, 100,
-		"THE STORY OF DIGIVILLE\n \n"
+		L"THE STORY OF DIGIVILLE\n \n"
 
-		"The Digizens of Digiville were happy and content.\n"
-		"They ate in tiny bits and bytes and always paid their rent.\n"
-		"They shared every Electronode and Data Wells were free,\n"
-		"But that's not very interesting, as you're about to see.\n \n "
+		L"The Digizens of Digiville were happy and content.\n"
+		L"They ate in tiny bits and bytes and always paid their rent.\n"
+		L"They shared every Electronode and Data Wells were free,\n"
+		L"But that's not very interesting, as you're about to see.\n \n "
 
-		"One day the shortest Digizen in all the Digiverse\n"
-		"He cried, \"U nubs OLOL i h4x j0ur m3g4hu|2tz!\"\n"
-		"The Digizens of Digiville just laughed and said, \"That's great!\"\n"
-		"\"You're way too short and you're just trying to overcompensate!\"\n \n"
+		L"One day the shortest Digizen in all the Digiverse\n"
+		L"He cried, \"U nubs OLOL i h4x j0ur m3g4hu|2tz!\"\n"
+		L"The Digizens of Digiville just laughed and said, \"That's great!\"\n"
+		L"\"You're way too short and you're just trying to overcompensate!\"\n \n"
 
-		"Our little man was not so pleased, retreating to his lair\n"
-		"He powered up his Trolling Rage Machine with utmost flair.\n"
-		"It sputtered up to life with a cacophony of clanks\n"
-		"And shortly then thereafter it began to spit out tanks.\n \n"
+		L"Our little man was not so pleased, retreating to his lair\n"
+		L"He powered up his Trolling Rage Machine with utmost flair.\n"
+		L"It sputtered up to life with a cacophony of clanks\n"
+		L"And shortly then thereafter it began to spit out tanks.\n \n"
 
-		"The Digizens were sleeping when there came a sudden chill\n"
-		"And when they woke there was no longer any Digiville.\n"
-		"It's up to you now! You must act before it gets much worse,\n"
-		"And while you're there, why not conquer the whole damn Digiverse?\n \n"
+		L"The Digizens were sleeping when there came a sudden chill\n"
+		L"And when they woke there was no longer any Digiville.\n"
+		L"It's up to you now! You must act before it gets much worse,\n"
+		L"And while you're there, why not conquer the whole damn Digiverse?\n \n"
 
-		"Click here to begin."
+		L"Click here to begin."
 		);
 	AddControl(m_pStory);
 

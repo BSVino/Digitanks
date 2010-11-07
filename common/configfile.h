@@ -43,14 +43,14 @@
 #ifndef CONFIGFILE_H
 #define CONFIGFILE_H
 
-#include <string>
-#include <map>
+#include <EASTL/string.h>
+#include <EASTL/map.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-using std::string;
-using std::wstring;
+using eastl::string;
+using eastl::string16;
 
 class ConfigFile {
 // Data
@@ -58,16 +58,16 @@ protected:
 	string myDelimiter;  // separator between key and value
 	string myComment;    // separator between value and comments
 	string mySentry;     // optional string to signal end of file
-	std::map<string,string> myContents;  // extracted keys and values
+	eastl::map<string,string> myContents;  // extracted keys and values
 
 	bool fileValid;
 
-	typedef std::map<string,string>::iterator mapi;
-	typedef std::map<string,string>::const_iterator mapci;
+	typedef eastl::map<string,string>::iterator mapi;
+	typedef eastl::map<string,string>::const_iterator mapci;
 
 // Methods
 public:
-	ConfigFile( wstring filename,
+	ConfigFile( string16 filename,
 	            string delimiter = "=",
 	            string comment = "#",
 				string sentry = "EndConfigFile" );
@@ -116,7 +116,7 @@ string ConfigFile::T_as_string( const T& t )
 	// Type T must support << operator
 	std::ostringstream ost;
 	ost << t;
-	return ost.str();
+	return ost.str().c_str();
 }
 
 
@@ -127,7 +127,7 @@ T ConfigFile::string_as_T( const string& s )
 	// Convert from a string to a T
 	// Type T must support >> operator
 	T t;
-	std::istringstream ist(s);
+	std::istringstream ist(s.c_str());
 	ist >> t;
 	return t;
 }

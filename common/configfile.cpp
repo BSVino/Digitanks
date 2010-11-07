@@ -2,9 +2,9 @@
 
 #include "ConfigFile.h"
 
-using std::string;
+#include <string>
 
-ConfigFile::ConfigFile( wstring filename, string delimiter,
+ConfigFile::ConfigFile( string16 filename, string delimiter,
                         string comment, string sentry )
 	: myDelimiter(delimiter), myComment(comment), mySentry(sentry)
 {
@@ -59,8 +59,8 @@ std::ostream& operator<<( std::ostream& os, const ConfigFile& cf )
 	     p != cf.myContents.end();
 		 ++p )
 	{
-		os << p->first << " " << cf.myDelimiter << " ";
-		os << p->second << std::endl;
+		os << p->first.c_str() << " " << cf.myDelimiter.c_str() << " ";
+		os << p->second.c_str() << std::endl;
 	}
 	return os;
 }
@@ -81,6 +81,7 @@ std::istream& operator>>( std::istream& is, ConfigFile& cf )
 	while( is || nextline.length() > 0 )
 	{
 		// Read an entire line at a time
+		std::string sline;
 		string line;
 		if( nextline.length() > 0 )
 		{
@@ -89,7 +90,8 @@ std::istream& operator>>( std::istream& is, ConfigFile& cf )
 		}
 		else
 		{
-			std::getline( is, line );
+			std::getline( is, sline );
+			line = sline.c_str();
 		}
 		
 		// Ignore comments
@@ -112,7 +114,9 @@ std::istream& operator>>( std::istream& is, ConfigFile& cf )
 			bool terminate = false;
 			while( !terminate && is )
 			{
-				std::getline( is, nextline );
+				std::string snextline;
+				std::getline( is, snextline );
+				nextline = snextline.c_str();
 				terminate = true;
 				
 				string nlcopy = nextline;

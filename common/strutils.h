@@ -4,22 +4,22 @@
 #pragma once
 #endif
 
-#include <string>
-#include <vector>
+#include <EASTL/string.h>
+#include <EASTL/vector.h>
 #include <functional>
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 
 // It's inline so I don't have to make a strutils.cpp :P
-inline void strtok(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " \r\n\t")
+inline void strtok(const eastl::string& str, eastl::vector<eastl::string>& tokens, const eastl::string& delimiters = " \r\n\t")
 {
     // Skip delimiters at beginning.
-    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    eastl::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
-    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+    eastl::string::size_type pos     = str.find_first_of(delimiters, lastPos);
 
-    while (std::string::npos != pos || std::string::npos != lastPos)
+    while (eastl::string::npos != pos || eastl::string::npos != lastPos)
     {
         // Found a token, add it to the vector.
         tokens.push_back(str.substr(lastPos, pos - lastPos));
@@ -31,14 +31,14 @@ inline void strtok(const std::string& str, std::vector<std::string>& tokens, con
 }
 
 // It's inline so I don't have to make a strutils.cpp :P
-inline void wcstok(const std::wstring& str, std::vector<std::wstring>& tokens, const std::wstring& delimiters = L" \r\n\t")
+inline void wcstok(const eastl::string16& str, eastl::vector<eastl::string16>& tokens, const eastl::string16& delimiters = L" \r\n\t")
 {
     // Skip delimiters at beginning.
-    std::wstring::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    eastl::string16::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
-    std::wstring::size_type pos     = str.find_first_of(delimiters, lastPos);
+    eastl::string16::size_type pos     = str.find_first_of(delimiters, lastPos);
 
-    while (std::wstring::npos != pos || std::wstring::npos != lastPos)
+    while (eastl::string16::npos != pos || eastl::string16::npos != lastPos)
     {
         // Found a token, add it to the vector.
         tokens.push_back(str.substr(lastPos, pos - lastPos));
@@ -52,16 +52,16 @@ inline void wcstok(const std::wstring& str, std::vector<std::wstring>& tokens, c
 // explode is slightly different in that repeated delineators return multiple tokens.
 // ie "a|b||c" returns { "a", "b", "", "c" } whereas strtok will cut out the blank result.
 // Basically it works like PHP's explode.
-inline void explode(const std::wstring& str, std::vector<std::wstring>& tokens, const std::wstring& delimiter = L" ")
+inline void explode(const eastl::string16& str, eastl::vector<eastl::string16>& tokens, const eastl::string16& delimiter = L" ")
 {
-    std::wstring::size_type lastPos = str.find_first_of(delimiter, 0);
-    std::wstring::size_type pos = 0;
+    eastl::string16::size_type lastPos = str.find_first_of(delimiter, 0);
+    eastl::string16::size_type pos = 0;
 
     while (true)
     {
         tokens.push_back(str.substr(pos, lastPos - pos));
 
-		if (lastPos == std::wstring::npos)
+		if (lastPos == eastl::string16::npos)
 			break;
 
 		pos = lastPos+1;
@@ -69,69 +69,69 @@ inline void explode(const std::wstring& str, std::vector<std::wstring>& tokens, 
     }
 }
 
-inline std::string& ltrim(std::string &s)
+inline int isspace(int i)
 {
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+	if (i == ' ')
+		return true;
+
+	if (i == '\t')
+		return true;
+
+	return false;
+}
+
+inline eastl::string& ltrim(eastl::string &s)
+{
+	s.erase(s.begin(), eastl::find_if(s.begin(), s.end(), eastl::not1(eastl::ptr_fun<int, int>(isspace))));
 	return s;
 }
 
-inline std::string& rtrim(std::string &s)
+inline eastl::string& rtrim(eastl::string &s)
 {
-	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	s.erase(eastl::find_if(s.rbegin(), s.rend(), eastl::not1(eastl::ptr_fun<int, int>(isspace))).base(), s.end());
 	return s;
 }
 
-inline std::string& trim(std::string &s)
+inline eastl::string& trim(eastl::string &s)
 {
 	return ltrim(rtrim(s));
 }
 
-inline void writestring(std::ostream& o, const std::string& s)
+inline void writestring16(std::ostream& o, const eastl::string16& s)
 {
 	size_t iStringSize = s.length();
 	o.write((char*)&iStringSize, sizeof(iStringSize));
-	o.write(s.c_str(), iStringSize);
+	o.write((char*)s.c_str(), s.size()*sizeof(eastl::string16::value_type));
 }
 
-inline std::string readstring(std::istream& i)
+inline eastl::string16 readstring16(std::istream& i)
 {
 	size_t iStringSize;
 	i.read((char*)&iStringSize, sizeof(iStringSize));
 
-	std::string s;
-	char c[2];
-	c[1] = '\0';
-	for (size_t j = 0; j < iStringSize; j++)
-	{
-		i.read(&c[0], 1);
-		s.append(c);
-	}
-
-	return s;
-}
-
-inline void writewstring(std::ostream& o, const std::wstring& s)
-{
-	size_t iStringSize = s.length();
-	o.write((char*)&iStringSize, sizeof(iStringSize));
-	o.write((char*)s.c_str(), s.size()*sizeof(wchar_t));
-}
-
-inline std::wstring readwstring(std::istream& i)
-{
-	size_t iStringSize;
-	i.read((char*)&iStringSize, sizeof(iStringSize));
-
-	std::wstring s;
-	wchar_t c[2];
+	eastl::string16 s;
+	eastl::string16::value_type c[2];
 	c[1] = L'\0';
 	for (size_t j = 0; j < iStringSize; j++)
 	{
-		i.read((char*)&c[0], sizeof(wchar_t));
+		i.read((char*)&c[0], sizeof(eastl::string16::value_type));
 		s.append(c);
 	}
 
 	return s;
+}
+
+template <class F, class T>
+inline eastl::basic_string<T> convertstring(eastl::basic_string<F> s)
+{
+	eastl::basic_string<T> t;
+	size_t iSize = s.size();
+	t.resize(iSize+1);
+
+	for (size_t i = 0; i < iSize; i++)
+		t[i] = (T)s[i];
+
+	return t;
 }
 
 #endif
