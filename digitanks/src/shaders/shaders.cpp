@@ -117,7 +117,7 @@ void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
 	assert(!strlen(pszLog));
 #endif
 
-	std::wstring sFile = GetAppDataDirectory(L"Digitanks", L"shaders.txt");
+	eastl::string16 sFile = GetAppDataDirectory(L"Digitanks", L"shaders.txt");
 
 	if (m_bLogNeedsClearing)
 	{
