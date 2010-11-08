@@ -13,19 +13,24 @@
 CDigitanksRenderer::CDigitanksRenderer()
 	: CRenderer(DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight())
 {
-	m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-	m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-	m_oVisibility2Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-	m_oVisibilityMaskedBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+	m_bUseFramebuffers = DigitanksWindow()->ShouldUseFramebuffers();
 
-	// Bind the regular scene's depth buffer to these buffers so we can use it for depth compares.
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility1Buffer.m_iFB);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	if (ShouldUseFramebuffers())
+	{
+		m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oVisibility2Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oVisibilityMaskedBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+
+		// Bind the regular scene's depth buffer to these buffers so we can use it for depth compares.
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility1Buffer.m_iFB);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	}
 
 	m_iVignetting = CRenderer::LoadTextureIntoGL(L"textures/vignetting.png");
 
@@ -34,14 +39,17 @@ CDigitanksRenderer::CDigitanksRenderer()
 
 void CDigitanksRenderer::SetupFrame()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
-	glClear(GL_COLOR_BUFFER_BIT);
+	if (ShouldUseFramebuffers())
+	{
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility2Buffer.m_iFB);
-	glClear(GL_COLOR_BUFFER_BIT);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility2Buffer.m_iFB);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
-	glClear(GL_COLOR_BUFFER_BIT);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	BaseClass::SetupFrame();
 }
@@ -80,7 +88,13 @@ void CDigitanksRenderer::RenderFogOfWar()
 		CRenderingContext c(this);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
-		c.UseFrameBuffer(&m_oVisibility1Buffer);
+		if (ShouldUseFramebuffers())
+			c.UseFrameBuffer(&m_oVisibility1Buffer);
+		else
+		{
+			glReadBuffer(GL_AUX1);
+			glDrawBuffer(GL_AUX1);
+		}
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		c.SetDepthMask(false);
@@ -105,11 +119,20 @@ void CDigitanksRenderer::RenderFogOfWar()
 		glUseProgram(0);
 
 		// Copy the results to the second buffer
-		RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oVisibility2Buffer);
+		if (ShouldUseFramebuffers())
+			RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oVisibility2Buffer);
+		else
+		{
+			glReadBuffer(GL_AUX1);
+			glDrawBuffer(GL_AUX2);
+		}
 
 		c.SetBlend(BLEND_NONE);
 		glEnable(GL_DEPTH_TEST);
 	}
+
+	glReadBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
 
 	glCullFace(GL_BACK);
 	glDepthFunc(GL_LESS);
@@ -117,41 +140,43 @@ void CDigitanksRenderer::RenderFogOfWar()
 
 void CDigitanksRenderer::RenderOffscreenBuffers()
 {
-	// Render the explosions back onto the scene buffer, passing through the noise filter.
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
+	if (ShouldUseFramebuffers())
+	{
+		// Render the explosions back onto the scene buffer, passing through the noise filter.
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
 
-	glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)m_oNoiseBuffer.m_iMap);
+		glActiveTexture(GL_TEXTURE1);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_oNoiseBuffer.m_iMap);
 
-	GLuint iExplosionProgram = (GLuint)CShaderLibrary::GetExplosionProgram();
-	glUseProgram(iExplosionProgram);
+		GLuint iExplosionProgram = (GLuint)CShaderLibrary::GetExplosionProgram();
+		glUseProgram(iExplosionProgram);
 
-	GLint iExplosion = glGetUniformLocation(iExplosionProgram, "iExplosion");
-    glUniform1i(iExplosion, 0);
+		GLint iExplosion = glGetUniformLocation(iExplosionProgram, "iExplosion");
+		glUniform1i(iExplosion, 0);
 
-	GLint iNoise = glGetUniformLocation(iExplosionProgram, "iNoise");
-    glUniform1i(iNoise, 1);
+		GLint iNoise = glGetUniformLocation(iExplosionProgram, "iNoise");
+		glUniform1i(iNoise, 1);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
-	glDisable(GL_BLEND);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
+		glDisable(GL_BLEND);
 
-	glUseProgram(0);
+		glUseProgram(0);
 
-	glActiveTexture(GL_TEXTURE1);
-    glDisable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE1);
+		glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glActiveTexture(GL_TEXTURE0);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-
+		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	}
 
 	// Draw the fog of war.
-	// Explosion buffer's not in use anymore, reduce reuse recycle!
-	if (DigitanksGame()->ShouldRenderFogOfWar())
+	if (ShouldUseFramebuffers() && DigitanksGame()->ShouldRenderFogOfWar())
 	{
+		// Explosion buffer's not in use anymore, reduce reuse recycle!
 		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oExplosionBuffer);
 
 		glActiveTexture(GL_TEXTURE1);
@@ -195,55 +220,61 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		glActiveTexture(GL_TEXTURE0);
 	}
 
-	// Use a bright-pass filter to catch only the bright areas of the image
-	GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
-	glUseProgram(iBrightPass);
-
-	GLint iSource = glGetUniformLocation(iBrightPass, "iSource");
-    glUniform1i(iSource, 0);
-
-	GLint flScale = glGetUniformLocation(iBrightPass, "flScale");
-	glUniform1f(flScale, (float)1/BLOOM_FILTERS);
-
-	GLint flBrightness = glGetUniformLocation(iBrightPass, "flBrightness");
-
-	for (size_t i = 0; i < BLOOM_FILTERS; i++)
+	if (ShouldUseFramebuffers())
 	{
-		glUniform1f(flBrightness, 0.7f - 0.1f*i);
-		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oBloom1Buffers[i]);
+		// Use a bright-pass filter to catch only the bright areas of the image
+		GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
+		glUseProgram(iBrightPass);
+
+		GLint iSource = glGetUniformLocation(iBrightPass, "iSource");
+		glUniform1i(iSource, 0);
+
+		GLint flScale = glGetUniformLocation(iBrightPass, "flScale");
+		glUniform1f(flScale, (float)1/BLOOM_FILTERS);
+
+		GLint flBrightness = glGetUniformLocation(iBrightPass, "flBrightness");
+
+		for (size_t i = 0; i < BLOOM_FILTERS; i++)
+		{
+			glUniform1f(flBrightness, 0.7f - 0.1f*i);
+			RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oBloom1Buffers[i]);
+		}
+
+		glUseProgram(0);
+
+		RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
+		RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
+
+		RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
+		RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
 	}
-
-	glUseProgram(0);
-
-	RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
-	RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
-
-	RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
-	RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
 }
 
 void CDigitanksRenderer::RenderFullscreenBuffers()
 {
 	glEnable(GL_BLEND);
 
-	glBlendFunc(GL_ONE, GL_ONE);
-	for (size_t i = 0; i < BLOOM_FILTERS; i++)
-		RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
-
-	float flBloomPulseLength = 2.0f;
-	float flGameTime = GameServer()->GetGameTime();
-	float flPulseStrength = Lerp(RemapValClamped(flGameTime, m_flLastBloomPulse, m_flLastBloomPulse + flBloomPulseLength, 1, 0), 0.2f);
-	if (flPulseStrength > 0)
+	if (ShouldUseFramebuffers())
 	{
-		glPushAttrib(GL_CURRENT_BIT);
-		glColor4f(flPulseStrength, flPulseStrength, flPulseStrength, flPulseStrength);
+		glBlendFunc(GL_ONE, GL_ONE);
 		for (size_t i = 0; i < BLOOM_FILTERS; i++)
+			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+
+		float flBloomPulseLength = 2.0f;
+		float flGameTime = GameServer()->GetGameTime();
+		float flPulseStrength = Lerp(RemapValClamped(flGameTime, m_flLastBloomPulse, m_flLastBloomPulse + flBloomPulseLength, 1, 0), 0.2f);
+		if (flPulseStrength > 0)
 		{
-			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
-			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
-			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+			glPushAttrib(GL_CURRENT_BIT);
+			glColor4f(flPulseStrength, flPulseStrength, flPulseStrength, flPulseStrength);
+			for (size_t i = 0; i < BLOOM_FILTERS; i++)
+			{
+				RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+				RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+				RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
+			}
+			glPopAttrib();
 		}
-		glPopAttrib();
 	}
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);

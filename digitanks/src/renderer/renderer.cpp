@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <assert.h>
+
 #include <maths.h>
 #include <simplex.h>
 
@@ -303,6 +305,8 @@ void CRenderingContext::RenderSphere()
 
 void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 {
+	assert(m_pRenderer->ShouldUseFramebuffers());
+
 	m_bFBO = true;
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)pBuffer->m_iFB);
 	glViewport(0, 0, (GLsizei)pBuffer->m_iWidth, (GLsizei)pBuffer->m_iHeight);
@@ -510,26 +514,38 @@ void CRopeRenderer::SetForward(Vector vecForward)
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
+	m_bUseFramebuffers = true;
+
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
+}
 
-	m_oSceneBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, true, true);
-
-	for (size_t i = 0; i < BLOOM_FILTERS; i++)
+void CRenderer::Initialize()
+{
+	if (ShouldUseFramebuffers())
 	{
-		m_oBloom1Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, true);
-		m_oBloom2Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, false);
-		iWidth /= 2;
-		iHeight /= 2;
+		m_oSceneBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, true, true);
+
+		size_t iWidth = m_iWidth;
+		size_t iHeight = m_iHeight;
+		for (size_t i = 0; i < BLOOM_FILTERS; i++)
+		{
+			m_oBloom1Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, true);
+			m_oBloom2Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, false);
+			iWidth /= 2;
+			iHeight /= 2;
+		}
+
+		m_oNoiseBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+
+		CreateNoise();
 	}
-
-	m_oNoiseBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-
-	CreateNoise();
 }
 
 CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear)
 {
+	assert(ShouldUseFramebuffers());
+
 	CFrameBuffer oBuffer;
 
 	glGenTextures(1, &oBuffer.m_iMap);
@@ -621,7 +637,13 @@ void CRenderer::CreateNoise()
 
 void CRenderer::SetupFrame()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
+	if (ShouldUseFramebuffers())
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
+	else
+	{
+		glReadBuffer(GL_BACK);
+		glDrawBuffer(GL_BACK);
+	}
 
 	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 
@@ -727,7 +749,8 @@ void CRenderer::FinishRendering()
 	glReadBuffer(GL_BACK);
 	glDrawBuffer(GL_BACK);
 
-	RenderMapFullscreen(m_oSceneBuffer.m_iMap);
+	if (ShouldUseFramebuffers())
+		RenderMapFullscreen(m_oSceneBuffer.m_iMap);
 
 	RenderFullscreenBuffers();
 
@@ -759,6 +782,8 @@ void CRenderer::RenderMapFullscreen(size_t iMap)
 
 void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 {
+	assert(ShouldUseFramebuffers());
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();

@@ -61,6 +61,8 @@ public:
 	void						SetConstrainMouse(bool bConstrain) { m_bConstrainMouse = bConstrain; };
 	bool						ShouldConstrainMouse() { return m_bConstrainMouse; };
 
+	bool						ShouldUseFramebuffers() { return m_bUseFramebuffers; }
+
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
 	void						GameOver(bool bPlayerWon);
@@ -123,6 +125,7 @@ protected:
 	int							m_iCfgWidth;
 	int							m_iCfgHeight;
 	bool						m_bConstrainMouse;
+	bool						m_bUseFramebuffers;
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;

@@ -1187,21 +1187,9 @@ void CDigitanksGame::TerrainData(class CNetworkParameters* p)
 	GetTerrain()->TerrainData(p);
 }
 
-CRenderer* CDigitanksGame::CreateRenderer()
-{
-	return new CDigitanksRenderer();
-}
-
 CDigitanksRenderer*	CDigitanksGame::GetDigitanksRenderer()
 {
 	return dynamic_cast<CDigitanksRenderer*>(GameServer()->GetRenderer());
-}
-
-CCamera* CDigitanksGame::CreateCamera()
-{
-	CDigitanksCamera* pCamera = new CDigitanksCamera();
-	pCamera->SnapDistance(120);
-	return pCamera;
 }
 
 CDigitanksCamera* CDigitanksGame::GetDigitanksCamera()

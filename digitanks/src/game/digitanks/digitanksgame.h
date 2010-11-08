@@ -177,11 +177,8 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, BeginProduction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, CancelProduction);
 
-	virtual CRenderer*		CreateRenderer();
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
-
-	virtual CCamera*		CreateCamera();
-	virtual class CDigitanksCamera*	GetDigitanksCamera();
+	virtual class CDigitanksCamera*		GetDigitanksCamera();
 
 	float					GetGravity();
 

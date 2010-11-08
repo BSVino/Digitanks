@@ -74,7 +74,8 @@ void CProjectile::ModifyContext(class CRenderingContext* pContext)
 
 	if (m_flTimeExploded > 0.0f)
 	{
-		pContext->UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
+		if (DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
+			pContext->UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
 	}
 }
 
@@ -100,6 +101,8 @@ void CProjectile::OnRender()
 			CRenderingContext c(GameServer()->GetRenderer());
 			c.Scale(4.0f, 4.0f, 4.0f);
 			c.SetColor(Color(255, 255, 255, (int)(flAlpha*255)));
+			if (!DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
+				c.SetBlend(BLEND_ADDITIVE);
 			c.RenderSphere();
 		}
 	}

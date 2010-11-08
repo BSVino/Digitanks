@@ -74,7 +74,10 @@ void CGameServer::Initialize()
 	CParticleSystemLibrary::ClearInstances();
 
 	if (!m_pRenderer)
+	{
 		m_pRenderer = CreateRenderer();
+		m_pRenderer->Initialize();
+	}
 
 	if (!m_pCamera)
 		m_pCamera = CreateCamera();

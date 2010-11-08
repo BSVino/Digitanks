@@ -82,6 +82,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
+
+	m_bUseFramebuffers = true;
+	if (HasCommandLineSwitch("--no-framebuffers"))
+		m_bUseFramebuffers = false;
 }
 
 void CDigitanksWindow::OpenWindow()

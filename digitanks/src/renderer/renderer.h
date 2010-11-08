@@ -126,6 +126,8 @@ public:
 					CRenderer(size_t iWidth, size_t iHeight);
 
 public:
+	void			Initialize();
+
 	CFrameBuffer	CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear);
 
 	void			CreateNoise();
@@ -153,6 +155,8 @@ public:
 
 	const CFrameBuffer*	GetSceneBuffer() { return &m_oSceneBuffer; }
 
+	bool			ShouldUseFramebuffers() { return m_bUseFramebuffers; }
+
 public:
 	static size_t	CreateCallList(size_t iModel);
 	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD = false);
@@ -174,6 +178,8 @@ protected:
 	CFrameBuffer	m_oBloom2Buffers[BLOOM_FILTERS];
 
 	CFrameBuffer	m_oNoiseBuffer;
+
+	bool			m_bUseFramebuffers;
 };
 
 #endif
