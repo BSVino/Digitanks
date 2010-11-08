@@ -88,12 +88,6 @@ void CDigitanksWindow::OpenWindow()
 {
 	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen);
 
-	if (!GLEW_ARB_texture_non_power_of_two)
-	{
-		ShowMessage(L"Looks like your video card doesn't support the features needed by Digitanks! We're terribly sorry.");
-		exit(0);
-	}
-
 	if (strstr((const char*)glGetString(GL_VENDOR), "Intel") > 0 || strstr((const char*)glGetString(GL_VENDOR), "INTEL") > 0)
 		ShowMessage(L"You are running an Intel graphics card. These cards are unsupported and may crash or display Digitanks incorrectly. More recent models may work. You're welcome to try but you really need to get an ATI or NVidia card if you want to play.");
 
