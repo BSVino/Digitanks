@@ -878,6 +878,20 @@ size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD)
 	ILinfo ImageInfo;
 	iluGetImageInfo(&ImageInfo);
 
+	if (ImageInfo.Width & (ImageInfo.Width-1))
+	{
+		//assert(!"Image width is not power of 2.");
+		ilDeleteImages(1, &iDevILId);
+		return 0;
+	}
+
+	if (ImageInfo.Height & (ImageInfo.Height-1))
+	{
+		//assert(!"Image height is not power of 2.");
+		ilDeleteImages(1, &iDevILId);
+		return 0;
+	}
+
 	if (ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT)
 		iluFlipImage();
 

@@ -377,7 +377,12 @@ void RunIntro()
 		{
 			ilBindImage(iErrorWindow);
 	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
-			glDrawPixels(366, 168, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+
+			glPushAttrib(GL_ENABLE_BIT);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDrawPixels(512, 256, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+			glPopAttrib();
 		}
 		else if (flTime < 30.0f)
 		{
@@ -389,7 +394,12 @@ void RunIntro()
 
 			ilBindImage(iErrorWindow);
 	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
-			glDrawPixels(366, 168, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+
+			glPushAttrib(GL_ENABLE_BIT);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDrawPixels(512, 256, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+			glPopAttrib();
 
 	        glWindowPos2i(0, 0);
 
@@ -402,7 +412,7 @@ void RunIntro()
 			{
 				for (size_t j = 0; j < (size_t)(flDistance/iSpace)+1; j++)
 				{
-					DrawTexture(iTankTexture, flTopLeftX - flDistance + i*iSpace + j*iSpace, flTopLeftY + flDistance + i*iSpace - j*iSpace, 196/2, 150/2);
+					DrawTexture(iTankTexture, flTopLeftX - flDistance + i*iSpace + j*iSpace, flTopLeftY + flDistance + i*iSpace - j*iSpace, 150/2, 150/2);
 				}
 			}
 
