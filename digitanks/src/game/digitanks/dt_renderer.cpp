@@ -13,7 +13,10 @@
 CDigitanksRenderer::CDigitanksRenderer()
 	: CRenderer(DigitanksWindow()->GetWindowWidth(), DigitanksWindow()->GetWindowHeight())
 {
-	m_bUseFramebuffers = DigitanksWindow()->ShouldUseFramebuffers();
+	m_bUseFramebuffers = DigitanksWindow()->WantsFramebuffers() && HardwareSupportsFramebuffers();
+
+	if (DigitanksWindow()->HasCommandLineSwitch("--no-framebuffers"))
+		m_bUseFramebuffers = false;
 
 	if (ShouldUseFramebuffers())
 	{

@@ -156,6 +156,7 @@ public:
 	const CFrameBuffer*	GetSceneBuffer() { return &m_oSceneBuffer; }
 
 	bool			ShouldUseFramebuffers() { return m_bUseFramebuffers; }
+	bool			HardwareSupportsFramebuffers();
 
 public:
 	static size_t	CreateCallList(size_t iModel);
@@ -180,6 +181,8 @@ protected:
 	CFrameBuffer	m_oNoiseBuffer;
 
 	bool			m_bUseFramebuffers;
+	bool			m_bHardwareSupportsFramebuffers;
+	bool			m_bHardwareSupportsFramebuffersTestCompleted;
 };
 
 #endif

@@ -57,6 +57,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bCfgFullscreen = !c.read<bool>("windowed", false);
 		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
 
+		m_bWantsFramebuffers = c.read<bool>("useframebuffers", true);
+
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
 		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
 	}
@@ -73,6 +75,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 		m_bConstrainMouse = true;
 
+		m_bWantsFramebuffers = true;
+
 		SetSoundVolume(0.8f);
 		SetMusicVolume(0.8f);
 	}
@@ -82,18 +86,11 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
-
-	m_bUseFramebuffers = true;
-	if (HasCommandLineSwitch("--no-framebuffers"))
-		m_bUseFramebuffers = false;
 }
 
 void CDigitanksWindow::OpenWindow()
 {
 	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen);
-
-	if (strstr((const char*)glGetString(GL_VENDOR), "Intel") > 0 || strstr((const char*)glGetString(GL_VENDOR), "INTEL") > 0)
-		ShowMessage(L"You are running an Intel graphics card. These cards are unsupported and may crash or display Digitanks incorrectly. More recent models may work. You're welcome to try but you really need to get an ATI or NVidia card if you want to play.");
 
 	ilInit();
 
@@ -262,7 +259,10 @@ void CDigitanksWindow::Run()
 		if (GameServer())
 		{
 			if (GameServer()->IsLoading())
+			{
 				CNetwork::Think();
+				RenderLoading();
+			}
 			else if (GameServer()->IsClient() && !CNetwork::IsConnected())
 			{
 				DestroyGame();
@@ -278,15 +278,7 @@ void CDigitanksWindow::Run()
 			// Clear the buffer for the gui.
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-		if (!GameServer() || GameServer()->IsLoading())
-			RenderLoading();
-		else
-		{
-			glgui::CRootPanel::Get()->Think(flTime);
-			glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
-
-			SwapBuffers();
-		}
+		SwapBuffers();
 	}
 }
 
@@ -324,10 +316,12 @@ void CDigitanksWindow::ConstrainMouse()
 
 void CDigitanksWindow::Render()
 {
-	if (GameServer())
-		GameServer()->Render();
+	if (!GameServer())
+		return;
 
-	glgui::CRootPanel::Get()->Layout();
+	GameServer()->Render();
+
+	glgui::CRootPanel::Get()->Think(GameServer()->GetGameTime());
 	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 }
 
@@ -384,6 +378,7 @@ void CDigitanksWindow::SaveConfig()
 	c.add<float>("musicvolume", GetMusicVolume());
 	c.add<bool>("windowed", !m_bCfgFullscreen);
 	c.add<bool>("constrainmouse", m_bConstrainMouse);
+	c.add<bool>("useframebuffers", m_bWantsFramebuffers);
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
 	std::ofstream o;

@@ -865,6 +865,14 @@ COptionsPanel::COptionsPanel()
 		g_aVideoModes.push_back(aModes[i]);
 	}
 
+	m_pFramebuffers = new CCheckBox();
+	m_pFramebuffers->SetClickedListener(this, FramebuffersChanged);
+	m_pFramebuffers->SetUnclickedListener(this, FramebuffersChanged);
+	AddControl(m_pFramebuffers);
+
+	m_pFramebuffersLabel = new CLabel(0, 0, 100, 100, L"Use framebuffers");
+	AddControl(m_pFramebuffersLabel);
+
 	m_pConstrain = new CCheckBox();
 	m_pConstrain->SetClickedListener(this, ConstrainChanged);
 	m_pConstrain->SetUnclickedListener(this, ConstrainChanged);
@@ -912,12 +920,20 @@ void COptionsPanel::Layout()
 	m_pWindowed->SetPos(m_pWindowedLabel->GetLeft() - 15, GetHeight()-230 + m_pWindowedLabel->GetHeight()/2 - m_pWindowed->GetHeight()/2);
 	m_pWindowed->SetState(!DigitanksWindow()->IsFullscreen(), false);
 
+	m_pFramebuffersLabel->SetWrap(false);
+	m_pFramebuffersLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pFramebuffersLabel->SetSize(10, 10);
+	m_pFramebuffersLabel->EnsureTextFits();
+	m_pFramebuffersLabel->SetPos(GetWidth()/2 - m_pFramebuffersLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
+	m_pFramebuffers->SetPos(m_pFramebuffersLabel->GetLeft() - 15, GetHeight()-180 + m_pFramebuffersLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
+	m_pFramebuffers->SetState(DigitanksWindow()->WantsFramebuffers(), false);
+
 	m_pConstrainLabel->SetWrap(false);
 	m_pConstrainLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pConstrainLabel->SetSize(10, 10);
 	m_pConstrainLabel->EnsureTextFits();
-	m_pConstrainLabel->SetPos(GetWidth()/2 - m_pConstrainLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
-	m_pConstrain->SetPos(m_pConstrainLabel->GetLeft() - 15, GetHeight()-180 + m_pConstrainLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
+	m_pConstrainLabel->SetPos(GetWidth()/2 - m_pConstrainLabel->GetWidth()/2 + 10 + 40, GetHeight()-130);
+	m_pConstrain->SetPos(m_pConstrainLabel->GetLeft() - 15, GetHeight()-130 + m_pConstrainLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
 	m_pConstrain->SetState(DigitanksWindow()->ShouldConstrainMouse(), false);
 
 	BaseClass::Layout();
@@ -955,6 +971,14 @@ void COptionsPanel::VideoModeChosenCallback()
 void COptionsPanel::WindowedChangedCallback()
 {
 	DigitanksWindow()->SetConfigFullscreen(!m_pWindowed->GetState());
+	DigitanksWindow()->SaveConfig();
+
+	m_pVideoChangedNotice->SetVisible(true);
+}
+
+void COptionsPanel::FramebuffersChangedCallback()
+{
+	DigitanksWindow()->SetWantsFramebuffers(m_pFramebuffers->GetState());
 	DigitanksWindow()->SaveConfig();
 
 	m_pVideoChangedNotice->SetVisible(true);

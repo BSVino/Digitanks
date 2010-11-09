@@ -305,10 +305,6 @@ void RunIntro()
 
 	glewInit();
 
-	// Skip the intro so we have a chance to write the GLInfo.
-	if (!GLEW_ARB_texture_non_power_of_two)
-		g_bSkip = true;
-
 	ilInit();
 
 	// Disable system keys so people can't alt-tab out.

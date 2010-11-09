@@ -514,7 +514,13 @@ void CRopeRenderer::SetForward(Vector vecForward)
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
+	m_bHardwareSupportsFramebuffers = false;
+	m_bHardwareSupportsFramebuffersTestCompleted = false;
+
 	m_bUseFramebuffers = true;
+
+	if (!GLEW_ARB_framebuffer_object)
+		m_bUseFramebuffers = false;
 
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -526,8 +532,8 @@ void CRenderer::Initialize()
 	{
 		m_oSceneBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, true, true);
 
-		size_t iWidth = m_iWidth;
-		size_t iHeight = m_iHeight;
+		size_t iWidth = m_oSceneBuffer.m_iWidth;
+		size_t iHeight = m_oSceneBuffer.m_iHeight;
 		for (size_t i = 0; i < BLOOM_FILTERS; i++)
 		{
 			m_oBloom1Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, true);
@@ -545,6 +551,28 @@ void CRenderer::Initialize()
 CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear)
 {
 	assert(ShouldUseFramebuffers());
+
+	if (!GLEW_ARB_texture_non_power_of_two)
+	{
+		// If non power of two textures are not supported, framebuffers the size of the screen will probably fuck up.
+		// I don't know this for sure but I'm not taking any chances. If the extension isn't supported, roll those
+		// framebuffer sizes up to the next power of two.
+		iWidth--;
+		iWidth |= iWidth >> 1;
+		iWidth |= iWidth >> 2;
+		iWidth |= iWidth >> 4;
+		iWidth |= iWidth >> 8;
+		iWidth |= iWidth >> 16;
+		iWidth++;
+
+		iHeight--;
+		iHeight |= iHeight >> 1;
+		iHeight |= iHeight >> 2;
+		iHeight |= iHeight >> 4;
+		iHeight |= iHeight >> 8;
+		iHeight |= iHeight >> 16;
+		iHeight++;
+	}
 
 	CFrameBuffer oBuffer;
 
@@ -638,14 +666,16 @@ void CRenderer::CreateNoise()
 void CRenderer::SetupFrame()
 {
 	if (ShouldUseFramebuffers())
+	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
+		glViewport(0, 0, (GLsizei)m_oSceneBuffer.m_iWidth, (GLsizei)m_oSceneBuffer.m_iHeight);
+	}
 	else
 	{
 		glReadBuffer(GL_BACK);
 		glDrawBuffer(GL_BACK);
+		glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 	}
-
-	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -695,6 +725,7 @@ void CRenderer::StartRendering()
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
+
 	gluPerspective(
 			44.0,
 			(float)m_iWidth/(float)m_iHeight,
@@ -713,7 +744,13 @@ void CRenderer::StartRendering()
 
 	glGetDoublev( GL_MODELVIEW_MATRIX, m_aiModelView );
 	glGetDoublev( GL_PROJECTION_MATRIX, m_aiProjection );
+
+	// Momentarily return the viewport to the window size. This is because if the scene buffer is not the same as the window size,
+	// the viewport here will be the scene buffer size, but we need it to be the window size so we can do world/screen transformations.
+	glPushAttrib(GL_VIEWPORT_BIT);
+	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 	glGetIntegerv( GL_VIEWPORT, m_aiViewport );
+	glPopAttrib();
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
@@ -787,7 +824,7 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0, m_iWidth, m_iHeight, 0, -1, 1);
+	glOrtho(0, pBuffer->m_iWidth, pBuffer->m_iHeight, 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -802,9 +839,9 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 
 	glBegin(GL_QUADS);
 		glTexCoord2i(0, 1); glVertex2i(0, 0);
-		glTexCoord2i(0, 0); glVertex2i(0, (GLint)m_iHeight);
-		glTexCoord2i(1, 0); glVertex2i((GLint)m_iWidth, (GLint)m_iHeight);
-		glTexCoord2i(1, 1); glVertex2i((GLint)m_iWidth, 0);
+		glTexCoord2i(0, 0); glVertex2i(0, (GLint)pBuffer->m_iHeight);
+		glTexCoord2i(1, 0); glVertex2i((GLint)pBuffer->m_iWidth, (GLint)pBuffer->m_iHeight);
+		glTexCoord2i(1, 1); glVertex2i((GLint)pBuffer->m_iWidth, 0);
 	glEnd();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -863,6 +900,59 @@ Vector CRenderer::WorldPosition(Vector vecScreen)
 		(GLdouble*)m_aiModelView, (GLdouble*)m_aiProjection, (GLint*)m_aiViewport,
 		&x, &y, &z);
 	return Vector((float)x, (float)y, (float)z);
+}
+
+bool CRenderer::HardwareSupportsFramebuffers()
+{
+	if (m_bHardwareSupportsFramebuffersTestCompleted)
+		return m_bHardwareSupportsFramebuffers;
+
+	m_bHardwareSupportsFramebuffersTestCompleted = true;
+
+	if (!GLEW_EXT_framebuffer_object)
+	{
+		m_bHardwareSupportsFramebuffers = false;
+		return false;
+	}
+
+	// Compile a test framebuffer. If it fails we don't support framebuffers.
+
+	CFrameBuffer oBuffer;
+
+	glGenTextures(1, &oBuffer.m_iMap);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenRenderbuffersEXT(1, &oBuffer.m_iDepth);
+	glBindRenderbufferEXT( GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth );
+	glRenderbufferStorageEXT( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512 );
+	glBindRenderbufferEXT( GL_RENDERBUFFER, 0 );
+
+	glGenFramebuffersEXT(1, &oBuffer.m_iFB);
+	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)oBuffer.m_iFB);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap, 0);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)oBuffer.m_iDepth);
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+	{
+		glDeleteTextures(1, &oBuffer.m_iMap);
+		glDeleteRenderbuffersEXT(1, &oBuffer.m_iDepth);
+		glDeleteFramebuffersEXT(1, &oBuffer.m_iFB);
+		m_bHardwareSupportsFramebuffers = false;
+		return false;
+	}
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
+	glDeleteTextures(1, &oBuffer.m_iMap);
+	glDeleteRenderbuffersEXT(1, &oBuffer.m_iDepth);
+	glDeleteFramebuffersEXT(1, &oBuffer.m_iFB);
+
+	m_bHardwareSupportsFramebuffers = true;
+	return true;
 }
 
 size_t CRenderer::CreateCallList(size_t iModel)
