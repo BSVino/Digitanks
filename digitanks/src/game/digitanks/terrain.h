@@ -8,6 +8,24 @@
 #define TERRAIN_GEN_SECTORS 10
 #define TERRAIN_SECTOR_SIZE (TERRAIN_SIZE/TERRAIN_GEN_SECTORS)
 
+class CTerrainChunk
+{
+public:
+	friend class CTerrain;
+
+public:
+									CTerrainChunk();
+									~CTerrainChunk();
+
+protected:
+	float							m_aflHeights[TERRAIN_SECTOR_SIZE][TERRAIN_SECTOR_SIZE];
+	class raytrace::CRaytracer*		m_pTracer;
+
+	size_t							m_iCallList;
+
+	bool							m_bNeedsRegenerate;
+};
+
 class CTerrain : public CBaseEntity
 {
 	REGISTER_ENTITY_CLASS(CTerrain, CBaseEntity);
@@ -24,18 +42,29 @@ public:
 	void					GenerateTerrain();
 	void					GenerateCollision();
 	void					GenerateTerrainCallLists();
+	void					GenerateTerrainCallList(int x, int y);
 	void					GenerateCallLists();
 
 	virtual bool			ShouldRender() const { return true; };
 	virtual void			OnRender();
 
+	void					GetChunk(float x, float y, int& i, int& j);
+	CTerrainChunk*			GetChunk(int x, int y);
+	CTerrainChunk*			GetChunk(float x, float y);
+
 	float					GetRealHeight(int x, int y);
+	void					SetRealHeight(int x, int y, float h);
 	float					GetHeight(float x, float y);
 	Vector					SetPointHeight(Vector& vecPoint);
 	float					GetMapSize() const;
 	float					ArrayToWorldSpace(int i);
 	int						WorldToArraySpace(float f);
+	int						ArrayToChunkSpace(int i, int& iIndex);
+	int						ChunkToArraySpace(int iChunk, int i);
+	float					ChunkToWorldSpace(int iChunk, int i);
+	int						WorldToChunkSpace(float f, int& iIndex);
 
+	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
 
 	Color					GetPrimaryTerrainColor();
@@ -44,22 +73,23 @@ public:
 	void					TerrainData(class CNetworkParameters* p);
 	void					ResyncClientTerrainData(int iClient);
 
+	virtual void			OnSerialize(std::ostream& o);
+	virtual bool			OnUnserialize(std::istream& i);
+
 	virtual void			ClientEnterGame();
 
 protected:
-	float					m_aflHeights[TERRAIN_SIZE][TERRAIN_SIZE];
-
 	bool					m_bHeightsInitialized;
 	float					m_flHighest;
 	float					m_flLowest;
-
-	size_t					m_iCallList;
 
 	Vector					m_avecTerrainColors[4];
 
 	eastl::vector<Vector>	m_avecCraterMarks;
 
-	bool					m_abTerrainNeedsRegenerate[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
+	CTerrainChunk			m_aTerrainChunks[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
+
+	size_t					m_iWallList;
 };
 
 #endif

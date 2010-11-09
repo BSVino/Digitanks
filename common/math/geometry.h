@@ -509,62 +509,62 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 	Vector c7 = oBox.m_vecMaxs;
 
 	// Build a list of line segments in the cube to test against the triangle.
-	eastl::vector<Vector> aLines;
+	Vector aLines[32];
 
 	// Bottom four
-	aLines.push_back(c0);
-	aLines.push_back(c1);
+	aLines[0] = c0;
+	aLines[1] = c1;
 
-	aLines.push_back(c1);
-	aLines.push_back(c2);
+	aLines[2] = c1;
+	aLines[3] = c2;
 
-	aLines.push_back(c2);
-	aLines.push_back(c3);
+	aLines[4] = c2;
+	aLines[5] = c3;
 
-	aLines.push_back(c3);
-	aLines.push_back(c0);
+	aLines[6] = c3;
+	aLines[7] = c0;
 
 	// Sides
-	aLines.push_back(c0);
-	aLines.push_back(c4);
+	aLines[8] = c0;
+	aLines[9] = c4;
 
-	aLines.push_back(c1);
-	aLines.push_back(c5);
+	aLines[10] = c1;
+	aLines[11] = c5;
 
-	aLines.push_back(c2);
-	aLines.push_back(c6);
+	aLines[12] = c2;
+	aLines[13] = c6;
 
-	aLines.push_back(c3);
-	aLines.push_back(c7);
+	aLines[14] = c3;
+	aLines[15] = c7;
 
 	// Top
-	aLines.push_back(c4);
-	aLines.push_back(c5);
+	aLines[16] = c4;
+	aLines[17] = c5;
 
-	aLines.push_back(c5);
-	aLines.push_back(c6);
+	aLines[18] = c5;
+	aLines[19] = c6;
 
-	aLines.push_back(c6);
-	aLines.push_back(c7);
+	aLines[20] = c6;
+	aLines[21] = c7;
 
-	aLines.push_back(c7);
-	aLines.push_back(c4);
+	aLines[22] = c7;
+	aLines[23] = c4;
 
 	// Diagonals
-	aLines.push_back(c0);
-	aLines.push_back(c6);
+	aLines[24] = c0;
+	aLines[25] = c6;
 
-	aLines.push_back(c1);
-	aLines.push_back(c7);
+	aLines[26] = c1;
+	aLines[27] = c7;
 
-	aLines.push_back(c2);
-	aLines.push_back(c4);
+	aLines[28] = c2;
+	aLines[29] = c4;
 
-	aLines.push_back(c3);
-	aLines.push_back(c5);
+	aLines[30] = c3;
+	aLines[31] = c5;
 
 	// If any of the segments intersects with the triangle then we have a winner.
-	for (i = 0; i < aLines.size(); i+=2)
+	for (i = 0; i < 32; i+=2)
 	{
 		if (LineSegmentIntersectsTriangle(aLines[i], aLines[i+1], v0, v1, v2))
 			return true;

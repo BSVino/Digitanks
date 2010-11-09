@@ -19,7 +19,6 @@ NETVAR_TABLE_BEGIN(CTerrain);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTerrain);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, float, m_aflHeights);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bHeightsInitialized);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHighest);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
@@ -27,27 +26,24 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecTerrainColors);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, Vector, m_avecCraterMarks);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abTerrainNeedsRegenerate);
+	//SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CTerrainChunk, m_aTerrainChunks);	// Onserialize
 SAVEDATA_TABLE_END();
 
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);
-	m_pTracer = NULL;
-	m_iCallList = 0;
+	m_iWallList = 0;
 }
 
 CTerrain::~CTerrain()
 {
-	if (m_iCallList)
-		glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
+	if (m_iWallList)
+		glDeleteLists((GLuint)m_iWallList, 1);
 }
 
 void CTerrain::Spawn()
 {
 	BaseClass::Spawn();
-
-	m_pTracer = new raytrace::CRaytracer();
 
 	switch (mtrand()%4)
 	{
@@ -106,58 +102,68 @@ void CTerrain::GenerateTerrain()
 	{
 		for (size_t y = 0; y < TERRAIN_SIZE; y++)
 		{
-			m_aflHeights[x][y]  = n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
-			m_aflHeights[x][y] += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
-			m_aflHeights[x][y] += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
-			m_aflHeights[x][y] += n4.Noise(x*flSpaceFactor4, y*flSpaceFactor4) * flHeightFactor4;
-			m_aflHeights[x][y] += n5.Noise(x*flSpaceFactor5, y*flSpaceFactor5) * flHeightFactor5;
+			float flHeight;
+			flHeight  = n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
+			flHeight += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
+			flHeight += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
+			flHeight += n4.Noise(x*flSpaceFactor4, y*flSpaceFactor4) * flHeightFactor4;
+			flHeight += n5.Noise(x*flSpaceFactor5, y*flSpaceFactor5) * flHeightFactor5;
+			SetRealHeight(x, y, flHeight);
 
 			if (!m_bHeightsInitialized)
-				m_flHighest = m_flLowest = m_aflHeights[x][y];
+				m_flHighest = m_flLowest = flHeight;
 			m_bHeightsInitialized = true;
 
-			if (m_aflHeights[x][y] < m_flLowest)
-				m_flLowest = m_aflHeights[x][y];
+			if (flHeight < m_flLowest)
+				m_flLowest = flHeight;
 
-			if (m_aflHeights[x][y] > m_flHighest)
-				m_flHighest = m_aflHeights[x][y];
+			if (flHeight > m_flHighest)
+				m_flHighest = flHeight;
 		}
 	}
 }
 
 void CTerrain::GenerateCollision()
 {
-	m_pTracer->RemoveArea(AABB(Vector(-GetMapSize(), -99999, -GetMapSize()), Vector(GetMapSize(), 99999, GetMapSize())));
+	assert(m_bHeightsInitialized);
 
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
-		for (size_t x = 0; x < TERRAIN_SIZE-1; x++)
+		for (size_t x = 0; x < TERRAIN_GEN_SECTORS; x++)
 		{
-			for (size_t y = 0; y < TERRAIN_SIZE-1; y++)
+			for (size_t y = 0; y < TERRAIN_GEN_SECTORS; y++)
 			{
-				float flX = ArrayToWorldSpace((int)x);
-				float flY = ArrayToWorldSpace((int)y);
-				float flX1 = ArrayToWorldSpace((int)x+1);
-				float flY1 = ArrayToWorldSpace((int)y+1);
+				CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 
-				Vector v1 = Vector(flX, m_aflHeights[x][y], flY);
-				Vector v2 = Vector(flX, m_aflHeights[x][y+1], flY1);
-				Vector v3 = Vector(flX1, m_aflHeights[x+1][y+1], flY1);
-				Vector v4 = Vector(flX1, m_aflHeights[x+1][y], flY);
+				if (pChunk->m_pTracer)
+					delete pChunk->m_pTracer;
 
-				m_pTracer->AddTriangle(v1, v2, v3);
-				m_pTracer->AddTriangle(v1, v3, v4);
+				pChunk->m_pTracer = new raytrace::CRaytracer();
+
+				for (size_t i = 0; i < TERRAIN_SECTOR_SIZE; i++)
+				{
+					for (size_t j = 0; j < TERRAIN_SECTOR_SIZE; j++)
+					{
+						float flX = ChunkToWorldSpace(x, i);
+						float flY = ChunkToWorldSpace(y, j);
+						float flX1 = ChunkToWorldSpace(x, i+1);
+						float flY1 = ChunkToWorldSpace(y, j+1);
+
+						Vector v1 = Vector(flX, GetRealHeight(ChunkToArraySpace(x, i), ChunkToArraySpace(y, j)), flY);
+						Vector v2 = Vector(flX, GetRealHeight(ChunkToArraySpace(x, i), ChunkToArraySpace(y, j+1)), flY1);
+						Vector v3 = Vector(flX1, GetRealHeight(ChunkToArraySpace(x, i+1), ChunkToArraySpace(y, j+1)), flY1);
+						Vector v4 = Vector(flX1, GetRealHeight(ChunkToArraySpace(x, i+1), ChunkToArraySpace(y, j)), flY);
+
+						pChunk->m_pTracer->AddTriangle(v1, v2, v3);
+						pChunk->m_pTracer->AddTriangle(v1, v3, v4);
+					}
+				}
+
+				pChunk->m_bNeedsRegenerate = true;
+				pChunk->m_pTracer->BuildTree();
 			}
 		}
-
-		m_pTracer->BuildTree();
-	}
-
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
-	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
-			m_abTerrainNeedsRegenerate[i][j] = true;
 	}
 
 	GenerateCallLists();
@@ -171,59 +177,74 @@ void CTerrain::GenerateTerrainCallLists()
 	{
 		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
 		{
-			if (!m_abTerrainNeedsRegenerate[i][j])
-				continue;
-
-			glNewList((GLuint)m_iCallList+i*TERRAIN_GEN_SECTORS+j+1, GL_COMPILE);
-			glBegin(GL_QUADS);
-			for (size_t x = TERRAIN_SECTOR_SIZE*i; x < TERRAIN_SECTOR_SIZE*(i+1); x++)
-			{
-				if (x >= TERRAIN_SIZE-1)
-					continue;
-
-				for (size_t y = TERRAIN_SECTOR_SIZE*j; y < TERRAIN_SECTOR_SIZE*(j+1); y++)
-				{
-					if (y >= TERRAIN_SIZE-1)
-						continue;
-
-					float flColor = RemapVal(m_aflHeights[x][y], m_flLowest, m_flHighest, 0.0f, 0.98f);
-
-					float flX = ArrayToWorldSpace((int)x);
-					float flX1 = ArrayToWorldSpace((int)x+1);
-					float flY = ArrayToWorldSpace((int)y);
-					float flY1 = ArrayToWorldSpace((int)y+1);
-
-					glColor3fv(flColor*m_avecTerrainColors[0]);
-					glVertex3f(flX, m_aflHeights[x][y], flY);
-
-					glColor3fv(flColor*m_avecTerrainColors[1]);
-					glVertex3f(flX, m_aflHeights[x][y+1], flY1);
-
-					glColor3fv(flColor*m_avecTerrainColors[2]);
-					glVertex3f(flX1, m_aflHeights[x+1][y+1], flY1);
-
-					glColor3fv(flColor*m_avecTerrainColors[3]);
-					glVertex3f(flX1, m_aflHeights[x+1][y], flY);
-				}
-			}
-			glEnd();
-			glEndList();
-
-			m_abTerrainNeedsRegenerate[i][j] = false;
+			GenerateTerrainCallList(i, j);
 		}
 	}
 }
 
+void CTerrain::GenerateTerrainCallList(int i, int j)
+{
+	CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
+	if (!pChunk->m_bNeedsRegenerate)
+		return;
+
+	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
+	glBegin(GL_QUADS);
+	for (int x = TERRAIN_SECTOR_SIZE*i; x < TERRAIN_SECTOR_SIZE*(i+1); x++)
+	{
+		if (x >= TERRAIN_SIZE-1)
+			continue;
+
+		for (int y = TERRAIN_SECTOR_SIZE*j; y < TERRAIN_SECTOR_SIZE*(j+1); y++)
+		{
+			if (y >= TERRAIN_SIZE-1)
+				continue;
+
+			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
+
+			float flX = ArrayToWorldSpace((int)x);
+			float flX1 = ArrayToWorldSpace((int)x+1);
+			float flY = ArrayToWorldSpace((int)y);
+			float flY1 = ArrayToWorldSpace((int)y+1);
+
+			glColor3fv(flColor*m_avecTerrainColors[0]);
+			glVertex3f(flX, GetRealHeight(x, y), flY);
+
+			glColor3fv(flColor*m_avecTerrainColors[1]);
+			glVertex3f(flX, GetRealHeight(x, y+1), flY1);
+
+			glColor3fv(flColor*m_avecTerrainColors[2]);
+			glVertex3f(flX1, GetRealHeight(x+1, y+1), flY1);
+
+			glColor3fv(flColor*m_avecTerrainColors[3]);
+			glVertex3f(flX1, GetRealHeight(x+1, y), flY);
+		}
+	}
+	glEnd();
+	glEndList();
+
+	pChunk->m_bNeedsRegenerate = false;
+}
+
 void CTerrain::GenerateCallLists()
 {
-	if (m_iCallList)
-		glDeleteLists((GLuint)m_iCallList, TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		{
+			CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
 
-	m_iCallList = glGenLists(TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS+1);
+			if (pChunk->m_iCallList)
+				glDeleteLists((GLuint)pChunk->m_iCallList, 1);
+
+			pChunk->m_iCallList = glGenLists(1);
+		}
+	}
 
 	GenerateTerrainCallLists();
 
-	glNewList((GLuint)m_iCallList, GL_COMPILE);
+	m_iWallList = glGenLists(1);
+	glNewList((GLuint)m_iWallList, GL_COMPILE);
 	float flLo = ArrayToWorldSpace(0);
 	float flHi = ArrayToWorldSpace(TERRAIN_SIZE-1);
 
@@ -722,14 +743,45 @@ void CTerrain::OnRender()
 			glUniform1i(iFocusTarget, -1);
 	}
 
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS*TERRAIN_GEN_SECTORS; i++)
-		glCallList((GLuint)m_iCallList+i+1);
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
+	}
 
 	glUseProgram(0);
 
-	glCallList((GLuint)m_iCallList);
+	glCallList((GLuint)m_iWallList);
 
 	glPopAttrib();
+}
+
+void CTerrain::GetChunk(float x, float y, int& i, int& j)
+{
+	int iIndex;
+	i = WorldToChunkSpace(x, iIndex);
+	j = WorldToChunkSpace(y, iIndex);
+}
+
+CTerrainChunk* CTerrain::GetChunk(int x, int y)
+{
+	if (x >= TERRAIN_GEN_SECTORS)
+		return NULL;
+
+	if (y >= TERRAIN_GEN_SECTORS)
+		return NULL;
+
+	if (x < 0 || y < 0)
+		return NULL;
+
+	return &m_aTerrainChunks[x][y];
+}
+
+CTerrainChunk* CTerrain::GetChunk(float x, float y)
+{
+	int i, j;
+	GetChunk(x, y, i, j);
+	return GetChunk(i, j);
 }
 
 float CTerrain::GetRealHeight(int x, int y)
@@ -743,7 +795,20 @@ float CTerrain::GetRealHeight(int x, int y)
 	if (y >= TERRAIN_SIZE)
 		y = TERRAIN_SIZE-1;
 
-	return m_aflHeights[x][y];
+	int i, j;
+	CTerrainChunk* pChunk = &m_aTerrainChunks[ArrayToChunkSpace(x, i)][ArrayToChunkSpace(y, j)];
+	return pChunk->m_aflHeights[i][j];
+}
+
+void CTerrain::SetRealHeight(int x, int y, float flHeight)
+{
+	int iXIndex, iYIndex;
+	int iChunkX = ArrayToChunkSpace(x, iXIndex);
+	int iChunkY = ArrayToChunkSpace(y, iYIndex);
+
+	CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
+
+	pChunk->m_aflHeights[iXIndex][iYIndex] = flHeight;
 }
 
 float CTerrain::GetHeight(float flX, float flY)
@@ -789,6 +854,53 @@ int CTerrain::WorldToArraySpace(float f)
 	return (int)RemapVal(f, -GetMapSize(), GetMapSize(), 0, TERRAIN_SIZE);
 }
 
+int CTerrain::ArrayToChunkSpace(int i, int& iIndex)
+{
+	iIndex = i%TERRAIN_SECTOR_SIZE;
+	return i/TERRAIN_SECTOR_SIZE;
+}
+
+int CTerrain::ChunkToArraySpace(int iChunk, int i)
+{
+	return iChunk * TERRAIN_SECTOR_SIZE + i;
+}
+
+float CTerrain::ChunkToWorldSpace(int iChunk, int i)
+{
+	return ArrayToWorldSpace(ChunkToArraySpace(iChunk, i));
+}
+
+int CTerrain::WorldToChunkSpace(float f, int& iIndex)
+{
+	return ArrayToChunkSpace(WorldToArraySpace(f), iIndex);
+}
+
+bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
+{
+	vecPoint = v2;
+	bool bReturn = false;
+	for (int i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (int j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		{
+			CTerrainChunk* pChunk = GetChunk(i, j);
+			if (pChunk->m_pTracer)
+			{
+				raytrace::CTraceResult tr;
+				bool bHit = pChunk->m_pTracer->Raytrace(v1, v2, &tr);
+				if (bHit)
+				{
+					if ((v1-tr.m_vecHit).LengthSqr() < (v1-vecPoint).LengthSqr())
+						vecPoint = tr.m_vecHit;
+					bReturn = true;
+				}
+			}
+		}
+	}
+
+	return bReturn;
+}
+
 void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
@@ -832,24 +944,41 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 				float flNewY = -flSqrt + vecOrigin.y;
 
 				// As if the dirt from above drops down into the hole.
-				float flAbove = m_aflHeights[x][z] - (flSqrt + vecOrigin.y);
+				float flAbove = GetRealHeight(x, z) - (flSqrt + vecOrigin.y);
 				if (flAbove > 0)
 					flNewY += flAbove;
 
-				// Stopgap to keep the raytracer from receiving triangles that go below its bounds.
-				if (flNewY < m_flLowest)
-					flNewY = m_flLowest+0.01f;
-
-				if (flNewY > m_aflHeights[x][z])
+				if (flNewY > GetRealHeight(x, z))
 					continue;
 
-				m_aflHeights[x][z] = flNewY;
+				SetRealHeight(x, z, flNewY);
 
-				m_abTerrainNeedsRegenerate[x/TERRAIN_SECTOR_SIZE][z/TERRAIN_SECTOR_SIZE] = true;
-				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z-1)/TERRAIN_SECTOR_SIZE] = true;
-				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z-1)/TERRAIN_SECTOR_SIZE] = true;
-				m_abTerrainNeedsRegenerate[(x+1)/TERRAIN_SECTOR_SIZE][(z+1)/TERRAIN_SECTOR_SIZE] = true;
-				m_abTerrainNeedsRegenerate[(x-1)/TERRAIN_SECTOR_SIZE][(z-1)/TERRAIN_SECTOR_SIZE] = true;
+				int iIndex;
+				int iChunkX = ArrayToChunkSpace(x, iIndex);
+				int iChunkY = ArrayToChunkSpace(z, iIndex);
+
+				CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
+				if (pChunk && !pChunk->m_bNeedsRegenerate)
+					pChunk->m_bNeedsRegenerate = true;
+
+				// Also regenerate nearby chunks which may have been affected.
+				iChunkX = ArrayToChunkSpace(x-1, iIndex);
+				iChunkY = ArrayToChunkSpace(z, iIndex);
+				pChunk = GetChunk(iChunkX, iChunkY);
+				if (pChunk && !pChunk->m_bNeedsRegenerate)
+					pChunk->m_bNeedsRegenerate = true;
+
+				iChunkX = ArrayToChunkSpace(x, iIndex);
+				iChunkY = ArrayToChunkSpace(z-1, iIndex);
+				pChunk = GetChunk(iChunkX, iChunkY);
+				if (pChunk && !pChunk->m_bNeedsRegenerate)
+					pChunk->m_bNeedsRegenerate = true;
+
+				iChunkX = ArrayToChunkSpace(x-1, iIndex);
+				iChunkY = ArrayToChunkSpace(z-1, iIndex);
+				pChunk = GetChunk(iChunkX, iChunkY);
+				if (pChunk && !pChunk->m_bNeedsRegenerate)
+					pChunk->m_bNeedsRegenerate = true;
 			}
 		}
 	}
@@ -859,7 +988,8 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 	{
 		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
 		{
-			if (m_abTerrainNeedsRegenerate[i][j])
+			CTerrainChunk* pChunk = GetChunk((int)i, (int)j);
+			if (pChunk->m_bNeedsRegenerate)
 			{
 				bTerrainDeformed = true;
 				break;
@@ -888,7 +1018,8 @@ void CTerrain::UpdateTerrainData()
 	{
 		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
 		{
-			if (!m_abTerrainNeedsRegenerate[i][j])
+			CTerrainChunk* pChunk = GetChunk((int)i, (int)j);
+			if (!pChunk->m_bNeedsRegenerate)
 				continue;
 
 			CNetworkParameters p;
@@ -904,7 +1035,7 @@ void CTerrain::UpdateTerrainData()
 			for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
 			{
 				for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
-					flHeightData[iPosition++] = m_aflHeights[x][z];
+					flHeightData[iPosition++] = GetRealHeight(x, z);
 			}
 
 			if (CNetwork::ShouldReplicateClientFunction())
@@ -923,75 +1054,76 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	size_t iPosition = 0;
 	float* flHeightData = (float*)p->m_pExtraData;
 
+	CTerrainChunk* pChunk = GetChunk((int)i, j);
+
 	// Unserialize the height data
 	for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
 	{
 		for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
 		{
-			if (fabs(m_aflHeights[x][z] - flHeightData[iPosition]) > 0.01f)
-				m_abTerrainNeedsRegenerate[i][j] = true;
+			if (fabs(GetRealHeight(x, z) - flHeightData[iPosition]) > 0.01f)
+			{
+				pChunk->m_bNeedsRegenerate = true;
+				SetRealHeight(x, z, flHeightData[iPosition]);
 
-			m_aflHeights[x][z] = flHeightData[iPosition++];
+				float flHeight = flHeightData[iPosition];
 
-			if (!m_bHeightsInitialized)
-				m_flHighest = m_flLowest = m_aflHeights[x][z];
-			m_bHeightsInitialized = true;
+				if (!m_bHeightsInitialized)
+				{
+					m_flHighest = m_flLowest = flHeight;
+					m_bHeightsInitialized = true;
+				}
+				else
+				{
+					if (flHeight < m_flLowest)
+						m_flLowest = flHeight;
 
-			if (m_aflHeights[x][z] < m_flLowest)
-				m_flLowest = m_aflHeights[x][z];
+					if (flHeight > m_flHighest)
+						m_flHighest = flHeight;
+				}
+			}
 
-			if (m_aflHeights[x][z] > m_flHighest)
-				m_flHighest = m_aflHeights[x][z];
+			iPosition++;
 		}
 	}
 
-	if (!m_abTerrainNeedsRegenerate[i][j])
+	if (!pChunk->m_bNeedsRegenerate)
 		return;
+
+	if (pChunk->m_pTracer)
+		delete pChunk->m_pTracer;
+
+	pChunk->m_pTracer = new raytrace::CRaytracer();
 
 	int iXMin = (int)(TERRAIN_SECTOR_SIZE*i);
 	int iYMin = (int)(TERRAIN_SECTOR_SIZE*j);
-	int iXMax = (int)(TERRAIN_SECTOR_SIZE*(i+1)-1);
-	int iYMax = (int)(TERRAIN_SECTOR_SIZE*(j+1)-1);
+	int iXMax = (int)(TERRAIN_SECTOR_SIZE*(i+1));
+	int iYMax = (int)(TERRAIN_SECTOR_SIZE*(j+1));
 
-	float flXMin = ArrayToWorldSpace(iXMin);
-	float flYMin = ArrayToWorldSpace(iYMin);
-	float flXMax = ArrayToWorldSpace(iXMax);
-	float flYMax = ArrayToWorldSpace(iYMax);
-
-	Vector vecMins(flXMin, -10000, flYMin);
-	Vector vecMaxs(flXMax, 10000,  flYMax);
-
-	m_pTracer->RemoveArea(AABB(vecMins, vecMaxs));
-	for (int x = iXMin-1; x <= iXMax; x++)
+	for (int x = iXMin; x < iXMax; x++)
 	{
-		if (x < 0 || x >= TERRAIN_SIZE)
-			continue;
-
-		for (int z = iYMin-1; z <= iYMax; z++)
+		for (int z = iYMin; z < iYMax; z++)
 		{
-			if (z < 0 || z >= TERRAIN_SIZE)
-				continue;
-
 			float flX = ArrayToWorldSpace(x);
 			float flZ = ArrayToWorldSpace(z);
 
 			float flX1 = ArrayToWorldSpace((int)x+1);
 			float flZ1 = ArrayToWorldSpace((int)z+1);
 
-			Vector v1 = Vector(flX, m_aflHeights[x][z], flZ);
-			Vector v2 = Vector(flX, m_aflHeights[x][z+1], flZ1);
-			Vector v3 = Vector(flX1, m_aflHeights[x+1][z+1], flZ1);
-			Vector v4 = Vector(flX1, m_aflHeights[x+1][z], flZ);
+			Vector v1 = Vector(flX, GetRealHeight(x, z), flZ);
+			Vector v2 = Vector(flX, GetRealHeight(x, z+1), flZ1);
+			Vector v3 = Vector(flX1, GetRealHeight(x+1, z+1), flZ1);
+			Vector v4 = Vector(flX1, GetRealHeight(x+1, z), flZ);
 
-			m_pTracer->AddTriangle(v1, v2, v3);
-			m_pTracer->AddTriangle(v1, v3, v4);
+			pChunk->m_pTracer->AddTriangle(v1, v2, v3);
+			pChunk->m_pTracer->AddTriangle(v1, v3, v4);
 		}
 	}
 
 	if (!GameServer()->IsLoading())
 	{
-		m_pTracer->BuildTree();
-		GenerateTerrainCallLists();
+		pChunk->m_pTracer->BuildTree();
+		GenerateTerrainCallList(i, j);
 	}
 }
 
@@ -1014,7 +1146,7 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 			for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
 			{
 				for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
-					flHeightData[iPosition++] = m_aflHeights[x][z];
+					flHeightData[iPosition++] = GetRealHeight(x, z);
 			}
 
 			CNetwork::CallFunctionParameters(iClient, "TerrainData", &p);
@@ -1022,9 +1154,51 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 	}
 }
 
+void CTerrain::OnSerialize(std::ostream& o)
+{
+	for (size_t x = 0; x < TERRAIN_GEN_SECTORS; x++)
+	{
+		for (size_t y = 0; y < TERRAIN_GEN_SECTORS; y++)
+		{
+			CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
+			o.write((char*)&pChunk->m_aflHeights[0][0], sizeof(pChunk->m_aflHeights));
+		}
+	}
+
+	BaseClass::OnSerialize(o);
+}
+
+bool CTerrain::OnUnserialize(std::istream& i)
+{
+	for (size_t x = 0; x < TERRAIN_GEN_SECTORS; x++)
+	{
+		for (size_t y = 0; y < TERRAIN_GEN_SECTORS; y++)
+		{
+			CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
+			i.read((char*)&pChunk->m_aflHeights[0][0], sizeof(pChunk->m_aflHeights));
+			pChunk->m_bNeedsRegenerate = true;
+		}
+	}
+
+	return BaseClass::OnUnserialize(i);
+}
+
 void CTerrain::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();
 
 	GenerateCollision();
+}
+
+CTerrainChunk::CTerrainChunk()
+{
+	m_pTracer = NULL;
+	m_iCallList = 0;
+	m_bNeedsRegenerate = true;
+}
+
+CTerrainChunk::~CTerrainChunk()
+{
+	if (m_iCallList)
+		glDeleteLists((GLuint)m_iCallList, 1);
 }
