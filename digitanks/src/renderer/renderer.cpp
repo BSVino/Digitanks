@@ -1027,7 +1027,13 @@ bool CRenderer::HardwareSupportsShaders()
 
 	m_bHardwareSupportsShadersTestCompleted = true;
 
-	if (!GL_ARB_fragment_program)
+	if (!GLEW_ARB_fragment_program)
+	{
+		m_bHardwareSupportsShaders = false;
+		return false;
+	}
+
+	if (!GLEW_VERSION_2_0)
 	{
 		m_bHardwareSupportsShaders = false;
 		return false;
