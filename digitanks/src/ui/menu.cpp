@@ -873,6 +873,14 @@ COptionsPanel::COptionsPanel()
 	m_pFramebuffersLabel = new CLabel(0, 0, 100, 100, L"Use framebuffers");
 	AddControl(m_pFramebuffersLabel);
 
+	m_pShaders = new CCheckBox();
+	m_pShaders->SetClickedListener(this, ShadersChanged);
+	m_pShaders->SetUnclickedListener(this, ShadersChanged);
+	AddControl(m_pShaders);
+
+	m_pShadersLabel = new CLabel(0, 0, 100, 100, L"Use shaders");
+	AddControl(m_pShadersLabel);
+
 	m_pConstrain = new CCheckBox();
 	m_pConstrain->SetClickedListener(this, ConstrainChanged);
 	m_pConstrain->SetUnclickedListener(this, ConstrainChanged);
@@ -924,9 +932,17 @@ void COptionsPanel::Layout()
 	m_pFramebuffersLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pFramebuffersLabel->SetSize(10, 10);
 	m_pFramebuffersLabel->EnsureTextFits();
-	m_pFramebuffersLabel->SetPos(GetWidth()/2 - m_pFramebuffersLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
-	m_pFramebuffers->SetPos(m_pFramebuffersLabel->GetLeft() - 15, GetHeight()-180 + m_pFramebuffersLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
+	m_pFramebuffersLabel->SetPos(GetWidth()/2 - m_pFramebuffersLabel->GetWidth()/2 + 10 + 40, GetHeight()-200);
+	m_pFramebuffers->SetPos(m_pFramebuffersLabel->GetLeft() - 15, GetHeight()-200 + m_pFramebuffersLabel->GetHeight()/2 - m_pFramebuffers->GetHeight()/2);
 	m_pFramebuffers->SetState(DigitanksWindow()->WantsFramebuffers(), false);
+
+	m_pShadersLabel->SetWrap(false);
+	m_pShadersLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pShadersLabel->SetSize(10, 10);
+	m_pShadersLabel->EnsureTextFits();
+	m_pShadersLabel->SetPos(GetWidth()/2 - m_pShadersLabel->GetWidth()/2 + 10 + 40, GetHeight()-180);
+	m_pShaders->SetPos(m_pShadersLabel->GetLeft() - 15, GetHeight()-180 + m_pShadersLabel->GetHeight()/2 - m_pShaders->GetHeight()/2);
+	m_pShaders->SetState(DigitanksWindow()->WantsShaders(), false);
 
 	m_pConstrainLabel->SetWrap(false);
 	m_pConstrainLabel->SetAlign(CLabel::TA_LEFTCENTER);
@@ -979,6 +995,14 @@ void COptionsPanel::WindowedChangedCallback()
 void COptionsPanel::FramebuffersChangedCallback()
 {
 	DigitanksWindow()->SetWantsFramebuffers(m_pFramebuffers->GetState());
+	DigitanksWindow()->SaveConfig();
+
+	m_pVideoChangedNotice->SetVisible(true);
+}
+
+void COptionsPanel::ShadersChangedCallback()
+{
+	DigitanksWindow()->SetWantsShaders(m_pShaders->GetState());
 	DigitanksWindow()->SaveConfig();
 
 	m_pVideoChangedNotice->SetVisible(true);

@@ -47,6 +47,8 @@ public:
 
 	virtual bool			ShouldRender() const { return true; };
 	virtual void			OnRender();
+	void					RenderWithShaders();
+	void					RenderWithoutShaders();
 
 	void					GetChunk(float x, float y, int& i, int& j);
 	CTerrainChunk*			GetChunk(int x, int y);

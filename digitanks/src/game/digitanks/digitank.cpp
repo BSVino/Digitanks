@@ -2082,9 +2082,12 @@ void CDigitank::RenderTurret(float flAlpha)
 		return;
 
 	CRenderingContext r(GameServer()->GetRenderer());
-	r.SetAlpha(flAlpha*GetVisibility());
-	r.SetBlend(BLEND_ALPHA);
-	r.Translate(Vector(-0.527677f, 0.810368f, 0));
+	if (flAlpha*GetVisibility() < 1)
+	{
+		r.SetAlpha(flAlpha*GetVisibility());
+		r.SetBlend(BLEND_ALPHA);
+	}
+	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
 	if ((GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
 	{
@@ -2101,6 +2104,9 @@ void CDigitank::RenderTurret(float flAlpha)
 
 	float flScale = RemapVal(GetAttackPower(true), 0, 10, 1, 1.5f);
 	r.Scale(flScale, flScale, flScale);
+
+	if (!GameServer()->GetRenderer()->ShouldUseShaders())
+		r.SetColorSwap(GetTeam()->GetColor());
 
 	r.RenderModel(m_iTurretModel);
 }

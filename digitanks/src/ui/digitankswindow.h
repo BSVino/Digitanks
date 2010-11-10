@@ -64,6 +64,9 @@ public:
 	void						SetWantsFramebuffers(bool bWantsFramebuffers) { m_bWantsFramebuffers = bWantsFramebuffers; }
 	bool						WantsFramebuffers() { return m_bWantsFramebuffers; }
 
+	void						SetWantsShaders(bool bWantsShaders) { m_bWantsShaders = bWantsShaders; }
+	bool						WantsShaders() { return m_bWantsShaders; }
+
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
 	void						GameOver(bool bPlayerWon);
@@ -127,6 +130,7 @@ protected:
 	int							m_iCfgHeight;
 	bool						m_bConstrainMouse;
 	bool						m_bWantsFramebuffers;
+	bool						m_bWantsShaders;
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;

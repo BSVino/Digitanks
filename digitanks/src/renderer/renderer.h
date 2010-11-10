@@ -43,6 +43,7 @@ public:
 	void		SetUniform(const char* pszName, int iValue);
 	void		SetUniform(const char* pszName, float flValue);
 	void		SetUniform(const char* pszName, const Vector& vecValue);
+	void		SetUniform(const char* pszName, const Color& vecValue);
 	void		BindTexture(size_t iTexture);
 	void		SetColor(Color c);
 	void		BeginRenderTris();
@@ -150,6 +151,9 @@ public:
 
 	void			SetSize(int w, int h);
 
+	void			ClearProgram();
+	void			UseProgram(size_t i);
+
 	Vector			ScreenPosition(Vector vecWorld);
 	Vector			WorldPosition(Vector vecScreen);
 
@@ -157,6 +161,9 @@ public:
 
 	bool			ShouldUseFramebuffers() { return m_bUseFramebuffers; }
 	bool			HardwareSupportsFramebuffers();
+
+	bool			ShouldUseShaders() { return m_bUseShaders; }
+	bool			HardwareSupportsShaders();
 
 public:
 	static size_t	CreateCallList(size_t iModel);
@@ -183,6 +190,10 @@ protected:
 	bool			m_bUseFramebuffers;
 	bool			m_bHardwareSupportsFramebuffers;
 	bool			m_bHardwareSupportsFramebuffersTestCompleted;
+
+	bool			m_bUseShaders;
+	bool			m_bHardwareSupportsShaders;
+	bool			m_bHardwareSupportsShadersTestCompleted;
 };
 
 #endif

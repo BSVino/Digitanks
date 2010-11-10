@@ -931,13 +931,17 @@ void CSupplier::PostRender()
 	r.BindTexture(s_iTendrilBeam);
 
 	GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
-	glUseProgram(iScrollingTextureProgram);
 
-	GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
-	glUniform1f(flTime, GameServer()->GetGameTime());
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	{
+		GameServer()->GetRenderer()->UseProgram(iScrollingTextureProgram);
 
-	GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
-	glUniform1f(iTexture, 0);
+		GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
+		glUniform1f(flTime, GameServer()->GetGameTime());
+
+		GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
+		glUniform1f(iTexture, 0);
+	}
 
 	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
 	if (flGrowthTime >= GROWTH_TIME)
@@ -967,10 +971,11 @@ void CSupplier::PostRender()
 
 			Color clrTeam = GetTeam()->GetColor();
 
-			GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
-
-			GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
-			glUniform1f(flSpeed, pTendril->m_flSpeed);
+			if (GameServer()->GetRenderer()->ShouldUseShaders())
+			{
+				GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
+				glUniform1f(flSpeed, pTendril->m_flSpeed);
+			}
 
 			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 			oRope.SetColor(clrTeam);
@@ -992,7 +997,7 @@ void CSupplier::PostRender()
 	else if (m_iTendrilsCallList)
 		glCallList((GLuint)m_iTendrilsCallList);
 
-	glUseProgram(0);
+	GameServer()->GetRenderer()->ClearProgram();
 }
 
 void CSupplier::UpdateTendrils()

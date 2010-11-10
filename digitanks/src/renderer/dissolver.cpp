@@ -22,7 +22,7 @@ CModelDissolver::CModelDissolver()
 	m_flLifeTime = 2.0f;
 }
 
-void CModelDissolver::AddModel(CBaseEntity* pEntity)
+void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap)
 {
 	if (!Get())
 		return;
@@ -39,25 +39,25 @@ void CModelDissolver::AddModel(CBaseEntity* pEntity)
 	Matrix4x4 mTransform;
 	mTransform.SetTranslation(pEntity->GetRenderOrigin());
 	mTransform.SetRotation(pEntity->GetRenderAngles());
-	Get()->AddScene(pModel, mTransform);
+	Get()->AddScene(pModel, mTransform, pclrSwap);
 }
 
-void CModelDissolver::AddScene(CModel* pModel, const Matrix4x4& mTransform)
+void CModelDissolver::AddScene(CModel* pModel, const Matrix4x4& mTransform, Color* pclrSwap)
 {
 	for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
-		AddSceneNode(pModel, pModel->m_pScene->GetScene(i), mTransform);
+		AddSceneNode(pModel, pModel->m_pScene->GetScene(i), mTransform, pclrSwap);
 }
 
-void CModelDissolver::AddSceneNode(CModel* pModel, CConversionSceneNode* pNode, const Matrix4x4& mTransform)
+void CModelDissolver::AddSceneNode(CModel* pModel, CConversionSceneNode* pNode, const Matrix4x4& mTransform, Color* pclrSwap)
 {
 	for (size_t i = 0; i < pNode->GetNumChildren(); i++)
-		AddSceneNode(pModel, pNode->GetChild(i), mTransform);
+		AddSceneNode(pModel, pNode->GetChild(i), mTransform, pclrSwap);
 
 	for (size_t i = 0; i < pNode->GetNumMeshInstances(); i++)
-		AddMeshInstance(pModel, pNode->GetMeshInstance(i), mTransform);
+		AddMeshInstance(pModel, pNode->GetMeshInstance(i), mTransform, pclrSwap);
 }
 
-void CModelDissolver::AddMeshInstance(CModel* pModel, CConversionMeshInstance* pMeshInstance, const Matrix4x4& mTransform)
+void CModelDissolver::AddMeshInstance(CModel* pModel, CConversionMeshInstance* pMeshInstance, const Matrix4x4& mTransform, Color* pclrSwap)
 {
 	for (size_t iFace = 0; iFace < pMeshInstance->GetMesh()->GetNumFaces(); iFace++)
 	{
@@ -77,12 +77,12 @@ void CModelDissolver::AddMeshInstance(CModel* pModel, CConversionMeshInstance* p
 			if (!pConversionMaterialMap)
 				continue;
 
-			AddTriangle(pMeshInstance, pV0, pV1, pV2, pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial], mTransform);
+			AddTriangle(pMeshInstance, pV0, pV1, pV2, pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial], mTransform, pclrSwap);
 		}
 	}
 }
 
-void CModelDissolver::AddTriangle(CConversionMeshInstance* pMeshInstance, CConversionVertex* pV0, CConversionVertex* pV1, CConversionVertex* pV2, size_t iTexture, const Matrix4x4& mTransform)
+void CModelDissolver::AddTriangle(CConversionMeshInstance* pMeshInstance, CConversionVertex* pV0, CConversionVertex* pV1, CConversionVertex* pV2, size_t iTexture, const Matrix4x4& mTransform, Color* pclrSwap)
 {
 	m_iNumTrianglesAlive++;
 
@@ -134,6 +134,10 @@ void CModelDissolver::AddTriangle(CConversionMeshInstance* pMeshInstance, CConve
 		RandomFloat(-180, 180),
 		RandomFloat(-90, 90)
 		));
+
+	pNewTri->m_bColorSwap = !!pclrSwap;
+	if (pNewTri->m_bColorSwap)
+		pNewTri->m_clrSwap = *pclrSwap;
 }
 
 void CModelDissolver::Simulate()
@@ -190,8 +194,6 @@ void CModelDissolver::Render()
 	c.UseProgram(CShaderLibrary::GetModelProgram());
 	c.SetUniform("bDiffuse", true);
 	c.SetUniform("iDiffuse", 0);
-	c.SetUniform("bColorSwapInAlpha", true);
-	c.SetUniform("vecColorSwap", Vector(1, 1, 1));
 
 	for (size_t i = 0; i < Get()->m_aTriangles.size(); i++)
 	{
@@ -203,6 +205,9 @@ void CModelDissolver::Render()
 		c.BindTexture(pTri->m_iTexture);
 
 		c.SetUniform("flAlpha", pTri->m_flAlpha);
+
+		c.SetUniform("bColorSwapInAlpha", pTri->m_bColorSwap);
+		c.SetUniform("vecColorSwap", pTri->m_clrSwap);
 
 		c.BeginRenderTris();
 
@@ -227,6 +232,8 @@ CDissolveTri::CDissolveTri(const Vector& _v1, const Vector& _v2, const Vector& _
 	vu1 = _vu1;
 	vu2 = _vu2;
 	vu3 = _vu3;
+
+	m_bColorSwap = false;
 }
 
 void CDissolveTri::Reset()

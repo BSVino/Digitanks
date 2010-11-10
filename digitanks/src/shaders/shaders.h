@@ -63,11 +63,15 @@ public:
 	static size_t			GetStencilProgram() { return GetProgram(Get()->m_iStencil); };
 
 	static void				CompileShaders();
+	static void				DestroyShaders();
+
+	static bool				IsCompiled() { return Get()->m_bCompiled; };
 
 	static CShaderLibrary*	Get() { return s_pShaderLibrary; };
 
 protected:
-	void					CompileShader(size_t iShader);
+	bool					CompileShader(size_t iShader);
+	void					DestroyShader(size_t iShader);
 
 	void					ClearLog();
 	void					WriteLog(const char* pszLog, const char* pszShaderText);

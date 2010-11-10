@@ -62,13 +62,23 @@ void CShaderLibrary::CompileShaders()
 
 	Get()->ClearLog();
 
+	bool bShadersCompiled = true;
 	for (size_t i = 0; i < Get()->m_aShaders.size(); i++)
-		Get()->CompileShader(i);
+		bShadersCompiled &= Get()->CompileShader(i);
 
-	Get()->m_bCompiled = true;
+	if (bShadersCompiled)
+		Get()->m_bCompiled = true;
+	else
+		DestroyShaders();
 }
 
-void CShaderLibrary::CompileShader(size_t iShader)
+void CShaderLibrary::DestroyShaders()
+{
+	for (size_t i = 0; i < Get()->m_aShaders.size(); i++)
+		Get()->DestroyShader(i);
+}
+
+bool CShaderLibrary::CompileShader(size_t iShader)
 {
 	CShader* pShader = &m_aShaders[iShader];
 
@@ -82,6 +92,9 @@ void CShaderLibrary::CompileShader(size_t iShader)
 	glGetShaderInfoLog((GLuint)pShader->m_iVShader, 1024, &iLogLength, szLog);
 	WriteLog(szLog, pszStr);
 
+	int iVertexCompiled;
+	glGetShaderiv((GLuint)pShader->m_iVShader, GL_COMPILE_STATUS, &iVertexCompiled);
+
 	pShader->m_iFShader = glCreateShader(GL_FRAGMENT_SHADER);
 	pszStr = pShader->m_sFS.c_str();
 	glShaderSource((GLuint)pShader->m_iFShader, 1, &pszStr, NULL);
@@ -92,6 +105,9 @@ void CShaderLibrary::CompileShader(size_t iShader)
 	glGetShaderInfoLog((GLuint)pShader->m_iFShader, 1024, &iLogLength, szLog);
 	WriteLog(szLog, pszStr);
 
+	int iFragmentCompiled;
+	glGetShaderiv((GLuint)pShader->m_iFShader, GL_COMPILE_STATUS, &iFragmentCompiled);
+
 	pShader->m_iProgram = glCreateProgram();
 	glAttachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iVShader);
 	glAttachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iFShader);
@@ -101,6 +117,25 @@ void CShaderLibrary::CompileShader(size_t iShader)
 	iLogLength = 0;
 	glGetProgramInfoLog((GLuint)pShader->m_iProgram, 1024, &iLogLength, szLog);
 	WriteLog(szLog, "link");
+
+	int iProgramLinked;
+	glGetProgramiv((GLuint)pShader->m_iProgram, GL_LINK_STATUS, &iProgramLinked);
+
+	if (iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE)
+		return true;
+	else
+		return false;
+}
+
+void CShaderLibrary::DestroyShader(size_t iShader)
+{
+	CShader* pShader = &m_aShaders[iShader];
+
+	glDetachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iVShader);
+	glDetachShader((GLuint)pShader->m_iProgram, (GLuint)pShader->m_iFShader);
+	glDeleteShader((GLuint)pShader->m_iVShader);
+	glDeleteShader((GLuint)pShader->m_iFShader);
+	glDeleteProgram((GLuint)pShader->m_iProgram);
 }
 
 void CShaderLibrary::ClearLog()

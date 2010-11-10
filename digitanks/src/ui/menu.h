@@ -203,6 +203,7 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	VideoModeChosen);
 	EVENT_CALLBACK(COptionsPanel,	WindowedChanged);
 	EVENT_CALLBACK(COptionsPanel,	FramebuffersChanged);
+	EVENT_CALLBACK(COptionsPanel,	ShadersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ConstrainChanged);
 
 protected:
@@ -219,6 +220,9 @@ protected:
 
 	glgui::CCheckBox*				m_pFramebuffers;
 	glgui::CLabel*					m_pFramebuffersLabel;
+
+	glgui::CCheckBox*				m_pShaders;
+	glgui::CLabel*					m_pShadersLabel;
 
 	glgui::CCheckBox*				m_pConstrain;
 	glgui::CLabel*					m_pConstrainLabel;

@@ -369,7 +369,10 @@ void CSystemInstance::Render()
 		Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
 		Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
 
-		c.SetUniform("flAlpha", pParticle->m_flAlpha);
+		if (pRenderer->ShouldUseShaders())
+			c.SetUniform("flAlpha", pParticle->m_flAlpha);
+		else
+			c.SetAlpha(pParticle->m_flAlpha);
 
 		if (m_bColorOverride)
 			c.SetColor(m_clrOverride);

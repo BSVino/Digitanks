@@ -58,6 +58,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
 
 		m_bWantsFramebuffers = c.read<bool>("useframebuffers", true);
+		m_bWantsShaders = c.read<bool>("useshaders", true);
 
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
 		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
@@ -76,6 +77,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bConstrainMouse = true;
 
 		m_bWantsFramebuffers = true;
+		m_bWantsShaders = true;
 
 		SetSoundVolume(0.8f);
 		SetMusicVolume(0.8f);
@@ -96,8 +98,6 @@ void CDigitanksWindow::OpenWindow()
 
 	m_iLoading = CRenderer::LoadTextureIntoGL(L"textures/loading.png");
 	RenderLoading();
-
-	CShaderLibrary::CompileShaders();
 
 	InitUI();
 
@@ -379,6 +379,7 @@ void CDigitanksWindow::SaveConfig()
 	c.add<bool>("windowed", !m_bCfgFullscreen);
 	c.add<bool>("constrainmouse", m_bConstrainMouse);
 	c.add<bool>("useframebuffers", m_bWantsFramebuffers);
+	c.add<bool>("useshaders", m_bWantsShaders);
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
 	std::ofstream o;

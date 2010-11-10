@@ -147,31 +147,45 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 
 	if (pModel->m_bStatic && !bNewCallList)
 	{
-		GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
-		glUseProgram(iProgram);
-
-		GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
-		glUniform1i(bDiffuse, true);
-
-		GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
-		glUniform1i(iDiffuse, 0);
-
-		GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
-		glUniform1f(flAlpha, m_flAlpha);
-
-		GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
-		glUniform1i(bColorSwapInAlpha, m_bColorSwap);
-
-		if (m_bColorSwap)
+		if (m_pRenderer->ShouldUseShaders())
 		{
-			GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
-			Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
-			glUniform3fv(vecColorSwap, 1, vecColor);
+			GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
+			glUseProgram(iProgram);
+
+			GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
+			glUniform1i(bDiffuse, true);
+
+			GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
+			glUniform1i(iDiffuse, 0);
+
+			GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
+			glUniform1f(flAlpha, m_flAlpha);
+
+			GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
+			glUniform1i(bColorSwapInAlpha, m_bColorSwap);
+
+			if (m_bColorSwap)
+			{
+				GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
+				Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
+				glUniform3fv(vecColorSwap, 1, vecColor);
+			}
+
+			glColor4f(255, 255, 255, 255);
+
+			glCallList((GLuint)pModel->m_iCallList);
+
+			glUseProgram(0);
 		}
+		else
+		{
+			if (m_bColorSwap)
+				glColor4f(((float)m_clrSwap.r())/255, ((float)m_clrSwap.g())/255, ((float)m_clrSwap.b())/255, m_flAlpha);
+			else
+				glColor4f(255, 255, 255, m_flAlpha);
 
-		glCallList((GLuint)pModel->m_iCallList);
-
-		glUseProgram(0);
+			glCallList((GLuint)pModel->m_iCallList);
+		}
 	}
 	else
 	{
@@ -180,7 +194,7 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 	}
 
 	if (!bNewCallList)
-		glUseProgram(0);
+		m_pRenderer->ClearProgram();
 }
 
 void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, bool bNewCallList)
@@ -211,15 +225,7 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 
-	// It uses this color if the texture is missing.
-	GLfloat flMaterialColor[] = {0.7f, 0.7f, 0.7f, m_flAlpha};
-
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, flMaterialColor);
-	glColor4fv(flMaterialColor);
-
 	CConversionMesh* pMesh = pMeshInstance->GetMesh();
-
-	Vector vecDiffuse(0.7f, 0.7f, 0.7f);
 
 	for (size_t j = 0; j < pMesh->GetNumFaces(); j++)
 	{
@@ -245,7 +251,6 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 		bool bTexture = false;
 		if (pMaterial)
 		{
-			vecDiffuse = pMaterial->m_vecDiffuse;
 			GLuint iTexture = (GLuint)pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial];
 			glBindTexture(GL_TEXTURE_2D, iTexture);
 
@@ -256,36 +261,44 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 
 		if (!bNewCallList)
 		{
-			GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
-			glUseProgram(iProgram);
-
-			GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
-			glUniform1i(bDiffuse, bTexture);
-
-			GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
-			glUniform1i(iDiffuse, 0);
-
-			GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
-			glUniform1f(flAlpha, m_flAlpha);
-
-			GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
-			glUniform1i(bColorSwapInAlpha, m_bColorSwap);
-
-			if (m_bColorSwap)
+			if (m_pRenderer->ShouldUseShaders())
 			{
-				GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
-				Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
-				glUniform3fv(vecColorSwap, 1, vecColor);
+				GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
+				glUseProgram(iProgram);
+
+				GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
+				glUniform1i(bDiffuse, bTexture);
+
+				GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
+				glUniform1i(iDiffuse, 0);
+
+				GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
+				glUniform1f(flAlpha, m_flAlpha);
+
+				GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
+				glUniform1i(bColorSwapInAlpha, m_bColorSwap);
+
+				if (m_bColorSwap)
+				{
+					GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
+					Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
+					glUniform3fv(vecColorSwap, 1, vecColor);
+				}
+			}
+			else
+			{
+				if (m_bColorSwap)
+					glColor4f(((float)m_clrSwap.r())/255, ((float)m_clrSwap.g())/255, ((float)m_clrSwap.b())/255, m_flAlpha);
+				else
+					glColor4f(pMaterial->m_vecDiffuse.x, pMaterial->m_vecDiffuse.y, pMaterial->m_vecDiffuse.z, m_flAlpha);
 			}
 		}
-
 		glBegin(GL_POLYGON);
 
 		for (k = 0; k < pFace->GetNumVertices(); k++)
 		{
 			CConversionVertex* pVertex = pFace->GetVertex(k);
 
-			glColor4f(vecDiffuse.x, vecDiffuse.y, vecDiffuse.z, m_flAlpha);
 			glTexCoord2fv(pMesh->GetUV(pVertex->vu));
 			glVertex3fv(pMesh->GetVertex(pVertex->v));
 		}
@@ -314,26 +327,47 @@ void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 
 void CRenderingContext::UseProgram(size_t iProgram)
 {
+	if (!m_pRenderer->ShouldUseShaders())
+		return;
+
 	m_iProgram = iProgram;
 	glUseProgram((GLuint)iProgram);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, int iValue)
 {
+	if (!m_pRenderer->ShouldUseShaders())
+		return;
+
 	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
 	glUniform1i(iUniform, iValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, float flValue)
 {
+	if (!m_pRenderer->ShouldUseShaders())
+		return;
+
 	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
 	glUniform1f(iUniform, flValue);
 }
 
 void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 {
+	if (!m_pRenderer->ShouldUseShaders())
+		return;
+
 	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
 	glUniform3fv(iUniform, 1, vecValue);
+}
+
+void CRenderingContext::SetUniform(const char* pszName, const Color& vecValue)
+{
+	if (!m_pRenderer->ShouldUseShaders())
+		return;
+
+	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
+	glUniform4i(iUniform, vecValue.r(), vecValue.g(), vecValue.b(), vecValue.a());
 }
 
 void CRenderingContext::BindTexture(size_t iTexture)
@@ -384,7 +418,7 @@ void CRenderingContext::PushAttribs()
 {
 	m_bAttribs = true;
 	// Push all the attribs we'll ever need. I don't want to have to worry about popping them in order.
-	glPushAttrib(GL_ENABLE_BIT|GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glPushAttrib(GL_ENABLE_BIT|GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_CURRENT_BIT);
 }
 
 CFrameBuffer::CFrameBuffer()
@@ -519,8 +553,21 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 
 	m_bUseFramebuffers = true;
 
-	if (!GLEW_ARB_framebuffer_object)
+	if (!HardwareSupportsFramebuffers())
 		m_bUseFramebuffers = false;
+
+	m_bUseShaders = true;
+
+	m_bHardwareSupportsShaders = false;
+	m_bHardwareSupportsShadersTestCompleted = false;
+
+	if (!HardwareSupportsShaders())
+		m_bUseShaders = false;
+	else
+		CShaderLibrary::CompileShaders();
+
+	if (!CShaderLibrary::IsCompiled())
+		m_bUseShaders = false;
 
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -764,7 +811,8 @@ void CRenderer::FinishRendering()
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	if (ShouldUseFramebuffers())
+		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
@@ -806,7 +854,8 @@ void CRenderer::RenderMapFullscreen(size_t iMap)
     glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, (GLuint)iMap);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	if (ShouldUseFramebuffers())
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	glViewport(0, 0, (GLsizei)m_iWidth, (GLsizei)m_iHeight);
 
 	glBegin(GL_QUADS);
@@ -882,6 +931,22 @@ void CRenderer::SetSize(int w, int h)
 	m_iHeight = h;
 }
 
+void CRenderer::ClearProgram()
+{
+	if (!ShouldUseShaders())
+		return;
+
+	glUseProgram(0);
+}
+
+void CRenderer::UseProgram(size_t i)
+{
+	if (!ShouldUseShaders())
+		return;
+
+	glUseProgram(i);
+}
+
 Vector CRenderer::ScreenPosition(Vector vecWorld)
 {
 	GLdouble x, y, z;
@@ -953,6 +1018,72 @@ bool CRenderer::HardwareSupportsFramebuffers()
 
 	m_bHardwareSupportsFramebuffers = true;
 	return true;
+}
+
+bool CRenderer::HardwareSupportsShaders()
+{
+	if (m_bHardwareSupportsShadersTestCompleted)
+		return m_bHardwareSupportsShaders;
+
+	m_bHardwareSupportsShadersTestCompleted = true;
+
+	if (!GL_ARB_fragment_program)
+	{
+		m_bHardwareSupportsShaders = false;
+		return false;
+	}
+
+	// Compile a test shader. If it fails we don't support shaders.
+	const char* pszVertexShader =
+		"void main()"
+		"{"
+		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+		"	gl_TexCoord[0] = gl_MultiTexCoord0;"
+		"	gl_FrontColor = gl_Color;"
+		"}";
+
+	const char* pszFragmentShader =
+		"void main(void)"
+		"{"
+		"	gl_FragColor = vec4(1.0,1.0,1.0,1.0);"
+		"}";
+
+	GLuint iVShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint iFShader = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint iProgram = glCreateProgram();
+
+	glShaderSource(iVShader, 1, &pszVertexShader, NULL);
+	glCompileShader(iVShader);
+
+	int iVertexCompiled;
+	glGetShaderiv(iVShader, GL_COMPILE_STATUS, &iVertexCompiled);
+
+
+	glShaderSource(iFShader, 1, &pszFragmentShader, NULL);
+	glCompileShader(iFShader);
+
+	int iFragmentCompiled;
+	glGetShaderiv(iFShader, GL_COMPILE_STATUS, &iFragmentCompiled);
+
+
+	glAttachShader(iProgram, iVShader);
+	glAttachShader(iProgram, iFShader);
+	glLinkProgram(iProgram);
+
+	int iProgramLinked;
+	glGetProgramiv(iProgram, GL_LINK_STATUS, &iProgramLinked);
+
+
+	if (iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE)
+		m_bHardwareSupportsShaders = true;
+
+	glDetachShader(iProgram, iVShader);
+	glDetachShader(iProgram, iFShader);
+	glDeleteShader(iVShader);
+	glDeleteShader(iFShader);
+	glDeleteProgram(iProgram);
+
+	return m_bHardwareSupportsShaders;
 }
 
 size_t CRenderer::CreateCallList(size_t iModel)

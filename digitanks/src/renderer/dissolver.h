@@ -3,6 +3,7 @@
 #include <EASTL/vector.h>
 #include <vector.h>
 #include <matrix.h>
+#include <color.h>
 
 class CDissolveTri
 {
@@ -21,6 +22,9 @@ public:
 	float							m_flAlpha;
 	float							m_flSpawnTime;
 
+	bool							m_bColorSwap;
+	Color							m_clrSwap;
+
 	size_t							m_iTexture;
 
 	Vector							v1;
@@ -37,10 +41,10 @@ public:
 									CModelDissolver();
 
 public:
-	void							AddScene(class CModel* pModel, const Matrix4x4& mTransform);
-	void							AddSceneNode(class CModel* pModel, class CConversionSceneNode* pNode, const Matrix4x4& mTransform);
-	void							AddMeshInstance(class CModel* pModel, class CConversionMeshInstance* pMeshInstance, const Matrix4x4& mTransform);
-	void							AddTriangle(class CConversionMeshInstance* pMeshInstance, class CConversionVertex* pV0, class CConversionVertex* pV1, class CConversionVertex* pV2, size_t iTexture, const Matrix4x4& mTransform);
+	void							AddScene(class CModel* pModel, const Matrix4x4& mTransform, Color* pclrSwap);
+	void							AddSceneNode(class CModel* pModel, class CConversionSceneNode* pNode, const Matrix4x4& mTransform, Color* pclrSwap);
+	void							AddMeshInstance(class CModel* pModel, class CConversionMeshInstance* pMeshInstance, const Matrix4x4& mTransform, Color* pclrSwap);
+	void							AddTriangle(class CConversionMeshInstance* pMeshInstance, class CConversionVertex* pV0, class CConversionVertex* pV1, class CConversionVertex* pV2, size_t iTexture, const Matrix4x4& mTransform, Color* pclrSwap);
 
 	size_t							GetNumTriangles() { return m_iNumTrianglesAlive; };
 
@@ -48,7 +52,7 @@ public:
 	static void						Simulate();
 	static void						Render();
 
-	static void						AddModel(class CBaseEntity* pEntity);
+	static void						AddModel(class CBaseEntity* pEntity, Color* pclrSwap = NULL);
 
 	static CModelDissolver*			Get() { return s_pModelDissolver; };
 

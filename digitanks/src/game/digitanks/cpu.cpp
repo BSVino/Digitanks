@@ -878,7 +878,8 @@ void CCPU::OnDeleted()
 		}
 		else
 		{
-			CModelDissolver::AddModel(pMember);
+			bool bColorSwap = (pStructure || dynamic_cast<CDigitank*>(pMember));
+			CModelDissolver::AddModel(pMember, bColorSwap?&GetTeam()->GetColor():NULL);
 			pMember->Delete();
 		}
 	}

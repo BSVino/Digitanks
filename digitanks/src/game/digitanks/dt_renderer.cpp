@@ -18,6 +18,12 @@ CDigitanksRenderer::CDigitanksRenderer()
 	if (DigitanksWindow()->HasCommandLineSwitch("--no-framebuffers"))
 		m_bUseFramebuffers = false;
 
+	if (!DigitanksWindow()->WantsShaders())
+		m_bUseShaders = false;
+
+	if (DigitanksWindow()->HasCommandLineSwitch("--no-shaders"))
+		m_bUseShaders = false;
+
 	if (ShouldUseFramebuffers())
 	{
 		m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
@@ -59,7 +65,7 @@ void CDigitanksRenderer::SetupFrame()
 
 void CDigitanksRenderer::FinishRendering()
 {
-	glUseProgram(0);
+	ClearProgram();
 
 	RenderFogOfWar();
 
@@ -119,7 +125,7 @@ void CDigitanksRenderer::RenderFogOfWar()
 		glDisable(GL_DEPTH_TEST);
 		glCullFace(GL_NONE);
 		c.SetDepthMask(false);
-		glUseProgram(0);
+		ClearProgram();
 
 		// Copy the results to the second buffer
 		if (ShouldUseFramebuffers())
@@ -143,7 +149,7 @@ void CDigitanksRenderer::RenderFogOfWar()
 
 void CDigitanksRenderer::RenderOffscreenBuffers()
 {
-	if (ShouldUseFramebuffers())
+	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
 		// Render the explosions back onto the scene buffer, passing through the noise filter.
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
@@ -153,7 +159,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_oNoiseBuffer.m_iMap);
 
 		GLuint iExplosionProgram = (GLuint)CShaderLibrary::GetExplosionProgram();
-		glUseProgram(iExplosionProgram);
+		UseProgram(iExplosionProgram);
 
 		GLint iExplosion = glGetUniformLocation(iExplosionProgram, "iExplosion");
 		glUniform1i(iExplosion, 0);
@@ -166,7 +172,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
 		glDisable(GL_BLEND);
 
-		glUseProgram(0);
+		ClearProgram();
 
 		glActiveTexture(GL_TEXTURE1);
 		glDisable(GL_TEXTURE_2D);
@@ -177,7 +183,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 	}
 
 	// Draw the fog of war.
-	if (ShouldUseFramebuffers() && DigitanksGame()->ShouldRenderFogOfWar())
+	if (ShouldUseFramebuffers() && ShouldUseShaders() && DigitanksGame()->ShouldRenderFogOfWar())
 	{
 		// Explosion buffer's not in use anymore, reduce reuse recycle!
 		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oExplosionBuffer);
@@ -187,7 +193,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_oVisibility2Buffer.m_iMap);
 
 		GLuint iDarkenProgram = (GLuint)CShaderLibrary::GetDarkenProgram();
-		glUseProgram(iDarkenProgram);
+		UseProgram(iDarkenProgram);
 
 		GLint iDarkMap = glGetUniformLocation(iDarkenProgram, "iDarkMap");
 	    glUniform1i(iDarkMap, 1);
@@ -202,7 +208,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 		// Render the visibility-masked buffer, using the shadow volumes as a stencil.
 		GLuint iStencilProgram = (GLuint)CShaderLibrary::GetStencilProgram();
-		glUseProgram(iStencilProgram);
+		UseProgram(iStencilProgram);
 
 		GLint iStencilMap = glGetUniformLocation(iStencilProgram, "iStencilMap");
 	    glUniform1i(iStencilMap, 1);
@@ -215,7 +221,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		RenderMapToBuffer(m_oVisibilityMaskedBuffer.m_iMap, &m_oSceneBuffer);
 		glDisable(GL_BLEND);
 
-		glUseProgram(0);
+		ClearProgram();
 
 		glActiveTexture(GL_TEXTURE1);
 	    glDisable(GL_TEXTURE_2D);
@@ -223,11 +229,11 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		glActiveTexture(GL_TEXTURE0);
 	}
 
-	if (ShouldUseFramebuffers())
+	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
 		// Use a bright-pass filter to catch only the bright areas of the image
 		GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
-		glUseProgram(iBrightPass);
+		UseProgram(iBrightPass);
 
 		GLint iSource = glGetUniformLocation(iBrightPass, "iSource");
 		glUniform1i(iSource, 0);
@@ -243,7 +249,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 			RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oBloom1Buffers[i]);
 		}
 
-		glUseProgram(0);
+		ClearProgram();
 
 		RenderBloomPass(m_oBloom1Buffers, m_oBloom2Buffers, true);
 		RenderBloomPass(m_oBloom2Buffers, m_oBloom1Buffers, false);
@@ -293,7 +299,7 @@ float aflKernel[KERNEL_SIZE] = { 0.3125f, 0.375f, 0.3125f };
 void CDigitanksRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* apTargets, bool bHorizontal)
 {
 	GLuint iBlur = (GLuint)CShaderLibrary::GetBlurProgram();
-	glUseProgram(iBlur);
+	UseProgram(iBlur);
 
 	GLint iSource = glGetUniformLocation(iBlur, "iSource");
     glUniform1i(iSource, 0);
@@ -317,7 +323,7 @@ void CDigitanksRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* 
 		RenderMapToBuffer(apSources[i].m_iMap, &apTargets[i]);
     }
 
-	glUseProgram(0);
+	ClearProgram();
 }
 
 void CDigitanksRenderer::BloomPulse()

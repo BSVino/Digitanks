@@ -14,10 +14,10 @@ public:
 	inline void		SetBlue(int _b);
 	inline void		SetAlpha(int _a);
 
-	int				r() { return red; };
-	int				g() { return green; };
-	int				b() { return blue; };
-	int				a() { return alpha; };
+	int				r() const { return red; };
+	int				g() const { return green; };
+	int				b() const { return blue; };
+	int				a() const { return alpha; };
 
 	operator unsigned char*()
 	{

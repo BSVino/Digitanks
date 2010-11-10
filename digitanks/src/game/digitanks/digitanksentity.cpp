@@ -32,7 +32,8 @@ void CDigitanksEntity::Think()
 
 	if (!IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
 	{
-		CModelDissolver::AddModel(this);
+		bool bColorSwap = GetTeam() && (dynamic_cast<CStructure*>(this) || dynamic_cast<CDigitank*>(this));
+		CModelDissolver::AddModel(this, bColorSwap?&GetTeam()->GetColor():NULL);
 		GameServer()->Delete(this);
 	}
 }

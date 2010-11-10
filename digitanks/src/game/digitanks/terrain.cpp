@@ -8,6 +8,7 @@
 
 #include <raytracer/raytracer.h>
 
+#include "dt_renderer.h"
 #include "digitanksgame.h"
 #include "projectile.h"
 #include "ui/digitankswindow.h"
@@ -597,10 +598,18 @@ void CTerrain::OnRender()
 {
 	BaseClass::OnRender();
 
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+		RenderWithShaders();
+	else
+		RenderWithoutShaders();
+}
+
+void CTerrain::RenderWithShaders()
+{
 	glPushAttrib(GL_ENABLE_BIT);
 
 	GLuint iTerrainProgram = (GLuint)CShaderLibrary::GetTerrainProgram();
-	glUseProgram(iTerrainProgram);
+	GameServer()->GetRenderer()->UseProgram(iTerrainProgram);
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
@@ -749,11 +758,22 @@ void CTerrain::OnRender()
 			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
 	}
 
-	glUseProgram(0);
+	GameServer()->GetRenderer()->ClearProgram();
 
 	glCallList((GLuint)m_iWallList);
 
 	glPopAttrib();
+}
+
+void CTerrain::RenderWithoutShaders()
+{
+	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
+	}
+
+	glCallList((GLuint)m_iWallList);
 }
 
 void CTerrain::GetChunk(float x, float y, int& i, int& j)
