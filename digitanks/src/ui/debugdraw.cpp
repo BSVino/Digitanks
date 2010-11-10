@@ -4,6 +4,8 @@
 
 void DebugLine(Vector a, Vector b, Color c)
 {
+	glPushAttrib(GL_CURRENT_BIT);
+
 	glColor4ubv(c);
 
 	glLineWidth(1);
@@ -14,6 +16,8 @@ void DebugLine(Vector a, Vector b, Color c)
 	glVertex3fv(b);
 
 	glEnd(); 
+
+	glPopAttrib();
 }
 
 void DebugCircle(Vector vecOrigin, float flRadius, Color c)
@@ -33,6 +37,8 @@ void DebugArc(Vector vecOrigin, float flRadius, float flStartDegree, float flEnd
 		flStartDegree = flEndDegree;
 		flEndDegree = f;
 	}
+
+	glPushAttrib(GL_CURRENT_BIT);
 
 	glColor4ubv(c);
 
@@ -64,4 +70,6 @@ void DebugArc(Vector vecOrigin, float flRadius, float flStartDegree, float flEnd
 	glVertex3f(x, vecOrigin.y, z);
 
 	glEnd(); 
+
+	glPopAttrib();
 }

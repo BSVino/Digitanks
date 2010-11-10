@@ -147,6 +147,8 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 
 	if (pModel->m_bStatic && !bNewCallList)
 	{
+		glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
+
 		if (m_pRenderer->ShouldUseShaders())
 		{
 			GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
@@ -186,6 +188,8 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 
 			glCallList((GLuint)pModel->m_iCallList);
 		}
+
+		glPopAttrib();
 	}
 	else
 	{
@@ -685,6 +689,8 @@ void CRenderer::CreateNoise()
 
 	glPointSize(1);
 
+	glPushAttrib(GL_CURRENT_BIT);
+
 	for (size_t x = 0; x < m_iWidth; x++)
 	{
 		for (size_t y = 0; y < m_iHeight; y++)
@@ -700,6 +706,8 @@ void CRenderer::CreateNoise()
 			glEnd();
 		}
 	}
+
+	glPopAttrib();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -725,6 +733,8 @@ void CRenderer::SetupFrame()
 	}
 
 	glClear(GL_DEPTH_BUFFER_BIT);
+
+	glColor4f(1, 1, 1, 1);
 }
 
 void CRenderer::DrawBackground()
@@ -738,7 +748,7 @@ void CRenderer::DrawBackground()
 	glPushMatrix();
 	glLoadIdentity();
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT|GL_CURRENT_BIT);
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
@@ -767,7 +777,7 @@ void CRenderer::DrawBackground()
 
 void CRenderer::StartRendering()
 {
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT|GL_CURRENT_BIT);
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -814,7 +824,7 @@ void CRenderer::FinishRendering()
 	if (ShouldUseFramebuffers())
 		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT|GL_CURRENT_BIT);
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);

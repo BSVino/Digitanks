@@ -191,6 +191,9 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
 	glBegin(GL_QUADS);
+
+	glPushAttrib(GL_CURRENT_BIT);
+
 	for (int x = TERRAIN_SECTOR_SIZE*i; x < TERRAIN_SECTOR_SIZE*(i+1); x++)
 	{
 		if (x >= TERRAIN_SIZE-1)
@@ -221,6 +224,9 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			glVertex3f(flX1, GetRealHeight(x+1, y), flY);
 		}
 	}
+
+	glPopAttrib();
+
 	glEnd();
 	glEndList();
 
@@ -252,6 +258,8 @@ void CTerrain::GenerateCallLists()
 	float flWallHeight = 7.0f;
 	float flWallSlant = 5.0f;
 	Vector vecWallColor(0.6f, 0.6f, 0.6f);
+
+	glPushAttrib(GL_CURRENT_BIT|GL_ENABLE_BIT);
 
 	glBegin(GL_QUADS);
 
@@ -590,6 +598,8 @@ void CTerrain::GenerateCallLists()
 	glEnd();
 
 	glDisable(GL_BLEND);
+
+	glPopAttrib();
 
 	glEndList();
 }

@@ -39,7 +39,7 @@ void SetupFrame()
 
 void DrawTexture(GLuint iTexture, float x, float y, float w, float h)
 {
-	glPushAttrib(GL_ENABLE_BIT);
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -69,7 +69,7 @@ void DrawFade(float flAlpha)
 
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
-	glPushAttrib(GL_ENABLE_BIT);
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
