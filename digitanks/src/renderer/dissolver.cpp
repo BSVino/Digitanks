@@ -191,9 +191,12 @@ void CModelDissolver::Render()
 	c.SetDepthMask(false);
 	c.SetBackCulling(false);
 	c.SetColor(Color(255, 255, 255, 255));
-	c.UseProgram(CShaderLibrary::GetModelProgram());
-	c.SetUniform("bDiffuse", true);
-	c.SetUniform("iDiffuse", 0);
+	if (pRenderer->ShouldUseShaders())
+	{
+		c.UseProgram(CShaderLibrary::GetModelProgram());
+		c.SetUniform("bDiffuse", true);
+		c.SetUniform("iDiffuse", 0);
+	}
 
 	for (size_t i = 0; i < Get()->m_aTriangles.size(); i++)
 	{
@@ -204,10 +207,13 @@ void CModelDissolver::Render()
 
 		c.BindTexture(pTri->m_iTexture);
 
-		c.SetUniform("flAlpha", pTri->m_flAlpha);
+		if (pRenderer->ShouldUseShaders())
+		{
+			c.SetUniform("flAlpha", pTri->m_flAlpha);
 
-		c.SetUniform("bColorSwapInAlpha", pTri->m_bColorSwap);
-		c.SetUniform("vecColorSwap", pTri->m_clrSwap);
+			c.SetUniform("bColorSwapInAlpha", pTri->m_bColorSwap);
+			c.SetUniform("vecColorSwap", pTri->m_clrSwap);
+		}
 
 		c.BeginRenderTris();
 

@@ -900,6 +900,9 @@ void CDigitank::Move(CNetworkParameters* p)
 	m_flStartedMove = GameServer()->GetGameTime();
 	SetOrigin(m_vecPreviewMove);
 
+	if (m_iHoverParticles != ~0)
+		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
+
 	if (GetVisibility() > 0)
 	{
 		EmitSound(L"sound/tank-move.wav");
@@ -909,9 +912,6 @@ void CDigitank::Move(CNetworkParameters* p)
 		if (m_iHoverParticles != ~0)
 			CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
 	}
-
-	if (m_iHoverParticles != ~0)
-		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
 
 	// Am I waiting to fire something? Fire now. Shoot and scoot baby!
 	if (m_flFireProjectileTime)

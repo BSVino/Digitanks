@@ -65,7 +65,8 @@ void CDigitanksRenderer::SetupFrame()
 
 void CDigitanksRenderer::FinishRendering()
 {
-	ClearProgram();
+	if (ShouldUseShaders())
+		ClearProgram();
 
 	RenderFogOfWar();
 
@@ -125,7 +126,9 @@ void CDigitanksRenderer::RenderFogOfWar()
 		glDisable(GL_DEPTH_TEST);
 		glCullFace(GL_NONE);
 		c.SetDepthMask(false);
-		ClearProgram();
+
+		if (ShouldUseShaders())
+			ClearProgram();
 
 		// Copy the results to the second buffer
 		if (ShouldUseFramebuffers())

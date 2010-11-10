@@ -332,10 +332,13 @@ void CSystemInstance::Render()
 	c.BindTexture(m_pSystem->GetTexture());
 	c.SetBlend(BLEND_ADDITIVE);
 	c.SetDepthMask(false);
-	c.UseProgram(CShaderLibrary::GetModelProgram());
-	c.SetUniform("bDiffuse", true);
-	c.SetUniform("iDiffuse", 0);
-	c.SetUniform("bColorSwapInAlpha", false);
+	if (pRenderer->ShouldUseShaders())
+	{
+		c.UseProgram(CShaderLibrary::GetModelProgram());
+		c.SetUniform("bDiffuse", true);
+		c.SetUniform("iDiffuse", 0);
+		c.SetUniform("bColorSwapInAlpha", false);
+	}
 
 	for (size_t i = 0; i < m_aParticles.size(); i++)
 	{

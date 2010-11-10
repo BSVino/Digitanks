@@ -197,7 +197,7 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 			RenderSceneNode(pModel, pModel->m_pScene, pModel->m_pScene->GetScene(i), bNewCallList);
 	}
 
-	if (!bNewCallList)
+	if (!bNewCallList && m_pRenderer->ShouldUseShaders())
 		m_pRenderer->ClearProgram();
 }
 
@@ -331,6 +331,8 @@ void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 
 void CRenderingContext::UseProgram(size_t iProgram)
 {
+	assert(m_pRenderer->ShouldUseShaders());
+
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
 
@@ -340,6 +342,8 @@ void CRenderingContext::UseProgram(size_t iProgram)
 
 void CRenderingContext::SetUniform(const char* pszName, int iValue)
 {
+	assert(m_pRenderer->ShouldUseShaders());
+
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
 
@@ -349,6 +353,8 @@ void CRenderingContext::SetUniform(const char* pszName, int iValue)
 
 void CRenderingContext::SetUniform(const char* pszName, float flValue)
 {
+	assert(m_pRenderer->ShouldUseShaders());
+
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
 
@@ -358,6 +364,8 @@ void CRenderingContext::SetUniform(const char* pszName, float flValue)
 
 void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 {
+	assert(m_pRenderer->ShouldUseShaders());
+
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
 
@@ -367,6 +375,8 @@ void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 
 void CRenderingContext::SetUniform(const char* pszName, const Color& vecValue)
 {
+	assert(m_pRenderer->ShouldUseShaders());
+
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
 
@@ -943,6 +953,8 @@ void CRenderer::SetSize(int w, int h)
 
 void CRenderer::ClearProgram()
 {
+	assert(ShouldUseShaders());
+
 	if (!ShouldUseShaders())
 		return;
 
@@ -951,6 +963,8 @@ void CRenderer::ClearProgram()
 
 void CRenderer::UseProgram(size_t i)
 {
+	assert(ShouldUseShaders());
+
 	if (!ShouldUseShaders())
 		return;
 

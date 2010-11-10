@@ -997,7 +997,8 @@ void CSupplier::PostRender()
 	else if (m_iTendrilsCallList)
 		glCallList((GLuint)m_iTendrilsCallList);
 
-	GameServer()->GetRenderer()->ClearProgram();
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+		GameServer()->GetRenderer()->ClearProgram();
 }
 
 void CSupplier::UpdateTendrils()
