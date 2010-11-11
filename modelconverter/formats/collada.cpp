@@ -39,7 +39,7 @@ void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode
 
 #include "../modelconverter.h"
 
-void CModelConverter::ReadDAE(const wchar_t* pszFilename)
+void CModelConverter::ReadDAE(const eastl::string16& sFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
@@ -53,7 +53,7 @@ void CModelConverter::ReadDAE(const wchar_t* pszFilename)
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(L"Reading file", 0);
 
-	if (FCollada::LoadDocumentFromFile(pDoc, pszFilename))
+	if (FCollada::LoadDocumentFromFile(pDoc, sFilename.c_str()))
 	{
 		size_t i;
 
@@ -317,8 +317,8 @@ void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode
 			for (size_t m = 0; m < iMaterialInstances; m++)
 			{
 				FCDMaterialInstance* pMaterialInstance = pGeometryInstance->GetMaterialInstance(m);
-				std::wstring sMaterial = pMaterialInstance->GetMaterial()->GetName().c_str();
-				std::wstring sMaterialStub = pMaterialInstance->GetSemantic().c_str();
+				eastl::string16 sMaterial = pMaterialInstance->GetMaterial()->GetName();
+				eastl::string16 sMaterialStub = pMaterialInstance->GetSemantic();
 
 				size_t iMaterial = pScene->m_pScene->FindMaterial(sMaterial);
 				size_t iMaterialStub = pScene->m_pScene->GetMesh(iMesh)->FindMaterialStub(sMaterialStub);

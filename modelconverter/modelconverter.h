@@ -1,5 +1,5 @@
-#ifndef CF_MODELCONVERTER_H
-#define CF_MODELCONVERTER_H
+#ifndef Lw_MODELCONVERTER_H
+#define LW_MODELCONVERTER_H
 
 #include <EASTL/vector.h>
 #include <EASTL/string.h>

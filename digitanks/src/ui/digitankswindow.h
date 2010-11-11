@@ -21,6 +21,7 @@ public:
 	void						OpenWindow();
 
 	virtual eastl::string		WindowTitle() { return "Digitanks!"; }
+	virtual eastl::string16		AppDirectory() { return L"Digitanks"; }
 
 	void						InitUI();
 

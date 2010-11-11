@@ -1,5 +1,5 @@
-#ifndef GLGUI_H
-#define GLGUI_H
+#ifndef LW_GLGUI_H
+#define LW_GLGUI_H
 
 #include <EASTL/vector.h>
 #include <EASTL/map.h>
@@ -1148,14 +1148,14 @@ namespace glgui
 
 		virtual void AddVisibilityButton()
 		{
-			m_pVisibilityButton = new CPictureButton("@", m_pTree->m_iVisibilityTexture);
+			m_pVisibilityButton = new CPictureButton(L"@", m_pTree->m_iVisibilityTexture);
 			m_pVisibilityButton->SetClickedListener(this, Visibility);
 			AddControl(m_pVisibilityButton);
 		}
 
 		virtual void AddEditButton(EditFnCallback pfnCallback)
 		{
-			m_pEditButton = new CPictureButton("*", m_pTree->m_iEditTexture);
+			m_pEditButton = new CPictureButton(L"*", m_pTree->m_iEditTexture);
 			m_pEditButton->SetClickedListener(this, Edit);
 			AddControl(m_pEditButton);
 			m_pfnCallback = pfnCallback;

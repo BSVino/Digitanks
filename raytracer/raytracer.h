@@ -1,5 +1,5 @@
-#ifndef CF_RAYTRACE_H
-#define CF_RAYTRACE_H
+#ifndef LW_RAYTRACE_H
+#define LW_RAYTRACE_H
 
 #include <modelconverter/convmesh.h>
 #include <geometry.h>

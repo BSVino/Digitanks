@@ -18,6 +18,7 @@ public:
 	void						DumpGLInfo();
 
 	virtual eastl::string		WindowTitle() { return "Tinker"; }
+	virtual eastl::string16		AppDirectory() { return L"Tinker"; }
 
 	void						SwapBuffers();
 	bool						IsOpen();
@@ -70,6 +71,7 @@ protected:
 	size_t						m_iWindowWidth;
 	size_t						m_iWindowHeight;
 	bool						m_bFullscreen;
+	bool						m_bIsOpen;
 
 	static CApplication*		s_pApplication;
 

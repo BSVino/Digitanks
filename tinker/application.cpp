@@ -20,6 +20,8 @@ CApplication::CApplication(int argc, char** argv)
 
 	for (int i = 0; i < argc; i++)
 		m_apszCommandLine.push_back(argv[i]);
+
+	m_bIsOpen = false;
 }
 
 void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
@@ -34,7 +36,8 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
 	if (HasCommandLineSwitch("--windowed"))
 		m_bFullscreen = false;
 
-	glfwEnable( GLFW_MOUSE_CURSOR );
+	m_iWindowWidth = iWidth;
+	m_iWindowHeight = iHeight;
 
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
 	if (!glfwOpenWindow(iWidth, iHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
@@ -75,6 +78,8 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
+
+	m_bIsOpen = true;
 }
 
 CApplication::~CApplication()
@@ -89,12 +94,12 @@ void CApplication::DumpGLInfo()
 {
 	glewInit();
 
-	std::ifstream i(GetAppDataDirectory(L"Digitanks", L"glinfo.txt").c_str());
+	std::ifstream i(GetAppDataDirectory(AppDirectory(), L"glinfo.txt").c_str());
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o(GetAppDataDirectory(L"Digitanks", L"glinfo.txt").c_str());
+	std::ofstream o(GetAppDataDirectory(AppDirectory(), L"glinfo.txt").c_str());
 	if (!o || !o.is_open())
 		return;
 
@@ -227,7 +232,7 @@ void CApplication::SwapBuffers()
 
 bool CApplication::IsOpen()
 {
-	return !!glfwGetWindowParam( GLFW_OPENED );
+	return !!glfwGetWindowParam( GLFW_OPENED ) && m_bIsOpen;
 }
 
 float CApplication::GetTime()

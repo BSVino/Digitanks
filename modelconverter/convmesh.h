@@ -1,5 +1,5 @@
-#ifndef CF_CONVMESH_H
-#define CF_CONVMESH_H
+#ifndef LW_CONVMESH_H
+#define LW_CONVMESH_H
 
 #include <EASTL/vector.h>
 #include <EASTL/map.h>
