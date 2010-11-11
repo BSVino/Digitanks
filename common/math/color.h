@@ -1,5 +1,5 @@
-#ifndef CF_COLOR_H
-#define CF_COLOR_H
+#ifndef LW_COLOR_H
+#define LW_COLOR_H
 
 class Color
 {

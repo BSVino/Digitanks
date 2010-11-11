@@ -2,7 +2,7 @@
 #include <assert.h>
 
 size_t CMemPool::s_iMemoryAllocated = 0;
-std::vector<CMemPool*> CMemPool::s_apMemPools;
+eastl::vector<CMemPool*> CMemPool::s_apMemPools;
 size_t CMemPool::s_iLastMemPoolHandle = 0;
 
 CMemPool::CMemPool()

@@ -1,5 +1,5 @@
-#ifndef CF_SOCKETS_H
-#define CF_SOCKETS_H
+#ifndef LW_SOCKETS_H
+#define LW_SOCKETS_H
 #ifdef _WIN32
 #pragma once
 #endif

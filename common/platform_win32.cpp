@@ -69,7 +69,7 @@ void OpenBrowser(const wchar_t* pszAddress)
 
 static int g_iMinidumpsWritten = 0;
 
-void CreateMinidump(void* pInfo)
+void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
 {
 #ifndef _DEBUG
 	time_t currTime = ::time( NULL );
@@ -101,7 +101,7 @@ void CreateMinidump(void* pInfo)
 			g_iMinidumpsWritten++
 			);
 
-	HANDLE hFile = CreateFile( GetAppDataDirectory(L"Digitanks", szFileName).c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile( GetAppDataDirectory(pszDirectory, szFileName).c_str(), GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
 	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) )

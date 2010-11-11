@@ -1,5 +1,5 @@
-#ifndef CF_BASE64_H
-#define CF_BASE64_H
+#ifndef LW_BASE64_H
+#define LW_BASE64_H
 #ifdef _WIN32
 #pragma once
 #endif

@@ -1,5 +1,5 @@
-#ifndef CF_GEOMETRY_H
-#define CF_GEOMETRY_H
+#ifndef LW_GEOMETRY_H
+#define LW_GEOMETRY_H
 
 #include "vector.h"
 #include <EASTL/vector.h>

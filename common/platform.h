@@ -1,5 +1,5 @@
-#ifndef _CF_PLATFORM
-#define _CF_PLATFORM
+#ifndef _LW_PLATFORM
+#define _LW_PLATFORM
 
 #include <EASTL/string.h>
 
@@ -8,7 +8,7 @@ void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
 void OpenBrowser(const wchar_t* pszAddress);
-void CreateMinidump(void* pInfo);
+void CreateMinidump(void* pInfo, wchar_t* pszDirectory);
 wchar_t* OpenFileDialog(wchar_t* pszFileTypes);
 wchar_t* SaveFileDialog(wchar_t* pszFileTypes);
 eastl::string GetClipboard();

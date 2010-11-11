@@ -1,7 +1,7 @@
-#ifndef _CF_MEMPOOL
-#define _CF_MEMPOOL
+#ifndef _LW_MEMPOOL
+#define _LW_MEMPOOL
 
-#include <vector>
+#include <EASTL/vector.h>
 
 class CMemChunk
 {
@@ -42,7 +42,7 @@ private:
 	static CMemPool*				AddPool(size_t iSize, size_t iHandle);
 
 	static size_t					s_iMemoryAllocated;
-	static std::vector<CMemPool*>	s_apMemPools;
+	static eastl::vector<CMemPool*>	s_apMemPools;
 
 	static size_t					s_iLastMemPoolHandle;
 };

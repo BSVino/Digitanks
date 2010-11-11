@@ -1,5 +1,5 @@
-#ifndef CF_MATRIX_H
-#define CF_MATRIX_H
+#ifndef LW_MATRIX_H
+#define LW_MATRIX_H
 
 #include <vector.h>
 

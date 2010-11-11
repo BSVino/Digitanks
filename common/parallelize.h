@@ -1,8 +1,8 @@
-#ifndef _CF_PARALLELIZE_H
-#define _CF_PARALLELIZE_H
+#ifndef _LW_PARALLELIZE_H
+#define _LW_PARALLELIZE_H
 
-#include <list>
-#include <vector>
+#include <EASTL/list.h>
+#include <EASTL/vector.h>
 #include <pthread.h>
 
 class CParallelizeThread
@@ -58,8 +58,8 @@ public:
 private:
 	void							DispatchJob(void* pJobData);
 
-	std::vector<CParallelizeThread>	m_aThreads;
-	std::vector<CParallelizeJob>	m_aJobs;
+	eastl::vector<CParallelizeThread>	m_aThreads;
+	eastl::vector<CParallelizeJob>	m_aJobs;
 	size_t							m_iLastExecuted;
 	size_t							m_iLastAssigned;
 	pthread_mutex_t					m_iJobsMutex;

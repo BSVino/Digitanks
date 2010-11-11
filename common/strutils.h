@@ -1,5 +1,5 @@
-#ifndef CF_STRUTILS_H
-#define CF_STRUTILS_H
+#ifndef LW_STRUTILS_H
+#define LW_STRUTILS_H
 #ifdef _WIN32
 #pragma once
 #endif

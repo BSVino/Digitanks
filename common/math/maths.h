@@ -1,5 +1,5 @@
-#ifndef CF_MATHS_H
-#define CF_MATHS_H
+#ifndef LW_MATHS_H
+#define LW_MATHS_H
 
 // Generic math functions
 #include <math.h>
