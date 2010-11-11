@@ -317,7 +317,8 @@ void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode
 			for (size_t m = 0; m < iMaterialInstances; m++)
 			{
 				FCDMaterialInstance* pMaterialInstance = pGeometryInstance->GetMaterialInstance(m);
-				eastl::string16 sMaterial = pMaterialInstance->GetMaterial()->GetName();
+				FCDMaterial* pMaterial = pMaterialInstance->GetMaterial();
+				eastl::string16 sMaterial = pMaterial?pMaterialInstance->GetMaterial()->GetName():L"";
 				eastl::string16 sMaterialStub = pMaterialInstance->GetSemantic();
 
 				size_t iMaterial = pScene->m_pScene->FindMaterial(sMaterial);
