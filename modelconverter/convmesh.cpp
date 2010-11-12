@@ -646,7 +646,15 @@ size_t CConversionMesh::AddVertex(float x, float y, float z)
 {
 	m_aVertices.push_back(Vector(x, y, z));
 	m_aaVertexFaceMap.push_back(eastl::vector<size_t>());
-	return m_aVertices.size()-1;
+
+	size_t iSize = m_aVertices.size()-1;
+
+	// Reserve memory for 4 faces in an effort to speed things up by reducing allocations.
+	// It's still one reserve per vertex but it's better than multiple reserves per vertex.
+	// It may waste some memory but that's OK. Large files (like from zbrush) are usually quads.
+	m_aaVertexFaceMap[iSize].reserve(4);
+
+	return iSize;
 }
 
 size_t CConversionMesh::AddNormal(float x, float y, float z)
@@ -1043,4 +1051,18 @@ CConversionVertex::CConversionVertex(class CConversionScene* pScene, size_t iMes
 	vn = VN;
 	vt = ~0;
 	vb = ~0;
+}
+
+// Defined the copy constructor in an effort to make it a bit faster.
+// When adding a vertex to a face's vector in AddVertexToFace, it must
+// copy it onto the vector and that gets slow.
+CConversionVertex::CConversionVertex(const CConversionVertex& copy)
+{
+	m_pScene = copy.m_pScene;
+	m_iMesh = copy.m_iMesh;
+	v = copy.v;
+	vu = copy.vu;
+	vn = copy.vn;
+	vt = copy.vt;
+	vb = copy.vb;
 }

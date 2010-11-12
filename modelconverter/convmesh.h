@@ -15,6 +15,7 @@ class CConversionVertex
 {
 public:
 									CConversionVertex(class CConversionScene* pScene, size_t iMesh, size_t v, size_t vt, size_t vn);
+									CConversionVertex(const CConversionVertex& v);
 
 public:
 	class CConversionScene*			m_pScene;
