@@ -60,6 +60,7 @@ public:
 
 	class CConversionScene*			m_pScene;
 	size_t							m_iMesh;
+	size_t							m_iFaceIndex;
 
 	eastl::vector<CConversionVertex>	m_aVertices;
 	eastl::vector<size_t>			m_aEdges;	// Index into parent's vertex edge list
@@ -67,6 +68,9 @@ public:
 	size_t							m;
 
 	size_t							m_iSmoothingGroup;
+
+	bool							m_bFaceNormal;
+	Vector							m_vecFaceNormal;
 };
 
 // These are unique, so two faces may share the same one.
@@ -203,7 +207,6 @@ public:
 	CConversionEdge*				GetEdge(size_t i) { return &m_aEdges[i]; };
 
 	size_t							GetNumFaces() { return m_aFaces.size(); };
-	size_t							FindFace(CConversionFace* pFace);
 	CConversionFace*				GetFace(size_t i) { return &m_aFaces[i]; };
 
 	size_t							AddMaterialStub(const eastl::string16& sName = L"");

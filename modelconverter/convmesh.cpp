@@ -158,6 +158,9 @@ void CConversionMesh::CalculateVertexNormals()
 
 	m_aNormals.clear();
 
+	eastl::vector<size_t> aNormalFaces;
+	aNormalFaces.reserve(6);
+
 	// Got to calculate vertex normals now. We have to do it after we read faces because we need all of the face data loaded first.
 	for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
 	{
@@ -168,8 +171,9 @@ void CConversionMesh::CalculateVertexNormals()
 		{
 			CConversionVertex* pVertex = pFace->GetVertex(iVertex);
 
+			aNormalFaces.clear();
+
 			// Build a list of faces that this vertex should use to calculate normals with.
-			eastl::vector<size_t> aNormalFaces;
 			pFace->FindAdjacentFaces(aNormalFaces, pVertex->v, true);
 
 			Vector vecNormal = Vector();
@@ -193,7 +197,7 @@ void CConversionMesh::CalculateVertexNormals()
 			pVertex->vn = AddNormal(vecNormal.x, vecNormal.y, vecNormal.z);
 		}
 
-		if (m_pScene->m_pWorkListener)
+		if (m_pScene->m_pWorkListener && (iFace % 100 == 0))
 			m_pScene->m_pWorkListener->WorkProgress(iFace);
 	}
 }
@@ -714,7 +718,8 @@ Vector CConversionFace::GetNormal()
 {
 	assert(GetNumVertices() >= 3);
 
-	// Precompute this shit maybe?
+	if (m_bFaceNormal)
+		return m_vecFaceNormal;
 
 	size_t iPoints = GetNumVertices();
 
@@ -732,7 +737,10 @@ Vector CConversionFace::GetNormal()
 		vecFaceNormal.z += (vecThis.x - vecNext.x) * (vecThis.y + vecNext.y);
 	}
 
-	return vecFaceNormal.Normalized();
+	m_vecFaceNormal = vecFaceNormal.Normalized();
+	m_bFaceNormal = true;
+
+	return m_vecFaceNormal;
 }
 
 Vector CConversionFace::GetCenter()
@@ -787,16 +795,19 @@ float CConversionFace::GetUVArea()
 
 void CConversionFace::FindAdjacentFaces(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
-	aResult.push_back(m_pScene->GetMesh(m_iMesh)->FindFace(this));
+	aResult.push_back(m_iFaceIndex);
 	FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 }
 
 void CConversionFace::FindAdjacentFacesInternal(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
+	size_t iNumEdges = GetNumEdges();
+	CConversionMesh* pMesh = m_pScene->GetMesh(m_iMesh);
+
 	// Crawl along each edge to find adjacent faces.
-	for (size_t iEdge = 0; iEdge < GetNumEdges(); iEdge++)
+	for (size_t iEdge = 0; iEdge < iNumEdges; iEdge++)
 	{
-		CConversionEdge* pEdge = m_pScene->GetMesh(m_iMesh)->GetEdge(GetEdge(iEdge));
+		CConversionEdge* pEdge = pMesh->GetEdge(GetEdge(iEdge));
 
 		if (bIgnoreCreased && pEdge->m_bCreased)
 			continue;
@@ -804,13 +815,14 @@ void CConversionFace::FindAdjacentFacesInternal(eastl::vector<size_t>& aResult, 
 		if (iVert != ((size_t)~0) && !pEdge->HasVertex(iVert))
 			continue;
 
-		for (size_t iEdgeFace = 0; iEdgeFace < pEdge->m_aiFaces.size(); iEdgeFace++)
+		size_t iFaces = pEdge->m_aiFaces.size();
+		for (size_t iEdgeFace = 0; iEdgeFace < iFaces; iEdgeFace++)
 		{
 			eastl::vector<size_t>::iterator it = eastl::find(aResult.begin(), aResult.end(), pEdge->m_aiFaces[iEdgeFace]);
 			if (it == aResult.end())
 			{
 				aResult.push_back(pEdge->m_aiFaces[iEdgeFace]);
-				m_pScene->GetMesh(m_iMesh)->GetFace(pEdge->m_aiFaces[iEdgeFace])->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
+				pMesh->GetFace(pEdge->m_aiFaces[iEdgeFace])->FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 			}
 		}
 	}
@@ -942,13 +954,18 @@ size_t CConversionMesh::AddFace(size_t iMaterial)
 	m_aFaces.push_back(CConversionFace(m_pScene, m_pScene->FindMesh(this), iMaterial));
 	size_t iSize = m_aFaces.size()-1;
 
+	CConversionFace* pFace = &m_aFaces[iSize];
+
+	pFace->m_iFaceIndex = iSize;
+
 	// Reserve memory for 4 vertices in an effort to speed things up by reducing allocations.
 	// It's still one reserve per face but it's better than multiple reserves per face.
 	// It's also wasting memory on faces that are tris but huge files are usually quads.
-	m_aFaces[iSize].m_aVertices.reserve(4);
+	pFace->m_aVertices.reserve(4);
 
 	// Same for edges
-	m_aFaces[iSize].m_aEdges.reserve(4);
+	pFace->m_aEdges.reserve(4);
+
 	return iSize;
 }
 
@@ -956,6 +973,7 @@ void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t 
 {
 	m_aaVertexFaceMap[v].push_back(iFace);
 	m_aFaces[iFace].m_aVertices.push_back();
+	m_aFaces[iFace].m_bFaceNormal = false;
 
 	size_t iSize = m_aFaces[iFace].m_aVertices.size()-1;
 	CConversionVertex* pVertex = &m_aFaces[iFace].m_aVertices[iSize];
@@ -1004,15 +1022,6 @@ Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)
 	return Vector(0,0,0);
 }
 
-size_t CConversionMesh::FindFace(CConversionFace* pFace)
-{
-	for (size_t i = 0; i < m_aFaces.size(); i++)
-		if (&m_aFaces[i] == pFace)
-			return i;
-
-	return ((size_t)~0);
-}
-
 size_t CConversionMesh::FindMaterialStub(const eastl::string16& sName)
 {
 	for (size_t i = 0; i < m_aMaterialStubs.size(); i++)
@@ -1047,6 +1056,8 @@ CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, s
 	m_pScene = pScene;
 	m_iMesh = iMesh;
 	m = M;
+
+	m_bFaceNormal = false;
 }
 
 // Default constructor to avoid the copy constructor in AddEdge()'s push_back()

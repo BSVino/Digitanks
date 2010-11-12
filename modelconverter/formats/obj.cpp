@@ -96,7 +96,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 				// Don't kill the video card while we're loading the faces.
 				if (iTotalFaces > 10000)
-					pMeshNode->SetVisible(false);
+					pMeshNode->GetMeshInstance(0)->SetVisible(false);
 			}
 
 			continue;
@@ -239,7 +239,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 			// If we get to 10k faces force the mesh off so it doesn't kill the video card.
 			if (iFace == 10000)
-				pMeshNode->SetVisible(false);
+				pMeshNode->GetMeshInstance(0)->SetVisible(false);
 
 			pMesh->GetFace(iFace)->m_iSmoothingGroup = iSmoothingGroup;
 
