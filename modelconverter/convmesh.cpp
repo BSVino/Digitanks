@@ -925,7 +925,13 @@ Vector CConversionFace::GetBaseVector(Vector vecPoint, int iVector, CConversionM
 size_t CConversionMesh::AddFace(size_t iMaterial)
 {
 	m_aFaces.push_back(CConversionFace(m_pScene, m_pScene->FindMesh(this), iMaterial));
-	return m_aFaces.size()-1;
+	size_t iSize = m_aFaces.size()-1;
+
+	// Reserve memory for 4 vertices in an effort to speed things up by reducing allocations.
+	// It's still one reserve per face but it's better than multiple reserves per face.
+	// It's also wasting memory on faces that are tris but huge files are usually quads.
+	m_aFaces[iSize].m_aVertices.reserve(4);
+	return iSize;
 }
 
 void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t vn)
@@ -942,6 +948,17 @@ void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
 void CConversionMesh::RemoveFace(size_t iFace)
 {
 	m_aFaces.erase(m_aFaces.begin()+iFace);
+}
+
+void CConversionMesh::SetTotalVertices(size_t iVertices)
+{
+	m_aVertices.reserve(iVertices);
+	m_aaVertexFaceMap.reserve(iVertices);
+}
+
+void CConversionMesh::SetTotalFaces(size_t iFaces)
+{
+	m_aFaces.reserve(iFaces);
 }
 
 Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)

@@ -31,23 +31,48 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 	eastl::string16 sLastTask;
 
+	int iTotalVertices = 0;
+	int iTotalFaces = 0;
+	int iVerticesComplete = 0;
+	int iFacesComplete = 0;
+
 	const size_t iChars = 1024;
 	wchar_t szLine[iChars];
-	eastl::string16 sLine;
 	wchar_t* pszLine;
 	while (pszLine = fgetws(szLine, iChars, fp))
 	{
-		sLine = pszLine;
-		sLine = StripWhitespace(sLine);
+		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
+		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
+		while (*pszLine && IsWhitespace(*pszLine))
+			pszLine++;
 
-		if (sLine.length() == 0)
+		if (wcslen(pszLine) == 0)
 			continue;
 
-		if (sLine[0] == '#')
+		if (pszLine[0] == '#')
+		{
+			// ZBrush is kind enough to notate exactly how many vertices and faces we have in the comments at the top of the file.
+			if (wcsncmp(pszLine, L"#Vertex Count", 13) == 0)
+			{
+				iTotalVertices = _wtoi(pszLine+13);
+				pMesh->SetTotalVertices(iTotalVertices);
+			}
+
+			if (wcsncmp(pszLine, L"#Face Count", 11) == 0)
+			{
+				iTotalFaces = _wtoi(pszLine+11);
+				pMesh->SetTotalFaces(iTotalFaces);
+
+				// Don't kill the video card while we're loading the faces.
+				if (iTotalFaces > 10000)
+					pMeshNode->SetVisible(false);
+			}
+
 			continue;
+		}
 
 		wchar_t szToken[1024];
-		wcscpy(szToken, sLine.c_str());
+		wcscpy(szToken, pszLine);
 		wchar_t* pszToken = NULL;
 		pszToken = wcstok(szToken, L" ");
 
@@ -55,7 +80,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 		{
 			eastl::string16 sDirectory = GetDirectory(sFilename);
 			wchar_t szMaterial[1024];
-			swprintf(szMaterial, L"%s/%s", sDirectory.c_str(), sLine.c_str() + 7);
+			swprintf(szMaterial, L"%s/%s", sDirectory.c_str(), pszLine + 7);
 			ReadMTL(szMaterial);
 		}
 		else if (wcscmp(pszToken, L"o") == 0)
@@ -67,16 +92,29 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			if (m_pWorkListener)
 			{
 				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
-					m_pWorkListener->WorkProgress(0);
+					m_pWorkListener->WorkProgress(iVerticesComplete++);
 				else
-					m_pWorkListener->SetAction(L"Reading vertex data", 0);
+				{
+					m_pWorkListener->SetAction(L"Reading vertex data", iTotalVertices);
+					sLastTask = eastl::string16(pszToken);
+				}
 			}
-			sLastTask = eastl::string16(pszToken);
 
 			// A vertex.
-			float x, y, z;
-			swscanf(sLine.c_str(), L"v %f %f %f", &x, &y, &z);
-			pMesh->AddVertex(x, y, z);
+			float v[3];
+			// scanf is pretty slow even for such a short string due to lots of mallocs.
+			const wchar_t* pszToken = pszLine;
+			int iDimension = 0;
+			while (++pszToken)
+			{
+				if (pszToken[0] == L' ')
+				{
+					v[iDimension++] = (float)_wtof(pszToken+1);
+					if (iDimension >= 3)
+						break;
+				}
+			}
+			pMesh->AddVertex(v[0], v[1], v[2]);
 		}
 		else if (wcscmp(pszToken, L"vn") == 0)
 		{
@@ -91,7 +129,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 			// A vertex normal.
 			float x, y, z;
-			swscanf(sLine.c_str(), L"vn %f %f %f", &x, &y, &z);
+			swscanf(pszLine, L"vn %f %f %f", &x, &y, &z);
 			pMesh->AddNormal(x, y, z);
 		}
 		else if (wcscmp(pszToken, L"vt") == 0)
@@ -107,18 +145,18 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 			// A UV coordinate for a vertex.
 			float u, v;
-			swscanf(sLine.c_str(), L"vt %f %f", &u, &v);
+			swscanf(pszLine, L"vt %f %f", &u, &v);
 			pMesh->AddUV(u, v);
 		}
 		else if (wcscmp(pszToken, L"g") == 0)
 		{
 			// A group of faces.
-			pMesh->AddBone(sLine.c_str()+2);
+			pMesh->AddBone(pszLine+2);
 		}
 		else if (wcscmp(pszToken, L"usemtl") == 0)
 		{
 			// All following faces should use this material.
-			eastl::string16 sMaterial = eastl::string16(sLine.c_str()+7);
+			eastl::string16 sMaterial = eastl::string16(pszLine+7);
 			size_t iMaterial = pMesh->FindMaterialStub(sMaterial);
 			if (iMaterial == ((size_t)~0))
 			{
@@ -137,7 +175,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 		}
 		else if (wcscmp(pszToken, L"s") == 0)
 		{
-			if (wcsncmp(sLine.c_str(), L"s off", 5) == 0)
+			if (wcsncmp(pszLine, L"s off", 5) == 0)
 			{
 				iSmoothingGroup = ~0;
 			}
@@ -145,7 +183,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			{
 				bSmoothingGroups = true;
 				size_t s;
-				swscanf(sLine.c_str(), L"s %d", &s);
+				swscanf(pszLine, L"s %d", &s);
 				iSmoothingGroup = s;
 			}
 		}
@@ -154,11 +192,13 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			if (m_pWorkListener)
 			{
 				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
-					m_pWorkListener->WorkProgress(0);
+					m_pWorkListener->WorkProgress(iFacesComplete++);
 				else
-					m_pWorkListener->SetAction(L"Reading polygon data", 0);
+				{
+					m_pWorkListener->SetAction(L"Reading polygon data", iTotalFaces);
+					sLastTask = eastl::string16(pszToken);
+				}
 			}
-			sLastTask = eastl::string16(pszToken);
 
 			if (iCurrentMaterial == ~0)
 				iCurrentMaterial = m_pScene->AddDefaultSceneMaterial(pScene, pMesh, pMesh->GetName());
@@ -166,55 +206,80 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
+			// If we get to 10k faces force the mesh off so it doesn't kill the video card.
+			if (iFace == 10000)
+				pMeshNode->SetVisible(false);
+
 			pMesh->GetFace(iFace)->m_iSmoothingGroup = iSmoothingGroup;
 
 			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
-			wcscpy(szToken, sLine.c_str());
+			wcscpy(szToken, pszLine);
 			pszToken = wcstok(szToken, L" ");
 
 			while (pszToken = wcstok(NULL, L" "))
 			{
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
-				long v, vt, vn;
-				eastl::vector<eastl::string16> asTokens;
-				explode(eastl::string16(pszToken), asTokens, L"/");
+				long v[3];
+				bool bValues[3];
+				bValues[0] = false;
+				bValues[1] = false;
+				bValues[2] = false;
 
-				if (asTokens.size() > 0)
+				// scanf is pretty slow even for such a short string due to lots of mallocs.
+				const wchar_t* pszValues = pszToken;
+				int iValue = 0;
+				do
 				{
-					v = _wtol(asTokens[0].c_str());
-					if (v < 0)
-						v = (long)pMesh->GetNumVertices()+v+1;
-					assert ( v >= 1 && v < (long)pMesh->GetNumVertices()+1 );
+					if (!pszValues)
+						break;
+
+					if (!bValues[0] || pszValues[0] == L'/')
+					{
+						if (pszValues[0] == L'/')
+							pszValues++;
+
+						bValues[iValue] = true;
+						v[iValue++] = (long)_wtoi(pszValues);
+						if (iValue >= 3)
+							break;
+					}
+					pszValues++;
+				}
+				while (*pszValues);
+
+				if (bValues[0])
+				{
+					if (v[0] < 0)
+						v[0] = (long)pMesh->GetNumVertices()+v[0]+1;
+					assert ( v[0] >= 1 && v[0] < (long)pMesh->GetNumVertices()+1 );
 				}
 
-				if (asTokens.size() > 1 && pMesh->GetNumUVs())
+				if (bValues[1] && pMesh->GetNumUVs())
 				{
-					vt = _wtol(asTokens[1].c_str());
-					if (vt < 0)
-						vt = (long)pMesh->GetNumUVs()+vt+1;
-					assert ( vt >= 1 && vt < (long)pMesh->GetNumUVs()+1 );
+					if (v[1] < 0)
+						v[1] = (long)pMesh->GetNumUVs()+v[1]+1;
+					assert ( v[1] >= 1 && v[1] < (long)pMesh->GetNumUVs()+1 );
 				}
 
-				if (asTokens.size() > 2 && pMesh->GetNumNormals())
+				if (bValues[2] && pMesh->GetNumNormals())
 				{
-					vn = _wtol(asTokens[2].c_str());
-					if (vn < 0)
-						vn = (long)pMesh->GetNumNormals()+vn+1;
-					assert ( vn >= 1 && vn < (long)pMesh->GetNumNormals()+1 );
+					if (v[2] < 0)
+						v[2] = (long)pMesh->GetNumNormals()+v[2]+1;
+					assert ( v[2] >= 1 && v[2] < (long)pMesh->GetNumNormals()+1 );
 				}
 
 				// OBJ uses 1-based indexing.
 				// Convert to 0-based indexing.
-				v--;
-				vt--;
-				vn--;
+				v[0]--;
+				v[1]--;
+				v[2]--;
 
 				if (!pMesh->GetNumUVs())
-					vt = ~0;
-				if (asTokens.size() == 2 || !pMesh->GetNumNormals())
-					vn = ~0;
+					v[1] = ~0;
+				if (v[1] == 2 || !pMesh->GetNumNormals())
+					v[2] = ~0;
 
-				pMesh->AddVertexToFace(iFace, v, vt, vn);
+				pMesh->AddVertexToFace(iFace, v[0], v[1], v[2]);
 			}
 		}
 	}

@@ -17,6 +17,7 @@ bool CModelConverter::ReadModel(const eastl::string16& sFilename)
 
 	size_t iFileLength = wcslen(sFilename.c_str());
 	sExtension = sFilename.c_str()+iFileLength-4;
+	sExtension.make_lower();
 
 	if (sExtension == L".obj")
 		ReadOBJ(sFilename);

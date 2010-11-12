@@ -177,6 +177,10 @@ public:
 
 	void							RemoveFace(size_t iFace);
 
+	// If you think you know how many verts/faces there's going to be, call this to reserve the memory all at once.
+	void							SetTotalVertices(size_t iVertices);
+	void							SetTotalFaces(size_t iFaces);
+
 	size_t							GetNumVertices() { return m_aVertices.size(); };
 	Vector							GetVertex(size_t i) { if (i >= m_aVertices.size()) return Vector(0,0,0); return m_aVertices[i]; }
 	size_t							GetNumNormals() { return m_aNormals.size(); };
