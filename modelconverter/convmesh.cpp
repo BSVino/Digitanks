@@ -689,8 +689,14 @@ size_t CConversionMesh::AddBone(const eastl::string16& sName)
 
 size_t CConversionMesh::AddEdge(size_t v1, size_t v2)
 {
-	m_aEdges.push_back(CConversionEdge(v1, v2));
-	return m_aEdges.size()-1;
+	m_aEdges.push_back();
+
+	size_t iSize = m_aEdges.size()-1;
+	CConversionEdge* pEdge = &m_aEdges[iSize];
+	pEdge->v1 = v1;
+	pEdge->v2 = v2;
+
+	return iSize;
 }
 
 size_t CConversionMesh::AddMaterialStub(const eastl::string16& sName)
@@ -823,7 +829,8 @@ bool CConversionFace::HasEdge(size_t i)
 
 size_t CConversionFace::FindVertex(size_t i)
 {
-	for (size_t iVertex = 0; iVertex < GetNumVertices(); iVertex++)
+	size_t iNumVertices = GetNumVertices();
+	for (size_t iVertex = 0; iVertex < iNumVertices; iVertex++)
 	{
 		if (m_aVertices[iVertex].v == i)
 			return iVertex;
@@ -939,13 +946,25 @@ size_t CConversionMesh::AddFace(size_t iMaterial)
 	// It's still one reserve per face but it's better than multiple reserves per face.
 	// It's also wasting memory on faces that are tris but huge files are usually quads.
 	m_aFaces[iSize].m_aVertices.reserve(4);
+
+	// Same for edges
+	m_aFaces[iSize].m_aEdges.reserve(4);
 	return iSize;
 }
 
 void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t vn)
 {
 	m_aaVertexFaceMap[v].push_back(iFace);
-	m_aFaces[iFace].m_aVertices.push_back(CConversionVertex(m_pScene, m_pScene->FindMesh(this), v, vt, vn));
+	m_aFaces[iFace].m_aVertices.push_back();
+
+	size_t iSize = m_aFaces[iFace].m_aVertices.size()-1;
+	CConversionVertex* pVertex = &m_aFaces[iFace].m_aVertices[iSize];
+
+	pVertex->m_pScene = m_pScene;
+	pVertex->m_iMesh = m_pScene->FindMesh(this);
+	pVertex->v = v;
+	pVertex->vt = vt;
+	pVertex->vn = vn;
 }
 
 void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
@@ -967,6 +986,9 @@ void CConversionMesh::SetTotalVertices(size_t iVertices)
 void CConversionMesh::SetTotalFaces(size_t iFaces)
 {
 	m_aFaces.reserve(iFaces);
+
+	// We don't know this for sure but it's a good approximation and it's great if it saves us the memory allocation calls.
+	m_aEdges.reserve(iFaces);
 }
 
 Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)
@@ -1027,11 +1049,21 @@ CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, s
 	m = M;
 }
 
+// Default constructor to avoid the copy constructor in AddEdge()'s push_back()
+CConversionEdge::CConversionEdge()
+{
+	v1 = ~0;
+	v1 = ~0;
+	m_bCreased = false;
+	m_aiFaces.reserve(2);
+}
+
 CConversionEdge::CConversionEdge(size_t V1, size_t V2, bool bCreased)
 {
 	v1 = V1;
 	v2 = V2;
 	m_bCreased = bCreased;
+	m_aiFaces.reserve(2);
 }
 
 bool CConversionEdge::HasVertex(size_t i)
@@ -1053,16 +1085,10 @@ CConversionVertex::CConversionVertex(class CConversionScene* pScene, size_t iMes
 	vb = ~0;
 }
 
-// Defined the copy constructor in an effort to make it a bit faster.
-// When adding a vertex to a face's vector in AddVertexToFace, it must
-// copy it onto the vector and that gets slow.
-CConversionVertex::CConversionVertex(const CConversionVertex& copy)
+// Default constructor so we can push_back without calling the copy constructor.
+CConversionVertex::CConversionVertex()
 {
-	m_pScene = copy.m_pScene;
-	m_iMesh = copy.m_iMesh;
-	v = copy.v;
-	vu = copy.vu;
-	vn = copy.vn;
-	vt = copy.vt;
-	vb = copy.vb;
+	m_pScene = NULL;
+	m_iMesh = v = vu = vn = vt = vb = ~0;
+	m_aEdges.reserve(4);
 }

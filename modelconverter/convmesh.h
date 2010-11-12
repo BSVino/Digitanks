@@ -14,8 +14,8 @@
 class CConversionVertex
 {
 public:
+									CConversionVertex();
 									CConversionVertex(class CConversionScene* pScene, size_t iMesh, size_t v, size_t vt, size_t vn);
-									CConversionVertex(const CConversionVertex& v);
 
 public:
 	class CConversionScene*			m_pScene;
@@ -73,14 +73,16 @@ public:
 class CConversionEdge
 {
 public:
+									CConversionEdge();
 									CConversionEdge(size_t v1, size_t v2, bool bCreased = false);
 
+public:
 	bool							HasVertex(size_t i);
 
 	size_t							v1, v2;
 	bool							m_bCreased;
 
-	eastl::vector<size_t>				m_aiFaces;	// Index into parent's face list
+	eastl::vector<size_t>			m_aiFaces;	// Index into parent's face list
 };
 
 class CConversionBone
