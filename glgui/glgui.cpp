@@ -1436,6 +1436,7 @@ CRootPanel::CRootPanel() :
 	AddControl(m_pMenuBar, true);
 
 	m_flFrameTime = 0;
+	m_flTime = 0;
 
 	m_bUseLighting = true;
 }
