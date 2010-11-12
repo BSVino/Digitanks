@@ -36,11 +36,42 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 	int iVerticesComplete = 0;
 	int iFacesComplete = 0;
 
+	m_pWorkListener->SetAction(L"Reading file into memory...", 0);
+
+	fseek(fp, 0L, SEEK_END);
+	long iOBJSize = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+
+	// Make sure we allocate more than we need just in case.
+	char16_t* pszEntireFile = (char16_t*)malloc((iOBJSize+1) * (sizeof(char16_t)+1));
+	char16_t* pszCurrent = pszEntireFile;
+
+	// Read the entire file into an array first for faster processing.
 	const size_t iChars = 1024;
-	wchar_t szLine[iChars];
-	wchar_t* pszLine;
+	char16_t szLine[iChars];
+	const char16_t* pszLine;
 	while (pszLine = fgetws(szLine, iChars, fp))
 	{
+		wcscpy(pszCurrent, pszLine);
+		size_t iLength = wcslen(pszLine);
+		pszCurrent += iLength;
+		pszCurrent++;
+		m_pWorkListener->WorkProgress(0);
+	}
+
+	pszCurrent[0] = L'\0';
+
+	fclose(fp);
+
+	pszLine = pszEntireFile;
+	const char16_t* pszNextLine = NULL;
+	while (*pszLine && pszLine < pszCurrent)
+	{
+		if (pszNextLine)
+			pszLine = pszNextLine;
+
+		pszNextLine = pszLine + wcslen(pszLine) + 1;
+
 		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
 		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
 		while (*pszLine && IsWhitespace(*pszLine))
@@ -284,7 +315,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 		}
 	}
 
-	fclose(fp);
+	free(pszEntireFile);
 
 	m_pScene->SetWorkListener(m_pWorkListener);
 
