@@ -210,17 +210,21 @@ void CConversionMesh::CalculateVertexTangents()
 	m_aTangents.clear();
 	m_aBitangents.clear();
 
+	size_t iFaces = GetNumFaces();
+
 	// Got to calculate vertex normals now. We have to do it after we read faces because we need all of the face data loaded first.
-	for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
+	for (size_t iFace = 0; iFace < iFaces; iFace++)
 	{
 		CConversionFace* pFace = GetFace(iFace);
 
+		size_t iVertices = pFace->GetNumVertices();
+
 		// Loop through all vertices to calculate normals for
-		for (size_t iVertex = 0; iVertex < pFace->GetNumVertices(); iVertex++)
+		for (size_t iVertex = 0; iVertex < iVertices; iVertex++)
 		{
 			CConversionVertex* pV1 = pFace->GetVertex(iVertex);
-			CConversionVertex* pV2 = pFace->GetVertex((iVertex+1)%pFace->GetNumVertices());
-			CConversionVertex* pV3 = pFace->GetVertex((iVertex==0)?pFace->GetNumVertices()-1:iVertex-1);
+			CConversionVertex* pV2 = pFace->GetVertex((iVertex+1)%iVertices);
+			CConversionVertex* pV3 = pFace->GetVertex((iVertex==0)?iVertices-1:iVertex-1);
 
 			Vector v1 = GetVertex(pV1->v);
 			Vector v2 = GetVertex(pV2->v);
@@ -1007,6 +1011,10 @@ void CConversionMesh::SetTotalFaces(size_t iFaces)
 
 	// We don't know this for sure but it's a good approximation and it's great if it saves us the memory allocation calls.
 	m_aEdges.reserve(iFaces);
+
+	m_aNormals.reserve(iFaces*4);
+	m_aTangents.reserve(iFaces*4);
+	m_aBitangents.reserve(iFaces*4);
 }
 
 Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)
