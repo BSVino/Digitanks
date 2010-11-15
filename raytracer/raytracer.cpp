@@ -438,6 +438,8 @@ void CKDNode::BuildTriList()
 			if (TriangleIntersectsAABB(m_oBounds, oTri->v[0], oTri->v[1], oTri->v[2]))
 				m_aTris.push_back(m_pParent->m_aTris[i]);
 		}
+
+		m_aTris.set_capacity(m_aTris.size());
 	}
 
 	m_iTriangles = m_aTris.size();
@@ -493,6 +495,7 @@ void CKDNode::Build()
 	m_pRight->BuildTriList();
 
 	m_aTris.clear();
+	m_aTris.set_capacity(0);
 
 	m_pLeft->Build();
 	m_pRight->Build();
@@ -502,194 +505,220 @@ void CKDNode::Build()
 
 bool CKDNode::Raytrace(const Ray& rayTrace, CTraceResult* pTR)
 {
-	if (!m_pLeft)
+	CKDNode* pThis = this;
+
+	while (pThis->m_pLeft)
 	{
-#ifdef DEBUG_WITH_GL
-		DrawBox(m_oBounds, 0.6f);
-#endif
-
-		// No children. Test all triangles in this node.
-
-		Vector vecClosest;
-		CKDTri* pClosestTri;
-		bool bFound = false;
-
-		for (size_t i = 0; i < m_aTris.size(); i++)
-		{
-			CKDTri& oTri = m_aTris[i];
-
-			Vector vecHit;
-			if (RayIntersectsTriangle(rayTrace, oTri.v[0], oTri.v[1], oTri.v[2], &vecHit))
-			{
-				// Sometimes a try will touch a closer leaf node,
-				// but actually intersect the ray in the back, so
-				// only accept hits inside this box.
-				if (!PointInsideAABB(m_oBounds, vecHit))
-				{
-#ifdef DEBUG_WITH_GL
-					DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 1.0f, 0.0f);
-#endif
-					continue;
-				}
-
-				if (!bFound || (vecHit - rayTrace.m_vecPos).LengthSqr() < (vecClosest - rayTrace.m_vecPos).LengthSqr())
-				{
-					bFound = true;
-					vecClosest = vecHit;
-					pClosestTri = &oTri;
-				}
-
-#ifdef DEBUG_WITH_GL
-				DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 1.0f, 0.0f, 0.0f);
-#endif
-			}
-#ifdef DEBUG_WITH_GL
-			else
-				DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 0.0f, 1.0f);
-#endif
-		}
-
-		if (bFound)
-		{
-			if (pTR)
-			{
-				pTR->m_vecHit = vecClosest;
-				pTR->m_pFace = pClosestTri->m_pFace;
-				pTR->m_pMeshInstance = pClosestTri->m_pMeshInstance;
-			}
-			return true;
-		}
-
-		return false;
-	}
-
-	bool bHitsLeft = RayIntersectsAABB(rayTrace, m_pLeft->m_oBounds);
-	bool bHitsRight = RayIntersectsAABB(rayTrace, m_pRight->m_oBounds);
+		bool bHitsLeft = RayIntersectsAABB(rayTrace, pThis->m_pLeft->m_oBounds);
+		bool bHitsRight = RayIntersectsAABB(rayTrace, pThis->m_pRight->m_oBounds);
 
 #ifdef _DEBUG
-	// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
-	if (!(bHitsRight || bHitsLeft))
-		_asm { int 3 };
+		// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
+		if (!(bHitsRight || bHitsLeft))
+			_asm { int 3 };
 #endif
 
-	if (bHitsLeft && !bHitsRight)
-		return m_pLeft->Raytrace(rayTrace, pTR);
+		if (bHitsLeft && !bHitsRight)
+		{
+			pThis = pThis->m_pLeft;
+			continue;
+		}
 
-	if (bHitsRight && !bHitsLeft)
-		return m_pRight->Raytrace(rayTrace, pTR);
+		if (bHitsRight && !bHitsLeft)
+		{
+			pThis = pThis->m_pRight;
+			continue;
+		}
 
-	// Hit a poly in both cases, return the closer one.
-	float flDistanceToLeft = (m_pLeft->m_oBounds.Center() - rayTrace.m_vecPos).LengthSqr();
-	float flDistanceToRight = (m_pRight->m_oBounds.Center() - rayTrace.m_vecPos).LengthSqr();
+		// Hit a poly in both cases, return the closer one.
+		float flDistanceToLeft = (pThis->m_pLeft->m_oBounds.Center() - rayTrace.m_vecPos).LengthSqr();
+		float flDistanceToRight = (pThis->m_pRight->m_oBounds.Center() - rayTrace.m_vecPos).LengthSqr();
 
-	CKDNode* pCloser = m_pLeft;
-	CKDNode* pFarther = m_pRight;
-	if (flDistanceToRight < flDistanceToLeft)
-	{
-		pCloser = m_pRight;
-		pFarther = m_pLeft;
+		CKDNode* pCloser = pThis->m_pLeft;
+		CKDNode* pFarther = pThis->m_pRight;
+		if (flDistanceToRight < flDistanceToLeft)
+		{
+			pCloser = pThis->m_pRight;
+			pFarther = pThis->m_pLeft;
+		}
+
+		if (pCloser->Raytrace(rayTrace, pTR))
+			return true;
+		else
+		{
+			pThis = pFarther;
+			continue;
+		}
 	}
 
-	if (pCloser->Raytrace(rayTrace, pTR))
+	assert(!pThis->m_pLeft);
+
+#ifdef DEBUG_WITH_GL
+	DrawBox(pThis->m_oBounds, 0.6f);
+#endif
+
+	// No children. Test all triangles in this node.
+
+	Vector vecClosest;
+	CKDTri* pClosestTri;
+	bool bFound = false;
+
+	for (size_t i = 0; i < pThis->m_aTris.size(); i++)
+	{
+		CKDTri& oTri = pThis->m_aTris[i];
+
+		Vector vecHit;
+		if (RayIntersectsTriangle(rayTrace, oTri.v[0], oTri.v[1], oTri.v[2], &vecHit))
+		{
+			// Sometimes a try will touch a closer leaf node,
+			// but actually intersect the ray in the back, so
+			// only accept hits inside this box.
+			if (!PointInsideAABB(pThis->m_oBounds, vecHit))
+			{
+#ifdef DEBUG_WITH_GL
+				DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 1.0f, 0.0f);
+#endif
+				continue;
+			}
+
+			if (!bFound || (vecHit - rayTrace.m_vecPos).LengthSqr() < (vecClosest - rayTrace.m_vecPos).LengthSqr())
+			{
+				bFound = true;
+				vecClosest = vecHit;
+				pClosestTri = &oTri;
+			}
+
+#ifdef DEBUG_WITH_GL
+			DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 1.0f, 0.0f, 0.0f);
+#endif
+		}
+#ifdef DEBUG_WITH_GL
+		else
+			DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 0.0f, 1.0f);
+#endif
+	}
+
+	if (bFound)
+	{
+		if (pTR)
+		{
+			pTR->m_vecHit = vecClosest;
+			pTR->m_pFace = pClosestTri->m_pFace;
+			pTR->m_pMeshInstance = pClosestTri->m_pMeshInstance;
+		}
 		return true;
-	else
-		return pFarther->Raytrace(rayTrace, pTR);
+	}
+
+	return false;
 }
 
 bool CKDNode::Raytrace(const Vector& vecStart, const Vector& vecEnd, CTraceResult* pTR)
 {
-	if (!m_pLeft)
+	CKDNode* pThis = this;
+
+	while (pThis->m_pLeft)
 	{
-#ifdef DEBUG_WITH_GL
-		DrawBox(m_oBounds, 0.6f);
-#endif
-
-		// No children. Test all triangles in this node.
-
-		Vector vecClosest;
-		CKDTri* pClosestTri;
-		bool bFound = false;
-
-		for (size_t i = 0; i < m_aTris.size(); i++)
-		{
-			CKDTri& oTri = m_aTris[i];
-
-			Vector vecHit;
-			if (LineSegmentIntersectsTriangle(vecStart, vecEnd, oTri.v[0], oTri.v[1], oTri.v[2], &vecHit))
-			{
-				// Sometimes a try will touch a closer leaf node,
-				// but actually intersect the ray in the back, so
-				// only accept hits inside this box.
-				if (!PointInsideAABB(m_oBounds, vecHit))
-				{
-#ifdef DEBUG_WITH_GL
-					DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 1.0f, 0.0f);
-#endif
-					continue;
-				}
-
-				if (!bFound || (vecHit - vecStart).LengthSqr() < (vecClosest - vecStart).LengthSqr())
-				{
-					bFound = true;
-					vecClosest = vecHit;
-					pClosestTri = &oTri;
-				}
-
-#ifdef DEBUG_WITH_GL
-				DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 1.0f, 0.0f, 0.0f);
-#endif
-			}
-#ifdef DEBUG_WITH_GL
-			else
-				DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 0.0f, 1.0f);
-#endif
-		}
-
-		if (bFound)
-		{
-			if (pTR)
-			{
-				pTR->m_vecHit = vecClosest;
-				pTR->m_pFace = pClosestTri->m_pFace;
-				pTR->m_pMeshInstance = pClosestTri->m_pMeshInstance;
-			}
-			return true;
-		}
-
-		return false;
-	}
-
-	bool bHitsLeft = SegmentIntersectsAABB(vecStart, vecEnd, m_pLeft->m_oBounds);
-	bool bHitsRight = SegmentIntersectsAABB(vecStart, vecEnd, m_pRight->m_oBounds);
+		bool bHitsLeft = SegmentIntersectsAABB(vecStart, vecEnd, pThis->m_pLeft->m_oBounds);
+		bool bHitsRight = SegmentIntersectsAABB(vecStart, vecEnd, pThis->m_pRight->m_oBounds);
 
 #ifdef _DEBUG
-	// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
-	if (!(bHitsRight || bHitsLeft))
-		_asm { int 3 };
+		// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
+		if (!(bHitsRight || bHitsLeft))
+			_asm { int 3 };
 #endif
 
-	if (bHitsLeft && !bHitsRight)
-		return m_pLeft->Raytrace(vecStart, vecEnd, pTR);
+		if (bHitsLeft && !bHitsRight)
+		{
+			pThis = pThis->m_pLeft;
+			continue;
+		}
 
-	if (bHitsRight && !bHitsLeft)
-		return m_pRight->Raytrace(vecStart, vecEnd, pTR);
+		if (bHitsRight && !bHitsLeft)
+		{
+			pThis = pThis->m_pRight;
+			continue;
+		}
 
-	// Hit a poly in both cases, return the closer one.
-	float flDistanceToLeft = (m_pLeft->m_oBounds.Center() - vecStart).LengthSqr();
-	float flDistanceToRight = (m_pRight->m_oBounds.Center() - vecStart).LengthSqr();
+		// Hit a poly in both cases, return the closer one.
+		float flDistanceToLeft = (pThis->m_pLeft->m_oBounds.Center() - vecStart).LengthSqr();
+		float flDistanceToRight = (pThis->m_pRight->m_oBounds.Center() - vecStart).LengthSqr();
 
-	CKDNode* pCloser = m_pLeft;
-	CKDNode* pFarther = m_pRight;
-	if (flDistanceToRight < flDistanceToLeft)
-	{
-		pCloser = m_pRight;
-		pFarther = m_pLeft;
+		CKDNode* pCloser = pThis->m_pLeft;
+		CKDNode* pFarther = pThis->m_pRight;
+		if (flDistanceToRight < flDistanceToLeft)
+		{
+			pCloser = pThis->m_pRight;
+			pFarther = pThis->m_pLeft;
+		}
+
+		if (pCloser->Raytrace(vecStart, vecEnd, pTR))
+			return true;
+		else
+		{
+			pThis = pFarther;
+			continue;
+		}
 	}
 
-	if (pCloser->Raytrace(vecStart, vecEnd, pTR))
+	assert(!pThis->m_pLeft);
+
+#ifdef DEBUG_WITH_GL
+	DrawBox(m_oBounds, 0.6f);
+#endif
+
+	// No children. Test all triangles in this node.
+
+	Vector vecClosest;
+	CKDTri* pClosestTri;
+	bool bFound = false;
+
+	for (size_t i = 0; i < pThis->m_aTris.size(); i++)
+	{
+		CKDTri& oTri = pThis->m_aTris[i];
+
+		Vector vecHit;
+		if (LineSegmentIntersectsTriangle(vecStart, vecEnd, oTri.v[0], oTri.v[1], oTri.v[2], &vecHit))
+		{
+			// Sometimes a try will touch a closer leaf node,
+			// but actually intersect the ray in the back, so
+			// only accept hits inside this box.
+			if (!PointInsideAABB(pThis->m_oBounds, vecHit))
+			{
+#ifdef DEBUG_WITH_GL
+				DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 1.0f, 0.0f);
+#endif
+				continue;
+			}
+
+			if (!bFound || (vecHit - vecStart).LengthSqr() < (vecClosest - vecStart).LengthSqr())
+			{
+				bFound = true;
+				vecClosest = vecHit;
+				pClosestTri = &oTri;
+			}
+
+#ifdef DEBUG_WITH_GL
+			DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 1.0f, 0.0f, 0.0f);
+#endif
+		}
+#ifdef DEBUG_WITH_GL
+		else
+			DrawTri(oTri.v[0], oTri.v[1], oTri.v[2], 0.0f, 0.0f, 1.0f);
+#endif
+	}
+
+	if (bFound)
+	{
+		if (pTR)
+		{
+			pTR->m_vecHit = vecClosest;
+			pTR->m_pFace = pClosestTri->m_pFace;
+			pTR->m_pMeshInstance = pClosestTri->m_pMeshInstance;
+		}
 		return true;
-	else
-		return pFarther->Raytrace(vecStart, vecEnd, pTR);
+	}
+
+	return false;
 }
 
 float CKDNode::Closest(const Vector& vecPoint)
