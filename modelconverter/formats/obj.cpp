@@ -75,7 +75,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 	pszLine = pszEntireFile;
 	const char16_t* pszNextLine = NULL;
-	while (*pszLine && pszLine < pszCurrent)
+	while (pszLine < pszCurrent)
 	{
 		if (pszNextLine)
 			pszLine = pszNextLine;
