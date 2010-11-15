@@ -287,6 +287,9 @@ public:
 	class CConversionSceneNode*		m_pParent;
 
 	bool							m_bVisible;
+
+	size_t							m_iLastMap;
+	CConversionMaterialMap*			m_pLastMap;
 };
 
 // A node in the scene tree.

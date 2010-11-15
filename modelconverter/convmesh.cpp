@@ -598,6 +598,9 @@ CConversionMeshInstance::CConversionMeshInstance(CConversionScene* pScene, CConv
 	m_iMesh = iMesh;
 
 	m_bVisible = true;
+
+	m_iLastMap = ~0;
+	m_pLastMap = NULL;
 }
 
 CConversionMesh* CConversionMeshInstance::GetMesh()
@@ -612,10 +615,19 @@ void CConversionMeshInstance::AddMappedMaterial(size_t s, size_t m)
 
 CConversionMaterialMap* CConversionMeshInstance::GetMappedMaterial(size_t m)
 {
-	if (m_aiMaterialsMap.find(m) == m_aiMaterialsMap.end())
-		return NULL;
+	if (m == m_iLastMap)
+		return m_pLastMap;
 
-	return &m_aiMaterialsMap[m];
+	eastl::map<size_t, CConversionMaterialMap>::iterator i = m_aiMaterialsMap.find(m);
+
+	m_iLastMap = m;
+
+	if (i == m_aiMaterialsMap.end())
+		m_pLastMap = NULL;
+	else
+		m_pLastMap = &i->second;
+
+	return m_pLastMap;
 }
 
 Vector CConversionMeshInstance::GetVertex(size_t i)

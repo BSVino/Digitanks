@@ -29,7 +29,7 @@ void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 	{
 		std::getline(infile, sGetLine);
 
-		eastl::string16 sLine = StripWhitespace(sLine.c_str());
+		eastl::string16 sLine = StripWhitespace(sGetLine.c_str());
 
 		if (sLine.length() == 0)
 			continue;

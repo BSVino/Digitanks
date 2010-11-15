@@ -512,11 +512,8 @@ bool CKDNode::Raytrace(const Ray& rayTrace, CTraceResult* pTR)
 		bool bHitsLeft = RayIntersectsAABB(rayTrace, pThis->m_pLeft->m_oBounds);
 		bool bHitsRight = RayIntersectsAABB(rayTrace, pThis->m_pRight->m_oBounds);
 
-#ifdef _DEBUG
 		// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
-		if (!(bHitsRight || bHitsLeft))
-			_asm { int 3 };
-#endif
+		assert(bHitsRight || bHitsLeft);
 
 		if (bHitsLeft && !bHitsRight)
 		{
