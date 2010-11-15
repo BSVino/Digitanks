@@ -161,6 +161,9 @@ void CParallelizer::FinishJobs()
 
 bool CParallelizer::AreAllJobsDone()
 {
+	if (m_iJobsDone == m_iJobsGiven)
+		return true;
+
 	for (size_t t = 0; t < m_aThreads.size(); t++)
 	{
 		if (!m_aThreads[t].m_bDone)
