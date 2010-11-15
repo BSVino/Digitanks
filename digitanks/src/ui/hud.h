@@ -297,8 +297,6 @@ protected:
 
 	size_t						m_iTurnSound;
 
-	size_t						m_iShieldIcon;
-
 	size_t						m_iCompetitionWatermark;
 };
 

@@ -230,8 +230,6 @@ CHUD::CHUD()
 
 	m_iTurnSound = CSoundLibrary::Get()->AddSound(L"sound/turn.wav");
 
-	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-shield.png");
-
 	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
 
@@ -703,7 +701,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iShield = (int)(255*pTank->GetFrontShieldStrength());
 			if (iShield > 255)
 				iShield = 255;
-			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
 		}
 		while (false);
 
@@ -715,7 +713,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iShield = (int)(255*pTank->GetRightShieldStrength());
 			if (iShield > 255)
 				iShield = 255;
-			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
 		}
 		while (false);
 
@@ -727,7 +725,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iShield = (int)(255*pTank->GetRearShieldStrength());
 			if (iShield > 255)
 				iShield = 255;
-			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
 		}
 		while (false);
 
@@ -739,7 +737,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iShield = (int)(255*pTank->GetLeftShieldStrength());
 			if (iShield > 255)
 				iShield = 255;
-			CRootPanel::PaintTexture(m_iShieldIcon, -50/2, -50/2 - 20, 50, 10, Color(255, 255, 255, iShield));
+			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
 		}
 		while (false);
 	}
