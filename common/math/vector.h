@@ -168,10 +168,6 @@ inline float Vector::Length2DSqr() const
 
 inline void Vector::Normalize()
 {
-	// Try to save on the sqrt()
-	if (fabs(LengthSqr() - 1) < 1e-6)
-		return;
-
 	float flLength = Length();
 	if (!flLength)
 		*this=Vector(0,0,1);
@@ -181,10 +177,6 @@ inline void Vector::Normalize()
 
 inline Vector Vector::Normalized() const
 {
-	// Try to save on the sqrt()
-	if (fabs(LengthSqr() - 1) < 1e-6)
-		return *this;
-
 	float flLength = Length();
 	if (!flLength)
 		return Vector(0,0,1);
@@ -214,22 +206,22 @@ inline Vector Vector::Cross(const Vector& v) const
 
 inline float& Vector::operator[](int i)
 {
-	return ((float*)this)[i];
+	return (&x)[i];
 }
 
 inline float Vector::operator[](int i) const
 {
-	return ((float*)this)[i];
+	return (&x)[i];
 }
 
 inline float& Vector::operator[](size_t i)
 {
-	return ((float*)this)[i];
+	return (&x)[i];
 }
 
 inline float Vector::operator[](size_t i) const
 {
-	return ((float*)this)[i];
+	return (&x)[i];
 }
 
 // Euler angles

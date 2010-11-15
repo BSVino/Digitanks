@@ -449,6 +449,8 @@ CConversionSceneNode::CConversionSceneNode(const eastl::string16& sName, CConver
 	m_pParent = pParent;
 
 	m_bVisible = true;
+
+	m_bRootTransformationsCached = false;
 }
 
 CConversionSceneNode::~CConversionSceneNode()
@@ -523,13 +525,34 @@ void CConversionSceneNode::CalculateExtends()
 	}
 }
 
-Matrix4x4 CConversionSceneNode::GetRootTransformations()
+void CConversionSceneNode::SetTransformations(const Matrix4x4& mTransformations)
 {
-	Matrix4x4 mParent;
-	if (m_pParent)
-		mParent = m_pParent->GetRootTransformations();
+	m_mTransformations = mTransformations;
 
-	return mParent * m_mTransformations;
+	InvalidateRootTransformations();
+}
+
+const Matrix4x4& CConversionSceneNode::GetRootTransformations()
+{
+	if (!m_bRootTransformationsCached)
+	{
+		Matrix4x4 mParent;
+		if (m_pParent)
+			mParent = m_pParent->GetRootTransformations();
+
+		m_mRootTransformations = mParent * m_mTransformations;
+		m_bRootTransformationsCached = true;
+	}
+
+	return m_mRootTransformations;
+}
+
+void CConversionSceneNode::InvalidateRootTransformations()
+{
+	m_bRootTransformationsCached = false;
+
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		m_apChildren[i]->InvalidateRootTransformations();
 }
 
 bool CConversionSceneNode::IsEmpty()
@@ -973,7 +996,7 @@ size_t CConversionMesh::AddFace(size_t iMaterial)
 	return iSize;
 }
 
-void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t vn)
+void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vu, size_t vn)
 {
 	m_aaVertexFaceMap[v].push_back(iFace);
 	m_aFaces[iFace].m_aVertices.push_back();
@@ -985,7 +1008,7 @@ void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vt, size_t 
 	pVertex->m_pScene = m_pScene;
 	pVertex->m_iMesh = m_pScene->FindMesh(this);
 	pVertex->v = v;
-	pVertex->vt = vt;
+	pVertex->vu = vu;
 	pVertex->vn = vn;
 }
 
@@ -1102,6 +1125,22 @@ CConversionVertex::CConversionVertex(class CConversionScene* pScene, size_t iMes
 	vn = VN;
 	vt = ~0;
 	vb = ~0;
+}
+
+CConversionVertex::CConversionVertex(const CConversionVertex& c)
+{
+	m_pScene = c.m_pScene;
+	m_iMesh = c.m_iMesh;
+	v = c.v;
+	vu = c.vu;
+	vn = c.vn;
+	vt = c.vt;
+	vb = c.vb;
+
+	size_t iEdges = c.m_aEdges.size();
+	m_aEdges.reserve(iEdges);
+	for (size_t i = 0; i < iEdges; i++)
+		m_aEdges.push_back(c.m_aEdges[i]);
 }
 
 // Default constructor so we can push_back without calling the copy constructor.

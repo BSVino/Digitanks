@@ -101,8 +101,9 @@ inline bool AABB::Intersects(const AABB& oBox) const
 
 inline bool SameSide(Vector p1, Vector p2, Vector a, Vector b)
 {
-    Vector cp1 = (b-a).Cross(p1-a);
-    Vector cp2 = (b-a).Cross(p2-a);
+	Vector ba = b-a;
+    Vector cp1 = ba.Cross(p1-a);
+    Vector cp2 = ba.Cross(p2-a);
     return (cp1.Dot(cp2) > 0);
 }
 
@@ -462,7 +463,9 @@ inline bool PointInsideAABB( AABB oBox, Vector v )
 
 	for (size_t i = 0; i < 3; i++)
 	{
-		if (v[i] < oBox.m_vecMins[i] - flEpsilon || v[i] > oBox.m_vecMaxs[i] + flEpsilon)
+		float flVI = v[i];
+
+		if (flVI < oBox.m_vecMins[i] - flEpsilon || flVI > oBox.m_vecMaxs[i] + flEpsilon)
 			return false;
 	}
 
@@ -484,9 +487,16 @@ inline bool	TriangleIntersectsAABB( AABB oBox, Vector v0, Vector v1, Vector v2)
 	// Trivial case rejection: If all three points are on one side of the box then the triangle must be outside of it.
 	for (i = 0; i < 3; i++)
 	{
-		if (v0[i] > oBox.m_vecMaxs[i] && v1[i] > oBox.m_vecMaxs[i] && v2[i] > oBox.m_vecMaxs[i])
+		float flBoxMax = oBox.m_vecMaxs[i];
+		float flBoxMin = oBox.m_vecMins[i];
+
+		float flV0 = v0[i];
+		float flV1 = v1[i];
+		float flV2 = v2[i];
+
+		if (flV0 > flBoxMax && flV1 > flBoxMax && flV2 > flBoxMax)
 			return false;
-		if (v0[i] < oBox.m_vecMins[i] && v1[i] < oBox.m_vecMins[i] && v2[i] < oBox.m_vecMins[i])
+		if (flV0 < flBoxMin && flV1 < flBoxMin && flV2 < flBoxMin)
 			return false;
 	}
 
@@ -584,13 +594,18 @@ inline size_t FindEar(const eastl::vector<Vector>& avecPoints)
 	size_t i;
 
 	Vector vecFaceNormal;
+
 	// Calculate the face normal.
 	for (i = 0; i < iPoints; i++)
 	{
 		size_t iNext = (i+1)%iPoints;
-		vecFaceNormal.x += (avecPoints[i].y - avecPoints[iNext].y) * (avecPoints[i].z + avecPoints[iNext].z);
-		vecFaceNormal.y += (avecPoints[i].z - avecPoints[iNext].z) * (avecPoints[i].x + avecPoints[iNext].x);
-		vecFaceNormal.z += (avecPoints[i].x - avecPoints[iNext].x) * (avecPoints[i].y + avecPoints[iNext].y);
+
+		Vector vecPoint = avecPoints[i];
+		Vector vecNextPoint = avecPoints[iNext];
+
+		vecFaceNormal.x += (vecPoint.y - vecNextPoint.y) * (vecPoint.z + vecNextPoint.z);
+		vecFaceNormal.y += (vecPoint.z - vecNextPoint.z) * (vecPoint.x + vecNextPoint.x);
+		vecFaceNormal.z += (vecPoint.x - vecNextPoint.x) * (vecPoint.y + vecNextPoint.y);
 	}
 
 	vecFaceNormal.Normalize();

@@ -54,6 +54,13 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 	{
 		wcscpy(pszCurrent, pszLine);
 		size_t iLength = wcslen(pszLine);
+
+		if (pszCurrent[iLength-1] == L'\n')
+		{
+			pszCurrent[iLength-1] = L'\0';
+			iLength--;
+		}
+
 		pszCurrent += iLength;
 		pszCurrent++;
 		m_pWorkListener->WorkProgress(0);
@@ -307,7 +314,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 				if (!pMesh->GetNumUVs())
 					v[1] = ~0;
-				if (v[1] == 2 || !pMesh->GetNumNormals())
+				if (bValues[2] == false || !pMesh->GetNumNormals())
 					v[2] = ~0;
 
 				pMesh->AddVertexToFace(iFace, v[0], v[1], v[2]);

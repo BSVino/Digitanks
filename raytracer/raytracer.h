@@ -17,8 +17,10 @@ public:
 class CKDTri
 {
 public:
+								CKDTri();
 								CKDTri(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
 
+public:
 	Vector						v[3];
 
 	CConversionFace*			m_pFace;
@@ -31,6 +33,9 @@ public:
 								CKDNode(CKDNode* pParent = NULL, AABB oBounds = AABB(), class CKDTree* pTree = NULL);
 								~CKDNode();
 
+public:
+	// Reserves memory for triangles all at once, for faster allocation
+	void						ReserveTriangles(size_t iEstimatedTriangles);
 	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance = NULL);
 
 	void						RemoveArea(const AABB& oBox);
@@ -75,6 +80,9 @@ public:
 								CKDTree();
 								~CKDTree();
 
+public:
+	// Reserves memory for triangles all at once, for faster allocation
+	void						ReserveTriangles(size_t iEstimatedTriangles);
 	void						AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace = NULL, CConversionMeshInstance* pMeshInstance = NULL);
 
 	void						RemoveArea(const AABB& oBox);

@@ -15,7 +15,8 @@ class CConversionVertex
 {
 public:
 									CConversionVertex();
-									CConversionVertex(class CConversionScene* pScene, size_t iMesh, size_t v, size_t vt, size_t vn);
+									CConversionVertex(const CConversionVertex& c);
+									CConversionVertex(class CConversionScene* pScene, size_t iMesh, size_t v, size_t vu, size_t vn);
 
 public:
 	class CConversionScene*			m_pScene;
@@ -298,7 +299,9 @@ public:
 public:
 	void								CalculateExtends();
 
-	Matrix4x4							GetRootTransformations();
+	void								SetTransformations(const Matrix4x4& mTransformations);
+	const Matrix4x4&					GetRootTransformations();
+	void								InvalidateRootTransformations();
 
 	bool								IsEmpty();
 
@@ -326,6 +329,9 @@ public:
 	eastl::vector<CConversionMeshInstance>	m_aMeshInstances;
 
 	Matrix4x4							m_mTransformations;
+
+	bool								m_bRootTransformationsCached;
+	Matrix4x4							m_mRootTransformations;
 
 	AABB								m_oExtends;
 

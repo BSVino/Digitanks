@@ -139,11 +139,20 @@ void CRaytracer::AddMeshInstance(CConversionMeshInstance* pMeshInstance)
 	if (!m_pTree)
 		m_pTree = new CKDTree();
 
-	for (size_t f = 0; f < pMeshInstance->GetMesh()->GetNumFaces(); f++)
+	eastl::vector<Vector> avecPoints;
+
+	size_t iFaces = pMeshInstance->GetMesh()->GetNumFaces();
+
+	m_pTree->ReserveTriangles(iFaces*2);
+
+	for (size_t f = 0; f < iFaces; f++)
 	{
+		avecPoints.clear();
+
 		CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(f);
-		eastl::vector<Vector> avecPoints;
-		for (size_t t = 0; t < pFace->GetNumVertices(); t++)
+
+		size_t iVertices = pFace->GetNumVertices();
+		for (size_t t = 0; t < iVertices; t++)
 			avecPoints.push_back(pMeshInstance->GetVertex(pFace->GetVertex(t)->v));
 
 		while (avecPoints.size() > 3)
@@ -175,6 +184,11 @@ CKDTree::CKDTree()
 CKDTree::~CKDTree()
 {
 	delete m_pTop;
+}
+
+void CKDTree::ReserveTriangles(size_t iEstimatedTriangles)
+{
+	m_pTop->ReserveTriangles(iEstimatedTriangles);
 }
 
 void CKDTree::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance)
@@ -257,6 +271,11 @@ CKDNode::~CKDNode()
 		delete m_pRight;
 }
 
+void CKDNode::ReserveTriangles(size_t iEstimatedTriangles)
+{
+	m_aTris.reserve(iEstimatedTriangles);
+}
+
 void CKDNode::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance)
 {
 	if (m_pTree->IsBuilt())
@@ -287,7 +306,15 @@ void CKDNode::AddTriangle(Vector v1, Vector v2, Vector v3, CConversionFace* pFac
 			m_pRight->AddTriangle(v1, v2, v3, pFace, pMeshInstance);
 	}
 	else
-		m_aTris.push_back(CKDTri(v1, v2, v3, pFace, pMeshInstance));
+	{
+		m_aTris.push_back();
+		CKDTri* pTri = &m_aTris[m_aTris.size()-1];
+		pTri->v[0] = v1;
+		pTri->v[1] = v2;
+		pTri->v[2] = v3;
+		pTri->m_pFace = pFace;
+		pTri->m_pMeshInstance = pMeshInstance;
+	}
 
 	if (m_pLeft)
 		m_iTriangles = m_pLeft->m_iTriangles + m_pRight->m_iTriangles;
@@ -374,15 +401,19 @@ void CKDNode::CalcBounds()
 
 	for (size_t i = 0; i < m_aTris.size(); i++)
 	{
+		CKDTri* pTri = &m_aTris[i];
+
 		for (size_t j = 0; j < 3; j++)
 		{
 			for (size_t k = 0; k < 3; k++)
 			{
-				if (m_aTris[i].v[j][k] < vecLowest[k])
-					vecLowest[k] = m_aTris[i].v[j][k];
+				float flValue = pTri->v[j][k];
 
-				if (m_aTris[i].v[j][k] > vecHighest[k])
-					vecHighest[k] = m_aTris[i].v[j][k];
+				if (flValue < vecLowest[k])
+					vecLowest[k] = flValue;
+
+				if (flValue > vecHighest[k])
+					vecHighest[k] = flValue;
 			}
 		}
 	}
@@ -396,12 +427,16 @@ void CKDNode::BuildTriList()
 
 	if (m_pParent)
 	{
+		size_t iParentTris = m_pParent->m_aTris.size();
+
+		m_aTris.reserve(iParentTris*3/5);
+
 		// Copy all tris from my parent that intersect my bounding box
-		for (size_t i = 0; i < m_pParent->m_aTris.size(); i++)
+		for (size_t i = 0; i < iParentTris; i++)
 		{
-			CKDTri oTri = m_pParent->m_aTris[i];
-			if (TriangleIntersectsAABB(m_oBounds, oTri.v[0], oTri.v[1], oTri.v[2]))
-				m_aTris.push_back(CKDTri(oTri.v[0], oTri.v[1], oTri.v[2], oTri.m_pFace, oTri.m_pMeshInstance));
+			CKDTri* oTri = &m_pParent->m_aTris[i];
+			if (TriangleIntersectsAABB(m_oBounds, oTri->v[0], oTri->v[1], oTri->v[2]))
+				m_aTris.push_back(m_pParent->m_aTris[i]);
 		}
 	}
 
@@ -721,6 +756,11 @@ float CKDNode::Closest(const Vector& vecPoint)
 		return flClosest;
 	else
 		return -1;
+}
+
+CKDTri::CKDTri()
+{
+	// Empty for speed reasons. It'll get filled with values by whoever pushed it onto the vector.
 }
 
 CKDTri::CKDTri(Vector v1, Vector v2, Vector v3, CConversionFace* pFace, CConversionMeshInstance* pMeshInstance)
