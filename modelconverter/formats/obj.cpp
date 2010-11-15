@@ -144,16 +144,19 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			// A vertex.
 			float v[3];
 			// scanf is pretty slow even for such a short string due to lots of mallocs.
-			const wchar_t* pszToken = pszLine;
+			const wchar_t* pszToken = pszLine+1;
 			int iDimension = 0;
-			while (++pszToken)
+			while (*pszToken)
 			{
-				if (pszToken[0] == L' ')
-				{
-					v[iDimension++] = (float)_wtof(pszToken+1);
-					if (iDimension >= 3)
-						break;
-				}
+				while (pszToken[0] == L' ')
+					pszToken++;
+
+				v[iDimension++] = (float)_wtof(pszToken);
+				if (iDimension >= 3)
+					break;
+
+				while (pszToken[0] != L' ')
+					pszToken++;
 			}
 			pMesh->AddVertex(v[0], v[1], v[2]);
 		}
@@ -260,7 +263,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			while (pszToken = wcstok(NULL, L" "))
 			{
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
-				long v[3];
+				long f[3];
 				bool bValues[3];
 				bValues[0] = false;
 				bValues[1] = false;
@@ -280,47 +283,50 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 							pszValues++;
 
 						bValues[iValue] = true;
-						v[iValue++] = (long)_wtoi(pszValues);
+						f[iValue++] = (long)_wtoi(pszValues);
 						if (iValue >= 3)
 							break;
 					}
-					pszValues++;
+
+					// Don't advance if we're on a slash, because that means empty slashes. ie, 11//12 <-- the 12 would get skipped.
+					if (pszValues[0] != L'/')
+						pszValues++;
 				}
 				while (*pszValues);
 
 				if (bValues[0])
 				{
-					if (v[0] < 0)
-						v[0] = (long)pMesh->GetNumVertices()+v[0]+1;
-					assert ( v[0] >= 1 && v[0] < (long)pMesh->GetNumVertices()+1 );
+					if (f[0] < 0)
+						f[0] = (long)pMesh->GetNumVertices()+f[0]+1;
+					assert ( f[0] >= 1 && f[0] < (long)pMesh->GetNumVertices()+1 );
 				}
 
 				if (bValues[1] && pMesh->GetNumUVs())
 				{
-					if (v[1] < 0)
-						v[1] = (long)pMesh->GetNumUVs()+v[1]+1;
-					assert ( v[1] >= 1 && v[1] < (long)pMesh->GetNumUVs()+1 );
+					if (f[1] < 0)
+						f[1] = (long)pMesh->GetNumUVs()+f[1]+1;
+					assert ( f[1] >= 1 && f[1] < (long)pMesh->GetNumUVs()+1 );
 				}
 
 				if (bValues[2] && pMesh->GetNumNormals())
 				{
-					if (v[2] < 0)
-						v[2] = (long)pMesh->GetNumNormals()+v[2]+1;
-					assert ( v[2] >= 1 && v[2] < (long)pMesh->GetNumNormals()+1 );
+					if (f[2] < 0)
+						f[2] = (long)pMesh->GetNumNormals()+f[2]+1;
+					assert ( f[2] >= 1 && f[2] < (long)pMesh->GetNumNormals()+1 );
 				}
 
 				// OBJ uses 1-based indexing.
 				// Convert to 0-based indexing.
-				v[0]--;
-				v[1]--;
-				v[2]--;
+				f[0]--;
+				f[1]--;
+				f[2]--;
 
 				if (!pMesh->GetNumUVs())
-					v[1] = ~0;
+					f[1] = ~0;
 				if (bValues[2] == false || !pMesh->GetNumNormals())
-					v[2] = ~0;
+					f[2] = ~0;
 
-				pMesh->AddVertexToFace(iFace, v[0], v[1], v[2]);
+				pMesh->AddVertexToFace(iFace, f[0], f[1], f[2]);
 			}
 		}
 	}
