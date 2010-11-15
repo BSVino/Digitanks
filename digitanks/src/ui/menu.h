@@ -272,7 +272,6 @@ protected:
 	CDockPanel*						m_pDockPanel;
 
 	size_t							m_iLunarWorkshop;
-	size_t							m_iDigitanks;
 
 	float							m_flCreditsRoll;
 

@@ -112,11 +112,12 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
+	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
+
 	m_pActionItem = new CLabel(0, 0, 10, 10, L"");
 	m_pNextActionItem = new CButton(0, 0, 100, 50, L"Next");
 	AddControl(m_pActionItem);
 	AddControl(m_pNextActionItem);
-	m_iActionItemPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-action-items.png", true);
 
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
@@ -148,7 +149,6 @@ CHUD::CHUD()
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pAttackInfo);
-	m_iAttackInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-attack-info.png", true);
 
 	m_pScoreboard = new CLabel(0, 0, 100, 150, L"");
 	m_pScoreboard->SetWrap(false);
@@ -170,11 +170,9 @@ CHUD::CHUD()
 
 	m_pTankInfo = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pTankInfo);
-	m_iTankInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-tank-info.png", true);
 
 	m_pTurnInfo = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pTurnInfo);
-	m_iTurnInfoPanel = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-turn-report.png", true);
 
 	m_pButtonInfo = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pButtonInfo);
@@ -209,7 +207,8 @@ CHUD::CHUD()
 	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pBandwidthInfo->SetPos(200, 20);
 
-	m_pUpdatesButton = new CPictureButton(L"Download Updates", CRenderer::LoadTextureIntoGL(L"textures/hud/hud-download-updates.png", true));
+	m_pUpdatesButton = new CPictureButton(L"Download Updates");
+	m_pUpdatesButton->SetSheetTexture(m_iHUDSheet, 500, 710, 175, 40, 1024, 1024);
 	m_pUpdatesButton->SetClickedListener(this, OpenUpdates);
 	m_pUpdatesButton->ShowBackground(false);
 	AddControl(m_pUpdatesButton);
@@ -218,10 +217,8 @@ CHUD::CHUD()
 	m_pUpdatesPanel->SetVisible(false);
 	AddControl(m_pUpdatesPanel, true);
 
-	m_iTurnButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn.png", true);
-	m_iTurnCompleteButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn-complete.png", true);
-	m_iTurnThinkingButton = CRenderer::LoadTextureIntoGL(L"textures/hud/turn-thinking.png", true);
-	m_pTurnButton = new CPictureButton(L"TURN", m_iTurnButton);
+	m_pTurnButton = new CPictureButton(L"TURN");
+	m_pTurnButton->SetSheetTexture(m_iHUDSheet, 0, 730, 160, 120, 1024, 1024);
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
 	AddControl(m_pTurnButton);
@@ -233,19 +230,7 @@ CHUD::CHUD()
 
 	m_iTurnSound = CSoundLibrary::Get()->AddSound(L"sound/turn.wav");
 
-	m_iHUDGraphic = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main.png", true);
-
-	m_iAvatarTankIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-tank.png");
-	m_iAvatarInfantryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-infantry.png");
-	m_iAvatarScoutIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-rogue.png");
-	m_iAvatarArtilleryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-artillery.png");
 	m_iShieldIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/avatar-shield.png");
-
-	m_iSpeechBubble = CRenderer::LoadTextureIntoGL(L"textures/hud/bubble.png");
-
-	m_iPowerIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-power.png");
-	m_iFleetPointsIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fleet.png");
-	m_iBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-bandwidth.png");
 
 	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
@@ -633,24 +618,24 @@ void CHUD::Paint(int x, int y, int w, int h)
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iHUDGraphic, iWidth/2 - 720/2, iHeight-160, 720, 160);
+		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
-			CRootPanel::PaintTexture(m_iPowerIcon, iWidth - 320, 10, 20, 20);
-			CRootPanel::PaintTexture(m_iFleetPointsIcon, iWidth - 250, 10, 20, 20);
-			CRootPanel::PaintTexture(m_iBandwidthIcon, iWidth - 180, 10, 20, 20);
+			PaintHUDSheet(iWidth - 320, 10, 20, 20, 500, 530, 20, 20);
+			PaintHUDSheet(iWidth - 250, 10, 20, 20, 520, 530, 20, 20);
+			PaintHUDSheet(iWidth - 180, 10, 20, 20, 540, 530, 20, 20);
 
-			CRootPanel::PaintTexture(m_iTurnInfoPanel, m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
+			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
 		}
 
 		if (m_flAttackInfoAlpha > 0)
-			CRootPanel::PaintTexture(m_iAttackInfoPanel, iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
+			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 500, 600, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
 		if (m_pActionItem->GetText()[0] != L'\0')
-			CRootPanel::PaintTexture(m_iActionItemPanel, m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, 280, 340);
+			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, 280, 340, 350, 0, 250, 310);
 
-		CRootPanel::PaintTexture(m_iTankInfoPanel, 0, iHeight-250, 150, 250);
+		PaintHUDSheet(0, iHeight-250, 150, 250, 350, 510, 150, 250);
 	} while (false);
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
@@ -689,28 +674,25 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		size_t iIcon;
 		switch (pTank->GetBuildUnit())
 		{
 		default:
 		case BUILDUNIT_TANK:
-			iIcon = m_iAvatarTankIcon;
+			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 350, 310, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 
 		case BUILDUNIT_INFANTRY:
-			iIcon = m_iAvatarInfantryIcon;
+			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 450, 410, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 
 		case BUILDUNIT_ARTILLERY:
-			iIcon = m_iAvatarArtilleryIcon;
+			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 350, 410, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 
 		case BUILDUNIT_SCOUT:
-			iIcon = m_iAvatarScoutIcon;
+			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 450, 310, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 		}
-
-		CRootPanel::PaintTexture(iIcon, iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, pTank->GetTeam()->GetColor());
 
 		c.SetBlend(BLEND_ADDITIVE);
 
@@ -769,6 +751,34 @@ void CHUD::Paint(int x, int y, int w, int h)
 //		CRootPanel::PaintTexture(m_iCompetitionWatermark, 20, 20, 125/2, 184/2);
 //		break;
 //	}
+}
+
+void CHUD::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
+{
+	glPushAttrib(GL_ENABLE_BIT);
+
+	glEnable(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
+	glColor4ubv(c);
+	glBegin(GL_QUADS);
+		glTexCoord2f((float)sx/tw, 1-(float)sy/th);
+		glVertex2d(x, y);
+		glTexCoord2f((float)sx/tw, 1-((float)sy+sh)/th);
+		glVertex2d(x, y+h);
+		glTexCoord2f(((float)sx+sw)/tw, 1-((float)sy+sh)/th);
+		glVertex2d(x+w, y+h);
+		glTexCoord2f(((float)sx+sw)/tw, 1-(float)sy/th);
+		glVertex2d(x+w, y);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glPopAttrib();
+}
+
+void CHUD::PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c)
+{
+	PaintSheet(DigitanksWindow()->GetHUD()->m_iHUDSheet, x, y, w, h, sx, sy, sw, sh, 1024, 1024, c);
 }
 
 void CHUD::ClientEnterGame()
@@ -1061,17 +1071,17 @@ void CHUD::UpdateTurnButton()
 
 	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 	{
-		m_pTurnButton->SetTexture(m_iTurnThinkingButton);
+		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 320, 760, 120, 90, 1024, 1024);
 		m_pPressEnter->SetVisible(true);
 	}
 	else if (bTurnComplete)
 	{
-		m_pTurnButton->SetTexture(m_iTurnCompleteButton);
+		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 160, 730, 160, 120, 1024, 1024);
 		m_pPressEnter->SetVisible(true);
 	}
 	else
 	{
-		m_pTurnButton->SetTexture(m_iTurnButton);
+		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 0, 730, 160, 120, 1024, 1024);
 		m_pPressEnter->SetVisible(false);
 	}
 
@@ -1509,7 +1519,7 @@ void CHUD::TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)
 		return;
 
 	// Cleans itself up.
-	new CSpeechBubble(pTank, sSpeech, m_iSpeechBubble);
+	new CSpeechBubble(pTank, sSpeech);
 }
 
 void CHUD::ClearTurnInfo()
@@ -2535,13 +2545,12 @@ void CHitIndicator::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech, size_t iBubble)
+CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech)
 	: CLabel(0, 0, 83*2/3, 47*2/3, L"")
 {
 	m_hSpeaker = pSpeaker;
 	m_flTime = GameServer()->GetGameTime();
 	m_vecLastOrigin = pSpeaker->GetOrigin();
-	m_iBubble = iBubble;
 
 	if (pSpeaker)
 		m_flRadius = pSpeaker->GetBoundingRadius();
@@ -2609,7 +2618,7 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iBubble, x, y, w, h, Color(255, 255, 255, GetAlpha()));
+		CHUD::PaintHUDSheet(x, y, w, h, 500, 550, 83, 47, Color(255, 255, 255, GetAlpha()));
 	} while (false);
 
 	BaseClass::Paint(x, y, w, h);

@@ -85,7 +85,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>if exist "$(TargetDir)"digitanks.exe copy "$(TargetDir)"digitanks.exe "../install\digitanks.exe"</Command>
+      <Command>if exist "$(TargetDir)"digitanks.exe copy "$(TargetDir)"digitanks.exe "D:\My Dropbox\Digitanks\install\digitanks.exe"</Command>
       <Message>Copying to destination folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>

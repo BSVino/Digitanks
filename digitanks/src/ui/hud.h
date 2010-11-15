@@ -80,7 +80,7 @@ class CSpeechBubble : public glgui::CLabel
 	DECLARE_CLASS(CSpeechBubble, glgui::CLabel);
 
 public:
-								CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech, size_t iBubble);
+								CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech);
 
 public:
 	virtual void				Destructor();
@@ -95,7 +95,6 @@ protected:
 	float						m_flTime;
 	Vector						m_vecLastOrigin;
 	float						m_flRadius;
-	size_t						m_iBubble;
 };
 
 class CMouseCapturePanel : public glgui::CPanel
@@ -121,6 +120,9 @@ public:
 	virtual void				Think();
 
 	void						Paint(int x, int y, int w, int h);
+
+	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
+	static void					PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c = Color(255,255,255));
 
 	void						ClientEnterGame();
 
@@ -228,8 +230,6 @@ public:
 	EVENT_CALLBACK(CHUD, CancelUpgrade);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
-	size_t						GetSpeechBubble() { return m_iSpeechBubble; };
-
 	static void					SetNeedsUpdate();
 
 protected:
@@ -244,7 +244,6 @@ protected:
 	glgui::CButton*				m_pNextActionItem;
 	size_t						m_iCurrentActionItem;
 	bool						m_bAllActionItemsHandled;
-	size_t						m_iActionItemPanel;
 
 	CMouseCapturePanel*			m_pButtonPanel;
 
@@ -256,7 +255,6 @@ protected:
 	glgui::CLabel*				m_pAttackInfo;
 	float						m_flAttackInfoAlpha;
 	float						m_flAttackInfoAlphaGoal;
-	size_t						m_iAttackInfoPanel;
 
 	glgui::CLabel*				m_pFrontShieldInfo;
 	glgui::CLabel*				m_pRearShieldInfo;
@@ -271,7 +269,6 @@ protected:
 	float						m_flTurnInfoHeightGoal;
 	float						m_flTurnInfoLerp;
 	float						m_flTurnInfoLerpGoal;
-	size_t						m_iTurnInfoPanel;
 
 	glgui::CLabel*				m_pButtonInfo;
 	eastl::string16				m_aszButtonInfos[NUM_BUTTONS];
@@ -296,25 +293,11 @@ protected:
 
 	glgui::CLabel*				m_pScoreboard;
 
-	size_t						m_iHUDGraphic;
+	size_t						m_iHUDSheet;
 
 	size_t						m_iTurnSound;
 
-	size_t						m_iAvatarTankIcon;
-	size_t						m_iAvatarInfantryIcon;
-	size_t						m_iAvatarScoutIcon;
-	size_t						m_iAvatarArtilleryIcon;
 	size_t						m_iShieldIcon;
-
-	size_t						m_iSpeechBubble;
-
-	size_t						m_iPowerIcon;
-	size_t						m_iFleetPointsIcon;
-	size_t						m_iBandwidthIcon;
-
-	size_t						m_iTurnButton;
-	size_t						m_iTurnCompleteButton;
-	size_t						m_iTurnThinkingButton;
 
 	size_t						m_iCompetitionWatermark;
 };

@@ -1136,6 +1136,7 @@ CPictureButton::CPictureButton(const eastl::string16& sText, size_t iTexture, bo
 {
 	m_iTexture = iTexture;
 	m_bShowBackground = true;
+	m_bSheet = false;
 }
 
 void CPictureButton::Paint(int x, int y, int w, int h)
@@ -1146,7 +1147,32 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 	if (m_bShowBackground)
 		PaintButton(x, y, w, h);
 
-	if (m_iTexture)
+	if (m_bSheet)
+	{
+		glPushAttrib(GL_ENABLE_BIT);
+
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
+		glColor4f(1,1,1,(float)GetAlpha()/255);
+		glBegin(GL_QUADS);
+			glTexCoord2f((float)m_iSX/m_iTW, 1-(float)m_iSY/m_iTH);
+			glVertex2d(x, y);
+			glTexCoord2f((float)m_iSX/m_iTW, 1-((float)m_iSY+m_iSH)/m_iTH);
+			glVertex2d(x, y+h);
+			glTexCoord2f(((float)m_iSX+m_iSW)/m_iTW, 1-((float)m_iSY+m_iSH)/m_iTH);
+			glVertex2d(x+w, y+h);
+			glTexCoord2f(((float)m_iSX+m_iSW)/m_iTW, 1-(float)m_iSY/m_iTH);
+			glVertex2d(x+w, y);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glPopAttrib();
+	}
+	else if (m_iTexture)
 	{
 		glPushAttrib(GL_ENABLE_BIT);
 
@@ -1176,6 +1202,18 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 		// Now paint the text which appears on the button.
 		CLabel::Paint(x, y, w, h);
 	}
+}
+
+void CPictureButton::SetSheetTexture(size_t iSheet, int sx, int sy, int sw, int sh, int tw, int th)
+{
+	m_bSheet = true;
+	m_iTexture = iSheet;
+	m_iSX = sx;
+	m_iSY = sy;
+	m_iSW = sw;
+	m_iSH = sh;
+	m_iTW = tw;
+	m_iTH = th;
 }
 
 CCheckBox::CCheckBox()

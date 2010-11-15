@@ -14,6 +14,7 @@
 #include "instructor.h"
 #include "digitankswindow.h"
 #include "register.h"
+#include "hud.h"
 
 using namespace glgui;
 
@@ -23,26 +24,31 @@ CMainMenu::CMainMenu()
 	m_pTutorial = new CButton(0, 0, 100, 100, L"Tutorials");
 	m_pTutorial->SetClickedListener(this, OpenTutorialsPanel);
 	m_pTutorial->SetFontFaceSize(36);
+	m_pTutorial->SetButtonColor(Color(0,0,0));
 	AddControl(m_pTutorial);
 
 	m_pPlay = new CButton(0, 0, 100, 100, L"Play Digitanks!");
 	m_pPlay->SetClickedListener(this, OpenGamesPanel);
 	m_pPlay->SetFontFaceSize(36);
+	m_pPlay->SetButtonColor(Color(0,0,0));
 	AddControl(m_pPlay);
 
 	m_pMultiplayer = new CButton(0, 0, 100, 100, L"Multiplayer");
 	m_pMultiplayer->SetClickedListener(this, OpenMultiplayerPanel);
 	m_pMultiplayer->SetFontFaceSize(36);
+	m_pMultiplayer->SetButtonColor(Color(0,0,0));
 	AddControl(m_pMultiplayer);
 
 	m_pOptions = new CButton(0, 0, 100, 100, L"Options");
 	m_pOptions->SetClickedListener(this, OpenOptionsPanel);
 	m_pOptions->SetFontFaceSize(36);
+	m_pOptions->SetButtonColor(Color(0,0,0));
 	AddControl(m_pOptions);
 
 	m_pQuit = new CButton(0, 0, 100, 100, L"Quit");
 	m_pQuit->SetClickedListener(this, Quit);
 	m_pQuit->SetFontFaceSize(36);
+	m_pQuit->SetButtonColor(Color(0,0,0));
 	AddControl(m_pQuit);
 
 	m_pHint = new CLabel(0, 0, 100, 100, L"");
@@ -51,6 +57,7 @@ CMainMenu::CMainMenu()
 	m_pShowCredits = new CButton(0, 0, 100, 100, L"Credits");
 	m_pShowCredits->SetClickedListener(this, Credits);
 	m_pShowCredits->SetFontFaceSize(11);
+	m_pShowCredits->SetButtonColor(Color(0,0,0));
 	AddControl(m_pShowCredits);
 
 	m_pCredits = new CLabel(0, 0, 100, 100, L"");
@@ -66,7 +73,6 @@ CMainMenu::CMainMenu()
 	m_pDockPanel = NULL;
 
 	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
-	m_iDigitanks = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-main-menu.png");
 }
 
 void CMainMenu::Layout()
@@ -133,7 +139,7 @@ void CMainMenu::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iDigitanks, 20, 20, 350, 730);
+		CHUD::PaintHUDSheet(20, 20, 350, 730, 0, 0, 350, 730);
 		if (!m_pCredits->IsVisible())
 			CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
 	}
