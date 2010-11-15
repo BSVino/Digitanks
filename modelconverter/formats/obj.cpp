@@ -36,7 +36,8 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 	int iVerticesComplete = 0;
 	int iFacesComplete = 0;
 
-	m_pWorkListener->SetAction(L"Reading file into memory...", 0);
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Reading file into memory...", 0);
 
 	fseek(fp, 0L, SEEK_END);
 	long iOBJSize = ftell(fp);
@@ -63,7 +64,9 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 		pszCurrent += iLength;
 		pszCurrent++;
-		m_pWorkListener->WorkProgress(0);
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(0);
 	}
 
 	pszCurrent[0] = L'\0';
