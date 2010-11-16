@@ -13,55 +13,98 @@ void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
 
-	std::wifstream infile;
-	infile.open(sFilename.c_str(), std::wifstream::in);
+	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(sFilename).append(L".sia")));
 
-	if (!infile.is_open())
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Reading file into memory...", 0);
+
+	FILE* fp = _wfopen(sFilename.c_str(), L"r");
+
+	if (!fp)
 	{
 		printf("No input file. Sorry!\n");
 		return;
 	}
 
-	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(sFilename).append(L".sia")));
+	fseek(fp, 0L, SEEK_END);
+	long iOBJSize = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
 
-	std::wstring sGetLine;
-	while (infile.good())
+	// Make sure we allocate more than we need just in case.
+	char16_t* pszEntireFile = (char16_t*)malloc((iOBJSize+1) * (sizeof(char16_t)+1));
+	char16_t* pszCurrent = pszEntireFile;
+
+	// Read the entire file into an array first for faster processing.
+	const size_t iChars = 1024;
+	char16_t szLine[iChars];
+	const char16_t* pszLine;
+	while (pszLine = fgetws(szLine, iChars, fp))
 	{
-		std::getline(infile, sGetLine);
+		wcscpy(pszCurrent, pszLine);
+		size_t iLength = wcslen(pszLine);
 
-		eastl::string16 sLine = StripWhitespace(sGetLine.c_str());
+		if (pszCurrent[iLength-1] == L'\n')
+		{
+			pszCurrent[iLength-1] = L'\0';
+			iLength--;
+		}
 
-		if (sLine.length() == 0)
+		pszCurrent += iLength;
+		pszCurrent++;
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(0);
+	}
+
+	pszCurrent[0] = L'\0';
+
+	fclose(fp);
+
+	pszLine = pszEntireFile;
+	const char16_t* pszNextLine = NULL;
+	while (pszLine < pszCurrent)
+	{
+		if (pszNextLine)
+			pszLine = pszNextLine;
+
+		pszNextLine = pszLine + wcslen(pszLine) + 1;
+
+		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
+		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
+		while (*pszLine && IsWhitespace(*pszLine))
+			pszLine++;
+
+		if (wcslen(pszLine) == 0)
 			continue;
 
 		eastl::vector<eastl::string16> aTokens;
-		wcstok(sLine, aTokens, L" ");
+		wcstok(pszLine, aTokens, L" ");
 		const wchar_t* pszToken = aTokens[0].c_str();
 
 		if (wcscmp(pszToken, L"-Version") == 0)
 		{
 			// Warning if version is later than 1.0, we may not support it
 			int iMajor, iMinor;
-			swscanf(sLine.c_str(), L"-Version %d.%d", &iMajor, &iMinor);
+			swscanf(pszLine, L"-Version %d.%d", &iMajor, &iMinor);
 			if (iMajor != 1 && iMinor != 0)
 				printf("WARNING: I was programmed for version 1.0, this file is version %d.%d, so this might not work exactly right!\n", iMajor, iMinor);
 		}
 		else if (wcscmp(pszToken, L"-Mat") == 0)
 		{
-			ReadSIAMat(infile, pScene, sFilename);
+			pszNextLine = ReadSIAMat(pszNextLine, pszCurrent, pScene, sFilename);
 		}
 		else if (wcscmp(pszToken, L"-Shape") == 0)
 		{
-			ReadSIAShape(infile, pScene);
+			pszNextLine = ReadSIAShape(pszNextLine, pszCurrent, pScene);
 		}
 		else if (wcscmp(pszToken, L"-Texshape") == 0)
 		{
 			// This is the 3d UV space of the object, but we only care about its 2d UV space which is contained in rhw -Shape section, so meh.
-			ReadSIAShape(infile, pScene, false);
+			pszNextLine = ReadSIAShape(pszNextLine, pszCurrent, pScene, false);
 		}
 	}
 
-	infile.close();
+	free(pszEntireFile);
 
 	m_pScene->SetWorkListener(m_pWorkListener);
 
@@ -78,7 +121,7 @@ void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 		m_pWorkListener->EndProgress();
 }
 
-void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const eastl::string16& sFilename)
+const char16_t* CModelConverter::ReadSIAMat(const char16_t* pszLine, const char16_t* pszEnd, CConversionSceneNode* pScene, const eastl::string16& sFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(L"Reading materials", 0);
@@ -86,24 +129,29 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 	size_t iCurrentMaterial = m_pScene->AddMaterial(L"");
 	CConversionMaterial* pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
-	std::wstring sGetLine;
-	while (infile.good())
+	const char16_t* pszNextLine = NULL;
+	while (pszLine < pszEnd)
 	{
-		std::getline(infile, sGetLine);
+		if (pszNextLine)
+			pszLine = pszNextLine;
 
-		eastl::string16 sLine = sGetLine.c_str();
-		sLine = StripWhitespace(sLine);
+		pszNextLine = pszLine + wcslen(pszLine) + 1;
 
-		if (sLine.length() == 0)
+		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
+		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
+		while (*pszLine && IsWhitespace(*pszLine))
+			pszLine++;
+
+		if (wcslen(pszLine) == 0)
 			continue;
 
 		eastl::vector<eastl::string16> aTokens;
-		wcstok(sLine, aTokens, L" ");
+		wcstok(pszLine, aTokens, L" ");
 		const wchar_t* pszToken = aTokens[0].c_str();
 
 		if (wcscmp(pszToken, L"-name") == 0)
 		{
-			eastl::string16 sName = sLine.c_str()+6;
+			eastl::string16 sName = pszLine+6;
 			eastl::vector<eastl::string16> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
@@ -112,7 +160,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		else if (wcscmp(pszToken, L"-dif") == 0)
 		{
 			float r, g, b;
-			swscanf(sLine.c_str(), L"-dif %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"-dif %f %f %f", &r, &g, &b);
 			pMaterial->m_vecDiffuse.x = r;
 			pMaterial->m_vecDiffuse.y = g;
 			pMaterial->m_vecDiffuse.z = b;
@@ -120,7 +168,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		else if (wcscmp(pszToken, L"-amb") == 0)
 		{
 			float r, g, b;
-			swscanf(sLine.c_str(), L"-amb %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"-amb %f %f %f", &r, &g, &b);
 			pMaterial->m_vecAmbient.x = r;
 			pMaterial->m_vecAmbient.y = g;
 			pMaterial->m_vecAmbient.z = b;
@@ -128,7 +176,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		else if (wcscmp(pszToken, L"-spec") == 0)
 		{
 			float r, g, b;
-			swscanf(sLine.c_str(), L"-spec %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"-spec %f %f %f", &r, &g, &b);
 			pMaterial->m_vecSpecular.x = r;
 			pMaterial->m_vecSpecular.y = g;
 			pMaterial->m_vecSpecular.z = b;
@@ -136,7 +184,7 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		else if (wcscmp(pszToken, L"-emis") == 0)
 		{
 			float r, g, b;
-			swscanf(sLine.c_str(), L"-emis %f %f %f", &r, &g, &b);
+			swscanf(pszLine, L"-emis %f %f %f", &r, &g, &b);
 			pMaterial->m_vecEmissive.x = r;
 			pMaterial->m_vecEmissive.y = g;
 			pMaterial->m_vecEmissive.z = b;
@@ -144,12 +192,12 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		else if (wcscmp(pszToken, L"-shin") == 0)
 		{
 			float flShininess;
-			swscanf(sLine.c_str(), L"-shin %f", &flShininess);
+			swscanf(pszLine, L"-shin %f", &flShininess);
 			pMaterial->m_flShininess = flShininess;
 		}
 		else if (wcscmp(pszToken, L"-tex") == 0)
 		{
-			const wchar_t* pszTexture = sLine.c_str()+5;
+			const wchar_t* pszTexture = pszLine+5;
 
 			eastl::string16 sName = pszTexture;
 			eastl::vector<eastl::string16> aName;
@@ -163,12 +211,14 @@ void CModelConverter::ReadSIAMat(std::wifstream& infile, CConversionSceneNode* p
 		}
 		else if (wcscmp(pszToken, L"-endMat") == 0)
 		{
-			return;
+			return pszNextLine;
 		}
 	}
+
+	return pszNextLine;
 }
 
-void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode* pScene, bool bCare)
+const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const char16_t* pszEnd, CConversionSceneNode* pScene, bool bCare)
 {
 	size_t iCurrentMaterial = ~0;
 
@@ -181,25 +231,36 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 
 	eastl::string16 sLastTask;
 
-	std::wstring sGetLine;
-	while (infile.good())
+	const char16_t* pszNextLine = NULL;
+	while (pszLine < pszEnd)
 	{
-		std::getline(infile, sGetLine);
+		if (pszNextLine)
+			pszLine = pszNextLine;
 
-		eastl::string16 sLine = sGetLine.c_str();
-		sLine = StripWhitespace(sLine);
+		pszNextLine = pszLine + wcslen(pszLine) + 1;
 
-		if (sLine.length() == 0)
+		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
+		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
+		while (*pszLine && IsWhitespace(*pszLine))
+			pszLine++;
+
+		if (wcslen(pszLine) == 0)
 			continue;
 
-		eastl::vector<eastl::string16> aTokens;
-		wcstok(sLine, aTokens, L" ");
-		const wchar_t* pszToken = aTokens[0].c_str();
+		const char16_t* pszToken = pszLine;
+
+		while (*pszToken && *pszToken != L' ')
+			pszToken++;
+
+		char16_t szToken[1024];
+		wcsncpy(szToken, pszLine, pszToken-pszLine);
+		szToken[pszToken-pszLine] = L'\0';
+		pszToken = szToken;
 
 		if (!bCare)
 		{
 			if (wcscmp(pszToken, L"-endShape") == 0)
-				return;
+				return pszNextLine;
 			else
 				continue;
 		}
@@ -207,7 +268,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 		if (wcscmp(pszToken, L"-snam") == 0)
 		{
 			// We name our mesh.
-			eastl::string16 sName = sLine.c_str()+6;
+			eastl::string16 sName =pszLine+6;
 			eastl::vector<eastl::string16> aName;
 			wcstok(sName, aName, L"\"");	// Strip out the quotation marks.
 
@@ -239,14 +300,30 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
 					m_pWorkListener->WorkProgress(0);
 				else
+				{
 					m_pWorkListener->SetAction(L"Reading vertex data", 0);
+					sLastTask = eastl::string16(pszToken);
+				}
 			}
-			sLastTask = eastl::string16(pszToken);
 
 			// A vertex.
-			float x, y, z;
-			swscanf(sLine.c_str(), L"-vert %f %f %f", &x, &y, &z);
-			pMesh->AddVertex(x, y, z);
+			float v[3];
+			// scanf is pretty slow even for such a short string due to lots of mallocs.
+			const wchar_t* pszToken = pszLine+5;
+			int iDimension = 0;
+			while (*pszToken)
+			{
+				while (pszToken[0] == L' ')
+					pszToken++;
+
+				v[iDimension++] = (float)_wtof(pszToken);
+				if (iDimension >= 3)
+					break;
+
+				while (pszToken[0] != L' ')
+					pszToken++;
+			}
+			pMesh->AddVertex(v[0], v[1], v[2]);
 		}
 		else if (wcscmp(pszToken, L"-edge") == 0)
 		{
@@ -255,19 +332,35 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
 					m_pWorkListener->WorkProgress(0);
 				else
+				{
 					m_pWorkListener->SetAction(L"Reading edge data", 0);
+					sLastTask = eastl::string16(pszToken);
+				}
 			}
-			sLastTask = eastl::string16(pszToken);
 
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
-			int v1, v2;
-			swscanf(sLine.c_str(), L"-edge %d %d", &v1, &v2);
-			pMesh->AddEdge(v1+iAddV, v2+iAddV);
+			int e[2];
+			// scanf is pretty slow even for such a short string due to lots of mallocs.
+			const wchar_t* pszToken = pszLine+5;
+			int iDimension = 0;
+			while (*pszToken)
+			{
+				while (pszToken[0] == L' ')
+					pszToken++;
+
+				e[iDimension++] = (int)_wtoi(pszToken);
+				if (iDimension >= 2)
+					break;
+
+				while (pszToken[0] != L' ')
+					pszToken++;
+			}
+			pMesh->AddEdge(e[0]+iAddV, e[1]+iAddV);
 		}
 		else if (wcscmp(pszToken, L"-creas") == 0)
 		{
 			// An edge. We only need them so we can tell where the creases are, so we can calculate normals properly.
-			eastl::string16 sCreases = sLine.c_str()+7;
+			eastl::string16 sCreases = pszLine+7;
 			eastl::vector<eastl::string16> aCreases;
 			wcstok(sCreases, aCreases, L" ");
 
@@ -276,7 +369,7 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 		}
 		else if (wcscmp(pszToken, L"-setmat") == 0)
 		{
-			const wchar_t* pszMaterial = sLine.c_str()+8;
+			const wchar_t* pszMaterial = pszLine+8;
 			size_t iNewMaterial = _wtoi(pszMaterial);
 
 			if (iNewMaterial == (size_t)(-1))
@@ -305,32 +398,55 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
 					m_pWorkListener->WorkProgress(0);
 				else
+				{
 					m_pWorkListener->SetAction(L"Reading polygon data", 0);
+					sLastTask = eastl::string16(pszToken);
+				}
 			}
-			sLastTask = eastl::string16(pszToken);
 
 			// A face.
 			size_t iFace = pMesh->AddFace(iCurrentMaterial);
 
-			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
-			wcstok(sLine, aTokens, L" ");
+			if (iFace == 10000)
+				pMeshNode->GetMeshInstance(0)->SetVisible(false);
 
-			eastl::string16 sFaces = sLine.c_str()+8;
-			eastl::vector<eastl::string16> aFaces;
-			wcstok(sFaces, aFaces, L" ");
+			// scanf is pretty slow even for such a short string due to lots of mallocs.
+			const wchar_t* pszToken = pszLine+6;
 
-			for (size_t i = 0; i < aFaces.size(); i += 4)
+			size_t iVerts = _wtoi(pszToken);
+
+			while (pszToken[0] != L' ')
+				pszToken++;
+
+			size_t iProcessed = 0;
+			while (iProcessed++ < iVerts)
 			{
-				size_t iVertex = _wtoi(aFaces[i].c_str())+iAddV;
-				size_t iEdge = _wtoi(aFaces[i+1].c_str())+iAddE;
+				size_t iVertex = _wtoi(++pszToken)+iAddV;
 
-				float flU = (float)_wtof(aFaces[i+2].c_str());
-				float flV = (float)_wtof(aFaces[i+3].c_str());
+				while (pszToken[0] != L' ')
+					pszToken++;
+
+				size_t iEdge = _wtoi(++pszToken)+iAddE;
+
+				while (pszToken[0] != L' ')
+					pszToken++;
+
+				float flU = (float)_wtof(++pszToken);
+
+				while (pszToken[0] != L' ')
+					pszToken++;
+
+				float flV = (float)_wtof(++pszToken);
+
 				size_t iUV = pMesh->AddUV(flU, flV);
+
 				size_t iNormal = pMesh->AddNormal(0, 0, 1);	// For now!
 
 				pMesh->AddVertexToFace(iFace, iVertex, iUV, iNormal);
 				pMesh->AddEdgeToFace(iFace, iEdge);
+
+				while (pszToken[0] != L'\0' && pszToken[0] != L' ')
+					pszToken++;
 			}
 		}
 		else if (wcscmp(pszToken, L"-axis") == 0)
@@ -350,4 +466,6 @@ void CModelConverter::ReadSIAShape(std::wifstream& infile, CConversionSceneNode*
 			break;
 		}
 	}
+
+	return pszNextLine;
 }

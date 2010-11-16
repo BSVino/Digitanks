@@ -22,8 +22,8 @@ public:
 
 	// SIA and its utility functions.
 	void				ReadSIA(const eastl::string16& sFilename);
-	void				ReadSIAMat(std::wifstream& infile, CConversionSceneNode* pScene, const eastl::string16& sFilename);
-	void				ReadSIAShape(std::wifstream& infile, CConversionSceneNode* pScene, bool bCare = true);
+	const char16_t*		ReadSIAMat(const char16_t* pszLine, const char16_t* pszEnd, CConversionSceneNode* pScene, const eastl::string16& sFilename);
+	const char16_t*		ReadSIAShape(const char16_t* pszLine, const char16_t* pszEnd, CConversionSceneNode* pScene, bool bCare = true);
 
 	void				ReadDAE(const eastl::string16& sFilename);
 	void				ReadDAESceneTree(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
