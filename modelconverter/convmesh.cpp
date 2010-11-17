@@ -46,6 +46,24 @@ void CConversionMesh::CalculateEdgeData()
 				else
 					iAdjVertex = iVertex+1;
 
+				bool bHasEdge = false;
+
+				// Check for duplicate edges first.
+				bool bFoundEdge = false;
+				size_t iEdge;
+				for (iEdge = 0; iEdge < pFace->GetNumEdges(); iEdge++)
+				{
+					CConversionEdge* pEdge = GetEdge(pFace->GetEdge(iEdge));
+					if (pEdge->HasVertex(pFace->GetVertex(iVertex)->v) && pEdge->HasVertex(pFace->GetVertex(iAdjVertex)->v))
+					{
+						bFoundEdge = true;
+						break;
+					}
+				}
+
+				if (bFoundEdge)
+					continue;
+
 				// Find the other face with these two vertices!
 				eastl::vector<size_t>& aFaces = m_aaVertexFaceMap[pFace->GetVertex(iVertex)->v];
 				for (size_t iFace2 = 0; iFace2 < aFaces.size(); iFace2++)
@@ -63,40 +81,34 @@ void CConversionMesh::CalculateEdgeData()
 					if (iVertex2 == ~0)
 						continue;
 
-					// I'm paranoid. Since these are unsigned make sure to subtract the larger by the smaller.
-					if ((iVertex2>iVertex1?iVertex2-iVertex1:iVertex1-iVertex2) == 1)
-					{
-						// Check for duplicate edges first.
-						bool bFoundEdge = false;
-						size_t iEdge;
-						for (iEdge = 0; iEdge < pFace->GetNumEdges(); iEdge++)
-						{
-							CConversionEdge* pEdge = GetEdge(pFace->GetEdge(iEdge));
-							if (pEdge->HasVertex(pFace->GetVertex(iVertex)->v) && pEdge->HasVertex(pFace->GetVertex(iAdjVertex)->v))
-							{
-								bFoundEdge = true;
-								break;
-							}
-						}
+					if ((iVertex1+1)%pFace->GetNumVertices() != iVertex2 && (iVertex2+1)%pFace->GetNumVertices() != iVertex1)
+						continue;
 
-						// Since the edge gets added to both faces we only need to check one face.
+					// By Jove we found it.
+					iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
+					CConversionEdge* pEdge = GetEdge(iEdge);
+					if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
+						pEdge->m_aiFaces.push_back(iFace);
+					if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
+						pEdge->m_aiFaces.push_back(aFaces[iFace2]);
+					AddEdgeToFace(iFace, iEdge);
+					AddEdgeToFace(aFaces[iFace2], iEdge);
 
-						if (bFoundEdge)
-							break;
-
-						// By Jove we found it.
-						iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
-						CConversionEdge* pEdge = GetEdge(iEdge);
-						if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
-							pEdge->m_aiFaces.push_back(iFace);
-						if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
-							pEdge->m_aiFaces.push_back(aFaces[iFace2]);
-						AddEdgeToFace(iFace, iEdge);
-						AddEdgeToFace(aFaces[iFace2], iEdge);
-						break;
-					}
+					bHasEdge = true;
+					break;
 				}
+
+				if (bHasEdge)
+					continue;
+
+				// There's no other face with these two verts. Add the edge on its onesome!
+				iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
+				CConversionEdge* pEdge = GetEdge(iEdge);
+				pEdge->m_aiFaces.push_back(iFace);
+				AddEdgeToFace(iFace, iEdge);
 			}
+
+			assert(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			if (m_pScene->m_pWorkListener)
 				m_pScene->m_pWorkListener->WorkProgress(iFace);
@@ -118,6 +130,8 @@ void CConversionMesh::CalculateEdgeData()
 
 				pEdge->m_aiFaces.push_back(iFace);
 			}
+
+			assert(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			if (m_pScene->m_pWorkListener)
 				m_pScene->m_pWorkListener->WorkProgress(iFace);
@@ -1027,6 +1041,7 @@ void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vu, size_t 
 void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
 {
 	m_aFaces[iFace].m_aEdges.push_back(iEdge);
+	assert(m_aFaces[iFace].GetNumEdges() <= m_aFaces[iFace].GetNumVertices());
 }
 
 void CConversionMesh::RemoveFace(size_t iFace)

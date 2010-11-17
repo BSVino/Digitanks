@@ -469,3 +469,143 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 
 	return pszNextLine;
 }
+
+void CModelConverter::SaveSIA(const eastl::string16& sFilename)
+{
+	eastl::string16 sSIAFileName = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sFilename).c_str() + L".sia";
+
+	std::wofstream sFile(sSIAFileName.c_str());
+	if (!sFile.is_open())
+		return;
+
+	sFile.precision(8);
+	sFile.setf(std::ios::fixed, std::ios::floatfield);
+
+	if (m_pWorkListener)
+	{
+		m_pWorkListener->BeginProgress();
+		m_pWorkListener->SetAction(L"Writing materials...", 0);
+	}
+
+	sFile << L"-Version 1.0" << std::endl;
+
+	for (size_t i = 0; i < m_pScene->GetNumMaterials(); i++)
+	{
+		sFile << L"-Mat" << std::endl;
+
+		CConversionMaterial* pMaterial = m_pScene->GetMaterial(i);
+
+		sFile << "-amb " << pMaterial->m_vecAmbient.x << L" " << pMaterial->m_vecAmbient.y << L" " << pMaterial->m_vecAmbient.z << L" 0" << std::endl;
+		sFile << "-dif " << pMaterial->m_vecDiffuse.x << L" " << pMaterial->m_vecDiffuse.y << L" " << pMaterial->m_vecDiffuse.z << L" 0" << std::endl;
+		sFile << "-spec " << pMaterial->m_vecSpecular.x << L" " << pMaterial->m_vecSpecular.y << L" " << pMaterial->m_vecSpecular.z << L" 0" << std::endl;
+		sFile << "-emis " << pMaterial->m_vecEmissive.x << L" " << pMaterial->m_vecEmissive.y << L" " << pMaterial->m_vecEmissive.z << L" 0" << std::endl;
+		sFile << "-shin " << pMaterial->m_flShininess << std::endl;
+		sFile << "-name \"" << pMaterial->GetName().c_str() << L"\"" << std::endl;
+		if (pMaterial->GetDiffuseTexture().length() > 0)
+			sFile << "-tex \"" << pMaterial->GetDiffuseTexture().c_str() << L"\"" << std::endl;
+		sFile << L"-endMat" << std::endl;
+	}
+
+	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(i);
+
+		eastl::string16 sNodeName = pMesh->GetName();
+
+		sFile << L"-Shape" << std::endl;
+		sFile << L"-snam \"" << sNodeName.c_str() << L"\"" << std::endl;
+		sFile << L"-shad 0" << std::endl;
+		sFile << L"-shadw 1" << std::endl;
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" vertices...").c_str(), pMesh->GetNumVertices());
+
+		for (size_t iVertices = 0; iVertices < pMesh->GetNumVertices(); iVertices++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iVertices);
+
+			Vector vecVertex = pMesh->GetVertex(iVertices);
+			sFile << L"-vert " << vecVertex.x << L" " << vecVertex.y << L" " << vecVertex.z << std::endl;
+		}
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" edges...").c_str(), pMesh->GetNumEdges());
+
+		eastl::string16 sCreases;
+		eastl::string16 p;
+
+		for (size_t iEdges = 0; iEdges < pMesh->GetNumEdges(); iEdges++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iEdges);
+
+			CConversionEdge* pEdge = pMesh->GetEdge(iEdges);
+			sFile << L"-edge " << pEdge->v1 << L" " << pEdge->v2 << std::endl;
+
+			if (pEdge->m_bCreased)
+				sCreases += p.sprintf(L" %d", iEdges);
+		}
+
+		if (sCreases.length())
+			sFile << L"-creas" << sCreases.c_str() << std::endl;
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" faces...").c_str(), pMesh->GetNumFaces());
+
+		size_t iMaterial = 0;
+
+		for (size_t iFaces = 0; iFaces < pMesh->GetNumFaces(); iFaces++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iFaces);
+
+			CConversionFace* pFace = pMesh->GetFace(iFaces);
+
+			if (iFaces == 0 || iMaterial != pFace->m)
+			{
+				iMaterial = pFace->m;
+				if (iMaterial == ~0)
+					sFile << L"-setmat -1" << std::endl;
+				else
+					sFile << L"-setmat " << iMaterial << std::endl;
+			}
+
+			sFile << L"-face " << pFace->GetNumVertices();
+
+			assert(pFace->GetNumEdges() == pFace->GetNumVertices());
+
+			for (size_t iVertsInFace = 0; iVertsInFace < pFace->GetNumVertices(); iVertsInFace++)
+			{
+				CConversionVertex* pVertex = pFace->GetVertex(iVertsInFace);
+				CConversionVertex* pNextVertex = pFace->GetVertex((iVertsInFace+1)%pFace->GetNumVertices());
+
+				// Find the edge that heads in a counter-clockwise direction.
+				size_t iEdge = ~0;
+				for (size_t i = 0; i < pFace->GetNumEdges(); i++)
+				{
+					size_t iEdgeCandidate = pFace->GetEdge(i);
+					CConversionEdge* pEdge = pMesh->GetEdge(iEdgeCandidate);
+					if ((pEdge->v1 == pVertex->v && pEdge->v2 == pNextVertex->v) || (pEdge->v2 == pVertex->v && pEdge->v1 == pNextVertex->v))
+					{
+						iEdge = iEdgeCandidate;
+						break;
+					}
+				}
+				assert(iEdge != ~0);
+
+				Vector vecUV = pMesh->GetUV(pVertex->vu);
+				sFile << L" " << pVertex->v << L" " << iEdge << L" " << vecUV.x << L" " << vecUV.y;
+			}
+
+			sFile << std::endl;
+		}
+
+		sFile << L"-axis 0 0.5 0 1 0 0 0 1 0 0 0 1" << std::endl;
+		sFile << L"-mirp 0 0 0 1 0 0" << std::endl;
+		sFile << L"-endShape" << std::endl;
+	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
+}

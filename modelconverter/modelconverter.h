@@ -31,6 +31,7 @@ public:
 	bool				SaveModel(const eastl::string16& sFilename);
 
 	void				SaveOBJ(const eastl::string16& sFilename);
+	void				SaveSIA(const eastl::string16& sFilename);
 
 	void				WriteSMDs(const eastl::string16& sFilename = L"");
 	void				WriteSMD(size_t iMesh, const eastl::string16& sFilename = L"");

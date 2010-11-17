@@ -41,6 +41,8 @@ bool CModelConverter::SaveModel(const eastl::string16& sFilename)
 
 	if (sExtension == L".obj")
 		SaveOBJ(sFilename);
+	else if (sExtension == L".sia")
+		SaveSIA(sFilename);
 	else
 		return false;
 
