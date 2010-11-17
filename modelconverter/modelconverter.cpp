@@ -31,6 +31,22 @@ bool CModelConverter::ReadModel(const eastl::string16& sFilename)
 	return true;
 }
 
+bool CModelConverter::SaveModel(const eastl::string16& sFilename)
+{
+	eastl::string16 sExtension;
+
+	size_t iFileLength = wcslen(sFilename.c_str());
+	sExtension = sFilename.c_str()+iFileLength-4;
+	sExtension.make_lower();
+
+	if (sExtension == L".obj")
+		SaveOBJ(sFilename);
+	else
+		return false;
+
+	return true;
+}
+
 // Takes a path + filename + extension and removes path and extension to return only the filename.
 eastl::string16 CModelConverter::GetFilename(const eastl::string16& sFilename)
 {

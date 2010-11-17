@@ -28,6 +28,10 @@ public:
 	void				ReadDAE(const eastl::string16& sFilename);
 	void				ReadDAESceneTree(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
 
+	bool				SaveModel(const eastl::string16& sFilename);
+
+	void				SaveOBJ(const eastl::string16& sFilename);
+
 	void				WriteSMDs(const eastl::string16& sFilename = L"");
 	void				WriteSMD(size_t iMesh, const eastl::string16& sFilename = L"");
 

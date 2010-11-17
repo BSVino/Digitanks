@@ -454,3 +454,118 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 
 	fclose(fp);
 }
+
+void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
+{
+	eastl::string16 sMaterialFileName = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sFilename).c_str() + L".mtl";
+
+	std::wofstream sMaterialFile(sMaterialFileName.c_str());
+	if (!sMaterialFile.is_open())
+		return;
+
+	if (m_pWorkListener)
+	{
+		m_pWorkListener->BeginProgress();
+		m_pWorkListener->SetAction(L"Writing materials file", 0);
+	}
+
+	for (size_t i = 0; i < m_pScene->GetNumMaterials(); i++)
+	{
+		CConversionMaterial* pMaterial = m_pScene->GetMaterial(i);
+		sMaterialFile << "newmtl " << pMaterial->GetName().c_str() << std::endl;
+		sMaterialFile << "Ka " << pMaterial->m_vecAmbient.x << L" " << pMaterial->m_vecAmbient.y << L" " << pMaterial->m_vecAmbient.z << std::endl;
+		sMaterialFile << "Kd " << pMaterial->m_vecDiffuse.x << L" " << pMaterial->m_vecDiffuse.y << L" " << pMaterial->m_vecDiffuse.z << std::endl;
+		sMaterialFile << "Ks " << pMaterial->m_vecSpecular.x << L" " << pMaterial->m_vecSpecular.y << L" " << pMaterial->m_vecSpecular.z << std::endl;
+		sMaterialFile << "d " << pMaterial->m_flTransparency << std::endl;
+		sMaterialFile << "Ns " << pMaterial->m_flShininess << std::endl;
+		sMaterialFile << "illum " << pMaterial->m_eIllumType << std::endl;
+		if (pMaterial->GetDiffuseTexture().length() > 0)
+			sMaterialFile << "map_Kd " << pMaterial->GetDiffuseTexture().c_str() << std::endl;
+		sMaterialFile << std::endl;
+	}
+
+	sMaterialFile.close();
+
+	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
+	{
+		CConversionMesh* pMesh = m_pScene->GetMesh(i);
+
+		eastl::string16 sNodeName = pMesh->GetName();
+
+		eastl::string16 sOBJFilename = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sNodeName).c_str() + L".obj";
+		eastl::string16 sMTLFilename = eastl::string16(GetFilename(sFilename).c_str()) + L".mtl";
+
+		if (m_pScene->GetNumMeshes() == 1)
+			sOBJFilename = sFilename;
+
+		std::wofstream sOBJFile(sOBJFilename.c_str());
+		sOBJFile.precision(8);
+		sOBJFile.setf(std::ios::fixed, std::ios::floatfield);
+
+		sOBJFile << L"mtllib " << sMTLFilename.c_str() << std::endl;
+		sOBJFile << std::endl;
+
+		sOBJFile << L"o " << sNodeName.c_str() << std::endl;
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" vertices...").c_str(), pMesh->GetNumVertices());
+
+		for (size_t iVertices = 0; iVertices < pMesh->GetNumVertices(); iVertices++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iVertices);
+
+			Vector vecVertex = pMesh->GetVertex(iVertices);
+			sOBJFile << L"v " << vecVertex.x << L" " << vecVertex.y << L" " << vecVertex.z << std::endl;
+		}
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" normals...").c_str(), pMesh->GetNumNormals());
+
+		for (size_t iNormals = 0; iNormals < pMesh->GetNumNormals(); iNormals++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iNormals);
+
+			Vector vecNormal = pMesh->GetNormal(iNormals);
+			sOBJFile << L"vn " << vecNormal.x << L" " << vecNormal.y << L" " << vecNormal.z << std::endl;
+		}
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" UVs...").c_str(), pMesh->GetNumUVs());
+
+		for (size_t iUVs = 0; iUVs < pMesh->GetNumUVs(); iUVs++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iUVs);
+
+			Vector vecUV = pMesh->GetUV(iUVs);
+			sOBJFile << L"vt " << vecUV.x << L" " << vecUV.y << std::endl;
+		}
+
+		if (m_pWorkListener)
+			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" faces...").c_str(), pMesh->GetNumFaces());
+
+		for (size_t iFaces = 0; iFaces < pMesh->GetNumFaces(); iFaces++)
+		{
+			if (m_pWorkListener)
+				m_pWorkListener->WorkProgress(iFaces);
+
+			sOBJFile << L"f";
+			CConversionFace* pFace = pMesh->GetFace(iFaces);
+			for (size_t iVertsInFace = 0; iVertsInFace < pFace->GetNumVertices(); iVertsInFace++)
+			{
+				CConversionVertex* pVertex = pFace->GetVertex(iVertsInFace);
+				sOBJFile << L" " << pVertex->v+1 << L"/" << pVertex->vu+1 << L"/" << pVertex->vn+1;
+			}
+			sOBJFile << std::endl;
+		}
+
+		sOBJFile << std::endl;
+
+		sOBJFile.close();
+	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
+}
