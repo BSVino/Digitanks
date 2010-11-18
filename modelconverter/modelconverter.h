@@ -32,6 +32,8 @@ public:
 
 	void				SaveOBJ(const eastl::string16& sFilename);
 	void				SaveSIA(const eastl::string16& sFilename);
+	void				SaveDAE(const eastl::string16& sFilename);
+	void				SaveDAEScene(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
 
 	void				WriteSMDs(const eastl::string16& sFilename = L"");
 	void				WriteSMD(size_t iMesh, const eastl::string16& sFilename = L"");

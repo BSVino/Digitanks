@@ -81,7 +81,7 @@ void CConversionMesh::CalculateEdgeData()
 					if (iVertex2 == ~0)
 						continue;
 
-					if ((iVertex1+1)%pFace->GetNumVertices() != iVertex2 && (iVertex2+1)%pFace->GetNumVertices() != iVertex1)
+					if ((iVertex1+1)%pFace2->GetNumVertices() != iVertex2 && (iVertex2+1)%pFace2->GetNumVertices() != iVertex1)
 						continue;
 
 					// By Jove we found it.
