@@ -359,6 +359,9 @@ void CModelConverter::SaveDAE(const eastl::string16& sFilename)
 
 	FCDMaterialLibrary* pMatLib = pDoc->GetMaterialLibrary();
 
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Saving materials", m_pScene->GetNumMaterials());
+
 	for (size_t iMaterial = 0; iMaterial < m_pScene->GetNumMaterials(); iMaterial++)
 	{
 		CConversionMaterial* pConversionMaterial = m_pScene->GetMaterial(iMaterial);
@@ -398,7 +401,13 @@ void CModelConverter::SaveDAE(const eastl::string16& sFilename)
 
 			pSampler->SetSurface(pSurface);
 		}
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(iMaterial);
 	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Saving geometry", m_pScene->GetNumMeshes());
 
 	FCDGeometryLibrary* pGeoLib = pDoc->GetGeometryLibrary();
 
@@ -472,8 +481,11 @@ void CModelConverter::SaveDAE(const eastl::string16& sFilename)
 		}
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(0);
+			m_pWorkListener->WorkProgress(i);
 	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Saving scenes", m_pScene->GetNumScenes());
 
 	FCDVisualSceneNodeLibrary* pVisualScenes = pDoc->GetVisualSceneLibrary();
 	for (size_t i = 0; i < m_pScene->GetNumScenes(); ++i)
@@ -481,7 +493,13 @@ void CModelConverter::SaveDAE(const eastl::string16& sFilename)
 		FCDSceneNode* pNode = pVisualScenes->AddEntity();
 
 		SaveDAEScene(pNode, m_pScene->GetScene(i));
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(i);
 	}
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Writing to disk...", 0);
 
 	FCollada::SaveDocument(pDoc, sFilename.c_str());
 

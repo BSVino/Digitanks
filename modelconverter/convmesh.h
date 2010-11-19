@@ -370,7 +370,7 @@ public:
 
 	// For model formats that don't have the concept of scenes, this is a node that contains the one and only mesh instance for this mesh.
 	// It always returns a node and always the same one.
-	CConversionSceneNode*				GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh);
+	CConversionSceneNode*				GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh, bool bCreate = true);
 
 	// For model formats that don't have the concept of scenes,
 	// this will add a material to the mesh and map it properly in the scene.

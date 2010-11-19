@@ -510,6 +510,22 @@ void CModelConverter::SaveSIA(const eastl::string16& sFilename)
 	{
 		CConversionMesh* pMesh = m_pScene->GetMesh(i);
 
+		size_t iAddV = pMesh->GetNumVertices();
+		size_t iAddE = pMesh->GetNumEdges();
+		size_t iAddUV = pMesh->GetNumUVs();
+		size_t iAddN = pMesh->GetNumNormals();
+
+		// Find the default scene for this mesh.
+		CConversionSceneNode* pScene = NULL;
+		for (size_t j = 0; j < m_pScene->GetNumScenes(); j++)
+		{
+			if (m_pScene->GetScene(j)->GetName() == pMesh->GetName() + L".sia")
+			{
+				pScene = m_pScene->GetScene(j);
+				break;
+			}
+		}
+
 		eastl::string16 sNodeName = pMesh->GetName();
 
 		sFile << L"-Shape" << std::endl;
@@ -565,10 +581,24 @@ void CModelConverter::SaveSIA(const eastl::string16& sFilename)
 			if (iFaces == 0 || iMaterial != pFace->m)
 			{
 				iMaterial = pFace->m;
+
 				if (iMaterial == ~0)
 					sFile << L"-setmat -1" << std::endl;
 				else
-					sFile << L"-setmat " << iMaterial << std::endl;
+				{
+					CConversionSceneNode* pNode = m_pScene->GetDefaultSceneMeshInstance(pScene, pMesh, false);
+
+					if (!pNode || pNode->GetNumMeshInstances() != 1)
+						sFile << L"-setmat -1" << std::endl;
+					else
+					{
+						CConversionMaterialMap* pMap = pNode->GetMeshInstance(0)->GetMappedMaterial(iLastMaterial);
+						if (pMap)
+							sFile << L"-setmat -1" << std::endl;
+						else
+							sFile << L"-setmat " << pMap->m_iMaterial << std::endl;
+					}
+				}
 			}
 
 			sFile << L"-face " << pFace->GetNumVertices();

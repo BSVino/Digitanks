@@ -411,7 +411,7 @@ size_t CConversionScene::AddScene(const eastl::string16& sName)
 	return m_apScenes.size()-1;
 }
 
-CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh)
+CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh, bool bCreate)
 {
 	for (size_t i = 0; i < pScene->GetNumChildren(); i++)
 	{
@@ -420,6 +420,9 @@ CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionS
 		if (iMesh != ~0)
 			return pChild;
 	}
+
+	if (!bCreate)
+		return NULL;
 
 	// Put it in its own child node so that it can be moved around on its own.
 	size_t iChild = pScene->AddChild(L"Mesh node");

@@ -490,6 +490,17 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 	{
 		CConversionMesh* pMesh = m_pScene->GetMesh(i);
 
+		// Find the default scene for this mesh.
+		CConversionSceneNode* pScene = NULL;
+		for (size_t j = 0; j < m_pScene->GetNumScenes(); j++)
+		{
+			if (m_pScene->GetScene(j)->GetName() == pMesh->GetName() + L".obj")
+			{
+				pScene = m_pScene->GetScene(j);
+				break;
+			}
+		}
+
 		eastl::string16 sNodeName = pMesh->GetName();
 
 		eastl::string16 sOBJFilename = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sNodeName).c_str() + L".obj";
@@ -546,13 +557,33 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 		if (m_pWorkListener)
 			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" faces...").c_str(), pMesh->GetNumFaces());
 
+		size_t iLastMaterial = ~0;
+
 		for (size_t iFaces = 0; iFaces < pMesh->GetNumFaces(); iFaces++)
 		{
 			if (m_pWorkListener)
 				m_pWorkListener->WorkProgress(iFaces);
 
-			sOBJFile << L"f";
 			CConversionFace* pFace = pMesh->GetFace(iFaces);
+
+			if (pFace->m != iLastMaterial)
+			{
+				iLastMaterial = pFace->m;
+
+				CConversionSceneNode* pNode = m_pScene->GetDefaultSceneMeshInstance(pScene, pMesh, false);
+				if (!pNode || pNode->GetNumMeshInstances() != 1)
+					sOBJFile << "usemtl " << iLastMaterial << std::endl;
+				else
+				{
+					CConversionMaterialMap* pMap = pNode->GetMeshInstance(0)->GetMappedMaterial(iLastMaterial);
+					if (!pMap)
+						sOBJFile << "usemtl " << iLastMaterial << std::endl;
+					else
+						sOBJFile << "usemtl " << m_pScene->GetMaterial(pMap->m_iMaterial)->GetName().c_str() << std::endl;
+				}
+			}
+
+			sOBJFile << L"f";
 			for (size_t iVertsInFace = 0; iVertsInFace < pFace->GetNumVertices(); iVertsInFace++)
 			{
 				CConversionVertex* pVertex = pFace->GetVertex(iVertsInFace);
