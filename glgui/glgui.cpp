@@ -759,7 +759,6 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	else	// TA_TOPLEFT
 		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
 
-	// FWTextureFont code. Spurious calls to CreateTexture (deep in FW) during Advance() cause unacceptable slowdowns
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
