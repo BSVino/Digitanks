@@ -592,7 +592,7 @@ void CModelConverter::SaveSIA(const eastl::string16& sFilename)
 						sFile << L"-setmat -1" << std::endl;
 					else
 					{
-						CConversionMaterialMap* pMap = pNode->GetMeshInstance(0)->GetMappedMaterial(iLastMaterial);
+						CConversionMaterialMap* pMap = pNode->GetMeshInstance(0)->GetMappedMaterial(iMaterial);
 						if (pMap)
 							sFile << L"-setmat -1" << std::endl;
 						else
