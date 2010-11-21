@@ -22,6 +22,8 @@ CApplication::CApplication(int argc, char** argv)
 		m_apszCommandLine.push_back(argv[i]);
 
 	m_bIsOpen = false;
+
+	m_bMultisampling = false;
 }
 
 void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
@@ -40,6 +42,10 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
 	m_iWindowHeight = iHeight;
 
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
+
+	if (m_bMultisampling)
+		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
+
 	if (!glfwOpenWindow(iWidth, iHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
 	{
 		glfwTerminate();

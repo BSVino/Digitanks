@@ -15,6 +15,8 @@ public:
 	virtual 					~CApplication();
 
 public:
+	void						SetMultisampling(bool bMultisampling) { m_bMultisampling = bMultisampling; }
+
 	void						OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen);
 
 	void						DumpGLInfo();
@@ -83,6 +85,8 @@ protected:
 	size_t						m_iWindowHeight;
 	bool						m_bFullscreen;
 	bool						m_bIsOpen;
+
+	bool						m_bMultisampling;
 
 	eastl::vector<const char*>	m_apszCommandLine;
 

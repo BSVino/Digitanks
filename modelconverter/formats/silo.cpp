@@ -35,7 +35,7 @@ void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 	char16_t* pszCurrent = pszEntireFile;
 
 	// Read the entire file into an array first for faster processing.
-	const size_t iChars = 1024;
+	const size_t iChars = 10240;
 	char16_t szLine[iChars];
 	const char16_t* pszLine;
 	while (pszLine = fgetws(szLine, iChars, fp))
@@ -230,6 +230,7 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 	size_t iAddN = 0;
 
 	eastl::string16 sLastTask;
+	eastl::string16 sToken;
 
 	const char16_t* pszNextLine = NULL;
 	while (pszLine < pszEnd)
@@ -237,7 +238,8 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 		if (pszNextLine)
 			pszLine = pszNextLine;
 
-		pszNextLine = pszLine + wcslen(pszLine) + 1;
+		size_t iLineLength = wcslen(pszLine);
+		pszNextLine = pszLine + iLineLength + 1;
 
 		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
 		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
@@ -252,10 +254,11 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 		while (*pszToken && *pszToken != L' ')
 			pszToken++;
 
-		char16_t szToken[1024];
-		wcsncpy(szToken, pszLine, pszToken-pszLine);
-		szToken[pszToken-pszLine] = L'\0';
-		pszToken = szToken;
+		sToken.reserve(iLineLength);
+		sToken.clear();
+		sToken.append(pszLine, pszToken-pszLine);
+		sToken[pszToken-pszLine] = L'\0';
+		pszToken = sToken.c_str();
 
 		if (!bCare)
 		{
@@ -364,8 +367,12 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 			eastl::vector<eastl::string16> aCreases;
 			wcstok(sCreases, aCreases, L" ");
 
-			for (size_t i = 1; i < aCreases.size(); i++)
-				pMesh->GetEdge(_wtoi(aCreases[i].c_str())+iAddE)->m_bCreased = true;
+			size_t iCreases = aCreases.size();
+			for (size_t i = 0; i < iCreases; i++)
+			{
+				int iEdge = _wtoi(aCreases[i].c_str());
+				pMesh->GetEdge(iEdge+iAddE)->m_bCreased = true;
+			}
 		}
 		else if (wcscmp(pszToken, L"-setmat") == 0)
 		{

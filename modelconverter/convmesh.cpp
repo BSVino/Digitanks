@@ -1118,6 +1118,8 @@ CConversionFace::CConversionFace(class CConversionScene* pScene, size_t iMesh, s
 	m_iMesh = iMesh;
 	m = M;
 
+	m_iSmoothingGroup = ~0;
+
 	m_bFaceNormal = false;
 }
 
