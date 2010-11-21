@@ -370,7 +370,7 @@ void CPurchasePanel::MainMenuCallback()
 void CPurchasePanel::RegisterCallback()
 {
 	eastl::string16 sError;
-	bool bSucceeded = QueryRegistrationKey(m_pRegistrationKey->GetText(), sError);
+	bool bSucceeded = QueryRegistrationKey(L"digitanks.com", L"/reg/reg.php", m_pRegistrationKey->GetText(), sError);
 	m_pRegisterResult->SetText(sError.c_str());
 
 	if (bSucceeded)

@@ -3,8 +3,10 @@
 
 #include <EASTL/string.h>
 #include <EASTL/vector.h>
+
 #include <vector.h>
 #include <color.h>
+#include <configfile.h>
 
 class CApplication
 {
@@ -65,6 +67,15 @@ public:
 	bool						HasCommandLineSwitch(const char* pszSwitch);
 	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
 
+	void						InitRegistrationFile();
+	bool						IsRegistered();
+	void						ReadProductCode();
+	eastl::string				GetProductCode();
+	void						SetLicenseKey(eastl::string sKey);
+	bool						QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string16& sError);
+	void						SaveProductCode();
+	eastl::string				GenerateCode();
+
 	static CApplication*		Get() { return s_pApplication; };
 
 protected:
@@ -73,9 +84,13 @@ protected:
 	bool						m_bFullscreen;
 	bool						m_bIsOpen;
 
-	static CApplication*		s_pApplication;
-
 	eastl::vector<const char*>	m_apszCommandLine;
+
+	ConfigFile					m_oRegFile;
+	eastl::string				m_sCode;
+	eastl::string				m_sKey;
+
+	static CApplication*		s_pApplication;
 };
 
 #endif

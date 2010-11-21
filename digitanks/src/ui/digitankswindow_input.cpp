@@ -228,6 +228,9 @@ void CDigitanksWindow::KeyPress(int c)
 	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
+	if (c == TINKER_KEY_F4 && IsAltDown())
+		exit(0);
+
 	if (DigitanksGame() && (c == TINKER_KEY_ENTER || c == TINKER_KEY_KP_ENTER))
 	{
 		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())

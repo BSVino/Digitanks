@@ -106,8 +106,6 @@ void CDigitanksWindow::OpenWindow()
 	// Save out the configuration file now that we know this config loads properly.
 	SetConfigWindowDimensions(m_iWindowWidth, m_iWindowHeight);
 	SaveConfig();
-
-	ReadProductCode();
 }
 
 CDigitanksWindow::~CDigitanksWindow()

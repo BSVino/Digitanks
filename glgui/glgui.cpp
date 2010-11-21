@@ -2601,7 +2601,7 @@ void CTextField::DrawLine(const wchar_t* pszText, unsigned iLength, int x, int y
 
 	int cx, cy;
 	GetAbsPos(cx, cy);
-	glScissor(cx+4, cy, GetWidth()-8, 1000);
+	glScissor(cx+4, 0, GetWidth()-8, 1000);
 	glEnable(GL_SCISSOR_TEST);
 	pFont->Render(pszText, iLength, FTPoint(vecPosition.x, CRootPanel::Get()->GetBottom()-vecPosition.y));
 	glDisable(GL_SCISSOR_TEST);
@@ -2693,7 +2693,7 @@ bool CTextField::KeyPressed(int iKey, bool bCtrlDown)
 		{
 			m_iCursor = m_sText.length();
 		}
-		else if (iKey == 'v' && bCtrlDown)
+		else if ((iKey == 'v' || iKey == 'V') && bCtrlDown)
 		{
 			eastl::string16 sClipboard = convertstring<char, char16_t>(GetClipboard());
 			m_sText.insert(m_sText.begin()+m_iCursor, sClipboard.begin(), sClipboard.end());
@@ -2809,7 +2809,7 @@ void CTextField::EnsureTextFits()
 
 eastl::string16 CTextField::GetText()
 {
-	return m_sText.c_str();
+	return m_sText;
 }
 
 Color CTextField::GetFGColor()

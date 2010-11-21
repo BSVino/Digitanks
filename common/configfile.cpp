@@ -23,6 +23,8 @@ ConfigFile::ConfigFile()
 	: myDelimiter( string(1,'=') ), myComment( string(1,'#') )
 {
 	// Construct a ConfigFile without a file; empty
+
+	fileValid = false;
 }
 
 

@@ -1,10 +1,9 @@
-#include "register.h"
+#include "application.h"
 
 #include <time.h>
 
 #include <strutils.h>
-#include <license.h>
-#include <configfile.h>
+#include <license/license.h>
 #include <mtrand.h>
 #include <platform.h>
 
@@ -15,40 +14,50 @@
 #define closesocket close
 #endif
 
-ConfigFile r( GetAppDataDirectory(L"Digitanks", L"reg.cfg") );
-eastl::string g_sCode;
-eastl::string g_sKey;
-
-bool IsRegistered()
+void CApplication::InitRegistrationFile()
 {
-	eastl::string sKey;
-	GenerateKey(g_sCode, sKey);
-	return sKey == g_sKey;
+	if (m_oRegFile.isFileValid() || m_sCode.length())
+		return;
+
+	m_oRegFile = ConfigFile(GetAppDataDirectory(AppDirectory(), L"reg.cfg"));
+	ReadProductCode();
 }
 
-void SaveProductCode()
+bool CApplication::IsRegistered()
 {
-	r.add("code", g_sCode.c_str());
-	r.add("key", g_sKey.c_str());
+	InitRegistrationFile();
+
+	eastl::string sKey;
+
+	if (!GenerateKey(m_sCode, sKey))
+		return false;
+
+	return sKey == m_sKey;
+}
+
+void CApplication::SaveProductCode()
+{
+	m_oRegFile.add("code", m_sCode.c_str());
+	m_oRegFile.add("key", m_sKey.c_str());
 
 	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
 #ifdef _WIN32
-	SetFileAttributes(GetAppDataDirectory(L"Digitanks", L"reg.cfg").c_str(), FILE_ATTRIBUTE_NORMAL);
+	SetFileAttributes(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), FILE_ATTRIBUTE_NORMAL);
 #endif
 
 	do
 	{
 		std::ofstream o;
-		o.open(GetAppDataDirectory(L"Digitanks", L"reg.cfg").c_str(), std::ios_base::out);
-		o << r;
+		o.open(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), std::ios_base::out);
+		o << m_oRegFile;
 	} while (false);
 
 #ifdef _WIN32
-	SetFileAttributes(GetAppDataDirectory(L"Digitanks", L"reg.cfg").c_str(), FILE_ATTRIBUTE_HIDDEN);
+	SetFileAttributes(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), FILE_ATTRIBUTE_HIDDEN);
 #endif
 }
 
-eastl::string GenerateCode()
+eastl::string CApplication::GenerateCode()
 {
 	mtsrand((size_t)time(NULL));
 
@@ -92,20 +101,20 @@ eastl::string GenerateCode()
 	return sCode;
 }
 
-void ReadProductCode()
+void CApplication::ReadProductCode()
 {
-	if (r.isFileValid())
+	if (m_oRegFile.isFileValid())
 	{
-		if (r.keyExists("code"))
-			g_sCode = r.read<eastl::string>("code");
+		if (m_oRegFile.keyExists("code"))
+			m_sCode = m_oRegFile.read<eastl::string>("code");
 		else
-			g_sCode = GenerateCode();
+			m_sCode = GenerateCode();
 
-		if (r.keyExists("key"))
-			g_sKey = r.read<eastl::string>("key");
+		if (m_oRegFile.keyExists("key"))
+			m_sKey = m_oRegFile.read<eastl::string>("key");
 	}
 	else
-		g_sCode = GenerateCode();
+		m_sCode = GenerateCode();
 
 	// Don't broke what ain't fixed.
 	if (IsRegistered())
@@ -114,21 +123,25 @@ void ReadProductCode()
 	SaveProductCode();
 }
 
-eastl::string GetProductCode()
+eastl::string CApplication::GetProductCode()
 {
-	return g_sCode;
+	InitRegistrationFile();
+
+	return m_sCode;
 }
 
-void SetLicenseKey(eastl::string sKey)
+void CApplication::SetLicenseKey(eastl::string sKey)
 {
-	g_sKey = trim(sKey);
+	m_sKey = trim(sKey);
 
 	if (IsRegistered())
 		SaveProductCode();
 }
 
-bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
+bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string16& sError)
 {
+	sKey = convertstring<char, char16_t>(trim(convertstring<char16_t, char>(sKey)));
+
 	int iResult;
 
 #ifdef _WIN32
@@ -149,11 +162,11 @@ bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
 	oHint.ai_socktype = SOCK_STREAM;
 	oHint.ai_protocol = IPPROTO_TCP;
 
-	iResult = getaddrinfo("digitanks.com", "80", &oHint, &pResult);
+	iResult = getaddrinfo(convertstring<char16_t, char>(sServer).c_str(), "80", &oHint, &pResult);
 
 	if (iResult != 0)
 	{
-		sError = L"Couldn't resolve hostname digitanks.com";
+		sError = eastl::string16(L"Couldn't resolve hostname ") + sServer;
 #ifdef _WIN32
 		WSACleanup();
 #endif
@@ -198,17 +211,21 @@ bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
 
 	eastl::string16 sContent;
 	sContent.append(L"key=");
-	sContent.append(sKey);
+	// eastl::string16 has some kind of bug that gives strings crap on the ends sometimes. This should get rid of it.
+	sContent.append(sKey.substr(0, 16));
 
 	eastl::string16 sPost;
 	eastl::string16 p;
-	sPost += L"POST /reg/reg.php HTTP/1.1\n";
-	sPost += L"Host: digitanks.com\n";
+	sPost += eastl::string16(L"POST ") + sURI + L" HTTP/1.1\n";
+	sPost += eastl::string16(L"Host: ") + sServer + L"\n";
 	sPost += p.sprintf(L"Content-Length: %d\n", sContent.length());
 	sPost += L"Content-Type: application/x-www-form-urlencoded\n\n";
 	sPost += sContent + L"\n\n";
 
 	eastl::string sSend = convertstring<char16_t, char>(sPost);
+
+	int iOptVal = 0;
+	setsockopt(iSocket, SOL_SOCKET, SO_SNDBUF, (char*)&iOptVal, sizeof(iOptVal));
 
 	iResult = send( iSocket, sSend.c_str(), sSend.length(), 0 );
 	if (iResult == SOCKET_ERROR)
@@ -219,8 +236,6 @@ bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
 #endif
 		return false;
 	}
-
-	Sleep(100);
 
 	iResult = shutdown(iSocket, SD_SEND);
 	if (iResult == SOCKET_ERROR)
@@ -236,7 +251,7 @@ bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
 	eastl::string sResult;
 	do {
 		char szBuf[1000];
-		iResult = recv(iSocket, szBuf, 1000, 0);
+		iResult = recv(iSocket, szBuf, 999, 0);
 		if (iResult < 1000)
 			szBuf[iResult] = '\0';
 		sResult.append(szBuf);
@@ -260,11 +275,11 @@ bool QueryRegistrationKey(eastl::string16 sKey, eastl::string16& sError)
 	bool bReturn = false;
 	if (iCode == 0)
 	{
-		GenerateKey(g_sCode, g_sKey);
+		GenerateKey(m_sCode, m_sKey);
 		SaveProductCode();
 
 		// Register.
-		sError = L"Thank you for registering Digitanks!";
+		sError = L"Thank you for registering!";
 		bReturn = true;
 	}
 	else if (iCode == 1)
