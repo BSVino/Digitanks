@@ -200,6 +200,17 @@ Vector CDigitanksCamera::GetCameraTarget()
 	return m_vecTarget + m_vecShake;
 }
 
+void CDigitanksCamera::SetFreeMode(bool bOn)
+{
+	if (!DigitanksWindow()->AllowCheats())
+	{
+		BaseClass::SetFreeMode(false);
+		return;
+	}
+
+	BaseClass::SetFreeMode(bOn);
+}
+
 void CDigitanksCamera::MouseInput(int x, int y)
 {
 	int dx, dy;

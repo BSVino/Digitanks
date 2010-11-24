@@ -85,7 +85,8 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>if exist "$(TargetDir)"digitanks.exe copy "$(TargetDir)"digitanks.exe "D:\My Dropbox\Digitanks\install\digitanks.exe"</Command>
+      <Command>if exist "$(TargetDir)"digitanks.exe copy "$(TargetDir)"digitanks.exe "D:\My Dropbox\Digitanks\install\digitanks.exe"
+if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dropbox\Digitanks\install\digitanks.pdb"</Command>
       <Message>Copying to destination folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -100,6 +101,7 @@
     <ClCompile Include="..\..\EASTL\src\string.cpp" />
     <ClCompile Include="..\..\license\license.cpp" />
     <ClCompile Include="..\..\tinker\application.cpp" />
+    <ClCompile Include="..\..\tinker\register.cpp" />
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
@@ -109,7 +111,6 @@
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="register.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />
     <ClCompile Include="ui\digitankswindow.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebug</RuntimeLibrary>
@@ -180,7 +181,6 @@
     <ClInclude Include="game\digitanks\scout.h" />
     <ClInclude Include="game\digitanks\updates.h" />
     <ClInclude Include="game\gameserver.h" />
-    <ClInclude Include="register.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />
     <ClInclude Include="ui\hud.h" />

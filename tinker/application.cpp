@@ -206,6 +206,9 @@ void CApplication::DumpGLInfo()
 		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB),
 	};
 
+	if (!GLEW_ARB_vertex_program && !GLEW_NV_vertex_program)
+		return;
+
 	o << std::endl;
 	o << "Vertex programs:" << std::endl;
 

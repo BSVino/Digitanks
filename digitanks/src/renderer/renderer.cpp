@@ -870,8 +870,10 @@ void CRenderer::FinishRendering()
 
 void CRenderer::RenderMapFullscreen(size_t iMap)
 {
-	glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
+	if (GLEW_ARB_multitexture || GLEW_VERSION_1_3)
+		glActiveTexture(GL_TEXTURE0);
+
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, (GLuint)iMap);
 
 	if (ShouldUseFramebuffers())

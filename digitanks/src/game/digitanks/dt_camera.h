@@ -31,6 +31,8 @@ public:
 	virtual Vector	GetCameraPosition();
 	virtual Vector	GetCameraTarget();
 
+	virtual void	SetFreeMode(bool bOn);
+
 	virtual void	MouseInput(int x, int y);
 	virtual void	MouseButton(int iButton, int iState);
 	virtual void	KeyDown(int c);

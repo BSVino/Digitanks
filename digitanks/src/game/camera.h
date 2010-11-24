@@ -14,7 +14,7 @@ public:
 	virtual Vector	GetCameraPosition();
 	virtual Vector	GetCameraTarget();
 
-	void			SetFreeMode(bool bOn);
+	virtual void	SetFreeMode(bool bOn);
 	bool			GetFreeMode() { return m_bFreeMode; };
 
 	virtual void	MouseInput(int x, int y);

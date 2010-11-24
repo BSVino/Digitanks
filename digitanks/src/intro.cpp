@@ -372,7 +372,7 @@ void RunIntro()
 		else if (flTime < 8.0f)
 		{
 			ilBindImage(iErrorWindow);
-	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
+	        glRasterPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
 
 			glPushAttrib(GL_ENABLE_BIT);
 			glEnable(GL_BLEND);
@@ -386,10 +386,11 @@ void RunIntro()
 			if (iFrame++ == 80)
 				CSoundLibrary::PlayMusic(L"sound/assemble-for-victory.ogg");
 
+	        glRasterPos2i(0, 0);
 			glDrawPixels(iScreenWidth, iScreenHeight, GL_RGB, GL_UNSIGNED_BYTE, lpCapture);
 
 			ilBindImage(iErrorWindow);
-	        glWindowPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
+	        glRasterPos2i(iScreenWidth/2 - 366/2, iScreenHeight/2 - 168/2);
 
 			glPushAttrib(GL_ENABLE_BIT);
 			glEnable(GL_BLEND);
@@ -397,7 +398,7 @@ void RunIntro()
 			glDrawPixels(512, 256, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
 			glPopAttrib();
 
-	        glWindowPos2i(0, 0);
+	        glRasterPos2i(0, 0);
 
 			float flDistance = (flTime - 8)*20;
 			int iColumns = 10;

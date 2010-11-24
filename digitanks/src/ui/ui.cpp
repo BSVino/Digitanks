@@ -8,7 +8,6 @@
 #include "menu.h"
 #include "ui.h"
 #include "instructor.h"
-#include "register.h"
 
 using namespace glgui;
 
@@ -370,7 +369,7 @@ void CPurchasePanel::MainMenuCallback()
 void CPurchasePanel::RegisterCallback()
 {
 	eastl::string16 sError;
-	bool bSucceeded = QueryRegistrationKey(L"digitanks.com", L"/reg/reg.php", m_pRegistrationKey->GetText(), sError);
+	bool bSucceeded = DigitanksWindow()->QueryRegistrationKey(L"digitanks.com", L"/reg/reg.php", m_pRegistrationKey->GetText(), sError);
 	m_pRegisterResult->SetText(sError.c_str());
 
 	if (bSucceeded)
@@ -398,20 +397,20 @@ void CPurchasePanel::RegisterOfflineCallback()
 	m_pProductCode = new CLabel(0, 110, GetWidth(), GetHeight(), L"");
 	m_pProductCode->SetAlign(CLabel::TA_TOPCENTER);
 	m_pProductCode->SetText(L"Product Code: ");
-	m_pProductCode->AppendText(GetProductCode().c_str());
+	m_pProductCode->AppendText(DigitanksWindow()->GetProductCode().c_str());
 	AddControl(m_pProductCode);
 }
 
 void CPurchasePanel::CopyProductCodeCallback()
 {
-	SetClipboard(GetProductCode());
+	SetClipboard(DigitanksWindow()->GetProductCode());
 }
 
 void CPurchasePanel::SetKeyCallback()
 {
-	SetLicenseKey(convertstring<char16_t, char>(m_pRegistrationKey->GetText()));
+	DigitanksWindow()->SetLicenseKey(convertstring<char16_t, char>(m_pRegistrationKey->GetText()));
 
-	if (IsRegistered())
+	if (DigitanksWindow()->IsRegistered())
 	{
 		m_pRegisterResult->SetText(L"Thank you for registering Digitanks!");
 		m_pRegister->SetVisible(false);

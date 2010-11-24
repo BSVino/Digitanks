@@ -81,12 +81,8 @@ void CCamera::MouseInput(int x, int y)
 
 void CCamera::KeyDown(int c)
 {
-#ifdef _DEBUG
 	if (c == 'Z')
-	{
 		SetFreeMode(!m_bFreeMode);
-	}
-#endif
 
 	if (m_bFreeMode)
 	{

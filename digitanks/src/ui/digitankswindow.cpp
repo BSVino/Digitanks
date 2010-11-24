@@ -27,7 +27,6 @@
 #include "menu.h"
 #include "ui.h"
 #include "renderer/renderer.h"
-#include "register.h"
 
 ConfigFile c( GetAppDataDirectory(L"Digitanks", L"options.cfg") );
 

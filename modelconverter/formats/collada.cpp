@@ -10,6 +10,10 @@ void CModelConverter::ReadDAESceneTree(FCDSceneNode* pNode, CConversionSceneNode
 {
 }
 
+void CModelConverter::SaveDAE(const eastl::string16& sFilename)
+{
+}
+
 #else
 
 #include <assert.h>

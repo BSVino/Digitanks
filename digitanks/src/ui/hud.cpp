@@ -12,7 +12,6 @@
 #include <game/digitanks/loader.h>
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
-#include "register.h"
 
 using namespace glgui;
 
@@ -1200,7 +1199,7 @@ void CHUD::NewCurrentTeam()
 			m_bUpdatesBlinking = bShouldOpen;
 		}
 
-		if (!IsRegistered() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		if (!DigitanksWindow()->IsRegistered() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
 			eastl::string16 s;
 			s.sprintf(L"Demo turns left: %d", DigitanksGame()->GetDemoTurns() - DigitanksGame()->GetTurn());

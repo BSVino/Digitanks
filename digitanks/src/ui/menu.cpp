@@ -13,7 +13,6 @@
 
 #include "instructor.h"
 #include "digitankswindow.h"
-#include "register.h"
 #include "hud.h"
 
 using namespace glgui;
@@ -482,7 +481,7 @@ CMultiplayerPanel::CMultiplayerPanel()
 	m_pArtillery->SetFontFaceSize(18);
 	AddControl(m_pArtillery);
 
-	if (IsRegistered())
+	if (DigitanksWindow()->IsRegistered())
 	{
 		m_pStrategy = new CButton(0, 0, 100, 100, L"Host Strategy");
 		m_pStrategy->SetClickedListener(this, Strategy);
@@ -510,7 +509,7 @@ void CMultiplayerPanel::Layout()
 	m_pArtillery->SetPos(20, 100);
 	m_pArtillery->SetSize(135, 40);
 
-	if (IsRegistered())
+	if (DigitanksWindow()->IsRegistered())
 	{
 		m_pStrategy->SetPos(20, 160);
 		m_pStrategy->SetSize(135, 40);

@@ -16,7 +16,6 @@
 #include "powerup.h"
 #include "terrain.h"
 #include "dt_camera.h"
-#include "register.h"
 
 #include "digitanks/menumarcher.h"
 #include "digitanks/mechinf.h"
@@ -608,7 +607,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		pEntity->ClientEnterGame();
 	}
 
-	if (CNetwork::IsConnected() && !IsRegistered() && GetGameType() == GAMETYPE_STANDARD)
+	if (CNetwork::IsConnected() && !DigitanksWindow()->IsRegistered() && GetGameType() == GAMETYPE_STANDARD)
 		GameServer()->Halt();
 }
 
@@ -900,7 +899,7 @@ void CDigitanksGame::StartTurn()
 	if (!CNetwork::IsHost())
 		return;
 
-	if (GetGameType() == GAMETYPE_STANDARD && !IsRegistered() && GetTurn() > GetDemoTurns())
+	if (GetGameType() == GAMETYPE_STANDARD && !DigitanksWindow()->IsRegistered() && GetTurn() > GetDemoTurns())
 	{
 		GameServer()->Halt();
 		return;

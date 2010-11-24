@@ -234,9 +234,6 @@
     <ClCompile Include="..\..\common\configfile.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="register.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\license\license.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -265,6 +262,9 @@
       <Filter>Source Files\eastl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\tinker\application.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\register.cpp">
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
   </ItemGroup>
@@ -409,9 +409,6 @@
     </ClInclude>
     <ClInclude Include="..\..\common\configfile.h">
       <Filter>Source Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="register.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\license\license.h">
       <Filter>Source Files</Filter>
