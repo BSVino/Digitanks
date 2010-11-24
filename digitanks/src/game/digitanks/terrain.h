@@ -90,8 +90,6 @@ protected:
 	eastl::vector<Vector>	m_avecCraterMarks;
 
 	CTerrainChunk			m_aTerrainChunks[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
-
-	size_t					m_iWallList;
 };
 
 #endif
