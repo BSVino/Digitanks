@@ -5,6 +5,7 @@ class Color
 {
 public:
 	inline			Color();
+	inline			Color(class Vector v);
 	inline			Color(int _r, int _g, int _b);
 	inline			Color(int _r, int _g, int _b, int _a);
 
@@ -36,9 +37,16 @@ private:
 	unsigned char	alpha;
 };
 
+#include "vector.h"
+
 Color::Color()
 {
 	Color(0, 0, 0, 255);
+}
+
+Color::Color(Vector v)
+{
+	SetColor((int)fabs(v.x*255), (int)fabs(v.y*255), (int)fabs(v.z*255), 255);
 }
 
 Color::Color(int _r, int _g, int _b)

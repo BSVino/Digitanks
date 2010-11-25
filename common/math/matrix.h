@@ -212,8 +212,28 @@ inline void Matrix4x4::SetRotation(float flAngle, const Vector& v)
 
 inline void Matrix4x4::SetOrientation(const Vector& vecDir)
 {
-	EAngle angDir = VectorAngles(vecDir);
-	SetRotation(angDir);
+	Vector vecRight, vecUp;
+	vecUp = Vector(0, 1, 0);
+	if (vecDir.DistanceSqr(vecUp) > 0.001f && vecDir.DistanceSqr(-vecUp) > 0.001f)
+		vecRight = vecDir.Cross(vecUp).Normalized();
+	else
+		vecRight = Vector(1, 0, 0);
+
+	vecUp = vecRight.Cross(vecDir).Normalized();
+
+	m[0][0] = vecRight.x;
+	m[1][0] = vecRight.y;
+	m[2][0] = vecRight.z; 
+	m[0][1] = vecUp.x;
+	m[1][1] = vecUp.y;
+	m[2][1] = vecUp.z; 
+	m[0][2] = -vecDir.x;
+	m[1][2] = -vecDir.y;
+	m[2][2] = -vecDir.z; 
+
+	m[3][0] = m[3][1] = m[3][2] = 0.0f;
+	m[0][3] = m[1][3] = m[2][3] = 0.0f;
+	m[3][3] = 1.0f;
 }
 
 inline void Matrix4x4::SetScale(const Vector& vecScale)

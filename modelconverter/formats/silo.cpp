@@ -368,7 +368,8 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 			wcstok(sCreases, aCreases, L" ");
 
 			size_t iCreases = aCreases.size();
-			for (size_t i = 0; i < iCreases; i++)
+			// The first one is the number of creases, skip it
+			for (size_t i = 1; i < iCreases; i++)
 			{
 				int iEdge = _wtoi(aCreases[i].c_str());
 				pMesh->GetEdge(iEdge+iAddE)->m_bCreased = true;
