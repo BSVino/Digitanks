@@ -5,8 +5,8 @@
 
 #include "ui/digitankswindow.h"
 #include "ui/hud.h"
-#include "digitanksgame.h"
-#include "projectile.h"
+#include <digitanks/digitanksgame.h>
+#include <digitanks/projectiles/projectile.h>
 
 NETVAR_TABLE_BEGIN(CScout);
 NETVAR_TABLE_END();

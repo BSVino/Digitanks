@@ -2,7 +2,16 @@
 #define DT_PROJECTILE_H
 
 #include <baseentity.h>
-#include "digitank.h"
+#include <digitanks/units/digitank.h>
+
+typedef enum
+{
+	PROJECTILE_SMALL,
+	PROJECTILE_MEDIUM,
+	PROJECTILE_LARGE,
+
+	PROJECTILE_MAX,
+} projectile_t;
 
 class CProjectile : public CBaseEntity
 {
@@ -49,6 +58,8 @@ public:
 
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
+
+	static float				GetProjectileEnergy(projectile_t eProjectile);
 
 protected:
 	float						m_flTimeCreated;

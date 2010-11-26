@@ -4,7 +4,7 @@
 #include <models/models.h>
 #include <renderer/renderer.h>
 
-#include "digitank.h"
+#include "units/digitank.h"
 #include "digitanksgame.h"
 
 NETVAR_TABLE_BEGIN(CPowerup);

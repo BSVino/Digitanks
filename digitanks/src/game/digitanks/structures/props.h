@@ -1,7 +1,7 @@
 #ifndef DT_PROPS_H
 #define DT_PROPS_H
 
-#include "digitanksentity.h"
+#include <digitanks/digitanksentity.h>
 #include "color.h"
 
 class CStaticProp : public CDigitanksEntity

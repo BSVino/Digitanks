@@ -2,7 +2,7 @@
 
 #include <glgui/glgui.h>
 
-#include "digitanks/digitank.h"
+#include "digitanks/units/digitank.h"
 #include "digitanks/digitanksgame.h"
 #include "digitankswindow.h"
 #include "renderer/renderer.h"

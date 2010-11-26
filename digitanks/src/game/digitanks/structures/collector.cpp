@@ -4,8 +4,8 @@
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 
-#include "digitanksteam.h"
-#include "digitanksgame.h"
+#include <digitanks/digitanksteam.h>
+#include <digitanks/digitanksgame.h>
 
 NETVAR_TABLE_BEGIN(CCollector);
 	NETVAR_DEFINE(CEntityHandle<CResource>, m_hResource);

@@ -58,6 +58,9 @@
     <Filter Include="Source Files\tinker">
       <UniqueIdentifier>{4e7ebff5-aa7b-4e77-9451-a290f3c54fef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\game\digitanks\projectiles">
+      <UniqueIdentifier>{8595d154-3ffe-462f-a73c-0f56a69af06e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -109,9 +112,6 @@
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\powerup.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\projectile.cpp">
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\selectable.cpp">
@@ -270,6 +270,9 @@
     <ClCompile Include="game\digitanks\structures\props.cpp">
       <Filter>Source Files\game\digitanks\structures</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\projectiles\projectile.cpp">
+      <Filter>Source Files\game\digitanks\projectiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -309,9 +312,6 @@
       <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\powerup.h">
-      <Filter>Source Files\game\digitanks</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\projectile.h">
       <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\selectable.h">
@@ -427,6 +427,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\props.h">
       <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\projectiles\projectile.h">
+      <Filter>Source Files\game\digitanks\projectiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-#include "digitank.h"
+#include <digitanks/units/digitank.h>
 
 #include <sstream>
 
@@ -10,17 +10,17 @@
 #include <renderer/particles.h>
 #include <glgui/glgui.h>
 
-#include "digitanksgame.h"
-#include "dt_camera.h"
+#include <digitanks/digitanksgame.h>
+#include <digitanks/dt_camera.h>
 #include "ui/digitankswindow.h"
 #include "ui/instructor.h"
-#include "powerup.h"
+#include <digitanks/powerup.h>
 #include "ui/debugdraw.h"
 #include "ui/hud.h"
-#include "structure.h"
-#include "supplyline.h"
-#include "projectile.h"
-#include "scout.h"
+#include <digitanks/structures/structure.h>
+#include <digitanks/supplyline.h>
+#include <digitanks/projectiles/projectile.h>
+#include <digitanks/units/scout.h>
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iCancelIcon = 0;

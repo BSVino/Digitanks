@@ -1,8 +1,8 @@
 #ifndef DT_DIGITANK_H
 #define DT_DIGITANK_H
 
-#include "selectable.h"
-#include "loader.h"
+#include <digitanks/selectable.h>
+#include <digitanks/structures/loader.h>
 #include <common.h>
 
 #define TANK_SHIELDS 4

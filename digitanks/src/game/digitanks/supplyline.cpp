@@ -3,7 +3,7 @@
 #include <geometry.h>
 
 #include "dt_renderer.h"
-#include "structure.h"
+#include "structures/structure.h"
 #include <team.h>
 #include "digitanksgame.h"
 

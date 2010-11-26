@@ -6,13 +6,13 @@
 
 #include "digitanksgame.h"
 #include "updates.h"
-#include "resource.h"
-#include "loader.h"
+#include "structures/resource.h"
+#include "structures/loader.h"
 
-#include "artillery.h"
-#include "maintank.h"
-#include "mechinf.h"
-#include "scout.h"
+#include "units/artillery.h"
+#include "units/maintank.h"
+#include "units/mechinf.h"
+#include "units/scout.h"
 
 unittype_t g_aeBuildOrder[] =
 {

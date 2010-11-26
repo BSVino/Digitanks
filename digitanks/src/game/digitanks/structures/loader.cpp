@@ -10,9 +10,9 @@
 #include <ui/instructor.h>
 #include <ui/hud.h>
 
-#include "mechinf.h"
-#include "maintank.h"
-#include "artillery.h"
+#include <digitanks/units/mechinf.h>
+#include <digitanks/units/maintank.h>
+#include <digitanks/units/artillery.h>
 
 #include <GL/glew.h>
 

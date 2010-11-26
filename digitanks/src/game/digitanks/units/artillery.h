@@ -1,7 +1,7 @@
 #ifndef DT_ARTILLERY_H
 #define DT_ARTILLERY_H
 
-#include <digitanks/digitank.h>
+#include <digitanks/units/digitank.h>
 
 class CArtillery : public CDigitank
 {

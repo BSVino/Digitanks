@@ -1,7 +1,7 @@
 #ifndef DT_SCOUT_H
 #define DT_SCOUT_H
 
-#include <digitanks/digitank.h>
+#include <digitanks/units/digitank.h>
 
 class CScout : public CDigitank
 {

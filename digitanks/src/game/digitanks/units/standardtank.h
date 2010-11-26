@@ -1,7 +1,7 @@
 #ifndef DT_STANDARDTANK_H
 #define DT_STANDARDTANK_H
 
-#include <digitanks/digitank.h>
+#include <digitanks/units/digitank.h>
 
 class CStandardTank : public CDigitank
 {

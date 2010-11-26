@@ -2,11 +2,11 @@
 #define DT_DIGITANKSTEAM_H
 
 #include <game/team.h>
-#include "digitank.h"
+#include "units/digitank.h"
 #include "updates.h"
 
 // AI stuff
-#include "cpu.h"
+#include "structures/cpu.h"
 
 class CDigitanksTeam : public CTeam
 {

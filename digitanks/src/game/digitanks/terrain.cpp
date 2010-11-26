@@ -10,7 +10,7 @@
 
 #include "dt_renderer.h"
 #include "digitanksgame.h"
-#include "projectile.h"
+#include <digitanks/projectiles/projectile.h>
 #include "ui/digitankswindow.h"
 #include "shaders/shaders.h"
 

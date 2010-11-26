@@ -4,7 +4,7 @@
 #include <EASTL/vector.h>
 
 #include "game.h"
-#include "digitank.h"
+#include "units/digitank.h"
 #include <common.h>
 #include "terrain.h"
 #include "digitanksteam.h"

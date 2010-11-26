@@ -12,10 +12,10 @@
 #include <ui/hud.h>
 #include <models/models.h>
 
-#include "buffer.h"
-#include "collector.h"
-#include "loader.h"
-#include "scout.h"
+#include <digitanks/structures/buffer.h>
+#include <digitanks/structures/collector.h>
+#include <digitanks/structures/loader.h>
+#include <digitanks/units/scout.h>
 
 size_t CCPU::s_iCancelIcon = 0;
 size_t CCPU::s_iBuildPSUIcon = 0;

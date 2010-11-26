@@ -3,9 +3,9 @@
 #include <maths.h>
 #include <mtrand.h>
 
-#include "dt_renderer.h"
-#include "digitanksgame.h"
-#include "supplyline.h"
+#include <digitanks/dt_renderer.h>
+#include <digitanks/digitanksgame.h>
+#include <digitanks/supplyline.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>

@@ -5,12 +5,12 @@
 
 #include <models/models.h>
 #include <network/network.h>
-#include "dt_renderer.h"
+#include <digitanks/dt_renderer.h>
 
 #include "ui/digitankswindow.h"
 #include "ui/hud.h"
-#include "digitanksgame.h"
-#include "projectile.h"
+#include <digitanks/digitanksgame.h>
+#include <digitanks/projectiles/projectile.h>
 
 NETVAR_TABLE_BEGIN(CMechInfantry);
 NETVAR_TABLE_END();

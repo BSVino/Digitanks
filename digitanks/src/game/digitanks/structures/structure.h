@@ -1,10 +1,10 @@
 #ifndef DT_STRUCTURE_H
 #define DT_STRUCTURE_H
 
-#include "dt_common.h"
-#include "selectable.h"
-#include "supplyline.h"
-#include "updates.h"
+#include <digitanks/dt_common.h>
+#include <digitanks/selectable.h>
+#include <digitanks/supplyline.h>
+#include <digitanks/updates.h>
 
 typedef enum
 {

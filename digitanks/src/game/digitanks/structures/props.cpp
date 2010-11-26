@@ -2,7 +2,7 @@
 
 #include <renderer/renderer.h>
 
-#include "digitanksgame.h"
+#include <digitanks/digitanksgame.h>
 
 NETVAR_TABLE_BEGIN(CStaticProp);
 	NETVAR_DEFINE(bool, m_bAdditive);

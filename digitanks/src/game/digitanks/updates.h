@@ -2,7 +2,7 @@
 #define DT_UPDATES_H
 
 #include "dt_common.h"
-#include "structure.h"
+#include "structures/structure.h"
 
 class CUpdateItem
 {

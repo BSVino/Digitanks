@@ -1,7 +1,7 @@
 #ifndef DT_MAINTANK_H
 #define DT_MAINTANK_H
 
-#include <digitanks/digitank.h>
+#include <digitanks/units/digitank.h>
 
 class CMainBattleTank : public CDigitank
 {

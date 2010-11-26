@@ -1,7 +1,7 @@
 #ifndef DT_MECHINF_H
 #define DT_MECHINF_H
 
-#include <digitanks/digitank.h>
+#include <digitanks/units/digitank.h>
 
 class CMechInfantry : public CDigitank
 {

@@ -105,6 +105,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
+    <ClCompile Include="game\digitanks\projectiles\projectile.cpp" />
     <ClCompile Include="game\digitanks\structures\buffer.cpp" />
     <ClCompile Include="game\digitanks\structures\collector.cpp" />
     <ClCompile Include="game\digitanks\structures\cpu.cpp" />
@@ -141,7 +142,6 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\digitanksteam.cpp" />
     <ClCompile Include="game\digitanks\dt_renderer.cpp" />
     <ClCompile Include="game\digitanks\powerup.cpp" />
-    <ClCompile Include="game\digitanks\projectile.cpp" />
     <ClCompile Include="game\digitanks\selectable.cpp" />
     <ClCompile Include="game\digitanks\supplyline.cpp" />
     <ClCompile Include="game\digitanks\terrain.cpp" />
@@ -178,6 +178,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="dt_version.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
+    <ClInclude Include="game\digitanks\projectiles\projectile.h" />
     <ClInclude Include="game\digitanks\structures\buffer.h" />
     <ClInclude Include="game\digitanks\structures\collector.h" />
     <ClInclude Include="game\digitanks\structures\cpu.h" />
@@ -206,7 +207,6 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\digitanksteam.h" />
     <ClInclude Include="game\digitanks\dt_renderer.h" />
     <ClInclude Include="game\digitanks\powerup.h" />
-    <ClInclude Include="game\digitanks\projectile.h" />
     <ClInclude Include="game\digitanks\selectable.h" />
     <ClInclude Include="game\digitanks\supplyline.h" />
     <ClInclude Include="game\digitanks\terrain.h" />

@@ -6,15 +6,11 @@
 #include "instructor.h"
 #include "hud.h"
 #include "ui.h"
-#include <game/digitanks/cpu.h>
+#include <game/digitanks/structures/cpu.h>
 #include <game/digitanks/dt_camera.h>
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>
 #include <tinker/keys.h>
-
-#ifdef _DEBUG
-#include <game/digitanks/maintank.h>
-#endif
 
 void CDigitanksWindow::MouseMotion(int x, int y)
 {

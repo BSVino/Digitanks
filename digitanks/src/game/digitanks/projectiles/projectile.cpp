@@ -5,9 +5,9 @@
 
 #include <renderer/particles.h>
 
-#include "digitanksgame.h"
-#include "dt_camera.h"
-#include "dt_renderer.h"
+#include <digitanks/digitanksgame.h>
+#include <digitanks/dt_camera.h>
+#include <digitanks/dt_renderer.h>
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
 
@@ -264,6 +264,18 @@ void CProjectile::ClientEnterGame()
 		if (m_iParticleSystem != ~0)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
+}
+
+static float g_aflProjectileEnergies[PROJECTILE_MAX] =
+{
+	0.2f,	// small
+	0.5f,	// medium
+	0.8f,	// large
+};
+
+float CProjectile::GetProjectileEnergy(projectile_t eProjectile)
+{
+	return g_aflProjectileEnergies[eProjectile];
 }
 
 NETVAR_TABLE_BEGIN(CShell);

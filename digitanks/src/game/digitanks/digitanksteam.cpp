@@ -7,10 +7,10 @@
 #include <network/network.h>
 #include <ui/instructor.h>
 
-#include "digitank.h"
-#include "structure.h"
-#include "loader.h"
-#include "collector.h"
+#include "units/digitank.h"
+#include "structures/structure.h"
+#include "structures/loader.h"
+#include "structures/collector.h"
 
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iProduction, &CDigitanksGame::UpdateHUD);
