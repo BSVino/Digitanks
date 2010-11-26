@@ -123,36 +123,6 @@
     <ClCompile Include="game\digitanks\terrain.cpp">
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
-    <ClCompile Include="game\digitanks\artillery.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\digitank.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\maintank.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\mechinf.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\buffer.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\collector.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\cpu.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\loader.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\resource.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\structure.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\glgui\glgui.cpp">
       <Filter>Source Files\glgui</Filter>
     </ClCompile>
@@ -210,12 +180,6 @@
     <ClCompile Include="game\digitanks\digitanks_register.cpp">
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
-    <ClCompile Include="game\digitanks\scout.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClCompile>
-    <ClCompile Include="game\digitanks\props.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClCompile>
     <ClCompile Include="game\digitanks\dt_camera.cpp">
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
@@ -267,8 +231,44 @@
     <ClCompile Include="..\..\tinker\register.cpp">
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
-    <ClCompile Include="game\digitanks\standardtank.cpp">
+    <ClCompile Include="game\digitanks\units\artillery.cpp">
       <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\units\digitank.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\units\maintank.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\units\mechinf.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\units\scout.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\units\standardtank.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\resource.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\structure.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\buffer.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\collector.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\cpu.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\loader.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\structures\props.cpp">
+      <Filter>Source Files\game\digitanks\structures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -323,36 +323,6 @@
     <ClInclude Include="game\digitanks\terrain.h">
       <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
-    <ClInclude Include="game\digitanks\artillery.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\digitank.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\maintank.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\mechinf.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\buffer.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\collector.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\cpu.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\loader.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\resource.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\structure.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\glgui\glgui.h">
       <Filter>Source Files\glgui</Filter>
     </ClInclude>
@@ -389,12 +359,6 @@
     <ClInclude Include="ui\updatespanel.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
-    <ClInclude Include="game\digitanks\scout.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
-    </ClInclude>
-    <ClInclude Include="game\digitanks\props.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
-    </ClInclude>
     <ClInclude Include="game\digitanks\dt_camera.h">
       <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
@@ -425,8 +389,44 @@
     <ClInclude Include="..\..\tinker\keys.h">
       <Filter>Source Files\tinker</Filter>
     </ClInclude>
-    <ClInclude Include="game\digitanks\standardtank.h">
+    <ClInclude Include="game\digitanks\units\artillery.h">
       <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\digitank.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\maintank.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\mechinf.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\scout.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\standardtank.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\resource.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\structure.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\buffer.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\collector.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\cpu.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\loader.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\props.h">
+      <Filter>Source Files\game\digitanks\structures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
