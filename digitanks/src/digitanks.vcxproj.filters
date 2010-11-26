@@ -267,6 +267,9 @@
     <ClCompile Include="..\..\tinker\register.cpp">
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\standardtank.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -421,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="..\..\tinker\keys.h">
       <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\standardtank.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -107,6 +107,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
     <ClCompile Include="game\digitanks\props.cpp" />
     <ClCompile Include="game\digitanks\scout.cpp" />
+    <ClCompile Include="game\digitanks\standardtank.cpp" />
     <ClCompile Include="game\digitanks\updates.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="intro.cpp" />
@@ -179,6 +180,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\menumarcher.h" />
     <ClInclude Include="game\digitanks\props.h" />
     <ClInclude Include="game\digitanks\scout.h" />
+    <ClInclude Include="game\digitanks\standardtank.h" />
     <ClInclude Include="game\digitanks\updates.h" />
     <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="ui\debugdraw.h" />

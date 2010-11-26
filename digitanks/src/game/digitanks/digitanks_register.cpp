@@ -3,6 +3,7 @@
 #include "collector.h"
 #include "cpu.h"
 #include "loader.h"
+#include "standardtank.h"
 #include "artillery.h"
 #include "maintank.h"
 #include "mechinf.h"
@@ -30,6 +31,7 @@ REGISTER_ENTITY(CStructure);
 REGISTER_ENTITY(CSupplier);
 REGISTER_ENTITY(CArtillery);
 REGISTER_ENTITY(CDigitank);
+REGISTER_ENTITY(CStandardTank);
 REGISTER_ENTITY(CMainBattleTank);
 REGISTER_ENTITY(CMechInfantry);
 REGISTER_ENTITY(CScout);

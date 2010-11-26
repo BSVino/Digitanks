@@ -61,7 +61,7 @@ void CProjectile::Think()
 		m_bFallSoundPlayed = true;
 	}
 
-	if (GameServer()->GetGameTime() - m_flTimeCreated > 5.0f && m_flTimeExploded == 0.0f)
+	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().y) - 20 || GetOrigin().y < -100)
 		Delete();
 
 	else if (m_flTimeExploded != 0.0f && GameServer()->GetGameTime() - m_flTimeExploded > 2.0f)

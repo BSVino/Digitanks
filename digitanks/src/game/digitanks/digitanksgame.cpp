@@ -18,6 +18,7 @@
 #include "dt_camera.h"
 
 #include "digitanks/menumarcher.h"
+#include "digitanks/standardtank.h"
 #include "digitanks/mechinf.h"
 #include "digitanks/maintank.h"
 #include "digitanks/artillery.h"
@@ -334,7 +335,7 @@ void CDigitanksGame::SetupArtillery()
 			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
 			EAngle angTank = VectorAngles(-vecTank.Normalized());
 
-			CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+			CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
 			m_ahTeams[i]->AddEntity(pTank);
 
 			vecTank.y = pTank->FindHoverHeight(vecTank);

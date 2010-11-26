@@ -132,11 +132,11 @@ public:
 	virtual void				SetPreviewTurn(float flPreviewTurn);
 	void						ClearPreviewTurn();
 
-	Vector						GetPreviewAim() { return m_vecPreviewAim; };
+	Vector						GetPreviewAim() const { return m_vecPreviewAim; };
 	void						SetPreviewAim(Vector vecPreviewAim);
 	void						ClearPreviewAim();
 	bool						IsPreviewAimValid();
-	Vector						GetLastAim() { return m_vecLastAim.Get(); };
+	Vector						GetLastAim() const { return m_vecLastAim.Get(); };
 
 	bool						IsInsideMaxRange(Vector vecPoint);
 	float						FindAimRadius(Vector vecPoint, float flMin = 2.0f);
