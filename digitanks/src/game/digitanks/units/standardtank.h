@@ -23,6 +23,7 @@ public:
 	virtual float				InitialEffRange() const { return 80.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const;
+	virtual float				MaxRangeRadius() const { return 20; };
 
 	virtual size_t				FleetPoints() const { return 0; };
 

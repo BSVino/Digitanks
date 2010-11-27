@@ -379,11 +379,22 @@ void CHUD::Think()
 
 		if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
+			Vector vecPreviewAim;
 			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
 			if (pDTHit && pDTHit->GetVisibility() > 0)
-				pCurrentTank->SetPreviewAim(pDTHit->GetOrigin());
+				vecPreviewAim = pDTHit->GetOrigin();
 			else
-				pCurrentTank->SetPreviewAim(vecEntityPoint);
+				vecPreviewAim = vecEntityPoint;
+
+			for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+			{
+				CDigitank* pTank = DigitanksGame()->GetCurrentTeam()->GetTank(i);
+				if (!pTank)
+					continue;
+
+				if (DigitanksGame()->GetCurrentTeam()->IsSelected(pTank))
+					pTank->SetPreviewAim(vecPreviewAim);
+			}
 		}
 	}
 

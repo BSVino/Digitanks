@@ -96,6 +96,7 @@ public:
 	void						Bot_BuildUnits();
 	void						Bot_AssignDefenders();
 	void						Bot_ExecuteTurn();
+	void						Bot_ExecuteTurnArtillery();
 	CSupplier*					FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
 	void						BuildCollector(CSupplier* pSupplier, class CResource* pResource);
 

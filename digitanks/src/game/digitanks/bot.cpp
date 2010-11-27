@@ -508,6 +508,12 @@ void CDigitanksTeam::Bot_AssignDefenders()
 
 void CDigitanksTeam::Bot_ExecuteTurn()
 {
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+	{
+		Bot_ExecuteTurnArtillery();
+		return;
+	}
+
 	if (m_hPrimaryCPU != NULL)
 	{
 		Bot_DownloadUpdates();
@@ -876,6 +882,92 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
+		}
+	}
+
+	DigitanksGame()->EndTurn();
+}
+
+void CDigitanksTeam::Bot_ExecuteTurnArtillery()
+{
+	// Find the nearest enemy to the head tank, he's our target.
+	for (size_t i = 0; i < GetNumTanks(); i++)
+	{
+		CDigitank* pTank = GetTank(i);
+
+		// Use any promotion points.
+		while (pTank->HasBonusPoints())
+		{
+			switch (rand()%3)
+			{
+			case 0:
+				pTank->PromoteAttack();
+				break;
+
+			case 1:
+				pTank->PromoteDefense();
+				break;
+
+			case 2:
+				pTank->PromoteMovement();
+				break;
+			}
+		}
+
+		eastl::vector<CBaseEntity*> apTargets;
+
+		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+			if (!pEntity)
+				continue;
+
+			if (!dynamic_cast<CDigitank*>(pEntity))
+				continue;
+
+			if (pEntity->GetTeam() == pTank->GetTeam())
+				continue;
+
+			// Don't fire on neutral structures.
+			if (pEntity->GetTeam() == NULL)
+				continue;
+
+			if (!pTank->IsInsideMaxRange(pEntity->GetOrigin()))
+				continue;
+
+			apTargets.push_back(pEntity);
+		}
+
+		CBaseEntity* pTarget = NULL;
+		if (apTargets.size())
+			pTarget = apTargets[RandomInt(0, apTargets.size()-1)];
+
+		if (!pTarget)
+			continue;
+
+		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
+
+		pTank->SetCurrentProjectile(RandomInt(0, pTank->GetNumProjectiles()-1));
+
+		// If we are not within the effective range, use some of our available movement power to move towards our target.
+		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+		{
+			float flMovementDistance = pTank->GetMaxMovementDistance() - pTank->GetProjectileEnergy() * pTank->GetTankSpeed();
+			Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
+			vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
+
+			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+			vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+			pTank->SetPreviewMove(vecDesiredMove);
+			pTank->Move();
+		}
+
+		// If we are within the max range, try to fire.
+		if (pTarget && pTank->IsInsideMaxRange(pTarget->GetOrigin()))
+		{
+			pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pTarget->GetOrigin()));
+			pTank->Fire();
 		}
 	}
 

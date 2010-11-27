@@ -285,27 +285,6 @@ void CDigitanksGame::SetupArtillery()
 	if (iTanks < 1)
 		iTanks = 1;
 
-	Vector avecStartingPositions[] =
-	{
-		Vector(45, 0, 110),
-		Vector(-45, 0, 110),
-		Vector(-110, 0, 45),
-		Vector(-110, 0, -45),
-		Vector(-45, 0, -110),
-		Vector(45, 0, -110),
-		Vector(110, 0, -45),
-		Vector(110, 0, 45),
-	};
-
-	Vector avecTankPositions[] =
-	{
-		Vector(0, 0, 0),
-		Vector(15, 0, 15),
-		Vector(-15, 0, -15),
-		Vector(15, 0, -15),
-		Vector(-15, 0, 15),
-	};
-
 	Color aclrTeamColors[] =
 	{
 		Color(0, 0, 255),
@@ -318,30 +297,56 @@ void CDigitanksGame::SetupArtillery()
 		Color(255, 255, 255),
 	};
 
-	eastl::vector<Vector> avecRandomStartingPositions;
+	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
+	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
+
+	size_t iTotalTanks = iTanks * iPlayers;
+	size_t iSections = (int)sqrt((float)iTotalTanks)+1;
+	float flSectionSize = flMapSize*2/iSections;
+
+	eastl::vector<size_t> aiRandomTeamPositions;
 	// 8 random starting positions.
 	for (int i = 0; i < iPlayers; i++)
-		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
+	{
+		for (int j = 0; j < iTanks; j++)
+			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
+	}
 
 	for (int i = 0; i < iPlayers; i++)
 	{
 		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
-
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
+	}
 
-		for (int j = 0; j < iTanks; j++)
+	size_t iPosition = 0;
+	for (size_t x = 0; x < iSections; x++)
+	{
+		for (size_t y = 0; y < iSections; y++)
 		{
-			Vector vecTank = avecRandomStartingPositions[i] + avecTankPositions[j];
+			if (iPosition >= aiRandomTeamPositions.size())
+				break;
+
+			CTeam* pTeam = m_ahTeams[aiRandomTeamPositions[iPosition]];
+
+			float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
+			float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
+
+			Vector vecSectionPosition(flSectionPositionX, 0, flSectionPositionY);
+			Vector vecSectionRandomize(RandomFloat(0, flSectionSize), 0, RandomFloat(0, flSectionSize));
+
+			Vector vecTank = vecSectionPosition + vecSectionRandomize;
 			EAngle angTank = VectorAngles(-vecTank.Normalized());
 
 			CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
-			m_ahTeams[i]->AddEntity(pTank);
+			pTeam->AddEntity(pTank);
 
 			vecTank.y = pTank->FindHoverHeight(vecTank);
 
 			pTank->SetOrigin(vecTank);
 			pTank->SetAngles(angTank);
 			pTank->GiveBonusPoints(1, false);
+
+			iPosition++;
 		}
 	}
 
