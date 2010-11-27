@@ -870,9 +870,7 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	float flMovePower = GetPreviewBaseMovePower();
 
-	m_vecPreviousOrigin = GetOrigin();
-	m_flStartedMove = GameServer()->GetGameTime();
-	SetOrigin(m_vecPreviewMove);
+	Move(m_vecPreviewMove);
 
 	if (m_iHoverParticles != ~0)
 		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
@@ -954,6 +952,13 @@ bool CDigitank::IsMoving()
 		return true;
 
 	return false;
+}
+
+void CDigitank::Move(Vector vecNewPosition)
+{
+	m_vecPreviousOrigin = GetOrigin();
+	m_flStartedMove = GameServer()->GetGameTime();
+	SetOrigin(vecNewPosition);
 }
 
 void CDigitank::Turn()
@@ -1196,6 +1201,13 @@ bool CDigitank::AimsWith(CDigitank* pOther) const
 void CDigitank::Think()
 {
 	BaseClass::Think();
+
+	if (!IsMoving())
+	{
+		float flHoverHeight = FindHoverHeight(GetOrigin());
+		if (fabs(GetOrigin().y - flHoverHeight) > 1.0f)
+			Move(Vector(GetOrigin().x, flHoverHeight, GetOrigin().z));
+	}
 
 	m_bDisplayAim = false;
 
@@ -2002,7 +2014,11 @@ Vector CDigitank::GetOrigin() const
 	{
 		float flLerp = SLerp(RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1), 0.2f);
 		Vector vecNewOrigin = m_vecPreviousOrigin.Get() * (1-flLerp) + BaseClass::GetOrigin() * flLerp;
-		vecNewOrigin.y = FindHoverHeight(vecNewOrigin);
+
+		float flHoverHeight = FindHoverHeight(vecNewOrigin);
+		if (vecNewOrigin.y < flHoverHeight)
+			vecNewOrigin.y = flHoverHeight;
+
 		return vecNewOrigin;
 	}
 

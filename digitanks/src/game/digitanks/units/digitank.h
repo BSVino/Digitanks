@@ -142,6 +142,7 @@ public:
 	void						Move();
 	void						Move(class CNetworkParameters* p);
 	bool						IsMoving();
+	void						Move(Vector vecNewPosition);
 
 	void						Turn();
 	void						Turn(class CNetworkParameters* p);
