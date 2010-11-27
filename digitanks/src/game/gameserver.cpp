@@ -69,7 +69,7 @@ void CGameServer::Initialize()
 
 	CNetwork::ClearRegisteredFunctions();
 
-	DestroyAllEntities(true);
+	DestroyAllEntities(eastl::vector<eastl::string>(), true);
 
 	CParticleSystemLibrary::ClearInstances();
 
@@ -444,20 +444,38 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 	pEntity->DeregisterNetworkVariables();
 }
 
-void CGameServer::DestroyAllEntities(bool bRemakeGame)
+void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare, bool bRemakeGame)
 {
 	if (!CNetwork::IsHost() && !m_bLoading)
 		return;
 
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-		CBaseEntity::GetEntityNumber(i)->Delete();
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+
+		bool bSpare = false;
+		for (size_t j = 0; j < asSpare.size(); j++)
+		{
+			if (asSpare[j] == pEntity->GetClassName())
+			{
+				bSpare = true;
+				break;
+			}
+		}
+
+		if (bSpare)
+			continue;
+
+		pEntity->Delete();
+	}
 
 	for (size_t i = 0; i < GameServer()->m_ahDeletedEntities.size(); i++)
 		delete GameServer()->m_ahDeletedEntities[i];
 
 	GameServer()->m_ahDeletedEntities.clear();
 
-	CBaseEntity::s_iNextEntityListIndex = 0;
+	if (CBaseEntity::GetNumEntities() == 0)
+		CBaseEntity::s_iNextEntityListIndex = 0;
 
 	if (bRemakeGame)
 		m_hGame = CreateGame();

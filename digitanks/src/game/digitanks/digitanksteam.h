@@ -37,6 +37,8 @@ public:
 	bool						IsSelected(const class CSelectable* pEntity);
 	size_t						GetNumSelected() { return m_aiCurrentSelection.size(); }
 
+	void						StartNewRound();
+
 	void						StartTurn();
 	void						EndTurn();
 

@@ -222,6 +222,11 @@ bool CDigitanksTeam::IsSelected(const CSelectable* pEntity)
 	return false;
 }
 
+void CDigitanksTeam::StartNewRound()
+{
+	m_bLost = false;
+}
+
 void CDigitanksTeam::StartTurn()
 {
 	m_iTotalFleetPoints = m_iUsedFleetPoints = 0;

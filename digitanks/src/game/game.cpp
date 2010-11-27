@@ -137,6 +137,7 @@ void CGame::OnDeleted()
 
 void CGame::OnDeleted(CBaseEntity* pEntity)
 {
+	RemoveTeamFromList(dynamic_cast<CTeam*>(pEntity));
 }
 
 bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit, int iCollisionGroup)

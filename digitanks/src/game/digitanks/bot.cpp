@@ -916,6 +916,8 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 
 		eastl::vector<CBaseEntity*> apTargets;
 
+		CDigitank* pClosestEnemy = NULL;
+
 		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 		{
 			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
@@ -932,6 +934,11 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			if (pEntity->GetTeam() == NULL)
 				continue;
 
+			if (!pClosestEnemy)
+				pClosestEnemy = dynamic_cast<CDigitank*>(pEntity);
+			else if (pClosestEnemy->Distance(pTank->GetOrigin()) > pEntity->Distance(pTank->GetOrigin()))
+				pClosestEnemy = dynamic_cast<CDigitank*>(pEntity);
+
 			if (!pTank->IsInsideMaxRange(pEntity->GetOrigin()))
 				continue;
 
@@ -943,7 +950,21 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			pTarget = apTargets[RandomInt(0, apTargets.size()-1)];
 
 		if (!pTarget)
+		{
+			if (pClosestEnemy)
+			{
+				float flMovementDistance = pTank->GetMaxMovementDistance();
+				Vector vecDirection = pClosestEnemy->GetOrigin() - pTank->GetOrigin();
+				vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
+
+				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+				pTank->SetPreviewMove(vecDesiredMove);
+				pTank->Move();
+			}
 			continue;
+		}
 
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 

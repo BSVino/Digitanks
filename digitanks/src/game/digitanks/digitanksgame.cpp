@@ -80,6 +80,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, actionitem_t, m_aActionItems);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bAllowActionItems);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bPartyMode);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPartyModeStart);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
 SAVEDATA_TABLE_END();
 
@@ -175,16 +176,12 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 {
 	GameServer()->SetLoading(true);
 
+	DigitanksWindow()->RenderLoading();
+
 	SetupEntities();
 
 	if (!CNetwork::IsHost())
 		return;
-
-	if (eGameType != GAMETYPE_EMPTY)
-	{
-		m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
-		m_hTerrain->GenerateTerrain();
-	}
 
 	m_eGameType = eGameType;
 	m_iTurn = 0;
@@ -278,12 +275,14 @@ void CDigitanksGame::SetupArtillery()
 		iPlayers = 8;
 	if (iPlayers < 2)
 		iPlayers = 2;
+	m_iPlayers = iPlayers;
 
 	int iTanks = m_iTanks;
 	if (iTanks > 5)
 		iTanks = 5;
 	if (iTanks < 1)
 		iTanks = 1;
+	m_iTanks = iTanks;
 
 	Color aclrTeamColors[] =
 	{
@@ -297,75 +296,18 @@ void CDigitanksGame::SetupArtillery()
 		Color(255, 255, 255),
 	};
 
-	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
-	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
-
-	size_t iTotalTanks = iTanks * iPlayers;
-	size_t iSections = (int)sqrt((float)iTotalTanks)+1;
-	float flSectionSize = flMapSize*2/iSections;
-
-	eastl::vector<size_t> aiRandomTeamPositions;
-	// 8 random starting positions.
-	for (int i = 0; i < iPlayers; i++)
-	{
-		for (int j = 0; j < iTanks; j++)
-			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
-	}
-
-	for (int i = 0; i < iPlayers; i++)
+	for (int i = 0; i < m_iPlayers; i++)
 	{
 		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
 	}
-
-	size_t iPosition = 0;
-	for (size_t x = 0; x < iSections; x++)
-	{
-		for (size_t y = 0; y < iSections; y++)
-		{
-			if (iPosition >= aiRandomTeamPositions.size())
-				break;
-
-			CTeam* pTeam = m_ahTeams[aiRandomTeamPositions[iPosition]];
-
-			float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
-			float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
-
-			Vector vecSectionPosition(flSectionPositionX, 0, flSectionPositionY);
-			Vector vecSectionRandomize(RandomFloat(0, flSectionSize), 0, RandomFloat(0, flSectionSize));
-
-			Vector vecTank = vecSectionPosition + vecSectionRandomize;
-			EAngle angTank = VectorAngles(-vecTank.Normalized());
-
-			CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
-			pTeam->AddEntity(pTank);
-
-			vecTank.y = pTank->FindHoverHeight(vecTank);
-
-			pTank->SetOrigin(vecTank);
-			pTank->SetAngles(angTank);
-			pTank->GiveBonusPoints(1, false);
-
-			iPosition++;
-		}
-	}
-
-	m_ahTeams[0]->SetClient(-1);
-
-	CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
-	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, -70), -70));
-	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, 70), 70));
-	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
-
-	m_iPowerups = 4;
 }
 
 void CDigitanksGame::SetupStandard()
 {
+	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+	m_hTerrain->GenerateTerrain();
+
 	ScatterResources();
 	ScatterProps();
 
@@ -486,6 +428,9 @@ void CDigitanksGame::SetupStandard()
 
 void CDigitanksGame::SetupTutorial()
 {
+	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+	m_hTerrain->GenerateTerrain();
+
 	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
@@ -499,6 +444,9 @@ void CDigitanksGame::SetupTutorial()
 
 void CDigitanksGame::SetupMenuMarch()
 {
+	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+	m_hTerrain->GenerateTerrain();
+
 	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
@@ -572,7 +520,10 @@ void CDigitanksGame::StartGame()
 	m_iWaitingForProjectiles = 0;
 	m_bWaitingForProjectiles = true;
 
-	GetCurrentTeam()->StartTurn();
+	if (HasRounds())
+		StartNewRound();
+	else
+		GetCurrentTeam()->StartTurn();
 
 	EnterGame(NULL);
 }
@@ -616,12 +567,123 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		GameServer()->Halt();
 }
 
+void CDigitanksGame::StartNewRound()
+{
+	m_iCurrentTeam = 0;
+
+	m_iWaitingForProjectiles = 0;
+	m_bWaitingForProjectiles = true;
+
+	m_iTurn = 0;
+
+	m_flPartyModeStart = 0;
+	m_bPartyMode = false;
+
+	for (size_t i = 0; i < GetNumTeams(); i++)
+		GetDigitanksTeam(i)->StartNewRound();
+
+	if (m_eGameType == GAMETYPE_ARTILLERY)
+		SetupArtilleryRound();
+
+	GetCurrentTeam()->StartTurn();
+}
+
+void CDigitanksGame::SetupArtilleryRound()
+{
+	GameServer()->SetLoading(true);
+
+	DigitanksWindow()->RenderLoading();
+
+	eastl::vector<eastl::string> asSpare;
+	asSpare.push_back("CDigitanksGame");
+	asSpare.push_back("CDigitanksTeam");
+
+	GameServer()->DestroyAllEntities(asSpare);
+
+	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+	m_hTerrain->GenerateTerrain();
+	m_hTerrain->GenerateCollision();
+
+	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
+	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
+
+	size_t iTotalTanks = m_iTanks * m_iPlayers;
+	size_t iSections = (int)sqrt((float)iTotalTanks)+1;
+	float flSectionSize = flMapSize*2/iSections;
+
+	eastl::vector<size_t> aiRandomTeamPositions;
+	// 8 random starting positions.
+	for (int i = 0; i < m_iPlayers; i++)
+	{
+		for (int j = 0; j < m_iTanks; j++)
+			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
+	}
+
+	size_t iPosition = 0;
+	for (size_t x = 0; x < iSections; x++)
+	{
+		for (size_t y = 0; y < iSections; y++)
+		{
+			if (iPosition >= aiRandomTeamPositions.size())
+				break;
+
+			CTeam* pTeam = m_ahTeams[aiRandomTeamPositions[iPosition]];
+
+			float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
+			float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
+
+			Vector vecSectionPosition(flSectionPositionX, 0, flSectionPositionY);
+			Vector vecSectionRandomize(RandomFloat(0, flSectionSize), 0, RandomFloat(0, flSectionSize));
+
+			Vector vecTank = vecSectionPosition + vecSectionRandomize;
+			EAngle angTank = VectorAngles(-vecTank.Normalized());
+
+			CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
+			pTeam->AddEntity(pTank);
+
+			vecTank.y = pTank->FindHoverHeight(vecTank);
+
+			pTank->SetOrigin(vecTank);
+			pTank->SetAngles(angTank);
+			pTank->GiveBonusPoints(1, false);
+
+			iPosition++;
+		}
+	}
+
+	m_ahTeams[0]->SetClient(-1);
+
+	CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
+	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, -70), -70));
+	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, 70), 70));
+	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
+
+	m_iPowerups = 4;
+
+	GameServer()->SetLoading(false);
+}
+
+bool CDigitanksGame::HasRounds()
+{
+	return m_eGameType == GAMETYPE_ARTILLERY;
+}
+
 void CDigitanksGame::Think()
 {
 	BaseClass::Think();
 
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
+
+	if (HasRounds() && m_bPartyMode && GameServer()->GetGameTime() - m_flPartyModeStart > 5.0f)
+	{
+		StartNewRound();
+		return;
+	}
 
 	if (m_bTurnActive && GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();
@@ -1092,6 +1154,7 @@ void CDigitanksGame::GameOver()
 		m_pListener->GameOver(!GetLocalDigitanksTeam()->HasLost());
 
 	m_bPartyMode = true;
+	m_flPartyModeStart = GameServer()->GetGameTime();
 
 	GetDigitanksCamera()->SetDistance(250);
 	GetDigitanksCamera()->SetTarget(Vector(0,0,0));

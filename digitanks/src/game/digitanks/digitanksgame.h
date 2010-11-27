@@ -98,6 +98,10 @@ public:
 	void					StartGame();
 	NET_CALLBACK(CDigitanksGame, EnterGame);
 
+	void					StartNewRound();
+	void					SetupArtilleryRound();
+	bool					HasRounds();
+
 	virtual void			Think();
 
 	void					MoveTanks();
@@ -269,6 +273,7 @@ protected:
 	bool					m_bAllowActionItems;
 
 	CNetworkedVariable<bool>	m_bPartyMode;
+	float						m_flPartyModeStart;
 	float						m_flLastFireworks;
 };
 
