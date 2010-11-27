@@ -195,7 +195,6 @@ public:
 	EVENT_CALLBACK(CHUD, CancelAutoMove);
 	EVENT_CALLBACK(CHUD, Turn);
 	EVENT_CALLBACK(CHUD, Aim);
-	EVENT_CALLBACK(CHUD, Fire);
 	EVENT_CALLBACK(CHUD, Fortify);
 	EVENT_CALLBACK(CHUD, Promote);
 	EVENT_CALLBACK(CHUD, PromoteAttack);
@@ -228,6 +227,16 @@ public:
 	EVENT_CALLBACK(CHUD, CancelInstall);
 	EVENT_CALLBACK(CHUD, BeginUpgrade);
 	EVENT_CALLBACK(CHUD, CancelUpgrade);
+	EVENT_CALLBACK(CHUD, ChooseWeapon);
+	EVENT_CALLBACK(CHUD, ChooseWeapon0);
+	EVENT_CALLBACK(CHUD, ChooseWeapon1);
+	EVENT_CALLBACK(CHUD, ChooseWeapon2);
+	EVENT_CALLBACK(CHUD, ChooseWeapon3);
+	EVENT_CALLBACK(CHUD, ChooseWeapon4);
+	EVENT_CALLBACK(CHUD, ChooseWeapon5);
+	EVENT_CALLBACK(CHUD, ChooseWeapon6);
+	EVENT_CALLBACK(CHUD, ChooseWeapon7);
+	EVENT_CALLBACK(CHUD, ChooseWeapon8);
 	EVENT_CALLBACK(CHUD, GoToMain);
 
 	static void					SetNeedsUpdate();

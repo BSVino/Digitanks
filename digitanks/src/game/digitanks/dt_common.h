@@ -7,7 +7,6 @@ typedef enum
 	MODE_MOVE,
 	MODE_TURN,
 	MODE_AIM,
-	MODE_FIRE,
 	MODE_BUILD,
 } controlmode_t;
 
@@ -17,6 +16,7 @@ typedef enum
 	MENUMODE_PROMOTE,
 	MENUMODE_LOADERS,
 	MENUMODE_INSTALL,
+	MENUMODE_WEAPON,
 } menumode_t;
 
 typedef enum
@@ -41,5 +41,20 @@ typedef enum
 	UPDATETYPE_TANKRANGE,
 	UPDATETYPE_SIZE,
 } updatetype_t;
+
+typedef enum
+{
+	PROJECTILE_SMALL,
+	PROJECTILE_MEDIUM,
+	PROJECTILE_LARGE,
+
+	// Strategy mode projectiles
+	PROJECTILE_FLAK,		// For infantry
+	PROJECTILE_TORPEDO,		// For scouts
+	PROJECTILE_ARTILLERY,	// For guess who
+
+	// If you add them here, add their energy prices too in projectile.cpp
+	PROJECTILE_MAX,
+} projectile_t;
 
 #endif

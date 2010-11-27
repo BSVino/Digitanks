@@ -26,7 +26,6 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
 	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecTerrainColors);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, Vector, m_avecCraterMarks);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CTerrainChunk, m_aTerrainChunks);	// Onserialize
 SAVEDATA_TABLE_END();
 
@@ -279,6 +278,10 @@ void CTerrain::RenderWithShaders()
 		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
 		glUniform1f(flMoveDistance, pCurrentTank->GetMaxMovementDistance());
 
+		float flMoveFire = pCurrentTank->GetMaxMovementDistance() - pCurrentTank->GetProjectileEnergy() * pCurrentTank->GetTankSpeed();
+		GLuint flMoveFireDistance = glGetUniformLocation(iTerrainProgram, "flMoveFireDistance");
+		glUniform1f(flMoveFireDistance, flMoveFire>0?flMoveFire:0);
+
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
 		glUniform1i(bMovement, true);
 	}
@@ -371,15 +374,6 @@ void CTerrain::RenderWithShaders()
 		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
 		glUniform1i(bShowRanges, false);
 	}
-
-	if (m_avecCraterMarks.size())
-	{
-		GLuint avecCraterMarks = glGetUniformLocation(iTerrainProgram, "avecCraterMarks");
-		glUniform3fv(avecCraterMarks, (GLint)m_avecCraterMarks.size(), m_avecCraterMarks[0]);
-	}
-
-	GLuint iCraterMarks = glGetUniformLocation(iTerrainProgram, "iCraterMarks");
-	glUniform1i(iCraterMarks, (GLint)m_avecCraterMarks.size());
 
 	eastl::vector<Vector> avecTankAims;
 	eastl::vector<float> aflTankAimRadius;
@@ -578,13 +572,12 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 		return;
 
 	float flRadius = 4.0f;
+	if (pProjectile)
+		flRadius = pProjectile->ExplosionRadius();
+
 	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
 
 	Vector vecOrigin = pInflictor->GetOrigin();
-
-	m_avecCraterMarks.push_back(vecOrigin - Vector(0, flRadius, 0));
-	if (m_avecCraterMarks.size() > 10)
-		m_avecCraterMarks.erase(m_avecCraterMarks.begin());
 
 	if (!CNetwork::IsHost())
 		return;

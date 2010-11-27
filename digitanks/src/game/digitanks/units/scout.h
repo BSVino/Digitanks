@@ -19,7 +19,6 @@ public:
 
 	virtual void				Move();
 	virtual void				Fire();
-	virtual class CProjectile*	CreateProjectile();
 	virtual void				FireProjectile(class CNetworkParameters* p);
 
 	virtual bool				IsScout() const { return true; };
@@ -36,7 +35,6 @@ public:
 	virtual float				VisibleRange() const { return 75; };
 	virtual bool				CanGetPowerups() const { return true; };
 	virtual float				BobHeight() const { return 1.0f; };
-	static float				TorpedoAttackPower() { return 3.0f; };
 	virtual float				MaxRangeRadius() const { return 1; };
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };

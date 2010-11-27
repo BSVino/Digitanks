@@ -29,13 +29,14 @@ void CScout::Spawn()
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
 
 	m_bFortified = false;
+
+	m_aeProjectiles.push_back(PROJECTILE_TORPEDO);
+
+	m_eProjectile = PROJECTILE_TORPEDO;
 }
 
 bool CScout::AllowControlMode(controlmode_t eMode) const
 {
-	if (eMode == MODE_FIRE)
-		return false;
-
 	return BaseClass::AllowControlMode(eMode);
 }
 
@@ -90,15 +91,7 @@ CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)
 
 void CScout::Fire()
 {
-	if (m_flTotalPower < TorpedoAttackPower())
-		return;
-
 	BaseClass::Fire();
-}
-
-CProjectile* CScout::CreateProjectile()
-{
-	return GameServer()->Create<CTorpedo>("CTorpedo");
 }
 
 void CScout::FireProjectile(CNetworkParameters* p)

@@ -68,7 +68,6 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(float, m_flAttackPower);
 	NETVAR_DEFINE(float, m_flDefensePower);
 	NETVAR_DEFINE(float, m_flMovementPower);
-	NETVAR_DEFINE(float, m_flAttackSplit);
 
 	NETVAR_DEFINE(float, m_flBonusAttackPower);
 	NETVAR_DEFINE(float, m_flBonusDefensePower);
@@ -100,7 +99,6 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flAttackPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDefensePower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flMovementPower);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flAttackSplit);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusAttackPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusDefensePower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusMovementPower);
@@ -242,7 +240,6 @@ void CDigitank::Spawn()
 	m_flMovementPower = 0;
 	m_flTotalPower = 0;
 	m_flBonusAttackPower = m_flBonusDefensePower = m_flBonusMovementPower = 0;
-	m_flAttackSplit = 0.5f;
 	m_flRangeBonus = 0;
 	m_iBonusPoints = 0;
 	m_flPreviewTurn = 0;
@@ -267,16 +264,16 @@ void CDigitank::Spawn()
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
 {
-	if (GetDigitanksTeam()->IsSelected(this) && bPreview && (DigitanksGame()->GetControlMode() == MODE_AIM || DigitanksGame()->GetControlMode() == MODE_FIRE))
-		return m_flTotalPower * m_flAttackSplit;
+	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
+		return GetProjectileEnergy();
 
 	return m_flAttackPower;
 }
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
-	if (GetDigitanksTeam()->IsSelected(this) && bPreview && (DigitanksGame()->GetControlMode() == MODE_AIM || DigitanksGame()->GetControlMode() == MODE_FIRE))
-		return m_flTotalPower * (1-m_flAttackSplit);
+	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
+		return m_flTotalPower - GetProjectileEnergy();
 
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
 	{
@@ -421,29 +418,6 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 		flBonus = m_hSupplier->RechargeBonus() * m_hSupplyLine->GetIntegrity();
 
 	return flBonus;
-}
-
-void CDigitank::SetAttackPower(float flAttackPower)
-{
-	if (flAttackPower > 1)
-		flAttackPower = 1;
-	if (flAttackPower < 0)
-		flAttackPower = 0;
-
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOEVERYONE, "SetAttackPower", GetHandle(), flAttackPower);
-
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-	p.fl2 = flAttackPower;
-	SetAttackPower(&p);
-}
-
-void CDigitank::SetAttackPower(CNetworkParameters* p)
-{
-	m_flAttackSplit = p->fl2;
-
-	m_bChoseFirepower = true;
 }
 
 float CDigitank::GetPreviewMoveTurnPower()
@@ -1378,9 +1352,6 @@ bool CDigitank::AllowControlMode(controlmode_t eMode) const
 	if (eMode == MODE_AIM)
 		return true;
 
-	if (eMode == MODE_FIRE)
-		return true;
-
 	return BaseClass::AllowControlMode(eMode);
 }
 
@@ -1546,6 +1517,20 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 		}
 
+		if (GetNumProjectiles())
+		{
+			pHUD->SetButtonTexture(7, 0);
+			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
+			pHUD->SetButtonListener(7, CHUD::ChooseWeapon);
+			pHUD->SetButtonColor(7, Color(100, 100, 100));
+
+			if (HasFiredWeapon())
+			{
+				pHUD->SetButtonColor(7, glgui::g_clrBox);
+				pHUD->SetButtonListener(7, NULL);
+			}
+		}
+
 		if (CanFortify())
 		{
 			if (IsFortified() || IsFortifying())
@@ -1592,7 +1577,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
 
-			if (IsScout() && m_flTotalPower < CScout::TorpedoAttackPower() || m_flTotalPower < 1)
+			if (m_flTotalPower < GetProjectileEnergy())
 			{
 				pHUD->SetButtonColor(2, glgui::g_clrBox);
 				s += L"\n \nNOT ENOUGH ENERGY";
@@ -1603,22 +1588,6 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			s += L"\n \nShortcut: E";
 
 			pHUD->SetButtonInfo(2, s);
-		}
-
-		if (GetFrontShieldMaxStrength() > 0)
-		{
-			pHUD->SetButtonListener(3, CHUD::Fire);
-
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_FIRE)
-				pHUD->SetButtonColor(3, Color(150, 0, 150));
-			else
-				pHUD->SetButtonColor(3, Color(100, 100, 100));
-
-			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-				pHUD->SetButtonTexture(3, s_iCancelIcon);
-			else
-				pHUD->SetButtonTexture(3, s_iEnergyIcon);
-			pHUD->SetButtonInfo(3, L"SET UNIT ENERGY\n \nChoose how this unit's energy is split between attacking energy and shield energy.\n \nShortcut: R");
 		}
 
 		if (HasBonusPoints())
@@ -1675,6 +1644,66 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
 		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 	}
+	else if (eMenuMode == MENUMODE_WEAPON)
+	{
+		glgui::IEventListener::Callback apfnCallbacks[] =
+		{
+			CHUD::ChooseWeapon0,
+			CHUD::ChooseWeapon1,
+			CHUD::ChooseWeapon2,
+			CHUD::ChooseWeapon3,
+			CHUD::ChooseWeapon4,
+			CHUD::ChooseWeapon5,
+			CHUD::ChooseWeapon6,
+			CHUD::ChooseWeapon7,
+			CHUD::ChooseWeapon8,
+		};
+
+		char16_t* apszShortcuts[] =
+		{
+			L"Q",
+			L"W",
+			L"E",
+			L"R",
+			L"T",
+			L"A",
+			L"S",
+			L"D",
+			L"F",
+		};
+
+		for (size_t i = 0; i < GetNumProjectiles(); i++)
+		{
+			if (i > 8)
+				break;
+
+			pHUD->SetButtonListener(i, apfnCallbacks[i]);
+			pHUD->SetButtonTexture(i, 0);
+			pHUD->SetButtonColor(i, Color(100, 100, 100));
+
+			eastl::string16 s, p;
+			p = eastl::string16(CProjectile::GetProjectileName(GetProjectile(i)));
+			p.make_upper();
+			s = p;
+			s += p.sprintf(L"\n \nEnergy required: %d%%\n \n", (int)(CProjectile::GetProjectileEnergy(GetProjectile(i))*10));
+
+			if (CProjectile::GetProjectileEnergy(GetProjectile(i)) > m_flTotalPower)
+			{
+				pHUD->SetButtonColor(i, glgui::g_clrBox);
+				pHUD->SetButtonListener(i, NULL);
+				s += L"NOT ENOUGH ENERGY\n \n";
+			}
+
+			s += p.sprintf(L"Shortcut: %s", apszShortcuts[i]);
+
+			pHUD->SetButtonInfo(i, s);
+		}
+
+		pHUD->SetButtonListener(9, CHUD::GoToMain);
+		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonColor(9, Color(100, 0, 0));
+		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
+	}
 }
 
 void CDigitank::Fire()
@@ -1692,7 +1721,7 @@ void CDigitank::Fire()
 	if (m_bFiredWeapon)
 		return;
 
-	if (m_flTotalPower < 0.5f)
+	if (m_flTotalPower < GetProjectileEnergy())
 		return;
 
 	if (CanFortify() && !IsFortified() && !CanAimMobilized())
@@ -1716,7 +1745,7 @@ void CDigitank::Fire(CNetworkParameters* p)
 	m_vecLastAim = m_vecPreviewAim;
 	m_bFiredWeapon = true;
 
-	float flAttackPower = m_flTotalPower * m_flAttackSplit;
+	float flAttackPower = GetProjectileEnergy();
 
 	if (CNetwork::IsHost())
 	{
@@ -1814,12 +1843,31 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 
 CProjectile* CDigitank::CreateProjectile()
 {
-	return GameServer()->Create<CShell>("CShell");
+	if (GetCurrentProjectile() == PROJECTILE_ARTILLERY)
+		return GameServer()->Create<CArtilleryShell>("CArtilleryShell");
+	else if (GetCurrentProjectile() == PROJECTILE_FLAK)
+		return GameServer()->Create<CInfantryFlak>("CInfantryFlak");
+	else if (GetCurrentProjectile() == PROJECTILE_TORPEDO)
+		return GameServer()->Create<CTorpedo>("CTorpedo");
+	else if (GetCurrentProjectile() == PROJECTILE_SMALL)
+		return GameServer()->Create<CSmallShell>("CSmallShell");
+	else if (GetCurrentProjectile() == PROJECTILE_MEDIUM)
+		return GameServer()->Create<CMediumShell>("CMediumShell");
+	else if (GetCurrentProjectile() == PROJECTILE_LARGE)
+		return GameServer()->Create<CLargeShell>("CLargeShell");
+
+	assert(!"Unrecognized projectile");
+	return GameServer()->Create<CSmallShell>("CSmallShell");
 }
 
 float CDigitank::GetProjectileDamage()
 {
 	return GetAttackPower();
+}
+
+float CDigitank::GetProjectileEnergy() const
+{
+	return CProjectile::GetProjectileEnergy(m_eProjectile);
 }
 
 void CDigitank::ClientUpdate(int iClient)

@@ -138,7 +138,6 @@ public:
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, ManageSupplyLine);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetAttackPower);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Move);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Turn);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Fire);

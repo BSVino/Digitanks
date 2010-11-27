@@ -1,8 +1,11 @@
 #ifndef DT_DIGITANK_H
 #define DT_DIGITANK_H
 
+#include <EASTL/vector.h>
+
 #include <digitanks/selectable.h>
 #include <digitanks/structures/loader.h>
+#include <digitanks/projectiles/projectile.h>
 #include <common.h>
 
 #define TANK_SHIELDS 4
@@ -87,11 +90,6 @@ public:
 
 	virtual float				GetSupportHealthRechargeBonus() const;
 	virtual float				GetSupportShieldRechargeBonus() const;
-
-	virtual void				SetAttackPower(float flAttackPower);
-	void						SetAttackPower(class CNetworkParameters* p);
-
-	float						GetPowerAttackSplit() { return m_flAttackSplit; }
 
 	float						GetPreviewMoveTurnPower();
 	float						GetPreviewMovePower() const;
@@ -208,6 +206,11 @@ public:
 	virtual void				FireProjectile(class CNetworkParameters* p);
 	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
+	projectile_t				GetCurrentProjectile() const { return m_eProjectile; }
+	void						SetCurrentProjectile(size_t i) { m_eProjectile = m_aeProjectiles[i]; }
+	float						GetProjectileEnergy() const;
+	size_t						GetNumProjectiles() const { return m_aeProjectiles.size(); };
+	projectile_t				GetProjectile(size_t iProjectile) const { return m_aeProjectiles[iProjectile]; };
 	virtual bool				IsWaitingToFire() { return m_flFireProjectileTime != 0; };
 
 	virtual void				ClientUpdate(int iClient);
@@ -289,8 +292,6 @@ protected:
 	CNetworkedVariable<float>	m_flDefensePower;
 	CNetworkedVariable<float>	m_flMovementPower;
 
-	CNetworkedVariable<float>	m_flAttackSplit;
-
 	CNetworkedVariable<float>	m_flBonusAttackPower;
 	CNetworkedVariable<float>	m_flBonusDefensePower;
 	CNetworkedVariable<float>	m_flBonusMovementPower;
@@ -355,6 +356,9 @@ protected:
 	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
 	float						m_flBobOffset;
+
+	projectile_t				m_eProjectile;
+	eastl::vector<projectile_t>	m_aeProjectiles;
 
 	// AI stuff
 	bool						m_bFortifyPoint;

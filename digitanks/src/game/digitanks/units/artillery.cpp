@@ -30,17 +30,10 @@ void CArtillery::Spawn()
 	SetModel(L"models/digitanks/artillery-move.obj");
 
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
-}
 
-void CArtillery::SetAttackPower(float flAttackPower)
-{
-	// No defense power.
-	BaseClass::SetAttackPower(1);
-}
+	m_aeProjectiles.push_back(PROJECTILE_ARTILLERY);
 
-CProjectile* CArtillery::CreateProjectile()
-{
-	return GameServer()->Create<CArtilleryShell>("CArtilleryShell");
+	m_eProjectile = PROJECTILE_ARTILLERY;
 }
 
 float CArtillery::GetProjectileDamage()
@@ -50,9 +43,6 @@ float CArtillery::GetProjectileDamage()
 
 bool CArtillery::AllowControlMode(controlmode_t eMode) const
 {
-	if (eMode == MODE_FIRE)
-		return false;
-
 	if (!IsFortified() && eMode == MODE_AIM)
 		return false;
 

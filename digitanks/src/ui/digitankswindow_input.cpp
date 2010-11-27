@@ -71,18 +71,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (iState == 1)
-	{
-		if ((iButton == TINKER_KEY_MOUSE_LEFT || iButton == TINKER_KEY_MOUSE_RIGHT) && DigitanksGame()->GetControlMode() == MODE_FIRE)
-		{
-			DigitanksGame()->SetControlMode(MODE_NONE);
-
-			m_pInstructor->FinishedTutorial(CInstructor::TUTORIAL_ENERGY);
-
-			return;	// Don't center camera
-		}
-	}
-	else if (iButton == TINKER_KEY_MOUSE_RIGHT && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == 0 && m_iMouseMoved < 30)
+	if (iButton == TINKER_KEY_MOUSE_RIGHT && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == 0 && m_iMouseMoved < 30)
 	{
 		CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
 		if (pCPU && pCPU->IsPreviewBuildValid())
@@ -259,6 +248,9 @@ void CDigitanksWindow::KeyRelease(int c)
 void CDigitanksWindow::CharPress(int c)
 {
 	if (glgui::CRootPanel::Get()->CharPressed(c))
+		return;
+
+	if (!GetHUD())
 		return;
 
 	if (c == 'h')

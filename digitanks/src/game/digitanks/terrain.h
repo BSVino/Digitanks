@@ -87,8 +87,6 @@ protected:
 
 	Vector					m_avecTerrainColors[4];
 
-	eastl::vector<Vector>	m_avecCraterMarks;
-
 	CTerrainChunk			m_aTerrainChunks[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
 };
 

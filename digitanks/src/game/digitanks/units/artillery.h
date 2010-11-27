@@ -11,9 +11,6 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				SetAttackPower(float flAttackPower);
-
-	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;

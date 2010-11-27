@@ -11,6 +11,28 @@
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
 
+static float g_aflProjectileEnergies[PROJECTILE_MAX] =
+{
+	2.0f,	// small
+	5.0f,	// medium
+	8.0f,	// large
+
+	6.0f,	// machine gun
+	3.0f,	// torpedo
+	8.0f,	// artillery
+};
+
+static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
+{
+	L"Little Boy",
+	L"Fat Man",
+	L"Big Mama",
+
+	L"Flak Cannon",
+	L"Torpedo",
+	L"Artillery Shell",
+};
+
 NETVAR_TABLE_BEGIN(CProjectile);
 NETVAR_TABLE_END();
 
@@ -61,7 +83,7 @@ void CProjectile::Think()
 		m_bFallSoundPlayed = true;
 	}
 
-	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().y) - 20 || GetOrigin().y < -100)
+	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
 		Delete();
 
 	else if (m_flTimeExploded != 0.0f && GameServer()->GetGameTime() - m_flTimeExploded > 2.0f)
@@ -99,7 +121,7 @@ void CProjectile::OnRender()
 		if (flAlpha > 0)
 		{
 			CRenderingContext c(GameServer()->GetRenderer());
-			c.Scale(4.0f, 4.0f, 4.0f);
+			c.Scale(ExplosionRadius(), ExplosionRadius(), ExplosionRadius());
 			c.SetColor(Color(255, 255, 255, (int)(flAlpha*255)));
 			if (!DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
 				c.SetBlend(BLEND_ADDITIVE);
@@ -199,7 +221,7 @@ void CProjectile::Explode(CBaseEntity* pInstigator)
 
 	bool bHit = false;
 	if (m_flDamage > 0)
-		bHit = DigitanksGame()->Explode(m_hOwner, this, 4, m_flDamage, pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
+		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage, pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
 
 	m_flTimeExploded = GameServer()->GetGameTime();
 
@@ -266,22 +288,32 @@ void CProjectile::ClientEnterGame()
 	}
 }
 
-static float g_aflProjectileEnergies[PROJECTILE_MAX] =
-{
-	0.2f,	// small
-	0.5f,	// medium
-	0.8f,	// large
-};
-
 float CProjectile::GetProjectileEnergy(projectile_t eProjectile)
 {
 	return g_aflProjectileEnergies[eProjectile];
 }
 
-NETVAR_TABLE_BEGIN(CShell);
+char16_t* CProjectile::GetProjectileName(projectile_t eProjectile)
+{
+	return g_apszProjectileNames[eProjectile];
+}
+
+NETVAR_TABLE_BEGIN(CSmallShell);
 NETVAR_TABLE_END();
 
-SAVEDATA_TABLE_BEGIN(CShell);
+SAVEDATA_TABLE_BEGIN(CSmallShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CMediumShell);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CMediumShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CLargeShell);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CLargeShell);
 SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CArtilleryShell);
@@ -380,7 +412,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		if (!pClosest->GetSupplier() || !pClosest->GetEntity())
 			continue;
 
-		if (pClosest->Distance(GetOrigin()) > 4)
+		if (pClosest->Distance(GetOrigin()) > ExplosionRadius())
 			break;
 
 		pClosest->Intercept(0.5f);

@@ -22,4 +22,10 @@ void CMainBattleTank::Spawn()
 	SetModel(L"models/digitanks/digitank-body.obj");
 	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+
+	m_aeProjectiles.push_back(PROJECTILE_SMALL);
+	m_aeProjectiles.push_back(PROJECTILE_MEDIUM);
+	m_aeProjectiles.push_back(PROJECTILE_LARGE);
+
+	m_eProjectile = PROJECTILE_SMALL;
 }

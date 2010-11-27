@@ -108,7 +108,7 @@ void CMainMenu::Layout()
 	m_pCredits->SetVisible(false);
 
 	m_pVersion->SetPos(-GetLeft()+5, -GetTop());
-	m_pVersion->SetSize(80, 20);
+	m_pVersion->SetSize(120, 20);
 	m_pVersion->SetText(DIGITANKS_VERSION);
 
 	BaseClass::Layout();

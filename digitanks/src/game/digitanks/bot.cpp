@@ -632,11 +632,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 
-		if (pTankTarget && pTankTarget->IsFortified() && !pTankTarget->IsArtillery())
-			pTank->SetAttackPower(3.0f/4.0f);
-		else
-			pTank->SetAttackPower(1.0f/2.0f);
-
 		if (pTank->IsScout())
 		{
 			// We HATE infantry, so always know where the closest one is.

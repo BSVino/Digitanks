@@ -4,15 +4,6 @@
 #include <baseentity.h>
 #include <digitanks/units/digitank.h>
 
-typedef enum
-{
-	PROJECTILE_SMALL,
-	PROJECTILE_MEDIUM,
-	PROJECTILE_LARGE,
-
-	PROJECTILE_MAX,
-} projectile_t;
-
 class CProjectile : public CBaseEntity
 {
 	REGISTER_ENTITY_CLASS(CProjectile, CBaseEntity);
@@ -28,7 +19,6 @@ public:
 	virtual bool				MakesSounds() { return true; };
 
 	virtual void				ModifyContext(class CRenderingContext* pContext);
-	virtual float				ShellRadius() { return 0.5f; };
 	virtual bool				ShouldRender() const { return true; };
 	virtual void				OnRender();
 
@@ -41,12 +31,6 @@ public:
 
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
 
-	virtual bool				ShouldExplode() { return true; };
-	virtual bool				CreatesCraters() { return true; };
-	virtual bool				BombDropNoise() { return true; };
-
-	virtual bool				SendsNotifications() { return true; };
-
 	virtual void				SetOwner(CDigitank* pOwner);
 	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; };
 	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
@@ -58,8 +42,15 @@ public:
 
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
+	virtual float				ShellRadius() { return 0.5f; };
+	virtual float				ExplosionRadius() { return 4.0f; };
+	virtual bool				ShouldExplode() { return true; };
+	virtual bool				CreatesCraters() { return true; };
+	virtual bool				BombDropNoise() { return true; };
+	virtual bool				SendsNotifications() { return true; };
 
 	static float				GetProjectileEnergy(projectile_t eProjectile);
+	static char16_t*			GetProjectileName(projectile_t eProjectile);
 
 protected:
 	float						m_flTimeCreated;
@@ -75,9 +66,31 @@ protected:
 	size_t						m_iParticleSystem;
 };
 
-class CShell : public CProjectile
+class CSmallShell : public CProjectile
 {
-	REGISTER_ENTITY_CLASS(CShell, CProjectile);
+	REGISTER_ENTITY_CLASS(CSmallShell, CProjectile);
+
+public:
+	virtual float				ShellRadius() { return 0.5f; };
+	virtual float				ExplosionRadius() { return 4.0f; };
+};
+
+class CMediumShell : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CMediumShell, CProjectile);
+
+public:
+	virtual float				ShellRadius() { return 1.0f; };
+	virtual float				ExplosionRadius() { return 8.0f; };
+};
+
+class CLargeShell : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CLargeShell, CProjectile);
+
+public:
+	virtual float				ShellRadius() { return 1.5f; };
+	virtual float				ExplosionRadius() { return 12.0f; };
 };
 
 class CArtilleryShell : public CProjectile

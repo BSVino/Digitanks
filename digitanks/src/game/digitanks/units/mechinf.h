@@ -15,7 +15,6 @@ public:
 	virtual float				GetRightShieldMaxStrength();
 	virtual float				GetRearShieldMaxStrength();
 
-	virtual class CProjectile*	CreateProjectile();
 	virtual float				GetProjectileDamage();
 
 	virtual void				PostRender();

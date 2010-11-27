@@ -411,8 +411,8 @@ void CHUD::Think()
 
 	if (pCurrentTank && !pCurrentTank->IsArtillery() && !pCurrentTank->IsScout())
 	{
-		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE || DigitanksGame()->GetControlMode() == MODE_AIM);
-		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_FIRE || DigitanksGame()->GetControlMode() == MODE_AIM);
+		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_AIM);
+		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_AIM);
 		m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
 		m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
 		m_pFireAttack->SetWrap(false);
@@ -545,9 +545,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 				bShowEnergy = true;
 		}
 
-		if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			bShowEnergy = true;
-
 		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsPrimarySelection(pTank) && bShowEnergy)
 		{
 			int iHeight = (int)(200 * pTank->GetTotalPower()/pTank->GetStartingPower());
@@ -574,37 +571,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 			m_pFireDefend->SetPos((int)vecScreen.x + 70 - m_pFireDefend->GetWidth()/2, iBottom);
 
 			float flAttackPercentage;
-			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			{
-				int mx, my;
-				glgui::CRootPanel::GetFullscreenMousePos(mx, my);
-
-				flAttackPercentage = RemapValClamped((float)my, (float)iTop, (float)iBottom, 1, 0);
-			}
-			else
-				flAttackPercentage = DigitanksGame()->GetPrimarySelectionTank()->GetPowerAttackSplit();
+			flAttackPercentage = DigitanksGame()->GetPrimarySelectionTank()->GetProjectileEnergy() / DigitanksGame()->GetPrimarySelectionTank()->GetTotalPower();
 
 			CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
 
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
 			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
-
-			if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-			{
-				CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-				for (size_t t = 0; t < pTeam->GetNumTanks(); t++)
-				{
-					CDigitank* pTank = pTeam->GetTank(t);
-					if (!pTank)
-						continue;
-
-					if (!pTank->GetDigitanksTeam()->IsSelected(pTank))
-							continue;
-	
-					pTank->SetAttackPower(flAttackPercentage);
-				}
-			}
 
 			UpdateInfo();
 		}
@@ -1749,22 +1722,6 @@ void CHUD::FortifyCallback()
 	UpdateInfo();
 }
 
-void CHUD::FireCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionTank())
-		return;
-
-	if (DigitanksGame()->GetControlMode() == MODE_FIRE)
-		DigitanksGame()->SetControlMode(MODE_NONE);
-	else
-		DigitanksGame()->SetControlMode(MODE_FIRE);
-
-	SetupMenu();
-}
-
 void CHUD::PromoteCallback()
 {
 	if (!m_bHUDActive)
@@ -2375,6 +2332,160 @@ void CHUD::CancelUpgradeCallback()
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
+}
+
+void CHUD::ChooseWeaponCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	SetupMenu(MENUMODE_WEAPON);
+}
+
+void CHUD::ChooseWeapon0Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(0);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon1Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(1);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon2Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(2);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon3Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(3);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon4Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(4);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon5Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(5);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon6Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(6);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon7Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(7);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
+}
+
+void CHUD::ChooseWeapon8Callback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->SetCurrentProjectile(8);
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+
+	DigitanksGame()->SetControlMode(MODE_AIM);
 }
 
 void CHUD::GoToMainCallback()
