@@ -11,8 +11,6 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual float				GetProjectileDamage();
-
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
 	virtual eastl::string16		GetName() { return L"Artillery"; };

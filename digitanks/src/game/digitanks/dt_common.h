@@ -47,11 +47,14 @@ typedef enum
 	PROJECTILE_SMALL,
 	PROJECTILE_MEDIUM,
 	PROJECTILE_LARGE,
+	PROJECTILE_AOE,
 
 	// Strategy mode projectiles
 	PROJECTILE_FLAK,		// For infantry
 	PROJECTILE_TORPEDO,		// For scouts
 	PROJECTILE_ARTILLERY,	// For guess who
+
+	PROJECTILE_FIREWORKS,
 
 	// If you add them here, add their energy prices too in projectile.cpp
 	PROJECTILE_MAX,

@@ -62,11 +62,6 @@ float CMechInfantry::GetRearShieldMaxStrength()
 	return GetFrontShieldMaxStrength();
 }
 
-float CMechInfantry::GetProjectileDamage()
-{
-	return GetAttackPower()/50;
-}
-
 void CMechInfantry::PostRender()
 {
 	BaseClass::PostRender();

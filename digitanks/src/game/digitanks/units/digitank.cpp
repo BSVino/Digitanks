@@ -1835,7 +1835,6 @@ void CDigitank::FireProjectile(CNetworkParameters* p)
 	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime, ProjectileCurve());
 
 	m_hProjectile->SetOwner(this);
-	m_hProjectile->SetDamage(GetProjectileDamage());
 	m_hProjectile->SetForce(vecForce);
 	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
 	m_hProjectile->SetLandingSpot(vecLandingSpot);
@@ -1867,14 +1866,11 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CMediumShell>("CMediumShell");
 	else if (GetCurrentProjectile() == PROJECTILE_LARGE)
 		return GameServer()->Create<CLargeShell>("CLargeShell");
+	else if (GetCurrentProjectile() == PROJECTILE_AOE)
+		return GameServer()->Create<CAOEShell>("CAOEShell");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");
-}
-
-float CDigitank::GetProjectileDamage()
-{
-	return GetAttackPower();
 }
 
 float CDigitank::GetProjectileEnergy() const

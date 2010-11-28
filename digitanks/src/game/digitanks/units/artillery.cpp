@@ -36,11 +36,6 @@ void CArtillery::Spawn()
 	m_eProjectile = PROJECTILE_ARTILLERY;
 }
 
-float CArtillery::GetProjectileDamage()
-{
-	return GetAttackPower()/6;
-}
-
 bool CArtillery::AllowControlMode(controlmode_t eMode) const
 {
 	if (!IsFortified() && eMode == MODE_AIM)

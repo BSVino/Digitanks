@@ -278,8 +278,8 @@ void CDigitanksGame::SetupArtillery()
 	m_iPlayers = iPlayers;
 
 	int iTanks = m_iTanks;
-	if (iTanks > 5)
-		iTanks = 5;
+	if (iTanks > 4)
+		iTanks = 4;
 	if (iTanks < 1)
 		iTanks = 1;
 	m_iTanks = iTanks;
@@ -759,7 +759,6 @@ void CDigitanksGame::Think()
 			CFireworks* pFireworks = GameServer()->Create<CFireworks>("CFireworks");
 			pFireworks->SetOrigin(pEntity->GetOrigin());
 			pFireworks->SetOwner(NULL);
-			pFireworks->SetDamage(0);
 			pFireworks->SetForce(Vector(RandomFloat(-8, 8), 45, RandomFloat(-8, 8)));
 			pFireworks->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
 
@@ -1028,6 +1027,8 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
 {
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+
 	eastl::vector<CBaseEntity*> apHit;
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
@@ -1062,13 +1063,16 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	{
 		float flDistance = (pInflictor->GetOrigin() - apHit[i]->GetOrigin()).Length();
 
-		float flFalloffDamage = RemapVal(flDistance, 0, flRadius + apHit[i]->GetBoundingRadius(), flDamage, 0);
-		if (flFalloffDamage <= 0)
-			continue;
+		if (!pProjectile || pProjectile->HasDamageFalloff())
+		{
+			flDamage = RemapVal(flDistance, 0, flRadius + apHit[i]->GetBoundingRadius(), flDamage, flDamage/2);
+			if (flDamage <= 0)
+				continue;
+		}
 
 		bHit = true;
 
-		apHit[i]->TakeDamage(pAttacker, pInflictor, flFalloffDamage, false);
+		apHit[i]->TakeDamage(pAttacker, pInflictor, flDamage, false);
 	}
 
 	return bHit;

@@ -32,7 +32,6 @@ public:
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
 
 	virtual void				SetOwner(CDigitank* pOwner);
-	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; };
 	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
 	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };
 
@@ -40,6 +39,7 @@ public:
 
 	virtual void				ClientEnterGame();
 
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_SMALL; }
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
 	virtual float				ShellRadius() { return 0.5f; };
@@ -48,8 +48,10 @@ public:
 	virtual bool				CreatesCraters() { return true; };
 	virtual bool				BombDropNoise() { return true; };
 	virtual bool				SendsNotifications() { return true; };
+	virtual bool				HasDamageFalloff() { return true; };
 
 	static float				GetProjectileEnergy(projectile_t eProjectile);
+	static float				GetProjectileDamage(projectile_t eProjectile);
 	static char16_t*			GetProjectileName(projectile_t eProjectile);
 
 protected:
@@ -71,6 +73,7 @@ class CSmallShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CSmallShell, CProjectile);
 
 public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_SMALL; }
 	virtual float				ShellRadius() { return 0.5f; };
 	virtual float				ExplosionRadius() { return 4.0f; };
 };
@@ -80,6 +83,7 @@ class CMediumShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CMediumShell, CProjectile);
 
 public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_MEDIUM; }
 	virtual float				ShellRadius() { return 1.0f; };
 	virtual float				ExplosionRadius() { return 8.0f; };
 };
@@ -89,8 +93,21 @@ class CLargeShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CLargeShell, CProjectile);
 
 public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_LARGE; }
 	virtual float				ShellRadius() { return 1.5f; };
 	virtual float				ExplosionRadius() { return 12.0f; };
+};
+
+class CAOEShell : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CAOEShell, CProjectile);
+
+public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_AOE; }
+	virtual float				ShellRadius() { return 1.0f; };
+	virtual float				ExplosionRadius() { return 30.0f; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual bool				HasDamageFalloff() { return false; };
 };
 
 class CArtilleryShell : public CProjectile
@@ -98,8 +115,8 @@ class CArtilleryShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CArtilleryShell, CProjectile);
 
 public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_ARTILLERY; }
 	virtual bool				CreatesCraters() { return false; };
-
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
 };
@@ -109,6 +126,7 @@ class CInfantryFlak : public CProjectile
 	REGISTER_ENTITY_CLASS(CInfantryFlak, CProjectile);
 
 public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_FLAK; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual bool				ShouldExplode() { return false; };
@@ -133,6 +151,7 @@ public:
 
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
 
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_TORPEDO; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.35f; };
 	virtual bool				ShouldExplode() { return true; };
@@ -151,6 +170,7 @@ class CFireworks : public CProjectile
 public:
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_FIREWORKS; }
 	virtual bool				BombDropNoise() { return false; };
 };
 

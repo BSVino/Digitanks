@@ -206,7 +206,6 @@ public:
 	void						FireProjectile();
 	virtual void				FireProjectile(class CNetworkParameters* p);
 	virtual class CProjectile*	CreateProjectile();
-	virtual float				GetProjectileDamage();
 	projectile_t				GetCurrentProjectile() const { return m_eProjectile; }
 	void						SetCurrentProjectile(size_t i) { m_eProjectile = m_aeProjectiles[i]; }
 	float						GetProjectileEnergy() const;

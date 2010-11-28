@@ -16,10 +16,27 @@ static float g_aflProjectileEnergies[PROJECTILE_MAX] =
 	2.0f,	// small
 	5.0f,	// medium
 	8.0f,	// large
+	6.0f,	// AoE
 
 	6.0f,	// machine gun
 	3.0f,	// torpedo
 	8.0f,	// artillery
+
+	0.0f,	// fireworks
+};
+
+static float g_aflProjectileDamages[PROJECTILE_MAX] =
+{
+	2.0f,	// small
+	5.0f,	// medium
+	8.0f,	// large
+	4.0f,	// AoE
+
+	0.12f,	// machine gun
+	0.0f,	// torpedo
+	1.3f,	// artillery
+
+	0.0f,	// fireworks
 };
 
 static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
@@ -27,10 +44,13 @@ static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
 	L"Little Boy",
 	L"Fat Man",
 	L"Big Mama",
+	L"Plasma Charge",
 
 	L"Flak Cannon",
 	L"Torpedo",
 	L"Artillery Shell",
+
+	L"Fireworks",
 };
 
 NETVAR_TABLE_BEGIN(CProjectile);
@@ -269,6 +289,8 @@ void CProjectile::SetOwner(CDigitank* pOwner)
 		if (m_iParticleSystem != ~0)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
+
+	m_flDamage = GetProjectileDamage(GetProjectileType());
 }
 
 size_t CProjectile::CreateParticleSystem()
@@ -293,6 +315,11 @@ float CProjectile::GetProjectileEnergy(projectile_t eProjectile)
 	return g_aflProjectileEnergies[eProjectile];
 }
 
+float CProjectile::GetProjectileDamage(projectile_t eProjectile)
+{
+	return g_aflProjectileDamages[eProjectile];
+}
+
 char16_t* CProjectile::GetProjectileName(projectile_t eProjectile)
 {
 	return g_apszProjectileNames[eProjectile];
@@ -314,6 +341,12 @@ NETVAR_TABLE_BEGIN(CLargeShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CLargeShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CAOEShell);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CAOEShell);
 SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CArtilleryShell);
