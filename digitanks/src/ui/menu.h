@@ -159,6 +159,9 @@ protected:
 	glgui::CScrollSelector<int>*	m_pTanks;
 	glgui::CLabel*					m_pTanksLabel;
 
+	glgui::CScrollSelector<float>*	m_pTerrain;
+	glgui::CLabel*					m_pTerrainLabel;
+
 	glgui::CButton*					m_pBeginGame;
 };
 

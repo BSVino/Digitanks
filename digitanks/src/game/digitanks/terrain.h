@@ -39,7 +39,7 @@ public:
 
 	virtual float			GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
 
-	void					GenerateTerrain();
+	void					GenerateTerrain(float flHeight = 50);
 	void					GenerateCollision();
 	void					GenerateTerrainCallLists();
 	void					GenerateTerrainCallList(int x, int y);

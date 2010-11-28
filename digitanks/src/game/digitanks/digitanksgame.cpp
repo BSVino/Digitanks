@@ -74,6 +74,9 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iTankAimFocus);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iDifficulty);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bRenderFogOfWar);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iPlayers);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iTanks);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, gametype_t, m_eGameType);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
@@ -601,7 +604,7 @@ void CDigitanksGame::SetupArtilleryRound()
 	GameServer()->DestroyAllEntities(asSpare);
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
-	m_hTerrain->GenerateTerrain();
+	m_hTerrain->GenerateTerrain(m_flTerrain);
 	m_hTerrain->GenerateCollision();
 
 	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
@@ -1489,7 +1492,11 @@ void CDigitanksGame::ClientEnterGame()
 		else
 			GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
 		GetDigitanksCamera()->SnapAngle(EAngle(45,0,0));
-		GetDigitanksCamera()->SnapDistance(120);
+
+		if (m_eGameType == GAMETYPE_ARTILLERY)
+			GetDigitanksCamera()->SnapDistance(220);
+		else
+			GetDigitanksCamera()->SnapDistance(120);
 	}
 
 	DigitanksWindow()->GetHUD()->ClientEnterGame();

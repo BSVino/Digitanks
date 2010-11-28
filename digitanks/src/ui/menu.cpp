@@ -657,6 +657,18 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTanksLabel->SetWrap(false);
 	AddControl(m_pTanksLabel);
 
+	m_pTerrain = new CScrollSelector<float>();
+	m_pTerrain->AddSelection(CScrollSelection<float>(10, L"Flat"));
+	m_pTerrain->AddSelection(CScrollSelection<float>(50, L"Hilly"));
+	m_pTerrain->AddSelection(CScrollSelection<float>(80, L"Mountainy"));
+	m_pTerrain->AddSelection(CScrollSelection<float>(120, L"Everest"));
+	m_pTerrain->SetSelection(2);
+	AddControl(m_pTerrain);
+
+	m_pTerrainLabel = new CLabel(0, 0, 32, 32, L"Terrain");
+	m_pTerrainLabel->SetWrap(false);
+	AddControl(m_pTerrainLabel);
+
 	m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
 	m_pBeginGame->SetClickedListener(this, BeginGame);
 	m_pBeginGame->SetFontFaceSize(12);
@@ -674,16 +686,22 @@ void CArtilleryGamePanel::Layout()
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
 
 	m_pPlayersLabel->EnsureTextFits();
-	m_pPlayersLabel->SetPos(75, 180);
+	m_pPlayersLabel->SetPos(75, 160);
 
 	m_pPlayers->SetSize(GetWidth() - m_pPlayersLabel->GetLeft()*2 - m_pPlayersLabel->GetWidth(), iSelectorSize);
-	m_pPlayers->SetPos(m_pPlayersLabel->GetRight(), 180);
+	m_pPlayers->SetPos(m_pPlayersLabel->GetRight(), 160);
 
 	m_pTanksLabel->EnsureTextFits();
-	m_pTanksLabel->SetPos(75, 240);
+	m_pTanksLabel->SetPos(75, 200);
 
 	m_pTanks->SetSize(GetWidth() - m_pTanksLabel->GetLeft()*2 - m_pTanksLabel->GetWidth(), iSelectorSize);
-	m_pTanks->SetPos(m_pTanksLabel->GetRight(), 240);
+	m_pTanks->SetPos(m_pTanksLabel->GetRight(), 200);
+
+	m_pTerrainLabel->EnsureTextFits();
+	m_pTerrainLabel->SetPos(75, 240);
+
+	m_pTerrain->SetSize(GetWidth() - m_pTerrainLabel->GetLeft()*2 - m_pTerrainLabel->GetWidth(), iSelectorSize);
+	m_pTerrain->SetPos(m_pTerrainLabel->GetRight(), 240);
 
 	m_pBeginGame->SetSize(135, 40);
 	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
@@ -695,6 +713,7 @@ void CArtilleryGamePanel::BeginGameCallback()
 {
 	DigitanksWindow()->SetPlayers(m_pPlayers->GetSelectionValue());
 	DigitanksWindow()->SetTanks(m_pTanks->GetSelectionValue());
+	DigitanksWindow()->SetTerrain(m_pTerrain->GetSelectionValue());
 	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
 
 	if (!GameServer())

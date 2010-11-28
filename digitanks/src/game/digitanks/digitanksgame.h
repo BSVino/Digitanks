@@ -87,6 +87,7 @@ public:
 
 	void					SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
 	void					SetTanks(int iTanks) { m_iTanks = iTanks; };
+	void					SetTerrain(float flTerrain) { m_flTerrain = flTerrain; };
 
 	void					ScatterResources();
 	void					ScatterProps();
@@ -263,6 +264,7 @@ protected:
 
 	int							m_iPlayers;
 	int							m_iTanks;
+	float						m_flTerrain;
 
 	CNetworkedVariable<gametype_t> m_eGameType;
 	CNetworkedVariable<size_t> m_iTurn;

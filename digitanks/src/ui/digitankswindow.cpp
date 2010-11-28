@@ -199,6 +199,7 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	{
 		DigitanksGame()->SetPlayers(m_iPlayers);
 		DigitanksGame()->SetTanks(m_iTanks);
+		DigitanksGame()->SetTerrain(m_flTerrain);
 		DigitanksGame()->SetupGame(eGameType);
 	}
 

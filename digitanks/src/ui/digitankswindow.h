@@ -27,6 +27,7 @@ public:
 
 	void						SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
 	void						SetTanks(int iTanks) { m_iTanks = iTanks; };
+	void						SetTerrain(float flTerrain) { m_flTerrain = flTerrain; };
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 	void						SetConnectHost(const eastl::string16 sHost) { m_sConnectHost = sHost; };
 
@@ -106,6 +107,7 @@ protected:
 
 	int							m_iPlayers;
 	int							m_iTanks;
+	float						m_flTerrain;
 
 	servertype_t				m_eServerType;
 	eastl::string16				m_sConnectHost;

@@ -76,7 +76,7 @@ void CTerrain::Spawn()
 	m_bHeightsInitialized = false;
 }
 
-void CTerrain::GenerateTerrain()
+void CTerrain::GenerateTerrain(float flHeight)
 {
 	CSimplexNoise n1(m_iSpawnSeed);
 	CSimplexNoise n2(m_iSpawnSeed+1);
@@ -85,7 +85,7 @@ void CTerrain::GenerateTerrain()
 	CSimplexNoise n5(m_iSpawnSeed+4);
 
 	float flSpaceFactor1 = 0.01f;
-	float flHeightFactor1 = 50.0f;
+	float flHeightFactor1 = flHeight;
 	float flSpaceFactor2 = flSpaceFactor1*3;
 	float flHeightFactor2 = flHeightFactor1/3;
 	float flSpaceFactor3 = flSpaceFactor2*3;
