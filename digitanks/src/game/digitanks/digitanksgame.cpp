@@ -1081,16 +1081,6 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		if (!pEntity)
 			continue;
 
-		// Fire too close to yourself and the explosion can rock you.
-		if (pEntity != pAttacker)
-		{
-			if (pDigitank && pDigitank->GetTeam() == pTeamIgnore)
-				continue;
-
-			if (!pInflictor->ShouldTouch(pEntity))
-				continue;
-		}
-
 		float flDistanceSqr = (pInflictor->GetOrigin() - pEntity->GetOrigin()).LengthSqr();
 		float flTotalRadius = flRadius + pEntity->GetBoundingRadius();
 		float flPushRadius = pProjectile?pProjectile->PushRadius():20;
@@ -1123,6 +1113,17 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 		if (pEntity == pIgnore)
 			continue;
+
+		// Fire too close to yourself and the explosion can rock you.
+		if (pEntity != pAttacker)
+		{
+			if (!pInflictor->ShouldTouch(pEntity))
+				continue;
+
+			// We can still push teammates around (above code) but we can't damage them.
+			if (pDigitank && pDigitank->GetTeam() == pTeamIgnore)
+				continue;
+		}
 
 		if (flDistanceSqr < flTotalRadius*flTotalRadius)
 			apHit.push_back(pEntity);

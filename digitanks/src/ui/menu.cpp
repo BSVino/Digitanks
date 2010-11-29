@@ -639,7 +639,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
-	m_pHumanPlayers->SetSelection(3);
+	m_pHumanPlayers->SetSelection(0);
 	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
 	AddControl(m_pHumanPlayers);
 
@@ -797,7 +797,7 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pHumanPlayers->SetSelection(2);
+	m_pHumanPlayers->SetSelection(0);
 	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
 	AddControl(m_pHumanPlayers);
 
@@ -835,11 +835,11 @@ void CStrategyGamePanel::Layout()
 	m_pHumanPlayers->SetPos(m_pHumanPlayersLabel->GetRight(), 180);
 
 	m_pBotPlayersLabel->EnsureTextFits();
-	m_pBotPlayersLabel->SetPos(75, 180);
+	m_pBotPlayersLabel->SetPos(75, 240);
 	m_pBotPlayersLabel->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
 
 	m_pBotPlayers->SetSize(GetWidth() - m_pBotPlayersLabel->GetLeft()*2 - m_pBotPlayersLabel->GetWidth(), iSelectorSize);
-	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 180);
+	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 240);
 	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
 
 	if (m_pHumanPlayers->GetSelectionValue() > 1)
