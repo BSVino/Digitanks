@@ -128,10 +128,13 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDisplayAim);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecDisplayAim);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flDisplayAimRadius);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CBaseEntity>, m_hPreviewCharge);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBeginCharge);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flEndCharge);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bChoseFirepower);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bChargeAttack);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireProjectileTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireProjectiles);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CProjectile>, m_hProjectile);
@@ -250,6 +253,7 @@ void CDigitank::Spawn()
 	m_bPreviewAim = false;
 	m_bGoalMovePosition = false;
 	m_bFiredWeapon = false;
+	m_bChargeAttack = false;
 	m_flStartedMove = 0;
 	m_flStartedTurn = 0;
 	m_bFortified = false;
@@ -265,12 +269,17 @@ void CDigitank::Spawn()
 	m_flFortifyTime = 0;
 	m_flBobOffset = RandomFloat(0, 10);
 	m_flStartedRock = -100;
+	m_flBeginCharge = -1;
+	m_flEndCharge = -1;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
 {
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return GetProjectileEnergy();
+
+	if (GetDigitanksTeam()->IsPrimarySelection(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_CHARGE)
+		return ChargeEnergy();
 
 	return m_flAttackPower;
 }
@@ -279,6 +288,9 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 {
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return m_flTotalPower - GetProjectileEnergy();
+
+	if (GetDigitanksTeam()->IsPrimarySelection(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_CHARGE)
+		return m_flTotalPower - ChargeEnergy();
 
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
 	{
@@ -621,7 +633,7 @@ void CDigitank::StartTurn()
 		m_flMovementPower = m_flAttackPower = m_flDefensePower = 0;
 	}
 
-	m_bChoseFirepower = false;
+	m_bChargeAttack = false;
 	m_bFiredWeapon = false;
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -800,6 +812,43 @@ bool CDigitank::IsPreviewAimValid()
 		return false;
 
 	return true;
+}
+
+void CDigitank::SetPreviewCharge(CBaseEntity* pChargeTarget)
+{
+	if (!pChargeTarget)
+	{
+		m_hPreviewCharge = NULL;
+		return;
+	}
+
+	if (dynamic_cast<CTerrain*>(pChargeTarget))
+	{
+		m_hPreviewCharge = NULL;
+		return;
+	}
+
+	if (pChargeTarget->GetTeam() == GetTeam())
+		return;
+
+	if (pChargeTarget->Distance(GetOrigin()) > ChargeRadius())
+		return;
+
+	m_hPreviewCharge = pChargeTarget;
+}
+
+void CDigitank::ClearPreviewCharge()
+{
+	m_hPreviewCharge = NULL;
+}
+
+Vector CDigitank::GetChargePosition(CBaseEntity* pTarget) const
+{
+	float flTargetSize = pTarget->GetBoundingRadius() + GetBoundingRadius();
+	Vector vecChargeDirection = (pTarget->GetOrigin() - GetOrigin()).Normalized();
+	Vector vecChargePosition = pTarget->GetOrigin() - vecChargeDirection*flTargetSize;
+	vecChargePosition.y = FindHoverHeight(vecChargePosition);
+	return vecChargePosition;
 }
 
 bool CDigitank::IsInsideMaxRange(Vector vecPoint)
@@ -1011,9 +1060,7 @@ void CDigitank::Turn(CNetworkParameters* p)
 {
 	m_flPreviewTurn = p->fl2;
 
-	m_flPreviousTurn = GetAngles().y;
-	m_flStartedTurn = GameServer()->GetGameTime();
-	SetAngles(EAngle(0, m_flPreviewTurn, 0));
+	Turn(EAngle(0, m_flPreviewTurn, 0));
 
 	float flMovePower = GetPreviewBaseTurnPower();
 
@@ -1026,6 +1073,13 @@ void CDigitank::Turn(CNetworkParameters* p)
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
+}
+
+void CDigitank::Turn(EAngle angNewTurn)
+{
+	m_flPreviousTurn = GetAngles().y;
+	m_flStartedTurn = GameServer()->GetGameTime();
+	SetAngles(angNewTurn);
 }
 
 void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
@@ -1151,6 +1205,61 @@ void CDigitank::Fortify(CNetworkParameters* p)
 bool CDigitank::CanAim() const
 {
 	return AllowControlMode(MODE_AIM);
+}
+
+void CDigitank::Charge()
+{
+	if (IsFortified() && !CanTurnFortified())
+		return;
+
+	if (ChargeEnergy() > m_flTotalPower)
+		return;
+
+	if (m_bFiredWeapon || m_bChargeAttack)
+		return;
+
+	if (m_hPreviewCharge == NULL)
+		return;
+
+	if (CNetwork::ShouldReplicateClientFunction())
+		CNetwork::CallFunction(NETWORK_TOEVERYONE, "Charge", GetHandle(), m_hPreviewCharge->GetHandle());
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	p.ui2 = m_hPreviewCharge->GetHandle();
+	Charge(&p);
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+}
+
+void CDigitank::Charge(class CNetworkParameters* p)
+{
+	CEntityHandle<CBaseEntity> hTarget = p->ui2;
+
+	if (hTarget == NULL)
+		return;
+
+	Vector vecChargeDirection = (hTarget->GetOrigin() - GetOrigin()).Normalized();
+
+	Turn(VectorAngles(vecChargeDirection));
+
+	float flDistanceToTarget = hTarget->Distance(GetOrigin());
+	if (flDistanceToTarget < 10)
+	{
+		Vector vecChargeStart = hTarget->GetOrigin() - vecChargeDirection * 20;
+		vecChargeStart.y = FindHoverHeight(vecChargeStart);
+		Move(vecChargeStart);
+	}
+
+	if (CNetwork::IsHost())
+	{
+		m_flTotalPower -= ChargeEnergy();
+		m_flAttackPower += ChargeEnergy();
+	}
+
+	m_bChargeAttack = true;
+
+	m_flBeginCharge = GameServer()->GetGameTime() + GetTransitionTime();
 }
 
 bool CDigitank::MovesWith(CDigitank* pOther) const
@@ -1331,6 +1440,39 @@ void CDigitank::Think()
 
 		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
+
+	if (m_flBeginCharge > 0 && GameServer()->GetGameTime() > m_flBeginCharge)
+	{
+		m_flBeginCharge = -1;
+
+		if (m_hPreviewCharge != NULL)
+		{
+			Move(GetChargePosition(m_hPreviewCharge), 1);
+			m_flEndCharge = GameServer()->GetGameTime() + GetTransitionTime();
+		}
+	}
+
+	if (m_flEndCharge > 0 && GameServer()->GetGameTime() > m_flEndCharge)
+	{
+		m_flEndCharge = -1;
+
+		if (m_hPreviewCharge != NULL)
+		{
+			m_hPreviewCharge->TakeDamage(this, this, ChargeDamage(), true);
+
+			Vector vecPushDirection = (m_hPreviewCharge->GetOrigin() - GetOrigin()).Normalized();
+
+			CDigitank* pDigitank = dynamic_cast<CDigitank*>(m_hPreviewCharge.GetPointer());
+			if (pDigitank)
+			{
+				pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * ChargePushDistance(), 2);
+				pDigitank->RockTheBoat(1, vecPushDirection);
+			}
+
+			RockTheBoat(1, vecPushDirection);
+			Turn(EAngle(0, GetAngles().y, 0));
+		}
+	}
 }
 
 void CDigitank::OnCurrentSelection()
@@ -1371,10 +1513,8 @@ void CDigitank::OnCurrentSelection()
 			break;
 		}
 
-		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !HasGoalMovePosition())
+		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !m_bChargeAttack && !HasGoalMovePosition())
 			DigitanksGame()->SetControlMode(MODE_MOVE);
-		//else if (!HasDesiredAim() && CanAim() && pClosestEnemy)
-		//	DigitanksGame()->SetControlMode(MODE_AIM);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
@@ -1390,6 +1530,9 @@ bool CDigitank::AllowControlMode(controlmode_t eMode) const
 
 	if (eMode == MODE_AIM)
 		return true;
+
+	if (eMode == MODE_CHARGE)
+		return CanCharge();
 
 	return BaseClass::AllowControlMode(eMode);
 }
@@ -1507,6 +1650,9 @@ bool CDigitank::NeedsOrders()
 	if (m_bFiredWeapon)
 		bNeedsToMove = false;
 
+	if (m_bChargeAttack)
+		bNeedsToMove = false;
+
 	return bNeedsToMove || bNeedsToAttack;
 }
 
@@ -1594,7 +1740,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon)
+		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon && !m_bChargeAttack)
 		{
 			pHUD->SetButtonListener(2, CHUD::Aim);
 
@@ -1627,6 +1773,26 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			s += L"\n \nShortcut: E";
 
 			pHUD->SetButtonInfo(2, s);
+		}
+
+		if (CanCharge() && !m_bFiredWeapon && !m_bChargeAttack)
+		{
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_CHARGE && m_flTotalPower > ChargeEnergy())
+				pHUD->SetButtonColor(3, Color(150, 0, 0));
+			else
+				pHUD->SetButtonColor(3, Color(100, 100, 100));
+
+			if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
+				pHUD->SetButtonTexture(3, s_iCancelIcon);
+			else
+				pHUD->SetButtonTexture(3, 0);
+
+			if (m_flTotalPower > ChargeEnergy())
+				pHUD->SetButtonListener(3, CHUD::Charge);
+			else
+				pHUD->SetButtonListener(3, NULL);
+
+			pHUD->SetButtonInfo(3, L"CHARGING RAM ATTACK\n \nCharge an enemy unit with a RAM attack that bypasses shields.\n \nShortcut: R");
 		}
 
 		if (HasBonusPoints())
@@ -1757,7 +1923,7 @@ void CDigitank::Fire()
 	if (fabs(AngleDifference(GetAngles().y, VectorAngles((GetPreviewAim()-GetOrigin()).Normalized()).y)) > FiringCone())
 		return;
 
-	if (m_bFiredWeapon)
+	if (m_bFiredWeapon || m_bChargeAttack)
 		return;
 
 	if (m_flTotalPower < GetProjectileEnergy())
@@ -1959,6 +2125,15 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	float flShield = GetShieldValueForAttackDirection(vecAttackDirection);
 
 	float flDamageBlocked = flShield * GetDefenseScale();
+
+	if (pAttacker == pInflictor && dynamic_cast<CDigitank*>(pAttacker))
+	{
+		// Looks like a charge to me. Charges bypass shields.
+		flDamageBlocked = 0;
+
+		// Force the tank damage sound, suppress the shield damage sound.
+		flShield = 0;
+	}
 
 	if (pProjectile)
 		flDamageBlocked *= pProjectile->ShieldDamageScale();
@@ -2389,6 +2564,27 @@ void CDigitank::PostRender()
 		}
 
 		oRope.Finish(vecGoalMove);
+	}
+
+	if (GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_CHARGE)
+	{
+		CBaseEntity* pChargeTarget = m_hPreviewCharge;
+
+		if (pChargeTarget)
+		{
+			Vector vecPreviewTank = GetChargePosition(pChargeTarget);
+			Vector vecChargeDirection = (pChargeTarget->GetOrigin() - GetOrigin()).Normalized();
+
+			CRenderingContext r(GameServer()->GetRenderer());
+			r.Translate(vecPreviewTank + Vector(0, 1, 0));
+			r.Rotate(-VectorAngles(vecChargeDirection).y, Vector(0, 1, 0));
+			r.SetAlpha(50.0f/255);
+			r.SetBlend(BLEND_ALPHA);
+			r.SetColorSwap(GetTeam()->GetColor());
+			r.RenderModel(GetModel());
+
+			RenderTurret(50.0f/255);
+		}
 	}
 }
 

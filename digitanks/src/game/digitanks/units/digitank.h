@@ -136,6 +136,16 @@ public:
 	bool						IsPreviewAimValid();
 	Vector						GetLastAim() const { return m_vecLastAim.Get(); };
 
+	virtual bool				CanCharge() const { return false; }
+	virtual float				ChargeRadius() const { return 20.0f; }
+	virtual float				ChargeEnergy() const { return 7.0f; }
+	virtual float				ChargeDamage() const { return 7.0f; }
+	virtual float				ChargePushDistance() const { return 50.0f; }
+	CBaseEntity*				GetPreviewCharge() const { return m_hPreviewCharge; };
+	virtual void				SetPreviewCharge(CBaseEntity* pPreviewCharge);
+	void						ClearPreviewCharge();
+	Vector						GetChargePosition(CBaseEntity* pTarget) const;
+
 	bool						IsInsideMaxRange(Vector vecPoint);
 	float						FindAimRadius(Vector vecPoint, float flMin = 2.0f);
 
@@ -149,6 +159,7 @@ public:
 
 	void						Turn();
 	void						Turn(class CNetworkParameters* p);
+	void						Turn(EAngle angNewTurn);
 
 	void						SetGoalMovePosition(const Vector& vecPosition);
 	void						SetGoalMovePosition(CNetworkParameters* p);
@@ -157,8 +168,6 @@ public:
 	void						CancelGoalMovePosition(CNetworkParameters* p);
 	bool						HasGoalMovePosition() { return m_bGoalMovePosition.Get(); };
 	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition.Get(); };
-
-	bool						ChoseFirepower() { return m_bChoseFirepower; };
 
 	void						Fortify();
 	void						Fortify(CNetworkParameters* p);
@@ -176,6 +185,9 @@ public:
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
 	virtual bool				CanGetPowerups() const { return true; };
+
+	void						Charge();
+	void						Charge(class CNetworkParameters* p);
 
 	virtual bool				MovesWith(CDigitank* pOther) const;
 	virtual bool				TurnsWith(CDigitank* pOther) const;
@@ -338,11 +350,15 @@ protected:
 	Vector						m_vecDisplayAim;
 	float						m_flDisplayAimRadius;
 
+	CEntityHandle<CBaseEntity>	m_hPreviewCharge;
+	float						m_flBeginCharge;
+	float						m_flEndCharge;
+
 	CNetworkedVariable<bool>	m_bGoalMovePosition;
 	CNetworkedVector			m_vecGoalMovePosition;
 
-	bool						m_bChoseFirepower;
 	bool						m_bFiredWeapon;
+	bool						m_bChargeAttack;
 
 	float						m_flFireProjectileTime;
 	size_t						m_iFireProjectiles;

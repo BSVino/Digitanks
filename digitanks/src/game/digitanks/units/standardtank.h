@@ -24,6 +24,11 @@ public:
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const;
 	virtual float				MaxRangeRadius() const { return 30; };
+	virtual bool				CanCharge() const { return true; }
+	virtual float				ChargeRadius() const { return 40.0f; }
+	virtual float				ChargeEnergy() const { return 8.0f; }
+	virtual float				ChargeDamage() const { return 6.0f; }
+	virtual float				ChargePushDistance() const { return 50.0f; }
 
 	virtual size_t				FleetPoints() const { return 0; };
 

@@ -396,6 +396,9 @@ void CHUD::Think()
 					pTank->SetPreviewAim(vecPreviewAim);
 			}
 		}
+
+		if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
+			pCurrentTank->SetPreviewCharge(pHit);
 	}
 
 	CStructure* pCurrentStructure = DigitanksGame()->GetPrimarySelectionStructure();
@@ -1731,6 +1734,19 @@ void CHUD::FortifyCallback()
 
 	SetupMenu(MENUMODE_MAIN);
 	UpdateInfo();
+}
+
+void CHUD::ChargeCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
+		DigitanksGame()->SetControlMode(MODE_NONE);
+	else
+		DigitanksGame()->SetControlMode(MODE_CHARGE);
+
+	SetupMenu();
 }
 
 void CHUD::PromoteCallback()

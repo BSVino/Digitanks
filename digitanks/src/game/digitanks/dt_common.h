@@ -8,6 +8,7 @@ typedef enum
 	MODE_TURN,
 	MODE_AIM,
 	MODE_BUILD,
+	MODE_CHARGE,
 } controlmode_t;
 
 typedef enum

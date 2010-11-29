@@ -182,6 +182,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			DigitanksGame()->FireTanks();
 			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
 		}
+		else if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
+		{
+			CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
+			if (pTank && pTank->GetTeam()->IsPlayerControlled())
+				pTank->Charge();
+		}
 	}
 
 	GetHUD()->SetupMenu();

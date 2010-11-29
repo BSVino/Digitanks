@@ -285,6 +285,20 @@ void CTerrain::RenderWithShaders()
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
 		glUniform1i(bMovement, true);
 	}
+	else if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_CHARGE)
+	{
+		GLuint vecTankOrigin = glGetUniformLocation(iTerrainProgram, "vecTankOrigin");
+		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
+
+		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
+		glUniform1f(flMoveDistance, pCurrentTank->ChargeRadius());
+
+		GLuint flMoveFireDistance = glGetUniformLocation(iTerrainProgram, "flMoveFireDistance");
+		glUniform1f(flMoveFireDistance, pCurrentTank->ChargeRadius());
+
+		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
+		glUniform1i(bMovement, true);
+	}
 	else
 	{
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");

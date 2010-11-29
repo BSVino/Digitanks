@@ -945,6 +945,13 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			apTargets.push_back(pEntity);
 		}
 
+		if (pTank->CanCharge() && pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->ChargeRadius() && RandomInt(0, 3) == 0)
+		{
+			pTank->SetPreviewCharge(pClosestEnemy);
+			pTank->Charge();
+			continue;
+		}
+
 		CBaseEntity* pTarget = NULL;
 		if (apTargets.size())
 			pTarget = apTargets[RandomInt(0, apTargets.size()-1)];
