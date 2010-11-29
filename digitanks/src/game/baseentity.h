@@ -159,7 +159,7 @@ class CBaseEntity
 
 public:
 											CBaseEntity();
-											~CBaseEntity();
+	virtual									~CBaseEntity();
 
 public:
 	virtual void							Precache() {};

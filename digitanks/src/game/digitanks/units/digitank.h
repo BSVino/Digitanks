@@ -50,7 +50,7 @@ class CDigitank : public CSelectable
 	REGISTER_ENTITY_CLASS(CDigitank, CSelectable);
 
 public:
-								~CDigitank();
+	virtual						~CDigitank();
 
 public:
 	virtual void				Precache();

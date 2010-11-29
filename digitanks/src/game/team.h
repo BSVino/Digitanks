@@ -12,7 +12,7 @@ class CTeam : public CBaseEntity
 
 public:
 								CTeam();
-								~CTeam();
+	virtual						~CTeam();
 
 public:
 	virtual bool				OnUnserialize(std::istream& i);

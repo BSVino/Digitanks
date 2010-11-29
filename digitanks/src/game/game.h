@@ -15,7 +15,7 @@ class CGame : public CBaseEntity, public INetworkListener
 
 public:
 												CGame();
-												~CGame();
+	virtual										~CGame();
 
 public:
 	virtual void								Spawn();

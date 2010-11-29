@@ -19,7 +19,7 @@ class CGameServer : public INetworkListener
 {
 public:
 												CGameServer();
-												~CGameServer();
+	virtual										~CGameServer();
 
 public:
 	void										SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };

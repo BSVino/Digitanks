@@ -8,7 +8,7 @@ class CMenuMarcher : public CBaseEntity
 	REGISTER_ENTITY_CLASS(CMenuMarcher, CBaseEntity);
 
 public:
-								~CMenuMarcher();
+	virtual						~CMenuMarcher();
 
 public:
 	virtual void				Precache();

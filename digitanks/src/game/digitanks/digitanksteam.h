@@ -16,7 +16,7 @@ class CDigitanksTeam : public CTeam
 
 public:
 								CDigitanksTeam();
-								~CDigitanksTeam();
+	virtual						~CDigitanksTeam();
 
 public:
 	virtual void				Spawn();

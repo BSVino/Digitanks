@@ -15,7 +15,7 @@ public:
 
 public:
 									CTerrainChunk();
-									~CTerrainChunk();
+	virtual							~CTerrainChunk();
 
 protected:
 	float							m_aflHeights[TERRAIN_SECTOR_SIZE][TERRAIN_SECTOR_SIZE];
@@ -32,7 +32,7 @@ class CTerrain : public CBaseEntity
 
 public:
 							CTerrain();
-							~CTerrain();
+	virtual					~CTerrain();
 
 public:
 	virtual void			Spawn();
