@@ -17,6 +17,7 @@ static float g_aflProjectileEnergies[PROJECTILE_MAX] =
 	5.0f,	// medium
 	8.0f,	// large
 	6.0f,	// AoE
+	4.0f,	// tractor bomb
 
 	6.0f,	// machine gun
 	3.0f,	// torpedo
@@ -31,6 +32,7 @@ static float g_aflProjectileDamages[PROJECTILE_MAX] =
 	5.0f,	// medium
 	8.0f,	// large
 	4.0f,	// AoE
+	1.0f,	// tractor bomb
 
 	0.12f,	// machine gun
 	0.0f,	// torpedo
@@ -45,6 +47,7 @@ static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
 	L"Fat Man",
 	L"Big Mama",
 	L"Plasma Charge",
+	L"Tractor Bomb",
 
 	L"Flak Cannon",
 	L"Torpedo",
@@ -347,6 +350,12 @@ NETVAR_TABLE_BEGIN(CAOEShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CTractorBomb);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CTractorBomb);
 SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CArtilleryShell);

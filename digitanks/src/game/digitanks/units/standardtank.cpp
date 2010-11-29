@@ -30,6 +30,7 @@ void CStandardTank::Spawn()
 	m_aeProjectiles.push_back(PROJECTILE_MEDIUM);
 	m_aeProjectiles.push_back(PROJECTILE_LARGE);
 	m_aeProjectiles.push_back(PROJECTILE_AOE);
+	m_aeProjectiles.push_back(PROJECTILE_TRACTORBOMB);
 
 	m_eProjectile = PROJECTILE_SMALL;
 }

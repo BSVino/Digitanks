@@ -48,6 +48,7 @@ typedef enum
 	PROJECTILE_MEDIUM,
 	PROJECTILE_LARGE,
 	PROJECTILE_AOE,
+	PROJECTILE_TRACTORBOMB,
 
 	// Strategy mode projectiles
 	PROJECTILE_FLAK,		// For infantry

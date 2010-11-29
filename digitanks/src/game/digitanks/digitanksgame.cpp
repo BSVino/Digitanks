@@ -1049,9 +1049,6 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		if (!pEntity)
 			continue;
 
-		if (pEntity == pIgnore)
-			continue;
-
 		// Fire too close to yourself and the explosion can rock you.
 		if (pEntity != pAttacker)
 		{
@@ -1063,24 +1060,40 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		}
 
 		float flDistanceSqr = (pInflictor->GetOrigin() - pEntity->GetOrigin()).LengthSqr();
-
 		float flTotalRadius = flRadius + pEntity->GetBoundingRadius();
-		if (flDistanceSqr < flTotalRadius*flTotalRadius)
-			apHit.push_back(pEntity);
+		float flPushRadius = pProjectile?pProjectile->PushRadius():20;
+		float flTotalRadius2 = flRadius + pEntity->GetBoundingRadius() + flPushRadius;
 
-		float flTotalRadius2 = flRadius + pEntity->GetBoundingRadius() + 20;
 		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2)
 		{
 			float flRockIntensity = pProjectile?pProjectile->RockIntensity():0.5f;
 			Vector vecExplosion = (pDigitank->GetOrigin() - vecExplosionOrigin).Normalized();
 			pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flRockIntensity, flRockIntensity/5), vecExplosion);
 
-			if (flDistanceSqr < flTotalRadius*flTotalRadius)
+			if (flRadius < 1 || flDistanceSqr > flTotalRadius*flTotalRadius)
 			{
 				float flPushDistance = pProjectile?pProjectile->PushDistance():flRadius/2;
-				pDigitank->Move(pDigitank->GetOrigin() + vecExplosion * RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flPushDistance, flPushDistance/2), 2);
+
+				Vector vecPushDirection = vecExplosion;
+				if (vecPushDirection.y < 0)
+				{
+					vecPushDirection.y = 0;
+					vecPushDirection.Normalize();
+				}
+
+				// If we have a direct hit (the ignored is a direct hit, see CProjectile::Touching) exaggerate it.
+				if (pEntity == pIgnore)
+					flPushDistance *= 1.5f;
+
+				pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flPushDistance, flPushDistance/2), 2);
 			}
 		}
+
+		if (pEntity == pIgnore)
+			continue;
+
+		if (flDistanceSqr < flTotalRadius*flTotalRadius)
+			apHit.push_back(pEntity);
 	}
 
 	bool bHit = false;

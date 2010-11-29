@@ -44,6 +44,7 @@ public:
 	virtual float				HealthDamageScale() { return 1; };
 	virtual float				ShellRadius() { return 0.5f; };
 	virtual float				ExplosionRadius() { return 4.0f; };
+	virtual float				PushRadius() { return 20.0f; };
 	virtual float				PushDistance() { return 4.0f; };
 	virtual float				RockIntensity() { return 0.5f; };
 	virtual bool				ShouldExplode() { return true; };
@@ -112,10 +113,25 @@ class CAOEShell : public CProjectile
 
 public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_AOE; }
-	virtual float				ShellRadius() { return 1.0f; };
+	virtual float				ShellRadius() { return 1.2f; };
 	virtual float				ExplosionRadius() { return 30.0f; };
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual bool				HasDamageFalloff() { return false; };
+};
+
+class CTractorBomb : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CTractorBomb, CProjectile);
+
+public:
+	virtual projectile_t		GetProjectileType() { return PROJECTILE_TRACTORBOMB; }
+	virtual float				ShellRadius() { return 0.8f; };
+	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual float				PushRadius() { return 40.0f; };
+	virtual float				PushDistance() { return 20.0f; };
+	virtual float				RockIntensity() { return 1.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				HasDamageFalloff() { return false; };
 };

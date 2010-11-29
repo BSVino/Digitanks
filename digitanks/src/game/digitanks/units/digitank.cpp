@@ -1895,6 +1895,8 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CLargeShell>("CLargeShell");
 	else if (GetCurrentProjectile() == PROJECTILE_AOE)
 		return GameServer()->Create<CAOEShell>("CAOEShell");
+	else if (GetCurrentProjectile() == PROJECTILE_TRACTORBOMB)
+		return GameServer()->Create<CTractorBomb>("CTractorBomb");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");
