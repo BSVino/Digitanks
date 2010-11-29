@@ -139,10 +139,13 @@ public:
 	bool						IsInsideMaxRange(Vector vecPoint);
 	float						FindAimRadius(Vector vecPoint, float flMin = 2.0f);
 
+	void						RockTheBoat(float flIntensity, Vector vecDirection);
+	bool						IsRocking() const;
+
 	void						Move();
 	void						Move(class CNetworkParameters* p);
 	bool						IsMoving();
-	void						Move(Vector vecNewPosition);
+	void						Move(Vector vecNewPosition, int iMoveType = 0);
 
 	void						Turn();
 	void						Turn(class CNetworkParameters* p);
@@ -314,9 +317,14 @@ protected:
 	CNetworkedVariable<float>	m_flRightShieldStrength;
 	CNetworkedVariable<float>	m_flRearShieldStrength;
 
+	float						m_flStartedRock;
+	float						m_flRockIntensity;
+	Vector						m_vecRockDirection;
+
 	Vector						m_vecPreviewMove;
 	CNetworkedVector			m_vecPreviousOrigin;
 	float						m_flStartedMove;
+	int							m_iMoveType;
 
 	float						m_flPreviewTurn;
 	CNetworkedVariable<float>	m_flPreviousTurn;

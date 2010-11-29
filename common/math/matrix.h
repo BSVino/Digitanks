@@ -43,6 +43,7 @@ public:
 	Matrix4x4	AddScale(const Vector& vecScale);
 
 	Vector		GetTranslation();
+	EAngle		GetAngles();
 
 	// Transform a vector
 	Vector		operator*(const Vector& v) const;
@@ -313,6 +314,11 @@ inline Matrix4x4 Matrix4x4::AddScale(const Vector& vecScale)
 inline Vector Matrix4x4::GetTranslation()
 {
 	return Vector(m[0][3], m[1][3], m[2][3]);
+}
+
+inline EAngle Matrix4x4::GetAngles()
+{
+	return EAngle(asin(m[0][1]) * 180/M_PI, atan2(-m[0][2], m[0][0]) * 180/M_PI, atan2(-m[2][1], m[1][1]) * 180/M_PI);
 }
 
 inline Vector Matrix4x4::operator*(const Vector& v) const

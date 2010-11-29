@@ -572,6 +572,8 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 
 void CDigitanksGame::StartNewRound()
 {
+	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
+
 	m_iCurrentTeam = 0;
 
 	m_iWaitingForProjectiles = 0;
@@ -682,7 +684,7 @@ void CDigitanksGame::Think()
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (HasRounds() && m_bPartyMode && GameServer()->GetGameTime() - m_flPartyModeStart > 5.0f)
+	if (HasRounds() && m_bPartyMode && GameServer()->GetGameTime() - m_flPartyModeStart > 10.0f)
 	{
 		StartNewRound();
 		return;
@@ -1032,10 +1034,17 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 {
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
 
+	Vector vecExplosionOrigin;
+	if (pInflictor)
+		vecExplosionOrigin = pInflictor->GetOrigin();
+	else
+		vecExplosionOrigin = pAttacker->GetOrigin();
+
 	eastl::vector<CBaseEntity*> apHit;
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
 
 		if (!pEntity)
 			continue;
@@ -1046,7 +1055,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		// Fire too close to yourself and the explosion can rock you.
 		if (pEntity != pAttacker)
 		{
-			if (dynamic_cast<CDigitank*>(pEntity) && dynamic_cast<CDigitank*>(pEntity)->GetTeam() == pTeamIgnore)
+			if (pDigitank && pDigitank->GetTeam() == pTeamIgnore)
 				continue;
 
 			if (!pInflictor->ShouldTouch(pEntity))
@@ -1058,6 +1067,19 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		float flTotalRadius = flRadius + pEntity->GetBoundingRadius();
 		if (flDistanceSqr < flTotalRadius*flTotalRadius)
 			apHit.push_back(pEntity);
+
+		float flTotalRadius2 = flRadius + pEntity->GetBoundingRadius() + 20;
+		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2)
+		{
+			Vector vecExplosion = (pDigitank->GetOrigin() - vecExplosionOrigin).Normalized();
+			pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, 1, 0.2f), vecExplosion);
+
+			if (flDistanceSqr < flTotalRadius*flTotalRadius)
+			{
+				float flPushDistance = pProjectile?pProjectile->PushDistance():flRadius/2;
+				pDigitank->Move(pDigitank->GetOrigin() + vecExplosion * RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flPushDistance, flPushDistance/2), 2);
+			}
+		}
 	}
 
 	bool bHit = false;

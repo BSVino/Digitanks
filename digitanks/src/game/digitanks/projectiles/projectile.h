@@ -44,6 +44,7 @@ public:
 	virtual float				HealthDamageScale() { return 1; };
 	virtual float				ShellRadius() { return 0.5f; };
 	virtual float				ExplosionRadius() { return 4.0f; };
+	virtual float				PushDistance() { return 4.0f; };
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				CreatesCraters() { return true; };
 	virtual bool				BombDropNoise() { return true; };
@@ -76,6 +77,7 @@ public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_SMALL; }
 	virtual float				ShellRadius() { return 0.5f; };
 	virtual float				ExplosionRadius() { return 4.0f; };
+	virtual float				PushDistance() { return 2.0f; };
 };
 
 class CMediumShell : public CProjectile
@@ -86,6 +88,7 @@ public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_MEDIUM; }
 	virtual float				ShellRadius() { return 1.0f; };
 	virtual float				ExplosionRadius() { return 8.0f; };
+	virtual float				PushDistance() { return 4.0f; };
 };
 
 class CLargeShell : public CProjectile
@@ -96,6 +99,7 @@ public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_LARGE; }
 	virtual float				ShellRadius() { return 1.5f; };
 	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				PushDistance() { return 6.0f; };
 };
 
 class CAOEShell : public CProjectile
@@ -106,6 +110,7 @@ public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.0f; };
 	virtual float				ExplosionRadius() { return 30.0f; };
+	virtual float				PushDistance() { return 4.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				HasDamageFalloff() { return false; };
 };
@@ -119,6 +124,7 @@ public:
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
+	virtual float				PushDistance() { return 0.0f; };
 };
 
 class CInfantryFlak : public CProjectile
@@ -158,6 +164,7 @@ public:
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return false; };
+	virtual float				PushDistance() { return 0.0f; };
 
 protected:
 	bool						m_bBurrowing;
@@ -172,6 +179,7 @@ public:
 
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_FIREWORKS; }
 	virtual bool				BombDropNoise() { return false; };
+	virtual float				PushDistance() { return 5.0f; };
 };
 
 #endif

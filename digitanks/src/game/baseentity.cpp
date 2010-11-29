@@ -204,14 +204,10 @@ void CBaseEntity::Render()
 		r.Translate(GetRenderOrigin());
 
 		EAngle angRender = GetRenderAngles();
-		Vector vecForward, vecRight, vecUp;
 
-		AngleVectors(angRender, &vecForward, &vecRight, &vecUp);
-
-		// These first two aren't tested.
-		//r.Rotate(-angRender.r, vecForward);
-		//r.Rotate(-angRender.p, vecRight);
 		r.Rotate(-angRender.y, Vector(0, 1, 0));
+		r.Rotate(angRender.p, Vector(0, 0, 1));
+		r.Rotate(angRender.r, Vector(1, 0, 0));
 
 		ModifyContext(&r);
 
