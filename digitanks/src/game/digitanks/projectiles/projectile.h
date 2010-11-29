@@ -45,6 +45,7 @@ public:
 	virtual float				ShellRadius() { return 0.5f; };
 	virtual float				ExplosionRadius() { return 4.0f; };
 	virtual float				PushDistance() { return 4.0f; };
+	virtual float				RockIntensity() { return 0.5f; };
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				CreatesCraters() { return true; };
 	virtual bool				BombDropNoise() { return true; };
@@ -76,8 +77,9 @@ class CSmallShell : public CProjectile
 public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_SMALL; }
 	virtual float				ShellRadius() { return 0.5f; };
-	virtual float				ExplosionRadius() { return 4.0f; };
-	virtual float				PushDistance() { return 2.0f; };
+	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual float				PushDistance() { return 3.0f; };
+	virtual float				RockIntensity() { return 0.4f; };
 };
 
 class CMediumShell : public CProjectile
@@ -87,8 +89,9 @@ class CMediumShell : public CProjectile
 public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_MEDIUM; }
 	virtual float				ShellRadius() { return 1.0f; };
-	virtual float				ExplosionRadius() { return 8.0f; };
-	virtual float				PushDistance() { return 4.0f; };
+	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				PushDistance() { return 6.0f; };
+	virtual float				RockIntensity() { return 0.7f; };
 };
 
 class CLargeShell : public CProjectile
@@ -98,8 +101,9 @@ class CLargeShell : public CProjectile
 public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_LARGE; }
 	virtual float				ShellRadius() { return 1.5f; };
-	virtual float				ExplosionRadius() { return 12.0f; };
-	virtual float				PushDistance() { return 6.0f; };
+	virtual float				ExplosionRadius() { return 18.0f; };
+	virtual float				PushDistance() { return 9.0f; };
+	virtual float				RockIntensity() { return 1.0f; };
 };
 
 class CAOEShell : public CProjectile
@@ -110,7 +114,8 @@ public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.0f; };
 	virtual float				ExplosionRadius() { return 30.0f; };
-	virtual float				PushDistance() { return 4.0f; };
+	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				HasDamageFalloff() { return false; };
 };
@@ -125,6 +130,7 @@ public:
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
 	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.4f; };
 };
 
 class CInfantryFlak : public CProjectile
@@ -165,6 +171,7 @@ public:
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return false; };
 	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
 
 protected:
 	bool						m_bBurrowing;
@@ -180,6 +187,7 @@ public:
 	virtual projectile_t		GetProjectileType() { return PROJECTILE_FIREWORKS; }
 	virtual bool				BombDropNoise() { return false; };
 	virtual float				PushDistance() { return 5.0f; };
+	virtual float				RockIntensity() { return 1.0f; };
 };
 
 #endif

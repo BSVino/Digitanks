@@ -1071,8 +1071,9 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		float flTotalRadius2 = flRadius + pEntity->GetBoundingRadius() + 20;
 		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2)
 		{
+			float flRockIntensity = pProjectile?pProjectile->RockIntensity():0.5f;
 			Vector vecExplosion = (pDigitank->GetOrigin() - vecExplosionOrigin).Normalized();
-			pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, 1, 0.2f), vecExplosion);
+			pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flRockIntensity, flRockIntensity/5), vecExplosion);
 
 			if (flDistanceSqr < flTotalRadius*flTotalRadius)
 			{

@@ -20,10 +20,10 @@ public:
 	virtual float				GetTankSpeed() const { return 3.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				InitialMaxRange() const { return 200.0f; };
-	virtual float				InitialEffRange() const { return 80.0f; };
+	virtual float				InitialEffRange() const { return 50.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const;
-	virtual float				MaxRangeRadius() const { return 20; };
+	virtual float				MaxRangeRadius() const { return 30; };
 
 	virtual size_t				FleetPoints() const { return 0; };
 
