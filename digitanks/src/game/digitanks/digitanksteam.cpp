@@ -122,6 +122,9 @@ void CDigitanksTeam::TeamUpdatesData(CNetworkParameters* p)
 
 CSelectable* CDigitanksTeam::GetPrimarySelection()
 {
+	if (DigitanksGame()->GetCurrentTeam() != this)
+		return NULL;
+
 	if (m_aiCurrentSelection.size() == 0)
 		return NULL;
 
@@ -145,6 +148,9 @@ CStructure* CDigitanksTeam::GetPrimarySelectionStructure()
 
 size_t CDigitanksTeam::GetPrimarySelectionId()
 {
+	if (DigitanksGame()->GetCurrentTeam() != this)
+		return -1;
+
 	if (m_aiCurrentSelection.size() == 0)
 		return -1;
 
@@ -176,6 +182,9 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 
 bool CDigitanksTeam::IsPrimarySelection(const CSelectable* pEntity)
 {
+	if (DigitanksGame()->GetCurrentTeam() != this)
+		return false;
+
 	return GetPrimarySelection() == pEntity;
 }
 
@@ -210,6 +219,9 @@ void CDigitanksTeam::AddToSelection(const CSelectable* pEntity)
 
 bool CDigitanksTeam::IsSelected(const CSelectable* pEntity)
 {
+	if (DigitanksGame()->GetCurrentTeam() != this)
+		return false;
+
 	if (!pEntity)
 		return false;
 
@@ -448,7 +460,7 @@ void CDigitanksTeam::YouLoseSirGoodDay()
 {
 	m_bLost = true;
 
-	if (DigitanksGame()->GetLocalDigitanksTeam() == this)
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == this)
 		DigitanksGame()->GetListener()->GameOver(false);
 }
 

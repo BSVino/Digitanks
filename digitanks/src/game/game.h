@@ -48,12 +48,12 @@ public:
 	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
 	bool										IsTeamControlledByMe(CTeam* pTeam);
 
-	CTeam*										GetLocalTeam();
+	eastl::vector<CEntityHandle<CTeam> >		GetLocalTeams();
 
 protected:
 	eastl::vector<CEntityHandle<CTeam> >		m_ahTeams;
 
-	CEntityHandle<CTeam>						m_hLocalTeam;
+	eastl::vector<CEntityHandle<CTeam> >		m_ahLocalTeams;
 };
 
 inline class CGame* Game()

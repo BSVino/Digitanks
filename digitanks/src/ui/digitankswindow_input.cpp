@@ -120,8 +120,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	{
 		if (m_bBoxSelect && iDifference > 30)
 		{
-			if (!IsShiftDown())
-				DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(NULL);
+			if (!IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksTeam())
+				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
 
 			size_t iLowerX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
 			size_t iLowerY = (m_iMouseInitialY < m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
@@ -146,25 +146,26 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				if (vecScreen.x < iLowerX || vecScreen.y < iLowerY || vecScreen.x > iHigherX || vecScreen.y > iHigherY)
 					continue;
 
-				DigitanksGame()->GetLocalDigitanksTeam()->AddToSelection(pSelectable);
+				if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
 			}
 
-			if (DigitanksGame()->GetLocalDigitanksTeam()->GetNumSelected() == 3)
+			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
 				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
 		}
-		else if (pClickedEntity)
+		else if (pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		{
 			CSelectable* pSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
 			if (pSelectable)
 			{
 				if (IsShiftDown())
-					DigitanksGame()->GetLocalDigitanksTeam()->AddToSelection(pSelectable);
+					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
 				else
-					DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
+					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
 			}
 
-			if (DigitanksGame()->GetLocalDigitanksTeam()->GetNumSelected() == 3)
+			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
 				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
 		}
 
@@ -224,7 +225,7 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (DigitanksGame() && (c == TINKER_KEY_ENTER || c == TINKER_KEY_KP_ENTER))
 	{
-		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
+		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ENTER) && DigitanksGame()->GetCurrentLocalDigitanksTeam() == DigitanksGame()->GetCurrentTeam())
 		{
 			CSoundLibrary::PlaySound(NULL, L"sound/turn.wav");
 			DigitanksGame()->EndTurn();
@@ -261,15 +262,15 @@ void CDigitanksWindow::CharPress(int c)
 
 	if (c == 'h')
 	{
-		if (DigitanksGame()->GetLocalDigitanksTeam())
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		{
-			for (size_t i = 0; i < DigitanksGame()->GetLocalDigitanksTeam()->GetNumMembers(); i++)
+			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumMembers(); i++)
 			{
-				CBaseEntity* pMember = DigitanksGame()->GetLocalDigitanksTeam()->GetMember(i);
+				CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetMember(i);
 				CCPU* pCPU = dynamic_cast<CCPU*>(pMember);
 				if (pCPU)
 				{
-					DigitanksGame()->GetLocalDigitanksTeam()->SetPrimarySelection(pCPU);
+					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pCPU);
 					break;
 				}
 			}

@@ -267,7 +267,7 @@ void CTerrain::RenderWithShaders()
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	bool bIsCurrentTeam = false;
-	if (pCurrentTank && pCurrentTank->GetTeam() == Game()->GetLocalTeam())
+	if (pCurrentTank && pCurrentTank->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		bIsCurrentTeam = true;
 
 	if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_MOVE)

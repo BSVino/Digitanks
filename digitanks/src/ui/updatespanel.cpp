@@ -64,6 +64,10 @@ void CUpdatesPanel::Layout()
 	if (!DigitanksGame() || !DigitanksGame()->GetUpdateGrid())
 		return;
 
+	CDigitanksTeam* pCurrentGame = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (!pCurrentGame)
+		return;
+
 	CUpdateGrid* pUpdates = DigitanksGame()->GetUpdateGrid();
 
 	int iLowestX = pUpdates->m_iLowestX;
@@ -102,8 +106,8 @@ void CUpdatesPanel::Layout()
 			pUpdate->SetLocation(i, j);
 			AddControl(pUpdate);
 
-			bool bCanDownload = DigitanksGame()->GetLocalDigitanksTeam()->CanDownloadUpdate(i, j);
-			bool bAlreadyDownloaded = DigitanksGame()->GetLocalDigitanksTeam()->HasDownloadedUpdate(i, j);
+			bool bCanDownload = pCurrentGame->CanDownloadUpdate(i, j);
+			bool bAlreadyDownloaded = pCurrentGame->HasDownloadedUpdate(i, j);
 
 			if (bAlreadyDownloaded)
 			{
@@ -153,7 +157,7 @@ void CUpdatesPanel::Layout()
 				}
 			}
 
-			if (DigitanksGame()->GetLocalDigitanksTeam()->IsDownloading(i, j))
+			if (pCurrentGame->IsDownloading(i, j))
 			{
 				if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTURE)
 				{
@@ -336,7 +340,7 @@ void CUpdateButton::ChooseDownloadCallback()
 	if (!pUpdates)
 		return;
 
-	DigitanksGame()->GetLocalDigitanksTeam()->DownloadUpdate(m_iX, m_iY);
+	DigitanksGame()->GetCurrentLocalDigitanksTeam()->DownloadUpdate(m_iX, m_iY);
 
 	m_pUpdatesPanel->SetVisible(false);
 

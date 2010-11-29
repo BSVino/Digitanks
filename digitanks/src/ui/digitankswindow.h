@@ -25,7 +25,8 @@ public:
 
 	void						InitUI();
 
-	void						SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
+	void						SetHumanPlayers(int iPlayers) { m_iHumanPlayers = iPlayers; };
+	void						SetBotPlayers(int iPlayers) { m_iBotPlayers = iPlayers; };
 	void						SetTanks(int iTanks) { m_iTanks = iTanks; };
 	void						SetTerrain(float flTerrain) { m_flTerrain = flTerrain; };
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
@@ -105,7 +106,8 @@ protected:
 	class CPurchasePanel*		m_pPurchase;
 	class CStoryPanel*			m_pStory;
 
-	int							m_iPlayers;
+	int							m_iHumanPlayers;
+	int							m_iBotPlayers;
 	int							m_iTanks;
 	float						m_flTerrain;
 

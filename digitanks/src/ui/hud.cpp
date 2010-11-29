@@ -482,6 +482,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 	int iWidth = DigitanksWindow()->GetWindowWidth();
 	int iHeight = DigitanksWindow()->GetWindowHeight();
 
+	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
@@ -516,10 +518,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
 		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
-		if (DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable) && !IsUpdatesPanelOpen())
+		if (pCurrentLocalTeam && pCurrentLocalTeam->IsSelected(pSelectable) && !IsUpdatesPanelOpen())
 		{
 			Color clrSelection(255, 255, 255, 128);
-			if (DigitanksGame()->GetLocalDigitanksTeam()->IsPrimarySelection(pSelectable))
+			if (pCurrentLocalTeam->IsPrimarySelection(pSelectable))
 				clrSelection = Color(255, 255, 255, 255);
 
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)flWidth, 1, clrSelection);
@@ -528,7 +530,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
 		}
 
-		if (DigitanksWindow()->IsAltDown() || pEntity->GetTeam() == DigitanksGame()->GetLocalDigitanksTeam() || DigitanksGame()->GetLocalDigitanksTeam()->IsSelected(pSelectable))
+		if (pCurrentLocalTeam && (DigitanksWindow()->IsAltDown() || pEntity->GetTeam() == pCurrentLocalTeam || pCurrentLocalTeam->IsSelected(pSelectable)))
 		{
 			if (pSelectable->ShowHealthBar())
 			{
@@ -954,7 +956,7 @@ void CHUD::UpdateTeamInfo()
 		return;
 	}
 
-	CDigitanksTeam* pTeam = DigitanksGame()->GetLocalDigitanksTeam();
+	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 	if (!pTeam)
 		return;
@@ -1069,7 +1071,7 @@ void CHUD::UpdateTurnButton()
 		m_pPressEnter->SetVisible(false);
 	}
 
-	if (DigitanksGame()->GetCurrentTeam() != DigitanksGame()->GetLocalDigitanksTeam())
+	if (DigitanksGame()->GetCurrentTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		m_pPressEnter->SetVisible(true);
 }
 
@@ -1091,7 +1093,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		SetButtonInfo(i, L"");
 	}
 
-	if (!IsActive() || !DigitanksGame()->GetPrimarySelection() || DigitanksGame()->GetPrimarySelection()->GetTeam() != Game()->GetLocalTeam())
+	if (!IsActive() || !DigitanksGame()->GetPrimarySelection() || DigitanksGame()->GetPrimarySelection()->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		return;
 
 	DigitanksGame()->GetPrimarySelection()->SetupMenu(eMenuMode);
@@ -1152,7 +1154,7 @@ void CHUD::NewCurrentTeam()
 	UpdateTurnButton();
 	UpdateTeamInfo();
 
-	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
+	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		m_pPressEnter->SetText("Press <ENTER> to end your turn...");
 	else
 		m_pPressEnter->SetText("Other players are taking their turns...");
@@ -1210,7 +1212,7 @@ void CHUD::NewCurrentSelection()
 	UpdateTurnButton();
 	UpdateInfo();
 
-	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetLocalDigitanksTeam())
+	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 	{
 		if (DigitanksGame()->GetPrimarySelectionTank())
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetOrigin());
@@ -1510,7 +1512,7 @@ void CHUD::ClearTurnInfo()
 {
 	m_pTurnInfo->SetText("");
 
-	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
 
 	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
@@ -1521,7 +1523,7 @@ void CHUD::ClearTurnInfo()
 
 void CHUD::AppendTurnInfo(const eastl::string16& pszInfo)
 {
-	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
 
 	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
@@ -1646,7 +1648,7 @@ void CHUD::ButtonCursorOutCallback()
 
 void CHUD::EndTurnCallback()
 {
-	if (DigitanksGame()->GetLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
 
 	CSoundLibrary::PlaySound(NULL, L"sound/turn.wav");

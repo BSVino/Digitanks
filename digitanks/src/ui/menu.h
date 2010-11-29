@@ -148,13 +148,17 @@ public:
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CArtilleryGamePanel,	BeginGame);
+	EVENT_CALLBACK(CArtilleryGamePanel,	UpdateLayout);
 
 protected:
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
-	glgui::CScrollSelector<int>*	m_pPlayers;
-	glgui::CLabel*					m_pPlayersLabel;
+	glgui::CScrollSelector<int>*	m_pHumanPlayers;
+	glgui::CLabel*					m_pHumanPlayersLabel;
+
+	glgui::CScrollSelector<int>*	m_pBotPlayers;
+	glgui::CLabel*					m_pBotPlayersLabel;
 
 	glgui::CScrollSelector<int>*	m_pTanks;
 	glgui::CLabel*					m_pTanksLabel;
@@ -178,13 +182,17 @@ public:
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CStrategyGamePanel,	BeginGame);
+	EVENT_CALLBACK(CStrategyGamePanel,	UpdateLayout);
 
 protected:
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
-	glgui::CScrollSelector<int>*	m_pPlayers;
-	glgui::CLabel*					m_pPlayersLabel;
+	glgui::CScrollSelector<int>*	m_pHumanPlayers;
+	glgui::CLabel*					m_pHumanPlayersLabel;
+
+	glgui::CScrollSelector<int>*	m_pBotPlayers;
+	glgui::CLabel*					m_pBotPlayersLabel;
 
 	glgui::CButton*					m_pBeginGame;
 };

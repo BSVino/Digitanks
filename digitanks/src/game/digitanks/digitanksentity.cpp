@@ -119,7 +119,7 @@ CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const
 
 bool CDigitanksEntity::ShouldRender() const
 {
-	return GetVisibility(DigitanksGame()->GetLocalDigitanksTeam()) > 0;
+	return GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam()) > 0;
 }
 
 void CDigitanksEntity::RenderVisibleArea()
@@ -141,7 +141,7 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	if (!pTeam)
 		return 0;
 
-	if (GetDigitanksTeam() == DigitanksGame()->GetLocalDigitanksTeam())
+	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		return 1;
 
 	return pTeam->GetEntityVisibility(GetHandle());
@@ -152,7 +152,7 @@ float CDigitanksEntity::GetVisibility() const
 	if (!DigitanksGame())
 		return 0;
 
-	return GetVisibility(DigitanksGame()->GetLocalDigitanksTeam());
+	return GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam());
 }
 
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext)

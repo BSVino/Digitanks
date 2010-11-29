@@ -197,7 +197,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 	if (CNetwork::IsHost() && DigitanksGame())
 	{
-		DigitanksGame()->SetPlayers(m_iPlayers);
+		DigitanksGame()->SetHumanPlayers(m_iHumanPlayers);
+		DigitanksGame()->SetBotPlayers(m_iBotPlayers);
 		DigitanksGame()->SetTanks(m_iTanks);
 		DigitanksGame()->SetTerrain(m_flTerrain);
 		DigitanksGame()->SetupGame(eGameType);

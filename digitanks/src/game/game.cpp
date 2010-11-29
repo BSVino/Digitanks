@@ -121,6 +121,15 @@ void CGame::RemoveTeamFromList(CTeam* pTeam)
 
 void CGame::RemoveTeam(CNetworkParameters* p)
 {
+	for (size_t i = 0; i < m_ahLocalTeams.size(); i++)
+	{
+		if (m_ahLocalTeams[i] == CEntityHandle<CTeam>(p->ui1))
+		{
+			m_ahLocalTeams.erase(m_ahTeams.begin()+i);
+			break;
+		}
+	}
+
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (m_ahTeams[i] == CEntityHandle<CTeam>(p->ui1))
@@ -181,9 +190,9 @@ bool CGame::IsTeamControlledByMe(CTeam* pTeam)
 	return false;
 }
 
-CTeam* CGame::GetLocalTeam()
+eastl::vector<CEntityHandle<CTeam> > CGame::GetLocalTeams()
 {
-	if (m_hLocalTeam == NULL || m_hLocalTeam->IsDeleted())
+	if (m_ahLocalTeams.size() == 0)
 	{
 		CGameServer* pGameServer = GameServer();
 		for (size_t i = 0; i < m_ahTeams.size(); i++)
@@ -192,14 +201,9 @@ CTeam* CGame::GetLocalTeam()
 				continue;
 
 			if (m_ahTeams[i]->GetClient() == pGameServer->GetClientIndex())
-			{
-				m_hLocalTeam = m_ahTeams[i];
-				return m_hLocalTeam;
-			}
+				m_ahLocalTeams.push_back(m_ahTeams[i]);
 		}
-
-		return NULL;
 	}
 
-	return m_hLocalTeam;
+	return m_ahLocalTeams;
 }

@@ -630,20 +630,29 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		m_pDifficultyLabel->SetVisible(false);
 	}
 
-	m_pPlayers = new CScrollSelector<int>();
-	m_pPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(5, L"5"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
-	m_pPlayers->SetSelection(3);
-	AddControl(m_pPlayers);
+	m_pHumanPlayers = new CScrollSelector<int>();
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(5, L"5"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
+	m_pHumanPlayers->SetSelection(3);
+	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
+	AddControl(m_pHumanPlayers);
 
-	m_pPlayersLabel = new CLabel(0, 0, 32, 32, L"Players");
-	m_pPlayersLabel->SetWrap(false);
-	AddControl(m_pPlayersLabel);
+	m_pHumanPlayersLabel = new CLabel(0, 0, 32, 32, L"Human Players");
+	m_pHumanPlayersLabel->SetWrap(false);
+	AddControl(m_pHumanPlayersLabel);
+
+	m_pBotPlayers = new CScrollSelector<int>();
+	AddControl(m_pBotPlayers);
+
+	m_pBotPlayersLabel = new CLabel(0, 0, 32, 32, L"Bot Players");
+	m_pBotPlayersLabel->SetWrap(false);
+	AddControl(m_pBotPlayersLabel);
 
 	m_pTanks = new CScrollSelector<int>();
 	m_pTanks->AddSelection(CScrollSelection<int>(1, L"1"));
@@ -685,23 +694,50 @@ void CArtilleryGamePanel::Layout()
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
 
-	m_pPlayersLabel->EnsureTextFits();
-	m_pPlayersLabel->SetPos(75, 160);
+	m_pHumanPlayersLabel->EnsureTextFits();
+	m_pHumanPlayersLabel->SetPos(75, 160);
 
-	m_pPlayers->SetSize(GetWidth() - m_pPlayersLabel->GetLeft()*2 - m_pPlayersLabel->GetWidth(), iSelectorSize);
-	m_pPlayers->SetPos(m_pPlayersLabel->GetRight(), 160);
+	m_pHumanPlayers->SetSize(GetWidth() - m_pHumanPlayersLabel->GetLeft()*2 - m_pHumanPlayersLabel->GetWidth(), iSelectorSize);
+	m_pHumanPlayers->SetPos(m_pHumanPlayersLabel->GetRight(), 160);
+
+	m_pBotPlayersLabel->EnsureTextFits();
+	m_pBotPlayersLabel->SetPos(75, 200);
+	m_pBotPlayersLabel->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
+
+	m_pBotPlayers->SetSize(GetWidth() - m_pBotPlayersLabel->GetLeft()*2 - m_pBotPlayersLabel->GetWidth(), iSelectorSize);
+	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 200);
+	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
+
+	m_pBotPlayers->RemoveAllSelections();
+	if (m_pHumanPlayers->GetSelectionValue() > 1)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"0"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 7)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 6)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 5)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 4)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 3)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(5, L"5"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 2)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 1)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
+	m_pBotPlayers->SetSelection(0);
 
 	m_pTanksLabel->EnsureTextFits();
-	m_pTanksLabel->SetPos(75, 200);
+	m_pTanksLabel->SetPos(75, 240);
 
 	m_pTanks->SetSize(GetWidth() - m_pTanksLabel->GetLeft()*2 - m_pTanksLabel->GetWidth(), iSelectorSize);
-	m_pTanks->SetPos(m_pTanksLabel->GetRight(), 200);
+	m_pTanks->SetPos(m_pTanksLabel->GetRight(), 240);
 
 	m_pTerrainLabel->EnsureTextFits();
-	m_pTerrainLabel->SetPos(75, 240);
+	m_pTerrainLabel->SetPos(75, 280);
 
 	m_pTerrain->SetSize(GetWidth() - m_pTerrainLabel->GetLeft()*2 - m_pTerrainLabel->GetWidth(), iSelectorSize);
-	m_pTerrain->SetPos(m_pTerrainLabel->GetRight(), 240);
+	m_pTerrain->SetPos(m_pTerrainLabel->GetRight(), 280);
 
 	m_pBeginGame->SetSize(135, 40);
 	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
@@ -711,7 +747,8 @@ void CArtilleryGamePanel::Layout()
 
 void CArtilleryGamePanel::BeginGameCallback()
 {
-	DigitanksWindow()->SetPlayers(m_pPlayers->GetSelectionValue());
+	DigitanksWindow()->SetHumanPlayers(m_pHumanPlayers->GetSelectionValue());
+	DigitanksWindow()->SetBotPlayers(m_pHumanPlayers->GetSelectionValue());
 	DigitanksWindow()->SetTanks(m_pTanks->GetSelectionValue());
 	DigitanksWindow()->SetTerrain(m_pTerrain->GetSelectionValue());
 	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
@@ -724,6 +761,11 @@ void CArtilleryGamePanel::BeginGameCallback()
 
 	DigitanksWindow()->GetInstructor()->SetActive(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
+}
+
+void CArtilleryGamePanel::UpdateLayoutCallback()
+{
+	Layout();
 }
 
 CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
@@ -750,16 +792,25 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 		m_pDifficultyLabel->SetVisible(false);
 	}
 
-	m_pPlayers = new CScrollSelector<int>();
-	m_pPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pPlayers->SetSelection(2);
-	AddControl(m_pPlayers);
+	m_pHumanPlayers = new CScrollSelector<int>();
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
+	m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
+	m_pHumanPlayers->SetSelection(2);
+	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
+	AddControl(m_pHumanPlayers);
 
-	m_pPlayersLabel = new CLabel(0, 0, 32, 32, L"Players");
-	m_pPlayersLabel->SetWrap(false);
-	AddControl(m_pPlayersLabel);
+	m_pHumanPlayersLabel = new CLabel(0, 0, 32, 32, L"Human Players");
+	m_pHumanPlayersLabel->SetWrap(false);
+	AddControl(m_pHumanPlayersLabel);
+
+	m_pBotPlayers = new CScrollSelector<int>();
+	AddControl(m_pBotPlayers);
+
+	m_pBotPlayersLabel = new CLabel(0, 0, 32, 32, L"Bot Players");
+	m_pBotPlayersLabel->SetWrap(false);
+	AddControl(m_pBotPlayersLabel);
 
 	m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
 	m_pBeginGame->SetClickedListener(this, BeginGame);
@@ -777,11 +828,29 @@ void CStrategyGamePanel::Layout()
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
 
-	m_pPlayersLabel->EnsureTextFits();
-	m_pPlayersLabel->SetPos(75, 180);
+	m_pHumanPlayersLabel->EnsureTextFits();
+	m_pHumanPlayersLabel->SetPos(75, 180);
 
-	m_pPlayers->SetSize(GetWidth() - m_pPlayersLabel->GetLeft()*2 - m_pPlayersLabel->GetWidth(), iSelectorSize);
-	m_pPlayers->SetPos(m_pPlayersLabel->GetRight(), 180);
+	m_pHumanPlayers->SetSize(GetWidth() - m_pHumanPlayersLabel->GetLeft()*2 - m_pHumanPlayersLabel->GetWidth(), iSelectorSize);
+	m_pHumanPlayers->SetPos(m_pHumanPlayersLabel->GetRight(), 180);
+
+	m_pBotPlayersLabel->EnsureTextFits();
+	m_pBotPlayersLabel->SetPos(75, 180);
+	m_pBotPlayersLabel->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
+
+	m_pBotPlayers->SetSize(GetWidth() - m_pBotPlayersLabel->GetLeft()*2 - m_pBotPlayersLabel->GetWidth(), iSelectorSize);
+	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 180);
+	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
+
+	if (m_pHumanPlayers->GetSelectionValue() > 1)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"0"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 7)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 2)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
+	if (m_pHumanPlayers->GetSelectionValue() <= 1)
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
+	m_pBotPlayers->SetSelection(0);
 
 	m_pBeginGame->SetSize(135, 40);
 	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
@@ -791,7 +860,8 @@ void CStrategyGamePanel::Layout()
 
 void CStrategyGamePanel::BeginGameCallback()
 {
-	DigitanksWindow()->SetPlayers(m_pPlayers->GetSelectionValue());
+	DigitanksWindow()->SetHumanPlayers(m_pHumanPlayers->GetSelectionValue());
+	DigitanksWindow()->SetBotPlayers(m_pBotPlayers->GetSelectionValue());
 	DigitanksWindow()->CreateGame(GAMETYPE_STANDARD);
 
 	if (!GameServer())
@@ -802,6 +872,11 @@ void CStrategyGamePanel::BeginGameCallback()
 
 	DigitanksWindow()->GetInstructor()->SetActive(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
+}
+
+void CStrategyGamePanel::UpdateLayoutCallback()
+{
+	Layout();
 }
 
 // HOLY CRAP A GLOBAL! Yeah it's bad. Sue me.

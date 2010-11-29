@@ -656,7 +656,7 @@ void CDigitank::StartTurn()
 	if (HasGoalMovePosition())
 		MoveTowardsGoalMovePosition();
 
-	if (DigitanksGame()->GetLocalDigitanksTeam() == GetDigitanksTeam())
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetDigitanksTeam())
 	{
 		size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
@@ -1479,7 +1479,7 @@ void CDigitank::OnCurrentSelection()
 {
 	BaseClass::OnCurrentSelection();
 
-	if (GetDigitanksTeam() == DigitanksGame()->GetLocalDigitanksTeam() && GetVisibility() > 0)
+	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetVisibility() > 0)
 	{
 		if (rand()%2 == 0)
 			EmitSound(L"sound/tank-active.wav");
@@ -2092,7 +2092,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
 	{
 		// BOT MUST DIE
-		if (GetDigitanksTeam() != DigitanksGame()->GetLocalDigitanksTeam())
+		if (GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			flDamage += 50;
 	}
 
@@ -2536,7 +2536,7 @@ void CDigitank::PostRender()
 		}
 	}
 
-	if (GetTeam() != Game()->GetLocalTeam())
+	if (GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		bShowGoalMove = false;
 
 	if (bShowGoalMove)

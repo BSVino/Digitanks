@@ -85,7 +85,8 @@ public:
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
-	void					SetPlayers(int iPlayers) { m_iPlayers = iPlayers; };
+	void					SetHumanPlayers(int iPlayers) { m_iHumanPlayers = iPlayers; };
+	void					SetBotPlayers(int iPlayers) { m_iBotPlayers = iPlayers; };
 	void					SetTanks(int iTanks) { m_iTanks = iTanks; };
 	void					SetTerrain(float flTerrain) { m_flTerrain = flTerrain; };
 
@@ -204,6 +205,8 @@ public:
 	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
 	bool					ShouldRenderFogOfWar();
 
+	float					GetVisibilityAtPoint(CDigitanksTeam* pViewingTeam, Vector vecPoint);
+
 	bool					ShouldShowScores();
 
 	bool					CanBuildMiniBuffers();
@@ -234,7 +237,7 @@ public:
 	// CHEAT!
 	void					CompleteProductions();
 
-	CDigitanksTeam*			GetLocalDigitanksTeam();
+	CDigitanksTeam*			GetCurrentLocalDigitanksTeam();
 
 protected:
 	CNetworkedVariable<size_t> m_iCurrentTeam;
@@ -262,7 +265,8 @@ protected:
 
 	CNetworkedVariable<bool> m_bRenderFogOfWar;
 
-	int							m_iPlayers;
+	int							m_iHumanPlayers;
+	int							m_iBotPlayers;
 	int							m_iTanks;
 	float						m_flTerrain;
 
