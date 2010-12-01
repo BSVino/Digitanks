@@ -9,6 +9,7 @@ typedef enum
 	MODE_AIM,
 	MODE_BUILD,
 	MODE_CHARGE,
+	MODE_AIMSPECIAL,
 } controlmode_t;
 
 typedef enum
@@ -56,6 +57,7 @@ typedef enum
 	PROJECTILE_TORPEDO,		// For scouts
 	PROJECTILE_ARTILLERY,	// For guess who
 
+	PROJECTILE_AIRSTRIKE,
 	PROJECTILE_FIREWORKS,
 
 	// If you add them here, add their energy prices too in projectile.cpp

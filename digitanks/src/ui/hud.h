@@ -201,6 +201,7 @@ public:
 	EVENT_CALLBACK(CHUD, PromoteAttack);
 	EVENT_CALLBACK(CHUD, PromoteDefense);
 	EVENT_CALLBACK(CHUD, PromoteMovement);
+	EVENT_CALLBACK(CHUD, FireSpecial);
 	EVENT_CALLBACK(CHUD, BuildMiniBuffer);
 	EVENT_CALLBACK(CHUD, BuildBuffer);
 	EVENT_CALLBACK(CHUD, BuildBattery);

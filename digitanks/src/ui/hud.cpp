@@ -399,6 +399,9 @@ void CHUD::Think()
 
 		if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
 			pCurrentTank->SetPreviewCharge(pHit);
+
+		if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+			pCurrentTank->SetPreviewAim(vecTerrainPoint);
 	}
 
 	CStructure* pCurrentStructure = DigitanksGame()->GetPrimarySelectionStructure();
@@ -414,12 +417,18 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (m_bHUDActive && pCurrentTank && DigitanksGame()->IsTeamControlledByMe(pCurrentTank->GetTeam()) && pCurrentTank->HasBonusPoints())
+		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasBonusPoints())
 		{
 			float flRamp = 1;
 			if (!DigitanksWindow()->GetInstructor()->GetActive() || DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
 				flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
+		}
+
+		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasSpecialWeapons())
+		{
+			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
+			m_apButtons[9]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 		}
 	}
 
@@ -1823,6 +1832,19 @@ void CHUD::PromoteMovementCallback()
 	UpdateInfo();
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+}
+
+void CHUD::FireSpecialCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+		DigitanksGame()->SetControlMode(MODE_NONE);
+	else
+		DigitanksGame()->SetControlMode(MODE_AIMSPECIAL);
+
+	SetupMenu();
 }
 
 void CHUD::BuildMiniBufferCallback()

@@ -710,7 +710,7 @@ void CArtilleryGamePanel::Layout()
 
 	m_pBotPlayers->RemoveAllSelections();
 	if (m_pHumanPlayers->GetSelectionValue() > 1)
-		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"0"));
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(0, L"0"));
 	if (m_pHumanPlayers->GetSelectionValue() <= 7)
 		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
 	if (m_pHumanPlayers->GetSelectionValue() <= 6)
@@ -748,7 +748,7 @@ void CArtilleryGamePanel::Layout()
 void CArtilleryGamePanel::BeginGameCallback()
 {
 	DigitanksWindow()->SetHumanPlayers(m_pHumanPlayers->GetSelectionValue());
-	DigitanksWindow()->SetBotPlayers(m_pHumanPlayers->GetSelectionValue());
+	DigitanksWindow()->SetBotPlayers(m_pBotPlayers->GetSelectionValue());
 	DigitanksWindow()->SetTanks(m_pTanks->GetSelectionValue());
 	DigitanksWindow()->SetTerrain(m_pTerrain->GetSelectionValue());
 	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
@@ -843,7 +843,7 @@ void CStrategyGamePanel::Layout()
 	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
 
 	if (m_pHumanPlayers->GetSelectionValue() > 1)
-		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"0"));
+		m_pBotPlayers->AddSelection(CScrollSelection<int>(0, L"0"));
 	if (m_pHumanPlayers->GetSelectionValue() <= 7)
 		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
 	if (m_pHumanPlayers->GetSelectionValue() <= 2)

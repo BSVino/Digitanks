@@ -189,6 +189,12 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			if (pTank && pTank->GetTeam()->IsPlayerControlled())
 				pTank->Charge();
 		}
+		else if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+		{
+			CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
+			if (pTank && pTank->GetTeam()->IsPlayerControlled())
+				pTank->FireSpecial();
+		}
 	}
 
 	GetHUD()->SetupMenu();

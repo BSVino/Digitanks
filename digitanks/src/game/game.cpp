@@ -121,15 +121,6 @@ void CGame::RemoveTeamFromList(CTeam* pTeam)
 
 void CGame::RemoveTeam(CNetworkParameters* p)
 {
-	for (size_t i = 0; i < m_ahLocalTeams.size(); i++)
-	{
-		if (m_ahLocalTeams[i] == CEntityHandle<CTeam>(p->ui1))
-		{
-			m_ahLocalTeams.erase(m_ahTeams.begin()+i);
-			break;
-		}
-	}
-
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (m_ahTeams[i] == CEntityHandle<CTeam>(p->ui1))
@@ -142,6 +133,7 @@ void CGame::RemoveTeam(CNetworkParameters* p)
 
 void CGame::OnDeleted()
 {
+	m_ahLocalTeams.clear();
 }
 
 void CGame::OnDeleted(CBaseEntity* pEntity)

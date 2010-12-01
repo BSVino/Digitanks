@@ -228,6 +228,9 @@ public:
 	projectile_t				GetProjectile(size_t iProjectile) const { return m_aeProjectiles[iProjectile]; };
 	virtual bool				IsWaitingToFire() { return m_flFireProjectileTime != 0; };
 
+	void						FireSpecial();
+	bool						HasSpecialWeapons();
+
 	virtual void				ClientUpdate(int iClient);
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
@@ -353,12 +356,13 @@ protected:
 	CEntityHandle<CBaseEntity>	m_hPreviewCharge;
 	float						m_flBeginCharge;
 	float						m_flEndCharge;
+	CEntityHandle<CBaseEntity>	m_hChargeTarget;
 
 	CNetworkedVariable<bool>	m_bGoalMovePosition;
 	CNetworkedVector			m_vecGoalMovePosition;
 
 	bool						m_bFiredWeapon;
-	bool						m_bChargeAttack;
+	bool						m_bActionTaken;
 
 	float						m_flFireProjectileTime;
 	size_t						m_iFireProjectiles;
@@ -383,6 +387,8 @@ protected:
 
 	projectile_t				m_eProjectile;
 	eastl::vector<projectile_t>	m_aeProjectiles;
+
+	size_t						m_iAirstrikes;
 
 	// AI stuff
 	bool						m_bFortifyPoint;

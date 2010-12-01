@@ -26,6 +26,7 @@
 #include "digitanks/structures/cpu.h"
 #include "digitanks/structures/buffer.h"
 #include "digitanks/projectiles/projectile.h"
+#include "digitanks/projectiles/specialshells.h"
 #include "digitanks/dt_renderer.h"
 #include "digitanks/structures/resource.h"
 #include "digitanks/structures/loader.h"
@@ -800,6 +801,37 @@ void CDigitanksGame::Think()
 			pFireworks->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
 
 			m_flLastFireworks = GameServer()->GetGameTime();
+		}
+	}
+
+	for (size_t i = 0; i < m_aAirstrikes.size(); i++)
+	{
+		airstrike_t* pAirstrike = &m_aAirstrikes[i];
+		if (pAirstrike->flNextShell < GameServer()->GetGameTime())
+		{
+			Vector vecLandingSpot = pAirstrike->vecLocation;
+
+			float flYaw = RandomFloat(0, 360);
+			float flRadius = RandomFloat(0, AirstrikeSize());
+
+			// Don't use uniform distribution, I like how it's clustered on the target.
+			vecLandingSpot += Vector(flRadius*cos(flYaw), 0, flRadius*sin(flYaw));
+
+			CAirstrikeShell* pShell = GameServer()->Create<CAirstrikeShell>("CAirstrikeShell");
+			pShell->SetOrigin(vecLandingSpot + Vector(30, 100, 30));
+			pShell->SetVelocity(Vector(-30, -100, -30));
+			pShell->SetGravity(Vector());
+			pShell->SetOwner(NULL);
+
+			pAirstrike->iShells--;
+			if (pAirstrike->iShells == 0)
+			{
+				m_aAirstrikes.erase(m_aAirstrikes.begin()+i);
+				// Prevent problems with the array resizing. Other airstrikes can be figured out next frame.
+				break;
+			}
+
+			pAirstrike->flNextShell = GameServer()->GetGameTime() + RandomFloat(0.1f, 0.5f);
 		}
 	}
 }
@@ -1689,6 +1721,16 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 	pActionItem->iUnit = pUnit?pUnit->GetHandle():~0;
 	pActionItem->eActionType = eActionType;
 	pActionItem->bHandled = false;
+}
+
+void CDigitanksGame::BeginAirstrike(Vector vecLocation)
+{
+	m_aAirstrikes.push_back();
+	size_t iAirstrike = m_aAirstrikes.size()-1;
+	airstrike_t* pAirstrike = &m_aAirstrikes[iAirstrike];
+	pAirstrike->iShells = 20;
+	pAirstrike->flNextShell = 0;
+	pAirstrike->vecLocation = vecLocation;
 }
 
 void CDigitanksGame::CompleteProductions()

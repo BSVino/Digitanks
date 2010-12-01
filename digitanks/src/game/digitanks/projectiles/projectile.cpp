@@ -23,6 +23,7 @@ static float g_aflProjectileEnergies[PROJECTILE_MAX] =
 	3.0f,	// torpedo
 	8.0f,	// artillery
 
+	0.0f,	// airstrike
 	0.0f,	// fireworks
 };
 
@@ -38,6 +39,7 @@ static float g_aflProjectileDamages[PROJECTILE_MAX] =
 	0.0f,	// torpedo
 	1.3f,	// artillery
 
+	5.0f,	// fireworks
 	0.0f,	// fireworks
 };
 
@@ -53,6 +55,7 @@ static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
 	L"Torpedo",
 	L"Artillery Shell",
 
+	L"Airstrike",
 	L"Fireworks",
 };
 
@@ -116,12 +119,6 @@ void CProjectile::Think()
 void CProjectile::ModifyContext(class CRenderingContext* pContext)
 {
 	BaseClass::ModifyContext(pContext);
-
-	if (m_flTimeExploded > 0.0f)
-	{
-		if (DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
-			pContext->UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
-	}
 }
 
 void CProjectile::OnRender()
@@ -144,10 +141,12 @@ void CProjectile::OnRender()
 		if (flAlpha > 0)
 		{
 			CRenderingContext c(GameServer()->GetRenderer());
+			if (DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
+				c.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetExplosionBuffer());
+			else
+				c.SetBlend(BLEND_ADDITIVE);
 			c.Scale(ExplosionRadius(), ExplosionRadius(), ExplosionRadius());
 			c.SetColor(Color(255, 255, 255, (int)(flAlpha*255)));
-			if (!DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
-				c.SetBlend(BLEND_ADDITIVE);
 			c.RenderSphere();
 		}
 	}
@@ -466,21 +465,4 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
-}
-
-NETVAR_TABLE_BEGIN(CFireworks);
-NETVAR_TABLE_END();
-
-SAVEDATA_TABLE_BEGIN(CFireworks);
-SAVEDATA_TABLE_END();
-
-bool CFireworks::ShouldTouch(CBaseEntity* pOther) const
-{
-	if (!pOther)
-		return false;
-
-	if (pOther->GetCollisionGroup() == CG_TERRAIN)
-		return true;
-
-	return false;
 }

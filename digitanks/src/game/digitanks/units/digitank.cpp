@@ -131,10 +131,11 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CBaseEntity>, m_hPreviewCharge);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBeginCharge);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flEndCharge);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CBaseEntity>, m_hChargeTarget);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bChargeAttack);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bActionTaken);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireProjectileTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireProjectiles);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CProjectile>, m_hProjectile);
@@ -149,6 +150,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplier>, m_hSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
 SAVEDATA_TABLE_END();
@@ -253,7 +255,7 @@ void CDigitank::Spawn()
 	m_bPreviewAim = false;
 	m_bGoalMovePosition = false;
 	m_bFiredWeapon = false;
-	m_bChargeAttack = false;
+	m_bActionTaken = false;
 	m_flStartedMove = 0;
 	m_flStartedTurn = 0;
 	m_bFortified = false;
@@ -271,6 +273,7 @@ void CDigitank::Spawn()
 	m_flStartedRock = -100;
 	m_flBeginCharge = -1;
 	m_flEndCharge = -1;
+	m_iAirstrikes = 0;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -633,7 +636,7 @@ void CDigitank::StartTurn()
 		m_flMovementPower = m_flAttackPower = m_flDefensePower = 0;
 	}
 
-	m_bChargeAttack = false;
+	m_bActionTaken = false;
 	m_bFiredWeapon = false;
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -769,6 +772,14 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 {
 	if (CanFortify() && !IsFortified() && !CanAimMobilized())
 		return;
+
+	if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+	{
+		// Special weapons can be aimed anywhere.
+		m_vecPreviewAim = vecPreviewAim;
+		m_bPreviewAim = true;
+		return;
+	}
 
 	m_bPreviewAim = true;
 
@@ -989,7 +1000,17 @@ void CDigitank::Move(CNetworkParameters* p)
 			if (vecDistance.Length() < pPowerup->GetBoundingRadius() + GetBoundingRadius())
 			{
 				pPowerup->Delete();
-				GiveBonusPoints(1);
+
+				switch (pPowerup->GetPowerupType())
+				{
+				case POWERUP_BONUS:
+				default:
+					GiveBonusPoints(1);
+					break;
+
+				case POWERUP_AIRSTRIKE:
+					m_iAirstrikes++;
+				}
 
 				DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
 			}
@@ -1215,7 +1236,7 @@ void CDigitank::Charge()
 	if (ChargeEnergy() > m_flTotalPower)
 		return;
 
-	if (m_bFiredWeapon || m_bChargeAttack)
+	if (m_bFiredWeapon || m_bActionTaken)
 		return;
 
 	if (m_hPreviewCharge == NULL)
@@ -1235,6 +1256,8 @@ void CDigitank::Charge()
 void CDigitank::Charge(class CNetworkParameters* p)
 {
 	CEntityHandle<CBaseEntity> hTarget = p->ui2;
+
+	m_hChargeTarget = hTarget;
 
 	if (hTarget == NULL)
 		return;
@@ -1257,7 +1280,7 @@ void CDigitank::Charge(class CNetworkParameters* p)
 		m_flAttackPower += ChargeEnergy();
 	}
 
-	m_bChargeAttack = true;
+	m_bActionTaken = true;
 
 	m_flBeginCharge = GameServer()->GetGameTime() + GetTransitionTime();
 }
@@ -1445,9 +1468,9 @@ void CDigitank::Think()
 	{
 		m_flBeginCharge = -1;
 
-		if (m_hPreviewCharge != NULL)
+		if (m_hChargeTarget != NULL)
 		{
-			Move(GetChargePosition(m_hPreviewCharge), 1);
+			Move(GetChargePosition(m_hChargeTarget), 1);
 			m_flEndCharge = GameServer()->GetGameTime() + GetTransitionTime();
 		}
 	}
@@ -1456,13 +1479,13 @@ void CDigitank::Think()
 	{
 		m_flEndCharge = -1;
 
-		if (m_hPreviewCharge != NULL)
+		if (m_hChargeTarget != NULL)
 		{
-			m_hPreviewCharge->TakeDamage(this, this, ChargeDamage(), true);
+			m_hChargeTarget->TakeDamage(this, this, ChargeDamage(), true);
 
-			Vector vecPushDirection = (m_hPreviewCharge->GetOrigin() - GetOrigin()).Normalized();
+			Vector vecPushDirection = (m_hChargeTarget->GetOrigin() - GetOrigin()).Normalized();
 
-			CDigitank* pDigitank = dynamic_cast<CDigitank*>(m_hPreviewCharge.GetPointer());
+			CDigitank* pDigitank = dynamic_cast<CDigitank*>(m_hChargeTarget.GetPointer());
 			if (pDigitank)
 			{
 				pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * ChargePushDistance(), 2);
@@ -1513,7 +1536,7 @@ void CDigitank::OnCurrentSelection()
 			break;
 		}
 
-		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !m_bChargeAttack && !HasGoalMovePosition())
+		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !m_bActionTaken && !HasGoalMovePosition())
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);
@@ -1531,6 +1554,9 @@ bool CDigitank::AllowControlMode(controlmode_t eMode) const
 	if (eMode == MODE_AIM)
 		return true;
 
+	if (eMode == MODE_AIMSPECIAL && m_iAirstrikes)
+		return true;
+
 	if (eMode == MODE_CHARGE)
 		return CanCharge();
 
@@ -1545,8 +1571,11 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 	if (eOldMode == MODE_TURN)
 		ClearPreviewTurn();
 
-	if (eOldMode == MODE_AIM)
+	if (eOldMode == MODE_AIM || eOldMode == MODE_AIMSPECIAL)
 		ClearPreviewAim();
+
+	if (eOldMode == MODE_CHARGE)
+		ClearPreviewCharge();
 
 	if (eNewMode == MODE_AIM)
 	{
@@ -1650,7 +1679,7 @@ bool CDigitank::NeedsOrders()
 	if (m_bFiredWeapon)
 		bNeedsToMove = false;
 
-	if (m_bChargeAttack)
+	if (m_bActionTaken)
 		bNeedsToMove = false;
 
 	return bNeedsToMove || bNeedsToAttack;
@@ -1740,7 +1769,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon && !m_bChargeAttack)
+		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon && !m_bActionTaken)
 		{
 			pHUD->SetButtonListener(2, CHUD::Aim);
 
@@ -1775,7 +1804,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(2, s);
 		}
 
-		if (CanCharge() && !m_bFiredWeapon && !m_bChargeAttack)
+		if (CanCharge() && !m_bFiredWeapon && !m_bActionTaken)
 		{
 			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_CHARGE && m_flTotalPower > ChargeEnergy())
 				pHUD->SetButtonColor(3, Color(150, 0, 0));
@@ -1801,6 +1830,22 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(4, s_iPromoteIcon);
 			pHUD->SetButtonColor(4, glgui::g_clrBox);
 			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T");
+		}
+
+		if (m_iAirstrikes && !m_bActionTaken)
+		{
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+				pHUD->SetButtonColor(9, Color(150, 0, 0));
+			else
+				pHUD->SetButtonColor(9, Color(100, 100, 100));
+
+			if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+				pHUD->SetButtonTexture(9, s_iCancelIcon);
+			else
+				pHUD->SetButtonTexture(9, 0);
+
+			pHUD->SetButtonListener(9, CHUD::FireSpecial);
+			pHUD->SetButtonInfo(9, L"CALL AN AIRSTRIKE\n \nThis unit can call an airstrike. Click to aim and fire the airstrike.\n \nShortcut: G");
 		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
@@ -1923,7 +1968,7 @@ void CDigitank::Fire()
 	if (fabs(AngleDifference(GetAngles().y, VectorAngles((GetPreviewAim()-GetOrigin()).Normalized()).y)) > FiringCone())
 		return;
 
-	if (m_bFiredWeapon || m_bChargeAttack)
+	if (m_bFiredWeapon || m_bActionTaken)
 		return;
 
 	if (m_flTotalPower < GetProjectileEnergy())
@@ -2071,6 +2116,28 @@ CProjectile* CDigitank::CreateProjectile()
 float CDigitank::GetProjectileEnergy() const
 {
 	return CProjectile::GetProjectileEnergy(m_eProjectile);
+}
+
+void CDigitank::FireSpecial()
+{
+	if (m_iAirstrikes <= 0)
+		return;
+
+	if (m_bActionTaken)
+		return;
+
+	m_iAirstrikes--;
+
+	DigitanksGame()->BeginAirstrike(GetPreviewAim());
+
+	m_bActionTaken = true;
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+}
+
+bool CDigitank::HasSpecialWeapons()
+{
+	return m_iAirstrikes > 0;
 }
 
 void CDigitank::ClientUpdate(int iClient)

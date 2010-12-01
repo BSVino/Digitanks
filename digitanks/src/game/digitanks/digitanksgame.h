@@ -46,6 +46,13 @@ typedef struct
 	bool			bHandled;
 } actionitem_t;
 
+typedef struct
+{
+	size_t			iShells;
+	float			flNextShell;
+	Vector			vecLocation;
+} airstrike_t;
+
 class IDigitanksGameListener
 {
 public:
@@ -221,6 +228,9 @@ public:
 	eastl::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
 	void					AllowActionItems(bool bAllow) { m_bAllowActionItems = bAllow; };
 
+	void					BeginAirstrike(Vector vecLocation);
+	float					AirstrikeSize() const { return 50; };
+
 	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }
@@ -281,6 +291,8 @@ protected:
 	CNetworkedVariable<bool>	m_bPartyMode;
 	float						m_flPartyModeStart;
 	float						m_flLastFireworks;
+
+	eastl::vector<airstrike_t>	m_aAirstrikes;
 };
 
 inline class CDigitanksGame* DigitanksGame()

@@ -11,6 +11,7 @@
 #include "digitanksteam.h"
 #include "powerup.h"
 #include "projectiles/projectile.h"
+#include "projectiles/specialshells.h"
 #include "terrain.h"
 #include "updates.h"
 #include "structures/props.h"
@@ -46,6 +47,7 @@ REGISTER_ENTITY(CTractorBomb);
 REGISTER_ENTITY(CArtilleryShell);
 REGISTER_ENTITY(CInfantryFlak);
 REGISTER_ENTITY(CTorpedo);
+REGISTER_ENTITY(CAirstrikeShell);
 REGISTER_ENTITY(CSelectable);
 REGISTER_ENTITY(CSupplyLine);
 REGISTER_ENTITY(CTerrain);

@@ -350,7 +350,7 @@ void CTerrain::RenderWithShaders()
 		glUniform1i(bTurning, false);
 	}
 
-	if (pCurrentTank)
+	if (pCurrentTank && DigitanksGame()->GetControlMode() != MODE_AIMSPECIAL)
 	{
 		GLuint bShowRanges = glGetUniformLocation(iTerrainProgram, "bShowRanges");
 		glUniform1i(bShowRanges, true);
@@ -389,29 +389,47 @@ void CTerrain::RenderWithShaders()
 		glUniform1i(bShowRanges, false);
 	}
 
-	eastl::vector<Vector> avecTankAims;
-	eastl::vector<float> aflTankAimRadius;
-	size_t iTankAimFocus;
-
-	DigitanksGame()->GetTankAims(avecTankAims, aflTankAimRadius, iTankAimFocus);
-	DigitanksGame()->ClearTankAims();
-
-	GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
-	glUniform1i(iAimTargets, (GLint)avecTankAims.size());
-
-	if (avecTankAims.size())
+	if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
 	{
+		GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
+		glUniform1i(iAimTargets, 1);
+
 		GLuint avecAimTargets = glGetUniformLocation(iTerrainProgram, "avecAimTargets");
 		GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
 		GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
 
-		glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
-		glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
+		float flRadius = DigitanksGame()->AirstrikeSize();
+		glUniform3fv(avecAimTargets, 1, (float*)pCurrentTank->GetPreviewAim());
+		glUniform1fv(aflAimTargetRadius, 1, &flRadius);
 
-		if (DigitanksGame()->GetControlMode() == MODE_AIM)
-			glUniform1i(iFocusTarget, (GLint)iTankAimFocus);
-		else
-			glUniform1i(iFocusTarget, -1);
+		glUniform1i(iFocusTarget, 0);
+	}
+	else
+	{
+		eastl::vector<Vector> avecTankAims;
+		eastl::vector<float> aflTankAimRadius;
+		size_t iTankAimFocus;
+
+		DigitanksGame()->GetTankAims(avecTankAims, aflTankAimRadius, iTankAimFocus);
+		DigitanksGame()->ClearTankAims();
+
+		GLuint iAimTargets = glGetUniformLocation(iTerrainProgram, "iAimTargets");
+		glUniform1i(iAimTargets, (GLint)avecTankAims.size());
+
+		if (avecTankAims.size())
+		{
+			GLuint avecAimTargets = glGetUniformLocation(iTerrainProgram, "avecAimTargets");
+			GLuint aflAimTargetRadius = glGetUniformLocation(iTerrainProgram, "aflAimTargetRadius");
+			GLuint iFocusTarget = glGetUniformLocation(iTerrainProgram, "iFocusTarget");
+
+			glUniform3fv(avecAimTargets, (GLint)avecTankAims.size(), avecTankAims[0]);
+			glUniform1fv(aflAimTargetRadius, (GLint)aflTankAimRadius.size(), &aflTankAimRadius[0]);
+
+			if (DigitanksGame()->GetControlMode() == MODE_AIM)
+				glUniform1i(iFocusTarget, (GLint)iTankAimFocus);
+			else
+				glUniform1i(iFocusTarget, -1);
+		}
 	}
 
 	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
@@ -535,7 +553,21 @@ int CTerrain::WorldToArraySpace(float f)
 int CTerrain::ArrayToChunkSpace(int i, int& iIndex)
 {
 	iIndex = i%TERRAIN_SECTOR_SIZE;
-	return i/TERRAIN_SECTOR_SIZE;
+	int iChunk = i/TERRAIN_SECTOR_SIZE;
+
+	if (iChunk < 0)
+	{
+		iIndex = 0;
+		return 0;
+	}
+
+	if (iChunk >= TERRAIN_GEN_SECTORS)
+	{
+		iIndex = TERRAIN_SECTOR_SIZE-1;
+		return TERRAIN_GEN_SECTORS-1;
+	}
+
+	return iChunk;
 }
 
 int CTerrain::ChunkToArraySpace(int iChunk, int i)

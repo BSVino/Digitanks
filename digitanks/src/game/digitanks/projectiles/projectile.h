@@ -193,17 +193,4 @@ protected:
 	bool						m_bBurrowing;
 };
 
-class CFireworks : public CProjectile
-{
-	REGISTER_ENTITY_CLASS(CFireworks, CProjectile);
-
-public:
-	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
-
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_FIREWORKS; }
-	virtual bool				BombDropNoise() { return false; };
-	virtual float				PushDistance() { return 5.0f; };
-	virtual float				RockIntensity() { return 1.0f; };
-};
-
 #endif
