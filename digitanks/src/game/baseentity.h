@@ -189,7 +189,7 @@ public:
 	inline Vector							GetGravity() const { return m_vecGravity; };
 	void									SetGravity(Vector vecGravity) { m_vecGravity = vecGravity; };
 
-	bool									GetSimulated() { return m_bSimulated; };
+	bool									GetSimulated() const { return m_bSimulated; };
 	void									SetSimulated(bool bSimulated) { m_bSimulated = bSimulated; };
 
 	size_t									GetHandle() const { return m_iHandle; }
@@ -208,6 +208,7 @@ public:
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
 	virtual bool							TakesDamage() { return m_bTakeDamage; };
+	void									Kill();
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
 
@@ -226,7 +227,7 @@ public:
 
 	virtual void							Think() {};
 
-	virtual bool							ShouldSimulate() const { return false; };
+	virtual bool							ShouldSimulate() const { return GetSimulated(); };
 	virtual bool							ShouldTouch(CBaseEntity* pOther) const { return false; };
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};

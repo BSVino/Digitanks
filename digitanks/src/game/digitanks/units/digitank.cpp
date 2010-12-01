@@ -1361,11 +1361,21 @@ void CDigitank::Think()
 {
 	BaseClass::Think();
 
-	if (!IsMoving())
+	if (!IsMoving() && IsAlive())
 	{
-		float flHoverHeight = FindHoverHeight(GetOrigin());
-		if (fabs(GetOrigin().y - flHoverHeight) > 1.0f)
-			Move(Vector(GetOrigin().x, flHoverHeight, GetOrigin().z));
+		if (!DigitanksGame()->GetTerrain()->IsPointOnMap(GetOrigin()))
+		{
+			Kill();
+			SetGravity(Vector(0, -20, 0));
+			SetVelocity(Vector(0, -20, 0));
+			SetSimulated(true);
+		}
+		else
+		{
+			float flHoverHeight = FindHoverHeight(GetOrigin());
+			if (fabs(GetOrigin().y - flHoverHeight) > 1.0f)
+				Move(Vector(GetOrigin().x, flHoverHeight, GetOrigin().z));
+		}
 	}
 
 	m_bDisplayAim = false;

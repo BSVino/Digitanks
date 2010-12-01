@@ -187,6 +187,17 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		Killed(pAttacker);
 }
 
+void CBaseEntity::Kill()
+{
+	if (!IsAlive())
+		return;
+
+	if (CNetwork::IsHost())
+		m_flHealth = -1;
+
+	Killed(NULL);
+}
+
 void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 {
 	m_flTimeKilled = GameServer()->GetGameTime();

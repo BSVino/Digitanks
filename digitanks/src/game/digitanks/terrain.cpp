@@ -585,6 +585,23 @@ int CTerrain::WorldToChunkSpace(float f, int& iIndex)
 	return ArrayToChunkSpace(WorldToArraySpace(f), iIndex);
 }
 
+bool CTerrain::IsPointOnMap(Vector vecPoint)
+{
+	if (vecPoint.x < -GetMapSize())
+		return false;
+
+	if (vecPoint.x > GetMapSize())
+		return false;
+
+	if (vecPoint.z < -GetMapSize())
+		return false;
+
+	if (vecPoint.z > GetMapSize())
+		return false;
+
+	return true;
+}
+
 bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 {
 	vecPoint = v2;
