@@ -721,7 +721,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (pClosestInfantry)
 			{
 				// Scouts hate infantry! Move directly away from them.
-				float flMovementDistance = pTank->GetMaxMovementDistance();
+				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = pTank->GetOrigin() - pClosestInfantry->GetOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
@@ -736,7 +736,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (!pTank->HasFiredWeapon())
 						flMovementPower = 0.69f;
 
-					float flMovementDistance = pTank->GetMaxMovementDistance();
+					float flMovementDistance = pTank->GetRemainingMovementDistance();
 					Vector vecDirection = vecPoint - pTank->GetOrigin();
 					vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
@@ -749,7 +749,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			}
 			else
 			{
-				float flMovementDistance = pTank->GetMaxMovementDistance();
+				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = m_vecExplore - pTank->GetOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
@@ -791,7 +791,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			else
 			{
 				// Head to the fortify point
-				float flMovementDistance = pTank->GetMaxMovementDistance();
+				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = pTank->GetFortifyPoint() - pTank->GetOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance*2/3);
 
@@ -823,7 +823,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				else
 				{
 					// Head away from enemies at full speed
-					float flMovementDistance = pTank->GetMaxMovementDistance();
+					float flMovementDistance = pTank->GetRemainingMovementDistance();
 					Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
 					vecDirection = -vecDirection.Normalized() * (flMovementDistance*0.90f);
 
@@ -848,7 +848,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		else if (pTank->CanFortify())
 		{
 			// If the fortify point has moved, we must move.
-			if (pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() > pTank->GetMaxMovementDistance()*2)
+			if (pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() > pTank->GetRemainingMovementDistance()*2)
 				pTank->Fortify();
 		}
 		else
@@ -856,7 +856,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			// If we are not within the effective range, use 1/3 of our available movement power to move towards our target.
 			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
-				float flMovementDistance = pTank->GetMaxMovementDistance();
+				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
 
@@ -960,7 +960,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		{
 			if (pClosestEnemy)
 			{
-				float flMovementDistance = pTank->GetMaxMovementDistance();
+				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = pClosestEnemy->GetOrigin() - pTank->GetOrigin();
 				vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
 
@@ -980,7 +980,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		// If we are not within the effective range, use some of our available movement power to move towards our target.
 		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 		{
-			float flMovementDistance = pTank->GetMaxMovementDistance() - pTank->GetProjectileEnergy() * pTank->GetTankSpeed();
+			float flMovementDistance = pTank->GetRemainingMovementDistance();
 			Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
 			vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
 

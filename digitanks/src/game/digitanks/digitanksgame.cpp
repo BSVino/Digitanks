@@ -949,8 +949,8 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 			float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 			float flTankTurn = AngleDifference(flYaw, pTank->GetAngles().y);
-			if (pTank->GetPreviewMovePower() + fabs(flTankTurn)/pTank->TurnPerPower() > pTank->GetTotalMovementPower())
-				flTankTurn = (flTankTurn / fabs(flTankTurn)) * (pTank->GetTotalMovementPower() - pTank->GetPreviewMovePower()) * pTank->TurnPerPower() * 0.95f;
+			if (fabs(flTankTurn)/pTank->TurnPerPower() > pTank->GetRemainingMovementEnergy())
+				flTankTurn = (flTankTurn / fabs(flTankTurn)) * pTank->GetRemainingTurningDistance() * 0.95f;
 
 			pTank->SetPreviewTurn(pTank->GetAngles().y + flTankTurn);
 		}

@@ -295,34 +295,8 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 	if (GetDigitanksTeam()->IsPrimarySelection(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_CHARGE)
 		return m_flTotalPower - ChargeEnergy();
 
-	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
-	{
-		float flMovementLength = GetPreviewMoveTurnPower();
-
-		if (flMovementLength > m_flDefensePower + m_flTotalPower)
-			return 0;
-
-		// Any power that hasn't been used so far goes to defense.
-		return m_flDefensePower + m_flTotalPower - flMovementLength;
-	}
-
-	// Any unallocated power will go into defense anyway.
+	// Any unallocated power will go into defense.
 	return m_flDefensePower + m_flTotalPower;
-}
-
-float CDigitank::GetBaseMovementPower(bool bPreview)
-{
-	if (GetDigitanksTeam()->IsSelected(this) && bPreview)
-	{
-		float flMovementLength = GetPreviewMoveTurnPower();
-
-		if (flMovementLength > m_flTotalPower)
-			return m_flTotalPower + m_flMovementPower;
-
-		return flMovementLength + m_flMovementPower;
-	}
-
-	return m_flMovementPower;
 }
 
 float CDigitank::GetAttackPower(bool bPreview)
@@ -335,29 +309,50 @@ float CDigitank::GetDefensePower(bool bPreview)
 	return GetBaseDefensePower(bPreview)+GetBonusDefensePower(bPreview);
 }
 
-float CDigitank::GetMovementPower(bool bPreview)
-{
-	return GetBaseMovementPower(bPreview)+GetBonusMovementPower();
-}
-
 float CDigitank::GetTotalAttackPower()
 {
-	return m_flStartingPower + GetBonusAttackPower();
+	return m_flStartingPower.Get() + GetBonusAttackPower();
 }
 
 float CDigitank::GetTotalDefensePower()
 {
-	return m_flStartingPower + GetBonusDefensePower();
+	return m_flStartingPower.Get() + GetBonusDefensePower();
 }
 
-float CDigitank::GetTotalMovementPower() const
+
+float CDigitank::GetMaxMovementEnergy() const
 {
-	return m_flStartingPower.Get() + GetBonusMovementPower();
+	return GetStartingPower() + GetBonusMovementEnergy();
 }
 
-float CDigitank::GetMaxMovementDistance() const
+float CDigitank::GetUsedMovementEnergy(bool bPreview) const
 {
-	return (GetTotalPower() + GetBonusMovementPower()) * GetTankSpeed();
+	if (bPreview)
+	{
+		float flPreviewPower = GetPreviewMoveTurnPower();
+		float flRemainingPower = GetRemainingMovementEnergy();
+		if (flPreviewPower > flRemainingPower)
+			return GetMaxMovementEnergy();
+		else
+			return m_flMovementPower.Get() + flPreviewPower;
+	}
+
+	return m_flMovementPower.Get();
+}
+
+float CDigitank::GetRemainingMovementEnergy() const
+{
+	return GetMaxMovementEnergy() - GetUsedMovementEnergy();
+}
+
+float CDigitank::GetRemainingMovementDistance() const
+{
+	return GetRemainingMovementEnergy() * GetTankSpeed();
+}
+
+float CDigitank::GetRemainingTurningDistance() const
+{
+	return GetRemainingMovementEnergy() * TurnPerPower();
 }
 
 float CDigitank::GetBonusAttackScale(bool bPreview)
@@ -440,7 +435,7 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 	return flBonus;
 }
 
-float CDigitank::GetPreviewMoveTurnPower()
+float CDigitank::GetPreviewMoveTurnPower() const
 {
 	float flMovePower = 0;
 	float flTurnPower = 0;
@@ -451,7 +446,7 @@ float CDigitank::GetPreviewMoveTurnPower()
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 		flTurnPower = GetPreviewBaseTurnPower();
 
-	float flPower = flMovePower + flTurnPower - m_flBonusMovementPower;
+	float flPower = flMovePower + flTurnPower;
 	if (flPower < 0)
 		return 0;
 	return flPower;
@@ -464,7 +459,7 @@ float CDigitank::GetPreviewMovePower() const
 	if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 		flMovePower = GetPreviewBaseMovePower();
 
-	float flPower = flMovePower - m_flBonusMovementPower.Get();
+	float flPower = flMovePower;
 	if (flPower < 0)
 		return 0;
 	return flPower;
@@ -477,7 +472,7 @@ float CDigitank::GetPreviewTurnPower() const
 	if (DigitanksGame()->GetControlMode() == MODE_TURN)
 		flTurnPower = GetPreviewBaseTurnPower();
 
-	float flPower = flTurnPower - m_flBonusMovementPower.Get();
+	float flPower = flTurnPower;
 	if (flPower < 0)
 		return 0;
 	return flPower;
@@ -495,21 +490,10 @@ float CDigitank::GetPreviewBaseTurnPower() const
 
 bool CDigitank::IsPreviewMoveValid() const
 {
-	if (GetPreviewBaseMovePower() > GetTotalPower() + GetBonusMovementPower())
+	if (GetPreviewBaseMovePower() > GetRemainingMovementEnergy())
 		return false;
 
-	float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
-
-	if (GetPreviewMove().x > flMapSize)
-		return false;
-	if (GetPreviewMove().x < -flMapSize)
-		return false;
-	if (GetPreviewMove().z > flMapSize)
-		return false;
-	if (GetPreviewMove().z < -flMapSize)
-		return false;
-
-	return true;
+	return DigitanksGame()->GetTerrain()->IsPointOnMap(GetPreviewMove());
 }
 
 float CDigitank::GetFrontShieldStrength()
@@ -930,10 +914,7 @@ void CDigitank::Move()
 	if (!IsPreviewMoveValid())
 		return;
 
-	if (fabs(m_vecPreviewMove.x) > DigitanksGame()->GetTerrain()->GetMapSize())
-		return;
-
-	if (fabs(m_vecPreviewMove.z) > DigitanksGame()->GetTerrain()->GetMapSize())
+	if (!DigitanksGame()->GetTerrain()->IsPointOnMap(m_vecPreviewMove))
 		return;
 
 	Speak(TANKSPEECH_MOVED);
@@ -977,7 +958,6 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	if (CNetwork::IsHost())
 	{
-		m_flTotalPower -= flMovePower;
 		m_flMovementPower += flMovePower;
 	}
 
@@ -1065,7 +1045,7 @@ void CDigitank::Turn()
 
 	float flMovePower = GetPreviewBaseTurnPower();
 
-	if (flMovePower > m_flTotalPower)
+	if (flMovePower > GetRemainingMovementEnergy())
 		return;
 
 	if (CNetwork::ShouldReplicateClientFunction())
@@ -1087,7 +1067,6 @@ void CDigitank::Turn(CNetworkParameters* p)
 
 	if (CNetwork::IsHost())
 	{
-		m_flTotalPower -= flMovePower;
 		m_flMovementPower += flMovePower;
 	}
 
@@ -1236,6 +1215,9 @@ void CDigitank::Charge()
 	if (ChargeEnergy() > m_flTotalPower)
 		return;
 
+	if (ChargeEnergy() > GetRemainingMovementEnergy())
+		return;
+
 	if (m_bFiredWeapon || m_bActionTaken)
 		return;
 
@@ -1278,6 +1260,7 @@ void CDigitank::Charge(class CNetworkParameters* p)
 	{
 		m_flTotalPower -= ChargeEnergy();
 		m_flAttackPower += ChargeEnergy();
+		m_flMovementPower += ChargeEnergy();
 	}
 
 	m_bActionTaken = true;
@@ -1609,7 +1592,7 @@ float CDigitank::GetPowerBar2Value()
 
 float CDigitank::GetPowerBar3Value()
 {
-	return GetMovementPower(true) / m_flStartingPower;
+	return GetUsedMovementEnergy(true) / m_flStartingPower;
 }
 
 float CDigitank::GetPowerBar1Size()
@@ -1624,13 +1607,13 @@ float CDigitank::GetPowerBar2Size()
 
 float CDigitank::GetPowerBar3Size()
 {
-	return GetMovementPower(true) / GetTotalMovementPower();
+	return GetUsedMovementEnergy(true) / GetMaxMovementEnergy();
 }
 
 bool CDigitank::NeedsOrders()
 {
 	bool bNeedsToMove = true;
-	if (GetBaseMovementPower() > 0)
+	if (GetUsedMovementEnergy() > 0)
 		bNeedsToMove = false;
 	else
 	{
@@ -1725,7 +1708,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Right click inside the yellow area to move this unit.\n \nShortcut: Q");
 		}
 
-		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && m_flTotalPower > 1)
+		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && GetRemainingMovementEnergy() > 1)
 		{
 			pHUD->SetButtonListener(1, CHUD::Turn);
 
@@ -1816,7 +1799,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 		if (CanCharge() && !m_bFiredWeapon && !m_bActionTaken)
 		{
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_CHARGE && m_flTotalPower > ChargeEnergy())
+			bool bHasPower = m_flTotalPower > ChargeEnergy() && GetRemainingMovementEnergy() > ChargeEnergy();
+			if ((!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_CHARGE) && bHasPower)
 				pHUD->SetButtonColor(3, Color(150, 0, 0));
 			else
 				pHUD->SetButtonColor(3, Color(100, 100, 100));
@@ -1826,12 +1810,14 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				pHUD->SetButtonTexture(3, 0);
 
-			if (m_flTotalPower > ChargeEnergy())
+			if (bHasPower)
 				pHUD->SetButtonListener(3, CHUD::Charge);
 			else
 				pHUD->SetButtonListener(3, NULL);
 
-			pHUD->SetButtonInfo(3, L"CHARGING RAM ATTACK\n \nCharge an enemy unit with a RAM attack that bypasses shields.\n \nShortcut: R");
+			eastl::string16 s;
+			s.sprintf(L"CHARGING RAM ATTACK\n \nCombine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields.\n \nMovement energy required: %d%%\nAttack energy required: %d%%\n \nShortcut: R", ((int)ChargeEnergy()*10), ((int)ChargeEnergy()*10));
+			pHUD->SetButtonInfo(3, s);
 		}
 
 		if (HasBonusPoints())
@@ -2021,7 +2007,10 @@ void CDigitank::Fire(CNetworkParameters* p)
 
 	if (CNetwork::IsHost())
 	{
-		m_flFireProjectileTime = GameServer()->GetGameTime() + FirstProjectileTime();
+		if (IsMoving())
+			m_flFireProjectileTime += m_flStartedMove + GetTransitionTime() + FirstProjectileTime();
+		else
+			m_flFireProjectileTime = GameServer()->GetGameTime() + FirstProjectileTime();
 		m_iFireProjectiles = ProjectileCount();
 	}
 
@@ -2351,7 +2340,7 @@ EAngle CDigitank::GetRenderAngles() const
 {
 	if (GetDigitanksTeam()->IsPrimarySelection(this))
 	{
-		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetTotalMovementPower())
+		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetRemainingMovementEnergy())
 			return EAngle(0, GetPreviewTurn(), 0);
 	}
 
@@ -2369,8 +2358,8 @@ EAngle CDigitank::GetRenderAngles() const
 				float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 				float flTankTurn = AngleDifference(flYaw, GetAngles().y);
-				if (GetPreviewMovePower() + fabs(flTankTurn)/TurnPerPower() > GetTotalMovementPower())
-					flTankTurn = (flTankTurn / fabs(flTankTurn)) * (GetTotalMovementPower() - GetPreviewMovePower()) * TurnPerPower() * 0.95f;
+				if (fabs(flTankTurn)/TurnPerPower() > GetRemainingMovementEnergy())
+					flTankTurn = (flTankTurn / fabs(flTankTurn)) * GetRemainingMovementEnergy() * TurnPerPower() * 0.95f;
 
 				return EAngle(0, GetAngles().y + flTankTurn, 0);
 			}
@@ -2514,8 +2503,8 @@ void CDigitank::PostRender()
 				float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
 
 				float flTankTurn = AngleDifference(flYaw, GetAngles().y);
-				if (GetPreviewMovePower() + fabs(flTankTurn)/TurnPerPower() > GetTotalMovementPower())
-					flTankTurn = (flTankTurn / fabs(flTankTurn)) * (GetTotalMovementPower() - GetPreviewMovePower()) * TurnPerPower() * 0.95f;
+				if (fabs(flTankTurn)/TurnPerPower() > GetRemainingMovementEnergy())
+					flTankTurn = (flTankTurn / fabs(flTankTurn)) * GetRemainingMovementEnergy() * TurnPerPower() * 0.95f;
 
 				angTurn = EAngle(0, GetAngles().y + flTankTurn, 0);
 			}
@@ -2539,8 +2528,8 @@ void CDigitank::PostRender()
 			if (GetDigitanksTeam()->IsSelected(this) && MovesWith(pCurrentTank))
 			{
 				Vector vecTankMove = pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin();
-				if (vecTankMove.Length() > GetMaxMovementDistance())
-					vecTankMove = vecTankMove.Normalized() * GetTotalMovementPower() * 0.95f;
+				if (vecTankMove.Length() > GetRemainingMovementDistance())
+					vecTankMove = vecTankMove.Normalized() * GetRemainingMovementDistance() * 0.95f;
 
 				Vector vecNewPosition = GetOrigin() + vecTankMove;
 				vecNewPosition.y = FindHoverHeight(vecNewPosition);
@@ -2708,8 +2697,8 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 			s += p.sprintf(L"\n \n (+%d from support)", (int)GetSupportDefensePowerBonus());
 	}
 
-	if (GetBonusMovementPower())
-		s += p.sprintf(L"\n \n+%d movement energy", (int)GetBonusMovementPower());
+	if (GetBonusMovementEnergy() > 0)
+		s += p.sprintf(L"\n \n+%d movement energy", (int)GetBonusMovementEnergy());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)

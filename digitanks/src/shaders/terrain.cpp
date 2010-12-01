@@ -52,7 +52,6 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"uniform vec3 vecTankOrigin;"
 
-		"uniform float flMoveFireDistance;"
 		"uniform float flMoveDistance;"
 		"uniform bool bMovement;"
 
@@ -116,16 +115,10 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"	if (bMovement)"
 		"	{"
 		"		float flTankDistanceSqr = LengthSqr(vecPosition - vecTankOrigin);"
-		"		if (flTankDistanceSqr <= flMoveFireDistance*flMoveFireDistance)"
-		"		{"
-		"			float flMoveColorStrength = RemapVal(flTankDistanceSqr, 0.0, flMoveFireDistance*flMoveFireDistance, 0.0, 1.0);"
-		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2);"
-		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.8, 0.0, 1.0) * flMoveColorStrength;"
-		"		}"
-		"		else if (flTankDistanceSqr <= flMoveDistance*flMoveDistance)"
+		"		if (flTankDistanceSqr <= flMoveDistance*flMoveDistance)"
 		"		{"
 		"			float flMoveColorStrength = RemapVal(flTankDistanceSqr, 0.0, flMoveDistance*flMoveDistance, 0.0, 1.0);"
-		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.1) * 0.3;"
+		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2);"
 		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.8, 0.0, 1.0) * flMoveColorStrength;"
 		"		}"
 		"	}"

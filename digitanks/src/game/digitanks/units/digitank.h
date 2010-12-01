@@ -63,25 +63,26 @@ public:
 	float						GetStartingPower() const { return m_flStartingPower.Get(); };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
-	float						GetBaseMovementPower(bool bPreview = false);
 
 	float						GetAttackPower(bool bPreview = false);
 	float						GetDefensePower(bool bPreview = false);
-	float						GetMovementPower(bool bPreview = false);
 	float						GetTotalAttackPower();
 	float						GetTotalDefensePower();
-	float						GetTotalMovementPower() const;
-	float						GetMaxMovementDistance() const;
+
+	float						GetBonusMovementEnergy() const { return m_flBonusMovementPower.Get(); };
+	float						GetMaxMovementEnergy() const;
+	float						GetUsedMovementEnergy(bool bPreview = false) const;
+	float						GetRemainingMovementEnergy() const;
+	float						GetRemainingMovementDistance() const;
+	float						GetRemainingTurningDistance() const;
 
 	float						GetAttackScale(bool bPreview = false) { return GetAttackPower(bPreview) / 10; };
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
-	float						GetMovementScale(bool bPreview = false) { return GetMovementPower(bPreview) / 10; };
 
 	virtual float				GetBonusAttackScale(bool bPreview = false);
 	virtual float				GetBonusDefenseScale(bool bPreview = false);
 	virtual float				GetBonusAttackPower(bool bPreview = false);
 	virtual float				GetBonusDefensePower(bool bPreview = false);
-	virtual float				GetBonusMovementPower() const { return m_flBonusMovementPower.Get(); };
 
 	virtual void				AddRangeBonus(float flAmount) { m_flRangeBonus += flAmount; };
 
@@ -91,7 +92,7 @@ public:
 	virtual float				GetSupportHealthRechargeBonus() const;
 	virtual float				GetSupportShieldRechargeBonus() const;
 
-	float						GetPreviewMoveTurnPower();
+	float						GetPreviewMoveTurnPower() const;
 	float						GetPreviewMovePower() const;
 	float						GetPreviewTurnPower() const;
 	float						GetPreviewBaseMovePower() const;

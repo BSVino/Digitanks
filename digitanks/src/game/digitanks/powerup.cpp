@@ -75,7 +75,7 @@ void CPowerup::PreRender()
 			break;
 		}
 
-		if (pTank->GetPreviewMovePower() <= pTank->GetTotalMovementPower() && (pTank->GetPreviewMove() - GetOrigin()).LengthSqr() < GetBoundingRadius()*GetBoundingRadius())
+		if (pTank->GetPreviewMovePower() <= pTank->GetRemainingMovementEnergy() && (pTank->GetPreviewMove() - GetOrigin()).LengthSqr() < GetBoundingRadius()*GetBoundingRadius())
 		{
 			clrPowerup = Vector(0, 1, 0);
 			break;

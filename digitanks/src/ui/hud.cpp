@@ -551,15 +551,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 			{
 				float flAttackPower = pTank->GetBaseAttackPower(true);
 				float flDefensePower = pTank->GetBaseDefensePower(true);
-				float flMovementPower = pTank->GetBaseMovementPower(true);
 				float flTotalPower = pTank->GetStartingPower();
 				flAttackPower = flAttackPower/flTotalPower;
 				flDefensePower = flDefensePower/flTotalPower;
-				flMovementPower = flMovementPower/flTotalPower;
 				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 1), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
 				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flAttackPower), 3, Color(255, 0, 0));
 				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*flAttackPower), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flDefensePower), 3, Color(0, 0, 255));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*(1-flMovementPower)), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flMovementPower), 3, Color(255, 255, 0));
 			}
 		}
 
@@ -839,7 +836,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	m_pAttackInfo->SetText(L"");
 
 	Vector vecOrigin;
-	if (DigitanksGame()->GetControlMode() == MODE_MOVE && pTank->GetPreviewMoveTurnPower() <= pTank->GetTotalMovementPower())
+	if (DigitanksGame()->GetControlMode() == MODE_MOVE && pTank->GetPreviewMoveTurnPower() <= pTank->GetRemainingMovementEnergy())
 		vecOrigin = pTank->GetPreviewMove();
 	else
 		vecOrigin = pTank->GetOrigin();

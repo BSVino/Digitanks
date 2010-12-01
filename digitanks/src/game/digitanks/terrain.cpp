@@ -276,11 +276,7 @@ void CTerrain::RenderWithShaders()
 		glUniform3fv(vecTankOrigin, 1, pCurrentTank->GetOrigin());
 
 		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
-		glUniform1f(flMoveDistance, pCurrentTank->GetMaxMovementDistance());
-
-		float flMoveFire = pCurrentTank->GetMaxMovementDistance() - pCurrentTank->GetProjectileEnergy() * pCurrentTank->GetTankSpeed();
-		GLuint flMoveFireDistance = glGetUniformLocation(iTerrainProgram, "flMoveFireDistance");
-		glUniform1f(flMoveFireDistance, flMoveFire>0?flMoveFire:0);
+		glUniform1f(flMoveDistance, pCurrentTank->GetRemainingMovementDistance());
 
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
 		glUniform1i(bMovement, true);
@@ -292,9 +288,6 @@ void CTerrain::RenderWithShaders()
 
 		GLuint flMoveDistance = glGetUniformLocation(iTerrainProgram, "flMoveDistance");
 		glUniform1f(flMoveDistance, pCurrentTank->ChargeRadius());
-
-		GLuint flMoveFireDistance = glGetUniformLocation(iTerrainProgram, "flMoveFireDistance");
-		glUniform1f(flMoveFireDistance, pCurrentTank->ChargeRadius());
 
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
 		glUniform1i(bMovement, true);
@@ -323,7 +316,7 @@ void CTerrain::RenderWithShaders()
 			GLuint flTankYaw = glGetUniformLocation(iTerrainProgram, "flTankYaw");
 			glUniform1f(flTankYaw, pCurrentTank->GetAngles().y);
 
-			float flMaxTurnWithLeftoverPower = (pCurrentTank->GetTotalMovementPower() - pCurrentTank->GetMovementPower()) * pCurrentTank->TurnPerPower();
+			float flMaxTurnWithLeftoverPower = pCurrentTank->GetRemainingTurningDistance();
 
 			GLuint flTankMaxYaw = glGetUniformLocation(iTerrainProgram, "flTankMaxYaw");
 			glUniform1f(flTankMaxYaw, flMaxTurnWithLeftoverPower);
@@ -335,7 +328,7 @@ void CTerrain::RenderWithShaders()
 
 			if (!pCurrentTank->IsPreviewMoveValid())
 				glUniform1i(bTurnValid, true);
-			else if (pCurrentTank->GetPreviewMovePower() + fabs(flTankTurn)/pCurrentTank->TurnPerPower() > pCurrentTank->GetTotalMovementPower())
+			else if (fabs(flTankTurn)/pCurrentTank->TurnPerPower() > pCurrentTank->GetRemainingMovementEnergy())
 				glUniform1i(bTurnValid, false);
 			else
 				glUniform1i(bTurnValid, true);
@@ -359,7 +352,7 @@ void CTerrain::RenderWithShaders()
 		glUniform1i(bFocusRanges, bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_AIM);
 
 		Vector vecRangeOrigin = pCurrentTank->GetOrigin();
-		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetTotalPower())
+		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetRemainingMovementEnergy())
 			vecRangeOrigin = pCurrentTank->GetPreviewMove();
 
 		GLuint vecTankPreviewOrigin = glGetUniformLocation(iTerrainProgram, "vecTankPreviewOrigin");
