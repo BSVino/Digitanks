@@ -91,12 +91,9 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"	if (bFocusTarget)"
 		"		flColorStrength = 0.7;"
 
-		"	float flTargetColorStrength = RemapVal(flDistanceSqr, 0.0, flRadius*flRadius, 0.0, 1.0);"
+		"	float flTargetColorStrength = RemapVal(flDistanceSqr, 0.0, flRadius*flRadius, 1.0, 0.0);"
 
-		"	if (flRadius > 2.0 && flRadius < 10.0)"
-		"		flColorStrength = RemapVal(flRadius, 2.0, 10.0, flColorStrength, flColorStrength/4.0);"
-
-		"	return Lerp(flTargetColorStrength, 0.8) * flColorStrength;"
+		"	return RemapVal(Lerp(flTargetColorStrength, 0.1), 0.0, 1.0, 0.2, 0.9) * flColorStrength;"
 		"}"
 
 		"void main()"
