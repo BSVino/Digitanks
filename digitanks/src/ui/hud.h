@@ -304,6 +304,8 @@ protected:
 
 	glgui::CLabel*				m_pScoreboard;
 
+	class CWeaponPanel*			m_pWeaponPanel;
+
 	size_t						m_iHUDSheet;
 
 	size_t						m_iTurnSound;

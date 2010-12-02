@@ -38,7 +38,7 @@ public:
 
 	virtual void				ClientEnterGame();
 
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_SMALL; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_SMALL; }
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
 	virtual float				ShellRadius() { return 0.5f; };
@@ -52,9 +52,10 @@ public:
 	virtual bool				SendsNotifications() { return true; };
 	virtual bool				HasDamageFalloff() { return true; };
 
-	static float				GetProjectileEnergy(projectile_t eProjectile);
-	static float				GetProjectileDamage(projectile_t eProjectile);
-	static char16_t*			GetProjectileName(projectile_t eProjectile);
+	static float				GetWeaponEnergy(weapon_t eProjectile);
+	static float				GetWeaponDamage(weapon_t eProjectile);
+	static char16_t*			GetWeaponName(weapon_t eProjectile);
+	static char16_t*			GetWeaponDescription(weapon_t eProjectile);
 
 protected:
 	float						m_flTimeCreated;
@@ -75,7 +76,7 @@ class CSmallShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CSmallShell, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_SMALL; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_SMALL; }
 	virtual float				ShellRadius() { return 0.5f; };
 	virtual float				ExplosionRadius() { return 6.0f; };
 	virtual float				PushDistance() { return 3.0f; };
@@ -87,7 +88,7 @@ class CMediumShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CMediumShell, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_MEDIUM; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_MEDIUM; }
 	virtual float				ShellRadius() { return 1.0f; };
 	virtual float				ExplosionRadius() { return 12.0f; };
 	virtual float				PushDistance() { return 6.0f; };
@@ -99,7 +100,7 @@ class CLargeShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CLargeShell, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_LARGE; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_LARGE; }
 	virtual float				ShellRadius() { return 1.5f; };
 	virtual float				ExplosionRadius() { return 18.0f; };
 	virtual float				PushDistance() { return 9.0f; };
@@ -111,7 +112,7 @@ class CAOEShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CAOEShell, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_AOE; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.2f; };
 	virtual float				ExplosionRadius() { return 30.0f; };
 	virtual float				PushDistance() { return 0.0f; };
@@ -125,7 +126,7 @@ class CTractorBomb : public CProjectile
 	REGISTER_ENTITY_CLASS(CTractorBomb, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_TRACTORBOMB; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_TRACTORBOMB; }
 	virtual float				ShellRadius() { return 0.8f; };
 	virtual float				ExplosionRadius() { return 0.0f; };
 	virtual float				PushRadius() { return 40.0f; };
@@ -140,7 +141,7 @@ class CArtilleryShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CArtilleryShell, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_ARTILLERY; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY; }
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
@@ -153,7 +154,7 @@ class CInfantryFlak : public CProjectile
 	REGISTER_ENTITY_CLASS(CInfantryFlak, CProjectile);
 
 public:
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_FLAK; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_FLAK; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual bool				ShouldExplode() { return false; };
@@ -178,7 +179,7 @@ public:
 
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
 
-	virtual projectile_t		GetProjectileType() { return PROJECTILE_TORPEDO; }
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_TORPEDO; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.35f; };
 	virtual bool				ShouldExplode() { return true; };

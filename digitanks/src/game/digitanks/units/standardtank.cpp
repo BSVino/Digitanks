@@ -26,13 +26,13 @@ void CStandardTank::Spawn()
 	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
 
-	m_aeProjectiles.push_back(PROJECTILE_SMALL);
-	m_aeProjectiles.push_back(PROJECTILE_MEDIUM);
-	m_aeProjectiles.push_back(PROJECTILE_LARGE);
-	m_aeProjectiles.push_back(PROJECTILE_AOE);
-	m_aeProjectiles.push_back(PROJECTILE_TRACTORBOMB);
+	m_aeWeapons.push_back(PROJECTILE_SMALL);
+	m_aeWeapons.push_back(PROJECTILE_MEDIUM);
+	m_aeWeapons.push_back(PROJECTILE_LARGE);
+	m_aeWeapons.push_back(PROJECTILE_AOE);
+	m_aeWeapons.push_back(PROJECTILE_TRACTORBOMB);
 
-	m_eProjectile = PROJECTILE_SMALL;
+	m_eWeapon = PROJECTILE_SMALL;
 }
 
 float CStandardTank::ProjectileCurve() const

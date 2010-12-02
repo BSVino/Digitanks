@@ -276,6 +276,9 @@
     <ClCompile Include="game\digitanks\projectiles\specialshells.cpp">
       <Filter>Source Files\game\digitanks\projectiles</Filter>
     </ClCompile>
+    <ClCompile Include="ui\weaponpanel.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -436,6 +439,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\projectiles\specialshells.h">
       <Filter>Source Files\game\digitanks\projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\weaponpanel.h">
+      <Filter>Source Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

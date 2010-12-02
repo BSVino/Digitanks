@@ -222,11 +222,11 @@ public:
 	void						FireProjectile();
 	virtual void				FireProjectile(class CNetworkParameters* p);
 	virtual class CProjectile*	CreateProjectile();
-	projectile_t				GetCurrentProjectile() const { return m_eProjectile; }
-	void						SetCurrentProjectile(size_t i) { m_eProjectile = m_aeProjectiles[i]; }
-	float						GetProjectileEnergy() const;
-	size_t						GetNumProjectiles() const { return m_aeProjectiles.size(); };
-	projectile_t				GetProjectile(size_t iProjectile) const { return m_aeProjectiles[iProjectile]; };
+	weapon_t					GetCurrentWeapon() const { return m_eWeapon; }
+	void						SetCurrentWeapon(weapon_t e) { m_eWeapon = e; }
+	float						GetWeaponEnergy() const;
+	size_t						GetNumWeapons() const { return m_aeWeapons.size(); };
+	weapon_t					GetWeapon(size_t iProjectile) const { return m_aeWeapons[iProjectile]; };
 	virtual bool				IsWaitingToFire() { return m_flFireProjectileTime != 0; };
 
 	void						FireSpecial();
@@ -386,8 +386,8 @@ protected:
 
 	float						m_flBobOffset;
 
-	projectile_t				m_eProjectile;
-	eastl::vector<projectile_t>	m_aeProjectiles;
+	weapon_t					m_eWeapon;
+	eastl::vector<weapon_t>		m_aeWeapons;
 
 	size_t						m_iAirstrikes;
 

@@ -11,8 +11,10 @@
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
 
-static float g_aflProjectileEnergies[PROJECTILE_MAX] =
+static float g_aflWeaponEnergies[WEAPON_MAX] =
 {
+	0.0f,
+
 	2.0f,	// small
 	5.0f,	// medium
 	8.0f,	// large
@@ -27,8 +29,10 @@ static float g_aflProjectileEnergies[PROJECTILE_MAX] =
 	0.0f,	// fireworks
 };
 
-static float g_aflProjectileDamages[PROJECTILE_MAX] =
+static float g_aflWeaponDamages[WEAPON_MAX] =
 {
+	0.0f,
+
 	2.0f,	// small
 	5.0f,	// medium
 	8.0f,	// large
@@ -43,8 +47,10 @@ static float g_aflProjectileDamages[PROJECTILE_MAX] =
 	0.0f,	// fireworks
 };
 
-static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
+static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 {
+	L"None",
+
 	L"Little Boy",
 	L"Fat Man",
 	L"Big Mama",
@@ -57,6 +63,24 @@ static char16_t* g_apszProjectileNames[PROJECTILE_MAX] =
 
 	L"Airstrike",
 	L"Fireworks",
+};
+
+static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
+{
+	L"None",
+
+	L"This light projectile bomb does just enough damage to keep the enemy from regenerating his shields next turn.",
+	L"This medium projectile bomb is a good tradeoff between firepower and defense.",
+	L"This heavy projectile bomb packs a mean punch at the cost of your defense for the next turn.",
+	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
+	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
+
+	L"The infantry's light mounted gun is its main firepower.",
+	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
+	L"The artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
+
+	L"Rain fire and brimstone upon your enemies.",
+	L"You won! Fireworks are in order.",
 };
 
 NETVAR_TABLE_BEGIN(CProjectile);
@@ -292,7 +316,7 @@ void CProjectile::SetOwner(CDigitank* pOwner)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
 
-	m_flDamage = GetProjectileDamage(GetProjectileType());
+	m_flDamage = GetWeaponDamage(GetWeaponType());
 }
 
 size_t CProjectile::CreateParticleSystem()
@@ -312,19 +336,24 @@ void CProjectile::ClientEnterGame()
 	}
 }
 
-float CProjectile::GetProjectileEnergy(projectile_t eProjectile)
+float CProjectile::GetWeaponEnergy(weapon_t eProjectile)
 {
-	return g_aflProjectileEnergies[eProjectile];
+	return g_aflWeaponEnergies[eProjectile];
 }
 
-float CProjectile::GetProjectileDamage(projectile_t eProjectile)
+float CProjectile::GetWeaponDamage(weapon_t eProjectile)
 {
-	return g_aflProjectileDamages[eProjectile];
+	return g_aflWeaponDamages[eProjectile];
 }
 
-char16_t* CProjectile::GetProjectileName(projectile_t eProjectile)
+char16_t* CProjectile::GetWeaponName(weapon_t eProjectile)
 {
-	return g_apszProjectileNames[eProjectile];
+	return g_apszWeaponNames[eProjectile];
+}
+
+char16_t* CProjectile::GetWeaponDescription(weapon_t eProjectile)
+{
+	return g_apszWeaponDescriptions[eProjectile];
 }
 
 NETVAR_TABLE_BEGIN(CSmallShell);

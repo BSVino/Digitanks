@@ -18,7 +18,6 @@ typedef enum
 	MENUMODE_PROMOTE,
 	MENUMODE_LOADERS,
 	MENUMODE_INSTALL,
-	MENUMODE_WEAPON,
 } menumode_t;
 
 typedef enum
@@ -46,6 +45,7 @@ typedef enum
 
 typedef enum
 {
+	WEAPON_NONE = 0,
 	PROJECTILE_SMALL,
 	PROJECTILE_MEDIUM,
 	PROJECTILE_LARGE,
@@ -61,7 +61,7 @@ typedef enum
 	PROJECTILE_FIREWORKS,
 
 	// If you add them here, add their energy prices too in projectile.cpp
-	PROJECTILE_MAX,
-} projectile_t;
+	WEAPON_MAX,
+} weapon_t;
 
 #endif

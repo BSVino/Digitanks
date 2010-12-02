@@ -975,7 +975,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 
-		pTank->SetCurrentProjectile(RandomInt(0, pTank->GetNumProjectiles()-1));
+		pTank->SetCurrentWeapon(pTank->GetWeapon(RandomInt(0, pTank->GetNumWeapons()-1)));
 
 		// If we are not within the effective range, use some of our available movement power to move towards our target.
 		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())

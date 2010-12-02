@@ -42,9 +42,9 @@ void CMechInfantry::Spawn()
 	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 5;
 	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
 
-	m_aeProjectiles.push_back(PROJECTILE_FLAK);
+	m_aeWeapons.push_back(PROJECTILE_FLAK);
 
-	m_eProjectile = PROJECTILE_FLAK;
+	m_eWeapon = PROJECTILE_FLAK;
 }
 
 float CMechInfantry::GetLeftShieldMaxStrength()

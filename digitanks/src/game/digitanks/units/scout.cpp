@@ -30,9 +30,9 @@ void CScout::Spawn()
 
 	m_bFortified = false;
 
-	m_aeProjectiles.push_back(PROJECTILE_TORPEDO);
+	m_aeWeapons.push_back(PROJECTILE_TORPEDO);
 
-	m_eProjectile = PROJECTILE_TORPEDO;
+	m_eWeapon = PROJECTILE_TORPEDO;
 }
 
 bool CScout::AllowControlMode(controlmode_t eMode) const

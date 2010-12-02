@@ -31,9 +31,9 @@ void CArtillery::Spawn()
 
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
 
-	m_aeProjectiles.push_back(PROJECTILE_ARTILLERY);
+	m_aeWeapons.push_back(PROJECTILE_ARTILLERY);
 
-	m_eProjectile = PROJECTILE_ARTILLERY;
+	m_eWeapon = PROJECTILE_ARTILLERY;
 }
 
 bool CArtillery::AllowControlMode(controlmode_t eMode) const
