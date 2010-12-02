@@ -2049,6 +2049,8 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CTractorBomb>("CTractorBomb");
 	else if (GetCurrentWeapon() == PROJECTILE_SPLOOGE)
 		return GameServer()->Create<CSploogeShell>("CSploogeShell");
+	else if (GetCurrentWeapon() == PROJECTILE_ICBM)
+		return GameServer()->Create<CICBM>("CICBM");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

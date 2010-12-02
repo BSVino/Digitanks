@@ -51,6 +51,7 @@ public:
 	virtual bool				BombDropNoise() { return true; };
 	virtual bool				SendsNotifications() { return true; };
 	virtual bool				HasDamageFalloff() { return true; };
+	virtual size_t				Fragments() { return 0; };
 
 	static float				GetWeaponEnergy(weapon_t eProjectile);
 	static float				GetWeaponDamage(weapon_t eProjectile);
@@ -71,6 +72,8 @@ protected:
 	bool						m_bShouldRender;
 
 	size_t						m_iParticleSystem;
+
+	bool						m_bFragmented;
 };
 
 class CSmallShell : public CProjectile
@@ -121,6 +124,19 @@ public:
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				HasDamageFalloff() { return false; };
+};
+
+class CICBM : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CICBM, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_ICBM; }
+	virtual float				ShellRadius() { return 1.2f; };
+	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				PushDistance() { return 6.0f; };
+	virtual float				RockIntensity() { return 0.7f; };
+	virtual size_t				Fragments() { return 6; };
 };
 
 class CSploogeShell : public CProjectile

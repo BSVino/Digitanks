@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <maths.h>
+#include <mtrand.h>
 
 #include <renderer/particles.h>
 
@@ -21,6 +22,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	6.0f,	// AoE
 	4.0f,	// tractor bomb
 	3.0f,	// splooge
+	6.0f,	// icbm
 
 	6.0f,	// machine gun
 	3.0f,	// torpedo
@@ -40,6 +42,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	4.0f,	// AoE
 	1.0f,	// tractor bomb
 	7.0f,	// splooge
+	7.0f,	// icbm
 
 	0.12f,	// machine gun
 	0.0f,	// torpedo
@@ -59,6 +62,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 	1,	// AoE
 	1,	// tractor bomb
 	20,	// splooge
+	1,	// icbm
 
 	20,	// machine gun
 	1,	// torpedo
@@ -78,6 +82,7 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0,		// AoE
 	0,		// tractor bomb
 	0.01f,	// splooge
+	0,		// icbm
 
 	0.1f,	// machine gun
 	0,		// torpedo
@@ -97,6 +102,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Plasma Charge",
 	L"Tractor Bomb",
 	L"Grapeshot",
+	L"ICBM",
 
 	L"Flak Cannon",
 	L"Torpedo",
@@ -116,6 +122,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
 	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
 	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
+	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
 
 	L"The infantry's light mounted gun is its main firepower.",
 	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
@@ -147,6 +154,8 @@ CProjectile::CProjectile()
 	m_bFallSoundPlayed = false;
 
 	m_bShouldRender = true;
+
+	m_bFragmented = false;
 }
 
 void CProjectile::Precache()
@@ -173,6 +182,23 @@ void CProjectile::Think()
 		}
 
 		m_bFallSoundPlayed = true;
+	}
+
+	if (Fragments() && !m_bFragmented && GetVelocity().y < 10.0f && m_flTimeExploded == 0.0f)
+	{
+		for (size_t i = 0; i < Fragments(); i++)
+		{
+			CProjectile* pProjectile = GameServer()->Create<CProjectile>(GetClassName());
+			pProjectile->SetOwner(m_hOwner);
+			pProjectile->SetVelocity(GetVelocity() + Vector(RandomFloat(-10, 10), RandomFloat(-10, 10), RandomFloat(-10, 10)));
+			pProjectile->SetGravity(GetGravity());
+			pProjectile->SetLandingSpot(m_vecLandingSpot);
+			pProjectile->SetOrigin(GetOrigin());
+			pProjectile->m_bFragmented = true;
+			DigitanksGame()->AddProjectileToWaitFor();
+		}
+
+		Delete();
 	}
 
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
@@ -430,6 +456,12 @@ NETVAR_TABLE_BEGIN(CAOEShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CICBM);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CICBM);
 SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CSploogeShell);
