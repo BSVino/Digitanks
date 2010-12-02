@@ -2051,6 +2051,8 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CSploogeShell>("CSploogeShell");
 	else if (GetCurrentWeapon() == PROJECTILE_ICBM)
 		return GameServer()->Create<CICBM>("CICBM");
+	else if (GetCurrentWeapon() == PROJECTILE_EMP)
+		return GameServer()->Create<CEMP>("CEMP");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");
@@ -2145,25 +2147,26 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 		flShield = 0;
 	}
 
+	float flShieldDamageScale = 1;
 	if (pProjectile)
-		flDamageBlocked *= pProjectile->ShieldDamageScale();
+		flShieldDamageScale = pProjectile->ShieldDamageScale();
 
-	if (flDamage - flDamageBlocked <= 0)
+	if (flDamage*flShieldDamageScale - flDamageBlocked <= 0)
 	{
-		SetShieldValueForAttackDirection(vecAttackDirection, flShield - flDamage / GetDefenseScale());
+		SetShieldValueForAttackDirection(vecAttackDirection, flShield - flDamage*flShieldDamageScale / GetDefenseScale());
 
 		if (GetVisibility() > 0)
 		{
 			EmitSound(L"sound/shield-damage.wav");
-			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 0.5f));
+			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage*flShieldDamageScale, 0, 5, 0, 0.5f));
 		}
 
-		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, true);
+		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage*flShieldDamageScale, bDirectHit, true);
 
 		return;
 	}
 
-	flDamage -= flDamageBlocked;
+	flDamage -= flDamageBlocked/flShieldDamageScale;
 
 	if (pProjectile)
 		flDamage *= pProjectile->HealthDamageScale();

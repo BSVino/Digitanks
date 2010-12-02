@@ -126,6 +126,21 @@ public:
 	virtual bool				HasDamageFalloff() { return false; };
 };
 
+class CEMP : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CEMP, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_EMP; }
+	virtual float				ShieldDamageScale() { return 2; };
+	virtual float				HealthDamageScale() { return 0.5f; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual float				ShellRadius() { return 0.7f; };
+	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
+};
+
 class CICBM : public CProjectile
 {
 	REGISTER_ENTITY_CLASS(CICBM, CProjectile);
@@ -177,7 +192,7 @@ public:
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
 	virtual float				PushDistance() { return 0.0f; };
-	virtual float				RockIntensity() { return 0.4f; };
+	virtual float				RockIntensity() { return 0.0f; };
 };
 
 class CInfantryFlak : public CProjectile

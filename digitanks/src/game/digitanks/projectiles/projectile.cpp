@@ -20,6 +20,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	5.0f,	// medium
 	8.0f,	// large
 	6.0f,	// AoE
+	6.0f,	// emp
 	4.0f,	// tractor bomb
 	3.0f,	// splooge
 	6.0f,	// icbm
@@ -40,6 +41,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	5.0f,	// medium
 	8.0f,	// large
 	4.0f,	// AoE
+	6.0f,	// emp
 	1.0f,	// tractor bomb
 	7.0f,	// splooge
 	7.0f,	// icbm
@@ -60,6 +62,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 	1,	// medium
 	1,	// large
 	1,	// AoE
+	1,	// emp
 	1,	// tractor bomb
 	20,	// splooge
 	1,	// icbm
@@ -80,6 +83,7 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0,		// medium
 	0,		// large
 	0,		// AoE
+	0,		// emp
 	0,		// tractor bomb
 	0.01f,	// splooge
 	0,		// icbm
@@ -100,6 +104,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Fat Man",
 	L"Big Mama",
 	L"Plasma Charge",
+	L"Electro-Magnetic Pulse",
 	L"Tractor Bomb",
 	L"Grapeshot",
 	L"ICBM",
@@ -120,6 +125,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This medium projectile bomb is a good tradeoff between firepower and defense.",
 	L"This heavy projectile bomb packs a mean punch at the cost of your defense for the next turn.",
 	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
+	L"This medium projectile bomb sends out an electonic pulse that does extra damage against shields but relatively little damage against tank hulls.",
 	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
 	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
 	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
@@ -456,6 +462,12 @@ NETVAR_TABLE_BEGIN(CAOEShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CEMP);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CEMP);
 SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CICBM);
