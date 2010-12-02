@@ -39,7 +39,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	8.0f,	// large
 	4.0f,	// AoE
 	1.0f,	// tractor bomb
-	5.0f,	// splooge
+	7.0f,	// splooge
 
 	0.12f,	// machine gun
 	0.0f,	// torpedo
@@ -96,7 +96,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Big Mama",
 	L"Plasma Charge",
 	L"Tractor Bomb",
-	L"Splooge Attack",
+	L"Grapeshot",
 
 	L"Flak Cannon",
 	L"Torpedo",
@@ -115,7 +115,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This heavy projectile bomb packs a mean punch at the cost of your defense for the next turn.",
 	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
 	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
-	L"This light attack fires a stream of small projectiles at your enemy.",
+	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
 
 	L"The infantry's light mounted gun is its main firepower.",
 	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
