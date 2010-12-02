@@ -1426,7 +1426,7 @@ void CDigitank::Think()
 		FireProjectile();
 
 		if (m_iFireProjectiles)
-			m_flFireProjectileTime = GameServer()->GetGameTime() + FireProjectileTime();
+			m_flFireProjectileTime = GameServer()->GetGameTime() + CProjectile::GetWeaponFireInterval(GetCurrentWeapon());
 		else
 			m_flFireProjectileTime = 0;
 	}
@@ -1951,7 +1951,7 @@ void CDigitank::Fire(CNetworkParameters* p)
 			m_flFireProjectileTime += m_flStartedMove + GetTransitionTime() + FirstProjectileTime();
 		else
 			m_flFireProjectileTime = GameServer()->GetGameTime() + FirstProjectileTime();
-		m_iFireProjectiles = ProjectileCount();
+		m_iFireProjectiles = CProjectile::GetWeaponShells(GetCurrentWeapon());
 	}
 
 	Speak(TANKSPEECH_ATTACK);
@@ -2047,6 +2047,8 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CAOEShell>("CAOEShell");
 	else if (GetCurrentWeapon() == PROJECTILE_TRACTORBOMB)
 		return GameServer()->Create<CTractorBomb>("CTractorBomb");
+	else if (GetCurrentWeapon() == PROJECTILE_SPLOOGE)
+		return GameServer()->Create<CSploogeShell>("CSploogeShell");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");
@@ -2855,11 +2857,6 @@ float CDigitank::ShieldRechargeRate() const
 float CDigitank::FirstProjectileTime() const
 {
 	return RandomFloat(0, 1);
-}
-
-float CDigitank::FireProjectileTime() const
-{
-	return RandomFloat(0.25f, 0.3f);
 }
 
 void CDigitank::SetFortifyPoint(Vector vecFortify)

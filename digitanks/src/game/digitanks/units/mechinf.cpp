@@ -145,8 +145,3 @@ float CMechInfantry::FirstProjectileTime() const
 {
 	return RandomFloat(0.1f, 0.15f);
 }
-
-float CMechInfantry::FireProjectileTime() const
-{
-	return RandomFloat(0.05f, 0.1f);
-}

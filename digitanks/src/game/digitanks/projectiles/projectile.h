@@ -54,6 +54,8 @@ public:
 
 	static float				GetWeaponEnergy(weapon_t eProjectile);
 	static float				GetWeaponDamage(weapon_t eProjectile);
+	static size_t				GetWeaponShells(weapon_t eProjectile);
+	static float				GetWeaponFireInterval(weapon_t eProjectile);
 	static char16_t*			GetWeaponName(weapon_t eProjectile);
 	static char16_t*			GetWeaponDescription(weapon_t eProjectile);
 
@@ -119,6 +121,19 @@ public:
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				HasDamageFalloff() { return false; };
+};
+
+class CSploogeShell : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CSploogeShell, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_SPLOOGE; }
+	virtual float				ShellRadius() { return 0.2f; };
+	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
+	virtual bool				CreatesCraters() { return false; };
 };
 
 class CTractorBomb : public CProjectile

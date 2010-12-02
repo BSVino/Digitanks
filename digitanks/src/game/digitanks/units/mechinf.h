@@ -38,9 +38,7 @@ public:
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.01f; };
 	virtual float				VisibleRange() const { return 60.0f; };
-	virtual size_t				ProjectileCount() const { return 20; };
 	virtual float				FirstProjectileTime() const;
-	virtual float				FireProjectileTime() const;
 
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
 	static size_t				InfantryFleetPoints() { return 2; };

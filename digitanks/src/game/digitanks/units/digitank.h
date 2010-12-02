@@ -288,9 +288,7 @@ public:
 	virtual size_t				FleetPoints() const { return 2; };
 	virtual float				BobHeight() const { return 0.5f; };
 	virtual float				MaxRangeRadius() const { return 10; };
-	virtual size_t				ProjectileCount() const { return 1; };
 	virtual float				FirstProjectileTime() const;
-	virtual float				FireProjectileTime() const;
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 

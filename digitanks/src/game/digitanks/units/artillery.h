@@ -32,9 +32,7 @@ public:
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				FiringCone() const { return 15; };
 	virtual float				VisibleRange() const { return 45; };
-	virtual size_t				ProjectileCount() const { return 3; };
 	virtual float				FirstProjectileTime() const;
-	virtual float				FireProjectileTime() const;
 
 	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
 	static size_t				ArtilleryFleetPoints() { return 5; };

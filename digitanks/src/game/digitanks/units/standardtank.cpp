@@ -31,8 +31,9 @@ void CStandardTank::Spawn()
 	m_aeWeapons.push_back(PROJECTILE_LARGE);
 	m_aeWeapons.push_back(PROJECTILE_AOE);
 	m_aeWeapons.push_back(PROJECTILE_TRACTORBOMB);
+	m_aeWeapons.push_back(PROJECTILE_SPLOOGE);
 
-	m_eWeapon = PROJECTILE_SMALL;
+	m_eWeapon = PROJECTILE_MEDIUM;
 }
 
 float CStandardTank::ProjectileCurve() const

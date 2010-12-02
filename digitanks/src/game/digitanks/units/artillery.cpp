@@ -69,11 +69,6 @@ float CArtillery::FirstProjectileTime() const
 	return RandomFloat(0.1f, 0.15f);
 }
 
-float CArtillery::FireProjectileTime() const
-{
-	return RandomFloat(0.25f, 0.3f);
-}
-
 float CArtillery::TurnPerPower() const
 {
 	if (IsFortified())

@@ -20,6 +20,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	8.0f,	// large
 	6.0f,	// AoE
 	4.0f,	// tractor bomb
+	3.0f,	// splooge
 
 	6.0f,	// machine gun
 	3.0f,	// torpedo
@@ -38,13 +39,52 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	8.0f,	// large
 	4.0f,	// AoE
 	1.0f,	// tractor bomb
+	5.0f,	// splooge
 
 	0.12f,	// machine gun
 	0.0f,	// torpedo
 	1.3f,	// artillery
 
-	5.0f,	// fireworks
+	5.0f,	// airstrike
 	0.0f,	// fireworks
+};
+
+static size_t g_aiWeaponShells[WEAPON_MAX] =
+{
+	0,
+
+	1,	// small
+	1,	// medium
+	1,	// large
+	1,	// AoE
+	1,	// tractor bomb
+	20,	// splooge
+
+	20,	// machine gun
+	1,	// torpedo
+	3,	// artillery
+
+	1,	// airstrike
+	1,	// fireworks
+};
+
+static float g_aflWeaponFireInterval[WEAPON_MAX] =
+{
+	0,
+
+	0,		// small
+	0,		// medium
+	0,		// large
+	0,		// AoE
+	0,		// tractor bomb
+	0.01f,	// splooge
+
+	0.1f,	// machine gun
+	0,		// torpedo
+	0.25f,	// artillery
+
+	0,		// airstrike
+	0,		// fireworks
 };
 
 static char16_t* g_apszWeaponNames[WEAPON_MAX] =
@@ -56,6 +96,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Big Mama",
 	L"Plasma Charge",
 	L"Tractor Bomb",
+	L"Splooge Attack",
 
 	L"Flak Cannon",
 	L"Torpedo",
@@ -74,6 +115,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This heavy projectile bomb packs a mean punch at the cost of your defense for the next turn.",
 	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
 	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
+	L"This light attack fires a stream of small projectiles at your enemy.",
 
 	L"The infantry's light mounted gun is its main firepower.",
 	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
@@ -316,7 +358,7 @@ void CProjectile::SetOwner(CDigitank* pOwner)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
 
-	m_flDamage = GetWeaponDamage(GetWeaponType());
+	m_flDamage = GetWeaponDamage(GetWeaponType())/GetWeaponShells(GetWeaponType());
 }
 
 size_t CProjectile::CreateParticleSystem()
@@ -344,6 +386,16 @@ float CProjectile::GetWeaponEnergy(weapon_t eProjectile)
 float CProjectile::GetWeaponDamage(weapon_t eProjectile)
 {
 	return g_aflWeaponDamages[eProjectile];
+}
+
+size_t CProjectile::GetWeaponShells(weapon_t eProjectile)
+{
+	return g_aiWeaponShells[eProjectile];
+}
+
+float CProjectile::GetWeaponFireInterval(weapon_t eProjectile)
+{
+	return g_aflWeaponFireInterval[eProjectile];
 }
 
 char16_t* CProjectile::GetWeaponName(weapon_t eProjectile)
@@ -378,6 +430,12 @@ NETVAR_TABLE_BEGIN(CAOEShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
+SAVEDATA_TABLE_END();
+
+NETVAR_TABLE_BEGIN(CSploogeShell);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CSploogeShell);
 SAVEDATA_TABLE_END();
 
 NETVAR_TABLE_BEGIN(CTractorBomb);
