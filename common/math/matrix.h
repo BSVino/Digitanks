@@ -29,6 +29,7 @@ public:
 	void		SetRotation(float flAngle, const Vector& vecAxis);
 	void		SetOrientation(const Vector& vecDir);
 	void		SetScale(const Vector& vecScale);
+	void		SetReflection(const Vector& vecPlane);
 
 	// Add a translation
 	Matrix4x4	operator+=(const Vector& v);
@@ -242,6 +243,16 @@ inline void Matrix4x4::SetScale(const Vector& vecScale)
 	m[0][0] = vecScale.x;
 	m[1][1] = vecScale.y;
 	m[2][2] = vecScale.z;
+}
+
+inline void Matrix4x4::SetReflection(const Vector& vecPlane)
+{
+	m[0][0] = 1 - 2 * vecPlane.x * vecPlane.x;
+	m[1][1] = 1 - 2 * vecPlane.y * vecPlane.y;
+	m[2][2] = 1 - 2 * vecPlane.z * vecPlane.z;
+	m[1][0] = m[0][1] = -2 * vecPlane.x * vecPlane.y;
+	m[2][0] = m[0][2] = -2 * vecPlane.x * vecPlane.z;
+	m[1][2] = m[2][1] = -2 * vecPlane.y * vecPlane.z;
 }
 
 inline Matrix4x4 Matrix4x4::operator+=(const Vector& v)

@@ -2053,6 +2053,10 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CICBM>("CICBM");
 	else if (GetCurrentWeapon() == PROJECTILE_EMP)
 		return GameServer()->Create<CEMP>("CEMP");
+	else if (GetCurrentWeapon() == PROJECTILE_GRENADE)
+		return GameServer()->Create<CGrenade>("CGrenade");
+	else if (GetCurrentWeapon() == PROJECTILE_EARTHSHAKER)
+		return GameServer()->Create<CEarthshaker>("CEarthshaker");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

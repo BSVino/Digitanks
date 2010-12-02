@@ -67,6 +67,8 @@ public:
 	int						WorldToChunkSpace(float f, int& iIndex);
 	bool					IsPointOnMap(Vector vecPoint);
 
+	Vector					GetNormalAtPoint(Vector vecPoint);
+
 	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
 

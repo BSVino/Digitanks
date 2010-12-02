@@ -595,6 +595,15 @@ bool CTerrain::IsPointOnMap(Vector vecPoint)
 	return true;
 }
 
+Vector CTerrain::GetNormalAtPoint(Vector vecPoint)
+{
+	Vector vecA = Vector(vecPoint.x, GetHeight(vecPoint.x, vecPoint.z), vecPoint.z);
+	Vector vecB = Vector(vecPoint.x+1, GetHeight(vecPoint.x+1, vecPoint.z), vecPoint.z);
+	Vector vecC = Vector(vecPoint.x, GetHeight(vecPoint.x, vecPoint.z+1), vecPoint.z+1);
+
+	return (vecA-vecC).Normalized().Cross((vecA-vecB).Normalized()).Normalized();
+}
+
 bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 {
 	vecPoint = v2;

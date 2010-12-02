@@ -52,6 +52,7 @@ public:
 	virtual bool				SendsNotifications() { return true; };
 	virtual bool				HasDamageFalloff() { return true; };
 	virtual size_t				Fragments() { return 0; };
+	virtual size_t				Bounces() { return 0; };
 
 	static float				GetWeaponEnergy(weapon_t eProjectile);
 	static float				GetWeaponDamage(weapon_t eProjectile);
@@ -74,6 +75,7 @@ protected:
 	size_t						m_iParticleSystem;
 
 	bool						m_bFragmented;
+	size_t						m_iBounces;
 };
 
 class CSmallShell : public CProjectile
@@ -152,6 +154,31 @@ public:
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 	virtual size_t				Fragments() { return 6; };
+};
+
+class CGrenade : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CGrenade, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_GRENADE; }
+	virtual float				ShellRadius() { return 0.8f; };
+	virtual float				ExplosionRadius() { return 16.0f; };
+	virtual float				PushDistance() { return 6.0f; };
+	virtual float				RockIntensity() { return 0.7f; };
+	virtual size_t				Bounces() { return 2; };
+};
+
+class CEarthshaker : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CEarthshaker, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_EARTHSHAKER; }
+	virtual float				ShellRadius() { return 0.8f; };
+	virtual float				ExplosionRadius() { return 22.0f; };
+	virtual float				PushDistance() { return 6.0f; };
+	virtual float				RockIntensity() { return 0.7f; };
 };
 
 class CSploogeShell : public CProjectile

@@ -32,8 +32,10 @@ void CStandardTank::Spawn()
 	m_aeWeapons.push_back(PROJECTILE_AOE);
 	m_aeWeapons.push_back(PROJECTILE_EMP);
 	m_aeWeapons.push_back(PROJECTILE_ICBM);
-	m_aeWeapons.push_back(PROJECTILE_TRACTORBOMB);
+	m_aeWeapons.push_back(PROJECTILE_GRENADE);
 	m_aeWeapons.push_back(PROJECTILE_SPLOOGE);
+	m_aeWeapons.push_back(PROJECTILE_TRACTORBOMB);
+	m_aeWeapons.push_back(PROJECTILE_EARTHSHAKER);
 
 	m_eWeapon = PROJECTILE_MEDIUM;
 }
