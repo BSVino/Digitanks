@@ -105,8 +105,6 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
-    <ClCompile Include="game\digitanks\projectiles\projectile.cpp" />
-    <ClCompile Include="game\digitanks\projectiles\specialshells.cpp" />
     <ClCompile Include="game\digitanks\structures\buffer.cpp" />
     <ClCompile Include="game\digitanks\structures\collector.cpp" />
     <ClCompile Include="game\digitanks\structures\cpu.cpp" />
@@ -121,6 +119,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\units\scout.cpp" />
     <ClCompile Include="game\digitanks\units\standardtank.cpp" />
     <ClCompile Include="game\digitanks\updates.cpp" />
+    <ClCompile Include="game\digitanks\weapons\projectile.cpp" />
+    <ClCompile Include="game\digitanks\weapons\specialshells.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
@@ -180,8 +180,6 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="dt_version.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
-    <ClInclude Include="game\digitanks\projectiles\projectile.h" />
-    <ClInclude Include="game\digitanks\projectiles\specialshells.h" />
     <ClInclude Include="game\digitanks\structures\buffer.h" />
     <ClInclude Include="game\digitanks\structures\collector.h" />
     <ClInclude Include="game\digitanks\structures\cpu.h" />
@@ -196,6 +194,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\units\scout.h" />
     <ClInclude Include="game\digitanks\units\standardtank.h" />
     <ClInclude Include="game\digitanks\updates.h" />
+    <ClInclude Include="game\digitanks\weapons\projectile.h" />
+    <ClInclude Include="game\digitanks\weapons\specialshells.h" />
     <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />

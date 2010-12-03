@@ -8,7 +8,7 @@
 #include "instructor.h"
 #include "renderer/renderer.h"
 #include <game/digitanks/structures/cpu.h>
-#include <game/digitanks/projectiles/projectile.h>
+#include <game/digitanks/weapons/projectile.h>
 #include <game/digitanks/structures/loader.h>
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>

@@ -5,7 +5,7 @@
 
 #include <digitanks/selectable.h>
 #include <digitanks/structures/loader.h>
-#include <digitanks/projectiles/projectile.h>
+#include <digitanks/weapons/projectile.h>
 #include <common.h>
 
 #define TANK_SHIELDS 4

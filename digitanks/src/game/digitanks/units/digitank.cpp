@@ -19,7 +19,7 @@
 #include "ui/hud.h"
 #include <digitanks/structures/structure.h>
 #include <digitanks/supplyline.h>
-#include <digitanks/projectiles/projectile.h>
+#include <digitanks/weapons/projectile.h>
 #include <digitanks/units/scout.h>
 
 size_t CDigitank::s_iAimBeam = 0;
