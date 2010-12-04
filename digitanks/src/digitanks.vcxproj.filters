@@ -279,6 +279,12 @@
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp">
       <Filter>Source Files\game\digitanks\weapons</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\weapons\baseweapon.cpp">
+      <Filter>Source Files\game\digitanks\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\weapons\cameraguided.cpp">
+      <Filter>Source Files\game\digitanks\weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -442,6 +448,15 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\specialshells.h">
       <Filter>Source Files\game\digitanks\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\weapons\baseweapon.h">
+      <Filter>Source Files\game\digitanks\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\weapons\cameraguided.h">
+      <Filter>Source Files\game\digitanks\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\dt_common.h">
+      <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

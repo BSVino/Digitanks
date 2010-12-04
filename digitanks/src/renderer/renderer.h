@@ -145,6 +145,9 @@ public:
 
 	void			SetCameraPosition(Vector vecCameraPosition) { m_vecCameraPosition = vecCameraPosition; };
 	void			SetCameraTarget(Vector vecCameraTarget) { m_vecCameraTarget = vecCameraTarget; };
+	void			SetCameraFOV(float flFOV) { m_flCameraFOV = flFOV; };
+	void			SetCameraNear(float flNear) { m_flCameraNear = flNear; };
+	void			SetCameraFar(float flFar) { m_flCameraFar = flFar; };
 
 	Vector			GetCameraVector();
 	void			GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector* pvecUp);
@@ -175,6 +178,9 @@ protected:
 
 	Vector			m_vecCameraPosition;
 	Vector			m_vecCameraTarget;
+	float			m_flCameraFOV;
+	float			m_flCameraNear;
+	float			m_flCameraFar;
 
 	double			m_aiModelView[16];
 	double			m_aiProjection[16];

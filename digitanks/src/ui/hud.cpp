@@ -529,7 +529,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 		float flRadius = pDTEntity->GetBoundingRadius();
 
 		Vector vecUp;
-		GameServer()->GetRenderer()->GetCameraVectors(NULL, NULL, &vecUp);
+		Vector vecForward;
+		GameServer()->GetRenderer()->GetCameraVectors(&vecForward, NULL, &vecUp);
+
+		// Cull tanks behind the camera
+		if (vecForward.Dot((vecOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+			continue;
 
 		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
 		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
@@ -2487,9 +2492,14 @@ void CDamageIndicator::Think()
 	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	if (m_bShield)
 		vecScreen += Vector(10, 10, 0);
+
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
 	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+
+	// Cull tanks behind the camera
+	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+		SetAlpha(0);
 
 	BaseClass::Think();
 }
@@ -2557,6 +2567,10 @@ void CHitIndicator::Think()
 	SetPos((int)(vecScreen.x+flOffset), (int)(vecScreen.y-flOffset));
 
 	SetAlpha((int)RemapVal(GameServer()->GetGameTime() - m_flTime, 0, flFadeTime, 255, 0));
+
+	// Cull tanks behind the camera
+	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+		SetAlpha(0);
 
 	BaseClass::Think();
 }
@@ -2628,6 +2642,10 @@ void CSpeechBubble::Think()
 	SetPos((int)(vecScreen.x), (int)(vecScreen.y));
 
 	SetAlpha((int)RemapValClamped(GameServer()->GetGameTime() - m_flTime, flFadeTime-1, flFadeTime, 255, 0));
+
+	// Cull tanks behind the camera
+	if (GameServer()->GetRenderer()->GetCameraVector().Dot((m_vecLastOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+		SetAlpha(0);
 
 	BaseClass::Think();
 }

@@ -119,6 +119,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\units\scout.cpp" />
     <ClCompile Include="game\digitanks\units\standardtank.cpp" />
     <ClCompile Include="game\digitanks\updates.cpp" />
+    <ClCompile Include="game\digitanks\weapons\baseweapon.cpp" />
+    <ClCompile Include="game\digitanks\weapons\cameraguided.cpp" />
     <ClCompile Include="game\digitanks\weapons\projectile.cpp" />
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
@@ -179,6 +181,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="..\..\tinker\keys.h" />
     <ClInclude Include="dt_version.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
+    <ClInclude Include="game\digitanks\dt_common.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
     <ClInclude Include="game\digitanks\structures\buffer.h" />
     <ClInclude Include="game\digitanks\structures\collector.h" />
@@ -194,6 +197,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\units\scout.h" />
     <ClInclude Include="game\digitanks\units\standardtank.h" />
     <ClInclude Include="game\digitanks\updates.h" />
+    <ClInclude Include="game\digitanks\weapons\baseweapon.h" />
+    <ClInclude Include="game\digitanks\weapons\cameraguided.h" />
     <ClInclude Include="game\digitanks\weapons\projectile.h" />
     <ClInclude Include="game\digitanks\weapons\specialshells.h" />
     <ClInclude Include="game\gameserver.h" />

@@ -219,15 +219,16 @@ public:
 
 	virtual void				Fire();
 	virtual void				Fire(class CNetworkParameters* p);
-	void						FireProjectile();
-	virtual void				FireProjectile(class CNetworkParameters* p);
-	virtual class CProjectile*	CreateProjectile();
+	void						FireWeapon();
+	virtual void				FireWeapon(class CNetworkParameters* p);
+	virtual void				FireProjectile(class CProjectile* pProjectile, Vector vecLandingSpot);
+	virtual class CBaseWeapon*	CreateWeapon();
 	weapon_t					GetCurrentWeapon() const { return m_eWeapon; }
 	void						SetCurrentWeapon(weapon_t e) { m_eWeapon = e; }
 	float						GetWeaponEnergy() const;
 	size_t						GetNumWeapons() const { return m_aeWeapons.size(); };
 	weapon_t					GetWeapon(size_t iProjectile) const { return m_aeWeapons[iProjectile]; };
-	virtual bool				IsWaitingToFire() { return m_flFireProjectileTime != 0; };
+	virtual bool				IsWaitingToFire() { return m_flFireWeaponTime != 0; };
 
 	void						FireSpecial();
 	bool						HasSpecialWeapons();
@@ -363,9 +364,9 @@ protected:
 	bool						m_bFiredWeapon;
 	bool						m_bActionTaken;
 
-	float						m_flFireProjectileTime;
-	size_t						m_iFireProjectiles;
-	CEntityHandle<class CProjectile>	m_hProjectile;
+	float						m_flFireWeaponTime;
+	size_t						m_iFireWeapons;
+	CEntityHandle<CBaseWeapon>	m_hWeapon;
 
 	float						m_flLastSpeech;
 	float						m_flNextIdle;

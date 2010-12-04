@@ -61,6 +61,8 @@ public:
 	bool						IsMouseMiddleDown();
 	void						GetMousePosition(int& x, int& y);
 
+	void						SetMouseCursorEnabled(bool bEnabled);
+
 	int							GetWindowWidth() { return (int)m_iWindowWidth; };
 	int							GetWindowHeight() { return (int)m_iWindowHeight; };
 

@@ -4,6 +4,8 @@
 #include <camera.h>
 #include <common.h>
 
+#include <game/digitanks/weapons/cameraguided.h>
+
 class CDigitanksCamera : public CCamera
 {
 	DECLARE_CLASS(CDigitanksCamera, CCamera);
@@ -26,10 +28,15 @@ public:
 
 	void			Shake(Vector vecLocation, float flMagnitude);
 
+	void			SetCameraGuidedMissile(class CCameraGuidedMissile* pMissile);
+
 	virtual void	Think();
 
 	virtual Vector	GetCameraPosition();
 	virtual Vector	GetCameraTarget();
+	virtual float	GetCameraFOV();
+	virtual float	GetCameraNear();
+	virtual float	GetCameraFar();
 
 	virtual void	SetFreeMode(bool bOn);
 
@@ -70,6 +77,8 @@ public:
 	bool			m_bMouseDragRight;
 	bool			m_bMouseDragUp;
 	bool			m_bMouseDragDown;
+
+	CEntityHandle<class CCameraGuidedMissile>	m_hCameraGuidedMissile;
 };
 
 #endif

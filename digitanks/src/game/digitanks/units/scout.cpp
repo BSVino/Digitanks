@@ -94,19 +94,21 @@ void CScout::Fire()
 	BaseClass::Fire();
 }
 
-void CScout::FireProjectile(CNetworkParameters* p)
+void CScout::FireWeapon(CNetworkParameters* p)
 {
-	m_hProjectile = CEntityHandle<CProjectile>(p->ui2);
+	CProjectile* pTorpedo = CEntityHandle<CProjectile>(p->ui2);
+	if (!pTorpedo)
+		return;
 
 	Vector vecLandingSpot = Vector(p->fl3, p->fl4, p->fl5);
 
 	float flGravity = DigitanksGame()->GetGravity();
 
 	// FIRE PROTON TORPEDO NUMBER ONE NUMBER TWO
-	m_hProjectile->SetOwner(this);
-	m_hProjectile->SetForce(Vector(0,0,0));
-	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
-	m_hProjectile->SetLandingSpot(vecLandingSpot);
+	pTorpedo->SetOwner(this);
+	pTorpedo->SetVelocity(Vector(0,0,0));
+	pTorpedo->SetGravity(Vector(0, flGravity, 0));
+	pTorpedo->SetLandingSpot(vecLandingSpot);
 
 	if (GetVisibility() > 0)
 		EmitSound(L"sound/torpedo-drop.wav");

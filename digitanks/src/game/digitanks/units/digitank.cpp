@@ -20,6 +20,7 @@
 #include <digitanks/structures/structure.h>
 #include <digitanks/supplyline.h>
 #include <digitanks/weapons/projectile.h>
+#include <digitanks/weapons/cameraguided.h>
 #include <digitanks/units/scout.h>
 
 size_t CDigitank::s_iAimBeam = 0;
@@ -136,9 +137,9 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bActionTaken);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireProjectileTime);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireProjectiles);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CProjectile>, m_hProjectile);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireWeaponTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireWeapons);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CBaseWeapon>, m_hWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastSpeech);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextIdle);
 	//size_t						m_iTurretModel;	// Set in Spawn()
@@ -261,8 +262,8 @@ void CDigitank::Spawn()
 	m_bFortified = false;
 	m_flFrontMaxShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = 15;
 	m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 15;
-	m_flFireProjectileTime = 0;
-	m_iFireProjectiles = 0;
+	m_flFireWeaponTime = 0;
+	m_iFireWeapons = 0;
 	m_flLastSpeech = 0;
 	m_flNextIdle = 10.0f;
 	m_iTurretModel = m_iShieldModel = ~0;
@@ -953,8 +954,8 @@ void CDigitank::Move(CNetworkParameters* p)
 	}
 
 	// Am I waiting to fire something? Fire now. Shoot and scoot baby!
-	if (m_flFireProjectileTime)
-		m_flFireProjectileTime = GameServer()->GetGameTime();
+	if (m_flFireWeaponTime)
+		m_flFireWeaponTime = GameServer()->GetGameTime();
 
 	if (CNetwork::IsHost())
 	{
@@ -1420,15 +1421,15 @@ void CDigitank::Think()
 		}
 	}
 
-	if (m_flFireProjectileTime && GameServer()->GetGameTime() > m_flFireProjectileTime)
+	if (m_flFireWeaponTime && GameServer()->GetGameTime() > m_flFireWeaponTime)
 	{
-		m_iFireProjectiles--;
-		FireProjectile();
+		m_iFireWeapons--;
+		FireWeapon();
 
-		if (m_iFireProjectiles)
-			m_flFireProjectileTime = GameServer()->GetGameTime() + CProjectile::GetWeaponFireInterval(GetCurrentWeapon());
+		if (m_iFireWeapons)
+			m_flFireWeaponTime = GameServer()->GetGameTime() + CProjectile::GetWeaponFireInterval(GetCurrentWeapon());
 		else
-			m_flFireProjectileTime = 0;
+			m_flFireWeaponTime = 0;
 	}
 
 	if (m_iHoverParticles != ~0)
@@ -1948,10 +1949,13 @@ void CDigitank::Fire(CNetworkParameters* p)
 	if (CNetwork::IsHost())
 	{
 		if (IsMoving())
-			m_flFireProjectileTime += m_flStartedMove + GetTransitionTime() + FirstProjectileTime();
+			m_flFireWeaponTime += m_flStartedMove + GetTransitionTime() + FirstProjectileTime();
 		else
-			m_flFireProjectileTime = GameServer()->GetGameTime() + FirstProjectileTime();
-		m_iFireProjectiles = CProjectile::GetWeaponShells(GetCurrentWeapon());
+			m_flFireWeaponTime = GameServer()->GetGameTime() + FirstProjectileTime();
+		m_iFireWeapons = CProjectile::GetWeaponShells(GetCurrentWeapon());
+
+		if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
+			m_flFireWeaponTime = GameServer()->GetGameTime();
 	}
 
 	Speak(TANKSPEECH_ATTACK);
@@ -1963,7 +1967,7 @@ void CDigitank::Fire(CNetworkParameters* p)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FIRE_ARTILLERY, true);
 }
 
-void CDigitank::FireProjectile()
+void CDigitank::FireWeapon()
 {
 	float flDistanceSqr = (m_vecLastAim.Get() - GetOrigin()).LengthSqr();
 	if (!IsInsideMaxRange(m_vecLastAim.Get()))
@@ -1984,52 +1988,65 @@ void CDigitank::FireProjectile()
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	m_hProjectile = CreateProjectile();
+	m_hWeapon = CreateWeapon();
+
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(m_hWeapon.GetPointer());
+	if (pProjectile)
+		DigitanksGame()->AddProjectileToWaitFor();
 
 	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOCLIENTS, "FireProjectile", GetHandle(), m_hProjectile->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
-
-	DigitanksGame()->AddProjectileToWaitFor();
+		CNetwork::CallFunction(NETWORK_TOCLIENTS, "FireWeapon", GetHandle(), m_hWeapon->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
-	p.ui2 = m_hProjectile->GetHandle();
+	p.ui2 = m_hWeapon->GetHandle();
 	p.fl3 = vecLandingSpot.x;
 	p.fl4 = vecLandingSpot.y;
 	p.fl5 = vecLandingSpot.z;
-	FireProjectile(&p);
+	FireWeapon(&p);
 }
 
-void CDigitank::FireProjectile(CNetworkParameters* p)
+void CDigitank::FireWeapon(CNetworkParameters* p)
 {
-	m_hProjectile = CEntityHandle<CProjectile>(p->ui2);
+	m_hWeapon = CEntityHandle<CBaseWeapon>(p->ui2);
 
 	Vector vecLandingSpot = Vector(p->fl3, p->fl4, p->fl5);
 
-	float flGravity = DigitanksGame()->GetGravity();
-	float flTime;
-	Vector vecForce;
-	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime, ProjectileCurve());
+	m_hWeapon->SetOwner(this);
 
-	m_hProjectile->SetOwner(this);
-	m_hProjectile->SetForce(vecForce);
-	m_hProjectile->SetGravity(Vector(0, flGravity, 0));
-	m_hProjectile->SetLandingSpot(vecLandingSpot);
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(m_hWeapon.GetPointer());
+	if (pProjectile)
+		FireProjectile(pProjectile, vecLandingSpot);
 
 	if (GetVisibility() > 0)
 	{
 		EmitSound(L"sound/tank-fire.wav");
-
-		Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
-		size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
-		if (iFire != ~0)
-			CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 	}
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }
 
-CProjectile* CDigitank::CreateProjectile()
+void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
+{
+	float flGravity = DigitanksGame()->GetGravity();
+	float flTime;
+	Vector vecForce;
+	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime, ProjectileCurve());
+
+	pProjectile->SetVelocity(vecForce);
+	pProjectile->SetGravity(Vector(0, flGravity, 0));
+	pProjectile->SetLandingSpot(vecLandingSpot);
+
+	if (GetVisibility() > 0)
+	{
+		Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
+		size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
+		if (iFire != ~0)
+			CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
+	}
+}
+
+CBaseWeapon* CDigitank::CreateWeapon()
 {
 	if (GetCurrentWeapon() == PROJECTILE_ARTILLERY)
 		return GameServer()->Create<CArtilleryShell>("CArtilleryShell");
@@ -2057,6 +2074,8 @@ CProjectile* CDigitank::CreateProjectile()
 		return GameServer()->Create<CGrenade>("CGrenade");
 	else if (GetCurrentWeapon() == PROJECTILE_EARTHSHAKER)
 		return GameServer()->Create<CEarthshaker>("CEarthshaker");
+	else if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
+		return GameServer()->Create<CCameraGuidedMissile>("CCameraGuidedMissile");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

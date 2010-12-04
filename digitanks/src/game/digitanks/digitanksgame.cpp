@@ -121,7 +121,7 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("Move", this, MoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("Turn", this, TurnCallback, 2, NET_HANDLE, NET_FLOAT);
 	CNetwork::RegisterFunction("Fire", this, FireCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("FireProjectile", this, FireProjectileCallback, 5, NET_HANDLE, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	CNetwork::RegisterFunction("FireWeapon", this, FireWeaponCallback, 5, NET_HANDLE, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("SetBonusPoints", this, SetBonusPointsCallback, 5, NET_HANDLE, NET_INT, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("TankPromoted", this, TankPromotedCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("PromoteAttack", this, PromoteAttackCallback, 1, NET_HANDLE);
@@ -797,7 +797,7 @@ void CDigitanksGame::Think()
 			CFireworks* pFireworks = GameServer()->Create<CFireworks>("CFireworks");
 			pFireworks->SetOrigin(pEntity->GetOrigin());
 			pFireworks->SetOwner(NULL);
-			pFireworks->SetForce(Vector(RandomFloat(-8, 8), 45, RandomFloat(-8, 8)));
+			pFireworks->SetVelocity(Vector(RandomFloat(-8, 8), 45, RandomFloat(-8, 8)));
 			pFireworks->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
 
 			m_flLastFireworks = GameServer()->GetGameTime();
@@ -1096,7 +1096,7 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
 {
-	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
 
 	Vector vecExplosionOrigin;
 	if (pInflictor)
@@ -1115,18 +1115,18 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 		float flDistanceSqr = (pInflictor->GetOrigin() - pEntity->GetOrigin()).LengthSqr();
 		float flTotalRadius = flRadius + pEntity->GetBoundingRadius();
-		float flPushRadius = pProjectile?pProjectile->PushRadius():20;
+		float flPushRadius = pWeapon?pWeapon->PushRadius():20;
 		float flTotalRadius2 = flRadius + pEntity->GetBoundingRadius() + flPushRadius;
 
 		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2)
 		{
-			float flRockIntensity = pProjectile?pProjectile->RockIntensity():0.5f;
+			float flRockIntensity = pWeapon?pWeapon->RockIntensity():0.5f;
 			Vector vecExplosion = (pDigitank->GetOrigin() - vecExplosionOrigin).Normalized();
 			pDigitank->RockTheBoat(RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flRockIntensity, flRockIntensity/5), vecExplosion);
 
 			if (flRadius < 1 || flDistanceSqr > flTotalRadius*flTotalRadius)
 			{
-				float flPushDistance = pProjectile?pProjectile->PushDistance():flRadius/2;
+				float flPushDistance = pWeapon?pWeapon->PushDistance():flRadius/2;
 
 				Vector vecPushDirection = vecExplosion;
 				if (vecPushDirection.y < 0)
@@ -1167,7 +1167,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	{
 		float flDistance = (pInflictor->GetOrigin() - apHit[i]->GetOrigin()).Length();
 
-		if (!pProjectile || pProjectile->HasDamageFalloff())
+		if (!pWeapon || pWeapon->HasDamageFalloff())
 		{
 			flDamage = RemapVal(flDistance, 0, flRadius + apHit[i]->GetBoundingRadius(), flDamage, flDamage/2);
 			if (flDamage <= 0)

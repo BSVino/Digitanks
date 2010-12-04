@@ -794,10 +794,10 @@ void CRenderer::StartRendering()
 	glLoadIdentity();
 
 	gluPerspective(
-			44.0,
+			m_flCameraFOV,
 			(float)m_iWidth/(float)m_iHeight,
-			10,
-			1000.0
+			m_flCameraNear,
+			m_flCameraFar
 		);
 
 	glMatrixMode(GL_MODELVIEW);

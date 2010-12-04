@@ -7,171 +7,22 @@
 #include <renderer/particles.h>
 
 #include <digitanks/digitanksgame.h>
-#include <digitanks/dt_camera.h>
 #include <digitanks/dt_renderer.h>
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
-
-static float g_aflWeaponEnergies[WEAPON_MAX] =
-{
-	0.0f,
-
-	2.0f,	// small
-	5.0f,	// medium
-	8.0f,	// large
-	6.0f,	// AoE
-	6.0f,	// emp
-	4.0f,	// tractor bomb
-	3.0f,	// splooge
-	6.0f,	// icbm
-	4.0f,	// grenade
-	4.0f,	// earthshaker
-
-	6.0f,	// machine gun
-	3.0f,	// torpedo
-	8.0f,	// artillery
-
-	0.0f,	// airstrike
-	0.0f,	// fireworks
-};
-
-static float g_aflWeaponDamages[WEAPON_MAX] =
-{
-	0.0f,
-
-	2.0f,	// small
-	5.0f,	// medium
-	8.0f,	// large
-	4.0f,	// AoE
-	6.0f,	// emp
-	1.0f,	// tractor bomb
-	7.0f,	// splooge
-	7.0f,	// icbm
-	8.0f,	// grenade
-	1.0f,	// earthshaker
-
-	0.12f,	// machine gun
-	0.0f,	// torpedo
-	1.3f,	// artillery
-
-	5.0f,	// airstrike
-	0.0f,	// fireworks
-};
-
-static size_t g_aiWeaponShells[WEAPON_MAX] =
-{
-	0,
-
-	1,	// small
-	1,	// medium
-	1,	// large
-	1,	// AoE
-	1,	// emp
-	1,	// tractor bomb
-	20,	// splooge
-	1,	// icbm
-	1,	// grenade
-	1,	// earthshaker
-
-	20,	// machine gun
-	1,	// torpedo
-	3,	// artillery
-
-	1,	// airstrike
-	1,	// fireworks
-};
-
-static float g_aflWeaponFireInterval[WEAPON_MAX] =
-{
-	0,
-
-	0,		// small
-	0,		// medium
-	0,		// large
-	0,		// AoE
-	0,		// emp
-	0,		// tractor bomb
-	0.01f,	// splooge
-	0,		// icbm
-	0,		// grenade
-	0,		// earthshaker
-
-	0.1f,	// machine gun
-	0,		// torpedo
-	0.25f,	// artillery
-
-	0,		// airstrike
-	0,		// fireworks
-};
-
-static char16_t* g_apszWeaponNames[WEAPON_MAX] =
-{
-	L"None",
-
-	L"Little Boy",
-	L"Fat Man",
-	L"Big Mama",
-	L"Plasma Charge",
-	L"Electro-Magnetic Pulse",
-	L"Tractor Bomb",
-	L"Grapeshot",
-	L"ICBM",
-	L"Grenade",
-	L"Earthshaker",
-
-	L"Flak Cannon",
-	L"Torpedo",
-	L"Artillery Shell",
-
-	L"Airstrike",
-	L"Fireworks",
-};
-
-static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
-{
-	L"None",
-
-	L"This light projectile bomb does just enough damage to keep the enemy from regenerating his shields next turn.",
-	L"This medium projectile bomb is a good tradeoff between firepower and defense.",
-	L"This heavy projectile bomb packs a mean punch at the cost of your defense for the next turn.",
-	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
-	L"This medium projectile bomb sends out an electonic pulse that does extra damage against shields but relatively little damage against tank hulls.",
-	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
-	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
-	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
-	L"This heavy projectile bounces three times before it explodes. Chunk it into holes to find out-of-reach targets.",
-	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
-
-	L"The infantry's light mounted gun is its main firepower.",
-	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
-	L"The artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
-
-	L"Rain fire and brimstone upon your enemies.",
-	L"You won! Fireworks are in order.",
-};
 
 NETVAR_TABLE_BEGIN(CProjectile);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CProjectile);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeCreated);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeExploded);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitank>, m_hOwner);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flDamage);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLandingSpot);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 //	size_t						m_iParticleSystem;	// Generated on load
 SAVEDATA_TABLE_END();
 
 CProjectile::CProjectile()
 {
-	m_flTimeCreated = GameServer()?GameServer()->GetGameTime():0;
-	m_flTimeExploded = 0;
-
 	m_bFallSoundPlayed = false;
-
-	m_bShouldRender = true;
 
 	m_bFragmented = false;
 	m_iBounces = 0;
@@ -181,11 +32,12 @@ void CProjectile::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
 	PrecacheSound(L"sound/bomb-drop.wav");
-	PrecacheSound(L"sound/explosion.wav");
 }
 
 void CProjectile::Think()
 {
+	BaseClass::Think();
+
 	if (MakesSounds() && BombDropNoise() && GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
 	{
 		bool bCanSeeOwner;
@@ -221,9 +73,6 @@ void CProjectile::Think()
 	}
 
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
-		Delete();
-
-	else if (m_flTimeExploded != 0.0f && GameServer()->GetGameTime() - m_flTimeExploded > 2.0f)
 		Delete();
 }
 
@@ -369,54 +218,28 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	}
 }
 
-void CProjectile::Explode(CBaseEntity* pInstigator)
+void CProjectile::OnExplode(CBaseEntity* pInstigator)
 {
-	SetVelocity(Vector());
-	SetGravity(Vector());
-
-	bool bHit = false;
-	if (m_flDamage > 0)
-		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage, pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
-
-	m_flTimeExploded = GameServer()->GetGameTime();
-
-	if (m_bShouldRender)
-		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
-
-	bool bCanSeeOwner;
-	if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
-		bCanSeeOwner = true;
-	else
-		bCanSeeOwner = false;
-
-	if (MakesSounds() && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0 || bCanSeeOwner)
-		EmitSound(L"sound/explosion.wav");
-
-	if (m_hOwner != NULL && dynamic_cast<CTerrain*>(pInstigator) && !bHit)
-		m_hOwner->Speak(TANKSPEECH_MISSED);
+	BaseClass::OnExplode(pInstigator);
 
 	if (m_iParticleSystem != ~0)
 	{
 		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 		m_iParticleSystem = 0;
 	}
-
-	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
-		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
 }
 
-void CProjectile::SetOwner(CDigitank* pOwner)
+bool CProjectile::ShouldPlayExplosionSound()
 {
-	m_hOwner = pOwner;
-	if (pOwner)
-		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
-	SetSimulated(true);
-	SetCollisionGroup(CG_POWERUP);
+	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0;
+}
 
-	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0 || DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
-		m_bShouldRender = true;
-	else
-		m_bShouldRender = false;
+void CProjectile::OnSetOwner(CDigitank* pOwner)
+{
+	BaseClass::OnSetOwner(pOwner);
+
+	SetSimulated(true);
+	SetCollisionGroup(CG_PROJECTILE);
 
 	if (m_bShouldRender)
 	{
@@ -424,8 +247,11 @@ void CProjectile::SetOwner(CDigitank* pOwner)
 		if (m_iParticleSystem != ~0)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
+}
 
-	m_flDamage = GetWeaponDamage(GetWeaponType())/GetWeaponShells(GetWeaponType());
+bool CProjectile::ShouldBeVisible()
+{
+	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0;
 }
 
 size_t CProjectile::CreateParticleSystem()
@@ -443,36 +269,6 @@ void CProjectile::ClientEnterGame()
 		if (m_iParticleSystem != ~0)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
-}
-
-float CProjectile::GetWeaponEnergy(weapon_t eProjectile)
-{
-	return g_aflWeaponEnergies[eProjectile];
-}
-
-float CProjectile::GetWeaponDamage(weapon_t eProjectile)
-{
-	return g_aflWeaponDamages[eProjectile];
-}
-
-size_t CProjectile::GetWeaponShells(weapon_t eProjectile)
-{
-	return g_aiWeaponShells[eProjectile];
-}
-
-float CProjectile::GetWeaponFireInterval(weapon_t eProjectile)
-{
-	return g_aflWeaponFireInterval[eProjectile];
-}
-
-char16_t* CProjectile::GetWeaponName(weapon_t eProjectile)
-{
-	return g_apszWeaponNames[eProjectile];
-}
-
-char16_t* CProjectile::GetWeaponDescription(weapon_t eProjectile)
-{
-	return g_apszWeaponDescriptions[eProjectile];
 }
 
 NETVAR_TABLE_BEGIN(CSmallShell);

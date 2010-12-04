@@ -246,6 +246,9 @@ void CGameServer::Render()
 
 	m_pRenderer->SetCameraPosition(m_pCamera->GetCameraPosition());
 	m_pRenderer->SetCameraTarget(m_pCamera->GetCameraTarget());
+	m_pRenderer->SetCameraFOV(m_pCamera->GetCameraFOV());
+	m_pRenderer->SetCameraNear(m_pCamera->GetCameraNear());
+	m_pRenderer->SetCameraFar(m_pCamera->GetCameraFar());
 
 	m_pRenderer->SetupFrame();
 	m_pRenderer->DrawBackground();

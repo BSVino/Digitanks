@@ -1,12 +1,12 @@
 #ifndef DT_PROJECTILE_H
 #define DT_PROJECTILE_H
 
-#include <baseentity.h>
+#include "baseweapon.h"
 #include <digitanks/units/digitank.h>
 
-class CProjectile : public CBaseEntity
+class CProjectile : public CBaseWeapon
 {
-	REGISTER_ENTITY_CLASS(CProjectile, CBaseEntity);
+	REGISTER_ENTITY_CLASS(CProjectile, CBaseWeapon);
 
 public:
 								CProjectile();
@@ -28,49 +28,31 @@ public:
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	virtual void				Touching(CBaseEntity* pOther);
 
-	virtual void				Explode(CBaseEntity* pInstigator = NULL);
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+	virtual bool				ShouldPlayExplosionSound();
 
-	virtual void				SetOwner(CDigitank* pOwner);
-	virtual void				SetForce(Vector vecForce) { SetVelocity(vecForce); };
+	virtual void				OnSetOwner(CDigitank* pOwner);
+	virtual bool				ShouldBeVisible();
+
 	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };
 
 	virtual size_t				CreateParticleSystem();
 
 	virtual void				ClientEnterGame();
 
-	virtual weapon_t			GetWeaponType() { return PROJECTILE_SMALL; }
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
 	virtual float				ShellRadius() { return 0.5f; };
-	virtual float				ExplosionRadius() { return 4.0f; };
-	virtual float				PushRadius() { return 20.0f; };
-	virtual float				PushDistance() { return 4.0f; };
-	virtual float				RockIntensity() { return 0.5f; };
 	virtual bool				ShouldExplode() { return true; };
-	virtual bool				CreatesCraters() { return true; };
 	virtual bool				BombDropNoise() { return true; };
 	virtual bool				SendsNotifications() { return true; };
-	virtual bool				HasDamageFalloff() { return true; };
 	virtual size_t				Fragments() { return 0; };
 	virtual size_t				Bounces() { return 0; };
 
-	static float				GetWeaponEnergy(weapon_t eProjectile);
-	static float				GetWeaponDamage(weapon_t eProjectile);
-	static size_t				GetWeaponShells(weapon_t eProjectile);
-	static float				GetWeaponFireInterval(weapon_t eProjectile);
-	static char16_t*			GetWeaponName(weapon_t eProjectile);
-	static char16_t*			GetWeaponDescription(weapon_t eProjectile);
-
 protected:
-	float						m_flTimeCreated;
-	float						m_flTimeExploded;
-
 	bool						m_bFallSoundPlayed;
 
-	CEntityHandle<CDigitank>	m_hOwner;
-	float						m_flDamage;
 	Vector						m_vecLandingSpot;
-	bool						m_bShouldRender;
 
 	size_t						m_iParticleSystem;
 

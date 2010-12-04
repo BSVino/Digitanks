@@ -532,6 +532,14 @@ void CApplication::GetMousePosition(int& x, int& y)
 	glfwGetMousePos(&x, &y);
 }
 
+void CApplication::SetMouseCursorEnabled(bool bEnabled)
+{
+	if (bEnabled)
+		glfwEnable( GLFW_MOUSE_CURSOR );
+	else
+		glfwDisable( GLFW_MOUSE_CURSOR );
+}
+
 bool CApplication::HasCommandLineSwitch(const char* pszSwitch)
 {
 	for (size_t i = 0; i < m_apszCommandLine.size(); i++)

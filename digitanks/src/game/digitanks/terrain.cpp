@@ -632,13 +632,13 @@ bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 
 void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
 {
-	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
-	if (pProjectile && !pProjectile->CreatesCraters())
+	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
+	if (pWeapon && !pWeapon->CreatesCraters())
 		return;
 
 	float flRadius = 4.0f;
-	if (pProjectile)
-		flRadius = pProjectile->ExplosionRadius();
+	if (pWeapon)
+		flRadius = pWeapon->ExplosionRadius();
 
 	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
 

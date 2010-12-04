@@ -10,8 +10,10 @@
 #include "units/scout.h"
 #include "digitanksteam.h"
 #include "powerup.h"
+#include "weapons/baseweapon.h"
 #include "weapons/projectile.h"
 #include "weapons/specialshells.h"
+#include "weapons/cameraguided.h"
 #include "terrain.h"
 #include "updates.h"
 #include "structures/props.h"
@@ -38,6 +40,7 @@ REGISTER_ENTITY(CMechInfantry);
 REGISTER_ENTITY(CScout);
 REGISTER_ENTITY(CDigitanksTeam);
 REGISTER_ENTITY(CPowerup);
+REGISTER_ENTITY(CBaseWeapon);
 REGISTER_ENTITY(CProjectile);
 REGISTER_ENTITY(CSmallShell);
 REGISTER_ENTITY(CMediumShell);
@@ -53,6 +56,7 @@ REGISTER_ENTITY(CArtilleryShell);
 REGISTER_ENTITY(CInfantryFlak);
 REGISTER_ENTITY(CTorpedo);
 REGISTER_ENTITY(CAirstrikeShell);
+REGISTER_ENTITY(CCameraGuidedMissile);
 REGISTER_ENTITY(CSelectable);
 REGISTER_ENTITY(CSupplyLine);
 REGISTER_ENTITY(CTerrain);

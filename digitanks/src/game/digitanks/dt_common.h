@@ -62,6 +62,9 @@ typedef enum
 	PROJECTILE_TORPEDO,		// For scouts
 	PROJECTILE_ARTILLERY,	// For guess who
 
+	// Special/odd weapons
+	PROJECTILE_CAMERAGUIDED,
+
 	PROJECTILE_AIRSTRIKE,
 	PROJECTILE_FIREWORKS,
 

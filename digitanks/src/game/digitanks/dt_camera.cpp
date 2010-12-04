@@ -9,6 +9,7 @@
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
 #include <tinker/keys.h>
+#include <game/digitanks/weapons/cameraguided.h>
 
 CDigitanksCamera::CDigitanksCamera()
 {
@@ -99,6 +100,11 @@ void CDigitanksCamera::Shake(Vector vecLocation, float flMagnitude)
 	m_flShakeMagnitude = flMagnitude;
 }
 
+void CDigitanksCamera::SetCameraGuidedMissile(CCameraGuidedMissile* pMissile)
+{
+	m_hCameraGuidedMissile = pMissile;
+}
+
 void CDigitanksCamera::Think()
 {
 	BaseClass::Think();
@@ -186,6 +192,9 @@ void CDigitanksCamera::Think()
 
 Vector CDigitanksCamera::GetCameraPosition()
 {
+	if (m_hCameraGuidedMissile != NULL)
+		return m_hCameraGuidedMissile->GetOrigin();
+
 	if (m_bFreeMode)
 		return BaseClass::GetCameraPosition();
 
@@ -194,10 +203,37 @@ Vector CDigitanksCamera::GetCameraPosition()
 
 Vector CDigitanksCamera::GetCameraTarget()
 {
+	if (m_hCameraGuidedMissile != NULL)
+		return m_hCameraGuidedMissile->GetOrigin() + AngleVector(m_hCameraGuidedMissile->GetAngles());
+
 	if (m_bFreeMode)
 		return BaseClass::GetCameraTarget();
 
 	return m_vecTarget + m_vecShake;
+}
+
+float CDigitanksCamera::GetCameraFOV()
+{
+	if (m_hCameraGuidedMissile != NULL)
+		return 100;
+
+	return BaseClass::GetCameraFOV();
+}
+
+float CDigitanksCamera::GetCameraNear()
+{
+	if (m_hCameraGuidedMissile != NULL)
+		return 1.0f;
+
+	return 10;
+}
+
+float CDigitanksCamera::GetCameraFar()
+{
+	if (m_hCameraGuidedMissile != NULL)
+		return 1000;
+
+	return 1000;
 }
 
 void CDigitanksCamera::SetFreeMode(bool bOn)
@@ -218,7 +254,26 @@ void CDigitanksCamera::MouseInput(int x, int y)
 	dx = x - m_iMouseLastX;
 	dy = y - m_iMouseLastY;
 
-	if (m_bRotatingCamera)
+	if (m_hCameraGuidedMissile != NULL)
+	{
+		EAngle angMissile = m_hCameraGuidedMissile->GetAngles();
+		angMissile.y += (dx/5.0f);
+		angMissile.p -= (dy/5.0f);
+
+		if (angMissile.p > 89)
+			angMissile.p = 89;
+
+		if (angMissile.p < -89)
+			angMissile.p = -89;
+
+		while (angMissile.y > 180)
+			angMissile.y -= 360;
+
+		while (angMissile.y < -180)
+			angMissile.y += 360;
+		m_hCameraGuidedMissile->SetAngles(angMissile);
+	}
+	else if (m_bRotatingCamera)
 	{
 		m_angCamera.y += (dx/5.0f);
 		m_angCamera.p += (dy/5.0f);

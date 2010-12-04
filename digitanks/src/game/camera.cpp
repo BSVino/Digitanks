@@ -32,6 +32,7 @@ void CCamera::SetFreeMode(bool bOn)
 	m_vecFreeCamera = GetCameraPosition();
 	m_angFreeCamera = VectorAngles((GetCameraTarget() - GetCameraPosition()).Normalized());
 	m_bFreeMode = bOn;
+	DigitanksWindow()->SetMouseCursorEnabled(!m_bFreeMode);
 }
 
 Vector CCamera::GetCameraPosition()
@@ -48,6 +49,11 @@ Vector CCamera::GetCameraTarget()
 		return m_vecFreeCamera + AngleVector(m_angFreeCamera);
 
 	return Vector(0,0,0);
+}
+
+float CCamera::GetCameraFOV()
+{
+	return 44.0f;
 }
 
 void CCamera::MouseInput(int x, int y)

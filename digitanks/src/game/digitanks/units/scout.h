@@ -19,7 +19,7 @@ public:
 
 	virtual void				Move();
 	virtual void				Fire();
-	virtual void				FireProjectile(class CNetworkParameters* p);
+	virtual void				FireWeapon(class CNetworkParameters* p);
 
 	virtual bool				IsScout() const { return true; };
 
