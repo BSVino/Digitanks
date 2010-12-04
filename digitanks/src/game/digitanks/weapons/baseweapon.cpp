@@ -101,6 +101,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	6.0f,	// icbm
 	4.0f,	// grenade
 	7.0f,	// daisy chain
+	7.0f,	// clusterbomb
 	4.0f,	// earthshaker
 
 	6.0f,	// machine gun
@@ -127,6 +128,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	7.0f,	// icbm
 	8.0f,	// grenade
 	4.0f,	// daisy chain
+	7.0f,	// clusterbomb
 	1.0f,	// earthshaker
 
 	0.12f,	// machine gun
@@ -153,6 +155,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 	1,	// icbm
 	1,	// grenade
 	1,	// daisy chain
+	1,	// clusterbomb
 	1,	// earthshaker
 
 	20,	// machine gun
@@ -179,6 +182,7 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0,		// icbm
 	0,		// grenade
 	0,		// daisy chain
+	0,		// clusterbomb
 	0,		// earthshaker
 
 	0.1f,	// machine gun
@@ -205,6 +209,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"ICBM",
 	L"Grenade",
 	L"Daisy Chain",
+	L"Cluster Bomb",
 	L"Earthshaker",
 
 	L"Flak Cannon",
@@ -231,6 +236,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
 	L"This heavy projectile bounces three times before it explodes. Chunk it into holes to find out-of-reach targets.",
 	L"This medium projectile can't be stopped. Even after it explodes it continues on its previous path through the cleared terrain. Good for punching through dirt.",
+	L"This heavy projectile breaks into a large number of smaller pieces on impact for maximum distruction.",
 	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
 
 	L"The infantry's light mounted gun is its main firepower.",

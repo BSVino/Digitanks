@@ -2078,6 +2078,8 @@ CBaseWeapon* CDigitank::CreateWeapon()
 		return GameServer()->Create<CCameraGuidedMissile>("CCameraGuidedMissile");
 	else if (GetCurrentWeapon() == PROJECTILE_DAISYCHAIN)
 		return GameServer()->Create<CDaisyChain>("CDaisyChain");
+	else if (GetCurrentWeapon() == PROJECTILE_CLUSTERBOMB)
+		return GameServer()->Create<CClusterBomb>("CClusterBomb");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

@@ -346,6 +346,40 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	DigitanksGame()->AddProjectileToWaitFor();
 }
 
+NETVAR_TABLE_BEGIN(CClusterBomb);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CClusterBomb);
+SAVEDATA_TABLE_END();
+
+void CClusterBomb::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_flExplosionRadius = 20;
+}
+
+void CClusterBomb::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	if (m_flExplosionRadius < 15)
+		return;
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		CClusterBomb* pProjectile = GameServer()->Create<CClusterBomb>(GetClassName());
+		pProjectile->SetOwner(m_hOwner);
+		pProjectile->SetVelocity(Vector(RandomFloat(-10, 10), RandomFloat(10, 30), RandomFloat(-10, 10)));
+		pProjectile->SetGravity(GetGravity());
+		pProjectile->SetLandingSpot(m_vecLandingSpot);
+		pProjectile->SetOrigin(GetOrigin());
+		pProjectile->m_flExplosionRadius = 10;
+		pProjectile->m_flDamage = m_flDamage/2;
+		DigitanksGame()->AddProjectileToWaitFor();
+	}
+}
+
 NETVAR_TABLE_BEGIN(CEarthshaker);
 NETVAR_TABLE_END();
 

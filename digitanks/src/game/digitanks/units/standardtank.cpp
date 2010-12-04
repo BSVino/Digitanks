@@ -34,6 +34,7 @@ void CStandardTank::Spawn()
 	m_aeWeapons.push_back(PROJECTILE_ICBM);
 	m_aeWeapons.push_back(PROJECTILE_GRENADE);
 	m_aeWeapons.push_back(PROJECTILE_DAISYCHAIN);
+	m_aeWeapons.push_back(PROJECTILE_CLUSTERBOMB);
 	m_aeWeapons.push_back(PROJECTILE_SPLOOGE);
 	m_aeWeapons.push_back(PROJECTILE_TRACTORBOMB);
 	m_aeWeapons.push_back(PROJECTILE_EARTHSHAKER);

@@ -170,6 +170,25 @@ protected:
 	float						m_flExplosionRadius;
 };
 
+class CClusterBomb : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CClusterBomb, CProjectile);
+
+public:
+	virtual void				Spawn();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_CLUSTERBOMB; }
+	virtual float				ShellRadius() { return 1.3f; };
+	virtual float				ExplosionRadius() { return m_flExplosionRadius; };
+	virtual float				PushDistance() { return 6.0f; };
+	virtual float				RockIntensity() { return 0.7f; };
+
+protected:
+	float						m_flExplosionRadius;
+};
+
 class CEarthshaker : public CProjectile
 {
 	REGISTER_ENTITY_CLASS(CEarthshaker, CProjectile);
