@@ -313,6 +313,39 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CGrenade);
 SAVEDATA_TABLE_END();
 
+NETVAR_TABLE_BEGIN(CDaisyChain);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CDaisyChain);
+SAVEDATA_TABLE_END();
+
+void CDaisyChain::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_flExplosionRadius = 20;
+}
+
+void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	// 20, 16, 12
+	// The third will be the last.
+	if (m_flExplosionRadius < 13)
+		return;
+
+	CDaisyChain* pProjectile = GameServer()->Create<CDaisyChain>(GetClassName());
+	pProjectile->SetOwner(m_hOwner);
+	pProjectile->SetVelocity(GetVelocity());
+	pProjectile->SetGravity(GetGravity());
+	pProjectile->SetLandingSpot(m_vecLandingSpot);
+	pProjectile->SetOrigin(GetOrigin());
+	pProjectile->m_flExplosionRadius = m_flExplosionRadius - 4;
+	pProjectile->m_flDamage = m_flDamage - 1;
+	DigitanksGame()->AddProjectileToWaitFor();
+}
+
 NETVAR_TABLE_BEGIN(CEarthshaker);
 NETVAR_TABLE_END();
 

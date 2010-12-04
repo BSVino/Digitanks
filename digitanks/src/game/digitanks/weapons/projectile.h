@@ -151,6 +151,25 @@ public:
 	virtual size_t				Bounces() { return 2; };
 };
 
+class CDaisyChain : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CDaisyChain, CProjectile);
+
+public:
+	virtual void				Spawn();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_DAISYCHAIN; }
+	virtual float				ShellRadius() { return 0.8f; };
+	virtual float				ExplosionRadius() { return m_flExplosionRadius; };
+	virtual float				PushDistance() { return 3.0f; };
+	virtual float				RockIntensity() { return 0.7f; };
+
+protected:
+	float						m_flExplosionRadius;
+};
+
 class CEarthshaker : public CProjectile
 {
 	REGISTER_ENTITY_CLASS(CEarthshaker, CProjectile);

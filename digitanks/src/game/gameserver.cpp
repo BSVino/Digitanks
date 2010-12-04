@@ -185,17 +185,26 @@ void CGameServer::Simulate()
 {
 	float flSimulationFrameTime = 0.01f;
 
+	eastl::vector<CEntityHandle<CBaseEntity> > ahEntities;
+	ahEntities.reserve(CBaseEntity::GetNumEntities());
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		ahEntities.push_back(CBaseEntity::GetEntityNumber(i));
+
+	for (size_t i = 0; i < ahEntities.size(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
+		CBaseEntity* pEntity = ahEntities[i];
+		if (!pEntity)
+			continue;
 
 		pEntity->SetLastOrigin(pEntity->GetOrigin());
 	}
 
 	// Move all entities
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < ahEntities.size(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(CBaseEntity::GetEntityHandle(i));
+		CBaseEntity* pEntity = ahEntities[i];
+		if (!pEntity)
+			continue;
 
 		if (!pEntity->ShouldSimulate())
 			continue;
@@ -213,9 +222,11 @@ void CGameServer::Simulate()
 	while (m_flSimulationTime < m_flGameTime)
 		m_flSimulationTime += flSimulationFrameTime;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < ahEntities.size(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = ahEntities[i];
+		if (!pEntity)
+			continue;
 
 		if (pEntity->IsDeleted())
 			continue;

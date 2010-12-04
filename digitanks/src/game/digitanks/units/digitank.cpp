@@ -2076,6 +2076,8 @@ CBaseWeapon* CDigitank::CreateWeapon()
 		return GameServer()->Create<CEarthshaker>("CEarthshaker");
 	else if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
 		return GameServer()->Create<CCameraGuidedMissile>("CCameraGuidedMissile");
+	else if (GetCurrentWeapon() == PROJECTILE_DAISYCHAIN)
+		return GameServer()->Create<CDaisyChain>("CDaisyChain");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

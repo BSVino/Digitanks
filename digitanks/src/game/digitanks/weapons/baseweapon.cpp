@@ -57,12 +57,14 @@ void CBaseWeapon::Think()
 
 void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 {
-	SetVelocity(Vector());
-	SetGravity(Vector());
-
 	bool bHit = false;
 	if (m_flDamage > 0)
 		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage, pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
+
+	OnExplode(pInstigator);
+
+	SetVelocity(Vector());
+	SetGravity(Vector());
 
 	m_flTimeExploded = GameServer()->GetGameTime();
 
@@ -83,8 +85,6 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
-
-	OnExplode(pInstigator);
 }
 
 static float g_aflWeaponEnergies[WEAPON_MAX] =
@@ -100,6 +100,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	3.0f,	// splooge
 	6.0f,	// icbm
 	4.0f,	// grenade
+	7.0f,	// daisy chain
 	4.0f,	// earthshaker
 
 	6.0f,	// machine gun
@@ -125,6 +126,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	7.0f,	// splooge
 	7.0f,	// icbm
 	8.0f,	// grenade
+	4.0f,	// daisy chain
 	1.0f,	// earthshaker
 
 	0.12f,	// machine gun
@@ -150,6 +152,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 	20,	// splooge
 	1,	// icbm
 	1,	// grenade
+	1,	// daisy chain
 	1,	// earthshaker
 
 	20,	// machine gun
@@ -175,6 +178,7 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0.01f,	// splooge
 	0,		// icbm
 	0,		// grenade
+	0,		// daisy chain
 	0,		// earthshaker
 
 	0.1f,	// machine gun
@@ -200,6 +204,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Grapeshot",
 	L"ICBM",
 	L"Grenade",
+	L"Daisy Chain",
 	L"Earthshaker",
 
 	L"Flak Cannon",
@@ -225,6 +230,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
 	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
 	L"This heavy projectile bounces three times before it explodes. Chunk it into holes to find out-of-reach targets.",
+	L"This medium projectile can't be stopped. Even after it explodes it continues on its previous path through the cleared terrain. Good for punching through dirt.",
 	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
 
 	L"The infantry's light mounted gun is its main firepower.",
