@@ -5,8 +5,11 @@
 #include "color.h"
 
 #define TERRAIN_SIZE 200
-#define TERRAIN_GEN_SECTORS 10
-#define TERRAIN_SECTOR_SIZE (TERRAIN_SIZE/TERRAIN_GEN_SECTORS)
+#define TERRAIN_CHUNKS 10
+#define TERRAIN_CHUNK_SIZE (TERRAIN_SIZE/TERRAIN_CHUNKS)
+
+#define TERRAIN_CHUNK_TEXTURE_SIZE 256
+#define TERRAIN_CHUNK_TEXELS_PER (TERRAIN_CHUNK_TEXTURE_SIZE/TERRAIN_CHUNK_SIZE)
 
 class CTerrainChunk
 {
@@ -18,8 +21,14 @@ public:
 	virtual							~CTerrainChunk();
 
 protected:
-	float							m_aflHeights[TERRAIN_SECTOR_SIZE][TERRAIN_SECTOR_SIZE];
+	float							m_aflHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 	class raytrace::CRaytracer*		m_pTracer;
+
+	// A bit field
+	unsigned char					m_aiSpecialData[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
+
+	Color							m_aclrTexture[TERRAIN_CHUNK_TEXTURE_SIZE][TERRAIN_CHUNK_TEXTURE_SIZE];
+	size_t							m_iChunkTexture;
 
 	size_t							m_iCallList;
 
@@ -66,11 +75,21 @@ public:
 	float					ChunkToWorldSpace(int iChunk, int i);
 	int						WorldToChunkSpace(float f, int& iIndex);
 	bool					IsPointOnMap(Vector vecPoint);
+	bool					IsPointOverLava(Vector vecPoint);
+
+	typedef enum
+	{
+		TB_LAVA = 0,
+		TB_HOLE = 1,
+		// uses m_aiSpecialData which is unsigned char so max 8 of these.
+	} terrainbit_t;
+	void					SetBit(int x, int y, terrainbit_t b, bool v);
+	bool					GetBit(int x, int y, terrainbit_t b);
 
 	Vector					GetNormalAtPoint(Vector vecPoint);
 
 	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
-	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit);
+	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit);
 
 	Color					GetPrimaryTerrainColor();
 
@@ -83,14 +102,17 @@ public:
 
 	virtual void			ClientEnterGame();
 
+	float					LavaHeight() { return 0.2f; }
+
 protected:
 	bool					m_bHeightsInitialized;
 	float					m_flHighest;
 	float					m_flLowest;
 
-	Vector					m_avecTerrainColors[4];
+	Vector					m_vecTerrainColor;
+	Vector					m_avecQuadMods[4];
 
-	CTerrainChunk			m_aTerrainChunks[TERRAIN_GEN_SECTORS][TERRAIN_GEN_SECTORS];
+	CTerrainChunk			m_aTerrainChunks[TERRAIN_CHUNKS][TERRAIN_CHUNKS];
 };
 
 #endif

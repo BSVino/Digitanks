@@ -660,6 +660,9 @@ void CDigitank::EndTurn()
 	{
 		m_flDefensePower = m_flTotalPower;
 		m_flTotalPower = 0;
+
+		if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+			TakeDamage(NULL, NULL, DAMAGE_BURN, DigitanksGame()->LavaDamage(), false);
 	}
 }
 
@@ -1037,6 +1040,9 @@ void CDigitank::Move(Vector vecNewPosition, int iMoveType)
 	m_flStartedMove = GameServer()->GetGameTime();
 	SetOrigin(vecNewPosition);
 	m_iMoveType = iMoveType;
+
+	if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecNewPosition))
+		TakeDamage(NULL, NULL, DAMAGE_BURN, DigitanksGame()->LavaDamage(), false);
 }
 
 void CDigitank::Turn()
@@ -1475,7 +1481,7 @@ void CDigitank::Think()
 
 		if (m_hChargeTarget != NULL)
 		{
-			m_hChargeTarget->TakeDamage(this, this, ChargeDamage(), true);
+			m_hChargeTarget->TakeDamage(this, this, DAMAGE_COLLISION, ChargeDamage(), true);
 
 			Vector vecPushDirection = (m_hChargeTarget->GetOrigin() - GetOrigin()).Normalized();
 
@@ -2117,7 +2123,7 @@ void CDigitank::ClientUpdate(int iClient)
 	BaseClass::ClientUpdate(iClient);
 }
 
-void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
 {
 	if (flDamage > 0)
 	{
@@ -2165,7 +2171,10 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 
 	float flDamageBlocked = flShield * GetDefenseScale();
 
-	if (pAttacker == pInflictor && dynamic_cast<CDigitank*>(pAttacker))
+	// Lava burns bypass shields
+	if (eDamageType == DAMAGE_BURN)
+		flDamageBlocked = 0;
+	else if (eDamageType == DAMAGE_COLLISION)
 	{
 		// Looks like a charge to me. Charges bypass shields.
 		flDamageBlocked = 0;
@@ -2213,11 +2222,12 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, floa
 		}
 	}
 
-	SetShieldValueForAttackDirection(vecAttackDirection, 0);
+	if (eDamageType != DAMAGE_BURN)
+		SetShieldValueForAttackDirection(vecAttackDirection, 0);
 
 	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit, false);
 
-	BaseClass::TakeDamage(pAttacker, pInflictor, flDamage, bDirectHit);
+	BaseClass::TakeDamage(pAttacker, pInflictor, eDamageType, flDamage, bDirectHit);
 }
 
 void CDigitank::OnKilled(CBaseEntity* pKilledBy)

@@ -171,7 +171,7 @@ void CBaseEntity::ClientUpdate(int iClient)
 	CNetwork::CallFunction(iClient, "SetAngles", GetHandle(), GetAngles().p, GetAngles().y, GetAngles().r);
 }
 
-void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
 {
 	if (!m_bTakeDamage)
 		return;

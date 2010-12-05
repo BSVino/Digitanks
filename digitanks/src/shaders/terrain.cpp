@@ -25,6 +25,7 @@ const char* CShaderLibrary::GetVSTerrainShader()
 		"void main()"
 		"{"
 		"	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+		"	gl_TexCoord[0] = gl_MultiTexCoord0;"
 		"	vecPosition = gl_Vertex.xyz;"
 		"	gl_FrontColor = vecFrontColor = gl_Color;"
 		"	flAimTargetRadius1 = aflAimTargetRadius[0];"
@@ -49,6 +50,8 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		LENGTH2DSQR
 		DISTANCE_TO_SEGMENT_SQR
 		ANGLE_DIFFERENCE
+
+		"uniform sampler2D iDiffuse;"
 
 		"uniform vec3 vecTankOrigin;"
 
@@ -98,7 +101,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 
 		"void main()"
 		"{"
-		"	vec4 vecBaseColor = vecFrontColor;"
+		"	vec4 vecBaseColor = vecFrontColor * texture2D(iDiffuse, gl_TexCoord[0].st);"
 
 		"	float flXMod = mod(vecPosition.x, 10.0);"
 		"	float flZMod = mod(vecPosition.z, 10.0);"

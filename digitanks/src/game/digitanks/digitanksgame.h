@@ -237,8 +237,8 @@ public:
 	size_t					GetTurn() { return m_iTurn; }
 
 	size_t					GetDemoTurns() { return 80; }
-
 	float					FogPenetrationDistance() { return 10; }
+	float					LavaDamage() { return 2; }
 
 	bool					IsPartyMode() { return m_bPartyMode; };
 

@@ -235,7 +235,7 @@ public:
 
 	virtual void				ClientUpdate(int iClient);
 
-	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
+	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
 
 	virtual Vector				GetOrigin() const;

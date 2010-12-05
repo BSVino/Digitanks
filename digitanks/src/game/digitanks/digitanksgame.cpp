@@ -645,7 +645,7 @@ void CDigitanksGame::SetupArtilleryRound()
 	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
 
 	size_t iTotalTanks = m_iTanks * (m_iHumanPlayers + m_iBotPlayers);
-	size_t iSections = (int)sqrt((float)iTotalTanks)+1;
+	size_t iSections = (int)sqrt((float)iTotalTanks);
 	float flSectionSize = flMapSize*2/iSections;
 
 	eastl::vector<size_t> aiRandomTeamPositions;
@@ -657,34 +657,44 @@ void CDigitanksGame::SetupArtilleryRound()
 	}
 
 	size_t iPosition = 0;
-	for (size_t x = 0; x < iSections; x++)
+	size_t iTanksPlaced = 0;
+	while (iTanksPlaced < iTotalTanks)
 	{
-		for (size_t y = 0; y < iSections; y++)
+		for (size_t x = 0; x < iSections; x++)
 		{
-			if (iPosition >= aiRandomTeamPositions.size())
-				break;
+			for (size_t y = 0; y < iSections; y++)
+			{
+				if (iTanksPlaced >= iTotalTanks)
+					break;
 
-			CTeam* pTeam = m_ahTeams[aiRandomTeamPositions[iPosition]];
+				CTeam* pTeam = m_ahTeams[aiRandomTeamPositions[iPosition]];
 
-			float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
-			float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
+				iPosition = (iPosition+1)%aiRandomTeamPositions.size();
 
-			Vector vecSectionPosition(flSectionPositionX, 0, flSectionPositionY);
-			Vector vecSectionRandomize(RandomFloat(0, flSectionSize), 0, RandomFloat(0, flSectionSize));
+				float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
+				float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
 
-			Vector vecTank = vecSectionPosition + vecSectionRandomize;
-			EAngle angTank = VectorAngles(-vecTank.Normalized());
+				Vector vecSectionPosition(flSectionPositionX, 0, flSectionPositionY);
+				Vector vecSectionRandomize(RandomFloat(0, flSectionSize), 0, RandomFloat(0, flSectionSize));
 
-			CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
-			pTeam->AddEntity(pTank);
+				Vector vecTank = vecSectionPosition + vecSectionRandomize;
 
-			vecTank.y = pTank->FindHoverHeight(vecTank);
+				if (GetTerrain()->IsPointOverLava(vecTank))
+					continue;
 
-			pTank->SetOrigin(vecTank);
-			pTank->SetAngles(angTank);
-			pTank->GiveBonusPoints(1, false);
+				EAngle angTank = VectorAngles(-vecTank.Normalized());
 
-			iPosition++;
+				CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
+				pTeam->AddEntity(pTank);
+
+				vecTank.y = pTank->FindHoverHeight(vecTank);
+
+				pTank->SetOrigin(vecTank);
+				pTank->SetAngles(angTank);
+				pTank->GiveBonusPoints(1, false);
+
+				iTanksPlaced++;
+			}
 		}
 	}
 
@@ -1176,7 +1186,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 		bHit = true;
 
-		apHit[i]->TakeDamage(pAttacker, pInflictor, flDamage, false);
+		apHit[i]->TakeDamage(pAttacker, pInflictor, DAMAGE_EXPLOSION, flDamage, false);
 	}
 
 	return bHit;

@@ -104,7 +104,7 @@ void CCameraGuidedMissile::Touching(CBaseEntity* pOther)
 	if (m_flTimeExploded != 0)
 		return;
 
-	pOther->TakeDamage(m_hOwner, this, m_flDamage);
+	pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage);
 
 	Explode(pOther);
 

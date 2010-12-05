@@ -11,6 +11,14 @@
 
 #include "entityhandle.h"
 
+typedef enum
+{
+	DAMAGE_GENERIC = 1,
+	DAMAGE_EXPLOSION,
+	DAMAGE_COLLISION,
+	DAMAGE_BURN,
+} damagetype_t;
+
 namespace raytrace
 {
 	class CRaytracer;
@@ -206,7 +214,7 @@ public:
 	virtual void							ClientUpdate(int iClient);
 	virtual void							ClientEnterGame();
 
-	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit = true);
+	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 	virtual bool							TakesDamage() { return m_bTakeDamage; };
 	void									Kill();
 	void									Killed(CBaseEntity* pKilledBy);

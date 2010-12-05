@@ -25,7 +25,8 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
 	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecTerrainColors);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecTerrainColor);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecQuadMods);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CTerrainChunk, m_aTerrainChunks);	// Onserialize
 SAVEDATA_TABLE_END();
 
@@ -45,31 +46,35 @@ void CTerrain::Spawn()
 	switch (mtrand()%4)
 	{
 	case 0:
-		m_avecTerrainColors[0] = Vector(0.40f, 0.41f, 0.55f);
-		m_avecTerrainColors[1] = Vector(0.40f, 0.40f, 0.55f);
-		m_avecTerrainColors[2] = Vector(0.41f, 0.41f, 0.55f);
-		m_avecTerrainColors[3] = Vector(0.41f, 0.40f, 0.55f);
+		m_vecTerrainColor = Vector(0.40f, 0.41f, 0.55f);
+		m_avecQuadMods[0] = Vector(0.0f, 0.01f, 0.0f);
+		m_avecQuadMods[1] = Vector(0.0f, 0.0f, 0.0f);
+		m_avecQuadMods[2] = Vector(0.01f, 0.01f, 0.0f);
+		m_avecQuadMods[3] = Vector(0.01f, 0.0f, 0.0f);
 		break;
 
 	case 1:
-		m_avecTerrainColors[0] = Vector(0.55f, 0.47f, 0.28f);
-		m_avecTerrainColors[1] = Vector(0.55f, 0.45f, 0.28f);
-		m_avecTerrainColors[2] = Vector(0.58f, 0.47f, 0.28f);
-		m_avecTerrainColors[3] = Vector(0.58f, 0.49f, 0.28f);
+		m_vecTerrainColor = Vector(0.55f, 0.47f, 0.28f);
+		m_avecQuadMods[0] = Vector(0.0f, 0.0f, 0.0f);
+		m_avecQuadMods[1] = Vector(0.0f, -0.02f, 0.0f);
+		m_avecQuadMods[2] = Vector(0.03f, 0.0f, 0.0f);
+		m_avecQuadMods[3] = Vector(0.03f, 0.02f, 0.0f);
 		break;
 
 	case 2:
-		m_avecTerrainColors[0] = Vector(0.28f, 0.55f, 0.47f);
-		m_avecTerrainColors[1] = Vector(0.28f, 0.55f, 0.45f);
-		m_avecTerrainColors[2] = Vector(0.28f, 0.58f, 0.47f);
-		m_avecTerrainColors[3] = Vector(0.28f, 0.58f, 0.49f);
+		m_vecTerrainColor = Vector(0.28f, 0.55f, 0.47f);
+		m_avecQuadMods[0] = Vector(0.0f, 0.0f, 0.0f);
+		m_avecQuadMods[1] = Vector(0.0f, 0.0f, -0.02f);
+		m_avecQuadMods[2] = Vector(0.0f, 0.03f, 0.0f);
+		m_avecQuadMods[3] = Vector(0.0f, 0.03f, 0.02f);
 		break;
 
 	case 3:
-		m_avecTerrainColors[0] = Vector(0.55f, 0.25f, 0.27f);
-		m_avecTerrainColors[1] = Vector(0.55f, 0.25f, 0.29f);
-		m_avecTerrainColors[2] = Vector(0.58f, 0.25f, 0.27f);
-		m_avecTerrainColors[3] = Vector(0.58f, 0.25f, 0.25f);
+		m_vecTerrainColor = Vector(0.55f, 0.25f, 0.27f);
+		m_avecQuadMods[0] = Vector(0.0f, 0.0f, 0.0f);
+		m_avecQuadMods[1] = Vector(0.0f, 0.0f, 0.02f);
+		m_avecQuadMods[2] = Vector(0.03f, 0.0f, 0.0f);
+		m_avecQuadMods[3] = Vector(0.03f, 0.0f, -0.02f);
 		break;
 	}
 
@@ -118,6 +123,15 @@ void CTerrain::GenerateTerrain(float flHeight)
 				m_flHighest = flHeight;
 		}
 	}
+
+	for (size_t x = 0; x < TERRAIN_SIZE; x++)
+	{
+		for (size_t y = 0; y < TERRAIN_SIZE; y++)
+		{
+			float flHeight = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 1.00f);
+			SetBit(x, y, TB_LAVA, flHeight < LavaHeight());
+		}
+	}
 }
 
 void CTerrain::GenerateCollision()
@@ -127,9 +141,9 @@ void CTerrain::GenerateCollision()
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
-		for (size_t x = 0; x < TERRAIN_GEN_SECTORS; x++)
+		for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 		{
-			for (size_t y = 0; y < TERRAIN_GEN_SECTORS; y++)
+			for (size_t y = 0; y < TERRAIN_CHUNKS; y++)
 			{
 				CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 
@@ -138,9 +152,9 @@ void CTerrain::GenerateCollision()
 
 				pChunk->m_pTracer = new raytrace::CRaytracer();
 
-				for (size_t i = 0; i < TERRAIN_SECTOR_SIZE; i++)
+				for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)
 				{
-					for (size_t j = 0; j < TERRAIN_SECTOR_SIZE; j++)
+					for (size_t j = 0; j < TERRAIN_CHUNK_SIZE; j++)
 					{
 						float flX = ChunkToWorldSpace(x, i);
 						float flY = ChunkToWorldSpace(y, j);
@@ -170,9 +184,9 @@ void CTerrain::GenerateTerrainCallLists()
 {
 	// Break it up into sectors of smaller size so that when it comes time to regenerate,
 	// it can be done only for the sector that needs it and it won't take too long
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			GenerateTerrainCallList(i, j);
 		}
@@ -186,54 +200,103 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		return;
 
 	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
+	glPushAttrib(GL_CURRENT_BIT);
 	glBegin(GL_QUADS);
 
-	glPushAttrib(GL_CURRENT_BIT);
-
-	for (int x = TERRAIN_SECTOR_SIZE*i; x < TERRAIN_SECTOR_SIZE*(i+1); x++)
+	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
 	{
 		if (x >= TERRAIN_SIZE-1)
 			continue;
 
-		for (int y = TERRAIN_SECTOR_SIZE*j; y < TERRAIN_SECTOR_SIZE*(j+1); y++)
+		float flUVY0 = RemapVal((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), 0, 1);
+		float flUVY1 = RemapVal((float)x+1, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), 0, 1);
+
+		float flX = ArrayToWorldSpace((int)x);
+		float flX1 = ArrayToWorldSpace((int)x+1);
+
+		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
 		{
 			if (y >= TERRAIN_SIZE-1)
 				continue;
 
 			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
 
-			float flX = ArrayToWorldSpace((int)x);
-			float flX1 = ArrayToWorldSpace((int)x+1);
 			float flY = ArrayToWorldSpace((int)y);
 			float flY1 = ArrayToWorldSpace((int)y+1);
 
-			glColor3fv(flColor*m_avecTerrainColors[0]);
+			float flUVX0 = RemapVal((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), 0, 1);
+			float flUVX1 = RemapVal((float)y+1, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), 0, 1);
+
+			Vector vecColor;
+
+			if (GetBit(x, y, TB_LAVA))
+				vecColor = Vector(1,1,1);
+			else
+				vecColor = Vector(flColor, flColor, flColor);
+
+			glColor3fv(vecColor + m_avecQuadMods[0]);
+			glTexCoord2f(flUVX0, flUVY0);
 			glVertex3f(flX, GetRealHeight(x, y), flY);
 
-			glColor3fv(flColor*m_avecTerrainColors[1]);
+			glColor3fv(vecColor + m_avecQuadMods[1]);
+			glTexCoord2f(flUVX1, flUVY0);
 			glVertex3f(flX, GetRealHeight(x, y+1), flY1);
 
-			glColor3fv(flColor*m_avecTerrainColors[2]);
+			glColor3fv(vecColor + m_avecQuadMods[2]);
+			glTexCoord2f(flUVX1, flUVY1);
 			glVertex3f(flX1, GetRealHeight(x+1, y+1), flY1);
 
-			glColor3fv(flColor*m_avecTerrainColors[3]);
+			glColor3fv(vecColor + m_avecQuadMods[3]);
+			glTexCoord2f(flUVX0, flUVY1);
 			glVertex3f(flX1, GetRealHeight(x+1, y), flY);
 		}
 	}
 
-	glPopAttrib();
-
 	glEnd();
+	glPopAttrib();
 	glEndList();
+
+	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
+	{
+		for (int b = 0; b < TERRAIN_CHUNK_TEXTURE_SIZE; b++)
+		{
+			int x = TERRAIN_CHUNK_SIZE*i + a * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
+			int y = TERRAIN_CHUNK_SIZE*j + b * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
+
+			if (GetBit(x, y, TB_LAVA))
+			{
+				Color clrLava = Color(255 - RandomInt(0, 20), RandomInt(0, 20), RandomInt(0, 20));
+				Color clrLava2 = Color(214 + RandomInt(-10, 10), 55 + RandomInt(-10, 10), RandomInt(0, 20));
+
+				float flRealHeight = GetRealHeight(x, y);
+				float flLavaHeight = RemapVal(LavaHeight(), 0, 1, m_flLowest, m_flHighest);
+				float flLerp = RemapValClamped(flRealHeight, m_flLowest, flLavaHeight, 1.0f, 0.0f);
+
+				float flRamp = Lerp(RandomFloat(0, 1), flLerp);
+				pChunk->m_aclrTexture[a][b] = Color((int)(clrLava.r()*flRamp + clrLava2.r()*(1-flRamp)), (int)(clrLava.g()*flRamp + clrLava2.g()*(1-flRamp)), (int)(clrLava.b()*flRamp + clrLava2.b()*(1-flRamp)));
+			}
+			else
+				pChunk->m_aclrTexture[a][b] = m_vecTerrainColor;
+		}
+	}
+
+	if (pChunk->m_iChunkTexture)
+		glDeleteTextures(1, &pChunk->m_iChunkTexture);
+	glGenTextures(1, &pChunk->m_iChunkTexture);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)pChunk->m_iChunkTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TERRAIN_CHUNK_TEXTURE_SIZE, TERRAIN_CHUNK_TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)pChunk->m_aclrTexture[0][0]);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	pChunk->m_bNeedsRegenerate = false;
 }
 
 void CTerrain::GenerateCallLists()
 {
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
 
@@ -425,11 +488,21 @@ void CTerrain::RenderWithShaders()
 		}
 	}
 
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			if (GLEW_ARB_multitexture || GLEW_VERSION_1_3)
+				glActiveTexture(GL_TEXTURE0);
+
+			glBindTexture(GL_TEXTURE_2D, m_aTerrainChunks[i][j].m_iChunkTexture);
+			GLuint iDiffuse = glGetUniformLocation(iTerrainProgram, "iDiffuse");
+			glUniform1i(iDiffuse, 0);
 			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
+		}
 	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	GameServer()->GetRenderer()->ClearProgram();
 
@@ -438,11 +511,16 @@ void CTerrain::RenderWithShaders()
 
 void CTerrain::RenderWithoutShaders()
 {
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			glBindTexture(GL_TEXTURE_2D, (GLuint)m_aTerrainChunks[i][j].m_iChunkTexture);
 			glCallList((GLuint)m_aTerrainChunks[i][j].m_iCallList);
+		}
 	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void CTerrain::GetChunk(float x, float y, int& i, int& j)
@@ -454,10 +532,10 @@ void CTerrain::GetChunk(float x, float y, int& i, int& j)
 
 CTerrainChunk* CTerrain::GetChunk(int x, int y)
 {
-	if (x >= TERRAIN_GEN_SECTORS)
+	if (x >= TERRAIN_CHUNKS)
 		return NULL;
 
-	if (y >= TERRAIN_GEN_SECTORS)
+	if (y >= TERRAIN_CHUNKS)
 		return NULL;
 
 	if (x < 0 || y < 0)
@@ -545,8 +623,8 @@ int CTerrain::WorldToArraySpace(float f)
 
 int CTerrain::ArrayToChunkSpace(int i, int& iIndex)
 {
-	iIndex = i%TERRAIN_SECTOR_SIZE;
-	int iChunk = i/TERRAIN_SECTOR_SIZE;
+	iIndex = i%TERRAIN_CHUNK_SIZE;
+	int iChunk = i/TERRAIN_CHUNK_SIZE;
 
 	if (iChunk < 0)
 	{
@@ -554,10 +632,10 @@ int CTerrain::ArrayToChunkSpace(int i, int& iIndex)
 		return 0;
 	}
 
-	if (iChunk >= TERRAIN_GEN_SECTORS)
+	if (iChunk >= TERRAIN_CHUNKS)
 	{
-		iIndex = TERRAIN_SECTOR_SIZE-1;
-		return TERRAIN_GEN_SECTORS-1;
+		iIndex = TERRAIN_CHUNK_SIZE-1;
+		return TERRAIN_CHUNKS-1;
 	}
 
 	return iChunk;
@@ -565,7 +643,7 @@ int CTerrain::ArrayToChunkSpace(int i, int& iIndex)
 
 int CTerrain::ChunkToArraySpace(int iChunk, int i)
 {
-	return iChunk * TERRAIN_SECTOR_SIZE + i;
+	return iChunk * TERRAIN_CHUNK_SIZE + i;
 }
 
 float CTerrain::ChunkToWorldSpace(int iChunk, int i)
@@ -595,6 +673,40 @@ bool CTerrain::IsPointOnMap(Vector vecPoint)
 	return true;
 }
 
+bool CTerrain::IsPointOverLava(Vector vecPoint)
+{
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_LAVA);
+}
+
+void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)
+{
+	int x2, y2;
+	int iChunkX = ArrayToChunkSpace(x, x2);
+	int iChunkY = ArrayToChunkSpace(y, y2);
+
+	CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
+	if (!pChunk)
+		return;
+
+	if (v)
+		pChunk->m_aiSpecialData[x2][y2] |= (1<<b);
+	else
+		pChunk->m_aiSpecialData[x2][y2] &= ~(1<<b);
+}
+
+bool CTerrain::GetBit(int x, int y, terrainbit_t b)
+{
+	int x2, y2;
+	int iChunkX = ArrayToChunkSpace(x, x2);
+	int iChunkY = ArrayToChunkSpace(y, y2);
+
+	CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
+	if (!pChunk)
+		return false;
+
+	return !!(pChunk->m_aiSpecialData[x2][y2] & (1<<b));
+}
+
 Vector CTerrain::GetNormalAtPoint(Vector vecPoint)
 {
 	Vector vecA = Vector(vecPoint.x, GetHeight(vecPoint.x, vecPoint.z), vecPoint.z);
@@ -608,9 +720,9 @@ bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 {
 	vecPoint = v2;
 	bool bReturn = false;
-	for (int i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (int i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (int j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (int j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			CTerrainChunk* pChunk = GetChunk(i, j);
 			if (pChunk->m_pTracer)
@@ -630,8 +742,11 @@ bool CTerrain::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 	return bReturn;
 }
 
-void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit)
+void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
 {
+	if (eDamageType != DAMAGE_EXPLOSION)
+		return;
+
 	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
 	if (pWeapon && !pWeapon->CreatesCraters())
 		return;
@@ -712,9 +827,9 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 	}
 
 	bool bTerrainDeformed = false;
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			CTerrainChunk* pChunk = GetChunk((int)i, (int)j);
 			if (pChunk->m_bNeedsRegenerate)
@@ -736,15 +851,14 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float
 
 Color CTerrain::GetPrimaryTerrainColor()
 {
-	Color clr = Color((int)(m_avecTerrainColors[0].x*255), (int)(m_avecTerrainColors[0].y*255), (int)(m_avecTerrainColors[0].z*255), 255);
-	return clr;
+	return m_vecTerrainColor;
 }
 
 void CTerrain::UpdateTerrainData()
 {
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			CTerrainChunk* pChunk = GetChunk((int)i, (int)j);
 			if (!pChunk->m_bNeedsRegenerate)
@@ -754,15 +868,15 @@ void CTerrain::UpdateTerrainData()
 			p.ui1 = i;
 			p.ui2 = j;
 
-			p.CreateExtraData(sizeof(float)*TERRAIN_SECTOR_SIZE*TERRAIN_SECTOR_SIZE);
+			p.CreateExtraData(sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
 			size_t iPosition = 0;
 			float* flHeightData = (float*)p.m_pExtraData;
 
 			// Serialize the height data
-			for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
+			for (int x = TERRAIN_CHUNK_SIZE*i; x < (int)(TERRAIN_CHUNK_SIZE*(i+1)); x++)
 			{
-				for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
+				for (int z = TERRAIN_CHUNK_SIZE*j; z < (int)(TERRAIN_CHUNK_SIZE*(j+1)); z++)
 					flHeightData[iPosition++] = GetRealHeight(x, z);
 			}
 
@@ -785,9 +899,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	CTerrainChunk* pChunk = GetChunk((int)i, j);
 
 	// Unserialize the height data
-	for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
+	for (int x = TERRAIN_CHUNK_SIZE*i; x < (int)(TERRAIN_CHUNK_SIZE*(i+1)); x++)
 	{
-		for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
+		for (int z = TERRAIN_CHUNK_SIZE*j; z < (int)(TERRAIN_CHUNK_SIZE*(j+1)); z++)
 		{
 			if (fabs(GetRealHeight(x, z) - flHeightData[iPosition]) > 0.01f)
 			{
@@ -823,10 +937,10 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 	pChunk->m_pTracer = new raytrace::CRaytracer();
 
-	int iXMin = (int)(TERRAIN_SECTOR_SIZE*i);
-	int iYMin = (int)(TERRAIN_SECTOR_SIZE*j);
-	int iXMax = (int)(TERRAIN_SECTOR_SIZE*(i+1));
-	int iYMax = (int)(TERRAIN_SECTOR_SIZE*(j+1));
+	int iXMin = (int)(TERRAIN_CHUNK_SIZE*i);
+	int iYMin = (int)(TERRAIN_CHUNK_SIZE*j);
+	int iXMax = (int)(TERRAIN_CHUNK_SIZE*(i+1));
+	int iYMax = (int)(TERRAIN_CHUNK_SIZE*(j+1));
 
 	for (int x = iXMin; x < iXMax; x++)
 	{
@@ -857,23 +971,23 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 void CTerrain::ResyncClientTerrainData(int iClient)
 {
-	for (size_t i = 0; i < TERRAIN_GEN_SECTORS; i++)
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
-		for (size_t j = 0; j < TERRAIN_GEN_SECTORS; j++)
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			CNetworkParameters p;
 			p.ui1 = i;
 			p.ui2 = j;
 
-			p.CreateExtraData(sizeof(float)*TERRAIN_SECTOR_SIZE*TERRAIN_SECTOR_SIZE);
+			p.CreateExtraData(sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
 			size_t iPosition = 0;
 			float* flHeightData = (float*)p.m_pExtraData;
 
 			// Serialize the height data
-			for (int x = TERRAIN_SECTOR_SIZE*i; x < (int)(TERRAIN_SECTOR_SIZE*(i+1)); x++)
+			for (int x = TERRAIN_CHUNK_SIZE*i; x < (int)(TERRAIN_CHUNK_SIZE*(i+1)); x++)
 			{
-				for (int z = TERRAIN_SECTOR_SIZE*j; z < (int)(TERRAIN_SECTOR_SIZE*(j+1)); z++)
+				for (int z = TERRAIN_CHUNK_SIZE*j; z < (int)(TERRAIN_CHUNK_SIZE*(j+1)); z++)
 					flHeightData[iPosition++] = GetRealHeight(x, z);
 			}
 
@@ -884,9 +998,9 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 
 void CTerrain::OnSerialize(std::ostream& o)
 {
-	for (size_t x = 0; x < TERRAIN_GEN_SECTORS; x++)
+	for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 	{
-		for (size_t y = 0; y < TERRAIN_GEN_SECTORS; y++)
+		for (size_t y = 0; y < TERRAIN_CHUNKS; y++)
 		{
 			CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 			o.write((char*)&pChunk->m_aflHeights[0][0], sizeof(pChunk->m_aflHeights));
@@ -898,9 +1012,9 @@ void CTerrain::OnSerialize(std::ostream& o)
 
 bool CTerrain::OnUnserialize(std::istream& i)
 {
-	for (size_t x = 0; x < TERRAIN_GEN_SECTORS; x++)
+	for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 	{
-		for (size_t y = 0; y < TERRAIN_GEN_SECTORS; y++)
+		for (size_t y = 0; y < TERRAIN_CHUNKS; y++)
 		{
 			CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 			i.read((char*)&pChunk->m_aflHeights[0][0], sizeof(pChunk->m_aflHeights));
@@ -923,10 +1037,13 @@ CTerrainChunk::CTerrainChunk()
 	m_pTracer = NULL;
 	m_iCallList = 0;
 	m_bNeedsRegenerate = true;
+	m_iChunkTexture = 0;
 }
 
 CTerrainChunk::~CTerrainChunk()
 {
 	if (m_iCallList)
 		glDeleteLists((GLuint)m_iCallList, 1);
+	if (m_iChunkTexture)
+		glDeleteTextures(1, &m_iChunkTexture);
 }

@@ -193,10 +193,10 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	if (dynamic_cast<CTerrain*>(pOther))
 	{
 		if (ShouldExplode())
-			pOther->TakeDamage(m_hOwner, this, m_flDamage);
+			pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage);
 	}
 	else
-		pOther->TakeDamage(m_hOwner, this, m_flDamage);
+		pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage);
 
 	if (ShouldExplode())
 		Explode(pOther);
