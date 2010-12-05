@@ -285,6 +285,9 @@
     <ClCompile Include="game\digitanks\weapons\cameraguided.cpp">
       <Filter>Source Files\game\digitanks\weapons</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\weapons\laser.cpp">
+      <Filter>Source Files\game\digitanks\weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -457,6 +460,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\dt_common.h">
       <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\weapons\laser.h">
+      <Filter>Source Files\game\digitanks\weapons</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

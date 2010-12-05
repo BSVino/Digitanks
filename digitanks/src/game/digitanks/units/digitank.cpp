@@ -21,6 +21,7 @@
 #include <digitanks/supplyline.h>
 #include <digitanks/weapons/projectile.h>
 #include <digitanks/weapons/cameraguided.h>
+#include <digitanks/weapons/laser.h>
 #include <digitanks/units/scout.h>
 
 size_t CDigitank::s_iAimBeam = 0;
@@ -2086,6 +2087,8 @@ CBaseWeapon* CDigitank::CreateWeapon()
 		return GameServer()->Create<CDaisyChain>("CDaisyChain");
 	else if (GetCurrentWeapon() == PROJECTILE_CLUSTERBOMB)
 		return GameServer()->Create<CClusterBomb>("CClusterBomb");
+	else if (GetCurrentWeapon() == WEAPON_LASER)
+		return GameServer()->Create<CLaser>("CLaser");
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

@@ -17,6 +17,7 @@ typedef enum
 	DAMAGE_EXPLOSION,
 	DAMAGE_COLLISION,
 	DAMAGE_BURN,
+	DAMAGE_LASER,
 } damagetype_t;
 
 namespace raytrace
