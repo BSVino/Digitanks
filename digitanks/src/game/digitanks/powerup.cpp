@@ -20,15 +20,30 @@ void CPowerup::Precache()
 {
 	PrecacheModel(L"models/powerup.obj", false);
 	PrecacheModel(L"models/powerup-airstrike.obj", false);
+	PrecacheModel(L"models/powerup-tank.obj", false);
 }
 
 void CPowerup::Spawn()
 {
 	BaseClass::Spawn();
 
+	m_flSpawnTime = GameServer()->GetGameTime();
+
 	SetCollisionGroup(CG_POWERUP);
-	if (RandomInt(0, 3) == 0)
-		m_ePowerupType = POWERUP_AIRSTRIKE;
+	if (RandomInt(0, 1) == 0)
+	{
+		switch (RandomInt(0, 2))
+		{
+		case 0:
+		case 1:
+			m_ePowerupType = POWERUP_AIRSTRIKE;
+			break;
+
+		case 2:
+			m_ePowerupType = POWERUP_TANK;
+			break;
+		}
+	}
 	else
 		m_ePowerupType = POWERUP_BONUS;
 
@@ -42,6 +57,10 @@ void CPowerup::Spawn()
 	case POWERUP_AIRSTRIKE:
 		SetModel(L"models/powerup-airstrike.obj");
 		break;
+
+	case POWERUP_TANK:
+		SetModel(L"models/powerup-tank.obj");
+		break;
 	}
 }
 
@@ -49,6 +68,13 @@ EAngle CPowerup::GetRenderAngles() const
 {
 	float flRotate = fmod(GameServer()->GetGameTime(), 3.6f)*100.0f;
 	return EAngle(0, flRotate, 0);
+}
+
+Vector CPowerup::GetRenderOrigin() const
+{
+	Vector vecOrigin = BaseClass::GetRenderOrigin();
+	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - m_flSpawnTime, 0, 3, 100, 0);
+	return vecOrigin;
 }
 
 void CPowerup::PreRender()
@@ -81,8 +107,6 @@ void CPowerup::PreRender()
 			break;
 		}
 	}
-
-	pModel->m_pScene->GetMaterial(pModel->m_pScene->FindMaterial(L"Powerup"))->m_vecDiffuse = clrPowerup;
 }
 
 void CPowerup::ModifyContext(class CRenderingContext* pContext)
@@ -91,4 +115,6 @@ void CPowerup::ModifyContext(class CRenderingContext* pContext)
 
 	pContext->SetBlend(BLEND_ADDITIVE);
 	pContext->SetDepthMask(false);
+
+	pContext->SetAlpha(RemapValClamped(GameServer()->GetGameTime() - m_flSpawnTime, 0, 3, 0, 1));
 }

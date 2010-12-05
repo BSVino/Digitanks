@@ -23,6 +23,7 @@
 #include <digitanks/weapons/cameraguided.h>
 #include <digitanks/weapons/laser.h>
 #include <digitanks/units/scout.h>
+#include <digitanks/units/standardtank.h>
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iCancelIcon = 0;
@@ -995,6 +996,24 @@ void CDigitank::Move(CNetworkParameters* p)
 
 				case POWERUP_AIRSTRIKE:
 					m_iAirstrikes++;
+					break;
+
+				case POWERUP_TANK:
+				{
+					CDigitank* pTank;
+					if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+						pTank = GameServer()->Create<CStandardTank>("CStandardTank");
+					else assert(!"Finish me");
+
+					GetTeam()->AddEntity(pTank);
+
+					Vector vecTank = m_vecOrigin.Get() - GetOrigin().Normalized() * (GetBoundingRadius()*2);
+					vecTank.y = pTank->FindHoverHeight(vecTank);
+					EAngle angTank = VectorAngles(-vecTank.Normalized());
+
+					pTank->SetOrigin(vecTank);
+					pTank->SetAngles(angTank);
+				}
 				}
 
 				DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);

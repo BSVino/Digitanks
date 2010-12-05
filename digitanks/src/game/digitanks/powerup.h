@@ -6,6 +6,7 @@
 typedef enum {
 	POWERUP_BONUS,
 	POWERUP_AIRSTRIKE,
+	POWERUP_TANK,
 } powerup_type_t;
 
 class CPowerup : public CDigitanksEntity
@@ -19,6 +20,7 @@ public:
 	virtual void	Spawn();
 
 	virtual EAngle	GetRenderAngles() const;
+	virtual Vector	GetRenderOrigin() const;
 	virtual void	PreRender();
 	virtual void	ModifyContext(class CRenderingContext* pContext);
 
@@ -26,6 +28,8 @@ public:
 
 protected:
 	powerup_type_t	m_ePowerupType;
+
+	float			m_flSpawnTime;
 };
 
 #endif
