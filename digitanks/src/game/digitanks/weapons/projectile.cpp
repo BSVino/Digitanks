@@ -401,7 +401,7 @@ void CClusterBomb::OnExplode(CBaseEntity* pInstigator)
 		CClusterBomb* pProjectile = GameServer()->Create<CClusterBomb>(GetClassName());
 		pProjectile->SetOwner(m_hOwner);
 		pProjectile->SetVelocity(Vector(RandomFloat(-10, 10), RandomFloat(10, 30), RandomFloat(-10, 10)));
-		pProjectile->SetGravity(GetGravity());
+		pProjectile->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
 		pProjectile->SetLandingSpot(m_vecLandingSpot);
 		pProjectile->SetOrigin(GetOrigin());
 		pProjectile->m_flExplosionRadius = 10;

@@ -76,6 +76,7 @@ public:
 	int						WorldToChunkSpace(float f, int& iIndex);
 	bool					IsPointOnMap(Vector vecPoint);
 	bool					IsPointOverLava(Vector vecPoint);
+	bool					IsPointOverHole(Vector vecPoint);
 
 	typedef enum
 	{

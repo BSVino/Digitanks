@@ -680,6 +680,9 @@ void CDigitanksGame::SetupArtilleryRound()
 				if (GetTerrain()->IsPointOverLava(vecTank))
 					continue;
 
+				if (GetTerrain()->IsPointOverHole(vecTank))
+					continue;
+
 				EAngle angTank = VectorAngles(-vecTank.Normalized());
 
 				CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");
@@ -700,16 +703,39 @@ void CDigitanksGame::SetupArtilleryRound()
 	for (int i = 0; i < m_iHumanPlayers; i++)
 		m_ahTeams[i]->SetClient(-1);
 
-	CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
-	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, -70), -70));
-	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, 70), 70));
-	pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-	pPowerup->SetOrigin(Vector(-70, m_hTerrain->GetHeight(-70, -70), -70));
+	CPowerup* pPowerup;
+	
+	Vector vecPowerup = Vector(70, m_hTerrain->GetHeight(70, 70), 70);
+	if (!GetTerrain()->IsPointOverHole(vecPowerup))
+	{
+		pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+		pPowerup->SetOrigin(vecPowerup);
+		m_iPowerups++;
+	}
 
-	m_iPowerups = 4;
+	vecPowerup = Vector(70, m_hTerrain->GetHeight(70, -70), -70);
+	if (!GetTerrain()->IsPointOverHole(vecPowerup))
+	{
+		pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+		pPowerup->SetOrigin(vecPowerup);
+		m_iPowerups++;
+	}
+
+	vecPowerup = Vector(-70, m_hTerrain->GetHeight(-70, 70), 70);
+	if (!GetTerrain()->IsPointOverHole(vecPowerup))
+	{
+		pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+		pPowerup->SetOrigin(vecPowerup);
+		m_iPowerups++;
+	}
+
+	vecPowerup = Vector(-70, m_hTerrain->GetHeight(-70, -70), -70);
+	if (!GetTerrain()->IsPointOverHole(vecPowerup))
+	{
+		pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+		pPowerup->SetOrigin(vecPowerup);
+		m_iPowerups++;
+	}
 
 	GameServer()->SetLoading(false);
 }
@@ -1053,11 +1079,15 @@ void CDigitanksGame::StartTurn()
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
+		Vector vecPowerup = Vector(flX, m_hTerrain->GetHeight(flX, flZ), flZ);
 
-		CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-		pPowerup->SetOrigin(Vector(flX, m_hTerrain->GetHeight(flX, flZ), flZ));
+		if (!GetTerrain()->IsPointOverHole(vecPowerup))
+		{
+			CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
+			pPowerup->SetOrigin(vecPowerup);
 
-		m_iPowerups++;
+			m_iPowerups++;
+		}
 	}
 
 	CNetwork::CallFunction(NETWORK_TOCLIENTS, "StartTurn");

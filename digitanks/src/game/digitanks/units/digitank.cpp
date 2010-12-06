@@ -1381,7 +1381,7 @@ void CDigitank::Think()
 
 	if (!IsMoving() && IsAlive())
 	{
-		if (!DigitanksGame()->GetTerrain()->IsPointOnMap(GetOrigin()))
+		if (!DigitanksGame()->GetTerrain()->IsPointOnMap(GetOrigin()) || DigitanksGame()->GetTerrain()->IsPointOverHole(GetOrigin()))
 		{
 			Kill();
 			SetGravity(Vector(0, -20, 0));

@@ -100,6 +100,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 	float flSpaceFactor5 = flSpaceFactor4*3;
 	float flHeightFactor5 = flHeightFactor4/3;
 
+	CSimplexNoise h1(m_iSpawnSeed+5);
+	CSimplexNoise h2(m_iSpawnSeed+6);
+
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
 		for (size_t y = 0; y < TERRAIN_SIZE; y++)
@@ -121,6 +124,15 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 			if (flHeight > m_flHighest)
 				m_flHighest = flHeight;
+
+			if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+			{
+				float flHole;
+				flHole  = h1.Noise(x*0.01f, y*0.01f) * 10;
+				flHole += h2.Noise(x*0.02f, y*0.02f) * 5;
+
+				SetBit(x, y, TB_HOLE, flHole < -3.0f);
+			}
 		}
 	}
 
@@ -161,10 +173,18 @@ void CTerrain::GenerateCollision()
 						float flX1 = ChunkToWorldSpace(x, i+1);
 						float flY1 = ChunkToWorldSpace(y, j+1);
 
-						Vector v1 = Vector(flX, GetRealHeight(ChunkToArraySpace(x, i), ChunkToArraySpace(y, j)), flY);
-						Vector v2 = Vector(flX, GetRealHeight(ChunkToArraySpace(x, i), ChunkToArraySpace(y, j+1)), flY1);
-						Vector v3 = Vector(flX1, GetRealHeight(ChunkToArraySpace(x, i+1), ChunkToArraySpace(y, j+1)), flY1);
-						Vector v4 = Vector(flX1, GetRealHeight(ChunkToArraySpace(x, i+1), ChunkToArraySpace(y, j)), flY);
+						int ax = ChunkToArraySpace(x, i);
+						int ay = ChunkToArraySpace(y, j);
+						int ax1 = ChunkToArraySpace(x, i+1);
+						int ay1 = ChunkToArraySpace(y, j+1);
+
+						if (GetBit(ax, ay, TB_HOLE))
+							continue;
+
+						Vector v1 = Vector(flX, GetRealHeight(ax, ay), flY);
+						Vector v2 = Vector(flX, GetRealHeight(ax, ay1), flY1);
+						Vector v3 = Vector(flX1, GetRealHeight(ax1, ay1), flY1);
+						Vector v4 = Vector(flX1, GetRealHeight(ax1, ay), flY);
 
 						pChunk->m_pTracer->AddTriangle(v1, v2, v3);
 						pChunk->m_pTracer->AddTriangle(v1, v3, v4);
@@ -217,6 +237,9 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
 		{
 			if (y >= TERRAIN_SIZE-1)
+				continue;
+
+			if (GetBit(x, y, TB_HOLE))
 				continue;
 
 			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
@@ -678,6 +701,11 @@ bool CTerrain::IsPointOverLava(Vector vecPoint)
 	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_LAVA);
 }
 
+bool CTerrain::IsPointOverHole(Vector vecPoint)
+{
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_HOLE);
+}
+
 void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)
 {
 	int x2, y2;
@@ -946,6 +974,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	{
 		for (int z = iYMin; z < iYMax; z++)
 		{
+			if (GetBit(x, z, TB_HOLE))
+				continue;
+
 			float flX = ArrayToWorldSpace(x);
 			float flZ = ArrayToWorldSpace(z);
 
