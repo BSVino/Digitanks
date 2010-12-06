@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include <maths.h>
+#include <mtrand.h>
 #include <geometry.h>
 
 #include <renderer/renderer.h>
@@ -32,8 +33,60 @@ void CDigitanksEntity::Think()
 
 	if (!IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
 	{
-		bool bColorSwap = GetTeam() && (dynamic_cast<CStructure*>(this) || dynamic_cast<CDigitank*>(this));
-		CModelDissolver::AddModel(this, bColorSwap?&GetTeam()->GetColor():NULL);
+		switch (RandomInt(0, 5))
+		{
+		case 0:
+		{
+			bool bColorSwap = GetTeam() && (dynamic_cast<CStructure*>(this) || dynamic_cast<CDigitank*>(this));
+			CModelDissolver::AddModel(this, bColorSwap?&GetTeam()->GetColor():NULL);
+			break;
+		}
+
+		case 1:
+		{
+			CProjectile* pProjectile = GameServer()->Create<CLargeShell>("CLargeShell");
+			pProjectile->SetOwner(NULL);
+			pProjectile->SetOrigin(GetOrigin());
+			pProjectile->Explode();
+			break;
+		}
+
+		case 2:
+		{
+			CProjectile* pProjectile = GameServer()->Create<CAOEShell>("CAOEShell");
+			pProjectile->SetOwner(NULL);
+			pProjectile->SetOrigin(GetOrigin());
+			pProjectile->Explode();
+			break;
+		}
+
+		case 3:
+		{
+			CProjectile* pProjectile = GameServer()->Create<CClusterBomb>("CClusterBomb");
+			pProjectile->SetOwner(NULL);
+			pProjectile->SetOrigin(GetOrigin());
+			pProjectile->Explode();
+			break;
+		}
+
+		case 4:
+		{
+			CProjectile* pProjectile = GameServer()->Create<CEarthshaker>("CEarthshaker");
+			pProjectile->SetOwner(NULL);
+			pProjectile->SetOrigin(GetOrigin());
+			pProjectile->Explode();
+			break;
+		}
+
+		case 5:
+		{
+			CProjectile* pProjectile = GameServer()->Create<CTractorBomb>("CTractorBomb");
+			pProjectile->SetOwner(NULL);
+			pProjectile->SetOrigin(GetOrigin());
+			pProjectile->Explode();
+			break;
+		}
+		}
 		GameServer()->Delete(this);
 	}
 }
