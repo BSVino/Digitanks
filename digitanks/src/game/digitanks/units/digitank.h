@@ -233,6 +233,9 @@ public:
 	void						FireSpecial();
 	bool						HasSpecialWeapons();
 
+	void						FireMissileDefense(CProjectile* pTarget);
+	bool						CanFireMissileDefense();
+
 	virtual void				ClientUpdate(int iClient);
 
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
@@ -389,6 +392,8 @@ protected:
 	eastl::vector<weapon_t>		m_aeWeapons;
 
 	size_t						m_iAirstrikes;
+	size_t						m_iMissileDefenses;
+	float						m_flNextMissileDefense;
 
 	// AI stuff
 	bool						m_bFortifyPoint;

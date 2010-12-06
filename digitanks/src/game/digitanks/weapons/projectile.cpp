@@ -17,6 +17,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CProjectile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLandingSpot);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFragmented);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBounces);
 //	size_t						m_iParticleSystem;	// Generated on load
 SAVEDATA_TABLE_END();
 
@@ -26,6 +29,8 @@ CProjectile::CProjectile()
 
 	m_bFragmented = false;
 	m_iBounces = 0;
+
+	m_bMissileDefensesNotified = false;
 }
 
 void CProjectile::Precache()
@@ -70,6 +75,28 @@ void CProjectile::Think()
 		}
 
 		Delete();
+	}
+
+	if (!m_bMissileDefensesNotified && !IsDeleted() && GetVelocity().y < 10.0f && m_flTimeExploded == 0.0f)
+	{
+		// Now that we're falling and we've already fragmented (or maybe we are a fragment)
+		// notify any tanks on the ground in our landing spot that we're incoming.
+		// Damn don't the real missile defense designers wish that incoming projectiles did this!
+
+		CDigitank* pClosest = NULL;
+		while (pClosest = CBaseEntity::FindClosest<CDigitank>(m_vecLandingSpot, pClosest))
+		{
+			if (pClosest->Distance(m_vecLandingSpot) > 30)
+				continue;
+
+			if (pClosest->CanFireMissileDefense())
+			{
+				pClosest->FireMissileDefense(this);
+				break;
+			}
+		}
+
+		m_bMissileDefensesNotified = true;
 	}
 
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
@@ -221,6 +248,9 @@ void CProjectile::Touching(CBaseEntity* pOther)
 void CProjectile::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
+
+	if (MakesSounds())
+		StopSound(L"sound/bomb-drop.wav");
 
 	if (m_iParticleSystem != ~0)
 	{

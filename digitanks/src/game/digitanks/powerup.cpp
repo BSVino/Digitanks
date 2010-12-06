@@ -21,6 +21,7 @@ void CPowerup::Precache()
 	PrecacheModel(L"models/powerup.obj", false);
 	PrecacheModel(L"models/powerup-airstrike.obj", false);
 	PrecacheModel(L"models/powerup-tank.obj", false);
+	PrecacheModel(L"models/powerup-missiledefense.obj", false);
 }
 
 void CPowerup::Spawn()
@@ -32,7 +33,7 @@ void CPowerup::Spawn()
 	SetCollisionGroup(CG_POWERUP);
 	if (RandomInt(0, 1) == 0)
 	{
-		switch (RandomInt(0, 2))
+		switch (RandomInt(0, 4))
 		{
 		case 0:
 		case 1:
@@ -40,6 +41,11 @@ void CPowerup::Spawn()
 			break;
 
 		case 2:
+		case 3:
+			m_ePowerupType = POWERUP_MISSILEDEFENSE;
+			break;
+
+		case 4:
 			m_ePowerupType = POWERUP_TANK;
 			break;
 		}
@@ -60,6 +66,10 @@ void CPowerup::Spawn()
 
 	case POWERUP_TANK:
 		SetModel(L"models/powerup-tank.obj");
+		break;
+
+	case POWERUP_MISSILEDEFENSE:
+		SetModel(L"models/powerup-missiledefense.obj");
 		break;
 	}
 }

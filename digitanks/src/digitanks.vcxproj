@@ -122,6 +122,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\weapons\baseweapon.cpp" />
     <ClCompile Include="game\digitanks\weapons\cameraguided.cpp" />
     <ClCompile Include="game\digitanks\weapons\laser.cpp" />
+    <ClCompile Include="game\digitanks\weapons\missiledefense.cpp" />
     <ClCompile Include="game\digitanks\weapons\projectile.cpp" />
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
@@ -201,6 +202,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\weapons\baseweapon.h" />
     <ClInclude Include="game\digitanks\weapons\cameraguided.h" />
     <ClInclude Include="game\digitanks\weapons\laser.h" />
+    <ClInclude Include="game\digitanks\weapons\missiledefense.h" />
     <ClInclude Include="game\digitanks\weapons\projectile.h" />
     <ClInclude Include="game\digitanks\weapons\specialshells.h" />
     <ClInclude Include="game\gameserver.h" />

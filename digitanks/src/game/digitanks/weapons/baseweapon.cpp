@@ -110,6 +110,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 
 	7.0f,	// camera guided missile
 	7.0f,	// laser
+	0.0f,	// missile defense
 
 	0.0f,	// airstrike
 	0.0f,	// fireworks
@@ -138,6 +139,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 
 	7.0f,	// camera guided missile
 	5.0f,	// laser
+	0.0f,	// missile defense
 
 	5.0f,	// airstrike
 	0.0f,	// fireworks
@@ -166,6 +168,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 
 	1,	// camera guided missile
 	1,	// laser
+	1,	// missile defense
 
 	1,	// airstrike
 	1,	// fireworks
@@ -191,9 +194,10 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0.1f,	// machine gun
 	0,		// torpedo
 	0.25f,	// artillery
-	0,		// laser
 
 	0,		// camera guided missile
+	0,		// laser
+	0,		// missile defense
 
 	0,		// airstrike
 	0,		// fireworks
@@ -222,6 +226,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 
 	L"Camera-Guided Missile",
 	L"Laser",
+	L"Missile Defense",
 
 	L"Airstrike",
 	L"Fireworks",
@@ -250,6 +255,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 
 	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first person.",
 	L"This weapon emits a wall of lasers in one direction. Great for hitting multiple tanks in a line. This weapon also has no range limitations.",
+	L"These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!",
 
 	L"Rain fire and brimstone upon your enemies.",
 	L"You won! Fireworks are in order.",

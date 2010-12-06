@@ -7,6 +7,7 @@ typedef enum {
 	POWERUP_BONUS,
 	POWERUP_AIRSTRIKE,
 	POWERUP_TANK,
+	POWERUP_MISSILEDEFENSE,
 } powerup_type_t;
 
 class CPowerup : public CDigitanksEntity

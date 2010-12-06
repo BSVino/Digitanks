@@ -22,6 +22,7 @@
 #include <digitanks/weapons/projectile.h>
 #include <digitanks/weapons/cameraguided.h>
 #include <digitanks/weapons/laser.h>
+#include <digitanks/weapons/missiledefense.h>
 #include <digitanks/units/scout.h>
 #include <digitanks/units/standardtank.h>
 
@@ -154,6 +155,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
 SAVEDATA_TABLE_END();
@@ -277,6 +279,8 @@ void CDigitank::Spawn()
 	m_flBeginCharge = -1;
 	m_flEndCharge = -1;
 	m_iAirstrikes = 0;
+	m_iMissileDefenses = 0;
+	m_flNextMissileDefense = 0;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -996,6 +1000,10 @@ void CDigitank::Move(CNetworkParameters* p)
 
 				case POWERUP_AIRSTRIKE:
 					m_iAirstrikes++;
+					break;
+
+				case POWERUP_MISSILEDEFENSE:
+					m_iMissileDefenses += 3;
 					break;
 
 				case POWERUP_TANK:
@@ -2138,6 +2146,35 @@ void CDigitank::FireSpecial()
 bool CDigitank::HasSpecialWeapons()
 {
 	return m_iAirstrikes > 0;
+}
+
+void CDigitank::FireMissileDefense(CProjectile* pTarget)
+{
+	if (m_iMissileDefenses <= 0)
+		return;
+
+	if (!pTarget)
+		return;
+
+	if (GameServer()->GetGameTime() < m_flNextMissileDefense)
+		return;
+
+	m_iMissileDefenses--;
+
+	CMissileDefense* pMissileDefense = GameServer()->Create<CMissileDefense>("CMissileDefense");
+	pMissileDefense->SetOwner(this);
+	pMissileDefense->SetTarget(pTarget);
+
+	// Can't fire more than one at a time. This way the missile defenses can be overloaded with multiple projectiles.
+	m_flNextMissileDefense = GameServer()->GetGameTime() + 1.0f;
+}
+
+bool CDigitank::CanFireMissileDefense()
+{
+	if (GameServer()->GetGameTime() < m_flNextMissileDefense)
+		return false;
+
+	return m_iMissileDefenses > 0;
 }
 
 void CDigitank::ClientUpdate(int iClient)

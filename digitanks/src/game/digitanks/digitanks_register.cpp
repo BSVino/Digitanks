@@ -15,6 +15,7 @@
 #include "weapons/specialshells.h"
 #include "weapons/cameraguided.h"
 #include "weapons/laser.h"
+#include "weapons/missiledefense.h"
 #include "terrain.h"
 #include "updates.h"
 #include "structures/props.h"
@@ -61,6 +62,7 @@ REGISTER_ENTITY(CTorpedo);
 REGISTER_ENTITY(CAirstrikeShell);
 REGISTER_ENTITY(CCameraGuidedMissile);
 REGISTER_ENTITY(CLaser);
+REGISTER_ENTITY(CMissileDefense);
 REGISTER_ENTITY(CSelectable);
 REGISTER_ENTITY(CSupplyLine);
 REGISTER_ENTITY(CTerrain);

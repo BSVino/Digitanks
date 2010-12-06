@@ -669,8 +669,6 @@ void CDigitanksGame::SetupArtilleryRound()
 
 				CTeam* pTeam = m_ahTeams[aiRandomTeamPositions[iPosition]];
 
-				iPosition = (iPosition+1)%aiRandomTeamPositions.size();
-
 				float flSectionPositionX = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*x;
 				float flSectionPositionY = -GetTerrain()->GetMapSize() + flMapBuffer + flSectionSize*y;
 
@@ -693,6 +691,7 @@ void CDigitanksGame::SetupArtilleryRound()
 				pTank->SetAngles(angTank);
 				pTank->GiveBonusPoints(1, false);
 
+				iPosition = (iPosition+1)%aiRandomTeamPositions.size();
 				iTanksPlaced++;
 			}
 		}
@@ -1050,7 +1049,7 @@ void CDigitanksGame::StartTurn()
 		return;
 	}
 
-	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && rand()%6 == 0)
+	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && mtrand()%6 == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());

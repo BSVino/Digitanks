@@ -58,6 +58,8 @@ protected:
 
 	bool						m_bFragmented;
 	size_t						m_iBounces;
+
+	bool						m_bMissileDefensesNotified;
 };
 
 class CSmallShell : public CProjectile
