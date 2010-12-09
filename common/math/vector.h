@@ -14,6 +14,7 @@ class Vector
 {
 public:
 			Vector();
+			Vector(class Color c);
 			Vector(unit_t x, unit_t y, unit_t z);
 			Vector(unit_t* xyz);
 
@@ -73,9 +74,18 @@ public:
 	unit_t	x, y, z;
 };
 
+#include <color.h>
+
 inline Vector::Vector()
 	: x(0), y(0), z(0)
 {
+}
+
+inline Vector::Vector(Color c)
+{
+	x = (float)c.r()/255.0f;
+	y = (float)c.g()/255.0f;
+	z = (float)c.b()/255.0f;
 }
 
 inline Vector::Vector(unit_t X, unit_t Y, unit_t Z)

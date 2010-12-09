@@ -62,8 +62,11 @@ void CMissileDefense::Think()
 	}
 }
 
-void CMissileDefense::OnRender()
+void CMissileDefense::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
+	if (bTransparent)
+		return;
+
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
 
 	r.RenderSphere();

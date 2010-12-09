@@ -87,8 +87,11 @@ Vector CPowerup::GetRenderOrigin() const
 	return vecOrigin;
 }
 
-void CPowerup::PreRender()
+void CPowerup::PreRender(bool bTransparent)
 {
+	if (!bTransparent)
+		return;
+
 	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
 
 	Vector clrPowerup(1, 1, 1);
@@ -119,9 +122,9 @@ void CPowerup::PreRender()
 	}
 }
 
-void CPowerup::ModifyContext(class CRenderingContext* pContext)
+void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::ModifyContext(pContext);
+	BaseClass::ModifyContext(pContext, bTransparent);
 
 	pContext->SetBlend(BLEND_ADDITIVE);
 	pContext->SetDepthMask(false);

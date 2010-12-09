@@ -15,7 +15,7 @@ public:
 	virtual float				GetRightShieldMaxStrength();
 	virtual float				GetRearShieldMaxStrength();
 
-	virtual void				PostRender();
+	virtual void				PostRender(bool bTransparent);
 
 	virtual eastl::string16		GetName() { return L"Mechanized Infantry"; };
 

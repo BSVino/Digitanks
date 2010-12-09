@@ -198,11 +198,11 @@ void CStructure::FindGround()
 	SetOrigin(Vector(GetOrigin().x, flHeight, GetOrigin().z));
 }
 
-void CStructure::PostRender()
+void CStructure::PostRender(bool bTransparent)
 {
-	BaseClass::PostRender();
+	BaseClass::PostRender(bTransparent);
 
-	if ((IsConstructing() || IsUpgrading()) && GetVisibility() > 0)
+	if (bTransparent && (IsConstructing() || IsUpgrading()) && GetVisibility() > 0)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin() - Vector(0, 10, 0));
@@ -557,9 +557,9 @@ void CStructure::SetSupplier(class CSupplier* pSupplier)
 		m_hSupplyLine->SetEntities(m_hSupplier, this);
 }
 
-void CStructure::ModifyContext(class CRenderingContext* pContext)
+void CStructure::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::ModifyContext(pContext);
+	BaseClass::ModifyContext(pContext, bTransparent);
 
 	if (IsConstructing() || IsUpgrading())
 	{
@@ -920,9 +920,12 @@ void CSupplier::CompleteConstruction()
 
 #define GROWTH_TIME 3
 
-void CSupplier::PostRender()
+void CSupplier::PostRender(bool bTransparent)
 {
-	BaseClass::PostRender();
+	BaseClass::PostRender(bTransparent);
+
+	if (!bTransparent)
+		return;
 
 	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar())

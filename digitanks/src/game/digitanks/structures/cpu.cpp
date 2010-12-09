@@ -716,9 +716,9 @@ void CCPU::StartTurn()
 	}
 }
 
-void CCPU::OnRender()
+void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::OnRender();
+	BaseClass::OnRender(pContext, bTransparent);
 
 	if (m_iFanModel == ~0)
 		return;
@@ -732,9 +732,20 @@ void CCPU::OnRender()
 	else
 		r.SetColorSwap(Color(255, 255, 255, 255));
 
-	r.SetAlpha(GetVisibility());
-	if (r.GetAlpha() < 1)
-		r.SetBlend(BLEND_ALPHA);
+	float flVisibility = GetVisibility();
+
+	if (flVisibility < 1 && !bTransparent)
+		return;
+
+	if (flVisibility == 1 && bTransparent)
+		return;
+
+	if (bTransparent)
+	{
+		r.SetAlpha(GetVisibility());
+		if (r.GetAlpha() < 1)
+			r.SetBlend(BLEND_ALPHA);
+	}
 
 	float flSlowSpeed = 50.0f;
 	float flFastSpeed = 200.0f;
@@ -747,11 +758,11 @@ void CCPU::OnRender()
 	r.RenderModel(m_iFanModel);
 }
 
-void CCPU::PostRender()
+void CCPU::PostRender(bool bTransparent)
 {
-	BaseClass::PostRender();
+	BaseClass::PostRender(bTransparent);
 
-	if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+	if (bTransparent && DigitanksGame()->GetControlMode() == MODE_BUILD)
 	{
 		CRenderingContext r(GameServer()->GetRenderer());
 		r.Translate(GetPreviewBuild() + Vector(0, 1, 0));

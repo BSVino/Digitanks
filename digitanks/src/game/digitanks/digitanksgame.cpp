@@ -246,28 +246,38 @@ void CDigitanksGame::ScatterProps()
 			if (x > m_hTerrain->GetMapSize()-10 || z > m_hTerrain->GetMapSize()-10)
 				continue;
 
+			if (GetGameType() == GAMETYPE_ARTILLERY && RandomInt(0, 2) != 0)
+				continue;
+
 			CStaticProp* pProp = GameServer()->Create<CStaticProp>("CStaticProp");
 			pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
 			pProp->SetAngles(EAngle(0, RandomFloat(0, 360), 0));
 			pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
 
-			switch (RandomInt(0, 3))
+			if (GetGameType() == GAMETYPE_ARTILLERY)
 			{
-			case 0:
-				pProp->SetModel(L"models/props/prop01.obj");
-				break;
+				pProp->SetModel(L"models/props/prop05.obj");
+			}
+			else
+			{
+				switch (RandomInt(0, 3))
+				{
+				case 0:
+					pProp->SetModel(L"models/props/prop01.obj");
+					break;
 
-			case 1:
-				pProp->SetModel(L"models/props/prop02.obj");
-				break;
+				case 1:
+					pProp->SetModel(L"models/props/prop02.obj");
+					break;
 
-			case 2:
-				pProp->SetModel(L"models/props/prop03.obj");
-				break;
+				case 2:
+					pProp->SetModel(L"models/props/prop03.obj");
+					break;
 
-			case 3:
-				pProp->SetModel(L"models/props/prop04.obj");
-				break;
+				case 3:
+					pProp->SetModel(L"models/props/prop04.obj");
+					break;
+				}
 			}
 		}
 	}
@@ -736,6 +746,8 @@ void CDigitanksGame::SetupArtilleryRound()
 		pPowerup->SetOrigin(vecPowerup);
 		m_iPowerups++;
 	}
+
+	ScatterProps();
 
 	GameServer()->SetLoading(false);
 }

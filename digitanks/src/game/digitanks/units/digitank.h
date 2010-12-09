@@ -247,13 +247,12 @@ public:
 
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
-	virtual void				PreRender();
-	virtual void				ModifyContext(class CRenderingContext* pContext);
-	virtual void				OnRender();
-	virtual void				RenderTurret(float flAlpha = 1.0f);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
 	virtual void				RenderShield(float flAlpha, float flAngle);
 	virtual float				RenderShieldScale() { return 1.0f; };
-	virtual void				PostRender();
+	virtual void				PostRender(bool bTransparent);
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 

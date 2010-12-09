@@ -265,11 +265,20 @@ void CGameServer::Render()
 	m_pRenderer->DrawBackground();
 	m_pRenderer->StartRendering();
 
+	// First render all opaque objects
 	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
 		if (pEntity->ShouldRender())
-			pEntity->Render();
+			pEntity->Render(false);
+	}
+
+	// Now render all transparent objects. Should really sort this back to front but meh for now.
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (pEntity->ShouldRender())
+			pEntity->Render(true);
 	}
 
 	CParticleSystemLibrary::Render();

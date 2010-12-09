@@ -373,7 +373,7 @@ void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 	glUniform3fv(iUniform, 1, vecValue);
 }
 
-void CRenderingContext::SetUniform(const char* pszName, const Color& vecValue)
+void CRenderingContext::SetUniform(const char* pszName, const Color& clrValue)
 {
 	assert(m_pRenderer->ShouldUseShaders());
 
@@ -381,7 +381,7 @@ void CRenderingContext::SetUniform(const char* pszName, const Color& vecValue)
 		return;
 
 	int iUniform = glGetUniformLocation((GLuint)m_iProgram, pszName);
-	glUniform4i(iUniform, vecValue.r(), vecValue.g(), vecValue.b(), vecValue.a());
+	glUniform3fv(iUniform, 1, Vector(clrValue));
 }
 
 void CRenderingContext::BindTexture(size_t iTexture)
@@ -421,6 +421,11 @@ void CRenderingContext::TexCoord(const Vector& v)
 void CRenderingContext::Vertex(const Vector& v)
 {
 	glVertex3fv(v);
+}
+
+void CRenderingContext::RenderCallList(size_t iCallList)
+{
+	glCallList((GLuint)iCallList);
 }
 
 void CRenderingContext::EndRender()

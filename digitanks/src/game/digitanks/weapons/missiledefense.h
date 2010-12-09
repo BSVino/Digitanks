@@ -15,7 +15,7 @@ public:
 	virtual void				Think();
 
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender();
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual weapon_t			GetWeaponType() { return WEAPON_MISSILEDEFENSE; }
 	virtual float				ExplosionRadius() { return 4.0f; };

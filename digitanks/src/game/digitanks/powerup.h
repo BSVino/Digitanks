@@ -22,8 +22,8 @@ public:
 
 	virtual EAngle	GetRenderAngles() const;
 	virtual Vector	GetRenderOrigin() const;
-	virtual void	PreRender();
-	virtual void	ModifyContext(class CRenderingContext* pContext);
+	virtual void	PreRender(bool bTransparent);
+	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	powerup_type_t	GetPowerupType() { return m_ePowerupType; }
 

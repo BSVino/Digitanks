@@ -31,6 +31,7 @@ public:
 	void		SetColorSwap(Color clrSwap);
 
 	float		GetAlpha() { return m_flAlpha; };
+	blendtype_t	GetBlend() { return m_eBlend; };
 
 	void		RenderModel(size_t iModel, bool bNewCallList = false);
 	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
@@ -51,6 +52,7 @@ public:
 	void		TexCoord(float s, float t);
 	void		TexCoord(const Vector& v);
 	void		Vertex(const Vector& v);
+	void		RenderCallList(size_t iCallList);
 	void		EndRender();
 
 protected:

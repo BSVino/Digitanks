@@ -55,7 +55,7 @@ public:
 	void					GenerateCallLists();
 
 	virtual bool			ShouldRender() const { return true; };
-	virtual void			OnRender();
+	virtual void			OnRender(class CRenderingContext* pContext, bool bTransparent);
 	void					RenderWithShaders();
 	void					RenderWithoutShaders();
 

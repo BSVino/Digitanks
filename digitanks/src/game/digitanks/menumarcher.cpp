@@ -80,18 +80,19 @@ Vector CMenuMarcher::GetRenderOrigin() const
 	return GetOrigin() + Vector(0, 1 + flLerp*0.5f, 0);
 }
 
-void CMenuMarcher::ModifyContext(CRenderingContext* pContext)
+void CMenuMarcher::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::ModifyContext(pContext);
+	BaseClass::ModifyContext(pContext, bTransparent);
 
 	pContext->SetColorSwap(Color(0, 0, 255));
 }
 
-void CMenuMarcher::OnRender()
+void CMenuMarcher::OnRender(CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::OnRender();
+	BaseClass::OnRender(pContext, bTransparent);
 
-	RenderTurret();
+	if (!bTransparent)
+		RenderTurret();
 }
 
 void CMenuMarcher::RenderTurret()

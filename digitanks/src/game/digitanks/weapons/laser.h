@@ -11,7 +11,7 @@ public:
 	virtual void				OnSetOwner(class CDigitank* pOwner);
 
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender();
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual weapon_t			GetWeaponType() { return WEAPON_LASER; }
 	virtual float				ExplosionRadius() { return 0.0f; };

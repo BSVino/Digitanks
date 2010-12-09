@@ -10,6 +10,7 @@
 #include <game/digitanks/structures/cpu.h>
 #include <game/digitanks/weapons/projectile.h>
 #include <game/digitanks/structures/loader.h>
+#include <game/digitanks/structures/props.h>
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
 #include "weaponpanel.h"
@@ -356,7 +357,7 @@ void CHUD::Think()
 	if (DigitanksGame()->GetControlMode() != MODE_NONE)
 	{
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
-		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN);
+		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN|CG_PROP);
 	}
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
@@ -388,7 +389,8 @@ void CHUD::Think()
 		{
 			Vector vecPreviewAim;
 			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
-			if (pDTHit && pDTHit->GetVisibility() > 0)
+			CStaticProp* pSPHit = dynamic_cast<CStaticProp*>(pHit);
+			if (pDTHit && !pSPHit && pDTHit->GetVisibility() > 0)
 				vecPreviewAim = pDTHit->GetOrigin();
 			else
 				vecPreviewAim = vecEntityPoint;

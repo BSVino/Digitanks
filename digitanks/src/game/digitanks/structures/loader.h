@@ -25,7 +25,7 @@ public:
 
 	virtual void				StartTurn();
 
-	virtual void				PostRender();
+	virtual void				PostRender(bool bTransparent);
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 

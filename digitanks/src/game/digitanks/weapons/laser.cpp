@@ -51,8 +51,11 @@ void CLaser::OnSetOwner(CDigitank* pOwner)
 	}
 }
 
-void CLaser::OnRender()
+void CLaser::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
+	if (!bTransparent)
+		return;
+
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
 
 	r.SetBlend(BLEND_ADDITIVE);

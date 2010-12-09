@@ -305,11 +305,11 @@ inline class CDigitanksGame* DigitanksGame()
 
 enum
 {
-	CG_ENTITY = 1,
-	CG_TERRAIN,
-	CG_PROJECTILE,
-	CG_POWERUP,
-	CG_PROP,
+	CG_ENTITY		= (1<<0),
+	CG_TERRAIN		= (1<<1),
+	CG_PROJECTILE	= (1<<2),
+	CG_POWERUP		= (1<<3),
+	CG_PROP			= (1<<4),
 };
 
 #endif

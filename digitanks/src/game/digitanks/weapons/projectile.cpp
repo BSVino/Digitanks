@@ -103,29 +103,32 @@ void CProjectile::Think()
 		Delete();
 }
 
-void CProjectile::ModifyContext(class CRenderingContext* pContext)
+void CProjectile::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::ModifyContext(pContext);
+	BaseClass::ModifyContext(pContext, bTransparent);
 }
 
-void CProjectile::OnRender()
+void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
 	if (!m_bShouldRender)
 		return;
 
-	BaseClass::OnRender();
+	BaseClass::OnRender(pContext, bTransparent);
 
 	if (m_flTimeExploded == 0.0f)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
-		c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
-		c.SetColor(Color(255, 255, 255));
-		c.RenderSphere();
+		if (!bTransparent)
+		{
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
+			c.SetColor(Color(255, 255, 255));
+			c.RenderSphere();
+		}
 	}
 	else
 	{
 		float flAlpha = RemapValClamped(GameServer()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
-		if (flAlpha > 0)
+		if (flAlpha > 0 && bTransparent)
 		{
 			CRenderingContext c(GameServer()->GetRenderer());
 			if (DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())

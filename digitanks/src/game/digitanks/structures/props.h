@@ -14,7 +14,9 @@ public:
 
 	virtual bool	UsesRaytracedCollision() { return true; }
 
-	virtual void	ModifyContext(CRenderingContext* pContext);
+	virtual void	ModifyContext(CRenderingContext* pContext, bool bTransparent);
+	virtual bool	ShouldRenderModel() const { return false; };
+	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	void			SetAdditive(bool bAdditive) { m_bAdditive = bAdditive; };
 	void			SetDepthMask(bool bDepthMask) { m_bDepthMask = bDepthMask; };

@@ -17,7 +17,7 @@ public:
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
-	virtual void				ModifyContext(class CRenderingContext* pContext);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
 	virtual bool				ShowHealthBar() { return false; }

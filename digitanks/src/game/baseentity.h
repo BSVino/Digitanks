@@ -222,11 +222,12 @@ public:
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
 
 	virtual bool							ShouldRender() const { return false; };
-	virtual void							PreRender() {};
-	virtual void							ModifyContext(class CRenderingContext* pContext) {};
-	void									Render();
-	virtual void							OnRender() {};
-	virtual void							PostRender() {};
+	virtual bool							ShouldRenderModel() const { return true; };
+	virtual void							PreRender(bool bTransparent) {};
+	virtual void							ModifyContext(class CRenderingContext* pContext, bool bTransparent) {};
+	void									Render(bool bTransparent);
+	virtual void							OnRender(class CRenderingContext* pContext, bool bTransparent) {};
+	virtual void							PostRender(bool bTransparent) {};
 
 	void									Delete();
 	virtual void							OnDeleted() {};

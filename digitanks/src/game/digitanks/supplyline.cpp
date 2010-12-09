@@ -123,9 +123,12 @@ void CSupplyLine::Intercept(float flIntercept)
 	}
 }
 
-void CSupplyLine::PostRender()
+void CSupplyLine::PostRender(bool bTransparent)
 {
-	BaseClass::PostRender();
+	BaseClass::PostRender(bTransparent);
+
+	if (!bTransparent)
+		return;
 
 	if (m_hSupplier == NULL || m_hEntity == NULL)
 		return;

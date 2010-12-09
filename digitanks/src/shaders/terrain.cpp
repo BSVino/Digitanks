@@ -1,4 +1,5 @@
 #include "shaders.h"
+#include "dt_shaders.h"
 
 const char* CShaderLibrary::GetVSTerrainShader()
 {
@@ -112,16 +113,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"	if (flYMod < 0.1)"
 		"		vecBaseColor = (vecBaseColor * 0.8) + vec4(0.5, 0.5, 0.5, 1.0)*0.2;"
 
-		"	if (bMovement)"
-		"	{"
-		"		float flTankDistanceSqr = LengthSqr(vecPosition - vecTankOrigin);"
-		"		if (flTankDistanceSqr <= flMoveDistance*flMoveDistance)"
-		"		{"
-		"			float flMoveColorStrength = RemapVal(flTankDistanceSqr, 0.0, flMoveDistance*flMoveDistance, 0.0, 1.0);"
-		"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2);"
-		"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.8, 0.0, 1.0) * flMoveColorStrength;"
-		"		}"
-		"	}"
+		TANKMOVEMENT
 
 		"	if (bTurning)"
 		"	{"

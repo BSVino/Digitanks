@@ -62,11 +62,11 @@ float CMechInfantry::GetRearShieldMaxStrength()
 	return GetFrontShieldMaxStrength();
 }
 
-void CMechInfantry::PostRender()
+void CMechInfantry::PostRender(bool bTransparent)
 {
-	BaseClass::PostRender();
+	BaseClass::PostRender(bTransparent);
 
-	if ((IsFortifying() || IsFortified()) && GetVisibility() > 0)
+	if (bTransparent && (IsFortifying() || IsFortified()) && GetVisibility() > 0)
 	{
 		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
 		CRenderingContext c(GameServer()->GetRenderer());
@@ -83,7 +83,7 @@ void CMechInfantry::PostRender()
 		c.RenderModel(m_iFortifyWallModel);
 	}
 
-	if ((IsFortifying() || IsFortified()) && GetVisibility() > 0)
+	if (bTransparent && (IsFortifying() || IsFortified()) && GetVisibility() > 0)
 	{
 		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
 		float flShieldScale = RemapValClamped(flTimeSinceFortify, 0, 1, 0, 1);

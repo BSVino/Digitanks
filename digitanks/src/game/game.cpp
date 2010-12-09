@@ -149,7 +149,7 @@ bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseE
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
 
-		if (iCollisionGroup && pEntity->GetCollisionGroup() != iCollisionGroup)
+		if (iCollisionGroup && !(pEntity->GetCollisionGroup() & iCollisionGroup))
 			continue;
 
 		Vector vecPoint;

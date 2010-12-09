@@ -18,9 +18,9 @@ public:
 
 	virtual bool				MakesSounds() { return true; };
 
-	virtual void				ModifyContext(class CRenderingContext* pContext);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender();
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual void				OnDeleted();
 

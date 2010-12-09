@@ -333,9 +333,12 @@ void CTerrain::GenerateCallLists()
 	GenerateTerrainCallLists();
 }
 
-void CTerrain::OnRender()
+void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::OnRender();
+	if (bTransparent)
+		return;
+
+	BaseClass::OnRender(pContext, bTransparent);
 
 	if (GameServer()->GetRenderer()->ShouldUseShaders())
 		RenderWithShaders();

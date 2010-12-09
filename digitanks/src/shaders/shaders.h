@@ -43,6 +43,10 @@ public:
 	static const char*		GetFSModelShader();
 	static size_t			GetModelProgram() { return GetProgram(Get()->m_iModel); };
 
+	static const char*		GetVSPropShader();
+	static const char*		GetFSPropShader();
+	static size_t			GetPropProgram() { return GetProgram(Get()->m_iProp); };
+
 	static const char*		GetVSScrollingTextureShader();
 	static const char*		GetFSScrollingTextureShader();
 	static size_t			GetScrollingTextureProgram() { return GetProgram(Get()->m_iScrollingTexture); };
@@ -82,6 +86,7 @@ protected:
 
 	size_t					m_iTerrain;
 	size_t					m_iModel;
+	size_t					m_iProp;
 	size_t					m_iScrollingTexture;
 	size_t					m_iExplosion;
 	size_t					m_iBlur;

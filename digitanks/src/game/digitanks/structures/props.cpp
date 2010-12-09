@@ -1,6 +1,8 @@
 #include "props.h"
 
 #include <renderer/renderer.h>
+#include <models/models.h>
+#include <shaders/shaders.h>
 
 #include <digitanks/digitanksgame.h>
 
@@ -26,6 +28,7 @@ void CStaticProp::Precache()
 	PrecacheModel(L"models/props/prop02.obj", true);
 	PrecacheModel(L"models/props/prop03.obj", true);
 	PrecacheModel(L"models/props/prop04.obj", true);
+	PrecacheModel(L"models/props/prop05.obj", true);
 }
 
 void CStaticProp::Spawn()
@@ -39,16 +42,62 @@ void CStaticProp::Spawn()
 	m_bSwap = false;
 }
 
-void CStaticProp::ModifyContext(CRenderingContext* pContext)
+void CStaticProp::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
-//	if (m_bAdditive)
-	//	pContext->SetBlend(BLEND_ADDITIVE);
+	pContext->SetColorSwap(m_clrSwap);
 
-	//pContext->SetDepthMask(m_bDepthMask);
-	pContext->SetBackCulling(m_bBackCulling);
+	BaseClass::ModifyContext(pContext, bTransparent);
+}
 
-	if (m_bSwap)
-		pContext->SetColorSwap(m_clrSwap);
+void CStaticProp::OnRender(class CRenderingContext* pContext, bool bTransparent)
+{
+	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
 
-	BaseClass::ModifyContext(pContext);
+	if (!pModel)
+		return;
+
+	if (bTransparent)
+		return;
+
+	CRenderer* pRenderer = GameServer()->GetRenderer();
+	CRenderingContext c(pRenderer);
+
+	if (pRenderer->ShouldUseShaders())
+	{
+		c.UseProgram(CShaderLibrary::GetPropProgram());
+		c.SetUniform("bDiffuse", true);
+		c.SetUniform("iDiffuse", 0);
+		c.SetUniform("flAlpha", GetVisibility());
+
+		bool bModeMove = DigitanksGame()->GetControlMode() == MODE_MOVE;
+		CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
+		if (!pCurrentTank)
+			bModeMove = false;
+
+		c.SetUniform("bMovement", bModeMove);
+
+		if (bModeMove)
+		{
+			c.SetUniform("flMoveDistance", pCurrentTank->GetRemainingMovementDistance());
+			c.SetUniform("vecTankOrigin", pCurrentTank->GetOrigin());
+		}
+
+		c.SetUniform("bColorSwapInAlpha", true);
+
+		Color clrSwap = m_clrSwap;
+		c.SetUniform("vecColorSwap", clrSwap);
+
+		c.RenderCallList(pModel->m_iCallList);
+	}
+	else
+	{
+		Color clrSwap = m_clrSwap;
+		clrSwap.SetAlpha((int)(GetVisibility()*255));
+		c.SetColor(clrSwap);
+
+		c.RenderCallList(pModel->m_iCallList);
+	}
+
+	if (pRenderer->ShouldUseShaders())
+		pRenderer->ClearProgram();
 }

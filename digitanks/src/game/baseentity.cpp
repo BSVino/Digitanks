@@ -206,9 +206,9 @@ void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 	Game()->OnKilled(this);
 }
 
-void CBaseEntity::Render()
+void CBaseEntity::Render(bool bTransparent)
 {
-	PreRender();
+	PreRender(bTransparent);
 
 	do {
 		CRenderingContext r(GameServer()->GetRenderer());
@@ -220,18 +220,23 @@ void CBaseEntity::Render()
 		r.Rotate(angRender.p, Vector(0, 0, 1));
 		r.Rotate(angRender.r, Vector(1, 0, 0));
 
-		ModifyContext(&r);
+		ModifyContext(&r, bTransparent);
 
 		if (r.GetAlpha() > 0)
 		{
-			if (m_iModel != (size_t)~0)
-				r.RenderModel(GetModel());
+			if (ShouldRenderModel() && m_iModel != (size_t)~0)
+			{
+				if (r.GetBlend() == BLEND_NONE && !bTransparent)
+					r.RenderModel(GetModel());
+				if (r.GetBlend() != BLEND_NONE && bTransparent)
+					r.RenderModel(GetModel());
+			}
 
-			OnRender();
+			OnRender(&r, bTransparent);
 		}
 	} while (false);
 
-	PostRender();
+	PostRender(bTransparent);
 }
 
 void CBaseEntity::Delete()

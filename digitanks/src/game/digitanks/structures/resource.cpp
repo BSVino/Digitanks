@@ -83,9 +83,9 @@ void CResource::UpdateInfo(eastl::string16& s)
 	s += L"Build a Battery or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 
-void CResource::ModifyContext(class CRenderingContext* pContext)
+void CResource::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::ModifyContext(pContext);
+	BaseClass::ModifyContext(pContext, bTransparent);
 
 	if (HasCollector() && GetCollector()->GetTeam())
 		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());

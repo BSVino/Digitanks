@@ -30,7 +30,7 @@ public:
 	virtual void				StartTurn();
 	virtual void				FindGround();
 
-	virtual void				PostRender();
+	virtual void				PostRender(bool bTransparent);
 
 	void						BeginConstruction();
 	void						BeginStructureConstruction(CNetworkParameters* p);
@@ -76,7 +76,7 @@ public:
 
 	virtual class CSupplyLine*	GetSupplyLine() { if (m_hSupplyLine == NULL) return NULL; return m_hSupplyLine; };
 
-	virtual void				ModifyContext(class CRenderingContext* pContext);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual void				OnDeleted();
 	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
@@ -193,7 +193,7 @@ public:
 
 	// Even if we're invisible our tendrils might not be, we should still render those.
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				PostRender();
+	virtual void				PostRender(bool bTransparent);
 
 	void						UpdateTendrils();
 	void						BeginTendrilGrowth();

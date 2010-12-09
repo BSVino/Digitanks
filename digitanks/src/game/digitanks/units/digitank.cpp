@@ -2430,22 +2430,9 @@ EAngle CDigitank::GetRenderAngles() const
 	return GetAngles();
 }
 
-void CDigitank::PreRender()
+void CDigitank::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
-#ifdef _DEBUG
-	if (HasFortifyPoint())
-	{
-		CRenderingContext r(GameServer()->GetRenderer());
-		r.Translate(GetFortifyPoint() + Vector(0, 2, 0));
-		r.SetColor(GetTeam()->GetColor());
-		//glutWireCube(4);
-	}
-#endif
-}
-
-void CDigitank::ModifyContext(CRenderingContext* pContext)
-{
-	BaseClass::ModifyContext(pContext);
+	BaseClass::ModifyContext(pContext, bTransparent);
 
 	if (!GetTeam())
 		return;
@@ -2453,26 +2440,29 @@ void CDigitank::ModifyContext(CRenderingContext* pContext)
 	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
-void CDigitank::OnRender()
+void CDigitank::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
-	BaseClass::OnRender();
+	BaseClass::OnRender(pContext, bTransparent);
 
-	RenderTurret();
+	RenderTurret(bTransparent);
 
-	if (GetFrontShieldStrength() > 0 && !(IsFortifying() || IsFortified()))
-		RenderShield(GetFrontShieldStrength(), 0);
+	if (bTransparent)
+	{
+		if (GetFrontShieldStrength() > 0 && !(IsFortifying() || IsFortified()))
+			RenderShield(GetFrontShieldStrength(), 0);
 
-	if (GetLeftShieldStrength() > 0)
-		RenderShield(GetLeftShieldStrength(), 90);
+		if (GetLeftShieldStrength() > 0)
+			RenderShield(GetLeftShieldStrength(), 90);
 
-	if (GetRearShieldStrength() > 0)
-		RenderShield(GetRearShieldStrength(), 180);
+		if (GetRearShieldStrength() > 0)
+			RenderShield(GetRearShieldStrength(), 180);
 
-	if (GetRightShieldStrength() > 0)
-		RenderShield(GetRightShieldStrength(), 270);
+		if (GetRightShieldStrength() > 0)
+			RenderShield(GetRightShieldStrength(), 270);
+	}
 }
 
-void CDigitank::RenderTurret(float flAlpha)
+void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 {
 	if (m_iTurretModel == ~0)
 		return;
@@ -2481,11 +2471,21 @@ void CDigitank::RenderTurret(float flAlpha)
 		return;
 
 	CRenderingContext r(GameServer()->GetRenderer());
-	if (flAlpha*GetVisibility() < 1)
+
+	float flVisibility = flAlpha*GetVisibility();
+
+	if (bTransparent && flVisibility == 1)
+		return;
+
+	if (!bTransparent && flVisibility < 1)
+		return;
+
+	if (bTransparent && flVisibility < 1)
 	{
-		r.SetAlpha(flAlpha*GetVisibility());
+		r.SetAlpha(flVisibility);
 		r.SetBlend(BLEND_ALPHA);
 	}
+
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
 	if ((GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
@@ -2500,9 +2500,6 @@ void CDigitank::RenderTurret(float flAlpha)
 
 		r.Rotate(-flAngle, Vector(0, 1, 0));
 	}
-
-	float flScale = RemapVal(GetAttackPower(true), 0, 10, 1, 1.5f);
-	r.Scale(flScale, flScale, flScale);
 
 	if (!GameServer()->GetRenderer()->ShouldUseShaders())
 		r.SetColorSwap(GetTeam()->GetColor());
@@ -2526,12 +2523,12 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	r.RenderModel(m_iShieldModel);
 }
 
-void CDigitank::PostRender()
+void CDigitank::PostRender(bool bTransparent)
 {
 	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
-	if (DigitanksGame()->GetControlMode() == MODE_TURN)
+	if (bTransparent && DigitanksGame()->GetControlMode() == MODE_TURN)
 	{
 		EAngle angTurn = EAngle(0, GetAngles().y, 0);
 		if (TurnsWith(pCurrentTank))
@@ -2560,11 +2557,11 @@ void CDigitank::PostRender()
 			r.SetColorSwap(GetTeam()->GetColor());
 			r.RenderModel(GetModel());
 
-			RenderTurret(50.0f/255);
+			RenderTurret(true, 50.0f/255);
 		}
 	}
 
-	if (pCurrentTank && DigitanksGame()->GetControlMode() == MODE_MOVE)
+	if (bTransparent && pCurrentTank && DigitanksGame()->GetControlMode() == MODE_MOVE)
 	{
 		if (pCurrentTank->IsPreviewMoveValid())
 		{
@@ -2585,12 +2582,12 @@ void CDigitank::PostRender()
 				r.SetColorSwap(GetTeam()->GetColor());
 				r.RenderModel(GetModel());
 
-				RenderTurret(50.0f/255);
+				RenderTurret(true, 50.0f/255);
 			}
 		}
 	}
 
-	if (m_bDisplayAim)
+	if (bTransparent && m_bDisplayAim)
 	{
 		glPushAttrib(GL_ENABLE_BIT);
 		glEnable(GL_BLEND);
@@ -2648,6 +2645,9 @@ void CDigitank::PostRender()
 	if (GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		bShowGoalMove = false;
 
+	if (!bTransparent)
+		bShowGoalMove = false;
+
 	if (bShowGoalMove)
 	{
 		CRenderingContext r(GameServer()->GetRenderer());
@@ -2675,7 +2675,7 @@ void CDigitank::PostRender()
 		oRope.Finish(vecGoalMove);
 	}
 
-	if (GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_CHARGE)
+	if (bTransparent && GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_CHARGE)
 	{
 		CBaseEntity* pChargeTarget = m_hPreviewCharge;
 
@@ -2692,7 +2692,7 @@ void CDigitank::PostRender()
 			r.SetColorSwap(GetTeam()->GetColor());
 			r.RenderModel(GetModel());
 
-			RenderTurret(50.0f/255);
+			RenderTurret(true, 50.0f/255);
 		}
 	}
 }
@@ -2911,25 +2911,26 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
-	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.z);
+	Vector vecHit;
 
-	float flTerrain;
+	Game()->TraceLine(vecPosition + Vector(0, 100, 0), vecPosition + Vector(0, -100, 0), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	float flHighestTerrain = vecHit.y;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z+2);
-	if (flTerrain > flHighestTerrain)
-		flHighestTerrain = flTerrain;
+	Game()->TraceLine(vecPosition + Vector(2, 100, 2), vecPosition + Vector(2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (vecHit.y > flHighestTerrain)
+		flHighestTerrain = vecHit.y;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z-2);
-	if (flTerrain > flHighestTerrain)
-		flHighestTerrain = flTerrain;
+	Game()->TraceLine(vecPosition + Vector(2, 100, -2), vecPosition + Vector(2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (vecHit.y > flHighestTerrain)
+		flHighestTerrain = vecHit.y;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z+2);
-	if (flTerrain > flHighestTerrain)
-		flHighestTerrain = flTerrain;
+	Game()->TraceLine(vecPosition + Vector(-2, 100, 2), vecPosition + Vector(-2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (vecHit.y > flHighestTerrain)
+		flHighestTerrain = vecHit.y;
 
-	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z-2);
-	if (flTerrain > flHighestTerrain)
-		flHighestTerrain = flTerrain;
+	Game()->TraceLine(vecPosition + Vector(-2, 100, -2), vecPosition + Vector(-2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (vecHit.y > flHighestTerrain)
+		flHighestTerrain = vecHit.y;
 
 	return flHighestTerrain;
 }

@@ -42,8 +42,7 @@ public:
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;
 
-	virtual void					ModifyContext(class CRenderingContext* pContext);
-	virtual void					OnRender();
+	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 
