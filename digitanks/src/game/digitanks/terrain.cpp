@@ -279,6 +279,151 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	glPopAttrib();
 	glEndList();
 
+	Vector vecTopX = Vector(0.3f, 0.3f, 0.3f);
+	Vector vecTopY = Vector(0.28f, 0.28f, 0.28f);
+	Vector vecBottom = Vector(0, 0, 0);
+	float flBottom = -1000.0f;
+
+	glNewList((GLuint)pChunk->m_iWallList, GL_COMPILE);
+	glPushAttrib(GL_CURRENT_BIT);
+	glBegin(GL_QUADS);
+
+	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
+	{
+		float flX = ArrayToWorldSpace((int)x);
+		float flX1 = ArrayToWorldSpace((int)x+1);
+
+		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
+		{
+			float flY = ArrayToWorldSpace((int)y);
+			float flY1 = ArrayToWorldSpace((int)y+1);
+
+			if (x == 0 && !GetBit(x, y, TB_HOLE) && y != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y+1), flY1);
+
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY1);
+			}
+
+			if (y == 0 && !GetBit(x, y, TB_HOLE) && x != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopY);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecTopY);
+				glVertex3f(flX1, GetRealHeight(x+1, y), flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX1, flBottom, flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+			}
+
+			if (x == TERRAIN_SIZE-1 && !GetBit(x-1, y, TB_HOLE) && y != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y+1), flY1);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY1);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+			}
+
+			if (y == TERRAIN_SIZE-1 && !GetBit(x, y-1, TB_HOLE) && x != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopY);
+				glVertex3f(flX1, GetRealHeight(x+1, y), flY);
+
+				glColor3fv(vecTopY);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX1, flBottom, flY);
+			}
+
+			if (!GetBit(x, y, TB_HOLE) && GetBit(x-1, y, TB_HOLE) && y != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y+1), flY1);
+
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY1);
+			}
+
+			if (!GetBit(x, y, TB_HOLE) && GetBit(x, y-1, TB_HOLE) && x != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopY);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecTopY);
+				glVertex3f(flX1, GetRealHeight(x+1, y), flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX1, flBottom, flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+			}
+
+			if (GetBit(x, y, TB_HOLE) && !GetBit(x-1, y, TB_HOLE) && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecTopX);
+				glVertex3f(flX, GetRealHeight(x, y+1), flY1);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY1);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+			}
+
+			if (GetBit(x, y, TB_HOLE) && !GetBit(x, y-1, TB_HOLE) && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
+			{
+				glColor3fv(vecTopY);
+				glVertex3f(flX1, GetRealHeight(x+1, y), flY);
+
+				glColor3fv(vecTopY);
+				glVertex3f(flX, GetRealHeight(x, y), flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX, flBottom, flY);
+
+				glColor3fv(vecBottom);
+				glVertex3f(flX1, flBottom, flY);
+			}
+		}
+	}
+
+	glEnd();
+	glPopAttrib();
+	glEndList();
+
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
 		for (int b = 0; b < TERRAIN_CHUNK_TEXTURE_SIZE; b++)
@@ -325,8 +470,11 @@ void CTerrain::GenerateCallLists()
 
 			if (pChunk->m_iCallList)
 				glDeleteLists((GLuint)pChunk->m_iCallList, 1);
-
 			pChunk->m_iCallList = glGenLists(1);
+
+			if (pChunk->m_iWallList)
+				glDeleteLists((GLuint)pChunk->m_iWallList, 1);
+			pChunk->m_iWallList = glGenLists(1);
 		}
 	}
 
@@ -532,6 +680,14 @@ void CTerrain::RenderWithShaders()
 
 	GameServer()->GetRenderer()->ClearProgram();
 
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			glCallList((GLuint)m_aTerrainChunks[i][j].m_iWallList);
+		}
+	}
+
 	glPopAttrib();
 }
 
@@ -547,6 +703,14 @@ void CTerrain::RenderWithoutShaders()
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			glCallList((GLuint)m_aTerrainChunks[i][j].m_iWallList);
+		}
+	}
 }
 
 void CTerrain::GetChunk(float x, float y, int& i, int& j)
@@ -1070,6 +1234,7 @@ CTerrainChunk::CTerrainChunk()
 {
 	m_pTracer = NULL;
 	m_iCallList = 0;
+	m_iWallList = 0;
 	m_bNeedsRegenerate = true;
 	m_iChunkTexture = 0;
 }
@@ -1078,6 +1243,8 @@ CTerrainChunk::~CTerrainChunk()
 {
 	if (m_iCallList)
 		glDeleteLists((GLuint)m_iCallList, 1);
+	if (m_iWallList)
+		glDeleteLists((GLuint)m_iWallList, 1);
 	if (m_iChunkTexture)
 		glDeleteTextures(1, &m_iChunkTexture);
 }

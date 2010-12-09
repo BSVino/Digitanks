@@ -31,6 +31,7 @@ protected:
 	size_t							m_iChunkTexture;
 
 	size_t							m_iCallList;
+	size_t							m_iWallList;
 
 	bool							m_bNeedsRegenerate;
 };
