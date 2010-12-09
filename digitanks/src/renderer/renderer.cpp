@@ -646,6 +646,8 @@ CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bD
 	glBindTexture(GL_TEXTURE_2D, (GLuint)oBuffer.m_iMap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bLinear?GL_LINEAR:GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bLinear?GL_LINEAR:GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)iWidth, (GLsizei)iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1135,7 +1137,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 	return iCallList;
 }
 
-size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD)
+size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, int iClamp)
 {
 	if (!sFilename.length())
 		return 0;
@@ -1182,17 +1184,21 @@ size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD)
 	glGenTextures(1, &iGLId);
 	glBindTexture(GL_TEXTURE_2D, iGLId);
 
-	if (bHUD)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	if (iClamp && !GLEW_EXT_texture_edge_clamp)
+		iClamp = 1;
+
+	if (iClamp == 1)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	}
-	else
+	else if (iClamp == 2)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
 	gluBuild2DMipmaps(GL_TEXTURE_2D,

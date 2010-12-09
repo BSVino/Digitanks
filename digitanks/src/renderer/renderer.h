@@ -136,8 +136,8 @@ public:
 	void			CreateNoise();
 
 	virtual void	SetupFrame();
-	void			DrawBackground();
-	void			StartRendering();
+	virtual void	DrawBackground();
+	virtual void	StartRendering();
 	virtual void	FinishRendering();
 	virtual void	RenderOffscreenBuffers() {};
 	virtual void	RenderFullscreenBuffers() {};
@@ -172,7 +172,7 @@ public:
 
 public:
 	static size_t	CreateCallList(size_t iModel);
-	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, bool bHUD = false);
+	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, int iClamp = 0);
 
 protected:
 	size_t			m_iWidth;

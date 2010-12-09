@@ -43,6 +43,13 @@ CDigitanksRenderer::CDigitanksRenderer()
 
 	m_iVignetting = CRenderer::LoadTextureIntoGL(L"textures/vignetting.png");
 
+	m_iSkyboxFT = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-ft.png", 2);
+	m_iSkyboxLF = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-lf.png", 2);
+	m_iSkyboxBK = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-bk.png", 2);
+	m_iSkyboxRT = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-rt.png", 2);
+	m_iSkyboxDN = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-dn.png", 2);
+	m_iSkyboxUP = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-up.png", 2);
+
 	m_flLastBloomPulse = -100;
 }
 
@@ -61,6 +68,75 @@ void CDigitanksRenderer::SetupFrame()
 	}
 
 	BaseClass::SetupFrame();
+}
+
+void CDigitanksRenderer::StartRendering()
+{
+	BaseClass::StartRendering();
+
+	if (true)
+	{
+		glPushAttrib(GL_CURRENT_BIT|GL_ENABLE_BIT);
+		glPushMatrix();
+		glTranslatef(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z);
+
+		if (GLEW_ARB_multitexture || GLEW_VERSION_1_3)
+			glActiveTexture(GL_TEXTURE0);
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iSkyboxFT);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0, 1); glVertex3f(100, 100, -100);
+			glTexCoord2i(0, 0); glVertex3f(100, -100, -100);
+			glTexCoord2i(1, 0); glVertex3f(100, -100, 100);
+			glTexCoord2i(1, 1); glVertex3f(100, 100, 100);
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iSkyboxLF);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0, 1); glVertex3f(-100, 100, -100);
+			glTexCoord2i(0, 0); glVertex3f(-100, -100, -100);
+			glTexCoord2i(1, 0); glVertex3f(100, -100, -100);
+			glTexCoord2i(1, 1); glVertex3f(100, 100, -100);
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iSkyboxBK);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0, 1); glVertex3f(-100, 100, 100);
+			glTexCoord2i(0, 0); glVertex3f(-100, -100, 100);
+			glTexCoord2i(1, 0); glVertex3f(-100, -100, -100);
+			glTexCoord2i(1, 1); glVertex3f(-100, 100, -100);
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iSkyboxRT);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0, 1); glVertex3f(100, 100, 100);
+			glTexCoord2i(0, 0); glVertex3f(100, -100, 100);
+			glTexCoord2i(1, 0); glVertex3f(-100, -100, 100);
+			glTexCoord2i(1, 1); glVertex3f(-100, 100, 100);
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iSkyboxUP);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0, 1); glVertex3f(-100, 100, -100);
+			glTexCoord2i(0, 0); glVertex3f(100, 100, -100);
+			glTexCoord2i(1, 0); glVertex3f(100, 100, 100);
+			glTexCoord2i(1, 1); glVertex3f(-100, 100, 100);
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iSkyboxDN);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0, 1); glVertex3f(100, -100, -100);
+			glTexCoord2i(0, 0); glVertex3f(-100, -100, -100);
+			glTexCoord2i(1, 0); glVertex3f(-100, -100, 100);
+			glTexCoord2i(1, 1); glVertex3f(100, -100, 100);
+		glEnd();
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glPopMatrix();
+		glPopAttrib();
+	}
 }
 
 void CDigitanksRenderer::FinishRendering()

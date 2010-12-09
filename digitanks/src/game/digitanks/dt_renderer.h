@@ -13,6 +13,8 @@ public:
 
 public:
 	virtual void	SetupFrame();
+	virtual void	DrawBackground() {};	// Skybox instead
+	virtual void	StartRendering();
 	virtual void	FinishRendering();
 	virtual void	RenderFogOfWar();
 	virtual void	RenderOffscreenBuffers();
@@ -34,6 +36,13 @@ protected:
 	CFrameBuffer	m_oVisibilityMaskedBuffer;
 
 	size_t			m_iVignetting;
+
+	size_t			m_iSkyboxFT;
+	size_t			m_iSkyboxLF;
+	size_t			m_iSkyboxBK;
+	size_t			m_iSkyboxRT;
+	size_t			m_iSkyboxDN;
+	size_t			m_iSkyboxUP;
 
 	float			m_flLastBloomPulse;
 };
