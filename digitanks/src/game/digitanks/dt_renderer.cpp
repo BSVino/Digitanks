@@ -7,6 +7,7 @@
 #include <shaders/shaders.h>
 #include <game/digitanks/digitanksentity.h>
 #include <game/digitanks/digitanksgame.h>
+#include <models/models.h>
 
 #include <ui/digitankswindow.h>
 
@@ -50,6 +51,15 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_iSkyboxDN = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-dn.png", 2);
 	m_iSkyboxUP = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-up.png", 2);
 
+	m_iRing1 = CModelLibrary::Get()->AddModel(L"models/skybox/ring1.obj", true);
+	m_iRing2 = CModelLibrary::Get()->AddModel(L"models/skybox/ring2.obj", true);
+	m_iRing3 = CModelLibrary::Get()->AddModel(L"models/skybox/ring3.obj", true);
+	m_flRing1Yaw = 0;
+	m_flRing2Yaw = 90;
+	m_flRing3Yaw = 190;
+
+	m_iDigiverse = CModelLibrary::Get()->AddModel(L"models/skybox/digiverse.obj", true);
+
 	m_flLastBloomPulse = -100;
 }
 
@@ -73,6 +83,14 @@ void CDigitanksRenderer::SetupFrame()
 void CDigitanksRenderer::StartRendering()
 {
 	BaseClass::StartRendering();
+
+	RenderSkybox();
+}
+
+void CDigitanksRenderer::RenderSkybox()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU || DigitanksGame()->GetGameType() == GAMETYPE_EMPTY)
+		return;
 
 	if (true)
 	{
@@ -132,11 +150,74 @@ void CDigitanksRenderer::StartRendering()
 			glTexCoord2i(1, 1); glVertex3f(100, -100, 100);
 		glEnd();
 
-		glClear(GL_DEPTH_BUFFER_BIT);
-
 		glPopMatrix();
 		glPopAttrib();
 	}
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	// Set camera 1/16 to match the scale of the skybox
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	gluLookAt(m_vecCameraPosition.x/16, m_vecCameraPosition.y/16, m_vecCameraPosition.z/16,
+		m_vecCameraTarget.x/16, m_vecCameraTarget.y/16, m_vecCameraTarget.z/16,
+		0.0, 1.0, 0.0);
+
+	CRenderingContext c(this);
+
+	if (true)
+	{
+		CRenderingContext r(this);
+
+		r.RenderModel(m_iDigiverse);
+	}
+
+	if (true)
+	{
+		CRenderingContext r(this);
+
+		r.SetBlend(BLEND_ADDITIVE);
+		r.SetDepthMask(false);
+		r.Rotate(m_flRing1Yaw, Vector(0, 1, 0));
+		r.RenderModel(m_iRing1);
+
+		m_flRing1Yaw += GameServer()->GetFrameTime()*10;
+	}
+
+	if (true)
+	{
+		CRenderingContext r(this);
+
+		r.SetBlend(BLEND_ADDITIVE);
+		r.SetDepthMask(false);
+		r.Rotate(m_flRing2Yaw, Vector(0, 1, 0));
+		r.RenderModel(m_iRing2);
+
+		m_flRing2Yaw -= GameServer()->GetFrameTime()*10;
+	}
+
+	if (true)
+	{
+		CRenderingContext r(this);
+
+		r.SetBlend(BLEND_ADDITIVE);
+		r.SetDepthMask(false);
+		r.Rotate(m_flRing3Yaw, Vector(0, 1, 0));
+		r.RenderModel(m_iRing3);
+
+		m_flRing3Yaw -= GameServer()->GetFrameTime()*20;
+	}
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	// Reset the camera
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	gluLookAt(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z,
+		m_vecCameraTarget.x, m_vecCameraTarget.y, m_vecCameraTarget.z,
+		0.0, 1.0, 0.0);
 }
 
 void CDigitanksRenderer::FinishRendering()

@@ -15,6 +15,7 @@ public:
 	virtual void	SetupFrame();
 	virtual void	DrawBackground() {};	// Skybox instead
 	virtual void	StartRendering();
+	virtual void	RenderSkybox();
 	virtual void	FinishRendering();
 	virtual void	RenderFogOfWar();
 	virtual void	RenderOffscreenBuffers();
@@ -43,6 +44,15 @@ protected:
 	size_t			m_iSkyboxRT;
 	size_t			m_iSkyboxDN;
 	size_t			m_iSkyboxUP;
+
+	size_t			m_iRing1;
+	size_t			m_iRing2;
+	size_t			m_iRing3;
+	float			m_flRing1Yaw;
+	float			m_flRing2Yaw;
+	float			m_flRing3Yaw;
+
+	size_t			m_iDigiverse;
 
 	float			m_flLastBloomPulse;
 };
