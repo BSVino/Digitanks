@@ -211,7 +211,6 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 
 	eastl::string16 sContent;
 	sContent.append(L"key=");
-	// eastl::string16 has some kind of bug that gives strings crap on the ends sometimes. This should get rid of it.
 	sContent.append(sKey.substr(0, 16));
 
 	eastl::string16 sPost;

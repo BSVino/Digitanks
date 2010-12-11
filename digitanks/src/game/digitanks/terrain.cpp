@@ -3,6 +3,7 @@
 #include <simplex.h>
 #include <maths.h>
 #include <time.h>
+#include <strutils.h>
 
 #include <GL/glew.h>
 
@@ -10,6 +11,7 @@
 
 #include "dt_renderer.h"
 #include "digitanksgame.h"
+#include "digitankslevel.h"
 #include <digitanks/weapons/projectile.h>
 #include "ui/digitankswindow.h"
 #include "shaders/shaders.h"
@@ -83,6 +85,35 @@ void CTerrain::Spawn()
 
 void CTerrain::GenerateTerrain(float flHeight)
 {
+	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
+
+	CDigitanksLevel* pLevel = NULL;
+	size_t iTerrainData = 0;
+	Color* pclrTerrainData = NULL;
+	if (pGameSettings->iLevel < GameServer()->GetNumLevels())
+	{
+		pLevel = dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(pGameSettings->iLevel));
+		if (pLevel)
+		{
+			iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));
+
+			if (CRenderer::GetTextureHeight(iTerrainData) != 200)
+			{
+				CRenderer::UnloadTextureData(iTerrainData);
+				iTerrainData = 0;
+			}
+
+			if (CRenderer::GetTextureWidth(iTerrainData) != 200)
+			{
+				CRenderer::UnloadTextureData(iTerrainData);
+				iTerrainData = 0;
+			}
+
+			if (iTerrainData)
+				pclrTerrainData = CRenderer::GetTextureData(iTerrainData);
+		}
+	}
+
 	CSimplexNoise n1(m_iSpawnSeed);
 	CSimplexNoise n2(m_iSpawnSeed+1);
 	CSimplexNoise n3(m_iSpawnSeed+2);
@@ -103,21 +134,29 @@ void CTerrain::GenerateTerrain(float flHeight)
 	CSimplexNoise h1(m_iSpawnSeed+5);
 	CSimplexNoise h2(m_iSpawnSeed+6);
 
+	float flHoleHighest, flHoleLowest;
+
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
 		for (size_t y = 0; y < TERRAIN_SIZE; y++)
 		{
 			float flHeight;
-			flHeight  = n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
-			flHeight += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
-			flHeight += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
-			flHeight += n4.Noise(x*flSpaceFactor4, y*flSpaceFactor4) * flHeightFactor4;
-			flHeight += n5.Noise(x*flSpaceFactor5, y*flSpaceFactor5) * flHeightFactor5;
+			if (pclrTerrainData)
+			{
+				flHeight = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].g())/255*pLevel->GetMaxHeight();
+			}
+			else
+			{
+				flHeight  = n1.Noise(x*flSpaceFactor1, y*flSpaceFactor1) * flHeightFactor1;
+				flHeight += n2.Noise(x*flSpaceFactor2, y*flSpaceFactor2) * flHeightFactor2;
+				flHeight += n3.Noise(x*flSpaceFactor3, y*flSpaceFactor3) * flHeightFactor3;
+				flHeight += n4.Noise(x*flSpaceFactor4, y*flSpaceFactor4) * flHeightFactor4;
+				flHeight += n5.Noise(x*flSpaceFactor5, y*flSpaceFactor5) * flHeightFactor5;
+			}
 			SetRealHeight(x, y, flHeight);
 
 			if (!m_bHeightsInitialized)
 				m_flHighest = m_flLowest = flHeight;
-			m_bHeightsInitialized = true;
 
 			if (flHeight < m_flLowest)
 				m_flLowest = flHeight;
@@ -125,23 +164,52 @@ void CTerrain::GenerateTerrain(float flHeight)
 			if (flHeight > m_flHighest)
 				m_flHighest = flHeight;
 
-			if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+			if (pclrTerrainData)
+			{
+				float flLava = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].r())/255;
+				SetBit(x, y, TB_LAVA, flLava > 0.5f);
+
+				float flHole = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].a())/255;
+				SetBit(x, y, TB_HOLE, flHole < 0.5f);
+			}
+			else if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 			{
 				float flHole;
 				flHole  = h1.Noise(x*0.01f, y*0.01f) * 10;
 				flHole += h2.Noise(x*0.02f, y*0.02f) * 5;
 
-				SetBit(x, y, TB_HOLE, flHole < -3.0f);
+				if (!m_bHeightsInitialized)
+					flHoleHighest = flHoleLowest = flHole;
+
+				if (flHole < flHoleLowest)
+					flHoleLowest = flHole;
+
+				if (flHole > flHoleHighest)
+					flHoleHighest = flHole;
 			}
+
+			m_bHeightsInitialized = true;
 		}
 	}
 
-	for (size_t x = 0; x < TERRAIN_SIZE; x++)
+	if (iTerrainData)
+		CRenderer::UnloadTextureData(iTerrainData);
+
+	if (!pclrTerrainData)
 	{
-		for (size_t y = 0; y < TERRAIN_SIZE; y++)
+		for (size_t x = 0; x < TERRAIN_SIZE; x++)
 		{
-			float flHeight = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 1.00f);
-			SetBit(x, y, TB_LAVA, flHeight < LavaHeight());
+			for (size_t y = 0; y < TERRAIN_SIZE; y++)
+			{
+				float flHeight = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 1.0f);
+				SetBit(x, y, TB_LAVA, flHeight < LavaHeight());
+
+				if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+				{
+					flHeight = RemapVal(GetRealHeight(x, y), flHoleLowest, flHoleHighest, 0.0f, 1.0f);
+					SetBit(x, y, TB_HOLE, flHeight < HoleHeight());
+				}
+			}
 		}
 	}
 }
@@ -388,7 +456,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX, flBottom, flY);
 			}
 
-			if (GetBit(x, y, TB_HOLE) && !GetBit(x-1, y, TB_HOLE) && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
+			if (GetBit(x, y, TB_HOLE) && !GetBit(x-1, y, TB_HOLE) && x > 0 && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopX);
 				glVertex3f(flX, GetRealHeight(x, y), flY);
@@ -403,7 +471,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX, flBottom, flY);
 			}
 
-			if (GetBit(x, y, TB_HOLE) && !GetBit(x, y-1, TB_HOLE) && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
+			if (GetBit(x, y, TB_HOLE) && !GetBit(x, y-1, TB_HOLE) && y > 0 && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopY);
 				glVertex3f(flX1, GetRealHeight(x+1, y), flY);
@@ -815,6 +883,11 @@ int CTerrain::ArrayToChunkSpace(int i, int& iIndex)
 {
 	iIndex = i%TERRAIN_CHUNK_SIZE;
 	int iChunk = i/TERRAIN_CHUNK_SIZE;
+
+	if (iIndex < 0)
+		iIndex = 0;
+	if (iIndex >= TERRAIN_CHUNK_SIZE)
+		iIndex = TERRAIN_CHUNK_SIZE-1;
 
 	if (iChunk < 0)
 	{

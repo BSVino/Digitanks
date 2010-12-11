@@ -77,6 +77,12 @@ inline int isspace(int i)
 	if (i == '\t')
 		return true;
 
+	if (i == '\r')
+		return true;
+
+	if (i == '\n')
+		return true;
+
 	return false;
 }
 
@@ -126,7 +132,7 @@ inline eastl::basic_string<T> convertstring(eastl::basic_string<F> s)
 {
 	eastl::basic_string<T> t;
 	size_t iSize = s.size();
-	t.resize(iSize+1);
+	t.resize(iSize);
 
 	for (size_t i = 0; i < iSize; i++)
 		t[i] = (T)s[i];

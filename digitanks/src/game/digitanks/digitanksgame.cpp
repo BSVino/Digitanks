@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <maths.h>
 #include <mtrand.h>
+#include <strutils.h>
 #include <models/models.h>
 #include <sound/sound.h>
 #include <renderer/particles.h>
@@ -31,6 +32,7 @@
 #include "digitanks/structures/resource.h"
 #include "digitanks/structures/loader.h"
 #include "digitanks/structures/props.h"
+#include "digitanks/digitankslevel.h"
 
 CGame* CreateGame()
 {
@@ -47,6 +49,11 @@ CCamera* CreateCamera()
 	CDigitanksCamera* pCamera = new CDigitanksCamera();
 	pCamera->SnapDistance(120);
 	return pCamera;
+}
+
+CLevel* CreateLevel()
+{
+	return new CDigitanksLevel();
 }
 
 NETVAR_TABLE_BEGIN(CDigitanksGame);
@@ -75,10 +82,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iTankAimFocus);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iDifficulty);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bRenderFogOfWar);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iHumanPlayers);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iBotPlayers);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iTanks);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTerrain);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, gamesettings_t, m_oGameSettings);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, gametype_t, m_eGameType);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
@@ -231,9 +235,28 @@ void CDigitanksGame::ScatterResources()
 	}
 }
 
-void CDigitanksGame::ScatterProps()
+void CDigitanksGame::SetupProps()
 {
-	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
+	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
+
+	CDigitanksLevel* pLevel = NULL;
+	if (pGameSettings->iLevel < GameServer()->GetNumLevels())
+		pLevel = dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(pGameSettings->iLevel));
+
+	if (!pLevel)
+		return;
+
+	for (size_t iProps = 0; iProps < pLevel->GetNumProps(); iProps++)
+	{
+		CLevelProp* pLevelProp = pLevel->GetProp(iProps);
+		CStaticProp* pProp = GameServer()->Create<CStaticProp>("CStaticProp");
+		pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelProp->m_vecPosition.x, 0, pLevelProp->m_vecPosition.y)));
+		pProp->SetAngles(EAngle(0, pLevelProp->m_angOrientation.y, 0));
+		pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
+		pProp->SetModel(convertstring<char, char16_t>(pLevelProp->m_sModel));
+	}
+
+/*	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
 		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)
 		{
@@ -280,38 +303,38 @@ void CDigitanksGame::ScatterProps()
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void CDigitanksGame::SetupArtillery()
 {
-	int iPlayers = m_iHumanPlayers + m_iBotPlayers;
+	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
 
 	if (iPlayers > 8)
 	{
 		iPlayers = 8;
-		if (m_iHumanPlayers > 8)
+		if (m_oGameSettings.iHumanPlayers > 8)
 		{
-			m_iHumanPlayers = 8;
-			m_iBotPlayers = 0;
+			m_oGameSettings.iHumanPlayers = 8;
+			m_oGameSettings.iBotPlayers = 0;
 		}
 		else
-			m_iBotPlayers = 8-m_iHumanPlayers;
+			m_oGameSettings.iBotPlayers = 8-m_oGameSettings.iHumanPlayers;
 	}
 
 	if (iPlayers < 2)
 	{
 		iPlayers = 2;
-		m_iHumanPlayers = 2;
-		m_iBotPlayers = 0;
+		m_oGameSettings.iHumanPlayers = 2;
+		m_oGameSettings.iBotPlayers = 0;
 	}
 
-	int iTanks = m_iTanks;
+	int iTanks = m_oGameSettings.iTanksPerPlayer;
 	if (iTanks > 4)
 		iTanks = 4;
 	if (iTanks < 1)
 		iTanks = 1;
-	m_iTanks = iTanks;
+	m_oGameSettings.iTanksPerPlayer = iTanks;
 
 	Color aclrTeamColors[] =
 	{
@@ -338,27 +361,27 @@ void CDigitanksGame::SetupStandard()
 	m_hTerrain->GenerateTerrain();
 
 	ScatterResources();
-	ScatterProps();
+	SetupProps();
 
-	int iPlayers = m_iHumanPlayers + m_iBotPlayers;
+	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
 
 	if (iPlayers > 8)
 	{
 		iPlayers = 8;
-		if (m_iHumanPlayers > 8)
+		if (m_oGameSettings.iHumanPlayers > 8)
 		{
-			m_iHumanPlayers = 8;
-			m_iBotPlayers = 0;
+			m_oGameSettings.iHumanPlayers = 8;
+			m_oGameSettings.iBotPlayers = 0;
 		}
 		else
-			m_iBotPlayers = 8-m_iHumanPlayers;
+			m_oGameSettings.iBotPlayers = 8-m_oGameSettings.iHumanPlayers;
 	}
 
 	if (iPlayers < 2)
 	{
 		iPlayers = 2;
-		m_iHumanPlayers = 2;
-		m_iBotPlayers = 0;
+		m_oGameSettings.iHumanPlayers = 2;
+		m_oGameSettings.iBotPlayers = 0;
 	}
 
 	Color aclrTeamColors[] =
@@ -453,7 +476,7 @@ void CDigitanksGame::SetupStandard()
 		pTank->GiveBonusPoints(1, false);
 	}
 
-	for (int i = 0; i < m_iHumanPlayers; i++)
+	for (size_t i = 0; i < m_oGameSettings.iHumanPlayers; i++)
 		m_ahTeams[i]->SetClient(-1);
 
 	CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
@@ -648,21 +671,20 @@ void CDigitanksGame::SetupArtilleryRound()
 	GameServer()->DestroyAllEntities(asSpare);
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
-	m_hTerrain->GenerateTerrain(m_flTerrain);
-	m_hTerrain->GenerateCollision();
+	m_hTerrain->GenerateTerrain(m_oGameSettings.flTerrainHeight);
 
 	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
 	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
 
-	size_t iTotalTanks = m_iTanks * (m_iHumanPlayers + m_iBotPlayers);
+	size_t iTotalTanks = m_oGameSettings.iTanksPerPlayer * (m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers);
 	size_t iSections = (int)sqrt((float)iTotalTanks);
 	float flSectionSize = flMapSize*2/iSections;
 
 	eastl::vector<size_t> aiRandomTeamPositions;
 	// 8 random starting positions.
-	for (int i = 0; i < (m_iHumanPlayers + m_iBotPlayers); i++)
+	for (size_t i = 0; i < (m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers); i++)
 	{
-		for (int j = 0; j < m_iTanks; j++)
+		for (size_t j = 0; j < m_oGameSettings.iTanksPerPlayer; j++)
 			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
 	}
 
@@ -710,7 +732,7 @@ void CDigitanksGame::SetupArtilleryRound()
 		}
 	}
 
-	for (int i = 0; i < m_iHumanPlayers; i++)
+	for (size_t i = 0; i < m_oGameSettings.iHumanPlayers; i++)
 		m_ahTeams[i]->SetClient(-1);
 
 	CPowerup* pPowerup;
@@ -747,7 +769,7 @@ void CDigitanksGame::SetupArtilleryRound()
 		m_iPowerups++;
 	}
 
-	ScatterProps();
+	SetupProps();
 
 	GameServer()->SetLoading(false);
 }

@@ -105,6 +105,7 @@ public:
 	virtual void			ClientEnterGame();
 
 	float					LavaHeight() { return 0.2f; }
+	float					HoleHeight() { return 0.2f; }
 
 protected:
 	bool					m_bHeightsInitialized;

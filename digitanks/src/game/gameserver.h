@@ -28,6 +28,13 @@ public:
 
 	void										Initialize();
 
+	void										ReadLevels();
+	void										ReadLevels(eastl::string16 sDirectory);
+	void										ReadLevel(eastl::string16 sFile);
+
+	size_t										GetNumLevels() { return m_apLevels.size(); }
+	class CLevel*								GetLevel(size_t i) { return m_apLevels[i]; }
+
 	void										Halt() { m_bHalting = true; };
 	bool										IsHalting() { return m_bHalting; };
 
@@ -105,6 +112,8 @@ protected:
 	int											m_iPort;
 
 	bool										m_bHalting;
+
+	eastl::vector<class CLevel*>				m_apLevels;
 };
 
 inline class CGameServer* GameServer()
@@ -116,5 +125,6 @@ inline class CGameServer* GameServer()
 extern class CGame* CreateGame();
 extern class CRenderer* CreateRenderer();
 extern class CCamera* CreateCamera();
+extern class CLevel* CreateLevel();
 
 #endif

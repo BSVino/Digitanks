@@ -37,6 +37,9 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
 
+	memset(&m_oGameSettings, 0, sizeof(m_oGameSettings));
+	m_oGameSettings.iLevel = ~0;
+
 	m_bBoxSelect = false;
 	m_bCheatsOn = false;
 
@@ -197,16 +200,17 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 	if (CNetwork::IsHost() && DigitanksGame())
 	{
-		DigitanksGame()->SetHumanPlayers(m_iHumanPlayers);
-		DigitanksGame()->SetBotPlayers(m_iBotPlayers);
-		DigitanksGame()->SetTanks(m_iTanks);
-		DigitanksGame()->SetTerrain(m_flTerrain);
+		DigitanksGame()->SetGameSettings(m_oGameSettings);
 		DigitanksGame()->SetupGame(eGameType);
 	}
 
 	glgui::CRootPanel::Get()->Layout();
 
 	m_pMainMenu->SetVisible(eGameType == GAMETYPE_MENU);
+
+	// Since loading is done, remove old game settings.
+	memset(&m_oGameSettings, 0, sizeof(m_oGameSettings));
+	m_oGameSettings.iLevel = ~0;
 }
 
 void CDigitanksWindow::DestroyGame()

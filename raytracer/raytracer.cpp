@@ -418,6 +418,13 @@ void CKDNode::CalcBounds()
 		}
 	}
 
+	if (vecLowest.x == vecHighest.x)
+		vecHighest.x += 1e-4f;
+	if (vecLowest.y == vecHighest.y)
+		vecHighest.y += 1e-4f;
+	if (vecLowest.z == vecHighest.z)
+		vecHighest.z += 1e-4f;
+
 	m_oBounds = AABB(vecLowest, vecHighest);
 }
 

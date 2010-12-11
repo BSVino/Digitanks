@@ -149,8 +149,12 @@ public:
 
 	EVENT_CALLBACK(CArtilleryGamePanel,	BeginGame);
 	EVENT_CALLBACK(CArtilleryGamePanel,	UpdateLayout);
+	EVENT_CALLBACK(CArtilleryGamePanel,	LevelChosen);
 
 protected:
+	size_t							m_iLevelSelected;
+	glgui::CMenu*					m_pLevels;
+
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 

@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include <mtrand.h>
+#include <platform.h>
 
 #include <ui/digitankswindow.h>
 #include <renderer/renderer.h>
@@ -11,8 +12,11 @@
 #include <renderer/dissolver.h>
 #include <sound/sound.h>
 #include <network/network.h>
+#include <datamanager/data.h>
+#include <datamanager/dataserializer.h>
 
 #include "camera.h"
+#include "level.h"
 
 CGameServer* CGameServer::s_pGameServer = NULL;
 
@@ -53,6 +57,9 @@ CGameServer::CGameServer()
 
 CGameServer::~CGameServer()
 {
+	for (size_t i = 0; i < m_apLevels.size(); i++)
+		delete m_apLevels[i];
+
 	if (m_pRenderer)
 		delete m_pRenderer;
 
@@ -66,6 +73,8 @@ CGameServer::~CGameServer()
 void CGameServer::Initialize()
 {
 	m_bLoading = true;
+
+	ReadLevels();
 
 	CNetwork::ClearRegisteredFunctions();
 
@@ -95,6 +104,46 @@ void CGameServer::Initialize()
 		if (!CNetwork::IsConnected())
 			return;
 	}
+}
+
+void CGameServer::ReadLevels()
+{
+	for (size_t i = 0; i < m_apLevels.size(); i++)
+		delete m_apLevels[i];
+
+	m_apLevels.clear();
+
+	ReadLevels(L"levels");
+}
+
+void CGameServer::ReadLevels(eastl::string16 sDirectory)
+{
+	eastl::vector<eastl::string16> asFiles = ListDirectory(sDirectory);
+
+	for (size_t i = 0; i < asFiles.size(); i++)
+	{
+		eastl::string16 sFile = sDirectory + L"\\" + asFiles[i];
+
+		if (IsFile(sFile) && sFile.substr(sFile.length()-4).compare(L".txt") == 0)
+			ReadLevel(sFile);
+
+		if (IsDirectory(sFile))
+			ReadLevels(sFile);
+	}
+}
+
+void CGameServer::ReadLevel(eastl::string16 sFile)
+{
+	std::ifstream f(sFile.c_str());
+
+	CData* pData = new CData();
+	CDataSerializer::Read(f, pData);
+
+	CLevel* pLevel = CreateLevel();
+	pLevel->ReadFromData(pData);
+	m_apLevels.push_back(pLevel);
+
+	delete pData;
 }
 
 void CGameServer::RegisterNetworkFunctions()

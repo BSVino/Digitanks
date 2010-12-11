@@ -61,6 +61,9 @@
     <Filter Include="Source Files\game\digitanks\weapons">
       <UniqueIdentifier>{f85c5d4e-69e7-4d87-a801-0edbea4e04da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\datamanager">
+      <UniqueIdentifier>{71f78f61-40b6-4b40-9c65-abecddff9b6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -294,6 +297,18 @@
     <ClCompile Include="shaders\prop.cpp">
       <Filter>Source Files\shaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\datamanager\data.cpp">
+      <Filter>Source Files\datamanager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\datamanager\dataserializer.cpp">
+      <Filter>Source Files\datamanager</Filter>
+    </ClCompile>
+    <ClCompile Include="game\level.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\digitankslevel.cpp">
+      <Filter>Source Files\game\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -475,6 +490,21 @@
     </ClInclude>
     <ClInclude Include="shaders\dt_shaders.h">
       <Filter>Source Files\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\datamanager\data.h">
+      <Filter>Source Files\datamanager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\datamanager\dataserializer.h">
+      <Filter>Source Files\datamanager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\strutils.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="game\level.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\digitankslevel.h">
+      <Filter>Source Files\game\digitanks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -25,10 +25,7 @@ public:
 
 	void						InitUI();
 
-	void						SetHumanPlayers(int iPlayers) { m_iHumanPlayers = iPlayers; };
-	void						SetBotPlayers(int iPlayers) { m_iBotPlayers = iPlayers; };
-	void						SetTanks(int iTanks) { m_iTanks = iTanks; };
-	void						SetTerrain(float flTerrain) { m_flTerrain = flTerrain; };
+	void						SetGameSettings(gamesettings_t& oGameSettings) { m_oGameSettings = oGameSettings; };
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 	void						SetConnectHost(const eastl::string16 sHost) { m_sConnectHost = sHost; };
 
@@ -106,10 +103,7 @@ protected:
 	class CPurchasePanel*		m_pPurchase;
 	class CStoryPanel*			m_pStory;
 
-	int							m_iHumanPlayers;
-	int							m_iBotPlayers;
-	int							m_iTanks;
-	float						m_flTerrain;
+	gamesettings_t				m_oGameSettings;
 
 	servertype_t				m_eServerType;
 	eastl::string16				m_sConnectHost;

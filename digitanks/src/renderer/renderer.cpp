@@ -1209,9 +1209,74 @@ size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, int iClamp)
 		GL_UNSIGNED_BYTE,
 		ilGetData());
 
+	ilBindImage(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	ilDeleteImages(1, &iDevILId);
 
 	return iGLId;
+}
+
+size_t CRenderer::LoadTextureData(eastl::string16 sFilename)
+{
+	if (!sFilename.length())
+		return 0;
+
+	ILuint iDevILId;
+	ilGenImages(1, &iDevILId);
+	ilBindImage(iDevILId);
+
+	ILboolean bSuccess = ilLoadImage(sFilename.c_str());
+
+	if (!bSuccess)
+		bSuccess = ilLoadImage(sFilename.c_str());
+
+	ILenum iError = ilGetError();
+
+	if (!bSuccess)
+		return 0;
+
+	bSuccess = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	if (!bSuccess)
+		return 0;
+
+	ILinfo ImageInfo;
+	iluGetImageInfo(&ImageInfo);
+
+	if (ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT)
+		iluFlipImage();
+
+	ilBindImage(0);
+
+	return iDevILId;
+}
+
+Color* CRenderer::GetTextureData(size_t iTexture)
+{
+	ilBindImage(iTexture);
+	Color* pclr = (Color*)ilGetData();
+	ilBindImage(0);
+	return pclr;
+}
+
+size_t CRenderer::GetTextureWidth(size_t iTexture)
+{
+	ilBindImage(iTexture);
+	size_t iWidth = ilGetInteger(IL_IMAGE_WIDTH);
+	ilBindImage(0);
+	return iWidth;
+}
+
+size_t CRenderer::GetTextureHeight(size_t iTexture)
+{
+	ilBindImage(iTexture);
+	size_t iHeight = ilGetInteger(IL_IMAGE_HEIGHT);
+	ilBindImage(0);
+	return iHeight;
+}
+
+void CRenderer::UnloadTextureData(size_t iTexture)
+{
+	ilBindImage(0);
+	ilDeleteImages(1, &iTexture);
 }

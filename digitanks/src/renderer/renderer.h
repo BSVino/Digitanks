@@ -174,6 +174,12 @@ public:
 	static size_t	CreateCallList(size_t iModel);
 	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, int iClamp = 0);
 
+	static size_t	LoadTextureData(eastl::string16 sFilename);
+	static Color*	GetTextureData(size_t iTexture);
+	static size_t	GetTextureWidth(size_t iTexture);
+	static size_t	GetTextureHeight(size_t iTexture);
+	static void		UnloadTextureData(size_t iTexture);
+
 protected:
 	size_t			m_iWidth;
 	size_t			m_iHeight;

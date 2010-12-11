@@ -262,3 +262,62 @@ eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eas
 	sReturn.append(L"\\").append(sSuffix);
 	return sReturn;
 }
+
+eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bDirectories)
+{
+	eastl::vector<eastl::string16> asResult;
+
+	char16_t szPath[MAX_PATH];
+	_swprintf(szPath, L"%s\\*", sDirectory.c_str());
+
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile(szPath, &fd);
+
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		int count = 0;
+		do
+		{
+			if (!bDirectories && (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				continue;
+
+			// Duh.
+			if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
+				continue;
+
+			asResult.push_back(fd.cFileName);
+		} while(FindNextFile(hFind, &fd));
+
+		FindClose(hFind);
+	}
+
+	return asResult;
+}
+
+bool IsFile(eastl::string16 sPath)
+{
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile(sPath.c_str(), &fd);
+
+	if (hFind == INVALID_HANDLE_VALUE)
+		return false;
+
+	if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		return false;
+
+	return true;
+}
+
+bool IsDirectory(eastl::string16 sPath)
+{
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile(sPath.c_str(), &fd);
+
+	if (hFind == INVALID_HANDLE_VALUE)
+		return false;
+
+	if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		return true;
+
+	return false;
+}

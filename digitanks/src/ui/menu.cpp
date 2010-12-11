@@ -6,10 +6,12 @@
 #include <sstream>
 
 #include <platform.h>
+#include <strutils.h>
 
 #include <dt_version.h>
 #include <digitanks/digitanksgame.h>
 #include <renderer/renderer.h>
+#include <game/digitanks/digitankslevel.h>
 
 #include "instructor.h"
 #include "digitankswindow.h"
@@ -614,6 +616,16 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	else
 		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
+	m_pLevels = new CMenu(L"Choose Level");
+	AddControl(m_pLevels);
+
+	for (size_t i = 0; i < GameServer()->GetNumLevels(); i++)
+	{
+		CLevel* pLevel = GameServer()->GetLevel(i);
+		m_pLevels->AddSubmenu(convertstring<char, char16_t>(pLevel->GetName()), this, LevelChosen);
+	}
+	m_iLevelSelected = 0;
+
 	m_pDifficulty = new CScrollSelector<int>();
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
@@ -688,6 +700,10 @@ void CArtilleryGamePanel::Layout()
 {
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
+	m_pLevels->SetSize(135, 40);
+	m_pLevels->SetPos(GetWidth()/2-135/2, 60);
+	m_pLevels->SetText(GameServer()->GetLevel(m_iLevelSelected)->GetName());
+
 	m_pDifficultyLabel->EnsureTextFits();
 	m_pDifficultyLabel->SetPos(75, 120);
 
@@ -747,10 +763,14 @@ void CArtilleryGamePanel::Layout()
 
 void CArtilleryGamePanel::BeginGameCallback()
 {
-	DigitanksWindow()->SetHumanPlayers(m_pHumanPlayers->GetSelectionValue());
-	DigitanksWindow()->SetBotPlayers(m_pBotPlayers->GetSelectionValue());
-	DigitanksWindow()->SetTanks(m_pTanks->GetSelectionValue());
-	DigitanksWindow()->SetTerrain(m_pTerrain->GetSelectionValue());
+	gamesettings_t oSettings;
+	oSettings.iHumanPlayers = m_pHumanPlayers->GetSelectionValue();
+	oSettings.iBotPlayers = m_pBotPlayers->GetSelectionValue();
+	oSettings.iTanksPerPlayer = m_pTanks->GetSelectionValue();
+	oSettings.flTerrainHeight = m_pTerrain->GetSelectionValue();
+	oSettings.iLevel = m_iLevelSelected;
+
+	DigitanksWindow()->SetGameSettings(oSettings);
 	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
 
 	if (!GameServer())
@@ -765,6 +785,20 @@ void CArtilleryGamePanel::BeginGameCallback()
 
 void CArtilleryGamePanel::UpdateLayoutCallback()
 {
+	Layout();
+}
+
+void CArtilleryGamePanel::LevelChosenCallback()
+{
+	size_t iMode = m_pLevels->GetSelectedMenu();
+
+	if (iMode >= GameServer()->GetNumLevels()+1)
+		return;
+
+	m_iLevelSelected = iMode;
+
+	m_pLevels->Pop(true, true);
+
 	Layout();
 }
 
@@ -860,8 +894,11 @@ void CStrategyGamePanel::Layout()
 
 void CStrategyGamePanel::BeginGameCallback()
 {
-	DigitanksWindow()->SetHumanPlayers(m_pHumanPlayers->GetSelectionValue());
-	DigitanksWindow()->SetBotPlayers(m_pBotPlayers->GetSelectionValue());
+	gamesettings_t oSettings;
+	oSettings.iHumanPlayers = m_pHumanPlayers->GetSelectionValue();
+	oSettings.iBotPlayers = m_pBotPlayers->GetSelectionValue();
+	oSettings.iLevel = 0;
+	DigitanksWindow()->SetGameSettings(oSettings);
 	DigitanksWindow()->CreateGame(GAMETYPE_STANDARD);
 
 	if (!GameServer())

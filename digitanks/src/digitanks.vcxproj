@@ -93,6 +93,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
   <ItemGroup>
     <ClCompile Include="..\..\common\configfile.cpp" />
     <ClCompile Include="..\..\common\eastl.cpp" />
+    <ClCompile Include="..\..\datamanager\data.cpp" />
+    <ClCompile Include="..\..\datamanager\dataserializer.cpp" />
     <ClCompile Include="..\..\EASTL\src\allocator.cpp" />
     <ClCompile Include="..\..\EASTL\src\assert.cpp" />
     <ClCompile Include="..\..\EASTL\src\fixed_pool.cpp" />
@@ -102,6 +104,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\license\license.cpp" />
     <ClCompile Include="..\..\tinker\application.cpp" />
     <ClCompile Include="..\..\tinker\register.cpp" />
+    <ClCompile Include="game\digitanks\digitankslevel.cpp" />
     <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
@@ -126,6 +129,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\weapons\projectile.cpp" />
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
+    <ClCompile Include="game\level.cpp" />
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shaders\prop.cpp" />
@@ -179,10 +183,14 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\configfile.h" />
+    <ClInclude Include="..\..\common\strutils.h" />
+    <ClInclude Include="..\..\datamanager\data.h" />
+    <ClInclude Include="..\..\datamanager\dataserializer.h" />
     <ClInclude Include="..\..\license\license.h" />
     <ClInclude Include="..\..\tinker\application.h" />
     <ClInclude Include="..\..\tinker\keys.h" />
     <ClInclude Include="dt_version.h" />
+    <ClInclude Include="game\digitanks\digitankslevel.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\dt_common.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
@@ -207,6 +215,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\weapons\projectile.h" />
     <ClInclude Include="game\digitanks\weapons\specialshells.h" />
     <ClInclude Include="game\gameserver.h" />
+    <ClInclude Include="game\level.h" />
     <ClInclude Include="shaders\dt_shaders.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />

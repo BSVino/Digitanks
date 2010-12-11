@@ -350,6 +350,30 @@ inline EAngle VectorAngles( const Vector& vecForward )
 	return angReturn;
 }
 
+class Vector2D
+{
+public:
+			Vector2D();
+			Vector2D(unit_t x, unit_t y);
+
+	operator float*()
+	{
+		return(&x);
+	}
+
+	unit_t	x, y;
+};
+
+inline Vector2D::Vector2D()
+	: x(0), y(0)
+{
+}
+
+inline Vector2D::Vector2D(unit_t X, unit_t Y)
+	: x(X), y(Y)
+{
+}
+
 class Vector4D
 {
 public:

@@ -53,6 +53,15 @@ typedef struct
 	Vector			vecLocation;
 } airstrike_t;
 
+typedef struct
+{
+	size_t			iLevel;
+	size_t			iHumanPlayers;
+	size_t			iBotPlayers;
+	size_t			iTanksPerPlayer;
+	float			flTerrainHeight;
+} gamesettings_t;
+
 class IDigitanksGameListener
 {
 public:
@@ -92,13 +101,11 @@ public:
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
-	void					SetHumanPlayers(int iPlayers) { m_iHumanPlayers = iPlayers; };
-	void					SetBotPlayers(int iPlayers) { m_iBotPlayers = iPlayers; };
-	void					SetTanks(int iTanks) { m_iTanks = iTanks; };
-	void					SetTerrain(float flTerrain) { m_flTerrain = flTerrain; };
+	void					SetGameSettings(gamesettings_t& oGameSettings) { m_oGameSettings = oGameSettings; };
+	gamesettings_t*			GetGameSettings() { return &m_oGameSettings; };
 
 	void					ScatterResources();
-	void					ScatterProps();
+	void					SetupProps();
 	void					SetupArtillery();
 	void					SetupStandard();
 	void					SetupTutorial();
@@ -275,10 +282,7 @@ protected:
 
 	CNetworkedVariable<bool> m_bRenderFogOfWar;
 
-	int							m_iHumanPlayers;
-	int							m_iBotPlayers;
-	int							m_iTanks;
-	float						m_flTerrain;
+	gamesettings_t				m_oGameSettings;
 
 	CNetworkedVariable<gametype_t> m_eGameType;
 	CNetworkedVariable<size_t> m_iTurn;
