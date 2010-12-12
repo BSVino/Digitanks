@@ -54,8 +54,8 @@ void CDigitanksCamera::SetDistance(float flDistance)
 	if (flDistance < 40)
 		flDistance = 40;
 
-	if (flDistance > 300)
-		flDistance = 300;
+	if (flDistance > 400)
+		flDistance = 400;
 
 	m_flDistanceRamp = GameServer()->GetGameTime();
 	m_flOldDistance = m_flDistance;
