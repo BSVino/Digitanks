@@ -2471,8 +2471,6 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	if (GetVisibility() == 0 || flAlpha == 0)
 		return;
 
-	CRenderingContext r(GameServer()->GetRenderer());
-
 	float flVisibility = flAlpha*GetVisibility();
 
 	if (bTransparent && flVisibility == 1)
@@ -2480,6 +2478,8 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 
 	if (!bTransparent && flVisibility < 1)
 		return;
+
+	CRenderingContext r(GameServer()->GetRenderer());
 
 	if (bTransparent && flVisibility < 1)
 	{

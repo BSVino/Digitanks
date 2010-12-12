@@ -158,13 +158,10 @@ void CDigitanksRenderer::RenderSkybox()
 
 	// Set camera 1/16 to match the scale of the skybox
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
 	glLoadIdentity();
 	gluLookAt(m_vecCameraPosition.x/16, m_vecCameraPosition.y/16, m_vecCameraPosition.z/16,
 		m_vecCameraTarget.x/16, m_vecCameraTarget.y/16, m_vecCameraTarget.z/16,
 		0.0, 1.0, 0.0);
-
-	CRenderingContext c(this);
 
 	if (true)
 	{
@@ -213,7 +210,6 @@ void CDigitanksRenderer::RenderSkybox()
 
 	// Reset the camera
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
 	glLoadIdentity();
 	gluLookAt(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z,
 		m_vecCameraTarget.x, m_vecCameraTarget.y, m_vecCameraTarget.z,
