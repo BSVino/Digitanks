@@ -25,23 +25,6 @@ CDigitanksRenderer::CDigitanksRenderer()
 	if (DigitanksWindow()->HasCommandLineSwitch("--no-shaders"))
 		m_bUseShaders = false;
 
-	if (ShouldUseFramebuffers())
-	{
-		m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-		m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-		m_oVisibility2Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-		m_oVisibilityMaskedBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-
-		// Bind the regular scene's depth buffer to these buffers so we can use it for depth compares.
-		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility1Buffer.m_iFB);
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
-		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-	}
-
 	m_iVignetting = CRenderer::LoadTextureIntoGL(L"textures/vignetting.png");
 
 	m_iSkyboxFT = CRenderer::LoadTextureIntoGL(L"textures/skybox/standard-ft.png", 2);
@@ -61,6 +44,28 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_iDigiverse = CModelLibrary::Get()->AddModel(L"models/skybox/digiverse.obj", true);
 
 	m_flLastBloomPulse = -100;
+}
+
+void CDigitanksRenderer::Initialize()
+{
+	BaseClass::Initialize();
+
+	if (ShouldUseFramebuffers())
+	{
+		m_oExplosionBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oVisibility2Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oVisibilityMaskedBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+
+		// Bind the regular scene's depth buffer to these buffers so we can use it for depth compares.
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibility1Buffer.m_iFB);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, (GLuint)m_oSceneBuffer.m_iDepth);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	}
 }
 
 void CDigitanksRenderer::SetupFrame()

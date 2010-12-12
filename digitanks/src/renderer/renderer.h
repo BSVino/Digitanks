@@ -129,7 +129,7 @@ public:
 					CRenderer(size_t iWidth, size_t iHeight);
 
 public:
-	void			Initialize();
+	virtual void	Initialize();
 
 	CFrameBuffer	CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear);
 

@@ -12,6 +12,7 @@ public:
 					CDigitanksRenderer();
 
 public:
+	virtual void	Initialize();
 	virtual void	SetupFrame();
 	virtual void	DrawBackground() {};	// Skybox instead
 	virtual void	StartRendering();
