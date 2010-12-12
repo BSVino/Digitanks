@@ -25,6 +25,9 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bHeightsInitialized);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHighest);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkY);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
 	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecTerrainColor);
@@ -35,6 +38,15 @@ SAVEDATA_TABLE_END();
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);
+
+	for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
+	{
+		for (size_t y = 0; y < TERRAIN_CHUNKS; y++)
+		{
+			m_aTerrainChunks[x][y].x = x;
+			m_aTerrainChunks[x][y].y = y;
+		}
+	}
 }
 
 CTerrain::~CTerrain()
@@ -81,6 +93,28 @@ void CTerrain::Spawn()
 	}
 
 	m_bHeightsInitialized = false;
+
+	m_iThinkChunkX = 0;
+	m_iThinkChunkY = 0;
+	m_flNextThink = 0;
+}
+
+void CTerrain::Think()
+{
+	BaseClass::Think();
+
+	if (GameServer()->GetGameTime() - m_flNextThink > 0.0f)
+	{
+		++m_iThinkChunkY %= TERRAIN_CHUNKS;
+		if (m_iThinkChunkY == 0)
+			++m_iThinkChunkX %= TERRAIN_CHUNKS;
+
+		CTerrainChunk* pChunk = GetChunk(m_iThinkChunkX, m_iThinkChunkY);
+
+		pChunk->Think();
+
+		m_flNextThink = GameServer()->GetGameTime() + 0.1f;
+	}
 }
 
 void CTerrain::GenerateTerrain(float flHeight)
@@ -141,6 +175,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 	{
 		for (size_t y = 0; y < TERRAIN_SIZE; y++)
 		{
+			int i, j;
+			CTerrainChunk* pChunk = GetChunk(ArrayToChunkSpace(x, i), ArrayToChunkSpace(y, j));
+
 			float flHeight;
 			if (pclrTerrainData)
 			{
@@ -165,10 +202,13 @@ void CTerrain::GenerateTerrain(float flHeight)
 			if (flHeight > m_flHighest)
 				m_flHighest = flHeight;
 
+			pChunk->m_aflLava[i][j] = 0.0f;
+
 			if (pclrTerrainData)
 			{
 				float flLava = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].r())/255;
 				SetBit(x, y, TB_LAVA, flLava > 0.5f);
+				pChunk->m_aflLava[i][j] = 1.0f;
 
 				float flHole = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].a())/255;
 				SetBit(x, y, TB_HOLE, flHole < 0.5f);
@@ -197,12 +237,23 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 	if (!pclrTerrainData)
 	{
+		float flLavaHeight = RemapVal(LavaHeight(), 0.0f, 1.0f, m_flLowest, m_flHighest);
+
 		for (size_t x = 0; x < TERRAIN_SIZE; x++)
 		{
 			for (size_t y = 0; y < TERRAIN_SIZE; y++)
 			{
+				int i, j;
+				CTerrainChunk* pChunk = GetChunk(ArrayToChunkSpace(x, i), ArrayToChunkSpace(y, j));
+
 				float flHeight = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 1.0f);
 				SetBit(x, y, TB_LAVA, flHeight < LavaHeight());
+
+				if (flHeight < LavaHeight())
+				{
+					SetRealHeight(x, y, flLavaHeight);
+					pChunk->m_aflLava[i][j] = 1.0f;
+				}
 
 				if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 				{
@@ -1310,6 +1361,8 @@ CTerrainChunk::CTerrainChunk()
 	m_iWallList = 0;
 	m_bNeedsRegenerate = true;
 	m_iChunkTexture = 0;
+
+	memset(m_aiSpecialData, 0, sizeof(m_aiSpecialData));
 }
 
 CTerrainChunk::~CTerrainChunk()
@@ -1320,4 +1373,56 @@ CTerrainChunk::~CTerrainChunk()
 		glDeleteLists((GLuint)m_iWallList, 1);
 	if (m_iChunkTexture)
 		glDeleteTextures(1, &m_iChunkTexture);
+}
+
+void CTerrainChunk::Think()
+{
+	for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_CHUNK_SIZE; j++)
+		{
+			if (m_aflLava[i][j] > 0)
+			{
+				// Flow into all lower neighboring squares.
+				int a = CTerrain::ChunkToArraySpace(x, i);
+				int b = CTerrain::ChunkToArraySpace(y, j);
+
+				float flSourceHeight = m_aflHeights[i][j];
+
+				for (int m = a-1; m <= a+1; m++)
+				{
+					if (m < 0 || m >= TERRAIN_SIZE)
+						continue;
+
+					for (int n = b-1; n <= b+1; n++)
+					{
+						if (n < 0 || n >= TERRAIN_SIZE)
+							continue;
+
+						float flDestinationHeight = DigitanksGame()->GetTerrain()->GetRealHeight(m, n);
+
+						if (flDestinationHeight > flSourceHeight)
+							continue;
+
+						// This is getting out of hand.
+						int k, l;
+						CTerrainChunk* pChunk = DigitanksGame()->GetTerrain()->GetChunk(CTerrain::ArrayToChunkSpace(m, k), CTerrain::ArrayToChunkSpace(n, l));
+
+						float flLava = m_aflLava[i][j] - 0.125f;
+
+						if (pChunk->m_aflLava[k][l] <= 0 && flLava > 0.0f)
+							pChunk->m_bNeedsRegenerate = true;
+
+						if (pChunk->m_aflLava[k][l] < flLava)
+						{
+							pChunk->m_aflLava[k][l] = flLava;
+							DigitanksGame()->GetTerrain()->SetBit(m, n, CTerrain::TB_LAVA, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	DigitanksGame()->GetTerrain()->GenerateTerrainCallLists();
 }

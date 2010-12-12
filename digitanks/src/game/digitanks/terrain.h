@@ -20,8 +20,12 @@ public:
 									CTerrainChunk();
 	virtual							~CTerrainChunk();
 
+public:
+	void							Think();
+
 protected:
 	float							m_aflHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
+	float							m_aflLava[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 	class raytrace::CRaytracer*		m_pTracer;
 
 	// A bit field
@@ -34,6 +38,8 @@ protected:
 	size_t							m_iWallList;
 
 	bool							m_bNeedsRegenerate;
+
+	size_t							x, y;
 };
 
 class CTerrain : public CBaseEntity
@@ -46,6 +52,8 @@ public:
 
 public:
 	virtual void			Spawn();
+
+	virtual void			Think();
 
 	virtual float			GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
 
@@ -71,8 +79,8 @@ public:
 	float					GetMapSize() const;
 	float					ArrayToWorldSpace(int i);
 	int						WorldToArraySpace(float f);
-	int						ArrayToChunkSpace(int i, int& iIndex);
-	int						ChunkToArraySpace(int iChunk, int i);
+	static int				ArrayToChunkSpace(int i, int& iIndex);
+	static int				ChunkToArraySpace(int iChunk, int i);
 	float					ChunkToWorldSpace(int iChunk, int i);
 	int						WorldToChunkSpace(float f, int& iIndex);
 	bool					IsPointOnMap(Vector vecPoint);
@@ -116,6 +124,10 @@ protected:
 	Vector					m_avecQuadMods[4];
 
 	CTerrainChunk			m_aTerrainChunks[TERRAIN_CHUNKS][TERRAIN_CHUNKS];
+
+	float					m_flNextThink;
+	int						m_iThinkChunkX;
+	int						m_iThinkChunkY;
 };
 
 #endif
