@@ -1021,6 +1021,7 @@ void CDigitank::Move(CNetworkParameters* p)
 
 					pTank->SetOrigin(vecTank);
 					pTank->SetAngles(angTank);
+					pTank->StartTurn();
 				}
 				}
 

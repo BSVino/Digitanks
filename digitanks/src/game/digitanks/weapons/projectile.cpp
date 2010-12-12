@@ -77,6 +77,12 @@ void CProjectile::Think()
 			if (pClosest->Distance(m_vecLandingSpot) > 30)
 				continue;
 
+			if (pClosest == m_hOwner)
+				continue;
+
+			if (pClosest->GetTeam() == m_hOwner->GetTeam())
+				continue;
+
 			if (pClosest->CanFireMissileDefense())
 			{
 				pClosest->FireMissileDefense(this);
