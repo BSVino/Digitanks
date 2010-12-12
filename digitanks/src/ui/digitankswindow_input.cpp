@@ -266,6 +266,9 @@ void CDigitanksWindow::CharPress(int c)
 	if (!GetHUD())
 		return;
 
+	if (c == ' ')
+		DigitanksGame()->WeaponSpecialCommand();
+
 	if (c == 'h')
 	{
 		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())

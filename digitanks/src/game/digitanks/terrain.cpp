@@ -134,6 +134,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	CSimplexNoise h1(m_iSpawnSeed+5);
 	CSimplexNoise h2(m_iSpawnSeed+6);
 
+	float aflHoles[TERRAIN_SIZE][TERRAIN_SIZE];
 	float flHoleHighest, flHoleLowest;
 
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
@@ -174,18 +175,17 @@ void CTerrain::GenerateTerrain(float flHeight)
 			}
 			else if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 			{
-				float flHole;
-				flHole  = h1.Noise(x*0.01f, y*0.01f) * 10;
-				flHole += h2.Noise(x*0.02f, y*0.02f) * 5;
+				aflHoles[x][y]  = h1.Noise(x*0.01f, y*0.01f) * 10;
+				aflHoles[x][y] += h2.Noise(x*0.02f, y*0.02f) * 5;
 
 				if (!m_bHeightsInitialized)
-					flHoleHighest = flHoleLowest = flHole;
+					flHoleHighest = flHoleLowest = aflHoles[x][y];
 
-				if (flHole < flHoleLowest)
-					flHoleLowest = flHole;
+				if (aflHoles[x][y] < flHoleLowest)
+					flHoleLowest = aflHoles[x][y];
 
-				if (flHole > flHoleHighest)
-					flHoleHighest = flHole;
+				if (aflHoles[x][y] > flHoleHighest)
+					flHoleHighest = aflHoles[x][y];
 			}
 
 			m_bHeightsInitialized = true;
@@ -206,7 +206,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 				if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 				{
-					flHeight = RemapVal(GetRealHeight(x, y), flHoleLowest, flHoleHighest, 0.0f, 1.0f);
+					flHeight = RemapVal(aflHoles[x][y], flHoleLowest, flHoleHighest, 0.0f, 1.0f);
 					SetBit(x, y, TB_HOLE, flHeight < HoleHeight());
 				}
 			}

@@ -203,6 +203,8 @@ public:
 
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
 
+	void					WeaponSpecialCommand();
+
 	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
 	void					GetTankAims(eastl::vector<Vector>& avecAims, eastl::vector<float>& aflAimRadius, size_t& iFocus);
 	void					ClearTankAims();

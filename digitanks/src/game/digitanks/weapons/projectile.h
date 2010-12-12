@@ -16,6 +16,9 @@ public:
 
 	virtual void				Think();
 
+	virtual void				SpecialCommand();
+	virtual void				Fragment();
+
 	virtual bool				MakesSounds() { return true; };
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
@@ -178,6 +181,8 @@ class CClusterBomb : public CProjectile
 
 public:
 	virtual void				Spawn();
+
+	virtual void				SpecialCommand();
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 

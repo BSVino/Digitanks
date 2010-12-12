@@ -137,7 +137,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	0.0f,	// torpedo
 	1.3f,	// artillery
 
-	7.0f,	// camera guided missile
+	5.0f,	// camera guided missile
 	5.0f,	// laser
 	0.0f,	// missile defense
 

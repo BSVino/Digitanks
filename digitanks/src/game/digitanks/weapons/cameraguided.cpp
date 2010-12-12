@@ -1,5 +1,7 @@
 #include "cameraguided.h"
 
+#include <maths.h>
+
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_camera.h>
 #include <ui/digitankswindow.h>
@@ -8,7 +10,9 @@ NETVAR_TABLE_BEGIN(CCameraGuidedMissile);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitank>, m_hOwner);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocityGoal);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocity);
 SAVEDATA_TABLE_END();
 
 void CCameraGuidedMissile::Spawn()
@@ -17,14 +21,26 @@ void CCameraGuidedMissile::Spawn()
 
 	DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(this);
 	DigitanksWindow()->SetMouseCursorEnabled(false);
+
+	m_flBoostVelocityGoal = 0;
+	m_flBoostVelocity = 0;
+	m_flBoostTime = 0;
 }
 
 void CCameraGuidedMissile::Think()
 {
 	BaseClass::Think();
 
+	if (m_flBoostTime > 0 && GameServer()->GetGameTime() - m_flBoostTime > 1.0f)
+	{
+		m_flBoostVelocityGoal = 0;
+		m_flBoostTime = 0;
+	}
+
+	m_flBoostVelocity = Approach(m_flBoostVelocityGoal, m_flBoostVelocity, BoostVelocity());
+
 	if (GameServer()->GetGameTime() - m_flTimeCreated > 3.0f)
-		SetVelocity(AngleVector(GetAngles()) * VelocityPerSecond());
+		SetVelocity(AngleVector(GetAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
 
 	if (m_flTimeExploded == 0 && GameServer()->GetGameTime() - m_flTimeCreated > 13.0f)
 		Explode();
@@ -52,6 +68,16 @@ void CCameraGuidedMissile::OnSetOwner(CDigitank* pOwner)
 
 	SetSimulated(true);
 	SetCollisionGroup(CG_PROJECTILE);
+}
+
+void CCameraGuidedMissile::SpecialCommand()
+{
+	if (m_flBoostTime > 0)
+		return;
+
+	m_flBoostVelocityGoal = BoostVelocity();
+	m_flBoostVelocity = BoostVelocity()/2;
+	m_flBoostTime = GameServer()->GetGameTime();
 }
 
 bool CCameraGuidedMissile::ShouldTouch(CBaseEntity* pOther) const
@@ -104,7 +130,7 @@ void CCameraGuidedMissile::Touching(CBaseEntity* pOther)
 	if (m_flTimeExploded != 0)
 		return;
 
-	pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage);
+	pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + BoostDamage()*(m_flBoostVelocity/BoostVelocity()));
 
 	Explode(pOther);
 

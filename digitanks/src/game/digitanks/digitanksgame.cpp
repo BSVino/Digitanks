@@ -1451,6 +1451,46 @@ float CDigitanksGame::GetGravity()
 	return -20;
 }
 
+void CDigitanksGame::WeaponSpecialCommand()
+{
+	eastl::vector<CEntityHandle<CBaseWeapon> > ahWeapons;
+
+	// Form a list of weapons to send the message to since sometimes it creates new projectiles,
+	// and we don't want to send the message to those new ones.
+	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		if (!pEntity)
+			continue;
+
+		CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pEntity);
+		if (!pWeapon)
+			continue;
+
+		if (!pWeapon->GetOwner())
+			continue;
+
+		// If it's not my grenade don't blow it up.
+		if (GetCurrentLocalDigitanksTeam() != pWeapon->GetOwner()->GetTeam())
+			continue;
+
+		// If it's not my turn, don't blow it up.
+		if (GetCurrentTeam() != pWeapon->GetOwner()->GetTeam())
+			continue;
+
+		ahWeapons.push_back(pWeapon);
+	}
+
+	for (size_t i = 0; i < ahWeapons.size(); i++)
+	{
+		CBaseWeapon* pWeapon = ahWeapons[i];
+		if (!pWeapon)
+			continue;
+
+		pWeapon->SpecialCommand();
+	}
+}
+
 void CDigitanksGame::AddTankAim(Vector vecAim, float flRadius, bool bFocus)
 {
 	vecAim.y = 0;

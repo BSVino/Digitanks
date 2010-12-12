@@ -14,10 +14,13 @@ public:
 	virtual void				Spawn();
 
 	virtual void				SetOwner(class CDigitank* pOwner);
+	virtual class CDigitank*	GetOwner() { return m_hOwner; }
 	virtual void				OnSetOwner(class CDigitank* pOwner) {};
 	virtual bool				ShouldBeVisible() { return true; };
 
 	virtual void				Think();
+
+	virtual void				SpecialCommand() {};
 
 	void						Explode(CBaseEntity* pInstigator = NULL);
 	virtual void				OnExplode(CBaseEntity* pInstigator) {};
