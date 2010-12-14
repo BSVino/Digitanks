@@ -4,6 +4,7 @@
 #include <maths.h>
 #include <mtrand.h>
 #include <strutils.h>
+#include <datamanager/dataserializer.h>
 #include <models/models.h>
 #include <sound/sound.h>
 #include <renderer/particles.h>
@@ -196,7 +197,7 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	m_iTurn = 0;
 
 	if (eGameType == GAMETYPE_STANDARD)
-		SetupStandard();
+		SetupStrategy();
 	else if (eGameType == GAMETYPE_ARTILLERY)
 		SetupArtillery();
 	else if (eGameType == GAMETYPE_TUTORIAL)
@@ -208,6 +209,77 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 	if (eGameType != GAMETYPE_EMPTY)
 		StartGame();
+}
+
+void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
+{
+	memset(&m_aiConstructionCosts[0], 0, sizeof(m_aiConstructionCosts));
+	memset(&m_aiUpgradeCosts[0], 0, sizeof(m_aiUpgradeCosts));
+
+	std::ifstream f((eastl::string16(L"scripts/") + sScript).c_str());
+	CData* pData = new CData();
+	CDataSerializer::Read(f, pData);
+
+	CData* pConstructionCosts = pData->FindChild("ConstructionCosts");
+
+	if (pConstructionCosts)
+	{
+		CData* pChild;
+		
+		pChild = pConstructionCosts->FindChild("Minibuffer");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_MINIBUFFER] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("Buffer");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_BUFFER] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("BufferUpgrade");
+		if (pChild)
+			m_aiUpgradeCosts[STRUCTURE_BUFFER] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("Battery");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_BATTERY] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("PSU");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_PSU] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("PSUUpgrade");
+		if (pChild)
+			m_aiUpgradeCosts[STRUCTURE_PSU] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("InfantryLoader");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_INFANTRYLOADER] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("TankLoader");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_TANKLOADER] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("ArtilleryLoader");
+		if (pChild)
+			m_aiConstructionCosts[STRUCTURE_ARTILLERYLOADER] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("Infantry");
+		if (pChild)
+			m_aiConstructionCosts[UNIT_INFANTRY] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("Tank");
+		if (pChild)
+			m_aiConstructionCosts[UNIT_TANK] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("Artillery");
+		if (pChild)
+			m_aiConstructionCosts[UNIT_ARTILLERY] = pChild->GetValueUInt();
+
+		pChild = pConstructionCosts->FindChild("Scout");
+		if (pChild)
+			m_aiConstructionCosts[UNIT_SCOUT] = pChild->GetValueUInt();
+	}
+
+	delete pData;
 }
 
 void CDigitanksGame::ScatterResources()
@@ -240,8 +312,8 @@ void CDigitanksGame::SetupProps()
 	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
 
 	CDigitanksLevel* pLevel = NULL;
-	if (pGameSettings->iLevel < GameServer()->GetNumLevels())
-		pLevel = dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(pGameSettings->iLevel));
+	if (pGameSettings->iLevel < CDigitanksGame::GetNumLevels(GetGameType()))
+		pLevel = dynamic_cast<CDigitanksLevel*>(CDigitanksGame::GetLevel(GetGameType(), pGameSettings->iLevel));
 
 	if (!pLevel)
 		return;
@@ -355,8 +427,10 @@ void CDigitanksGame::SetupArtillery()
 	}
 }
 
-void CDigitanksGame::SetupStandard()
+void CDigitanksGame::SetupStrategy()
 {
+	ReadGameScript(L"strategy.txt");
+
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
 
@@ -579,6 +653,32 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 
 		pEntity->Delete();
 	}
+}
+
+eastl::vector<CLevel*> CDigitanksGame::GetLevels(gametype_t eGameType)
+{
+	eastl::vector<CLevel*> ahReturn;
+	for (size_t i = 0; i < GameServer()->GetNumLevels(); i++)
+	{
+		CDigitanksLevel* pLevel = dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(i));
+		if (!pLevel)
+			continue;
+
+		if (pLevel->GetGameType() == eGameType)
+			ahReturn.push_back(pLevel);
+	}
+
+	return ahReturn;
+}
+
+size_t CDigitanksGame::GetNumLevels(gametype_t eGameType)
+{
+	return GetLevels(eGameType).size();
+}
+
+CLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
+{
+	return GetLevels(eGameType)[i];
 }
 
 void CDigitanksGame::StartGame()
@@ -1754,6 +1854,16 @@ float CDigitanksGame::GetVisibilityAtPoint(CDigitanksTeam* pViewingTeam, Vector 
 bool CDigitanksGame::ShouldShowScores()
 {
 	return m_eGameType == GAMETYPE_STANDARD;
+}
+
+size_t CDigitanksGame::GetConstructionCost(unittype_t eUnit)
+{
+	return m_aiConstructionCosts[eUnit];
+}
+
+size_t CDigitanksGame::GetUpgradeCost(unittype_t eUnit)
+{
+	return m_aiUpgradeCosts[eUnit];
 }
 
 bool CDigitanksGame::CanBuildMiniBuffers()

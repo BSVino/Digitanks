@@ -23,6 +23,7 @@ public:
 	virtual void			OnReadData(const class CData* pData);
 	void					ReadProp(const class CData* pData);
 
+	gametype_t				GetGameType() { return m_eGameType; }
 	eastl::string			GetTerrainData() { return m_sTerrainData; }
 	float					GetMaxHeight() { return m_flMaxHeight; }
 

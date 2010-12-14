@@ -19,6 +19,7 @@ typedef enum
 	UNIT_TANK,
 	UNIT_ARTILLERY,
 	UNIT_SCOUT,
+	MAX_UNITS,
 } unittype_t;
 
 class CDigitanksEntity : public CBaseEntity
@@ -48,7 +49,7 @@ public:
 
 	virtual void					UpdateInfo(eastl::string16& sInfo) {};
 	virtual eastl::string16			GetName() { return L"Entity"; };
-	virtual unittype_t				GetUnitType() { return UNITTYPE_UNDEFINED; };
+	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					VisibleRange() const { return 0; };

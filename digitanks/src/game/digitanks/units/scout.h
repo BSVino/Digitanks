@@ -40,7 +40,7 @@ public:
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };
 	static size_t				ScoutFleetPoints() { return 1; };
 
-	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_SCOUT; }
+	virtual unittype_t			GetBuildUnit() const { return UNIT_SCOUT; }
 };
 
 #endif

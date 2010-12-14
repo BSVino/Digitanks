@@ -104,10 +104,16 @@ public:
 	void					SetGameSettings(gamesettings_t& oGameSettings) { m_oGameSettings = oGameSettings; };
 	gamesettings_t*			GetGameSettings() { return &m_oGameSettings; };
 
+	static eastl::vector<class CLevel*> GetLevels(gametype_t eGameType);
+	static size_t			GetNumLevels(gametype_t eGameType);
+	static class CLevel*	GetLevel(gametype_t eGameType, size_t i);
+
+	void					ReadGameScript(eastl::string16 sScript);
+
 	void					ScatterResources();
 	void					SetupProps();
 	void					SetupArtillery();
-	void					SetupStandard();
+	void					SetupStrategy();
 	void					SetupTutorial();
 	void					SetupMenuMarch();
 
@@ -225,6 +231,9 @@ public:
 
 	bool					ShouldShowScores();
 
+	size_t					GetConstructionCost(unittype_t eUnit);
+	size_t					GetUpgradeCost(unittype_t eUnit);
+
 	bool					CanBuildMiniBuffers();
 	bool					CanBuildBuffers();
 	bool					CanBuildBatteries();
@@ -299,6 +308,9 @@ protected:
 	float						m_flLastFireworks;
 
 	eastl::vector<airstrike_t>	m_aAirstrikes;
+
+	size_t						m_aiConstructionCosts[MAX_UNITS];
+	size_t						m_aiUpgradeCosts[MAX_UNITS];
 };
 
 inline class CDigitanksGame* DigitanksGame()

@@ -295,7 +295,7 @@ public:
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 
-	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_TANK; }
+	virtual unittype_t			GetBuildUnit() const { return UNIT_TANK; }
 
 	// AI stuff
 	virtual void				SetFortifyPoint(Vector vecFortify);

@@ -683,19 +683,19 @@ void CHUD::Paint(int x, int y, int w, int h)
 		switch (pTank->GetBuildUnit())
 		{
 		default:
-		case BUILDUNIT_TANK:
+		case UNIT_TANK:
 			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 350, 310, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 
-		case BUILDUNIT_INFANTRY:
+		case UNIT_INFANTRY:
 			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 450, 410, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 
-		case BUILDUNIT_ARTILLERY:
+		case UNIT_ARTILLERY:
 			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 350, 410, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 
-		case BUILDUNIT_SCOUT:
+		case UNIT_SCOUT:
 			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 450, 310, 100, 100, pTank->GetTeam()->GetColor());
 			break;
 		}

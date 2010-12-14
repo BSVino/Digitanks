@@ -89,8 +89,8 @@ public:
 
 	virtual float				HealthRechargeRate() const { return 1.0f; };
 	virtual float				VisibleRange() const { return 50; };
-	virtual size_t				ConstructionCost() const { return 20; };
-	virtual size_t				UpgradeCost() const { return 40; };
+	virtual size_t				ConstructionCost() const;
+	virtual size_t				UpgradeCost() const;
 	virtual float				TotalHealth() const { return 50; };
 
 	virtual size_t				InitialFleetPoints() const { return 0; };

@@ -690,6 +690,16 @@ bool CStructure::OnUnserialize(std::istream& i)
 	return BaseClass::OnUnserialize(i);
 }
 
+size_t CStructure::ConstructionCost() const
+{
+	return DigitanksGame()->GetConstructionCost(GetUnitType());
+}
+
+size_t CStructure::UpgradeCost() const
+{
+	return DigitanksGame()->GetUpgradeCost(GetUnitType());
+}
+
 size_t CSupplier::s_iTendrilBeam = 0;
 
 NETVAR_TABLE_BEGIN(CSupplier);

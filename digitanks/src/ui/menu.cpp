@@ -619,9 +619,9 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pLevels = new CMenu(L"Choose Level");
 	AddControl(m_pLevels);
 
-	for (size_t i = 0; i < GameServer()->GetNumLevels(); i++)
+	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY); i++)
 	{
-		CLevel* pLevel = GameServer()->GetLevel(i);
+		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, i);
 		m_pLevels->AddSubmenu(convertstring<char, char16_t>(pLevel->GetName()), this, LevelChosen);
 	}
 	m_iLevelSelected = 0;

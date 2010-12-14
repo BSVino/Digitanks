@@ -126,7 +126,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	Color* pclrTerrainData = NULL;
 	if (pGameSettings->iLevel < GameServer()->GetNumLevels())
 	{
-		pLevel = dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(pGameSettings->iLevel));
+		pLevel = dynamic_cast<CDigitanksLevel*>(CDigitanksGame::GetLevel(DigitanksGame()->GetGameType(), pGameSettings->iLevel));
 		if (pLevel)
 		{
 			iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));

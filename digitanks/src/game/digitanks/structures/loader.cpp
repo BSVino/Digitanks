@@ -16,13 +16,6 @@
 
 #include <GL/glew.h>
 
-size_t g_aiTurnsToLoad[] = {
-	25, // BUILDUNIT_INFANTRY,
-	50, // BUILDUNIT_TANK,
-	60, // BUILDUNIT_ARTILLERY,
-	8, // BUILDUNIT_SCOUT,
-};
-
 size_t CLoader::s_iCancelIcon = 0;
 size_t CLoader::s_iInstallIcon = 0;
 size_t CLoader::s_iInstallAttackIcon = 0;
@@ -35,7 +28,7 @@ size_t CLoader::s_iBuildTankIcon = 0;
 size_t CLoader::s_iBuildArtilleryIcon = 0;
 
 NETVAR_TABLE_BEGIN(CLoader);
-	NETVAR_DEFINE(buildunit_t, m_eBuildUnit);
+	NETVAR_DEFINE(unittype_t, m_eBuildUnit);
 	NETVAR_DEFINE(size_t, m_iBuildUnitModel);
 	NETVAR_DEFINE(bool, m_bProducing);
 	NETVAR_DEFINE(size_t, m_iProductionStored);
@@ -47,7 +40,7 @@ NETVAR_TABLE_BEGIN(CLoader);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CLoader);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, buildunit_t, m_eBuildUnit);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, unittype_t, m_eBuildUnit);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBuildUnitModel);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bProducing);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionStored);
@@ -106,13 +99,13 @@ void CLoader::StartTurn()
 	if (m_bProducing && m_hSupplier != NULL && m_hSupplyLine != NULL)
 	{
 		m_iProductionStored += (size_t)(GetDigitanksTeam()->GetProductionPerLoader() * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity());
-		if (m_iProductionStored > g_aiTurnsToLoad[GetBuildUnit()])
+		if (m_iProductionStored > DigitanksGame()->GetConstructionCost(GetBuildUnit()))
 		{
-			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+			if (GetBuildUnit() == UNIT_INFANTRY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Mechanized Infantry");
-			else if (GetBuildUnit() == BUILDUNIT_TANK)
+			else if (GetBuildUnit() == UNIT_TANK)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Main Battle Tank");
-			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
+			else if (GetBuildUnit() == UNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
 			//DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
@@ -121,11 +114,11 @@ void CLoader::StartTurn()
 			if (CNetwork::IsHost())
 			{
 				CDigitank* pTank;
-				if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+				if (GetBuildUnit() == UNIT_INFANTRY)
 					pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
-				else if (GetBuildUnit() == BUILDUNIT_TANK)
+				else if (GetBuildUnit() == UNIT_TANK)
 					pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
-				else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
+				else if (GetBuildUnit() == UNIT_ARTILLERY)
 					pTank = GameServer()->Create<CArtillery>("CArtillery");
 			
 				pTank->SetOrigin(GetOrigin());
@@ -174,11 +167,11 @@ void CLoader::StartTurn()
 		else
 		{
 			eastl::string16 s;
-			if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+			if (GetBuildUnit() == UNIT_INFANTRY)
 				s.sprintf(L"Producing Mechanized Infantry (%d turns left)", GetTurnsToProduce());
-			else if (GetBuildUnit() == BUILDUNIT_TANK)
+			else if (GetBuildUnit() == UNIT_TANK)
 				s.sprintf(L"Producing Main Battle Tank (%d turns left)", GetTurnsToProduce());
-			else if (GetBuildUnit() == BUILDUNIT_ARTILLERY)
+			else if (GetBuildUnit() == UNIT_ARTILLERY)
 				s.sprintf(L"Producing Artillery (%d turns left)", GetTurnsToProduce());
 			DigitanksGame()->AppendTurnInfo(s);
 		}
@@ -331,13 +324,13 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		eastl::string16 s;
 
-		if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+		if (GetBuildUnit() == UNIT_INFANTRY)
 		{
 			pHUD->SetButtonTexture(0, s_iBuildInfantryIcon);
 			s += L"BUILD MECHANIZED INFANTRY\n \n";
 			s += L"Mechanized infantry can fortify, gaining defense and attack energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
 		}
-		else if (GetBuildUnit() == BUILDUNIT_TANK)
+		else if (GetBuildUnit() == UNIT_TANK)
 		{
 			pHUD->SetButtonTexture(0, s_iBuildTankIcon);
 			s += L"BUILD MAIN BATTLE TANK\n \n";
@@ -448,7 +441,7 @@ size_t CLoader::GetUnitProductionCost()
 	for (size_t i = 0; i < m_aiUpdatesInstalled.size(); i++)
 		iUpdates += m_aiUpdatesInstalled[i];
 
-	return g_aiTurnsToLoad[m_eBuildUnit] + iUpdates*4;
+	return DigitanksGame()->GetConstructionCost(m_eBuildUnit) + iUpdates*4;
 }
 
 void CLoader::InstallUpdate(updatetype_t eUpdate)
@@ -505,7 +498,7 @@ bool CLoader::HasUpdatesAvailable()
 	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
 		return true;
 
-	if (m_eBuildUnit == BUILDUNIT_ARTILLERY && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
+	if (m_eBuildUnit == UNIT_ARTILLERY && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
 		return true;
 
 	return false;
@@ -513,11 +506,11 @@ bool CLoader::HasUpdatesAvailable()
 
 size_t CLoader::GetFleetPointsRequired()
 {
-	if (m_eBuildUnit == BUILDUNIT_INFANTRY)
+	if (m_eBuildUnit == UNIT_INFANTRY)
 		return CMechInfantry::InfantryFleetPoints();
-	else if (m_eBuildUnit == BUILDUNIT_ARTILLERY)
+	else if (m_eBuildUnit == UNIT_ARTILLERY)
 		return CArtillery::ArtilleryFleetPoints();
-	else if (m_eBuildUnit == BUILDUNIT_TANK)
+	else if (m_eBuildUnit == UNIT_TANK)
 		return CMainBattleTank::MainTankFleetPoints();
 
 	return 0;
@@ -546,23 +539,23 @@ size_t CLoader::GetTurnsToProduce()
 	return (size_t)((GetUnitProductionCost()-m_iProductionStored)/iPerTurn)+1;
 }
 
-void CLoader::SetBuildUnit(buildunit_t eBuildUnit)
+void CLoader::SetBuildUnit(unittype_t eBuildUnit)
 {
 	m_eBuildUnit = eBuildUnit;
 
 	switch (m_eBuildUnit)
 	{
-	case BUILDUNIT_INFANTRY:
+	case UNIT_INFANTRY:
 		SetModel(L"models/structures/loader-infantry.obj");
 		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-body.obj");
 		break;
 
-	case BUILDUNIT_TANK:
+	case UNIT_TANK:
 		SetModel(L"models/structures/loader-main.obj");
 		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-body.obj");
 		break;
 
-	case BUILDUNIT_ARTILLERY:
+	case UNIT_ARTILLERY:
 		SetModel(L"models/structures/loader-artillery.obj");
 		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(L"models/digitanks/artillery.obj");
 		break;
@@ -574,9 +567,9 @@ void CLoader::UpdateInfo(eastl::string16& s)
 	s = L"";
 	eastl::string16 p;
 
-	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+	if (GetBuildUnit() == UNIT_INFANTRY)
 		s += L"MECH. INFANTRY LOADER\n";
-	else if (GetBuildUnit() == BUILDUNIT_TANK)
+	else if (GetBuildUnit() == UNIT_TANK)
 		s += L"MAIN BATTLE TANK LOADER\n";
 	else
 		s += L"ARTILLERY LOADER\n";
@@ -617,37 +610,20 @@ void CLoader::UpdateInfo(eastl::string16& s)
 
 eastl::string16 CLoader::GetName()
 {
-	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+	if (GetBuildUnit() == UNIT_INFANTRY)
 		return L"Mechanized Infantry Loader";
-	else if (GetBuildUnit() == BUILDUNIT_TANK)
+	else if (GetBuildUnit() == UNIT_TANK)
 		return L"Main Battle Tank Loader";
 	else
 		return L"Artillery Loader";
 }
 
-unittype_t CLoader::GetUnitType()
+unittype_t CLoader::GetUnitType() const
 {
-	if (GetBuildUnit() == BUILDUNIT_INFANTRY)
+	if (GetBuildUnit() == UNIT_INFANTRY)
 		return STRUCTURE_INFANTRYLOADER;
-	else if (GetBuildUnit() == BUILDUNIT_TANK)
+	else if (GetBuildUnit() == UNIT_TANK)
 		return STRUCTURE_TANKLOADER;
 	else
 		return STRUCTURE_ARTILLERYLOADER;
-}
-
-size_t CLoader::GetUnitProductionCost(buildunit_t eBuildUnit)
-{
-	return g_aiTurnsToLoad[eBuildUnit];
-}
-
-size_t CLoader::GetLoaderConstructionCost(buildunit_t eBuildUnit)
-{
-	if (eBuildUnit == BUILDUNIT_INFANTRY)
-		return 20;
-	if (eBuildUnit == BUILDUNIT_TANK)
-		return 80;
-	if (eBuildUnit == BUILDUNIT_ARTILLERY)
-		return 100;
-	else
-		return 100;
 }

@@ -418,17 +418,17 @@ void CDigitanksTeam::Bot_BuildUnits()
 
 		size_t iTanks;
 		float flValue;
-		if (pLoader->GetBuildUnit() == BUILDUNIT_INFANTRY)
+		if (pLoader->GetBuildUnit() == UNIT_INFANTRY)
 		{
 			iTanks = iInfantry;
 			flValue = flInfantryRatio;
 		}
-		else if (pLoader->GetBuildUnit() == BUILDUNIT_TANK)
+		else if (pLoader->GetBuildUnit() == UNIT_TANK)
 		{
 			iTanks = iMainTanks;
 			flValue = flMainTankRatio;
 		}
-		else if (pLoader->GetBuildUnit() == BUILDUNIT_ARTILLERY)
+		else if (pLoader->GetBuildUnit() == UNIT_ARTILLERY)
 		{
 			iTanks = iArtillery;
 			flValue = flArtilleryRatio;

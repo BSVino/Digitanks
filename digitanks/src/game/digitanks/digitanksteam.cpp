@@ -182,6 +182,9 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 
 bool CDigitanksTeam::IsPrimarySelection(const CSelectable* pEntity)
 {
+	if (!DigitanksGame())
+		return false;
+
 	if (DigitanksGame()->GetCurrentTeam() != this)
 		return false;
 
@@ -446,7 +449,7 @@ void CDigitanksTeam::CountScore()
 		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 
 		if (pTank)
-			m_iScore += CLoader::GetUnitProductionCost(pTank->GetBuildUnit());
+			m_iScore += DigitanksGame()->GetConstructionCost(pTank->GetUnitType());
 
 		if (pStructure && !pStructure->IsConstructing())
 		{

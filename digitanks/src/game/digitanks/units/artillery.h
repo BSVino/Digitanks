@@ -37,7 +37,7 @@ public:
 	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
 	static size_t				ArtilleryFleetPoints() { return 5; };
 
-	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_ARTILLERY; }
+	virtual unittype_t			GetBuildUnit() const { return UNIT_ARTILLERY; }
 };
 
 #endif

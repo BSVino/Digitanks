@@ -19,8 +19,13 @@ public:
 
 	CData*					GetParent() const { return m_pParent; }
 
+	size_t					FindChildIndex(eastl::string sKey);
+	CData*					FindChild(eastl::string sKey);
+
 	eastl::string			GetKey() const { return m_sKey; }
 	eastl::string			GetValueString() const { return m_sValue; }
+	int						GetValueInt() const;
+	size_t					GetValueUInt() const;
 	float					GetValueFloat() const;
 	Vector2D				GetValueVector2D() const;
 

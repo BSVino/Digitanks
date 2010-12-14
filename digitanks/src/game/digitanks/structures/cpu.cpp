@@ -12,6 +12,7 @@
 #include <ui/hud.h>
 #include <models/models.h>
 
+#include <digitanks/digitanksgame.h>
 #include <digitanks/structures/buffer.h>
 #include <digitanks/structures/collector.h>
 #include <digitanks/structures/loader.h>
@@ -126,8 +127,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD INFANTRY LOADER\n \n";
 			s += L"This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_INFANTRY)));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER)));
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
 		}
@@ -141,8 +142,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD MAIN BATTLE TANK LOADER\n \n";
 			s += L"This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_TANK)));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER)));
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
 		}
@@ -156,8 +157,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD ARTILLERY LOADER\n \n";
 			s += L"This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CLoader::GetLoaderConstructionCost(BUILDUNIT_ARTILLERY)));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER)));
 			s += L"Shortcut: E";
 			pHUD->SetButtonInfo(2, s);
 		}
@@ -239,8 +240,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD MINIBUFFER\n \n";
 			s += L"MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CMiniBuffer::GetMiniBufferConstructionCost());
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CMiniBuffer::GetMiniBufferConstructionCost()));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER)));
 			s += L"Shortcut: A";
 			pHUD->SetButtonInfo(5, s);
 		}
@@ -254,8 +255,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD MINIBUFFER\n \n";
 			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CBuffer::GetBufferConstructionCost());
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CBuffer::GetBufferConstructionCost()));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER)));
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
 		}
@@ -269,8 +270,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD BATTERY\n \n";
 			s += L"Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CBattery::GetBatteryConstructionCost());
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CBattery::GetBatteryConstructionCost()));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY)));
 			s += L"Shortcut: S";
 			pHUD->SetButtonInfo(6, s);
 		}
@@ -284,8 +285,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD POWER SUPPLY UNIT\n \n";
 			s += L"PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", CCollector::GetCollectorConstructionCost());
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(CCollector::GetCollectorConstructionCost()));
+			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
+			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_PSU)));
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
 		}
@@ -313,8 +314,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		eastl::string16 s;
 		s += L"BUILD ROGUE\n \n";
 		s += L"Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n";
-		s += p.sprintf(L"Power to construct: %d Power\n", g_aiTurnsToLoad[BUILDUNIT_SCOUT]);
-		s += p.sprintf(L"Turns to construct: %d Turns\n \n", GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]));
+		s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
+		s += p.sprintf(L"Turns to construct: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)));
 		s += L"Shortcut: D";
 		pHUD->SetButtonInfo(7, s);
 	}
@@ -452,7 +453,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 		if (pLoader)
-			pLoader->SetBuildUnit(BUILDUNIT_INFANTRY);
+			pLoader->SetBuildUnit(UNIT_INFANTRY);
 	}
 	else if (ePreviewStructure == STRUCTURE_TANKLOADER)
 	{
@@ -463,7 +464,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 		if (pLoader)
-			pLoader->SetBuildUnit(BUILDUNIT_TANK);
+			pLoader->SetBuildUnit(UNIT_TANK);
 	}
 	else if (ePreviewStructure == STRUCTURE_ARTILLERYLOADER)
 	{
@@ -474,7 +475,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
 		if (pLoader)
-			pLoader->SetBuildUnit(BUILDUNIT_ARTILLERY);
+			pLoader->SetBuildUnit(UNIT_ARTILLERY);
 	}
 
 	m_hConstructing->BeginConstruction();
@@ -639,7 +640,7 @@ void CCPU::StartTurn()
 	if (m_bProducing)
 	{
 		m_iProduction += (size_t)(GetDigitanksTeam()->GetProductionPerLoader());
-		if (m_iProduction > g_aiTurnsToLoad[BUILDUNIT_SCOUT])
+		if (m_iProduction > DigitanksGame()->GetConstructionCost(UNIT_SCOUT))
 		{
 			if (CNetwork::IsHost())
 			{
@@ -673,7 +674,7 @@ void CCPU::StartTurn()
 		else
 		{
 			eastl::string16 s;
-			s.sprintf(L"Producing Rogue (%d turns left)", GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction));
+			s.sprintf(L"Producing Rogue (%d turns left)", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)-m_iProduction));
 			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
@@ -852,7 +853,7 @@ void CCPU::UpdateInfo(eastl::string16& s)
 	{
 		s += L"[Producing Rogue]\n";
 		s += p.sprintf(L"Power to build: %d\n", m_iProduction);
-		s += p.sprintf(L"Turns left: %d\n \n", GetTurnsToConstruct(g_aiTurnsToLoad[BUILDUNIT_SCOUT]-m_iProduction));
+		s += p.sprintf(L"Turns left: %d\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)-m_iProduction));
 	}
 
 	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
@@ -873,6 +874,9 @@ void CCPU::OnDeleted()
 
 		apDeleteThese.push_back(pMember);
 	}
+
+	if (GameServer()->IsLoading())
+		return;
 
 	for (size_t i = 0; i < apDeleteThese.size(); i++)
 	{

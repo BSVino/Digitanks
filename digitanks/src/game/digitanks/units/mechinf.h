@@ -43,7 +43,7 @@ public:
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
 	static size_t				InfantryFleetPoints() { return 2; };
 
-	virtual buildunit_t			GetBuildUnit() const { return BUILDUNIT_INFANTRY; }
+	virtual unittype_t			GetBuildUnit() const { return UNIT_INFANTRY; }
 
 protected:
 	size_t						m_iFortifyShieldModel;

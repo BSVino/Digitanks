@@ -3,16 +3,6 @@
 
 #include "structure.h"
 
-typedef enum
-{
-	BUILDUNIT_INFANTRY,
-	BUILDUNIT_TANK,
-	BUILDUNIT_ARTILLERY,
-	BUILDUNIT_SCOUT,
-} buildunit_t;
-
-extern size_t g_aiTurnsToLoad[];
-
 class CLoader : public CStructure
 {
 	REGISTER_ENTITY_CLASS(CLoader, CStructure);
@@ -50,19 +40,15 @@ public:
 
 	size_t						GetTurnsToProduce();
 
-	void						SetBuildUnit(buildunit_t eBuildUnit);
-	buildunit_t					GetBuildUnit() const { return m_eBuildUnit.Get(); };
+	void						SetBuildUnit(unittype_t eBuildUnit);
+	unittype_t					GetBuildUnit() const { return m_eBuildUnit.Get(); };
 
 	virtual eastl::string16		GetName();
-	virtual unittype_t			GetUnitType();
-	virtual size_t				ConstructionCost() const { return GetLoaderConstructionCost(GetBuildUnit()); };
+	virtual unittype_t			GetUnitType() const;
 	virtual float				TotalHealth() const { return 70; };
 
-	static size_t				GetUnitProductionCost(buildunit_t eBuildUnit);
-	static size_t				GetLoaderConstructionCost(buildunit_t eBuildUnit);
-
 protected:
-	CNetworkedVariable<buildunit_t> m_eBuildUnit;
+	CNetworkedVariable<unittype_t> m_eBuildUnit;
 	CNetworkedVariable<size_t>	m_iBuildUnitModel;
 
 	CNetworkedVariable<bool>	m_bProducing;

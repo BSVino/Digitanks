@@ -36,6 +36,35 @@ CData* CData::AddChild(eastl::string sKey, eastl::string sValue)
 	return pData;
 }
 
+size_t CData::FindChildIndex(eastl::string sKey)
+{
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		if (m_apChildren[i]->GetKey() == sKey)
+			return i;
+
+	return ~0;
+}
+
+CData* CData::FindChild(eastl::string sKey)
+{
+	size_t iIndex = FindChildIndex(sKey);
+
+	if (iIndex == ~0)
+		return NULL;
+
+	return m_apChildren[iIndex];
+}
+
+int CData::GetValueInt() const
+{
+	return (int)atoi(GetValueString().c_str());
+}
+
+size_t CData::GetValueUInt() const
+{
+	return (size_t)atoi(GetValueString().c_str());
+}
+
 float CData::GetValueFloat() const
 {
 	return (float)atof(GetValueString().c_str());

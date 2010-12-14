@@ -19,10 +19,7 @@ public:
 	virtual size_t				GetProduction();
 
 	virtual eastl::string16		GetName() { return L"Power Supply Unit"; };
-	virtual unittype_t			GetUnitType() { return STRUCTURE_PSU; };
-	virtual size_t				ConstructionCost() const { return GetCollectorConstructionCost(); };
-
-	static size_t				GetCollectorConstructionCost() { return 60; };
+	virtual unittype_t			GetUnitType() const { return STRUCTURE_PSU; };
 
 protected:
 	CNetworkedHandle<CResource>	m_hResource;
@@ -49,12 +46,7 @@ public:
 	virtual size_t				GetProduction();
 
 	virtual eastl::string16		GetName() { return L"Battery"; };
-	virtual unittype_t			GetUnitType() { return STRUCTURE_BATTERY; };
-	virtual size_t				ConstructionCost() const { return GetBatteryConstructionCost(); };
-	virtual size_t				UpgradeCost() const { return GetBatteryUpgradeCost(); };
-
-	static size_t				GetBatteryConstructionCost() { return 15; };
-	static size_t				GetBatteryUpgradeCost() { return 50; };
+	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
 
 protected:
 	static size_t				s_iUpgradeIcon;
