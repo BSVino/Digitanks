@@ -1221,9 +1221,7 @@ void CDigitanksGame::StartTurn()
 		return;
 	}
 
-	printf("%d\n", mtrand());
-	size_t iPowerupRand = mtrand()%3;
-	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && iPowerupRand == 0)
+	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && mtrand()%3 == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
