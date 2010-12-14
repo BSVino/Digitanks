@@ -402,15 +402,16 @@ void CHUD::Think()
 					continue;
 
 				if (DigitanksGame()->GetCurrentTeam()->IsSelected(pTank))
-					pTank->SetPreviewAim(vecPreviewAim);
+				{
+					if (pTank->GetCurrentWeapon() == WEAPON_CHARGERAM)
+						pTank->SetPreviewCharge(pHit);
+					else if (pTank->GetCurrentWeapon() == PROJECTILE_AIRSTRIKE)
+						pTank->SetPreviewAim(vecTerrainPoint);
+					else
+						pTank->SetPreviewAim(vecPreviewAim);
+				}
 			}
 		}
-
-		if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
-			pCurrentTank->SetPreviewCharge(pHit);
-
-		if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
-			pCurrentTank->SetPreviewAim(vecTerrainPoint);
 	}
 
 	CStructure* pCurrentStructure = DigitanksGame()->GetPrimarySelectionStructure();
@@ -1758,19 +1759,6 @@ void CHUD::FortifyCallback()
 	UpdateInfo();
 }
 
-void CHUD::ChargeCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
-		DigitanksGame()->SetControlMode(MODE_NONE);
-	else
-		DigitanksGame()->SetControlMode(MODE_CHARGE);
-
-	SetupMenu();
-}
-
 void CHUD::PromoteCallback()
 {
 	if (!m_bHUDActive)
@@ -1850,10 +1838,14 @@ void CHUD::FireSpecialCallback()
 	if (!m_bHUDActive)
 		return;
 
-	if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+	if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		DigitanksGame()->SetControlMode(MODE_NONE);
-	else
-		DigitanksGame()->SetControlMode(MODE_AIMSPECIAL);
+	else if (DigitanksGame()->GetCurrentTeam() && DigitanksGame()->GetCurrentTeam()->GetPrimarySelectionTank())
+	{
+		DigitanksGame()->SetControlMode(MODE_AIM);
+		DigitanksGame()->SetAimType(AIM_NORANGE);
+		DigitanksGame()->GetCurrentTeam()->GetPrimarySelectionTank()->SetCurrentWeapon(PROJECTILE_AIRSTRIKE);
+	}
 
 	SetupMenu();
 }

@@ -184,7 +184,7 @@ void CDigitanksRenderer::RenderSkybox()
 		r.Rotate(m_flRing1Yaw, Vector(0, 1, 0));
 		r.RenderModel(m_iRing1);
 
-		m_flRing1Yaw += GameServer()->GetFrameTime()*10;
+		m_flRing1Yaw += GameServer()->GetFrameTime()*5;
 	}
 
 	if (true)
@@ -196,7 +196,7 @@ void CDigitanksRenderer::RenderSkybox()
 		r.Rotate(m_flRing2Yaw, Vector(0, 1, 0));
 		r.RenderModel(m_iRing2);
 
-		m_flRing2Yaw -= GameServer()->GetFrameTime()*10;
+		m_flRing2Yaw -= GameServer()->GetFrameTime()*5;
 	}
 
 	if (true)
@@ -208,7 +208,7 @@ void CDigitanksRenderer::RenderSkybox()
 		r.Rotate(m_flRing3Yaw, Vector(0, 1, 0));
 		r.RenderModel(m_iRing3);
 
-		m_flRing3Yaw -= GameServer()->GetFrameTime()*20;
+		m_flRing3Yaw -= GameServer()->GetFrameTime()*10;
 	}
 
 	glClear(GL_DEPTH_BUFFER_BIT);

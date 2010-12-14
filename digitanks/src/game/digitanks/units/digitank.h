@@ -137,7 +137,7 @@ public:
 	bool						IsPreviewAimValid();
 	Vector						GetLastAim() const { return m_vecLastAim.Get(); };
 
-	virtual bool				CanCharge() const { return false; }
+	virtual bool				CanCharge() const;
 	virtual float				ChargeRadius() const { return 20.0f; }
 	virtual float				ChargeEnergy() const { return 7.0f; }
 	virtual float				ChargeDamage() const { return 7.0f; }

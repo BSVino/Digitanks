@@ -160,6 +160,9 @@ public:
 	controlmode_t			GetControlMode();
 	void					SetControlMode(controlmode_t eMode);
 
+	aimtype_t				GetAimType();
+	void					SetAimType(aimtype_t eAimType);
+
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
@@ -271,6 +274,7 @@ protected:
 	CNetworkedVariable<size_t> m_iCurrentTeam;
 
 	controlmode_t			m_eControlMode;
+	aimtype_t				m_eAimType;
 
 	CNetworkedHandle<CTerrain> m_hTerrain;
 

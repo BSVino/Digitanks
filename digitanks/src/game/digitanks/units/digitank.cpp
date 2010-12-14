@@ -288,9 +288,6 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return GetWeaponEnergy();
 
-	if (GetDigitanksTeam()->IsPrimarySelection(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_CHARGE)
-		return ChargeEnergy();
-
 	return m_flAttackPower;
 }
 
@@ -298,9 +295,6 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 {
 	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return m_flTotalPower - GetWeaponEnergy();
-
-	if (GetDigitanksTeam()->IsPrimarySelection(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_CHARGE)
-		return m_flTotalPower - ChargeEnergy();
 
 	// Any unallocated power will go into defense.
 	return m_flDefensePower + m_flTotalPower;
@@ -767,7 +761,7 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 	if (CanFortify() && !IsFortified() && !CanAimMobilized())
 		return;
 
-	if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+	if (DigitanksGame()->GetAimType() == AIM_NORANGE)
 	{
 		// Special weapons can be aimed anywhere.
 		m_vecPreviewAim = vecPreviewAim;
@@ -817,6 +811,15 @@ bool CDigitank::IsPreviewAimValid()
 		return false;
 
 	return true;
+}
+
+bool CDigitank::CanCharge() const
+{
+	for (size_t i = 0; i < m_aeWeapons.size(); i++)
+		if (m_aeWeapons[i] == WEAPON_CHARGERAM)
+			return true;
+
+	return false;
 }
 
 void CDigitank::SetPreviewCharge(CBaseEntity* pChargeTarget)
@@ -1399,7 +1402,7 @@ void CDigitank::Think()
 
 	m_bDisplayAim = false;
 
-	bool bAimMode = DigitanksGame()->GetControlMode() == MODE_AIM;
+	bool bAimMode = DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_NORMAL;
 	bool bShowThisTank = m_bFiredWeapon;
 	if (bAimMode && GetDigitanksTeam()->IsSelected(this) && AimsWith(GetDigitanksTeam()->GetPrimarySelectionTank()))
 		bShowThisTank = true;
@@ -1583,12 +1586,6 @@ bool CDigitank::AllowControlMode(controlmode_t eMode) const
 	if (eMode == MODE_AIM)
 		return true;
 
-	if (eMode == MODE_AIMSPECIAL && m_iAirstrikes)
-		return true;
-
-	if (eMode == MODE_CHARGE)
-		return CanCharge();
-
 	return BaseClass::AllowControlMode(eMode);
 }
 
@@ -1600,11 +1597,12 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 	if (eOldMode == MODE_TURN)
 		ClearPreviewTurn();
 
-	if (eOldMode == MODE_AIM || eOldMode == MODE_AIMSPECIAL)
+	if (eOldMode == MODE_AIM)
+	{
 		ClearPreviewAim();
-
-	if (eOldMode == MODE_CHARGE)
 		ClearPreviewCharge();
+		DigitanksGame()->SetAimType(AIM_NONE);
+	}
 
 	if (eNewMode == MODE_AIM)
 	{
@@ -1833,29 +1831,6 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(2, s);
 		}
 
-		if (CanCharge() && !m_bFiredWeapon && !m_bActionTaken)
-		{
-			bool bHasPower = m_flTotalPower > ChargeEnergy() && GetRemainingMovementEnergy() > ChargeEnergy();
-			if ((!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_CHARGE) && bHasPower)
-				pHUD->SetButtonColor(3, Color(150, 0, 0));
-			else
-				pHUD->SetButtonColor(3, Color(100, 100, 100));
-
-			if (DigitanksGame()->GetControlMode() == MODE_CHARGE)
-				pHUD->SetButtonTexture(3, s_iCancelIcon);
-			else
-				pHUD->SetButtonTexture(3, 0);
-
-			if (bHasPower)
-				pHUD->SetButtonListener(3, CHUD::Charge);
-			else
-				pHUD->SetButtonListener(3, NULL);
-
-			eastl::string16 s;
-			s.sprintf(L"CHARGING RAM ATTACK\n \nCombine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields.\n \nMovement energy required: %d%%\nAttack energy required: %d%%\n \nShortcut: R", ((int)ChargeEnergy()*10), ((int)ChargeEnergy()*10));
-			pHUD->SetButtonInfo(3, s);
-		}
-
 		if (HasBonusPoints())
 		{
 			pHUD->SetButtonListener(4, CHUD::Promote);
@@ -1866,12 +1841,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 		if (m_iAirstrikes && !m_bActionTaken)
 		{
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonColor(9, Color(150, 0, 0));
 			else
 				pHUD->SetButtonColor(9, Color(100, 100, 100));
 
-			if (DigitanksGame()->GetControlMode() == MODE_AIMSPECIAL)
+			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(9, s_iCancelIcon);
 			else
 				pHUD->SetButtonTexture(9, 0);
@@ -2676,7 +2651,7 @@ void CDigitank::PostRender(bool bTransparent)
 		oRope.Finish(vecGoalMove);
 	}
 
-	if (bTransparent && GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_CHARGE)
+	if (bTransparent && GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT)
 	{
 		CBaseEntity* pChargeTarget = m_hPreviewCharge;
 

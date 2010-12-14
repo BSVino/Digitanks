@@ -33,14 +33,14 @@ public:
 
 	void							UpdateInfo(weapon_t eWeapon);
 
-	size_t							GetTextureForWeapon(weapon_t eWeapon);
+	void							SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon);
 
 protected:
 	glgui::CLabel*					m_pInfo;
 
 	eastl::vector<CWeaponButton*>	m_apWeapons;
 
-	size_t							m_iIconCPU;
+	size_t							m_iWeaponsSheet;
 };
 
 #endif

@@ -11,7 +11,7 @@ CWeaponPanel::CWeaponPanel()
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
 	AddControl(m_pInfo);
 
-	m_iIconCPU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu.png");
+	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
 }
 
 void CWeaponPanel::Layout()
@@ -80,7 +80,7 @@ void CWeaponPanel::Layout()
 			pWeapon->SetFGColor(Color(0, 0, 0));
 			pWeapon->SetClickedListener(pWeapon, &CWeaponButton::ChooseWeapon);
 
-			pWeapon->SetTexture(GetTextureForWeapon(eWeapon));
+			SetTextureForWeapon(pWeapon, eWeapon);
 			pWeapon->SetText(CProjectile::GetWeaponName(eWeapon));
 
 			pWeapon->SetButtonColor(Color(100, 100, 100));
@@ -127,6 +127,8 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 	s += sName + L"\n \n";
 	s += eastl::string16(CProjectile::GetWeaponDescription(eWeapon)) + L"\n \n";
 	s += p.sprintf(L"Attack Energy Required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
+	if (eWeapon == WEAPON_CHARGERAM)
+		s += p.sprintf(L"Movement energy required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
 	s += p.sprintf(L"Damage: %.1f\n", CProjectile::GetWeaponDamage(eWeapon));
 
 	m_pInfo->SetText(s);
@@ -135,9 +137,75 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 	m_pInfo->SetSize(m_pInfo->GetWidth(), (int)m_pInfo->GetTextHeight()+20);
 }
 
-size_t CWeaponPanel::GetTextureForWeapon(weapon_t eWeapon)
+void CWeaponPanel::SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon)
 {
-	return 0;
+	int iTextureWidth = 512;
+	int iTextureHeight = 256;
+
+	switch (eWeapon)
+	{
+	default:
+	case WEAPON_NONE:
+	case PROJECTILE_SMALL:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 0, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_MEDIUM:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 64, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_LARGE:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 128, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_AOE:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 192, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_EMP:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 256, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_ICBM:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 320, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_GRENADE:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 384, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_DAISYCHAIN:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 448, 0, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_CLUSTERBOMB:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 0, 64, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_SPLOOGE:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 64, 64, 64, 64, iTextureWidth, iTextureHeight);
+		break;
+
+	case PROJECTILE_TRACTORBOMB:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 128, 64, 64, 64, iTextureWidth, 256);
+		break;
+
+	case PROJECTILE_EARTHSHAKER:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 192, 64, 64, 64, iTextureWidth, 256);
+		break;
+
+	case PROJECTILE_CAMERAGUIDED:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 256, 64, 64, 64, iTextureWidth, 256);
+		break;
+
+	case WEAPON_LASER:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 320, 64, 64, 64, iTextureWidth, 256);
+		break;
+
+	case WEAPON_CHARGERAM:
+		pWeapon->SetSheetTexture(m_iWeaponsSheet, 384, 64, 64, 64, iTextureWidth, 256);
+		break;
+	}
 }
 
 CWeaponButton::CWeaponButton(CWeaponPanel* pPanel)
@@ -175,6 +243,15 @@ void CWeaponButton::ChooseWeaponCallback()
 	m_pWeaponPanel->SetVisible(false);
 
 	DigitanksGame()->SetControlMode(MODE_AIM);
+
+	if (m_eWeapon == WEAPON_CHARGERAM)
+		DigitanksGame()->SetAimType(AIM_MOVEMENT);
+	else if (m_eWeapon == WEAPON_LASER)
+		DigitanksGame()->SetAimType(AIM_NORANGE);
+	else if (m_eWeapon == PROJECTILE_CAMERAGUIDED)
+		DigitanksGame()->SetAimType(AIM_NORANGE);
+	else
+		DigitanksGame()->SetAimType(AIM_NORMAL);
 
 	CRootPanel::Get()->Layout();
 }

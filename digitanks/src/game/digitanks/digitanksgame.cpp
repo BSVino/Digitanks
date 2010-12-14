@@ -1151,6 +1151,18 @@ void CDigitanksGame::FireTanks()
 	{
 		CDigitank* pTank = pTeam->GetTank(i);
 
+		if (pTank->GetCurrentWeapon() == WEAPON_CHARGERAM)
+		{
+			pTank->Charge();
+			continue;
+		}
+
+		if (pTank->GetCurrentWeapon() == PROJECTILE_AIRSTRIKE)
+		{
+			pTank->FireSpecial();
+			continue;
+		}
+
 		if (!pTank->AimsWith(pCurrentTank))
 			continue;
 
@@ -1209,7 +1221,9 @@ void CDigitanksGame::StartTurn()
 		return;
 	}
 
-	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && mtrand()%6 == 0)
+	printf("%d\n", mtrand());
+	size_t iPowerupRand = mtrand()%3;
+	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && iPowerupRand == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
@@ -1525,6 +1539,32 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 
 	if (eMode == MODE_AIM)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
+}
+
+aimtype_t CDigitanksGame::GetAimType()
+{
+	if (GameServer()->IsLoading())
+		return AIM_NONE;
+
+	if (IsTeamControlledByMe(GetCurrentTeam()))
+		return m_eAimType;
+
+	return AIM_NONE;
+}
+
+void CDigitanksGame::SetAimType(aimtype_t eAimType)
+{
+	if (!GetPrimarySelection())
+	{
+		if (eAimType == AIM_NONE)
+			m_eAimType = eAimType;
+		return;
+	}
+
+	if (DigitanksWindow()->GetVictoryPanel()->IsVisible())
+		return;
+
+	m_eAimType = eAimType;
 }
 
 void CDigitanksGame::TerrainData(class CNetworkParameters* p)
