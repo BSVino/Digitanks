@@ -104,14 +104,17 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"{"
 		"	vec4 vecBaseColor = vecFrontColor * texture2D(iDiffuse, gl_TexCoord[0].st);"
 
-		"	float flXMod = mod(vecPosition.x, 10.0);"
-		"	float flZMod = mod(vecPosition.z, 10.0);"
-		"	if (flXMod < 0.1 || flZMod < 0.1)"
-		"		vecBaseColor = (vecBaseColor * 0.8) + vec4(0.75, 0.75, 0.75, 1.0)*0.2;"
+		"	if (vecBaseColor.r > 0.0 && vecBaseColor.g > 0.0 && vecBaseColor.b > 0.0)"
+		"	{"
+		"		float flXMod = mod(vecPosition.x, 10.0);"
+		"		float flZMod = mod(vecPosition.z, 10.0);"
+		"		if (flXMod < 0.1 || flZMod < 0.1)"
+		"			vecBaseColor = (vecBaseColor * 0.8) + vec4(0.75, 0.75, 0.75, 1.0)*0.2;"
 
-		"	float flYMod = mod(vecPosition.y, 10.0);"
-		"	if (flYMod < 0.1)"
-		"		vecBaseColor = (vecBaseColor * 0.8) + vec4(0.5, 0.5, 0.5, 1.0)*0.2;"
+		"		float flYMod = mod(vecPosition.y, 10.0);"
+		"		if (flYMod < 0.1)"
+		"			vecBaseColor = (vecBaseColor * 0.8) + vec4(0.5, 0.5, 0.5, 1.0)*0.2;"
+		"	}"
 
 		TANKMOVEMENT
 

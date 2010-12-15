@@ -40,6 +40,8 @@ protected:
 	bool							m_bNeedsRegenerate;
 
 	size_t							x, y;
+
+	float							m_aflTerrainVisibility[2][2];
 };
 
 class CTerrain : public CBaseEntity
@@ -62,6 +64,8 @@ public:
 	void					GenerateTerrainCallLists();
 	void					GenerateTerrainCallList(int x, int y);
 	void					GenerateCallLists();
+
+	void					CalculateVisibility();
 
 	virtual bool			ShouldRender() const { return true; };
 	virtual void			OnRender(class CRenderingContext* pContext, bool bTransparent);

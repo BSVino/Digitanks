@@ -376,19 +376,24 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			else
 				vecColor = Vector(flColor, flColor, flColor);
 
-			glColor3fv(vecColor + m_avecQuadMods[0]);
+			float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
+			float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
+
+			float flVisibility = RemapValClamped((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), flVisibilityX0, flVisibilityX1);
+
+			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility);
 			glTexCoord2f(flUVX0, flUVY0);
 			glVertex3f(flX, GetRealHeight(x, y), flY);
 
-			glColor3fv(vecColor + m_avecQuadMods[1]);
+			glColor3fv((vecColor + m_avecQuadMods[1]) * flVisibility);
 			glTexCoord2f(flUVX1, flUVY0);
 			glVertex3f(flX, GetRealHeight(x, y+1), flY1);
 
-			glColor3fv(vecColor + m_avecQuadMods[2]);
+			glColor3fv((vecColor + m_avecQuadMods[2]) * flVisibility);
 			glTexCoord2f(flUVX1, flUVY1);
 			glVertex3f(flX1, GetRealHeight(x+1, y+1), flY1);
 
-			glColor3fv(vecColor + m_avecQuadMods[3]);
+			glColor3fv((vecColor + m_avecQuadMods[3]) * flVisibility);
 			glTexCoord2f(flUVX0, flUVY1);
 			glVertex3f(flX1, GetRealHeight(x+1, y), flY);
 		}
@@ -594,6 +599,96 @@ void CTerrain::GenerateCallLists()
 			if (pChunk->m_iWallList)
 				glDeleteLists((GLuint)pChunk->m_iWallList, 1);
 			pChunk->m_iWallList = glGenLists(1);
+		}
+	}
+
+	GenerateTerrainCallLists();
+}
+
+void CTerrain::CalculateVisibility()
+{
+	if (!DigitanksGame()->ShouldRenderFogOfWar())
+	{
+		for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+		{
+			for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+			{
+				CTerrainChunk* pChunk = GetChunk((int)i, j);
+
+				if (pChunk->m_aflTerrainVisibility[0][0] < 1.0f)
+				{
+					pChunk->m_aflTerrainVisibility[0][0] = 1.0f;
+					pChunk->m_bNeedsRegenerate = true;
+				}
+
+				if (pChunk->m_aflTerrainVisibility[1][0] < 1.0f)
+				{
+					pChunk->m_aflTerrainVisibility[1][0] = 1.0f;
+					pChunk->m_bNeedsRegenerate = true;
+				}
+
+				if (pChunk->m_aflTerrainVisibility[0][1] < 1.0f)
+				{
+					pChunk->m_aflTerrainVisibility[0][1] = 1.0f;
+					pChunk->m_bNeedsRegenerate = true;
+				}
+
+				if (pChunk->m_aflTerrainVisibility[1][1] < 1.0f)
+				{
+					pChunk->m_aflTerrainVisibility[1][1] = 1.0f;
+					pChunk->m_bNeedsRegenerate = true;
+				}
+			}
+		}
+		return;
+	}
+
+	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	if (!pTeam)
+		return;
+
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+	{
+		float flX0 = ChunkToWorldSpace(i, 0);
+		float flX1 = ChunkToWorldSpace(i+1, 0);
+
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			float flY0 = ChunkToWorldSpace(j, 0);
+			float flY1 = ChunkToWorldSpace(j+1, 0);
+
+			CTerrainChunk* pChunk = GetChunk((int)i, j);
+
+			float flVisibility;
+
+			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX0, 0, flY0)));
+			if (fabs(pChunk->m_aflTerrainVisibility[0][0] - flVisibility) > 0.1f)
+			{
+				pChunk->m_aflTerrainVisibility[0][0] = flVisibility;
+				pChunk->m_bNeedsRegenerate = true;
+			}
+
+			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX1, 0, flY0)));
+			if (fabs(pChunk->m_aflTerrainVisibility[1][0] - flVisibility) > 0.1f)
+			{
+				pChunk->m_aflTerrainVisibility[1][0] = flVisibility;
+				pChunk->m_bNeedsRegenerate = true;
+			}
+
+			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX0, 0, flY1)));
+			if (fabs(pChunk->m_aflTerrainVisibility[0][1] - flVisibility) > 0.1f)
+			{
+				pChunk->m_aflTerrainVisibility[0][1] = flVisibility;
+				pChunk->m_bNeedsRegenerate = true;
+			}
+
+			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX1, 0, flY1)));
+			if (fabs(pChunk->m_aflTerrainVisibility[1][1] - flVisibility) > 0.1f)
+			{
+				pChunk->m_aflTerrainVisibility[1][1] = flVisibility;
+				pChunk->m_bNeedsRegenerate = true;
+			}
 		}
 	}
 
@@ -1364,6 +1459,8 @@ void CTerrain::ClientEnterGame()
 	BaseClass::ClientEnterGame();
 
 	GenerateCollision();
+
+	CalculateVisibility();
 }
 
 CTerrainChunk::CTerrainChunk()
@@ -1375,6 +1472,7 @@ CTerrainChunk::CTerrainChunk()
 	m_iChunkTexture = 0;
 
 	memset(m_aiSpecialData, 0, sizeof(m_aiSpecialData));
+	memset(m_aflTerrainVisibility, 0, sizeof(m_aflTerrainVisibility));
 }
 
 CTerrainChunk::~CTerrainChunk()

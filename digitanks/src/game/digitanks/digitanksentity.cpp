@@ -31,7 +31,7 @@ void CDigitanksEntity::Think()
 {
 	BaseClass::Think();
 
-	if (!IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && !IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
 	{
 		switch (RandomInt(0, 5))
 		{

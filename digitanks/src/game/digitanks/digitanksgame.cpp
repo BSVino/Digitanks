@@ -1277,6 +1277,8 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (GetPrimarySelection())
 		GetPrimarySelection()->OnCurrentSelection();
+
+	GetTerrain()->CalculateVisibility();
 }
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
@@ -1853,6 +1855,12 @@ void CDigitanksGame::ClientEnterGame()
 
 	DigitanksWindow()->GetHUD()->ClientEnterGame();
 	glgui::CRootPanel::Get()->Layout();
+}
+
+void CDigitanksGame::SetRenderFogOfWar(bool bRenderFogOfWar)
+{
+	m_bRenderFogOfWar = bRenderFogOfWar;
+	GetTerrain()->CalculateVisibility();
 }
 
 bool CDigitanksGame::ShouldRenderFogOfWar()

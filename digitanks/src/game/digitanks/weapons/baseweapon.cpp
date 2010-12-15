@@ -37,7 +37,11 @@ void CBaseWeapon::SetOwner(CDigitank* pOwner)
 	if (pOwner)
 		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
 
-	if (ShouldBeVisible() || DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
+	Vector vecOrigin = GetOrigin();
+	if (pOwner)
+		vecOrigin = pOwner->GetOrigin();
+
+	if (ShouldBeVisible() || DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), vecOrigin) > 0)
 		m_bShouldRender = true;
 	else
 		m_bShouldRender = false;

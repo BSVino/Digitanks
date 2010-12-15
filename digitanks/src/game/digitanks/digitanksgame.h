@@ -227,7 +227,7 @@ public:
 
 	virtual void			ClientEnterGame();
 
-	void					SetRenderFogOfWar(bool bRenderFogOfWar) { m_bRenderFogOfWar = bRenderFogOfWar; };
+	void					SetRenderFogOfWar(bool bRenderFogOfWar);
 	bool					ShouldRenderFogOfWar();
 
 	float					GetVisibilityAtPoint(CDigitanksTeam* pViewingTeam, Vector vecPoint);

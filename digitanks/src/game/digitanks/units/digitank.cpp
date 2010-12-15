@@ -1528,6 +1528,20 @@ void CDigitank::Think()
 			Turn(EAngle(0, GetAngles().y, 0));
 		}
 	}
+
+	float flTransitionTime = GetTransitionTime();
+
+	if (GetVisibility() == 0)
+		flTransitionTime = 0;
+
+	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
+	if (m_flStartedMove && flTimeSinceMove > flTransitionTime)
+	{
+		// We were moving but now we're done.
+		DigitanksGame()->GetTerrain()->CalculateVisibility();
+
+		m_flStartedMove = 0.0;
+	}
 }
 
 void CDigitank::OnCurrentSelection()
