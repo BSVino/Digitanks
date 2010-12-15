@@ -638,7 +638,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 
-		if (pTank->IsScout())
+		if (pTank->IsMobileCPU())
+			pTank->Fortify();
+		else if (pTank->IsScout())
 		{
 			// We HATE infantry, so always know where the closest one is.
 			CMechInfantry* pClosestInfantry = NULL;

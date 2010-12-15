@@ -1795,7 +1795,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			}
 			else
 			{
-				if (IsArtillery())
+				if (IsMobileCPU())
+				{
+					pHUD->SetButtonTexture(8, s_iDeployIcon);
+					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this MCP deploy and create a CPU. The CPU will be the center of operations for your base. This action cannot be undone.\n \nShortcut: F");
+				}
+				else if (IsArtillery())
 				{
 					pHUD->SetButtonTexture(8, s_iDeployIcon);
 					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.\n \nShortcut: F");
@@ -1810,7 +1815,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon && !m_bActionTaken)
+		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon && !m_bActionTaken && m_eWeapon != WEAPON_NONE)
 		{
 			pHUD->SetButtonListener(2, CHUD::Aim);
 

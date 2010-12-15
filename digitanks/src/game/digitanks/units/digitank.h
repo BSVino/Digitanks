@@ -177,6 +177,7 @@ public:
 	virtual bool				IsArtillery() const { return false; };
 	virtual bool				IsInfantry() const { return false; };
 	virtual bool				IsScout() const { return false; };
+	virtual bool				IsMobileCPU() const { return false; };
 	virtual bool				IsFortified() const { return m_bFortified.Get() && m_iFortifyLevel.Get(); };
 	virtual bool				IsFortifying() const { return m_bFortified.Get() && m_iFortifyLevel.Get() == 0; };
 	virtual bool				CanMoveFortified() { return false; };

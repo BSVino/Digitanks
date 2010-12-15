@@ -25,6 +25,7 @@
 #include "digitanks/units/maintank.h"
 #include "digitanks/units/artillery.h"
 #include "digitanks/units/scout.h"
+#include "digitanks/units/mobilecpu.h"
 #include "digitanks/structures/cpu.h"
 #include "digitanks/structures/buffer.h"
 #include "digitanks/weapons/projectile.h"
@@ -493,10 +494,10 @@ void CDigitanksGame::SetupStrategy()
 		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
 		m_ahTeams[i]->SetName(aszTeamNames[i]);
 
-		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-		pCPU->SetOrigin(GetTerrain()->SetPointHeight(avecRandomStartingPositions[i]));
-		pCPU->FindGround();
-		m_ahTeams[i]->AddEntity(pCPU);
+		CMobileCPU* pMobileCPU = GameServer()->Create<CMobileCPU>("CMobileCPU");
+		m_ahTeams[i]->AddEntity(pMobileCPU);
+		pMobileCPU->SetOrigin(m_hTerrain->SetPointHeight(avecRandomStartingPositions[i]));
+		pMobileCPU->SetAngles(VectorAngles(-avecRandomStartingPositions[i].Normalized()));
 
 
 		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
@@ -509,18 +510,18 @@ void CDigitanksGame::SetupStrategy()
 			if (!pDTEntity)
 				continue;
 
-			if (pCPU->GetTeam() == pDTEntity->GetTeam())
+			if (pMobileCPU->GetTeam() == pDTEntity->GetTeam())
 				continue;
 
 			// The default CPU has a network radius of 40 units, and then add a bit more as a buffer.
 			// The idea is, players have to grow their base to find more resources.
-			if ((pDTEntity->GetOrigin() - pCPU->GetOrigin()).Length2D() < 60)
+			if ((pDTEntity->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < 60)
 				pEntity->Delete();
 		}
 
 		CResource* pResource = GameServer()->Create<CResource>("CResource");
 		float y = RandomFloat(0, 360);
-		pResource->SetOrigin(m_hTerrain->SetPointHeight(pCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
+		pResource->SetOrigin(m_hTerrain->SetPointHeight(pMobileCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
 
 		CDigitank* pTank;
 		Vector vecTank;
@@ -1411,7 +1412,7 @@ void CDigitanksGame::CheckWinConditions()
 			for (size_t j = 0; j < m_ahTeams[i]->GetNumMembers(); j++)
 			{
 				CBaseEntity* pEntity = m_ahTeams[i]->GetMember(j);
-				if (dynamic_cast<CCPU*>(pEntity))
+				if (dynamic_cast<CCPU*>(pEntity) || dynamic_cast<CMobileCPU*>(pEntity))
 				{
 					bHasCPU = true;
 					iTeamsLeft++;

@@ -309,6 +309,9 @@
     <ClCompile Include="game\digitanks\digitankslevel.cpp">
       <Filter>Source Files\game\digitanks</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\units\mobilecpu.cpp">
+      <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -505,6 +508,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\digitankslevel.h">
       <Filter>Source Files\game\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\mobilecpu.h">
+      <Filter>Source Files\game\digitanks\units</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
