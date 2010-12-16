@@ -80,7 +80,7 @@ void CProjectile::Think()
 			if (pClosest == m_hOwner)
 				continue;
 
-			if (pClosest->GetTeam() == m_hOwner->GetTeam())
+			if (m_hOwner != NULL && pClosest->GetTeam() == m_hOwner->GetTeam())
 				continue;
 
 			if (pClosest->CanFireMissileDefense())
