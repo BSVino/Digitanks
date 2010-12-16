@@ -116,6 +116,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\structures\resource.cpp" />
     <ClCompile Include="game\digitanks\structures\structure.cpp" />
     <ClCompile Include="game\digitanks\units\artillery.cpp" />
+    <ClCompile Include="game\digitanks\units\autoturret.cpp" />
     <ClCompile Include="game\digitanks\units\digitank.cpp" />
     <ClCompile Include="game\digitanks\units\maintank.cpp" />
     <ClCompile Include="game\digitanks\units\mechinf.cpp" />
@@ -203,6 +204,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\structures\resource.h" />
     <ClInclude Include="game\digitanks\structures\structure.h" />
     <ClInclude Include="game\digitanks\units\artillery.h" />
+    <ClInclude Include="game\digitanks\units\autoturret.h" />
     <ClInclude Include="game\digitanks\units\digitank.h" />
     <ClInclude Include="game\digitanks\units\maintank.h" />
     <ClInclude Include="game\digitanks\units\mechinf.h" />

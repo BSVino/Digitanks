@@ -57,6 +57,8 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildTankLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildArtilleryLoaders);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bUseArtilleryAI);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, losecondition_t, m_eLoseCondition);
 SAVEDATA_TABLE_END();
 
 CDigitanksTeam::CDigitanksTeam()
@@ -81,6 +83,9 @@ void CDigitanksTeam::Spawn()
 	m_iUpdateDownloaded = 0;
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
+
+	m_bUseArtilleryAI = false;
+	m_eLoseCondition = LOSE_NOTANKS;
 }
 
 void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)

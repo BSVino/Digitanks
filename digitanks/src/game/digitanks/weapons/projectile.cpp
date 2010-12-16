@@ -567,6 +567,23 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
 	}
 
+	CDigitank* pClosestTank = NULL;
+	while (true)
+	{
+		pClosestTank = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestTank);
+
+		if (!pClosestTank)
+			break;
+
+		if (pClosestTank->GetTeam() == GetTeam())
+			continue;
+
+		if (pClosestTank->Distance(GetOrigin()) > ExplosionRadius())
+			break;
+
+		pClosestTank->Disable(1);
+	}
+
 	BaseClass::Explode(pInstigator);
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)

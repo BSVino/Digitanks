@@ -25,6 +25,7 @@
 #include <digitanks/weapons/missiledefense.h>
 #include <digitanks/units/scout.h>
 #include <digitanks/units/standardtank.h>
+#include <digitanks/units/maintank.h>
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iCancelIcon = 0;
@@ -95,6 +96,8 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iFortifyLevel);
+
+	NETVAR_DEFINE(size_t, m_iTurnsDisabled);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitank);
@@ -158,6 +161,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
 SAVEDATA_TABLE_END();
 
 CDigitank::~CDigitank()
@@ -281,6 +285,7 @@ void CDigitank::Spawn()
 	m_iAirstrikes = 0;
 	m_iMissileDefenses = 0;
 	m_flNextMissileDefense = 0;
+	m_iTurnsDisabled = 0;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -673,9 +678,12 @@ void CDigitank::EndTurn()
 		m_flDefensePower = m_flTotalPower;
 		m_flTotalPower = 0;
 
-		if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+		if (TakesLavaDamage() && DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
 			TakeDamage(NULL, NULL, DAMAGE_BURN, DigitanksGame()->LavaDamage(), false);
 	}
+
+	if (m_iTurnsDisabled)
+		m_iTurnsDisabled--;
 }
 
 void CDigitank::ManageSupplyLine()
@@ -942,6 +950,9 @@ void CDigitank::Move()
 	if (!DigitanksGame()->GetTerrain()->IsPointOnMap(m_vecPreviewMove))
 		return;
 
+	if (IsDisabled())
+		return;
+
 	Speak(TANKSPEECH_MOVED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
@@ -1026,7 +1037,8 @@ void CDigitank::Move(CNetworkParameters* p)
 					CDigitank* pTank;
 					if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 						pTank = GameServer()->Create<CStandardTank>("CStandardTank");
-					else assert(!"Finish me");
+					else
+						pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 
 					GetTeam()->AddEntity(pTank);
 
@@ -1092,6 +1104,9 @@ void CDigitank::Move(Vector vecNewPosition, int iMoveType)
 void CDigitank::Turn()
 {
 	if (IsFortified() && !CanTurnFortified())
+		return;
+
+	if (IsDisabled())
 		return;
 
 	float flMovePower = GetPreviewBaseTurnPower();
@@ -1223,6 +1238,9 @@ void CDigitank::Fortify()
 	if (!CanFortify())
 		return;
 
+	if (IsDisabled())
+		return;
+
 	CNetwork::CallFunction(NETWORK_TOEVERYONE, "Fortify", GetHandle());
 
 	CNetworkParameters p;
@@ -1273,6 +1291,9 @@ void CDigitank::Charge()
 		return;
 
 	if (m_hPreviewCharge == NULL)
+		return;
+
+	if (IsDisabled())
 		return;
 
 	if (CNetwork::ShouldReplicateClientFunction())
@@ -1766,6 +1787,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 
+	if (IsDisabled())
+		return;
+
 	if (eMenuMode == MENUMODE_MAIN)
 	{
 		if (HasGoalMovePosition())
@@ -1977,6 +2001,9 @@ void CDigitank::Fire()
 		return;
 
 	if (CanFortify() && !IsFortified() && !CanAimMobilized())
+		return;
+
+	if (IsDisabled())
 		return;
 
 	if (CNetwork::ShouldReplicateClientFunction())
@@ -2532,6 +2559,9 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 		r.Rotate(-flAngle, Vector(0, 1, 0));
 	}
 
+	if (IsDisabled())
+		r.Rotate(-35, Vector(0, 0, 1));
+
 	if (!GameServer()->GetRenderer()->ShouldUseShaders())
 		r.SetColorSwap(GetTeam()->GetColor());
 
@@ -2734,6 +2764,9 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 	eastl::string16 p;
 
 	s += GetName();
+
+	if (IsDisabled())
+		s += L"\n[Disabled]";
 
 	if (IsFortified())
 		s += L"\n[Fortified]";

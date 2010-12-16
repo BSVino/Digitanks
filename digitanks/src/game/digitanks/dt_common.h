@@ -83,4 +83,10 @@ typedef enum
 	WEAPON_MAX,
 } weapon_t;
 
+typedef enum
+{
+	LOSE_NOTANKS,
+	LOSE_NOCPU,
+} losecondition_t;
+
 #endif

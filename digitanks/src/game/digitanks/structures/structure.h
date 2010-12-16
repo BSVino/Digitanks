@@ -184,6 +184,7 @@ public:
 	static float				GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore = NULL);
 	void						CalculateDataFlow();
 	void						GiveDataStrength(size_t iStrength) { m_iDataStrength += iStrength; };
+	virtual size_t				EfficientChildren() { return 2; };
 
 	float						GetChildEfficiency();
 

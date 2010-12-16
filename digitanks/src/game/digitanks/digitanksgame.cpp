@@ -26,6 +26,7 @@
 #include "digitanks/units/artillery.h"
 #include "digitanks/units/scout.h"
 #include "digitanks/units/mobilecpu.h"
+#include "digitanks/units/autoturret.h"
 #include "digitanks/structures/cpu.h"
 #include "digitanks/structures/buffer.h"
 #include "digitanks/weapons/projectile.h"
@@ -379,6 +380,38 @@ void CDigitanksGame::SetupProps()
 	}*/
 }
 
+void CDigitanksGame::ScatterNeutralUnits()
+{
+	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+
+	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
+	pTeam->SetColor(Color(128, 128, 128));
+	pTeam->SetName(eastl::string16(L"The Network Guardians"));
+	pTeam->UseArtilleryAI();
+
+	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
+	{
+		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)
+		{
+			if (rand()%4 > 0)
+				continue;
+
+			float x = RandomFloat((float)i, (float)i+100);
+			float z = RandomFloat((float)j, (float)j+100);
+
+			if (x < -m_hTerrain->GetMapSize()+10 || z < -m_hTerrain->GetMapSize()+10)
+				continue;
+
+			if (x > m_hTerrain->GetMapSize()-10 || z > m_hTerrain->GetMapSize()-10)
+				continue;
+
+			CAutoTurret* pTurret = GameServer()->Create<CAutoTurret>("CAutoTurret");
+			pTurret->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			pTeam->AddEntity(pTurret);
+		}
+	}
+}
+
 void CDigitanksGame::SetupArtillery()
 {
 	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
@@ -437,6 +470,7 @@ void CDigitanksGame::SetupStrategy()
 
 	ScatterResources();
 	SetupProps();
+	ScatterNeutralUnits();
 
 	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
 
@@ -491,11 +525,14 @@ void CDigitanksGame::SetupStrategy()
 	{
 		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
-		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
-		m_ahTeams[i]->SetName(aszTeamNames[i]);
+		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
+
+		pTeam->SetColor(aclrTeamColors[i]);
+		pTeam->SetName(aszTeamNames[i]);
+		pTeam->SetLoseCondition(LOSE_NOCPU);
 
 		CMobileCPU* pMobileCPU = GameServer()->Create<CMobileCPU>("CMobileCPU");
-		m_ahTeams[i]->AddEntity(pMobileCPU);
+		pTeam->AddEntity(pMobileCPU);
 		pMobileCPU->SetOrigin(m_hTerrain->SetPointHeight(avecRandomStartingPositions[i]));
 		pMobileCPU->SetAngles(VectorAngles(-avecRandomStartingPositions[i].Normalized()));
 
@@ -516,6 +553,10 @@ void CDigitanksGame::SetupStrategy()
 			// Remove nearby stuff so our spawn point can be clear
 			if ((pDTEntity->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < 30)
 				pEntity->Delete();
+
+			CAutoTurret* pAutoTurret = dynamic_cast<CAutoTurret*>(pEntity);
+			if (pAutoTurret && (pAutoTurret->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < pAutoTurret->GetMaxRange())
+				pAutoTurret->Delete();
 		}
 
 		CDigitank* pTank;
@@ -526,7 +567,7 @@ void CDigitanksGame::SetupStrategy()
 		Vector vecRight = vecForward.Cross(Vector(0,1,0)).Normalized();
 
 		pTank = GameServer()->Create<CScout>("CScout");
-		m_ahTeams[i]->AddEntity(pTank);
+		pTeam->AddEntity(pTank);
 
 		vecTank = avecRandomStartingPositions[i] + vecForward * 20 + vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
@@ -537,7 +578,8 @@ void CDigitanksGame::SetupStrategy()
 	}
 
 	for (size_t i = 0; i < m_oGameSettings.iHumanPlayers; i++)
-		m_ahTeams[i]->SetClient(-1);
+		// There's one neutral team at the front so skip it.
+		m_ahTeams[i+1]->SetClient(-1);
 
 	CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
 	pPowerup->SetOrigin(Vector(70, m_hTerrain->GetHeight(70, 70), 70));
@@ -1291,7 +1333,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		float flPushRadius = pWeapon?pWeapon->PushRadius():20;
 		float flTotalRadius2 = flRadius + pEntity->GetBoundingRadius() + flPushRadius;
 
-		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2)
+		if (pDigitank && flDistanceSqr < flTotalRadius2*flTotalRadius2 && !pDigitank->IsFortified() && !pDigitank->IsFortifying())
 		{
 			float flRockIntensity = pWeapon?pWeapon->RockIntensity():0.5f;
 			Vector vecExplosion = (pDigitank->GetOrigin() - vecExplosionOrigin).Normalized();
@@ -1391,7 +1433,9 @@ void CDigitanksGame::CheckWinConditions()
 		if (GetDigitanksTeam(i)->HasLost())
 			continue;
 
-		if (m_eGameType == GAMETYPE_STANDARD)
+		switch (GetDigitanksTeam(i)->GetLoseCondition())
+		{
+		case LOSE_NOCPU:
 		{
 			bool bHasCPU = false;
 			for (size_t j = 0; j < m_ahTeams[i]->GetNumMembers(); j++)
@@ -1407,8 +1451,11 @@ void CDigitanksGame::CheckWinConditions()
 
 			if (!bHasCPU)
 				GetDigitanksTeam(i)->YouLoseSirGoodDay();
+
+			break;
 		}
-		else	// Artillery mode
+
+		case LOSE_NOTANKS:
 		{
 			if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
 			{
@@ -1416,9 +1463,9 @@ void CDigitanksGame::CheckWinConditions()
 					GetDigitanksTeam(i)->YouLoseSirGoodDay();
 			}
 			else
-			{
 				iTeamsLeft++;
-			}
+			break;
+		}
 		}
 	}
 

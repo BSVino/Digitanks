@@ -9,6 +9,7 @@
 #include "units/mechinf.h"
 #include "units/scout.h"
 #include "units/mobilecpu.h"
+#include "units/autoturret.h"
 #include "digitanksteam.h"
 #include "powerup.h"
 #include "weapons/baseweapon.h"
@@ -42,6 +43,7 @@ REGISTER_ENTITY(CMainBattleTank);
 REGISTER_ENTITY(CMechInfantry);
 REGISTER_ENTITY(CScout);
 REGISTER_ENTITY(CMobileCPU);
+REGISTER_ENTITY(CAutoTurret);
 REGISTER_ENTITY(CDigitanksTeam);
 REGISTER_ENTITY(CPowerup);
 REGISTER_ENTITY(CBaseWeapon);

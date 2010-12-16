@@ -810,6 +810,11 @@ void CSupplier::CalculateDataFlow()
 
 float CSupplier::GetChildEfficiency()
 {
+	size_t iEfficientChildren = EfficientChildren();
+
+	if (iEfficientChildren == 0)
+		return 1;
+
 	size_t iConsumingChildren = 0;
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{

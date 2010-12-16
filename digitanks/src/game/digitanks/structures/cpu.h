@@ -11,6 +11,7 @@ public:
 	virtual void				Spawn();
 	virtual void				Precache();
 
+	virtual bool				GetsConcealmentBonus() const { return false; };
 	virtual size_t				InitialDataStrength() { return 3200; };
 	virtual size_t				BaseDataFlowPerTurn() { return 50; };
 	virtual float				TotalHealth() const { return 100; };
@@ -18,6 +19,7 @@ public:
 	virtual size_t				InitialBandwidth() const { return 5; };
 	virtual size_t				InitialPower() const { return 4; };
 	virtual bool				IsDataFlowSource() { return true; };
+	virtual size_t				EfficientChildren() { return 0; };
 
 	virtual float				GetBoundingRadius() const { return 8; };
 

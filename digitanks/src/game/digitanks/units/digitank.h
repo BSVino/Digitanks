@@ -239,6 +239,7 @@ public:
 
 	virtual void				ClientUpdate(int iClient);
 
+	virtual bool				TakesLavaDamage() { return true; }
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
 
@@ -295,6 +296,9 @@ public:
 	virtual float				FirstProjectileTime() const;
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
+
+	bool						IsDisabled() { return !!m_iTurnsDisabled; }
+	void						Disable(size_t iTurns) { m_iTurnsDisabled += iTurns; }
 
 	virtual unittype_t			GetBuildUnit() const { return UNIT_TANK; }
 
@@ -394,6 +398,8 @@ protected:
 	size_t						m_iAirstrikes;
 	size_t						m_iMissileDefenses;
 	float						m_flNextMissileDefense;
+
+	CNetworkedVariable<size_t>	m_iTurnsDisabled;
 
 	// AI stuff
 	bool						m_bFortifyPoint;

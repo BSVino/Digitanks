@@ -101,9 +101,13 @@ public:
 	void						Bot_ExecuteTurnArtillery();
 	CSupplier*					FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
 	void						BuildCollector(CSupplier* pSupplier, class CResource* pResource);
+	void						UseArtilleryAI() { m_bUseArtilleryAI = true; }
 
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
 	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
+
+	void						SetLoseCondition(losecondition_t eLose) { m_eLoseCondition = eLose; }
+	losecondition_t				GetLoseCondition() { return m_eLoseCondition; }
 
 protected:
 	eastl::vector<CEntityHandle<CDigitank> >	m_ahTanks;
@@ -126,6 +130,7 @@ protected:
 	CEntityHandle<CCPU>			m_hPrimaryCPU;
 	size_t						m_iBuildPosition;
 	Vector						m_vecExplore;
+	bool						m_bUseArtilleryAI;
 
 	bool						m_bLKV;
 	Vector						m_vecLKV;
@@ -141,6 +146,8 @@ protected:
 	CNetworkedVariable<bool>	m_bCanBuildInfantryLoaders;
 	CNetworkedVariable<bool>	m_bCanBuildTankLoaders;
 	CNetworkedVariable<bool>	m_bCanBuildArtilleryLoaders;
+
+	losecondition_t				m_eLoseCondition;
 };
 
 #endif

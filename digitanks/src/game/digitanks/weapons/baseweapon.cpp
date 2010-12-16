@@ -46,7 +46,7 @@ void CBaseWeapon::SetOwner(CDigitank* pOwner)
 	else
 		m_bShouldRender = false;
 
-	m_flDamage = GetWeaponDamage(GetWeaponType())/GetWeaponShells(GetWeaponType());
+	m_flDamage = GetWeaponDamage(GetWeaponType())/(float)GetWeaponShells(GetWeaponType());
 
 	OnSetOwner(pOwner);
 }
@@ -138,7 +138,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	7.0f,	// clusterbomb
 	1.0f,	// earthshaker
 
-	0.12f,	// machine gun
+	2.4f,	// machine gun
 	0.0f,	// torpedo
 	1.3f,	// artillery
 

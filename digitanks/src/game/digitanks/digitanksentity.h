@@ -20,6 +20,7 @@ typedef enum
 	UNIT_ARTILLERY,
 	UNIT_SCOUT,
 	UNIT_MOBILECPU,
+	UNIT_AUTOTURRET,
 	MAX_UNITS,
 } unittype_t;
 

@@ -112,6 +112,7 @@ public:
 
 	void					ScatterResources();
 	void					SetupProps();
+	void					ScatterNeutralUnits();
 	void					SetupArtillery();
 	void					SetupStrategy();
 	void					SetupTutorial();
