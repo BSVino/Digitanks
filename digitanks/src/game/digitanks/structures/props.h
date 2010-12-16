@@ -12,6 +12,7 @@ public:
 	void			Precache();
 	virtual void	Spawn();
 
+	virtual bool	GetsConcealmentBonus() const { return false; };
 	virtual bool	UsesRaytracedCollision() { return true; }
 
 	virtual void	ModifyContext(CRenderingContext* pContext, bool bTransparent);

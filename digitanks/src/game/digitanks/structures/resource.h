@@ -15,6 +15,8 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
+	virtual bool				GetsConcealmentBonus() const { return false; };
+
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);

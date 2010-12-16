@@ -513,15 +513,10 @@ void CDigitanksGame::SetupStrategy()
 			if (pMobileCPU->GetTeam() == pDTEntity->GetTeam())
 				continue;
 
-			// The default CPU has a network radius of 40 units, and then add a bit more as a buffer.
-			// The idea is, players have to grow their base to find more resources.
-			if ((pDTEntity->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < 60)
+			// Remove nearby stuff so our spawn point can be clear
+			if ((pDTEntity->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < 30)
 				pEntity->Delete();
 		}
-
-		CResource* pResource = GameServer()->Create<CResource>("CResource");
-		float y = RandomFloat(0, 360);
-		pResource->SetOrigin(m_hTerrain->SetPointHeight(pMobileCPU->GetOrigin() + AngleVector(EAngle(0, y, 0)) * 20));
 
 		CDigitank* pTank;
 		Vector vecTank;
@@ -530,20 +525,10 @@ void CDigitanksGame::SetupStrategy()
 		Vector vecForward = (Vector(0,0,0) - avecRandomStartingPositions[i]).Normalized();
 		Vector vecRight = vecForward.Cross(Vector(0,1,0)).Normalized();
 
-		pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+		pTank = GameServer()->Create<CScout>("CScout");
 		m_ahTeams[i]->AddEntity(pTank);
 
 		vecTank = avecRandomStartingPositions[i] + vecForward * 20 + vecRight * 20;
-		angTank = VectorAngles(-vecTank.Normalized());
-
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
-		pTank->SetAngles(angTank);
-		pTank->GiveBonusPoints(1, false);
-
-		pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
-		m_ahTeams[i]->AddEntity(pTank);
-
-		vecTank = avecRandomStartingPositions[i] + vecForward * 20 - vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
 
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));

@@ -189,8 +189,11 @@ void CDigitanksEntity::RenderVisibleArea()
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 {
 	float flConceal = 0.0f;
-	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), CTerrain::TB_TREE))
-		flConceal = 0.7f;
+	if (GetsConcealmentBonus())
+	{
+		if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), CTerrain::TB_TREE))
+			flConceal = 0.7f;
+	}
 
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 		return 1 - flConceal;

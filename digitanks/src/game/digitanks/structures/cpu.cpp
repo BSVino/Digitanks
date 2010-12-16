@@ -534,6 +534,8 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	}
 
 	m_hConstructing->FindGround();
+
+	DigitanksGame()->GetTerrain()->CalculateVisibility();
 }
 
 void CCPU::CancelConstruction()
@@ -557,6 +559,8 @@ void CCPU::CancelConstruction(class CNetworkParameters* p)
 		GameServer()->Delete(m_hConstructing);
 		m_hConstructing = NULL;
 	}
+
+	DigitanksGame()->GetTerrain()->CalculateVisibility();
 }
 
 void CCPU::BeginRogueProduction()

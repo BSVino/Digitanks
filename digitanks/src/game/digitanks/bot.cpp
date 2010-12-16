@@ -16,7 +16,6 @@
 
 unittype_t g_aeBuildOrder[] =
 {
-	UNIT_SCOUT,
 	STRUCTURE_BATTERY,
 	UNIT_SCOUT,
 	STRUCTURE_INFANTRYLOADER,

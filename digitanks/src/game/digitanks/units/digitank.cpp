@@ -2944,23 +2944,27 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 
 	Vector vecHit;
 
-	Game()->TraceLine(vecPosition + Vector(0, 100, 0), vecPosition + Vector(0, -100, 0), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	float flHighestTerrain = vecHit.y;
+	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.z);
+	bool bHit;
 
-	Game()->TraceLine(vecPosition + Vector(2, 100, 2), vecPosition + Vector(2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (vecHit.y > flHighestTerrain)
+	bHit = Game()->TraceLine(vecPosition + Vector(0, 100, 0), vecPosition + Vector(0, -100, 0), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (bHit)
 		flHighestTerrain = vecHit.y;
 
-	Game()->TraceLine(vecPosition + Vector(2, 100, -2), vecPosition + Vector(2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (vecHit.y > flHighestTerrain)
+	bHit = Game()->TraceLine(vecPosition + Vector(2, 100, 2), vecPosition + Vector(2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (bHit && vecHit.y > flHighestTerrain)
 		flHighestTerrain = vecHit.y;
 
-	Game()->TraceLine(vecPosition + Vector(-2, 100, 2), vecPosition + Vector(-2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (vecHit.y > flHighestTerrain)
+	bHit = Game()->TraceLine(vecPosition + Vector(2, 100, -2), vecPosition + Vector(2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (bHit && vecHit.y > flHighestTerrain)
 		flHighestTerrain = vecHit.y;
 
-	Game()->TraceLine(vecPosition + Vector(-2, 100, -2), vecPosition + Vector(-2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (vecHit.y > flHighestTerrain)
+	bHit = Game()->TraceLine(vecPosition + Vector(-2, 100, 2), vecPosition + Vector(-2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (bHit && vecHit.y > flHighestTerrain)
+		flHighestTerrain = vecHit.y;
+
+	bHit = Game()->TraceLine(vecPosition + Vector(-2, 100, -2), vecPosition + Vector(-2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
+	if (bHit && vecHit.y > flHighestTerrain)
 		flHighestTerrain = vecHit.y;
 
 	return flHighestTerrain;
