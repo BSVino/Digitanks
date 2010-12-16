@@ -307,7 +307,16 @@ float CDigitank::GetAttackPower(bool bPreview)
 
 float CDigitank::GetDefensePower(bool bPreview)
 {
-	return GetBaseDefensePower(bPreview)+GetBonusDefensePower(bPreview);
+	Vector vecOrigin = GetOrigin();
+
+	if (bPreview)
+		vecOrigin = m_vecPreviewMove;
+
+	float flDefenseBonus = 0;
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), CTerrain::TB_TREE))
+		flDefenseBonus = 5;
+
+	return GetBaseDefensePower(bPreview)+GetBonusDefensePower(bPreview)+flDefenseBonus;
 }
 
 float CDigitank::GetTotalAttackPower()
@@ -481,7 +490,10 @@ float CDigitank::GetPreviewTurnPower() const
 
 float CDigitank::GetPreviewBaseMovePower() const
 {
-	return (m_vecPreviewMove - GetOrigin()).Length() / GetTankSpeed();
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), CTerrain::TB_TREE))
+		return (m_vecPreviewMove - GetOrigin()).Length() / (GetTankSpeed()/2);
+	else
+		return (m_vecPreviewMove - GetOrigin()).Length() / GetTankSpeed();
 }
 
 float CDigitank::GetPreviewBaseTurnPower() const
@@ -1645,17 +1657,41 @@ float CDigitank::GetPowerBar3Value()
 
 float CDigitank::GetPowerBar1Size()
 {
-	return GetAttackPower(true) / GetTotalAttackPower();
+	float flPower = GetAttackPower(true) / GetTotalAttackPower();
+
+	if (flPower > 1)
+		return 1;
+
+	if (flPower < 0)
+		return 0;
+
+	return flPower;
 }
 
 float CDigitank::GetPowerBar2Size()
 {
-	return GetDefensePower(true) / GetTotalDefensePower();
+	float flPower = GetDefensePower(true) / GetTotalDefensePower();
+
+	if (flPower > 1)
+		return 1;
+
+	if (flPower < 0)
+		return 0;
+
+	return flPower;
 }
 
 float CDigitank::GetPowerBar3Size()
 {
-	return GetUsedMovementEnergy(true) / GetMaxMovementEnergy();
+	float flPower = GetUsedMovementEnergy(true) / GetMaxMovementEnergy();
+
+	if (flPower > 1)
+		return 1;
+
+	if (flPower < 0)
+		return 0;
+
+	return flPower;
 }
 
 bool CDigitank::NeedsOrders()

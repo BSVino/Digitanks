@@ -5,9 +5,9 @@
 	"	if (bMovement)" \
 	"	{" \
 	"		float flTankDistanceSqr = LengthSqr(vecPosition - vecTankOrigin);" \
-	"		if (flTankDistanceSqr <= flMoveDistance*flMoveDistance)" \
+	"		if (flTankDistanceSqr <= flRealMoveDistance*flRealMoveDistance)" \
 	"		{" \
-	"			float flMoveColorStrength = RemapVal(flTankDistanceSqr, 0.0, flMoveDistance*flMoveDistance, 0.0, 1.0);" \
+	"			float flMoveColorStrength = RemapVal(flTankDistanceSqr, 0.0, flRealMoveDistance*flRealMoveDistance, 0.0, 1.0);" \
 	"			flMoveColorStrength = Lerp(flMoveColorStrength, 0.2);" \
 	"			vecBaseColor = vecBaseColor * (1.0-flMoveColorStrength) + vec4(0.8, 0.8, 0.0, 1.0) * flMoveColorStrength;" \
 	"		}" \

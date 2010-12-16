@@ -111,6 +111,8 @@ void CRenderingContext::SetBlend(blendtype_t eBlend)
 	{
 		glDisable(GL_BLEND);
 	}
+
+	m_eBlend = eBlend;
 }
 
 void CRenderingContext::SetDepthMask(bool bDepthMask)

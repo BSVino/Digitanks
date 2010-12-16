@@ -944,6 +944,10 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			if (!pTank->IsInsideMaxRange(pEntity->GetOrigin()))
 				continue;
 
+			float flTargetVisibility = pTank->GetVisibility();
+			if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
+				continue;
+
 			apTargets.push_back(pEntity);
 		}
 

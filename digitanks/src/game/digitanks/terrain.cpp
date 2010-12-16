@@ -35,6 +35,8 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	//SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CTerrainChunk, m_aTerrainChunks);	// Onserialize
 SAVEDATA_TABLE_END();
 
+size_t CTerrain::s_iTreeTexture = 0;
+
 CTerrain::CTerrain()
 {
 	SetCollisionGroup(CG_TERRAIN);
@@ -51,6 +53,12 @@ CTerrain::CTerrain()
 
 CTerrain::~CTerrain()
 {
+}
+
+void CTerrain::Precache()
+{
+	BaseClass::Spawn();
+	s_iTreeTexture = CRenderer::LoadTextureIntoGL(L"textures/tree.png", 1);
 }
 
 void CTerrain::Spawn()
@@ -168,8 +176,14 @@ void CTerrain::GenerateTerrain(float flHeight)
 	CSimplexNoise h1(m_iSpawnSeed+5);
 	CSimplexNoise h2(m_iSpawnSeed+6);
 
+	CSimplexNoise t1(m_iSpawnSeed+7);
+	CSimplexNoise t2(m_iSpawnSeed+8);
+
 	float aflHoles[TERRAIN_SIZE][TERRAIN_SIZE];
 	float flHoleHighest, flHoleLowest;
+
+	float aflTrees[TERRAIN_SIZE][TERRAIN_SIZE];
+	float flTreeHighest, flTreeLowest;
 
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
@@ -228,6 +242,18 @@ void CTerrain::GenerateTerrain(float flHeight)
 					flHoleHighest = aflHoles[x][y];
 			}
 
+			aflTrees[x][y]  = t1.Noise(x*0.02f, y*0.02f) * 5;
+			aflTrees[x][y] += t2.Noise(x*0.04f, y*0.04f) * 2;
+
+			if (!m_bHeightsInitialized)
+				flTreeHighest = flTreeLowest = aflTrees[x][y];
+
+			if (aflTrees[x][y] < flTreeLowest)
+				flTreeLowest = aflTrees[x][y];
+
+			if (aflTrees[x][y] > flTreeHighest)
+				flTreeHighest = aflTrees[x][y];
+
 			m_bHeightsInitialized = true;
 		}
 	}
@@ -259,6 +285,14 @@ void CTerrain::GenerateTerrain(float flHeight)
 				{
 					flHeight = RemapVal(aflHoles[x][y], flHoleLowest, flHoleHighest, 0.0f, 1.0f);
 					SetBit(x, y, TB_HOLE, flHeight < HoleHeight());
+				}
+
+				if (GetBit(x, y, TB_HOLE) || GetBit(x, y, TB_LAVA))
+					SetBit(x, y, TB_TREE, false);
+				else
+				{
+					flHeight = RemapVal(aflTrees[x][y], flTreeLowest, flTreeHighest, 0.0f, 1.0f);
+					SetBit(x, y, TB_TREE, flHeight > TreeHeight());
 				}
 			}
 		}
@@ -338,6 +372,11 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	if (!pChunk->m_bNeedsRegenerate)
 		return;
 
+	// What a hack!
+	GameServer()->GetRenderer()->UseProgram(CShaderLibrary::GetTerrainProgram());
+	GLuint iTree = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flTree");
+	GameServer()->GetRenderer()->UseProgram(0);
+
 	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
 	glPushAttrib(GL_CURRENT_BIT);
 	glBegin(GL_QUADS);
@@ -352,6 +391,9 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 		float flX = ArrayToWorldSpace((int)x);
 		float flX1 = ArrayToWorldSpace((int)x+1);
+
+		float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
+		float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
 
 		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
 		{
@@ -376,10 +418,12 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			else
 				vecColor = Vector(flColor, flColor, flColor);
 
-			float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
-			float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
-
 			float flVisibility = RemapValClamped((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), flVisibilityX0, flVisibilityX1);
+
+			if (GameServer()->GetRenderer()->ShouldUseShaders())
+			{
+				glVertexAttrib1f(iTree, GetBit(x, y, TB_TREE)?1.0f:0.0f);
+			}
 
 			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility);
 			glTexCoord2f(flUVX0, flUVY0);
@@ -548,6 +592,74 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	glPopAttrib();
 	glEndList();
 
+	glNewList((GLuint)pChunk->m_iTransparentCallList, GL_COMPILE);
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDepthMask(false);
+	glBindTexture(GL_TEXTURE_2D, s_iTreeTexture);
+	glBegin(GL_QUADS);
+
+	float flXSize = 2;
+	float flZSize = 8;
+
+	for (int x = TERRAIN_CHUNK_SIZE*i; x < TERRAIN_CHUNK_SIZE*(i+1); x++)
+	{
+		if (x >= TERRAIN_SIZE-1)
+			continue;
+
+		float flX = (ArrayToWorldSpace((int)x) + ArrayToWorldSpace((int)x+1))/2;
+
+		float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
+		float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
+
+		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
+		{
+			float flY = (ArrayToWorldSpace((int)y) + ArrayToWorldSpace((int)y+1))/2;
+
+			float flVisibility = RemapValClamped((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), flVisibilityX0, flVisibilityX1);
+
+			if (flVisibility < 0.01f)
+				continue;
+
+			glColor3fv(Vector(flVisibility, flVisibility, flVisibility));
+
+			float flHeight = GetHeight(flX, flY);
+			if (GetBit(x, y, TB_TREE))
+			{
+				glTexCoord2f(0, 0);
+				glVertex3f(flX - flXSize, flHeight-1, flY);
+
+				glTexCoord2f(0, 1);
+				glVertex3f(flX - flXSize, flHeight-1 + flZSize, flY);
+
+				glTexCoord2f(1, 1);
+				glVertex3f(flX + flXSize, flHeight-1 + flZSize, flY);
+
+				glTexCoord2f(1, 0);
+				glVertex3f(flX + flXSize, flHeight-1, flY);
+
+
+				glTexCoord2f(0, 0);
+				glVertex3f(flX, flHeight-1, flY - flXSize);
+
+				glTexCoord2f(0, 1);
+				glVertex3f(flX, flHeight-1 + flZSize, flY - flXSize);
+
+				glTexCoord2f(1, 1);
+				glVertex3f(flX, flHeight-1 + flZSize, flY + flXSize);
+
+				glTexCoord2f(1, 0);
+				glVertex3f(flX, flHeight-1, flY + flXSize);
+			}
+		}
+	}
+
+	glEnd();
+	glPopAttrib();
+	glEndList();
+
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
 		for (int b = 0; b < TERRAIN_CHUNK_TEXTURE_SIZE; b++)
@@ -595,6 +707,10 @@ void CTerrain::GenerateCallLists()
 			if (pChunk->m_iCallList)
 				glDeleteLists((GLuint)pChunk->m_iCallList, 1);
 			pChunk->m_iCallList = glGenLists(1);
+
+			if (pChunk->m_iTransparentCallList)
+				glDeleteLists((GLuint)pChunk->m_iTransparentCallList, 1);
+			pChunk->m_iTransparentCallList = glGenLists(1);
 
 			if (pChunk->m_iWallList)
 				glDeleteLists((GLuint)pChunk->m_iWallList, 1);
@@ -698,7 +814,10 @@ void CTerrain::CalculateVisibility()
 void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 {
 	if (bTransparent)
+	{
+		RenderTransparentTerrain();
 		return;
+	}
 
 	BaseClass::OnRender(pContext, bTransparent);
 
@@ -706,6 +825,21 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 		RenderWithShaders();
 	else
 		RenderWithoutShaders();
+}
+
+void CTerrain::RenderTransparentTerrain()
+{
+	glPushAttrib(GL_ENABLE_BIT);
+
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			glCallList((GLuint)m_aTerrainChunks[i][j].m_iTransparentCallList);
+		}
+	}
+
+	glPopAttrib();
 }
 
 void CTerrain::RenderWithShaders()
@@ -1022,7 +1156,7 @@ Vector CTerrain::SetPointHeight(Vector& vecPoint)
 	return vecPoint;
 }
 
-float CTerrain::GetMapSize() const
+float CTerrain::GetMapSize()
 {
 	return 200;
 }
@@ -1225,6 +1359,9 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 				int iIndex;
 				int iChunkX = ArrayToChunkSpace(x, iIndex);
 				int iChunkY = ArrayToChunkSpace(z, iIndex);
+
+				if (RandomInt(0, 2) == 0)
+					SetBit(x, z, TB_TREE, false);
 
 				CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
 				if (pChunk && !pChunk->m_bNeedsRegenerate)
@@ -1467,6 +1604,7 @@ CTerrainChunk::CTerrainChunk()
 {
 	m_pTracer = NULL;
 	m_iCallList = 0;
+	m_iTransparentCallList = 0;
 	m_iWallList = 0;
 	m_bNeedsRegenerate = true;
 	m_iChunkTexture = 0;
@@ -1479,6 +1617,8 @@ CTerrainChunk::~CTerrainChunk()
 {
 	if (m_iCallList)
 		glDeleteLists((GLuint)m_iCallList, 1);
+	if (m_iTransparentCallList)
+		glDeleteLists((GLuint)m_iTransparentCallList, 1);
 	if (m_iWallList)
 		glDeleteLists((GLuint)m_iWallList, 1);
 	if (m_iChunkTexture)

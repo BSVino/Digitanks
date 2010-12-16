@@ -876,6 +876,7 @@ void CStrategyGamePanel::Layout()
 	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 240);
 	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
 
+	m_pBotPlayers->RemoveAllSelections();
 	if (m_pHumanPlayers->GetSelectionValue() > 1)
 		m_pBotPlayers->AddSelection(CScrollSelection<int>(0, L"0"));
 	if (m_pHumanPlayers->GetSelectionValue() <= 7)
