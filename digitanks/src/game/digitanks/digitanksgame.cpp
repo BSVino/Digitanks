@@ -531,6 +531,8 @@ void CDigitanksGame::SetupStrategy()
 		pTeam->SetName(aszTeamNames[i]);
 		pTeam->SetLoseCondition(LOSE_NOCPU);
 
+		GetTerrain()->ClearArea(avecRandomStartingPositions[i], 40);
+
 		CMobileCPU* pMobileCPU = GameServer()->Create<CMobileCPU>("CMobileCPU");
 		pTeam->AddEntity(pMobileCPU);
 		pMobileCPU->SetOrigin(m_hTerrain->SetPointHeight(avecRandomStartingPositions[i]));

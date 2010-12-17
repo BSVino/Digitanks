@@ -67,6 +67,8 @@ public:
 	void					GenerateTerrainCallList(int x, int y);
 	void					GenerateCallLists();
 
+	void					ClearArea(Vector vecCenter, float flRadius);
+
 	void					CalculateVisibility();
 
 	virtual bool			ShouldRender() const { return true; };

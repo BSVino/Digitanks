@@ -721,6 +721,53 @@ void CTerrain::GenerateCallLists()
 	GenerateTerrainCallLists();
 }
 
+void CTerrain::ClearArea(Vector vecCenter, float flRadius)
+{
+	int iRadius = WorldToArraySpace(flRadius)-WorldToArraySpace(0)+1;
+
+	int iX = WorldToArraySpace(vecCenter.x);
+	int iZ = WorldToArraySpace(vecCenter.z);
+
+	Vector vecOriginFlat = vecCenter;
+	vecOriginFlat.y = 0;
+
+	for (int x = iX-iRadius; x <= iX+iRadius; x++)
+	{
+		if (x < 0)
+			continue;
+
+		if (x >= TERRAIN_SIZE)
+			continue;
+
+		float flX = ArrayToWorldSpace(x);
+
+		for (int z = iZ-iRadius; z <= iZ+iRadius; z++)
+		{
+			if (z < 0)
+				continue;
+
+			if (z >= TERRAIN_SIZE)
+				continue;
+
+			int i, j;
+			CTerrainChunk* pChunk = GetChunk(ArrayToChunkSpace(x, i), ArrayToChunkSpace(z, j));
+			if (!pChunk)
+				continue;
+
+			float flZ = ArrayToWorldSpace(z);
+
+			if ((Vector(flX, 0, flZ) - vecOriginFlat).LengthSqr() < flRadius*flRadius)
+			{
+				SetBit(x, z, TB_LAVA, false);
+				SetBit(x, z, TB_TREE, false);
+				SetBit(x, z, TB_HOLE, false);
+
+				pChunk->m_bNeedsRegenerate = true;
+			}
+		}
+	}
+}
+
 void CTerrain::CalculateVisibility()
 {
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
@@ -1330,8 +1377,20 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 
 	for (int x = iX-iRadius; x <= iX+iRadius; x++)
 	{
+		if (x < 0)
+			continue;
+
+		if (x >= TERRAIN_SIZE)
+			continue;
+
 		for (int z = iZ-iRadius; z <= iZ+iRadius; z++)
 		{
+			if (z < 0)
+				continue;
+
+			if (z >= TERRAIN_SIZE)
+				continue;
+
 			float flX = ArrayToWorldSpace(x);
 			float flZ = ArrayToWorldSpace(z);
 
