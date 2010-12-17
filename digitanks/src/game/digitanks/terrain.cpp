@@ -179,11 +179,17 @@ void CTerrain::GenerateTerrain(float flHeight)
 	CSimplexNoise t1(m_iSpawnSeed+7);
 	CSimplexNoise t2(m_iSpawnSeed+8);
 
+	CSimplexNoise w1(m_iSpawnSeed+9);
+	CSimplexNoise w2(m_iSpawnSeed+10);
+
 	float aflHoles[TERRAIN_SIZE][TERRAIN_SIZE];
 	float flHoleHighest, flHoleLowest;
 
 	float aflTrees[TERRAIN_SIZE][TERRAIN_SIZE];
 	float flTreeHighest, flTreeLowest;
+
+	float aflWater[TERRAIN_SIZE][TERRAIN_SIZE];
+	float flWaterHighest, flWaterLowest;
 
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
@@ -226,6 +232,11 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 				float flHole = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].a())/255;
 				SetBit(x, y, TB_HOLE, flHole < 0.5f);
+
+				float flWater = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].b())/255;
+				SetBit(x, y, TB_WATER, flWater > 0.5f);
+
+				SetBit(x, y, TB_TREE, false);
 			}
 			else if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 			{
@@ -253,6 +264,18 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 			if (aflTrees[x][y] > flTreeHighest)
 				flTreeHighest = aflTrees[x][y];
+
+			aflWater[x][y]  = w1.Noise(x*0.02f, y*0.02f) * 5;
+			aflWater[x][y] += w2.Noise(x*0.04f, y*0.04f) * 2;
+
+			if (!m_bHeightsInitialized)
+				flWaterHighest = flWaterLowest = aflWater[x][y];
+
+			if (aflWater[x][y] < flWaterLowest)
+				flWaterLowest = aflWater[x][y];
+
+			if (aflWater[x][y] > flWaterHighest)
+				flWaterHighest = aflWater[x][y];
 
 			m_bHeightsInitialized = true;
 		}
@@ -287,7 +310,13 @@ void CTerrain::GenerateTerrain(float flHeight)
 					SetBit(x, y, TB_HOLE, flHeight < HoleHeight());
 				}
 
-				if (GetBit(x, y, TB_HOLE) || GetBit(x, y, TB_LAVA))
+				if (!GetBit(x, y, TB_LAVA))
+				{
+					flHeight = RemapVal(aflWater[x][y], flWaterLowest, flWaterHighest, 0.0f, 1.0f);
+					SetBit(x, y, TB_WATER, flHeight > WaterHeight());
+				}
+
+				if (GetBit(x, y, TB_HOLE) || GetBit(x, y, TB_LAVA) || GetBit(x, y, TB_WATER))
 					SetBit(x, y, TB_TREE, false);
 				else
 				{
@@ -374,7 +403,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 	// What a hack!
 	GameServer()->GetRenderer()->UseProgram(CShaderLibrary::GetTerrainProgram());
-	GLuint iTree = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flTree");
+	GLuint iHalfMovement = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flHalfMovement");
 	GameServer()->GetRenderer()->UseProgram(0);
 
 	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
@@ -413,7 +442,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 			Vector vecColor;
 
-			if (GetBit(x, y, TB_LAVA))
+			if (GetBit(x, y, TB_LAVA) || GetBit(x, y, TB_WATER))
 				vecColor = Vector(1,1,1);
 			else
 				vecColor = Vector(flColor, flColor, flColor);
@@ -422,7 +451,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 			if (GameServer()->GetRenderer()->ShouldUseShaders())
 			{
-				glVertexAttrib1f(iTree, GetBit(x, y, TB_TREE)?1.0f:0.0f);
+				glVertexAttrib1f(iHalfMovement, (GetBit(x, y, TB_TREE)||GetBit(x, y, TB_WATER))?1.0f:0.0f);
 			}
 
 			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility);
@@ -679,6 +708,17 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				float flRamp = Lerp(RandomFloat(0, 1), flLerp);
 				pChunk->m_aclrTexture[a][b] = Color((int)(clrLava.r()*flRamp + clrLava2.r()*(1-flRamp)), (int)(clrLava.g()*flRamp + clrLava2.g()*(1-flRamp)), (int)(clrLava.b()*flRamp + clrLava2.b()*(1-flRamp)));
 			}
+			else if (GetBit(x, y, TB_WATER))
+			{
+				Color clrWater = Color(RandomInt(0, 20), RandomInt(0, 20), 255 - RandomInt(0, 20));
+				Color clrWater2 = Color(RandomInt(0, 20), 55 + RandomInt(-10, 10), 214 + RandomInt(-10, 10));
+
+				float flRealHeight = GetRealHeight(x, y);
+				float flLerp = RemapValClamped(flRealHeight, m_flLowest, m_flHighest, 1.0f, 0.0f);
+
+				float flRamp = Lerp(RandomFloat(0, 1), flLerp);
+				pChunk->m_aclrTexture[a][b] = Color((int)(clrWater.r()*flRamp + clrWater2.r()*(1-flRamp)), (int)(clrWater.g()*flRamp + clrWater2.g()*(1-flRamp)), (int)(clrWater.b()*flRamp + clrWater2.b()*(1-flRamp)));
+			}
 			else
 				pChunk->m_aclrTexture[a][b] = m_vecTerrainColor;
 		}
@@ -761,6 +801,7 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 				SetBit(x, z, TB_LAVA, false);
 				SetBit(x, z, TB_TREE, false);
 				SetBit(x, z, TB_HOLE, false);
+				SetBit(x, z, TB_WATER, false);
 
 				pChunk->m_bNeedsRegenerate = true;
 			}
@@ -1283,6 +1324,11 @@ bool CTerrain::IsPointOverLava(Vector vecPoint)
 bool CTerrain::IsPointOverHole(Vector vecPoint)
 {
 	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_HOLE);
+}
+
+bool CTerrain::IsPointOverWater(Vector vecPoint)
+{
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_WATER);
 }
 
 void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)

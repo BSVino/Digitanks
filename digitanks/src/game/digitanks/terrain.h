@@ -95,12 +95,14 @@ public:
 	bool					IsPointOnMap(Vector vecPoint);
 	bool					IsPointOverLava(Vector vecPoint);
 	bool					IsPointOverHole(Vector vecPoint);
+	bool					IsPointOverWater(Vector vecPoint);
 
 	typedef enum
 	{
 		TB_LAVA = 0,
 		TB_HOLE = 1,
 		TB_TREE = 2,
+		TB_WATER = 3,
 		// uses m_aiSpecialData which is unsigned char so max 8 of these.
 	} terrainbit_t;
 	void					SetBit(int x, int y, terrainbit_t b, bool v);
@@ -124,7 +126,8 @@ public:
 
 	float					LavaHeight() { return 0.2f; }
 	float					HoleHeight() { return 0.25f; }
-	float					TreeHeight() { return 0.65f; }
+	float					TreeHeight() { return 0.70f; }
+	float					WaterHeight() { return 0.70f; }
 
 protected:
 	bool					m_bHeightsInitialized;

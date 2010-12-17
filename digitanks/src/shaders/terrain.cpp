@@ -23,8 +23,8 @@ const char* CShaderLibrary::GetVSTerrainShader()
 		"varying float flAimTargetRadius4;"
 		"varying float flAimTargetRadius5;"
 
-		"attribute float flTree;"
-		"varying float flTreeF;"
+		"attribute float flHalfMovement;"
+		"varying float flHalfMovementF;"
 
 		"void main()"
 		"{"
@@ -42,7 +42,7 @@ const char* CShaderLibrary::GetVSTerrainShader()
 		"	vecAimTarget3 = vec2(avecAimTargets[2].x, avecAimTargets[2].z);"
 		"	vecAimTarget4 = vec2(avecAimTargets[3].x, avecAimTargets[3].z);"
 		"	vecAimTarget5 = vec2(avecAimTargets[4].x, avecAimTargets[4].z);"
-		"	flTreeF = flTree;"
+		"	flHalfMovementF = flHalfMovement;"
 		"}";
 }
 
@@ -93,7 +93,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"varying vec4 vecFrontColor;"
 		"varying vec3 vecPosition;"
 
-		"varying float flTreeF;"
+		"varying float flHalfMovementF;"
 
 		"float GetAimTargetStrength(float flDistanceSqr, float flRadius, bool bFocusTarget)"
 		"{"
@@ -123,7 +123,7 @@ const char* CShaderLibrary::GetFSTerrainShader()
 		"	}"
 
 		"	float flRealMoveDistance = flMoveDistance;"
-		"	if (flTreeF > 0.9)"
+		"	if (flHalfMovementF > 0.9)"
 		"		flRealMoveDistance = flMoveDistance/2.0;"
 
 		TANKMOVEMENT

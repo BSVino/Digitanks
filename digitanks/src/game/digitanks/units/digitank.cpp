@@ -317,6 +317,9 @@ float CDigitank::GetDefensePower(bool bPreview)
 	if (bPreview)
 		vecOrigin = m_vecPreviewMove;
 
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), CTerrain::TB_WATER))
+		return 0;
+
 	float flDefenseBonus = 0;
 	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), CTerrain::TB_TREE))
 		flDefenseBonus = 5;
@@ -495,7 +498,13 @@ float CDigitank::GetPreviewTurnPower() const
 
 float CDigitank::GetPreviewBaseMovePower() const
 {
+	bool bHalfMovement = false;
 	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), CTerrain::TB_TREE))
+		bHalfMovement = true;
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), CTerrain::TB_WATER))
+		bHalfMovement = true;
+
+	if (bHalfMovement)
 		return (m_vecPreviewMove - GetOrigin()).Length() / (GetTankSpeed()/2);
 	else
 		return (m_vecPreviewMove - GetOrigin()).Length() / GetTankSpeed();

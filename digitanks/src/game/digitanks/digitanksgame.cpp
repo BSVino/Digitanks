@@ -845,6 +845,9 @@ void CDigitanksGame::SetupArtilleryRound()
 				if (GetTerrain()->IsPointOverHole(vecTank))
 					continue;
 
+				if (GetTerrain()->IsPointOverWater(vecTank))
+					continue;
+
 				EAngle angTank = VectorAngles(-vecTank.Normalized());
 
 				CDigitank* pTank = GameServer()->Create<CStandardTank>("CStandardTank");

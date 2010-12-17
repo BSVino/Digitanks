@@ -253,7 +253,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			eastl::string16 s;
-			s += L"BUILD MINIBUFFER\n \n";
+			s += L"BUILD BUFFER\n \n";
 			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER)));
