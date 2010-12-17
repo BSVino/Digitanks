@@ -1405,13 +1405,18 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 				float flSqrt = sqrt(flRadius*flRadius - flXDistance*flXDistance - flZDistance*flZDistance);
 				float flNewY = -flSqrt + vecOrigin.y;
 
+				float flCurrentY = GetRealHeight(x, z);
+
 				// As if the dirt from above drops down into the hole.
-				float flAbove = GetRealHeight(x, z) - (flSqrt + vecOrigin.y);
+				float flAbove = flCurrentY - (flSqrt + vecOrigin.y);
 				if (flAbove > 0)
 					flNewY += flAbove;
 
-				if (flNewY > GetRealHeight(x, z))
+				if (flNewY > flCurrentY)
 					continue;
+
+				if (DigitanksGame()->SoftCraters())
+					flNewY = flCurrentY - (flCurrentY - flNewY)/5;
 
 				SetRealHeight(x, z, flNewY);
 

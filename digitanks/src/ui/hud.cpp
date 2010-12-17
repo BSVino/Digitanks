@@ -987,11 +987,11 @@ void CHUD::UpdateTeamInfo()
 	m_pPowerInfo->SetText(s1);
 
 	eastl::string16 s2;
-	s1.sprintf(L"%d/%d\n", pTeam->GetUsedFleetPoints(), pTeam->GetTotalFleetPoints());
+	s2.sprintf(L"%d/%d\n", pTeam->GetUsedFleetPoints(), pTeam->GetTotalFleetPoints());
 	m_pFleetInfo->SetText(s2);
 
 	eastl::string16 s3;
-	s1.sprintf(L"%d/%dmb @%dmbps\n", pTeam->GetUpdateDownloaded(), pTeam->GetUpdateSize(), pTeam->GetBandwidth());
+	s3.sprintf(L"%d/%dmb @%dmbps\n", pTeam->GetUpdateDownloaded(), pTeam->GetUpdateSize(), pTeam->GetBandwidth());
 	m_pBandwidthInfo->SetText(s3);
 }
 

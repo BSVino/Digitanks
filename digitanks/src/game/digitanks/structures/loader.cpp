@@ -182,7 +182,7 @@ void CLoader::PostRender(bool bTransparent)
 {
 	BaseClass::PostRender(bTransparent);
 
-	if (bTransparent && IsProducing() && GetVisibility() < 1)
+	if (bTransparent && IsProducing() && GetVisibility() > 0)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin());

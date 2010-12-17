@@ -42,13 +42,7 @@ bool CScout::AllowControlMode(controlmode_t eMode) const
 
 void CScout::Move()
 {
-	Vector vecStart = GetOrigin();
-	Vector vecEnd = m_vecPreviewMove;
-
 	BaseClass::Move();
-
-	SetPreviewTurn(VectorAngles(vecEnd-vecStart).y);
-	Turn();
 }
 
 CSupplyLine* CScout::FindClosestEnemySupplyLine(bool bInRange)

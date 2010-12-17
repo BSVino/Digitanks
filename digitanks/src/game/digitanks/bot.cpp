@@ -561,6 +561,10 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			continue;
 		}
 
+		float flTargetVisibility = pDTEntity->GetVisibility();
+		if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
+			continue;
+
 		if ((pHeadTank->GetOrigin() - pDTEntity->GetOrigin()).Length2DSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).Length2DSqr())
 			pTarget = pDTEntity;
 	}

@@ -2086,6 +2086,11 @@ CDigitanksTeam* CDigitanksGame::GetCurrentLocalDigitanksTeam()
 	return NULL;
 }
 
+bool CDigitanksGame::SoftCraters()
+{
+	return m_eGameType == GAMETYPE_STANDARD;
+}
+
 void CDigitanksGame::UpdateHUD(CNetworkedVariableBase* pVariable)
 {
 	CHUD::SetNeedsUpdate();

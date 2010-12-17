@@ -182,7 +182,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"INSTALL POWER INCREASE\n \n";
 			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Power increase: %d Power\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Power increase: %.1f Power\n", pUpdate->m_flValue);
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
@@ -200,7 +200,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"INSTALL BANDWIDTH INCREASE\n \n";
 			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Bandwidth increase: %d Bandwidth\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Bandwidth increase: %.1f Bandwidth\n", pUpdate->m_flValue);
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
@@ -218,7 +218,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"INSTALL FLEET SUPPLY INCREASE\n \n";
 			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Fleet Supply increase: %d Supply\n", pUpdate->m_flValue);
+			s += p.sprintf(L"Fleet Supply increase: %.1f Supply\n", pUpdate->m_flValue);
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
 			s += L"Shortcut: E";
 			pHUD->SetButtonInfo(2, s);

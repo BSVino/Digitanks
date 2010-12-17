@@ -973,7 +973,12 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	float flMovePower = GetPreviewBaseMovePower();
 
+	Vector vecStart = GetOrigin();
+	Vector vecEnd = m_vecPreviewMove;
+
 	Move(m_vecPreviewMove);
+
+	Turn(EAngle(0, VectorAngles(vecEnd-vecStart).y, 0));
 
 	if (m_iHoverParticles != ~0)
 		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
