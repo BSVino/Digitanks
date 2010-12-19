@@ -289,11 +289,12 @@ public:
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const { return -0.03f; };
 	virtual float				FiringCone() const { return 360; };
-	virtual float				VisibleRange() const { return 75; };
+	virtual float				BaseVisibleRange() const { return 75; };
 	virtual size_t				FleetPoints() const { return 2; };
 	virtual float				BobHeight() const { return 0.5f; };
 	virtual float				MaxRangeRadius() const { return 10; };
 	virtual float				FirstProjectileTime() const;
+	virtual float				SlowMovementFactor() const { return 0.5f; };
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 

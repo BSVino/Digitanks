@@ -224,6 +224,14 @@ float CDigitanksEntity::GetVisibility() const
 	return GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam());
 }
 
+float CDigitanksEntity::VisibleRange() const
+{
+	if (TreesReduceVisibility() && DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+		return BaseVisibleRange()/2;
+
+	return BaseVisibleRange();
+}
+
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
 	BaseClass::ModifyContext(pContext, bTransparent);

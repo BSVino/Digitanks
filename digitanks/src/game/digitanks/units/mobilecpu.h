@@ -22,6 +22,7 @@ public:
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				MaxRangeRadius() const { return 30; };
+	virtual float				SlowMovementFactor() const { return 0.8f; };
 
 	virtual size_t				FleetPoints() const { return 0; };
 

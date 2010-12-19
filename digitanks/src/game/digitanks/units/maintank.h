@@ -19,10 +19,11 @@ public:
 	virtual float				ShieldRechargeRate() const { return 1.0f; };
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
-	virtual float				VisibleRange() const { return 75; };
+	virtual float				BaseVisibleRange() const { return 75; };
 	virtual float				InitialMaxRange() const { return 60.0f; };
 	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
+	virtual float				SlowMovementFactor() const { return 0.5f; };
 
 	virtual size_t				FleetPoints() const { return MainTankFleetPoints(); };
 	static size_t				MainTankFleetPoints() { return 4; };

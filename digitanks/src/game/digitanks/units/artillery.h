@@ -31,8 +31,9 @@ public:
 	virtual float				GetTransitionTime() const { return 2.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				FiringCone() const { return 15; };
-	virtual float				VisibleRange() const { return 45; };
+	virtual float				BaseVisibleRange() const { return 45; };
 	virtual float				FirstProjectileTime() const;
+	virtual float				SlowMovementFactor() const { return 0.5f; };
 
 	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
 	static size_t				ArtilleryFleetPoints() { return 5; };

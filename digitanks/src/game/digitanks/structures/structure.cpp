@@ -698,6 +698,14 @@ bool CStructure::OnUnserialize(std::istream& i)
 	return BaseClass::OnUnserialize(i);
 }
 
+float CStructure::VisibleRange() const
+{
+	if (IsConstructing())
+		return GetBoundingRadius()*2;
+
+	return BaseClass::VisibleRange();
+}
+
 size_t CStructure::ConstructionCost() const
 {
 	return DigitanksGame()->GetConstructionCost(GetUnitType());
@@ -1242,7 +1250,7 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 	return pClosest;
 }
 
-float CSupplier::VisibleRange() const
+float CSupplier::BaseVisibleRange() const
 {
 	return GetDataFlowRadius() + 5;
 }

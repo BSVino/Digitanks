@@ -403,7 +403,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 	// What a hack!
 	GameServer()->GetRenderer()->UseProgram(CShaderLibrary::GetTerrainProgram());
-	GLuint iHalfMovement = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flHalfMovement");
+	GLuint iSlowMovement = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flSlowMovement");
 	GameServer()->GetRenderer()->UseProgram(0);
 
 	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
@@ -450,9 +450,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			float flVisibility = RemapValClamped((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), flVisibilityX0, flVisibilityX1);
 
 			if (GameServer()->GetRenderer()->ShouldUseShaders())
-			{
-				glVertexAttrib1f(iHalfMovement, (GetBit(x, y, TB_TREE)||GetBit(x, y, TB_WATER))?1.0f:0.0f);
-			}
+				glVertexAttrib1f(iSlowMovement, (GetBit(x, y, TB_TREE)||GetBit(x, y, TB_WATER))?1.0f:0.0f);
 
 			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility);
 			glTexCoord2f(flUVX0, flUVY0);
@@ -953,6 +951,9 @@ void CTerrain::RenderWithShaders()
 
 		GLuint bMovement = glGetUniformLocation(iTerrainProgram, "bMovement");
 		glUniform1i(bMovement, true);
+
+		GLuint flSlowMovementFactor = glGetUniformLocation(iTerrainProgram, "flSlowMovementFactor");
+		glUniform1f(flSlowMovementFactor, pCurrentTank->SlowMovementFactor());
 	}
 	else if (bIsCurrentTeam && pCurrentTank && !pCurrentTank->IsFortified() && DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT)
 	{
@@ -1329,6 +1330,11 @@ bool CTerrain::IsPointOverHole(Vector vecPoint)
 bool CTerrain::IsPointOverWater(Vector vecPoint)
 {
 	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_WATER);
+}
+
+bool CTerrain::IsPointInTrees(Vector vecPoint)
+{
+	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_TREE);
 }
 
 void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)

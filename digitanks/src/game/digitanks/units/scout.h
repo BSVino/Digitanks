@@ -32,10 +32,12 @@ public:
 	virtual float				InitialMaxRange() const { return 30.0f; };
 	virtual float				GetTransitionTime() const { return 1.5f; }
 	virtual float				ProjectileCurve() const { return -0.006f; };
-	virtual float				VisibleRange() const { return 75; };
+	virtual float				BaseVisibleRange() const { return 75; };
+	virtual float				TreesReduceVisibility() const { return false; };
 	virtual bool				CanGetPowerups() const { return true; };
 	virtual float				BobHeight() const { return 1.0f; };
 	virtual float				MaxRangeRadius() const { return 1; };
+	virtual float				SlowMovementFactor() const { return 0.85f; };
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };
 	static size_t				ScoutFleetPoints() { return 1; };

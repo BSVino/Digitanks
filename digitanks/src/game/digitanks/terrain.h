@@ -96,6 +96,7 @@ public:
 	bool					IsPointOverLava(Vector vecPoint);
 	bool					IsPointOverHole(Vector vecPoint);
 	bool					IsPointOverWater(Vector vecPoint);
+	bool					IsPointInTrees(Vector vecPoint);
 
 	typedef enum
 	{

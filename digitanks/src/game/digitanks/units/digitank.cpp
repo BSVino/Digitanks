@@ -505,7 +505,7 @@ float CDigitank::GetPreviewBaseMovePower() const
 		bHalfMovement = true;
 
 	if (bHalfMovement)
-		return (m_vecPreviewMove - GetOrigin()).Length() / (GetTankSpeed()/2);
+		return (m_vecPreviewMove - GetOrigin()).Length() / (GetTankSpeed()*SlowMovementFactor());
 	else
 		return (m_vecPreviewMove - GetOrigin()).Length() / GetTankSpeed();
 }

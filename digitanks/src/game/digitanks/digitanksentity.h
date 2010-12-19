@@ -45,6 +45,7 @@ public:
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;
 	virtual bool					GetsConcealmentBonus() const { return true; };
+	virtual float					VisibleRange() const;
 
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
@@ -55,7 +56,8 @@ public:
 	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };
-	virtual float					VisibleRange() const { return 0; };
+	virtual float					BaseVisibleRange() const { return 0; };
+	virtual float					TreesReduceVisibility() const { return true; };
 	virtual float					TotalHealth() const { return 10; };
 
 protected:

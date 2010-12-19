@@ -38,7 +38,7 @@ public:
 	void						BeginStructureConstruction(CNetworkParameters* p);
 	virtual void				CompleteConstruction();
 	size_t						GetTurnsToConstruct();
-	bool						IsConstructing() { return m_bConstructing; };
+	bool						IsConstructing() const { return m_bConstructing.Get(); };
 	void						SetConstructing(bool bConstructing) { m_bConstructing = bConstructing; };
 	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
 	void						AddProduction(size_t iProduction);
@@ -90,7 +90,8 @@ public:
 	virtual bool				OnUnserialize(std::istream& i);
 
 	virtual float				HealthRechargeRate() const { return 1.0f; };
-	virtual float				VisibleRange() const { return 50; };
+	virtual float				VisibleRange() const;
+	virtual float				BaseVisibleRange() const { return 50; };
 	virtual size_t				ConstructionCost() const;
 	virtual size_t				UpgradeCost() const;
 	virtual float				TotalHealth() const { return 50; };
@@ -210,7 +211,7 @@ public:
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
-	virtual float				VisibleRange() const;
+	virtual float				BaseVisibleRange() const;
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);
