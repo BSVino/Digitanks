@@ -1470,7 +1470,7 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 				int iChunkX = ArrayToChunkSpace(x, iIndex);
 				int iChunkY = ArrayToChunkSpace(z, iIndex);
 
-				if (RandomInt(0, 2) == 0)
+				if (RandomInt(0, 5) == 0)
 					SetBit(x, z, TB_TREE, false);
 
 				CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);

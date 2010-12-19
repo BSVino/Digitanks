@@ -23,6 +23,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual void				Think();
+
 	virtual float				GetBoundingRadius() const { return 5; };
 
 	virtual void				OnTeamChange();

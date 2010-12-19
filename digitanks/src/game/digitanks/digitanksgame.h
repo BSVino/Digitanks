@@ -163,6 +163,7 @@ public:
 
 	aimtype_t				GetAimType();
 	void					SetAimType(aimtype_t eAimType);
+	void					SetAimTypeByWeapon(weapon_t eWeapon);
 
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, TerrainData);

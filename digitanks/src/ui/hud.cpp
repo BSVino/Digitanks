@@ -1733,8 +1733,11 @@ void CHUD::AimCallback()
 
 	if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		DigitanksGame()->SetControlMode(MODE_NONE);
-	else
+	else if (DigitanksGame()->GetPrimarySelectionTank())
+	{
 		DigitanksGame()->SetControlMode(MODE_AIM);
+		DigitanksGame()->SetAimTypeByWeapon(DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon());
+	}
 
 	SetupMenu();
 }
@@ -1842,9 +1845,9 @@ void CHUD::FireSpecialCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else if (DigitanksGame()->GetCurrentTeam() && DigitanksGame()->GetCurrentTeam()->GetPrimarySelectionTank())
 	{
-		DigitanksGame()->SetControlMode(MODE_AIM);
-		DigitanksGame()->SetAimType(AIM_NORANGE);
 		DigitanksGame()->GetCurrentTeam()->GetPrimarySelectionTank()->SetCurrentWeapon(PROJECTILE_AIRSTRIKE);
+		DigitanksGame()->SetControlMode(MODE_AIM);
+		DigitanksGame()->SetAimTypeByWeapon(PROJECTILE_AIRSTRIKE);
 	}
 
 	SetupMenu();

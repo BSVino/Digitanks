@@ -109,6 +109,14 @@ void CStructure::Spawn()
 	m_bConstructing = true;
 }
 
+void CStructure::Think()
+{
+	BaseClass::Think();
+
+	if (IsAlive())
+		FindGround();
+}
+
 void CStructure::OnTeamChange()
 {
 	BaseClass::OnTeamChange();

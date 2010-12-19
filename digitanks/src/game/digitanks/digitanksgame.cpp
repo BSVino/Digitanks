@@ -1605,6 +1605,20 @@ void CDigitanksGame::SetAimType(aimtype_t eAimType)
 	m_eAimType = eAimType;
 }
 
+void CDigitanksGame::SetAimTypeByWeapon(weapon_t eWeapon)
+{
+	if (eWeapon == WEAPON_CHARGERAM)
+		SetAimType(AIM_MOVEMENT);
+	else if (eWeapon == WEAPON_LASER)
+		SetAimType(AIM_NORANGE);
+	else if (eWeapon == PROJECTILE_CAMERAGUIDED)
+		SetAimType(AIM_NORANGE);
+	else if (eWeapon == PROJECTILE_AIRSTRIKE)
+		SetAimType(AIM_NORANGE);
+	else
+		SetAimType(AIM_NORMAL);
+}
+
 void CDigitanksGame::TerrainData(class CNetworkParameters* p)
 {
 	if (!GetTerrain())

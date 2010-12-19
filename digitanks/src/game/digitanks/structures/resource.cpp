@@ -39,6 +39,8 @@ void CResource::Spawn()
 
 void CResource::Think()
 {
+	BaseClass::Think();
+
 	if (m_iSpark != ~0)
 	{
 		CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSpark);

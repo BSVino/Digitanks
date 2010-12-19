@@ -243,15 +243,7 @@ void CWeaponButton::ChooseWeaponCallback()
 	m_pWeaponPanel->SetVisible(false);
 
 	DigitanksGame()->SetControlMode(MODE_AIM);
-
-	if (m_eWeapon == WEAPON_CHARGERAM)
-		DigitanksGame()->SetAimType(AIM_MOVEMENT);
-	else if (m_eWeapon == WEAPON_LASER)
-		DigitanksGame()->SetAimType(AIM_NORANGE);
-	else if (m_eWeapon == PROJECTILE_CAMERAGUIDED)
-		DigitanksGame()->SetAimType(AIM_NORANGE);
-	else
-		DigitanksGame()->SetAimType(AIM_NORMAL);
+	DigitanksGame()->SetAimTypeByWeapon(m_eWeapon);
 
 	CRootPanel::Get()->Layout();
 }
