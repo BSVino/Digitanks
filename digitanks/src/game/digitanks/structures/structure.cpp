@@ -777,9 +777,9 @@ float CSupplier::GetDataFlow(Vector vecPoint)
 float CSupplier::GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore)
 {
 	float flDataStrength = 0;
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 
@@ -909,9 +909,9 @@ void CSupplier::StartTurn()
 
 	if (CNetwork::IsHost() && GetSupplyLine() && GetSupplyLine()->GetIntegrity() >= 0.7f || IsDataFlowSource())
 	{
-		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
-			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 			if (!pEntity)
 				continue;
 
@@ -1185,9 +1185,9 @@ CSupplier* CSupplier::FindClosestSupplier(CBaseEntity* pUnit)
 {
 	CSupplier* pClosest = NULL;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 
@@ -1221,9 +1221,9 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 {
 	CSupplier* pClosest = NULL;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 

@@ -82,6 +82,7 @@ public:
 	void										SetLoading(bool bLoading) { m_bLoading = bLoading; };
 	size_t										GetClientIndex() { return m_iClient; };
 	bool										IsClient() { return m_iClient >= 0; };
+	size_t										GetMaxEntities() { return m_iMaxEnts; };
 
 	static CGameServer*							GetGameServer() { return s_pGameServer; };
 	class CGame*								GetGame();
@@ -114,6 +115,8 @@ protected:
 	bool										m_bHalting;
 
 	eastl::vector<class CLevel*>				m_apLevels;
+
+	size_t										m_iMaxEnts;
 };
 
 inline class CGameServer* GameServer()

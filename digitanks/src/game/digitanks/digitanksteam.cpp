@@ -522,9 +522,9 @@ void CDigitanksTeam::CalculateVisibility()
 {
 	m_aflVisibilities.clear();
 	// For every entity in the game, calculate the visibility to this team
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 

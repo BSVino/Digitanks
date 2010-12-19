@@ -270,8 +270,6 @@ public:
 	void									CheckTables(char* pszEntity);
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
-	static size_t							GetEntityHandle(size_t i);
-	static CBaseEntity*						GetEntityNumber(size_t i);
 	static size_t							GetNumEntities();
 
 	static void								PrecacheModel(const eastl::string16& sModel, bool bStatic = true);
@@ -324,7 +322,8 @@ protected:
 	eastl::map<eastl::string, class CNetworkedVariableBase*>	m_apNetworkVariables;
 
 private:
-	static eastl::map<size_t, CBaseEntity*>	s_apEntityList;
+	static eastl::vector<CBaseEntity*>		s_apEntityList;
+	static size_t							s_iEntities;
 	static size_t							s_iOverrideEntityListIndex;
 	static size_t							s_iNextEntityListIndex;
 
@@ -346,9 +345,9 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 {
 	T* pClosest = NULL;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 
 		if (!pEntity)
 			continue;

@@ -237,9 +237,9 @@ void CDigitanksRenderer::RenderFogOfWar()
 		return;
 
 	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 

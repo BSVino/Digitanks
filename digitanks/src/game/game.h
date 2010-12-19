@@ -58,13 +58,15 @@ protected:
 
 inline class CGame* Game()
 {
-	if (!GameServer())
+	CGameServer* pGameServer = GameServer();
+	if (!pGameServer)
 		return NULL;
 
-	if (!GameServer()->GetGame())
+	CGame* pGame = pGameServer->GetGame();
+	if (!pGame)
 		return NULL;
 
-	return GameServer()->GetGame();
+	return pGame;
 }
 
 #endif

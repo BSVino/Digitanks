@@ -539,9 +539,9 @@ void CDigitanksGame::SetupStrategy()
 		pMobileCPU->SetAngles(VectorAngles(-avecRandomStartingPositions[i].Normalized()));
 
 
-		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
+		for (size_t j = 0; j < GameServer()->GetMaxEntities(); j++)
 		{
-			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(j);
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(j);
 			if (!pEntity)
 				continue;
 
@@ -675,9 +675,12 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 	assert(m_ahTeams.size() == 0);
 	m_ahTeams.clear();
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
+
 		if (pEntity == this)
 			continue;
 
@@ -755,9 +758,12 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	if (m_eGameType == GAMETYPE_STANDARD && !CNetwork::IsConnected())
 		DigitanksWindow()->GetStoryPanel()->SetVisible(true);
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
+
 		pEntity->ClientEnterGame();
 	}
 
@@ -976,9 +982,12 @@ void CDigitanksGame::Think()
 		if (CNetwork::IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
 		{
 			eastl::vector<CEntityHandle<CDigitanksEntity> > ahEntities;
-			for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 			{
-				CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(CBaseEntity::GetEntityNumber(i));
+				if (!CBaseEntity::GetEntity(i))
+					continue;
+
+				CDigitanksEntity* pEntity = dynamic_cast<CDigitanksEntity*>(CBaseEntity::GetEntity(i));
 				if (!pEntity)
 					continue;
 				
@@ -1325,13 +1334,13 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		vecExplosionOrigin = pAttacker->GetOrigin();
 
 	eastl::vector<CBaseEntity*> apHit;
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
-		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
-
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
+
+		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
 
 		float flDistanceSqr = (pInflictor->GetOrigin() - pEntity->GetOrigin()).LengthSqr();
 		float flTotalRadius = flRadius + pEntity->GetBoundingRadius();
@@ -1649,9 +1658,9 @@ void CDigitanksGame::WeaponSpecialCommand()
 
 	// Form a list of weapons to send the message to since sometimes it creates new projectiles,
 	// and we don't want to send the message to those new ones.
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 

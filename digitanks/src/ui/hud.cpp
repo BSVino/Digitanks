@@ -503,9 +503,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 
 		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
 
@@ -878,9 +878,9 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	CDigitank* pClosestTarget = NULL;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 
 		if (!pEntity)
 			continue;

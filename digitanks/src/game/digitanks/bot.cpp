@@ -532,9 +532,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	CDigitanksEntity* pTarget = NULL;
 
 	// Find the nearest enemy to the head tank, he's our target.
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 
@@ -923,9 +923,9 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 
 		CDigitank* pClosestEnemy = NULL;
 
-		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
-			CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 			if (!pEntity)
 				continue;
 

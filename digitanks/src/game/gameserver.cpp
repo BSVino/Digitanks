@@ -5,6 +5,7 @@
 
 #include <mtrand.h>
 #include <platform.h>
+#include <configfile.h>
 
 #include <ui/digitankswindow.h>
 #include <renderer/renderer.h>
@@ -20,10 +21,16 @@
 
 CGameServer* CGameServer::s_pGameServer = NULL;
 
+ConfigFile g_cfgEngine(L"scripts/engine.cfg");
+
 CGameServer::CGameServer()
 {
 	assert(!s_pGameServer);
 	s_pGameServer = this;
+
+	m_iMaxEnts = g_cfgEngine.read("MaxEnts", 1024);
+
+	CBaseEntity::s_apEntityList.resize(m_iMaxEnts);
 
 	m_pRenderer = NULL;
 	m_pCamera = NULL;
@@ -160,9 +167,13 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 {
 	CNetwork::CallFunction(p->i2, "ClientInfo", p->i2, GetGameTime());
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
 		CNetwork::CallFunction(p->i2, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
 	}
 
@@ -171,9 +182,13 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 	GetGame()->OnClientConnect(p);
 
 	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
 		pEntity->ClientUpdate(p->i2);
 	}
 
@@ -212,9 +227,9 @@ void CGameServer::Think(float flRealTime)
 
 	Simulate();
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 
@@ -236,8 +251,13 @@ void CGameServer::Simulate()
 
 	eastl::vector<CEntityHandle<CBaseEntity> > ahEntities;
 	ahEntities.reserve(CBaseEntity::GetNumEntities());
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-		ahEntities.push_back(CBaseEntity::GetEntityNumber(i));
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		if (!CBaseEntity::GetEntity(i))
+			continue;
+
+		ahEntities.push_back(CBaseEntity::GetEntity(i));
+	}
 
 	for (size_t i = 0; i < ahEntities.size(); i++)
 	{
@@ -280,9 +300,12 @@ void CGameServer::Simulate()
 		if (pEntity->IsDeleted())
 			continue;
 
-		for (size_t j = 0; j < CBaseEntity::GetNumEntities(); j++)
+		for (size_t j = 0; j < GameServer()->GetMaxEntities(); j++)
 		{
-			CBaseEntity* pEntity2 = CBaseEntity::GetEntityNumber(j);
+			CBaseEntity* pEntity2 = CBaseEntity::GetEntity(j);
+
+			if (!pEntity2)
+				continue;
 
 			if (pEntity2->IsDeleted())
 				continue;
@@ -315,17 +338,23 @@ void CGameServer::Render()
 	m_pRenderer->StartRendering();
 
 	// First render all opaque objects
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
+
 		if (pEntity->ShouldRender())
 			pEntity->Render(false);
 	}
 
 	// Now render all transparent objects. Should really sort this back to front but meh for now.
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
+
 		if (pEntity->ShouldRender())
 			pEntity->Render(true);
 	}
@@ -360,9 +389,12 @@ void CGameServer::SaveToFile(const wchar_t* pFileName)
 	o.write((char*)&pGameServer->m_flSimulationTime, sizeof(pGameServer->m_flSimulationTime));
 
 	eastl::vector<CBaseEntity*> apSaveEntities;
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
+
 		if (pEntity->IsDeleted())
 			continue;
 
@@ -418,8 +450,13 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 			return false;
 	}
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
-		CBaseEntity::GetEntityNumber(i)->ClientEnterGame();
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		if (!CBaseEntity::GetEntity(i))
+			continue;
+
+		CBaseEntity::GetEntity(i)->ClientEnterGame();
+	}
 
 	GameServer()->SetLoading(false);
 
@@ -496,6 +533,9 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 {
 	CBaseEntity* pEntity = CBaseEntity::GetEntity(p->i1);
 
+	if (!pEntity)
+		return;
+
 	CSoundLibrary::EntityDeleted(pEntity);
 
 	for (size_t i = 0; i < m_ahDeletedEntities.size(); i++)
@@ -504,9 +544,13 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 
 	pEntity->OnDeleted();
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pNotify = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pNotify = CBaseEntity::GetEntity(i);
+
+		if (!pNotify)
+			continue;
+
 		pNotify->OnDeleted(pEntity);
 	}
 
@@ -521,9 +565,11 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 	if (!CNetwork::IsHost() && !m_bLoading)
 		return;
 
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
 
 		bool bSpare = false;
 		for (size_t j = 0; j < asSpare.size(); j++)

@@ -95,9 +95,9 @@ void CPowerup::PreRender(bool bTransparent)
 	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
 
 	Vector clrPowerup(1, 1, 1);
-	for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (pEntity == NULL)
 			continue;
 

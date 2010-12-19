@@ -78,6 +78,9 @@ public:
 	{
 		if (!pOther)
 		{
+			if (!CBaseEntity::GetEntity(m_iHandle))
+				return true;
+
 			if (!dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle)))
 				return true;
 
@@ -91,6 +94,9 @@ public:
 	{
 		if (!pOther)
 		{
+			if (!CBaseEntity::GetEntity(m_iHandle))
+				return true;
+
 			if (!dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle)))
 				return true;
 

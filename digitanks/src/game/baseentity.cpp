@@ -11,7 +11,8 @@
 
 #include "game.h"
 
-eastl::map<size_t, CBaseEntity*> CBaseEntity::s_apEntityList;
+eastl::vector<CBaseEntity*> CBaseEntity::s_apEntityList;
+size_t CBaseEntity::s_iEntities = 0;
 size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
@@ -48,16 +49,19 @@ SAVEDATA_TABLE_END();
 CBaseEntity::CBaseEntity()
 {
 	if (s_iOverrideEntityListIndex == ~0)
-		m_iHandle = s_iNextEntityListIndex++;
+		m_iHandle = s_iNextEntityListIndex;
 	else
-	{
 		m_iHandle = s_iOverrideEntityListIndex;
 
-		if (s_iNextEntityListIndex < m_iHandle+1)
-			s_iNextEntityListIndex = m_iHandle+1;
+	s_iNextEntityListIndex = (m_iHandle+1)%s_apEntityList.size();
+	while (s_apEntityList[s_iNextEntityListIndex] != NULL)
+	{
+		s_iNextEntityListIndex = (s_iNextEntityListIndex+1)%s_apEntityList.size();
 	}
 
 	s_apEntityList[m_iHandle] = this;
+
+	s_iEntities++;
 
 	m_iCollisionGroup = 0;
 	m_pTracer = NULL;
@@ -78,7 +82,10 @@ CBaseEntity::CBaseEntity()
 
 CBaseEntity::~CBaseEntity()
 {
-	s_apEntityList.erase(s_apEntityList.find(m_iHandle));
+	s_apEntityList[m_iHandle] = NULL;
+
+	assert(s_iEntities > 0);
+	s_iEntities--;
 
 	if (m_pTracer)
 		delete m_pTracer;
@@ -109,50 +116,17 @@ void CBaseEntity::SetModel(size_t iModel)
 
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
 {
-	if (s_apEntityList.find(iHandle) == s_apEntityList.end())
+	assert(iHandle < s_apEntityList.size() || iHandle == ~0);
+
+	if (iHandle >= s_apEntityList.size())
 		return NULL;
 
 	return s_apEntityList[iHandle];
 }
 
-size_t CBaseEntity::GetEntityHandle(size_t i)
-{
-	if (!s_apEntityList.size())
-		return ~0;
-
-	if (i > s_apEntityList.size())
-		return ~0;
-
-	static eastl::map<size_t, CBaseEntity*>::iterator it;
-	static size_t iLastRequest = ~0;
-
-	size_t iThisRequest = i;
-
-	// Perf. Most GetEntityHandle requests come in sequentially,
-	// so saving the last iterator can save O(n!) search time.
-	if (iLastRequest == ~0 || iLastRequest != i-1)
-	{
-		it = s_apEntityList.begin();
-
-		while (i--)
-			it++;
-	}
-	else
-		it++;
-
-	iLastRequest = iThisRequest;
-
-	return (*it).first;
-}
-
-CBaseEntity* CBaseEntity::GetEntityNumber(size_t i)
-{
-	return GetEntity(GetEntityHandle(i));
-}
-
 size_t CBaseEntity::GetNumEntities()
 {
-	return s_apEntityList.size();
+	return s_iEntities;
 }
 
 CTeam* CBaseEntity::GetTeam() const

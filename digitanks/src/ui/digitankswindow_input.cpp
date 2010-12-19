@@ -128,9 +128,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			size_t iHigherX = (m_iMouseInitialX > m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
 			size_t iHigherY = (m_iMouseInitialY > m_iMouseCurrentY) ? m_iMouseInitialY : m_iMouseCurrentY;
 
-			for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 			{
-				CBaseEntity* pEntity = CBaseEntity::GetEntityNumber(i);
+				CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 				if (!pEntity)
 					continue;
 
