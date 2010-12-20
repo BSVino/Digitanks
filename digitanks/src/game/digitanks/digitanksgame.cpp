@@ -302,6 +302,9 @@ void CDigitanksGame::ScatterResources()
 			if (x > m_hTerrain->GetMapSize()-10 || z > m_hTerrain->GetMapSize()-10)
 				continue;
 
+			if (GetTerrain()->IsPointOverHole(Vector(x, 0, z)))
+				continue;
+
 			CResource* pResource = GameServer()->Create<CResource>("CResource");
 			pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
 			pResource->FindGround();

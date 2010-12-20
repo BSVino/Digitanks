@@ -896,6 +896,11 @@ namespace glgui
 			m_aSelections.push_back(oSelection);
 		}
 
+		virtual size_t GetNumSelections()
+		{
+			return m_aSelections.size();
+		}
+		
 		virtual void RemoveAllSelections()
 		{
 			m_aSelections.clear();

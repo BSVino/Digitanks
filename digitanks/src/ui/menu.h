@@ -187,8 +187,12 @@ public:
 
 	EVENT_CALLBACK(CStrategyGamePanel,	BeginGame);
 	EVENT_CALLBACK(CStrategyGamePanel,	UpdateLayout);
+	EVENT_CALLBACK(CStrategyGamePanel,	LevelChosen);
 
 protected:
+	size_t							m_iLevelSelected;
+	glgui::CMenu*					m_pLevels;
+
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
