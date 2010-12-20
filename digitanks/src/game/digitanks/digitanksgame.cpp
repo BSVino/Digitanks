@@ -1263,7 +1263,13 @@ void CDigitanksGame::StartTurn()
 		return;
 	}
 
-	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && mtrand()%3 == 0)
+	int iPowerupChance;
+	if (GetGameType() == GAMETYPE_STANDARD)
+		iPowerupChance = RandomInt(0, 6);
+	else
+		iPowerupChance = RandomInt(0, 3);
+
+	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && iPowerupChance == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());

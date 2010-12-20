@@ -26,6 +26,7 @@
 #include <digitanks/units/scout.h>
 #include <digitanks/units/standardtank.h>
 #include <digitanks/units/maintank.h>
+#include <digitanks/units/mechinf.h>
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iCancelIcon = 0;
@@ -1052,7 +1053,25 @@ void CDigitank::Move(CNetworkParameters* p)
 					if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 						pTank = GameServer()->Create<CStandardTank>("CStandardTank");
 					else
-						pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+					{
+						switch(RandomInt(0, 4))
+						{
+						default:
+						case 0:
+						case 1:
+							pTank = GameServer()->Create<CScout>("CScout");
+							break;
+
+						case 2:
+						case 3:
+							pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+							break;
+
+						case 4:
+							pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+							break;
+						}
+					}
 
 					GetTeam()->AddEntity(pTank);
 
