@@ -72,7 +72,7 @@ class CSmallShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_SMALL; }
 	virtual float				ShellRadius() { return 0.5f; };
-	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual float				ExplosionRadius();
 	virtual float				PushDistance() { return 3.0f; };
 	virtual float				RockIntensity() { return 0.4f; };
 };
@@ -84,7 +84,7 @@ class CMediumShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_MEDIUM; }
 	virtual float				ShellRadius() { return 1.0f; };
-	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				ExplosionRadius();
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 };
@@ -96,7 +96,7 @@ class CLargeShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_LARGE; }
 	virtual float				ShellRadius() { return 1.5f; };
-	virtual float				ExplosionRadius() { return 18.0f; };
+	virtual float				ExplosionRadius();
 	virtual float				PushDistance() { return 9.0f; };
 	virtual float				RockIntensity() { return 1.0f; };
 };
@@ -108,7 +108,7 @@ class CAOEShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.2f; };
-	virtual float				ExplosionRadius() { return 30.0f; };
+	virtual float				ExplosionRadius();
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };

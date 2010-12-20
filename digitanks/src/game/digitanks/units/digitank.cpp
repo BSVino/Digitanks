@@ -1111,7 +1111,7 @@ void CDigitank::Move(Vector vecNewPosition, int iMoveType)
 	SetOrigin(vecNewPosition);
 	m_iMoveType = iMoveType;
 
-	if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecNewPosition))
+	if (TakesLavaDamage() && DigitanksGame()->GetTerrain()->IsPointOverLava(vecNewPosition))
 		TakeDamage(NULL, NULL, DAMAGE_BURN, DigitanksGame()->LavaDamage(), false);
 }
 

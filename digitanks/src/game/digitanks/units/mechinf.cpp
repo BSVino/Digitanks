@@ -44,6 +44,7 @@ void CMechInfantry::Spawn()
 
 	m_aeWeapons.push_back(PROJECTILE_FLAK);
 	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
+	m_aeWeapons.push_back(WEAPON_LASER);
 
 	m_eWeapon = PROJECTILE_FLAK;
 }

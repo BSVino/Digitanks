@@ -110,6 +110,13 @@ void CScout::FireWeapon(CNetworkParameters* p)
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }
 
+float CScout::FindHoverHeight(Vector vecPosition) const
+{
+	float flHeight = BaseClass::FindHoverHeight(vecPosition);
+
+	return flHeight + 9;
+}
+
 float CScout::ShieldRechargeRate() const
 {
 	return 0;

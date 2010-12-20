@@ -333,11 +333,27 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CSmallShell);
 SAVEDATA_TABLE_END();
 
+float CSmallShell::ExplosionRadius()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		return 4.0f;
+	else
+		return 6.0f;
+}
+
 NETVAR_TABLE_BEGIN(CMediumShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMediumShell);
 SAVEDATA_TABLE_END();
+
+float CMediumShell::ExplosionRadius()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		return 6.0f;
+	else
+		return 12.0f;
+}
 
 NETVAR_TABLE_BEGIN(CLargeShell);
 NETVAR_TABLE_END();
@@ -345,11 +361,27 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CLargeShell);
 SAVEDATA_TABLE_END();
 
+float CLargeShell::ExplosionRadius()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		return 8.0f;
+	else
+		return 18.0f;
+}
+
 NETVAR_TABLE_BEGIN(CAOEShell);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
 SAVEDATA_TABLE_END();
+
+float CAOEShell::ExplosionRadius()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		return 12.0f;
+	else
+		return 30.0f;
+}
 
 NETVAR_TABLE_BEGIN(CEMP);
 NETVAR_TABLE_END();

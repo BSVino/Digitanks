@@ -273,7 +273,7 @@ public:
 	void						Speak(size_t iSpeech);
 	void						Speak(class CNetworkParameters* p);
 
-	float						FindHoverHeight(Vector vecPosition) const;
+	virtual float				FindHoverHeight(Vector vecPosition) const;
 
 	virtual bool				Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 

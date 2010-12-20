@@ -390,7 +390,12 @@ void CHUD::Think()
 			Vector vecPreviewAim;
 			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
 			CStaticProp* pSPHit = dynamic_cast<CStaticProp*>(pHit);
-			if (pDTHit && !pSPHit && pDTHit->GetVisibility() > 0)
+			CDigitank* pDigitankHit = dynamic_cast<CDigitank*>(pHit);
+
+			if (pDigitankHit && pDigitankHit->IsScout())
+				// Scouts are hard to hit by projectiles because they float so far above the surface.
+				vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(pDigitankHit->GetOrigin());
+			else if (pDTHit && !pSPHit && pDTHit->GetVisibility() > 0)
 				vecPreviewAim = pDTHit->GetOrigin();
 			else
 				vecPreviewAim = vecEntityPoint;
