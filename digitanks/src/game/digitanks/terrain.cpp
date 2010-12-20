@@ -1480,7 +1480,7 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 
 				if (pTreeCutter)
 				{
-					if (RandomFloat(0, 1) > 0.3f)
+					if (RandomFloat(0, 1) > 0.2f)
 						SetBit(x, z, TB_TREE, false);
 				}
 				else
