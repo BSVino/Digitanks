@@ -14,6 +14,8 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 		else if (sValue == "strategy")
 			m_eGameType = GAMETYPE_STANDARD;
 	}
+	else if (pData->GetKey() == "TerrainHeight")
+		m_sTerrainHeight = pData->GetValueString();
 	else if (pData->GetKey() == "TerrainData")
 		m_sTerrainData = pData->GetValueString();
 	else if (pData->GetKey() == "MaxHeight")

@@ -24,6 +24,7 @@ public:
 	void					ReadProp(const class CData* pData);
 
 	gametype_t				GetGameType() { return m_eGameType; }
+	eastl::string			GetTerrainHeight() { return m_sTerrainHeight; }
 	eastl::string			GetTerrainData() { return m_sTerrainData; }
 	float					GetMaxHeight() { return m_flMaxHeight; }
 
@@ -32,6 +33,7 @@ public:
 
 protected:
 	gametype_t				m_eGameType;
+	eastl::string			m_sTerrainHeight;
 	eastl::string			m_sTerrainData;
 	float					m_flMaxHeight;
 	eastl::vector<CLevelProp>	m_aProps;

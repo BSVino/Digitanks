@@ -130,6 +130,8 @@ void CTerrain::GenerateTerrain(float flHeight)
 	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
 
 	CDigitanksLevel* pLevel = NULL;
+	size_t iTerrainHeight = 0;
+	Color* pclrTerrainHeight = NULL;
 	size_t iTerrainData = 0;
 	Color* pclrTerrainData = NULL;
 	if (pGameSettings->iLevel < GameServer()->GetNumLevels())
@@ -137,7 +139,20 @@ void CTerrain::GenerateTerrain(float flHeight)
 		pLevel = dynamic_cast<CDigitanksLevel*>(CDigitanksGame::GetLevel(DigitanksGame()->GetGameType(), pGameSettings->iLevel));
 		if (pLevel)
 		{
+			iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainHeight()));
 			iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));
+
+			if (CRenderer::GetTextureHeight(iTerrainHeight) != 200)
+			{
+				CRenderer::UnloadTextureData(iTerrainHeight);
+				iTerrainData = 0;
+			}
+
+			if (CRenderer::GetTextureWidth(iTerrainHeight) != 200)
+			{
+				CRenderer::UnloadTextureData(iTerrainHeight);
+				iTerrainData = 0;
+			}
 
 			if (CRenderer::GetTextureHeight(iTerrainData) != 200)
 			{
@@ -150,6 +165,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 				CRenderer::UnloadTextureData(iTerrainData);
 				iTerrainData = 0;
 			}
+
+			if (iTerrainHeight)
+				pclrTerrainHeight = CRenderer::GetTextureData(iTerrainHeight);
 
 			if (iTerrainData)
 				pclrTerrainData = CRenderer::GetTextureData(iTerrainData);
@@ -199,9 +217,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 			CTerrainChunk* pChunk = GetChunk(ArrayToChunkSpace(x, i), ArrayToChunkSpace(y, j));
 
 			float flHeight;
-			if (pclrTerrainData)
+			if (pclrTerrainHeight)
 			{
-				flHeight = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].g())/255*pLevel->GetMaxHeight();
+				flHeight = (float)(pclrTerrainHeight[x*TERRAIN_SIZE+y].g())/255*pLevel->GetMaxHeight();
 			}
 			else
 			{
@@ -230,52 +248,56 @@ void CTerrain::GenerateTerrain(float flHeight)
 				SetBit(x, y, TB_LAVA, flLava > 0.5f);
 				pChunk->m_aflLava[i][j] = 1.0f;
 
-				float flHole = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].a())/255;
-				SetBit(x, y, TB_HOLE, flHole < 0.5f);
+				float flTree = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].g())/255;
+				SetBit(x, y, TB_TREE, flTree > 0.5f);
 
 				float flWater = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].b())/255;
 				SetBit(x, y, TB_WATER, flWater > 0.5f);
 
-				SetBit(x, y, TB_TREE, false);
+				float flHole = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].a())/255;
+				SetBit(x, y, TB_HOLE, flHole < 0.5f);
 			}
-			else if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+			else
 			{
-				aflHoles[x][y]  = h1.Noise(x*0.01f, y*0.01f) * 10;
-				aflHoles[x][y] += h2.Noise(x*0.02f, y*0.02f) * 5;
+				if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+				{
+					aflHoles[x][y]  = h1.Noise(x*0.01f, y*0.01f) * 10;
+					aflHoles[x][y] += h2.Noise(x*0.02f, y*0.02f) * 5;
+
+					if (!m_bHeightsInitialized)
+						flHoleHighest = flHoleLowest = aflHoles[x][y];
+
+					if (aflHoles[x][y] < flHoleLowest)
+						flHoleLowest = aflHoles[x][y];
+
+					if (aflHoles[x][y] > flHoleHighest)
+						flHoleHighest = aflHoles[x][y];
+				}
+
+				aflTrees[x][y]  = t1.Noise(x*0.02f, y*0.02f) * 5;
+				aflTrees[x][y] += t2.Noise(x*0.04f, y*0.04f) * 2;
 
 				if (!m_bHeightsInitialized)
-					flHoleHighest = flHoleLowest = aflHoles[x][y];
+					flTreeHighest = flTreeLowest = aflTrees[x][y];
 
-				if (aflHoles[x][y] < flHoleLowest)
-					flHoleLowest = aflHoles[x][y];
+				if (aflTrees[x][y] < flTreeLowest)
+					flTreeLowest = aflTrees[x][y];
 
-				if (aflHoles[x][y] > flHoleHighest)
-					flHoleHighest = aflHoles[x][y];
+				if (aflTrees[x][y] > flTreeHighest)
+					flTreeHighest = aflTrees[x][y];
+
+				aflWater[x][y]  = w1.Noise(x*0.02f, y*0.02f) * 5;
+				aflWater[x][y] += w2.Noise(x*0.04f, y*0.04f) * 2;
+
+				if (!m_bHeightsInitialized)
+					flWaterHighest = flWaterLowest = aflWater[x][y];
+
+				if (aflWater[x][y] < flWaterLowest)
+					flWaterLowest = aflWater[x][y];
+
+				if (aflWater[x][y] > flWaterHighest)
+					flWaterHighest = aflWater[x][y];
 			}
-
-			aflTrees[x][y]  = t1.Noise(x*0.02f, y*0.02f) * 5;
-			aflTrees[x][y] += t2.Noise(x*0.04f, y*0.04f) * 2;
-
-			if (!m_bHeightsInitialized)
-				flTreeHighest = flTreeLowest = aflTrees[x][y];
-
-			if (aflTrees[x][y] < flTreeLowest)
-				flTreeLowest = aflTrees[x][y];
-
-			if (aflTrees[x][y] > flTreeHighest)
-				flTreeHighest = aflTrees[x][y];
-
-			aflWater[x][y]  = w1.Noise(x*0.02f, y*0.02f) * 5;
-			aflWater[x][y] += w2.Noise(x*0.04f, y*0.04f) * 2;
-
-			if (!m_bHeightsInitialized)
-				flWaterHighest = flWaterLowest = aflWater[x][y];
-
-			if (aflWater[x][y] < flWaterLowest)
-				flWaterLowest = aflWater[x][y];
-
-			if (aflWater[x][y] > flWaterHighest)
-				flWaterHighest = aflWater[x][y];
 
 			m_bHeightsInitialized = true;
 		}
@@ -283,6 +305,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 	if (iTerrainData)
 		CRenderer::UnloadTextureData(iTerrainData);
+
+	if (iTerrainHeight)
+		CRenderer::UnloadTextureData(iTerrainHeight);
 
 	if (!pclrTerrainData)
 	{
