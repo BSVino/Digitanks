@@ -62,6 +62,7 @@ REGISTER_ENTITY(CTractorBomb);
 REGISTER_ENTITY(CSploogeShell);
 REGISTER_ENTITY(CArtilleryShell);
 REGISTER_ENTITY(CInfantryFlak);
+REGISTER_ENTITY(CTreeCutter);
 REGISTER_ENTITY(CTorpedo);
 REGISTER_ENTITY(CAirstrikeShell);
 REGISTER_ENTITY(CCameraGuidedMissile);

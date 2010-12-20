@@ -589,3 +589,9 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
 }
+
+NETVAR_TABLE_BEGIN(CTreeCutter);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CTreeCutter);
+SAVEDATA_TABLE_END();

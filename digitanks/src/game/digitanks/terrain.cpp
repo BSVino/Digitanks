@@ -1407,7 +1407,9 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 		return;
 
 	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
-	if (pWeapon && !pWeapon->CreatesCraters())
+	CTreeCutter* pTreeCutter = dynamic_cast<CTreeCutter*>(pInflictor);
+
+	if (pWeapon && !pWeapon->CreatesCraters() && !pTreeCutter)
 		return;
 
 	float flRadius = 4.0f;
@@ -1476,8 +1478,16 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 				int iChunkX = ArrayToChunkSpace(x, iIndex);
 				int iChunkY = ArrayToChunkSpace(z, iIndex);
 
-				if (RandomInt(0, 5) == 0)
-					SetBit(x, z, TB_TREE, false);
+				if (pTreeCutter)
+				{
+					if (RandomFloat(0, 1) > 0.3f)
+						SetBit(x, z, TB_TREE, false);
+				}
+				else
+				{
+					if (RandomInt(0, 5) == 0)
+						SetBit(x, z, TB_TREE, false);
+				}
 
 				CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
 				if (pChunk && !pChunk->m_bNeedsRegenerate)

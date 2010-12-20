@@ -67,6 +67,7 @@ typedef enum
 
 	// Strategy mode projectiles
 	PROJECTILE_FLAK,		// For infantry
+	PROJECTILE_TREECUTTER,	// For infantry
 	PROJECTILE_TORPEDO,		// For scouts
 	PROJECTILE_ARTILLERY,	// For guess who
 

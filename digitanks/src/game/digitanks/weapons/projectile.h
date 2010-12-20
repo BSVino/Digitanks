@@ -293,4 +293,21 @@ protected:
 	bool						m_bBurrowing;
 };
 
+class CTreeCutter : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CTreeCutter, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_TREECUTTER; }
+	virtual bool				MakesSounds() { return true; };
+	virtual float				ShellRadius() { return 0.5f; };
+	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual bool				ShouldExplode() { return true; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual bool				BombDropNoise() { return true; };
+	virtual bool				SendsNotifications() { return false; };
+	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
+};
+
 #endif

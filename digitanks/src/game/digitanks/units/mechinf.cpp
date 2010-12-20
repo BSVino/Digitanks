@@ -43,6 +43,7 @@ void CMechInfantry::Spawn()
 	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
 
 	m_aeWeapons.push_back(PROJECTILE_FLAK);
+	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
 
 	m_eWeapon = PROJECTILE_FLAK;
 }
@@ -139,6 +140,14 @@ float CMechInfantry::HealthRechargeRate() const
 		return 0.2f + ((float)m_iFortifyLevel.Get())/25 + GetSupportHealthRechargeBonus();
 
 	return 0.2f + GetSupportHealthRechargeBonus();
+}
+
+float CMechInfantry::ProjectileCurve() const
+{
+	if (GetCurrentWeapon() == PROJECTILE_FLAK)
+		return -0.01f;
+	else
+		return -0.025f;
 }
 
 float CMechInfantry::FirstProjectileTime() const
