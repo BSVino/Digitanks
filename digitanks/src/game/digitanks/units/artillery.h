@@ -32,6 +32,8 @@ public:
 	virtual float				ProjectileCurve() const { return -0.006f; };
 	virtual float				FiringCone() const { return 15; };
 	virtual float				BaseVisibleRange() const { return 45; };
+	virtual float				MinRangeRadius() const { return 15; };
+	virtual float				MaxRangeRadius() const { return 25; };
 	virtual float				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.5f; };
 

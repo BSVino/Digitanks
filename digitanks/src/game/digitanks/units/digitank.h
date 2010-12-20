@@ -292,6 +292,7 @@ public:
 	virtual float				BaseVisibleRange() const { return 75; };
 	virtual size_t				FleetPoints() const { return 2; };
 	virtual float				BobHeight() const { return 0.5f; };
+	virtual float				MinRangeRadius() const { return 1; };
 	virtual float				MaxRangeRadius() const { return 10; };
 	virtual float				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.5f; };

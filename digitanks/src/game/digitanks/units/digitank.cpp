@@ -2084,7 +2084,7 @@ void CDigitank::FireWeapon()
 
 	Vector vecLandingSpot = m_vecLastAim.Get();
 
-	float flFactor = FindAimRadius(m_vecLastAim.Get(), 1);
+	float flFactor = FindAimRadius(m_vecLastAim.Get(), MinRangeRadius());
 
 	float flYaw = RandomFloat(0, 360);
 	float flRadius = RandomFloat(1, flFactor);

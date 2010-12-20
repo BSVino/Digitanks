@@ -242,6 +242,7 @@ class CArtilleryShell : public CProjectile
 
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY; }
+	virtual float				ExplosionRadius() { return 12.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
