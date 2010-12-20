@@ -108,8 +108,9 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	7.0f,	// clusterbomb
 	4.0f,	// earthshaker
 
-	6.0f,	// machine gun
+	4.0f,	// machine gun
 	3.0f,	// treecutter
+	7.0f,	// laser
 	3.0f,	// torpedo
 	8.0f,	// artillery
 
@@ -139,8 +140,9 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	7.0f,	// clusterbomb
 	1.0f,	// earthshaker
 
-	5.2f,	// machine gun
+	6.0f,	// machine gun
 	1.0f,	// tree cutter
+	5.0f,	// laser
 	0.0f,	// torpedo
 	1.3f,	// artillery
 
@@ -172,6 +174,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 
 	20,	// machine gun
 	1,	// tree cutter
+	1,	// laser
 	1,	// torpedo
 	3,	// artillery
 
@@ -203,6 +206,7 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 
 	0.1f,	// machine gun
 	0,		// tree cutter
+	0,		// laser
 	0,		// torpedo
 	0.25f,	// artillery
 
@@ -234,6 +238,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 
 	L"Flak Cannon",
 	L"Tree Cutter",
+	L"Laser",
 	L"Torpedo",
 	L"Artillery Shell",
 
@@ -265,6 +270,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 
 	L"The infantry's light mounted gun is its main firepower.",
 	L"This special weapon can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
+	L"This weapon emits a wall of lasers in one direction. It can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
 	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
 	L"The artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
 

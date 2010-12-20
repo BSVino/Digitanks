@@ -23,4 +23,24 @@ public:
 protected:
 };
 
+class CInfantryLaser : public CBaseWeapon
+{
+	REGISTER_ENTITY_CLASS(CInfantryLaser, CBaseWeapon);
+
+public:
+	virtual void				OnSetOwner(class CDigitank* pOwner);
+
+	virtual bool				ShouldRender() const { return true; };
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+
+	virtual weapon_t			GetWeaponType() { return WEAPON_INFANTRYLASER; }
+	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual float				PushRadius() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.5f; };
+	virtual float				PushDistance() { return 0.0f; };
+
+protected:
+};
+
 #endif

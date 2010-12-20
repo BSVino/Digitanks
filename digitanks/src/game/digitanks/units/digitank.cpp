@@ -2160,6 +2160,8 @@ CBaseWeapon* CDigitank::CreateWeapon()
 		return GameServer()->Create<CInfantryFlak>("CInfantryFlak");
 	else if (GetCurrentWeapon() == PROJECTILE_TREECUTTER)
 		return GameServer()->Create<CTreeCutter>("CTreeCutter");
+	else if (GetCurrentWeapon() == WEAPON_INFANTRYLASER)
+		return GameServer()->Create<CInfantryLaser>("CInfantryLaser");
 	else if (GetCurrentWeapon() == PROJECTILE_TORPEDO)
 		return GameServer()->Create<CTorpedo>("CTorpedo");
 	else if (GetCurrentWeapon() == PROJECTILE_SMALL)
