@@ -18,7 +18,7 @@ public:
 	virtual bool				HasUpdatesAvailable();
 
 	virtual size_t				InitialDataStrength() { return 350; };
-	virtual size_t				InitialFleetPoints() const { return 1; };
+	virtual size_t				InitialFleetPoints() const { return 2; };
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual float				TotalHealth() const { return 25; };
 
@@ -53,7 +53,7 @@ public:
 
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	virtual size_t				InitialDataStrength() { return 250; };
-	virtual size_t				InitialFleetPoints() const { return 0; };
+	virtual size_t				InitialFleetPoints() const { return 1; };
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual float				TotalHealth() const { return 15; };
 
