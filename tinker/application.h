@@ -17,7 +17,7 @@ public:
 public:
 	void						SetMultisampling(bool bMultisampling) { m_bMultisampling = bMultisampling; }
 
-	void						OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen);
+	void						OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, bool bResizeable);
 
 	void						DumpGLInfo();
 

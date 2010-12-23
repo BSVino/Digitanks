@@ -94,7 +94,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 void CDigitanksWindow::OpenWindow()
 {
-	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen);
+	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
 	ilInit();
 

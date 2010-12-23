@@ -26,7 +26,7 @@ CApplication::CApplication(int argc, char** argv)
 	m_bMultisampling = false;
 }
 
-void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
+void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, bool bResizeable)
 {
 	glfwInit();
 
@@ -41,7 +41,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen)
 	m_iWindowWidth = iWidth;
 	m_iWindowHeight = iHeight;
 
-	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
+	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, bResizeable?GL_FALSE:GL_TRUE);
 
 	if (m_bMultisampling)
 		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);

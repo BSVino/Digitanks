@@ -1525,6 +1525,8 @@ void CRootPanel::Think(float flNewTime)
 
 void CRootPanel::Paint(int x, int y, int w, int h)
 {
+	SetSize(w, h);
+
 	// Switch GL to 2d drawing mode.
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
