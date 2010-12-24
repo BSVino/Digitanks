@@ -2169,6 +2169,8 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 		if (iFire != ~0)
 			CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
 	}
+
+	RockTheBoat(0.8f, -vecForce.Normalized());
 }
 
 CBaseWeapon* CDigitank::CreateWeapon()
