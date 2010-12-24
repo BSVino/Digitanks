@@ -353,8 +353,15 @@ inline EAngle VectorAngles( const Vector& vecForward )
 class Vector2D
 {
 public:
-			Vector2D();
-			Vector2D(unit_t x, unit_t y);
+				Vector2D();
+				Vector2D(unit_t x, unit_t y);
+				Vector2D(Vector v);
+
+public:
+	Vector2D	operator+(const Vector2D& v) const;
+	Vector2D	operator-(const Vector2D& v) const;
+	Vector2D	operator*(float s) const;
+	Vector2D	operator/(float s) const;
 
 	operator float*()
 	{
@@ -372,6 +379,31 @@ inline Vector2D::Vector2D()
 inline Vector2D::Vector2D(unit_t X, unit_t Y)
 	: x(X), y(Y)
 {
+}
+
+inline Vector2D::Vector2D(Vector v)
+	: x(v.x), y(v.y)
+{
+}
+
+inline Vector2D Vector2D::operator+(const Vector2D& v) const
+{
+	return Vector2D(x+v.x, y+v.y);
+}
+
+inline Vector2D Vector2D::operator-(const Vector2D& v) const
+{
+	return Vector2D(x-v.x, y-v.y);
+}
+
+inline Vector2D Vector2D::operator*(float s) const
+{
+	return Vector2D(x*s, y*s);
+}
+
+inline Vector2D Vector2D::operator/(float s) const
+{
+	return Vector2D(x/s, y/s);
 }
 
 class Vector4D
