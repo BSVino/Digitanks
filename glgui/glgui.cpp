@@ -2224,7 +2224,7 @@ size_t CTree::AddNode(const eastl::string16& sName)
 size_t CTree::AddNode(CTreeNode* pNode)
 {
 	m_apNodes.push_back(pNode);
-	AddControl(pNode);
+	AddControl(pNode, true);
 	return m_apNodes.size()-1;
 }
 

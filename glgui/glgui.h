@@ -1108,6 +1108,7 @@ namespace glgui
 		CTreeNode*							GetNode(size_t i);
 
 		virtual CTreeNode*					GetSelectedNode() { if (m_iSelected == ~0) return NULL; return dynamic_cast<CTreeNode*>(m_apControls[m_iSelected]); };
+		virtual size_t						GetSelectedNodeId() { return m_iSelected; };
 		virtual void						SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 
 		void								SetBackgroundColor(const Color& clrBackground) { m_clrBackground = clrBackground; }
