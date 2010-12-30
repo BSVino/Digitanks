@@ -70,6 +70,20 @@ void CBaseControl::GetAbsDimensions(int &x, int &y, int &w, int &h)
 	h = m_iH;
 }
 
+CRect CBaseControl::GetAbsDimensions()
+{
+	int x, y;
+	GetAbsPos(x, y);
+
+	CRect r;
+	r.x = (float)x;
+	r.y = (float)y;
+	r.w = (float)m_iW;
+	r.h = (float)m_iH;
+
+	return r;
+}
+
 void CBaseControl::SetRight(int r)
 {
 	m_iW = r - m_iX;
@@ -1556,8 +1570,9 @@ void CRootPanel::Paint(int x, int y, int w, int h)
 		int mx, my;
 		CRootPanel::GetFullscreenMousePos(mx, my);
 
-		int iWidth = GetHeight()/12;
-//		m_pDragging->GetCurrentDraggable()->Paint(mx-iWidth/2, my-iWidth/2, iWidth, iWidth, true);
+		int iWidth = m_pDragging->GetCurrentDraggable()->GetWidth();
+		int iHeight = m_pDragging->GetCurrentDraggable()->GetHeight();
+		m_pDragging->GetCurrentDraggable()->Paint(mx-iWidth/2, my-iHeight/2, iWidth, iHeight, true);
 	}
 
 	glEnable(GL_DEPTH_TEST);
@@ -1675,6 +1690,9 @@ void CRootPanel::CursorMoved(int x, int y)
 void CRootPanel::DragonDrop(IDroppable* pDroppable)
 {
 	if (!pDroppable->IsVisible())
+		return;
+
+	if (!pDroppable->GetCurrentDraggable()->IsDraggable())
 		return;
 
 	assert(pDroppable);
@@ -2086,10 +2104,18 @@ CTree::CTree(size_t iArrowTexture, size_t iEditTexture, size_t iVisibilityTextur
 
 	m_clrBackground = Color(0, 0, 0);
 	m_clrBackground.SetAlpha(0);
+
+	m_bMouseDown = false;
+
+	m_pDragging = NULL;
+
+	CRootPanel::Get()->AddDroppable(this);
 }
 
 void CTree::Destructor()
 {
+	CRootPanel::Get()->RemoveDroppable(this);
+
 	CPanel::Destructor();
 	// CPanel destructor does this since they are controls.
 //	for (size_t i = 0; i < m_apNodes.size(); i++)
@@ -2128,6 +2154,13 @@ void CTree::Think()
 			m_iHilighted = i;
 			break;
 		}
+	}
+
+	if (m_bMouseDown && abs(mx - m_iMouseDownX) > 10 && abs(my - m_iMouseDownY) && GetSelectedNode() && !CRootPanel::Get()->GetCurrentDraggable())
+	{
+		m_pDragging = GetSelectedNode();
+		CRootPanel::Get()->DragonDrop(this);
+		m_bMouseDown = false;
 	}
 
 	CPanel::Think();
@@ -2174,6 +2207,10 @@ void CTree::Paint(int x, int y, int w, int h)
 
 bool CTree::MousePressed(int code, int mx, int my)
 {
+	m_bMouseDown = true;
+	m_iMouseDownX = mx;
+	m_iMouseDownY = my;
+
 	if (CPanel::MousePressed(code, mx, my))
 		return true;
 
@@ -2196,6 +2233,16 @@ bool CTree::MousePressed(int code, int mx, int my)
 			return true;
 		}
 	}
+
+	return false;
+}
+
+bool CTree::MouseReleased(int code, int mx, int my)
+{
+	m_bMouseDown = false;
+
+	if (CPanel::MouseReleased(code, mx, my))
+		return true;
 
 	return false;
 }
@@ -2270,6 +2317,21 @@ void CTree::SetSelectedListener(IEventListener* pListener, IEventListener::Callb
 	m_pfnSelectedCallback = pfnCallback;
 }
 
+void CTree::SetDroppedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	m_pDroppedListener = pListener;
+	m_pfnDroppedCallback = pfnCallback;
+}
+
+void CTree::SetDraggable(IDraggable* pDraggable, bool bDelete)
+{
+	if (m_pDroppedListener)
+		m_pfnDroppedCallback(m_pDroppedListener);
+
+	AddNode(dynamic_cast<CTreeNode*>(pDraggable->MakeCopy()));
+}
+
 CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const eastl::string16& sText)
 	: CPanel(0, 0, 10, 10)
 {
@@ -2291,6 +2353,30 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const eastl::string16& sT
 	AddControl(m_pExpandButton);
 
 	m_iIconTexture = 0;
+
+	m_bDraggable = false;
+}
+
+CTreeNode::CTreeNode(const CTreeNode& c)
+	: CPanel(GetLeft(), GetTop(), GetWidth(), GetHeight())
+{
+	m_pParent = c.m_pParent;
+	m_pTree = c.m_pTree;
+	m_pVisibilityButton = NULL;
+	m_pEditButton = NULL;
+
+	m_pLabel = new CLabel(c.m_pLabel->GetLeft(), c.m_pLabel->GetTop(), c.m_pLabel->GetWidth(), c.m_pLabel->GetHeight(), c.m_pLabel->GetText());
+	m_pLabel->SetAlign(c.m_pLabel->GetAlign());
+	m_pLabel->SetFontFaceSize(c.m_pLabel->GetFontFaceSize());
+	AddControl(m_pLabel);
+
+	m_pExpandButton = new CExpandButton(m_pTree->m_iArrowTexture);
+	m_pExpandButton->SetExpanded(false);
+	m_pExpandButton->SetClickedListener(this, Expand);
+	AddControl(m_pExpandButton);
+
+	m_iIconTexture = c.m_iIconTexture;
+	m_bDraggable = false;
 }
 
 void CTreeNode::Destructor()
@@ -2331,6 +2417,11 @@ void CTreeNode::LayoutNode()
 }
 
 void CTreeNode::Paint(int x, int y, int w, int h)
+{
+	Paint(x, y, w, h, false);
+}
+
+void CTreeNode::Paint(int x, int y, int w, int h, bool bFloating)
 {
 	if (!IsVisible())
 		return;
@@ -2427,6 +2518,24 @@ bool CTreeNode::IsVisible()
 	while (pNode = pNode->m_pParent);
 
 	return true;
+}
+
+void CTreeNode::SetHoldingRect(const CRect)
+{
+}
+
+CRect CTreeNode::GetHoldingRect()
+{
+	return CRect(0, 0, 0, 0);
+}
+
+IDroppable* CTreeNode::GetDroppable()
+{
+	return NULL;
+}
+
+void CTreeNode::SetDroppable(IDroppable* pDroppable)
+{
 }
 
 void CTreeNode::ExpandCallback()

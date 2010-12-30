@@ -7,6 +7,7 @@
 #include <color.h>
 #include <FTGL/ftgl.h>
 #include <maths.h>
+#include <common.h>
 
 // Not my favorite hack.
 #define EVENT_CALLBACK(type, pfn) \
@@ -100,9 +101,6 @@ namespace glgui
 		typedef enum
 		{
 			DC_UNSPECIFIED	= 0,
-			DC_WEAPONICON,
-			DC_RUNEICON,
-			DC_RUNECOMBO,
 		} DragClass_t;		// Where the hookers go to learn their trade.
 		virtual void			Destructor()=0;
 		virtual void			Delete()=0;
@@ -118,8 +116,12 @@ namespace glgui
 		virtual void			Paint(int x, int y, int w, int h)=0;
 		virtual void			Paint(int x, int y, int w, int h, bool bFloating)=0;
 
+		virtual int				GetWidth()=0;
+		virtual int				GetHeight()=0;
+
 		virtual DragClass_t		GetClass()=0;
-		virtual IDraggable&		MakeCopy()=0;
+		virtual IDraggable*		MakeCopy()=0;
+		virtual bool			IsDraggable() { return true; };
 	};
 
 	// A place where an IDraggable is allowed to be dropped.
@@ -129,15 +131,11 @@ namespace glgui
 		virtual void			Destructor()=0;
 		virtual void			Delete()=0;
 
-		virtual IControl*		GetParent()=0;
-		virtual void			SetParent(IControl* pParent)=0;
-
 		// Get the place where a droppable object should be.
 		virtual const CRect		GetHoldingRect()=0;
 
 		virtual void			AddDraggable(IDraggable*)=0;
 		virtual void			SetDraggable(IDraggable*, bool bDelete = true)=0;
-		virtual void			ClearDraggables(bool bDelete = true)=0;
 		virtual IDraggable*		GetDraggable(int i)=0;
 		virtual IDraggable*		GetCurrentDraggable()=0;
 
@@ -186,6 +184,7 @@ namespace glgui
 		virtual void	GetPos(int &x, int &y) { x = m_iX; y = m_iY; };
 		virtual void	GetAbsPos(int &x, int &y);
 		virtual void	GetAbsDimensions(int &x, int &y, int &w, int &h);
+		virtual CRect	GetAbsDimensions();
 		virtual int		GetWidth() { return m_iW; };
 		virtual int		GetHeight() { return m_iH; };
 		virtual void	SetDimensions(int x, int y, int w, int h) { m_iX = x; m_iY = y; m_iW = w; m_iH = h; };	// Local space
@@ -460,6 +459,7 @@ namespace glgui
 		virtual eastl::string16	GetText();
 
 		virtual void	SetFontFaceSize(int iSize);
+		virtual int		GetFontFaceSize() { return m_iFontFaceSize; };
 
 		virtual int		GetTextWidth();
 		virtual float	GetTextHeight();
@@ -1002,18 +1002,23 @@ namespace glgui
 		IEventListener*						m_pSelectedListener;
 	};
 
-	class CTreeNode : public CPanel, public glgui::IEventListener
+	class CTreeNode : public CPanel, public IDraggable, public glgui::IEventListener
 	{
+		DECLARE_CLASS(CTreeNode, CPanel);
+
 	public:
 											CTreeNode(CTreeNode* pParent, class CTree* pTree, const eastl::string16& sText);
+											CTreeNode(const CTreeNode& c);
 
 	public:
 		virtual void						Destructor();
 		virtual void						Delete() { delete this; };
 
 		virtual void						LayoutNode();
-		void								Paint() { CPanel::Paint(); };
-		void								Paint(int x, int y, int w, int h);
+		virtual void						Paint() { CPanel::Paint(); };
+		virtual void						Paint(int x, int y) { CPanel::Paint(x, y); };
+		virtual void						Paint(int x, int y, int w, int h);
+		virtual void						Paint(int x, int y, int w, int h, bool bFloating);
 
 		size_t								AddNode(const eastl::string16& sName);
 		template <typename T>
@@ -1036,8 +1041,23 @@ namespace glgui
 		void								SetExpanded(bool bExpanded) { m_pExpandButton->SetExpanded(bExpanded); };
 
 		void								SetIcon(size_t iTexture) { m_iIconTexture = iTexture; };
+		virtual void						SetDraggable(bool bDraggable) { m_bDraggable = true; };
 
 		virtual bool						IsVisible();
+
+		// IDraggable
+		virtual void						SetHoldingRect(const CRect);
+		virtual CRect						GetHoldingRect();
+
+		virtual IDroppable*					GetDroppable();
+		virtual void						SetDroppable(IDroppable* pDroppable);
+
+		virtual int							GetWidth() { return BaseClass::GetWidth(); };
+		virtual int							GetHeight() { return BaseClass::GetHeight(); };
+
+		virtual DragClass_t					GetClass() { return DC_UNSPECIFIED; };
+		virtual IDraggable*					MakeCopy() { return new CTreeNode(*this); };
+		virtual bool						IsDraggable() { return m_bDraggable; };
 
 		EVENT_CALLBACK(CTreeNode, Expand);
 
@@ -1051,6 +1071,8 @@ namespace glgui
 
 		CPictureButton*						m_pVisibilityButton;
 		CPictureButton*						m_pEditButton;
+
+		bool								m_bDraggable;
 
 		class CExpandButton : public CPictureButton
 		{
@@ -1074,8 +1096,10 @@ namespace glgui
 		CExpandButton*						m_pExpandButton;
 	};
 
-	class CTree : public CPanel
+	class CTree : public CPanel, public IDroppable
 	{
+		DECLARE_CLASS(CTree, CPanel);
+
 		friend class CTreeNode;
 
 	public:
@@ -1092,6 +1116,7 @@ namespace glgui
 		virtual void						Paint(int x, int y, int w, int h);
 
 		virtual bool						MousePressed(int code, int mx, int my);
+		virtual bool						MouseReleased(int iButton, int mx, int my);
 
 		void								ClearTree();
 
@@ -1111,7 +1136,26 @@ namespace glgui
 		virtual size_t						GetSelectedNodeId() { return m_iSelected; };
 		virtual void						SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 
+		virtual void						SetDroppedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+
 		void								SetBackgroundColor(const Color& clrBackground) { m_clrBackground = clrBackground; }
+
+		// IDroppable
+		virtual const CRect					GetHoldingRect() { return GetAbsDimensions(); };
+
+		virtual void						AddDraggable(IDraggable*) {};
+		virtual void						SetDraggable(IDraggable*, bool bDelete = true);
+		virtual IDraggable*					GetDraggable(int i) { return m_pDragging; };
+		virtual IDraggable*					GetCurrentDraggable() { return m_pDragging; };
+
+		// I already know.
+		virtual void						SetGrabbale(bool bGrabbable) {};
+		virtual bool						IsGrabbale() { return true; };
+
+		virtual bool						CanDropHere(IDraggable*) { return true; };
+
+		virtual bool						IsInfinite() { return true; };
+		virtual bool						IsVisible() { return BaseClass::IsVisible(); };
 
 	public:
 		eastl::vector<CTreeNode*>			m_apNodes;
@@ -1129,7 +1173,17 @@ namespace glgui
 		IEventListener::Callback			m_pfnSelectedCallback;
 		IEventListener*						m_pSelectedListener;
 
+		IEventListener::Callback			m_pfnDroppedCallback;
+		IEventListener*						m_pDroppedListener;
+
 		Color								m_clrBackground;
+
+		bool								m_bMouseDown;
+		int									m_iMouseDownX;
+		int									m_iMouseDownY;
+
+		CTreeNode*							m_pDragging;
+		int									m_iAcceptsDragType;
 	};
 
 	template <typename T>
@@ -1182,6 +1236,8 @@ namespace glgui
 		}
 
 		virtual T* GetObject() { return m_pObject; }
+
+		virtual IDraggable*				MakeCopy() { return new CTreeNodeObject<T>(*this); };
 
 		EVENT_CALLBACK(CTreeNodeObject, Visibility);
 		EVENT_CALLBACK(CTreeNodeObject, Edit);
@@ -1238,6 +1294,7 @@ namespace glgui
 		virtual eastl::string16	GetText();
 
 		virtual void	SetFontFaceSize(int iSize);
+		virtual int		GetFontFaceSize() { return m_iFontFaceSize; };
 
 		virtual int		GetTextWidth();
 		virtual float	GetTextHeight();
