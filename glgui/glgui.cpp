@@ -1537,6 +1537,13 @@ void CRootPanel::Think(float flNewTime)
 	m_flTime = flNewTime;
 }
 
+void CRootPanel::UpdateScene()
+{
+	m_pDragging = NULL;
+
+	CPanel::UpdateScene();
+}
+
 void CRootPanel::Paint(int x, int y, int w, int h)
 {
 	SetSize(w, h);
