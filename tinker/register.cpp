@@ -6,13 +6,7 @@
 #include <license/license.h>
 #include <mtrand.h>
 #include <platform.h>
-
-#ifdef _WIN32
-#include "winsock2.h"
-#include "Ws2tcpip.h"
-#else
-#define closesocket close
-#endif
+#include <sockets/sockets.h>
 
 void CApplication::InitRegistrationFile()
 {
@@ -142,134 +136,39 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 {
 	sKey = convertstring<char, char16_t>(trim(convertstring<char16_t, char>(sKey)));
 
-	int iResult;
+	CHTTPPostSocket s(convertstring<char16_t, char>(sServer.c_str()).c_str());
 
-#ifdef _WIN32
-	// Initialize Winsock
-	WSADATA wsaData;
-	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (iResult != 0)
+	if (!s.IsOpen())
 	{
-		sError = L"Whoops! There was some kind of problem.";
-	    return false;
-	}
-#endif
-
-	struct addrinfo* pResult;
-	struct addrinfo oHint;
-	memset(&oHint, 0, sizeof(oHint));
-	oHint.ai_family = AF_UNSPEC;
-	oHint.ai_socktype = SOCK_STREAM;
-	oHint.ai_protocol = IPPROTO_TCP;
-
-	iResult = getaddrinfo(convertstring<char16_t, char>(sServer).c_str(), "80", &oHint, &pResult);
-
-	if (iResult != 0)
-	{
-		sError = eastl::string16(L"Couldn't resolve hostname ") + sServer;
-#ifdef _WIN32
-		WSACleanup();
-#endif
+		sError = convertstring<char, char16_t>(s.GetError());
 		return false;
 	}
 
-	int iSocket = 0;
-	for (struct addrinfo *pCurrent = pResult; pCurrent != NULL; pCurrent=pCurrent->ai_next)
-	{
-		iSocket = socket(pCurrent->ai_family, pCurrent->ai_socktype, pCurrent->ai_protocol);
-		if (iSocket == INVALID_SOCKET)
-		{
-			sError = L"socket() failed";
-#ifdef _WIN32
-			WSACleanup();
-#endif
-			return false;
-		}
+	eastl::string sContent;
+	sContent.append("key=");
+	sContent.append(convertstring<char16_t, char>(sKey));
 
-		// Connect to server.
-		iResult = connect( iSocket, (struct sockaddr *)pCurrent->ai_addr, (int)pCurrent->ai_addrlen);
-		if (iResult == SOCKET_ERROR)
-		{
-			printf("socket failed with error: %ld\n", WSAGetLastError());
-			closesocket(iSocket);
-			iResult = INVALID_SOCKET;
-			continue;
-		}
-		break;
-	}
+	s.SetPostContent(sContent);
+	s.SendHTTP11(convertstring<char16_t, char>(sURI).c_str());
 
-	freeaddrinfo(pResult);
+//	int iOptVal = 0;
+//	setsockopt(iSocket, SOL_SOCKET, SO_SNDBUF, (char*)&iOptVal, sizeof(iOptVal));
 
-	if (iResult == INVALID_SOCKET)
-	{
-		sError = L"Couldn't connect to the server. Sorry! Try again in a bit.";
-#ifdef _WIN32
-		WSACleanup();
-#endif
-		return false;
-	}
-
-	eastl::string16 sContent;
-	sContent.append(L"key=");
-	sContent.append(sKey.substr(0, 16));
-
-	eastl::string16 sPost;
-	eastl::string16 p;
-	sPost += eastl::string16(L"POST ") + sURI + L" HTTP/1.1\n";
-	sPost += eastl::string16(L"Host: ") + sServer + L"\n";
-	sPost += p.sprintf(L"Content-Length: %d\n", sContent.length());
-	sPost += L"Content-Type: application/x-www-form-urlencoded\n\n";
-	sPost += sContent + L"\n\n";
-
-	eastl::string sSend = convertstring<char16_t, char>(sPost);
-
-	int iOptVal = 0;
-	setsockopt(iSocket, SOL_SOCKET, SO_SNDBUF, (char*)&iOptVal, sizeof(iOptVal));
-
-	iResult = send( iSocket, sSend.c_str(), sSend.length(), 0 );
-	if (iResult == SOCKET_ERROR)
-	{
-		sError = L"Couldn't send to the server. Sorry! Try again in a bit.";
-#ifdef _WIN32
-		WSACleanup();
-#endif
-		return false;
-	}
-
-	iResult = shutdown(iSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR)
-	{
-		sError = L"Shutdown failed for some reason. Sorry! Try again in a bit.";
-		closesocket(iSocket);
-#ifdef _WIN32
-		WSACleanup();
-#endif
-		return false;
-	}
-
-	eastl::string sResult;
-	do {
-		char szBuf[1000];
-		iResult = recv(iSocket, szBuf, 999, 0);
-		if (iResult < 1000)
-			szBuf[iResult] = '\0';
-		sResult.append(szBuf);
-	} while( iResult > 0 );
-
-	eastl::vector<eastl::string> asTokens;
-	strtok(sResult, asTokens);
+	s.ParseOutput();
 
 	int iCode = -1;
-	for (size_t i = 0; i < asTokens.size(); i++)
+	for (size_t i = 0; i < s.GetNumReplies(); i++)
 	{
-		eastl::string sToken = asTokens[i];
-		if (sToken.substr(0, 4) == "code")
+		CPostReply* pReply = s.GetReply(i);
+		if (pReply->m_sKey == "code")
 		{
-			eastl::string sCode = asTokens[i+1];
+			eastl::string sCode = pReply->m_sValue;
 			iCode = atoi(sCode.c_str());
 			break;
 		}
 	}
+
+	s.Close();
 
 	bool bReturn = false;
 	if (iCode == 0)
@@ -289,12 +188,6 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 		sError = L"Looks like there's something wrong with the server at the moment, try again in a bit or contact support <support@lunarworkshop.net> if it continues.";
 	else
 		sError = L"Looks like there's something wrong, please contact support <support@lunarworkshop.net> if it continues.";
-
-	closesocket(iSocket);
-
-#ifdef _WIN32
-	WSACleanup();
-#endif
 
 	return bReturn;
 }

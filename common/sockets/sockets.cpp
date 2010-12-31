@@ -2,10 +2,13 @@
 
 #include "strutils.h"
 
+using eastl::string;
+
 CClientSocket::CClientSocket(const char* pszHostname, int iPort)
 {
 	m_sHostname = pszHostname;
 	m_iPort = iPort;
+	m_bOpen = false;
 
 	Initialize();
 
@@ -20,7 +23,7 @@ CClientSocket::~CClientSocket()
 
 void CClientSocket::Initialize()
 {
-	m_Socket = -1;
+	m_iSocket = -1;
 	m_sError = "";
 
 #ifdef _WIN32
@@ -30,40 +33,55 @@ void CClientSocket::Initialize()
         return;
     }
 #endif
-
-	m_Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 }
 
 bool CClientSocket::Connect(const char* pszHostname, int iPort)
 {
-	struct sockaddr_in srv;
 	struct addrinfo hints;
-	struct addrinfo *remoteHost;
+	struct addrinfo *pResult;
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM; // TCP
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
 
-	ostringstream ssPort;
-	ssPort << iPort;
+	string sPort;
+	sPort.sprintf("%d", iPort);
 
-	int iResult = getaddrinfo(pszHostname, ssPort.str().c_str(), &hints, &remoteHost);
+	int iResult = getaddrinfo(pszHostname, sPort.c_str(), &hints, &pResult);
 	if ( iResult != 0 )
 	{
 		m_sError = "getaddrinfo() failed.";
 		return false;
 	}
 
-	if (connect(GetSocket(), remoteHost->ai_addr, sizeof(srv)) == SOCKET_ERROR)
+	for (struct addrinfo *pCurrent = pResult; pCurrent != NULL; pCurrent=pCurrent->ai_next)
 	{
+		m_iSocket = socket(pCurrent->ai_family, pCurrent->ai_socktype, pCurrent->ai_protocol);
+		if (m_iSocket == INVALID_SOCKET)
+		{
+			m_sError = "socket() failed";
 #ifdef _WIN32
-		int iError = WSAGetLastError();
-		WSACleanup();
-		m_sError = "connect() failed.";
+			WSACleanup();
 #endif
-		return false;
+			return false;
+		}
+
+		// Connect to server.
+		iResult = connect( m_iSocket, (struct sockaddr *)pCurrent->ai_addr, (int)pCurrent->ai_addrlen);
+		if (iResult == SOCKET_ERROR)
+		{
+			m_sError = "connect() failed";
+			closesocket(m_iSocket);
+			iResult = INVALID_SOCKET;
+			continue;
+		}
+		break;
 	}
 
+	freeaddrinfo(pResult);
+
+	m_bOpen = true;
 	return true;
 }
 
@@ -84,24 +102,35 @@ int CClientSocket::Send(const char* pszData, int iLength)
 
 int CClientSocket::Recv(char* pszData, int iLength)
 {
-	return recv(GetSocket(), pszData, iLength, 0);
+	int iResult = recv(GetSocket(), pszData, iLength, 0);
+
+	if (iResult < iLength)
+		pszData[iResult] = '\0';
+
+	return iResult;
 }
 
 string CClientSocket::RecvAll()
 {
-	ostringstream ssOutput;
+	string sOutput;
 	char szBuffer[1028];
 	int iResult;
 
 	while ((iResult = Recv(szBuffer, sizeof(szBuffer))) > 0)
 	{
-		ssOutput << szBuffer;
+		sOutput.append(szBuffer);
+
+		if (iResult < 1000)
+			break;
 	}
-	return ssOutput.str();
+	return sOutput;
 }
 
 void CClientSocket::Close()
 {
+	if (!m_bOpen)
+		return;
+
 #ifdef _WIN32
 	closesocket(GetSocket());
 #else
@@ -109,7 +138,9 @@ void CClientSocket::Close()
 	close(GetSocket());
 #endif
 
-	m_Socket = -1;
+	m_iSocket = -1;
+
+	m_bOpen = false;
 }
 
 CHTTPPostSocket::CHTTPPostSocket(const char* pszHostname, int iPort) : CClientSocket(pszHostname, iPort)
@@ -132,13 +163,14 @@ void CHTTPPostSocket::AddPost(const char* pszKey, const char* pszValue)
 
 void CHTTPPostSocket::SendHTTP11(const char* pszPage)
 {
-	ostringstream ssOutput;
+	string p;
+	string sOutput;
 
-	ssOutput << "POST " << pszPage << " HTTP/1.1" << endl;
-	ssOutput << "Host: " << m_sHostname << endl;
-	ssOutput << "Content-Length: " << m_sPostContent.length() << endl;
-	ssOutput << "Content-Type: application/x-www-form-urlencoded" << endl << endl;
-	Send(ssOutput.str());
+	sOutput  = string("POST ") + pszPage + " HTTP/1.1\n";
+	sOutput += "Host: " + m_sHostname + "\n";
+	sOutput += p.sprintf("Content-Length: %d\n", m_sPostContent.length());
+	sOutput += "Content-Type: application/x-www-form-urlencoded\n\n";
+	Send(sOutput);
 
 	Send(m_sPostContent);
 }
@@ -152,12 +184,13 @@ void CHTTPPostSocket::ParseOutput()
 {
 	string sReturn = RecvAll();
 	bool bHTTPOver = false;
-	vector<string> vTokens;
+	eastl::vector<string> vTokens;
 
 	strtok(sReturn, vTokens, "\n");
 	for (unsigned int i = 1; i < vTokens.size(); i++)
 	{
-		if (!vTokens[i].length())
+		string sToken = vTokens[i];
+		if (!trim(sToken).length())
 		{
 			bHTTPOver = true;
 			continue;
@@ -166,11 +199,12 @@ void CHTTPPostSocket::ParseOutput()
 		if (!bHTTPOver)
 			continue;
 
-		string::size_type iColon = vTokens[i].find(":");
-		KeyValue(vTokens[i].substr(0, iColon).c_str(), vTokens[i].substr(iColon+2).c_str());
+		string::size_type iColon = sToken.find(":");
+		KeyValue(sToken.substr(0, iColon).c_str(), sToken.substr(iColon+2).c_str());
 	}
 }
 
 void CHTTPPostSocket::KeyValue(const char* pszKey, const char* pszValue)
 {
+	m_aKeys.push_back(CPostReply(pszKey, pszValue));
 }

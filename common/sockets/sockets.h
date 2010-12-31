@@ -5,8 +5,8 @@
 #endif
 
 #include <stdio.h>
-#include <string>
-#include <sstream>
+#include <EASTL/string.h>
+#include <EASTL/vector.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -30,8 +30,6 @@
 #define SOCKET_ERROR -1
 #endif
 
-using namespace std;
-
 class CClientSocket
 {
 public:
@@ -41,45 +39,68 @@ public:
 	virtual void	Initialize();
 	virtual bool	Connect(const char* pszHostname, int iPort);
 
+	virtual bool	IsOpen() { return m_bOpen; };
+
 	virtual int		Send(const char* pszData, size_t iLength);
-	virtual int		Send(string sData);
+	virtual int		Send(eastl::string sData);
 	virtual int		Send(const char* pszData, int iLength);
 	virtual int		Recv(char* pszData, int iLength);
-	virtual string	RecvAll();
+	virtual eastl::string	RecvAll();
 
 	virtual void	Close();
 
-	inline SOCKET	GetSocket() { return m_Socket; };
+	inline SOCKET	GetSocket() { return m_iSocket; };
 
-	inline string	GetError() { return m_sError; };
+	inline eastl::string	GetError() { return m_sError; };
 
 protected:
-	SOCKET			m_Socket;
-	string			m_sError;
+	SOCKET			m_iSocket;
+	eastl::string	m_sError;
+
+	bool			m_bOpen;
 
 #ifdef _WIN32
 	WSADATA			m_WSAData;
 #endif
 
-	string			m_sHostname;
+	eastl::string	m_sHostname;
 	int				m_iPort;
+};
+
+class CPostReply
+{
+public:
+	CPostReply(eastl::string sKey, eastl::string sValue)
+	{
+		m_sKey = sKey;
+		m_sValue = sValue;
+	}
+
+public:
+	eastl::string	m_sKey;
+	eastl::string	m_sValue;
 };
 
 class CHTTPPostSocket : public CClientSocket
 {
 public:
-					CHTTPPostSocket(const char* pszHostname, int iPort);
+					CHTTPPostSocket(const char* pszHostname, int iPort = 80);
 
 	virtual void	SendHTTP11(const char* pszPage);
 
 	virtual void	AddPost(const char* pszKey, const char* pszValue);
-	virtual void	SetPostContent(string sPostContent);
+	virtual void	SetPostContent(eastl::string sPostContent);
 
 	virtual void	ParseOutput();
 	virtual void	KeyValue(const char* pszKey, const char* pszValue);
 
+	size_t			GetNumReplies() { return m_aKeys.size(); }
+	CPostReply*		GetReply(size_t i) { return &m_aKeys[i]; }
+
 protected:
-	string			m_sPostContent;
+	eastl::string	m_sPostContent;
+
+	eastl::vector<CPostReply>	m_aKeys;
 };
 
 #endif

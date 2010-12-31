@@ -16,6 +16,15 @@ void* operator new[](size_t size, size_t alignment, size_t alignmentOffset,
 }
 
 // EASTL also wants us to define this (see string.h line 197)
+int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list arguments)
+{
+    #ifdef _MSC_VER
+        return _vsnprintf(pDestination, n, pFormat, arguments);
+    #else
+        return vsnprintf(pDestination, n, pFormat, arguments);
+    #endif
+}
+
 int Vsnprintf16(char16_t* pDestination, size_t n, const char16_t* pFormat, va_list arguments)
 {
     #ifdef _MSC_VER
