@@ -2109,6 +2109,9 @@ CTree::CTree(size_t iArrowTexture, size_t iEditTexture, size_t iVisibilityTextur
 	m_pfnSelectedCallback = NULL;
 	m_pSelectedListener = NULL;
 
+	m_pfnDroppedCallback = NULL;
+	m_pDroppedListener = NULL;
+
 	m_clrBackground = Color(0, 0, 0);
 	m_clrBackground.SetAlpha(0);
 
