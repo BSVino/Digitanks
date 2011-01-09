@@ -76,7 +76,7 @@ public:
 	void						ReadProductCode();
 	eastl::string				GetProductCode();
 	void						SetLicenseKey(eastl::string sKey);
-	bool						QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string16& sError);
+	bool						QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string sProduct, eastl::string16& sError);
 	void						SaveProductCode();
 	eastl::string				GenerateCode();
 

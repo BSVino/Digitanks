@@ -88,7 +88,7 @@ public:
 
 	virtual void	SendHTTP11(const char* pszPage);
 
-	virtual void	AddPost(const char* pszKey, const char* pszValue);
+	virtual void	AddPost(const char* pszKey, const eastl::string&);
 	virtual void	SetPostContent(eastl::string sPostContent);
 
 	virtual void	ParseOutput();

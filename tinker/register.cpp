@@ -132,7 +132,7 @@ void CApplication::SetLicenseKey(eastl::string sKey)
 		SaveProductCode();
 }
 
-bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string16& sError)
+bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string sProduct, eastl::string16& sError)
 {
 	sKey = convertstring<char, char16_t>(trim(convertstring<char16_t, char>(sKey)));
 
@@ -144,11 +144,9 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 		return false;
 	}
 
-	eastl::string sContent;
-	sContent.append("key=");
-	sContent.append(convertstring<char16_t, char>(sKey));
+	s.AddPost("key", convertstring<char16_t, char>(sKey).c_str());
+	s.AddPost("product", sProduct.c_str());
 
-	s.SetPostContent(sContent);
 	s.SendHTTP11(convertstring<char16_t, char>(sURI).c_str());
 
 //	int iOptVal = 0;

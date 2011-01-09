@@ -147,7 +147,7 @@ CHTTPPostSocket::CHTTPPostSocket(const char* pszHostname, int iPort) : CClientSo
 {
 }
 
-void CHTTPPostSocket::AddPost(const char* pszKey, const char* pszValue)
+void CHTTPPostSocket::AddPost(const char* pszKey, const eastl::string& pszValue)
 {
 	string sPostContent = m_sPostContent;
 
