@@ -84,9 +84,6 @@
     <ClCompile Include="ui\instructor.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\glew\src\glew.c">
-      <Filter>Source Files\glew</Filter>
-    </ClCompile>
     <ClCompile Include="game\baseentity.cpp">
       <Filter>Source Files\game</Filter>
     </ClCompile>
@@ -210,28 +207,7 @@
     <ClCompile Include="..\..\common\eastl.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\EASTL\src\fixed_pool.cpp">
-      <Filter>Source Files\eastl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\EASTL\src\hashtable.cpp">
-      <Filter>Source Files\eastl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\EASTL\src\red_black_tree.cpp">
-      <Filter>Source Files\eastl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\EASTL\src\string.cpp">
-      <Filter>Source Files\eastl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\EASTL\src\allocator.cpp">
-      <Filter>Source Files\eastl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\EASTL\src\assert.cpp">
-      <Filter>Source Files\eastl</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\tinker\application.cpp">
-      <Filter>Source Files\tinker</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\tinker\register.cpp">
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\artillery.cpp">
@@ -314,6 +290,33 @@
     </ClCompile>
     <ClCompile Include="game\digitanks\units\autoturret.cpp">
       <Filter>Source Files\game\digitanks\units</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\EASTL\src\hashtable.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\EASTL\src\red_black_tree.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\EASTL\src\string.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\EASTL\src\allocator.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\EASTL\src\assert.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\EASTL\src\fixed_pool.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ext-deps\glew\src\glew.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\register.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\sockets\sockets.cpp">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\units\autoturret.h">
       <Filter>Source Files\game\digitanks\units</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\sockets\sockets.h">
+      <Filter>Source Files\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
