@@ -315,6 +315,8 @@ protected:
 	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
 	glgui::CLabel*				m_pSpacebarHint;
 
+	size_t						m_iObstruction;
+
 	size_t						m_iCompetitionWatermark;
 };
 

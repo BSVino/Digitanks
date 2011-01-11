@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include <geometry.h>
+
 #include "digitankswindow.h"
 #include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
@@ -115,6 +117,7 @@ CHUD::CHUD()
 
 	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
+	m_iObstruction = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-obstruction.png");
 
 	m_pActionItem = new CLabel(0, 0, 10, 10, L"");
 	m_pNextActionItem = new CButton(0, 0, 100, 50, L"Next");
@@ -719,6 +722,47 @@ void CHUD::Paint(int x, int y, int w, int h)
 	else
 	{
 		m_pSpacebarHint->SetVisible(false);
+	}
+
+	if (DigitanksGame()->GetPrimarySelectionTank() && DigitanksGame()->GetControlMode() == MODE_AIM)
+	{
+		if (DigitanksGame()->GetAimType() == AIM_NORMAL)
+		{
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+
+			int iX = GetWidth()/2 - 150;
+			int iY = GetHeight()/2 - 150;
+
+			bool bObstruction = false;
+			CDigitank* pDigitank = DigitanksGame()->GetPrimarySelectionTank();
+			Vector vecTankOrigin = pDigitank->GetOrigin() + Vector(0, 1, 0);
+
+			float flGravity = DigitanksGame()->GetGravity();
+			float flTime;
+			Vector vecForce;
+			FindLaunchVelocity(vecTankOrigin, pDigitank->GetPreviewAim(), flGravity, vecForce, flTime, pDigitank->ProjectileCurve());
+
+			size_t iLinks = 20;
+			float flTimePerLink = flTime/iLinks;
+			Vector vecLastOrigin = vecTankOrigin;
+			Vector vecPoint;
+			for (size_t i = 1; i < iLinks; i++)
+			{
+				float flCurrentTime = flTimePerLink*i;
+				Vector vecCurrentOrigin = vecTankOrigin + vecForce*flCurrentTime + Vector(0, flGravity*flCurrentTime*flCurrentTime/2, 0);
+				if (DigitanksGame()->GetTerrain()->Collide(vecLastOrigin, vecCurrentOrigin, vecPoint))
+				{
+					bObstruction = true;
+					break;
+				}
+
+				vecLastOrigin = vecCurrentOrigin;
+			}
+
+			if (bObstruction)
+				CRootPanel::PaintTexture(m_iObstruction, iX, iY, 100, 100, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
+		}
 	}
 
 	bool bVisible = m_pNextActionItem->IsVisible();
