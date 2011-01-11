@@ -21,10 +21,13 @@ public:
 	virtual void				Think();
 
 	virtual void				SpecialCommand() {};
+	virtual bool				UsesSpecialCommand() { return false; };
+	virtual eastl::string16		SpecialCommandHint() { return L""; };
 
 	void						Explode(CBaseEntity* pInstigator = NULL);
 	virtual void				OnExplode(CBaseEntity* pInstigator) {};
 	virtual bool				ShouldPlayExplosionSound() { return true; };
+	virtual bool				HasExploded() { return m_flTimeExploded > 0; }
 
 	virtual weapon_t			GetWeaponType() { return WEAPON_NONE; }
 	virtual float				ExplosionRadius() { return 4.0f; };

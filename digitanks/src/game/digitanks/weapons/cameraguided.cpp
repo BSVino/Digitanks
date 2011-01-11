@@ -39,7 +39,7 @@ void CCameraGuidedMissile::Think()
 
 	m_flBoostVelocity = Approach(m_flBoostVelocityGoal, m_flBoostVelocity, BoostVelocity());
 
-	if (GameServer()->GetGameTime() - m_flTimeCreated > 3.0f)
+	if (GameServer()->GetGameTime() - m_flTimeCreated > 3.0f || m_flBoostTime > 0.0f)
 		SetVelocity(AngleVector(GetAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
 
 	if (m_flTimeExploded == 0 && GameServer()->GetGameTime() - m_flTimeCreated > 13.0f)

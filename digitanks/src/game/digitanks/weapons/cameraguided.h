@@ -15,6 +15,8 @@ public:
 	virtual void				OnSetOwner(class CDigitank* pOwner);
 
 	virtual void				SpecialCommand();
+	virtual bool				UsesSpecialCommand() { return true; };
+	virtual eastl::string16		SpecialCommandHint() { return L"Boost"; };
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;

@@ -213,6 +213,7 @@ public:
 	float					GetGravity();
 
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
+	size_t					GetNumProjectilesWaitingFor() { return m_iWaitingForProjectiles; };
 
 	void					WeaponSpecialCommand();
 

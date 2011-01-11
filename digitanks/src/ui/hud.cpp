@@ -114,6 +114,7 @@ CHUD::CHUD()
 	AddControl(m_pMovementPower);
 
 	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
+	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
 
 	m_pActionItem = new CLabel(0, 0, 10, 10, L"");
 	m_pNextActionItem = new CButton(0, 0, 100, 50, L"Next");
@@ -234,6 +235,10 @@ CHUD::CHUD()
 	m_flTurnInfoHeight = m_flTurnInfoHeightGoal = 0;
 
 	m_iTurnSound = CSoundLibrary::Get()->AddSound(L"sound/turn.wav");
+
+	m_pSpacebarHint = new CLabel(0, 0, 200, 20, L"");
+	m_pSpacebarHint->SetAlign(CLabel::TA_MIDDLECENTER);
+	AddControl(m_pSpacebarHint);
 
 	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
 }
@@ -664,6 +669,56 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(iX, iY, 1, iHeight, clrSelection);
 		CRootPanel::PaintRect(iX + iWidth, iY, 1, iHeight, clrSelection);
 		CRootPanel::PaintRect(iX, iY + iHeight, iWidth, 1, clrSelection);
+	}
+
+	if (m_hHintWeapon == NULL)
+	{
+		CTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+			if (!pEntity)
+				continue;
+
+			CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pEntity);
+			if (!pWeapon)
+				continue;
+
+			if (pWeapon->HasExploded())
+				continue;
+
+			if (pLocalTeam && pWeapon->GetOwner() && pWeapon->GetOwner()->GetTeam() == pLocalTeam)
+			{
+				m_hHintWeapon = pWeapon;
+				break;
+			}
+		}
+	}
+
+	if (m_hHintWeapon != NULL)
+	{
+		int iX = GetWidth()/2 + 50;
+		int iY = GetHeight()/2 + 50;
+
+		CRootPanel::PaintRect(iX-6, iY-1, 60, 75, Color(0, 0, 0, 150));
+
+		m_pSpacebarHint->SetVisible(true);
+		m_pSpacebarHint->SetText(m_hHintWeapon->SpecialCommandHint());
+		m_pSpacebarHint->SetSize(60, 25);
+		m_pSpacebarHint->SetPos(iX-6, iY + 50);
+		m_pSpacebarHint->SetWrap(false);
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		if (fmod(GameServer()->GetGameTime(), 0.5f) > 0.25f)
+			iY -= 10;
+
+		PaintSheet(m_iKeysSheet, iX, iY, 48, 48, 128, 64, 64, 64, 256, 256, Color(255, 255, 255, 255));
+	}
+	else
+	{
+		m_pSpacebarHint->SetVisible(false);
 	}
 
 	bool bVisible = m_pNextActionItem->IsVisible();

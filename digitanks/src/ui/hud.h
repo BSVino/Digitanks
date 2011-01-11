@@ -310,6 +310,11 @@ protected:
 
 	size_t						m_iTurnSound;
 
+	size_t						m_iKeysSheet;
+
+	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
+	glgui::CLabel*				m_pSpacebarHint;
+
 	size_t						m_iCompetitionWatermark;
 };
 

@@ -17,6 +17,8 @@ public:
 	virtual void				Think();
 
 	virtual void				SpecialCommand();
+	virtual bool				UsesSpecialCommand() { return true; };
+	virtual eastl::string16		SpecialCommandHint() { return L"Detonate"; };
 	virtual void				Fragment();
 
 	virtual bool				MakesSounds() { return true; };
@@ -135,6 +137,8 @@ class CICBM : public CProjectile
 	REGISTER_ENTITY_CLASS(CICBM, CProjectile);
 
 public:
+	virtual eastl::string16		SpecialCommandHint() { return L"Fragment"; };
+
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ICBM; }
 	virtual float				ShellRadius() { return 1.2f; };
 	virtual float				ExplosionRadius() { return 12.0f; };
