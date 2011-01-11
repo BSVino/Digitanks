@@ -2620,6 +2620,7 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	r.Rotate(flAngle, Vector(0, 1, 0));
 	r.SetBlend(BLEND_ADDITIVE);
 	r.Scale(RenderShieldScale(), 1, RenderShieldScale());
+	r.SetColor(GetTeam()->GetColor());
 	r.RenderModel(m_iShieldModel);
 }
 

@@ -447,14 +447,14 @@ void CDigitanksGame::SetupArtillery()
 
 	Color aclrTeamColors[] =
 	{
-		Color(0, 0, 255),
-		Color(255, 255, 0),
-		Color(255, 0, 255),
-		Color(255, 0, 0),
-		Color(0, 255, 0),
-		Color(0, 255, 255),
-		Color(0, 0, 0),
-		Color(255, 255, 255),
+		Color(0, 128, 255),		// Blue
+		Color(255, 0, 0),		// Red
+		Color(42, 255, 0),		// Green
+		Color(255, 200, 255),	// Yellow
+		Color(0, 255, 221),		// Teal
+		Color(255, 0, 180),		// Pink
+		Color(200, 0, 255),		// Purple
+		Color(255, 255, 255),	// White
 	};
 
 	for (int i = 0; i < iPlayers; i++)
@@ -498,10 +498,10 @@ void CDigitanksGame::SetupStrategy()
 
 	Color aclrTeamColors[] =
 	{
-		Color(0, 0, 255),
-		Color(255, 255, 0),
-		Color(0, 255, 0),
-		Color(255, 0, 0),
+		Color(0, 128, 255),		// Blue
+		Color(255, 0, 0),		// Red
+		Color(42, 255, 0),		// Green
+		Color(255, 200, 255),	// Yellow
 	};
 
 	eastl::string16 aszTeamNames[] =

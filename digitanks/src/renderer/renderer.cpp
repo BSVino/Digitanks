@@ -175,8 +175,6 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 				glUniform3fv(vecColorSwap, 1, vecColor);
 			}
 
-			glColor4f(255, 255, 255, 255);
-
 			glCallList((GLuint)pModel->m_iCallList);
 
 			glUseProgram(0);
@@ -185,8 +183,6 @@ void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
 		{
 			if (m_bColorSwap)
 				glColor4f(((float)m_clrSwap.r())/255, ((float)m_clrSwap.g())/255, ((float)m_clrSwap.b())/255, m_flAlpha);
-			else
-				glColor4f(255, 255, 255, m_flAlpha);
 
 			glCallList((GLuint)pModel->m_iCallList);
 		}
