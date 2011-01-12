@@ -14,8 +14,8 @@ void CreateApplication(int argc, char** argv)
 {
 	CDigitanksWindow oWindow(argc, argv);
 
-	if (!oWindow.HasCommandLineSwitch("--no-intro"))
-		RunIntro();
+//	if (!oWindow.HasCommandLineSwitch("--no-intro"))
+//		RunIntro();
 
 	oWindow.OpenWindow();
 	oWindow.Run();
