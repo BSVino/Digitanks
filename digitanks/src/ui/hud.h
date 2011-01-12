@@ -281,6 +281,8 @@ protected:
 	float						m_flTurnInfoLerp;
 	float						m_flTurnInfoLerpGoal;
 
+	glgui::CLabel*				m_pResearchInfo;
+
 	glgui::CLabel*				m_pButtonInfo;
 	eastl::string16				m_aszButtonInfos[NUM_BUTTONS];
 

@@ -130,6 +130,8 @@ void CBaseControl::Paint(int x, int y)
 
 void CBaseControl::PaintRect(int x, int y, int w, int h, const Color& c)
 {
+	glPushAttrib(GL_ENABLE_BIT);
+
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -181,7 +183,7 @@ void CBaseControl::PaintRect(int x, int y, int w, int h, const Color& c)
 		glEnd();
 	}
 
-	glDisable(GL_BLEND);
+	glPopAttrib();
 }
 
 void CBaseControl::PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c)

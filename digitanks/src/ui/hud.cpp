@@ -179,6 +179,9 @@ CHUD::CHUD()
 	m_pTurnInfo = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pTurnInfo);
 
+	m_pResearchInfo = new CLabel(0, 0, 100, 100, L"");
+	AddControl(m_pResearchInfo);
+
 	m_pButtonInfo = new CLabel(0, 0, 100, 100, L"");
 	AddControl(m_pButtonInfo);
 
@@ -307,10 +310,32 @@ void CHUD::Layout()
 	m_pTankInfo->SetFontFaceSize(10);
 
 	m_pTurnInfo->SetSize(248, 150);
-	m_pTurnInfo->SetPos(iWidth/2 - m_pTurnInfo->GetWidth()/2, 0);
+	m_pTurnInfo->SetPos(iWidth/2 - m_pTurnInfo->GetWidth()/2, 36);
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
 	m_pTurnInfo->SetFontFaceSize(10);
+
+	m_pResearchInfo->SetSize(640, 35);
+	m_pResearchInfo->SetPos(iWidth/2 - m_pResearchInfo->GetWidth()/2, 0);
+	m_pResearchInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pResearchInfo->SetWrap(false);
+
+	CDigitanksTeam* pLocalCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (pLocalCurrentTeam)
+	{
+		CUpdateItem* pItem = pLocalCurrentTeam->GetUpdateDownloading();
+		if (pItem)
+		{
+			if (pLocalCurrentTeam->GetBandwidth() == 0)
+				m_pResearchInfo->SetText(pItem->GetName());
+			else
+			{
+				eastl::string16 s;
+				s.sprintf((pItem->GetName() + L" (%d)").c_str(), pLocalCurrentTeam->GetTurnsToDownload());
+				m_pResearchInfo->SetText(s);
+			}
+		}
+	}
 
 	m_pButtonInfo->SetSize(250, 250);
 	m_pButtonInfo->SetPos(iWidth/2, iHeight - 400);
@@ -318,7 +343,7 @@ void CHUD::Layout()
 	m_pButtonInfo->SetWrap(true);
 
 	m_pUpdatesButton->SetSize(175, 40);
-	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 5);
+	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 36);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pUpdatesButton->SetWrap(false);
 
@@ -483,7 +508,7 @@ void CHUD::Think()
 
 	float flTurnInfoHeight = m_flTurnInfoHeight+10;
 	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
-	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
+	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 36 + 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
 	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
 	if (m_bUpdatesBlinking)
@@ -647,6 +672,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 			PaintHUDSheet(iWidth - 180, 10, 20, 20, 540, 530, 20, 20);
 
 			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
+
+			int iResearchWidth = 640;
+			CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, Color(0, 0, 0, 150));
+
+			if (pCurrentLocalTeam && pCurrentLocalTeam->GetUpdateDownloading())
+			{
+				CUpdateItem* pItem = pCurrentLocalTeam->GetUpdateDownloading();
+				size_t iSize = pItem->m_iSize;
+
+				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, (int)(iResearchWidth*((float)pCurrentLocalTeam->GetUpdateDownloaded()/iSize)) - 12, 35 - 12, Color(0, 200, 100, 255));
+			}
 		}
 
 		if (m_flAttackInfoAlpha > 0)
