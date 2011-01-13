@@ -26,7 +26,7 @@ public:
 
 	virtual size_t				FleetPoints() const { return 0; };
 
-	virtual unittype_t			GetBuildUnit() const { return UNIT_MOBILECPU; }
+	virtual unittype_t			GetUnitType() const { return UNIT_MOBILECPU; }
 };
 
 #endif

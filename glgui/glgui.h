@@ -1015,6 +1015,8 @@ namespace glgui
 		virtual void						Destructor();
 		virtual void						Delete() { delete this; };
 
+		virtual int							GetNodeHeight();
+		virtual int							GetNodeSpacing() { return 0; };
 		virtual void						LayoutNode();
 		virtual void						Paint() { CPanel::Paint(); };
 		virtual void						Paint(int x, int y) { CPanel::Paint(x, y); };
@@ -1129,7 +1131,7 @@ namespace glgui
 			// Who the hell knows, it's the magick of templates.
 			return AddNode(new CTreeNodeObject<T>(pObject, NULL, this, sName));
 		}
-		size_t								AddNode(CTreeNode* pNode);
+		size_t								AddNode(CTreeNode* pNode, size_t iPosition = ~0);
 		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
 

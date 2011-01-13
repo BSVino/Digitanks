@@ -318,6 +318,9 @@
     <ClCompile Include="..\..\common\sockets\sockets.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="ui\scenetree.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -523,6 +526,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\sockets\sockets.h">
       <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scenetree.h">
+      <Filter>Source Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

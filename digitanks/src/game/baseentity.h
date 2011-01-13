@@ -270,6 +270,16 @@ public:
 	void									CheckTables(char* pszEntity);
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
+	template <class T>
+	static T*								GetEntityType(size_t iHandle)
+	{
+		CBaseEntity* pEntity = GetEntity(iHandle);
+		if (!pEntity)
+			return NULL;
+
+		return dynamic_cast<T*>(pEntity);
+	}
+
 	static size_t							GetNumEntities();
 
 	static void								PrecacheModel(const eastl::string16& sModel, bool bStatic = true);

@@ -16,6 +16,7 @@
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
 #include "weaponpanel.h"
+#include "scenetree.h"
 
 using namespace glgui;
 
@@ -116,6 +117,7 @@ CHUD::CHUD()
 	AddControl(m_pMovementPower);
 
 	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
+	m_iUnitsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/units-sheet.png");
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
 	m_iObstruction = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-obstruction.png");
 
@@ -229,6 +231,9 @@ CHUD::CHUD()
 	m_pWeaponPanel->SetVisible(false);
 	AddControl(m_pWeaponPanel, true);
 
+	m_pSceneTree = new CSceneTree();
+	AddControl(m_pSceneTree, true);
+
 	m_pTurnButton = new CPictureButton(L"TURN");
 	m_pTurnButton->SetSheetTexture(m_iHUDSheet, 0, 730, 160, 120, 1024, 1024);
 	m_pTurnButton->SetClickedListener(this, EndTurn);
@@ -335,6 +340,8 @@ void CHUD::Layout()
 				m_pResearchInfo->SetText(s);
 			}
 		}
+		else
+			m_pResearchInfo->SetText("");
 	}
 
 	m_pButtonInfo->SetSize(250, 250);
@@ -350,6 +357,8 @@ void CHUD::Layout()
 	m_pUpdatesPanel->Layout();
 
 	m_pWeaponPanel->Layout();
+
+	m_pSceneTree->Layout();
 
 	m_pPressEnter->SetDimensions(iWidth/2 - 100/2, iHeight*2/3, 100, 50);
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
@@ -668,8 +677,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
 			PaintHUDSheet(iWidth - 320, 10, 20, 20, 500, 530, 20, 20);
-			PaintHUDSheet(iWidth - 250, 10, 20, 20, 520, 530, 20, 20);
-			PaintHUDSheet(iWidth - 180, 10, 20, 20, 540, 530, 20, 20);
+			PaintHUDSheet(iWidth - 250, 10, 20, 20, 540, 530, 20, 20);
+			PaintHUDSheet(iWidth - 180, 10, 20, 20, 520, 530, 20, 20);
 
 			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
 
@@ -814,33 +823,26 @@ void CHUD::Paint(int x, int y, int w, int h)
 		m_pButtonInfo->Paint();
 	}
 
+	CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
+
+	if (pSelection)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		int iSize = 100;
+		CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
+		if (pTank)
+			iSize = 50;
+
+		PaintUnitSheet(pSelection->GetUnitType(), iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, pSelection->GetTeam()->GetColor());
+	}
+
 	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
 
 	if (pTank)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
-		c.SetBlend(BLEND_ALPHA);
-
-		switch (pTank->GetBuildUnit())
-		{
-		default:
-		case UNIT_TANK:
-			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 350, 310, 100, 100, pTank->GetTeam()->GetColor());
-			break;
-
-		case UNIT_INFANTRY:
-			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 450, 410, 100, 100, pTank->GetTeam()->GetColor());
-			break;
-
-		case UNIT_ARTILLERY:
-			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 350, 410, 100, 100, pTank->GetTeam()->GetColor());
-			break;
-
-		case UNIT_SCOUT:
-			PaintHUDSheet(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2, 50, 50, 450, 310, 100, 100, pTank->GetTeam()->GetColor());
-			break;
-		}
-
 		c.SetBlend(BLEND_ADDITIVE);
 
 		c.Translate(Vector((float)(iWidth/2 - 720/2 + 10 + 150/2), (float)(iHeight - 150 + 10 + 130/2), 0));
@@ -928,6 +930,90 @@ void CHUD::PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int
 	PaintSheet(DigitanksWindow()->GetHUD()->m_iHUDSheet, x, y, w, h, sx, sy, sw, sh, 1024, 1024, c);
 }
 
+void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
+{
+	tw = th = 512;
+	if (eUnit == UNIT_TANK)
+	{
+		sx = 0;
+		sy = 0;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == UNIT_SCOUT)
+	{
+		sx = 100;
+		sy = 0;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == UNIT_ARTILLERY)
+	{
+		sx = 0;
+		sy = 100;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == UNIT_INFANTRY)
+	{
+		sx = 100;
+		sy = 100;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_MINIBUFFER)
+	{
+		sx = 200;
+		sy = 0;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_BUFFER)
+	{
+		sx = 200;
+		sy = 0;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_BATTERY)
+	{
+		sx = 200;
+		sy = 100;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_PSU)
+	{
+		sx = 200;
+		sy = 100;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else
+	{
+		sx = 0;
+		sy = 0;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+}
+
+void CHUD::PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c)
+{
+	int sx, sy, sw, sh, tw, th;
+	GetUnitSheet(eUnit, sx, sy, sw, sh, tw, th);
+	PaintSheet(DigitanksWindow()->GetHUD()->m_iUnitsSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+}
+
 void CHUD::ClientEnterGame()
 {
 	UpdateInfo();
@@ -937,6 +1023,8 @@ void CHUD::ClientEnterGame()
 	SetupMenu();
 
 	m_pPressEnter->SetText("");
+
+	m_pSceneTree->BuildTree(true);
 }
 
 void CHUD::UpdateInfo()
@@ -1357,6 +1445,9 @@ void CHUD::NewCurrentTeam()
 		}
 		else
 			m_pDemoNotice->SetText("");
+
+		// If we have local hotseat multiplayer, update for the new team.
+		m_pSceneTree->BuildTree();
 	}
 
 	UpdateScoreboard();
@@ -1657,6 +1748,16 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 
 	if ((pVictim->IsAlive() || bKilled) && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
+}
+
+void CHUD::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
+{
+	m_pSceneTree->OnAddEntityToTeam(pTeam, pEntity);
+}
+
+void CHUD::OnRemoveEntityFromTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
+{
+	m_pSceneTree->OnRemoveEntityFromTeam(pTeam, pEntity);
 }
 
 void CHUD::TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)

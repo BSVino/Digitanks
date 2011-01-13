@@ -302,7 +302,7 @@ public:
 	bool						IsDisabled() { return !!m_iTurnsDisabled; }
 	void						Disable(size_t iTurns) { m_iTurnsDisabled += iTurns; }
 
-	virtual unittype_t			GetBuildUnit() const { return UNIT_TANK; }
+	virtual unittype_t			GetUnitType() const { return UNIT_TANK; }
 
 	// AI stuff
 	virtual void				SetFortifyPoint(Vector vecFortify);

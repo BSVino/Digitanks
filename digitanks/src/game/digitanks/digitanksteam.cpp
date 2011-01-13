@@ -6,6 +6,7 @@
 #include <ui/digitankswindow.h>
 #include <network/network.h>
 #include <ui/instructor.h>
+#include <ui/hud.h>
 
 #include "units/digitank.h"
 #include "structures/structure.h"
@@ -99,6 +100,13 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 	CCPU* pCPU = dynamic_cast<CCPU*>(pEntity);
 	if (m_hPrimaryCPU == NULL && pCPU)
 		m_hPrimaryCPU = pCPU;
+
+	DigitanksWindow()->GetHUD()->OnAddEntityToTeam(this, pEntity);
+}
+
+void CDigitanksTeam::OnRemoveEntity(CBaseEntity* pEntity)
+{
+	DigitanksWindow()->GetHUD()->OnRemoveEntityFromTeam(this, pEntity);
 }
 
 void CDigitanksTeam::ClientUpdate(int iClient)

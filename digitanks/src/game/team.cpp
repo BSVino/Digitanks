@@ -84,6 +84,7 @@ void CTeam::RemoveEntity(CBaseEntity* pEntity)
 		{
 			m_ahMembers.erase(m_ahMembers.begin()+i);
 			pEntity->SetTeam(NULL);
+			OnRemoveEntity(pEntity);
 			return;
 		}
 	}
@@ -114,7 +115,11 @@ void CTeam::OnDeleted(CBaseEntity* pEntity)
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == pEntity)
+		{
 			m_ahMembers.erase(m_ahMembers.begin()+i);
+			OnRemoveEntity(pEntity);
+			break;
+		}
 	}
 }
 

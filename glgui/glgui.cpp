@@ -2280,9 +2280,13 @@ size_t CTree::AddNode(const eastl::string16& sName)
 	return AddNode(new CTreeNode(NULL, this, sName));
 }
 
-size_t CTree::AddNode(CTreeNode* pNode)
+size_t CTree::AddNode(CTreeNode* pNode, size_t iPosition)
 {
-	m_apNodes.push_back(pNode);
+	if (iPosition == ~0)
+		m_apNodes.push_back(pNode);
+	else
+		m_apNodes.insert(m_apNodes.begin()+iPosition, pNode);
+
 	AddControl(pNode, true);
 	return m_apNodes.size()-1;
 }
@@ -2302,8 +2306,15 @@ void CTree::RemoveNode(CTreeNode* pNode)
 	m_iSelected = ~0;
 
 	for (size_t i = 0; i < m_apNodes.size(); i++)
+	{
 		if (m_apNodes[i] == pNode)
+		{
 			m_apNodes.erase(m_apNodes.begin()+i);
+			break;
+		}
+		else
+			m_apNodes[i]->RemoveNode(pNode);
+	}
 
 	RemoveControl(pNode);
 
@@ -2399,12 +2410,17 @@ void CTreeNode::Destructor()
 //		delete m_apNodes[i];
 }
 
+int CTreeNode::GetNodeHeight()
+{
+	return (int)m_pLabel->GetTextHeight();
+}
+
 void CTreeNode::LayoutNode()
 {
 	int& iCurrentDepth = m_pTree->m_iCurrentDepth;
 	int& iCurrentHeight = m_pTree->m_iCurrentHeight;
 
-	int iHeight = (int)m_pLabel->GetTextHeight();
+	int iHeight = GetNodeHeight();
 
 	int iX = iCurrentDepth*iHeight;
 	int iY = iCurrentHeight;
@@ -2418,6 +2434,7 @@ void CTreeNode::LayoutNode()
 	m_pExpandButton->SetSize(iHeight, iHeight);
 
 	iCurrentHeight += iHeight;
+	iCurrentHeight += GetNodeSpacing();
 
 	if (IsExpanded())
 	{
@@ -2497,9 +2514,14 @@ size_t CTreeNode::AddNode(CTreeNode* pNode)
 void CTreeNode::RemoveNode(CTreeNode* pNode)
 {
 	for (size_t i = 0; i < m_apNodes.size(); i++)
+	{
 		if (m_apNodes[i] == pNode)
+		{
 			m_apNodes.erase(m_apNodes.begin()+i);
-	m_pTree->RemoveNode(pNode);
+			return;
+		}
+		m_apNodes[i]->RemoveNode(pNode);
+	}
 }
 
 CTreeNode* CTreeNode::GetNode(size_t i)

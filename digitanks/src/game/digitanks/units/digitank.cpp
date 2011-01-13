@@ -1390,7 +1390,7 @@ bool CDigitank::MovesWith(CDigitank* pOther) const
 		return false;
 
 	// Only same class tanks.
-	if (GetBuildUnit() != pOther->GetBuildUnit())
+	if (GetUnitType() != pOther->GetUnitType())
 		return false;
 
 	if (!GetDigitanksTeam()->IsSelected(this))
@@ -1415,7 +1415,7 @@ bool CDigitank::TurnsWith(CDigitank* pOther) const
 		return false;
 
 	// Only same class tanks.
-	if (GetBuildUnit() != pOther->GetBuildUnit())
+	if (GetUnitType() != pOther->GetUnitType())
 		return false;
 
 	return true;

@@ -180,6 +180,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\common\platform_win32.cpp" />
     <ClCompile Include="network\network.cpp" />
     <ClCompile Include="ui\menu.cpp" />
+    <ClCompile Include="ui\scenetree.cpp" />
     <ClCompile Include="ui\ui.cpp" />
     <ClCompile Include="ui\updatespanel.cpp" />
     <ClCompile Include="ui\weaponpanel.cpp" />
@@ -250,6 +251,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="..\..\common\platform.h" />
     <ClInclude Include="network\network.h" />
     <ClInclude Include="ui\menu.h" />
+    <ClInclude Include="ui\scenetree.h" />
     <ClInclude Include="ui\ui.h" />
     <ClInclude Include="ui\updatespanel.h" />
     <ClInclude Include="ui\weaponpanel.h" />

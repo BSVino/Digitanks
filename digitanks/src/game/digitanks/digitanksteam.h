@@ -22,6 +22,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
+	virtual void				OnRemoveEntity(CBaseEntity* pEntity);
 
 	virtual void				ClientUpdate(int iClient);
 	virtual void				ClientEnterGame();

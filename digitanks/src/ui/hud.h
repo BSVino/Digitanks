@@ -123,6 +123,8 @@ public:
 
 	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
 	static void					PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c = Color(255,255,255));
+	static void					GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 
 	void						ClientEnterGame();
 
@@ -157,6 +159,9 @@ public:
 
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
+
+	virtual void				OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
+	virtual void				OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 
 	virtual void				TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
 
@@ -307,8 +312,10 @@ protected:
 	glgui::CLabel*				m_pScoreboard;
 
 	class CWeaponPanel*			m_pWeaponPanel;
+	class CSceneTree*			m_pSceneTree;
 
 	size_t						m_iHUDSheet;
+	size_t						m_iUnitsSheet;
 
 	size_t						m_iTurnSound;
 

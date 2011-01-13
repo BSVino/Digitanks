@@ -21,6 +21,7 @@ public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity) {};
 
 	void						RemoveEntity(CBaseEntity* pEntity);
+	virtual void				OnRemoveEntity(CBaseEntity* pEntity) {};
 
 	void						StartTurn();
 
