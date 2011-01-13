@@ -967,7 +967,7 @@ void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, in
 	}
 	else if (eUnit == STRUCTURE_MINIBUFFER)
 	{
-		sx = 200;
+		sx = 300;
 		sy = 0;
 		sw = 100;
 		sh = 100;
@@ -983,7 +983,7 @@ void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, in
 	}
 	else if (eUnit == STRUCTURE_BATTERY)
 	{
-		sx = 200;
+		sx = 300;
 		sy = 100;
 		sw = 100;
 		sh = 100;
