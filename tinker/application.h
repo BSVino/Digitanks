@@ -72,7 +72,7 @@ public:
 	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
 
 	void						InitRegistrationFile();
-	bool						IsRegistered();
+	virtual bool				IsRegistered();
 	void						ReadProductCode();
 	eastl::string				GetProductCode();
 	void						SetLicenseKey(eastl::string sKey);

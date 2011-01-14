@@ -8,6 +8,54 @@
 #include <platform.h>
 #include <sockets/sockets.h>
 
+#ifdef TINKER_NO_REGISTRATION
+
+void CApplication::InitRegistrationFile()
+{
+}
+
+bool CApplication::IsRegistered()
+{
+#ifdef TINKER_UNLOCKED
+	return true;
+#else
+	return false;
+#endif
+}
+
+void CApplication::SaveProductCode()
+{
+}
+
+eastl::string CApplication::GenerateCode()
+{
+	return "00000000-0000000000000000";
+}
+
+void CApplication::ReadProductCode()
+{
+}
+
+eastl::string CApplication::GetProductCode()
+{
+	return "00000000-0000000000000000";
+}
+
+void CApplication::SetLicenseKey(eastl::string sKey)
+{
+}
+
+bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string sProduct, eastl::string16& sError)
+{
+#ifdef TINKER_UNLOCKED
+	return true;
+#else
+	return false;
+#endif
+}
+
+#else
+
 void CApplication::InitRegistrationFile()
 {
 	if (m_oRegFile.isFileValid() || m_sCode.length())
@@ -189,3 +237,6 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 
 	return bReturn;
 }
+
+
+#endif
