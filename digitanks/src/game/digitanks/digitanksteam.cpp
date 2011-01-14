@@ -589,6 +589,9 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint)
 		// Use the brightest visibility
 		if (flVisibility > flFinalVisibility)
 			flFinalVisibility = flVisibility;
+
+		if (flFinalVisibility > 0.99f)
+			return 1.0f;
 	}
 
 	return flFinalVisibility;

@@ -2,6 +2,8 @@
 
 #include <game/digitanks/digitanksgame.h>
 #include <renderer/renderer.h>
+#include "digitankswindow.h"
+#include "hud.h"
 
 using namespace glgui;
 
@@ -10,8 +12,6 @@ CWeaponPanel::CWeaponPanel()
 {
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
 	AddControl(m_pInfo);
-
-	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
 }
 
 void CWeaponPanel::Layout()
@@ -142,70 +142,10 @@ void CWeaponPanel::SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon)
 	int iTextureWidth = 512;
 	int iTextureHeight = 256;
 
-	switch (eWeapon)
-	{
-	default:
-	case WEAPON_NONE:
-	case PROJECTILE_SMALL:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 0, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
+	int sx, sy, sw, sh, tw, th;
+	CHUD::GetWeaponSheet(eWeapon, sx, sy, sw, sh, tw, th);
 
-	case PROJECTILE_MEDIUM:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 64, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_LARGE:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 128, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_AOE:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 192, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_EMP:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 256, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_ICBM:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 320, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_GRENADE:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 384, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_DAISYCHAIN:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 448, 0, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_CLUSTERBOMB:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 0, 64, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_SPLOOGE:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 64, 64, 64, 64, iTextureWidth, iTextureHeight);
-		break;
-
-	case PROJECTILE_TRACTORBOMB:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 128, 64, 64, 64, iTextureWidth, 256);
-		break;
-
-	case PROJECTILE_EARTHSHAKER:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 192, 64, 64, 64, iTextureWidth, 256);
-		break;
-
-	case PROJECTILE_CAMERAGUIDED:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 256, 64, 64, 64, iTextureWidth, 256);
-		break;
-
-	case WEAPON_LASER:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 320, 64, 64, 64, iTextureWidth, 256);
-		break;
-
-	case WEAPON_CHARGERAM:
-		pWeapon->SetSheetTexture(m_iWeaponsSheet, 384, 64, 64, 64, iTextureWidth, 256);
-		break;
-	}
+	pWeapon->SetSheetTexture(CHUD::GetWeaponSheet(), sx, sy, sw, sh, tw, th);
 }
 
 CWeaponButton::CWeaponButton(CWeaponPanel* pPanel)

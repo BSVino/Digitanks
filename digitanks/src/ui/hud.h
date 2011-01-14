@@ -125,6 +125,9 @@ public:
 	static void					PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c = Color(255,255,255));
 	static void					GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static void					GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	static void					PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static size_t				GetWeaponSheet();
 
 	void						ClientEnterGame();
 
@@ -316,6 +319,7 @@ protected:
 
 	size_t						m_iHUDSheet;
 	size_t						m_iUnitsSheet;
+	size_t						m_iWeaponsSheet;
 
 	size_t						m_iTurnSound;
 

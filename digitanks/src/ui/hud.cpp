@@ -118,6 +118,7 @@ CHUD::CHUD()
 
 	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
 	m_iUnitsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/units-sheet.png");
+	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
 	m_iObstruction = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-obstruction.png");
 
@@ -599,6 +600,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
+
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+
+			int iSize = 20;
+			PaintWeaponSheet(pTank->GetCurrentWeapon(), (int)(vecScreen.x - flWidth/2) - 2, (int)(vecScreen.y + flWidth/2) - iSize + 2, iSize, iSize, Color(255, 255, 255, 255));
 		}
 
 		if (pCurrentLocalTeam && (DigitanksWindow()->IsAltDown() || pEntity->GetTeam() == pCurrentLocalTeam || pCurrentLocalTeam->IsSelected(pSelectable)))
@@ -843,8 +850,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (pTank)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
-		c.SetBlend(BLEND_ADDITIVE);
 
+		c.SetBlend(BLEND_ALPHA);
+
+		int iSize = 36;
+		PaintWeaponSheet(pTank->GetCurrentWeapon(), iWidth/2 - 720/2 + 10 + 2, iHeight - 150 + 10 + 130 - iSize - 2, iSize, iSize, Color(255, 255, 255, 255));
+
+		c.SetBlend(BLEND_ADDITIVE);
 		c.Translate(Vector((float)(iWidth/2 - 720/2 + 10 + 150/2), (float)(iHeight - 150 + 10 + 130/2), 0));
 
 		do
@@ -1012,6 +1024,107 @@ void CHUD::PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Co
 	int sx, sy, sw, sh, tw, th;
 	GetUnitSheet(eUnit, sx, sy, sw, sh, tw, th);
 	PaintSheet(DigitanksWindow()->GetHUD()->m_iUnitsSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+}
+
+void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
+{
+	tw = 512;
+	th = 256;
+
+	sw = 64;
+	sh = 64;
+
+	switch (eWeapon)
+	{
+	default:
+	case WEAPON_NONE:
+	case PROJECTILE_SMALL:
+		sx = 0;
+		sy = 0;
+		break;
+
+	case PROJECTILE_MEDIUM:
+		sx = 64;
+		sy = 0;
+		break;
+
+	case PROJECTILE_LARGE:
+		sx = 128;
+		sy = 0;
+		break;
+
+	case PROJECTILE_AOE:
+		sx = 192;
+		sy = 0;
+		break;
+
+	case PROJECTILE_EMP:
+		sx = 256;
+		sy = 0;
+		break;
+
+	case PROJECTILE_ICBM:
+		sx = 320;
+		sy = 0;
+		break;
+
+	case PROJECTILE_GRENADE:
+		sx = 384;
+		sy = 0;
+		break;
+
+	case PROJECTILE_DAISYCHAIN:
+		sx = 448;
+		sy = 0;
+		break;
+
+	case PROJECTILE_CLUSTERBOMB:
+		sx = 0;
+		sy = 64;
+		break;
+
+	case PROJECTILE_SPLOOGE:
+		sx = 64;
+		sy = 64;
+		break;
+
+	case PROJECTILE_TRACTORBOMB:
+		sx = 128;
+		sy = 64;
+		break;
+
+	case PROJECTILE_EARTHSHAKER:
+		sx = 192;
+		sy = 64;
+		break;
+
+	case PROJECTILE_CAMERAGUIDED:
+		sx = 256;
+		sy = 64;
+		break;
+
+	case WEAPON_LASER:
+		sx = 320;
+		sy = 64;
+		break;
+
+	case WEAPON_CHARGERAM:
+		sx = 384;
+		sy = 64;
+		break;
+	}
+}
+
+void CHUD::PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c)
+{
+	int sx, sy, sw, sh, tw, th;
+	GetWeaponSheet(eWeapon, sx, sy, sw, sh, tw, th);
+	PaintSheet(DigitanksWindow()->GetHUD()->m_iWeaponsSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+}
+
+size_t CHUD::GetWeaponSheet()
+{
+	return DigitanksWindow()->GetHUD()->m_iWeaponsSheet;
 }
 
 void CHUD::ClientEnterGame()

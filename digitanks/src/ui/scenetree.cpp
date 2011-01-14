@@ -220,6 +220,12 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 	glgui::CRootPanel::PaintRect(x+h, y, (int)(h*m_hEntity->GetHealth()/m_hEntity->GetTotalHealth()), 3, Color(100, 255, 100));
 
+	if (pTank)
+	{
+		size_t iSize = 22;
+		CHUD::PaintWeaponSheet(pTank->GetCurrentWeapon(), x+h+h+4, y+4, iSize, iSize, Color(255, 255, 255, 255));
+	}
+
 	CStructure* pStructure = dynamic_cast<CStructure*>(m_hEntity.GetPointer());
 	if (pStructure && (pStructure->IsConstructing() || pStructure->IsInstalling() || pStructure->IsUpgrading()))
 	{
