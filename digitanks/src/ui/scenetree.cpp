@@ -6,6 +6,7 @@
 #include "hud.h"
 #include <renderer\renderer.h>
 #include <game/digitanks/dt_camera.h>
+#include "instructor.h"
 
 CSceneTree::CSceneTree()
 	: CTree(CRenderer::LoadTextureIntoGL(L"textures/hud/arrow.png"), 0, 0)
@@ -265,6 +266,10 @@ void CSceneTreeUnit::Selected()
 			pCurrentLocalTeam->SetPrimarySelection(m_hEntity);
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(m_hEntity->GetOrigin());
 		}
+
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+		if (m_hEntity->GetUnitType() == UNIT_MOBILECPU)
+			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
 	}
 
 	BaseClass::Selected();

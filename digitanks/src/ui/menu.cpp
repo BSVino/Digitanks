@@ -779,7 +779,12 @@ void CArtilleryGamePanel::BeginGameCallback()
 	if (CNetwork::IsHost() && DigitanksGame())
 		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 
-	DigitanksWindow()->GetInstructor()->SetActive(false);
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+
+	pInstructor->SetActive(true);
+	pInstructor->Initialize();
+	pInstructor->DisplayIngameArtilleryTutorial();
+
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
@@ -922,7 +927,12 @@ void CStrategyGamePanel::BeginGameCallback()
 	if (CNetwork::IsHost() && DigitanksGame())
 		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 
-	DigitanksWindow()->GetInstructor()->SetActive(false);
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+
+	pInstructor->SetActive(true);
+	pInstructor->Initialize();
+	pInstructor->DisplayIngameStrategyTutorial();
+
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 

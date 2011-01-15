@@ -1094,42 +1094,19 @@ void CDigitanksGame::MoveTanks()
 			if (pTank == pCurrentTank)
 				bMoved = true;
 		}
+
+		if (pTank->GetUnitType() == UNIT_MOBILECPU)
+			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
 	}
 
 	if (bMoved)
 	{
 		GetDigitanksCamera()->SetTarget(pCurrentTank->GetPreviewMove());
 
-		CDigitanksEntity* pClosestEnemy = NULL;
-		while (true)
-		{
-			pClosestEnemy = CBaseEntity::FindClosest<CDigitanksEntity>(pCurrentTank->GetOrigin(), pClosestEnemy);
-
-			if (pClosestEnemy)
-			{
-				if (pClosestEnemy->GetTeam() == pCurrentTank->GetTeam())
-					continue;
-
-				if (!pClosestEnemy->GetTeam())
-					continue;
-
-				if ((pClosestEnemy->GetOrigin() - pCurrentTank->GetOrigin()).Length() > pCurrentTank->VisibleRange())
-				{
-					pClosestEnemy = NULL;
-					break;
-				}
-			}
-
-			break;
-		}
-
-		// Only go to aim mode if there is an enemy in range.
-		//if (pClosestEnemy && GetPrimarySelectionTank()->CanAim())
-		//	SetControlMode(MODE_AIM);
-		//else
-			SetControlMode(MODE_NONE);
+		SetControlMode(MODE_NONE);
 
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
 	}
 }
 
@@ -1175,6 +1152,7 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 	SetControlMode(MODE_NONE);
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
 }
 
 void CDigitanksGame::FireTanks()
@@ -1223,6 +1201,7 @@ void CDigitanksGame::FireTanks()
 		pTank->Fire();
 	}
 
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
 	SetControlMode(MODE_NONE);
 }
 

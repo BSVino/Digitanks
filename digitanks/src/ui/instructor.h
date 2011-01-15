@@ -42,6 +42,8 @@ protected:
 	CTutorial*						m_pTutorial;
 
 	glgui::CLabel*					m_pText;
+
+	float							m_flStartTime;
 };
 
 class CInstructor
@@ -60,6 +62,8 @@ public:
 	void							DisplayFirstBasicsTutorial();
 	void							DisplayFirstBasesTutorial();
 	void							DisplayFirstUnitsTutorial();
+	void							DisplayIngameArtilleryTutorial();
+	void							DisplayIngameStrategyTutorial();
 	void							NextTutorial();
 
 	void							DisplayTutorial(size_t iTutorial);
@@ -74,9 +78,9 @@ public:
 
 	enum {
 		POSITION_TOPCENTER,
-		POSITION_POWERBARS,
-		POSITION_ACTIVETANK,
 		POSITION_TOPLEFT,
+		POSITION_SCENETREE,
+		POSITION_BUTTONS,
 	};
 
 	enum {
@@ -127,6 +131,14 @@ public:
 		TUTORIAL_TORPEDO,
 		TUTORIAL_DISCONNECTING_SUPPLIES,
 		TUTORIAL_THEEND_UNITS,
+
+		TUTORIAL_INGAME_ARTILLERY_SELECT,
+		TUTORIAL_INGAME_ARTILLERY_AIM,
+		TUTORIAL_INGAME_ARTILLERY_COMMAND,
+
+		TUTORIAL_INGAME_STRATEGY_SELECT,
+		TUTORIAL_INGAME_STRATEGY_COMMAND,
+		TUTORIAL_INGAME_STRATEGY_DEPLOY,
 	};
 
 protected:

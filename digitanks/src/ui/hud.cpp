@@ -475,18 +475,32 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN)
 	{
-		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasBonusPoints())
-		{
-			float flRamp = 1;
-			if (!DigitanksWindow()->GetInstructor()->GetActive() || DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
-				flRamp = Oscillate(GameServer()->GetGameTime(), 1);
-			m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
-		}
-
-		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasSpecialWeapons())
+		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
-			m_apButtons[9]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
+			m_apButtons[2]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), 0, 0));
+		}
+		else if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+		{
+			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
+			m_apButtons[8]->SetButtonColor(Color(0, 0, (int)RemapVal(flRamp, 0, 1, 0, 250)));
+		}
+		// Don't blink other buttons if we're trying to blink this one.
+		else
+		{
+			if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasBonusPoints())
+			{
+				float flRamp = 1;
+				if (!DigitanksWindow()->GetInstructor()->GetActive() || DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
+					flRamp = Oscillate(GameServer()->GetGameTime(), 1);
+				m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
+			}
+
+			if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasSpecialWeapons())
+			{
+				float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
+				m_apButtons[9]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
+			}
 		}
 	}
 
@@ -601,11 +615,14 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
 
-			CRenderingContext c(GameServer()->GetRenderer());
-			c.SetBlend(BLEND_ALPHA);
+			if (pTank)
+			{
+				CRenderingContext c(GameServer()->GetRenderer());
+				c.SetBlend(BLEND_ALPHA);
 
-			int iSize = 20;
-			PaintWeaponSheet(pTank->GetCurrentWeapon(), (int)(vecScreen.x - flWidth/2) - 2, (int)(vecScreen.y + flWidth/2) - iSize + 2, iSize, iSize, Color(255, 255, 255, 255));
+				int iSize = 20;
+				PaintWeaponSheet(pTank->GetCurrentWeapon(), (int)(vecScreen.x - flWidth/2) - 2, (int)(vecScreen.y + flWidth/2) - iSize + 2, iSize, iSize, Color(255, 255, 255, 255));
+			}
 		}
 
 		if (pCurrentLocalTeam && (DigitanksWindow()->IsAltDown() || pEntity->GetTeam() == pCurrentLocalTeam || pCurrentLocalTeam->IsSelected(pSelectable)))
@@ -2091,6 +2108,7 @@ void CHUD::AimCallback()
 	{
 		DigitanksGame()->SetControlMode(MODE_AIM);
 		DigitanksGame()->SetAimTypeByWeapon(DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon());
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM, true);
 	}
 
 	SetupMenu();

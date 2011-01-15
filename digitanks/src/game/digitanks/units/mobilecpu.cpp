@@ -2,6 +2,8 @@
 
 #include <game/digitanks/structures/cpu.h>
 #include <game/digitanks/digitanksgame.h>
+#include <ui/digitankswindow.h>
+#include <ui/instructor.h>
 
 NETVAR_TABLE_BEGIN(CMobileCPU);
 NETVAR_TABLE_END();
@@ -27,6 +29,8 @@ void CMobileCPU::Spawn()
 
 void CMobileCPU::OnFortify()
 {
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY, true);
+
 	Delete();
 
 	CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");

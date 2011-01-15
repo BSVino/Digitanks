@@ -179,6 +179,24 @@ void CInstructor::Initialize()
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_UNITS, new CTutorial(this, TUTORIAL_THEEND_UNITS, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_SELECT, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_SELECT, POSITION_SCENETREE, 100, false,
+		L"< Select a unit")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_AIM, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_AIM, POSITION_BUTTONS, 200, false,
+		L"Press the 'Aim' button")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_COMMAND, POSITION_TOPCENTER, 200, false,
+		L"Right click on an enemy to fire")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_SELECT, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_SELECT, POSITION_SCENETREE, 150, false,
+		L"< Select the MCP")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_COMMAND, POSITION_TOPCENTER, 200, false,
+		L"Right click to move the MCP\n \nTry to choose a location with nearby electronodes")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_DEPLOY, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_DEPLOY, POSITION_BUTTONS, 200, false,
+		L"Press the 'Deploy' button to create a CPU")));
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -208,6 +226,20 @@ void CInstructor::DisplayFirstUnitsTutorial()
 {
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_UNITS;
+	DisplayTutorial(m_iCurrentTutorial);
+}
+
+void CInstructor::DisplayIngameArtilleryTutorial()
+{
+	m_iLastTutorial = -1;
+	m_iCurrentTutorial = TUTORIAL_INGAME_ARTILLERY_SELECT;
+	DisplayTutorial(m_iCurrentTutorial);
+}
+
+void CInstructor::DisplayIngameStrategyTutorial()
+{
+	m_iLastTutorial = -1;
+	m_iCurrentTutorial = TUTORIAL_INGAME_STRATEGY_SELECT;
 	DisplayTutorial(m_iCurrentTutorial);
 }
 
@@ -348,35 +380,48 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-m_pTutorial->m_iWidth/2, 100);
 		break;
 
-	case CInstructor::POSITION_POWERBARS:
-		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-m_pTutorial->m_iWidth/2 + 50, glgui::CRootPanel::Get()->GetHeight()-160-GetHeight());
+	case CInstructor::POSITION_BUTTONS:
+		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-m_pTutorial->m_iWidth/2 + 150, glgui::CRootPanel::Get()->GetHeight()-160-GetHeight());
 		break;
 
-	case CInstructor::POSITION_ACTIVETANK:
-	{
-		CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
-
-		if (!pSelection)
-			break;
-
-		Vector vecCurrentSelectable = GameServer()->GetRenderer()->ScreenPosition(pSelection->GetOrigin());
-
-		SetPos((int)vecCurrentSelectable.x - GetWidth() - 100, (int)vecCurrentSelectable.y - 50);
-		if (GetLeft() < 0)
-			SetPos(0, GetTop());
-		if (GetTop() < 0)
-			SetPos(GetLeft(), 0);
+	case CInstructor::POSITION_SCENETREE:
+		SetPos(150, 100);
 		break;
-	}
 
 	case CInstructor::POSITION_TOPLEFT:
 		SetPos(100, 100);
 		break;
 	}
+
+	m_flStartTime = GameServer()->GetGameTime();
 }
 
 void CTutorialPanel::Paint(int x, int y, int w, int h)
 {
+	if (m_pTutorial->m_iPosition == CInstructor::POSITION_SCENETREE)
+		x += (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f)*20);
+
+	if (m_pTutorial->m_iPosition == CInstructor::POSITION_BUTTONS)
+		y -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f)*20);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT)
+		x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
+		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND)
+		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 200);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT)
+		x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
+		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 200);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
+
 	CRootPanel::PaintRect(x, y, w, h);
 
 	CPanel::Paint(x, y, w, h);
