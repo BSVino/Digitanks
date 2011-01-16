@@ -514,10 +514,10 @@ void CDigitanksGame::SetupStrategy()
 
 	Vector avecStartingPositions[] =
 	{
-		Vector(130, 0, 130),
-		Vector(130, 0, -130),
-		Vector(-130, 0, 130),
-		Vector(-130, 0, -130),
+		Vector(180, 0, 180),
+		Vector(180, 0, -180),
+		Vector(-180, 0, 180),
+		Vector(-180, 0, -180),
 	};
 
 	eastl::vector<Vector> avecRandomStartingPositions;

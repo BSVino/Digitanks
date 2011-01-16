@@ -27,6 +27,7 @@ public:
 	void		SetBlend(blendtype_t eBlend);
 	void		SetAlpha(float flAlpha) { m_flAlpha = flAlpha; };
 	void		SetDepthMask(bool bDepthMask);
+	void		SetDepthTest(bool bDepthTest);
 	void		SetBackCulling(bool bCull);
 	void		SetColorSwap(Color clrSwap);
 

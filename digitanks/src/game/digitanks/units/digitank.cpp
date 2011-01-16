@@ -521,6 +521,9 @@ bool CDigitank::IsPreviewMoveValid() const
 	if (GetPreviewBaseMovePower() > GetRemainingMovementEnergy())
 		return false;
 
+	if (DigitanksGame()->GetTerrain()->IsPointOverHole(GetPreviewMove()))
+		return false;
+
 	return DigitanksGame()->GetTerrain()->IsPointOnMap(GetPreviewMove());
 }
 
@@ -955,6 +958,9 @@ void CDigitank::Move()
 		return;
 
 	if (!IsPreviewMoveValid())
+		return;
+
+	if (DigitanksGame()->GetTerrain()->IsPointOverHole(m_vecPreviewMove))
 		return;
 
 	if (!DigitanksGame()->GetTerrain()->IsPointOnMap(m_vecPreviewMove))

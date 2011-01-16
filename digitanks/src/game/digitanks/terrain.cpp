@@ -1,5 +1,8 @@
 #include "terrain.h"
 
+#include <EASTL/list.h>
+#include <EASTL/heap.h>
+
 #include <simplex.h>
 #include <maths.h>
 #include <time.h>
@@ -17,6 +20,10 @@
 #include "shaders/shaders.h"
 
 using namespace raytrace;
+
+#ifdef _DEBUG
+//#define DEBUG_RENDERQUADTREE
+#endif
 
 NETVAR_TABLE_BEGIN(CTerrain);
 NETVAR_TABLE_END();
@@ -49,10 +56,14 @@ CTerrain::CTerrain()
 			m_aTerrainChunks[x][y].y = y;
 		}
 	}
+
+	m_pQuadTreeHead = NULL;
 }
 
 CTerrain::~CTerrain()
 {
+	if (m_pQuadTreeHead)
+		delete m_pQuadTreeHead;
 }
 
 void CTerrain::Precache()
@@ -142,25 +153,25 @@ void CTerrain::GenerateTerrain(float flHeight)
 			iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainHeight()));
 			iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));
 
-			if (CRenderer::GetTextureHeight(iTerrainHeight) != 200)
+			if (CRenderer::GetTextureHeight(iTerrainHeight) != 256)
 			{
 				CRenderer::UnloadTextureData(iTerrainHeight);
-				iTerrainData = 0;
+				iTerrainHeight = 0;
 			}
 
-			if (CRenderer::GetTextureWidth(iTerrainHeight) != 200)
+			if (CRenderer::GetTextureWidth(iTerrainHeight) != 256)
 			{
 				CRenderer::UnloadTextureData(iTerrainHeight);
-				iTerrainData = 0;
+				iTerrainHeight = 0;
 			}
 
-			if (CRenderer::GetTextureHeight(iTerrainData) != 200)
+			if (CRenderer::GetTextureHeight(iTerrainData) != 256)
 			{
 				CRenderer::UnloadTextureData(iTerrainData);
 				iTerrainData = 0;
 			}
 
-			if (CRenderer::GetTextureWidth(iTerrainData) != 200)
+			if (CRenderer::GetTextureWidth(iTerrainData) != 256)
 			{
 				CRenderer::UnloadTextureData(iTerrainData);
 				iTerrainData = 0;
@@ -360,6 +371,12 @@ void CTerrain::GenerateCollision()
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
+		if (m_pQuadTreeHead)
+			delete m_pQuadTreeHead;
+
+		m_pQuadTreeHead = new CQuadBranch(this, NULL, CQuadVector(0, 0), CQuadVector(TERRAIN_SIZE, TERRAIN_SIZE));
+		m_pQuadTreeHead->BuildBranch();
+
 		for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 		{
 			for (size_t y = 0; y < TERRAIN_CHUNKS; y++)
@@ -936,6 +953,39 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 		RenderWithShaders();
 	else
 		RenderWithoutShaders();
+
+#ifdef DEBUG_RENDERQUADTREE
+	if (!bTransparent)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetDepthTest(false);
+		DebugRenderQuadTree();
+
+		Vector vecPoint;
+		DigitanksWindow()->GetMouseGridPosition(vecPoint, NULL, CG_TERRAIN);
+
+		if (DigitanksGame()->GetPrimarySelectionTank())
+		{
+			FindPath(DigitanksGame()->GetPrimarySelectionTank()->GetOrigin(), vecPoint, DigitanksGame()->GetPrimarySelectionTank());
+		}
+		else
+		{
+			eastl::vector<CQuadBranch*> apNeighbors;
+			FindNeighbors(FindLeaf(vecPoint), apNeighbors);
+
+			for (size_t i = 0; i < apNeighbors.size(); i++)
+			{
+				CQuadBranch* pNeighbor = apNeighbors[i];
+				glColor3f(0, 0, 1);
+				glBegin(GL_LINE_STRIP);
+					glVertex3f(ArrayToWorldSpace(pNeighbor->m_vecMin.x)+1, GetRealHeight(pNeighbor->m_vecMin.x, pNeighbor->m_vecMin.y)+1, ArrayToWorldSpace(pNeighbor->m_vecMin.y)+1);
+					glVertex3f(ArrayToWorldSpace(pNeighbor->m_vecMax.x)-1, GetRealHeight(pNeighbor->m_vecMax.x, pNeighbor->m_vecMin.y)+1, ArrayToWorldSpace(pNeighbor->m_vecMin.y)+1);
+					glVertex3f(ArrayToWorldSpace(pNeighbor->m_vecMax.x)-1, GetRealHeight(pNeighbor->m_vecMax.x, pNeighbor->m_vecMax.y)+1, ArrayToWorldSpace(pNeighbor->m_vecMax.y)-1);
+				glEnd();
+			}
+		}
+	}
+#endif
 }
 
 void CTerrain::RenderTransparentTerrain()
@@ -1187,6 +1237,12 @@ void CTerrain::RenderWithoutShaders()
 	}
 }
 
+void CTerrain::DebugRenderQuadTree()
+{
+	if (m_pQuadTreeHead)
+		m_pQuadTreeHead->DebugRender();
+}
+
 void CTerrain::GetChunk(float x, float y, int& i, int& j)
 {
 	int iIndex;
@@ -1272,7 +1328,7 @@ Vector CTerrain::SetPointHeight(Vector& vecPoint)
 
 float CTerrain::GetMapSize()
 {
-	return 200;
+	return 256;
 }
 
 float CTerrain::ArrayToWorldSpace(int i)
@@ -1373,9 +1429,9 @@ void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)
 		return;
 
 	if (v)
-		pChunk->m_aiSpecialData[x2][y2] |= (1<<b);
+		pChunk->m_aiSpecialData[x2][y2] |= b;
 	else
-		pChunk->m_aiSpecialData[x2][y2] &= ~(1<<b);
+		pChunk->m_aiSpecialData[x2][y2] &= ~b;
 }
 
 bool CTerrain::GetBit(int x, int y, terrainbit_t b)
@@ -1388,7 +1444,20 @@ bool CTerrain::GetBit(int x, int y, terrainbit_t b)
 	if (!pChunk)
 		return false;
 
-	return !!(pChunk->m_aiSpecialData[x2][y2] & (1<<b));
+	return !!(pChunk->m_aiSpecialData[x2][y2] & b);
+}
+
+CTerrain::terrainbit_t CTerrain::GetBits(int x, int y)
+{
+	int x2, y2;
+	int iChunkX = ArrayToChunkSpace(x, x2);
+	int iChunkY = ArrayToChunkSpace(y, y2);
+
+	CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
+	if (!pChunk)
+		return TB_EMPTY;
+
+	return (terrainbit_t)pChunk->m_aiSpecialData[x2][y2];
 }
 
 Vector CTerrain::GetNormalAtPoint(Vector vecPoint)
@@ -1561,6 +1630,358 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 		return;
 
 	UpdateTerrainData();
+}
+
+class LowestF
+{
+public:
+	bool operator() (const CQuadBranch* pLeft, const CQuadBranch* pRight)
+	{
+		return const_cast<CQuadBranch*>(pLeft)->GetFScore() > const_cast<CQuadBranch*>(pRight)->GetFScore();
+	}
+
+	CTerrain* m_pTerrain;
+};
+
+Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitank* pUnit)
+{
+	if (pUnit)
+	{
+		pUnit->SetPreviewMove(vecEnd);
+		if (pUnit->IsPreviewMoveValid())
+			return vecEnd;
+	}
+
+	if (!m_pQuadTreeHead)
+		return vecStart;
+
+	m_pPathfindingUnit = pUnit;
+
+	m_pQuadTreeHead->InitPathfinding();
+
+	CQuadBranch* pStart = FindLeaf(vecStart);
+	CQuadBranch* pEnd = m_pPathEnd = FindLeaf(vecEnd);
+
+	if (pStart == pEnd)
+	{
+		if (pUnit)
+		{
+			pUnit->SetPreviewMove(vecEnd);
+
+			Vector vecDirectionFromStart = vecEnd - vecStart;
+			while (!pUnit->IsPreviewMoveValid())
+			{
+				vecDirectionFromStart *= 0.9f;
+				if (vecDirectionFromStart.LengthSqr() < 1)
+					return vecStart;
+
+				pUnit->SetPreviewMove(vecStart + vecDirectionFromStart);
+			}
+
+			return vecStart + vecDirectionFromStart;
+		}
+		else
+			return vecEnd;
+	}
+
+	eastl::vector<CQuadBranch*> apOpen;
+
+	LowestF oLowestF;
+	oLowestF.m_pTerrain = this;
+
+	apOpen.push_back(pStart);
+	pStart->m_bOpen = true;
+	eastl::push_heap(apOpen.begin(), apOpen.end(), oLowestF);
+
+	pStart->SetGScore(0);
+
+	while (apOpen.size())
+	{
+		for (size_t i = 0; i < apOpen.size(); i++)
+		{
+			CQuadBranch* pLowest = apOpen[i];
+			pLowest = pLowest;
+		}
+
+		CQuadBranch* pCurrent = apOpen.front();
+		eastl::pop_heap(apOpen.begin(), apOpen.end(), oLowestF);
+		apOpen.pop_back();
+		pCurrent->m_bOpen = false;
+
+#ifdef DEBUG_RENDERQUADTREE
+		glColor3f(0, 0, 1);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(ArrayToWorldSpace(pCurrent->m_vecMin.x)+1, GetRealHeight(pCurrent->m_vecMin.x, pCurrent->m_vecMin.y)+1, ArrayToWorldSpace(pCurrent->m_vecMin.y)+1);
+			glVertex3f(ArrayToWorldSpace(pCurrent->m_vecMax.x)-1, GetRealHeight(pCurrent->m_vecMax.x, pCurrent->m_vecMin.y)+1, ArrayToWorldSpace(pCurrent->m_vecMin.y)+1);
+			glVertex3f(ArrayToWorldSpace(pCurrent->m_vecMax.x)-1, GetRealHeight(pCurrent->m_vecMax.x, pCurrent->m_vecMax.y)+1, ArrayToWorldSpace(pCurrent->m_vecMax.y)-1);
+		glEnd();
+#endif
+
+		if (pCurrent == pEnd)
+			break;
+
+		pCurrent->m_bClosed = true;
+
+		eastl::vector<CQuadBranch*> apNeighbors;
+		FindNeighbors(pCurrent, apNeighbors);
+
+		for (size_t i = 0; i < apNeighbors.size(); i++)
+		{
+			CQuadBranch* pNeighbor = apNeighbors[i];
+			if (pNeighbor == pCurrent)
+				continue;
+
+			float flNeighborGScore = pCurrent->m_flGScore + WeightedLeafDistance(pCurrent, pNeighbor, false);
+
+			if (pNeighbor->m_bClosed)
+			{
+				if (flNeighborGScore < pNeighbor->m_flGScore)
+				{
+					pNeighbor->SetGScore(flNeighborGScore);
+					eastl::make_heap(apOpen.begin(), apOpen.end(), oLowestF);
+					pNeighbor->m_pPathParent = pCurrent;
+				}
+				continue;
+			}
+
+			bool bBetter = false;
+			if (!pNeighbor->m_bOpen)
+			{
+				apOpen.push_back(pNeighbor);
+				pNeighbor->m_bOpen = true;
+				pNeighbor->SetGScore(flNeighborGScore);
+				eastl::push_heap(apOpen.begin(), apOpen.end(), oLowestF);
+
+				bBetter = true;
+			}
+			else if (flNeighborGScore < pNeighbor->m_flGScore)
+				bBetter = true;
+
+			if (bBetter)
+			{
+				pNeighbor->m_pPathParent = pCurrent;
+				pNeighbor->SetGScore(flNeighborGScore);
+			}
+		}
+	}
+
+	eastl::list<CQuadBranch*> apRoute;
+	CQuadBranch* pPath = pEnd;
+	while (pPath->m_pPathParent)
+	{
+		apRoute.push_front(pPath);
+		pPath = pPath->m_pPathParent;
+	}
+	apRoute.push_front(pPath);
+
+#ifdef DEBUG_RENDERQUADTREE
+	glColor3f(1, 0, 0);
+	glBegin(GL_LINE_STRIP);
+		Vector vecCenter = apRoute.front()->GetCenter();
+
+		glVertex3fv(vecCenter);
+		for (eastl::list<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
+			glVertex3fv((*it)->GetCenter());
+	glEnd();
+#endif
+
+	if (!pUnit)
+	{
+		eastl::list<CQuadBranch*>::iterator it = apRoute.begin();
+		it++;
+		return (*it)->GetCenter();
+	}
+
+	pUnit->SetPreviewMove(apRoute.front()->GetCenter());
+	if (!pUnit->IsPreviewMoveValid())
+	{
+		Vector vecDirectionFromUnit = apRoute.front()->GetCenter() - pUnit->GetOrigin();
+		while (!pUnit->IsPreviewMoveValid())
+		{
+			vecDirectionFromUnit *= 0.9f;
+			if (vecDirectionFromUnit.LengthSqr() < 1)
+				return pUnit->GetOrigin();
+
+			pUnit->SetPreviewMove(pUnit->GetOrigin() + vecDirectionFromUnit);
+		}
+
+		return pUnit->GetOrigin() + vecDirectionFromUnit;
+	}
+
+	float flMoveDistance = pUnit->GetRemainingMovementDistance();
+	Vector vecLastCenter;
+	for (eastl::list<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
+	{
+		if (it == apRoute.begin())
+		{
+			vecLastCenter = (*it)->GetCenter();
+			continue;
+		}
+
+		Vector vecCenter = (*it)->GetCenter();
+		if (pUnit->GetOrigin().Distance(vecCenter) < flMoveDistance)
+		{
+			vecLastCenter = (*it)->GetCenter();
+			continue;
+		}
+
+		pUnit->SetPreviewMove(vecCenter);
+
+		Vector vecDirectionFromLastCenter = vecCenter - vecLastCenter;
+		while (!pUnit->IsPreviewMoveValid())
+		{
+			vecDirectionFromLastCenter *= 0.9f;
+			if (vecDirectionFromLastCenter.LengthSqr() < 1)
+				return vecLastCenter;
+
+			pUnit->SetPreviewMove(vecLastCenter + vecDirectionFromLastCenter);
+		}
+
+		return vecLastCenter + vecDirectionFromLastCenter;
+	}
+
+	return apRoute.back()->GetCenter();
+}
+
+CQuadBranch* CTerrain::FindLeaf(const Vector& vecPoint)
+{
+	if (!m_pQuadTreeHead)
+		return NULL;
+
+	if (vecPoint.x < ArrayToWorldSpace(m_pQuadTreeHead->m_vecMin.x))
+		return NULL;
+
+	if (vecPoint.z < ArrayToWorldSpace(m_pQuadTreeHead->m_vecMin.y))
+		return NULL;
+
+	if (vecPoint.x > ArrayToWorldSpace(m_pQuadTreeHead->m_vecMax.x))
+		return NULL;
+
+	if (vecPoint.z > ArrayToWorldSpace(m_pQuadTreeHead->m_vecMax.y))
+		return NULL;
+
+	CQuadBranch* pCurrent = m_pQuadTreeHead;
+	while (pCurrent->m_pBranches[0])
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (vecPoint.x < ArrayToWorldSpace(pCurrent->m_pBranches[i]->m_vecMin.x))
+				continue;
+
+			if (vecPoint.z < ArrayToWorldSpace(pCurrent->m_pBranches[i]->m_vecMin.y))
+				continue;
+
+			if (vecPoint.x > ArrayToWorldSpace(pCurrent->m_pBranches[i]->m_vecMax.x))
+				continue;
+
+			if (vecPoint.z > ArrayToWorldSpace(pCurrent->m_pBranches[i]->m_vecMax.y))
+				continue;
+
+			pCurrent = pCurrent->m_pBranches[i];
+			break;
+		}
+	}
+
+	return pCurrent;
+}
+
+float CTerrain::WeightedLeafDistance(CQuadBranch* pStart, CQuadBranch* pEnd, bool bEstimate)
+{
+	float flWeightedDistance = 0;
+
+	float flSlowPenaltyFactor = 1.5f;
+	bool bUnitConcealmentBonus = true;
+	bool bUnitHasShields = true;
+	bool bUnitTakesLavaDamage = true;
+	if (m_pPathfindingUnit)
+	{
+		flSlowPenaltyFactor = 1-m_pPathfindingUnit->SlowMovementFactor();
+
+		bUnitConcealmentBonus = m_pPathfindingUnit->GetsConcealmentBonus();
+		bUnitHasShields = m_pPathfindingUnit->GetFrontShieldMaxStrength() > 0;
+		bUnitTakesLavaDamage = m_pPathfindingUnit->TakesLavaDamage();
+	}
+
+	Vector vecStart = pStart->GetCenter();
+	Vector vecEnd = pEnd->GetCenter();
+	float flDistance = vecStart.Distance(vecEnd);
+
+	float flSectionDistance = 10;
+	size_t iSections = (size_t)(flDistance/flSectionDistance);
+
+	Vector vecStep = (vecEnd-vecStart).Normalized()*flSectionDistance;
+	Vector vecLastLocation = vecStart;
+	for (size_t i = 0; i <= iSections; i++)
+	{
+		Vector vecLocation;
+
+		if (i == iSections)
+			vecLocation = vecEnd;
+		else
+			vecLocation = SetPointHeight(vecStart + vecStep*((float)i+1));
+
+		flSectionDistance = vecLocation.Distance(vecLastLocation);
+		flWeightedDistance += flSectionDistance;
+
+		terrainbit_t eBits = GetBits(WorldToArraySpace(vecLocation.x), WorldToArraySpace(vecLocation.z));
+		if (eBits & TB_TREE)
+		{
+			// Trees aren't so bad because we get camoflauge moving through them.
+			float flWeight;
+			if (bUnitConcealmentBonus)
+				flWeight = 0.8f;
+			else
+				flWeight = 1.0f;
+
+			flWeightedDistance += flSectionDistance*flSlowPenaltyFactor*flWeight;
+		}
+		else if (eBits & TB_WATER)
+		{
+			// Water's good to avoid since we're visible and we lack shields.
+			float flWeight;
+			if (bUnitHasShields)
+				flWeight = 5.0f;
+			else
+				flWeight = 0.0f;
+
+			if (bEstimate)
+				flWeight /= 2;
+
+			flWeightedDistance += flSectionDistance*flSlowPenaltyFactor + flSectionDistance*flWeight;
+		}
+		else if (eBits & TB_LAVA)
+		{
+			// Lava is terrible since it deals direct damage bypassing shields, avoid at all costs.
+			float flWeight;
+			if (bUnitTakesLavaDamage)
+				flWeight = 12.0f;
+			else
+				flWeight = 0.0f;
+
+			if (bEstimate)
+				flWeight /= 2;
+
+			flWeightedDistance += flSectionDistance*flSlowPenaltyFactor + flSectionDistance*flWeight;
+		}
+		else if (eBits & TB_HOLE)
+		{
+			// Try to avoid holes.
+			flWeightedDistance += flSectionDistance*0.2f;
+		}
+
+		vecLastLocation = vecLocation;
+	}
+
+	return flWeightedDistance;
+}
+
+void CTerrain::FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors)
+{
+	if (!pLeaf)
+		return;
+
+	apNeighbors.set_capacity(20);
+	m_pQuadTreeHead->FindNeighbors(pLeaf, apNeighbors);
 }
 
 Color CTerrain::GetPrimaryTerrainColor()
@@ -1826,4 +2247,229 @@ void CTerrainChunk::Think()
 	}
 
 	DigitanksGame()->GetTerrain()->GenerateTerrainCallLists();
+}
+
+CQuadBranch::CQuadBranch(CTerrain* pTerrain, CQuadBranch* pParent, CQuadVector vecMin, CQuadVector vecMax)
+{
+	m_pTerrain = pTerrain;
+	m_pParent = pParent;
+
+	m_pBranches[0] = NULL;
+	m_pBranches[1] = NULL;
+	m_pBranches[2] = NULL;
+	m_pBranches[3] = NULL;
+
+	m_vecMin = vecMin;
+	m_vecMax = vecMax;
+
+	m_eTerrainType = (CTerrain::terrainbit_t)-1;
+}
+
+void CQuadBranch::BuildBranch()
+{
+	CTerrain::terrainbit_t eMatchBit = m_pTerrain->GetBits(m_vecMin.x, m_vecMin.y);
+	if (eMatchBit & CTerrain::TB_HOLE)
+		eMatchBit = CTerrain::TB_HOLE;
+
+	bool bAllBitsMatch = true;
+
+	if (m_eTerrainType != eMatchBit && m_eTerrainType != (CTerrain::terrainbit_t)-1)
+		bAllBitsMatch = false;
+	else
+	{
+		for (size_t i = m_vecMin.x; i < m_vecMax.x; i++)
+		{
+			for (size_t j = m_vecMin.y; j < m_vecMax.y; j++)
+			{
+				CTerrain::terrainbit_t eTileBit = m_pTerrain->GetBits(i, j);
+				if (eTileBit & CTerrain::TB_HOLE)
+					eTileBit = CTerrain::TB_HOLE;
+
+				if (eMatchBit != eTileBit)
+					bAllBitsMatch = false;
+
+				if (!bAllBitsMatch)
+					break;
+			}
+
+			if (!bAllBitsMatch)
+				break;
+		}
+	}
+
+	if (bAllBitsMatch)
+	{
+		m_eTerrainType = eMatchBit;
+
+		if (m_pBranches[0])
+		{
+			for (size_t i = 0; i < 4; i++)
+			{
+				delete m_pBranches[i];
+				m_pBranches[i] = NULL;
+			}
+		}
+	}
+	else
+	{
+		if (!m_pBranches[0])
+		{
+			unsigned short iSize = (m_vecMax.x - m_vecMin.x)/2;
+			m_pBranchxy = new CQuadBranch(m_pTerrain, this, m_vecMin + CQuadVector(0, 0), m_vecMin + CQuadVector(iSize, iSize));
+			m_pBranchxY = new CQuadBranch(m_pTerrain, this, m_vecMin + CQuadVector(0, iSize), m_vecMin + CQuadVector(iSize, iSize+iSize));
+			m_pBranchXy = new CQuadBranch(m_pTerrain, this, m_vecMin + CQuadVector(iSize, 0), m_vecMin + CQuadVector(iSize+iSize, iSize));
+			m_pBranchXY = new CQuadBranch(m_pTerrain, this, m_vecMin + CQuadVector(iSize, iSize), m_vecMin + CQuadVector(iSize+iSize, iSize+iSize));
+		}
+
+		for (size_t i = 0; i < 4; i++)
+			m_pBranches[i]->BuildBranch();
+	}
+}
+
+void CQuadBranch::InitPathfinding()
+{
+	if (m_pBranches[0])
+	{
+		for (size_t i = 0; i < 4; i++)
+			m_pBranches[i]->InitPathfinding();
+	}
+	else
+	{
+		m_bClosed = false;
+		m_bOpen = false;
+		m_bFValid = false;
+		m_bHCalculated = false;
+		m_flGScore = 0;
+		m_pPathParent = NULL;
+		m_bCenterCalculated = false;	// Re-calculated centers every pathfind in case of terrain height changes.
+	}
+}
+
+void CQuadBranch::FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors)
+{
+	if (!pLeaf)
+		return;
+
+	if (m_pBranches[0])
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (pLeaf->m_vecMin.x > m_pBranches[i]->m_vecMax.x)
+				continue;
+
+			if (pLeaf->m_vecMin.y > m_pBranches[i]->m_vecMax.y)
+				continue;
+
+			if (pLeaf->m_vecMax.x < m_pBranches[i]->m_vecMin.x)
+				continue;
+
+			if (pLeaf->m_vecMax.y < m_pBranches[i]->m_vecMin.y)
+				continue;
+
+			m_pBranches[i]->FindNeighbors(pLeaf, apNeighbors);
+		}
+	}
+	else
+	{
+		// Don't return holes as neighbors so we don't consider them in any pathfinding at all.
+		if (m_eTerrainType & CTerrain::TB_HOLE)
+			return;
+
+		if (pLeaf->m_vecMin.x > m_vecMax.x)
+			return;
+
+		if (pLeaf->m_vecMin.y > m_vecMax.y)
+			return;
+
+		if (pLeaf->m_vecMax.x < m_vecMin.x)
+			return;
+
+		if (pLeaf->m_vecMax.y < m_vecMin.y)
+			return;
+
+		apNeighbors.push_back(this);
+	}
+}
+
+CQuadBranch* CQuadBranch::FindLeaf(const Vector& vecPoint)
+{
+	if (vecPoint.x < m_pTerrain->ArrayToWorldSpace(m_vecMin.x))
+		return NULL;
+
+	if (vecPoint.y < m_pTerrain->ArrayToWorldSpace(m_vecMin.y))
+		return NULL;
+
+	if (vecPoint.x > m_pTerrain->ArrayToWorldSpace(m_vecMax.x))
+		return NULL;
+
+	if (vecPoint.y > m_pTerrain->ArrayToWorldSpace(m_vecMax.y))
+		return NULL;
+
+	if (!m_pBranches[0])
+		return this;
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		CQuadBranch* pResult = m_pBranches[i]->FindLeaf(vecPoint);
+		if (pResult)
+			return pResult;
+	}
+
+	assert(!"Should never get here.");
+	return NULL;
+}
+
+void CQuadBranch::SetGScore(float flGScore)
+{
+	m_bFValid = false;
+	m_flGScore = flGScore;
+}
+
+float CQuadBranch::GetFScore()
+{
+	if (m_bFValid)
+		return m_flFScore;
+
+	if (!m_bHCalculated)
+	{
+		m_flHScore = m_pTerrain->WeightedLeafDistance(this, m_pTerrain->m_pPathEnd, true);
+		m_bHCalculated = true;
+	}
+
+	m_flFScore = m_flHScore + m_flGScore;
+	m_bFValid = true;
+
+	return m_flFScore;
+}
+
+Vector CQuadBranch::GetCenter()
+{
+	if (!m_bCenterCalculated)
+	{
+		Vector vecMin = Vector(m_pTerrain->ArrayToWorldSpace(m_vecMin.x), 0, m_pTerrain->ArrayToWorldSpace(m_vecMin.y));
+		Vector vecMax = Vector(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), 0, m_pTerrain->ArrayToWorldSpace(m_vecMax.y));
+
+		m_vecCenter = m_pTerrain->SetPointHeight((vecMin + vecMax)/2);
+
+		m_bCenterCalculated = true;
+	}
+
+	return m_vecCenter;
+}
+
+void CQuadBranch::DebugRender()
+{
+	if (m_pBranches[0])
+	{
+		for (size_t i = 0; i < 4; i++)
+			m_pBranches[i]->DebugRender();
+	}
+	else
+	{
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(m_pTerrain->ArrayToWorldSpace(m_vecMin.x), m_pTerrain->GetRealHeight(m_vecMin.x, m_vecMin.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMin.y));
+			glVertex3f(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), m_pTerrain->GetRealHeight(m_vecMax.x, m_vecMin.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMin.y));
+			glVertex3f(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), m_pTerrain->GetRealHeight(m_vecMax.x, m_vecMax.y)+1, m_pTerrain->ArrayToWorldSpace(m_vecMax.y));
+		glEnd();
+	}
 }

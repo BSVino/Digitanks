@@ -123,6 +123,17 @@ void CRenderingContext::SetDepthMask(bool bDepthMask)
 	glDepthMask(bDepthMask);
 }
 
+void CRenderingContext::SetDepthTest(bool bDepthTest)
+{
+	if (!m_bAttribs)
+		PushAttribs();
+
+	if (bDepthTest)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
 void CRenderingContext::SetBackCulling(bool bCull)
 {
 	if (!m_bAttribs)

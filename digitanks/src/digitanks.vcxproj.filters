@@ -14,15 +14,6 @@
     <Filter Include="Source Files\game">
       <UniqueIdentifier>{ed7408d1-b561-456b-a374-acb2af02d64f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\game\digitanks">
-      <UniqueIdentifier>{0388ae3c-ff09-4da9-974d-99a4322d7801}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game\digitanks\units">
-      <UniqueIdentifier>{0d76a98a-c416-4a8a-8a84-310998358f05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game\digitanks\structures">
-      <UniqueIdentifier>{d1fe78ab-08b1-45ea-8cc9-6f00d4d073ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\glgui">
       <UniqueIdentifier>{f1f587b9-3077-4b9f-90af-691f223e87e8}</UniqueIdentifier>
     </Filter>
@@ -58,11 +49,20 @@
     <Filter Include="Source Files\tinker">
       <UniqueIdentifier>{4e7ebff5-aa7b-4e77-9451-a290f3c54fef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\game\digitanks\weapons">
-      <UniqueIdentifier>{f85c5d4e-69e7-4d87-a801-0edbea4e04da}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\datamanager">
       <UniqueIdentifier>{71f78f61-40b6-4b40-9c65-abecddff9b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\digitanks">
+      <UniqueIdentifier>{0388ae3c-ff09-4da9-974d-99a4322d7801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\digitanks\units">
+      <UniqueIdentifier>{0d76a98a-c416-4a8a-8a84-310998358f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\digitanks\structures">
+      <UniqueIdentifier>{d1fe78ab-08b1-45ea-8cc9-6f00d4d073ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\digitanks\weapons">
+      <UniqueIdentifier>{f85c5d4e-69e7-4d87-a801-0edbea4e04da}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,31 +97,31 @@
       <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\bot.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\digitanksentity.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\digitanksgame.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\digitanksteam.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\dt_renderer.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\powerup.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\selectable.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\supplyline.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\terrain.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="..\..\glgui\glgui.cpp">
       <Filter>Source Files\glgui</Filter>
@@ -172,22 +172,22 @@
       <Filter>Source Files\network</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\updates.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="ui\updatespanel.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\digitanks_register.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\dt_camera.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\gameserver.cpp">
       <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\menumarcher.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="ui\ui.cpp">
       <Filter>Source Files\ui</Filter>
@@ -211,64 +211,64 @@
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\artillery.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\digitank.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\maintank.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\mechinf.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\scout.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\standardtank.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\resource.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\structure.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\buffer.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\collector.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\cpu.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\loader.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\structures\props.cpp">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClCompile>
     <ClCompile Include="ui\weaponpanel.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\weapons\projectile.cpp">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\weapons\baseweapon.cpp">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\weapons\cameraguided.cpp">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\weapons\laser.cpp">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\weapons\missiledefense.cpp">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
     <ClCompile Include="shaders\prop.cpp">
       <Filter>Source Files\shaders</Filter>
@@ -283,13 +283,13 @@
       <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\digitankslevel.cpp">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\mobilecpu.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="game\digitanks\units\autoturret.cpp">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ext-deps\EASTL\src\hashtable.cpp">
       <Filter>Source Files\eastl</Filter>
@@ -348,28 +348,28 @@
       <Filter>Source Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\digitanksentity.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\digitanksgame.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\digitanksteam.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\dt_renderer.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\powerup.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\selectable.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\supplyline.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\terrain.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="..\..\glgui\glgui.h">
       <Filter>Source Files\glgui</Filter>
@@ -402,19 +402,19 @@
       <Filter>Source Files\network</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\updates.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="ui\updatespanel.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\dt_camera.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\gameserver.h">
       <Filter>Source Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\menumarcher.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui.h">
       <Filter>Source Files\ui</Filter>
@@ -438,67 +438,67 @@
       <Filter>Source Files\tinker</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\artillery.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\digitank.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\maintank.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\mechinf.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\scout.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\standardtank.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\resource.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\structure.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\buffer.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\collector.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\cpu.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\loader.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\structures\props.h">
-      <Filter>Source Files\game\digitanks\structures</Filter>
+      <Filter>Source Files\digitanks\structures</Filter>
     </ClInclude>
     <ClInclude Include="ui\weaponpanel.h">
       <Filter>Source Files\ui</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\projectile.h">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\specialshells.h">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\baseweapon.h">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\cameraguided.h">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\dt_common.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\laser.h">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\missiledefense.h">
-      <Filter>Source Files\game\digitanks\weapons</Filter>
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
     <ClInclude Include="shaders\dt_shaders.h">
       <Filter>Source Files\shaders</Filter>
@@ -516,13 +516,13 @@
       <Filter>Source Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\digitankslevel.h">
-      <Filter>Source Files\game\digitanks</Filter>
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\mobilecpu.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="game\digitanks\units\autoturret.h">
-      <Filter>Source Files\game\digitanks\units</Filter>
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\sockets\sockets.h">
       <Filter>Source Files\common</Filter>

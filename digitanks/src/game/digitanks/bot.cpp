@@ -755,11 +755,8 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			else
 			{
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
-				Vector vecDirection = m_vecExplore - pTank->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance*flMovementPower);
 
-				vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), m_vecExplore, pTank);
 				bMove = true;
 			}
 
@@ -796,12 +793,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			else
 			{
 				// Head to the fortify point
-				float flMovementDistance = pTank->GetRemainingMovementDistance();
-				Vector vecDirection = pTank->GetFortifyPoint() - pTank->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance*2/3);
-
-				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), pTank->GetFortifyPoint(), pTank);
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->Move();
@@ -858,15 +850,10 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else
 		{
-			// If we are not within the effective range, use 1/3 of our available movement power to move towards our target.
+			// If we are not within the effective range, move towards our target.
 			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
-				float flMovementDistance = pTank->GetRemainingMovementDistance();
-				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
-
-				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin, pTank);
 
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->Move();
@@ -1076,8 +1063,14 @@ void CStructure::AddDefender(CDigitank* pTank)
 		if (m_aoDefenders[i].m_hDefender == NULL)
 		{
 			m_aoDefenders[i].m_hDefender = pTank;
-			Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
-			DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+
+			Vector vecFortify;
+			do
+			{
+				vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
+				DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+			} while (DigitanksGame()->GetTerrain()->IsPointOverHole(vecFortify));
+
 			pTank->SetFortifyPoint(vecFortify);
 			return;
 		}
@@ -1100,7 +1093,12 @@ void CStructure::AddDefender(CDigitank* pTank)
 	else
 		flYaw -= 45*(iFortifies/2+1);
 
-	Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
+	Vector vecFortify;
+	do
+	{
+		vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
+		DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+	} while (DigitanksGame()->GetTerrain()->IsPointOverHole(vecFortify));
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
 

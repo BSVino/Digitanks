@@ -4,8 +4,8 @@
 #include "baseentity.h"
 #include "color.h"
 
-#define TERRAIN_SIZE 200
-#define TERRAIN_CHUNKS 10
+#define TERRAIN_SIZE 256
+#define TERRAIN_CHUNKS 16
 #define TERRAIN_CHUNK_SIZE (TERRAIN_SIZE/TERRAIN_CHUNKS)
 
 #define TERRAIN_CHUNK_TEXTURE_SIZE 256
@@ -49,6 +49,8 @@ class CTerrain : public CBaseEntity
 {
 	REGISTER_ENTITY_CLASS(CTerrain, CBaseEntity);
 
+	friend class CQuadBranch;
+
 public:
 							CTerrain();
 	virtual					~CTerrain();
@@ -76,6 +78,7 @@ public:
 	void					RenderTransparentTerrain();
 	void					RenderWithShaders();
 	void					RenderWithoutShaders();
+	void					DebugRenderQuadTree();
 
 	void					GetChunk(float x, float y, int& i, int& j);
 	CTerrainChunk*			GetChunk(int x, int y);
@@ -100,19 +103,27 @@ public:
 
 	typedef enum
 	{
-		TB_LAVA = 0,
-		TB_HOLE = 1,
-		TB_TREE = 2,
-		TB_WATER = 3,
+		TB_EMPTY = 0,
+		TB_LAVA = (1<<0),
+		TB_HOLE = (1<<1),
+		TB_TREE = (1<<2),
+		TB_WATER = (1<<3),
 		// uses m_aiSpecialData which is unsigned char so max 8 of these.
 	} terrainbit_t;
 	void					SetBit(int x, int y, terrainbit_t b, bool v);
 	bool					GetBit(int x, int y, terrainbit_t b);
+	terrainbit_t			GetBits(int x, int y);
 
 	Vector					GetNormalAtPoint(Vector vecPoint);
 
 	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit);
+
+	// Pathfinding stuff
+	Vector					FindPath(const Vector& vecStart, const Vector& vecEnd, class CDigitank* pUnit);
+	class CQuadBranch*		FindLeaf(const Vector& vecPoint);
+	float					WeightedLeafDistance(class CQuadBranch* pStart, class CQuadBranch* pEnd, bool bEstimate);
+	void					FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors);
 
 	Color					GetPrimaryTerrainColor();
 
@@ -145,6 +156,87 @@ protected:
 	int						m_iThinkChunkY;
 
 	static size_t			s_iTreeTexture;
+
+	// Pathfinding stuff
+	class CQuadBranch*		m_pQuadTreeHead;
+	class CQuadBranch*		m_pPathEnd;
+	class CDigitank*		m_pPathfindingUnit;
+};
+
+class CQuadVector
+{
+public:
+	CQuadVector()
+	{
+		x = 0;
+		y = 0;
+	}
+
+	CQuadVector(unsigned short X, unsigned short Y)
+	{
+		x = X;
+		y = Y;
+	}
+
+	CQuadVector	operator+(const CQuadVector& v) const
+	{
+		return CQuadVector(x+v.x, y+v.y);
+	}
+
+	unsigned short x;
+	unsigned short y;
+};
+
+class CQuadBranch
+{
+public:
+							CQuadBranch(class CTerrain* pTerrain, CQuadBranch* pParent, CQuadVector vecMin, CQuadVector vecMax);
+
+public:
+	void					BuildBranch();
+
+	void					InitPathfinding();
+	void					FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors);
+	CQuadBranch*			FindLeaf(const Vector& vecPoint);
+	void					SetGScore(float flGScore);
+	float					GetFScore();
+	Vector					GetCenter();
+
+	void					DebugRender();
+
+public:
+	class CTerrain*			m_pTerrain;
+	CQuadBranch*			m_pParent;
+
+	CQuadVector				m_vecMin;
+	CQuadVector				m_vecMax;
+
+	union
+	{
+		struct
+		{
+			CQuadBranch*	m_pBranchxy;
+			CQuadBranch*	m_pBranchxY;
+			CQuadBranch*	m_pBranchXy;
+			CQuadBranch*	m_pBranchXY;
+		};
+		CQuadBranch*		m_pBranches[4];
+	};
+
+	CTerrain::terrainbit_t	m_eTerrainType;
+
+	// Pathfinding stuff. SO not thread-safe!
+	bool					m_bClosed;
+	bool					m_bOpen;
+	bool					m_bHCalculated;
+	bool					m_bFValid;
+	float					m_flGScore;
+	float					m_flHScore;
+	float					m_flFScore;
+	bool					m_bCenterCalculated;
+	Vector					m_vecCenter;
+
+	CQuadBranch*			m_pPathParent;
 };
 
 #endif
