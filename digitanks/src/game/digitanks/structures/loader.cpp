@@ -148,18 +148,13 @@ void CLoader::StartTurn()
 
 				m_bProducing = false;
 
-				// All of these StartTurn calls will probably cause problems later but for now they're
-				// the only way to refresh the tank's energy so it has enough to leave the loader.
-				pTank->StartTurn();
+				pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
+				pTank->Turn(VectorAngles(-GetOrigin().Normalized()));
 
-				pTank->SetPreviewMove(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
-				pTank->Move();
-
-				pTank->StartTurn();
-
-				// Face him toward the center.
-				pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
-				pTank->Turn();
+				if (!GetTeam()->IsPlayerControlled() && CNetwork::IsHost())
+					// It's not a real move but i dun care
+					// We just need to get them spaced out around the loader, like a rally point
+					pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9 + AngleVector(EAngle(0, RandomFloat(0, 360), 0))*10);
 
 				pTank->StartTurn();
 			}

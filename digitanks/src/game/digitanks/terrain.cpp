@@ -968,22 +968,6 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 		{
 			FindPath(DigitanksGame()->GetPrimarySelectionTank()->GetOrigin(), vecPoint, DigitanksGame()->GetPrimarySelectionTank());
 		}
-		else
-		{
-			eastl::vector<CQuadBranch*> apNeighbors;
-			FindNeighbors(FindLeaf(vecPoint), apNeighbors);
-
-			for (size_t i = 0; i < apNeighbors.size(); i++)
-			{
-				CQuadBranch* pNeighbor = apNeighbors[i];
-				glColor3f(0, 0, 1);
-				glBegin(GL_LINE_STRIP);
-					glVertex3f(ArrayToWorldSpace(pNeighbor->m_vecMin.x)+1, GetRealHeight(pNeighbor->m_vecMin.x, pNeighbor->m_vecMin.y)+1, ArrayToWorldSpace(pNeighbor->m_vecMin.y)+1);
-					glVertex3f(ArrayToWorldSpace(pNeighbor->m_vecMax.x)-1, GetRealHeight(pNeighbor->m_vecMax.x, pNeighbor->m_vecMin.y)+1, ArrayToWorldSpace(pNeighbor->m_vecMin.y)+1);
-					glVertex3f(ArrayToWorldSpace(pNeighbor->m_vecMax.x)-1, GetRealHeight(pNeighbor->m_vecMax.x, pNeighbor->m_vecMax.y)+1, ArrayToWorldSpace(pNeighbor->m_vecMax.y)-1);
-				glEnd();
-			}
-		}
 	}
 #endif
 }
@@ -1785,28 +1769,12 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 	glEnd();
 #endif
 
+	eastl::list<CQuadBranch*>::iterator it = apRoute.begin();
+	it++;
+	Vector vecSecondNode = (*it)->GetCenter();
+
 	if (!pUnit)
-	{
-		eastl::list<CQuadBranch*>::iterator it = apRoute.begin();
-		it++;
-		return (*it)->GetCenter();
-	}
-
-	pUnit->SetPreviewMove(apRoute.front()->GetCenter());
-	if (!pUnit->IsPreviewMoveValid())
-	{
-		Vector vecDirectionFromUnit = apRoute.front()->GetCenter() - pUnit->GetOrigin();
-		while (!pUnit->IsPreviewMoveValid())
-		{
-			vecDirectionFromUnit *= 0.9f;
-			if (vecDirectionFromUnit.LengthSqr() < 1)
-				return pUnit->GetOrigin();
-
-			pUnit->SetPreviewMove(pUnit->GetOrigin() + vecDirectionFromUnit);
-		}
-
-		return pUnit->GetOrigin() + vecDirectionFromUnit;
-	}
+		return vecSecondNode;
 
 	float flMoveDistance = pUnit->GetRemainingMovementDistance();
 	Vector vecLastCenter;
@@ -1814,18 +1782,18 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 	{
 		if (it == apRoute.begin())
 		{
-			vecLastCenter = (*it)->GetCenter();
+			vecLastCenter = pUnit->GetOrigin();
 			continue;
 		}
 
 		Vector vecCenter = (*it)->GetCenter();
-		if (pUnit->GetOrigin().Distance(vecCenter) < flMoveDistance)
+		pUnit->SetPreviewMove(vecCenter);
+
+		if (pUnit->IsPreviewMoveValid())
 		{
 			vecLastCenter = (*it)->GetCenter();
 			continue;
 		}
-
-		pUnit->SetPreviewMove(vecCenter);
 
 		Vector vecDirectionFromLastCenter = vecCenter - vecLastCenter;
 		while (!pUnit->IsPreviewMoveValid())

@@ -305,7 +305,11 @@ public:
 	virtual unittype_t			GetUnitType() const { return UNIT_TANK; }
 
 	// AI stuff
-	virtual void				SetFortifyPoint(Vector vecFortify);
+	virtual void				SetInAttackTeam(bool b) { m_bInAttackTeam = b; };
+	virtual bool				IsInAttackTeam() { return m_bInAttackTeam; };
+
+	virtual void				SetFortifyPoint(CStructure* pStructure, Vector vecFortify);
+	virtual void				RemoveFortifyPoint();
 	virtual bool				HasFortifyPoint() { return m_bFortifyPoint; };
 	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
@@ -404,8 +408,10 @@ protected:
 	CNetworkedVariable<size_t>	m_iTurnsDisabled;
 
 	// AI stuff
+	bool						m_bInAttackTeam;
 	bool						m_bFortifyPoint;
 	Vector						m_vecFortifyPoint;
+	CEntityHandle<class CStructure>	m_hFortifyDefending;
 
 	static size_t				s_iAimBeam;
 	static size_t				s_iCancelIcon;

@@ -115,6 +115,7 @@ public:
 
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);
+	void						RemoveDefender(class CDigitank* pTank);
 	size_t						GetNumLivingDefenders();
 
 protected:

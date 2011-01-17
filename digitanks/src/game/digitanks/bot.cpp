@@ -83,6 +83,8 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 
 void CDigitanksTeam::Bot_ExpandBase()
 {
+	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
+
 	// Never install more than one thing at a time so we don't get bogged down in installations.
 	if (GetNumProducers() < 1)
 	{
@@ -238,11 +240,11 @@ void CDigitanksTeam::Bot_ExpandBase()
 		}
 		else
 		{
-			Vector vecStructureDirection = pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin();
+			Vector vecStructureDirection = pTerrain->FindPath(pClosestSupplier->GetOrigin(), pTargetResource->GetOrigin(), NULL);
 			Vector vecStructure = pClosestSupplier->GetOrigin();
 			vecStructure += vecStructureDirection.Normalized() * pClosestSupplier->GetDataFlowRadius()*2/3;
 
-			DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
+			pTerrain->SetPointHeight(vecStructure);
 
 			m_hPrimaryCPU->SetPreviewStructure(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
 			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
@@ -306,46 +308,61 @@ void CDigitanksTeam::Bot_ExpandBase()
 	}
 
 	CSupplier* pUnused = NULL;
+	Vector vecStructure;
 
-	if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
-		pUnused = FindUnusedSupplier(4, false);
-	else
-		pUnused = FindUnusedSupplier(2);
-
-	float flYaw;
-	if (pUnused == m_hPrimaryCPU)
-		flYaw = RandomFloat(0, 360);
-	else
+	do
 	{
-		flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
-		flYaw = RandomFloat(flYaw-90, flYaw+90);
-	}
+		if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
+			pUnused = FindUnusedSupplier(4, false);
+		else
+			pUnused = FindUnusedSupplier(2);
 
-	// Pick a random direction facing more or less away from the CPU so that we spread outwards.
-	Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
-	Vector vecStructure = pUnused->GetOrigin();
-	if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
-	{
-		Vector vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*9/10;
-		if (CSupplier::GetDataFlow(vecPreview, this) <= 0)
-			vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
+		float flYaw;
+		if (pUnused == m_hPrimaryCPU)
+			flYaw = RandomFloat(0, 360);
+		else
+		{
+			flYaw = VectorAngles(pUnused->GetOrigin() - m_hPrimaryCPU->GetOrigin()).y;
+			flYaw = RandomFloat(flYaw-90, flYaw+90);
+		}
 
-		vecStructure = vecPreview;
-	}
-	else
-		vecStructure += vecStructureDirection.Normalized() * 20;
+		// Pick a random direction facing more or less away from the CPU so that we spread outwards.
+		Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
+		vecStructure = pUnused->GetOrigin();
+		if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
+		{
+			Vector vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*9/10;
+			if (CSupplier::GetDataFlow(vecPreview, this) <= 0)
+				vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*2/3;
 
-	// Don't build structures too close to the map edges.
-	if (vecStructure.x < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
-		return;
-	if (vecStructure.z < -DigitanksGame()->GetTerrain()->GetMapSize()+15)
-		return;
-	if (vecStructure.x > DigitanksGame()->GetTerrain()->GetMapSize()-15)
-		return;
-	if (vecStructure.z > DigitanksGame()->GetTerrain()->GetMapSize()-15)
-		return;
+			vecStructure = vecPreview;
+		}
+		else
+			vecStructure += vecStructureDirection.Normalized() * 20;
 
-	DigitanksGame()->GetTerrain()->SetPointHeight(vecStructure);
+		// Don't build structures too close to the map edges.
+		if (vecStructure.x < -pTerrain->GetMapSize()+15)
+			continue;
+		if (vecStructure.z < -pTerrain->GetMapSize()+15)
+			continue;
+		if (vecStructure.x > pTerrain->GetMapSize()-15)
+			continue;
+		if (vecStructure.z > pTerrain->GetMapSize()-15)
+			continue;
+
+		if (iNextBuild == STRUCTURE_INFANTRYLOADER || iNextBuild == STRUCTURE_TANKLOADER || iNextBuild == STRUCTURE_ARTILLERYLOADER)
+		{
+			if (pTerrain->IsPointOverWater(vecStructure) || pTerrain->IsPointOverLava(vecStructure))
+				continue;
+
+			Vector vecUnloadPoint = vecStructure + AngleVector(EAngle(0, 0, 0)) * 9;
+			if (pTerrain->IsPointOverWater(vecUnloadPoint) || pTerrain->IsPointOverLava(vecUnloadPoint))
+				continue;
+		}
+
+	} while (pTerrain->IsPointOverHole(vecStructure));
+
+	pTerrain->SetPointHeight(vecStructure);
 
 	m_hPrimaryCPU->SetPreviewStructure(iNextBuild);
 	m_hPrimaryCPU->SetPreviewBuild(vecStructure);
@@ -386,11 +403,20 @@ void CDigitanksTeam::Bot_BuildUnits()
 			iArtillery += pDigitank->FleetPoints();
 	}
 
-	size_t iRatioTotal = CMechInfantry::InfantryFleetPoints() + CMainBattleTank::MainTankFleetPoints() + CArtillery::ArtilleryFleetPoints();
+	size_t iRatioTotal = CMechInfantry::InfantryFleetPoints();
+	if (CanBuildTankLoaders())
+		iRatioTotal += CMainBattleTank::MainTankFleetPoints();
+	if (CanBuildArtilleryLoaders())
+		iRatioTotal += CArtillery::ArtilleryFleetPoints();
+
 	float flInfantryRatio = (float)iRatioTotal/CMechInfantry::InfantryFleetPoints();
 	float flMainTankRatio = (float)iRatioTotal/CMainBattleTank::MainTankFleetPoints();
 	float flArtilleryRatio = (float)iRatioTotal/CArtillery::ArtilleryFleetPoints();
-	float flRatioTotal = flInfantryRatio + flMainTankRatio + flArtilleryRatio;
+	float flRatioTotal = flInfantryRatio;
+	if (CanBuildTankLoaders())
+		flRatioTotal += flMainTankRatio;
+	if (CanBuildArtilleryLoaders())
+		flRatioTotal += flArtilleryRatio;
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
@@ -490,6 +516,9 @@ void CDigitanksTeam::Bot_AssignDefenders()
 			continue;
 
 		if (pTank->HasFortifyPoint())
+			continue;
+
+		if (pTank->IsInAttackTeam())
 			continue;
 
 		size_t iFirst = rand()%apDefend.size();
@@ -608,13 +637,73 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	if (m_vecExplore.Length() < 1 || bCloseToExplorePoint)
 	{
 		float flMapSize = DigitanksGame()->GetTerrain()->GetMapSize();
-		m_vecExplore.x = RandomFloat(-flMapSize, flMapSize);
-		m_vecExplore.z = RandomFloat(-flMapSize, flMapSize);
+
+		do
+		{
+			m_vecExplore.x = RandomFloat(-flMapSize, flMapSize);
+			m_vecExplore.z = RandomFloat(-flMapSize, flMapSize);
+		}
+		while (DigitanksGame()->GetTerrain()->IsPointOverHole(m_vecExplore));
+
 		DigitanksGame()->GetTerrain()->SetPointHeight(m_vecExplore);
 	}
 
 	if (!pTarget && !m_bLKV)
 		vecTargetOrigin = m_vecExplore;
+
+	if (m_ahAttackTeam.size())
+	{
+		for (size_t i = m_ahAttackTeam.size()-1; i < m_ahAttackTeam.size(); i--)
+		{
+			if (m_ahAttackTeam[i] == NULL)
+				m_ahAttackTeam.erase(m_ahAttackTeam.begin()+i);
+		}
+	}
+
+	if (!m_ahAttackTeam.size())
+	{
+		// Examine whether it's time to attack.
+
+		CountFleetPoints();
+
+		if (GetTotalFleetPoints() > 0 && (m_iFleetPointAttackQuota == ~0 || GetTotalFleetPoints() <= m_iFleetPointAttackQuota))
+		{
+			// If our total fleet points is lower than the quota than perhaps we lost some buffers, let's make a new quota.
+			m_iFleetPointAttackQuota = GetTotalFleetPoints()*2/3;
+		}
+
+		// We have enough tanks made that we should attack now.
+		if (GetUsedFleetPoints() >= m_iFleetPointAttackQuota)
+		{
+			for (size_t i = 0; i < GetNumTanks(); i++)
+			{
+				CDigitank* pTank = GetTank(i);
+				if (!pTank)
+					continue;
+
+				// Scouts are just for exploring and hassling.
+				if (pTank->GetUnitType() == UNIT_SCOUT)
+					continue;
+
+				// Artillery is just for barrages
+				if (pTank->GetUnitType() == UNIT_ARTILLERY)
+					continue;
+
+				// Just in case.
+				if (pTank->GetUnitType() == UNIT_MOBILECPU || pTank->GetUnitType() == UNIT_AUTOTURRET)
+					continue;
+
+				// Gotta leave some infantry behind to support the cause
+				if (pTank->GetUnitType() == UNIT_INFANTRY && RandomInt(0, 1) == 0)
+					continue;
+
+				m_ahAttackTeam.push_back(pTank);
+				pTank->SetInAttackTeam(true);
+			}
+
+			m_iFleetPointAttackQuota = ~0;
+		}
+	}
 
 	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
@@ -777,6 +866,32 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				pTank->Fire();
 			}
 		}
+		else if (pTank->IsInAttackTeam())
+		{
+			if (pTank->IsFortified() || pTank->IsFortifying())
+			{
+				// We were defending but now we're attacking. Un-fortify!
+				pTank->Fortify();
+				pTank->RemoveFortifyPoint();
+			}
+
+			// WE WILL ATTACK ALL NIGHT, AND WE WILL ATTACK THROUGH THE MORNING, AND IF WE ARE NOT VICTORIOUS THEN LET NO MAN COME BACK ALIVE
+			// I've been watching too much of the movie Patton. It's research!
+			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+			{
+				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin, pTank);
+
+				pTank->SetPreviewMove(vecDesiredMove);
+				pTank->Move();
+			}
+
+			// If we are within the max range, try to fire.
+			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
+			{
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->Fire();
+			}
+		}
 		else if (pTank->HasFortifyPoint() && !pTank->IsFortified())
 		{
 			if (!pTank->IsFortified() && (pTank->GetOrigin() - pTank->GetFortifyPoint()).Length2D() < pTank->GetBoundingRadius()*2)
@@ -850,20 +965,48 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else
 		{
-			// If we are not within the effective range, move towards our target.
-			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
-			{
-				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin, pTank);
+			// Hang out at spawn. We're probably waiting to be put in an attack team.
 
-				pTank->SetPreviewMove(vecDesiredMove);
-				pTank->Move();
+			CDigitank* pClosestEnemy = NULL;
+			while (true)
+			{
+				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+
+				if (!pClosestEnemy)
+					break;
+
+				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					continue;
+
+				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+				{
+					pClosestEnemy = NULL;
+					break;
+				}
+
+				break;
 			}
 
-			// If we are within the max range, try to fire.
-			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
+			if (pClosestEnemy)
 			{
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
-				pTank->Fire();
+				if (pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->VisibleRange())
+				{
+					// Jesus we were just hanging out at the base and this asshole came up and started shooting us!
+					if ((pClosestEnemy->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
+					{
+						Vector vecDesiredMove = pTank->GetOrigin() + (pClosestEnemy->GetOrigin() - pTank->GetOrigin()).Normalized() * (pTank->GetRemainingMovementDistance() * 0.6f);
+
+						pTank->SetPreviewMove(vecDesiredMove);
+						pTank->Move();
+					}
+
+					// If we are within the max range, try to fire.
+					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					{
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->Fire();
+					}
+				}
 			}
 		}
 
@@ -1058,20 +1201,21 @@ void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
 
 void CStructure::AddDefender(CDigitank* pTank)
 {
+	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
+
 	for (size_t i = 0; i < m_aoDefenders.size(); i++)
 	{
 		if (m_aoDefenders[i].m_hDefender == NULL)
 		{
 			m_aoDefenders[i].m_hDefender = pTank;
 
-			Vector vecFortify;
-			do
-			{
-				vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
-				DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
-			} while (DigitanksGame()->GetTerrain()->IsPointOverHole(vecFortify));
+			Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
+			pTerrain->SetPointHeight(vecFortify);
 
-			pTank->SetFortifyPoint(vecFortify);
+			if (pTerrain->IsPointOverHole(vecFortify) || pTerrain->IsPointOverWater(vecFortify) || pTerrain->IsPointOverLava(vecFortify))
+				continue;
+
+			pTank->SetFortifyPoint(this, vecFortify);
 			return;
 		}
 	}
@@ -1084,21 +1228,24 @@ void CStructure::AddDefender(CDigitank* pTank)
 		flYaw = VectorAngles(GetOrigin() - pTank->GetDigitanksTeam()->GetMember(0)->GetOrigin()).y;
 
 	size_t iFortifies = m_aoDefenders.size();
-	if (iFortifies == 0)
-	{
-		// Default value
-	}
-	else if (iFortifies%2 == 0)
-		flYaw += 45*iFortifies/2;
-	else
-		flYaw -= 45*(iFortifies/2+1);
 
 	Vector vecFortify;
 	do
 	{
+		if (iFortifies == 0)
+		{
+			// Default value
+		}
+		else if (iFortifies%2 == 0)
+			flYaw += 45*iFortifies/2;
+		else
+			flYaw -= 45*(iFortifies/2+1);
+
 		vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
 		DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
-	} while (DigitanksGame()->GetTerrain()->IsPointOverHole(vecFortify));
+
+		iFortifies++;
+	} while (pTerrain->IsPointOverHole(vecFortify) || pTerrain->IsPointOverWater(vecFortify) || pTerrain->IsPointOverLava(vecFortify));
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
 
@@ -1106,7 +1253,16 @@ void CStructure::AddDefender(CDigitank* pTank)
 	defender_t* pDefender = &m_aoDefenders[m_aoDefenders.size()-1];
 	pDefender->m_flPosition = flYaw;
 	pDefender->m_hDefender = pTank;
-	pTank->SetFortifyPoint(vecFortify);
+	pTank->SetFortifyPoint(this, vecFortify);
+}
+
+void CStructure::RemoveDefender(CDigitank* pTank)
+{
+	for (size_t i = 0; i < m_aoDefenders.size(); i++)
+	{
+		if (m_aoDefenders[i].m_hDefender == pTank)
+			m_aoDefenders[i].m_hDefender = NULL;
+	}
 }
 
 size_t CStructure::GetNumLivingDefenders()

@@ -47,6 +47,8 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecExplore);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLKV);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLKV);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFleetPointAttackQuota);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CEntityHandle<CDigitank>, m_ahAttackTeam);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateX);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
@@ -87,6 +89,8 @@ void CDigitanksTeam::Spawn()
 
 	m_bUseArtilleryAI = false;
 	m_eLoseCondition = LOSE_NOTANKS;
+
+	m_iFleetPointAttackQuota = ~0;
 }
 
 void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)

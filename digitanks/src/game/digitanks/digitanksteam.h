@@ -136,6 +136,9 @@ protected:
 	bool						m_bLKV;
 	Vector						m_vecLKV;
 
+	size_t						m_iFleetPointAttackQuota;
+	eastl::vector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
+
 	CNetworkedVariable<int>		m_iCurrentUpdateX;
 	CNetworkedVariable<int>		m_iCurrentUpdateY;
 	bool						m_abUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];

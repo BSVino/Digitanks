@@ -160,6 +160,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bInAttackTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
@@ -277,6 +278,7 @@ void CDigitank::Spawn()
 	m_flNextIdle = 10.0f;
 	m_iTurretModel = m_iShieldModel = ~0;
 	m_iHoverParticles = ~0;
+	m_bInAttackTeam = false;
 	m_bFortifyPoint = false;
 	m_flFortifyTime = 0;
 	m_flBobOffset = RandomFloat(0, 10);
@@ -2412,6 +2414,9 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 
 	// Make sure we can see that we got a promotion.
 	DigitanksWindow()->GetHUD()->Layout();
+
+	if (m_hFortifyDefending != NULL)
+		m_hFortifyDefending->RemoveDefender(this);
 }
 
 Vector CDigitank::GetOrigin() const
@@ -3030,6 +3035,8 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 	if (bHit)
 		flHighestTerrain = vecHit.y;
 
+	// This shit can get SLOW!
+#ifndef _DEBUG
 	bHit = Game()->TraceLine(vecPosition + Vector(2, 100, 2), vecPosition + Vector(2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
 	if (bHit && vecHit.y > flHighestTerrain)
 		flHighestTerrain = vecHit.y;
@@ -3045,6 +3052,7 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 	bHit = Game()->TraceLine(vecPosition + Vector(-2, 100, -2), vecPosition + Vector(-2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
 	if (bHit && vecHit.y > flHighestTerrain)
 		flHighestTerrain = vecHit.y;
+#endif
 
 	return flHighestTerrain;
 }
@@ -3075,8 +3083,18 @@ float CDigitank::FirstProjectileTime() const
 	return RandomFloat(0, 1);
 }
 
-void CDigitank::SetFortifyPoint(Vector vecFortify)
+void CDigitank::SetFortifyPoint(CStructure* pStructure, Vector vecFortify)
 {
 	m_bFortifyPoint = true;
 	m_vecFortifyPoint = vecFortify;
+
+	m_hFortifyDefending = pStructure;
+}
+
+void CDigitank::RemoveFortifyPoint()
+{
+	m_bFortifyPoint = false;
+
+	if (m_hFortifyDefending != NULL)
+		m_hFortifyDefending->RemoveDefender(this);
 }

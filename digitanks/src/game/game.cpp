@@ -145,7 +145,8 @@ bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseE
 {
 	Vector vecClosest = s2;
 	bool bHit = false;
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	size_t iMaxEntities = GameServer()->GetMaxEntities();
+	for (size_t i = 0; i < iMaxEntities; i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 

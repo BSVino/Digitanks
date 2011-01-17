@@ -4,6 +4,7 @@
 #include <game/digitanks/digitanksgame.h>
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
+#include <ui/hud.h>
 
 NETVAR_TABLE_BEGIN(CMobileCPU);
 NETVAR_TABLE_END();
@@ -37,4 +38,11 @@ void CMobileCPU::OnFortify()
 	pCPU->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()));
 	GetTeam()->AddEntity(pCPU);
 	pCPU->FindGround();
+
+	GetDigitanksTeam()->CountBandwidth();
+	GetDigitanksTeam()->CountProducers();
+	GetDigitanksTeam()->CountFleetPoints();
+	GetDigitanksTeam()->CountScore();
+
+	DigitanksWindow()->GetHUD()->Layout();
 }

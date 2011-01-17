@@ -859,7 +859,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (pTank)
 			iSize = 50;
 
-		PaintUnitSheet(pSelection->GetUnitType(), iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, pSelection->GetTeam()->GetColor());
+		Color clrTeam(255, 255, 255, 255);
+		if (pSelection->GetTeam())
+			clrTeam = pSelection->GetTeam()->GetColor();
+		PaintUnitSheet(pSelection->GetUnitType(), iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, clrTeam);
 	}
 
 	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();

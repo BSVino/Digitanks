@@ -116,8 +116,6 @@ void CBaseEntity::SetModel(size_t iModel)
 
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
 {
-	assert(iHandle < s_apEntityList.size() || iHandle == ~0);
-
 	if (iHandle >= s_apEntityList.size())
 		return NULL;
 
