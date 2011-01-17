@@ -904,7 +904,7 @@ void CStrategyGamePanel::Layout()
 		m_pBotPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
 	if (m_pHumanPlayers->GetSelectionValue() <= 1)
 		m_pBotPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pBotPlayers->SetSelection(m_pBotPlayers->GetNumSelections()/2);
+	m_pBotPlayers->SetSelection(m_pBotPlayers->GetNumSelections()-1);
 
 	m_pBeginGame->SetSize(135, 40);
 	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);

@@ -34,7 +34,7 @@ public:
 
 	virtual void				PostRender(bool bTransparent);
 
-	void						BeginConstruction();
+	void						BeginConstruction(Vector vecConstructionOrigin);
 	void						BeginStructureConstruction(CNetworkParameters* p);
 	virtual void				CompleteConstruction();
 	size_t						GetTurnsToConstruct();

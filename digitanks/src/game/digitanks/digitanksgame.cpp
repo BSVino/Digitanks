@@ -391,6 +391,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 	pTeam->SetColor(Color(128, 128, 128));
 	pTeam->SetName(eastl::string16(L"The Network Guardians"));
 	pTeam->UseArtilleryAI();
+	pTeam->DontIncludeInScoreboard();
 
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
@@ -507,9 +508,9 @@ void CDigitanksGame::SetupStrategy()
 	eastl::string16 aszTeamNames[] =
 	{
 		L"Blue",
-		L"Yellow",
-		L"Green",
 		L"Red",
+		L"Green",
+		L"Yellow",
 	};
 
 	Vector avecStartingPositions[] =

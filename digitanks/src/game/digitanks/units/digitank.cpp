@@ -343,7 +343,12 @@ float CDigitank::GetTotalDefensePower()
 
 float CDigitank::GetMaxMovementEnergy() const
 {
-	return GetStartingPower() + GetBonusMovementEnergy();
+	float flNetworkBonus = 0;
+
+	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
+		flNetworkBonus = 5.0f;
+
+	return GetStartingPower() + GetBonusMovementEnergy() + flNetworkBonus;
 }
 
 float CDigitank::GetUsedMovementEnergy(bool bPreview) const
@@ -3035,24 +3040,25 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 	if (bHit)
 		flHighestTerrain = vecHit.y;
 
-	// This shit can get SLOW!
-#ifndef _DEBUG
-	bHit = Game()->TraceLine(vecPosition + Vector(2, 100, 2), vecPosition + Vector(2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (bHit && vecHit.y > flHighestTerrain)
-		flHighestTerrain = vecHit.y;
+	float flTerrain;
 
-	bHit = Game()->TraceLine(vecPosition + Vector(2, 100, -2), vecPosition + Vector(2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (bHit && vecHit.y > flHighestTerrain)
-		flHighestTerrain = vecHit.y;
+	// Only do one trace to see if we're on a structure. If we are then we'll just have to hope it's not too steep.
+	// Five traces really slows things down.
+	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z+2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
 
-	bHit = Game()->TraceLine(vecPosition + Vector(-2, 100, 2), vecPosition + Vector(-2, -100, 2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (bHit && vecHit.y > flHighestTerrain)
-		flHighestTerrain = vecHit.y;
+	flTerrain = pTerrain->GetHeight(vecPosition.x+2, vecPosition.z-2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
 
-	bHit = Game()->TraceLine(vecPosition + Vector(-2, 100, -2), vecPosition + Vector(-2, -100, -2), vecHit, NULL, CG_TERRAIN|CG_PROP);
-	if (bHit && vecHit.y > flHighestTerrain)
-		flHighestTerrain = vecHit.y;
-#endif
+	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z+2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
+
+	flTerrain = pTerrain->GetHeight(vecPosition.x-2, vecPosition.z-2);
+	if (flTerrain > flHighestTerrain)
+		flHighestTerrain = flTerrain;
 
 	return flHighestTerrain;
 }

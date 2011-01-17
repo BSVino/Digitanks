@@ -17,8 +17,8 @@
 unittype_t g_aeBuildOrder[] =
 {
 	STRUCTURE_BATTERY,
-	UNIT_SCOUT,
 	STRUCTURE_INFANTRYLOADER,
+	UNIT_SCOUT,
 	STRUCTURE_PSU,
 	STRUCTURE_BUFFER,
 	STRUCTURE_TANKLOADER,
@@ -86,7 +86,8 @@ void CDigitanksTeam::Bot_ExpandBase()
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
 	// Never install more than one thing at a time so we don't get bogged down in installations.
-	if (GetNumProducers() < 1)
+	// Infantry loaders are super important, don't install anything before we built one.
+	if (GetNumProducers() < 1 && g_aeBuildOrder[m_iBuildPosition] != STRUCTURE_INFANTRYLOADER && m_iBuildPosition > 1)
 	{
 		for (size_t i = 0; i < m_ahMembers.size(); i++)
 		{
@@ -226,7 +227,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 		}
 
 		// Too damn far? Do a random buffer instead.
-		if ((pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
+		if (pTargetResource->GetVisibility() < 0.1f && (pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
 			iNextBuild = STRUCTURE_BUFFER;
 	}
 
@@ -310,6 +311,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 	CSupplier* pUnused = NULL;
 	Vector vecStructure;
 
+	size_t iTries = 0;
 	do
 	{
 		if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
@@ -358,9 +360,30 @@ void CDigitanksTeam::Bot_ExpandBase()
 			Vector vecUnloadPoint = vecStructure + AngleVector(EAngle(0, 0, 0)) * 9;
 			if (pTerrain->IsPointOverWater(vecUnloadPoint) || pTerrain->IsPointOverLava(vecUnloadPoint))
 				continue;
+
+			vecUnloadPoint = vecStructure + AngleVector(EAngle(0, 90, 0)) * 9;
+			if (pTerrain->IsPointOverWater(vecUnloadPoint) || pTerrain->IsPointOverLava(vecUnloadPoint))
+				continue;
+
+			vecUnloadPoint = vecStructure + AngleVector(EAngle(0, 180, 0)) * 9;
+			if (pTerrain->IsPointOverWater(vecUnloadPoint) || pTerrain->IsPointOverLava(vecUnloadPoint))
+				continue;
+
+			vecUnloadPoint = vecStructure + AngleVector(EAngle(0, -90, 0)) * 9;
+			if (pTerrain->IsPointOverWater(vecUnloadPoint) || pTerrain->IsPointOverLava(vecUnloadPoint))
+				continue;
 		}
 
-	} while (pTerrain->IsPointOverHole(vecStructure));
+		if (pTerrain->IsPointOverHole(vecStructure))
+			continue;
+
+		m_hPrimaryCPU->SetPreviewStructure(iNextBuild);
+		m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+
+		if (m_hPrimaryCPU->IsPreviewBuildValid())
+			break;
+
+	} while (iTries++ < 5);
 
 	pTerrain->SetPointHeight(vecStructure);
 
@@ -434,9 +457,12 @@ void CDigitanksTeam::Bot_BuildUnits()
 		if (pLoader->IsConstructing())
 			continue;
 
-		// Don't just build infantry all the time.
-		if (mtrand()%2 == 0)
-			continue;
+		if (CanBuildTankLoaders() || CanBuildArtilleryLoaders())
+		{
+			// Don't just build infantry all the time.
+			if (mtrand()%2 == 0)
+				continue;
+		}
 
 		if (pLoader->IsProducing())
 			continue;
@@ -881,6 +907,16 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin, pTank);
 
+				if (pTank->GetUnitType() == UNIT_TANK)
+				{
+					Vector vecMove = vecDesiredMove - pTank->GetOrigin();
+
+					// Don't let tanks get ahead of their infantry complements.
+					vecMove *= 0.7f;
+
+					vecDesiredMove = pTank->GetOrigin() + vecMove;
+				}
+
 				pTank->SetPreviewMove(vecDesiredMove);
 				pTank->Move();
 			}
@@ -888,6 +924,14 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			// If we are within the max range, try to fire.
 			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
+				if (pTank->IsInfantry())
+				{
+					if (pTarget->GetUnitType() == UNIT_SCOUT)
+						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+					else
+						pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+				}
+
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
@@ -1014,6 +1058,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		{
 			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
+				if (pTarget->GetUnitType() == UNIT_SCOUT)
+					pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+				else
+					pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}

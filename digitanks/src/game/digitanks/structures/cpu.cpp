@@ -371,6 +371,12 @@ bool CCPU::IsPreviewBuildValid() const
 			return false;
 	}
 
+	if (!DigitanksGame()->GetTerrain()->IsPointOnMap(GetPreviewBuild()))
+		return false;
+
+	if (DigitanksGame()->GetTerrain()->IsPointOverHole(GetPreviewBuild()))
+		return false;
+
 	return CSupplier::GetDataFlow(GetPreviewBuild(), GetTeam()) > 0;
 }
 
@@ -478,7 +484,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 			pLoader->SetBuildUnit(UNIT_ARTILLERY);
 	}
 
-	m_hConstructing->BeginConstruction();
+	m_hConstructing->BeginConstruction(vecPreview);
 	GetTeam()->AddEntity(m_hConstructing);
 	m_hConstructing->SetSupplier(FindClosestSupplier(vecPreview, GetTeam()));
 	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);

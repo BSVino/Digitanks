@@ -146,7 +146,9 @@ void CSupplyLine::PostRender(bool bTransparent)
 	if (DigitanksGame()->ShouldRenderFogOfWar())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 
-	Color clrTeam = GetTeam()->GetColor();
+	Color clrTeam(255, 255, 255, 255);
+	if (GetTeam())
+		clrTeam = GetTeam()->GetColor();
 
 	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
 	oRope.SetWidth(2.5);

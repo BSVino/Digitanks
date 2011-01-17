@@ -267,6 +267,7 @@ public:
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return false; };
 	virtual size_t				CreateParticleSystem();
+	virtual bool				UsesSpecialCommand() { return false; };
 };
 
 class CTorpedo : public CProjectile
@@ -293,6 +294,7 @@ public:
 	virtual bool				SendsNotifications() { return false; };
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
+	virtual bool				UsesSpecialCommand() { return false; };
 
 protected:
 	bool						m_bBurrowing;

@@ -110,6 +110,9 @@ public:
 	void						SetLoseCondition(losecondition_t eLose) { m_eLoseCondition = eLose; }
 	losecondition_t				GetLoseCondition() { return m_eLoseCondition; }
 
+	void						DontIncludeInScoreboard() { m_bIncludeInScoreboard = false; }
+	bool						ShouldIncludeInScoreboard() { return m_bIncludeInScoreboard; }
+
 protected:
 	eastl::vector<CEntityHandle<CDigitank> >	m_ahTanks;
 
@@ -152,6 +155,8 @@ protected:
 	CNetworkedVariable<bool>	m_bCanBuildArtilleryLoaders;
 
 	losecondition_t				m_eLoseCondition;
+
+	CNetworkedVariable<bool>	m_bIncludeInScoreboard;
 };
 
 #endif

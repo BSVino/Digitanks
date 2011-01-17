@@ -15,7 +15,7 @@ CSceneTree::CSceneTree()
 
 void CSceneTree::Layout()
 {
-	SetSize(200, glgui::CRootPanel::Get()->GetHeight()-300);
+	SetSize(90, glgui::CRootPanel::Get()->GetHeight()-300);
 	SetPos(15, 60);
 
 	BaseClass::Layout();

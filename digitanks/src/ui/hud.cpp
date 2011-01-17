@@ -759,6 +759,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (pWeapon->HasExploded())
 				continue;
 
+			if (!pWeapon->UsesSpecialCommand())
+				continue;
+
 			if (pLocalTeam && pWeapon->GetOwner() && pWeapon->GetOwner()->GetTeam() == pLocalTeam)
 			{
 				m_hHintWeapon = pWeapon;
@@ -1370,6 +1373,10 @@ void CHUD::UpdateScoreboard()
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
 		CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+
+		if (!pTeam->ShouldIncludeInScoreboard())
+			continue;
+
 		if (apSortedTeams.size() == 0)
 		{
 			apSortedTeams.push_back(pTeam);
@@ -1584,7 +1591,9 @@ void CHUD::NewCurrentTeam()
 	}
 
 	UpdateScoreboard();
-	ShowFirstActionItem();
+
+	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+		ShowFirstActionItem();
 
 	if (CNetwork::IsConnected() && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");	// No time to make a new sound.

@@ -29,6 +29,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildInfantryLoaders, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildTankLoaders, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildArtilleryLoaders, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE(bool, m_bIncludeInScoreboard);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
@@ -62,6 +63,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildArtilleryLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bUseArtilleryAI);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, losecondition_t, m_eLoseCondition);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bIncludeInScoreboard);
 SAVEDATA_TABLE_END();
 
 CDigitanksTeam::CDigitanksTeam()
@@ -89,6 +91,7 @@ void CDigitanksTeam::Spawn()
 
 	m_bUseArtilleryAI = false;
 	m_eLoseCondition = LOSE_NOTANKS;
+	m_bIncludeInScoreboard = true;
 
 	m_iFleetPointAttackQuota = ~0;
 }
@@ -448,6 +451,9 @@ void CDigitanksTeam::CountFleetPoints()
 void CDigitanksTeam::CountScore()
 {
 	if (!CNetwork::IsHost())
+		return;
+
+	if (!m_bIncludeInScoreboard)
 		return;
 
 	m_iScore = 0;

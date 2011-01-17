@@ -223,9 +223,17 @@ void CStructure::PostRender(bool bTransparent)
 	}
 }
 
-void CStructure::BeginConstruction()
+void CStructure::BeginConstruction(Vector vecConstructionOrigin)
 {
 	m_iProductionToConstruct = ConstructionCost();
+
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecConstructionOrigin))
+		m_iProductionToConstruct = (size_t)(m_iProductionToConstruct*1.5f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecConstructionOrigin))
+		m_iProductionToConstruct = (size_t)(m_iProductionToConstruct*2.0f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecConstructionOrigin))
+		m_iProductionToConstruct = (size_t)(m_iProductionToConstruct*2.5f);
+
 	m_bConstructing = true;
 
 	FindGround();
@@ -502,6 +510,13 @@ void CStructure::BeginUpgrade(CNetworkParameters* p)
 	m_bUpgrading = true;
 
 	m_iProductionToUpgrade = UpgradeCost();
+
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+		m_iProductionToUpgrade = (size_t)(m_iProductionToConstruct*1.5f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
+		m_iProductionToUpgrade = (size_t)(m_iProductionToConstruct*2.0f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+		m_iProductionToUpgrade = (size_t)(m_iProductionToConstruct*2.5f);
 
 	GetDigitanksTeam()->CountProducers();
 }
