@@ -80,6 +80,14 @@ public:
 	void						SaveProductCode();
 	eastl::string				GenerateCode();
 
+	static void					OpenConsole();
+	static void					CloseConsole();
+	static void					ToggleConsole();
+	static bool					IsConsoleOpen();
+	static void					PrintConsole(eastl::string16 sText);
+	static void					PrintConsole(eastl::string sText);
+	class CConsole*				GetConsole();
+
 	static CApplication*		Get() { return s_pApplication; };
 
 protected:
@@ -96,7 +104,13 @@ protected:
 	eastl::string				m_sCode;
 	eastl::string				m_sKey;
 
+	class CConsole*				m_pConsole;
+
 	static CApplication*		s_pApplication;
 };
+
+// Tinker messages and errors
+#define TMsg CApplication::PrintConsole
+#define TError(x) CApplication::PrintConsole(eastl::string16(L"Error: ") + x)
 
 #endif

@@ -162,6 +162,8 @@ void CDigitanksMenu::LoadCallback()
 	if (!pszFilename)
 		return;
 
+	DigitanksWindow()->RenderLoading();
+
 	if (CGameServer::LoadFromFile(pszFilename))
 		SetVisible(false);
 	else

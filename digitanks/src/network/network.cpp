@@ -3,6 +3,10 @@
 #include <enet/enet.h>
 #include <assert.h>
 
+#include <strutils.h>
+
+#include <tinker/application.h>
+
 #include <baseentity.h>
 
 bool CNetwork::s_bInitialized = false;
@@ -107,6 +111,8 @@ void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 
 void CNetwork::CreateHost(int iPort)
 {
+	TMsg(sprintf(L"Creating host on port %d\n", iPort));
+
 	s_bConnected = false;
 
 	ENetAddress oAddress;
@@ -121,7 +127,10 @@ void CNetwork::CreateHost(int iPort)
 	g_pServer = enet_host_create(&oAddress, 32, 1, 0, 0);
 
 	if (g_pServer == NULL)
+	{
+		TError(L"There was a problem creating the host.\n");
 		return;
+	}
 
 	s_bConnected = true;
 }
@@ -138,10 +147,15 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 	if (!s_bInitialized)
 		return;
 
+	TMsg(sprintf(L"Connecting to '%s' on port %d\n", convertstring<char, char16_t>(pszHost), iPort));
+
 	g_pClient = enet_host_create(NULL, 1, 1, 0, 0);
 
     if (g_pClient == NULL)
+	{
+		TError(L"There was a problem creating the client host.\n");
 		return;
+	}
 
 	ENetAddress oAddress;
 	ENetEvent oEvent;
@@ -156,13 +170,18 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 	g_pClientPeer = enet_host_connect(g_pClient, &oAddress, 1, 0);    
 
 	if (g_pClientPeer == NULL)
+	{
+		TError(L"There was a problem connecting to the server.\n");
 		return;
+	}
 
 	if (enet_host_service(g_pClient, &oEvent, 5000) > 0 && oEvent.type == ENET_EVENT_TYPE_CONNECT)
 	{
 		s_bConnected = true;
 		return;
 	}
+
+	TError(L"Did not receive connection event.\n");
 
 	enet_peer_reset(g_pClientPeer);
 }

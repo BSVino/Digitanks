@@ -63,7 +63,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildArtilleryLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bUseArtilleryAI);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, losecondition_t, m_eLoseCondition);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bIncludeInScoreboard);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bIncludeInScoreboard);
 SAVEDATA_TABLE_END();
 
 CDigitanksTeam::CDigitanksTeam()

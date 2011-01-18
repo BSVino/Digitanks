@@ -19,5 +19,6 @@ eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eas
 eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bDirectories = true);
 bool IsFile(eastl::string16 sPath);
 bool IsDirectory(eastl::string16 sPath);
+void DebugPrint(eastl::string16 sText);
 
 #endif

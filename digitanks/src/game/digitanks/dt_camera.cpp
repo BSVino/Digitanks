@@ -238,7 +238,7 @@ float CDigitanksCamera::GetCameraFar()
 
 void CDigitanksCamera::SetFreeMode(bool bOn)
 {
-	if (!DigitanksWindow()->AllowCheats())
+	if (!DigitanksGame()->AllowCheats())
 	{
 		BaseClass::SetFreeMode(false);
 		return;

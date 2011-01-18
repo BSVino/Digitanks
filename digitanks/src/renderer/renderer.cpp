@@ -11,6 +11,7 @@
 #include <modelconverter/convmesh.h>
 #include <models/models.h>
 #include <shaders/shaders.h>
+#include <tinker/application.h>
 
 CRenderingContext::CRenderingContext(CRenderer* pRenderer)
 {
@@ -576,6 +577,8 @@ void CRopeRenderer::SetForward(Vector vecForward)
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
+	TMsg(L"Initializing renderer\n");
+
 	m_bHardwareSupportsFramebuffers = false;
 	m_bHardwareSupportsFramebuffersTestCompleted = false;
 
@@ -596,6 +599,11 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 
 	if (!CShaderLibrary::IsCompiled())
 		m_bUseShaders = false;
+
+	if (m_bUseShaders)
+		TMsg(L"* Using shaders\n");
+	if (m_bUseFramebuffers)
+		TMsg(L"* Using framebuffers\n");
 
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -1018,6 +1026,7 @@ bool CRenderer::HardwareSupportsFramebuffers()
 
 	if (!GLEW_EXT_framebuffer_object)
 	{
+		TMsg(L"EXT_framebuffer_object not supported.\n");
 		m_bHardwareSupportsFramebuffers = false;
 		return false;
 	}
@@ -1045,6 +1054,7 @@ bool CRenderer::HardwareSupportsFramebuffers()
     GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 	{
+		TMsg(L"Test framebuffer compile failed.\n");
 		glDeleteTextures(1, &oBuffer.m_iMap);
 		glDeleteRenderbuffersEXT(1, &oBuffer.m_iDepth);
 		glDeleteFramebuffersEXT(1, &oBuffer.m_iFB);
@@ -1071,12 +1081,14 @@ bool CRenderer::HardwareSupportsShaders()
 
 	if (!GLEW_ARB_fragment_program)
 	{
+		TMsg(L"ARB_fragment_program not supported.\n");
 		m_bHardwareSupportsShaders = false;
 		return false;
 	}
 
 	if (!GLEW_VERSION_2_0)
 	{
+		TMsg(L"GL_VERSION_2_0 not supported.\n");
 		m_bHardwareSupportsShaders = false;
 		return false;
 	}
@@ -1124,6 +1136,8 @@ bool CRenderer::HardwareSupportsShaders()
 
 	if (iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE)
 		m_bHardwareSupportsShaders = true;
+	else
+		TMsg(L"Test shader compile failed.\n");
 
 	glDetachShader(iProgram, iVShader);
 	glDetachShader(iProgram, iFShader);

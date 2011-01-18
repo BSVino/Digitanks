@@ -418,6 +418,8 @@ void CDigitanksGame::ScatterNeutralUnits()
 
 void CDigitanksGame::SetupArtillery()
 {
+	TMsg(L"Setting up artillery game.\n");
+
 	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
 
 	if (iPlayers > 8)
@@ -467,6 +469,8 @@ void CDigitanksGame::SetupArtillery()
 
 void CDigitanksGame::SetupStrategy()
 {
+	TMsg(L"Setting up strategy game.\n");
+
 	ReadGameScript(L"strategy.txt");
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
@@ -604,6 +608,8 @@ void CDigitanksGame::SetupStrategy()
 
 void CDigitanksGame::SetupTutorial()
 {
+	TMsg(L"Setting up tutorial game.\n");
+
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
 
@@ -620,6 +626,8 @@ void CDigitanksGame::SetupTutorial()
 
 void CDigitanksGame::SetupMenuMarch()
 {
+	TMsg(L"Setting up menu march.\n");
+
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
 

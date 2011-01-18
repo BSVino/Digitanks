@@ -449,6 +449,8 @@ void CGamesPanel::LoadCallback()
 	if (!pszFilename)
 		return;
 
+	DigitanksWindow()->RenderLoading();
+
 	if (CGameServer::LoadFromFile(pszFilename))
 		DigitanksWindow()->GetMainMenu()->SetVisible(false);
 	else
@@ -548,6 +550,8 @@ void CMultiplayerPanel::LoadCallback()
 		return;
 
 	GameServer()->SetServerType(SERVER_HOST);
+
+	DigitanksWindow()->RenderLoading();
 
 	if (CGameServer::LoadFromFile(pszFilename))
 		DigitanksWindow()->GetMainMenu()->SetVisible(false);

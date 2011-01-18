@@ -248,6 +248,12 @@ void CDigitanksWindow::KeyRelease(int c)
 
 void CDigitanksWindow::CharPress(int c)
 {
+	if (c == '`')
+	{
+		ToggleConsole();
+		return;
+	}
+
 	if (glgui::CRootPanel::Get()->CharPressed(c))
 		return;
 
@@ -304,13 +310,7 @@ void CDigitanksWindow::CharPress(int c)
 	if (c == 'g')
 		GetHUD()->ButtonCallback(9);
 
-	if (c == '`')
-	{
-		m_bCheatsOn = !m_bCheatsOn;
-		return;
-	}
-
-	if (!m_bCheatsOn)
+	if (!DigitanksGame()->AllowCheats())
 		return;
 
 	// Cheats from here on out

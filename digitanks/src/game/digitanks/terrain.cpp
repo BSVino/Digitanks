@@ -138,6 +138,8 @@ void CTerrain::Think()
 
 void CTerrain::GenerateTerrain(float flHeight)
 {
+	TMsg(L"Generating terrain.\n");
+
 	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
 
 	CDigitanksLevel* pLevel = NULL;
@@ -362,6 +364,25 @@ void CTerrain::GenerateTerrain(float flHeight)
 			}
 		}
 	}
+
+	if (!DigitanksGame()->ShouldRenderFogOfWar())
+	{
+		for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+		{
+			for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+			{
+				CTerrainChunk* pChunk = GetChunk((int)i, j);
+
+				pChunk->m_aflTerrainVisibility[0][0] = 1.0f;
+				pChunk->m_aflTerrainVisibility[1][0] = 1.0f;
+				pChunk->m_aflTerrainVisibility[0][1] = 1.0f;
+				pChunk->m_aflTerrainVisibility[1][1] = 1.0f;
+
+				pChunk->m_bNeedsRegenerate = true;
+			}
+		}
+		return;
+	}
 }
 
 void CTerrain::GenerateCollision()
@@ -371,11 +392,15 @@ void CTerrain::GenerateCollision()
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
+		TMsg(L"Generating terrain navigation mesh.\n");
+
 		if (m_pQuadTreeHead)
 			delete m_pQuadTreeHead;
 
 		m_pQuadTreeHead = new CQuadBranch(this, NULL, CQuadVector(0, 0), CQuadVector(TERRAIN_SIZE, TERRAIN_SIZE));
 		m_pQuadTreeHead->BuildBranch();
+
+		TMsg(L"Generating terrain collision mesh... ");
 
 		for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 		{
@@ -419,6 +444,8 @@ void CTerrain::GenerateCollision()
 				pChunk->m_pTracer->BuildTree();
 			}
 		}
+
+		TMsg(L"Done.\n");
 	}
 
 	GenerateCallLists();
@@ -778,6 +805,8 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 void CTerrain::GenerateCallLists()
 {
+	TMsg(L"Generating terrain call lists... ");
+
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
@@ -799,6 +828,8 @@ void CTerrain::GenerateCallLists()
 	}
 
 	GenerateTerrainCallLists();
+
+	TMsg(L"Done.\n");
 }
 
 void CTerrain::ClearArea(Vector vecCenter, float flRadius)

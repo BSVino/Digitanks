@@ -50,6 +50,8 @@ public:
 
 	eastl::vector<CEntityHandle<CTeam> >		GetLocalTeams();
 
+	virtual bool								AllowCheats();
+
 protected:
 	eastl::vector<CEntityHandle<CTeam> >		m_ahTeams;
 

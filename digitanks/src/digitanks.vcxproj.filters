@@ -321,6 +321,12 @@
     <ClCompile Include="ui\scenetree.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tinker\console.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\cvar.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -529,6 +535,12 @@
     </ClInclude>
     <ClInclude Include="ui\scenetree.h">
       <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\console.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\cvar.h">
+      <Filter>Source Files\tinker</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,8 +6,9 @@
 #include <mtrand.h>
 #include <platform.h>
 #include <configfile.h>
+#include <strutils.h>
 
-#include <ui/digitankswindow.h>
+#include <tinker/application.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <renderer/dissolver.h>
@@ -46,8 +47,10 @@ CGameServer::CGameServer()
 
 	size_t iPostSeed = mtrand();
 
+	TMsg(L"Precaching entities... ");
 	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
 		CBaseEntity::s_aEntityRegistration[i].m_pfnRegisterCallback();
+	TMsg(L"Done.\n");
 
 	mtsrand(iPostSeed);
 
@@ -80,6 +83,8 @@ CGameServer::~CGameServer()
 void CGameServer::Initialize()
 {
 	m_bLoading = true;
+
+	TMsg(L"Initializing game server\n");
 
 	ReadLevels();
 
@@ -121,6 +126,8 @@ void CGameServer::ReadLevels()
 	m_apLevels.clear();
 
 	ReadLevels(L"levels");
+
+	TMsg(sprintf(L"Read %d levels from disk.\n", m_apLevels.size()));
 }
 
 void CGameServer::ReadLevels(eastl::string16 sDirectory)
@@ -414,8 +421,6 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 {
 	if (!GameServer())
 		return false;
-
-	DigitanksWindow()->RenderLoading();
 
 	GameServer()->Initialize();
 

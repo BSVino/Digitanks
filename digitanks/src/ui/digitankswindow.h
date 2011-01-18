@@ -89,8 +89,6 @@ public:
 	float						GetMusicVolume() { return m_flMusicVolume; };
 	void						SetMusicVolume(float flMusicVolume);
 
-	bool						AllowCheats() { return m_bCheatsOn; };
-
 protected:
 	int							m_iMouseLastX;
 	int							m_iMouseLastY;
@@ -123,8 +121,6 @@ protected:
 	int							m_iMouseMoved;
 
 	bool						m_bMouseDownInGUI;
-
-	bool						m_bCheatsOn;
 
 	bool						m_bCfgFullscreen;
 	int							m_iCfgWidth;

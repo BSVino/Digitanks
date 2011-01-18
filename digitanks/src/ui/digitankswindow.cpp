@@ -41,7 +41,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_oGameSettings.iLevel = ~0;
 
 	m_bBoxSelect = false;
-	m_bCheatsOn = false;
 
 	m_iMouseLastX = 0;
 	m_iMouseLastY = 0;
@@ -215,6 +214,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 void CDigitanksWindow::DestroyGame()
 {
+	TMsg(L"Destroying game.\n");
+
 	RenderLoading();
 
 	CNetwork::Disconnect();
@@ -297,7 +298,7 @@ void CDigitanksWindow::ConstrainMouse()
 		return;
 
 	HWND hActiveWindow = GetActiveWindow();
-	if (ShouldConstrainMouse() && hActiveWindow == hWindow && GameServer() && !GameServer()->IsLoading() && DigitanksGame()->GetGameType() != GAMETYPE_MENU && !GetMenu()->IsVisible())
+	if (ShouldConstrainMouse() && hActiveWindow == hWindow && GameServer() && !GameServer()->IsLoading() && DigitanksGame()->GetGameType() != GAMETYPE_MENU && !GetMenu()->IsVisible() && !IsConsoleOpen())
 	{
 		RECT rc;
 		GetClientRect(hWindow, &rc);
@@ -388,6 +389,8 @@ void CDigitanksWindow::SaveConfig()
 	std::ofstream o;
 	o.open(GetAppDataDirectory(L"Digitanks", L"options.cfg").c_str(), std::ios_base::out);
 	o << c;
+
+	TMsg(L"Saved config.\n");
 }
 
 CInstructor* CDigitanksWindow::GetInstructor()

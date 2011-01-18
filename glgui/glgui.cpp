@@ -1,8 +1,11 @@
 #include "glgui.h"
 
 #include <assert.h>
-#include <EASTL/algorithm.h>
 #include <GL/glew.h>
+
+#include <FTGL/ftgl.h>
+#include <EASTL/algorithm.h>
+
 #include <maths.h>
 #include <vector.h>
 #include <platform.h>
@@ -469,6 +472,19 @@ void CPanel::RemoveControl(IControl* pControl)
 		m_pHasCursor = NULL;
 }
 
+void CPanel::MoveToTop(IControl* pControl)
+{
+	for (size_t i = 0; i < m_apControls.size(); i++)
+	{
+		if (m_apControls[i] == pControl)
+		{
+			m_apControls.erase(eastl::remove(m_apControls.begin(), m_apControls.end(), pControl), m_apControls.end());
+			m_apControls.push_back(pControl);
+			return;
+		}
+	}
+}
+
 void CPanel::Layout( void )
 {
 	size_t iCount = m_apControls.size();
@@ -772,6 +788,10 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 		vecPosition = Vector((float)x + (float)w - lw, y + flBaseline + h/2 - th/2 + m_iLine*t, 0);
 	else if (m_eAlign == TA_TOPCENTER)
 		vecPosition = Vector((float)x + (float)w/2 - lw/2, (float)y + flBaseline + m_iLine*t, 0);
+	else if (m_eAlign == TA_BOTTOMCENTER)
+		vecPosition = Vector((float)x + (float)w/2 - lw/2, (float)y + h - (m_iTotalLines-1)*t + m_iLine*t, 0);
+	else if (m_eAlign == TA_BOTTOMLEFT)
+		vecPosition = Vector((float)x, (float)y + h - (m_iTotalLines-1)*t + m_iLine*t, 0);
 	else	// TA_TOPLEFT
 		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
 
@@ -2883,6 +2903,9 @@ void CTextField::FindRenderOffset()
 void CTextField::SetText(const eastl::string16& sText)
 {
 	m_sText = sText;
+
+	if (m_iCursor > m_sText.length())
+		m_iCursor = m_sText.length();
 }
 
 void CTextField::SetText(const char* pszText)

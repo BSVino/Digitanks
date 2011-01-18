@@ -24,6 +24,8 @@ CApplication::CApplication(int argc, char** argv)
 	m_bIsOpen = false;
 
 	m_bMultisampling = false;
+
+	m_pConsole = NULL;
 }
 
 void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, bool bResizeable)
@@ -45,6 +47,8 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 
 	if (m_bMultisampling)
 		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
+
+	TMsg(sprintf(L"Opening %dx%d %s %s window.\n", iWidth, iHeight, bFullscreen?L"fullscreen":L"windowed", bResizeable?L"resizeable":L"fixed-size"));
 
 	if (!glfwOpenWindow(iWidth, iHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
 	{

@@ -5,7 +5,6 @@
 #include <EASTL/map.h>
 #include <EASTL/string.h>
 #include <color.h>
-#include <FTGL/ftgl.h>
 #include <maths.h>
 #include <common.h>
 
@@ -16,6 +15,8 @@
 	{ \
 		((type*)obj)->pfn##Callback(); \
 	}
+
+class FTFont;
 
 namespace glgui
 {
@@ -278,6 +279,7 @@ namespace glgui
 		virtual void			AddControl(IControl* pControl, bool bToTail = false);
 		virtual void			RemoveControl(IControl* pControl);
 		virtual eastl::vector<IControl*>&	GetControls() { return m_apControls; };
+		virtual void			MoveToTop(IControl* pControl);
 
 		virtual void			SetHighlighted(bool bHighlight) { m_bHighlight = bHighlight; };
 		virtual bool			IsHighlighted() { return m_bHighlight; };
@@ -429,6 +431,8 @@ namespace glgui
 			TA_LEFTCENTER	= 2,
 			TA_MIDDLECENTER	= 3,
 			TA_RIGHTCENTER	= 4,
+			TA_BOTTOMCENTER	= 5,
+			TA_BOTTOMLEFT	= 6,
 		} TextAlign;
 
 		virtual void	Paint() { int x = 0, y = 0; GetAbsPos(x, y); Paint(x, y); };
@@ -471,7 +475,7 @@ namespace glgui
 		virtual void	SetFGColor(Color FGColor);
 		virtual void	SetAlpha(int a);
 
-		static FTFont*	GetFont(size_t iSize) { return s_apFonts[iSize]; };
+		static class ::FTFont*	GetFont(size_t iSize) { return s_apFonts[iSize]; };
 		static void		AddFont(size_t iSize);
 
 	protected:
@@ -487,7 +491,7 @@ namespace glgui
 
 		int				m_iFontFaceSize;
 
-		static eastl::map<size_t, FTFont*>	s_apFonts;
+		static eastl::map<size_t, class ::FTFont*>	s_apFonts;
 	};
 
 	class CButton : public CLabel

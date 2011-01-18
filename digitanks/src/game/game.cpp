@@ -1,10 +1,14 @@
 #include "game.h"
 
+#include <strutils.h>
+
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <renderer/dissolver.h>
 #include <sound/sound.h>
 #include <network/network.h>
+#include <tinker/application.h>
+#include <tinker/cvar.h>
 
 #include "camera.h"
 
@@ -45,6 +49,8 @@ void CGame::RegisterNetworkFunctions()
 
 void CGame::OnClientConnect(CNetworkParameters* p)
 {
+	TMsg(sprintf(L"Client %d connected.\n", p->i2));
+
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 		CNetwork::CallFunction(p->i2, "AddTeam", GetTeam(i)->GetHandle());
 
@@ -61,6 +67,8 @@ void CGame::OnClientConnect(CNetworkParameters* p)
 
 void CGame::OnClientDisconnect(CNetworkParameters* p)
 {
+	TMsg(sprintf(L"Client %d disconnected.\n", p->i1));
+
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (m_ahTeams[i]->GetClient() == p->i1)
@@ -202,4 +210,11 @@ eastl::vector<CEntityHandle<CTeam> > CGame::GetLocalTeams()
 	}
 
 	return m_ahLocalTeams;
+}
+
+CVar cheats("cheats", "off");
+
+bool CGame::AllowCheats()
+{
+	return cheats.GetBool();
 }

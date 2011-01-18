@@ -140,4 +140,17 @@ inline eastl::basic_string<T> convertstring(eastl::basic_string<F> s)
 	return t;
 }
 
+inline eastl::string16 sprintf(eastl::string16 s, ...)
+{
+	va_list arguments;
+	va_start(arguments, s);
+
+	eastl::string16 p;
+	p.sprintf_va_list(s.c_str(), arguments);
+
+	va_end(arguments);
+
+	return p;
+}
+
 #endif
