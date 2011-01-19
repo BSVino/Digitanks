@@ -1237,8 +1237,12 @@ size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, int iClamp)
 
 	ilDeleteImages(1, &iDevILId);
 
+	s_iTexturesLoaded++;
+
 	return iGLId;
 }
+
+size_t CRenderer::s_iTexturesLoaded = 0;
 
 size_t CRenderer::LoadTextureData(eastl::string16 sFilename)
 {

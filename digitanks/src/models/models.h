@@ -31,7 +31,7 @@ public:
 							~CModelLibrary();
 
 public:
-	size_t					GetNumModels() { return m_apModels.size(); };
+	static size_t			GetNumModels() { return Get()->m_apModels.size(); }
 
 	size_t					AddModel(const eastl::string16& sModel, bool bStatic = true);
 	size_t					FindModel(const eastl::string16& sModel);

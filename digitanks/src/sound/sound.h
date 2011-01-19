@@ -25,7 +25,7 @@ public:
 							~CSoundLibrary();
 
 public:
-	size_t					GetNumSounds() { return m_apSounds.size(); };
+	static size_t			GetNumSounds() { return Get()->m_apSounds.size(); };
 
 	size_t					AddSound(const eastl::string16& pszFilename);
 	size_t					FindSound(const eastl::string16& pszFilename);

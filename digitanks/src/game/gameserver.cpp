@@ -16,6 +16,7 @@
 #include <network/network.h>
 #include <datamanager/data.h>
 #include <datamanager/dataserializer.h>
+#include <models/models.h>
 
 #include "camera.h"
 #include "level.h"
@@ -51,6 +52,7 @@ CGameServer::CGameServer()
 	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
 		CBaseEntity::s_aEntityRegistration[i].m_pfnRegisterCallback();
 	TMsg(L"Done.\n");
+	TMsg(sprintf(L"%d models, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModels(), CRenderer::GetNumTexturesLoaded(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
 
 	mtsrand(iPostSeed);
 

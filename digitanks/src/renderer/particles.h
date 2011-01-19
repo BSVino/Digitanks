@@ -169,7 +169,7 @@ public:
 									~CParticleSystemLibrary();
 
 public:
-	size_t							GetNumParticleSystems() { return m_apParticleSystems.size(); };
+	static size_t					GetNumParticleSystems() { return Get()->m_apParticleSystems.size(); };
 
 	size_t							AddParticleSystem(const eastl::string16& sName);
 	size_t							FindParticleSystem(const eastl::string16& sName);

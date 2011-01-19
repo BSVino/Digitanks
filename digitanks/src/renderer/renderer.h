@@ -174,6 +174,7 @@ public:
 public:
 	static size_t	CreateCallList(size_t iModel);
 	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, int iClamp = 0);
+	static size_t	GetNumTexturesLoaded() { return s_iTexturesLoaded; }
 
 	static size_t	LoadTextureData(eastl::string16 sFilename);
 	static Color*	GetTextureData(size_t iTexture);
@@ -209,6 +210,8 @@ protected:
 	bool			m_bUseShaders;
 	bool			m_bHardwareSupportsShaders;
 	bool			m_bHardwareSupportsShadersTestCompleted;
+
+	static size_t	s_iTexturesLoaded;
 };
 
 #endif
