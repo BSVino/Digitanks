@@ -4,6 +4,8 @@
 
 #include <geometry.h>
 
+#include <tinker/cvar.h>
+
 #include "digitankswindow.h"
 #include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
@@ -121,6 +123,10 @@ CHUD::CHUD()
 	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
 	m_iObstruction = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-obstruction.png");
+	m_iActionTanksSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/tanks.png");
+	m_iActionSignsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/signs.png");
+
+	m_eActionSign = ACTIONSIGN_NONE;
 
 	m_pActionItem = new CLabel(0, 0, 10, 10, L"");
 	m_pNextActionItem = new CButton(0, 0, 100, 50, L"Next");
@@ -926,6 +932,39 @@ void CHUD::Paint(int x, int y, int w, int h)
 			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
 		}
 		while (false);
+	}
+
+	if (m_eActionSign)
+	{
+		float flAnimationTime = GameServer()->GetGameTime() - m_flActionSignStart;
+		if (flAnimationTime > 2.0f)
+			m_eActionSign = ACTIONSIGN_NONE;
+		else
+		{
+			float flWarpIn = RemapValClamped(flAnimationTime, 0, 0.5f, 0, 1);
+			float flAlpha = RemapValClamped(flAnimationTime, 1.3f, 1.8f, 1, 0);
+
+			size_t iTotalWidth = DigitanksWindow()->GetWindowWidth();
+			size_t iTotalHeight = DigitanksWindow()->GetWindowHeight();
+
+			size_t iTankWidth = iTotalWidth/4;
+			size_t iTankHeight = iTankWidth/2;
+
+			size_t iTankOffset = (size_t)(Lerp(1-flWarpIn, 0.2f) * iTankWidth*2);
+
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+
+			PaintSheet(m_iActionTanksSheet, iTotalWidth-iTankWidth*3/2 + iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 0, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
+			PaintSheet(m_iActionTanksSheet, iTankWidth/2 - iTankOffset, iTotalHeight/2-iTankHeight/2, iTankWidth, iTankHeight, 0, 256, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
+
+			size_t iSignWidth = (size_t)(iTotalWidth/2 * Lerp(flWarpIn, 0.2f));
+			size_t iSignHeight = (size_t)(iSignWidth*0.32f);
+			if (m_eActionSign == ACTIONSIGN_FIGHT)
+				PaintSheet(m_iActionSignsSheet, iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, 0, 0, 1024, 330, 1024, 1024, Color(255, 255, 255, (int)(flAlpha*255)));
+			else if (m_eActionSign == ACTIONSIGN_SHOWDOWN)
+				PaintSheet(m_iActionSignsSheet, iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, 0, 330, 1024, 330, 1024, 1024, Color(255, 255, 255, (int)(flAlpha*255)));
+		}
 	}
 
 //	while (true)
@@ -1982,6 +2021,33 @@ bool CHUD::IsUpdatesPanelOpen()
 		return false;
 
 	return m_pUpdatesPanel->IsVisible();
+}
+
+void ActionSignCallback(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+{
+	if (asTokens.size() < 2)
+		return;
+
+	if (asTokens[1] == L"fight")
+		DigitanksWindow()->GetHUD()->ShowFightSign();
+	else if (asTokens[1] == L"showdown")
+		DigitanksWindow()->GetHUD()->ShowShowdownSign();
+}
+
+CCommand actionsign("actionsign", ActionSignCallback);
+
+void CHUD::ShowFightSign()
+{
+	m_eActionSign = ACTIONSIGN_FIGHT;
+	m_flActionSignStart = GameServer()->GetGameTime();
+	CSoundLibrary::PlaySound(NULL, L"sound/actionsign.wav");
+}
+
+void CHUD::ShowShowdownSign()
+{
+	m_eActionSign = ACTIONSIGN_SHOWDOWN;
+	m_flActionSignStart = GameServer()->GetGameTime();
+	CSoundLibrary::PlaySound(NULL, L"sound/actionsign.wav");
 }
 
 void CHUD::NextActionItemCallback()

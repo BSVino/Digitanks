@@ -320,11 +320,11 @@ float CDigitank::GetDefensePower(bool bPreview)
 	if (bPreview)
 		vecOrigin = m_vecPreviewMove;
 
-	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), CTerrain::TB_WATER))
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), TB_WATER))
 		return 0;
 
 	float flDefenseBonus = 0;
-	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), CTerrain::TB_TREE))
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), TB_TREE))
 		flDefenseBonus = 5;
 
 	return GetBaseDefensePower(bPreview)+GetBonusDefensePower(bPreview)+flDefenseBonus;
@@ -507,9 +507,9 @@ float CDigitank::GetPreviewTurnPower() const
 float CDigitank::GetPreviewBaseMovePower() const
 {
 	bool bHalfMovement = false;
-	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), CTerrain::TB_TREE))
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), TB_TREE))
 		bHalfMovement = true;
-	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), CTerrain::TB_WATER))
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecPreviewMove.x), CTerrain::WorldToArraySpace(m_vecPreviewMove.z), TB_WATER))
 		bHalfMovement = true;
 
 	if (bHalfMovement)
@@ -2128,6 +2128,9 @@ void CDigitank::FireWeapon()
 
 	m_hWeapon = CreateWeapon();
 
+	if (m_hWeapon == NULL)
+		return;
+
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(m_hWeapon.GetPointer());
 	if (pProjectile)
 		DigitanksGame()->AddProjectileToWaitFor();
@@ -2226,6 +2229,8 @@ CBaseWeapon* CDigitank::CreateWeapon()
 		return GameServer()->Create<CClusterBomb>("CClusterBomb");
 	else if (GetCurrentWeapon() == WEAPON_LASER)
 		return GameServer()->Create<CLaser>("CLaser");
+	else if (GetCurrentWeapon() == WEAPON_CHARGERAM)
+		return NULL;
 
 	assert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");

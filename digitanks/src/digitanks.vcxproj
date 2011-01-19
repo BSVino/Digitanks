@@ -189,6 +189,12 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\configfile.h" />
+    <ClInclude Include="..\..\common\math\color.h" />
+    <ClInclude Include="..\..\common\math\geometry.h" />
+    <ClInclude Include="..\..\common\math\maths.h" />
+    <ClInclude Include="..\..\common\math\matrix.h" />
+    <ClInclude Include="..\..\common\math\simplex.h" />
+    <ClInclude Include="..\..\common\math\vector.h" />
     <ClInclude Include="..\..\common\sockets\sockets.h" />
     <ClInclude Include="..\..\common\strutils.h" />
     <ClInclude Include="..\..\datamanager\data.h" />

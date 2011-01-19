@@ -1,6 +1,8 @@
 #ifndef LW_COLOR_H
 #define LW_COLOR_H
 
+#include "maths.h"
+
 class Color
 {
 public:
@@ -46,7 +48,7 @@ Color::Color()
 
 Color::Color(Vector v)
 {
-	SetColor((int)fabs(v.x*255), (int)fabs(v.y*255), (int)fabs(v.z*255), 255);
+	SetColor((int)(v.x*255), (int)(v.y*255), (int)(v.z*255), 255);
 }
 
 Color::Color(int _r, int _g, int _b)

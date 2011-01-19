@@ -195,7 +195,7 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	float flConceal = 0.0f;
 	if (GetsConcealmentBonus())
 	{
-		if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), CTerrain::TB_TREE))
+		if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
 			flConceal = 0.7f;
 	}
 

@@ -11,6 +11,16 @@
 #define TERRAIN_CHUNK_TEXTURE_SIZE 256
 #define TERRAIN_CHUNK_TEXELS_PER (TERRAIN_CHUNK_TEXTURE_SIZE/TERRAIN_CHUNK_SIZE)
 
+typedef enum
+{
+	TB_EMPTY = 0,
+	TB_LAVA = (1<<0),
+	TB_HOLE = (1<<1),
+	TB_TREE = (1<<2),
+	TB_WATER = (1<<3),
+	// uses m_aiSpecialData which is unsigned char so max 8 of these.
+} terrainbit_t;
+
 class CTerrainChunk
 {
 public:
@@ -22,6 +32,8 @@ public:
 
 public:
 	void							Think();
+
+	bool							GetBit(int x, int y, terrainbit_t b);
 
 protected:
 	float							m_aflHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
@@ -101,15 +113,6 @@ public:
 	bool					IsPointOverWater(Vector vecPoint);
 	bool					IsPointInTrees(Vector vecPoint);
 
-	typedef enum
-	{
-		TB_EMPTY = 0,
-		TB_LAVA = (1<<0),
-		TB_HOLE = (1<<1),
-		TB_TREE = (1<<2),
-		TB_WATER = (1<<3),
-		// uses m_aiSpecialData which is unsigned char so max 8 of these.
-	} terrainbit_t;
 	void					SetBit(int x, int y, terrainbit_t b, bool v);
 	bool					GetBit(int x, int y, terrainbit_t b);
 	terrainbit_t			GetBits(int x, int y);
@@ -223,7 +226,7 @@ public:
 		CQuadBranch*		m_pBranches[4];
 	};
 
-	CTerrain::terrainbit_t	m_eTerrainType;
+	terrainbit_t			m_eTerrainType;
 
 	// Pathfinding stuff. SO not thread-safe!
 	bool					m_bClosed;

@@ -96,6 +96,14 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
 SAVEDATA_TABLE_END();
 
+void CDigitanksGame::Precache()
+{
+	BaseClass::Precache();
+
+	// We precache this for the hud since it's not an entity
+	PrecacheSound(L"sound/actionsign.wav");
+}
+
 void CDigitanksGame::Spawn()
 {
 	BaseClass::Spawn();
@@ -114,6 +122,8 @@ void CDigitanksGame::Spawn()
 	SetListener(DigitanksWindow()->GetHUD());
 
 	m_flLastFireworks = 0;
+
+	m_flShowFightSign = 0;
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -934,6 +944,12 @@ void CDigitanksGame::Think()
 {
 	BaseClass::Think();
 
+	if (m_flShowFightSign > 0 && m_flShowFightSign < GameServer()->GetGameTime())
+	{
+		DigitanksWindow()->GetHUD()->ShowFightSign();
+		m_flShowFightSign = 0;
+	}
+
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
@@ -1436,7 +1452,7 @@ void CDigitanksGame::CheckWinConditions()
 	if (m_bPartyMode)
 		return;
 
-	bool bPlayerLost = false;
+	bool bSomeoneLost = false;
 	size_t iTeamsLeft = 0;
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
@@ -1461,7 +1477,10 @@ void CDigitanksGame::CheckWinConditions()
 			}
 
 			if (!bHasCPU)
+			{
 				GetDigitanksTeam(i)->YouLoseSirGoodDay();
+				bSomeoneLost = true;
+			}
 
 			break;
 		}
@@ -1470,8 +1489,8 @@ void CDigitanksGame::CheckWinConditions()
 		{
 			if (GetDigitanksTeam(i)->GetNumTanksAlive() == 0)
 			{
-				if (i == 0)
-					GetDigitanksTeam(i)->YouLoseSirGoodDay();
+				GetDigitanksTeam(i)->YouLoseSirGoodDay();
+				bSomeoneLost = true;
 			}
 			else
 				iTeamsLeft++;
@@ -1479,6 +1498,9 @@ void CDigitanksGame::CheckWinConditions()
 		}
 		}
 	}
+
+	if (bSomeoneLost && iTeamsLeft == 2)
+		DigitanksWindow()->GetHUD()->ShowShowdownSign();
 
 	if (iTeamsLeft <= 1)
 		GameOver();
@@ -1910,6 +1932,11 @@ void CDigitanksGame::ClientEnterGame()
 		else
 			GetDigitanksCamera()->SnapDistance(120);
 	}
+
+	// Give the game a second to load up before showing the fight sign.
+	// Otherwise the sound sometimes plays while the game is still loading.
+	if (m_eGameType == GAMETYPE_ARTILLERY)
+		m_flShowFightSign = GameServer()->GetGameTime() + 1.0f;
 
 	DigitanksWindow()->GetHUD()->ClientEnterGame();
 	glgui::CRootPanel::Get()->Layout();

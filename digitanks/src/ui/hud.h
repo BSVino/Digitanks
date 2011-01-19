@@ -182,6 +182,9 @@ public:
 
 	bool						IsUpdatesPanelOpen();
 
+	void						ShowFightSign();
+	void						ShowShowdownSign();
+
 	EVENT_CALLBACK(CHUD, NextActionItem);
 
 	EVENT_CALLBACK(CHUD, ButtonCursorIn0);
@@ -329,6 +332,17 @@ protected:
 	glgui::CLabel*				m_pSpacebarHint;
 
 	size_t						m_iObstruction;
+
+	size_t						m_iActionTanksSheet;
+	size_t						m_iActionSignsSheet;
+	float						m_flActionSignStart;
+	typedef enum
+	{
+		ACTIONSIGN_NONE = 0,
+		ACTIONSIGN_FIGHT,
+		ACTIONSIGN_SHOWDOWN,
+	} actionsign_t;
+	actionsign_t				m_eActionSign;
 
 	size_t						m_iCompetitionWatermark;
 };

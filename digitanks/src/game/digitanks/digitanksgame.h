@@ -87,6 +87,7 @@ class CDigitanksGame : public CGame
 	REGISTER_ENTITY_CLASS(CDigitanksGame, CGame);
 
 public:
+	virtual void 			Precache();
 	virtual void 			Spawn();
 
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
@@ -319,6 +320,8 @@ protected:
 
 	size_t						m_aiConstructionCosts[MAX_UNITS];
 	size_t						m_aiUpgradeCosts[MAX_UNITS];
+
+	float						m_flShowFightSign;
 };
 
 inline class CDigitanksGame* DigitanksGame()

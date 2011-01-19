@@ -64,6 +64,9 @@
     <Filter Include="Source Files\digitanks\weapons">
       <UniqueIdentifier>{f85c5d4e-69e7-4d87-a801-0edbea4e04da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\common\maths">
+      <UniqueIdentifier>{5e1101fb-dcf9-48b5-8edf-f2232bd6f770}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -541,6 +544,24 @@
     </ClInclude>
     <ClInclude Include="..\..\tinker\cvar.h">
       <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\math\simplex.h">
+      <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\math\vector.h">
+      <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\math\color.h">
+      <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\math\geometry.h">
+      <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\math\maths.h">
+      <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\math\matrix.h">
+      <Filter>Source Files\common\maths</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

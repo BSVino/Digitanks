@@ -107,6 +107,15 @@ void CConsole::PrintConsole(eastl::string16 sText)
 
 bool CConsole::KeyPressed(int code, bool bCtrlDown)
 {
+	if (!IsOpen())
+		return false;
+
+	if (code == TINKER_KEY_ESCAPE)
+	{
+		CApplication::Get()->CloseConsole();
+		return true;
+	}
+
 	if (code == TINKER_KEY_ENTER || code == TINKER_KEY_KP_ENTER)
 	{
 		eastl::string16 sText = m_pInput->GetText();

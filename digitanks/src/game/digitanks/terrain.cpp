@@ -493,13 +493,21 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
 		float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
 
+		int xbit = x%TERRAIN_CHUNK_SIZE;
+
 		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
 		{
 			if (y >= TERRAIN_SIZE-1)
 				continue;
 
-			if (GetBit(x, y, TB_HOLE))
+			int ybit = y%TERRAIN_CHUNK_SIZE;
+
+			if (pChunk->GetBit(xbit, ybit, TB_HOLE))
 				continue;
+
+			bool bWater = pChunk->GetBit(xbit, ybit, TB_WATER);
+			bool bLava = pChunk->GetBit(xbit, ybit, TB_LAVA);
+			bool bTree = pChunk->GetBit(xbit, ybit, TB_TREE);
 
 			float flColor = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 0.98f);
 
@@ -511,7 +519,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 			Vector vecColor;
 
-			if (GetBit(x, y, TB_LAVA) || GetBit(x, y, TB_WATER))
+			if (bLava || bWater)
 				vecColor = Vector(1,1,1);
 			else
 				vecColor = Vector(flColor, flColor, flColor);
@@ -519,7 +527,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			float flVisibility = RemapValClamped((float)y, (float)TERRAIN_CHUNK_SIZE*j, (float)TERRAIN_CHUNK_SIZE*(j+1), flVisibilityX0, flVisibilityX1);
 
 			if (GameServer()->GetRenderer()->ShouldUseShaders())
-				glVertexAttrib1f(iSlowMovement, (GetBit(x, y, TB_TREE)||GetBit(x, y, TB_WATER))?1.0f:0.0f);
+				glVertexAttrib1f(iSlowMovement, (bTree||bWater)?1.0f:0.0f);
 
 			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility);
 			glTexCoord2f(flUVX0, flUVY0);
@@ -557,12 +565,17 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		float flX = ArrayToWorldSpace((int)x);
 		float flX1 = ArrayToWorldSpace((int)x+1);
 
+		int xbit = x%TERRAIN_CHUNK_SIZE;
+
 		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
 		{
 			float flY = ArrayToWorldSpace((int)y);
 			float flY1 = ArrayToWorldSpace((int)y+1);
 
-			if (x == 0 && !GetBit(x, y, TB_HOLE) && y != TERRAIN_SIZE-1)
+			int ybit = y%TERRAIN_CHUNK_SIZE;
+			bool bHole = pChunk->GetBit(xbit, ybit, TB_HOLE);
+
+			if (x == 0 && !bHole && y != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopX);
 				glVertex3f(flX, GetRealHeight(x, y+1), flY1);
@@ -577,7 +590,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX, flBottom, flY1);
 			}
 
-			if (y == 0 && !GetBit(x, y, TB_HOLE) && x != TERRAIN_SIZE-1)
+			if (y == 0 && !bHole && x != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopY);
 				glVertex3f(flX, GetRealHeight(x, y), flY);
@@ -622,7 +635,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX1, flBottom, flY);
 			}
 
-			if (!GetBit(x, y, TB_HOLE) && GetBit(x-1, y, TB_HOLE) && y != TERRAIN_SIZE-1)
+			if (!bHole && GetBit(x-1, y, TB_HOLE) && y != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopX);
 				glVertex3f(flX, GetRealHeight(x, y+1), flY1);
@@ -637,7 +650,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX, flBottom, flY1);
 			}
 
-			if (!GetBit(x, y, TB_HOLE) && GetBit(x, y-1, TB_HOLE) && x != TERRAIN_SIZE-1)
+			if (!bHole && GetBit(x, y-1, TB_HOLE) && x != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopY);
 				glVertex3f(flX, GetRealHeight(x, y), flY);
@@ -652,7 +665,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX, flBottom, flY);
 			}
 
-			if (GetBit(x, y, TB_HOLE) && !GetBit(x-1, y, TB_HOLE) && x > 0 && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
+			if (bHole && !GetBit(x-1, y, TB_HOLE) && x > 0 && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopX);
 				glVertex3f(flX, GetRealHeight(x, y), flY);
@@ -667,7 +680,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				glVertex3f(flX, flBottom, flY);
 			}
 
-			if (GetBit(x, y, TB_HOLE) && !GetBit(x, y-1, TB_HOLE) && y > 0 && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
+			if (bHole && !GetBit(x, y-1, TB_HOLE) && y > 0 && x != TERRAIN_SIZE-1 && y != TERRAIN_SIZE-1)
 			{
 				glColor3fv(vecTopY);
 				glVertex3f(flX1, GetRealHeight(x+1, y), flY);
@@ -710,6 +723,8 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		float flVisibilityX0 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][0], pChunk->m_aflTerrainVisibility[1][0]);
 		float flVisibilityX1 = RemapValClamped((float)x, (float)TERRAIN_CHUNK_SIZE*i, (float)TERRAIN_CHUNK_SIZE*(i+1), pChunk->m_aflTerrainVisibility[0][1], pChunk->m_aflTerrainVisibility[1][1]);
 
+		int xbit = x%TERRAIN_CHUNK_SIZE;
+
 		for (int y = TERRAIN_CHUNK_SIZE*j; y < TERRAIN_CHUNK_SIZE*(j+1); y++)
 		{
 			float flY = (ArrayToWorldSpace((int)y) + ArrayToWorldSpace((int)y+1))/2;
@@ -719,10 +734,12 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			if (flVisibility < 0.01f)
 				continue;
 
+			int ybit = y%TERRAIN_CHUNK_SIZE;
+
 			glColor3fv(Vector(flVisibility, flVisibility, flVisibility));
 
 			float flHeight = GetHeight(flX, flY);
-			if (GetBit(x, y, TB_TREE))
+			if (pChunk->GetBit(xbit, ybit, TB_TREE))
 			{
 				glTexCoord2f(0, 0);
 				glVertex3f(flX - flXSize, flHeight-1, flY);
@@ -763,7 +780,10 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			int x = TERRAIN_CHUNK_SIZE*i + a * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
 			int y = TERRAIN_CHUNK_SIZE*j + b * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
 
-			if (GetBit(x, y, TB_LAVA))
+			int xbit = x%TERRAIN_CHUNK_SIZE;
+			int ybit = y%TERRAIN_CHUNK_SIZE;
+
+			if (pChunk->GetBit(xbit, ybit, TB_LAVA))
 			{
 				Color clrLava = Color(255 - RandomInt(0, 20), RandomInt(0, 20), RandomInt(0, 20));
 				Color clrLava2 = Color(214 + RandomInt(-10, 10), 55 + RandomInt(-10, 10), RandomInt(0, 20));
@@ -775,7 +795,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 				float flRamp = Lerp(RandomFloat(0, 1), flLerp);
 				pChunk->m_aclrTexture[a][b] = Color((int)(clrLava.r()*flRamp + clrLava2.r()*(1-flRamp)), (int)(clrLava.g()*flRamp + clrLava2.g()*(1-flRamp)), (int)(clrLava.b()*flRamp + clrLava2.b()*(1-flRamp)));
 			}
-			else if (GetBit(x, y, TB_WATER))
+			else if (pChunk->GetBit(xbit, ybit, TB_WATER))
 			{
 				Color clrWater = Color(RandomInt(0, 20), RandomInt(0, 20), 255 - RandomInt(0, 20));
 				Color clrWater2 = Color(RandomInt(0, 20), 55 + RandomInt(-10, 10), 214 + RandomInt(-10, 10));
@@ -1462,7 +1482,7 @@ bool CTerrain::GetBit(int x, int y, terrainbit_t b)
 	return !!(pChunk->m_aiSpecialData[x2][y2] & b);
 }
 
-CTerrain::terrainbit_t CTerrain::GetBits(int x, int y)
+terrainbit_t CTerrain::GetBits(int x, int y)
 {
 	int x2, y2;
 	int iChunkX = ArrayToChunkSpace(x, x2);
@@ -2237,7 +2257,7 @@ void CTerrainChunk::Think()
 						if (pChunk->m_aflLava[k][l] < flLava)
 						{
 							pChunk->m_aflLava[k][l] = flLava;
-							DigitanksGame()->GetTerrain()->SetBit(m, n, CTerrain::TB_LAVA, true);
+							DigitanksGame()->GetTerrain()->SetBit(m, n, TB_LAVA, true);
 						}
 					}
 				}
@@ -2246,6 +2266,11 @@ void CTerrainChunk::Think()
 	}
 
 	DigitanksGame()->GetTerrain()->GenerateTerrainCallLists();
+}
+
+bool CTerrainChunk::GetBit(int x, int y, terrainbit_t b)
+{
+	return !!(m_aiSpecialData[x][y] & b);
 }
 
 CQuadBranch::CQuadBranch(CTerrain* pTerrain, CQuadBranch* pParent, CQuadVector vecMin, CQuadVector vecMax)
@@ -2261,18 +2286,18 @@ CQuadBranch::CQuadBranch(CTerrain* pTerrain, CQuadBranch* pParent, CQuadVector v
 	m_vecMin = vecMin;
 	m_vecMax = vecMax;
 
-	m_eTerrainType = (CTerrain::terrainbit_t)-1;
+	m_eTerrainType = (terrainbit_t)-1;
 }
 
 void CQuadBranch::BuildBranch()
 {
-	CTerrain::terrainbit_t eMatchBit = m_pTerrain->GetBits(m_vecMin.x, m_vecMin.y);
-	if (eMatchBit & CTerrain::TB_HOLE)
-		eMatchBit = CTerrain::TB_HOLE;
+	terrainbit_t eMatchBit = m_pTerrain->GetBits(m_vecMin.x, m_vecMin.y);
+	if (eMatchBit & TB_HOLE)
+		eMatchBit = TB_HOLE;
 
 	bool bAllBitsMatch = true;
 
-	if (m_eTerrainType != eMatchBit && m_eTerrainType != (CTerrain::terrainbit_t)-1)
+	if (m_eTerrainType != eMatchBit && m_eTerrainType != (terrainbit_t)-1)
 		bAllBitsMatch = false;
 	else
 	{
@@ -2280,9 +2305,9 @@ void CQuadBranch::BuildBranch()
 		{
 			for (size_t j = m_vecMin.y; j < m_vecMax.y; j++)
 			{
-				CTerrain::terrainbit_t eTileBit = m_pTerrain->GetBits(i, j);
-				if (eTileBit & CTerrain::TB_HOLE)
-					eTileBit = CTerrain::TB_HOLE;
+				terrainbit_t eTileBit = m_pTerrain->GetBits(i, j);
+				if (eTileBit & TB_HOLE)
+					eTileBit = TB_HOLE;
 
 				if (eMatchBit != eTileBit)
 					bAllBitsMatch = false;
@@ -2371,7 +2396,7 @@ void CQuadBranch::FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBra
 	else
 	{
 		// Don't return holes as neighbors so we don't consider them in any pathfinding at all.
-		if (m_eTerrainType & CTerrain::TB_HOLE)
+		if (m_eTerrainType & TB_HOLE)
 			return;
 
 		if (pLeaf->m_vecMin.x > m_vecMax.x)
