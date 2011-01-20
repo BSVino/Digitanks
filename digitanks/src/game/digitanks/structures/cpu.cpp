@@ -102,13 +102,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
 		pHUD->SetButtonInfo(9, L"CANCEL CONSTRUCTION\n \nShortcut: G");
 	}
-	else if (IsInstalling())
-	{
-		pHUD->SetButtonListener(9, CHUD::CancelInstall);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"CANCEL INSTALLATION\n \nShortcut: G");
-	}
 	else if (IsProducing())
 	{
 		pHUD->SetButtonListener(9, CHUD::CancelBuildScout);
@@ -159,67 +152,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			s += L"This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER)));
-			s += L"Shortcut: E";
-			pHUD->SetButtonInfo(2, s);
-		}
-
-		pHUD->SetButtonListener(9, CHUD::GoToMain);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
-	}
-	else if (eMenuMode == MENUMODE_INSTALL)
-	{
-		if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
-		{
-			pHUD->SetButtonListener(0, CHUD::InstallProduction);
-			pHUD->SetButtonTexture(0, s_iInstallPowerIcon);
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_PRODUCTION, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL POWER INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Power increase: %.1f Power\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: Q";
-			pHUD->SetButtonInfo(0, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
-		{
-			pHUD->SetButtonListener(1, CHUD::InstallBandwidth);
-			pHUD->SetButtonTexture(1, s_iInstallBandwidthIcon);
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_BANDWIDTH, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL BANDWIDTH INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Bandwidth increase: %.1f Bandwidth\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: W";
-			pHUD->SetButtonInfo(1, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
-		{
-			pHUD->SetButtonListener(2, CHUD::InstallFleetSupply);
-			pHUD->SetButtonTexture(2, s_iInstallFleetSupplyIcon);
-			pHUD->SetButtonColor(2, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_FLEETSUPPLY, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL FLEET SUPPLY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Fleet Supply increase: %.1f Supply\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
 			s += L"Shortcut: E";
 			pHUD->SetButtonInfo(2, s);
 		}
@@ -297,14 +229,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(2, s_iBuildLoaderIcon);
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
 			pHUD->SetButtonInfo(2, L"OPEN LOADER CONSTRUCTION MENU\n \nShortcut: E");
-		}
-
-		if (HasUpdatesAvailable())
-		{
-			pHUD->SetButtonListener(3, CHUD::InstallMenu);
-			pHUD->SetButtonTexture(3, s_iInstallIcon);
-			pHUD->SetButtonColor(3, Color(150, 150, 150));
-			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU\n \nShortcut: R");
 		}
 
 		pHUD->SetButtonListener(7, CHUD::BuildScout);
@@ -393,9 +317,6 @@ void CCPU::ClearPreviewBuild()
 void CCPU::BeginConstruction()
 {
 	if (!IsPreviewBuildValid())
-		return;
-
-	if (IsInstalling())
 		return;
 
 	if (IsProducing())
@@ -541,6 +462,15 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	m_hConstructing->FindGround();
 
+	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+	{
+		for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+		{
+			if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+				m_hConstructing->InstallUpdate(x, y);
+		}
+	}
+
 	DigitanksGame()->GetTerrain()->CalculateVisibility();
 }
 
@@ -571,9 +501,6 @@ void CCPU::CancelConstruction(class CNetworkParameters* p)
 
 void CCPU::BeginRogueProduction()
 {
-	if (IsInstalling())
-		return;
-
 	if (HasConstruction())
 		return;
 
@@ -613,31 +540,6 @@ void CCPU::CancelRogueProduction(class CNetworkParameters* p)
 
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();
-}
-
-bool CCPU::HasUpdatesAvailable()
-{
-	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_PRODUCTION) >= 0)
-		return true;
-
-	return false;
-}
-
-void CCPU::InstallUpdate(updatetype_t eUpdate)
-{
-	if (HasConstruction())
-		return;
-
-	if (IsProducing())
-		return;
-
-	BaseClass::InstallUpdate(eUpdate);
 }
 
 void CCPU::StartTurn()
@@ -848,14 +750,6 @@ void CCPU::UpdateInfo(eastl::string16& s)
 		s += L"[Constructing " + m_hConstructing->GetName() + L"...]\n";
 		s += p.sprintf(L"Power to build: %d\n", m_hConstructing->GetProductionToConstruct());
 		s += p.sprintf(L"Turns left: %d\n", m_hConstructing->GetTurnsToConstruct());
-		return;
-	}
-
-	if (IsInstalling())
-	{
-		s += L"[Installing update '" + GetUpdateInstalling()->GetName() + L"'...]\n";
-		s += p.sprintf(L"Power to install: %d\n", GetProductionToInstall());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToInstall());
 		return;
 	}
 

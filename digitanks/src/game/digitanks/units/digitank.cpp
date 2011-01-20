@@ -289,6 +289,8 @@ void CDigitank::Spawn()
 	m_iMissileDefenses = 0;
 	m_flNextMissileDefense = 0;
 	m_iTurnsDisabled = 0;
+	m_flCurrentTurretYaw = 0;
+	m_flGoalTurretYaw = 0;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -1119,6 +1121,8 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
+	m_flGoalTurretYaw = -180;
+
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
@@ -1183,6 +1187,8 @@ void CDigitank::Turn(CNetworkParameters* p)
 	}
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
+
+	m_flGoalTurretYaw = 0;
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
@@ -1380,6 +1386,8 @@ void CDigitank::Charge(class CNetworkParameters* p)
 		m_flAttackPower += ChargeEnergy();
 		m_flMovementPower += ChargeEnergy();
 	}
+
+	m_flGoalTurretYaw = -180;
 
 	m_bActionTaken = true;
 
@@ -1583,6 +1591,8 @@ void CDigitank::Think()
 		{
 			Move(GetChargePosition(m_hChargeTarget), 1);
 			m_flEndCharge = GameServer()->GetGameTime() + GetTransitionTime();
+
+			m_flGoalTurretYaw = -180;
 		}
 	}
 
@@ -1601,10 +1611,15 @@ void CDigitank::Think()
 			{
 				pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * ChargePushDistance(), 2);
 				pDigitank->RockTheBoat(1, vecPushDirection);
+
+				Vector vecLookAt = (GetOrigin() - pDigitank->GetOrigin()).Normalized();
+				pDigitank->m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - pDigitank->GetRenderAngles().y;
 			}
 
 			RockTheBoat(1, vecPushDirection);
 			Turn(EAngle(0, GetAngles().y, 0));
+
+			m_flGoalTurretYaw = 0;
 		}
 	}
 
@@ -2315,6 +2330,12 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 			flDamage += 50;
 	}
 
+	if (pInflictor)
+	{
+		Vector vecLookAt = (pInflictor->GetOrigin() - GetOrigin()).Normalized();
+		m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - GetRenderAngles().y;
+	}
+
 	Speak(TANKSPEECH_DAMAGED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
@@ -2614,10 +2635,13 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 		else
 			vecAimTarget = m_vecLastAim.Get();
 		Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
-		float flAngle = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
-
-		r.Rotate(-flAngle, Vector(0, 1, 0));
+		m_flGoalTurretYaw = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
 	}
+
+	float flSpeed = RemapValClamped(fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)), 30, 90, 20, 40);
+	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
+
+	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 1, 0));
 
 	if (IsDisabled())
 		r.Rotate(-35, Vector(0, 0, 1));

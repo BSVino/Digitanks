@@ -85,55 +85,6 @@ void CDigitanksTeam::Bot_ExpandBase()
 {
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
-	// Never install more than one thing at a time so we don't get bogged down in installations.
-	// Infantry loaders are super important, don't install anything before we built one.
-	if (GetNumProducers() < 1 && g_aeBuildOrder[m_iBuildPosition] != STRUCTURE_INFANTRYLOADER && m_iBuildPosition > 1)
-	{
-		for (size_t i = 0; i < m_ahMembers.size(); i++)
-		{
-			if (GetNumProducers() >= 1)
-				break;
-
-			CBaseEntity* pEntity = m_ahMembers[i];
-			if (!pEntity)
-				continue;
-
-			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
-			if (!pStructure)
-				continue;
-
-			if (!pStructure->HasUpdatesAvailable() && !pStructure->CanStructureUpgrade())
-				continue;
-
-			if (pStructure->IsInstalling() || pStructure->IsUpgrading())
-				continue;
-
-			// Give the CPU a chance to build structures.
-			if (mtrand()%2 == 0)
-				continue;
-
-			if (pStructure->CanStructureUpgrade())
-			{
-				pStructure->BeginUpgrade();
-				break;
-			}
-
-			// PSU's are highest priority.
-			if (m_iBuildPosition < sizeof(g_aeBuildOrder)/sizeof(unittype_t) && g_aeBuildOrder[m_iBuildPosition] == STRUCTURE_PSU)
-				continue;
-
-			for (size_t u = 0; u < UPDATETYPE_SIZE; u++)
-			{
-				int iUpdate = pStructure->GetFirstUninstalledUpdate((updatetype_t)u);
-				if (iUpdate < 0)
-					continue;
-
-				pStructure->InstallUpdate((updatetype_t)u);
-				break;
-			}
-		}
-	}
-
 	if (m_hPrimaryCPU == NULL)
 		return;
 
@@ -141,13 +92,10 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU->HasConstruction())
 		return;
 
-	if (m_hPrimaryCPU->IsInstalling())
-		return;
-
 	if (m_hPrimaryCPU->IsProducing())
 		return;
 
-	if (GetNumProducers() >= 2)
+	if (GetNumProducers() >= 1)
 		return;
 
 	unittype_t iNextBuild;
@@ -402,7 +350,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 void CDigitanksTeam::Bot_BuildUnits()
 {
-	// Above code is capped at 2 producers, but we make this one more so we always have a guarantee to be creating units.
+	// Above code is capped, but we make this cap higher so we always have a guarantee to be creating units.
 	if (GetNumProducers() >= 3)
 		return;
 

@@ -23,7 +23,6 @@ typedef enum
 	MENUMODE_MAIN,
 	MENUMODE_PROMOTE,
 	MENUMODE_LOADERS,
-	MENUMODE_INSTALL,
 } menumode_t;
 
 typedef enum

@@ -226,18 +226,6 @@ public:
 	EVENT_CALLBACK(CHUD, CancelBuildUnit);
 	EVENT_CALLBACK(CHUD, BuildScout);
 	EVENT_CALLBACK(CHUD, CancelBuildScout);
-	EVENT_CALLBACK(CHUD, InstallMenu);
-	EVENT_CALLBACK(CHUD, InstallProduction);
-	EVENT_CALLBACK(CHUD, InstallBandwidth);
-	EVENT_CALLBACK(CHUD, InstallFleetSupply);
-	EVENT_CALLBACK(CHUD, InstallEnergyBonus);
-	EVENT_CALLBACK(CHUD, InstallRechargeBonus);
-	EVENT_CALLBACK(CHUD, InstallTankAttack);
-	EVENT_CALLBACK(CHUD, InstallTankDefense);
-	EVENT_CALLBACK(CHUD, InstallTankMovement);
-	EVENT_CALLBACK(CHUD, InstallTankHealth);
-	EVENT_CALLBACK(CHUD, InstallTankRange);
-	EVENT_CALLBACK(CHUD, CancelInstall);
 	EVENT_CALLBACK(CHUD, BeginUpgrade);
 	EVENT_CALLBACK(CHUD, CancelUpgrade);
 	EVENT_CALLBACK(CHUD, ChooseWeapon);

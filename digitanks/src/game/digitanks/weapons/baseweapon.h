@@ -45,6 +45,7 @@ public:
 	static float				GetWeaponFireInterval(weapon_t eProjectile);
 	static char16_t*			GetWeaponName(weapon_t eProjectile);
 	static char16_t*			GetWeaponDescription(weapon_t eProjectile);
+	static bool					IsWeaponPrimarySelectionOnly(weapon_t eProjectile);
 
 protected:
 	float						m_flTimeCreated;

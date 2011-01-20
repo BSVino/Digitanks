@@ -73,4 +73,16 @@ inline float AngleDifference( float a, float b )
 	return d;
 }
 
+inline float AngleApproach(float flGoal, float flInput, float flAmount)
+{
+	float flDifference = AngleDifference(flGoal, flInput);
+
+	if (flDifference > flAmount)
+		return flInput + flAmount;
+	else if (flDifference < -flAmount)
+		return flInput -= flAmount;
+	else
+		return flGoal;
+}
+
 #endif

@@ -31,9 +31,7 @@ public:
 	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 	size_t						GetUnitProductionCost();
 
-	virtual void				InstallUpdate(updatetype_t eUpdate);
-	virtual void				InstallComplete();
-	virtual bool				HasUpdatesAvailable();
+	virtual void				InstallUpdate(size_t x, size_t y);
 
 	size_t						GetFleetPointsRequired();
 	bool						HasEnoughFleetPoints();

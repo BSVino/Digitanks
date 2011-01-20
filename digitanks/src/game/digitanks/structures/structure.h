@@ -44,22 +44,9 @@ public:
 	void						AddProduction(size_t iProduction);
 	size_t						GetTurnsToConstruct(size_t iPower);
 
-	virtual void				InstallUpdate(updatetype_t eUpdate);
+	virtual void				InstallUpdate(size_t x, size_t y);
 	void						InstallUpdate(CNetworkParameters* p);
-	virtual void				InstallComplete();
-	void						InstallComplete(CNetworkParameters* p);
-	void						CancelInstall();
-	void						CancelInstall(CNetworkParameters* p);
-	size_t						GetTurnsToInstall(class CUpdateItem* pItem);
-	size_t						GetTurnsToInstall();
-	bool						IsInstalling() { return m_bInstalling; };
-	size_t						GetProductionToInstall() { return m_iProductionToInstall; };
-	int							GetFirstUninstalledUpdate(updatetype_t eUpdate);
-	class CUpdateItem*			GetUpdateInstalling();
-	class CUpdateItem*			GetUpdate(size_t iType, size_t iUpdate);
-	virtual bool				HasUpdatesAvailable() { return false; };
 	virtual void				DownloadComplete(size_t x, size_t y);
-	size_t						GetUpdatesScore();
 
 	virtual bool				CanStructureUpgrade() { return false; };
 	void						BeginUpgrade();
@@ -84,7 +71,6 @@ public:
 	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
 
 	virtual void				ClientUpdate(int iClient);
-	virtual void				AddStructureUpdate(CNetworkParameters* p);
 
 	virtual void				OnSerialize(std::ostream& o);
 	virtual bool				OnUnserialize(std::istream& i);
@@ -109,9 +95,11 @@ public:
 
 	virtual size_t				InitialEnergyBonus() const { return 4; };
 	virtual size_t				EnergyBonus() const { return m_iEnergyBonus.Get(); };
+	virtual void				AddEnergyBonus(size_t e) { m_iEnergyBonus += e; };
 
 	virtual float				InitialRechargeBonus() const { return 0.5f; };
 	virtual float				RechargeBonus() const { return m_flRechargeBonus.Get(); };
+	virtual void				AddRechargeBonus(float r) { m_flRechargeBonus += r; };
 
 	// AI stuff
 	void						AddDefender(class CDigitank* pTank);
@@ -121,11 +109,6 @@ public:
 protected:
 	CNetworkedVariable<bool>	m_bConstructing;
 	CNetworkedVariable<size_t>	m_iProductionToConstruct;
-
-	CNetworkedVariable<bool>	m_bInstalling;
-	CNetworkedVariable<updatetype_t> m_eInstallingType;
-	CNetworkedVariable<int>		m_iInstallingUpdate;
-	CNetworkedVariable<size_t>	m_iProductionToInstall;
 
 	CNetworkedVariable<bool>	m_bUpgrading;
 	CNetworkedVariable<size_t>	m_iProductionToUpgrade;
@@ -138,16 +121,6 @@ protected:
 	CNetworkedVariable<size_t>	m_iPower;
 	CNetworkedVariable<size_t>	m_iEnergyBonus;
 	CNetworkedVariable<float>	m_flRechargeBonus;
-
-	class CUpdateCoordinate
-	{
-	public:
-		size_t x;
-		size_t y;
-	};
-
-	eastl::map<size_t, eastl::vector<CUpdateCoordinate> >	m_aUpdates;
-	eastl::map<size_t, size_t>	m_aiUpdatesInstalled;
 
 	size_t						m_iScaffolding;
 	CNetworkedVariable<float>	m_flScaffoldingSize;

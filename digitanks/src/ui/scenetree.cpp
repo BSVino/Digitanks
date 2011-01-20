@@ -228,7 +228,7 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 	}
 
 	CStructure* pStructure = dynamic_cast<CStructure*>(m_hEntity.GetPointer());
-	if (pStructure && (pStructure->IsConstructing() || pStructure->IsInstalling() || pStructure->IsUpgrading()))
+	if (pStructure && (pStructure->IsConstructing() || pStructure->IsUpgrading()))
 	{
 		int iProductionRemaining = 0;
 		int iTotalProduction = 0;
@@ -236,11 +236,6 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 		{
 			iProductionRemaining = pStructure->GetProductionToConstruct();
 			iTotalProduction = pStructure->ConstructionCost();
-		}
-		else if (pStructure->IsInstalling())
-		{
-			iProductionRemaining = pStructure->GetProductionToInstall();
-			iTotalProduction = pStructure->GetUpdateInstalling()->m_iProductionToInstall;
 		}
 		else if (pStructure->IsUpgrading())
 		{

@@ -1264,25 +1264,51 @@ void CHUD::UpdateInfo()
 void CHUD::UpdateTankInfo(CDigitank* pTank)
 {
 	char szShieldInfo[1024];
-	sprintf(szShieldInfo, "%.1f/%.1f",
-		pTank->GetFrontShieldStrength() * pTank->GetFrontShieldMaxStrength(),
-		pTank->GetFrontShieldMaxStrength() * pTank->GetDefenseScale(true));
-	m_pFrontShieldInfo->SetText(szShieldInfo);
 
-	sprintf(szShieldInfo, "%.1f/%.1f",
-		pTank->GetRearShieldStrength() * pTank->GetRearShieldMaxStrength(),
-		pTank->GetRearShieldMaxStrength() * pTank->GetDefenseScale(true));
-	m_pRearShieldInfo->SetText(szShieldInfo);
+	if (pTank->GetFrontShieldMaxStrength() > 0)
+	{
+		sprintf(szShieldInfo, "%.1f/%.1f",
+			pTank->GetFrontShieldStrength() * pTank->GetFrontShieldMaxStrength(),
+			pTank->GetFrontShieldMaxStrength() * pTank->GetDefenseScale(true));
+		m_pFrontShieldInfo->SetText(szShieldInfo);
+		m_pFrontShieldInfo->SetVisible(true);
+	}
+	else
+		m_pFrontShieldInfo->SetVisible(false);
 
-	sprintf(szShieldInfo, "%.1f/\n%.1f",
-		pTank->GetLeftShieldStrength() * pTank->GetLeftShieldMaxStrength(),
-		pTank->GetLeftShieldMaxStrength() * pTank->GetDefenseScale(true));
-	m_pLeftShieldInfo->SetText(szShieldInfo);
+	if (pTank->GetRearShieldMaxStrength() > 0)
+	{
+		sprintf(szShieldInfo, "%.1f/%.1f",
+			pTank->GetRearShieldStrength() * pTank->GetRearShieldMaxStrength(),
+			pTank->GetRearShieldMaxStrength() * pTank->GetDefenseScale(true));
+		m_pRearShieldInfo->SetText(szShieldInfo);
+		m_pRearShieldInfo->SetVisible(true);
+	}
+	else
+		m_pRearShieldInfo->SetVisible(false);
 
-	sprintf(szShieldInfo, "%.1f/\n%.1f",
-		pTank->GetRightShieldStrength() * pTank->GetRightShieldMaxStrength(),
-		pTank->GetRightShieldMaxStrength() * pTank->GetDefenseScale(true));
-	m_pRightShieldInfo->SetText(szShieldInfo);
+	if (pTank->GetLeftShieldMaxStrength() > 0)
+	{
+		sprintf(szShieldInfo, "%.1f/\n%.1f",
+			pTank->GetLeftShieldStrength() * pTank->GetLeftShieldMaxStrength(),
+			pTank->GetLeftShieldMaxStrength() * pTank->GetDefenseScale(true));
+		m_pLeftShieldInfo->SetText(szShieldInfo);
+		m_pLeftShieldInfo->SetVisible(true);
+	}
+	else
+		m_pLeftShieldInfo->SetVisible(false);
+
+	if (pTank->GetRightShieldMaxStrength() > 0)
+	{
+		sprintf(szShieldInfo, "%.1f/\n%.1f",
+			pTank->GetRightShieldStrength() * pTank->GetRightShieldMaxStrength(),
+			pTank->GetRightShieldMaxStrength() * pTank->GetDefenseScale(true));
+		m_pRightShieldInfo->SetText(szShieldInfo);
+		m_pRightShieldInfo->SetVisible(true);
+	}
+	else
+		m_pRightShieldInfo->SetVisible(false);
+
 	m_pAttackInfo->SetText(L"");
 
 	Vector vecOrigin;
@@ -1870,12 +1896,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		m_pActionItem->SetText(
 			"CONSTRUCTION COMPELTE\n \n"
 			"Your CPU has completed construction of a new structure for your base. You can choose what to build next.\n");
-		break;
-
-	case ACTIONTYPE_INSTALLATION:
-		m_pActionItem->SetText(
-			"INSTALLATION COMPELTE\n \n"
-			"This structure has completed installing an update. You may wish to install more updates now.\n");
 		break;
 
 	case ACTIONTYPE_UPGRADE:
@@ -2611,224 +2631,6 @@ void CHUD::CancelBuildScoutCallback()
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
-}
-
-void CHUD::InstallMenuCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	SetupMenu(MENUMODE_INSTALL);
-}
-
-void CHUD::InstallProductionCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_PRODUCTION);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallBandwidthCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_BANDWIDTH);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallFleetSupplyCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_FLEETSUPPLY);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallEnergyBonusCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_SUPPORTENERGY);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallRechargeBonusCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_SUPPORTRECHARGE);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallTankAttackCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_TANKATTACK);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallTankDefenseCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_TANKDEFENSE);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallTankMovementCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_TANKMOVEMENT);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallTankHealthCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_TANKHEALTH);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::InstallTankRangeCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	pStructure->InstallUpdate(UPDATETYPE_TANKRANGE);
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::CancelInstallCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-	pStructure->CancelInstall();
-
-	DigitanksGame()->SetControlMode(MODE_NONE);
-
-	SetupMenu();
-	UpdateInfo();
 }
 
 void CHUD::BeginUpgradeCallback()

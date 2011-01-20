@@ -201,111 +201,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
-	if (IsInstalling())
-	{
-		pHUD->SetButtonListener(9, CHUD::CancelInstall);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"CANCEL INSTALLATION\n \nShortcut: G");
-	}
-	else if (eMenuMode == MENUMODE_INSTALL)
-	{
-		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK) >= 0)
-		{
-			pHUD->SetButtonListener(0, CHUD::InstallTankAttack);
-			pHUD->SetButtonTexture(0, s_iInstallAttackIcon);
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKATTACK, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL ATTACK ENERGY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Attack Energy increase: %f0%\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: Q";
-			pHUD->SetButtonInfo(0, s);
-		}
-
-		if (GetUnitType() == STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
-		{
-			pHUD->SetButtonListener(1, CHUD::InstallTankRange);
-			pHUD->SetButtonTexture(1, s_iInstallRangeIcon);
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKRANGE, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL ATTACK RANGE INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Attack Range increase: %f Units\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: W";
-			pHUD->SetButtonInfo(1, s);
-		}
-
-		if (GetUnitType() != STRUCTURE_ARTILLERYLOADER && GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
-		{
-			pHUD->SetButtonListener(2, CHUD::InstallTankDefense);
-			pHUD->SetButtonTexture(2, s_iInstallDefenseIcon);
-			pHUD->SetButtonColor(2, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKDEFENSE, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL DEFENSE ENERGY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Defense Energy increase: %f0%\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: E";
-			pHUD->SetButtonInfo(2, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
-		{
-			pHUD->SetButtonListener(3, CHUD::InstallTankMovement);
-			pHUD->SetButtonTexture(3, s_iInstallMovementIcon);
-			pHUD->SetButtonColor(3, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKMOVEMENT, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL MOVEMENT ENERGY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Movement Energy increase: %f0%\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: R";
-			pHUD->SetButtonInfo(3, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
-		{
-			pHUD->SetButtonListener(4, CHUD::InstallTankHealth);
-			pHUD->SetButtonTexture(4, s_iInstallHealthIcon);
-			pHUD->SetButtonColor(4, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_TANKHEALTH, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL HEALTH INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Health increase: %f Hull Strength\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: T";
-			pHUD->SetButtonInfo(4, s);
-		}
-
-		pHUD->SetButtonListener(9, CHUD::GoToMain);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
-	}
-	else if (m_bProducing)
+	if (m_bProducing)
 	{
 		pHUD->SetButtonListener(9, CHUD::CancelBuildUnit);
 		pHUD->SetButtonTexture(9, s_iCancelIcon);
@@ -347,14 +243,6 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 		if (HasEnoughFleetPoints())
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
-
-		if (HasUpdatesAvailable())
-		{
-			pHUD->SetButtonListener(3, CHUD::InstallMenu);
-			pHUD->SetButtonTexture(3, s_iInstallIcon);
-			pHUD->SetButtonColor(3, Color(150, 150, 150));
-			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU\n \nShortcut: R");
-		}
 	}
 }
 
@@ -432,26 +320,17 @@ void CLoader::CancelProduction(class CNetworkParameters* p)
 
 size_t CLoader::GetUnitProductionCost()
 {
-	size_t iUpdates = 0;
-	for (size_t i = 0; i < m_aiUpdatesInstalled.size(); i++)
-		iUpdates += m_aiUpdatesInstalled[i];
-
-	return DigitanksGame()->GetConstructionCost(m_eBuildUnit) + iUpdates*4;
+	return DigitanksGame()->GetConstructionCost(m_eBuildUnit);
 }
 
-void CLoader::InstallUpdate(updatetype_t eUpdate)
+void CLoader::InstallUpdate(size_t x, size_t y)
 {
-	if (m_bProducing)
+	BaseClass::InstallUpdate(x, y);
+
+	CUpdateItem* pUpdate = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y];
+
+	if (pUpdate->m_eStructure != GetUnitType())
 		return;
-
-	BaseClass::InstallUpdate(eUpdate);
-}
-
-void CLoader::InstallComplete()
-{
-	BaseClass::InstallComplete();
-
-	CUpdateItem* pUpdate = GetUpdate(m_eInstallingType, m_iInstallingUpdate);
 
 	switch (pUpdate->m_eUpdateType)
 	{
@@ -475,28 +354,6 @@ void CLoader::InstallComplete()
 		m_iTankRange += (size_t)pUpdate->m_flValue;
 		break;
 	}
-
-	DigitanksGame()->AddActionItem(this, ACTIONTYPE_INSTALLATION);
-}
-
-bool CLoader::HasUpdatesAvailable()
-{
-	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKATTACK) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKDEFENSE) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKMOVEMENT) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_TANKHEALTH) >= 0)
-		return true;
-
-	if (m_eBuildUnit == UNIT_ARTILLERY && GetFirstUninstalledUpdate(UPDATETYPE_TANKRANGE) >= 0)
-		return true;
-
-	return false;
 }
 
 size_t CLoader::GetFleetPointsRequired()
@@ -591,16 +448,8 @@ void CLoader::UpdateInfo(eastl::string16& s)
 			s += p.sprintf(L"Turns left: %d\n \n", (iProductionLeft/iProduction)+1);
 	}
 
-	if (IsInstalling())
-	{
-		s += L"[Installing update '" + GetUpdateInstalling()->GetName() + L"'...]\n";
-		s += p.sprintf(L"Power to install: %d\n", GetProductionToInstall());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToInstall());
-	}
-
 	if (GetSupplier() && GetSupplyLine())
 		s += p.sprintf(L"Efficiency: %d%\n", (int)(GetSupplier()->GetChildEfficiency()*m_hSupplyLine->GetIntegrity()*100));
-
 }
 
 eastl::string16 CLoader::GetName()

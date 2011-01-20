@@ -313,3 +313,14 @@ char16_t* CBaseWeapon::GetWeaponDescription(weapon_t eProjectile)
 	return g_apszWeaponDescriptions[eProjectile];
 }
 
+bool CBaseWeapon::IsWeaponPrimarySelectionOnly(weapon_t eProjectile)
+{
+	if (eProjectile == PROJECTILE_CAMERAGUIDED)
+		return true;
+
+	if (eProjectile == WEAPON_CHARGERAM)
+		return true;
+
+	return false;
+}
+

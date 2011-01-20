@@ -45,106 +45,6 @@ void CBuffer::Precache()
 
 void CBuffer::SetupMenu(menumode_t eMenuMode)
 {
-	CHUD* pHUD = DigitanksWindow()->GetHUD();
-	eastl::string16 p;
-
-	if (IsInstalling())
-	{
-		pHUD->SetButtonListener(4, CHUD::CancelInstall);
-		pHUD->SetButtonTexture(4, s_iCancelIcon);
-		pHUD->SetButtonColor(4, Color(100, 0, 0));
-	}
-	else if (eMenuMode == MENUMODE_INSTALL)
-	{
-		if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
-		{
-			pHUD->SetButtonListener(0, CHUD::InstallBandwidth);
-			pHUD->SetButtonTexture(0, s_iInstallBandwidthIcon);
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_BANDWIDTH, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL BANDWIDTH INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Bandwidth increase: %f\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: Q";
-			pHUD->SetButtonInfo(0, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
-		{
-			pHUD->SetButtonListener(1, CHUD::InstallFleetSupply);
-			pHUD->SetButtonTexture(1, s_iInstallFleetSupplyIcon);
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_FLEETSUPPLY, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL FLEET SUPPLY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Fleet Supply increase: %f\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: W";
-			pHUD->SetButtonInfo(1, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY) >= 0)
-		{
-			pHUD->SetButtonListener(2, CHUD::InstallEnergyBonus);
-			pHUD->SetButtonTexture(2, s_iInstallEnergyBonusIcon);
-			pHUD->SetButtonColor(2, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_SUPPORTENERGY, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL SUPPORT ENERGY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Attack Energy Buff increase: %f\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Defense Energy Buff increase: %f\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: E";
-			pHUD->SetButtonInfo(2, s);
-		}
-
-		if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE) >= 0)
-		{
-			pHUD->SetButtonListener(3, CHUD::InstallRechargeBonus);
-			pHUD->SetButtonTexture(3, s_iInstallRechargeBonusIcon);
-			pHUD->SetButtonColor(3, Color(150, 150, 150));
-
-			int iUpdate = GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE);
-			CUpdateItem* pUpdate = GetUpdate(UPDATETYPE_SUPPORTRECHARGE, iUpdate);
-
-			eastl::string16 s;
-			s += L"INSTALL HEALTH ENERGY INCREASE\n \n";
-			s += pUpdate->GetInfo() + L"\n \n";
-			s += p.sprintf(L"Health Recharge Buff increase: %f per turn\n", pUpdate->m_flValue/5);
-			s += p.sprintf(L"Shield Recharge Buff increase: %f per turn\n", pUpdate->m_flValue);
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToInstall(pUpdate));
-			s += L"Shortcut: R";
-			pHUD->SetButtonInfo(3, s);
-		}
-
-		pHUD->SetButtonListener(9, CHUD::GoToMain);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
-	}
-	else
-	{
-		if (HasUpdatesAvailable())
-		{
-			pHUD->SetButtonListener(3, CHUD::InstallMenu);
-			pHUD->SetButtonTexture(3, s_iInstallIcon);
-			pHUD->SetButtonColor(3, Color(150, 150, 150));
-			pHUD->SetButtonInfo(3, L"OPEN UPDATE INSTALL MENU\n \nShortcut: E");
-		}
-	}
 }
 
 void CBuffer::UpdateInfo(eastl::string16& s)
@@ -167,23 +67,6 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
 	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
-}
-
-bool CBuffer::HasUpdatesAvailable()
-{
-	if (GetFirstUninstalledUpdate(UPDATETYPE_BANDWIDTH) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_FLEETSUPPLY) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTENERGY) >= 0)
-		return true;
-
-	if (GetFirstUninstalledUpdate(UPDATETYPE_SUPPORTRECHARGE) >= 0)
-		return true;
-
-	return false;
 }
 
 size_t CMiniBuffer::s_iUpgradeIcon = 0;
@@ -295,6 +178,17 @@ void CMiniBuffer::UpgradeComplete()
 	pBuffer->GiveDataStrength(m_iDataStrength - InitialDataStrength());					// Give what I've earned so far
 	pBuffer->AddFleetPoints(pBuffer->InitialFleetPoints() - InitialFleetPoints());
 	pBuffer->AddBandwidth(pBuffer->InitialBandwidth() - InitialBandwidth());
+	pBuffer->AddEnergyBonus(pBuffer->InitialEnergyBonus() - InitialEnergyBonus());
+	pBuffer->AddRechargeBonus(pBuffer->InitialRechargeBonus() - InitialRechargeBonus());
+
+	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+	{
+		for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+		{
+			if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+				pBuffer->InstallUpdate(x, y);
+		}
+	}
 
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{

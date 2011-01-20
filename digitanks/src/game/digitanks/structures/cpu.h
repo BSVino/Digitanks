@@ -49,9 +49,6 @@ public:
 	void						CancelRogueProduction(class CNetworkParameters* p);
 	bool						IsProducing() { return m_bProducing; }
 
-	virtual bool				HasUpdatesAvailable();
-	virtual void				InstallUpdate(updatetype_t eUpdate);
-
 	virtual void				StartTurn();
 
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);

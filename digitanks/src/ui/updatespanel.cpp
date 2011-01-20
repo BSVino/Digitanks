@@ -210,9 +210,6 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	s += p.sprintf(L"Download size: %d\n", pInfo->m_iSize);
 
-	if (pInfo->m_eUpdateClass != UPDATECLASS_STRUCTURE)
-		s += p.sprintf(L"Power to install: %d\n", pInfo->m_iProductionToInstall);
-
 	m_pInfo->SetText(s);
 
 	m_pInfo->SetSize(m_pInfo->GetWidth(), 9999);

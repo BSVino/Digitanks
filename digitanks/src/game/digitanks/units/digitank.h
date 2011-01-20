@@ -115,6 +115,8 @@ public:
 	virtual float				GetShieldValue(size_t i);
 	virtual void				SetShieldValue(size_t i, float flValue);
 
+	virtual void				SetGoalTurretYaw(float flYaw) { m_flGoalTurretYaw = flYaw; }
+
 	virtual void				StartTurn();
 	virtual void				EndTurn();
 
@@ -344,6 +346,9 @@ protected:
 	CNetworkedVariable<float>	m_flLeftShieldStrength;
 	CNetworkedVariable<float>	m_flRightShieldStrength;
 	CNetworkedVariable<float>	m_flRearShieldStrength;
+
+	float						m_flCurrentTurretYaw;
+	float						m_flGoalTurretYaw;
 
 	float						m_flStartedRock;
 	float						m_flRockIntensity;

@@ -168,10 +168,8 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	// CStructure
 	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("InstallUpdate", this, InstallUpdateCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("CancelInstall", this, CancelInstallCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("BeginUpgrade", this, BeginUpgradeCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("CancelUpgrade", this, CancelUpgradeCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("AddStructureUpdate", this, AddStructureUpdateCallback, 0);
 
 	// CSupplier
 	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
@@ -1199,6 +1197,9 @@ void CDigitanksGame::FireTanks()
 	{
 		CDigitank* pTank = pTeam->GetTank(i);
 
+		if (CBaseWeapon::IsWeaponPrimarySelectionOnly(pTank->GetCurrentWeapon()) && GetPrimarySelectionTank() != pTank)
+			continue;
+
 		if (pTank->GetCurrentWeapon() == WEAPON_CHARGERAM)
 		{
 			pTank->Charge();
@@ -1383,6 +1384,8 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 				pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * RemapValClamped(flDistanceSqr, flTotalRadius*flTotalRadius, flTotalRadius2*flTotalRadius2, flPushDistance, flPushDistance/2), 2);
 			}
+
+			pDigitank->SetGoalTurretYaw(atan2(-vecExplosion.z, -vecExplosion.x) * 180/M_PI - pDigitank->GetRenderAngles().y);
 		}
 
 		if (pEntity == pIgnore)
@@ -2100,9 +2103,6 @@ void CDigitanksGame::CompleteProductions()
 		{
 			if (pStructure->IsConstructing())
 				pStructure->AddProduction(pStructure->ConstructionCost());
-
-			if (pStructure->IsInstalling())
-				pStructure->AddProduction(pStructure->GetProductionToInstall()+10);
 
 			if (pStructure->IsUpgrading())
 				pStructure->AddProduction(pStructure->GetProductionToUpgrade()+10);

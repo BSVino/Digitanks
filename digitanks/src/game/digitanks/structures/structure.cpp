@@ -22,11 +22,6 @@ NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(bool, m_bConstructing);
 	NETVAR_DEFINE(size_t, m_iProductionToConstruct);
 
-	NETVAR_DEFINE(bool, m_bInstalling);
-	NETVAR_DEFINE(updatetype_t, m_eInstallingType);
-	NETVAR_DEFINE(int, m_iInstallingUpdate);
-	NETVAR_DEFINE(size_t, m_iProductionToInstall);
-
 	NETVAR_DEFINE(bool, m_bUpgrading);
 	NETVAR_DEFINE(size_t, m_iProductionToUpgrade);
 
@@ -45,10 +40,6 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bConstructing);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToConstruct);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bInstalling);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, updatetype_t, m_eInstallingType);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iInstallingUpdate);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToInstall);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bUpgrading);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToUpgrade);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplier>, m_hSupplier);
@@ -72,9 +63,6 @@ CStructure::CStructure()
 {
 	m_bConstructing = false;
 	m_iProductionToConstruct = 0;
-
-	m_bInstalling = false;
-	m_iProductionToInstall = 0;
 
 	m_bUpgrading = false;
 	m_iProductionToUpgrade = 0;
@@ -143,24 +131,6 @@ void CStructure::StartTurn()
 		if (GetTeam())
 			GetTeam()->RemoveEntity(this);
 		SetSupplier(NULL);
-	}
-
-	if (IsInstalling() && GetUpdateInstalling())
-	{
-		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToInstall())
-		{
-			DigitanksGame()->AppendTurnInfo(L"'" + GetUpdateInstalling()->GetName() + L"' finished installing on " + GetName());
-
-			InstallComplete();
-		}
-		else
-		{
-			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
-
-			eastl::string16 s;
-			s.sprintf((L"Installing '" + GetUpdateInstalling()->GetName() + L"' on " + GetName() + L" (%d turns left)").c_str(), GetTurnsToInstall());
-			DigitanksGame()->AppendTurnInfo(s);
-		}
 	}
 
 	if (IsUpgrading())
@@ -302,13 +272,6 @@ void CStructure::AddProduction(size_t iProduction)
 		else
 			m_iProductionToConstruct -= iProduction;
 	}
-	else if (IsInstalling())
-	{
-		if (iProduction > m_iProductionToInstall)
-			m_iProductionToInstall = 0;
-		else
-			m_iProductionToInstall -= iProduction;
-	}
 	else if (IsUpgrading())
 	{
 		if (iProduction > m_iProductionToUpgrade)
@@ -323,18 +286,12 @@ size_t CStructure::GetTurnsToConstruct(size_t iPower)
 	return (size_t)(iPower/GetDigitanksTeam()->GetProductionPerLoader())+1;
 }
 
-void CStructure::InstallUpdate(updatetype_t eUpdate)
+void CStructure::InstallUpdate(size_t x, size_t y)
 {
-	if (IsUpgrading())
-		return;
-
-	int iUninstalled = GetFirstUninstalledUpdate(eUpdate);
-	if (iUninstalled < 0)
-		return;
-
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
-	p.i2 = eUpdate;
+	p.ui2 = x;
+	p.ui3 = y;
 
 	if (CNetwork::IsHost())
 		InstallUpdate(&p);
@@ -344,26 +301,13 @@ void CStructure::InstallUpdate(updatetype_t eUpdate)
 
 void CStructure::InstallUpdate(CNetworkParameters* p)
 {
-	updatetype_t eUpdate = (updatetype_t)p->i2;
+	size_t x = p->ui2;
+	size_t y = p->ui3;
 
-	m_bInstalling = true;
+	CUpdateItem* pUpdate = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y];
 
-	int iUninstalled = GetFirstUninstalledUpdate(eUpdate);
-	m_eInstallingType = eUpdate;
-	m_iInstallingUpdate = iUninstalled;
-
-	m_iProductionToInstall = GetUpdate(eUpdate, iUninstalled)->m_iProductionToInstall;
-
-	GetDigitanksTeam()->CountProducers();
-}
-
-void CStructure::InstallComplete()
-{
-	m_bInstalling = false;
-
-	m_aiUpdatesInstalled[m_eInstallingType] = m_iInstallingUpdate+1;
-
-	CUpdateItem* pUpdate = GetUpdate(m_eInstallingType, m_iInstallingUpdate);
+	if (pUpdate->m_eStructure != GetUnitType())
+		return;
 
 	switch (pUpdate->m_eUpdateType)
 	{
@@ -387,79 +331,11 @@ void CStructure::InstallComplete()
 		m_flRechargeBonus += (float)pUpdate->m_flValue;
 		break;
 	}
-
-	DigitanksGame()->AddActionItem(this, ACTIONTYPE_INSTALLATION);
-}
-
-void CStructure::CancelInstall()
-{
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-
-	if (CNetwork::IsHost())
-		CancelInstall(&p);
-	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelInstall", &p);
-}
-
-void CStructure::CancelInstall(CNetworkParameters* p)
-{
-	m_bInstalling = false;
-
-	m_iProductionToInstall = 0;
-}
-
-size_t CStructure::GetTurnsToInstall(CUpdateItem* pItem)
-{
-	return (size_t)(pItem->m_iProductionToInstall/GetDigitanksTeam()->GetProductionPerLoader())+1;
-}
-
-size_t CStructure::GetTurnsToInstall()
-{
-	return (size_t)(m_iProductionToInstall/GetDigitanksTeam()->GetProductionPerLoader())+1;
-}
-
-int CStructure::GetFirstUninstalledUpdate(updatetype_t eUpdate)
-{
-	eastl::vector<CUpdateCoordinate>& aUpdates = m_aUpdates[eUpdate];
-	size_t iUpdatesInstalled = m_aiUpdatesInstalled[eUpdate];
-
-	if (iUpdatesInstalled >= aUpdates.size())
-		return -1;
-
-	if (aUpdates.size() == 0)
-		return -1;
-
-	return (int)iUpdatesInstalled;
-}
-
-CUpdateItem* CStructure::GetUpdateInstalling()
-{
-	if (m_aUpdates.find(m_eInstallingType) == m_aUpdates.end())
-		return NULL;
-
-	if (m_iInstallingUpdate >= (int)m_aUpdates[m_eInstallingType].size())
-		return NULL;
-
-	if (IsInstalling())
-		return GetUpdate(m_eInstallingType, m_iInstallingUpdate);
-
-	return NULL;
-}
-
-CUpdateItem* CStructure::GetUpdate(size_t iType, size_t iUpdate)
-{
-	CUpdateCoordinate* pCoordinates = &m_aUpdates[iType][iUpdate];
-
-	return &DigitanksGame()->GetUpdateGrid()->m_aUpdates[pCoordinates->x][pCoordinates->y];
 }
 
 void CStructure::DownloadComplete(size_t x, size_t y)
 {
 	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y];
-
-	if (IsConstructing())
-		return;
 
 	if (pItem->m_eStructure != GetUnitType())
 		return;
@@ -467,33 +343,12 @@ void CStructure::DownloadComplete(size_t x, size_t y)
 	if (pItem->m_eUpdateClass != UPDATECLASS_STRUCTUREUPDATE)
 		return;
 
-	m_aUpdates[pItem->m_eUpdateType].push_back(CUpdateCoordinate());
-	CUpdateCoordinate* pC = &m_aUpdates[pItem->m_eUpdateType][m_aUpdates[pItem->m_eUpdateType].size()-1];
-	pC->x = x;
-	pC->y = y;
-}
-
-size_t CStructure::GetUpdatesScore()
-{
-	size_t iScore = 0;
-	for (size_t i = 0; i < UPDATETYPE_SIZE; i++)
-	{
-		for (size_t j = 0; j < m_aUpdates[i].size(); j++)
-		{
-			if (m_aiUpdatesInstalled[i] > j)
-				iScore += GetUpdate(i, j)->m_iProductionToInstall;
-		}
-	}
-
-	return iScore;
+	InstallUpdate(x, y);
 }
 
 void CStructure::BeginUpgrade()
 {
 	if (!CanStructureUpgrade())
-		return;
-
-	if (IsInstalling())
 		return;
 
 	CNetworkParameters p;
@@ -551,13 +406,10 @@ size_t CStructure::GetTurnsToUpgrade()
 
 bool CStructure::NeedsOrders()
 {
-	if (IsUpgrading() || IsConstructing() || IsInstalling())
+	if (IsUpgrading() || IsConstructing())
 		return false;
 
 	if (CanStructureUpgrade())
-		return true;
-
-	if (HasUpdatesAvailable())
 		return true;
 
 	return BaseClass::NeedsOrders();
@@ -606,110 +458,15 @@ void CStructure::OnDeleted()
 void CStructure::ClientUpdate(int iClient)
 {
 	BaseClass::ClientUpdate(iClient);
-
-	for (eastl::map<size_t, eastl::vector<CUpdateCoordinate> >::iterator i = m_aUpdates.begin(); i != m_aUpdates.end(); i++)
-	{
-		CNetworkParameters p;
-		p.ui1 = GetHandle();
-		p.ui2 = i->first;
-		p.ui3 = i->second.size();
-		p.ui4 = m_aiUpdatesInstalled[i->first];
-		p.CreateExtraData(sizeof(size_t) * i->second.size() * 2);
-
-		size_t* pCoordinates = (size_t*)p.m_pExtraData;
-		for (size_t j = 0; j < i->second.size(); j++)
-		{
-			pCoordinates[j*2] = i->second[j].x;
-			pCoordinates[j*2+1] = i->second[j].y;
-		}
-
-		CNetwork::CallFunctionParameters(iClient, "AddStructureUpdate", &p);
-	}
-}
-
-void CStructure::AddStructureUpdate(CNetworkParameters* p)
-{
-	size_t iKey = p->ui2;
-	size_t iCoordinates = p->ui3;
-	size_t iInstalled = p->ui4;
-
-	m_aiUpdatesInstalled[iKey] = iInstalled;
-
-	m_aUpdates[iKey].clear();
-	for (size_t i = 0; i < iCoordinates; i++)
-	{
-		size_t* pCoordinates = (size_t*)p->m_pExtraData;
-		m_aUpdates[iKey].push_back(CUpdateCoordinate());
-		CUpdateCoordinate* pCoordinate = &m_aUpdates[iKey][m_aUpdates[iKey].size()-1];
-		pCoordinate->x = pCoordinates[i*2];
-		pCoordinate->y = pCoordinates[i*2+1];
-	}
 }
 
 void CStructure::OnSerialize(std::ostream& o)
 {
-	size_t iUpdates = m_aUpdates.size();
-	o.write((char*)&iUpdates, sizeof(iUpdates));
-
-	eastl::map<size_t, eastl::vector<CUpdateCoordinate> >::iterator it;
-	for (it = m_aUpdates.begin(); it != m_aUpdates.end(); it++)
-	{
-		iUpdates--;
-
-		size_t iCategory = it->first;
-		o.write((char*)&iCategory, sizeof(iCategory));
-
-		size_t iItemsInstalled = m_aiUpdatesInstalled[it->first];
-		o.write((char*)&iItemsInstalled, sizeof(iItemsInstalled));
-
-		size_t iItemsInCategory = it->second.size();
-		o.write((char*)&iItemsInCategory, sizeof(iItemsInCategory));
-
-		for (size_t k = 0; k < iItemsInCategory; k++)
-		{
-			size_t x = m_aUpdates[it->first][k].x;
-			size_t y = m_aUpdates[it->first][k].y;
-
-			o.write((char*)&x, sizeof(x));
-			o.write((char*)&y, sizeof(y));
-		}
-	}
-
-	assert(iUpdates == 0);
-
 	BaseClass::OnSerialize(o);
 }
 
 bool CStructure::OnUnserialize(std::istream& i)
 {
-	size_t iUpdates;
-	i.read((char*)&iUpdates, sizeof(iUpdates));
-
-	for (size_t j = 0; j < iUpdates; j++)
-	{
-		size_t iCategory;
-		i.read((char*)&iCategory, sizeof(iCategory));
-
-		size_t iItemsInstalled;
-		i.read((char*)&iItemsInstalled, sizeof(iItemsInstalled));
-		m_aiUpdatesInstalled[iCategory] = iItemsInstalled;
-
-		size_t iItemsInCategory;
-		i.read((char*)&iItemsInCategory, sizeof(iItemsInCategory));
-
-		for (size_t k = 0; k < iItemsInCategory; k++)
-		{
-			size_t x, y;
-			i.read((char*)&x, sizeof(x));
-			i.read((char*)&y, sizeof(y));
-
-			m_aUpdates[iCategory].push_back(CUpdateCoordinate());
-			CUpdateCoordinate* pC = &m_aUpdates[iCategory][m_aUpdates[iCategory].size()-1];
-			pC->x = x;
-			pC->y = y;
-		}
-	}
-
 	return BaseClass::OnUnserialize(i);
 }
 

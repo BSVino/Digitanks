@@ -19,8 +19,6 @@ public:
 	float			m_flValue;
 
 	size_t			m_iSize;
-
-	size_t			m_iProductionToInstall;
 };
 
 #define UPDATE_GRID_SIZE 30

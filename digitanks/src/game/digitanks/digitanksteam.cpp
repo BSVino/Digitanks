@@ -339,6 +339,8 @@ void CDigitanksTeam::StartTurn()
 
 	if (DigitanksGame()->GetTurn() == 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
 		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+
+	DigitanksWindow()->GetHUD()->Layout();
 }
 
 void CDigitanksTeam::EndTurn()
@@ -387,7 +389,7 @@ void CDigitanksTeam::CountProducers()
 		if (pStructure && pStructure->IsConstructing())
 			AddProducer();
 
-		if (pStructure && (pStructure->IsInstalling() || pStructure->IsUpgrading()))
+		if (pStructure && (pStructure->IsUpgrading()))
 			AddProducer();
 
 		if (pStructure && pStructure->Power())
@@ -477,7 +479,6 @@ void CDigitanksTeam::CountScore()
 		if (pStructure && !pStructure->IsConstructing())
 		{
 			m_iScore += pStructure->ConstructionCost();
-			m_iScore += pStructure->GetUpdatesScore();
 		}
 	}
 }

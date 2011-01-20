@@ -15,11 +15,11 @@ public:
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
-	virtual bool				HasUpdatesAvailable();
-
-	virtual size_t				InitialDataStrength() { return 350; };
+	virtual size_t				InitialDataStrength() { return 400; };
 	virtual size_t				InitialFleetPoints() const { return 2; };
 	virtual size_t				InitialBandwidth() const { return 0; };
+	virtual size_t				InitialEnergyBonus() const { return 2; };
+	virtual float				InitialRechargeBonus() const { return 1.0f; };
 	virtual float				TotalHealth() const { return 25; };
 
 	virtual eastl::string16		GetName() { return L"Buffer"; };
@@ -46,8 +46,6 @@ public:
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
-	virtual bool				HasUpdatesAvailable() { return false; };
-
 	virtual bool				CanStructureUpgrade();
 	virtual void				UpgradeComplete();
 
@@ -55,6 +53,8 @@ public:
 	virtual size_t				InitialDataStrength() { return 250; };
 	virtual size_t				InitialFleetPoints() const { return 1; };
 	virtual size_t				InitialBandwidth() const { return 0; };
+	virtual size_t				InitialEnergyBonus() const { return 1; };
+	virtual float				InitialRechargeBonus() const { return 0.5f; };
 	virtual float				TotalHealth() const { return 15; };
 
 	virtual eastl::string16		GetName() { return L"Mini-Buffer"; };

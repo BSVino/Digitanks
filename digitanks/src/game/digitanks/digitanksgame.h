@@ -32,7 +32,6 @@ typedef enum
 	ACTIONTYPE_UNITAUTOMOVE,
 	ACTIONTYPE_UNITORDERS,
 	ACTIONTYPE_CONSTRUCTION,
-	ACTIONTYPE_INSTALLATION,
 	ACTIONTYPE_UPGRADE,
 	ACTIONTYPE_UNITREADY,
 	ACTIONTYPE_DOWNLOADUPDATES,
@@ -197,10 +196,8 @@ public:
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginStructureConstruction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, InstallUpdate);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, CancelInstall);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginUpgrade);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, CancelUpgrade);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, AddStructureUpdate);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, AddChild);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, RemoveChild);
