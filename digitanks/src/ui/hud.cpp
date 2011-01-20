@@ -1071,6 +1071,38 @@ void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, in
 		sh = 100;
 		return;
 	}
+	else if (eUnit == STRUCTURE_INFANTRYLOADER)
+	{
+		sx = 400;
+		sy = 0;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_TANKLOADER)
+	{
+		sx = 400;
+		sy = 100;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_ARTILLERYLOADER)
+	{
+		sx = 400;
+		sy = 200;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == STRUCTURE_CPU)
+	{
+		sx = 000;
+		sy = 100;
+		sw = 100;
+		sh = 100;
+		return;
+	}
 	else
 	{
 		sx = 0;
