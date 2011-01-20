@@ -34,10 +34,12 @@ public:
 	void							Think();
 
 	bool							GetBit(int x, int y, terrainbit_t b);
+	void							SetBit(int x, int y, terrainbit_t b, bool v);
 
 protected:
 	float							m_aflHeights[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 	float							m_aflLava[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
+	bool							m_abDontSimulate[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 	class raytrace::CRaytracer*		m_pTracer;
 
 	// A bit field

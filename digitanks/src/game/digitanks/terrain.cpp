@@ -132,7 +132,7 @@ void CTerrain::Think()
 
 		pChunk->Think();
 
-		m_flNextThink = GameServer()->GetGameTime() + 0.1f;
+		m_flNextThink = GameServer()->GetGameTime() + 0.03f;
 	}
 }
 
@@ -2203,6 +2203,7 @@ CTerrainChunk::CTerrainChunk()
 
 	memset(m_aiSpecialData, 0, sizeof(m_aiSpecialData));
 	memset(m_aflTerrainVisibility, 0, sizeof(m_aflTerrainVisibility));
+	memset(m_abDontSimulate, 0, sizeof(m_abDontSimulate));
 }
 
 CTerrainChunk::~CTerrainChunk()
@@ -2223,6 +2224,13 @@ void CTerrainChunk::Think()
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNK_SIZE; j++)
 		{
+			// Prevent a cascade of lava flow in one direction.
+			if (m_abDontSimulate[i][j])
+			{
+				m_abDontSimulate[i][j] = false;
+				continue;
+			}
+
 			if (m_aflLava[i][j] > 0)
 			{
 				// Flow into all lower neighboring squares.
@@ -2268,7 +2276,8 @@ void CTerrainChunk::Think()
 							pChunk->m_bNeedsRegenerate = true;
 
 						pChunk->m_aflLava[k][l] = flLava;
-						DigitanksGame()->GetTerrain()->SetBit(m, n, TB_LAVA, true);
+						pChunk->SetBit(k, l, TB_LAVA, true);
+						pChunk->m_abDontSimulate[k][l] = true;
 					}
 				}
 			}
@@ -2281,6 +2290,14 @@ void CTerrainChunk::Think()
 bool CTerrainChunk::GetBit(int x, int y, terrainbit_t b)
 {
 	return !!(m_aiSpecialData[x][y] & b);
+}
+
+void CTerrainChunk::SetBit(int x, int y, terrainbit_t b, bool v)
+{
+	if (v)
+		m_aiSpecialData[x][y] |= b;
+	else
+		m_aiSpecialData[x][y] &= ~b;
 }
 
 CQuadBranch::CQuadBranch(CTerrain* pTerrain, CQuadBranch* pParent, CQuadVector vecMin, CQuadVector vecMax)
