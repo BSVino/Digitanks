@@ -259,7 +259,8 @@ void CTerrain::GenerateTerrain(float flHeight)
 			{
 				float flLava = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].r())/255;
 				SetBit(x, y, TB_LAVA, flLava > 0.5f);
-				pChunk->m_aflLava[i][j] = 1.0f;
+				if (flLava > 0.5)
+					pChunk->m_aflLava[i][j] = 1.0f;
 
 				float flTree = (float)(pclrTerrainData[x*TERRAIN_SIZE+y].g())/255;
 				SetBit(x, y, TB_TREE, flTree > 0.5f);
@@ -2240,6 +2241,9 @@ void CTerrainChunk::Think()
 						if (n < 0 || n >= TERRAIN_SIZE)
 							continue;
 
+						if (m == 0 && n == 0)
+							continue;
+
 						float flDestinationHeight = DigitanksGame()->GetTerrain()->GetRealHeight(m, n);
 
 						if (flDestinationHeight > flSourceHeight)
@@ -2249,16 +2253,22 @@ void CTerrainChunk::Think()
 						int k, l;
 						CTerrainChunk* pChunk = DigitanksGame()->GetTerrain()->GetChunk(CTerrain::ArrayToChunkSpace(m, k), CTerrain::ArrayToChunkSpace(n, l));
 
-						float flLava = m_aflLava[i][j] - 0.125f;
+						float flLava = m_aflLava[i][j] - 0.125f;	// Flow eight squares over flat ground.
+
+						// Flowing downhill can increase the flow.
+						float flAddLava = flSourceHeight - flDestinationHeight;
+						flLava += flAddLava;
+						if (flLava > 1)
+							flLava = 1;
+
+						if (pChunk->m_aflLava[k][l] >= flLava)
+							continue;
 
 						if (pChunk->m_aflLava[k][l] <= 0 && flLava > 0.0f)
 							pChunk->m_bNeedsRegenerate = true;
 
-						if (pChunk->m_aflLava[k][l] < flLava)
-						{
-							pChunk->m_aflLava[k][l] = flLava;
-							DigitanksGame()->GetTerrain()->SetBit(m, n, TB_LAVA, true);
-						}
+						pChunk->m_aflLava[k][l] = flLava;
+						DigitanksGame()->GetTerrain()->SetBit(m, n, TB_LAVA, true);
 					}
 				}
 			}
