@@ -388,7 +388,7 @@ void CTutorialsPanel::BasesHintCallback()
 
 void CTutorialsPanel::UnitsHintCallback()
 {
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn the special units. In this tutorial you'll learn how to use the Mechanized Infantry, Artillery and Rogues to their highest effectiveness. It's a good idea to play through this tutorial before beginning Strategy mode.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn the special units. In this tutorial you'll learn how to use the Resistors, Artillery and Rogues to their highest effectiveness. It's a good idea to play through this tutorial before beginning Strategy mode.");
 }
 
 CGamesPanel::CGamesPanel()

@@ -26,9 +26,6 @@ void CMainBattleTank::Spawn()
 	m_aeWeapons.push_back(PROJECTILE_SMALL);
 	m_aeWeapons.push_back(PROJECTILE_MEDIUM);
 	m_aeWeapons.push_back(PROJECTILE_LARGE);
-	m_aeWeapons.push_back(PROJECTILE_AOE);
-	m_aeWeapons.push_back(PROJECTILE_CLUSTERBOMB);
-	m_aeWeapons.push_back(PROJECTILE_SPLOOGE);
 
 	m_eWeapon = PROJECTILE_SMALL;
 }

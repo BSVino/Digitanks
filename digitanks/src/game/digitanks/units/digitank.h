@@ -193,6 +193,13 @@ public:
 	void						Charge();
 	void						Charge(class CNetworkParameters* p);
 
+	void						GiveCloak() { m_bHasCloak = true; }
+	bool						HasCloak() { return m_bHasCloak; }
+	bool						IsCloaked() const { return m_bCloaked.Get(); }
+	void						Cloak();
+	void						Uncloak();
+	virtual float				GetCloakConcealment() const;
+
 	virtual bool				MovesWith(CDigitank* pOther) const;
 	virtual bool				TurnsWith(CDigitank* pOther) const;
 	virtual bool				AimsWith(CDigitank* pOther) const;
@@ -271,6 +278,8 @@ public:
 	void						PromoteAttack(class CNetworkParameters* p);
 	void						PromoteDefense(class CNetworkParameters* p);
 	void						PromoteMovement(class CNetworkParameters* p);
+
+	virtual void				DownloadComplete(size_t x, size_t y);
 
 	void						Speak(size_t iSpeech);
 	void						Speak(class CNetworkParameters* p);
@@ -375,6 +384,9 @@ protected:
 	float						m_flBeginCharge;
 	float						m_flEndCharge;
 	CEntityHandle<CBaseEntity>	m_hChargeTarget;
+
+	CNetworkedVariable<bool>	m_bHasCloak;
+	CNetworkedVariable<bool>	m_bCloaked;
 
 	CNetworkedVariable<bool>	m_bGoalMovePosition;
 	CNetworkedVector			m_vecGoalMovePosition;

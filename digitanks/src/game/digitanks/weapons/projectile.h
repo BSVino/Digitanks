@@ -246,12 +246,59 @@ class CArtilleryShell : public CProjectile
 
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY; }
+	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual float				ShieldDamageScale() { return 2; };
+	virtual float				HealthDamageScale() { return 0.5f; };
+	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
+	virtual bool				UsesSpecialCommand() { return false; };
+};
+
+class CArtilleryAoE : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CArtilleryAoE, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY_AOE; }
 	virtual float				ExplosionRadius() { return 12.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
+	virtual bool				UsesSpecialCommand() { return false; };
+};
+
+class CArtilleryICBM : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CArtilleryICBM, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY_ICBM; }
+	virtual float				ExplosionRadius() { return 8.0f; };
+	virtual bool				CreatesCraters() { return false; };
+	virtual float				ShieldDamageScale() { return 2; };
+	virtual float				HealthDamageScale() { return 0.5f; };
+	virtual float				PushDistance() { return 0.0f; };
+	virtual float				RockIntensity() { return 0.0f; };
+	virtual size_t				Fragments() { return 4; };
+	virtual bool				UsesSpecialCommand() { return false; };
+};
+
+class CDevastator : public CProjectile
+{
+	REGISTER_ENTITY_CLASS(CDevastator, CProjectile);
+
+public:
+	virtual weapon_t			GetWeaponType() { return PROJECTILE_DEVASTATOR; }
+	virtual float				ExplosionRadius() { return 24.0f; };
+	virtual bool				CreatesCraters() { return true; };
+	virtual float				ShieldDamageScale() { return 2; };
+	virtual float				HealthDamageScale() { return 1; };
+	virtual float				PushDistance() { return 1.0f; };
+	virtual float				RockIntensity() { return 1.0f; };
+	virtual bool				UsesSpecialCommand() { return false; };
 };
 
 class CInfantryFlak : public CProjectile

@@ -102,9 +102,9 @@ void CLoader::StartTurn()
 		if (m_iProductionStored > DigitanksGame()->GetConstructionCost(GetBuildUnit()))
 		{
 			if (GetBuildUnit() == UNIT_INFANTRY)
-				DigitanksGame()->AppendTurnInfo(L"Production finished on Mechanized Infantry");
+				DigitanksGame()->AppendTurnInfo(L"Production finished on Resistor");
 			else if (GetBuildUnit() == UNIT_TANK)
-				DigitanksGame()->AppendTurnInfo(L"Production finished on Main Battle Tank");
+				DigitanksGame()->AppendTurnInfo(L"Production finished on Digitank");
 			else if (GetBuildUnit() == UNIT_ARTILLERY)
 				DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
@@ -146,6 +146,15 @@ void CLoader::StartTurn()
 				pTank->SetTotalHealth(pTank->GetTotalHealth()+m_iTankHealth);
 				pTank->AddRangeBonus((float)m_iTankRange);
 
+				for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+				{
+					for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+					{
+						if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+							pTank->DownloadComplete(x, y);
+					}
+				}
+
 				m_bProducing = false;
 
 				pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
@@ -163,9 +172,9 @@ void CLoader::StartTurn()
 		{
 			eastl::string16 s;
 			if (GetBuildUnit() == UNIT_INFANTRY)
-				s.sprintf(L"Producing Mechanized Infantry (%d turns left)", GetTurnsToProduce());
+				s.sprintf(L"Producing Resistor (%d turns left)", GetTurnsToProduce());
 			else if (GetBuildUnit() == UNIT_TANK)
-				s.sprintf(L"Producing Main Battle Tank (%d turns left)", GetTurnsToProduce());
+				s.sprintf(L"Producing Digitank (%d turns left)", GetTurnsToProduce());
 			else if (GetBuildUnit() == UNIT_ARTILLERY)
 				s.sprintf(L"Producing Artillery (%d turns left)", GetTurnsToProduce());
 			DigitanksGame()->AppendTurnInfo(s);
@@ -218,14 +227,14 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 		if (GetBuildUnit() == UNIT_INFANTRY)
 		{
 			pHUD->SetButtonTexture(0, s_iBuildInfantryIcon);
-			s += L"BUILD MECHANIZED INFANTRY\n \n";
-			s += L"Mechanized infantry can fortify, gaining defense and attack energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
+			s += L"BUILD RESISTOR\n \n";
+			s += L"Resistors can fortify, gaining defense and attack energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
 		}
 		else if (GetBuildUnit() == UNIT_TANK)
 		{
 			pHUD->SetButtonTexture(0, s_iBuildTankIcon);
-			s += L"BUILD MAIN BATTLE TANK\n \n";
-			s += L"Main Battle Tanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
+			s += L"BUILD DIGITANK\n \n";
+			s += L"Digitanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
 		}
 		else
 		{
@@ -420,9 +429,9 @@ void CLoader::UpdateInfo(eastl::string16& s)
 	eastl::string16 p;
 
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		s += L"MECH. INFANTRY LOADER\n";
+		s += L"RESISTOR LOADER\n";
 	else if (GetBuildUnit() == UNIT_TANK)
-		s += L"MAIN BATTLE TANK LOADER\n";
+		s += L"DIGITANK LOADER\n";
 	else
 		s += L"ARTILLERY LOADER\n";
 
@@ -455,9 +464,9 @@ void CLoader::UpdateInfo(eastl::string16& s)
 eastl::string16 CLoader::GetName()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		return L"Mechanized Infantry Loader";
+		return L"Resistor Loader";
 	else if (GetBuildUnit() == UNIT_TANK)
-		return L"Main Battle Tank Loader";
+		return L"Digitank Loader";
 	else
 		return L"Artillery Loader";
 }

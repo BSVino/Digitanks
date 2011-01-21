@@ -199,6 +199,10 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 			flConceal = 0.7f;
 	}
 
+	float flCloak = GetCloakConcealment();
+	if (flCloak > flConceal)
+		flConceal = flCloak;
+
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 		return 1 - flConceal;
 

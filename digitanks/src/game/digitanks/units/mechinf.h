@@ -17,7 +17,7 @@ public:
 
 	virtual void				PostRender(bool bTransparent);
 
-	virtual eastl::string16		GetName() { return L"Mechanized Infantry"; };
+	virtual eastl::string16		GetName() { return L"Resistor"; };
 
 	virtual float				RenderShieldScale() { return 2.0f; };
 

@@ -228,6 +228,7 @@ public:
 	EVENT_CALLBACK(CHUD, CancelBuildScout);
 	EVENT_CALLBACK(CHUD, BeginUpgrade);
 	EVENT_CALLBACK(CHUD, CancelUpgrade);
+	EVENT_CALLBACK(CHUD, Cloak);
 	EVENT_CALLBACK(CHUD, ChooseWeapon);
 	EVENT_CALLBACK(CHUD, ChooseWeapon0);
 	EVENT_CALLBACK(CHUD, ChooseWeapon1);

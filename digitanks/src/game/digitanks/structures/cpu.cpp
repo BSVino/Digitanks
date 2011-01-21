@@ -118,8 +118,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			eastl::string16 s;
-			s += L"BUILD INFANTRY LOADER\n \n";
-			s += L"This program lets you build Mechanized Infantry, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
+			s += L"BUILD RESISTOR LOADER\n \n";
+			s += L"This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER)));
 			s += L"Shortcut: Q";
@@ -133,8 +133,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			eastl::string16 s;
-			s += L"BUILD MAIN BATTLE TANK LOADER\n \n";
-			s += L"This program lets you build Main Battle Tanks, the primary assault force in your fleet.\n \n";
+			s += L"BUILD DIGITANK LOADER\n \n";
+			s += L"This program lets you build Digitanks, the primary assault force in your fleet.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
 			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER)));
 			s += L"Shortcut: W";
@@ -559,6 +559,15 @@ void CCPU::StartTurn()
 				CDigitank* pTank = GameServer()->Create<CScout>("CScout");
 				pTank->SetOrigin(GetOrigin());
 				GetTeam()->AddEntity(pTank);
+
+				for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+				{
+					for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+					{
+						if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+							pTank->DownloadComplete(x, y);
+					}
+				}
 
 				// All of these StartTurn calls will probably cause problems later but for now they're
 				// the only way to refresh the tank's energy so it has enough to leave the loader.

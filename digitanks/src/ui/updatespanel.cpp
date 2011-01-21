@@ -128,31 +128,66 @@ void CUpdatesPanel::Layout()
 
 			if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTURE)
 			{
+				Color clrButton = Color(50, 50, 255);
+				if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_TANKLOADER)
+					clrButton = Color(255, 255, 50);
+				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_ARTILLERYLOADER)
+					clrButton = Color(255, 255, 50);
+
 				if (bAlreadyDownloaded)
-					pUpdate->SetButtonColor(Color(250/2, 100/2, 100/2));
+					pUpdate->SetButtonColor(Color(clrButton.r()/2, clrButton.g()/2, clrButton.b()/2));
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(250/10, 100/10, 100/10));
+					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
 					pUpdate->SetAlpha(200/6);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(250/3, 100/3, 100/3));
+					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
 					pUpdate->SetAlpha(200*2/3);
 				}
 			}
 			else if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 			{
+				Color clrButton = Color(200, 200, 200);
+				if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_CPU)
+					clrButton = Color(200, 200, 200);
+				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_INFANTRYLOADER)
+					clrButton = Color(200, 200, 150);
+				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_TANKLOADER)
+					clrButton = Color(200, 200, 150);
+				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_ARTILLERYLOADER)
+					clrButton = Color(200, 200, 150);
+				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_BUFFER)
+					clrButton = Color(150, 150, 200);
+
 				if (bAlreadyDownloaded)
-					pUpdate->SetButtonColor(Color(200/2, 200/2, 200/2));
+					pUpdate->SetButtonColor(Color(clrButton.r()/2, clrButton.g()/2, clrButton.b()/2));
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(200/10, 200/10, 200/10));
+					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
 					pUpdate->SetAlpha(200/6);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(200/3, 200/3, 200/3));
+					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
+					pUpdate->SetAlpha(200*2/3);
+				}
+			}
+			else if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_UNITSKILL)
+			{
+				Color clrButton = Color(200, 0, 0);
+
+				if (bAlreadyDownloaded)
+					pUpdate->SetButtonColor(Color(clrButton.r()/2, clrButton.g()/2, clrButton.b()/2));
+				else if (!bCanDownload)
+				{
+					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
+					pUpdate->SetAlpha(200/6);
+				}
+				else
+				{
+					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
 					pUpdate->SetAlpha(200*2/3);
 				}
 			}

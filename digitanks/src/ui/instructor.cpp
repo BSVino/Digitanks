@@ -145,13 +145,13 @@ void CInstructor::Initialize()
 		L"Welcome to Digitanks!\n \nThis tutorial will help you learn the individual units. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INFANTRY, new CTutorial(this, TUTORIAL_INFANTRY, POSITION_TOPCENTER, 250, true,
-		L"MECHANIZED INFANTRY\n \nThis unit is a Mechanized Infantry. They are a mobile support and defense platform. They have powerful shields in the front but little protection from attacks to the rear.\n \nClick here to continue.")));
+		L"RESISTOR\n \nThis unit is a Resistor. They are a mobile support and defense platform. They have powerful shields in the front but little protection from attacks to the rear.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING, new CTutorial(this, TUTORIAL_FORTIFYING, POSITION_TOPCENTER, 250, true,
-		L"FORTIFYING\n \nInfantry can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and defense energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
+		L"FORTIFYING\n \nResistors can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and defense energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING2, new CTutorial(this, TUTORIAL_FORTIFYING2, POSITION_TOPCENTER, 250, true,
-		L"FORTIFYING\n \nGreat! That energy wall is incredibly strong and regenerates faster when the unit is fortified. Fortified units can't rotate, but if you position them well they won't need to. Infantry also get bonuses to their attack when they're fortified.\n \nClick here to continue.")));
+		L"FORTIFYING\n \nGreat! That energy wall is incredibly strong and regenerates faster when the unit is fortified. Fortified units can't rotate, but if you position them well they won't need to. Resistors also get bonuses to their attack when they're fortified.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ARTILLERY, new CTutorial(this, TUTORIAL_ARTILLERY, POSITION_TOPCENTER, 250, true,
 		L"ARTILLERY\n \nArtillery are a long-range support unit. They are best used to soften up enemy positions before moving in with your tanks. However, they must be deployed before you can use them.\n \nClick here to continue.")));
@@ -166,7 +166,7 @@ void CInstructor::Initialize()
 		L"ATTACK!\n \nNow that your artillery is ready to fire, you'll notice it has an incredible range. It has some drawbacks though, the cone of fire is limited. Also, artillery can't see into the fog of war and will need spotters. You have been given a spotter to help you see your target.\n \nPress the 'Fire' button and right click on the red tank to fire.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ARTILLERY_SHIELDS, new CTutorial(this, TUTORIAL_ARTILLERY_SHIELDS, POSITION_TOPLEFT, 250, true,
-		L"SHELLING SHIELDS\n \nArtillery are great for shelling enemy tanks and infantry positions, but while their EMP shells are extremely effective against shields, they are rather weak against tank hulls and structures. After the enemy shields are down it's time to move in with your tanks.\n \nClick here to continue.")));
+		L"SHELLING SHIELDS\n \nArtillery are great for shelling enemy tanks and Resistor positions, but while their EMP shells are extremely effective against shields, they are rather weak against tank hulls and structures. After the enemy shields are down it's time to move in with your tanks.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ROGUE, new CTutorial(this, TUTORIAL_ROGUE, POSITION_TOPCENTER, 250, true,
 		L"THE ROGUE\n \nThe Rogue is a light reconnaissance unit. It lacks shields and can't do any damage to other units. However, its torpedo attack can be a dangerous threat to enemies.\n \nClick here to continue.")));

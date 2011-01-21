@@ -92,6 +92,9 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE(Vector, m_vecLastAim);
 
+	NETVAR_DEFINE_CALLBACK(bool, m_bHasCloak, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE(bool, m_bCloaked);
+
 	NETVAR_DEFINE_CALLBACK(bool, m_bGoalMovePosition, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(Vector, m_vecGoalMovePosition);
 
@@ -140,6 +143,8 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBeginCharge);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flEndCharge);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CBaseEntity>, m_hChargeTarget);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHasCloak);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCloaked);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
@@ -1394,6 +1399,28 @@ void CDigitank::Charge(class CNetworkParameters* p)
 	m_flBeginCharge = GameServer()->GetGameTime() + GetTransitionTime();
 }
 
+void CDigitank::Cloak()
+{
+	m_bCloaked = true;
+
+	DigitanksWindow()->GetHUD()->Layout();
+}
+
+void CDigitank::Uncloak()
+{
+	m_bCloaked = false;
+
+	DigitanksWindow()->GetHUD()->Layout();
+}
+
+float CDigitank::GetCloakConcealment() const
+{
+	if (IsCloaked())
+		return 0.5f;
+
+	return 0;
+}
+
 bool CDigitank::MovesWith(CDigitank* pOther) const
 {
 	if (!pOther)
@@ -1893,7 +1920,18 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 		}
 
-		if (GetNumWeapons())
+		if (HasCloak() && !HasFiredWeapon())
+		{
+			pHUD->SetButtonTexture(6, 0);
+			if (IsCloaked())
+				pHUD->SetButtonInfo(6, L"DEACTIVATE CLOAKING DEVICE\n \nClick to turn off this tank's cloaking device.\n \nShortcut: S");
+			else
+				pHUD->SetButtonInfo(6, L"ACTIVATE CLOAKING DEVICE\n \nThis tank has a cloaking device available. Click to activate it.\n \nShortcut: S");
+			pHUD->SetButtonListener(6, CHUD::Cloak);
+			pHUD->SetButtonColor(6, Color(0, 0, 150));
+		}
+
+		if (GetNumWeapons() > 1)
 		{
 			pHUD->SetButtonTexture(7, 0);
 			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
@@ -2208,6 +2246,12 @@ CBaseWeapon* CDigitank::CreateWeapon()
 {
 	if (GetCurrentWeapon() == PROJECTILE_ARTILLERY)
 		return GameServer()->Create<CArtilleryShell>("CArtilleryShell");
+	else if (GetCurrentWeapon() == PROJECTILE_ARTILLERY_AOE)
+		return GameServer()->Create<CArtilleryAoE>("CArtilleryAoE");
+	else if (GetCurrentWeapon() == PROJECTILE_ARTILLERY_ICBM)
+		return GameServer()->Create<CArtilleryICBM>("CArtilleryICBM");
+	else if (GetCurrentWeapon() == PROJECTILE_DEVASTATOR)
+		return GameServer()->Create<CDevastator>("CDevastator");
 	else if (GetCurrentWeapon() == PROJECTILE_FLAK)
 		return GameServer()->Create<CInfantryFlak>("CInfantryFlak");
 	else if (GetCurrentWeapon() == PROJECTILE_TREECUTTER)
@@ -2979,6 +3023,42 @@ void CDigitank::PromoteMovement()
 		Speak(TANKSPEECH_PROMOTED);
 		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
+}
+
+void CDigitank::DownloadComplete(size_t x, size_t y)
+{
+	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y];
+
+	if (pItem->m_eStructure != GetUnitType())
+		return;
+
+	if (pItem->m_eUpdateClass != UPDATECLASS_UNITSKILL)
+		return;
+
+	if (pItem->m_eUpdateType == UPDATETYPE_SKILL_CLOAK)
+		GiveCloak();
+	else if (pItem->m_eUpdateType == UPDATETYPE_WEAPON_AOE)
+	{
+		if (pItem->m_eStructure == UNIT_TANK)
+			m_aeWeapons.push_back(PROJECTILE_AOE);
+		else if (pItem->m_eStructure == UNIT_ARTILLERY)
+			m_aeWeapons.push_back(PROJECTILE_ARTILLERY_AOE);
+	}
+	else if (pItem->m_eUpdateType == UPDATETYPE_WEAPON_ICBM)
+	{
+		if (pItem->m_eStructure == UNIT_TANK)
+			m_aeWeapons.push_back(PROJECTILE_ICBM);
+		else if (pItem->m_eStructure == UNIT_ARTILLERY)
+			m_aeWeapons.push_back(PROJECTILE_ARTILLERY_ICBM);
+	}
+	else if (pItem->m_eUpdateType == UPDATETYPE_WEAPON_CHARGERAM)
+		m_aeWeapons.push_back(WEAPON_CHARGERAM);
+	else if (pItem->m_eUpdateType == UPDATETYPE_WEAPON_CLUSTER)
+		m_aeWeapons.push_back(PROJECTILE_CLUSTERBOMB);
+	else if (pItem->m_eUpdateType == UPDATETYPE_WEAPON_DEVASTATOR)
+		m_aeWeapons.push_back(PROJECTILE_DEVASTATOR);
+
+	DigitanksWindow()->GetHUD()->Layout();
 }
 
 void CDigitank::SetBonusPoints(class CNetworkParameters* p)

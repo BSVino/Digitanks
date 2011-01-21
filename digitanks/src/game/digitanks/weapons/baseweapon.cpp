@@ -112,7 +112,10 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	3.0f,	// treecutter
 	7.0f,	// laser
 	3.0f,	// torpedo
-	8.0f,	// artillery
+	3.0f,	// artillery
+	5.0f,	// artillery aoe
+	7.0f,	// artillery icbm
+	9.0f,	// artillery devastator
 
 	7.0f,	// camera guided missile
 	7.0f,	// laser
@@ -144,7 +147,10 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	1.0f,	// tree cutter
 	5.0f,	// laser
 	0.0f,	// torpedo
-	1.3f,	// artillery
+	1.5f,	// artillery
+	2.5f,	// artillery aoe
+	7.0f,	// artillery icbm
+	9.0f,	// artillery devastator
 
 	5.0f,	// camera guided missile
 	5.0f,	// laser
@@ -177,6 +183,10 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 	1,	// laser
 	1,	// torpedo
 	3,	// artillery
+	3,	// artillery aoe
+	3,	// artillery icbm
+	1,	// artillery devastator
+
 
 	1,	// camera guided missile
 	1,	// laser
@@ -209,6 +219,10 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0,		// laser
 	0,		// torpedo
 	0.25f,	// artillery
+	0.25f,	// artillery aoe
+	0.25f,	// artillery icbm
+	0,		// artillery devastator
+
 
 	0,		// camera guided missile
 	0,		// laser
@@ -241,6 +255,9 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Laser",
 	L"Torpedo",
 	L"Artillery Shell",
+	L"Artillery Plasma Charge",
+	L"Artillery ICBM",
+	L"The Devastator",
 
 	L"Camera-Guided Missile",
 	L"Laser",
@@ -272,7 +289,10 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This special weapon can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
 	L"This weapon emits a wall of lasers in one direction. It can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
 	L"This special attack targets supply lines. It does no damage but it can sever structures from the enemy network and force them to become neutral.",
-	L"The artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
+	L"The Artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
+	L"These charges are similar to the standard shells but have a large radius and pack a larger whallop.",
+	L"The Artillery ICBM fragments into many pieces before raining chaos and destruction down on your foes.",
+	L"The Devastor is the ultimate weapon of destruction.",
 
 	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first person.",
 	L"This weapon emits a wall of lasers in one direction. Great for hitting multiple tanks in a line. This weapon also has no range limitations.",

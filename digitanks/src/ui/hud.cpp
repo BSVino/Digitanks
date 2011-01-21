@@ -1840,7 +1840,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		m_pActionItem->SetText(
 			"WELCOME TO DIGITANKS\n \n"
 			"This is the 'Action Items' window. It will help guide you through the tasks you need to complete each turn.\n \n"
-			"First you need to begin building your base. Select your CPU and choose a construction option. You can also explore with your mechanized infantry, or fortify them to gain defensive bonuses.\n \n"
+			"First you need to begin building your base. Deploy your MCP to create a CPU. You can also explore with your Rogue.\n \n"
 			"When you're done, press the 'End Turn' button to continue.\n");
 		break;
 
@@ -2673,6 +2673,22 @@ void CHUD::CancelUpgradeCallback()
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
+}
+
+void CHUD::CloakCallback()
+{
+	CDigitank* pDigitank = DigitanksGame()->GetPrimarySelectionTank();
+
+	if (!pDigitank)
+		return;
+
+	if (!pDigitank->HasCloak())
+		return;
+
+	if (pDigitank->IsCloaked())
+		pDigitank->Uncloak();
+	else
+		pDigitank->Cloak();
 }
 
 void CHUD::ChooseWeaponCallback()

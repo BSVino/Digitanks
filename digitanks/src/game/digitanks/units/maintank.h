@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual eastl::string16		GetName() { return L"Main Battle Tank"; };
+	virtual eastl::string16		GetName() { return L"Digitank"; };
 
 	virtual float				RenderShieldScale() { return 1.3f; };
 

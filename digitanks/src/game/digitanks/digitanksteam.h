@@ -70,7 +70,7 @@ public:
 
 	void						CalculateVisibility();
 	float						GetEntityVisibility(size_t iHandle);
-	float						GetVisibilityAtPoint(Vector vecPoint);
+	float						GetVisibilityAtPoint(Vector vecPoint, bool bCloak = false);
 
 	void						DownloadUpdate(int iX, int iY, bool bCheck = true);
 	void						DownloadUpdate(class CNetworkParameters* p);

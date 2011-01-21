@@ -26,6 +26,7 @@ public:
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;
 	virtual bool					GetsConcealmentBonus() const { return true; };
+	virtual float					GetCloakConcealment() const { return 0; };
 	virtual float					VisibleRange() const;
 
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);

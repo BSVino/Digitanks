@@ -175,7 +175,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 		}
 
 		// Too damn far? Do a random buffer instead.
-		if (pTargetResource->GetVisibility() < 0.1f && (pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
+		if (pTargetResource->GetVisibility(this) < 0.1f && (pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
 			iNextBuild = STRUCTURE_BUFFER;
 	}
 
@@ -564,7 +564,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			continue;
 		}
 
-		float flTargetVisibility = pDTEntity->GetVisibility();
+		float flTargetVisibility = pDTEntity->GetVisibility(this);
 		if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 			continue;
 
@@ -1074,7 +1074,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			if (!pTank->IsInsideMaxRange(pEntity->GetOrigin()))
 				continue;
 
-			float flTargetVisibility = pTank->GetVisibility();
+			float flTargetVisibility = pTank->GetVisibility(this);
 			if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 				continue;
 
