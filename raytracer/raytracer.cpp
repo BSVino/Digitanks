@@ -16,10 +16,12 @@ using namespace raytrace;
 
 #define MIN_TRIS_NODE 3
 
-CRaytracer::CRaytracer(CConversionScene* pScene)
+CRaytracer::CRaytracer(CConversionScene* pScene, size_t iMaxDepth)
 {
 	m_pScene = pScene;
 	m_pTree = NULL;
+
+	m_iMaxDepth = iMaxDepth;
 }
 
 CRaytracer::~CRaytracer()
@@ -106,7 +108,7 @@ float CRaytracer::Closest(const Vector& vecPoint)
 void CRaytracer::BuildTree()
 {
 	if (!m_pTree)
-		m_pTree = new CKDTree();
+		m_pTree = new CKDTree(m_iMaxDepth);
 
 	m_pTree->BuildTree();
 }
@@ -122,7 +124,7 @@ void CRaytracer::RemoveArea(const AABB& oBox)
 void CRaytracer::AddMeshesFromNode(CConversionSceneNode* pNode)
 {
 	if (!m_pTree)
-		m_pTree = new CKDTree();
+		m_pTree = new CKDTree(m_iMaxDepth);
 
 	for (size_t c = 0; c < pNode->GetNumChildren(); c++)
 		AddMeshesFromNode(pNode->GetChild(c));
@@ -137,7 +139,7 @@ void CRaytracer::AddMeshesFromNode(CConversionSceneNode* pNode)
 void CRaytracer::AddMeshInstance(CConversionMeshInstance* pMeshInstance)
 {
 	if (!m_pTree)
-		m_pTree = new CKDTree();
+		m_pTree = new CKDTree(m_iMaxDepth);
 
 	eastl::vector<Vector> avecPoints;
 
@@ -170,15 +172,17 @@ void CRaytracer::AddMeshInstance(CConversionMeshInstance* pMeshInstance)
 void CRaytracer::AddTriangle(Vector v1, Vector v2, Vector v3)
 {
 	if (!m_pTree)
-		m_pTree = new CKDTree();
+		m_pTree = new CKDTree(m_iMaxDepth);
 
 	m_pTree->AddTriangle(v1, v2, v3);
 }
 
-CKDTree::CKDTree()
+CKDTree::CKDTree(size_t iMaxDepth)
 {
 	m_pTop = new CKDNode(NULL, AABB(), this);
 	m_bBuilt = false;
+
+	m_iMaxDepth = iMaxDepth;
 }
 
 CKDTree::~CKDTree()
@@ -472,8 +476,7 @@ void CKDNode::Build()
 	if (m_aTris.size() <= MIN_TRIS_NODE)
 		return;
 
-	// Find a better number!
-	if (m_iDepth > 15)
+	if (m_iDepth > m_pTree->GetMaxDepth())
 		return;
 
 	Vector vecBoundsSize = m_oBounds.Size();

@@ -412,7 +412,7 @@ void CTerrain::GenerateCollision()
 				if (pChunk->m_pTracer)
 					delete pChunk->m_pTracer;
 
-				pChunk->m_pTracer = new raytrace::CRaytracer();
+				pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
 
 				for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)
 				{
@@ -2090,7 +2090,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	if (pChunk->m_pTracer)
 		delete pChunk->m_pTracer;
 
-	pChunk->m_pTracer = new raytrace::CRaytracer();
+	pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
 
 	int iXMin = (int)(TERRAIN_CHUNK_SIZE*i);
 	int iYMin = (int)(TERRAIN_CHUNK_SIZE*j);

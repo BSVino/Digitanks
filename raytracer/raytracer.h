@@ -77,7 +77,7 @@ protected:
 class CKDTree
 {
 public:
-								CKDTree();
+								CKDTree(size_t iMaxDepth = 15);
 								~CKDTree();
 
 public:
@@ -97,16 +97,20 @@ public:
 
 	bool						IsBuilt() { return m_bBuilt; };
 
+	size_t						GetMaxDepth() { return m_iMaxDepth; };
+
 protected:
 	CKDNode*					m_pTop;
 
 	bool						m_bBuilt;
+
+	size_t						m_iMaxDepth;
 };
 
 class CRaytracer
 {
 public:
-								CRaytracer(CConversionScene* pScene = NULL);
+								CRaytracer(CConversionScene* pScene = NULL, size_t iMaxDepth = 15);
 								~CRaytracer();
 
 public:
@@ -129,6 +133,8 @@ protected:
 	CConversionScene*			m_pScene;
 
 	CKDTree*					m_pTree;
+
+	size_t						m_iMaxDepth;
 };
 
 };
