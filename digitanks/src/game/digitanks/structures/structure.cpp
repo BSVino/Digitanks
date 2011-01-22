@@ -485,7 +485,7 @@ size_t CStructure::ConstructionCost() const
 
 size_t CStructure::UpgradeCost() const
 {
-	return DigitanksGame()->GetUpgradeCost(GetUnitType());
+	return DigitanksGame()->GetUpgradeCost(GetUpgradeType());
 }
 
 size_t CSupplier::s_iTendrilBeam = 0;
@@ -521,6 +521,8 @@ void CSupplier::Spawn()
 	m_iTendrilsCallList = 0;
 
 	m_flTendrilGrowthStartTime = 0;
+
+	m_bShouldRender = true;
 }
 
 void CSupplier::ClientEnterGame()
@@ -659,6 +661,56 @@ void CSupplier::StartTurn()
 			m_iDataStrength += (size_t)GetDataFlowRate();
 		else if (GetSupplyLine())
 			m_iDataStrength += (size_t)(GetDataFlowRate() * GetSupplyLine()->GetIntegrity());
+	}
+
+	// Figure out whether we're too far to bother rendering.
+	CDigitanksTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (!DigitanksGame()->ShouldRenderFogOfWar() || pLocalTeam == GetDigitanksTeam())
+		m_bShouldRender = true;
+	else if (pLocalTeam)
+	{
+		float flVisibleDistance = GetDataFlowRadius();
+
+		m_bShouldRender = false;
+		for (size_t i = 0; i < pLocalTeam->GetNumMembers(); i++)
+		{
+			CBaseEntity* pEntity = pLocalTeam->GetMember(i);
+			if (!pEntity)
+				continue;
+
+			CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
+			if (pDigitank)
+			{
+				float flDistanceSqr = pDigitank->GetOrigin().DistanceSqr(GetOrigin());
+
+				// Look at the maximum that the tank could ever go in his next turn.
+				float flTankVisibleDistance = pDigitank->GetMaxMovementEnergy() * pDigitank->GetTankSpeed() + pDigitank->VisibleRange();
+
+				float flTotalVisibleDistance = flTankVisibleDistance + flVisibleDistance;
+
+				if (flDistanceSqr < flTotalVisibleDistance*flTotalVisibleDistance)
+				{
+					m_bShouldRender = true;
+					break;
+				}
+
+				continue;
+			}
+
+			CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+			if (pDTEnt)
+			{
+				float flDistanceSqr = pDTEnt->GetOrigin().DistanceSqr(GetOrigin());
+
+				float flTotalVisibleDistance = pDTEnt->VisibleRange() + flVisibleDistance;
+
+				if (flDistanceSqr < flTotalVisibleDistance*flTotalVisibleDistance)
+				{
+					m_bShouldRender = true;
+					break;
+				}
+			}
+		}
 	}
 
 	if (GetDigitanksTeam() && !IsDataFlowSource())

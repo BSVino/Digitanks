@@ -22,6 +22,7 @@ public:
 	void			SetAdditive(bool bAdditive) { m_bAdditive = bAdditive; };
 	void			SetDepthMask(bool bDepthMask) { m_bDepthMask = bDepthMask; };
 	void			SetBackCulling(bool bBackCulling) { m_bBackCulling = bBackCulling; };
+	virtual bool	IsRammable() const { return false; }
 
 	void			SetColorSwap(Color clrSwap) { m_bSwap = true; m_clrSwap = clrSwap; }
 

@@ -155,12 +155,17 @@ void CSupplyLine::PostRender(bool bTransparent)
 	oRope.SetTextureScale(5);
 	oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1)*2);
 
+	float flVisibility = 1;
+	CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(m_hEntity.GetPointer());
+	if (pDTEnt)
+		flVisibility = pDTEnt->GetVisibility();
+
 	for (size_t i = 1; i < iSegments; i++)
 	{
 		if (m_flIntegrity < 1 && i%2 == 0)
-			clrTeam.SetAlpha((int)(50 * m_flIntegrity));
+			clrTeam.SetAlpha((int)(50 * m_flIntegrity * flVisibility));
 		else
-			clrTeam.SetAlpha((int)(255 * m_flIntegrity));
+			clrTeam.SetAlpha((int)(255 * m_flIntegrity * flVisibility));
 
 		oRope.SetColor(clrTeam);
 

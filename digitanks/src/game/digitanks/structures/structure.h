@@ -49,6 +49,7 @@ public:
 	virtual void				DownloadComplete(size_t x, size_t y);
 
 	virtual bool				CanStructureUpgrade() { return false; };
+	virtual unittype_t			GetUpgradeType() const { return UNITTYPE_UNDEFINED; };
 	void						BeginUpgrade();
 	void						BeginUpgrade(CNetworkParameters* p);
 	void						CancelUpgrade();
@@ -170,7 +171,7 @@ public:
 	virtual void				StartTurn();
 
 	// Even if we're invisible our tendrils might not be, we should still render those.
-	virtual bool				ShouldRender() const { return true; };
+	virtual bool				ShouldRender() const { return m_bShouldRender; };
 	virtual void				PostRender(bool bTransparent);
 
 	void						UpdateTendrils();
@@ -209,6 +210,8 @@ protected:
 
 	size_t						m_iTendrilsCallList;
 	float						m_flTendrilGrowthStartTime;
+
+	bool						m_bShouldRender;
 
 	static size_t				s_iTendrilBeam;
 };

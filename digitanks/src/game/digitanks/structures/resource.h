@@ -30,6 +30,7 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Electronode"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_ELECTRONODE; };
+	virtual bool				IsRammable() const { return false; }
 
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
 

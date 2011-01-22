@@ -311,11 +311,6 @@ void CDigitanksTeam::StartTurn()
 		apMembers[i]->StartTurn();
 	}
 
-	// Recount producers in case updates have been installed.
-	CountProducers();
-	CountFleetPoints();
-	CountBandwidth();
-
 	if (GetUpdateDownloading())
 	{
 		if (CNetwork::IsHost())
@@ -335,10 +330,16 @@ void CDigitanksTeam::StartTurn()
 		}
 	}
 
+	CountProducers();
+	CountFleetPoints();
+	CountBandwidth();
 	CountScore();
 
 	if (DigitanksGame()->GetTurn() == 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
 		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+
+	if (GetNumProducers() == 0)
+		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_NOPRODUCERS);
 
 	DigitanksWindow()->GetHUD()->Layout();
 }

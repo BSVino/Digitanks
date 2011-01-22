@@ -42,6 +42,7 @@ size_t CDigitank::s_iPromoteMoveIcon = 0;
 size_t CDigitank::s_iFortifyIcon = 0;
 size_t CDigitank::s_iDeployIcon = 0;
 size_t CDigitank::s_iMobilizeIcon = 0;
+size_t CDigitank::s_iChooseWeaponIcon = 0;
 
 size_t CDigitank::s_iAutoMove = 0;
 
@@ -100,6 +101,8 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iFortifyLevel);
+
+	NETVAR_DEFINE_CALLBACK(bool, m_bSentried, &CDigitanksGame::UpdateHUD);
 
 	NETVAR_DEFINE(size_t, m_iTurnsDisabled);
 NETVAR_TABLE_END();
@@ -160,6 +163,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSentried);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplier>, m_hSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
@@ -207,6 +211,7 @@ void CDigitank::Precache()
 	s_iFortifyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fortify.png");
 	s_iDeployIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-deploy.png");
 	s_iMobilizeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-mobilize.png");
+	s_iChooseWeaponIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-choose-weapon.png");
 
 	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
 
@@ -275,8 +280,10 @@ void CDigitank::Spawn()
 	m_flStartedMove = 0;
 	m_flStartedTurn = 0;
 	m_bFortified = false;
+	m_bSentried = false;
 	m_flFrontMaxShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = 15;
 	m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 15;
+	m_bNeedsOrdersDirty = true;
 	m_flFireWeaponTime = 0;
 	m_iFireWeapons = 0;
 	m_flLastSpeech = 0;
@@ -639,6 +646,8 @@ void CDigitank::StartTurn()
 {
 	BaseClass::StartTurn();
 
+	DirtyNeedsOrders();
+
 	ManageSupplyLine();
 
 	if (CNetwork::IsHost() && m_bFortified)
@@ -882,6 +891,10 @@ void CDigitank::SetPreviewCharge(CBaseEntity* pChargeTarget)
 		m_hPreviewCharge = NULL;
 		return;
 	}
+
+	CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pChargeTarget);
+	if (pDTEnt && !pDTEnt->IsRammable())
+		return;
 
 	if (pChargeTarget->GetTeam() == GetTeam())
 		return;
@@ -1128,6 +1141,8 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	m_flGoalTurretYaw = -180;
 
+	DirtyNeedsOrders();
+
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
@@ -1154,6 +1169,9 @@ void CDigitank::Move(Vector vecNewPosition, int iMoveType)
 
 	if (TakesLavaDamage() && DigitanksGame()->GetTerrain()->IsPointOverLava(vecNewPosition))
 		TakeDamage(NULL, NULL, DAMAGE_BURN, DigitanksGame()->LavaDamage(), false);
+
+	if (IsSentried())
+		Sentry();
 }
 
 void CDigitank::Turn()
@@ -1195,6 +1213,8 @@ void CDigitank::Turn(CNetworkParameters* p)
 
 	m_flGoalTurretYaw = 0;
 
+	DirtyNeedsOrders();
+
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
@@ -1203,6 +1223,9 @@ void CDigitank::Turn(EAngle angNewTurn)
 	m_flPreviousTurn = GetAngles().y;
 	m_flStartedTurn = GameServer()->GetGameTime();
 	SetAngles(angNewTurn);
+
+	if (IsSentried())
+		Sentry();
 }
 
 void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
@@ -1316,11 +1339,16 @@ void CDigitank::Fortify(CNetworkParameters* p)
 		return;
 	}
 
+	if (IsSentried())
+		Sentry();
+
 	m_bFortified = true;
 
 	m_iFortifyLevel = 0;
 
 	OnFortify();
+
+	DirtyNeedsOrders();
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 
@@ -1331,6 +1359,37 @@ void CDigitank::Fortify(CNetworkParameters* p)
 bool CDigitank::CanAim() const
 {
 	return AllowControlMode(MODE_AIM);
+}
+
+void CDigitank::Sentry()
+{
+	if (!CanSentry())
+		return;
+
+	if (IsDisabled())
+		return;
+
+	CNetwork::CallFunction(NETWORK_TOEVERYONE, "Sentry", GetHandle());
+
+	CNetworkParameters p;
+	p.ui1 = GetHandle();
+	Sentry(&p);
+}
+
+void CDigitank::Sentry(CNetworkParameters* p)
+{
+	if (m_bSentried)
+	{
+		m_bSentried = false;
+		DigitanksWindow()->GetHUD()->UpdateTurnButton();
+		return;
+	}
+
+	m_bSentried = true;
+
+	DirtyNeedsOrders();
+
+	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
 void CDigitank::Charge()
@@ -1396,7 +1455,12 @@ void CDigitank::Charge(class CNetworkParameters* p)
 
 	m_bActionTaken = true;
 
+	DirtyNeedsOrders();
+
 	m_flBeginCharge = GameServer()->GetGameTime() + GetTransitionTime();
+
+	if (IsSentried())
+		Sentry();
 }
 
 void CDigitank::Cloak()
@@ -1803,8 +1867,16 @@ float CDigitank::GetPowerBar3Size()
 	return flPower;
 }
 
+void CDigitank::DirtyNeedsOrders()
+{
+	m_bNeedsOrdersDirty = true;
+}
+
 bool CDigitank::NeedsOrders()
 {
+	if (!m_bNeedsOrdersDirty)
+		return m_bNeedsOrders;
+
 	bool bNeedsToMove = true;
 	if (GetUsedMovementEnergy() > 0)
 		bNeedsToMove = false;
@@ -1812,10 +1884,13 @@ bool CDigitank::NeedsOrders()
 	{
 		if (IsFortified() || IsFortifying())
 			bNeedsToMove = false;
+
+		if (IsSentried())
+			bNeedsToMove = false;
 	}
 
 	bool bNeedsToAttack = true;
-	if (GetBaseAttackPower() > 0)
+	if (HasFiredWeapon())
 		bNeedsToAttack = false;
 	else if (!IsScout())
 	{
@@ -1868,7 +1943,10 @@ bool CDigitank::NeedsOrders()
 	if (m_bActionTaken)
 		bNeedsToMove = false;
 
-	return bNeedsToMove || bNeedsToAttack;
+	m_bNeedsOrders = bNeedsToMove || bNeedsToAttack;
+	m_bNeedsOrdersDirty = false;
+
+	return m_bNeedsOrders;
 }
 
 void CDigitank::SetupMenu(menumode_t eMenuMode)
@@ -1920,6 +1998,22 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 		}
 
+		if (CanSentry())
+		{
+			if (IsSentried())
+			{
+				pHUD->SetButtonTexture(5, s_iMobilizeIcon);
+				pHUD->SetButtonInfo(5, L"MOBILIZE\n \nCancel the 'Hold Position' order.\n \nShortcut: A");
+			}
+			else
+			{
+				pHUD->SetButtonTexture(5, s_iDeployIcon);
+				pHUD->SetButtonInfo(5, L"HOLD POSITION\n \nThis unit will hold position and not require orders until told otherwise.\n \nShortcut: A");
+			}
+			pHUD->SetButtonListener(5, CHUD::Sentry);
+			pHUD->SetButtonColor(5, Color(0, 0, 150));
+		}
+
 		if (HasCloak() && !HasFiredWeapon())
 		{
 			pHUD->SetButtonTexture(6, 0);
@@ -1933,7 +2027,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 		if (GetNumWeapons() > 1)
 		{
-			pHUD->SetButtonTexture(7, 0);
+			pHUD->SetButtonTexture(7, s_iChooseWeaponIcon);
 			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
 			pHUD->SetButtonListener(7, CHUD::ChooseWeapon);
 			pHUD->SetButtonColor(7, Color(100, 100, 100));
@@ -2152,6 +2246,8 @@ void CDigitank::Fire(CNetworkParameters* p)
 	Speak(TANKSPEECH_ATTACK);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
+	DirtyNeedsOrders();
+
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 
 	if (IsArtillery())
@@ -2314,6 +2410,8 @@ void CDigitank::FireSpecial()
 
 	m_bActionTaken = true;
 
+	DirtyNeedsOrders();
+
 	DigitanksGame()->SetControlMode(MODE_NONE);
 }
 
@@ -2383,6 +2481,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	Speak(TANKSPEECH_DAMAGED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
+	if (IsSentried())
+		Sentry();
+
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
@@ -2426,7 +2527,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	if (pProjectile)
 		flShieldDamageScale = pProjectile->ShieldDamageScale();
 
-	if (flDamage*flShieldDamageScale - flDamageBlocked <= 0)
+	if (flDamage*flShieldDamageScale - flDamageBlocked < 0)
 	{
 		SetShieldValueForAttackDirection(vecAttackDirection, flShield - flDamage*flShieldDamageScale / GetDefenseScale());
 
@@ -2441,7 +2542,10 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		return;
 	}
 
-	flDamage -= flDamageBlocked/flShieldDamageScale;
+	if (flShieldDamageScale > 0)
+		flDamage -= flDamageBlocked/flShieldDamageScale;
+	else
+		flDamage -= flDamageBlocked;
 
 	if (pProjectile)
 		flDamage *= pProjectile->HealthDamageScale();
@@ -2843,7 +2947,7 @@ void CDigitank::PostRender(bool bTransparent)
 		CRenderingContext r(GameServer()->GetRenderer());
 		r.SetBlend(BLEND_ALPHA);
 
-		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAutoMove, GetOrigin());
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAutoMove, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()));
 		oRope.SetWidth(2.0f);
 		oRope.SetColor(Color(255, 255, 255, iAlpha));
 		oRope.SetTextureScale(3);
@@ -2862,7 +2966,7 @@ void CDigitank::PostRender(bool bTransparent)
 			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
 		}
 
-		oRope.Finish(vecGoalMove);
+		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecGoalMove));
 	}
 
 	if (bTransparent && GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT)
@@ -3114,6 +3218,13 @@ void CDigitank::Speak(size_t iSpeech)
 		return;
 
 	if (GetVisibility() == 0)
+		return;
+
+	if (IsCloaked())
+		return;
+
+	// No talking when we're hiding in the trees!
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
 		return;
 
 	size_t iLine = g_aiSpeechLines[iSpeech][rand()%g_aiSpeechLines[iSpeech].size()];

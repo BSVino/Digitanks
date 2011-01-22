@@ -1765,9 +1765,10 @@ void CHUD::ShowNextActionItem()
 		if (pItem->bHandled)
 			continue;
 
-		CEntityHandle<CSelectable> hSelectable(pItem->iUnit);
+		// Only perform this check with tanks. Structures always return false for NeedsOrders()
+		CEntityHandle<CDigitank> hDigitank(pItem->iUnit);
 
-		if (hSelectable != NULL && !hSelectable->NeedsOrders())
+		if (hDigitank != NULL && !hDigitank->NeedsOrders())
 		{
 			// If must have been handled already.
 			pItem->bHandled = true;
@@ -1894,14 +1895,14 @@ void CHUD::ShowActionItem(size_t iActionItem)
 
 	case ACTIONTYPE_CONSTRUCTION:
 		m_pActionItem->SetText(
-			"CONSTRUCTION COMPELTE\n \n"
+			"CONSTRUCTION COMPLETE\n \n"
 			"Your CPU has completed construction of a new structure for your base. You can choose what to build next.\n");
 		break;
 
 	case ACTIONTYPE_UPGRADE:
 		m_pActionItem->SetText(
-			"UPRGADE COMPELTE\n \n"
-			"This structure has completed its upgrade. You may wish to install updates now.\n");
+			"UPRGADE COMPLETE\n \n"
+			"This structure has completed its upgrade.\n");
 		break;
 
 	case ACTIONTYPE_UNITREADY:
@@ -1920,6 +1921,12 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		m_pActionItem->SetText(
 			"DOWNLOAD UPDATES\n \n"
 			"You can download updates for your structures. Press the 'Download Updates' button to choose an update.\n");
+		break;
+
+	case ACTIONTYPE_NOPRODUCERS:
+		m_pActionItem->SetText(
+			"UNUSED POWER\n \n"
+			"You aren't using your Power to build any structures or units right now. Unused power for this turn is lost if not used. Click on your CPU to build something.\n");
 		break;
 	}
 
@@ -2258,6 +2265,26 @@ void CHUD::FortifyCallback()
 	{
 		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
 			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Fortify();
+	}
+
+	SetupMenu(MENUMODE_MAIN);
+	UpdateInfo();
+}
+
+void CHUD::SentryCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame()->GetPrimarySelectionTank())
+		return;
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Sentry();
 	}
 
 	SetupMenu(MENUMODE_MAIN);

@@ -298,7 +298,7 @@ void CDigitanksWindow::ConstrainMouse()
 		return;
 
 	HWND hActiveWindow = GetActiveWindow();
-	if (ShouldConstrainMouse() && hActiveWindow == hWindow && GameServer() && !GameServer()->IsLoading() && DigitanksGame()->GetGameType() != GAMETYPE_MENU && !GetMenu()->IsVisible() && !IsConsoleOpen())
+	if (ShouldConstrainMouse())
 	{
 		RECT rc;
 		GetClientRect(hWindow, &rc);
@@ -335,6 +335,34 @@ void CDigitanksWindow::WindowResize(int w, int h)
 		GameServer()->GetRenderer()->SetSize(w, h);
 
 	BaseClass::WindowResize(w, h);
+}
+
+bool CDigitanksWindow::ShouldConstrainMouse()
+{
+	if (!m_bConstrainMouse)
+		return false;
+
+#ifdef _WIN32
+	HWND hWindow = FindWindow(NULL, L"Digitanks!");
+	HWND hActiveWindow = GetActiveWindow();
+
+	if (hActiveWindow != hWindow)
+		return false;
+#endif
+
+	if (GameServer() && GameServer()->IsLoading())
+		return false;
+	
+	if (!DigitanksGame() || DigitanksGame()->GetGameType() == GAMETYPE_MENU)
+		return false;
+	
+	if (GetMenu()->IsVisible())
+		return false;
+	
+	if (IsConsoleOpen())
+		return false;
+
+	return true;
 }
 
 bool CDigitanksWindow::GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit, int iCollisionGroup)

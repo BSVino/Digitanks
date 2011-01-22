@@ -47,6 +47,7 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Battery"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
+	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_PSU; };
 
 protected:
 	static size_t				s_iUpgradeIcon;

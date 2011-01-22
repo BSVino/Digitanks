@@ -146,6 +146,7 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
 	CNetwork::RegisterFunction("Fortify", this, FortifyCallback, 1, NET_HANDLE);
+	CNetwork::RegisterFunction("Sentry", this, SentryCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("SetGoalMovePosition", this, SetGoalMovePositionCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("CancelGoalMovePosition", this, CancelGoalMovePositionCallback, 1, NET_HANDLE);
 
@@ -461,7 +462,7 @@ void CDigitanksGame::SetupArtillery()
 		Color(0, 64, 255),		// Blue
 		Color(255, 0, 0),		// Red
 		Color(42, 255, 0),		// Green
-		Color(255, 200, 255),	// Yellow
+		Color(255, 200, 0),		// Yellow
 		Color(0, 255, 221),		// Teal
 		Color(255, 0, 180),		// Pink
 		Color(200, 0, 255),		// Purple
@@ -514,7 +515,7 @@ void CDigitanksGame::SetupStrategy()
 		Color(0, 64, 255),		// Blue
 		Color(255, 0, 0),		// Red
 		Color(42, 255, 0),		// Green
-		Color(255, 200, 255),	// Yellow
+		Color(255, 200, 0),		// Yellow
 	};
 
 	eastl::string16 aszTeamNames[] =

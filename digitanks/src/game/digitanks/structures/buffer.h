@@ -59,6 +59,7 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Mini-Buffer"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_MINIBUFFER; };
+	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_BUFFER; };
 
 protected:
 	static size_t				s_iUpgradeIcon;

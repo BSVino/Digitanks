@@ -192,10 +192,12 @@ void CDigitanksEntity::RenderVisibleArea()
 
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 {
+	CDigitanksGame* pGame = DigitanksGame();
+
 	float flConceal = 0.0f;
 	if (GetsConcealmentBonus())
 	{
-		if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
+		if (pGame->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
 			flConceal = 0.7f;
 	}
 
@@ -203,13 +205,13 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	if (flCloak > flConceal)
 		flConceal = flCloak;
 
-	if (!DigitanksGame()->ShouldRenderFogOfWar())
+	if (!pGame->ShouldRenderFogOfWar())
 		return 1 - flConceal;
 
 	if (!pTeam)
 		return 0;
 
-	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (GetDigitanksTeam() == pGame->GetCurrentLocalDigitanksTeam())
 		return 1 - flConceal;
 
 	float flVisibility = pTeam->GetEntityVisibility(GetHandle()) - flConceal;
@@ -222,10 +224,11 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 
 float CDigitanksEntity::GetVisibility() const
 {
-	if (!DigitanksGame())
+	CDigitanksGame* pGame = DigitanksGame();
+	if (!pGame)
 		return 0;
 
-	return GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam());
+	return GetVisibility(pGame->GetCurrentLocalDigitanksTeam());
 }
 
 float CDigitanksEntity::VisibleRange() const

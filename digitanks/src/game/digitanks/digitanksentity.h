@@ -28,6 +28,7 @@ public:
 	virtual bool					GetsConcealmentBonus() const { return true; };
 	virtual float					GetCloakConcealment() const { return 0; };
 	virtual float					VisibleRange() const;
+	virtual bool					IsRammable() const { return true; }
 
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 

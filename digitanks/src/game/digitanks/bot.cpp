@@ -18,9 +18,14 @@ unittype_t g_aeBuildOrder[] =
 {
 	STRUCTURE_BATTERY,
 	STRUCTURE_INFANTRYLOADER,
+	STRUCTURE_BATTERY,
 	UNIT_SCOUT,
+	STRUCTURE_BATTERY,	// Build a bunch of batteries while we wait for the psu to become available
+	STRUCTURE_BATTERY,
+	STRUCTURE_BATTERY,
 	STRUCTURE_PSU,
 	STRUCTURE_BUFFER,
+	STRUCTURE_PSU,
 	STRUCTURE_TANKLOADER,
 	STRUCTURE_PSU,
 	STRUCTURE_PSU,
@@ -524,7 +529,86 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		Bot_AssignDefenders();
 	}
 
-	CDigitank* pHeadTank = GetTank(0);
+	CDigitank* pHeadTank = NULL;
+
+	if (m_ahAttackTeam.size())
+	{
+		for (size_t i = m_ahAttackTeam.size()-1; i < m_ahAttackTeam.size(); i--)
+		{
+			if (m_ahAttackTeam[i] == NULL)
+				m_ahAttackTeam.erase(m_ahAttackTeam.begin()+i);
+		}
+	}
+
+	if (!m_ahAttackTeam.size())
+	{
+		// Examine whether it's time to attack.
+
+		CountFleetPoints();
+
+		if (GetTotalFleetPoints() > 0 && (m_iFleetPointAttackQuota == ~0 || GetTotalFleetPoints() <= m_iFleetPointAttackQuota))
+		{
+			// If our total fleet points is lower than the quota than perhaps we lost some buffers, let's make a new quota.
+			m_iFleetPointAttackQuota = GetTotalFleetPoints()*2/3;
+		}
+
+		// We have enough tanks made that we should attack now.
+		if (GetUsedFleetPoints() >= m_iFleetPointAttackQuota)
+		{
+			for (size_t i = 0; i < GetNumTanks(); i++)
+			{
+				CDigitank* pTank = GetTank(i);
+				if (!pTank)
+					continue;
+
+				// Scouts are just for exploring and hassling.
+				if (pTank->GetUnitType() == UNIT_SCOUT)
+					continue;
+
+				// Artillery is just for barrages
+				if (pTank->GetUnitType() == UNIT_ARTILLERY)
+					continue;
+
+				// Just in case.
+				if (pTank->GetUnitType() == UNIT_MOBILECPU || pTank->GetUnitType() == UNIT_AUTOTURRET)
+					continue;
+
+				// Gotta leave some infantry behind to support the cause
+				if (pTank->GetUnitType() == UNIT_INFANTRY && RandomInt(0, 1) == 0)
+					continue;
+
+				m_ahAttackTeam.push_back(pTank);
+				pTank->SetInAttackTeam(true);
+			}
+
+			m_iFleetPointAttackQuota = ~0;
+		}
+	}
+
+	if (m_ahAttackTeam.size())
+		pHeadTank = m_ahAttackTeam[0];
+	else
+	{
+		for (size_t i = 0; i < GetNumTanks(); i++)
+		{
+			CDigitank* pTank = GetTank(i);
+			if (!pTank)
+				continue;
+
+			if (pTank->IsScout())
+				continue;
+
+			if (pTank->IsArtillery())
+				continue;
+
+			pHeadTank = pTank;
+			break;
+		}
+	}
+
+	// If there's no regular tanks we'll accept an artillery or scout
+	if (!pHeadTank)
+		pHeadTank = GetTank(0);
 
 	if (!pHeadTank)
 	{
@@ -624,60 +708,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 	if (!pTarget && !m_bLKV)
 		vecTargetOrigin = m_vecExplore;
-
-	if (m_ahAttackTeam.size())
-	{
-		for (size_t i = m_ahAttackTeam.size()-1; i < m_ahAttackTeam.size(); i--)
-		{
-			if (m_ahAttackTeam[i] == NULL)
-				m_ahAttackTeam.erase(m_ahAttackTeam.begin()+i);
-		}
-	}
-
-	if (!m_ahAttackTeam.size())
-	{
-		// Examine whether it's time to attack.
-
-		CountFleetPoints();
-
-		if (GetTotalFleetPoints() > 0 && (m_iFleetPointAttackQuota == ~0 || GetTotalFleetPoints() <= m_iFleetPointAttackQuota))
-		{
-			// If our total fleet points is lower than the quota than perhaps we lost some buffers, let's make a new quota.
-			m_iFleetPointAttackQuota = GetTotalFleetPoints()*2/3;
-		}
-
-		// We have enough tanks made that we should attack now.
-		if (GetUsedFleetPoints() >= m_iFleetPointAttackQuota)
-		{
-			for (size_t i = 0; i < GetNumTanks(); i++)
-			{
-				CDigitank* pTank = GetTank(i);
-				if (!pTank)
-					continue;
-
-				// Scouts are just for exploring and hassling.
-				if (pTank->GetUnitType() == UNIT_SCOUT)
-					continue;
-
-				// Artillery is just for barrages
-				if (pTank->GetUnitType() == UNIT_ARTILLERY)
-					continue;
-
-				// Just in case.
-				if (pTank->GetUnitType() == UNIT_MOBILECPU || pTank->GetUnitType() == UNIT_AUTOTURRET)
-					continue;
-
-				// Gotta leave some infantry behind to support the cause
-				if (pTank->GetUnitType() == UNIT_INFANTRY && RandomInt(0, 1) == 0)
-					continue;
-
-				m_ahAttackTeam.push_back(pTank);
-				pTank->SetInAttackTeam(true);
-			}
-
-			m_iFleetPointAttackQuota = ~0;
-		}
-	}
 
 	for (size_t i = 0; i < GetNumTanks(); i++)
 	{
@@ -882,6 +912,47 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
+			}
+			else
+			{
+				// Otherwise look for the closest enemy and fire on them.
+				CDigitank* pClosestEnemy = NULL;
+				while (true)
+				{
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+
+					if (!pClosestEnemy)
+						break;
+
+					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+						continue;
+
+					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					{
+						pClosestEnemy = NULL;
+						break;
+					}
+
+					break;
+				}
+
+				if (pClosestEnemy)
+				{
+					// If we are within the max range, try to fire.
+					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					{
+						if (pTank->IsInfantry())
+						{
+							if (pTarget->GetUnitType() == UNIT_SCOUT)
+								pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+							else
+								pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+						}
+
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->Fire();
+					}
+				}
 			}
 		}
 		else if (pTank->HasFortifyPoint() && !pTank->IsFortified())

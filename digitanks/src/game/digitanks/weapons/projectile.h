@@ -338,10 +338,12 @@ public:
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				BombDropNoise() { return false; };
-	virtual bool				SendsNotifications() { return false; };
+	virtual bool				SendsNotifications() { return true; };
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				UsesSpecialCommand() { return false; };
+	virtual float				ShieldDamageScale() { return 0; };
+	virtual float				HealthDamageScale() { return 1; };
 
 protected:
 	bool						m_bBurrowing;

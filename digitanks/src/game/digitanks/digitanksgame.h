@@ -36,6 +36,7 @@ typedef enum
 	ACTIONTYPE_UNITREADY,
 	ACTIONTYPE_DOWNLOADUPDATES,
 	ACTIONTYPE_DOWNLOADCOMPLETE,
+	ACTIONTYPE_NOPRODUCERS,
 } actiontype_t;
 
 typedef struct
@@ -180,6 +181,7 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, PromoteMovement);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Speak);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Fortify);
+	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Sentry);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, SetGoalMovePosition);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, CancelGoalMovePosition);
 
@@ -323,10 +325,11 @@ protected:
 
 inline class CDigitanksGame* DigitanksGame()
 {
-	if (!Game())
+	CGame* pGame = Game();
+	if (!pGame)
 		return NULL;
 
-	return dynamic_cast<CDigitanksGame*>(Game());
+	return static_cast<CDigitanksGame*>(pGame);
 }
 
 enum

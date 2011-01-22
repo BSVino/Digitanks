@@ -172,14 +172,15 @@ public:
 	bool						HasGoalMovePosition() { return m_bGoalMovePosition.Get(); };
 	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition.Get(); };
 
-	void						Fortify();
-	void						Fortify(CNetworkParameters* p);
-	virtual void				OnFortify() {};
-	virtual bool				CanFortify() { return false; };
 	virtual bool				IsArtillery() const { return false; };
 	virtual bool				IsInfantry() const { return false; };
 	virtual bool				IsScout() const { return false; };
 	virtual bool				IsMobileCPU() const { return false; };
+
+	void						Fortify();
+	void						Fortify(CNetworkParameters* p);
+	virtual void				OnFortify() {};
+	virtual bool				CanFortify() { return false; };
 	virtual bool				IsFortified() const { return m_bFortified.Get() && m_iFortifyLevel.Get(); };
 	virtual bool				IsFortifying() const { return m_bFortified.Get() && m_iFortifyLevel.Get() == 0; };
 	virtual bool				CanMoveFortified() { return false; };
@@ -189,6 +190,11 @@ public:
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
 	virtual bool				CanGetPowerups() const { return true; };
+
+	void						Sentry();
+	void						Sentry(CNetworkParameters* p);
+	virtual bool				CanSentry() { return true; };
+	virtual bool				IsSentried() const { return m_bSentried.Get(); };
 
 	void						Charge();
 	void						Charge(class CNetworkParameters* p);
@@ -223,6 +229,7 @@ public:
 	virtual float				GetPowerBar2Size();
 	virtual float				GetPowerBar3Size();
 
+	void						DirtyNeedsOrders();
 	virtual bool				NeedsOrders();
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
@@ -356,6 +363,9 @@ protected:
 	CNetworkedVariable<float>	m_flRightShieldStrength;
 	CNetworkedVariable<float>	m_flRearShieldStrength;
 
+	bool						m_bNeedsOrdersDirty;
+	bool						m_bNeedsOrders;
+
 	float						m_flCurrentTurretYaw;
 	float						m_flGoalTurretYaw;
 
@@ -410,6 +420,8 @@ protected:
 	CNetworkedVariable<size_t>	m_iFortifyLevel;
 	float						m_flFortifyTime;
 
+	CNetworkedVariable<bool>	m_bSentried;
+
 	CEntityHandle<class CSupplier>		m_hSupplier;
 	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
@@ -444,6 +456,7 @@ protected:
 	static size_t				s_iFortifyIcon;
 	static size_t				s_iDeployIcon;
 	static size_t				s_iMobilizeIcon;
+	static size_t				s_iChooseWeaponIcon;
 
 	static size_t				s_iAutoMove;
 

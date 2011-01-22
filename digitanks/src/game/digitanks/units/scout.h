@@ -43,6 +43,7 @@ public:
 	virtual float				BobHeight() const { return 1.0f; };
 	virtual float				MaxRangeRadius() const { return 1; };
 	virtual float				SlowMovementFactor() const { return 0.85f; };
+	bool						IsRammable() const { return false; }
 
 	virtual size_t				FleetPoints() const { return ScoutFleetPoints(); };
 	static size_t				ScoutFleetPoints() { return 1; };

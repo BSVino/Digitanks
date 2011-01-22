@@ -59,7 +59,7 @@ public:
 	void						SetConfigWindowDimensions(int iWidth, int iHeight) { m_iCfgWidth = iWidth; m_iCfgHeight = iHeight; };
 	void						SetConfigFullscreen(bool bFullscreen) { m_bCfgFullscreen = bFullscreen; };
 	void						SetConstrainMouse(bool bConstrain) { m_bConstrainMouse = bConstrain; };
-	bool						ShouldConstrainMouse() { return m_bConstrainMouse; };
+	bool						ShouldConstrainMouse();
 
 	void						SetWantsFramebuffers(bool bWantsFramebuffers) { m_bWantsFramebuffers = bWantsFramebuffers; }
 	bool						WantsFramebuffers() { return m_bWantsFramebuffers; }
