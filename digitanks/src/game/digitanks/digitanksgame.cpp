@@ -26,7 +26,7 @@
 #include "digitanks/units/artillery.h"
 #include "digitanks/units/scout.h"
 #include "digitanks/units/mobilecpu.h"
-#include "digitanks/units/autoturret.h"
+#include "digitanks/units/barbarians.h"
 #include "digitanks/structures/cpu.h"
 #include "digitanks/structures/buffer.h"
 #include "digitanks/weapons/projectile.h"
@@ -1290,6 +1290,61 @@ void CDigitanksGame::StartTurn()
 			pPowerup->SetOrigin(vecPowerup);
 
 			m_iPowerups++;
+		}
+	}
+
+	if (GetGameType() == GAMETYPE_STANDARD && GetTurn() > 6 && GetTurn() < 50)
+	{
+		if (RandomInt(0, (GetNumTeams()-1)*2) == 0)
+		{
+			Vector vecPoint;
+
+			bool bIsVisible = false;
+
+			size_t iTries = 0;
+			while (iTries++ < 5)
+			{
+				float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize()) * 0.95f;
+				float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize()) * 0.95f;
+
+				vecPoint = Vector(flX, 0, flZ);
+				GetTerrain()->SetPointHeight(vecPoint);
+
+				bIsVisible = false;
+
+				// Skip the first team, that's the barbarians.
+				for (size_t i = 1; i < GetNumTeams(); i++)
+				{
+					CDigitanksTeam* pTeam = GetDigitanksTeam(i);
+					if (pTeam->GetVisibilityAtPoint(vecPoint) > 0)
+					{
+						bIsVisible = true;
+						break;
+					}
+				}
+
+				if (!bIsVisible)
+					break;
+			}
+
+			if (!bIsVisible)
+			{
+				size_t iGridBugs = RandomInt(0, (int)RemapVal((float)GetTurn(), 6, 50, 2, 4));
+				for (size_t i = 0; i < iGridBugs; i++)
+				{
+					vecPoint.x += 8;
+					vecPoint.z += 8;
+
+					Vector vecGridBug = vecPoint;
+
+					if (!GetTerrain()->IsPointOverHole(vecGridBug) && GetTerrain()->IsPointOnMap(vecGridBug))
+					{
+						CGridBug* pGridBug = GameServer()->Create<CGridBug>("CGridBug");
+						pGridBug->SetOrigin(vecGridBug);
+						GetTeam(0)->AddEntity(pGridBug);
+					}
+				}
+			}
 		}
 	}
 

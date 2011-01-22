@@ -291,9 +291,6 @@
     <ClCompile Include="game\digitanks\units\mobilecpu.cpp">
       <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
-    <ClCompile Include="game\digitanks\units\autoturret.cpp">
-      <Filter>Source Files\digitanks\units</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ext-deps\EASTL\src\hashtable.cpp">
       <Filter>Source Files\eastl</Filter>
     </ClCompile>
@@ -329,6 +326,9 @@
     </ClCompile>
     <ClCompile Include="..\..\tinker\cvar.cpp">
       <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\units\barbarians.cpp">
+      <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -530,9 +530,6 @@
     <ClInclude Include="game\digitanks\units\mobilecpu.h">
       <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
-    <ClInclude Include="game\digitanks\units\autoturret.h">
-      <Filter>Source Files\digitanks\units</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\common\sockets\sockets.h">
       <Filter>Source Files\common</Filter>
     </ClInclude>
@@ -562,6 +559,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\math\matrix.h">
       <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\units\barbarians.h">
+      <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

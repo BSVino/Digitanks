@@ -1,4 +1,4 @@
-#include "autoturret.h"
+#include "barbarians.h"
 
 #include <models/models.h>
 
@@ -24,6 +24,32 @@ void CAutoTurret::Spawn()
 	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
 
 	Fortify();
+
+	m_aeWeapons.push_back(PROJECTILE_SMALL);
+	m_eWeapon = PROJECTILE_SMALL;
+}
+
+
+NETVAR_TABLE_BEGIN(CGridBug);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CGridBug);
+SAVEDATA_TABLE_END();
+
+void CGridBug::Precache()
+{
+	PrecacheModel(L"models/digitanks/digitank-body.obj", true);
+	PrecacheModel(L"models/digitanks/digitank-turret.obj", true);
+}
+
+void CGridBug::Spawn()
+{
+	BaseClass::Spawn();
+
+	SetModel(L"models/digitanks/digitank-body.obj");
+	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
+
+	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
 
 	m_aeWeapons.push_back(PROJECTILE_SMALL);
 	m_eWeapon = PROJECTILE_SMALL;

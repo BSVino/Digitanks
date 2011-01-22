@@ -27,5 +27,27 @@ public:
 	virtual unittype_t			GetUnitType() const { return UNIT_AUTOTURRET; }
 };
 
+class CGridBug : public CDigitank
+{
+	REGISTER_ENTITY_CLASS(CGridBug, CDigitank);
+
+public:
+	virtual void				Precache();
+	virtual void				Spawn();
+
+	virtual eastl::string16		GetName() { return L"Grid Bug"; };
+
+	virtual bool				TakesLavaDamage() { return false; }
+	virtual float				HealthRechargeRate() const { return 0.0f; };
+	virtual float				GetTankSpeed() const { return 1.0f; };
+	virtual float				InitialEffRange() const { return 30.0f; };
+	virtual float				InitialMaxRange() const { return 60.0f; };
+	virtual float				MaxRangeRadius() const { return 20; };
+
+	virtual size_t				FleetPoints() const { return 0; };
+
+	virtual unittype_t			GetUnitType() const { return UNIT_GRIDBUG; }
+};
+
 #endif
 

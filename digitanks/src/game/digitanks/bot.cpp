@@ -759,6 +759,8 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				break;
 			}
 
+			CDigitank* pClosestEnemy = NULL;
+
 			CSupplyLine* pClosestSupply = NULL;
 			while (true)
 			{
@@ -812,6 +814,38 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				pTank->SetPreviewAim(vecPoint);
 				pTank->Fire();
 				flMovementPower = 0.95f;
+			}
+			else
+			{
+				// Otherwise look for the closest enemy and fire on them.
+				while (true)
+				{
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+
+					if (!pClosestEnemy)
+						break;
+
+					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+						continue;
+
+					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					{
+						pClosestEnemy = NULL;
+						break;
+					}
+
+					break;
+				}
+
+				if (pClosestEnemy)
+				{
+					// If we are within the max range, try to fire.
+					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+					{
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->Fire();
+					}
+				}
 			}
 
 			Vector vecDesiredMove;
@@ -868,6 +902,15 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				// FIRE ZE MISSILES
 				pTank->SetPreviewAim(vecPoint);
 				pTank->Fire();
+			}
+			else if (pClosestEnemy)
+			{
+				// If we are within the max range, try to fire.
+				if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+				{
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->Fire();
+				}
 			}
 		}
 		else if (pTank->IsInAttackTeam())
@@ -1183,7 +1226,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 
 		weapon_t eWeapon = WEAPON_NONE;
-		while (eWeapon == WEAPON_NONE || eWeapon == PROJECTILE_CAMERAGUIDED)
+		while (eWeapon == WEAPON_NONE || eWeapon == PROJECTILE_CAMERAGUIDED || eWeapon == WEAPON_CHARGERAM)
 			eWeapon = pTank->GetWeapon(RandomInt(0, pTank->GetNumWeapons()-1));
 
 		pTank->SetCurrentWeapon(eWeapon);
