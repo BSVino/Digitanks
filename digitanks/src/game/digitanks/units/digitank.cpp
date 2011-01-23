@@ -2000,7 +2000,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 		}
 
-		if (CanSentry())
+		if (CanSentry() && !IsFortified())
 		{
 			if (IsSentried())
 			{

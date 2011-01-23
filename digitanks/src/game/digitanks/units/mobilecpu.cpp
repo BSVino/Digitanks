@@ -37,7 +37,7 @@ void CMobileCPU::OnFortify()
 	Delete();
 
 	CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-	pCPU->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()));
+	pCPU->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin()));
 	GetTeam()->AddEntity(pCPU);
 	pCPU->FindGround();
 

@@ -1297,7 +1297,7 @@ void CDigitanksGame::StartTurn()
 
 	if (GetGameType() == GAMETYPE_STANDARD && GetTurn() > 6 && GetTurn() < 50)
 	{
-		if (RandomInt(0, (GetNumTeams()-1)*2) == 0)
+		if (RandomInt(0, GetNumTeams()-1) == 0)
 		{
 			Vector vecPoint;
 

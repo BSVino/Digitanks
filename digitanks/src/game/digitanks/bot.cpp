@@ -735,7 +735,31 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		CDigitank* pTankTarget = dynamic_cast<CDigitank*>(pTarget);
 
 		if (pTank->IsMobileCPU())
+		{
+			// Move halfway to the closest available resource and put down.
+			CResource* pResource = CBaseEntity::FindClosest<CResource>(pTank->GetOrigin(), NULL);
+
+			if (pResource)
+			{
+				float flDistance = pResource->Distance(pTank->GetOrigin())/2;
+
+				float flMovementDistance = pTank->GetRemainingMovementDistance() * 0.9f;
+
+				if (flMovementDistance < flDistance)
+					flDistance = flMovementDistance;
+
+				Vector vecDirection = pResource->GetOrigin() - pTank->GetOrigin();
+				vecDirection = vecDirection.Normalized() * flDistance;
+
+				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+				pTank->SetPreviewMove(vecDesiredMove);
+				pTank->Move();
+			}
+
 			pTank->Fortify();
+		}
 		else if (pTank->IsScout())
 		{
 			// We HATE infantry, so always know where the closest one is.
@@ -824,6 +848,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 					if (!pClosestEnemy)
 						break;
+
+					if (pClosestEnemy->IsScout())
+						continue;
 
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
@@ -986,7 +1013,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					{
 						if (pTank->IsInfantry())
 						{
-							if (pTarget->GetUnitType() == UNIT_SCOUT)
+							if (pClosestEnemy->GetUnitType() == UNIT_SCOUT)
 								pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
 							else
 								pTank->SetCurrentWeapon(PROJECTILE_FLAK);

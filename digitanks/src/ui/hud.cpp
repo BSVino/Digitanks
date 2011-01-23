@@ -1148,6 +1148,7 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, 
 		break;
 
 	case PROJECTILE_AOE:
+	case PROJECTILE_ARTILLERY_AOE:
 		sx = 192;
 		sy = 0;
 		break;
@@ -1158,6 +1159,7 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, 
 		break;
 
 	case PROJECTILE_ICBM:
+	case PROJECTILE_ARTILLERY_ICBM:
 		sx = 320;
 		sy = 0;
 		break;
@@ -1198,6 +1200,7 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, 
 		break;
 
 	case WEAPON_LASER:
+	case WEAPON_INFANTRYLASER:
 		sx = 320;
 		sy = 64;
 		break;
