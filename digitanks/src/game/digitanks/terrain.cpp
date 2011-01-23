@@ -147,7 +147,8 @@ void CTerrain::GenerateTerrain(float flHeight)
 	Color* pclrTerrainHeight = NULL;
 	size_t iTerrainData = 0;
 	Color* pclrTerrainData = NULL;
-	if (pGameSettings->iLevel < GameServer()->GetNumLevels())
+
+	if (pGameSettings->iLevel < CDigitanksGame::GetNumLevels(DigitanksGame()->GetGameType()))
 	{
 		pLevel = dynamic_cast<CDigitanksLevel*>(CDigitanksGame::GetLevel(DigitanksGame()->GetGameType(), pGameSettings->iLevel));
 		if (pLevel)

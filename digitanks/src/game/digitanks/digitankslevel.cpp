@@ -2,6 +2,12 @@
 
 #include <datamanager/data.h>
 
+CDigitanksLevel::CDigitanksLevel()
+{
+	m_eGameType = GAMETYPE_EMPTY;
+	m_flMaxHeight = 60;
+}
+
 void CDigitanksLevel::OnReadData(const CData* pData)
 {
 	BaseClass::OnReadData(pData);

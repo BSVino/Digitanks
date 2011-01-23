@@ -20,6 +20,9 @@ class CDigitanksLevel : public CLevel
 	DECLARE_CLASS(CDigitanksLevel, CLevel);
 
 public:
+							CDigitanksLevel();
+
+public:
 	virtual void			OnReadData(const class CData* pData);
 	void					ReadProp(const class CData* pData);
 
