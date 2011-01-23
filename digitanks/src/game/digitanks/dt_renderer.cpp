@@ -164,9 +164,11 @@ void CDigitanksRenderer::RenderSkybox()
 	// Set camera 1/16 to match the scale of the skybox
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(m_vecCameraPosition.x/16, m_vecCameraPosition.y/16, m_vecCameraPosition.z/16,
-		m_vecCameraTarget.x/16, m_vecCameraTarget.y/16, m_vecCameraTarget.z/16,
+	gluLookAt(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z,
+		m_vecCameraTarget.x, m_vecCameraTarget.y, m_vecCameraTarget.z,
 		0.0, 1.0, 0.0);
+
+	glScalef(16, 16, 16);
 
 	if (true)
 	{
@@ -210,8 +212,6 @@ void CDigitanksRenderer::RenderSkybox()
 
 		m_flRing3Yaw -= GameServer()->GetFrameTime()*10;
 	}
-
-	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// Reset the camera
 	glMatrixMode(GL_MODELVIEW);
