@@ -304,6 +304,8 @@ void CDigitanksTeam::StartTurn()
 			apMembers.push_back(pEntity);
 	}
 
+	size_t iProducersBefore = GetNumProducers();
+
 	// Construct and produce and update and shit.
 	for (size_t i = 0; i < apMembers.size(); i++)
 	{
@@ -340,7 +342,7 @@ void CDigitanksTeam::StartTurn()
 	if (DigitanksGame()->GetTurn() == 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
 		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
 
-	if (GetNumProducers() == 0)
+	if (iProducersBefore == 0 && GetNumProducers() == 0)
 		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_NOPRODUCERS);
 
 	DigitanksWindow()->GetHUD()->Layout();
