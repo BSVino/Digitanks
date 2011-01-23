@@ -25,6 +25,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateY, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUpdateDownloaded, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iMegabytes, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iBandwidth, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildBuffers, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildPSUs, &CDigitanksGame::UpdateHUD);
@@ -57,6 +58,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abUpdates);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUpdateDownloaded);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iMegabytes);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildBuffers);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildPSUs);
@@ -317,11 +319,19 @@ void CDigitanksTeam::StartTurn()
 
 	if (GetUpdateDownloading())
 	{
+		m_iMegabytes += m_iBandwidth;
+
 		if (CNetwork::IsHost())
-			m_iUpdateDownloaded += m_iBandwidth;
+		{
+			m_iUpdateDownloaded += m_iMegabytes;
+			m_iMegabytes = 0;
+		}
 
 		if (GetUpdateDownloaded() >= GetUpdateSize())
 		{
+			// Return the excess.
+			m_iMegabytes = GetUpdateDownloaded() - GetUpdateSize();
+
 			DigitanksGame()->AppendTurnInfo(L"'" + GetUpdateDownloading()->GetName() + L"' finished downloading.");
 
 			DownloadComplete();
@@ -656,7 +666,8 @@ void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 
 	m_iCurrentUpdateX = iX;
 	m_iCurrentUpdateY = iY;
-	m_iUpdateDownloaded = 0;
+	m_iUpdateDownloaded = m_iMegabytes;
+	m_iMegabytes = 0;
 }
 
 size_t CDigitanksTeam::GetUpdateSize()

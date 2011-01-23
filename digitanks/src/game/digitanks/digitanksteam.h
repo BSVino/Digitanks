@@ -146,6 +146,7 @@ protected:
 	CNetworkedVariable<int>		m_iCurrentUpdateY;
 	bool						m_abUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];
 	CNetworkedVariable<size_t>	m_iUpdateDownloaded;
+	CNetworkedVariable<size_t>	m_iMegabytes;
 	CNetworkedVariable<size_t>	m_iBandwidth;
 
 	CNetworkedVariable<bool>	m_bCanBuildBuffers;
