@@ -554,18 +554,18 @@ float CSupplier::GetDataFlow(Vector vecPoint)
 
 float CSupplier::GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore)
 {
+	if (!pTeam)
+		return 0;
+
 	float flDataStrength = 0;
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		CBaseEntity* pEntity = pTeam->GetMember(i);
 		if (!pEntity)
 			continue;
 
 		CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
 		if (!pSupplier)
-			continue;
-
-		if (pSupplier->GetTeam() != pTeam)
 			continue;
 
 		if (pSupplier->IsConstructing())
