@@ -6,6 +6,8 @@
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_renderer.h>
 
+REGISTER_ENTITY(CLaser);
+
 NETVAR_TABLE_BEGIN(CLaser);
 NETVAR_TABLE_END();
 
@@ -92,6 +94,8 @@ void CLaser::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	r.EndRender();
 }
+
+REGISTER_ENTITY(CInfantryLaser);
 
 NETVAR_TABLE_BEGIN(CInfantryLaser);
 NETVAR_TABLE_END();

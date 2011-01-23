@@ -2,6 +2,8 @@
 
 #include <models/models.h>
 
+REGISTER_ENTITY(CAutoTurret);
+
 NETVAR_TABLE_BEGIN(CAutoTurret);
 NETVAR_TABLE_END();
 
@@ -29,6 +31,8 @@ void CAutoTurret::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
+
+REGISTER_ENTITY(CGridBug);
 
 NETVAR_TABLE_BEGIN(CGridBug);
 NETVAR_TABLE_END();

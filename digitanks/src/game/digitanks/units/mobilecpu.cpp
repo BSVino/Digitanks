@@ -6,6 +6,8 @@
 #include <ui/instructor.h>
 #include <ui/hud.h>
 
+REGISTER_ENTITY(CMobileCPU);
+
 NETVAR_TABLE_BEGIN(CMobileCPU);
 NETVAR_TABLE_END();
 

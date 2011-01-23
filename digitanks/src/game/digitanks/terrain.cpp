@@ -25,6 +25,8 @@ using namespace raytrace;
 //#define DEBUG_RENDERQUADTREE
 #endif
 
+REGISTER_ENTITY(CTerrain);
+
 NETVAR_TABLE_BEGIN(CTerrain);
 NETVAR_TABLE_END();
 

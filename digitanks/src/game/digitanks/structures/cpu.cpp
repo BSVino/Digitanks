@@ -31,6 +31,8 @@ size_t CCPU::s_iInstallPowerIcon = 0;
 size_t CCPU::s_iInstallBandwidthIcon = 0;
 size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 
+REGISTER_ENTITY(CCPU);
+
 NETVAR_TABLE_BEGIN(CCPU);
 	NETVAR_DEFINE_CALLBACK(CEntityHandle<CStructure>, m_hConstructing, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bProducing, &CDigitanksGame::UpdateHUD);

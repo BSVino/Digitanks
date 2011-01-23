@@ -59,6 +59,8 @@ CLevel* CreateLevel()
 	return new CDigitanksLevel();
 }
 
+REGISTER_ENTITY(CDigitanksGame);
+
 NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(size_t, m_iCurrentTeam);
 	NETVAR_DEFINE(CEntityHandle<CTerrain>, m_hTerrain);

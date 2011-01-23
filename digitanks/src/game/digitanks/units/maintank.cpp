@@ -2,6 +2,8 @@
 
 #include <models/models.h>
 
+REGISTER_ENTITY(CMainBattleTank);
+
 NETVAR_TABLE_BEGIN(CMainBattleTank);
 NETVAR_TABLE_END();
 

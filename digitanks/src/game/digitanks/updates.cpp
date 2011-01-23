@@ -4,6 +4,8 @@
 
 #include "digitanksgame.h"
 
+REGISTER_ENTITY(CUpdateGrid);
+
 NETVAR_TABLE_BEGIN(CUpdateGrid);
 NETVAR_TABLE_END();
 

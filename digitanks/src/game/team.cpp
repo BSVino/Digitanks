@@ -2,6 +2,8 @@
 
 #include <network/network.h>
 
+REGISTER_ENTITY(CTeam);
+
 NETVAR_TABLE_BEGIN(CTeam);
 NETVAR_TABLE_END();
 

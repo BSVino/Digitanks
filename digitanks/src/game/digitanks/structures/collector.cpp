@@ -7,6 +7,8 @@
 #include <digitanks/digitanksteam.h>
 #include <digitanks/digitanksgame.h>
 
+REGISTER_ENTITY(CCollector);
+
 NETVAR_TABLE_BEGIN(CCollector);
 	NETVAR_DEFINE(CEntityHandle<CResource>, m_hResource);
 NETVAR_TABLE_END();
@@ -62,6 +64,8 @@ size_t CCollector::GetProduction()
 
 size_t CBattery::s_iUpgradeIcon = 0;
 size_t CBattery::s_iCancelIcon = 0;
+
+REGISTER_ENTITY(CBattery);
 
 NETVAR_TABLE_BEGIN(CBattery);
 NETVAR_TABLE_END();

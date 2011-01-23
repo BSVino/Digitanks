@@ -109,7 +109,6 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\tinker\cvar.cpp" />
     <ClCompile Include="..\..\tinker\register.cpp" />
     <ClCompile Include="game\digitanks\digitankslevel.cpp" />
-    <ClCompile Include="game\digitanks\digitanks_register.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
     <ClCompile Include="game\digitanks\structures\buffer.cpp" />

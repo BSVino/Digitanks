@@ -8,6 +8,8 @@
 #include <digitanks/digitanksgame.h>
 #include <digitanks/weapons/projectile.h>
 
+REGISTER_ENTITY(CScout);
+
 NETVAR_TABLE_BEGIN(CScout);
 NETVAR_TABLE_END();
 

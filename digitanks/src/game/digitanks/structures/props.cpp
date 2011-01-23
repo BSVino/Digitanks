@@ -6,6 +6,8 @@
 
 #include <digitanks/digitanksgame.h>
 
+REGISTER_ENTITY(CStaticProp);
+
 NETVAR_TABLE_BEGIN(CStaticProp);
 	NETVAR_DEFINE(bool, m_bAdditive);
 	NETVAR_DEFINE(bool, m_bDepthMask);

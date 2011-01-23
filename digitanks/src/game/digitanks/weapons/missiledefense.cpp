@@ -6,6 +6,8 @@
 #include <digitanks/dt_renderer.h>
 #include <digitanks/weapons/projectile.h>
 
+REGISTER_ENTITY(CMissileDefense);
+
 NETVAR_TABLE_BEGIN(CMissileDefense);
 NETVAR_TABLE_END();
 

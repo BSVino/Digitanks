@@ -13,6 +13,8 @@
 #include "structures/loader.h"
 #include "structures/collector.h"
 
+REGISTER_ENTITY(CDigitanksTeam);
+
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iProduction, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iLoadersProducing);

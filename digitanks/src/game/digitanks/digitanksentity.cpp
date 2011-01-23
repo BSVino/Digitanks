@@ -11,6 +11,8 @@
 
 #include "digitanksgame.h"
 
+REGISTER_ENTITY(CDigitanksEntity);
+
 NETVAR_TABLE_BEGIN(CDigitanksEntity);
 NETVAR_TABLE_END();
 

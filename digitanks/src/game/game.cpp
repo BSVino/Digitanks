@@ -12,6 +12,8 @@
 
 #include "camera.h"
 
+REGISTER_ENTITY(CGame);
+
 NETVAR_TABLE_BEGIN(CGame);
 NETVAR_TABLE_END();
 

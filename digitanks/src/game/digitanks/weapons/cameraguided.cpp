@@ -6,6 +6,8 @@
 #include <digitanks/dt_camera.h>
 #include <ui/digitankswindow.h>
 
+REGISTER_ENTITY(CCameraGuidedMissile);
+
 NETVAR_TABLE_BEGIN(CCameraGuidedMissile);
 NETVAR_TABLE_END();
 

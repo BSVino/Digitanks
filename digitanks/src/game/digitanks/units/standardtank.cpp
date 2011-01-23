@@ -5,6 +5,8 @@
 #include <models/models.h>
 #include "digitanks/digitanksgame.h"
 
+REGISTER_ENTITY(CStandardTank);
+
 NETVAR_TABLE_BEGIN(CStandardTank);
 NETVAR_TABLE_END();
 

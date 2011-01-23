@@ -18,6 +18,8 @@
 
 #include <GL/glew.h>
 
+REGISTER_ENTITY(CStructure);
+
 NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(bool, m_bConstructing);
 	NETVAR_DEFINE(size_t, m_iProductionToConstruct);
@@ -489,6 +491,8 @@ size_t CStructure::UpgradeCost() const
 }
 
 size_t CSupplier::s_iTendrilBeam = 0;
+
+REGISTER_ENTITY(CSupplier);
 
 NETVAR_TABLE_BEGIN(CSupplier);
 	NETVAR_DEFINE(size_t, m_iDataStrength);

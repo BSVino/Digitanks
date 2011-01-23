@@ -11,6 +11,8 @@
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
 
+REGISTER_ENTITY(CProjectile);
+
 NETVAR_TABLE_BEGIN(CProjectile);
 NETVAR_TABLE_END();
 
@@ -327,6 +329,8 @@ void CProjectile::ClientEnterGame()
 	}
 }
 
+REGISTER_ENTITY(CSmallShell);
+
 NETVAR_TABLE_BEGIN(CSmallShell);
 NETVAR_TABLE_END();
 
@@ -340,6 +344,8 @@ float CSmallShell::ExplosionRadius()
 	else
 		return 6.0f;
 }
+
+REGISTER_ENTITY(CMediumShell);
 
 NETVAR_TABLE_BEGIN(CMediumShell);
 NETVAR_TABLE_END();
@@ -355,6 +361,8 @@ float CMediumShell::ExplosionRadius()
 		return 12.0f;
 }
 
+REGISTER_ENTITY(CLargeShell);
+
 NETVAR_TABLE_BEGIN(CLargeShell);
 NETVAR_TABLE_END();
 
@@ -368,6 +376,8 @@ float CLargeShell::ExplosionRadius()
 	else
 		return 18.0f;
 }
+
+REGISTER_ENTITY(CAOEShell);
 
 NETVAR_TABLE_BEGIN(CAOEShell);
 NETVAR_TABLE_END();
@@ -383,11 +393,15 @@ float CAOEShell::ExplosionRadius()
 		return 30.0f;
 }
 
+REGISTER_ENTITY(CEMP);
+
 NETVAR_TABLE_BEGIN(CEMP);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CEMP);
 SAVEDATA_TABLE_END();
+
+REGISTER_ENTITY(CICBM);
 
 NETVAR_TABLE_BEGIN(CICBM);
 NETVAR_TABLE_END();
@@ -395,11 +409,15 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CICBM);
 SAVEDATA_TABLE_END();
 
+REGISTER_ENTITY(CGrenade);
+
 NETVAR_TABLE_BEGIN(CGrenade);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CGrenade);
 SAVEDATA_TABLE_END();
+
+REGISTER_ENTITY(CDaisyChain);
 
 NETVAR_TABLE_BEGIN(CDaisyChain);
 NETVAR_TABLE_END();
@@ -433,6 +451,8 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	pProjectile->m_flDamage = m_flDamage - 1;
 	DigitanksGame()->AddProjectileToWaitFor();
 }
+
+REGISTER_ENTITY(CClusterBomb);
 
 NETVAR_TABLE_BEGIN(CClusterBomb);
 NETVAR_TABLE_END();
@@ -477,11 +497,15 @@ void CClusterBomb::OnExplode(CBaseEntity* pInstigator)
 	}
 }
 
+REGISTER_ENTITY(CEarthshaker);
+
 NETVAR_TABLE_BEGIN(CEarthshaker);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CEarthshaker);
 SAVEDATA_TABLE_END();
+
+REGISTER_ENTITY(CSploogeShell);
 
 NETVAR_TABLE_BEGIN(CSploogeShell);
 NETVAR_TABLE_END();
@@ -489,11 +513,15 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CSploogeShell);
 SAVEDATA_TABLE_END();
 
+REGISTER_ENTITY(CTractorBomb);
+
 NETVAR_TABLE_BEGIN(CTractorBomb);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTractorBomb);
 SAVEDATA_TABLE_END();
+
+REGISTER_ENTITY(CArtilleryShell);
 
 NETVAR_TABLE_BEGIN(CArtilleryShell);
 NETVAR_TABLE_END();
@@ -501,11 +529,15 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CArtilleryShell);
 SAVEDATA_TABLE_END();
 
+REGISTER_ENTITY(CArtilleryAoE);
+
 NETVAR_TABLE_BEGIN(CArtilleryAoE);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CArtilleryAoE);
 SAVEDATA_TABLE_END();
+
+REGISTER_ENTITY(CArtilleryICBM);
 
 NETVAR_TABLE_BEGIN(CArtilleryICBM);
 NETVAR_TABLE_END();
@@ -513,11 +545,15 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CArtilleryICBM);
 SAVEDATA_TABLE_END();
 
+REGISTER_ENTITY(CDevastator);
+
 NETVAR_TABLE_BEGIN(CDevastator);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDevastator);
 SAVEDATA_TABLE_END();
+
+REGISTER_ENTITY(CInfantryFlak);
 
 NETVAR_TABLE_BEGIN(CInfantryFlak);
 NETVAR_TABLE_END();
@@ -529,6 +565,8 @@ size_t CInfantryFlak::CreateParticleSystem()
 {
 	return ~0;
 }
+
+REGISTER_ENTITY(CTorpedo);
 
 NETVAR_TABLE_BEGIN(CTorpedo);
 NETVAR_TABLE_END();
@@ -639,6 +677,8 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
 }
+
+REGISTER_ENTITY(CTreeCutter);
 
 NETVAR_TABLE_BEGIN(CTreeCutter);
 NETVAR_TABLE_END();

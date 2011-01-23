@@ -16,6 +16,8 @@ size_t CBuffer::s_iInstallFleetSupplyIcon = 0;
 size_t CBuffer::s_iInstallEnergyBonusIcon = 0;
 size_t CBuffer::s_iInstallRechargeBonusIcon = 0;
 
+REGISTER_ENTITY(CBuffer);
+
 NETVAR_TABLE_BEGIN(CBuffer);
 NETVAR_TABLE_END();
 
@@ -71,6 +73,8 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 
 size_t CMiniBuffer::s_iUpgradeIcon = 0;
 size_t CMiniBuffer::s_iCancelIcon = 0;
+
+REGISTER_ENTITY(CMiniBuffer);
 
 NETVAR_TABLE_BEGIN(CMiniBuffer);
 NETVAR_TABLE_END();

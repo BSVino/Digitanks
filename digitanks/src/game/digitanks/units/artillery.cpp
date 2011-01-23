@@ -11,6 +11,8 @@
 #include <digitanks/digitanksgame.h>
 #include <digitanks/weapons/projectile.h>
 
+REGISTER_ENTITY(CArtillery);
+
 NETVAR_TABLE_BEGIN(CArtillery);
 NETVAR_TABLE_END();
 

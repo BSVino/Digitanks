@@ -27,6 +27,8 @@ size_t CLoader::s_iBuildInfantryIcon = 0;
 size_t CLoader::s_iBuildTankIcon = 0;
 size_t CLoader::s_iBuildArtilleryIcon = 0;
 
+REGISTER_ENTITY(CLoader);
+
 NETVAR_TABLE_BEGIN(CLoader);
 	NETVAR_DEFINE(unittype_t, m_eBuildUnit);
 	NETVAR_DEFINE(size_t, m_iBuildUnitModel);

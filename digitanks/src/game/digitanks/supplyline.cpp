@@ -11,6 +11,8 @@
 
 size_t CSupplyLine::s_iSupplyBeam = 0;
 
+REGISTER_ENTITY(CSupplyLine);
+
 NETVAR_TABLE_BEGIN(CSupplyLine);
 	NETVAR_DEFINE(CEntityHandle<CSupplier>, m_hSupplier);
 	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_hEntity);

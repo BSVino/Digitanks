@@ -16,6 +16,8 @@ size_t CBaseEntity::s_iEntities = 0;
 size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;
 size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
+REGISTER_ENTITY(CBaseEntity);
+
 NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
 	NETVAR_DEFINE(Vector, m_vecOrigin);
 	NETVAR_DEFINE(EAngle, m_angAngles);
@@ -508,10 +510,16 @@ void CBaseEntity::PrecacheSound(const eastl::string16& sSound)
 	CSoundLibrary::Get()->AddSound(sSound);
 }
 
+eastl::vector<CEntityRegistration>& CBaseEntity::GetEntityRegistration()
+{
+	static eastl::vector<CEntityRegistration> aEntityRegistration;
+	return aEntityRegistration;
+}
+
 void CBaseEntity::RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)
 {
-	s_aEntityRegistration.push_back(CEntityRegistration());
-	CEntityRegistration* pEntity = &s_aEntityRegistration[s_aEntityRegistration.size()-1];
+	GetEntityRegistration().push_back(CEntityRegistration());
+	CEntityRegistration* pEntity = &GetEntityRegistration()[GetEntityRegistration().size()-1];
 	pEntity->m_pszEntityName = pszEntityName;
 	pEntity->m_pfnCreateCallback = pfnCreateCallback;
 	pEntity->m_pfnRegisterCallback = pfnRegisterCallback;
@@ -525,9 +533,9 @@ void CBaseEntity::Register(CBaseEntity* pEntity)
 
 size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
 {
-	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
+	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
 	{
-		if (strcmp(CBaseEntity::s_aEntityRegistration[i].m_pszEntityName, pszEntityName) == 0)
+		if (strcmp(CBaseEntity::GetEntityRegistration()[i].m_pszEntityName, pszEntityName) == 0)
 		{
 			return i;
 		}
@@ -537,5 +545,5 @@ size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
 
 CEntityRegistration* CBaseEntity::GetRegisteredEntity(size_t iEntity)
 {
-	return &s_aEntityRegistration[iEntity];
+	return &GetEntityRegistration()[iEntity];
 }

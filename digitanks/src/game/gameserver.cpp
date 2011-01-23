@@ -49,8 +49,8 @@ CGameServer::CGameServer()
 	size_t iPostSeed = mtrand();
 
 	TMsg(L"Precaching entities... ");
-	for (size_t i = 0; i < CBaseEntity::s_aEntityRegistration.size(); i++)
-		CBaseEntity::s_aEntityRegistration[i].m_pfnRegisterCallback();
+	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
+		CBaseEntity::GetEntityRegistration()[i].m_pfnRegisterCallback();
 	TMsg(L"Done.\n");
 	TMsg(sprintf(L"%d models, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModels(), CRenderer::GetNumTexturesLoaded(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
 
@@ -492,7 +492,7 @@ CEntityHandle<CBaseEntity> CGameServer::Create(const char* pszEntityName)
 size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_t iSpawnSeed)
 {
 	CBaseEntity::s_iOverrideEntityListIndex = iHandle;
-	iHandle = CBaseEntity::s_aEntityRegistration[iRegisteredEntity].m_pfnCreateCallback();
+	iHandle = CBaseEntity::GetEntityRegistration()[iRegisteredEntity].m_pfnCreateCallback();
 	CBaseEntity::s_iOverrideEntityListIndex = ~0;
 
 	CEntityHandle<CBaseEntity> hEntity(iHandle);
@@ -530,7 +530,7 @@ void CGameServer::Delete(CBaseEntity* pEntity)
 
 void CGameServer::CreateEntity(CNetworkParameters* p)
 {
-	if (CBaseEntity::s_aEntityRegistration.size() <= (size_t)p->i1)
+	if (CBaseEntity::GetEntityRegistration().size() <= (size_t)p->i1)
 		return;
 
 	CreateEntity(p->i1, p->ui2, p->i3);

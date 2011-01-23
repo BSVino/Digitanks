@@ -9,6 +9,8 @@
 
 #include "digitanksgame.h"
 
+REGISTER_ENTITY(CMenuMarcher);
+
 NETVAR_TABLE_BEGIN(CMenuMarcher);
 NETVAR_TABLE_END();
 

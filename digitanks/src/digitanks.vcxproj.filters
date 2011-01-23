@@ -180,9 +180,6 @@
     <ClCompile Include="ui\updatespanel.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
-    <ClCompile Include="game\digitanks\digitanks_register.cpp">
-      <Filter>Source Files\digitanks</Filter>
-    </ClCompile>
     <ClCompile Include="game\digitanks\dt_camera.cpp">
       <Filter>Source Files\digitanks</Filter>
     </ClCompile>

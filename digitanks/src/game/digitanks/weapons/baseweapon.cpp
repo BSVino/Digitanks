@@ -4,6 +4,8 @@
 #include <digitanks/dt_camera.h>
 #include <digitanks/dt_renderer.h>
 
+REGISTER_ENTITY(CBaseWeapon);
+
 NETVAR_TABLE_BEGIN(CBaseWeapon);
 NETVAR_TABLE_END();
 

@@ -69,6 +69,8 @@ const char* CDigitank::s_apszTankLines[] =
 
 eastl::map<size_t, eastl::vector<size_t> > g_aiSpeechLines;
 
+REGISTER_ENTITY(CDigitank);
+
 NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(float, m_flStartingPower);
 	NETVAR_DEFINE(float, m_flTotalPower);

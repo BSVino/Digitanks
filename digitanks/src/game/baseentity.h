@@ -286,6 +286,7 @@ public:
 	static void								PrecacheParticleSystem(const eastl::string16& sSystem);
 	static void								PrecacheSound(const eastl::string16& sSound);
 
+public:
 	static void								RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
 	static void								Register(CBaseEntity* pEntity);
 	static size_t							FindRegisteredEntity(const char* pszEntityName);
@@ -299,6 +300,9 @@ public:
 
 	template <class T>
 	static T*								FindClosest(Vector vecPoint, CBaseEntity* pFurther = NULL);
+
+protected:
+	static eastl::vector<CEntityRegistration>& GetEntityRegistration();
 
 protected:
 	CNetworkedVector						m_vecOrigin;
@@ -336,8 +340,6 @@ private:
 	static size_t							s_iEntities;
 	static size_t							s_iOverrideEntityListIndex;
 	static size_t							s_iNextEntityListIndex;
-
-	static eastl::vector<CEntityRegistration>	s_aEntityRegistration;
 };
 
 #define REGISTER_ENTITY(entity) \

@@ -9,6 +9,8 @@
 #include "units/digitank.h"
 #include "digitanksgame.h"
 
+REGISTER_ENTITY(CPowerup);
+
 NETVAR_TABLE_BEGIN(CPowerup);
 NETVAR_TABLE_END();
 

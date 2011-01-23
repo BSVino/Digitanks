@@ -3,6 +3,8 @@
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
 
+REGISTER_ENTITY(CSelectable);
+
 NETVAR_TABLE_BEGIN(CSelectable);
 NETVAR_TABLE_END();
 
