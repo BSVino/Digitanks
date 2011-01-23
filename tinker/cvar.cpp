@@ -93,3 +93,15 @@ bool CVar::GetBool()
 
 	return false;
 }
+
+int CVar::GetInt()
+{
+	// Don't want to use _wtoi I don't think it's as portable.
+	return atoi(convertstring<char16_t, char>(m_sValue).c_str());
+}
+
+float CVar::GetFloat()
+{
+	// Don't want to use _wtof I don't think it's as portable.
+	return (float)atof(convertstring<char16_t, char>(m_sValue).c_str());
+}

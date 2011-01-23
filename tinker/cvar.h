@@ -48,6 +48,8 @@ public:
 
 	eastl::string16		GetValue() { return m_sValue; };
 	bool				GetBool();
+	int					GetInt();
+	float				GetFloat();
 
 protected:
 	eastl::string16		m_sValue;

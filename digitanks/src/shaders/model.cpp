@@ -57,8 +57,11 @@ const char* CShaderLibrary::GetFSScrollingTextureShader()
 	return
 		"uniform sampler2D iTexture;"
 
+		"uniform float flAlpha;"
+
 		"void main()"
 		"{"
 		"	gl_FragColor = gl_Color * texture2D(iTexture, gl_TexCoord[0].st);"
+		"	gl_FragColor.a *= flAlpha;"
 		"}";
 }

@@ -3,10 +3,12 @@
 #include <maths.h>
 #include <mtrand.h>
 
+#include <tinker/cvar.h>
+
 #include <digitanks/dt_renderer.h>
 #include <digitanks/digitanksgame.h>
 #include <digitanks/supplyline.h>
-
+#include <digitanks/dt_camera.h>
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
 #include <shaders/shaders.h>
@@ -779,12 +781,30 @@ void CSupplier::CompleteConstruction()
 
 #define GROWTH_TIME 3
 
+CVar tendril_fade_distance("tendril_fade_distance", "300");
+
 void CSupplier::PostRender(bool bTransparent)
 {
 	BaseClass::PostRender(bTransparent);
 
 	if (!bTransparent)
 		return;
+
+	CDigitanksCamera* pCamera = DigitanksGame()->GetDigitanksCamera();
+	Vector vecCamera = pCamera->GetCameraPosition();
+	float flDistanceSqr = GetOrigin().DistanceSqr(vecCamera);
+	float flFadeDistance = tendril_fade_distance.GetFloat();
+
+	float flFadeAlpha = RemapValClamped(flDistanceSqr, flFadeDistance*flFadeDistance, (flFadeDistance+20)*(flFadeDistance+20), 1, 0);
+
+	if (flFadeAlpha <= 0)
+		return;
+
+	float flTreeAlpha = 1.0f;
+	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetOrigin().x), CTerrain::WorldToArraySpace(GetOrigin().z), TB_TREE))
+		flTreeAlpha = 0.3f;
+
+	Color clrTeam = GetTeam()->GetColor();
 
 	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar())
@@ -803,6 +823,9 @@ void CSupplier::PostRender(bool bTransparent)
 
 		GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
 		glUniform1f(iTexture, 0);
+
+		GLuint flAlpha = glGetUniformLocation(iScrollingTextureProgram, "flAlpha");
+		glUniform1f(flAlpha, flFadeAlpha * flTreeAlpha);
 	}
 
 	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
@@ -831,13 +854,13 @@ void CSupplier::PostRender(bool bTransparent)
 			Vector vecDirection = vecPath.Normalized();
 			size_t iSegments = (size_t)(flDistance/2);
 
-			Color clrTeam = GetTeam()->GetColor();
-
 			if (GameServer()->GetRenderer()->ShouldUseShaders())
 			{
 				GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
 				glUniform1f(flSpeed, pTendril->m_flSpeed);
 			}
+
+			clrTeam.SetAlpha(160);
 
 			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 			oRope.SetColor(clrTeam);
@@ -847,7 +870,8 @@ void CSupplier::PostRender(bool bTransparent)
 
 			for (size_t i = 1; i < iSegments; i++)
 			{
-				oRope.SetColor(Color(clrTeam.r(), clrTeam.g(), clrTeam.b(), (int)RemapVal((float)i, 1, (float)iSegments, 155, 50)));
+				clrTeam.SetAlpha((int)RemapVal((float)i, 1, (float)iSegments, 155, 50));
+				oRope.SetColor(clrTeam);
 
 				float flCurrentDistance = ((float)i*flDistance)/iSegments;
 				oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
@@ -918,6 +942,8 @@ void CSupplier::UpdateTendrils()
 		GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
 		glUniform1f(flSpeed, pTendril->m_flSpeed);
 
+		clrTeam.SetAlpha(160);
+
 		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
 		oRope.SetColor(clrTeam);
 		oRope.SetTextureScale(pTendril->m_flScale);
@@ -926,7 +952,8 @@ void CSupplier::UpdateTendrils()
 
 		for (size_t i = 1; i < iSegments; i++)
 		{
-			oRope.SetColor(Color(clrTeam.r(), clrTeam.g(), clrTeam.b(), (int)RemapVal((float)i, 1, (float)iSegments, 155, 50)));
+			clrTeam.SetAlpha((int)RemapVal((float)i, 1, (float)iSegments, 155, 50));
+			oRope.SetColor(clrTeam);
 
 			float flCurrentDistance = ((float)i*flDistance)/iSegments;
 			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
@@ -1080,5 +1107,5 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 
 float CSupplier::BaseVisibleRange() const
 {
-	return GetDataFlowRadius() + 5;
+	return GetDataFlowRadius() + 15;
 }

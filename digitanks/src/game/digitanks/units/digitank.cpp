@@ -1389,6 +1389,8 @@ void CDigitank::Sentry(CNetworkParameters* p)
 
 	m_bSentried = true;
 
+	CancelGoalMovePosition();
+
 	DirtyNeedsOrders();
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
@@ -1702,8 +1704,17 @@ void CDigitank::Think()
 			CDigitank* pDigitank = dynamic_cast<CDigitank*>(m_hChargeTarget.GetPointer());
 			if (pDigitank)
 			{
-				pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * ChargePushDistance(), 2);
-				pDigitank->RockTheBoat(1, vecPushDirection);
+				if (pDigitank->IsFortified())
+				{
+					TakeDamage(this, this, DAMAGE_COLLISION, ChargeDamage()/2, true);
+					Move(GetOrigin() - vecPushDirection * ChargePushDistance()/2, 2);
+					RockTheBoat(1, -vecPushDirection);
+				}
+				else
+				{
+					pDigitank->Move(pDigitank->GetOrigin() + vecPushDirection * ChargePushDistance(), 2);
+					pDigitank->RockTheBoat(1, vecPushDirection);
+				}
 
 				Vector vecLookAt = (GetOrigin() - pDigitank->GetOrigin()).Normalized();
 				pDigitank->m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - pDigitank->GetRenderAngles().y;

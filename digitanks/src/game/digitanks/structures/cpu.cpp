@@ -233,15 +233,22 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(2, L"OPEN LOADER CONSTRUCTION MENU\n \nShortcut: E");
 		}
 
-		pHUD->SetButtonListener(7, CHUD::BuildScout);
 		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
-		pHUD->SetButtonColor(7, Color(150, 150, 150));
+		if (GetDigitanksTeam()->GetUnusedFleetPoints())
+		{
+			pHUD->SetButtonColor(7, Color(150, 150, 150));
+			pHUD->SetButtonListener(7, CHUD::BuildScout);
+		}
 
 		eastl::string16 s;
 		s += L"BUILD ROGUE\n \n";
 		s += L"Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n";
 		s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
 		s += p.sprintf(L"Turns to construct: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)));
+
+		if (!GetDigitanksTeam()->GetUnusedFleetPoints())
+			s += L"NOT ENOUGH FLEET POINTS\n \n";
+
 		s += L"Shortcut: D";
 		pHUD->SetButtonInfo(7, s);
 	}
@@ -517,6 +524,9 @@ void CCPU::BeginRogueProduction()
 
 void CCPU::BeginRogueProduction(class CNetworkParameters* p)
 {
+	if (!GetDigitanksTeam()->GetUnusedFleetPoints())
+		return;
+
 	m_iProduction = 0;
 	m_bProducing = true;
 
