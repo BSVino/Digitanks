@@ -3,6 +3,7 @@
 
 #include <EASTL/string.h>
 #include <vector.h>
+#include <plane.h>
 #include <matrix.h>
 #include <color.h>
 
@@ -152,8 +153,13 @@ public:
 	void			SetCameraNear(float flNear) { m_flCameraNear = flNear; };
 	void			SetCameraFar(float flFar) { m_flCameraFar = flFar; };
 
+	void			FrustumOverride(Vector vecPosition, Vector vecTarget, float flFOV, float flNear, float flFar);
+	void			CancelFrustumOverride();
+
 	Vector			GetCameraVector();
 	void			GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector* pvecUp);
+
+	bool			IsSphereInFrustum(Vector vecCenter, float flRadius);
 
 	void			SetSize(int w, int h);
 
@@ -192,9 +198,18 @@ protected:
 	float			m_flCameraNear;
 	float			m_flCameraFar;
 
+	bool			m_bFrustumOverride;
+	Vector			m_vecFrustumPosition;
+	Vector			m_vecFrustumTarget;
+	float			m_flFrustumFOV;
+	float			m_flFrustumNear;
+	float			m_flFrustumFar;
+
 	double			m_aiModelView[16];
 	double			m_aiProjection[16];
 	int				m_aiViewport[4];
+
+	Plane			m_aoFrustum[6];
 
 	CFrameBuffer	m_oSceneBuffer;
 

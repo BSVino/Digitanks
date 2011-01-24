@@ -101,6 +101,9 @@ protected:
 	float										m_flFrameTime;
 	float										m_flRealTime;
 
+	eastl::vector<CEntityHandle<CBaseEntity> >	m_apSimulateList;
+	eastl::vector<CBaseEntity*>					m_apRenderList;
+
 	class CCamera*								m_pCamera;
 	class CRenderer*							m_pRenderer;
 

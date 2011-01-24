@@ -146,6 +146,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual float				GetRenderRadius() const { return GetBoundingRadius() + GetDataFlowRadius() + 5; };
+
 	virtual void				ClientEnterGame();
 
 	virtual void				CompleteConstruction();

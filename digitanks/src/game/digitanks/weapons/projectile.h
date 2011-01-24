@@ -16,6 +16,8 @@ public:
 
 	virtual void				Think();
 
+	virtual float				GetBoundingRadius() const { return ShellRadius() + 1.0f; }
+
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
 	virtual eastl::string16		SpecialCommandHint() { return L"Detonate"; };
@@ -47,7 +49,7 @@ public:
 
 	virtual float				ShieldDamageScale() { return 1; };
 	virtual float				HealthDamageScale() { return 1; };
-	virtual float				ShellRadius() { return 0.5f; };
+	virtual float				ShellRadius() const { return 0.5f; };
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				BombDropNoise() { return true; };
 	virtual bool				SendsNotifications() { return true; };

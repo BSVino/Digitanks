@@ -3,6 +3,7 @@
 #include <maths.h>
 #include <mtrand.h>
 #include <renderer/renderer.h>
+#include <tinker/cvar.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
@@ -15,6 +16,8 @@ CCamera::CCamera()
 	m_iMouseLastY = 0;
 }
 
+CVar shrink_frustum("debug_shrink_frustum", "no");
+
 void CCamera::Think()
 {
 	if (m_bFreeMode)
@@ -24,6 +27,11 @@ void CCamera::Think()
 
 		m_vecFreeCamera += vecForward * m_vecFreeVelocity.x * GameServer()->GetFrameTime() * 20;
 		m_vecFreeCamera -= vecRight * m_vecFreeVelocity.z * GameServer()->GetFrameTime() * 20;
+	}
+	else
+	{
+		if (shrink_frustum.GetBool())
+			GameServer()->GetRenderer()->FrustumOverride(GetCameraPosition(), GetCameraTarget(), GetCameraFOV()-1, GetCameraNear()+1, GetCameraFar()-1);
 	}
 }
 
@@ -85,10 +93,22 @@ void CCamera::MouseInput(int x, int y)
 	m_iMouseLastY = y;
 }
 
+CVar lock_freemode_frustum("debug_lock_freemode_frustum", "no");
+
 void CCamera::KeyDown(int c)
 {
 	if (c == 'Z')
+	{
 		SetFreeMode(!m_bFreeMode);
+
+		if (lock_freemode_frustum.GetBool())
+		{
+			if (m_bFreeMode)
+				GameServer()->GetRenderer()->FrustumOverride(GetCameraPosition(), GetCameraTarget(), GetCameraFOV(), GetCameraNear(), GetCameraFar());
+			else
+				GameServer()->GetRenderer()->CancelFrustumOverride();
+		}
+	}
 
 	if (m_bFreeMode)
 	{

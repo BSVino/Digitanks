@@ -58,6 +58,7 @@ public:
 	virtual void				Spawn();
 
 	virtual float				GetBoundingRadius() const { return 4; };
+	virtual float				GetRenderRadius() const { return GetBoundingRadius() + 3.2f*RenderShieldScale(); };
 
 	float						GetTotalPower() const { return m_flTotalPower.Get(); };
 	float						GetStartingPower() const { return m_flStartingPower.Get(); };
@@ -269,7 +270,7 @@ public:
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
 	virtual void				RenderShield(float flAlpha, float flAngle);
-	virtual float				RenderShieldScale() { return 1.0f; };
+	virtual float				RenderShieldScale() const { return 1.0f; };
 	virtual void				PostRender(bool bTransparent);
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);

@@ -293,7 +293,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		while (m_angCamera.y < -180)
 			m_angCamera.y += 360;
 	}
-	else if (DigitanksWindow()->ShouldConstrainMouse())
+	else if (DigitanksWindow()->ShouldConstrainMouse() && !m_bFreeMode)
 	{
 		if (!m_bMouseDragLeft && x < 15)
 		{
@@ -358,8 +358,6 @@ void CDigitanksCamera::MouseButton(int iButton, int iState)
 	if (iButton == TINKER_KEY_MOUSE_RIGHT)
 	{
 		m_bRotatingCamera = !!iState;
-		if (m_bRotatingCamera)
-			m_vecGoalVelocity = Vector(0,0,0);
 	}
 
 	BaseClass::MouseButton(iButton, iState);

@@ -258,19 +258,19 @@ void CGameServer::Simulate()
 {
 	float flSimulationFrameTime = 0.01f;
 
-	eastl::vector<CEntityHandle<CBaseEntity> > ahEntities;
-	ahEntities.reserve(CBaseEntity::GetNumEntities());
+	m_apSimulateList.reserve(CBaseEntity::GetNumEntities());
+	m_apSimulateList.clear();
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		if (!CBaseEntity::GetEntity(i))
 			continue;
 
-		ahEntities.push_back(CBaseEntity::GetEntity(i));
+		m_apSimulateList.push_back(CBaseEntity::GetEntity(i));
 	}
 
-	for (size_t i = 0; i < ahEntities.size(); i++)
+	for (size_t i = 0; i < m_apSimulateList.size(); i++)
 	{
-		CBaseEntity* pEntity = ahEntities[i];
+		CBaseEntity* pEntity = m_apSimulateList[i];
 		if (!pEntity)
 			continue;
 
@@ -278,9 +278,9 @@ void CGameServer::Simulate()
 	}
 
 	// Move all entities
-	for (size_t i = 0; i < ahEntities.size(); i++)
+	for (size_t i = 0; i < m_apSimulateList.size(); i++)
 	{
-		CBaseEntity* pEntity = ahEntities[i];
+		CBaseEntity* pEntity = m_apSimulateList[i];
 		if (!pEntity)
 			continue;
 
@@ -300,9 +300,9 @@ void CGameServer::Simulate()
 	while (m_flSimulationTime < m_flGameTime)
 		m_flSimulationTime += flSimulationFrameTime;
 
-	for (size_t i = 0; i < ahEntities.size(); i++)
+	for (size_t i = 0; i < m_apSimulateList.size(); i++)
 	{
-		CBaseEntity* pEntity = ahEntities[i];
+		CBaseEntity* pEntity = m_apSimulateList[i];
 		if (!pEntity)
 			continue;
 
@@ -346,26 +346,36 @@ void CGameServer::Render()
 	m_pRenderer->DrawBackground();
 	m_pRenderer->StartRendering();
 
-	// First render all opaque objects
+	m_apRenderList.reserve(CBaseEntity::GetNumEntities());
+	m_apRenderList.clear();
+
+	// None of these had better get deleted while we're doing this since they're not handles.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
 			continue;
 
-		if (pEntity->ShouldRender())
-			pEntity->Render(false);
+		if (!pEntity->ShouldRender())
+			continue;
+
+		if (!m_pRenderer->IsSphereInFrustum(pEntity->GetRenderOrigin(), pEntity->GetRenderRadius()))
+			continue;
+
+		m_apRenderList.push_back(pEntity);
+	}
+
+	// First render all opaque objects
+	size_t iEntites = m_apRenderList.size();
+	for (size_t i = 0; i < iEntites; i++)
+	{
+		m_apRenderList[i]->Render(false);
 	}
 
 	// Now render all transparent objects. Should really sort this back to front but meh for now.
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	for (size_t i = 0; i < iEntites; i++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-		if (!pEntity)
-			continue;
-
-		if (pEntity->ShouldRender())
-			pEntity->Render(true);
+		m_apRenderList[i]->Render(true);
 	}
 
 	CParticleSystemLibrary::Render();

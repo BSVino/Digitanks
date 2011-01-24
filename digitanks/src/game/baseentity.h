@@ -175,6 +175,7 @@ public:
 	virtual void							Spawn() {};
 
 	virtual float							GetBoundingRadius() const { return 0; };
+	virtual float							GetRenderRadius() const { return GetBoundingRadius(); };
 
 	void									SetModel(const eastl::string16& sModel);
 	void									SetModel(size_t iModel);

@@ -560,6 +560,9 @@
     <ClInclude Include="game\digitanks\units\barbarians.h">
       <Filter>Source Files\digitanks\units</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\common\math\plane.h">
+      <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\build\digitanks.ico">

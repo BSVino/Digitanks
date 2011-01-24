@@ -12,6 +12,7 @@
 #include <models/models.h>
 #include <shaders/shaders.h>
 #include <tinker/application.h>
+#include <tinker/cvar.h>
 
 CRenderingContext::CRenderingContext(CRenderer* pRenderer)
 {
@@ -607,6 +608,8 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
+
+	m_bFrustumOverride = false;
 }
 
 void CRenderer::Initialize()
@@ -809,6 +812,13 @@ void CRenderer::DrawBackground()
 	glPopMatrix();
 }
 
+#define FRUSTUM_NEAR	0
+#define FRUSTUM_FAR		1
+#define FRUSTUM_LEFT	2
+#define FRUSTUM_RIGHT	3
+#define FRUSTUM_UP		4
+#define FRUSTUM_DOWN	5
+
 void CRenderer::StartRendering()
 {
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT|GL_CURRENT_BIT);
@@ -836,6 +846,83 @@ void CRenderer::StartRendering()
 	glGetDoublev( GL_MODELVIEW_MATRIX, m_aiModelView );
 	glGetDoublev( GL_PROJECTION_MATRIX, m_aiProjection );
 
+	if (m_bFrustumOverride)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+
+		gluPerspective(
+				m_flFrustumFOV,
+				(float)m_iWidth/(float)m_iHeight,
+				m_flFrustumNear,
+				m_flFrustumFar
+			);
+
+		glMatrixMode(GL_MODELVIEW);
+
+		glPushMatrix();
+		glLoadIdentity();
+
+		gluLookAt(m_vecFrustumPosition.x, m_vecFrustumPosition.y, m_vecFrustumPosition.z,
+			m_vecFrustumTarget.x, m_vecFrustumTarget.y, m_vecFrustumTarget.z,
+			0.0, 1.0, 0.0);
+	}
+
+	Matrix4x4 mModelView, mProjection;
+	glGetFloatv( GL_MODELVIEW_MATRIX, mModelView );
+	glGetFloatv( GL_PROJECTION_MATRIX, mProjection );
+
+	if (m_bFrustumOverride)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
+
+	Matrix4x4 mFrustum = mModelView * mProjection;
+
+	float* pflFrustum = mFrustum;
+
+	m_aoFrustum[FRUSTUM_RIGHT].n.x = mFrustum.m[0][3] - mFrustum.m[0][0];
+	m_aoFrustum[FRUSTUM_RIGHT].n.y = mFrustum.m[1][3] - mFrustum.m[1][0];
+	m_aoFrustum[FRUSTUM_RIGHT].n.z = mFrustum.m[2][3] - mFrustum.m[2][0];
+	m_aoFrustum[FRUSTUM_RIGHT].d = mFrustum.m[3][3] - mFrustum.m[3][0];
+
+	m_aoFrustum[FRUSTUM_LEFT].n.x = mFrustum.m[0][3] + mFrustum.m[0][0];
+	m_aoFrustum[FRUSTUM_LEFT].n.y = mFrustum.m[1][3] + mFrustum.m[1][0];
+	m_aoFrustum[FRUSTUM_LEFT].n.z = mFrustum.m[2][3] + mFrustum.m[2][0];
+	m_aoFrustum[FRUSTUM_LEFT].d = mFrustum.m[3][3] + mFrustum.m[3][0];
+
+	m_aoFrustum[FRUSTUM_DOWN].n.x = mFrustum.m[0][3] + mFrustum.m[0][1];
+	m_aoFrustum[FRUSTUM_DOWN].n.y = mFrustum.m[1][3] + mFrustum.m[1][1];
+	m_aoFrustum[FRUSTUM_DOWN].n.z = mFrustum.m[2][3] + mFrustum.m[2][1];
+	m_aoFrustum[FRUSTUM_DOWN].d = mFrustum.m[3][3] + mFrustum.m[3][1];
+
+	m_aoFrustum[FRUSTUM_UP].n.x = mFrustum.m[0][3] - mFrustum.m[0][1];
+	m_aoFrustum[FRUSTUM_UP].n.y = mFrustum.m[1][3] - mFrustum.m[1][1];
+	m_aoFrustum[FRUSTUM_UP].n.z = mFrustum.m[2][3] - mFrustum.m[2][1];
+	m_aoFrustum[FRUSTUM_UP].d = mFrustum.m[3][3] - mFrustum.m[3][1];
+
+	m_aoFrustum[FRUSTUM_FAR].n.x = mFrustum.m[0][3] - mFrustum.m[0][2];
+	m_aoFrustum[FRUSTUM_FAR].n.y = mFrustum.m[1][3] - mFrustum.m[1][2];
+	m_aoFrustum[FRUSTUM_FAR].n.z = mFrustum.m[2][3] - mFrustum.m[2][2];
+	m_aoFrustum[FRUSTUM_FAR].d = mFrustum.m[3][3] - mFrustum.m[3][2];
+
+	m_aoFrustum[FRUSTUM_NEAR].n.x = mFrustum.m[0][3] + mFrustum.m[0][2];
+	m_aoFrustum[FRUSTUM_NEAR].n.y = mFrustum.m[1][3] + mFrustum.m[1][2];
+	m_aoFrustum[FRUSTUM_NEAR].n.z = mFrustum.m[2][3] + mFrustum.m[2][2];
+	m_aoFrustum[FRUSTUM_NEAR].d = mFrustum.m[3][3] + mFrustum.m[3][2];
+
+	// Normalize all plane normals
+	for(int i = 0; i < 6; i++)
+	{
+		m_aoFrustum[i].d = -m_aoFrustum[i].d; // Why? I don't know.
+		m_aoFrustum[i].Normalize();
+	}
+
 	// Momentarily return the viewport to the window size. This is because if the scene buffer is not the same as the window size,
 	// the viewport here will be the scene buffer size, but we need it to be the window size so we can do world/screen transformations.
 	glPushAttrib(GL_VIEWPORT_BIT);
@@ -847,8 +934,32 @@ void CRenderer::StartRendering()
 	glEnable(GL_TEXTURE_2D);
 }
 
+CVar show_frustum("debug_show_frustum", "no");
+
 void CRenderer::FinishRendering()
 {
+	if (show_frustum.GetBool())
+	{
+		for (size_t i = 0; i < 6; i++)
+		{
+			Vector vecForward = m_aoFrustum[i].n;
+			Vector vecRight = vecForward.Cross(Vector(0, 1, 0)).Normalized();
+			Vector vecUp = vecRight.Cross(vecForward).Normalized();
+			Vector vecCenter = vecForward * m_aoFrustum[i].d;
+
+			vecForward *= 100;
+			vecRight *= 100;
+			vecUp *= 100;
+
+			glBegin(GL_QUADS);
+				glVertex3fv(vecCenter + vecUp + vecRight);
+				glVertex3fv(vecCenter - vecUp + vecRight);
+				glVertex3fv(vecCenter - vecUp - vecRight);
+				glVertex3fv(vecCenter + vecUp - vecRight);
+			glEnd();
+		}
+	}
+
 	glPopMatrix();
 	glPopAttrib();
 
@@ -948,6 +1059,21 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 	glPopMatrix();
 }
 
+void CRenderer::FrustumOverride(Vector vecPosition, Vector vecTarget, float flFOV, float flNear, float flFar)
+{
+	m_bFrustumOverride = true;
+	m_vecFrustumPosition = vecPosition;
+	m_vecFrustumTarget = vecTarget;
+	m_flFrustumFOV = flFOV;
+	m_flFrustumNear = flNear;
+	m_flFrustumFar = flFar;
+}
+
+void CRenderer::CancelFrustumOverride()
+{
+	m_bFrustumOverride = false;
+}
+
 Vector CRenderer::GetCameraVector()
 {
 	return (m_vecCameraTarget - m_vecCameraPosition).Normalized();
@@ -969,6 +1095,19 @@ void CRenderer::GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector*
 
 	if (pvecUp)
 		(*pvecUp) = vecRight.Cross(vecForward).Normalized();
+}
+
+bool CRenderer::IsSphereInFrustum(Vector vecCenter, float flRadius)
+{
+	for (size_t i = 0; i < 6; i++)
+	{
+		// Why does it subtract d and not add like it should be? Don't know, don't care, it works.
+		float flDistance = m_aoFrustum[i].n.x*vecCenter.x + m_aoFrustum[i].n.y*vecCenter.y + m_aoFrustum[i].n.z*vecCenter.z - m_aoFrustum[i].d;
+		if (flDistance + flRadius < 0)
+			return false;
+	}
+
+	return true;
 }
 
 void CRenderer::SetSize(int w, int h)

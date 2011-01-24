@@ -60,6 +60,18 @@ Vector CSupplyLine::GetOrigin() const
 	return m_hSupplier->GetOrigin();
 }
 
+float CSupplyLine::GetRenderRadius() const
+{
+	if (m_hSupplier == NULL || m_hEntity == NULL)
+		return 0;
+
+	Vector vecSupplier = m_hSupplier->GetRenderOrigin();
+	Vector vecEntity = m_hEntity->GetRenderOrigin();
+
+	// Much bigger than it really is but supply lines haven't been a perf problem yet.
+	return vecEntity.Distance(vecSupplier);
+}
+
 float CSupplyLine::Distance(Vector vecSpot)
 {
 	if (m_hSupplier == NULL || m_hEntity == NULL)
