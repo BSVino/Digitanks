@@ -13,7 +13,8 @@ public:
 	virtual void	Spawn();
 
 	virtual bool	GetsConcealmentBonus() const { return false; };
-	virtual bool	UsesRaytracedCollision() { return true; }
+	virtual bool	UsesRaytracedCollision() { return m_bUseRaytracedCollision; }
+	void			SetUsesRaytracedCollision(bool bUse) { m_bUseRaytracedCollision = bUse; }
 
 	virtual void	ModifyContext(CRenderingContext* pContext, bool bTransparent);
 	virtual bool	ShouldRenderModel() const { return false; };
@@ -33,6 +34,8 @@ protected:
 
 	CNetworkedVariable<bool>	m_bSwap;
 	CNetworkedVariable<Color>	m_clrSwap;
+
+	CNetworkedVariable<bool>	m_bUseRaytracedCollision;
 };
 
 #endif

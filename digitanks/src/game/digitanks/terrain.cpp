@@ -555,10 +555,10 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	glPopAttrib();
 	glEndList();
 
-	Vector vecTopX = Vector(0.3f, 0.3f, 0.3f);
-	Vector vecTopY = Vector(0.28f, 0.28f, 0.28f);
-	Vector vecBottom = Vector(0, 0, 0);
-	float flBottom = -1000.0f;
+	Vector vecTopX = (Vector(0.1f, 0.1f, 0.1f) + Vector(GetPrimaryTerrainColor()))/4;
+	Vector vecTopY = (Vector(0.05f, 0.05f, 0.05f) + Vector(GetPrimaryTerrainColor()))/4;
+	Vector vecBottom = Vector(0.96f, 0.44f, 0)/2;
+	float flBottom = -500.0f;
 
 	glNewList((GLuint)pChunk->m_iWallList, GL_COMPILE);
 	glPushAttrib(GL_CURRENT_BIT);

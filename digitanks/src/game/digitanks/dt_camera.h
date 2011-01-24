@@ -79,6 +79,8 @@ public:
 	bool			m_bMouseDragDown;
 
 	CEntityHandle<class CCameraGuidedMissile>	m_hCameraGuidedMissile;
+	float			m_flCameraGuidedFOV;
+	float			m_flCameraGuidedFOVGoal;
 };
 
 #endif

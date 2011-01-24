@@ -25,6 +25,8 @@ public:
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 	virtual void				OnDeleted();
 
+	virtual bool				IsBoosting() { return m_flBoostTime > 0; }
+
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_CAMERAGUIDED; }
 	virtual float				VelocityPerSecond() { return 50.0f; }
 	virtual float				BoostVelocity() { return 50.0f; }

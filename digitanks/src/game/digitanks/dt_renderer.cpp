@@ -164,16 +164,14 @@ void CDigitanksRenderer::RenderSkybox()
 	// Set camera 1/16 to match the scale of the skybox
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z,
-		m_vecCameraTarget.x, m_vecCameraTarget.y, m_vecCameraTarget.z,
+	gluLookAt(m_vecCameraPosition.x/16, m_vecCameraPosition.y/16, m_vecCameraPosition.z/16,
+		m_vecCameraTarget.x/16, m_vecCameraTarget.y/16, m_vecCameraTarget.z/16,
 		0.0, 1.0, 0.0);
-
-	glScalef(16, 16, 16);
 
 	if (true)
 	{
 		CRenderingContext r(this);
-
+		r.SetBlend(BLEND_ALPHA);
 		r.RenderModel(m_iDigiverse);
 	}
 
@@ -184,6 +182,7 @@ void CDigitanksRenderer::RenderSkybox()
 		r.SetBlend(BLEND_ADDITIVE);
 		r.SetDepthMask(false);
 		r.Rotate(m_flRing1Yaw, Vector(0, 1, 0));
+		r.SetAlpha(Oscillate(GameServer()->GetGameTime(), 25));
 		r.RenderModel(m_iRing1);
 
 		m_flRing1Yaw += GameServer()->GetFrameTime()*5;
@@ -196,6 +195,7 @@ void CDigitanksRenderer::RenderSkybox()
 		r.SetBlend(BLEND_ADDITIVE);
 		r.SetDepthMask(false);
 		r.Rotate(m_flRing2Yaw, Vector(0, 1, 0));
+		r.SetAlpha(Oscillate(GameServer()->GetGameTime(), 30));
 		r.RenderModel(m_iRing2);
 
 		m_flRing2Yaw -= GameServer()->GetFrameTime()*5;
@@ -208,6 +208,7 @@ void CDigitanksRenderer::RenderSkybox()
 		r.SetBlend(BLEND_ADDITIVE);
 		r.SetDepthMask(false);
 		r.Rotate(m_flRing3Yaw, Vector(0, 1, 0));
+		r.SetAlpha(Oscillate(GameServer()->GetGameTime(), 35));
 		r.RenderModel(m_iRing3);
 
 		m_flRing3Yaw -= GameServer()->GetFrameTime()*10;
@@ -219,6 +220,8 @@ void CDigitanksRenderer::RenderSkybox()
 	gluLookAt(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z,
 		m_vecCameraTarget.x, m_vecCameraTarget.y, m_vecCameraTarget.z,
 		0.0, 1.0, 0.0);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void CDigitanksRenderer::FinishRendering()

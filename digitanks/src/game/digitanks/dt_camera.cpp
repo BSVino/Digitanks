@@ -3,12 +3,13 @@
 #include <maths.h>
 #include <mtrand.h>
 #include <renderer/renderer.h>
+#include <tinker/cvar.h>
+#include <tinker/keys.h>
 
 #include "digitanks/digitanksgame.h"
 
 #include <ui/digitankswindow.h>
 #include <ui/instructor.h>
-#include <tinker/keys.h>
 #include <game/digitanks/weapons/cameraguided.h>
 
 CDigitanksCamera::CDigitanksCamera()
@@ -103,6 +104,7 @@ void CDigitanksCamera::Shake(Vector vecLocation, float flMagnitude)
 void CDigitanksCamera::SetCameraGuidedMissile(CCameraGuidedMissile* pMissile)
 {
 	m_hCameraGuidedMissile = pMissile;
+	m_flCameraGuidedFOV = m_flCameraGuidedFOVGoal = 0;
 }
 
 void CDigitanksCamera::Think()
@@ -113,6 +115,15 @@ void CDigitanksCamera::Think()
 	float flFrameTime = GameServer()->GetFrameTime();
 	float flLerpTime = 0.5f;
 	float flLerpAmount = 0.7f;
+
+	if (m_hCameraGuidedMissile != NULL)
+	{
+		m_flCameraGuidedFOVGoal = m_hCameraGuidedMissile->IsBoosting()?1.0f:0.0f;
+		if (m_hCameraGuidedMissile->IsBoosting())
+			m_flCameraGuidedFOV = Approach(m_flCameraGuidedFOVGoal, m_flCameraGuidedFOV, 10 * GameServer()->GetFrameTime());
+		else
+			m_flCameraGuidedFOV = Approach(m_flCameraGuidedFOVGoal, m_flCameraGuidedFOV, 1 * GameServer()->GetFrameTime());
+	}
 
 	if (!DigitanksWindow()->ShouldConstrainMouse())
 		m_vecGoalVelocity = Vector(0,0,0);
@@ -215,10 +226,13 @@ Vector CDigitanksCamera::GetCameraTarget()
 	return m_vecTarget + m_vecShake;
 }
 
+CVar cam_cg_fov("cam_cg_fov", "80");
+CVar cam_cg_boost_fov("cam_cg_boost_fov", "70");
+
 float CDigitanksCamera::GetCameraFOV()
 {
 	if (m_hCameraGuidedMissile != NULL)
-		return 100;
+		return RemapVal(m_flCameraGuidedFOV, 0, 1, cam_cg_fov.GetFloat(), cam_cg_boost_fov.GetFloat());
 
 	return BaseClass::GetCameraFOV();
 }

@@ -344,6 +344,19 @@ void CDigitanksGame::SetupProps()
 		pProp->SetModel(convertstring<char, char16_t>(pLevelProp->m_sModel));
 	}
 
+	for (size_t iProps = 0; iProps < 3; iProps++)
+	{
+		if (m_hTerrain->IsPointOverHole(Vector(m_hTerrain->GetMapSize(), 0, -100 + (float)iProps*100)))
+			continue;
+
+		CStaticProp* pProp = GameServer()->Create<CStaticProp>("CStaticProp");
+		pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(m_hTerrain->GetMapSize(), 0, -100 + (float)iProps*100)));
+		pProp->SetAngles(EAngle(0, 0, 0));
+		pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
+		pProp->SetUsesRaytracedCollision(false);
+		pProp->SetModel(L"models/props/support01.obj");
+	}
+
 /*	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
 		for (int j = (int)-m_hTerrain->GetMapSize(); j < (int)m_hTerrain->GetMapSize(); j += 100)
