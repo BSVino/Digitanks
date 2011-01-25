@@ -83,6 +83,7 @@ public:
 	bool						IsDownloading(int iX, int iY);
 	class CUpdateItem*			GetUpdateDownloading();
 	size_t						GetTurnsToDownload();
+	size_t						GetMegabytes() { return m_iMegabytes; }
 
 	bool						CanBuildMiniBuffers();
 	bool						CanBuildBuffers();

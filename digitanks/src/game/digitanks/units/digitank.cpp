@@ -40,6 +40,7 @@ size_t CDigitank::s_iPromoteAttackIcon = 0;
 size_t CDigitank::s_iPromoteDefenseIcon = 0;
 size_t CDigitank::s_iPromoteMoveIcon = 0;
 size_t CDigitank::s_iFortifyIcon = 0;
+size_t CDigitank::s_iSentryIcon = 0;
 size_t CDigitank::s_iDeployIcon = 0;
 size_t CDigitank::s_iMobilizeIcon = 0;
 size_t CDigitank::s_iChooseWeaponIcon = 0;
@@ -211,6 +212,7 @@ void CDigitank::Precache()
 	s_iPromoteDefenseIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-defense.png");
 	s_iPromoteMoveIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-promote-move.png");
 	s_iFortifyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-fortify.png");
+	s_iSentryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sentry.png");
 	s_iDeployIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-deploy.png");
 	s_iMobilizeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-mobilize.png");
 	s_iChooseWeaponIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-choose-weapon.png");
@@ -2020,7 +2022,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			}
 			else
 			{
-				pHUD->SetButtonTexture(5, s_iDeployIcon);
+				pHUD->SetButtonTexture(5, s_iSentryIcon);
 				pHUD->SetButtonInfo(5, L"HOLD POSITION\n \nThis unit will hold position and not require orders until told otherwise.\n \nShortcut: A");
 			}
 			pHUD->SetButtonListener(5, CHUD::Sentry);

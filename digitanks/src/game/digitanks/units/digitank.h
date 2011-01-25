@@ -332,6 +332,9 @@ public:
 	virtual bool				HasFortifyPoint() { return m_bFortifyPoint; };
 	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
+	static size_t				GetFortifyIcon() { return s_iFortifyIcon; }
+	static size_t				GetSentryIcon() { return s_iSentryIcon; }
+
 protected:
 	// Power remaining for this turn
 	CNetworkedVariable<float>	m_flStartingPower;
@@ -455,6 +458,7 @@ protected:
 	static size_t				s_iPromoteDefenseIcon;
 	static size_t				s_iPromoteMoveIcon;
 	static size_t				s_iFortifyIcon;
+	static size_t				s_iSentryIcon;
 	static size_t				s_iDeployIcon;
 	static size_t				s_iMobilizeIcon;
 	static size_t				s_iChooseWeaponIcon;

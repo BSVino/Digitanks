@@ -235,15 +235,25 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		return;
 	}
 
+	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
 	eastl::string16 s;
 	eastl::string16 p;
 	s += pInfo->GetName() + L"\n \n";
 	s += pInfo->GetInfo() + L"\n \n";
 
-	if (pInfo->m_eUpdateClass != UPDATECLASS_STRUCTURE)
-		s += p.sprintf(L"Increase: %f\n", pInfo->m_flValue);
+	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
+		s += p.sprintf(L"Increase: %.1f\n", pInfo->m_flValue);
 
 	s += p.sprintf(L"Download size: %d\n", pInfo->m_iSize);
+
+	if (pTeam)
+	{
+		size_t iDownloaded = pTeam->GetMegabytes();
+		size_t iTurns = (size_t)((pInfo->m_iSize-iDownloaded)/pTeam->GetBandwidth())+1;
+
+		s += p.sprintf(L"Turns to download: %d\n", iTurns);
+	}
 
 	m_pInfo->SetText(s);
 

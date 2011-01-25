@@ -643,12 +643,16 @@ void CHUD::Paint(int x, int y, int w, int h)
 			{
 				float flAttackPower = pTank->GetBaseAttackPower(true);
 				float flDefensePower = pTank->GetBaseDefensePower(true);
+				float flMovementPower = pTank->GetUsedMovementEnergy(true);
 				float flTotalPower = pTank->GetStartingPower();
 				flAttackPower = flAttackPower/flTotalPower;
 				flDefensePower = flDefensePower/flTotalPower;
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 1), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flAttackPower), 3, Color(255, 0, 0));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*flAttackPower), (int)(vecScreen.y - flWidth/2), (int)(flWidth*flDefensePower), 3, Color(0, 0, 255));
+				flMovementPower = flMovementPower/pTank->GetMaxMovementEnergy();
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 7), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 6), (int)(flWidth*flAttackPower), 3, Color(255, 0, 0));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*flAttackPower), (int)(vecScreen.y - flWidth/2 - 6), (int)(flWidth*flDefensePower), 3, Color(0, 0, 255));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 3), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*flMovementPower), 3, Color(255, 255, 0));
 			}
 		}
 

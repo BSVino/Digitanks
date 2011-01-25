@@ -219,12 +219,38 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 	CHUD::PaintUnitSheet(m_hEntity->GetUnitType(), x+h+2, y+2, h-4, h-4, clrTeam);
 
-	glgui::CRootPanel::PaintRect(x+h, y, (int)(h*m_hEntity->GetHealth()/m_hEntity->GetTotalHealth()), 3, Color(100, 255, 100));
+	glgui::CRootPanel::PaintRect(x+h, y - 3, (int)(h*m_hEntity->GetHealth()/m_hEntity->GetTotalHealth()), 3, Color(100, 255, 100));
 
 	if (pTank)
 	{
+		float flAttackPower = pTank->GetBaseAttackPower(true);
+		float flDefensePower = pTank->GetBaseDefensePower(true);
+		float flMovementPower = pTank->GetUsedMovementEnergy(true);
+		float flTotalPower = pTank->GetStartingPower();
+		flAttackPower = flAttackPower/flTotalPower;
+		flDefensePower = flDefensePower/flTotalPower;
+		flMovementPower = flMovementPower/pTank->GetMaxMovementEnergy();
+
+		glgui::CRootPanel::PaintRect(x+h, y, (int)(h*flAttackPower), 3, Color(255, 0, 0));
+		glgui::CRootPanel::PaintRect(x+h+(int)(h*flAttackPower), y, (int)(h*flDefensePower), 3, Color(0, 0, 255));
+		glgui::CRootPanel::PaintRect(x+h, y + 3, (int)(h*flMovementPower), 3, Color(255, 255, 0));
+
 		size_t iSize = 22;
 		CHUD::PaintWeaponSheet(pTank->GetCurrentWeapon(), x+h+h+4, y+4, iSize, iSize, Color(255, 255, 255, 255));
+
+		size_t iX = x+h+h+h+4;
+
+		if (pTank->IsFortified() || pTank->IsFortifying())
+		{
+			glgui::CRootPanel::PaintTexture(CDigitank::GetFortifyIcon(), iX, y+4, iSize, iSize);
+			iX += h;
+		}
+
+		if (pTank->IsSentried())
+		{
+			glgui::CRootPanel::PaintTexture(CDigitank::GetSentryIcon(), iX, y+4, iSize, iSize);
+			iX += h;
+		}
 	}
 
 	CStructure* pStructure = dynamic_cast<CStructure*>(m_hEntity.GetPointer());
