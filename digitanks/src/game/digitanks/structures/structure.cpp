@@ -177,7 +177,7 @@ void CStructure::FindGround()
 	if (flCornerHeight > flHeight)
 		flHeight = flCornerHeight;
 
-	SetOrigin(Vector(GetOrigin().x, flHeight, GetOrigin().z));
+	SetOrigin(Vector(GetOrigin().x, flHeight+GetBoundingRadius()/2, GetOrigin().z));
 }
 
 void CStructure::PostRender(bool bTransparent)
@@ -187,7 +187,7 @@ void CStructure::PostRender(bool bTransparent)
 	if (bTransparent && (IsConstructing() || IsUpgrading()) && GetVisibility() > 0)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
-		c.Translate(GetOrigin() - Vector(0, 10, 0));
+		c.Translate(GetOrigin());
 		c.Scale(m_flScaffoldingSize, m_flScaffoldingSize, m_flScaffoldingSize);
 		c.SetBlend(BLEND_ADDITIVE);
 		c.SetAlpha(GetVisibility() * 0.2f * RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 3, 0, 1));

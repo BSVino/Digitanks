@@ -2669,14 +2669,16 @@ EAngle CDigitank::GetAngles() const
 Vector CDigitank::GetRenderOrigin() const
 {
 	float flLerp = 0;
+	float flHoverHeight = 0;
 	
 	if (!IsFortified() && !IsFortifying())
 	{
 		float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
 		flLerp = SLerp(flOscillate, 0.2f);
+		flHoverHeight = 1 + flLerp*BobHeight();
 	}
 
-	return GetOrigin() + Vector(0, 1 + flLerp*BobHeight(), 0);
+	return GetOrigin() + Vector(0, flHoverHeight, 0);
 }
 
 EAngle CDigitank::GetRenderAngles() const

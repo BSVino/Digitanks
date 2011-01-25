@@ -699,7 +699,7 @@ void CCPU::PostRender(bool bTransparent)
 	if (bTransparent && DigitanksGame()->GetControlMode() == MODE_BUILD)
 	{
 		CRenderingContext r(GameServer()->GetRenderer());
-		r.Translate(GetPreviewBuild() + Vector(0, 1, 0));
+		r.Translate(GetPreviewBuild() + Vector(0, 3, 0));
 		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
 
 		if (IsPreviewBuildValid())
