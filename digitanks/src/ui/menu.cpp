@@ -933,9 +933,7 @@ void CStrategyGamePanel::BeginGameCallback()
 
 	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 
-	pInstructor->SetActive(true);
-	pInstructor->Initialize();
-	pInstructor->DisplayIngameStrategyTutorial();
+	pInstructor->SetActive(false);
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }

@@ -132,6 +132,8 @@ CHUD::CHUD()
 	m_pNextActionItem = new CButton(0, 0, 100, 50, L"Next");
 	AddControl(m_pActionItem);
 	AddControl(m_pNextActionItem);
+	m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
+	m_flActionItemsWidth = 280;
 
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
@@ -408,6 +410,12 @@ void CHUD::Think()
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN|CG_PROP);
 	}
+
+	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
+
+	int iWidth = DigitanksWindow()->GetWindowWidth();
+	m_pActionItem->SetPos(iWidth - 270 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 70);
+	m_pNextActionItem->SetPos(iWidth - 225 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 341);
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
 	{
@@ -731,8 +739,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (m_flAttackInfoAlpha > 0)
 			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 500, 600, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
-		if (m_pActionItem->GetText()[0] != L'\0')
-			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, 280, 340, 350, 0, 250, 310);
+		if (m_flActionItemsLerp > 0)
+			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, 280, 340, 350, 0, 250, 310, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
 
 		PaintHUDSheet(0, iHeight-250, 150, 250, 350, 510, 150, 250);
 	} while (false);
@@ -1697,7 +1705,16 @@ void CHUD::NewCurrentTeam()
 	UpdateScoreboard();
 
 	if (DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
-		ShowFirstActionItem();
+	{
+		bool bShow = true;
+
+		// Don't show the action items until we have a CPU because we have the story and the tutorials to think about first.
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
+			bShow = false;
+
+		if (bShow)
+			ShowFirstActionItem();
+	}
 
 	if (CNetwork::IsConnected() && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");	// No time to make a new sound.
@@ -1739,6 +1756,8 @@ void CHUD::ShowFirstActionItem()
 		m_pNextActionItem->SetVisible(false);
 		m_bAllActionItemsHandled = true;
 	}
+
+	m_flActionItemsLerpGoal = 1;
 }
 
 void CHUD::ShowNextActionItem()
@@ -1759,6 +1778,8 @@ void CHUD::ShowNextActionItem()
 			m_bAllActionItemsHandled = true;
 			m_pActionItem->SetText("");
 			m_pNextActionItem->SetVisible(false);
+
+			m_flActionItemsLerpGoal = 0;
 			return;
 		}
 
@@ -1795,10 +1816,6 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 
 	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
 
-	// Force the welcome message.
-	if (aActionItems.size() && aActionItems[0].eActionType == ACTIONTYPE_WELCOME)
-		return;
-
 	if (pSelectable)
 	{
 		for (size_t i = 0; i < aActionItems.size(); i++)
@@ -1822,6 +1839,28 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 	m_pActionItem->SetText("Press 'Next' to see more action items.");
 	m_pNextActionItem->SetText("Next");
 	m_pNextActionItem->SetVisible(true);
+
+	m_flActionItemsLerpGoal = 1;
+}
+
+void CHUD::ShowActionItem(actiontype_t eActionItem)
+{
+	if (m_bAllActionItemsHandled)
+		return;
+
+	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+	for (size_t i = 0; i < aActionItems.size(); i++)
+	{
+		if (aActionItems[i].eActionType == eActionItem)
+		{
+			if (i == m_iCurrentActionItem)
+				return;
+
+			m_iCurrentActionItem = i;
+			ShowActionItem(m_iCurrentActionItem);
+			return;
+		}
+	}
 }
 
 void CHUD::ShowActionItem(size_t iActionItem)
@@ -1837,6 +1876,8 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	{
 		m_pActionItem->SetText("");
 		m_pNextActionItem->SetVisible(false);
+
+		m_flActionItemsLerpGoal = 0;
 		return;
 	}
 
@@ -1848,7 +1889,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		m_pActionItem->SetText(
 			"WELCOME TO DIGITANKS\n \n"
 			"This is the 'Action Items' window. It will help guide you through the tasks you need to complete each turn.\n \n"
-			"First you need to begin building your base. Deploy your MCP to create a CPU. You can also explore with your Rogue.\n \n"
+			"First you need to begin building your base. Click on your CPU to build structures. You can also explore with your Rogue.\n \n"
 			"When you're done, press the 'End Turn' button to continue.\n");
 		break;
 
@@ -1966,6 +2007,13 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	}
 
 	m_pNextActionItem->SetVisible(true);
+
+	m_flActionItemsLerpGoal = 1;
+}
+
+void CHUD::OnAddNewActionItem()
+{
+	m_bAllActionItemsHandled = false;
 }
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)

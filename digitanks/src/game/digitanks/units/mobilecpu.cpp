@@ -46,5 +46,14 @@ void CMobileCPU::OnFortify()
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountScore();
 
+	// Let's see our action items.
+	DigitanksGame()->AllowActionItems(true);
+	DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
+	DigitanksGame()->AllowActionItems(false);
+	DigitanksWindow()->GetHUD()->ShowActionItem(ACTIONTYPE_WELCOME);
+
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+	pInstructor->SetActive(false);
+
 	DigitanksWindow()->GetHUD()->Layout();
 }

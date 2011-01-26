@@ -484,11 +484,11 @@ bool CStoryPanel::MousePressed(int code, int mx, int my)
 
 	SetVisible(false);
 
-	// Now that it's closed, open our first action item!
-	DigitanksGame()->AllowActionItems(true);
-	DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
-	DigitanksGame()->AllowActionItems(false);
-	DigitanksWindow()->GetHUD()->ShowFirstActionItem();
+	// Now that it's closed, run the tutorial!
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+	pInstructor->SetActive(true);
+	pInstructor->Initialize();
+	pInstructor->DisplayIngameStrategyTutorial();
 
 	return true;
 }
@@ -496,6 +496,13 @@ bool CStoryPanel::MousePressed(int code, int mx, int my)
 bool CStoryPanel::KeyPressed(int iKey, bool bCtrlDown)
 {
 	SetVisible(false);
+
+	// Now that it's closed, run the tutorial!
+	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+	pInstructor->SetActive(true);
+	pInstructor->Initialize();
+	pInstructor->DisplayIngameStrategyTutorial();
+
 	// Pass the keypress through so that the menu opens.
 	return false;
 }

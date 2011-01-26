@@ -752,7 +752,11 @@ CLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
 
 void CDigitanksGame::StartGame()
 {
-	m_iCurrentTeam = 0;
+	if (GetGameType() == GAMETYPE_STANDARD)
+		// Start with the player's team so the neutral team doesn't get a chance to attack.
+		m_iCurrentTeam = 1;
+	else
+		m_iCurrentTeam = 0;
 
 	m_iWaitingForProjectiles = 0;
 	m_bWaitingForProjectiles = true;
@@ -2149,6 +2153,7 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 	pActionItem->iUnit = pUnit?pUnit->GetHandle():~0;
 	pActionItem->eActionType = eActionType;
 	pActionItem->bHandled = false;
+	DigitanksWindow()->GetHUD()->OnAddNewActionItem();
 }
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)

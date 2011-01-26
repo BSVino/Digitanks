@@ -38,6 +38,8 @@ public:
 	bool						IsSelected(const class CSelectable* pEntity);
 	size_t						GetNumSelected() { return m_aiCurrentSelection.size(); }
 
+	class CCPU*					GetPrimaryCPU() { return m_hPrimaryCPU; }
+
 	void						StartNewRound();
 
 	void						StartTurn();

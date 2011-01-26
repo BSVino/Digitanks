@@ -193,7 +193,7 @@ void CInstructor::Initialize()
 		L"< Select the MCP")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_COMMAND, POSITION_TOPCENTER, 200, false,
-		L"Right click to move the MCP\n \nTry to choose a location with nearby electronodes")));
+		L"Right click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_DEPLOY, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_DEPLOY, POSITION_BUTTONS, 200, false,
 		L"Press the 'Deploy' button to create a CPU")));

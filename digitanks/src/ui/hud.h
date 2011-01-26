@@ -158,7 +158,9 @@ public:
 	void						ShowFirstActionItem();
 	void						ShowNextActionItem();
 	void						ShowActionItem(CSelectable* pSelectable);
+	void						ShowActionItem(actiontype_t eActionItem);
 	void						ShowActionItem(size_t iActionItem);
+	void						OnAddNewActionItem();
 
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
@@ -256,6 +258,9 @@ protected:
 	glgui::CButton*				m_pNextActionItem;
 	size_t						m_iCurrentActionItem;
 	bool						m_bAllActionItemsHandled;
+	float						m_flActionItemsLerp;
+	float						m_flActionItemsLerpGoal;
+	float						m_flActionItemsWidth;
 
 	CMouseCapturePanel*			m_pButtonPanel;
 
