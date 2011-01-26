@@ -117,10 +117,23 @@ void CResource::PostRender(bool bTransparent)
 				if (CSupplier::GetDataFlow(GetOrigin(), pTeam) > 0)
 					bShowPreview = true;
 			}
-		}
 
-		if (GetCollector())
-			bShowPreview = false;
+			if (GetCollector())
+			{
+				CCollector* pCollector = GetCollector();
+
+				if (pCollector->GetTeam() != pTeam)
+					bShowPreview = false;
+
+				if (ePreviewStructure == STRUCTURE_BATTERY)
+					bShowPreview = false;
+
+				if (ePreviewStructure == STRUCTURE_PSU && pCollector->GetUnitType() == STRUCTURE_PSU)
+					bShowPreview = false;
+
+				// Putting a PSU on a battery is okay.
+			}
+		}
 
 		if (bShowPreview)
 		{
@@ -153,11 +166,7 @@ float CResource::BuildableArea() const
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
 		return 0;
 
-	if (GetCollector())
-		return 0;
-
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
-
 	if (!pTeam)
 		return 0;
 
@@ -165,6 +174,23 @@ float CResource::BuildableArea() const
 		return 0;
 
 	unittype_t ePreviewStructure = pTeam->GetPrimaryCPU()->GetPreviewStructure();
+
+	if (GetCollector())
+	{
+		CCollector* pCollector = GetCollector();
+
+		if (pCollector->GetTeam() != pTeam)
+			return 0;
+
+		if (ePreviewStructure == STRUCTURE_BATTERY)
+			return 0;
+
+		if (ePreviewStructure == STRUCTURE_PSU && pCollector->GetUnitType() == STRUCTURE_PSU)
+			return 0;
+
+		// Putting a PSU on a battery is okay.
+	}
+
 	if (ePreviewStructure != STRUCTURE_PSU && ePreviewStructure != STRUCTURE_BATTERY)
 		return 0;
 

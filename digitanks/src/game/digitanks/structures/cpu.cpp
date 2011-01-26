@@ -291,7 +291,20 @@ bool CCPU::IsPreviewBuildValid() const
 			return false;
 
 		if (pResource->HasCollector())
-			return false;
+		{
+			CCollector* pCollector = pResource->GetCollector();
+
+			if (pCollector->GetTeam() != GetTeam())
+				return false;
+
+			if (m_ePreviewStructure == STRUCTURE_BATTERY)
+				return false;
+
+			if (m_ePreviewStructure == STRUCTURE_PSU && pCollector->GetUnitType() == STRUCTURE_PSU)
+				return false;
+
+			// If we're building a PSU and the structure is a battery, that's cool.
+		}
 	}
 	else
 	{
@@ -354,6 +367,20 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	unittype_t ePreviewStructure = (unittype_t)p->i2;
 	Vector vecPreview(p->fl3, p->fl4, p->fl5);
+
+	if (ePreviewStructure == STRUCTURE_PSU)
+	{
+		CResource* pResource = CResource::FindClosestResource(vecPreview, RESOURCE_ELECTRONODE);
+		if (pResource->HasCollector())
+		{
+			CCollector* pCollector = pResource->GetCollector();
+			if (pCollector->GetTeam() == GetTeam() && pCollector->GetUnitType() == STRUCTURE_BATTERY)
+			{
+				pCollector->BeginUpgrade();
+				return;
+			}
+		}
+	}
 
 	if (m_hConstructing != NULL)
 		CancelConstruction();
