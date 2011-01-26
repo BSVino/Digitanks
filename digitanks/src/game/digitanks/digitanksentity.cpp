@@ -241,6 +241,19 @@ float CDigitanksEntity::VisibleRange() const
 	return BaseVisibleRange();
 }
 
+void CDigitanksEntity::RenderBuildableArea()
+{
+	if (BuildableArea() == 0)
+		return;
+
+	float flBuildableArea = BuildableArea();
+
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.Translate(GetOrigin());
+	c.Scale(flBuildableArea, flBuildableArea, flBuildableArea);
+	c.RenderSphere();
+}
+
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
 	BaseClass::ModifyContext(pContext, bTransparent);

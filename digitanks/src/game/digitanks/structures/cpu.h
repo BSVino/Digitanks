@@ -34,6 +34,7 @@ public:
 	Vector						GetPreviewBuild() const { return m_vecPreviewBuild; };
 	virtual void				SetPreviewBuild(Vector vecPreviewBuild);
 	virtual void				SetPreviewStructure(unittype_t ePreviewStructure) { m_ePreviewStructure = ePreviewStructure; };
+	virtual unittype_t			GetPreviewStructure() { return m_ePreviewStructure; };
 	void						ClearPreviewBuild();
 
 	void						BeginConstruction();

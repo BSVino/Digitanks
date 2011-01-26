@@ -190,6 +190,8 @@ public:
 
 	virtual float				BaseVisibleRange() const;
 
+	virtual float				BuildableArea() const;
+
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);
 

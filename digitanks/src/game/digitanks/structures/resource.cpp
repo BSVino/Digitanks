@@ -5,8 +5,12 @@
 #include <renderer/renderer.h>
 #include <game/game.h>
 #include <renderer/particles.h>
+#include <models/models.h>
 
 #include <GL/glew.h>
+
+#include <game/digitanks/digitanksgame.h>
+#include "structure.h"
 
 REGISTER_ENTITY(CResource);
 
@@ -93,6 +97,81 @@ void CResource::ModifyContext(class CRenderingContext* pContext, bool bTranspare
 
 	if (HasCollector() && GetCollector()->GetTeam())
 		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());
+}
+
+void CResource::PostRender(bool bTransparent)
+{
+	BaseClass::PostRender(bTransparent);
+
+	if (bTransparent && DigitanksGame()->GetControlMode() == MODE_BUILD)
+	{
+		bool bShowPreview = false;
+
+		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+		if (pTeam && pTeam->GetPrimaryCPU())
+		{
+			unittype_t ePreviewStructure = pTeam->GetPrimaryCPU()->GetPreviewStructure();
+			if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
+			{
+				if (CSupplier::GetDataFlow(GetOrigin(), pTeam) > 0)
+					bShowPreview = true;
+			}
+		}
+
+		if (GetCollector())
+			bShowPreview = false;
+
+		if (bShowPreview)
+		{
+			CRenderingContext r(GameServer()->GetRenderer());
+			r.Translate(GetOrigin());
+
+			r.SetColorSwap(Color(255, 255, 255));
+			r.SetAlpha(0.5f);
+			r.SetBlend(BLEND_ALPHA);
+
+			size_t iModel = 0;
+			switch (pTeam->GetPrimaryCPU()->GetPreviewStructure())
+			{
+			case STRUCTURE_BATTERY:
+				iModel = CModelLibrary::Get()->FindModel(L"models/structures/battery.obj");
+				break;
+
+			case STRUCTURE_PSU:
+				iModel = CModelLibrary::Get()->FindModel(L"models/structures/psu.obj");
+				break;
+			}
+
+			r.RenderModel(iModel);
+		}
+	}
+}
+
+float CResource::BuildableArea() const
+{
+	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
+		return 0;
+
+	if (GetCollector())
+		return 0;
+
+	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	if (!pTeam)
+		return 0;
+
+	if (!pTeam->GetPrimaryCPU())
+		return 0;
+
+	unittype_t ePreviewStructure = pTeam->GetPrimaryCPU()->GetPreviewStructure();
+	if (ePreviewStructure != STRUCTURE_PSU && ePreviewStructure != STRUCTURE_BATTERY)
+		return 0;
+
+	if (CSupplier::GetDataFlow(GetOrigin(), pTeam) <= 0)
+		return 0;
+
+	return 5;
 }
 
 CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)

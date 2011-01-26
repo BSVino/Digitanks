@@ -30,6 +30,9 @@ public:
 	virtual float					VisibleRange() const;
 	virtual bool					IsRammable() const { return true; }
 
+	virtual float					BuildableArea() const { return 0; };
+	virtual void					RenderBuildableArea();
+
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual void					DownloadComplete(size_t x, size_t y) {};

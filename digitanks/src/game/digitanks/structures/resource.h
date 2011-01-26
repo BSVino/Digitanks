@@ -20,17 +20,20 @@ public:
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				PostRender(bool bTransparent);
 
 	resource_t					GetResource() { return RESOURCE_ELECTRONODE; };
 	virtual bool				ShowHealthBar() { return false; }
 
 	bool						HasCollector() { return m_hCollector != NULL; }
-	class CCollector*			GetCollector() { return m_hCollector; }
+	class CCollector*			GetCollector() const { return m_hCollector; }
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
 	virtual eastl::string16		GetName() { return L"Electronode"; };
 	virtual unittype_t			GetUnitType() { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
+
+	virtual float				BuildableArea() const;
 
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
 

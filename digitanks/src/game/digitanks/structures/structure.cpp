@@ -1109,3 +1109,18 @@ float CSupplier::BaseVisibleRange() const
 {
 	return GetDataFlowRadius() + 15;
 }
+
+float CSupplier::BuildableArea() const
+{
+	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
+		return 0;
+
+	if (!GetDigitanksTeam()->GetPrimaryCPU())
+		return 0;
+
+	unittype_t ePreviewStructure = GetDigitanksTeam()->GetPrimaryCPU()->GetPreviewStructure();
+	if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
+		return 0;
+
+	return GetDataFlowRadius() + GetBoundingRadius();
+}
