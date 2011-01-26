@@ -349,8 +349,11 @@ void CDigitanksTeam::StartTurn()
 	CountBandwidth();
 	CountScore();
 
-	if (DigitanksGame()->GetTurn() == 1 && DigitanksGame()->GetUpdateGrid() && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
-		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+	if (DigitanksGame()->GetUpdateGrid())
+	{
+		if (DigitanksGame()->GetTurn() > 1 && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
+			DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+	}
 
 	if (iProducersBefore == 0 && GetNumProducers() == 0)
 		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_NOPRODUCERS);
