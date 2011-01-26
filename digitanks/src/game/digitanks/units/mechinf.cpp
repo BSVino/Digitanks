@@ -48,7 +48,7 @@ void CMechInfantry::Spawn()
 	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
 	m_aeWeapons.push_back(WEAPON_INFANTRYLASER);
 
-	m_eWeapon = PROJECTILE_FLAK;
+	m_eWeapon = WEAPON_INFANTRYLASER;
 }
 
 float CMechInfantry::GetLeftShieldMaxStrength()

@@ -642,15 +642,15 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
 
+		float flTargetVisibility = pDTEntity->GetVisibility(this);
+		if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
+			continue;
+
 		if (!pTarget)
 		{
 			pTarget = pDTEntity;
 			continue;
 		}
-
-		float flTargetVisibility = pDTEntity->GetVisibility(this);
-		if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
-			continue;
 
 		if ((pHeadTank->GetOrigin() - pDTEntity->GetOrigin()).Length2DSqr() < (pHeadTank->GetOrigin() - pTarget->GetOrigin()).Length2DSqr())
 			pTarget = pDTEntity;
