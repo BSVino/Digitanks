@@ -1479,6 +1479,14 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 
 		if (flDistanceSqr < flTotalRadius*flTotalRadius)
 			apHit.push_back(pEntity);
+		else
+		{
+			if (pDigitank && dynamic_cast<CProjectile*>(pInflictor))
+			{
+				if (pDigitank->IsScout() && (pEntity->GetOrigin() - vecExplosionOrigin).Length2DSqr() < flTotalRadius*flTotalRadius && pEntity->GetOrigin().y > vecExplosionOrigin.y)
+					OnMiss(pEntity, pAttacker, pInflictor);
+			}
+		}
 	}
 
 	bool bHit = false;
@@ -1512,6 +1520,26 @@ void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, 
 {
 	if (m_pListener)
 		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit, bKilled);
+}
+
+void CDigitanksGame::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
+{
+	if (m_pListener)
+		m_pListener->OnDisabled(pVictim, pAttacker, pInflictor);
+
+	CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
+	if (pTank)
+		pTank->Speak(TANKSPEECH_DISABLED);
+}
+
+void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
+{
+	if (m_pListener)
+		m_pListener->OnMiss(pVictim, pAttacker, pInflictor);
+
+	CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
+	if (pTank)
+		pTank->Speak(TANKSPEECH_TAUNT);
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

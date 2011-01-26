@@ -22,6 +22,8 @@ typedef enum
 	TANKSPEECH_IDLE,
 	TANKSPEECH_PROMOTED,
 	TANKSPEECH_PARTY,
+	TANKSPEECH_TAUNT,
+	TANKSPEECH_DISABLED,
 };
 
 typedef enum
@@ -43,6 +45,7 @@ typedef enum
 	TANKLINE_DOTDOTDOT,
 	TANKLINE_SURPRISED,
 	TANKLINE_THRILLED,
+	TANKLINE_TONGUE,
 };
 
 class CDigitank : public CSelectable
@@ -319,7 +322,7 @@ public:
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 
 	bool						IsDisabled() { return !!m_iTurnsDisabled; }
-	void						Disable(size_t iTurns) { m_iTurnsDisabled += iTurns; }
+	void						Disable(size_t iTurns);
 
 	virtual unittype_t			GetUnitType() const { return UNIT_TANK; }
 

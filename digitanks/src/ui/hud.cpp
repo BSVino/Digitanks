@@ -2059,6 +2059,26 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
+void CHUD::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
+{
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	if (pProjectile && !pProjectile->SendsNotifications())
+		return;
+
+	if (pVictim->IsAlive())
+		new CHitIndicator(pVictim, L"DISABLED!");
+}
+
+void CHUD::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
+{
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	if (pProjectile && !pProjectile->SendsNotifications())
+		return;
+
+	if (pVictim->IsAlive())
+		new CHitIndicator(pVictim, L"MISS!");
+}
+
 void CHUD::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 {
 	m_pSceneTree->OnAddEntityToTeam(pTeam, pEntity);

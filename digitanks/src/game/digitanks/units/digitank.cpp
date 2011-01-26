@@ -66,6 +66,7 @@ const char* CDigitank::s_apszTankLines[] =
 	"...",	// TANKLINE_DOTDOTDOT
 	"!?",	// TANKLINE_SURPRISED
 	"!!",	// TANKLINE_THRILLED
+	":P",	// TANKLINE_TONGUE
 };
 
 eastl::map<size_t, eastl::vector<size_t> > g_aiSpeechLines;
@@ -260,6 +261,18 @@ void CDigitank::SetupSpeechLines()
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_COOL);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_THRILLED);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_CHEER);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_CUTE);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_CHEER);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_EVIL);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_COOL);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_SURPRISED);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_THRILLED);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_TONGUE);
+	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_ASLEEP);
+	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_SQUINT);
+	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_DEAD);
+	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_DEAD2);
+	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_DEAD3);
 }
 
 void CDigitank::Spawn()
@@ -3324,6 +3337,13 @@ float CDigitank::ShieldRechargeRate() const
 float CDigitank::FirstProjectileTime() const
 {
 	return RandomFloat(0, 1);
+}
+
+void CDigitank::Disable(size_t iTurns)
+{
+	m_iTurnsDisabled += iTurns;
+
+	DigitanksGame()->OnDisabled(this, NULL, NULL);
 }
 
 void CDigitank::SetFortifyPoint(CStructure* pStructure, Vector vecFortify)

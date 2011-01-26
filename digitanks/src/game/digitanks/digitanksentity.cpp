@@ -213,8 +213,8 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	if (!pTeam)
 		return 0;
 
-	if (GetDigitanksTeam() == pGame->GetCurrentLocalDigitanksTeam())
-		return 1 - flConceal;
+	if (pTeam == GetDigitanksTeam())
+		return 1 - flConceal/2;
 
 	float flVisibility = pTeam->GetEntityVisibility(GetHandle()) - flConceal;
 
