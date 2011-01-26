@@ -1,7 +1,10 @@
 #include "updatespanel.h"
 
-#include <game/digitanks/digitanksgame.h>
 #include <renderer/renderer.h>
+
+#include <game/digitanks/digitanksgame.h>
+#include <ui/digitankswindow.h>
+#include <ui/hud.h>
 
 using namespace glgui;
 
@@ -85,9 +88,9 @@ void CUpdatesPanel::Layout()
 		iLowestY = (pUpdates->m_iHighestY + pUpdates->m_iLowestY)/2 - iLarger/2;
 	}
 
-	int iButtonSize = GetWidth()/(iLarger+1);
-	int iXWidth = iButtonSize*iXSize;
-	int iYWidth = iButtonSize*iYSize;
+	m_iButtonSize = GetWidth()/(iLarger+1);
+	int iXWidth = m_iButtonSize*iXSize;
+	int iYWidth = m_iButtonSize*iYSize;
 	int iXBuffer = (GetWidth() - iXWidth)/2;
 	int iYBuffer = (GetWidth() - iYWidth)/2;
 
@@ -100,8 +103,8 @@ void CUpdatesPanel::Layout()
 
 			m_apUpdates.push_back(new CUpdateButton(this));
 			CUpdateButton* pUpdate = m_apUpdates[m_apUpdates.size()-1];
-			pUpdate->SetSize(iButtonSize-2, iButtonSize-1);
-			pUpdate->SetPos((i-iLowestX)*iButtonSize + iXBuffer, (j-iLowestY)*iButtonSize + iYBuffer);
+			pUpdate->SetSize(m_iButtonSize-2, m_iButtonSize-1);
+			pUpdate->SetPos((i-iLowestX)*m_iButtonSize + iXBuffer, (j-iLowestY)*m_iButtonSize + iYBuffer);
 			pUpdate->SetFontFaceSize(10);
 			pUpdate->SetLocation(i, j);
 			AddControl(pUpdate);
@@ -385,6 +388,10 @@ void CUpdateButton::ChooseDownloadCallback()
 	DigitanksGame()->GetCurrentLocalDigitanksTeam()->DownloadUpdate(m_iX, m_iY);
 
 	m_pUpdatesPanel->SetVisible(false);
+
+	int x, y;
+	GetAbsPos(x, y);
+	DigitanksWindow()->GetHUD()->SlideUpdateIcon(x, y);
 
 	CRootPanel::Get()->Layout();
 }

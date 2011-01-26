@@ -183,6 +183,7 @@ public:
 	void						HideButtonInfo();
 
 	bool						IsUpdatesPanelOpen();
+	void						SlideUpdateIcon(int x, int y);
 
 	void						ShowFightSign();
 	void						ShowShowdownSign();
@@ -307,6 +308,9 @@ protected:
 	glgui::CPictureButton*		m_pUpdatesButton;
 	CUpdatesPanel*				m_pUpdatesPanel;
 	bool						m_bUpdatesBlinking;
+	float						m_flUpdateIconSlide;
+	int							m_iUpdateIconSlideStartX;
+	int							m_iUpdateIconSlideStartY;
 
 	glgui::CPictureButton*		m_pTurnButton;
 

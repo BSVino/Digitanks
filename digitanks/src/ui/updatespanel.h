@@ -37,11 +37,15 @@ public:
 
 	size_t							GetTextureForUpdateItem(class CUpdateItem* pInfo);
 
+	int								GetButtonSize() { return m_iButtonSize; }
+
 protected:
 	glgui::CButton*					m_pCloseButton;
 	glgui::CLabel*					m_pInfo;
 
 	eastl::vector<CUpdateButton*>	m_apUpdates;
+
+	int								m_iButtonSize;
 
 	size_t							m_iIconCPU;
 	size_t							m_iIconBuffer;

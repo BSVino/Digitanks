@@ -236,6 +236,8 @@ CHUD::CHUD()
 	m_pUpdatesPanel->SetVisible(false);
 	AddControl(m_pUpdatesPanel, true);
 
+	m_flUpdateIconSlide = 0;
+
 	m_pWeaponPanel = new CWeaponPanel();
 	m_pWeaponPanel->SetVisible(false);
 	AddControl(m_pWeaponPanel, true);
@@ -733,6 +735,18 @@ void CHUD::Paint(int x, int y, int w, int h)
 				size_t iSize = pItem->m_iSize;
 
 				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, (int)(iResearchWidth*((float)pCurrentLocalTeam->GetUpdateDownloaded()/iSize)) - 12, 35 - 12, Color(0, 200, 100, 255));
+
+				size_t iItemIcon = m_pUpdatesPanel->GetTextureForUpdateItem(pItem);
+
+				if (iItemIcon)
+				{
+					float flSlideTime = Lerp(GameServer()->GetGameTime() - m_flUpdateIconSlide, 0.8f);
+					int iIconX = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartX, (float)(iWidth/2 - iResearchWidth/2 - 35));
+					int iIconY = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartY, 0.0f);
+					int iButtonSize = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_pUpdatesPanel->GetButtonSize(), 35.0f);
+
+					CRootPanel::PaintTexture(iItemIcon, iIconX, iIconY, iButtonSize, iButtonSize);
+				}
 			}
 		}
 
@@ -2135,6 +2149,13 @@ bool CHUD::IsUpdatesPanelOpen()
 		return false;
 
 	return m_pUpdatesPanel->IsVisible();
+}
+
+void CHUD::SlideUpdateIcon(int x, int y)
+{
+	m_iUpdateIconSlideStartX = x;
+	m_iUpdateIconSlideStartY = y;
+	m_flUpdateIconSlide = GameServer()->GetGameTime();
 }
 
 void ActionSignCallback(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
