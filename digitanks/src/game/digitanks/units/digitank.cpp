@@ -105,6 +105,8 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE_CALLBACK(bool, m_bGoalMovePosition, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(Vector, m_vecGoalMovePosition);
 
+	NETVAR_DEFINE_CALLBACK(bool, m_bLostConcealment, &CDigitanksGame::UpdateHUD);
+
 	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iFortifyLevel);
 
@@ -158,6 +160,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bActionTaken);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLostConcealment);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireWeaponTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireWeapons);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CBaseWeapon>, m_hWeapon);
@@ -697,6 +700,7 @@ void CDigitank::StartTurn()
 
 	m_bActionTaken = false;
 	m_bFiredWeapon = false;
+	m_bLostConcealment = false;
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
@@ -2273,6 +2277,9 @@ void CDigitank::Fire(CNetworkParameters* p)
 
 		if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
 			m_flFireWeaponTime = GameServer()->GetGameTime();
+
+		m_bLostConcealment = true;
+		m_bCloaked = false;
 	}
 
 	Speak(TANKSPEECH_ATTACK);

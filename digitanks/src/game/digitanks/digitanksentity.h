@@ -27,6 +27,7 @@ public:
 	virtual float					GetVisibility() const;
 	virtual bool					GetsConcealmentBonus() const { return true; };
 	virtual float					GetCloakConcealment() const { return 0; };
+	virtual bool					HasLostConcealment() const { return false; }
 	virtual float					VisibleRange() const;
 	virtual bool					IsRammable() const { return true; }
 

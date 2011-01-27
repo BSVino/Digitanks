@@ -209,6 +209,7 @@ public:
 	void						Cloak();
 	void						Uncloak();
 	virtual float				GetCloakConcealment() const;
+	virtual bool				HasLostConcealment() const { return m_bLostConcealment.Get(); }
 
 	virtual bool				MovesWith(CDigitank* pOther) const;
 	virtual bool				TurnsWith(CDigitank* pOther) const;
@@ -411,6 +412,7 @@ protected:
 
 	bool						m_bFiredWeapon;
 	bool						m_bActionTaken;
+	CNetworkedVariable<bool>	m_bLostConcealment;
 
 	float						m_flFireWeaponTime;
 	size_t						m_iFireWeapons;
