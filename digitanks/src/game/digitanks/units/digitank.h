@@ -267,6 +267,7 @@ public:
 	virtual Vector				GetRealOrigin() const;
 	virtual EAngle				GetAngles() const;
 
+	virtual void				PreRender(bool bTransparent);
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
@@ -443,6 +444,8 @@ protected:
 
 	CNetworkedVariable<size_t>	m_iTurnsDisabled;
 
+	float						m_flGlowYaw;
+
 	// AI stuff
 	bool						m_bInAttackTeam;
 	bool						m_bFortifyPoint;
@@ -467,6 +470,7 @@ protected:
 	static size_t				s_iChooseWeaponIcon;
 
 	static size_t				s_iAutoMove;
+	static size_t				s_iSupportGlow;
 
 	static const char*			s_apszTankLines[];
 };

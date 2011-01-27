@@ -9,6 +9,7 @@
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <glgui/glgui.h>
+#include <shaders/shaders.h>
 
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_camera.h>
@@ -46,6 +47,7 @@ size_t CDigitank::s_iMobilizeIcon = 0;
 size_t CDigitank::s_iChooseWeaponIcon = 0;
 
 size_t CDigitank::s_iAutoMove = 0;
+size_t CDigitank::s_iSupportGlow = 0;
 
 const char* CDigitank::s_apszTankLines[] =
 {
@@ -219,6 +221,7 @@ void CDigitank::Precache()
 	s_iChooseWeaponIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-choose-weapon.png");
 
 	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
+	s_iSupportGlow = CRenderer::LoadTextureIntoGL(L"textures/particles/support.png");
 
 	SetupSpeechLines();
 }
@@ -320,6 +323,7 @@ void CDigitank::Spawn()
 	m_iTurnsDisabled = 0;
 	m_flCurrentTurretYaw = 0;
 	m_flGoalTurretYaw = 0;
+	m_flGlowYaw = 0;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -2679,6 +2683,79 @@ EAngle CDigitank::GetAngles() const
 	}
 
 	return BaseClass::GetAngles();
+}
+
+void CDigitank::PreRender(bool bTransparent)
+{
+	BaseClass::PreRender(bTransparent);
+
+	if (bTransparent && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && GetTeam() && CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
+	{
+		CRenderer* pRenderer = GameServer()->GetRenderer();
+
+		Vector vecForward, vecRight, vecUp;
+		pRenderer->GetCameraVectors(&vecForward, &vecRight, &vecUp);
+
+		CRenderingContext c(pRenderer);
+
+		Vector vecOrigin = GetRenderOrigin();
+		Vector vecParticleUp, vecParticleRight;
+		float flRadius = GetBoundingRadius()*2;
+		m_flGlowYaw += fmod(GameServer()->GetFrameTime()*10, 360);
+
+		c.BindTexture(s_iSupportGlow);
+		c.SetAlpha(0.5f);
+		c.SetDepthMask(false);
+		c.SetDepthTest(false);
+		c.SetBlend(BLEND_ADDITIVE);
+		c.SetColor(GetTeam()->GetColor());
+		c.BeginRenderQuads();
+
+			float flYaw = m_flGlowYaw*M_PI/180;
+			float flSin = sin(flYaw);
+			float flCos = cos(flYaw);
+
+			vecParticleUp = (flCos*vecUp + flSin*vecRight)*flRadius;
+			vecParticleRight = (flCos*vecRight - flSin*vecUp)*flRadius;
+
+			Vector vecTL = vecOrigin - vecParticleRight + vecParticleUp;
+			Vector vecTR = vecOrigin + vecParticleRight + vecParticleUp;
+			Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
+			Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
+
+			c.TexCoord(0, 1);
+			c.Vertex(vecTL);
+			c.TexCoord(0, 0);
+			c.Vertex(vecBL);
+			c.TexCoord(1, 0);
+			c.Vertex(vecBR);
+			c.TexCoord(1, 1);
+			c.Vertex(vecTR);
+
+			// Do it again rotating the other way.
+			flYaw = -m_flGlowYaw*M_PI/180;
+			flSin = sin(flYaw);
+			flCos = cos(flYaw);
+
+			vecParticleUp = (flCos*vecUp + flSin*vecRight)*flRadius;
+			vecParticleRight = (flCos*vecRight - flSin*vecUp)*flRadius;
+
+			vecTL = vecOrigin - vecParticleRight + vecParticleUp;
+			vecTR = vecOrigin + vecParticleRight + vecParticleUp;
+			vecBL = vecOrigin - vecParticleRight - vecParticleUp;
+			vecBR = vecOrigin + vecParticleRight - vecParticleUp;
+			
+			c.TexCoord(0, 1);
+			c.Vertex(vecTL);
+			c.TexCoord(0, 0);
+			c.Vertex(vecBL);
+			c.TexCoord(1, 0);
+			c.Vertex(vecBR);
+			c.TexCoord(1, 1);
+			c.Vertex(vecTR);
+			
+		c.EndRender();
+	}
 }
 
 Vector CDigitank::GetRenderOrigin() const
