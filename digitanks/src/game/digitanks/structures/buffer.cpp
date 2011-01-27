@@ -60,15 +60,22 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
-		s += p.sprintf(L"Power to build: %d\n", GetProductionToConstruct());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
-	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
+	s += p.sprintf(L"Strength: %d\n", m_iDataStrength.Get());
 	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
 	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
+}
+
+size_t CBuffer::GetTurnsToConstruct()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
+		return 1;
+
+	return 2;
 }
 
 size_t CMiniBuffer::s_iUpgradeIcon = 0;
@@ -104,29 +111,23 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
-	if (!IsConstructing() && CanStructureUpgrade())
+	if (!IsConstructing() && !IsUpgrading() && CanStructureUpgrade())
 	{
-		if (IsUpgrading())
+		pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
+
+		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{
-			pHUD->SetButtonListener(9, CHUD::CancelUpgrade);
-			pHUD->SetButtonTexture(9, s_iCancelIcon);
-			pHUD->SetButtonColor(9, Color(100, 0, 0));
-			pHUD->SetButtonInfo(9, L"CANCEL UPGRADE\n \nShortcut: G");
-		}
-		else
-		{
-			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
 			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
-
-			eastl::string16 s;
-			s += L"UPGRADE TO BUFFER\n \n";
-			s += L"Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
-			s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
-			s += L"Shortcut: Q";
-
-			pHUD->SetButtonInfo(0, s);
 		}
+
+		eastl::string16 s;
+		s += L"UPGRADE TO BUFFER\n \n";
+		s += L"Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+		s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
+		s += L"Shortcut: Q";
+
+		pHUD->SetButtonInfo(0, s);
 	}
 }
 
@@ -140,20 +141,18 @@ void CMiniBuffer::UpdateInfo(eastl::string16& s)
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
-		s += p.sprintf(L"Power to build: %d\n", GetProductionToConstruct());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
 		s += L"(Upgrading to Buffer)\n";
-		s += p.sprintf(L"Power to upgrade: %d\n", GetProductionToUpgrade());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToUpgrade());
 		return;
 	}
 
-	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
+	s += p.sprintf(L"Strength: %d\n", m_iDataStrength.Get());
 	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
 	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));

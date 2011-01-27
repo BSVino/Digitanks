@@ -97,8 +97,6 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 	}
 
-	size_t iDifference = abs((int)m_iMouseCurrentX - (int)m_iMouseInitialX) + abs((int)m_iMouseCurrentY - (int)m_iMouseInitialY);
-
 	if (iButton == TINKER_KEY_MOUSE_LEFT)
 	{
 		if (iState == 1)
@@ -109,7 +107,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseInitialX = m_iMouseCurrentX = mx;
 			m_iMouseInitialY = m_iMouseCurrentY = my;
 		}
-		else if (GameServer() && GameServer()->GetCamera() && iDifference < 30)
+		else if (GameServer() && GameServer()->GetCamera() && !IsMouseDragging())
 		{
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
 			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
@@ -118,7 +116,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 	if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT)
 	{
-		if (m_bBoxSelect && iDifference > 30)
+		if (m_bBoxSelect && IsMouseDragging())
 		{
 			if (!IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksTeam())
 				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
@@ -368,4 +366,11 @@ bool CDigitanksWindow::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size
 	}
 
 	return false;
+}
+
+bool CDigitanksWindow::IsMouseDragging()
+{
+	size_t iDifference = abs((int)m_iMouseCurrentX - (int)m_iMouseInitialX) + abs((int)m_iMouseCurrentY - (int)m_iMouseInitialY);
+
+	return iDifference > 30;
 }

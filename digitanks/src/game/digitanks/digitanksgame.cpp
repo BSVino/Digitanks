@@ -164,15 +164,12 @@ void CDigitanksGame::RegisterNetworkFunctions()
 
 	// CPU
 	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
-	CNetwork::RegisterFunction("CancelConstruction", this, CancelConstructionCallback, 0);
 	CNetwork::RegisterFunction("BeginRogueProduction", this, BeginRogueProductionCallback, 0);
-	CNetwork::RegisterFunction("CancelRogueProduction", this, CancelRogueProductionCallback, 0);
 
 	// CStructure
 	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("InstallUpdate", this, InstallUpdateCallback, 1, NET_HANDLE);
 	CNetwork::RegisterFunction("BeginUpgrade", this, BeginUpgradeCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("CancelUpgrade", this, CancelUpgradeCallback, 1, NET_HANDLE);
 
 	// CSupplier
 	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
@@ -180,7 +177,6 @@ void CDigitanksGame::RegisterNetworkFunctions()
 
 	// CLoader
 	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("CancelProduction", this, CancelProductionCallback, 1, NET_HANDLE);
 }
 
 void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
@@ -2206,17 +2202,17 @@ void CDigitanksGame::CompleteProductions()
 		if (pStructure)
 		{
 			if (pStructure->IsConstructing())
-				pStructure->AddProduction(pStructure->ConstructionCost());
+				pStructure->CompleteConstruction();
 
 			if (pStructure->IsUpgrading())
-				pStructure->AddProduction(pStructure->GetProductionToUpgrade()+10);
+				pStructure->CompleteConstruction();
 		}
 
 		CLoader* pLoader = dynamic_cast<CLoader*>(pMember);
 		if (pLoader)
 		{
 			if (pLoader->IsProducing())
-				pLoader->AddProduction(99999);
+				pLoader->CompleteProduction();
 		}
 	}
 }

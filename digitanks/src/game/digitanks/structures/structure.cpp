@@ -2,6 +2,7 @@
 
 #include <maths.h>
 #include <mtrand.h>
+#include <strutils.h>
 
 #include <tinker/cvar.h>
 
@@ -24,10 +25,10 @@ REGISTER_ENTITY(CStructure);
 
 NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(bool, m_bConstructing);
-	NETVAR_DEFINE(size_t, m_iProductionToConstruct);
+	NETVAR_DEFINE(size_t, m_iTurnsToConstruct);
 
 	NETVAR_DEFINE(bool, m_bUpgrading);
-	NETVAR_DEFINE(size_t, m_iProductionToUpgrade);
+	NETVAR_DEFINE(size_t, m_iTurnsToUpgrade);
 
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplier);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
@@ -43,9 +44,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bConstructing);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToConstruct);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsToConstruct);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bUpgrading);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProductionToUpgrade);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsToUpgrade);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplier>, m_hSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFleetSupply);
@@ -66,10 +67,10 @@ SAVEDATA_TABLE_END();
 CStructure::CStructure()
 {
 	m_bConstructing = false;
-	m_iProductionToConstruct = 0;
+	m_iTurnsToConstruct = 0;
 
 	m_bUpgrading = false;
-	m_iProductionToUpgrade = 0;
+	m_iTurnsToUpgrade = 0;
 
 	SetCollisionGroup(CG_ENTITY);
 
@@ -137,22 +138,33 @@ void CStructure::StartTurn()
 		SetSupplier(NULL);
 	}
 
+	if (IsConstructing())
+	{
+		m_iTurnsToConstruct--;
+
+		if (m_iTurnsToConstruct == (size_t)0)
+		{
+			DigitanksGame()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetName());
+			CompleteConstruction();
+
+			DigitanksGame()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
+		}
+		else
+			DigitanksGame()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));
+	}
+
 	if (IsUpgrading())
 	{
-		if (GetDigitanksTeam()->GetProductionPerLoader() >= GetProductionToUpgrade())
+		m_iTurnsToUpgrade--;
+
+		if (m_iTurnsToUpgrade == (size_t)0)
 		{
 			DigitanksGame()->AppendTurnInfo(GetName() + L" finished upgrading.");
 
 			UpgradeComplete();
 		}
 		else
-		{
-			AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
-
-			eastl::string16 s;
-			s.sprintf((L"Upgrading " + GetName() + L" (%d turns left)").c_str(), GetTurnsToUpgrade());
-			DigitanksGame()->AppendTurnInfo(s);
-		}
+			DigitanksGame()->AppendTurnInfo(sprintf(eastl::string16(L"Upgrading ") + GetName() + L" (%d turns left)", GetTurnsToUpgrade()));
 	}
 }
 
@@ -199,14 +211,7 @@ void CStructure::PostRender(bool bTransparent)
 
 void CStructure::BeginConstruction(Vector vecConstructionOrigin)
 {
-	m_iProductionToConstruct = ConstructionCost();
-
-	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecConstructionOrigin))
-		m_iProductionToConstruct = (size_t)(m_iProductionToConstruct*1.5f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecConstructionOrigin))
-		m_iProductionToConstruct = (size_t)(m_iProductionToConstruct*2.0f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecConstructionOrigin))
-		m_iProductionToConstruct = (size_t)(m_iProductionToConstruct*2.5f);
+	m_iTurnsToConstruct = GetTurnsToConstruct();
 
 	m_bConstructing = true;
 
@@ -257,37 +262,6 @@ void CStructure::CompleteConstruction()
 
 	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
 		DigitanksWindow()->GetInstructor()->NextTutorial();
-}
-
-size_t CStructure::GetTurnsToConstruct()
-{
-	if (!GetDigitanksTeam())
-		return 9999;
-
-	return (size_t)(m_iProductionToConstruct/GetDigitanksTeam()->GetProductionPerLoader())+1;
-}
-
-void CStructure::AddProduction(size_t iProduction)
-{
-	if (IsConstructing())
-	{
-		if (iProduction > m_iProductionToConstruct)
-			m_iProductionToConstruct = 0;
-		else
-			m_iProductionToConstruct -= iProduction;
-	}
-	else if (IsUpgrading())
-	{
-		if (iProduction > m_iProductionToUpgrade)
-			m_iProductionToUpgrade = 0;
-		else
-			m_iProductionToUpgrade -= iProduction;
-	}
-}
-
-size_t CStructure::GetTurnsToConstruct(size_t iPower)
-{
-	return (size_t)(iPower/GetDigitanksTeam()->GetProductionPerLoader())+1;
 }
 
 void CStructure::InstallUpdate(size_t x, size_t y)
@@ -355,6 +329,9 @@ void CStructure::BeginUpgrade()
 	if (!CanStructureUpgrade())
 		return;
 
+	if (GetDigitanksTeam()->GetPower() < UpgradeCost())
+		return;
+
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
 
@@ -366,46 +343,26 @@ void CStructure::BeginUpgrade()
 
 void CStructure::BeginUpgrade(CNetworkParameters* p)
 {
+	if (GetDigitanksTeam()->GetPower() < UpgradeCost())
+		return;
+
 	m_bUpgrading = true;
 
-	m_iProductionToUpgrade = UpgradeCost();
-
-	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
-		m_iProductionToUpgrade = (size_t)(m_iProductionToConstruct*1.5f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
-		m_iProductionToUpgrade = (size_t)(m_iProductionToConstruct*2.0f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
-		m_iProductionToUpgrade = (size_t)(m_iProductionToConstruct*2.5f);
-
-	GetDigitanksTeam()->CountProducers();
-}
-
-void CStructure::CancelUpgrade()
-{
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-
-	if (CNetwork::IsHost())
-		CancelUpgrade(&p);
-	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelUpgrade", &p);
-}
-
-void CStructure::CancelUpgrade(CNetworkParameters* p)
-{
-	m_bUpgrading = false;
-
-	m_iProductionToUpgrade = 0;
+	m_iTurnsToUpgrade = GetTurnsToUpgrade();
+	GetDigitanksTeam()->ConsumePower(UpgradeCost());
 
 	GetDigitanksTeam()->CountProducers();
 }
 
 size_t CStructure::GetTurnsToUpgrade()
 {
-	if (IsUpgrading())
-		return (size_t)(m_iProductionToUpgrade/GetDigitanksTeam()->GetProductionPerLoader())+1;
-	else
-		return (size_t)(UpgradeCost()/GetDigitanksTeam()->GetProductionPerLoader())+1;
+	if (GetUpgradeType() == STRUCTURE_PSU)
+		return 2;
+
+	if (GetUpgradeType() == STRUCTURE_BUFFER)
+		return 1;
+
+	return 1;
 }
 
 bool CStructure::NeedsOrders()
@@ -489,7 +446,17 @@ size_t CStructure::ConstructionCost() const
 
 size_t CStructure::UpgradeCost() const
 {
-	return DigitanksGame()->GetUpgradeCost(GetUpgradeType());
+	size_t iPowerToUpgrade = DigitanksGame()->GetConstructionCost(GetUpgradeType());
+
+	// Location location location!
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+		iPowerToUpgrade = (size_t)(iPowerToUpgrade*1.5f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
+		iPowerToUpgrade = (size_t)(iPowerToUpgrade*2.0f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+		iPowerToUpgrade = (size_t)(iPowerToUpgrade*2.5f);
+
+	return iPowerToUpgrade;
 }
 
 size_t CSupplier::s_iTendrilBeam = 0;

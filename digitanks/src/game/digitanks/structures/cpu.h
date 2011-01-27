@@ -41,8 +41,7 @@ public:
 	void						BeginConstruction(class CNetworkParameters* p);
 	void						CancelConstruction();
 	void						CancelConstruction(class CNetworkParameters* p);
-	bool						HasConstruction() { return m_hConstructing != NULL; }
-	CStructure*					GetConstructing() { return m_hConstructing; }
+	size_t						GetPowerToConstruct(unittype_t eStructure, Vector vecLocation);
 
 	void						BeginRogueProduction();
 	void						BeginRogueProduction(class CNetworkParameters* p);
@@ -66,13 +65,11 @@ protected:
 	Vector						m_vecPreviewBuild;
 
 	unittype_t					m_ePreviewStructure;
-	CNetworkedHandle<CStructure>	m_hConstructing;
 
 	CNetworkedVariable<bool>	m_bProducing;
-	CNetworkedVariable<size_t>	m_iProduction;
+	CNetworkedVariable<size_t>	m_iTurnsToProduceRogue;
 
 	size_t						m_iFanModel;
-	float						m_flFanRotationSpeed;
 	float						m_flFanRotation;
 
 	static size_t				s_iCancelIcon;

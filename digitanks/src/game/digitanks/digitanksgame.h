@@ -23,7 +23,6 @@ typedef enum
 typedef enum
 {
 	ACTIONTYPE_WELCOME,
-	ACTIONTYPE_NEWUNIT,
 	ACTIONTYPE_NEWSTRUCTURE,
 	ACTIONTYPE_AUTOMOVECANCELED,
 	ACTIONTYPE_AUTOMOVEENEMY,
@@ -197,20 +196,16 @@ public:
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadComplete);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginConstruction);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelConstruction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, BeginRogueProduction);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CCPU, CancelRogueProduction);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginStructureConstruction);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, InstallUpdate);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, BeginUpgrade);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CStructure, CancelUpgrade);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, AddChild);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CSupplier, RemoveChild);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, BeginProduction);
-	NET_CALLBACK_ENTITY(CDigitanksGame, CLoader, CancelProduction);
 
 	virtual class CDigitanksRenderer*	GetDigitanksRenderer();
 	virtual class CDigitanksCamera*		GetDigitanksCamera();

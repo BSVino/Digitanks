@@ -288,7 +288,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
 
 	L"The infantry's light mounted gun is its main firepower.",
-	L"This special weapon can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
+	L"The Tree Cutter is not a weapon, but a tool that can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
 	L"This weapon emits a wall of lasers in one direction. It can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
 	L"Torpedos do damage only if the target's shields are down, but they also disable units and sever structures from their network, forcing them to become neutral.",
 	L"The Artillery fires a salvo of shells which do double damage against shields but half damage against structures.",

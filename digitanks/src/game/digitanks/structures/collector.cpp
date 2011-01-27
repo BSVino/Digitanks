@@ -62,6 +62,14 @@ size_t CCollector::GetProduction()
 	return (size_t)(4 * m_hSupplyLine->GetIntegrity());
 }
 
+size_t CCollector::GetTurnsToConstruct()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
+		return 1;
+
+	return 4;
+}
+
 size_t CBattery::s_iUpgradeIcon = 0;
 size_t CBattery::s_iCancelIcon = 0;
 
@@ -95,29 +103,23 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
-	if (!IsConstructing() && CanStructureUpgrade())
+	if (!IsConstructing() && !IsUpgrading() && CanStructureUpgrade())
 	{
-		if (IsUpgrading())
+		pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
+
+		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{
-			pHUD->SetButtonListener(9, CHUD::CancelUpgrade);
-			pHUD->SetButtonTexture(9, s_iCancelIcon);
-			pHUD->SetButtonColor(9, Color(100, 0, 0));
-			pHUD->SetButtonInfo(9, L"CANCEL UPGRADE\n \nShortcut: G");
-		}
-		else
-		{
-			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
 			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
-
-			eastl::string16 s;
-			s += L"UPGRADE TO POWER SUPPLY UNIT\n \n";
-			s += L"Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
-			s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
-			s += L"Shortcut: Q";
-
-			pHUD->SetButtonInfo(0, s);
 		}
+
+		eastl::string16 s;
+		s += L"UPGRADE TO POWER SUPPLY UNIT\n \n";
+		s += L"Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+		s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
+		s += L"Shortcut: Q";
+
+		pHUD->SetButtonInfo(0, s);
 	}
 }
 
@@ -131,15 +133,14 @@ void CBattery::UpdateInfo(eastl::string16& s)
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
 		s += L"(Upgrading to Power Supply Unit)\n";
-		s += p.sprintf(L"Power to upgrade: %d\n", GetProductionToUpgrade());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToUpgrade());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToUpgrade());
 		return;
 	}
 

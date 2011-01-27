@@ -41,6 +41,9 @@ void CMobileCPU::OnFortify()
 	GetTeam()->AddEntity(pCPU);
 	pCPU->FindGround();
 
+	// 8 free power to get the player started.
+	GetDigitanksTeam()->AddPower(8);
+
 	GetDigitanksTeam()->CountBandwidth();
 	GetDigitanksTeam()->CountProducers();
 	GetDigitanksTeam()->CountFleetPoints();

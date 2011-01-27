@@ -256,21 +256,21 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 	CStructure* pStructure = dynamic_cast<CStructure*>(m_hEntity.GetPointer());
 	if (pStructure && (pStructure->IsConstructing() || pStructure->IsUpgrading()))
 	{
-		int iProductionRemaining = 0;
-		int iTotalProduction = 0;
+		int iTurnsRemaining = 0;
+		int iTotalTurns = 0;
 		if (pStructure->IsConstructing())
 		{
-			iProductionRemaining = pStructure->GetProductionToConstruct();
-			iTotalProduction = pStructure->ConstructionCost();
+			iTurnsRemaining = pStructure->GetTurnsToConstruct();
+			iTotalTurns = pStructure->GetTurnsRemainingToConstruct();
 		}
 		else if (pStructure->IsUpgrading())
 		{
-			iProductionRemaining = pStructure->GetProductionToUpgrade();
-			iTotalProduction = pStructure->UpgradeCost();
+			iTurnsRemaining = pStructure->GetTurnsToUpgrade();
+			iTotalTurns = pStructure->GetTurnsRemainingToUpgrade();
 		}
 
-		int iProduction = iTotalProduction-iProductionRemaining;
-		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iProduction/iTotalProduction), 3, Color(255, 255, 100));
+		int iTurns = iTotalTurns-iTurnsRemaining;
+		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iTurns/iTotalTurns), 3, Color(255, 255, 100));
 	}
 }
 

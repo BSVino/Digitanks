@@ -93,16 +93,6 @@ void CDigitanksTeam::Bot_ExpandBase()
 	if (m_hPrimaryCPU == NULL)
 		return;
 
-	// If currently building something, don't think about it this turn.
-	if (m_hPrimaryCPU->HasConstruction())
-		return;
-
-	if (m_hPrimaryCPU->IsProducing())
-		return;
-
-	if (GetNumProducers() >= 1)
-		return;
-
 	unittype_t iNextBuild;
 	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(unittype_t))
 		iNextBuild = STRUCTURE_PSU;
@@ -355,10 +345,6 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 void CDigitanksTeam::Bot_BuildUnits()
 {
-	// Above code is capped, but we make this cap higher so we always have a guarantee to be creating units.
-	if (GetNumProducers() >= 3)
-		return;
-
 	size_t iInfantry = 0;
 	size_t iMainTanks = 0;
 	size_t iArtillery = 0;
@@ -396,9 +382,6 @@ void CDigitanksTeam::Bot_BuildUnits()
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
-		if (GetNumProducers() >= 3)
-			continue;
-
 		CBaseEntity* pEntity = m_ahMembers[i];
 		if (!pEntity)
 			continue;

@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 
 #include <mtrand.h>
+#include <strutils.h>
+
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>
 
@@ -34,19 +36,16 @@ size_t CCPU::s_iInstallFleetSupplyIcon = 0;
 REGISTER_ENTITY(CCPU);
 
 NETVAR_TABLE_BEGIN(CCPU);
-	NETVAR_DEFINE_CALLBACK(CEntityHandle<CStructure>, m_hConstructing, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bProducing, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE(size_t, m_iProduction);
+	NETVAR_DEFINE(size_t, m_iTurnsToProduceRogue);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecPreviewBuild);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, unittype_t, m_ePreviewStructure);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CStructure>, m_hConstructing);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bProducing);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProduction);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsToProduceRogue);
 	//size_t						m_iFanModel;	// Spawn()
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotationSpeed);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotation);
 SAVEDATA_TABLE_END();
 
@@ -57,7 +56,6 @@ void CCPU::Spawn()
 	SetModel(L"models/structures/cpu.obj");
 	m_iFanModel = CModelLibrary::Get()->FindModel(L"models/structures/cpu-fan.obj");
 
-	m_flFanRotationSpeed = 0;
 	m_flFanRotation = RandomFloat(0, 360);
 
 	m_bProducing = false;
@@ -97,63 +95,70 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	bool bDisablePSU = !GetDigitanksTeam()->CanBuildPSUs();
 	bool bDisableLoaders = !GetDigitanksTeam()->CanBuildLoaders();
 
-	if (m_hConstructing != NULL)
-	{
-		pHUD->SetButtonListener(9, CHUD::CancelBuild);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"CANCEL CONSTRUCTION\n \nShortcut: G");
-	}
-	else if (IsProducing())
-	{
-		pHUD->SetButtonListener(9, CHUD::CancelBuildScout);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
-		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"CANCEL UNIT PRODUCTION\n \nShortcut: G");
-	}
-	else if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
+	if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
 		if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
-			pHUD->SetButtonListener(0, CHUD::BuildInfantryLoader);
 			pHUD->SetButtonTexture(0, s_iBuildInfantryLoaderIcon);
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
+			{
+				pHUD->SetButtonListener(0, CHUD::BuildInfantryLoader);
+				pHUD->SetButtonColor(0, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD RESISTOR LOADER\n \n";
 			s += L"This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
 		}
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
-			pHUD->SetButtonListener(1, CHUD::BuildTankLoader);
 			pHUD->SetButtonTexture(1, s_iBuildTankLoaderIcon);
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
+			{
+				pHUD->SetButtonListener(1, CHUD::BuildTankLoader);
+				pHUD->SetButtonColor(1, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD DIGITANK LOADER\n \n";
 			s += L"This program lets you build Digitanks, the primary assault force in your fleet.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
 		}
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
-			pHUD->SetButtonListener(2, CHUD::BuildArtilleryLoader);
 			pHUD->SetButtonTexture(2, s_iBuildArtilleryLoaderIcon);
-			pHUD->SetButtonColor(2, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
+			{
+				pHUD->SetButtonListener(2, CHUD::BuildArtilleryLoader);
+				pHUD->SetButtonColor(2, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD ARTILLERY LOADER\n \n";
 			s += L"This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: E";
 			pHUD->SetButtonInfo(2, s);
 		}
@@ -167,60 +172,88 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	{
 		if (!bDisableMiniBuffer)
 		{
-			pHUD->SetButtonListener(5, CHUD::BuildMiniBuffer);
 			pHUD->SetButtonTexture(5, s_iBuildBufferIcon);
-			pHUD->SetButtonColor(5, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
+			{
+				pHUD->SetButtonListener(5, CHUD::BuildMiniBuffer);
+				pHUD->SetButtonColor(5, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD MINIBUFFER\n \n";
 			s += L"MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: A";
 			pHUD->SetButtonInfo(5, s);
 		}
 
 		if (!bDisableBuffer)
 		{
-			pHUD->SetButtonListener(0, CHUD::BuildBuffer);
 			pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
+			{
+				pHUD->SetButtonListener(0, CHUD::BuildBuffer);
+				pHUD->SetButtonColor(0, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD BUFFER\n \n";
 			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
 		}
 
 		if (!bDisableBattery)
 		{
-			pHUD->SetButtonListener(6, CHUD::BuildBattery);
 			pHUD->SetButtonTexture(6, s_iBuildPSUIcon);
-			pHUD->SetButtonColor(6, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
+			{
+				pHUD->SetButtonListener(6, CHUD::BuildBattery);
+				pHUD->SetButtonColor(6, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD BATTERY\n \n";
 			s += L"Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: S";
 			pHUD->SetButtonInfo(6, s);
 		}
 
 		if (!bDisablePSU)
 		{
-			pHUD->SetButtonListener(1, CHUD::BuildPSU);
 			pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
+
+			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
+			{
+				pHUD->SetButtonListener(1, CHUD::BuildPSU);
+				pHUD->SetButtonColor(1, Color(150, 150, 150));
+			}
 
 			eastl::string16 s;
 			s += L"BUILD POWER SUPPLY UNIT\n \n";
 			s += L"PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
-			s += p.sprintf(L"Turns to install: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(STRUCTURE_PSU)));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
+
+			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
+				s += L"NOT ENOUGH POWER\n \n";
+
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
 		}
@@ -234,7 +267,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		}
 
 		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
-		if (GetDigitanksTeam()->GetUnusedFleetPoints())
+		if (GetDigitanksTeam()->GetUnusedFleetPoints() && GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(UNIT_SCOUT))
 		{
 			pHUD->SetButtonColor(7, Color(150, 150, 150));
 			pHUD->SetButtonListener(7, CHUD::BuildScout);
@@ -244,10 +277,12 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		s += L"BUILD ROGUE\n \n";
 		s += L"Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n";
 		s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
-		s += p.sprintf(L"Turns to construct: %d Turns\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)));
 
 		if (!GetDigitanksTeam()->GetUnusedFleetPoints())
 			s += L"NOT ENOUGH FLEET POINTS\n \n";
+
+		if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(UNIT_SCOUT))
+			s += L"NOT ENOUGH POWER\n \n";
 
 		s += L"Shortcut: D";
 		pHUD->SetButtonInfo(7, s);
@@ -256,9 +291,6 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 bool CCPU::NeedsOrders()
 {
-	if (HasConstruction() || IsProducing())
-		return false;
-
 	bool bDisableMiniBuffer = !GetDigitanksTeam()->CanBuildMiniBuffers();
 	bool bDisableBuffer = !GetDigitanksTeam()->CanBuildBuffers();
 	bool bDisableBattery = !GetDigitanksTeam()->CanBuildBatteries();
@@ -341,7 +373,7 @@ void CCPU::BeginConstruction()
 	if (!IsPreviewBuildValid())
 		return;
 
-	if (IsProducing())
+	if (GetPowerToConstruct(m_ePreviewStructure, GetPreviewBuild()) > GetDigitanksTeam()->GetPower())
 		return;
 
 	CNetworkParameters p;
@@ -368,6 +400,9 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	unittype_t ePreviewStructure = (unittype_t)p->i2;
 	Vector vecPreview(p->fl3, p->fl4, p->fl5);
 
+	if (GetPowerToConstruct(ePreviewStructure, vecPreview) > GetDigitanksTeam()->GetPower())
+		return;
+
 	if (ePreviewStructure == STRUCTURE_PSU)
 	{
 		CResource* pResource = CResource::FindClosestResource(vecPreview, RESOURCE_ELECTRONODE);
@@ -382,39 +417,38 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		}
 	}
 
-	if (m_hConstructing != NULL)
-		CancelConstruction();
+	CStructure* pConstructing = NULL;
 
 	if (ePreviewStructure == STRUCTURE_MINIBUFFER)
 	{
-		m_hConstructing = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
+		pConstructing = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
 	}
 	else if (ePreviewStructure == STRUCTURE_BUFFER)
 	{
 		if (!GetDigitanksTeam()->CanBuildBuffers())
 			return;
 
-		m_hConstructing = GameServer()->Create<CBuffer>("CBuffer");
+		pConstructing = GameServer()->Create<CBuffer>("CBuffer");
 	}
 	else if (ePreviewStructure == STRUCTURE_BATTERY)
 	{
-		m_hConstructing = GameServer()->Create<CBattery>("CBattery");
+		pConstructing = GameServer()->Create<CBattery>("CBattery");
 	}
 	else if (ePreviewStructure == STRUCTURE_PSU)
 	{
 		if (!GetDigitanksTeam()->CanBuildPSUs())
 			return;
 
-		m_hConstructing = GameServer()->Create<CCollector>("CCollector");
+		pConstructing = GameServer()->Create<CCollector>("CCollector");
 	}
 	else if (ePreviewStructure == STRUCTURE_INFANTRYLOADER)
 	{
 		if (!GetDigitanksTeam()->CanBuildInfantryLoaders())
 			return;
 
-		m_hConstructing = GameServer()->Create<CLoader>("CLoader");
+		pConstructing = GameServer()->Create<CLoader>("CLoader");
 
-		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+		CLoader* pLoader = dynamic_cast<CLoader*>(pConstructing);
 		if (pLoader)
 			pLoader->SetBuildUnit(UNIT_INFANTRY);
 	}
@@ -423,9 +457,9 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		if (!GetDigitanksTeam()->CanBuildTankLoaders())
 			return;
 
-		m_hConstructing = GameServer()->Create<CLoader>("CLoader");
+		pConstructing = GameServer()->Create<CLoader>("CLoader");
 
-		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+		CLoader* pLoader = dynamic_cast<CLoader*>(pConstructing);
 		if (pLoader)
 			pLoader->SetBuildUnit(UNIT_TANK);
 	}
@@ -434,19 +468,21 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		if (!GetDigitanksTeam()->CanBuildArtilleryLoaders())
 			return;
 
-		m_hConstructing = GameServer()->Create<CLoader>("CLoader");
+		pConstructing = GameServer()->Create<CLoader>("CLoader");
 
-		CLoader* pLoader = dynamic_cast<CLoader*>(m_hConstructing.GetPointer());
+		CLoader* pLoader = dynamic_cast<CLoader*>(pConstructing);
 		if (pLoader)
 			pLoader->SetBuildUnit(UNIT_ARTILLERY);
 	}
 
-	m_hConstructing->BeginConstruction(vecPreview);
-	GetTeam()->AddEntity(m_hConstructing);
-	m_hConstructing->SetSupplier(FindClosestSupplier(vecPreview, GetTeam()));
-	m_hConstructing->GetSupplier()->AddChild(m_hConstructing);
+	GetDigitanksTeam()->ConsumePower(GetPowerToConstruct(ePreviewStructure, vecPreview));
 
-	m_hConstructing->SetOrigin(vecPreview);
+	pConstructing->BeginConstruction(vecPreview);
+	GetTeam()->AddEntity(pConstructing);
+	pConstructing->SetSupplier(FindClosestSupplier(vecPreview, GetTeam()));
+	pConstructing->GetSupplier()->AddChild(pConstructing);
+
+	pConstructing->SetOrigin(vecPreview);
 	if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
 	{
 		Vector vecPSU = vecPreview;
@@ -456,15 +492,15 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		if (pResource)
 		{
 			if ((pResource->GetOrigin() - vecPSU).Length() <= 6)
-				m_hConstructing->SetOrigin(pResource->GetOrigin());
+				pConstructing->SetOrigin(pResource->GetOrigin());
 		}
 	}
 
-	CSupplier* pSupplier = dynamic_cast<CSupplier*>(m_hConstructing.GetPointer());
+	CSupplier* pSupplier = dynamic_cast<CSupplier*>(pConstructing);
 	if (pSupplier)
 		pSupplier->GiveDataStrength((size_t)pSupplier->GetSupplier()->GetDataFlow(pSupplier->GetOrigin()));
 
-	CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
+	CCollector* pCollector = dynamic_cast<CCollector*>(pConstructing);
 	if (pCollector)
 	{
 		pCollector->SetResource(CResource::FindClosestResource(vecPreview, pCollector->GetResourceType()));
@@ -479,65 +515,42 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	{
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BUFFER);
 		DigitanksWindow()->GetInstructor()->NextTutorial();
-
-		// Make sure it's done next turn.
-		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
 	}
 
-	if (ePreviewStructure == STRUCTURE_PSU && iTutorial == CInstructor::TUTORIAL_PSU)
-	{
-		// Make sure it's done next turn.
-		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
-	}
-
-	if (iTutorial == CInstructor::TUTORIAL_LOADER && (ePreviewStructure == STRUCTURE_INFANTRYLOADER || ePreviewStructure == STRUCTURE_TANKLOADER || ePreviewStructure == STRUCTURE_ARTILLERYLOADER))
-	{
-		// Make sure it's done next turn.
-		m_hConstructing->AddProduction(m_hConstructing->GetProductionToConstruct());
-	}
-
-	m_hConstructing->FindGround();
+	pConstructing->FindGround();
 
 	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
 	{
 		for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
 		{
 			if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
-				m_hConstructing->InstallUpdate(x, y);
+				pConstructing->InstallUpdate(x, y);
 		}
 	}
 
 	DigitanksGame()->GetTerrain()->CalculateVisibility();
+
+	DigitanksWindow()->GetHUD()->Layout();
 }
 
-void CCPU::CancelConstruction()
+size_t CCPU::GetPowerToConstruct(unittype_t eStructure, Vector vecLocation)
 {
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
+	size_t iPowerToConstruct = DigitanksGame()->GetConstructionCost(eStructure);
 
-	if (CNetwork::IsHost())
-		CancelConstruction(NULL);
-	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelConstruction", &p);
-}
+	// Location location location!
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecLocation))
+		iPowerToConstruct = (size_t)(iPowerToConstruct*1.5f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecLocation))
+		iPowerToConstruct = (size_t)(iPowerToConstruct*2.0f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecLocation))
+		iPowerToConstruct = (size_t)(iPowerToConstruct*2.5f);
 
-void CCPU::CancelConstruction(class CNetworkParameters* p)
-{
-	if (!CNetwork::IsHost())
-		return;
-
-	if (m_hConstructing != NULL)
-	{
-		GameServer()->Delete(m_hConstructing);
-		m_hConstructing = NULL;
-	}
-
-	DigitanksGame()->GetTerrain()->CalculateVisibility();
+	return iPowerToConstruct;
 }
 
 void CCPU::BeginRogueProduction()
 {
-	if (HasConstruction())
+	if (DigitanksGame()->GetConstructionCost(UNIT_SCOUT) > GetDigitanksTeam()->GetPower())
 		return;
 
 	CNetworkParameters p;
@@ -551,31 +564,15 @@ void CCPU::BeginRogueProduction()
 
 void CCPU::BeginRogueProduction(class CNetworkParameters* p)
 {
+	if (DigitanksGame()->GetConstructionCost(UNIT_SCOUT) > GetDigitanksTeam()->GetPower())
+		return;
+
 	if (!GetDigitanksTeam()->GetUnusedFleetPoints())
 		return;
 
-	m_iProduction = 0;
+	m_iTurnsToProduceRogue = 1;
 	m_bProducing = true;
-
-	GetDigitanksTeam()->CountFleetPoints();
-	GetDigitanksTeam()->CountProducers();
-}
-
-void CCPU::CancelRogueProduction()
-{
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-
-	if (CNetwork::IsHost())
-		CancelRogueProduction(&p);
-	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CancelRogueProduction", &p);
-}
-
-void CCPU::CancelRogueProduction(class CNetworkParameters* p)
-{
-	m_iProduction = 0;
-	m_bProducing = false;
+	GetDigitanksTeam()->ConsumePower(DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
 
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();
@@ -585,13 +582,10 @@ void CCPU::StartTurn()
 {
 	BaseClass::StartTurn();
 
-	if (!m_bProducing)
-		m_iProduction = 0;
-
 	if (m_bProducing)
 	{
-		m_iProduction += (size_t)(GetDigitanksTeam()->GetProductionPerLoader());
-		if (m_iProduction > DigitanksGame()->GetConstructionCost(UNIT_SCOUT))
+		m_iTurnsToProduceRogue -= (size_t)1;
+		if (m_iTurnsToProduceRogue == (size_t)0)
 		{
 			if (CNetwork::IsHost())
 			{
@@ -608,18 +602,9 @@ void CCPU::StartTurn()
 					}
 				}
 
-				// All of these StartTurn calls will probably cause problems later but for now they're
-				// the only way to refresh the tank's energy so it has enough to leave the loader.
-				pTank->StartTurn();
-
-				pTank->SetPreviewMove(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
-				pTank->Move();
-
-				pTank->StartTurn();
-
 				// Face him toward the center.
-				pTank->SetPreviewTurn(VectorAngles(-GetOrigin().Normalized()).y);
-				pTank->Turn();
+				pTank->Move(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
+				pTank->Turn(VectorAngles(-GetOrigin().Normalized()));
 
 				pTank->StartTurn();
 			}
@@ -628,51 +613,11 @@ void CCPU::StartTurn()
 
 			DigitanksGame()->AppendTurnInfo(L"Production finished on Rogue");
 
-//			DigitanksGame()->AddActionItem(pTank, ACTIONTYPE_NEWUNIT);
 			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
 		else
 		{
-			eastl::string16 s;
-			s.sprintf(L"Producing Rogue (%d turns left)", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)-m_iProduction));
-			DigitanksGame()->AppendTurnInfo(s);
-		}
-	}
-
-	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
-	{
-		if (!m_hConstructing->GetSupplier() || m_hConstructing->GetSupplier()->IsDeleted())
-		{
-			CancelConstruction();
-		}
-	}
-
-	if (m_hConstructing != NULL && m_hConstructing->IsConstructing())
-	{
-		if (GetDigitanksTeam()->GetProductionPerLoader() > m_hConstructing->GetProductionToConstruct())
-		{
-			eastl::string16 s;
-			s += L"Construction finished on " + m_hConstructing->GetName();
-			DigitanksGame()->AppendTurnInfo(s);
-
-			CCollector* pCollector = dynamic_cast<CCollector*>(m_hConstructing.GetPointer());
-			if (pCollector && pCollector->GetSupplier())
-				GetDigitanksTeam()->AddProduction((size_t)(pCollector->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
-
-			m_hConstructing->CompleteConstruction();
-
-			DigitanksGame()->AddActionItem(m_hConstructing, ACTIONTYPE_NEWSTRUCTURE);
-			DigitanksGame()->AddActionItem(this, ACTIONTYPE_CONSTRUCTION);
-
-			m_hConstructing = NULL;
-		}
-		else
-		{
-			m_hConstructing->AddProduction((size_t)GetDigitanksTeam()->GetProductionPerLoader());
-
-			eastl::string16 s;
-			s.sprintf((L"Constructing " + m_hConstructing->GetName() + L" (%d turns left)").c_str(), m_hConstructing->GetTurnsToConstruct());
-			DigitanksGame()->AppendTurnInfo(s);
+			DigitanksGame()->AppendTurnInfo(sprintf(L"Producing Rogue (%d turns left)", m_iTurnsToProduceRogue.Get()));
 		}
 	}
 }
@@ -708,12 +653,7 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 			r.SetBlend(BLEND_ALPHA);
 	}
 
-	float flSlowSpeed = 50.0f;
-	float flFastSpeed = 200.0f;
-
-	m_flFanRotationSpeed = Approach(HasConstruction()?flFastSpeed:flSlowSpeed, m_flFanRotationSpeed, GameServer()->GetFrameTime()*(flFastSpeed-flSlowSpeed));
-	m_flFanRotation -= RemapVal(GameServer()->GetFrameTime(), 0, 1, 0, m_flFanRotationSpeed);
-
+	m_flFanRotation -= 100 * GameServer()->GetFrameTime();
 	r.Rotate(m_flFanRotation, Vector(0, 1, 0));
 
 	r.RenderModel(m_iFanModel);
@@ -785,30 +725,13 @@ void CCPU::UpdateInfo(eastl::string16& s)
 	s += L"CENTRAL PROCESSING UNIT\n";
 	s += L"Command center\n \n";
 
-	if (IsConstructing())
-	{
-		s += L"(Constructing)\n";
-		s += p.sprintf(L"Power to build: %d\n", GetProductionToConstruct());
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
-		return;
-	}
-
-	if (HasConstruction())
-	{
-		s += L"[Constructing " + m_hConstructing->GetName() + L"...]\n";
-		s += p.sprintf(L"Power to build: %d\n", m_hConstructing->GetProductionToConstruct());
-		s += p.sprintf(L"Turns left: %d\n", m_hConstructing->GetTurnsToConstruct());
-		return;
-	}
-
 	if (IsProducing())
 	{
 		s += L"[Producing Rogue]\n";
-		s += p.sprintf(L"Power to build: %d\n", m_iProduction);
-		s += p.sprintf(L"Turns left: %d\n \n", GetTurnsToConstruct(DigitanksGame()->GetConstructionCost(UNIT_SCOUT)-m_iProduction));
+		s += sprintf(L"Turns left: %d\n \n", m_iTurnsToProduceRogue.Get());
 	}
 
-	s += p.sprintf(L"Strength: %d\n", m_iDataStrength);
+	s += p.sprintf(L"Strength: %d\n", m_iDataStrength.Get());
 	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
 	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d%\n", (int)(GetChildEfficiency()*100));

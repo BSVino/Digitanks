@@ -888,3 +888,41 @@ eastl::string16 CUpdateItem::GetInfo()
 
 	return L"If you can figure out what hell this thing does, please let me know.";
 }
+
+eastl::string16 CUpdateItem::GetUnits()
+{
+	switch (m_eUpdateType)
+	{
+	case UPDATETYPE_PRODUCTION:
+		return L"power";
+
+	case UPDATETYPE_BANDWIDTH:
+		return L"mb per turn";
+
+	case UPDATETYPE_FLEETSUPPLY:
+		return L"fleet supply";
+
+	case UPDATETYPE_SUPPORTENERGY:
+		return L"energy";
+
+	case UPDATETYPE_SUPPORTRECHARGE:
+		return L"recharge";
+
+	case UPDATETYPE_TANKATTACK:
+		return L"attack energy";
+
+	case UPDATETYPE_TANKDEFENSE:
+		return L"defense energy";
+
+	case UPDATETYPE_TANKMOVEMENT:
+		return L"units";
+
+	case UPDATETYPE_TANKHEALTH:
+		return L"hull points";
+
+	case UPDATETYPE_TANKRANGE:
+		return L"units";
+	}
+
+	return L"";
+}

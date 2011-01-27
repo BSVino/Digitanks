@@ -376,7 +376,7 @@ void CHUD::Layout()
 	m_pPressEnter->SetWrap(false);
 
 	m_pPowerInfo->SetAlign(CLabel::TA_TOPLEFT);
-	m_pPowerInfo->SetPos(iWidth - 290, 20);
+	m_pPowerInfo->SetPos(iWidth - 320, 20);
 	m_pPowerInfo->SetWrap(false);
 
 	m_pFleetInfo->SetAlign(CLabel::TA_TOPLEFT);
@@ -720,13 +720,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
-			PaintHUDSheet(iWidth - 320, 10, 20, 20, 500, 530, 20, 20);
+			PaintHUDSheet(iWidth - 350, 10, 20, 20, 500, 530, 20, 20);
 			PaintHUDSheet(iWidth - 250, 10, 20, 20, 540, 530, 20, 20);
 			PaintHUDSheet(iWidth - 180, 10, 20, 20, 520, 530, 20, 20);
 
 			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
 
-			int iResearchWidth = 640;
+			int iResearchWidth = 570;
 			CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, Color(0, 0, 0, 150));
 
 			if (pCurrentLocalTeam && pCurrentLocalTeam->GetUpdateDownloading())
@@ -1473,7 +1473,7 @@ void CHUD::UpdateTeamInfo()
 		return;
 
 	eastl::string16 s1;
-	s1.sprintf(L"%d\n", pTeam->GetTotalProduction());
+	s1.sprintf(L"%d +%d/turn\n", pTeam->GetPower(), pTeam->GetTotalProduction());
 	m_pPowerInfo->SetText(s1);
 
 	eastl::string16 s2;
@@ -1481,7 +1481,7 @@ void CHUD::UpdateTeamInfo()
 	m_pFleetInfo->SetText(s2);
 
 	eastl::string16 s3;
-	s3.sprintf(L"%d/%dmb @%dmbps\n", pTeam->GetUpdateDownloaded(), pTeam->GetUpdateSize(), pTeam->GetBandwidth());
+	s3.sprintf(L"%d/%dmb +%dmb/turn\n", pTeam->GetUpdateDownloaded(), pTeam->GetUpdateSize(), pTeam->GetBandwidth());
 	m_pBandwidthInfo->SetText(s3);
 }
 
@@ -1905,12 +1905,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"This is the 'Action Items' window. It will help guide you through the tasks you need to complete each turn.\n \n"
 			"First you need to begin building your base. Click on your CPU to build structures. You can also explore with your Rogue.\n \n"
 			"When you're done, press the 'End Turn' button to continue.\n");
-		break;
-
-	case ACTIONTYPE_NEWUNIT:
-		m_pActionItem->SetText(
-			"NEW UNIT READY\n \n"
-			"This unit has just been completed and needs orders.\n");
 		break;
 
 	case ACTIONTYPE_NEWSTRUCTURE:
@@ -2640,30 +2634,6 @@ void CHUD::BuildArtilleryLoaderCallback()
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 }
 
-void CHUD::CancelBuildCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
-	if (!pCPU)
-		return;
-
-	pCPU->CancelConstruction();
-
-	DigitanksGame()->SetControlMode(MODE_NONE);
-
-	SetupMenu();
-}
-
 void CHUD::BuildUnitCallback()
 {
 	if (!m_bHUDActive)
@@ -2682,29 +2652,6 @@ void CHUD::BuildUnitCallback()
 		return;
 
 	pLoader->BeginProduction();
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::CancelBuildUnitCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CLoader* pLoader = dynamic_cast<CLoader*>(pStructure);
-	if (!pLoader)
-		return;
-
-	pLoader->CancelProduction();
 	SetupMenu();
 	UpdateInfo();
 	UpdateTeamInfo();
@@ -2733,29 +2680,6 @@ void CHUD::BuildScoutCallback()
 	UpdateTeamInfo();
 }
 
-void CHUD::CancelBuildScoutCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
-	if (!pCPU)
-		return;
-
-	pCPU->CancelRogueProduction();
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
 void CHUD::BeginUpgradeCallback()
 {
 	if (!m_bHUDActive)
@@ -2769,27 +2693,6 @@ void CHUD::BeginUpgradeCallback()
 
 	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
 	pStructure->BeginUpgrade();
-
-	DigitanksGame()->SetControlMode(MODE_NONE);
-
-	SetupMenu();
-	UpdateInfo();
-	UpdateTeamInfo();
-}
-
-void CHUD::CancelUpgradeCallback()
-{
-	if (!m_bHUDActive)
-		return;
-
-	if (!DigitanksGame())
-		return;
-
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
-		return;
-
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-	pStructure->CancelUpgrade();
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 
@@ -3085,4 +2988,20 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 	} while (false);
 
 	BaseClass::Paint(x, y, w, h);
+}
+
+bool CMouseCapturePanel::MousePressed(int code, int mx, int my)
+{
+	BaseClass::MousePressed(code, mx, my);
+	return true;
+}
+
+bool CMouseCapturePanel::MouseReleased(int code, int mx, int my)
+{
+	BaseClass::MouseReleased(code, mx, my);
+
+	if (DigitanksWindow()->IsMouseDragging())
+		return false;
+
+	return true;
 }

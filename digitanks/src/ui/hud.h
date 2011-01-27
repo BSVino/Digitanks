@@ -104,8 +104,8 @@ class CMouseCapturePanel : public glgui::CPanel
 public:
 	CMouseCapturePanel() : CPanel(0, 0, 0, 0) {};
 
-	virtual bool			MousePressed(int code, int mx, int my) { BaseClass::MousePressed(code, mx, my); return true; }
-	virtual bool			MouseReleased(int code, int mx, int my) { BaseClass::MouseReleased(code, mx, my); return true; }
+	virtual bool			MousePressed(int code, int mx, int my);
+	virtual bool			MouseReleased(int code, int mx, int my);
 };
 
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
@@ -229,11 +229,8 @@ public:
 	EVENT_CALLBACK(CHUD, BuildArtilleryLoader);
 	EVENT_CALLBACK(CHUD, CancelBuild);
 	EVENT_CALLBACK(CHUD, BuildUnit);
-	EVENT_CALLBACK(CHUD, CancelBuildUnit);
 	EVENT_CALLBACK(CHUD, BuildScout);
-	EVENT_CALLBACK(CHUD, CancelBuildScout);
 	EVENT_CALLBACK(CHUD, BeginUpgrade);
-	EVENT_CALLBACK(CHUD, CancelUpgrade);
 	EVENT_CALLBACK(CHUD, Cloak);
 	EVENT_CALLBACK(CHUD, ChooseWeapon);
 	EVENT_CALLBACK(CHUD, ChooseWeapon0);

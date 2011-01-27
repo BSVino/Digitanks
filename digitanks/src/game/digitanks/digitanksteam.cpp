@@ -17,7 +17,7 @@ REGISTER_ENTITY(CDigitanksTeam);
 
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iProduction, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE(size_t, m_iLoadersProducing);
+	NETVAR_DEFINE_CALLBACK(size_t, m_iPower, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iTotalFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
@@ -40,7 +40,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, size_t, m_aiCurrentSelection);
 	//std::map<size_t, float>		m_aflVisibilities;	// Automatically generated
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProduction);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iLoadersProducing);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTotalFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUsedFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iScore);
@@ -89,6 +89,9 @@ void CDigitanksTeam::Spawn()
 
 	m_bLost = false;
 
+	m_iPower = 0;
+
+	m_iMegabytes = 0;
 	m_iUpdateDownloaded = 0;
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
@@ -306,8 +309,6 @@ void CDigitanksTeam::StartTurn()
 			apMembers.push_back(pEntity);
 	}
 
-	size_t iProducersBefore = GetNumProducers();
-
 	// Construct and produce and update and shit.
 	for (size_t i = 0; i < apMembers.size(); i++)
 	{
@@ -343,20 +344,18 @@ void CDigitanksTeam::StartTurn()
 			DigitanksGame()->AppendTurnInfo(s);
 		}
 	}
+	else if (DigitanksGame()->GetUpdateGrid())
+	{
+		if (DigitanksGame()->GetTurn() > 1 && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
+			DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+	}
 
 	CountProducers();
 	CountFleetPoints();
 	CountBandwidth();
 	CountScore();
 
-	if (DigitanksGame()->GetUpdateGrid())
-	{
-		if (DigitanksGame()->GetTurn() > 1 && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
-			DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
-	}
-
-	if (iProducersBefore == 0 && GetNumProducers() == 0)
-		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_NOPRODUCERS);
+	m_iPower += m_iProduction;
 
 	DigitanksWindow()->GetHUD()->Layout();
 }
@@ -383,7 +382,6 @@ void CDigitanksTeam::CountProducers()
 		return;
 
 	m_iProduction = 0;
-	m_iLoadersProducing = 0;
 
 	// Find and count producers and accumulate production points
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -395,21 +393,7 @@ void CDigitanksTeam::CountProducers()
 		if (!pEntity)
 			continue;
 
-		CLoader* pLoader = dynamic_cast<CLoader*>(m_ahMembers[i].GetPointer());
-		if (pLoader && pLoader->IsProducing())
-			AddProducer();
-
-		CCPU* pCPU = dynamic_cast<CCPU*>(m_ahMembers[i].GetPointer());
-		if (pCPU && pCPU->IsProducing())
-			AddProducer();
-
 		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
-		if (pStructure && pStructure->IsConstructing())
-			AddProducer();
-
-		if (pStructure && (pStructure->IsUpgrading()))
-			AddProducer();
-
 		if (pStructure && pStructure->Power())
 			AddProduction(pStructure->Power());
 
@@ -427,12 +411,14 @@ void CDigitanksTeam::AddProduction(size_t iProduction)
 	m_iProduction += iProduction;
 }
 
-float CDigitanksTeam::GetProductionPerLoader()
+void CDigitanksTeam::ConsumePower(size_t iPower)
 {
-	if (m_iLoadersProducing == (size_t)0)
-		return (float)m_iProduction;
+	assert(m_iPower >= iPower);
 
-	return (float)m_iProduction / (float)m_iLoadersProducing;
+	if (iPower > m_iPower)
+		m_iPower = 0;
+	else
+		m_iPower -= iPower;
 }
 
 void CDigitanksTeam::CountFleetPoints()

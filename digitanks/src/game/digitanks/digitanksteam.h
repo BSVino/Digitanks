@@ -47,10 +47,10 @@ public:
 
 	void						CountProducers();
 	void						AddProduction(size_t iProduction);
-	void						AddProducer() { m_iLoadersProducing++; };
-	size_t						GetNumProducers() { return m_iLoadersProducing; };
-	float						GetProductionPerLoader();
 	size_t						GetTotalProduction() { return m_iProduction; };
+	size_t						GetPower() { return m_iPower; };
+	void						ConsumePower(size_t iPower);
+	void						AddPower(size_t iPower) { m_iPower += iPower; };
 
 	void						CountFleetPoints();
 	size_t						GetTotalFleetPoints() { return m_iTotalFleetPoints; };
@@ -124,7 +124,7 @@ protected:
 	eastl::map<size_t, float>	m_aflVisibilities;
 
 	CNetworkedVariable<size_t>	m_iProduction;
-	CNetworkedVariable<size_t>	m_iLoadersProducing;
+	CNetworkedVariable<size_t>	m_iPower;
 
 	CNetworkedVariable<size_t>	m_iTotalFleetPoints;
 	CNetworkedVariable<size_t>	m_iUsedFleetPoints;

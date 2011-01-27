@@ -37,12 +37,10 @@ public:
 	void						BeginConstruction(Vector vecConstructionOrigin);
 	void						BeginStructureConstruction(CNetworkParameters* p);
 	virtual void				CompleteConstruction();
-	size_t						GetTurnsToConstruct();
+	virtual size_t				GetTurnsToConstruct() { return 1; };
 	bool						IsConstructing() const { return m_bConstructing.Get(); };
 	void						SetConstructing(bool bConstructing) { m_bConstructing = bConstructing; };
-	size_t						GetProductionToConstruct() { return m_iProductionToConstruct; };
-	void						AddProduction(size_t iProduction);
-	size_t						GetTurnsToConstruct(size_t iPower);
+	virtual size_t				GetTurnsRemainingToConstruct() { return m_iTurnsToConstruct; };
 
 	virtual void				InstallUpdate(size_t x, size_t y);
 	void						InstallUpdate(CNetworkParameters* p);
@@ -52,12 +50,10 @@ public:
 	virtual unittype_t			GetUpgradeType() const { return UNITTYPE_UNDEFINED; };
 	void						BeginUpgrade();
 	void						BeginUpgrade(CNetworkParameters* p);
-	void						CancelUpgrade();
-	void						CancelUpgrade(CNetworkParameters* p);
 	virtual void				UpgradeComplete() {};
 	size_t						GetTurnsToUpgrade();
 	bool						IsUpgrading() { return m_bUpgrading; };
-	size_t						GetProductionToUpgrade() { return m_iProductionToUpgrade; };
+	virtual size_t				GetTurnsRemainingToUpgrade() { return m_iTurnsToUpgrade; };
 
 	virtual bool				NeedsOrders();
 
@@ -109,10 +105,10 @@ public:
 
 protected:
 	CNetworkedVariable<bool>	m_bConstructing;
-	CNetworkedVariable<size_t>	m_iProductionToConstruct;
+	CNetworkedVariable<size_t>	m_iTurnsToConstruct;
 
 	CNetworkedVariable<bool>	m_bUpgrading;
-	CNetworkedVariable<size_t>	m_iProductionToUpgrade;
+	CNetworkedVariable<size_t>	m_iTurnsToUpgrade;
 
 	CNetworkedHandle<CSupplier>		m_hSupplier;
 	CNetworkedHandle<CSupplyLine>	m_hSupplyLine;

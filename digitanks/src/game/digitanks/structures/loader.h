@@ -25,17 +25,18 @@ public:
 
 	void						BeginProduction();
 	void						BeginProduction(class CNetworkParameters* p);
-	void						CancelProduction();
-	void						CancelProduction(class CNetworkParameters* p);
+	void						CompleteProduction();
 	bool						IsProducing() { return m_bProducing; };
-	void						AddProduction(size_t iProduction) { m_iProductionStored += iProduction; }
 	size_t						GetUnitProductionCost();
+	size_t						GetTurnsRemainingToProduce() { return m_iTurnsToProduce; };
 
 	virtual void				InstallUpdate(size_t x, size_t y);
 
 	size_t						GetFleetPointsRequired();
 	bool						HasEnoughFleetPoints();
+	bool						HasEnoughPower();
 
+	virtual size_t				GetTurnsToConstruct();
 	size_t						GetTurnsToProduce();
 
 	void						SetBuildUnit(unittype_t eBuildUnit);
@@ -50,7 +51,7 @@ protected:
 	CNetworkedVariable<size_t>	m_iBuildUnitModel;
 
 	CNetworkedVariable<bool>	m_bProducing;
-	CNetworkedVariable<size_t>	m_iProductionStored;
+	CNetworkedVariable<size_t>	m_iTurnsToProduce;
 
 	CNetworkedVariable<size_t>	m_iTankAttack;
 	CNetworkedVariable<size_t>	m_iTankDefense;

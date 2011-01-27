@@ -246,7 +246,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 	s += pInfo->GetInfo() + L"\n \n";
 
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
-		s += p.sprintf(L"Increase: %.1f\n", pInfo->m_flValue);
+		s += p.sprintf(L"Increase: %.1f %s\n", pInfo->m_flValue, pInfo->GetUnits());
 
 	s += p.sprintf(L"Download size: %d\n", pInfo->m_iSize);
 

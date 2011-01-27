@@ -52,6 +52,7 @@ public:
 	virtual void				CharRelease(int c);
 
 	bool						GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2);
+	bool						IsMouseDragging();
 
 	int							GetMouseCurrentX() { return m_iMouseCurrentX; };
 	int							GetMouseCurrentY() { return m_iMouseCurrentX; };
