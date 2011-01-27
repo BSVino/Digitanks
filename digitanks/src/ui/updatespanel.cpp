@@ -250,7 +250,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	s += p.sprintf(L"Download size: %d\n", pInfo->m_iSize);
 
-	if (pTeam)
+	if (pTeam && pTeam->GetBandwidth() > 0)
 	{
 		size_t iDownloaded = pTeam->GetMegabytes();
 		size_t iTurns = (size_t)((pInfo->m_iSize-iDownloaded)/pTeam->GetBandwidth())+1;

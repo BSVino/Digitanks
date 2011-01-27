@@ -17,7 +17,7 @@ public:
 	virtual float				TotalHealth() const { return 100; };
 	virtual size_t				InitialFleetPoints() const { return 4; };
 	virtual size_t				InitialBandwidth() const { return 6; };
-	virtual size_t				InitialPower() const { return 4; };
+	virtual float				InitialPower() const { return 4; };
 	virtual bool				IsDataFlowSource() { return true; };
 	virtual size_t				EfficientChildren() { return 0; };
 
@@ -41,7 +41,7 @@ public:
 	void						BeginConstruction(class CNetworkParameters* p);
 	void						CancelConstruction();
 	void						CancelConstruction(class CNetworkParameters* p);
-	size_t						GetPowerToConstruct(unittype_t eStructure, Vector vecLocation);
+	float						GetPowerToConstruct(unittype_t eStructure, Vector vecLocation);
 
 	void						BeginRogueProduction();
 	void						BeginRogueProduction(class CNetworkParameters* p);

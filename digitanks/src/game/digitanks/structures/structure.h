@@ -75,8 +75,8 @@ public:
 	virtual float				HealthRechargeRate() const { return 1.0f; };
 	virtual float				VisibleRange() const;
 	virtual float				BaseVisibleRange() const { return 50; };
-	virtual size_t				ConstructionCost() const;
-	virtual size_t				UpgradeCost() const;
+	virtual float				ConstructionCost() const;
+	virtual float				UpgradeCost() const;
 	virtual float				TotalHealth() const { return 50; };
 
 	virtual size_t				InitialFleetPoints() const { return 0; };
@@ -87,8 +87,8 @@ public:
 	virtual size_t				Bandwidth() const { return m_iBandwidth.Get(); };
 	virtual void				AddBandwidth(size_t iAddBandwidth) { m_iBandwidth += iAddBandwidth; };
 
-	virtual size_t				InitialPower() const { return 0; };
-	virtual size_t				Power() const { return m_iPower.Get(); };
+	virtual float				InitialPower() const { return 0; };
+	virtual float				Power() const { return m_flPowerProduced.Get(); };
 
 	virtual size_t				InitialEnergyBonus() const { return 4; };
 	virtual size_t				EnergyBonus() const { return m_iEnergyBonus.Get(); };
@@ -115,7 +115,7 @@ protected:
 
 	CNetworkedVariable<size_t>	m_iFleetSupply;
 	CNetworkedVariable<size_t>	m_iBandwidth;
-	CNetworkedVariable<size_t>	m_iPower;
+	CNetworkedVariable<float>	m_flPowerProduced;
 	CNetworkedVariable<size_t>	m_iEnergyBonus;
 	CNetworkedVariable<float>	m_flRechargeBonus;
 

@@ -172,7 +172,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	}
 
 	s += p.sprintf(L"Fleet supply required: %d\n", GetFleetPointsRequired());
-	s += p.sprintf(L"Power required: %d\n", DigitanksGame()->GetConstructionCost(GetBuildUnit()));
+	s += p.sprintf(L"Power required: %d\n", (int)DigitanksGame()->GetConstructionCost(GetBuildUnit()));
 	s += p.sprintf(L"Turns to produce: %d Turns\n \n", GetTurnsToProduce());
 
 	if (GetDigitanksTeam()->GetUnusedFleetPoints() < GetFleetPointsRequired())
@@ -300,7 +300,7 @@ void CLoader::CompleteProduction()
 	}
 }
 
-size_t CLoader::GetUnitProductionCost()
+float CLoader::GetUnitProductionCost()
 {
 	return DigitanksGame()->GetConstructionCost(m_eBuildUnit);
 }

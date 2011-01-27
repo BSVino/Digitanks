@@ -35,7 +35,7 @@ NETVAR_TABLE_BEGIN(CStructure);
 
 	NETVAR_DEFINE(size_t, m_iFleetSupply);
 	NETVAR_DEFINE(size_t, m_iBandwidth);
-	NETVAR_DEFINE(size_t, m_iPower);
+	NETVAR_DEFINE(float, m_flPowerProduced);
 	NETVAR_DEFINE(size_t, m_iEnergyBonus);
 	NETVAR_DEFINE(float, m_flRechargeBonus);
 
@@ -51,7 +51,7 @@ SAVEDATA_TABLE_BEGIN(CStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFleetSupply);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPowerProduced);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iEnergyBonus);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRechargeBonus);
 
@@ -90,7 +90,7 @@ void CStructure::Spawn()
 
 	m_iFleetSupply = InitialFleetPoints();
 	m_iBandwidth = InitialBandwidth();
-	m_iPower = InitialPower();
+	m_flPowerProduced = InitialPower();
 	m_iEnergyBonus = InitialEnergyBonus();
 	m_flRechargeBonus = InitialRechargeBonus();
 
@@ -294,7 +294,7 @@ void CStructure::InstallUpdate(CNetworkParameters* p)
 		break;
 
 	case UPDATETYPE_PRODUCTION:
-		m_iPower += (size_t)pUpdate->m_flValue;
+		m_flPowerProduced += pUpdate->m_flValue;
 		break;
 
 	case UPDATETYPE_FLEETSUPPLY:
@@ -439,24 +439,24 @@ float CStructure::VisibleRange() const
 	return BaseClass::VisibleRange();
 }
 
-size_t CStructure::ConstructionCost() const
+float CStructure::ConstructionCost() const
 {
 	return DigitanksGame()->GetConstructionCost(GetUnitType());
 }
 
-size_t CStructure::UpgradeCost() const
+float CStructure::UpgradeCost() const
 {
-	size_t iPowerToUpgrade = DigitanksGame()->GetConstructionCost(GetUpgradeType());
+	float flPowerToUpgrade = DigitanksGame()->GetConstructionCost(GetUpgradeType());
 
 	// Location location location!
 	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
-		iPowerToUpgrade = (size_t)(iPowerToUpgrade*1.5f);
+		flPowerToUpgrade *= 1.5f;
 	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
-		iPowerToUpgrade = (size_t)(iPowerToUpgrade*2.0f);
+		flPowerToUpgrade *= 2.0f;
 	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
-		iPowerToUpgrade = (size_t)(iPowerToUpgrade*2.5f);
+		flPowerToUpgrade *= 2.5f;
 
-	return iPowerToUpgrade;
+	return flPowerToUpgrade;
 }
 
 size_t CSupplier::s_iTendrilBeam = 0;

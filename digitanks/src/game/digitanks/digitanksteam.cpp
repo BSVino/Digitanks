@@ -16,8 +16,8 @@
 REGISTER_ENTITY(CDigitanksTeam);
 
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
-	NETVAR_DEFINE_CALLBACK(size_t, m_iProduction, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE_CALLBACK(size_t, m_iPower, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(float, m_flPowerPerTurn, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(float, m_flPower, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iTotalFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
@@ -39,8 +39,8 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CDigitank>, m_ahTanks);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, size_t, m_aiCurrentSelection);
 	//std::map<size_t, float>		m_aflVisibilities;	// Automatically generated
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iProduction);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iPower);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPowerPerTurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTotalFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUsedFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iScore);
@@ -89,7 +89,7 @@ void CDigitanksTeam::Spawn()
 
 	m_bLost = false;
 
-	m_iPower = 0;
+	m_flPower = 0;
 
 	m_iMegabytes = 0;
 	m_iUpdateDownloaded = 0;
@@ -355,7 +355,7 @@ void CDigitanksTeam::StartTurn()
 	CountBandwidth();
 	CountScore();
 
-	m_iPower += m_iProduction;
+	m_flPower += m_flPowerPerTurn;
 
 	DigitanksWindow()->GetHUD()->Layout();
 }
@@ -381,7 +381,7 @@ void CDigitanksTeam::CountProducers()
 	if (!CNetwork::IsHost())
 		return;
 
-	m_iProduction = 0;
+	m_flPowerPerTurn = 0;
 
 	// Find and count producers and accumulate production points
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -395,30 +395,30 @@ void CDigitanksTeam::CountProducers()
 
 		CStructure* pStructure = dynamic_cast<CStructure*>(m_ahMembers[i].GetPointer());
 		if (pStructure && pStructure->Power())
-			AddProduction(pStructure->Power());
+			AddPowerPerTurn(pStructure->Power());
 
 		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
 		if (pCollector && !pCollector->IsConstructing() && !pCollector->IsUpgrading() && pCollector->GetSupplier())
-			AddProduction((size_t)(pCollector->GetProduction() * pCollector->GetSupplier()->GetChildEfficiency()));
+			AddPowerPerTurn(pCollector->GetPowerProduced() * pCollector->GetSupplier()->GetChildEfficiency());
 	}
 }
 
-void CDigitanksTeam::AddProduction(size_t iProduction)
+void CDigitanksTeam::AddPowerPerTurn(float flPower)
 {
 	if (!CNetwork::IsHost())
 		return;
 
-	m_iProduction += iProduction;
+	m_flPowerPerTurn += flPower;
 }
 
-void CDigitanksTeam::ConsumePower(size_t iPower)
+void CDigitanksTeam::ConsumePower(float flPower)
 {
-	assert(m_iPower >= iPower);
+	assert(m_flPower >= flPower);
 
-	if (iPower > m_iPower)
-		m_iPower = 0;
+	if (flPower > m_flPower)
+		m_flPower = 0;
 	else
-		m_iPower -= iPower;
+		m_flPower -= flPower;
 }
 
 void CDigitanksTeam::CountFleetPoints()
@@ -478,11 +478,11 @@ void CDigitanksTeam::CountScore()
 		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 
 		if (pTank)
-			m_iScore += DigitanksGame()->GetConstructionCost(pTank->GetUnitType());
+			m_iScore += (size_t)DigitanksGame()->GetConstructionCost(pTank->GetUnitType());
 
 		if (pStructure && !pStructure->IsConstructing())
 		{
-			m_iScore += pStructure->ConstructionCost();
+			m_iScore += (size_t)pStructure->ConstructionCost();
 		}
 	}
 }

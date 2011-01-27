@@ -222,8 +222,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 {
-	memset(&m_aiConstructionCosts[0], 0, sizeof(m_aiConstructionCosts));
-	memset(&m_aiUpgradeCosts[0], 0, sizeof(m_aiUpgradeCosts));
+	memset(&m_aflConstructionCosts[0], 0, sizeof(m_aflConstructionCosts));
+	memset(&m_aflUpgradeCosts[0], 0, sizeof(m_aflUpgradeCosts));
 
 	std::ifstream f((eastl::string16(L"scripts/") + sScript).c_str());
 	CData* pData = new CData();
@@ -237,55 +237,55 @@ void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 		
 		pChild = pConstructionCosts->FindChild("Minibuffer");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_MINIBUFFER] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_MINIBUFFER] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Buffer");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_BUFFER] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_BUFFER] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("BufferUpgrade");
 		if (pChild)
-			m_aiUpgradeCosts[STRUCTURE_BUFFER] = pChild->GetValueUInt();
+			m_aflUpgradeCosts[STRUCTURE_BUFFER] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Battery");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_BATTERY] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_BATTERY] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("PSU");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_PSU] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("PSUUpgrade");
 		if (pChild)
-			m_aiUpgradeCosts[STRUCTURE_PSU] = pChild->GetValueUInt();
+			m_aflUpgradeCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("InfantryLoader");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_INFANTRYLOADER] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_INFANTRYLOADER] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("TankLoader");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_TANKLOADER] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_TANKLOADER] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("ArtilleryLoader");
 		if (pChild)
-			m_aiConstructionCosts[STRUCTURE_ARTILLERYLOADER] = pChild->GetValueUInt();
+			m_aflConstructionCosts[STRUCTURE_ARTILLERYLOADER] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Infantry");
 		if (pChild)
-			m_aiConstructionCosts[UNIT_INFANTRY] = pChild->GetValueUInt();
+			m_aflConstructionCosts[UNIT_INFANTRY] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Tank");
 		if (pChild)
-			m_aiConstructionCosts[UNIT_TANK] = pChild->GetValueUInt();
+			m_aflConstructionCosts[UNIT_TANK] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Artillery");
 		if (pChild)
-			m_aiConstructionCosts[UNIT_ARTILLERY] = pChild->GetValueUInt();
+			m_aflConstructionCosts[UNIT_ARTILLERY] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Scout");
 		if (pChild)
-			m_aiConstructionCosts[UNIT_SCOUT] = pChild->GetValueUInt();
+			m_aflConstructionCosts[UNIT_SCOUT] = pChild->GetValueFloat();
 	}
 
 	delete pData;
@@ -2089,14 +2089,14 @@ bool CDigitanksGame::ShouldShowScores()
 	return m_eGameType == GAMETYPE_STANDARD;
 }
 
-size_t CDigitanksGame::GetConstructionCost(unittype_t eUnit)
+float CDigitanksGame::GetConstructionCost(unittype_t eUnit)
 {
-	return m_aiConstructionCosts[eUnit];
+	return m_aflConstructionCosts[eUnit];
 }
 
-size_t CDigitanksGame::GetUpgradeCost(unittype_t eUnit)
+float CDigitanksGame::GetUpgradeCost(unittype_t eUnit)
 {
-	return m_aiUpgradeCosts[eUnit];
+	return m_aflUpgradeCosts[eUnit];
 }
 
 bool CDigitanksGame::CanBuildMiniBuffers()

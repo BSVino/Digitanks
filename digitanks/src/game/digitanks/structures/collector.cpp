@@ -48,18 +48,18 @@ void CCollector::UpdateInfo(eastl::string16& s)
 
 	if (GetSupplier())
 	{
-		s += p.sprintf(L"Power supplied: %d\n", (size_t)(GetProduction() * GetSupplier()->GetChildEfficiency()));
+		s += p.sprintf(L"Power supplied: %.1f\n", (size_t)(GetPowerProduced() * GetSupplier()->GetChildEfficiency()));
 		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency()*100));
 		return;
 	}
 }
 
-size_t CCollector::GetProduction()
+float CCollector::GetPowerProduced()
 {
 	if (m_hSupplyLine == NULL)
 		return 0;
 
-	return (size_t)(4 * m_hSupplyLine->GetIntegrity());
+	return 1.0f * m_hSupplyLine->GetIntegrity();
 }
 
 size_t CCollector::GetTurnsToConstruct()
@@ -146,7 +146,7 @@ void CBattery::UpdateInfo(eastl::string16& s)
 
 	if (m_hSupplier != NULL)
 	{
-		s += p.sprintf(L"Power supplied: %d\n", (size_t)(GetProduction() * m_hSupplier->GetChildEfficiency()));
+		s += p.sprintf(L"Power supplied: %.1f\n", (size_t)(GetPowerProduced() * m_hSupplier->GetChildEfficiency()));
 		s += p.sprintf(L"Efficiency: %d%\n", (int)(m_hSupplier->GetChildEfficiency()*100));
 		return;
 	}
@@ -178,10 +178,10 @@ void CBattery::UpgradeComplete()
 	DigitanksGame()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
 }
 
-size_t CBattery::GetProduction()
+float CBattery::GetPowerProduced()
 {
 	if (m_hSupplyLine == NULL)
 		return 0;
 
-	return (size_t)(2 * m_hSupplyLine->GetIntegrity());
+	return 0.25f * m_hSupplyLine->GetIntegrity();
 }

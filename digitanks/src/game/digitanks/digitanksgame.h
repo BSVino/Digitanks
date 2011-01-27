@@ -237,8 +237,8 @@ public:
 
 	bool					ShouldShowScores();
 
-	size_t					GetConstructionCost(unittype_t eUnit);
-	size_t					GetUpgradeCost(unittype_t eUnit);
+	float					GetConstructionCost(unittype_t eUnit);
+	float					GetUpgradeCost(unittype_t eUnit);
 
 	bool					CanBuildMiniBuffers();
 	bool					CanBuildBuffers();
@@ -317,8 +317,8 @@ protected:
 
 	eastl::vector<airstrike_t>	m_aAirstrikes;
 
-	size_t						m_aiConstructionCosts[MAX_UNITS];
-	size_t						m_aiUpgradeCosts[MAX_UNITS];
+	float						m_aflConstructionCosts[MAX_UNITS];
+	float						m_aflUpgradeCosts[MAX_UNITS];
 
 	float						m_flShowFightSign;
 };

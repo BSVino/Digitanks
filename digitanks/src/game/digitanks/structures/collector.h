@@ -16,7 +16,7 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
-	virtual size_t				GetProduction();
+	virtual float				GetPowerProduced();
 
 	virtual size_t				GetTurnsToConstruct();
 	virtual eastl::string16		GetName() { return L"Power Supply Unit"; };
@@ -44,7 +44,7 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
-	virtual size_t				GetProduction();
+	virtual float				GetPowerProduced();
 
 	virtual size_t				GetTurnsToConstruct() { return 2; };
 	virtual eastl::string16		GetName() { return L"Battery"; };

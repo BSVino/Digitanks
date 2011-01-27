@@ -32,13 +32,13 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+1][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+1][iCPU].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+1][iCPU].m_flValue = 1;
+	m_aUpdates[iCPU+1][iCPU].m_flValue = .25f;
 	m_aUpdates[iCPU+1][iCPU].m_iSize = 9;
 
 	m_aUpdates[iCPU-1][iCPU].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU-1][iCPU].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU-1][iCPU].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU-1][iCPU].m_flValue = 1;
+	m_aUpdates[iCPU-1][iCPU].m_flValue = .25f;
 	m_aUpdates[iCPU-1][iCPU].m_iSize = 9;
 
 	m_aUpdates[iCPU][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -56,7 +56,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU-1].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+1][iCPU-1].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+1][iCPU-1].m_flValue = 1;
+	m_aUpdates[iCPU+1][iCPU-1].m_flValue = .25f;
 	m_aUpdates[iCPU+1][iCPU-1].m_iSize = 12;
 
 	m_aUpdates[iCPU][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -74,13 +74,13 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+1][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+1][iCPU-3].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+1][iCPU-3].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+1][iCPU-3].m_flValue = 2;
+	m_aUpdates[iCPU+1][iCPU-3].m_flValue = 1.0f;
 	m_aUpdates[iCPU+1][iCPU-3].m_iSize = 18;
 
 	m_aUpdates[iCPU+2][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU-2].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+2][iCPU-2].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+2][iCPU-2].m_flValue = 2;
+	m_aUpdates[iCPU+2][iCPU-2].m_flValue = 1.0f;
 	m_aUpdates[iCPU+2][iCPU-2].m_iSize = 18;
 
 	m_aUpdates[iCPU+1][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -98,13 +98,13 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+2][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU-4].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+2][iCPU-4].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+2][iCPU-4].m_flValue = 2;
+	m_aUpdates[iCPU+2][iCPU-4].m_flValue = 1.0f;
 	m_aUpdates[iCPU+2][iCPU-4].m_iSize = 21;
 
 	m_aUpdates[iCPU+3][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+3][iCPU-3].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+3][iCPU-3].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+3][iCPU-3].m_flValue = 2;
+	m_aUpdates[iCPU+3][iCPU-3].m_flValue = 1.0f;
 	m_aUpdates[iCPU+3][iCPU-3].m_iSize = 21;
 
 	m_aUpdates[iCPU+3][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -122,7 +122,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+4][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+4][iCPU-4].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+4][iCPU-4].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+4][iCPU-4].m_flValue = 3;
+	m_aUpdates[iCPU+4][iCPU-4].m_flValue = 2.0f;
 	m_aUpdates[iCPU+4][iCPU-4].m_iSize = 33;
 
 	m_aUpdates[iCPU+5][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -140,7 +140,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+5][iCPU-5].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+5][iCPU-5].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+5][iCPU-5].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+5][iCPU-5].m_flValue = 4;
+	m_aUpdates[iCPU+5][iCPU-5].m_flValue = 4.0f;
 	m_aUpdates[iCPU+5][iCPU-5].m_iSize = 39;
 
 	m_aUpdates[iCPU+5][iCPU-6].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;

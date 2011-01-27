@@ -27,7 +27,7 @@ public:
 	void						BeginProduction(class CNetworkParameters* p);
 	void						CompleteProduction();
 	bool						IsProducing() { return m_bProducing; };
-	size_t						GetUnitProductionCost();
+	float						GetUnitProductionCost();
 	size_t						GetTurnsRemainingToProduce() { return m_iTurnsToProduce; };
 
 	virtual void				InstallUpdate(size_t x, size_t y);

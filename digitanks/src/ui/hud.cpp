@@ -1473,7 +1473,7 @@ void CHUD::UpdateTeamInfo()
 		return;
 
 	eastl::string16 s1;
-	s1.sprintf(L"%d +%d/turn\n", pTeam->GetPower(), pTeam->GetTotalProduction());
+	s1.sprintf(L"%d +%.1f/turn\n", (int)pTeam->GetPower(), pTeam->GetPowerPerTurn());
 	m_pPowerInfo->SetText(s1);
 
 	eastl::string16 s2;

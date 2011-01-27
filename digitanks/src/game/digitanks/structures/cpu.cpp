@@ -110,7 +110,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD RESISTOR LOADER\n \n";
 			s += L"This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -132,7 +132,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD DIGITANK LOADER\n \n";
 			s += L"This program lets you build Digitanks, the primary assault force in your fleet.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -154,7 +154,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD ARTILLERY LOADER\n \n";
 			s += L"This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -183,7 +183,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD MINIBUFFER\n \n";
 			s += L"MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -205,7 +205,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD BUFFER\n \n";
 			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -227,7 +227,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD BATTERY\n \n";
 			s += L"Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -249,7 +249,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			eastl::string16 s;
 			s += L"BUILD POWER SUPPLY UNIT\n \n";
 			s += L"PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n";
-			s += p.sprintf(L"Power to construct: %d Power\n \n", DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
+			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
 				s += L"NOT ENOUGH POWER\n \n";
@@ -276,7 +276,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		eastl::string16 s;
 		s += L"BUILD ROGUE\n \n";
 		s += L"Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n";
-		s += p.sprintf(L"Power to construct: %d Power\n", DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
+		s += p.sprintf(L"Power to construct: %d Power\n", (int)DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
 
 		if (!GetDigitanksTeam()->GetUnusedFleetPoints())
 			s += L"NOT ENOUGH FLEET POINTS\n \n";
@@ -533,19 +533,19 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	DigitanksWindow()->GetHUD()->Layout();
 }
 
-size_t CCPU::GetPowerToConstruct(unittype_t eStructure, Vector vecLocation)
+float CCPU::GetPowerToConstruct(unittype_t eStructure, Vector vecLocation)
 {
-	size_t iPowerToConstruct = DigitanksGame()->GetConstructionCost(eStructure);
+	float flPowerToConstruct = DigitanksGame()->GetConstructionCost(eStructure);
 
 	// Location location location!
 	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecLocation))
-		iPowerToConstruct = (size_t)(iPowerToConstruct*1.5f);
+		flPowerToConstruct *= 1.5f;
 	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecLocation))
-		iPowerToConstruct = (size_t)(iPowerToConstruct*2.0f);
+		flPowerToConstruct *= 2.0f;
 	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecLocation))
-		iPowerToConstruct = (size_t)(iPowerToConstruct*2.5f);
+		flPowerToConstruct *= 2.5f;
 
-	return iPowerToConstruct;
+	return flPowerToConstruct;
 }
 
 void CCPU::BeginRogueProduction()

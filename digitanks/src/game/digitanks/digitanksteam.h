@@ -46,11 +46,11 @@ public:
 	void						EndTurn();
 
 	void						CountProducers();
-	void						AddProduction(size_t iProduction);
-	size_t						GetTotalProduction() { return m_iProduction; };
-	size_t						GetPower() { return m_iPower; };
-	void						ConsumePower(size_t iPower);
-	void						AddPower(size_t iPower) { m_iPower += iPower; };
+	void						AddPowerPerTurn(float flPower);
+	float						GetPowerPerTurn() { return m_flPowerPerTurn; };
+	float						GetPower() { return m_flPower; };
+	void						ConsumePower(float flPower);
+	void						AddPower(float flPower) { m_flPower += flPower; };
 
 	void						CountFleetPoints();
 	size_t						GetTotalFleetPoints() { return m_iTotalFleetPoints; };
@@ -123,8 +123,8 @@ protected:
 
 	eastl::map<size_t, float>	m_aflVisibilities;
 
-	CNetworkedVariable<size_t>	m_iProduction;
-	CNetworkedVariable<size_t>	m_iPower;
+	CNetworkedVariable<float>	m_flPowerPerTurn;
+	CNetworkedVariable<float>	m_flPower;
 
 	CNetworkedVariable<size_t>	m_iTotalFleetPoints;
 	CNetworkedVariable<size_t>	m_iUsedFleetPoints;
