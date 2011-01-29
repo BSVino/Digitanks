@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include <geometry.h>
+#include <strutils.h>
 
 #include <tinker/cvar.h>
 
@@ -130,9 +131,9 @@ CHUD::CHUD()
 	m_eActionSign = ACTIONSIGN_NONE;
 
 	m_pActionItem = new CLabel(0, 0, 10, 10, L"");
-	m_pNextActionItem = new CButton(0, 0, 100, 50, L"Next");
+	m_pCloseActionItems = new CButton(0, 0, 100, 50, L"Close");
 	AddControl(m_pActionItem);
-	AddControl(m_pNextActionItem);
+	AddControl(m_pCloseActionItems);
 	m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
 	m_flActionItemsWidth = 280;
 
@@ -288,12 +289,137 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
-	m_pActionItem->SetPos(iWidth - 270, 70);
+	m_pActionItem->SetPos(iWidth - 280, 70);
 	m_pActionItem->SetSize(220, 250);
 	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
-	m_pNextActionItem->SetSize(130, 25);
-	m_pNextActionItem->SetPos(iWidth - 225, 341);
-	m_pNextActionItem->SetClickedListener(this, NextActionItem);
+	m_pCloseActionItems->SetSize(130, 25);
+	m_pCloseActionItems->SetPos(iWidth - 225, 341);
+	m_pCloseActionItems->SetClickedListener(this, CloseActionItems);
+
+	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
+	{
+		RemoveControl(m_apActionItemButtons[i]);
+		m_apActionItemButtons[i]->Destructor();
+		m_apActionItemButtons[i]->Delete();
+	}
+
+	m_apActionItemButtons.clear();
+
+	size_t iItemButtonSize = 30;
+	for (size_t i = 0; i < DigitanksGame()->GetActionItems().size(); i++)
+	{
+		CPictureButton* pButton = new CPictureButton(sprintf(L"%d", i));
+		AddControl(pButton);
+		pButton->SetSize(iItemButtonSize, iItemButtonSize);
+		pButton->SetPos(iWidth - iItemButtonSize - 10, 50 + (iItemButtonSize+10)*i);
+		pButton->SetClickedListener(this, ChooseActionItem);
+
+		CEntityHandle<CDigitanksEntity> hUnit(DigitanksGame()->GetActionItems()[i].iUnit);
+
+		switch (DigitanksGame()->GetActionItems()[i].eActionType)
+		{
+		case ACTIONTYPE_WELCOME:
+			// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 540, 530, 20, 20, 1024, 1024);
+			break;
+
+		case ACTIONTYPE_CONTROLS:
+			// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 540, 530, 20, 20, 1024, 1024);
+			break;
+
+		case ACTIONTYPE_NEWSTRUCTURE:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_AUTOMOVECANCELED:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_AUTOMOVEENEMY:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_UNITDAMAGED:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_FORTIFIEDENEMY:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_UNITAUTOMOVE:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_UNITORDERS:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_UPGRADE:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_UNITREADY:
+			if (hUnit != NULL)
+			{
+				int sx, sy, sw, sh, tw, th;
+				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+			}
+			break;
+
+		case ACTIONTYPE_DOWNLOADUPDATES:
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 520, 530, 20, 20, 1024, 1024);
+			break;
+
+		case ACTIONTYPE_DOWNLOADCOMPLETE:
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 520, 530, 20, 20, 1024, 1024);
+			break;
+		}
+
+		m_apActionItemButtons.push_back(pButton);
+	}
 
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
 	m_pButtonPanel->SetRight(m_pButtonPanel->GetLeft() + 330);
@@ -417,8 +543,8 @@ void CHUD::Think()
 	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
-	m_pActionItem->SetPos(iWidth - 270 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 70);
-	m_pNextActionItem->SetPos(iWidth - 225 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 341);
+	m_pActionItem->SetPos(iWidth - 300 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 70);
+	m_pCloseActionItems->SetPos(iWidth - 255 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), m_pCloseActionItems->GetTop());
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)
 	{
@@ -488,6 +614,14 @@ void CHUD::Think()
 			if (pCPU)
 				pCPU->SetPreviewBuild(vecTerrainPoint);
 		}
+	}
+
+	for (size_t i = 0; i < DigitanksGame()->GetActionItems().size(); i++)
+	{
+		if (DigitanksGame()->GetActionItems()[i].bHandled)
+			m_apActionItemButtons[i]->SetAlpha(100);
+		else
+			m_apActionItemButtons[i]->SetAlpha((int)RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 100, 255));
 	}
 
 	if (m_eMenuMode == MENUMODE_MAIN)
@@ -716,7 +850,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 	}
 
-	m_pNextActionItem->Paint();
+	m_pCloseActionItems->Paint();
 
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
@@ -759,7 +893,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 500, 600, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
 		if (m_flActionItemsLerp > 0)
-			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, 280, 340, 350, 0, 250, 310, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
+			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, (int)m_flActionItemsWidth, 340, 350, 0, 250, 310, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
 
 		PaintHUDSheet(0, iHeight-250, 150, 250, 350, 510, 150, 250);
 	} while (false);
@@ -874,11 +1008,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 	}
 
-	bool bVisible = m_pNextActionItem->IsVisible();
-	m_pNextActionItem->SetVisible(false);
+	bool bCloseVisible = m_pCloseActionItems->IsVisible();
+	m_pCloseActionItems->SetVisible(false);
 	m_pButtonInfo->SetVisible(false);
 	CPanel::Paint(x, y, w, h);
-	m_pNextActionItem->SetVisible(bVisible);
+	m_pCloseActionItems->SetVisible(bCloseVisible);
 
 	if (m_pButtonInfo->GetText()[0] != L'\0')
 	{
@@ -1785,9 +1919,7 @@ void CHUD::ShowFirstActionItem()
 	else
 	{
 		m_pActionItem->SetText("");
-		m_pNextActionItem->SetVisible(false);
 		m_bAllActionItemsHandled = true;
-
 		m_flActionItemsLerpGoal = 0;
 	}
 }
@@ -1809,7 +1941,6 @@ void CHUD::ShowNextActionItem()
 			// We're done!
 			m_bAllActionItemsHandled = true;
 			m_pActionItem->SetText("");
-			m_pNextActionItem->SetVisible(false);
 
 			m_flActionItemsLerpGoal = 0;
 			return;
@@ -1871,11 +2002,7 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 	if (m_iCurrentActionItem >= 0 && m_iCurrentActionItem < aActionItems.size() && aActionItems[m_iCurrentActionItem].iUnit == ~0)
 		return;
 
-	m_pActionItem->SetText("Press 'Next' to see more action items.");
-	m_pNextActionItem->SetText("Next");
-	m_pNextActionItem->SetVisible(true);
-
-	m_flActionItemsLerpGoal = 1;
+	ShowActionItem(~0);
 }
 
 void CHUD::ShowActionItem(actiontype_t eActionItem)
@@ -1910,8 +2037,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	if (iActionItem >= aActionItems.size())
 	{
 		m_pActionItem->SetText("");
-		m_pNextActionItem->SetVisible(false);
-
 		m_flActionItemsLerpGoal = 0;
 		return;
 	}
@@ -1924,8 +2049,16 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		m_pActionItem->SetText(
 			"WELCOME TO DIGITANKS\n \n"
 			"Here on the right is the 'Action Items' list. It will help guide you through the tasks you need to complete each turn.\n \n"
-			"Click on an item to view it. Items that are blinking need handling. When you deal with all items you can end your turn confidently!\n \n"
+			"Click an icon on the right to view that action item. Items that are blinking need handling. When you deal with all items you can end your turn confidently!\n \n"
 			"When you're done, press the 'End Turn' button to continue.\n");
+		break;
+
+	case ACTIONTYPE_CONTROLS:
+		m_pActionItem->SetText(
+			"QUICK CONTROLS\n \n"
+			"Rotate view - Drag right mouse button\n"
+			"Move view - Hold space, move mouse\n"
+			"Zoom - Scrollwheel or pgup/pgdn\n");
 		break;
 
 	case ACTIONTYPE_NEWSTRUCTURE:
@@ -1970,12 +2103,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"An enemy has been sighted in range of this fortified unit. Strike while the iron is hot.\n");
 		break;
 
-	case ACTIONTYPE_CONSTRUCTION:
-		m_pActionItem->SetText(
-			"CONSTRUCTION COMPLETE\n \n"
-			"Your CPU has completed construction of a new structure for your base. You can choose what to build next.\n");
-		break;
-
 	case ACTIONTYPE_UPGRADE:
 		m_pActionItem->SetText(
 			"UPRGADE COMPLETE\n \n"
@@ -1999,13 +2126,16 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"DOWNLOAD UPDATES\n \n"
 			"You can download updates for your structures. Press the 'Download Updates' button to choose an update.\n");
 		break;
-
-	case ACTIONTYPE_NOPRODUCERS:
-		m_pActionItem->SetText(
-			"UNUSED POWER\n \n"
-			"You aren't using your Power to build any structures or units right now. Unused power for this turn is lost if not used. Click on your CPU to build something.\n");
-		break;
 	}
+
+	// Some action items are handled just by looking at them.
+	if (pItem->eActionType == ACTIONTYPE_WELCOME || pItem->eActionType == ACTIONTYPE_CONTROLS || pItem->eActionType == ACTIONTYPE_NEWSTRUCTURE ||
+		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE)
+		pItem->bHandled = true;
+
+	// Just in case it was turned off because of the tutorials.
+	if (pItem->eActionType == ACTIONTYPE_DOWNLOADUPDATES)
+		m_bUpdatesBlinking = true;
 
 	CEntityHandle<CSelectable> hSelection(pItem->iUnit);
 
@@ -2014,28 +2144,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
 		DigitanksGame()->GetDigitanksCamera()->SetTarget(hSelection->GetOrigin());
 	}
-
-	bool bMore = false;
-	for (size_t i = 0; i < aActionItems.size(); i++)
-	{
-		if (i != iActionItem && !aActionItems[i].bHandled)
-		{
-			bMore = true;
-			break;
-		}
-	}
-
-	if (bMore)
-	{
-		m_pNextActionItem->SetText("Next");
-		m_pActionItem->AppendText(" \nPress 'Next' to continue.");
-	}
-	else
-	{
-		m_pNextActionItem->SetText("Close");
-	}
-
-	m_pNextActionItem->SetVisible(true);
 
 	m_flActionItemsLerpGoal = 1;
 }
@@ -2220,15 +2328,39 @@ void CHUD::ShowShowdownSign()
 	CSoundLibrary::PlaySound(NULL, L"sound/actionsign.wav");
 }
 
-void CHUD::NextActionItemCallback()
+void CHUD::ChooseActionItemCallback()
 {
 	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
 
-	// Since we hit the next button that means this shit is done. Mark it off the list!
-	if (m_iCurrentActionItem < aActionItems.size())
-		aActionItems[m_iCurrentActionItem].bHandled = true;
+	size_t iActionItem = ~0;
 
-	ShowNextActionItem();
+	int mx, my;
+	CRootPanel::GetFullscreenMousePos(mx, my);
+
+	// Bit of a hack since we don't know what button was pressed we have to look for it.
+	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
+	{
+		int x, y, w, h;
+		m_apActionItemButtons[i]->GetAbsDimensions(x, y, w, h);
+		if (mx >= x &&
+			my >= y &&
+			mx < x + w &&
+			my < y + h)
+		{
+			iActionItem = i;
+			break;
+		}
+	}
+
+	if (iActionItem == ~0)
+		return;
+
+	ShowActionItem(iActionItem);
+}
+
+void CHUD::CloseActionItemsCallback()
+{
+	ShowActionItem(~0);
 }
 
 void CHUD::ButtonCursorIn0Callback()
@@ -2301,6 +2433,8 @@ void CHUD::OpenUpdatesCallback()
 		m_pUpdatesPanel->SetVisible(true);
 
 	m_bUpdatesBlinking = false;
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
 }
 
 void CHUD::MoveCallback()

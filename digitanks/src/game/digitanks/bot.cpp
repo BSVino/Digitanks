@@ -262,6 +262,9 @@ void CDigitanksTeam::Bot_ExpandBase()
 		else
 			pUnused = FindUnusedSupplier(2);
 
+		if (pUnused == NULL)
+			break;
+
 		float flYaw;
 		if (pUnused == m_hPrimaryCPU)
 			flYaw = RandomFloat(0, 360);
@@ -1302,6 +1305,9 @@ CSupplier* CDigitanksTeam::FindUnusedSupplier(size_t iMaxDependents, bool bNoSup
 
 		apSuppliers.push_back(pSupplier);
 	}
+
+	if (!apSuppliers.size())
+		return NULL;
 
 	return apSuppliers[rand()%apSuppliers.size()];
 }

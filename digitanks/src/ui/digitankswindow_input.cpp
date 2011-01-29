@@ -79,7 +79,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	GetMouseGridPosition(vecMousePosition, &pClickedEntity);
 	GetMouseGridPosition(vecMousePosition, NULL, CG_TERRAIN);
 
-	if (DigitanksGame()->GetControlMode() != MODE_NONE && iState == 1 && !IsMouseDragging())
+	if (DigitanksGame()->GetControlMode() != MODE_NONE && iButton == TINKER_KEY_MOUSE_LEFT && iState == 1)
 	{
 		// While aiming moving turning or building, either mouse button can be used and selections are disabled.
 
@@ -104,8 +104,10 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 		GetHUD()->SetupMenu();
 
-		// Don't allow the release to take any action either.
-		m_bMouseDownInGUI = true;
+		if (iState == 1)
+			// Don't allow the release to take any action either.
+			m_bMouseDownInGUI = true;
+
 		return;
 	}
 

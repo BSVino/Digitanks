@@ -1125,6 +1125,8 @@ void CDigitanksGame::MoveTanks()
 		else
 			pTank->Move();
 
+		HandledActionItem(pTank);
+
 		if (pTank->GetUnitType() == UNIT_MOBILECPU)
 			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
 	}
@@ -1172,6 +1174,8 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 		}
 
 		pTank->Turn();
+
+		HandledActionItem(pTank);
 	}
 
 	SetControlMode(MODE_NONE);
@@ -1227,6 +1231,8 @@ void CDigitanksGame::FireTanks()
 
 		pTank->SetPreviewAim(vecTankAim);
 		pTank->Fire();
+
+		HandledActionItem(pTank);
 	}
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
@@ -2164,6 +2170,44 @@ void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 	pActionItem->eActionType = eActionType;
 	pActionItem->bHandled = false;
 	DigitanksWindow()->GetHUD()->OnAddNewActionItem();
+}
+
+void CDigitanksGame::HandledActionItem(CSelectable* pUnit)
+{
+	if (!pUnit)
+		return;
+
+	size_t iItem = ~0;
+	for (size_t i = 0; i < m_aActionItems.size(); i++)
+	{
+		if (m_aActionItems[i].iUnit == pUnit->GetHandle())
+		{
+			iItem = i;
+			break;
+		}
+	}
+
+	if (iItem == ~0)
+		return;
+
+	if (!pUnit->NeedsOrders())
+	{
+		m_aActionItems[iItem].bHandled = true;
+		DigitanksWindow()->GetHUD()->Layout();
+	}
+}
+
+void CDigitanksGame::HandledActionItem(actiontype_t eItem)
+{
+	for (size_t i = 0; i < m_aActionItems.size(); i++)
+	{
+		if (m_aActionItems[i].eActionType == eItem)
+		{
+			m_aActionItems[i].bHandled = true;
+			DigitanksWindow()->GetHUD()->Layout();
+			return;
+		}
+	}
 }
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)

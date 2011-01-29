@@ -532,11 +532,18 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	DigitanksGame()->GetTerrain()->CalculateVisibility();
 
-	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (DigitanksGame()->GetTurn() == 0 && GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 	{
 		// Let's see our action items.
 		DigitanksGame()->AllowActionItems(true);
+		DigitanksGame()->GetActionItems().clear();
 		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
+		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_CONTROLS);
+		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+
+		for (size_t i = 0; i < GetDigitanksTeam()->GetNumTanks(); i++)
+			DigitanksGame()->AddActionItem(GetDigitanksTeam()->GetTank(i), ACTIONTYPE_UNITORDERS);
+
 		DigitanksGame()->AllowActionItems(false);
 		DigitanksWindow()->GetHUD()->ShowActionItem(ACTIONTYPE_WELCOME);
 

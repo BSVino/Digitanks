@@ -190,7 +190,8 @@ public:
 	void						ShowFightSign();
 	void						ShowShowdownSign();
 
-	EVENT_CALLBACK(CHUD, NextActionItem);
+	EVENT_CALLBACK(CHUD, ChooseActionItem);
+	EVENT_CALLBACK(CHUD, CloseActionItems);
 
 	EVENT_CALLBACK(CHUD, ButtonCursorIn0);
 	EVENT_CALLBACK(CHUD, ButtonCursorIn1);
@@ -255,7 +256,8 @@ protected:
 	menumode_t					m_eMenuMode;
 
 	glgui::CLabel*				m_pActionItem;
-	glgui::CButton*				m_pNextActionItem;
+	eastl::vector<glgui::CPictureButton*> m_apActionItemButtons;
+	glgui::CButton*				m_pCloseActionItems;
 	size_t						m_iCurrentActionItem;
 	bool						m_bAllActionItemsHandled;
 	float						m_flActionItemsLerp;

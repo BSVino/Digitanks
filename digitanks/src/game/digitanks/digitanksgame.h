@@ -23,6 +23,7 @@ typedef enum
 typedef enum
 {
 	ACTIONTYPE_WELCOME,
+	ACTIONTYPE_CONTROLS,
 	ACTIONTYPE_NEWSTRUCTURE,
 	ACTIONTYPE_AUTOMOVECANCELED,
 	ACTIONTYPE_AUTOMOVEENEMY,
@@ -30,12 +31,10 @@ typedef enum
 	ACTIONTYPE_FORTIFIEDENEMY,
 	ACTIONTYPE_UNITAUTOMOVE,
 	ACTIONTYPE_UNITORDERS,
-	ACTIONTYPE_CONSTRUCTION,
 	ACTIONTYPE_UPGRADE,
 	ACTIONTYPE_UNITREADY,
 	ACTIONTYPE_DOWNLOADUPDATES,
 	ACTIONTYPE_DOWNLOADCOMPLETE,
-	ACTIONTYPE_NOPRODUCERS,
 } actiontype_t;
 
 typedef struct
@@ -251,6 +250,8 @@ public:
 	void					AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
 	eastl::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
 	void					AllowActionItems(bool bAllow) { m_bAllowActionItems = bAllow; };
+	void					HandledActionItem(CSelectable* pUnit);
+	void					HandledActionItem(actiontype_t eItem);
 
 	void					BeginAirstrike(Vector vecLocation);
 	float					AirstrikeSize() const { return 50; };
