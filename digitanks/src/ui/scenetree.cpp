@@ -46,6 +46,18 @@ void CSceneTree::BuildTree(bool bForce)
 
 		unittype_t eUnit = pEntity->GetUnitType();
 
+		if (eUnit == STRUCTURE_BUFFER)
+			continue;
+
+		if (eUnit == STRUCTURE_MINIBUFFER)
+			continue;
+
+		if (eUnit == STRUCTURE_BATTERY)
+			continue;
+
+		if (eUnit == STRUCTURE_PSU)
+			continue;
+
 		CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);
 
 		pTreeGroup->AddNode(new CSceneTreeUnit(pEntity, pTreeGroup, this));
@@ -61,6 +73,16 @@ CSceneTreeGroup* CSceneTree::GetUnitNode(unittype_t eUnit)
 		CSceneTreeGroup* pTreeGroup = dynamic_cast<CSceneTreeGroup*>(m_apNodes[i]);
 		if (eUnit == pTreeGroup->GetUnitType())
 			return pTreeGroup;
+
+		if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
+		{
+			if (eUnit == STRUCTURE_INFANTRYLOADER)
+				return pTreeGroup;
+			if (eUnit == STRUCTURE_TANKLOADER)
+				return pTreeGroup;
+			if (eUnit == STRUCTURE_ARTILLERYLOADER)
+				return pTreeGroup;
+		}
 	}
 
 	// It's not there. Insert it.
@@ -106,6 +128,19 @@ void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 		return;
 
 	unittype_t eUnit = pSelectable->GetUnitType();
+
+	if (eUnit == STRUCTURE_BUFFER)
+		return;
+
+	if (eUnit == STRUCTURE_MINIBUFFER)
+		return;
+
+	if (eUnit == STRUCTURE_BATTERY)
+		return;
+
+	if (eUnit == STRUCTURE_PSU)
+		return;
+
 	CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);
 
 	pTreeGroup->AddNode(new CSceneTreeUnit(pSelectable, pTreeGroup, this));
@@ -123,6 +158,19 @@ void CSceneTree::OnRemoveEntityFromTeam(CDigitanksTeam* pTeam, CBaseEntity* pEnt
 		return;
 
 	unittype_t eUnit = pSelectable->GetUnitType();
+
+	if (eUnit == STRUCTURE_BUFFER)
+		return;
+
+	if (eUnit == STRUCTURE_MINIBUFFER)
+		return;
+
+	if (eUnit == STRUCTURE_BATTERY)
+		return;
+
+	if (eUnit == STRUCTURE_PSU)
+		return;
+
 	CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);
 
 	for (size_t i = 0; i < pTreeGroup->m_apNodes.size(); i++)
