@@ -1322,9 +1322,9 @@ void CDigitank::MoveTowardsGoalMovePosition()
 	SetPreviewMove(vecNewPosition);
 	Move();
 
-	if ((GetOrigin() - GetGoalMovePosition()).LengthSqr() < 1)
+	if ((GetRealOrigin() - GetGoalMovePosition()).Length2DSqr() < 1)
 	{
-		m_bGoalMovePosition = false;
+		CancelGoalMovePosition();
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITAUTOMOVE);
 		return;
 	}
@@ -2129,7 +2129,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (IsInfantry())
 				s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
 			else if (IsScout())
-				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It doesn't do any physical damage to structures or units.";
+				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It only does physical damage to structures or units without shields.";
 			else
 				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
 

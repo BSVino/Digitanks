@@ -1923,8 +1923,8 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_WELCOME:
 		m_pActionItem->SetText(
 			"WELCOME TO DIGITANKS\n \n"
-			"This is the 'Action Items' window. It will help guide you through the tasks you need to complete each turn.\n \n"
-			"First you need to begin building your base. Click on your CPU to build structures. You can also explore with your Rogue.\n \n"
+			"Here on the right is the 'Action Items' list. It will help guide you through the tasks you need to complete each turn.\n \n"
+			"Click on an item to view it. Items that are blinking need handling. When you deal with all items you can end your turn confidently!\n \n"
 			"When you're done, press the 'End Turn' button to continue.\n");
 		break;
 
@@ -2522,6 +2522,8 @@ void CHUD::BuildMiniBufferCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_MINIBUFFER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
 }
 
 void CHUD::BuildBufferCallback()
@@ -2544,8 +2546,6 @@ void CHUD::BuildBufferCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_BUFFER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
-
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
 }
 
 void CHUD::BuildBatteryCallback()

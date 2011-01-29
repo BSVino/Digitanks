@@ -1101,8 +1101,6 @@ void CDigitanksGame::MoveTanks()
 	if (pCurrentTank->GetTeam() != GetCurrentLocalDigitanksTeam())
 		return;
 
-	bool bMoved = false;
-
 	Vector vecPreview = pCurrentTank->GetPreviewMove();
 	Vector vecOrigin = pCurrentTank->GetOrigin();
 	Vector vecMove = vecPreview - vecOrigin;
@@ -1123,30 +1121,18 @@ void CDigitanksGame::MoveTanks()
 		pTank->SetPreviewMove(vecNewPosition);
 
 		if (!pTank->IsPreviewMoveValid())
-		{
 			pTank->SetGoalMovePosition(vecNewPosition);
-		}
 		else
-		{
 			pTank->Move();
-
-			if (pTank == pCurrentTank)
-				bMoved = true;
-		}
 
 		if (pTank->GetUnitType() == UNIT_MOBILECPU)
 			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
 	}
 
-	if (bMoved)
-	{
-		GetDigitanksCamera()->SetTarget(pCurrentTank->GetPreviewMove());
+	SetControlMode(MODE_NONE);
 
-		SetControlMode(MODE_NONE);
-
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
-	}
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
 }
 
 void CDigitanksGame::TurnTanks(Vector vecLookAt)

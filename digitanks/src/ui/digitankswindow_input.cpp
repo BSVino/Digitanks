@@ -62,7 +62,10 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			return;
 
 		if (m_bMouseDownInGUI)
+		{
+			m_bMouseDownInGUI = false;
 			return;
+		}
 	}
 
 	if (!DigitanksGame())
@@ -71,20 +74,40 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (iButton == TINKER_KEY_MOUSE_RIGHT && DigitanksGame()->GetControlMode() == MODE_BUILD && iState == 0 && m_iMouseMoved < 30)
-	{
-		CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
-		if (pCPU && pCPU->IsPreviewBuildValid())
-		{
-			pCPU->BeginConstruction();
-			DigitanksGame()->SetControlMode(MODE_NONE);
-		}
-	}
-
 	Vector vecMousePosition;
 	CBaseEntity* pClickedEntity = NULL;
 	GetMouseGridPosition(vecMousePosition, &pClickedEntity);
 	GetMouseGridPosition(vecMousePosition, NULL, CG_TERRAIN);
+
+	if (DigitanksGame()->GetControlMode() != MODE_NONE && iState == 1 && !IsMouseDragging())
+	{
+		// While aiming moving turning or building, either mouse button can be used and selections are disabled.
+
+		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+			DigitanksGame()->MoveTanks();
+		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
+			DigitanksGame()->TurnTanks(vecMousePosition);
+		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
+		{
+			DigitanksGame()->FireTanks();
+			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
+		}
+		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+		{
+			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
+			if (pCPU && pCPU->IsPreviewBuildValid())
+			{
+				pCPU->BeginConstruction();
+				DigitanksGame()->SetControlMode(MODE_NONE);
+			}
+		}
+
+		GetHUD()->SetupMenu();
+
+		// Don't allow the release to take any action either.
+		m_bMouseDownInGUI = true;
+		return;
+	}
 
 	if (iButton == TINKER_KEY_MOUSE_RIGHT)
 	{
@@ -92,7 +115,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseMoved = 0;
 		else
 		{
-			if (m_iMouseMoved > 30)
+			if (IsMouseDragging())
 				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
 		}
 	}
@@ -106,11 +129,6 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_bBoxSelect = true;
 			m_iMouseInitialX = m_iMouseCurrentX = mx;
 			m_iMouseInitialY = m_iMouseCurrentY = my;
-		}
-		else if (GameServer() && GameServer()->GetCamera() && !IsMouseDragging())
-		{
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecMousePosition);
-			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
 		}
 	}
 
@@ -168,19 +186,6 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 
 		m_bBoxSelect = false;
-	}
-
-	if (iButton == TINKER_KEY_MOUSE_RIGHT && iState == 0 && m_iMouseMoved < 30)
-	{
-		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-			DigitanksGame()->MoveTanks();
-		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
-			DigitanksGame()->TurnTanks(vecMousePosition);
-		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
-		{
-			DigitanksGame()->FireTanks();
-			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
-		}
 	}
 
 	GetHUD()->SetupMenu();
