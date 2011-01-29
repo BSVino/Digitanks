@@ -72,6 +72,7 @@ public:
 	Vector			m_vecGoalVelocity;
 
 	bool			m_bRotatingCamera;
+	bool			m_bDraggingCamera;
 
 	bool			m_bMouseDragLeft;
 	bool			m_bMouseDragRight;

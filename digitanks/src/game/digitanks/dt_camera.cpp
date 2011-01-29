@@ -17,6 +17,7 @@ CDigitanksCamera::CDigitanksCamera()
 	m_flTargetRamp = m_flDistanceRamp = m_flAngleRamp = 0;
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
+	m_bDraggingCamera = false;
 	m_flShakeMagnitude = 0;
 
 	m_bMouseDragLeft = m_bMouseDragRight = m_bMouseDragUp = m_bMouseDragDown = false;
@@ -307,7 +308,16 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		while (m_angCamera.y < -180)
 			m_angCamera.y += 360;
 	}
-	else if (DigitanksWindow()->ShouldConstrainMouse() && !m_bFreeMode)
+	else if (m_bDraggingCamera)
+	{
+		Matrix4x4 mRotation;
+		mRotation.SetRotation(EAngle(0, m_angCamera.y, 0));
+
+		Vector vecVelocity = mRotation * Vector((float)dy*2, 0, (float)-dx*2);
+
+		SetTarget(m_vecTarget + vecVelocity);
+	}
+	else if (DigitanksWindow()->ShouldConstrainMouse() && !m_bFreeMode && !m_bDraggingCamera)
 	{
 		if (!m_bMouseDragLeft && x < 15)
 		{
@@ -391,6 +401,9 @@ void CDigitanksCamera::KeyDown(int c)
 			m_vecGoalVelocity.z = 80.0f;
 	}
 
+	if (c == ' ')
+		m_bDraggingCamera = true;
+
 	if (c == TINKER_KEY_PAGEUP)
 		ZoomIn();
 	if (c == TINKER_KEY_PAGEDOWN)
@@ -412,6 +425,9 @@ void CDigitanksCamera::KeyUp(int c)
 		if (c == TINKER_KEY_LEFT)
 			m_vecGoalVelocity.z = 0.0f;
 	}
+
+	if (c == ' ')
+		m_bDraggingCamera = false;
 
 	BaseClass::KeyUp(c);
 }
