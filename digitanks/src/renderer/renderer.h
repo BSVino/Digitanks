@@ -81,10 +81,11 @@ public:
 class CRopeRenderer
 {
 public:
-						CRopeRenderer(class CRenderer* pRenderer, size_t iTexture, Vector vecStart);
+						CRopeRenderer(class CRenderer* pRenderer, size_t iTexture, Vector vecStart, float flWidth);
 
 public:
 	void				AddLink(Vector vecLink);
+	void				FinishSegment(Vector vecLink, Vector vecNextSegmentStart, float flNextSegmentWidth);
 	void				Finish(Vector vecLink);
 
 	void				SetWidth(float flWidth) { m_flWidth = flWidth; };
@@ -100,6 +101,7 @@ protected:
 
 	size_t				m_iTexture;
 	Vector				m_vecLastLink;
+	float				m_flLastLinkWidth;
 	bool				m_bFirstLink;
 
 	float				m_flWidth;

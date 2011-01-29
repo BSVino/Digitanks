@@ -829,7 +829,7 @@ void CSupplier::PostRender(bool bTransparent)
 
 			clrTeam.SetAlpha(160);
 
-			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
 			oRope.SetColor(clrTeam);
 			oRope.SetTextureScale(pTendril->m_flScale);
 			oRope.SetTextureOffset(pTendril->m_flOffset);
@@ -911,7 +911,7 @@ void CSupplier::UpdateTendrils()
 
 		clrTeam.SetAlpha(160);
 
-		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0));
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
 		oRope.SetColor(clrTeam);
 		oRope.SetTextureScale(pTendril->m_flScale);
 		oRope.SetTextureOffset(pTendril->m_flOffset);

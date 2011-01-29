@@ -465,7 +465,7 @@ CFrameBuffer::CFrameBuffer()
 	m_iMap = m_iDepth = m_iFB = 0;
 }
 
-CRopeRenderer::CRopeRenderer(CRenderer *pRenderer, size_t iTexture, Vector vecStart)
+CRopeRenderer::CRopeRenderer(CRenderer *pRenderer, size_t iTexture, Vector vecStart, float flWidth)
 	: m_oContext(pRenderer)
 {
 	m_pRenderer = pRenderer;
@@ -474,7 +474,7 @@ CRopeRenderer::CRopeRenderer(CRenderer *pRenderer, size_t iTexture, Vector vecSt
 	m_vecLastLink = vecStart;
 	m_bFirstLink = true;
 
-	m_flWidth = 1;
+	m_flWidth = m_flLastLinkWidth = flWidth;
 
 	m_flTextureScale = 1;
 	m_flTextureOffset = 0;
@@ -497,6 +497,7 @@ void CRopeRenderer::AddLink(Vector vecLink)
 		vecForward = m_pRenderer->GetCameraVector();
 
 	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
+	Vector vecLastRight = vecForward.Cross(vecUp)*(m_flLastLinkWidth/2);
 	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
 
 	float flAddV = (1/m_flTextureScale);
@@ -507,9 +508,9 @@ void CRopeRenderer::AddLink(Vector vecLink)
 	{
 		// Finish the previous link
 		m_oContext.TexCoord(1, m_flTextureOffset+flAddV);
-		m_oContext.Vertex(m_vecLastLink+vecRight);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
 		m_oContext.TexCoord(0, m_flTextureOffset+flAddV);
-		m_oContext.Vertex(m_vecLastLink-vecRight);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
 
 		m_flTextureOffset += flAddV;
 	}
@@ -518,14 +519,15 @@ void CRopeRenderer::AddLink(Vector vecLink)
 
 	// Start this link
 	m_oContext.TexCoord(0, m_flTextureOffset);
-	m_oContext.Vertex(m_vecLastLink-vecRight);
+	m_oContext.Vertex(m_vecLastLink-vecLastRight);
 	m_oContext.TexCoord(1, m_flTextureOffset);
-	m_oContext.Vertex(m_vecLastLink+vecRight);
+	m_oContext.Vertex(m_vecLastLink+vecLastRight);
 
 	m_vecLastLink = vecLink;
+	m_flLastLinkWidth = m_flWidth;
 }
 
-void CRopeRenderer::Finish(Vector vecLink)
+void CRopeRenderer::FinishSegment(Vector vecLink, Vector vecNextSegmentStart, float flNextSegmentWidth)
 {
 	Vector vecForward;
 	if (m_bUseForward)
@@ -534,6 +536,7 @@ void CRopeRenderer::Finish(Vector vecLink)
 		vecForward = m_pRenderer->GetCameraVector();
 
 	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
+	Vector vecLastRight = vecForward.Cross(vecUp)*(m_flLastLinkWidth/2);
 	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
 
 	float flAddV = (1/m_flTextureScale);
@@ -542,9 +545,9 @@ void CRopeRenderer::Finish(Vector vecLink)
 	{
 		// Start the previous link
 		m_oContext.TexCoord(0, m_flTextureOffset);
-		m_oContext.Vertex(m_vecLastLink-vecRight);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
 		m_oContext.TexCoord(1, m_flTextureOffset);
-		m_oContext.Vertex(m_vecLastLink+vecRight);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
 
 		m_flTextureOffset += flAddV;
 
@@ -559,14 +562,71 @@ void CRopeRenderer::Finish(Vector vecLink)
 
 		// Finish the last link
 		m_oContext.TexCoord(1, m_flTextureOffset);
-		m_oContext.Vertex(m_vecLastLink+vecRight);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
 		m_oContext.TexCoord(0, m_flTextureOffset);
-		m_oContext.Vertex(m_vecLastLink-vecRight);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
 
 		m_oContext.TexCoord(0, m_flTextureOffset);
-		m_oContext.Vertex(m_vecLastLink-vecRight);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
 		m_oContext.TexCoord(1, m_flTextureOffset);
-		m_oContext.Vertex(m_vecLastLink+vecRight);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
+
+		m_flTextureOffset += flAddV;
+
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(vecLink+vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(vecLink-vecRight);
+	}
+
+	m_bFirstLink = true;
+	m_vecLastLink = vecNextSegmentStart;
+	m_flLastLinkWidth = flNextSegmentWidth;
+}
+
+void CRopeRenderer::Finish(Vector vecLink)
+{
+	Vector vecForward;
+	if (m_bUseForward)
+		vecForward = m_vecForward;
+	else
+		vecForward = m_pRenderer->GetCameraVector();
+
+	Vector vecUp = (vecLink - m_vecLastLink).Normalized();
+	Vector vecLastRight = vecForward.Cross(vecUp)*(m_flLastLinkWidth/2);
+	Vector vecRight = vecForward.Cross(vecUp)*(m_flWidth/2);
+
+	float flAddV = (1/m_flTextureScale);
+
+	if (m_bFirstLink)
+	{
+		// Start the previous link
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
+
+		m_flTextureOffset += flAddV;
+
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(vecLink+vecRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(vecLink-vecRight);
+	}
+	else
+	{
+		m_flTextureOffset += flAddV;
+
+		// Finish the last link
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
+
+		m_oContext.TexCoord(0, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink-vecLastRight);
+		m_oContext.TexCoord(1, m_flTextureOffset);
+		m_oContext.Vertex(m_vecLastLink+vecLastRight);
 
 		m_flTextureOffset += flAddV;
 

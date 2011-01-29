@@ -2518,7 +2518,10 @@ void CHUD::FortifyCallback()
 	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
 	{
 		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+		{
 			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Fortify();
+			DigitanksGame()->HandledActionItem(DigitanksGame()->GetCurrentTeam()->GetTank(i));
+		}
 	}
 
 	SetupMenu(MENUMODE_MAIN);
@@ -2538,7 +2541,10 @@ void CHUD::SentryCallback()
 	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
 	{
 		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
+		{
 			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Sentry();
+			DigitanksGame()->HandledActionItem(DigitanksGame()->GetCurrentTeam()->GetTank(i));
+		}
 	}
 
 	SetupMenu(MENUMODE_MAIN);

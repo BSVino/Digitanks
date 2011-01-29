@@ -389,6 +389,16 @@ float CDigitank::GetMaxMovementEnergy() const
 	return GetStartingPower() + GetBonusMovementEnergy() + flNetworkBonus;
 }
 
+float CDigitank::GetMaxMovementDistance() const
+{
+	float flDistance = GetMaxMovementEnergy() * GetTankSpeed();
+
+	if (flDistance < 0)
+		return 0;
+
+	return flDistance;
+}
+
 float CDigitank::GetUsedMovementEnergy(bool bPreview) const
 {
 	if (bPreview)
@@ -3019,8 +3029,7 @@ void CDigitank::PostRender(bool bTransparent)
 		Vector vecForce;
 		FindLaunchVelocity(vecTankOrigin, m_vecDisplayAim, flGravity, vecForce, flTime, ProjectileCurve());
 
-		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAimBeam, vecTankOrigin);
-		oRope.SetWidth(0.5f);
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAimBeam, vecTankOrigin, 0.5f);
 		oRope.SetColor(Color(255, 0, 0, iAlpha));
 		oRope.SetTextureScale(50);
 		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
@@ -3068,26 +3077,62 @@ void CDigitank::PostRender(bool bTransparent)
 		CRenderingContext r(GameServer()->GetRenderer());
 		r.SetBlend(BLEND_ALPHA);
 
-		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAutoMove, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()));
-		oRope.SetWidth(2.0f);
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iAutoMove, DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin()) + Vector(0, 1, 0), 2);
 		oRope.SetColor(Color(255, 255, 255, iAlpha));
-		oRope.SetTextureScale(3);
+		oRope.SetTextureScale(4);
 		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
 
-		Vector vecPath = vecGoalMove - GetOrigin();
+		Vector vecPath = vecGoalMove - GetRealOrigin();
 		vecPath.y = 0;
 
 		float flDistance = vecPath.Length2D();
-		Vector vecDirection = vecPath.Normalized();
-		size_t iSegments = (size_t)(flDistance/3);
+		float flDistancePerSegment = 5;
+		Vector vecPathFlat = vecPath;
+		vecPathFlat.y = 0;
+		Vector vecDirection = vecPathFlat.Normalized();
+		size_t iSegments = (size_t)(flDistance/flDistancePerSegment);
 
-		for (size_t i = 0; i < iSegments; i++)
+		Vector vecLastSegmentStart = GetRealOrigin();
+		float flMaxMoveDistance = GetMaxMovementDistance();
+		float flSegmentLength = flMaxMoveDistance;
+
+		if ((vecGoalMove - GetRealOrigin()).LengthSqr() < flMaxMoveDistance*flMaxMoveDistance)
+			flSegmentLength = (vecGoalMove - GetRealOrigin()).Length();
+
+		for (size_t i = 1; i < iSegments; i++)
 		{
-			float flCurrentDistance = ((float)i*flDistance)/iSegments;
-			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+			float flCurrentDistance = ((float)i*flDistancePerSegment);
+
+			Vector vecLink = DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0);
+
+			float flDistanceFromSegmentStartSqr = (vecLink - vecLastSegmentStart).LengthSqr();
+
+			float flRamp = flDistanceFromSegmentStartSqr / (flSegmentLength*flSegmentLength);
+			if (flDistanceFromSegmentStartSqr > flMaxMoveDistance*flMaxMoveDistance)
+			{
+				vecLastSegmentStart = DigitanksGame()->GetTerrain()->SetPointHeight(vecLastSegmentStart + vecDirection*flSegmentLength) + Vector(0, 1, 0);
+
+				oRope.SetWidth(0);
+				oRope.FinishSegment(vecLastSegmentStart, vecLastSegmentStart, 2);
+
+				// Skip to the next one if it goes backwards.
+				if ((vecLink - GetRealOrigin()).LengthSqr() < (vecLastSegmentStart - GetRealOrigin()).LengthSqr())
+					continue;
+
+				flDistanceFromSegmentStartSqr = (vecLink - vecLastSegmentStart).LengthSqr();
+
+				if ((vecGoalMove - vecLastSegmentStart).LengthSqr() < flMaxMoveDistance*flMaxMoveDistance)
+					flSegmentLength = (vecGoalMove - vecLastSegmentStart).Length();
+
+				flRamp = flDistanceFromSegmentStartSqr / (flSegmentLength*flSegmentLength);
+			}
+
+			oRope.SetWidth((1-flRamp)*2);
+			oRope.AddLink(vecLink);
 		}
 
-		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecGoalMove));
+		oRope.SetWidth(0);
+		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecGoalMove) + Vector(0, 1, 0));
 	}
 
 	if (bTransparent && GetDigitanksTeam()->IsPrimarySelection(this) && DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT)

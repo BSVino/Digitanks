@@ -75,6 +75,7 @@ public:
 
 	float						GetBonusMovementEnergy() const { return m_flBonusMovementPower.Get(); };
 	float						GetMaxMovementEnergy() const;
+	float						GetMaxMovementDistance() const;
 	float						GetUsedMovementEnergy(bool bPreview = false) const;
 	float						GetRemainingMovementEnergy(bool bPreview = false) const;
 	float						GetRemainingMovementDistance() const;

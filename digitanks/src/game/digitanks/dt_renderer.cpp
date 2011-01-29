@@ -199,77 +199,77 @@ void CDigitanksRenderer::RenderSkybox()
 		float flGameTime = GameServer()->GetGameTime();
 		CRenderingContext r(this);
 
-		r.Translate(Vector(-20.6999f, 1.83191f, 74.3044f)*1.5f);
+		r.Translate(Vector(-20.6999f, 1.0f, 74.3044f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.0f), 0.2f), SLerp(Oscillate(flGameTime, 5.0f), 0.2f), SLerp(Oscillate(flGameTime, 6.0f), 0.2f)));
 		r.RenderModel(m_iFloaters[0]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(23.2488f, 1.54866f, 72.435f)*1.5f);
+		r.Translate(Vector(23.2488f, 1.0f, 72.435f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.0f), 0.2f), SLerp(Oscillate(flGameTime, 5.5f), 0.2f), SLerp(Oscillate(flGameTime, 4.0f), 0.2f)));
 		r.RenderModel(m_iFloaters[1]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-51.14f, 1.54866f, 40.3445f)*1.5f);
+		r.Translate(Vector(-51.14f, 1.0f, 40.3445f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.5f), 0.2f), SLerp(Oscillate(flGameTime, 5.0f), 0.2f), SLerp(Oscillate(flGameTime, 6.5f), 0.2f)));
 		r.RenderModel(m_iFloaters[2]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-14.3265f, 1.54866f, 46.879f)*1.5f);
+		r.Translate(Vector(-14.3265f, 1.0f, 46.879f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.5f), 0.2f), SLerp(Oscillate(flGameTime, 5.5f), 0.2f), SLerp(Oscillate(flGameTime, 4.5f), 0.2f)));
 		r.RenderModel(m_iFloaters[3]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(20.1533f, 1.54866f, 33.2295f)*1.5f);
+		r.Translate(Vector(20.1533f, 1.0f, 33.2295f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.1f), 0.2f), SLerp(Oscillate(flGameTime, 5.1f), 0.2f), SLerp(Oscillate(flGameTime, 6.1f), 0.2f)));
 		r.RenderModel(m_iFloaters[4]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(56.8932f, 1.54866f, 18.9258f)*1.5f);
+		r.Translate(Vector(56.8932f, 1.0f, 18.9258f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.1f), 0.2f), SLerp(Oscillate(flGameTime, 5.9f), 0.2f), SLerp(Oscillate(flGameTime, 4.1f), 0.2f)));
 		r.RenderModel(m_iFloaters[5]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-43.3788f, 1.54866f, -1.81977f)*1.5f);
+		r.Translate(Vector(-43.3788f, 1.0f, -1.81977f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.9f), 0.2f), SLerp(Oscillate(flGameTime, 5.9f), 0.2f), SLerp(Oscillate(flGameTime, 6.9f), 0.2f)));
 		r.RenderModel(m_iFloaters[6]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-69.7944f, 1.54866f, -15.5551f)*1.5f);
+		r.Translate(Vector(-69.7944f, 1.0f, -15.5551f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.9f), 0.2f), SLerp(Oscillate(flGameTime, 5.1f), 0.2f), SLerp(Oscillate(flGameTime, 4.9f), 0.2f)));
 		r.RenderModel(m_iFloaters[7]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(38.0865f, 1.54866f, -11.1743f)*1.5f);
+		r.Translate(Vector(38.0865f, 1.0f, -11.1743f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.6f), 0.2f), SLerp(Oscillate(flGameTime, 5.4f), 0.2f), SLerp(Oscillate(flGameTime, 6.6f), 0.2f)));
 		r.RenderModel(m_iFloaters[8]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-16.6582f, 1.54866f, -28.5136f)*1.5f);
+		r.Translate(Vector(-16.6582f, 1.0f, -28.5136f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.4f), 0.2f), SLerp(Oscillate(flGameTime, 5.6f), 0.2f), SLerp(Oscillate(flGameTime, 4.4f), 0.2f)));
 		r.RenderModel(m_iFloaters[9]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(65.7498f, 1.54866f, -27.7423f)*1.5f);
+		r.Translate(Vector(65.7498f, 1.0f, -27.7423f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.3f), 0.2f), SLerp(Oscillate(flGameTime, 5.7f), 0.2f), SLerp(Oscillate(flGameTime, 6.3f), 0.2f)));
 		r.RenderModel(m_iFloaters[10]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-47.0167f, 1.54866f, -48.2766f)*1.5f);
+		r.Translate(Vector(-47.0167f, 1.0f, -48.2766f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.7f), 0.2f), SLerp(Oscillate(flGameTime, 5.3f), 0.2f), SLerp(Oscillate(flGameTime, 4.7f), 0.2f)));
 		r.RenderModel(m_iFloaters[11]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(-13.8358f, 1.54866f, -62.4203f)*1.5f);
+		r.Translate(Vector(-13.8358f, 1.0f, -62.4203f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.2f), 0.2f), SLerp(Oscillate(flGameTime, 5.8f), 0.2f), SLerp(Oscillate(flGameTime, 6.0f), 0.2f)));
 		r.RenderModel(m_iFloaters[12]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(15.7742f, 1.54866f, -40.5895f)*1.5f);
+		r.Translate(Vector(15.7742f, 1.0f, -40.5895f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 6.8f), 0.2f), SLerp(Oscillate(flGameTime, 5.2f), 0.2f), SLerp(Oscillate(flGameTime, 4.8f), 0.2f)));
 		r.RenderModel(m_iFloaters[13]);
 		r.ResetTransformations();
 
-		r.Translate(Vector(32.4053f, 1.54866f, -53.7385f)*1.5f);
+		r.Translate(Vector(32.4053f, 1.0f, -53.7385f)*1.5f);
 		r.Translate(Vector(SLerp(Oscillate(flGameTime, 4.0f), 0.2f), SLerp(Oscillate(flGameTime, 5.0f), 0.2f), SLerp(Oscillate(flGameTime, 6.2f), 0.2f)));
 		r.RenderModel(m_iFloaters[14]);
 	}

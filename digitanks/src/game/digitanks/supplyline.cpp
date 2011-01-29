@@ -164,8 +164,7 @@ void CSupplyLine::PostRender(bool bTransparent)
 	if (GetTeam())
 		clrTeam = GetTeam()->GetColor();
 
-	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0));
-	oRope.SetWidth(2.5);
+	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0), 2.5f);
 	oRope.SetTextureScale(5);
 	oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1)*2);
 
