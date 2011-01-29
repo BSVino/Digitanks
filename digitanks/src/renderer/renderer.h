@@ -25,6 +25,8 @@ public:
 	void		Translate(Vector vecTranslate);
 	void		Rotate(float flAngle, Vector vecAxis);
 	void		Scale(float flX, float flY, float flZ);
+	void		ResetTransformations();
+
 	void		SetBlend(blendtype_t eBlend);
 	void		SetAlpha(float flAlpha) { m_flAlpha = flAlpha; };
 	void		SetDepthMask(bool bDepthMask);

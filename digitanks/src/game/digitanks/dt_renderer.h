@@ -57,6 +57,7 @@ protected:
 	float			m_flRing3Yaw;
 
 	size_t			m_iDigiverse;
+	size_t			m_iFloaters[15];
 
 	float			m_flLastBloomPulse;
 };

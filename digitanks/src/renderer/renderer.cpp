@@ -95,6 +95,15 @@ void CRenderingContext::Scale(float flX, float flY, float flZ)
 	glScalef(flX, flY, flZ);
 }
 
+void CRenderingContext::ResetTransformations()
+{
+	if (m_bMatrixTransformations)
+	{
+		m_bMatrixTransformations = false;
+		glPopMatrix();
+	}
+}
+
 void CRenderingContext::SetBlend(blendtype_t eBlend)
 {
 	if (!m_bAttribs)
