@@ -1784,7 +1784,13 @@ void CDigitank::OnCurrentSelection()
 {
 	BaseClass::OnCurrentSelection();
 
-	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetVisibility() > 0)
+	if (GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	{
+		DigitanksGame()->SetControlMode(MODE_NONE);
+		return;
+	}
+
+	if (GetVisibility() > 0)
 	{
 		if (rand()%2 == 0)
 			EmitSound(L"sound/tank-active.wav");
@@ -1792,8 +1798,7 @@ void CDigitank::OnCurrentSelection()
 			EmitSound(L"sound/tank-active2.wav");
 	}
 
-	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-		Speak(TANKSPEECH_SELECTED);
+	Speak(TANKSPEECH_SELECTED);
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
