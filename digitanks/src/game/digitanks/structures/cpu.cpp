@@ -517,6 +517,8 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		DigitanksWindow()->GetInstructor()->NextTutorial();
 	}
 
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, true);
+
 	pConstructing->FindGround();
 
 	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
@@ -529,6 +531,18 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	}
 
 	DigitanksGame()->GetTerrain()->CalculateVisibility();
+
+	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	{
+		// Let's see our action items.
+		DigitanksGame()->AllowActionItems(true);
+		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
+		DigitanksGame()->AllowActionItems(false);
+		DigitanksWindow()->GetHUD()->ShowActionItem(ACTIONTYPE_WELCOME);
+
+		CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+		pInstructor->SetActive(false);
+	}
 
 	DigitanksWindow()->GetHUD()->Layout();
 }

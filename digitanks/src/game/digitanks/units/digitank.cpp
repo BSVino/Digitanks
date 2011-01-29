@@ -384,7 +384,7 @@ float CDigitank::GetMaxMovementEnergy() const
 	float flNetworkBonus = 0;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flNetworkBonus = 5.0f;
+		flNetworkBonus = 8.0f;
 
 	return GetStartingPower() + GetBonusMovementEnergy() + flNetworkBonus;
 }
@@ -404,14 +404,19 @@ float CDigitank::GetUsedMovementEnergy(bool bPreview) const
 	return m_flMovementPower.Get();
 }
 
-float CDigitank::GetRemainingMovementEnergy() const
+float CDigitank::GetRemainingMovementEnergy(bool bPreview) const
 {
-	return GetMaxMovementEnergy() - GetUsedMovementEnergy();
+	return GetMaxMovementEnergy() - GetUsedMovementEnergy(bPreview);
 }
 
 float CDigitank::GetRemainingMovementDistance() const
 {
-	return GetRemainingMovementEnergy() * GetTankSpeed();
+	float flDistance = GetRemainingMovementEnergy() * GetTankSpeed();
+
+	if (flDistance < 0)
+		return 0;
+
+	return flDistance;
 }
 
 float CDigitank::GetRemainingTurningDistance() const
@@ -844,9 +849,9 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 
 	if (DigitanksGame()->GetAimType() == AIM_NORANGE)
 	{
-		// Special weapons can be aimed anywhere.
+		// Special weapons can be aimed anywhere the player can see.
 		m_vecPreviewAim = vecPreviewAim;
-		m_bPreviewAim = true;
+		m_bPreviewAim = GetDigitanksTeam()->GetVisibilityAtPoint(m_vecPreviewAim) > 0;
 		return;
 	}
 
@@ -1777,7 +1782,9 @@ void CDigitank::OnCurrentSelection()
 			EmitSound(L"sound/tank-active2.wav");
 	}
 
-	Speak(TANKSPEECH_SELECTED);
+	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		Speak(TANKSPEECH_SELECTED);
+
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
 	// So the escape key works.
@@ -1861,7 +1868,7 @@ float CDigitank::GetPowerBar2Value()
 
 float CDigitank::GetPowerBar3Value()
 {
-	return GetUsedMovementEnergy(true) / m_flStartingPower;
+	return GetRemainingMovementEnergy(true) / m_flStartingPower;
 }
 
 float CDigitank::GetPowerBar1Size()

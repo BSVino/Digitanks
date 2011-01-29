@@ -144,7 +144,7 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
-	if (HasEnoughFleetPoints() && HasEnoughPower())
+	if (HasEnoughFleetPoints() && HasEnoughPower() && !IsProducing())
 	{
 		pHUD->SetButtonListener(0, CHUD::BuildUnit);
 		pHUD->SetButtonColor(0, Color(150, 150, 150));
@@ -204,6 +204,9 @@ void CLoader::BeginProduction()
 	if (!HasEnoughFleetPoints())
 		return;
 
+	if (GetDigitanksTeam()->GetPower() < GetUnitProductionCost())
+		return;
+
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
 
@@ -218,8 +221,13 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 	if (!CNetwork::IsHost())
 		return;
 
+	if (GetDigitanksTeam()->GetPower() < GetUnitProductionCost())
+		return;
+
 	m_iTurnsToProduce = GetTurnsToProduce();
 	m_bProducing = true;
+
+	GetDigitanksTeam()->ConsumePower(GetUnitProductionCost());
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PRODUCING_UNITS);
 

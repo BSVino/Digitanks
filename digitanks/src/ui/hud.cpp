@@ -15,6 +15,7 @@
 #include <game/digitanks/weapons/projectile.h>
 #include <game/digitanks/structures/loader.h>
 #include <game/digitanks/structures/props.h>
+#include <game/digitanks/units/mobilecpu.h>
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
 #include "weaponpanel.h"
@@ -496,7 +497,7 @@ void CHUD::Think()
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[2]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), 0, 0));
 		}
-		else if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+		else if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY && dynamic_cast<CMobileCPU*>(pCurrentTank))
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[8]->SetButtonColor(Color(0, 0, (int)RemapVal(flRamp, 0, 1, 0, 250)));
@@ -551,6 +552,10 @@ void CHUD::Think()
 	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 36 + 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
 	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
+
+	if (DigitanksWindow()->GetInstructor()->GetActive())
+		m_bUpdatesBlinking = false;
+
 	if (m_bUpdatesBlinking)
 		m_pUpdatesButton->SetAlpha((int)(RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1)*255));
 	else
@@ -1600,10 +1605,14 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 	if (!DigitanksGame())
 		return;
 
+	Color clrBox = glgui::g_clrBox;
+	clrBox.SetAlpha(100);
+
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
 		m_apButtons[i]->SetClickedListener(NULL, NULL);
-		SetButtonColor(i, glgui::g_clrBox);
+		m_apButtons[i]->SetEnabled(false);
+		SetButtonColor(i, clrBox);
 		SetButtonTexture(i, 0);
 		SetButtonInfo(i, L"");
 	}
@@ -1619,9 +1628,15 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 void CHUD::SetButtonListener(int i, IEventListener::Callback pfnCallback)
 {
 	if (pfnCallback)
+	{
 		m_apButtons[i]->SetClickedListener(this, pfnCallback);
+		m_apButtons[i]->SetEnabled(true);
+	}
 	else
+	{
 		m_apButtons[i]->SetClickedListener(NULL, NULL);
+		m_apButtons[i]->SetEnabled(false);
+	}
 }
 
 void CHUD::SetButtonTexture(int i, size_t iTexture)
@@ -1703,6 +1718,9 @@ void CHUD::NewCurrentTeam()
 			m_bUpdatesBlinking = bShouldOpen;
 		}
 
+		if (DigitanksWindow()->GetInstructor()->GetActive())
+			m_bUpdatesBlinking = false;
+
 		if (!DigitanksWindow()->IsRegistered() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
 			eastl::string16 s;
@@ -1769,9 +1787,9 @@ void CHUD::ShowFirstActionItem()
 		m_pActionItem->SetText("");
 		m_pNextActionItem->SetVisible(false);
 		m_bAllActionItemsHandled = true;
-	}
 
-	m_flActionItemsLerpGoal = 1;
+		m_flActionItemsLerpGoal = 0;
+	}
 }
 
 void CHUD::ShowNextActionItem()
@@ -1803,6 +1821,9 @@ void CHUD::ShowNextActionItem()
 			iOriginalActionItem = 0;
 
 		actionitem_t* pItem = &aActionItems[m_iCurrentActionItem];
+
+		if (pItem->eActionType == ACTIONTYPE_DOWNLOADCOMPLETE && DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
+			pItem->bHandled = true;
 
 		if (pItem->bHandled)
 			continue;
@@ -2333,8 +2354,17 @@ void CHUD::AimCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else if (DigitanksGame()->GetPrimarySelectionTank())
 	{
+		CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();
+		if (pTank->GetCurrentWeapon() == PROJECTILE_AIRSTRIKE)
+		{
+			if (pTank->GetNumWeapons())
+				pTank->SetCurrentWeapon(pTank->GetWeapon(0));
+			else
+				pTank->SetCurrentWeapon(WEAPON_NONE);
+		}
+
 		DigitanksGame()->SetControlMode(MODE_AIM);
-		DigitanksGame()->SetAimTypeByWeapon(DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon());
+		DigitanksGame()->SetAimTypeByWeapon(pTank->GetCurrentWeapon());
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM, true);
 	}
 
@@ -2514,6 +2544,8 @@ void CHUD::BuildBufferCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_BUFFER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
 }
 
 void CHUD::BuildBatteryCallback()
@@ -2536,6 +2568,8 @@ void CHUD::BuildBatteryCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_BATTERY);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
 }
 
 void CHUD::BuildPSUCallback()

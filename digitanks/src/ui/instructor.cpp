@@ -3,6 +3,7 @@
 #include <glgui/glgui.h>
 
 #include "digitanks/units/digitank.h"
+#include "digitanks/units/mobilecpu.h"
 #include "digitanks/digitanksgame.h"
 #include "digitankswindow.h"
 #include "renderer/renderer.h"
@@ -193,10 +194,16 @@ void CInstructor::Initialize()
 		L"< Select the MCP")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_COMMAND, POSITION_TOPCENTER, 200, false,
-		L"Right click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes")));
+		L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_DEPLOY, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_DEPLOY, POSITION_BUTTONS, 200, false,
 		L"Press the 'Deploy' button to create a CPU")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, POSITION_BUTTONS, 200, false,
+		L"Choose 'Build Minibuffer' from the construction options")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, POSITION_TOPCENTER, 200, false,
+		L"Click inside the green area to place the structure")));
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -398,6 +405,16 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 
 void CTutorialPanel::Paint(int x, int y, int w, int h)
 {
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+	{
+		CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
+		if (!pSelection)
+			return;
+
+		if (!dynamic_cast<CMobileCPU*>(pSelection))
+			return;
+	}
+
 	if (m_pTutorial->m_iPosition == CInstructor::POSITION_SCENETREE)
 		x += (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f)*20);
 
@@ -421,6 +438,12 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
 		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER)
+		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_PLACEBUFFER)
+		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 200);
 
 	CRootPanel::PaintRect(x, y, w, h);
 

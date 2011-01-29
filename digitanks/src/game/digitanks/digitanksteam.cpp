@@ -12,6 +12,7 @@
 #include "structures/structure.h"
 #include "structures/loader.h"
 #include "structures/collector.h"
+#include "units/mobilecpu.h"
 
 REGISTER_ENTITY(CDigitanksTeam);
 
@@ -204,6 +205,10 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		GetPrimarySelection()->OnCurrentSelection();
 
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT);
+
+		if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()))
+			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
 	}
 }
 

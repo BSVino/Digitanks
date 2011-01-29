@@ -31,7 +31,7 @@ public:
 
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
-	virtual float				GetTankSpeed() const { return 1.5f; }
+	virtual float				GetTankSpeed() const { return 2.0f; }
 	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				InitialMaxRange() const { return 60.0f; };
 	virtual float				TurnPerPower() const { return 45; }

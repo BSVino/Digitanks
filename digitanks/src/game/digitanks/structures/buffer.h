@@ -16,7 +16,7 @@ public:
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	virtual size_t				GetTurnsToConstruct();
-	virtual size_t				InitialDataStrength() { return 400; };
+	virtual size_t				InitialDataStrength() { return 1250; };
 	virtual size_t				InitialFleetPoints() const { return 2; };
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual size_t				InitialEnergyBonus() const { return 2; };
@@ -52,7 +52,7 @@ public:
 
 	virtual size_t				GetTurnsToConstruct() { return 1; };
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
-	virtual size_t				InitialDataStrength() { return 250; };
+	virtual size_t				InitialDataStrength() { return 450; };
 	virtual size_t				InitialFleetPoints() const { return 1; };
 	virtual size_t				InitialBandwidth() const { return 0; };
 	virtual size_t				InitialEnergyBonus() const { return 1; };

@@ -189,7 +189,7 @@ void CStructure::FindGround()
 	if (flCornerHeight > flHeight)
 		flHeight = flCornerHeight;
 
-	SetOrigin(Vector(GetOrigin().x, flHeight+GetBoundingRadius()/2, GetOrigin().z));
+	SetOrigin(Vector(GetOrigin().x, flHeight + GetBoundingRadius()/2 + 2, GetOrigin().z));
 }
 
 void CStructure::PostRender(bool bTransparent)
@@ -518,7 +518,7 @@ float CSupplier::GetDataFlowRadius() const
 
 float CSupplier::GetDataFlow(Vector vecPoint)
 {
-	return RemapValClamped((vecPoint - GetOrigin()).Length2D(), GetBoundingRadius(), GetDataFlowRadius()+GetBoundingRadius(), (float)m_iDataStrength, 0);
+	return RemapValClamped((vecPoint - GetOrigin()).Length(), GetBoundingRadius(), GetDataFlowRadius()+GetBoundingRadius(), (float)m_iDataStrength, 0);
 }
 
 float CSupplier::GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore)
@@ -1080,6 +1080,9 @@ float CSupplier::BaseVisibleRange() const
 float CSupplier::BuildableArea() const
 {
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
+		return 0;
+
+	if (!GetDigitanksTeam())
 		return 0;
 
 	if (!GetDigitanksTeam()->GetPrimaryCPU())

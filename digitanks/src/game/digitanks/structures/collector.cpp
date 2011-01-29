@@ -48,7 +48,7 @@ void CCollector::UpdateInfo(eastl::string16& s)
 
 	if (GetSupplier())
 	{
-		s += p.sprintf(L"Power supplied: %.1f\n", (size_t)(GetPowerProduced() * GetSupplier()->GetChildEfficiency()));
+		s += p.sprintf(L"Power supplied: %.1f\n", GetPowerProduced() * GetSupplier()->GetChildEfficiency());
 		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency()*100));
 		return;
 	}
@@ -146,7 +146,7 @@ void CBattery::UpdateInfo(eastl::string16& s)
 
 	if (m_hSupplier != NULL)
 	{
-		s += p.sprintf(L"Power supplied: %.1f\n", (size_t)(GetPowerProduced() * m_hSupplier->GetChildEfficiency()));
+		s += p.sprintf(L"Power supplied: %.1f\n", GetPowerProduced() * m_hSupplier->GetChildEfficiency());
 		s += p.sprintf(L"Efficiency: %d%\n", (int)(m_hSupplier->GetChildEfficiency()*100));
 		return;
 	}
@@ -183,5 +183,5 @@ float CBattery::GetPowerProduced()
 	if (m_hSupplyLine == NULL)
 		return 0;
 
-	return 0.25f * m_hSupplyLine->GetIntegrity();
+	return 0.3f * m_hSupplyLine->GetIntegrity();
 }

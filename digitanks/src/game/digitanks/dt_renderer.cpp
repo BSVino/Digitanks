@@ -432,7 +432,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		UseProgram(0);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4ubv(Color(50, 250, 50, 50));
+		glColor4ubv(Color(50, 250, 50, 100));
 		RenderMapToBuffer(m_oBuildableAreaBuffer.m_iMap, &m_oSceneBuffer);
 		glColor4ubv(Color(255, 255, 255));
 		glDisable(GL_BLEND);
@@ -455,6 +455,11 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 		GLint flFactor = glGetUniformLocation(iDarkenProgram, "flFactor");
 	    glUniform1f(flFactor, 3.0f);
+
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+			glColor4ubv(Color(150, 150, 150));
+		else
+			glColor4ubv(Color(255, 255, 255));
 
 		RenderMapToBuffer(m_oExplosionBuffer.m_iMap, &m_oSceneBuffer);
 
