@@ -30,7 +30,7 @@ public:
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
 	virtual eastl::string16		GetName() { return L"Electronode"; };
-	virtual unittype_t			GetUnitType() { return STRUCTURE_ELECTRONODE; };
+	virtual unittype_t			GetUnitType() const { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
 
 	virtual float				BuildableArea() const;

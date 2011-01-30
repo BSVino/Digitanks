@@ -368,13 +368,13 @@ void CCPU::ClearPreviewBuild()
 	m_vecPreviewBuild = GetOrigin();
 }
 
-void CCPU::BeginConstruction()
+bool CCPU::BeginConstruction()
 {
 	if (!IsPreviewBuildValid())
-		return;
+		return false;
 
 	if (GetPowerToConstruct(m_ePreviewStructure, GetPreviewBuild()) > GetDigitanksTeam()->GetPower())
-		return;
+		return false;
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -387,6 +387,12 @@ void CCPU::BeginConstruction()
 		BeginConstruction(&p);
 	else
 		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginConstruction", &p);
+
+	// This is used for the bot to see if a build was successful.
+	if (CNetwork::IsHost())
+		return p.ui1 != ~0;
+	else
+		return true;
 }
 
 void CCPU::BeginConstruction(CNetworkParameters* p)
@@ -474,6 +480,9 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		if (pLoader)
 			pLoader->SetBuildUnit(UNIT_ARTILLERY);
 	}
+
+	if (CNetwork::IsHost())
+		p->ui1 = pConstructing->GetHandle();
 
 	GetDigitanksTeam()->ConsumePower(GetPowerToConstruct(ePreviewStructure, vecPreview));
 

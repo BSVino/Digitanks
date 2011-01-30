@@ -201,6 +201,9 @@ void CLoader::BeginProduction()
 	if (IsConstructing())
 		return;
 
+	if (IsProducing())
+		return;
+
 	if (!HasEnoughFleetPoints())
 		return;
 

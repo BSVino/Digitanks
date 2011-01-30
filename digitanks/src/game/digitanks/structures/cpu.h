@@ -37,7 +37,7 @@ public:
 	virtual unittype_t			GetPreviewStructure() { return m_ePreviewStructure; };
 	void						ClearPreviewBuild();
 
-	void						BeginConstruction();
+	bool						BeginConstruction();
 	void						BeginConstruction(class CNetworkParameters* p);
 	void						CancelConstruction();
 	void						CancelConstruction(class CNetworkParameters* p);

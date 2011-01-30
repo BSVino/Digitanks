@@ -727,12 +727,16 @@ void CDigitank::StartTurn()
 	}
 	else
 	// Artillery gets unit orders even if fortified but infantry doesn't.
-	if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()))
+	if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()) && !IsSentried())
 		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
 	else
 	// Notify if infantry can see an enemy they can shoot.
-	if (IsInfantry() && IsFortified() && FindClosestVisibleEnemyTank(true))
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
+	if (IsInfantry() && IsFortified())
+	{
+		CDigitank* pClosestEnemyTank = FindClosestVisibleEnemyTank(true);
+		if (pClosestEnemyTank && pClosestEnemyTank->GetVisibility() > 0.3f)
+			DigitanksGame()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
+	}
 
 	if (HasGoalMovePosition())
 		MoveTowardsGoalMovePosition();
@@ -1825,7 +1829,7 @@ void CDigitank::OnCurrentSelection()
 			break;
 		}
 
-		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !m_bActionTaken && !HasGoalMovePosition())
+		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !m_bActionTaken && !HasGoalMovePosition() && GetRemainingMovementEnergy() > 1.0f)
 			DigitanksGame()->SetControlMode(MODE_MOVE);
 		else
 			DigitanksGame()->SetControlMode(MODE_NONE);

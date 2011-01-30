@@ -138,6 +138,9 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 
 bool CConsole::CharPressed(int iKey)
 {
+	if (!IsOpen())
+		return false;
+
 	if (iKey == '`')
 	{
 		CApplication::Get()->CloseConsole();

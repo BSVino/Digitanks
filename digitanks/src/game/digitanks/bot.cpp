@@ -8,30 +8,12 @@
 #include "updates.h"
 #include "structures/resource.h"
 #include "structures/loader.h"
+#include "structures/buffer.h"
 
 #include "units/artillery.h"
 #include "units/maintank.h"
 #include "units/mechinf.h"
 #include "units/scout.h"
-
-unittype_t g_aeBuildOrder[] =
-{
-	STRUCTURE_BATTERY,
-	STRUCTURE_INFANTRYLOADER,
-	STRUCTURE_BATTERY,
-	UNIT_SCOUT,
-	STRUCTURE_BATTERY,	// Build a bunch of batteries while we wait for the psu to become available
-	STRUCTURE_BATTERY,
-	STRUCTURE_BATTERY,
-	STRUCTURE_PSU,
-	STRUCTURE_BUFFER,
-	STRUCTURE_PSU,
-	STRUCTURE_TANKLOADER,
-	STRUCTURE_PSU,
-	STRUCTURE_PSU,
-	STRUCTURE_ARTILLERYLOADER,
-	STRUCTURE_BUFFER,
-};
 
 typedef struct
 {
@@ -50,6 +32,11 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 
 	eastl::vector<update_coordinate_t> aUpdatesAvailable;
 
+	bool bGetTanks = CanBuildPSUs();
+	bool bGetArtillery = CanBuildPSUs() && CanBuildTankLoaders() && CanBuildBuffers();
+	bool bGetBuffers = CanBuildPSUs();
+	bool bGetPSU = true;
+
 	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
 	{
 		for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
@@ -60,7 +47,22 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 			if (pGrid->m_aUpdates[x][y].m_eUpdateClass == UPDATECLASS_STRUCTURE)
 			{
 				// If it's a structure we need then it's top priority, grab it NAOW.
-				if (pGrid->m_aUpdates[x][y].m_eStructure == g_aeBuildOrder[m_iBuildPosition])
+				if (pGrid->m_aUpdates[x][y].m_eStructure == STRUCTURE_PSU)
+				{
+					DownloadUpdate(x, y);
+					return;
+				}
+				else if (pGrid->m_aUpdates[x][y].m_eStructure == STRUCTURE_TANKLOADER && bGetTanks)
+				{
+					DownloadUpdate(x, y);
+					return;
+				}
+				else if (pGrid->m_aUpdates[x][y].m_eStructure == STRUCTURE_ARTILLERYLOADER && bGetArtillery)
+				{
+					DownloadUpdate(x, y);
+					return;
+				}
+				else if (pGrid->m_aUpdates[x][y].m_eStructure == STRUCTURE_BUFFER && bGetBuffers)
 				{
 					DownloadUpdate(x, y);
 					return;
@@ -86,50 +88,88 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 	DownloadUpdate(x, y);
 }
 
-void CDigitanksTeam::Bot_ExpandBase()
+bool CDigitanksTeam::Bot_BuildFirstPriority()
 {
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
 	if (m_hPrimaryCPU == NULL)
-		return;
+		return false;
 
-	unittype_t iNextBuild;
-	if (m_iBuildPosition >= sizeof(g_aeBuildOrder)/sizeof(unittype_t))
-		iNextBuild = STRUCTURE_PSU;
-	else
-		iNextBuild = g_aeBuildOrder[m_iBuildPosition];
+	if (m_aeBuildPriorities.size() == 0)
+		return false;
 
-	bool bBumpBuildPosition = true;
+	builditem_t* pNextBuild = &m_aeBuildPriorities.front();
 
-	if (iNextBuild == UNIT_SCOUT)
+	if (DigitanksGame()->GetConstructionCost(pNextBuild->m_eUnit) > GetPower())
+		return false;
+
+	if (pNextBuild->m_eUnit == UNIT_SCOUT)
 	{
 		m_hPrimaryCPU->BeginRogueProduction();
-		m_iBuildPosition++;
-		return;
+		return m_hPrimaryCPU->IsProducing();
 	}
 
-	if (iNextBuild == STRUCTURE_PSU)
+	if (pNextBuild->m_eUnit == UNIT_INFANTRY)
 	{
-		if (!CanBuildPSUs())
-		{
-			if (RandomInt(0, 1) == 0)
-			{
-				// Build buffers while we wait.
-				iNextBuild = CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER;
-				bBumpBuildPosition = false;
-			}
-			else
-			{
-				iNextBuild = STRUCTURE_BATTERY;
-				bBumpBuildPosition = false;
-			}
-		}
+		if (m_hInfantryLoader == NULL)
+			return false;
+
+		m_hInfantryLoader->BeginProduction();
+		return m_hInfantryLoader->IsProducing();
 	}
 
-	CResource* pTargetResource = NULL;
-	CSupplier* pClosestSupplier = NULL;
-	if (iNextBuild == STRUCTURE_PSU || iNextBuild == STRUCTURE_BATTERY)
+	if (pNextBuild->m_eUnit == UNIT_TANK)
 	{
+		if (m_hTankLoader == NULL)
+			return false;
+
+		m_hTankLoader->BeginProduction();
+		return m_hTankLoader->IsProducing();
+	}
+
+	if (pNextBuild->m_eUnit == UNIT_ARTILLERY)
+	{
+		if (m_hArtilleryLoader == NULL)
+			return false;
+
+		m_hArtilleryLoader->BeginProduction();
+		return m_hArtilleryLoader->IsProducing();
+	}
+
+	if (pNextBuild->m_eUnit == STRUCTURE_PSU && pNextBuild->m_hTarget != NULL)
+	{
+		CBattery* pBattery = static_cast<CBattery*>(pNextBuild->m_hTarget.GetPointer());
+		pBattery->BeginUpgrade();
+
+		// Don't upgrade two turns in a row.
+		if (pBattery->IsUpgrading())
+			m_bCanUpgrade = false;
+
+		return pBattery->IsUpgrading();
+	}
+
+	if (pNextBuild->m_eUnit == STRUCTURE_BUFFER && pNextBuild->m_hTarget != NULL)
+	{
+		CMiniBuffer* pBuffer = static_cast<CMiniBuffer*>(pNextBuild->m_hTarget.GetPointer());
+		pBuffer->BeginUpgrade();
+
+		// Don't upgrade two turns in a row.
+		if (pBuffer->IsUpgrading())
+			m_bCanUpgrade = false;
+
+		return pBuffer->IsUpgrading();
+	}
+
+	if (pNextBuild->m_eUnit == STRUCTURE_PSU || pNextBuild->m_eUnit == STRUCTURE_BATTERY)
+	{
+		return Bot_BuildCollector(dynamic_cast<CResource*>(pNextBuild->m_hTarget.GetPointer()));
+	}
+
+	if (pNextBuild->m_eUnit == STRUCTURE_BUFFER || pNextBuild->m_eUnit == STRUCTURE_MINIBUFFER)
+	{
+		CResource* pTargetResource = NULL;
+		CSupplier* pClosestSupplier = NULL;
+
 		while (true)
 		{
 			pTargetResource = CBaseEntity::FindClosest<CResource>(m_hPrimaryCPU->GetOrigin(), pTargetResource);
@@ -140,130 +180,84 @@ void CDigitanksTeam::Bot_ExpandBase()
 			if (pTargetResource->HasCollector())
 				continue;
 
-			break;
-		}
-
-		if (!pTargetResource)
-		{
-			m_iBuildPosition++;
-			return;
-		}
-
-		while (true)
-		{
-			pClosestSupplier = CBaseEntity::FindClosest<CSupplier>(pTargetResource->GetOrigin(), pClosestSupplier);
-
-			if (!pClosestSupplier)
-				break;
-
-			if (pClosestSupplier->GetDigitanksTeam() != this)
+			if (GetVisibilityAtPoint(pTargetResource->GetOrigin()) < 0.2f)
 				continue;
 
 			break;
 		}
 
-		// Don't know how this is possible but watev.
-		if (!pClosestSupplier)
+		if (pTargetResource)
 		{
-			m_iBuildPosition++;
-			return;
+			while (true)
+			{
+				pClosestSupplier = CBaseEntity::FindClosest<CSupplier>(pTargetResource->GetOrigin(), pClosestSupplier);
+
+				if (!pClosestSupplier)
+					break;
+
+				if (pClosestSupplier->GetDigitanksTeam() != this)
+					continue;
+
+				break;
+			}
 		}
 
-		// Too damn far? Do a random buffer instead.
-		if (pTargetResource->GetVisibility(this) < 0.1f && (pTargetResource->GetOrigin() - pClosestSupplier->GetOrigin()).Length() > 80)
-			iNextBuild = STRUCTURE_BUFFER;
-	}
-
-	if (iNextBuild == STRUCTURE_PSU || iNextBuild == STRUCTURE_BATTERY)
-	{
-		if (CSupplier::GetDataFlow(pTargetResource->GetOrigin(), this) > 1)
+		if (pTargetResource && CSupplier::GetDataFlow(pTargetResource->GetOrigin(), this) > 0)
 		{
-			BuildCollector(pClosestSupplier, pTargetResource);
-			m_iBuildPosition++;
-			return;
+			return Bot_BuildCollector(pTargetResource);
 		}
-		else
+		else if (pTargetResource && pClosestSupplier)
 		{
-			Vector vecStructureDirection = pTerrain->FindPath(pClosestSupplier->GetOrigin(), pTargetResource->GetOrigin(), NULL);
-			Vector vecStructure = pClosestSupplier->GetOrigin();
-			vecStructure += vecStructureDirection.Normalized() * pClosestSupplier->GetDataFlowRadius()*2/3;
+			Vector vecStructurePath = pTerrain->FindPath(pClosestSupplier->GetOrigin(), pTargetResource->GetOrigin(), NULL);
 
-			pTerrain->SetPointHeight(vecStructure);
+			size_t iTries = 0;
+			do
+			{
+				// Try slightly different stuff to get around structures that may be in the way.
+				Vector vecWobble(RandomFloat(-5, 5), 0, RandomFloat(-5, 5));
 
-			m_hPrimaryCPU->SetPreviewStructure(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
-			m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+				Vector vecStructureDirection = (vecStructurePath + vecWobble - pClosestSupplier->GetOrigin()).Normalized();
+				Vector vecStructure = pClosestSupplier->GetOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*9/10;
+				if (CSupplier::GetDataFlow(vecStructure, this) <= 0)
+					vecStructure = pClosestSupplier->GetOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*2/3;
+
+				pTerrain->SetPointHeight(vecStructure);
+
+				m_hPrimaryCPU->SetPreviewStructure(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
+				m_hPrimaryCPU->SetPreviewBuild(vecStructure);
+
+				if (m_hPrimaryCPU->IsPreviewBuildValid())
+					break;
+
+			} while (iTries < 5);
 
 			// If we can't build this for some reason, build a random buffer instead.
-			if (!m_hPrimaryCPU->IsPreviewBuildValid())
-				iNextBuild = STRUCTURE_BUFFER;
-			else
-				m_hPrimaryCPU->BeginConstruction();
+			if (m_hPrimaryCPU->BeginConstruction())
+				return true;
 		}
-	}
 
-	if (iNextBuild == STRUCTURE_PSU || iNextBuild == STRUCTURE_BATTERY)
-		return;
-
-	if (iNextBuild == STRUCTURE_MINIBUFFER && CanBuildBuffers())
-		iNextBuild = STRUCTURE_BUFFER;
-
-	if (iNextBuild == STRUCTURE_BUFFER && !CanBuildBuffers())
-	{
-		iNextBuild = STRUCTURE_MINIBUFFER;
-		bBumpBuildPosition = false;	// Must not bump build position or we might skip researching buffers.
-	}
-
-	// If we can't build this kind of structure then return without trying to do anything
-	// and wait until we can.
-	if (iNextBuild == STRUCTURE_BUFFER)
-	{
-		if (!CanBuildBuffers())
-			return;
-	}
-	else if (iNextBuild == STRUCTURE_TANKLOADER)
-	{
-		if (!CanBuildTankLoaders())
-		{
-			iNextBuild = STRUCTURE_BUFFER;
-			bBumpBuildPosition = false;
-		}
-	}
-	else if (iNextBuild == STRUCTURE_INFANTRYLOADER)
-	{
-		if (!CanBuildInfantryLoaders())
-		{
-			iNextBuild = STRUCTURE_BUFFER;
-			bBumpBuildPosition = false;
-		}
-	}
-	else if (iNextBuild == STRUCTURE_ARTILLERYLOADER)
-	{
-		if (!CanBuildArtilleryLoaders())
-		{
-			iNextBuild = STRUCTURE_BUFFER;
-			bBumpBuildPosition = false;
-		}
-	}
-
-	if (iNextBuild == STRUCTURE_BUFFER && !CanBuildBuffers())
-	{
-		iNextBuild = STRUCTURE_MINIBUFFER;
-		bBumpBuildPosition = false;	// Must not bump build position or we might skip researching buffers.
+		// Couldn't build it? Fall through and build it randomly as part of the code below.
 	}
 
 	CSupplier* pUnused = NULL;
 	Vector vecStructure;
 
+	unittype_t eBuild = pNextBuild->m_eUnit;
+
 	size_t iTries = 0;
 	do
 	{
-		if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
-			pUnused = FindUnusedSupplier(4, false);
+		if (eBuild == STRUCTURE_BUFFER || eBuild == STRUCTURE_MINIBUFFER)
+			pUnused = Bot_FindUnusedSupplier(4, false);
 		else
-			pUnused = FindUnusedSupplier(2);
+			pUnused = Bot_FindUnusedSupplier(2);
 
+		// Not enough buffers? Build another one.
 		if (pUnused == NULL)
-			break;
+		{
+			eBuild = CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER;
+			continue;
+		}
 
 		float flYaw;
 		if (pUnused == m_hPrimaryCPU)
@@ -277,7 +271,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 		// Pick a random direction facing more or less away from the CPU so that we spread outwards.
 		Vector vecStructureDirection = AngleVector(EAngle(0, flYaw, 0));
 		vecStructure = pUnused->GetOrigin();
-		if (iNextBuild == STRUCTURE_BUFFER || iNextBuild == STRUCTURE_MINIBUFFER)
+		if (eBuild == STRUCTURE_BUFFER || eBuild == STRUCTURE_MINIBUFFER)
 		{
 			Vector vecPreview = vecStructure + vecStructureDirection.Normalized() * pUnused->GetDataFlowRadius()*9/10;
 			if (CSupplier::GetDataFlow(vecPreview, this) <= 0)
@@ -298,7 +292,9 @@ void CDigitanksTeam::Bot_ExpandBase()
 		if (vecStructure.z > pTerrain->GetMapSize()-15)
 			continue;
 
-		if (iNextBuild == STRUCTURE_INFANTRYLOADER || iNextBuild == STRUCTURE_TANKLOADER || iNextBuild == STRUCTURE_ARTILLERYLOADER)
+		pTerrain->SetPointHeight(vecStructure);
+
+		if (eBuild == STRUCTURE_INFANTRYLOADER || eBuild == STRUCTURE_TANKLOADER || eBuild == STRUCTURE_ARTILLERYLOADER)
 		{
 			if (pTerrain->IsPointOverWater(vecStructure) || pTerrain->IsPointOverLava(vecStructure))
 				continue;
@@ -323,7 +319,7 @@ void CDigitanksTeam::Bot_ExpandBase()
 		if (pTerrain->IsPointOverHole(vecStructure))
 			continue;
 
-		m_hPrimaryCPU->SetPreviewStructure(iNextBuild);
+		m_hPrimaryCPU->SetPreviewStructure(eBuild);
 		m_hPrimaryCPU->SetPreviewBuild(vecStructure);
 
 		if (m_hPrimaryCPU->IsPreviewBuildValid())
@@ -331,107 +327,13 @@ void CDigitanksTeam::Bot_ExpandBase()
 
 	} while (iTries++ < 5);
 
-	pTerrain->SetPointHeight(vecStructure);
-
-	m_hPrimaryCPU->SetPreviewStructure(iNextBuild);
+	m_hPrimaryCPU->SetPreviewStructure(pNextBuild->m_eUnit);
 	m_hPrimaryCPU->SetPreviewBuild(vecStructure);
 
-	// If we can't build for some reason, don't bump the build position and skip this structure.
 	if (!m_hPrimaryCPU->IsPreviewBuildValid())
-		return;
+		return false;
 
-	m_hPrimaryCPU->BeginConstruction();
-
-	if (bBumpBuildPosition)
-		m_iBuildPosition++;
-}
-
-void CDigitanksTeam::Bot_BuildUnits()
-{
-	size_t iInfantry = 0;
-	size_t iMainTanks = 0;
-	size_t iArtillery = 0;
-
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
-	{
-		CBaseEntity* pEntity = m_ahMembers[i];
-		if (!pEntity)
-			continue;
-
-		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
-
-		if (dynamic_cast<CMechInfantry*>(pEntity))
-			iInfantry += pDigitank->FleetPoints();
-		else if (dynamic_cast<CMainBattleTank*>(pEntity))
-			iMainTanks += pDigitank->FleetPoints();
-		else if (dynamic_cast<CArtillery*>(pEntity))
-			iArtillery += pDigitank->FleetPoints();
-	}
-
-	size_t iRatioTotal = CMechInfantry::InfantryFleetPoints();
-	if (CanBuildTankLoaders())
-		iRatioTotal += CMainBattleTank::MainTankFleetPoints();
-	if (CanBuildArtilleryLoaders())
-		iRatioTotal += CArtillery::ArtilleryFleetPoints();
-
-	float flInfantryRatio = (float)iRatioTotal/CMechInfantry::InfantryFleetPoints();
-	float flMainTankRatio = (float)iRatioTotal/CMainBattleTank::MainTankFleetPoints();
-	float flArtilleryRatio = (float)iRatioTotal/CArtillery::ArtilleryFleetPoints();
-	float flRatioTotal = flInfantryRatio;
-	if (CanBuildTankLoaders())
-		flRatioTotal += flMainTankRatio;
-	if (CanBuildArtilleryLoaders())
-		flRatioTotal += flArtilleryRatio;
-
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
-	{
-		CBaseEntity* pEntity = m_ahMembers[i];
-		if (!pEntity)
-			continue;
-
-		CLoader* pLoader = dynamic_cast<CLoader*>(pEntity);
-		if (!pLoader)
-			continue;
-
-		if (pLoader->IsConstructing())
-			continue;
-
-		if (CanBuildTankLoaders() || CanBuildArtilleryLoaders())
-		{
-			// Don't just build infantry all the time.
-			if (mtrand()%2 == 0)
-				continue;
-		}
-
-		if (pLoader->IsProducing())
-			continue;
-
-		size_t iTanks;
-		float flValue;
-		if (pLoader->GetBuildUnit() == UNIT_INFANTRY)
-		{
-			iTanks = iInfantry;
-			flValue = flInfantryRatio;
-		}
-		else if (pLoader->GetBuildUnit() == UNIT_TANK)
-		{
-			iTanks = iMainTanks;
-			flValue = flMainTankRatio;
-		}
-		else if (pLoader->GetBuildUnit() == UNIT_ARTILLERY)
-		{
-			iTanks = iArtillery;
-			flValue = flArtilleryRatio;
-		}
-
-		// Build a ratio of tanks similar to the cost of constructing the tanks. This way we won't build a bajillion infantry and only one or two other tanks.
-		float flTanksRatio = ((float)iTanks+1)/GetTotalFleetPoints();
-		float flBuildRatio = flValue/flRatioTotal;
-		if (flTanksRatio > flBuildRatio)
-			continue;
-
-		pLoader->BeginProduction();
-	}
+	return m_hPrimaryCPU->BeginConstruction();
 }
 
 void CDigitanksTeam::Bot_AssignDefenders()
@@ -507,11 +409,150 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		return;
 	}
 
+	m_aeBuildPriorities.clear();
+
 	if (m_hPrimaryCPU != NULL)
 	{
+		m_hInfantryLoader = NULL;
+		m_hTankLoader = NULL;
+		m_hArtilleryLoader = NULL;
+
+		size_t iInfantry = 0;
+		size_t iMainTanks = 0;
+		size_t iArtillery = 0;
+		size_t iScouts = 0;
+
+		eastl::vector<CEntityHandle<CMiniBuffer> > ahMinibufferUpgrades;
+		eastl::vector<CEntityHandle<CBattery> > ahBatteryUpgrades;
+
+		for (size_t i = 0; i < GetNumMembers(); i++)
+		{
+			CBaseEntity* pEntity = GetMember(i);
+			if (!pEntity)
+				continue;
+
+			CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+			if (!pDTEnt)
+				continue;
+
+			if (pDTEnt->GetUnitType() == STRUCTURE_INFANTRYLOADER)
+				m_hInfantryLoader = static_cast<CLoader*>(pDTEnt);
+			else if (pDTEnt->GetUnitType() == STRUCTURE_TANKLOADER)
+				m_hTankLoader = static_cast<CLoader*>(pDTEnt);
+			else if (pDTEnt->GetUnitType() == STRUCTURE_ARTILLERYLOADER)
+				m_hArtilleryLoader = static_cast<CLoader*>(pDTEnt);
+
+			else if (pDTEnt->GetUnitType() == UNIT_INFANTRY)
+				iInfantry += static_cast<CDigitank*>(pDTEnt)->FleetPoints();
+			else if (pDTEnt->GetUnitType() == UNIT_TANK)
+				iMainTanks += static_cast<CDigitank*>(pDTEnt)->FleetPoints();
+			else if (pDTEnt->GetUnitType() == UNIT_ARTILLERY)
+				iArtillery += static_cast<CDigitank*>(pDTEnt)->FleetPoints();
+			else if (pDTEnt->GetUnitType() == UNIT_SCOUT)
+				iScouts++;
+
+			else if (pDTEnt->GetUnitType() == STRUCTURE_MINIBUFFER && CanBuildBuffers())
+				ahMinibufferUpgrades.push_back(static_cast<CMiniBuffer*>(pDTEnt));
+			else if (pDTEnt->GetUnitType() == STRUCTURE_BATTERY && CanBuildPSUs())
+				ahBatteryUpgrades.push_back(static_cast<CBattery*>(pDTEnt));
+		}
+
+		// Build a ratio of tanks similar to the cost of constructing the tanks. This way we won't build a bajillion infantry and only one or two other tanks.
+		size_t iRatioTotal = CMechInfantry::InfantryFleetPoints();
+		if (CanBuildTankLoaders())
+			iRatioTotal += CMainBattleTank::MainTankFleetPoints();
+		if (CanBuildArtilleryLoaders())
+			iRatioTotal += CArtillery::ArtilleryFleetPoints();
+
+		float flInfantryRatio = (float)iRatioTotal/CMechInfantry::InfantryFleetPoints();
+		float flMainTankRatio = (float)iRatioTotal/CMainBattleTank::MainTankFleetPoints();
+		float flArtilleryRatio = (float)iRatioTotal/CArtillery::ArtilleryFleetPoints();
+		float flRatioTotal = flInfantryRatio;
+		if (CanBuildTankLoaders())
+			flRatioTotal += flMainTankRatio;
+		if (CanBuildArtilleryLoaders())
+			flRatioTotal += flArtilleryRatio;
+
+		size_t iTotalFleetPoints = GetTotalFleetPoints();
+		if (!iTotalFleetPoints)
+			iTotalFleetPoints++;
+
+		float flInfantryFleetRatio = ((float)iInfantry+1)/iTotalFleetPoints;
+		float flBuildInfantryRatio = flInfantryRatio/flRatioTotal;
+
+		float flTankFleetRatio = ((float)iMainTanks+1)/iTotalFleetPoints;
+		float flBuildTankRatio = flMainTankRatio/flRatioTotal;
+
+		float flArtilleryFleetRatio = ((float)iArtillery+1)/iTotalFleetPoints;
+		float flBuildArtilleryRatio = flArtilleryRatio/flRatioTotal;
+
+		// Collectors are first priority
+		for (size_t i = 0; i < CBaseEntity::GetNumEntities(); i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+			if (!pEntity)
+				continue;
+
+			CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+			if (!pDTEnt)
+				continue;
+
+			if (pDTEnt->GetUnitType() == STRUCTURE_ELECTRONODE)
+			{
+				CResource* pElectronode = static_cast<CResource*>(pDTEnt);
+				if (pElectronode->HasCollector())
+					continue;
+
+				if (CSupplier::GetDataFlow(pElectronode->GetOrigin(), this) <= 0)
+					continue;
+
+				Bot_AddBuildPriority(CanBuildPSUs()?STRUCTURE_PSU:STRUCTURE_BATTERY, pElectronode);
+			}
+		}
+
+		if (m_hInfantryLoader == NULL)
+			Bot_AddBuildPriority(STRUCTURE_INFANTRYLOADER);
+
+		if (m_hTankLoader == NULL && CanBuildTankLoaders())
+			Bot_AddBuildPriority(STRUCTURE_TANKLOADER);
+
+		if (m_hArtilleryLoader == NULL && CanBuildArtilleryLoaders())
+			Bot_AddBuildPriority(STRUCTURE_ARTILLERYLOADER);
+
+		if (m_bCanUpgrade)
+		{
+			for (size_t i = 0; i < ahBatteryUpgrades.size(); i++)
+				Bot_AddBuildPriority(STRUCTURE_PSU, ahBatteryUpgrades[i]);
+
+			for (size_t i = 0; i < ahMinibufferUpgrades.size(); i++)
+				Bot_AddBuildPriority(STRUCTURE_BUFFER, ahMinibufferUpgrades[i]);
+		}
+		m_bCanUpgrade = true;
+
+		if (iScouts < 2)
+			Bot_AddBuildPriority(UNIT_SCOUT);
+
+		if (m_hInfantryLoader != NULL && !m_hInfantryLoader->IsProducing() && flInfantryFleetRatio < flBuildInfantryRatio && GetUnusedFleetPoints() >= CMechInfantry::InfantryFleetPoints())
+			Bot_AddBuildPriority(UNIT_INFANTRY);
+
+		if (m_hTankLoader != NULL && !m_hTankLoader->IsProducing() && flTankFleetRatio < flBuildTankRatio && GetUnusedFleetPoints() >= CMainBattleTank::MainTankFleetPoints())
+			Bot_AddBuildPriority(UNIT_TANK);
+
+		if (m_hArtilleryLoader != NULL && !m_hArtilleryLoader->IsProducing() && flArtilleryFleetRatio < flBuildArtilleryRatio && GetUnusedFleetPoints() >= CArtillery::ArtilleryFleetPoints())
+			Bot_AddBuildPriority(UNIT_ARTILLERY);
+
+		Bot_AddBuildPriority(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
+
 		Bot_DownloadUpdates();
-		Bot_ExpandBase();
-		Bot_BuildUnits();
+
+		bool bSuccess;
+		do
+		{
+			bSuccess = Bot_BuildFirstPriority();
+			if (bSuccess)
+				m_aeBuildPriorities.pop_front();
+		} while (bSuccess);
+
 		Bot_AssignDefenders();
 	}
 
@@ -623,10 +664,17 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		if (pEntity->GetTeam() == NULL)
 			continue;
 
+		// Don't make targets out of barbarians or we'll spend the whole game fighting them.
+		if (pEntity->GetTeam() == Game()->GetTeam(0))
+			continue;
+
 		if (GetEntityVisibility(pEntity->GetHandle()) == 0)
 			continue;
 
 		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+
+		if (pDTEntity->GetUnitType() == UNIT_SCOUT)
+			continue;
 
 		float flTargetVisibility = pDTEntity->GetVisibility(this);
 		if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
@@ -1225,7 +1273,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			{
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = pClosestEnemy->GetOrigin() - pTank->GetOrigin();
-				vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
+				vecDirection = vecDirection.Normalized() * (flMovementDistance*4/5);
 
 				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
 				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
@@ -1249,7 +1297,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		{
 			float flMovementDistance = pTank->GetRemainingMovementDistance();
 			Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
-			vecDirection = vecDirection.Normalized() * (flMovementDistance/3);
+			vecDirection = vecDirection.Normalized() * (flMovementDistance*2/3);
 
 			Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
 			vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
@@ -1269,7 +1317,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 	DigitanksGame()->EndTurn();
 }
 
-CSupplier* CDigitanksTeam::FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
+CSupplier* CDigitanksTeam::Bot_FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
 {
 	eastl::vector<CSupplier*> apSuppliers;
 
@@ -1312,10 +1360,13 @@ CSupplier* CDigitanksTeam::FindUnusedSupplier(size_t iMaxDependents, bool bNoSup
 	return apSuppliers[rand()%apSuppliers.size()];
 }
 
-void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
+bool CDigitanksTeam::Bot_BuildCollector(CResource* pResource)
 {
+	if (!pResource)
+		return false;
+
 	if (CSupplier::GetDataFlow(pResource->GetOrigin(), this) < 1)
-		return;
+		return false;
 
 	Vector vecPSU = pResource->GetOrigin();
 
@@ -1323,7 +1374,20 @@ void CDigitanksTeam::BuildCollector(CSupplier* pSupplier, CResource* pResource)
 
 	m_hPrimaryCPU->SetPreviewStructure(CanBuildPSUs()?STRUCTURE_PSU:STRUCTURE_BATTERY);
 	m_hPrimaryCPU->SetPreviewBuild(vecPSU);
-	m_hPrimaryCPU->BeginConstruction();
+
+	if (!m_hPrimaryCPU->IsPreviewBuildValid())
+		return false;
+
+	return m_hPrimaryCPU->BeginConstruction();
+}
+
+void CDigitanksTeam::Bot_AddBuildPriority(unittype_t eUnit, CDigitanksEntity* pTarget)
+{
+	builditem_t eBuildItem;
+	eBuildItem.m_eUnit = eUnit;
+	eBuildItem.m_hTarget = pTarget;
+
+	m_aeBuildPriorities.push_back(eBuildItem);
 }
 
 void CStructure::AddDefender(CDigitank* pTank)

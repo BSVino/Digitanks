@@ -1,6 +1,8 @@
 #ifndef DT_DIGITANKSTEAM_H
 #define DT_DIGITANKSTEAM_H
 
+#include <EASTL/list.h>
+
 #include <game/team.h>
 #include "units/digitank.h"
 #include "updates.h"
@@ -98,14 +100,14 @@ public:
 
 	// AI stuff
 	void						Bot_DownloadUpdates();
-	void						Bot_ExpandBase();
-	void						Bot_BuildUnits();
+	bool						Bot_BuildFirstPriority();
 	void						Bot_AssignDefenders();
 	void						Bot_ExecuteTurn();
 	void						Bot_ExecuteTurnArtillery();
-	CSupplier*					FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
-	void						BuildCollector(CSupplier* pSupplier, class CResource* pResource);
-	void						UseArtilleryAI() { m_bUseArtilleryAI = true; }
+	void						Bot_AddBuildPriority(unittype_t eUnit, CDigitanksEntity* pTarget = NULL);
+	CSupplier*					Bot_FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
+	bool						Bot_BuildCollector(class CResource* pResource);
+	void						Bot_UseArtilleryAI() { m_bUseArtilleryAI = true; }
 
 	size_t						GetNumTanks() { return m_ahTanks.size(); };
 	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
@@ -135,7 +137,18 @@ protected:
 
 	// AI stuff
 	CEntityHandle<CCPU>			m_hPrimaryCPU;
-	size_t						m_iBuildPosition;
+	CEntityHandle<CLoader>		m_hInfantryLoader;
+	CEntityHandle<CLoader>		m_hTankLoader;
+	CEntityHandle<CLoader>		m_hArtilleryLoader;
+
+	typedef struct
+	{
+		unittype_t				m_eUnit;
+		CEntityHandle<CDigitanksEntity> m_hTarget;
+	} builditem_t;
+	eastl::list<builditem_t>	m_aeBuildPriorities;
+	bool						m_bCanUpgrade;
+
 	Vector						m_vecExplore;
 	bool						m_bUseArtilleryAI;
 

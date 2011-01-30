@@ -2130,7 +2130,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 
 	// Some action items are handled just by looking at them.
 	if (pItem->eActionType == ACTIONTYPE_WELCOME || pItem->eActionType == ACTIONTYPE_CONTROLS || pItem->eActionType == ACTIONTYPE_NEWSTRUCTURE ||
-		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE)
+		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE || pItem->eActionType == ACTIONTYPE_UNITREADY)
 		pItem->bHandled = true;
 
 	// Just in case it was turned off because of the tutorials.

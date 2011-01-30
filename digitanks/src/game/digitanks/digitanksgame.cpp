@@ -410,7 +410,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 	pTeam->SetColor(Color(128, 128, 128));
 	pTeam->SetName(eastl::string16(L"The Network Guardians"));
-	pTeam->UseArtilleryAI();
+	pTeam->Bot_UseArtilleryAI();
 	pTeam->DontIncludeInScoreboard();
 
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
@@ -1300,7 +1300,7 @@ void CDigitanksGame::StartTurn()
 		}
 	}
 
-	if (GetGameType() == GAMETYPE_STANDARD && GetTurn() > 6 && GetTurn() < 50)
+	if (GetGameType() == GAMETYPE_STANDARD && GetTurn() > 3 && GetTurn() < 50)
 	{
 		if (RandomInt(0, GetNumTeams()-1) == 0)
 		{

@@ -771,7 +771,7 @@ void CSupplier::PostRender(bool bTransparent)
 	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetOrigin().x), CTerrain::WorldToArraySpace(GetOrigin().z), TB_TREE))
 		flTreeAlpha = 0.3f;
 
-	Color clrTeam = GetTeam()->GetColor();
+	Color clrTeam = GetTeam()?GetTeam()->GetColor():Color(255,255,255,255);
 
 	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar())

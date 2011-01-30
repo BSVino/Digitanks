@@ -48,7 +48,6 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLost);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CCPU>, m_hPrimaryCPU);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBuildPosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecExplore);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLKV);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLKV);
@@ -73,9 +72,8 @@ SAVEDATA_TABLE_END();
 
 CDigitanksTeam::CDigitanksTeam()
 {
-	m_iBuildPosition = 0;
-
 	m_bLKV = false;
+	m_bCanUpgrade = true;
 
 	memset(&m_abUpdates[0][0], 0, sizeof(m_abUpdates));
 }
