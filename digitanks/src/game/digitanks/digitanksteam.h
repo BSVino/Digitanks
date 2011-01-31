@@ -66,7 +66,7 @@ public:
 	bool						HasLost() { return m_bLost; }
 
 	void						CountBandwidth();
-	size_t						GetBandwidth() { return m_iBandwidth; };
+	float						GetBandwidth() { return m_flBandwidth; };
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
@@ -78,8 +78,8 @@ public:
 
 	void						DownloadUpdate(int iX, int iY, bool bCheck = true);
 	void						DownloadUpdate(class CNetworkParameters* p);
-	size_t						GetUpdateDownloaded() { return m_iUpdateDownloaded; };
-	size_t						GetUpdateSize();
+	float						GetUpdateDownloaded() { return m_flUpdateDownloaded; };
+	float						GetUpdateSize();
 	void						DownloadComplete(bool bInformMembers = true);
 	void						DownloadComplete(class CNetworkParameters* p);
 	bool						HasDownloadedUpdate(int iX, int iY);
@@ -87,7 +87,7 @@ public:
 	bool						IsDownloading(int iX, int iY);
 	class CUpdateItem*			GetUpdateDownloading();
 	size_t						GetTurnsToDownload();
-	size_t						GetMegabytes() { return m_iMegabytes; }
+	float						GetMegabytes() { return m_flMegabytes; }
 
 	bool						CanBuildMiniBuffers();
 	bool						CanBuildBuffers();
@@ -161,9 +161,9 @@ protected:
 	CNetworkedVariable<int>		m_iCurrentUpdateX;
 	CNetworkedVariable<int>		m_iCurrentUpdateY;
 	bool						m_abUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];
-	CNetworkedVariable<size_t>	m_iUpdateDownloaded;
-	CNetworkedVariable<size_t>	m_iMegabytes;
-	CNetworkedVariable<size_t>	m_iBandwidth;
+	CNetworkedVariable<float>	m_flUpdateDownloaded;
+	CNetworkedVariable<float>	m_flMegabytes;
+	CNetworkedVariable<float>	m_flBandwidth;
 
 	CNetworkedVariable<bool>	m_bCanBuildBuffers;
 	CNetworkedVariable<bool>	m_bCanBuildPSUs;

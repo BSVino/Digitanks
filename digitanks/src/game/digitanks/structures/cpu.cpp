@@ -267,7 +267,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		}
 
 		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
-		if (GetDigitanksTeam()->GetUnusedFleetPoints() && GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(UNIT_SCOUT))
+		if (GetDigitanksTeam()->GetUnusedFleetPoints() && GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(UNIT_SCOUT) && !IsProducing())
 		{
 			pHUD->SetButtonColor(7, Color(150, 150, 150));
 			pHUD->SetButtonListener(7, CHUD::BuildScout);
@@ -580,6 +580,9 @@ float CCPU::GetPowerToConstruct(unittype_t eStructure, Vector vecLocation)
 
 void CCPU::BeginRogueProduction()
 {
+	if (IsProducing())
+		return;
+
 	if (DigitanksGame()->GetConstructionCost(UNIT_SCOUT) > GetDigitanksTeam()->GetPower())
 		return;
 
@@ -594,6 +597,9 @@ void CCPU::BeginRogueProduction()
 
 void CCPU::BeginRogueProduction(class CNetworkParameters* p)
 {
+	if (IsProducing())
+		return;
+
 	if (DigitanksGame()->GetConstructionCost(UNIT_SCOUT) > GetDigitanksTeam()->GetPower())
 		return;
 

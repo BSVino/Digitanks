@@ -34,7 +34,7 @@ NETVAR_TABLE_BEGIN(CStructure);
 	NETVAR_DEFINE(CEntityHandle<CSupplyLine>, m_hSupplyLine);
 
 	NETVAR_DEFINE(size_t, m_iFleetSupply);
-	NETVAR_DEFINE(size_t, m_iBandwidth);
+	NETVAR_DEFINE(float, m_flBandwidth);
 	NETVAR_DEFINE(float, m_flPowerProduced);
 	NETVAR_DEFINE(size_t, m_iEnergyBonus);
 	NETVAR_DEFINE(float, m_flRechargeBonus);
@@ -50,7 +50,7 @@ SAVEDATA_TABLE_BEGIN(CStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplier>, m_hSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFleetSupply);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBandwidth);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPowerProduced);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iEnergyBonus);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRechargeBonus);
@@ -89,7 +89,7 @@ void CStructure::Spawn()
 	BaseClass::Spawn();
 
 	m_iFleetSupply = InitialFleetPoints();
-	m_iBandwidth = InitialBandwidth();
+	m_flBandwidth = InitialBandwidth();
 	m_flPowerProduced = InitialPower();
 	m_iEnergyBonus = InitialEnergyBonus();
 	m_flRechargeBonus = InitialRechargeBonus();
@@ -290,7 +290,7 @@ void CStructure::InstallUpdate(CNetworkParameters* p)
 	switch (pUpdate->m_eUpdateType)
 	{
 	case UPDATETYPE_BANDWIDTH:
-		m_iBandwidth += (size_t)pUpdate->m_flValue;
+		m_flBandwidth += pUpdate->m_flValue;
 		break;
 
 	case UPDATETYPE_PRODUCTION:

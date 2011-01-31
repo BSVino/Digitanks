@@ -871,9 +871,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (pCurrentLocalTeam && pCurrentLocalTeam->GetUpdateDownloading())
 			{
 				CUpdateItem* pItem = pCurrentLocalTeam->GetUpdateDownloading();
-				size_t iSize = pItem->m_iSize;
 
-				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, (int)(iResearchWidth*((float)pCurrentLocalTeam->GetUpdateDownloaded()/iSize)) - 12, 35 - 12, Color(0, 200, 100, 255));
+				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, (int)(iResearchWidth*(pCurrentLocalTeam->GetUpdateDownloaded()/pItem->m_flSize)) - 12, 35 - 12, Color(0, 200, 100, 255));
 
 				size_t iItemIcon = m_pUpdatesPanel->GetTextureForUpdateItem(pItem);
 
@@ -1620,7 +1619,7 @@ void CHUD::UpdateTeamInfo()
 	m_pFleetInfo->SetText(s2);
 
 	eastl::string16 s3;
-	s3.sprintf(L"%d/%dmb +%dmb/turn\n", pTeam->GetUpdateDownloaded(), pTeam->GetUpdateSize(), pTeam->GetBandwidth());
+	s3.sprintf(L"%d/%dmb +%.1fmb/turn\n", (int)pTeam->GetUpdateDownloaded(), (int)pTeam->GetUpdateSize(), pTeam->GetBandwidth());
 	m_pBandwidthInfo->SetText(s3);
 }
 

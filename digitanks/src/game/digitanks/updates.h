@@ -19,7 +19,7 @@ public:
 	updatetype_t	m_eUpdateType;
 	float			m_flValue;
 
-	size_t			m_iSize;
+	float			m_flSize;
 };
 
 #define UPDATE_GRID_SIZE 30

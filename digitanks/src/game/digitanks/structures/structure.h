@@ -83,9 +83,9 @@ public:
 	virtual size_t				FleetPoints() const { return m_iFleetSupply.Get(); };
 	virtual void				AddFleetPoints(size_t iAddPoints) { m_iFleetSupply += iAddPoints; };
 
-	virtual size_t				InitialBandwidth() const { return 0; };
-	virtual size_t				Bandwidth() const { return m_iBandwidth.Get(); };
-	virtual void				AddBandwidth(size_t iAddBandwidth) { m_iBandwidth += iAddBandwidth; };
+	virtual float				InitialBandwidth() const { return 0; };
+	virtual float				Bandwidth() const { return m_flBandwidth.Get(); };
+	virtual void				AddBandwidth(float flAddBandwidth) { m_flBandwidth += flAddBandwidth; };
 
 	virtual float				InitialPower() const { return 0; };
 	virtual float				Power() const { return m_flPowerProduced.Get(); };
@@ -114,7 +114,7 @@ protected:
 	CNetworkedHandle<CSupplyLine>	m_hSupplyLine;
 
 	CNetworkedVariable<size_t>	m_iFleetSupply;
-	CNetworkedVariable<size_t>	m_iBandwidth;
+	CNetworkedVariable<float>	m_flBandwidth;
 	CNetworkedVariable<float>	m_flPowerProduced;
 	CNetworkedVariable<size_t>	m_iEnergyBonus;
 	CNetworkedVariable<float>	m_flRechargeBonus;

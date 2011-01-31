@@ -248,12 +248,12 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 		s += p.sprintf(L"Increase: %.1f %s\n", pInfo->m_flValue, pInfo->GetUnits());
 
-	s += p.sprintf(L"Download size: %d\n", pInfo->m_iSize);
+	s += p.sprintf(L"Download size: %d\n", (int)pInfo->m_flSize);
 
 	if (pTeam && pTeam->GetBandwidth() > 0)
 	{
-		size_t iDownloaded = pTeam->GetMegabytes();
-		size_t iTurns = (size_t)((pInfo->m_iSize-iDownloaded)/pTeam->GetBandwidth())+1;
+		float flDownloaded = pTeam->GetMegabytes();
+		size_t iTurns = (size_t)((pInfo->m_flSize-flDownloaded)/pTeam->GetBandwidth())+1;
 
 		s += p.sprintf(L"Turns to download: %d\n", iTurns);
 	}

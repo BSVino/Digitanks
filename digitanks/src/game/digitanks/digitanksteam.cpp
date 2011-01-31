@@ -25,9 +25,9 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(bool, m_bLost, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateY, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE_CALLBACK(size_t, m_iUpdateDownloaded, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE_CALLBACK(size_t, m_iMegabytes, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE_CALLBACK(size_t, m_iBandwidth, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(float, m_flUpdateDownloaded, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(float, m_flMegabytes, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(float, m_flBandwidth, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildBuffers, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildPSUs, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildInfantryLoaders, &CDigitanksGame::UpdateHUD);
@@ -57,9 +57,9 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateX);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abUpdates);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUpdateDownloaded);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iMegabytes);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBandwidth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flUpdateDownloaded);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flMegabytes);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBandwidth);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildBuffers);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildPSUs);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
@@ -90,8 +90,8 @@ void CDigitanksTeam::Spawn()
 
 	m_flPower = 0;
 
-	m_iMegabytes = 0;
-	m_iUpdateDownloaded = 0;
+	m_flMegabytes = 0;
+	m_flUpdateDownloaded = 0;
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
 
@@ -323,18 +323,18 @@ void CDigitanksTeam::StartTurn()
 
 	if (GetUpdateDownloading())
 	{
-		m_iMegabytes += m_iBandwidth;
+		m_flMegabytes += m_flBandwidth;
 
 		if (CNetwork::IsHost())
 		{
-			m_iUpdateDownloaded += m_iMegabytes;
-			m_iMegabytes = 0;
+			m_flUpdateDownloaded += m_flMegabytes;
+			m_flMegabytes = 0;
 		}
 
 		if (GetUpdateDownloaded() >= GetUpdateSize())
 		{
 			// Return the excess.
-			m_iMegabytes = GetUpdateDownloaded() - GetUpdateSize();
+			m_flMegabytes = GetUpdateDownloaded() - GetUpdateSize();
 
 			DigitanksGame()->AppendTurnInfo(L"'" + GetUpdateDownloading()->GetName() + L"' finished downloading.");
 
@@ -503,7 +503,7 @@ void CDigitanksTeam::CountBandwidth()
 	if (!CNetwork::IsHost())
 		return;
 
-	m_iBandwidth = 0;
+	m_flBandwidth = 0;
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
@@ -517,7 +517,7 @@ void CDigitanksTeam::CountBandwidth()
 		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 
 		if (pStructure)
-			m_iBandwidth += pStructure->Bandwidth();
+			m_flBandwidth += pStructure->Bandwidth();
 	}
 }
 
@@ -658,14 +658,14 @@ void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 
 	m_iCurrentUpdateX = iX;
 	m_iCurrentUpdateY = iY;
-	m_iUpdateDownloaded = m_iMegabytes;
-	m_iMegabytes = 0;
+	m_flUpdateDownloaded = m_flMegabytes;
+	m_flMegabytes = 0;
 
 	DigitanksGame()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
 	DigitanksGame()->HandledActionItem(ACTIONTYPE_DOWNLOADUPDATES);
 }
 
-size_t CDigitanksTeam::GetUpdateSize()
+float CDigitanksTeam::GetUpdateSize()
 {
 	if (m_iCurrentUpdateX < 0 || m_iCurrentUpdateY < 0)
 		return 0;
@@ -673,7 +673,7 @@ size_t CDigitanksTeam::GetUpdateSize()
 	if (!DigitanksGame()->GetUpdateGrid())
 		return 0;
 
-	return DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY].m_iSize;
+	return DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY].m_flSize;
 }
 
 void CDigitanksTeam::DownloadComplete(bool bInformMembers)
@@ -754,7 +754,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 		}
 	}
 
-	m_iUpdateDownloaded = 0;
+	m_flUpdateDownloaded = 0;
 }
 
 bool CDigitanksTeam::HasDownloadedUpdate(int iX, int iY)
@@ -808,7 +808,7 @@ size_t CDigitanksTeam::GetTurnsToDownload()
 	if (GetBandwidth() == 0)
 		return 0;
 
-	return (size_t)((GetUpdateSize()-m_iUpdateDownloaded)/GetBandwidth())+1;
+	return (size_t)((GetUpdateSize()-m_flUpdateDownloaded)/GetBandwidth())+1;
 }
 
 bool CDigitanksTeam::CanBuildMiniBuffers()
