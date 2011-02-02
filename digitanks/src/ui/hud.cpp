@@ -534,10 +534,47 @@ void CHUD::Think()
 	Vector vecTerrainPoint, vecEntityPoint;
 	bool bMouseOnGrid = false;
 	CBaseEntity* pHit = NULL;
-	if (DigitanksGame()->GetControlMode() != MODE_NONE)
+	if (DigitanksGame()->GetControlMode() == MODE_NONE)
+	{
+		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
+
+		if (pHit && dynamic_cast<CSelectable*>(pHit))
+			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_SELECT);
+	}
+	else
 	{
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN|CG_PROP);
+	}
+
+	if (pCurrentTank)
+	{
+		if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+		{
+			float flMoveDistance = pCurrentTank->GetMaxMovementDistance();
+			if ((vecTerrainPoint - pCurrentTank->GetOrigin()).LengthSqr() > flMoveDistance*flMoveDistance)
+				DigitanksWindow()->SetMouseCursor(MOUSECURSOR_MOVEAUTO);
+			else
+				DigitanksWindow()->SetMouseCursor(MOUSECURSOR_MOVE);
+		}
+		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
+		{
+			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
+			CStaticProp* pSPHit = dynamic_cast<CStaticProp*>(pHit);
+			if (pDTHit && pDTHit->TakesDamage() && pDTHit->GetTeam() != pCurrentTank->GetTeam() && pDTHit->GetVisibility() > 0.5f && !pSPHit)
+				DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIMENEMY);
+			else
+				DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIM);
+		}
+		else if (DigitanksGame()->GetControlMode() == MODE_TURN)
+		{
+			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_ROTATE);
+		}
+	}
+
+	if (m_pUpdatesPanel->IsVisible())
+	{
+		DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
 	}
 
 	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
@@ -670,10 +707,16 @@ void CHUD::Think()
 		m_pFireDefend->SetVisible(false);
 	}
 
-	if (m_pAttackInfo->GetText().length())
+	if (m_pAttackInfo->GetText().length() && DigitanksGame()->GetControlMode() == MODE_AIM)
+	{
 		m_flAttackInfoAlphaGoal = 1.0f;
+		m_pAttackInfo->SetVisible(true);
+	}
 	else
+	{
 		m_flAttackInfoAlphaGoal = 0.0f;
+		m_pAttackInfo->SetVisible(false);
+	}
 
 	m_flAttackInfoAlpha = Approach(m_flAttackInfoAlphaGoal, m_flAttackInfoAlpha, GameServer()->GetFrameTime());
 
@@ -872,7 +915,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 			{
 				CUpdateItem* pItem = pCurrentLocalTeam->GetUpdateDownloading();
 
-				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, (int)(iResearchWidth*(pCurrentLocalTeam->GetUpdateDownloaded()/pItem->m_flSize)) - 12, 35 - 12, Color(0, 200, 100, 255));
+				float flUpdateDownloaded = pCurrentLocalTeam->GetUpdateDownloaded();
+				if (flUpdateDownloaded > pItem->m_flSize)
+					flUpdateDownloaded = pItem->m_flSize;
+				int iResearchCompleted = (int)(iResearchWidth*(flUpdateDownloaded/pItem->m_flSize));
+
+				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, iResearchCompleted - 12, 35 - 12, Color(0, 200, 100, 255));
 
 				size_t iItemIcon = m_pUpdatesPanel->GetTextureForUpdateItem(pItem);
 
@@ -1142,25 +1190,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 void CHUD::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
 {
-	glPushAttrib(GL_ENABLE_BIT);
-
-	glEnable(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
-	glColor4ubv(c);
-	glBegin(GL_QUADS);
-		glTexCoord2f((float)sx/tw, 1-(float)sy/th);
-		glVertex2d(x, y);
-		glTexCoord2f((float)sx/tw, 1-((float)sy+sh)/th);
-		glVertex2d(x, y+h);
-		glTexCoord2f(((float)sx+sw)/tw, 1-((float)sy+sh)/th);
-		glVertex2d(x+w, y+h);
-		glTexCoord2f(((float)sx+sw)/tw, 1-(float)sy/th);
-		glVertex2d(x+w, y);
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glPopAttrib();
+	glgui::CBaseControl::PaintSheet(iTexture, x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
 void CHUD::PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c)
@@ -1849,6 +1879,14 @@ void CHUD::NewCurrentTeam()
 			}
 
 			m_bUpdatesBlinking = bShouldOpen;
+
+			// If we've got to the third turn and the player isn't downloading anything, pop it up so he knows it's there.
+			if (DigitanksGame()->GetTurn() == 3 && bShouldOpen)
+			{
+				m_pUpdatesPanel->SetVisible(true);
+				DigitanksGame()->SetControlMode(MODE_NONE);
+				m_bUpdatesBlinking = false;
+			}
 		}
 
 		if (DigitanksWindow()->GetInstructor()->GetActive())
@@ -1875,6 +1913,9 @@ void CHUD::NewCurrentTeam()
 
 		// Don't show the action items until we have a CPU because we have the story and the tutorials to think about first.
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
+			bShow = false;
+
+		if (m_pUpdatesPanel->IsVisible())
 			bShow = false;
 
 		if (bShow)
@@ -2185,6 +2226,9 @@ void CHUD::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity*
 
 void CHUD::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
+	if (pVictim == pAttacker)
+		return;
+
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
 	if (pProjectile && !pProjectile->SendsNotifications())
 		return;
@@ -2275,6 +2319,11 @@ void CHUD::ShowButtonInfo(int iButton)
 void CHUD::HideButtonInfo()
 {
 	m_pButtonInfo->SetText("");
+}
+
+bool CHUD::IsButtonInfoVisible()
+{
+	return m_pButtonInfo->GetText().length() > 0;
 }
 
 bool CHUD::IsUpdatesPanelOpen()
@@ -3124,7 +3173,7 @@ void CSpeechBubble::Think()
 	Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin + vecUp*m_flRadius);
 	float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
-	vecScreen.x += flWidth/2 - 10;
+	vecScreen.x -= (flWidth/2 + 50);
 	vecScreen.y -= flWidth/2;
 
 	SetPos((int)(vecScreen.x), (int)(vecScreen.y));

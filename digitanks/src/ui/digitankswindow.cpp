@@ -97,6 +97,8 @@ void CDigitanksWindow::OpenWindow()
 
 	ilInit();
 
+	m_iCursors = CRenderer::LoadTextureIntoGL(L"textures/cursors.png");
+
 	m_iLoading = CRenderer::LoadTextureIntoGL(L"textures/loading.png");
 	RenderLoading();
 
@@ -151,6 +153,65 @@ void CDigitanksWindow::RenderLoading()
 	glPopAttrib();
 
 	SwapBuffers();
+}
+
+void CDigitanksWindow::RenderMouseCursor()
+{
+	if (m_eMouseCursor == MOUSECURSOR_NONE)
+		return;
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, (double)m_iWindowWidth, (double)m_iWindowHeight, 0, -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glShadeModel(GL_SMOOTH);
+
+	int mx, my;
+	GetMousePosition(mx, my);
+
+	if (m_eMouseCursor == MOUSECURSOR_SELECT)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 0, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_BUILD)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 0, 0, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_BUILDINVALID)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 0, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_MOVE)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 0, 40, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_MOVEAUTO)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 40, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_ROTATE)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 0, 80, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_AIM)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_AIMENEMY)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 80, 80, 40, 256, 128);
+	else if (m_eMouseCursor == MOUSECURSOR_AIMINVALID)
+		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();   
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glPopAttrib();
 }
 
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
@@ -251,6 +312,8 @@ void CDigitanksWindow::Run()
 
 	while (IsOpen())
 	{
+		SetMouseCursor(MOUSECURSOR_NONE);
+
 		ConstrainMouse();
 
 		if (GameServer()->IsHalting())
@@ -327,6 +390,8 @@ void CDigitanksWindow::Render()
 
 	glgui::CRootPanel::Get()->Think(GameServer()->GetGameTime());
 	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+
+	RenderMouseCursor();
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)

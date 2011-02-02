@@ -321,10 +321,10 @@ void CDigitanksTeam::StartTurn()
 		apMembers[i]->StartTurn();
 	}
 
+	m_flMegabytes += m_flBandwidth;
+
 	if (GetUpdateDownloading())
 	{
-		m_flMegabytes += m_flBandwidth;
-
 		if (CNetwork::IsHost())
 		{
 			m_flUpdateDownloaded += m_flMegabytes;
@@ -808,7 +808,12 @@ size_t CDigitanksTeam::GetTurnsToDownload()
 	if (GetBandwidth() == 0)
 		return 0;
 
-	return (size_t)((GetUpdateSize()-m_flUpdateDownloaded)/GetBandwidth())+1;
+	int iTurns = (int)((GetUpdateSize()-m_flUpdateDownloaded)/GetBandwidth())+1;
+
+	if (iTurns < 1)
+		return 1;
+
+	return iTurns;
 }
 
 bool CDigitanksTeam::CanBuildMiniBuffers()

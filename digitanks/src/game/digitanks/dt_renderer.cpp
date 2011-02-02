@@ -564,12 +564,14 @@ void CDigitanksRenderer::RenderPreviewModes()
 					r.SetColorSwap(Color(255, 255, 255));
 					r.SetAlpha(0.5f);
 					r.SetBlend(BLEND_ALPHA);
+					DigitanksWindow()->SetMouseCursor(MOUSECURSOR_BUILD);
 				}
 				else
 				{
 					r.SetColorSwap(Color(255, 0, 0));
 					r.SetAlpha(0.3f);
 					r.SetBlend(BLEND_ADDITIVE);
+					DigitanksWindow()->SetMouseCursor(MOUSECURSOR_BUILDINVALID);
 				}
 
 				size_t iModel = 0;
@@ -691,9 +693,6 @@ void CDigitanksRenderer::RenderBuildableAreas()
 	if (!HardwareSupportsFramebuffers())
 		return;
 
-	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
-		return;
-
 	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -706,6 +705,13 @@ void CDigitanksRenderer::RenderBuildableAreas()
 			continue;
 
 		if (pDTEntity->BuildableArea() == 0)
+			continue;
+
+		// static_cast is okay since only buffers and CPUs have buildable areas and they're selectable.
+		if (DigitanksGame()->GetControlMode() != MODE_BUILD && !pDTEntity->GetDigitanksTeam()->IsSelected(static_cast<CSelectable*>(pDTEntity)))
+			continue;
+
+		if (pDTEntity->GetTeam() && pDTEntity->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			continue;
 
 		CRenderingContext c(this);
@@ -804,7 +810,10 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		UseProgram(0);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4ubv(Color(50, 250, 50, 100));
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+			glColor4ubv(Color(50, 250, 50, 100));
+		else
+			glColor4ubv(Color(50, 250, 50, 30));
 		RenderMapToBuffer(m_oBuildableAreaBuffer.m_iMap, &m_oSceneBuffer);
 		glColor4ubv(Color(255, 255, 255));
 		glDisable(GL_BLEND);

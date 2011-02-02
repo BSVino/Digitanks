@@ -9,6 +9,20 @@
 #include <game/digitanks/digitanksgame.h>
 #include <tinker/application.h>
 
+typedef enum
+{
+	MOUSECURSOR_NONE = 0,
+	MOUSECURSOR_BUILD,
+	MOUSECURSOR_BUILDINVALID,
+	MOUSECURSOR_SELECT,
+	MOUSECURSOR_MOVE,
+	MOUSECURSOR_MOVEAUTO,
+	MOUSECURSOR_ROTATE,
+	MOUSECURSOR_AIM,
+	MOUSECURSOR_AIMENEMY,
+	MOUSECURSOR_AIMINVALID,
+} mousecursor_t;
+
 class CDigitanksWindow : public CApplication
 {
 	DECLARE_CLASS(CDigitanksWindow, CApplication);
@@ -30,6 +44,7 @@ public:
 	void						SetConnectHost(const eastl::string16 sHost) { m_sConnectHost = sHost; };
 
 	void						RenderLoading();
+	void						RenderMouseCursor();
 
 	void						CreateGame(gametype_t eGameType);
 	void						DestroyGame();
@@ -45,6 +60,8 @@ public:
 	virtual void				MouseMotion(int x, int y);
 	virtual void				MouseInput(int iButton, int iState);
 	virtual void				MouseWheel(int iState);
+
+	void						SetMouseCursor(mousecursor_t eCursor) { m_eMouseCursor = eCursor; }
 
 	virtual void				KeyPress(int c);
 	virtual void				KeyRelease(int c);
@@ -122,6 +139,9 @@ protected:
 	int							m_iMouseMoved;
 
 	bool						m_bMouseDownInGUI;
+
+	size_t						m_iCursors;
+	mousecursor_t				m_eMouseCursor;
 
 	bool						m_bCfgFullscreen;
 	int							m_iCfgWidth;

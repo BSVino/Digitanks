@@ -2041,7 +2041,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				pHUD->SetButtonTexture(0, s_iMoveIcon);
 
-			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Right click inside the yellow area to move this unit.\n \nShortcut: Q");
+			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q");
 		}
 
 		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && GetRemainingMovementEnergy() > 1)
@@ -2057,7 +2057,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(1, s_iCancelIcon);
 			else
 				pHUD->SetButtonTexture(1, s_iTurnIcon);
-			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Right click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
+			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 		}
 
 		if (CanSentry() && !IsFortified())
@@ -2146,11 +2146,11 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 			eastl::string16 s;
 			if (IsInfantry())
-				s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
+				s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
 			else if (IsScout())
-				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It only does physical damage to structures or units without shields.";
+				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It only does physical damage to structures or units without shields.";
 			else
-				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Right click any spot on the terrain to fire on that location.";
+				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
 
 			if (m_flTotalPower < GetWeaponEnergy())
 			{

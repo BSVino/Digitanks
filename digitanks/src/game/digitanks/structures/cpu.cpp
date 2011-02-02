@@ -319,7 +319,7 @@ bool CCPU::IsPreviewBuildValid() const
 	{
 		CResource* pResource = CResource::FindClosestResource(GetPreviewBuild(), RESOURCE_ELECTRONODE);
 		float flDistance = (pResource->GetOrigin() - GetPreviewBuild()).Length();
-		if (flDistance > 5)
+		if (flDistance > 8)
 			return false;
 
 		if (pResource->HasCollector())

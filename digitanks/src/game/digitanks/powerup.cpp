@@ -85,7 +85,7 @@ EAngle CPowerup::GetRenderAngles() const
 Vector CPowerup::GetRenderOrigin() const
 {
 	Vector vecOrigin = BaseClass::GetRenderOrigin();
-	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - m_flSpawnTime, 0, 3, 100, 0);
+	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - m_flSpawnTime, 0, 3, 100, 0) + RemapVal(Lerp(Oscillate(GameServer()->GetGameTime() + m_flSpawnTime, 3), 0.8f), 0, 1, 3, 4);
 	return vecOrigin;
 }
 

@@ -12,6 +12,7 @@ public:
 	void							SetLocation(int x, int y);
 
 	virtual void					CursorIn();
+	virtual void					CursorOut();
 
 	EVENT_CALLBACK(CUpdateButton, ChooseDownload);
 
@@ -42,6 +43,7 @@ public:
 protected:
 	glgui::CButton*					m_pCloseButton;
 	glgui::CLabel*					m_pInfo;
+	glgui::CLabel*					m_pTutorial;
 
 	eastl::vector<CUpdateButton*>	m_apUpdates;
 

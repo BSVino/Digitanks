@@ -8,6 +8,7 @@
 #include "digitankswindow.h"
 #include "renderer/renderer.h"
 #include "sound/sound.h"
+#include "hud.h"
 
 using namespace glgui;
 
@@ -414,6 +415,9 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		if (!dynamic_cast<CMobileCPU*>(pSelection))
 			return;
 	}
+
+	if (m_pTutorial->m_iPosition == CInstructor::POSITION_BUTTONS && DigitanksWindow()->GetHUD()->IsButtonInfoVisible())
+		return;
 
 	if (m_pTutorial->m_iPosition == CInstructor::POSITION_SCENETREE)
 		x += (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f)*20);

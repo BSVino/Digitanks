@@ -18,6 +18,9 @@ CUpdatesPanel::CUpdatesPanel()
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
 	AddControl(m_pInfo);
 
+	m_pTutorial = new CLabel(0, 0, 100, 300, L"");
+	AddControl(m_pTutorial);
+
 	m_iIconCPU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu.png");
 	m_iIconBuffer = CRenderer::LoadTextureIntoGL(L"textures/hud/update-buffer.png");
 	m_iIconPSU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-psu.png");
@@ -56,6 +59,9 @@ void CUpdatesPanel::Layout()
 	m_pInfo->SetSize(200, 200);
 	m_pInfo->SetPos(GetWidth()+2, GetHeight()/2 - m_pInfo->GetHeight()/2);
 
+	m_pTutorial->SetSize(GetWidth(), 20);
+	m_pTutorial->SetPos(0, GetHeight() - 30);
+
 	for (size_t i = 0; i < m_apUpdates.size(); i++)
 	{
 		m_apUpdates[i]->Destructor();
@@ -88,7 +94,7 @@ void CUpdatesPanel::Layout()
 		iLowestY = (pUpdates->m_iHighestY + pUpdates->m_iLowestY)/2 - iLarger/2;
 	}
 
-	m_iButtonSize = GetWidth()/(iLarger+1);
+	m_iButtonSize = GetWidth()/(iLarger+2);
 	int iXWidth = m_iButtonSize*iXSize;
 	int iYWidth = m_iButtonSize*iYSize;
 	int iXBuffer = (GetWidth() - iXWidth)/2;
@@ -234,11 +240,14 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 {
 	if (!pInfo)
 	{
-		m_pInfo->SetText("");
+		m_pTutorial->SetText("");
 		return;
 	}
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	int x, y;
+	DigitanksGame()->GetUpdateGrid()->FindUpdate(pInfo, x, y);
 
 	eastl::string16 s;
 	eastl::string16 p;
@@ -250,10 +259,13 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	s += p.sprintf(L"Download size: %d\n", (int)pInfo->m_flSize);
 
-	if (pTeam && pTeam->GetBandwidth() > 0)
+	if (pTeam && pTeam->GetBandwidth() > 0 && !pTeam->HasDownloadedUpdate(x, y))
 	{
 		float flDownloaded = pTeam->GetMegabytes();
-		size_t iTurns = (size_t)((pInfo->m_flSize-flDownloaded)/pTeam->GetBandwidth())+1;
+		int iTurns = (int)((pInfo->m_flSize-flDownloaded)/pTeam->GetBandwidth())+1;
+
+		if (iTurns < 1)
+			iTurns = 1;
 
 		s += p.sprintf(L"Turns to download: %d\n", iTurns);
 	}
@@ -262,6 +274,13 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	m_pInfo->SetSize(m_pInfo->GetWidth(), 9999);
 	m_pInfo->SetSize(m_pInfo->GetWidth(), (int)m_pInfo->GetTextHeight()+20);
+
+	if (pTeam->HasDownloadedUpdate(x, y))
+		m_pTutorial->SetText(L"You already have this update.");
+	else if (pTeam->CanDownloadUpdate(x, y))
+		m_pTutorial->SetText(L"Click to begin downloading this update.");
+	else
+		m_pTutorial->SetText(L"This update is not yet available for download.");
 }
 
 size_t CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo)
@@ -377,6 +396,13 @@ void CUpdateButton::CursorIn()
 		return;
 
 	m_pUpdatesPanel->UpdateInfo(&pUpdates->m_aUpdates[m_iX][m_iY]);
+}
+
+void CUpdateButton::CursorOut()
+{
+	CPictureButton::CursorOut();
+
+	m_pUpdatesPanel->UpdateInfo(NULL);
 }
 
 void CUpdateButton::ChooseDownloadCallback()

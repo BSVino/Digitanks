@@ -183,6 +183,7 @@ public:
 
 	void						ShowButtonInfo(int iButton);
 	void						HideButtonInfo();
+	bool						IsButtonInfoVisible();
 
 	bool						IsUpdatesPanelOpen();
 	void						SlideUpdateIcon(int x, int y);

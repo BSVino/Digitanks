@@ -1,5 +1,7 @@
 #include "updates.h"
 
+#include <assert.h>
+
 #include <network/network.h>
 
 #include "digitanksgame.h"
@@ -632,6 +634,24 @@ void CUpdateGrid::UpdatesData(CNetworkParameters* p)
 	m_iHighestY = p->i5;
 
 	memcpy(&m_aUpdates[0][0], p->m_pExtraData, sizeof(m_aUpdates));
+}
+
+void CUpdateGrid::FindUpdate(CUpdateItem* pItem, int& x, int& y)
+{
+	for (int i = 0; i < UPDATE_GRID_SIZE; i++)
+	{
+		for (int j = 0; j < UPDATE_GRID_SIZE; j++)
+		{
+			if (pItem == &m_aUpdates[i][j])
+			{
+				x = i;
+				y = j;
+				return;
+			}
+		}
+	}
+
+	assert(!"Can't find an update.");
 }
 
 eastl::string16 CUpdateItem::GetName()

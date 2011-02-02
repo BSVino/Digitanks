@@ -1079,9 +1079,6 @@ float CSupplier::BaseVisibleRange() const
 
 float CSupplier::BuildableArea() const
 {
-	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
-		return 0;
-
 	if (!GetDigitanksTeam())
 		return 0;
 
