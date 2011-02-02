@@ -43,6 +43,7 @@ public:
 	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				InitialMaxRange() const { return 60.0f; };
 	virtual float				MaxRangeRadius() const { return 20; };
+	virtual float				SlowMovementFactor() const { return 0.9f; };
 
 	virtual size_t				FleetPoints() const { return 0; };
 

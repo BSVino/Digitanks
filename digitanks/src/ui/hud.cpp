@@ -1892,14 +1892,6 @@ void CHUD::NewCurrentSelection()
 	UpdateTurnButton();
 	UpdateInfo();
 
-	if (DigitanksGame()->GetCurrentTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-	{
-		if (DigitanksGame()->GetPrimarySelectionTank())
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelectionTank()->GetOrigin());
-		else if (DigitanksGame()->GetPrimarySelection())
-			DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetPrimarySelection()->GetOrigin());
-	}
-
 	SetupMenu(MENUMODE_MAIN);
 
 	ShowActionItem(DigitanksGame()->GetPrimarySelection());
