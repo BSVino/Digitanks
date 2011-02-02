@@ -143,6 +143,8 @@ public:
 	void						ClearPreviewAim();
 	bool						IsPreviewAimValid();
 	Vector						GetLastAim() const { return m_vecLastAim.Get(); };
+	bool						ShouldDisplayAim() const { return m_bDisplayAim; }
+	Vector						GetDisplayAim() const { return m_vecDisplayAim; }
 
 	virtual bool				CanCharge() const;
 	virtual float				ChargeRadius() const { return 20.0f; }
@@ -277,7 +279,6 @@ public:
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
 	virtual void				RenderShield(float flAlpha, float flAngle);
 	virtual float				RenderShieldScale() const { return 1.0f; };
-	virtual void				PostRender(bool bTransparent);
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
@@ -338,6 +339,8 @@ public:
 	virtual bool				HasFortifyPoint() { return m_bFortifyPoint; };
 	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
+	static size_t				GetAimBeamTexture() { return s_iAimBeam; }
+	static size_t				GetAutoMoveTexture() { return s_iAutoMove; }
 	static size_t				GetFortifyIcon() { return s_iFortifyIcon; }
 	static size_t				GetSentryIcon() { return s_iSentryIcon; }
 

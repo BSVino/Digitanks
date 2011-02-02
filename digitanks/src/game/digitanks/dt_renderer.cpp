@@ -328,10 +328,287 @@ void CDigitanksRenderer::FinishRendering()
 	if (ShouldUseShaders())
 		ClearProgram();
 
+	RenderPreviewModes();
 	RenderFogOfWar();
 	RenderBuildableAreas();
 
 	BaseClass::FinishRendering();
+}
+
+void CDigitanksRenderer::RenderPreviewModes()
+{
+	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
+	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
+
+	if (!pTeam)
+		return;
+	
+	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
+	{
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pTeam->GetMember(i));
+
+		if (pTank)
+		{
+			if (DigitanksGame()->GetControlMode() == MODE_TURN)
+			{
+				EAngle angTurn = EAngle(0, pTank->GetAngles().y, 0);
+				if (pTank->TurnsWith(pCurrentTank))
+				{
+					Vector vecLookAt;
+					bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
+					bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetOrigin()).LengthSqr() < 3*3;
+
+					if (!bNoTurn && bMouseOK)
+					{
+						Vector vecDirection = (vecLookAt - pTank->GetOrigin()).Normalized();
+						float flYaw = atan2(vecDirection.z, vecDirection.x) * 180/M_PI;
+
+						float flTankTurn = AngleDifference(flYaw, pTank->GetAngles().y);
+						if (fabs(flTankTurn)/pTank->TurnPerPower() > pTank->GetRemainingMovementEnergy())
+							flTankTurn = (flTankTurn / fabs(flTankTurn)) * pTank->GetRemainingMovementEnergy() * pTank->TurnPerPower() * 0.95f;
+
+						angTurn = EAngle(0, pTank->GetAngles().y + flTankTurn, 0);
+					}
+
+					CRenderingContext r(GameServer()->GetRenderer());
+					r.Translate(pTank->GetRenderOrigin());
+					r.Rotate(-pTank->GetAngles().y, Vector(0, 1, 0));
+					r.SetAlpha(50.0f/255);
+					r.SetBlend(BLEND_ALPHA);
+					r.SetColorSwap(pTank->GetTeam()->GetColor());
+					r.RenderModel(pTank->GetModel());
+
+					pTank->RenderTurret(true, 50.0f/255);
+				}
+			}
+
+			if (pCurrentTank && DigitanksGame()->GetControlMode() == MODE_MOVE)
+			{
+				if (pTank->GetDigitanksTeam()->IsSelected(pTank) && pTank->MovesWith(pCurrentTank))
+				{
+					Vector vecTankMove = (pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin()).Normalized();
+					if (vecTankMove.Length() > pTank->GetRemainingMovementDistance())
+						vecTankMove = vecTankMove * pTank->GetRemainingMovementDistance() * 0.95f;
+
+					Vector vecNewPosition = pCurrentTank->GetPreviewMove();
+					vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
+
+					CRenderingContext r(GameServer()->GetRenderer());
+					r.Translate(vecNewPosition + Vector(0, 1, 0));
+					r.Rotate(-VectorAngles(vecTankMove).y, Vector(0, 1, 0));
+					r.SetAlpha(50.0f/255);
+					r.SetBlend(BLEND_ALPHA);
+					r.SetColorSwap(pTank->GetTeam()->GetColor());
+					r.RenderModel(pTank->GetModel());
+
+					pTank->RenderTurret(true, 50.0f/255);
+				}
+			}
+
+			if (pTank->ShouldDisplayAim())
+			{
+				glPushAttrib(GL_ENABLE_BIT);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+				int iAlpha = 100;
+				if (pTank->GetDigitanksTeam()->IsSelected(pTank) && DigitanksGame()->GetControlMode() == MODE_AIM)
+					iAlpha = 255;
+
+				Vector vecTankOrigin = pTank->GetOrigin();
+
+				float flGravity = DigitanksGame()->GetGravity();
+				float flTime;
+				Vector vecForce;
+				FindLaunchVelocity(vecTankOrigin, pTank->GetDisplayAim(), flGravity, vecForce, flTime, pTank->ProjectileCurve());
+
+				CRopeRenderer oRope(GameServer()->GetRenderer(), CDigitank::GetAimBeamTexture(), vecTankOrigin, 0.5f);
+				oRope.SetColor(Color(255, 0, 0, iAlpha));
+				oRope.SetTextureScale(50);
+				oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
+
+				size_t iLinks = 20;
+				float flTimePerLink = flTime/iLinks;
+				for (size_t i = 1; i < iLinks; i++)
+				{
+					float flCurrentTime = flTimePerLink*i;
+					Vector vecCurrentOrigin = vecTankOrigin + vecForce*flCurrentTime + Vector(0, flGravity*flCurrentTime*flCurrentTime/2, 0);
+					oRope.AddLink(vecCurrentOrigin);
+				}
+
+				oRope.Finish(pTank->GetDisplayAim());
+
+				glPopAttrib();
+			}
+
+			bool bShowGoalMove = false;
+			Vector vecGoalMove;
+			int iAlpha = 255;
+			if (pTank->HasGoalMovePosition())
+			{
+				bShowGoalMove = true;
+				vecGoalMove = pTank->GetGoalMovePosition();
+			}
+			else if (pTank == pCurrentTank && DigitanksGame()->GetControlMode() == MODE_MOVE)
+			{
+				if (!pCurrentTank->IsPreviewMoveValid())
+				{
+					bShowGoalMove = true;
+					vecGoalMove = pTank->GetPreviewMove();
+					iAlpha = 100;
+				}
+			}
+
+			if (pTank->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+				bShowGoalMove = false;
+
+			if (bShowGoalMove)
+			{
+				CRenderingContext r(GameServer()->GetRenderer());
+				r.SetBlend(BLEND_ALPHA);
+
+				CRopeRenderer oRope(GameServer()->GetRenderer(), CDigitank::GetAutoMoveTexture(), DigitanksGame()->GetTerrain()->SetPointHeight(pTank->GetRealOrigin()) + Vector(0, 1, 0), 2);
+				oRope.SetColor(Color(255, 255, 255, iAlpha));
+				oRope.SetTextureScale(4);
+				oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
+
+				Vector vecPath = vecGoalMove - pTank->GetRealOrigin();
+				vecPath.y = 0;
+
+				float flDistance = vecPath.Length2D();
+				float flDistancePerSegment = 5;
+				Vector vecPathFlat = vecPath;
+				vecPathFlat.y = 0;
+				Vector vecDirection = vecPathFlat.Normalized();
+				size_t iSegments = (size_t)(flDistance/flDistancePerSegment);
+
+				Vector vecLastSegmentStart = pTank->GetRealOrigin();
+				float flMaxMoveDistance = pTank->GetMaxMovementDistance();
+				float flSegmentLength = flMaxMoveDistance;
+
+				if ((vecGoalMove - pTank->GetRealOrigin()).LengthSqr() < flMaxMoveDistance*flMaxMoveDistance)
+					flSegmentLength = (vecGoalMove - pTank->GetRealOrigin()).Length();
+
+				for (size_t i = 1; i < iSegments; i++)
+				{
+					float flCurrentDistance = ((float)i*flDistancePerSegment);
+
+					Vector vecLink = DigitanksGame()->GetTerrain()->SetPointHeight(pTank->GetRealOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0);
+
+					float flDistanceFromSegmentStartSqr = (vecLink - vecLastSegmentStart).LengthSqr();
+
+					float flRamp = flDistanceFromSegmentStartSqr / (flSegmentLength*flSegmentLength);
+					if (flDistanceFromSegmentStartSqr > flMaxMoveDistance*flMaxMoveDistance)
+					{
+						vecLastSegmentStart = DigitanksGame()->GetTerrain()->SetPointHeight(vecLastSegmentStart + vecDirection*flSegmentLength) + Vector(0, 1, 0);
+
+						oRope.SetWidth(0);
+						oRope.FinishSegment(vecLastSegmentStart, vecLastSegmentStart, 2);
+
+						// Skip to the next one if it goes backwards.
+						if ((vecLink - pTank->GetRealOrigin()).LengthSqr() < (vecLastSegmentStart - pTank->GetRealOrigin()).LengthSqr())
+							continue;
+
+						flDistanceFromSegmentStartSqr = (vecLink - vecLastSegmentStart).LengthSqr();
+
+						if ((vecGoalMove - vecLastSegmentStart).LengthSqr() < flMaxMoveDistance*flMaxMoveDistance)
+							flSegmentLength = (vecGoalMove - vecLastSegmentStart).Length();
+
+						flRamp = flDistanceFromSegmentStartSqr / (flSegmentLength*flSegmentLength);
+					}
+
+					oRope.SetWidth((1-flRamp)*2);
+					oRope.AddLink(vecLink);
+				}
+
+				oRope.SetWidth(0);
+				oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecGoalMove) + Vector(0, 1, 0));
+			}
+
+			if (pTank->GetDigitanksTeam()->IsPrimarySelection(pTank) && DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_MOVEMENT)
+			{
+				CBaseEntity* pChargeTarget = pTank->GetPreviewCharge();
+
+				if (pChargeTarget)
+				{
+					Vector vecPreviewTank = pTank->GetChargePosition(pChargeTarget);
+					Vector vecChargeDirection = (pChargeTarget->GetOrigin() - pTank->GetOrigin()).Normalized();
+
+					CRenderingContext r(GameServer()->GetRenderer());
+					r.Translate(vecPreviewTank + Vector(0, 1, 0));
+					r.Rotate(-VectorAngles(vecChargeDirection).y, Vector(0, 1, 0));
+					r.SetAlpha(50.0f/255);
+					r.SetBlend(BLEND_ALPHA);
+					r.SetColorSwap(pTank->GetTeam()->GetColor());
+					r.RenderModel(pTank->GetModel());
+
+					pTank->RenderTurret(true, 50.0f/255);
+				}
+			}
+			continue;
+		}
+
+		CCPU* pCPU = dynamic_cast<CCPU*>(pTeam->GetMember(i));
+
+		if (pCPU)
+		{
+			if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+			{
+				CRenderingContext r(GameServer()->GetRenderer());
+				r.Translate(pCPU->GetPreviewBuild() + Vector(0, 3, 0));
+				r.Rotate(-pCPU->GetAngles().y, Vector(0, 1, 0));
+
+				if (pCPU->IsPreviewBuildValid())
+				{
+					r.SetColorSwap(Color(255, 255, 255));
+					r.SetAlpha(0.5f);
+					r.SetBlend(BLEND_ALPHA);
+				}
+				else
+				{
+					r.SetColorSwap(Color(255, 0, 0));
+					r.SetAlpha(0.3f);
+					r.SetBlend(BLEND_ADDITIVE);
+				}
+
+				size_t iModel = 0;
+				switch (pCPU->GetPreviewStructure())
+				{
+				case STRUCTURE_MINIBUFFER:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/minibuffer.obj");
+					break;
+
+				case STRUCTURE_BUFFER:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/buffer.obj");
+					break;
+
+				case STRUCTURE_BATTERY:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/battery.obj");
+					break;
+
+				case STRUCTURE_PSU:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/psu.obj");
+					break;
+
+				case STRUCTURE_INFANTRYLOADER:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-infantry.obj");
+					break;
+
+				case STRUCTURE_TANKLOADER:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-main.obj");
+					break;
+
+				case STRUCTURE_ARTILLERYLOADER:
+					iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-artillery.obj");
+					break;
+				}
+
+				r.RenderModel(iModel);
+			}
+			continue;
+		}
+	}
 }
 
 void CDigitanksRenderer::RenderFogOfWar()

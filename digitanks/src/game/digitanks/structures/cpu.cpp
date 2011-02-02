@@ -695,65 +695,6 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	r.RenderModel(m_iFanModel);
 }
 
-void CCPU::PostRender(bool bTransparent)
-{
-	BaseClass::PostRender(bTransparent);
-
-	if (bTransparent && DigitanksGame()->GetControlMode() == MODE_BUILD)
-	{
-		CRenderingContext r(GameServer()->GetRenderer());
-		r.Translate(GetPreviewBuild() + Vector(0, 3, 0));
-		r.Rotate(-GetAngles().y, Vector(0, 1, 0));
-
-		if (IsPreviewBuildValid())
-		{
-			r.SetColorSwap(Color(255, 255, 255));
-			r.SetAlpha(0.5f);
-			r.SetBlend(BLEND_ALPHA);
-		}
-		else
-		{
-			r.SetColorSwap(Color(255, 0, 0));
-			r.SetAlpha(0.3f);
-			r.SetBlend(BLEND_ADDITIVE);
-		}
-
-		size_t iModel = 0;
-		switch (m_ePreviewStructure)
-		{
-		case STRUCTURE_MINIBUFFER:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/minibuffer.obj");
-			break;
-
-		case STRUCTURE_BUFFER:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/buffer.obj");
-			break;
-
-		case STRUCTURE_BATTERY:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/battery.obj");
-			break;
-
-		case STRUCTURE_PSU:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/psu.obj");
-			break;
-
-		case STRUCTURE_INFANTRYLOADER:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-infantry.obj");
-			break;
-
-		case STRUCTURE_TANKLOADER:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-main.obj");
-			break;
-
-		case STRUCTURE_ARTILLERYLOADER:
-			iModel = CModelLibrary::Get()->FindModel(L"models/structures/loader-artillery.obj");
-			break;
-		}
-
-		r.RenderModel(iModel);
-	}
-}
-
 void CCPU::UpdateInfo(eastl::string16& s)
 {
 	eastl::string16 p;
