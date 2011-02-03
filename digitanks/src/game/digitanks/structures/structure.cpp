@@ -774,7 +774,7 @@ void CSupplier::PostRender(bool bTransparent)
 	Color clrTeam = GetTeam()?GetTeam()->GetColor():Color(255,255,255,255);
 
 	CRenderingContext r(GameServer()->GetRenderer());
-	if (DigitanksGame()->ShouldRenderFogOfWar())
+	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 	r.SetDepthMask(false);
 	r.BindTexture(s_iTendrilBeam);

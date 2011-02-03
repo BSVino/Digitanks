@@ -157,7 +157,7 @@ void CSupplyLine::PostRender(bool bTransparent)
 	size_t iSegments = (size_t)(flDistance/3);
 
 	CRenderingContext r(GameServer()->GetRenderer());
-	if (DigitanksGame()->ShouldRenderFogOfWar())
+	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
 
 	Color clrTeam(255, 255, 255, 255);

@@ -38,6 +38,9 @@ CMainMenu::CMainMenu()
 	m_pMultiplayer->SetClickedListener(this, OpenMultiplayerPanel);
 	m_pMultiplayer->SetFontFaceSize(36);
 	m_pMultiplayer->SetButtonColor(Color(0,0,0));
+#if !defined(TINKER_UNLOCKED)
+	m_pMultiplayer->SetEnabled(false);
+#endif
 	AddControl(m_pMultiplayer);
 
 	m_pOptions = new CButton(0, 0, 100, 100, L"Options");
@@ -179,6 +182,10 @@ void CMainMenu::OpenGamesPanelCallback()
 
 void CMainMenu::OpenMultiplayerPanelCallback()
 {
+#if !defined(TINKER_UNLOCKED)
+	return;
+#endif
+
 	CDockPanel* pDock = GetDockPanel();
 	pDock->SetDockedPanel(new CMultiplayerPanel());
 	pDock->SetVisible(true);
@@ -409,6 +416,11 @@ CGamesPanel::CGamesPanel()
 	m_pLoad = new CButton(0, 0, 100, 100, L"Load");
 	m_pLoad->SetClickedListener(this, Load);
 	m_pLoad->SetFontFaceSize(18);
+
+#if !defined(TINKER_UNLOCKED)
+	m_pLoad->SetEnabled(false);
+#endif
+
 	AddControl(m_pLoad);
 
 	m_pDockPanel = new CDockPanel();
@@ -448,6 +460,10 @@ void CGamesPanel::LoadCallback()
 	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
 	if (!pszFilename)
 		return;
+
+#if !defined(TINKER_UNLOCKED)
+	return;
+#endif
 
 	DigitanksWindow()->RenderLoading();
 
@@ -498,6 +514,11 @@ CMultiplayerPanel::CMultiplayerPanel()
 	m_pLoad->SetClickedListener(this, Load);
 	m_pLoad->SetCursorInListener(this, LoadHint);
 	m_pLoad->SetFontFaceSize(18);
+
+#if !defined(TINKER_UNLOCKED)
+	m_pLoad->SetEnabled(false);
+#endif
+
 	AddControl(m_pLoad);
 
 	m_pDockPanel = new CDockPanel();
@@ -549,6 +570,10 @@ void CMultiplayerPanel::LoadCallback()
 	if (!pszFilename)
 		return;
 
+#if !defined(TINKER_UNLOCKED)
+	return;
+#endif
+
 	GameServer()->SetServerType(SERVER_HOST);
 
 	DigitanksWindow()->RenderLoading();
@@ -574,6 +599,10 @@ void CMultiplayerPanel::HostHintCallback()
 
 void CMultiplayerPanel::LoadHintCallback()
 {
+#if !defined(TINKER_UNLOCKED)
+	DigitanksWindow()->GetMainMenu()->SetHint(L"The load feature is not available in this demo.");
+	return;
+#endif
 	DigitanksWindow()->GetMainMenu()->SetHint(L"You can load any saved game here to host it in multiplayer.");
 }
 

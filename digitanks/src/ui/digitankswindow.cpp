@@ -304,11 +304,11 @@ void CDigitanksWindow::Run()
 {
 	CreateGame(GAMETYPE_MENU);
 
-	if (!IsRegistered())
+/*	if (!IsRegistered())
 	{
 		m_pMainMenu->SetVisible(false);
 		m_pPurchase->OpeningApplication();
-	}
+	}*/
 
 	while (IsOpen())
 	{

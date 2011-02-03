@@ -61,10 +61,16 @@ CDigitanksMenu::CDigitanksMenu()
 
 	m_pSaveGame = new CButton(0, 0, 100, 100, L"Save Game");
 	m_pSaveGame->SetClickedListener(this, Save);
+#if !defined(TINKER_UNLOCKED)
+	m_pSaveGame->SetEnabled(false);
+#endif
 	AddControl(m_pSaveGame);
 
 	m_pLoadGame = new CButton(0, 0, 100, 100, L"Load Game");
 	m_pLoadGame->SetClickedListener(this, Load);
+#if !defined(TINKER_UNLOCKED)
+	m_pLoadGame->SetEnabled(false);
+#endif
 	AddControl(m_pLoadGame);
 
 	m_pExit = new CButton(0, 0, 100, 100, L"Quit To Desktop");
@@ -146,6 +152,10 @@ void CDigitanksMenu::CloseCallback()
 
 void CDigitanksMenu::SaveCallback()
 {
+#if !defined(TINKER_UNLOCKED)
+	return;
+#endif
+
 	wchar_t* pszFilename = SaveFileDialog(L"Save Games *.sav\0*.sav\0");
 	if (!pszFilename)
 		return;
@@ -155,6 +165,10 @@ void CDigitanksMenu::SaveCallback()
 
 void CDigitanksMenu::LoadCallback()
 {
+#if !defined(TINKER_UNLOCKED)
+	return;
+#endif
+
 	if (!GameServer())
 		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 

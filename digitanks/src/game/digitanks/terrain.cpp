@@ -479,9 +479,13 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		return;
 
 	// What a hack!
-	GameServer()->GetRenderer()->UseProgram(CShaderLibrary::GetTerrainProgram());
-	GLuint iSlowMovement = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flSlowMovement");
-	GameServer()->GetRenderer()->UseProgram(0);
+	GLuint iSlowMovement;
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	{
+		GameServer()->GetRenderer()->UseProgram(CShaderLibrary::GetTerrainProgram());
+		iSlowMovement = glGetAttribLocation((GLuint)CShaderLibrary::GetTerrainProgram(), "flSlowMovement");
+		GameServer()->GetRenderer()->UseProgram(0);
+	}
 
 	glNewList((GLuint)pChunk->m_iCallList, GL_COMPILE);
 	glPushAttrib(GL_CURRENT_BIT);
