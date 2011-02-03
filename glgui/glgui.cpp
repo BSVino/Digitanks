@@ -212,6 +212,29 @@ void CBaseControl::PaintTexture(size_t iTexture, int x, int y, int w, int h, con
 	glPopAttrib();
 }
 
+void CBaseControl::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
+{
+	glPushAttrib(GL_ENABLE_BIT);
+
+	glEnable(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
+	glColor4ubv(c);
+	glBegin(GL_QUADS);
+		glTexCoord2f((float)sx/tw, 1-(float)sy/th);
+		glVertex2d(x, y);
+		glTexCoord2f((float)sx/tw, 1-((float)sy+sh)/th);
+		glVertex2d(x, y+h);
+		glTexCoord2f(((float)sx+sw)/tw, 1-((float)sy+sh)/th);
+		glVertex2d(x+w, y+h);
+		glTexCoord2f(((float)sx+sw)/tw, 1-(float)sy/th);
+		glVertex2d(x+w, y);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glPopAttrib();
+}
+
 bool CBaseControl::IsCursorListener()
 {
 	if (m_pfnCursorInCallback || m_pfnCursorOutCallback)

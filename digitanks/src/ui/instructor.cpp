@@ -53,11 +53,14 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 220, true,
 		L"VIEW CONTROLS\n \nFirst, let's take a look around. Move your mouse to the edge of the screen to move the view in that direction.")));
 
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA2, new CTutorial(this, TUTORIAL_MOVECAMERA2, POSITION_TOPCENTER, 220, true,
+		L"VIEW CONTROLS\n \nYou can also hold down space bar and move the mouse to move the view around.")));
+
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_TURNCAMERA, new CTutorial(this, TUTORIAL_TURNCAMERA, POSITION_TOPCENTER, 210, true,
 		L"VIEW CONTROLS\n \nHold down the right mouse button and drag to rotate the view.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ZOOMCAMERA, new CTutorial(this, TUTORIAL_ZOOMCAMERA, POSITION_TOPCENTER, 200, true,
-		L"VIEW CONTROLS\n \nYou can use the mouse wheel to zoom in and out.")));
+		L"VIEW CONTROLS\n \nYou can use the mouse wheel or the PGUP and PGDN buttons on your keyboard to zoom in and out.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 250, true,
 		L"TANK SELECTION\n \nThe cute guy you see here is your ever obedient Digitank. He would die fearlessly at your command, but you'd never send him to his death would you? He's so cute!\n \nSelect him by clicking on him with the left mouse button.")));
@@ -66,7 +69,7 @@ void CInstructor::Initialize()
 		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. You are now in 'move mode' and can move your tank closer to get a better shot. Click inside the yellow area to move your tank.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 200, true,
-		L"AIM YOUR TANK\n \nYou're closing in for the kill! Now press the red 'Aim' button to enter Aim Mode. The 'Aim' button is located in the command dock on the bottom of the screen.")));
+		L"CHOOSE A WEAPON\n \nYou're closing in for the kill! Now press the red 'Choose Weapon' button to select your means of destruction. The 'Choose Weapon' button is located in the command dock on the bottom of the screen.\n \nPress one of the options to choose that weapon.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ATTACK, new CTutorial(this, TUTORIAL_ATTACK, POSITION_TOPLEFT, 300, true,
 		L"ATTACK!!!\n \nYou're ready to attack!\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nClick on the enemy tank to fire at him.")));
@@ -75,16 +78,13 @@ void CInstructor::Initialize()
 		L"CONTROL BUTTONS\n \nGood job, you messed that guy up pretty good! Don't forget you can enter move mode and aim mode at any time by using the buttons in the command dock on the bottom of the screen.\n \nYou can exit move turn or aim mode by pressing the 'Escape' key.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ENERGY, new CTutorial(this, TUTORIAL_ENERGY, POSITION_TOPLEFT, 300, true,
-		L"MANAGE YOUR ENERGY\n \nYou can control how much energy your tank is using for attack and defense. By default it's split 50/50, but you can change this if you like. Press the purple 'Set Energy' button and the Energy sliders will appear next to your tank. Move the slider to the desired level and click the left mouse button to select a setting.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_POWERPOINTS, new CTutorial(this, TUTORIAL_POWERPOINTS, POSITION_TOPCENTER, 300, true,
-		L"TANK ENERGY\n \nEach Digitank has a limited amount of Energy which can be used for attack, defense, or movement. The bars at the bottom of the screen show the selected tank's Energy.\n \nChoose how you use your Energy carefully, because using your Energy in one area means it can't be used in another. You can't save your Energy for the next turn, but any Energy used will be available again next turn.\n \nClick here to continue.")));
+		L"MIND YOUR ENERGY\n \nEach weapon in your arsenal requires a different amount of energy. The more energy the weapon requires, the less will be available for your shields. Be mindful when you fire more powerful weapons, as you are leaving yourself vulnerable.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ENTERKEY, new CTutorial(this, TUTORIAL_ENTERKEY, POSITION_TOPCENTER, 200, false,
 		L"END YOUR TURN\n \nThat's it! Now press the 'Enter' key to end your turn.\n \nAlternatively, you can depress the large friendly green 'END TURN' button on the bottom right.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_TURN, new CTutorial(this, TUTORIAL_TURN, POSITION_TOPLEFT, 300, true,
-		L"ROTATE YOUR TANK\n \nOuch! It looks like your enemy's return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Rotate' button and click a spot to rotate your tank. Your tank will aim directly at that spot.")));
+		L"ROTATE YOUR TANK\n \nOuch! It looks like your enemy's return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Rotate' button and click a spot to rotate your tank. Your tank will face directly at that spot.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FINISHHIM, new CTutorial(this, TUTORIAL_FINISHHIM, POSITION_TOPLEFT, 200, false,
 		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and click on him to fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
@@ -111,10 +111,10 @@ void CInstructor::Initialize()
 		L"THE CENTRAL PROCESSING UNIT (CPU)\n \nThis is your CPU. It is your command center. If it is destroyed then you lose the game, so protect it well.\n \nThe CPU is the source of your Network. Your Network is represented by the glowy tendrils that come from your CPU.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_BUFFER, new CTutorial(this, TUTORIAL_BUFFER, POSITION_TOPCENTER, 250, false,
-		L"CONSTRUCTING\n \nYou can use your CPU to construct other structures. A 'Buffer' is a special structure that extends your Network and buffs your units. Construct a Buffer by clicking the 'Build Buffer' button and then clicking on open terrain inside your Network.")));
+		L"CONSTRUCTING\n \nYou can use your CPU to construct other structures. A 'Buffer' is a special structure that extends your Network and buffs your units. Construct a Buffer by clicking the 'Build Buffer' button and then clicking inside the green highlighted area.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_TOPCENTER, 250, false,
-		L"POWER\n \nYour Buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you are accumulating this turn at the top right of the screen. After enough Power has accumulated, the structure is complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
+		L"POWER\n \nYour Buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you have at the top right of the screen. Once the structure is placed it takes a certain number of turns to complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_NETWORK, new CTutorial(this, TUTORIAL_NETWORK, POSITION_TOPCENTER, 250, true,
 		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. You can only build more structures inside your Network. Friendly units inside your Network will receive combat bonuses.\n \nClick here to continue.")));
@@ -133,9 +133,6 @@ void CInstructor::Initialize()
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_PRODUCING_UNITS, new CTutorial(this, TUTORIAL_PRODUCING_UNITS, POSITION_TOPCENTER, 250, false,
 		L"PRODUCING UNITS\n \nNow that your Loader has finished constructing, it can start producing units. Select the Loader and click the build button to begin producing a unit.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_LIMITED_POWER, new CTutorial(this, TUTORIAL_LIMITED_POWER, POSITION_TOPCENTER, 250, true,
-		L"LIMITED POWER\n \nSince Power is shared by all structures, building too many structures and units at once can consume too much Power and slow down production. Be sure to pace yourself when issuing commands to construct and produce units.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FLEET_POINTS, new CTutorial(this, TUTORIAL_FLEET_POINTS, POSITION_TOPCENTER, 250, true,
 		L"FLEET POINTS\n \nYour fleet points can be seen on the upper right. When tanks are produced, they use up these fleet points. To get more fleet points, just build more buffers.\n \nClick here to continue.")));
@@ -171,13 +168,13 @@ void CInstructor::Initialize()
 		L"SHELLING SHIELDS\n \nArtillery are great for shelling enemy tanks and Resistor positions, but while their EMP shells are extremely effective against shields, they are rather weak against tank hulls and structures. After the enemy shields are down it's time to move in with your tanks.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ROGUE, new CTutorial(this, TUTORIAL_ROGUE, POSITION_TOPCENTER, 250, true,
-		L"THE ROGUE\n \nThe Rogue is a light reconnaissance unit. It lacks shields and can't do any damage to other units. However, its torpedo attack can be a dangerous threat to enemies.\n \nClick here to continue.")));
+		L"THE ROGUE\n \nThe Rogue is a light reconnaissance unit. It lacks shields and can only damage enemies if their shields are down. However, its torpedo attack can be a dangerous threat to enemies.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_TORPEDO, new CTutorial(this, TUTORIAL_TORPEDO, POSITION_TOPCENTER, 250, true,
 		L"FIRE TORPEDO NUMBER ONE\n \nThe Rogue's torpedos attack supply lines. Hey look, there's an enemy supply line now! Select the Rogue and press the 'Fire' button. Then click on the supply line to attack it.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_DISCONNECTING_SUPPLIES, new CTutorial(this, TUTORIAL_DISCONNECTING_SUPPLIES, POSITION_TOPCENTER, 250, true,
-		L"DISCONNECTING SUPPLY LINES\n \nYou can force an enemy structure to become neutral by destroying its supply line and disconnecting it from the enemy base. Any neutral structure can then be taken over if you build a buffer nearby.\n \nClick here to continue.")));
+		L"DISCONNECTING SUPPLY LINES\n \nYou can force an enemy structure to become neutral by destroying its supply line and disconnecting it from the enemy base. Any neutral structure can then be taken over if you build a buffer nearby.\n \nRogue torpedoes can also disable enemy units, preventing them from taking any action for one turn.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_UNITS, new CTutorial(this, TUTORIAL_THEEND_UNITS, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));

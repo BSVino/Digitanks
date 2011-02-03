@@ -361,6 +361,14 @@ bool CCPU::IsPreviewBuildValid() const
 void CCPU::SetPreviewBuild(Vector vecPreviewBuild)
 {
 	m_vecPreviewBuild = vecPreviewBuild;
+
+	if (GetPreviewStructure() == STRUCTURE_BATTERY || GetPreviewStructure() == STRUCTURE_PSU)
+	{
+		CResource* pResource = CResource::FindClosestResource(vecPreviewBuild, RESOURCE_ELECTRONODE);
+
+		if ((pResource->GetOrigin() - vecPreviewBuild).Length() <= 8)
+			m_vecPreviewBuild = pResource->GetOrigin();
+	}
 }
 
 void CCPU::ClearPreviewBuild()
@@ -500,7 +508,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 		if (pResource)
 		{
-			if ((pResource->GetOrigin() - vecPSU).Length() <= 6)
+			if ((pResource->GetOrigin() - vecPSU).Length() <= 8)
 				pConstructing->SetOrigin(pResource->GetOrigin());
 		}
 	}

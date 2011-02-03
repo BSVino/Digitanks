@@ -117,7 +117,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseMoved = 0;
 		else
 		{
-			if (IsMouseDragging())
+			if (m_iMouseMoved > 30)
 				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
 		}
 	}

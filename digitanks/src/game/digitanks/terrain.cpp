@@ -338,12 +338,16 @@ void CTerrain::GenerateTerrain(float flHeight)
 				CTerrainChunk* pChunk = GetChunk(ArrayToChunkSpace(x, i), ArrayToChunkSpace(y, j));
 
 				float flHeight = RemapVal(GetRealHeight(x, y), m_flLowest, m_flHighest, 0.0f, 1.0f);
-				SetBit(x, y, TB_LAVA, flHeight < LavaHeight());
 
-				if (flHeight < LavaHeight())
+				if (DigitanksGame()->GetGameType() != GAMETYPE_TUTORIAL)
 				{
-					SetRealHeight(x, y, flLavaHeight);
-					pChunk->m_aflLava[i][j] = 1.0f;
+					SetBit(x, y, TB_LAVA, flHeight < LavaHeight());
+
+					if (flHeight < LavaHeight())
+					{
+						SetRealHeight(x, y, flLavaHeight);
+						pChunk->m_aflLava[i][j] = 1.0f;
+					}
 				}
 
 				if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
@@ -352,7 +356,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 					SetBit(x, y, TB_HOLE, flHeight < HoleHeight());
 				}
 
-				if (!GetBit(x, y, TB_LAVA))
+				if (DigitanksGame()->GetGameType() != GAMETYPE_TUTORIAL && !GetBit(x, y, TB_LAVA))
 				{
 					flHeight = RemapVal(aflWater[x][y], flWaterLowest, flWaterHighest, 0.0f, 1.0f);
 					SetBit(x, y, TB_WATER, flHeight > WaterHeight());
@@ -360,7 +364,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 				if (GetBit(x, y, TB_HOLE) || GetBit(x, y, TB_LAVA) || GetBit(x, y, TB_WATER))
 					SetBit(x, y, TB_TREE, false);
-				else
+				else if (DigitanksGame()->GetGameType() != GAMETYPE_TUTORIAL)
 				{
 					flHeight = RemapVal(aflTrees[x][y], flTreeLowest, flTreeHighest, 0.0f, 1.0f);
 					SetBit(x, y, TB_TREE, flHeight > TreeHeight());

@@ -641,6 +641,8 @@ void CDigitanksGame::SetupTutorial()
 
 	m_ahTeams[0]->SetClient(-1);
 
+	GetDigitanksTeam(0)->AddPower(50);
+
 	m_iPowerups = 0;
 }
 
@@ -2083,12 +2085,18 @@ bool CDigitanksGame::ShouldShowScores()
 
 float CDigitanksGame::GetConstructionCost(unittype_t eUnit)
 {
-	return m_aflConstructionCosts[eUnit];
+	if (GetGameType() == GAMETYPE_STANDARD)
+		return m_aflConstructionCosts[eUnit];
+	else
+		return 5.0f;
 }
 
 float CDigitanksGame::GetUpgradeCost(unittype_t eUnit)
 {
-	return m_aflUpgradeCosts[eUnit];
+	if (GetGameType() == GAMETYPE_STANDARD)
+		return m_aflUpgradeCosts[eUnit];
+	else
+		return 5.0f;
 }
 
 bool CDigitanksGame::CanBuildMiniBuffers()

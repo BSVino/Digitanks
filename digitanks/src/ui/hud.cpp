@@ -900,7 +900,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		c.SetBlend(BLEND_ALPHA);
 		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
 
-		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES)
 		{
 			PaintHUDSheet(iWidth - 350, 10, 20, 20, 500, 530, 20, 20);
 			PaintHUDSheet(iWidth - 250, 10, 20, 20, 540, 530, 20, 20);
@@ -1627,7 +1627,14 @@ void CHUD::UpdateTeamInfo()
 	if (!DigitanksGame())
 		return;
 
-	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+	bool bShow = false;
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		bShow = true;
+	
+	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES)
+		bShow = true;
+
+	if (!bShow)
 	{
 		m_pPowerInfo->SetText("");
 		m_pFleetInfo->SetText("");

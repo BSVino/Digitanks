@@ -222,6 +222,7 @@ namespace glgui
 
 		static void		PaintRect(int x, int y, int w, int h, const Color& c = g_clrBox);
 		static void		PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c = Color(255, 255, 255, 255));
+		static void		PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255, 255, 255, 255));
 
 	protected:
 		IControl*		m_pParent;

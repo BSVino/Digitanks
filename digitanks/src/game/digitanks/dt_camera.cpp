@@ -316,6 +316,8 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		Vector vecVelocity = mRotation * Vector((float)dy*2, 0, (float)-dx*2);
 
 		SetTarget(m_vecTarget + vecVelocity);
+
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA2);
 	}
 	else if (DigitanksWindow()->ShouldConstrainMouse() && !m_bFreeMode && !m_bDraggingCamera)
 	{
