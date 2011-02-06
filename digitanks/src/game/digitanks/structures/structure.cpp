@@ -238,6 +238,35 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		return;
 	}
 
+	if (GetUnitType() == STRUCTURE_CPU)
+	{
+		CCPU* pCPU = static_cast<CCPU*>(this);
+		if (pCPU->IsProducing())
+		{
+			eastl::string16 sTurns = L"Rogue: 1";	// It only ever takes one turn to make a rogue.
+			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+			glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		}
+	}
+	else if (GetUnitType() == STRUCTURE_TANKLOADER || GetUnitType() == STRUCTURE_INFANTRYLOADER || GetUnitType() == STRUCTURE_ARTILLERYLOADER)
+	{
+		CLoader* pLoader = static_cast<CLoader*>(this);
+		if (pLoader->IsProducing())
+		{
+			eastl::string16 sUnit;
+			if (pLoader->GetBuildUnit() == UNIT_INFANTRY)
+				sUnit = L"Resistor";
+			else if (pLoader->GetBuildUnit() == UNIT_ARTILLERY)
+				sUnit = L"Artillery";
+			else
+				sUnit = L"Digitank";
+
+			eastl::string16 sTurns = sprintf(sUnit + L": %d", pLoader->GetTurnsRemainingToProduce());
+			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+			glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		}
+	}
+
 	if (Bandwidth() > 0)
 	{
 		eastl::string16 sBandwidth = sprintf(L": %.1f", Bandwidth());

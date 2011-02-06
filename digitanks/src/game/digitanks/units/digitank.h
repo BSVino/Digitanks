@@ -344,9 +344,6 @@ public:
 
 	static size_t				GetAimBeamTexture() { return s_iAimBeam; }
 	static size_t				GetAutoMoveTexture() { return s_iAutoMove; }
-	static size_t				GetMoveIcon() { return s_iMoveIcon; }
-	static size_t				GetFortifyIcon() { return s_iFortifyIcon; }
-	static size_t				GetSentryIcon() { return s_iSentryIcon; }
 
 protected:
 	// Power remaining for this turn
@@ -463,21 +460,6 @@ protected:
 	CEntityHandle<class CStructure>	m_hFortifyDefending;
 
 	static size_t				s_iAimBeam;
-	static size_t				s_iCancelIcon;
-	static size_t				s_iMoveIcon;
-	static size_t				s_iTurnIcon;
-	static size_t				s_iAimIcon;
-	static size_t				s_iFireIcon;
-	static size_t				s_iEnergyIcon;
-	static size_t				s_iPromoteIcon;
-	static size_t				s_iPromoteAttackIcon;
-	static size_t				s_iPromoteDefenseIcon;
-	static size_t				s_iPromoteMoveIcon;
-	static size_t				s_iFortifyIcon;
-	static size_t				s_iSentryIcon;
-	static size_t				s_iDeployIcon;
-	static size_t				s_iMobilizeIcon;
-	static size_t				s_iChooseWeaponIcon;
 
 	static size_t				s_iAutoMove;
 	static size_t				s_iSupportGlow;

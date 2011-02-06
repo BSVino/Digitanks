@@ -123,6 +123,7 @@ CHUD::CHUD()
 	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
 	m_iUnitsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/units-sheet.png");
 	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
+	m_iButtonSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-menu-sheet-01.png");
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
 	m_iObstruction = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-obstruction.png");
 	m_iActionTanksSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/tanks.png");
@@ -793,6 +794,7 @@ void CHUD::Think()
 	if (DigitanksGame()->GetDigitanksCamera()->GetCameraGuidedMissile())
 	{
 		DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
+		SetTooltip(L"");
 	}
 	else if (pMouseControl)
 	{
@@ -801,9 +803,15 @@ void CHUD::Think()
 			// Nothing.
 		}
 		else if (pMouseControl->GetTooltip().length() > 0)
+		{
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
+			SetTooltip(L"");
+		}
 		else if (dynamic_cast<glgui::CButton*>(pMouseControl))
+		{
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
+			SetTooltip(L"");
+		}
 	}
 }
 
@@ -926,7 +934,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 					CRenderingContext c(GameServer()->GetRenderer());
 					c.SetBlend(BLEND_ALPHA);
 
-					CBaseControl::PaintTexture(CDigitank::GetFortifyIcon(), (int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize);
+					CBaseControl::PaintSheet(m_iButtonSheet, (int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize, 0, 128, 64, 64, 512, 256);
 					CLabel::PaintText(sTurns, sTurns.length(), 10, flXPosition - 13, flYPosition - 3);
 				}
 			}
@@ -943,6 +951,26 @@ void CHUD::Paint(int x, int y, int w, int h)
 				{
 					eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToUpgrade());
 					CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+				}
+
+				if (pStructure->GetUnitType() == STRUCTURE_CPU)
+				{
+					CCPU* pCPU = static_cast<CCPU*>(pStructure);
+					if (pCPU->IsProducing())
+					{
+						eastl::string16 sTurns = L":1";	// It only ever takes one turn to make a rogue.
+						CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+					}
+				}
+
+				if (pStructure->GetUnitType() == STRUCTURE_TANKLOADER || pStructure->GetUnitType() == STRUCTURE_INFANTRYLOADER || pStructure->GetUnitType() == STRUCTURE_ARTILLERYLOADER)
+				{
+					CLoader* pLoader = static_cast<CLoader*>(pStructure);
+					if (pLoader->IsProducing())
+					{
+						eastl::string16 sTurns = sprintf(L":%d", pLoader->GetTurnsRemainingToProduce());
+						CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+					}
 				}
 			}
 		}
@@ -1518,6 +1546,11 @@ size_t CHUD::GetWeaponSheet()
 	return DigitanksWindow()->GetHUD()->m_iWeaponsSheet;
 }
 
+size_t CHUD::GetButtonSheet()
+{
+	return DigitanksWindow()->GetHUD()->m_iButtonSheet;
+}
+
 void CHUD::ClientEnterGame()
 {
 	UpdateInfo();
@@ -1897,7 +1930,7 @@ void CHUD::SetupMenu(menumode_t eMenuMode)
 		m_apButtons[i]->SetClickedListener(NULL, NULL);
 		m_apButtons[i]->SetEnabled(false);
 		SetButtonColor(i, clrBox);
-		SetButtonTexture(i, 0);
+		m_apButtons[i]->SetTexture(0);
 		SetButtonInfo(i, L"");
 		SetButtonTooltip(i, L"");
 	}
@@ -1924,9 +1957,9 @@ void CHUD::SetButtonListener(int i, IEventListener::Callback pfnCallback)
 	}
 }
 
-void CHUD::SetButtonTexture(int i, size_t iTexture)
+void CHUD::SetButtonTexture(int i, size_t iX, size_t iY)
 {
-	m_apButtons[i]->SetTexture(iTexture);
+	m_apButtons[i]->SetSheetTexture(m_iButtonSheet, iX, iY, 64, 64, 512, 256);
 }
 
 void CHUD::SetButtonColor(int i, Color clrButton)

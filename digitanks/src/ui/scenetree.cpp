@@ -306,19 +306,19 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 		if (pTank->IsFortified() || pTank->IsFortifying())
 		{
-			glgui::CRootPanel::PaintTexture(CDigitank::GetFortifyIcon(), iX, y+4, iSize, iSize);
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet(), iX, y+4, iSize, iSize, 0, 128, 64, 64, 512, 256);
 			iX += h;
 		}
 
 		if (pTank->IsSentried())
 		{
-			glgui::CRootPanel::PaintTexture(CDigitank::GetSentryIcon(), iX, y+4, iSize, iSize);
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet(), iX, y+4, iSize, iSize, 0, 192, 64, 64, 512, 256);
 			iX += h;
 		}
 
 		if (pTank->HasGoalMovePosition())
 		{
-			glgui::CRootPanel::PaintTexture(CDigitank::GetMoveIcon(), iX, y+4, iSize, iSize);
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet(), iX, y+4, iSize, iSize, 128, 128, 64, 64, 512, 256);
 			iX += h;
 		}
 	}

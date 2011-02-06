@@ -1350,6 +1350,12 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 	CBaseControl::Paint(x, y, w, h);
 }
 
+void CPictureButton::SetTexture(size_t iTexture)
+{
+	m_bSheet = false;
+	m_iTexture = iTexture;
+}
+
 void CPictureButton::SetSheetTexture(size_t iSheet, int sx, int sy, int sw, int sh, int tw, int th)
 {
 	m_bSheet = true;

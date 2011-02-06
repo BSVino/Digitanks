@@ -20,19 +20,6 @@
 #include <digitanks/structures/loader.h>
 #include <digitanks/units/scout.h>
 
-size_t CCPU::s_iCancelIcon = 0;
-size_t CCPU::s_iBuildPSUIcon = 0;
-size_t CCPU::s_iBuildBufferIcon = 0;
-size_t CCPU::s_iBuildLoaderIcon = 0;
-size_t CCPU::s_iBuildInfantryLoaderIcon = 0;
-size_t CCPU::s_iBuildTankLoaderIcon = 0;
-size_t CCPU::s_iBuildArtilleryLoaderIcon = 0;
-size_t CCPU::s_iBuildRogueIcon = 0;
-size_t CCPU::s_iInstallIcon = 0;
-size_t CCPU::s_iInstallPowerIcon = 0;
-size_t CCPU::s_iInstallBandwidthIcon = 0;
-size_t CCPU::s_iInstallFleetSupplyIcon = 0;
-
 REGISTER_ENTITY(CCPU);
 
 NETVAR_TABLE_BEGIN(CCPU);
@@ -69,19 +56,6 @@ void CCPU::Precache()
 
 	PrecacheModel(L"models/structures/cpu.obj");
 	PrecacheModel(L"models/structures/cpu-fan.obj");
-
-	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
-	s_iBuildPSUIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-psu.png");
-	s_iBuildBufferIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-buffer.png");
-	s_iBuildLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-loader.png");
-	s_iBuildInfantryLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-infantry-loader.png");
-	s_iBuildTankLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-tank-loader.png");
-	s_iBuildArtilleryLoaderIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-artillery-loader.png");
-	s_iBuildRogueIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-rogue.png");
-	s_iInstallIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install.png");
-	s_iInstallPowerIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-power.png");
-	s_iInstallBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-bandwidth.png");
-	s_iInstallFleetSupplyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-fleet.png");
 }
 
 void CCPU::SetupMenu(menumode_t eMenuMode)
@@ -99,7 +73,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	{
 		if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
-			pHUD->SetButtonTexture(0, s_iBuildInfantryLoaderIcon);
+			pHUD->SetButtonTexture(0, 320, 0);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
 			{
@@ -122,7 +96,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
-			pHUD->SetButtonTexture(1, s_iBuildTankLoaderIcon);
+			pHUD->SetButtonTexture(1, 128, 64);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
 			{
@@ -145,7 +119,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
-			pHUD->SetButtonTexture(2, s_iBuildArtilleryLoaderIcon);
+			pHUD->SetButtonTexture(2, 128, 0);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
 			{
@@ -167,7 +141,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		}
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
-		pHUD->SetButtonTexture(9, s_iCancelIcon);
+		pHUD->SetButtonTexture(9, 192, 64);
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
 		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 		pHUD->SetButtonTooltip(9, L"Return");
@@ -176,7 +150,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	{
 		if (!bDisableMiniBuffer)
 		{
-			pHUD->SetButtonTexture(5, s_iBuildBufferIcon);
+			pHUD->SetButtonTexture(5, 128, 192);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
 			{
@@ -199,7 +173,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (!bDisableBuffer)
 		{
-			pHUD->SetButtonTexture(0, s_iBuildBufferIcon);
+			pHUD->SetButtonTexture(0, 192, 0);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
 			{
@@ -222,7 +196,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (!bDisableBattery)
 		{
-			pHUD->SetButtonTexture(6, s_iBuildPSUIcon);
+			pHUD->SetButtonTexture(6, 192, 192);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
 			{
@@ -245,7 +219,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		if (!bDisablePSU)
 		{
-			pHUD->SetButtonTexture(1, s_iBuildPSUIcon);
+			pHUD->SetButtonTexture(1, 448, 0);
 
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
 			{
@@ -269,13 +243,13 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		if (!bDisableLoaders)
 		{
 			pHUD->SetButtonListener(2, CHUD::BuildLoader);
-			pHUD->SetButtonTexture(2, s_iBuildLoaderIcon);
+			pHUD->SetButtonTexture(2, 384, 0);
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
 			pHUD->SetButtonInfo(2, L"OPEN FACTORY CONSTRUCTION MENU\n \nFactories allow you to produce more advanced units.\n \nShortcut: E");
 			pHUD->SetButtonTooltip(2, L"Open Factory Menu");
 		}
 
-		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
+		pHUD->SetButtonTexture(7, 0, 64);
 		if (GetDigitanksTeam()->GetUnusedFleetPoints() && GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(UNIT_SCOUT) && !IsProducing())
 		{
 			pHUD->SetButtonColor(7, Color(150, 150, 150));

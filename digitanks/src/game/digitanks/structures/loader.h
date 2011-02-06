@@ -58,17 +58,6 @@ protected:
 	CNetworkedVariable<size_t>	m_iTankMovement;
 	CNetworkedVariable<size_t>	m_iTankHealth;
 	CNetworkedVariable<size_t>	m_iTankRange;
-
-	static size_t				s_iCancelIcon;
-	static size_t				s_iInstallIcon;
-	static size_t				s_iInstallAttackIcon;
-	static size_t				s_iInstallDefenseIcon;
-	static size_t				s_iInstallMovementIcon;
-	static size_t				s_iInstallRangeIcon;
-	static size_t				s_iInstallHealthIcon;
-	static size_t				s_iBuildInfantryIcon;
-	static size_t				s_iBuildTankIcon;
-	static size_t				s_iBuildArtilleryIcon;
 };
 
 #endif

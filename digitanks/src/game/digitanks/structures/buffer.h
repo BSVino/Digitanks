@@ -27,14 +27,6 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Macro-Buffer"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BUFFER; };
-
-protected:
-	static size_t				s_iCancelIcon;
-	static size_t				s_iInstallIcon;
-	static size_t				s_iInstallBandwidthIcon;
-	static size_t				s_iInstallFleetSupplyIcon;
-	static size_t				s_iInstallEnergyBonusIcon;
-	static size_t				s_iInstallRechargeBonusIcon;
 };
 
 class CMiniBuffer : public CSupplier
@@ -66,10 +58,6 @@ public:
 	virtual eastl::string16		GetName() { return L"Buffer"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_MINIBUFFER; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_BUFFER; };
-
-protected:
-	static size_t				s_iUpgradeIcon;
-	static size_t				s_iCancelIcon;
 };
 
 #endif

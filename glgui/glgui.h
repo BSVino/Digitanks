@@ -586,7 +586,7 @@ namespace glgui
 		virtual void	Paint() { CButton::Paint(); };
 		virtual void	Paint(int x, int y, int w, int h);
 
-		virtual void	SetTexture(size_t iTexture) { m_iTexture = iTexture; };
+		virtual void	SetTexture(size_t iTexture);
 		virtual void	SetSheetTexture(size_t iSheet, int sx, int sy, int sw, int sh, int tw, int th);
 		virtual void	ShowBackground(bool bShow) { m_bShowBackground = bShow; };
 

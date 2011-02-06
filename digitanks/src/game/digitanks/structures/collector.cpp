@@ -62,9 +62,6 @@ float CCollector::GetPowerProduced()
 	return 1.0f * m_hSupplyLine->GetIntegrity();
 }
 
-size_t CBattery::s_iUpgradeIcon = 0;
-size_t CBattery::s_iCancelIcon = 0;
-
 REGISTER_ENTITY(CBattery);
 
 NETVAR_TABLE_BEGIN(CBattery);
@@ -85,9 +82,6 @@ void CBattery::Precache()
 	BaseClass::Precache();
 
 	PrecacheModel(L"models/structures/battery.obj");
-
-	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
-	s_iUpgradeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-psu.png");
 }
 
 void CBattery::SetupMenu(menumode_t eMenuMode)
@@ -101,7 +95,7 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 
 		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{
-			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
+			pHUD->SetButtonTexture(0, 448, 0);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 		}
 

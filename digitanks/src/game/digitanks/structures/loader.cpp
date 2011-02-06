@@ -16,17 +16,6 @@
 
 #include <GL/glew.h>
 
-size_t CLoader::s_iCancelIcon = 0;
-size_t CLoader::s_iInstallIcon = 0;
-size_t CLoader::s_iInstallAttackIcon = 0;
-size_t CLoader::s_iInstallDefenseIcon = 0;
-size_t CLoader::s_iInstallMovementIcon = 0;
-size_t CLoader::s_iInstallRangeIcon = 0;
-size_t CLoader::s_iInstallHealthIcon = 0;
-size_t CLoader::s_iBuildInfantryIcon = 0;
-size_t CLoader::s_iBuildTankIcon = 0;
-size_t CLoader::s_iBuildArtilleryIcon = 0;
-
 REGISTER_ENTITY(CLoader);
 
 NETVAR_TABLE_BEGIN(CLoader);
@@ -60,17 +49,6 @@ void CLoader::Precache()
 	PrecacheModel(L"models/structures/loader-infantry.obj");
 	PrecacheModel(L"models/structures/loader-main.obj");
 	PrecacheModel(L"models/structures/loader-artillery.obj");
-
-	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
-	s_iInstallIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install.png");
-	s_iInstallAttackIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-attack.png");
-	s_iInstallDefenseIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-defense.png");
-	s_iInstallMovementIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-movement.png");
-	s_iInstallRangeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-range.png");
-	s_iInstallHealthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-health.png");
-	s_iBuildInfantryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-infantry.png");
-	s_iBuildTankIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-tank.png");
-	s_iBuildArtilleryIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-artillery.png");
 }
 
 void CLoader::Spawn()
@@ -154,21 +132,21 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 	if (GetBuildUnit() == UNIT_INFANTRY)
 	{
-		pHUD->SetButtonTexture(0, s_iBuildInfantryIcon);
+		pHUD->SetButtonTexture(0, 256, 0);
 		s += L"BUILD RESISTOR\n \n";
 		s += L"Resistors can fortify, gaining attack and shield energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
 		pHUD->SetButtonTooltip(0, L"Build Resistor");
 	}
 	else if (GetBuildUnit() == UNIT_TANK)
 	{
-		pHUD->SetButtonTexture(0, s_iBuildTankIcon);
+		pHUD->SetButtonTexture(0, 64, 64);
 		s += L"BUILD DIGITANK\n \n";
 		s += L"Digitanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
 		pHUD->SetButtonTooltip(0, L"Build Digitank");
 	}
 	else
 	{
-		pHUD->SetButtonTexture(0, s_iBuildArtilleryIcon);
+		pHUD->SetButtonTexture(0, 64, 0);
 		s += L"BUILD ARTILLERY\n \n";
 		s += L"Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n";
 		pHUD->SetButtonTooltip(0, L"Build Artillery");

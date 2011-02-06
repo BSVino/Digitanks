@@ -129,6 +129,7 @@ public:
 	static void					GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static size_t				GetWeaponSheet();
+	static size_t				GetButtonSheet();
 
 	void						ClientEnterGame();
 
@@ -145,7 +146,7 @@ public:
 	void						SetupMenu(menumode_t eMenuMode);
 
 	void						SetButtonListener(int iButton, IEventListener::Callback pfnCallback);
-	void						SetButtonTexture(int iButton, size_t iTexture);
+	void						SetButtonTexture(int iButton, size_t iX, size_t iY);
 	void						SetButtonColor(int iButton, Color clrButton);
 	void						SetButtonInfo(int iButton, const eastl::string16& pszInfo);
 	void						SetButtonTooltip(int iButton, const eastl::string16& sTooltip);
@@ -326,6 +327,7 @@ protected:
 	size_t						m_iHUDSheet;
 	size_t						m_iUnitsSheet;
 	size_t						m_iWeaponsSheet;
+	size_t						m_iButtonSheet;
 
 	size_t						m_iTurnSound;
 

@@ -9,13 +9,6 @@
 #include <renderer/renderer.h>
 #include <game/game.h>
 
-size_t CBuffer::s_iCancelIcon = 0;
-size_t CBuffer::s_iInstallIcon = 0;
-size_t CBuffer::s_iInstallBandwidthIcon = 0;
-size_t CBuffer::s_iInstallFleetSupplyIcon = 0;
-size_t CBuffer::s_iInstallEnergyBonusIcon = 0;
-size_t CBuffer::s_iInstallRechargeBonusIcon = 0;
-
 REGISTER_ENTITY(CBuffer);
 
 NETVAR_TABLE_BEGIN(CBuffer);
@@ -36,13 +29,6 @@ void CBuffer::Precache()
 	BaseClass::Precache();
 
 	PrecacheModel(L"models/structures/buffer.obj");
-
-	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
-	s_iInstallIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install.png");
-	s_iInstallBandwidthIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-bandwidth.png");
-	s_iInstallFleetSupplyIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-fleet.png");
-	s_iInstallEnergyBonusIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-energy.png");
-	s_iInstallRechargeBonusIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-install-recharge.png");
 }
 
 void CBuffer::SetupMenu(menumode_t eMenuMode)
@@ -72,9 +58,6 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 
-size_t CMiniBuffer::s_iUpgradeIcon = 0;
-size_t CMiniBuffer::s_iCancelIcon = 0;
-
 REGISTER_ENTITY(CMiniBuffer);
 
 NETVAR_TABLE_BEGIN(CMiniBuffer);
@@ -94,9 +77,6 @@ void CMiniBuffer::Precache()
 {
 	BaseClass::Precache();
 
-	s_iCancelIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-cancel.png");
-	s_iUpgradeIcon = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-build-buffer.png");
-
 	PrecacheModel(L"models/structures/minibuffer.obj");
 }
 
@@ -114,7 +94,7 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 
 		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{
-			pHUD->SetButtonTexture(0, s_iUpgradeIcon);
+			pHUD->SetButtonTexture(0, 192, 0);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 		}
 
