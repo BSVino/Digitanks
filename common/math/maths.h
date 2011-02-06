@@ -42,6 +42,14 @@ inline float RemapValClamped(float flInput, float flInLo, float flInHi, float fl
 	return RemapVal(flInput, flInLo, flInHi, flOutLo, flOutHi);
 }
 
+inline float Blink(float flTime, float flLength)
+{
+	if (fmod(flTime, flLength) > flLength/2)
+		return 1.0f;
+	
+	return 0.0f;
+}
+
 inline float Oscillate(float flTime, float flLength)
 {
 	return fabs(RemapVal(fmod(flTime, flLength), 0, flLength, -1, 1));

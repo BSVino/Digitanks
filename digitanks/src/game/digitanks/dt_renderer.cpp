@@ -496,6 +496,9 @@ void CDigitanksRenderer::RenderPreviewModes()
 
 					Vector vecLink = DigitanksGame()->GetTerrain()->SetPointHeight(pTank->GetRealOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0);
 
+					if (DigitanksGame()->GetTerrain()->IsPointOverHole(vecLink))
+						break;
+
 					float flDistanceFromSegmentStartSqr = (vecLink - vecLastSegmentStart).LengthSqr();
 
 					float flRamp = flDistanceFromSegmentStartSqr / (flSegmentLength*flSegmentLength);

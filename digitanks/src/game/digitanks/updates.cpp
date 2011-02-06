@@ -666,19 +666,19 @@ eastl::string16 CUpdateItem::GetName()
 			return L"CPU";
 
 		case STRUCTURE_BUFFER:
-			return L"Buffer";
+			return L"Macro-Buffer";
 
 		case STRUCTURE_PSU:
 			return L"Power Supply";
 
 		case STRUCTURE_INFANTRYLOADER:
-			return L"Resistor Loader";
+			return L"Resistor Factory";
 
 		case STRUCTURE_TANKLOADER:
-			return L"Digitank Loader";
+			return L"Digitank Factory";
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return L"Artillery Loader";
+			return L"Artillery Factory";
 
 		default:
 			return L"Structure";
@@ -693,7 +693,7 @@ eastl::string16 CUpdateItem::GetName()
 			break;
 
 		case STRUCTURE_BUFFER:
-			sResult = L"Buffer ";
+			sResult = L"Macro-Buffer ";
 			break;
 
 		case STRUCTURE_PSU:
@@ -701,15 +701,15 @@ eastl::string16 CUpdateItem::GetName()
 			break;
 
 		case STRUCTURE_INFANTRYLOADER:
-			sResult = L"Resistor Loader ";
+			sResult = L"Resistor Factory ";
 			break;
 
 		case STRUCTURE_TANKLOADER:
-			sResult = L"Tank Loader ";
+			sResult = L"Tank Factory ";
 			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
-			sResult = L"Artillery Loader ";
+			sResult = L"Artillery Factory ";
 			break;
 
 		default:
@@ -743,7 +743,7 @@ eastl::string16 CUpdateItem::GetName()
 			break;
 
 		case UPDATETYPE_TANKDEFENSE:
-			sResult += L"Defense Bonus";
+			sResult += L"Shield Energy Bonus";
 			break;
 
 		case UPDATETYPE_TANKMOVEMENT:
@@ -823,19 +823,19 @@ eastl::string16 CUpdateItem::GetInfo()
 			return L"This program allows the player to construct a CPU. The CPU is the life and brains of your operation. It allows you to build structures and units.";
 
 		case STRUCTURE_BUFFER:
-			return L"This program allows the player to construct Buffers, which expand your territory and provide support to your tanks. Downloads are also available for them to provide additional fleet supply points and bandwidth as well.";
+			return L"This program allows the player to construct Macro-Buffers, which expand your territory and provide support to your tanks. Downloads are also available for them to provide additional fleet supply points and bandwidth as well.";
 
 		case STRUCTURE_PSU:
 			return L"This program allows the player to construct Power Supplies to mine the valuable Electronodes that provide your base with more Power. Then you can further your nefarious plans to construct units and erect structures.";
 
 		case STRUCTURE_INFANTRYLOADER:
-			return L"This program allows the player to construct Resistor Loaders, which provide the Resistor unit, an cheap but essential defensive unit that can be fortified to defend your base.";
+			return L"This program allows the player to construct Resistor Factories, which provide the Resistor unit, an cheap but essential defensive unit that can be fortified to defend your base.";
 
 		case STRUCTURE_TANKLOADER:
-			return L"This program allows the player to construct the Digitank Loader which produces Digitanks, the primary tool of defeating your enemies. These units are more expensive to build.";
+			return L"This program allows the player to construct the Digitank Factory which produces Digitanks, the primary tool of defeating your enemies. These units are more expensive to build.";
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return L"This program allows the player to construct Artillery Loaders. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar. Artillery do double damage to shields, but only half damage to structures and tank hulls.";
+			return L"This program allows the player to construct Artillery Factories. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar. Artillery do double damage to shields, but only half damage to structures and tank hulls.";
 
 		default:
 			return L"Somehow you have found a way to construct an edifice which shouldn't exist. Please be careful not to open a wormhole while you're doing it.";
@@ -855,25 +855,25 @@ eastl::string16 CUpdateItem::GetInfo()
 			return L"This update increases your maximum fleet capacity, so that you can build more tanks.";
 
 		case UPDATETYPE_SUPPORTENERGY:
-			return L"This update improves unit support energy, units supported by all buffers will receive bonuses to Attack and Defense energy.";
+			return L"This update improves unit support energy, units supported by all buffers will receive bonuses to Attack and Shield energy.";
 
 		case UPDATETYPE_SUPPORTRECHARGE:
 			return L"This update improves unit health and shield recharge, units supported by all buffers will recharge more health and shields each turn.";
 
 		case UPDATETYPE_TANKATTACK:
-			return L"This gives every tank that is produced from this loader an automatic increase to its Attack Energy.";
+			return L"This gives every tank that is produced from this factory an automatic increase to its Attack Energy.";
 
 		case UPDATETYPE_TANKDEFENSE:
-			return L"This gives every tank that is produced from this loader an automatic increase to its Defense Energy.";
+			return L"This gives every tank that is produced from this factory an automatic increase to its Shield Energy.";
 
 		case UPDATETYPE_TANKMOVEMENT:
-			return L"This gives every tank that is produced from this loader an automatic increase to its Movement Energy.";
+			return L"This gives every tank that is produced from this factory an automatic increase to its Movement Energy.";
 
 		case UPDATETYPE_TANKHEALTH:
-			return L"This gives every tank that is produced from this loader an automatic increase to its health.";
+			return L"This gives every tank that is produced from this factory an automatic increase to its health.";
 
 		case UPDATETYPE_TANKRANGE:
-			return L"This gives every tank that is produced from this loader an automatic increase to its maximum firing range.";
+			return L"This gives every tank that is produced from this factory an automatic increase to its maximum firing range.";
 		}
 	}
 	else if (m_eUpdateClass == UPDATECLASS_UNITSKILL)
@@ -932,7 +932,7 @@ eastl::string16 CUpdateItem::GetUnits()
 		return L"attack energy";
 
 	case UPDATETYPE_TANKDEFENSE:
-		return L"defense energy";
+		return L"shield energy";
 
 	case UPDATETYPE_TANKMOVEMENT:
 		return L"units";

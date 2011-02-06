@@ -1428,7 +1428,9 @@ void CStructure::AddDefender(CDigitank* pTank)
 	size_t iFortifies = m_aoDefenders.size();
 
 	Vector vecFortify;
-	do
+	int iTries = 0;
+	bool bFound = false;
+	while (iTries++ < 6)
 	{
 		if (iFortifies == 0)
 		{
@@ -1443,7 +1445,16 @@ void CStructure::AddDefender(CDigitank* pTank)
 		DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
 
 		iFortifies++;
-	} while (pTerrain->IsPointOverHole(vecFortify) || pTerrain->IsPointOverWater(vecFortify) || pTerrain->IsPointOverLava(vecFortify));
+
+		if (pTerrain->IsPointOverHole(vecFortify) || pTerrain->IsPointOverWater(vecFortify) || pTerrain->IsPointOverLava(vecFortify))
+			continue;
+
+		bFound = true;
+		break;
+	}
+
+	if (!bFound)
+		return;
 
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
 

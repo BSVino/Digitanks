@@ -42,13 +42,13 @@ void CCollector::UpdateInfo(eastl::string16& s)
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", InitialTurnsToConstruct());
 		return;
 	}
 
 	if (GetSupplier())
 	{
-		s += p.sprintf(L"Power supplied: %.1f\n", GetPowerProduced() * GetSupplier()->GetChildEfficiency());
+		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced() * GetSupplier()->GetChildEfficiency());
 		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency()*100));
 		return;
 	}
@@ -60,14 +60,6 @@ float CCollector::GetPowerProduced()
 		return 0;
 
 	return 1.0f * m_hSupplyLine->GetIntegrity();
-}
-
-size_t CCollector::GetTurnsToConstruct()
-{
-	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
-		return 1;
-
-	return 4;
 }
 
 size_t CBattery::s_iUpgradeIcon = 0;
@@ -120,6 +112,7 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 		s += L"Shortcut: Q";
 
 		pHUD->SetButtonInfo(0, s);
+		pHUD->SetButtonTooltip(0, L"Upgrade To PSU");
 	}
 }
 
@@ -146,7 +139,7 @@ void CBattery::UpdateInfo(eastl::string16& s)
 
 	if (m_hSupplier != NULL)
 	{
-		s += p.sprintf(L"Power supplied: %.1f\n", GetPowerProduced() * m_hSupplier->GetChildEfficiency());
+		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced() * m_hSupplier->GetChildEfficiency());
 		s += p.sprintf(L"Efficiency: %d%\n", (int)(m_hSupplier->GetChildEfficiency()*100));
 		return;
 	}

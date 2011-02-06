@@ -199,7 +199,12 @@ void CDigitanksWindow::RenderMouseCursor()
 	else if (m_eMouseCursor == MOUSECURSOR_AIM)
 		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_AIMENEMY)
-		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 80, 80, 40, 256, 128);
+	{
+		if (Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.3f)
+			glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 80, 80, 40, 256, 128);
+		else
+			glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
+	}
 	else if (m_eMouseCursor == MOUSECURSOR_AIMINVALID)
 		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 80, 80, 40, 256, 128);
 

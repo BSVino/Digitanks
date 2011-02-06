@@ -47,6 +47,8 @@ void CBuffer::Precache()
 
 void CBuffer::SetupMenu(menumode_t eMenuMode)
 {
+	if (GetDigitanksTeam() && GetDigitanksTeam()->GetPrimaryCPU() != NULL)
+		GetDigitanksTeam()->GetPrimaryCPU()->SetupMenu(eMenuMode);
 }
 
 void CBuffer::UpdateInfo(eastl::string16& s)
@@ -54,7 +56,7 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 	eastl::string16 p;
 
 	s = L"";
-	s += L"BUFFER INFO\n";
+	s += L"MACRO-BUFFER INFO\n";
 	s += L"Network extender\n \n";
 
 	if (IsConstructing())
@@ -64,18 +66,10 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 		return;
 	}
 
-	s += p.sprintf(L"Strength: %d\n", m_iDataStrength.Get());
-	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
-	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
+	s += p.sprintf(L"Bandwidth: %.1f\n", Bandwidth());
+	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
-}
-
-size_t CBuffer::GetTurnsToConstruct()
-{
-	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
-		return 1;
-
-	return 2;
 }
 
 size_t CMiniBuffer::s_iUpgradeIcon = 0;
@@ -108,6 +102,9 @@ void CMiniBuffer::Precache()
 
 void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 {
+	if (GetDigitanksTeam()->GetPrimaryCPU() != NULL)
+		GetDigitanksTeam()->GetPrimaryCPU()->SetupMenu(eMenuMode);
+
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	eastl::string16 p;
 
@@ -122,12 +119,13 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 		}
 
 		eastl::string16 s;
-		s += L"UPGRADE TO BUFFER\n \n";
-		s += L"Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+		s += L"UPGRADE TO MACRO-BUFFER\n \n";
+		s += L"Macro-Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
 		s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
 		s += L"Shortcut: Q";
 
 		pHUD->SetButtonInfo(0, s);
+		pHUD->SetButtonTooltip(0, L"Upgrade To Macro-Buffer");
 	}
 }
 
@@ -135,7 +133,7 @@ void CMiniBuffer::UpdateInfo(eastl::string16& s)
 {
 	eastl::string16 p;
 	s = L"";
-	s += L"MINIBUFFER INFO\n";
+	s += L"BUFFER INFO\n";
 	s += L"Network extender\n \n";
 
 	if (IsConstructing())
@@ -147,14 +145,14 @@ void CMiniBuffer::UpdateInfo(eastl::string16& s)
 
 	if (IsUpgrading())
 	{
-		s += L"(Upgrading to Buffer)\n";
+		s += L"(Upgrading to Macro-Buffer)\n";
 		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToUpgrade());
 		return;
 	}
 
-	s += p.sprintf(L"Strength: %d\n", m_iDataStrength.Get());
-	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
-	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
+	s += p.sprintf(L"Bandwidth: %.1f\n", Bandwidth());
+	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 

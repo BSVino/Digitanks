@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <maths.h>
 #include <mtrand.h>
+#include <strutils.h>
 #include <models/models.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
@@ -1186,6 +1187,7 @@ void CDigitank::Move(CNetworkParameters* p)
 	m_flGoalTurretYaw = -180;
 
 	DirtyNeedsOrders();
+	DigitanksGame()->HandledActionItem(this);
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
@@ -1375,6 +1377,8 @@ void CDigitank::Fortify()
 void CDigitank::Fortify(CNetworkParameters* p)
 {
 	m_flFortifyTime = GameServer()->GetGameTime();
+
+	m_flMovementPower = GetMaxMovementEnergy();
 
 	if (m_bFortified)
 	{
@@ -2026,6 +2030,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(100, 100, 100));
 			pHUD->SetButtonTexture(0, s_iCancelIcon);
 			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q");
+			pHUD->SetButtonTooltip(0, L"Cancel Auto-Move");
 		}
 		else if (!IsFortified() && !IsFortifying())
 		{
@@ -2042,6 +2047,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(0, s_iMoveIcon);
 
 			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q");
+			pHUD->SetButtonTooltip(0, L"Move");
 		}
 
 		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && GetRemainingMovementEnergy() > 1)
@@ -2058,19 +2064,22 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			else
 				pHUD->SetButtonTexture(1, s_iTurnIcon);
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
+			pHUD->SetButtonTooltip(1, L"Rotate");
 		}
 
-		if (CanSentry() && !IsFortified())
+		if (CanSentry() && !IsFortified() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
 			if (IsSentried())
 			{
 				pHUD->SetButtonTexture(5, s_iMobilizeIcon);
 				pHUD->SetButtonInfo(5, L"MOBILIZE\n \nCancel the 'Hold Position' order.\n \nShortcut: A");
+				pHUD->SetButtonTooltip(5, L"Mobilize");
 			}
 			else
 			{
 				pHUD->SetButtonTexture(5, s_iSentryIcon);
 				pHUD->SetButtonInfo(5, L"HOLD POSITION\n \nThis unit will hold position and not require orders until told otherwise.\n \nShortcut: A");
+				pHUD->SetButtonTooltip(5, L"Hold Position");
 			}
 			pHUD->SetButtonListener(5, CHUD::Sentry);
 			pHUD->SetButtonColor(5, Color(0, 0, 150));
@@ -2080,9 +2089,15 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonTexture(6, 0);
 			if (IsCloaked())
+			{
 				pHUD->SetButtonInfo(6, L"DEACTIVATE CLOAKING DEVICE\n \nClick to turn off this tank's cloaking device.\n \nShortcut: S");
+				pHUD->SetButtonTooltip(6, L"Cloak");
+			}
 			else
+			{
 				pHUD->SetButtonInfo(6, L"ACTIVATE CLOAKING DEVICE\n \nThis tank has a cloaking device available. Click to activate it.\n \nShortcut: S");
+				pHUD->SetButtonTooltip(6, L"Uncloak");
+			}
 			pHUD->SetButtonListener(6, CHUD::Cloak);
 			pHUD->SetButtonColor(6, Color(0, 0, 150));
 		}
@@ -2091,6 +2106,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonTexture(7, s_iChooseWeaponIcon);
 			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
+			pHUD->SetButtonTooltip(7, L"Choose Weapon");
 			pHUD->SetButtonListener(7, CHUD::ChooseWeapon);
 			pHUD->SetButtonColor(7, Color(100, 100, 100));
 
@@ -2107,6 +2123,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonTexture(8, s_iMobilizeIcon);
 				pHUD->SetButtonInfo(8, L"MOBILIZE\n \nAllows this unit to move again.\n \nShortcut: F");
+				pHUD->SetButtonTooltip(8, L"Mobilize");
 			}
 			else
 			{
@@ -2114,16 +2131,19 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				{
 					pHUD->SetButtonTexture(8, s_iDeployIcon);
 					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this MCP deploy and create a CPU. The CPU will be the center of operations for your base. This action cannot be undone.\n \nShortcut: F");
+					pHUD->SetButtonTooltip(8, L"Deploy");
 				}
 				else if (IsArtillery())
 				{
 					pHUD->SetButtonTexture(8, s_iDeployIcon);
 					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.\n \nShortcut: F");
+					pHUD->SetButtonTooltip(8, L"Deploy");
 				}
 				else
 				{
 					pHUD->SetButtonTexture(8, s_iFortifyIcon);
 					pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.\n \nShortcut: F");
+					pHUD->SetButtonTooltip(8, L"Fortify");
 				}
 			}
 			pHUD->SetButtonListener(8, CHUD::Fortify);
@@ -2163,6 +2183,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			s += L"\n \nShortcut: E";
 
 			pHUD->SetButtonInfo(2, s);
+			pHUD->SetButtonTooltip(2, L"Aim");
 		}
 
 		if (HasBonusPoints())
@@ -2171,6 +2192,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(4, s_iPromoteIcon);
 			pHUD->SetButtonColor(4, glgui::g_clrBox);
 			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T");
+			pHUD->SetButtonTooltip(4, L"Upgrade");
 		}
 
 		if (m_iAirstrikes && !m_bActionTaken)
@@ -2187,6 +2209,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 			pHUD->SetButtonListener(9, CHUD::FireSpecial);
 			pHUD->SetButtonInfo(9, L"CALL AN AIRSTRIKE\n \nThis unit can call an airstrike. Click to aim and fire the airstrike.\n \nShortcut: G");
+			pHUD->SetButtonTooltip(9, L"Airstrike");
 		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
@@ -2203,6 +2226,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			s1 += L"Attack Energy increase: 10%\n \n";
 			s1 += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s1);
+			pHUD->SetButtonTooltip(0, L"Upgrade Attack");
 		}
 
 		if (!IsArtillery() && !IsScout())
@@ -2212,11 +2236,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			eastl::string16 s;
-			s += L"UPGRADE DEFENSE ENERGY\n \n";
-			s += L"This upgrade strengthens your tank's shield generator, increasing the maximum Defense Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n";
-			s += L"Defense Energy increase: 10%\n \n";
+			s += L"UPGRADE SHIELD ENERGY\n \n";
+			s += L"This upgrade strengthens your tank's shield generator, increasing the maximum Shield Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n";
+			s += L"Shield Energy increase: 10%\n \n";
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
+			pHUD->SetButtonTooltip(1, L"Upgrade Shields");
 		}
 
 		pHUD->SetButtonListener(2, CHUD::PromoteMovement);
@@ -2229,11 +2254,13 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		s2 += L"Movement Energy increase: 10%\n \n";
 		s2 += L"Shortcut: E";
 		pHUD->SetButtonInfo(2, s2);
+		pHUD->SetButtonTooltip(2, L"Upgrade Movement");
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
 		pHUD->SetButtonTexture(9, s_iCancelIcon);
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
 		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
+		pHUD->SetButtonTooltip(9, L"Return");
 	}
 }
 
@@ -2957,6 +2984,43 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	r.RenderModel(m_iShieldModel);
 }
 
+void CDigitank::DrawSchema(int x, int y, int w, int h)
+{
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.SetBlend(BLEND_ALPHA);
+
+	int iSize = 36;
+	DigitanksWindow()->GetHUD()->PaintWeaponSheet(GetCurrentWeapon(), x - 20, y + h - iSize + 10, iSize, iSize);
+
+	int iIconFontSize = 11;
+
+	float flYPosition = (float)y + h;
+	float flXPosition = (float)x + w + 20;
+
+	if (HasGoalMovePosition())
+	{
+		float flDistance = (GetRealOrigin() - GetGoalMovePosition()).Length();
+		int iTurns = (int)(flDistance/GetMaxMovementDistance());
+
+		eastl::string16 sTurns = sprintf(L"Auto-Move: %d", iTurns);
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+	}
+
+	float flIconFontHeight = glgui::CLabel::GetFontHeight(iIconFontSize) + 2;
+
+	if (IsFortified() || IsFortifying())
+	{
+		eastl::string16 sTurns = sprintf(L"+%d", GetFortifyLevel());
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+
+		glgui::CBaseControl::PaintTexture(CDigitank::GetFortifyIcon(), (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+
+		flYPosition -= flIconFontHeight;
+	}
+}
+
 void CDigitank::UpdateInfo(eastl::string16& s)
 {
 	s = L"";
@@ -2994,7 +3058,7 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 
 	if (GetBonusDefensePower())
 	{
-		s += p.sprintf(L"\n \n+%d defense energy", (int)GetBonusDefensePower());
+		s += p.sprintf(L"\n \n+%d shield energy", (int)GetBonusDefensePower());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
 			s += p.sprintf(L"\n \n (+%d from fortify)", (int)GetFortifyDefensePowerBonus());
@@ -3277,7 +3341,8 @@ float CDigitank::FirstProjectileTime() const
 
 void CDigitank::Disable(size_t iTurns)
 {
-	m_iTurnsDisabled += iTurns;
+	if (m_iTurnsDisabled < iTurns)
+		m_iTurnsDisabled = iTurns;
 
 	DigitanksGame()->OnDisabled(this, NULL, NULL);
 }

@@ -52,6 +52,7 @@ public:
 	virtual void				StartTurn();
 
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				RenderBuildableArea();
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 

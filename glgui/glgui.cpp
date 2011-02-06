@@ -34,6 +34,8 @@ CBaseControl::CBaseControl(int x, int y, int w, int h)
 	m_pCursorOutListener = NULL;
 
 	m_bFocus = false;
+
+	m_flMouseInTime = 0;
 }
 
 CBaseControl::CBaseControl(const CRect& Rect)
@@ -131,9 +133,31 @@ void CBaseControl::Paint(int x, int y)
 	Paint(x, y, m_iW, m_iH);
 }
 
+void CBaseControl::Paint(int x, int y, int w, int h)
+{
+	if (m_sTip.length() > 0 && m_flMouseInTime > 0 && CRootPanel::Get()->GetTime() > m_flMouseInTime + 0.5f)
+	{
+		int iFontSize = 10;
+
+		float flFontHeight = CLabel::GetFontHeight(iFontSize);
+		float flTextWidth = CLabel::GetTextWidth(m_sTip, m_sTip.length(), iFontSize);
+
+		int mx, my;
+		CRootPanel::GetFullscreenMousePos(mx, my);
+
+		int iTooltipRight = (int)(mx + flTextWidth);
+		if (iTooltipRight > CRootPanel::Get()->GetWidth())
+			mx -= (iTooltipRight - CRootPanel::Get()->GetWidth());
+
+		PaintRect(mx-3, (int)(my-flFontHeight)+1, (int)flTextWidth+6, (int)flFontHeight+6); 
+		glColor4ubv(Color(255, 255, 255, 255));
+		CLabel::PaintText(m_sTip, m_sTip.length(), iFontSize, (float)mx, (float)my);
+	}
+}
+
 void CBaseControl::PaintRect(int x, int y, int w, int h, const Color& c)
 {
-	glPushAttrib(GL_ENABLE_BIT);
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -247,12 +271,16 @@ void CBaseControl::CursorIn()
 {
 	if (m_pfnCursorInCallback)
 		m_pfnCursorInCallback(m_pCursorInListener);
+
+	m_flMouseInTime = CRootPanel::Get()->GetTime();
 }
 
 void CBaseControl::CursorOut()
 {
 	if (m_pfnCursorOutCallback)
 		m_pfnCursorOutCallback(m_pCursorOutListener);
+
+	m_flMouseInTime = 0;
 }
 
 void CBaseControl::SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
@@ -267,6 +295,25 @@ void CBaseControl::SetCursorOutListener(IEventListener* pListener, IEventListene
 	assert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pCursorOutListener = pListener;
 	m_pfnCursorOutCallback = pfnCallback;
+}
+
+void CBaseControl::SetTooltip(const eastl::string16& sTip)
+{
+	if (sTip == m_sTip)
+		return;
+
+	m_sTip = sTip;
+
+	if (m_flMouseInTime > 0)
+		m_flMouseInTime = CRootPanel::Get()->GetTime();
+}
+
+IControl* CBaseControl::GetHasCursor()
+{
+	if (m_flMouseInTime > 0)
+		return this;
+
+	return NULL;
 }
 
 CPanel::CPanel(int x, int y, int w, int h)
@@ -455,6 +502,16 @@ void CPanel::CursorOut()
 		m_pHasCursor->CursorOut();
 		m_pHasCursor = NULL;
 	}
+
+	BaseClass::CursorOut();
+}
+
+IControl* CPanel::GetHasCursor()
+{
+	if (!m_pHasCursor)
+		return this;
+
+	return m_pHasCursor->GetHasCursor();
 }
 
 void CPanel::AddControl(IControl* pControl, bool bToTail)
@@ -557,6 +614,8 @@ void CPanel::Paint(int x, int y, int w, int h)
 		GetAbsPos(ax, ay);
 		pControl->Paint(cx+x-ax, cy+y-ay);
 	}
+
+	BaseClass::Paint(x, y, w, h);
 }
 
 void CPanel::PaintBorder(int x, int y, int w, int h)
@@ -791,6 +850,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 	free(pszText);
 
 	glPopAttrib();
+
+	CBaseControl::Paint(x, y, w, h);
 }
 
 void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
@@ -818,6 +879,30 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	else	// TA_TOPLEFT
 		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
 
+	PaintText(pszText, iLength, m_iFontFaceSize, vecPosition.x, vecPosition.y);
+}
+
+float CLabel::GetTextWidth(const eastl::string16& sText, unsigned iLength, int iFontFaceSize)
+{
+	if (!s_apFonts[iFontFaceSize])
+		AddFont(iFontFaceSize);
+
+	return s_apFonts[iFontFaceSize]->Advance(sText.c_str(), iLength);
+}
+
+float CLabel::GetFontHeight(int iFontFaceSize)
+{
+	if (!s_apFonts[iFontFaceSize])
+		AddFont(iFontFaceSize);
+
+	return s_apFonts[iFontFaceSize]->LineHeight();
+}
+
+void CLabel::PaintText(const eastl::string16& sText, unsigned iLength, int iFontFaceSize, float x, float y)
+{
+	if (!s_apFonts[iFontFaceSize])
+		AddFont(iFontFaceSize);
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -825,7 +910,7 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 
 	glMatrixMode(GL_MODELVIEW);
 
-	s_apFonts[m_iFontFaceSize]->Render(pszText, iLength, FTPoint(vecPosition.x, CRootPanel::Get()->GetBottom()-vecPosition.y));
+	s_apFonts[iFontFaceSize]->Render(sText.c_str(), iLength, FTPoint(x, CRootPanel::Get()->GetBottom()-y));
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -1259,7 +1344,10 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 	{
 		// Now paint the text which appears on the button.
 		CLabel::Paint(x, y, w, h);
+		return;
 	}
+
+	CBaseControl::Paint(x, y, w, h);
 }
 
 void CPictureButton::SetSheetTexture(size_t iSheet, int sx, int sy, int sw, int sh, int tw, int th)
@@ -2023,11 +2111,15 @@ void CMenu::Paint(int x, int y, int w, int h)
 void CMenu::CursorIn()
 {
 	m_flHighlightGoal = 1;
+
+	CButton::CursorIn();
 }
 
 void CMenu::CursorOut()
 {
 	m_flHighlightGoal = 0;
+
+	CButton::CursorOut();
 }
 
 void CMenu::SetMenuListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
@@ -2538,6 +2630,9 @@ void CTreeNode::Paint(int x, int y, int w, int h, bool bFloating)
 
 	if (m_pEditButton)
 		m_pEditButton->Paint();
+
+	// Skip CPanel, controls are painted in other ways.
+	CBaseControl::Paint(x, y, w, h);
 }
 
 size_t CTreeNode::AddNode(const eastl::string16& sName)

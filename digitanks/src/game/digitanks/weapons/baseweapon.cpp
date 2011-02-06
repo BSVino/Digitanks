@@ -244,7 +244,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Big Mama",
 	L"Plasma Charge",
 	L"Electro-Magnetic Pulse",
-	L"Tractor Bomb",
+	L"Repulsor Bomb",
 	L"Grapeshot",
 	L"ICBM",
 	L"Grenade",
@@ -252,9 +252,9 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Cluster Bomb",
 	L"Earthshaker",
 
-	L"Flak Cannon",
+	L"Machine Gun",
 	L"Tree Cutter",
-	L"Laser",
+	L"Fragmentation Ray",
 	L"Torpedo",
 	L"Artillery Shell",
 	L"Artillery Plasma Charge",
@@ -262,7 +262,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"The Devastator",
 
 	L"Camera-Guided Missile",
-	L"Laser",
+	L"Fragmentation Ray",
 	L"Missile Defense",
 	L"Charging RAM Attack",
 
@@ -276,7 +276,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 
 	L"This light projectile bomb does just enough damage to keep the enemy from regenerating his shields next turn.",
 	L"This medium projectile bomb is a good tradeoff between firepower and defense.",
-	L"This heavy projectile bomb packs a mean punch at the cost of your defense for the next turn.",
+	L"This heavy projectile bomb packs a mean punch at the cost of your shield energy.",
 	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
 	L"This medium projectile bomb sends out an electonic pulse that does extra damage against shields but relatively little damage against tank hulls.",
 	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
@@ -289,7 +289,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 
 	L"The infantry's light mounted gun is its main firepower.",
 	L"The Tree Cutter is not a weapon, but a tool that can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
-	L"This weapon emits a wall of lasers in one direction. It can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
+	L"This weapon emits a wall of rays in one direction. It's not blocked by objects or terrain and can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
 	L"Torpedos do damage only if the target's shields are down, but they also disable units and sever structures from their network, forcing them to become neutral.",
 	L"The Artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
 	L"These charges are similar to the standard shells but have a large radius and pack a larger whallop.",
@@ -297,7 +297,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"The Devastor is the ultimate weapon of destruction.",
 
 	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first person.",
-	L"This weapon emits a wall of lasers in one direction. Great for hitting multiple tanks in a line. This weapon also has no range limitations.",
+	L"This weapon emits a wall of rays in one direction. Great for hitting multiple tanks in a line. This weapon goes through any objects or terrian and has no range limitations.",
 	L"These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!",
 	L"Combine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields. This attack requires your movement energy, if you move your tank you won't be able to execute it.",
 

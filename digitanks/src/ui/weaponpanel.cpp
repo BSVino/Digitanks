@@ -4,6 +4,7 @@
 #include <renderer/renderer.h>
 #include "digitankswindow.h"
 #include "hud.h"
+#include "instructor.h"
 
 using namespace glgui;
 
@@ -186,5 +187,7 @@ void CWeaponButton::ChooseWeaponCallback()
 	DigitanksGame()->SetAimTypeByWeapon(m_eWeapon);
 
 	CRootPanel::Get()->Layout();
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON, true);
 }
 

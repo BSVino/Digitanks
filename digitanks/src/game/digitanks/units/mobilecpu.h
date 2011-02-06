@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual eastl::string16		GetName() { return L"Mobile Construction Process"; };
+	virtual eastl::string16		GetName() { return L"Mobile Construction Platform"; };
 
 	virtual bool				CanFortify() { return true; };
 	virtual void				OnFortify();

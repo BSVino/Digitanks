@@ -165,8 +165,16 @@ void CSupplyLine::PostRender(bool bTransparent)
 		clrTeam = GetTeam()->GetColor();
 
 	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0), 2.5f);
-	oRope.SetTextureScale(5);
-	oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1)*2);
+	if (dynamic_cast<CStructure*>(m_hEntity.GetPointer()))
+	{
+		oRope.SetTextureScale(500000);
+		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1));
+	}
+	else
+	{
+		oRope.SetTextureScale(5);
+		oRope.SetTextureOffset(-fmod(GameServer()->GetGameTime(), 1)*2);
+	}
 
 	float flVisibility = 1;
 	CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(m_hEntity.GetPointer());

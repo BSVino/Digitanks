@@ -11,6 +11,7 @@
 #include <digitanks/supplyline.h>
 #include <digitanks/dt_camera.h>
 #include <ui/digitankswindow.h>
+#include <ui/hud.h>
 #include <ui/instructor.h>
 #include <shaders/shaders.h>
 #include <models/models.h>
@@ -209,6 +210,71 @@ void CStructure::PostRender(bool bTransparent)
 	}
 }
 
+void CStructure::DrawSchema(int x, int y, int w, int h)
+{
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.SetBlend(BLEND_ALPHA);
+	c.SetColor(Color(255, 255, 255));
+
+	float flYPosition = (float)y + h;
+	float flXPosition = (float)x + w + 20;
+
+	int iIconFontSize = 11;
+	float flIconFontHeight = glgui::CLabel::GetFontHeight(iIconFontSize) + 2;
+
+	if (IsConstructing())
+	{
+		eastl::string16 sTurns = sprintf(L"Turns To Construct: %d", GetTurnsRemainingToConstruct());
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		return;
+	}
+
+	if (IsUpgrading())
+	{
+		eastl::string16 sTurns = sprintf(L"Turns To Upgrade: %d", GetTurnsRemainingToUpgrade());
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		return;
+	}
+
+	if (Bandwidth() > 0)
+	{
+		eastl::string16 sBandwidth = sprintf(L": %.1f", Bandwidth());
+		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), iIconFontSize);
+
+		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 520, 530, 20, 20);
+
+		glgui::CLabel::PaintText(sBandwidth, sBandwidth.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+
+		flYPosition -= flIconFontHeight;
+	}
+
+	if (FleetPoints() > 0)
+	{
+		eastl::string16 sFleetPoints = sprintf(L": %d", FleetPoints());
+		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), iIconFontSize);
+
+		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 540, 530, 20, 20);
+
+		glgui::CLabel::PaintText(sFleetPoints, sFleetPoints.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+
+		flYPosition -= flIconFontHeight;
+	}
+
+	if (Power() > 0)
+	{
+		eastl::string16 sPower = sprintf(L": %.1f", Power());
+		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), iIconFontSize);
+
+		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 500, 530, 20, 20);
+
+		glgui::CLabel::PaintText(sPower, sPower.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+
+		flYPosition -= flIconFontHeight;
+	}
+}
+
 void CStructure::BeginConstruction(Vector vecConstructionOrigin)
 {
 	m_iTurnsToConstruct = GetTurnsToConstruct();
@@ -262,6 +328,24 @@ void CStructure::CompleteConstruction()
 
 	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
 		DigitanksWindow()->GetInstructor()->NextTutorial();
+}
+
+size_t CStructure::GetTurnsToConstruct()
+{
+	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
+		return 1;
+
+	size_t iTurns = InitialTurnsToConstruct();
+
+	// Location location location!
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+		iTurns = (size_t)(iTurns*1.5f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
+		iTurns = (size_t)(iTurns*2.0f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+		iTurns = (size_t)(iTurns*2.5f);
+
+	return iTurns;
 }
 
 void CStructure::InstallUpdate(size_t x, size_t y)
@@ -356,13 +440,23 @@ void CStructure::BeginUpgrade(CNetworkParameters* p)
 
 size_t CStructure::GetTurnsToUpgrade()
 {
+	size_t iTurns = 1;
+
 	if (GetUpgradeType() == STRUCTURE_PSU)
-		return 2;
+		iTurns = 2;
 
 	if (GetUpgradeType() == STRUCTURE_BUFFER)
-		return 1;
+		iTurns = 1;
 
-	return 1;
+	// Location location location!
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+		iTurns = (size_t)(iTurns*1.5f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
+		iTurns = (size_t)(iTurns*2.0f);
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+		iTurns = (size_t)(iTurns*2.5f);
+
+	return iTurns;
 }
 
 bool CStructure::NeedsOrders()

@@ -36,7 +36,7 @@ public:
 	bool						HasEnoughFleetPoints();
 	bool						HasEnoughPower();
 
-	virtual size_t				GetTurnsToConstruct();
+	virtual size_t				InitialTurnsToConstruct();
 	size_t						GetTurnsToProduce();
 
 	void						SetBuildUnit(unittype_t eBuildUnit);

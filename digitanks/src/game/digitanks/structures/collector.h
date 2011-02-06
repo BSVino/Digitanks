@@ -18,7 +18,7 @@ public:
 	class CResource*			GetResource() { return m_hResource; };
 	virtual float				GetPowerProduced();
 
-	virtual size_t				GetTurnsToConstruct();
+	virtual size_t				InitialTurnsToConstruct() { return 4; };
 	virtual eastl::string16		GetName() { return L"Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_PSU; };
 
@@ -46,7 +46,7 @@ public:
 	class CResource*			GetResource() { return m_hResource; };
 	virtual float				GetPowerProduced();
 
-	virtual size_t				GetTurnsToConstruct() { return 2; };
+	virtual size_t				InitialTurnsToConstruct() { return 2; };
 	virtual eastl::string16		GetName() { return L"Battery"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_PSU; };

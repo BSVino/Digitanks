@@ -197,6 +197,7 @@ public:
 	virtual float				GetFortifyAttackPowerBonus() { return 0; };
 	virtual float				GetFortifyDefensePowerBonus() { return 0; };
 	virtual bool				CanGetPowerups() const { return true; };
+	virtual size_t				GetFortifyLevel() { return m_iFortifyLevel; }
 
 	void						Sentry();
 	void						Sentry(CNetworkParameters* p);
@@ -280,6 +281,8 @@ public:
 	virtual void				RenderShield(float flAlpha, float flAngle);
 	virtual float				RenderShieldScale() const { return 1.0f; };
 
+	virtual void				DrawSchema(int x, int y, int w, int h);
+
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
@@ -341,6 +344,7 @@ public:
 
 	static size_t				GetAimBeamTexture() { return s_iAimBeam; }
 	static size_t				GetAutoMoveTexture() { return s_iAutoMove; }
+	static size_t				GetMoveIcon() { return s_iMoveIcon; }
 	static size_t				GetFortifyIcon() { return s_iFortifyIcon; }
 	static size_t				GetSentryIcon() { return s_iSentryIcon; }
 

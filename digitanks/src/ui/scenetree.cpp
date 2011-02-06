@@ -60,7 +60,12 @@ void CSceneTree::BuildTree(bool bForce)
 
 		CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);
 
-		pTreeGroup->AddNode(new CSceneTreeUnit(pEntity, pTreeGroup, this));
+		CSceneTreeUnit* pUnit = new CSceneTreeUnit(pEntity, pTreeGroup, this);
+		if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
+			pUnit->SetTooltip(eastl::string16(L"Structure: ") + pEntity->GetName());
+		else
+			pUnit->SetTooltip(eastl::string16(L"Unit: ") + pEntity->GetName());
+		pTreeGroup->AddNode(pUnit);
 	}
 
 	Layout();
@@ -98,6 +103,12 @@ CSceneTreeGroup* CSceneTree::GetUnitNode(unittype_t eUnit)
 	}
 
 	CSceneTreeGroup* pReturn = new CSceneTreeGroup(eUnit, this);
+
+	if (pReturn->GetUnitType() == STRUCTURE_CPU)
+		pReturn->SetTooltip(L"Group: Structures");
+	else
+		pReturn->SetTooltip(L"Group: Units");
+
 	AddNode(pReturn);
 	return pReturn;
 }
@@ -143,7 +154,14 @@ void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 
 	CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);
 
-	pTreeGroup->AddNode(new CSceneTreeUnit(pSelectable, pTreeGroup, this));
+	CSceneTreeUnit* pUnit = new CSceneTreeUnit(pSelectable, pTreeGroup, this);
+
+	if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
+		pUnit->SetTooltip(eastl::string16(L"Structure: ") + pSelectable->GetName());
+	else
+		pUnit->SetTooltip(eastl::string16(L"Unit: ") + pSelectable->GetName());
+
+	pTreeGroup->AddNode(pUnit);
 
 	Layout();
 }
@@ -210,14 +228,14 @@ void CSceneTreeGroup::Paint(int x, int y, int w, int h, bool bFloating)
 	if (!IsVisible())
 		return;
 
-	BaseClass::Paint(x, y, w, h, bFloating);
-
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.SetBlend(BLEND_ALPHA);
 
 	CHUD::PaintUnitSheet(m_eUnit, x+h, y, h, h, pCurrentLocalTeam?pCurrentLocalTeam->GetColor():Color(255,255,255,255));
+
+	BaseClass::Paint(x, y, w, h, bFloating);
 }
 
 CSceneTreeUnit::CSceneTreeUnit(CEntityHandle<CSelectable> hEntity, glgui::CTreeNode* pParent, glgui::CTree* pTree)
@@ -230,8 +248,6 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 {
 	if (!IsVisible())
 		return;
-
-	BaseClass::Paint(x, y, w, h, bFloating);
 
 	if (m_hEntity == NULL)
 		return;
@@ -299,6 +315,12 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 			glgui::CRootPanel::PaintTexture(CDigitank::GetSentryIcon(), iX, y+4, iSize, iSize);
 			iX += h;
 		}
+
+		if (pTank->HasGoalMovePosition())
+		{
+			glgui::CRootPanel::PaintTexture(CDigitank::GetMoveIcon(), iX, y+4, iSize, iSize);
+			iX += h;
+		}
 	}
 
 	CStructure* pStructure = dynamic_cast<CStructure*>(m_hEntity.GetPointer());
@@ -320,6 +342,8 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 		int iTurns = iTotalTurns-iTurnsRemaining;
 		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iTurns/iTotalTurns), 3, Color(255, 255, 100));
 	}
+
+	BaseClass::Paint(x, y, w, h, bFloating);
 }
 
 void CSceneTreeUnit::Selected()

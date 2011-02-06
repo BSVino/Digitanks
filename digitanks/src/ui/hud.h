@@ -123,6 +123,7 @@ public:
 
 	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
 	static void					PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c = Color(255,255,255));
+	static size_t				GetHUDSheet();
 	static void					GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static void					GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
@@ -147,6 +148,7 @@ public:
 	void						SetButtonTexture(int iButton, size_t iTexture);
 	void						SetButtonColor(int iButton, Color clrButton);
 	void						SetButtonInfo(int iButton, const eastl::string16& pszInfo);
+	void						SetButtonTooltip(int iButton, const eastl::string16& sTooltip);
 	void						ButtonCallback(int iButton);
 
 	virtual void				GameStart();

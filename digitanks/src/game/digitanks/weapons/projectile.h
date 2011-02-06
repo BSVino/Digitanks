@@ -20,7 +20,7 @@ public:
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual eastl::string16		SpecialCommandHint() { return L"Detonate"; };
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar\nTo Detonate"; };
 	virtual void				Fragment();
 
 	virtual bool				MakesSounds() { return true; };
@@ -139,7 +139,7 @@ class CICBM : public CProjectile
 	REGISTER_ENTITY_CLASS(CICBM, CProjectile);
 
 public:
-	virtual eastl::string16		SpecialCommandHint() { return L"Fragment"; };
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar\nTo Fragment"; };
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ICBM; }
 	virtual float				ShellRadius() { return 1.2f; };
@@ -225,6 +225,7 @@ public:
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
+	virtual bool				UsesSpecialCommand() { return false; };
 };
 
 class CTractorBomb : public CProjectile

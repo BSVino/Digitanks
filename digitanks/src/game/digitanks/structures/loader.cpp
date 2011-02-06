@@ -156,19 +156,22 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	{
 		pHUD->SetButtonTexture(0, s_iBuildInfantryIcon);
 		s += L"BUILD RESISTOR\n \n";
-		s += L"Resistors can fortify, gaining defense and attack energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
+		s += L"Resistors can fortify, gaining attack and shield energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
+		pHUD->SetButtonTooltip(0, L"Build Resistor");
 	}
 	else if (GetBuildUnit() == UNIT_TANK)
 	{
 		pHUD->SetButtonTexture(0, s_iBuildTankIcon);
 		s += L"BUILD DIGITANK\n \n";
 		s += L"Digitanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
+		pHUD->SetButtonTooltip(0, L"Build Digitank");
 	}
 	else
 	{
 		pHUD->SetButtonTexture(0, s_iBuildArtilleryIcon);
 		s += L"BUILD ARTILLERY\n \n";
 		s += L"Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n";
+		pHUD->SetButtonTooltip(0, L"Build Artillery");
 	}
 
 	s += p.sprintf(L"Fleet supply required: %d\n", GetFleetPointsRequired());
@@ -377,11 +380,8 @@ bool CLoader::HasEnoughPower()
 	return DigitanksGame()->GetConstructionCost(GetBuildUnit()) <= GetDigitanksTeam()->GetPower();
 }
 
-size_t CLoader::GetTurnsToConstruct()
+size_t CLoader::InitialTurnsToConstruct()
 {
-	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
-		return 1;
-
 	if (m_eBuildUnit == UNIT_INFANTRY)
 		return 2;
 	else if (m_eBuildUnit == UNIT_ARTILLERY)
@@ -435,11 +435,11 @@ void CLoader::UpdateInfo(eastl::string16& s)
 	eastl::string16 p;
 
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		s += L"RESISTOR LOADER\n";
+		s += L"RESISTOR FACTORY\n";
 	else if (GetBuildUnit() == UNIT_TANK)
-		s += L"DIGITANK LOADER\n";
+		s += L"DIGITANK FACTORY\n";
 	else
-		s += L"ARTILLERY LOADER\n";
+		s += L"ARTILLERY FACTORY\n";
 
 	s += L"Unit producer\n \n";
 
@@ -463,11 +463,11 @@ void CLoader::UpdateInfo(eastl::string16& s)
 eastl::string16 CLoader::GetName()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		return L"Resistor Loader";
+		return L"Resistor Factory";
 	else if (GetBuildUnit() == UNIT_TANK)
-		return L"Digitank Loader";
+		return L"Digitank Factory";
 	else
-		return L"Artillery Loader";
+		return L"Artillery Factory";
 }
 
 unittype_t CLoader::GetUnitType() const

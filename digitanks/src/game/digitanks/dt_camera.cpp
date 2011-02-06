@@ -54,7 +54,10 @@ void CDigitanksCamera::SnapTarget(Vector vecTarget)
 void CDigitanksCamera::SetDistance(float flDistance)
 {
 	if (flDistance < 40)
+	{
+		m_vecVelocity.x -= 80.0f;
 		flDistance = 40;
+	}
 
 	if (flDistance > 400)
 		flDistance = 400;
@@ -106,6 +109,11 @@ void CDigitanksCamera::SetCameraGuidedMissile(CCameraGuidedMissile* pMissile)
 {
 	m_hCameraGuidedMissile = pMissile;
 	m_flCameraGuidedFOV = m_flCameraGuidedFOVGoal = 0;
+}
+
+bool CDigitanksCamera::GetCameraGuidedMissile()
+{
+	return m_hCameraGuidedMissile != NULL;
 }
 
 void CDigitanksCamera::Think()

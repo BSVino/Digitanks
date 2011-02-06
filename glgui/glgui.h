@@ -89,6 +89,10 @@ namespace glgui
 		virtual void		CursorIn()=0;
 		virtual void		CursorOut()=0;
 
+		virtual IControl*	GetHasCursor()=0;
+
+		virtual eastl::string16	GetTooltip()=0;
+
 		virtual void		Destructor()=0;
 		virtual void		Delete()=0;
 	};
@@ -174,7 +178,7 @@ namespace glgui
 
 		virtual void	Paint();
 		virtual void	Paint(int x, int y);
-		virtual void	Paint(int x, int y, int w, int h) {};
+		virtual void	Paint(int x, int y, int w, int h);
 		virtual void	Layout() {};
 		virtual void	Think() {};
 		virtual void	UpdateScene() {};
@@ -214,11 +218,16 @@ namespace glgui
 		virtual void	CursorIn();
 		virtual void	CursorOut();
 
+		virtual IControl*	GetHasCursor();
+
 		virtual void	SetFocus(bool bFocus) { m_bFocus = bFocus; };
 		virtual bool	HasFocus() { return m_bFocus; };
 
 		virtual void	SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 		virtual void	SetCursorOutListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+
+		virtual void	SetTooltip(const eastl::string16& sTip);
+		virtual eastl::string16	GetTooltip() { return m_sTip; };
 
 		static void		PaintRect(int x, int y, int w, int h, const Color& c = g_clrBox);
 		static void		PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c = Color(255, 255, 255, 255));
@@ -236,6 +245,8 @@ namespace glgui
 
 		bool			m_bVisible;
 
+		float			m_flMouseInTime;
+
 		IEventListener::Callback m_pfnCursorInCallback;
 		IEventListener*	m_pCursorInListener;
 
@@ -243,6 +254,8 @@ namespace glgui
 		IEventListener*	m_pCursorOutListener;
 
 		bool			m_bFocus;
+
+		eastl::string16	m_sTip;
 	};
 
 	// A panel is a container for other controls. It is for organization
@@ -250,6 +263,7 @@ namespace glgui
 	// outside of it.
 	class CPanel : public CBaseControl
 	{
+		DECLARE_CLASS(CPanel, CBaseControl);
 
 #ifdef _DEBUG
 		// Just so CBaseControl can get at CPanel's textures for the purpose of debug paint methods.
@@ -276,6 +290,8 @@ namespace glgui
 		virtual bool			IsCursorListener() {return true;};
 		virtual void			CursorMoved(int mx, int my);
 		virtual void			CursorOut();
+
+		virtual IControl*		GetHasCursor();
 
 		virtual void			AddControl(IControl* pControl, bool bToTail = false);
 		virtual void			RemoveControl(IControl* pControl);
@@ -478,6 +494,10 @@ namespace glgui
 
 		static class ::FTFont*	GetFont(size_t iSize) { return s_apFonts[iSize]; };
 		static void		AddFont(size_t iSize);
+
+		static float	GetTextWidth(const eastl::string16& sText, unsigned iLength, int iFontFaceSize);
+		static float	GetFontHeight(int iFontFaceSize);
+		static void		PaintText(const eastl::string16& sText, unsigned iLength, int iFontFaceSize, float x, float y);
 
 	protected:
 		bool			m_bEnabled;

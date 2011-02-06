@@ -38,6 +38,8 @@ public:
 
 	virtual void					Selected();
 
+	virtual bool					IsCursorListener() {return true;};	// Don't show mouse cursor when hovering a unit button.
+
 protected:
 	CEntityHandle<CSelectable>		m_hEntity;
 };

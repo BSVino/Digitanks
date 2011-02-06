@@ -29,6 +29,7 @@ public:
 	void			Shake(Vector vecLocation, float flMagnitude);
 
 	void			SetCameraGuidedMissile(class CCameraGuidedMissile* pMissile);
+	bool			GetCameraGuidedMissile();
 
 	virtual void	Think();
 

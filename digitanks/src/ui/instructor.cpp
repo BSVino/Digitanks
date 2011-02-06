@@ -126,13 +126,13 @@ void CInstructor::Initialize()
 		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_LOADER, new CTutorial(this, TUTORIAL_LOADER, POSITION_TOPCENTER, 250, false,
-		L"LOADERS\n \nLoaders are specialized structures that produce combat units. With the CPU selected, build a Loader by pressing on the 'Build Loader' button, selecting any loader, and clicking on your Network. Then press the 'Enter' key to complete construction.")));
+		L"FACTORIES\n \nFactories are specialized structures that produce combat units. With the CPU selected, build a Factory by pressing the 'Build Factory' button, selecting any factory, and clicking in the green area to build it. Then press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_EFFICIENCY, new CTutorial(this, TUTORIAL_EFFICIENCY, POSITION_TOPCENTER, 250, true,
 		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer or CPU will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_PRODUCING_UNITS, new CTutorial(this, TUTORIAL_PRODUCING_UNITS, POSITION_TOPCENTER, 250, false,
-		L"PRODUCING UNITS\n \nNow that your Loader has finished constructing, it can start producing units. Select the Loader and click the build button to begin producing a unit.")));
+		L"PRODUCING UNITS\n \nNow that your Factory has finished constructing, it can start producing units. Select the Factory and click the build button to begin producing a unit.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FLEET_POINTS, new CTutorial(this, TUTORIAL_FLEET_POINTS, POSITION_TOPCENTER, 250, true,
 		L"FLEET POINTS\n \nYour fleet points can be seen on the upper right. When tanks are produced, they use up these fleet points. To get more fleet points, just build more buffers.\n \nClick here to continue.")));
@@ -147,7 +147,7 @@ void CInstructor::Initialize()
 		L"RESISTOR\n \nThis unit is a Resistor. They are a mobile support and defense platform. They have powerful shields in the front but little protection from attacks to the rear.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING, new CTutorial(this, TUTORIAL_FORTIFYING, POSITION_TOPCENTER, 250, true,
-		L"FORTIFYING\n \nResistors can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and defense energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
+		L"FORTIFYING\n \nResistors can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and shield energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING2, new CTutorial(this, TUTORIAL_FORTIFYING2, POSITION_TOPCENTER, 250, true,
 		L"FORTIFYING\n \nGreat! That energy wall is incredibly strong and regenerates faster when the unit is fortified. Fortified units can't rotate, but if you position them well they won't need to. Resistors also get bonuses to their attack when they're fortified.\n \nClick here to continue.")));
@@ -183,7 +183,10 @@ void CInstructor::Initialize()
 		L"< Select a unit")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_AIM, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_AIM, POSITION_BUTTONS, 200, false,
-		L"Press the 'Aim' button")));
+		L"Press the 'Choose Weapon' button")));
+
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON, POSITION_TOPCENTER, 200, false,
+		L"Choices!\n \nChoose your weapon.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_COMMAND, POSITION_TOPCENTER, 200, false,
 		L"Click on an enemy to fire")));
@@ -192,13 +195,13 @@ void CInstructor::Initialize()
 		L"< Select the MCP")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_COMMAND, POSITION_TOPCENTER, 200, false,
-		L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes")));
+		L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes, such as this one")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_DEPLOY, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_DEPLOY, POSITION_BUTTONS, 200, false,
 		L"Press the 'Deploy' button to create a CPU")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, POSITION_BUTTONS, 200, false,
-		L"Choose 'Build Minibuffer' from the construction options")));
+		L"Choose 'Build Buffer' from the construction options")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, POSITION_TOPCENTER, 200, false,
 		L"Click inside the green area to place the structure")));
@@ -449,6 +452,13 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(x, y, w, h);
 
 	CPanel::Paint(x, y, w, h);
+
+	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintSheet(CHUD::GetHUDSheet(), x + w + 10, y + h/2 - 222/2, 203, 222, 680, 640, 203, 222, 1024, 1024);
+	}
 }
 
 bool CTutorialPanel::MousePressed(int code, int mx, int my)

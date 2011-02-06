@@ -108,7 +108,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			}
 
 			eastl::string16 s;
-			s += L"BUILD RESISTOR LOADER\n \n";
+			s += L"BUILD RESISTOR FACTORY\n \n";
 			s += L"This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
 
@@ -117,6 +117,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
+			pHUD->SetButtonTooltip(0, L"Build Resistor Factory");
 		}
 
 		if (GetDigitanksTeam()->CanBuildTankLoaders())
@@ -130,7 +131,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			}
 
 			eastl::string16 s;
-			s += L"BUILD DIGITANK LOADER\n \n";
+			s += L"BUILD DIGITANK FACTORY\n \n";
 			s += L"This program lets you build Digitanks, the primary assault force in your fleet.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
 
@@ -139,6 +140,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
+			pHUD->SetButtonTooltip(1, L"Build Digitank Factory");
 		}
 
 		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
@@ -152,7 +154,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			}
 
 			eastl::string16 s;
-			s += L"BUILD ARTILLERY LOADER\n \n";
+			s += L"BUILD ARTILLERY FACTORY\n \n";
 			s += L"This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
 
@@ -161,12 +163,14 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: E";
 			pHUD->SetButtonInfo(2, s);
+			pHUD->SetButtonTooltip(2, L"Build Artillery Factory");
 		}
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
 		pHUD->SetButtonTexture(9, s_iCancelIcon);
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
 		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
+		pHUD->SetButtonTooltip(9, L"Return");
 	}
 	else
 	{
@@ -181,8 +185,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			}
 
 			eastl::string16 s;
-			s += L"BUILD MINIBUFFER\n \n";
-			s += L"MiniBuffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. MiniBuffers can later be upgraded to Buffers.\n \n";
+			s += L"BUILD BUFFER\n \n";
+			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can later be upgraded to Macro-Buffers.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
@@ -190,6 +194,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: A";
 			pHUD->SetButtonInfo(5, s);
+			pHUD->SetButtonTooltip(5, L"Build Buffer");
 		}
 
 		if (!bDisableBuffer)
@@ -203,8 +208,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			}
 
 			eastl::string16 s;
-			s += L"BUILD BUFFER\n \n";
-			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be improved by installing updates.\n \n";
+			s += L"BUILD MACRO-BUFFER\n \n";
+			s += L"Macro-Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Macro-Buffers can be improved by downloading updates.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
@@ -212,6 +217,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
+			pHUD->SetButtonTooltip(0, L"Build Macro-Buffer");
 		}
 
 		if (!bDisableBattery)
@@ -234,6 +240,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: S";
 			pHUD->SetButtonInfo(6, s);
+			pHUD->SetButtonTooltip(6, L"Build Battery");
 		}
 
 		if (!bDisablePSU)
@@ -256,6 +263,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
+			pHUD->SetButtonTooltip(1, L"Build PSU");
 		}
 
 		if (!bDisableLoaders)
@@ -263,7 +271,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(2, CHUD::BuildLoader);
 			pHUD->SetButtonTexture(2, s_iBuildLoaderIcon);
 			pHUD->SetButtonColor(2, Color(150, 150, 150));
-			pHUD->SetButtonInfo(2, L"OPEN LOADER CONSTRUCTION MENU\n \nShortcut: E");
+			pHUD->SetButtonInfo(2, L"OPEN FACTORY CONSTRUCTION MENU\n \nFactories allow you to produce more advanced units.\n \nShortcut: E");
+			pHUD->SetButtonTooltip(2, L"Open Factory Menu");
 		}
 
 		pHUD->SetButtonTexture(7, s_iBuildRogueIcon);
@@ -286,6 +295,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		s += L"Shortcut: D";
 		pHUD->SetButtonInfo(7, s);
+		pHUD->SetButtonTooltip(7, L"Build Rogue");
 	}
 }
 
@@ -575,14 +585,6 @@ float CCPU::GetPowerToConstruct(unittype_t eStructure, Vector vecLocation)
 {
 	float flPowerToConstruct = DigitanksGame()->GetConstructionCost(eStructure);
 
-	// Location location location!
-	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecLocation))
-		flPowerToConstruct *= 1.5f;
-	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecLocation))
-		flPowerToConstruct *= 2.0f;
-	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecLocation))
-		flPowerToConstruct *= 2.5f;
-
 	return flPowerToConstruct;
 }
 
@@ -703,6 +705,33 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	r.RenderModel(m_iFanModel);
 }
 
+void CCPU::RenderBuildableArea()
+{
+	BaseClass::RenderBuildableArea();
+
+	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
+		return;
+
+	if (m_ePreviewStructure != STRUCTURE_BUFFER && m_ePreviewStructure != STRUCTURE_MINIBUFFER)
+		return;
+
+	if (!IsPreviewBuildValid())
+		return;
+
+	size_t iInitialDataStrength;
+	if (m_ePreviewStructure == STRUCTURE_BUFFER)
+		iInitialDataStrength = CBuffer::InitialBufferDataStrength();
+	else
+		iInitialDataStrength = CMiniBuffer::InitialMiniBufferDataStrength();
+
+	float flRadius = sqrt((float)iInitialDataStrength/M_PI) + 5;	// 5 is the bounding radius for both structures
+
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.Translate(GetPreviewBuild());
+	c.Scale(flRadius, flRadius, flRadius);
+	c.RenderSphere();
+}
+
 void CCPU::UpdateInfo(eastl::string16& s)
 {
 	eastl::string16 p;
@@ -716,10 +745,11 @@ void CCPU::UpdateInfo(eastl::string16& s)
 		s += sprintf(L"Turns left: %d\n \n", m_iTurnsToProduceRogue.Get());
 	}
 
-	s += p.sprintf(L"Strength: %d\n", m_iDataStrength.Get());
-	s += p.sprintf(L"Growth: %d\n", (int)GetDataFlowRate());
-	s += p.sprintf(L"Size: %d\n", (int)GetDataFlowRadius());
-	s += p.sprintf(L"Efficiency: %d%\n", (int)(GetChildEfficiency()*100));
+	s += p.sprintf(L"Power Supplied: %.1f\n", Power());
+	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
+	s += p.sprintf(L"Bandwidth: %.1f\n", Bandwidth());
+	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 
 void CCPU::OnDeleted()

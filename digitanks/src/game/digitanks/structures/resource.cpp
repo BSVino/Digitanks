@@ -60,7 +60,7 @@ void CResource::Think()
 			if (HasCollector() && GetCollector()->GetTeam())
 				pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
 			else
-				pInstance->SetColor(Color(255,255,255));
+				pInstance->SetColor(Color(195,176,78));
 
 			if (GetVisibility() <= 0)
 			{
@@ -78,7 +78,7 @@ void CResource::Think()
 			if (HasCollector() && GetCollector()->GetTeam())
 				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(GetCollector()->GetTeam()->GetColor());
 			else
-				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(255,255,255));
+				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(195,176,78));
 		}
 	}
 }

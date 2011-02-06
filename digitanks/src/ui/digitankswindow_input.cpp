@@ -182,6 +182,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				else
 					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pSelectable);
 			}
+			else if (!IsShiftDown())
+				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
 
 			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
 				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
