@@ -132,7 +132,10 @@ void CUpdatesPanel::Layout()
 					pUpdate->SetEnabled(false);
 			}
 
-			pUpdate->SetTexture(GetTextureForUpdateItem(&pUpdates->m_aUpdates[i][j]));
+			size_t iSheet;
+			int sx, sy, sw, sh, tw, th;
+			GetTextureForUpdateItem(&pUpdates->m_aUpdates[i][j], iSheet, sx, sy, sw, sh, tw, th);
+			pUpdate->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
 			pUpdate->SetText(pUpdates->m_aUpdates[i][j].GetName().c_str());
 
 			if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTURE)
@@ -283,32 +286,79 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		m_pTutorial->SetText(L"This update is not yet available for download.");
 }
 
-size_t CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo)
+void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
+	int iDownloadWidth = 512;
+	int iDownloadHeight = 256;
+	int iMenuWidth = 512;
+	int iMenuHeight = 256;
+
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
 		switch (pInfo->m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			return m_iIconCPU;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 128;
+			sy = 64;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case STRUCTURE_BUFFER:
-			return m_iIconBuffer;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 320;
+			sy = 0;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case STRUCTURE_PSU:
-			return m_iIconPSU;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 192;
+			sy = 128;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case STRUCTURE_INFANTRYLOADER:
-			return m_iIconInfantryLoader;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 64;
+			sy = 128;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case STRUCTURE_TANKLOADER:
-			return m_iIconTankLoader;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 448;
+			sy = 128;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return m_iIconArtilleryLoader;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 128;
+			sy = 0;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		default:
-			return 0;
+			return;
 		}
 	}
 	else if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
@@ -316,62 +366,220 @@ size_t CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo)
 		switch (pInfo->m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			return m_iIconCPUPower;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 320;
+			sy = 64;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case UPDATETYPE_BANDWIDTH:
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
 			if (pInfo->m_eStructure == STRUCTURE_CPU)
-				return m_iIconCPUBandwidth;
+			{
+				sx = 192;
+				sy = 64;
+				return;
+			}
 			else
-				return m_iIconBufferBandwidth;
+			{
+				sx = 384;
+				sy = 0;
+				return;
+			}
 
 		case UPDATETYPE_FLEETSUPPLY:
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
 			if (pInfo->m_eStructure == STRUCTURE_CPU)
-				return m_iIconCPUFleet;
+			{
+				sx = 256;
+				sy = 64;
+				return;
+			}
 			else
-				return m_iIconBufferFleet;
+			{
+				sx = 0;
+				sy = 64;
+				return;
+			}
 
 		case UPDATETYPE_SUPPORTENERGY:
-			return m_iIconBufferEnergy;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 448;
+			sy = 0;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case UPDATETYPE_SUPPORTRECHARGE:
-			return m_iIconBufferRecharge;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 64;
+			sy = 64;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
 
 		case UPDATETYPE_TANKATTACK:
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-				return m_iIconInfantryAttack;
+			{
+				sx = 384;
+				sy = 64;
+				return;
+			}
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-				return m_iIconTankAttack;
+			{
+				sx = 256;
+				sy = 128;
+				return;
+			}
 			else
-				return m_iIconArtilleryAttack;
+			{
+				sx = 0;
+				sy = 0;
+				return;
+			}
 
 		case UPDATETYPE_TANKDEFENSE:
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-				return m_iIconInfantryDefense;
+			{
+				sx = 448;
+				sy = 64;
+				return;
+			}
 			else
-				return m_iIconTankDefense;
+			{
+				sx = 320;
+				sy = 128;
+				return;
+			}
 
 		case UPDATETYPE_TANKMOVEMENT:
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-				return m_iIconInfantryMovement;
+			{
+				sx = 128;
+				sy = 128;
+				return;
+			}
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-				return m_iIconTankMovement;
+			{
+				sx = 0;
+				sy = 192;
+				return;
+			}
 			else
-				return m_iIconArtilleryMovement;
+			{
+				sx = 192;
+				sy = 0;
+				return;
+			}
 
 		case UPDATETYPE_TANKHEALTH:
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-				return m_iIconInfantryHealth;
+			{
+				sx = 0;
+				sy = 128;
+				return;
+			}
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-				return m_iIconTankHealth;
+			{
+				sx = 384;
+				sy = 128;
+				return;
+			}
 			else
-				return m_iIconArtilleryHealth;
+			{
+				sx = 64;
+				sy = 0;
+				return;
+			}
 
 		case UPDATETYPE_TANKRANGE:
-			return m_iIconArtilleryRange;
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sx = 256;
+			sy = 0;
+			sw = 64;
+			sh = 64;
+			tw = iDownloadWidth;
+			th = iDownloadHeight;
+			return;
+		}
+	}
+	else if (pInfo->m_eUpdateClass == UPDATECLASS_UNITSKILL)
+	{
+		switch (pInfo->m_eUpdateType)
+		{
+		case UPDATETYPE_SKILL_CLOAK:
+			iSheet = DigitanksWindow()->GetHUD()->GetButtonSheet();
+			sx = 256;
+			sy = 192;
+			sw = 64;
+			sh = 64;
+			tw = iMenuWidth;
+			th = iMenuHeight;
+			return;
+
+		case UPDATETYPE_WEAPON_CHARGERAM:
+			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			DigitanksWindow()->GetHUD()->GetWeaponSheet(WEAPON_CHARGERAM, sx, sy, sw, sh, tw, th);
+			return;
+
+		case UPDATETYPE_WEAPON_AOE:
+			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_AOE, sx, sy, sw, sh, tw, th);
+			return;
+
+		case UPDATETYPE_WEAPON_CLUSTER:
+			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_CLUSTERBOMB, sx, sy, sw, sh, tw, th);
+			return;
+
+		case UPDATETYPE_WEAPON_ICBM:
+			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_ICBM, sx, sy, sw, sh, tw, th);
+			return;
+
+		case UPDATETYPE_WEAPON_DEVASTATOR:
+			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_DEVASTATOR, sx, sy, sw, sh, tw, th);
+			return;
 		}
 	}
 
-	return 0;
+	return;
 }
 
 CUpdateButton::CUpdateButton(CUpdatesPanel* pPanel)

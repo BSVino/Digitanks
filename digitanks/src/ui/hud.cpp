@@ -124,8 +124,8 @@ CHUD::CHUD()
 	m_iUnitsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/units-sheet.png");
 	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
 	m_iButtonSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-menu-sheet-01.png");
+	m_iDownloadSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-download-sheet-01.png");
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
-	m_iObstruction = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-obstruction.png");
 	m_iActionTanksSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/tanks.png");
 	m_iActionSignsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/signs.png");
 
@@ -1049,16 +1049,18 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, iResearchCompleted - 12, 35 - 12, Color(0, 200, 100, 255));
 
-				size_t iItemIcon = m_pUpdatesPanel->GetTextureForUpdateItem(pItem);
+				size_t iItemSheet;
+				int sx, sy, sw, sh, tw, th;
+				m_pUpdatesPanel->GetTextureForUpdateItem(pItem, iItemSheet, sx, sy, sw, sh, tw, th);
 
-				if (iItemIcon)
+				if (iItemSheet)
 				{
 					float flSlideTime = Lerp(GameServer()->GetGameTime() - m_flUpdateIconSlide, 0.8f);
 					int iIconX = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartX, (float)(iWidth/2 - iResearchWidth/2 - 35));
 					int iIconY = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartY, 0.0f);
 					int iButtonSize = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_pUpdatesPanel->GetButtonSize(), 35.0f);
 
-					CRootPanel::PaintTexture(iItemIcon, iIconX, iIconY, iButtonSize, iButtonSize);
+					CRootPanel::PaintSheet(iItemSheet, iIconX, iIconY, iButtonSize, iButtonSize, sx, sy, sw, sh, tw, th);
 				}
 			}
 		}
@@ -1177,7 +1179,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			}
 
 			if (bObstruction)
-				CRootPanel::PaintTexture(m_iObstruction, iX, iY, 100, 100, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
+				CRootPanel::PaintSheet(m_iHUDSheet, iX, iY, 124, 68, 446, 771, 124, 68, 1024, 1024, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
 		}
 	}
 
@@ -1549,6 +1551,11 @@ size_t CHUD::GetWeaponSheet()
 size_t CHUD::GetButtonSheet()
 {
 	return DigitanksWindow()->GetHUD()->m_iButtonSheet;
+}
+
+size_t CHUD::GetDownloadSheet()
+{
+	return DigitanksWindow()->GetHUD()->m_iDownloadSheet;
 }
 
 void CHUD::ClientEnterGame()

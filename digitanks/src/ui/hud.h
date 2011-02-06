@@ -130,6 +130,7 @@ public:
 	static void					PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static size_t				GetWeaponSheet();
 	static size_t				GetButtonSheet();
+	static size_t				GetDownloadSheet();
 
 	void						ClientEnterGame();
 
@@ -328,6 +329,7 @@ protected:
 	size_t						m_iUnitsSheet;
 	size_t						m_iWeaponsSheet;
 	size_t						m_iButtonSheet;
+	size_t						m_iDownloadSheet;
 
 	size_t						m_iTurnSound;
 
@@ -335,8 +337,6 @@ protected:
 
 	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
 	glgui::CLabel*				m_pSpacebarHint;
-
-	size_t						m_iObstruction;
 
 	size_t						m_iActionTanksSheet;
 	size_t						m_iActionSignsSheet;

@@ -36,7 +36,7 @@ public:
 
 	void							UpdateInfo(class CUpdateItem* pInfo);
 
-	size_t							GetTextureForUpdateItem(class CUpdateItem* pInfo);
+	void							GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 
 	int								GetButtonSize() { return m_iButtonSize; }
 
