@@ -2004,12 +2004,7 @@ void CHUD::GameOver(bool bPlayerWon)
 
 void CHUD::NewCurrentTeam()
 {
-	if (m_bHUDActive && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()) &&
-			DigitanksGame()->GetPrimarySelectionTank() && !DigitanksGame()->GetPrimarySelectionTank()->HasGoalMovePosition() &&
-			DigitanksWindow()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)	// Don't set control mode if it's the end so we can open the menu.
-		DigitanksGame()->SetControlMode(MODE_MOVE);
-	else
-		DigitanksGame()->SetControlMode(MODE_NONE);
+	DigitanksGame()->SetControlMode(MODE_NONE);
 
 	UpdateTurnButton();
 	UpdateTeamInfo();

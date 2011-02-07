@@ -1801,10 +1801,7 @@ void CDigitank::OnCurrentSelection()
 			break;
 		}
 
-		if (!IsFortified() && !IsFortifying() && !m_bFiredWeapon && !m_bActionTaken && !HasGoalMovePosition() && GetRemainingMovementEnergy() > 1.0f)
-			DigitanksGame()->SetControlMode(MODE_MOVE);
-		else
-			DigitanksGame()->SetControlMode(MODE_NONE);
+		DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 }
 
@@ -2996,48 +2993,66 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 	eastl::string16 p;
 
 	s += GetName();
+	s += L"\n \n";
+
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
 
 	if (IsDisabled())
-		s += L"\n[Disabled]";
+		s += L"[Disabled]\n \n";
 
 	if (IsFortified())
-		s += L"\n[Fortified]";
+		s += L"[Fortified]\n \n";
 
 	else if (IsFortifying())
-		s += L"\n[Fortifying...]";
+		s += L"[Fortifying...]\n \n";
 
 	if (HasBonusPoints())
 	{
 		if (GetBonusPoints() > 1)
-			s += p.sprintf(L"\n \n%d upgrades", GetBonusPoints());
+			s += p.sprintf(L"%d upgrades\n \n", GetBonusPoints());
 		else
-			s += L"\n \n1 upgrade";
+			s += L"1 upgrade\n \n";
 	}
 
 	if (GetBonusAttackPower())
 	{
-		s += p.sprintf(L"\n \n+%d attack energy", (int)GetBonusAttackPower());
+		s += p.sprintf(L"+%d attack energy\n", (int)GetBonusAttackPower());
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s += p.sprintf(L"\n \n (+%d from fortify)", (int)GetFortifyAttackPowerBonus());
+			s += p.sprintf(L" (+%d from fortify)\n", (int)GetFortifyAttackPowerBonus());
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s += p.sprintf(L"\n \n (+%d from support)", (int)GetSupportAttackPowerBonus());
+			s += p.sprintf(L" (+%d from support)\n", (int)GetSupportAttackPowerBonus());
+
+		s += L" \n";
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s += p.sprintf(L"\n \n+%d shield energy", (int)GetBonusDefensePower());
+		s += p.sprintf(L"+%d shield energy\n \n", (int)GetBonusDefensePower());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s += p.sprintf(L"\n \n (+%d from fortify)", (int)GetFortifyDefensePowerBonus());
+			s += p.sprintf(L" (+%d from fortify)\n \n", (int)GetFortifyDefensePowerBonus());
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s += p.sprintf(L"\n \n (+%d from support)", (int)GetSupportDefensePowerBonus());
+			s += p.sprintf(L" (+%d from support)\n \n", (int)GetSupportDefensePowerBonus());
+
+		s += L" \n";
 	}
 
 	if (GetBonusMovementEnergy() > 0)
-		s += p.sprintf(L"\n \n+%d movement energy", (int)GetBonusMovementEnergy());
+		s += p.sprintf(L"+%d movement energy\n \n", (int)GetBonusMovementEnergy());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)

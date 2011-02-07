@@ -39,6 +39,19 @@ void CCollector::UpdateInfo(eastl::string16& s)
 	s += L"POWER SUPPLY UNIT\n";
 	s += L"Resource collector\n \n";
 
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
+
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
@@ -116,6 +129,19 @@ void CBattery::UpdateInfo(eastl::string16& s)
 	s = L"";
 	s += L"BATTERY\n";
 	s += L"Resource collector\n \n";
+
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
 
 	if (IsConstructing())
 	{

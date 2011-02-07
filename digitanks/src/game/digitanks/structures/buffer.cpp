@@ -45,6 +45,19 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 	s += L"MACRO-BUFFER INFO\n";
 	s += L"Network extender\n \n";
 
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
+
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
@@ -115,6 +128,19 @@ void CMiniBuffer::UpdateInfo(eastl::string16& s)
 	s = L"";
 	s += L"BUFFER INFO\n";
 	s += L"Network extender\n \n";
+
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
 
 	if (IsConstructing())
 	{

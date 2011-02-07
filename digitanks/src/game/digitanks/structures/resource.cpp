@@ -88,6 +88,8 @@ void CResource::UpdateInfo(eastl::string16& s)
 	s = L"ELECTRONODE\n";
 	s += L"Digital resource\n \n";
 
+	s += L"Team: Neutral\n \n";
+
 	s += L"Build a Battery or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 

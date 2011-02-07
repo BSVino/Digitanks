@@ -713,6 +713,19 @@ void CCPU::UpdateInfo(eastl::string16& s)
 	s += L"CENTRAL PROCESSING UNIT\n";
 	s += L"Command center\n \n";
 
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
+
 	if (IsProducing())
 	{
 		s += L"[Producing Rogue]\n";

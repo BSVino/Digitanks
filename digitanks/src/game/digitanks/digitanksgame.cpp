@@ -409,7 +409,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 
 	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 	pTeam->SetColor(Color(128, 128, 128));
-	pTeam->SetName(eastl::string16(L"The Network Guardians"));
+	pTeam->SetName(eastl::string16(L"Network Guardians"));
 	pTeam->Bot_UseArtilleryAI();
 	pTeam->DontIncludeInScoreboard();
 
@@ -1993,6 +1993,10 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		pBuffer->SetSupplier(pCPU);
 
 		GetDigitanksTeam(0)->CalculateVisibility();
+	}
+	else if (iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
+	{
+		SetControlMode(MODE_MOVE);
 	}
 
 	// Make sure that features now enabled are turned on.

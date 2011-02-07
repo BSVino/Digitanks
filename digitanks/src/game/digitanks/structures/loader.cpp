@@ -412,6 +412,19 @@ void CLoader::UpdateInfo(eastl::string16& s)
 	s = L"";
 	eastl::string16 p;
 
+	if (GetTeam())
+	{
+		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			s += L" Friendly\n \n";
+		else
+			s += L" Hostile\n \n";
+	}
+	else
+	{
+		s += L"Team: Neutral\n \n";
+	}
+
 	if (GetBuildUnit() == UNIT_INFANTRY)
 		s += L"RESISTOR FACTORY\n";
 	else if (GetBuildUnit() == UNIT_TANK)
