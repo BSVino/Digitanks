@@ -380,11 +380,22 @@ bool CCPU::BeginConstruction()
 	else
 		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginConstruction", &p);
 
+	bool bSuccess = false;
+
 	// This is used for the bot to see if a build was successful.
 	if (CNetwork::IsHost())
-		return p.ui1 != ~0;
+		bSuccess = (p.ui1 != ~0);
 	else
-		return true;
+		bSuccess = true;
+
+	if (bSuccess && GetTeam())
+	{
+		int iRunners = RandomInt(15, 10);
+		for (int i = 0; i < iRunners; i++)
+			DigitanksGame()->GetTerrain()->AddRunner(GetPreviewBuild(), GetTeam()->GetColor());
+	}
+
+	return bSuccess;
 }
 
 void CCPU::BeginConstruction(CNetworkParameters* p)

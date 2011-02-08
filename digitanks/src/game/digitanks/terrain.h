@@ -1,6 +1,8 @@
 #ifndef DT_TERRAIN_H
 #define DT_TERRAIN_H
 
+#include <EASTL/list.h>
+
 #include "baseentity.h"
 #include "color.h"
 
@@ -20,6 +22,16 @@ typedef enum
 	TB_WATER = (1<<3),
 	// uses m_aiSpecialData which is unsigned char so max 8 of these.
 } terrainbit_t;
+
+typedef struct
+{
+	Vector					vecPrimaryDirection;
+	Vector					vecCurrentDirection;
+	eastl::list<Vector>		avecPoints;
+	Color					clrColor;
+	float					m_flNextTurn;
+	float					m_flNextPoint;
+} runner_t;
 
 class CTerrainChunk
 {
@@ -124,6 +136,9 @@ public:
 	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit);
 
+	void					AddRunner(Vector vecPosition, Color clrColor);
+	void					AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor);
+
 	// Pathfinding stuff
 	Vector					FindPath(const Vector& vecStart, const Vector& vecEnd, class CDigitank* pUnit);
 	class CQuadBranch*		FindLeaf(const Vector& vecPoint);
@@ -160,7 +175,11 @@ protected:
 	int						m_iThinkChunkX;
 	int						m_iThinkChunkY;
 
+	eastl::vector<runner_t>	m_aRunners;
+	float					m_flNextRunner;
+
 	static size_t			s_iTreeTexture;
+	static size_t			s_iBeamTexture;
 
 	// Pathfinding stuff
 	class CQuadBranch*		m_pQuadTreeHead;

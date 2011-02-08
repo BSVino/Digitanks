@@ -45,6 +45,7 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 SAVEDATA_TABLE_END();
 
 size_t CTerrain::s_iTreeTexture = 0;
+size_t CTerrain::s_iBeamTexture = 0;
 
 CTerrain::CTerrain()
 {
@@ -72,6 +73,7 @@ void CTerrain::Precache()
 {
 	BaseClass::Spawn();
 	s_iTreeTexture = CRenderer::LoadTextureIntoGL(L"textures/tree.png", 1);
+	s_iBeamTexture = CRenderer::LoadTextureIntoGL(L"textures/beam.png");
 }
 
 void CTerrain::Spawn()
@@ -118,6 +120,8 @@ void CTerrain::Spawn()
 	m_iThinkChunkX = 0;
 	m_iThinkChunkY = 0;
 	m_flNextThink = 0;
+
+	m_flNextRunner = 0;
 }
 
 void CTerrain::Think()
@@ -135,6 +139,85 @@ void CTerrain::Think()
 		pChunk->Think();
 
 		m_flNextThink = GameServer()->GetGameTime() + 0.03f;
+	}
+
+	if (GameServer()->GetGameTime() > m_flNextRunner)
+	{
+		Vector aStartingEdges[] =
+		{
+			Vector(1, 0, 0),
+			Vector(-1, 0, 0),
+			Vector(0, 0, 1),
+			Vector(0, 0, -1),
+		};
+
+		Vector aEdgeSpread[] =
+		{
+			Vector(0, 0, 1),
+			Vector(0, 0, 1),
+			Vector(1, 0, 0),
+			Vector(1, 0, 0),
+		};
+
+		int iEdge = RandomInt(0, 3);
+		Vector vecStart = aStartingEdges[iEdge];
+
+		AddRunner(vecStart * GetMapSize() + aEdgeSpread[iEdge]*RandomFloat(-GetMapSize(), GetMapSize()), -vecStart, GetPrimaryTerrainColor());
+
+		m_flNextRunner = GameServer()->GetGameTime() + RandomFloat(0.5f, 1);
+	}
+
+	for (int i = m_aRunners.size()-1; i >= 0; i--)
+	{
+		runner_t* pRunner = &m_aRunners[i];
+
+		if (GameServer()->GetGameTime() > pRunner->m_flNextTurn)
+		{
+			EAngle angPrimaryDirection = VectorAngles(pRunner->vecPrimaryDirection);
+
+			float aflTurns[] =
+			{
+				-90,
+				-45,
+				0,
+				45,
+				90,
+			};
+
+			EAngle angCurrentDirection = angPrimaryDirection;
+			float flFormerDirection = angCurrentDirection.y;
+
+			do
+			{
+				angCurrentDirection.y = angPrimaryDirection.y + aflTurns[RandomInt(0, 4)];
+			} while (fabs(AngleDifference(angCurrentDirection.y, flFormerDirection)) > 45);
+
+			pRunner->vecCurrentDirection = AngleVector(angCurrentDirection);
+
+			pRunner->m_flNextTurn = GameServer()->GetGameTime() + RandomFloat(0.2f, 1.0f);
+		}
+
+		while (GameServer()->GetGameTime() > pRunner->m_flNextPoint)
+		{
+			assert(pRunner->avecPoints.size());
+
+			Vector vecPoint = pRunner->avecPoints.front() + pRunner->vecCurrentDirection * 4;
+
+			if (IsPointOnMap(vecPoint) && !IsPointOverHole(vecPoint))
+			{
+				pRunner->avecPoints.push_front(SetPointHeight(vecPoint) + Vector(0, 1, 0));
+
+				if (pRunner->avecPoints.size() > 20)
+					pRunner->avecPoints.pop_back();
+
+				pRunner->m_flNextPoint = pRunner->m_flNextPoint + 0.01f;
+			}
+			else
+			{
+				m_aRunners.erase(m_aRunners.begin()+i);
+				break;
+			}
+		}
 	}
 }
 
@@ -1037,7 +1120,7 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 
 void CTerrain::RenderTransparentTerrain()
 {
-	glPushAttrib(GL_ENABLE_BIT);
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1045,6 +1128,34 @@ void CTerrain::RenderTransparentTerrain()
 		{
 			glCallList((GLuint)m_aTerrainChunks[i][j].m_iTransparentCallList);
 		}
+	}
+
+	for (size_t i = 0; i < m_aRunners.size(); i++)
+	{
+		runner_t* pRunner = &m_aRunners[i];
+
+		if (pRunner->avecPoints.size() < 2)
+			continue;
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ADDITIVE);
+
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iBeamTexture, pRunner->avecPoints.front(), 0.5f);
+		Color clrRope = pRunner->clrColor;
+		oRope.SetColor(clrRope);
+
+		int j = 0;
+
+		for (eastl::list<Vector>::iterator it2 = ++(pRunner->avecPoints.begin()); it2 != --(pRunner->avecPoints.end()); it2++)
+		{
+			Vector vecPoint = *it2;
+
+			clrRope.SetAlpha(128 - (++j*128/20));
+			oRope.SetColor(clrRope);
+			oRope.AddLink(vecPoint);
+		}
+
+		oRope.Finish(pRunner->avecPoints.back());
 	}
 
 	glPopAttrib();
@@ -1677,6 +1788,34 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 		return;
 
 	UpdateTerrainData();
+}
+
+void CTerrain::AddRunner(Vector vecPosition, Color clrColor)
+{
+	Vector avecPrimaryDirections[] =
+	{
+		Vector(0, 0, 1),
+		Vector(1, 0, 1),
+		Vector(1, 0, 0),
+		Vector(1, 0, -1),
+		Vector(0, 0, -1),
+		Vector(-1, 0, -1),
+		Vector(-1, 0, 0),
+		Vector(-1, 0, 1),
+	};
+
+	AddRunner(vecPosition, avecPrimaryDirections[RandomInt(0, 7)], clrColor);
+}
+
+void CTerrain::AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor)
+{
+	runner_t oRunner;
+	oRunner.vecPrimaryDirection = oRunner.vecCurrentDirection = vecPrimaryDirection.Normalized();
+	oRunner.clrColor = clrColor;
+	oRunner.m_flNextTurn = RandomFloat(5, 50);
+	oRunner.m_flNextPoint = GameServer()->GetGameTime() + 0.2f;
+	oRunner.avecPoints.push_front(SetPointHeight(vecPosition));
+	m_aRunners.push_back(oRunner);
 }
 
 class LowestF
