@@ -1533,6 +1533,26 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, 
 		sx = 384;
 		sy = 64;
 		break;
+
+	case PROJECTILE_TREECUTTER:
+		sx = 448;
+		sy = 64;
+		break;
+
+	case PROJECTILE_FLAK:
+		sx = 0;
+		sy = 128;
+		break;
+
+	case PROJECTILE_DEVASTATOR:
+		sx = 64;
+		sy = 128;
+		break;
+
+	case PROJECTILE_TORPEDO:
+		sx = 128;
+		sy = 128;
+		break;
 	}
 }
 
