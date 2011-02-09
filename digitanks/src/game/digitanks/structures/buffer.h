@@ -11,6 +11,8 @@ public:
 	virtual void				Spawn();
 	virtual void				Precache();
 
+	virtual bool				AllowControlMode(controlmode_t eMode) const;
+
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
@@ -36,6 +38,8 @@ class CMiniBuffer : public CSupplier
 public:
 	virtual void				Spawn();
 	virtual void				Precache();
+
+	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 

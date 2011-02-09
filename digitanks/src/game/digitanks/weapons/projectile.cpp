@@ -585,6 +585,7 @@ CTorpedo::CTorpedo()
 void CTorpedo::Precache()
 {
 	PrecacheParticleSystem(L"torpedo-trail");
+	PrecacheParticleSystem(L"torpedo-explosion");
 }
 
 void CTorpedo::Spawn()
@@ -625,6 +626,15 @@ void CTorpedo::Think()
 
 	if (!m_bBurrowing)
 		BaseClass::Think();
+}
+
+void CTorpedo::OnRender(class CRenderingContext* pContext, bool bTransparent)
+{
+	if (!m_bShouldRender)
+		return;
+
+	// Skip drawing the standard explosion in CProjectile
+	CBaseWeapon::OnRender(pContext, bTransparent);
 }
 
 bool CTorpedo::ShouldTouch(CBaseEntity* pOther) const
@@ -692,6 +702,8 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
+
+	CParticleSystemLibrary::AddInstance(L"torpedo-explosion", GetOrigin());
 }
 
 REGISTER_ENTITY(CTreeCutter);

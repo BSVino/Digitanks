@@ -31,6 +31,14 @@ void CBuffer::Precache()
 	PrecacheModel(L"models/structures/buffer.obj");
 }
 
+bool CBuffer::AllowControlMode(controlmode_t eMode) const
+{
+	if (eMode == MODE_BUILD)
+		return true;
+
+	return BaseClass::AllowControlMode(eMode);
+}
+
 void CBuffer::SetupMenu(menumode_t eMenuMode)
 {
 	if (GetDigitanksTeam() && GetDigitanksTeam()->GetPrimaryCPU() != NULL)
@@ -91,6 +99,14 @@ void CMiniBuffer::Precache()
 	BaseClass::Precache();
 
 	PrecacheModel(L"models/structures/minibuffer.obj");
+}
+
+bool CMiniBuffer::AllowControlMode(controlmode_t eMode) const
+{
+	if (eMode == MODE_BUILD)
+		return true;
+
+	return BaseClass::AllowControlMode(eMode);
 }
 
 void CMiniBuffer::SetupMenu(menumode_t eMenuMode)

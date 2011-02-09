@@ -333,6 +333,8 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual void				Touching(CBaseEntity* pOther);
 

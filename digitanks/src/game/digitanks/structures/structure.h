@@ -40,7 +40,7 @@ public:
 	void						BeginStructureConstruction(CNetworkParameters* p);
 	virtual void				CompleteConstruction();
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
-	size_t						GetTurnsToConstruct();
+	size_t						GetTurnsToConstruct(Vector vecConstructionOrigin);
 	bool						IsConstructing() const { return m_bConstructing.Get(); };
 	void						SetConstructing(bool bConstructing) { m_bConstructing = bConstructing; };
 	virtual size_t				GetTurnsRemainingToConstruct() { return m_iTurnsToConstruct; };

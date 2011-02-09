@@ -229,7 +229,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 				if (m_hPrimaryCPU->IsPreviewBuildValid())
 					break;
 
-			} while (iTries < 5);
+			} while (iTries++ < 5);
 
 			// If we can't build this for some reason, build a random buffer instead.
 			if (m_hPrimaryCPU->BeginConstruction())
@@ -1188,6 +1188,44 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
+			}
+			else
+			{
+				CDigitank* pClosestEnemy = NULL;
+
+				// Otherwise look for the closest enemy and fire on them.
+				while (true)
+				{
+					pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+
+					if (!pClosestEnemy)
+						break;
+
+					if (pClosestEnemy->IsScout())
+						continue;
+
+					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+						continue;
+
+					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					{
+						pClosestEnemy = NULL;
+						break;
+					}
+
+					break;
+				}
+
+				if (pClosestEnemy)
+				{
+					if (pClosestEnemy->GetUnitType() == UNIT_SCOUT)
+						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+					else
+						pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->Fire();
+				}
 			}
 		}
 	}

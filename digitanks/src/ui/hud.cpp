@@ -2878,12 +2878,10 @@ void CHUD::BuildMiniBufferCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -2902,12 +2900,10 @@ void CHUD::BuildBufferCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -2924,12 +2920,10 @@ void CHUD::BuildBatteryCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -2948,12 +2942,10 @@ void CHUD::BuildPSUCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -2978,12 +2970,10 @@ void CHUD::BuildInfantryLoaderCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -3000,12 +2990,10 @@ void CHUD::BuildTankLoaderCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -3022,12 +3010,10 @@ void CHUD::BuildArtilleryLoaderCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 
@@ -3067,12 +3053,10 @@ void CHUD::BuildScoutCallback()
 	if (!DigitanksGame())
 		return;
 
-	if (!DigitanksGame()->GetPrimarySelectionStructure())
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
 		return;
 
-	CStructure* pStructure = DigitanksGame()->GetPrimarySelectionStructure();
-
-	CCPU* pCPU = dynamic_cast<CCPU*>(pStructure);
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
 	if (!pCPU)
 		return;
 

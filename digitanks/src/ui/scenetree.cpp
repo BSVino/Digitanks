@@ -330,17 +330,16 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 		int iTotalTurns = 0;
 		if (pStructure->IsConstructing())
 		{
-			iTurnsRemaining = pStructure->GetTurnsToConstruct();
-			iTotalTurns = pStructure->GetTurnsRemainingToConstruct();
+			iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetOrigin());
+			iTurnsRemaining = pStructure->GetTurnsRemainingToConstruct();
 		}
 		else if (pStructure->IsUpgrading())
 		{
-			iTurnsRemaining = pStructure->GetTurnsToUpgrade();
-			iTotalTurns = pStructure->GetTurnsRemainingToUpgrade();
+			iTotalTurns = pStructure->GetTurnsToUpgrade();
+			iTurnsRemaining = pStructure->GetTurnsRemainingToUpgrade();
 		}
 
-		int iTurns = iTotalTurns-iTurnsRemaining;
-		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iTurns/iTotalTurns), 3, Color(255, 255, 100));
+		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iTurnsRemaining/iTotalTurns), 3, Color(255, 255, 100));
 	}
 
 	BaseClass::Paint(x, y, w, h, bFloating);

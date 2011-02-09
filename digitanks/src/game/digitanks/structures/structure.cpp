@@ -306,7 +306,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 void CStructure::BeginConstruction(Vector vecConstructionOrigin)
 {
-	m_iTurnsToConstruct = GetTurnsToConstruct();
+	m_iTurnsToConstruct = GetTurnsToConstruct(vecConstructionOrigin);
 
 	m_bConstructing = true;
 
@@ -359,7 +359,7 @@ void CStructure::CompleteConstruction()
 		DigitanksWindow()->GetInstructor()->NextTutorial();
 }
 
-size_t CStructure::GetTurnsToConstruct()
+size_t CStructure::GetTurnsToConstruct(Vector vecSpot)
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
 		return 1;
@@ -367,11 +367,11 @@ size_t CStructure::GetTurnsToConstruct()
 	size_t iTurns = InitialTurnsToConstruct();
 
 	// Location location location!
-	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecSpot))
 		iTurns = (size_t)(iTurns*1.5f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
+	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecSpot))
 		iTurns = (size_t)(iTurns*2.0f);
-	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
+	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecSpot))
 		iTurns = (size_t)(iTurns*2.5f);
 
 	return iTurns;

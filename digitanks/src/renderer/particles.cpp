@@ -224,7 +224,7 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 
 	m_iNumParticlesAlive = 0;
 
-	m_flLastEmission = GameServer()->GetGameTime() - RandomFloat(0, m_pSystem->GetEmissionRate());
+	m_flLastEmission = GameServer()->GetGameTime() - RandomFloat(0, m_pSystem->GetEmissionRate()) - 0.01f;
 	m_iTotalEmitted = 0;
 
 	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();
@@ -279,12 +279,16 @@ void CSystemInstance::Simulate()
 		pParticle->m_flRadius = RemapVal(flLifeTimeRamp, 0, 1, m_pSystem->GetStartRadius(), m_pSystem->GetEndRadius());
 	}
 
-	if (!m_bStopped && flGameTime - m_flLastEmission > m_pSystem->GetEmissionRate() && m_pSystem->GetTexture())
+	if (!m_bStopped && m_pSystem->GetTexture())
 	{
-		if (!m_pSystem->GetEmissionMax() || m_iTotalEmitted < m_pSystem->GetEmissionMax())
+		while (flGameTime - m_flLastEmission > m_pSystem->GetEmissionRate())
 		{
 			SpawnParticle();
-			m_flLastEmission = flGameTime;
+
+			if (m_pSystem->GetEmissionMax() && m_iTotalEmitted >= m_pSystem->GetEmissionMax())
+				break;
+
+			m_flLastEmission += m_pSystem->GetEmissionRate();
 		}
 	}
 

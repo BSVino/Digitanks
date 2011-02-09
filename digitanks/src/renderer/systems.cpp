@@ -208,4 +208,41 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoTrailAura->SetInheritedVelocity(0.7f);
 	pTorpedoTrailAura->SetDrag(0.6f);
 	pTorpedoTrailAura->SetRandomBillboardYaw(true);
+
+	size_t iTorpedoExplosion = pPSL->AddParticleSystem(L"torpedo-explosion");
+	size_t iTorpedoExplosionBolts1 = pPSL->AddParticleSystem(L"torpedo-explosion-bolts1");
+	size_t iTorpedoExplosionBolts2 = pPSL->AddParticleSystem(L"torpedo-explosion-bolts2");
+
+	CParticleSystem* pTorpedoExplosion = pPSL->GetParticleSystem(iTorpedoExplosion);
+	CParticleSystem* pTorpedoExplosionBolts1 = pPSL->GetParticleSystem(iTorpedoExplosionBolts1);
+	CParticleSystem* pTorpedoExplosionBolts2 = pPSL->GetParticleSystem(iTorpedoExplosionBolts2);
+
+	pTorpedoExplosion->AddChild(iTorpedoExplosionBolts1);
+	pTorpedoExplosion->AddChild(iTorpedoExplosionBolts2);
+
+	pTorpedoExplosionBolts1->SetTexture(L"textures/particles/lightning-bolt-1.png");
+	pTorpedoExplosionBolts1->SetLifeTime(1.0f);
+	pTorpedoExplosionBolts1->SetEmissionRate(0.0f);
+	pTorpedoExplosionBolts1->SetEmissionMax(20);
+	pTorpedoExplosionBolts1->SetAlpha(0.9f);
+	pTorpedoExplosionBolts1->SetStartRadius(4.0f);
+	pTorpedoExplosionBolts1->SetEndRadius(6.0f);
+	pTorpedoExplosionBolts1->SetFadeOut(1.0f);
+	pTorpedoExplosionBolts1->SetInheritedVelocity(0.0f);
+	pTorpedoExplosionBolts1->SetRandomVelocity(AABB(Vector(-8, -8, -8), Vector(8, 8, 8)));
+	pTorpedoExplosionBolts1->SetDrag(0.95f);
+	pTorpedoExplosionBolts1->SetRandomBillboardYaw(true);
+
+	pTorpedoExplosionBolts2->SetTexture(L"textures/particles/lightning-bolt-2.png");
+	pTorpedoExplosionBolts2->SetLifeTime(1.0f);
+	pTorpedoExplosionBolts2->SetEmissionRate(0.0f);
+	pTorpedoExplosionBolts2->SetEmissionMax(20);
+	pTorpedoExplosionBolts2->SetAlpha(0.9f);
+	pTorpedoExplosionBolts2->SetStartRadius(4.0f);
+	pTorpedoExplosionBolts2->SetEndRadius(6.0f);
+	pTorpedoExplosionBolts2->SetFadeOut(1.0f);
+	pTorpedoExplosionBolts2->SetInheritedVelocity(0.0f);
+	pTorpedoExplosionBolts2->SetRandomVelocity(AABB(Vector(-8, -8, -8), Vector(8, 8, 8)));
+	pTorpedoExplosionBolts2->SetDrag(0.95f);
+	pTorpedoExplosionBolts2->SetRandomBillboardYaw(true);
 }
