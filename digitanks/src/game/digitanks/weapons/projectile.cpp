@@ -577,9 +577,25 @@ SAVEDATA_TABLE_END();
 
 CTorpedo::CTorpedo()
 {
+	m_flTimeExploded = 0;
 	m_bBurrowing = false;
-
 	m_flDamage = 0;
+}
+
+void CTorpedo::Precache()
+{
+	PrecacheParticleSystem(L"torpedo-trail");
+}
+
+void CTorpedo::Spawn()
+{
+	m_bBurrowing = false;
+	m_flDamage = 0;
+}
+
+size_t CTorpedo::CreateParticleSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"torpedo-trail", GetOrigin());
 }
 
 void CTorpedo::Think()

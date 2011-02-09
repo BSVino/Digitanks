@@ -328,12 +328,17 @@ public:
 								CTorpedo();
 
 public:
+	virtual void				Precache();
+
+	virtual void				Spawn();
 	virtual void				Think();
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual void				Touching(CBaseEntity* pOther);
 
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
+
+	virtual size_t				CreateParticleSystem();
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TORPEDO; }
 	virtual bool				MakesSounds() { return true; };

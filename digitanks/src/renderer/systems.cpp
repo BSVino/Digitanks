@@ -174,4 +174,38 @@ void CParticleSystemLibrary::InitSystems()
 	pElectronodeSpark->SetSpawnOffset(Vector(0, 6, 0));
 	pElectronodeSpark->SetRandomVelocity(AABB(Vector(-1, 0.5f, -1), Vector(1, 1.5f, 1)));
 	pElectronodeSpark->SetGravity(Vector(0, 3, 0));
+
+	size_t iTorpedoTrail = pPSL->AddParticleSystem(L"torpedo-trail");
+	size_t iTorpedoTrailSparks = pPSL->AddParticleSystem(L"torpedo-trail-sparks");
+	size_t iTorpedoTrailAura = pPSL->AddParticleSystem(L"torpedo-trail-aura");
+
+	CParticleSystem* pTorpedoTrail = pPSL->GetParticleSystem(iTorpedoTrail);
+	CParticleSystem* pTorpedoTrailSparks = pPSL->GetParticleSystem(iTorpedoTrailSparks);
+	CParticleSystem* pTorpedoTrailAura = pPSL->GetParticleSystem(iTorpedoTrailAura);
+
+	pTorpedoTrail->AddChild(iTorpedoTrailSparks);
+	pTorpedoTrail->AddChild(iTorpedoTrailAura);
+
+	pTorpedoTrailSparks->SetTexture(L"textures/particles/cloud-white.png");
+	pTorpedoTrailSparks->SetLifeTime(1.0f);
+	pTorpedoTrailSparks->SetEmissionRate(0.05f);
+	pTorpedoTrailSparks->SetAlpha(0.9f);
+	pTorpedoTrailSparks->SetStartRadius(0.5f);
+	pTorpedoTrailSparks->SetEndRadius(0.2f);
+	pTorpedoTrailSparks->SetFadeOut(1.0f);
+	pTorpedoTrailSparks->SetInheritedVelocity(0.0f);
+	pTorpedoTrailSparks->SetRandomVelocity(AABB(Vector(-5, 30, -5), Vector(5, 15, 5)));
+	pTorpedoTrailSparks->SetDrag(0.95f);
+	pTorpedoTrailSparks->SetRandomBillboardYaw(true);
+
+	pTorpedoTrailAura->SetTexture(L"textures/particles/haze-white.png");
+	pTorpedoTrailAura->SetLifeTime(1.0f);
+	pTorpedoTrailAura->SetEmissionRate(0.1f);
+	pTorpedoTrailAura->SetAlpha(0.3f);
+	pTorpedoTrailAura->SetStartRadius(4.0f);
+	pTorpedoTrailAura->SetEndRadius(3.0f);
+	pTorpedoTrailAura->SetFadeOut(0.5f);
+	pTorpedoTrailAura->SetInheritedVelocity(0.7f);
+	pTorpedoTrailAura->SetDrag(0.6f);
+	pTorpedoTrailAura->SetRandomBillboardYaw(true);
 }

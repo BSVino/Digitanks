@@ -188,6 +188,8 @@ public:
 
 	static void						ClearInstances();
 
+	static void						ReloadSystems();
+
 	static CParticleSystemLibrary*	Get() { return s_pParticleSystemLibrary; };
 
 private:

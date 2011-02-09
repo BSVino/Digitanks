@@ -4,6 +4,7 @@
 #include <mtrand.h>
 #include <game/game.h>
 #include <shaders/shaders.h>
+#include <tinker/cvar.h>
 
 #include "renderer.h"
 
@@ -150,6 +151,30 @@ void CParticleSystemLibrary::ClearInstances()
 	while (pPSL->m_apInstances.size())
 		RemoveInstance((*pPSL->m_apInstances.begin()).first);
 }
+
+void CParticleSystemLibrary::ReloadSystems()
+{
+	ClearInstances();
+
+	CParticleSystemLibrary* pPSL = Get();
+
+	for (size_t i = 0; i < pPSL->m_apParticleSystems.size(); i++)
+		delete pPSL->m_apParticleSystems[i];
+
+	pPSL->m_apParticleSystems.clear();
+
+	InitSystems();
+
+	for (size_t i = 0; i < pPSL->m_apParticleSystems.size(); i++)
+		pPSL->LoadParticleSystem(i);
+}
+
+void ReloadParticles(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+{
+	CParticleSystemLibrary::ReloadSystems();
+}
+
+CCommand particles_reload("particles_reload", ReloadParticles);
 
 CParticleSystem::CParticleSystem(eastl::string16 sName)
 {
