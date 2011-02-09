@@ -245,4 +245,40 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoExplosionBolts2->SetRandomVelocity(AABB(Vector(-8, -8, -8), Vector(8, 8, 8)));
 	pTorpedoExplosionBolts2->SetDrag(0.95f);
 	pTorpedoExplosionBolts2->SetRandomBillboardYaw(true);
+
+	size_t iAoEExplosionStrategy = pPSL->AddParticleSystem(L"aoe-explosion-strategy");
+
+	CParticleSystem* pAoEExplosionStrategy = pPSL->GetParticleSystem(iAoEExplosionStrategy);
+
+	pAoEExplosionStrategy->SetTexture(L"textures/particles/aoe-bubble.png");
+	pAoEExplosionStrategy->SetLifeTime(0.35f);
+	pAoEExplosionStrategy->SetEmissionRate(0.01f);
+	pAoEExplosionStrategy->SetEmissionMax(150);
+	pAoEExplosionStrategy->SetEmissionMaxDistance(10);
+	pAoEExplosionStrategy->SetAlpha(0.9f);
+	pAoEExplosionStrategy->SetStartRadius(4.0f);
+	pAoEExplosionStrategy->SetEndRadius(8.0f);
+	pAoEExplosionStrategy->SetFadeOut(1.0f);
+	pAoEExplosionStrategy->SetInheritedVelocity(0.0f);
+	pAoEExplosionStrategy->SetRandomVelocity(AABB(Vector(-1, -1, -1), Vector(1, 1, 1)));
+	pAoEExplosionStrategy->SetDrag(0.95f);
+	pAoEExplosionStrategy->SetRandomBillboardYaw(true);
+
+	size_t iAoEExplosionArtillery = pPSL->AddParticleSystem(L"aoe-explosion-artillery");
+
+	CParticleSystem* pAoEExplosionArtillery = pPSL->GetParticleSystem(iAoEExplosionArtillery);
+
+	pAoEExplosionArtillery->SetTexture(L"textures/particles/aoe-bubble.png");
+	pAoEExplosionArtillery->SetLifeTime(0.35f);
+	pAoEExplosionArtillery->SetEmissionRate(0.01f);
+	pAoEExplosionArtillery->SetEmissionMax(150);
+	pAoEExplosionArtillery->SetEmissionMaxDistance(25);
+	pAoEExplosionArtillery->SetAlpha(0.9f);
+	pAoEExplosionArtillery->SetStartRadius(6.0f);
+	pAoEExplosionArtillery->SetEndRadius(12.0f);
+	pAoEExplosionArtillery->SetFadeOut(1.0f);
+	pAoEExplosionArtillery->SetInheritedVelocity(0.0f);
+	pAoEExplosionArtillery->SetRandomVelocity(AABB(Vector(-1, -1, -1), Vector(1, 1, 1)));
+	pAoEExplosionArtillery->SetDrag(0.95f);
+	pAoEExplosionArtillery->SetRandomBillboardYaw(true);
 }

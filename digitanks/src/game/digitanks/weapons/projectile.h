@@ -24,6 +24,7 @@ public:
 	virtual void				Fragment();
 
 	virtual bool				MakesSounds() { return true; };
+	virtual bool				UsesStandardExplosion() { return true; };
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual bool				ShouldRender() const { return true; };
@@ -110,6 +111,11 @@ class CAOEShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CAOEShell, CProjectile);
 
 public:
+	virtual void				Precache();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.2f; };
 	virtual float				ExplosionRadius();
@@ -333,8 +339,6 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
-
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual void				Touching(CBaseEntity* pOther);
 
@@ -342,6 +346,7 @@ public:
 
 	virtual size_t				CreateParticleSystem();
 
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TORPEDO; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.35f; };

@@ -186,6 +186,7 @@ CParticleSystem::CParticleSystem(eastl::string16 sName)
 	m_flLifeTime = 1.0f;
 	m_flEmissionRate = 0.1f;
 	m_iEmissionMax = 0;
+	m_flEmissionMaxDistance = 0;
 	m_flAlpha = 1.0f;
 	m_clrColor = Color(255, 255, 255, 255);
 	m_flStartRadius = 1.0f;
@@ -323,8 +324,17 @@ void CSystemInstance::SpawnParticle()
 		pNewParticle = &m_aParticles[m_aParticles.size()-1];
 	}
 
+	Vector vecDistance = Vector(0,0,0);
+	if (m_pSystem->GetEmissionMaxDistance() > 0)
+	{
+		float flYaw = RandomFloat(-180, 180);
+		float flDistance = cos(RandomFloat(0, M_PI/2)) * m_pSystem->GetEmissionMaxDistance();
+		float flPitch = sin(RandomFloat(-M_PI/2, M_PI/2)) * 90;
+		vecDistance = AngleVector(EAngle(flPitch, flYaw, 0)) * flDistance;
+	}
+
 	pNewParticle->Reset();
-	pNewParticle->m_vecOrigin = m_vecOrigin + m_pSystem->GetSpawnOffset();
+	pNewParticle->m_vecOrigin = m_vecOrigin + m_pSystem->GetSpawnOffset() + vecDistance;
 	pNewParticle->m_vecVelocity = m_vecInheritedVelocity * m_pSystem->GetInheritedVelocity();
 
 	if (m_pSystem->GetRandomVelocity().Size().LengthSqr() > 0)

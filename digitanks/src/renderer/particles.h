@@ -97,6 +97,9 @@ public:
 	void							SetEmissionMax(int iEmissionMax) { m_iEmissionMax = iEmissionMax; }
 	inline int						GetEmissionMax() { return m_iEmissionMax; }
 
+	void							SetEmissionMaxDistance(float flDistance) { m_flEmissionMaxDistance = flDistance; }
+	float							GetEmissionMaxDistance() { return m_flEmissionMaxDistance; }
+
 	void							SetAlpha(float flAlpha) { m_flAlpha = flAlpha; }
 	inline float					GetAlpha() { return m_flAlpha; }
 
@@ -147,6 +150,7 @@ protected:
 	float							m_flLifeTime;
 	float							m_flEmissionRate;
 	int								m_iEmissionMax;
+	float							m_flEmissionMaxDistance;
 	float							m_flAlpha;
 	Color							m_clrColor;
 	float							m_flStartRadius;

@@ -150,7 +150,7 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 			c.RenderSphere();
 		}
 	}
-	else
+	else if (UsesStandardExplosion())
 	{
 		float flAlpha = RemapValClamped(GameServer()->GetGameTime()-m_flTimeExploded, 0.2f, 1.2f, 1, 0);
 		if (flAlpha > 0 && bTransparent)
@@ -384,6 +384,22 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
 SAVEDATA_TABLE_END();
+
+void CAOEShell::Precache()
+{
+	PrecacheParticleSystem(L"aoe-explosion-strategy");
+	PrecacheParticleSystem(L"aoe-explosion-artillery");
+}
+
+void CAOEShell::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		CParticleSystemLibrary::AddInstance(L"aoe-explosion-strategy", GetOrigin());
+	else
+		CParticleSystemLibrary::AddInstance(L"aoe-explosion-artillery", GetOrigin());
+}
 
 float CAOEShell::ExplosionRadius()
 {
@@ -626,15 +642,6 @@ void CTorpedo::Think()
 
 	if (!m_bBurrowing)
 		BaseClass::Think();
-}
-
-void CTorpedo::OnRender(class CRenderingContext* pContext, bool bTransparent)
-{
-	if (!m_bShouldRender)
-		return;
-
-	// Skip drawing the standard explosion in CProjectile
-	CBaseWeapon::OnRender(pContext, bTransparent);
 }
 
 bool CTorpedo::ShouldTouch(CBaseEntity* pOther) const
