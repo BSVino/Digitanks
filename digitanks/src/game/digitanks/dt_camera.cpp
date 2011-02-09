@@ -54,10 +54,7 @@ void CDigitanksCamera::SnapTarget(Vector vecTarget)
 void CDigitanksCamera::SetDistance(float flDistance)
 {
 	if (flDistance < 40)
-	{
-		m_vecVelocity.x -= 80.0f;
 		flDistance = 40;
-	}
 
 	if (flDistance > 400)
 		flDistance = 400;
