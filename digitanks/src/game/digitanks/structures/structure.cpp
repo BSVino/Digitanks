@@ -139,6 +139,9 @@ void CStructure::StartTurn()
 		SetSupplier(NULL);
 	}
 
+	if (GetTeam() == NULL)
+		return;
+
 	if (IsConstructing())
 	{
 		m_iTurnsToConstruct--;
