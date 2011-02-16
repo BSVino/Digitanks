@@ -389,6 +389,7 @@ void CAOEShell::Precache()
 {
 	PrecacheParticleSystem(L"aoe-explosion-strategy");
 	PrecacheParticleSystem(L"aoe-explosion-artillery");
+	PrecacheParticleSystem(L"aoe-trail");
 }
 
 void CAOEShell::OnExplode(CBaseEntity* pInstigator)
@@ -399,6 +400,11 @@ void CAOEShell::OnExplode(CBaseEntity* pInstigator)
 		CParticleSystemLibrary::AddInstance(L"aoe-explosion-strategy", GetOrigin());
 	else
 		CParticleSystemLibrary::AddInstance(L"aoe-explosion-artillery", GetOrigin());
+}
+
+size_t CAOEShell::CreateParticleSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"aoe-trail", GetOrigin());
 }
 
 float CAOEShell::ExplosionRadius()

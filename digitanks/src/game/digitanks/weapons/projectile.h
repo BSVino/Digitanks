@@ -115,6 +115,8 @@ public:
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
+	virtual size_t				CreateParticleSystem();
+
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.2f; };

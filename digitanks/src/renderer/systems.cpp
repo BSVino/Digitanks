@@ -269,7 +269,7 @@ void CParticleSystemLibrary::InitSystems()
 	CParticleSystem* pAoEExplosionArtillery = pPSL->GetParticleSystem(iAoEExplosionArtillery);
 
 	pAoEExplosionArtillery->SetTexture(L"textures/particles/aoe-bubble.png");
-	pAoEExplosionArtillery->SetLifeTime(0.35f);
+	pAoEExplosionArtillery->SetLifeTime(0.5f);
 	pAoEExplosionArtillery->SetEmissionRate(0.01f);
 	pAoEExplosionArtillery->SetEmissionMax(150);
 	pAoEExplosionArtillery->SetEmissionMaxDistance(25);
@@ -281,4 +281,28 @@ void CParticleSystemLibrary::InitSystems()
 	pAoEExplosionArtillery->SetRandomVelocity(AABB(Vector(-1, -1, -1), Vector(1, 1, 1)));
 	pAoEExplosionArtillery->SetDrag(0.95f);
 	pAoEExplosionArtillery->SetRandomBillboardYaw(true);
+
+	size_t iAoETrail = pPSL->AddParticleSystem(L"aoe-trail");
+	size_t iAoETrailSparks = pPSL->AddParticleSystem(L"aoe-trail-sparks");
+
+	CParticleSystem* pAoETrail = pPSL->GetParticleSystem(iAoETrail);
+	CParticleSystem* pAoETrailSparks = pPSL->GetParticleSystem(iAoETrailSparks);
+
+	pAoETrail->AddChild(iAoETrailSparks);
+	pAoETrail->AddChild(iTrailAura);
+	pAoETrail->AddChild(iTrailWireframe1);
+	pAoETrail->AddChild(iTrailWireframe2);
+	pAoETrail->AddChild(iTrailWireframe3);
+
+	pAoETrailSparks->SetTexture(L"textures/particles/aoe-bubble.png");
+	pAoETrailSparks->SetLifeTime(1.0f);
+	pAoETrailSparks->SetEmissionRate(0.05f);
+	pAoETrailSparks->SetAlpha(0.7f);
+	pAoETrailSparks->SetStartRadius(1.3f);
+	pAoETrailSparks->SetEndRadius(0.5f);
+	pAoETrailSparks->SetFadeOut(1.0f);
+	pAoETrailSparks->SetInheritedVelocity(0.5f);
+	pAoETrailSparks->SetRandomVelocity(AABB(Vector(-5, -5, -5), Vector(5, 5, 5)));
+	pAoETrailSparks->SetDrag(0.5f);
+	pAoETrailSparks->SetRandomBillboardYaw(true);
 }
