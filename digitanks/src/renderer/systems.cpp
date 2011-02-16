@@ -305,4 +305,80 @@ void CParticleSystemLibrary::InitSystems()
 	pAoETrailSparks->SetRandomVelocity(AABB(Vector(-5, -5, -5), Vector(5, 5, 5)));
 	pAoETrailSparks->SetDrag(0.5f);
 	pAoETrailSparks->SetRandomBillboardYaw(true);
+
+	size_t iEMPExplosion = pPSL->AddParticleSystem(L"emp-explosion");
+	size_t iEMPExplosionBolts1 = pPSL->AddParticleSystem(L"emp-explosion-bolts1");
+	size_t iEMPExplosionBolts2 = pPSL->AddParticleSystem(L"emp-explosion-bolts2");
+
+	CParticleSystem* pEMPExplosion = pPSL->GetParticleSystem(iEMPExplosion);
+	CParticleSystem* pEMPExplosionBolts1 = pPSL->GetParticleSystem(iEMPExplosionBolts1);
+	CParticleSystem* pEMPExplosionBolts2 = pPSL->GetParticleSystem(iEMPExplosionBolts2);
+
+	pEMPExplosion->AddChild(iEMPExplosionBolts1);
+	pEMPExplosion->AddChild(iEMPExplosionBolts2);
+
+	pEMPExplosionBolts1->SetTexture(L"textures/particles/lightning-bolt-1.png");
+	pEMPExplosionBolts1->SetLifeTime(1.0f);
+	pEMPExplosionBolts1->SetEmissionRate(0.0f);
+	pEMPExplosionBolts1->SetEmissionMax(20);
+	pEMPExplosionBolts1->SetAlpha(0.9f);
+	pEMPExplosionBolts1->SetStartRadius(4.0f);
+	pEMPExplosionBolts1->SetEndRadius(6.0f);
+	pEMPExplosionBolts1->SetFadeOut(1.0f);
+	pEMPExplosionBolts1->SetInheritedVelocity(0.0f);
+	pEMPExplosionBolts1->SetRandomVelocity(AABB(Vector(-12, -12, -12), Vector(12, 12, 12)));
+	pEMPExplosionBolts1->SetDrag(0.95f);
+	pEMPExplosionBolts1->SetRandomBillboardYaw(true);
+
+	pEMPExplosionBolts2->SetTexture(L"textures/particles/lightning-bolt-2.png");
+	pEMPExplosionBolts2->SetLifeTime(1.0f);
+	pEMPExplosionBolts2->SetEmissionRate(0.0f);
+	pEMPExplosionBolts2->SetEmissionMax(20);
+	pEMPExplosionBolts2->SetAlpha(0.9f);
+	pEMPExplosionBolts2->SetStartRadius(4.0f);
+	pEMPExplosionBolts2->SetEndRadius(6.0f);
+	pEMPExplosionBolts2->SetFadeOut(1.0f);
+	pEMPExplosionBolts2->SetInheritedVelocity(0.0f);
+	pEMPExplosionBolts2->SetRandomVelocity(AABB(Vector(-12, -12, -12), Vector(12, 12, 12)));
+	pEMPExplosionBolts2->SetDrag(0.95f);
+	pEMPExplosionBolts2->SetRandomBillboardYaw(true);
+
+	size_t iEMPTrail = pPSL->AddParticleSystem(L"emp-trail");
+	size_t iEMPTrailSparks1 = pPSL->AddParticleSystem(L"emp-trail-sparks1");
+	size_t iEMPTrailSparks2 = pPSL->AddParticleSystem(L"emp-trail-sparks2");
+
+	CParticleSystem* pEMPTrail = pPSL->GetParticleSystem(iEMPTrail);
+	CParticleSystem* pEMPTrailSparks1 = pPSL->GetParticleSystem(iEMPTrailSparks1);
+	CParticleSystem* pEMPTrailSparks2 = pPSL->GetParticleSystem(iEMPTrailSparks2);
+
+	pEMPTrail->AddChild(iEMPTrailSparks1);
+	pEMPTrail->AddChild(iEMPTrailSparks2);
+	pEMPTrail->AddChild(iTrailAura);
+	pEMPTrail->AddChild(iTrailWireframe1);
+	pEMPTrail->AddChild(iTrailWireframe2);
+	pEMPTrail->AddChild(iTrailWireframe3);
+
+	pEMPTrailSparks1->SetTexture(L"textures/particles/lightning-bolt-1.png");
+	pEMPTrailSparks1->SetLifeTime(1.0f);
+	pEMPTrailSparks1->SetEmissionRate(0.05f);
+	pEMPTrailSparks1->SetAlpha(0.7f);
+	pEMPTrailSparks1->SetStartRadius(1.3f);
+	pEMPTrailSparks1->SetEndRadius(0.5f);
+	pEMPTrailSparks1->SetFadeOut(1.0f);
+	pEMPTrailSparks1->SetInheritedVelocity(0.5f);
+	pEMPTrailSparks1->SetRandomVelocity(AABB(Vector(-5, -5, -5), Vector(5, 5, 5)));
+	pEMPTrailSparks1->SetDrag(0.5f);
+	pEMPTrailSparks1->SetRandomBillboardYaw(true);
+
+	pEMPTrailSparks2->SetTexture(L"textures/particles/lightning-bolt-2.png");
+	pEMPTrailSparks2->SetLifeTime(1.0f);
+	pEMPTrailSparks2->SetEmissionRate(0.05f);
+	pEMPTrailSparks2->SetAlpha(0.7f);
+	pEMPTrailSparks2->SetStartRadius(1.3f);
+	pEMPTrailSparks2->SetEndRadius(0.5f);
+	pEMPTrailSparks2->SetFadeOut(1.0f);
+	pEMPTrailSparks2->SetInheritedVelocity(0.5f);
+	pEMPTrailSparks2->SetRandomVelocity(AABB(Vector(-5, -5, -5), Vector(5, 5, 5)));
+	pEMPTrailSparks2->SetDrag(0.5f);
+	pEMPTrailSparks2->SetRandomBillboardYaw(true);
 }

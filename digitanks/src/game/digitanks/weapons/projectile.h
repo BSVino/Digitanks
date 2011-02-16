@@ -132,6 +132,13 @@ class CEMP : public CProjectile
 	REGISTER_ENTITY_CLASS(CEMP, CProjectile);
 
 public:
+	virtual void				Precache();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual size_t				CreateParticleSystem();
+
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_EMP; }
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
@@ -256,6 +263,13 @@ class CArtilleryShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CArtilleryShell, CProjectile);
 
 public:
+	virtual void				Precache();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual size_t				CreateParticleSystem();
+
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY; }
 	virtual float				ExplosionRadius() { return 6.0f; };
 	virtual bool				CreatesCraters() { return false; };
@@ -271,6 +285,13 @@ class CArtilleryAoE : public CProjectile
 	REGISTER_ENTITY_CLASS(CArtilleryAoE, CProjectile);
 
 public:
+	virtual void				Precache();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual size_t				CreateParticleSystem();
+
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY_AOE; }
 	virtual float				ExplosionRadius() { return 12.0f; };
 	virtual bool				CreatesCraters() { return false; };
@@ -279,6 +300,7 @@ public:
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				UsesSpecialCommand() { return false; };
+	virtual bool				HasDamageFalloff() { return false; };
 };
 
 class CArtilleryICBM : public CProjectile

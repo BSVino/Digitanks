@@ -700,14 +700,12 @@ void CHUD::Think()
 		}
 	}
 
-	CStructure* pCurrentStructure = DigitanksGame()->GetPrimarySelectionStructure();
-	if (m_bHUDActive && bMouseOnGrid && pCurrentStructure)
+	if (m_bHUDActive && bMouseOnGrid && DigitanksGame()->GetCurrentLocalDigitanksTeam())
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
-			CCPU* pCPU = dynamic_cast<CCPU*>(pCurrentStructure);
-			if (pCPU)
-				pCPU->SetPreviewBuild(vecEntityPoint);
+			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU())
+				DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU()->SetPreviewBuild(vecEntityPoint);
 		}
 	}
 

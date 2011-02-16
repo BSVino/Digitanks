@@ -2980,6 +2980,12 @@ bool CDigitank::IsAvailableAreaActive(int iArea) const
 	if (IsScout() && pTank->GetCurrentWeapon() != WEAPON_INFANTRYLASER)
 		return false;
 
+	if (GetVisibility(pTank->GetDigitanksTeam()) < 0.1f)
+		return false;
+
+	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetOrigin()-pTank->GetOrigin()).Normalized()).y)) > pTank->FiringCone())
+		return false;
+
 	return true;
 }
 

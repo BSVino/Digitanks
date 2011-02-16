@@ -423,6 +423,24 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CEMP);
 SAVEDATA_TABLE_END();
 
+void CEMP::Precache()
+{
+	PrecacheParticleSystem(L"emp-explosion");
+	PrecacheParticleSystem(L"emp-trail");
+}
+
+void CEMP::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	CParticleSystemLibrary::AddInstance(L"emp-explosion", GetOrigin());
+}
+
+size_t CEMP::CreateParticleSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"emp-trail", GetOrigin());
+}
+
 REGISTER_ENTITY(CICBM);
 
 NETVAR_TABLE_BEGIN(CICBM);
@@ -551,6 +569,24 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CArtilleryShell);
 SAVEDATA_TABLE_END();
 
+void CArtilleryShell::Precache()
+{
+	PrecacheParticleSystem(L"emp-explosion");
+	PrecacheParticleSystem(L"emp-trail");
+}
+
+void CArtilleryShell::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	CParticleSystemLibrary::AddInstance(L"emp-explosion", GetOrigin());
+}
+
+size_t CArtilleryShell::CreateParticleSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"emp-trail", GetOrigin());
+}
+
 REGISTER_ENTITY(CArtilleryAoE);
 
 NETVAR_TABLE_BEGIN(CArtilleryAoE);
@@ -558,6 +594,24 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CArtilleryAoE);
 SAVEDATA_TABLE_END();
+
+void CArtilleryAoE::Precache()
+{
+	PrecacheParticleSystem(L"aoe-explosion-strategy");
+	PrecacheParticleSystem(L"aoe-trail");
+}
+
+void CArtilleryAoE::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	CParticleSystemLibrary::AddInstance(L"aoe-explosion-strategy", GetOrigin());
+}
+
+size_t CArtilleryAoE::CreateParticleSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"aoe-trail", GetOrigin());
+}
 
 REGISTER_ENTITY(CArtilleryICBM);
 

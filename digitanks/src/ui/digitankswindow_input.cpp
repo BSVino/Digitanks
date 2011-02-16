@@ -94,11 +94,14 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
-			CCPU* pCPU = dynamic_cast<CCPU*>(DigitanksGame()->GetPrimarySelectionStructure());
-			if (pCPU && pCPU->IsPreviewBuildValid())
+			if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			{
-				pCPU->BeginConstruction();
-				DigitanksGame()->SetControlMode(MODE_NONE);
+				CCPU* pCPU = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU();
+				if (pCPU && pCPU->IsPreviewBuildValid())
+				{
+					pCPU->BeginConstruction();
+					DigitanksGame()->SetControlMode(MODE_NONE);
+				}
 			}
 		}
 
