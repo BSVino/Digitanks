@@ -690,9 +690,29 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	r.RenderModel(m_iFanModel);
 }
 
-void CCPU::RenderBuildableArea()
+bool CCPU::IsAvailableAreaActive(int iArea) const
 {
-	BaseClass::RenderBuildableArea();
+	if (iArea == 0)
+		return BaseClass::IsAvailableAreaActive(iArea);
+
+	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
+		return false;
+
+	if (m_ePreviewStructure != STRUCTURE_BUFFER && m_ePreviewStructure != STRUCTURE_MINIBUFFER)
+		return false;
+
+	if (!IsPreviewBuildValid())
+		return false;
+
+	return true;
+}
+
+void CCPU::RenderAvailableArea(int iArea)
+{
+	BaseClass::RenderAvailableArea(iArea);
+
+	if (iArea != 1)
+		return;
 
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
 		return;

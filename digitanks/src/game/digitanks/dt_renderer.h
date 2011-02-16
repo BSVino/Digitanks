@@ -20,7 +20,7 @@ public:
 	virtual void	FinishRendering();
 	virtual void	RenderPreviewModes();
 	virtual void	RenderFogOfWar();
-	virtual void	RenderBuildableAreas();
+	virtual void	RenderAvailableAreas();
 	virtual void	RenderOffscreenBuffers();
 	virtual void	RenderFullscreenBuffers();
 
@@ -30,7 +30,7 @@ public:
 	const CFrameBuffer*	GetVisibility1Buffer() { return &m_oVisibility1Buffer; }
 	const CFrameBuffer*	GetVisibility2Buffer() { return &m_oVisibility2Buffer; }
 	const CFrameBuffer*	GetVisibilityMaskedBuffer() { return &m_oVisibilityMaskedBuffer; }
-	const CFrameBuffer*	GetBuildableAreaBuffer() { return &m_oBuildableAreaBuffer; }
+	const CFrameBuffer*	GetAvailableAreaBuffer() { return &m_oAvailableAreaBuffer; }
 
 	void			BloomPulse();
 
@@ -39,7 +39,7 @@ protected:
 	CFrameBuffer	m_oVisibility1Buffer;
 	CFrameBuffer	m_oVisibility2Buffer;
 	CFrameBuffer	m_oVisibilityMaskedBuffer;
-	CFrameBuffer	m_oBuildableAreaBuffer;
+	CFrameBuffer	m_oAvailableAreaBuffer;
 
 	size_t			m_iVignetting;
 

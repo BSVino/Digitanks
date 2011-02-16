@@ -31,8 +31,10 @@ public:
 	virtual float					VisibleRange() const;
 	virtual bool					IsRammable() const { return true; }
 
-	virtual float					BuildableArea() const { return 0; };
-	virtual void					RenderBuildableArea();
+	virtual float					AvailableArea() const { return 0; };
+	virtual int						GetNumAvailableAreas() const { return 0; };
+	virtual bool					IsAvailableAreaActive(int iArea) const { return true; };
+	virtual void					RenderAvailableArea(int iArea);
 
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 

@@ -281,6 +281,10 @@ public:
 	virtual void				RenderShield(float flAlpha, float flAngle);
 	virtual float				RenderShieldScale() const { return 1.0f; };
 
+	virtual float				AvailableArea() const;
+	virtual int					GetNumAvailableAreas() const { return 1; };
+	virtual bool				IsAvailableAreaActive(int iArea) const;
+
 	virtual void				DrawSchema(int x, int y, int w, int h);
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);

@@ -52,7 +52,9 @@ public:
 	virtual void				StartTurn();
 
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				RenderBuildableArea();
+	virtual int					GetNumAvailableAreas() const { return 2; };
+	virtual bool				IsAvailableAreaActive(int iArea) const;
+	virtual void				RenderAvailableArea(int iArea);
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 

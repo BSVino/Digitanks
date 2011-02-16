@@ -189,7 +189,9 @@ public:
 
 	virtual float				BaseVisibleRange() const;
 
-	virtual float				BuildableArea() const;
+	virtual float				AvailableArea() const;
+	virtual int					GetNumAvailableAreas() const { return 1; };
+	virtual bool				IsAvailableAreaActive(int iArea) const;
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);

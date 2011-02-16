@@ -244,16 +244,25 @@ float CDigitanksEntity::VisibleRange() const
 	return BaseVisibleRange();
 }
 
-void CDigitanksEntity::RenderBuildableArea()
+void CDigitanksEntity::RenderAvailableArea(int iArea)
 {
-	if (BuildableArea() == 0)
+	float flAvailableArea = AvailableArea();
+
+	if (flAvailableArea == 0)
 		return;
 
-	float flBuildableArea = BuildableArea();
+	if (iArea != 0)
+		return;
+
+	float flScoutScale = 1.0f;
+
+	// Scouts have very tall ones so we can see them underneath on the ground.
+	if (GetUnitType() == UNIT_SCOUT)
+		flScoutScale = 10;
 
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.Translate(GetOrigin());
-	c.Scale(flBuildableArea, flBuildableArea, flBuildableArea);
+	c.Scale(flAvailableArea, flAvailableArea*flScoutScale, flAvailableArea);
 	c.RenderSphere();
 }
 

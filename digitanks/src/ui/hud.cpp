@@ -606,7 +606,14 @@ void CHUD::Think()
 			CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
 			CStaticProp* pSPHit = dynamic_cast<CStaticProp*>(pHit);
 			if (pDTHit && pDTHit->TakesDamage() && pDTHit->GetTeam() != pCurrentTank->GetTeam() && pDTHit->GetVisibility() > 0.5f && !pSPHit)
-				DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIMENEMY);
+			{
+				if (pDTHit->GetUnitType() == UNIT_SCOUT && pCurrentTank->GetCurrentWeapon() != WEAPON_INFANTRYLASER)
+					DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIM);
+				else if (pCurrentTank->IsInsideMaxRange(pDTHit->GetOrigin()))
+					DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIMENEMY);
+				else
+					DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIM);
+			}
 			else
 				DigitanksWindow()->SetMouseCursor(MOUSECURSOR_AIM);
 		}
@@ -659,9 +666,16 @@ void CHUD::Think()
 			CStaticProp* pSPHit = dynamic_cast<CStaticProp*>(pHit);
 			CDigitank* pDigitankHit = dynamic_cast<CDigitank*>(pHit);
 
-			if (pDigitankHit && pDigitankHit->IsScout())
+			if (pDTHit && pDTHit->GetVisibility() <= 0.1f)
+				vecPreviewAim = vecTerrainPoint;
+			else if (pDigitankHit && pDigitankHit->IsScout())
+			{
 				// Scouts are hard to hit by projectiles because they float so far above the surface.
-				vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(pDigitankHit->GetOrigin());
+				if (pCurrentTank->GetCurrentWeapon() == WEAPON_INFANTRYLASER)
+					vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(pDigitankHit->GetOrigin());
+				else
+					vecPreviewAim = vecTerrainPoint;
+			}
 			else if (pDTHit && !pSPHit && pDTHit->GetVisibility() > 0)
 				vecPreviewAim = pDTHit->GetOrigin();
 			else

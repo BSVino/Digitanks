@@ -1203,17 +1203,32 @@ float CSupplier::BaseVisibleRange() const
 	return GetDataFlowRadius() + 15;
 }
 
-float CSupplier::BuildableArea() const
+float CSupplier::AvailableArea() const
 {
+	return GetDataFlowRadius() + GetBoundingRadius();
+}
+
+bool CSupplier::IsAvailableAreaActive(int iArea) const
+{
+	if (iArea != 0)
+		return false;
+
 	if (!GetDigitanksTeam())
-		return 0;
+		return false;
 
 	if (!GetDigitanksTeam()->GetPrimaryCPU())
-		return 0;
+		return false;
 
 	unittype_t ePreviewStructure = GetDigitanksTeam()->GetPrimaryCPU()->GetPreviewStructure();
 	if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
-		return 0;
+		return false;
 
-	return GetDataFlowRadius() + GetBoundingRadius();
+	if (GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		return false;
+
+	// In build mode show everybody, otherwise only show the selected structure.
+	if (DigitanksGame()->GetControlMode() == MODE_BUILD || GetDigitanksTeam()->IsSelected(this))
+		return true;
+
+	return false;
 }

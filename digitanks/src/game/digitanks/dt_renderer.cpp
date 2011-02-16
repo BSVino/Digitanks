@@ -71,7 +71,7 @@ void CDigitanksRenderer::Initialize()
 		m_oVisibility1Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 		m_oVisibility2Buffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 		m_oVisibilityMaskedBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
-		m_oBuildableAreaBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
+		m_oAvailableAreaBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 
 		// Bind the regular scene's depth buffer to these buffers so we can use it for depth compares.
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
@@ -97,7 +97,7 @@ void CDigitanksRenderer::SetupFrame()
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oVisibilityMaskedBuffer.m_iFB);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oBuildableAreaBuffer.m_iFB);
+		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oAvailableAreaBuffer.m_iFB);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
@@ -330,7 +330,7 @@ void CDigitanksRenderer::FinishRendering()
 
 	RenderPreviewModes();
 	RenderFogOfWar();
-	RenderBuildableAreas();
+	RenderAvailableAreas();
 
 	BaseClass::FinishRendering();
 }
@@ -691,7 +691,7 @@ void CDigitanksRenderer::RenderFogOfWar()
 	glDepthFunc(GL_LESS);
 }
 
-void CDigitanksRenderer::RenderBuildableAreas()
+void CDigitanksRenderer::RenderAvailableAreas()
 {
 	if (!HardwareSupportsFramebuffers())
 		return;
@@ -707,62 +707,59 @@ void CDigitanksRenderer::RenderBuildableAreas()
 		if (!pDTEntity)
 			continue;
 
-		if (pDTEntity->BuildableArea() == 0)
-			continue;
-
-		// static_cast is okay since only buffers and CPUs have buildable areas and they're selectable.
-		if (DigitanksGame()->GetControlMode() != MODE_BUILD && !pDTEntity->GetDigitanksTeam()->IsSelected(static_cast<CSelectable*>(pDTEntity)))
-			continue;
-
-		if (pDTEntity->GetTeam() && pDTEntity->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			continue;
-
-		CRenderingContext c(this);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_COLOR_MATERIAL);
-		if (ShouldUseFramebuffers())
-			c.UseFrameBuffer(&m_oVisibility1Buffer);
-		else
+		int iAreas = pDTEntity->GetNumAvailableAreas();
+		for (int j = 0; j < iAreas; j++)
 		{
-			glReadBuffer(GL_AUX1);
-			glDrawBuffer(GL_AUX1);
+			if (!pDTEntity->IsAvailableAreaActive(j))
+				continue;
+
+			CRenderingContext c(this);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_COLOR_MATERIAL);
+			if (ShouldUseFramebuffers())
+				c.UseFrameBuffer(&m_oVisibility1Buffer);
+			else
+			{
+				glReadBuffer(GL_AUX1);
+				glDrawBuffer(GL_AUX1);
+			}
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			c.SetDepthMask(false);
+
+			glDepthFunc(GL_GREATER);
+
+			// Render this guy's visibility volume to the first buffer
+			glCullFace(GL_FRONT);
+			c.SetColor(Color(255, 255, 255));
+			pDTEntity->RenderAvailableArea(j);
+
+			glCullFace(GL_BACK);
+			c.SetColor(Color(0, 0, 0));
+			pDTEntity->RenderAvailableArea(j);
+
+			c.SetBlend(BLEND_ADDITIVE);
+			glBlendFunc(GL_ONE, GL_ONE);
+			c.SetColor(Color(255, 255, 255));
+			glDisable(GL_DEPTH_TEST);
+			glCullFace(GL_NONE);
+			c.SetDepthMask(false);
+
+			if (ShouldUseShaders())
+				ClearProgram();
+
+			// Copy the results to the second buffer
+			if (ShouldUseFramebuffers())
+				RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oAvailableAreaBuffer);
+			else
+			{
+				glReadBuffer(GL_AUX1);
+				glDrawBuffer(GL_AUX2);
+			}
+
+			c.SetBlend(BLEND_NONE);
+			glEnable(GL_DEPTH_TEST);
 		}
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		c.SetDepthMask(false);
-
-		glDepthFunc(GL_GREATER);
-
-		// Render this guy's visibility volume to the first buffer
-		glCullFace(GL_FRONT);
-		c.SetColor(Color(255, 255, 255));
-		pDTEntity->RenderBuildableArea();
-
-		glCullFace(GL_BACK);
-		c.SetColor(Color(0, 0, 0));
-		pDTEntity->RenderBuildableArea();
-
-		c.SetBlend(BLEND_ADDITIVE);
-		glBlendFunc(GL_ONE, GL_ONE);
-		c.SetColor(Color(255, 255, 255));
-		glDisable(GL_DEPTH_TEST);
-		glCullFace(GL_NONE);
-		c.SetDepthMask(false);
-
-		if (ShouldUseShaders())
-			ClearProgram();
-
-		// Copy the results to the second buffer
-		if (ShouldUseFramebuffers())
-			RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oBuildableAreaBuffer);
-		else
-		{
-			glReadBuffer(GL_AUX1);
-			glDrawBuffer(GL_AUX2);
-		}
-
-		c.SetBlend(BLEND_NONE);
-		glEnable(GL_DEPTH_TEST);
 	}
 
 	glReadBuffer(GL_BACK);
@@ -807,20 +804,23 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 	}
 
-	// Draw the fog of war.
-	if (ShouldUseFramebuffers() && ShouldUseShaders() && DigitanksGame()->ShouldRenderFogOfWar())
+	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
 		UseProgram(0);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD || DigitanksGame()->GetControlMode() == MODE_AIM)
 			glColor4ubv(Color(50, 250, 50, 100));
 		else
 			glColor4ubv(Color(50, 250, 50, 30));
-		RenderMapToBuffer(m_oBuildableAreaBuffer.m_iMap, &m_oSceneBuffer);
+		RenderMapToBuffer(m_oAvailableAreaBuffer.m_iMap, &m_oSceneBuffer);
 		glColor4ubv(Color(255, 255, 255));
 		glDisable(GL_BLEND);
+	}
 
+	// Draw the fog of war.
+	if (ShouldUseFramebuffers() && ShouldUseShaders() && DigitanksGame()->ShouldRenderFogOfWar())
+	{
 		// Explosion buffer's not in use anymore, reduce reuse recycle!
 		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oExplosionBuffer);
 
@@ -840,7 +840,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 		GLint flFactor = glGetUniformLocation(iDarkenProgram, "flFactor");
 	    glUniform1f(flFactor, 3.0f);
 
-		if (DigitanksGame()->GetControlMode() == MODE_BUILD)
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD || DigitanksGame()->GetControlMode() == MODE_AIM)
 			glColor4ubv(Color(150, 150, 150));
 		else
 			glColor4ubv(Color(255, 255, 255));

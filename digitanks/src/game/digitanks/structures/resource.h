@@ -33,7 +33,9 @@ public:
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
 
-	virtual float				BuildableArea() const;
+	virtual float				AvailableArea() const;
+	virtual int					GetNumAvailableAreas() const { return 1; };
+	virtual bool				IsAvailableAreaActive(int iArea) const;
 
 	static CResource*			FindClosestResource(Vector vecPoint, resource_t eResource);
 

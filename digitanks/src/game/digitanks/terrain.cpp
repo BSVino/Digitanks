@@ -1256,7 +1256,7 @@ void CTerrain::RenderWithShaders()
 		glUniform1i(bShowRanges, true);
 
 		GLuint bFocusRanges = glGetUniformLocation(iTerrainProgram, "bFocusRanges");
-		glUniform1i(bFocusRanges, bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_AIM);
+		glUniform1i(bFocusRanges, false);
 
 		Vector vecRangeOrigin = pCurrentTank->GetOrigin();
 		if (bIsCurrentTeam && DigitanksGame()->GetControlMode() == MODE_MOVE && pCurrentTank->GetPreviewMovePower() <= pCurrentTank->GetRemainingMovementEnergy())

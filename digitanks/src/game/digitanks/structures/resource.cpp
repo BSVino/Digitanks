@@ -163,17 +163,22 @@ void CResource::PostRender(bool bTransparent)
 	}
 }
 
-float CResource::BuildableArea() const
+float CResource::AvailableArea() const
+{
+	return 5;
+}
+
+bool CResource::IsAvailableAreaActive(int iArea) const
 {
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
-		return 0;
+		return false;
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	if (!pTeam)
-		return 0;
+		return false;
 
 	if (!pTeam->GetPrimaryCPU())
-		return 0;
+		return false;
 
 	unittype_t ePreviewStructure = pTeam->GetPrimaryCPU()->GetPreviewStructure();
 
@@ -182,24 +187,24 @@ float CResource::BuildableArea() const
 		CCollector* pCollector = GetCollector();
 
 		if (pCollector->GetTeam() != pTeam)
-			return 0;
+			return false;
 
 		if (ePreviewStructure == STRUCTURE_BATTERY)
-			return 0;
+			return false;
 
 		if (ePreviewStructure == STRUCTURE_PSU && pCollector->GetUnitType() == STRUCTURE_PSU)
-			return 0;
+			return false;
 
 		// Putting a PSU on a battery is okay.
 	}
 
 	if (ePreviewStructure != STRUCTURE_PSU && ePreviewStructure != STRUCTURE_BATTERY)
-		return 0;
+		return false;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), pTeam) <= 0)
-		return 0;
+		return false;
 
-	return 5;
+	return true;
 }
 
 CResource* CResource::FindClosestResource(Vector vecPoint, resource_t eResource)

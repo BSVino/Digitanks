@@ -2950,6 +2950,39 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 	r.RenderModel(m_iShieldModel);
 }
 
+float CDigitank::AvailableArea() const
+{
+	return GetBoundingRadius();
+}
+
+bool CDigitank::IsAvailableAreaActive(int iArea) const
+{
+	if (!GetDigitanksTeam())
+		return false;
+
+	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		return false;
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetDigitanksTeam())
+		return false;
+
+	if (DigitanksGame()->GetControlMode() != MODE_AIM)
+		return false;
+
+	CDigitank* pTank = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimarySelectionTank();
+
+	if (!pTank)
+		return false;
+
+	if (!pTank->IsInsideMaxRange(GetOrigin()))
+		return false;
+
+	if (IsScout() && pTank->GetCurrentWeapon() != WEAPON_INFANTRYLASER)
+		return false;
+
+	return true;
+}
+
 void CDigitank::DrawSchema(int x, int y, int w, int h)
 {
 	CRenderingContext c(GameServer()->GetRenderer());
