@@ -561,6 +561,24 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CTractorBomb);
 SAVEDATA_TABLE_END();
 
+void CTractorBomb::Precache()
+{
+	PrecacheParticleSystem(L"tractor-bomb-explosion");
+	PrecacheParticleSystem(L"tractor-bomb-trail");
+}
+
+size_t CTractorBomb::CreateParticleSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"tractor-bomb-trail", GetOrigin());
+}
+
+void CTractorBomb::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	CParticleSystemLibrary::AddInstance(L"tractor-bomb-explosion", GetOrigin());
+}
+
 REGISTER_ENTITY(CArtilleryShell);
 
 NETVAR_TABLE_BEGIN(CArtilleryShell);

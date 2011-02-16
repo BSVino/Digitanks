@@ -248,6 +248,13 @@ class CTractorBomb : public CProjectile
 	REGISTER_ENTITY_CLASS(CTractorBomb, CProjectile);
 
 public:
+	virtual void				Precache();
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual size_t				CreateParticleSystem();
+
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TRACTORBOMB; }
 	virtual float				ShellRadius() { return 0.8f; };
 	virtual float				ExplosionRadius() { return 0.0f; };

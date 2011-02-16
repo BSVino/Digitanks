@@ -80,13 +80,21 @@ public:
 	bool							IsLoaded() { return m_bLoaded; }
 	void							Load();
 
-	const wchar_t*					GetName() { return m_sName.c_str(); }
+	eastl::string16					GetName() { return m_sName; }
 
 	void							SetTexture(eastl::string16 sTexture) { m_sTexture = sTexture; };
 	void							SetTexture(size_t iTexture) { m_iTexture = iTexture; };
 
-	const wchar_t*					GetTextureName() { return m_sTexture.c_str(); }
+	eastl::string16					GetTextureName() { return m_sTexture; }
 	inline size_t					GetTexture() { return m_iTexture; }
+
+	void							SetModel(eastl::string16 sModel) { m_sModel = sModel; };
+	void							SetModel(size_t iModel) { m_iModel = iModel; };
+
+	eastl::string16					GetModelName() { return m_sModel; }
+	inline size_t					GetModel() { return m_iModel; }
+
+	bool							IsRenderable();
 
 	void							SetLifeTime(float flLifeTime) { m_flLifeTime = flLifeTime; }
 	inline float					GetLifeTime() { return m_flLifeTime; }
@@ -146,6 +154,9 @@ protected:
 
 	eastl::string16					m_sTexture;
 	size_t							m_iTexture;
+
+	eastl::string16					m_sModel;
+	size_t							m_iModel;
 
 	float							m_flLifeTime;
 	float							m_flEmissionRate;

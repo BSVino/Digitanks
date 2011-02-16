@@ -5,6 +5,7 @@
 #include <game/game.h>
 #include <shaders/shaders.h>
 #include <tinker/cvar.h>
+#include <models/models.h>
 
 #include "renderer.h"
 
@@ -45,7 +46,7 @@ size_t CParticleSystemLibrary::FindParticleSystem(const eastl::string16& sName)
 {
 	for (size_t i = 0; i < m_apParticleSystems.size(); i++)
 	{
-		if (wcscmp(m_apParticleSystems[i]->GetName(), sName.c_str()) == 0)
+		if (m_apParticleSystems[i]->GetName() == sName)
 			return i;
 	}
 
@@ -182,6 +183,7 @@ CParticleSystem::CParticleSystem(eastl::string16 sName)
 	m_sName = sName;
 
 	m_iTexture = 0;
+	m_iModel = 0;
 
 	m_flLifeTime = 1.0f;
 	m_flEmissionRate = 0.1f;
@@ -205,10 +207,19 @@ void CParticleSystem::Load()
 
 	m_bLoaded = true;
 
-	SetTexture(CRenderer::LoadTextureIntoGL(GetTextureName()));
+	if (GetTextureName().length() > 0)
+		SetTexture(CRenderer::LoadTextureIntoGL(GetTextureName()));
+
+	if (GetModelName().length() > 0)
+		SetModel(CModelLibrary::Get()->AddModel(GetModelName(), true));
 
 	for (size_t i = 0; i < GetNumChildren(); i++)
 		CParticleSystemLibrary::Get()->GetParticleSystem(GetChild(i))->Load();
+}
+
+bool CParticleSystem::IsRenderable()
+{
+	return !!GetTexture() || !!GetModel();
 }
 
 void CParticleSystem::AddChild(size_t iSystem)
@@ -280,7 +291,7 @@ void CSystemInstance::Simulate()
 		pParticle->m_flRadius = RemapVal(flLifeTimeRamp, 0, 1, m_pSystem->GetStartRadius(), m_pSystem->GetEndRadius());
 	}
 
-	if (!m_bStopped && m_pSystem->GetTexture())
+	if (!m_bStopped && m_pSystem->IsRenderable())
 	{
 		while (flGameTime - m_flLastEmission > m_pSystem->GetEmissionRate())
 		{
@@ -296,7 +307,7 @@ void CSystemInstance::Simulate()
 	for (size_t i = 0; i < m_apChildren.size(); i++)
 		m_apChildren[i]->Simulate();
 
-	if (m_pSystem->GetEmissionMax() && m_iTotalEmitted >= m_pSystem->GetEmissionMax() || !m_pSystem->GetTexture())
+	if (m_pSystem->GetEmissionMax() && m_iTotalEmitted >= m_pSystem->GetEmissionMax() || !m_pSystem->IsRenderable())
 		m_bStopped = true;
 }
 
@@ -368,7 +379,9 @@ void CSystemInstance::Render()
 
 	CRenderingContext c(GameServer()->GetRenderer());
 
-	c.BindTexture(m_pSystem->GetTexture());
+	if (m_pSystem->GetTexture())
+		c.BindTexture(m_pSystem->GetTexture());
+
 	c.SetBlend(BLEND_ADDITIVE);
 	c.SetDepthMask(false);
 	if (pRenderer->ShouldUseShaders())
@@ -386,53 +399,70 @@ void CSystemInstance::Render()
 		if (!pParticle->m_bActive)
 			continue;
 
-		float flRadius = pParticle->m_flRadius;
-		Vector vecOrigin = pParticle->m_vecOrigin;
-
-		Vector vecParticleUp, vecParticleRight;
-
-		if (fabs(pParticle->m_flBillboardYaw) > 0.01f)
+		if (m_pSystem->GetModel())
 		{
-			float flYaw = pParticle->m_flBillboardYaw*M_PI/180;
-			float flSin = sin(flYaw);
-			float flCos = cos(flYaw);
-
-			vecParticleUp = (flCos*vecUp + flSin*vecRight)*flRadius;
-			vecParticleRight = (flCos*vecRight - flSin*vecUp)*flRadius;
-		}
-		else
-		{
-			vecParticleUp = vecUp*flRadius;
-			vecParticleRight = vecRight*flRadius;
-		}
-
-		Vector vecTL = vecOrigin - vecParticleRight + vecParticleUp;
-		Vector vecTR = vecOrigin + vecParticleRight + vecParticleUp;
-		Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
-		Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
-
-		if (pRenderer->ShouldUseShaders())
-			c.SetUniform("flAlpha", pParticle->m_flAlpha);
-		else
 			c.SetAlpha(pParticle->m_flAlpha);
 
-		if (m_bColorOverride)
-			c.SetColor(m_clrOverride);
+			if (m_bColorOverride)
+				c.SetColor(m_clrOverride);
+			else
+				c.SetColor(m_pSystem->GetColor());
+
+			c.Translate(pParticle->m_vecOrigin);
+			c.Scale(pParticle->m_flRadius, pParticle->m_flRadius, pParticle->m_flRadius);
+			c.RenderModel(m_pSystem->GetModel());
+			c.ResetTransformations();
+		}
 		else
-			c.SetColor(m_pSystem->GetColor());
+		{
+			float flRadius = pParticle->m_flRadius;
+			Vector vecOrigin = pParticle->m_vecOrigin;
 
-		c.BeginRenderQuads();
+			Vector vecParticleUp, vecParticleRight;
 
-		c.TexCoord(0, 1);
-		c.Vertex(vecTL);
-		c.TexCoord(0, 0);
-		c.Vertex(vecBL);
-		c.TexCoord(1, 0);
-		c.Vertex(vecBR);
-		c.TexCoord(1, 1);
-		c.Vertex(vecTR);
+			if (fabs(pParticle->m_flBillboardYaw) > 0.01f)
+			{
+				float flYaw = pParticle->m_flBillboardYaw*M_PI/180;
+				float flSin = sin(flYaw);
+				float flCos = cos(flYaw);
 
-		c.EndRender();
+				vecParticleUp = (flCos*vecUp + flSin*vecRight)*flRadius;
+				vecParticleRight = (flCos*vecRight - flSin*vecUp)*flRadius;
+			}
+			else
+			{
+				vecParticleUp = vecUp*flRadius;
+				vecParticleRight = vecRight*flRadius;
+			}
+
+			Vector vecTL = vecOrigin - vecParticleRight + vecParticleUp;
+			Vector vecTR = vecOrigin + vecParticleRight + vecParticleUp;
+			Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
+			Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
+
+			if (pRenderer->ShouldUseShaders())
+				c.SetUniform("flAlpha", pParticle->m_flAlpha);
+			else
+				c.SetAlpha(pParticle->m_flAlpha);
+
+			if (m_bColorOverride)
+				c.SetColor(m_clrOverride);
+			else
+				c.SetColor(m_pSystem->GetColor());
+
+			c.BeginRenderQuads();
+
+			c.TexCoord(0, 1);
+			c.Vertex(vecTL);
+			c.TexCoord(0, 0);
+			c.Vertex(vecBL);
+			c.TexCoord(1, 0);
+			c.Vertex(vecBR);
+			c.TexCoord(1, 1);
+			c.Vertex(vecTR);
+
+			c.EndRender();
+		}
 	}
 }
 

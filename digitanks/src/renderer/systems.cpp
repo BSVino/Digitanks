@@ -381,4 +381,47 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPTrailSparks2->SetRandomVelocity(AABB(Vector(-5, -5, -5), Vector(5, 5, 5)));
 	pEMPTrailSparks2->SetDrag(0.5f);
 	pEMPTrailSparks2->SetRandomBillboardYaw(true);
+
+	size_t iTractorBomb = pPSL->AddParticleSystem(L"tractor-bomb-explosion");
+	size_t iTractorBombPulses = pPSL->AddParticleSystem(L"tractor-bomb-explosion-pulses");
+	size_t iTractorBombSmoke = pPSL->AddParticleSystem(L"tractor-bomb-explosion-smoke");
+
+	CParticleSystem* pTractorBomb = pPSL->GetParticleSystem(iTractorBomb);
+	CParticleSystem* pTractorBombPulses = pPSL->GetParticleSystem(iTractorBombPulses);
+	CParticleSystem* pTractorBombSmoke = pPSL->GetParticleSystem(iTractorBombSmoke);
+
+	pTractorBomb->AddChild(iTractorBombPulses);
+	pTractorBomb->AddChild(iTractorBombSmoke);
+
+	pTractorBombPulses->SetModel(L"models/particles/pulse.obj");
+	pTractorBombPulses->SetLifeTime(0.3f);
+	pTractorBombPulses->SetEmissionRate(0.15f);
+	pTractorBombPulses->SetEmissionMax(3);
+	pTractorBombPulses->SetAlpha(0.7f);
+	pTractorBombPulses->SetStartRadius(1.0f);
+	pTractorBombPulses->SetEndRadius(60.0f);
+	pTractorBombPulses->SetFadeOut(1.0f);
+	pTractorBombPulses->SetInheritedVelocity(0.0f);
+	pTractorBombPulses->SetDrag(0.0f);
+
+	pTractorBombSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pTractorBombSmoke->SetLifeTime(1.0f);
+	pTractorBombSmoke->SetEmissionRate(0.01f);
+	pTractorBombSmoke->SetEmissionMax(5);
+	pTractorBombSmoke->SetAlpha(0.2f);
+	pTractorBombSmoke->SetStartRadius(4.0f);
+	pTractorBombSmoke->SetEndRadius(30.0f);
+	pTractorBombSmoke->SetFadeOut(0.5f);
+	pTractorBombSmoke->SetDrag(0.15f);
+	pTractorBombSmoke->SetRandomVelocity(AABB(Vector(-30, -10, -30), Vector(30, 30, 30)));
+	pTractorBombSmoke->SetRandomBillboardYaw(true);
+
+	size_t iTractorBombTrail = pPSL->AddParticleSystem(L"tractor-bomb-trail");
+
+	CParticleSystem* pTractorBombTrail = pPSL->GetParticleSystem(iTractorBombTrail);
+
+	pTractorBombTrail->AddChild(iTrailAura);
+	pTractorBombTrail->AddChild(iTrailWireframe1);
+	pTractorBombTrail->AddChild(iTrailWireframe2);
+	pTractorBombTrail->AddChild(iTrailWireframe3);
 }

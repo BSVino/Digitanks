@@ -23,6 +23,9 @@ CModelLibrary::~CModelLibrary()
 
 size_t CModelLibrary::AddModel(const eastl::string16& sModel, bool bStatic)
 {
+	if (!sModel.length())
+		return 0;
+
 	size_t iModel = FindModel(sModel);
 	if (iModel != ~0)
 		return iModel;
