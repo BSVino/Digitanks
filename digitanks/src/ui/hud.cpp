@@ -16,7 +16,12 @@
 #include <game/digitanks/weapons/projectile.h>
 #include <game/digitanks/structures/loader.h>
 #include <game/digitanks/structures/props.h>
+#include <game/digitanks/structures/collector.h>
 #include <game/digitanks/units/mobilecpu.h>
+#include <game/digitanks/units/scout.h>
+#include <game/digitanks/units/artillery.h>
+#include <game/digitanks/units/mechinf.h>
+#include <game/digitanks/units/maintank.h>
 #include <game/digitanks/dt_camera.h>
 #include <sound/sound.h>
 #include "weaponpanel.h"
@@ -233,6 +238,8 @@ CHUD::CHUD()
 	m_pPowerInfo->SetPos(200, 20);
 	m_pPowerInfo->SetFGColor(Color(220, 220, 255));
 	m_pPowerInfo->SetFont(L"text");
+	m_pPowerInfo->SetCursorInListener(this, ShowPowerInfo);
+	m_pPowerInfo->SetCursorOutListener(this, HideTeamInfo);
 
 	m_pFleetInfo = new CLabel(0, 0, 200, 20, L"");
 	AddControl(m_pFleetInfo);
@@ -241,6 +248,8 @@ CHUD::CHUD()
 	m_pFleetInfo->SetPos(200, 20);
 	m_pFleetInfo->SetFGColor(Color(220, 220, 255));
 	m_pFleetInfo->SetFont(L"text");
+	m_pFleetInfo->SetCursorInListener(this, ShowFleetInfo);
+	m_pFleetInfo->SetCursorOutListener(this, HideTeamInfo);
 
 	m_pBandwidthInfo = new CLabel(0, 0, 200, 20, L"");
 	AddControl(m_pBandwidthInfo);
@@ -249,6 +258,16 @@ CHUD::CHUD()
 	m_pBandwidthInfo->SetPos(200, 20);
 	m_pBandwidthInfo->SetFGColor(Color(220, 220, 255));
 	m_pBandwidthInfo->SetFont(L"text");
+	m_pBandwidthInfo->SetCursorInListener(this, ShowBandwidthInfo);
+	m_pBandwidthInfo->SetCursorOutListener(this, HideTeamInfo);
+
+	m_pTeamInfo = new CLabel(0, 0, 200, 20, L"");
+	AddControl(m_pTeamInfo);
+
+	m_pTeamInfo->SetAlign(CLabel::TA_TOPLEFT);
+	m_pTeamInfo->SetPos(200, 20);
+	m_pTeamInfo->SetFGColor(Color(255, 255, 255));
+	m_pTeamInfo->SetFont(L"text");
 
 	m_pUpdatesButton = new CPictureButton(L"Download Updates");
 	m_pUpdatesButton->SetSheetTexture(m_iHUDSheet, 500, 710, 175, 40, 1024, 1024);
@@ -536,16 +555,19 @@ void CHUD::Layout()
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pPressEnter->SetWrap(false);
 
-	m_pPowerInfo->SetAlign(CLabel::TA_TOPLEFT);
-	m_pPowerInfo->SetPos(iWidth - 320, 20);
+	m_pPowerInfo->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pPowerInfo->SetPos(iWidth - 340, 12);
+	m_pPowerInfo->SetSize(80, 15);
 	m_pPowerInfo->SetWrap(false);
 
-	m_pFleetInfo->SetAlign(CLabel::TA_TOPLEFT);
-	m_pFleetInfo->SetPos(iWidth - 220, 20);
+	m_pFleetInfo->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pFleetInfo->SetPos(iWidth - 220, 12);
+	m_pFleetInfo->SetSize(30, 15);
 	m_pFleetInfo->SetWrap(false);
 
-	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPLEFT);
-	m_pBandwidthInfo->SetPos(iWidth - 150, 20);
+	m_pBandwidthInfo->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pBandwidthInfo->SetPos(iWidth - 150, 12);
+	m_pBandwidthInfo->SetSize(150, 15);
 	m_pBandwidthInfo->SetWrap(false);
 
 	m_pTurnButton->SetPos(iWidth - 140, iHeight - 105);
@@ -881,8 +903,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 
 		Vector vecOrigin = pEntity->GetOrigin();
-		if (pTank)
-			vecOrigin = pTank->GetOrigin();
 
 		Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(vecOrigin);
 
@@ -1004,6 +1024,31 @@ void CHUD::Paint(int x, int y, int w, int h)
 			}
 		}
 
+		if (pTank && pTank->IsDisabled())
+		{
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+
+			int iWidth = 77*2/3;
+			int iHeight = 39*2/3;
+
+			CHUD::PaintHUDSheet((int)(vecScreen.x + flWidth/2 - 2), (int)(vecScreen.y - flWidth), iWidth, iHeight, 500, 486, 77, 39, Color(255, 255, 255, 255));
+
+			int iFontSize = 17;
+
+			eastl::string16 sZZZ = L"zzz";
+			float flTextWidth = CLabel::GetTextWidth(sZZZ, sZZZ.length(), L"smileys", iFontSize);
+			float flTextHeight = CLabel::GetFontHeight(L"smileys", iFontSize);
+
+			float flLerp = fmod(GameServer()->GetGameTime(), 2.0f);
+			if (flLerp < 0.5f)
+				sZZZ = L"z";
+			else if (flLerp < 1.0f)
+				sZZZ = L"zz";
+
+			CLabel::PaintText(sZZZ, sZZZ.length(), L"smileys", iFontSize, vecScreen.x + flWidth/2 + iWidth/2 - flTextWidth/2, vecScreen.y - flWidth + iHeight/2 + 3);
+		}
+
 		bool bShowEnergy = false;
 		if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
@@ -1058,13 +1103,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES)
 		{
-			PaintHUDSheet(iWidth - 350, 10, 20, 20, 500, 530, 20, 20);
+			PaintHUDSheet(iWidth - 370, 10, 20, 20, 500, 530, 20, 20);
 			PaintHUDSheet(iWidth - 250, 10, 20, 20, 540, 530, 20, 20);
 			PaintHUDSheet(iWidth - 180, 10, 20, 20, 520, 530, 20, 20);
 
 			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
 
-			int iResearchWidth = 570;
+			int iResearchWidth = 550;
 			CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, Color(0, 0, 0, 150));
 
 			if (pCurrentLocalTeam && pCurrentLocalTeam->GetUpdateDownloading())
@@ -1105,6 +1150,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
+
+	CRootPanel::PaintRect(m_pPowerInfo->GetLeft()-3, m_pPowerInfo->GetTop()-3, m_pPowerInfo->GetWidth()+6, m_pPowerInfo->GetHeight()+6, Color(0, 0, 0, 200));
+	CRootPanel::PaintRect(m_pFleetInfo->GetLeft()-3, m_pFleetInfo->GetTop()-3, m_pFleetInfo->GetWidth()+6, m_pFleetInfo->GetHeight()+6, Color(0, 0, 0, 200));
+	CRootPanel::PaintRect(m_pBandwidthInfo->GetLeft()-3, m_pBandwidthInfo->GetTop()-3, m_pBandwidthInfo->GetWidth()+6, m_pBandwidthInfo->GetHeight()+6, Color(0, 0, 0, 200));
 
 	size_t iX, iY, iX2, iY2;
 	if (DigitanksWindow()->GetBoxSelection(iX, iY, iX2, iY2))
@@ -1215,6 +1264,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	bool bCloseVisible = m_pCloseActionItems->IsVisible();
 	m_pCloseActionItems->SetVisible(false);
 	m_pButtonInfo->SetVisible(false);
+	m_pTeamInfo->SetVisible(false);
 	CPanel::Paint(x, y, w, h);
 	m_pCloseActionItems->SetVisible(bCloseVisible);
 
@@ -1332,6 +1382,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 				PaintSheet(m_iActionSignsSheet, iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, 0, 330, 1024, 330, 1024, 1024, Color(255, 255, 255, (int)(flAlpha*255)));
 		}
 	}
+
+	if (m_pTeamInfo->GetText().length() > 0)
+		CRootPanel::PaintRect(m_pTeamInfo->GetLeft()-3, m_pTeamInfo->GetTop()-9, m_pTeamInfo->GetWidth()+6, m_pTeamInfo->GetHeight()+6, Color(0, 0, 0, 220));
+
+	m_pTeamInfo->SetVisible(true);
+	m_pTeamInfo->Paint();
 
 //	while (true)
 //	{
@@ -3152,6 +3208,148 @@ void CHUD::ChooseWeaponCallback()
 void CHUD::GoToMainCallback()
 {
 	SetupMenu(MENUMODE_MAIN);
+}
+
+void CHUD::ShowPowerInfoCallback()
+{
+	m_pTeamInfo->SetText("");
+
+	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (!pCurrentTeam)
+		return;
+
+	m_pTeamInfo->AppendText("POWER INFO\n \n");
+
+	m_pTeamInfo->AppendText(sprintf(L"Power stored: %.1f\n", pCurrentTeam->GetPower()));
+	m_pTeamInfo->AppendText(sprintf(L"Power per turn: +%.1f\n \n", pCurrentTeam->GetPowerPerTurn()));
+
+	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
+	{
+		CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		if (!pEntity)
+			continue;
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		if (!pStructure)
+			continue;
+
+		if (pStructure->Power() > 0)
+			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%.1f\n", pStructure->Power()));
+
+		CCollector* pCollector = dynamic_cast<CCollector*>(pEntity);
+		if (pCollector)
+			m_pTeamInfo->AppendText(sprintf(pCollector->GetName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced() * pCollector->GetSupplier()->GetChildEfficiency(), (int)(pCollector->GetSupplier()->GetChildEfficiency()*100)));
+	}
+
+	LayoutTeamInfo();
+}
+
+void CHUD::ShowFleetInfoCallback()
+{
+	m_pTeamInfo->SetText("");
+
+	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (!pCurrentTeam)
+		return;
+
+	m_pTeamInfo->AppendText("FLEET INFO\n \n");
+
+	m_pTeamInfo->AppendText(sprintf(L"Fleet points available: %d\n", pCurrentTeam->GetTotalFleetPoints()));
+	m_pTeamInfo->AppendText(sprintf(L"Fleet points in use: %d\n \n", pCurrentTeam->GetUsedFleetPoints()));
+
+	int iScouts = 0;
+	int iTanks = 0;
+	int iArtillery = 0;
+	int iInfantry = 0;
+
+	m_pTeamInfo->AppendText(L"Suppliers:\n");
+	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
+	{
+		CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		if (!pEntity)
+			continue;
+
+		CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+		if (pDTEnt)
+		{
+			if (pDTEnt->GetUnitType() == UNIT_SCOUT)
+				iScouts++;
+			else if (pDTEnt->GetUnitType() == UNIT_TANK)
+				iTanks++;
+			else if (pDTEnt->GetUnitType() == UNIT_INFANTRY)
+				iInfantry++;
+			else if (pDTEnt->GetUnitType() == UNIT_ARTILLERY)
+				iArtillery++;
+		}
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		if (!pStructure)
+			continue;
+
+		if (pStructure->FleetPoints() > 0)
+			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%d\n", pStructure->FleetPoints()));
+	}
+
+	m_pTeamInfo->AppendText(L" \nFleet:\n");
+	if (iScouts)
+		m_pTeamInfo->AppendText(sprintf(L"%d Rogues (%d): %d\n", iScouts, CScout::ScoutFleetPoints(), iScouts*CScout::ScoutFleetPoints()));
+	if (iInfantry)
+		m_pTeamInfo->AppendText(sprintf(L"%d Resistors (%d): %d\n", iInfantry, CMechInfantry::InfantryFleetPoints(), iInfantry*CMechInfantry::InfantryFleetPoints()));
+	if (iTanks)
+		m_pTeamInfo->AppendText(sprintf(L"%d Digitanks (%d): %d\n", iTanks, CMainBattleTank::MainTankFleetPoints(), iTanks*CMainBattleTank::MainTankFleetPoints()));
+	if (iArtillery)
+		m_pTeamInfo->AppendText(sprintf(L"%d Artillery (%d): %d\n", iArtillery, CArtillery::ArtilleryFleetPoints(), iArtillery*CArtillery::ArtilleryFleetPoints()));
+
+	LayoutTeamInfo();
+}
+
+void CHUD::ShowBandwidthInfoCallback()
+{
+	m_pTeamInfo->SetText("");
+
+	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (!pCurrentTeam)
+		return;
+
+	m_pTeamInfo->AppendText("BANDWIDTH INFO\n \n");
+
+	if (pCurrentTeam->GetUpdateDownloading())
+	{
+		m_pTeamInfo->AppendText(sprintf(L"Downloading: %s\n", pCurrentTeam->GetUpdateDownloading()->GetName()));
+		m_pTeamInfo->AppendText(sprintf(L"Progress: %.1f/%dmb (%d turns)\n", pCurrentTeam->GetUpdateDownloaded(), (int)pCurrentTeam->GetUpdateSize(), pCurrentTeam->GetTurnsToDownload()));
+		m_pTeamInfo->AppendText(sprintf(L"Download rate: %.1fmb/turn\n \n", pCurrentTeam->GetBandwidth()));
+	}
+
+	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
+	{
+		CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		if (!pEntity)
+			continue;
+
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		if (!pStructure)
+			continue;
+
+		if (pStructure->Bandwidth() > 0)
+			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%.1fmb\n", pStructure->Bandwidth()));
+	}
+
+	LayoutTeamInfo();
+}
+
+void CHUD::HideTeamInfoCallback()
+{
+	m_pTeamInfo->SetText("");
+}
+
+void CHUD::LayoutTeamInfo()
+{
+	if (m_pTeamInfo->GetText().length() == 0)
+		return;
+
+	m_pTeamInfo->ComputeLines();
+	m_pTeamInfo->SetSize(300, (int)m_pTeamInfo->GetTextHeight());
+	m_pTeamInfo->SetPos(GetWidth() - m_pTeamInfo->GetWidth() - 50, 50);
 }
 
 void CHUD::SetNeedsUpdate()

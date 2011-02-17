@@ -1972,6 +1972,9 @@ CMenu* CRootPanel::AddMenu(const eastl::string16& sText)
 	if (!m_pMenuBar)
 		return NULL;
 
+	if (m_pMenuBar->GetControls().size() == 0)
+		m_pMenuBar->SetVisible(true);
+
 	CMenu* pMenu = new CMenu(sText);
 	pMenu->SetWrap(false);
 	m_pMenuBar->AddControl(pMenu, true);
@@ -1982,6 +1985,7 @@ CMenu* CRootPanel::AddMenu(const eastl::string16& sText)
 CMenuBar::CMenuBar()
 	: CPanel(0, 0, 1024, MENU_HEIGHT)
 {
+	SetVisible(false);
 }
 
 void CMenuBar::Layout( void )

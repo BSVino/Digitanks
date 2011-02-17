@@ -463,7 +463,6 @@ namespace glgui
 
 		virtual bool	MousePressed(int code, int mx, int my) {return false;};
 		virtual bool	MouseReleased(int code, int mx, int my) {return false;};
-		virtual bool	IsCursorListener() {return false;};
 
 		virtual bool	IsEnabled() {return m_bEnabled;};
 		virtual void	SetEnabled(bool bEnabled) {m_bEnabled = bEnabled;};

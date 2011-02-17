@@ -249,6 +249,12 @@ public:
 	EVENT_CALLBACK(CHUD, ChooseWeapon7);
 	EVENT_CALLBACK(CHUD, ChooseWeapon8);
 	EVENT_CALLBACK(CHUD, GoToMain);
+	EVENT_CALLBACK(CHUD, ShowPowerInfo);
+	EVENT_CALLBACK(CHUD, ShowFleetInfo);
+	EVENT_CALLBACK(CHUD, ShowBandwidthInfo);
+	EVENT_CALLBACK(CHUD, HideTeamInfo);
+
+	void						LayoutTeamInfo();
 
 	static void					SetNeedsUpdate();
 
@@ -310,6 +316,7 @@ protected:
 	glgui::CLabel*				m_pPowerInfo;
 	glgui::CLabel*				m_pFleetInfo;
 	glgui::CLabel*				m_pBandwidthInfo;
+	glgui::CLabel*				m_pTeamInfo;
 
 	glgui::CPictureButton*		m_pUpdatesButton;
 	CUpdatesPanel*				m_pUpdatesPanel;

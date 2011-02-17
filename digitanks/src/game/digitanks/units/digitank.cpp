@@ -1684,9 +1684,11 @@ void CDigitank::Think()
 		if (DigitanksGame()->GetCurrentTeam() == GetTeam() && rand()%2 == 0 || rand()%4 == 0)
 		{
 			if (DigitanksGame()->IsPartyMode())
-				Speak(TANKSPEECH_IDLE);
-			else
 				Speak(TANKSPEECH_PARTY);
+			else if (IsDisabled())
+				Speak(TANKSPEECH_DISABLED);
+			else
+				Speak(TANKSPEECH_IDLE);
 		}
 
 		m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
