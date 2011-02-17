@@ -12,6 +12,7 @@ CWeaponPanel::CWeaponPanel()
 	: CPanel(0, 0, 300, 300)
 {
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
+	m_pInfo->SetFont(L"text");
 	AddControl(m_pInfo);
 }
 
@@ -73,7 +74,7 @@ void CWeaponPanel::Layout()
 			CWeaponButton* pWeapon = m_apWeapons[m_apWeapons.size()-1];
 			pWeapon->SetSize(iButtonSize-2, iButtonSize-1);
 			pWeapon->SetPos(i*iButtonSize + iPaddingSize*i, j*iButtonSize + iPaddingSize*j);
-			pWeapon->SetFontFaceSize(10);
+			pWeapon->SetFont(L"text", 10);
 			pWeapon->SetWeapon(eWeapon);
 			AddControl(pWeapon);
 

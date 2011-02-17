@@ -22,55 +22,56 @@ using namespace glgui;
 CMainMenu::CMainMenu()
 	: CPanel(0, 0, 310, 620)
 {
-	m_pTutorial = new CButton(0, 0, 100, 100, L"Tutorials");
+	m_pTutorial = new CButton(0, 0, 100, 100, L"TUTORIALS");
 	m_pTutorial->SetClickedListener(this, OpenTutorialsPanel);
-	m_pTutorial->SetFontFaceSize(36);
+	m_pTutorial->SetFont(L"header", 28);
 	m_pTutorial->SetButtonColor(Color(0,0,0));
 	AddControl(m_pTutorial);
 
-	m_pPlay = new CButton(0, 0, 100, 100, L"Play Digitanks!");
+	m_pPlay = new CButton(0, 0, 100, 100, L"NEW GAME");
 	m_pPlay->SetClickedListener(this, OpenGamesPanel);
-	m_pPlay->SetFontFaceSize(36);
+	m_pPlay->SetFont(L"header", 28);
 	m_pPlay->SetButtonColor(Color(0,0,0));
 	AddControl(m_pPlay);
 
-	m_pMultiplayer = new CButton(0, 0, 100, 100, L"Multiplayer");
+	m_pMultiplayer = new CButton(0, 0, 100, 100, L"MULTIPLAYER");
 	m_pMultiplayer->SetClickedListener(this, OpenMultiplayerPanel);
-	m_pMultiplayer->SetFontFaceSize(36);
+	m_pMultiplayer->SetFont(L"header", 28);
 	m_pMultiplayer->SetButtonColor(Color(0,0,0));
 #if !defined(TINKER_UNLOCKED)
 	m_pMultiplayer->SetEnabled(false);
 #endif
 	AddControl(m_pMultiplayer);
 
-	m_pOptions = new CButton(0, 0, 100, 100, L"Options");
+	m_pOptions = new CButton(0, 0, 100, 100, L"OPTIONS");
 	m_pOptions->SetClickedListener(this, OpenOptionsPanel);
-	m_pOptions->SetFontFaceSize(36);
+	m_pOptions->SetFont(L"header", 28);
 	m_pOptions->SetButtonColor(Color(0,0,0));
 	AddControl(m_pOptions);
 
-	m_pQuit = new CButton(0, 0, 100, 100, L"Quit");
+	m_pQuit = new CButton(0, 0, 100, 100, L"QUIT");
 	m_pQuit->SetClickedListener(this, Quit);
-	m_pQuit->SetFontFaceSize(36);
+	m_pQuit->SetFont(L"header", 28);
 	m_pQuit->SetButtonColor(Color(0,0,0));
 	AddControl(m_pQuit);
 
 	m_pHint = new CLabel(0, 0, 100, 100, L"");
+	m_pHint->SetFont(L"text");
 	AddControl(m_pHint);
 
-	m_pShowCredits = new CButton(0, 0, 100, 100, L"Credits");
+	m_pShowCredits = new CButton(0, 0, 100, 100, L"CREDITS");
 	m_pShowCredits->SetClickedListener(this, Credits);
-	m_pShowCredits->SetFontFaceSize(11);
+	m_pShowCredits->SetFont(L"header", 9);
 	m_pShowCredits->SetButtonColor(Color(0,0,0));
 	AddControl(m_pShowCredits);
 
 	m_pCredits = new CLabel(0, 0, 100, 100, L"");
-	m_pCredits->SetFontFaceSize(18);
+	m_pCredits->SetFont(L"text", 18);
 	m_pCredits->SetAlign(CLabel::TA_TOPCENTER);
 	AddControl(m_pCredits);
 
 	m_pVersion = new CLabel(0, 0, 100, 100, L"");
-	m_pVersion->SetFontFaceSize(11);
+	m_pVersion->SetFont(L"text", 11);
 	m_pVersion->SetAlign(CLabel::TA_LEFTCENTER);
 	AddControl(m_pVersion);
 
@@ -131,10 +132,20 @@ void CMainMenu::Think()
 
 void CMainMenu::Paint(int x, int y, int w, int h)
 {
+	CRootPanel::PaintRect(0, 0, m_pVersion->GetWidth(), m_pVersion->GetHeight(), Color(0, 0, 0, 100));
+
 	int hx, hy;
 	m_pHint->GetAbsPos(hx, hy);
 	if (m_pHint->GetText().length() > 1)
 		CRootPanel::PaintRect(hx-25, hy-3, m_pHint->GetWidth()+50, m_pHint->GetHeight()+6, Color(0, 0, 0, 255));
+
+	if (m_pCredits->IsVisible())
+	{
+		int cx, cy;
+		m_pCredits->GetAbsPos(cx, cy);
+
+		CRootPanel::PaintRect(cx-5, 0, m_pCredits->GetWidth()+10, CRootPanel::Get()->GetHeight(), Color(0, 0, 0, 100));
+	}
 
 	BaseClass::Paint(x, y, w, h);
 
@@ -209,20 +220,20 @@ void CMainMenu::QuitCallback()
 
 void CMainMenu::CreditsCallback()
 {
-	std::ifstream i;
+	std::wifstream i;
 	i.open("credits.txt");
-	std::string sCredits;
+	std::wstring sCredits;
 	if (i.is_open())
 	{
 		while (i.good())
 		{
-			std::string sLine;
+			std::wstring sLine;
 			getline(i, sLine);
 			if (sLine.length())
 				sCredits.append(sLine);
 			else
-				sCredits.append(" ");	// The text render skips empty lines
-			sCredits.append("\n");
+				sCredits.append(L" ");	// The text renderer skips empty lines
+			sCredits.append(L"\n");
 		}
 	}
 
@@ -302,35 +313,35 @@ void CDockPanel::SetDockedPanel(glgui::CPanel* pDock)
 CTutorialsPanel::CTutorialsPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pBasics = new CButton(0, 0, 100, 100, L"The Basics");
+	m_pBasics = new CButton(0, 0, 100, 100, L"BASICS");
 	m_pBasics->SetClickedListener(this, Basics);
 	m_pBasics->SetCursorInListener(this, BasicsHint);
-	m_pBasics->SetFontFaceSize(18);
+	m_pBasics->SetFont(L"header", 18);
 	AddControl(m_pBasics);
 
-	m_pBases = new CButton(0, 0, 100, 100, L"Building a Base");
+	m_pBases = new CButton(0, 0, 100, 100, L"BASE BUILDING");
 	m_pBases->SetClickedListener(this, Bases);
 	m_pBases->SetCursorInListener(this, BasesHint);
-	m_pBases->SetFontFaceSize(18);
+	m_pBases->SetFont(L"header", 18);
 	AddControl(m_pBases);
 
-	m_pUnits = new CButton(0, 0, 100, 100, L"Meet the Units");
+	m_pUnits = new CButton(0, 0, 100, 100, L"UNIT OVERVIEW");
 	m_pUnits->SetClickedListener(this, Units);
 	m_pUnits->SetCursorInListener(this, UnitsHint);
-	m_pUnits->SetFontFaceSize(18);
+	m_pUnits->SetFont(L"header", 18);
 	AddControl(m_pUnits);
 }
 
 void CTutorialsPanel::Layout()
 {
-	m_pBasics->SetPos(100, 60);
-	m_pBasics->SetSize(135, 40);
+	m_pBasics->SetSize(300, 40);
+	m_pBasics->SetPos(GetWidth()/2-m_pBasics->GetWidth()/2, 60);
 
-	m_pBases->SetPos(100, 120);
-	m_pBases->SetSize(135, 40);
+	m_pBases->SetSize(300, 40);
+	m_pBases->SetPos(GetWidth()/2-m_pBasics->GetWidth()/2, 120);
 
-	m_pUnits->SetPos(100, 180);
-	m_pUnits->SetSize(135, 40);
+	m_pUnits->SetSize(300, 40);
+	m_pUnits->SetPos(GetWidth()/2-m_pBasics->GetWidth()/2, 180);
 
 	BaseClass::Layout();
 }
@@ -401,21 +412,21 @@ void CTutorialsPanel::UnitsHintCallback()
 CGamesPanel::CGamesPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pArtillery = new CButton(0, 0, 100, 100, L"Artillery Mode");
+	m_pArtillery = new CButton(0, 0, 100, 100, L"ARTILLERY");
 	m_pArtillery->SetClickedListener(this, Artillery);
 	m_pArtillery->SetCursorInListener(this, ArtilleryHint);
-	m_pArtillery->SetFontFaceSize(18);
+	m_pArtillery->SetFont(L"header", 18);
 	AddControl(m_pArtillery);
 
-	m_pStrategy = new CButton(0, 0, 100, 100, L"Strategy Mode");
+	m_pStrategy = new CButton(0, 0, 100, 100, L"STRATEGY");
 	m_pStrategy->SetClickedListener(this, Strategy);
 	m_pStrategy->SetCursorInListener(this, StrategyHint);
-	m_pStrategy->SetFontFaceSize(18);
+	m_pStrategy->SetFont(L"header", 18);
 	AddControl(m_pStrategy);
 
-	m_pLoad = new CButton(0, 0, 100, 100, L"Load");
+	m_pLoad = new CButton(0, 0, 100, 100, L"LOAD");
 	m_pLoad->SetClickedListener(this, Load);
-	m_pLoad->SetFontFaceSize(18);
+	m_pLoad->SetFont(L"header", 18);
 
 #if !defined(TINKER_UNLOCKED)
 	m_pLoad->SetEnabled(false);
@@ -489,31 +500,31 @@ void CGamesPanel::StrategyHintCallback()
 CMultiplayerPanel::CMultiplayerPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pConnect = new CButton(0, 0, 100, 100, L"Connect");
+	m_pConnect = new CButton(0, 0, 100, 100, L"CONNECT");
 	m_pConnect->SetClickedListener(this, Connect);
 	m_pConnect->SetCursorInListener(this, ClientHint);
-	m_pConnect->SetFontFaceSize(18);
+	m_pConnect->SetFont(L"header", 18);
 	AddControl(m_pConnect);
 
-	m_pArtillery = new CButton(0, 0, 100, 100, L"Host Artillery");
+	m_pArtillery = new CButton(0, 0, 100, 100, L"HOST ARTILLERY");
 	m_pArtillery->SetClickedListener(this, Artillery);
 	m_pArtillery->SetCursorInListener(this, HostHint);
-	m_pArtillery->SetFontFaceSize(18);
+	m_pArtillery->SetFont(L"header", 18);
 	AddControl(m_pArtillery);
 
 	if (DigitanksWindow()->IsRegistered())
 	{
-		m_pStrategy = new CButton(0, 0, 100, 100, L"Host Strategy");
+		m_pStrategy = new CButton(0, 0, 100, 100, L"HOST STRATEGY");
 		m_pStrategy->SetClickedListener(this, Strategy);
 		m_pStrategy->SetCursorInListener(this, HostHint);
-		m_pStrategy->SetFontFaceSize(18);
+		m_pStrategy->SetFont(L"header", 18);
 		AddControl(m_pStrategy);
 	}
 
-	m_pLoad = new CButton(0, 0, 100, 100, L"Load");
+	m_pLoad = new CButton(0, 0, 100, 100, L"LOAD");
 	m_pLoad->SetClickedListener(this, Load);
 	m_pLoad->SetCursorInListener(this, LoadHint);
-	m_pLoad->SetFontFaceSize(18);
+	m_pLoad->SetFont(L"header", 18);
 
 #if !defined(TINKER_UNLOCKED)
 	m_pLoad->SetEnabled(false);
@@ -613,6 +624,7 @@ CConnectPanel::CConnectPanel()
 
 	m_pHostnameLabel = new CLabel(0, 0, 32, 32, L"Host:");
 	m_pHostnameLabel->SetWrap(false);
+	m_pHostnameLabel->SetFont(L"text");
 	AddControl(m_pHostnameLabel);
 
 	m_pHostname = new CTextField();
@@ -620,7 +632,7 @@ CConnectPanel::CConnectPanel()
 
 	m_pConnect = new CButton(0, 0, 100, 100, L"Connect");
 	m_pConnect->SetClickedListener(this, Connect);
-	m_pConnect->SetFontFaceSize(12);
+	m_pConnect->SetFont(L"header", 12);
 	AddControl(m_pConnect);
 }
 
@@ -650,6 +662,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
 	m_pLevels = new CMenu(L"Choose Level");
+	m_pLevels->SetFont(L"header");
 	AddControl(m_pLevels);
 
 	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY); i++)
@@ -659,7 +672,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	}
 	m_iLevelSelected = 0;
 
-	m_pDifficulty = new CScrollSelector<int>();
+	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
 	m_pDifficulty->SetSelection(1);
@@ -667,6 +680,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 
 	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, L"Difficulty");
 	m_pDifficultyLabel->SetWrap(false);
+	m_pDifficultyLabel->SetFont(L"text");
 	AddControl(m_pDifficultyLabel);
 
 	if (bMultiplayer)
@@ -675,7 +689,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		m_pDifficultyLabel->SetVisible(false);
 	}
 
-	m_pHumanPlayers = new CScrollSelector<int>();
+	m_pHumanPlayers = new CScrollSelector<int>(L"text");
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
@@ -690,16 +704,18 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 
 	m_pHumanPlayersLabel = new CLabel(0, 0, 32, 32, L"Human Players");
 	m_pHumanPlayersLabel->SetWrap(false);
+	m_pHumanPlayersLabel->SetFont(L"text");
 	AddControl(m_pHumanPlayersLabel);
 
-	m_pBotPlayers = new CScrollSelector<int>();
+	m_pBotPlayers = new CScrollSelector<int>(L"text");
 	AddControl(m_pBotPlayers);
 
 	m_pBotPlayersLabel = new CLabel(0, 0, 32, 32, L"Bot Players");
 	m_pBotPlayersLabel->SetWrap(false);
+	m_pBotPlayersLabel->SetFont(L"text");
 	AddControl(m_pBotPlayersLabel);
 
-	m_pTanks = new CScrollSelector<int>();
+	m_pTanks = new CScrollSelector<int>(L"text");
 	m_pTanks->AddSelection(CScrollSelection<int>(1, L"1"));
 	m_pTanks->AddSelection(CScrollSelection<int>(2, L"2"));
 	m_pTanks->AddSelection(CScrollSelection<int>(3, L"3"));
@@ -709,9 +725,10 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 
 	m_pTanksLabel = new CLabel(0, 0, 32, 32, L"Tanks Per Player");
 	m_pTanksLabel->SetWrap(false);
+	m_pTanksLabel->SetFont(L"text");
 	AddControl(m_pTanksLabel);
 
-	m_pTerrain = new CScrollSelector<float>();
+	m_pTerrain = new CScrollSelector<float>(L"text");
 	m_pTerrain->AddSelection(CScrollSelection<float>(10, L"Flat"));
 	m_pTerrain->AddSelection(CScrollSelection<float>(50, L"Hilly"));
 	m_pTerrain->AddSelection(CScrollSelection<float>(80, L"Mountainy"));
@@ -721,11 +738,12 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 
 	m_pTerrainLabel = new CLabel(0, 0, 32, 32, L"Terrain");
 	m_pTerrainLabel->SetWrap(false);
+	m_pTerrainLabel->SetFont(L"text");
 	AddControl(m_pTerrainLabel);
 
 	m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
 	m_pBeginGame->SetClickedListener(this, BeginGame);
-	m_pBeginGame->SetFontFaceSize(12);
+	m_pBeginGame->SetFont(L"header", 12);
 	AddControl(m_pBeginGame);
 }
 
@@ -849,6 +867,7 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
 	m_pLevels = new CMenu(L"Choose Level");
+	m_pLevels->SetFont(L"header");
 	AddControl(m_pLevels);
 
 	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD); i++)
@@ -858,7 +877,7 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	}
 	m_iLevelSelected = 0;
 
-	m_pDifficulty = new CScrollSelector<int>();
+	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
 	m_pDifficulty->SetSelection(1);
@@ -866,6 +885,7 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 
 	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, L"Difficulty");
 	m_pDifficultyLabel->SetWrap(false);
+	m_pDifficultyLabel->SetFont(L"text");
 	AddControl(m_pDifficultyLabel);
 
 	if (bMultiplayer)
@@ -874,7 +894,7 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 		m_pDifficultyLabel->SetVisible(false);
 	}
 
-	m_pHumanPlayers = new CScrollSelector<int>();
+	m_pHumanPlayers = new CScrollSelector<int>(L"text");
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
@@ -885,18 +905,20 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 
 	m_pHumanPlayersLabel = new CLabel(0, 0, 32, 32, L"Human Players");
 	m_pHumanPlayersLabel->SetWrap(false);
+	m_pHumanPlayersLabel->SetFont(L"text");
 	AddControl(m_pHumanPlayersLabel);
 
-	m_pBotPlayers = new CScrollSelector<int>();
+	m_pBotPlayers = new CScrollSelector<int>(L"text");
 	AddControl(m_pBotPlayers);
 
 	m_pBotPlayersLabel = new CLabel(0, 0, 32, 32, L"Bot Players");
 	m_pBotPlayersLabel->SetWrap(false);
+	m_pBotPlayersLabel->SetFont(L"text");
 	AddControl(m_pBotPlayersLabel);
 
 	m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
 	m_pBeginGame->SetClickedListener(this, BeginGame);
-	m_pBeginGame->SetFontFaceSize(12);
+	m_pBeginGame->SetFont(L"header", 12);
 	AddControl(m_pBeginGame);
 }
 
@@ -992,7 +1014,7 @@ eastl::vector<GLFWvidmode> g_aVideoModes;
 COptionsPanel::COptionsPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pSoundVolume = new CScrollSelector<float>();
+	m_pSoundVolume = new CScrollSelector<float>(L"text");
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.2f, L"1\20%"));
@@ -1010,9 +1032,10 @@ COptionsPanel::COptionsPanel()
 
 	m_pSoundVolumeLabel = new CLabel(0, 0, 32, 32, L"Sound Volume");
 	m_pSoundVolumeLabel->SetWrap(false);
+	m_pSoundVolumeLabel->SetFont(L"text");
 	AddControl(m_pSoundVolumeLabel);
 
-	m_pMusicVolume = new CScrollSelector<float>();
+	m_pMusicVolume = new CScrollSelector<float>(L"text");
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.2f, L"1\20%"));
@@ -1030,10 +1053,12 @@ COptionsPanel::COptionsPanel()
 
 	m_pMusicVolumeLabel = new CLabel(0, 0, 32, 32, L"Music Volume");
 	m_pMusicVolumeLabel->SetWrap(false);
+	m_pMusicVolumeLabel->SetFont(L"text");
 	AddControl(m_pMusicVolumeLabel);
 
 	m_pVideoChangedNotice = new CLabel(0, 0, 32, 32, L"Changes to the video settings will take effect after the game has been restarted.");
 	m_pVideoChangedNotice->SetVisible(false);
+	m_pVideoChangedNotice->SetFont(L"text");
 	AddControl(m_pVideoChangedNotice);
 
 	m_pWindowed = new CCheckBox();
@@ -1042,9 +1067,11 @@ COptionsPanel::COptionsPanel()
 	AddControl(m_pWindowed);
 
 	m_pWindowedLabel = new CLabel(0, 0, 100, 100, L"Run in a window");
+	m_pWindowedLabel->SetFont(L"text");
 	AddControl(m_pWindowedLabel);
 
 	m_pVideoModes = new CMenu(L"Change Resolution");
+	m_pVideoModes->SetFont(L"text");
 	AddControl(m_pVideoModes);
 
 	GLFWvidmode aModes[ 20 ];
@@ -1076,6 +1103,7 @@ COptionsPanel::COptionsPanel()
 	AddControl(m_pFramebuffers);
 
 	m_pFramebuffersLabel = new CLabel(0, 0, 100, 100, L"Use framebuffers");
+	m_pFramebuffersLabel->SetFont(L"text");
 	AddControl(m_pFramebuffersLabel);
 
 	m_pShaders = new CCheckBox();
@@ -1084,6 +1112,7 @@ COptionsPanel::COptionsPanel()
 	AddControl(m_pShaders);
 
 	m_pShadersLabel = new CLabel(0, 0, 100, 100, L"Use shaders");
+	m_pShadersLabel->SetFont(L"text");
 	AddControl(m_pShadersLabel);
 
 	m_pConstrain = new CCheckBox();
@@ -1092,6 +1121,7 @@ COptionsPanel::COptionsPanel()
 	AddControl(m_pConstrain);
 
 	m_pConstrainLabel = new CLabel(0, 0, 100, 100, L"Constrain mouse to screen edges");
+	m_pConstrainLabel->SetFont(L"text");
 	AddControl(m_pConstrainLabel);
 }
 

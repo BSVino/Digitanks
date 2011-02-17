@@ -93,6 +93,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 void CDigitanksWindow::OpenWindow()
 {
+	glgui::CLabel::AddFont(L"header", L"fonts/header.ttf");
+	glgui::CLabel::AddFont(L"text", L"fonts/text.ttf");
+	glgui::CLabel::AddFont(L"smileys", L"fonts/smileys.ttf");
+
 	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
 	ilInit();

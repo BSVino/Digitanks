@@ -13,12 +13,15 @@ CUpdatesPanel::CUpdatesPanel()
 {
 	m_pCloseButton = new CButton(0, 0, 100, 20, L"Close");
 	m_pCloseButton->SetClickedListener(this, Close);
+	m_pCloseButton->SetFont(L"header");
 	AddControl(m_pCloseButton);
 
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
+	m_pInfo->SetFont(L"text");
 	AddControl(m_pInfo);
 
 	m_pTutorial = new CLabel(0, 0, 100, 300, L"");
+	m_pTutorial->SetFont(L"text");
 	AddControl(m_pTutorial);
 
 	m_iIconCPU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu.png");
@@ -111,7 +114,7 @@ void CUpdatesPanel::Layout()
 			CUpdateButton* pUpdate = m_apUpdates[m_apUpdates.size()-1];
 			pUpdate->SetSize(m_iButtonSize-2, m_iButtonSize-1);
 			pUpdate->SetPos((i-iLowestX)*m_iButtonSize + iXBuffer, (j-iLowestY)*m_iButtonSize + iYBuffer);
-			pUpdate->SetFontFaceSize(10);
+			pUpdate->SetFont(L"text", 10);
 			pUpdate->SetLocation(i, j);
 			AddControl(pUpdate);
 

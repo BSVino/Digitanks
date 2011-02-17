@@ -39,9 +39,10 @@ CDigitanksMenu::CDigitanksMenu()
 	: CPanel(0, 0, 200, 300)
 {
 	m_pDigitanks = new CLabel(0, 0, 100, 100, L"DIGITANKS");
+	m_pDigitanks->SetFont(L"header");
 	AddControl(m_pDigitanks);
 
-	m_pDifficulty = new CScrollSelector<int>();
+	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
 	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
 	m_pDifficulty->SetSelection(1);
@@ -49,32 +50,37 @@ CDigitanksMenu::CDigitanksMenu()
 
 	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, L"Difficulty");
 	m_pDifficultyLabel->SetWrap(false);
+	m_pDifficultyLabel->SetFont(L"text");
 	AddControl(m_pDifficultyLabel);
 
-	m_pReturnToMenu = new CButton(0, 0, 100, 100, L"Exit Game");
+	m_pReturnToMenu = new CButton(0, 0, 100, 100, L"EXIT TO MENU");
 	m_pReturnToMenu->SetClickedListener(this, Exit);
+	m_pReturnToMenu->SetFont(L"header");
 	AddControl(m_pReturnToMenu);
 
 	m_pReturnToGame = new CButton(0, 0, 100, 100, L"X");
 	m_pReturnToGame->SetClickedListener(this, Close);
 	AddControl(m_pReturnToGame);
 
-	m_pSaveGame = new CButton(0, 0, 100, 100, L"Save Game");
+	m_pSaveGame = new CButton(0, 0, 100, 100, L"SAVE GAME");
 	m_pSaveGame->SetClickedListener(this, Save);
+	m_pSaveGame->SetFont(L"header");
 #if !defined(TINKER_UNLOCKED)
 	m_pSaveGame->SetEnabled(false);
 #endif
 	AddControl(m_pSaveGame);
 
-	m_pLoadGame = new CButton(0, 0, 100, 100, L"Load Game");
+	m_pLoadGame = new CButton(0, 0, 100, 100, L"LOAD GAME");
 	m_pLoadGame->SetClickedListener(this, Load);
+	m_pLoadGame->SetFont(L"header");
 #if !defined(TINKER_UNLOCKED)
 	m_pLoadGame->SetEnabled(false);
 #endif
 	AddControl(m_pLoadGame);
 
-	m_pExit = new CButton(0, 0, 100, 100, L"Quit To Desktop");
+	m_pExit = new CButton(0, 0, 100, 100, L"QUIT TO DESKTOP");
 	m_pExit->SetClickedListener(this, Quit);
+	m_pExit->SetFont(L"header");
 	AddControl(m_pExit);
 
 	Layout();
@@ -103,21 +109,21 @@ void CDigitanksMenu::Layout()
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 60);
 	m_pDifficulty->SetVisible(!CNetwork::IsConnected());
 
-	m_pSaveGame->SetPos(50, 130);
-	m_pSaveGame->SetSize(100, 20);
+	m_pSaveGame->SetPos(25, 130);
+	m_pSaveGame->SetSize(150, 20);
 
-	m_pLoadGame->SetPos(50, 160);
-	m_pLoadGame->SetSize(100, 20);
+	m_pLoadGame->SetPos(25, 160);
+	m_pLoadGame->SetSize(150, 20);
 
-	m_pReturnToMenu->SetPos(50, 210);
-	m_pReturnToMenu->SetSize(100, 20);
+	m_pReturnToMenu->SetPos(25, 210);
+	m_pReturnToMenu->SetSize(150, 20);
 
 	m_pReturnToGame->SetPos(GetWidth()-20, 10);
 	m_pReturnToGame->SetSize(10, 10);
 	m_pReturnToGame->SetButtonColor(Color(255, 0, 0));
 
-	m_pExit->SetPos(50, 250);
-	m_pExit->SetSize(100, 20);
+	m_pExit->SetPos(25, 250);
+	m_pExit->SetSize(150, 20);
 
 	BaseClass::Layout();
 }
@@ -136,7 +142,7 @@ void CDigitanksMenu::SetVisible(bool bVisible)
 	{
 		if (bVisible)
 			DigitanksWindow()->GetInstructor()->HideTutorial();
-		else
+		else if (DigitanksWindow()->GetInstructor()->GetActive())
 			DigitanksWindow()->GetInstructor()->ShowTutorial();
 	}
 
@@ -204,6 +210,7 @@ CVictoryPanel::CVictoryPanel()
 	: CPanel(0, 0, 400, 300)
 {
 	m_pVictory = new CLabel(0, 0, 100, 100, L"");
+	m_pVictory->SetFont(L"text");
 	AddControl(m_pVictory);
 
 	SetVisible(false);
@@ -263,6 +270,7 @@ CPurchasePanel::CPurchasePanel()
 	: CPanel(0, 0, 400, 300)
 {
 	m_pPurchase = new CLabel(0, 0, 100, 100, L"");
+	m_pPurchase->SetFont(L"text");
 	AddControl(m_pPurchase);
 
 	m_pRegistrationKey = new CTextField();
@@ -270,21 +278,25 @@ CPurchasePanel::CPurchasePanel()
 
 	m_pRegister = new CButton(0, 0, 100, 100, L"Register");
 	m_pRegister->SetClickedListener(this, Register);
+	m_pRegister->SetFont(L"header");
 	AddControl(m_pRegister);
 
 	m_pRegisterResult = new CLabel(0, 0, 100, 100, L"");
+	m_pPurchase->SetFont(L"text");
 	AddControl(m_pRegisterResult);
 
 	m_pRegisterOffline = new CButton(0, 0, 100, 100, L"Register Offline");
-	m_pRegisterOffline->SetFontFaceSize(11);
 	m_pRegisterOffline->SetClickedListener(this, RegisterOffline);
+	m_pRegisterOffline->SetFont(L"header", 11);
 	AddControl(m_pRegisterOffline);
 
 	m_pPurchaseButton = new CButton(0, 0, 100, 100, L"Website!");
 	m_pPurchaseButton->SetClickedListener(this, Purchase);
+	m_pPurchaseButton->SetFont(L"header");
 	AddControl(m_pPurchaseButton);
 
 	m_pExitButton = new CButton(0, 0, 100, 100, L"Maybe later");
+	m_pExitButton->SetFont(L"header");
 	AddControl(m_pExitButton);
 
 	SetVisible(false);
@@ -411,6 +423,7 @@ void CPurchasePanel::RegisterOfflineCallback()
 	m_pRegisterOffline->SetClickedListener(this, CopyProductCode);
 
 	m_pProductCode = new CLabel(0, 110, GetWidth(), GetHeight(), L"");
+	m_pProductCode->SetFont(L"text");
 	m_pProductCode->SetAlign(CLabel::TA_TOPCENTER);
 	m_pProductCode->SetText(L"Product Code: ");
 	m_pProductCode->AppendText(DigitanksWindow()->GetProductCode().c_str());
@@ -467,6 +480,7 @@ CStoryPanel::CStoryPanel()
 
 		L"Click here to begin."
 		);
+	m_pStory->SetFont(L"text");
 	AddControl(m_pStory);
 
 	SetVisible(false);

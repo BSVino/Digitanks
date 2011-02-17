@@ -324,7 +324,5 @@ bool IsDirectory(eastl::string16 sPath)
 
 void DebugPrint(eastl::string16 sText)
 {
-#ifdef _DEBUG
 	OutputDebugString(sText.c_str());
-#endif
 }

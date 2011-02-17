@@ -223,21 +223,22 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 	float flXPosition = (float)x + w + 20;
 
 	int iIconFontSize = 11;
-	float flIconFontHeight = glgui::CLabel::GetFontHeight(iIconFontSize) + 2;
+	eastl::string16 sFont = L"text";
+	float flIconFontHeight = glgui::CLabel::GetFontHeight(sFont, iIconFontSize) + 2;
 
 	if (IsConstructing())
 	{
 		eastl::string16 sTurns = sprintf(L"Turns To Construct: %d", GetTurnsRemainingToConstruct());
-		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
-		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		return;
 	}
 
 	if (IsUpgrading())
 	{
 		eastl::string16 sTurns = sprintf(L"Turns To Upgrade: %d", GetTurnsRemainingToUpgrade());
-		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
-		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		return;
 	}
 
@@ -247,8 +248,8 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		if (pCPU->IsProducing())
 		{
 			eastl::string16 sTurns = L"Rogue: 1";	// It only ever takes one turn to make a rogue.
-			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
-			glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
+			glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		}
 	}
 	else if (GetUnitType() == STRUCTURE_TANKLOADER || GetUnitType() == STRUCTURE_INFANTRYLOADER || GetUnitType() == STRUCTURE_ARTILLERYLOADER)
@@ -265,19 +266,19 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 				sUnit = L"Digitank";
 
 			eastl::string16 sTurns = sprintf(sUnit + L": %d", pLoader->GetTurnsRemainingToProduce());
-			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
-			glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
+			glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		}
 	}
 
 	if (Bandwidth() > 0)
 	{
 		eastl::string16 sBandwidth = sprintf(L": %.1f", Bandwidth());
-		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), iIconFontSize);
+		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 520, 530, 20, 20);
 
-		glgui::CLabel::PaintText(sBandwidth, sBandwidth.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+		glgui::CLabel::PaintText(sBandwidth, sBandwidth.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
 		flYPosition -= flIconFontHeight;
 	}
@@ -285,11 +286,11 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 	if (FleetPoints() > 0)
 	{
 		eastl::string16 sFleetPoints = sprintf(L": %d", FleetPoints());
-		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), iIconFontSize);
+		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 540, 530, 20, 20);
 
-		glgui::CLabel::PaintText(sFleetPoints, sFleetPoints.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+		glgui::CLabel::PaintText(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
 		flYPosition -= flIconFontHeight;
 	}
@@ -297,11 +298,11 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 	if (Power() > 0)
 	{
 		eastl::string16 sPower = sprintf(L": %.1f", Power());
-		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), iIconFontSize);
+		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 500, 530, 20, 20);
 
-		glgui::CLabel::PaintText(sPower, sPower.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+		glgui::CLabel::PaintText(sPower, sPower.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
 		flYPosition -= flIconFontHeight;
 	}

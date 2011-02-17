@@ -139,8 +139,8 @@ void CBaseControl::Paint(int x, int y, int w, int h)
 	{
 		int iFontSize = 10;
 
-		float flFontHeight = CLabel::GetFontHeight(iFontSize);
-		float flTextWidth = CLabel::GetTextWidth(m_sTip, m_sTip.length(), iFontSize);
+		float flFontHeight = CLabel::GetFontHeight(L"sans-serif", iFontSize);
+		float flTextWidth = CLabel::GetTextWidth(m_sTip, m_sTip.length(), L"sans-serif", iFontSize);
 
 		int mx, my;
 		CRootPanel::GetFullscreenMousePos(mx, my);
@@ -151,7 +151,7 @@ void CBaseControl::Paint(int x, int y, int w, int h)
 
 		PaintRect(mx-3, (int)(my-flFontHeight)+1, (int)flTextWidth+6, (int)flFontHeight+6); 
 		glColor4ubv(Color(255, 255, 255, 255));
-		CLabel::PaintText(m_sTip, m_sTip.length(), iFontSize, (float)mx, (float)my);
+		CLabel::PaintText(m_sTip, m_sTip.length(), L"sans-serif", iFontSize, (float)mx, (float)my);
 	}
 }
 
@@ -745,9 +745,10 @@ IDraggable* CDroppablePanel::GetDraggable(int i)
 	return m_apDraggables[i];
 }
 
-eastl::map<size_t, FTFont*> CLabel::s_apFonts;
+eastl::map<eastl::string16, eastl::string16> CLabel::s_apFontNames;
+eastl::map<eastl::string16, eastl::map<size_t, class ::FTFont*> > CLabel::s_apFonts;
 
-CLabel::CLabel(int x, int y, int w, int h, const eastl::string16& sText)
+CLabel::CLabel(int x, int y, int w, int h, const eastl::string16& sText, const eastl::string16& sFont, size_t iSize)
 	: CBaseControl(x, y, w, h)
 {
 	m_bEnabled = true;
@@ -757,7 +758,7 @@ CLabel::CLabel(int x, int y, int w, int h, const eastl::string16& sText)
 	m_eAlign = TA_MIDDLECENTER;
 	m_FGColor = Color(255, 255, 255, 255);
 
-	SetFontFaceSize(13);
+	SetFont(sFont, iSize);
 
 	SetText(sText);
 }
@@ -791,8 +792,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 	{
 		glColor4ubv(FGColor);
 
-		float tw = s_apFonts[m_iFontFaceSize]->Advance(pszTok);
-		float t = s_apFonts[m_iFontFaceSize]->LineHeight();
+		float tw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(pszTok);
+		float t = s_apFonts[m_sFontName][m_iFontFaceSize]->LineHeight();
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iLine+1)*t > h)
 		{
@@ -810,7 +811,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 				wchar_t szChar[2];
 				szChar[0] = pszTok[iSource];
 				szChar[1] = L'\0';
-				float cw = s_apFonts[m_iFontFaceSize]->Advance(szChar);
+				float cw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(szChar);
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iLine+1)*t > h)
 				{
 					iLength++;
@@ -856,11 +857,11 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
 {
-	float lw = s_apFonts[m_iFontFaceSize]->Advance(pszText, iLength);
-	float t = s_apFonts[m_iFontFaceSize]->LineHeight();
+	float lw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(pszText, iLength);
+	float t = s_apFonts[m_sFontName][m_iFontFaceSize]->LineHeight();
 	float th = GetTextHeight() - t;
 
-	float flBaseline = (float)s_apFonts[m_iFontFaceSize]->FaceSize()/2 + s_apFonts[m_iFontFaceSize]->Descender()/2;
+	float flBaseline = (float)s_apFonts[m_sFontName][m_iFontFaceSize]->FaceSize()/2 + s_apFonts[m_sFontName][m_iFontFaceSize]->Descender()/2;
 
 	Vector vecPosition;
 
@@ -879,29 +880,29 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	else	// TA_TOPLEFT
 		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
 
-	PaintText(pszText, iLength, m_iFontFaceSize, vecPosition.x, vecPosition.y);
+	PaintText(pszText, iLength, m_sFontName, m_iFontFaceSize, vecPosition.x, vecPosition.y);
 }
 
-float CLabel::GetTextWidth(const eastl::string16& sText, unsigned iLength, int iFontFaceSize)
+float CLabel::GetTextWidth(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize)
 {
-	if (!s_apFonts[iFontFaceSize])
-		AddFont(iFontFaceSize);
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
 
-	return s_apFonts[iFontFaceSize]->Advance(sText.c_str(), iLength);
+	return s_apFonts[sFontName][iFontFaceSize]->Advance(sText.c_str(), iLength);
 }
 
-float CLabel::GetFontHeight(int iFontFaceSize)
+float CLabel::GetFontHeight(const eastl::string16& sFontName, int iFontFaceSize)
 {
-	if (!s_apFonts[iFontFaceSize])
-		AddFont(iFontFaceSize);
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
 
-	return s_apFonts[iFontFaceSize]->LineHeight();
+	return s_apFonts[sFontName][iFontFaceSize]->LineHeight();
 }
 
-void CLabel::PaintText(const eastl::string16& sText, unsigned iLength, int iFontFaceSize, float x, float y)
+void CLabel::PaintText(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, float x, float y)
 {
-	if (!s_apFonts[iFontFaceSize])
-		AddFont(iFontFaceSize);
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -910,7 +911,7 @@ void CLabel::PaintText(const eastl::string16& sText, unsigned iLength, int iFont
 
 	glMatrixMode(GL_MODELVIEW);
 
-	s_apFonts[iFontFaceSize]->Render(sText.c_str(), iLength, FTPoint(x, CRootPanel::Get()->GetBottom()-y));
+	s_apFonts[sFontName][iFontFaceSize]->Render(sText.c_str(), iLength, FTPoint(x, CRootPanel::Get()->GetBottom()-y));
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -946,22 +947,23 @@ void CLabel::AppendText(const eastl::string& sText)
 	AppendText(convertstring<char, char16_t>(sText));
 }
 
-void CLabel::SetFontFaceSize(int iSize)
+void CLabel::SetFont(const eastl::string16& sFontName, int iSize)
 {
-	if (!s_apFonts[iSize])
-		AddFont(iSize);
-
+	m_sFontName = sFontName;
 	m_iFontFaceSize = iSize;
+
+	if (!GetFont(m_sFontName, m_iFontFaceSize))
+		AddFontSize(m_sFontName, m_iFontFaceSize);
 }
 
 int CLabel::GetTextWidth()
 {
-	return (int)s_apFonts[m_iFontFaceSize]->Advance(m_sText.c_str());
+	return (int)s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(m_sText.c_str());
 }
 
 float CLabel::GetTextHeight()
 {
-	return (s_apFonts[m_iFontFaceSize]->LineHeight()) * m_iTotalLines;
+	return (s_apFonts[m_sFontName][m_iFontFaceSize]->LineHeight()) * m_iTotalLines;
 }
 
 void CLabel::ComputeLines(int w, int h)
@@ -990,8 +992,8 @@ void CLabel::ComputeLines(int w, int h)
 
 	while (pszTok)
 	{
-		float tw = s_apFonts[m_iFontFaceSize]->Advance(pszTok);
-		float t = s_apFonts[m_iFontFaceSize]->LineHeight();
+		float tw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(pszTok);
+		float t = s_apFonts[m_sFontName][m_iFontFaceSize]->LineHeight();
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iTotalLines+1)*t > h)
 		{
@@ -1007,7 +1009,7 @@ void CLabel::ComputeLines(int w, int h)
 				wchar_t szChar[2];
 				szChar[0] = pszTok[iSource];
 				szChar[1] = L'\0';
-				float cw = s_apFonts[m_iFontFaceSize]->Advance(szChar);
+				float cw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(szChar);
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iTotalLines+1)*t > h)
 				{
 					iLength++;
@@ -1079,17 +1081,42 @@ void CLabel::SetAlpha(int a)
 	m_FGColor.SetAlpha(a);
 }
 
-void CLabel::AddFont(size_t iSize)
+::FTFont* CLabel::GetFont(const eastl::string16& sName, size_t iSize)
 {
-	char szFont[1024];
-	sprintf(szFont, "%s\\Fonts\\Arial.ttf", getenv("windir"));
+	eastl::string16 sRealName = sName;
+	if (s_apFontNames.find(sName) == s_apFontNames.end())
+		sRealName = L"sans-serif";
 
-	s_apFonts[iSize] = new FTTextureFont(szFont);
-	s_apFonts[iSize]->FaceSize(iSize);
+	if (s_apFontNames.find(sRealName) == s_apFontNames.end())
+	{
+		eastl::string16 sFont;
+
+#ifdef _WIN32
+		sFont = sprintf(L"%s\\Fonts\\Arial.ttf", convertstring<char, char16_t>(getenv("windir")));
+#endif
+
+		AddFont(L"sans-serif", sFont);
+	}
+
+	return s_apFonts[sRealName][iSize];
 }
 
-CButton::CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle)
-	: CLabel(x, y, w, h, sText)
+void CLabel::AddFont(const eastl::string16& sName, const eastl::string16& sFile)
+{
+	s_apFontNames[sName] = sFile;
+}
+
+void CLabel::AddFontSize(const eastl::string16& sName, size_t iSize)
+{
+	if (s_apFontNames.find(sName) == s_apFontNames.end())
+		return;
+
+	s_apFonts[sName][iSize] = new FTTextureFont(convertstring<char16_t, char>(s_apFontNames[sName]).c_str());
+	s_apFonts[sName][iSize]->FaceSize(iSize);
+}
+
+CButton::CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle, const eastl::string16& sFont, size_t iSize)
+	: CLabel(x, y, w, h, sText, sFont, iSize)
 {
 	m_bToggle = bToggle;
 	m_bToggleOn = false;
@@ -2418,7 +2445,7 @@ void CTree::ClearTree()
 
 size_t CTree::AddNode(const eastl::string16& sName)
 {
-	return AddNode(new CTreeNode(NULL, this, sName));
+	return AddNode(new CTreeNode(NULL, this, sName, L"sans-serif"));
 }
 
 size_t CTree::AddNode(CTreeNode* pNode, size_t iPosition)
@@ -2496,7 +2523,7 @@ void CTree::SetDraggable(IDraggable* pDraggable, bool bDelete)
 	AddNode(dynamic_cast<CTreeNode*>(pDraggable->MakeCopy()));
 }
 
-CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const eastl::string16& sText)
+CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const eastl::string16& sText, const eastl::string16& sFont)
 	: CPanel(0, 0, 10, 10)
 {
 	m_pParent = pParent;
@@ -2508,7 +2535,7 @@ CTreeNode::CTreeNode(CTreeNode* pParent, CTree* pTree, const eastl::string16& sT
 	m_pLabel = new CLabel(0, 0, GetWidth(), GetHeight(), L"");
 	m_pLabel->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pLabel->SetText(sText.c_str());
-	m_pLabel->SetFontFaceSize(11);
+	m_pLabel->SetFont(sFont, 11);
 	AddControl(m_pLabel);
 
 	m_pExpandButton = new CExpandButton(m_pTree->m_iArrowTexture);
@@ -2531,7 +2558,7 @@ CTreeNode::CTreeNode(const CTreeNode& c)
 
 	m_pLabel = new CLabel(c.m_pLabel->GetLeft(), c.m_pLabel->GetTop(), c.m_pLabel->GetWidth(), c.m_pLabel->GetHeight(), c.m_pLabel->GetText());
 	m_pLabel->SetAlign(c.m_pLabel->GetAlign());
-	m_pLabel->SetFontFaceSize(c.m_pLabel->GetFontFaceSize());
+	m_pLabel->SetFont(L"sans-serif", c.m_pLabel->GetFontFaceSize());
 	AddControl(m_pLabel);
 
 	m_pExpandButton = new CExpandButton(m_pTree->m_iArrowTexture);
@@ -2643,7 +2670,7 @@ void CTreeNode::Paint(int x, int y, int w, int h, bool bFloating)
 
 size_t CTreeNode::AddNode(const eastl::string16& sName)
 {
-	return AddNode(new CTreeNode(this, m_pTree, sName));
+	return AddNode(new CTreeNode(this, m_pTree, sName, L"sans-serif"));
 }
 
 size_t CTreeNode::AddNode(CTreeNode* pNode)
@@ -2809,7 +2836,7 @@ void CTextField::Paint(int x, int y, int w, int h)
 
 	glColor4ubv(FGColor);
 
-	FTFont* pFont = CLabel::GetFont(m_iFontFaceSize);
+	FTFont* pFont = CLabel::GetFont(L"sans-serif", m_iFontFaceSize);
 
 	DrawLine(m_sText.c_str(), (unsigned int)m_sText.length(), x+4, y, w-8, h);
 
@@ -2851,7 +2878,7 @@ void CTextField::Paint(int x, int y, int w, int h)
 		glNormal3f(0.707106781f, -0.707106781f, 0);
 		glVertex2d(x+w, y+h-1);
 
-		float flCursor = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
+		float flCursor = CLabel::GetFont(L"sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
 		if (HasFocus() && (fmod(CRootPanel::Get()->GetTime() - m_flBlinkTime, 1) < 0.5f))
 		{
 			glNormal3f(0.707106781f, 0.707106781f, 0);
@@ -2869,7 +2896,7 @@ void CTextField::Paint(int x, int y, int w, int h)
 
 void CTextField::DrawLine(const wchar_t* pszText, unsigned iLength, int x, int y, int w, int h)
 {
-	FTFont* pFont = CLabel::GetFont(m_iFontFaceSize);
+	FTFont* pFont = CLabel::GetFont(L"sans-serif", m_iFontFaceSize);
 
 	float lw = pFont->Advance(pszText, iLength);
 	float t = pFont->LineHeight();
@@ -2916,7 +2943,7 @@ void CTextField::SetFocus(bool bFocus)
 		float flCursor = (float)(mx-cx);
 		for (size_t i = 1; i < m_sText.length(); i++)
 		{
-			float flText = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str(), i);
+			float flText = CLabel::GetFont(L"sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str(), i);
 			if (flCursor < flText)
 			{
 				m_iCursor = i-1;
@@ -3004,8 +3031,8 @@ void CTextField::FindRenderOffset()
 	int cx, cy;
 	GetAbsPos(cx, cy);
 
-	float flTextWidth = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str());
-	float flCursorOffset = CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
+	float flTextWidth = CLabel::GetFont(L"sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str());
+	float flCursorOffset = CLabel::GetFont(L"sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str(), m_iCursor);
 
 	float flTextLeft = (cx + 4) + m_flRenderOffset;
 	float flTextRight = flTextLeft + flTextWidth + m_flRenderOffset;
@@ -3070,20 +3097,20 @@ void CTextField::AppendText(const char* pszText)
 
 void CTextField::SetFontFaceSize(int iSize)
 {
-	if (!CLabel::GetFont(iSize))
-		CLabel::AddFont(iSize);
+	if (!CLabel::GetFont(L"sans-serif", iSize))
+		CLabel::AddFontSize(L"sans-serif", iSize);
 
 	m_iFontFaceSize = iSize;
 }
 
 int CTextField::GetTextWidth()
 {
-	return (int)CLabel::GetFont(m_iFontFaceSize)->Advance(m_sText.c_str());
+	return (int)CLabel::GetFont(L"sans-serif", m_iFontFaceSize)->Advance(m_sText.c_str());
 }
 
 float CTextField::GetTextHeight()
 {
-	return CLabel::GetFont(m_iFontFaceSize)->LineHeight();
+	return CLabel::GetFont(L"sans-serif", m_iFontFaceSize)->LineHeight();
 }
 
 // Make the label tall enough for one line of text to fit inside.

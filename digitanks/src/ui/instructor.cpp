@@ -378,6 +378,7 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 	m_pText->SetSize(m_pTutorial->m_iWidth, (int)m_pText->GetTextHeight());
 	m_pText->SetWrap(true);
 	m_pText->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pText->SetFont(L"text");
 	AddControl(m_pText);
 
 	SetSize(m_pText->GetWidth()+20, m_pText->GetHeight()+20);
@@ -401,7 +402,10 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 		break;
 	}
 
-	m_flStartTime = GameServer()->GetGameTime();
+	if (GameServer())
+		m_flStartTime = GameServer()->GetGameTime();
+	else
+		m_flStartTime = 0;
 }
 
 void CTutorialPanel::Paint(int x, int y, int w, int h)

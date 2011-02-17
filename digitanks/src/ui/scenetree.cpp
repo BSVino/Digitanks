@@ -368,7 +368,7 @@ void CSceneTreeUnit::Selected()
 }
 
 CSceneTreeNode::CSceneTreeNode(glgui::CTreeNode* pParent, glgui::CTree* pTree)
-	: glgui::CTreeNode(pParent, pTree, L"")
+	: glgui::CTreeNode(pParent, pTree, L"", L"sans-serif")
 {
 }
 

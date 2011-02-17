@@ -2998,6 +2998,7 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 	DigitanksWindow()->GetHUD()->PaintWeaponSheet(GetCurrentWeapon(), x - 20, y + h - iSize + 10, iSize, iSize);
 
 	int iIconFontSize = 11;
+	eastl::string16 sFont = L"text";
 
 	float flYPosition = (float)y + h;
 	float flXPosition = (float)x + w + 20;
@@ -3008,19 +3009,19 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 		int iTurns = (int)(flDistance/GetMaxMovementDistance());
 
 		eastl::string16 sTurns = sprintf(L"Auto-Move: %d", iTurns);
-		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
-		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, (float)y);
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 	}
 
-	float flIconFontHeight = glgui::CLabel::GetFontHeight(iIconFontSize) + 2;
+	float flIconFontHeight = glgui::CLabel::GetFontHeight(sFont, iIconFontSize) + 2;
 
 	if (IsFortified() || IsFortifying())
 	{
 		eastl::string16 sTurns = sprintf(L"+%d", GetFortifyLevel());
-		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), iIconFontSize);
+		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 
 		glgui::CBaseControl::PaintSheet(CHUD::GetButtonSheet(), (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 0, 128, 64, 64, 512, 256);
-		glgui::CLabel::PaintText(sTurns, sTurns.length(), iIconFontSize, flXPosition - flWidth, flYPosition);
+		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
 		flYPosition -= flIconFontHeight;
 	}

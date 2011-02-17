@@ -437,7 +437,7 @@ namespace glgui
 		friend CRootPanel;
 
 	public:
-						CLabel(int x, int y, int w, int h, const eastl::string16& sText);
+						CLabel(int x, int y, int w, int h, const eastl::string16& sText, const eastl::string16& sFont=L"sans-serif", size_t iSize=13);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -480,7 +480,7 @@ namespace glgui
 		virtual void	AppendText(const eastl::string16& sText);
 		virtual eastl::string16	GetText();
 
-		virtual void	SetFontFaceSize(int iSize);
+		virtual void	SetFont(const eastl::string16& sFontName, int iSize=13);
 		virtual int		GetFontFaceSize() { return m_iFontFaceSize; };
 
 		virtual int		GetTextWidth();
@@ -492,12 +492,13 @@ namespace glgui
 		virtual void	SetFGColor(Color FGColor);
 		virtual void	SetAlpha(int a);
 
-		static class ::FTFont*	GetFont(size_t iSize) { return s_apFonts[iSize]; };
-		static void		AddFont(size_t iSize);
+		static class ::FTFont*	GetFont(const eastl::string16& sName, size_t iSize);
+		static void		AddFont(const eastl::string16& sName, const eastl::string16& sFile);
+		static void		AddFontSize(const eastl::string16& sName, size_t iSize);
 
-		static float	GetTextWidth(const eastl::string16& sText, unsigned iLength, int iFontFaceSize);
-		static float	GetFontHeight(int iFontFaceSize);
-		static void		PaintText(const eastl::string16& sText, unsigned iLength, int iFontFaceSize, float x, float y);
+		static float	GetTextWidth(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize);
+		static float	GetFontHeight(const eastl::string16& sFontName, int iFontFaceSize);
+		static void		PaintText(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, float x, float y);
 
 	protected:
 		bool			m_bEnabled;
@@ -510,9 +511,11 @@ namespace glgui
 		int				m_iTotalLines;
 		int				m_iLine;
 
+		eastl::string16	m_sFontName;
 		int				m_iFontFaceSize;
 
-		static eastl::map<size_t, class ::FTFont*>	s_apFonts;
+		static eastl::map<eastl::string16, eastl::map<size_t, class ::FTFont*> >	s_apFonts;
+		static eastl::map<eastl::string16, eastl::string16>							s_apFontNames;
 	};
 
 	class CButton : public CLabel
@@ -521,7 +524,7 @@ namespace glgui
 		friend class CSlidingPanel;
 
 	public:
-						CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle = false);
+						CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle = false, const eastl::string16& sFont=L"sans-serif", size_t iSize=13);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -775,7 +778,7 @@ namespace glgui
 	class CScrollSelector : public CPanel
 	{
 	public:
-		CScrollSelector()
+		CScrollSelector(const eastl::string16& sFont=L"sans-serif", size_t iSize=13)
 			: CPanel(0, 0, 100, 16)
 		{
 			m_flHandlePositionGoal = 0;
@@ -789,6 +792,7 @@ namespace glgui
 
 			m_pOption = new CLabel(0, 0, 100, 100, L"");
 			m_pOption->SetWrap(false);
+			m_pOption->SetFont(sFont, iSize);
 			AddControl(m_pOption);
 		}
 
@@ -1033,7 +1037,7 @@ namespace glgui
 		DECLARE_CLASS(CTreeNode, CPanel);
 
 	public:
-											CTreeNode(CTreeNode* pParent, class CTree* pTree, const eastl::string16& sText);
+											CTreeNode(CTreeNode* pParent, class CTree* pTree, const eastl::string16& sText, const eastl::string16& sFont);
 											CTreeNode(const CTreeNode& c);
 
 	public:

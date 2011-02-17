@@ -25,7 +25,7 @@
 using namespace glgui;
 
 CPowerBar::CPowerBar(powerbar_type_t ePowerbarType)
-	: CLabel(0, 0, 100, 100, L"")
+	: CLabel(0, 0, 100, 100, L"", L"text")
 {
 	m_ePowerbarType = ePowerbarType;
 }
@@ -132,7 +132,9 @@ CHUD::CHUD()
 	m_eActionSign = ACTIONSIGN_NONE;
 
 	m_pActionItem = new CLabel(0, 0, 10, 10, L"");
+	m_pActionItem->SetFont(L"text");
 	m_pCloseActionItems = new CButton(0, 0, 100, 50, L"Close");
+	m_pCloseActionItems->SetFont(L"header");
 	AddControl(m_pActionItem);
 	AddControl(m_pCloseActionItems);
 	m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
@@ -161,50 +163,63 @@ CHUD::CHUD()
 
 	m_pFireAttack = new CLabel(0, 0, 50, 50, L"");
 	m_pFireDefend = new CLabel(0, 0, 50, 50, L"");
+	m_pFireAttack->SetFont(L"text");
+	m_pFireDefend->SetFont(L"text");
 	AddControl(m_pFireAttack);
 	AddControl(m_pFireDefend);
 
 	m_pAttackInfo = new CLabel(0, 0, 100, 150, L"");
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	m_pAttackInfo->SetFont(L"text");
 	AddControl(m_pAttackInfo);
 
 	m_pScoreboard = new CLabel(0, 0, 100, 150, L"");
 	m_pScoreboard->SetWrap(false);
 	m_pScoreboard->SetAlign(glgui::CLabel::TA_TOPLEFT);
-	m_pScoreboard->SetFontFaceSize(10);
+	m_pScoreboard->SetFont(L"text", 10);
 	AddControl(m_pScoreboard);
 
 	m_pFrontShieldInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pFrontShieldInfo->SetFont(L"text");
 	AddControl(m_pFrontShieldInfo);
 
 	m_pRearShieldInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pRearShieldInfo->SetFont(L"text");
 	AddControl(m_pRearShieldInfo);
 
 	m_pLeftShieldInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pLeftShieldInfo->SetFont(L"text");
 	AddControl(m_pLeftShieldInfo);
 
 	m_pRightShieldInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pRightShieldInfo->SetFont(L"text");
 	AddControl(m_pRightShieldInfo);
 
 	m_pTankInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pTankInfo->SetFont(L"text", 10);
 	AddControl(m_pTankInfo);
 
 	m_pTurnInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pTurnInfo->SetFont(L"text", 10);
 	AddControl(m_pTurnInfo);
 
 	m_pResearchInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pResearchInfo->SetFont(L"text");
 	AddControl(m_pResearchInfo);
 
 	m_pButtonInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pButtonInfo->SetFont(L"text");
 	AddControl(m_pButtonInfo);
 
 	m_pPressEnter = new CLabel(0, 0, 100, 100, L"");
+	m_pPressEnter->SetFont(L"text");
 	AddControl(m_pPressEnter);
 
 	SetupMenu(MENUMODE_MAIN);
 
 	m_pDemoNotice = new CLabel(0, 0, 100, 20, L"");
+	m_pDemoNotice->SetFont(L"text");
 	AddControl(m_pDemoNotice);
 
 	m_pDemoNotice->SetAlign(CLabel::TA_TOPLEFT);
@@ -217,6 +232,7 @@ CHUD::CHUD()
 	m_pPowerInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pPowerInfo->SetPos(200, 20);
 	m_pPowerInfo->SetFGColor(Color(220, 220, 255));
+	m_pPowerInfo->SetFont(L"text");
 
 	m_pFleetInfo = new CLabel(0, 0, 200, 20, L"");
 	AddControl(m_pFleetInfo);
@@ -224,6 +240,7 @@ CHUD::CHUD()
 	m_pFleetInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pFleetInfo->SetPos(200, 20);
 	m_pFleetInfo->SetFGColor(Color(220, 220, 255));
+	m_pFleetInfo->SetFont(L"text");
 
 	m_pBandwidthInfo = new CLabel(0, 0, 200, 20, L"");
 	AddControl(m_pBandwidthInfo);
@@ -231,6 +248,7 @@ CHUD::CHUD()
 	m_pBandwidthInfo->SetAlign(CLabel::TA_TOPCENTER);
 	m_pBandwidthInfo->SetPos(200, 20);
 	m_pBandwidthInfo->SetFGColor(Color(220, 220, 255));
+	m_pBandwidthInfo->SetFont(L"text");
 
 	m_pUpdatesButton = new CPictureButton(L"Download Updates");
 	m_pUpdatesButton->SetSheetTexture(m_iHUDSheet, 500, 710, 175, 40, 1024, 1024);
@@ -266,6 +284,7 @@ CHUD::CHUD()
 
 	m_pSpacebarHint = new CLabel(0, 0, 200, 20, L"");
 	m_pSpacebarHint->SetAlign(CLabel::TA_MIDDLECENTER);
+	m_pSpacebarHint->SetFont(L"text");
 	AddControl(m_pSpacebarHint);
 
 	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
@@ -467,13 +486,11 @@ void CHUD::Layout()
 	m_pTankInfo->SetPos(10, iHeight - m_pTankInfo->GetHeight() + 10 + 7);
 	m_pTankInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTankInfo->SetWrap(true);
-	m_pTankInfo->SetFontFaceSize(10);
 
 	m_pTurnInfo->SetSize(248, 150);
 	m_pTurnInfo->SetPos(iWidth/2 - m_pTurnInfo->GetWidth()/2, 36);
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
-	m_pTurnInfo->SetFontFaceSize(10);
 
 	m_pResearchInfo->SetSize(640, 35);
 	m_pResearchInfo->SetPos(iWidth/2 - m_pResearchInfo->GetWidth()/2, 0);
@@ -932,7 +949,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 					int iTurns = (int)(flDistance/pTank->GetMaxMovementDistance())+1;
 
 					eastl::string16 sTurns = sprintf(L":%d", iTurns);
-					CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
 				}
 
 				if (pTank->IsFortified() || pTank->IsFortifying())
@@ -947,7 +964,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 					c.SetBlend(BLEND_ALPHA);
 
 					CBaseControl::PaintSheet(m_iButtonSheet, (int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize, 0, 128, 64, 64, 512, 256);
-					CLabel::PaintText(sTurns, sTurns.length(), 10, flXPosition - 13, flYPosition - 3);
+					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, flXPosition - 13, flYPosition - 3);
 				}
 			}
 
@@ -957,12 +974,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 				if (pStructure->IsConstructing())
 				{
 					eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToConstruct());
-					CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
 				}
 				else if (pStructure->IsUpgrading())
 				{
 					eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToUpgrade());
-					CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
 				}
 
 				if (pStructure->GetUnitType() == STRUCTURE_CPU)
@@ -971,7 +988,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 					if (pCPU->IsProducing())
 					{
 						eastl::string16 sTurns = L":1";	// It only ever takes one turn to make a rogue.
-						CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+						CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
 					}
 				}
 
@@ -981,7 +998,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 					if (pLoader->IsProducing())
 					{
 						eastl::string16 sTurns = sprintf(L":%d", pLoader->GetTurnsRemainingToProduce());
-						CLabel::PaintText(sTurns, sTurns.length(), 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(10) - 2);
+						CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
 					}
 				}
 			}
@@ -3186,7 +3203,7 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 		sprintf(szDamage, "-%d", iDamage);
 	SetText(szDamage);
 
-	SetFontFaceSize(18);
+	SetFont(L"header", 18);
 	SetAlign(CLabel::TA_TOPLEFT);
 }
 
@@ -3257,7 +3274,7 @@ CHitIndicator::CHitIndicator(CBaseEntity* pVictim, eastl::string16 sMessage)
 	SetText(sMessage.c_str());
 	SetWrap(false);
 
-	SetFontFaceSize(20);
+	SetFont(L"header", 18);
 	SetAlign(CLabel::TA_TOPLEFT);
 }
 
@@ -3325,7 +3342,7 @@ CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech)
 	SetText(sSpeech.c_str());
 	SetWrap(false);
 
-	SetFontFaceSize(18);
+	SetFont(L"smileys", 18);
 	SetAlign(CLabel::TA_MIDDLECENTER);
 }
 
