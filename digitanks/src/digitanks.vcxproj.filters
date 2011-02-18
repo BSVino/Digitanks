@@ -67,6 +67,9 @@
     <Filter Include="Source Files\common\maths">
       <UniqueIdentifier>{5e1101fb-dcf9-48b5-8edf-f2232bd6f770}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\tinker\portals">
+      <UniqueIdentifier>{34a7f1ba-918b-40f6-bc23-141e85d9de9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -327,6 +330,12 @@
     <ClCompile Include="game\digitanks\units\barbarians.cpp">
       <Filter>Source Files\digitanks\units</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tinker\portals\portal_steam.cpp">
+      <Filter>Source Files\tinker\portals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\portals\portal_stubs.cpp">
+      <Filter>Source Files\tinker\portals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -562,6 +571,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\math\plane.h">
       <Filter>Source Files\common\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\portals\portal.h">
+      <Filter>Source Files\tinker\portals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

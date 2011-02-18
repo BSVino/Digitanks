@@ -8,6 +8,7 @@
 #include <models/models.h>
 #include <sound/sound.h>
 #include <renderer/particles.h>
+#include <tinker/portals/portal.h>
 
 #include <game/gameserver.h>
 #include <network/network.h>
@@ -475,15 +476,38 @@ void CDigitanksGame::SetupArtillery()
 		Color(42, 255, 0),		// Green
 		Color(255, 200, 0),		// Yellow
 		Color(0, 255, 221),		// Teal
-		Color(255, 0, 180),		// Pink
-		Color(200, 0, 255),		// Purple
+		Color(255, 0, 120),		// Pink
+		Color(200, 100, 255),	// Purple
 		Color(255, 255, 255),	// White
+	};
+
+	eastl::string16 aszTeamNames[] =
+	{
+		L"Blue",
+		L"Red",
+		L"Green",
+		L"Yellow",
+		L"Teal",
+		L"Pink",
+		L"Purple",
+		L"White",
 	};
 
 	for (int i = 0; i < iPlayers; i++)
 	{
 		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
-		m_ahTeams[i]->SetColor(aclrTeamColors[i]);
+
+		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
+
+		pTeam->SetColor(aclrTeamColors[i]);
+		pTeam->SetName(aszTeamNames[i]);
+
+		if (m_oGameSettings.iHumanPlayers == 1 && i == 0)
+		{
+			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+			if (sPlayerNickname.length())
+				pTeam->SetName(sPlayerNickname);
+		}
 	}
 }
 
@@ -558,6 +582,13 @@ void CDigitanksGame::SetupStrategy()
 		pTeam->SetColor(aclrTeamColors[i]);
 		pTeam->SetName(aszTeamNames[i]);
 		pTeam->SetLoseCondition(LOSE_NOCPU);
+
+		if (m_oGameSettings.iHumanPlayers == 1 && i == 0)
+		{
+			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+			if (sPlayerNickname.length())
+				pTeam->SetName(sPlayerNickname);
+		}
 
 		GetTerrain()->ClearArea(avecRandomStartingPositions[i], 40);
 

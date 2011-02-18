@@ -17,6 +17,7 @@
 #include <datamanager/data.h>
 #include <datamanager/dataserializer.h>
 #include <models/models.h>
+#include <tinker/portals/portal.h>
 
 #include "camera.h"
 #include "level.h"
@@ -252,6 +253,8 @@ void CGameServer::Think(float flRealTime)
 
 	CParticleSystemLibrary::Simulate();
 	CModelDissolver::Simulate();
+
+	TPortal_Think();
 }
 
 void CGameServer::Simulate()
