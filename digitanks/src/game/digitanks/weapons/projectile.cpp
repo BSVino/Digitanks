@@ -783,9 +783,10 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	BaseClass::Explode(pInstigator);
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
+	{
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
-
-	CParticleSystemLibrary::AddInstance(L"torpedo-explosion", GetOrigin());
+		CParticleSystemLibrary::AddInstance(L"torpedo-explosion", GetOrigin());
+	}
 }
 
 REGISTER_ENTITY(CTreeCutter);

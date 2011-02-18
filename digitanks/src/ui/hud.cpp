@@ -50,7 +50,7 @@ void CPowerBar::Think()
 	{
 		if (pSelection->TakesDamage())
 		{
-			sprintf(szLabel, "Hull Strength: %.1f/%.1f", pSelection->GetHealth(), pSelection->GetTotalHealth());
+			sprintf(szLabel, "Hull Strength: %d/%d", (int)pSelection->GetHealth(), (int)pSelection->GetTotalHealth());
 			SetText(szLabel);
 		}
 		else
@@ -86,6 +86,11 @@ void CPowerBar::Think()
 		else
 			SetText("");
 	}
+
+	int iSize = 13;
+	SetFont(L"text", iSize);
+	while (iSize > 0 && GetTextWidth() > GetWidth()-1)
+		SetFont(L"text", --iSize);
 }
 
 void CPowerBar::Paint(int x, int y, int w, int h)
@@ -3130,8 +3135,13 @@ void CHUD::ShowPowerInfoCallback()
 			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%.1f\n", pStructure->Power()));
 
 		CCollector* pCollector = dynamic_cast<CCollector*>(pEntity);
-		if (pCollector)
-			m_pTeamInfo->AppendText(sprintf(pCollector->GetName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced() * pCollector->GetSupplier()->GetChildEfficiency(), (int)(pCollector->GetSupplier()->GetChildEfficiency()*100)));
+		if (!pCollector)
+			continue;
+
+		if (pCollector->IsConstructing())
+			continue;
+
+		m_pTeamInfo->AppendText(sprintf(pCollector->GetName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced() * pCollector->GetSupplier()->GetChildEfficiency(), (int)(pCollector->GetSupplier()->GetChildEfficiency()*100)));
 	}
 
 	LayoutTeamInfo();
@@ -3179,6 +3189,9 @@ void CHUD::ShowFleetInfoCallback()
 		if (!pStructure)
 			continue;
 
+		if (pStructure->IsConstructing())
+			continue;
+
 		if (pStructure->FleetPoints() > 0)
 			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%d\n", pStructure->FleetPoints()));
 	}
@@ -3221,6 +3234,9 @@ void CHUD::ShowBandwidthInfoCallback()
 
 		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 		if (!pStructure)
+			continue;
+
+		if (pStructure->IsConstructing())
 			continue;
 
 		if (pStructure->Bandwidth() > 0)
