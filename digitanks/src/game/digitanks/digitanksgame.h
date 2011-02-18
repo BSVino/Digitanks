@@ -322,6 +322,8 @@ protected:
 	float						m_aflUpgradeCosts[MAX_UNITS];
 
 	float						m_flShowFightSign;
+
+	float						m_flLastHumanMove;
 };
 
 inline class CDigitanksGame* DigitanksGame()

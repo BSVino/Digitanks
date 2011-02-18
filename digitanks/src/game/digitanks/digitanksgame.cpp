@@ -1014,7 +1014,18 @@ void CDigitanksGame::Think()
 		}
 	}
 
-	if (!m_bTurnActive && !m_bWaitingForMoving && !m_bWaitingForProjectiles)
+	bool bWaitingASecond = false;
+	if (!GetCurrentTeam()->IsPlayerControlled())
+	{
+		CTeam* pNextTeam = GetTeam((m_iCurrentTeam+1)%GetNumTeams());
+		if (pNextTeam && pNextTeam->IsPlayerControlled())
+		{
+			if (GameServer()->GetGameTime() - m_flLastHumanMove < 2.0f)
+				bWaitingASecond = true;
+		}
+	}
+
+	if (!m_bTurnActive && !m_bWaitingForMoving && !m_bWaitingForProjectiles && !bWaitingASecond)
 		StartTurn();
 
 	if (m_bPartyMode)
@@ -1257,6 +1268,9 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 {
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
+
+	if (GetCurrentTeam()->IsPlayerControlled())
+		m_flLastHumanMove = GameServer()->GetGameTime();
 
 	GetCurrentTeam()->EndTurn();
 
