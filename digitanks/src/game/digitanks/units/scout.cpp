@@ -28,7 +28,7 @@ void CScout::Spawn()
 
 	SetModel(L"models/digitanks/scout.obj");
 
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
+	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
 	m_bFortified = false;
 

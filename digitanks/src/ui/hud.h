@@ -283,10 +283,7 @@ protected:
 	float						m_flAttackInfoAlpha;
 	float						m_flAttackInfoAlphaGoal;
 
-	glgui::CLabel*				m_pFrontShieldInfo;
-	glgui::CLabel*				m_pRearShieldInfo;
-	glgui::CLabel*				m_pLeftShieldInfo;
-	glgui::CLabel*				m_pRightShieldInfo;
+	glgui::CLabel*				m_pShieldInfo;
 
 	glgui::CLabel*				m_pTankInfo;
 	size_t						m_iTankInfoPanel;

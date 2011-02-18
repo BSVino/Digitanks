@@ -178,21 +178,9 @@ CHUD::CHUD()
 	m_pScoreboard->SetFont(L"text", 10);
 	AddControl(m_pScoreboard);
 
-	m_pFrontShieldInfo = new CLabel(0, 0, 100, 100, L"");
-	m_pFrontShieldInfo->SetFont(L"text");
-	AddControl(m_pFrontShieldInfo);
-
-	m_pRearShieldInfo = new CLabel(0, 0, 100, 100, L"");
-	m_pRearShieldInfo->SetFont(L"text");
-	AddControl(m_pRearShieldInfo);
-
-	m_pLeftShieldInfo = new CLabel(0, 0, 100, 100, L"");
-	m_pLeftShieldInfo->SetFont(L"text");
-	AddControl(m_pLeftShieldInfo);
-
-	m_pRightShieldInfo = new CLabel(0, 0, 100, 100, L"");
-	m_pRightShieldInfo->SetFont(L"text");
-	AddControl(m_pRightShieldInfo);
+	m_pShieldInfo = new CLabel(0, 0, 100, 100, L"");
+	m_pShieldInfo->SetFont(L"text");
+	AddControl(m_pShieldInfo);
 
 	m_pTankInfo = new CLabel(0, 0, 100, 100, L"");
 	m_pTankInfo->SetFont(L"text", 10);
@@ -479,20 +467,9 @@ void CHUD::Layout()
 		m_apButtons[i]->SetPos(20 + 60*(i%5), 10 + 60*(i/5));
 	}
 
-	m_pLeftShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2 - 40, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
-	m_pRightShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 + 50/2 + 30, iHeight - 150 + 10 + 130/2 - 50/2, 10, 50);
-	m_pRearShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 + 50/2 + 25, 50, 10);
-	m_pFrontShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 35, 50, 10);
-
-	m_pLeftShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pRightShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pRearShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pFrontShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-
-	m_pLeftShieldInfo->SetWrap(false);
-	m_pRightShieldInfo->SetWrap(false);
-	m_pRearShieldInfo->SetWrap(false);
-	m_pFrontShieldInfo->SetWrap(false);
+	m_pShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 35, 50, 10);
+	m_pShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pShieldInfo->SetWrap(false);
 
 	m_pTankInfo->SetSize(140, 240);
 	m_pTankInfo->SetPos(10, iHeight - m_pTankInfo->GetHeight() + 10 + 7);
@@ -1244,43 +1221,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		do
 		{
-			int iShield = (int)(255*pTank->GetFrontShieldStrength());
-			if (iShield > 255)
-				iShield = 255;
-			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
-		}
-		while (false);
-
-		do
-		{
-			CRenderingContext c(GameServer()->GetRenderer());
-			c.Rotate(90, Vector(0, 0, 1));
-
-			int iShield = (int)(255*pTank->GetRightShieldStrength());
-			if (iShield > 255)
-				iShield = 255;
-			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
-		}
-		while (false);
-
-		do
-		{
-			CRenderingContext c(GameServer()->GetRenderer());
-			c.Rotate(180, Vector(0, 0, 1));
-
-			int iShield = (int)(255*pTank->GetRearShieldStrength());
-			if (iShield > 255)
-				iShield = 255;
-			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
-		}
-		while (false);
-
-		do
-		{
-			CRenderingContext c(GameServer()->GetRenderer());
-			c.Rotate(270, Vector(0, 0, 1));
-
-			int iShield = (int)(255*pTank->GetLeftShieldStrength());
+			int iShield = (int)(255*pTank->GetShieldStrength());
 			if (iShield > 255)
 				iShield = 255;
 			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
@@ -1647,49 +1588,16 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 {
 	char szShieldInfo[1024];
 
-	if (pTank->GetFrontShieldMaxStrength() > 0)
+	if (pTank->GetShieldMaxStrength() > 0)
 	{
 		sprintf(szShieldInfo, "%.1f/%.1f",
-			pTank->GetFrontShieldStrength() * pTank->GetFrontShieldMaxStrength(),
-			pTank->GetFrontShieldMaxStrength() * pTank->GetDefenseScale(true));
-		m_pFrontShieldInfo->SetText(szShieldInfo);
-		m_pFrontShieldInfo->SetVisible(true);
+			pTank->GetShieldStrength() * pTank->GetShieldMaxStrength(),
+			pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true));
+		m_pShieldInfo->SetText(szShieldInfo);
+		m_pShieldInfo->SetVisible(true);
 	}
 	else
-		m_pFrontShieldInfo->SetVisible(false);
-
-	if (pTank->GetRearShieldMaxStrength() > 0)
-	{
-		sprintf(szShieldInfo, "%.1f/%.1f",
-			pTank->GetRearShieldStrength() * pTank->GetRearShieldMaxStrength(),
-			pTank->GetRearShieldMaxStrength() * pTank->GetDefenseScale(true));
-		m_pRearShieldInfo->SetText(szShieldInfo);
-		m_pRearShieldInfo->SetVisible(true);
-	}
-	else
-		m_pRearShieldInfo->SetVisible(false);
-
-	if (pTank->GetLeftShieldMaxStrength() > 0)
-	{
-		sprintf(szShieldInfo, "%.1f/\n%.1f",
-			pTank->GetLeftShieldStrength() * pTank->GetLeftShieldMaxStrength(),
-			pTank->GetLeftShieldMaxStrength() * pTank->GetDefenseScale(true));
-		m_pLeftShieldInfo->SetText(szShieldInfo);
-		m_pLeftShieldInfo->SetVisible(true);
-	}
-	else
-		m_pLeftShieldInfo->SetVisible(false);
-
-	if (pTank->GetRightShieldMaxStrength() > 0)
-	{
-		sprintf(szShieldInfo, "%.1f/\n%.1f",
-			pTank->GetRightShieldStrength() * pTank->GetRightShieldMaxStrength(),
-			pTank->GetRightShieldMaxStrength() * pTank->GetDefenseScale(true));
-		m_pRightShieldInfo->SetText(szShieldInfo);
-		m_pRightShieldInfo->SetVisible(true);
-	}
-	else
-		m_pRightShieldInfo->SetVisible(false);
+		m_pShieldInfo->SetVisible(false);
 
 	m_pAttackInfo->SetText(L"");
 
@@ -1771,7 +1679,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	if (flTargetDistance > flRadius)
 		return;
 
-	float flShieldStrength = pClosestTarget->GetShieldValueForAttackDirection(vecAttack.Normalized());
+	float flShieldStrength = pClosestTarget->GetShieldValue();
 	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
 	float flAttackDamage = pTank->GetAttackPower(true);
 
@@ -1799,11 +1707,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 void CHUD::UpdateStructureInfo(CStructure* pStructure)
 {
-	m_pFrontShieldInfo->SetText("");
-	m_pRearShieldInfo->SetText("");
-	m_pLeftShieldInfo->SetText("");
-	m_pRightShieldInfo->SetText("");
-
+	m_pShieldInfo->SetText("");
 	m_pAttackInfo->SetText(L"");
 }
 

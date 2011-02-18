@@ -8,8 +8,6 @@
 #include <digitanks/weapons/projectile.h>
 #include <common.h>
 
-#define TANK_SHIELDS 4
-
 // Tank speech
 typedef enum
 {
@@ -105,20 +103,11 @@ public:
 
 	bool						IsPreviewMoveValid() const;
 
-	virtual float				GetFrontShieldMaxStrength() { return m_flFrontMaxShieldStrength; };
-	virtual float				GetLeftShieldMaxStrength() { return m_flLeftMaxShieldStrength; };
-	virtual float				GetRightShieldMaxStrength() { return m_flRightMaxShieldStrength; };
-	virtual float				GetRearShieldMaxStrength() { return m_flRearMaxShieldStrength; };
-	virtual float				GetFrontShieldStrength();
-	virtual float				GetLeftShieldStrength();
-	virtual float				GetRightShieldStrength();
-	virtual float				GetRearShieldStrength();
+	virtual float				GetShieldMaxStrength() { return m_flMaxShieldStrength; };
+	virtual float				GetShieldStrength();
 
-	virtual float				GetShieldValueForAttackDirection(Vector vecAttack);
-	virtual void				SetShieldValueForAttackDirection(Vector vecAttack, float flValue);
-
-	virtual float				GetShieldValue(size_t i);
-	virtual void				SetShieldValue(size_t i, float flValue);
+	virtual float				GetShieldValue();
+	virtual void				SetShieldValue(float flValue);
 
 	virtual void				SetGoalTurretYaw(float flYaw) { m_flGoalTurretYaw = flYaw; }
 
@@ -278,7 +267,7 @@ public:
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
-	virtual void				RenderShield(float flAlpha, float flAngle);
+	virtual void				RenderShield(float flAlpha);
 	virtual float				RenderShieldScale() const { return 1.0f; };
 
 	virtual float				AvailableArea() const;
@@ -366,20 +355,9 @@ protected:
 
 	CNetworkedVariable<float>	m_flRangeBonus;
 
-	union {
-		struct {
-			float				m_flFrontMaxShieldStrength;
-			float				m_flLeftMaxShieldStrength;
-			float				m_flRightMaxShieldStrength;
-			float				m_flRearMaxShieldStrength;
-		};
-		float					m_flMaxShieldStrengths[TANK_SHIELDS];
-	};
+	float						m_flMaxShieldStrength;
 
-	CNetworkedVariable<float>	m_flFrontShieldStrength;
-	CNetworkedVariable<float>	m_flLeftShieldStrength;
-	CNetworkedVariable<float>	m_flRightShieldStrength;
-	CNetworkedVariable<float>	m_flRearShieldStrength;
+	CNetworkedVariable<float>	m_flShieldStrength;
 
 	bool						m_bNeedsOrdersDirty;
 	bool						m_bNeedsOrders;

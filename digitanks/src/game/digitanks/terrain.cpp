@@ -2068,7 +2068,7 @@ float CTerrain::WeightedLeafDistance(CQuadBranch* pStart, CQuadBranch* pEnd, boo
 		flSlowPenaltyFactor = 1-m_pPathfindingUnit->SlowMovementFactor();
 
 		bUnitConcealmentBonus = m_pPathfindingUnit->GetsConcealmentBonus();
-		bUnitHasShields = m_pPathfindingUnit->GetFrontShieldMaxStrength() > 0;
+		bUnitHasShields = m_pPathfindingUnit->GetShieldMaxStrength() > 0;
 		bUnitTakesLavaDamage = m_pPathfindingUnit->TakesLavaDamage();
 	}
 

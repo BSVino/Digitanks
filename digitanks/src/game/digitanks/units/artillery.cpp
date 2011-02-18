@@ -31,7 +31,7 @@ void CArtillery::Spawn()
 
 	SetModel(L"models/digitanks/artillery-move.obj");
 
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
+	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
 	m_aeWeapons.push_back(PROJECTILE_ARTILLERY);
 

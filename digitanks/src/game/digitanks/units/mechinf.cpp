@@ -40,30 +40,13 @@ void CMechInfantry::Spawn()
 	SetModel(L"models/digitanks/infantry-body.obj");
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
 
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = 10;
-	m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = 5;
-	m_flRearMaxShieldStrength = m_flRearShieldStrength = 2;
+	m_flMaxShieldStrength = m_flShieldStrength = 10;
 
 	m_aeWeapons.push_back(PROJECTILE_FLAK);
 	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
 	m_aeWeapons.push_back(WEAPON_INFANTRYLASER);
 
 	m_eWeapon = WEAPON_INFANTRYLASER;
-}
-
-float CMechInfantry::GetLeftShieldMaxStrength()
-{
-	return GetFrontShieldMaxStrength();
-}
-
-float CMechInfantry::GetRightShieldMaxStrength()
-{
-	return GetFrontShieldMaxStrength();
-}
-
-float CMechInfantry::GetRearShieldMaxStrength()
-{
-	return GetFrontShieldMaxStrength();
 }
 
 void CMechInfantry::PostRender(bool bTransparent)
@@ -77,7 +60,7 @@ void CMechInfantry::PostRender(bool bTransparent)
 		c.Translate(GetOrigin() - Vector(0, RemapValClamped(flTimeSinceFortify, 0, 1, 5, 0), 0));
 		c.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		float flAlpha = GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1);
-		flAlpha *= RemapValClamped(GetFrontShieldStrength(), 0, 1, 0.5, 1);
+		flAlpha *= RemapValClamped(GetShieldStrength(), 0, 1, 0.5, 1);
 		if (flAlpha < 1.0f)
 		{
 			c.SetBlend(BLEND_ALPHA);
@@ -96,7 +79,7 @@ void CMechInfantry::PostRender(bool bTransparent)
 		c.Rotate(-GetAngles().y, Vector(0, 1, 0));
 		c.Scale(flShieldScale, flShieldScale, flShieldScale);
 		c.SetBlend(BLEND_ADDITIVE);
-		c.SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1) * GetFrontShieldStrength());
+		c.SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 2, 0.5f, 1) * GetShieldStrength());
 		c.SetDepthMask(false);
 		c.SetBackCulling(false);
 		c.RenderModel(m_iFortifyShieldModel);

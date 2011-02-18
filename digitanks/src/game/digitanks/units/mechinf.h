@@ -11,10 +11,6 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual float				GetLeftShieldMaxStrength();
-	virtual float				GetRightShieldMaxStrength();
-	virtual float				GetRearShieldMaxStrength();
-
 	virtual void				PostRender(bool bTransparent);
 
 	virtual eastl::string16		GetName() { return L"Resistor"; };

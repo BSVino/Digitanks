@@ -73,10 +73,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iBonusPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(float, m_flRangeBonus);
 
-	NETVAR_DEFINE(float, m_flFrontShieldStrength);
-	NETVAR_DEFINE(float, m_flLeftShieldStrength);
-	NETVAR_DEFINE(float, m_flRightShieldStrength);
-	NETVAR_DEFINE(float, m_flRearShieldStrength);
+	NETVAR_DEFINE(float, m_flShieldStrength);
 
 	NETVAR_DEFINE(Vector, m_vecPreviousOrigin);
 
@@ -111,14 +108,8 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusMovementPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBonusPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRangeBonus);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFrontMaxShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLeftMaxShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRightMaxShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRearMaxShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flFrontShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flLeftShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRightShieldStrength);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRearShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flMaxShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flShieldStrength);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedRock);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRockIntensity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecRockDirection);
@@ -273,8 +264,8 @@ void CDigitank::Spawn()
 	m_flStartedTurn = 0;
 	m_bFortified = false;
 	m_bSentried = false;
-	m_flFrontMaxShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = 15;
-	m_flFrontShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 15;
+	m_flMaxShieldStrength = 15;
+	m_flShieldStrength = 15;
 	m_bNeedsOrdersDirty = true;
 	m_flFireWeaponTime = 0;
 	m_iFireWeapons = 0;
@@ -308,17 +299,23 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
+	float flIntegrity = 1;
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+	{
+		if (m_hSupplier == NULL)
+			return 0;
+
+		if (m_hSupplyLine == NULL)
+			return 0;
+
+		flIntegrity = m_hSupplyLine->GetIntegrity();
+	}
+
 	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return m_flTotalPower - GetWeaponEnergy();
 
-	if (m_hSupplier == NULL)
-		return 0;
-
-	if (m_hSupplyLine == NULL)
-		return 0;
-
 	// Any unallocated power will go into defense.
-	return (m_flDefensePower + m_flTotalPower) * m_hSupplyLine->GetIntegrity();
+	return (m_flDefensePower + m_flTotalPower) * flIntegrity;
 }
 
 float CDigitank::GetAttackPower(bool bPreview)
@@ -565,98 +562,22 @@ bool CDigitank::IsPreviewMoveValid() const
 	return DigitanksGame()->GetTerrain()->IsPointOnMap(GetPreviewMove());
 }
 
-float CDigitank::GetFrontShieldStrength()
+float CDigitank::GetShieldStrength()
 {
-	if (GetFrontShieldMaxStrength() == 0)
+	if (GetShieldMaxStrength() == 0)
 		return 0;
 
-	return m_flFrontShieldStrength/GetFrontShieldMaxStrength() * GetDefenseScale(true);
+	return m_flShieldStrength/GetShieldMaxStrength() * GetDefenseScale(true);
 }
 
-float CDigitank::GetLeftShieldStrength()
+float CDigitank::GetShieldValue()
 {
-	if (GetLeftShieldMaxStrength() == 0)
-		return 0;
-
-	return m_flLeftShieldStrength/GetLeftShieldMaxStrength() * GetDefenseScale(true);
+	return m_flShieldStrength;
 }
 
-float CDigitank::GetRightShieldStrength()
+void CDigitank::SetShieldValue(float flValue)
 {
-	if (GetRightShieldMaxStrength() == 0)
-		return 0;
-
-	return m_flRightShieldStrength/GetRightShieldMaxStrength() * GetDefenseScale(true);
-}
-
-float CDigitank::GetRearShieldStrength()
-{
-	if (GetRearShieldMaxStrength() == 0)
-		return 0;
-
-	return m_flRearShieldStrength/GetRearShieldMaxStrength() * GetDefenseScale(true);
-}
-
-float CDigitank::GetShieldValueForAttackDirection(Vector vecAttack)
-{
-	Vector vecForward, vecRight;
-	AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
-
-	float flForwardDot = vecForward.Dot(vecAttack);
-	float flRightDot = vecRight.Dot(vecAttack);
-
-	if (flForwardDot > 0.7f)
-		return m_flFrontShieldStrength.Get();
-	else if (flForwardDot < -0.7f)
-		return m_flRearShieldStrength.Get();
-	else if (flRightDot < -0.7f)
-		return m_flRightShieldStrength.Get();
-	else
-		return m_flLeftShieldStrength.Get();
-}
-
-void CDigitank::SetShieldValueForAttackDirection(Vector vecAttack, float flValue)
-{
-	Vector vecForward, vecRight;
-	AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
-
-	float flForwardDot = vecForward.Dot(vecAttack);
-	float flRightDot = vecRight.Dot(vecAttack);
-
-	if (flForwardDot > 0.7f)
-		m_flFrontShieldStrength = flValue;
-	else if (flForwardDot < -0.7f)
-		m_flRearShieldStrength = flValue;
-	else if (flRightDot < -0.7f)
-		m_flRightShieldStrength = flValue;
-	else
-		m_flLeftShieldStrength = flValue;
-}
-
-float CDigitank::GetShieldValue(size_t i)
-{
-	if (i == 0)
-		return m_flFrontShieldStrength;
-	else if (i == 1)
-		return m_flLeftShieldStrength;
-	else if (i == 2)
-		return m_flRightShieldStrength;
-	else if (i == 3)
-		return m_flRearShieldStrength;
-
-	return 0;
-}
-
-void CDigitank::SetShieldValue(size_t i, float flValue)
-{
-	if (i == 0)
-		m_flFrontShieldStrength = flValue;
-	else if (i == 1)
-		m_flLeftShieldStrength = flValue;
-	else if (i == 2)
-		m_flRightShieldStrength = flValue;
-	else if (i == 3)
-		m_flRearShieldStrength = flValue;
+	m_flShieldStrength = flValue;
 }
 
 void CDigitank::StartTurn()
@@ -673,14 +594,11 @@ void CDigitank::StartTurn()
 			m_iFortifyLevel++;
 	}
 
-	for (size_t i = 0; i < TANK_SHIELDS; i++)
-	{
-		float flShieldStrength = GetShieldValue(i);
-		SetShieldValue(i, Approach(m_flMaxShieldStrengths[i], flShieldStrength, ShieldRechargeRate()));
+	float flShieldStrength = GetShieldValue();
+	SetShieldValue(Approach(m_flMaxShieldStrength, flShieldStrength, ShieldRechargeRate()));
 
-		if (flShieldStrength - GetShieldValue(i) < 0)
-			DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flShieldStrength - GetShieldValue(i), true, false);
-	}
+	if (flShieldStrength - GetShieldValue() < 0)
+		DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flShieldStrength - GetShieldValue(), true, false);
 
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
@@ -2585,9 +2503,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	else if (pInflictor)
 		vecAttackOrigin = pInflictor->GetOrigin();
 
-	Vector vecAttackDirection = (vecAttackOrigin - GetOrigin()).Normalized();
-
-	float flShield = GetShieldValueForAttackDirection(vecAttackDirection);
+	float flShield = GetShieldValue();
 
 	float flDamageBlocked = flShield * GetDefenseScale();
 
@@ -2609,7 +2525,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 	if (flDamage*flShieldDamageScale - flDamageBlocked < 0)
 	{
-		SetShieldValueForAttackDirection(vecAttackDirection, flShield - flDamage*flShieldDamageScale / GetDefenseScale());
+		SetShieldValue(flShield - flDamage*flShieldDamageScale / GetDefenseScale());
 
 		if (GetVisibility() > 0)
 		{
@@ -2646,7 +2562,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	}
 
 	if (eDamageType != DAMAGE_BURN)
-		SetShieldValueForAttackDirection(vecAttackDirection, 0);
+		SetShieldValue(0);
 
 	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit, false);
 
@@ -2890,17 +2806,8 @@ void CDigitank::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	if (bTransparent)
 	{
-		if (GetFrontShieldStrength() > 0 && !(IsFortifying() || IsFortified()))
-			RenderShield(GetFrontShieldStrength(), 0);
-
-		if (GetLeftShieldStrength() > 0)
-			RenderShield(GetLeftShieldStrength(), 90);
-
-		if (GetRearShieldStrength() > 0)
-			RenderShield(GetRearShieldStrength(), 180);
-
-		if (GetRightShieldStrength() > 0)
-			RenderShield(GetRightShieldStrength(), 270);
+		if (GetShieldStrength() > 0 && !IsFortified() && !IsFortifying())
+			RenderShield(GetShieldStrength());
 	}
 }
 
@@ -2955,7 +2862,7 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	r.RenderModel(m_iTurretModel);
 }
 
-void CDigitank::RenderShield(float flAlpha, float flAngle)
+void CDigitank::RenderShield(float flAlpha)
 {
 	if (m_iShieldModel == ~0)
 		return;
@@ -2965,7 +2872,6 @@ void CDigitank::RenderShield(float flAlpha, float flAngle)
 
 	CRenderingContext r(GameServer()->GetRenderer());
 	r.SetAlpha(flAlpha*GetVisibility());
-	r.Rotate(flAngle, Vector(0, 1, 0));
 	r.SetBlend(BLEND_ADDITIVE);
 	r.Scale(RenderShieldScale(), 1, RenderShieldScale());
 	r.SetColor(GetTeam()->GetColor());

@@ -25,7 +25,7 @@ void CMobileCPU::Spawn()
 
 	SetModel(L"models/digitanks/mobile-cpu.obj");
 
-	m_flFrontMaxShieldStrength = m_flFrontShieldStrength = m_flLeftMaxShieldStrength = m_flRightMaxShieldStrength = m_flRearMaxShieldStrength = m_flLeftShieldStrength = m_flRightShieldStrength = m_flRearShieldStrength = 0;
+	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
 	m_eWeapon = WEAPON_NONE;
 }
