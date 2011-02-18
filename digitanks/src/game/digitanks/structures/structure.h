@@ -75,7 +75,7 @@ public:
 	virtual void				OnSerialize(std::ostream& o);
 	virtual bool				OnUnserialize(std::istream& i);
 
-	virtual float				HealthRechargeRate() const { return 1.0f; };
+	virtual float				HealthRechargeRate() const { return 10.0f; };
 	virtual float				VisibleRange() const;
 	virtual float				BaseVisibleRange() const { return 50; };
 	virtual float				ConstructionCost() const;
@@ -97,7 +97,7 @@ public:
 	virtual size_t				EnergyBonus() const { return m_iEnergyBonus.Get(); };
 	virtual void				AddEnergyBonus(size_t e) { m_iEnergyBonus += e; };
 
-	virtual float				InitialRechargeBonus() const { return 0.5f; };
+	virtual float				InitialRechargeBonus() const { return 5.0f; };
 	virtual float				RechargeBonus() const { return m_flRechargeBonus.Get(); };
 	virtual void				AddRechargeBonus(float r) { m_flRechargeBonus += r; };
 

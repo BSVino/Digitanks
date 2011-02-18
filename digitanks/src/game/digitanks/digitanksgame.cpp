@@ -471,13 +471,13 @@ void CDigitanksGame::SetupArtillery()
 
 	Color aclrTeamColors[] =
 	{
-		Color(0, 64, 255),		// Blue
+		Color(0, 0, 255),		// Blue
 		Color(255, 0, 0),		// Red
 		Color(42, 255, 0),		// Green
 		Color(255, 200, 0),		// Yellow
 		Color(0, 255, 221),		// Teal
-		Color(255, 0, 120),		// Pink
-		Color(200, 100, 255),	// Purple
+		Color(200, 50, 150),	// Pink
+		Color(100, 0, 255),		// Purple
 		Color(255, 255, 255),	// White
 	};
 

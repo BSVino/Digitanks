@@ -40,7 +40,7 @@ void CMechInfantry::Spawn()
 	SetModel(L"models/digitanks/infantry-body.obj");
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
 
-	m_flMaxShieldStrength = m_flShieldStrength = 10;
+	m_flMaxShieldStrength = m_flShieldStrength = 100;
 
 	m_aeWeapons.push_back(PROJECTILE_FLAK);
 	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
@@ -99,7 +99,7 @@ float CMechInfantry::GetBonusDefensePower(bool bPreview)
 float CMechInfantry::GetFortifyAttackPowerBonus()
 {
 	if (m_bFortified)
-		return (float)m_iFortifyLevel;
+		return (float)m_iFortifyLevel*10;
 	else
 		return 0;
 }
@@ -107,7 +107,7 @@ float CMechInfantry::GetFortifyAttackPowerBonus()
 float CMechInfantry::GetFortifyDefensePowerBonus()
 {
 	if (m_bFortified)
-		return (float)m_iFortifyLevel;
+		return (float)m_iFortifyLevel*10;
 	else
 		return 0;
 }
@@ -117,7 +117,7 @@ float CMechInfantry::ShieldRechargeRate() const
 	if (IsFortified())
 		return 1.0f + ((float)m_iFortifyLevel.Get())/5 + GetSupportShieldRechargeBonus();
 
-	return 1.0f + GetSupportShieldRechargeBonus();
+	return 10.0f + GetSupportShieldRechargeBonus();
 }
 
 float CMechInfantry::HealthRechargeRate() const
@@ -125,7 +125,7 @@ float CMechInfantry::HealthRechargeRate() const
 	if (IsFortified())
 		return 0.2f + ((float)m_iFortifyLevel.Get())/25 + GetSupportHealthRechargeBonus();
 
-	return 0.2f + GetSupportHealthRechargeBonus();
+	return 2.0f + GetSupportHealthRechargeBonus();
 }
 
 float CMechInfantry::ProjectileCurve() const

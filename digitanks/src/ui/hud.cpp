@@ -1064,11 +1064,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 	} while (false);
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+	{
 		CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
 
-	CRootPanel::PaintRect(m_pPowerInfo->GetLeft()-3, m_pPowerInfo->GetTop()-3, m_pPowerInfo->GetWidth()+6, m_pPowerInfo->GetHeight()+6, Color(0, 0, 0, 200));
-	CRootPanel::PaintRect(m_pFleetInfo->GetLeft()-3, m_pFleetInfo->GetTop()-3, m_pFleetInfo->GetWidth()+6, m_pFleetInfo->GetHeight()+6, Color(0, 0, 0, 200));
-	CRootPanel::PaintRect(m_pBandwidthInfo->GetLeft()-3, m_pBandwidthInfo->GetTop()-3, m_pBandwidthInfo->GetWidth()+6, m_pBandwidthInfo->GetHeight()+6, Color(0, 0, 0, 200));
+		CRootPanel::PaintRect(m_pPowerInfo->GetLeft()-3, m_pPowerInfo->GetTop()-3, m_pPowerInfo->GetWidth()+6, m_pPowerInfo->GetHeight()+6, Color(0, 0, 0, 200));
+		CRootPanel::PaintRect(m_pFleetInfo->GetLeft()-3, m_pFleetInfo->GetTop()-3, m_pFleetInfo->GetWidth()+6, m_pFleetInfo->GetHeight()+6, Color(0, 0, 0, 200));
+		CRootPanel::PaintRect(m_pBandwidthInfo->GetLeft()-3, m_pBandwidthInfo->GetTop()-3, m_pBandwidthInfo->GetWidth()+6, m_pBandwidthInfo->GetHeight()+6, Color(0, 0, 0, 200));
+	}
 
 	size_t iX, iY, iX2, iY2;
 	if (DigitanksWindow()->GetBoxSelection(iX, iY, iX2, iY2))
@@ -1590,9 +1592,9 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	if (pTank->GetShieldMaxStrength() > 0)
 	{
-		sprintf(szShieldInfo, "%.1f/%.1f",
-			pTank->GetShieldStrength() * pTank->GetShieldMaxStrength(),
-			pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true));
+		sprintf(szShieldInfo, "%d/%d",
+			(int)(pTank->GetShieldStrength() * pTank->GetShieldMaxStrength()),
+			(int)(pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true)));
 		m_pShieldInfo->SetText(szShieldInfo);
 		m_pShieldInfo->SetVisible(true);
 	}
@@ -1681,7 +1683,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 	float flShieldStrength = pClosestTarget->GetShieldValue();
 	float flDamageBlocked = flShieldStrength * pClosestTarget->GetDefenseScale(true);
-	float flAttackDamage = pTank->GetAttackPower(true);
+	float flAttackDamage = CBaseWeapon::GetWeaponDamage(pTank->GetCurrentWeapon());
 
 	float flShieldDamage;
 	float flTankDamage = 0;
@@ -1696,10 +1698,10 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	char szAttackInfo[1024];
 	sprintf(szAttackInfo,
 		"ATTACK REPORT\n \n"
-		"Shield Damage: %.1f/%.1f\n"
-		"Digitank Damage: %.1f/%.1f\n",
-		flShieldDamage, flShieldStrength * pClosestTarget->GetDefenseScale(true),
-		flTankDamage, pClosestTarget->GetHealth()
+		"Shield Damage: %d/%d\n"
+		"Digitank Damage: %d/%d\n",
+		(int)flShieldDamage, (int)(flShieldStrength * pClosestTarget->GetDefenseScale(true)),
+		(int)flTankDamage, (int)pClosestTarget->GetHealth()
 	);
 
 	m_pAttackInfo->SetText(szAttackInfo);

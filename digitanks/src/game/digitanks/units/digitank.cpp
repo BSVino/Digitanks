@@ -264,8 +264,8 @@ void CDigitank::Spawn()
 	m_flStartedTurn = 0;
 	m_bFortified = false;
 	m_bSentried = false;
-	m_flMaxShieldStrength = 15;
-	m_flShieldStrength = 15;
+	m_flMaxShieldStrength = 150;
+	m_flShieldStrength = 150;
 	m_bNeedsOrdersDirty = true;
 	m_flFireWeaponTime = 0;
 	m_iFireWeapons = 0;
@@ -3278,12 +3278,12 @@ bool CDigitank::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 
 float CDigitank::HealthRechargeRate() const
 {
-	return 0.2f + GetSupportHealthRechargeBonus();
+	return 2.0f + GetSupportHealthRechargeBonus();
 }
 
 float CDigitank::ShieldRechargeRate() const
 {
-	return 0.2f + GetSupportShieldRechargeBonus();
+	return 2.0f + GetSupportShieldRechargeBonus();
 }
 
 float CDigitank::FirstProjectileTime() const
