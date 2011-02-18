@@ -80,7 +80,7 @@ public:
 	virtual float				BaseVisibleRange() const { return 50; };
 	virtual float				ConstructionCost() const;
 	virtual float				UpgradeCost() const;
-	virtual float				TotalHealth() const { return 50; };
+	virtual float				TotalHealth() const { return 500; };
 
 	virtual size_t				InitialFleetPoints() const { return 0; };
 	virtual size_t				FleetPoints() const { return m_iFleetSupply.Get(); };

@@ -20,7 +20,7 @@ public:
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar\nTo Detonate"; };
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate Bomb"; };
 	virtual void				Fragment();
 
 	virtual bool				MakesSounds() { return true; };
@@ -44,7 +44,8 @@ public:
 
 	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };
 
-	virtual size_t				CreateParticleSystem();
+	virtual size_t				CreateTrailSystem();
+	virtual void				CreateExplosionSystem();
 
 	virtual void				ClientEnterGame();
 
@@ -113,9 +114,8 @@ class CAOEShell : public CProjectile
 public:
 	virtual void				Precache();
 
-	virtual void				OnExplode(CBaseEntity* pInstigator);
-
-	virtual size_t				CreateParticleSystem();
+	virtual void				CreateExplosionSystem();
+	virtual size_t				CreateTrailSystem();
 
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_AOE; }
@@ -134,9 +134,8 @@ class CEMP : public CProjectile
 public:
 	virtual void				Precache();
 
-	virtual void				OnExplode(CBaseEntity* pInstigator);
-
-	virtual size_t				CreateParticleSystem();
+	virtual void				CreateExplosionSystem();
+	virtual size_t				CreateTrailSystem();
 
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_EMP; }
@@ -250,9 +249,8 @@ class CTractorBomb : public CProjectile
 public:
 	virtual void				Precache();
 
-	virtual void				OnExplode(CBaseEntity* pInstigator);
-
-	virtual size_t				CreateParticleSystem();
+	virtual void				CreateExplosionSystem();
+	virtual size_t				CreateTrailSystem();
 
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TRACTORBOMB; }
@@ -272,9 +270,8 @@ class CArtilleryShell : public CProjectile
 public:
 	virtual void				Precache();
 
-	virtual void				OnExplode(CBaseEntity* pInstigator);
-
-	virtual size_t				CreateParticleSystem();
+	virtual void				CreateExplosionSystem();
+	virtual size_t				CreateTrailSystem();
 
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY; }
@@ -294,9 +291,8 @@ class CArtilleryAoE : public CProjectile
 public:
 	virtual void				Precache();
 
-	virtual void				OnExplode(CBaseEntity* pInstigator);
-
-	virtual size_t				CreateParticleSystem();
+	virtual void				CreateExplosionSystem();
+	virtual size_t				CreateTrailSystem();
 
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY_AOE; }
@@ -352,8 +348,8 @@ public:
 	virtual bool				ShouldExplode() { return false; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				BombDropNoise() { return false; };
-	virtual bool				SendsNotifications() { return false; };
-	virtual size_t				CreateParticleSystem();
+	virtual bool				SendsNotifications() { return true; };
+	virtual size_t				CreateTrailSystem();
 	virtual bool				UsesSpecialCommand() { return false; };
 };
 
@@ -375,7 +371,7 @@ public:
 
 	virtual void				Explode(CBaseEntity* pInstigator = NULL);
 
-	virtual size_t				CreateParticleSystem();
+	virtual size_t				CreateTrailSystem();
 
 	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TORPEDO; }

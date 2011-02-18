@@ -71,7 +71,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 	if (!bDisableLoaders && eMenuMode == MENUMODE_LOADERS)
 	{
-		if (GetDigitanksTeam()->CanBuildInfantryLoaders())
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_INFANTRYLOADER)
+		{
+			pHUD->SetButtonTexture(0, 192, 64);
+
+			pHUD->SetButtonListener(0, CHUD::CancelBuild);
+			pHUD->SetButtonColor(0, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s);
+			pHUD->SetButtonTooltip(0, L"Cancel");
+		}
+		else if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
 			pHUD->SetButtonTexture(0, 320, 0);
 
@@ -94,7 +107,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(0, L"Build Resistor Factory");
 		}
 
-		if (GetDigitanksTeam()->CanBuildTankLoaders())
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_TANKLOADER)
+		{
+			pHUD->SetButtonTexture(1, 192, 64);
+
+			pHUD->SetButtonListener(1, CHUD::CancelBuild);
+			pHUD->SetButtonColor(1, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
+			pHUD->SetButtonTooltip(1, L"Cancel");
+		}
+		else if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
 			pHUD->SetButtonTexture(1, 128, 64);
 
@@ -117,7 +143,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(1, L"Build Digitank Factory");
 		}
 
-		if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_ARTILLERYLOADER)
+		{
+			pHUD->SetButtonTexture(2, 192, 64);
+
+			pHUD->SetButtonListener(2, CHUD::CancelBuild);
+			pHUD->SetButtonColor(2, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: E";
+			pHUD->SetButtonInfo(2, s);
+			pHUD->SetButtonTooltip(2, L"Cancel");
+		}
+		else if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
 			pHUD->SetButtonTexture(2, 128, 0);
 
@@ -148,7 +187,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 	}
 	else
 	{
-		if (!bDisableMiniBuffer)
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_MINIBUFFER)
+		{
+			pHUD->SetButtonTexture(5, 192, 64);
+
+			pHUD->SetButtonListener(5, CHUD::CancelBuild);
+			pHUD->SetButtonColor(5, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: A";
+			pHUD->SetButtonInfo(5, s);
+			pHUD->SetButtonTooltip(5, L"Cancel");
+		}
+		else if (!bDisableMiniBuffer)
 		{
 			pHUD->SetButtonTexture(5, 128, 192);
 
@@ -171,7 +223,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(5, L"Build Buffer");
 		}
 
-		if (!bDisableBuffer)
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_BUFFER)
+		{
+			pHUD->SetButtonTexture(0, 192, 64);
+
+			pHUD->SetButtonListener(0, CHUD::CancelBuild);
+			pHUD->SetButtonColor(0, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: Q";
+			pHUD->SetButtonInfo(0, s);
+			pHUD->SetButtonTooltip(0, L"Cancel");
+		}
+		else if (!bDisableBuffer)
 		{
 			pHUD->SetButtonTexture(0, 192, 0);
 
@@ -194,7 +259,20 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(0, L"Build Macro-Buffer");
 		}
 
-		if (!bDisableBattery)
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_BATTERY)
+		{
+			pHUD->SetButtonTexture(6, 192, 64);
+
+			pHUD->SetButtonListener(6, CHUD::CancelBuild);
+			pHUD->SetButtonColor(6, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: S";
+			pHUD->SetButtonInfo(6, s);
+			pHUD->SetButtonTooltip(6, L"Cancel");
+		}
+		else if (!bDisableBattery)
 		{
 			pHUD->SetButtonTexture(6, 192, 192);
 
@@ -205,8 +283,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			}
 
 			eastl::string16 s;
-			s += L"BUILD BATTERY\n \n";
-			s += L"Batteries allow you to harvest Power, which lets you build structures and units more quickly. Batteries can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
+			s += L"BUILD CAPACITOR\n \n";
+			s += L"Capacitors allow you to harvest Power, which lets you build structures and units more quickly. Capacitors can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
@@ -214,10 +292,23 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			s += L"Shortcut: S";
 			pHUD->SetButtonInfo(6, s);
-			pHUD->SetButtonTooltip(6, L"Build Battery");
+			pHUD->SetButtonTooltip(6, L"Build Capacitor");
 		}
 
-		if (!bDisablePSU)
+		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_PSU)
+		{
+			pHUD->SetButtonTexture(1, 192, 64);
+
+			pHUD->SetButtonListener(1, CHUD::CancelBuild);
+			pHUD->SetButtonColor(1, Color(100, 100, 100));
+
+			eastl::string16 s;
+			s += L"CANCEL\n \n";
+			s += L"Shortcut: W";
+			pHUD->SetButtonInfo(1, s);
+			pHUD->SetButtonTooltip(1, L"Cancel");
+		}
+		else if (!bDisablePSU)
 		{
 			pHUD->SetButtonTexture(1, 448, 0);
 

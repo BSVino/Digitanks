@@ -20,6 +20,8 @@ public:
 	void			Precache();
 	virtual void	Spawn();
 
+	virtual eastl::string16	GetName();
+
 	virtual EAngle	GetRenderAngles() const;
 	virtual Vector	GetRenderOrigin() const;
 	virtual void	PreRender(bool bTransparent);

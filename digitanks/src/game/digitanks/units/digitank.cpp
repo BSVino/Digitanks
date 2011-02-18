@@ -300,7 +300,7 @@ void CDigitank::Spawn()
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
 {
-	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
+	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return GetWeaponEnergy();
 
 	return m_flAttackPower;
@@ -308,11 +308,17 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
-	if (GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
+	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return m_flTotalPower - GetWeaponEnergy();
 
+	if (m_hSupplier == NULL)
+		return 0;
+
+	if (m_hSupplyLine == NULL)
+		return 0;
+
 	// Any unallocated power will go into defense.
-	return m_flDefensePower + m_flTotalPower;
+	return (m_flDefensePower + m_flTotalPower) * m_hSupplyLine->GetIntegrity();
 }
 
 float CDigitank::GetAttackPower(bool bPreview)
@@ -326,6 +332,9 @@ float CDigitank::GetDefensePower(bool bPreview)
 
 	if (bPreview)
 		vecOrigin = m_vecPreviewMove;
+
+	if (IsDisabled())
+		return 0;
 
 	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(vecOrigin.x), CTerrain::WorldToArraySpace(vecOrigin.z), TB_WATER))
 		return 0;
@@ -934,6 +943,9 @@ Vector CDigitank::GetChargePosition(CBaseEntity* pTarget) const
 
 bool CDigitank::IsInsideMaxRange(Vector vecPoint)
 {
+	if (GetCurrentWeapon() == WEAPON_CHARGERAM)
+		return (vecPoint - GetOrigin()).LengthSqr() < ChargeRadius()*ChargeRadius();
+
 	Vector vecDirection = vecPoint - GetOrigin();
 	float flPreviewDistanceSqr = vecDirection.LengthSqr();
 	float flPreviewDistance2DSqr = vecDirection.Length2DSqr();
@@ -2017,7 +2029,15 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(0, L"Move");
 		}
 
-		if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()) && GetRemainingMovementEnergy() > 1)
+		if (GetRemainingMovementEnergy() < 1)
+		{
+			pHUD->SetButtonListener(1, NULL);
+			pHUD->SetButtonColor(1, Color(100, 100, 100));
+			pHUD->SetButtonTexture(1, 64, 192);
+			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nNOT ENOUGH ENERGY\n \nShortcut: W");
+			pHUD->SetButtonTooltip(1, L"Rotate");
+		}
+		else if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()))
 		{
 			pHUD->SetButtonListener(1, CHUD::Turn);
 
@@ -2136,7 +2156,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (IsInfantry())
 				s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
 			else if (IsScout())
-				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nThe Torpedo damages supply lines, cutting units and structures off from their support. It only does physical damage to structures or units without shields.";
+				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nTorpedos contain a special EMP that can disable enemy tanks and sever support lines. It can't hit other Rogues and only does physical damage to structures or units without shields.";
 			else
 				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
 
@@ -2529,7 +2549,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	{
 		// BOT MUST DIE
 		if (GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			flDamage += 50;
+			flDamage += 500;
 	}
 
 	if (pInflictor)
@@ -2594,7 +2614,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		if (GetVisibility() > 0)
 		{
 			EmitSound(L"sound/shield-damage.wav");
-			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage*flShieldDamageScale, 0, 5, 0, 0.5f));
+			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage*flShieldDamageScale, 0, 50, 0, 0.5f));
 		}
 
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage*flShieldDamageScale, bDirectHit, true);
@@ -2613,7 +2633,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	if (GetVisibility() > 0)
 	{
 		EmitSound(L"sound/tank-damage.wav");
-		SetSoundVolume(L"sound/tank-damage.wav", RemapValClamped(flDamage, 0, 5, 0, 1));
+		SetSoundVolume(L"sound/tank-damage.wav", RemapValClamped(flDamage, 0, 50, 0, 1));
 	}
 
 	if (flShield > 1.0f)
@@ -2621,7 +2641,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		if (GetVisibility() > 0)
 		{
 			EmitSound(L"sound/shield-damage.wav");
-			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flShield, 0, 5, 0, 1));
+			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flShield, 0, 50, 0, 1));
 		}
 	}
 

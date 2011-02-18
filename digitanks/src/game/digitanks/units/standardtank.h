@@ -26,7 +26,7 @@ public:
 	virtual float				MaxRangeRadius() const { return 30; };
 	virtual float				ChargeRadius() const { return 40.0f; }
 	virtual float				ChargeEnergy() const { return 8.0f; }
-	virtual float				ChargeDamage() const { return 6.0f; }
+	virtual float				ChargeDamage() const { return 60.0f; }
 	virtual float				ChargePushDistance() const { return 50.0f; }
 	virtual float				SlowMovementFactor() const { return 0.65f; };
 

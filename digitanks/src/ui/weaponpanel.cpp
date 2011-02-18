@@ -9,7 +9,7 @@
 using namespace glgui;
 
 CWeaponPanel::CWeaponPanel()
-	: CPanel(0, 0, 300, 300)
+	: CPanel(0, 0, 260, 300)
 {
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
 	m_pInfo->SetFont(L"text");
@@ -20,7 +20,7 @@ void CWeaponPanel::Layout()
 {
 	CPanel::Layout();
 
-	m_pInfo->SetSize(200, 200);
+	m_pInfo->SetSize(150, 250);
 	m_pInfo->SetPos(GetWidth()+2, GetHeight()/2 - m_pInfo->GetHeight()/2);
 
 	for (size_t i = 0; i < m_apWeapons.size(); i++)
@@ -85,7 +85,7 @@ void CWeaponPanel::Layout()
 			SetTextureForWeapon(pWeapon, eWeapon);
 			pWeapon->SetText(CProjectile::GetWeaponName(eWeapon));
 
-			pWeapon->SetButtonColor(Color(100, 100, 100));
+			pWeapon->SetButtonColor(Color(0, 0, 0));
 
 			int iHeight = (j+1)*iButtonSize + iPaddingSize*j;
 			if (iHeight > iMaxHeight)
@@ -93,7 +93,7 @@ void CWeaponPanel::Layout()
 		}
 	}
 
-	SetSize(300, iMaxHeight);
+	SetSize(260, iMaxHeight);
 
 	SetPos(CRootPanel::Get()->GetWidth()/2 + 100, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
@@ -128,7 +128,7 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 
 	s += sName + L"\n \n";
 	s += eastl::string16(CProjectile::GetWeaponDescription(eWeapon)) + L"\n \n";
-	s += p.sprintf(L"Attack Energy Required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
+	s += p.sprintf(L"Energy Required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
 	if (eWeapon == WEAPON_CHARGERAM)
 		s += p.sprintf(L"Movement energy required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
 	s += p.sprintf(L"Damage: %.1f\n", CProjectile::GetWeaponDamage(eWeapon));

@@ -132,34 +132,34 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 {
 	0.0f,
 
-	2.0f,	// small
-	5.0f,	// medium
-	8.0f,	// large
-	4.0f,	// AoE
-	6.0f,	// emp
-	1.0f,	// tractor bomb
-	7.0f,	// splooge
-	7.0f,	// icbm
-	8.0f,	// grenade
-	4.0f,	// daisy chain
-	7.0f,	// clusterbomb
-	1.0f,	// earthshaker
+	20.0f,	// small
+	50.0f,	// medium
+	80.0f,	// large
+	40.0f,	// AoE
+	60.0f,	// emp
+	10.0f,	// tractor bomb
+	70.0f,	// splooge
+	70.0f,	// icbm
+	80.0f,	// grenade
+	40.0f,	// daisy chain
+	70.0f,	// clusterbomb
+	10.0f,	// earthshaker
 
-	6.0f,	// machine gun
-	1.0f,	// tree cutter
-	5.0f,	// laser
-	3.0f,	// torpedo
-	1.5f,	// artillery
-	2.5f,	// artillery aoe
-	7.0f,	// artillery icbm
-	9.0f,	// artillery devastator
+	60.0f,	// machine gun
+	10.0f,	// tree cutter
+	50.0f,	// laser
+	30.0f,	// torpedo
+	15.0f,	// artillery
+	25.0f,	// artillery aoe
+	70.0f,	// artillery icbm
+	90.0f,	// artillery devastator
 
-	5.0f,	// camera guided missile
-	5.0f,	// laser
+	50.0f,	// camera guided missile
+	50.0f,	// laser
 	0.0f,	// missile defense
 	0.0f,	// charging ram
 
-	5.0f,	// airstrike
+	50.0f,	// airstrike
 	0.0f,	// fireworks
 };
 
@@ -246,7 +246,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Electro-Magnetic Pulse",
 	L"Repulsor Bomb",
 	L"Grapeshot",
-	L"ICBM",
+	L"WAN Bomb",
 	L"Grenade",
 	L"Daisy Chain",
 	L"Cluster Bomb",
@@ -258,7 +258,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Torpedo",
 	L"Artillery Shell",
 	L"Artillery Plasma Charge",
-	L"Artillery ICBM",
+	L"Artillery WAN Bomb",
 	L"The Devastator",
 
 	L"Camera-Guided Missile",
@@ -282,18 +282,18 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
 	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
 	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
-	L"This heavy projectile bounces three times before it explodes. Chunk it into holes to find out-of-reach targets.",
+	L"This heavy projectile bounces three times before it explodes. Chuck it into holes to find out-of-reach targets.",
 	L"This medium projectile can't be stopped. Even after it explodes it continues on its previous path through the cleared terrain. Good for punching through dirt.",
 	L"This heavy projectile breaks into a large number of smaller pieces on impact for maximum distruction.",
 	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
 
-	L"The infantry's light mounted gun is its main firepower.",
+	L"The Resistor's light mounted gun is its main firepower. However, it can't hit flying units such as the Rogue.",
 	L"The Tree Cutter is not a weapon, but a tool that can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
 	L"This weapon emits a wall of rays in one direction. It's not blocked by objects or terrain and can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
 	L"Torpedos do damage only if the target's shields are down, but they also disable units and sever structures from their network, forcing them to become neutral.",
 	L"The Artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
 	L"These charges are similar to the standard shells but have a large radius and pack a larger whallop.",
-	L"The Artillery ICBM fragments into many pieces before raining chaos and destruction down on your foes.",
+	L"The Artillery Wide Area Network Bomb fragments into many pieces before raining chaos and destruction down on your foes.",
 	L"The Devastor is the ultimate weapon of destruction.",
 
 	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first person.",

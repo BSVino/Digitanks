@@ -285,6 +285,9 @@ void CProjectile::OnExplode(CBaseEntity* pInstigator)
 		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 		m_iParticleSystem = 0;
 	}
+
+	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam() || DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.1f)
+		CreateExplosionSystem();
 }
 
 bool CProjectile::ShouldPlayExplosionSound()
@@ -301,7 +304,7 @@ void CProjectile::OnSetOwner(CDigitank* pOwner)
 
 	if (m_bShouldRender)
 	{
-		m_iParticleSystem = CreateParticleSystem();
+		m_iParticleSystem = CreateTrailSystem();
 		if (m_iParticleSystem != ~0)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
@@ -312,9 +315,13 @@ bool CProjectile::ShouldBeVisible()
 	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0;
 }
 
-size_t CProjectile::CreateParticleSystem()
+size_t CProjectile::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
+}
+
+void CProjectile::CreateExplosionSystem()
+{
 }
 
 void CProjectile::ClientEnterGame()
@@ -323,7 +330,7 @@ void CProjectile::ClientEnterGame()
 
 	if (m_bShouldRender)
 	{
-		m_iParticleSystem = CreateParticleSystem();
+		m_iParticleSystem = CreateTrailSystem();
 		if (m_iParticleSystem != ~0)
 			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
 	}
@@ -392,17 +399,15 @@ void CAOEShell::Precache()
 	PrecacheParticleSystem(L"aoe-trail");
 }
 
-void CAOEShell::OnExplode(CBaseEntity* pInstigator)
+void CAOEShell::CreateExplosionSystem()
 {
-	BaseClass::OnExplode(pInstigator);
-
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		CParticleSystemLibrary::AddInstance(L"aoe-explosion-strategy", GetOrigin());
 	else
 		CParticleSystemLibrary::AddInstance(L"aoe-explosion-artillery", GetOrigin());
 }
 
-size_t CAOEShell::CreateParticleSystem()
+size_t CAOEShell::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"aoe-trail", GetOrigin());
 }
@@ -429,14 +434,12 @@ void CEMP::Precache()
 	PrecacheParticleSystem(L"emp-trail");
 }
 
-void CEMP::OnExplode(CBaseEntity* pInstigator)
+void CEMP::CreateExplosionSystem()
 {
-	BaseClass::OnExplode(pInstigator);
-
 	CParticleSystemLibrary::AddInstance(L"emp-explosion", GetOrigin());
 }
 
-size_t CEMP::CreateParticleSystem()
+size_t CEMP::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"emp-trail", GetOrigin());
 }
@@ -567,15 +570,13 @@ void CTractorBomb::Precache()
 	PrecacheParticleSystem(L"tractor-bomb-trail");
 }
 
-size_t CTractorBomb::CreateParticleSystem()
+size_t CTractorBomb::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"tractor-bomb-trail", GetOrigin());
 }
 
-void CTractorBomb::OnExplode(CBaseEntity* pInstigator)
+void CTractorBomb::CreateExplosionSystem()
 {
-	BaseClass::OnExplode(pInstigator);
-
 	CParticleSystemLibrary::AddInstance(L"tractor-bomb-explosion", GetOrigin());
 }
 
@@ -593,14 +594,12 @@ void CArtilleryShell::Precache()
 	PrecacheParticleSystem(L"emp-trail");
 }
 
-void CArtilleryShell::OnExplode(CBaseEntity* pInstigator)
+void CArtilleryShell::CreateExplosionSystem()
 {
-	BaseClass::OnExplode(pInstigator);
-
 	CParticleSystemLibrary::AddInstance(L"emp-explosion", GetOrigin());
 }
 
-size_t CArtilleryShell::CreateParticleSystem()
+size_t CArtilleryShell::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"emp-trail", GetOrigin());
 }
@@ -619,14 +618,12 @@ void CArtilleryAoE::Precache()
 	PrecacheParticleSystem(L"aoe-trail");
 }
 
-void CArtilleryAoE::OnExplode(CBaseEntity* pInstigator)
+void CArtilleryAoE::CreateExplosionSystem()
 {
-	BaseClass::OnExplode(pInstigator);
-
 	CParticleSystemLibrary::AddInstance(L"aoe-explosion-strategy", GetOrigin());
 }
 
-size_t CArtilleryAoE::CreateParticleSystem()
+size_t CArtilleryAoE::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"aoe-trail", GetOrigin());
 }
@@ -655,7 +652,7 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CInfantryFlak);
 SAVEDATA_TABLE_END();
 
-size_t CInfantryFlak::CreateParticleSystem()
+size_t CInfantryFlak::CreateTrailSystem()
 {
 	return ~0;
 }
@@ -688,7 +685,7 @@ void CTorpedo::Spawn()
 	m_flDamage = 0;
 }
 
-size_t CTorpedo::CreateParticleSystem()
+size_t CTorpedo::CreateTrailSystem()
 {
 	return CParticleSystemLibrary::AddInstance(L"torpedo-trail", GetOrigin());
 }

@@ -29,8 +29,6 @@ void CAutoTurret::Spawn()
 
 	m_aeWeapons.push_back(PROJECTILE_SMALL);
 	m_eWeapon = PROJECTILE_SMALL;
-
-	m_flTotalHealth = m_flHealth = 4;
 }
 
 
@@ -59,6 +57,4 @@ void CGridBug::Spawn()
 
 	m_aeWeapons.push_back(PROJECTILE_SMALL);
 	m_eWeapon = PROJECTILE_SMALL;
-
-	m_flTotalHealth = m_flHealth = 4;
 }

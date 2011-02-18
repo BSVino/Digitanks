@@ -1,5 +1,7 @@
 #include "updatespanel.h"
 
+#include <strutils.h>
+
 #include <renderer/renderer.h>
 
 #include <game/digitanks/digitanksgame.h>
@@ -284,7 +286,18 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 	if (pTeam->HasDownloadedUpdate(x, y))
 		m_pTutorial->SetText(L"You already have this update.");
 	else if (pTeam->CanDownloadUpdate(x, y))
-		m_pTutorial->SetText(L"Click to begin downloading this update.");
+	{
+		float flDownloaded = pTeam->GetMegabytes();
+		int iTurns = (int)((pInfo->m_flSize-flDownloaded)/pTeam->GetBandwidth())+1;
+
+		if (iTurns < 1)
+			iTurns = 1;
+
+		if (iTurns == 1)
+			m_pTutorial->SetText(L"This update will take 1 turn to download. It will be available on your next turn.");
+		else
+			m_pTutorial->SetText(sprintf(L"This update will take %d turns to download.", iTurns));
+	}
 	else
 		m_pTutorial->SetText(L"This update is not yet available for download.");
 }

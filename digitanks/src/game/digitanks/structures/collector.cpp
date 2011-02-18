@@ -127,7 +127,7 @@ void CBattery::UpdateInfo(eastl::string16& s)
 {
 	eastl::string16 p;
 	s = L"";
-	s += L"BATTERY\n";
+	s += L"CAPACITOR\n";
 	s += L"Resource collector\n \n";
 
 	if (GetTeam())

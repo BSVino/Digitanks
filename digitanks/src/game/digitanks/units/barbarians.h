@@ -15,6 +15,7 @@ public:
 
 	virtual bool				CanFortify() { return true; };
 
+	virtual float				TotalHealth() const { return 40; };
 	virtual bool				TakesLavaDamage() { return false; }
 	virtual float				HealthRechargeRate() const { return 0.0f; };
 	virtual float				GetTankSpeed() const { return 0.0f; };
@@ -37,6 +38,7 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Grid Bug"; };
 
+	virtual float				TotalHealth() const { return 40; };
 	virtual bool				TakesLavaDamage() { return false; }
 	virtual float				HealthRechargeRate() const { return 0.0f; };
 	virtual float				GetTankSpeed() const { return 1.0f; };

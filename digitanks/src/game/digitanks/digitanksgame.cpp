@@ -1224,7 +1224,6 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 
 	SetControlMode(MODE_NONE);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURN);
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
 }
 
@@ -1818,6 +1817,9 @@ float CDigitanksGame::GetGravity()
 
 void CDigitanksGame::WeaponSpecialCommand()
 {
+	if (DigitanksGame()->GetGameType() != GAMETYPE_ARTILLERY)
+		return;
+
 	eastl::vector<CEntityHandle<CBaseWeapon> > ahWeapons;
 
 	// Form a list of weapons to send the message to since sometimes it creates new projectiles,

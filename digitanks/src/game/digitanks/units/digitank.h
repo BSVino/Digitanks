@@ -149,7 +149,7 @@ public:
 	virtual bool				CanCharge() const;
 	virtual float				ChargeRadius() const { return 20.0f; }
 	virtual float				ChargeEnergy() const { return 7.0f; }
-	virtual float				ChargeDamage() const { return 7.0f; }
+	virtual float				ChargeDamage() const { return 70.0f; }
 	virtual float				ChargePushDistance() const { return 50.0f; }
 	CBaseEntity*				GetPreviewCharge() const { return m_hPreviewCharge; };
 	virtual void				SetPreviewCharge(CBaseEntity* pPreviewCharge);

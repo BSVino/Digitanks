@@ -90,7 +90,7 @@ void CResource::UpdateInfo(eastl::string16& s)
 
 	s += L"Team: Neutral\n \n";
 
-	s += L"Build a Battery or Power Supply Unit to harness this Electronode's Power resource\n";
+	s += L"Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 
 void CResource::ModifyContext(class CRenderingContext* pContext, bool bTransparent)

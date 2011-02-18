@@ -166,13 +166,6 @@ CHUD::CHUD()
 	m_apButtons[8]->SetCursorInListener(this, ButtonCursorIn8);
 	m_apButtons[9]->SetCursorInListener(this, ButtonCursorIn9);
 
-	m_pFireAttack = new CLabel(0, 0, 50, 50, L"");
-	m_pFireDefend = new CLabel(0, 0, 50, 50, L"");
-	m_pFireAttack->SetFont(L"text");
-	m_pFireDefend->SetFont(L"text");
-	AddControl(m_pFireAttack);
-	AddControl(m_pFireDefend);
-
 	m_pAttackInfo = new CLabel(0, 0, 100, 150, L"");
 	m_pAttackInfo->SetWrap(false);
 	m_pAttackInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
@@ -761,7 +754,8 @@ void CHUD::Think()
 		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
-			m_apButtons[2]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), 0, 0));
+			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 100);
+			m_apButtons[7]->SetButtonColor(Color(iColor, iColor, iColor));
 		}
 		else if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY && dynamic_cast<CMobileCPU*>(pCurrentTank))
 		{
@@ -785,21 +779,6 @@ void CHUD::Think()
 				m_apButtons[9]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 			}
 		}
-	}
-
-	if (pCurrentTank && !pCurrentTank->IsArtillery() && !pCurrentTank->IsScout())
-	{
-		m_pFireAttack->SetVisible(DigitanksGame()->GetControlMode() == MODE_AIM);
-		m_pFireDefend->SetVisible(DigitanksGame()->GetControlMode() == MODE_AIM);
-		m_pFireAttack->SetAlign(CLabel::TA_MIDDLECENTER);
-		m_pFireDefend->SetAlign(CLabel::TA_MIDDLECENTER);
-		m_pFireAttack->SetWrap(false);
-		m_pFireDefend->SetWrap(false);
-	}
-	else
-	{
-		m_pFireAttack->SetVisible(false);
-		m_pFireDefend->SetVisible(false);
 	}
 
 	if (m_pAttackInfo->GetText().length() && DigitanksGame()->GetControlMode() == MODE_AIM)
@@ -1049,49 +1028,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CLabel::PaintText(sZZZ, sZZZ.length(), L"smileys", iFontSize, vecScreen.x + flWidth/2 + iWidth/2 - flTextWidth/2, vecScreen.y - flWidth + iHeight/2 + 3);
 		}
 
-		bool bShowEnergy = false;
-		if (DigitanksGame()->GetControlMode() == MODE_AIM)
-		{
-			if (pTank && !pTank->IsArtillery() && !pTank->IsScout())
-				bShowEnergy = true;
-		}
-
-		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsPrimarySelection(pTank) && bShowEnergy)
-		{
-			int iHeight = (int)(200 * pTank->GetTotalPower()/pTank->GetStartingPower());
-
-			if (iHeight < 20)
-				iHeight = 20;
-
-			int iTop = (int)vecScreen.y - iHeight/2;
-			int iBottom = (int)vecScreen.y + iHeight/2;
-
-			m_pFireAttack->SetSize(0, 20);
-			m_pFireDefend->SetSize(0, 20);
-
-			char szLabel[100];
-			sprintf(szLabel, "Damage: %d%%", (int)(pTank->GetAttackPower(true)/pTank->GetStartingPower()*100));
-			m_pFireAttack->SetText(szLabel);
-			sprintf(szLabel, "Defense: %d%%", (int)(pTank->GetDefensePower(true)/pTank->GetStartingPower()*100));
-			m_pFireDefend->SetText(szLabel);
-
-			m_pFireAttack->EnsureTextFits();
-			m_pFireDefend->EnsureTextFits();
-
-			m_pFireAttack->SetPos((int)vecScreen.x + 70 - m_pFireAttack->GetWidth()/2, iTop-20);
-			m_pFireDefend->SetPos((int)vecScreen.x + 70 - m_pFireDefend->GetWidth()/2, iBottom);
-
-			float flAttackPercentage;
-			flAttackPercentage = DigitanksGame()->GetPrimarySelectionTank()->GetWeaponEnergy() / DigitanksGame()->GetPrimarySelectionTank()->GetTotalPower();
-
-			CRootPanel::PaintRect((int)vecScreen.x + 60, iTop, 20, iHeight, Color(255, 255, 255, 128));
-
-			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1, 18, (int)((1-flAttackPercentage)*(iHeight-2)), Color(0, 0, 255, 255));
-			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + 1 + (int)((1-flAttackPercentage)*(iHeight-2)), 18, (int)(flAttackPercentage*(iHeight-2)), Color(255, 0, 0, 255));
-			CRootPanel::PaintRect((int)vecScreen.x + 61, iTop + (int)((1-flAttackPercentage)*(iHeight-2)) - 2, 18, 6, Color(128, 128, 128, 255));
-
+		if (m_bHUDActive && pTank && DigitanksGame()->GetCurrentTeam()->IsPrimarySelection(pTank) && DigitanksGame()->GetControlMode() == MODE_AIM)
 			UpdateInfo();
-		}
 	}
 
 	m_pCloseActionItems->Paint();
@@ -1195,16 +1133,16 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 	}
 
-	if (m_hHintWeapon != NULL)
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && m_hHintWeapon != NULL)
 	{
 		int iX = GetWidth()/2 + 50;
 		int iY = GetHeight()/2 + 50;
 
-		CRootPanel::PaintRect(iX-6, iY-1, 60, 75, Color(0, 0, 0, 150));
+		CRootPanel::PaintRect(iX-6, iY-1, 80, 75, Color(0, 0, 0, 150));
 
 		m_pSpacebarHint->SetVisible(true);
 		m_pSpacebarHint->SetText(m_hHintWeapon->SpecialCommandHint());
-		m_pSpacebarHint->SetSize(60, 25);
+		m_pSpacebarHint->SetSize(80, 25);
 		m_pSpacebarHint->SetPos(iX-6, iY + 50);
 		m_pSpacebarHint->SetWrap(false);
 
@@ -1701,6 +1639,8 @@ void CHUD::UpdateInfo()
 		pCurrentSelection->UpdateInfo(sInfo);
 		m_pTankInfo->SetText(sInfo.c_str());
 	}
+	else
+		m_pTankInfo->SetText(L"No selection.");
 }
 
 void CHUD::UpdateTankInfo(CDigitank* pTank)
@@ -1959,7 +1899,8 @@ void CHUD::UpdateScoreboard()
 		s += p.sprintf(L": %d\n", pTeam->GetScore());
 	}
 
-	m_pScoreboard->SetText(s);
+	m_pScoreboard->SetText(L"Score:\n \n");
+	m_pScoreboard->AppendText(s);
 
 	m_pScoreboard->SetSize(100, 9999);
 	m_pScoreboard->SetSize(m_pScoreboard->GetWidth(), (int)m_pScoreboard->GetTextHeight());
@@ -2465,6 +2406,12 @@ void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseE
 	if (pProjectile && !pProjectile->SendsNotifications())
 		return;
 
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == NULL)
+		return;
+
+	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
+		return;
+
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 
@@ -2481,6 +2428,12 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 	if (pProjectile && !pProjectile->SendsNotifications())
 		return;
 
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == NULL)
+		return;
+
+	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
+		return;
+
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);
 
@@ -2494,6 +2447,12 @@ void CHUD::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity*
 	if (pProjectile && !pProjectile->SendsNotifications())
 		return;
 
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == NULL)
+		return;
+
+	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
+		return;
+
 	if (pVictim->IsAlive())
 		new CHitIndicator(pVictim, L"DISABLED!");
 }
@@ -2505,6 +2464,12 @@ void CHUD::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pIn
 
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
 	if (pProjectile && !pProjectile->SendsNotifications())
+		return;
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == NULL)
+		return;
+
+	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
 		return;
 
 	if (pVictim->IsAlive())
@@ -2736,6 +2701,8 @@ void CHUD::EndTurnCallback()
 {
 	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		return;
+
+	m_flActionItemsLerpGoal = 0;
 
 	CSoundLibrary::PlaySound(NULL, L"sound/turn.wav");
 	DigitanksGame()->EndTurn();
@@ -2975,6 +2942,8 @@ void CHUD::BuildMiniBufferCallback()
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
+
+	SetupMenu();
 }
 
 void CHUD::BuildBufferCallback()
@@ -2995,6 +2964,8 @@ void CHUD::BuildBufferCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_BUFFER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	SetupMenu();
 }
 
 void CHUD::BuildBatteryCallback()
@@ -3017,6 +2988,8 @@ void CHUD::BuildBatteryCallback()
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
+
+	SetupMenu();
 }
 
 void CHUD::BuildPSUCallback()
@@ -3037,6 +3010,8 @@ void CHUD::BuildPSUCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_PSU);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	SetupMenu();
 }
 
 void CHUD::BuildLoaderCallback()
@@ -3065,6 +3040,8 @@ void CHUD::BuildInfantryLoaderCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_INFANTRYLOADER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	SetupMenu();
 }
 
 void CHUD::BuildTankLoaderCallback()
@@ -3085,6 +3062,8 @@ void CHUD::BuildTankLoaderCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_TANKLOADER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	SetupMenu();
 }
 
 void CHUD::BuildArtilleryLoaderCallback()
@@ -3105,6 +3084,14 @@ void CHUD::BuildArtilleryLoaderCallback()
 	pCPU->SetPreviewStructure(STRUCTURE_ARTILLERYLOADER);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	SetupMenu();
+}
+
+void CHUD::CancelBuildCallback()
+{
+	DigitanksGame()->SetControlMode(MODE_NONE);
+	SetupMenu();
 }
 
 void CHUD::BuildUnitCallback()

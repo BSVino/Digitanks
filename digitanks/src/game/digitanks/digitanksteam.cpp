@@ -252,9 +252,6 @@ void CDigitanksTeam::AddToSelection(const CSelectable* pEntity)
 
 bool CDigitanksTeam::IsSelected(const CSelectable* pEntity)
 {
-	if (DigitanksGame()->GetCurrentTeam() != this)
-		return false;
-
 	if (!pEntity)
 		return false;
 

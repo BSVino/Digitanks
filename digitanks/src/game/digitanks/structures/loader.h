@@ -44,7 +44,7 @@ public:
 
 	virtual eastl::string16		GetName();
 	virtual unittype_t			GetUnitType() const;
-	virtual float				TotalHealth() const { return 70; };
+	virtual float				TotalHealth() const { return 700; };
 
 protected:
 	CNetworkedVariable<unittype_t> m_eBuildUnit;

@@ -47,7 +47,7 @@ public:
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					BaseVisibleRange() const { return 0; };
 	virtual float					TreesReduceVisibility() const { return true; };
-	virtual float					TotalHealth() const { return 10; };
+	virtual float					TotalHealth() const { return 100; };
 
 protected:
 	eastl::vector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;

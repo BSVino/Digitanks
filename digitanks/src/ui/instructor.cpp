@@ -83,11 +83,8 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ENTERKEY, new CTutorial(this, TUTORIAL_ENTERKEY, POSITION_TOPCENTER, 200, false,
 		L"END YOUR TURN\n \nThat's it! Now press the 'Enter' key to end your turn.\n \nAlternatively, you can depress the large friendly green 'END TURN' button on the bottom right.")));
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_TURN, new CTutorial(this, TUTORIAL_TURN, POSITION_TOPLEFT, 300, true,
-		L"ROTATE YOUR TANK\n \nOuch! It looks like your enemy's return fire damaged your shields. You can rotate your tank to bring another shield to bear. Turning your tank takes some Energy. Click the 'Rotate' button and click a spot to rotate your tank. Your tank will face directly at that spot.")));
-
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FINISHHIM, new CTutorial(this, TUTORIAL_FINISHHIM, POSITION_TOPLEFT, 200, false,
-		L"FINISH THE JOB\n \nNow let's finish the job. Aim your tank at the enemy again and click on him to fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
+		L"FINISH THE JOB\n \nYou messed that guy up pretty good! Now let's finish the job. Aim your tank at the enemy again and click on him to fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_TOPCENTER, 250, true,
 		L"UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received an upgrade! With this you can upgrade your tank's Energy. Press the blocking 'Upgrade' button with the star icon on the bottom right to show a list of upgrade options, and then select an upgrade.\n \nKilling enemy tanks can grant you additional upgrades.")));
@@ -341,10 +338,6 @@ disable_t CInstructor::GetDisabledFeatures()
 
 	if (GetCurrentTutorial() < TUTORIAL_LOADER)
 		iDisabled |= DISABLE_LOADERS;
-
-	// Keep people from killing the enemy tank before the turn dialogue goes away.
-	if (GetCurrentTutorial() == TUTORIAL_TURN)
-		iDisabled |= DISABLE_ENTER;
 
 	return (disable_t)iDisabled;
 }

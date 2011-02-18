@@ -33,18 +33,13 @@ void CPowerup::Spawn()
 	m_flSpawnTime = GameServer()->GetGameTime();
 
 	SetCollisionGroup(CG_POWERUP);
-	if (RandomInt(0, 1) == 0)
+	if (RandomInt(0, 2) == 0)
 	{
 		switch (RandomInt(0, 4))
 		{
 		case 0:
 		case 1:
 			m_ePowerupType = POWERUP_AIRSTRIKE;
-			break;
-
-		case 2:
-		case 3:
-			m_ePowerupType = POWERUP_MISSILEDEFENSE;
 			break;
 
 		case 4:
@@ -73,6 +68,25 @@ void CPowerup::Spawn()
 	case POWERUP_MISSILEDEFENSE:
 		SetModel(L"models/powerup-missiledefense.obj");
 		break;
+	}
+}
+
+eastl::string16 CPowerup::GetName()
+{
+	switch (m_ePowerupType)
+	{
+	default:
+	case POWERUP_BONUS:
+		return L"Promotion Powerup";
+
+	case POWERUP_AIRSTRIKE:
+		return L"Airstrike Powerup";
+
+	case POWERUP_TANK:
+		return L"New Unit Powerup";
+
+	case POWERUP_MISSILEDEFENSE:
+		return L"Missile Defense Powerup";
 	}
 }
 

@@ -651,7 +651,7 @@ eastl::string16 CUpdateItem::GetName()
 			break;
 
 		case UPDATETYPE_WEAPON_ICBM:
-			sResult += L"ICBM";
+			sResult += L"WAN Bomb";
 			break;
 
 		case UPDATETYPE_WEAPON_DEVASTATOR:
@@ -711,19 +711,19 @@ eastl::string16 CUpdateItem::GetInfo()
 			return L"This update improves unit health and shield recharge, units supported by all buffers will recharge more health and shields each turn.";
 
 		case UPDATETYPE_TANKATTACK:
-			return L"This gives every tank that is produced from this factory an automatic increase to its Attack Energy.";
+			return L"This gives every tank produced an automatic increase to its Attack Energy.";
 
 		case UPDATETYPE_TANKDEFENSE:
-			return L"This gives every tank that is produced from this factory an automatic increase to its Shield Energy.";
+			return L"This gives every tank produced an automatic increase to its Shield Energy.";
 
 		case UPDATETYPE_TANKMOVEMENT:
-			return L"This gives every tank that is produced from this factory an automatic increase to its Movement Energy.";
+			return L"This gives every tank produced an automatic increase to its Movement Energy.";
 
 		case UPDATETYPE_TANKHEALTH:
-			return L"This gives every tank that is produced from this factory an automatic increase to its health.";
+			return L"This gives every tank produced an automatic increase to its health.";
 
 		case UPDATETYPE_TANKRANGE:
-			return L"This gives every tank that is produced from this factory an automatic increase to its maximum firing range.";
+			return L"This gives every tank produced an automatic increase to its maximum firing range.";
 		}
 	}
 	else if (m_eUpdateClass == UPDATECLASS_UNITSKILL)
@@ -747,9 +747,9 @@ eastl::string16 CUpdateItem::GetInfo()
 
 		case UPDATETYPE_WEAPON_ICBM:
 			if (m_eStructure == UNIT_TANK)
-				return L"Once downloaded, every Digitank will receive an ICBM, which splits into multiple smaller fragments in the air before impact.";
+				return L"Once downloaded, every Digitank will receive an Wide Area Network Bomb, which splits into multiple smaller fragments in the air before impact.";
 			else
-				return L"Once downloaded, every Artillery will receive an ICBM, which splits into multiple smaller fragments in the air before impact.";
+				return L"Once downloaded, every Artillery will receive an Wide Area Network Bomb, which splits into multiple smaller fragments in the air before impact.";
 
 		case UPDATETYPE_WEAPON_DEVASTATOR:
 			return L"Once downloaded, every Artillery will receive The Devastator. The Devastator is the ultimate weapon of destruction.";

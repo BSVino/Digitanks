@@ -263,7 +263,7 @@ public:
 
 	size_t					GetDemoTurns() { return 50; }
 	float					FogPenetrationDistance() { return 10; }
-	float					LavaDamage() { return 2; }
+	float					LavaDamage() { return 20; }
 	bool					SoftCraters();
 
 	bool					IsPartyMode() { return m_bPartyMode; };

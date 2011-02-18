@@ -1227,6 +1227,9 @@ bool CSupplier::IsAvailableAreaActive(int iArea) const
 	if (GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		return false;
 
+	if (IsConstructing())
+		return false;
+
 	// In build mode show everybody, otherwise only show the selected structure.
 	if (DigitanksGame()->GetControlMode() == MODE_BUILD || GetDigitanksTeam()->IsSelected(this))
 		return true;

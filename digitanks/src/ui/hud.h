@@ -279,9 +279,6 @@ protected:
 
 	glgui::CPictureButton*		m_apButtons[10];
 
-	glgui::CLabel*				m_pFireAttack;
-	glgui::CLabel*				m_pFireDefend;
-
 	glgui::CLabel*				m_pAttackInfo;
 	float						m_flAttackInfoAlpha;
 	float						m_flAttackInfoAlphaGoal;

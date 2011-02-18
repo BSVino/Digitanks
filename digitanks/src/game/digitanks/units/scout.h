@@ -27,6 +27,7 @@ public:
 
 	virtual float				FindHoverHeight(Vector vecPosition) const;
 
+	virtual float				TotalHealth() const { return 80; };
 	virtual float				ShieldRechargeRate() const;
 	virtual float				HealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 3.5f; }

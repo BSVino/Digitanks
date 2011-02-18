@@ -25,7 +25,7 @@ public:
 	virtual float				InitialBandwidth() const { return 1; };
 	virtual size_t				InitialEnergyBonus() const { return 2; };
 	virtual float				InitialRechargeBonus() const { return 1.0f; };
-	virtual float				TotalHealth() const { return 25; };
+	virtual float				TotalHealth() const { return 250; };
 
 	virtual eastl::string16		GetName() { return L"Macro-Buffer"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BUFFER; };
@@ -57,7 +57,7 @@ public:
 	virtual float				InitialBandwidth() const { return 0.5f; };
 	virtual size_t				InitialEnergyBonus() const { return 1; };
 	virtual float				InitialRechargeBonus() const { return 0.5f; };
-	virtual float				TotalHealth() const { return 15; };
+	virtual float				TotalHealth() const { return 150; };
 
 	virtual eastl::string16		GetName() { return L"Buffer"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_MINIBUFFER; };
