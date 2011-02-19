@@ -3,6 +3,7 @@
 
 // Generic math functions
 #include <math.h>
+#include <string.h>
 
 inline float Lerp(float x, float flLerp)
 {
@@ -53,6 +54,23 @@ inline float Blink(float flTime, float flLength)
 inline float Oscillate(float flTime, float flLength)
 {
 	return fabs(RemapVal(fmod(flTime, flLength), 0, flLength, -1, 1));
+}
+
+// Strobe: Flicker("az", GetGameTime(), 0.1f)
+// Blink: Flicker("aaaaaaz", GetGameTime(), 1.0f)
+// Ramp: Flicker("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", GetGameTime(), 1.0f)
+inline float Flicker(const char* pszValues, float flTime, float flLength)
+{
+	if (!pszValues)
+		return 0;
+
+	int iValues = strlen(pszValues);
+	if (iValues == 0)
+		return 0;
+
+	float flModTime = fmod(flTime, flLength);
+	int iValue = (int)RemapValClamped(flModTime, 0, flLength, 0, (float)iValues);
+	return RemapVal((float)pszValues[iValue], 'a', 'z', 0, 1);
 }
 
 inline float Approach(float flGoal, float flInput, float flAmount)

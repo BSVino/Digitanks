@@ -145,6 +145,8 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	//size_t						m_iTurretModel;	// Set in Spawn()
 	//size_t						m_iShieldModel;	// Set in Spawn()
 	//size_t						m_iHoverParticles;	// Dynamic
+	//size_t						m_iSmokeParticles;	// Dynamic
+	//size_t						m_iFireParticles;	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
@@ -164,6 +166,10 @@ CDigitank::~CDigitank()
 {
 	if (m_iHoverParticles != ~0)
 		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
+	if (m_iSmokeParticles != ~0)
+		CParticleSystemLibrary::StopInstance(m_iSmokeParticles);
+	if (m_iFireParticles != ~0)
+		CParticleSystemLibrary::StopInstance(m_iFireParticles);
 }
 
 void CDigitank::Precache()
@@ -273,6 +279,8 @@ void CDigitank::Spawn()
 	m_flNextIdle = 10.0f;
 	m_iTurretModel = m_iShieldModel = ~0;
 	m_iHoverParticles = ~0;
+	m_iSmokeParticles = ~0;
+	m_iFireParticles = ~0;
 	m_bInAttackTeam = false;
 	m_bFortifyPoint = false;
 	m_flFortifyTime = 0;
@@ -1686,6 +1694,56 @@ void CDigitank::Think()
 
 		m_flStartedMove = 0.0;
 	}
+
+	if (IsAlive())
+	{
+		bool bRunFire = GetHealth() < GetTotalHealth()/3;
+		bool bRunSmoke = !bRunFire && GetHealth() <= GetTotalHealth()*4/5;
+
+		if (m_iSmokeParticles != ~0)
+		{
+			if (GetVisibility() <= 0.1f || !bRunSmoke)
+			{
+				CParticleSystemLibrary::Get()->StopInstance(m_iSmokeParticles);
+				m_iSmokeParticles = ~0;
+			}
+
+			CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSmokeParticles);
+			if (!pInstance)
+				m_iSmokeParticles = ~0;
+		}
+		else
+		{
+			if (GetVisibility() > 0 && bRunSmoke)
+			{
+				m_iSmokeParticles = CParticleSystemLibrary::AddInstance(L"digitank-smoke", GetOrigin());
+				CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSmokeParticles);
+				pInstance->FollowEntity(this);
+			}
+		}
+
+		if (m_iFireParticles != ~0)
+		{
+			if (GetVisibility() <= 0.1f || !bRunFire)
+			{
+				CParticleSystemLibrary::Get()->StopInstance(m_iFireParticles);
+				m_iFireParticles = ~0;
+			}
+
+			CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iFireParticles);
+			if (!pInstance)
+				m_iFireParticles = ~0;
+		}
+		else
+		{
+			if (GetVisibility() > 0 && bRunFire)
+			{
+				m_iFireParticles = CParticleSystemLibrary::AddInstance(L"digitank-fire", GetOrigin());
+				CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iFireParticles);
+				pInstance->FollowEntity(this);
+			}
+		}
+	}
 }
 
 void CDigitank::OnCurrentSelection()
@@ -2870,8 +2928,13 @@ void CDigitank::RenderShield(float flAlpha)
 	if (GetVisibility() == 0 || flAlpha == 0)
 		return;
 
+	float flFlicker = 1;
+	
+	if (GetShieldValue() < GetShieldMaxStrength()*3/4)
+		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
+
 	CRenderingContext r(GameServer()->GetRenderer());
-	r.SetAlpha(flAlpha*GetVisibility());
+	r.SetAlpha(flAlpha*flFlicker*GetVisibility());
 	r.SetBlend(BLEND_ADDITIVE);
 	r.Scale(RenderShieldScale(), 1, RenderShieldScale());
 	r.SetColor(GetTeam()->GetColor());

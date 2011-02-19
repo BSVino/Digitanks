@@ -447,7 +447,82 @@ void CParticleSystemLibrary::InitSystems()
 	pBoltExplosion->SetEndRadius(3.0f);
 	pBoltExplosion->SetFadeOut(1.0f);
 	pBoltExplosion->SetInheritedVelocity(0.0f);
-	pBoltExplosion->SetRandomVelocity(AABB(Vector(0, 0, 0), Vector(4, 50, 4)));
+	pBoltExplosion->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 50, 4)));
 	pBoltExplosion->SetDrag(0.1f);
 	pBoltExplosion->SetRandomBillboardYaw(true);
+
+	size_t iDigitankSmoke = pPSL->AddParticleSystem(L"digitank-smoke");
+
+	CParticleSystem* pDigitankSmoke = pPSL->GetParticleSystem(iDigitankSmoke);
+
+	pDigitankSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pDigitankSmoke->SetLifeTime(1.0f);
+	pDigitankSmoke->SetEmissionRate(0.1f);
+	pDigitankSmoke->SetEmissionMaxDistance(2);
+	pDigitankSmoke->SetAlpha(0.3f);
+	pDigitankSmoke->SetStartRadius(1.0f);
+	pDigitankSmoke->SetEndRadius(3.0f);
+	pDigitankSmoke->SetFadeOut(1.0f);
+	pDigitankSmoke->SetInheritedVelocity(0.0f);
+	pDigitankSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankSmoke->SetDrag(0.9f);
+	pDigitankSmoke->SetGravity(Vector(0, 5, 0));
+	pDigitankSmoke->SetRandomBillboardYaw(true);
+
+	size_t iDigitankFire = pPSL->AddParticleSystem(L"digitank-fire");
+	size_t iDigitankFireSmoke = pPSL->AddParticleSystem(L"digitank-fire-smoke");
+	size_t iDigitankFlame1 = pPSL->AddParticleSystem(L"digitank-fire-flame1");
+	size_t iDigitankFlame2 = pPSL->AddParticleSystem(L"digitank-fire-flame2");
+
+	CParticleSystem* pDigitankFire = pPSL->GetParticleSystem(iDigitankFire);
+	CParticleSystem* pDigitankFireSmoke = pPSL->GetParticleSystem(iDigitankFireSmoke);
+	CParticleSystem* pDigitankFlame1 = pPSL->GetParticleSystem(iDigitankFlame1);
+	CParticleSystem* pDigitankFlame2 = pPSL->GetParticleSystem(iDigitankFlame2);
+
+	pDigitankFire->AddChild(iDigitankFireSmoke);
+	pDigitankFire->AddChild(iDigitankFlame1);
+	pDigitankFire->AddChild(iDigitankFlame2);
+
+	pDigitankFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pDigitankFireSmoke->SetLifeTime(1.2f);
+	pDigitankFireSmoke->SetEmissionRate(0.15f);
+	pDigitankFireSmoke->SetEmissionMaxDistance(3);
+	pDigitankFireSmoke->SetAlpha(0.2f);
+	pDigitankFireSmoke->SetStartRadius(1.5f);
+	pDigitankFireSmoke->SetEndRadius(4.0f);
+	pDigitankFireSmoke->SetFadeOut(0.5f);
+	pDigitankFireSmoke->SetInheritedVelocity(0.0f);
+	pDigitankFireSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankFireSmoke->SetDrag(0.9f);
+	pDigitankFireSmoke->SetGravity(Vector(0, 10, 0));
+	pDigitankFireSmoke->SetRandomBillboardYaw(true);
+	pDigitankFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+
+	pDigitankFlame1->SetTexture(L"textures/particles/fire1.png");
+	pDigitankFlame1->SetLifeTime(0.6f);
+	pDigitankFlame1->SetEmissionRate(0.1f);
+	pDigitankFlame1->SetEmissionMaxDistance(2);
+	pDigitankFlame1->SetAlpha(1.0f);
+	pDigitankFlame1->SetStartRadius(1.0f);
+	pDigitankFlame1->SetEndRadius(3.0f);
+	pDigitankFlame1->SetFadeOut(1.0f);
+	pDigitankFlame1->SetInheritedVelocity(0.0f);
+	pDigitankFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankFlame1->SetDrag(0.9f);
+	pDigitankFlame1->SetGravity(Vector(0, 3, 0));
+	pDigitankFlame1->SetRandomBillboardYaw(true);
+
+	pDigitankFlame2->SetTexture(L"textures/particles/fire2.png");
+	pDigitankFlame2->SetLifeTime(0.6f);
+	pDigitankFlame2->SetEmissionRate(0.1f);
+	pDigitankFlame2->SetEmissionMaxDistance(2);
+	pDigitankFlame2->SetAlpha(1.0f);
+	pDigitankFlame2->SetStartRadius(1.0f);
+	pDigitankFlame2->SetEndRadius(3.0f);
+	pDigitankFlame2->SetFadeOut(1.0f);
+	pDigitankFlame2->SetInheritedVelocity(0.0f);
+	pDigitankFlame2->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDigitankFlame2->SetDrag(0.9f);
+	pDigitankFlame2->SetGravity(Vector(0, 3, 0));
+	pDigitankFlame2->SetRandomBillboardYaw(true);
 }

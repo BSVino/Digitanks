@@ -30,8 +30,6 @@ void CPowerup::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_flSpawnTime = GameServer()->GetGameTime();
-
 	SetCollisionGroup(CG_POWERUP);
 	if (RandomInt(0, 2) == 0)
 	{
@@ -99,7 +97,7 @@ EAngle CPowerup::GetRenderAngles() const
 Vector CPowerup::GetRenderOrigin() const
 {
 	Vector vecOrigin = BaseClass::GetRenderOrigin();
-	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - m_flSpawnTime, 0, 3, 100, 0) + RemapVal(Lerp(Oscillate(GameServer()->GetGameTime() + m_flSpawnTime, 3), 0.8f), 0, 1, 3, 4);
+	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 3, 100, 0) + RemapVal(Lerp(Oscillate(GameServer()->GetGameTime() + GetSpawnTime(), 3), 0.8f), 0, 1, 3, 4);
 	return vecOrigin;
 }
 
@@ -145,5 +143,5 @@ void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparen
 	pContext->SetBlend(BLEND_ADDITIVE);
 	pContext->SetDepthMask(false);
 
-	pContext->SetAlpha(RemapValClamped(GameServer()->GetGameTime() - m_flSpawnTime, 0, 3, 0, 1));
+	pContext->SetAlpha(RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 3, 0, 1));
 }

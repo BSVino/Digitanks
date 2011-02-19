@@ -260,6 +260,9 @@ public:
 	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
 	virtual void							SetSpawnSeed(size_t iSpawnSeed);
 
+	virtual float							GetSpawnTime() const { return m_flSpawnTime.Get(); }
+	virtual void							SetSpawnTime(float flSpawnTime) { m_flSpawnTime = flSpawnTime; };
+
 	void									RegisterNetworkVariable(class CNetworkedVariableBase* pVariable);
 	void									DeregisterNetworkVariable(class CNetworkedVariableBase* pVariable);
 	void									DeregisterNetworkVariables();
@@ -333,6 +336,7 @@ protected:
 	CNetworkedVariable<size_t>				m_iModel;
 
 	size_t									m_iSpawnSeed;
+	CNetworkedVariable<float>				m_flSpawnTime;
 
 	eastl::map<eastl::string, class CNetworkedVariableBase*>	m_apNetworkVariables;
 

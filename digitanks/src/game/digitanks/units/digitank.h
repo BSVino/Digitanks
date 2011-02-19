@@ -412,6 +412,8 @@ protected:
 	size_t						m_iShieldModel;
 
 	size_t						m_iHoverParticles;
+	size_t						m_iSmokeParticles;
+	size_t						m_iFireParticles;
 
 	CNetworkedVariable<bool>	m_bFortified;
 	CNetworkedVariable<size_t>	m_iFortifyLevel;

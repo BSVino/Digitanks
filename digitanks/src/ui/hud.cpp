@@ -3112,6 +3112,9 @@ void CHUD::ShowPowerInfoCallback()
 {
 	m_pTeamInfo->SetText("");
 
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+		return;
+
 	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	if (!pCurrentTeam)
 		return;
@@ -3150,6 +3153,9 @@ void CHUD::ShowPowerInfoCallback()
 void CHUD::ShowFleetInfoCallback()
 {
 	m_pTeamInfo->SetText("");
+
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+		return;
 
 	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	if (!pCurrentTeam)
@@ -3212,6 +3218,9 @@ void CHUD::ShowFleetInfoCallback()
 void CHUD::ShowBandwidthInfoCallback()
 {
 	m_pTeamInfo->SetText("");
+
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+		return;
 
 	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	if (!pCurrentTeam)

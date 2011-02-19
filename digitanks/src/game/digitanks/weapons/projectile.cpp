@@ -599,6 +599,9 @@ void CSploogeShell::Spawn()
 
 EAngle CSploogeShell::GetRenderAngles() const
 {
+	if (GetVelocity().LengthSqr() == 0)
+		return EAngle(-90, 0, 0);
+
 	return VectorAngles(GetVelocity());
 }
 
@@ -724,6 +727,9 @@ void CInfantryFlak::Spawn()
 
 EAngle CInfantryFlak::GetRenderAngles() const
 {
+	if (GetVelocity().LengthSqr() == 0)
+		return EAngle(-90, 0, 0);
+
 	return VectorAngles(GetVelocity());
 }
 

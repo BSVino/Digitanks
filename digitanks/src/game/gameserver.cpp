@@ -519,6 +519,8 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 	else
 		hEntity->SetSpawnSeed(mtrand()%99999);	// Don't pick a number so large that it can't fit in (int)
 
+	hEntity->SetSpawnTime(GameServer()->GetGameTime());
+
 	hEntity->Spawn();
 
 	mtsrand(iPostSeed);

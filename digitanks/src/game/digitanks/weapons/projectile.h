@@ -381,6 +381,8 @@ public:
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual float				PushDistance() { return 0.5f; };
+	virtual float				RockIntensity() { return 0.2f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return true; };

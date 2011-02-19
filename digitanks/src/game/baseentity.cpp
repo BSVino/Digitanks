@@ -28,6 +28,7 @@ NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
 	NETVAR_DEFINE(float, m_flHealth);
 	NETVAR_DEFINE(int, m_iCollisionGroup);
 	NETVAR_DEFINE(size_t, m_iModel);
+	NETVAR_DEFINE(float, m_flSpawnTime);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
@@ -46,6 +47,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahTouching);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCollisionGroup);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iModel);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flSpawnTime);
 SAVEDATA_TABLE_END();
 
 CBaseEntity::CBaseEntity()
