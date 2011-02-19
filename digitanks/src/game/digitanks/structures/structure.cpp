@@ -575,14 +575,6 @@ float CStructure::UpgradeCost() const
 {
 	float flPowerToUpgrade = DigitanksGame()->GetConstructionCost(GetUpgradeType());
 
-	// Location location location!
-	if (DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
-		flPowerToUpgrade *= 1.5f;
-	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(GetOrigin()))
-		flPowerToUpgrade *= 2.0f;
-	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
-		flPowerToUpgrade *= 2.5f;
-
 	return flPowerToUpgrade;
 }
 
@@ -1169,6 +1161,7 @@ CSupplier* CSupplier::FindClosestSupplier(CBaseEntity* pUnit)
 CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 {
 	CSupplier* pClosest = NULL;
+	CSupplier* pClosestInNetwork = NULL;
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -1186,6 +1179,12 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 		if (pSupplier->IsConstructing())
 			continue;
 
+		if (pSupplier->GetDataFlow(vecPoint) > 0)
+		{
+			if (!pClosestInNetwork || (pSupplier->GetOrigin() - vecPoint).Length() < (pClosestInNetwork->GetOrigin() - vecPoint).Length())
+				pClosestInNetwork = pSupplier;
+		}
+
 		if (!pClosest)
 		{
 			pClosest = pSupplier;
@@ -1195,6 +1194,9 @@ CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
 		if ((pSupplier->GetOrigin() - vecPoint).Length() < (pClosest->GetOrigin() - vecPoint).Length())
 			pClosest = pSupplier;
 	}
+
+	if (pClosestInNetwork)
+		return pClosestInNetwork;
 
 	return pClosest;
 }

@@ -104,11 +104,11 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 
 	if (!IsConstructing() && !IsUpgrading() && CanStructureUpgrade())
 	{
-		pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
+		pHUD->SetButtonTexture(0, 448, 0);
 
 		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{
-			pHUD->SetButtonTexture(0, 448, 0);
+			pHUD->SetButtonListener(0, CHUD::BeginUpgrade);
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 		}
 

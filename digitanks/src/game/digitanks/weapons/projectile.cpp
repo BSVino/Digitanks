@@ -763,6 +763,10 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
 	}
 
+	// Explode before we disable. Disabling removes shields and torpedos only damage tanks with no shields,
+	// so we want the first shot to take down shields and not damage.
+	BaseClass::Explode(pInstigator);
+
 	CDigitank* pClosestTank = NULL;
 	while (true)
 	{
@@ -779,8 +783,6 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 
 		pClosestTank->Disable(1);
 	}
-
-	BaseClass::Explode(pInstigator);
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 	{

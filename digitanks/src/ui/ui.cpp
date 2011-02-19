@@ -490,7 +490,7 @@ CStoryPanel::CStoryPanel()
 
 void CStoryPanel::Layout()
 {
-	SetSize(450, 450);
+	SetSize(500, 450);
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
 	m_pStory->SetPos(10, 20);

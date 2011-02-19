@@ -1201,9 +1201,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (!pClosestEnemy)
 						break;
 
-					if (pClosestEnemy->IsScout())
-						continue;
-
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
