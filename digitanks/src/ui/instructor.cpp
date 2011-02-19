@@ -176,7 +176,7 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_UNITS, new CTutorial(this, TUTORIAL_THEEND_UNITS, POSITION_TOPCENTER, 250, false,
 		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_SELECT, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_SELECT, POSITION_SCENETREE, 100, false,
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_SELECT, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_SELECT, POSITION_SCENETREE, 150, false,
 		L"< Select a unit")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_AIM, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_AIM, POSITION_BUTTONS, 200, false,

@@ -460,6 +460,33 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CGrenade);
 SAVEDATA_TABLE_END();
 
+void CGrenade::Precache()
+{
+	PrecacheModel(L"models/weapons/grenade.obj", true);
+}
+
+void CGrenade::Spawn()
+{
+	BaseClass::Spawn();
+
+	SetModel(L"models/weapons/grenade.obj");
+
+	m_angAngle = EAngle(RandomFloat(-90, 90), RandomFloat(0, 360), RandomFloat(-90, 90));
+	m_angRotation = EAngle(RandomFloat(-5, 5), RandomFloat(-5, 5), RandomFloat(-5, 5));
+}
+
+EAngle CGrenade::GetRenderAngles() const
+{
+	return m_angAngle + m_angRotation * (GameServer()->GetGameTime() * 50);
+}
+
+void CGrenade::OnExplode(CBaseEntity* pInstigator)
+{
+	BaseClass::OnExplode(pInstigator);
+
+	SetModel(L"");
+}
+
 REGISTER_ENTITY(CDaisyChain);
 
 NETVAR_TABLE_BEGIN(CDaisyChain);

@@ -168,12 +168,24 @@ class CGrenade : public CProjectile
 	REGISTER_ENTITY_CLASS(CGrenade, CProjectile);
 
 public:
+	virtual void				Precache();
+	virtual void				Spawn();
+
+	virtual EAngle				GetRenderAngles() const;
+
+	virtual void				OnExplode(CBaseEntity* pInstigator);
+
+	virtual size_t				CreateTrailSystem() { return ~0; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_GRENADE; }
 	virtual float				ShellRadius() { return 0.8f; };
 	virtual float				ExplosionRadius() { return 16.0f; };
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 	virtual size_t				Bounces() { return 2; };
+
+protected:
+	EAngle						m_angAngle;
+	EAngle						m_angRotation;
 };
 
 class CDaisyChain : public CProjectile

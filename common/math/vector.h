@@ -245,6 +245,9 @@ public:
 	EAngle	operator+(const EAngle& v) const;
 	EAngle	operator-(const EAngle& v) const;
 
+	EAngle	operator*(float f) const;
+	EAngle	operator/(float f) const;
+
 	operator float*()
 	{
 		return(&p);
@@ -276,6 +279,16 @@ inline EAngle EAngle::operator+(const EAngle& v) const
 inline EAngle EAngle::operator-(const EAngle& v) const
 {
 	return EAngle(p-v.p, y-v.y, r-v.r);
+}
+
+inline EAngle EAngle::operator*(float f) const
+{
+	return EAngle(p*f, y*f, r*f);
+}
+
+inline EAngle EAngle::operator/(float f) const
+{
+	return EAngle(p/f, y/f, r/f);
 }
 
 inline Vector AngleVector(const EAngle& a)

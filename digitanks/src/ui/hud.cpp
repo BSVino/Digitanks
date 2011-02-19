@@ -1119,15 +1119,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && m_hHintWeapon != NULL)
 	{
-		int iX = GetWidth()/2 + 50;
+		int iX = GetWidth()/2 - 75;
 		int iY = GetHeight()/2 + 50;
 
-		CRootPanel::PaintRect(iX-6, iY-1, 80, 75, Color(0, 0, 0, 150));
+		CRootPanel::PaintRect(iX, iY, 150, 85, Color(0, 0, 0, 150));
 
 		m_pSpacebarHint->SetVisible(true);
 		m_pSpacebarHint->SetText(m_hHintWeapon->SpecialCommandHint());
-		m_pSpacebarHint->SetSize(80, 25);
-		m_pSpacebarHint->SetPos(iX-6, iY + 50);
+		m_pSpacebarHint->SetSize(150, 25);
+		m_pSpacebarHint->SetPos(iX, iY + 50);
 		m_pSpacebarHint->SetWrap(false);
 
 		CRenderingContext c(GameServer()->GetRenderer());
@@ -1135,7 +1135,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		iY -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
 
-		PaintSheet(m_iKeysSheet, iX, iY, 48, 48, 128, 64, 64, 64, 256, 256, Color(255, 255, 255, 255));
+		PaintSheet(m_iKeysSheet, iX+45, iY, 60, 60, 128, 64, 64, 64, 256, 256, Color(255, 255, 255, 255));
 	}
 	else
 	{

@@ -329,7 +329,14 @@ inline Vector Matrix4x4::GetTranslation()
 
 inline EAngle Matrix4x4::GetAngles()
 {
-	return EAngle(asin(m[0][1]) * 180/M_PI, atan2(-m[0][2], m[0][0]) * 180/M_PI, atan2(-m[2][1], m[1][1]) * 180/M_PI);
+	// Clamp to [-1, 1] looping
+	float flPitch = fmod(m[0][1], 2);
+	if (flPitch > 1)
+		flPitch -= 2;
+	else if (flPitch < -1)
+		flPitch += 2;
+
+	return EAngle(asin(flPitch) * 180/M_PI, atan2(-m[0][2], m[0][0]) * 180/M_PI, atan2(-m[2][1], m[1][1]) * 180/M_PI);
 }
 
 inline Vector Matrix4x4::operator*(const Vector& v) const
