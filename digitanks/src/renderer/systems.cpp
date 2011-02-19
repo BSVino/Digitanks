@@ -251,7 +251,7 @@ void CParticleSystemLibrary::InitSystems()
 	CParticleSystem* pAoEExplosionStrategy = pPSL->GetParticleSystem(iAoEExplosionStrategy);
 
 	pAoEExplosionStrategy->SetTexture(L"textures/particles/aoe-bubble.png");
-	pAoEExplosionStrategy->SetLifeTime(0.35f);
+	pAoEExplosionStrategy->SetLifeTime(0.5f);
 	pAoEExplosionStrategy->SetEmissionRate(0.01f);
 	pAoEExplosionStrategy->SetEmissionMax(150);
 	pAoEExplosionStrategy->SetEmissionMaxDistance(10);
@@ -424,4 +424,30 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBombTrail->AddChild(iTrailWireframe1);
 	pTractorBombTrail->AddChild(iTrailWireframe2);
 	pTractorBombTrail->AddChild(iTrailWireframe3);
+
+	size_t iBoltTrail = pPSL->AddParticleSystem(L"bolt-trail");
+
+	CParticleSystem* pBoltTrail = pPSL->GetParticleSystem(iBoltTrail);
+
+	pBoltTrail->AddChild(iTrailAura);
+	pBoltTrail->AddChild(iTrailWireframe1);
+	pBoltTrail->AddChild(iTrailWireframe2);
+	pBoltTrail->AddChild(iTrailWireframe3);
+
+	size_t iBoltExplosion = pPSL->AddParticleSystem(L"bolt-explosion");
+
+	CParticleSystem* pBoltExplosion = pPSL->GetParticleSystem(iBoltExplosion);
+
+	pBoltExplosion->SetTexture(L"textures/particles/cloud-white.png");
+	pBoltExplosion->SetLifeTime(1.1f);
+	pBoltExplosion->SetEmissionRate(0.0f);
+	pBoltExplosion->SetEmissionMax(10);
+	pBoltExplosion->SetAlpha(0.5f);
+	pBoltExplosion->SetStartRadius(0.3f);
+	pBoltExplosion->SetEndRadius(3.0f);
+	pBoltExplosion->SetFadeOut(1.0f);
+	pBoltExplosion->SetInheritedVelocity(0.0f);
+	pBoltExplosion->SetRandomVelocity(AABB(Vector(0, 0, 0), Vector(4, 50, 4)));
+	pBoltExplosion->SetDrag(0.1f);
+	pBoltExplosion->SetRandomBillboardYaw(true);
 }

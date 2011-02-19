@@ -23,6 +23,8 @@ public:
 	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate Bomb"; };
 	virtual void				Fragment();
 
+	virtual bool				UsesStandardShell() { return true; };
+
 	virtual bool				MakesSounds() { return true; };
 	virtual bool				UsesStandardExplosion() { return true; };
 
@@ -175,6 +177,7 @@ public:
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
+	virtual bool				UsesStandardShell() { return false; };
 	virtual size_t				CreateTrailSystem() { return ~0; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_GRENADE; }
 	virtual float				ShellRadius() { return 0.8f; };
@@ -245,6 +248,16 @@ class CSploogeShell : public CProjectile
 	REGISTER_ENTITY_CLASS(CSploogeShell, CProjectile);
 
 public:
+	virtual void				Precache();
+	virtual void				Spawn();
+
+	virtual EAngle				GetRenderAngles() const;
+
+	virtual size_t				CreateTrailSystem();
+	virtual void				CreateExplosionSystem();
+
+	virtual bool				UsesStandardShell() { return false; };
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_SPLOOGE; }
 	virtual float				ShellRadius() { return 0.2f; };
 	virtual float				ExplosionRadius() { return 0.0f; };
@@ -354,14 +367,23 @@ class CInfantryFlak : public CProjectile
 	REGISTER_ENTITY_CLASS(CInfantryFlak, CProjectile);
 
 public:
+	virtual void				Precache();
+	virtual void				Spawn();
+
+	virtual EAngle				GetRenderAngles() const;
+
+	virtual size_t				CreateTrailSystem();
+	virtual void				CreateExplosionSystem();
+
+	virtual bool				UsesStandardShell() { return false; };
+	virtual bool				UsesStandardExplosion() { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_FLAK; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
-	virtual bool				ShouldExplode() { return false; };
+	virtual float				ExplosionRadius() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return true; };
-	virtual size_t				CreateTrailSystem();
 	virtual bool				UsesSpecialCommand() { return false; };
 };
 

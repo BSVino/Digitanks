@@ -140,7 +140,7 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	BaseClass::OnRender(pContext, bTransparent);
 
-	if (m_flTimeExploded == 0.0f)
+	if (UsesStandardShell() && m_flTimeExploded == 0.0f)
 	{
 		if (!bTransparent)
 		{
@@ -583,6 +583,35 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CSploogeShell);
 SAVEDATA_TABLE_END();
 
+void CSploogeShell::Precache()
+{
+	PrecacheModel(L"models/weapons/bolt.obj", true);
+	PrecacheParticleSystem(L"bolt-trail");
+	PrecacheParticleSystem(L"bolt-explosion");
+}
+
+void CSploogeShell::Spawn()
+{
+	BaseClass::Spawn();
+
+	SetModel(L"models/weapons/bolt.obj");
+}
+
+EAngle CSploogeShell::GetRenderAngles() const
+{
+	return VectorAngles(GetVelocity());
+}
+
+size_t CSploogeShell::CreateTrailSystem()
+{
+	return CParticleSystemLibrary::AddInstance(L"bolt-trail", GetOrigin());
+}
+
+void CSploogeShell::CreateExplosionSystem()
+{
+	CParticleSystemLibrary::AddInstance(L"bolt-explosion", GetOrigin());
+}
+
 REGISTER_ENTITY(CTractorBomb);
 
 NETVAR_TABLE_BEGIN(CTractorBomb);
@@ -679,9 +708,33 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CInfantryFlak);
 SAVEDATA_TABLE_END();
 
+void CInfantryFlak::Precache()
+{
+	PrecacheModel(L"models/weapons/bolt.obj", true);
+	PrecacheParticleSystem(L"bolt-trail");
+	PrecacheParticleSystem(L"bolt-explosion");
+}
+
+void CInfantryFlak::Spawn()
+{
+	BaseClass::Spawn();
+
+	SetModel(L"models/weapons/bolt.obj");
+}
+
+EAngle CInfantryFlak::GetRenderAngles() const
+{
+	return VectorAngles(GetVelocity());
+}
+
 size_t CInfantryFlak::CreateTrailSystem()
 {
-	return ~0;
+	return CParticleSystemLibrary::AddInstance(L"bolt-trail", GetOrigin());
+}
+
+void CInfantryFlak::CreateExplosionSystem()
+{
+	CParticleSystemLibrary::AddInstance(L"bolt-explosion", GetOrigin());
 }
 
 REGISTER_ENTITY(CTorpedo);

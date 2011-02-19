@@ -3483,7 +3483,7 @@ void CSpeechBubble::Think()
 	float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
 	vecScreen.x -= (flWidth/2 + 50);
-	vecScreen.y -= flWidth/2;
+	vecScreen.y -= flWidth;
 
 	SetPos((int)(vecScreen.x), (int)(vecScreen.y));
 
