@@ -6,6 +6,8 @@
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_renderer.h>
 
+size_t CLaser::s_iBeam = 0;
+
 REGISTER_ENTITY(CLaser);
 
 NETVAR_TABLE_BEGIN(CLaser);
@@ -13,6 +15,11 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CLaser);
 SAVEDATA_TABLE_END();
+
+void CLaser::Precache()
+{
+	s_iBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
+}
 
 void CLaser::OnSetOwner(CDigitank* pOwner)
 {
@@ -49,50 +56,75 @@ void CLaser::OnSetOwner(CDigitank* pOwner)
 		if (vecForward.Dot(pEntity->GetOrigin() - GetOrigin()) < 0)
 			continue;
 
+		if (pEntity->Distance(GetOrigin()) > LaserLength())
+			continue;
+
 		pEntity->TakeDamage(pOwner, this, DAMAGE_LASER, m_flDamage, flDistance < pEntity->GetBoundingRadius()-2);
+	}
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
+	{
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
+		{
+			// If the start and end points are both in the fog of war, delete it now that we've aready done the damage so it doesn't get rendered later.
+			Delete();
+		}
 	}
 }
 
-void CLaser::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CLaser::PostRender(bool bTransparent)
 {
+	BaseClass::PostRender(bTransparent);
+
 	if (!bTransparent)
 		return;
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
 
 	r.SetBlend(BLEND_ADDITIVE);
-	r.SetColor(Color(255, 255, 255, 255*3/10));
 
 	Vector vecForward, vecRight, vecUp;
-	vecForward = Vector(1, 0, 0);
-	vecRight = Vector(0, 0, 1);
-	vecUp = Vector(0, 1, 0);
 
-	r.BeginRenderQuads();
+	float flLength = LaserLength();
 
-	r.Vertex(-vecRight*2);
-	r.Vertex(vecRight*2);
-	r.Vertex(vecForward*400 + vecUp*200 + vecRight*2);
-	r.Vertex(vecForward*400 + vecUp*200 - vecRight*2);
+	Vector vecMuzzle = m_hOwner->GetOrigin();
+	Vector vecTarget = vecMuzzle + AngleVector(GetAngles()) * flLength;
+	if (m_hOwner != NULL)
+	{
+		vecTarget = m_hOwner->GetLastAim();
+		AngleVectors(VectorAngles(vecTarget - m_hOwner->GetOrigin()), &vecForward, &vecRight, &vecUp);
+		vecMuzzle = m_hOwner->GetOrigin() + (vecTarget - m_hOwner->GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
+	}
 
-	r.Vertex(-vecRight*2);
-	r.Vertex(vecForward*400 - vecUp*200 - vecRight*2);
-	r.Vertex(vecForward*400 - vecUp*200 + vecRight*2);
-	r.Vertex(vecRight*2);
+	vecTarget = vecTarget + (vecTarget-vecMuzzle).Normalized() * flLength;
 
-	r.EndRender();
+	float flBeamWidth = 1.5;
 
-	r.BeginRenderTris();
+	Vector avecRayColors[] =
+	{
+		Vector(1, 0, 0),
+		Vector(0, 1, 0),
+		Vector(0, 0, 1),
+	};
 
-	r.Vertex(-vecRight*2);
-	r.Vertex(vecForward*400 + vecUp*200 - vecRight*2);
-	r.Vertex(vecForward*400 - vecUp*200 - vecRight*2);
+	float flRayRamp = RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0.5, 1.5, 0, 1);
+	float flAlphaRamp = RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 1, 2, 1, 0);
 
-	r.Vertex(vecForward*400 + vecUp*200 + vecRight*2);
-	r.Vertex(vecRight*2);
-	r.Vertex(vecForward*400 - vecUp*200 + vecRight*2);
+	size_t iBeams = 21;
+	for (size_t i = 0; i < iBeams; i++)
+	{
+		float flUp = RemapVal((float)i, 0, (float)iBeams, -flLength, flLength);
 
-	r.EndRender();
+		Vector vecRay = avecRayColors[i%3] * flRayRamp + Vector(1, 1, 1) * (1-flRayRamp);
+		Color clrRay = vecRay;
+		clrRay.SetAlpha((int)(200*flAlphaRamp));
+
+		r.SetColor(clrRay);
+
+		CRopeRenderer rope(DigitanksGame()->GetDigitanksRenderer(), s_iBeam, vecMuzzle, flBeamWidth);
+		rope.SetTextureOffset(((float)i/20) - GameServer()->GetGameTime() - GetSpawnTime());
+		rope.Finish(vecTarget + vecUp*flUp);
+	}
 }
 
 REGISTER_ENTITY(CInfantryLaser);
@@ -103,94 +135,11 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CInfantryLaser);
 SAVEDATA_TABLE_END();
 
-void CInfantryLaser::OnSetOwner(CDigitank* pOwner)
+float CInfantryLaser::LaserLength() const
 {
-	BaseClass::OnSetOwner(pOwner);
-
-	SetAngles(VectorAngles((pOwner->GetLastAim() - GetOrigin()).Normalized()));
-	SetOrigin(pOwner->GetOrigin());
-	SetSimulated(false);
-	SetVelocity(Vector(0,0,0));
-	SetGravity(Vector(0,0,0));
-
-	m_flTimeExploded = GameServer()->GetGameTime();
-
-	Vector vecForward, vecRight;
-	AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
-
 	float flRange = 60.0f;
 	if (m_hOwner != NULL)
 		flRange = m_hOwner->GetMaxRange();
 
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-		if (!pEntity)
-			continue;
-
-		if (!pEntity->TakesDamage())
-			continue;
-
-		if (pEntity->GetTeam() == pOwner->GetTeam())
-			continue;
-
-		float flDistance = DistanceToPlane(pEntity->GetOrigin(), GetOrigin(), vecRight);
-		if (flDistance > 4 + pEntity->GetBoundingRadius())
-			continue;
-
-		// Cull objects behind
-		if (vecForward.Dot(pEntity->GetOrigin() - GetOrigin()) < 0)
-			continue;
-
-		if (pEntity->Distance(GetOrigin()) > flRange)
-			continue;
-
-		pEntity->TakeDamage(pOwner, this, DAMAGE_LASER, m_flDamage, flDistance < pEntity->GetBoundingRadius()-2);
-	}
-}
-
-void CInfantryLaser::OnRender(class CRenderingContext* pContext, bool bTransparent)
-{
-	if (!bTransparent)
-		return;
-
-	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
-
-	r.SetBlend(BLEND_ADDITIVE);
-	r.SetColor(Color(255, 255, 255, 255*3/10));
-
-	Vector vecForward, vecRight, vecUp;
-	vecForward = Vector(1, 0, 0);
-	vecRight = Vector(0, 0, 1);
-	vecUp = Vector(0, 1, 0);
-
-	r.BeginRenderQuads();
-
-	float flRange = 60.0f;
-	if (m_hOwner != NULL)
-		flRange = m_hOwner->GetMaxRange();
-
-	r.Vertex(-vecRight*2);
-	r.Vertex(vecRight*2);
-	r.Vertex(vecForward*flRange + vecUp*flRange/2 + vecRight*2);
-	r.Vertex(vecForward*flRange + vecUp*flRange/2 - vecRight*2);
-
-	r.Vertex(-vecRight*2);
-	r.Vertex(vecForward*flRange - vecUp*flRange/2 - vecRight*2);
-	r.Vertex(vecForward*flRange - vecUp*flRange/2 + vecRight*2);
-	r.Vertex(vecRight*2);
-
-	r.EndRender();
-
-	r.BeginRenderTris();
-
-	r.Vertex(-vecRight*2);
-	r.Vertex(vecForward*flRange + vecUp*flRange/2 - vecRight*2);
-	r.Vertex(vecForward*flRange - vecUp*flRange/2 - vecRight*2);
-
-	r.Vertex(vecForward*flRange + vecUp*flRange/2 + vecRight*2);
-	r.Vertex(vecRight*2);
-	r.Vertex(vecForward*flRange - vecUp*flRange/2 + vecRight*2);
-
-	r.EndRender();
+	return flRange;
 }

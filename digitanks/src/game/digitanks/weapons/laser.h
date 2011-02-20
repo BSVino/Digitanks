@@ -8,10 +8,16 @@ class CLaser : public CBaseWeapon
 	REGISTER_ENTITY_CLASS(CLaser, CBaseWeapon);
 
 public:
+	virtual void				Precache();
+
 	virtual void				OnSetOwner(class CDigitank* pOwner);
 
+	virtual float				GetRenderRadius() const { return LaserLength(); };
+
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				PostRender(bool bTransparent);
+
+	virtual float				LaserLength() const { return 400; }
 
 	virtual weapon_t			GetWeaponType() { return WEAPON_LASER; }
 	virtual float				ExplosionRadius() { return 0.0f; };
@@ -21,24 +27,15 @@ public:
 	virtual float				PushDistance() { return 0.0f; };
 
 protected:
+	static size_t				s_iBeam;
 };
 
-class CInfantryLaser : public CBaseWeapon
+class CInfantryLaser : public CLaser
 {
-	REGISTER_ENTITY_CLASS(CInfantryLaser, CBaseWeapon);
+	REGISTER_ENTITY_CLASS(CInfantryLaser, CLaser);
 
 public:
-	virtual void				OnSetOwner(class CDigitank* pOwner);
-
-	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
-
-	virtual weapon_t			GetWeaponType() { return WEAPON_INFANTRYLASER; }
-	virtual float				ExplosionRadius() { return 0.0f; };
-	virtual bool				CreatesCraters() { return false; };
-	virtual float				PushRadius() { return 0.0f; };
-	virtual float				RockIntensity() { return 0.5f; };
-	virtual float				PushDistance() { return 0.0f; };
+	virtual float				LaserLength() const;
 
 protected:
 };
