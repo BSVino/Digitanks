@@ -185,6 +185,7 @@ void CBattery::UpgradeComplete()
 	pCollector->SetSupplier(GetSupplier());
 	pCollector->SetResource(GetResource());
 	GetResource()->SetCollector(pCollector);
+	pCollector->CalculateVisibility();
 
 	Delete();
 

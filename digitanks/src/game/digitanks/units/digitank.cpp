@@ -160,6 +160,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
 SAVEDATA_TABLE_END();
 
 CDigitank::~CDigitank()
@@ -179,6 +180,8 @@ void CDigitank::Precache()
 	PrecacheParticleSystem(L"tank-fire");
 	PrecacheParticleSystem(L"promotion");
 	PrecacheParticleSystem(L"tank-hover");
+	PrecacheParticleSystem(L"digitank-smoke");
+	PrecacheParticleSystem(L"digitank-fire");
 	PrecacheSound(L"sound/tank-fire.wav");
 	PrecacheSound(L"sound/shield-damage.wav");
 	PrecacheSound(L"sound/tank-damage.wav");
@@ -295,6 +298,7 @@ void CDigitank::Spawn()
 	m_flCurrentTurretYaw = 0;
 	m_flGoalTurretYaw = 0;
 	m_flGlowYaw = 0;
+	m_flNextThink = GameServer()->GetGameTime();
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -1066,6 +1070,8 @@ void CDigitank::Move(CNetworkParameters* p)
 					pTank->SetOrigin(vecTank);
 					pTank->SetAngles(angTank);
 					pTank->StartTurn();
+
+					pTank->CalculateVisibility();
 				}
 				}
 
@@ -1090,7 +1096,7 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	m_flGoalTurretYaw = -180;
+	m_flGoalTurretYaw = 0;
 
 	DirtyNeedsOrders();
 	DigitanksGame()->HandledActionItem(this);
@@ -1517,15 +1523,15 @@ void CDigitank::Think()
 {
 	BaseClass::Think();
 
+	if (GameServer()->GetGameTime() < m_flNextThink)
+		return;
+
+	m_flNextThink = GameServer()->GetGameTime() + 0.1f;
+
 	if (!IsMoving() && IsAlive())
 	{
 		if (!DigitanksGame()->GetTerrain()->IsPointOnMap(GetOrigin()) || DigitanksGame()->GetTerrain()->IsPointOverHole(GetOrigin()))
-		{
 			Kill();
-			SetGravity(Vector(0, -20, 0));
-			SetVelocity(Vector(0, -20, 0));
-			SetSimulated(true);
-		}
 		else
 		{
 			float flHoverHeight = FindHoverHeight(GetOrigin());

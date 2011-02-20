@@ -1563,6 +1563,18 @@ bool CTerrain::IsPointOverLava(Vector vecPoint)
 
 bool CTerrain::IsPointOverHole(Vector vecPoint)
 {
+	if (vecPoint.x < -GetMapSize())
+		return true;
+
+	if (vecPoint.z < -GetMapSize())
+		return true;
+
+	if (vecPoint.x > GetMapSize())
+		return true;
+
+	if (vecPoint.z > GetMapSize())
+		return true;
+
 	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_HOLE);
 }
 

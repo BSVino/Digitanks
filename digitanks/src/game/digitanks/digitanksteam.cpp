@@ -13,6 +13,7 @@
 #include "structures/loader.h"
 #include "structures/collector.h"
 #include "units/mobilecpu.h"
+#include "wreckage.h"
 
 REGISTER_ENTITY(CDigitanksTeam);
 
@@ -546,30 +547,43 @@ void CDigitanksTeam::CalculateVisibility()
 	m_aflVisibilities.clear();
 	// For every entity in the game, calculate the visibility to this team
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+		CalculateEntityVisibility(CBaseEntity::GetEntity(i));
+}
+
+void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
+{
+	if (!pEntity)
+		return;
+
+	if (pEntity->GetTeam() == ((CTeam*)this))
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-		if (!pEntity)
-			continue;
-
-		if (pEntity->GetTeam() == ((CTeam*)this))
-		{
-			m_aflVisibilities[pEntity->GetHandle()] = 1;
-			continue;
-		}
-
-		Vector vecOrigin = pEntity->GetOrigin();
-		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
-		if (pDigitank)
-			vecOrigin = pDigitank->GetRealOrigin();
-
-		bool bCloak = false;
-		if (pDigitank && pDigitank->IsCloaked())
-			bCloak = true;
-
-		float flVisibility = GetVisibilityAtPoint(vecOrigin, bCloak);
-
-		m_aflVisibilities[pEntity->GetHandle()] = flVisibility;
+		m_aflVisibilities[pEntity->GetHandle()] = 1;
+		return;
 	}
+
+	CWreckage* pWreckage = dynamic_cast<CWreckage*>(pEntity);
+	if (pWreckage)
+	{
+		if (pWreckage->GetOldTeam() == this && GameServer()->GetGameTime() - pWreckage->GetSpawnTime() < 10)
+		{
+			// We can continue to see our wreckage even after it dies, just in case we die in a remote place.
+			m_aflVisibilities[pEntity->GetHandle()] = 1;
+			return;
+		}
+	}
+
+	Vector vecOrigin = pEntity->GetOrigin();
+	CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
+	if (pDigitank)
+		vecOrigin = pDigitank->GetRealOrigin();
+
+	bool bCloak = false;
+	if (pDigitank && pDigitank->IsCloaked())
+		bCloak = true;
+
+	float flVisibility = GetVisibilityAtPoint(vecOrigin, bCloak);
+
+	m_aflVisibilities[pEntity->GetHandle()] = flVisibility;
 }
 
 float CDigitanksTeam::GetEntityVisibility(size_t iHandle)

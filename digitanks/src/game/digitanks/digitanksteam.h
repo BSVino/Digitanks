@@ -73,6 +73,7 @@ public:
 	size_t						GetNumTanksAlive();
 
 	void						CalculateVisibility();
+	void						CalculateEntityVisibility(class CBaseEntity* pEntity);
 	float						GetEntityVisibility(size_t iHandle);
 	float						GetVisibilityAtPoint(Vector vecPoint, bool bCloak = false);
 

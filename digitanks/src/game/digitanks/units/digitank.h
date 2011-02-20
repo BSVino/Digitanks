@@ -324,6 +324,8 @@ public:
 	bool						IsDisabled() { return !!m_iTurnsDisabled; }
 	void						Disable(size_t iTurns);
 
+	virtual size_t				GetTurretModel() { return m_iTurretModel; }
+
 	virtual unittype_t			GetUnitType() const { return UNIT_TANK; }
 
 	// AI stuff
@@ -436,6 +438,8 @@ protected:
 	CNetworkedVariable<size_t>	m_iTurnsDisabled;
 
 	float						m_flGlowYaw;
+
+	float						m_flNextThink;
 
 	// AI stuff
 	bool						m_bInAttackTeam;

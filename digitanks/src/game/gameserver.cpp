@@ -263,12 +263,15 @@ void CGameServer::Simulate()
 
 	m_apSimulateList.reserve(CBaseEntity::GetNumEntities());
 	m_apSimulateList.clear();
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+
+	size_t iMaxEntities = GetMaxEntities();
+	for (size_t i = 0; i < iMaxEntities; i++)
 	{
-		if (!CBaseEntity::GetEntity(i))
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
 			continue;
 
-		m_apSimulateList.push_back(CBaseEntity::GetEntity(i));
+		m_apSimulateList.push_back(pEntity);
 	}
 
 	for (size_t i = 0; i < m_apSimulateList.size(); i++)
@@ -312,7 +315,7 @@ void CGameServer::Simulate()
 		if (pEntity->IsDeleted())
 			continue;
 
-		for (size_t j = 0; j < GameServer()->GetMaxEntities(); j++)
+		for (size_t j = 0; j < iMaxEntities; j++)
 		{
 			CBaseEntity* pEntity2 = CBaseEntity::GetEntity(j);
 

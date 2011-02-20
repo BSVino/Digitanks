@@ -245,6 +245,7 @@ void CLoader::CompleteProduction()
 			pTank = GameServer()->Create<CArtillery>("CArtillery");
 			
 		pTank->SetOrigin(GetOrigin());
+		pTank->CalculateVisibility();
 
 		GetTeam()->AddEntity(pTank);
 

@@ -203,6 +203,7 @@ void CMiniBuffer::UpgradeComplete()
 	pBuffer->AddBandwidth(pBuffer->InitialBandwidth() - InitialBandwidth());
 	pBuffer->AddEnergyBonus(pBuffer->InitialEnergyBonus() - InitialEnergyBonus());
 	pBuffer->AddRechargeBonus(pBuffer->InitialRechargeBonus() - InitialRechargeBonus());
+	pBuffer->CalculateVisibility();
 
 	for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
 	{

@@ -500,11 +500,11 @@ void CParticleSystemLibrary::InitSystems()
 
 	pDigitankFlame1->SetTexture(L"textures/particles/fire1.png");
 	pDigitankFlame1->SetLifeTime(0.6f);
-	pDigitankFlame1->SetEmissionRate(0.1f);
+	pDigitankFlame1->SetEmissionRate(1.0f);
 	pDigitankFlame1->SetEmissionMaxDistance(2);
 	pDigitankFlame1->SetAlpha(1.0f);
 	pDigitankFlame1->SetStartRadius(1.0f);
-	pDigitankFlame1->SetEndRadius(3.0f);
+	pDigitankFlame1->SetEndRadius(1.5f);
 	pDigitankFlame1->SetFadeOut(1.0f);
 	pDigitankFlame1->SetInheritedVelocity(0.0f);
 	pDigitankFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
@@ -514,15 +514,131 @@ void CParticleSystemLibrary::InitSystems()
 
 	pDigitankFlame2->SetTexture(L"textures/particles/fire2.png");
 	pDigitankFlame2->SetLifeTime(0.6f);
-	pDigitankFlame2->SetEmissionRate(0.1f);
+	pDigitankFlame2->SetEmissionRate(1.0f);
 	pDigitankFlame2->SetEmissionMaxDistance(2);
 	pDigitankFlame2->SetAlpha(1.0f);
 	pDigitankFlame2->SetStartRadius(1.0f);
-	pDigitankFlame2->SetEndRadius(3.0f);
+	pDigitankFlame2->SetEndRadius(1.5f);
 	pDigitankFlame2->SetFadeOut(1.0f);
 	pDigitankFlame2->SetInheritedVelocity(0.0f);
 	pDigitankFlame2->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
 	pDigitankFlame2->SetDrag(0.9f);
 	pDigitankFlame2->SetGravity(Vector(0, 3, 0));
 	pDigitankFlame2->SetRandomBillboardYaw(true);
+
+	size_t iWreckageFire = pPSL->AddParticleSystem(L"wreckage-burn");
+	size_t iWreckageFireSmoke = pPSL->AddParticleSystem(L"wreckage-burn-smoke");
+	size_t iWreckageFlame1 = pPSL->AddParticleSystem(L"wreckage-burn-flame1");
+	size_t iWreckageFlame2 = pPSL->AddParticleSystem(L"wreckage-burn-flame2");
+
+	CParticleSystem* pWreckageFire = pPSL->GetParticleSystem(iWreckageFire);
+	CParticleSystem* pWreckageFireSmoke = pPSL->GetParticleSystem(iWreckageFireSmoke);
+	CParticleSystem* pWreckageFlame1 = pPSL->GetParticleSystem(iWreckageFlame1);
+	CParticleSystem* pWreckageFlame2 = pPSL->GetParticleSystem(iWreckageFlame2);
+
+	pWreckageFire->AddChild(iWreckageFireSmoke);
+	pWreckageFire->AddChild(iWreckageFlame1);
+	pWreckageFire->AddChild(iWreckageFlame2);
+
+	pWreckageFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pWreckageFireSmoke->SetLifeTime(1.2f);
+	pWreckageFireSmoke->SetEmissionRate(0.15f);
+	pWreckageFireSmoke->SetEmissionMaxDistance(3);
+	pWreckageFireSmoke->SetAlpha(0.2f);
+	pWreckageFireSmoke->SetStartRadius(1.5f);
+	pWreckageFireSmoke->SetEndRadius(4.0f);
+	pWreckageFireSmoke->SetFadeOut(0.5f);
+	pWreckageFireSmoke->SetInheritedVelocity(0.0f);
+	pWreckageFireSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pWreckageFireSmoke->SetDrag(0.9f);
+	pWreckageFireSmoke->SetGravity(Vector(0, 10, 0));
+	pWreckageFireSmoke->SetRandomBillboardYaw(true);
+	pWreckageFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+
+	pWreckageFlame1->SetTexture(L"textures/particles/fire1.png");
+	pWreckageFlame1->SetLifeTime(0.6f);
+	pWreckageFlame1->SetEmissionRate(0.1f);
+	pWreckageFlame1->SetEmissionMaxDistance(2);
+	pWreckageFlame1->SetAlpha(1.0f);
+	pWreckageFlame1->SetStartRadius(1.0f);
+	pWreckageFlame1->SetEndRadius(4.0f);
+	pWreckageFlame1->SetFadeOut(1.0f);
+	pWreckageFlame1->SetInheritedVelocity(0.0f);
+	pWreckageFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pWreckageFlame1->SetDrag(0.9f);
+	pWreckageFlame1->SetGravity(Vector(0, 3, 0));
+	pWreckageFlame1->SetRandomBillboardYaw(true);
+
+	pWreckageFlame2->SetTexture(L"textures/particles/fire2.png");
+	pWreckageFlame2->SetLifeTime(0.6f);
+	pWreckageFlame2->SetEmissionRate(0.1f);
+	pWreckageFlame2->SetEmissionMaxDistance(2);
+	pWreckageFlame2->SetAlpha(1.0f);
+	pWreckageFlame2->SetStartRadius(1.0f);
+	pWreckageFlame2->SetEndRadius(4.0f);
+	pWreckageFlame2->SetFadeOut(1.0f);
+	pWreckageFlame2->SetInheritedVelocity(0.0f);
+	pWreckageFlame2->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pWreckageFlame2->SetDrag(0.9f);
+	pWreckageFlame2->SetGravity(Vector(0, 3, 0));
+	pWreckageFlame2->SetRandomBillboardYaw(true);
+
+	size_t iWreckageCrash = pPSL->AddParticleSystem(L"wreckage-crash");
+	size_t iWreckageCrashSmoke = pPSL->AddParticleSystem(L"wreckage-crash-smoke");
+	size_t iWreckageCrashFlame1 = pPSL->AddParticleSystem(L"wreckage-crash-flame1");
+	size_t iWreckageCrashFlame2 = pPSL->AddParticleSystem(L"wreckage-crash-flame2");
+
+	CParticleSystem* pWreckageCrash = pPSL->GetParticleSystem(iWreckageCrash);
+	CParticleSystem* pWreckageCrashSmoke = pPSL->GetParticleSystem(iWreckageCrashSmoke);
+	CParticleSystem* pWreckageCrashFlame1 = pPSL->GetParticleSystem(iWreckageCrashFlame1);
+	CParticleSystem* pWreckageCrashFlame2 = pPSL->GetParticleSystem(iWreckageCrashFlame2);
+
+	pWreckageCrash->AddChild(iWreckageCrashSmoke);
+	pWreckageCrash->AddChild(iWreckageCrashFlame1);
+	pWreckageCrash->AddChild(iWreckageCrashFlame2);
+
+	pWreckageCrashSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pWreckageCrashSmoke->SetLifeTime(5.0f);
+	pWreckageCrashSmoke->SetEmissionRate(0.0f);
+	pWreckageCrashSmoke->SetEmissionMax(3);
+	pWreckageCrashSmoke->SetEmissionMaxDistance(3);
+	pWreckageCrashSmoke->SetAlpha(0.15f);
+	pWreckageCrashSmoke->SetStartRadius(4.5f);
+	pWreckageCrashSmoke->SetEndRadius(10.0f);
+	pWreckageCrashSmoke->SetFadeOut(0.3f);
+	pWreckageCrashSmoke->SetInheritedVelocity(0.0f);
+	pWreckageCrashSmoke->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 4, 4)));
+	pWreckageCrashSmoke->SetDrag(0.5f);
+	pWreckageCrashSmoke->SetGravity(Vector(0, 1, 0));
+	pWreckageCrashSmoke->SetRandomBillboardYaw(true);
+
+	pWreckageCrashFlame1->SetTexture(L"textures/particles/fire1.png");
+	pWreckageCrashFlame1->SetLifeTime(1.5f);
+	pWreckageCrashFlame1->SetEmissionRate(0.01f);
+	pWreckageCrashFlame1->SetEmissionMax(20);
+	pWreckageCrashFlame1->SetEmissionMaxDistance(2);
+	pWreckageCrashFlame1->SetAlpha(1.0f);
+	pWreckageCrashFlame1->SetStartRadius(1.0f);
+	pWreckageCrashFlame1->SetEndRadius(5.0f);
+	pWreckageCrashFlame1->SetFadeOut(1.0f);
+	pWreckageCrashFlame1->SetInheritedVelocity(0.0f);
+	pWreckageCrashFlame1->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 4, 4)));
+	pWreckageCrashFlame1->SetDrag(0.5f);
+	pWreckageCrashFlame1->SetGravity(Vector(0, 3, 0));
+	pWreckageCrashFlame1->SetRandomBillboardYaw(true);
+
+	pWreckageCrashFlame2->SetTexture(L"textures/particles/fire2.png");
+	pWreckageCrashFlame2->SetLifeTime(1.5f);
+	pWreckageCrashFlame2->SetEmissionRate(0.01f);
+	pWreckageCrashFlame2->SetEmissionMax(20);
+	pWreckageCrashFlame2->SetEmissionMaxDistance(2);
+	pWreckageCrashFlame2->SetAlpha(1.0f);
+	pWreckageCrashFlame2->SetStartRadius(1.0f);
+	pWreckageCrashFlame2->SetEndRadius(5.0f);
+	pWreckageCrashFlame2->SetFadeOut(1.0f);
+	pWreckageCrashFlame2->SetInheritedVelocity(0.0f);
+	pWreckageCrashFlame2->SetRandomVelocity(AABB(Vector(-4, 0, -4), Vector(4, 4, 4)));
+	pWreckageCrashFlame2->SetDrag(0.5f);
+	pWreckageCrashFlame2->SetGravity(Vector(0, 3, 0));
+	pWreckageCrashFlame2->SetRandomBillboardYaw(true);
 }

@@ -646,6 +646,7 @@ void CHUD::Think()
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
 	m_pActionItem->SetPos(iWidth - 300 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 70);
+	m_pActionItem->SetAlpha((int)(m_flActionItemsLerp*255));
 	m_pCloseActionItems->SetPos(iWidth - 255 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), m_pCloseActionItems->GetTop());
 
 	if (m_bHUDActive && bMouseOnGrid && pCurrentTank)

@@ -10,6 +10,7 @@
 #include <renderer/dissolver.h>
 
 #include "digitanksgame.h"
+#include "wreckage.h"
 
 REGISTER_ENTITY(CDigitanksEntity);
 
@@ -27,6 +28,8 @@ void CDigitanksEntity::Spawn()
 	m_bTakeDamage = true;
 	m_flTotalHealth = TotalHealth();
 	m_flHealth = m_flTotalHealth;
+
+	CalculateVisibility();
 }
 
 void CDigitanksEntity::Think()
@@ -37,14 +40,24 @@ void CDigitanksEntity::Think()
 	{
 		GameServer()->Delete(this);
 
-		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+		if (DigitanksGame()->GetTerrain()->IsPointOverHole(GetOrigin()))
 		{
-			switch (RandomInt(0, 5))
+			CWreckage* pWreckage = CreateWreckage();
+
+			if (pWreckage)
+				pWreckage->FellIntoHole();
+		}
+		else if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+		{
+			switch (RandomInt(0, 8))
 			{
 			case 0:
+			case 6:
+			case 7:
+			case 8:
+			default:
 			{
-				bool bColorSwap = GetTeam() && (dynamic_cast<CStructure*>(this) || dynamic_cast<CDigitank*>(this));
-				CModelDissolver::AddModel(this, bColorSwap?&GetTeam()->GetColor():NULL);
+				CreateWreckage();
 				break;
 			}
 
@@ -94,7 +107,38 @@ void CDigitanksEntity::Think()
 			}
 			}
 		}
+		else
+		{
+			// Strategy mode
+			CreateWreckage();
+		}
 	}
+}
+
+CWreckage* CDigitanksEntity::CreateWreckage()
+{
+	// Figure out what to do about structures later.
+	if (dynamic_cast<CDigitank*>(this) == NULL)
+		return NULL;
+
+	CWreckage* pWreckage = GameServer()->Create<CWreckage>("CWreckage");
+	pWreckage->SetOrigin(GetOrigin());
+	pWreckage->SetAngles(GetAngles());
+	pWreckage->SetModel(GetModel());
+	pWreckage->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
+	pWreckage->SetOldTeam(GetDigitanksTeam());
+
+	pWreckage->CalculateVisibility();
+
+	CDigitank* pTank = dynamic_cast<CDigitank*>(this);
+	if (pTank)
+		pWreckage->SetTurretModel(pTank->GetTurretModel());
+
+	bool bColorSwap = GetTeam() && (dynamic_cast<CDigitank*>(this));
+	if (bColorSwap)
+		pWreckage->SetColorSwap(GetTeam()->GetColor());
+
+	return pWreckage;
 }
 
 void CDigitanksEntity::StartTurn()
@@ -225,6 +269,12 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 		return 0;
 
 	return flVisibility;
+}
+
+void CDigitanksEntity::CalculateVisibility()
+{
+	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+		DigitanksGame()->GetDigitanksTeam(i)->CalculateEntityVisibility(this);
 }
 
 float CDigitanksEntity::GetVisibility() const

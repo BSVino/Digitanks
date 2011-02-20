@@ -20,8 +20,10 @@ void CWeaponPanel::Layout()
 {
 	CPanel::Layout();
 
-	m_pInfo->SetSize(150, 250);
-	m_pInfo->SetPos(GetWidth()+2, GetHeight()/2 - m_pInfo->GetHeight()/2);
+	m_pInfo->SetSize(200, 250);
+	m_pInfo->SetPos(GetWidth()+20, GetHeight()/2 - m_pInfo->GetHeight()/2);
+
+	SetSize(250, 250);
 
 	for (size_t i = 0; i < m_apWeapons.size(); i++)
 	{
@@ -93,9 +95,9 @@ void CWeaponPanel::Layout()
 		}
 	}
 
-	SetSize(260, iMaxHeight);
+	SetSize(iMaxHeight, iMaxHeight);
 
-	SetPos(CRootPanel::Get()->GetWidth()/2 + 100, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
+	SetPos(CRootPanel::Get()->GetWidth()/2 + 30, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
 	UpdateInfo(WEAPON_NONE);
 }

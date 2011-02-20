@@ -336,6 +336,9 @@
     <ClCompile Include="..\..\tinker\portals\portal_stubs.cpp">
       <Filter>Source Files\tinker\portals</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\wreckage.cpp">
+      <Filter>Source Files\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -574,6 +577,9 @@
     </ClInclude>
     <ClInclude Include="..\..\tinker\portals\portal.h">
       <Filter>Source Files\tinker\portals</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\wreckage.h">
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

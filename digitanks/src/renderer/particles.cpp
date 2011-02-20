@@ -140,6 +140,9 @@ void CParticleSystemLibrary::RemoveInstance(size_t iInstance)
 
 CSystemInstance* CParticleSystemLibrary::GetInstance(size_t iInstance)
 {
+	if (iInstance == ~0)
+		return NULL;
+
 	if (Get()->m_apInstances.find(iInstance) == Get()->m_apInstances.end())
 		return NULL;
 

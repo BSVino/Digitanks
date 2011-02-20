@@ -14,6 +14,8 @@ public:
 
 	virtual void					Think();
 
+	class CWreckage*				CreateWreckage();
+
 	virtual void					StartTurn();
 	virtual void					EndTurn();
 
@@ -25,6 +27,7 @@ public:
 	virtual void					RenderVisibleArea();
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;
+	virtual void					CalculateVisibility();
 	virtual bool					GetsConcealmentBonus() const { return true; };
 	virtual float					GetCloakConcealment() const { return 0; };
 	virtual bool					HasLostConcealment() const { return false; }

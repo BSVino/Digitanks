@@ -586,6 +586,8 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	pConstructing->GetSupplier()->AddChild(pConstructing);
 
 	pConstructing->SetOrigin(vecPreview);
+	pConstructing->CalculateVisibility();
+
 	if (ePreviewStructure == STRUCTURE_PSU || ePreviewStructure == STRUCTURE_BATTERY)
 	{
 		Vector vecPSU = vecPreview;
@@ -713,6 +715,7 @@ void CCPU::StartTurn()
 			{
 				CDigitank* pTank = GameServer()->Create<CScout>("CScout");
 				pTank->SetOrigin(GetOrigin());
+				pTank->CalculateVisibility();
 				GetTeam()->AddEntity(pTank);
 
 				for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)

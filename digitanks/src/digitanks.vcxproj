@@ -180,6 +180,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\weapons\missiledefense.cpp" />
     <ClCompile Include="game\digitanks\weapons\projectile.cpp" />
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp" />
+    <ClCompile Include="game\digitanks\wreckage.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="game\level.cpp" />
     <ClCompile Include="intro.cpp" />
@@ -282,6 +283,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\weapons\missiledefense.h" />
     <ClInclude Include="game\digitanks\weapons\projectile.h" />
     <ClInclude Include="game\digitanks\weapons\specialshells.h" />
+    <ClInclude Include="game\digitanks\wreckage.h" />
     <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="game\level.h" />
     <ClInclude Include="shaders\dt_shaders.h" />
