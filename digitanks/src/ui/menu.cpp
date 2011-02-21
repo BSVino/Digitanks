@@ -1017,7 +1017,7 @@ COptionsPanel::COptionsPanel()
 	m_pSoundVolume = new CScrollSelector<float>(L"text");
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
-	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.2f, L"1\20%"));
+	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.2f, L"20%"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.3f, L"30%"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.4f, L"40%"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.5f, L"50%"));
@@ -1038,7 +1038,7 @@ COptionsPanel::COptionsPanel()
 	m_pMusicVolume = new CScrollSelector<float>(L"text");
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
-	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.2f, L"1\20%"));
+	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.2f, L"20%"));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.3f, L"30%"));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.4f, L"40%"));
 	m_pMusicVolume->AddSelection(CScrollSelection<float>(0.5f, L"50%"));
