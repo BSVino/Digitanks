@@ -275,7 +275,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"None",
 
 	L"This light projectile bomb does just enough damage to keep the enemy from regenerating his shields next turn.",
-	L"This medium projectile bomb is a good tradeoff between firepower and defense.",
+	L"This medium projectile bomb is a good trade-off between firepower and defense.",
 	L"This heavy projectile bomb packs a mean punch at the cost of your shield energy.",
 	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
 	L"This medium projectile bomb sends out an electonic pulse that does extra damage against shields but relatively little damage against tank hulls.",
@@ -283,7 +283,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
 	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
 	L"This heavy projectile bounces three times before it explodes. Chuck it into holes to find out-of-reach targets.",
-	L"This medium projectile can't be stopped. Even after it explodes it continues on its previous path through the cleared terrain. Good for punching through dirt.",
+	L"This medium projectile can't be stopped. Even after it explodes, it continues on its previous path through the cleared terrain. Good for punching through dirt.",
 	L"This heavy projectile breaks into a large number of smaller pieces on impact for maximum distruction.",
 	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
 
@@ -296,7 +296,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"The Artillery Wide Area Network Bomb fragments into many pieces before raining chaos and destruction down on your foes.",
 	L"The Devastor is the ultimate weapon of destruction.",
 
-	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first person.",
+	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first-person.",
 	L"This weapon emits a wall of rays in one direction. Great for hitting multiple tanks in a line. This weapon goes through any objects or terrian and has no range limitations.",
 	L"These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!",
 	L"Combine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields. This attack requires your movement energy, if you move your tank you won't be able to execute it.",

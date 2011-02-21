@@ -489,7 +489,7 @@ void CGamesPanel::LoadCallback()
 
 void CGamesPanel::ArtilleryHintCallback()
 {
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Artillery mode is a quick game mode. You control 2 to 5 tanks in a heads-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Artillery mode is a quick no-holds-barred fight to the death. You control 1 to 4 tanks in a head-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
 }
 
 void CGamesPanel::StrategyHintCallback()
@@ -729,10 +729,10 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	AddControl(m_pTanksLabel);
 
 	m_pTerrain = new CScrollSelector<float>(L"text");
-	m_pTerrain->AddSelection(CScrollSelection<float>(10, L"Flat"));
+	m_pTerrain->AddSelection(CScrollSelection<float>(10, L"Flatty"));
 	m_pTerrain->AddSelection(CScrollSelection<float>(50, L"Hilly"));
 	m_pTerrain->AddSelection(CScrollSelection<float>(80, L"Mountainy"));
-	m_pTerrain->AddSelection(CScrollSelection<float>(120, L"Everest"));
+	m_pTerrain->AddSelection(CScrollSelection<float>(120, L"Everesty"));
 	m_pTerrain->SetSelection(2);
 	AddControl(m_pTerrain);
 
