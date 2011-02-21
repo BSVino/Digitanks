@@ -147,6 +147,7 @@ public:
 	virtual void	FinishRendering();
 	virtual void	RenderOffscreenBuffers() {};
 	virtual void	RenderFullscreenBuffers() {};
+	virtual void	SetupSceneShader() {};
 
 	void			RenderMapFullscreen(size_t iMap);
 	void			RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer);

@@ -8,6 +8,8 @@
 #include <game/digitanks/digitanksentity.h>
 #include <game/digitanks/digitanksgame.h>
 #include <models/models.h>
+#include <game/digitanks/dt_camera.h>
+#include <shaders/shaders.h>
 
 #include <ui/digitankswindow.h>
 
@@ -352,6 +354,25 @@ void CDigitanksRenderer::FinishRendering()
 	RenderAvailableAreas();
 
 	BaseClass::FinishRendering();
+}
+
+void CDigitanksRenderer::SetupSceneShader()
+{
+	if (!DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
+		return;
+
+	GLuint iSceneProgram = (GLuint)CShaderLibrary::GetCameraGuidedProgram();
+	UseProgram((GLuint)iSceneProgram);
+
+	// Will be filled in by RenderMapFullscreen()
+	GLint iSource = glGetUniformLocation(iSceneProgram, "iSource");
+	glUniform1i(iSource, 0);
+
+	GLint flOffsetX = glGetUniformLocation(iSceneProgram, "flOffsetX");
+	glUniform1f(flOffsetX, 1.3f / m_oSceneBuffer.m_iWidth);
+
+	GLint flOffsetY = glGetUniformLocation(iSceneProgram, "flOffsetY");
+	glUniform1f(flOffsetY, 1.3f / m_oSceneBuffer.m_iHeight);
 }
 
 void CDigitanksRenderer::RenderPreviewModes()

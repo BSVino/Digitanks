@@ -23,6 +23,7 @@
 #include <game/digitanks/units/mechinf.h>
 #include <game/digitanks/units/maintank.h>
 #include <game/digitanks/dt_camera.h>
+#include <game/digitanks/weapons/cameraguided.h>
 #include <sound/sound.h>
 #include "weaponpanel.h"
 #include "scenetree.h"
@@ -804,7 +805,7 @@ void CHUD::Think()
 	}
 
 	IControl* pMouseControl = glgui::CRootPanel::Get()->GetHasCursor();
-	if (DigitanksGame()->GetDigitanksCamera()->GetCameraGuidedMissile())
+	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
 	{
 		DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
 		SetTooltip(L"");
@@ -838,6 +839,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
+
+	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
+	{
+		PaintCameraGuidedMissile(x, y, w, h);
+		return;
+	}
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
 	int iHeight = DigitanksWindow()->GetWindowHeight();
@@ -1283,6 +1290,214 @@ void CHUD::Paint(int x, int y, int w, int h)
 //		CRootPanel::PaintTexture(m_iCompetitionWatermark, 20, 20, 125/2, 184/2);
 //		break;
 //	}
+}
+
+void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
+{
+	CCameraGuidedMissile* pMissile = DigitanksGame()->GetDigitanksCamera()->GetCameraGuidedMissile();
+
+	if (!pMissile->GetOwner())
+		return;
+
+	Color clrWhite = Color(255, 255, 255, 120);
+
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.SetBlend(BLEND_ADDITIVE);
+	c.SetColor(clrWhite);
+
+	if (!pMissile->IsBoosting() && GameServer()->GetGameTime() - pMissile->GetSpawnTime() < 3)
+	{
+		eastl::string16 sLaunch = L"LAUNCH IN";
+		float flLaunchWidth = glgui::CLabel::GetTextWidth(sLaunch, sLaunch.length(), L"cameramissile", 40);
+		glgui::CLabel::PaintText(sLaunch, sLaunch.length(), L"cameramissile", 40, w/2-flLaunchWidth/2, 150);
+
+		sLaunch = sprintf(L"%.1f", 3 - (GameServer()->GetGameTime() - pMissile->GetSpawnTime()));
+		flLaunchWidth = glgui::CLabel::GetTextWidth(sLaunch, sLaunch.length(), L"cameramissile", 40);
+		glgui::CLabel::PaintText(sLaunch, sLaunch.length(), L"cameramissile", 40, w/2-flLaunchWidth/2, 200);
+	}
+
+	CDigitank* pOwner = pMissile->GetOwner();
+
+	eastl::string16 sRange = sprintf(L"RANGE %.2f", (pOwner->GetLastAim() - pMissile->GetOrigin()).Length());
+	glgui::CLabel::PaintText(sRange, sRange.length(), L"cameramissile", 20, 10, 100);
+
+	Vector vecHit;
+	CBaseEntity* pHit;
+	bool bHit = DigitanksGame()->TraceLine(pOwner->GetLastAim() + Vector(0, 1, 0), pMissile->GetOrigin(), vecHit, &pHit, CG_TERRAIN);
+
+	eastl::string16 sClear;
+	if (bHit)
+		sClear = L"OBSTRUCTION";
+	else
+		sClear = L"CLEAR";
+	glgui::CLabel::PaintText(sClear, sClear.length(), L"cameramissile", 20, 10, 200);
+
+	eastl::string16 sAltitude = sprintf(L"ALT %.2f", pMissile->GetOrigin().y - DigitanksGame()->GetTerrain()->GetHeight(pMissile->GetOrigin().x, pMissile->GetOrigin().y));
+	glgui::CLabel::PaintText(sAltitude, sAltitude.length(), L"cameramissile", 20, 10, 300);
+
+	if (pMissile->IsBoosting() && Oscillate(GameServer()->GetGameTime(), 0.3f) > 0.1f)
+	{
+		eastl::string16 sBoost = L"BOOST";
+		float flBoostWidth = glgui::CLabel::GetTextWidth(sBoost, sBoost.length(), L"cameramissile", 40);
+		glgui::CLabel::PaintText(sBoost, sBoost.length(), L"cameramissile", 40, w/2-flBoostWidth/2, h - 200.0f);
+	}
+
+	int iBoxWidth = 300;
+
+	glgui::CRootPanel::PaintRect(w/2-iBoxWidth/2, h/2-iBoxWidth/2, 1, iBoxWidth, clrWhite);
+	glgui::CRootPanel::PaintRect(w/2-iBoxWidth/2, h/2-iBoxWidth/2, iBoxWidth, 1, clrWhite);
+	glgui::CRootPanel::PaintRect(w/2+iBoxWidth/2, h/2-iBoxWidth/2, 1, iBoxWidth, clrWhite);
+	glgui::CRootPanel::PaintRect(w/2-iBoxWidth/2, h/2+iBoxWidth/2, 300, 1, clrWhite);
+
+	int iTrackingWidth = 500;
+
+	glgui::CRootPanel::PaintRect(w/2-iTrackingWidth/2, h/2-iTrackingWidth/2-50, iTrackingWidth, 1, clrWhite);
+	glgui::CRootPanel::PaintRect(w/2-iTrackingWidth/2, h/2+iTrackingWidth/2+50, iTrackingWidth, 1, clrWhite);
+
+	EAngle angCamera = pMissile->GetAngles();
+	int iTicks = 10;
+	int iPixelsPerTick = iTrackingWidth/iTicks;
+
+	for (int i = 0; i <= 10; i++)
+	{
+		int iOffset = iPixelsPerTick*i;
+		int iXPosition = w/2-iTrackingWidth/2 + iOffset + (int)fmod(-angCamera.y*1.5f, (float)iPixelsPerTick);
+		if (iXPosition < w/2-iTrackingWidth/2)
+			continue;
+
+		if (iXPosition > w/2+iTrackingWidth/2)
+			continue;
+
+		glgui::CRootPanel::PaintRect(iXPosition, h/2-iTrackingWidth/2-50+1, 1, 8, clrWhite);
+		glgui::CRootPanel::PaintRect(iXPosition, h/2+iTrackingWidth/2+50-8, 1, 8, clrWhite);
+	}
+
+	glgui::CRootPanel::PaintRect(w/2-iTrackingWidth/2-50, h/2-iTrackingWidth/2, 1, iTrackingWidth, clrWhite);
+	glgui::CRootPanel::PaintRect(w/2+iTrackingWidth/2+50, h/2-iTrackingWidth/2, 1, iTrackingWidth, clrWhite);
+
+	for (int i = 0; i <= 10; i++)
+	{
+		int iOffset = iPixelsPerTick*i;
+		int iYPosition = h/2-iTrackingWidth/2 + iOffset + (int)fmod(-angCamera.p*1.5f, (float)iPixelsPerTick);
+		if (iYPosition < h/2-iTrackingWidth/2)
+			continue;
+
+		if (iYPosition > h/2+iTrackingWidth/2)
+			continue;
+
+		glgui::CRootPanel::PaintRect(w/2-iTrackingWidth/2-50+1, iYPosition, 8, 1, clrWhite);
+		glgui::CRootPanel::PaintRect(w/2+iTrackingWidth/2+50-8, iYPosition, 8, 1, clrWhite);
+	}
+
+	Vector vecUp;
+	Vector vecForward;
+	GameServer()->GetRenderer()->GetCameraVectors(&vecForward, NULL, &vecUp);
+
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+
+		if (!pDTEntity)
+			continue;
+
+		if (pDTEntity->GetVisibility() == 0)
+			continue;
+
+		CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
+
+		if (!pSelectable)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+		if (!pTank)
+			continue;
+
+		Vector vecOrigin = pEntity->GetOrigin();
+
+		Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(vecOrigin);
+
+		float flRadius = pDTEntity->GetBoundingRadius();
+
+		// Cull tanks behind the camera
+		if (vecForward.Dot((vecOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
+			continue;
+
+		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
+		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
+
+		if (vecScreen.x < w/2-iBoxWidth)
+			continue;
+
+		if (vecScreen.y < h/2-iBoxWidth)
+			continue;
+
+		if (vecScreen.x > w/2+iBoxWidth)
+			continue;
+
+		if (vecScreen.y > h/2+iBoxWidth)
+			continue;
+
+		Color clrTeam = Color(255, 255, 255);
+		if (pTank->GetTeam())
+			clrTeam = pTank->GetTeam()->GetColor();
+		clrTeam.SetAlpha(clrWhite.a());
+
+		float flHole = 5;
+		CRootPanel::PaintRect((int)(vecScreen.x - flWidth), (int)(vecScreen.y), (int)(flWidth - flHole), 1, clrTeam);
+		CRootPanel::PaintRect((int)(vecScreen.x + flHole), (int)(vecScreen.y), (int)(flWidth - flHole), 1, clrTeam);
+		CRootPanel::PaintRect((int)(vecScreen.x), (int)(vecScreen.y - flWidth), 1, (int)(flWidth - flHole), clrTeam);
+		CRootPanel::PaintRect((int)(vecScreen.x), (int)(vecScreen.y + flHole), 1, (int)(flWidth - flHole), clrTeam);
+	}
+
+	if (Oscillate(GameServer()->GetGameTime(), 0.5f) > 0.3f)
+	{
+		if (vecForward.Dot((pOwner->GetLastAim()-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) > 0)
+		{
+			Vector vecTarget = GameServer()->GetRenderer()->ScreenPosition(pOwner->GetLastAim());
+			float flWidth = 40;
+
+			CRootPanel::PaintRect((int)(vecTarget.x - flWidth/2), (int)(vecTarget.y - flWidth/2), (int)flWidth, 1, clrWhite);
+			CRootPanel::PaintRect((int)(vecTarget.x - flWidth/2), (int)(vecTarget.y - flWidth/2), 1, (int)flWidth, clrWhite);
+			CRootPanel::PaintRect((int)(vecTarget.x + flWidth/2), (int)(vecTarget.y - flWidth/2), 1, (int)flWidth, clrWhite);
+			CRootPanel::PaintRect((int)(vecTarget.x - flWidth/2), (int)(vecTarget.y + flWidth/2), (int)flWidth, 1, clrWhite);
+
+			c.SetBlend(BLEND_NONE);
+			CRootPanel::PaintRect((int)(vecTarget.x - flWidth/2) - 1, (int)(vecTarget.y - flWidth/2) - 1, (int)flWidth + 2, 1, Color(0, 0, 0));
+			CRootPanel::PaintRect((int)(vecTarget.x - flWidth/2) - 1, (int)(vecTarget.y - flWidth/2) - 1, 1, (int)flWidth + 2, Color(0, 0, 0));
+			CRootPanel::PaintRect((int)(vecTarget.x + flWidth/2) + 1, (int)(vecTarget.y - flWidth/2) - 1, 1, (int)flWidth + 2, Color(0, 0, 0));
+			CRootPanel::PaintRect((int)(vecTarget.x - flWidth/2) - 1, (int)(vecTarget.y + flWidth/2) + 1, (int)flWidth + 2, 1, Color(0, 0, 0));
+		}
+	}
+
+	m_hHintWeapon = pMissile;
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && m_hHintWeapon != NULL && !pMissile->IsBoosting())
+	{
+		int iX = GetWidth()/2 - 75;
+		int iY = GetHeight()/2 + 50;
+
+		CRootPanel::PaintRect(iX, iY, 150, 85, Color(0, 0, 0, 150));
+
+		m_pSpacebarHint->SetVisible(true);
+		m_pSpacebarHint->SetText(m_hHintWeapon->SpecialCommandHint());
+		m_pSpacebarHint->SetSize(150, 25);
+		m_pSpacebarHint->SetPos(iX, iY + 50);
+		m_pSpacebarHint->SetWrap(false);
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		iY -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
+
+		PaintSheet(m_iKeysSheet, iX+45, iY, 60, 60, 128, 64, 64, 64, 256, 256, Color(255, 255, 255, 255));
+
+		m_pSpacebarHint->Paint();
+	}
+	else
+	{
+		m_pSpacebarHint->SetVisible(false);
+	}
 }
 
 void CHUD::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)

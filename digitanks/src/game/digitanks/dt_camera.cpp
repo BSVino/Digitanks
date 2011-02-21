@@ -108,7 +108,12 @@ void CDigitanksCamera::SetCameraGuidedMissile(CCameraGuidedMissile* pMissile)
 	m_flCameraGuidedFOV = m_flCameraGuidedFOVGoal = 0;
 }
 
-bool CDigitanksCamera::GetCameraGuidedMissile()
+CCameraGuidedMissile* CDigitanksCamera::GetCameraGuidedMissile()
+{
+	return m_hCameraGuidedMissile;
+}
+
+bool CDigitanksCamera::HasCameraGuidedMissile()
 {
 	return m_hCameraGuidedMissile != NULL;
 }

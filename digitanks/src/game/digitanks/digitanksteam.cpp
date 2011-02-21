@@ -204,7 +204,7 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		GetPrimarySelection()->OnCurrentSelection();
 
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
 
 		if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()))
 			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);

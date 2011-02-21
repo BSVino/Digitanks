@@ -1059,7 +1059,15 @@ void CRenderer::FinishRendering()
 	glDrawBuffer(GL_BACK);
 
 	if (ShouldUseFramebuffers())
+	{
+		if (ShouldUseShaders())
+			SetupSceneShader();
+
 		RenderMapFullscreen(m_oSceneBuffer.m_iMap);
+
+		if (ShouldUseShaders())
+			ClearProgram();
+	}
 
 	RenderFullscreenBuffers();
 

@@ -66,6 +66,9 @@ public:
 	static const char*		GetFSStencilShader();
 	static size_t			GetStencilProgram() { return GetProgram(Get()->m_iStencil); };
 
+	static const char*		GetFSCameraGuidedShader();
+	static size_t			GetCameraGuidedProgram() { return GetProgram(Get()->m_iCameraGuided); };
+
 	static void				CompileShaders();
 	static void				DestroyShaders();
 
@@ -93,6 +96,7 @@ protected:
 	size_t					m_iBrightPass;
 	size_t					m_iDarken;
 	size_t					m_iStencil;
+	size_t					m_iCameraGuided;
 
 	bool					m_bLogNeedsClearing;
 

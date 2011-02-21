@@ -121,6 +121,8 @@ public:
 
 	void						Paint(int x, int y, int w, int h);
 
+	void						PaintCameraGuidedMissile(int x, int y, int w, int h);
+
 	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
 	static void					PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c = Color(255,255,255));
 	static size_t				GetHUDSheet();

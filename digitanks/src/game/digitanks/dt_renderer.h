@@ -18,6 +18,7 @@ public:
 	virtual void	StartRendering();
 	virtual void	RenderSkybox();
 	virtual void	FinishRendering();
+	virtual void	SetupSceneShader();
 	virtual void	RenderPreviewModes();
 	virtual void	RenderFogOfWar();
 	virtual void	RenderAvailableAreas();

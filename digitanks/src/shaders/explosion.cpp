@@ -21,3 +21,33 @@ const char* CShaderLibrary::GetFSExplosionShader()
 		"	gl_FragColor = vecExplosion;"
 		"}";
 }
+
+const char* CShaderLibrary::GetFSCameraGuidedShader()
+{
+	return
+		"uniform sampler2D iSource;"
+		"uniform float flOffsetX;"
+		"uniform float flOffsetY;"
+
+		"void main(void)"
+		"{"
+		"	vec2 vecTC = gl_TexCoord[0].st;"
+
+		"	vec4 vecColorSum;"
+		"	vecColorSum  = texture2D(iSource, vecTC);"
+		"	vecColorSum += texture2D(iSource, vecTC + vec2(flOffsetX, flOffsetY))/2.0;"
+		"	vecColorSum += texture2D(iSource, vecTC + vec2(-flOffsetX, flOffsetY))/2.0;"
+		"	vecColorSum += texture2D(iSource, vecTC + vec2(flOffsetX, -flOffsetY))/2.0;"
+		"	vecColorSum += texture2D(iSource, vecTC + vec2(-flOffsetX, -flOffsetY))/2.0;"
+
+		"	vecColorSum = vecColorSum/3.0;"
+
+		"	float flHighest = vecColorSum.r;"
+		"	if (vecColorSum.g > flHighest)"
+		"		flHighest = vecColorSum.g;"
+		"	if (vecColorSum.b > flHighest)"
+		"		flHighest = vecColorSum.b;"
+
+		"	gl_FragColor = vec4(flHighest, flHighest, flHighest, 1.0);"
+		"}";
+}

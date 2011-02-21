@@ -43,6 +43,7 @@ void CShaderLibrary::AddShaders()
 	m_iBrightPass = AddShader(GetVSPassShader(), GetFSBrightPassShader());
 	m_iDarken = AddShader(GetVSPassShader(), GetFSDarkenShader());
 	m_iStencil = AddShader(GetVSPassShader(), GetFSStencilShader());
+	m_iCameraGuided = AddShader(GetVSPassShader(), GetFSCameraGuidedShader());
 }
 
 size_t CShaderLibrary::AddShader(const char* pszVS, const char* pszFS)

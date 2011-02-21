@@ -50,12 +50,6 @@ void CCameraGuidedMissile::Think()
 
 	if (m_flTimeExploded == 0 && GameServer()->GetGameTime() - m_flTimeCreated > 13.0f)
 		Explode();
-
-	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
-	{
-		Delete();
-		DigitanksWindow()->SetMouseCursorEnabled(true);
-	}
 }
 
 void CCameraGuidedMissile::OnSetOwner(CDigitank* pOwner)
