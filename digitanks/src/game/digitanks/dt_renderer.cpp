@@ -41,6 +41,9 @@ CDigitanksRenderer::CDigitanksRenderer()
 	m_flRing2Yaw = 90;
 	m_flRing3Yaw = 190;
 
+	m_iVortex = CModelLibrary::Get()->AddModel(L"models/skybox/vortex.obj", true);
+	m_flVortexYaw = 0;
+
 	m_iDigiverse = CModelLibrary::Get()->AddModel(L"models/skybox/digiverse.obj", true);
 	m_iFloaters[0] = CModelLibrary::Get()->AddModel(L"models/skybox/floaters/float01.obj", true);
 	m_iFloaters[1] = CModelLibrary::Get()->AddModel(L"models/skybox/floaters/float02.obj", true);
@@ -186,6 +189,22 @@ void CDigitanksRenderer::RenderSkybox()
 	gluLookAt(m_vecCameraPosition.x/16, m_vecCameraPosition.y/16, m_vecCameraPosition.z/16,
 		m_vecCameraTarget.x/16, m_vecCameraTarget.y/16, m_vecCameraTarget.z/16,
 		0.0, 1.0, 0.0);
+
+	if (true)
+	{
+		CRenderingContext r(this);
+		r.SetBlend(BLEND_ALPHA);
+		r.Rotate(m_flVortexYaw, Vector(0, 1, 0));
+		r.RenderModel(m_iVortex);
+
+		r.SetBlend(BLEND_ADDITIVE);
+		r.ResetTransformations();
+		r.Translate(Vector(0, 1, 0));
+		r.Rotate(-m_flVortexYaw, Vector(0, 1, 0));
+		r.RenderModel(m_iVortex);
+
+		m_flVortexYaw -= GameServer()->GetFrameTime()*2;
+	}
 
 	if (true)
 	{

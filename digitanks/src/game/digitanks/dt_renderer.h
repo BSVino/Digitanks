@@ -57,7 +57,11 @@ protected:
 	float			m_flRing2Yaw;
 	float			m_flRing3Yaw;
 
+	size_t			m_iVortex;
+	float			m_flVortexYaw;
+
 	size_t			m_iDigiverse;
+
 	size_t			m_iFloaters[15];
 
 	float			m_flLastBloomPulse;
