@@ -36,7 +36,7 @@ public:
 	virtual float				BaseVisibleRange() const { return 60.0f; };
 	virtual float				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.7f; };
-	virtual float				ChargeRadius() const { return 50.0f; }
+	virtual float				BaseChargeRadius() const { return 50.0f; }
 	virtual float				ChargeEnergy() const { return 9.0f; }
 	virtual float				ChargeDamage() const { return 70.0f; }
 	virtual float				ChargePushDistance() const { return 20.0f; }

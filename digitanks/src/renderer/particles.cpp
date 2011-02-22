@@ -100,12 +100,12 @@ void CParticleSystemLibrary::Render()
 		(*it).second->Render();
 }
 
-size_t CParticleSystemLibrary::AddInstance(const eastl::string16& sName, Vector vecOrigin)
+size_t CParticleSystemLibrary::AddInstance(const eastl::string16& sName, Vector vecOrigin, EAngle angAngles)
 {
-	return AddInstance(CParticleSystemLibrary::Get()->FindParticleSystem(sName), vecOrigin);
+	return AddInstance(CParticleSystemLibrary::Get()->FindParticleSystem(sName), vecOrigin, angAngles);
 }
 
-size_t CParticleSystemLibrary::AddInstance(size_t iParticleSystem, Vector vecOrigin)
+size_t CParticleSystemLibrary::AddInstance(size_t iParticleSystem, Vector vecOrigin, EAngle angAngles)
 {
 	CParticleSystemLibrary* pPSL = Get();
 	CParticleSystem* pSystem = pPSL->GetParticleSystem(iParticleSystem);
@@ -113,7 +113,7 @@ size_t CParticleSystemLibrary::AddInstance(size_t iParticleSystem, Vector vecOri
 	if (!pSystem)
 		return ~0;
 
-	pPSL->m_apInstances.insert(eastl::pair<size_t, CSystemInstance*>(pPSL->m_iSystemInstanceIndex++, new CSystemInstance(pSystem, vecOrigin)));
+	pPSL->m_apInstances.insert(eastl::pair<size_t, CSystemInstance*>(pPSL->m_iSystemInstanceIndex++, new CSystemInstance(pSystem, vecOrigin, angAngles)));
 	return pPSL->m_iSystemInstanceIndex-1;
 }
 
@@ -125,6 +125,19 @@ void CParticleSystemLibrary::StopInstance(size_t iInstance)
 		return;
 
 	pInstance->Stop();
+}
+
+void CParticleSystemLibrary::StopInstances(const eastl::string16& sName)
+{
+	CParticleSystemLibrary* pPSL = Get();
+	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
+
+	for (; it != pPSL->m_apInstances.end(); it++)
+	{
+		CSystemInstance* pSystemInstance = (*it).second;
+		if (pSystemInstance->GetSystem()->GetName() == sName)
+			pSystemInstance->Stop();
+	}
 }
 
 void CParticleSystemLibrary::RemoveInstance(size_t iInstance)
@@ -196,11 +209,14 @@ CParticleSystem::CParticleSystem(eastl::string16 sName)
 	m_clrColor = Color(255, 255, 255, 255);
 	m_flStartRadius = 1.0f;
 	m_flEndRadius = 1.0f;
+	m_flFadeIn = 0.0f;
 	m_flFadeOut = 0.25f;
 	m_flInheritedVelocity = 0.0f;
 	m_vecGravity = Vector(0, -10, 0);
 	m_flDrag = 1.0f;
 	m_bRandomBillboardYaw = false;
+	m_bRandomModelYaw = true;
+	m_bRandomModelRoll = true;
 }
 
 void CParticleSystem::Load()
@@ -230,10 +246,11 @@ void CParticleSystem::AddChild(size_t iSystem)
 	m_aiChildren.push_back(iSystem);
 }
 
-CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
+CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin, EAngle angAngles)
 {
 	m_pSystem = pSystem;
 	m_vecOrigin = vecOrigin;
+	m_angAngles = angAngles;
 
 	m_bStopped = false;
 
@@ -245,7 +262,7 @@ CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin)
 	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();
 
 	for (size_t i = 0; i < m_pSystem->GetNumChildren(); i++)
-		m_apChildren.push_back(new CSystemInstance(pPSL->GetParticleSystem(m_pSystem->GetChild(i)), vecOrigin));
+		m_apChildren.push_back(new CSystemInstance(pPSL->GetParticleSystem(m_pSystem->GetChild(i)), vecOrigin, m_angAngles));
 
 	m_bColorOverride = false;
 }
@@ -288,8 +305,16 @@ void CSystemInstance::Simulate()
 
 		float flLifeTimeRamp = flLifeTime / m_pSystem->GetLifeTime();
 
+		float flFadeIn = 1;
+		float flFadeOut = 1;
+
+		if (flLifeTimeRamp < m_pSystem->GetFadeIn())
+			flFadeIn = RemapVal(flLifeTimeRamp, 0, m_pSystem->GetFadeIn(), 0, 1);
+
 		if (flLifeTimeRamp > 1-m_pSystem->GetFadeOut())
-			pParticle->m_flAlpha = RemapVal(flLifeTimeRamp, 1-m_pSystem->GetFadeOut(), 1, m_pSystem->GetAlpha(), 0);
+			flFadeOut = RemapVal(flLifeTimeRamp, 1-m_pSystem->GetFadeOut(), 1, 1, 0);
+
+		pParticle->m_flAlpha = flFadeIn * flFadeOut * m_pSystem->GetAlpha();
 
 		pParticle->m_flRadius = RemapVal(flLifeTimeRamp, 0, 1, m_pSystem->GetStartRadius(), m_pSystem->GetEndRadius());
 	}
@@ -360,7 +385,19 @@ void CSystemInstance::SpawnParticle()
 		pNewParticle->m_vecVelocity.z += RandomFloat(vecMins.z, vecMaxs.z);
 	}
 
-	pNewParticle->m_flAlpha = m_pSystem->GetAlpha();
+	pNewParticle->m_angAngles = m_angAngles;
+
+	if (m_pSystem->GetRandomModelYaw())
+		pNewParticle->m_angAngles.y = RandomFloat(0, 360);
+
+	if (m_pSystem->GetRandomModelRoll())
+		pNewParticle->m_angAngles.r = RandomFloat(-180, 180);
+
+	if (m_pSystem->GetFadeIn())
+		pNewParticle->m_flAlpha = 0;
+	else
+		pNewParticle->m_flAlpha = m_pSystem->GetAlpha();
+
 	pNewParticle->m_flRadius = m_pSystem->GetStartRadius();
 
 	if (m_pSystem->GetRandomBillboardYaw())
@@ -412,6 +449,9 @@ void CSystemInstance::Render()
 				c.SetColor(m_pSystem->GetColor());
 
 			c.Translate(pParticle->m_vecOrigin);
+			c.Rotate(-m_angAngles.y, Vector(0, 1, 0));
+			c.Rotate(m_angAngles.p, Vector(0, 0, 1));
+			c.Rotate(m_angAngles.r, Vector(1, 0, 0));
 			c.Scale(pParticle->m_flRadius, pParticle->m_flRadius, pParticle->m_flRadius);
 			c.RenderModel(m_pSystem->GetModel());
 			c.ResetTransformations();
@@ -527,6 +567,7 @@ CParticle::CParticle()
 void CParticle::Reset()
 {
 	m_vecOrigin = m_vecVelocity = Vector();
+	m_angAngles = EAngle();
 	m_flAlpha = 1;
 	m_flRadius = 1;
 	m_bActive = true;

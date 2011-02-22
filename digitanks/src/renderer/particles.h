@@ -20,6 +20,8 @@ public:
 	Vector							m_vecOrigin;
 	Vector							m_vecVelocity;
 
+	EAngle							m_angAngles;
+
 	float							m_flAlpha;
 	float							m_flSpawnTime;
 	float							m_flRadius;
@@ -29,7 +31,7 @@ public:
 class CSystemInstance
 {
 public:
-									CSystemInstance(class CParticleSystem* pSystem, Vector vecOrigin);
+									CSystemInstance(class CParticleSystem* pSystem, Vector vecOrigin, EAngle angAngles);
 									~CSystemInstance();
 
 public:
@@ -50,12 +52,16 @@ public:
 
 	void							SetColor(Color c);
 
+	CParticleSystem*				GetSystem() { return m_pSystem; }
+
 protected:
 	CParticleSystem*				m_pSystem;
 	eastl::vector<CSystemInstance*>	m_apChildren;
 
 	Vector							m_vecOrigin;
 	Vector							m_vecInheritedVelocity;
+
+	EAngle							m_angAngles;
 
 	bool							m_bStopped;
 
@@ -122,6 +128,9 @@ public:
 	void							SetEndRadius(float flEndRadius) { m_flEndRadius = flEndRadius; }
 	inline float					GetEndRadius() { return m_flEndRadius; }
 
+	void							SetFadeIn(float flFadeIn) { m_flFadeIn = flFadeIn; }
+	inline float					GetFadeIn() { return m_flFadeIn; }
+
 	void							SetFadeOut(float flFadeOut) { m_flFadeOut = flFadeOut; }
 	inline float					GetFadeOut() { return m_flFadeOut; }
 
@@ -142,6 +151,12 @@ public:
 
 	void							SetRandomBillboardYaw(bool bYaw) { m_bRandomBillboardYaw = bYaw; }
 	bool							GetRandomBillboardYaw() { return m_bRandomBillboardYaw; }
+
+	void							SetRandomModelYaw(bool bYaw) { m_bRandomModelYaw = bYaw; }
+	bool							GetRandomModelYaw() { return m_bRandomModelYaw; }
+
+	void							SetRandomModelRoll(bool bRoll) { m_bRandomModelRoll = bRoll; }
+	bool							GetRandomModelRoll() { return m_bRandomModelRoll; }
 
 	void							AddChild(size_t iSystem);
 	size_t							GetNumChildren() { return m_aiChildren.size(); };
@@ -166,6 +181,7 @@ protected:
 	Color							m_clrColor;
 	float							m_flStartRadius;
 	float							m_flEndRadius;
+	float							m_flFadeIn;
 	float							m_flFadeOut;
 	Vector							m_vecSpawnOffset;
 	float							m_flInheritedVelocity;
@@ -173,8 +189,10 @@ protected:
 	Vector							m_vecGravity;
 	float							m_flDrag;
 	bool							m_bRandomBillboardYaw;
+	bool							m_bRandomModelYaw;
+	bool							m_bRandomModelRoll;
 
-	eastl::vector<size_t>				m_aiChildren;
+	eastl::vector<size_t>			m_aiChildren;
 };
 
 class CParticleSystemLibrary
@@ -195,9 +213,10 @@ public:
 	static void						Simulate();
 	static void						Render();
 
-	static size_t					AddInstance(const eastl::string16& sName, Vector vecOrigin);
-	static size_t					AddInstance(size_t iParticleSystem, Vector vecOrigin);
+	static size_t					AddInstance(const eastl::string16& sName, Vector vecOrigin, EAngle angAngles=EAngle(0, 0, 0));
+	static size_t					AddInstance(size_t iParticleSystem, Vector vecOrigin, EAngle angAngles=EAngle(0, 0, 0));
 	static void						StopInstance(size_t iInstance);
+	static void						StopInstances(const eastl::string16& sName);
 	static void						RemoveInstance(size_t iInstance);
 	static CSystemInstance*			GetInstance(size_t iInstance);
 

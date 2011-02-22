@@ -167,13 +167,14 @@ void CParticleSystemLibrary::InitSystems()
 
 	pElectronodeSpark->SetTexture(L"textures/particles/electrospark.png");
 	pElectronodeSpark->SetLifeTime(2.0f);
-	pElectronodeSpark->SetEmissionRate(0.4f);
+	pElectronodeSpark->SetEmissionRate(0.6f);
 	pElectronodeSpark->SetAlpha(0.5f);
 	pElectronodeSpark->SetRadius(1.0f);
 	pElectronodeSpark->SetFadeOut(0.5f);
-	pElectronodeSpark->SetSpawnOffset(Vector(0, 6, 0));
-	pElectronodeSpark->SetRandomVelocity(AABB(Vector(-1, 0.5f, -1), Vector(1, 1.5f, 1)));
-	pElectronodeSpark->SetGravity(Vector(0, 3, 0));
+	pElectronodeSpark->SetSpawnOffset(Vector(0, 3, 0));
+	pElectronodeSpark->SetRandomVelocity(AABB(Vector(-1, 4.0f, -1), Vector(1, 8.0f, 1)));
+	pElectronodeSpark->SetGravity(Vector(0, 0, 0));
+	pElectronodeSpark->SetDrag(0.03f);
 
 	size_t iTorpedoTrail = pPSL->AddParticleSystem(L"torpedo-trail");
 	size_t iTorpedoTrailSparks = pPSL->AddParticleSystem(L"torpedo-trail-sparks");
@@ -403,6 +404,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBombPulses->SetFadeOut(1.0f);
 	pTractorBombPulses->SetInheritedVelocity(0.0f);
 	pTractorBombPulses->SetDrag(0.0f);
+	pTractorBombPulses->SetRandomModelYaw(true);
 
 	pTractorBombSmoke->SetTexture(L"textures/particles/haze-white.png");
 	pTractorBombSmoke->SetLifeTime(1.0f);
@@ -641,4 +643,57 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashFlame2->SetDrag(0.5f);
 	pWreckageCrashFlame2->SetGravity(Vector(0, 3, 0));
 	pWreckageCrashFlame2->SetRandomBillboardYaw(true);
+
+	size_t iChargeBurst = pPSL->AddParticleSystem(L"charge-burst");
+	size_t iChargeBurstPulses = pPSL->AddParticleSystem(L"charge-burst-pulses");
+	size_t iChargeBurstSmoke = pPSL->AddParticleSystem(L"charge-burst-smoke");
+
+	CParticleSystem* pChargeBurst = pPSL->GetParticleSystem(iChargeBurst);
+	CParticleSystem* pChargeBurstPulses = pPSL->GetParticleSystem(iChargeBurstPulses);
+	CParticleSystem* pChargeBurstSmoke = pPSL->GetParticleSystem(iChargeBurstSmoke);
+
+	pChargeBurst->AddChild(iChargeBurstPulses);
+	pChargeBurst->AddChild(iChargeBurstSmoke);
+
+	pChargeBurstPulses->SetModel(L"models/particles/charge-burst.obj");
+	pChargeBurstPulses->SetLifeTime(0.3f);
+	pChargeBurstPulses->SetEmissionRate(0.03f);
+	pChargeBurstPulses->SetEmissionMax(3);
+	pChargeBurstPulses->SetAlpha(0.7f);
+	pChargeBurstPulses->SetStartRadius(1.0f);
+	pChargeBurstPulses->SetEndRadius(60.0f);
+	pChargeBurstPulses->SetFadeOut(1.0f);
+	pChargeBurstPulses->SetInheritedVelocity(0.0f);
+	pChargeBurstPulses->SetDrag(0.0f);
+	pChargeBurstPulses->SetRandomModelYaw(true);
+
+	pChargeBurstSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pChargeBurstSmoke->SetLifeTime(2.0f);
+	pChargeBurstSmoke->SetEmissionRate(0.01f);
+	pChargeBurstSmoke->SetEmissionMax(5);
+	pChargeBurstSmoke->SetEmissionMaxDistance(15);
+	pChargeBurstSmoke->SetAlpha(0.2f);
+	pChargeBurstSmoke->SetStartRadius(4.0f);
+	pChargeBurstSmoke->SetEndRadius(20.0f);
+	pChargeBurstSmoke->SetFadeOut(0.5f);
+	pChargeBurstSmoke->SetDrag(0.15f);
+	pChargeBurstSmoke->SetRandomVelocity(AABB(Vector(-10, -3, -10), Vector(10, 10, 10)));
+	pChargeBurstSmoke->SetRandomBillboardYaw(true);
+	pChargeBurstSmoke->SetSpawnOffset(Vector(0, 10, 0));
+
+	size_t iChargeCharge = pPSL->AddParticleSystem(L"charge-charge");
+
+	CParticleSystem* pChargeCharge = pPSL->GetParticleSystem(iChargeCharge);
+
+	pChargeCharge->SetTexture(L"textures/particles/charge-charge.png");
+	pChargeCharge->SetLifeTime(0.3f);
+	pChargeCharge->SetEmissionRate(0.10f);
+	pChargeCharge->SetAlpha(0.5f);
+	pChargeCharge->SetStartRadius(20.0f);
+	pChargeCharge->SetEndRadius(0.0f);
+	pChargeCharge->SetFadeIn(1.0f);
+	pChargeCharge->SetFadeOut(0.0f);
+	pChargeCharge->SetInheritedVelocity(0.0f);
+	pChargeCharge->SetDrag(0.0f);
+	pChargeCharge->SetRandomBillboardYaw(true);
 }

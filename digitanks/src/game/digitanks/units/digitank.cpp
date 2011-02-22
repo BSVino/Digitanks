@@ -182,6 +182,8 @@ void CDigitank::Precache()
 	PrecacheParticleSystem(L"tank-hover");
 	PrecacheParticleSystem(L"digitank-smoke");
 	PrecacheParticleSystem(L"digitank-fire");
+	PrecacheParticleSystem(L"charge-burst");
+	PrecacheParticleSystem(L"charge-charge");
 	PrecacheSound(L"sound/tank-fire.wav");
 	PrecacheSound(L"sound/shield-damage.wav");
 	PrecacheSound(L"sound/tank-damage.wav");
@@ -830,6 +832,11 @@ bool CDigitank::CanCharge() const
 	return false;
 }
 
+float CDigitank::ChargeRadius() const
+{
+	return BaseChargeRadius() * RemapValClamped(m_flMovementPower.Get(), 0, m_flStartingPower.Get(), 1.0f, 0.5f);
+}
+
 void CDigitank::SetPreviewCharge(CBaseEntity* pChargeTarget)
 {
 	if (!pChargeTarget)
@@ -1362,9 +1369,6 @@ void CDigitank::Charge()
 	if (ChargeEnergy() > m_flTotalPower)
 		return;
 
-	if (ChargeEnergy() > GetRemainingMovementEnergy())
-		return;
-
 	if (m_bFiredWeapon || m_bActionTaken)
 		return;
 
@@ -1423,6 +1427,11 @@ void CDigitank::Charge(class CNetworkParameters* p)
 
 	if (IsSentried())
 		Sentry();
+
+	size_t iInstance = CParticleSystemLibrary::AddInstance(L"charge-charge", GetOrigin());
+	CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(iInstance);
+	if (pInstance)
+		pInstance->FollowEntity(this);
 }
 
 void CDigitank::Cloak()
@@ -1649,6 +1658,8 @@ void CDigitank::Think()
 
 			m_flGoalTurretYaw = -180;
 		}
+		else
+			CParticleSystemLibrary::StopInstances(L"charge-charge");
 	}
 
 	if (m_flEndCharge > 0 && GameServer()->GetGameTime() > m_flEndCharge)
@@ -1678,12 +1689,16 @@ void CDigitank::Think()
 
 				Vector vecLookAt = (GetOrigin() - pDigitank->GetOrigin()).Normalized();
 				pDigitank->m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - pDigitank->GetRenderAngles().y;
+
+				CParticleSystemLibrary::AddInstance(L"charge-burst", GetOrigin() + vecLookAt*3, GetAngles());
 			}
 
 			RockTheBoat(1, vecPushDirection);
 			Turn(EAngle(0, GetAngles().y, 0));
 
 			m_flGoalTurretYaw = 0;
+
+			CParticleSystemLibrary::StopInstances(L"charge-charge");
 		}
 	}
 
@@ -2798,7 +2813,18 @@ Vector CDigitank::GetRenderOrigin() const
 		flHoverHeight = 1 + flLerp*BobHeight();
 	}
 
-	return GetOrigin() + Vector(0, flHoverHeight, 0);
+	Vector vecChargeShake = Vector(0, 0, 0);
+	Vector vecMaxChargeShake = Vector(0, 0, 0);
+	if (m_flBeginCharge > 0 || m_flEndCharge > 0)
+		vecMaxChargeShake = Vector(RandomFloat(-0.2f, 0.2f), RandomFloat(-0.2f, 0.2f), RandomFloat(-0.2f, 0.2f));
+
+	if (m_flBeginCharge > 0)
+		vecChargeShake = vecMaxChargeShake * RemapValClamped(GameServer()->GetGameTime(), m_flBeginCharge - GetTransitionTime(), m_flBeginCharge, 0, 1);
+
+	if (m_flEndCharge > 0)
+		vecChargeShake = vecMaxChargeShake;
+
+	return GetOrigin() + Vector(0, flHoverHeight, 0) + vecChargeShake;
 }
 
 EAngle CDigitank::GetRenderAngles() const

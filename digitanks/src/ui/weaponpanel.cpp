@@ -131,8 +131,6 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 	s += sName + L"\n \n";
 	s += eastl::string16(CProjectile::GetWeaponDescription(eWeapon)) + L"\n \n";
 	s += p.sprintf(L"Energy Required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
-	if (eWeapon == WEAPON_CHARGERAM)
-		s += p.sprintf(L"Movement energy required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
 	s += p.sprintf(L"Damage: %.1f\n", CProjectile::GetWeaponDamage(eWeapon));
 
 	m_pInfo->SetText(s);
