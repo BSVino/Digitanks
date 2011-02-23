@@ -672,9 +672,6 @@ void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 	m_iCurrentUpdateY = iY;
 	m_flUpdateDownloaded = m_flMegabytes;
 	m_flMegabytes = 0;
-
-	DigitanksGame()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
-	DigitanksGame()->HandledActionItem(ACTIONTYPE_DOWNLOADUPDATES);
 }
 
 float CDigitanksTeam::GetUpdateSize()
