@@ -44,6 +44,7 @@ typedef enum
 	TANKLINE_SURPRISED,
 	TANKLINE_THRILLED,
 	TANKLINE_TONGUE,
+	TANKLINE_CATFACE,
 };
 
 class CDigitank : public CSelectable
@@ -443,7 +444,7 @@ protected:
 
 	float						m_flGlowYaw;
 
-	float						m_flNextThink;
+	float						m_flNextHoverHeightCheck;
 
 	// AI stuff
 	bool						m_bInAttackTeam;

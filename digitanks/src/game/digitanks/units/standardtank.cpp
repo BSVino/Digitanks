@@ -45,6 +45,8 @@ void CStandardTank::Spawn()
 	m_aeWeapons.push_back(WEAPON_CHARGERAM);
 
 	m_eWeapon = PROJECTILE_MEDIUM;
+
+	m_flMaxShieldStrength = m_flShieldStrength = 200;
 }
 
 float CStandardTank::ProjectileCurve() const

@@ -8,6 +8,7 @@
 
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_renderer.h>
+#include <digitanks/dt_camera.h>
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
 
@@ -62,9 +63,10 @@ void CProjectile::Think()
 		m_bFallSoundPlayed = true;
 	}
 
-	if (Fragments() && !m_bFragmented && GameServer()->GetGameTime() - m_flTimeCreated > 2.0f && m_flTimeExploded == 0.0f)
+	if (Fragments() && !m_bFragmented && m_flTimeExploded == 0.0f)
 	{
-		Fragment();
+		if (GetOwner() && GetOwner()->GetDigitanksTeam() && !GetOwner()->GetDigitanksTeam()->IsPlayerControlled() && GameServer()->GetGameTime() - m_flTimeCreated > 2.0f)
+			Fragment();
 	}
 
 	if (!m_bMissileDefensesNotified && !IsDeleted() && GetVelocity().y < 10.0f && m_flTimeExploded == 0.0f)
@@ -97,6 +99,9 @@ void CProjectile::Think()
 
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
 		Delete();
+
+	if (GameServer()->GetGameTime() - GetSpawnTime() > 20.0f)
+		Delete();
 }
 
 void CProjectile::SpecialCommand()
@@ -118,11 +123,15 @@ void CProjectile::Fragment()
 		CProjectile* pProjectile = GameServer()->Create<CProjectile>(GetClassName());
 		pProjectile->SetOwner(m_hOwner);
 		pProjectile->SetVelocity(GetVelocity() + Vector(RandomFloat(-10, 10), RandomFloat(-10, 10), RandomFloat(-10, 10)));
-		pProjectile->SetGravity(GetGravity());
+		pProjectile->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
 		pProjectile->SetLandingSpot(m_vecLandingSpot);
 		pProjectile->SetOrigin(GetOrigin());
 		pProjectile->m_bFragmented = true;
+		pProjectile->m_flDamage = m_flDamage;
 		DigitanksGame()->AddProjectileToWaitFor();
+
+		if (i == 0)
+			DigitanksGame()->GetDigitanksCamera()->ReplaceProjectileTarget(pProjectile);
 	}
 
 	Delete();
@@ -284,6 +293,9 @@ void CProjectile::Touching(CBaseEntity* pOther)
 void CProjectile::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
+
+	if (Fragments() && !m_bFragmented)
+		Fragment();
 
 	if (MakesSounds())
 		StopSound(L"sound/bomb-drop.wav");
@@ -528,6 +540,8 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	pProjectile->m_flExplosionRadius = m_flExplosionRadius - 4;
 	pProjectile->m_flDamage = m_flDamage - 1;
 	DigitanksGame()->AddProjectileToWaitFor();
+
+	DigitanksGame()->GetDigitanksCamera()->ReplaceProjectileTarget(pProjectile);
 }
 
 REGISTER_ENTITY(CClusterBomb);

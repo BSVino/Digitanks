@@ -21,6 +21,8 @@ CDigitanksCamera::CDigitanksCamera()
 	m_flShakeMagnitude = 0;
 
 	m_bMouseDragLeft = m_bMouseDragRight = m_bMouseDragUp = m_bMouseDragDown = false;
+
+	m_flTransitionToProjectileTime = 0;
 }
 
 void CDigitanksCamera::SetTarget(Vector vecTarget)
@@ -118,6 +120,170 @@ bool CDigitanksCamera::HasCameraGuidedMissile()
 	return m_hCameraGuidedMissile != NULL;
 }
 
+void CDigitanksCamera::ShowEnemyMoves()
+{
+	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentTeam();
+
+	if (!pCurrentTeam)
+		return;
+
+	if (pCurrentTeam->GetNumTanks() == 0)
+		return;
+
+	eastl::vector<CDigitank*> apTargets;
+
+	Vector vecAveragePosition = Vector(0,0,0);
+
+	for (size_t i = 0; i < pCurrentTeam->GetNumTanks(); i++)
+	{
+		CDigitank* pTank = pCurrentTeam->GetTank(i);
+
+		if (!pTank)
+			continue;
+
+		if (pTank->GetVisibility() < 0.1f)
+			continue;
+
+		if (!pTank->HasFiredWeapon())
+			continue;
+
+		Vector vecAim = pTank->GetLastAim();
+
+		CDigitank* pClosestTank = CBaseEntity::FindClosest<CDigitank>(vecAim);
+		CStructure* pClosestStructure = NULL;
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+			pClosestStructure = CBaseEntity::FindClosest<CStructure>(vecAim);
+
+		if (pClosestTank && pClosestTank->GetTeam())
+		{
+			if (pClosestTank->GetTeam()->IsPlayerControlled())
+			{
+				apTargets.push_back(pTank);
+				vecAveragePosition += pTank->GetOrigin();
+			}
+
+			continue;
+		}
+
+		if (pClosestStructure && pClosestStructure->GetTeam() && pClosestStructure->GetTeam()->IsPlayerControlled())
+		{
+			apTargets.push_back(pTank);
+			vecAveragePosition += pTank->GetOrigin();
+		}
+	}
+
+	if (apTargets.size() == 0)
+	{
+		// No targets of interest? Show whatever's the first thing we can find.
+		CDigitank* pFollow = NULL;
+		for (size_t i = 0; i < pCurrentTeam->GetNumTanks(); i++)
+		{
+			CDigitank* pTank = pCurrentTeam->GetTank(i);
+
+			if (!pTank)
+				continue;
+
+			if (pTank->GetVisibility() < 0.1f)
+				continue;
+
+			if (!pFollow)
+			{
+				pFollow = pTank;
+
+				if (pFollow->HasFiredWeapon())
+					break;
+
+				continue;
+			}
+
+			if (pTank->HasFiredWeapon() && !pFollow->HasFiredWeapon())
+			{
+				pFollow = pTank;
+				break;
+			}
+		}
+
+		if (!pFollow)
+			return;
+
+		if (!pFollow->HasFiredWeapon())
+		{
+			SetTarget(pFollow->GetRealOrigin());
+			return;
+		}
+
+		SetTarget((pFollow->GetRealOrigin() + pFollow->GetLastAim())/2);
+
+		if (RandomInt(0, 2) == 0)
+		{
+			m_hTankTarget = pFollow;
+			// Set this so that when we come out of the tank target mode we are looking at the explosion.
+			SetTarget(pFollow->GetLastAim());
+		}
+
+		// No targets that are interesting to us? Pick a random one.
+		return;
+	}
+
+	if (apTargets.size() == 1 && RandomInt(0, 2) == 0)
+	{
+		m_hTankTarget = apTargets[0];
+		// Set this so that when we come out of the tank target mode we are looking at the explosion.
+		SetTarget(m_hTankTarget->GetLastAim());
+		return;
+	}
+
+	vecAveragePosition /= (float)apTargets.size();
+
+	// Find the closest target to the center.
+	CDigitank* pClosestTarget = apTargets[0];
+	for (size_t i = 1; i < apTargets.size(); i++)
+	{
+		if ((apTargets[i]->GetOrigin() - vecAveragePosition).LengthSqr() < (pClosestTarget->GetOrigin() - vecAveragePosition).LengthSqr())
+			pClosestTarget = apTargets[i];
+	}
+
+	// Find nearby tanks to that closest tank
+	Vector vecAverageNearbyTanks = Vector(0,0,0);
+	int iNearbyTargets = 0;
+	for (size_t i = 0; i < apTargets.size(); i++)
+	{
+		if ((apTargets[i]->GetOrigin() - vecAveragePosition).LengthSqr() < 100*100)
+		{
+			vecAverageNearbyTanks += apTargets[i]->GetRealOrigin();
+			iNearbyTargets++;
+
+			if (apTargets[i]->HasFiredWeapon())
+			{
+				vecAverageNearbyTanks += apTargets[i]->GetLastAim();
+				iNearbyTargets++;
+			}
+		}
+	}
+
+	if (iNearbyTargets > 0)
+	{
+		vecAverageNearbyTanks /= (float)iNearbyTargets;
+
+		// Point the camera in the center of the nearby targets
+		SetTarget(vecAverageNearbyTanks);
+	}
+	else
+		SetTarget(pClosestTarget->GetRealOrigin());
+}
+
+void CDigitanksCamera::ReplaceProjectileTarget(CProjectile* pTarget)
+{
+	if (m_hTankProjectile != NULL)
+		m_hTankProjectile = pTarget;
+}
+
+void CDigitanksCamera::ClearFollowTarget()
+{
+	m_hTankTarget = NULL;
+	m_hTankProjectile = NULL;
+}
+
 void CDigitanksCamera::Think()
 {
 	BaseClass::Think();
@@ -134,6 +300,37 @@ void CDigitanksCamera::Think()
 			m_flCameraGuidedFOV = Approach(m_flCameraGuidedFOVGoal, m_flCameraGuidedFOV, 10 * GameServer()->GetFrameTime());
 		else
 			m_flCameraGuidedFOV = Approach(m_flCameraGuidedFOVGoal, m_flCameraGuidedFOV, 1 * GameServer()->GetFrameTime());
+	}
+
+	if (m_hTankTarget != NULL)
+	{
+		if (m_hTankTarget->HasFiredWeapon() && m_hTankProjectile == NULL)
+		{
+			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+			{
+				CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+				if (!pEntity)
+					continue;
+
+				CProjectile* pProjectile = dynamic_cast<CProjectile*>(pEntity);
+				if (!pProjectile)
+					continue;
+
+				if (pProjectile->GetOwner() != m_hTankTarget)
+					continue;
+
+				m_hTankProjectile = pProjectile;
+				m_hTankTarget = NULL;
+				m_flTransitionToProjectileTime = GameServer()->GetGameTime();
+				break;
+			}
+		}
+	}
+
+	if (m_hTankProjectile != NULL)
+	{
+		if (m_hTankProjectile->HasExploded())
+			m_hTankProjectile = NULL;
 	}
 
 	if (!DigitanksWindow()->ShouldConstrainMouse())
@@ -217,6 +414,26 @@ void CDigitanksCamera::Think()
 
 Vector CDigitanksCamera::GetCameraPosition()
 {
+	if (m_hTankTarget != NULL)
+		return GetTankFollowPosition(m_hTankTarget);
+
+	if (m_hTankProjectile != NULL)
+	{
+		float flLerp = RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5f, 0, 1);
+
+		Vector vecVelocity = m_hTankProjectile->GetVelocity();
+
+		Vector vecForward, vecRight, vecUp;
+		AngleVectors(VectorAngles(vecVelocity), &vecForward, &vecRight, &vecUp);
+
+		Vector vecProjectileFollow = m_hTankProjectile->GetOrigin() - vecForward*13 - vecRight*4;
+
+		if (flLerp < 1 && m_hTankProjectile->GetOwner())
+			return vecProjectileFollow * flLerp + GetTankFollowPosition(m_hTankProjectile->GetOwner()) * (1-flLerp);
+
+		return vecProjectileFollow;
+	}
+
 	if (m_hCameraGuidedMissile != NULL)
 		return m_hCameraGuidedMissile->GetOrigin();
 
@@ -228,6 +445,21 @@ Vector CDigitanksCamera::GetCameraPosition()
 
 Vector CDigitanksCamera::GetCameraTarget()
 {
+	if (m_hTankTarget != NULL)
+		return m_hTankTarget->GetLastAim();
+
+	if (m_hTankProjectile != NULL)
+	{
+		float flLerp = RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5f, 0, 1);
+
+		Vector vecProjectileTarget = m_hTankProjectile->GetOrigin() + m_hTankProjectile->GetVelocity();
+
+		if (flLerp < 1 && m_hTankProjectile->GetOwner())
+			return vecProjectileTarget * flLerp + m_hTankProjectile->GetOwner()->GetLastAim() * (1-flLerp);
+
+		return vecProjectileTarget;
+	}
+
 	if (m_hCameraGuidedMissile != NULL)
 		return m_hCameraGuidedMissile->GetOrigin() + AngleVector(m_hCameraGuidedMissile->GetAngles());
 
@@ -262,6 +494,16 @@ float CDigitanksCamera::GetCameraFar()
 		return 1000;
 
 	return 1000;
+}
+
+Vector CDigitanksCamera::GetTankFollowPosition(CDigitank* pTank)
+{
+	Vector vecTarget = pTank->GetLastAim();
+
+	Vector vecForward, vecRight, vecUp;
+	AngleVectors(VectorAngles(vecTarget - pTank->GetOrigin()), &vecForward, &vecRight, &vecUp);
+
+	return pTank->GetOrigin() - vecForward*13 - vecRight*4 - vecUp*3;
 }
 
 void CDigitanksCamera::SetFreeMode(bool bOn)

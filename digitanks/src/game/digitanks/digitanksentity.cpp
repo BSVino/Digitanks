@@ -217,7 +217,7 @@ void CDigitanksEntity::InterceptSupplyLines()
 
 CDigitanksTeam* CDigitanksEntity::GetDigitanksTeam() const
 {
-	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam());
+	return static_cast<CDigitanksTeam*>(BaseClass::GetTeam());
 }
 
 bool CDigitanksEntity::ShouldRender() const

@@ -40,6 +40,7 @@ public:
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 	virtual bool				ShouldPlayExplosionSound();
+	virtual bool				HasFragmented() { return m_bFragmented; };
 
 	virtual void				OnSetOwner(CDigitank* pOwner);
 	virtual bool				ShouldBeVisible();

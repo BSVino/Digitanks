@@ -588,10 +588,11 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 
 float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 {
-	if (m_aflVisibilities.find(iHandle) == m_aflVisibilities.end())
+	eastl::map<size_t, float>::iterator it = m_aflVisibilities.find(iHandle);
+	if (it == m_aflVisibilities.end())
 		return 0;
 
-	return m_aflVisibilities[iHandle];
+	return (*it).second;
 }
 
 float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak)

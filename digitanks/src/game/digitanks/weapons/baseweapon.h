@@ -28,6 +28,7 @@ public:
 	virtual void				OnExplode(CBaseEntity* pInstigator) {};
 	virtual bool				ShouldPlayExplosionSound() { return true; };
 	virtual bool				HasExploded() { return m_flTimeExploded > 0; }
+	virtual bool				HasFragmented() { return false; };
 
 	virtual weapon_t			GetWeaponType() { return WEAPON_NONE; }
 	virtual float				ExplosionRadius() { return 4.0f; };

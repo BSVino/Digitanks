@@ -1299,6 +1299,9 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
+	if (!GetCurrentTeam()->IsPlayerControlled())
+		DigitanksGame()->GetDigitanksCamera()->ShowEnemyMoves();
+
 	if (GetCurrentTeam()->IsPlayerControlled())
 		m_flLastHumanMove = GameServer()->GetGameTime();
 
@@ -1413,6 +1416,8 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 {
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
+
+	DigitanksGame()->GetDigitanksCamera()->ClearFollowTarget();
 
 	if (m_iCurrentTeam == (size_t)0)
 		m_iTurn++;

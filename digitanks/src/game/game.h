@@ -48,7 +48,7 @@ public:
 	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
 	bool										IsTeamControlledByMe(CTeam* pTeam);
 
-	eastl::vector<CEntityHandle<CTeam> >		GetLocalTeams();
+	const eastl::vector<CEntityHandle<CTeam> >&	GetLocalTeams();
 
 	virtual bool								AllowCheats();
 

@@ -54,6 +54,7 @@ const char* CDigitank::s_apszTankLines[] =
 	"!?",	// TANKLINE_SURPRISED
 	"!!",	// TANKLINE_THRILLED
 	":P",	// TANKLINE_TONGUE
+	":3",	// TANKLINE_CATFACE
 };
 
 eastl::map<size_t, eastl::vector<size_t> > g_aiSpeechLines;
@@ -160,7 +161,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextHoverHeightCheck);
 SAVEDATA_TABLE_END();
 
 CDigitank::~CDigitank()
@@ -208,6 +209,7 @@ void CDigitank::SetupSpeechLines()
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_HAPPY);
 	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_COOL);
+	g_aiSpeechLines[TANKSPEECH_SELECTED].push_back(TANKLINE_CATFACE);
 	g_aiSpeechLines[TANKSPEECH_MOVED].push_back(TANKLINE_CHEER);
 	g_aiSpeechLines[TANKSPEECH_MOVED].push_back(TANKLINE_HAPPY);
 	g_aiSpeechLines[TANKSPEECH_ATTACK].push_back(TANKLINE_EVIL);
@@ -232,12 +234,14 @@ void CDigitank::SetupSpeechLines()
 	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_LOVE);
 	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_COOL);
+	g_aiSpeechLines[TANKSPEECH_PROMOTED].push_back(TANKLINE_CATFACE);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_HAPPY);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_LOVE);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_COOL);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_THRILLED);
 	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_CHEER);
+	g_aiSpeechLines[TANKSPEECH_PARTY].push_back(TANKLINE_CATFACE);
 	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_CUTE);
 	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_CHEER);
 	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_EVIL);
@@ -245,6 +249,7 @@ void CDigitank::SetupSpeechLines()
 	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_SURPRISED);
 	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_THRILLED);
 	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_TONGUE);
+	g_aiSpeechLines[TANKSPEECH_TAUNT].push_back(TANKLINE_CATFACE);
 	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_ASLEEP);
 	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_SQUINT);
 	g_aiSpeechLines[TANKSPEECH_DISABLED].push_back(TANKLINE_DEAD);
@@ -300,7 +305,7 @@ void CDigitank::Spawn()
 	m_flCurrentTurretYaw = 0;
 	m_flGoalTurretYaw = 0;
 	m_flGlowYaw = 0;
-	m_flNextThink = GameServer()->GetGameTime();
+	m_flNextHoverHeightCheck = GameServer()->GetGameTime() + RandomFloat(0, 1);
 	m_flShieldPulse = 0;
 }
 
@@ -590,7 +595,7 @@ float CDigitank::GetShieldBlockRadius()
 	if (GetShieldMaxStrength() == 0)
 		return GetBoundingRadius();
 
-	if (GetShieldStrength() == 0)
+	if (m_flShieldStrength < 5)
 		return GetBoundingRadius();
 
 	return RenderShieldScale();
@@ -1544,13 +1549,11 @@ void CDigitank::Think()
 {
 	BaseClass::Think();
 
-	if (GameServer()->GetGameTime() < m_flNextThink)
-		return;
-
-	m_flNextThink = GameServer()->GetGameTime() + 0.1f;
-
-	if (!IsMoving() && IsAlive())
+	if (!IsMoving() && IsAlive() && GameServer()->GetGameTime() > m_flNextHoverHeightCheck)
 	{
+		// Checking the hover height so often can be expensive, so we only do i once in a while.
+		m_flNextHoverHeightCheck = GameServer()->GetGameTime() + 0.3f;
+
 		if (!DigitanksGame()->GetTerrain()->IsPointOnMap(GetOrigin()) || DigitanksGame()->GetTerrain()->IsPointOverHole(GetOrigin()))
 			Kill();
 		else

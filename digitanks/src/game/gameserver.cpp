@@ -271,16 +271,12 @@ void CGameServer::Simulate()
 		if (!pEntity)
 			continue;
 
-		m_apSimulateList.push_back(pEntity);
-	}
+		pEntity->SetLastOrigin(pEntity->GetOrigin());
 
-	for (size_t i = 0; i < m_apSimulateList.size(); i++)
-	{
-		CBaseEntity* pEntity = m_apSimulateList[i];
-		if (!pEntity)
+		if (!pEntity->ShouldSimulate())
 			continue;
 
-		pEntity->SetLastOrigin(pEntity->GetOrigin());
+		m_apSimulateList.push_back(pEntity);
 	}
 
 	// Move all entities
@@ -288,9 +284,6 @@ void CGameServer::Simulate()
 	{
 		CBaseEntity* pEntity = m_apSimulateList[i];
 		if (!pEntity)
-			continue;
-
-		if (!pEntity->ShouldSimulate())
 			continue;
 
 		// Break simulations up into very small steps in order to preserve accuracy.

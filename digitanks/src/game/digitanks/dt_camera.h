@@ -32,6 +32,10 @@ public:
 	bool			HasCameraGuidedMissile();
 	class CCameraGuidedMissile* GetCameraGuidedMissile();
 
+	void			ShowEnemyMoves();
+	void			ReplaceProjectileTarget(class CProjectile* pTarget);
+	void			ClearFollowTarget();
+
 	virtual void	Think();
 
 	virtual Vector	GetCameraPosition();
@@ -39,6 +43,8 @@ public:
 	virtual float	GetCameraFOV();
 	virtual float	GetCameraNear();
 	virtual float	GetCameraFar();
+
+	virtual Vector	GetTankFollowPosition(CDigitank* pTank);
 
 	virtual void	SetFreeMode(bool bOn);
 
@@ -84,6 +90,10 @@ public:
 	CEntityHandle<class CCameraGuidedMissile>	m_hCameraGuidedMissile;
 	float			m_flCameraGuidedFOV;
 	float			m_flCameraGuidedFOVGoal;
+
+	CEntityHandle<class CDigitank>		m_hTankTarget;
+	CEntityHandle<class CProjectile>	m_hTankProjectile;
+	float			m_flTransitionToProjectileTime;
 };
 
 #endif

@@ -139,7 +139,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	60.0f,	// emp
 	10.0f,	// tractor bomb
 	70.0f,	// splooge
-	70.0f,	// icbm
+	20.0f,	// icbm
 	80.0f,	// grenade
 	40.0f,	// daisy chain
 	70.0f,	// clusterbomb

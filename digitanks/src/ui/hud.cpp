@@ -1098,9 +1098,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(iX, iY + iHeight, iWidth, 1, clrSelection);
 	}
 
-	if (m_hHintWeapon == NULL)
+	CTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (pLocalTeam && m_hHintWeapon == NULL)
 	{
-		CTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
 			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -1117,11 +1117,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (!pWeapon->UsesSpecialCommand())
 				continue;
 
-			if (pLocalTeam && pWeapon->GetOwner() && pWeapon->GetOwner()->GetTeam() == pLocalTeam)
-			{
-				m_hHintWeapon = pWeapon;
-				break;
-			}
+			if (pWeapon->HasFragmented())
+				continue;
+
+			if (!pWeapon->GetOwner())
+				continue;
+			
+			if (pWeapon->GetOwner()->GetTeam() != pLocalTeam)
+				continue;
+
+			m_hHintWeapon = pWeapon;
+			break;
 		}
 	}
 
