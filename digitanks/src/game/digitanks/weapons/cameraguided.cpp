@@ -110,10 +110,18 @@ bool CCameraGuidedMissile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) con
 	switch (pOther->GetCollisionGroup())
 	{
 	case CG_ENTITY:
+	{
 		vecPoint = GetOrigin();
-		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < pOther->GetBoundingRadius()*pOther->GetBoundingRadius())
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pOther);
+		float flBoundingRadius = pOther->GetBoundingRadius();
+		if (pTank)
+			flBoundingRadius = pTank->GetShieldBlockRadius();
+
+		if ((pOther->GetOrigin() - GetOrigin()).LengthSqr() < flBoundingRadius*flBoundingRadius)
 			return true;
 		break;
+	}
 
 	case CG_TERRAIN:
 		return DigitanksGame()->GetTerrain()->Collide(GetLastOrigin(), GetOrigin(), vecPoint);

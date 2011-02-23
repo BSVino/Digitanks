@@ -59,7 +59,7 @@ public:
 	virtual void				Spawn();
 
 	virtual float				GetBoundingRadius() const { return 4; };
-	virtual float				GetRenderRadius() const { return GetBoundingRadius() + 3.2f*RenderShieldScale(); };
+	virtual float				GetRenderRadius() const { return GetBoundingRadius() + RenderShieldScale(); };
 
 	float						GetTotalPower() const { return m_flTotalPower.Get(); };
 	float						GetStartingPower() const { return m_flStartingPower.Get(); };
@@ -105,6 +105,7 @@ public:
 
 	virtual float				GetShieldMaxStrength() { return m_flMaxShieldStrength; };
 	virtual float				GetShieldStrength();
+	virtual float				GetShieldBlockRadius();
 
 	virtual float				GetShieldValue();
 	virtual void				SetShieldValue(float flValue);
@@ -269,7 +270,7 @@ public:
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
 	virtual void				RenderShield(float flAlpha);
-	virtual float				RenderShieldScale() const { return 1.0f; };
+	virtual float				RenderShieldScale() const { return 20.0f; };
 
 	virtual float				AvailableArea() const;
 	virtual int					GetNumAvailableAreas() const { return 1; };
@@ -413,6 +414,8 @@ protected:
 
 	size_t						m_iTurretModel;
 	size_t						m_iShieldModel;
+
+	float						m_flShieldPulse;
 
 	size_t						m_iHoverParticles;
 	size_t						m_iSmokeParticles;

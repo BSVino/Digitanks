@@ -13,8 +13,6 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Digitank"; };
 
-	virtual float				RenderShieldScale() const { return 1.3f; };
-
 	virtual float				HealthRechargeRate() const { return 0.2f; };
 	virtual float				ShieldRechargeRate() const { return 1.0f; };
 	virtual float				GetTankSpeed() const { return 3.0f; };

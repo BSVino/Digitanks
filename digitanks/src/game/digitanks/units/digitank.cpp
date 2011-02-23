@@ -301,6 +301,7 @@ void CDigitank::Spawn()
 	m_flGoalTurretYaw = 0;
 	m_flGlowYaw = 0;
 	m_flNextThink = GameServer()->GetGameTime();
+	m_flShieldPulse = 0;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -582,6 +583,17 @@ float CDigitank::GetShieldStrength()
 		return 0;
 
 	return m_flShieldStrength/GetShieldMaxStrength() * GetDefenseScale(true);
+}
+
+float CDigitank::GetShieldBlockRadius()
+{
+	if (GetShieldMaxStrength() == 0)
+		return GetBoundingRadius();
+
+	if (GetShieldStrength() == 0)
+		return GetBoundingRadius();
+
+	return RenderShieldScale();
 }
 
 float CDigitank::GetShieldValue()
@@ -2614,6 +2626,8 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage*flShieldDamageScale, bDirectHit, true);
 
+		m_flShieldPulse = GameServer()->GetGameTime();
+
 		return;
 	}
 
@@ -2966,11 +2980,36 @@ void CDigitank::RenderShield(float flAlpha)
 		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
 
 	CRenderingContext r(GameServer()->GetRenderer());
-	r.SetAlpha(flAlpha*flFlicker*GetVisibility());
+
+	if (m_flShieldPulse == 0)
+		return;
+
+	float flPulseAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flShieldPulse, m_flShieldPulse + 1.0f, 0.8f, 0);
+
+	float flFinalAlpha = flPulseAlpha*flAlpha*flFlicker*GetVisibility();
+
+	if (flFinalAlpha <= 0)
+		return;
+
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	{
+		r.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
+		r.SetUniform("iTexture", 0);
+		r.SetUniform("flAlpha", flFinalAlpha);
+		r.SetUniform("flTime", -GameServer()->GetGameTime());
+		r.SetUniform("flSpeed", 1.0f);
+	}
+	else
+		r.SetAlpha(flFinalAlpha);
+
 	r.SetBlend(BLEND_ADDITIVE);
-	r.Scale(RenderShieldScale(), 1, RenderShieldScale());
-	r.SetColor(GetTeam()->GetColor());
-	r.RenderModel(m_iShieldModel);
+	r.Scale(RenderShieldScale(), RenderShieldScale(), RenderShieldScale());
+	r.SetDepthTest(false);
+
+	// If you just call r.RenderModel() it overrides the shader
+	CModel* pModel = CModelLibrary::Get()->GetModel(m_iShieldModel);
+	if (pModel)
+		glCallList((GLuint)pModel->m_iCallList);
 }
 
 float CDigitank::AvailableArea() const
