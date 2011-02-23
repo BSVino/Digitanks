@@ -2634,6 +2634,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		return;
 	}
 
+	if (flDamageBlocked > 0)
+		m_flShieldPulse = GameServer()->GetGameTime();
+
 	if (flShieldDamageScale > 0)
 		flDamage -= flDamageBlocked/flShieldDamageScale;
 	else
@@ -2913,8 +2916,7 @@ void CDigitank::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	if (bTransparent)
 	{
-		if (GetShieldStrength() > 0 && !IsFortified() && !IsFortifying())
-			RenderShield(GetShieldStrength());
+		RenderShield();
 	}
 }
 
@@ -2969,12 +2971,12 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	r.RenderModel(m_iTurretModel);
 }
 
-void CDigitank::RenderShield(float flAlpha)
+void CDigitank::RenderShield()
 {
 	if (m_iShieldModel == ~0)
 		return;
 
-	if (GetVisibility() == 0 || flAlpha == 0)
+	if (GetVisibility() == 0)
 		return;
 
 	float flFlicker = 1;
@@ -2989,7 +2991,7 @@ void CDigitank::RenderShield(float flAlpha)
 
 	float flPulseAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flShieldPulse, m_flShieldPulse + 1.0f, 0.8f, 0);
 
-	float flFinalAlpha = flPulseAlpha*flAlpha*flFlicker*GetVisibility();
+	float flFinalAlpha = flPulseAlpha*flFlicker*GetVisibility();
 
 	if (flFinalAlpha <= 0)
 		return;

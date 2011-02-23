@@ -270,7 +270,7 @@ public:
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
-	virtual void				RenderShield(float flAlpha);
+	virtual void				RenderShield();
 	virtual float				RenderShieldScale() const { return 20.0f; };
 
 	virtual float				AvailableArea() const;
