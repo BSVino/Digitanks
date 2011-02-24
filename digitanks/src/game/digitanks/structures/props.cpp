@@ -33,7 +33,6 @@ void CStaticProp::Precache()
 	PrecacheModel(L"models/props/prop03.obj", true);
 	PrecacheModel(L"models/props/prop04.obj", true);
 	PrecacheModel(L"models/props/prop05.obj", true);
-	PrecacheModel(L"models/props/support01.obj", true);
 }
 
 void CStaticProp::Spawn()
