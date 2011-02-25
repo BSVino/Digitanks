@@ -3,6 +3,9 @@
 #include <glgui/glgui.h>
 #include <platform.h>
 #include <strutils.h>
+#include <sockets/sockets.h>
+
+#include <renderer/renderer.h>
 
 #include "hud.h"
 #include "menu.h"
@@ -270,34 +273,24 @@ CPurchasePanel::CPurchasePanel()
 	: CPanel(0, 0, 400, 300)
 {
 	m_pPurchase = new CLabel(0, 0, 100, 100, L"");
-	m_pPurchase->SetFont(L"text");
+	m_pPurchase->SetFont(L"text", 18);
 	AddControl(m_pPurchase);
 
-	m_pRegistrationKey = new CTextField();
-	AddControl(m_pRegistrationKey);
-
-	m_pRegister = new CButton(0, 0, 100, 100, L"Register");
-	m_pRegister->SetClickedListener(this, Register);
-	m_pRegister->SetFont(L"header");
-	AddControl(m_pRegister);
-
-	m_pRegisterResult = new CLabel(0, 0, 100, 100, L"");
-	m_pPurchase->SetFont(L"text");
-	AddControl(m_pRegisterResult);
-
-	m_pRegisterOffline = new CButton(0, 0, 100, 100, L"Register Offline");
-	m_pRegisterOffline->SetClickedListener(this, RegisterOffline);
-	m_pRegisterOffline->SetFont(L"header", 11);
-	AddControl(m_pRegisterOffline);
-
-	m_pPurchaseButton = new CButton(0, 0, 100, 100, L"Website!");
+	m_pPurchaseButton = new CButton(0, 0, 100, 100, L"Buy now!");
 	m_pPurchaseButton->SetClickedListener(this, Purchase);
 	m_pPurchaseButton->SetFont(L"header");
 	AddControl(m_pPurchaseButton);
 
-	m_pExitButton = new CButton(0, 0, 100, 100, L"Maybe later");
-	m_pExitButton->SetFont(L"header");
-	AddControl(m_pExitButton);
+	m_pEnterEmail = new CLabel(0, 0, 100, 100, L"");
+	m_pEnterEmail->SetFont(L"text", 18);
+	AddControl(m_pEnterEmail);
+
+	m_pEmail = new CTextField();
+	AddControl(m_pEmail);
+
+	m_pContinueButton = new CButton(0, 0, 100, 100, L"Maybe later");
+	m_pContinueButton->SetFont(L"header");
+	AddControl(m_pContinueButton);
 
 	SetVisible(false);
 
@@ -306,57 +299,99 @@ CPurchasePanel::CPurchasePanel()
 
 void CPurchasePanel::Layout()
 {
-	SetSize(500, 300);
+	SetSize(580, 580);
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
-	m_pPurchase->SetPos(10, 20);
-	m_pPurchase->SetSize(GetWidth()-20, GetHeight());
+	m_pPurchase->SetPos(30, 50);
+	m_pPurchase->SetSize(GetWidth()-60, 200);
 	m_pPurchase->SetAlign(CLabel::TA_TOPCENTER);
 
-	m_pRegistrationKey->SetPos(GetWidth()/2 - m_pRegistrationKey->GetWidth()/2, 100);
-
-	m_pRegister->SetSize(100, 30);
-	m_pRegister->SetPos(GetWidth()/2 - m_pRegister->GetWidth()/2, 140);
-
-	m_pRegisterResult->SetPos(10, 180);
-	m_pRegisterResult->SetSize(GetWidth()-20, GetHeight());
-	m_pRegisterResult->SetAlign(CLabel::TA_TOPCENTER);
-
-	m_pRegisterOffline->SetSize(60, 40);
-	m_pRegisterOffline->SetPos(GetWidth()-80, GetHeight()-100);
-
 	m_pPurchaseButton->SetSize(100, 30);
-	m_pPurchaseButton->SetPos(GetWidth()/2-150, GetHeight() - 50);
+	m_pPurchaseButton->SetPos(385, 170);
+	m_pPurchaseButton->SetButtonColor(Color(50, 200, 10));
 
-	m_pExitButton->SetSize(100, 30);
-	m_pExitButton->SetPos(GetWidth()/2+50, GetHeight() - 50);
+	m_pEnterEmail->SetPos(30, 340);
+	m_pEnterEmail->SetSize(GetWidth()-60, 200);
+	m_pEnterEmail->SetAlign(CLabel::TA_TOPCENTER);
+	m_pEnterEmail->SetText(L"NEWS FROM THE FRONT\n \n"
+		L"Enter your email to get the\nLunar Workshop Newsletter!");
+
+	m_pEmail->SetPos(GetWidth()/2 - m_pEmail->GetWidth()/2, 450);
+	m_pEmail->SetSize(200, m_pEmail->GetHeight());
+
+	m_pContinueButton->SetSize(100, 30);
+	m_pContinueButton->SetPos(385, 500);
+	m_pContinueButton->SetButtonColor(Color(50, 200, 10));
+
+	BaseClass::Layout();
+
+	m_flTimeOpened = 0;
+}
+
+void CPurchasePanel::Think()
+{
+	if (!IsVisible())
+		return;
+
+	if (m_flTimeOpened == 0 && GameServer())
+		m_flTimeOpened = GameServer()->GetGameTime();
+
+	BaseClass::Think();
+
+	if (m_pEmail->GetText().length())
+	{
+		m_pContinueButton->SetText("Sign me up!");
+		m_pContinueButton->SetClickedListener(this, Email);
+	}
+	else
+	{
+		m_pContinueButton->SetText("Maybe later");
+		if (m_bClosing)
+			m_pContinueButton->SetClickedListener(this, Exit);
+		else
+			m_pContinueButton->SetClickedListener(this, MainMenu);
+	}
 }
 
 void CPurchasePanel::Paint(int x, int y, int w, int h)
 {
-	CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.SetBlend(BLEND_ALPHA);
+
+	size_t iPurchasePanel = DigitanksWindow()->GetHUD()->GetPurchasePanel();
+	glgui::CRootPanel::PaintTexture(iPurchasePanel, glgui::CRootPanel::Get()->GetWidth()/2 - 512, glgui::CRootPanel::Get()->GetHeight()/2 - 512, 1024, 1024);
+
+	float flTimeOpen = GameServer()->GetGameTime() - m_flTimeOpened;
+	float flSlide = Lerp(RemapValClamped(flTimeOpen, 0, 3, 1, 0), 0.2f);
+	float flAlpha = RemapValClamped(flTimeOpen, 0, 3, 0, 1);
+	float flSlideDistance = 400;
+
+	size_t iTotalWidth = DigitanksWindow()->GetWindowWidth();
+	size_t iTotalHeight = DigitanksWindow()->GetWindowHeight();
+
+	size_t iTankWidth = iTotalWidth/4;
+	size_t iTankHeight = iTankWidth/2;
+
+	PaintSheet(CHUD::GetActionTanksSheet(), x - iTankWidth + 40 - (int)(flSlide*flSlideDistance), y + 20, iTankWidth, iTankHeight, 0, 256, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
+	PaintSheet(CHUD::GetActionTanksSheet(), x + w - 50 + (int)(flSlide*flSlideDistance), y + 20, iTankWidth, iTankHeight, 0, 0, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
+
+	CRootPanel::PaintTexture(DigitanksWindow()->GetMainMenu()->GetLunarWorkshopLogo(), glgui::CRootPanel::Get()->GetWidth()-200-20, glgui::CRootPanel::Get()->GetHeight()-200, 200, 200);
 
 	BaseClass::Paint(x, y, w, h);
 }
 
 void CPurchasePanel::ClosingApplication()
 {
-	m_pPurchase->SetText(L"SUPPORT THE WAR EFFORT!\n \n"
-		L"What you've seen is just the beginning for Digitanks. Buying and registering your copy can help us add:\n \n"
-		L" * More tanks\n"
-		L" * More weapons\n"
-		L" * More scenarios\n"
-		L" * More structures to build and conquer\n"
-		L" * And hopefully not more bugs!\n \n"
-		L"All that stuff is really hard though, and we need your help to build it.");
+	m_bClosing = true;
+
+	m_pPurchase->SetText(L"PREORDER NOW\n \n"
+		L"Pre-purchase now and get $3 off the full price");
+
+	m_pEmail->SetText(L"");
 
 	SetVisible(true);
-	m_pRegistrationKey->SetVisible(false);
-	m_pRegister->SetVisible(false);
-	m_pRegisterOffline->SetVisible(false);
-	m_pRegisterResult->SetVisible(false);
 
-	m_pExitButton->SetClickedListener(this, Exit);
+	m_pContinueButton->SetClickedListener(this, Exit);
 
 	DigitanksWindow()->GetInstructor()->SetActive(false);
 	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
@@ -364,14 +399,16 @@ void CPurchasePanel::ClosingApplication()
 
 void CPurchasePanel::OpeningApplication()
 {
-	m_pPurchase->SetText(L"REGISTER DIGITANKS!\n \n"
-		L"If you've purchased the game, please paste your registration key into the box below. Otherwise please enjoy this demo with a 80 move turn limit.");
+	m_bClosing = false;
+
+	m_pPurchase->SetText(L"PREORDER NOW\n \n"
+		L"Pre-purchase now and get $3 off the full price");
+
+	m_pEmail->SetText(L"");
 
 	SetVisible(true);
-	m_pRegistrationKey->SetVisible(true);
-	m_pRegister->SetVisible(true);
 
-	m_pExitButton->SetClickedListener(this, MainMenu);
+	m_pContinueButton->SetClickedListener(this, MainMenu);
 
 	DigitanksWindow()->GetInstructor()->SetActive(false);
 	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
@@ -379,12 +416,13 @@ void CPurchasePanel::OpeningApplication()
 
 void CPurchasePanel::PurchaseCallback()
 {
-	OpenBrowser(L"http://digitanks.com/gamelanding/");
+	OpenBrowser(sprintf(L"http://digitanks.com/gamelanding/?a=p&i=%d", DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
 void CPurchasePanel::ExitCallback()
 {
+	OpenBrowser(sprintf(L"http://digitanks.com/gamelanding/?a=e&i=%d", DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
@@ -394,62 +432,28 @@ void CPurchasePanel::MainMenuCallback()
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);
 }
 
-void CPurchasePanel::RegisterCallback()
+void CPurchasePanel::EmailCallback()
 {
-	eastl::string16 sError;
-	bool bSucceeded = DigitanksWindow()->QueryRegistrationKey(L"digitanks.com", L"/reg/reg.php", m_pRegistrationKey->GetText(), "digitanks", sError);
-	m_pRegisterResult->SetText(sError.c_str());
+	eastl::string16 sEmail = m_pEmail->GetText();
+	sEmail = str_replace(sEmail, L"@", L"%40");
+	sEmail = str_replace(sEmail, L"+", L"%2B");
+	eastl::string16 sURI = sprintf(L"/reg/email.php?e=%s&i=%d", sEmail, DigitanksWindow()->GetInstallID());
 
-	if (bSucceeded)
+	CHTTPPostSocket s("reg.lunarworkshop.net");
+	s.SendHTTP11(convertstring<char16_t, char>(sURI).c_str());
+	// Don't care about the output.
+	s.Close();
+
+	if (m_bClosing)
 	{
-		m_pRegister->SetVisible(false);
-		m_pRegisterOffline->SetVisible(false);
-		m_pRegistrationKey->SetVisible(false);
-		m_pExitButton->SetText(L"Awesome!");
-	}
-}
-
-void CPurchasePanel::RegisterOfflineCallback()
-{
-	m_pRegistrationKey->SetSize(400, m_pRegister->GetHeight());
-	m_pRegistrationKey->SetPos(GetWidth()/2 - m_pRegistrationKey->GetWidth()/2, 140);
-	m_pRegister->SetPos(GetWidth()/2 - m_pRegister->GetWidth()/2, 180);
-	m_pRegister->SetClickedListener(this, SetKey);
-	m_pRegisterResult->SetPos(10, 220);
-
-	m_pRegisterOffline->SetSize(60, 20);
-	m_pRegisterOffline->SetText(L"Copy");
-	m_pRegisterOffline->SetPos(GetWidth()-80, 100);
-	m_pRegisterOffline->SetClickedListener(this, CopyProductCode);
-
-	m_pProductCode = new CLabel(0, 110, GetWidth(), GetHeight(), L"");
-	m_pProductCode->SetFont(L"text");
-	m_pProductCode->SetAlign(CLabel::TA_TOPCENTER);
-	m_pProductCode->SetText(L"Product Code: ");
-	m_pProductCode->AppendText(DigitanksWindow()->GetProductCode().c_str());
-	AddControl(m_pProductCode);
-}
-
-void CPurchasePanel::CopyProductCodeCallback()
-{
-	SetClipboard(DigitanksWindow()->GetProductCode());
-}
-
-void CPurchasePanel::SetKeyCallback()
-{
-	DigitanksWindow()->SetLicenseKey(convertstring<char16_t, char>(m_pRegistrationKey->GetText()));
-
-	if (DigitanksWindow()->IsRegistered())
-	{
-		m_pRegisterResult->SetText(L"Thank you for registering Digitanks!");
-		m_pRegister->SetVisible(false);
-		m_pRegisterOffline->SetVisible(false);
-		m_pRegistrationKey->SetVisible(false);
-		m_pProductCode->SetVisible(false);
-		m_pExitButton->SetText(L"Awesome!");
+		OpenBrowser(sprintf(L"http://digitanks.com/gamelanding/?a=e&i=%d", DigitanksWindow()->GetInstallID()));
+		exit(0);
 	}
 	else
-		m_pRegisterResult->SetText(L"Sorry, that key didn't seem to work. Try again!");
+	{
+		SetVisible(false);
+		DigitanksWindow()->GetMainMenu()->SetVisible(true);
+	}
 }
 
 CStoryPanel::CStoryPanel()
@@ -490,7 +494,7 @@ CStoryPanel::CStoryPanel()
 
 void CStoryPanel::Layout()
 {
-	SetSize(500, 450);
+	SetSize(500, 400);
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
 	m_pStory->SetPos(10, 20);

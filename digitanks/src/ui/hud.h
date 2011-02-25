@@ -133,6 +133,8 @@ public:
 	static size_t				GetWeaponSheet();
 	static size_t				GetButtonSheet();
 	static size_t				GetDownloadSheet();
+	static size_t				GetActionTanksSheet();
+	static size_t				GetPurchasePanel();
 
 	void						ClientEnterGame();
 
@@ -351,6 +353,8 @@ protected:
 		ACTIONSIGN_SHOWDOWN,
 	} actionsign_t;
 	actionsign_t				m_eActionSign;
+
+	size_t						m_iPurchasePanel;
 
 	size_t						m_iCompetitionWatermark;
 };

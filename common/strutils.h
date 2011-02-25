@@ -153,4 +153,15 @@ inline eastl::string16 sprintf(eastl::string16 s, ...)
 	return p;
 }
 
+inline eastl::string16 str_replace(const eastl::string16& s, const eastl::string16& f, const eastl::string16& r)
+{
+	eastl::string16 sResult = s;
+
+	size_t iPosition;
+	while ((iPosition = sResult.find(f)) != ~0)
+		sResult = sResult.substr(0, iPosition) + r + (sResult.c_str()+iPosition+f.length());
+
+	return sResult;
+}
+
 #endif

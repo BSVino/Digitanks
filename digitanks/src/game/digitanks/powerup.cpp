@@ -23,7 +23,6 @@ void CPowerup::Precache()
 	PrecacheModel(L"models/powerup.obj", false);
 	PrecacheModel(L"models/powerup-airstrike.obj", false);
 	PrecacheModel(L"models/powerup-tank.obj", false);
-	PrecacheModel(L"models/powerup-missiledefense.obj", false);
 }
 
 void CPowerup::Spawn()

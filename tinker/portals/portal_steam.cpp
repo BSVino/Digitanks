@@ -15,7 +15,8 @@ bool TPortal_Startup()
 		return false;
 
 	// 127.0.0.1 = 2130706433
-	SteamUser()->InitiateGameConnection( NULL, 0, k_steamIDNonSteamGS, ntohl(2130706433), 30203, false );
+	SteamUser()->InitiateGameConnection( NULL, 0, k_steamIDNonSteamGS, 2130706433, 30203, false );
+	SteamUtils()->SetOverlayNotificationPosition( k_EPositionBottomLeft );
 
 	return true;
 }
@@ -27,7 +28,7 @@ void TPortal_Think()
 
 void TPortal_Shutdown()
 {
-	SteamUser()->TerminateGameConnection( ntohl(2130706433), 30203 );
+	SteamUser()->TerminateGameConnection( 2130706433, 30203 );
 
 	SteamAPI_Shutdown();
 }

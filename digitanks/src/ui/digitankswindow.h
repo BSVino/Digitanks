@@ -56,6 +56,7 @@ public:
 	void						Layout();
 
 	virtual void				Render();
+	virtual int					WindowClose();
 	virtual void				WindowResize(int x, int y);
 	virtual void				MouseMotion(int x, int y);
 	virtual void				MouseInput(int iButton, int iState);
@@ -107,6 +108,8 @@ public:
 	float						GetMusicVolume() { return m_flMusicVolume; };
 	void						SetMusicVolume(float flMusicVolume);
 
+	int							GetInstallID() { return m_iInstallID; };
+
 protected:
 	int							m_iMouseLastX;
 	int							m_iMouseLastY;
@@ -152,6 +155,8 @@ protected:
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;
+
+	int							m_iInstallID;
 };
 
 inline CDigitanksWindow* DigitanksWindow()

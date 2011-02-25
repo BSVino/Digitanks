@@ -66,6 +66,7 @@ public:
 
 public:
 	virtual void					Layout();
+	virtual void					Think();
 	virtual void					Paint(int x, int y, int w, int h);
 
 	virtual void					ClosingApplication();
@@ -74,23 +75,19 @@ public:
 	EVENT_CALLBACK(CPurchasePanel, Purchase);
 	EVENT_CALLBACK(CPurchasePanel, Exit);
 	EVENT_CALLBACK(CPurchasePanel, MainMenu);
-	EVENT_CALLBACK(CPurchasePanel, Register);
-	EVENT_CALLBACK(CPurchasePanel, RegisterOffline);
-	EVENT_CALLBACK(CPurchasePanel, CopyProductCode);
-	EVENT_CALLBACK(CPurchasePanel, SetKey);
+	EVENT_CALLBACK(CPurchasePanel, Email);
 
 protected:
 	glgui::CLabel*					m_pPurchase;
-
-	glgui::CTextField*				m_pRegistrationKey;
-	glgui::CButton*					m_pRegister;
-	glgui::CLabel*					m_pRegisterResult;
-
-	glgui::CButton*					m_pRegisterOffline;
-	glgui::CLabel*					m_pProductCode;
-
 	glgui::CButton*					m_pPurchaseButton;
-	glgui::CButton*					m_pExitButton;
+
+	glgui::CLabel*					m_pEnterEmail;
+	glgui::CTextField*				m_pEmail;
+	glgui::CButton*					m_pContinueButton;
+
+	bool							m_bClosing;
+
+	float							m_flTimeOpened;
 };
 
 class CStoryPanel : public glgui::CPanel

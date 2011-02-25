@@ -63,6 +63,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
 		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
+
+		m_iInstallID = c.read<int>("installid", RandomInt(10000000, 99999999));
 	}
 	else
 	{
@@ -82,6 +84,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 		SetSoundVolume(0.8f);
 		SetMusicVolume(0.8f);
+
+		m_iInstallID = RandomInt(10000000, 99999999);
 	}
 
 	if (m_iWindowWidth < 1024)
@@ -314,11 +318,11 @@ void CDigitanksWindow::Run()
 {
 	CreateGame(GAMETYPE_MENU);
 
-/*	if (!IsRegistered())
+	if (!IsRegistered())
 	{
 		m_pMainMenu->SetVisible(false);
 		m_pPurchase->OpeningApplication();
-	}*/
+	}
 
 	while (IsOpen())
 	{
@@ -402,6 +406,15 @@ void CDigitanksWindow::Render()
 	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
 
 	RenderMouseCursor();
+}
+
+int CDigitanksWindow::WindowClose()
+{
+	if (m_pPurchase->IsVisible())
+		return GL_TRUE;
+
+	CloseApplication();
+	return GL_FALSE;
 }
 
 void CDigitanksWindow::WindowResize(int w, int h)
@@ -489,6 +502,7 @@ void CDigitanksWindow::SaveConfig()
 	c.add<bool>("useshaders", m_bWantsShaders);
 	c.add<int>("width", m_iCfgWidth);
 	c.add<int>("height", m_iCfgHeight);
+	c.add<int>("installid", m_iInstallID);
 	std::ofstream o;
 	o.open(GetAppDataDirectory(L"Digitanks", L"options.cfg").c_str(), std::ios_base::out);
 	o << c;

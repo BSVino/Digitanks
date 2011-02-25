@@ -276,6 +276,8 @@ public:
 
 	virtual void					SetHint(const eastl::string16 &sHint);
 
+	size_t							GetLunarWorkshopLogo() { return m_iLunarWorkshop; }
+
 protected:
 	glgui::CButton*					m_pTutorial;
 	glgui::CButton*					m_pPlay;

@@ -31,6 +31,9 @@ public:
 	static void					RenderCallback() { Get()->Render(); };
 	virtual void				Render();
 
+	static int					WindowCloseCallback() { return Get()->WindowClose(); };
+	virtual int					WindowClose();
+
 	static void					WindowResizeCallback(int x, int y) { Get()->WindowResize(x, y); };
 	virtual void				WindowResize(int x, int y);
 

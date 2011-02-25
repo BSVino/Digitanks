@@ -8,6 +8,7 @@
 
 #include <strutils.h>
 #include <platform.h>
+#include <mtrand.h>
 #include <tinker/keys.h>
 #include <tinker/portals/portal.h>
 
@@ -20,6 +21,7 @@ CApplication::CApplication(int argc, char** argv)
 	s_pApplication = this;
 
 	srand((unsigned int)time(NULL));
+	mtsrand((size_t)time(NULL));
 
 	for (int i = 0; i < argc; i++)
 		m_apszCommandLine.push_back(argv[i]);
@@ -70,6 +72,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
 	glfwSetWindowPos(iWindowX, iWindowY);
 
+	glfwSetWindowCloseCallback(&CApplication::WindowCloseCallback);
 	glfwSetWindowSizeCallback(&CApplication::WindowResizeCallback);
 	glfwSetKeyCallback(&CApplication::KeyEventCallback);
 	glfwSetCharCallback(&CApplication::CharEventCallback);
@@ -260,6 +263,11 @@ float CApplication::GetTime()
 
 void CApplication::Render()
 {
+}
+
+int CApplication::WindowClose()
+{
+	return GL_TRUE;
 }
 
 void CApplication::WindowResize(int w, int h)

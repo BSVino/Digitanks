@@ -227,13 +227,13 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 		bReturn = true;
 	}
 	else if (iCode == 1)
-		sError = L"Looks like that key has already been registered. Please contact support <support@lunarworkshop.net> to register your game.";
+		sError = L"Looks like that key has already been registered. Please contact support <support@lunarworkshop.com> to register your game.";
 	else if (iCode == 2)
 		sError = L"Sorry, that registration key doesn't look valid. Double check it and try again.";
 	else if (iCode == -1)
-		sError = L"Looks like there's something wrong with the server at the moment, try again in a bit or contact support <support@lunarworkshop.net> if it continues.";
+		sError = L"Looks like there's something wrong with the server at the moment, try again in a bit or contact support <support@lunarworkshop.com> if it continues.";
 	else
-		sError = L"Looks like there's something wrong, please contact support <support@lunarworkshop.net> if it continues.";
+		sError = L"Looks like there's something wrong, please contact support <support@lunarworkshop.com> if it continues.";
 
 	return bReturn;
 }

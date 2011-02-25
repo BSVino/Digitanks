@@ -8,7 +8,7 @@ void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses);
 void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
-void OpenBrowser(const wchar_t* pszAddress);
+void OpenBrowser(const eastl::string16& sURL);
 void CreateMinidump(void* pInfo, wchar_t* pszDirectory);
 wchar_t* OpenFileDialog(wchar_t* pszFileTypes);
 wchar_t* SaveFileDialog(wchar_t* pszFileTypes);

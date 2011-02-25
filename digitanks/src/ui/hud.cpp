@@ -139,6 +139,7 @@ CHUD::CHUD()
 	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
 	m_iActionTanksSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/tanks.png");
 	m_iActionSignsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/signs.png");
+	m_iPurchasePanel = CRenderer::LoadTextureIntoGL(L"textures/purchasepanel.png");
 
 	m_eActionSign = ACTIONSIGN_NONE;
 
@@ -1769,6 +1770,16 @@ size_t CHUD::GetButtonSheet()
 size_t CHUD::GetDownloadSheet()
 {
 	return DigitanksWindow()->GetHUD()->m_iDownloadSheet;
+}
+
+size_t CHUD::GetActionTanksSheet()
+{
+	return DigitanksWindow()->GetHUD()->m_iActionTanksSheet;
+}
+
+size_t CHUD::GetPurchasePanel()
+{
+	return DigitanksWindow()->GetHUD()->m_iPurchasePanel;
 }
 
 void CHUD::ClientEnterGame()

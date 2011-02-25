@@ -62,9 +62,9 @@ void SleepMS(size_t iMS)
 	Sleep(1);
 }
 
-void OpenBrowser(const wchar_t* pszAddress)
+void OpenBrowser(const eastl::string16& sURL)
 {
-	ShellExecute(NULL, L"open", pszAddress, NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 static int g_iMinidumpsWritten = 0;
