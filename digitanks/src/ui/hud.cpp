@@ -2062,6 +2062,13 @@ void CHUD::UpdateTurnButton()
 	if (!DigitanksGame()->GetCurrentTeam())
 		return;
 
+	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+	{
+		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 320, 760, 120, 90, 1024, 1024);
+		m_pPressEnter->SetVisible(true);
+		return;
+	}
+
 	bool bTurnComplete = true;
 
 	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumMembers(); i++)
@@ -2089,12 +2096,7 @@ void CHUD::UpdateTurnButton()
 		}
 	}
 	
-	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
-	{
-		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 320, 760, 120, 90, 1024, 1024);
-		m_pPressEnter->SetVisible(true);
-	}
-	else if (bTurnComplete)
+	if (bTurnComplete)
 	{
 		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 160, 730, 160, 120, 1024, 1024);
 		m_pPressEnter->SetVisible(true);

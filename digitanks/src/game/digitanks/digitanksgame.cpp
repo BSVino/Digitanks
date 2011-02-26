@@ -125,6 +125,7 @@ void CDigitanksGame::Spawn()
 	SetListener(DigitanksWindow()->GetHUD());
 
 	m_flLastFireworks = 0;
+	m_bPartyMode = false;
 
 	m_flShowFightSign = 0;
 }

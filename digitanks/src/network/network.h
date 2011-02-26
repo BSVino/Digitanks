@@ -189,7 +189,8 @@ class CNetworkedVariable : public CNetworkedVariableBase
 public:
 	CNetworkedVariable()
 	{
-		memset(&m_oVariable, 0, sizeof(C));
+		// Don't zero it out, the constructor will set whatever value it wants and the rest can remain undefined.
+		// memset(&m_oVariable, 0, sizeof(C));
 	}
 
 	CNetworkedVariable(const C& c)

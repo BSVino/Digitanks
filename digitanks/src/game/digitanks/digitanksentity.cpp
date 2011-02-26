@@ -288,7 +288,8 @@ float CDigitanksEntity::GetVisibility() const
 
 float CDigitanksEntity::VisibleRange() const
 {
-	if (TreesReduceVisibility() && DigitanksGame()->GetTerrain()->IsPointInTrees(GetOrigin()))
+	// Don't use GetOrigin because CDigitank::GetOrigin() can be expensive and we really don't want what it does.
+	if (TreesReduceVisibility() && DigitanksGame()->GetTerrain()->IsPointInTrees(m_vecOrigin))
 		return BaseVisibleRange()/2;
 
 	return BaseVisibleRange();

@@ -1103,8 +1103,14 @@ void CSupplier::RemoveChild(CNetworkParameters* p)
 {
 	CEntityHandle<CStructure> hChild(p->ui2);
 
+	if (hChild == NULL)
+		return;
+
 	for (size_t i = 0; i < m_ahChildren.size(); i++)
 	{
+		if (m_ahChildren[i] == NULL)
+			continue;
+
 		if (m_ahChildren[i] == hChild)
 			m_ahChildren.erase(m_ahChildren.begin()+i);
 		// Don't return as soon as we find it in case of dupes.

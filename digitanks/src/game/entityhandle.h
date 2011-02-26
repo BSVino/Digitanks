@@ -24,7 +24,10 @@ public:
 
 	CEntityHandle(size_t iHandle)
 	{
-		m_iHandle = iHandle;
+		if (dynamic_cast<C*>(CBaseEntity::GetEntity(iHandle)))
+			m_iHandle = iHandle;
+		else
+			m_iHandle = ~0;
 	}
 
 public:
@@ -108,7 +111,7 @@ public:
 
 	inline C* GetPointer() const
 	{
-		return dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle));
+		return static_cast<C*>(CBaseEntity::GetEntity(m_iHandle));
 	}
 
 	inline void Set(const C* pEntity)

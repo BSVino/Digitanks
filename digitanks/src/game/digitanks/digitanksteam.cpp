@@ -92,6 +92,7 @@ void CDigitanksTeam::Spawn()
 	m_flPower = 0;
 
 	m_flMegabytes = 0;
+	m_flBandwidth = 0;
 	m_flUpdateDownloaded = 0;
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 	m_bCanBuildBuffers = m_bCanBuildPSUs = m_bCanBuildInfantryLoaders = m_bCanBuildTankLoaders = m_bCanBuildArtilleryLoaders = false;
@@ -615,10 +616,12 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak)
 		if (pTeammate->VisibleRange() == 0)
 			continue;
 
-		Vector vecOrigin = pTeammate->GetOrigin();
+		Vector vecOrigin;
 		CDigitank* pDigitank = dynamic_cast<CDigitank*>(pTeammate);
 		if (pDigitank)
 			vecOrigin = pDigitank->GetRealOrigin();
+		else
+			vecOrigin = pTeammate->GetOrigin();
 
 		float flVisibileRange = pTeammate->VisibleRange();
 		if (bCloak)
