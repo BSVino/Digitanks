@@ -42,16 +42,16 @@ SAVEDATA_TABLE_END();
 
 void CGridBug::Precache()
 {
-	PrecacheModel(L"models/digitanks/digitank-body.obj", true);
-	PrecacheModel(L"models/digitanks/digitank-turret.obj", true);
+	PrecacheModel(L"models/digitanks/gridbug.obj", true);
+	PrecacheModel(L"models/digitanks/gridbug-turret.obj", true);
 }
 
 void CGridBug::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/digitank-body.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
+	SetModel(L"models/digitanks/gridbug.obj");
+	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/gridbug-turret.obj");
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 

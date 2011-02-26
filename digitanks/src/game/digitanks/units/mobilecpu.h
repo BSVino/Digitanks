@@ -16,17 +16,25 @@ public:
 	virtual bool				CanFortify() { return true; };
 	virtual void				OnFortify();
 
+	virtual float				FindHoverHeight(Vector vecPosition) const;
+
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+
 	virtual bool				IsMobileCPU() const { return true; };
 	virtual float				HealthRechargeRate() const { return 0.2f; };
 	virtual float				GetTankSpeed() const { return 3.0f; };
 	virtual float				TurnPerPower() const { return 45; };
-	virtual float				GetTransitionTime() const { return 2.0f; };
+	virtual float				GetTransitionTime() const { return 4.0f; };
 	virtual float				MaxRangeRadius() const { return 30; };
 	virtual float				SlowMovementFactor() const { return 0.8f; };
 
 	virtual size_t				FleetPoints() const { return 0; };
 
 	virtual unittype_t			GetUnitType() const { return UNIT_MOBILECPU; }
+
+protected:
+	size_t						m_iFanModel;
+	float						m_flFanRotation;
 };
 
 #endif
