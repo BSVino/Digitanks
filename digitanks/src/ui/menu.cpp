@@ -691,13 +691,16 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 
 	m_pHumanPlayers = new CScrollSelector<int>(L"text");
 	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(5, L"5"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
+	if (DigitanksWindow()->IsRegistered())
+	{
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(5, L"5"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(6, L"6"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
+	}
 	m_pHumanPlayers->SetSelection(0);
 	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
 	AddControl(m_pHumanPlayers);
@@ -894,20 +897,6 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 		m_pDifficultyLabel->SetVisible(false);
 	}
 
-	m_pHumanPlayers = new CScrollSelector<int>(L"text");
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
-	m_pHumanPlayers->SetSelection(0);
-	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
-	AddControl(m_pHumanPlayers);
-
-	m_pHumanPlayersLabel = new CLabel(0, 0, 32, 32, L"Human Players");
-	m_pHumanPlayersLabel->SetWrap(false);
-	m_pHumanPlayersLabel->SetFont(L"text");
-	AddControl(m_pHumanPlayersLabel);
-
 	m_pBotPlayers = new CScrollSelector<int>(L"text");
 	AddControl(m_pBotPlayers);
 
@@ -936,29 +925,18 @@ void CStrategyGamePanel::Layout()
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
 
-	m_pHumanPlayersLabel->EnsureTextFits();
-	m_pHumanPlayersLabel->SetPos(75, 180);
-
-	m_pHumanPlayers->SetSize(GetWidth() - m_pHumanPlayersLabel->GetLeft()*2 - m_pHumanPlayersLabel->GetWidth(), iSelectorSize);
-	m_pHumanPlayers->SetPos(m_pHumanPlayersLabel->GetRight(), 180);
-
 	m_pBotPlayersLabel->EnsureTextFits();
 	m_pBotPlayersLabel->SetPos(75, 240);
-	m_pBotPlayersLabel->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
+	m_pBotPlayersLabel->SetVisible(true);
 
 	m_pBotPlayers->SetSize(GetWidth() - m_pBotPlayersLabel->GetLeft()*2 - m_pBotPlayersLabel->GetWidth(), iSelectorSize);
 	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 240);
-	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
+	m_pBotPlayers->SetVisible(true);
 
 	m_pBotPlayers->RemoveAllSelections();
-	if (m_pHumanPlayers->GetSelectionValue() > 1)
-		m_pBotPlayers->AddSelection(CScrollSelection<int>(0, L"0"));
-	if (m_pHumanPlayers->GetSelectionValue() <= 3)
-		m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
-	if (m_pHumanPlayers->GetSelectionValue() <= 2)
-		m_pBotPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
-	if (m_pHumanPlayers->GetSelectionValue() <= 1)
-		m_pBotPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
+	m_pBotPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
+	m_pBotPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
+	m_pBotPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
 	m_pBotPlayers->SetSelection(m_pBotPlayers->GetNumSelections()-1);
 
 	m_pBeginGame->SetSize(135, 40);
@@ -970,7 +948,7 @@ void CStrategyGamePanel::Layout()
 void CStrategyGamePanel::BeginGameCallback()
 {
 	gamesettings_t oSettings;
-	oSettings.iHumanPlayers = m_pHumanPlayers->GetSelectionValue();
+	oSettings.iHumanPlayers = 1;
 	oSettings.iBotPlayers = m_pBotPlayers->GetSelectionValue();
 	oSettings.iLevel = m_iLevelSelected;
 	DigitanksWindow()->SetGameSettings(oSettings);

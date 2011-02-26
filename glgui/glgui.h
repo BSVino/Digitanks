@@ -822,7 +822,12 @@ namespace glgui
 				m_flHandlePositionGoal = RemapValClamped((float)mx, (float)x, (float)(x + w), 0.0f, 1.0f);
 			}
 			else
-				m_flHandlePositionGoal = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
+			{
+				if (m_aSelections.size() < 2)
+					m_flHandlePositionGoal = ((float)GetWidth()*(float)m_iSelection)/GetWidth();
+				else
+					m_flHandlePositionGoal = ((float)GetWidth()/((float)m_aSelections.size()-1)*(float)m_iSelection)/GetWidth();
+			}
 
 			m_flHandlePosition = Approach(m_flHandlePositionGoal, m_flHandlePosition, CRootPanel::Get()->GetFrameTime()*10);
 
@@ -848,8 +853,16 @@ namespace glgui
 
 			CRootPanel::PaintRect(iLeft, y+h/2, iWidth, 1, Color(200, 200, 200, 255));
 
-			for (size_t i = 0; i < m_aSelections.size(); i++)
-				CRootPanel::PaintRect(iLeft + iWidth*(int)i/((int)m_aSelections.size()-1), y+h/2-5, 1, 10, Color(200, 200, 200, 255));
+			if (m_aSelections.size() < 2)
+			{
+				CRootPanel::PaintRect(iLeft, y+h/2-5, 1, 10, Color(200, 200, 200, 255));
+				CRootPanel::PaintRect(iLeft + iWidth, y+h/2-5, 1, 10, Color(200, 200, 200, 255));
+			}
+			else
+			{
+				for (size_t i = 0; i < m_aSelections.size(); i++)
+					CRootPanel::PaintRect(iLeft + iWidth*(int)i/((int)m_aSelections.size()-1), y+h/2-5, 1, 10, Color(200, 200, 200, 255));
+			}
 
 			CRootPanel::PaintRect(HandleX()+2, HandleY()+2, HANDLE_SIZE-4, HANDLE_SIZE-4, g_clrBoxHi);
 

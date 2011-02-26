@@ -196,9 +196,6 @@ protected:
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
 
-	glgui::CScrollSelector<int>*	m_pHumanPlayers;
-	glgui::CLabel*					m_pHumanPlayersLabel;
-
 	glgui::CScrollSelector<int>*	m_pBotPlayers;
 	glgui::CLabel*					m_pBotPlayersLabel;
 
