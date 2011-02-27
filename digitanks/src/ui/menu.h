@@ -213,6 +213,9 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
+	virtual void					Paint(int x, int y, int w, int h);
+
+	void							SetStandalone(bool bStandalone) { m_bStandalone = bStandalone; }
 
 	EVENT_CALLBACK(COptionsPanel,	SoundVolumeChanged);
 	EVENT_CALLBACK(COptionsPanel,	MusicVolumeChanged);
@@ -221,6 +224,7 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	FramebuffersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ShadersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ConstrainChanged);
+	EVENT_CALLBACK(COptionsPanel,	Close);
 
 protected:
 	glgui::CScrollSelector<float>*	m_pSoundVolume;
@@ -244,6 +248,10 @@ protected:
 	glgui::CLabel*					m_pConstrainLabel;
 
 	glgui::CLabel*					m_pVideoChangedNotice;
+
+	bool							m_bStandalone;
+
+	glgui::CButton*					m_pClose;
 };
 
 class CMainMenu : public glgui::CPanel, public glgui::IEventListener

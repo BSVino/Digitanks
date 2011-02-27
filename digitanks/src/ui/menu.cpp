@@ -690,9 +690,9 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	}
 
 	m_pHumanPlayers = new CScrollSelector<int>(L"text");
-	m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
 	if (DigitanksWindow()->IsRegistered())
 	{
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1"));
 		m_pHumanPlayers->AddSelection(CScrollSelection<int>(2, L"2"));
 		m_pHumanPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
 		m_pHumanPlayers->AddSelection(CScrollSelection<int>(4, L"4"));
@@ -701,6 +701,9 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		m_pHumanPlayers->AddSelection(CScrollSelection<int>(7, L"7"));
 		m_pHumanPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
 	}
+	else
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1 (Locked for demo)"));
+
 	m_pHumanPlayers->SetSelection(0);
 	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);
 	AddControl(m_pHumanPlayers);
@@ -992,6 +995,8 @@ eastl::vector<GLFWvidmode> g_aVideoModes;
 COptionsPanel::COptionsPanel()
 	: CPanel(0, 0, 570, 520)
 {
+	m_bStandalone = false;
+
 	m_pSoundVolume = new CScrollSelector<float>(L"text");
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
@@ -1101,10 +1106,20 @@ COptionsPanel::COptionsPanel()
 	m_pConstrainLabel = new CLabel(0, 0, 100, 100, L"Constrain mouse to screen edges");
 	m_pConstrainLabel->SetFont(L"text");
 	AddControl(m_pConstrainLabel);
+
+	m_pClose = new CButton(0, 0, 100, 100, L"X");
+	m_pClose->SetClickedListener(this, Close);
+	AddControl(m_pClose);
 }
 
 void COptionsPanel::Layout()
 {
+	if (m_bStandalone)
+	{
+		SetSize(570, 520);
+		SetPos(CRootPanel::Get()->GetWidth()/2 - GetWidth()/2, CRootPanel::Get()->GetHeight()/2 - GetHeight()/2);
+	}
+
 	int iSelectorSize = m_pMusicVolumeLabel->GetHeight() - 4;
 
 	m_pSoundVolumeLabel->EnsureTextFits();
@@ -1166,6 +1181,19 @@ void COptionsPanel::Layout()
 	m_pConstrain->SetState(DigitanksWindow()->ShouldConstrainMouse(), false);
 
 	BaseClass::Layout();
+
+	m_pClose->SetPos(GetWidth()-20, 10);
+	m_pClose->SetSize(10, 10);
+	m_pClose->SetButtonColor(Color(255, 0, 0));
+	m_pClose->SetVisible(m_bStandalone);
+}
+
+void COptionsPanel::Paint(int x, int y, int w, int h)
+{
+	if (m_bStandalone)
+		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
+
+	BaseClass::Paint(x, y, w, h);
 }
 
 void COptionsPanel::SoundVolumeChangedCallback()
@@ -1225,4 +1253,9 @@ void COptionsPanel::ConstrainChangedCallback()
 {
 	DigitanksWindow()->SetConstrainMouse(m_pConstrain->GetState());
 	DigitanksWindow()->SaveConfig();
+}
+
+void COptionsPanel::CloseCallback()
+{
+	SetVisible(false);
 }

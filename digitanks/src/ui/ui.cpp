@@ -41,6 +41,8 @@ void CDigitanksWindow::Layout()
 CDigitanksMenu::CDigitanksMenu()
 	: CPanel(0, 0, 200, 300)
 {
+	m_pOptionsPanel = NULL;
+
 	m_pDigitanks = new CLabel(0, 0, 100, 100, L"DIGITANKS");
 	m_pDigitanks->SetFont(L"header");
 	AddControl(m_pDigitanks);
@@ -81,6 +83,11 @@ CDigitanksMenu::CDigitanksMenu()
 #endif
 	AddControl(m_pLoadGame);
 
+	m_pOptions = new CButton(0, 0, 100, 100, L"OPTIONS");
+	m_pOptions->SetClickedListener(this, Options);
+	m_pOptions->SetFont(L"header");
+	AddControl(m_pOptions);
+
 	m_pExit = new CButton(0, 0, 100, 100, L"QUIT TO DESKTOP");
 	m_pExit->SetClickedListener(this, Quit);
 	m_pExit->SetFont(L"header");
@@ -118,7 +125,10 @@ void CDigitanksMenu::Layout()
 	m_pLoadGame->SetPos(25, 160);
 	m_pLoadGame->SetSize(150, 20);
 
-	m_pReturnToMenu->SetPos(25, 210);
+	m_pOptions->SetPos(25, 190);
+	m_pOptions->SetSize(150, 20);
+
+	m_pReturnToMenu->SetPos(25, 220);
 	m_pReturnToMenu->SetSize(150, 20);
 
 	m_pReturnToGame->SetPos(GetWidth()-20, 10);
@@ -151,12 +161,26 @@ void CDigitanksMenu::SetVisible(bool bVisible)
 
 	m_pReturnToGame->SetVisible(!!GameServer());
 
+	if (m_pOptionsPanel)
+	{
+		m_pOptionsPanel->Destructor();
+		m_pOptionsPanel->Delete();
+		m_pOptionsPanel = NULL;
+	}
+
 	BaseClass::SetVisible(bVisible);
 }
 
 void CDigitanksMenu::CloseCallback()
 {
 	SetVisible(false);
+
+	if (m_pOptionsPanel)
+	{
+		m_pOptionsPanel->Destructor();
+		m_pOptionsPanel->Delete();
+		m_pOptionsPanel = NULL;
+	}
 }
 
 void CDigitanksMenu::SaveCallback()
@@ -194,6 +218,20 @@ void CDigitanksMenu::LoadCallback()
 		DigitanksWindow()->DestroyGame();
 		DigitanksWindow()->CreateGame(GAMETYPE_MENU);
 	}
+}
+
+void CDigitanksMenu::OptionsCallback()
+{
+	if (m_pOptionsPanel)
+	{
+		m_pOptionsPanel->Destructor();
+		m_pOptionsPanel->Delete();
+	}
+
+	m_pOptionsPanel = new COptionsPanel();
+	CRootPanel::Get()->AddControl(m_pOptionsPanel, true);
+	m_pOptionsPanel->SetStandalone(true);
+	m_pOptionsPanel->Layout();
 }
 
 void CDigitanksMenu::ExitCallback()

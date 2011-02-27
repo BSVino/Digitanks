@@ -21,6 +21,7 @@ public:
 	EVENT_CALLBACK(CDigitanksMenu, Close);
 	EVENT_CALLBACK(CDigitanksMenu, Save);
 	EVENT_CALLBACK(CDigitanksMenu, Load);
+	EVENT_CALLBACK(CDigitanksMenu, Options);
 	EVENT_CALLBACK(CDigitanksMenu, Quit);
 
 protected:
@@ -33,7 +34,10 @@ protected:
 	glgui::CButton*					m_pReturnToGame;
 	glgui::CButton*					m_pSaveGame;
 	glgui::CButton*					m_pLoadGame;
+	glgui::CButton*					m_pOptions;
 	glgui::CButton*					m_pExit;
+
+	class COptionsPanel*			m_pOptionsPanel;
 };
 
 class CVictoryPanel : public glgui::CPanel
