@@ -273,7 +273,7 @@ public:
 	virtual void				RenderShield();
 	virtual float				RenderShieldScale() const { return 20.0f; };
 
-	virtual float				AvailableArea() const;
+	virtual float				AvailableArea(int iArea) const;
 	virtual int					GetNumAvailableAreas() const { return 1; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 

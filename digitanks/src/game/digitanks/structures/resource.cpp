@@ -163,7 +163,7 @@ void CResource::PostRender(bool bTransparent)
 	}
 }
 
-float CResource::AvailableArea() const
+float CResource::AvailableArea(int iArea) const
 {
 	return 5;
 }

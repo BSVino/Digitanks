@@ -786,7 +786,7 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 bool CCPU::IsAvailableAreaActive(int iArea) const
 {
-	if (iArea == 0)
+	if (iArea <= 1)
 		return BaseClass::IsAvailableAreaActive(iArea);
 
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)

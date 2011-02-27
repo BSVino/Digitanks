@@ -213,6 +213,45 @@ void CStructure::PostRender(bool bTransparent)
 	}
 }
 
+float CStructure::AvailableArea(int iArea) const
+{
+	return GetBoundingRadius();
+}
+
+bool CStructure::IsAvailableAreaActive(int iArea) const
+{
+	if (iArea != 0)
+		return BaseClass::IsAvailableAreaActive(iArea);
+
+	if (!GetDigitanksTeam())
+		return false;
+
+	if (!GetDigitanksTeam()->GetPrimaryCPU())
+		return false;
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetDigitanksTeam())
+		return false;
+
+	if (DigitanksGame()->GetControlMode() != MODE_AIM)
+		return false;
+
+	CDigitank* pTank = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimarySelectionTank();
+
+	if (!pTank)
+		return false;
+
+	if (!pTank->IsInsideMaxRange(GetOrigin()))
+		return false;
+
+	if (GetVisibility(pTank->GetDigitanksTeam()) < 0.1f)
+		return false;
+
+	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetOrigin()-pTank->GetOrigin()).Normalized()).y)) > pTank->FiringCone())
+		return false;
+
+	return true;
+}
+
 void CStructure::DrawSchema(int x, int y, int w, int h)
 {
 	CRenderingContext c(GameServer()->GetRenderer());
@@ -1212,15 +1251,18 @@ float CSupplier::BaseVisibleRange() const
 	return GetDataFlowRadius() + 15;
 }
 
-float CSupplier::AvailableArea() const
+float CSupplier::AvailableArea(int iArea) const
 {
-	return GetDataFlowRadius() + GetBoundingRadius();
+	if (iArea == 1)
+		return GetDataFlowRadius() + GetBoundingRadius();
+
+	return BaseClass::AvailableArea(iArea);
 }
 
 bool CSupplier::IsAvailableAreaActive(int iArea) const
 {
-	if (iArea != 0)
-		return false;
+	if (iArea != 1)
+		return BaseClass::IsAvailableAreaActive(iArea);
 
 	if (!GetDigitanksTeam())
 		return false;

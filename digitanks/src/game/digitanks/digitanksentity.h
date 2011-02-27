@@ -34,7 +34,7 @@ public:
 	virtual float					VisibleRange() const;
 	virtual bool					IsRammable() const { return true; }
 
-	virtual float					AvailableArea() const { return 0; };
+	virtual float					AvailableArea(int iArea) const { return 0; };
 	virtual int						GetNumAvailableAreas() const { return 0; };
 	virtual bool					IsAvailableAreaActive(int iArea) const { return true; };
 	virtual void					RenderAvailableArea(int iArea);

@@ -297,7 +297,7 @@ float CDigitanksEntity::VisibleRange() const
 
 void CDigitanksEntity::RenderAvailableArea(int iArea)
 {
-	float flAvailableArea = AvailableArea();
+	float flAvailableArea = AvailableArea(iArea);
 
 	if (flAvailableArea == 0)
 		return;
@@ -308,7 +308,7 @@ void CDigitanksEntity::RenderAvailableArea(int iArea)
 	float flScoutScale = 1.0f;
 
 	// Scouts have very tall ones so we can see them underneath on the ground.
-	if (GetUnitType() == UNIT_SCOUT)
+	if (GetUnitType() == UNIT_SCOUT || dynamic_cast<CStructure*>(this))
 		flScoutScale = 10;
 
 	CRenderingContext c(GameServer()->GetRenderer());

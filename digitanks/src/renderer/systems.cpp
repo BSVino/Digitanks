@@ -459,7 +459,7 @@ void CParticleSystemLibrary::InitSystems()
 
 	pDigitankSmoke->SetTexture(L"textures/particles/haze-white.png");
 	pDigitankSmoke->SetLifeTime(1.0f);
-	pDigitankSmoke->SetEmissionRate(0.1f);
+	pDigitankSmoke->SetEmissionRate(0.2f);
 	pDigitankSmoke->SetEmissionMaxDistance(2);
 	pDigitankSmoke->SetAlpha(0.3f);
 	pDigitankSmoke->SetStartRadius(1.0f);
@@ -487,7 +487,7 @@ void CParticleSystemLibrary::InitSystems()
 
 	pDigitankFireSmoke->SetTexture(L"textures/particles/haze-white.png");
 	pDigitankFireSmoke->SetLifeTime(1.2f);
-	pDigitankFireSmoke->SetEmissionRate(0.15f);
+	pDigitankFireSmoke->SetEmissionRate(0.3f);
 	pDigitankFireSmoke->SetEmissionMaxDistance(3);
 	pDigitankFireSmoke->SetAlpha(0.2f);
 	pDigitankFireSmoke->SetStartRadius(1.5f);

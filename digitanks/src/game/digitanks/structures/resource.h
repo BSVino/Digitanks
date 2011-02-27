@@ -33,7 +33,7 @@ public:
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
 
-	virtual float				AvailableArea() const;
+	virtual float				AvailableArea(int iArea) const;
 	virtual int					GetNumAvailableAreas() const { return 1; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 

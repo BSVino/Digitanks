@@ -34,6 +34,10 @@ public:
 
 	virtual void				PostRender(bool bTransparent);
 
+	virtual float				AvailableArea(int iArea) const;
+	virtual int					GetNumAvailableAreas() const { return 1; };
+	virtual bool				IsAvailableAreaActive(int iArea) const;
+
 	virtual void				DrawSchema(int x, int y, int w, int h);
 
 	void						BeginConstruction(Vector vecConstructionOrigin);
@@ -189,8 +193,8 @@ public:
 
 	virtual float				BaseVisibleRange() const;
 
-	virtual float				AvailableArea() const;
-	virtual int					GetNumAvailableAreas() const { return 1; };
+	virtual float				AvailableArea(int iArea) const;
+	virtual int					GetNumAvailableAreas() const { return 2; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);

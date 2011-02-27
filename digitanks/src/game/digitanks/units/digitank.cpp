@@ -307,6 +307,7 @@ void CDigitank::Spawn()
 	m_flGlowYaw = 0;
 	m_flNextHoverHeightCheck = GameServer()->GetGameTime() + RandomFloat(0, 1);
 	m_flShieldPulse = 0;
+	m_bCloaked = false;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -690,7 +691,10 @@ void CDigitank::EndTurn()
 	}
 
 	if (m_iTurnsDisabled)
+	{
+		m_bNeedsOrdersDirty = true;
 		m_iTurnsDisabled--;
+	}
 }
 
 void CDigitank::ManageSupplyLine()
@@ -1934,6 +1938,9 @@ bool CDigitank::NeedsOrders()
 	if (!m_bNeedsOrdersDirty)
 		return m_bNeedsOrders;
 
+	if (IsDisabled())
+		return false;
+
 	bool bNeedsToMove = true;
 	if (GetUsedMovementEnergy() > 0)
 		bNeedsToMove = false;
@@ -3017,7 +3024,7 @@ void CDigitank::RenderShield()
 		glCallList((GLuint)pModel->m_iCallList);
 }
 
-float CDigitank::AvailableArea() const
+float CDigitank::AvailableArea(int iArea) const
 {
 	return GetBoundingRadius();
 }
@@ -3434,6 +3441,8 @@ void CDigitank::Disable(size_t iTurns)
 {
 	if (m_iTurnsDisabled < iTurns)
 		m_iTurnsDisabled = iTurns;
+
+	m_bNeedsOrdersDirty = true;
 
 	DigitanksGame()->OnDisabled(this, NULL, NULL);
 }
