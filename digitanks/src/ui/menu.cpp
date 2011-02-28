@@ -7,6 +7,7 @@
 
 #include <platform.h>
 #include <strutils.h>
+#include <mtrand.h>
 
 #include <dt_version.h>
 #include <digitanks/digitanksgame.h>
@@ -670,7 +671,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, i);
 		m_pLevels->AddSubmenu(convertstring<char, char16_t>(pLevel->GetName()), this, LevelChosen);
 	}
-	m_iLevelSelected = 0;
+	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY)-1);
 
 	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
@@ -881,7 +882,7 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, i);
 		m_pLevels->AddSubmenu(convertstring<char, char16_t>(pLevel->GetName()), this, LevelChosen);
 	}
-	m_iLevelSelected = 0;
+	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD)-1);
 
 	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
