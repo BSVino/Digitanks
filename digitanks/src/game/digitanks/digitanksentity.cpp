@@ -302,9 +302,6 @@ void CDigitanksEntity::RenderAvailableArea(int iArea)
 	if (flAvailableArea == 0)
 		return;
 
-	if (iArea != 0)
-		return;
-
 	float flScoutScale = 1.0f;
 
 	// Scouts have very tall ones so we can see them underneath on the ground.

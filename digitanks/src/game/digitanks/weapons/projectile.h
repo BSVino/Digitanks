@@ -46,6 +46,7 @@ public:
 	virtual bool				ShouldBeVisible();
 
 	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };
+	virtual Vector				GetLandingSpot() { return m_vecLandingSpot; };
 
 	virtual size_t				CreateTrailSystem();
 	virtual void				CreateExplosionSystem();

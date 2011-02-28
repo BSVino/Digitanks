@@ -421,6 +421,20 @@ Vector CDigitanksCamera::GetCameraPosition()
 	{
 		float flLerp = RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5f, 0, 1);
 
+		if (m_hTankProjectile->GetWeaponType() == PROJECTILE_TORPEDO)
+		{
+			Vector vecDirection = m_hTankProjectile->GetLandingSpot() - m_hTankProjectile->GetOrigin();
+			vecDirection.y = 0;
+			vecDirection.Normalize();
+
+			Vector vecTorpedoFollow = m_hTankProjectile->GetOrigin() - vecDirection*15 + Vector(0, 15, 0);
+
+			if (flLerp < 1 && m_hTankProjectile->GetOwner())
+				return vecTorpedoFollow * flLerp + GetTankFollowPosition(m_hTankProjectile->GetOwner()) * (1-flLerp);
+
+			return vecTorpedoFollow;
+		}
+
 		Vector vecVelocity = m_hTankProjectile->GetVelocity();
 
 		Vector vecForward, vecRight, vecUp;
@@ -451,6 +465,16 @@ Vector CDigitanksCamera::GetCameraTarget()
 	if (m_hTankProjectile != NULL)
 	{
 		float flLerp = RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5f, 0, 1);
+
+		if (m_hTankProjectile->GetWeaponType() == PROJECTILE_TORPEDO)
+		{
+			Vector vecTorpedoTarget = m_hTankProjectile->GetOrigin();
+
+			if (flLerp < 1 && m_hTankProjectile->GetOwner())
+				return vecTorpedoTarget * flLerp + m_hTankProjectile->GetOwner()->GetLastAim() * (1-flLerp);
+
+			return vecTorpedoTarget;
+		}
 
 		Vector vecProjectileTarget = m_hTankProjectile->GetOrigin() + m_hTankProjectile->GetVelocity();
 

@@ -803,10 +803,11 @@ bool CCPU::IsAvailableAreaActive(int iArea) const
 
 void CCPU::RenderAvailableArea(int iArea)
 {
-	BaseClass::RenderAvailableArea(iArea);
-
-	if (iArea != 1)
+	if (iArea < 2)
+	{
+		BaseClass::RenderAvailableArea(iArea);
 		return;
+	}
 
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
 		return;

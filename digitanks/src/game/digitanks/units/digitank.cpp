@@ -308,6 +308,7 @@ void CDigitank::Spawn()
 	m_flNextHoverHeightCheck = GameServer()->GetGameTime() + RandomFloat(0, 1);
 	m_flShieldPulse = 0;
 	m_bCloaked = false;
+	m_bHasCloak = false;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -903,6 +904,9 @@ bool CDigitank::IsInsideMaxRange(Vector vecPoint)
 {
 	if (GetCurrentWeapon() == WEAPON_CHARGERAM)
 		return (vecPoint - GetOrigin()).LengthSqr() < ChargeRadius()*ChargeRadius();
+
+	if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
+		return true;
 
 	Vector vecDirection = vecPoint - GetOrigin();
 	float flPreviewDistanceSqr = vecDirection.LengthSqr();

@@ -91,12 +91,11 @@ void CLaser::PostRender(bool bTransparent)
 	Vector vecTarget = vecMuzzle + AngleVector(GetAngles()) * flLength;
 	if (m_hOwner != NULL)
 	{
-		vecTarget = m_hOwner->GetLastAim();
-		AngleVectors(VectorAngles(vecTarget - m_hOwner->GetOrigin()), &vecForward, &vecRight, &vecUp);
-		vecMuzzle = m_hOwner->GetOrigin() + (vecTarget - m_hOwner->GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
+		Vector vecDirection = (m_hOwner->GetLastAim() - m_hOwner->GetOrigin()).Normalized();
+		vecTarget = vecMuzzle + vecDirection * flLength;
+		AngleVectors(VectorAngles(vecDirection), &vecForward, &vecRight, &vecUp);
+		vecMuzzle = m_hOwner->GetOrigin() + vecDirection * 3 + Vector(0, 3, 0);
 	}
-
-	vecTarget = vecTarget + (vecTarget-vecMuzzle).Normalized() * flLength;
 
 	float flBeamWidth = 1.5;
 
@@ -134,12 +133,3 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CInfantryLaser);
 SAVEDATA_TABLE_END();
-
-float CInfantryLaser::LaserLength() const
-{
-	float flRange = 60.0f;
-	if (m_hOwner != NULL)
-		flRange = m_hOwner->GetMaxRange();
-
-	return flRange;
-}

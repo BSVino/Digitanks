@@ -35,7 +35,7 @@ class CInfantryLaser : public CLaser
 	REGISTER_ENTITY_CLASS(CInfantryLaser, CLaser);
 
 public:
-	virtual float				LaserLength() const;
+	virtual float				LaserLength() const { return 60.0f; };
 
 protected:
 };
