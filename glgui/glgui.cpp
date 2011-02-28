@@ -1698,6 +1698,10 @@ void CRootPanel::Think(float flNewTime)
 
 	m_flFrameTime = (flNewTime - m_flTime);
 
+	// Time running backwards? Maybe the server restarted.
+	if (m_flFrameTime < 0)
+		m_flFrameTime = 0;
+
 	CPanel::Think();
 
 	m_flTime = flNewTime;
