@@ -988,12 +988,6 @@ void CDigitanksGame::Think()
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (HasRounds() && m_bPartyMode && GameServer()->GetGameTime() - m_flPartyModeStart > 10.0f)
-	{
-		StartNewRound();
-		return;
-	}
-
 	if (m_bTurnActive && GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();
 
@@ -1963,6 +1957,8 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SnapTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
+
+		GetDigitanksTeam(0)->CalculateVisibility();
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_ARTILLERY)
 	{
@@ -2149,16 +2145,16 @@ float CDigitanksGame::GetUpgradeCost(unittype_t eUnit)
 
 bool CDigitanksGame::CanBuildMiniBuffers()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL)
-		return false;
-
-	return true;
+	bool bDisableBuffer = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
+	return !bDisableBuffer;
 }
 
 bool CDigitanksGame::CanBuildBuffers()
 {
-	bool bDisableBuffer = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_BUFFER);
-	return !bDisableBuffer;
+	if (m_eGameType == GAMETYPE_TUTORIAL)
+		return false;
+
+	return true;
 }
 
 bool CDigitanksGame::CanBuildBatteries()

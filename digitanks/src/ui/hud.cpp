@@ -1342,6 +1342,9 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 	eastl::string16 sAltitude = sprintf(L"ALT %.2f", pMissile->GetOrigin().y - DigitanksGame()->GetTerrain()->GetHeight(pMissile->GetOrigin().x, pMissile->GetOrigin().y));
 	glgui::CLabel::PaintText(sAltitude, sAltitude.length(), L"cameramissile", 20, 10, 300);
 
+	eastl::string16 sFuel = sprintf(L"FUEL %.2f", 13 - (pMissile->GetSpawnTime() - GameServer()->GetGameTime()));
+	glgui::CLabel::PaintText(sFuel, sFuel.length(), L"cameramissile", 20, 10, 400);
+
 	if (pMissile->IsBoosting() && Oscillate(GameServer()->GetGameTime(), 0.3f) > 0.1f)
 	{
 		eastl::string16 sBoost = L"BOOST";
@@ -2873,6 +2876,8 @@ void CHUD::MoveCallback()
 		DigitanksGame()->SetControlMode(MODE_NONE);
 	else
 		DigitanksGame()->SetControlMode(MODE_MOVE);
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE_MODE, true);
 
 	SetupMenu();
 }

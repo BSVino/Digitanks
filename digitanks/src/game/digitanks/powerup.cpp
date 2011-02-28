@@ -133,6 +133,10 @@ void CPowerup::PreRender(bool bTransparent)
 			break;
 		}
 	}
+
+	CConversionMaterial* pMaterial = pModel->m_pScene->GetMaterial(pModel->m_pScene->FindMaterial(L"Powerup"));
+	if (pMaterial)
+		pMaterial->m_vecDiffuse = clrPowerup;
 }
 
 void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparent)

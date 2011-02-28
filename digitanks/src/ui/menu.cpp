@@ -703,7 +703,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		m_pHumanPlayers->AddSelection(CScrollSelection<int>(8, L"8"));
 	}
 	else
-		m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1 (Locked for demo)"));
+		m_pHumanPlayers->AddSelection(CScrollSelection<int>(1, L"1 (Demo limit)"));
 
 	m_pHumanPlayers->SetSelection(0);
 	m_pHumanPlayers->SetSelectedListener(this, UpdateLayout);

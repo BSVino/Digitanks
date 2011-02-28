@@ -65,8 +65,11 @@ void CInstructor::Initialize()
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 250, true,
 		L"TANK SELECTION\n \nThe cute guy you see here is your ever obedient Digitank. He would die fearlessly at your command, but you'd never send him to his death would you? He's so cute!\n \nSelect him by clicking on him with the left mouse button.")));
 
+	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVE_MODE, new CTutorial(this, TUTORIAL_MOVE_MODE, POSITION_BUTTONS, 300, true,
+		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. Let's get a bit closer so we can get a better shot. Press the 'Move' button below to enter move mode.")));
+
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVE, new CTutorial(this, TUTORIAL_MOVE, POSITION_TOPLEFT, 300, true,
-		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. You are now in 'move mode' and can move your tank closer to get a better shot. Click inside the yellow area to move your tank.")));
+		L"MOVE YOUR TANK\n \nYou are now in 'move mode'. Click inside the yellow area to move your tank.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 200, true,
 		L"CHOOSE A WEAPON\n \nYou're closing in for the kill! Now press the red 'Choose Weapon' button to select your means of destruction. The 'Choose Weapon' button is located in the command dock on the bottom of the screen.\n \nPress one of the options to choose that weapon.")));
@@ -126,7 +129,7 @@ void CInstructor::Initialize()
 		L"FACTORIES\n \nFactories are specialized structures that produce combat units. With the CPU selected, build a Factory by pressing the 'Build Factory' button, selecting any factory, and clicking in the green area to build it. Then press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_EFFICIENCY, new CTutorial(this, TUTORIAL_EFFICIENCY, POSITION_TOPCENTER, 250, true,
-		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer or CPU will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nClick here to continue.")));
+		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nThe CPU doesn't have this restriction.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_PRODUCING_UNITS, new CTutorial(this, TUTORIAL_PRODUCING_UNITS, POSITION_TOPCENTER, 250, false,
 		L"PRODUCING UNITS\n \nNow that your Factory has finished constructing, it can start producing units. Select the Factory and click the build button to begin producing a unit.")));
@@ -141,7 +144,7 @@ void CInstructor::Initialize()
 		L"Welcome to Digitanks!\n \nThis tutorial will help you learn the individual units. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INFANTRY, new CTutorial(this, TUTORIAL_INFANTRY, POSITION_TOPCENTER, 250, true,
-		L"RESISTOR\n \nThis unit is a Resistor. They are a mobile support and defense platform. They have powerful shields in the front but little protection from attacks to the rear.\n \nClick here to continue.")));
+		L"RESISTOR\n \nThis unit is a Resistor. They are a mobile support and defense platform.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING, new CTutorial(this, TUTORIAL_FORTIFYING, POSITION_TOPCENTER, 250, true,
 		L"FORTIFYING\n \nResistors can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and shield energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
@@ -368,7 +371,7 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 	m_pText = new CLabel(0, 0, m_pTutorial->m_iWidth, 1000, L"");
 	m_pText->SetText(pTutorial->m_sText.c_str());
 	m_pText->SetPos(10, 10);
-	m_pText->SetSize(m_pTutorial->m_iWidth, (int)m_pText->GetTextHeight());
+	m_pText->SetSize(m_pTutorial->m_iWidth, (int)m_pText->GetTextHeight() + 20);
 	m_pText->SetWrap(true);
 	m_pText->SetAlign(CLabel::TA_MIDDLECENTER);
 	m_pText->SetFont(L"text");
