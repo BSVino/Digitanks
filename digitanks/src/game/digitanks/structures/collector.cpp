@@ -61,7 +61,7 @@ void CCollector::UpdateInfo(eastl::string16& s)
 
 	if (GetSupplier() && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced() * GetSupplier()->GetChildEfficiency());
+		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced());
 		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
@@ -72,7 +72,7 @@ float CCollector::GetPowerProduced()
 	if (m_hSupplyLine == NULL || GetSupplier() == NULL)
 		return 0;
 
-	return 1.0f * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity();
+	return 1.5f * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity();
 }
 
 REGISTER_ENTITY(CBattery);
@@ -159,7 +159,7 @@ void CBattery::UpdateInfo(eastl::string16& s)
 
 	if (m_hSupplier != NULL && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced() * m_hSupplier->GetChildEfficiency());
+		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced());
 		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}

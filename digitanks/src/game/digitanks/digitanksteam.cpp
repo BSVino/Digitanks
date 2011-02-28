@@ -400,8 +400,8 @@ void CDigitanksTeam::CountProducers()
 			AddPowerPerTurn(pStructure->Power());
 
 		CCollector* pCollector = dynamic_cast<CCollector*>(m_ahMembers[i].GetPointer());
-		if (pCollector && !pCollector->IsConstructing() && !pCollector->IsUpgrading() && pCollector->GetSupplier())
-			AddPowerPerTurn(pCollector->GetPowerProduced() * pCollector->GetSupplier()->GetChildEfficiency());
+		if (pCollector && !pCollector->IsConstructing() && !pCollector->IsUpgrading())
+			AddPowerPerTurn(pCollector->GetPowerProduced());
 	}
 }
 

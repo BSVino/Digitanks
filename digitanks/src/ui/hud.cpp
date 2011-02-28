@@ -3384,7 +3384,13 @@ void CHUD::ShowPowerInfoCallback()
 		if (pCollector->IsConstructing())
 			continue;
 
-		m_pTeamInfo->AppendText(sprintf(pCollector->GetName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced() * pCollector->GetSupplier()->GetChildEfficiency(), (int)(pCollector->GetSupplier()->GetChildEfficiency()*100)));
+		float flEfficiency;
+		if (!pCollector->GetSupplier() || !pCollector->GetSupplyLine())
+			flEfficiency = 0;
+		else
+			flEfficiency = pCollector->GetSupplier()->GetChildEfficiency() * pCollector->GetSupplyLine()->GetIntegrity();
+
+		m_pTeamInfo->AppendText(sprintf(pCollector->GetName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced(), (int)(flEfficiency*100)));
 	}
 
 	LayoutTeamInfo();
