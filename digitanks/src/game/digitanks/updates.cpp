@@ -82,7 +82,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+2][iCPU-2].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+2][iCPU-2].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+2][iCPU-2].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+2][iCPU-2].m_flValue = 1.0f;
+	m_aUpdates[iCPU+2][iCPU-2].m_flValue = 0.6f;
 	m_aUpdates[iCPU+2][iCPU-2].m_flSize = 15;
 
 	m_aUpdates[iCPU+2][iCPU-3].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
@@ -106,7 +106,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+4][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+4][iCPU-4].m_eStructure = STRUCTURE_CPU;
 	m_aUpdates[iCPU+4][iCPU-4].m_eUpdateType = UPDATETYPE_PRODUCTION;
-	m_aUpdates[iCPU+4][iCPU-4].m_flValue = 4;
+	m_aUpdates[iCPU+4][iCPU-4].m_flValue = 1.5f;
 	m_aUpdates[iCPU+4][iCPU-4].m_flSize = 24;
 
 	m_aUpdates[iCPU+5][iCPU-4].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;

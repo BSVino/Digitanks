@@ -693,7 +693,7 @@ void CDigitank::EndTurn()
 
 	if (m_iTurnsDisabled)
 	{
-		m_bNeedsOrdersDirty = true;
+		DirtyNeedsOrders();
 		m_iTurnsDisabled--;
 	}
 }
@@ -1445,6 +1445,7 @@ void CDigitank::Charge(class CNetworkParameters* p)
 	m_flGoalTurretYaw = -180;
 
 	m_bActionTaken = true;
+	m_bFiredWeapon = true;
 
 	DirtyNeedsOrders();
 
@@ -3446,7 +3447,7 @@ void CDigitank::Disable(size_t iTurns)
 	if (m_iTurnsDisabled < iTurns)
 		m_iTurnsDisabled = iTurns;
 
-	m_bNeedsOrdersDirty = true;
+	DirtyNeedsOrders();
 
 	DigitanksGame()->OnDisabled(this, NULL, NULL);
 }

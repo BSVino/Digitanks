@@ -72,7 +72,7 @@ float CCollector::GetPowerProduced()
 	if (m_hSupplyLine == NULL || GetSupplier() == NULL)
 		return 0;
 
-	return 1.5f * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity();
+	return 1.2f * m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity();
 }
 
 REGISTER_ENTITY(CBattery);
