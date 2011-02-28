@@ -122,8 +122,8 @@ CWreckage* CDigitanksEntity::CreateWreckage()
 		return NULL;
 
 	CWreckage* pWreckage = GameServer()->Create<CWreckage>("CWreckage");
-	pWreckage->SetOrigin(GetOrigin());
-	pWreckage->SetAngles(GetAngles());
+	pWreckage->SetOrigin(GetRenderOrigin());
+	pWreckage->SetAngles(GetRenderAngles());
 	pWreckage->SetModel(GetModel());
 	pWreckage->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
 	pWreckage->SetOldTeam(GetDigitanksTeam());

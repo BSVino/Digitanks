@@ -2511,7 +2511,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_DOWNLOADCOMPLETE:
 		m_pActionItem->SetText(
 			"DOWNLOAD COMPLETE\n \n"
-			"A download has just been completed in your updates grid. Press the 'Download Updates' button to download more updates.\n");
+			"A download has just been completed in your updates grid. Press the 'Download Grid' button to download more updates.\n");
 		break;
 
 	case ACTIONTYPE_DOWNLOADUPDATES:

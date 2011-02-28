@@ -1309,6 +1309,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 				float flMovementDistance = pTank->GetRemainingMovementDistance();
 				Vector vecDirection = pClosestEnemy->GetOrigin() - pTank->GetOrigin();
 
+				int iTries = 0;
 				do
 				{
 					vecDirection = vecDirection.Normalized() * (flMovementDistance*4/5);
@@ -1319,7 +1320,10 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 					pTank->SetPreviewMove(vecDesiredMove);
 
 					flMovementDistance *= 0.95f;
-				} while (!pTank->IsPreviewMoveValid());
+
+					if (pTank->IsPreviewMoveValid())
+						break;
+				} while (iTries++ < 50);
 
 				pTank->Move();
 			}
