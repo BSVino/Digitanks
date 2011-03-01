@@ -306,6 +306,19 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 {
 	int iDownloadWidth = 512;
 	int iDownloadHeight = 256;
+
+	if (!pInfo)
+	{
+		iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
+		sx = 64;
+		sy = 192;
+		sw = 64;
+		sh = 64;
+		tw = iDownloadWidth;
+		th = iDownloadHeight;
+		return;
+	}
+
 	int iMenuWidth = 512;
 	int iMenuHeight = 256;
 

@@ -257,10 +257,10 @@ CHUD::CHUD()
 	m_pTeamInfo->SetFGColor(Color(255, 255, 255));
 	m_pTeamInfo->SetFont(L"text");
 
-	m_pUpdatesButton = new CPictureButton(L"Download Updates");
-	m_pUpdatesButton->SetSheetTexture(m_iHUDSheet, 500, 710, 175, 40, 1024, 1024);
+	m_pUpdatesButton = new CPictureButton(L"Download Grid");
 	m_pUpdatesButton->SetClickedListener(this, OpenUpdates);
 	m_pUpdatesButton->ShowBackground(false);
+	m_pUpdatesButton->SetTooltip(L"Download Grid");
 	AddControl(m_pUpdatesButton);
 
 	m_pUpdatesPanel = new CUpdatesPanel();
@@ -323,7 +323,7 @@ void CHUD::Layout()
 	m_pActionItem->SetSize(220, 250);
 	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
 	m_pCloseActionItems->SetSize(130, 25);
-	m_pCloseActionItems->SetPos(iWidth - 225, 341);
+	m_pCloseActionItems->SetPos(iWidth - 225, 398);
 	m_pCloseActionItems->SetClickedListener(this, CloseActionItems);
 
 	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
@@ -341,7 +341,7 @@ void CHUD::Layout()
 		CPictureButton* pButton = new CPictureButton(sprintf(L"%d", i));
 		AddControl(pButton);
 		pButton->SetSize(iItemButtonSize, iItemButtonSize);
-		pButton->SetPos(iWidth - iItemButtonSize - 10, 50 + (iItemButtonSize+10)*i);
+		pButton->SetPos(iWidth - iItemButtonSize - 10, 120 + (iItemButtonSize+10)*i);
 		pButton->SetClickedListener(this, ChooseActionItem);
 
 		CEntityHandle<CDigitanksEntity> hUnit(DigitanksGame()->GetActionItems()[i].iUnit);
@@ -350,13 +350,13 @@ void CHUD::Layout()
 		{
 		case ACTIONTYPE_WELCOME:
 			// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 540, 530, 20, 20, 1024, 1024);
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
 			pButton->SetTooltip(L"Intro");
 			break;
 
 		case ACTIONTYPE_CONTROLS:
 			// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 540, 530, 20, 20, 1024, 1024);
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
 			pButton->SetTooltip(L"Controls");
 			break;
 
@@ -451,12 +451,12 @@ void CHUD::Layout()
 			break;
 
 		case ACTIONTYPE_DOWNLOADUPDATES:
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 520, 530, 20, 20, 1024, 1024);
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
 			pButton->SetTooltip(L"Download Grid");
 			break;
 
 		case ACTIONTYPE_DOWNLOADCOMPLETE:
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 520, 530, 20, 20, 1024, 1024);
+			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
 			pButton->SetTooltip(L"Download Complete");
 			break;
 		}
@@ -488,7 +488,7 @@ void CHUD::Layout()
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
 
-	m_pResearchInfo->SetSize(640, 35);
+	m_pResearchInfo->SetSize(640, 25);
 	m_pResearchInfo->SetPos(iWidth/2 - m_pResearchInfo->GetWidth()/2, 0);
 	m_pResearchInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pResearchInfo->SetWrap(false);
@@ -517,8 +517,8 @@ void CHUD::Layout()
 	m_pButtonInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pButtonInfo->SetWrap(true);
 
-	m_pUpdatesButton->SetSize(175, 40);
-	m_pUpdatesButton->SetPos(m_pTurnInfo->GetLeft() - 20 - m_pUpdatesButton->GetWidth(), 36);
+	m_pUpdatesButton->SetSize(35, 35);
+	m_pUpdatesButton->SetPos(iWidth/2 - 617/2 - 35, 0);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pUpdatesButton->SetWrap(false);
 
@@ -532,23 +532,31 @@ void CHUD::Layout()
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pPressEnter->SetWrap(false);
 
-	m_pPowerInfo->SetAlign(CLabel::TA_MIDDLECENTER);
-	m_pPowerInfo->SetPos(iWidth - 340, 12);
+	m_pPowerInfo->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pPowerInfo->SetPos(iWidth - 160, 12);
 	m_pPowerInfo->SetSize(80, 15);
 	m_pPowerInfo->SetWrap(false);
 
-	m_pFleetInfo->SetAlign(CLabel::TA_MIDDLECENTER);
-	m_pFleetInfo->SetPos(iWidth - 220, 12);
+	m_pFleetInfo->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pFleetInfo->SetPos(iWidth - 160, 42);
 	m_pFleetInfo->SetSize(30, 15);
 	m_pFleetInfo->SetWrap(false);
 
-	m_pBandwidthInfo->SetAlign(CLabel::TA_MIDDLECENTER);
-	m_pBandwidthInfo->SetPos(iWidth - 150, 12);
+	m_pBandwidthInfo->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pBandwidthInfo->SetPos(iWidth - 160, 72);
 	m_pBandwidthInfo->SetSize(150, 15);
 	m_pBandwidthInfo->SetWrap(false);
 
 	m_pTurnButton->SetPos(iWidth - 140, iHeight - 105);
 	m_pTurnButton->SetSize(140, 105);
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	{
+		size_t iSheet;
+		int sx, sy, sw, sh, tw, th;
+		m_pUpdatesPanel->GetTextureForUpdateItem(DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetUpdateDownloading(), iSheet, sx, sy, sw, sh, tw, th);
+		m_pUpdatesButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
+	}
 
 	UpdateTeamInfo();
 	UpdateInfo();
@@ -647,7 +655,7 @@ void CHUD::Think()
 	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
-	m_pActionItem->SetPos(iWidth - 300 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 70);
+	m_pActionItem->SetPos(iWidth - 300 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 130);
 	m_pActionItem->SetAlpha((int)(m_flActionItemsLerp*255));
 	m_pCloseActionItems->SetPos(iWidth - 255 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), m_pCloseActionItems->GetTop());
 
@@ -1002,7 +1010,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iWidth = 77*2/3;
 			int iHeight = 39*2/3;
 
-			CHUD::PaintHUDSheet((int)(vecScreen.x + flWidth/2 - 2), (int)(vecScreen.y - flWidth), iWidth, iHeight, 500, 486, 77, 39, Color(255, 255, 255, 255));
+			CHUD::PaintHUDSheet((int)(vecScreen.x + flWidth/2 - 2), (int)(vecScreen.y - flWidth), iWidth, iHeight, 522, 311, 77, 39, Color(255, 255, 255, 255));
 
 			int iFontSize = 17;
 
@@ -1028,40 +1036,49 @@ void CHUD::Paint(int x, int y, int w, int h)
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
+
+		// Main control pannel
 		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES)
 		{
-			PaintHUDSheet(iWidth - 370, 10, 20, 20, 500, 530, 20, 20);
-			PaintHUDSheet(iWidth - 250, 10, 20, 20, 540, 530, 20, 20);
-			PaintHUDSheet(iWidth - 180, 10, 20, 20, 520, 530, 20, 20);
+			PaintHUDSheet(iWidth - 190, 10, 20, 20, 517, 350, 20, 20);
+			PaintHUDSheet(iWidth - 190, 40, 20, 20, 557, 350, 20, 20);
+			PaintHUDSheet(iWidth - 190, 70, 20, 20, 537, 350, 20, 20);
 
 			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
 
-			int iResearchWidth = 550;
-			CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, Color(0, 0, 0, 150));
+			int iResearchWidth = 617;
+			PaintHUDSheet(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, 350, 628, 617, 57);
 
 			if (pCurrentLocalTeam && pCurrentLocalTeam->GetUpdateDownloading())
 			{
 				CUpdateItem* pItem = pCurrentLocalTeam->GetUpdateDownloading();
 
+				int iDownloadedWidth = 580;
+
 				float flUpdateDownloaded = pCurrentLocalTeam->GetUpdateDownloaded();
 				if (flUpdateDownloaded > pItem->m_flSize)
 					flUpdateDownloaded = pItem->m_flSize;
-				int iResearchCompleted = (int)(iResearchWidth*(flUpdateDownloaded/pItem->m_flSize));
+				int iResearchCompleted = (int)(iDownloadedWidth*(flUpdateDownloaded/pItem->m_flSize));
+				int iResearchDue = (int)(iDownloadedWidth*(pCurrentLocalTeam->GetBandwidth()/pItem->m_flSize));
+				if (iResearchCompleted + iResearchDue > iDownloadedWidth)
+					iResearchDue -= (iResearchCompleted + iResearchDue) - iDownloadedWidth;
 
-				CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 + 6, 6, iResearchCompleted - 12, 35 - 12, Color(0, 200, 100, 255));
+				CRootPanel::PaintRect(iWidth/2 - iDownloadedWidth/2, 3, iResearchCompleted, 20, Color(0, 200, 100, 255));
+				CRootPanel::PaintRect(iWidth/2 - iDownloadedWidth/2 + iResearchCompleted, 3, iResearchDue, 20, Color(0, 200, 100, 100));
 
 				size_t iItemSheet;
 				int sx, sy, sw, sh, tw, th;
 				m_pUpdatesPanel->GetTextureForUpdateItem(pItem, iItemSheet, sx, sy, sw, sh, tw, th);
 
-				if (iItemSheet)
+				float flSlideTime = 0.8f;
+				if (iItemSheet && GameServer()->GetGameTime() - m_flUpdateIconSlide < flSlideTime)
 				{
-					float flSlideTime = Lerp(GameServer()->GetGameTime() - m_flUpdateIconSlide, 0.8f);
-					int iIconX = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartX, (float)(iWidth/2 - iResearchWidth/2 - 35));
-					int iIconY = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartY, 0.0f);
-					int iButtonSize = (int)RemapValClamped(flSlideTime, 0.0f, 1.0f, (float)m_pUpdatesPanel->GetButtonSize(), 35.0f);
+					float flSlideLerp = Lerp(GameServer()->GetGameTime() - m_flUpdateIconSlide, flSlideTime);
+					int iIconX = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartX, (float)(iWidth/2 - iResearchWidth/2 - 35));
+					int iIconY = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartY, 0.0f);
+					int iButtonSize = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_pUpdatesPanel->GetButtonSize(), 35.0f);
 
 					CRootPanel::PaintSheet(iItemSheet, iIconX, iIconY, iButtonSize, iButtonSize, sx, sy, sw, sh, tw, th);
 				}
@@ -1069,12 +1086,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		if (m_flAttackInfoAlpha > 0)
-			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 500, 600, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
+			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 351, 685, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
 		if (m_flActionItemsLerp > 0)
 			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, (int)m_flActionItemsWidth, 340, 350, 0, 250, 310, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
 
-		PaintHUDSheet(0, iHeight-250, 150, 250, 350, 510, 150, 250);
+		// Tank info
+		PaintHUDSheet(0, iHeight-250, 150, 250, 350, 378, 150, 250);
 	} while (false);
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
@@ -1194,7 +1212,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			}
 
 			if (bObstruction)
-				CRootPanel::PaintSheet(m_iHUDSheet, iX, iY, 124, 68, 446, 771, 124, 68, 1024, 1024, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
+				CRootPanel::PaintSheet(m_iHUDSheet, iX, iY, 124, 68, 351, 310, 124, 68, 1024, 1024, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
 		}
 	}
 
@@ -1940,7 +1958,7 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 	sprintf(szAttackInfo,
 		"ATTACK REPORT\n \n"
 		"Shield Damage: %d/%d\n"
-		"Digitank Damage: %d/%d\n",
+		"Hull Damage: %d/%d\n",
 		(int)flShieldDamage, (int)(flShieldStrength * pClosestTarget->GetDefenseScale(true)),
 		(int)flTankDamage, (int)pClosestTarget->GetHealth()
 	);
@@ -2067,7 +2085,7 @@ void CHUD::UpdateTurnButton()
 
 	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 	{
-		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 320, 760, 120, 90, 1024, 1024);
+		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 529, 685, 120, 90, 1024, 1024);
 		m_pPressEnter->SetVisible(true);
 		return;
 	}
@@ -2511,7 +2529,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_DOWNLOADCOMPLETE:
 		m_pActionItem->SetText(
 			"DOWNLOAD COMPLETE\n \n"
-			"A download has just been completed in your updates grid. Press the 'Download Grid' button to download more updates.\n");
+			"A download has just been completed in your updates grid. Press the blinking 'Download Grid' button near the top left of your screen to download more updates.\n");
 		break;
 
 	case ACTIONTYPE_DOWNLOADUPDATES:
@@ -3762,7 +3780,7 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CHUD::PaintHUDSheet(x, y, w, h, 500, 550, 83, 47, Color(255, 255, 255, GetAlpha()));
+		CHUD::PaintHUDSheet(x, y, w, h, 517, 371, 83, 47, Color(255, 255, 255, GetAlpha()));
 	} while (false);
 
 	BaseClass::Paint(x, y, w, h);

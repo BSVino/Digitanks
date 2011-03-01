@@ -457,7 +457,7 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintSheet(CHUD::GetHUDSheet(), x + w + 10, y + h/2 - 222/2, 203, 222, 680, 640, 203, 222, 1024, 1024);
+		CRootPanel::PaintSheet(CHUD::GetHUDSheet(), x + w + 10, y + h/2 - 222/2, 203, 222, 820, 783, 203, 222, 1024, 1024);
 	}
 }
 
