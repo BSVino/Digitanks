@@ -79,7 +79,7 @@ void CProjectile::Think()
 		while (pClosest = CBaseEntity::FindClosest<CDigitank>(m_vecLandingSpot, pClosest))
 		{
 			if (pClosest->Distance(m_vecLandingSpot) > 30)
-				continue;
+				break;
 
 			if (pClosest == m_hOwner)
 				continue;
@@ -725,6 +725,8 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CDevastator);
 SAVEDATA_TABLE_END();
 
+size_t CInfantryFlak::s_iTrailSystem = ~0;
+
 REGISTER_ENTITY(CInfantryFlak);
 
 NETVAR_TABLE_BEGIN(CInfantryFlak);
@@ -738,6 +740,8 @@ void CInfantryFlak::Precache()
 	PrecacheModel(L"models/weapons/bolt.obj", true);
 	PrecacheParticleSystem(L"bolt-trail");
 	PrecacheParticleSystem(L"bolt-explosion");
+
+	s_iTrailSystem = CParticleSystemLibrary::Get()->FindParticleSystem(L"bolt-trail");
 }
 
 void CInfantryFlak::Spawn()
@@ -757,7 +761,7 @@ EAngle CInfantryFlak::GetRenderAngles() const
 
 size_t CInfantryFlak::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"bolt-trail", GetOrigin());
+	return CParticleSystemLibrary::AddInstance(s_iTrailSystem, GetOrigin());
 }
 
 void CInfantryFlak::CreateExplosionSystem()

@@ -389,6 +389,9 @@ public:
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return true; };
 	virtual bool				UsesSpecialCommand() { return false; };
+
+private:
+	static size_t				s_iTrailSystem;
 };
 
 class CTorpedo : public CProjectile

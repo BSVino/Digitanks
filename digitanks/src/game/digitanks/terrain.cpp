@@ -171,7 +171,10 @@ void CTerrain::Think()
 	{
 		runner_t* pRunner = &m_aRunners[i];
 
-		if (GameServer()->GetGameTime() > pRunner->m_flNextTurn)
+		if (!pRunner->bActive)
+			continue;
+
+		if (GameServer()->GetGameTime() > pRunner->flNextTurn)
 		{
 			EAngle angPrimaryDirection = VectorAngles(pRunner->vecPrimaryDirection);
 
@@ -194,10 +197,10 @@ void CTerrain::Think()
 
 			pRunner->vecCurrentDirection = AngleVector(angCurrentDirection);
 
-			pRunner->m_flNextTurn = GameServer()->GetGameTime() + RandomFloat(0.2f, 1.0f);
+			pRunner->flNextTurn = GameServer()->GetGameTime() + RandomFloat(0.2f, 1.0f);
 		}
 
-		while (GameServer()->GetGameTime() > pRunner->m_flNextPoint)
+		while (GameServer()->GetGameTime() > pRunner->flNextPoint)
 		{
 			assert(pRunner->avecPoints.size());
 
@@ -210,11 +213,11 @@ void CTerrain::Think()
 				if (pRunner->avecPoints.size() > 20)
 					pRunner->avecPoints.pop_back();
 
-				pRunner->m_flNextPoint = pRunner->m_flNextPoint + 0.01f;
+				pRunner->flNextPoint = pRunner->flNextPoint + 0.01f;
 			}
 			else
 			{
-				m_aRunners.erase(m_aRunners.begin()+i);
+				m_aRunners[i].bActive = false;
 				break;
 			}
 		}
@@ -1134,6 +1137,9 @@ void CTerrain::RenderTransparentTerrain()
 	{
 		runner_t* pRunner = &m_aRunners[i];
 
+		if (!pRunner->bActive)
+			continue;
+
 		if (pRunner->avecPoints.size() < 2)
 			continue;
 
@@ -1821,13 +1827,29 @@ void CTerrain::AddRunner(Vector vecPosition, Color clrColor)
 
 void CTerrain::AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor)
 {
-	runner_t oRunner;
-	oRunner.vecPrimaryDirection = oRunner.vecCurrentDirection = vecPrimaryDirection.Normalized();
-	oRunner.clrColor = clrColor;
-	oRunner.m_flNextTurn = RandomFloat(5, 50);
-	oRunner.m_flNextPoint = GameServer()->GetGameTime() + 0.2f;
-	oRunner.avecPoints.push_front(SetPointHeight(vecPosition));
-	m_aRunners.push_back(oRunner);
+	runner_t* pRunner = NULL;
+	for (size_t i = 0; i < m_aRunners.size(); i++)
+	{
+		if (!m_aRunners[i].bActive)
+		{
+			pRunner = &m_aRunners[i];
+			break;
+		}
+	}
+
+	if (!pRunner)
+	{
+		m_aRunners.push_back();
+		pRunner = &m_aRunners[m_aRunners.size()-1];
+	}
+
+	pRunner->vecPrimaryDirection = pRunner->vecCurrentDirection = vecPrimaryDirection.Normalized();
+	pRunner->clrColor = clrColor;
+	pRunner->flNextTurn = RandomFloat(5, 50);
+	pRunner->flNextPoint = GameServer()->GetGameTime() + 0.2f;
+	pRunner->avecPoints.clear();
+	pRunner->avecPoints.push_front(SetPointHeight(vecPosition));
+	pRunner->bActive = true;
 }
 
 class LowestF

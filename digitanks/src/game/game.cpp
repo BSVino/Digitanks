@@ -214,6 +214,22 @@ const eastl::vector<CEntityHandle<CTeam> >& CGame::GetLocalTeams()
 	return m_ahLocalTeams;
 }
 
+size_t CGame::GetNumLocalTeams()
+{
+	if (m_ahLocalTeams.size() == 0)
+		GetLocalTeams();
+
+	return m_ahLocalTeams.size();
+}
+
+CTeam* CGame::GetLocalTeam(size_t i)
+{
+	if (m_ahLocalTeams.size() == 0)
+		GetLocalTeams();
+
+	return m_ahLocalTeams[i];
+}
+
 CVar cheats("cheats", "off");
 
 bool CGame::AllowCheats()

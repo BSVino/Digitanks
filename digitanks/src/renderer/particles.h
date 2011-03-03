@@ -40,7 +40,7 @@ public:
 	void							Simulate();
 	void							SpawnParticle();
 
-	void							Render();
+	void							Render(class CRenderingContext* c);
 
 	void							FollowEntity(CBaseEntity* pFollow);
 	void							SetInheritedVelocity(Vector vecInheritedVelocity);

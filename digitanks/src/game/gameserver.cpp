@@ -506,7 +506,8 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 
 	CEntityHandle<CBaseEntity> hEntity(iHandle);
 
-	hEntity->RegisterNetworkVariables();
+	if (CNetwork::IsConnected())
+		hEntity->RegisterNetworkVariables();
 
 	size_t iPostSeed = mtrand();
 

@@ -96,8 +96,17 @@ void CParticleSystemLibrary::Render()
 	CParticleSystemLibrary* pPSL = Get();
 	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
 
+	CRenderingContext c(GameServer()->GetRenderer());
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	{
+		c.UseProgram(CShaderLibrary::GetModelProgram());
+		c.SetUniform("bDiffuse", true);
+		c.SetUniform("iDiffuse", 0);
+		c.SetUniform("bColorSwapInAlpha", false);
+	}
+
 	for (; it != pPSL->m_apInstances.end(); it++)
-		(*it).second->Render();
+		(*it).second->Render(&c);
 }
 
 size_t CParticleSystemLibrary::AddInstance(const eastl::string16& sName, Vector vecOrigin, EAngle angAngles)
@@ -406,31 +415,21 @@ void CSystemInstance::SpawnParticle()
 		pNewParticle->m_flBillboardYaw = 0;
 }
 
-void CSystemInstance::Render()
+void CSystemInstance::Render(CRenderingContext* c)
 {
-	// Render children first so that the contexts don't muss each other up.
 	for (size_t i = 0; i < m_apChildren.size(); i++)
-		m_apChildren[i]->Render();
+		m_apChildren[i]->Render(c);
 
 	CRenderer* pRenderer = GameServer()->GetRenderer();
 
 	Vector vecForward, vecRight, vecUp;
 	pRenderer->GetCameraVectors(&vecForward, &vecRight, &vecUp);
 
-	CRenderingContext c(GameServer()->GetRenderer());
-
 	if (m_pSystem->GetTexture())
-		c.BindTexture(m_pSystem->GetTexture());
+		c->BindTexture(m_pSystem->GetTexture());
 
-	c.SetBlend(BLEND_ADDITIVE);
-	c.SetDepthMask(false);
-	if (pRenderer->ShouldUseShaders())
-	{
-		c.UseProgram(CShaderLibrary::GetModelProgram());
-		c.SetUniform("bDiffuse", true);
-		c.SetUniform("iDiffuse", 0);
-		c.SetUniform("bColorSwapInAlpha", false);
-	}
+	c->SetBlend(BLEND_ADDITIVE);
+	c->SetDepthMask(false);
 
 	for (size_t i = 0; i < m_aParticles.size(); i++)
 	{
@@ -441,20 +440,20 @@ void CSystemInstance::Render()
 
 		if (m_pSystem->GetModel())
 		{
-			c.SetAlpha(pParticle->m_flAlpha);
+			c->SetAlpha(pParticle->m_flAlpha);
 
 			if (m_bColorOverride)
-				c.SetColor(m_clrOverride);
+				c->SetColor(m_clrOverride);
 			else
-				c.SetColor(m_pSystem->GetColor());
+				c->SetColor(m_pSystem->GetColor());
 
-			c.Translate(pParticle->m_vecOrigin);
-			c.Rotate(-m_angAngles.y, Vector(0, 1, 0));
-			c.Rotate(m_angAngles.p, Vector(0, 0, 1));
-			c.Rotate(m_angAngles.r, Vector(1, 0, 0));
-			c.Scale(pParticle->m_flRadius, pParticle->m_flRadius, pParticle->m_flRadius);
-			c.RenderModel(m_pSystem->GetModel());
-			c.ResetTransformations();
+			c->Translate(pParticle->m_vecOrigin);
+			c->Rotate(-m_angAngles.y, Vector(0, 1, 0));
+			c->Rotate(m_angAngles.p, Vector(0, 0, 1));
+			c->Rotate(m_angAngles.r, Vector(1, 0, 0));
+			c->Scale(pParticle->m_flRadius, pParticle->m_flRadius, pParticle->m_flRadius);
+			c->RenderModel(m_pSystem->GetModel());
+			c->ResetTransformations();
 		}
 		else
 		{
@@ -484,27 +483,27 @@ void CSystemInstance::Render()
 			Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
 
 			if (pRenderer->ShouldUseShaders())
-				c.SetUniform("flAlpha", pParticle->m_flAlpha);
+				c->SetUniform("flAlpha", pParticle->m_flAlpha);
 			else
-				c.SetAlpha(pParticle->m_flAlpha);
+				c->SetAlpha(pParticle->m_flAlpha);
 
 			if (m_bColorOverride)
-				c.SetColor(m_clrOverride);
+				c->SetColor(m_clrOverride);
 			else
-				c.SetColor(m_pSystem->GetColor());
+				c->SetColor(m_pSystem->GetColor());
 
-			c.BeginRenderQuads();
+			c->BeginRenderQuads();
 
-			c.TexCoord(0, 1);
-			c.Vertex(vecTL);
-			c.TexCoord(0, 0);
-			c.Vertex(vecBL);
-			c.TexCoord(1, 0);
-			c.Vertex(vecBR);
-			c.TexCoord(1, 1);
-			c.Vertex(vecTR);
+			c->TexCoord(0, 1);
+			c->Vertex(vecTL);
+			c->TexCoord(0, 0);
+			c->Vertex(vecBL);
+			c->TexCoord(1, 0);
+			c->Vertex(vecBR);
+			c->TexCoord(1, 1);
+			c->Vertex(vecTR);
 
-			c.EndRender();
+			c->EndRender();
 		}
 	}
 }

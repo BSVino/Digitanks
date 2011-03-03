@@ -29,8 +29,9 @@ typedef struct
 	Vector					vecCurrentDirection;
 	eastl::list<Vector>		avecPoints;
 	Color					clrColor;
-	float					m_flNextTurn;
-	float					m_flNextPoint;
+	float					flNextTurn;
+	float					flNextPoint;
+	bool					bActive;
 } runner_t;
 
 class CTerrainChunk

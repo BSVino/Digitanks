@@ -30,6 +30,8 @@
 
 using namespace glgui;
 
+CVar hud_enable("hud_enable", "on");
+
 CPowerBar::CPowerBar(powerbar_type_t ePowerbarType)
 	: CLabel(0, 0, 100, 100, L"", L"text")
 {
@@ -836,6 +838,8 @@ void CHUD::Think()
 			SetTooltip(L"");
 		}
 	}
+
+	SetVisible(hud_enable.GetBool() || DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile());
 }
 
 void CHUD::Paint(int x, int y, int w, int h)
@@ -1500,7 +1504,7 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 	}
 
 	m_hHintWeapon = pMissile;
-	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && m_hHintWeapon != NULL && !pMissile->IsBoosting())
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && m_hHintWeapon != NULL && !pMissile->IsBoosting() && hud_enable.GetBool())
 	{
 		int iX = GetWidth()/2 - 75;
 		int iY = GetHeight()/2 + 50;
@@ -2551,14 +2555,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	if (pItem->eActionType == ACTIONTYPE_DOWNLOADUPDATES)
 		m_bUpdatesBlinking = true;
 
-	CEntityHandle<CSelectable> hSelection(pItem->iUnit);
-
-	if (hSelection != NULL)
-	{
-		DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
-		DigitanksGame()->GetDigitanksCamera()->SetTarget(hSelection->GetOrigin());
-	}
-
 	m_flActionItemsLerpGoal = 1;
 }
 
@@ -2802,6 +2798,19 @@ void CHUD::ChooseActionItemCallback()
 		return;
 
 	ShowActionItem(iActionItem);
+
+	if (iActionItem < aActionItems.size())
+	{
+		actionitem_t* pItem = &aActionItems[iActionItem];
+
+		CEntityHandle<CSelectable> hSelection(pItem->iUnit);
+
+		if (hSelection != NULL)
+		{
+			DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
+			DigitanksGame()->GetDigitanksCamera()->SetTarget(hSelection->GetOrigin());
+		}
+	}
 }
 
 void CHUD::CloseActionItemsCallback()

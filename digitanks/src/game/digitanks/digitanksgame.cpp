@@ -1529,6 +1529,10 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	}
 
 	int iRunners = RandomInt(15, 10);
+
+	if (pWeapon && (pWeapon->GetWeaponType() == PROJECTILE_FLAK || pWeapon->GetWeaponType() == PROJECTILE_SPLOOGE))
+		iRunners = RandomInt(2, 4);
+
 	for (int i = 0; i < iRunners; i++)
 		GetTerrain()->AddRunner(vecExplosionOrigin, Color(255, 255, 255));
 
@@ -2301,18 +2305,19 @@ void CDigitanksGame::CompleteProductions()
 
 CDigitanksTeam* CDigitanksGame::GetCurrentLocalDigitanksTeam()
 {
-	eastl::vector<CEntityHandle<CTeam> > hLocalTeams = GetLocalTeams();
+	size_t iLocalTeams = GetNumLocalTeams();
 
-	if (!hLocalTeams.size())
+	if (!iLocalTeams)
 		return NULL;
 
-	if (hLocalTeams.size() == 1)
-		return dynamic_cast<CDigitanksTeam*>(hLocalTeams[0].GetPointer());
+	if (iLocalTeams == 1)
+		return static_cast<CDigitanksTeam*>(GetLocalTeam(0));
 
-	for (size_t i = 0; i < hLocalTeams.size(); i++)
+	for (size_t i = 0; i < iLocalTeams; i++)
 	{
-		if (GetCurrentTeam() == hLocalTeams[i])
-			return dynamic_cast<CDigitanksTeam*>(hLocalTeams[i].GetPointer());
+		CTeam* pTeam = GetLocalTeam(i);
+		if (GetCurrentTeam() == pTeam)
+			return static_cast<CDigitanksTeam*>(pTeam);
 	}
 
 	return NULL;
