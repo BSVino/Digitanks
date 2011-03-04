@@ -34,6 +34,7 @@ public:
 
 	size_t										GetNumLevels() { return m_apLevels.size(); }
 	class CLevel*								GetLevel(size_t i) { return m_apLevels[i]; }
+	class CLevel*								GetLevel(eastl::string16 sFile);
 
 	void										Halt() { m_bHalting = true; };
 	bool										IsHalting() { return m_bHalting; };

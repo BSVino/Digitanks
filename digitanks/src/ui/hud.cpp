@@ -581,7 +581,9 @@ void CHUD::Think()
 	{
 		bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
 
-		bool bSpotVisible = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecEntityPoint) > 0.2f;
+		bool bSpotVisible = false;
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			bSpotVisible = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecEntityPoint) > 0.2f;
 
 		if (pHit && dynamic_cast<CSelectable*>(pHit) && bSpotVisible)
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_SELECT);

@@ -157,10 +157,31 @@ void CGameServer::ReadLevel(eastl::string16 sFile)
 	CDataSerializer::Read(f, pData);
 
 	CLevel* pLevel = CreateLevel();
+	pLevel->SetFile(str_replace(sFile, L"\\", L"/"));
 	pLevel->ReadFromData(pData);
 	m_apLevels.push_back(pLevel);
 
 	delete pData;
+}
+
+CLevel* CGameServer::GetLevel(eastl::string16 sFile)
+{
+	sFile = str_replace(sFile, L"\\", L"/");
+	for (size_t i = 0; i < m_apLevels.size(); i++)
+	{
+		CLevel* pLevel = m_apLevels[i];
+		eastl::string16 sLevelFile = pLevel->GetFile();
+		if (sLevelFile == sFile)
+			return pLevel;
+		if (sLevelFile == sFile + L".txt")
+			return pLevel;
+		if (sLevelFile == eastl::string16(L"levels/") + sFile)
+			return pLevel;
+		if (sLevelFile == eastl::string16(L"levels/") + sFile + L".txt")
+			return pLevel;
+	}
+
+	return NULL;
 }
 
 void CGameServer::RegisterNetworkFunctions()

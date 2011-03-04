@@ -663,6 +663,10 @@ void CDigitanksRenderer::RenderFogOfWar()
 
 	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	if (!pTeam)
+		return;
+
 	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
 	{
 		CBaseEntity* pEntity = pTeam->GetMember(i);

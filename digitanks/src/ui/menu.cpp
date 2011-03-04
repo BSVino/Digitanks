@@ -9,6 +9,7 @@
 #include <strutils.h>
 #include <mtrand.h>
 
+#include <tinker/cvar.h>
 #include <dt_version.h>
 #include <digitanks/digitanksgame.h>
 #include <renderer/renderer.h>
@@ -821,14 +822,12 @@ void CArtilleryGamePanel::Layout()
 
 void CArtilleryGamePanel::BeginGameCallback()
 {
-	gamesettings_t oSettings;
-	oSettings.iHumanPlayers = m_pHumanPlayers->GetSelectionValue();
-	oSettings.iBotPlayers = m_pBotPlayers->GetSelectionValue();
-	oSettings.iTanksPerPlayer = m_pTanks->GetSelectionValue();
-	oSettings.flTerrainHeight = m_pTerrain->GetSelectionValue();
-	oSettings.iLevel = m_iLevelSelected;
+	CVar::SetCVar("game_players", m_pHumanPlayers->GetSelectionValue());
+	CVar::SetCVar("game_bots", m_pBotPlayers->GetSelectionValue());
+	CVar::SetCVar("game_tanks", m_pTanks->GetSelectionValue());
+	CVar::SetCVar("game_terrainheight", m_pTerrain->GetSelectionValue());
+	CVar::SetCVar(L"game_level", CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetFile());
 
-	DigitanksWindow()->SetGameSettings(oSettings);
 	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
 
 	if (!GameServer())
@@ -951,11 +950,10 @@ void CStrategyGamePanel::Layout()
 
 void CStrategyGamePanel::BeginGameCallback()
 {
-	gamesettings_t oSettings;
-	oSettings.iHumanPlayers = 1;
-	oSettings.iBotPlayers = m_pBotPlayers->GetSelectionValue();
-	oSettings.iLevel = m_iLevelSelected;
-	DigitanksWindow()->SetGameSettings(oSettings);
+	CVar::SetCVar("game_players", 1);
+	CVar::SetCVar("game_bots", m_pBotPlayers->GetSelectionValue());
+	CVar::SetCVar(L"game_level", CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetFile());
+
 	DigitanksWindow()->CreateGame(GAMETYPE_STANDARD);
 
 	if (!GameServer())

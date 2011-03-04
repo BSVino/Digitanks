@@ -39,7 +39,6 @@ public:
 
 	void						InitUI();
 
-	void						SetGameSettings(gamesettings_t& oGameSettings) { m_oGameSettings = oGameSettings; };
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 	void						SetConnectHost(const eastl::string16 sHost) { m_sConnectHost = sHost; };
 
@@ -121,8 +120,6 @@ protected:
 	class CVictoryPanel*		m_pVictory;
 	class CPurchasePanel*		m_pPurchase;
 	class CStoryPanel*			m_pStory;
-
-	gamesettings_t				m_oGameSettings;
 
 	servertype_t				m_eServerType;
 	eastl::string16				m_sConnectHost;

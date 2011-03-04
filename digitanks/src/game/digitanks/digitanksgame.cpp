@@ -9,6 +9,7 @@
 #include <sound/sound.h>
 #include <renderer/particles.h>
 #include <tinker/portals/portal.h>
+#include <tinker/cvar.h>
 
 #include <game/gameserver.h>
 #include <network/network.h>
@@ -88,7 +89,6 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iTankAimFocus);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iDifficulty);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bRenderFogOfWar);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, gamesettings_t, m_oGameSettings);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, gametype_t, m_eGameType);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
@@ -192,6 +192,8 @@ void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
 {
 	BaseClass::OnClientDisconnect(p);
 }
+
+CVar game_type("game_type", "");
 
 void CDigitanksGame::SetupGame(gametype_t eGameType)
 {
@@ -323,11 +325,9 @@ void CDigitanksGame::ScatterResources()
 
 void CDigitanksGame::SetupProps()
 {
-	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
-
-	CDigitanksLevel* pLevel = NULL;
-	if (pGameSettings->iLevel < CDigitanksGame::GetNumLevels(GetGameType()))
-		pLevel = dynamic_cast<CDigitanksLevel*>(CDigitanksGame::GetLevel(GetGameType(), pGameSettings->iLevel));
+/*	// I'm changing the game settings code over to cvars and since this code is not used I'm just commenting it out.
+	// I did try to change it to what it should be though.
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 
 	if (!pLevel)
 		return;
@@ -340,7 +340,7 @@ void CDigitanksGame::SetupProps()
 		pProp->SetAngles(EAngle(0, pLevelProp->m_angOrientation.y, 0));
 		pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
 		pProp->SetModel(convertstring<char, char16_t>(pLevelProp->m_sModel));
-	}
+	}*/
 
 /*	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
 	{
@@ -425,37 +425,41 @@ void CDigitanksGame::ScatterNeutralUnits()
 	}
 }
 
+CVar game_players("game_players", "1");
+CVar game_bots("game_bots", "3");
+CVar game_tanks("game_tanks", "3");
+
 void CDigitanksGame::SetupArtillery()
 {
 	TMsg(L"Setting up artillery game.\n");
 
-	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
+	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
 	if (iPlayers > 8)
 	{
 		iPlayers = 8;
-		if (m_oGameSettings.iHumanPlayers > 8)
+		if (game_players.GetInt() > 8)
 		{
-			m_oGameSettings.iHumanPlayers = 8;
-			m_oGameSettings.iBotPlayers = 0;
+			game_players.SetValue(8);
+			game_bots.SetValue(0);
 		}
 		else
-			m_oGameSettings.iBotPlayers = 8-m_oGameSettings.iHumanPlayers;
+			game_bots.SetValue(8-game_players.GetInt());
 	}
 
 	if (iPlayers < 2)
 	{
 		iPlayers = 2;
-		m_oGameSettings.iHumanPlayers = 2;
-		m_oGameSettings.iBotPlayers = 0;
+		game_players.SetValue(2);
+		game_bots.SetValue(0);
 	}
 
-	int iTanks = m_oGameSettings.iTanksPerPlayer;
+	int iTanks = game_tanks.GetInt();
 	if (iTanks > 4)
 		iTanks = 4;
 	if (iTanks < 1)
 		iTanks = 1;
-	m_oGameSettings.iTanksPerPlayer = iTanks;
+	game_tanks.SetValue(iTanks);
 
 	Color aclrTeamColors[] =
 	{
@@ -490,7 +494,7 @@ void CDigitanksGame::SetupArtillery()
 		pTeam->SetColor(aclrTeamColors[i]);
 		pTeam->SetName(aszTeamNames[i]);
 
-		if (m_oGameSettings.iHumanPlayers == 1 && i == 0)
+		if (game_players.GetInt() == 1 && i == 0)
 		{
 			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 			if (sPlayerNickname.length())
@@ -512,25 +516,25 @@ void CDigitanksGame::SetupStrategy()
 	SetupProps();
 	ScatterNeutralUnits();
 
-	int iPlayers = m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers;
+	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
-	if (iPlayers > 8)
+	if (iPlayers > 4)
 	{
-		iPlayers = 8;
-		if (m_oGameSettings.iHumanPlayers > 8)
+		iPlayers = 4;
+		if (game_players.GetInt() > 4)
 		{
-			m_oGameSettings.iHumanPlayers = 8;
-			m_oGameSettings.iBotPlayers = 0;
+			game_players.SetValue(4);
+			game_bots.SetValue(0);
 		}
 		else
-			m_oGameSettings.iBotPlayers = 8-m_oGameSettings.iHumanPlayers;
+			game_bots.SetValue(4-game_players.GetInt());
 	}
 
 	if (iPlayers < 2)
 	{
 		iPlayers = 2;
-		m_oGameSettings.iHumanPlayers = 2;
-		m_oGameSettings.iBotPlayers = 0;
+		game_players.SetValue(2);
+		game_bots.SetValue(0);
 	}
 
 	Color aclrTeamColors[] =
@@ -571,7 +575,7 @@ void CDigitanksGame::SetupStrategy()
 		pTeam->SetName(aszTeamNames[i]);
 		pTeam->SetLoseCondition(LOSE_NOCPU);
 
-		if (m_oGameSettings.iHumanPlayers == 1 && i == 0)
+		if (game_players.GetInt() == 1 && i == 0)
 		{
 			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 			if (sPlayerNickname.length())
@@ -626,7 +630,7 @@ void CDigitanksGame::SetupStrategy()
 		pTank->GiveBonusPoints(1, false);
 	}
 
-	for (size_t i = 0; i < m_oGameSettings.iHumanPlayers; i++)
+	for (int i = 0; i < game_players.GetInt(); i++)
 		// There's one neutral team at the front so skip it.
 		m_ahTeams[i+1]->SetClient(-1);
 
@@ -762,9 +766,14 @@ size_t CDigitanksGame::GetNumLevels(gametype_t eGameType)
 	return GetLevels(eGameType).size();
 }
 
-CLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
+CDigitanksLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
 {
-	return GetLevels(eGameType)[i];
+	return dynamic_cast<CDigitanksLevel*>(GetLevels(eGameType)[i]);
+}
+
+CDigitanksLevel* CDigitanksGame::GetLevel(eastl::string16 sFile)
+{
+	return dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(sFile));
 }
 
 void CDigitanksGame::StartGame()
@@ -851,6 +860,8 @@ void CDigitanksGame::StartNewRound()
 	GetCurrentTeam()->StartTurn();
 }
 
+CVar game_terrainheight("game_terrainheight", "60");
+
 void CDigitanksGame::SetupArtilleryRound()
 {
 	GameServer()->SetLoading(true);
@@ -864,20 +875,20 @@ void CDigitanksGame::SetupArtilleryRound()
 	GameServer()->DestroyAllEntities(asSpare);
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
-	m_hTerrain->GenerateTerrain(m_oGameSettings.flTerrainHeight);
+	m_hTerrain->GenerateTerrain(game_terrainheight.GetFloat());
 
 	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
 	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
 
-	size_t iTotalTanks = m_oGameSettings.iTanksPerPlayer * (m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers);
+	size_t iTotalTanks = game_tanks.GetInt() * (game_players.GetInt() + game_bots.GetInt());
 	size_t iSections = (int)sqrt((float)iTotalTanks);
 	float flSectionSize = flMapSize*2/iSections;
 
 	eastl::vector<size_t> aiRandomTeamPositions;
 	// 8 random starting positions.
-	for (size_t i = 0; i < (m_oGameSettings.iHumanPlayers + m_oGameSettings.iBotPlayers); i++)
+	for (int i = 0; i < (game_players.GetInt() + game_bots.GetInt()); i++)
 	{
-		for (size_t j = 0; j < m_oGameSettings.iTanksPerPlayer; j++)
+		for (int j = 0; j < game_tanks.GetInt(); j++)
 			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
 	}
 
@@ -928,7 +939,7 @@ void CDigitanksGame::SetupArtilleryRound()
 		}
 	}
 
-	for (size_t i = 0; i < m_oGameSettings.iHumanPlayers; i++)
+	for (int i = 0; i < game_players.GetInt(); i++)
 		m_ahTeams[i]->SetClient(-1);
 
 	CPowerup* pPowerup;

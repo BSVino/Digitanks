@@ -45,11 +45,33 @@ public:
 
 public:
 	void				SetValue(eastl::string16 sValue);
+	void				SetValue(int iValue);
+	void				SetValue(float flValue);
 
 	eastl::string16		GetValue() { return m_sValue; };
 	bool				GetBool();
 	int					GetInt();
 	float				GetFloat();
+
+	static CVar*		FindCVar(eastl::string16 sName);
+
+	static void			SetCVar(eastl::string16 sName, eastl::string16 sValue);
+	static void			SetCVar(eastl::string16 sName, int iValue);
+	static void			SetCVar(eastl::string16 sName, float flValue);
+
+	static eastl::string16 GetCVarValue(eastl::string16 sName);
+	static bool			GetCVarBool(eastl::string16 sName);
+	static int			GetCVarInt(eastl::string16 sName);
+	static float		GetCVarFloat(eastl::string16 sName);
+
+	static void			SetCVar(eastl::string sName, eastl::string sValue);
+	static void			SetCVar(eastl::string sName, int iValue);
+	static void			SetCVar(eastl::string sName, float flValue);
+
+	static eastl::string GetCVarValue(eastl::string sName);
+	static bool			GetCVarBool(eastl::string sName);
+	static int			GetCVarInt(eastl::string sName);
+	static float		GetCVarFloat(eastl::string sName);
 
 protected:
 	eastl::string16		m_sValue;

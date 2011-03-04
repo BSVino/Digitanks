@@ -10,9 +10,13 @@ public:
 	virtual void			OnReadData(const class CData* pData);
 
 	eastl::string			GetName() { return m_sName; }
+	eastl::string16			GetFile() { return m_sFile; }
+
+	void					SetFile(eastl::string16 sFile) { m_sFile = sFile; }
 
 protected:
 	eastl::string			m_sName;
+	eastl::string16			m_sFile;
 };
 
 #endif

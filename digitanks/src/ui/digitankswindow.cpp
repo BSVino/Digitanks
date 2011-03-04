@@ -17,8 +17,10 @@
 #include <platform.h>
 #include <network/network.h>
 #include <sound/sound.h>
+#include <tinker/cvar.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
+#include "digitanks/digitankslevel.h"
 #include "debugdraw.h"
 #include "hud.h"
 #include "instructor.h"
@@ -36,9 +38,6 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_pGameServer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
-
-	memset(&m_oGameSettings, 0, sizeof(m_oGameSettings));
-	m_oGameSettings.iLevel = ~0;
 
 	m_bBoxSelect = false;
 
@@ -228,6 +227,45 @@ void CDigitanksWindow::RenderMouseCursor()
 	glPopAttrib();
 }
 
+void LoadLevel(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+{
+	if (asTokens.size() == 1)
+	{
+		if (!GameServer())
+		{
+			TMsg("Use load_level 'levelpath' to specify the level.\n");
+			return;
+		}
+
+		CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
+		if (!pLevel)
+		{
+			TMsg(eastl::string16(L"Can't find file '") + CVar::GetCVarValue(L"game_level") + L"'.\n");
+			return;
+		}
+
+		DigitanksWindow()->CreateGame(pLevel->GetGameType());
+		return;
+	}
+
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(asTokens[1]);
+
+	if (!pLevel)
+	{
+		TMsg(eastl::string16(L"Can't find file '") + asTokens[1] + L"'.\n");
+		return;
+	}
+
+	CVar::SetCVar(L"game_level", pLevel->GetFile());
+
+	DigitanksWindow()->CreateGame(pLevel->GetGameType());
+
+	CApplication::CloseConsole();
+}
+
+CCommand load_level("load_level", ::LoadLevel);
+
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	RenderLoading();
@@ -274,17 +312,12 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 
 	if (CNetwork::IsHost() && DigitanksGame())
 	{
-		DigitanksGame()->SetGameSettings(m_oGameSettings);
 		DigitanksGame()->SetupGame(eGameType);
 	}
 
 	glgui::CRootPanel::Get()->Layout();
 
 	m_pMainMenu->SetVisible(eGameType == GAMETYPE_MENU);
-
-	// Since loading is done, remove old game settings.
-	memset(&m_oGameSettings, 0, sizeof(m_oGameSettings));
-	m_oGameSettings.iLevel = ~0;
 }
 
 void CDigitanksWindow::DestroyGame()

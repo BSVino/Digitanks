@@ -51,15 +51,6 @@ typedef struct
 	Vector			vecLocation;
 } airstrike_t;
 
-typedef struct
-{
-	size_t			iLevel;
-	size_t			iHumanPlayers;
-	size_t			iBotPlayers;
-	size_t			iTanksPerPlayer;
-	float			flTerrainHeight;
-} gamesettings_t;
-
 class IDigitanksGameListener
 {
 public:
@@ -102,12 +93,10 @@ public:
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
-	void					SetGameSettings(gamesettings_t& oGameSettings) { m_oGameSettings = oGameSettings; };
-	gamesettings_t*			GetGameSettings() { return &m_oGameSettings; };
-
 	static eastl::vector<class CLevel*> GetLevels(gametype_t eGameType);
 	static size_t			GetNumLevels(gametype_t eGameType);
-	static class CLevel*	GetLevel(gametype_t eGameType, size_t i);
+	static class CDigitanksLevel* GetLevel(gametype_t eGameType, size_t i);
+	static class CDigitanksLevel* GetLevel(eastl::string16 sFile);
 
 	void					ReadGameScript(eastl::string16 sScript);
 
@@ -301,8 +290,6 @@ protected:
 	CNetworkedVariable<size_t> m_iDifficulty;
 
 	CNetworkedVariable<bool> m_bRenderFogOfWar;
-
-	gamesettings_t				m_oGameSettings;
 
 	CNetworkedVariable<gametype_t> m_eGameType;
 	CNetworkedVariable<size_t> m_iTurn;

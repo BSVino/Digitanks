@@ -10,6 +10,7 @@
 
 #include <GL/glew.h>
 
+#include <tinker/cvar.h>
 #include <raytracer/raytracer.h>
 
 #include "dt_renderer.h"
@@ -228,52 +229,47 @@ void CTerrain::GenerateTerrain(float flHeight)
 {
 	TMsg(L"Generating terrain.\n");
 
-	gamesettings_t* pGameSettings = DigitanksGame()->GetGameSettings();
-
 	CDigitanksLevel* pLevel = NULL;
 	size_t iTerrainHeight = 0;
 	Color* pclrTerrainHeight = NULL;
 	size_t iTerrainData = 0;
 	Color* pclrTerrainData = NULL;
 
-	if (pGameSettings->iLevel < CDigitanksGame::GetNumLevels(DigitanksGame()->GetGameType()))
+	pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	if (pLevel)
 	{
-		pLevel = dynamic_cast<CDigitanksLevel*>(CDigitanksGame::GetLevel(DigitanksGame()->GetGameType(), pGameSettings->iLevel));
-		if (pLevel)
+		iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainHeight()));
+		iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));
+
+		if (CRenderer::GetTextureHeight(iTerrainHeight) != 256)
 		{
-			iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainHeight()));
-			iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));
-
-			if (CRenderer::GetTextureHeight(iTerrainHeight) != 256)
-			{
-				CRenderer::UnloadTextureData(iTerrainHeight);
-				iTerrainHeight = 0;
-			}
-
-			if (CRenderer::GetTextureWidth(iTerrainHeight) != 256)
-			{
-				CRenderer::UnloadTextureData(iTerrainHeight);
-				iTerrainHeight = 0;
-			}
-
-			if (CRenderer::GetTextureHeight(iTerrainData) != 256)
-			{
-				CRenderer::UnloadTextureData(iTerrainData);
-				iTerrainData = 0;
-			}
-
-			if (CRenderer::GetTextureWidth(iTerrainData) != 256)
-			{
-				CRenderer::UnloadTextureData(iTerrainData);
-				iTerrainData = 0;
-			}
-
-			if (iTerrainHeight)
-				pclrTerrainHeight = CRenderer::GetTextureData(iTerrainHeight);
-
-			if (iTerrainData)
-				pclrTerrainData = CRenderer::GetTextureData(iTerrainData);
+			CRenderer::UnloadTextureData(iTerrainHeight);
+			iTerrainHeight = 0;
 		}
+
+		if (CRenderer::GetTextureWidth(iTerrainHeight) != 256)
+		{
+			CRenderer::UnloadTextureData(iTerrainHeight);
+			iTerrainHeight = 0;
+		}
+
+		if (CRenderer::GetTextureHeight(iTerrainData) != 256)
+		{
+			CRenderer::UnloadTextureData(iTerrainData);
+			iTerrainData = 0;
+		}
+
+		if (CRenderer::GetTextureWidth(iTerrainData) != 256)
+		{
+			CRenderer::UnloadTextureData(iTerrainData);
+			iTerrainData = 0;
+		}
+
+		if (iTerrainHeight)
+			pclrTerrainHeight = CRenderer::GetTextureData(iTerrainHeight);
+
+		if (iTerrainData)
+			pclrTerrainData = CRenderer::GetTextureData(iTerrainData);
 	}
 
 	CSimplexNoise n1(m_iSpawnSeed);
