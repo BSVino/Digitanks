@@ -469,7 +469,7 @@ void CPurchasePanel::EmailCallback()
 	sEmail = str_replace(sEmail, L"+", L"%2B");
 	eastl::string16 sURI = sprintf(L"/reg/email.php?e=%s&i=%d", sEmail, DigitanksWindow()->GetInstallID());
 
-	CHTTPPostSocket s("reg.lunarworkshop.net");
+	CHTTPPostSocket s("reg.lunarworkshop.com");
 	s.SendHTTP11(convertstring<char16_t, char>(sURI).c_str());
 	// Don't care about the output.
 	s.Close();
