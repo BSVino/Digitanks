@@ -138,7 +138,6 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("EnterGame", this, EnterGameCallback, 0);
 	CNetwork::RegisterFunction("EndTurn", this, EndTurnCallback, 0);
 	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
-	CNetwork::RegisterFunction("ManageSupplyLine", this, ManageSupplyLineCallback, 3, NET_HANDLE, NET_HANDLE, NET_HANDLE);
 	CNetwork::RegisterFunction("Move", this, MoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 	CNetwork::RegisterFunction("Turn", this, TurnCallback, 2, NET_HANDLE, NET_FLOAT);
 	CNetwork::RegisterFunction("Fire", this, FireCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);

@@ -161,7 +161,6 @@ public:
 	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, ManageSupplyLine);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Move);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Turn);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Fire);
