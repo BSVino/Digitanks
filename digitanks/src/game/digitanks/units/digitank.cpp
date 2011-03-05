@@ -309,6 +309,7 @@ void CDigitank::Spawn()
 	m_flShieldPulse = 0;
 	m_bCloaked = false;
 	m_bHasCloak = false;
+	m_bLostConcealment = false;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -1567,7 +1568,7 @@ void CDigitank::Think()
 			}
 		}
 
-		if (m_bFiredWeapon || bMouseOK)
+		if (GetCurrentWeapon() != WEAPON_CHARGERAM && (m_bFiredWeapon || bMouseOK))
 		{
 			while (!IsInsideMaxRange(vecTankAim))
 			{
@@ -2404,6 +2405,18 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	}
 
 	RockTheBoat(0.8f, -vecForce.Normalized());
+
+	// Follow the first if there's only one or the third if there's many, such as the resistor machine gun.
+	size_t iProjectiles = CProjectile::GetWeaponShells(GetCurrentWeapon());
+	if (iProjectiles == 1)
+		DigitanksGame()->GetDigitanksCamera()->ProjectileFired(pProjectile);
+	else
+	{
+		if (iProjectiles <= 3 && m_iFireWeapons == iProjectiles-1)
+			DigitanksGame()->GetDigitanksCamera()->ProjectileFired(pProjectile);
+		else if (m_iFireWeapons == 3)
+			DigitanksGame()->GetDigitanksCamera()->ProjectileFired(pProjectile);
+	}
 }
 
 CBaseWeapon* CDigitank::CreateWeapon()
@@ -2924,13 +2937,16 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 
 	if ((GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
 	{
-		Vector vecAimTarget;
-		if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
-			vecAimTarget = GetPreviewAim();
-		else
-			vecAimTarget = m_vecLastAim.Get();
-		Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
-		m_flGoalTurretYaw = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
+		if (GetCurrentWeapon() != WEAPON_CHARGERAM)
+		{
+			Vector vecAimTarget;
+			if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
+				vecAimTarget = GetPreviewAim();
+			else
+				vecAimTarget = m_vecLastAim.Get();
+			Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
+			m_flGoalTurretYaw = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
+		}
 	}
 
 	float flSpeed = RemapValClamped(fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)), 30, 90, 20, 40);

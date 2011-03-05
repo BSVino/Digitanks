@@ -78,8 +78,6 @@ CMainMenu::CMainMenu()
 	AddControl(m_pVersion);
 
 	m_pDockPanel = NULL;
-
-	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
 }
 
 void CMainMenu::Layout()
@@ -158,7 +156,7 @@ void CMainMenu::Paint(int x, int y, int w, int h)
 		c.SetBlend(BLEND_ALPHA);
 		CHUD::PaintHUDSheet(20, 20, 350, 730, 0, 0, 350, 730);
 		if (!m_pCredits->IsVisible())
-			CRootPanel::PaintTexture(m_iLunarWorkshop, CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
+			CRootPanel::PaintTexture(DigitanksWindow()->GetLunarWorkshopLogo(), CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
 	}
 }
 

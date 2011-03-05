@@ -975,6 +975,25 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CStructure* pStructure = dynamic_cast<CStructure*>(pSelectable);
 			if (pStructure)
 			{
+				int iTurnsProgressed = 0;
+				int iTotalTurns = 0;
+				if (pStructure->IsConstructing())
+				{
+					iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetOrigin());
+					iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToConstruct();
+				}
+				else if (pStructure->IsUpgrading())
+				{
+					iTotalTurns = pStructure->GetTurnsToUpgrade();
+					iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToUpgrade();
+				}
+
+				iTurnsProgressed++;
+				iTotalTurns++;
+
+				if (pStructure->IsConstructing() || pStructure->IsUpgrading())
+					CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*iTurnsProgressed/iTotalTurns), 3, Color(255, 255, 0));
+
 				if (pStructure->IsConstructing())
 				{
 					eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToConstruct());

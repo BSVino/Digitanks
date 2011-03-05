@@ -6,6 +6,7 @@
 #include "digitanks/units/mobilecpu.h"
 #include "digitanks/digitanksgame.h"
 #include "digitankswindow.h"
+#include "ui.h"
 #include "renderer/renderer.h"
 #include "sound/sound.h"
 #include "hud.h"
@@ -406,6 +407,9 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 
 void CTutorialPanel::Paint(int x, int y, int w, int h)
 {
+	if (DigitanksWindow()->GetMenu() && DigitanksWindow()->GetMenu()->IsVisible())
+		return;
+
 	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
 	{
 		CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();

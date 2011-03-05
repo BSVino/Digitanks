@@ -109,6 +109,8 @@ public:
 
 	int							GetInstallID() { return m_iInstallID; };
 
+	size_t						GetLunarWorkshopLogo() { return m_iLunarWorkshop; }
+
 protected:
 	int							m_iMouseLastX;
 	int							m_iMouseLastY;
@@ -140,6 +142,8 @@ protected:
 
 	bool						m_bMouseDownInGUI;
 
+	float						m_flLastClick;
+
 	size_t						m_iCursors;
 	mousecursor_t				m_eMouseCursor;
 
@@ -154,6 +158,8 @@ protected:
 	float						m_flMusicVolume;
 
 	int							m_iInstallID;
+
+	size_t						m_iLunarWorkshop;
 };
 
 inline CDigitanksWindow* DigitanksWindow()

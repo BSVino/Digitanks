@@ -1378,6 +1378,9 @@ void CDigitanksGame::StartTurn()
 			if (!bIsVisible)
 			{
 				size_t iGridBugs = RandomInt(1, (int)RemapVal((float)GetTurn(), 6, 50, 2, 4));
+				if (GetDifficulty() == 0)
+					iGridBugs /= 2;
+
 				for (size_t i = 0; i < iGridBugs; i++)
 				{
 					vecPoint.x += 8;

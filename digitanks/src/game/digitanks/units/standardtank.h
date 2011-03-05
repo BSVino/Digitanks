@@ -13,6 +13,10 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Digitank"; };
 
+	virtual float				GetBoundingRadius() const { return 6; };
+
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+
 	virtual float				HealthRechargeRate() const { return 0.2f; };
 	virtual float				ShieldRechargeRate() const { return 1.0f; };
 	virtual float				GetTankSpeed() const { return 3.0f; };

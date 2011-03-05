@@ -326,20 +326,23 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 	CStructure* pStructure = dynamic_cast<CStructure*>(m_hEntity.GetPointer());
 	if (pStructure && (pStructure->IsConstructing() || pStructure->IsUpgrading()))
 	{
-		int iTurnsRemaining = 0;
+		int iTurnsProgressed = 0;
 		int iTotalTurns = 0;
 		if (pStructure->IsConstructing())
 		{
 			iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetOrigin());
-			iTurnsRemaining = pStructure->GetTurnsRemainingToConstruct();
+			iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToConstruct();
 		}
 		else if (pStructure->IsUpgrading())
 		{
 			iTotalTurns = pStructure->GetTurnsToUpgrade();
-			iTurnsRemaining = pStructure->GetTurnsRemainingToUpgrade();
+			iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToUpgrade();
 		}
 
-		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iTurnsRemaining/iTotalTurns), 3, Color(255, 255, 100));
+		iTurnsProgressed++;
+		iTotalTurns++;
+
+		glgui::CRootPanel::PaintRect(x+h, y+h-1, (int)((float)h*iTurnsProgressed/iTotalTurns), 3, Color(255, 255, 100));
 	}
 
 	BaseClass::Paint(x, y, w, h, bFloating);

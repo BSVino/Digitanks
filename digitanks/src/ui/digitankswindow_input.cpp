@@ -37,6 +37,18 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 
 void CDigitanksWindow::MouseInput(int iButton, int iState)
 {
+	bool bDoubleClick = false;
+	if (iButton == TINKER_KEY_MOUSE_LEFT && iState == 0)
+	{
+		if (GameServer()->GetGameTime() < m_flLastClick)
+			m_flLastClick = 0;
+
+		if (GameServer()->GetGameTime() - m_flLastClick < 0.2f)
+			bDoubleClick = true;
+		else
+			m_flLastClick = GameServer()->GetGameTime();
+	}
+
 	if (GameServer() && GameServer()->GetCamera())
 	{
 		// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
@@ -100,7 +112,11 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
-			if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			if (iButton == TINKER_KEY_MOUSE_RIGHT)
+			{
+				DigitanksGame()->SetControlMode(MODE_NONE);
+			}
+			else if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			{
 				CCPU* pCPU = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU();
 				if (pCPU && pCPU->IsPreviewBuildValid())
@@ -143,7 +159,44 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 	}
 
-	if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT)
+	if (bDoubleClick && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	{
+		CSelectable* pClickedSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
+
+		if (pClickedSelectable)
+		{
+			DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pClickedSelectable);
+
+			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+			{
+				CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+				if (!pEntity)
+					continue;
+
+				CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
+				if (!pSelectable)
+					continue;
+
+				if (pSelectable->GetVisibility() == 0)
+					continue;
+
+				if (pSelectable->GetTeam() != pClickedSelectable->GetTeam())
+					continue;
+
+				if (pSelectable->GetUnitType() != pClickedSelectable->GetUnitType())
+					continue;
+
+				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
+
+				if (vecScreen.x < 0 || vecScreen.y < 0 || vecScreen.x > GetWindowWidth() || vecScreen.y > GetWindowHeight())
+					continue;
+
+				if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
+			}
+		}
+	}
+	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT)
 	{
 		if (m_bBoxSelect && IsMouseDragging())
 		{

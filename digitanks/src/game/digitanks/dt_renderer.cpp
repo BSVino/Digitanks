@@ -930,7 +930,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 		for (size_t i = 0; i < BLOOM_FILTERS; i++)
 		{
-			glUniform1f(flBrightness, 0.7f - 0.1f*i);
+			glUniform1f(flBrightness, 0.6f - 0.1f*i);
 			RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oBloom1Buffers[i]);
 		}
 
@@ -954,7 +954,7 @@ void CDigitanksRenderer::RenderFullscreenBuffers()
 		for (size_t i = 0; i < BLOOM_FILTERS; i++)
 			RenderMapFullscreen(m_oBloom1Buffers[i].m_iMap);
 
-		float flBloomPulseLength = 2.0f;
+		float flBloomPulseLength = 0.5f;
 		float flGameTime = GameServer()->GetGameTime();
 		float flPulseStrength = Lerp(RemapValClamped(flGameTime, m_flLastBloomPulse, m_flLastBloomPulse + flBloomPulseLength, 1, 0), 0.2f);
 		if (flPulseStrength > 0)

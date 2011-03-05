@@ -151,14 +151,6 @@ void CDigitanksMenu::Paint(int x, int y, int w, int h)
 
 void CDigitanksMenu::SetVisible(bool bVisible)
 {
-	if (DigitanksWindow()->GetInstructor())
-	{
-		if (bVisible)
-			DigitanksWindow()->GetInstructor()->HideTutorial();
-		else if (DigitanksWindow()->GetInstructor()->GetActive())
-			DigitanksWindow()->GetInstructor()->ShowTutorial();
-	}
-
 	m_pReturnToGame->SetVisible(!!GameServer());
 
 	if (m_pOptionsPanel)
@@ -413,7 +405,7 @@ void CPurchasePanel::Paint(int x, int y, int w, int h)
 	PaintSheet(CHUD::GetActionTanksSheet(), x - iTankWidth + 40 - (int)(flSlide*flSlideDistance), y + 20, iTankWidth, iTankHeight, 0, 256, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
 	PaintSheet(CHUD::GetActionTanksSheet(), x + w - 50 + (int)(flSlide*flSlideDistance), y + 20, iTankWidth, iTankHeight, 0, 0, 512, 256, 512, 512, Color(255, 255, 255, (int)(flAlpha*255)));
 
-	CRootPanel::PaintTexture(DigitanksWindow()->GetMainMenu()->GetLunarWorkshopLogo(), glgui::CRootPanel::Get()->GetWidth()-200-20, glgui::CRootPanel::Get()->GetHeight()-200, 200, 200);
+	CRootPanel::PaintTexture(DigitanksWindow()->GetLunarWorkshopLogo(), glgui::CRootPanel::Get()->GetWidth()-200-20, glgui::CRootPanel::Get()->GetHeight()-200, 200, 200);
 
 	BaseClass::Paint(x, y, w, h);
 }

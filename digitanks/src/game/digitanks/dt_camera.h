@@ -33,6 +33,7 @@ public:
 	class CCameraGuidedMissile* GetCameraGuidedMissile();
 
 	void			ShowEnemyMoves();
+	void			ProjectileFired(class CProjectile* pProjectile);
 	void			ReplaceProjectileTarget(class CProjectile* pTarget);
 	void			ClearFollowTarget();
 
@@ -81,6 +82,7 @@ public:
 
 	bool			m_bRotatingCamera;
 	bool			m_bDraggingCamera;
+	bool			m_bFastDraggingCamera;
 
 	bool			m_bMouseDragLeft;
 	bool			m_bMouseDragRight;

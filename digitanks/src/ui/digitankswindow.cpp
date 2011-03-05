@@ -44,6 +44,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_iMouseLastX = 0;
 	m_iMouseLastY = 0;
 
+	m_flLastClick = 0;
+
 	int iScreenWidth;
 	int iScreenHeight;
 
@@ -54,7 +56,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowWidth = c.read<int>("width", 1024);
 		m_iWindowHeight = c.read<int>("height", 768);
 
-		m_bCfgFullscreen = !c.read<bool>("windowed", false);
+		m_bCfgFullscreen = !c.read<bool>("windowed", true);
 		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
 
 		m_bWantsFramebuffers = c.read<bool>("useframebuffers", true);
@@ -70,11 +72,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_iWindowWidth = iScreenWidth*2/3;
 		m_iWindowHeight = iScreenHeight*2/3;
 
-#ifdef _DEBUG
 		m_bCfgFullscreen = false;
-#else
-		m_bCfgFullscreen = true;
-#endif
 
 		m_bConstrainMouse = true;
 
@@ -106,8 +104,9 @@ void CDigitanksWindow::OpenWindow()
 	ilInit();
 
 	m_iCursors = CRenderer::LoadTextureIntoGL(L"textures/cursors.png");
-
 	m_iLoading = CRenderer::LoadTextureIntoGL(L"textures/loading.png");
+	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
+
 	RenderLoading();
 
 	InitUI();
@@ -151,6 +150,7 @@ void CDigitanksWindow::RenderLoading()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glgui::CRootPanel::PaintTexture(m_iLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
+	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), m_iWindowWidth-200-20, m_iWindowHeight - 200, 200, 200);
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();   
@@ -208,7 +208,7 @@ void CDigitanksWindow::RenderMouseCursor()
 		glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);
 	else if (m_eMouseCursor == MOUSECURSOR_AIMENEMY)
 	{
-		if (Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.3f)
+		if (Oscillate(GameServer()->GetGameTime(), 0.4f) > 0.3f)
 			glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 80, 80, 80, 40, 256, 128);
 		else
 			glgui::CBaseControl::PaintSheet(m_iCursors, mx-20, my-20, 80, 40, 160, 40, 80, 40, 256, 128);

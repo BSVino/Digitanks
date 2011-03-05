@@ -4,6 +4,7 @@
 
 #include <models/models.h>
 #include "digitanks/digitanksgame.h"
+#include <renderer/renderer.h>
 
 REGISTER_ENTITY(CStandardTank);
 
@@ -47,6 +48,13 @@ void CStandardTank::Spawn()
 	m_eWeapon = PROJECTILE_MEDIUM;
 
 	m_flMaxShieldStrength = m_flShieldStrength = 200;
+}
+
+void CStandardTank::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+{
+	BaseClass::ModifyContext(pContext, bTransparent);
+
+	pContext->Scale(2, 2, 2);
 }
 
 float CStandardTank::ProjectileCurve() const

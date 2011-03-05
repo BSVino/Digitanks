@@ -18,6 +18,7 @@ CDigitanksCamera::CDigitanksCamera()
 	m_angCamera = EAngle(45, 0, 0);
 	m_bRotatingCamera = false;
 	m_bDraggingCamera = false;
+	m_bFastDraggingCamera = false;
 	m_flShakeMagnitude = 0;
 
 	m_bMouseDragLeft = m_bMouseDragRight = m_bMouseDragUp = m_bMouseDragDown = false;
@@ -272,6 +273,37 @@ void CDigitanksCamera::ShowEnemyMoves()
 		SetTarget(pClosestTarget->GetRealOrigin());
 }
 
+void CDigitanksCamera::ProjectileFired(CProjectile* pProjectile)
+{
+	if (m_hTankTarget == NULL)
+		return;
+
+	if (pProjectile == NULL)
+		return;
+
+	if (pProjectile->GetOwner() != m_hTankTarget)
+		return;
+
+	if (!m_hTankTarget->HasFiredWeapon())
+		return;
+
+	if (m_hTankProjectile != NULL)
+		return;
+
+	if (pProjectile->GetOwner() == NULL)
+		return;
+
+	if (pProjectile->GetOwner()->GetVisibility() < 0.8f)
+		return;
+
+	if (pProjectile->GetOwner()->GetDigitanksTeam() && pProjectile->GetOwner()->GetDigitanksTeam()->GetVisibilityAtPoint(pProjectile->GetOwner()->GetLastAim()) < 0.8f)
+		return;
+
+	m_hTankProjectile = pProjectile;
+	m_hTankTarget = NULL;
+	m_flTransitionToProjectileTime = GameServer()->GetGameTime();
+}
+
 void CDigitanksCamera::ReplaceProjectileTarget(CProjectile* pTarget)
 {
 	if (m_hTankProjectile != NULL)
@@ -300,31 +332,6 @@ void CDigitanksCamera::Think()
 			m_flCameraGuidedFOV = Approach(m_flCameraGuidedFOVGoal, m_flCameraGuidedFOV, 10 * GameServer()->GetFrameTime());
 		else
 			m_flCameraGuidedFOV = Approach(m_flCameraGuidedFOVGoal, m_flCameraGuidedFOV, 1 * GameServer()->GetFrameTime());
-	}
-
-	if (m_hTankTarget != NULL)
-	{
-		if (m_hTankTarget->HasFiredWeapon() && m_hTankProjectile == NULL)
-		{
-			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
-			{
-				CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-				if (!pEntity)
-					continue;
-
-				CProjectile* pProjectile = dynamic_cast<CProjectile*>(pEntity);
-				if (!pProjectile)
-					continue;
-
-				if (pProjectile->GetOwner() != m_hTankTarget)
-					continue;
-
-				m_hTankProjectile = pProjectile;
-				m_hTankTarget = NULL;
-				m_flTransitionToProjectileTime = GameServer()->GetGameTime();
-				break;
-			}
-		}
 	}
 
 	if (m_hTankProjectile != NULL)
@@ -356,7 +363,12 @@ void CDigitanksCamera::Think()
 		{
 			Matrix4x4 mRotation;
 			mRotation.SetRotation(EAngle(0, m_angCamera.y, 0));
-			Vector vecVelocity = mRotation * m_vecVelocity;
+
+			Vector vecScrollVelocity = m_vecVelocity;
+			if (m_bFastDraggingCamera)
+				vecScrollVelocity *= 2;
+
+			Vector vecVelocity = mRotation * vecScrollVelocity;
 
 			m_vecTarget = m_vecTarget + vecVelocity * flFrameTime;
 
@@ -527,7 +539,7 @@ Vector CDigitanksCamera::GetTankFollowPosition(CDigitank* pTank)
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors(VectorAngles(vecTarget - pTank->GetOrigin()), &vecForward, &vecRight, &vecUp);
 
-	return pTank->GetOrigin() - vecForward*13 - vecRight*4 - vecUp*3;
+	return pTank->GetOrigin() - vecForward*20 - vecRight*6 - vecUp*5;
 }
 
 void CDigitanksCamera::SetFreeMode(bool bOn)
@@ -589,7 +601,11 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		Matrix4x4 mRotation;
 		mRotation.SetRotation(EAngle(0, m_angCamera.y, 0));
 
-		Vector vecVelocity = mRotation * Vector((float)dy*2, 0, (float)-dx*2);
+		float flStrength = 2;
+		if (m_bFastDraggingCamera)
+			flStrength = 4;
+
+		Vector vecVelocity = mRotation * Vector((float)dy*flStrength, 0, (float)-dx*flStrength);
 
 		SetTarget(m_vecTarget + vecVelocity);
 
@@ -682,6 +698,9 @@ void CDigitanksCamera::KeyDown(int c)
 	if (c == ' ')
 		m_bDraggingCamera = true;
 
+	if (c == TINKER_KEY_LSHIFT)
+		m_bFastDraggingCamera = true;
+
 	if (c == TINKER_KEY_PAGEUP)
 		ZoomIn();
 	if (c == TINKER_KEY_PAGEDOWN)
@@ -706,6 +725,9 @@ void CDigitanksCamera::KeyUp(int c)
 
 	if (c == ' ')
 		m_bDraggingCamera = false;
+
+	if (c == TINKER_KEY_LSHIFT)
+		m_bFastDraggingCamera = false;
 
 	BaseClass::KeyUp(c);
 }

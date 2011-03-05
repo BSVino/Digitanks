@@ -58,8 +58,8 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\Digitanks"
   CreateShortCut "$SMPROGRAMS\Digitanks\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Digitanks\Digitanks.lnk" "$INSTDIR\digitanks.exe" "" "$INSTDIR\digitanks.exe" 0
-  CreateShortCut "$SMPROGRAMS\Digitanks\Digitanks (Windowed).lnk" "$INSTDIR\digitanks.exe" "--windowed" "$INSTDIR\digitanks.exe" 0
-  
+  CreateShortCut "$SMPROGRAMS\Digitanks\Digitanks (Fullscreen).lnk" "$INSTDIR\digitanks.exe" "--fullscreen" "$INSTDIR\digitanks.exe" 0
+
 SectionEnd
 
 ; Optional section (can be disabled by the user)
