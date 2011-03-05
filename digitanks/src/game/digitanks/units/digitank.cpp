@@ -152,8 +152,6 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSentried);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplier>, m_hSupplier);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CSupplyLine>, m_hSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
@@ -322,23 +320,11 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 
 float CDigitank::GetBaseDefensePower(bool bPreview)
 {
-	float flIntegrity = 1;
-	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-	{
-		if (m_hSupplier == NULL)
-			return 0;
-
-		if (m_hSupplyLine == NULL)
-			return 0;
-
-		flIntegrity = m_hSupplyLine->GetIntegrity();
-	}
-
 	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return m_flTotalPower - GetWeaponEnergy();
 
 	// Any unallocated power will go into defense.
-	return (m_flDefensePower + m_flTotalPower) * flIntegrity;
+	return m_flDefensePower + m_flTotalPower;
 }
 
 float CDigitank::GetAttackPower(bool bPreview)
@@ -454,60 +440,48 @@ float CDigitank::GetBonusDefensePower(bool bPreview)
 
 float CDigitank::GetSupportAttackPowerBonus()
 {
-	if (m_hSupplier == NULL)
-		return 0;
-
-	if (m_hSupplyLine == NULL)
-		return 0;
-
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = (float)m_hSupplier->EnergyBonus() * m_hSupplyLine->GetIntegrity();
+	{
+		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
+		flBonus = (float)pSupplier->EnergyBonus();
+	}
 
 	return flBonus;
 }
 
 float CDigitank::GetSupportDefensePowerBonus()
 {
-	if (m_hSupplier == NULL)
-		return 0;
-
-	if (m_hSupplyLine == NULL)
-		return 0;
-
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = (float)m_hSupplier->EnergyBonus() * m_hSupplyLine->GetIntegrity();
+	{
+		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
+		flBonus = (float)pSupplier->EnergyBonus();
+	}
 
 	return flBonus;
 }
 
 float CDigitank::GetSupportHealthRechargeBonus() const
 {
-	if (m_hSupplier == NULL)
-		return 0.0f;
-
-	if (m_hSupplyLine == NULL)
-		return 0;
-
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = m_hSupplier->RechargeBonus()/5 * m_hSupplyLine->GetIntegrity();
+	{
+		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
+		flBonus = pSupplier->RechargeBonus();
+	}
 
 	return flBonus;
 }
 
 float CDigitank::GetSupportShieldRechargeBonus() const
 {
-	if (m_hSupplier == NULL)
-		return 0.0f;
-
-	if (m_hSupplyLine == NULL)
-		return 0;
-
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flBonus = m_hSupplier->RechargeBonus() * m_hSupplyLine->GetIntegrity();
+	{
+		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
+		flBonus = pSupplier->RechargeBonus()*5;
+	}
 
 	return flBonus;
 }
@@ -626,12 +600,6 @@ void CDigitank::StartTurn()
 			m_iFortifyLevel++;
 	}
 
-	float flShieldStrength = GetShieldValue();
-	SetShieldValue(Approach(m_flMaxShieldStrength, flShieldStrength, ShieldRechargeRate()));
-
-	if (flShieldStrength - GetShieldValue() < 0)
-		DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, flShieldStrength - GetShieldValue(), true, false);
-
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
 
@@ -688,6 +656,12 @@ void CDigitank::EndTurn()
 
 		if (TakesLavaDamage() && DigitanksGame()->GetTerrain()->IsPointOverLava(GetOrigin()))
 			TakeDamage(NULL, NULL, DAMAGE_BURN, DigitanksGame()->LavaDamage(), false);
+
+		float flShieldStrength = GetShieldValue();
+		SetShieldValue(Approach(m_flMaxShieldStrength, flShieldStrength, ShieldRechargeRate()));
+
+		if (flShieldStrength - GetShieldValue() < 0)
+			DigitanksGame()->OnTakeShieldDamage(this, NULL, NULL, (flShieldStrength - GetShieldValue())*GetDefenseScale(), true, false);
 	}
 
 	if (m_iTurnsDisabled)
@@ -2672,9 +2646,6 @@ void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 		pKiller->m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 	}
 
-	if (m_hSupplyLine != NULL)
-		m_hSupplyLine->Delete();
-
 	// Make sure we can see that we got a promotion.
 	DigitanksWindow()->GetHUD()->Layout();
 
@@ -3409,12 +3380,12 @@ bool CDigitank::Collide(const Vector& v1, const Vector& v2, Vector& vecPoint)
 
 float CDigitank::HealthRechargeRate() const
 {
-	return 2.0f + GetSupportHealthRechargeBonus();
+	return BaseHealthRechargeRate() + GetSupportHealthRechargeBonus();
 }
 
 float CDigitank::ShieldRechargeRate() const
 {
-	return 2.0f + GetSupportShieldRechargeBonus();
+	return (BaseShieldRechargeRate() + GetSupportShieldRechargeBonus()) * (m_flDefensePower.Get()/10.f);
 }
 
 float CDigitank::FirstProjectileTime() const

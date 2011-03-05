@@ -17,8 +17,8 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
-	virtual float				HealthRechargeRate() const { return 0.2f; };
-	virtual float				ShieldRechargeRate() const { return 1.0f; };
+	virtual float				BaseHealthRechargeRate() const { return 10.0f; };
+	virtual float				BaseShieldRechargeRate() const { return 50.0f; };
 	virtual float				GetTankSpeed() const { return 3.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				InitialMaxRange() const { return 200.0f; };

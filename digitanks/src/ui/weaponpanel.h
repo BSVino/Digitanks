@@ -39,6 +39,8 @@ protected:
 	glgui::CLabel*					m_pInfo;
 
 	eastl::vector<CWeaponButton*>	m_apWeapons;
+
+	weapon_t						m_eWeapon;
 };
 
 #endif

@@ -17,7 +17,7 @@ public:
 
 	virtual float				TotalHealth() const { return 40; };
 	virtual bool				TakesLavaDamage() { return false; }
-	virtual float				HealthRechargeRate() const { return 0.0f; };
+	virtual float				BaseHealthRechargeRate() const { return 0.0f; };
 	virtual float				GetTankSpeed() const { return 0.0f; };
 	virtual float				InitialEffRange() const { return 10.0f; };
 	virtual float				InitialMaxRange() const { return 60.0f; };
@@ -40,7 +40,7 @@ public:
 
 	virtual float				TotalHealth() const { return 40; };
 	virtual bool				TakesLavaDamage() { return false; }
-	virtual float				HealthRechargeRate() const { return 0.0f; };
+	virtual float				BaseHealthRechargeRate() const { return 0.0f; };
 	virtual float				GetTankSpeed() const { return 1.0f; };
 	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				InitialMaxRange() const { return 60.0f; };

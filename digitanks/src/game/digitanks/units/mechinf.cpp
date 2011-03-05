@@ -112,20 +112,24 @@ float CMechInfantry::GetFortifyDefensePowerBonus()
 		return 0;
 }
 
-float CMechInfantry::ShieldRechargeRate() const
+float CMechInfantry::BaseShieldRechargeRate() const
 {
-	if (IsFortified())
-		return 1.0f + ((float)m_iFortifyLevel.Get())/5 + GetSupportShieldRechargeBonus();
+	float flRate = 10.0f;
 
-	return 10.0f + GetSupportShieldRechargeBonus();
+	if (IsFortified())
+		return flRate + ((float)m_iFortifyLevel.Get())*5;
+
+	return flRate;
 }
 
-float CMechInfantry::HealthRechargeRate() const
+float CMechInfantry::BaseHealthRechargeRate() const
 {
-	if (IsFortified())
-		return 0.2f + ((float)m_iFortifyLevel.Get())/25 + GetSupportHealthRechargeBonus();
+	float flRate = 2.0f;
 
-	return 2.0f + GetSupportHealthRechargeBonus();
+	if (IsFortified())
+		return flRate + ((float)m_iFortifyLevel.Get());
+
+	return flRate;
 }
 
 float CMechInfantry::ProjectileCurve() const

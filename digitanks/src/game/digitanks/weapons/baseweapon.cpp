@@ -97,20 +97,20 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 {
 	0.0f,
 
-	2.0f,	// small
-	5.0f,	// medium
+	1.0f,	// small
+	4.0f,	// medium
 	8.0f,	// large
 	6.0f,	// AoE
 	6.0f,	// emp
-	4.0f,	// tractor bomb
-	3.0f,	// splooge
+	2.0f,	// tractor bomb
+	2.0f,	// splooge
 	6.0f,	// icbm
 	4.0f,	// grenade
 	7.0f,	// daisy chain
 	7.0f,	// clusterbomb
-	4.0f,	// earthshaker
+	3.0f,	// earthshaker
 
-	4.0f,	// machine gun
+	3.0f,	// machine gun
 	3.0f,	// treecutter
 	7.0f,	// laser
 	3.0f,	// torpedo

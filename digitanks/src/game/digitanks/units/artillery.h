@@ -21,8 +21,8 @@ public:
 	virtual bool				CanTurnFortified() { return true; };
 	virtual bool				CanAimMobilized() const { return false; };
 
-	virtual float				ShieldRechargeRate() const;
-	virtual float				HealthRechargeRate() const;
+	virtual float				BaseShieldRechargeRate() const;
+	virtual float				BaseHealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 1.5f; }
 	virtual float				GetMinRange() const { return 50.0f; };
 	virtual float				InitialEffRange() const { return 100.0f; };

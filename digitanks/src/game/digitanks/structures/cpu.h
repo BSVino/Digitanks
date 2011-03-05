@@ -18,6 +18,8 @@ public:
 	virtual size_t				InitialFleetPoints() const { return 4; };
 	virtual float				InitialBandwidth() const { return 6; };
 	virtual float				InitialPower() const { return 4; };
+	virtual float				InitialRechargeBonus() const { return 5.0f; };
+	virtual size_t				InitialEnergyBonus() const { return 1; };
 	virtual bool				IsDataFlowSource() { return true; };
 	virtual size_t				EfficientChildren() { return 0; };
 

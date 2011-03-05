@@ -104,6 +104,31 @@ void CWeaponPanel::Layout()
 
 void CWeaponPanel::Paint(int x, int y, int w, int h)
 {
+	if (DigitanksGame()->GetPrimarySelectionTank())
+	{
+		int iTankSize = 100;
+		int iWindowWidth = DigitanksWindow()->GetWindowWidth();
+		int iWindowHeight = DigitanksWindow()->GetWindowHeight();
+
+		Color clrTeam(255, 255, 255, 255);
+		if (DigitanksGame()->GetPrimarySelectionTank()->GetTeam())
+			clrTeam = DigitanksGame()->GetPrimarySelectionTank()->GetTeam()->GetColor();
+
+		CRenderingContext c(GameServer()->GetRenderer());
+
+		c.SetBlend(BLEND_ALPHA);
+		DigitanksWindow()->GetHUD()->PaintUnitSheet(DigitanksGame()->GetPrimarySelectionTank()->GetUnitType(), iWindowWidth/4 - iTankSize/2, iWindowHeight/2 - iTankSize/2, iTankSize, iTankSize, clrTeam);
+
+		int iShieldSize = 200;
+
+		int iShield = (int)(255*(10-CBaseWeapon::GetWeaponEnergy(m_eWeapon))/10);
+		if (iShield > 255)
+			iShield = 255;
+
+		c.SetBlend(BLEND_ADDITIVE);
+		glgui::CBaseControl::PaintTexture(DigitanksWindow()->GetHUD()->GetShieldTexture(), iWindowWidth/4 - iShieldSize/2, iWindowHeight/2 - iShieldSize/2, iShieldSize, iShieldSize, Color(255, 255, 255, iShield));
+	}
+
 	if (m_pInfo->GetText().length() > 1)
 	{
 		int ix, iy, iw, ih;
@@ -116,6 +141,8 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 
 void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 {
+	m_eWeapon = eWeapon;
+
 	if (!eWeapon)
 	{
 		m_pInfo->SetText("");

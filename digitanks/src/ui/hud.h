@@ -135,6 +135,7 @@ public:
 	static size_t				GetDownloadSheet();
 	static size_t				GetActionTanksSheet();
 	static size_t				GetPurchasePanel();
+	static size_t				GetShieldTexture();
 
 	void						ClientEnterGame();
 
@@ -335,6 +336,7 @@ protected:
 	size_t						m_iWeaponsSheet;
 	size_t						m_iButtonSheet;
 	size_t						m_iDownloadSheet;
+	size_t						m_iShieldTexture;
 
 	size_t						m_iTurnSound;
 

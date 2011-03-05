@@ -142,6 +142,7 @@ CHUD::CHUD()
 	m_iActionTanksSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/tanks.png");
 	m_iActionSignsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/signs.png");
 	m_iPurchasePanel = CRenderer::LoadTextureIntoGL(L"textures/purchasepanel.png");
+	m_iShieldTexture = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-shield.png");
 
 	m_eActionSign = ACTIONSIGN_NONE;
 
@@ -1279,19 +1280,25 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (pTank)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
-
-		c.SetBlend(BLEND_ADDITIVE);
-		c.Translate(Vector((float)(iWidth/2 - 720/2 + 10 + 150/2), (float)(iHeight - 150 + 10 + 130/2), 0));
-
-		do
+		if (pTank->GetShieldValue() > 5)
 		{
-			int iShield = (int)(255*pTank->GetShieldStrength());
+			CRenderingContext c(GameServer()->GetRenderer());
+
+			c.SetBlend(BLEND_ADDITIVE);
+
+			float flFlicker = 1;
+	
+			if (pTank->GetShieldValue() < pTank->GetShieldMaxStrength()*3/4)
+				flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", GameServer()->GetGameTime() + ((float)pTank->GetSpawnSeed()/100), 1.0f);
+
+			int iShield = (int)(255*flFlicker*pTank->GetDefensePower(true)/pTank->GetStartingPower());
 			if (iShield > 255)
 				iShield = 255;
-			PaintHUDSheet(-50/2, -50/2 - 20, 50, 10, 0, 850, 50, 14, Color(255, 255, 255, iShield));
+
+			int iSize = 100;
+
+			glgui::CBaseControl::PaintTexture(m_iShieldTexture, iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, Color(255, 255, 255, iShield));
 		}
-		while (false);
 	}
 
 	if (m_eActionSign)
@@ -1826,6 +1833,11 @@ size_t CHUD::GetActionTanksSheet()
 size_t CHUD::GetPurchasePanel()
 {
 	return DigitanksWindow()->GetHUD()->m_iPurchasePanel;
+}
+
+size_t CHUD::GetShieldTexture()
+{
+	return DigitanksWindow()->GetHUD()->m_iShieldTexture;
 }
 
 void CHUD::ClientEnterGame()

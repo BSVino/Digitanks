@@ -299,8 +299,10 @@ public:
 
 	virtual bool				Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 
-	virtual float				HealthRechargeRate() const;
-	virtual float				ShieldRechargeRate() const;
+	float						HealthRechargeRate() const;
+	float						ShieldRechargeRate() const;
+	virtual float				BaseHealthRechargeRate() const { return 3.0f; };
+	virtual float				BaseShieldRechargeRate() const { return 30.0f; };
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				InitialMaxRange() const { return 70.0f; };
@@ -424,9 +426,6 @@ protected:
 	float						m_flFortifyTime;
 
 	CNetworkedVariable<bool>	m_bSentried;
-
-	CEntityHandle<class CSupplier>		m_hSupplier;
-	CEntityHandle<class CSupplyLine>	m_hSupplyLine;
 
 	float						m_flBobOffset;
 

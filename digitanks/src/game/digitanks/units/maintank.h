@@ -15,8 +15,8 @@ public:
 
 	virtual float				RenderShieldScale() const { return 10.0f; };
 
-	virtual float				HealthRechargeRate() const { return 2.0f; };
-	virtual float				ShieldRechargeRate() const { return 10.0f; };
+	virtual float				BaseHealthRechargeRate() const { return 10.0f; };
+	virtual float				BaseShieldRechargeRate() const { return 30.0f; };
 	virtual float				GetTankSpeed() const { return 3.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				BaseVisibleRange() const { return 75; };

@@ -24,7 +24,7 @@ public:
 	virtual size_t				InitialFleetPoints() const { return 2; };
 	virtual float				InitialBandwidth() const { return 1; };
 	virtual size_t				InitialEnergyBonus() const { return 2; };
-	virtual float				InitialRechargeBonus() const { return 1.0f; };
+	virtual float				InitialRechargeBonus() const { return 10.0f; };
 	virtual float				TotalHealth() const { return 250; };
 
 	virtual eastl::string16		GetName() { return L"Macro-Buffer"; };
@@ -56,7 +56,7 @@ public:
 	virtual size_t				InitialFleetPoints() const { return 1; };
 	virtual float				InitialBandwidth() const { return 0.5f; };
 	virtual size_t				InitialEnergyBonus() const { return 1; };
-	virtual float				InitialRechargeBonus() const { return 0.5f; };
+	virtual float				InitialRechargeBonus() const { return 5.0f; };
 	virtual float				TotalHealth() const { return 150; };
 
 	virtual eastl::string16		GetName() { return L"Buffer"; };

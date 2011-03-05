@@ -119,12 +119,12 @@ float CScout::FindHoverHeight(Vector vecPosition) const
 	return flHeight + 9;
 }
 
-float CScout::ShieldRechargeRate() const
+float CScout::BaseShieldRechargeRate() const
 {
 	return 0;
 }
 
-float CScout::HealthRechargeRate() const
+float CScout::BaseHealthRechargeRate() const
 {
-	return 0.2f + GetSupportHealthRechargeBonus();
+	return 7.0f;
 }

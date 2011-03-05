@@ -56,14 +56,14 @@ void CArtillery::OnFortify()
 		SetModel(L"models/digitanks/artillery-move.obj");
 }
 
-float CArtillery::ShieldRechargeRate() const
+float CArtillery::BaseShieldRechargeRate() const
 {
 	return 0;
 }
 
-float CArtillery::HealthRechargeRate() const
+float CArtillery::BaseHealthRechargeRate() const
 {
-	return 0.2f + GetSupportHealthRechargeBonus();
+	return 2.0f;
 }
 
 float CArtillery::FirstProjectileTime() const

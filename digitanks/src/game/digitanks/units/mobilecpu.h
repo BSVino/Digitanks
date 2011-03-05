@@ -21,7 +21,7 @@ public:
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual bool				IsMobileCPU() const { return true; };
-	virtual float				HealthRechargeRate() const { return 0.2f; };
+	virtual float				BaseHealthRechargeRate() const { return 20.0f; };
 	virtual float				GetTankSpeed() const { return 3.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				GetTransitionTime() const { return 4.0f; };

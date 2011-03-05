@@ -25,8 +25,8 @@ public:
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
 
-	virtual float				ShieldRechargeRate() const;
-	virtual float				HealthRechargeRate() const;
+	virtual float				BaseShieldRechargeRate() const;
+	virtual float				BaseHealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; }
 	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				InitialMaxRange() const { return 60.0f; };

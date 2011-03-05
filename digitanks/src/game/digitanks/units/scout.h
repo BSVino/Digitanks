@@ -28,8 +28,8 @@ public:
 	virtual float				FindHoverHeight(Vector vecPosition) const;
 
 	virtual float				TotalHealth() const { return 80; };
-	virtual float				ShieldRechargeRate() const;
-	virtual float				HealthRechargeRate() const;
+	virtual float				BaseShieldRechargeRate() const;
+	virtual float				BaseHealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 3.5f; }
 	virtual float				TurnPerPower() const { return 9999; };
 	virtual float				GetMinRange() const { return 5.0f; };
