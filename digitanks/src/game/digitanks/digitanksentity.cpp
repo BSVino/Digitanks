@@ -305,7 +305,10 @@ void CDigitanksEntity::RenderAvailableArea(int iArea)
 	float flScoutScale = 1.0f;
 
 	// Scouts have very tall ones so we can see them underneath on the ground.
-	if (GetUnitType() == UNIT_SCOUT || dynamic_cast<CStructure*>(this))
+	if (GetUnitType() == UNIT_SCOUT)
+		flScoutScale = 10;
+
+	if (dynamic_cast<CStructure*>(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 		flScoutScale = 10;
 
 	CRenderingContext c(GameServer()->GetRenderer());

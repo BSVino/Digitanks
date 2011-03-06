@@ -2635,10 +2635,14 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		}
 	}
 
-	if (eDamageType != DAMAGE_BURN)
-		SetShieldValue(0);
+	// Disabled tanks don't take damage to shields. When their shields come back up they're perfectly okay.
+	if (!IsDisabled())
+	{
+		if (eDamageType != DAMAGE_BURN)
+			SetShieldValue(0);
 
-	DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit, false);
+		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit, false);
+	}
 
 	BaseClass::TakeDamage(pAttacker, pInflictor, eDamageType, flDamage, bDirectHit);
 }
@@ -3022,7 +3026,7 @@ bool CDigitank::IsAvailableAreaActive(int iArea) const
 	if (IsScout() && pTank->GetCurrentWeapon() != WEAPON_INFANTRYLASER)
 		return false;
 
-	if (GetVisibility(pTank->GetDigitanksTeam()) < 0.1f)
+	if (GetVisibility(pTank->GetDigitanksTeam()) < 0.4f)
 		return false;
 
 	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetOrigin()-pTank->GetOrigin()).Normalized()).y)) > pTank->FiringCone())
