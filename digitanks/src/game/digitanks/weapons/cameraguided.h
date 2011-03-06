@@ -8,6 +8,7 @@ class CCameraGuidedMissile : public CBaseWeapon
 	REGISTER_ENTITY_CLASS(CCameraGuidedMissile, CBaseWeapon);
 
 public:
+	virtual void				Precache();
 	virtual void				Spawn();
 
 	virtual void				Think();
@@ -34,6 +35,7 @@ public:
 	virtual float				BoostDamage() { return 5.0f; }
 
 protected:
+	bool						m_bLaunched;
 	float						m_flBoostTime;
 	float						m_flBoostVelocityGoal;
 	float						m_flBoostVelocity;

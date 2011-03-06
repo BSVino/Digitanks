@@ -32,7 +32,7 @@ public:
 	CSound*					GetSound(size_t i);
 
 public:
-	static void				PlaySound(CBaseEntity* pEntity, const eastl::string16& pszFilename);
+	static void				PlaySound(CBaseEntity* pEntity, const eastl::string16& pszFilename, bool bLoop = false);
 	static void				StopSound(CBaseEntity* pEntity = NULL, const eastl::string16& pszFilename = L"");
 	static bool				IsSoundPlaying(CBaseEntity* pEntity, const eastl::string16& pszFilename);
 

@@ -17,6 +17,12 @@ SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocity);
 SAVEDATA_TABLE_END();
 
+void CCameraGuidedMissile::Precache()
+{
+	PrecacheSound(L"sound/missile-launch.wav");
+	PrecacheSound(L"sound/missile-flight.wav");
+}
+
 void CCameraGuidedMissile::Spawn()
 {
 	BaseClass::Spawn();
@@ -27,6 +33,7 @@ void CCameraGuidedMissile::Spawn()
 	m_flBoostVelocityGoal = 0;
 	m_flBoostVelocity = 0;
 	m_flBoostTime = 0;
+	m_bLaunched = false;
 }
 
 void CCameraGuidedMissile::Think()
@@ -46,7 +53,16 @@ void CCameraGuidedMissile::Think()
 	m_flBoostVelocity = Approach(m_flBoostVelocityGoal, m_flBoostVelocity, BoostVelocity() * flFactor * GameServer()->GetFrameTime());
 
 	if (GameServer()->GetGameTime() - m_flTimeCreated > 3.0f || m_flBoostTime > 0.0f)
+	{
+		if (!m_bLaunched)
+		{
+			m_bLaunched = true;
+			EmitSound(L"sound/missile-launch.wav");
+			EmitSound(L"sound/missile-flight.wav", true);
+		}
+
 		SetVelocity(AngleVector(GetAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
+	}
 
 	if (m_flTimeExploded == 0 && GameServer()->GetGameTime() - m_flTimeCreated > 13.0f)
 		Explode();

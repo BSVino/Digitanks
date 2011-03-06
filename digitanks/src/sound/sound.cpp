@@ -64,7 +64,7 @@ size_t CSoundLibrary::FindSound(const eastl::string16& pszFilename)
 	return ~0;
 }
 
-void CSoundLibrary::PlaySound(CBaseEntity* pEntity, const eastl::string16& pszFilename)
+void CSoundLibrary::PlaySound(CBaseEntity* pEntity, const eastl::string16& pszFilename, bool bLoop)
 {
 	if (Get()->m_aiActiveSounds.find(pEntity) != Get()->m_aiActiveSounds.end())
 	{
@@ -82,7 +82,7 @@ void CSoundLibrary::PlaySound(CBaseEntity* pEntity, const eastl::string16& pszFi
 	if( pSound->m_pSound == NULL )
 		return;
 
-	int iChannel = Mix_PlayChannel(-1, pSound->m_pSound, 0);
+	int iChannel = Mix_PlayChannel(-1, pSound->m_pSound, bLoop?-1:0);
 	if (iChannel < 0)
 		return;
 

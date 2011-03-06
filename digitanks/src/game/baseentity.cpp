@@ -220,9 +220,9 @@ void CBaseEntity::Delete()
 	GameServer()->Delete(this);
 }
 
-void CBaseEntity::EmitSound(const eastl::string16& sFilename)
+void CBaseEntity::EmitSound(const eastl::string16& sFilename, bool bLoop)
 {
-	CSoundLibrary::PlaySound(this, sFilename);
+	CSoundLibrary::PlaySound(this, sFilename, bLoop);
 }
 
 void CBaseEntity::StopSound(const eastl::string16& sFilename)

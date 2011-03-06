@@ -243,7 +243,7 @@ public:
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};
 
-	void									EmitSound(const eastl::string16& sModel);
+	void									EmitSound(const eastl::string16& sSound, bool bLoop = false);
 	void									StopSound(const eastl::string16& sModel);
 	bool									IsSoundPlaying(const eastl::string16& sModel);
 	void									SetSoundVolume(const eastl::string16& sModel, float flVolume);
