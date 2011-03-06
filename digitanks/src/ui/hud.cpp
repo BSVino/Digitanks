@@ -601,7 +601,7 @@ void CHUD::Think()
 					if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecEntityPoint))
 						SetTooltip(L"Trees");
 					else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecEntityPoint))
-						SetTooltip(L"Water");
+						SetTooltip(L"Interference");
 					else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecEntityPoint))
 						SetTooltip(L"Lava");
 					else

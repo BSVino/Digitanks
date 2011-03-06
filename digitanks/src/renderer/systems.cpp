@@ -556,6 +556,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFireSmoke->SetGravity(Vector(0, 10, 0));
 	pWreckageFireSmoke->SetRandomBillboardYaw(true);
 	pWreckageFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+	pWreckageFireSmoke->SetColor(Color(255, 197, 157));
 
 	pWreckageFlame1->SetTexture(L"textures/particles/fire1.png");
 	pWreckageFlame1->SetLifeTime(0.6f);

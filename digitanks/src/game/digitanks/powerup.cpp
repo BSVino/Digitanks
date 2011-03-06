@@ -29,6 +29,8 @@ void CPowerup::Spawn()
 {
 	BaseClass::Spawn();
 
+	m_bTakeDamage = false;
+
 	SetCollisionGroup(CG_POWERUP);
 	if (RandomInt(0, 2) == 0)
 	{

@@ -613,8 +613,10 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 
 			Vector vecColor;
 
-			if (bLava || bWater)
+			if (bLava)
 				vecColor = Vector(1,1,1);
+			else if (bWater)
+				vecColor = Vector(flColor + 0.15f, flColor + 0.15f, flColor + 0.15f);
 			else
 				vecColor = Vector(flColor, flColor, flColor);
 
@@ -891,14 +893,10 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			}
 			else if (pChunk->GetBit(xbit, ybit, TB_WATER))
 			{
-				Color clrWater = Color(RandomInt(0, 20), RandomInt(0, 20), 255 - RandomInt(0, 20));
-				Color clrWater2 = Color(RandomInt(0, 20), 55 + RandomInt(-10, 10), 214 + RandomInt(-10, 10));
+				float flRandom = RandomFloat(0, 0.15f);
+				Vector vecWaterColor = m_vecTerrainColor + Vector(flRandom, flRandom*2, flRandom);
 
-				float flRealHeight = GetRealHeight(x, y);
-				float flLerp = RemapValClamped(flRealHeight, m_flLowest, m_flHighest, 1.0f, 0.0f);
-
-				float flRamp = Lerp(RandomFloat(0, 1), flLerp);
-				pChunk->m_aclrTexture[a][b] = Color((int)(clrWater.r()*flRamp + clrWater2.r()*(1-flRamp)), (int)(clrWater.g()*flRamp + clrWater2.g()*(1-flRamp)), (int)(clrWater.b()*flRamp + clrWater2.b()*(1-flRamp)));
+				pChunk->m_aclrTexture[a][b] = Color(vecWaterColor);	// Yay watercolors!
 			}
 			else
 				pChunk->m_aclrTexture[a][b] = m_vecTerrainColor;

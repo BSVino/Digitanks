@@ -52,6 +52,7 @@ void CWreckage::Spawn()
 
 	m_iBurn = ~0;
 	m_iTurretModel = ~0;
+	m_bTakeDamage = false;
 
 	SetSimulated(true);
 }
