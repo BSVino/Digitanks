@@ -2362,7 +2362,18 @@ void CDigitank::FireWeapon(CNetworkParameters* p)
 
 void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 {
+	bool bIsVisible = false;
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.3f)
+		bIsVisible = true;
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecLandingSpot) > 0.3f)
+		bIsVisible = true;
+
 	float flGravity = DigitanksGame()->GetGravity();
+
+	if (!bIsVisible)
+		flGravity *= 20;
+
 	float flTime;
 	Vector vecForce;
 	FindLaunchVelocity(GetOrigin(), vecLandingSpot, flGravity, vecForce, flTime, ProjectileCurve());

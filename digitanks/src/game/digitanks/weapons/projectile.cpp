@@ -807,6 +807,10 @@ void CTorpedo::Think()
 	if (m_bBurrowing)
 	{
 		float flDistance = GameServer()->GetFrameTime() * 10;
+
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.3f)
+			flDistance *= 5;
+
 		Vector vecDirection = m_vecLandingSpot - GetOrigin();
 		vecDirection.y = 0;
 

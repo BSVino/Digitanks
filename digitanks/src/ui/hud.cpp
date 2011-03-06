@@ -1036,7 +1036,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iWidth = 77*2/3;
 			int iHeight = 39*2/3;
 
-			CHUD::PaintHUDSheet((int)(vecScreen.x + flWidth/2 - 2), (int)(vecScreen.y - flWidth), iWidth, iHeight, 522, 311, 77, 39, Color(255, 255, 255, 255));
+			CHUD::PaintHUDSheet((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth + 2), iWidth, iHeight, 522, 311, 77, 39, Color(255, 255, 255, 255));
 
 			int iFontSize = 17;
 
