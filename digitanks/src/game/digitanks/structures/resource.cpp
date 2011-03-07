@@ -20,6 +20,7 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CResource);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCollector>, m_hCollector);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iSpark);
 SAVEDATA_TABLE_END();
 
 void CResource::Precache()

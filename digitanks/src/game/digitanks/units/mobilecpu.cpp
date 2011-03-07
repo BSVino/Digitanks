@@ -17,6 +17,8 @@ NETVAR_TABLE_BEGIN(CMobileCPU);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMobileCPU);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFanModel);		// Set in Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotation);
 SAVEDATA_TABLE_END();
 
 void CMobileCPU::Precache()

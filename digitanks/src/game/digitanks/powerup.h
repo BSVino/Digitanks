@@ -31,8 +31,6 @@ public:
 
 protected:
 	powerup_type_t	m_ePowerupType;
-
-	float			m_flSpawnTime;
 };
 
 #endif

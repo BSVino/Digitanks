@@ -35,14 +35,17 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bHeightsInitialized);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHighest);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkX);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkY);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
-	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iCallList);
-	//raytrace::CRaytracer*	m_pTracer;	// Regenerated procedurally
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecTerrainColor);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecQuadMods);
-	//SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CTerrainChunk, m_aTerrainChunks);	// Onserialize
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CTerrainChunk, m_aTerrainChunks);	// Onserialize
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkY);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, runner_t, m_aRunners);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextRunner);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CQuadBranch*, m_pQuadTreeHead);	// Temp data
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CQuadBranch*, m_pPathEnd);		// Temp data
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CDigitank*, m_pPathfindingUnit);	// Temp data
 SAVEDATA_TABLE_END();
 
 size_t CTerrain::s_iTreeTexture = 0;

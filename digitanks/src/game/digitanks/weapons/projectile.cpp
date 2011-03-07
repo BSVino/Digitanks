@@ -20,10 +20,10 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CProjectile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLandingSpot);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iParticleSystem);	// Generated on load
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFragmented);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBounces);
-//	size_t						m_iParticleSystem;	// Generated on load
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
 SAVEDATA_TABLE_END();
 
 CProjectile::CProjectile()
@@ -478,6 +478,8 @@ NETVAR_TABLE_BEGIN(CGrenade);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CGrenade);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angAngle);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angRotation);
 SAVEDATA_TABLE_END();
 
 void CGrenade::Precache()
@@ -513,6 +515,7 @@ NETVAR_TABLE_BEGIN(CDaisyChain);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDaisyChain);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flExplosionRadius);
 SAVEDATA_TABLE_END();
 
 void CDaisyChain::Spawn()
@@ -550,6 +553,7 @@ NETVAR_TABLE_BEGIN(CClusterBomb);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CClusterBomb);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flExplosionRadius);
 SAVEDATA_TABLE_END();
 
 void CClusterBomb::Spawn()

@@ -18,6 +18,8 @@ NETVAR_TABLE_BEGIN(CMechInfantry);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMechInfantry);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFortifyShieldModel);	// Set in Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFortifyWallModel);		// Set in Spawn()
 SAVEDATA_TABLE_END();
 
 void CMechInfantry::Precache()

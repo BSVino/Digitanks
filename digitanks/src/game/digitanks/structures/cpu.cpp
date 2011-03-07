@@ -32,7 +32,7 @@ SAVEDATA_TABLE_BEGIN(CCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, unittype_t, m_ePreviewStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bProducing);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsToProduceRogue);
-	//size_t						m_iFanModel;	// Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFanModel);	// Spawn()
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotation);
 SAVEDATA_TABLE_END();
 

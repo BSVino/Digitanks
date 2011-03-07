@@ -40,7 +40,7 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CDigitank>, m_ahTanks);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, size_t, m_aiCurrentSelection);
-	//std::map<size_t, float>		m_aflVisibilities;	// Automatically generated
+	SAVEDATA_OMIT(m_aflVisibilities);	// Automatically generated
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPowerPerTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTotalFleetPoints);
@@ -49,11 +49,17 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLost);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CCPU>, m_hPrimaryCPU);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hInfantryLoader);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hTankLoader);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hArtilleryLoader);
+	SAVEDATA_OMIT(m_aeBuildPriorities);	// Automatically generated
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bCanUpgrade);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecExplore);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bUseArtilleryAI);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLKV);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLKV);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFleetPointAttackQuota);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, CEntityHandle<CDigitank>, m_ahAttackTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CDigitank>, m_ahAttackTeam);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateX);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
@@ -66,7 +72,6 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildTankLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildArtilleryLoaders);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bUseArtilleryAI);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, losecondition_t, m_eLoseCondition);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bIncludeInScoreboard);
 SAVEDATA_TABLE_END();

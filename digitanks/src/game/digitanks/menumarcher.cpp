@@ -15,6 +15,10 @@ NETVAR_TABLE_BEGIN(CMenuMarcher);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMenuMarcher);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, float, m_flNextSpeech);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTurretModel);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iHoverParticles);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, float, m_flBobOffset);
 SAVEDATA_TABLE_END();
 
 CMenuMarcher::~CMenuMarcher()

@@ -18,7 +18,9 @@ SAVEDATA_TABLE_BEGIN(CWreckage);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecColorSwap);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Color, m_clrSwap);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angList);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iBurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bCrashed);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitanksTeam>, m_hOldTeam);
 SAVEDATA_TABLE_END();
 
 CWreckage::CWreckage()

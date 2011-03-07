@@ -12,6 +12,7 @@ NETVAR_TABLE_BEGIN(CMissileDefense);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMissileDefense);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CProjectile>, m_hTarget);
 SAVEDATA_TABLE_END();
 
 void CMissileDefense::SetTarget(CProjectile* pTarget)

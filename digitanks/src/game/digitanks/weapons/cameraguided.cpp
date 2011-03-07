@@ -12,6 +12,7 @@ NETVAR_TABLE_BEGIN(CCameraGuidedMissile);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLaunched);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocityGoal);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocity);

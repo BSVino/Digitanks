@@ -8,6 +8,7 @@
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <sound/sound.h>
+#include <tinker/application.h>
 
 #include "game.h"
 
@@ -38,16 +39,21 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecVelocity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGravity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bSimulated);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iHandle);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bTakeDamage);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTotalHealth);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flHealth);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeKilled);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CTeam>, m_hTeam);
-	//SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDeleted);	// Deleted entities are not saved.
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, bool, m_bDeleted);	// Deleted entities are not saved.
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahTouching);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCollisionGroup);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, class raytrace::CRaytracer*, m_pTracer);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iModel);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iSpawnSeed);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flSpawnTime);
+	SAVEDATA_OMIT(m_apNetworkVariables);
+
 SAVEDATA_TABLE_END();
 
 CBaseEntity::CBaseEntity()
@@ -319,6 +325,47 @@ CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
 	return m_apNetworkVariables[pszName];
 }
 
+void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
+{
+#ifndef _DEBUG
+	return;
+#endif
+
+	size_t iSaveTableSize = 0;
+
+	size_t iFirstOffset = 0;
+	if (pRegistration->m_aSaveData.size())
+		iFirstOffset = pRegistration->m_aSaveData[0].m_iOffset;
+
+	for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
+	{
+		CSaveData* pData = &pRegistration->m_aSaveData[i];
+
+		// If bools have non-bools after them then the extra space is padded to retain four-byte alignment.
+		// So, round everything up. Might mean adding bools doesn't trigger it, oh well.
+		if (pData->m_iSizeOfVariable%4 == 0 && iSaveTableSize%4 != 0)
+			iSaveTableSize += 4-iSaveTableSize%4;
+
+		// This can help you find where missing stuff is, if all of the save data is in order.
+		assert(pData->m_iOffset - iFirstOffset == iSaveTableSize);
+
+		iSaveTableSize += pData->m_iSizeOfVariable;
+	}
+
+	// In case a bool is at the end.
+	if (iSaveTableSize%4)
+		iSaveTableSize += 4-iSaveTableSize%4;
+
+	size_t iSizeOfThis = SizeOfThis();
+
+	// If you're getting this assert it probably means you forgot to add a savedata entry for some variable that you added to a class.
+	if (iSaveTableSize != iSizeOfThis)
+	{
+		TMsg(sprintf(L"Save table for class '%s' doesn't match the class's size.\n", convertstring<char, char16_t>(GetClassName())));
+		assert(L"Save table size doesn't match class size.\n");
+	}
+}
+
 void CBaseEntity::CheckTables(char* pszEntity)
 {
 #ifndef _DEBUG
@@ -394,6 +441,9 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 	for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
 	{
 		CSaveData* pSaveData = &pRegistration->m_aSaveData[i];
+
+		if (pSaveData->m_eType == CSaveData::DATA_OMIT)
+			continue;
 
 		o.write((char*)&i, sizeof(i));
 

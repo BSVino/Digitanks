@@ -55,11 +55,7 @@ SAVEDATA_TABLE_BEGIN(CStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPowerProduced);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iEnergyBonus);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRechargeBonus);
-
-	//std::map<size_t, std::vector<whateveritisnow> >	m_aUpdates;	// OnSerialize()
-	//std::map<size_t, size_t>		m_aiUpdatesInstalled;	// OnSerialize()
-
-	//size_t						m_iScaffolding;	// In Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iScaffolding);	// In Spawn()
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flScaffoldingSize);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flConstructionStartTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, defender_t, m_aoDefenders);
@@ -629,10 +625,11 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iDataStrength);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusDataFlow);
-	//std::vector<CTendril>		m_aTendrils;	// Generated
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CTendril, m_aTendrils);	// Generated
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CStructure>, m_ahChildren);
-	//size_t						m_iTendrilsCallList;	// Generated
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTendrilsCallList);	// Generated
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTendrilGrowthStartTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
 
 void CSupplier::Precache()

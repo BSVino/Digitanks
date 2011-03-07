@@ -111,6 +111,10 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRangeBonus);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flMaxShieldStrength);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flShieldStrength);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bNeedsOrdersDirty);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bNeedsOrders);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flCurrentTurretYaw);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flGoalTurretYaw);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedRock);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRockIntensity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecRockDirection);
@@ -143,23 +147,29 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CBaseWeapon>, m_hWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastSpeech);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextIdle);
-	//size_t						m_iTurretModel;	// Set in Spawn()
-	//size_t						m_iShieldModel;	// Set in Spawn()
-	//size_t						m_iHoverParticles;	// Dynamic
-	//size_t						m_iSmokeParticles;	// Dynamic
-	//size_t						m_iFireParticles;	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTurretModel);	// Set in Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iShieldModel);	// Set in Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShieldPulse);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iHoverParticles);	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iSmokeParticles);	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFireParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSentried);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, weapon_t, m_eWeapon);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, weapon_t, m_aeWeapons);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextMissileDefense);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flGlowYaw);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextHoverHeightCheck);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bInAttackTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextHoverHeightCheck);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CStructure>, m_hFortifyDefending);
 SAVEDATA_TABLE_END();
 
 CDigitank::~CDigitank()

@@ -47,6 +47,7 @@ class CSaveData
 public:
 	typedef enum
 	{
+		DATA_OMIT = 0,
 		DATA_COPYTYPE,
 		DATA_COPYARRAY,
 		DATA_COPYVECTOR,
@@ -73,6 +74,35 @@ public:
 	eastl::vector<CSaveData>	m_aSaveData;
 };
 
+#define REGISTER_ENTITY_CLASS_NOBASE(entity) \
+DECLARE_CLASS(entity, entity); \
+public: \
+static void RegisterCallback##entity() \
+{ \
+	entity* pEntity = new entity(); \
+	CBaseEntity::Register(pEntity); \
+	delete pEntity; \
+} \
+ \
+virtual const char* GetClassName() { return #entity; } \
+virtual void RegisterNetworkVariables(); \
+virtual void RegisterSaveData(); \
+virtual size_t SizeOfThis() \
+{ \
+	/* -4 because the vtable is 4 bytes */ \
+	return sizeof(entity) - 4; \
+} \
+ \
+virtual void Serialize(std::ostream& o) \
+{ \
+	CBaseEntity::Serialize(o, #entity, this); \
+} \
+ \
+virtual bool Unserialize(std::istream& i) \
+{ \
+	return CBaseEntity::Unserialize(i, #entity, this); \
+} \
+
 #define REGISTER_ENTITY_CLASS(entity, base) \
 DECLARE_CLASS(entity, base); \
 public: \
@@ -86,22 +116,22 @@ static void RegisterCallback##entity() \
 virtual const char* GetClassName() { return #entity; } \
 virtual void RegisterNetworkVariables(); \
 virtual void RegisterSaveData(); \
+virtual size_t SizeOfThis() \
+{ \
+	return sizeof(entity) - sizeof(BaseClass); \
+} \
  \
 virtual void Serialize(std::ostream& o) \
 { \
-	if (strcmp(#entity, #base) != 0) \
-		BaseClass::Serialize(o); \
+	BaseClass::Serialize(o); \
  \
 	CBaseEntity::Serialize(o, #entity, this); \
 } \
  \
 virtual bool Unserialize(std::istream& i) \
 { \
-	if (strcmp(#entity, #base) != 0) \
-	{ \
-		if (!BaseClass::Unserialize(i)) \
-			return false; \
-	} \
+	if (!BaseClass::Unserialize(i)) \
+		return false; \
  \
 	return CBaseEntity::Unserialize(i, #entity, this); \
 } \
@@ -155,7 +185,22 @@ void entity::RegisterSaveData() \
 	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfVariable); \
 	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfType); \
 
+#define SAVEDATA_OMIT(name) \
+	pRegistration->m_aSaveData.push_back(CSaveData()); \
+	pSaveData = &pRegistration->m_aSaveData[pRegistration->m_aSaveData.size()-1]; \
+	pSaveData->m_eType = CSaveData::DATA_OMIT; \
+	pSaveData->m_pszVariableName = #name; \
+	pSaveData->m_iOffset = (((size_t)((void*)&name))) - ((size_t)((void*)this)); \
+	pSaveData->m_iSizeOfVariable = sizeof(name); \
+	pSaveData->m_iSizeOfType = 0; \
+	pSaveData->m_pfnResizeVector = NULL; \
+	pGameServer->GenerateSaveCRC(pSaveData->m_eType); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iOffset); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfVariable); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfType); \
+
 #define SAVEDATA_TABLE_END() \
+	CheckSaveDataSize(pRegistration); \
 } \
 
 class CTeam;
@@ -164,7 +209,7 @@ class CBaseEntity
 {
 	friend class CGameServer;
 
-	REGISTER_ENTITY_CLASS(CBaseEntity, CBaseEntity);
+	REGISTER_ENTITY_CLASS_NOBASE(CBaseEntity);
 
 public:
 											CBaseEntity();
@@ -270,6 +315,7 @@ public:
 
 	virtual void							OnSerialize(std::ostream& o) {};
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
+	void									CheckSaveDataSize(CEntityRegistration* pRegistration);
 
 	void									CheckTables(char* pszEntity);
 
