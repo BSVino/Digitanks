@@ -51,7 +51,29 @@ CGameServer::CGameServer()
 
 	TMsg(L"Precaching entities... ");
 	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
-		CBaseEntity::GetEntityRegistration()[i].m_pfnRegisterCallback();
+	{
+		CEntityRegistration* pRegistration = &CBaseEntity::GetEntityRegistration()[i];
+
+		if (pRegistration->m_pszParentClass)
+		{
+			bool bFound = false;
+			for (size_t j = 0; j < CBaseEntity::GetEntityRegistration().size(); j++)
+			{
+				if (strcmp(CBaseEntity::GetEntityRegistration()[j].m_pszEntityName, pRegistration->m_pszParentClass) == 0)
+				{
+					bFound = true;
+					pRegistration->m_iParentRegistration = j;
+					break;
+				}
+			}
+
+			assert(bFound);	// I have no idea how you could trip this.
+		}
+		else
+			pRegistration->m_iParentRegistration = ~0;
+
+		pRegistration->m_pfnRegisterCallback();
+	}
 	TMsg(L"Done.\n");
 	TMsg(sprintf(L"%d models, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModels(), CRenderer::GetNumTexturesLoaded(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
 
@@ -526,9 +548,7 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 	CBaseEntity::s_iOverrideEntityListIndex = ~0;
 
 	CEntityHandle<CBaseEntity> hEntity(iHandle);
-
-	if (CNetwork::IsConnected())
-		hEntity->RegisterNetworkVariables();
+	hEntity->m_iRegistration = iRegisteredEntity;
 
 	size_t iPostSeed = mtrand();
 
@@ -596,8 +616,6 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 
 	pEntity->SetDeleted();
 	m_ahDeletedEntities.push_back(pEntity);
-
-	pEntity->DeregisterNetworkVariables();
 }
 
 void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare, bool bRemakeGame)
@@ -646,15 +664,16 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 	if (!hEntity)
 		return;
 
-	CNetworkedVariableBase* pVariable = hEntity->GetNetworkVariable((char*)p->m_pExtraData);
+	CNetworkedVariableData* pVarData = hEntity->GetNetworkVariable((char*)p->m_pExtraData);
+	CNetworkedVariableBase* pVariable = pVarData->GetNetworkedVariableBase(hEntity);
 
 	if (!pVariable)
 		return;
 
 	pVariable->Unserialize((unsigned char*)p->m_pExtraData + strlen((char*)p->m_pExtraData)+1);
 
-	if (pVariable->m_pfnChanged)
-		pVariable->m_pfnChanged(pVariable);
+	if (pVarData->m_pfnChanged)
+		pVarData->m_pfnChanged(pVariable);
 }
 
 void CGameServer::ClientInfo(CNetworkParameters* p)

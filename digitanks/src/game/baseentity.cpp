@@ -19,7 +19,7 @@ size_t CBaseEntity::s_iNextEntityListIndex = 0;
 
 REGISTER_ENTITY(CBaseEntity);
 
-NETVAR_TABLE_BEGIN_NOBASE(CBaseEntity);
+NETVAR_TABLE_BEGIN(CBaseEntity);
 	NETVAR_DEFINE(Vector, m_vecOrigin);
 	NETVAR_DEFINE(EAngle, m_angAngles);
 	NETVAR_DEFINE(Vector, m_vecVelocity);
@@ -52,8 +52,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iModel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iSpawnSeed);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flSpawnTime);
-	SAVEDATA_OMIT(m_apNetworkVariables);
-
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iRegistration);	// Set as part of spawning process
 SAVEDATA_TABLE_END();
 
 CBaseEntity::CBaseEntity()
@@ -126,7 +125,7 @@ void CBaseEntity::SetModel(size_t iModel)
 
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
 {
-	if (iHandle >= s_apEntityList.size())
+	if (iHandle == ~0)
 		return NULL;
 
 	return s_apEntityList[iHandle];
@@ -287,42 +286,25 @@ void CBaseEntity::SetSpawnSeed(size_t iSpawnSeed)
 	mtsrand(iSpawnSeed);
 }
 
-void CBaseEntity::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
+CNetworkedVariableData* CBaseEntity::GetNetworkVariable(const char* pszName)
 {
-	assert(m_apNetworkVariables.find(pVariable->GetName()) == m_apNetworkVariables.end());
-
-	CNetwork::RegisterNetworkVariable(pVariable);
-
-	m_apNetworkVariables[pVariable->GetName()] = pVariable;
-}
-
-void CBaseEntity::DeregisterNetworkVariables()
-{
-	static eastl::map<eastl::string, CNetworkedVariableBase*>::iterator it;
-
-	it = m_apNetworkVariables.begin();
-
-	while (it != m_apNetworkVariables.end())
+	size_t iRegistration = GetRegistration();
+	CEntityRegistration* pRegistration = NULL;
+	
+	do
 	{
-		DeregisterNetworkVariable(it->second);
+		pRegistration = CBaseEntity::GetRegisteredEntity(iRegistration);
 
-		it++;
-	}
-}
+		for (size_t i = 0; i < pRegistration->m_aNetworkVariables.size(); i++)
+		{
+			CNetworkedVariableData* pVarData = &pRegistration->m_aNetworkVariables[i];
 
-void CBaseEntity::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
-{
-	CNetwork::DeregisterNetworkVariable(pVariable);
+			if (strcmp(pVarData->m_pszName, pszName) == 0)
+				return pVarData;
+		}
+	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
 
-	// Don't bother removing it from the entity list, this entity is about to die anyway.
-}
-
-CNetworkedVariableBase* CBaseEntity::GetNetworkVariable(const char* pszName)
-{
-	if (m_apNetworkVariables.find(pszName) == m_apNetworkVariables.end())
-		return NULL;
-
-	return m_apNetworkVariables[pszName];
+	return NULL;
 }
 
 void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
@@ -362,7 +344,7 @@ void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 	if (iSaveTableSize != iSizeOfThis)
 	{
 		TMsg(sprintf(L"Save table for class '%s' doesn't match the class's size.\n", convertstring<char, char16_t>(GetClassName())));
-		assert(L"Save table size doesn't match class size.\n");
+		assert(!L"Save table size doesn't match class size.\n");
 	}
 }
 
@@ -372,13 +354,13 @@ void CBaseEntity::CheckTables(char* pszEntity)
 	return;
 #endif
 
-	CEntityRegistration* pRegistration = GetRegisteredEntity(FindRegisteredEntity(pszEntity));
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration());
 
 	eastl::vector<CSaveData>& aSaveData = pRegistration->m_aSaveData;
 
 	for (size_t i = 0; i < aSaveData.size(); i++)
 	{
-		CNetworkedVariableBase* pVariable = GetNetworkVariable(aSaveData[i].m_pszVariableName);
+		CNetworkedVariableData* pVariable = GetNetworkVariable(aSaveData[i].m_pszVariableName);
 		if (aSaveData[i].m_eType == CSaveData::DATA_NETVAR)
 			// I better be finding this in the network tables or yer gon have some 'splainin to do!
 			assert(pVariable);
@@ -568,11 +550,12 @@ eastl::vector<CEntityRegistration>& CBaseEntity::GetEntityRegistration()
 	return aEntityRegistration;
 }
 
-void CBaseEntity::RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)
+void CBaseEntity::RegisterEntity(const char* pszEntityName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)
 {
 	GetEntityRegistration().push_back(CEntityRegistration());
 	CEntityRegistration* pEntity = &GetEntityRegistration()[GetEntityRegistration().size()-1];
 	pEntity->m_pszEntityName = pszEntityName;
+	pEntity->m_pszParentClass = pszParentClass;
 	pEntity->m_pfnCreateCallback = pfnCreateCallback;
 	pEntity->m_pfnRegisterCallback = pfnRegisterCallback;
 }
@@ -581,6 +564,7 @@ void CBaseEntity::Register(CBaseEntity* pEntity)
 {
 	pEntity->Precache();
 	pEntity->RegisterSaveData();
+	pEntity->RegisterNetworkVariables();
 }
 
 size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)

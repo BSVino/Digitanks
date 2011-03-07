@@ -8,6 +8,7 @@
 #include <tinker/application.h>
 
 #include <baseentity.h>
+#include <gameserver.h>
 
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
@@ -15,7 +16,6 @@ eastl::map<eastl::string, CRegisteredFunction> CNetwork::s_aFunctions;
 INetworkListener* CNetwork::s_pClientListener = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientConnect = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientDisconnect = NULL;
-eastl::vector<CNetworkedVariableBase*> CNetwork::s_apNetworkedVariables;
 
 static ENetHost* g_pClient = NULL;
 static ENetPeer* g_pClientPeer = NULL;
@@ -63,49 +63,53 @@ void CNetwork::ClearRegisteredFunctions()
 	s_aFunctions.clear();
 }
 
-void CNetwork::RegisterNetworkVariable(CNetworkedVariableBase* pVariable)
-{
-	s_apNetworkedVariables.push_back(pVariable);
-}
-
-void CNetwork::DeregisterNetworkVariable(CNetworkedVariableBase* pVariable)
-{
-	for (size_t i = 0; i < s_apNetworkedVariables.size(); i++)
-	{
-		if (s_apNetworkedVariables[i] == pVariable)
-		{
-			s_apNetworkedVariables.erase(s_apNetworkedVariables.begin()+i);
-			return;
-		}
-	}
-	assert(!"Couldn't find networked variable to delete.");
-}
-
 void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 {
-	for (size_t i = 0; i < s_apNetworkedVariables.size(); i++)
+	size_t iMaxEnts = GameServer()->GetMaxEntities();
+	for (size_t i = 0; i < iMaxEnts; i++)
 	{
-		CNetworkedVariableBase* pVariable = s_apNetworkedVariables[i];
-
-		if (!bForceAll && !pVariable->IsDirty())
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
 			continue;
 
-		CNetworkParameters p;
-		p.ui1 = pVariable->GetParent()->GetHandle();
+		size_t iRegistration = pEntity->GetRegistration();
 
-		size_t iDataSize;
-		void* pValue = pVariable->Serialize(iDataSize);
+		CEntityRegistration* pRegistration = NULL;
+		do
+		{
+			pRegistration = pEntity->GetRegisteredEntity(iRegistration);
 
-		p.CreateExtraData(iDataSize + strlen(pVariable->GetName())+1);
-		strcpy((char*)p.m_pExtraData, pVariable->GetName());
-		memcpy((unsigned char*)(p.m_pExtraData) + strlen(pVariable->GetName())+1, pValue, iDataSize);
+			assert(pRegistration);
+			if (!pRegistration)
+				break;
 
-		// UV stands for UpdateValue
-		CallFunctionParameters(iClient, "UV", &p);
+			size_t iNetVarsSize = pRegistration->m_aNetworkVariables.size();
+			for (size_t j = 0; j < iNetVarsSize; j++)
+			{
+				CNetworkedVariableData* pVarData = &pRegistration->m_aNetworkVariables[j];
+				CNetworkedVariableBase* pVariable = pVarData->GetNetworkedVariableBase(pEntity);
 
-		// Only reset the dirty flag if all clients got the message.
-		if (iClient == NETWORK_TOCLIENTS)
-			pVariable->SetDirty(false);
+				if (!bForceAll && !pVariable->IsDirty())
+					continue;
+
+				CNetworkParameters p;
+				p.ui1 = pEntity->GetHandle();
+
+				size_t iDataSize;
+				void* pValue = pVariable->Serialize(iDataSize);
+
+				p.CreateExtraData(iDataSize + strlen(pVarData->GetName())+1);
+				strcpy((char*)p.m_pExtraData, pVarData->GetName());
+				memcpy((unsigned char*)(p.m_pExtraData) + strlen(pVarData->GetName())+1, pValue, iDataSize);
+
+				// UV stands for UpdateValue
+				CallFunctionParameters(iClient, "UV", &p);
+
+				// Only reset the dirty flag if all clients got the message.
+				if (iClient == NETWORK_TOCLIENTS)
+					pVariable->SetDirty(false);
+			}
+		} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
 	}
 }
 
@@ -432,15 +436,18 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 		CallFunction(-1, pFunction, p, true);
 }
 
+CNetworkedVariableData::CNetworkedVariableData()
+{
+	m_iOffset = 0;
+}
+
+CNetworkedVariableBase* CNetworkedVariableData::GetNetworkedVariableBase(CBaseEntity* pEntity)
+{
+	assert(m_iOffset);
+	return (CNetworkedVariableBase*)(((size_t)pEntity) + m_iOffset);
+}
+
 CNetworkedVariableBase::CNetworkedVariableBase()
 {
 	m_bDirty = true;
-	m_pParent = NULL;
-	m_pfnChanged = NULL;
-}
-
-void CNetworkedVariableBase::SetParent(CBaseEntity* pParent)
-{
-	m_pParent = pParent;
-	pParent->RegisterNetworkVariable(this);
 }

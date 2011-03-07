@@ -69,9 +69,12 @@ class CEntityRegistration
 {
 public:
 	const char*				m_pszEntityName;
+	const char*				m_pszParentClass;
+	size_t					m_iParentRegistration;
 	EntityRegisterCallback	m_pfnRegisterCallback;
 	EntityCreateCallback	m_pfnCreateCallback;
 	eastl::vector<CSaveData>	m_aSaveData;
+	eastl::vector<CNetworkedVariableData>	m_aNetworkVariables;
 };
 
 #define REGISTER_ENTITY_CLASS_NOBASE(entity) \
@@ -80,9 +83,11 @@ public: \
 static void RegisterCallback##entity() \
 { \
 	entity* pEntity = new entity(); \
+	pEntity->m_iRegistration = FindRegisteredEntity(#entity); \
 	CBaseEntity::Register(pEntity); \
 	delete pEntity; \
 } \
+static const char* Get##entity##ParentClass() { return NULL; } \
  \
 virtual const char* GetClassName() { return #entity; } \
 virtual void RegisterNetworkVariables(); \
@@ -109,9 +114,11 @@ public: \
 static void RegisterCallback##entity() \
 { \
 	entity* pEntity = new entity(); \
+	pEntity->m_iRegistration = FindRegisteredEntity(#entity); \
 	CBaseEntity::Register(pEntity); \
 	delete pEntity; \
 } \
+static const char* Get##entity##ParentClass() { return #base; } \
  \
 virtual const char* GetClassName() { return #entity; } \
 virtual void RegisterNetworkVariables(); \
@@ -140,20 +147,21 @@ virtual bool Unserialize(std::istream& i) \
 void entity::RegisterNetworkVariables() \
 { \
 	char* pszEntity = #entity; \
-	BaseClass::RegisterNetworkVariables(); \
-
-#define NETVAR_TABLE_BEGIN_NOBASE(entity) \
-void entity::RegisterNetworkVariables() \
-{ \
-	char* pszEntity = #entity; \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
+	pRegistration->m_aNetworkVariables.clear(); \
+	CGameServer* pGameServer = GameServer(); \
+	CNetworkedVariableData* pVarData = NULL; \
 
 #define NETVAR_DEFINE(type, name) \
-	name.SetName(#name); \
-	name.SetParent(this); \
+	pRegistration->m_aNetworkVariables.push_back(CNetworkedVariableData()); \
+	pVarData = &pRegistration->m_aNetworkVariables[pRegistration->m_aNetworkVariables.size()-1]; \
+	pVarData->m_iOffset = (((size_t)((void*)((CNetworkedVariableBase*)&name)))) - ((size_t)((CBaseEntity*)this)); \
+	pVarData->m_pszName = #name; \
+	pVarData->m_pfnChanged = NULL; \
 
 #define NETVAR_DEFINE_CALLBACK(type, name, callback) \
 	NETVAR_DEFINE(type, name); \
-	name.SetCallback(callback); \
+	pVarData->m_pfnChanged = callback; \
 
 #define NETVAR_TABLE_END() \
 	CheckTables(pszEntity); \
@@ -162,8 +170,7 @@ void entity::RegisterNetworkVariables() \
 #define SAVEDATA_TABLE_BEGIN(entity) \
 void entity::RegisterSaveData() \
 { \
-	size_t iRegisteredEntity = FindRegisteredEntity(#entity); \
-	CEntityRegistration* pRegistration = GetRegisteredEntity(iRegisteredEntity); \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
 	pRegistration->m_aSaveData.clear(); \
 	CGameServer* pGameServer = GameServer(); \
 	CSaveData* pSaveData = NULL; \
@@ -308,10 +315,9 @@ public:
 	virtual float							GetSpawnTime() const { return m_flSpawnTime.Get(); }
 	virtual void							SetSpawnTime(float flSpawnTime) { m_flSpawnTime = flSpawnTime; };
 
-	void									RegisterNetworkVariable(class CNetworkedVariableBase* pVariable);
-	void									DeregisterNetworkVariable(class CNetworkedVariableBase* pVariable);
-	void									DeregisterNetworkVariables();
-	CNetworkedVariableBase*					GetNetworkVariable(const char* pszName);
+	virtual size_t							GetRegistration() { return m_iRegistration; }
+
+	CNetworkedVariableData*					GetNetworkVariable(const char* pszName);
 
 	virtual void							OnSerialize(std::ostream& o) {};
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
@@ -337,7 +343,7 @@ public:
 	static void								PrecacheSound(const eastl::string16& sSound);
 
 public:
-	static void								RegisterEntity(const char* pszEntityName, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
+	static void								RegisterEntity(const char* pszEntityName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
 	static void								Register(CBaseEntity* pEntity);
 	static size_t							FindRegisteredEntity(const char* pszEntityName);
 	static CEntityRegistration*				GetRegisteredEntity(size_t iEntity);
@@ -384,7 +390,7 @@ protected:
 	size_t									m_iSpawnSeed;
 	CNetworkedVariable<float>				m_flSpawnTime;
 
-	eastl::map<eastl::string, class CNetworkedVariableBase*>	m_apNetworkVariables;
+	size_t									m_iRegistration;
 
 private:
 	static eastl::vector<CBaseEntity*>		s_apEntityList;
@@ -399,7 +405,7 @@ class CRegister##entity \
 public: \
 	CRegister##entity() \
 	{ \
-		CBaseEntity::RegisterEntity(#entity, &CreateEntity<entity>, &entity::RegisterCallback##entity); \
+		CBaseEntity::RegisterEntity(#entity, entity::Get##entity##ParentClass(), &CreateEntity<entity>, &entity::RegisterCallback##entity); \
 	} \
 } s_Register##entity = CRegister##entity(); \
 

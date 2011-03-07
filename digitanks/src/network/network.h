@@ -152,6 +152,23 @@ enum
 
 typedef void (*NetVarChangeCallback)(class CNetworkedVariableBase* pVariable);
 
+class CNetworkedVariableData
+{
+public:
+	CNetworkedVariableData();
+
+public:
+	const char*				GetName() { return m_pszName; }
+	void					SetName(const char* pszName) { m_pszName = pszName; }
+
+	class CNetworkedVariableBase*	GetNetworkedVariableBase(class CBaseEntity* pEntity);
+
+public:
+	size_t					m_iOffset;
+	const char*				m_pszName;
+	NetVarChangeCallback	m_pfnChanged;
+};
+
 class CNetworkedVariableBase
 {
 public:
@@ -161,26 +178,11 @@ public:
 	bool				IsDirty() { return m_bDirty; }
 	void				SetDirty(bool bDirty) { m_bDirty = bDirty; }
 
-	class CBaseEntity*	GetParent() { return m_pParent; }
-	void				SetParent(CBaseEntity* pParent);
-
-	virtual const char*	GetName() { return m_pszName; }
-	virtual void		SetName(const char* pszName) { m_pszName = pszName; }
-
-	virtual void		SetCallback(NetVarChangeCallback pfnCallback) { m_pfnChanged = pfnCallback; }
-
 	virtual void*		Serialize(size_t& iSize) { return NULL; }
 	virtual void		Unserialize(void* pValue) {}
 
 public:
 	bool				m_bDirty;
-
-	// Not using a handle because this object can't exist without its parent.
-	class CBaseEntity*	m_pParent;
-
-	const char*			m_pszName;
-
-	NetVarChangeCallback	m_pfnChanged;
 };
 
 template <class C>
@@ -355,8 +357,6 @@ public:
 
 	static void				ClearRegisteredFunctions();
 	static void				RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...);
-	static void				RegisterNetworkVariable(CNetworkedVariableBase* pVariable);
-	static void				DeregisterNetworkVariable(CNetworkedVariableBase* pVariable);
 	static void				UpdateNetworkVariables(int iClient, bool bForceAll = false);
 
 	static void				CreateHost(int iPort);
@@ -387,7 +387,6 @@ protected:
 	static INetworkListener* s_pClientListener;
 	static INetworkListener::Callback s_pfnClientConnect;
 	static INetworkListener::Callback s_pfnClientDisconnect;
-	static eastl::vector<CNetworkedVariableBase*> s_apNetworkedVariables;
 };
 
 #endif
