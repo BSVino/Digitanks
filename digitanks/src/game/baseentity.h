@@ -155,6 +155,7 @@ void entity::RegisterNetworkVariables() \
 #define NETVAR_DEFINE(type, name) \
 	pRegistration->m_aNetworkVariables.push_back(CNetworkedVariableData()); \
 	pVarData = &pRegistration->m_aNetworkVariables[pRegistration->m_aNetworkVariables.size()-1]; \
+	assert(!!dynamic_cast<CNetworkedVariableBase*>(&name)); \
 	pVarData->m_iOffset = (((size_t)((void*)((CNetworkedVariableBase*)&name)))) - ((size_t)((CBaseEntity*)this)); \
 	pVarData->m_pszName = #name; \
 	pVarData->m_pfnChanged = NULL; \

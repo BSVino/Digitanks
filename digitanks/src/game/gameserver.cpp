@@ -42,7 +42,7 @@ CGameServer::CGameServer()
 
 	m_bLoading = true;
 
-	m_flRealTime = 0;
+	m_flHostTime = 0;
 	m_flGameTime = 0;
 	m_flSimulationTime = 0;
 	m_flFrameTime = 0;
@@ -264,15 +264,26 @@ void CGameServer::ClientDisconnect(CNetworkParameters* p)
 	GetGame()->OnClientDisconnect(p);
 }
 
-void CGameServer::Think(float flRealTime)
+void CGameServer::Think(float flHostTime)
 {
-	m_flFrameTime = flRealTime - m_flRealTime;
+	m_flFrameTime = flHostTime - m_flHostTime;
 
-	if (m_flFrameTime > 0.15f)
-		m_flFrameTime = 0.15f;
+	// If the framerate drops, don't let too much happen without the player seeing
+	if (CNetwork::IsConnected())
+	{
+		// But not as much in multiplayer games where we need to keep the game time synchronized
+		if (m_flFrameTime > 1.0f)
+			m_flFrameTime = 1.0f;
+	}
+	else
+	{
+		if (m_flFrameTime > 0.15f)
+			m_flFrameTime = 0.15f;
+	}
 
 	m_flGameTime += m_flFrameTime;
-	m_flRealTime = flRealTime;
+
+	m_flHostTime = flHostTime;
 
 	// Erase anything deleted last frame.
 	for (size_t i = 0; i < m_ahDeletedEntities.size(); i++)

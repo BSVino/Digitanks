@@ -53,7 +53,7 @@ void CCameraGuidedMissile::Think()
 
 	m_flBoostVelocity = Approach(m_flBoostVelocityGoal, m_flBoostVelocity, BoostVelocity() * flFactor * GameServer()->GetFrameTime());
 
-	if (GameServer()->GetGameTime() - m_flTimeCreated > 3.0f || m_flBoostTime > 0.0f)
+	if (GameServer()->GetGameTime() - GetSpawnTime() > 3.0f || m_flBoostTime > 0.0f)
 	{
 		if (!m_bLaunched)
 		{
@@ -65,7 +65,7 @@ void CCameraGuidedMissile::Think()
 		SetVelocity(AngleVector(GetAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
 	}
 
-	if (m_flTimeExploded == 0 && GameServer()->GetGameTime() - m_flTimeCreated > 13.0f)
+	if (m_flTimeExploded == 0.0f && GameServer()->GetGameTime() - GetSpawnTime() > 13.0f)
 		Explode();
 }
 
@@ -152,7 +152,7 @@ bool CCameraGuidedMissile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) con
 
 void CCameraGuidedMissile::Touching(CBaseEntity* pOther)
 {
-	if (m_flTimeExploded != 0)
+	if (m_flTimeExploded != 0.0f)
 		return;
 
 	pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + BoostDamage()*(m_flBoostVelocity/BoostVelocity()));

@@ -150,9 +150,9 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTurretModel);	// Set in Spawn()
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iShieldModel);	// Set in Spawn()
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShieldPulse);
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iHoverParticles);	// Dynamic
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iSmokeParticles);	// Dynamic
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFireParticles);	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hHoverParticles);	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hSmokeParticles);	// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hFireParticles);		// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
@@ -171,16 +171,6 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecFortifyPoint);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CStructure>, m_hFortifyDefending);
 SAVEDATA_TABLE_END();
-
-CDigitank::~CDigitank()
-{
-	if (m_iHoverParticles != ~0)
-		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
-	if (m_iSmokeParticles != ~0)
-		CParticleSystemLibrary::StopInstance(m_iSmokeParticles);
-	if (m_iFireParticles != ~0)
-		CParticleSystemLibrary::StopInstance(m_iFireParticles);
-}
 
 void CDigitank::Precache()
 {
@@ -271,6 +261,15 @@ void CDigitank::Spawn()
 
 	SetCollisionGroup(CG_ENTITY);
 
+	m_hHoverParticles.SetSystem(L"tank-hover", GetOrigin());
+	m_hHoverParticles.FollowEntity(this);
+
+	m_hSmokeParticles.SetSystem(L"digitank-smoke", GetOrigin());
+	m_hSmokeParticles.FollowEntity(this);
+
+	m_hFireParticles.SetSystem(L"digitank-fire", GetOrigin());
+	m_hFireParticles.FollowEntity(this);
+
 	m_flStartingPower = 10;
 	m_flAttackPower = 0;
 	m_flDefensePower = 10;
@@ -296,9 +295,6 @@ void CDigitank::Spawn()
 	m_flLastSpeech = 0;
 	m_flNextIdle = 10.0f;
 	m_iTurretModel = m_iShieldModel = ~0;
-	m_iHoverParticles = ~0;
-	m_iSmokeParticles = ~0;
-	m_iFireParticles = ~0;
 	m_bInAttackTeam = false;
 	m_bFortifyPoint = false;
 	m_flFortifyTime = 0;
@@ -960,17 +956,12 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	Turn(EAngle(0, VectorAngles(vecEnd-vecStart).y, 0));
 
-	if (m_iHoverParticles != ~0)
-		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
-
 	if (GetVisibility() > 0)
 	{
 		EmitSound(L"sound/tank-move.wav");
 		SetSoundVolume(L"sound/tank-move.wav", 0.5f);
 
-		m_iHoverParticles = CParticleSystemLibrary::AddInstance(L"tank-hover", GetOrigin());
-		if (m_iHoverParticles != ~0)
-			CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
+		m_hHoverParticles.SetActive(true);
 	}
 
 	// Am I waiting to fire something? Fire now. Shoot and scoot baby!
@@ -1156,6 +1147,20 @@ void CDigitank::Turn(CNetworkParameters* p)
 	DirtyNeedsOrders();
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
+}
+
+bool CDigitank::IsTurning()
+{
+	float flTransitionTime = GetTransitionTime();
+
+	if (GetVisibility() == 0)
+		flTransitionTime = 0;
+
+	float flTimeSinceTurn = GameServer()->GetGameTime() - m_flStartedTurn;
+	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
+		return true;
+
+	return false;
 }
 
 void CDigitank::Turn(EAngle angNewTurn)
@@ -1593,17 +1598,8 @@ void CDigitank::Think()
 			m_flFireWeaponTime = 0;
 	}
 
-	if (m_iHoverParticles != ~0)
-	{
-		float flTransitionTime = GetTransitionTime();
-		float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
-		float flTimeSinceTurn = GameServer()->GetGameTime() - m_flStartedTurn;
-		if (m_flStartedMove && flTimeSinceMove > flTransitionTime || m_flStartedTurn && flTimeSinceTurn > flTransitionTime)
-		{
-			CParticleSystemLibrary::StopInstance(m_iHoverParticles);
-			m_iHoverParticles = ~0;
-		}
-	}
+	// Only stay on if it was turned on before. We don't want to activate for all moves and turns.
+	m_hHoverParticles.SetActive(m_hHoverParticles.IsActive() && (IsMoving() || IsTurning()));
 
 	if (IsAlive() && GameServer()->GetGameTime() > m_flNextIdle)
 	{
@@ -1695,49 +1691,8 @@ void CDigitank::Think()
 		bool bRunFire = GetHealth() < GetTotalHealth()/3;
 		bool bRunSmoke = !bRunFire && GetHealth() <= GetTotalHealth()*4/5;
 
-		if (m_iSmokeParticles != ~0)
-		{
-			if (GetVisibility() <= 0.1f || !bRunSmoke)
-			{
-				CParticleSystemLibrary::Get()->StopInstance(m_iSmokeParticles);
-				m_iSmokeParticles = ~0;
-			}
-
-			CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSmokeParticles);
-			if (!pInstance)
-				m_iSmokeParticles = ~0;
-		}
-		else
-		{
-			if (GetVisibility() > 0 && bRunSmoke)
-			{
-				m_iSmokeParticles = CParticleSystemLibrary::AddInstance(L"digitank-smoke", GetOrigin());
-				CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSmokeParticles);
-				pInstance->FollowEntity(this);
-			}
-		}
-
-		if (m_iFireParticles != ~0)
-		{
-			if (GetVisibility() <= 0.1f || !bRunFire)
-			{
-				CParticleSystemLibrary::Get()->StopInstance(m_iFireParticles);
-				m_iFireParticles = ~0;
-			}
-
-			CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iFireParticles);
-			if (!pInstance)
-				m_iFireParticles = ~0;
-		}
-		else
-		{
-			if (GetVisibility() > 0 && bRunFire)
-			{
-				m_iFireParticles = CParticleSystemLibrary::AddInstance(L"digitank-fire", GetOrigin());
-				CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iFireParticles);
-				pInstance->FollowEntity(this);
-			}
-		}
+		m_hSmokeParticles.SetActive(GetVisibility() > 0.1f && bRunSmoke);
+		m_hFireParticles.SetActive(GetVisibility() > 0.1f && bRunFire);
 	}
 }
 

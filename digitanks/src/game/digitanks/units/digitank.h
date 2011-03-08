@@ -7,6 +7,7 @@
 #include <digitanks/structures/loader.h>
 #include <digitanks/weapons/projectile.h>
 #include <common.h>
+#include <renderer/particles.h>
 
 // Tank speech
 typedef enum
@@ -50,9 +51,6 @@ typedef enum
 class CDigitank : public CSelectable
 {
 	REGISTER_ENTITY_CLASS(CDigitank, CSelectable);
-
-public:
-	virtual						~CDigitank();
 
 public:
 	virtual void				Precache();
@@ -158,6 +156,7 @@ public:
 
 	void						Turn();
 	void						Turn(class CNetworkParameters* p);
+	bool						IsTurning();
 	void						Turn(EAngle angNewTurn);
 
 	void						SetGoalMovePosition(const Vector& vecPosition);
@@ -417,9 +416,9 @@ protected:
 
 	float						m_flShieldPulse;
 
-	size_t						m_iHoverParticles;
-	size_t						m_iSmokeParticles;
-	size_t						m_iFireParticles;
+	CParticleSystemInstanceHandle m_hHoverParticles;
+	CParticleSystemInstanceHandle m_hSmokeParticles;
+	CParticleSystemInstanceHandle m_hFireParticles;
 
 	CNetworkedVariable<bool>	m_bFortified;
 	CNetworkedVariable<size_t>	m_iFortifyLevel;

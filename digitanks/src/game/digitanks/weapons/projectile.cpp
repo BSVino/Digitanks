@@ -20,7 +20,7 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CProjectile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLandingSpot);
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iParticleSystem);	// Generated on load
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);	// Generated on load
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFragmented);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBounces);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
@@ -40,6 +40,14 @@ void CProjectile::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
 	PrecacheSound(L"sound/bomb-drop.wav");
+}
+
+void CProjectile::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_hTrailParticles.SetSystem(CreateTrailSystem(), GetOrigin());
+	m_hTrailParticles.FollowEntity(this);
 }
 
 void CProjectile::Think()
@@ -65,7 +73,7 @@ void CProjectile::Think()
 
 	if (Fragments() && !m_bFragmented && m_flTimeExploded == 0.0f)
 	{
-		if (GetOwner() && GetOwner()->GetDigitanksTeam() && !GetOwner()->GetDigitanksTeam()->IsPlayerControlled() && GameServer()->GetGameTime() - m_flTimeCreated > 2.0f)
+		if (GetOwner() && GetOwner()->GetDigitanksTeam() && !GetOwner()->GetDigitanksTeam()->IsPlayerControlled() && GameServer()->GetGameTime() - GetSpawnTime() > 2.0f)
 			Fragment();
 	}
 
@@ -96,6 +104,8 @@ void CProjectile::Think()
 
 		m_bMissileDefensesNotified = true;
 	}
+
+	m_hTrailParticles.SetActive(m_bShouldRender && m_flTimeExploded == 0.0f);
 
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
 		Delete();
@@ -174,12 +184,6 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 			c.RenderSphere();
 		}
 	}
-}
-
-void CProjectile::OnDeleted()
-{
-	if (m_iParticleSystem != ~0)
-		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
 }
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
@@ -300,11 +304,7 @@ void CProjectile::OnExplode(CBaseEntity* pInstigator)
 	if (MakesSounds())
 		StopSound(L"sound/bomb-drop.wav");
 
-	if (m_iParticleSystem != ~0)
-	{
-		CParticleSystemLibrary::StopInstance(m_iParticleSystem);
-		m_iParticleSystem = 0;
-	}
+	m_hTrailParticles.SetActive(false);
 
 	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam() || DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.1f)
 		CreateExplosionSystem();
@@ -322,12 +322,7 @@ void CProjectile::OnSetOwner(CDigitank* pOwner)
 	SetSimulated(true);
 	SetCollisionGroup(CG_PROJECTILE);
 
-	if (m_bShouldRender)
-	{
-		m_iParticleSystem = CreateTrailSystem();
-		if (m_iParticleSystem != ~0)
-			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
-	}
+	m_hTrailParticles.SetActive(m_bShouldRender);
 }
 
 bool CProjectile::ShouldBeVisible()
@@ -337,7 +332,7 @@ bool CProjectile::ShouldBeVisible()
 
 size_t CProjectile::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"shell-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"shell-trail");
 }
 
 void CProjectile::CreateExplosionSystem()
@@ -348,12 +343,7 @@ void CProjectile::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();
 
-	if (m_bShouldRender)
-	{
-		m_iParticleSystem = CreateTrailSystem();
-		if (m_iParticleSystem != ~0)
-			CParticleSystemLibrary::GetInstance(m_iParticleSystem)->FollowEntity(this);
-	}
+	m_hTrailParticles.SetActive(m_bShouldRender);
 }
 
 REGISTER_ENTITY(CSmallShell);
@@ -429,7 +419,7 @@ void CAOEShell::CreateExplosionSystem()
 
 size_t CAOEShell::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"aoe-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"aoe-trail");
 }
 
 float CAOEShell::ExplosionRadius()
@@ -461,7 +451,7 @@ void CEMP::CreateExplosionSystem()
 
 size_t CEMP::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"emp-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"emp-trail");
 }
 
 REGISTER_ENTITY(CICBM);
@@ -636,7 +626,7 @@ EAngle CSploogeShell::GetRenderAngles() const
 
 size_t CSploogeShell::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"bolt-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"bolt-trail");
 }
 
 void CSploogeShell::CreateExplosionSystem()
@@ -660,7 +650,7 @@ void CTractorBomb::Precache()
 
 size_t CTractorBomb::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"tractor-bomb-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"tractor-bomb-trail");
 }
 
 void CTractorBomb::CreateExplosionSystem()
@@ -689,7 +679,7 @@ void CArtilleryShell::CreateExplosionSystem()
 
 size_t CArtilleryShell::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"emp-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"emp-trail");
 }
 
 REGISTER_ENTITY(CArtilleryAoE);
@@ -713,7 +703,7 @@ void CArtilleryAoE::CreateExplosionSystem()
 
 size_t CArtilleryAoE::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"aoe-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"aoe-trail");
 }
 
 REGISTER_ENTITY(CArtilleryICBM);
@@ -768,7 +758,7 @@ EAngle CInfantryFlak::GetRenderAngles() const
 
 size_t CInfantryFlak::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(s_iTrailSystem, GetOrigin());
+	return s_iTrailSystem;
 }
 
 void CInfantryFlak::CreateExplosionSystem()
@@ -806,7 +796,7 @@ void CTorpedo::Spawn()
 
 size_t CTorpedo::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::AddInstance(L"torpedo-trail", GetOrigin());
+	return CParticleSystemLibrary::Get()->FindParticleSystem(L"torpedo-trail");
 }
 
 void CTorpedo::Think()

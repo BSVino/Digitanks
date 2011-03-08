@@ -3,15 +3,13 @@
 
 #include "dt_common.h"
 #include "digitanksentity.h"
+#include <renderer/particles.h>
 
 class CWreckage : public CDigitanksEntity
 {
 	REGISTER_ENTITY_CLASS(CWreckage, CDigitanksEntity);
 
 public:
-					CWreckage();
-	virtual			~CWreckage();
-
 	virtual void	Precache();
 	virtual void	Spawn();
 	virtual void	Think();
@@ -39,7 +37,7 @@ protected:
 
 	EAngle			m_angList;
 
-	size_t			m_iBurn;
+	CParticleSystemInstanceHandle m_hBurnParticles;
 
 	bool			m_bCrashed;
 

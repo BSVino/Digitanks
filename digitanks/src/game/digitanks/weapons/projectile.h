@@ -3,6 +3,7 @@
 
 #include "baseweapon.h"
 #include <digitanks/units/digitank.h>
+#include <renderer/particles.h>
 
 class CProjectile : public CBaseWeapon
 {
@@ -14,6 +15,7 @@ public:
 public:
 	virtual void				Precache();
 
+	virtual void				Spawn();
 	virtual void				Think();
 
 	virtual float				GetBoundingRadius() const { return ShellRadius() + 1.0f; }
@@ -31,8 +33,6 @@ public:
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual bool				ShouldRender() const { return true; };
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
-
-	virtual void				OnDeleted();
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
@@ -67,7 +67,7 @@ protected:
 
 	Vector						m_vecLandingSpot;
 
-	size_t						m_iParticleSystem;
+	CParticleSystemInstanceHandle m_hTrailParticles;
 
 	bool						m_bFragmented;
 	size_t						m_iBounces;

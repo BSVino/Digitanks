@@ -2,13 +2,11 @@
 #define DT_MENUMARCHER_H
 
 #include "baseentity.h"
+#include <renderer/particles.h>
 
 class CMenuMarcher : public CBaseEntity
 {
 	REGISTER_ENTITY_CLASS(CMenuMarcher, CBaseEntity);
-
-public:
-	virtual						~CMenuMarcher();
 
 public:
 	virtual void				Precache();
@@ -35,7 +33,7 @@ protected:
 
 	size_t						m_iTurretModel;
 
-	size_t						m_iHoverParticles;
+	CParticleSystemInstanceHandle m_hHoverParticles;
 
 	float						m_flBobOffset;
 };

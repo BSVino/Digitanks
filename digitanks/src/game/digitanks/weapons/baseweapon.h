@@ -49,13 +49,12 @@ public:
 	static bool					IsWeaponPrimarySelectionOnly(weapon_t eProjectile);
 
 protected:
-	float						m_flTimeCreated;
-	float						m_flTimeExploded;
+	CNetworkedVariable<float>	m_flTimeExploded;
 
-	CEntityHandle<CDigitank>	m_hOwner;
+	CNetworkedHandle<CDigitank>	m_hOwner;
 	float						m_flDamage;
 
-	bool						m_bShouldRender;
+	CNetworkedVariable<bool>	m_bShouldRender;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #ifndef DT_PARTICLES_H
+#define DT_PARTICLES_H
 
 #include <EASTL/vector.h>
 #include <vector.h>
@@ -236,6 +237,30 @@ protected:
 
 private:
 	static CParticleSystemLibrary*	s_pParticleSystemLibrary;
+};
+
+class CParticleSystemInstanceHandle
+{
+public:
+	CParticleSystemInstanceHandle();
+	~CParticleSystemInstanceHandle();
+
+public:
+	void							SetSystem(const eastl::string16& sSystem, Vector vecOrigin);
+	void							SetSystem(size_t iSystem, Vector vecOrigin);
+
+	void							FollowEntity(CBaseEntity* pFollow) { m_hFollow = pFollow; }
+
+	void							SetActive(bool bActive);
+	bool							IsActive() { return m_iInstance != ~0; };
+
+	size_t							GetInstance() { return m_iInstance; }
+
+protected:
+	size_t							m_iSystem;
+	size_t							m_iInstance;
+	CEntityHandle<CBaseEntity>		m_hFollow;
+	Vector							m_vecOrigin;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "structure.h"
 #include "collector.h"
+#include <renderer/particles.h>
 
 class CResource : public CStructure
 {
@@ -42,7 +43,7 @@ public:
 protected:
 	CNetworkedHandle<CCollector> m_hCollector;
 
-	size_t						m_iSpark;
+	CParticleSystemInstanceHandle m_hSparkParticles;
 };
 
 #endif

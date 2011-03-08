@@ -45,7 +45,7 @@ public:
 	NET_CALLBACK(CGameServer,					LoadingDone);
 	NET_CALLBACK(CGameServer,					ClientDisconnect);
 
-	void										Think(float flRealTime);
+	void										Think(float flHostTime);
 	void										Simulate();
 	void										Render();
 
@@ -97,10 +97,10 @@ protected:
 
 	size_t										m_iSaveCRC;
 
-	float										m_flGameTime;
-	float										m_flSimulationTime;
-	float										m_flFrameTime;
-	float										m_flRealTime;
+	float										m_flGameTime;		// This is how time passes for the game entities
+	float										m_flSimulationTime;	// This is a higher resolution of game time for physics
+	float										m_flFrameTime;		// This is the delta of each frame of game time
+	float										m_flHostTime;		// This is the current time for the computer
 
 	eastl::vector<CEntityHandle<CBaseEntity> >	m_apSimulateList;
 	eastl::vector<CBaseEntity*>					m_apRenderList;

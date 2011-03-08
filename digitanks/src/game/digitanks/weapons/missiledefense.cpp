@@ -25,7 +25,7 @@ Vector CMissileDefense::GetOrigin() const
 	if (m_hOwner == NULL)
 		return BaseClass::GetOrigin();
 
-	float flTimeSinceFire = GameServer()->GetGameTime() - m_flTimeCreated;
+	float flTimeSinceFire = GameServer()->GetGameTime() - GetSpawnTime();
 
 	Vector vecMissileAcceleration = Vector(0, 200, 0);
 
@@ -35,7 +35,7 @@ Vector CMissileDefense::GetOrigin() const
 	if (m_hTarget == NULL)
 		return vecMissilePosition;
 
-	float flTimeUntilIntercept = (m_flTimeCreated + InterceptTime()) - GameServer()->GetGameTime();
+	float flTimeUntilIntercept = (GetSpawnTime() + InterceptTime()) - GameServer()->GetGameTime();
 
 	// Standard constant acceleration formula.
 	Vector vecInterceptLocation = m_hTarget->GetOrigin() + m_hTarget->GetVelocity() * flTimeUntilIntercept + 0.5f * m_hTarget->GetGravity() * flTimeUntilIntercept * flTimeUntilIntercept;
@@ -57,7 +57,7 @@ void CMissileDefense::Think()
 		return;
 	}
 
-	float flTimeSinceFire = GameServer()->GetGameTime() - m_flTimeCreated;
+	float flTimeSinceFire = GameServer()->GetGameTime() - GetSpawnTime();
 	if (flTimeSinceFire > InterceptTime())
 	{
 		m_hTarget->Explode();

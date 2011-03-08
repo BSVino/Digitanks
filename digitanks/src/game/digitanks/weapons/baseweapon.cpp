@@ -7,14 +7,16 @@
 REGISTER_ENTITY(CBaseWeapon);
 
 NETVAR_TABLE_BEGIN(CBaseWeapon);
+	NETVAR_DEFINE(float, m_flTimeExploded);
+	NETVAR_DEFINE(CEntityHandle<CDigitank>, m_hOwner);
+	NETVAR_DEFINE(bool, m_bShouldRender);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseWeapon);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeCreated);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeExploded);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitank>, m_hOwner);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTimeExploded);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitank>, m_hOwner);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flDamage);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
 
 void CBaseWeapon::Precache()
@@ -25,8 +27,6 @@ void CBaseWeapon::Precache()
 void CBaseWeapon::Spawn()
 {
 	BaseClass::Spawn();
-
-	m_flTimeCreated = GameServer()?GameServer()->GetGameTime():0;
 
 	m_flTimeExploded = 0;
 	m_bShouldRender = true;

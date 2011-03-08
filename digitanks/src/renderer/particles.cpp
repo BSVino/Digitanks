@@ -572,3 +572,49 @@ void CParticle::Reset()
 	m_bActive = true;
 	m_flSpawnTime = GameServer()->GetGameTime();
 }
+
+CParticleSystemInstanceHandle::CParticleSystemInstanceHandle()
+{
+	m_iSystem = ~0;
+	m_hFollow = NULL;
+	m_vecOrigin = Vector();
+
+	m_iInstance = ~0;
+}
+
+CParticleSystemInstanceHandle::~CParticleSystemInstanceHandle()
+{
+	if (m_iInstance != ~0)
+		CParticleSystemLibrary::StopInstance(m_iInstance);
+}
+
+void CParticleSystemInstanceHandle::SetSystem(const eastl::string16& sSystem, Vector vecOrigin)
+{
+	SetSystem(CParticleSystemLibrary::Get()->FindParticleSystem(sSystem), vecOrigin);
+}
+
+void CParticleSystemInstanceHandle::SetSystem(size_t iSystem, Vector vecOrigin)
+{
+	m_iSystem = iSystem;
+	m_hFollow = NULL;
+	m_vecOrigin = vecOrigin;
+
+	m_iInstance = ~0;
+	SetActive(false);
+}
+
+void CParticleSystemInstanceHandle::SetActive(bool bActive)
+{
+	if (bActive && m_iInstance == ~0)
+	{
+		// Light up the night
+		m_iInstance = CParticleSystemLibrary::AddInstance(m_iSystem, m_vecOrigin);
+		if (m_iInstance != ~0 && m_hFollow != NULL)
+			CParticleSystemLibrary::GetInstance(m_iInstance)->FollowEntity(m_hFollow);
+	}
+	else if (!bActive && m_iInstance != ~0)
+	{
+		CParticleSystemLibrary::StopInstance(m_iInstance);
+		m_iInstance = ~0;
+	}
+}

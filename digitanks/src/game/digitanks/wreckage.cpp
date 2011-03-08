@@ -18,21 +18,10 @@ SAVEDATA_TABLE_BEGIN(CWreckage);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecColorSwap);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Color, m_clrSwap);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angList);
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iBurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hBurnParticles);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bCrashed);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitanksTeam>, m_hOldTeam);
 SAVEDATA_TABLE_END();
-
-CWreckage::CWreckage()
-{
-	m_iBurn = ~0;
-}
-
-CWreckage::~CWreckage()
-{
-	if (m_iBurn != ~0)
-		CParticleSystemLibrary::Get()->StopInstance(m_iBurn);
-}
 
 void CWreckage::Precache()
 {
@@ -52,7 +41,8 @@ void CWreckage::Spawn()
 
 	m_angList = EAngle(RandomFloat(-90, 90), RandomFloat(-180, 180), RandomFloat(-90, 90));
 
-	m_iBurn = ~0;
+	m_hBurnParticles.SetSystem(L"wreckage-burn", GetOrigin());
+	m_hBurnParticles.FollowEntity(this);
 	m_iTurretModel = ~0;
 	m_bTakeDamage = false;
 
@@ -90,43 +80,14 @@ void CWreckage::Think()
 
 	m_clrSwap = m_vecColorSwap;
 
-	if (m_iBurn != ~0)
-	{
-		if (GetVisibility() <= 0.1f)
-		{
-			CParticleSystemLibrary::Get()->StopInstance(m_iBurn);
-			m_iBurn = ~0;
-		}
-
-		CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iBurn);
-		if (!pInstance)
-			m_iBurn = ~0;
-	}
-	else
-	{
-		if (GetVisibility() > 0 && !m_bFallingIntoHole)
-		{
-			m_iBurn = CParticleSystemLibrary::AddInstance(L"wreckage-burn", GetOrigin());
-			CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iBurn);
-			if (pInstance)
-				pInstance->FollowEntity(this);
-		}
-	}
+	m_hBurnParticles.SetActive(GetVisibility() > 0.1f && !m_bFallingIntoHole);
 
 	// Stick around for 30 minutes before disappearing
 	if (GameServer()->GetGameTime() - GetSpawnTime() > 30*60)
-	{
-		CParticleSystemLibrary::Get()->StopInstance(m_iBurn);
-		m_iBurn = ~0;
 		Delete();
-	}
 
 	else if (m_bFallingIntoHole && GameServer()->GetGameTime() - GetSpawnTime() > 10)
-	{
-		CParticleSystemLibrary::Get()->StopInstance(m_iBurn);
-		m_iBurn = ~0;
 		Delete();
-	}
 }
 
 void CWreckage::ModifyContext(CRenderingContext* pContext, bool bTransparent)

@@ -4,7 +4,6 @@
 #include <mtrand.h>
 #include <models/models.h>
 #include <renderer/renderer.h>
-#include <renderer/particles.h>
 #include <glgui/glgui.h>
 
 #include "digitanksgame.h"
@@ -17,15 +16,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CMenuMarcher);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, float, m_flNextSpeech);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTurretModel);
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iHoverParticles);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hHoverParticles);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, float, m_flBobOffset);
 SAVEDATA_TABLE_END();
-
-CMenuMarcher::~CMenuMarcher()
-{
-	if (m_iHoverParticles != ~0)
-		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
-}
 
 void CMenuMarcher::Precache()
 {
@@ -42,25 +35,18 @@ void CMenuMarcher::Spawn()
 
 	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
 
-	m_iHoverParticles = ~0;
+	m_hHoverParticles.SetSystem(L"tank-hover", GetOrigin());
+	m_hHoverParticles.FollowEntity(this);
 
 	m_flBobOffset = RandomFloat(0, 10);
 	m_flNextSpeech = RandomFloat(0, 10);
 
-	m_iHoverParticles = CParticleSystemLibrary::AddInstance(L"tank-hover", GetOrigin());
-	if (m_iHoverParticles != ~0)
-		CParticleSystemLibrary::GetInstance(m_iHoverParticles)->FollowEntity(this);
+	m_hHoverParticles.SetActive(true);
 }
 
 void CMenuMarcher::OnDeleted()
 {
 	BaseClass::OnDeleted();
-
-	if (m_iHoverParticles != ~0)
-	{
-		CParticleSystemLibrary::StopInstance(m_iHoverParticles);
-		m_iHoverParticles = ~0;
-	}
 }
 
 void CMenuMarcher::Think()

@@ -20,7 +20,7 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CResource);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCollector>, m_hCollector);
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iSpark);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hSparkParticles);
 SAVEDATA_TABLE_END();
 
 void CResource::Precache()
@@ -39,7 +39,7 @@ void CResource::Spawn()
 
 	SetModel(L"models/structures/electronode.obj");
 
-	m_iSpark = ~0;
+	m_hSparkParticles.SetSystem(L"electronode-spark", GetOrigin());
 
 	m_bConstructing = false;
 }
@@ -48,39 +48,17 @@ void CResource::Think()
 {
 	BaseClass::Think();
 
-	if (m_iSpark != ~0)
-	{
-		CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_iSpark);
+	m_hSparkParticles.SetActive(GetVisibility() > 0);
 
-		if (!pInstance)
-			m_iSpark = ~0;
+	CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_hSparkParticles.GetInstance());
+	if (pInstance)
+	{
+		pInstance->SetOrigin(GetOrigin());
+
+		if (HasCollector() && GetCollector()->GetTeam())
+			pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
 		else
-		{
-			pInstance->SetOrigin(GetOrigin());
-
-			if (HasCollector() && GetCollector()->GetTeam())
-				pInstance->SetColor(GetCollector()->GetTeam()->GetColor());
-			else
-				pInstance->SetColor(Color(195,176,78));
-
-			if (GetVisibility() <= 0)
-			{
-				CParticleSystemLibrary::Get()->StopInstance(m_iSpark);
-				m_iSpark = ~0;
-			}
-		}
-	}
-	else
-	{
-		if (GetVisibility() > 0)
-		{
-			m_iSpark = CParticleSystemLibrary::AddInstance(L"electronode-spark", GetOrigin());
-
-			if (HasCollector() && GetCollector()->GetTeam())
-				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(GetCollector()->GetTeam()->GetColor());
-			else
-				CParticleSystemLibrary::Get()->GetInstance(m_iSpark)->SetColor(Color(195,176,78));
-		}
+			pInstance->SetColor(Color(195,176,78));
 	}
 }
 
