@@ -49,7 +49,6 @@ CGameServer::CGameServer()
 
 	size_t iPostSeed = mtrand();
 
-	TMsg(L"Precaching entities... ");
 	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
 	{
 		CEntityRegistration* pRegistration = &CBaseEntity::GetEntityRegistration()[i];
@@ -71,7 +70,12 @@ CGameServer::CGameServer()
 		}
 		else
 			pRegistration->m_iParentRegistration = ~0;
+	}
 
+	TMsg(L"Precaching entities... ");
+	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
+	{
+		CEntityRegistration* pRegistration = &CBaseEntity::GetEntityRegistration()[i];
 		pRegistration->m_pfnRegisterCallback();
 	}
 	TMsg(L"Done.\n");
