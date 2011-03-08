@@ -155,9 +155,6 @@ void CDigitanksTeam::TeamUpdatesData(CNetworkParameters* p)
 
 CSelectable* CDigitanksTeam::GetPrimarySelection()
 {
-	if (DigitanksGame()->GetCurrentTeam() != this)
-		return NULL;
-
 	if (m_aiCurrentSelection.size() == 0)
 		return NULL;
 

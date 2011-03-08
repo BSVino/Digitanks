@@ -820,7 +820,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	{
 		m_pListener->GameStart();
 
-		m_pListener->SetHUDActive(true);
+		m_pListener->SetHUDActive(GetCurrentTeam() == GetCurrentLocalDigitanksTeam());
 		m_pListener->NewCurrentTeam();
 
 		m_pListener->NewCurrentSelection();
@@ -1442,7 +1442,7 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (m_pListener)
 	{
-		m_pListener->SetHUDActive(true);
+		m_pListener->SetHUDActive(GetCurrentTeam() == GetCurrentLocalDigitanksTeam());
 		m_pListener->NewCurrentTeam();
 	}
 
@@ -1710,10 +1710,10 @@ CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
 
 CSelectable* CDigitanksGame::GetPrimarySelection()
 {
-	if (!GetCurrentTeam())
+	if (!GetCurrentLocalDigitanksTeam())
 		return NULL;
 
-	return GetCurrentTeam()->GetPrimarySelection();
+	return GetCurrentLocalDigitanksTeam()->GetPrimarySelection();
 }
 
 CDigitank* CDigitanksGame::GetPrimarySelectionTank()

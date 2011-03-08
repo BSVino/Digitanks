@@ -575,6 +575,9 @@ void CClusterBomb::OnExplode(CBaseEntity* pInstigator)
 	if (m_flExplosionRadius < 15)
 		return;
 
+	if (!CNetwork::IsHost())
+		return;
+
 	for (size_t i = 0; i < 6; i++)
 	{
 		CClusterBomb* pProjectile = GameServer()->Create<CClusterBomb>(GetClassName());

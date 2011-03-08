@@ -359,7 +359,7 @@ void CDigitanksCamera::Think()
 			m_vecTarget = m_vecNewTarget;
 			m_flTargetRamp = 0;
 		}
-		else
+		else if (DigitanksGame()->GetTerrain())
 		{
 			Matrix4x4 mRotation;
 			mRotation.SetRotation(EAngle(0, m_angCamera.y, 0));
