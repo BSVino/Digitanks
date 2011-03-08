@@ -376,6 +376,7 @@ void CDigitanksWindow::Run()
 			{
 				CNetwork::Think();
 				RenderLoading();
+				continue;
 			}
 			else if (GameServer()->IsClient() && !CNetwork::IsConnected())
 			{
