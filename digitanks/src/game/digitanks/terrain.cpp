@@ -29,12 +29,14 @@ using namespace raytrace;
 REGISTER_ENTITY(CTerrain);
 
 NETVAR_TABLE_BEGIN(CTerrain);
+	NETVAR_DEFINE(float, m_flHighest);
+	NETVAR_DEFINE(float, m_flLowest);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bHeightsInitialized);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flHighest);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLowest);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flHighest);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flLowest);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecTerrainColor);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecQuadMods);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CTerrainChunk, m_aTerrainChunks);	// Onserialize
@@ -2204,16 +2206,20 @@ void CTerrain::UpdateTerrainData()
 			p.ui1 = i;
 			p.ui2 = j;
 
-			p.CreateExtraData(sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
+			p.CreateExtraData(sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE + sizeof(pChunk->m_aiSpecialData));
 
 			size_t iPosition = 0;
-			float* flHeightData = (float*)p.m_pExtraData;
+			float* pflHeightData = (float*)p.m_pExtraData;
+			unsigned char* piTerrainData = (unsigned char*)((size_t)p.m_pExtraData + sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
 			// Serialize the height data
 			for (int x = TERRAIN_CHUNK_SIZE*i; x < (int)(TERRAIN_CHUNK_SIZE*(i+1)); x++)
 			{
 				for (int z = TERRAIN_CHUNK_SIZE*j; z < (int)(TERRAIN_CHUNK_SIZE*(j+1)); z++)
-					flHeightData[iPosition++] = GetRealHeight(x, z);
+				{
+					pflHeightData[iPosition] = GetRealHeight(x, z);
+					piTerrainData[iPosition++] = GetBits(x, z);
+				}
 			}
 
 			if (CNetwork::ShouldReplicateClientFunction())
@@ -2231,6 +2237,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 	size_t iPosition = 0;
 	float* flHeightData = (float*)p->m_pExtraData;
+	unsigned char* piTerrainData = (unsigned char*)((size_t)p->m_pExtraData + sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
 	CTerrainChunk* pChunk = GetChunk((int)i, j);
 
@@ -2239,6 +2246,11 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	{
 		for (int z = TERRAIN_CHUNK_SIZE*j; z < (int)(TERRAIN_CHUNK_SIZE*(j+1)); z++)
 		{
+			SetBit(x, z, TB_LAVA, !!(piTerrainData[iPosition]&((unsigned char)TB_LAVA)));
+			SetBit(x, z, TB_HOLE, !!(piTerrainData[iPosition]&((unsigned char)TB_HOLE)));
+			SetBit(x, z, TB_TREE, !!(piTerrainData[iPosition]&((unsigned char)TB_TREE)));
+			SetBit(x, z, TB_WATER, !!(piTerrainData[iPosition]&((unsigned char)TB_WATER)));
+
 			if (fabs(GetRealHeight(x, z) - flHeightData[iPosition]) > 0.01f)
 			{
 				pChunk->m_bNeedsRegenerate = true;
@@ -2246,18 +2258,21 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 				float flHeight = flHeightData[iPosition];
 
-				if (!m_bHeightsInitialized)
+				if (CNetwork::IsHost())
 				{
-					m_flHighest = m_flLowest = flHeight;
-					m_bHeightsInitialized = true;
-				}
-				else
-				{
-					if (flHeight < m_flLowest)
-						m_flLowest = flHeight;
+					if (!m_bHeightsInitialized)
+					{
+						m_flHighest = m_flLowest = flHeight;
+						m_bHeightsInitialized = true;
+					}
+					else
+					{
+						if (flHeight < m_flLowest)
+							m_flLowest = flHeight;
 
-					if (flHeight > m_flHighest)
-						m_flHighest = flHeight;
+						if (flHeight > m_flHighest)
+							m_flHighest = flHeight;
+					}
 				}
 			}
 
@@ -2401,6 +2416,9 @@ CTerrainChunk::~CTerrainChunk()
 
 void CTerrainChunk::Think()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNK_SIZE; j++)
@@ -2465,7 +2483,7 @@ void CTerrainChunk::Think()
 		}
 	}
 
-	DigitanksGame()->GetTerrain()->GenerateTerrainCallLists();
+	DigitanksGame()->GetTerrain()->UpdateTerrainData();
 }
 
 bool CTerrainChunk::GetBit(int x, int y, terrainbit_t b)

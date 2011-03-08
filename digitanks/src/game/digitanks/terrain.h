@@ -164,8 +164,8 @@ public:
 
 protected:
 	bool					m_bHeightsInitialized;
-	float					m_flHighest;
-	float					m_flLowest;
+	CNetworkedVariable<float>	m_flHighest;
+	CNetworkedVariable<float>	m_flLowest;
 
 	Vector					m_vecTerrainColor;
 	Vector					m_avecQuadMods[4];
