@@ -2200,9 +2200,11 @@ Color CTerrain::GetPrimaryTerrainColor()
 
 void CTerrain::UpdateTerrainData()
 {
-	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+	// Go in reverse so that the highest numbered chunks arrive at the client first.
+	// Since terrain generation depends on the next higher chunk, we want the highest chunks to be right first.
+	for (size_t i = TERRAIN_CHUNKS-1; i < TERRAIN_CHUNKS; i--)
 	{
-		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		for (size_t j = TERRAIN_CHUNKS-1; j < TERRAIN_CHUNKS; j--)
 		{
 			CTerrainChunk* pChunk = GetChunk((int)i, (int)j);
 			if (!pChunk->m_bNeedsRegenerate)
