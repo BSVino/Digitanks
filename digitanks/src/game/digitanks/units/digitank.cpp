@@ -101,6 +101,8 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bSentried, &CDigitanksGame::UpdateHUD);
 
+	NETVAR_DEFINE_CALLBACK(weapon_t, m_eWeapon, &CDigitanksGame::UpdateHUD);
+
 	NETVAR_DEFINE(size_t, m_iTurnsDisabled);
 NETVAR_TABLE_END();
 
@@ -164,7 +166,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSentried);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, weapon_t, m_eWeapon);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, weapon_t, m_eWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, weapon_t, m_aeWeapons);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
@@ -2429,9 +2431,61 @@ CBaseWeapon* CDigitank::CreateWeapon()
 	return GameServer()->Create<CSmallShell>("CSmallShell");
 }
 
+CLIENT_COMMAND(SetCurrentWeapon)
+{
+	eastl::vector<eastl::string16> asArguments;
+	wcstok(sParameters, asArguments);
+
+	if (asArguments.size() < 2)
+	{
+		TMsg("SetCurrentWeapon with less than 2 parameters.\n");
+		return;
+	}
+
+	CEntityHandle<CDigitank> hTank(_wtoi(asArguments[0].c_str()));
+	weapon_t eWeapon = (weapon_t)_wtoi(asArguments[1].c_str());
+
+	if (hTank == NULL)
+	{
+		TMsg("SetCurrentWeapon on invalid tank.\n");
+		return;
+	}
+
+	if (CNetwork::IsRunningClientFunctions() && (!hTank->GetTeam() || hTank->GetTeam()->GetClient() != (int)iClient))
+	{
+		TMsg("SetCurrentWeapon for a tank the player doesn't own.\n");
+		return;
+	}
+
+	if (!hTank->HasWeapon(eWeapon))
+	{
+		TMsg("SetCurrentWeapon for a weapon that tank doesn't own.\n");
+		return;
+	}
+
+	hTank->SetCurrentWeapon(eWeapon, false);
+}
+
+void CDigitank::SetCurrentWeapon(weapon_t e, bool bNetworked)
+{
+	if (bNetworked)
+		::SetCurrentWeapon.RunCommand(sprintf(L"%d %d", GetHandle(), e));
+
+	m_eWeapon = e;
+}
+
 float CDigitank::GetWeaponEnergy() const
 {
-	return CProjectile::GetWeaponEnergy(m_eWeapon);
+	return CProjectile::GetWeaponEnergy(m_eWeapon.Get());
+}
+
+bool CDigitank::HasWeapon(weapon_t eWeapon) const
+{
+	for (size_t i = 0; i < m_aeWeapons.size(); i++)
+		if (m_aeWeapons[i] == eWeapon)
+			return true;
+
+	return false;
 }
 
 void CDigitank::FireSpecial()

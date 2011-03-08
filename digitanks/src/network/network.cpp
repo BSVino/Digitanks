@@ -480,3 +480,50 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 {
 	m_bDirty = true;
 }
+
+void CClientCommand::RunCommand(const eastl::string16& sParameters)
+{
+	if (CNetwork::IsHost() || !CNetwork::IsConnected())
+	{
+		m_pfnCallback(-1, sParameters);
+		return;
+	}
+
+	eastl::string16 sCommand = m_sName + L" " + sParameters;
+
+	CNetworkParameters p;
+	p.CreateExtraData(sizeof(eastl::string16::value_type) * (sCommand.length() + 1));
+	char16_t* pszData = (char16_t*)p.m_pExtraData;
+
+	assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+	wcscpy(pszData, sCommand.c_str());
+
+	p.ui1 = GameServer()->GetClientIndex();
+
+	CNetwork::CallFunction(NETWORK_TOSERVER, "CC", &p);
+}
+
+void CClientCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
+{
+	m_pfnCallback(iClient, sParameters);
+}
+
+eastl::map<eastl::string16, CClientCommand*>& CClientCommand::GetCommands()
+{
+	static eastl::map<eastl::string16, CClientCommand*> aCommands;
+	return aCommands;
+}
+
+CClientCommand* CClientCommand::GetCommand(const eastl::string16& sName)
+{
+	eastl::map<eastl::string16, CClientCommand*>::iterator it = GetCommands().find(sName);
+	if (it == GetCommands().end())
+		return NULL;
+
+	return it->second;
+}
+
+void CClientCommand::RegisterCommand(CClientCommand* pCommand)
+{
+	GetCommands()[pCommand->m_sName] = pCommand;
+}

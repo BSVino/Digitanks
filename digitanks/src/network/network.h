@@ -7,6 +7,44 @@
 
 #include <color.h>
 #include <vector.h>
+#include <strutils.h>
+
+typedef void (*CommandServerCallback)(size_t iClient, const eastl::string16& sParameters);
+
+class CClientCommand
+{
+public:
+	CClientCommand(eastl::string16 sName, CommandServerCallback pfnCallback)
+	{
+		m_sName = str_replace(sName, L" ", L"-");
+		m_pfnCallback = pfnCallback;
+	};
+
+public:
+	void					RunCommand(const eastl::string16& sParameters);
+	void					RunCallback(size_t iClient, const eastl::string16& sParameters);
+
+	static eastl::map<eastl::string16, CClientCommand*>& GetCommands();
+	static CClientCommand*	GetCommand(const eastl::string16& sName);
+	static void				RegisterCommand(CClientCommand* pCommand);
+
+protected:
+	eastl::string16			m_sName;
+	CommandServerCallback	m_pfnCallback;
+};
+
+#define CLIENT_COMMAND(name) \
+void ClientCommand_##name(size_t iClient, const eastl::string16& sParameters); \
+CClientCommand name(convertstring<char, char16_t>(#name), ClientCommand_##name); \
+class CRegisterClientCommand##name \
+{ \
+public: \
+	CRegisterClientCommand##name() \
+	{ \
+		CClientCommand::RegisterCommand(&name); \
+	} \
+} g_RegisterClientCommand##entity = CRegisterClientCommand##name(); \
+void ClientCommand_##name(size_t iClient, const eastl::string16& sParameters) \
 
 #define NET_CALLBACK(type, pfn) \
 	virtual void pfn(CNetworkParameters* p); \

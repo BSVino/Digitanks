@@ -237,11 +237,12 @@ public:
 	virtual void				FireWeapon(class CNetworkParameters* p);
 	virtual void				FireProjectile(class CProjectile* pProjectile, Vector vecLandingSpot);
 	virtual class CBaseWeapon*	CreateWeapon();
-	weapon_t					GetCurrentWeapon() const { return m_eWeapon; }
-	void						SetCurrentWeapon(weapon_t e) { m_eWeapon = e; }
+	weapon_t					GetCurrentWeapon() const { return m_eWeapon.Get(); }
+	void						SetCurrentWeapon(weapon_t e, bool bNetworked = true);
 	float						GetWeaponEnergy() const;
 	size_t						GetNumWeapons() const { return m_aeWeapons.size(); };
 	weapon_t					GetWeapon(size_t iProjectile) const { return m_aeWeapons[iProjectile]; };
+	bool						HasWeapon(weapon_t eWeapon) const;
 	virtual bool				IsWaitingToFire() { return m_flFireWeaponTime != 0; };
 
 	void						FireSpecial();
@@ -428,7 +429,7 @@ protected:
 
 	float						m_flBobOffset;
 
-	weapon_t					m_eWeapon;
+	CNetworkedVariable<weapon_t> m_eWeapon;
 	eastl::vector<weapon_t>		m_aeWeapons;
 
 	size_t						m_iAirstrikes;

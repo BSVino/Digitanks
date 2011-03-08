@@ -1009,9 +1009,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pTank->IsInfantry())
 				{
 					if (pTarget->GetUnitType() == UNIT_SCOUT)
-						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER, false);
 					else
-						pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 				}
 
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
@@ -1048,9 +1048,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 						if (pTank->IsInfantry())
 						{
 							if (pClosestEnemy->GetUnitType() == UNIT_SCOUT)
-								pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+								pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER, false);
 							else
-								pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+								pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 						}
 
 						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
@@ -1182,9 +1182,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			if (pTarget && pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
 				if (pTarget->GetUnitType() == UNIT_SCOUT)
-					pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+					pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER, false);
 				else
-					pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+					pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
 				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
 				pTank->Fire();
@@ -1216,9 +1216,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestEnemy)
 				{
 					if (pClosestEnemy->GetUnitType() == UNIT_SCOUT)
-						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER);
+						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER, false);
 					else
-						pTank->SetCurrentWeapon(PROJECTILE_FLAK);
+						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
 					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
 					pTank->Fire();
@@ -1336,7 +1336,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		while (eWeapon == WEAPON_NONE || eWeapon == PROJECTILE_CAMERAGUIDED || eWeapon == WEAPON_CHARGERAM)
 			eWeapon = pTank->GetWeapon(RandomInt(0, pTank->GetNumWeapons()-1));
 
-		pTank->SetCurrentWeapon(eWeapon);
+		pTank->SetCurrentWeapon(eWeapon, false);
 
 		// If we are not within the effective range, use some of our available movement power to move towards our target.
 		if ((pTarget->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())

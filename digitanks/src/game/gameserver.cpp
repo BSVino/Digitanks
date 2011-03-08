@@ -214,6 +214,7 @@ CLevel* CGameServer::GetLevel(eastl::string16 sFile)
 void CGameServer::RegisterNetworkFunctions()
 {
 	CNetwork::RegisterFunction("UV", this, UpdateValueCallback, 2, NET_HANDLE, NET_HANDLE);
+	CNetwork::RegisterFunction("CC", this, ClientCommandCallback, 0);
 
 	CNetwork::RegisterFunction("ClientInfo", this, ClientInfoCallback, 2, NET_INT, NET_FLOAT);
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
@@ -702,6 +703,39 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 
 	if (pVarData->m_pfnChanged)
 		pVarData->m_pfnChanged(pVariable);
+}
+
+void CGameServer::ClientCommand(CNetworkParameters* p)
+{
+	assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+	char16_t* pszData = (char16_t*)p->m_pExtraData;
+
+	eastl::string16 sCommand(pszData);
+
+	size_t iSpace = sCommand.find(L' ');
+
+	eastl::string16 sName;
+	eastl::string16 sParameters;
+	if (eastl::string16::npos == iSpace)
+	{
+		sName = sCommand;
+		sParameters = L"";
+	}
+	else
+	{
+		sName = sCommand.substr(0, iSpace);
+		sParameters = sCommand.substr(iSpace+1);
+	}
+
+	CClientCommand* pCommand = CClientCommand::GetCommand(sName);
+
+	if (!pCommand)
+	{
+		TMsg(sprintf(L"Client command '%s' unknown.\n", sName));
+		return;
+	}
+
+	pCommand->RunCallback(p->ui1, sParameters);
 }
 
 void CGameServer::ClientInfo(CNetworkParameters* p)
