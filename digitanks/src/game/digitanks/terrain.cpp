@@ -2329,20 +2329,26 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
+			CTerrainChunk* pChunk = GetChunk((int)i, (int)j);
+
 			CNetworkParameters p;
 			p.ui1 = i;
 			p.ui2 = j;
 
-			p.CreateExtraData(sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
+			p.CreateExtraData(sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE + sizeof(pChunk->m_aiSpecialData));
 
 			size_t iPosition = 0;
 			float* flHeightData = (float*)p.m_pExtraData;
+			unsigned char* piTerrainData = (unsigned char*)((size_t)p.m_pExtraData + sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
 
 			// Serialize the height data
 			for (int x = TERRAIN_CHUNK_SIZE*i; x < (int)(TERRAIN_CHUNK_SIZE*(i+1)); x++)
 			{
 				for (int z = TERRAIN_CHUNK_SIZE*j; z < (int)(TERRAIN_CHUNK_SIZE*(j+1)); z++)
-					flHeightData[iPosition++] = GetRealHeight(x, z);
+				{
+					flHeightData[iPosition] = GetRealHeight(x, z);
+					piTerrainData[iPosition++] = GetBits(x, z);
+				}
 			}
 
 			CNetwork::CallFunctionParameters(iClient, "TerrainData", &p);
@@ -2471,9 +2477,6 @@ void CTerrainChunk::Think()
 						if (pChunk->m_aflLava[k][l] >= flLava)
 							continue;
 
-						if (pChunk->m_aflLava[k][l] <= 0 && flLava > 0.0f)
-							pChunk->m_bNeedsRegenerate = true;
-
 						pChunk->m_aflLava[k][l] = flLava;
 						pChunk->SetBit(k, l, TB_LAVA, true);
 						pChunk->m_abDontSimulate[k][l] = true;
@@ -2493,6 +2496,10 @@ bool CTerrainChunk::GetBit(int x, int y, terrainbit_t b)
 
 void CTerrainChunk::SetBit(int x, int y, terrainbit_t b, bool v)
 {
+	bool bCurrentBit = GetBit(x, y, b);
+	if (bCurrentBit != v)
+		m_bNeedsRegenerate = true;
+
 	if (v)
 		m_aiSpecialData[x][y] |= b;
 	else
