@@ -436,6 +436,35 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 		CallFunction(-1, pFunction, p, true);
 }
 
+size_t CNetwork::GetClientsConnected()
+{
+	size_t iClients = 0;
+	for (size_t i = 0; i < g_apServerPeers.size(); i++)
+	{
+		if (g_apServerPeers[i])
+			iClients++;
+	}
+
+	return iClients;
+}
+
+size_t CNetwork::GetClientConnectionId(size_t iClient)
+{
+	size_t iClients = 0;
+	for (size_t i = 0; i < g_apServerPeers.size(); i++)
+	{
+		if (g_apServerPeers[i])
+		{
+			if (iClients == iClient)
+				return i;
+
+			iClients++;
+		}
+	}
+
+	return ~0;
+}
+
 CNetworkedVariableData::CNetworkedVariableData()
 {
 	m_iOffset = 0;

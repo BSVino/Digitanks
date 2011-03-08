@@ -121,6 +121,8 @@ protected:
 	eastl::vector<class CLevel*>				m_apLevels;
 
 	size_t										m_iMaxEnts;
+
+	float										m_flNextClientInfoUpdate;
 };
 
 inline class CGameServer* GameServer()

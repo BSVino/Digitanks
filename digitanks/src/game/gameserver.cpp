@@ -46,6 +46,7 @@ CGameServer::CGameServer()
 	m_flGameTime = 0;
 	m_flSimulationTime = 0;
 	m_flFrameTime = 0;
+	m_flNextClientInfoUpdate = 0;
 
 	size_t iPostSeed = mtrand();
 
@@ -284,6 +285,18 @@ void CGameServer::Think(float flHostTime)
 	m_flGameTime += m_flFrameTime;
 
 	m_flHostTime = flHostTime;
+
+	if (CNetwork::IsConnected() && m_flHostTime > m_flNextClientInfoUpdate)
+	{
+		m_flNextClientInfoUpdate = m_flHostTime + 5.0f;
+
+		size_t iClientsConnected = CNetwork::GetClientsConnected();
+		for (size_t i = 0; i < iClientsConnected; i++)
+		{
+			size_t iClient = CNetwork::GetClientConnectionId(i);
+			CNetwork::CallFunction(iClient, "ClientInfo", iClient, GetGameTime());
+		}
+	}
 
 	// Erase anything deleted last frame.
 	for (size_t i = 0; i < m_ahDeletedEntities.size(); i++)
@@ -694,7 +707,11 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 void CGameServer::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
-	m_flGameTime = m_flSimulationTime = p->fl2;
+	float flNewGameTime = p->fl2;
+	if (flNewGameTime - m_flGameTime > 0.01f)
+		TMsg(sprintf(L"New game time from server %.2f different!\n", flNewGameTime - m_flGameTime));
+
+	m_flGameTime = m_flSimulationTime = flNewGameTime;
 }
 
 CRenderer* CGameServer::GetRenderer()

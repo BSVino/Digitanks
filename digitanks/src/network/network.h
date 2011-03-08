@@ -380,6 +380,9 @@ public:
 	static void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false);
 	static void				CallbackFunction(const char* pszName, CNetworkParameters* p);
 
+	static size_t			GetClientsConnected();
+	static size_t			GetClientConnectionId(size_t iClient);
+
 protected:
 	static bool				s_bInitialized;
 	static bool				s_bConnected;
