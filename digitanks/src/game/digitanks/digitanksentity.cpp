@@ -36,7 +36,7 @@ void CDigitanksEntity::Think()
 {
 	BaseClass::Think();
 
-	if (!IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
+	if (CNetwork::IsHost() && !IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
 	{
 		GameServer()->Delete(this);
 
@@ -240,10 +240,12 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 {
 	CDigitanksGame* pGame = DigitanksGame();
 
+	CTerrain* pTerrain = pGame->GetTerrain();
+
 	float flConceal = 0.0f;
-	if (GetsConcealmentBonus())
+	if (GetsConcealmentBonus() && pTerrain)
 	{
-		if (pGame->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
+		if (pTerrain->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
 			flConceal = 0.7f;
 	}
 
