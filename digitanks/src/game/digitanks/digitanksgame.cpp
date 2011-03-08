@@ -1044,7 +1044,7 @@ void CDigitanksGame::Think()
 	}
 
 	bool bWaitingASecond = false;
-	if (!GetCurrentTeam()->IsPlayerControlled())
+	if (GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled())
 	{
 		CTeam* pNextTeam = GetTeam((m_iCurrentTeam+1)%GetNumTeams());
 		if (pNextTeam && pNextTeam->IsPlayerControlled())

@@ -482,7 +482,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 void CTerrain::GenerateCollision()
 {
-	assert(m_bHeightsInitialized);
+	assert(m_bHeightsInitialized || !CNetwork::IsHost());
 
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
@@ -1032,6 +1032,8 @@ void CTerrain::CalculateVisibility()
 				}
 			}
 		}
+
+		GenerateTerrainCallLists();
 		return;
 	}
 
@@ -1602,6 +1604,10 @@ void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)
 	CTerrainChunk* pChunk = GetChunk(iChunkX, iChunkY);
 	if (!pChunk)
 		return;
+
+	bool bCurrentBit = GetBit(x, y, b);
+	if (bCurrentBit != v)
+		pChunk->m_bNeedsRegenerate = true;
 
 	if (v)
 		pChunk->m_aiSpecialData[x2][y2] |= b;

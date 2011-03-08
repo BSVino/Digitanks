@@ -534,6 +534,9 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	if (m_flExplosionRadius < 13)
 		return;
 
+	if (!CNetwork::IsHost())
+		return;
+
 	CDaisyChain* pProjectile = GameServer()->Create<CDaisyChain>(GetClassName());
 	pProjectile->SetOwner(m_hOwner);
 	pProjectile->SetVelocity(GetVelocity());
