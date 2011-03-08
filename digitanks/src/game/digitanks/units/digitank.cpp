@@ -76,7 +76,13 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE(float, m_flShieldStrength);
 
+	NETVAR_DEFINE(float, m_flStartedRock);
+	NETVAR_DEFINE(float, m_flRockIntensity);
+	NETVAR_DEFINE(Vector, m_vecRockDirection);
+
 	NETVAR_DEFINE(Vector, m_vecPreviousOrigin);
+	NETVAR_DEFINE(float, m_flStartedMove);
+	NETVAR_DEFINE(int, m_iMoveType);
 
 	NETVAR_DEFINE(float, m_flPreviousTurn);
 
@@ -115,13 +121,13 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bNeedsOrders);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flCurrentTurretYaw);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flGoalTurretYaw);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedRock);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flRockIntensity);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecRockDirection);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartedRock);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRockIntensity);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecRockDirection);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecPreviewMove);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecPreviousOrigin);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedMove);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iMoveType);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartedMove);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iMoveType);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPreviewTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPreviousTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedTurn);
@@ -905,8 +911,8 @@ bool CDigitank::IsRocking() const
 {
 	float flTransitionTime = 1;
 
-	float flTimeSinceRock = GameServer()->GetGameTime() - m_flStartedRock;
-	if (m_flStartedRock && flTimeSinceRock < flTransitionTime)
+	float flTimeSinceRock = GameServer()->GetGameTime() - m_flStartedRock.Get();
+	if (m_flStartedRock.Get() && flTimeSinceRock < flTransitionTime)
 		return true;
 
 	return false;
@@ -2641,8 +2647,8 @@ Vector CDigitank::GetOrigin() const
 	if (GetVisibility() == 0)
 		flTransitionTime = 0;
 
-	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
-	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
+	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove.Get();
+	if (m_flStartedMove.Get() && flTimeSinceMove < flTransitionTime)
 	{
 		float flLerp = 0;
 		float flRamp = RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1);
@@ -2825,13 +2831,13 @@ EAngle CDigitank::GetRenderAngles() const
 
 		Vector vecForward, vecRight;
 		AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
-		float flDotForward = -m_vecRockDirection.Dot(vecForward.Normalized());
-		float flDotRight = -m_vecRockDirection.Dot(vecRight.Normalized());
+		float flDotForward = -m_vecRockDirection.Get().Dot(vecForward.Normalized());
+		float flDotRight = -m_vecRockDirection.Get().Dot(vecRight.Normalized());
 
-		float flLerp = Lerp(1-Oscillate(GameServer()->GetGameTime() - m_flStartedRock, 1), 0.7f);
+		float flLerp = Lerp(1-Oscillate(GameServer()->GetGameTime() - m_flStartedRock.Get(), 1), 0.7f);
 
-		angReturn.p = flDotForward*flLerp*m_flRockIntensity*45;
-		angReturn.r = flDotRight*flLerp*m_flRockIntensity*45;
+		angReturn.p = flDotForward*flLerp*m_flRockIntensity.Get()*45;
+		angReturn.r = flDotRight*flLerp*m_flRockIntensity.Get()*45;
 
 		return angReturn;
 	}

@@ -368,14 +368,14 @@ protected:
 	float						m_flCurrentTurretYaw;
 	float						m_flGoalTurretYaw;
 
-	float						m_flStartedRock;
-	float						m_flRockIntensity;
-	Vector						m_vecRockDirection;
+	CNetworkedVariable<float>	m_flStartedRock;
+	CNetworkedVariable<float>	m_flRockIntensity;
+	CNetworkedVector			m_vecRockDirection;
 
 	Vector						m_vecPreviewMove;
 	CNetworkedVector			m_vecPreviousOrigin;
-	float						m_flStartedMove;
-	int							m_iMoveType;
+	CNetworkedVariable<float>	m_flStartedMove;
+	CNetworkedVariable<int>		m_iMoveType;
 
 	float						m_flPreviewTurn;
 	CNetworkedVariable<float>	m_flPreviousTurn;
