@@ -500,7 +500,7 @@ void CClientCommand::RunCommand(const eastl::string16& sParameters)
 
 	p.ui1 = GameServer()->GetClientIndex();
 
-	CNetwork::CallFunction(NETWORK_TOSERVER, "CC", &p);
+	CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CC", &p);
 }
 
 void CClientCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)

@@ -128,6 +128,9 @@ void CProjectile::SpecialCommand()
 
 void CProjectile::Fragment()
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	for (size_t i = 0; i < Fragments(); i++)
 	{
 		CProjectile* pProjectile = GameServer()->Create<CProjectile>(GetClassName());

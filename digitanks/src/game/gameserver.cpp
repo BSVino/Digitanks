@@ -742,8 +742,8 @@ void CGameServer::ClientInfo(CNetworkParameters* p)
 {
 	m_iClient = p->i1;
 	float flNewGameTime = p->fl2;
-	if (flNewGameTime - m_flGameTime > 0.01f)
-		TMsg(sprintf(L"New game time from server %.2f different!\n", flNewGameTime - m_flGameTime));
+	if (flNewGameTime - m_flGameTime > 0.1f)
+		TMsg(sprintf(L"New game time from server %.1f different!\n", flNewGameTime - m_flGameTime));
 
 	m_flGameTime = m_flSimulationTime = flNewGameTime;
 }
