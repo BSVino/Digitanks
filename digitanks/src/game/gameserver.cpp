@@ -110,8 +110,26 @@ CGameServer::~CGameServer()
 	s_pGameServer = NULL;
 }
 
+CLIENT_COMMAND(SendNickname)
+{
+	assert(GameServer());
+	if (!GameServer())
+		return;
+
+	GameServer()->SetClientNickname(iClient, sParameters);
+}
+
+void CGameServer::SetPlayerNickname(const eastl::string16& sNickname)
+{
+	m_sNickname = sNickname;
+
+	if (!CNetwork::IsConnected() || m_bGotClientInfo)
+		SendNickname.RunCommand(m_sNickname);
+}
+
 void CGameServer::Initialize()
 {
+	m_bGotClientInfo = false;
 	m_bLoading = true;
 
 	TMsg(L"Initializing game server\n");
@@ -766,6 +784,11 @@ void CGameServer::ClientInfo(CNetworkParameters* p)
 		TMsg(sprintf(L"New game time from server %.1f different!\n", flNewGameTime - m_flGameTime));
 
 	m_flGameTime = m_flSimulationTime = flNewGameTime;
+
+	m_bGotClientInfo = true;
+
+	// Can't send any client commands until we've gotten the client info because we need m_iClient filled out properly.
+	SendNickname.RunCommand(m_sNickname);
 }
 
 CRenderer* CGameServer::GetRenderer()

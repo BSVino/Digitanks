@@ -26,6 +26,9 @@ public:
 	void										SetConnectHost(const eastl::string sHost) { m_sConnectHost = sHost; };
 	void										SetServerPort(int iPort) { m_iPort = iPort; };
 
+	void										SetPlayerNickname(const eastl::string16& sNickname);
+	eastl::string16								GetPlayerNickname() { return m_sNickname; }
+
 	void										Initialize();
 
 	void										ReadLevels();
@@ -91,6 +94,8 @@ public:
 	class CGame*								GetGame();
 
 protected:
+	eastl::string16				m_sNickname;
+
 	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
 
 	static CGameServer*							s_pGameServer;
@@ -113,6 +118,7 @@ protected:
 	bool										m_bLoading;
 
 	int											m_iClient;
+	bool										m_bGotClientInfo;
 
 	servertype_t								m_eServerType;
 	eastl::string								m_sConnectHost;

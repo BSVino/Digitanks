@@ -283,15 +283,6 @@ void LoadLevel(class CCommand* pCommand, eastl::vector<eastl::string16>& asToken
 
 CCommand load_level("load_level", ::LoadLevel);
 
-CLIENT_COMMAND(SendNickname)
-{
-	assert(GameServer());
-	if (!GameServer())
-		return;
-
-	GameServer()->SetClientNickname(iClient, sParameters);
-}
-
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	RenderLoading();
@@ -332,6 +323,7 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 			GameServer()->SetServerType(SERVER_LOCAL);
 		GameServer()->SetServerPort(iPort);
 		GameServer()->Initialize();
+		GameServer()->SetPlayerNickname(GetPlayerNickname());
 
 		CNetwork::SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
 	}
@@ -341,7 +333,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		DigitanksGame()->SetupGame(eGameType);
 	}
 
-	SendNickname.RunCommand(m_sNickname);
+	// Ugh. It doesn't stick if the teams aren't created already so do it again for singleplayer.
+	GameServer()->SetPlayerNickname(GetPlayerNickname());
 
 	glgui::CRootPanel::Get()->Layout();
 
