@@ -339,6 +339,9 @@
     <ClCompile Include="game\digitanks\wreckage.cpp">
       <Filter>Source Files\digitanks</Filter>
     </ClCompile>
+    <ClCompile Include="game\networkedeffect.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -580,6 +583,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\wreckage.h">
       <Filter>Source Files\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\networkedeffect.h">
+      <Filter>Source Files\game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,7 @@
 #include <glgui/glgui.h>
 #include <shaders/shaders.h>
 
+#include <networkedeffect.h>
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_camera.h>
 #include "ui/digitankswindow.h"
@@ -1696,7 +1697,7 @@ void CDigitank::Think()
 				Vector vecLookAt = (GetOrigin() - pDigitank->GetOrigin()).Normalized();
 				pDigitank->m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - pDigitank->GetRenderAngles().y;
 
-				CParticleSystemLibrary::AddInstance(L"charge-burst", GetOrigin() + vecLookAt*3, GetAngles());
+				CNetworkedEffect::AddInstance(L"charge-burst", GetOrigin() + vecLookAt*3, GetAngles());
 			}
 
 			RockTheBoat(1, vecPushDirection);
@@ -2384,9 +2385,7 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	if (GetVisibility() > 0)
 	{
 		Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
-		size_t iFire = CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
-		if (iFire != ~0)
-			CParticleSystemLibrary::Get()->GetInstance(iFire)->SetInheritedVelocity(vecForce);
+		CNetworkedEffect::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
 	}
 
 	RockTheBoat(0.8f, -vecForce.Normalized());
@@ -3326,7 +3325,7 @@ void CDigitank::TankPromoted(class CNetworkParameters* p)
 	if (GetVisibility() > 0)
 	{
 		EmitSound(L"sound/tank-promoted.wav");
-		CParticleSystemLibrary::AddInstance(L"promotion", GetRealOrigin());
+		CNetworkedEffect::AddInstance(L"promotion", GetRealOrigin());
 	}
 }
 

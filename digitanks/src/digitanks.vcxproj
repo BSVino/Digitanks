@@ -183,6 +183,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\wreckage.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="game\level.cpp" />
+    <ClCompile Include="game\networkedeffect.cpp" />
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shaders\prop.cpp" />
@@ -286,6 +287,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\wreckage.h" />
     <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="game\level.h" />
+    <ClInclude Include="game\networkedeffect.h" />
     <ClInclude Include="shaders\dt_shaders.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />

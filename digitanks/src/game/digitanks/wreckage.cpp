@@ -4,6 +4,7 @@
 #include <renderer/particles.h>
 #include <renderer/renderer.h>
 
+#include <networkedeffect.h>
 #include "digitanksgame.h"
 #include "terrain.h"
 
@@ -64,7 +65,7 @@ void CWreckage::Think()
 		m_angList = EAngle(0, 0, 0);
 
 		if (GetVisibility() > 0)
-			CParticleSystemLibrary::AddInstance(L"wreckage-crash", GetOrigin());
+			CNetworkedEffect::AddInstance(L"wreckage-crash", GetOrigin());
 	}
 
 	SetAngles(GetAngles() + m_angList*GameServer()->GetFrameTime());

@@ -483,6 +483,10 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 
 void CClientCommand::RunCommand(const eastl::string16& sParameters)
 {
+	// If we're running client functions then we're going to get this message from the server anyway.
+	if (CNetwork::IsRunningClientFunctions())
+		return;
+
 	if (CNetwork::IsHost() || !CNetwork::IsConnected())
 	{
 		wcstok(sParameters, m_asArguments);
