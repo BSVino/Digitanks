@@ -484,10 +484,10 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
 	// If we're running client functions then we're going to get this message from the server anyway.
-	if (CNetwork::IsRunningClientFunctions())
+	if (m_iMessageTarget == NETWORK_TOCLIENTS && CNetwork::IsRunningClientFunctions())
 		return;
 
-	if (CNetwork::IsHost() || !CNetwork::IsConnected())
+	if (m_iMessageTarget == NETWORK_TOSERVER && (CNetwork::IsHost() || !CNetwork::IsConnected()))
 	{
 		wcstok(sParameters, m_asArguments);
 		m_pfnCallback(this, -1, sParameters);
