@@ -1046,7 +1046,7 @@ void CDigitanksGame::Think()
 	bool bWaitingASecond = false;
 	if (GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled())
 	{
-		CTeam* pNextTeam = GetTeam((m_iCurrentTeam+1)%GetNumTeams());
+		CTeam* pNextTeam = GetTeam((m_iCurrentTeam+(size_t)1)%GetNumTeams());
 		if (pNextTeam && pNextTeam->IsPlayerControlled())
 		{
 			if (GameServer()->GetGameTime() - m_flLastHumanMove < 2.0f)
@@ -1825,9 +1825,26 @@ float CDigitanksGame::GetGravity()
 	return -20;
 }
 
-void CDigitanksGame::WeaponSpecialCommand()
+CLIENT_COMMAND(WeaponSpecial)
+{
+	if (CNetwork::IsRunningClientFunctions() && (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetClient() != (int)iClient))
+		return;
+
+	DigitanksGame()->WeaponSpecialCommand(DigitanksGame()->GetCurrentLocalDigitanksTeam());
+}
+
+void CDigitanksGame::WeaponSpecialCommand(CDigitanksTeam* pTeam)
 {
 	if (DigitanksGame()->GetGameType() != GAMETYPE_ARTILLERY)
+		return;
+
+	if (!pTeam)
+	{
+		::WeaponSpecial.RunCommand(L"");
+		return;
+	}
+
+	if (pTeam != GetCurrentTeam())
 		return;
 
 	eastl::vector<CEntityHandle<CBaseWeapon> > ahWeapons;
@@ -1848,11 +1865,7 @@ void CDigitanksGame::WeaponSpecialCommand()
 			continue;
 
 		// If it's not my grenade don't blow it up.
-		if (GetCurrentLocalDigitanksTeam() != pWeapon->GetOwner()->GetTeam())
-			continue;
-
-		// If it's not my turn, don't blow it up.
-		if (GetCurrentTeam() != pWeapon->GetOwner()->GetTeam())
+		if (pTeam != pWeapon->GetOwner()->GetTeam())
 			continue;
 
 		ahWeapons.push_back(pWeapon);

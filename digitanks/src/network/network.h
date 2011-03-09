@@ -279,6 +279,16 @@ public:
 		return c != m_oVariable;
 	}
 
+	inline C operator+(const C& c) const
+	{
+		return m_oVariable + c;
+	}
+
+	inline C operator-(const C& c) const
+	{
+		return m_oVariable - c;
+	}
+
 	inline const C& operator+=(const C& c)
 	{
 		if (c == 0)
@@ -333,7 +343,7 @@ public:
 		return m_oVariable;
 	}
 
-	inline operator const C&()
+	inline operator const C&() const
 	{
 		return m_oVariable;
 	}
@@ -365,9 +375,24 @@ public:
 		return *this;
 	}
 
-	inline operator Vector() const
+	inline Vector operator*(float f)
 	{
-		return m_oVariable;
+		return m_oVariable * f;
+	}
+
+	inline Vector operator*(float f) const
+	{
+		return m_oVariable * f;
+	}
+
+	inline Vector operator/(float f)
+	{
+		return m_oVariable / f;
+	}
+
+	inline Vector operator/(float f) const
+	{
+		return m_oVariable / f;
 	}
 };
 
@@ -379,11 +404,6 @@ public:
 		m_bDirty = true;
 		m_oVariable = v;
 		return *this;
-	}
-
-	inline operator EAngle() const
-	{
-		return m_oVariable;
 	}
 };
 

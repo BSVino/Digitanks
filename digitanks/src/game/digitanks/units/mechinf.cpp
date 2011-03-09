@@ -119,7 +119,7 @@ float CMechInfantry::BaseShieldRechargeRate() const
 	float flRate = 10.0f;
 
 	if (IsFortified())
-		return flRate + ((float)m_iFortifyLevel.Get())*5;
+		return flRate + ((float)m_iFortifyLevel)*5;
 
 	return flRate;
 }
@@ -129,7 +129,7 @@ float CMechInfantry::BaseHealthRechargeRate() const
 	float flRate = 2.0f;
 
 	if (IsFortified())
-		return flRate + ((float)m_iFortifyLevel.Get());
+		return flRate + ((float)m_iFortifyLevel);
 
 	return flRate;
 }

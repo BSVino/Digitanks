@@ -76,6 +76,10 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE(float, m_flShieldStrength);
 
+	NETVAR_DEFINE_CALLBACK(bool, m_bNeedsOrders, &CDigitanksGame::UpdateHUD);
+
+	NETVAR_DEFINE(float, m_flGoalTurretYaw);
+
 	NETVAR_DEFINE(float, m_flStartedRock);
 	NETVAR_DEFINE(float, m_flRockIntensity);
 	NETVAR_DEFINE(Vector, m_vecRockDirection);
@@ -88,12 +92,17 @@ NETVAR_TABLE_BEGIN(CDigitank);
 
 	NETVAR_DEFINE(Vector, m_vecLastAim);
 
+	NETVAR_DEFINE(float, m_flBeginCharge);
+	NETVAR_DEFINE(float, m_flEndCharge);
+
 	NETVAR_DEFINE_CALLBACK(bool, m_bHasCloak, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(bool, m_bCloaked);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bGoalMovePosition, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(Vector, m_vecGoalMovePosition);
 
+	NETVAR_DEFINE(bool, m_bFiredWeapon);
+	NETVAR_DEFINE(bool, m_bActionTaken);
 	NETVAR_DEFINE_CALLBACK(bool, m_bLostConcealment, &CDigitanksGame::UpdateHUD);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
@@ -120,9 +129,9 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flMaxShieldStrength);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flShieldStrength);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bNeedsOrdersDirty);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bNeedsOrders);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bNeedsOrders);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flCurrentTurretYaw);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flGoalTurretYaw);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flGoalTurretYaw);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartedRock);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRockIntensity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecRockDirection);
@@ -140,15 +149,15 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecDisplayAim);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flDisplayAimRadius);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CBaseEntity>, m_hPreviewCharge);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBeginCharge);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flEndCharge);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBeginCharge);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flEndCharge);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CBaseEntity>, m_hChargeTarget);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHasCloak);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCloaked);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bGoalMovePosition);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecGoalMovePosition);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFiredWeapon);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bActionTaken);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFiredWeapon);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bActionTaken);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLostConcealment);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireWeaponTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireWeapons);
@@ -161,6 +170,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hHoverParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hSmokeParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hFireParticles);		// Dynamic
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hChargeParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
@@ -278,6 +288,9 @@ void CDigitank::Spawn()
 	m_hFireParticles.SetSystem(L"digitank-fire", GetOrigin());
 	m_hFireParticles.FollowEntity(this);
 
+	m_hChargeParticles.SetSystem(L"charge-charge", GetOrigin());
+	m_hChargeParticles.FollowEntity(this);
+
 	m_flStartingPower = 10;
 	m_flAttackPower = 0;
 	m_flDefensePower = 10;
@@ -368,12 +381,12 @@ float CDigitank::GetDefensePower(bool bPreview)
 
 float CDigitank::GetTotalAttackPower()
 {
-	return m_flStartingPower.Get() + GetBonusAttackPower();
+	return m_flStartingPower + GetBonusAttackPower();
 }
 
 float CDigitank::GetTotalDefensePower()
 {
-	return m_flStartingPower.Get() + GetBonusDefensePower();
+	return m_flStartingPower + GetBonusDefensePower();
 }
 
 
@@ -406,10 +419,10 @@ float CDigitank::GetUsedMovementEnergy(bool bPreview) const
 		if (flPreviewPower > flRemainingPower)
 			return GetMaxMovementEnergy();
 		else
-			return m_flMovementPower.Get() + flPreviewPower;
+			return m_flMovementPower + flPreviewPower;
 	}
 
-	return m_flMovementPower.Get();
+	return m_flMovementPower;
 }
 
 float CDigitank::GetRemainingMovementEnergy(bool bPreview) const
@@ -810,7 +823,7 @@ bool CDigitank::CanCharge() const
 
 float CDigitank::ChargeRadius() const
 {
-	return BaseChargeRadius() * RemapValClamped(m_flMovementPower.Get(), 0, m_flStartingPower.Get(), 1.0f, 0.5f);
+	return BaseChargeRadius() * RemapValClamped(m_flMovementPower, 0, m_flStartingPower, 1.0f, 0.5f);
 }
 
 void CDigitank::SetPreviewCharge(CBaseEntity* pChargeTarget)
@@ -913,8 +926,8 @@ bool CDigitank::IsRocking() const
 {
 	float flTransitionTime = 1;
 
-	float flTimeSinceRock = GameServer()->GetGameTime() - m_flStartedRock.Get();
-	if (m_flStartedRock.Get() && flTimeSinceRock < flTransitionTime)
+	float flTimeSinceRock = GameServer()->GetGameTime() - m_flStartedRock;
+	if (m_flStartedRock && flTimeSinceRock < flTransitionTime)
 		return true;
 
 	return false;
@@ -1044,7 +1057,7 @@ void CDigitank::Move(CNetworkParameters* p)
 
 					GetTeam()->AddEntity(pTank);
 
-					Vector vecTank = m_vecOrigin.Get() - GetOrigin().Normalized() * (GetBoundingRadius()*2);
+					Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
 					vecTank.y = pTank->FindHoverHeight(vecTank);
 					EAngle angTank = VectorAngles(-vecTank.Normalized());
 
@@ -1416,11 +1429,6 @@ void CDigitank::Charge(class CNetworkParameters* p)
 
 	if (IsSentried())
 		Sentry();
-
-	size_t iInstance = CParticleSystemLibrary::AddInstance(L"charge-charge", GetOrigin());
-	CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(iInstance);
-	if (pInstance)
-		pInstance->FollowEntity(this);
 }
 
 void CDigitank::Cloak()
@@ -1553,7 +1561,7 @@ void CDigitank::Think()
 
 		Vector vecTankAim;
 		if (m_bFiredWeapon)
-			vecTankAim = m_vecLastAim.Get();
+			vecTankAim = m_vecLastAim;
 
 		if (bMouseOK && bAimMode)
 		{
@@ -1608,6 +1616,7 @@ void CDigitank::Think()
 
 	// Only stay on if it was turned on before. We don't want to activate for all moves and turns.
 	m_hHoverParticles.SetActive(m_hHoverParticles.IsActive() && (IsMoving() || IsTurning()));
+	m_hChargeParticles.SetActive(m_flBeginCharge > 0 || m_flEndCharge > 0);
 
 	if (IsAlive() && GameServer()->GetGameTime() > m_flNextIdle)
 	{
@@ -1636,15 +1645,13 @@ void CDigitank::Think()
 
 			m_flGoalTurretYaw = -180;
 		}
-		else
-			CParticleSystemLibrary::StopInstances(L"charge-charge");
 	}
 
 	if (m_flEndCharge > 0 && GameServer()->GetGameTime() > m_flEndCharge)
 	{
 		m_flEndCharge = -1;
 
-		if (m_hChargeTarget != NULL)
+		if (CNetwork::IsHost() && m_hChargeTarget != NULL)
 		{
 			m_hChargeTarget->TakeDamage(this, this, DAMAGE_COLLISION, ChargeDamage(), true);
 
@@ -1675,8 +1682,6 @@ void CDigitank::Think()
 			Turn(EAngle(0, GetAngles().y, 0));
 
 			m_flGoalTurretYaw = 0;
-
-			CParticleSystemLibrary::StopInstances(L"charge-charge");
 		}
 	}
 
@@ -2273,16 +2278,16 @@ void CDigitank::Fire(CNetworkParameters* p)
 
 void CDigitank::FireWeapon()
 {
-	float flDistanceSqr = (m_vecLastAim.Get() - GetOrigin()).LengthSqr();
-	if (!IsInsideMaxRange(m_vecLastAim.Get()))
+	float flDistanceSqr = (m_vecLastAim - GetOrigin()).LengthSqr();
+	if (!IsInsideMaxRange(m_vecLastAim))
 		return;
 
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
 
-	Vector vecLandingSpot = m_vecLastAim.Get();
+	Vector vecLandingSpot = m_vecLastAim;
 
-	float flFactor = FindAimRadius(m_vecLastAim.Get(), MinRangeRadius());
+	float flFactor = FindAimRadius(m_vecLastAim, MinRangeRadius());
 
 	float flYaw = RandomFloat(0, 360);
 	float flRadius = RandomFloat(1, flFactor);
@@ -2476,7 +2481,7 @@ void CDigitank::SetCurrentWeapon(weapon_t e, bool bNetworked)
 
 float CDigitank::GetWeaponEnergy() const
 {
-	return CProjectile::GetWeaponEnergy(m_eWeapon.Get());
+	return CProjectile::GetWeaponEnergy(m_eWeapon);
 }
 
 bool CDigitank::HasWeapon(weapon_t eWeapon) const
@@ -2701,8 +2706,8 @@ Vector CDigitank::GetOrigin() const
 	if (GetVisibility() == 0)
 		flTransitionTime = 0;
 
-	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove.Get();
-	if (m_flStartedMove.Get() && flTimeSinceMove < flTransitionTime)
+	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
+	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
 	{
 		float flLerp = 0;
 		float flRamp = RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1);
@@ -2713,7 +2718,7 @@ Vector CDigitank::GetOrigin() const
 		else
 			flLerp = Lerp(flRamp, 0.8f);
 
-		Vector vecNewOrigin = m_vecPreviousOrigin.Get() * (1-flLerp) + BaseClass::GetOrigin() * flLerp;
+		Vector vecNewOrigin = m_vecPreviousOrigin * (1-flLerp) + BaseClass::GetOrigin() * flLerp;
 
 		float flHoverHeight = FindHoverHeight(vecNewOrigin);
 		if (vecNewOrigin.y < flHoverHeight)
@@ -2741,8 +2746,8 @@ EAngle CDigitank::GetAngles() const
 	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
 	{
 		float flLerp = SLerp(RemapVal(flTimeSinceTurn, 0, flTransitionTime, 0, 1), 0.2f);
-		float flAngleDiff = AngleDifference(BaseClass::GetAngles().y, m_flPreviousTurn.Get());
-		float flNewTurn = m_flPreviousTurn.Get() + flAngleDiff * flLerp;
+		float flAngleDiff = AngleDifference(BaseClass::GetAngles().y, m_flPreviousTurn);
+		float flNewTurn = m_flPreviousTurn + flAngleDiff * flLerp;
 		return EAngle(0, flNewTurn, 0);
 	}
 
@@ -2888,10 +2893,10 @@ EAngle CDigitank::GetRenderAngles() const
 		float flDotForward = -m_vecRockDirection.Get().Dot(vecForward.Normalized());
 		float flDotRight = -m_vecRockDirection.Get().Dot(vecRight.Normalized());
 
-		float flLerp = Lerp(1-Oscillate(GameServer()->GetGameTime() - m_flStartedRock.Get(), 1), 0.7f);
+		float flLerp = Lerp(1-Oscillate(GameServer()->GetGameTime() - m_flStartedRock, 1), 0.7f);
 
-		angReturn.p = flDotForward*flLerp*m_flRockIntensity.Get()*45;
-		angReturn.r = flDotRight*flLerp*m_flRockIntensity.Get()*45;
+		angReturn.p = flDotForward*flLerp*m_flRockIntensity*45;
+		angReturn.r = flDotRight*flLerp*m_flRockIntensity*45;
 
 		return angReturn;
 	}
@@ -2955,7 +2960,7 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 			if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
 				vecAimTarget = GetPreviewAim();
 			else
-				vecAimTarget = m_vecLastAim.Get();
+				vecAimTarget = m_vecLastAim;
 			Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
 			m_flGoalTurretYaw = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
 		}
@@ -3426,7 +3431,7 @@ float CDigitank::HealthRechargeRate() const
 
 float CDigitank::ShieldRechargeRate() const
 {
-	return (BaseShieldRechargeRate() + GetSupportShieldRechargeBonus()) * (m_flDefensePower.Get()/10.f);
+	return (BaseShieldRechargeRate() + GetSupportShieldRechargeBonus()) * (m_flDefensePower/10.f);
 }
 
 float CDigitank::FirstProjectileTime() const

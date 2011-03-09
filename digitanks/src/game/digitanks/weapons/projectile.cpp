@@ -191,7 +191,7 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 bool CProjectile::ShouldTouch(CBaseEntity* pOther) const
 {
-	if (m_flTimeExploded != 0)
+	if (m_flTimeExploded != 0.0f)
 		return false;
 
 	if (!pOther)

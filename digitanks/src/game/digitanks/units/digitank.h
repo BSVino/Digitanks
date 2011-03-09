@@ -60,8 +60,8 @@ public:
 	virtual float				GetBoundingRadius() const { return 4; };
 	virtual float				GetRenderRadius() const { return GetBoundingRadius() + RenderShieldScale(); };
 
-	float						GetTotalPower() const { return m_flTotalPower.Get(); };
-	float						GetStartingPower() const { return m_flStartingPower.Get(); };
+	float						GetTotalPower() const { return m_flTotalPower; };
+	float						GetStartingPower() const { return m_flStartingPower; };
 	float						GetBaseAttackPower(bool bPreview = false);
 	float						GetBaseDefensePower(bool bPreview = false);
 
@@ -70,7 +70,7 @@ public:
 	float						GetTotalAttackPower();
 	float						GetTotalDefensePower();
 
-	float						GetBonusMovementEnergy() const { return m_flBonusMovementPower.Get(); };
+	float						GetBonusMovementEnergy() const { return m_flBonusMovementPower; };
 	float						GetMaxMovementEnergy() const;
 	float						GetMaxMovementDistance() const;
 	float						GetUsedMovementEnergy(bool bPreview = false) const;
@@ -128,7 +128,7 @@ public:
 	void						SetPreviewAim(Vector vecPreviewAim);
 	void						ClearPreviewAim();
 	bool						IsPreviewAimValid();
-	Vector						GetLastAim() const { return m_vecLastAim.Get(); };
+	Vector						GetLastAim() const { return m_vecLastAim; };
 	bool						ShouldDisplayAim() const { return m_bDisplayAim; }
 	Vector						GetDisplayAim() const { return m_vecDisplayAim; }
 
@@ -164,8 +164,8 @@ public:
 	void						MoveTowardsGoalMovePosition();
 	void						CancelGoalMovePosition();
 	void						CancelGoalMovePosition(CNetworkParameters* p);
-	bool						HasGoalMovePosition() { return m_bGoalMovePosition.Get(); };
-	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition.Get(); };
+	bool						HasGoalMovePosition() { return m_bGoalMovePosition; };
+	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition; };
 
 	virtual bool				IsArtillery() const { return false; };
 	virtual bool				IsInfantry() const { return false; };
@@ -176,8 +176,8 @@ public:
 	void						Fortify(CNetworkParameters* p);
 	virtual void				OnFortify() {};
 	virtual bool				CanFortify() { return false; };
-	virtual bool				IsFortified() const { return m_bFortified.Get() && m_iFortifyLevel.Get(); };
-	virtual bool				IsFortifying() const { return m_bFortified.Get() && m_iFortifyLevel.Get() == 0; };
+	virtual bool				IsFortified() const { return m_bFortified && m_iFortifyLevel; };
+	virtual bool				IsFortifying() const { return m_bFortified && m_iFortifyLevel == (size_t)0; };
 	virtual bool				CanMoveFortified() { return false; };
 	virtual bool				CanTurnFortified() { return false; };
 	virtual bool				CanAimMobilized() const { return true; };
@@ -190,18 +190,18 @@ public:
 	void						Sentry();
 	void						Sentry(CNetworkParameters* p);
 	virtual bool				CanSentry() { return true; };
-	virtual bool				IsSentried() const { return m_bSentried.Get(); };
+	virtual bool				IsSentried() const { return m_bSentried; };
 
 	void						Charge();
 	void						Charge(class CNetworkParameters* p);
 
 	void						GiveCloak() { m_bHasCloak = true; }
 	bool						HasCloak() { return m_bHasCloak; }
-	bool						IsCloaked() const { return m_bCloaked.Get(); }
+	bool						IsCloaked() const { return m_bCloaked; }
 	void						Cloak();
 	void						Uncloak();
 	virtual float				GetCloakConcealment() const;
-	virtual bool				HasLostConcealment() const { return m_bLostConcealment.Get(); }
+	virtual bool				HasLostConcealment() const { return m_bLostConcealment; }
 
 	virtual bool				MovesWith(CDigitank* pOther) const;
 	virtual bool				TurnsWith(CDigitank* pOther) const;
@@ -237,7 +237,7 @@ public:
 	virtual void				FireWeapon(class CNetworkParameters* p);
 	virtual void				FireProjectile(class CProjectile* pProjectile, Vector vecLandingSpot);
 	virtual class CBaseWeapon*	CreateWeapon();
-	weapon_t					GetCurrentWeapon() const { return m_eWeapon.Get(); }
+	weapon_t					GetCurrentWeapon() const { return m_eWeapon; }
 	void						SetCurrentWeapon(weapon_t e, bool bNetworked = true);
 	float						GetWeaponEnergy() const;
 	size_t						GetNumWeapons() const { return m_aeWeapons.size(); };
@@ -306,9 +306,9 @@ public:
 	virtual float				GetTankSpeed() const { return 2.0f; };
 	virtual float				TurnPerPower() const { return 45; };
 	virtual float				InitialMaxRange() const { return 70.0f; };
-	virtual float				GetMaxRange() const { return InitialMaxRange() + m_flRangeBonus.Get(); };
+	virtual float				GetMaxRange() const { return InitialMaxRange() + m_flRangeBonus; };
 	virtual float				InitialEffRange() const { return 50.0f; };
-	virtual float				GetEffRange() const { return InitialEffRange() + m_flRangeBonus.Get()/2; };
+	virtual float				GetEffRange() const { return InitialEffRange() + m_flRangeBonus/2; };
 	virtual float				GetMinRange() const { return 4.0f; };
 	virtual float				GetTransitionTime() const { return 2.0f; };
 	virtual float				ProjectileCurve() const { return -0.03f; };
@@ -364,10 +364,10 @@ protected:
 	CNetworkedVariable<float>	m_flShieldStrength;
 
 	bool						m_bNeedsOrdersDirty;
-	bool						m_bNeedsOrders;
+	CNetworkedVariable<bool>	m_bNeedsOrders;
 
 	float						m_flCurrentTurretYaw;
-	float						m_flGoalTurretYaw;
+	CNetworkedVariable<float>	m_flGoalTurretYaw;
 
 	CNetworkedVariable<float>	m_flStartedRock;
 	CNetworkedVariable<float>	m_flRockIntensity;
@@ -391,8 +391,8 @@ protected:
 	float						m_flDisplayAimRadius;
 
 	CEntityHandle<CBaseEntity>	m_hPreviewCharge;
-	float						m_flBeginCharge;
-	float						m_flEndCharge;
+	CNetworkedVariable<float>	m_flBeginCharge;
+	CNetworkedVariable<float>	m_flEndCharge;
 	CEntityHandle<CBaseEntity>	m_hChargeTarget;
 
 	CNetworkedVariable<bool>	m_bHasCloak;
@@ -401,8 +401,8 @@ protected:
 	CNetworkedVariable<bool>	m_bGoalMovePosition;
 	CNetworkedVector			m_vecGoalMovePosition;
 
-	bool						m_bFiredWeapon;
-	bool						m_bActionTaken;
+	CNetworkedVariable<bool>	m_bFiredWeapon;
+	CNetworkedVariable<bool>	m_bActionTaken;
 	CNetworkedVariable<bool>	m_bLostConcealment;
 
 	float						m_flFireWeaponTime;
@@ -420,6 +420,7 @@ protected:
 	CParticleSystemInstanceHandle m_hHoverParticles;
 	CParticleSystemInstanceHandle m_hSmokeParticles;
 	CParticleSystemInstanceHandle m_hFireParticles;
+	CParticleSystemInstanceHandle m_hChargeParticles;
 
 	CNetworkedVariable<bool>	m_bFortified;
 	CNetworkedVariable<size_t>	m_iFortifyLevel;
