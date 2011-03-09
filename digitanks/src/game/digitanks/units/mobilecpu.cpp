@@ -44,6 +44,9 @@ void CMobileCPU::OnFortify()
 {
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY, true);
 
+	if (!CNetwork::IsHost())
+		return;
+
 	Delete();
 
 	CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");

@@ -48,8 +48,8 @@ public:
 	void						SetTeamClient(class CNetworkParameters* p);
 	void						AddEntityToTeam(class CNetworkParameters* p);
 
-	void						SetName(eastl::string16& szName) { m_szName = szName; };
-	eastl::string16				GetName() { return m_szName; }
+	void						SetName(const eastl::string16& sName) { m_sName = sName; };
+	eastl::string16				GetName() { return m_sName; }
 
 protected:
 	CNetworkedVariable<bool>	m_bHumanPlayable;
@@ -61,7 +61,7 @@ protected:
 	bool						m_bClientControlled;
 	int							m_iClient;
 
-	eastl::string16				m_szName;
+	CNetworkedString			m_sName;
 };
 
 #endif

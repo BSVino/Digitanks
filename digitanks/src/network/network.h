@@ -442,6 +442,24 @@ public:
 	}
 };
 
+class CNetworkedString : public CNetworkedVariable<eastl::string16>
+{
+public:
+	inline const CNetworkedString& operator=(const eastl::string16 v)
+	{
+		if (m_oVariable != v)
+		{
+			m_bDirty = true;
+			m_oVariable = v;
+		}
+
+		return *this;
+	}
+
+	virtual void*		Serialize(size_t& iSize) { iSize = (m_oVariable.size()+1)*sizeof(eastl::string16::value_type); return (void*)m_oVariable.c_str(); }
+	virtual void		Unserialize(void* pValue) { m_oVariable = (eastl::string16::value_type*)pValue; }
+};
+
 class CNetwork
 {
 public:

@@ -85,6 +85,9 @@ public:
 	void						SetWantsShaders(bool bWantsShaders) { m_bWantsShaders = bWantsShaders; }
 	bool						WantsShaders() { return m_bWantsShaders; }
 
+	void						SetPlayerNickname(eastl::string16 sNickname) { m_sNickname = sNickname; }
+	eastl::string16				GetPlayerNickname() { return m_sNickname; }
+
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
 	void						GameOver(bool bPlayerWon);
@@ -153,6 +156,7 @@ protected:
 	bool						m_bConstrainMouse;
 	bool						m_bWantsFramebuffers;
 	bool						m_bWantsShaders;
+	eastl::string16				m_sNickname;
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;

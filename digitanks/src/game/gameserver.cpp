@@ -31,7 +31,7 @@ CGameServer::CGameServer()
 	assert(!s_pGameServer);
 	s_pGameServer = this;
 
-	m_iMaxEnts = g_cfgEngine.read("MaxEnts", 1024);
+	m_iMaxEnts = g_cfgEngine.read(L"MaxEnts", 1024);
 
 	CBaseEntity::s_apEntityList.resize(m_iMaxEnts);
 
@@ -264,6 +264,26 @@ void CGameServer::LoadingDone(CNetworkParameters* p)
 void CGameServer::ClientDisconnect(CNetworkParameters* p)
 {
 	GetGame()->OnClientDisconnect(p);
+}
+
+void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNickname)
+{
+	if (iClient == GetClientIndex() && Game()->GetNumLocalTeams())
+	{
+		Game()->GetLocalTeam(0)->SetName(sNickname);
+		return;
+	}
+
+	for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+	{
+		if (Game()->GetTeam(i)->GetClient() == iClient)
+		{
+			Game()->GetTeam(i)->SetName(sNickname);
+			return;
+		}
+	}
+
+	TMsg(sprintf(L"Can't find client %d to give nickname %s.\n", iClient, sNickname));
 }
 
 void CGameServer::Think(float flHostTime)

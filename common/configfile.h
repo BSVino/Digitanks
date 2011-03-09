@@ -55,79 +55,89 @@ using eastl::string16;
 class ConfigFile {
 // Data
 protected:
-	string myDelimiter;  // separator between key and value
-	string myComment;    // separator between value and comments
-	string mySentry;     // optional string to signal end of file
-	eastl::map<string,string> myContents;  // extracted keys and values
+	string16 myDelimiter;  // separator between key and value
+	string16 myComment;    // separator between value and comments
+	string16 mySentry;     // optional string to signal end of file
+	eastl::map<string16,string16> myContents;  // extracted keys and values
 
 	bool fileValid;
 
-	typedef eastl::map<string,string>::iterator mapi;
-	typedef eastl::map<string,string>::const_iterator mapci;
+	typedef eastl::map<string16,string16>::iterator mapi;
+	typedef eastl::map<string16,string16>::const_iterator mapci;
 
 // Methods
 public:
 	ConfigFile( string16 filename,
-	            string delimiter = "=",
-	            string comment = "#",
-				string sentry = "EndConfigFile" );
+	            string16 delimiter = L"=",
+	            string16 comment = L"#",
+				string16 sentry = L"EndConfigFile" );
 	ConfigFile();
 	
 	// Search for key and read value or optional default value
-	template<class T> T read( const string& key ) const;  // call as read<T>
-	template<class T> T read( const string& key, const T& value ) const;
-	template<class T> bool readInto( T& var, const string& key ) const;
+	template<class T> T read( const string16& key ) const;  // call as read<T>
+	template<class T> T read( const string16& key, const T& value ) const;
+	template<class T> bool readInto( T& var, const string16& key ) const;
 	template<class T>
-	bool readInto( T& var, const string& key, const T& value ) const;
+	bool readInto( T& var, const string16& key, const T& value ) const;
 	
 	// Modify keys and values
-	template<class T> void add( string key, const T& value );
-	void remove( const string& key );
+	template<class T> void add( string16 key, const T& value );
+	void remove( const string16& key );
 	
 	// Check whether key exists in configuration
-	bool keyExists( const string& key ) const;
+	bool keyExists( const string16& key ) const;
 	
 	// Check or change configuration syntax
-	string getDelimiter() const { return myDelimiter; }
-	string getComment() const { return myComment; }
-	string getSentry() const { return mySentry; }
-	string setDelimiter( const string& s )
-		{ string old = myDelimiter;  myDelimiter = s;  return old; }  
-	string setComment( const string& s )
-		{ string old = myComment;  myComment = s;  return old; }
+	string16 getDelimiter() const { return myDelimiter; }
+	string16 getComment() const { return myComment; }
+	string16 getSentry() const { return mySentry; }
+	string16 setDelimiter( const string16& s )
+		{ string16 old = myDelimiter;  myDelimiter = s;  return old; }  
+	string16 setComment( const string16& s )
+		{ string16 old = myComment;  myComment = s;  return old; }
 
 	bool isFileValid() const { return fileValid; }
 	
 	// Write or read configuration
-	friend std::ostream& operator<<( std::ostream& os, const ConfigFile& cf );
-	friend std::istream& operator>>( std::istream& is, ConfigFile& cf );
+	friend std::wostream& operator<<( std::wostream& os, const ConfigFile& cf );
+	friend std::wistream& operator>>( std::wistream& is, ConfigFile& cf );
 	
 protected:
-	template<class T> static string T_as_string( const T& t );
-	template<class T> static T string_as_T( const string& s );
-	static void trim( string& s );
+	template<class T> static string16 T_as_string( const T& t );
+	template<class T> static T string_as_T( const string16& s );
+	static void trim( string16& s );
 };
 
 /* static */
 template<class T>
-string ConfigFile::T_as_string( const T& t )
+string16 ConfigFile::T_as_string( const T& t )
 {
 	// Convert from a T to a string
 	// Type T must support << operator
-	std::ostringstream ost;
+	std::wostringstream ost;
 	ost << t;
 	return ost.str().c_str();
 }
 
 
 /* static */
+template<>
+inline string16 ConfigFile::T_as_string<string16>( const string16& s )
+{
+	// Convert from a string to a string
+	// In other words, do nothing
+	return s;
+}
+
+
+/* static */
 template<class T>
-T ConfigFile::string_as_T( const string& s )
+T ConfigFile::string_as_T( const string16& s )
 {
 	// Convert from a string to a T
 	// Type T must support >> operator
 	T t;
-	std::istringstream ist(s.c_str());
+	std::wistringstream ist(s.c_str());
 	ist >> t;
 	return t;
 }
@@ -135,7 +145,7 @@ T ConfigFile::string_as_T( const string& s )
 
 /* static */
 template<>
-inline string ConfigFile::string_as_T<string>( const string& s )
+inline string16 ConfigFile::string_as_T<string16>( const string16& s )
 {
 	// Convert from a string to a string
 	// In other words, do nothing
@@ -145,25 +155,25 @@ inline string ConfigFile::string_as_T<string>( const string& s )
 
 /* static */
 template<>
-inline bool ConfigFile::string_as_T<bool>( const string& s )
+inline bool ConfigFile::string_as_T<bool>( const string16& s )
 {
 	// Convert from a string to a bool
 	// Interpret "false", "F", "no", "n", "0" as false
 	// Interpret "true", "T", "yes", "y", "1", "-1", or anything else as true
 	bool b = true;
-	string sup = s;
-	for( string::iterator p = sup.begin(); p != sup.end(); ++p )
+	string16 sup = s;
+	for( string16::iterator p = sup.begin(); p != sup.end(); ++p )
 		*p = toupper(*p);  // make string all caps
-	if( sup==string("FALSE") || sup==string("F") ||
-	    sup==string("NO") || sup==string("N") ||
-	    sup==string("0") || sup==string("NONE") )
+	if( sup==string16(L"FALSE") || sup==string16(L"F") ||
+	    sup==string16(L"NO") || sup==string16(L"N") ||
+	    sup==string16(L"0") || sup==string16(L"NONE") )
 		b = false;
 	return b;
 }
 
 
 template<class T>
-T ConfigFile::read( const string& key ) const
+T ConfigFile::read( const string16& key ) const
 {
 	// Read the value corresponding to key
 	mapci p = myContents.find(key);
@@ -173,7 +183,7 @@ T ConfigFile::read( const string& key ) const
 
 
 template<class T>
-T ConfigFile::read( const string& key, const T& value ) const
+T ConfigFile::read( const string16& key, const T& value ) const
 {
 	// Return the value corresponding to key or given default value
 	// if key is not found
@@ -184,7 +194,7 @@ T ConfigFile::read( const string& key, const T& value ) const
 
 
 template<class T>
-bool ConfigFile::readInto( T& var, const string& key ) const
+bool ConfigFile::readInto( T& var, const string16& key ) const
 {
 	// Get the value corresponding to key and store in var
 	// Return true if key is found
@@ -197,7 +207,7 @@ bool ConfigFile::readInto( T& var, const string& key ) const
 
 
 template<class T>
-bool ConfigFile::readInto( T& var, const string& key, const T& value ) const
+bool ConfigFile::readInto( T& var, const string16& key, const T& value ) const
 {
 	// Get the value corresponding to key and store in var
 	// Return true if key is found
@@ -213,10 +223,10 @@ bool ConfigFile::readInto( T& var, const string& key, const T& value ) const
 
 
 template<class T>
-void ConfigFile::add( string key, const T& value )
+void ConfigFile::add( string16 key, const T& value )
 {
 	// Add a key with given value
-	string v = T_as_string( value );
+	string16 v = T_as_string( value );
 	trim(key);
 	trim(v);
 	myContents[key] = v;

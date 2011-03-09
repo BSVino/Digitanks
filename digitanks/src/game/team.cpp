@@ -6,6 +6,7 @@ REGISTER_ENTITY(CTeam);
 
 NETVAR_TABLE_BEGIN(CTeam);
 	NETVAR_DEFINE(bool, m_bHumanPlayable);
+	NETVAR_DEFINE(eastl::string16, m_sName);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTeam);
@@ -14,7 +15,7 @@ SAVEDATA_TABLE_BEGIN(CTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahMembers);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientControlled);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iClient);
-	SAVEDATA_DEFINE(CSaveData::DATA_STRING16, eastl::string16, m_szName);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sName);
 SAVEDATA_TABLE_END();
 
 CTeam::CTeam()

@@ -44,6 +44,7 @@ public:
 	NET_CALLBACK(CGameServer,					ClientConnect);
 	NET_CALLBACK(CGameServer,					LoadingDone);
 	NET_CALLBACK(CGameServer,					ClientDisconnect);
+	void										SetClientNickname(int iClient, const eastl::string16& sNickname);
 
 	void										Think(float flHostTime);
 	void										Simulate();

@@ -33,6 +33,16 @@ void TPortal_Shutdown()
 	SteamAPI_Shutdown();
 }
 
+bool TPortal_IsAvailable()
+{
+	return !!SteamUser();
+}
+
+eastl::string16 TPortal_GetPortalIdentifier()
+{
+	return L"Steam";
+}
+
 eastl::string16 TPortal_GetPlayerNickname()
 {
 	if (!SteamFriends())

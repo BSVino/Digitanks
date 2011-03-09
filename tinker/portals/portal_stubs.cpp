@@ -15,6 +15,16 @@ void TPortal_Shutdown()
 {
 }
 
+bool TPortal_IsAvailable()
+{
+	return false;
+}
+
+eastl::string16 TPortal_GetPortalIdentifier()
+{
+	return L"Tinker";
+}
+
 eastl::string16 TPortal_GetPlayerNickname()
 {
 	return L"";

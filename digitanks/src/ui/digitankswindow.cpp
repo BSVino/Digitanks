@@ -18,6 +18,7 @@
 #include <network/network.h>
 #include <sound/sound.h>
 #include <tinker/cvar.h>
+#include <tinker/portals/portal.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
 #include "digitanks/digitankslevel.h"
@@ -53,19 +54,21 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	if (c.isFileValid())
 	{
-		m_iWindowWidth = c.read<int>("width", 1024);
-		m_iWindowHeight = c.read<int>("height", 768);
+		m_iWindowWidth = c.read<int>(L"width", 1024);
+		m_iWindowHeight = c.read<int>(L"height", 768);
 
-		m_bCfgFullscreen = !c.read<bool>("windowed", true);
-		m_bConstrainMouse = c.read<bool>("constrainmouse", true);
+		m_bCfgFullscreen = !c.read<bool>(L"windowed", true);
+		m_bConstrainMouse = c.read<bool>(L"constrainmouse", true);
 
-		m_bWantsFramebuffers = c.read<bool>("useframebuffers", true);
-		m_bWantsShaders = c.read<bool>("useshaders", true);
+		m_bWantsFramebuffers = c.read<bool>(L"useframebuffers", true);
+		m_bWantsShaders = c.read<bool>(L"useshaders", true);
 
-		SetSoundVolume(c.read<float>("soundvolume", 0.8f));
-		SetMusicVolume(c.read<float>("musicvolume", 0.8f));
+		SetSoundVolume(c.read<float>(L"soundvolume", 0.8f));
+		SetMusicVolume(c.read<float>(L"musicvolume", 0.8f));
 
-		m_iInstallID = c.read<int>("installid", RandomInt(10000000, 99999999));
+		m_iInstallID = c.read<int>(L"installid", RandomInt(10000000, 99999999));
+
+		m_sNickname = c.read<eastl::string16>(L"nickname", L"");
 	}
 	else
 	{
@@ -83,6 +86,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		SetMusicVolume(0.8f);
 
 		m_iInstallID = RandomInt(10000000, 99999999);
+
+		m_sNickname = L"";
 	}
 
 	if (m_iWindowWidth < 1024)
@@ -115,6 +120,18 @@ void CDigitanksWindow::OpenWindow()
 
 	// Save out the configuration file now that we know this config loads properly.
 	SetConfigWindowDimensions(m_iWindowWidth, m_iWindowHeight);
+
+	if (m_sNickname.length() == 0)
+	{
+		if (TPortal_IsAvailable())
+		{
+			m_sNickname = TPortal_GetPlayerNickname();
+			TMsg(eastl::string16(L"Retrieved player nickname from ") + TPortal_GetPortalIdentifier() + L": " + m_sNickname + L"\n");
+		}
+		else
+			m_sNickname = L"Noobie";
+	}
+
 	SaveConfig();
 }
 
@@ -266,6 +283,15 @@ void LoadLevel(class CCommand* pCommand, eastl::vector<eastl::string16>& asToken
 
 CCommand load_level("load_level", ::LoadLevel);
 
+CLIENT_COMMAND(SendNickname)
+{
+	assert(GameServer());
+	if (!GameServer())
+		return;
+
+	GameServer()->SetClientNickname(iClient, sParameters);
+}
+
 void CDigitanksWindow::CreateGame(gametype_t eGameType)
 {
 	RenderLoading();
@@ -314,6 +340,8 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 	{
 		DigitanksGame()->SetupGame(eGameType);
 	}
+
+	SendNickname.RunCommand(m_sNickname);
 
 	glgui::CRootPanel::Get()->Layout();
 
@@ -528,16 +556,17 @@ void CDigitanksWindow::CloseApplication()
 
 void CDigitanksWindow::SaveConfig()
 {
-	c.add<float>("soundvolume", GetSoundVolume());
-	c.add<float>("musicvolume", GetMusicVolume());
-	c.add<bool>("windowed", !m_bCfgFullscreen);
-	c.add<bool>("constrainmouse", m_bConstrainMouse);
-	c.add<bool>("useframebuffers", m_bWantsFramebuffers);
-	c.add<bool>("useshaders", m_bWantsShaders);
-	c.add<int>("width", m_iCfgWidth);
-	c.add<int>("height", m_iCfgHeight);
-	c.add<int>("installid", m_iInstallID);
-	std::ofstream o;
+	c.add<float>(L"soundvolume", GetSoundVolume());
+	c.add<float>(L"musicvolume", GetMusicVolume());
+	c.add<bool>(L"windowed", !m_bCfgFullscreen);
+	c.add<bool>(L"constrainmouse", m_bConstrainMouse);
+	c.add<bool>(L"useframebuffers", m_bWantsFramebuffers);
+	c.add<bool>(L"useshaders", m_bWantsShaders);
+	c.add<int>(L"width", m_iCfgWidth);
+	c.add<int>(L"height", m_iCfgHeight);
+	c.add<int>(L"installid", m_iInstallID);
+	c.add<eastl::string16>(L"nickname", m_sNickname);
+	std::wofstream o;
 	o.open(GetAppDataDirectory(L"Digitanks", L"options.cfg").c_str(), std::ios_base::out);
 	o << c;
 
