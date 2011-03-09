@@ -1827,10 +1827,10 @@ float CDigitanksGame::GetGravity()
 
 CLIENT_COMMAND(WeaponSpecial)
 {
-	if (CNetwork::IsRunningClientFunctions() && (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetClient() != (int)iClient))
+	if (CNetwork::IsRunningClientFunctions() && (DigitanksGame()->GetCurrentTeam()->GetClient() != (int)iClient))
 		return;
 
-	DigitanksGame()->WeaponSpecialCommand(DigitanksGame()->GetCurrentLocalDigitanksTeam());
+	DigitanksGame()->WeaponSpecialCommand(DigitanksGame()->GetCurrentTeam());
 }
 
 void CDigitanksGame::WeaponSpecialCommand(CDigitanksTeam* pTeam)
