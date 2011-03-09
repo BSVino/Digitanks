@@ -553,6 +553,44 @@ void CDigitanksCamera::SetFreeMode(bool bOn)
 	BaseClass::SetFreeMode(bOn);
 }
 
+// Camera guided missile angles
+CLIENT_COMMAND(CGAng)
+{
+	if (pCmd->GetNumArguments() < 4)
+	{
+		TMsg("CGAng with less than 4 arguments.\n");
+		return;
+	}
+
+	CEntityHandle<CCameraGuidedMissile> hMissile(pCmd->ArgAsUInt(0));
+
+	if (!hMissile)
+	{
+		TMsg("CGAng with invalid missile.\n");
+		return;
+	}
+
+	if (!hMissile->GetOwner())
+	{
+		TMsg("CGAng with no owner.\n");
+		return;
+	}
+
+	if (!hMissile->GetOwner()->GetTeam())
+	{
+		TMsg("CGAng with no team.\n");
+		return;
+	}
+
+	if (hMissile->GetOwner()->GetTeam()->GetClient() != (int)iClient)
+	{
+		TMsg("CGAng missile does not belong to this client.\n");
+		return;
+	}
+
+	hMissile->SetAngles(EAngle(pCmd->ArgAsFloat(1), pCmd->ArgAsFloat(2), pCmd->ArgAsFloat(3)));
+}
+
 void CDigitanksCamera::MouseInput(int x, int y)
 {
 	int dx, dy;
@@ -577,6 +615,10 @@ void CDigitanksCamera::MouseInput(int x, int y)
 
 		while (angMissile.y < -180)
 			angMissile.y += 360;
+
+		if (CNetwork::IsConnected() && !CNetwork::IsHost())
+			CGAng.RunCommand(sprintf(L"%d %f %f %f", m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
+
 		m_hCameraGuidedMissile->SetAngles(angMissile);
 	}
 	else if (m_bRotatingCamera)

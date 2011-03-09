@@ -3,6 +3,8 @@
 
 #include "baseweapon.h"
 
+#include <renderer/particles.h>
+
 class CCameraGuidedMissile : public CBaseWeapon
 {
 	REGISTER_ENTITY_CLASS(CCameraGuidedMissile, CBaseWeapon);
@@ -36,9 +38,11 @@ public:
 
 protected:
 	bool						m_bLaunched;
-	float						m_flBoostTime;
-	float						m_flBoostVelocityGoal;
-	float						m_flBoostVelocity;
+	CNetworkedVariable<float>	m_flBoostTime;
+	CNetworkedVariable<float>	m_flBoostVelocityGoal;
+	CNetworkedVariable<float>	m_flBoostVelocity;
+
+	CParticleSystemInstanceHandle m_hTrailParticles;
 };
 
 #endif

@@ -9,13 +9,17 @@
 REGISTER_ENTITY(CCameraGuidedMissile);
 
 NETVAR_TABLE_BEGIN(CCameraGuidedMissile);
+	NETVAR_DEFINE(float, m_flBoostTime);
+	NETVAR_DEFINE(float, m_flBoostVelocityGoal);
+	NETVAR_DEFINE(float, m_flBoostVelocity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bLaunched);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostTime);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocityGoal);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBoostVelocity);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostVelocityGoal);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostVelocity);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);
 SAVEDATA_TABLE_END();
 
 void CCameraGuidedMissile::Precache()
@@ -28,13 +32,13 @@ void CCameraGuidedMissile::Spawn()
 {
 	BaseClass::Spawn();
 
-	DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(this);
-	DigitanksWindow()->SetMouseCursorEnabled(false);
-
 	m_flBoostVelocityGoal = 0;
 	m_flBoostVelocity = 0;
 	m_flBoostTime = 0;
 	m_bLaunched = false;
+
+	m_hTrailParticles.SetSystem(L"shell-trail", GetOrigin());
+	m_hTrailParticles.FollowEntity(this);
 }
 
 void CCameraGuidedMissile::Think()
@@ -67,6 +71,8 @@ void CCameraGuidedMissile::Think()
 
 	if (m_flTimeExploded == 0.0f && GameServer()->GetGameTime() - GetSpawnTime() > 13.0f)
 		Explode();
+
+	m_hTrailParticles.SetActive(m_flTimeExploded == 0.0f && GetOwner() && GetOwner()->GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam());
 }
 
 void CCameraGuidedMissile::OnSetOwner(CDigitank* pOwner)
@@ -85,6 +91,12 @@ void CCameraGuidedMissile::OnSetOwner(CDigitank* pOwner)
 
 	SetSimulated(true);
 	SetCollisionGroup(CG_PROJECTILE);
+
+	if (pOwner && pOwner->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	{
+		DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(this);
+		DigitanksWindow()->SetMouseCursorEnabled(false);
+	}
 }
 
 void CCameraGuidedMissile::SpecialCommand()
@@ -173,12 +185,18 @@ void CCameraGuidedMissile::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
 
-	DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(NULL);
-	DigitanksGame()->GetDigitanksCamera()->SnapTarget(GetOrigin());
-	DigitanksWindow()->SetMouseCursorEnabled(true);
+	if (m_hOwner && m_hOwner->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	{
+		DigitanksGame()->GetDigitanksCamera()->SetCameraGuidedMissile(NULL);
+		DigitanksGame()->GetDigitanksCamera()->SnapTarget(GetOrigin());
+		DigitanksWindow()->SetMouseCursorEnabled(true);
+	}
+
+	StopSound(L"sound/missile-flight.wav");
 }
 
 void CCameraGuidedMissile::OnDeleted()
 {
 	DigitanksWindow()->SetMouseCursorEnabled(true);
+	StopSound(L"sound/missile-flight.wav");
 }
