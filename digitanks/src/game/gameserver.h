@@ -71,7 +71,7 @@ public:
 	void										DestroyAllEntities(const eastl::vector<eastl::string>& asSpare = eastl::vector<eastl::string>(), bool bRemakeGame = false);
 
 	NET_CALLBACK(CGameServer,					UpdateValue);
-	NET_CALLBACK(CGameServer,					ClientCommand);
+	NET_CALLBACK(CGameServer,					NetworkCommand);
 	NET_CALLBACK(CGameServer,					ClientInfo);
 
 	float										GetFrameTime() { return m_flFrameTime; };

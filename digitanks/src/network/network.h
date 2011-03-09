@@ -9,20 +9,24 @@
 #include <vector.h>
 #include <strutils.h>
 
-typedef void (*CommandServerCallback)(class CClientCommand* pCmd, size_t iClient, const eastl::string16& sParameters);
+typedef void (*CommandServerCallback)(class CNetworkCommand* pCmd, size_t iClient, const eastl::string16& sParameters);
 
-class CClientCommand
+class CNetworkCommand
 {
 public:
-	CClientCommand(eastl::string16 sName, CommandServerCallback pfnCallback)
+	CNetworkCommand(eastl::string16 sName, CommandServerCallback pfnCallback, int iTarget)
 	{
 		m_sName = str_replace(sName, L" ", L"-");
 		m_pfnCallback = pfnCallback;
+		m_iMessageTarget = iTarget;
 	};
 
 public:
 	void					RunCommand(const eastl::string16& sParameters);
 	void					RunCallback(size_t iClient, const eastl::string16& sParameters);
+
+	// Flips the message around, it becomes a message to all clients
+	int						GetMessageTarget() { return m_iMessageTarget; };
 
 	size_t					GetNumArguments();
 	eastl::string16			Arg(size_t i);
@@ -30,29 +34,44 @@ public:
 	int						ArgAsInt(size_t i);
 	float					ArgAsFloat(size_t i);
 
-	static eastl::map<eastl::string16, CClientCommand*>& GetCommands();
-	static CClientCommand*	GetCommand(const eastl::string16& sName);
-	static void				RegisterCommand(CClientCommand* pCommand);
+	static eastl::map<eastl::string16, CNetworkCommand*>& GetCommands();
+	static CNetworkCommand*	GetCommand(const eastl::string16& sName);
+	static void				RegisterCommand(CNetworkCommand* pCommand);
 
 protected:
 	eastl::string16			m_sName;
 	CommandServerCallback	m_pfnCallback;
 
 	eastl::vector<eastl::string16> m_asArguments;
+
+	int						m_iMessageTarget;
 };
 
 #define CLIENT_COMMAND(name) \
-void ClientCommand_##name(CClientCommand* pCmd, size_t iClient, const eastl::string16& sParameters); \
-CClientCommand name(convertstring<char, char16_t>(#name), ClientCommand_##name); \
+void ClientCommand_##name(CNetworkCommand* pCmd, size_t iClient, const eastl::string16& sParameters); \
+CNetworkCommand name(convertstring<char, char16_t>(#name), ClientCommand_##name, NETWORK_TOSERVER); \
 class CRegisterClientCommand##name \
 { \
 public: \
 	CRegisterClientCommand##name() \
 	{ \
-		CClientCommand::RegisterCommand(&name); \
+		CNetworkCommand::RegisterCommand(&name); \
 	} \
 } g_RegisterClientCommand##name = CRegisterClientCommand##name(); \
-void ClientCommand_##name(CClientCommand* pCmd, size_t iClient, const eastl::string16& sParameters) \
+void ClientCommand_##name(CNetworkCommand* pCmd, size_t iClient, const eastl::string16& sParameters) \
+
+#define SERVER_COMMAND(name) \
+void ServerCommand_##name(CNetworkCommand* pCmd, size_t iClient, const eastl::string16& sParameters); \
+CNetworkCommand name(convertstring<char, char16_t>(#name), ServerCommand_##name, NETWORK_TOCLIENTS); \
+class CRegisterServerCommand##name \
+{ \
+public: \
+	CRegisterServerCommand##name() \
+	{ \
+		CNetworkCommand::RegisterCommand(&name); \
+	} \
+} g_RegisterServerCommand##name = CRegisterServerCommand##name(); \
+void ServerCommand_##name(CNetworkCommand* pCmd, size_t iClient, const eastl::string16& sParameters) \
 
 #define NET_CALLBACK(type, pfn) \
 	virtual void pfn(CNetworkParameters* p); \

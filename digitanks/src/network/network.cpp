@@ -481,7 +481,7 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 	m_bDirty = true;
 }
 
-void CClientCommand::RunCommand(const eastl::string16& sParameters)
+void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
 	// If we're running client functions then we're going to get this message from the server anyway.
 	if (CNetwork::IsRunningClientFunctions())
@@ -505,22 +505,22 @@ void CClientCommand::RunCommand(const eastl::string16& sParameters)
 
 	p.ui1 = GameServer()->GetClientIndex();
 
-	CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "CC", &p);
+	CNetwork::CallFunctionParameters(m_iMessageTarget, "NC", &p);
 }
 
-void CClientCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
+void CNetworkCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
 {
 	wcstok(sParameters, m_asArguments);
 
 	m_pfnCallback(this, iClient, sParameters);
 }
 
-size_t CClientCommand::GetNumArguments()
+size_t CNetworkCommand::GetNumArguments()
 {
 	return m_asArguments.size();
 }
 
-eastl::string16 CClientCommand::Arg(size_t iArg)
+eastl::string16 CNetworkCommand::Arg(size_t iArg)
 {
 	assert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
@@ -529,7 +529,7 @@ eastl::string16 CClientCommand::Arg(size_t iArg)
 	return m_asArguments[iArg];
 }
 
-size_t CClientCommand::ArgAsUInt(size_t iArg)
+size_t CNetworkCommand::ArgAsUInt(size_t iArg)
 {
 	assert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
@@ -538,7 +538,7 @@ size_t CClientCommand::ArgAsUInt(size_t iArg)
 	return _wtoi(m_asArguments[iArg].c_str());
 }
 
-int CClientCommand::ArgAsInt(size_t iArg)
+int CNetworkCommand::ArgAsInt(size_t iArg)
 {
 	assert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
@@ -547,7 +547,7 @@ int CClientCommand::ArgAsInt(size_t iArg)
 	return _wtoi(m_asArguments[iArg].c_str());
 }
 
-float CClientCommand::ArgAsFloat(size_t iArg)
+float CNetworkCommand::ArgAsFloat(size_t iArg)
 {
 	assert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
@@ -556,22 +556,22 @@ float CClientCommand::ArgAsFloat(size_t iArg)
 	return (float)_wtof(m_asArguments[iArg].c_str());
 }
 
-eastl::map<eastl::string16, CClientCommand*>& CClientCommand::GetCommands()
+eastl::map<eastl::string16, CNetworkCommand*>& CNetworkCommand::GetCommands()
 {
-	static eastl::map<eastl::string16, CClientCommand*> aCommands;
+	static eastl::map<eastl::string16, CNetworkCommand*> aCommands;
 	return aCommands;
 }
 
-CClientCommand* CClientCommand::GetCommand(const eastl::string16& sName)
+CNetworkCommand* CNetworkCommand::GetCommand(const eastl::string16& sName)
 {
-	eastl::map<eastl::string16, CClientCommand*>::iterator it = GetCommands().find(sName);
+	eastl::map<eastl::string16, CNetworkCommand*>::iterator it = GetCommands().find(sName);
 	if (it == GetCommands().end())
 		return NULL;
 
 	return it->second;
 }
 
-void CClientCommand::RegisterCommand(CClientCommand* pCommand)
+void CNetworkCommand::RegisterCommand(CNetworkCommand* pCommand)
 {
 	GetCommands()[pCommand->m_sName] = pCommand;
 }

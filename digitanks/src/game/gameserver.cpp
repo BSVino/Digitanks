@@ -214,7 +214,7 @@ CLevel* CGameServer::GetLevel(eastl::string16 sFile)
 void CGameServer::RegisterNetworkFunctions()
 {
 	CNetwork::RegisterFunction("UV", this, UpdateValueCallback, 2, NET_HANDLE, NET_HANDLE);
-	CNetwork::RegisterFunction("CC", this, ClientCommandCallback, 0);
+	CNetwork::RegisterFunction("NC", this, NetworkCommandCallback, 0);
 
 	CNetwork::RegisterFunction("ClientInfo", this, ClientInfoCallback, 2, NET_INT, NET_FLOAT);
 	CNetwork::RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
@@ -705,7 +705,7 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 		pVarData->m_pfnChanged(pVariable);
 }
 
-void CGameServer::ClientCommand(CNetworkParameters* p)
+void CGameServer::NetworkCommand(CNetworkParameters* p)
 {
 	assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
 	char16_t* pszData = (char16_t*)p->m_pExtraData;
@@ -727,11 +727,11 @@ void CGameServer::ClientCommand(CNetworkParameters* p)
 		sParameters = sCommand.substr(iSpace+1);
 	}
 
-	CClientCommand* pCommand = CClientCommand::GetCommand(sName);
+	CNetworkCommand* pCommand = CNetworkCommand::GetCommand(sName);
 
 	if (!pCommand)
 	{
-		TMsg(sprintf(L"Client command '%s' unknown.\n", sName));
+		TMsg(sprintf(L"Network command '%s' unknown.\n", sName));
 		return;
 	}
 
