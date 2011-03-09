@@ -30,6 +30,9 @@ public:
 
 	virtual bool				IsBoosting() { return m_flBoostTime > 0; }
 
+	void						SetViewAngles(EAngle angView) { m_angView = angView; }
+	EAngle						GetViewAngles() { return m_angView; }
+
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_CAMERAGUIDED; }
 	virtual float				VelocityPerSecond() { return 50.0f; }
 	virtual float				BoostVelocity() { return 50.0f; }
@@ -43,6 +46,8 @@ protected:
 	CNetworkedVariable<float>	m_flBoostVelocity;
 
 	CParticleSystemInstanceHandle m_hTrailParticles;
+
+	EAngle						m_angView;
 };
 
 #endif

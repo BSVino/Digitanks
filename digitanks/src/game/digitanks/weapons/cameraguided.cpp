@@ -20,6 +20,7 @@ SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostVelocityGoal);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBoostVelocity);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angView);
 SAVEDATA_TABLE_END();
 
 void CCameraGuidedMissile::Precache()
@@ -66,7 +67,7 @@ void CCameraGuidedMissile::Think()
 			EmitSound(L"sound/missile-flight.wav", true);
 		}
 
-		SetVelocity(AngleVector(GetAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
+		SetVelocity(AngleVector(GetViewAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
 	}
 
 	if (m_flTimeExploded == 0.0f && GameServer()->GetGameTime() - GetSpawnTime() > 13.0f)
@@ -84,6 +85,7 @@ void CCameraGuidedMissile::OnSetOwner(CDigitank* pOwner)
 		SetOrigin(pOwner->GetOrigin() + Vector(0, 5, 0));
 		EAngle angMissile = VectorAngles((pOwner->GetLastAim() - pOwner->GetOrigin()).Normalized());
 		angMissile.p = 30;
+		SetViewAngles(angMissile);
 		SetAngles(angMissile);
 		SetVelocity(Vector());
 		SetGravity(Vector());

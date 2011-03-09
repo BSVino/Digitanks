@@ -497,7 +497,7 @@ Vector CDigitanksCamera::GetCameraTarget()
 	}
 
 	if (m_hCameraGuidedMissile != NULL)
-		return m_hCameraGuidedMissile->GetOrigin() + AngleVector(m_hCameraGuidedMissile->GetAngles());
+		return m_hCameraGuidedMissile->GetOrigin() + AngleVector(m_hCameraGuidedMissile->GetViewAngles());
 
 	if (m_bFreeMode)
 		return BaseClass::GetCameraTarget();
@@ -588,7 +588,9 @@ CLIENT_COMMAND(CGAng)
 		return;
 	}
 
-	hMissile->SetAngles(EAngle(pCmd->ArgAsFloat(1), pCmd->ArgAsFloat(2), pCmd->ArgAsFloat(3)));
+	EAngle angMissile(pCmd->ArgAsFloat(1), pCmd->ArgAsFloat(2), pCmd->ArgAsFloat(3));
+	hMissile->SetViewAngles(angMissile);
+	hMissile->SetAngles(angMissile);
 }
 
 void CDigitanksCamera::MouseInput(int x, int y)
@@ -600,7 +602,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 
 	if (m_hCameraGuidedMissile != NULL)
 	{
-		EAngle angMissile = m_hCameraGuidedMissile->GetAngles();
+		EAngle angMissile = m_hCameraGuidedMissile->GetViewAngles();
 		angMissile.y += (dx/5.0f);
 		angMissile.p -= (dy/5.0f);
 
@@ -619,6 +621,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		if (CNetwork::IsConnected() && !CNetwork::IsHost())
 			CGAng.RunCommand(sprintf(L"%d %f %f %f", m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
 
+		m_hCameraGuidedMissile->SetViewAngles(angMissile);
 		m_hCameraGuidedMissile->SetAngles(angMissile);
 	}
 	else if (m_bRotatingCamera)
