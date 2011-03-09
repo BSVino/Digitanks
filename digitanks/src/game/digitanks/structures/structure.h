@@ -45,7 +45,7 @@ public:
 	virtual void				CompleteConstruction();
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	size_t						GetTurnsToConstruct(Vector vecConstructionOrigin);
-	bool						IsConstructing() const { return m_bConstructing.Get(); };
+	bool						IsConstructing() const { return m_bConstructing; };
 	void						SetConstructing(bool bConstructing) { m_bConstructing = bConstructing; };
 	virtual size_t				GetTurnsRemainingToConstruct() { return m_iTurnsToConstruct; };
 
@@ -87,22 +87,22 @@ public:
 	virtual float				TotalHealth() const { return 500; };
 
 	virtual size_t				InitialFleetPoints() const { return 0; };
-	virtual size_t				FleetPoints() const { return m_iFleetSupply.Get(); };
+	virtual size_t				FleetPoints() const { return m_iFleetSupply; };
 	virtual void				AddFleetPoints(size_t iAddPoints) { m_iFleetSupply += iAddPoints; };
 
 	virtual float				InitialBandwidth() const { return 0; };
-	virtual float				Bandwidth() const { return m_flBandwidth.Get(); };
+	virtual float				Bandwidth() const { return m_flBandwidth; };
 	virtual void				AddBandwidth(float flAddBandwidth) { m_flBandwidth += flAddBandwidth; };
 
 	virtual float				InitialPower() const { return 0; };
-	virtual float				Power() const { return m_flPowerProduced.Get(); };
+	virtual float				Power() const { return m_flPowerProduced; };
 
 	virtual size_t				InitialEnergyBonus() const { return 4; };
-	virtual size_t				EnergyBonus() const { return m_iEnergyBonus.Get(); };
+	virtual size_t				EnergyBonus() const { return m_iEnergyBonus; };
 	virtual void				AddEnergyBonus(size_t e) { m_iEnergyBonus += e; };
 
 	virtual float				InitialRechargeBonus() const { return 5.0f; };
-	virtual float				RechargeBonus() const { return m_flRechargeBonus.Get(); };
+	virtual float				RechargeBonus() const { return m_flRechargeBonus; };
 	virtual void				AddRechargeBonus(float r) { m_flRechargeBonus += r; };
 
 	// AI stuff

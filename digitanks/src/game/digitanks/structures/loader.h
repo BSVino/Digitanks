@@ -40,7 +40,7 @@ public:
 	size_t						GetTurnsToProduce();
 
 	void						SetBuildUnit(unittype_t eBuildUnit);
-	unittype_t					GetBuildUnit() const { return m_eBuildUnit.Get(); };
+	unittype_t					GetBuildUnit() const { return m_eBuildUnit; };
 
 	virtual eastl::string16		GetName();
 	virtual unittype_t			GetUnitType() const;

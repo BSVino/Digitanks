@@ -313,7 +313,7 @@ public:
 	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
 	virtual void							SetSpawnSeed(size_t iSpawnSeed);
 
-	virtual float							GetSpawnTime() const { return m_flSpawnTime.Get(); }
+	virtual float							GetSpawnTime() const { return m_flSpawnTime; }
 	virtual void							SetSpawnTime(float flSpawnTime) { m_flSpawnTime = flSpawnTime; };
 
 	virtual size_t							GetRegistration() { return m_iRegistration; }
