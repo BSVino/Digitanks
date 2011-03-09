@@ -3201,7 +3201,7 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 		CNetwork::CallFunction(NETWORK_TOCLIENTS, "TankPromoted", GetHandle());
 	}
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	Speak(TANKSPEECH_PROMOTED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -3221,7 +3221,7 @@ void CDigitank::PromoteAttack()
 	m_iBonusPoints--;
 	m_flBonusAttackPower++;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	if (GetTeam()->IsPlayerControlled())
 	{
@@ -3244,7 +3244,7 @@ void CDigitank::PromoteDefense()
 	m_iBonusPoints--;
 	m_flBonusDefensePower++;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	if (GetTeam()->IsPlayerControlled())
 	{
@@ -3267,7 +3267,7 @@ void CDigitank::PromoteMovement()
 	m_iBonusPoints--;
 	m_flBonusMovementPower++;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints, m_flBonusAttackPower, m_flBonusDefensePower, m_flBonusMovementPower);
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	if (GetTeam()->IsPlayerControlled())
 	{
