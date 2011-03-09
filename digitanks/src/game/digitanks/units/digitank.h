@@ -193,7 +193,7 @@ public:
 	virtual bool				IsSentried() const { return m_bSentried; };
 
 	void						Charge();
-	void						Charge(class CNetworkParameters* p);
+	void						Charge(CBaseEntity* pTarget);
 
 	void						GiveCloak() { m_bHasCloak = true; }
 	bool						HasCloak() { return m_bHasCloak; }

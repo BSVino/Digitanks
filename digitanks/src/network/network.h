@@ -9,7 +9,7 @@
 #include <vector.h>
 #include <strutils.h>
 
-typedef void (*CommandServerCallback)(size_t iClient, const eastl::string16& sParameters);
+typedef void (*CommandServerCallback)(class CClientCommand* pCmd, size_t iClient, const eastl::string16& sParameters);
 
 class CClientCommand
 {
@@ -24,6 +24,12 @@ public:
 	void					RunCommand(const eastl::string16& sParameters);
 	void					RunCallback(size_t iClient, const eastl::string16& sParameters);
 
+	size_t					GetNumArguments();
+	eastl::string16			Arg(size_t i);
+	size_t					ArgAsUInt(size_t i);
+	int						ArgAsInt(size_t i);
+	float					ArgAsFloat(size_t i);
+
 	static eastl::map<eastl::string16, CClientCommand*>& GetCommands();
 	static CClientCommand*	GetCommand(const eastl::string16& sName);
 	static void				RegisterCommand(CClientCommand* pCommand);
@@ -31,10 +37,12 @@ public:
 protected:
 	eastl::string16			m_sName;
 	CommandServerCallback	m_pfnCallback;
+
+	eastl::vector<eastl::string16> m_asArguments;
 };
 
 #define CLIENT_COMMAND(name) \
-void ClientCommand_##name(size_t iClient, const eastl::string16& sParameters); \
+void ClientCommand_##name(CClientCommand* pCmd, size_t iClient, const eastl::string16& sParameters); \
 CClientCommand name(convertstring<char, char16_t>(#name), ClientCommand_##name); \
 class CRegisterClientCommand##name \
 { \
@@ -43,8 +51,8 @@ public: \
 	{ \
 		CClientCommand::RegisterCommand(&name); \
 	} \
-} g_RegisterClientCommand##entity = CRegisterClientCommand##name(); \
-void ClientCommand_##name(size_t iClient, const eastl::string16& sParameters) \
+} g_RegisterClientCommand##name = CRegisterClientCommand##name(); \
+void ClientCommand_##name(CClientCommand* pCmd, size_t iClient, const eastl::string16& sParameters) \
 
 #define NET_CALLBACK(type, pfn) \
 	virtual void pfn(CNetworkParameters* p); \

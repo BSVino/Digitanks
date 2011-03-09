@@ -33,7 +33,9 @@ inline void strtok(const eastl::string& str, eastl::vector<eastl::string>& token
 // It's inline so I don't have to make a strutils.cpp :P
 inline void wcstok(const eastl::string16& str, eastl::vector<eastl::string16>& tokens, const eastl::string16& delimiters = L" \r\n\t")
 {
-    // Skip delimiters at beginning.
+	tokens.clear();
+
+	// Skip delimiters at beginning.
     eastl::string16::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
     eastl::string16::size_type pos     = str.find_first_of(delimiters, lastPos);

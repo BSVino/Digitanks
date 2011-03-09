@@ -485,7 +485,8 @@ void CClientCommand::RunCommand(const eastl::string16& sParameters)
 {
 	if (CNetwork::IsHost() || !CNetwork::IsConnected())
 	{
-		m_pfnCallback(-1, sParameters);
+		wcstok(sParameters, m_asArguments);
+		m_pfnCallback(this, -1, sParameters);
 		return;
 	}
 
@@ -505,7 +506,50 @@ void CClientCommand::RunCommand(const eastl::string16& sParameters)
 
 void CClientCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
 {
-	m_pfnCallback(iClient, sParameters);
+	wcstok(sParameters, m_asArguments);
+
+	m_pfnCallback(this, iClient, sParameters);
+}
+
+size_t CClientCommand::GetNumArguments()
+{
+	return m_asArguments.size();
+}
+
+eastl::string16 CClientCommand::Arg(size_t iArg)
+{
+	assert(iArg < GetNumArguments());
+	if (iArg >= GetNumArguments())
+		return 0;
+
+	return m_asArguments[iArg];
+}
+
+size_t CClientCommand::ArgAsUInt(size_t iArg)
+{
+	assert(iArg < GetNumArguments());
+	if (iArg >= GetNumArguments())
+		return 0;
+
+	return _wtoi(m_asArguments[iArg].c_str());
+}
+
+int CClientCommand::ArgAsInt(size_t iArg)
+{
+	assert(iArg < GetNumArguments());
+	if (iArg >= GetNumArguments())
+		return 0;
+
+	return _wtoi(m_asArguments[iArg].c_str());
+}
+
+float CClientCommand::ArgAsFloat(size_t iArg)
+{
+	assert(iArg < GetNumArguments());
+	if (iArg >= GetNumArguments())
+		return 0;
+
+	return (float)_wtof(m_asArguments[iArg].c_str());
 }
 
 eastl::map<eastl::string16, CClientCommand*>& CClientCommand::GetCommands()

@@ -1362,6 +1362,38 @@ void CDigitank::Sentry(CNetworkParameters* p)
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
+CLIENT_COMMAND(Charge)
+{
+	if (pCmd->GetNumArguments() < 2)
+	{
+		TMsg("Charge with less than 2 parameters.\n");
+		return;
+	}
+
+	CEntityHandle<CDigitank> hTank(pCmd->ArgAsUInt(0));
+	CEntityHandle<CBaseEntity> hTarget(pCmd->ArgAsUInt(1));
+
+	if (hTank == NULL)
+	{
+		TMsg("Charge on invalid tank.\n");
+		return;
+	}
+
+	if ((!hTank->GetTeam() || hTank->GetTeam()->GetClient() != (int)iClient))
+	{
+		TMsg("Charge for a tank the player doesn't own.\n");
+		return;
+	}
+
+	if (hTarget == NULL)
+	{
+		TMsg("Charge with an invalid target.\n");
+		return;
+	}
+
+	hTank->Charge(hTarget);
+}
+
 void CDigitank::Charge()
 {
 	if (IsFortified() && !CanTurnFortified())
@@ -1379,44 +1411,33 @@ void CDigitank::Charge()
 	if (IsDisabled())
 		return;
 
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOEVERYONE, "Charge", GetHandle(), m_hPreviewCharge->GetHandle());
-
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-	p.ui2 = m_hPreviewCharge->GetHandle();
-	Charge(&p);
+	::Charge.RunCommand(sprintf(L"%d %d", GetHandle(), m_hPreviewCharge->GetHandle()));
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 }
 
-void CDigitank::Charge(class CNetworkParameters* p)
+void CDigitank::Charge(CBaseEntity* pTarget)
 {
-	CEntityHandle<CBaseEntity> hTarget = p->ui2;
+	m_hChargeTarget = pTarget;
 
-	m_hChargeTarget = hTarget;
-
-	if (hTarget == NULL)
+	if (pTarget == NULL)
 		return;
 
-	Vector vecChargeDirection = (hTarget->GetOrigin() - GetOrigin()).Normalized();
+	Vector vecChargeDirection = (pTarget->GetOrigin() - GetOrigin()).Normalized();
 
 	Turn(VectorAngles(vecChargeDirection));
 
-	float flDistanceToTarget = hTarget->Distance(GetOrigin());
+	float flDistanceToTarget = pTarget->Distance(GetOrigin());
 	if (flDistanceToTarget < 10)
 	{
-		Vector vecChargeStart = hTarget->GetOrigin() - vecChargeDirection * 20;
+		Vector vecChargeStart = pTarget->GetOrigin() - vecChargeDirection * 20;
 		vecChargeStart.y = FindHoverHeight(vecChargeStart);
 		Move(vecChargeStart);
 	}
 
-	if (CNetwork::IsHost())
-	{
-		m_flTotalPower -= ChargeEnergy();
-		m_flAttackPower += ChargeEnergy();
-		m_flMovementPower += ChargeEnergy();
-	}
+	m_flTotalPower -= ChargeEnergy();
+	m_flAttackPower += ChargeEnergy();
+	m_flMovementPower += ChargeEnergy();
 
 	m_flGoalTurretYaw = -180;
 
@@ -2438,17 +2459,14 @@ CBaseWeapon* CDigitank::CreateWeapon()
 
 CLIENT_COMMAND(SetCurrentWeapon)
 {
-	eastl::vector<eastl::string16> asArguments;
-	wcstok(sParameters, asArguments);
-
-	if (asArguments.size() < 2)
+	if (pCmd->GetNumArguments() < 2)
 	{
 		TMsg("SetCurrentWeapon with less than 2 parameters.\n");
 		return;
 	}
 
-	CEntityHandle<CDigitank> hTank(_wtoi(asArguments[0].c_str()));
-	weapon_t eWeapon = (weapon_t)_wtoi(asArguments[1].c_str());
+	CEntityHandle<CDigitank> hTank(pCmd->ArgAsUInt(0));
+	weapon_t eWeapon = (weapon_t)pCmd->ArgAsInt(1);
 
 	if (hTank == NULL)
 	{
