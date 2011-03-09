@@ -202,7 +202,7 @@ public:
 	void					AddProjectileToWaitFor() { m_iWaitingForProjectiles++; };
 	size_t					GetNumProjectilesWaitingFor() { return m_iWaitingForProjectiles; };
 
-	void					WeaponSpecialCommand();
+	void					WeaponSpecialCommand(CDigitanksTeam* pTeam = NULL);
 
 	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
 	void					GetTankAims(eastl::vector<Vector>& avecAims, eastl::vector<float>& aflAimRadius, size_t& iFocus);
