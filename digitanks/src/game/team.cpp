@@ -5,9 +5,11 @@
 REGISTER_ENTITY(CTeam);
 
 NETVAR_TABLE_BEGIN(CTeam);
+	NETVAR_DEFINE(bool, m_bHumanPlayable);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHumanPlayable);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Color, m_clrTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahMembers);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientControlled);

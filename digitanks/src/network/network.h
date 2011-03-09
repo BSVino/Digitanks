@@ -397,8 +397,12 @@ class CNetworkedVector : public CNetworkedVariable<Vector>
 public:
 	inline const CNetworkedVector& operator=(const Vector v)
 	{
-		m_bDirty = true;
-		m_oVariable = v;
+		if ((m_oVariable - v).LengthSqr() > 0)
+		{
+			m_bDirty = true;
+			m_oVariable = v;
+		}
+
 		return *this;
 	}
 
@@ -428,8 +432,12 @@ class CNetworkedEAngle : public CNetworkedVariable<EAngle>
 public:
 	inline const CNetworkedEAngle& operator=(const EAngle v)
 	{
-		m_bDirty = true;
-		m_oVariable = v;
+		if (v.p != m_oVariable.p || v.p != m_oVariable.p || v.p != m_oVariable.p)
+		{
+			m_bDirty = true;
+			m_oVariable = v;
+		}
+
 		return *this;
 	}
 };

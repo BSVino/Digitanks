@@ -405,6 +405,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 	pTeam->SetColor(Color(128, 128, 128));
 	pTeam->SetName(eastl::string16(L"Network Guardians"));
 	pTeam->Bot_UseArtilleryAI();
+	pTeam->SetNotHumanPlayable();
 	pTeam->DontIncludeInScoreboard();
 
 	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)

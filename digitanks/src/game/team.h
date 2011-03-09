@@ -15,6 +15,9 @@ public:
 	virtual						~CTeam();
 
 public:
+	bool						IsHumanPlayable() { return m_bHumanPlayable; }
+	void						SetNotHumanPlayable() { m_bHumanPlayable = false; }
+
 	virtual bool				OnUnserialize(std::istream& i);
 
 	void						AddEntity(CBaseEntity* pEntity);
@@ -49,6 +52,8 @@ public:
 	eastl::string16				GetName() { return m_szName; }
 
 protected:
+	CNetworkedVariable<bool>	m_bHumanPlayable;
+
 	Color						m_clrTeam;
 
 	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahMembers;

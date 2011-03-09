@@ -60,7 +60,7 @@ void CGame::OnClientConnect(CNetworkParameters* p)
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (!m_ahTeams[i]->IsPlayerControlled())
+		if (!m_ahTeams[i]->IsPlayerControlled() && m_ahTeams[i]->IsHumanPlayable())
 		{
 			p->p1 = (void*)i;
 			m_ahTeams[i]->SetClient(p->i2);
