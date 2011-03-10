@@ -72,6 +72,8 @@ NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(size_t, m_iTurn);
 	NETVAR_DEFINE(CEntityHandle<CUpdateGrid>, m_hUpdates);
 	NETVAR_DEFINE(bool, m_bPartyMode);
+	NETVAR_DEFINE(float, m_aflConstructionCosts);
+	NETVAR_DEFINE(float, m_aflUpgradeCosts);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksGame);
@@ -99,8 +101,8 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPartyModeStart);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, airstrike_t, m_aAirstrikes);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, float, m_aflConstructionCosts);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, float, m_aflUpgradeCosts);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_aflConstructionCosts);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_aflUpgradeCosts);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowFightSign);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastHumanMove);
 SAVEDATA_TABLE_END();
@@ -165,7 +167,6 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("UpdatesData", this, UpdatesDataCallback, 0);
 
 	// CDigitanksTeam
-	CNetwork::RegisterFunction("TeamUpdatesData", this, TeamUpdatesDataCallback, 0);
 	CNetwork::RegisterFunction("DownloadUpdate", this, DownloadUpdateCallback, 0);
 	CNetwork::RegisterFunction("DownloadComplete", this, DownloadCompleteCallback, 0);
 
@@ -231,8 +232,10 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 {
-	memset(&m_aflConstructionCosts[0], 0, sizeof(m_aflConstructionCosts));
-	memset(&m_aflUpgradeCosts[0], 0, sizeof(m_aflUpgradeCosts));
+	for (size_t i = 0; i < m_aflConstructionCosts.size(); i++)
+		m_aflConstructionCosts[i] = 0;
+	for (size_t i = 0; i < m_aflUpgradeCosts.size(); i++)
+		m_aflUpgradeCosts[i] = 0;
 
 	std::ifstream f((eastl::string16(L"scripts/") + sScript).c_str());
 	CData* pData = new CData();
@@ -399,7 +402,7 @@ void CDigitanksGame::SetupProps()
 
 void CDigitanksGame::ScatterNeutralUnits()
 {
-	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 	pTeam->SetColor(Color(128, 128, 128));
@@ -493,7 +496,7 @@ void CDigitanksGame::SetupArtillery()
 
 	for (int i = 0; i < iPlayers; i++)
 	{
-		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+		AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
@@ -573,7 +576,7 @@ void CDigitanksGame::SetupStrategy()
 
 	for (int i = 0; i < iPlayers; i++)
 	{
-		AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+		AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
@@ -662,10 +665,10 @@ void CDigitanksGame::SetupTutorial()
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
 
-	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
-	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[1]->SetColor(Color(255, 0, 0));
 
 	m_ahTeams[0]->SetClient(-1);
@@ -682,7 +685,7 @@ void CDigitanksGame::SetupMenuMarch()
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
 
-	AddTeamToList(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
 #ifndef _DEBUG
@@ -730,7 +733,7 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 	while (m_ahTeams.size())
 	{
 		CTeam* pTeam = m_ahTeams[0];
-		RemoveTeamFromList(pTeam);
+		RemoveTeam(pTeam);
 		pTeam->Delete();
 	}
 
@@ -2364,4 +2367,9 @@ bool CDigitanksGame::SoftCraters()
 void CDigitanksGame::UpdateHUD(CNetworkedVariableBase* pVariable)
 {
 	CHUD::SetNeedsUpdate();
+}
+
+void CDigitanksGame::UpdateTeamMembers(CNetworkedVariableBase* pVariable)
+{
+	CHUD::SetTeamMembersUpdated();
 }

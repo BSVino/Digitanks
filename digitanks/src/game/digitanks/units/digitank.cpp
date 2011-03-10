@@ -90,6 +90,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(int, m_iMoveType);
 
 	NETVAR_DEFINE(float, m_flPreviousTurn);
+	NETVAR_DEFINE(float, m_flStartedTurn);
 
 	NETVAR_DEFINE(Vector, m_vecLastAim);
 
@@ -106,12 +107,18 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(bool, m_bActionTaken);
 	NETVAR_DEFINE_CALLBACK(bool, m_bLostConcealment, &CDigitanksGame::UpdateHUD);
 
+	NETVAR_DEFINE(float, m_flShieldPulse);
+
 	NETVAR_DEFINE_CALLBACK(bool, m_bFortified, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(size_t, m_iFortifyLevel);
+	NETVAR_DEFINE(float, m_flFortifyTime);
 
 	NETVAR_DEFINE_CALLBACK(bool, m_bSentried, &CDigitanksGame::UpdateHUD);
 
 	NETVAR_DEFINE_CALLBACK(weapon_t, m_eWeapon, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(eastl::vector<weapon_t>, m_aeWeapons, &CDigitanksGame::UpdateHUD);
+
+	NETVAR_DEFINE_CALLBACK(size_t, m_iAirstrikes, &CDigitanksGame::UpdateHUD);
 
 	NETVAR_DEFINE(size_t, m_iTurnsDisabled);
 NETVAR_TABLE_END();
@@ -142,7 +149,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iMoveType);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPreviewTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPreviousTurn);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flStartedTurn);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartedTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bPreviewAim);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecPreviewAim);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecLastAim);
@@ -167,19 +174,19 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextIdle);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iTurretModel);	// Set in Spawn()
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iShieldModel);	// Set in Spawn()
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShieldPulse);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flShieldPulse);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hHoverParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hSmokeParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hFireParticles);		// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hChargeParticles);	// Dynamic
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFortifyTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flFortifyTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSentried);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, weapon_t, m_eWeapon);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, weapon_t, m_aeWeapons);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iAirstrikes);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, weapon_t, m_aeWeapons);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMissileDefenses);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextMissileDefense);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurnsDisabled);
@@ -3012,7 +3019,7 @@ void CDigitank::RenderShield()
 
 	CRenderingContext r(GameServer()->GetRenderer());
 
-	if (m_flShieldPulse == 0)
+	if (m_flShieldPulse == 0.0f)
 		return;
 
 	float flPulseAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flShieldPulse, m_flShieldPulse + 1.0f, 0.8f, 0);

@@ -11,17 +11,23 @@
 REGISTER_ENTITY(CWreckage);
 
 NETVAR_TABLE_BEGIN(CWreckage);
+	NETVAR_DEFINE(bool, m_bFallingIntoHole);
+	NETVAR_DEFINE(float, m_flScale);
+	NETVAR_DEFINE(Vector, m_vecColorSwap);
+	NETVAR_DEFINE(bool, m_bCrashed);
+	NETVAR_DEFINE(CEntityHandle<CDigitanksTeam>, m_hOldTeam);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CWreckage);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallingIntoHole);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFallingIntoHole);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iTurretModel);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecColorSwap);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flScale);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecColorSwap);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Color, m_clrSwap);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angList);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hBurnParticles);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bCrashed);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CDigitanksTeam>, m_hOldTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCrashed);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksTeam>, m_hOldTeam);
 SAVEDATA_TABLE_END();
 
 void CWreckage::Precache()
@@ -33,6 +39,8 @@ void CWreckage::Precache()
 void CWreckage::Spawn()
 {
 	BaseClass::Spawn();
+
+	m_flScale = 1;
 
 	m_bFallingIntoHole = false;
 	m_bCrashed = false;
@@ -71,15 +79,8 @@ void CWreckage::Think()
 	SetAngles(GetAngles() + m_angList*GameServer()->GetFrameTime());
 
 	// Slowly burn to black.
-	m_vecColorSwap = m_vecColorSwap - Vector(0.01f, 0.01f, 0.01f) * GameServer()->GetFrameTime();
-	if (m_vecColorSwap.x < 0)
-		m_vecColorSwap.x = 0;
-	if (m_vecColorSwap.y < 0)
-		m_vecColorSwap.y = 0;
-	if (m_vecColorSwap.z < 0)
-		m_vecColorSwap.z = 0;
-
-	m_clrSwap = m_vecColorSwap;
+	Vector vecColorSwap = m_vecColorSwap * RemapValClamped(GameServer()->GetFrameTime() - GetSpawnTime(), 0, 30, 1, 0);
+	m_clrSwap = vecColorSwap;
 
 	m_hBurnParticles.SetActive(GetVisibility() > 0.1f && !m_bFallingIntoHole);
 
@@ -96,6 +97,7 @@ void CWreckage::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 	BaseClass::ModifyContext(pContext, bTransparent);
 
 	pContext->SetColorSwap(m_clrSwap);
+	pContext->Scale(m_flScale, m_flScale, m_flScale);
 }
 
 void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent)

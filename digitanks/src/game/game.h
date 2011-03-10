@@ -27,15 +27,8 @@ public:
 
 	NET_CALLBACK(CGame,							SetAngles);
 
-	void										AddTeamToList(CTeam* pTeam);
-	NET_CALLBACK(CGame,							AddTeam);
-
-	void										RemoveTeamFromList(CTeam* pTeam);
-	NET_CALLBACK(CGame,							RemoveTeam);
-
-	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamColor);
-	NET_CALLBACK_ENTITY(CGame, CTeam,			SetTeamClient);
-	NET_CALLBACK_ENTITY(CGame, CTeam,			AddEntityToTeam);
+	void										AddTeam(CTeam* pTeam);
+	void										RemoveTeam(CTeam* pTeam);
 
 	virtual void								OnDeleted();
 
@@ -55,7 +48,7 @@ public:
 	virtual bool								AllowCheats();
 
 protected:
-	eastl::vector<CEntityHandle<CTeam> >		m_ahTeams;
+	CNetworkedSTLVector<CEntityHandle<CTeam> >	m_ahTeams;
 
 	eastl::vector<CEntityHandle<CTeam> >		m_ahLocalTeams;
 };

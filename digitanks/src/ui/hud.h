@@ -262,6 +262,7 @@ public:
 	void						LayoutTeamInfo();
 
 	static void					SetNeedsUpdate();
+	static void					SetTeamMembersUpdated();
 
 protected:
 	CPowerBar*					m_pHealthBar;

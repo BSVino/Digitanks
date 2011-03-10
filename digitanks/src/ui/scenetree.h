@@ -81,6 +81,7 @@ public:
 
 	virtual void					OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 	virtual void					OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
+	virtual void					OnTeamMembersUpdated();
 
 protected:
 	CEntityHandle<CDigitanksTeam>	m_hTeam;

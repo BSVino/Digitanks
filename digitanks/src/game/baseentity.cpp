@@ -514,7 +514,7 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 			CNetworkedVariableBase* pVariable = (CNetworkedVariableBase*)pData;
 			char* pRealData = new char[iDataLength];
 			i.read(pRealData, iDataLength);
-			pVariable->Unserialize(pRealData);
+			pVariable->Unserialize(iDataLength, pRealData);
 			delete[] pRealData;
 			break;
 		}

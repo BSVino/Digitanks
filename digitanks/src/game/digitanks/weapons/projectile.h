@@ -65,11 +65,11 @@ public:
 protected:
 	bool						m_bFallSoundPlayed;
 
-	Vector						m_vecLandingSpot;
+	CNetworkedVector			m_vecLandingSpot;
 
 	CParticleSystemInstanceHandle m_hTrailParticles;
 
-	bool						m_bFragmented;
+	CNetworkedVariable<bool>	m_bFragmented;
 	size_t						m_iBounces;
 
 	bool						m_bMissileDefensesNotified;

@@ -380,7 +380,7 @@ protected:
 
 	float						m_flPreviewTurn;
 	CNetworkedVariable<float>	m_flPreviousTurn;
-	float						m_flStartedTurn;
+	CNetworkedVariable<float>	m_flStartedTurn;
 
 	bool						m_bPreviewAim;
 	Vector						m_vecPreviewAim;
@@ -415,7 +415,7 @@ protected:
 	size_t						m_iTurretModel;
 	size_t						m_iShieldModel;
 
-	float						m_flShieldPulse;
+	CNetworkedVariable<float>	m_flShieldPulse;
 
 	CParticleSystemInstanceHandle m_hHoverParticles;
 	CParticleSystemInstanceHandle m_hSmokeParticles;
@@ -424,16 +424,16 @@ protected:
 
 	CNetworkedVariable<bool>	m_bFortified;
 	CNetworkedVariable<size_t>	m_iFortifyLevel;
-	float						m_flFortifyTime;
+	CNetworkedVariable<float>	m_flFortifyTime;
 
 	CNetworkedVariable<bool>	m_bSentried;
 
 	float						m_flBobOffset;
 
 	CNetworkedVariable<weapon_t> m_eWeapon;
-	eastl::vector<weapon_t>		m_aeWeapons;
+	CNetworkedSTLVector<weapon_t> m_aeWeapons;
 
-	size_t						m_iAirstrikes;
+	CNetworkedVariable<size_t>	m_iAirstrikes;
 	size_t						m_iMissileDefenses;
 	float						m_flNextMissileDefense;
 

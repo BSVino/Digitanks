@@ -178,7 +178,6 @@ public:
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CUpdateGrid, UpdatesData);
 
-	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, TeamUpdatesData);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadUpdate);
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitanksTeam, DownloadComplete);
 
@@ -257,6 +256,7 @@ public:
 	bool					IsPartyMode() { return m_bPartyMode; };
 
 	static void				UpdateHUD(CNetworkedVariableBase* pVariable);
+	static void				UpdateTeamMembers(CNetworkedVariableBase* pVariable);
 
 	// CHEAT!
 	void					CompleteProductions();
@@ -304,8 +304,8 @@ protected:
 
 	eastl::vector<airstrike_t>	m_aAirstrikes;
 
-	float						m_aflConstructionCosts[MAX_UNITS];
-	float						m_aflUpgradeCosts[MAX_UNITS];
+	CNetworkedArray<float, MAX_UNITS> m_aflConstructionCosts;
+	CNetworkedArray<float, MAX_UNITS> m_aflUpgradeCosts;
 
 	float						m_flShowFightSign;
 

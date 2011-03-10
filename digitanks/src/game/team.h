@@ -28,8 +28,6 @@ public:
 
 	void						StartTurn();
 
-	virtual void				ClientUpdate(int iClient);
-
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	bool						IsPlayerControlled() { return m_bClientControlled; };
@@ -44,9 +42,6 @@ public:
 	CBaseEntity*				GetMember(size_t i) { if (!m_ahMembers.size()) return NULL; return m_ahMembers[i]; };
 
 	void						AddTeam(class CNetworkParameters* p);
-	void						SetTeamColor(class CNetworkParameters* p);
-	void						SetTeamClient(class CNetworkParameters* p);
-	void						AddEntityToTeam(class CNetworkParameters* p);
 
 	void						SetName(const eastl::string16& sName) { m_sName = sName; };
 	eastl::string16				GetName() { return m_sName; }
@@ -54,12 +49,12 @@ public:
 protected:
 	CNetworkedVariable<bool>	m_bHumanPlayable;
 
-	Color						m_clrTeam;
+	CNetworkedColor				m_clrTeam;
 
-	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahMembers;
+	CNetworkedSTLVector<CEntityHandle<CBaseEntity> >	m_ahMembers;
 
-	bool						m_bClientControlled;
-	int							m_iClient;
+	CNetworkedVariable<bool>	m_bClientControlled;
+	CNetworkedVariable<int>		m_iClient;
 
 	CNetworkedString			m_sName;
 };

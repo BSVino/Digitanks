@@ -30,7 +30,7 @@ public:
 	powerup_type_t	GetPowerupType() { return m_ePowerupType; }
 
 protected:
-	powerup_type_t	m_ePowerupType;
+	CNetworkedVariable<powerup_type_t> m_ePowerupType;
 };
 
 #endif

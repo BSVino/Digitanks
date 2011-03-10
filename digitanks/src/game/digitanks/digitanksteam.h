@@ -26,9 +26,7 @@ public:
 	virtual void				OnAddEntity(CBaseEntity* pEntity);
 	virtual void				OnRemoveEntity(CBaseEntity* pEntity);
 
-	virtual void				ClientUpdate(int iClient);
 	virtual void				ClientEnterGame();
-	void						TeamUpdatesData(class CNetworkParameters* p);
 
 	class CSelectable*			GetPrimarySelection();
 	class CDigitank*			GetPrimarySelectionTank();
@@ -83,8 +81,8 @@ public:
 	float						GetUpdateSize();
 	void						DownloadComplete(bool bInformMembers = true);
 	void						DownloadComplete(class CNetworkParameters* p);
-	bool						HasDownloadedUpdate(int iX, int iY);
-	bool						CanDownloadUpdate(int iX, int iY);
+	bool						HasDownloadedUpdate(int iX, int iY) const;
+	bool						CanDownloadUpdate(int iX, int iY) const;
 	bool						IsDownloading(int iX, int iY);
 	class CUpdateItem*			GetUpdateDownloading();
 	size_t						GetTurnsToDownload();
@@ -120,7 +118,7 @@ public:
 	bool						ShouldIncludeInScoreboard() { return m_bIncludeInScoreboard; }
 
 protected:
-	eastl::vector<CEntityHandle<CDigitank> >	m_ahTanks;
+	CNetworkedSTLVector<CEntityHandle<CDigitank> >	m_ahTanks;
 
 	eastl::vector<size_t>		m_aiCurrentSelection;
 
@@ -161,7 +159,7 @@ protected:
 
 	CNetworkedVariable<int>		m_iCurrentUpdateX;
 	CNetworkedVariable<int>		m_iCurrentUpdateY;
-	bool						m_abUpdates[UPDATE_GRID_SIZE][UPDATE_GRID_SIZE];
+	CNetworkedArray<bool, UPDATE_GRID_SIZE*UPDATE_GRID_SIZE> m_abUpdates;
 	CNetworkedVariable<float>	m_flUpdateDownloaded;
 	CNetworkedVariable<float>	m_flMegabytes;
 	CNetworkedVariable<float>	m_flBandwidth;
@@ -172,7 +170,7 @@ protected:
 	CNetworkedVariable<bool>	m_bCanBuildTankLoaders;
 	CNetworkedVariable<bool>	m_bCanBuildArtilleryLoaders;
 
-	losecondition_t				m_eLoseCondition;
+	CNetworkedVariable<losecondition_t> m_eLoseCondition;
 
 	CNetworkedVariable<bool>	m_bIncludeInScoreboard;
 };

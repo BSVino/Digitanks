@@ -6,15 +6,19 @@ REGISTER_ENTITY(CTeam);
 
 NETVAR_TABLE_BEGIN(CTeam);
 	NETVAR_DEFINE(bool, m_bHumanPlayable);
+	NETVAR_DEFINE(Color, m_clrTeam);
+	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_ahMembers);
+	NETVAR_DEFINE(bool, m_bClientControlled);
+	NETVAR_DEFINE(int, m_iClient);
 	NETVAR_DEFINE(eastl::string16, m_sName);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHumanPlayable);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Color, m_clrTeam);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahMembers);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientControlled);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iClient);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Color, m_clrTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CBaseEntity>, m_ahMembers);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bClientControlled);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iClient);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sName);
 SAVEDATA_TABLE_END();
 
@@ -46,39 +50,21 @@ void CTeam::AddEntity(CBaseEntity* pEntity)
 	if (!pEntity)
 		return;
 
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-	p.ui2 = pEntity->GetHandle();
-
-	AddEntityToTeam(&p);
-
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "AddEntityToTeam", &p);
-}
-
-void CTeam::AddEntityToTeam(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-	CEntityHandle<CBaseEntity> hEntity(p->ui2);
-
-	if (hTeam.GetPointer() == NULL)
-		return;
-
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		// If we're already on this team, forget it.
 		// Calling the OnTeamChange() hooks just to stay on this team can be dangerous.
-		if (hEntity == m_ahMembers[i])
+		if (pEntity == m_ahMembers[i])
 			return;
 	}
 
-	if (hEntity->GetTeam())
-		RemoveEntity(hEntity);
+	if (pEntity->GetTeam())
+		RemoveEntity(pEntity);
 
-	hEntity->SetTeam(this);
-	m_ahMembers.push_back(hEntity);
+	pEntity->SetTeam(this);
+	m_ahMembers.push_back(pEntity);
 
-	OnAddEntity(hEntity);
+	OnAddEntity(pEntity);
 }
 
 void CTeam::RemoveEntity(CBaseEntity* pEntity)
@@ -92,26 +78,6 @@ void CTeam::RemoveEntity(CBaseEntity* pEntity)
 			OnRemoveEntity(pEntity);
 			return;
 		}
-	}
-}
-
-void CTeam::ClientUpdate(int iClient)
-{
-	BaseClass::ClientUpdate(iClient);
-
-	CNetwork::CallFunction(iClient, "SetTeamColor", GetHandle(), GetColor().r(), GetColor().g(), GetColor().b());
-
-	if (IsPlayerControlled())
-		CNetwork::CallFunction(iClient, "SetTeamClient", GetHandle(), GetClient());
-	else
-		CNetwork::CallFunction(iClient, "SetTeamClient", GetHandle(), -2);	// Bot
-
-	for (size_t i = 0; i < m_ahMembers.size(); i++)
-	{
-		if (m_ahMembers[i] == NULL)
-			continue;
-
-		CNetwork::CallFunction(iClient, "AddEntityToTeam", GetHandle(), m_ahMembers[i]->GetHandle());
 	}
 }
 
@@ -143,20 +109,4 @@ void CTeam::SetClient(int iClient)
 void CTeam::SetBot()
 {
 	m_bClientControlled = false;
-}
-
-void CTeam::SetTeamColor(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-	
-	if (hTeam.GetPointer() != NULL)
-		hTeam->m_clrTeam = Color(p->i2, p->i3, p->i4);
-}
-
-void CTeam::SetTeamClient(CNetworkParameters* p)
-{
-	CEntityHandle<CTeam> hTeam(p->ui1);
-	
-	if (hTeam.GetPointer() != NULL)
-		hTeam->SetClient(p->i2);
 }

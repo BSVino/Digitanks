@@ -18,6 +18,7 @@
 REGISTER_ENTITY(CDigitanksTeam);
 
 NETVAR_TABLE_BEGIN(CDigitanksTeam);
+	NETVAR_DEFINE_CALLBACK(CEntityHandle<CDigitank>, m_ahTanks, &CDigitanksGame::UpdateTeamMembers);
 	NETVAR_DEFINE_CALLBACK(float, m_flPowerPerTurn, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flPower, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iTotalFleetPoints, &CDigitanksGame::UpdateHUD);
@@ -26,6 +27,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(bool, m_bLost, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateY, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(bool, m_abUpdates, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flUpdateDownloaded, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flMegabytes, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flBandwidth, &CDigitanksGame::UpdateHUD);
@@ -34,11 +36,12 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildInfantryLoaders, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildTankLoaders, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildArtilleryLoaders, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE(losecondition_t, m_eLoseCondition);
 	NETVAR_DEFINE(bool, m_bIncludeInScoreboard);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CDigitank>, m_ahTanks);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitank>, m_ahTanks);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, size_t, m_aiCurrentSelection);
 	SAVEDATA_OMIT(m_aflVisibilities);	// Automatically generated
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flPowerPerTurn);
@@ -63,7 +66,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateX);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, bool, m_abUpdates);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_abUpdates);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flUpdateDownloaded);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flMegabytes);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBandwidth);
@@ -72,7 +75,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildTankLoaders);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildArtilleryLoaders);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, losecondition_t, m_eLoseCondition);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, losecondition_t, m_eLoseCondition);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bIncludeInScoreboard);
 SAVEDATA_TABLE_END();
 
@@ -81,7 +84,8 @@ CDigitanksTeam::CDigitanksTeam()
 	m_bLKV = false;
 	m_bCanUpgrade = true;
 
-	memset(&m_abUpdates[0][0], 0, sizeof(m_abUpdates));
+	for (size_t i = 0; i < UPDATE_GRID_SIZE*UPDATE_GRID_SIZE; i++)
+		m_abUpdates[i] = false;
 }
 
 CDigitanksTeam::~CDigitanksTeam()
@@ -129,28 +133,11 @@ void CDigitanksTeam::OnRemoveEntity(CBaseEntity* pEntity)
 	DigitanksWindow()->GetHUD()->OnRemoveEntityFromTeam(this, pEntity);
 }
 
-void CDigitanksTeam::ClientUpdate(int iClient)
-{
-	BaseClass::ClientUpdate(iClient);
-
-	CNetworkParameters p;
-	p.ui1 = GetHandle();
-	p.CreateExtraData(sizeof(m_abUpdates));
-	memcpy(p.m_pExtraData, &m_abUpdates[0][0], sizeof(m_abUpdates));
-
-	CNetwork::CallFunctionParameters(iClient, "TeamUpdatesData", &p);
-}
-
 void CDigitanksTeam::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();
 
 	CalculateVisibility();
-}
-
-void CDigitanksTeam::TeamUpdatesData(CNetworkParameters* p)
-{
-	memcpy(&m_abUpdates[0][0], p->m_pExtraData, sizeof(m_abUpdates));
 }
 
 CSelectable* CDigitanksTeam::GetPrimarySelection()
@@ -715,7 +702,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 	bool bInformMembers = !!p->i2;
 
 	CUpdateItem* pItem = &DigitanksGame()->GetUpdateGrid()->m_aUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
-	bool* pbTeamUpdate = &m_abUpdates[m_iCurrentUpdateX][m_iCurrentUpdateY];
+	bool* pbTeamUpdate = &m_abUpdates.Get2D(UPDATE_GRID_SIZE, m_iCurrentUpdateX, m_iCurrentUpdateY);
 
 	if (bInformMembers)
 	{
@@ -739,8 +726,6 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 	// Host-only shit from here on out, gets auto-sent to the clients.
 
 	*pbTeamUpdate = true;
-
-	ClientUpdate(GetClient());	// Force my team to receive my m_abUpdates
 
 	if (pItem->m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
@@ -771,12 +756,12 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 	m_flUpdateDownloaded = 0;
 }
 
-bool CDigitanksTeam::HasDownloadedUpdate(int iX, int iY)
+bool CDigitanksTeam::HasDownloadedUpdate(int iX, int iY) const
 {
-	return m_abUpdates[iX][iY];
+	return m_abUpdates.Get2D(UPDATE_GRID_SIZE, iX, iY);
 }
 
-bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY)
+bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY) const
 {
 	if (HasDownloadedUpdate(iX, iY))
 		return false;
@@ -789,16 +774,16 @@ bool CDigitanksTeam::CanDownloadUpdate(int iX, int iY)
 	if (pGrid->m_aUpdates[iX][iY].m_eUpdateClass == UPDATECLASS_EMPTY)
 		return false;
 
-	if (iX > 0 && m_abUpdates[iX-1][iY])
+	if (iX > 0 && m_abUpdates.Get2D(UPDATE_GRID_SIZE, iX-1, iY))
 		return true;
 
-	if (iY > 0 && m_abUpdates[iX][iY-1])
+	if (iY > 0 && m_abUpdates.Get2D(UPDATE_GRID_SIZE, iX, iY-1))
 		return true;
 
-	if (iX < UPDATE_GRID_SIZE-1 && m_abUpdates[iX+1][iY])
+	if (iX < UPDATE_GRID_SIZE-1 && m_abUpdates.Get2D(UPDATE_GRID_SIZE, iX+1, iY))
 		return true;
 
-	if (iY < UPDATE_GRID_SIZE-1 && m_abUpdates[iX][iY+1])
+	if (iY < UPDATE_GRID_SIZE-1 && m_abUpdates.Get2D(UPDATE_GRID_SIZE, iX, iY+1))
 		return true;
 
 	return false;

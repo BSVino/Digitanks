@@ -1,6 +1,8 @@
 #ifndef _NETWORK_H
 #define _NETWORK_H
 
+#include <assert.h>
+
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
@@ -244,7 +246,7 @@ public:
 	void				SetDirty(bool bDirty) { m_bDirty = bDirty; }
 
 	virtual void*		Serialize(size_t& iSize) { return NULL; }
-	virtual void		Unserialize(void* pValue) {}
+	virtual void		Unserialize(size_t iDataSize, void* pValue) {}
 
 public:
 	bool				m_bDirty;
@@ -386,10 +388,149 @@ public:
 	}
 
 	virtual void*		Serialize(size_t& iSize) { iSize = sizeof(C); return &m_oVariable; }
-	virtual void		Unserialize(void* pValue) { m_oVariable = *(C*)pValue; }
+	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = *(C*)pValue; }
 
 public:
 	C					m_oVariable;
+};
+
+template <class C>
+class CNetworkedSTLVector : public CNetworkedVariable<eastl::vector<C> >
+{
+public:
+	inline size_t size() const
+	{
+		return m_oVariable.size();
+	}
+
+	inline C& operator[] (size_t i)
+	{
+		m_bDirty = true;
+		return m_oVariable[i];
+	}
+
+	inline const C& operator[] (size_t i) const
+	{
+		return m_oVariable[i];
+	}
+
+	inline void clear()
+	{
+		m_bDirty = true;
+		m_oVariable.clear();
+	}
+
+	inline void push_back(const C& value)
+	{
+		m_bDirty = true;
+		m_oVariable.push_back(value);
+	}
+
+	inline C& push_back()
+	{
+		m_bDirty = true;
+		return m_oVariable.push_back();
+	}
+
+	inline typename eastl::vector<C>::iterator erase(typename eastl::vector<C>::iterator position)
+	{
+		m_bDirty = true;
+		return m_oVariable.erase(position);
+	}
+
+	inline typename eastl::vector<C>::iterator begin()
+	{
+		m_bDirty = true;
+		return m_oVariable.begin();
+	}
+
+	inline const typename eastl::vector<C>::iterator begin() const
+	{
+		return m_oVariable.begin();
+	}
+
+	inline typename eastl::vector<C>::iterator end()
+	{
+		m_bDirty = true;
+		return m_oVariable.end();
+	}
+
+	inline const typename eastl::vector<C>::iterator end() const
+	{
+		return m_oVariable.end();
+	}
+
+	virtual void* Serialize(size_t& iSize)
+	{
+		if (m_oVariable.size())
+		{
+			iSize = m_oVariable.size()*sizeof(C);
+			return (void*)&m_oVariable[0];
+		}
+
+		iSize = 0;
+		return (void*)&m_oVariable;
+	}
+
+	virtual void Unserialize(size_t iDataSize, void* pValue)
+	{
+		size_t iElements = iDataSize/sizeof(C);
+		m_oVariable.clear();
+		m_oVariable.reserve(iElements);
+		C* pData = (C*)pValue;
+		for (size_t i = 0; i < iElements; i++)
+			m_oVariable.push_back(*pData++);
+	}
+};
+
+template <class C, size_t iArraySize>
+class CNetworkedArray : public CNetworkedVariableBase
+{
+public:
+	inline size_t size() const
+	{
+		return iArraySize;
+	}
+
+	inline C& operator[] (size_t i)
+	{
+		m_bDirty = true;
+		return m_oVariable[i];
+	}
+
+	inline const C& operator[] (size_t i) const
+	{
+		return m_oVariable[i];
+	}
+
+	inline C& Get2D(size_t s, size_t x, size_t y)
+	{
+		assert(iArraySize%s == 0);
+		m_bDirty = true;
+		return m_oVariable[s*x + y];
+	}
+
+	inline const C& Get2D(size_t s, size_t x, size_t y) const
+	{
+		assert(iArraySize%s == 0);
+		return m_oVariable[s*x + y];
+	}
+
+	virtual void* Serialize(size_t& iSize)
+	{
+		iSize = iArraySize * sizeof(C);
+		return (void*)&m_oVariable[0];
+	}
+
+	virtual void Unserialize(size_t iDataSize, void* pValue)
+	{
+		size_t iElements = iDataSize / sizeof(C);
+		assert(iElements == iArraySize);
+		memcpy(&m_oVariable[0], pValue, iDataSize);
+	}
+
+protected:
+	C	m_oVariable[iArraySize];
 };
 
 class CNetworkedVector : public CNetworkedVariable<Vector>
@@ -442,6 +583,21 @@ public:
 	}
 };
 
+class CNetworkedColor : public CNetworkedVariable<Color>
+{
+public:
+	inline const CNetworkedColor& operator=(const Color v)
+	{
+		if (m_oVariable.r() != v.r() || m_oVariable.g() != v.g() || m_oVariable.b() != v.b())
+		{
+			m_bDirty = true;
+			m_oVariable = v;
+		}
+
+		return *this;
+	}
+};
+
 class CNetworkedString : public CNetworkedVariable<eastl::string16>
 {
 public:
@@ -457,7 +613,7 @@ public:
 	}
 
 	virtual void*		Serialize(size_t& iSize) { iSize = (m_oVariable.size()+1)*sizeof(eastl::string16::value_type); return (void*)m_oVariable.c_str(); }
-	virtual void		Unserialize(void* pValue) { m_oVariable = (eastl::string16::value_type*)pValue; }
+	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = (eastl::string16::value_type*)pValue; }
 };
 
 class CNetwork

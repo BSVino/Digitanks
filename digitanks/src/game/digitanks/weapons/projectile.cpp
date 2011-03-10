@@ -15,13 +15,15 @@
 REGISTER_ENTITY(CProjectile);
 
 NETVAR_TABLE_BEGIN(CProjectile);
+	NETVAR_DEFINE(Vector, m_vecLandingSpot);
+	NETVAR_DEFINE(bool, m_bFragmented);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CProjectile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLandingSpot);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecLandingSpot);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);	// Generated on load
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFragmented);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFragmented);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBounces);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
 SAVEDATA_TABLE_END();
@@ -537,7 +539,7 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	pProjectile->SetLandingSpot(m_vecLandingSpot);
 	pProjectile->SetOrigin(GetOrigin());
 	pProjectile->m_flExplosionRadius = m_flExplosionRadius - 4;
-	pProjectile->m_flDamage = m_flDamage - 1;
+	pProjectile->m_flDamage = m_flDamage - 1.0f;
 	DigitanksGame()->AddProjectileToWaitFor();
 
 	DigitanksGame()->GetDigitanksCamera()->ReplaceProjectileTarget(pProjectile);

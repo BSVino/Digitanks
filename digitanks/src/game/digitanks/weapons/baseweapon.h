@@ -52,7 +52,7 @@ protected:
 	CNetworkedVariable<float>	m_flTimeExploded;
 
 	CNetworkedHandle<CDigitank>	m_hOwner;
-	float						m_flDamage;
+	CNetworkedVariable<float>	m_flDamage;
 
 	CNetworkedVariable<bool>	m_bShouldRender;
 };

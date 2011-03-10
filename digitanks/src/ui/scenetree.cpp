@@ -217,6 +217,11 @@ void CSceneTree::OnRemoveEntityFromTeam(CDigitanksTeam* pTeam, CBaseEntity* pEnt
 	Layout();
 }
 
+void CSceneTree::OnTeamMembersUpdated()
+{
+	BuildTree(true);
+}
+
 CSceneTreeGroup::CSceneTreeGroup(unittype_t eUnit, glgui::CTree* pTree)
 	: CSceneTreeNode(NULL, pTree)
 {

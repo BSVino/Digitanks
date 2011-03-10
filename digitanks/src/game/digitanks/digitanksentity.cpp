@@ -45,7 +45,11 @@ void CDigitanksEntity::Think()
 			CWreckage* pWreckage = CreateWreckage();
 
 			if (pWreckage)
+			{
 				pWreckage->FellIntoHole();
+				if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+					pWreckage->SetScale(2);
+			}
 		}
 		else if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 		{
@@ -57,7 +61,8 @@ void CDigitanksEntity::Think()
 			case 8:
 			default:
 			{
-				CreateWreckage();
+				CWreckage* pWreckage = CreateWreckage();
+				pWreckage->SetScale(2);
 				break;
 			}
 

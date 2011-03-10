@@ -3581,6 +3581,11 @@ void CHUD::SetNeedsUpdate()
 	DigitanksWindow()->GetHUD()->m_bNeedsUpdate = true;
 }
 
+void CHUD::SetTeamMembersUpdated()
+{
+	DigitanksWindow()->GetHUD()->m_pSceneTree->OnTeamMembersUpdated();
+}
+
 CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bShield)
 	: CLabel(0, 0, 100, 100, L"")
 {

@@ -15,10 +15,11 @@
 REGISTER_ENTITY(CGame);
 
 NETVAR_TABLE_BEGIN(CGame);
+	NETVAR_DEFINE(CEntityHandle<CTeam>, m_ahTeams);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CGame);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CTeam>, m_ahTeams);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CTeam>, m_ahTeams);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CEntityHandle<CTeam>, m_ahLocalTeams);	// Detected on the fly.
 SAVEDATA_TABLE_END();
 
@@ -44,19 +45,11 @@ void CGame::Spawn()
 void CGame::RegisterNetworkFunctions()
 {
 	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("AddTeam", this, AddTeamCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("RemoveTeam", this, RemoveTeamCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("SetTeamColor", this, SetTeamColorCallback, 4, NET_HANDLE, NET_INT, NET_INT, NET_INT);
-	CNetwork::RegisterFunction("SetTeamClient", this, SetTeamClientCallback, 2, NET_HANDLE, NET_INT);
-	CNetwork::RegisterFunction("AddEntityToTeam", this, AddEntityToTeamCallback, 2, NET_HANDLE, NET_HANDLE);
 }
 
 void CGame::OnClientConnect(CNetworkParameters* p)
 {
 	TMsg(sprintf(L"Client %d connected.\n", p->i2));
-
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-		CNetwork::CallFunction(p->i2, "AddTeam", GetTeam(i)->GetHandle());
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
@@ -93,49 +86,29 @@ void CGame::SetAngles(CNetworkParameters* p)
 		hEntity->SetAngles(EAngle(p->fl2, p->fl3, p->fl4));
 }
 
-void CGame::AddTeamToList(CTeam* pTeam)
+void CGame::AddTeam(CTeam* pTeam)
 {
 	if (!pTeam)
 		return;
 
-	CNetworkParameters p;
-	p.ui1 = pTeam->GetHandle();
-
-	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "AddTeam",  &p);
-
-	AddTeam(&p);
-}
-
-void CGame::AddTeam(CNetworkParameters* p)
-{
 	// Prevent dupes
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_ahTeams[i] == CEntityHandle<CTeam>(p->ui1))
+		if (m_ahTeams[i] == pTeam)
 			return;
 	}
 
-	m_ahTeams.push_back(CEntityHandle<CTeam>(p->ui1));
+	m_ahTeams.push_back(pTeam);
 }
 
-void CGame::RemoveTeamFromList(CTeam* pTeam)
+void CGame::RemoveTeam(CTeam* pTeam)
 {
 	if (!pTeam)
 		return;
 
-	CNetworkParameters p;
-	p.ui1 = pTeam->GetHandle();
-
-	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "RemoveTeam",  &p);
-
-	RemoveTeam(&p);
-}
-
-void CGame::RemoveTeam(CNetworkParameters* p)
-{
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_ahTeams[i] == CEntityHandle<CTeam>(p->ui1))
+		if (m_ahTeams[i] == pTeam)
 		{
 			m_ahTeams.erase(m_ahTeams.begin()+i);
 			return;
@@ -150,7 +123,7 @@ void CGame::OnDeleted()
 
 void CGame::OnDeleted(CBaseEntity* pEntity)
 {
-	RemoveTeamFromList(dynamic_cast<CTeam*>(pEntity));
+	RemoveTeam(dynamic_cast<CTeam*>(pEntity));
 }
 
 bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit, int iCollisionGroup)

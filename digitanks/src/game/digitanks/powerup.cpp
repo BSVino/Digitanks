@@ -12,10 +12,11 @@
 REGISTER_ENTITY(CPowerup);
 
 NETVAR_TABLE_BEGIN(CPowerup);
+	NETVAR_DEFINE(powerup_type_t, m_ePowerupType);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CPowerup);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, powerup_type_t, m_ePowerupType);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, powerup_type_t, m_ePowerupType);
 SAVEDATA_TABLE_END();
 
 void CPowerup::Precache()
