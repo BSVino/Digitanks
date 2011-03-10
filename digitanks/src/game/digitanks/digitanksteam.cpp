@@ -25,6 +25,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bLost, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE(CEntityHandle<CCPU>, m_hPrimaryCPU);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateY, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_abUpdates, &CDigitanksGame::UpdateHUD);
@@ -51,7 +52,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iScore);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLost);
 
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CCPU>, m_hPrimaryCPU);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCPU>, m_hPrimaryCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hInfantryLoader);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hTankLoader);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hArtilleryLoader);

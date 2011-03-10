@@ -135,7 +135,7 @@ protected:
 	CNetworkedVariable<bool>	m_bLost;
 
 	// AI stuff
-	CEntityHandle<CCPU>			m_hPrimaryCPU;
+	CNetworkedHandle<CCPU>		m_hPrimaryCPU;
 	CEntityHandle<CLoader>		m_hInfantryLoader;
 	CEntityHandle<CLoader>		m_hTankLoader;
 	CEntityHandle<CLoader>		m_hArtilleryLoader;
