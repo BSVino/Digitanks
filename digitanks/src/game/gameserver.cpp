@@ -738,7 +738,7 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 		return;
 
 	void* pDataStart = (unsigned char*)p->m_pExtraData + strlen((char*)p->m_pExtraData)+1;
-	pVariable->Unserialize(p->m_iExtraDataSize - (size_t)pDataStart, pDataStart);
+	pVariable->Unserialize(p->m_iExtraDataSize - (size_t)strlen((char*)p->m_pExtraData) - 1, pDataStart);
 
 	if (pVarData->m_pfnChanged)
 		pVarData->m_pfnChanged(pVariable);

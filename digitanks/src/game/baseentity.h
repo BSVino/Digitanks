@@ -377,7 +377,7 @@ protected:
 	CNetworkedVariable<float>				m_flHealth;
 	float									m_flTimeKilled;
 
-	CEntityHandle<CTeam>					m_hTeam;
+	CNetworkedHandle<CTeam>					m_hTeam;
 
 	bool									m_bDeleted;
 
