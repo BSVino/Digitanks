@@ -47,6 +47,8 @@ void CMobileCPU::OnFortify()
 	if (!CNetwork::IsHost())
 		return;
 
+	CNetwork::SetRunningClientFunctions(false);
+
 	Delete();
 
 	CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
