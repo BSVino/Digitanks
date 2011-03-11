@@ -859,6 +859,14 @@ void CHUD::Think()
 	SetVisible(hud_enable.GetBool() || DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile());
 }
 
+#ifdef _DEBUG
+#define SHOW_FPS "1"
+#else
+#define SHOW_FPS "0"
+#endif
+
+CVar show_fps("show_fps", SHOW_FPS);
+
 void CHUD::Paint(int x, int y, int w, int h)
 {
 	if (!DigitanksGame())
@@ -874,6 +882,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 	{
 		PaintCameraGuidedMissile(x, y, w, h);
 		return;
+	}
+
+	if (show_fps.GetBool())
+	{
+		float flFontHeight = glgui::CLabel::GetFontHeight(L"text", 10);
+		eastl::string16 sFPS = sprintf(L"Time: %.2f", GameServer()->GetGameTime());
+		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight + 5);
+		sFPS = sprintf(L"FPS: %d", (int)(1/GameServer()->GetFrameTime()));
+		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight*2 + 5);
 	}
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
