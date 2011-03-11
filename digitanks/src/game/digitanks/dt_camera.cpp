@@ -340,9 +340,6 @@ void CDigitanksCamera::Think()
 			m_hTankProjectile = NULL;
 	}
 
-	if (!DigitanksWindow()->ShouldConstrainMouse())
-		m_vecGoalVelocity = Vector(0,0,0);
-
 	m_vecVelocity.x = Approach(m_vecGoalVelocity.x, m_vecVelocity.x, flFrameTime*200);
 	m_vecVelocity.z = Approach(m_vecGoalVelocity.z, m_vecVelocity.z, flFrameTime*200);
 
