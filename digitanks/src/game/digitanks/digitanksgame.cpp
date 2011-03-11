@@ -184,16 +184,16 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 1, NET_HANDLE);
 }
 
-void CDigitanksGame::OnClientConnect(CNetworkParameters* p)
-{
-	BaseClass::OnClientConnect(p);
-
-	GetTerrain()->ResyncClientTerrainData(p->i2);
-}
-
 void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
 {
 	BaseClass::OnClientDisconnect(p);
+}
+
+void CDigitanksGame::ClientUpdate(int iClient)
+{
+	BaseClass::ClientUpdate(iClient);
+
+	GetTerrain()->ResyncClientTerrainData(iClient);
 }
 
 CVar game_type("game_type", "");

@@ -244,6 +244,8 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 {
 	CNetwork::CallFunction(p->i2, "ClientInfo", p->i2, GetGameTime());
 
+	GetGame()->OnClientConnect(p);
+
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -255,8 +257,6 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 	}
 
 	CNetwork::UpdateNetworkVariables(p->i2, true);
-
-	GetGame()->OnClientConnect(p);
 
 	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
