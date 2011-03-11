@@ -10,6 +10,30 @@
 // AI stuff
 #include "structures/cpu.h"
 
+typedef enum
+{
+	ACTIONTYPE_WELCOME,
+	ACTIONTYPE_CONTROLS,
+	ACTIONTYPE_NEWSTRUCTURE,
+	ACTIONTYPE_AUTOMOVECANCELED,
+	ACTIONTYPE_AUTOMOVEENEMY,
+	ACTIONTYPE_UNITDAMAGED,
+	ACTIONTYPE_FORTIFIEDENEMY,
+	ACTIONTYPE_UNITAUTOMOVE,
+	ACTIONTYPE_UNITORDERS,
+	ACTIONTYPE_UPGRADE,
+	ACTIONTYPE_UNITREADY,
+	ACTIONTYPE_DOWNLOADUPDATES,
+	ACTIONTYPE_DOWNLOADCOMPLETE,
+} actiontype_t;
+
+typedef struct
+{
+	size_t			iUnit;
+	actiontype_t	eActionType;
+	bool			bHandled;
+} actionitem_t;
+
 class CDigitanksTeam : public CTeam
 {
 	friend class CDigitanksGame;
@@ -75,6 +99,15 @@ public:
 	float						GetEntityVisibility(size_t iHandle);
 	float						GetVisibilityAtPoint(Vector vecPoint, bool bCloak = false);
 
+	void						AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
+	void						ClearActionItems();
+	size_t						GetNumActionItems() const { return m_aActionItems.size(); };
+	const actionitem_t*			GetActionItem(size_t i) const { return &m_aActionItems[i]; };
+	void						ServerHandledActionItem(size_t i);
+	void						HandledActionItem(size_t i);
+	void						HandledActionItem(CSelectable* pUnit);
+	void						HandledActionItem(actiontype_t eItem);
+
 	void						DownloadUpdate(int iX, int iY, bool bCheck = true);
 	void						DownloadUpdate(class CNetworkParameters* p);
 	float						GetUpdateDownloaded() { return m_flUpdateDownloaded; };
@@ -133,6 +166,8 @@ protected:
 	CNetworkedVariable<size_t>	m_iScore;
 
 	CNetworkedVariable<bool>	m_bLost;
+
+	CNetworkedSTLVector<actionitem_t> m_aActionItems;
 
 	// AI stuff
 	CNetworkedHandle<CCPU>		m_hPrimaryCPU;

@@ -657,8 +657,8 @@ void CUpdateButton::ChooseDownloadCallback()
 	DigitanksWindow()->GetHUD()->SlideUpdateIcon(x, y);
 
 	// Do this very last thing because since it calls Layout() this button will be deleted.
-	DigitanksGame()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
-	DigitanksGame()->HandledActionItem(ACTIONTYPE_DOWNLOADUPDATES);
+	DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
+	DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(ACTIONTYPE_DOWNLOADUPDATES);
 
 	CRootPanel::Get()->Layout();
 }

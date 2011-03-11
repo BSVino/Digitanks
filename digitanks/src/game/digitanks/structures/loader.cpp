@@ -232,7 +232,7 @@ void CLoader::CompleteProduction()
 	else if (GetBuildUnit() == UNIT_ARTILLERY)
 		DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
 
-	DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
+	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 
 	if (CNetwork::IsHost())
 	{

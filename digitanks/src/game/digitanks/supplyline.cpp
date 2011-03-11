@@ -134,6 +134,7 @@ void CSupplyLine::Intercept(float flIntercept)
 	if (GetEntity() && m_flIntegrity < MinimumIntegrity() && dynamic_cast<CStructure*>(GetEntity()) && GetEntity()->GetTeam())
 	{
 		GetEntity()->GetTeam()->RemoveEntity(GetEntity());
+		DigitanksGame()->OnDisabled(GetEntity(), NULL, NULL);
 	}
 }
 

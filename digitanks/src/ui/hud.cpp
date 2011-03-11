@@ -338,133 +338,137 @@ void CHUD::Layout()
 
 	m_apActionItemButtons.clear();
 
-	size_t iItemButtonSize = 30;
-	for (size_t i = 0; i < DigitanksGame()->GetActionItems().size(); i++)
+	CDigitanksTeam* pLocalCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (pLocalCurrentTeam)
 	{
-		CPictureButton* pButton = new CPictureButton(sprintf(L"%d", i));
-		AddControl(pButton);
-		pButton->SetSize(iItemButtonSize, iItemButtonSize);
-		pButton->SetPos(iWidth - iItemButtonSize - 10, 120 + (iItemButtonSize+10)*i);
-		pButton->SetClickedListener(this, ChooseActionItem);
-
-		CEntityHandle<CDigitanksEntity> hUnit(DigitanksGame()->GetActionItems()[i].iUnit);
-
-		switch (DigitanksGame()->GetActionItems()[i].eActionType)
+		size_t iItemButtonSize = 30;
+		for (size_t i = 0; i < pLocalCurrentTeam->GetNumActionItems(); i++)
 		{
-		case ACTIONTYPE_WELCOME:
-			// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
-			pButton->SetTooltip(L"Intro");
-			break;
+			CPictureButton* pButton = new CPictureButton(sprintf(L"%d", i));
+			AddControl(pButton);
+			pButton->SetSize(iItemButtonSize, iItemButtonSize);
+			pButton->SetPos(iWidth - iItemButtonSize - 10, 120 + (iItemButtonSize+10)*i);
+			pButton->SetClickedListener(this, ChooseActionItem);
 
-		case ACTIONTYPE_CONTROLS:
-			// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
-			pButton->SetTooltip(L"Controls");
-			break;
+			CEntityHandle<CDigitanksEntity> hUnit(pLocalCurrentTeam->GetActionItem(i)->iUnit);
 
-		case ACTIONTYPE_NEWSTRUCTURE:
-			if (hUnit != NULL)
+			switch (pLocalCurrentTeam->GetActionItem(i)->eActionType)
 			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Structure Complete");
+			case ACTIONTYPE_WELCOME:
+				// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
+				pButton->SetTooltip(L"Intro");
+				break;
+
+			case ACTIONTYPE_CONTROLS:
+				// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
+				pButton->SetTooltip(L"Controls");
+				break;
+
+			case ACTIONTYPE_NEWSTRUCTURE:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Structure Complete");
+				}
+				break;
+
+			case ACTIONTYPE_AUTOMOVECANCELED:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Move Canceled");
+				}
+				break;
+
+			case ACTIONTYPE_AUTOMOVEENEMY:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Enemy Sighted");
+				}
+				break;
+
+			case ACTIONTYPE_UNITDAMAGED:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Unit Damaged");
+				}
+				break;
+
+			case ACTIONTYPE_FORTIFIEDENEMY:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Enemy Sighted");
+				}
+				break;
+
+			case ACTIONTYPE_UNITAUTOMOVE:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Move Completed");
+				}
+				break;
+
+			case ACTIONTYPE_UNITORDERS:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Orders Needed");
+				}
+				break;
+
+			case ACTIONTYPE_UPGRADE:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Upgrade Compeleted");
+				}
+				break;
+
+			case ACTIONTYPE_UNITREADY:
+				if (hUnit != NULL)
+				{
+					int sx, sy, sw, sh, tw, th;
+					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetTooltip(L"Unit Ready");
+				}
+				break;
+
+			case ACTIONTYPE_DOWNLOADUPDATES:
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
+				pButton->SetTooltip(L"Download Grid");
+				break;
+
+			case ACTIONTYPE_DOWNLOADCOMPLETE:
+				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
+				pButton->SetTooltip(L"Download Complete");
+				break;
 			}
-			break;
 
-		case ACTIONTYPE_AUTOMOVECANCELED:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Move Canceled");
-			}
-			break;
-
-		case ACTIONTYPE_AUTOMOVEENEMY:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Enemy Sighted");
-			}
-			break;
-
-		case ACTIONTYPE_UNITDAMAGED:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Unit Damaged");
-			}
-			break;
-
-		case ACTIONTYPE_FORTIFIEDENEMY:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Enemy Sighted");
-			}
-			break;
-
-		case ACTIONTYPE_UNITAUTOMOVE:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Move Completed");
-			}
-			break;
-
-		case ACTIONTYPE_UNITORDERS:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Orders Needed");
-			}
-			break;
-
-		case ACTIONTYPE_UPGRADE:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Upgrade Compeleted");
-			}
-			break;
-
-		case ACTIONTYPE_UNITREADY:
-			if (hUnit != NULL)
-			{
-				int sx, sy, sw, sh, tw, th;
-				GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
-				pButton->SetTooltip(L"Unit Ready");
-			}
-			break;
-
-		case ACTIONTYPE_DOWNLOADUPDATES:
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
-			pButton->SetTooltip(L"Download Grid");
-			break;
-
-		case ACTIONTYPE_DOWNLOADCOMPLETE:
-			pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
-			pButton->SetTooltip(L"Download Complete");
-			break;
+			m_apActionItemButtons.push_back(pButton);
 		}
-
-		m_apActionItemButtons.push_back(pButton);
 	}
 
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
@@ -496,7 +500,6 @@ void CHUD::Layout()
 	m_pResearchInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pResearchInfo->SetWrap(false);
 
-	CDigitanksTeam* pLocalCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	if (pLocalCurrentTeam)
 	{
 		CUpdateItem* pItem = pLocalCurrentTeam->GetUpdateDownloading();
@@ -739,12 +742,15 @@ void CHUD::Think()
 		}
 	}
 
-	for (size_t i = 0; i < DigitanksGame()->GetActionItems().size(); i++)
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
 	{
-		if (DigitanksGame()->GetActionItems()[i].bHandled)
-			m_apActionItemButtons[i]->SetAlpha(100);
-		else
-			m_apActionItemButtons[i]->SetAlpha((int)RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 100, 255));
+		for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems(); i++)
+		{
+			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i)->bHandled)
+				m_apActionItemButtons[i]->SetAlpha(100);
+			else
+				m_apActionItemButtons[i]->SetAlpha((int)RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 100, 255));
+		}
 	}
 
 	if (m_eMenuMode == MENUMODE_MAIN)
@@ -2143,9 +2149,9 @@ void CHUD::UpdateTurnButton()
 		}
 	}
 
-	for (size_t i = 0; i < DigitanksGame()->GetActionItems().size(); i++)
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems(); i++)
 	{
-		actionitem_t* pItem = &DigitanksGame()->GetActionItems()[i];
+		const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i);
 
 		if (!pItem->bHandled)
 		{
@@ -2254,6 +2260,8 @@ void CHUD::GameOver(bool bPlayerWon)
 
 void CHUD::NewCurrentTeam()
 {
+	m_bAllActionItemsHandled = false;
+
 	DigitanksGame()->SetControlMode(MODE_NONE);
 
 	UpdateTurnButton();
@@ -2353,9 +2361,8 @@ void CHUD::NewCurrentSelection()
 void CHUD::ShowFirstActionItem()
 {
 	m_bAllActionItemsHandled = false;
-	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
 
-	if (aActionItems.size())
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems())
 	{
 		m_iCurrentActionItem = -1;
 		ShowNextActionItem();
@@ -2374,11 +2381,10 @@ void CHUD::ShowNextActionItem()
 		return;
 
 	size_t iOriginalActionItem = m_iCurrentActionItem;
-	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
 
 	do
 	{
-		m_iCurrentActionItem = (m_iCurrentActionItem+1)%aActionItems.size();
+		m_iCurrentActionItem = (m_iCurrentActionItem+1)%DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems();
 
 		if (m_iCurrentActionItem == iOriginalActionItem)
 		{
@@ -2395,11 +2401,11 @@ void CHUD::ShowNextActionItem()
 		if (iOriginalActionItem == -1)
 			iOriginalActionItem = 0;
 
-		actionitem_t* pItem = &aActionItems[m_iCurrentActionItem];
+		const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(m_iCurrentActionItem);
 
 		if (pItem->eActionType == ACTIONTYPE_DOWNLOADCOMPLETE && DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
 		{
-			pItem->bHandled = true;
+			DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);
 			UpdateTurnButton();
 		}
 
@@ -2412,7 +2418,7 @@ void CHUD::ShowNextActionItem()
 		if (hDigitank != NULL && !hDigitank->NeedsOrders())
 		{
 			// If must have been handled already.
-			pItem->bHandled = true;
+			DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(hDigitank);
 			UpdateTurnButton();
 			continue;
 		}
@@ -2428,13 +2434,15 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 	if (m_bAllActionItemsHandled)
 		return;
 
-	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
+	CDigitanksTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+	if (!pLocalTeam)
+		return;
 
 	if (pSelectable)
 	{
-		for (size_t i = 0; i < aActionItems.size(); i++)
+		for (size_t i = 0; i < pLocalTeam->GetNumActionItems(); i++)
 		{
-			if (aActionItems[i].iUnit == pSelectable->GetHandle())
+			if (pLocalTeam->GetActionItem(i)->iUnit == pSelectable->GetHandle())
 			{
 				if (i == m_iCurrentActionItem)
 					return;
@@ -2447,7 +2455,7 @@ void CHUD::ShowActionItem(CSelectable* pSelectable)
 	}
 
 	// There is no action item for the current unit. If the current action item has no unit, don't clobber it just to show the "press next" message.
-	if (m_iCurrentActionItem >= 0 && m_iCurrentActionItem < aActionItems.size() && aActionItems[m_iCurrentActionItem].iUnit == ~0)
+	if (m_iCurrentActionItem >= 0 && m_iCurrentActionItem < pLocalTeam->GetNumActionItems() && pLocalTeam->GetActionItem(m_iCurrentActionItem)->iUnit == ~0)
 		return;
 
 	ShowActionItem(~0);
@@ -2458,10 +2466,9 @@ void CHUD::ShowActionItem(actiontype_t eActionItem)
 	if (m_bAllActionItemsHandled)
 		return;
 
-	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
-	for (size_t i = 0; i < aActionItems.size(); i++)
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems(); i++)
 	{
-		if (aActionItems[i].eActionType == eActionItem)
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i)->eActionType == eActionItem)
 		{
 			if (i == m_iCurrentActionItem)
 				return;
@@ -2481,15 +2488,14 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
 		return;
 
-	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
-	if (iActionItem >= aActionItems.size())
+	if (iActionItem >= DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems())
 	{
 		m_pActionItem->SetText("");
 		m_flActionItemsLerpGoal = 0;
 		return;
 	}
 
-	actionitem_t* pItem = &aActionItems[iActionItem];
+	const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(iActionItem);
 
 	switch (pItem->eActionType)
 	{
@@ -2580,7 +2586,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	if (pItem->eActionType == ACTIONTYPE_WELCOME || pItem->eActionType == ACTIONTYPE_CONTROLS || pItem->eActionType == ACTIONTYPE_NEWSTRUCTURE ||
 		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE || pItem->eActionType == ACTIONTYPE_UNITREADY)
 	{
-		pItem->bHandled = true;
+		DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(iActionItem);
 		UpdateTurnButton();
 	}
 
@@ -2650,7 +2656,12 @@ void CHUD::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity*
 		return;
 
 	if (pVictim->IsAlive())
-		new CHitIndicator(pVictim, L"DISABLED!");
+	{
+		if (dynamic_cast<CDigitank*>(pVictim))
+			new CHitIndicator(pVictim, L"DISABLED!");
+		else
+			new CHitIndicator(pVictim, L"DISCONNECTED!");
+	}
 }
 
 void CHUD::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
@@ -2805,8 +2816,6 @@ void CHUD::ShowShowdownSign()
 
 void CHUD::ChooseActionItemCallback()
 {
-	eastl::vector<actionitem_t>& aActionItems = DigitanksGame()->GetActionItems();
-
 	size_t iActionItem = ~0;
 
 	int mx, my;
@@ -2832,9 +2841,9 @@ void CHUD::ChooseActionItemCallback()
 
 	ShowActionItem(iActionItem);
 
-	if (iActionItem < aActionItems.size())
+	if (iActionItem < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems())
 	{
-		actionitem_t* pItem = &aActionItems[iActionItem];
+		const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(iActionItem);
 
 		CEntityHandle<CSelectable> hSelection(pItem->iUnit);
 
@@ -3011,7 +3020,7 @@ void CHUD::FortifyCallback()
 		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
 		{
 			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Fortify();
-			DigitanksGame()->HandledActionItem(DigitanksGame()->GetCurrentTeam()->GetTank(i));
+			DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(DigitanksGame()->GetCurrentTeam()->GetTank(i));
 		}
 	}
 
@@ -3034,7 +3043,7 @@ void CHUD::SentryCallback()
 		if (DigitanksGame()->GetCurrentTeam()->IsSelected(DigitanksGame()->GetCurrentTeam()->GetTank(i)))
 		{
 			DigitanksGame()->GetCurrentTeam()->GetTank(i)->Sentry();
-			DigitanksGame()->HandledActionItem(DigitanksGame()->GetCurrentTeam()->GetTank(i));
+			DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(DigitanksGame()->GetCurrentTeam()->GetTank(i));
 		}
 	}
 

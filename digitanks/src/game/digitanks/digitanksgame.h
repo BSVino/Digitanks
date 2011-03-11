@@ -20,30 +20,6 @@ typedef enum
 	GAMETYPE_MENU,
 } gametype_t;
 
-typedef enum
-{
-	ACTIONTYPE_WELCOME,
-	ACTIONTYPE_CONTROLS,
-	ACTIONTYPE_NEWSTRUCTURE,
-	ACTIONTYPE_AUTOMOVECANCELED,
-	ACTIONTYPE_AUTOMOVEENEMY,
-	ACTIONTYPE_UNITDAMAGED,
-	ACTIONTYPE_FORTIFIEDENEMY,
-	ACTIONTYPE_UNITAUTOMOVE,
-	ACTIONTYPE_UNITORDERS,
-	ACTIONTYPE_UPGRADE,
-	ACTIONTYPE_UNITREADY,
-	ACTIONTYPE_DOWNLOADUPDATES,
-	ACTIONTYPE_DOWNLOADCOMPLETE,
-} actiontype_t;
-
-typedef struct
-{
-	size_t			iUnit;
-	actiontype_t	eActionType;
-	bool			bHandled;
-} actionitem_t;
-
 typedef struct
 {
 	size_t			iShells;
@@ -234,12 +210,6 @@ public:
 	bool					CanBuildTankLoaders();
 	bool					CanBuildArtilleryLoaders();
 
-	void					AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
-	eastl::vector<actionitem_t>&	GetActionItems() { return m_aActionItems; }
-	void					AllowActionItems(bool bAllow) { m_bAllowActionItems = bAllow; };
-	void					HandledActionItem(CSelectable* pUnit);
-	void					HandledActionItem(actiontype_t eItem);
-
 	void					BeginAirstrike(Vector vecLocation);
 	float					AirstrikeSize() const { return 50; };
 
@@ -294,9 +264,6 @@ protected:
 	CNetworkedVariable<size_t> m_iTurn;
 
 	CNetworkedHandle<CUpdateGrid>	m_hUpdates;
-
-	eastl::vector<actionitem_t>	m_aActionItems;
-	bool					m_bAllowActionItems;
 
 	CNetworkedVariable<bool>	m_bPartyMode;
 	float						m_flPartyModeStart;

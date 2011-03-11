@@ -189,7 +189,7 @@ void CBattery::UpgradeComplete()
 
 	Delete();
 
-	DigitanksGame()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
+	GetDigitanksTeam()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
 }
 
 float CBattery::GetPowerProduced()

@@ -222,5 +222,5 @@ void CMiniBuffer::UpgradeComplete()
 
 	Delete();
 
-	DigitanksGame()->AddActionItem(pBuffer, ACTIONTYPE_UPGRADE);
+	GetDigitanksTeam()->AddActionItem(pBuffer, ACTIONTYPE_UPGRADE);
 }

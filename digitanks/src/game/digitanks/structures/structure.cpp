@@ -147,7 +147,7 @@ void CStructure::StartTurn()
 			DigitanksGame()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetName());
 			CompleteConstruction();
 
-			DigitanksGame()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
+			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
 		}
 		else
 			DigitanksGame()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));

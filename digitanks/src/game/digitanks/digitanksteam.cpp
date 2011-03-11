@@ -25,6 +25,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iUsedFleetPoints, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iScore, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bLost, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(actionitem_t, m_aActionItems, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE(CEntityHandle<CCPU>, m_hPrimaryCPU);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateX, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(int, m_iCurrentUpdateY, &CDigitanksGame::UpdateHUD);
@@ -51,6 +52,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iUsedFleetPoints);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iScore);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLost);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, actionitem_t, m_aActionItems);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CCPU>, m_hPrimaryCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CLoader>, m_hInfantryLoader);
@@ -339,7 +341,7 @@ void CDigitanksTeam::StartTurn()
 	else if (DigitanksGame()->GetUpdateGrid())
 	{
 		if (DigitanksGame()->GetTurn() > 1 && !DigitanksGame()->GetCurrentTeam()->GetUpdateDownloading())
-			DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+			AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
 	}
 
 	CountProducers();
@@ -354,6 +356,8 @@ void CDigitanksTeam::StartTurn()
 
 void CDigitanksTeam::EndTurn()
 {
+	m_aActionItems.clear();
+
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		if (m_ahMembers[i] == NULL)
@@ -630,6 +634,119 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak)
 	return flFinalVisibility;
 }
 
+void CDigitanksTeam::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
+{
+	if (pUnit && pUnit->GetDigitanksTeam() != this)
+		return;
+
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+		return;
+
+	// Prevent duplicates
+	for (size_t i = 0; i < m_aActionItems.size(); i++)
+	{
+		if (!pUnit && m_aActionItems[i].iUnit == ~0 && eActionType == m_aActionItems[i].eActionType)
+			return;
+
+		if (pUnit && m_aActionItems[i].iUnit == pUnit->GetHandle())
+		{
+			// Use the lowest value, that list is sorted that way.
+			if (eActionType < m_aActionItems[i].eActionType)
+				m_aActionItems[i].eActionType = eActionType;
+
+			return;
+		}
+	}
+
+	actionitem_t* pActionItem = &m_aActionItems.push_back();
+	pActionItem->iUnit = pUnit?pUnit->GetHandle():~0;
+	pActionItem->eActionType = eActionType;
+	pActionItem->bHandled = false;
+	DigitanksWindow()->GetHUD()->OnAddNewActionItem();
+}
+
+void CDigitanksTeam::ClearActionItems()
+{
+	m_aActionItems.clear();
+}
+
+void CDigitanksTeam::ServerHandledActionItem(size_t i)
+{
+	if (i >= m_aActionItems.size())
+		return;
+
+	m_aActionItems[i].bHandled = true;
+	DigitanksWindow()->GetHUD()->Layout();
+}
+
+CLIENT_COMMAND(HandledActionItem)
+{
+	if (pCmd->GetNumArguments() < 2)
+	{
+		TMsg("HandledActionItem with less than 2 arguments.\n");
+		return;
+	}
+
+	CEntityHandle<CDigitanksTeam> hTeam(pCmd->ArgAsUInt(0));
+
+	if (!hTeam)
+	{
+		TMsg("HandledActionItem with invalid team.\n");
+		return;
+	}
+
+	if (hTeam->GetClient() != iClient)
+	{
+		TMsg("HandledActionItem with wrong team.\n");
+		return;
+	}
+
+	hTeam->ServerHandledActionItem(pCmd->ArgAsUInt(1));
+}
+
+void CDigitanksTeam::HandledActionItem(size_t i)
+{
+	::HandledActionItem.RunCommand(sprintf(L"%d %d", GetHandle(), i));
+
+	// Predict the handling so it happens immediately.
+	if (!CNetwork::IsHost())
+		ServerHandledActionItem(i);
+}
+
+void CDigitanksTeam::HandledActionItem(CSelectable* pUnit)
+{
+	if (!pUnit)
+		return;
+
+	size_t iItem = ~0;
+	for (size_t i = 0; i < m_aActionItems.size(); i++)
+	{
+		if (m_aActionItems[i].iUnit == pUnit->GetHandle())
+		{
+			iItem = i;
+			break;
+		}
+	}
+
+	if (iItem == ~0)
+		return;
+
+	if (!pUnit->NeedsOrders())
+		HandledActionItem(iItem);
+}
+
+void CDigitanksTeam::HandledActionItem(actiontype_t eItem)
+{
+	for (size_t i = 0; i < m_aActionItems.size(); i++)
+	{
+		if (m_aActionItems[i].eActionType == eItem)
+		{
+			HandledActionItem(i);
+			return;
+		}
+	}
+}
+
 void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 {
 	if (m_iCurrentUpdateX == iX && m_iCurrentUpdateY == iY)
@@ -719,7 +836,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 
 	m_iCurrentUpdateX = m_iCurrentUpdateY = -1;
 
-	DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADCOMPLETE);
+	AddActionItem(NULL, ACTIONTYPE_DOWNLOADCOMPLETE);
 
 	if (!CNetwork::IsHost())
 		return;

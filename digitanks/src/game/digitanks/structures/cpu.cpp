@@ -640,16 +640,14 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 	if (DigitanksGame()->GetTurn() == 0 && GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 	{
 		// Let's see our action items.
-		DigitanksGame()->AllowActionItems(true);
-		DigitanksGame()->GetActionItems().clear();
-		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
-		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_CONTROLS);
-		DigitanksGame()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
+		GetDigitanksTeam()->ClearActionItems();
+		GetDigitanksTeam()->AddActionItem(NULL, ACTIONTYPE_WELCOME);
+		GetDigitanksTeam()->AddActionItem(NULL, ACTIONTYPE_CONTROLS);
+		GetDigitanksTeam()->AddActionItem(NULL, ACTIONTYPE_DOWNLOADUPDATES);
 
 		for (size_t i = 0; i < GetDigitanksTeam()->GetNumTanks(); i++)
-			DigitanksGame()->AddActionItem(GetDigitanksTeam()->GetTank(i), ACTIONTYPE_UNITORDERS);
+			GetDigitanksTeam()->AddActionItem(GetDigitanksTeam()->GetTank(i), ACTIONTYPE_UNITORDERS);
 
-		DigitanksGame()->AllowActionItems(false);
 		DigitanksWindow()->GetHUD()->ShowActionItem(ACTIONTYPE_WELCOME);
 
 		CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
@@ -738,7 +736,7 @@ void CCPU::StartTurn()
 
 			DigitanksGame()->AppendTurnInfo(L"Production finished on Rogue");
 
-			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITREADY);
+			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
 		else
 		{

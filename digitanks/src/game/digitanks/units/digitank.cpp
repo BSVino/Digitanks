@@ -655,18 +655,18 @@ void CDigitank::StartTurn()
 	if (!IsDisabled())
 	{
 		if (HasGoalMovePosition() && pClosestEnemy)
-			DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
+			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
 		else
 		// Artillery gets unit orders even if fortified but infantry doesn't.
 		if (!HasGoalMovePosition() && (!IsFortified() || IsArtillery()) && !IsSentried())
-			DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
+			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITORDERS);
 		else
 		// Notify if infantry can see an enemy they can shoot.
 		if (IsInfantry() && IsFortified())
 		{
 			CDigitank* pClosestEnemyTank = FindClosestVisibleEnemyTank(true);
 			if (pClosestEnemyTank && pClosestEnemyTank->GetVisibility() > 0.3f)
-				DigitanksGame()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
+				GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_FORTIFIEDENEMY);
 		}
 	}
 
@@ -1093,7 +1093,7 @@ void CDigitank::Move(CNetworkParameters* p)
 	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
 	if (HasGoalMovePosition() && pClosestEnemy)
 	{
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
+		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);
 	}
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -1101,7 +1101,7 @@ void CDigitank::Move(CNetworkParameters* p)
 	m_flGoalTurretYaw = 0;
 
 	DirtyNeedsOrders();
-	DigitanksGame()->HandledActionItem(this);
+	GetDigitanksTeam()->HandledActionItem(this);
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
@@ -1269,7 +1269,7 @@ void CDigitank::MoveTowardsGoalMovePosition()
 	if ((GetRealOrigin() - GetGoalMovePosition()).Length2DSqr() < 1)
 	{
 		CancelGoalMovePosition();
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITAUTOMOVE);
+		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITAUTOMOVE);
 		return;
 	}
 }
@@ -2580,10 +2580,10 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	if (flDamage > 0)
 	{
 		CancelGoalMovePosition();
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
+		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
 	}
 	else
-		DigitanksGame()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
+		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
 
 	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)

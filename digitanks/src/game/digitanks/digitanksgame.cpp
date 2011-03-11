@@ -95,8 +95,6 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, gametype_t, m_eGameType);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTurn);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CUpdateGrid>, m_hUpdates);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, actionitem_t, m_aActionItems);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bAllowActionItems);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bPartyMode);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPartyModeStart);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
@@ -128,7 +126,6 @@ void CDigitanksGame::Spawn()
 	m_iPowerups = 0;
 	m_iDifficulty = 1;
 	m_bRenderFogOfWar = true;
-	m_bAllowActionItems = false;
 
 	SetListener(DigitanksWindow()->GetHUD());
 
@@ -815,8 +812,6 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	for (size_t i = 0; i < GetNumTeams(); i++)
 		GetDigitanksTeam(i)->CountScore();
 
-	m_aActionItems.clear();
-
 	m_bWaitingForMoving = false;
 	m_bWaitingForProjectiles = false;
 
@@ -1171,7 +1166,7 @@ void CDigitanksGame::MoveTanks()
 		else
 			pTank->Move();
 
-		HandledActionItem(pTank);
+		GetCurrentLocalDigitanksTeam()->HandledActionItem(pTank);
 
 		if (pTank->GetUnitType() == UNIT_MOBILECPU)
 			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
@@ -1221,7 +1216,7 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 
 		pTank->Turn();
 
-		HandledActionItem(pTank);
+		GetCurrentLocalDigitanksTeam()->HandledActionItem(pTank);
 	}
 
 	SetControlMode(MODE_NONE);
@@ -1277,7 +1272,7 @@ void CDigitanksGame::FireTanks()
 		pTank->SetPreviewAim(vecTankAim);
 		pTank->Fire();
 
-		HandledActionItem(pTank);
+		GetCurrentLocalDigitanksTeam()->HandledActionItem(pTank);
 	}
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
@@ -1437,12 +1432,7 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	m_bTurnActive = true;
 
-	m_aActionItems.clear();
-	m_bAllowActionItems = true;
-
 	GetCurrentTeam()->StartTurn();
-
-	m_bAllowActionItems = false;
 
 	if (m_pListener)
 	{
@@ -1562,36 +1552,131 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	return bHit;
 }
 
+SERVER_COMMAND(HitIndicator)
+{
+	if (pCmd->GetNumArguments() == 0)
+	{
+		TMsg(L"HitIndicator with 0 arguments.\n");
+		return;
+	}
+
+	if (pCmd->Arg(0) == L"sdmg")
+	{
+		if (pCmd->GetNumArguments() < 7)
+		{
+			TMsg(L"HitIndicator sdmg with not enough arguments.\n");
+			return;
+		}
+
+		if (DigitanksGame()->GetListener())
+		{
+			DigitanksGame()->GetListener()->OnTakeShieldDamage(
+					CEntityHandle<CDigitank>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3)),
+					pCmd->ArgAsFloat(4), !!pCmd->ArgAsInt(5), !!pCmd->ArgAsInt(6));
+		}
+
+		return;
+	}
+
+	if (pCmd->Arg(0) == L"dmg")
+	{
+		if (pCmd->GetNumArguments() < 7)
+		{
+			TMsg(L"HitIndicator dmg with not enough arguments.\n");
+			return;
+		}
+
+		if (DigitanksGame()->GetListener())
+		{
+			DigitanksGame()->GetListener()->OnTakeDamage(
+					CEntityHandle<CDigitank>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3)),
+					pCmd->ArgAsFloat(4), !!pCmd->ArgAsInt(5), !!pCmd->ArgAsInt(6));
+		}
+
+		return;
+	}
+
+	if (pCmd->Arg(0) == L"disable")
+	{
+		if (pCmd->GetNumArguments() < 4)
+		{
+			TMsg(L"HitIndicator disable with not enough arguments.\n");
+			return;
+		}
+
+		if (DigitanksGame()->GetListener())
+		{
+			DigitanksGame()->GetListener()->OnDisabled(
+					CEntityHandle<CDigitank>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3))
+				);
+		}
+
+		return;
+	}
+
+	if (pCmd->Arg(0) == L"miss")
+	{
+		if (pCmd->GetNumArguments() < 4)
+		{
+			TMsg(L"HitIndicator miss with not enough arguments.\n");
+			return;
+		}
+
+		if (DigitanksGame()->GetListener())
+		{
+			DigitanksGame()->GetListener()->OnMiss(
+					CEntityHandle<CDigitank>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3))
+				);
+		}
+
+		return;
+	}
+}
+
+#define SAFE_HANDLE(pEntity) pEntity?pEntity->GetHandle():~0
+
 void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
-	if (m_pListener)
-		m_pListener->OnTakeShieldDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit, bShieldOnly);
+	if (CNetwork::IsHost())
+		HitIndicator.RunCommand(sprintf(L"sdmg %d %d %d %f %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bShieldOnly));
 }
 
 void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
-	if (m_pListener)
-		m_pListener->OnTakeDamage(pVictim, pAttacker, pInflictor, flDamage, bDirectHit, bKilled);
+	if (CNetwork::IsHost())
+		HitIndicator.RunCommand(sprintf(L"dmg %d %d %d %f %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bKilled));
 }
 
 void CDigitanksGame::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
-	if (m_pListener)
-		m_pListener->OnDisabled(pVictim, pAttacker, pInflictor);
+	if (CNetwork::IsHost())
+	{
+		HitIndicator.RunCommand(sprintf(L"disable %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
-	CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
-	if (pTank)
-		pTank->Speak(TANKSPEECH_DISABLED);
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
+		if (pTank)
+			pTank->Speak(TANKSPEECH_DISABLED);
+	}
 }
 
 void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
-	if (m_pListener)
-		m_pListener->OnMiss(pVictim, pAttacker, pInflictor);
+	if (CNetwork::IsHost())
+	{
+		HitIndicator.RunCommand(sprintf(L"miss %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
-	CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
-	if (pTank)
-		pTank->Speak(TANKSPEECH_TAUNT);
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
+		if (pTank)
+			pTank->Speak(TANKSPEECH_TAUNT);
+	}
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
@@ -2227,79 +2312,6 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
-}
-
-void CDigitanksGame::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
-{
-	if (pUnit && !IsTeamControlledByMe(pUnit->GetTeam()))
-		return;
-
-	if (!m_bAllowActionItems)
-		return;
-
-	if (GetGameType() != GAMETYPE_STANDARD)
-		return;
-
-	// Prevent duplicates
-	for (size_t i = 0; i < m_aActionItems.size(); i++)
-	{
-		if (!pUnit && m_aActionItems[i].iUnit == ~0 && eActionType == m_aActionItems[i].eActionType)
-			return;
-
-		if (pUnit && m_aActionItems[i].iUnit == pUnit->GetHandle())
-		{
-			// Use the lowest value, that list is sorted that way.
-			if (eActionType < m_aActionItems[i].eActionType)
-				m_aActionItems[i].eActionType = eActionType;
-
-			return;
-		}
-	}
-
-	m_aActionItems.push_back(actionitem_t());
-	actionitem_t* pActionItem = &m_aActionItems[m_aActionItems.size()-1];
-	pActionItem->iUnit = pUnit?pUnit->GetHandle():~0;
-	pActionItem->eActionType = eActionType;
-	pActionItem->bHandled = false;
-	DigitanksWindow()->GetHUD()->OnAddNewActionItem();
-}
-
-void CDigitanksGame::HandledActionItem(CSelectable* pUnit)
-{
-	if (!pUnit)
-		return;
-
-	size_t iItem = ~0;
-	for (size_t i = 0; i < m_aActionItems.size(); i++)
-	{
-		if (m_aActionItems[i].iUnit == pUnit->GetHandle())
-		{
-			iItem = i;
-			break;
-		}
-	}
-
-	if (iItem == ~0)
-		return;
-
-	if (!pUnit->NeedsOrders())
-	{
-		m_aActionItems[iItem].bHandled = true;
-		DigitanksWindow()->GetHUD()->Layout();
-	}
-}
-
-void CDigitanksGame::HandledActionItem(actiontype_t eItem)
-{
-	for (size_t i = 0; i < m_aActionItems.size(); i++)
-	{
-		if (m_aActionItems[i].eActionType == eItem)
-		{
-			m_aActionItems[i].bHandled = true;
-			DigitanksWindow()->GetHUD()->Layout();
-			return;
-		}
-	}
 }
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)
