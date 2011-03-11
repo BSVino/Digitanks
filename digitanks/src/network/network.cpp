@@ -494,11 +494,21 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 		return;
 	}
 
-	if (m_iMessageTarget == NETWORK_TOSERVER && (CNetwork::IsHost() || !CNetwork::IsConnected()))
+	if (m_iMessageTarget == NETWORK_TOSERVER)
 	{
-		wcstok(sParameters, m_asArguments);
-		m_pfnCallback(this, -1, sParameters);
-		return;
+		if (CNetwork::IsHost() || !CNetwork::IsConnected())
+		{
+			wcstok(sParameters, m_asArguments);
+			m_pfnCallback(this, -1, sParameters);
+			return;
+		}
+
+		if (!CNetwork::IsHost() && CNetwork::IsRunningClientFunctions())
+		{
+			wcstok(sParameters, m_asArguments);
+			m_pfnCallback(this, -1, sParameters);
+			return;
+		}
 	}
 
 	eastl::string16 sCommand = m_sName + L" " + sParameters;
