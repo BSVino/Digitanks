@@ -25,7 +25,8 @@ void CAutoTurret::Spawn()
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
-	Fortify();
+	if (CNetwork::IsHost())
+		Fortify();
 
 	m_aeWeapons.push_back(PROJECTILE_SMALL);
 	m_eWeapon = PROJECTILE_SMALL;

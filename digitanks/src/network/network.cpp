@@ -485,7 +485,14 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
 	// If we're running client functions then we're going to get this message from the server anyway.
 	if (m_iMessageTarget == NETWORK_TOCLIENTS && !CNetwork::IsHost())
+	{
+		if (CNetwork::IsRunningClientFunctions())
+			return;
+
+		wcstok(sParameters, m_asArguments);
+		m_pfnCallback(this, -1, sParameters);
 		return;
+	}
 
 	if (m_iMessageTarget == NETWORK_TOSERVER && (CNetwork::IsHost() || !CNetwork::IsConnected()))
 	{

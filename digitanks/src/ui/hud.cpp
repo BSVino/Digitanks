@@ -742,10 +742,13 @@ void CHUD::Think()
 		}
 	}
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && m_apActionItemButtons.size())
 	{
 		for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems(); i++)
 		{
+			if (i >= m_apActionItemButtons.size())
+				break;
+
 			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i)->bHandled)
 				m_apActionItemButtons[i]->SetAlpha(100);
 			else
