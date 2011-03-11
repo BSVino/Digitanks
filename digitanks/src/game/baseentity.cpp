@@ -226,14 +226,36 @@ void CBaseEntity::Delete()
 	GameServer()->Delete(this);
 }
 
+SERVER_COMMAND(EmitSound)
+{
+	if (pCmd->GetNumArguments() < 3)
+	{
+		TMsg("EmitSound with less than 3 arguments.\n");
+		return;
+	}
+
+	CSoundLibrary::PlaySound(CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(0)), pCmd->Arg(2), !!pCmd->ArgAsInt(1));
+}
+
 void CBaseEntity::EmitSound(const eastl::string16& sFilename, bool bLoop)
 {
-	CSoundLibrary::PlaySound(this, sFilename, bLoop);
+	::EmitSound.RunCommand(sprintf(L"%d %d %s", GetHandle(), bLoop?1:0, sFilename));
+}
+
+SERVER_COMMAND(StopSound)
+{
+	if (pCmd->GetNumArguments() < 2)
+	{
+		TMsg("EmitSound with less than 3 arguments.\n");
+		return;
+	}
+
+	CSoundLibrary::StopSound(CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(0)), pCmd->Arg(1));
 }
 
 void CBaseEntity::StopSound(const eastl::string16& sFilename)
 {
-	CSoundLibrary::StopSound(this, sFilename);
+	::StopSound.RunCommand(sprintf(L"%d %s", GetHandle(), sFilename));
 }
 
 bool CBaseEntity::IsSoundPlaying(const eastl::string16& sFilename)
