@@ -695,7 +695,7 @@ CLIENT_COMMAND(HandledActionItem)
 		return;
 	}
 
-	if (hTeam->GetClient() != iClient)
+	if ((int)iClient >= 0 && hTeam->GetClient() != iClient)
 	{
 		TMsg("HandledActionItem with wrong team.\n");
 		return;
