@@ -356,6 +356,7 @@ protected:
 	CNetworkedVariable<float>	m_flBonusDefensePower;
 	CNetworkedVariable<float>	m_flBonusMovementPower;
 	CNetworkedVariable<size_t>	m_iBonusPoints;
+	CNetworkedVariable<size_t>	m_iBonusLevel;
 
 	CNetworkedVariable<float>	m_flRangeBonus;
 

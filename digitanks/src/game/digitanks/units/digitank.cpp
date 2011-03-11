@@ -73,6 +73,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE(float, m_flBonusDefensePower);
 	NETVAR_DEFINE(float, m_flBonusMovementPower);
 	NETVAR_DEFINE_CALLBACK(size_t, m_iBonusPoints, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE(size_t, m_iBonusLevel);
 	NETVAR_DEFINE(float, m_flRangeBonus);
 
 	NETVAR_DEFINE(float, m_flShieldStrength);
@@ -133,6 +134,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusDefensePower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBonusMovementPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBonusPoints);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iBonusLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flRangeBonus);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flMaxShieldStrength);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flShieldStrength);
@@ -307,6 +309,7 @@ void CDigitank::Spawn()
 	m_flBonusAttackPower = m_flBonusDefensePower = m_flBonusMovementPower = 0;
 	m_flRangeBonus = 0;
 	m_iBonusPoints = 0;
+	m_iBonusLevel = 0;
 	m_flPreviewTurn = 0;
 	m_bPreviewAim = false;
 	m_bGoalMovePosition = false;
@@ -2145,7 +2148,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(2, L"Aim");
 		}
 
-		if (HasBonusPoints())
+		if (HasBonusPoints() && m_iBonusLevel < 5)
 		{
 			pHUD->SetButtonListener(4, CHUD::Promote);
 			pHUD->SetButtonTexture(4, 192, 128);
@@ -3225,6 +3228,10 @@ void CDigitank::PromoteAttack()
 	if (m_iBonusPoints <= 0)
 		return;
 
+	if (m_iBonusLevel >= 5)
+		return;
+
+	m_iBonusLevel++;
 	m_iBonusPoints--;
 	m_flBonusAttackPower++;
 
@@ -3248,6 +3255,10 @@ void CDigitank::PromoteDefense()
 	if (m_iBonusPoints <= 0)
 		return;
 
+	if (m_iBonusLevel >= 5)
+		return;
+
+	m_iBonusLevel++;
 	m_iBonusPoints--;
 	m_flBonusDefensePower++;
 
@@ -3271,6 +3282,10 @@ void CDigitank::PromoteMovement()
 	if (m_iBonusPoints <= 0)
 		return;
 
+	if (m_iBonusLevel >= 5)
+		return;
+
+	m_iBonusLevel++;
 	m_iBonusPoints--;
 	m_flBonusMovementPower++;
 
