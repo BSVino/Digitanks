@@ -1425,9 +1425,6 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
 
-	if (m_pListener)
-		m_pListener->ClearTurnInfo();
-
 	m_iWaitingForProjectiles = 0;
 
 	m_bTurnActive = true;
@@ -1990,12 +1987,6 @@ void CDigitanksGame::ClearTankAims()
 {
 	m_avecTankAims.clear();
 	m_aflTankAimRadius.clear();
-}
-
-void CDigitanksGame::AppendTurnInfo(const eastl::string16& pszTurnInfo)
-{
-	if (m_pListener)
-		m_pListener->AppendTurnInfo(pszTurnInfo);
 }
 
 void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)

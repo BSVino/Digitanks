@@ -43,9 +43,6 @@ public:
 
 	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)=0;
 
-	virtual void			ClearTurnInfo()=0;
-	virtual void			AppendTurnInfo(const eastl::string16& sInfo)=0;
-
 	virtual void			SetHUDActive(bool bActive)=0;
 };
 
@@ -185,8 +182,6 @@ public:
 
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
-
-	void					AppendTurnInfo(const eastl::string16& sTurnInfo);
 
 	void					OnDisplayTutorial(size_t iTutorial);
 

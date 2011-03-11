@@ -495,6 +495,11 @@ void CHUD::Layout()
 	m_pTurnInfo->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pTurnInfo->SetWrap(true);
 
+	if (pLocalCurrentTeam)
+		m_pTurnInfo->SetText(pLocalCurrentTeam->GetTurnInfo());
+	else
+		m_pTurnInfo->SetText(L"");
+
 	m_pResearchInfo->SetSize(640, 25);
 	m_pResearchInfo->SetPos(iWidth/2 - m_pResearchInfo->GetWidth()/2, 0);
 	m_pResearchInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
@@ -2709,27 +2714,6 @@ void CHUD::TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)
 void CHUD::ClearTurnInfo()
 {
 	m_pTurnInfo->SetText("");
-
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
-		return;
-
-	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
-		return;
-
-	m_pTurnInfo->SetText("TURN REPORT\n \n");
-}
-
-void CHUD::AppendTurnInfo(const eastl::string16& pszInfo)
-{
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
-		return;
-
-	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
-		return;
-
-	m_pTurnInfo->AppendText("* ");
-	m_pTurnInfo->AppendText(pszInfo);
-	m_pTurnInfo->AppendText("\n");
 }
 
 void CHUD::SetHUDActive(bool bActive)

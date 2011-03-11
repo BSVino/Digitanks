@@ -89,7 +89,7 @@ void CLoader::StartTurn()
 				s.sprintf(L"Producing Digitank (%d turns left)", GetTurnsRemainingToProduce());
 			else if (GetBuildUnit() == UNIT_ARTILLERY)
 				s.sprintf(L"Producing Artillery (%d turns left)", GetTurnsRemainingToProduce());
-			DigitanksGame()->AppendTurnInfo(s);
+			GetDigitanksTeam()->AppendTurnInfo(s);
 		}
 	}
 }
@@ -226,11 +226,11 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 void CLoader::CompleteProduction()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		DigitanksGame()->AppendTurnInfo(L"Production finished on Resistor");
+		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Resistor");
 	else if (GetBuildUnit() == UNIT_TANK)
-		DigitanksGame()->AppendTurnInfo(L"Production finished on Digitank");
+		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Digitank");
 	else if (GetBuildUnit() == UNIT_ARTILLERY)
-		DigitanksGame()->AppendTurnInfo(L"Production finished on Artillery");
+		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Artillery");
 
 	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 

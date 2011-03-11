@@ -33,6 +33,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(float, m_flUpdateDownloaded, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flMegabytes, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flBandwidth, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(eastl::string16, m_sTurnInfo, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildBuffers, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildPSUs, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildInfantryLoaders, &CDigitanksGame::UpdateHUD);
@@ -73,6 +74,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flUpdateDownloaded);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flMegabytes);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBandwidth);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sTurnInfo);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildBuffers);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildPSUs);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
@@ -327,7 +329,7 @@ void CDigitanksTeam::StartTurn()
 			// Return the excess.
 			m_flMegabytes = GetUpdateDownloaded() - GetUpdateSize();
 
-			DigitanksGame()->AppendTurnInfo(L"'" + GetUpdateDownloading()->GetName() + L"' finished downloading.");
+			AppendTurnInfo(L"'" + GetUpdateDownloading()->GetName() + L"' finished downloading.");
 
 			DownloadComplete();
 		}
@@ -335,7 +337,7 @@ void CDigitanksTeam::StartTurn()
 		{
 			eastl::string16 s;
 			s.sprintf((L"Downloading '" + GetUpdateDownloading()->GetName() + L"' (%d turns left)").c_str(), GetTurnsToDownload());
-			DigitanksGame()->AppendTurnInfo(s);
+			AppendTurnInfo(s);
 		}
 	}
 	else if (DigitanksGame()->GetUpdateGrid())
@@ -356,6 +358,7 @@ void CDigitanksTeam::StartTurn()
 
 void CDigitanksTeam::EndTurn()
 {
+	m_sTurnInfo = L"";
 	m_aActionItems.clear();
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -512,6 +515,19 @@ void CDigitanksTeam::CountBandwidth()
 		if (pStructure)
 			m_flBandwidth += pStructure->Bandwidth();
 	}
+}
+
+void CDigitanksTeam::AppendTurnInfo(const eastl::string16& sTurnInfo)
+{
+	if (m_sTurnInfo.length() == 0)
+		m_sTurnInfo = L"TURN REPORT\n \n";
+
+	m_sTurnInfo += L"* " + sTurnInfo + L"\n";
+}
+
+eastl::string16 CDigitanksTeam::GetTurnInfo()
+{
+	return m_sTurnInfo;
 }
 
 void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)

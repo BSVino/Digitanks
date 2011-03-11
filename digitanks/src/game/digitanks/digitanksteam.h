@@ -90,6 +90,9 @@ public:
 	void						CountBandwidth();
 	float						GetBandwidth() { return m_flBandwidth; };
 
+	void						AppendTurnInfo(const eastl::string16& sTurnInfo);
+	eastl::string16				GetTurnInfo();
+
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
 	size_t						GetNumTanksAlive();
@@ -198,6 +201,8 @@ protected:
 	CNetworkedVariable<float>	m_flUpdateDownloaded;
 	CNetworkedVariable<float>	m_flMegabytes;
 	CNetworkedVariable<float>	m_flBandwidth;
+
+	CNetworkedString			m_sTurnInfo;
 
 	CNetworkedVariable<bool>	m_bCanBuildBuffers;
 	CNetworkedVariable<bool>	m_bCanBuildPSUs;

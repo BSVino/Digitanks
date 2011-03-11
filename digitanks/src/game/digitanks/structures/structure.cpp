@@ -144,13 +144,13 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToConstruct == (size_t)0)
 		{
-			DigitanksGame()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetName());
+			GetDigitanksTeam()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetName());
 			CompleteConstruction();
 
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
 		}
 		else
-			DigitanksGame()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));
 	}
 
 	if (IsUpgrading())
@@ -159,12 +159,12 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToUpgrade == (size_t)0)
 		{
-			DigitanksGame()->AppendTurnInfo(GetName() + L" finished upgrading.");
+			GetDigitanksTeam()->AppendTurnInfo(GetName() + L" finished upgrading.");
 
 			UpgradeComplete();
 		}
 		else
-			DigitanksGame()->AppendTurnInfo(sprintf(eastl::string16(L"Upgrading ") + GetName() + L" (%d turns left)", GetTurnsToUpgrade()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Upgrading ") + GetName() + L" (%d turns left)", GetTurnsToUpgrade()));
 	}
 }
 

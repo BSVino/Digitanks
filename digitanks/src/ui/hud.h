@@ -182,7 +182,6 @@ public:
 	virtual void				TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
 
 	virtual void				ClearTurnInfo();
-	virtual void				AppendTurnInfo(const eastl::string16& pszInfo);
 
 	virtual void				SetHUDActive(bool bActive);
 

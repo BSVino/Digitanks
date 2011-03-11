@@ -612,6 +612,21 @@ public:
 		return *this;
 	}
 
+	inline const eastl::string16& operator+=(const eastl::string16& c)
+	{
+		if (c.length() == 0)
+			return m_oVariable;
+
+		m_bDirty = true;
+		m_oVariable += c;
+		return m_oVariable;
+	}
+
+	size_t length() const
+	{
+		return m_oVariable.length();
+	}
+
 	virtual void*		Serialize(size_t& iSize) { iSize = (m_oVariable.size()+1)*sizeof(eastl::string16::value_type); return (void*)m_oVariable.c_str(); }
 	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = (eastl::string16::value_type*)pValue; }
 };

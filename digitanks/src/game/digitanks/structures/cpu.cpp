@@ -734,13 +734,13 @@ void CCPU::StartTurn()
 
 			m_bProducing = false;
 
-			DigitanksGame()->AppendTurnInfo(L"Production finished on Rogue");
+			GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Rogue");
 
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
 		else
 		{
-			DigitanksGame()->AppendTurnInfo(sprintf(L"Producing Rogue (%d turns left)", m_iTurnsToProduceRogue.Get()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(L"Producing Rogue (%d turns left)", m_iTurnsToProduceRogue.Get()));
 		}
 	}
 }
