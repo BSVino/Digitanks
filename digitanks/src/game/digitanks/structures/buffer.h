@@ -17,7 +17,7 @@ public:
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
-	static size_t				InitialBufferDataStrength() { return 1250; }
+	static size_t				InitialBufferDataStrength() { return 3500; }
 
 	virtual size_t				InitialTurnsToConstruct() { return 2; };
 	virtual size_t				InitialDataStrength() { return InitialBufferDataStrength(); };
@@ -48,7 +48,7 @@ public:
 	virtual bool				CanStructureUpgrade();
 	virtual void				UpgradeComplete();
 
-	static size_t				InitialMiniBufferDataStrength() { return 450; }
+	static size_t				InitialMiniBufferDataStrength() { return 2500; }
 
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };

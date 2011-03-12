@@ -2389,6 +2389,9 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecLandingSpot) > 0.3f)
 		bIsVisible = true;
 
+	if (GetDigitanksTeam() && GetDigitanksTeam()->IsPlayerControlled())
+		bIsVisible = true;
+
 	float flGravity = DigitanksGame()->GetGravity();
 
 	if (!bIsVisible)
@@ -3231,6 +3234,14 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 
 	Speak(TANKSPEECH_PROMOTED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
+}
+
+bool CDigitank::HasBonusPoints()
+{
+	if (m_iBonusLevel >= 5)
+		return false;
+
+	return m_iBonusPoints > 0;
 }
 
 void CDigitank::PromoteAttack()

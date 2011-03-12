@@ -279,7 +279,7 @@ public:
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
 	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
-	bool						HasBonusPoints() { return m_iBonusPoints > 0; };
+	bool						HasBonusPoints();
 	size_t						GetBonusPoints() { return m_iBonusPoints; };
 	void						PromoteAttack();
 	void						PromoteDefense();
