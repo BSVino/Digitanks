@@ -87,6 +87,9 @@ inline float Approach(float flGoal, float flInput, float flAmount)
 
 inline float AngleDifference( float a, float b )
 {
+	if (a != a || b != b)
+		return 0;
+
 	float d = a - b;
 
 	if ( a > b )

@@ -482,7 +482,8 @@ float CDigitank::GetSupportAttackPowerBonus()
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
 	{
 		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
-		flBonus = (float)pSupplier->EnergyBonus();
+		if (pSupplier)
+			flBonus = (float)pSupplier->EnergyBonus();
 	}
 
 	return flBonus;
@@ -494,7 +495,8 @@ float CDigitank::GetSupportDefensePowerBonus()
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
 	{
 		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
-		flBonus = (float)pSupplier->EnergyBonus();
+		if (pSupplier)
+			flBonus = (float)pSupplier->EnergyBonus();
 	}
 
 	return flBonus;
@@ -506,7 +508,8 @@ float CDigitank::GetSupportHealthRechargeBonus() const
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
 	{
 		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
-		flBonus = pSupplier->RechargeBonus();
+		if (pSupplier)
+			flBonus = pSupplier->RechargeBonus();
 	}
 
 	return flBonus;
@@ -518,7 +521,8 @@ float CDigitank::GetSupportShieldRechargeBonus() const
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
 	{
 		CSupplier* pSupplier = CSupplier::FindClosestSupplier(GetRealOrigin(), GetTeam());
-		flBonus = pSupplier->RechargeBonus()*5;
+		if (pSupplier)
+			flBonus = pSupplier->RechargeBonus()*5;
 	}
 
 	return flBonus;
@@ -2979,7 +2983,7 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
-	if ((GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
+	if ((GetDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
 	{
 		if (GetCurrentWeapon() != WEAPON_CHARGERAM)
 		{

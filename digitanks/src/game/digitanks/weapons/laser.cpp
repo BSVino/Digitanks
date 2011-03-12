@@ -66,8 +66,11 @@ void CLaser::OnSetOwner(CDigitank* pOwner)
 	{
 		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
 		{
+			m_bShouldRender = false;
+
 			// If the start and end points are both in the fog of war, delete it now that we've aready done the damage so it doesn't get rendered later.
-			Delete();
+			if (CNetwork::IsHost())
+				Delete();
 		}
 	}
 }
@@ -77,6 +80,9 @@ void CLaser::PostRender(bool bTransparent)
 	BaseClass::PostRender(bTransparent);
 
 	if (!bTransparent)
+		return;
+
+	if (!m_bShouldRender)
 		return;
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());

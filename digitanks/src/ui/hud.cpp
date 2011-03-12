@@ -2664,7 +2664,7 @@ void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntit
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, false);
 
-	if ((pVictim->IsAlive() || bKilled) && bDirectHit && flDamage > 0)
+	if ((pVictim && pVictim->IsAlive() || bKilled) && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
@@ -2680,7 +2680,7 @@ void CHUD::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity*
 	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
 		return;
 
-	if (pVictim->IsAlive())
+	if (pVictim && pVictim->IsAlive())
 	{
 		if (dynamic_cast<CDigitank*>(pVictim))
 			new CHitIndicator(pVictim, L"DISABLED!");
@@ -3606,11 +3606,13 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 	m_flDamage = flDamage;
 	m_bShield = bShield;
 	m_flTime = GameServer()->GetGameTime();
-	m_vecLastOrigin = pVictim->GetOrigin();
+
+	if (pVictim)
+		m_vecLastOrigin = pVictim->GetOrigin();
 
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
-	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pVictim->GetOrigin());
+	Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(m_vecLastOrigin);
 	if (bShield)
 		vecScreen += Vector(10, 10, 0);
 	SetPos((int)vecScreen.x, (int)vecScreen.y);
