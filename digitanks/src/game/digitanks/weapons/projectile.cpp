@@ -77,6 +77,8 @@ void CProjectile::Think()
 	{
 		if (GetOwner() && GetOwner()->GetDigitanksTeam() && !GetOwner()->GetDigitanksTeam()->IsPlayerControlled() && GameServer()->GetGameTime() - GetSpawnTime() > 2.0f)
 			Fragment();
+		else if (DigitanksGame()->GetGameType() != GAMETYPE_ARTILLERY && GameServer()->GetGameTime() - GetSpawnTime() > 2.0f)
+			Fragment();
 	}
 
 	if (!m_bMissileDefensesNotified && !IsDeleted() && GetVelocity().y < 10.0f && m_flTimeExploded == 0.0f)

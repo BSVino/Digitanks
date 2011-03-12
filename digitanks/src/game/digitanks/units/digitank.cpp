@@ -1117,8 +1117,12 @@ bool CDigitank::IsMoving()
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (GetVisibility() == 0)
-		flTransitionTime = 0;
+	// If we're in multiplayer and this tank belongs to real player, never skip its movement.
+	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	{
+		if (GetVisibility() == 0)
+			flTransitionTime = 0;
+	}
 
 	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
@@ -1189,8 +1193,11 @@ bool CDigitank::IsTurning()
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (GetVisibility() == 0)
-		flTransitionTime = 0;
+	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	{
+		if (GetVisibility() == 0)
+			flTransitionTime = 0;
+	}
 
 	float flTimeSinceTurn = GameServer()->GetGameTime() - m_flStartedTurn;
 	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
@@ -1723,8 +1730,11 @@ void CDigitank::Think()
 
 	float flTransitionTime = GetTransitionTime();
 
-	if (GetVisibility() == 0)
-		flTransitionTime = 0;
+	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	{
+		if (GetVisibility() == 0)
+			flTransitionTime = 0;
+	}
 
 	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove > flTransitionTime)
@@ -2383,6 +2393,9 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecLandingSpot) > 0.3f)
 		bIsVisible = true;
 
+	if (GetDigitanksTeam() && GetDigitanksTeam()->IsPlayerControlled())
+		bIsVisible = true;
+
 	float flGravity = DigitanksGame()->GetGravity();
 
 	if (!bIsVisible)
@@ -2734,8 +2747,11 @@ Vector CDigitank::GetOrigin() const
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (GetVisibility() == 0)
-		flTransitionTime = 0;
+	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	{
+		if (GetVisibility() == 0)
+			flTransitionTime = 0;
+	}
 
 	float flTimeSinceMove = GameServer()->GetGameTime() - m_flStartedMove;
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
@@ -2770,8 +2786,11 @@ EAngle CDigitank::GetAngles() const
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (GetVisibility() == 0)
-		flTransitionTime = 0;
+	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	{
+		if (GetVisibility() == 0)
+			flTransitionTime = 0;
+	}
 
 	float flTimeSinceTurn = GameServer()->GetGameTime() - m_flStartedTurn;
 	if (m_flStartedTurn && flTimeSinceTurn < flTransitionTime)
@@ -3219,6 +3238,14 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 
 	Speak(TANKSPEECH_PROMOTED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
+}
+
+bool CDigitank::HasBonusPoints()
+{
+	if (m_iBonusLevel >= 5)
+		return false;
+
+	return m_iBonusPoints > 0;
 }
 
 void CDigitank::PromoteAttack()
