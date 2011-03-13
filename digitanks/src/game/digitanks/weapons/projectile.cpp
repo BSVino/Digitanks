@@ -800,6 +800,8 @@ void CTorpedo::Precache()
 
 void CTorpedo::Spawn()
 {
+	BaseClass::Spawn();
+
 	m_bBurrowing = false;
 	m_flDamage = 0;
 }
