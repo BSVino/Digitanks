@@ -123,7 +123,7 @@ void CGameServer::SetPlayerNickname(const eastl::string16& sNickname)
 {
 	m_sNickname = sNickname;
 
-	if (!CNetwork::IsConnected() || m_bGotClientInfo)
+	if (CNetwork::IsHost() || m_bGotClientInfo)
 		SendNickname.RunCommand(m_sNickname);
 }
 

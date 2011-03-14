@@ -323,7 +323,6 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 			GameServer()->SetServerType(SERVER_LOCAL);
 		GameServer()->SetServerPort(iPort);
 		GameServer()->Initialize();
-		GameServer()->SetPlayerNickname(GetPlayerNickname());
 
 		CNetwork::SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
 	}
@@ -333,8 +332,9 @@ void CDigitanksWindow::CreateGame(gametype_t eGameType)
 		DigitanksGame()->SetupGame(eGameType);
 	}
 
-	// Ugh. It doesn't stick if the teams aren't created already so do it again for singleplayer.
-	GameServer()->SetPlayerNickname(GetPlayerNickname());
+	// Must set player nickname after teams have been set up or it won't stick.
+	if (GameServer())
+		GameServer()->SetPlayerNickname(GetPlayerNickname());
 
 	glgui::CRootPanel::Get()->Layout();
 

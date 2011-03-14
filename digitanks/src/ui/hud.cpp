@@ -580,6 +580,7 @@ void CHUD::Layout()
 		m_pUpdatesButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
 	}
 
+	UpdateScoreboard();
 	UpdateTeamInfo();
 	UpdateInfo();
 	SetupMenu();
