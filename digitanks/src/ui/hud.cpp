@@ -322,12 +322,19 @@ void CHUD::Layout()
 	m_pMovementPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 30);
 	m_pMovementPower->SetSize(200, 20);
 
+	bool bShowCPUStuff = false;
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU())
+		bShowCPUStuff = true;
+
 	m_pActionItem->SetPos(iWidth - 280, 70);
 	m_pActionItem->SetSize(220, 250);
 	m_pActionItem->SetAlign(CLabel::TA_TOPLEFT);
 	m_pCloseActionItems->SetSize(130, 25);
 	m_pCloseActionItems->SetPos(iWidth - 225, 398);
 	m_pCloseActionItems->SetClickedListener(this, CloseActionItems);
+
+	m_pActionItem->SetVisible(bShowCPUStuff);
+	m_pCloseActionItems->SetVisible(bShowCPUStuff);
 
 	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
 	{
@@ -339,7 +346,7 @@ void CHUD::Layout()
 	m_apActionItemButtons.clear();
 
 	CDigitanksTeam* pLocalCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
-	if (pLocalCurrentTeam)
+	if (pLocalCurrentTeam && bShowCPUStuff)
 	{
 		size_t iItemButtonSize = 30;
 		for (size_t i = 0; i < pLocalCurrentTeam->GetNumActionItems(); i++)
@@ -532,6 +539,7 @@ void CHUD::Layout()
 	m_pUpdatesButton->SetPos(iWidth/2 - 617/2 - 35, 0);
 	m_pUpdatesButton->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pUpdatesButton->SetWrap(false);
+	m_pUpdatesButton->SetVisible(bShowCPUStuff);
 
 	m_pUpdatesPanel->Layout();
 
@@ -547,16 +555,19 @@ void CHUD::Layout()
 	m_pPowerInfo->SetPos(iWidth - 160, 12);
 	m_pPowerInfo->SetSize(80, 15);
 	m_pPowerInfo->SetWrap(false);
+	m_pPowerInfo->SetVisible(bShowCPUStuff);
 
 	m_pFleetInfo->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pFleetInfo->SetPos(iWidth - 160, 42);
 	m_pFleetInfo->SetSize(30, 15);
 	m_pFleetInfo->SetWrap(false);
+	m_pFleetInfo->SetVisible(bShowCPUStuff);
 
 	m_pBandwidthInfo->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pBandwidthInfo->SetPos(iWidth - 160, 72);
 	m_pBandwidthInfo->SetSize(150, 15);
 	m_pBandwidthInfo->SetWrap(false);
+	m_pBandwidthInfo->SetVisible(bShowCPUStuff);
 
 	m_pTurnButton->SetPos(iWidth - 140, iHeight - 105);
 	m_pTurnButton->SetSize(140, 105);
@@ -664,6 +675,13 @@ void CHUD::Think()
 	{
 		DigitanksWindow()->SetMouseCursor(MOUSECURSOR_NONE);
 	}
+
+	bool bShowCPUStuff = false;
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU())
+		bShowCPUStuff = true;
+
+	if (!bShowCPUStuff)
+		m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
 
 	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
 
@@ -814,7 +832,7 @@ void CHUD::Think()
 	m_pTurnInfo->SetSize(m_pTurnInfo->GetWidth(), (int)flTurnInfoHeight);
 	m_pTurnInfo->SetPos(m_pTurnInfo->GetLeft(), 36 + 10 - (int)(Lerp(1.0f-m_flTurnInfoLerp, 0.2f)*flTurnInfoHeight));
 
-	m_pUpdatesButton->SetVisible(!!DigitanksGame()->GetUpdateGrid());
+	m_pUpdatesButton->SetVisible(bShowCPUStuff && !!DigitanksGame()->GetUpdateGrid());
 
 	if (DigitanksWindow()->GetInstructor()->GetActive())
 		m_bUpdatesBlinking = false;
@@ -878,12 +896,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
-	{
-		PaintCameraGuidedMissile(x, y, w, h);
-		return;
-	}
-
 	if (show_fps.GetBool())
 	{
 		float flFontHeight = glgui::CLabel::GetFontHeight(L"text", 10);
@@ -893,10 +905,24 @@ void CHUD::Paint(int x, int y, int w, int h)
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight*2 + 5);
 	}
 
+	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
+	{
+		PaintCameraGuidedMissile(x, y, w, h);
+		return;
+	}
+
 	int iWidth = DigitanksWindow()->GetWindowWidth();
 	int iHeight = DigitanksWindow()->GetWindowHeight();
 
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && pCurrentLocalTeam && pCurrentLocalTeam->GetPrimaryCPU())
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		PaintHUDSheet(iWidth - 208, 0, 208, 341, 816, 683, 208, 341);
+	}
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -1088,7 +1114,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 			UpdateInfo();
 	}
 
-	m_pCloseActionItems->Paint();
+	bool bShowCPUStuff = false;
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetPrimaryCPU())
+		bShowCPUStuff = true;
+
+	if (bShowCPUStuff)
+		m_pCloseActionItems->Paint();
 
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
@@ -1097,7 +1128,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		// Main control pannel
 		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
 
-		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES)
+		if (bShowCPUStuff && (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES))
 		{
 			PaintHUDSheet(iWidth - 190, 10, 20, 20, 517, 350, 20, 20);
 			PaintHUDSheet(iWidth - 190, 40, 20, 20, 557, 350, 20, 20);
@@ -1145,7 +1176,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (m_flAttackInfoAlpha > 0)
 			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 351, 685, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
-		if (m_flActionItemsLerp > 0)
+		if (bShowCPUStuff && m_flActionItemsLerp > 0)
 			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, (int)m_flActionItemsWidth, 340, 350, 0, 250, 310, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
 
 		// Tank info
@@ -1153,13 +1184,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	} while (false);
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-	{
 		CRootPanel::PaintRect(m_pScoreboard->GetLeft()-3, m_pScoreboard->GetTop()-9, m_pScoreboard->GetWidth()+6, m_pScoreboard->GetHeight()+6, Color(0, 0, 0, 100));
-
-		CRootPanel::PaintRect(m_pPowerInfo->GetLeft()-3, m_pPowerInfo->GetTop()-3, m_pPowerInfo->GetWidth()+6, m_pPowerInfo->GetHeight()+6, Color(0, 0, 0, 200));
-		CRootPanel::PaintRect(m_pFleetInfo->GetLeft()-3, m_pFleetInfo->GetTop()-3, m_pFleetInfo->GetWidth()+6, m_pFleetInfo->GetHeight()+6, Color(0, 0, 0, 200));
-		CRootPanel::PaintRect(m_pBandwidthInfo->GetLeft()-3, m_pBandwidthInfo->GetTop()-3, m_pBandwidthInfo->GetWidth()+6, m_pBandwidthInfo->GetHeight()+6, Color(0, 0, 0, 200));
-	}
 
 	size_t iX, iY, iX2, iY2;
 	if (DigitanksWindow()->GetBoxSelection(iX, iY, iX2, iY2))
