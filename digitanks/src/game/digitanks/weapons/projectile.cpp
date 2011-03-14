@@ -813,6 +813,25 @@ size_t CTorpedo::CreateTrailSystem()
 
 void CTorpedo::Think()
 {
+	if (!CNetwork::IsHost())
+	{
+		if (m_bBurrowing)
+		{
+			float flDistance = GameServer()->GetFrameTime() * 10;
+
+			Vector vecDirection = m_vecLandingSpot - GetOrigin();
+			vecDirection.y = 0;
+
+			if (vecDirection.LengthSqr() < flDistance*flDistance*2)
+			{
+				m_bBurrowing = false;
+				Explode();
+			}
+		}
+
+		return;
+	}
+
 	if (m_bBurrowing)
 	{
 		float flDistance = GameServer()->GetFrameTime() * 10;
