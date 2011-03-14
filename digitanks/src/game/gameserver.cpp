@@ -805,10 +805,14 @@ void CGameServer::ClientInfo(CNetworkParameters* p)
 
 	m_flGameTime = m_flSimulationTime = flNewGameTime;
 
-	m_bGotClientInfo = true;
-
 	// Can't send any client commands until we've gotten the client info because we need m_iClient filled out properly.
-	SendNickname.RunCommand(m_sNickname);
+	if (!m_bGotClientInfo)
+	{
+		CNetwork::SetRunningClientFunctions(false);
+		SendNickname.RunCommand(m_sNickname);
+	}
+
+	m_bGotClientInfo = true;
 }
 
 CRenderer* CGameServer::GetRenderer()
