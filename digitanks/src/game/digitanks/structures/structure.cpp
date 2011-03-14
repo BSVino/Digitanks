@@ -653,11 +653,19 @@ void CSupplier::Spawn()
 	m_bShouldRender = true;
 }
 
+void CSupplier::ClientSpawn()
+{
+	BaseClass::ClientSpawn();
+
+	UpdateTendrils();
+}
+
 void CSupplier::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();
 
-	UpdateTendrils();
+	if (HasIssuedClientSpawn())
+		UpdateTendrils();
 }
 
 float CSupplier::GetDataFlowRate()

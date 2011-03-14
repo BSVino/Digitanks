@@ -148,6 +148,7 @@ class CSupplier : public CStructure
 public:
 	virtual void				Precache();
 	virtual void				Spawn();
+	virtual void				ClientSpawn();
 
 	virtual float				GetRenderRadius() const { return GetBoundingRadius() + GetDataFlowRadius() + 5; };
 
