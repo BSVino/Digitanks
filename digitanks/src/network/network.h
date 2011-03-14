@@ -573,7 +573,7 @@ class CNetworkedEAngle : public CNetworkedVariable<EAngle>
 public:
 	inline const CNetworkedEAngle& operator=(const EAngle v)
 	{
-		if (v.p != m_oVariable.p || v.p != m_oVariable.p || v.p != m_oVariable.p)
+		if (v.p != m_oVariable.p || v.y != m_oVariable.y || v.r != m_oVariable.r)
 		{
 			m_bDirty = true;
 			m_oVariable = v;
