@@ -9,6 +9,7 @@ class CLaser : public CBaseWeapon
 
 public:
 	virtual void				Precache();
+	virtual void				ClientSpawn();
 
 	virtual void				OnSetOwner(class CDigitank* pOwner);
 

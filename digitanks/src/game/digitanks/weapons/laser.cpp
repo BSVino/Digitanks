@@ -21,6 +21,17 @@ void CLaser::Precache()
 	s_iBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
 }
 
+void CLaser::ClientSpawn()
+{
+	BaseClass::ClientSpawn();
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
+	{
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
+			m_bShouldRender = false;
+	}
+}
+
 void CLaser::OnSetOwner(CDigitank* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
@@ -66,8 +77,6 @@ void CLaser::OnSetOwner(CDigitank* pOwner)
 	{
 		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
 		{
-			m_bShouldRender = false;
-
 			// If the start and end points are both in the fog of war, delete it now that we've aready done the damage so it doesn't get rendered later.
 			if (CNetwork::IsHost())
 				Delete();

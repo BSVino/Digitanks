@@ -55,7 +55,7 @@ protected:
 	CNetworkedHandle<CDigitank>	m_hOwner;
 	CNetworkedVariable<float>	m_flDamage;
 
-	CNetworkedVariable<bool>	m_bShouldRender;
+	bool						m_bShouldRender;
 };
 
 #endif

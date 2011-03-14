@@ -364,17 +364,20 @@ void CGameServer::Think(float flHostTime)
 
 	CNetwork::PostThink();
 
-	for (size_t i = 0; i < iMaxEntities; i++)
+	if (CNetwork::IsHost())
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-		if (!pEntity)
-			continue;
+		for (size_t i = 0; i < iMaxEntities; i++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+			if (!pEntity)
+				continue;
 
-		if (!pEntity->HasIssuedClientSpawn())
-			pEntity->IssueClientSpawn();
+			if (!pEntity->HasIssuedClientSpawn())
+				pEntity->IssueClientSpawn();
 
-		if (m_bHalting)
-			break;
+			if (m_bHalting)
+				break;
+		}
 	}
 
 	CParticleSystemLibrary::Simulate();
