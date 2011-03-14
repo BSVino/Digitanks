@@ -49,7 +49,18 @@ void CPowerBar::Think()
 	CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
 
 	char szLabel[100];
-	if (m_ePowerbarType == POWERBAR_HEALTH)
+	if (m_ePowerbarType == POWERBAR_SHIELD)
+	{
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pSelection);
+		if (pTank && pTank->GetShieldMaxStrength())
+		{
+			sprintf(szLabel, "Shield Strength: %d/%d", (int)(pTank->GetShieldStrength() * pTank->GetShieldMaxStrength()), (int)(pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true)));
+			SetText(szLabel);
+		}
+		else
+			SetText("");
+	}
+	else if (m_ePowerbarType == POWERBAR_HEALTH)
 	{
 		if (pSelection->TakesDamage())
 		{
@@ -91,6 +102,9 @@ void CPowerBar::Think()
 	}
 
 	int iSize = 13;
+	if (m_ePowerbarType == POWERBAR_SHIELD)
+		iSize = 10;
+
 	SetFont(L"text", iSize);
 	while (iSize > 0 && GetTextWidth() > GetWidth()-1)
 		SetFont(L"text", --iSize);
@@ -106,7 +120,17 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 
 	CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
 
-	if (m_ePowerbarType == POWERBAR_HEALTH)
+	if (m_ePowerbarType == POWERBAR_SHIELD)
+	{
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pSelection);
+		if (pTank && pTank->GetShieldMaxStrength())
+		{
+			float flShield = pTank->GetShieldStrength() * pTank->GetShieldMaxStrength();
+			float flShieldMax = pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true);
+			CRootPanel::PaintRect(x+1, y+1, (int)(w * flShield / flShieldMax)-2, h-2, Color(80, 80, 80));
+		}
+	}
+	else if (m_ePowerbarType == POWERBAR_HEALTH)
 		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetHealth() / pSelection->GetTotalHealth())-2, h-2, Color(0, 150, 0));
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar1Size())-2, h-2, Color(150, 0, 0));
@@ -123,11 +147,13 @@ CHUD::CHUD()
 {
 	m_bNeedsUpdate = false;
 
+	m_pShieldBar = new CPowerBar(POWERBAR_SHIELD);
 	m_pHealthBar = new CPowerBar(POWERBAR_HEALTH);
 	m_pAttackPower = new CPowerBar(POWERBAR_ATTACK);
 	m_pDefensePower = new CPowerBar(POWERBAR_DEFENSE);
 	m_pMovementPower = new CPowerBar(POWERBAR_MOVEMENT);
 
+	AddControl(m_pShieldBar);
 	AddControl(m_pHealthBar);
 	AddControl(m_pAttackPower);
 	AddControl(m_pDefensePower);
@@ -187,10 +213,6 @@ CHUD::CHUD()
 	m_pScoreboard->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	m_pScoreboard->SetFont(L"text", 10);
 	AddControl(m_pScoreboard);
-
-	m_pShieldInfo = new CLabel(0, 0, 100, 100, L"");
-	m_pShieldInfo->SetFont(L"text");
-	AddControl(m_pShieldInfo);
 
 	m_pTankInfo = new CLabel(0, 0, 100, 100, L"");
 	m_pTankInfo->SetFont(L"text", 10);
@@ -310,7 +332,10 @@ void CHUD::Layout()
 	m_pAttackInfo->SetPos(iWidth - 165, iHeight - 150 - 90 - 10);
 	m_pAttackInfo->SetSize(165, 90);
 
-	m_pHealthBar->SetPos(iWidth/2 - 720/2 + 170, iHeight - 140);
+	m_pShieldBar->SetPos(iWidth/2 - 720/2 + 170, iHeight - 142);
+	m_pShieldBar->SetSize(200, 15);
+
+	m_pHealthBar->SetPos(iWidth/2 - 720/2 + 170, iHeight - 124);
 	m_pHealthBar->SetSize(200, 20);
 
 	m_pAttackPower->SetPos(iWidth/2 - 720/2 + 170, iHeight - 90);
@@ -487,10 +512,6 @@ void CHUD::Layout()
 		m_apButtons[i]->SetSize(50, 50);
 		m_apButtons[i]->SetPos(20 + 60*(i%5), 10 + 60*(i/5));
 	}
-
-	m_pShieldInfo->SetDimensions(iWidth/2 - 720/2 + 10 + 150/2 - 50/2, iHeight - 150 + 10 + 130/2 - 50/2 - 35, 50, 10);
-	m_pShieldInfo->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
-	m_pShieldInfo->SetWrap(false);
 
 	m_pTankInfo->SetSize(140, 240);
 	m_pTankInfo->SetPos(10, iHeight - m_pTankInfo->GetHeight() + 10 + 7);
@@ -1941,19 +1962,6 @@ void CHUD::UpdateInfo()
 
 void CHUD::UpdateTankInfo(CDigitank* pTank)
 {
-	char szShieldInfo[1024];
-
-	if (pTank->GetShieldMaxStrength() > 0)
-	{
-		sprintf(szShieldInfo, "%d/%d",
-			(int)(pTank->GetShieldStrength() * pTank->GetShieldMaxStrength()),
-			(int)(pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true)));
-		m_pShieldInfo->SetText(szShieldInfo);
-		m_pShieldInfo->SetVisible(true);
-	}
-	else
-		m_pShieldInfo->SetVisible(false);
-
 	m_pAttackInfo->SetText(L"");
 
 	Vector vecOrigin;
@@ -2062,7 +2070,6 @@ void CHUD::UpdateTankInfo(CDigitank* pTank)
 
 void CHUD::UpdateStructureInfo(CStructure* pStructure)
 {
-	m_pShieldInfo->SetText("");
 	m_pAttackInfo->SetText(L"");
 }
 

@@ -10,6 +10,7 @@
 
 typedef enum
 {
+	POWERBAR_SHIELD,
 	POWERBAR_HEALTH,
 	POWERBAR_ATTACK,
 	POWERBAR_DEFENSE,
@@ -264,6 +265,7 @@ public:
 	static void					SetTeamMembersUpdated();
 
 protected:
+	CPowerBar*					m_pShieldBar;
 	CPowerBar*					m_pHealthBar;
 	CPowerBar*					m_pAttackPower;
 	CPowerBar*					m_pDefensePower;
@@ -287,8 +289,6 @@ protected:
 	glgui::CLabel*				m_pAttackInfo;
 	float						m_flAttackInfoAlpha;
 	float						m_flAttackInfoAlphaGoal;
-
-	glgui::CLabel*				m_pShieldInfo;
 
 	glgui::CLabel*				m_pTankInfo;
 	size_t						m_iTankInfoPanel;
