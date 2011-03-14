@@ -817,8 +817,16 @@ void CTorpedo::Think()
 	{
 		float flDistance = GameServer()->GetFrameTime() * 10;
 
+		bool bSpeedTorpedo = false;
+
 		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.3f)
-			flDistance *= 5;
+			bSpeedTorpedo = true;
+
+		if (GetOwner()->GetTeam() && GetOwner()->GetTeam()->IsPlayerControlled())
+			bSpeedTorpedo = false;
+
+		if (bSpeedTorpedo)
+			flDistance *= 2;
 
 		Vector vecDirection = m_vecLandingSpot - GetOrigin();
 		vecDirection.y = 0;
