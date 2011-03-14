@@ -42,6 +42,9 @@ void CMobileCPU::Spawn()
 
 void CMobileCPU::OnFortify()
 {
+	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
+		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
+
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY, true);
 
 	if (!CNetwork::IsHost())

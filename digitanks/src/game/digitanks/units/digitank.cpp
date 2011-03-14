@@ -2090,6 +2090,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonColor(7, glgui::g_clrBox);
 				pHUD->SetButtonListener(7, NULL);
+				pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.\n \nShortcut: D");
 			}
 		}
 
@@ -2126,40 +2127,63 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(8, Color(0, 0, 150));
 		}
 
-		if ((CanAimMobilized() || IsFortified()) && !m_bFiredWeapon && !m_bActionTaken && m_eWeapon != WEAPON_NONE)
+		if (CanAimMobilized() || IsFortified())
 		{
-			pHUD->SetButtonListener(2, CHUD::Aim);
-
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
-				pHUD->SetButtonColor(2, Color(150, 0, 0));
-			else
-				pHUD->SetButtonColor(2, Color(100, 100, 100));
-
-			pHUD->SetButtonTexture(2, 0, 0);
-
-			if (DigitanksGame()->GetControlMode() == MODE_AIM)
-				pHUD->SetButtonTexture(2, 192, 64);
-
-			eastl::string16 s;
-			if (IsInfantry())
-				s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
-			else if (IsScout())
-				s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nTorpedos contain a special EMP that can disable enemy tanks and sever support lines. It can't hit other Rogues and only does physical damage to structures or units without shields.";
-			else
-				s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
-
-			if (m_flTotalPower < GetWeaponEnergy())
+			if (m_bFiredWeapon || m_bActionTaken)
 			{
-				pHUD->SetButtonColor(2, glgui::g_clrBox);
-				s += L"\n \nNOT ENOUGH ENERGY";
-
 				pHUD->SetButtonListener(2, NULL);
+				pHUD->SetButtonColor(2, glgui::g_clrBox);
+				pHUD->SetButtonTexture(2, 0, 0);
+
+				eastl::string16 s = L"AIM AND FIRE\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.";
+
+				s += L"\n \nShortcut: E";
+
+				pHUD->SetButtonInfo(2, s);
+				pHUD->SetButtonTooltip(2, L"Aim");
 			}
+			else if (m_eWeapon != WEAPON_NONE)
+			{
+				pHUD->SetButtonListener(2, CHUD::Aim);
 
-			s += L"\n \nShortcut: E";
+				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
+					pHUD->SetButtonColor(2, Color(150, 0, 0));
+				else
+					pHUD->SetButtonColor(2, Color(100, 100, 100));
 
-			pHUD->SetButtonInfo(2, s);
-			pHUD->SetButtonTooltip(2, L"Aim");
+				CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+				if (pInstructor->GetActive() && pInstructor->GetCurrentTutorial() >= CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT && pInstructor->GetCurrentTutorial() < CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND)
+				{
+					pHUD->SetButtonListener(2, NULL);
+					pHUD->SetButtonColor(2, glgui::g_clrBox);
+				}
+
+				pHUD->SetButtonTexture(2, 0, 0);
+
+				if (DigitanksGame()->GetControlMode() == MODE_AIM)
+					pHUD->SetButtonTexture(2, 192, 64);
+
+				eastl::string16 s;
+				if (IsInfantry())
+					s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
+				else if (IsScout())
+					s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nTorpedos contain a special EMP that can disable enemy tanks and sever support lines. It can't hit other Rogues and only does physical damage to structures or units without shields.";
+				else
+					s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
+
+				if (m_flTotalPower < GetWeaponEnergy())
+				{
+					pHUD->SetButtonColor(2, glgui::g_clrBox);
+					s += L"\n \nNOT ENOUGH ENERGY";
+
+					pHUD->SetButtonListener(2, NULL);
+				}
+
+				s += L"\n \nShortcut: E";
+
+				pHUD->SetButtonInfo(2, s);
+				pHUD->SetButtonTooltip(2, L"Aim");
+			}
 		}
 
 		if (HasBonusPoints() && m_iBonusLevel < 5)

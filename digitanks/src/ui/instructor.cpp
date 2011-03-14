@@ -219,6 +219,7 @@ void CInstructor::SetActive(bool bActive)
 
 void CInstructor::DisplayFirstBasicsTutorial()
 {
+	m_bActive = true;
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_BASICS;
 	DisplayTutorial(m_iCurrentTutorial);
@@ -226,6 +227,7 @@ void CInstructor::DisplayFirstBasicsTutorial()
 
 void CInstructor::DisplayFirstBasesTutorial()
 {
+	m_bActive = true;
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_BASES;
 	DisplayTutorial(m_iCurrentTutorial);
@@ -233,6 +235,7 @@ void CInstructor::DisplayFirstBasesTutorial()
 
 void CInstructor::DisplayFirstUnitsTutorial()
 {
+	m_bActive = true;
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INTRO_UNITS;
 	DisplayTutorial(m_iCurrentTutorial);
@@ -240,6 +243,7 @@ void CInstructor::DisplayFirstUnitsTutorial()
 
 void CInstructor::DisplayIngameArtilleryTutorial()
 {
+	m_bActive = true;
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INGAME_ARTILLERY_SELECT;
 	DisplayTutorial(m_iCurrentTutorial);
@@ -247,6 +251,7 @@ void CInstructor::DisplayIngameArtilleryTutorial()
 
 void CInstructor::DisplayIngameStrategyTutorial()
 {
+	m_bActive = true;
 	m_iLastTutorial = -1;
 	m_iCurrentTutorial = TUTORIAL_INGAME_STRATEGY_SELECT;
 	DisplayTutorial(m_iCurrentTutorial);
@@ -257,7 +262,7 @@ void CInstructor::NextTutorial()
 	DisplayTutorial(++m_iCurrentTutorial);
 }
 
-void CInstructor::DisplayTutorial(size_t iTutorial)
+void CInstructor::DisplayTutorial(size_t iTutorial, bool bForce)
 {
 	if (!m_bActive)
 		return;
@@ -268,9 +273,12 @@ void CInstructor::DisplayTutorial(size_t iTutorial)
 		return;
 	}
 
-	// May not skip or go back tutorials!
-	if (iTutorial < m_iCurrentTutorial || iTutorial > m_iCurrentTutorial+1)
-		return;
+	if (!bForce)
+	{
+		// May not skip or go back tutorials!
+		if (iTutorial < m_iCurrentTutorial || iTutorial > m_iCurrentTutorial+1)
+			return;
+	}
 
 	m_iCurrentTutorial = iTutorial;
 
@@ -321,7 +329,11 @@ void CInstructor::FinishedTutorial(size_t iTutorial, bool bForceNext)
 	m_pCurrentPanel = NULL;
 
 	if (m_apTutorials[iTutorial]->m_bAutoNext || bForceNext)
-		m_apTutorials[iTutorial]->m_pInstructor->NextTutorial();
+		NextTutorial();
+
+	// If we get to the end here then we turn off the instructor as we have finished completely.
+	if (iTutorial == TUTORIAL_INGAME_ARTILLERY_COMMAND || iTutorial == TUTORIAL_INGAME_STRATEGY_PLACEBUFFER)
+		SetActive(false);
 }
 
 disable_t CInstructor::GetDisabledFeatures()

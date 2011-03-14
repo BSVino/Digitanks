@@ -186,6 +186,18 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	if (!pCurrent)
 	{
 		DigitanksGame()->SetControlMode(MODE_NONE);
+
+		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+			DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		{
+			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+				DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+			else
+				DigitanksWindow()->GetInstructor()->SetActive(false);
+		}
+
 		return;
 	}
 
@@ -199,10 +211,30 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		GetPrimarySelection()->OnCurrentSelection();
 
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
 
-		if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()))
-			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+		{
+			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
+				DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+			else
+				DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+		}
+
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		{
+			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+			{
+				if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()) && DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
+					DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+				else
+					DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+			}
+			else
+			{
+				if (!dynamic_cast<CCPU*>(GetPrimarySelection()))
+					DigitanksWindow()->GetInstructor()->SetActive(false);
+			}
+		}
 	}
 }
 

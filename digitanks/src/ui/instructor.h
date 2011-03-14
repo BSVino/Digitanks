@@ -66,7 +66,7 @@ public:
 	void							DisplayIngameStrategyTutorial();
 	void							NextTutorial();
 
-	void							DisplayTutorial(size_t iTutorial);
+	void							DisplayTutorial(size_t iTutorial, bool bForce = false);
 	void							HideTutorial();
 	void							ShowTutorial();
 	void							FinishedTutorial(size_t iTutorial, bool bForceNext = false);

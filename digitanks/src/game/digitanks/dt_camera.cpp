@@ -469,7 +469,12 @@ Vector CDigitanksCamera::GetCameraPosition()
 Vector CDigitanksCamera::GetCameraTarget()
 {
 	if (m_hTankTarget != NULL)
+	{
+		if (m_hTankTarget->GetCurrentWeapon() == WEAPON_CHARGERAM)
+			return m_hTankTarget->GetOrigin() + AngleVector(m_hTankTarget->GetAngles()) * 10;
+
 		return m_hTankTarget->GetLastAim();
+	}
 
 	if (m_hTankProjectile != NULL)
 	{

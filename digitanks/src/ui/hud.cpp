@@ -780,15 +780,15 @@ void CHUD::Think()
 		}
 	}
 
-	if (m_eMenuMode == MENUMODE_MAIN)
+	if (m_eMenuMode == MENUMODE_MAIN && m_bHUDActive)
 	{
-		if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
+		if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
-			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 100);
-			m_apButtons[7]->SetButtonColor(Color(iColor, iColor, iColor));
+			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
+			m_apButtons[7]->SetButtonColor(Color(iColor, 0, 0));
 		}
-		else if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY && dynamic_cast<CMobileCPU*>(pCurrentTank))
+		else if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY && dynamic_cast<CMobileCPU*>(pCurrentTank))
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[8]->SetButtonColor(Color(0, 0, (int)RemapVal(flRamp, 0, 1, 0, 250)));
@@ -796,7 +796,7 @@ void CHUD::Think()
 		// Don't blink other buttons if we're trying to blink this one.
 		else
 		{
-			if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasBonusPoints())
+			if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasBonusPoints())
 			{
 				float flRamp = 1;
 				if (!DigitanksWindow()->GetInstructor()->GetActive() || DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
@@ -804,7 +804,7 @@ void CHUD::Think()
 				m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 			}
 
-			if (m_bHUDActive && pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasSpecialWeapons())
+			if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasSpecialWeapons())
 			{
 				float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 				m_apButtons[9]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
