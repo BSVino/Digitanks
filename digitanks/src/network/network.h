@@ -655,7 +655,8 @@ public:
 
 	static void				Disconnect();
 
-	static void				Think();
+	static void				PreThink();
+	static void				PostThink();
 
 	static void				CallFunction(int iClient, const char* pszName, ...);
 	static void				CallFunctionParameters(int iClient, const char* pszName, CNetworkParameters* p);

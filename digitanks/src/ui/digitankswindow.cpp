@@ -395,7 +395,8 @@ void CDigitanksWindow::Run()
 		{
 			if (GameServer()->IsLoading())
 			{
-				CNetwork::Think();
+				// PreThink pumps the network
+				CNetwork::PreThink();
 				RenderLoading();
 				continue;
 			}

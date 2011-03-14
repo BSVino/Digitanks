@@ -230,7 +230,7 @@ void CNetwork::Disconnect()
 	}
 }
 
-void CNetwork::Think()
+void CNetwork::PreThink()
 {
 	ENetEvent oEvent;
 
@@ -242,9 +242,6 @@ void CNetwork::Think()
 		pHost = g_pServer;
 	if (!pHost)
 		return;
-
-	if (IsHost())
-		UpdateNetworkVariables(NETWORK_TOCLIENTS);
 
 	CNetworkParameters p;
 
@@ -323,6 +320,21 @@ void CNetwork::Think()
 			break;
         }
     }
+}
+
+void CNetwork::PostThink()
+{
+	if (!s_bConnected)
+		return;
+
+	ENetHost* pHost = g_pClient;
+	if (!pHost)
+		pHost = g_pServer;
+	if (!pHost)
+		return;
+
+	if (IsHost())
+		UpdateNetworkVariables(NETWORK_TOCLIENTS);
 }
 
 void CNetwork::CallFunction(int iClient, const char* pszFunction, ...)
@@ -483,15 +495,25 @@ CNetworkedVariableBase::CNetworkedVariableBase()
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
-	// If we're running client functions then we're going to get this message from the server anyway.
-	if (m_iMessageTarget == NETWORK_TOCLIENTS && !CNetwork::IsHost())
+	if (m_iMessageTarget == NETWORK_TOCLIENTS)
 	{
-		if (CNetwork::IsRunningClientFunctions())
-			return;
+		if (CNetwork::IsHost())
+		{
+			// If I'm the host then pass me the message too.
+			wcstok(sParameters, m_asArguments);
+			m_pfnCallback(this, -1, sParameters);
+		}
+		else
+		{
+			// If we're running client functions then we're going to get this message from the server anyway.
+			if (CNetwork::IsRunningClientFunctions())
+				return;
 
-		wcstok(sParameters, m_asArguments);
-		m_pfnCallback(this, -1, sParameters);
-		return;
+			// Some shared code. Run the callback but don't send it over the wire.
+			wcstok(sParameters, m_asArguments);
+			m_pfnCallback(this, -1, sParameters);
+			return;
+		}
 	}
 
 	if (m_iMessageTarget == NETWORK_TOSERVER)
@@ -503,6 +525,7 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 			return;
 		}
 
+		// If we're running client functions then the server already knows about this call.
 		if (!CNetwork::IsHost() && CNetwork::IsRunningClientFunctions())
 		{
 			wcstok(sParameters, m_asArguments);

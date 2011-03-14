@@ -34,20 +34,25 @@ void CBaseWeapon::Spawn()
 	m_flDamage = 0;
 }
 
-void CBaseWeapon::SetOwner(CDigitank* pOwner)
+void CBaseWeapon::ClientSpawn()
 {
-	m_hOwner = pOwner;
-	if (pOwner)
-		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
+	BaseClass::ClientSpawn();
 
 	Vector vecOrigin = GetOrigin();
-	if (pOwner)
-		vecOrigin = pOwner->GetOrigin();
+	if (m_hOwner != NULL)
+		vecOrigin = m_hOwner->GetOrigin();
 
 	if (ShouldBeVisible() || DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), vecOrigin) > 0)
 		m_bShouldRender = true;
 	else
 		m_bShouldRender = false;
+}
+
+void CBaseWeapon::SetOwner(CDigitank* pOwner)
+{
+	m_hOwner = pOwner;
+	if (pOwner)
+		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
 
 	m_flDamage = GetWeaponDamage(GetWeaponType())/(float)GetWeaponShells(GetWeaponType());
 

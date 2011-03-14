@@ -53,6 +53,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iModel);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iSpawnSeed);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flSpawnTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientSpawn);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iRegistration);	// Set as part of spawning process
 SAVEDATA_TABLE_END();
 
@@ -88,6 +89,8 @@ CBaseEntity::CBaseEntity()
 	m_iModel = ~0;
 
 	m_iSpawnSeed = 0;
+
+	m_bClientSpawn = false;
 }
 
 CBaseEntity::~CBaseEntity()
@@ -307,6 +310,37 @@ void CBaseEntity::SetSpawnSeed(size_t iSpawnSeed)
 	m_iSpawnSeed = iSpawnSeed;
 
 	mtsrand(iSpawnSeed);
+}
+
+SERVER_COMMAND(ClientSpawn)
+{
+	if (pCmd->GetNumArguments() < 1)
+	{
+		TMsg("ClientSpawn with no arguments.\n");
+		return;
+	}
+
+	CEntityHandle<CBaseEntity> hEntity(pCmd->ArgAsUInt(0));
+
+	if (hEntity == NULL)
+	{
+		TMsg("ClientSpawn with invalid entity.\n");
+		return;
+	}
+
+	hEntity->ClientSpawn();
+}
+
+void CBaseEntity::IssueClientSpawn()
+{
+	::ClientSpawn.RunCommand(sprintf(L"%d", GetHandle()));
+}
+
+// ClientSpawn is always guaranteed to run after the client has received all initial data about a new entity.
+void CBaseEntity::ClientSpawn()
+{
+	assert(!m_bClientSpawn);
+	m_bClientSpawn = true;
 }
 
 CNetworkedVariableData* CBaseEntity::GetNetworkVariable(const char* pszName)

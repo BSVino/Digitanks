@@ -12,6 +12,7 @@ class CBaseWeapon : public CBaseEntity
 public:
 	virtual void				Precache();
 	virtual void				Spawn();
+	virtual void				ClientSpawn();
 
 	virtual void				SetOwner(class CDigitank* pOwner);
 	virtual class CDigitank*	GetOwner() { return m_hOwner; }

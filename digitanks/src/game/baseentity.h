@@ -310,13 +310,17 @@ public:
 
 	virtual bool							UsesRaytracedCollision() { return false; }
 
-	virtual size_t							GetSpawnSeed() { return m_iSpawnSeed; }
-	virtual void							SetSpawnSeed(size_t iSpawnSeed);
+	size_t									GetSpawnSeed() { return m_iSpawnSeed; }
+	void									SetSpawnSeed(size_t iSpawnSeed);
 
-	virtual float							GetSpawnTime() const { return m_flSpawnTime; }
-	virtual void							SetSpawnTime(float flSpawnTime) { m_flSpawnTime = flSpawnTime; };
+	float									GetSpawnTime() const { return m_flSpawnTime; }
+	void									SetSpawnTime(float flSpawnTime) { m_flSpawnTime = flSpawnTime; };
 
-	virtual size_t							GetRegistration() { return m_iRegistration; }
+	bool									HasIssuedClientSpawn() { return m_bClientSpawn; }
+	void									IssueClientSpawn();
+	virtual void							ClientSpawn();
+
+	size_t									GetRegistration() { return m_iRegistration; }
 
 	CNetworkedVariableData*					GetNetworkVariable(const char* pszName);
 
@@ -390,6 +394,8 @@ protected:
 
 	size_t									m_iSpawnSeed;
 	CNetworkedVariable<float>				m_flSpawnTime;
+
+	bool									m_bClientSpawn;
 
 	size_t									m_iRegistration;
 

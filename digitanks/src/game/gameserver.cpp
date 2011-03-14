@@ -343,11 +343,12 @@ void CGameServer::Think(float flHostTime)
 
 	m_ahDeletedEntities.clear();
 
-	CNetwork::Think();
+	CNetwork::PreThink();
 
 	Simulate();
 
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	size_t iMaxEntities = GameServer()->GetMaxEntities();
+	for (size_t i = 0; i < iMaxEntities; i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 		if (!pEntity)
@@ -360,6 +361,21 @@ void CGameServer::Think(float flHostTime)
 	}
 
 	Think();
+
+	CNetwork::PostThink();
+
+	for (size_t i = 0; i < iMaxEntities; i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		if (!pEntity)
+			continue;
+
+		if (!pEntity->HasIssuedClientSpawn())
+			pEntity->IssueClientSpawn();
+
+		if (m_bHalting)
+			break;
+	}
 
 	CParticleSystemLibrary::Simulate();
 	CModelDissolver::Simulate();
