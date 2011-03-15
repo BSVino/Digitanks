@@ -311,7 +311,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		eastl::string16 sBandwidth = sprintf(L": %.1f", Bandwidth());
 		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 517, 350, 20, 20);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 537, 350, 20, 20);
 
 		glgui::CLabel::PaintText(sBandwidth, sBandwidth.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
@@ -335,7 +335,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		eastl::string16 sPower = sprintf(L": %.1f", Power());
 		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 537, 350, 20, 20);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 517, 350, 20, 20);
 
 		glgui::CLabel::PaintText(sPower, sPower.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
