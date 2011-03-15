@@ -198,8 +198,12 @@ public:
 	virtual int					GetNumAvailableAreas() const { return 2; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 
+	size_t						GetTendrilsCallList() { return m_iTendrilsCallList; }
+
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
 	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);
+
+	static size_t				GetTendrilBeam() { return s_iTendrilBeam; }
 
 protected:
 	CNetworkedVariable<size_t>	m_iDataStrength;

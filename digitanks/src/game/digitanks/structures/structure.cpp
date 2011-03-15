@@ -920,6 +920,16 @@ void CSupplier::PostRender(bool bTransparent)
 	if (!bTransparent)
 		return;
 
+	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
+	if (flGrowthTime >= GROWTH_TIME)
+		m_flTendrilGrowthStartTime = 0;
+
+	if (m_flTendrilGrowthStartTime == 0)
+	{
+		DigitanksGame()->GetDigitanksRenderer()->AddTendrilBatch(this);
+		return;
+	}
+
 	CDigitanksCamera* pCamera = DigitanksGame()->GetDigitanksCamera();
 	Vector vecCamera = pCamera->GetCameraPosition();
 	float flDistanceSqr = GetOrigin().DistanceSqr(vecCamera);
@@ -957,10 +967,6 @@ void CSupplier::PostRender(bool bTransparent)
 		GLuint flAlpha = glGetUniformLocation(iScrollingTextureProgram, "flAlpha");
 		glUniform1f(flAlpha, flFadeAlpha * flTreeAlpha);
 	}
-
-	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
-	if (flGrowthTime >= GROWTH_TIME)
-		m_flTendrilGrowthStartTime = 0;
 
 	if (m_flTendrilGrowthStartTime > 0)
 	{
@@ -1010,8 +1016,6 @@ void CSupplier::PostRender(bool bTransparent)
 			oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
 		}
 	}
-	else if (m_iTendrilsCallList)
-		glCallList((GLuint)m_iTendrilsCallList);
 
 	if (GameServer()->GetRenderer()->ShouldUseShaders())
 		GameServer()->GetRenderer()->ClearProgram();
