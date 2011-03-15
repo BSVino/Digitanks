@@ -376,9 +376,19 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 
 void CRenderingContext::RenderSphere()
 {
-	static GLUquadricObj* pQuadric = gluNewQuadric();
+	static size_t iSphereCallList = 0;
 
-	gluSphere(pQuadric, 1, 20, 10);
+	if (iSphereCallList == 0)
+	{
+		GLUquadricObj* pQuadric = gluNewQuadric();
+		iSphereCallList = glGenLists(1);
+		glNewList((GLuint)iSphereCallList, GL_COMPILE);
+		gluSphere(pQuadric, 1, 20, 10);
+		glEndList();
+		gluDeleteQuadric(pQuadric);
+	}
+
+	glCallList(iSphereCallList);
 }
 
 void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
