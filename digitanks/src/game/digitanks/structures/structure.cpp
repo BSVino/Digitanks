@@ -911,7 +911,7 @@ void CSupplier::CompleteConstruction()
 
 #define GROWTH_TIME 3
 
-CVar tendril_fade_distance("perf_tendril_fade_distance", "300");
+CVar tendril_fade_distance("perf_tendril_fade_distance", "200");
 
 void CSupplier::PostRender(bool bTransparent)
 {
