@@ -539,6 +539,8 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 
 		CSaveData* pSaveData = &pRegistration->m_aSaveData[iSaveData];
 
+		assert(pSaveData->m_eType != CSaveData::DATA_OMIT);
+
 		char* pData = (char*)pEntity + pSaveData->m_iOffset;
 		switch(pSaveData->m_eType)
 		{
