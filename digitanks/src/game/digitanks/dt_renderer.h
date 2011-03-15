@@ -4,6 +4,8 @@
 #include <renderer/renderer.h>
 #include <common.h>
 
+#include "digitanks/structures/structure.h"
+
 class CDigitanksRenderer : public CRenderer
 {
 	DECLARE_CLASS(CDigitanksRenderer, CRenderer);
@@ -34,6 +36,10 @@ public:
 	const CFrameBuffer*	GetAvailableAreaBuffer() { return &m_oAvailableAreaBuffer; }
 
 	void			BloomPulse();
+
+	void			ClearTendrilBatches();
+	void			AddTendrilBatch(class CSupplier* pSupplier);
+	void			RenderTendrilBatches();
 
 protected:
 	CFrameBuffer	m_oExplosionBuffer;
@@ -66,6 +72,8 @@ protected:
 	size_t			m_iFloaters[15];
 
 	float			m_flLastBloomPulse;
+
+	eastl::vector<CEntityHandle<CSupplier> > m_ahTendrilBatches;
 };
 
 #endif

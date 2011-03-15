@@ -10,6 +10,7 @@
 #include <models/models.h>
 #include <game/digitanks/dt_camera.h>
 #include <shaders/shaders.h>
+#include <tinker/cvar.h>
 
 #include <ui/digitankswindow.h>
 
@@ -111,6 +112,8 @@ void CDigitanksRenderer::SetupFrame()
 
 void CDigitanksRenderer::StartRendering()
 {
+	ClearTendrilBatches();
+
 	BaseClass::StartRendering();
 
 	RenderSkybox();
@@ -349,6 +352,7 @@ void CDigitanksRenderer::FinishRendering()
 	if (ShouldUseShaders())
 		ClearProgram();
 
+	RenderTendrilBatches();
 	RenderPreviewModes();
 	RenderFogOfWar();
 	RenderAvailableAreas();
@@ -1014,4 +1018,67 @@ void CDigitanksRenderer::RenderBloomPass(CFrameBuffer* apSources, CFrameBuffer* 
 void CDigitanksRenderer::BloomPulse()
 {
 	m_flLastBloomPulse = GameServer()->GetGameTime();
+}
+
+void CDigitanksRenderer::ClearTendrilBatches()
+{
+	m_ahTendrilBatches.clear();
+}
+
+void CDigitanksRenderer::AddTendrilBatch(CSupplier* pSupplier)
+{
+	m_ahTendrilBatches.push_back() = pSupplier;
+}
+
+void CDigitanksRenderer::RenderTendrilBatches()
+{
+	GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
+
+	CRenderingContext r(GameServer()->GetRenderer());
+	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
+		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
+	r.SetDepthMask(false);
+	r.BindTexture(CSupplier::GetTendrilBeam());
+
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	{
+		GameServer()->GetRenderer()->UseProgram(iScrollingTextureProgram);
+
+		GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
+		glUniform1f(flTime, GameServer()->GetGameTime());
+
+		GLuint iTexture = glGetUniformLocation(iScrollingTextureProgram, "iTexture");
+		glUniform1f(iTexture, 0);
+	}
+
+	for (size_t i = 0; i < m_ahTendrilBatches.size(); i++)
+	{
+		CSupplier* pSupplier = m_ahTendrilBatches[i];
+
+		if (!pSupplier)
+			continue;
+
+		CDigitanksCamera* pCamera = DigitanksGame()->GetDigitanksCamera();
+		Vector vecCamera = pCamera->GetCameraPosition();
+		float flDistanceSqr = pSupplier->GetOrigin().DistanceSqr(vecCamera);
+		float flFadeDistance = CVar::GetCVarFloat("perf_tendril_fade_distance");
+
+		float flFadeAlpha = RemapValClamped(flDistanceSqr, flFadeDistance*flFadeDistance, (flFadeDistance+20)*(flFadeDistance+20), 1, 0);
+
+		if (flFadeAlpha <= 0)
+			continue;
+
+		float flTreeAlpha = 1.0f;
+		if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(pSupplier->GetOrigin().x), CTerrain::WorldToArraySpace(pSupplier->GetOrigin().z), TB_TREE))
+			flTreeAlpha = 0.3f;
+
+		if (GameServer()->GetRenderer()->ShouldUseShaders())
+		{
+			GLuint flAlpha = glGetUniformLocation(iScrollingTextureProgram, "flAlpha");
+			glUniform1f(flAlpha, flFadeAlpha * flTreeAlpha);
+		}
+
+		glCallList(pSupplier->GetTendrilsCallList());
+	}
+
 }
