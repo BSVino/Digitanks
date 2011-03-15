@@ -493,18 +493,18 @@ void CGameServer::Render()
 		m_apRenderList.push_back(pEntity);
 	}
 
+	m_pRenderer->BeginBatching();
+
 	// First render all opaque objects
 	size_t iEntites = m_apRenderList.size();
 	for (size_t i = 0; i < iEntites; i++)
-	{
 		m_apRenderList[i]->Render(false);
-	}
+
+	m_pRenderer->RenderBatches();
 
 	// Now render all transparent objects. Should really sort this back to front but meh for now.
 	for (size_t i = 0; i < iEntites; i++)
-	{
 		m_apRenderList[i]->Render(true);
-	}
 
 	CParticleSystemLibrary::Render();
 	CModelDissolver::Render();

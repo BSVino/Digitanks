@@ -2,6 +2,8 @@
 #define DT_RENDERER_H
 
 #include <EASTL/string.h>
+#include <EASTL/map.h>
+#include <EASTL/vector.h>
 #include <vector.h>
 #include <plane.h>
 #include <matrix.h>
@@ -37,9 +39,9 @@ public:
 	float		GetAlpha() { return m_flAlpha; };
 	blendtype_t	GetBlend() { return m_eBlend; };
 
-	void		RenderModel(size_t iModel, bool bNewCallList = false);
-	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, bool bNewCallList);
-	void		RenderMeshInstance(class CModel* pModel, class CConversionScene* pScene, class CConversionMeshInstance* pMeshInstance, bool bNewCallList);
+	void		RenderModel(size_t iModel, class CModel* pCompilingModel = NULL);
+	void		RenderSceneNode(class CModel* pModel, class CConversionScene* pScene, class CConversionSceneNode* pNode, class CModel* pCompilingModel);
+	void		RenderMeshInstance(class CModel* pModel, class CConversionScene* pScene, class CConversionMeshInstance* pMeshInstance, class CModel* pCompilingModel);
 
 	void		RenderSphere();
 
@@ -127,6 +129,15 @@ public:
 	size_t		m_iFB;
 };
 
+class CRenderBatch
+{
+public:
+	class CModel*	pModel;
+	Matrix4x4		mTransformation;
+	bool			bSwap;
+	Color			clrSwap;
+};
+
 #define BLOOM_FILTERS 3
 
 class CRenderer
@@ -160,6 +171,11 @@ public:
 
 	void			FrustumOverride(Vector vecPosition, Vector vecTarget, float flFOV, float flNear, float flFar);
 	void			CancelFrustumOverride();
+
+	void			BeginBatching();
+	void			AddToBatch(class CModel* pModel, const Matrix4x4& mTransformations, bool bClrSwap, const Color& clrSwap);
+	void			RenderBatches();
+	bool			IsBatching() { return m_bBatching; };
 
 	Vector			GetCameraVector();
 	void			GetCameraVectors(Vector* pvecForward, Vector* pvecRight, Vector* pvecUp);
@@ -215,6 +231,9 @@ protected:
 	int				m_aiViewport[4];
 
 	Plane			m_aoFrustum[6];
+
+	bool			m_bBatching;
+	eastl::map<size_t, eastl::vector<CRenderBatch> > m_aBatches;
 
 	CFrameBuffer	m_oSceneBuffer;
 

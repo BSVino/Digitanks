@@ -20,6 +20,7 @@ public:
 
 	bool					m_bStatic;
 	size_t					m_iCallList;
+	size_t					m_iCallListTexture;
 
 	eastl::vector<size_t>	m_aiTextures;
 };

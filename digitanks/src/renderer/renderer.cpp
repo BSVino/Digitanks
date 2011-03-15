@@ -162,66 +162,81 @@ void CRenderingContext::SetColorSwap(Color clrSwap)
 	m_clrSwap = clrSwap;
 }
 
-void CRenderingContext::RenderModel(size_t iModel, bool bNewCallList)
+void CRenderingContext::RenderModel(size_t iModel, CModel* pCompilingModel)
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
 
 	if (!pModel)
 		return;
 
-	if (pModel->m_bStatic && !bNewCallList)
+	if (pModel->m_bStatic && !pCompilingModel)
 	{
-		glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
-
-		if (m_pRenderer->ShouldUseShaders())
+		if (m_pRenderer->IsBatching())
 		{
-			GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
-			glUseProgram(iProgram);
+			assert(m_eBlend == BLEND_NONE);
 
-			GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
-			glUniform1i(bDiffuse, true);
+			Matrix4x4 mTransformations;
+			glGetFloatv(GL_MODELVIEW_MATRIX, mTransformations);
 
-			GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
-			glUniform1i(iDiffuse, 0);
-
-			GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
-			glUniform1f(flAlpha, m_flAlpha);
-
-			GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
-			glUniform1i(bColorSwapInAlpha, m_bColorSwap);
-
-			if (m_bColorSwap)
-			{
-				GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
-				Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
-				glUniform3fv(vecColorSwap, 1, vecColor);
-			}
-
-			glCallList((GLuint)pModel->m_iCallList);
-
-			glUseProgram(0);
+			m_pRenderer->AddToBatch(pModel, mTransformations, m_bColorSwap, m_clrSwap);
 		}
 		else
 		{
-			if (m_bColorSwap)
-				glColor4f(((float)m_clrSwap.r())/255, ((float)m_clrSwap.g())/255, ((float)m_clrSwap.b())/255, m_flAlpha);
+			glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 
-			glCallList((GLuint)pModel->m_iCallList);
+			assert(pModel->m_iCallListTexture);
+			glBindTexture(GL_TEXTURE_2D, pModel->m_iCallListTexture);
+
+			if (m_pRenderer->ShouldUseShaders())
+			{
+				GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
+				glUseProgram(iProgram);
+
+				GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
+				glUniform1i(bDiffuse, true);
+
+				GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
+				glUniform1i(iDiffuse, 0);
+
+				GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
+				glUniform1f(flAlpha, m_flAlpha);
+
+				GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
+				glUniform1i(bColorSwapInAlpha, m_bColorSwap);
+
+				if (m_bColorSwap)
+				{
+					GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
+					Vector vecColor((float)m_clrSwap.r()/255, (float)m_clrSwap.g()/255, (float)m_clrSwap.b()/255);
+					glUniform3fv(vecColorSwap, 1, vecColor);
+				}
+
+				glCallList((GLuint)pModel->m_iCallList);
+
+				glUseProgram(0);
+			}
+			else
+			{
+				if (m_bColorSwap)
+					glColor4f(((float)m_clrSwap.r())/255, ((float)m_clrSwap.g())/255, ((float)m_clrSwap.b())/255, m_flAlpha);
+
+				glCallList((GLuint)pModel->m_iCallList);
+			}
+
+			glPopAttrib();
 		}
-
-		glPopAttrib();
 	}
 	else
 	{
 		for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
-			RenderSceneNode(pModel, pModel->m_pScene, pModel->m_pScene->GetScene(i), bNewCallList);
+			RenderSceneNode(pModel, pModel->m_pScene, pModel->m_pScene->GetScene(i), pCompilingModel);
 	}
 
-	if (!bNewCallList && m_pRenderer->ShouldUseShaders())
+	if (!pCompilingModel && m_pRenderer->ShouldUseShaders() && !m_pRenderer->IsBatching())
 		m_pRenderer->ClearProgram();
 }
 
-void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, bool bNewCallList)
+void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene, CConversionSceneNode* pNode, CModel* pCompilingModel)
 {
 	if (!pNode)
 		return;
@@ -229,25 +244,34 @@ void CRenderingContext::RenderSceneNode(CModel* pModel, CConversionScene* pScene
 	if (!pNode->IsVisible())
 		return;
 
-	glPushMatrix();
+	bool bTransformationsIdentity = false;
+	if (pNode->m_mTransformations.IsIdentity())
+		bTransformationsIdentity = true;
 
-	glMultMatrixf(pNode->m_mTransformations.Transposed());	// GL uses column major.
+	if (!bTransformationsIdentity)
+	{
+		glPushMatrix();
+
+		glMultMatrixf(pNode->m_mTransformations.Transposed());	// GL uses column major.
+	}
 
 	for (size_t i = 0; i < pNode->GetNumChildren(); i++)
-		RenderSceneNode(pModel, pScene, pNode->GetChild(i), bNewCallList);
+		RenderSceneNode(pModel, pScene, pNode->GetChild(i), pCompilingModel);
 
 	for (size_t m = 0; m < pNode->GetNumMeshInstances(); m++)
-		RenderMeshInstance(pModel, pScene, pNode->GetMeshInstance(m), bNewCallList);
+		RenderMeshInstance(pModel, pScene, pNode->GetMeshInstance(m), pCompilingModel);
 
-	glPopMatrix();
+	if (!bTransformationsIdentity)
+		glPopMatrix();
 }
 
-void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pScene, CConversionMeshInstance* pMeshInstance, bool bNewCallList)
+void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pScene, CConversionMeshInstance* pMeshInstance, CModel* pCompilingModel)
 {
 	if (!pMeshInstance->IsVisible())
 		return;
 
-	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
+	if (!pCompilingModel)
+		glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 
 	CConversionMesh* pMesh = pMeshInstance->GetMesh();
 
@@ -272,19 +296,34 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 				continue;
 		}
 
-		bool bTexture = false;
-		if (pMaterial)
+		if (pCompilingModel)
 		{
-			GLuint iTexture = (GLuint)pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial];
-			glBindTexture(GL_TEXTURE_2D, iTexture);
+			if (pMaterial)
+			{
+				GLuint iTexture = (GLuint)pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial];
 
-			bTexture = !!iTexture;
+				if (!pModel->m_iCallListTexture)
+					pModel->m_iCallListTexture = iTexture;
+				else
+					// If you hit this you have more than one texture in a call list that's building.
+					// That's a no-no because these call lists are batched.
+					assert(pModel->m_iCallListTexture == iTexture);
+			}
 		}
-		else
-			glBindTexture(GL_TEXTURE_2D, 0);
 
-		if (!bNewCallList)
+		if (!pCompilingModel)
 		{
+			bool bTexture = false;
+			if (pMaterial)
+			{
+				GLuint iTexture = (GLuint)pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial];
+				glBindTexture(GL_TEXTURE_2D, iTexture);
+
+				bTexture = !!iTexture;
+			}
+			else
+				glBindTexture(GL_TEXTURE_2D, 0);
+
 			if (m_pRenderer->ShouldUseShaders())
 			{
 				GLuint iProgram = (GLuint)CShaderLibrary::GetModelProgram();
@@ -317,6 +356,7 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 					glColor4f(pMaterial->m_vecDiffuse.x, pMaterial->m_vecDiffuse.y, pMaterial->m_vecDiffuse.z, m_flAlpha);
 			}
 		}
+
 		glBegin(GL_POLYGON);
 
 		for (k = 0; k < pFace->GetNumVertices(); k++)
@@ -330,7 +370,8 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 		glEnd();
 	}
 
-	glPopAttrib();
+	if (!pCompilingModel)
+		glPopAttrib();
 }
 
 void CRenderingContext::RenderSphere()
@@ -679,6 +720,7 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 	m_iHeight = iHeight;
 
 	m_bFrustumOverride = false;
+	m_bBatching = false;
 }
 
 void CRenderer::Initialize()
@@ -1151,6 +1193,89 @@ void CRenderer::CancelFrustumOverride()
 	m_bFrustumOverride = false;
 }
 
+void CRenderer::BeginBatching()
+{
+	m_bBatching = true;
+
+	for (eastl::map<size_t, eastl::vector<CRenderBatch> >::iterator it = m_aBatches.begin(); it != m_aBatches.end(); it++)
+		it->second.clear();
+}
+
+void CRenderer::AddToBatch(class CModel* pModel, const Matrix4x4& mTransformations, bool bClrSwap, const Color& clrSwap)
+{
+	assert(pModel);
+
+	if (!pModel)
+		return;
+
+	assert(pModel->m_iCallListTexture);
+
+	CRenderBatch* pBatch = &m_aBatches[pModel->m_iCallListTexture].push_back();
+
+	pBatch->pModel = pModel;
+	pBatch->mTransformation = mTransformations;
+	pBatch->bSwap = bClrSwap;
+	pBatch->clrSwap = clrSwap;
+}
+
+void CRenderer::RenderBatches()
+{
+	m_bBatching = false;
+
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
+	glPushMatrix();
+
+	GLuint iProgram = 0;
+	if (ShouldUseShaders())
+	{
+		iProgram = (GLuint)CShaderLibrary::GetModelProgram();
+		glUseProgram(iProgram);
+
+		GLuint bDiffuse = glGetUniformLocation(iProgram, "bDiffuse");
+		glUniform1i(bDiffuse, true);
+
+		GLuint iDiffuse = glGetUniformLocation(iProgram, "iDiffuse");
+		glUniform1i(iDiffuse, 0);
+
+		GLuint flAlpha = glGetUniformLocation(iProgram, "flAlpha");
+		glUniform1f(flAlpha, 1);
+	}
+
+	for (eastl::map<size_t, eastl::vector<CRenderBatch> >::iterator it = m_aBatches.begin(); it != m_aBatches.end(); it++)
+	{
+		glBindTexture(GL_TEXTURE_2D, (GLuint)it->first);
+
+		for (size_t i = 0; i < it->second.size(); i++)
+		{
+			CRenderBatch* pBatch = &it->second[i];
+
+			if (ShouldUseShaders())
+			{
+				GLuint bColorSwapInAlpha = glGetUniformLocation(iProgram, "bColorSwapInAlpha");
+				glUniform1i(bColorSwapInAlpha, pBatch->bSwap);
+
+				if (pBatch->bSwap)
+				{
+					GLuint vecColorSwap = glGetUniformLocation(iProgram, "vecColorSwap");
+					Vector vecColor((float)pBatch->clrSwap.r()/255, (float)pBatch->clrSwap.g()/255, (float)pBatch->clrSwap.b()/255);
+					glUniform3fv(vecColorSwap, 1, vecColor);
+				}
+			}
+			else
+			{
+				if (pBatch->bSwap)
+					glColor4f(((float)pBatch->clrSwap.r())/255, ((float)pBatch->clrSwap.g())/255, ((float)pBatch->clrSwap.b())/255, 255);
+			}
+
+			glLoadMatrixf(pBatch->mTransformation);
+			glCallList((GLuint)pBatch->pModel->m_iCallList);
+		}
+	}
+
+	glPopMatrix();
+	glPopAttrib();
+}
+
 Vector CRenderer::GetCameraVector()
 {
 	return (m_vecCameraTarget - m_vecCameraPosition).Normalized();
@@ -1370,7 +1495,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 
 	glNewList((GLuint)iCallList, GL_COMPILE);
 	CRenderingContext c(NULL);
-	c.RenderModel(iModel, true);
+	c.RenderModel(iModel, CModelLibrary::Get()->GetModel(iModel));
 	glEndList();
 
 	return iCallList;

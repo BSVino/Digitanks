@@ -63,6 +63,7 @@ CModel::CModel(const eastl::string16& sFilename)
 	m_pScene = new CConversionScene();
 	m_bStatic = false;
 	m_iCallList = 0;
+	m_iCallListTexture = 0;
 	CModelConverter c(m_pScene);
 	c.ReadModel(sFilename);
 
