@@ -25,9 +25,15 @@ public:
 
 	virtual bool					ShouldRender() const;
 	virtual void					RenderVisibleArea();
+
+	virtual void					OnSetOrigin();
+
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;
+	virtual float					GetVisibility();
 	virtual void					CalculateVisibility();
+	virtual void					DirtyVisibility() { m_bVisibilityDirty = true; };
+
 	virtual bool					GetsConcealmentBonus() const { return true; };
 	virtual float					GetCloakConcealment() const { return 0; };
 	virtual bool					HasLostConcealment() const { return false; }
@@ -54,6 +60,9 @@ public:
 
 protected:
 	eastl::vector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;
+
+	bool							m_bVisibilityDirty;
+	float							m_flVisibility;				// Only for local team!
 };
 
 #endif

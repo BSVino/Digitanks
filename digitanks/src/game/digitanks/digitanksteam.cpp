@@ -170,9 +170,6 @@ CStructure* CDigitanksTeam::GetPrimarySelectionStructure()
 
 size_t CDigitanksTeam::GetPrimarySelectionId()
 {
-	if (DigitanksGame()->GetCurrentTeam() != this)
-		return -1;
-
 	if (m_aiCurrentSelection.size() == 0)
 		return -1;
 
@@ -240,12 +237,6 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 
 bool CDigitanksTeam::IsPrimarySelection(const CSelectable* pEntity)
 {
-	if (!DigitanksGame())
-		return false;
-
-	if (DigitanksGame()->GetCurrentTeam() != this)
-		return false;
-
 	return GetPrimarySelection() == pEntity;
 }
 
@@ -598,6 +589,10 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 	if (!pEntity)
 		return;
 
+	CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+	if (pDTEntity)
+		pDTEntity->DirtyVisibility();
+
 	if (pEntity->GetTeam() == ((CTeam*)this))
 	{
 		m_aflVisibilities[pEntity->GetHandle()] = 1;
@@ -615,10 +610,12 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 		}
 	}
 
-	Vector vecOrigin = pEntity->GetOrigin();
+	Vector vecOrigin;
 	CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
 	if (pDigitank)
 		vecOrigin = pDigitank->GetRealOrigin();
+	else
+		vecOrigin = pEntity->GetOrigin();
 
 	bool bCloak = false;
 	if (pDigitank && pDigitank->IsCloaked())

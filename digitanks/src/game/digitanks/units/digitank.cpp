@@ -1143,6 +1143,8 @@ void CDigitank::Move(Vector vecNewPosition, int iMoveType)
 
 	if (IsSentried())
 		Sentry();
+
+	DirtyVisibility();
 }
 
 void CDigitank::Turn()
@@ -1477,14 +1479,14 @@ void CDigitank::Charge(CBaseEntity* pTarget)
 void CDigitank::Cloak()
 {
 	m_bCloaked = true;
-
+	DirtyVisibility();
 	DigitanksWindow()->GetHUD()->Layout();
 }
 
 void CDigitank::Uncloak()
 {
 	m_bCloaked = false;
-
+	DirtyVisibility();
 	DigitanksWindow()->GetHUD()->Layout();
 }
 
@@ -1571,6 +1573,9 @@ bool CDigitank::AimsWith(CDigitank* pOther) const
 void CDigitank::Think()
 {
 	BaseClass::Think();
+
+	if (IsMoving())
+		DirtyVisibility();
 
 	if (!IsMoving() && IsAlive() && GameServer()->GetGameTime() > m_flNextHoverHeightCheck)
 	{

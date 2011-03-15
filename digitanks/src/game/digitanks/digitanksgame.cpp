@@ -1783,7 +1783,7 @@ void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const eastl::string& sS
 
 CDigitanksTeam* CDigitanksGame::GetDigitanksTeam(size_t i)
 {
-	return dynamic_cast<CDigitanksTeam*>(BaseClass::GetTeam(i));
+	return static_cast<CDigitanksTeam*>(BaseClass::GetTeam(i));
 }
 
 CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
@@ -1791,7 +1791,7 @@ CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
 	if (m_iCurrentTeam >= m_ahTeams.size())
 		return NULL;
 
-	return dynamic_cast<CDigitanksTeam*>(m_ahTeams[m_iCurrentTeam].GetPointer());
+	return static_cast<CDigitanksTeam*>(m_ahTeams[m_iCurrentTeam].GetPointer());
 }
 
 CSelectable* CDigitanksGame::GetPrimarySelection()

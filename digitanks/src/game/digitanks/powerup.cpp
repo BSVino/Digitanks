@@ -21,9 +21,9 @@ SAVEDATA_TABLE_END();
 
 void CPowerup::Precache()
 {
-	PrecacheModel(L"models/powerup.obj", false);
-	PrecacheModel(L"models/powerup-airstrike.obj", false);
-	PrecacheModel(L"models/powerup-tank.obj", false);
+	PrecacheModel(L"models/powerup.obj");
+	PrecacheModel(L"models/powerup-airstrike.obj");
+	PrecacheModel(L"models/powerup-tank.obj");
 }
 
 void CPowerup::Spawn()
@@ -101,45 +101,6 @@ Vector CPowerup::GetRenderOrigin() const
 	Vector vecOrigin = BaseClass::GetRenderOrigin();
 	vecOrigin.y += RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 3, 100, 0) + RemapVal(Lerp(Oscillate(GameServer()->GetGameTime() + GetSpawnTime(), 3), 0.8f), 0, 1, 3, 4);
 	return vecOrigin;
-}
-
-void CPowerup::PreRender(bool bTransparent)
-{
-	if (!bTransparent)
-		return;
-
-	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
-
-	Vector clrPowerup(1, 1, 1);
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-		if (pEntity == NULL)
-			continue;
-
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
-		if (!pTank)
-			continue;
-
-		if (!pTank->CanGetPowerups())
-			continue;
-
-		if ((pTank->GetOrigin() - GetOrigin()).LengthSqr() < GetBoundingRadius()*GetBoundingRadius())
-		{
-			clrPowerup = Vector(0, 1, 0);
-			break;
-		}
-
-		if (pTank->GetPreviewMovePower() <= pTank->GetRemainingMovementEnergy() && (pTank->GetPreviewMove() - GetOrigin()).LengthSqr() < GetBoundingRadius()*GetBoundingRadius())
-		{
-			clrPowerup = Vector(0, 1, 0);
-			break;
-		}
-	}
-
-	CConversionMaterial* pMaterial = pModel->m_pScene->GetMaterial(pModel->m_pScene->FindMaterial(L"Powerup"));
-	if (pMaterial)
-		pMaterial->m_vecDiffuse = clrPowerup;
 }
 
 void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparent)

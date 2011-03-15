@@ -19,6 +19,8 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<class CSupplyLine>, m_ahSupplyLinesIntercepted);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
 SAVEDATA_TABLE_END();
 
 void CDigitanksEntity::Spawn()
@@ -28,6 +30,8 @@ void CDigitanksEntity::Spawn()
 	m_bTakeDamage = true;
 	m_flTotalHealth = TotalHealth();
 	m_flHealth = m_flTotalHealth;
+
+	m_bVisibilityDirty = true;
 
 	CalculateVisibility();
 }
@@ -148,6 +152,10 @@ CWreckage* CDigitanksEntity::CreateWreckage()
 
 void CDigitanksEntity::StartTurn()
 {
+	// Recache it and make sure it's not dirty.
+	DirtyVisibility();
+	GetVisibility();
+
 	float flHealth = m_flHealth;
 	m_flHealth = Approach(m_flTotalHealth, m_flHealth, HealthRechargeRate());
 
@@ -241,6 +249,13 @@ void CDigitanksEntity::RenderVisibleArea()
 	c.RenderSphere();
 }
 
+void CDigitanksEntity::OnSetOrigin()
+{
+	BaseClass::OnSetOrigin();
+
+	DirtyVisibility();
+}
+
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 {
 	CDigitanksGame* pGame = DigitanksGame();
@@ -282,6 +297,9 @@ void CDigitanksEntity::CalculateVisibility()
 {
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 		DigitanksGame()->GetDigitanksTeam(i)->CalculateEntityVisibility(this);
+
+	m_flVisibility = GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam());
+	m_bVisibilityDirty = false;
 }
 
 float CDigitanksEntity::GetVisibility() const
@@ -290,7 +308,24 @@ float CDigitanksEntity::GetVisibility() const
 	if (!pGame)
 		return 0;
 
+	if (!m_bVisibilityDirty)
+		return m_flVisibility;
+
 	return GetVisibility(pGame->GetCurrentLocalDigitanksTeam());
+}
+
+float CDigitanksEntity::GetVisibility()
+{
+	CDigitanksGame* pGame = DigitanksGame();
+	if (!pGame)
+		return 0;
+
+	if (!m_bVisibilityDirty)
+		return m_flVisibility;
+
+	m_flVisibility = GetVisibility(pGame->GetCurrentLocalDigitanksTeam());
+	m_bVisibilityDirty = false;
+	return m_flVisibility;
 }
 
 float CDigitanksEntity::VisibleRange() const

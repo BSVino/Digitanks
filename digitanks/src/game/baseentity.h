@@ -238,7 +238,8 @@ public:
 	virtual EAngle							GetRenderAngles() const { return GetAngles(); };
 
 	virtual inline Vector					GetOrigin() const { return m_vecOrigin; };
-	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; };
+	void									SetOrigin(const Vector& vecOrigin) { m_vecOrigin = vecOrigin; OnSetOrigin(); };
+	virtual void							OnSetOrigin() {}
 
 	inline Vector							GetLastOrigin() const { return m_vecLastOrigin; };
 	void									SetLastOrigin(const Vector& vecOrigin) { m_vecLastOrigin = vecOrigin; };
