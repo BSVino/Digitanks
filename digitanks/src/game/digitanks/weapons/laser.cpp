@@ -71,6 +71,14 @@ void CLaser::OnSetOwner(CDigitank* pOwner)
 			continue;
 
 		pEntity->TakeDamage(pOwner, this, DAMAGE_LASER, m_flDamage, flDistance < pEntity->GetBoundingRadius()-2);
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+		if (pTank)
+		{
+			float flRockIntensity = 0.5f;
+			Vector vecDirection = (pTank->GetOrigin() - pOwner->GetOrigin()).Normalized();
+			pTank->RockTheBoat(flRockIntensity, vecDirection);
+		}
 	}
 
 	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
