@@ -11,6 +11,7 @@
 #include <game/digitanks/dt_camera.h>
 #include <shaders/shaders.h>
 #include <tinker/cvar.h>
+#include <tinker/profiler.h>
 
 #include <ui/digitankswindow.h>
 
@@ -92,6 +93,8 @@ void CDigitanksRenderer::Initialize()
 
 void CDigitanksRenderer::SetupFrame()
 {
+	TPROF("CDigitanksRenderer::SetupFrame");
+
 	if (ShouldUseFramebuffers())
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oExplosionBuffer.m_iFB);
@@ -112,6 +115,8 @@ void CDigitanksRenderer::SetupFrame()
 
 void CDigitanksRenderer::StartRendering()
 {
+	TPROF("CDigitanksRenderer::StartRendering");
+
 	ClearTendrilBatches();
 
 	BaseClass::StartRendering();
@@ -123,6 +128,8 @@ void CDigitanksRenderer::RenderSkybox()
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU || DigitanksGame()->GetGameType() == GAMETYPE_EMPTY)
 		return;
+
+	TPROF("CDigitanksRenderer::RenderSkybox");
 
 	if (true)
 	{
@@ -349,6 +356,8 @@ void CDigitanksRenderer::RenderSkybox()
 
 void CDigitanksRenderer::FinishRendering()
 {
+	TPROF("CDigitanksRenderer::FinishRendering");
+
 	if (ShouldUseShaders())
 		ClearProgram();
 
@@ -381,6 +390,8 @@ void CDigitanksRenderer::SetupSceneShader()
 
 void CDigitanksRenderer::RenderPreviewModes()
 {
+	TPROF("CDigitanksRenderer::RenderPreviewModes");
+
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
@@ -665,12 +676,14 @@ void CDigitanksRenderer::RenderFogOfWar()
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 		return;
 
-	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
+	TPROF("CDigitanksRenderer::RenderFogOfWar");
+
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 	if (!pTeam)
 		return;
 
+	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
 	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
 	{
 		CBaseEntity* pEntity = pTeam->GetMember(i);
@@ -733,6 +746,8 @@ void CDigitanksRenderer::RenderAvailableAreas()
 {
 	if (!HardwareSupportsFramebuffers())
 		return;
+
+	TPROF("CDigitanksRenderer::RenderAvailableAreas");
 
 	// Render each visibility volume one at a time. If we do them all at once they interfere with each other.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -809,8 +824,12 @@ void CDigitanksRenderer::RenderAvailableAreas()
 
 void CDigitanksRenderer::RenderOffscreenBuffers()
 {
+	TPROF("CDigitanksRenderer::RenderOffscreenBuffers");
+
 	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
+		TPROF("Explosions");
+
 		// Render the explosions back onto the scene buffer, passing through the noise filter.
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
 
@@ -844,6 +863,8 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
+		TPROF("Available areas");
+
 		UseProgram(0);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -859,6 +880,8 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 	// Draw the fog of war.
 	if (ShouldUseFramebuffers() && ShouldUseShaders() && DigitanksGame()->ShouldRenderFogOfWar())
 	{
+		TPROF("Fog of war");
+
 		// Explosion buffer's not in use anymore, reduce reuse recycle!
 		RenderMapToBuffer(m_oSceneBuffer.m_iMap, &m_oExplosionBuffer);
 
@@ -910,6 +933,8 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
+		TPROF("Bloom");
+
 		// Use a bright-pass filter to catch only the bright areas of the image
 		GLuint iBrightPass = (GLuint)CShaderLibrary::GetBrightPassProgram();
 		UseProgram(iBrightPass);
@@ -940,6 +965,8 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 
 void CDigitanksRenderer::RenderFullscreenBuffers()
 {
+	TPROF("CDigitanksRenderer::RenderFullscreenBuffers");
+
 	glEnable(GL_BLEND);
 
 	if (ShouldUseFramebuffers())
@@ -1022,6 +1049,8 @@ void CDigitanksRenderer::AddTendrilBatch(CSupplier* pSupplier)
 
 void CDigitanksRenderer::RenderTendrilBatches()
 {
+	TPROF("CDigitanksRenderer::RenderTendrilBatches");
+
 	GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
 
 	CRenderingContext r(GameServer()->GetRenderer());

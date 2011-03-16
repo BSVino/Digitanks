@@ -9,6 +9,7 @@
 #include <renderer/particles.h>
 #include <sound/sound.h>
 #include <tinker/application.h>
+#include <tinker/profiler.h>
 
 #include "game.h"
 
@@ -202,6 +203,8 @@ void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 
 void CBaseEntity::Render(bool bTransparent)
 {
+	TPROF("CBaseEntity::Render");
+
 	PreRender(bTransparent);
 
 	do {
@@ -221,11 +224,18 @@ void CBaseEntity::Render(bool bTransparent)
 			if (ShouldRenderModel() && m_iModel != (size_t)~0)
 			{
 				if (r.GetBlend() == BLEND_NONE && !bTransparent)
+				{
+					TPROF("CRenderingContext::RenderModel(Opaque)");
 					r.RenderModel(GetModel());
+				}
 				if (r.GetBlend() != BLEND_NONE && bTransparent)
+				{
+					TPROF("CRenderingContext::RenderModel(Transparent)");
 					r.RenderModel(GetModel());
+				}
 			}
 
+			TPROF("CBaseEntity::OnRender");
 			OnRender(&r, bTransparent);
 		}
 	} while (false);

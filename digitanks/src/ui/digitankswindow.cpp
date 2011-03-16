@@ -18,6 +18,7 @@
 #include <network/network.h>
 #include <sound/sound.h>
 #include <tinker/cvar.h>
+#include <tinker/profiler.h>
 #include <tinker/portals/portal.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
@@ -380,41 +381,46 @@ void CDigitanksWindow::Run()
 
 	while (IsOpen())
 	{
-		SetMouseCursor(MOUSECURSOR_NONE);
+		CProfiler::BeginFrame();
 
-		ConstrainMouse();
-
-		if (GameServer()->IsHalting())
+		if (true)
 		{
-			DestroyGame();
-			CreateGame(GAMETYPE_MENU);
-		}
+			TPROF("CDigitanksWindow::Run");
 
-		float flTime = GetTime();
-		if (GameServer())
-		{
-			if (GameServer()->IsLoading())
-			{
-				// PreThink pumps the network
-				CNetwork::PreThink();
-				RenderLoading();
-				continue;
-			}
-			else if (GameServer()->IsClient() && !CNetwork::IsConnected())
+			SetMouseCursor(MOUSECURSOR_NONE);
+
+			ConstrainMouse();
+
+			if (GameServer()->IsHalting())
 			{
 				DestroyGame();
 				CreateGame(GAMETYPE_MENU);
 			}
-			else
+
+			float flTime = GetTime();
+			if (GameServer())
 			{
-				GameServer()->Think(flTime);
-				Render();
+				if (GameServer()->IsLoading())
+				{
+					// PreThink pumps the network
+					CNetwork::PreThink();
+					RenderLoading();
+					continue;
+				}
+				else if (GameServer()->IsClient() && !CNetwork::IsConnected())
+				{
+					DestroyGame();
+					CreateGame(GAMETYPE_MENU);
+				}
+				else
+				{
+					GameServer()->Think(flTime);
+					Render();
+				}
 			}
 		}
-		else
-			// Clear the buffer for the gui.
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
+		CProfiler::Render();
 		SwapBuffers();
 	}
 }
@@ -456,10 +462,16 @@ void CDigitanksWindow::Render()
 	if (!GameServer())
 		return;
 
+	TPROF("CDigitanksWindow::Render");
+
 	GameServer()->Render();
 
-	glgui::CRootPanel::Get()->Think(GameServer()->GetGameTime());
-	glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+	if (true)
+	{
+		TPROF("GUI");
+		glgui::CRootPanel::Get()->Think(GameServer()->GetGameTime());
+		glgui::CRootPanel::Get()->Paint(0, 0, (int)m_iWindowWidth, (int)m_iWindowHeight);
+	}
 
 	RenderMouseCursor();
 }

@@ -13,6 +13,7 @@
 #include <shaders/shaders.h>
 #include <tinker/application.h>
 #include <tinker/cvar.h>
+#include <tinker/profiler.h>
 
 CRenderingContext::CRenderingContext(CRenderer* pRenderer)
 {
@@ -878,6 +879,8 @@ void CRenderer::CreateNoise()
 
 void CRenderer::SetupFrame()
 {
+	TPROF("CRenderer::SetupFrame");
+
 	if (ShouldUseFramebuffers())
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)m_oSceneBuffer.m_iFB);
@@ -942,6 +945,8 @@ void CRenderer::DrawBackground()
 
 void CRenderer::StartRendering()
 {
+	TPROF("CRenderer::StartRendering");
+
 	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT|GL_CURRENT_BIT);
 
 	glMatrixMode(GL_PROJECTION);
@@ -1059,6 +1064,8 @@ CVar show_frustum("debug_show_frustum", "no");
 
 void CRenderer::FinishRendering()
 {
+	TPROF("CRenderer::FinishRendering");
+
 	if (show_frustum.GetBool())
 	{
 		for (size_t i = 0; i < 6; i++)
@@ -1230,6 +1237,8 @@ void CRenderer::AddToBatch(class CModel* pModel, const Matrix4x4& mTransformatio
 
 void CRenderer::RenderBatches()
 {
+	TPROF("CRenderer::RenderBatches()");
+
 	m_bBatching = false;
 
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);

@@ -9,6 +9,7 @@
 #include <strutils.h>
 
 #include <tinker/application.h>
+#include <tinker/profiler.h>
 #include <renderer/renderer.h>
 #include <renderer/particles.h>
 #include <renderer/dissolver.h>
@@ -306,6 +307,8 @@ void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNicknam
 
 void CGameServer::Think(float flHostTime)
 {
+	TPROF("CGameServer::Think");
+
 	m_flFrameTime = flHostTime - m_flHostTime;
 
 	// If the framerate drops, don't let too much happen without the player seeing
@@ -462,6 +465,8 @@ void CGameServer::Simulate()
 
 void CGameServer::Render()
 {
+	TPROF("CGameServer::Render");
+
 	m_pCamera->Think();
 
 	m_pRenderer->SetCameraPosition(m_pCamera->GetCameraPosition());

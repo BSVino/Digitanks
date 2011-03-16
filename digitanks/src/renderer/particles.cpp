@@ -5,6 +5,7 @@
 #include <game/game.h>
 #include <shaders/shaders.h>
 #include <tinker/cvar.h>
+#include <tinker/profiler.h>
 #include <models/models.h>
 
 #include "renderer.h"
@@ -93,6 +94,8 @@ void CParticleSystemLibrary::Simulate()
 
 void CParticleSystemLibrary::Render()
 {
+	TPROF("CParticleSystemLibrary::Render");
+
 	CParticleSystemLibrary* pPSL = Get();
 	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
 
