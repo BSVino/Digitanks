@@ -988,7 +988,7 @@ void CSupplier::PostRender(bool bTransparent)
 
 			float flDistance = vecPath.Length2D();
 			Vector vecDirection = vecPath.Normalized();
-			size_t iSegments = (size_t)(flDistance/2);
+			size_t iSegments = (size_t)(flDistance/3);
 
 			if (GameServer()->GetRenderer()->ShouldUseShaders())
 			{
@@ -1067,7 +1067,7 @@ void CSupplier::UpdateTendrils()
 
 		float flDistance = vecPath.Length2D();
 		Vector vecDirection = vecPath.Normalized();
-		size_t iSegments = (size_t)(flDistance/2);
+		size_t iSegments = (size_t)(flDistance/3);
 
 		Color clrTeam = GetTeam()->GetColor();
 

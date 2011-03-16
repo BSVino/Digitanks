@@ -48,7 +48,7 @@ public:
 	virtual bool				CanStructureUpgrade();
 	virtual void				UpgradeComplete();
 
-	static size_t				InitialMiniBufferDataStrength() { return 2500; }
+	static size_t				InitialMiniBufferDataStrength() { return 2000; }
 
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };

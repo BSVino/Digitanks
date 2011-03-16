@@ -689,11 +689,6 @@ void CDigitanksRenderer::RenderFogOfWar()
 		glDisable(GL_COLOR_MATERIAL);
 		if (ShouldUseFramebuffers())
 			c.UseFrameBuffer(&m_oVisibility1Buffer);
-		else
-		{
-			glReadBuffer(GL_AUX1);
-			glDrawBuffer(GL_AUX1);
-		}
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		c.SetDepthMask(false);
@@ -722,11 +717,6 @@ void CDigitanksRenderer::RenderFogOfWar()
 		// Copy the results to the second buffer
 		if (ShouldUseFramebuffers())
 			RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oVisibility2Buffer);
-		else
-		{
-			glReadBuffer(GL_AUX1);
-			glDrawBuffer(GL_AUX2);
-		}
 
 		c.SetBlend(BLEND_NONE);
 		glEnable(GL_DEPTH_TEST);
