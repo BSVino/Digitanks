@@ -1032,7 +1032,7 @@ void CDigitanksRenderer::RenderTendrilBatches()
 
 	if (GameServer()->GetRenderer()->ShouldUseShaders())
 	{
-		GameServer()->GetRenderer()->UseProgram(iScrollingTextureProgram);
+		r.UseProgram(iScrollingTextureProgram);
 
 		GLuint flTime = glGetUniformLocation(iScrollingTextureProgram, "flTime");
 		glUniform1f(flTime, GameServer()->GetGameTime());
@@ -1070,5 +1070,4 @@ void CDigitanksRenderer::RenderTendrilBatches()
 
 		glCallList(pSupplier->GetTendrilsCallList());
 	}
-
 }

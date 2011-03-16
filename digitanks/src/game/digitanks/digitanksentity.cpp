@@ -249,11 +249,29 @@ void CDigitanksEntity::RenderVisibleArea()
 	c.RenderSphere();
 }
 
-void CDigitanksEntity::OnSetOrigin()
+void CDigitanksEntity::OnSetOrigin(const Vector& vecOrigin)
 {
-	BaseClass::OnSetOrigin();
+	BaseClass::OnSetOrigin(vecOrigin);
 
 	DirtyVisibility();
+
+	CDigitanksEntity* pOther = this;
+
+	while (true)
+	{
+		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pOther);
+
+		if (!pOther)
+			break;
+
+		if (pOther == this)
+			continue;
+
+		if (pOther->Distance(GetOrigin()) > VisibleRange() + DigitanksGame()->FogPenetrationDistance())
+			break;
+
+		pOther->DirtyVisibility();
+	}
 }
 
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const

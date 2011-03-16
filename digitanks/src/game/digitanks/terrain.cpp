@@ -803,12 +803,6 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	glEndList();
 
 	glNewList((GLuint)pChunk->m_iTransparentCallList, GL_COMPILE);
-	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glDepthMask(false);
-	glBindTexture(GL_TEXTURE_2D, s_iTreeTexture);
 	glBegin(GL_QUADS);
 
 	float flXSize = 2;
@@ -871,7 +865,6 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	}
 
 	glEnd();
-	glPopAttrib();
 	glEndList();
 
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
@@ -1125,14 +1118,19 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 void CTerrain::RenderTransparentTerrain()
 {
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
-
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDepthMask(false);
+	glBindTexture(GL_TEXTURE_2D, s_iTreeTexture);
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
-		{
 			glCallList((GLuint)m_aTerrainChunks[i][j].m_iTransparentCallList);
-		}
 	}
+	glPopAttrib();
+
+	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 
 	for (size_t i = 0; i < m_aRunners.size(); i++)
 	{
