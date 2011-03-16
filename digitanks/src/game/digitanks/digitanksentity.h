@@ -26,7 +26,7 @@ public:
 	virtual bool					ShouldRender() const;
 	virtual void					RenderVisibleArea();
 
-	virtual void					OnSetOrigin();
+	virtual void					OnSetOrigin(const Vector& vecOrigin);
 
 	virtual float					GetVisibility(CDigitanksTeam* pTeam) const;
 	virtual float					GetVisibility() const;

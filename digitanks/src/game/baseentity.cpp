@@ -127,6 +127,15 @@ void CBaseEntity::SetModel(size_t iModel)
 	}
 }
 
+void CBaseEntity::SetOrigin(const Vector& vecOrigin)
+{
+	if ((vecOrigin - m_vecOrigin).LengthSqr() == 0)
+		return;
+
+	OnSetOrigin(vecOrigin);
+	m_vecOrigin = vecOrigin;
+};
+
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
 {
 	if (iHandle == ~0)

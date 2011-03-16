@@ -1282,6 +1282,9 @@ void CRenderer::RenderBatches()
 		}
 	}
 
+	if (ShouldUseShaders())
+		glUseProgram(0);
+
 	glPopMatrix();
 	glPopAttrib();
 }
