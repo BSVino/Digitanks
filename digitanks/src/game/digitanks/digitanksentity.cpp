@@ -352,7 +352,31 @@ float CDigitanksEntity::GetVisibility()
 	if (!m_bVisibilityDirty)
 		return m_flVisibility;
 
-	m_flVisibility = GetVisibility(pGame->GetCurrentLocalDigitanksTeam());
+	CDigitanksTeam* pLocalTeam = pGame->GetCurrentLocalDigitanksTeam();
+	m_flVisibility = GetVisibility(pLocalTeam);
+
+	// Find the nearest entity in the local team. If he's close enough, reduce this unit's concealment.
+	CDigitanksEntity* pOther = this;
+	while (true)
+	{
+		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pOther);
+
+		if (!pOther)
+			break;
+
+		if (pOther == this)
+			continue;
+
+		if (pOther->GetDigitanksTeam() != pLocalTeam)
+			continue;
+
+		if (pOther->Distance(GetOrigin()) > 15)
+			break;
+
+		m_flVisibility = 1 - ((1-m_flVisibility)/2);
+		break;
+	}
+
 	m_bVisibilityDirty = false;
 	return m_flVisibility;
 }
