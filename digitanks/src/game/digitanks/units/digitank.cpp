@@ -787,7 +787,7 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 
 	while (!IsInsideMaxRange(vecPreviewAim))
 	{
-		Vector vecDirection = vecPreviewAim - GetOrigin();
+		Vector vecDirection = vecPreviewAim - GetRealOrigin();
 		vecDirection.y = 0;
 		vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 	}
@@ -2174,7 +2174,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				else if (IsScout())
 					s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nTorpedos contain a special EMP that can disable enemy tanks and sever support lines. It can't hit other Rogues and only does physical damage to structures or units without shields.";
 				else
-					s += L"AIM AND FIRE CANON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
+					s += L"AIM AND FIRE CANNON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
 
 				if (m_flTotalPower < GetWeaponEnergy())
 				{
@@ -2856,7 +2856,9 @@ void CDigitank::PreRender(bool bTransparent)
 		c.SetDepthMask(false);
 		c.SetDepthTest(false);
 		c.SetBlend(BLEND_ADDITIVE);
-		c.SetColor(GetTeam()->GetColor());
+		Color clrTeam = GetTeam()->GetColor();
+		clrTeam.SetAlpha((int)(255 * GetVisibility()));
+		c.SetColor(clrTeam);
 		c.BeginRenderQuads();
 
 			float flYaw = m_flGlowYaw*M_PI/180;

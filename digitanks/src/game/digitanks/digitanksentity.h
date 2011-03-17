@@ -63,6 +63,8 @@ protected:
 
 	bool							m_bVisibilityDirty;
 	float							m_flVisibility;				// Only for local team!
+
+	float							m_flNextDirtyArea;
 };
 
 #endif

@@ -85,7 +85,7 @@ void CWreckage::Think()
 	m_hBurnParticles.SetActive(GetVisibility() > 0.1f && !m_bFallingIntoHole);
 
 	// Stick around for 30 minutes before disappearing
-	if (GameServer()->GetGameTime() - GetSpawnTime() > 30*60)
+	if (GameServer()->GetGameTime() - GetSpawnTime() > 10*60)
 		Delete();
 
 	else if (m_bFallingIntoHole && GameServer()->GetGameTime() - GetSpawnTime() > 10)

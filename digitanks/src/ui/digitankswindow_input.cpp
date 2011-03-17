@@ -186,6 +186,9 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 				if (pSelectable->GetUnitType() != pClickedSelectable->GetUnitType())
 					continue;
 
+				if (pSelectable->Distance(pClickedEntity->GetOrigin()) > 25)
+					continue;
+
 				Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(pSelectable->GetOrigin());
 
 				if (vecScreen.x < 0 || vecScreen.y < 0 || vecScreen.x > GetWindowWidth() || vecScreen.y > GetWindowHeight())

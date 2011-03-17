@@ -779,7 +779,10 @@ void CSupplier::OnTeamChange()
 				continue;
 
 			if (pStructure->GetTeam())
+			{
 				pStructure->GetTeam()->RemoveEntity(pStructure);
+				DigitanksGame()->OnDisabled(pStructure, NULL, NULL);
+			}
 		}
 	}
 

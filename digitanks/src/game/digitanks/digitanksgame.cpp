@@ -1588,7 +1588,7 @@ SERVER_COMMAND(HitIndicator)
 		if (DigitanksGame()->GetListener())
 		{
 			DigitanksGame()->GetListener()->OnTakeDamage(
-					CEntityHandle<CDigitank>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(1)),
 					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
 					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3)),
 					pCmd->ArgAsFloat(4), !!pCmd->ArgAsInt(5), !!pCmd->ArgAsInt(6));
@@ -1608,7 +1608,7 @@ SERVER_COMMAND(HitIndicator)
 		if (DigitanksGame()->GetListener())
 		{
 			DigitanksGame()->GetListener()->OnDisabled(
-					CEntityHandle<CDigitank>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(1)),
 					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
 					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3))
 				);

@@ -21,6 +21,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<class CSupplyLine>, m_ahSupplyLinesIntercepted);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyArea);
 SAVEDATA_TABLE_END();
 
 void CDigitanksEntity::Spawn()
@@ -32,6 +33,7 @@ void CDigitanksEntity::Spawn()
 	m_flHealth = m_flTotalHealth;
 
 	m_bVisibilityDirty = true;
+	m_flNextDirtyArea = 0;
 
 	CalculateVisibility();
 }
@@ -39,6 +41,29 @@ void CDigitanksEntity::Spawn()
 void CDigitanksEntity::Think()
 {
 	BaseClass::Think();
+
+	if (m_flNextDirtyArea > 0 && GameServer()->GetGameTime() > m_flNextDirtyArea)
+	{
+		CDigitanksEntity* pOther = this;
+
+		while (true)
+		{
+			pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pOther);
+
+			if (!pOther)
+				break;
+
+			if (pOther == this)
+				continue;
+
+			if (pOther->Distance(GetOrigin()) > VisibleRange() + DigitanksGame()->FogPenetrationDistance())
+				break;
+
+			pOther->DirtyVisibility();
+		}
+
+		m_flNextDirtyArea = 0;
+	}
 
 	if (CNetwork::IsHost() && !IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
 	{
@@ -255,23 +280,9 @@ void CDigitanksEntity::OnSetOrigin(const Vector& vecOrigin)
 
 	DirtyVisibility();
 
-	CDigitanksEntity* pOther = this;
-
-	while (true)
-	{
-		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pOther);
-
-		if (!pOther)
-			break;
-
-		if (pOther == this)
-			continue;
-
-		if (pOther->Distance(GetOrigin()) > VisibleRange() + DigitanksGame()->FogPenetrationDistance())
-			break;
-
-		pOther->DirtyVisibility();
-	}
+	// Don't do this constantly.
+	if (GameServer()->GetGameTime() > m_flNextDirtyArea)
+		m_flNextDirtyArea = GameServer()->GetGameTime() + 1.0f;
 }
 
 float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
