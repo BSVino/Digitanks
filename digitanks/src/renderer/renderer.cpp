@@ -815,6 +815,16 @@ CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bD
 	oBuffer.m_iWidth = iWidth;
 	oBuffer.m_iHeight = iHeight;
 
+	oBuffer.m_iCallList = glGenLists(1);
+	glNewList(oBuffer.m_iCallList, GL_COMPILE);
+	glBegin(GL_QUADS);
+		glTexCoord2i(0, 1); glVertex2i(0, 0);
+		glTexCoord2i(0, 0); glVertex2i(0, (GLint)iHeight);
+		glTexCoord2i(1, 0); glVertex2i((GLint)iWidth, (GLint)iHeight);
+		glTexCoord2i(1, 1); glVertex2i((GLint)iWidth, 0);
+	glEnd();
+	glEndList();
+
 	return oBuffer;
 }
 
@@ -1179,12 +1189,7 @@ void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, (GLuint)pBuffer->m_iFB);
 	glViewport(0, 0, (GLsizei)pBuffer->m_iWidth, (GLsizei)pBuffer->m_iHeight);
 
-	glBegin(GL_QUADS);
-		glTexCoord2i(0, 1); glVertex2i(0, 0);
-		glTexCoord2i(0, 0); glVertex2i(0, (GLint)pBuffer->m_iHeight);
-		glTexCoord2i(1, 0); glVertex2i((GLint)pBuffer->m_iWidth, (GLint)pBuffer->m_iHeight);
-		glTexCoord2i(1, 1); glVertex2i((GLint)pBuffer->m_iWidth, 0);
-	glEnd();
+	glCallList(pBuffer->m_iCallList);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1237,7 +1242,7 @@ void CRenderer::AddToBatch(class CModel* pModel, const Matrix4x4& mTransformatio
 
 void CRenderer::RenderBatches()
 {
-	TPROF("CRenderer::RenderBatches()");
+	TPROF("CRenderer::RenderBatches");
 
 	m_bBatching = false;
 

@@ -127,6 +127,8 @@ public:
 	size_t		m_iMap;
 	size_t		m_iDepth;
 	size_t		m_iFB;
+
+	size_t		m_iCallList;
 };
 
 class CRenderBatch
