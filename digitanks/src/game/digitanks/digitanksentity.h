@@ -46,6 +46,7 @@ public:
 	virtual void					RenderAvailableArea(int iArea);
 
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 

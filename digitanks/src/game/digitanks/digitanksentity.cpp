@@ -359,9 +359,12 @@ float CDigitanksEntity::GetVisibility()
 	CDigitanksEntity* pOther = this;
 	while (true)
 	{
-		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(GetOrigin(), pOther);
+		pOther = CBaseEntity::FindClosest<CDigitanksEntity>(m_vecOrigin, pOther);
 
 		if (!pOther)
+			break;
+
+		if (pOther->Distance(m_vecOrigin) > 20)
 			break;
 
 		if (pOther == this)
@@ -369,9 +372,6 @@ float CDigitanksEntity::GetVisibility()
 
 		if (pOther->GetDigitanksTeam() != pLocalTeam)
 			continue;
-
-		if (pOther->Distance(GetOrigin()) > 15)
-			break;
 
 		m_flVisibility = 1 - ((1-m_flVisibility)/2);
 		break;
@@ -424,4 +424,45 @@ void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTranspar
 		pContext->SetAlpha(flVisibility);
 		pContext->SetBlend(BLEND_ALPHA);
 	}
+}
+
+void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent)
+{
+	BaseClass::OnRender(pContext, bTransparent);
+
+	if (!bTransparent)
+		return;
+
+	if (!DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(m_vecOrigin.Get().x), CTerrain::WorldToArraySpace(m_vecOrigin.Get().z), TB_TREE))
+		return;
+
+	if (GetVisibility() < 0.6f)
+		return;
+
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.SetBlend(BLEND_NONE);
+	c.SetAlpha(1);
+	c.BindTexture(0);
+
+	glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+	glDisable( GL_TEXTURE_2D );
+	glEnable( GL_POLYGON_OFFSET_FILL );
+	glPolygonOffset( -3.5f, -3.5f );
+
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDepthMask(true);
+	glEnable(GL_DEPTH_TEST);
+	pContext->RenderModel(GetModel());
+
+	glDisable( GL_POLYGON_OFFSET_FILL );
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(false);
+	glEnable(GL_DEPTH_TEST);
+	glLineWidth( 2.0f );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	glColor3ubv( Color(0, 0, 0) );
+	pContext->RenderModel(GetModel());
+
+	glPopAttrib();
 }
