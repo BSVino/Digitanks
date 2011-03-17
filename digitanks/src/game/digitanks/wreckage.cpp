@@ -79,7 +79,7 @@ void CWreckage::Think()
 	SetAngles(GetAngles() + m_angList*GameServer()->GetFrameTime());
 
 	// Slowly burn to black.
-	Vector vecColorSwap = m_vecColorSwap * RemapValClamped(GameServer()->GetFrameTime() - GetSpawnTime(), 0, 30, 1, 0);
+	Vector vecColorSwap = m_vecColorSwap * RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 30, 1, 0);
 	m_clrSwap = vecColorSwap;
 
 	m_hBurnParticles.SetActive(GetVisibility() > 0.1f && !m_bFallingIntoHole);

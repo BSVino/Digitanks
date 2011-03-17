@@ -601,6 +601,25 @@ void CHUD::Layout()
 		m_pUpdatesButton->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
 	}
 
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+	{
+		// Don't clear it in the start, we want dead tanks to remain in the list so we can mark them asploded.
+
+		m_ahScoreboardTanks.resize(DigitanksGame()->GetNumTeams());
+
+		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+		{
+			CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+			eastl::map<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
+
+			for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
+			{
+				CDigitank* pTank = pTeam->GetTank(j);
+				ahTeamTanks[pTank->GetHandle()] = pTank;
+			}
+		}
+	}
+
 	UpdateTurnButton();
 	UpdateScoreboard();
 	UpdateTeamInfo();
@@ -1426,6 +1445,54 @@ void CHUD::Paint(int x, int y, int w, int h)
 	m_pTeamInfo->SetVisible(true);
 	m_pTeamInfo->Paint();
 
+	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+	{
+		// Don't clear it in the start, we want dead tanks to remain in the list so we can mark them asploded.
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+		{
+			CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+			if (!pTeam)
+				continue;
+
+			eastl::map<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
+
+			Color clrTeam = pTeam->GetColor();
+			if (DigitanksGame()->GetCurrentTeam() == pTeam)
+				clrTeam.SetAlpha((int)(255 * Oscillate(GameServer()->GetGameTime(), 1)));
+			c.SetColor(clrTeam);
+
+			if (DigitanksGame()->GetCurrentTeam() == pTeam)
+				CBaseControl::PaintRect(w - ahTeamTanks.size() * 30 - 20, 35 + i*40, ahTeamTanks.size()*30+10, 45, Color(0, 0, 0, 150));
+
+			eastl::string16 sTeamName = pTeam->GetName();
+			if (pTeam->IsPlayerControlled())
+				sTeamName = eastl::string16(L"[") + sTeamName + L"]";
+
+			CLabel::PaintText(sTeamName, sTeamName.length(), L"text", 13, (float)w - CLabel::GetTextWidth(sTeamName, sTeamName.length(), L"text", 13) - 20, 50 + (float)i*40);
+
+			int iTank = 0;
+			for (eastl::map<size_t, CEntityHandle<CDigitank> >::iterator it = ahTeamTanks.begin(); it != ahTeamTanks.end(); it++)
+			{
+				CDigitank* pTank = it->second;
+
+				Color clrTank = pTeam->GetColor();
+				if (!pTank || !pTank->IsAlive())
+					clrTank.SetAlpha(100);
+
+				PaintUnitSheet(UNIT_TANK, w - (iTank+1)*30 - 10, 50 + i*40, 20, 20, clrTank);
+
+				if (!pTank || !pTank->IsAlive())
+					PaintHUDSheet(w - (iTank+1)*30 - 10, 50 + i*40, 20, 20, 481, 312, 32, 32);
+
+				iTank++;
+			}
+		}
+	}
+
 //	while (true)
 //	{
 //		CRenderingContext c(GameServer()->GetRenderer());
@@ -1953,6 +2020,8 @@ void CHUD::ClientEnterGame()
 	m_pPressEnter->SetText("");
 
 	m_pSceneTree->BuildTree(true);
+
+	m_ahScoreboardTanks.clear();
 }
 
 void CHUD::UpdateInfo()

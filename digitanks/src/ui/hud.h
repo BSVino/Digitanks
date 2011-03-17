@@ -282,6 +282,8 @@ protected:
 	float						m_flActionItemsLerpGoal;
 	float						m_flActionItemsWidth;
 
+	eastl::vector<eastl::map<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
+
 	CMouseCapturePanel*			m_pButtonPanel;
 
 	glgui::CPictureButton*		m_apButtons[10];
