@@ -789,12 +789,12 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 	{
 		Vector vecDirection = vecPreviewAim - GetOrigin();
 		vecDirection.y = 0;
-		vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+		vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 	}
 
-	if ((vecPreviewAim - GetOrigin()).Length2DSqr() < GetMinRange()*GetMinRange())
+	if ((vecPreviewAim - GetRealOrigin()).Length2DSqr() < GetMinRange()*GetMinRange())
 	{
-		vecPreviewAim = GetOrigin() + (vecPreviewAim - GetOrigin()).Normalized() * GetMinRange() * 1.01f;
+		vecPreviewAim = GetRealOrigin() + (vecPreviewAim - GetRealOrigin()).Normalized() * GetMinRange() * 1.01f;
 		vecPreviewAim.y = DigitanksGame()->GetTerrain()->GetHeight(vecPreviewAim.x, vecPreviewAim.z);
 	}
 
@@ -885,12 +885,12 @@ Vector CDigitank::GetChargePosition(CBaseEntity* pTarget) const
 bool CDigitank::IsInsideMaxRange(Vector vecPoint)
 {
 	if (GetCurrentWeapon() == WEAPON_CHARGERAM)
-		return (vecPoint - GetOrigin()).LengthSqr() < ChargeRadius()*ChargeRadius();
+		return (vecPoint - GetRealOrigin()).LengthSqr() < ChargeRadius()*ChargeRadius();
 
 	if (GetCurrentWeapon() == PROJECTILE_CAMERAGUIDED)
 		return true;
 
-	Vector vecDirection = vecPoint - GetOrigin();
+	Vector vecDirection = vecPoint - GetRealOrigin();
 	float flPreviewDistanceSqr = vecDirection.LengthSqr();
 	float flPreviewDistance2DSqr = vecDirection.Length2DSqr();
 	float flHeightToTank = vecDirection.y;
@@ -2271,14 +2271,14 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 void CDigitank::Fire()
 {
-	float flDistanceSqr = (m_vecPreviewAim - GetOrigin()).LengthSqr();
+	float flDistanceSqr = (m_vecPreviewAim - GetRealOrigin()).LengthSqr();
 	if (!IsInsideMaxRange(m_vecPreviewAim))
 		return;
 
 	if (flDistanceSqr < GetMinRange()*GetMinRange())
 		return;
 
-	if (fabs(AngleDifference(GetAngles().y, VectorAngles((GetPreviewAim()-GetOrigin()).Normalized()).y)) > FiringCone())
+	if (fabs(AngleDifference(GetAngles().y, VectorAngles((GetPreviewAim()-GetRealOrigin()).Normalized()).y)) > FiringCone())
 		return;
 
 	if (m_bFiredWeapon || m_bActionTaken)
