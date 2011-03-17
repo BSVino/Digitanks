@@ -899,7 +899,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			else if (pChunk->GetBit(xbit, ybit, TB_WATER))
 			{
 				float flRandom = RandomFloat(0, 0.15f);
-				Vector vecWaterColor = m_vecTerrainColor + Vector(flRandom, flRandom*2, flRandom);
+				Vector vecWaterColor = m_vecTerrainColor + Vector(flRandom, flRandom, flRandom*2);
 
 				pChunk->m_aclrTexture[a][b] = Color(vecWaterColor);	// Yay watercolors!
 			}
