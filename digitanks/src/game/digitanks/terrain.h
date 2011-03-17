@@ -32,6 +32,8 @@ typedef struct
 	float					flNextTurn;
 	float					flNextPoint;
 	bool					bActive;
+	float					flAlpha;
+	float					flFadeRate;
 } runner_t;
 
 class CTerrainChunk
@@ -137,8 +139,8 @@ public:
 	virtual bool			Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 	void					TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit);
 
-	void					AddRunner(Vector vecPosition, Color clrColor);
-	void					AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor);
+	void					AddRunner(Vector vecPosition, Color clrColor, float flFade = 1.0f);
+	void					AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor, float flFade = 1.0f);
 
 	// Pathfinding stuff
 	Vector					FindPath(const Vector& vecStart, const Vector& vecEnd, class CDigitank* pUnit);

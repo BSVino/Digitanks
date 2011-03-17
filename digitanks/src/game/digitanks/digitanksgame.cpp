@@ -1544,7 +1544,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 		iRunners = RandomInt(2, 4);
 
 	for (int i = 0; i < iRunners; i++)
-		GetTerrain()->AddRunner(vecExplosionOrigin, Color(255, 255, 255));
+		GetTerrain()->AddRunner(vecExplosionOrigin, Color(255, 255, 255), 1);
 
 	return bHit;
 }

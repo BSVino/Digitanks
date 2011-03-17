@@ -483,7 +483,7 @@ bool CCPU::BeginConstruction()
 	{
 		int iRunners = RandomInt(15, 10);
 		for (int i = 0; i < iRunners; i++)
-			DigitanksGame()->GetTerrain()->AddRunner(GetPreviewBuild(), GetTeam()->GetColor());
+			DigitanksGame()->GetTerrain()->AddRunner(GetPreviewBuild(), GetTeam()->GetColor(), 1);
 	}
 
 	return bSuccess;

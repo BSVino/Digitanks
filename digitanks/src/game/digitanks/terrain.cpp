@@ -168,7 +168,7 @@ void CTerrain::Think()
 		int iEdge = RandomInt(0, 3);
 		Vector vecStart = aStartingEdges[iEdge];
 
-		AddRunner(vecStart * GetMapSize() + aEdgeSpread[iEdge]*RandomFloat(-GetMapSize(), GetMapSize()), -vecStart, GetPrimaryTerrainColor());
+		AddRunner(vecStart * GetMapSize() + aEdgeSpread[iEdge]*RandomFloat(-GetMapSize(), GetMapSize()), -vecStart, GetPrimaryTerrainColor(), 0.3f);
 
 		m_flNextRunner = GameServer()->GetGameTime() + RandomFloat(0.5f, 1);
 	}
@@ -179,6 +179,13 @@ void CTerrain::Think()
 
 		if (!pRunner->bActive)
 			continue;
+
+		pRunner->flAlpha -= pRunner->flFadeRate * GameServer()->GetFrameTime();
+		if (pRunner->flAlpha < 0)
+		{
+			pRunner->bActive = false;
+			continue;
+		}
 
 		if (GameServer()->GetGameTime() > pRunner->flNextTurn)
 		{
@@ -1155,7 +1162,7 @@ void CTerrain::RenderTransparentTerrain()
 		{
 			Vector vecPoint = *it2;
 
-			clrRope.SetAlpha(128 - (++j*128/20));
+			clrRope.SetAlpha((int)((128 - (++j*128/20))*pRunner->flAlpha));
 			oRope.SetColor(clrRope);
 			oRope.AddLink(vecPoint);
 		}
@@ -1811,7 +1818,7 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 	UpdateTerrainData();
 }
 
-void CTerrain::AddRunner(Vector vecPosition, Color clrColor)
+void CTerrain::AddRunner(Vector vecPosition, Color clrColor, float flFade)
 {
 	Vector avecPrimaryDirections[] =
 	{
@@ -1825,10 +1832,10 @@ void CTerrain::AddRunner(Vector vecPosition, Color clrColor)
 		Vector(-1, 0, 1),
 	};
 
-	AddRunner(vecPosition, avecPrimaryDirections[RandomInt(0, 7)], clrColor);
+	AddRunner(vecPosition, avecPrimaryDirections[RandomInt(0, 7)], clrColor, flFade);
 }
 
-void CTerrain::AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor)
+void CTerrain::AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color clrColor, float flFade)
 {
 	runner_t* pRunner = NULL;
 	for (size_t i = 0; i < m_aRunners.size(); i++)
@@ -1853,6 +1860,8 @@ void CTerrain::AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color c
 	pRunner->avecPoints.clear();
 	pRunner->avecPoints.push_front(SetPointHeight(vecPosition));
 	pRunner->bActive = true;
+	pRunner->flAlpha = 1;
+	pRunner->flFadeRate = flFade;
 }
 
 class LowestF
