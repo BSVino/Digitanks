@@ -1152,6 +1152,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (bShowCPUStuff && (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES))
 		{
+			if (m_bUpdatesBlinking)
+			{
+				int iArrowWidth = 50;
+				int iArrowHeight = 82;
+				PaintHUDSheet(m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight, 920, 20, 65, 108);
+			}
+
 			PaintHUDSheet(iWidth - 190, 10, 20, 20, 517, 350, 20, 20);
 			PaintHUDSheet(iWidth - 190, 40, 20, 20, 557, 350, 20, 20);
 			PaintHUDSheet(iWidth - 190, 70, 20, 20, 537, 350, 20, 20);
@@ -2628,10 +2635,10 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		break;
 
 	case ACTIONTYPE_DOWNLOADCOMPLETE:
-		m_pActionItem->SetText(
-			"DOWNLOAD COMPLETE\n \n"
-			"A download has just been completed in your updates grid. Press the blinking 'Download Grid' button near the top left of your screen to download more updates.\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		OpenUpdatesCallback();
+		return;
 
 	case ACTIONTYPE_DOWNLOADUPDATES:
 		m_pActionItem->SetText(
