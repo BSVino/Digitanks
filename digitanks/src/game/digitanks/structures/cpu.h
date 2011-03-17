@@ -53,6 +53,7 @@ public:
 
 	virtual void				StartTurn();
 
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 	virtual int					GetNumAvailableAreas() const { return 3; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;

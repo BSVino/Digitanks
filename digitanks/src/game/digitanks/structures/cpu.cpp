@@ -48,6 +48,9 @@ void CCPU::Spawn()
 	m_bProducing = false;
 
 	m_bConstructing = false;
+
+	m_flConstructionStartTime = GameServer()->GetGameTime();
+	m_flTendrilGrowthStartTime = m_flConstructionStartTime + 3;
 }
 
 void CCPU::Precache()
@@ -742,6 +745,19 @@ void CCPU::StartTurn()
 		{
 			GetDigitanksTeam()->AppendTurnInfo(sprintf(L"Producing Rogue (%d turns left)", m_iTurnsToProduceRogue.Get()));
 		}
+	}
+}
+
+void CCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+{
+	BaseClass::ModifyContext(pContext, bTransparent);
+
+	if (GameServer()->GetGameTime() - m_flConstructionStartTime < 3)
+	{
+		pContext->SetBlend(BLEND_ALPHA);
+		pContext->SetColor(Color(255, 255, 255));
+		pContext->SetAlpha(GetVisibility() * RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 2, 0, 1));
+		pContext->Translate(Vector(0, RemapValClamped(GameServer()->GetGameTime() - m_flConstructionStartTime, 0, 3, -3, 0), 0));
 	}
 }
 

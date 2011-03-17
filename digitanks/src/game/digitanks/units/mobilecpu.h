@@ -10,6 +10,7 @@ class CMobileCPU : public CDigitank
 public:
 	virtual void				Precache();
 	virtual void				Spawn();
+	virtual void				Think();
 
 	virtual eastl::string16		GetName() { return L"MCP"; };
 
@@ -17,7 +18,9 @@ public:
 	virtual void				OnFortify();
 
 	virtual float				FindHoverHeight(Vector vecPosition) const;
+	virtual Vector				GetRenderOrigin() const;
 
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual bool				IsMobileCPU() const { return true; };

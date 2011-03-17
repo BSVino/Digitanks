@@ -924,6 +924,10 @@ void CSupplier::PostRender(bool bTransparent)
 		return;
 
 	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
+
+	if (flGrowthTime < 0)
+		return;
+
 	if (flGrowthTime >= GROWTH_TIME)
 		m_flTendrilGrowthStartTime = 0;
 

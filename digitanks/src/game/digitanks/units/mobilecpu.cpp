@@ -40,8 +40,41 @@ void CMobileCPU::Spawn()
 	m_eWeapon = WEAPON_NONE;
 }
 
+void CMobileCPU::Think()
+{
+	BaseClass::Think();
+
+	if (m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime > 1)
+	{
+		Delete();
+
+		CNetwork::SetRunningClientFunctions(false);
+
+		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
+		pCPU->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin()));
+		pCPU->CalculateVisibility();
+		GetTeam()->AddEntity(pCPU);
+		pCPU->FindGround();
+
+		// 8 free power to get the player started.
+		GetDigitanksTeam()->AddPower(8);
+
+		GetDigitanksTeam()->CountBandwidth();
+		GetDigitanksTeam()->CountProducers();
+		GetDigitanksTeam()->CountFleetPoints();
+		GetDigitanksTeam()->CountScore();
+
+		DigitanksWindow()->GetHUD()->Layout();
+
+		GetDigitanksTeam()->SetPrimarySelection(pCPU);
+	}
+}
+
 void CMobileCPU::OnFortify()
 {
+	if (m_flFortifyTime > 0)
+		return;
+
 	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
 
@@ -50,27 +83,7 @@ void CMobileCPU::OnFortify()
 	if (!CNetwork::IsHost())
 		return;
 
-	CNetwork::SetRunningClientFunctions(false);
-
-	Delete();
-
-	CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-	pCPU->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin()));
-	pCPU->CalculateVisibility();
-	GetTeam()->AddEntity(pCPU);
-	pCPU->FindGround();
-
-	// 8 free power to get the player started.
-	GetDigitanksTeam()->AddPower(8);
-
-	GetDigitanksTeam()->CountBandwidth();
-	GetDigitanksTeam()->CountProducers();
-	GetDigitanksTeam()->CountFleetPoints();
-	GetDigitanksTeam()->CountScore();
-
-	DigitanksWindow()->GetHUD()->Layout();
-
-	GetDigitanksTeam()->SetPrimarySelection(pCPU);
+	m_flFortifyTime = GameServer()->GetGameTime();
 }
 
 float CMobileCPU::FindHoverHeight(Vector vecPosition) const
@@ -78,6 +91,34 @@ float CMobileCPU::FindHoverHeight(Vector vecPosition) const
 	float flHeight = BaseClass::FindHoverHeight(vecPosition);
 
 	return flHeight + 3;
+}
+
+Vector CMobileCPU::GetRenderOrigin() const
+{
+	// Override CDigitank so it doesn't snap down when we deploy
+	float flLerp = 0;
+	float flHoverHeight = 0;
+	
+	float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
+	flLerp = SLerp(flOscillate, 0.2f);
+	flHoverHeight = 1 + flLerp*BobHeight();
+
+	return GetOrigin() + Vector(0, flHoverHeight, 0);
+}
+
+void CMobileCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+{
+	BaseClass::ModifyContext(pContext, bTransparent);
+
+	if (m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime < 1)
+	{
+		pContext->SetBlend(BLEND_ALPHA);
+
+		float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
+		pContext->Translate(-Vector(0, RemapValClamped(flTimeSinceFortify, 0, 1, 0, 5), 0));
+		pContext->SetAlpha(GetVisibility() * RemapValClamped(flTimeSinceFortify, 0, 1, 1, 0));
+		pContext->Rotate(flTimeSinceFortify * 90, Vector(0, 1, 0));
+	}
 }
 
 void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
@@ -97,6 +138,9 @@ void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 		r.SetColorSwap(Color(255, 255, 255, 255));
 
 	float flVisibility = GetVisibility();
+	float flTimeSinceFortify = GameServer()->GetGameTime() - m_flFortifyTime;
+	if (m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime < 1)
+		flVisibility *= RemapValClamped(flTimeSinceFortify, 0, 1, 1, 0);
 
 	if (flVisibility < 1 && !bTransparent)
 		return;
@@ -106,7 +150,7 @@ void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	if (bTransparent)
 	{
-		r.SetAlpha(GetVisibility());
+		r.SetAlpha(flVisibility);
 		if (r.GetAlpha() < 1)
 			r.SetBlend(BLEND_ALPHA);
 	}
