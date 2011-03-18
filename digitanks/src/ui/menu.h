@@ -141,19 +141,25 @@ class CArtilleryGamePanel : public glgui::CPanel, public glgui::IEventListener
 
 public:
 									CArtilleryGamePanel(bool bMultiplayer = false);
+	virtual 						~CArtilleryGamePanel();
 
 public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
+	virtual void					Paint(int x, int y, int w, int h);
 
 	EVENT_CALLBACK(CArtilleryGamePanel,	BeginGame);
 	EVENT_CALLBACK(CArtilleryGamePanel,	UpdateLayout);
 	EVENT_CALLBACK(CArtilleryGamePanel,	LevelChosen);
 
 protected:
+	glgui::CTree*					m_pLevels;
 	size_t							m_iLevelSelected;
-	glgui::CMenu*					m_pLevels;
+
+	glgui::CLabel*					m_pLevelDescription;
+
+	size_t							m_iLevelPreview;
 
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;
@@ -179,19 +185,25 @@ class CStrategyGamePanel : public glgui::CPanel, public glgui::IEventListener
 
 public:
 									CStrategyGamePanel(bool bMultiplayer = false);
+									~CStrategyGamePanel();
 
 public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
+	virtual void					Paint(int x, int y, int w, int h);
 
 	EVENT_CALLBACK(CStrategyGamePanel,	BeginGame);
 	EVENT_CALLBACK(CStrategyGamePanel,	UpdateLayout);
 	EVENT_CALLBACK(CStrategyGamePanel,	LevelChosen);
 
 protected:
+	glgui::CTree*					m_pLevels;
 	size_t							m_iLevelSelected;
-	glgui::CMenu*					m_pLevels;
+
+	glgui::CLabel*					m_pLevelDescription;
+
+	size_t							m_iLevelPreview;
 
 	glgui::CScrollSelector<int>*	m_pDifficulty;
 	glgui::CLabel*					m_pDifficultyLabel;

@@ -6,6 +6,9 @@
 class CLevel
 {
 public:
+	virtual					~CLevel() {};
+
+public:
 	void					ReadFromData(const class CData* pData);
 	virtual void			OnReadData(const class CData* pData);
 

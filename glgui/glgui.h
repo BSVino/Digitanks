@@ -167,7 +167,9 @@ namespace glgui
 	public:
 						CBaseControl(int x, int y, int w, int h);
 						CBaseControl(const CRect& Rect);
+		virtual			~CBaseControl() {};
 
+	public:
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -361,7 +363,7 @@ namespace glgui
 	{
 	public:
 									CRootPanel( );
-									~CRootPanel( );
+		virtual						~CRootPanel( );
 		virtual void				Destructor( );
 		virtual void				Delete() { delete this; };
 

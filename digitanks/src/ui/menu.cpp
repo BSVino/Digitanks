@@ -656,21 +656,29 @@ void CConnectPanel::ConnectCallback()
 CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	: CPanel(0, 0, 570, 520)
 {
+	m_iLevelPreview = 0;
+
 	if (bMultiplayer)
 		DigitanksWindow()->SetServerType(SERVER_HOST);
 	else
 		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
-	m_pLevels = new CMenu(L"Choose Level");
-	m_pLevels->SetFont(L"header");
+	m_pLevels = new CTree(0, 0, 0);
+	m_pLevels->SetSelectedListener(this, LevelChosen);
 	AddControl(m_pLevels);
 
 	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY); i++)
 	{
 		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, i);
-		m_pLevels->AddSubmenu(convertstring<char, char16_t>(pLevel->GetName()), this, LevelChosen);
+		m_pLevels->AddNode(convertstring<char, char16_t>(pLevel->GetName()));
 	}
 	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY)-1);
+
+	m_pLevelDescription = new CLabel(0, 0, 32, 32, L"");
+	m_pLevelDescription->SetWrap(true);
+	m_pLevelDescription->SetFont(L"text");
+	m_pLevelDescription->SetAlign(CLabel::TA_TOPLEFT);
+	AddControl(m_pLevelDescription);
 
 	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
@@ -753,32 +761,40 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	AddControl(m_pBeginGame);
 }
 
+CArtilleryGamePanel::~CArtilleryGamePanel()
+{
+	if (m_iLevelPreview)
+		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+}
+
 void CArtilleryGamePanel::Layout()
 {
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
-	m_pLevels->SetSize(135, 40);
-	m_pLevels->SetPos(GetWidth()/2-135/2, 60);
-	m_pLevels->SetText(CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetName());
+	m_pLevels->SetSize(200, 150);
+	m_pLevels->SetPos(10, 10);
+
+	m_pLevelDescription->SetSize(GetWidth()-40, 80);
+	m_pLevelDescription->SetPos(20, 170);
 
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 120);
+	m_pDifficultyLabel->SetPos(75, 250);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 250);
 
 	m_pHumanPlayersLabel->EnsureTextFits();
-	m_pHumanPlayersLabel->SetPos(75, 160);
+	m_pHumanPlayersLabel->SetPos(75, 280);
 
 	m_pHumanPlayers->SetSize(GetWidth() - m_pHumanPlayersLabel->GetLeft()*2 - m_pHumanPlayersLabel->GetWidth(), iSelectorSize);
-	m_pHumanPlayers->SetPos(m_pHumanPlayersLabel->GetRight(), 160);
+	m_pHumanPlayers->SetPos(m_pHumanPlayersLabel->GetRight(), 280);
 
 	m_pBotPlayersLabel->EnsureTextFits();
-	m_pBotPlayersLabel->SetPos(75, 200);
+	m_pBotPlayersLabel->SetPos(75, 310);
 	m_pBotPlayersLabel->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
 
 	m_pBotPlayers->SetSize(GetWidth() - m_pBotPlayersLabel->GetLeft()*2 - m_pBotPlayersLabel->GetWidth(), iSelectorSize);
-	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 200);
+	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 310);
 	m_pBotPlayers->SetVisible(m_pHumanPlayers->GetSelectionValue() < 8);
 
 	m_pBotPlayers->RemoveAllSelections();
@@ -801,21 +817,38 @@ void CArtilleryGamePanel::Layout()
 	m_pBotPlayers->SetSelection(m_pBotPlayers->GetNumSelections()/2);
 
 	m_pTanksLabel->EnsureTextFits();
-	m_pTanksLabel->SetPos(75, 240);
+	m_pTanksLabel->SetPos(75, 340);
 
 	m_pTanks->SetSize(GetWidth() - m_pTanksLabel->GetLeft()*2 - m_pTanksLabel->GetWidth(), iSelectorSize);
-	m_pTanks->SetPos(m_pTanksLabel->GetRight(), 240);
+	m_pTanks->SetPos(m_pTanksLabel->GetRight(), 340);
 
 	m_pTerrainLabel->EnsureTextFits();
-	m_pTerrainLabel->SetPos(75, 280);
+	m_pTerrainLabel->SetPos(75, 370);
 
 	m_pTerrain->SetSize(GetWidth() - m_pTerrainLabel->GetLeft()*2 - m_pTerrainLabel->GetWidth(), iSelectorSize);
-	m_pTerrain->SetPos(m_pTerrainLabel->GetRight(), 280);
+	m_pTerrain->SetPos(m_pTerrainLabel->GetRight(), 370);
 
 	m_pBeginGame->SetSize(135, 40);
-	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
+	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-60);
 
 	BaseClass::Layout();
+}
+
+void CArtilleryGamePanel::Paint(int x, int y, int w, int h)
+{
+	if (true)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		int ax, ay;
+		GetAbsPos(ax, ay);
+
+		if (m_iLevelPreview)
+			CBaseControl::PaintTexture(m_iLevelPreview, ax + w - 160, ay + 10, 150, 150);
+	}
+
+	BaseClass::Paint(x, y, w, h);
 }
 
 void CArtilleryGamePanel::BeginGameCallback()
@@ -850,14 +883,55 @@ void CArtilleryGamePanel::UpdateLayoutCallback()
 
 void CArtilleryGamePanel::LevelChosenCallback()
 {
-	size_t iMode = m_pLevels->GetSelectedMenu();
+	size_t iMode = m_pLevels->GetSelectedNodeId();
 
 	if (iMode >= CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY))
 		return;
 
 	m_iLevelSelected = iMode;
 
-	m_pLevels->Pop(true, true);
+	if (m_iLevelPreview)
+		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected);
+
+	Color clrPreview[256*256];
+	Color* pclrHeight = CRenderer::GetTextureData(pLevel->GetTerrainHeightImage());
+	Color* pclrData = CRenderer::GetTextureData(pLevel->GetTerrainDataImage());
+	for (size_t i = 0; i < 256; i++)
+	{
+		for (size_t j = 0; j < 256; j++)
+		{
+			size_t c = i*256+j;
+
+			if (pclrHeight && pclrData)
+			{
+				Vector vecData = pclrData[c];
+				Vector vecHeight = pclrHeight[c];
+				if (vecData.x > 0.4f || vecData.y > 0.4f || vecData.z > 0.4f)
+					clrPreview[c] = vecData * (vecHeight/2 + Vector(0.5f, 0.5f, 0.5));
+				else
+					clrPreview[c] = (vecHeight/2 + Vector(0.5f, 0.5f, 0.5));
+				clrPreview[c].SetAlpha(pclrData[c].a() > 128?255:0);
+			}
+			else if (pclrHeight)
+				clrPreview[c] = (Vector(pclrHeight[c])/2 + Vector(0.5f, 0.5f, 0.5));
+			else if (pclrData)
+			{
+				clrPreview[c] = pclrData[c];
+				clrPreview[c].SetAlpha(pclrData[c].a() > 128?255:0);
+			}
+			else
+				clrPreview[c] = Color(0,0,0);
+		}
+	}
+
+	m_iLevelPreview = CRenderer::LoadTextureIntoGL(clrPreview, 1);
+
+	m_pLevelDescription->SetText(eastl::string16(L"Author: ") + convertstring<char, char16_t>(pLevel->GetAuthor()) + L"\n \nDescription: " + convertstring<char, char16_t>(pLevel->GetDescription()));
+
+	m_pTerrain->SetVisible(pLevel->GetTerrainHeight().length() == 0);
+	m_pTerrainLabel->SetVisible(pLevel->GetTerrainHeight().length() == 0);
 
 	Layout();
 }
@@ -865,21 +939,29 @@ void CArtilleryGamePanel::LevelChosenCallback()
 CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	: CPanel(0, 0, 570, 520)
 {
+	m_iLevelPreview = 0;
+
 	if (bMultiplayer)
 		DigitanksWindow()->SetServerType(SERVER_HOST);
 	else
 		DigitanksWindow()->SetServerType(SERVER_LOCAL);
 
-	m_pLevels = new CMenu(L"Choose Level");
-	m_pLevels->SetFont(L"header");
+	m_pLevels = new CTree(0, 0, 0);
+	m_pLevels->SetSelectedListener(this, LevelChosen);
 	AddControl(m_pLevels);
 
 	for (size_t i = 0; i < CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD); i++)
 	{
 		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, i);
-		m_pLevels->AddSubmenu(convertstring<char, char16_t>(pLevel->GetName()), this, LevelChosen);
+		m_pLevels->AddNode(convertstring<char, char16_t>(pLevel->GetName()));
 	}
 	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD)-1);
+
+	m_pLevelDescription = new CLabel(0, 0, 32, 32, L"");
+	m_pLevelDescription->SetWrap(true);
+	m_pLevelDescription->SetFont(L"text");
+	m_pLevelDescription->SetAlign(CLabel::TA_TOPLEFT);
+	AddControl(m_pLevelDescription);
 
 	m_pDifficulty = new CScrollSelector<int>(L"text");
 	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
@@ -912,26 +994,34 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	AddControl(m_pBeginGame);
 }
 
+CStrategyGamePanel::~CStrategyGamePanel()
+{
+	if (m_iLevelPreview)
+		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+}
+
 void CStrategyGamePanel::Layout()
 {
 	int iSelectorSize = m_pDifficultyLabel->GetHeight() - 4;
 
-	m_pLevels->SetSize(135, 40);
-	m_pLevels->SetPos(GetWidth()/2-135/2, 60);
-	m_pLevels->SetText(CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetName());
+	m_pLevels->SetSize(200, 150);
+	m_pLevels->SetPos(10, 10);
+
+	m_pLevelDescription->SetSize(GetWidth()-40, 80);
+	m_pLevelDescription->SetPos(20, 170);
 
 	m_pDifficultyLabel->EnsureTextFits();
-	m_pDifficultyLabel->SetPos(75, 120);
+	m_pDifficultyLabel->SetPos(75, 250);
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
-	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 120);
+	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 250);
 
 	m_pBotPlayersLabel->EnsureTextFits();
-	m_pBotPlayersLabel->SetPos(75, 240);
+	m_pBotPlayersLabel->SetPos(75, 280);
 	m_pBotPlayersLabel->SetVisible(true);
 
 	m_pBotPlayers->SetSize(GetWidth() - m_pBotPlayersLabel->GetLeft()*2 - m_pBotPlayersLabel->GetWidth(), iSelectorSize);
-	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 240);
+	m_pBotPlayers->SetPos(m_pBotPlayersLabel->GetRight(), 280);
 	m_pBotPlayers->SetVisible(true);
 
 	m_pBotPlayers->RemoveAllSelections();
@@ -941,9 +1031,26 @@ void CStrategyGamePanel::Layout()
 	m_pBotPlayers->SetSelection(m_pBotPlayers->GetNumSelections()-1);
 
 	m_pBeginGame->SetSize(135, 40);
-	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-160);
+	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-60);
 
 	BaseClass::Layout();
+}
+
+void CStrategyGamePanel::Paint(int x, int y, int w, int h)
+{
+	if (true)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		int ax, ay;
+		GetAbsPos(ax, ay);
+
+		if (m_iLevelPreview)
+			CBaseControl::PaintTexture(m_iLevelPreview, ax + w - 160, ay + 10, 150, 150);
+	}
+
+	BaseClass::Paint(x, y, w, h);
 }
 
 void CStrategyGamePanel::BeginGameCallback()
@@ -974,14 +1081,52 @@ void CStrategyGamePanel::UpdateLayoutCallback()
 
 void CStrategyGamePanel::LevelChosenCallback()
 {
-	size_t iMode = m_pLevels->GetSelectedMenu();
+	size_t iMode = m_pLevels->GetSelectedNodeId();
 
 	if (iMode >= CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD))
 		return;
 
 	m_iLevelSelected = iMode;
 
-	m_pLevels->Pop(true, true);
+	if (m_iLevelPreview)
+		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
+
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected);
+
+	Color clrPreview[256*256];
+	Color* pclrHeight = CRenderer::GetTextureData(pLevel->GetTerrainHeightImage());
+	Color* pclrData = CRenderer::GetTextureData(pLevel->GetTerrainDataImage());
+	for (size_t i = 0; i < 256; i++)
+	{
+		for (size_t j = 0; j < 256; j++)
+		{
+			size_t c = i*256+j;
+
+			if (pclrHeight && pclrData)
+			{
+				Vector vecData = pclrData[c];
+				Vector vecHeight = pclrHeight[c];
+				if (vecData.x > 0.5f || vecData.y > 0.5f || vecData.z > 0.5f)
+					clrPreview[c] = vecData * (vecHeight/2 + Vector(0.5f, 0.5f, 0.5));
+				else
+					clrPreview[c] = (vecHeight/2 + Vector(0.5f, 0.5f, 0.5));
+				clrPreview[c].SetAlpha(pclrData[c].a() > 128?255:0);
+			}
+			else if (pclrHeight)
+				clrPreview[c] = (Vector(pclrHeight[c])/2 + Vector(0.5f, 0.5f, 0.5));
+			else if (pclrData)
+			{
+				clrPreview[c] = pclrData[c];
+				clrPreview[c].SetAlpha(pclrData[c].a() > 128?255:0);
+			}
+			else
+				clrPreview[c] = Color(0,0,0);
+		}
+	}
+
+	m_iLevelPreview = CRenderer::LoadTextureIntoGL(clrPreview, 1);
+
+	m_pLevelDescription->SetText(eastl::string16(L"Author: ") + convertstring<char, char16_t>(pLevel->GetAuthor()) + L"\n \nDescription: " + convertstring<char, char16_t>(pLevel->GetDescription()));
 
 	Layout();
 }

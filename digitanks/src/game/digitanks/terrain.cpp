@@ -250,32 +250,8 @@ void CTerrain::GenerateTerrain(float flHeight)
 	pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 	if (pLevel)
 	{
-		iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainHeight()));
-		iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pLevel->GetTerrainData()));
-
-		if (CRenderer::GetTextureHeight(iTerrainHeight) != 256)
-		{
-			CRenderer::UnloadTextureData(iTerrainHeight);
-			iTerrainHeight = 0;
-		}
-
-		if (CRenderer::GetTextureWidth(iTerrainHeight) != 256)
-		{
-			CRenderer::UnloadTextureData(iTerrainHeight);
-			iTerrainHeight = 0;
-		}
-
-		if (CRenderer::GetTextureHeight(iTerrainData) != 256)
-		{
-			CRenderer::UnloadTextureData(iTerrainData);
-			iTerrainData = 0;
-		}
-
-		if (CRenderer::GetTextureWidth(iTerrainData) != 256)
-		{
-			CRenderer::UnloadTextureData(iTerrainData);
-			iTerrainData = 0;
-		}
+		iTerrainHeight = pLevel->GetTerrainHeightImage();
+		iTerrainData = pLevel->GetTerrainDataImage();
 
 		if (iTerrainHeight)
 			pclrTerrainHeight = CRenderer::GetTextureData(iTerrainHeight);
@@ -413,12 +389,6 @@ void CTerrain::GenerateTerrain(float flHeight)
 			m_bHeightsInitialized = true;
 		}
 	}
-
-	if (iTerrainData)
-		CRenderer::UnloadTextureData(iTerrainData);
-
-	if (iTerrainHeight)
-		CRenderer::UnloadTextureData(iTerrainHeight);
 
 	if (!pclrTerrainData)
 	{
