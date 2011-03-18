@@ -43,7 +43,7 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkX);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkY);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, runner_t, m_aRunners);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, runner_t, m_aRunners);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextRunner);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CQuadBranch*, m_pQuadTreeHead);	// Temp data
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CQuadBranch*, m_pPathEnd);		// Temp data
@@ -2379,6 +2379,7 @@ void CTerrain::OnSerialize(std::ostream& o)
 		{
 			CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 			o.write((char*)&pChunk->m_aflHeights[0][0], sizeof(pChunk->m_aflHeights));
+			o.write((char*)&pChunk->m_aiSpecialData[0][0], sizeof(pChunk->m_aiSpecialData));
 		}
 	}
 
@@ -2393,6 +2394,7 @@ bool CTerrain::OnUnserialize(std::istream& i)
 		{
 			CTerrainChunk* pChunk = &m_aTerrainChunks[x][y];
 			i.read((char*)&pChunk->m_aflHeights[0][0], sizeof(pChunk->m_aflHeights));
+			i.read((char*)&pChunk->m_aiSpecialData[0][0], sizeof(pChunk->m_aiSpecialData));
 			pChunk->m_bNeedsRegenerate = true;
 		}
 	}

@@ -82,6 +82,7 @@ public:
 	void					SetupMenuMarch();
 
 	void					StartGame();
+	virtual void			EnterGame();
 	NET_CALLBACK(CDigitanksGame, EnterGame);
 
 	void					StartNewRound();

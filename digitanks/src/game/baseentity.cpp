@@ -493,7 +493,14 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 	size_t iEntity = CBaseEntity::FindRegisteredEntity(pszClassName);
 	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(iEntity);
 
-	size_t iSaveDataSize = pRegistration->m_aSaveData.size();
+	size_t iSaveDataSize = 0;
+	for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
+	{
+		CSaveData* pSaveData = &pRegistration->m_aSaveData[i];
+		if (pSaveData->m_eType != CSaveData::DATA_OMIT)
+			iSaveDataSize++;
+	}
+
 	o.write((char*)&iSaveDataSize, sizeof(iSaveDataSize));
 
 	for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)

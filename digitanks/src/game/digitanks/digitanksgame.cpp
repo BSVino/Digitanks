@@ -801,6 +801,14 @@ void CDigitanksGame::StartGame()
 	EnterGame(NULL);
 }
 
+void CDigitanksGame::EnterGame()
+{
+	BaseClass::EnterGame();
+
+	CNetwork::CallFunction(NETWORK_TOCLIENTS, "EnterGame");
+	EnterGame(NULL);
+}
+
 void CDigitanksGame::EnterGame(CNetworkParameters* p)
 {
 	if (!CNetwork::ShouldRunClientFunction())

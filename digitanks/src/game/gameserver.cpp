@@ -610,6 +610,8 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 
 	GameServer()->SetLoading(false);
 
+	Game()->EnterGame();
+
 	return true;
 }
 

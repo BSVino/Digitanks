@@ -78,6 +78,10 @@ void CGame::OnClientDisconnect(CNetworkParameters* p)
 	assert(!"Couldn't find the guy who just quit!");
 }
 
+void CGame::EnterGame()
+{
+}
+
 void CGame::SetAngles(CNetworkParameters* p)
 {
 	CEntityHandle<CBaseEntity> hEntity(p->ui1);
