@@ -355,9 +355,10 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 void CSceneTreeUnit::Selected()
 {
-	if (m_hEntity != NULL)
+	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	if (m_hEntity != NULL && pCurrentLocalTeam)
 	{
-		CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 		if (DigitanksWindow()->IsShiftDown())
 			pCurrentLocalTeam->AddToSelection(m_hEntity);

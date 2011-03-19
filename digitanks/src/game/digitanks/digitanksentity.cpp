@@ -305,14 +305,14 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 	if (HasLostConcealment())
 		flConceal = 0;
 
-	if (!pTeam)
-		return 0;
-
-	if (pTeam == GetDigitanksTeam())
+	if (pTeam && pTeam == GetDigitanksTeam())
 		return 1 - flConceal/2;
 
 	if (!pGame->ShouldRenderFogOfWar())
 		return 1 - flConceal;
+
+	if (!pTeam)
+		return 0;
 
 	float flVisibility = pTeam->GetEntityVisibility(GetHandle()) - flConceal;
 
