@@ -88,32 +88,6 @@ void CMechInfantry::PostRender(bool bTransparent)
 	}
 }
 
-float CMechInfantry::GetBonusAttackPower(bool bPreview)
-{
-	return BaseClass::GetBonusAttackPower(bPreview) + GetFortifyAttackPowerBonus()*GetBonusAttackScale(bPreview);
-}
-
-float CMechInfantry::GetBonusDefensePower(bool bPreview)
-{
-	return BaseClass::GetBonusDefensePower(bPreview) + GetFortifyDefensePowerBonus()*GetBonusDefenseScale(bPreview);
-}
-
-float CMechInfantry::GetFortifyAttackPowerBonus()
-{
-	if (m_bFortified)
-		return (float)m_iFortifyLevel*10;
-	else
-		return 0;
-}
-
-float CMechInfantry::GetFortifyDefensePowerBonus()
-{
-	if (m_bFortified)
-		return (float)m_iFortifyLevel*10;
-	else
-		return 0;
-}
-
 float CMechInfantry::BaseShieldRechargeRate() const
 {
 	float flRate = 10.0f;

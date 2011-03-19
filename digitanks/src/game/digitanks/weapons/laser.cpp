@@ -70,7 +70,7 @@ void CLaser::OnSetOwner(CDigitank* pOwner)
 		if (pEntity->Distance(GetOrigin()) > LaserLength())
 			continue;
 
-		pEntity->TakeDamage(pOwner, this, DAMAGE_LASER, m_flDamage, flDistance < pEntity->GetBoundingRadius()-2);
+		pEntity->TakeDamage(pOwner, this, DAMAGE_LASER, m_flDamage + pOwner->GetBonusAttackDamage(), flDistance < pEntity->GetBoundingRadius()-2);
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
 		if (pTank)

@@ -367,7 +367,7 @@ float CDigitank::GetBaseDefensePower(bool bPreview)
 
 float CDigitank::GetAttackPower(bool bPreview)
 {
-	return GetBaseAttackPower(bPreview)+GetBonusAttackPower(bPreview);
+	return GetBaseAttackPower(bPreview) + m_flBonusAttackPower;
 }
 
 float CDigitank::GetDefensePower(bool bPreview)
@@ -392,7 +392,7 @@ float CDigitank::GetDefensePower(bool bPreview)
 
 float CDigitank::GetTotalAttackPower()
 {
-	return m_flStartingPower + GetBonusAttackPower();
+	return m_flStartingPower + m_flBonusAttackPower;
 }
 
 float CDigitank::GetTotalDefensePower()
@@ -456,24 +456,14 @@ float CDigitank::GetRemainingTurningDistance() const
 	return GetRemainingMovementEnergy() * TurnPerPower();
 }
 
-float CDigitank::GetBonusAttackScale(bool bPreview)
+float CDigitank::GetBonusAttackDamage()
 {
-	return m_flAttackPower/m_flStartingPower;
-}
-
-float CDigitank::GetBonusDefenseScale(bool bPreview)
-{
-	return m_flDefensePower/m_flStartingPower;
-}
-
-float CDigitank::GetBonusAttackPower(bool bPreview)
-{
-	return (m_flBonusAttackPower + GetSupportAttackPowerBonus())*GetBonusAttackScale(bPreview);
+	return (m_flBonusAttackPower + GetSupportAttackPowerBonus() + GetFortifyAttackPowerBonus()) * 10;
 }
 
 float CDigitank::GetBonusDefensePower(bool bPreview)
 {
-	return (m_flBonusDefensePower + GetSupportDefensePowerBonus())*GetBonusDefenseScale(bPreview);
+	return (m_flBonusDefensePower + GetSupportDefensePowerBonus() + GetFortifyDefensePowerBonus());
 }
 
 float CDigitank::GetSupportAttackPowerBonus()
@@ -1353,6 +1343,22 @@ bool CDigitank::CanAim() const
 	return AllowControlMode(MODE_AIM);
 }
 
+float CDigitank::GetFortifyAttackPowerBonus()
+{
+	if (m_bFortified)
+		return (float)m_iFortifyLevel;
+	else
+		return 0;
+}
+
+float CDigitank::GetFortifyDefensePowerBonus()
+{
+	if (m_bFortified)
+		return (float)m_iFortifyLevel;
+	else
+		return 0;
+}
+
 void CDigitank::Sentry()
 {
 	if (!CanSentry())
@@ -1701,7 +1707,7 @@ void CDigitank::Think()
 
 		if (CNetwork::IsHost() && m_hChargeTarget != NULL)
 		{
-			m_hChargeTarget->TakeDamage(this, this, DAMAGE_COLLISION, ChargeDamage(), true);
+			m_hChargeTarget->TakeDamage(this, this, DAMAGE_COLLISION, ChargeDamage() + GetBonusAttackDamage(), true);
 
 			Vector vecPushDirection = (m_hChargeTarget->GetOrigin() - GetOrigin()).Normalized();
 
@@ -3222,34 +3228,34 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 			s += L"1 upgrade\n \n";
 	}
 
-	if (GetBonusAttackPower())
+	if (m_flBonusAttackPower > 0)
 	{
-		s += p.sprintf(L"+%d attack energy\n", (int)GetBonusAttackPower());
+		s += p.sprintf(L"+%d bonus attack", (int)m_flBonusAttackPower.Get());
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s += p.sprintf(L" (+%d from fortify)\n", (int)GetFortifyAttackPowerBonus());
+			s += p.sprintf(L" (+%d from fortify)", (int)GetFortifyAttackPowerBonus());
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s += p.sprintf(L" (+%d from support)\n", (int)GetSupportAttackPowerBonus());
+			s += p.sprintf(L" (+%d from support)", (int)GetSupportAttackPowerBonus());
 
 		s += L" \n";
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s += p.sprintf(L"+%d shield energy\n \n", (int)GetBonusDefensePower());
+		s += p.sprintf(L"+%d bonus shield", (int)GetBonusDefensePower());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s += p.sprintf(L" (+%d from fortify)\n \n", (int)GetFortifyDefensePowerBonus());
+			s += p.sprintf(L" (+%d from fortify)", (int)GetFortifyDefensePowerBonus());
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s += p.sprintf(L" (+%d from support)\n \n", (int)GetSupportDefensePowerBonus());
+			s += p.sprintf(L" (+%d from support)", (int)GetSupportDefensePowerBonus());
 
 		s += L" \n";
 	}
 
 	if (GetBonusMovementEnergy() > 0)
-		s += p.sprintf(L"+%d movement energy\n \n", (int)GetBonusMovementEnergy());
+		s += p.sprintf(L"+%d movement energy\n", (int)GetBonusMovementEnergy());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)

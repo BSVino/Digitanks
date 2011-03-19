@@ -78,12 +78,9 @@ public:
 	float						GetRemainingMovementDistance() const;
 	float						GetRemainingTurningDistance() const;
 
-	float						GetAttackScale(bool bPreview = false) { return GetAttackPower(bPreview) / 10; };
 	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
 
-	virtual float				GetBonusAttackScale(bool bPreview = false);
-	virtual float				GetBonusDefenseScale(bool bPreview = false);
-	virtual float				GetBonusAttackPower(bool bPreview = false);
+	virtual float				GetBonusAttackDamage();
 	virtual float				GetBonusDefensePower(bool bPreview = false);
 
 	virtual void				AddRangeBonus(float flAmount) { m_flRangeBonus += flAmount; };
@@ -182,8 +179,8 @@ public:
 	virtual bool				CanTurnFortified() { return false; };
 	virtual bool				CanAimMobilized() const { return true; };
 	virtual bool				CanAim() const;
-	virtual float				GetFortifyAttackPowerBonus() { return 0; };
-	virtual float				GetFortifyDefensePowerBonus() { return 0; };
+	virtual float				GetFortifyAttackPowerBonus();
+	virtual float				GetFortifyDefensePowerBonus();
 	virtual bool				CanGetPowerups() const { return true; };
 	virtual size_t				GetFortifyLevel() { return m_iFortifyLevel; }
 

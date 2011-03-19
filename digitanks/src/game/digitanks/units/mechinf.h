@@ -20,11 +20,6 @@ public:
 	virtual bool				CanFortify() { return true; };
 	virtual bool				IsInfantry() const { return true; };
 
-	virtual float				GetBonusAttackPower(bool bPreview = false);
-	virtual float				GetBonusDefensePower(bool bPreview = false);
-	virtual float				GetFortifyAttackPowerBonus();
-	virtual float				GetFortifyDefensePowerBonus();
-
 	virtual float				BaseShieldRechargeRate() const;
 	virtual float				BaseHealthRechargeRate() const;
 	virtual float				GetTankSpeed() const { return 2.0f; }
@@ -38,7 +33,7 @@ public:
 	virtual float				SlowMovementFactor() const { return 0.7f; };
 	virtual float				BaseChargeRadius() const { return 50.0f; }
 	virtual float				ChargeEnergy() const { return 9.0f; }
-	virtual float				ChargeDamage() const { return 70.0f; }
+	virtual float				ChargeDamage() const { return 30.0f; }
 	virtual float				ChargePushDistance() const { return 20.0f; }
 
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
