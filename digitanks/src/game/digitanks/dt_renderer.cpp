@@ -673,7 +673,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 
 void CDigitanksRenderer::RenderFogOfWar()
 {
-	if (!DigitanksGame()->ShouldRenderFogOfWar())
+	if (!DigitanksGame()->ShouldRenderFogOfWar() || !ShouldUseFramebuffers() || !ShouldUseShaders())
 		return;
 
 	TPROF("CDigitanksRenderer::RenderFogOfWar");
@@ -700,8 +700,7 @@ void CDigitanksRenderer::RenderFogOfWar()
 		CRenderingContext c(this);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
-		if (ShouldUseFramebuffers())
-			c.UseFrameBuffer(&m_oVisibility1Buffer);
+		c.UseFrameBuffer(&m_oVisibility1Buffer);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		c.SetDepthMask(false);
@@ -724,12 +723,10 @@ void CDigitanksRenderer::RenderFogOfWar()
 		glCullFace(GL_NONE);
 		c.SetDepthMask(false);
 
-		if (ShouldUseShaders())
-			ClearProgram();
+		ClearProgram();
 
 		// Copy the results to the second buffer
-		if (ShouldUseFramebuffers())
-			RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oVisibility2Buffer);
+		RenderMapToBuffer(m_oVisibility1Buffer.m_iMap, &m_oVisibility2Buffer);
 
 		c.SetBlend(BLEND_NONE);
 		glEnable(GL_DEPTH_TEST);
