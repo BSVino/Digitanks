@@ -2013,7 +2013,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_SELECTION)
 		GetDigitanksCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
-	else if (iTutorial == CInstructor::TUTORIAL_MOVE)
+	else if (iTutorial == CInstructor::TUTORIAL_MOVE_MODE)
 	{
 		// Make an enemy for us to clobber. Close enough that moving out of the way won't move us out of range
 		CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
@@ -2083,6 +2083,8 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 
 		GetDigitanksTeam(0)->CalculateVisibility();
+
+		DigitanksGame()->GetTerrain()->CalculateVisibility();
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_ARTILLERY)
 	{
@@ -2098,6 +2100,8 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SetTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
+
+		DigitanksGame()->GetTerrain()->CalculateVisibility();
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_FIRE_ARTILLERY)
 	{
@@ -2143,6 +2147,8 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SetTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
+
+		DigitanksGame()->GetTerrain()->CalculateVisibility();
 	}
 	else if (iTutorial == CInstructor::TUTORIAL_TORPEDO)
 	{

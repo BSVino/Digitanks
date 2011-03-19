@@ -619,7 +619,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 
-	if (ePreviewStructure == STRUCTURE_BUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)
+	if (ePreviewStructure == STRUCTURE_MINIBUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)
 	{
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BUFFER);
 		DigitanksWindow()->GetInstructor()->NextTutorial();

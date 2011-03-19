@@ -353,10 +353,14 @@ void CTutorialsPanel::BasicsCallback()
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
 
+	// Once to set the current lesson so the code below can access it
+	pInstructor->DisplayFirstBasicsTutorial();
+
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
 	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
 	DigitanksGame()->SetDifficulty(0);
 
+	// And again to spawn the tanks now that the game is active
 	pInstructor->DisplayFirstBasicsTutorial();
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
@@ -369,10 +373,14 @@ void CTutorialsPanel::BasesCallback()
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
 
+	// Once to set the current lesson so the code below can access it
+	pInstructor->DisplayFirstBasesTutorial();
+
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
 	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
 	DigitanksGame()->SetDifficulty(0);
 
+	// And again to spawn the tanks now that the game is active
 	pInstructor->DisplayFirstBasesTutorial();
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
@@ -385,10 +393,14 @@ void CTutorialsPanel::UnitsCallback()
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
 
+	// Once to set the current lesson so the code below can access it
+	pInstructor->DisplayFirstUnitsTutorial();
+
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
 	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
 	DigitanksGame()->SetDifficulty(0);
 
+	// And again to spawn the tanks now that the game is active
 	pInstructor->DisplayFirstUnitsTutorial();
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
