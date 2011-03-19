@@ -212,6 +212,8 @@ void CRenderingContext::RenderModel(size_t iModel, CModel* pCompilingModel)
 					glUniform3fv(vecColorSwap, 1, vecColor);
 				}
 
+				glColor4f(1, 1, 1, 1);
+
 				glCallList((GLuint)pModel->m_iCallList);
 
 				glUseProgram(0);
@@ -220,6 +222,8 @@ void CRenderingContext::RenderModel(size_t iModel, CModel* pCompilingModel)
 			{
 				if (m_bColorSwap)
 					glColor4f(((float)m_clrSwap.r())/255, ((float)m_clrSwap.g())/255, ((float)m_clrSwap.b())/255, m_flAlpha);
+				else
+					glColor4f(1, 1, 1, m_flAlpha);
 
 				glCallList((GLuint)pModel->m_iCallList);
 			}
@@ -1284,11 +1288,15 @@ void CRenderer::RenderBatches()
 					Vector vecColor((float)pBatch->clrSwap.r()/255, (float)pBatch->clrSwap.g()/255, (float)pBatch->clrSwap.b()/255);
 					glUniform3fv(vecColorSwap, 1, vecColor);
 				}
+
+				glColor4f(1, 1, 1, 1);
 			}
 			else
 			{
 				if (pBatch->bSwap)
-					glColor4f(((float)pBatch->clrSwap.r())/255, ((float)pBatch->clrSwap.g())/255, ((float)pBatch->clrSwap.b())/255, 255);
+					glColor4f(((float)pBatch->clrSwap.r())/255, ((float)pBatch->clrSwap.g())/255, ((float)pBatch->clrSwap.b())/255, 1);
+				else
+					glColor4f(1, 1, 1, 1);
 			}
 
 			glLoadMatrixf(pBatch->mTransformation);

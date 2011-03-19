@@ -123,6 +123,7 @@ bool CShaderLibrary::CompileShader(size_t iShader)
 	int iProgramLinked;
 	glGetProgramiv((GLuint)pShader->m_iProgram, GL_LINK_STATUS, &iProgramLinked);
 
+	assert(iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE);
 	if (iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE)
 		return true;
 	else
@@ -149,10 +150,6 @@ void CShaderLibrary::WriteLog(const char* pszLog, const char* pszShaderText)
 {
 	if (!pszLog || strlen(pszLog) == 0)
 		return;
-
-#ifdef _DEBUG
-	assert(!strlen(pszLog));
-#endif
 
 	eastl::string16 sFile = GetAppDataDirectory(L"Digitanks", L"shaders.txt");
 

@@ -1051,7 +1051,9 @@ void CDigitanksRenderer::RenderTendrilBatches()
 {
 	TPROF("CDigitanksRenderer::RenderTendrilBatches");
 
-	GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
+	GLuint iScrollingTextureProgram;
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+		iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
 
 	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
