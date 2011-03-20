@@ -683,8 +683,10 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	{
 		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, i);
 		m_pLevels->AddNode(convertstring<char, char16_t>(pLevel->GetName()));
+		m_pLevels->GetNode(i)->SetCursorInListener(this, LevelPreview);
+		m_pLevels->GetNode(i)->SetCursorOutListener(this, LevelRevertPreview);
 	}
-	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY)-1);
+	m_iLevelSelected = ~0;
 
 	m_pLevelDescription = new CLabel(0, 0, 32, 32, L"");
 	m_pLevelDescription->SetWrap(true);
@@ -902,10 +904,52 @@ void CArtilleryGamePanel::LevelChosenCallback()
 
 	m_iLevelSelected = iMode;
 
+	PreviewLevel(iMode);
+}
+
+void CArtilleryGamePanel::LevelPreviewCallback()
+{
+	size_t iMode = ~0;
+
+	for (size_t i = 0; i < m_pLevels->GetControls().size(); i++)
+	{
+		int cx, cy, cw, ch, mx, my;
+		m_pLevels->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::GetFullscreenMousePos(mx, my);
+		if (mx >= cx &&
+			my >= cy &&
+			mx < cx + cw &&
+			my < cy + ch)
+		{
+			iMode = i;
+			break;
+		}
+	}
+
+	if (iMode >= CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY))
+		return;
+
+	PreviewLevel(iMode);
+}
+
+void CArtilleryGamePanel::LevelRevertPreviewCallback()
+{
+	PreviewLevel(m_iLevelSelected);
+}
+
+void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
+{
 	if (m_iLevelPreview)
 		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
 
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected);
+	if (iLevel == ~0)
+	{
+		m_iLevelPreview = 0;
+		m_pLevelDescription->SetText("");
+		return;
+	}
+
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, iLevel);
 
 	Color clrPreview[256*256];
 	Color* pclrHeight = CRenderer::GetTextureData(pLevel->GetTerrainHeightImage());
@@ -966,6 +1010,8 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	{
 		CLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, i);
 		m_pLevels->AddNode(convertstring<char, char16_t>(pLevel->GetName()));
+		m_pLevels->GetNode(i)->SetCursorInListener(this, LevelPreview);
+		m_pLevels->GetNode(i)->SetCursorOutListener(this, LevelRevertPreview);
 	}
 	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD)-1);
 
@@ -1100,10 +1146,52 @@ void CStrategyGamePanel::LevelChosenCallback()
 
 	m_iLevelSelected = iMode;
 
+	PreviewLevel(iMode);
+}
+
+void CStrategyGamePanel::LevelPreviewCallback()
+{
+	size_t iMode = ~0;
+
+	for (size_t i = 0; i < m_pLevels->GetControls().size(); i++)
+	{
+		int cx, cy, cw, ch, mx, my;
+		m_pLevels->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::GetFullscreenMousePos(mx, my);
+		if (mx >= cx &&
+			my >= cy &&
+			mx < cx + cw &&
+			my < cy + ch)
+		{
+			iMode = i;
+			break;
+		}
+	}
+
+	if (iMode >= CDigitanksGame::GetNumLevels(GAMETYPE_STANDARD))
+		return;
+
+	PreviewLevel(iMode);
+}
+
+void CStrategyGamePanel::LevelRevertPreviewCallback()
+{
+	PreviewLevel(m_iLevelSelected);
+}
+
+void CStrategyGamePanel::PreviewLevel(size_t iLevel)
+{
 	if (m_iLevelPreview)
 		CRenderer::UnloadTextureFromGL(m_iLevelPreview);
 
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected);
+	if (iLevel == ~0)
+	{
+		m_iLevelPreview = 0;
+		m_pLevelDescription->SetText("");
+		return;
+	}
+
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(GAMETYPE_STANDARD, iLevel);
 
 	Color clrPreview[256*256];
 	Color* pclrHeight = CRenderer::GetTextureData(pLevel->GetTerrainHeightImage());

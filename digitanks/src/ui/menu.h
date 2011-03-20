@@ -152,6 +152,10 @@ public:
 	EVENT_CALLBACK(CArtilleryGamePanel,	BeginGame);
 	EVENT_CALLBACK(CArtilleryGamePanel,	UpdateLayout);
 	EVENT_CALLBACK(CArtilleryGamePanel,	LevelChosen);
+	EVENT_CALLBACK(CArtilleryGamePanel,	LevelPreview);
+	EVENT_CALLBACK(CArtilleryGamePanel,	LevelRevertPreview);
+
+	void							PreviewLevel(size_t iLevel);
 
 protected:
 	glgui::CTree*					m_pLevels;
@@ -196,6 +200,10 @@ public:
 	EVENT_CALLBACK(CStrategyGamePanel,	BeginGame);
 	EVENT_CALLBACK(CStrategyGamePanel,	UpdateLayout);
 	EVENT_CALLBACK(CStrategyGamePanel,	LevelChosen);
+	EVENT_CALLBACK(CStrategyGamePanel,	LevelPreview);
+	EVENT_CALLBACK(CStrategyGamePanel,	LevelRevertPreview);
+
+	void							PreviewLevel(size_t iLevel);
 
 protected:
 	glgui::CTree*					m_pLevels;
