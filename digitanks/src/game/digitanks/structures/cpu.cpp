@@ -215,7 +215,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 			eastl::string16 s;
 			s += L"BUILD BUFFER\n \n";
-			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can later be upgraded to Macro-Buffers.\n \n";
+			s += L"Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be upgraded to Macro-Buffers after downloading them from the Downloads Grid.\n \n";
 			s += p.sprintf(L"Power to construct: %d Power\n \n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))

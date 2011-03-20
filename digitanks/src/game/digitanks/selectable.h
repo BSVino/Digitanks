@@ -29,6 +29,7 @@ public:
 	virtual float				GetPowerBar3Size() { return 0; }
 
 	virtual void				DrawSchema(int x, int y, int w, int h) {};
+	virtual void				DrawQueue(int x, int y, int w, int h) {};
 
 	virtual bool				NeedsOrders() { return false; }
 	virtual bool				ShowHealthBar() { return true; }

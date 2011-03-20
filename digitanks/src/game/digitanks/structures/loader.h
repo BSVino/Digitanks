@@ -23,6 +23,8 @@ public:
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 
+	virtual void				DrawQueue(int x, int y, int w, int h);
+
 	void						BeginProduction();
 	void						BeginProduction(class CNetworkParameters* p);
 	void						CompleteProduction();

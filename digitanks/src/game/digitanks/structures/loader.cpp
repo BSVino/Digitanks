@@ -452,6 +452,33 @@ void CLoader::UpdateInfo(eastl::string16& s)
 		s += p.sprintf(L"Efficiency: %d%\n", (int)(GetSupplier()->GetChildEfficiency()*m_hSupplyLine->GetIntegrity()*100));
 }
 
+void CLoader::DrawQueue(int x, int y, int w, int h)
+{
+	glgui::CBaseControl::PaintRect(x, y, w, h, Color(0, 0, 0));
+
+	if (!GetTeam())
+		return;
+
+	if (!IsProducing())
+		return;
+
+	int iSize = h*2/3;
+
+	CHUD::PaintUnitSheet(GetBuildUnit(), x + w/2 - iSize/2, y + h/2 - iSize/2, iSize, iSize, GetTeam()->GetColor());
+
+	int iTotalTurns = GetTurnsToProduce();
+	int iTurnsProgressed = iTotalTurns-GetTurnsRemainingToProduce();
+	iTurnsProgressed++;
+	iTotalTurns++;
+
+	glgui::CRootPanel::PaintRect(x + w/2 - iSize/2, y + h/2 + iSize/2, (int)(iSize*iTurnsProgressed/iTotalTurns), 3, Color(255, 255, 0));
+
+	CRenderingContext c(GameServer()->GetRenderer());
+	c.SetColor(Color(255,255,255));
+	eastl::string16 sTurns = sprintf(L":%d", GetTurnsRemainingToProduce());
+	glgui::CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, (float)(x + w/2 + iSize/2), (float)(y + h/2 - iSize/2 - 2));
+}
+
 eastl::string16 CLoader::GetName()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)

@@ -1342,6 +1342,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 				vecLastOrigin = vecCurrentOrigin;
 			}
 
+			if (DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon() == WEAPON_LASER || DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon() == WEAPON_INFANTRYLASER)
+				bObstruction = false;
+
 			if (bObstruction)
 				CRootPanel::PaintSheet(m_iHUDSheet, iX, iY, 124, 68, 351, 310, 124, 68, 1024, 1024, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
 		}
@@ -1379,6 +1382,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		PaintUnitSheet(pSelection->GetUnitType(), iWidth/2 - 720/2 + 10 + 150/2 - iSize/2, iHeight - 150 + 10 + 130/2 - iSize/2, iSize, iSize, clrTeam);
 
 		pSelection->DrawSchema(iWidth/2 - 720/2 + 10 + 150/2 - 100/2, iHeight - 150 + 10 + 130/2 - 100/2, 100, 100);
+		pSelection->DrawQueue(iWidth/2 - 720/2 + 162, iHeight - 90, 216, 84);
 	}
 
 	CDigitank* pTank = DigitanksGame()->GetPrimarySelectionTank();

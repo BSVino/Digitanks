@@ -614,7 +614,7 @@ void CDigitanksGame::SetupStrategy()
 				pEntity->Delete();
 
 			CAutoTurret* pAutoTurret = dynamic_cast<CAutoTurret*>(pEntity);
-			if (pAutoTurret && (pAutoTurret->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < pAutoTurret->GetMaxRange())
+			if (pAutoTurret && pTeam->GetVisibilityAtPoint(pAutoTurret->GetOrigin()) > 0.5f)
 				pAutoTurret->Delete();
 		}
 
