@@ -325,7 +325,12 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 void CDigitanksEntity::CalculateVisibility()
 {
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
+	{
+		if (!DigitanksGame()->GetDigitanksTeam(i))
+			continue;
+
 		DigitanksGame()->GetDigitanksTeam(i)->CalculateEntityVisibility(this);
+	}
 
 	m_flVisibility = GetVisibility(DigitanksGame()->GetCurrentLocalDigitanksTeam());
 	m_bVisibilityDirty = false;

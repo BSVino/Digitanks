@@ -149,7 +149,7 @@ wchar_t* OpenFileDialog(wchar_t* pszFileTypes)
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
 	opf.lpstrInitialDir = NULL;
-	opf.lpstrTitle = L"Open Model";
+	opf.lpstrTitle = L"Open File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
 	opf.lpstrDefExt = L"*.*";

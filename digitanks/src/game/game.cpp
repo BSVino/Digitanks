@@ -182,6 +182,9 @@ const eastl::vector<CEntityHandle<CTeam> >& CGame::GetLocalTeams()
 		CGameServer* pGameServer = GameServer();
 		for (size_t i = 0; i < m_ahTeams.size(); i++)
 		{
+			if (!m_ahTeams[i])
+				continue;
+
 			if (!m_ahTeams[i]->IsPlayerControlled())
 				continue;
 

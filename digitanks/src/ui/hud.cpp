@@ -2677,6 +2677,14 @@ void CHUD::ShowActionItem(size_t iActionItem)
 
 	const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(iActionItem);
 
+	// Some action items are handled just by looking at them.
+	if (pItem->eActionType == ACTIONTYPE_WELCOME || pItem->eActionType == ACTIONTYPE_CONTROLS || pItem->eActionType == ACTIONTYPE_NEWSTRUCTURE ||
+		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE || pItem->eActionType == ACTIONTYPE_UNITREADY)
+	{
+		DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(iActionItem);
+		UpdateTurnButton();
+	}
+
 	switch (pItem->eActionType)
 	{
 	case ACTIONTYPE_WELCOME:
@@ -2754,14 +2762,6 @@ void CHUD::ShowActionItem(size_t iActionItem)
 			"DOWNLOAD UPDATES\n \n"
 			"You can download updates for your structures. Press the 'Download' button at the top of the screen to choose an update.\n");
 		break;
-	}
-
-	// Some action items are handled just by looking at them.
-	if (pItem->eActionType == ACTIONTYPE_WELCOME || pItem->eActionType == ACTIONTYPE_CONTROLS || pItem->eActionType == ACTIONTYPE_NEWSTRUCTURE ||
-		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE || pItem->eActionType == ACTIONTYPE_UNITREADY)
-	{
-		DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(iActionItem);
-		UpdateTurnButton();
 	}
 
 	// Just in case it was turned off because of the tutorials.

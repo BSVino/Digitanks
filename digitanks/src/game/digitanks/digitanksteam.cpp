@@ -187,7 +187,7 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 			DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
 
-		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
 			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
 				DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
@@ -217,7 +217,7 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 				DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
 		}
 
-		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
 			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
 			{
