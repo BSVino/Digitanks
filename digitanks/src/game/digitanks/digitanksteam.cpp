@@ -823,10 +823,22 @@ void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 	if (bCheckValid && !CanDownloadUpdate(iX, iY))
 		return;
 
+	// If we were downloading something, move all extra off and half of what's been downloaded so far.
+	if (GetUpdateDownloading())
+	{
+		if (m_flUpdateDownloaded > GetUpdateDownloading()->m_flSize)
+		{
+			float flDifference = m_flUpdateDownloaded - GetUpdateDownloading()->m_flSize;
+			m_flMegabytes += flDifference;
+			m_flUpdateDownloaded -= flDifference;
+		}
+		m_flMegabytes += m_flUpdateDownloaded/2;
+	}
+
 	m_iCurrentUpdateX = iX;
 	m_iCurrentUpdateY = iY;
-	m_flUpdateDownloaded = m_flMegabytes;
-	m_flMegabytes = 0;
+
+	// Don't move megabytes to downloaded now, in case the player wants to change, so he's not penalized if he does.
 }
 
 float CDigitanksTeam::GetUpdateSize()
