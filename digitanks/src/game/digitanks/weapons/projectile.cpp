@@ -17,6 +17,8 @@ REGISTER_ENTITY(CProjectile);
 NETVAR_TABLE_BEGIN(CProjectile);
 	NETVAR_DEFINE(Vector, m_vecLandingSpot);
 	NETVAR_DEFINE(bool, m_bFragmented);
+	NETVAR_DEFINE(float, m_flDamageBonusTime);
+	NETVAR_DEFINE(float, m_flDamageBonusFreeze);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CProjectile);
@@ -25,6 +27,8 @@ SAVEDATA_TABLE_BEGIN(CProjectile);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);	// Generated on load
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFragmented);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBounces);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamageBonusTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamageBonusFreeze);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
 SAVEDATA_TABLE_END();
 
@@ -36,6 +40,9 @@ CProjectile::CProjectile()
 	m_iBounces = 0;
 
 	m_bMissileDefensesNotified = false;
+
+	m_flDamageBonusTime = 0;
+	m_flDamageBonusFreeze = 0;
 }
 
 void CProjectile::Precache()
@@ -55,6 +62,13 @@ void CProjectile::Spawn()
 void CProjectile::Think()
 {
 	BaseClass::Think();
+
+	if (GameServer()->GetGameTime() - m_flDamageBonusTime > 1)
+		m_flDamageBonusTime = 0;
+
+	CSystemInstance* pInstance = CParticleSystemLibrary::Get()->GetInstance(m_hTrailParticles.GetInstance());
+	if (pInstance)
+		pInstance->SetColor(GetBonusDamageColor());
 
 	if (MakesSounds() && BombDropNoise() && GetVelocity().y < 10.0f && !m_bFallSoundPlayed && m_flTimeExploded == 0.0f)
 	{
@@ -126,8 +140,34 @@ void CProjectile::SpecialCommand()
 		return;
 	}
 
-	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
-		Explode();
+	if (GameServer()->GetGameTime() - m_flDamageBonusTime < DamageBonusTime())
+		return;
+
+	if (m_flTimeExploded > 0)
+		return;
+
+	m_flDamageBonusTime = GameServer()->GetGameTime();
+}
+
+Color CProjectile::GetBonusDamageColor()
+{
+	if (m_flDamageBonusTime == 0.0f)
+		return Color(255, 255, 255);
+
+	float flRamp = RemapValClamped(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
+
+	if (m_flDamageBonusFreeze > 0)
+		flRamp = m_flDamageBonusFreeze;
+
+	return Vector(1, 0.2f, 0) * flRamp + Vector(1, 1, 1) * (1-flRamp);
+}
+
+float CProjectile::GetBonusDamage()
+{
+	if (m_flDamageBonusTime == 0.0f)
+		return 0;
+
+	return RemapVal(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), DamageBonus(), 0);
 }
 
 void CProjectile::Fragment()
@@ -172,7 +212,7 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 		{
 			CRenderingContext c(GameServer()->GetRenderer());
 			c.Scale(ShellRadius(), ShellRadius(), ShellRadius());
-			c.SetColor(Color(255, 255, 255));
+			c.SetColor(GetBonusDamageColor());
 			c.RenderSphere();
 		}
 	}
@@ -187,7 +227,8 @@ void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 			else
 				c.SetBlend(BLEND_ADDITIVE);
 			c.Scale(ExplosionRadius(), ExplosionRadius(), ExplosionRadius());
-			c.SetColor(Color(255, 255, 255, (int)(flAlpha*255)));
+			c.SetAlpha(flAlpha);
+			c.SetColor(GetBonusDamageColor());
 			c.RenderSphere();
 		}
 	}
@@ -276,10 +317,10 @@ void CProjectile::Touching(CBaseEntity* pOther)
 	if (dynamic_cast<CTerrain*>(pOther))
 	{
 		if (ShouldExplode())
-			pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage);
+			pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + GetBonusDamage());
 	}
 	else
-		pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage);
+		pOther->TakeDamage(m_hOwner, this, DAMAGE_EXPLOSION, m_flDamage + GetBonusDamage());
 
 	if (ShouldExplode())
 		Explode(pOther);
@@ -315,6 +356,9 @@ void CProjectile::OnExplode(CBaseEntity* pInstigator)
 
 	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam() || DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.1f)
 		CreateExplosionSystem();
+
+	if (m_flDamageBonusTime > 0)
+		m_flDamageBonusFreeze = RemapValClamped(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
 }
 
 bool CProjectile::ShouldPlayExplosionSound()
@@ -421,7 +465,12 @@ void CAOEShell::CreateExplosionSystem()
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		CParticleSystemLibrary::AddInstance(L"aoe-explosion-strategy", GetOrigin());
 	else
-		CParticleSystemLibrary::AddInstance(L"aoe-explosion-artillery", GetOrigin());
+	{
+		size_t iInstance = CParticleSystemLibrary::AddInstance(L"aoe-explosion-artillery", GetOrigin());
+		CSystemInstance* pInstance = CParticleSystemLibrary::GetInstance(iInstance);
+		if (pInstance)
+			pInstance->SetColor(GetBonusDamageColor());
+	}
 }
 
 size_t CAOEShell::CreateTrailSystem()
@@ -453,7 +502,10 @@ void CEMP::Precache()
 
 void CEMP::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(L"emp-explosion", GetOrigin());
+	size_t iInstance = CParticleSystemLibrary::AddInstance(L"emp-explosion", GetOrigin());
+	CSystemInstance* pInstance = CParticleSystemLibrary::GetInstance(iInstance);
+	if (pInstance)
+		pInstance->SetColor(GetBonusDamageColor());
 }
 
 size_t CEMP::CreateTrailSystem()
@@ -499,6 +551,12 @@ EAngle CGrenade::GetRenderAngles() const
 	return m_angAngle + m_angRotation * (GameServer()->GetGameTime() * 50);
 }
 
+void CGrenade::SpecialCommand()
+{
+	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
+		Explode();
+}
+
 void CGrenade::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
@@ -520,6 +578,12 @@ void CDaisyChain::Spawn()
 	BaseClass::Spawn();
 
 	m_flExplosionRadius = 20;
+}
+
+void CDaisyChain::SpecialCommand()
+{
+	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
+		Explode();
 }
 
 void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
@@ -656,6 +720,12 @@ void CTractorBomb::Precache()
 {
 	PrecacheParticleSystem(L"tractor-bomb-explosion");
 	PrecacheParticleSystem(L"tractor-bomb-trail");
+}
+
+void CTractorBomb::SpecialCommand()
+{
+	if (ShouldExplode() && m_flTimeExploded == 0.0f && !m_bFragmented)
+		Explode();
 }
 
 size_t CTractorBomb::CreateTrailSystem()

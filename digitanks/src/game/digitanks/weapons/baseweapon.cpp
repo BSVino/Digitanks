@@ -74,7 +74,7 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 {
 	bool bHit = false;
 	if (m_flDamage > 0)
-		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage, pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
+		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage + GetBonusDamage(), pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
 
 	OnExplode(pInstigator);
 

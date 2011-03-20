@@ -22,7 +22,12 @@ public:
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate Bomb"; };
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar For\nDamage Bonus"; };
+	virtual Color				GetBonusDamageColor();
+	virtual float				GetBonusDamage();
+	virtual float				DamageBonus() const { return 30; };
+	virtual float				DamageBonusTime() const { return 1.0f; };
+
 	virtual void				Fragment();
 
 	virtual bool				UsesStandardShell() { return true; };
@@ -71,6 +76,9 @@ protected:
 
 	CNetworkedVariable<bool>	m_bFragmented;
 	size_t						m_iBounces;
+
+	CNetworkedVariable<float>	m_flDamageBonusTime;
+	CNetworkedVariable<float>	m_flDamageBonusFreeze;
 
 	bool						m_bMissileDefensesNotified;
 };
@@ -177,6 +185,9 @@ public:
 
 	virtual EAngle				GetRenderAngles() const;
 
+	virtual void				SpecialCommand();
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
+
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
 	virtual bool				UsesStandardShell() { return false; };
@@ -200,6 +211,9 @@ class CDaisyChain : public CProjectile
 public:
 	virtual void				Spawn();
 
+	virtual void				SpecialCommand();
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
+
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_DAISYCHAIN; }
@@ -220,6 +234,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				SpecialCommand();
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -238,6 +253,8 @@ class CEarthshaker : public CProjectile
 	REGISTER_ENTITY_CLASS(CEarthshaker, CProjectile);
 
 public:
+	virtual bool				UsesSpecialCommand() { return false; };
+
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_EARTHSHAKER; }
 	virtual float				ShellRadius() { return 0.8f; };
 	virtual float				ExplosionRadius() { return 22.0f; };
@@ -275,6 +292,9 @@ class CTractorBomb : public CProjectile
 
 public:
 	virtual void				Precache();
+
+	virtual void				SpecialCommand();
+	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
 
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();

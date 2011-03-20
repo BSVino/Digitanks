@@ -24,6 +24,7 @@ public:
 	virtual void				SpecialCommand() {};
 	virtual bool				UsesSpecialCommand() { return false; };
 	virtual eastl::string16		SpecialCommandHint() { return L""; };
+	virtual float				GetBonusDamage() { return 0; };
 
 	void						Explode(CBaseEntity* pInstigator = NULL);
 	virtual void				OnExplode(CBaseEntity* pInstigator) {};

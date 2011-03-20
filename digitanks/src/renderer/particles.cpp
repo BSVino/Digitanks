@@ -559,6 +559,9 @@ void CSystemInstance::SetColor(Color c)
 {
 	m_bColorOverride = true;
 	m_clrOverride = c;
+
+	for (size_t i = 0; i < m_apChildren.size(); i++)
+		m_apChildren[i]->SetColor(c);
 }
 
 CParticle::CParticle()
