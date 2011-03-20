@@ -74,7 +74,7 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 	}
 
 	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
-	s += p.sprintf(L"Bandwidth: %.1f\n", Bandwidth());
+	s += p.sprintf(L"Bandwidth: %.1f/turn\n", Bandwidth());
 	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
@@ -173,7 +173,7 @@ void CMiniBuffer::UpdateInfo(eastl::string16& s)
 	}
 
 	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
-	s += p.sprintf(L"Bandwidth: %.1f\n", Bandwidth());
+	s += p.sprintf(L"Bandwidth: %.1f/turn\n", Bandwidth());
 	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }

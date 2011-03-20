@@ -14,7 +14,7 @@ public:
 
 	virtual eastl::string16		GetName() { return L"MCP"; };
 
-	virtual bool				CanFortify() { return true; };
+	virtual bool				CanFortify();
 	virtual void				OnFortify();
 
 	virtual float				FindHoverHeight(Vector vecPosition) const;

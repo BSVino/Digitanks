@@ -70,20 +70,21 @@ void CMobileCPU::Think()
 	}
 }
 
+bool CMobileCPU::CanFortify()
+{
+	// Don't let the player un-fortify and re-fortify again to make two CPU's. THAT WOULD MEAN THE END OF THE WORLD OR SOMETHING!
+	if (IsFortified() || IsFortifying())
+		return false;
+
+	return true;
+}
+
 void CMobileCPU::OnFortify()
 {
-	if (m_flFortifyTime > 0)
-		return;
-
 	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY, true);
-
-	if (!CNetwork::IsHost())
-		return;
-
-	m_flFortifyTime = GameServer()->GetGameTime();
 }
 
 float CMobileCPU::FindHoverHeight(Vector vecPosition) const

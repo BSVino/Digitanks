@@ -2770,9 +2770,6 @@ void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseE
 
 	if (!pVictim->IsAlive() && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"OVERKILL!");
-
-	else if (bShieldOnly && bDirectHit && flDamage > 0)
-		new CHitIndicator(pVictim, L"DIRECT HIT!");
 }
 
 void CHUD::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)

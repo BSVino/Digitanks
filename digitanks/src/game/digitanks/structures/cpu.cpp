@@ -872,9 +872,9 @@ void CCPU::UpdateInfo(eastl::string16& s)
 		s += sprintf(L"Turns left: %d\n \n", m_iTurnsToProduceRogue.Get());
 	}
 
-	s += p.sprintf(L"Power Supplied: %.1f\n", Power());
+	s += p.sprintf(L"Power: %.1f/turn\n", Power());
 	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
-	s += p.sprintf(L"Bandwidth: %.1f\n", Bandwidth());
+	s += p.sprintf(L"Bandwidth: %.1f/turn\n", Bandwidth());
 	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
 	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }

@@ -61,7 +61,7 @@ void CCollector::UpdateInfo(eastl::string16& s)
 
 	if (GetSupplier() && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced());
+		s += p.sprintf(L"Power: %.1f/turn\n", GetPowerProduced());
 		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
