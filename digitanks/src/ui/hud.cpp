@@ -180,6 +180,8 @@ CHUD::CHUD()
 	AddControl(m_pCloseActionItems);
 	m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
 	m_flActionItemsWidth = 280;
+	m_flSmallActionItemLerp = m_flSmallActionItemLerpGoal = 0;
+	m_iCurrentSmallActionItem = ~0;
 
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
@@ -381,6 +383,8 @@ void CHUD::Layout()
 			pButton->SetSize(iItemButtonSize, iItemButtonSize);
 			pButton->SetPos(iWidth - iItemButtonSize - 10, 120 + (iItemButtonSize+10)*i);
 			pButton->SetClickedListener(this, ChooseActionItem);
+			pButton->SetCursorInListener(this, ShowSmallActionItem);
+			pButton->SetCursorOutListener(this, HideSmallActionItem);
 
 			CEntityHandle<CDigitanksEntity> hUnit(pLocalCurrentTeam->GetActionItem(i)->iUnit);
 
@@ -726,6 +730,7 @@ void CHUD::Think()
 		m_flActionItemsLerp = m_flActionItemsLerpGoal = 0;
 
 	m_flActionItemsLerp = Approach(m_flActionItemsLerpGoal, m_flActionItemsLerp, GameServer()->GetFrameTime());
+	m_flSmallActionItemLerp = Approach(m_flSmallActionItemLerpGoal, m_flSmallActionItemLerp, GameServer()->GetFrameTime() * 4);
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
 	m_pActionItem->SetPos(iWidth - 300 + (int)(Lerp(1-m_flActionItemsLerp, 0.2f) * m_flActionItemsWidth), 130);
@@ -1448,6 +1453,26 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	m_pTeamInfo->SetVisible(true);
 	m_pTeamInfo->Paint();
+
+	if (m_iCurrentSmallActionItem < m_apActionItemButtons.size() && m_flSmallActionItemLerp > 0)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		CPictureButton* pActionItem = m_apActionItemButtons[m_iCurrentSmallActionItem];
+
+		int iLeft = pActionItem->GetLeft();
+		int iTop = pActionItem->GetTop();
+
+		int iTextureLeft = iLeft - 243;
+
+		PaintHUDSheet(iTextureLeft - 10, iTop, 243, 40, 350, 800, 243, 40, Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
+
+		c.SetColor(Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
+		float flWidth = CLabel::GetTextWidth(m_sSmallActionItem, m_sSmallActionItem.length(), L"text", 13);
+		float flHeight = CLabel::GetFontHeight(L"text", 13);
+		CLabel::PaintText(m_sSmallActionItem, m_sSmallActionItem.length(), L"text", 13, (float)(iLeft - flWidth) - 25, iTop + flHeight + 5);
+	}
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 	{
@@ -2657,8 +2682,8 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_WELCOME:
 		m_pActionItem->SetText(
 			"WELCOME TO DIGITANKS\n \n"
-			"Here on the right is the 'Action Items' list. It will help guide you through the tasks you need to complete each turn.\n \n"
-			"Click an icon on the right to view that action item. Items that are blinking need handling. When you deal with all items you can end your turn confidently!\n \n"
+			"On the right is a list of tasks for you for each turn.\n \n"
+			"Click an icon on the right to view that task. Tasks that are blinking need handling.\n \n"
 			"When you're done, press the 'End Turn' button to continue.\n");
 		break;
 
@@ -2671,26 +2696,23 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		break;
 
 	case ACTIONTYPE_NEWSTRUCTURE:
-		m_pActionItem->SetText(
-			"NEW STRUCTURE COMPLETED\n \n"
-			"This structure has just been completed.\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		return;
 
 	case ACTIONTYPE_UNITORDERS:
-		m_pActionItem->SetText(
-			"UNIT NEEDS ORDERS\n \n"
-			"This unit needs new orders. You can move it and fire on enemies in range.\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		return;
 
 	case ACTIONTYPE_UNITAUTOMOVE:
-		m_pActionItem->SetText(
-			"UNIT AUTO-MOVE COMPLETE\n \n"
-			"This unit has finished its auto-move task. Please assign it new orders.\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		return;
 
 	case ACTIONTYPE_AUTOMOVECANCELED:
 		m_pActionItem->SetText(
-			"UNIT AUTO-MOVE CANCELED\n \n"
+			"UNIT AUTO-MOVE INTERRUPTED\n \n"
 			"This unit's auto-move has been canceled, due to it taking damage from enemy fire. Please assign it new orders.\n");
 		break;
 
@@ -2701,10 +2723,9 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		break;
 
 	case ACTIONTYPE_UNITDAMAGED:
-		m_pActionItem->SetText(
-			"UNIT DAMAGED\n \n"
-			"This unit has been damaged by enemy fire. Take evasive action!\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		return;
 
 	case ACTIONTYPE_FORTIFIEDENEMY:
 		m_pActionItem->SetText(
@@ -2713,16 +2734,14 @@ void CHUD::ShowActionItem(size_t iActionItem)
 		break;
 
 	case ACTIONTYPE_UPGRADE:
-		m_pActionItem->SetText(
-			"UPRGADE COMPLETE\n \n"
-			"This structure has completed its upgrade.\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		return;
 
 	case ACTIONTYPE_UNITREADY:
-		m_pActionItem->SetText(
-			"UNIT COMPLETED\n \n"
-			"A new unit was just constructed here and is now finish. Please choose the next construction task.\n");
-		break;
+		m_pActionItem->SetText("");
+		m_flActionItemsLerpGoal = 0;
+		return;
 
 	case ACTIONTYPE_DOWNLOADCOMPLETE:
 		m_pActionItem->SetText("");
@@ -2733,7 +2752,7 @@ void CHUD::ShowActionItem(size_t iActionItem)
 	case ACTIONTYPE_DOWNLOADUPDATES:
 		m_pActionItem->SetText(
 			"DOWNLOAD UPDATES\n \n"
-			"You can download updates for your structures. Press the 'Download Updates' button to choose an update.\n");
+			"You can download updates for your structures. Press the 'Download' button at the top of the screen to choose an update.\n");
 		break;
 	}
 
@@ -2986,6 +3005,102 @@ void CHUD::ChooseActionItemCallback()
 				DigitanksGame()->GetDigitanksCamera()->SetDistance(250);
 		}
 	}
+
+	m_flSmallActionItemLerpGoal = 0;
+}
+
+void CHUD::ShowSmallActionItemCallback()
+{
+	m_iCurrentSmallActionItem = ~0;
+	m_flSmallActionItemLerpGoal = 0;
+
+	int mx, my;
+	CRootPanel::GetFullscreenMousePos(mx, my);
+
+	// Bit of a hack since we don't know what button was pressed we have to look for it.
+	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
+	{
+		int x, y, w, h;
+		m_apActionItemButtons[i]->GetAbsDimensions(x, y, w, h);
+		if (mx >= x &&
+			my >= y &&
+			mx < x + w &&
+			my < y + h)
+		{
+			m_iCurrentSmallActionItem = i;
+			break;
+		}
+	}
+
+	if (m_iCurrentSmallActionItem == ~0)
+		return;
+
+	m_flSmallActionItemLerpGoal = 1;
+
+	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		return;
+
+	const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(m_iCurrentSmallActionItem);
+
+	switch (pItem->eActionType)
+	{
+	case ACTIONTYPE_WELCOME:
+		m_sSmallActionItem = L"WELCOME TO DIGITANKS";
+		break;
+
+	case ACTIONTYPE_CONTROLS:
+		m_sSmallActionItem = L"QUICK CONTROLS";
+		break;
+
+	case ACTIONTYPE_NEWSTRUCTURE:
+		m_sSmallActionItem = L"STRUCTURE COMPLETED";
+		break;
+
+	case ACTIONTYPE_UNITORDERS:
+		m_sSmallActionItem = L"ORDERS NEEDED";
+		break;
+
+	case ACTIONTYPE_UNITAUTOMOVE:
+		m_sSmallActionItem = L"AUTO-MOVE COMPLETED";
+		break;
+
+	case ACTIONTYPE_AUTOMOVECANCELED:
+		m_sSmallActionItem = L"AUTO-MOVE INTERRUPTED";
+		break;
+
+	case ACTIONTYPE_AUTOMOVEENEMY:
+		m_sSmallActionItem = L"AUTO-MOVE THREAT";
+		break;
+
+	case ACTIONTYPE_UNITDAMAGED:
+		m_sSmallActionItem = L"UNIT DAMAGED";
+		break;
+
+	case ACTIONTYPE_FORTIFIEDENEMY:
+		m_sSmallActionItem = L"ENEMY IN RANGE";
+		break;
+
+	case ACTIONTYPE_UPGRADE:
+		m_sSmallActionItem = L"UPRGADE COMPLETED";
+		break;
+
+	case ACTIONTYPE_UNITREADY:
+		m_sSmallActionItem = L"UNIT COMPLETED";
+		break;
+
+	case ACTIONTYPE_DOWNLOADCOMPLETE:
+		m_sSmallActionItem = L"DOWNLOAD COMPLETED";
+		break;
+
+	case ACTIONTYPE_DOWNLOADUPDATES:
+		m_sSmallActionItem = L"DOWNLOAD UPDATES";
+		break;
+	}
+}
+
+void CHUD::HideSmallActionItemCallback()
+{
+	m_flSmallActionItemLerpGoal = 0;
 }
 
 void CHUD::CloseActionItemsCallback()

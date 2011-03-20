@@ -203,6 +203,8 @@ public:
 	void						ShowShowdownSign();
 
 	EVENT_CALLBACK(CHUD, ChooseActionItem);
+	EVENT_CALLBACK(CHUD, ShowSmallActionItem);
+	EVENT_CALLBACK(CHUD, HideSmallActionItem);
 	EVENT_CALLBACK(CHUD, CloseActionItems);
 
 	EVENT_CALLBACK(CHUD, ButtonCursorIn0);
@@ -283,6 +285,10 @@ protected:
 	float						m_flActionItemsLerp;
 	float						m_flActionItemsLerpGoal;
 	float						m_flActionItemsWidth;
+	float						m_flSmallActionItemLerp;
+	float						m_flSmallActionItemLerpGoal;
+	size_t						m_iCurrentSmallActionItem;
+	eastl::string16				m_sSmallActionItem;
 
 	eastl::vector<eastl::map<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
 
