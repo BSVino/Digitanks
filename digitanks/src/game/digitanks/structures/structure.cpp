@@ -245,6 +245,9 @@ bool CStructure::IsAvailableAreaActive(int iArea) const
 	if (pTank->FiringCone() < 360 && fabs(AngleDifference(pTank->GetAngles().y, VectorAngles((GetOrigin()-pTank->GetOrigin()).Normalized()).y)) > pTank->FiringCone())
 		return false;
 
+	if (pTank->GetCurrentWeapon() == PROJECTILE_TREECUTTER)
+		return false;
+
 	return true;
 }
 

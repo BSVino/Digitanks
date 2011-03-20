@@ -2982,6 +2982,8 @@ void CHUD::ChooseActionItemCallback()
 		{
 			DigitanksGame()->GetCurrentTeam()->SetPrimarySelection(hSelection);
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(hSelection->GetOrigin());
+			if (DigitanksGame()->GetDigitanksCamera()->GetDistance() > 250)
+				DigitanksGame()->GetDigitanksCamera()->SetDistance(250);
 		}
 	}
 }

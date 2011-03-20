@@ -110,6 +110,9 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 		int iWindowWidth = DigitanksWindow()->GetWindowWidth();
 		int iWindowHeight = DigitanksWindow()->GetWindowHeight();
 
+		int iBoxSize = 250;
+		glgui::CBaseControl::PaintRect(iWindowWidth/4 - iBoxSize/2, iWindowHeight/2 - iBoxSize/2, iBoxSize, iBoxSize, Color(0, 0, 0, 200));
+
 		Color clrTeam(255, 255, 255, 255);
 		if (DigitanksGame()->GetPrimarySelectionTank()->GetTeam())
 			clrTeam = DigitanksGame()->GetPrimarySelectionTank()->GetTeam()->GetColor();
@@ -127,6 +130,11 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 
 		c.SetBlend(BLEND_ADDITIVE);
 		glgui::CBaseControl::PaintTexture(DigitanksWindow()->GetHUD()->GetShieldTexture(), iWindowWidth/4 - iShieldSize/2, iWindowHeight/2 - iShieldSize/2, iShieldSize, iShieldSize, Color(255, 255, 255, iShield));
+
+		c.SetColor(Color(255, 255, 255, 255));
+		eastl::string16 sShields = sprintf(L"Shield Power: %d%%", 100-((int)CProjectile::GetWeaponEnergy(m_eWeapon)*10));
+		float flTextWidth = glgui::CLabel::GetTextWidth(sShields, sShields.length(), L"text", 12);
+		glgui::CLabel::PaintText(sShields, sShields.length(), L"text", 12, iWindowWidth/4 - flTextWidth/2, (float)(iWindowHeight/2 - iShieldSize/2));
 	}
 
 	if (m_pInfo->GetText().length() > 1)

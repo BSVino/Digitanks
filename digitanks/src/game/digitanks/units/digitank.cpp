@@ -3140,6 +3140,12 @@ bool CDigitank::IsAvailableAreaActive(int iArea) const
 	if (!pTank->IsInsideMaxRange(GetOrigin()))
 		return false;
 
+	if (pTank->GetCurrentWeapon() == PROJECTILE_TREECUTTER)
+		return false;
+
+	if (pTank->GetCurrentWeapon() == PROJECTILE_EARTHSHAKER)
+		return false;
+
 	if (IsScout() && pTank->GetCurrentWeapon() != WEAPON_INFANTRYLASER)
 		return false;
 

@@ -21,6 +21,8 @@ public:
 	void			SetAngle(EAngle angCamera);
 	void			SnapAngle(EAngle angCamera);
 
+	float			GetDistance() { return m_flDistance; }
+
 	EAngle			GetAngles() { return m_angCamera; }
 
 	void			ZoomOut();
