@@ -1,6 +1,7 @@
 #include "instructor.h"
 
 #include <glgui/glgui.h>
+#include <tinker/cvar.h>
 
 #include "digitanks/units/digitank.h"
 #include "digitanks/units/mobilecpu.h"
@@ -262,8 +263,13 @@ void CInstructor::NextTutorial()
 	DisplayTutorial(++m_iCurrentTutorial);
 }
 
+CVar tutorial_enable("tutorial_enable", "1");
+
 void CInstructor::DisplayTutorial(size_t iTutorial, bool bForce)
 {
+	if (!tutorial_enable.GetBool())
+		return;
+
 	if (!m_bActive)
 		return;
 

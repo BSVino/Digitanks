@@ -671,9 +671,14 @@ void CDigitanksRenderer::RenderPreviewModes()
 	}
 }
 
+CVar r_fogofwar("r_fogofwar", "1");
+
 void CDigitanksRenderer::RenderFogOfWar()
 {
 	if (!DigitanksGame()->ShouldRenderFogOfWar() || !ShouldUseFramebuffers() || !ShouldUseShaders())
+		return;
+
+	if (!r_fogofwar.GetBool())
 		return;
 
 	TPROF("CDigitanksRenderer::RenderFogOfWar");
@@ -875,7 +880,7 @@ void CDigitanksRenderer::RenderOffscreenBuffers()
 	}
 
 	// Draw the fog of war.
-	if (ShouldUseFramebuffers() && ShouldUseShaders() && DigitanksGame()->ShouldRenderFogOfWar())
+	if (ShouldUseFramebuffers() && ShouldUseShaders() && DigitanksGame()->ShouldRenderFogOfWar() && r_fogofwar.GetBool())
 	{
 		TPROF("Fog of war");
 
