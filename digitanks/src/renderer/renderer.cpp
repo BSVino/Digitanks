@@ -701,6 +701,8 @@ void CRopeRenderer::SetForward(Vector vecForward)
 	m_vecForward = vecForward;
 }
 
+CVar r_batch("r_batch", "1");
+
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
 	TMsg(L"Initializing renderer\n");
@@ -736,6 +738,8 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 
 	m_bFrustumOverride = false;
 	m_bBatching = false;
+
+	m_bBatchThisFrame = r_batch.GetBool();
 }
 
 void CRenderer::Initialize()
@@ -894,6 +898,8 @@ void CRenderer::CreateNoise()
 void CRenderer::SetupFrame()
 {
 	TPROF("CRenderer::SetupFrame");
+
+	m_bBatchThisFrame = r_batch.GetBool();
 
 	if (ShouldUseFramebuffers())
 	{
@@ -1221,6 +1227,9 @@ void CRenderer::CancelFrustumOverride()
 
 void CRenderer::BeginBatching()
 {
+	if (!ShouldBatchThisFrame())
+		return;
+
 	m_bBatching = true;
 
 	for (eastl::map<size_t, eastl::vector<CRenderBatch> >::iterator it = m_aBatches.begin(); it != m_aBatches.end(); it++)
@@ -1249,6 +1258,9 @@ void CRenderer::RenderBatches()
 	TPROF("CRenderer::RenderBatches");
 
 	m_bBatching = false;
+
+	if (!ShouldBatchThisFrame())
+		return;
 
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 	glPushMatrix();

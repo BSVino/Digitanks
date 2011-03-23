@@ -174,6 +174,7 @@ public:
 	void			FrustumOverride(Vector vecPosition, Vector vecTarget, float flFOV, float flNear, float flFar);
 	void			CancelFrustumOverride();
 
+	bool			ShouldBatchThisFrame() { return m_bBatchThisFrame; }
 	void			BeginBatching();
 	void			AddToBatch(class CModel* pModel, const Matrix4x4& mTransformations, bool bClrSwap, const Color& clrSwap);
 	void			RenderBatches();
@@ -237,6 +238,7 @@ protected:
 
 	Plane			m_aoFrustum[6];
 
+	bool			m_bBatchThisFrame;
 	bool			m_bBatching;
 	eastl::map<size_t, eastl::vector<CRenderBatch> > m_aBatches;
 
