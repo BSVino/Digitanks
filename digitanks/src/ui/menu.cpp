@@ -117,6 +117,10 @@ void CMainMenu::Layout()
 	m_pVersion->SetSize(120, 20);
 	m_pVersion->SetText(DIGITANKS_VERSION);
 
+#ifndef TINKER_UNLOCKED
+	m_pVersion->AppendText(" Demo");
+#endif
+
 	BaseClass::Layout();
 }
 

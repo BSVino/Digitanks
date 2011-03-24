@@ -38,7 +38,7 @@ Section "Digitanks (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File /r /x .dropbox /x digitanks.pdb "\my dropbox\Digitanks\install\*.*"
+  File /r /x .dropbox /x digitanks.pdb /x digitanks-demo.exe "\my dropbox\Digitanks\install\*.*"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Digitanks "Install_Dir" "$INSTDIR"
@@ -83,6 +83,9 @@ Section "Uninstall"
   RMDir /r "$INSTDIR\models"
   RMDir /r "$INSTDIR\sound"
   RMDir /r "$INSTDIR\textures"
+  RMDir /r "$INSTDIR\fonts"
+  RMDir /r "$INSTDIR\levels"
+  RMDir /r "$INSTDIR\scripts"
   Delete $INSTDIR\*.*
 
   ; Remove shortcuts, if any
