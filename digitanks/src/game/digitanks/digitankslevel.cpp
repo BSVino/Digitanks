@@ -9,6 +9,10 @@ CDigitanksLevel::CDigitanksLevel()
 	m_flMaxHeight = 60;
 	m_iTerrainHeight = 0;
 	m_iTerrainData = 0;
+
+	m_bInfantryLasers = true;
+	m_bInfantryTreeCutters = true;
+	m_bInfantryFortify = true;
 }
 
 CDigitanksLevel::~CDigitanksLevel()
@@ -67,10 +71,14 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 		m_flMaxHeight = pData->GetValueFloat();
 	else if (pData->GetKey() == "Prop")
 		ReadProp(pData);
+	else if (pData->GetKey() == "Unit")
+		ReadUnit(pData);
 	else if (pData->GetKey() == "Author")
 		m_sAuthor = pData->GetValueString();
 	else if (pData->GetKey() == "Description")
 		m_sDescription = pData->GetValueString();
+	else if (pData->GetKey() == "GameRules")
+		ReadGameRules(pData);
 }
 
 void CDigitanksLevel::ReadProp(const CData* pData)
@@ -88,5 +96,41 @@ void CDigitanksLevel::ReadProp(const CData* pData)
 			pProp->m_vecPosition = pChildData->GetValueVector2D();
 		else if (pChildData->GetKey() == "Angle")
 			pProp->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
+	}
+}
+
+void CDigitanksLevel::ReadUnit(const CData* pData)
+{
+	CLevelUnit* pProp = &m_aUnits.push_back();
+
+	for (size_t i = 0; i < pData->GetNumChildren(); i++)
+	{
+		CData* pChildData = pData->GetChild(i);
+
+		if (pChildData->GetKey() == "Class")
+			pProp->m_sClassName = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Team")
+			pProp->m_sTeamName = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Position")
+			pProp->m_vecPosition = pChildData->GetValueVector2D();
+		else if (pChildData->GetKey() == "Angle")
+			pProp->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
+		if (pChildData->GetKey() == "Fortified")
+			pProp->m_bFortified = pChildData->GetValueBool();
+	}
+}
+
+void CDigitanksLevel::ReadGameRules(const CData* pData)
+{
+	for (size_t i = 0; i < pData->GetNumChildren(); i++)
+	{
+		CData* pChildData = pData->GetChild(i);
+
+		if (pChildData->GetKey() == "InfantryLasers")
+			m_bInfantryLasers = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "InfantryTreeCutters")
+			m_bInfantryTreeCutters = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "InfantryFortify")
+			m_bInfantryFortify = pChildData->GetValueBool();
 	}
 }

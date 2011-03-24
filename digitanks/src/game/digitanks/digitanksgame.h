@@ -18,6 +18,7 @@ typedef enum
 	GAMETYPE_ARTILLERY,
 	GAMETYPE_STANDARD,
 	GAMETYPE_MENU,
+	GAMETYPE_CAMPAIGN,
 } gametype_t;
 
 typedef struct
@@ -80,6 +81,7 @@ public:
 	void					SetupStrategy();
 	void					SetupTutorial();
 	void					SetupMenuMarch();
+	void					SetupCampaign(bool bReload = false);
 
 	void					StartGame();
 	virtual void			EnterGame();
@@ -205,6 +207,9 @@ public:
 	bool					CanBuildInfantryLoaders();
 	bool					CanBuildTankLoaders();
 	bool					CanBuildArtilleryLoaders();
+
+	bool					IsWeaponAllowed(weapon_t eWeapon);
+	bool					IsInfantryFortifyAllowed();
 
 	void					BeginAirstrike(Vector vecLocation);
 	float					AirstrikeSize() const { return 50; };

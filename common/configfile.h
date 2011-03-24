@@ -166,7 +166,7 @@ inline bool ConfigFile::string_as_T<bool>( const string16& s )
 		*p = toupper(*p);  // make string all caps
 	if( sup==string16(L"FALSE") || sup==string16(L"F") ||
 	    sup==string16(L"NO") || sup==string16(L"N") ||
-	    sup==string16(L"0") || sup==string16(L"NONE") )
+	    sup==string16(L"0") || sup==string16(L"NONE")|| sup==string16(L"OFF") )
 		b = false;
 	return b;
 }

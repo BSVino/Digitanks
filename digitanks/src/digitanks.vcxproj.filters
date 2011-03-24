@@ -345,6 +345,9 @@
     <ClCompile Include="..\..\tinker\profiler.cpp">
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\bot_campaign.cpp">
+      <Filter>Source Files\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">

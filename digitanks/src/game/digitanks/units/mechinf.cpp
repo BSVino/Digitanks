@@ -45,10 +45,15 @@ void CMechInfantry::Spawn()
 	m_flMaxShieldStrength = m_flShieldStrength = 100;
 
 	m_aeWeapons.push_back(PROJECTILE_FLAK);
-	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
-	m_aeWeapons.push_back(WEAPON_INFANTRYLASER);
-
-	m_eWeapon = WEAPON_INFANTRYLASER;
+	if (DigitanksGame()->IsWeaponAllowed(PROJECTILE_TREECUTTER))
+		m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
+	if (DigitanksGame()->IsWeaponAllowed(WEAPON_INFANTRYLASER))
+	{
+		m_aeWeapons.push_back(WEAPON_INFANTRYLASER);
+		m_eWeapon = WEAPON_INFANTRYLASER;
+	}
+	else
+		m_eWeapon = PROJECTILE_FLAK;
 }
 
 void CMechInfantry::PostRender(bool bTransparent)
@@ -86,6 +91,11 @@ void CMechInfantry::PostRender(bool bTransparent)
 		c.SetBackCulling(false);
 		c.RenderModel(m_iFortifyShieldModel);
 	}
+}
+
+bool CMechInfantry::CanFortify()
+{
+	return DigitanksGame()->IsInfantryFortifyAllowed();
 }
 
 float CMechInfantry::BaseShieldRechargeRate() const

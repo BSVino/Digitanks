@@ -55,6 +55,21 @@ CData* CData::FindChild(eastl::string sKey)
 	return m_apChildren[iIndex];
 }
 
+bool CData::GetValueBool() const
+{
+	eastl::string sValue = GetValueString();
+
+	for( eastl::string::iterator p = sValue.begin(); p != sValue.end(); ++p )
+		*p = toupper(*p);  // make string all caps
+
+	if( sValue == eastl::string("FALSE") || sValue == eastl::string("F") ||
+	    sValue == eastl::string("NO") || sValue == eastl::string("N") ||
+	    sValue == eastl::string("0") || sValue == eastl::string("NONE") || sValue == eastl::string("OFF") )
+		return false;
+
+	return true;
+}
+
 int CData::GetValueInt() const
 {
 	return (int)atoi(GetValueString().c_str());

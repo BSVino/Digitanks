@@ -403,6 +403,12 @@ void CDigitanksTeam::Bot_AssignDefenders()
 
 void CDigitanksTeam::Bot_ExecuteTurn()
 {
+	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN)
+	{
+		Bot_ExecuteTurnCampaign();
+		return;
+	}
+
 	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY || m_bUseArtilleryAI)
 	{
 		Bot_ExecuteTurnArtillery();

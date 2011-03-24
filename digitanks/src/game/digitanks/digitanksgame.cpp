@@ -220,6 +220,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 		SetupTutorial();
 	else if (eGameType == GAMETYPE_MENU)
 		SetupMenuMarch();
+	else if (eGameType == GAMETYPE_CAMPAIGN)
+		SetupCampaign();
 
 	GameServer()->SetLoading(false);
 
@@ -711,6 +713,103 @@ void CDigitanksGame::SetupMenuMarch()
 	m_iPowerups = 0;
 }
 
+void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+{
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
+		if (pEntity == DigitanksGame())
+			continue;
+
+		if (dynamic_cast<CTerrain*>(pEntity))
+			continue;
+
+		pEntity->Delete();
+	}
+
+	GameServer()->ReadLevels();
+	DigitanksGame()->SetupCampaign(true);
+}
+
+CCommand mission_reload("mission_reload", ::MissionReload);
+
+void CDigitanksGame::SetupCampaign(bool bReload)
+{
+	TMsg(sprintf(L"Setting up campaign %s.\n", CVar::GetCVarValue(L"game_level")));
+
+	if (!bReload)
+	{
+		m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
+		m_hTerrain->GenerateTerrain();
+	}
+
+	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	m_ahTeams[0]->SetColor(Color(0, 0, 255));
+
+	m_ahTeams[0]->SetClient(-1);
+
+	eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+	if (sPlayerNickname.length())
+		m_ahTeams[0]->SetName(sPlayerNickname);
+
+	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
+	m_ahTeams[1]->SetColor(Color(255, 0, 0));
+
+	m_ahTeams[1]->SetClient(-2);
+
+	m_iPowerups = 0;
+
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
+	if (!pLevel)
+		return;
+
+	for (size_t iUnits = 0; iUnits < pLevel->GetNumUnits(); iUnits++)
+	{
+		CLevelUnit* pLevelUnit = pLevel->GetUnit(iUnits);
+		CDigitanksEntity* pUnit = NULL;
+		
+		if (pLevelUnit->m_sClassName == "Rogue")
+			pUnit = GameServer()->Create<CScout>("CScout");
+		else if (pLevelUnit->m_sClassName == "Resistor")
+			pUnit = GameServer()->Create<CMechInfantry>("CMechInfantry");
+		else if (pLevelUnit->m_sClassName == "AutoTurret")
+			pUnit = GameServer()->Create<CAutoTurret>("CAutoTurret");
+		else if (pLevelUnit->m_sClassName == "GridBug")
+			pUnit = GameServer()->Create<CGridBug>("CGridBug");
+		else
+		{
+			assert(!"Invalid unit");
+			continue;
+		}
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pUnit);
+
+		pUnit->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
+		pUnit->SetAngles(EAngle(0, pLevelUnit->m_angOrientation.y, 0));
+
+		if (pLevelUnit->m_sTeamName == "Player")
+			m_ahTeams[0]->AddEntity(pUnit);
+		else if (pLevelUnit->m_sTeamName == "Hackers")
+			m_ahTeams[1]->AddEntity(pUnit);
+
+		if (pLevelUnit->m_bFortified && pTank)
+			pTank->Fortify();
+
+		// All starting tanks should stay put.
+		// This means if they are fortified they should always stay fortified and not join an attack team.
+		// If they are not fortified they should hang around to protect the base in case it is attacked.
+		if (pTank)
+			pTank->StayPut();
+
+		pUnit->StartTurn();
+	}
+}
+
 void CDigitanksGame::SetupEntities()
 {
 	if (!CNetwork::ShouldRunClientFunction())
@@ -1094,13 +1193,16 @@ void CDigitanksGame::Think()
 				ahEntities.push_back(pEntity);
 			}
 
-			CDigitanksEntity* pEntity = ahEntities[RandomInt(0, ahEntities.size()-1)];
+			if (ahEntities.size())
+			{
+				CDigitanksEntity* pEntity = ahEntities[RandomInt(0, ahEntities.size()-1)];
 
-			CFireworks* pFireworks = GameServer()->Create<CFireworks>("CFireworks");
-			pFireworks->SetOrigin(pEntity->GetOrigin());
-			pFireworks->SetOwner(NULL);
-			pFireworks->SetVelocity(Vector(RandomFloat(-8, 8), 45, RandomFloat(-8, 8)));
-			pFireworks->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
+				CFireworks* pFireworks = GameServer()->Create<CFireworks>("CFireworks");
+				pFireworks->SetOrigin(pEntity->GetOrigin());
+				pFireworks->SetOwner(NULL);
+				pFireworks->SetVelocity(Vector(RandomFloat(-8, 8), 45, RandomFloat(-8, 8)));
+				pFireworks->SetGravity(Vector(0, DigitanksGame()->GetGravity(), 0));
+			}
 
 			m_flLastFireworks = GameServer()->GetGameTime();
 		}
@@ -1694,7 +1796,7 @@ void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 
 void CDigitanksGame::CheckWinConditions()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL || m_eGameType == GAMETYPE_MENU)
+	if (m_eGameType == GAMETYPE_TUTORIAL || m_eGameType == GAMETYPE_MENU || m_eGameType == GAMETYPE_CAMPAIGN)
 		return;
 
 	if (m_bPartyMode)
@@ -2317,6 +2419,26 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
+}
+
+bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon)
+{
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
+	if (eWeapon == WEAPON_INFANTRYLASER)
+		return pLevel->AllowInfantryLasers();
+
+	if (eWeapon == PROJECTILE_TREECUTTER)
+		return pLevel->AllowInfantryTreeCutters();
+
+	return true;
+}
+
+bool CDigitanksGame::IsInfantryFortifyAllowed()
+{
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
+	return pLevel->AllowInfantryFortify();
 }
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)

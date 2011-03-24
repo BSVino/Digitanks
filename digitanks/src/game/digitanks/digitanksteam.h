@@ -139,6 +139,7 @@ public:
 	void						Bot_AssignDefenders();
 	void						Bot_ExecuteTurn();
 	void						Bot_ExecuteTurnArtillery();
+	void						Bot_ExecuteTurnCampaign();
 	void						Bot_AddBuildPriority(unittype_t eUnit, CDigitanksEntity* pTarget = NULL);
 	CSupplier*					Bot_FindUnusedSupplier(size_t iDependents = ~0, bool bNoSuppliers = true);
 	bool						Bot_BuildCollector(class CResource* pResource);

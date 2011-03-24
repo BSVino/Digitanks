@@ -184,6 +184,9 @@ public:
 	virtual bool				CanGetPowerups() const { return true; };
 	virtual size_t				GetFortifyLevel() { return m_iFortifyLevel; }
 
+	void						StayPut() { m_bStayPut = true; }
+	bool						ShouldStayPut() { return m_bStayPut; }
+
 	void						Sentry();
 	void						Sentry(CNetworkParameters* p);
 	virtual bool				CanSentry() { return true; };
@@ -423,6 +426,8 @@ protected:
 	CNetworkedVariable<bool>	m_bFortified;
 	CNetworkedVariable<size_t>	m_iFortifyLevel;
 	CNetworkedVariable<float>	m_flFortifyTime;
+
+	bool						m_bStayPut;
 
 	CNetworkedVariable<bool>	m_bSentried;
 

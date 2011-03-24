@@ -24,13 +24,13 @@ using namespace glgui;
 CMainMenu::CMainMenu()
 	: CPanel(0, 0, 310, 620)
 {
-	m_pTutorial = new CButton(0, 0, 100, 100, L"TUTORIALS");
-	m_pTutorial->SetClickedListener(this, OpenTutorialsPanel);
-	m_pTutorial->SetFont(L"header", 28);
-	m_pTutorial->SetButtonColor(Color(0,0,0));
-	AddControl(m_pTutorial);
+	m_pCampaign = new CButton(0, 0, 100, 100, L"CAMPAIGN");
+	m_pCampaign->SetClickedListener(this, OpenCampaignPanel);
+	m_pCampaign->SetFont(L"header", 28);
+	m_pCampaign->SetButtonColor(Color(0,0,0));
+	AddControl(m_pCampaign);
 
-	m_pPlay = new CButton(0, 0, 100, 100, L"NEW GAME");
+	m_pPlay = new CButton(0, 0, 100, 100, L"SKIRMISH");
 	m_pPlay->SetClickedListener(this, OpenGamesPanel);
 	m_pPlay->SetFont(L"header", 28);
 	m_pPlay->SetButtonColor(Color(0,0,0));
@@ -84,8 +84,8 @@ void CMainMenu::Layout()
 {
 	SetPos(40, 130);
 
-	m_pTutorial->SetPos(20, 120);
-	m_pTutorial->SetSize(270, 80);
+	m_pCampaign->SetPos(20, 120);
+	m_pCampaign->SetSize(270, 80);
 
 	m_pPlay->SetPos(20, 220);
 	m_pPlay->SetSize(270, 80);
@@ -173,10 +173,10 @@ void CMainMenu::SetVisible(bool bVisible)
 	m_pCredits->SetVisible(false);
 }
 
-void CMainMenu::OpenTutorialsPanelCallback()
+void CMainMenu::OpenCampaignPanelCallback()
 {
 	CDockPanel* pDock = GetDockPanel();
-	pDock->SetDockedPanel(new CTutorialsPanel());
+	pDock->SetDockedPanel(new CCampaignPanel());
 	pDock->SetVisible(true);
 
 	m_pCredits->SetVisible(false);
@@ -310,115 +310,38 @@ void CDockPanel::SetDockedPanel(glgui::CPanel* pDock)
 	}
 }
 
-CTutorialsPanel::CTutorialsPanel()
+CCampaignPanel::CCampaignPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pBasics = new CButton(0, 0, 100, 100, L"BASICS");
-	m_pBasics->SetClickedListener(this, Basics);
-	m_pBasics->SetCursorInListener(this, BasicsHint);
-	m_pBasics->SetFont(L"header", 18);
-	AddControl(m_pBasics);
-
-	m_pBases = new CButton(0, 0, 100, 100, L"BASE BUILDING");
-	m_pBases->SetClickedListener(this, Bases);
-	m_pBases->SetCursorInListener(this, BasesHint);
-	m_pBases->SetFont(L"header", 18);
-	AddControl(m_pBases);
-
-	m_pUnits = new CButton(0, 0, 100, 100, L"UNIT OVERVIEW");
-	m_pUnits->SetClickedListener(this, Units);
-	m_pUnits->SetCursorInListener(this, UnitsHint);
-	m_pUnits->SetFont(L"header", 18);
-	AddControl(m_pUnits);
+	m_pMission1 = new CButton(0, 0, 100, 100, L"BEGIN CAMPAIGN");
+	m_pMission1->SetClickedListener(this, Mission1);
+	m_pMission1->SetCursorInListener(this, Mission1Hint);
+	m_pMission1->SetFont(L"header", 18);
+	AddControl(m_pMission1);
 }
 
-void CTutorialsPanel::Layout()
+void CCampaignPanel::Layout()
 {
-	m_pBasics->SetSize(300, 40);
-	m_pBasics->SetPos(GetWidth()/2-m_pBasics->GetWidth()/2, 60);
-
-	m_pBases->SetSize(300, 40);
-	m_pBases->SetPos(GetWidth()/2-m_pBasics->GetWidth()/2, 120);
-
-	m_pUnits->SetSize(300, 40);
-	m_pUnits->SetPos(GetWidth()/2-m_pBasics->GetWidth()/2, 180);
+	m_pMission1->SetSize(300, 40);
+	m_pMission1->SetPos(GetWidth()/2-m_pMission1->GetWidth()/2, 60);
 
 	BaseClass::Layout();
 }
 
-void CTutorialsPanel::BasicsCallback()
+void CCampaignPanel::Mission1Callback()
 {
-	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
-
-	pInstructor->SetActive(true);
-	pInstructor->Initialize();
-
-	// Once to set the current lesson so the code below can access it
-	pInstructor->DisplayFirstBasicsTutorial();
+	CVar::SetCVar("game_level", "levels/campaign/1.txt");
 
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
-	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
+	DigitanksWindow()->CreateGame(GAMETYPE_CAMPAIGN);
 	DigitanksGame()->SetDifficulty(0);
-
-	// And again to spawn the tanks now that the game is active
-	pInstructor->DisplayFirstBasicsTutorial();
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
-void CTutorialsPanel::BasesCallback()
+void CCampaignPanel::Mission1HintCallback()
 {
-	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
-
-	pInstructor->SetActive(true);
-	pInstructor->Initialize();
-
-	// Once to set the current lesson so the code below can access it
-	pInstructor->DisplayFirstBasesTutorial();
-
-	DigitanksWindow()->SetServerType(SERVER_LOCAL);
-	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
-	DigitanksGame()->SetDifficulty(0);
-
-	// And again to spawn the tanks now that the game is active
-	pInstructor->DisplayFirstBasesTutorial();
-
-	DigitanksWindow()->GetMainMenu()->SetVisible(false);
-}
-
-void CTutorialsPanel::UnitsCallback()
-{
-	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
-
-	pInstructor->SetActive(true);
-	pInstructor->Initialize();
-
-	// Once to set the current lesson so the code below can access it
-	pInstructor->DisplayFirstUnitsTutorial();
-
-	DigitanksWindow()->SetServerType(SERVER_LOCAL);
-	DigitanksWindow()->CreateGame(GAMETYPE_TUTORIAL);
-	DigitanksGame()->SetDifficulty(0);
-
-	// And again to spawn the tanks now that the game is active
-	pInstructor->DisplayFirstUnitsTutorial();
-
-	DigitanksWindow()->GetMainMenu()->SetVisible(false);
-}
-
-void CTutorialsPanel::BasicsHintCallback()
-{
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn the basics of Digitanks. This tutorial includes view control and basic tank manipulation. After this tutorial you should know enough to play an Artillery game.");
-}
-
-void CTutorialsPanel::BasesHintCallback()
-{
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn how to set up a base. In this tutorial you'll learn how to construct buildings and produce units. It's a good idea to play through this tutorial before beginning Strategy mode.");
-}
-
-void CTutorialsPanel::UnitsHintCallback()
-{
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Learn the special units. In this tutorial you'll learn how to use the Resistors, Artillery and Rogues to their highest effectiveness. It's a good idea to play through this tutorial before beginning Strategy mode.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"The Digitanks have captured your files. You've got to rescue them and take your hard drive back!");
 }
 
 CGamesPanel::CGamesPanel()

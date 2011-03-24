@@ -28,30 +28,23 @@ protected:
 	Color							m_clrBackground;
 };
 
-class CTutorialsPanel : public glgui::CPanel, public glgui::IEventListener
+class CCampaignPanel : public glgui::CPanel, public glgui::IEventListener
 {
-	DECLARE_CLASS(CTutorialsPanel, glgui::CPanel);
+	DECLARE_CLASS(CCampaignPanel, glgui::CPanel);
 
 public:
-									CTutorialsPanel();
+									CCampaignPanel();
 
 public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
 
-	EVENT_CALLBACK(CTutorialsPanel,	Basics);
-	EVENT_CALLBACK(CTutorialsPanel,	Bases);
-	EVENT_CALLBACK(CTutorialsPanel,	Units);
-
-	EVENT_CALLBACK(CTutorialsPanel,	BasicsHint);
-	EVENT_CALLBACK(CTutorialsPanel,	BasesHint);
-	EVENT_CALLBACK(CTutorialsPanel,	UnitsHint);
+	EVENT_CALLBACK(CCampaignPanel,	Mission1);
+	EVENT_CALLBACK(CCampaignPanel,	Mission1Hint);
 
 protected:
-	glgui::CButton*					m_pBasics;
-	glgui::CButton*					m_pBases;
-	glgui::CButton*					m_pUnits;
+	glgui::CButton*					m_pMission1;
 };
 
 class CGamesPanel : public glgui::CPanel, public glgui::IEventListener
@@ -290,7 +283,7 @@ public:
 
 	virtual void					SetVisible(bool bVisible);
 
-	EVENT_CALLBACK(CMainMenu,		OpenTutorialsPanel);
+	EVENT_CALLBACK(CMainMenu,		OpenCampaignPanel);
 	EVENT_CALLBACK(CMainMenu,		OpenGamesPanel);
 	EVENT_CALLBACK(CMainMenu,		OpenMultiplayerPanel);
 	EVENT_CALLBACK(CMainMenu,		OpenOptionsPanel);
@@ -302,7 +295,7 @@ public:
 	virtual void					SetHint(const eastl::string16 &sHint);
 
 protected:
-	glgui::CButton*					m_pTutorial;
+	glgui::CButton*					m_pCampaign;
 	glgui::CButton*					m_pPlay;
 	glgui::CButton*					m_pMultiplayer;
 	glgui::CButton*					m_pOptions;

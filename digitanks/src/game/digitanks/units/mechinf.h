@@ -17,7 +17,7 @@ public:
 
 	virtual float				RenderShieldScale() const { return 10.0f; };
 
-	virtual bool				CanFortify() { return true; };
+	virtual bool				CanFortify();
 	virtual bool				IsInfantry() const { return true; };
 
 	virtual float				BaseShieldRechargeRate() const;

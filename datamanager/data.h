@@ -24,6 +24,7 @@ public:
 
 	eastl::string			GetKey() const { return m_sKey; }
 	eastl::string			GetValueString() const { return m_sValue; }
+	bool					GetValueBool() const;
 	int						GetValueInt() const;
 	size_t					GetValueUInt() const;
 	float					GetValueFloat() const;

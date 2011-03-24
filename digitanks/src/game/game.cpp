@@ -115,9 +115,11 @@ void CGame::RemoveTeam(CTeam* pTeam)
 		if (m_ahTeams[i] == pTeam)
 		{
 			m_ahTeams.erase(m_ahTeams.begin()+i);
-			return;
+			break;
 		}
 	}
+
+	m_ahLocalTeams.clear();
 }
 
 void CGame::OnDeleted()

@@ -950,6 +950,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight + 5);
 		sFPS = sprintf(L"FPS: %d", (int)(1/GameServer()->GetFrameTime()));
 		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight*2 + 5);
+
+		Vector vecTerrainPoint;
+		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN))
+		{
+			sFPS = sprintf(L"%.2f, %.2f", vecTerrainPoint.x, vecTerrainPoint.z);
+			glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight*3 + 5);
+		}
 	}
 
 	if (DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
@@ -2304,6 +2311,9 @@ void CHUD::UpdateTurnButton()
 		return;
 
 	if (!DigitanksGame()->GetCurrentTeam())
+		return;
+
+	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		return;
 
 	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))

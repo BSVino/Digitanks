@@ -184,6 +184,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFortified);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iFortifyLevel);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flFortifyTime);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bStayPut);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bSentried);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flBobOffset);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, weapon_t, m_eWeapon);
@@ -318,6 +319,7 @@ void CDigitank::Spawn()
 	m_flStartedMove = 0;
 	m_flStartedTurn = 0;
 	m_bFortified = false;
+	m_bStayPut = false;
 	m_bSentried = false;
 	m_flMaxShieldStrength = 150;
 	m_flShieldStrength = 150;
