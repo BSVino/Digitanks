@@ -57,7 +57,7 @@ void CBaseWeapon::SetOwner(CDigitank* pOwner)
 	if (pOwner)
 		flBonusDamage = pOwner->GetBonusAttackDamage();
 
-	m_flDamage = GetWeaponDamage(GetWeaponType())/(float)GetWeaponShells(GetWeaponType()) + flBonusDamage;
+	m_flDamage = (GetWeaponDamage(GetWeaponType()) + flBonusDamage)/(float)GetWeaponShells(GetWeaponType());
 
 	OnSetOwner(pOwner);
 }
