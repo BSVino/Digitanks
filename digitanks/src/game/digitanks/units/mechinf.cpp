@@ -95,7 +95,11 @@ void CMechInfantry::PostRender(bool bTransparent)
 
 bool CMechInfantry::CanFortify()
 {
-	return DigitanksGame()->IsInfantryFortifyAllowed();
+	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		return DigitanksGame()->IsInfantryFortifyAllowed();
+
+	else
+		return true;
 }
 
 float CMechInfantry::BaseShieldRechargeRate() const
