@@ -895,7 +895,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
-					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -1037,7 +1037,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
-					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -1151,7 +1151,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 					continue;
 
-				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+				if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
 					pClosestEnemy = NULL;
 					break;
@@ -1210,7 +1210,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
-					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;

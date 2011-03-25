@@ -418,7 +418,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
-					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -563,7 +563,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					if (pClosestEnemy->IsImprisoned())
 						continue;
 
-					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
@@ -680,8 +680,14 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				if (pClosestEnemy->IsImprisoned())
 					continue;
 
-				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+				if (pClosestEnemy->GetVisibility(this) < 0.5f)
+					continue;
+
+				if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
+					if (pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->VisibleRange()*1.5f)
+						break;
+
 					pClosestEnemy = NULL;
 					break;
 				}
@@ -691,23 +697,20 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 
 			if (pClosestEnemy)
 			{
-				if (pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->VisibleRange())
+				// Jesus we were just hanging out at the base and this asshole came up and started shooting us!
+				if ((pClosestEnemy->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 				{
-					// Jesus we were just hanging out at the base and this asshole came up and started shooting us!
-					if ((pClosestEnemy->GetOrigin() - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
-					{
-						Vector vecDesiredMove = pTank->GetOrigin() + (pClosestEnemy->GetOrigin() - pTank->GetOrigin()).Normalized() * (pTank->GetRemainingMovementDistance() * 0.6f);
+					Vector vecDesiredMove = pTank->GetOrigin() + (pClosestEnemy->GetOrigin() - pTank->GetOrigin()).Normalized() * (pTank->GetRemainingMovementDistance() * 0.6f);
 
-						pTank->SetPreviewMove(vecDesiredMove);
-						pTank->Move();
-					}
+					pTank->SetPreviewMove(vecDesiredMove);
+					pTank->Move();
+				}
 
-					// If we are within the max range, try to fire.
-					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
-					{
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
-						pTank->Fire();
-					}
+				// If we are within the max range, try to fire.
+				if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
+				{
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->Fire();
 				}
 			}
 		}
@@ -742,7 +745,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					if (pClosestEnemy->IsImprisoned())
 						continue;
 
-					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
+					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
 						break;
