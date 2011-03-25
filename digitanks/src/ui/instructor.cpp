@@ -2,6 +2,7 @@
 
 #include <glgui/glgui.h>
 #include <tinker/cvar.h>
+#include <datamanager/data.h>
 
 #include "digitanks/units/digitank.h"
 #include "digitanks/units/mobilecpu.h"
@@ -216,13 +217,62 @@ void CInstructor::Initialize()
 	m_apTutorials["strategy-placebuffer"]->m_bSlideX = false;
 }
 
+void CInstructor::ReadLesson(const class CData* pData)
+{
+	eastl::string sLessonName = pData->GetValueString();
+	int iPosition = POSITION_TOPCENTER;
+	int iWidth = 200;
+	eastl::string sNext;
+	eastl::string sText;
+	eastl::string sButton1Action;
+	eastl::string sButton1Text;
+	eastl::string sButton2Action;
+	eastl::string sButton2Text;
+
+	for (size_t i = 0; i < pData->GetNumChildren(); i++)
+	{
+		CData* pChildData = pData->GetChild(i);
+
+		if (pChildData->GetKey() == "Position")
+		{
+			eastl::string sPosition = pChildData->GetValueString();
+			if (sPosition == "top-center")
+				iPosition = POSITION_TOPCENTER;
+			else if (sPosition == "top-left")
+				iPosition = POSITION_TOPLEFT;
+			else if (sPosition == "scene-tree")
+				iPosition = POSITION_SCENETREE;
+			else if (sPosition == "buttons")
+				iPosition = POSITION_BUTTONS;
+		}
+		else if (pChildData->GetKey() == "Width")
+			iWidth = pChildData->GetValueInt();
+		else if (pChildData->GetKey() == "Next")
+			sNext = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Text")
+			sText = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Button1")
+			sButton1Action = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Button1Text")
+			sButton1Text = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Button2")
+			sButton2Action = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Button2Text")
+			sButton2Text = pChildData->GetValueString();
+	}
+
+	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
+	m_apTutorials[sLessonName]->m_sButton1Text = sButton1Text;
+	m_apTutorials[sLessonName]->m_sButton1Action = sButton1Action;
+	m_apTutorials[sLessonName]->m_sButton2Text = sButton2Text;
+	m_apTutorials[sLessonName]->m_sButton2Action = sButton2Action;
+}
+
 void CInstructor::SetActive(bool bActive)
 {
 	m_bActive = bActive;
 	if (!bActive)
 		HideTutorial();
-	else
-		Initialize();
 }
 
 void CInstructor::DisplayFirstTutorial(eastl::string sTutorial)
@@ -371,7 +421,43 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 	m_pText->SetFont(L"text");
 	AddControl(m_pText);
 
-	SetSize(m_pText->GetWidth()+20, m_pText->GetHeight()+40);
+	m_pText->ComputeLines();
+
+	if (m_pTutorial->m_sButton1Text.length() > 0)
+	{
+		m_pButton1 = new CButton(0, 0, 60, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton1Text));
+		m_pButton1->SetButtonColor(g_clrPanel);
+		m_pButton1->SetFont(L"text");
+		m_pButton1->SetClickedListener(this, Button1);
+		AddControl(m_pButton1);
+	}
+	else
+		m_pButton1 = NULL;
+
+	if (m_pTutorial->m_sButton2Text.length() > 0)
+	{
+		m_pButton2 = new CButton(0, 0, 60, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton2Text));
+		m_pButton2->SetButtonColor(g_clrPanel);
+		m_pButton2->SetFont(L"text");
+		m_pButton2->SetClickedListener(this, Button2);
+		AddControl(m_pButton2);
+	}
+	else
+		m_pButton2 = NULL;
+
+	if (m_pButton1 && m_pButton2)
+	{
+		m_pButton1->SetPos(m_pText->GetWidth()-160, m_pText->GetHeight()+10);
+		m_pButton2->SetPos(m_pText->GetWidth()-80, m_pText->GetHeight()+10);
+		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight() + 55);
+	}
+	else if (m_pButton1)
+	{
+		m_pButton1->SetPos(m_pText->GetWidth()/2 - m_pButton1->GetWidth()/2, m_pText->GetHeight()+10);
+		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight() + 55);
+	}
+	else
+		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight());
 
 	switch (pTutorial->m_iPosition)
 	{
@@ -444,8 +530,28 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 bool CTutorialPanel::MousePressed(int code, int mx, int my)
 {
-	SetVisible(false);
-	if (m_pTutorial->m_bAutoNext)
-		m_pTutorial->m_pInstructor->NextTutorial();
-	return true;
+	if (BaseClass::MousePressed(code, mx, my))
+		return true;
+
+	if (m_pTutorial->m_sButton1Action.length() == 0 && m_pTutorial->m_sButton2Action.length() == 0)
+	{
+		SetVisible(false);
+		if (m_pTutorial->m_bAutoNext)
+			m_pTutorial->m_pInstructor->NextTutorial();
+		return true;
+	}
+
+	return false;
+}
+
+void CTutorialPanel::Button1Callback()
+{
+	if (m_pTutorial->m_sButton1Action.length() > 0)
+		m_pTutorial->m_pInstructor->DisplayTutorial(m_pTutorial->m_sButton1Action);
+}
+
+void CTutorialPanel::Button2Callback()
+{
+	if (m_pTutorial->m_sButton2Action.length() > 0)
+		m_pTutorial->m_pInstructor->DisplayTutorial(m_pTutorial->m_sButton2Action);
 }

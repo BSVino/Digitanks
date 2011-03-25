@@ -3,6 +3,9 @@
 #include <datamanager/data.h>
 #include <renderer/renderer.h>
 
+#include <ui/digitankswindow.h>
+#include <ui/instructor.h>
+
 CDigitanksLevel::CDigitanksLevel()
 {
 	m_eGameType = GAMETYPE_EMPTY;
@@ -79,6 +82,8 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 		m_sDescription = pData->GetValueString();
 	else if (pData->GetKey() == "GameRules")
 		ReadGameRules(pData);
+	else if (pData->GetKey() == "Lesson")
+		DigitanksWindow()->GetInstructor()->ReadLesson(pData);
 }
 
 void CDigitanksLevel::ReadProp(const CData* pData)
@@ -134,5 +139,7 @@ void CDigitanksLevel::ReadGameRules(const CData* pData)
 			m_bInfantryTreeCutters = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "InfantryFortify")
 			m_bInfantryFortify = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "StartingLesson")
+			m_sStartingLesson = pChildData->GetValueString();
 	}
 }

@@ -66,6 +66,8 @@ public:
 	bool					AllowInfantryTreeCutters() { return m_bInfantryTreeCutters; }
 	bool					AllowInfantryFortify() { return m_bInfantryFortify; }
 
+	eastl::string			GetStartingLesson() { return m_sStartingLesson; }
+
 protected:
 	gametype_t				m_eGameType;
 	eastl::string			m_sTerrainHeight;
@@ -83,6 +85,8 @@ protected:
 	bool					m_bInfantryLasers;
 	bool					m_bInfantryTreeCutters;
 	bool					m_bInfantryFortify;
+
+	eastl::string			m_sStartingLesson;
 };
 
 #endif

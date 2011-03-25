@@ -795,6 +795,9 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 		pUnit->StartTurn();
 	}
+
+	if (pLevel->GetStartingLesson().length())
+		DigitanksWindow()->GetInstructor()->DisplayFirstTutorial(pLevel->GetStartingLesson());
 }
 
 void CDigitanksGame::SetupEntities()

@@ -29,10 +29,18 @@ public:
 	bool							m_bKillOnFinish;
 	float							m_flSlideAmount;
 	bool							m_bSlideX;
+
+	eastl::string					m_sButton1Text;
+	eastl::string					m_sButton1Action;
+
+	eastl::string					m_sButton2Text;
+	eastl::string					m_sButton2Action;
 };
 
-class CTutorialPanel : public glgui::CPanel
+class CTutorialPanel : public glgui::CPanel, public glgui::IEventListener
 {
+	DECLARE_CLASS(CTutorialPanel, glgui::CPanel);
+
 public:
 									CTutorialPanel(CTutorial* pTutorial);
 
@@ -42,10 +50,16 @@ public:
 	virtual bool					IsCursorListener() {return true;};
 	virtual bool					MousePressed(int code, int mx, int my);
 
+	EVENT_CALLBACK(CTutorialPanel,	Button1);
+	EVENT_CALLBACK(CTutorialPanel,	Button2);
+
 protected:
 	CTutorial*						m_pTutorial;
 
 	glgui::CLabel*					m_pText;
+
+	glgui::CButton*					m_pButton1;
+	glgui::CButton*					m_pButton2;
 
 	float							m_flStartTime;
 };
@@ -59,6 +73,8 @@ public:
 public:
 	void							Clear();
 	void							Initialize();
+
+	void							ReadLesson(const class CData* pData);
 
 	void							SetActive(bool bActive);
 	bool							GetActive() { return m_bActive; };

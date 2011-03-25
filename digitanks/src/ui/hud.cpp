@@ -2434,7 +2434,6 @@ void CHUD::ButtonCallback(int iButton)
 void CHUD::GameStart()
 {
 	DigitanksGame()->SetControlMode(MODE_NONE);
-	DigitanksWindow()->GetInstructor()->Initialize();
 	ClearTurnInfo();
 }
 
