@@ -290,7 +290,7 @@ void CBaseEntity::SetSoundVolume(const eastl::string16& sFilename, float flVolum
 	CSoundLibrary::SetSoundVolume(this, sFilename, flVolume);
 }
 
-float CBaseEntity::Distance(Vector vecSpot)
+float CBaseEntity::Distance(Vector vecSpot) const
 {
 	float flDistance = (GetOrigin() - vecSpot).Length();
 	if (flDistance < GetBoundingRadius())

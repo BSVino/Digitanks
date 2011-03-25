@@ -302,7 +302,7 @@ public:
 	bool									IsSoundPlaying(const eastl::string16& sModel);
 	void									SetSoundVolume(const eastl::string16& sModel, float flVolume);
 
-	virtual float							Distance(Vector vecSpot);
+	virtual float							Distance(Vector vecSpot) const;
 
 	virtual bool							Collide(const Vector& v1, const Vector& v2, Vector& vecPoint);
 

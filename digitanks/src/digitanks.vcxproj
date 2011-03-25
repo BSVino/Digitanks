@@ -158,6 +158,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\tinker\profiler.cpp" />
     <ClCompile Include="..\..\tinker\register.cpp" />
     <ClCompile Include="game\digitanks\bot_campaign.cpp" />
+    <ClCompile Include="game\digitanks\campaign\userfile.cpp" />
     <ClCompile Include="game\digitanks\digitankslevel.cpp" />
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
@@ -262,6 +263,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="..\..\tinker\portals\portal.h" />
     <ClInclude Include="..\..\tinker\profiler.h" />
     <ClInclude Include="dt_version.h" />
+    <ClInclude Include="game\digitanks\campaign\userfile.h" />
     <ClInclude Include="game\digitanks\digitankslevel.h" />
     <ClInclude Include="game\digitanks\dt_camera.h" />
     <ClInclude Include="game\digitanks\dt_common.h" />

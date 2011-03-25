@@ -15,7 +15,7 @@ public:
 
 	virtual Vector					GetOrigin() const;
 	virtual float					GetRenderRadius() const;
-	virtual float					Distance(Vector vecSpot);
+	virtual float					Distance(Vector vecSpot) const;
 
 	virtual void					StartTurn();
 

@@ -207,6 +207,9 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 		if (!pTank && !pStructure)
 			continue;
 
+		if (pTank && pTank->IsImprisoned())
+			continue;
+
 		if (pEntity->GetTeam() == pHeadTank->GetTeam())
 			continue;
 
@@ -328,6 +331,9 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				if (pClosestInfantry->GetTeam() == pTank->GetTeam())
 					continue;
 
+				if (pClosestInfantry->IsImprisoned())
+					continue;
+
 				if (!pClosestInfantry->IsInsideMaxRange(pTank->GetOrigin()))
 				{
 					pClosestInfantry = NULL;
@@ -404,6 +410,9 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 						break;
 
 					if (pClosestEnemy->IsScout())
+						continue;
+
+					if (pClosestEnemy->IsImprisoned())
 						continue;
 
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
@@ -551,6 +560,9 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 						continue;
 
+					if (pClosestEnemy->IsImprisoned())
+						continue;
+
 					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
 					{
 						pClosestEnemy = NULL;
@@ -665,6 +677,9 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 					continue;
 
+				if (pClosestEnemy->IsImprisoned())
+					continue;
+
 				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
 				{
 					pClosestEnemy = NULL;
@@ -722,6 +737,9 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 						break;
 
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+						continue;
+
+					if (pClosestEnemy->IsImprisoned())
 						continue;
 
 					if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))

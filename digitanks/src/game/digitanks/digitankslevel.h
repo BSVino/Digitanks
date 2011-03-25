@@ -21,6 +21,7 @@ public:
 	CLevelUnit()
 	{
 		m_bFortified = false;
+		m_bImprisoned = false;
 	};
 
 	eastl::string			m_sClassName;
@@ -28,6 +29,7 @@ public:
 	Vector2D				m_vecPosition;
 	EAngle					m_angOrientation;
 	bool					m_bFortified;
+	bool					m_bImprisoned;
 };
 
 class CDigitanksLevel : public CLevel

@@ -115,8 +115,10 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 			pProp->m_vecPosition = pChildData->GetValueVector2D();
 		else if (pChildData->GetKey() == "Angle")
 			pProp->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
-		if (pChildData->GetKey() == "Fortified")
+		else if (pChildData->GetKey() == "Fortified")
 			pProp->m_bFortified = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "Imprisoned")
+			pProp->m_bImprisoned = pChildData->GetValueBool();
 	}
 }
 

@@ -72,7 +72,7 @@ float CSupplyLine::GetRenderRadius() const
 	return vecEntity.Distance(vecSupplier);
 }
 
-float CSupplyLine::Distance(Vector vecSpot)
+float CSupplyLine::Distance(Vector vecSpot) const
 {
 	if (m_hSupplier == NULL || m_hEntity == NULL)
 		return BaseClass::Distance(vecSpot);

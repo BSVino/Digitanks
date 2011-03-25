@@ -70,6 +70,9 @@
     <Filter Include="Source Files\tinker\portals">
       <UniqueIdentifier>{34a7f1ba-918b-40f6-bc23-141e85d9de9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\digitanks\campaign">
+      <UniqueIdentifier>{d1c71b9a-c3a1-4883-b293-dbb8162e44cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -348,6 +351,9 @@
     <ClCompile Include="game\digitanks\bot_campaign.cpp">
       <Filter>Source Files\digitanks</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\campaign\userfile.cpp">
+      <Filter>Source Files\digitanks\campaign</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -595,6 +601,9 @@
     </ClInclude>
     <ClInclude Include="..\..\tinker\profiler.h">
       <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\campaign\userfile.h">
+      <Filter>Source Files\digitanks\campaign</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,7 @@
 #include <digitanks/units/standardtank.h>
 #include <digitanks/units/maintank.h>
 #include <digitanks/units/mechinf.h>
+#include <digitanks/campaign/userfile.h>
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iAutoMove = 0;
@@ -169,6 +170,7 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFiredWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bActionTaken);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLostConcealment);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireWeaponTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireWeapons);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CBaseWeapon>, m_hWeapon);
@@ -348,6 +350,7 @@ void CDigitank::Spawn()
 	m_bCloaked = false;
 	m_bHasCloak = false;
 	m_bLostConcealment = false;
+	m_bImprisoned = false;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -1012,72 +1015,83 @@ void CDigitank::Move(CNetworkParameters* p)
 
 			CPowerup* pPowerup = dynamic_cast<CPowerup*>(pEntity);
 
-			if (!pPowerup)
-				continue;
-
-			Vector vecDistance = pPowerup->GetOrigin() - GetRealOrigin();
-			vecDistance.y = 0;
-			if (vecDistance.Length() < pPowerup->GetBoundingRadius() + GetBoundingRadius())
+			if (pPowerup)
 			{
-				pPowerup->Delete();
-
-				switch (pPowerup->GetPowerupType())
+				Vector vecDistance = pPowerup->GetOrigin() - GetRealOrigin();
+				vecDistance.y = 0;
+				if (vecDistance.Length() < pPowerup->GetBoundingRadius() + GetBoundingRadius())
 				{
-				case POWERUP_BONUS:
-				default:
-					GiveBonusPoints(1);
-					break;
+					pPowerup->Delete();
 
-				case POWERUP_AIRSTRIKE:
-					m_iAirstrikes++;
-					break;
-
-				case POWERUP_MISSILEDEFENSE:
-					m_iMissileDefenses += 3;
-					break;
-
-				case POWERUP_TANK:
-				{
-					CDigitank* pTank;
-					if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
-						pTank = GameServer()->Create<CStandardTank>("CStandardTank");
-					else
+					switch (pPowerup->GetPowerupType())
 					{
-						switch(RandomInt(0, 4))
+					case POWERUP_BONUS:
+					default:
+						GiveBonusPoints(1);
+						break;
+
+					case POWERUP_AIRSTRIKE:
+						m_iAirstrikes++;
+						break;
+
+					case POWERUP_MISSILEDEFENSE:
+						m_iMissileDefenses += 3;
+						break;
+
+					case POWERUP_TANK:
+					{
+						CDigitank* pTank;
+						if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+							pTank = GameServer()->Create<CStandardTank>("CStandardTank");
+						else
 						{
-						default:
-						case 0:
-						case 1:
-							pTank = GameServer()->Create<CScout>("CScout");
-							break;
+							switch(RandomInt(0, 4))
+							{
+							default:
+							case 0:
+							case 1:
+								pTank = GameServer()->Create<CScout>("CScout");
+								break;
 
-						case 2:
-						case 3:
-							pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
-							break;
+							case 2:
+							case 3:
+								pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+								break;
 
-						case 4:
-							pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
-							break;
+							case 4:
+								pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+								break;
+							}
 						}
+
+						GetTeam()->AddEntity(pTank);
+
+						Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
+						vecTank.y = pTank->FindHoverHeight(vecTank);
+						EAngle angTank = VectorAngles(-vecTank.Normalized());
+
+						pTank->SetOrigin(vecTank);
+						pTank->SetAngles(angTank);
+						pTank->StartTurn();
+
+						pTank->CalculateVisibility();
+					}
 					}
 
-					GetTeam()->AddEntity(pTank);
-
-					Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
-					vecTank.y = pTank->FindHoverHeight(vecTank);
-					EAngle angTank = VectorAngles(-vecTank.Normalized());
-
-					pTank->SetOrigin(vecTank);
-					pTank->SetAngles(angTank);
-					pTank->StartTurn();
-
-					pTank->CalculateVisibility();
-				}
+					DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
 				}
 
-				DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
+				continue;
 			}
+
+			CUserFile* pUserFile = dynamic_cast<CUserFile*>(pEntity);
+			Vector vecTouchingPoint;
+			if (pUserFile && pUserFile->IsTouching(this, vecTouchingPoint))
+				pUserFile->Pickup(this);
+
+			CDigitank* pOtherTank = dynamic_cast<CDigitank*>(pEntity);
+			if (pOtherTank && pOtherTank->IsTouching(this, vecTouchingPoint))
+				pOtherTank->FreeFromConfinement(this);
 		}
 	}
 
@@ -1506,6 +1520,21 @@ float CDigitank::GetCloakConcealment() const
 	return 0;
 }
 
+void CDigitank::FreeFromConfinement(CDigitank* pOther)
+{
+	if (!pOther)
+		return;
+
+	if (!pOther->GetTeam())
+		return;
+
+	pOther->GetTeam()->AddEntity(this);
+
+	m_bImprisoned = false;
+
+	StartTurn();
+}
+
 bool CDigitank::MovesWith(CDigitank* pOther) const
 {
 	if (!pOther)
@@ -1604,7 +1633,7 @@ void CDigitank::Think()
 
 	bool bAimMode = DigitanksGame()->GetControlMode() == MODE_AIM && DigitanksGame()->GetAimType() == AIM_NORMAL;
 	bool bShowThisTank = m_bFiredWeapon;
-	if (bAimMode && GetDigitanksTeam()->IsSelected(this) && AimsWith(GetDigitanksTeam()->GetPrimarySelectionTank()))
+	if (bAimMode && GetDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && AimsWith(GetDigitanksTeam()->GetPrimarySelectionTank()))
 		bShowThisTank = true;
 	if (GetDigitanksTeam() != DigitanksGame()->GetCurrentTeam())
 		bShowThisTank = false;
@@ -2921,7 +2950,7 @@ Vector CDigitank::GetRenderOrigin() const
 	float flLerp = 0;
 	float flHoverHeight = 0;
 	
-	if (!IsFortified() && !IsFortifying())
+	if (!IsFortified() && !IsFortifying() && !IsImprisoned())
 	{
 		float flOscillate = Oscillate(GameServer()->GetGameTime()+m_flBobOffset, 4);
 		flLerp = SLerp(flOscillate, 0.2f);
@@ -2944,6 +2973,9 @@ Vector CDigitank::GetRenderOrigin() const
 
 EAngle CDigitank::GetRenderAngles() const
 {
+	if (!GetTeam())
+		return BaseClass::GetRenderAngles();
+
 	if (GetDigitanksTeam()->IsPrimarySelection(this))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetRemainingMovementEnergy())
@@ -3113,6 +3145,27 @@ void CDigitank::RenderShield()
 	CModel* pModel = CModelLibrary::Get()->GetModel(m_iShieldModel);
 	if (pModel)
 		glCallList((GLuint)pModel->m_iCallList);
+}
+
+bool CDigitank::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
+{
+	if (IsImprisoned())
+	{
+		CDigitank* pOtherTank = dynamic_cast<CDigitank*>(pOther);
+
+		if (!pOtherTank)
+			return false;
+
+		if (!pOtherTank->GetTeam())
+			return false;
+
+		if (Distance(pOtherTank->GetRealOrigin()) > 20)
+			return false;
+
+		return true;
+	}
+
+	return BaseClass::IsTouching(pOther, vecPoint);
 }
 
 float CDigitank::AvailableArea(int iArea) const

@@ -203,6 +203,10 @@ public:
 	virtual float				GetCloakConcealment() const;
 	virtual bool				HasLostConcealment() const { return m_bLostConcealment; }
 
+	void						Imprison() { m_bImprisoned = true; }
+	bool						IsImprisoned() const { return m_bImprisoned; }
+	void						FreeFromConfinement(CDigitank* pOther);
+
 	virtual bool				MovesWith(CDigitank* pOther) const;
 	virtual bool				TurnsWith(CDigitank* pOther) const;
 	virtual bool				AimsWith(CDigitank* pOther) const;
@@ -269,6 +273,8 @@ public:
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
 	virtual void				RenderShield();
 	virtual float				RenderShieldScale() const { return 20.0f; };
+
+	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 
 	virtual float				AvailableArea(int iArea) const;
 	virtual int					GetNumAvailableAreas() const { return 1; };
@@ -405,6 +411,8 @@ protected:
 	CNetworkedVariable<bool>	m_bFiredWeapon;
 	CNetworkedVariable<bool>	m_bActionTaken;
 	CNetworkedVariable<bool>	m_bLostConcealment;
+
+	bool						m_bImprisoned;
 
 	float						m_flFireWeaponTime;
 	size_t						m_iFireWeapons;

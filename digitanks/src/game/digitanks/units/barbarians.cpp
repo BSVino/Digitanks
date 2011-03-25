@@ -46,6 +46,9 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 	if (!DigitanksGame()->GetTerrain())
 		return;
 
+	if (GetTeam())
+		return;
+
 	pContext->SetColorSwap(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor());
 }
 
@@ -84,6 +87,9 @@ void CGridBug::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 		return;
 
 	if (!DigitanksGame()->GetTerrain())
+		return;
+
+	if (GetTeam())
 		return;
 
 	pContext->SetColorSwap(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor());

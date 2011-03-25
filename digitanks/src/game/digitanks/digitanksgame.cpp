@@ -38,6 +38,7 @@
 #include "digitanks/structures/loader.h"
 #include "digitanks/structures/props.h"
 #include "digitanks/digitankslevel.h"
+#include "digitanks/campaign/userfile.h"
 
 CGame* CreateGame()
 {
@@ -781,6 +782,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 			pUnit = GameServer()->Create<CAutoTurret>("CAutoTurret");
 		else if (pLevelUnit->m_sClassName == "GridBug")
 			pUnit = GameServer()->Create<CGridBug>("CGridBug");
+		else if (pLevelUnit->m_sClassName == "UserFile")
+			pUnit = GameServer()->Create<CUserFile>("CUserFile");
 		else
 		{
 			assert(!"Invalid unit");
@@ -792,13 +795,19 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		pUnit->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
 		pUnit->SetAngles(EAngle(0, pLevelUnit->m_angOrientation.y, 0));
 
-		if (pLevelUnit->m_sTeamName == "Player")
-			m_ahTeams[0]->AddEntity(pUnit);
-		else if (pLevelUnit->m_sTeamName == "Hackers")
-			m_ahTeams[1]->AddEntity(pUnit);
+		if (!pLevelUnit->m_bImprisoned)
+		{
+			if (pLevelUnit->m_sTeamName == "Player")
+				m_ahTeams[0]->AddEntity(pUnit);
+			else if (pLevelUnit->m_sTeamName == "Hackers")
+				m_ahTeams[1]->AddEntity(pUnit);
+		}
 
 		if (pLevelUnit->m_bFortified && pTank)
 			pTank->Fortify();
+
+		if (pLevelUnit->m_bImprisoned && pTank)
+			pTank->Imprison();
 
 		// All starting tanks should stay put.
 		// This means if they are fortified they should always stay fortified and not join an attack team.
