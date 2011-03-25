@@ -11,6 +11,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+
 	virtual eastl::string16		GetName() { return L"Auto-Turret"; };
 
 	virtual bool				CanFortify() { return true; };
@@ -35,6 +37,8 @@ class CGridBug : public CDigitank
 public:
 	virtual void				Precache();
 	virtual void				Spawn();
+
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual eastl::string16		GetName() { return L"Grid Bug"; };
 
