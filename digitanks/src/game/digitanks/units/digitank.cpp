@@ -3061,8 +3061,11 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	if (IsDisabled())
 		r.Rotate(-35, Vector(0, 0, 1));
 
-	if (!GameServer()->GetRenderer()->ShouldUseShaders())
+	if (GetTeam())
 		r.SetColorSwap(GetTeam()->GetColor());
+
+	if (GetUnitType() == UNIT_GRIDBUG || GetUnitType() == UNIT_AUTOTURRET)
+		r.SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 
 	r.RenderModel(m_iTurretModel);
 }
