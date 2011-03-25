@@ -1,6 +1,10 @@
 #include "barbarians.h"
 
 #include <models/models.h>
+#include <renderer/renderer.h>
+
+#include <digitanks/digitanksgame.h>
+#include <digitanks/terrain.h>
 
 REGISTER_ENTITY(CAutoTurret);
 
@@ -32,6 +36,18 @@ void CAutoTurret::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
+void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+{
+	BaseClass::ModifyContext(pContext, bTransparent);
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetTerrain())
+		return;
+
+	pContext->SetColorSwap(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor());
+}
 
 REGISTER_ENTITY(CGridBug);
 
@@ -58,4 +74,17 @@ void CGridBug::Spawn()
 
 	m_aeWeapons.push_back(PROJECTILE_SMALL);
 	m_eWeapon = PROJECTILE_SMALL;
+}
+
+void CGridBug::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+{
+	BaseClass::ModifyContext(pContext, bTransparent);
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetTerrain())
+		return;
+
+	pContext->SetColorSwap(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor());
 }
