@@ -244,7 +244,7 @@ public:
 	weapon_t					GetCurrentWeapon() const { return m_eWeapon; }
 	void						SetCurrentWeapon(weapon_t e, bool bNetworked = true);
 	float						GetWeaponEnergy() const;
-	size_t						GetNumWeapons() const { return m_aeWeapons.size(); };
+	size_t						GetNumWeapons() const;
 	weapon_t					GetWeapon(size_t iProjectile) const { return m_aeWeapons[iProjectile]; };
 	bool						HasWeapon(weapon_t eWeapon) const;
 	virtual bool				IsWaitingToFire() { return m_flFireWeaponTime != 0; };

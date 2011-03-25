@@ -680,7 +680,11 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				if (pClosestEnemy->IsImprisoned())
 					continue;
 
-				if (pClosestEnemy->GetVisibility(this) < 0.5f)
+				float flTargetVisibility = pClosestEnemy->GetVisibility(this);
+				if (flTargetVisibility < 0.6f)
+					continue;
+
+				if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 					continue;
 
 				if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
@@ -704,6 +708,14 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 
 					pTank->SetPreviewMove(vecDesiredMove);
 					pTank->Move();
+				}
+
+				if (pTank->IsInfantry())
+				{
+					if (pClosestEnemy->GetUnitType() == UNIT_SCOUT)
+						pTank->SetCurrentWeapon(WEAPON_INFANTRYLASER, false);
+					else
+						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 				}
 
 				// If we are within the max range, try to fire.

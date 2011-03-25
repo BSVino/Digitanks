@@ -13,10 +13,14 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
+	virtual float				GetFortifyAttackPowerBonus();
+	virtual float				GetFortifyDefensePowerBonus();
+
 	virtual eastl::string16		GetName() { return L"Auto-Turret"; };
 
 	virtual bool				CanFortify() { return true; };
 
+	virtual float				BaseVisibleRange() const { return 60.0f; };
 	virtual float				TotalHealth() const { return 40; };
 	virtual bool				TakesLavaDamage() { return false; }
 	virtual float				BaseHealthRechargeRate() const { return 0.0f; };
@@ -42,6 +46,7 @@ public:
 
 	virtual eastl::string16		GetName() { return L"Grid Bug"; };
 
+	virtual float				BaseVisibleRange() const { return 60.0f; };
 	virtual float				TotalHealth() const { return 40; };
 	virtual bool				TakesLavaDamage() { return false; }
 	virtual float				BaseHealthRechargeRate() const { return 0.0f; };

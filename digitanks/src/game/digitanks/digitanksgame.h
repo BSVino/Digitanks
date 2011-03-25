@@ -208,7 +208,7 @@ public:
 	bool					CanBuildTankLoaders();
 	bool					CanBuildArtilleryLoaders();
 
-	bool					IsWeaponAllowed(weapon_t eWeapon);
+	bool					IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank);
 	bool					IsInfantryFortifyAllowed();
 
 	void					BeginAirstrike(Vector vecLocation);

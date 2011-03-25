@@ -681,6 +681,18 @@ void CDigitank::StartTurn()
 		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
 			DigitanksWindow()->GetInstructor()->NextTutorial();
 	}
+
+	if (!DigitanksGame()->IsWeaponAllowed(GetCurrentWeapon(), this))
+	{
+		for (size_t i = 0; i < m_aeWeapons.size(); i++)
+		{
+			if (DigitanksGame()->IsWeaponAllowed(m_aeWeapons[i], this))
+			{
+				SetCurrentWeapon(m_aeWeapons[i]);
+				break;
+			}
+		}
+	}
 }
 
 void CDigitank::EndTurn()
@@ -2586,12 +2598,28 @@ void CDigitank::SetCurrentWeapon(weapon_t e, bool bNetworked)
 	if (bNetworked)
 		::SetCurrentWeapon.RunCommand(sprintf(L"%d %d", GetHandle(), e));
 
+	if (!DigitanksGame()->IsWeaponAllowed(e, this))
+		return;
+
 	m_eWeapon = e;
 }
 
 float CDigitank::GetWeaponEnergy() const
 {
 	return CProjectile::GetWeaponEnergy(m_eWeapon);
+}
+
+size_t CDigitank::GetNumWeapons() const
+{
+	size_t iWeapons = 0;
+	size_t iTotalWeapons = m_aeWeapons.size();
+	for (size_t i = 0; i < iTotalWeapons; i++)
+	{
+		if (DigitanksGame()->IsWeaponAllowed(m_aeWeapons[i], this))
+			iWeapons++;
+	}
+
+	return iWeapons;
 }
 
 bool CDigitank::HasWeapon(weapon_t eWeapon) const
@@ -2695,12 +2723,30 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
 
-	if (!CNetwork::IsConnected() && iDifficulty == 0)
+	if (!CNetwork::IsConnected())
 	{
 		if (DigitanksGame()->IsTeamControlledByMe(GetTeam()))
-			flDamage *= 0.5f;
+		{
+			if (iDifficulty == 0)
+				flDamage *= 0.5f;
+			else if (iDifficulty == 1)
+				flDamage *= 0.75f;
+			else if (iDifficulty == 2)
+				flDamage *= 1.0f;
+			else if (iDifficulty == 2)
+				flDamage *= 1.2f;
+		}
 		else if (dynamic_cast<CDigitank*>(pAttacker) && DigitanksGame()->IsTeamControlledByMe(dynamic_cast<CDigitank*>(pAttacker)->GetTeam()))
-			flDamage *= 2.0f;
+		{
+			if (iDifficulty == 0)
+				flDamage *= 2.0f;
+			else if (iDifficulty == 1)
+				flDamage *= 1.5f;
+			else if (iDifficulty == 2)
+				flDamage *= 1.0f;
+			else if (iDifficulty == 3)
+				flDamage *= 0.8f;
+		}
 	}
 
 	Vector vecAttackOrigin;
@@ -3095,8 +3141,11 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	if (IsDisabled())
 		r.Rotate(-35, Vector(0, 0, 1));
 
-	if (!GameServer()->GetRenderer()->ShouldUseShaders())
+	if (GetTeam())
 		r.SetColorSwap(GetTeam()->GetColor());
+
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && (GetUnitType() == UNIT_GRIDBUG || GetUnitType() == UNIT_AUTOTURRET))
+		r.SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 
 	r.RenderModel(m_iTurretModel);
 }

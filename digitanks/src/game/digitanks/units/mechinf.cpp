@@ -45,15 +45,10 @@ void CMechInfantry::Spawn()
 	m_flMaxShieldStrength = m_flShieldStrength = 100;
 
 	m_aeWeapons.push_back(PROJECTILE_FLAK);
-	if (DigitanksGame()->IsWeaponAllowed(PROJECTILE_TREECUTTER))
-		m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
-	if (DigitanksGame()->IsWeaponAllowed(WEAPON_INFANTRYLASER))
-	{
-		m_aeWeapons.push_back(WEAPON_INFANTRYLASER);
-		m_eWeapon = WEAPON_INFANTRYLASER;
-	}
-	else
-		m_eWeapon = PROJECTILE_FLAK;
+	m_aeWeapons.push_back(PROJECTILE_TREECUTTER);
+	m_aeWeapons.push_back(WEAPON_INFANTRYLASER);
+
+	m_eWeapon = WEAPON_INFANTRYLASER;
 }
 
 void CMechInfantry::PostRender(bool bTransparent)
@@ -104,20 +99,20 @@ bool CMechInfantry::CanFortify()
 
 float CMechInfantry::BaseShieldRechargeRate() const
 {
-	float flRate = 10.0f;
+	float flRate = 20.0f;
 
 	if (IsFortified())
-		return flRate + ((float)m_iFortifyLevel)*5;
+		return flRate + ((float)m_iFortifyLevel)*10;
 
 	return flRate;
 }
 
 float CMechInfantry::BaseHealthRechargeRate() const
 {
-	float flRate = 2.0f;
+	float flRate = 5.0f;
 
 	if (IsFortified())
-		return flRate + ((float)m_iFortifyLevel);
+		return flRate + ((float)m_iFortifyLevel)*2;
 
 	return flRate;
 }

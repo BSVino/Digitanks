@@ -2430,15 +2430,27 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 	return !bDisableLoaders;
 }
 
-bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon)
+bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 {
 	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 
 	if (eWeapon == WEAPON_INFANTRYLASER)
+	{
+		// Enemy tanks have access to this weapon from the first mission.
+		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
+			return true;
+
 		return pLevel->AllowInfantryLasers();
+	}
 
 	if (eWeapon == PROJECTILE_TREECUTTER)
+	{
+		// Enemy tanks have access to this weapon from the first mission.
+		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
+			return true;
+
 		return pLevel->AllowInfantryTreeCutters();
+	}
 
 	return true;
 }
@@ -2509,7 +2521,7 @@ CDigitanksTeam* CDigitanksGame::GetCurrentLocalDigitanksTeam()
 
 bool CDigitanksGame::SoftCraters()
 {
-	return m_eGameType == GAMETYPE_STANDARD;
+	return m_eGameType == GAMETYPE_STANDARD || m_eGameType == GAMETYPE_CAMPAIGN;
 }
 
 void CDigitanksGame::UpdateHUD(CNetworkedVariableBase* pVariable)

@@ -47,9 +47,19 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 		return;
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		pContext->SetColorSwap(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor());
+		pContext->SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 	else
 		pContext->SetColorSwap(GetTeam()->GetColor());
+}
+
+float CAutoTurret::GetFortifyAttackPowerBonus()
+{
+	return 0;
+}
+
+float CAutoTurret::GetFortifyDefensePowerBonus()
+{
+	return 0;
 }
 
 REGISTER_ENTITY(CGridBug);
@@ -90,7 +100,7 @@ void CGridBug::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 		return;
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		pContext->SetColorSwap(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor());
+		pContext->SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 	else
 		pContext->SetColorSwap(GetTeam()->GetColor());
 }

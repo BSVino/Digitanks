@@ -338,7 +338,7 @@ void CCampaignPanel::Mission1Callback()
 
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
 	DigitanksWindow()->CreateGame(GAMETYPE_CAMPAIGN);
-	DigitanksGame()->SetDifficulty(0);
+	DigitanksGame()->SetDifficulty(1);
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }

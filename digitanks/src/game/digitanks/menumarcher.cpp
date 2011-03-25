@@ -98,6 +98,8 @@ void CMenuMarcher::RenderTurret()
 	float flScale = 1.3f;
 	r.Scale(flScale, flScale, flScale);
 
+	r.SetColorSwap(Color(0, 0, 255));
+
 	r.RenderModel(m_iTurretModel);
 }
 
