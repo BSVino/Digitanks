@@ -550,7 +550,7 @@ bool CStoryPanel::MousePressed(int code, int mx, int my)
 	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
-	pInstructor->DisplayIngameStrategyTutorial();
+	pInstructor->DisplayFirstTutorial("artillery-select");
 
 	return true;
 }
@@ -563,7 +563,7 @@ bool CStoryPanel::KeyPressed(int iKey, bool bCtrlDown)
 	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
-	pInstructor->DisplayIngameStrategyTutorial();
+	pInstructor->DisplayFirstTutorial("artillery-select");
 
 	// Pass the keypress through so that the menu opens.
 	return false;

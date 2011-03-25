@@ -108,7 +108,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->FireTanks();
-			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
+//			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
@@ -142,8 +142,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseMoved = 0;
 		else
 		{
-			if (m_iMouseMoved > 30)
-				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
+//			if (m_iMouseMoved > 30)
+//				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
 		}
 	}
 
@@ -233,8 +233,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 					DigitanksGame()->GetCurrentLocalDigitanksTeam()->AddToSelection(pSelectable);
 			}
 
-			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
-				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
+//			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
+//				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BOXSELECT);
 		}
 		else if (pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		{
@@ -250,8 +250,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			else if (!IsShiftDown())
 				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
 
-			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
-				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
+//			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumSelected() == 3)
+//				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SHIFTSELECT);
 		}
 
 		m_bBoxSelect = false;

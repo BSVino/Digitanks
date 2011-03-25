@@ -217,8 +217,6 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 		SetupStrategy();
 	else if (eGameType == GAMETYPE_ARTILLERY)
 		SetupArtillery();
-	else if (eGameType == GAMETYPE_TUTORIAL)
-		SetupTutorial();
 	else if (eGameType == GAMETYPE_MENU)
 		SetupMenuMarch();
 	else if (eGameType == GAMETYPE_CAMPAIGN)
@@ -656,26 +654,6 @@ void CDigitanksGame::SetupStrategy()
 
 	m_hUpdates = GameServer()->Create<CUpdateGrid>("CUpdateGrid");
 	m_hUpdates->SetupStandardUpdates();
-}
-
-void CDigitanksGame::SetupTutorial()
-{
-	TMsg(L"Setting up tutorial game.\n");
-
-	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
-	m_hTerrain->GenerateTerrain();
-
-	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
-	m_ahTeams[0]->SetColor(Color(0, 0, 255));
-
-	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
-	m_ahTeams[1]->SetColor(Color(255, 0, 0));
-
-	m_ahTeams[0]->SetClient(-1);
-
-	GetDigitanksTeam(0)->AddPower(50);
-
-	m_iPowerups = 0;
 }
 
 void CDigitanksGame::SetupMenuMarch()
@@ -1288,13 +1266,13 @@ void CDigitanksGame::MoveTanks()
 		GetCurrentLocalDigitanksTeam()->HandledActionItem(pTank);
 
 		if (pTank->GetUnitType() == UNIT_MOBILECPU)
-			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
+			DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-command", true);
 	}
 
 	SetControlMode(MODE_NONE);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-command");
 }
 
 void CDigitanksGame::TurnTanks(Vector vecLookAt)
@@ -1340,7 +1318,7 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 
 	SetControlMode(MODE_NONE);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command");
 }
 
 void CDigitanksGame::FireTanks()
@@ -1394,7 +1372,7 @@ void CDigitanksGame::FireTanks()
 		GetCurrentLocalDigitanksTeam()->HandledActionItem(pTank);
 	}
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command");
 	SetControlMode(MODE_NONE);
 }
 
@@ -1404,10 +1382,8 @@ void CDigitanksGame::EndTurn()
 
 	EndTurn(NULL);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
-	if (GetCurrentTeam() == GetCurrentLocalDigitanksTeam())
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING2, true);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 }
 
 void CDigitanksGame::EndTurn(CNetworkParameters* p)
@@ -1805,7 +1781,7 @@ void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 
 void CDigitanksGame::CheckWinConditions()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL || m_eGameType == GAMETYPE_MENU || m_eGameType == GAMETYPE_CAMPAIGN)
+	if (m_eGameType == GAMETYPE_MENU || m_eGameType == GAMETYPE_CAMPAIGN)
 		return;
 
 	if (m_bPartyMode)
@@ -1962,8 +1938,8 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 
 	m_eControlMode = eMode;
 
-	if (eMode == MODE_AIM)
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
+//	if (eMode == MODE_AIM)
+//		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
 }
 
 aimtype_t CDigitanksGame::GetAimType()
@@ -2108,9 +2084,10 @@ void CDigitanksGame::ClearTankAims()
 	m_aflTankAimRadius.clear();
 }
 
-void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
+void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 {
-	if (iTutorial == CInstructor::TUTORIAL_INTRO_BASICS)
+	/*
+	if (sTutorial == CInstructor::TUTORIAL_INTRO_BASICS)
 	{
 		CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[0]->AddEntity(pTank);
@@ -2122,9 +2099,9 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SetDistance(100);
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_SELECTION)
+	else if (sTutorial == CInstructor::TUTORIAL_SELECTION)
 		GetDigitanksCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
-	else if (iTutorial == CInstructor::TUTORIAL_MOVE_MODE)
+	else if (sTutorial == CInstructor::TUTORIAL_MOVE_MODE)
 	{
 		// Make an enemy for us to clobber. Close enough that moving out of the way won't move us out of range
 		CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
@@ -2136,12 +2113,12 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		GetDigitanksCamera()->SetDistance(100);
 		GetDigitanksCamera()->SetAngle(EAngle(45, 0, 0));
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_POWERUP)
+	else if (sTutorial == CInstructor::TUTORIAL_POWERUP)
 	{
 		CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
 		pPowerup->SetOrigin(GetTerrain()->SetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_SHIFTSELECT)
+	else if (sTutorial == CInstructor::TUTORIAL_SHIFTSELECT)
 	{
 		CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[0]->AddEntity(pTank);
@@ -2153,12 +2130,12 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		pTank->StartTurn();
 		pTank->SetOrigin(GetTerrain()->SetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(15, 0, -15)));
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_THEEND_BASICS)
+	else if (sTutorial == CInstructor::TUTORIAL_THEEND_BASICS)
 	{
 		// So that pressing the escape key works the first time.
 		SetControlMode(MODE_NONE);
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_INTRO_BASES)
+	else if (sTutorial == CInstructor::TUTORIAL_INTRO_BASES)
 	{
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
@@ -2176,12 +2153,12 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		GetDigitanksTeam(0)->SetPrimarySelection(pCPU);
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_THEEND_BASES)
+	else if (sTutorial == CInstructor::TUTORIAL_THEEND_BASES)
 	{
 		// So that pressing the escape key works the first time.
 		SetControlMode(MODE_NONE);
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_INTRO_UNITS)
+	else if (sTutorial == CInstructor::TUTORIAL_INTRO_UNITS)
 	{
 		CDigitank* pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
 		m_ahTeams[0]->AddEntity(pTank);
@@ -2197,7 +2174,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		DigitanksGame()->GetTerrain()->CalculateVisibility();
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_ARTILLERY)
+	else if (sTutorial == CInstructor::TUTORIAL_ARTILLERY)
 	{
 		// Kill the infantry, spawn an artillery.
 		m_ahTeams[0]->GetMember(0)->Delete();
@@ -2214,7 +2191,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		DigitanksGame()->GetTerrain()->CalculateVisibility();
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_FIRE_ARTILLERY)
+	else if (sTutorial == CInstructor::TUTORIAL_FIRE_ARTILLERY)
 	{
 		// Kill the infantry, spawn an artillery.
 		CDigitank* pArtillery = GetDigitanksTeam(0)->GetTank(0);
@@ -2240,7 +2217,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		// So we can see the new guy
 		GetDigitanksTeam(0)->CalculateVisibility();
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_ROGUE)
+	else if (sTutorial == CInstructor::TUTORIAL_ROGUE)
 	{
 		if (m_ahTeams[1]->GetMember(0))
 			m_ahTeams[1]->GetMember(0)->Delete();
@@ -2261,7 +2238,7 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 
 		DigitanksGame()->GetTerrain()->CalculateVisibility();
 	}
-	else if (iTutorial == CInstructor::TUTORIAL_TORPEDO)
+	else if (sTutorial == CInstructor::TUTORIAL_TORPEDO)
 	{
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(20, 0, 20)));
@@ -2274,11 +2251,10 @@ void CDigitanksGame::OnDisplayTutorial(size_t iTutorial)
 		pBuffer->SetSupplier(pCPU);
 
 		GetDigitanksTeam(0)->CalculateVisibility();
-	}
-	else if (iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
-	{
+	}*/
+
+	if (sTutorial == "strategy-command")
 		SetControlMode(MODE_MOVE);
-	}
 
 	// Make sure that features now enabled are turned on.
 	DigitanksWindow()->GetHUD()->SetupMenu();
@@ -2293,12 +2269,6 @@ void CDigitanksGame::ClientEnterGame()
 		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
 		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
 		GetDigitanksCamera()->SnapDistance(60);
-	}
-	else if (m_eGameType == GAMETYPE_TUTORIAL)
-	{
-		GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
-		GetDigitanksCamera()->SnapAngle(EAngle(45, 0, 0));
-		GetDigitanksCamera()->SnapDistance(80);
 	}
 	else
 	{
@@ -2336,15 +2306,6 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 
 	if (m_eGameType == GAMETYPE_MENU)
 		return false;
-
-	if (m_eGameType == GAMETYPE_TUTORIAL)
-	{
-		size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-		if (iTutorial >= CInstructor::TUTORIAL_INTRO_BASES)
-			return true;
-		else
-			return false;
-	}
 
 	if (IsPartyMode())
 		return false;
@@ -2392,17 +2353,11 @@ bool CDigitanksGame::CanBuildMiniBuffers()
 
 bool CDigitanksGame::CanBuildBuffers()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL)
-		return false;
-
 	return true;
 }
 
 bool CDigitanksGame::CanBuildBatteries()
 {
-	if (m_eGameType == GAMETYPE_TUTORIAL)
-		return false;
-
 	return true;
 }
 

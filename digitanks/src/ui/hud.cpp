@@ -828,13 +828,13 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN && m_bHUDActive)
 	{
-		if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
+		if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName == "artillery-aim")
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
 			m_apButtons[7]->SetButtonColor(Color(iColor, 0, 0));
 		}
-		else if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY && dynamic_cast<CMobileCPU*>(pCurrentTank))
+		else if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName == "strategy-deploy" && dynamic_cast<CMobileCPU*>(pCurrentTank))
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[8]->SetButtonColor(Color(0, 0, (int)RemapVal(flRamp, 0, 1, 0, 250)));
@@ -844,9 +844,7 @@ void CHUD::Think()
 		{
 			if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && pCurrentTank->HasBonusPoints())
 			{
-				float flRamp = 1;
-				if (!DigitanksWindow()->GetInstructor()->GetActive() || DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_UPGRADE)
-					flRamp = Oscillate(GameServer()->GetGameTime(), 1);
+				float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 				m_apButtons[4]->SetButtonColor(Color((int)RemapVal(flRamp, 0, 1, 0, 250), (int)RemapVal(flRamp, 0, 1, 0, 200), 0));
 			}
 
@@ -1182,7 +1180,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		// Main control pannel
 		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
 
-		if (bShowCPUStuff && (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES))
+		if (bShowCPUStuff && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		{
 			if (m_bUpdatesBlinking)
 			{
@@ -2211,9 +2209,6 @@ void CHUD::UpdateTeamInfo()
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		bShow = true;
 	
-	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL && DigitanksWindow()->GetInstructor()->GetCurrentTutorial() >= CInstructor::TUTORIAL_INTRO_BASES)
-		bShow = true;
-
 	if (!bShow)
 	{
 		m_pPowerInfo->SetText("");
@@ -3204,7 +3199,7 @@ void CHUD::MoveCallback()
 	else
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE_MODE, true);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE_MODE, true);
 
 	SetupMenu();
 }
@@ -3336,7 +3331,7 @@ void CHUD::PromoteAttackCallback()
 
 	UpdateInfo();
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::PromoteDefenseCallback()
@@ -3358,7 +3353,7 @@ void CHUD::PromoteDefenseCallback()
 
 	UpdateInfo();
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::PromoteMovementCallback()
@@ -3380,7 +3375,7 @@ void CHUD::PromoteMovementCallback()
 
 	UpdateInfo();
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_UPGRADE);
 }
 
 void CHUD::FireSpecialCallback()
@@ -3419,7 +3414,7 @@ void CHUD::BuildMiniBufferCallback()
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-buildbuffer", true);
 
 	SetupMenu();
 }
@@ -3465,7 +3460,7 @@ void CHUD::BuildBatteryCallback()
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-buildbuffer", true);
 
 	SetupMenu();
 }
@@ -3666,7 +3661,7 @@ void CHUD::ChooseWeaponCallback()
 	{
 		m_pWeaponPanel->Layout();
 		m_pWeaponPanel->SetVisible(true);
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM, true);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-aim", true);
 	}
 }
 

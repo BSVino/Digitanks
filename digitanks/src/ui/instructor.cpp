@@ -18,7 +18,7 @@ CInstructor::CInstructor()
 {
 	m_bActive = true;
 	m_pCurrentPanel = NULL;
-	m_iLastTutorial = -1;
+	m_sLastTutorial = "";
 	Initialize();
 
 	CSoundLibrary::Get()->AddSound(L"sound/lesson-learned.wav");
@@ -32,8 +32,8 @@ CInstructor::~CInstructor()
 
 void CInstructor::Clear()
 {
-	for (size_t i = 0; i < m_apTutorials.size(); i++)
-		delete m_apTutorials[i];
+	for (eastl::map<eastl::string, CTutorial*>::iterator it = m_apTutorials.begin(); it != m_apTutorials.end(); it++)
+		delete m_apTutorials[it->first];
 	m_apTutorials.clear();
 }
 
@@ -49,7 +49,7 @@ void CInstructor::Initialize()
 
 	Clear();
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INTRO_BASICS, new CTutorial(this, TUTORIAL_INTRO_BASICS, POSITION_TOPCENTER, 200, true,
+/*	m_apTutorials["intro-basics"] = new CTutorial(this, "intro-basics", "move-camera", POSITION_TOPCENTER, 200, true,
 		L"Welcome to Digitanks!\n \nThis tutorial will help you get accustomed to the game.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 220, true,
@@ -179,34 +179,41 @@ void CInstructor::Initialize()
 		L"DISCONNECTING SUPPLY LINES\n \nYou can force an enemy structure to become neutral by destroying its supply line and disconnecting it from the enemy base. Any neutral structure can then be taken over if you build a buffer nearby.\n \nRogue torpedoes can also disable enemy units, preventing them from taking any action for one turn.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_UNITS, new CTutorial(this, TUTORIAL_THEEND_UNITS, POSITION_TOPCENTER, 250, false,
-		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
+		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));*/
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_SELECT, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_SELECT, POSITION_SCENETREE, 150, false,
-		L"< Select a unit")));
+	m_apTutorials["artillery-select"] = new CTutorial(this, "artillery-select", "artillery-aim", POSITION_SCENETREE, 150, false, L"< Select a unit");
+	m_apTutorials["artillery-select"]->m_flSlideAmount = 1000;
+	m_apTutorials["artillery-select"]->m_bSlideX = true;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_AIM, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_AIM, POSITION_BUTTONS, 200, false,
-		L"Press the 'Choose Weapon' button")));
+	m_apTutorials["artillery-aim"] = new CTutorial(this, "artillery-aim", "artillery-chooseweapon", POSITION_BUTTONS, 200, false, L"Press the 'Choose Weapon' button");
+	m_apTutorials["artillery-aim"]->m_flSlideAmount = 1000;
+	m_apTutorials["artillery-aim"]->m_bSlideX = false;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON, POSITION_TOPCENTER, 200, false,
-		L"Choices!\n \nChoose your weapon.")));
+	m_apTutorials["artillery-chooseweapon"] = new CTutorial(this, "artillery-chooseweapon", "artillery-command", POSITION_TOPCENTER, 200, false, L"Choices!\n \nChoose your weapon.");
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_ARTILLERY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_ARTILLERY_COMMAND, POSITION_TOPCENTER, 200, false,
-		L"Click on an enemy to fire")));
+	m_apTutorials["artillery-command"] = new CTutorial(this, "artillery-chooseweapon", "", POSITION_TOPCENTER, 200, false, L"Click on an enemy to fire");
+	m_apTutorials["artillery-command"]->m_flSlideAmount = 200;
+	m_apTutorials["artillery-command"]->m_bSlideX = false;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_SELECT, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_SELECT, POSITION_SCENETREE, 150, false,
-		L"< Select the MCP")));
+	m_apTutorials["strategy-select"] = new CTutorial(this, "strategy-select", "strategy-command", POSITION_SCENETREE, 150, false, L"< Select the MCP");
+	m_apTutorials["strategy-select"]->m_flSlideAmount = 1000;
+	m_apTutorials["strategy-select"]->m_bSlideX = true;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_COMMAND, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_COMMAND, POSITION_TOPCENTER, 200, false,
-		L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes, such as this one")));
+	m_apTutorials["strategy-command"] = new CTutorial(this, "strategy-command", "strategy-deploy", POSITION_TOPCENTER, 200, false, L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes, such as this one");
+	m_apTutorials["strategy-command"]->m_flSlideAmount = 200;
+	m_apTutorials["strategy-command"]->m_bSlideX = false;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_DEPLOY, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_DEPLOY, POSITION_BUTTONS, 200, false,
-		L"Press the 'Deploy' button to create a CPU")));
+	m_apTutorials["strategy-deploy"] = new CTutorial(this, "strategy-deploy", "strategy-buildbuffer", POSITION_BUTTONS, 200, false, L"Press the 'Deploy' button to create a CPU");
+	m_apTutorials["strategy-deploy"]->m_flSlideAmount = 1000;
+	m_apTutorials["strategy-deploy"]->m_bSlideX = false;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_BUILDBUFFER, POSITION_BUTTONS, 200, false,
-		L"Choose 'Build Buffer' from the construction options")));
+	m_apTutorials["strategy-buildbuffer"] = new CTutorial(this, "strategy-buildbuffer", "strategy-placebuffer", POSITION_BUTTONS, 200, false, L"Choose 'Build Buffer' from the construction options");
+	m_apTutorials["strategy-buildbuffer"]->m_flSlideAmount = 1000;
+	m_apTutorials["strategy-buildbuffer"]->m_bSlideX = false;
 
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, new CTutorial(this, TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, POSITION_TOPCENTER, 200, false,
-		L"Click inside the green area to place the structure")));
+	m_apTutorials["strategy-placebuffer"] = new CTutorial(this, "strategy-placebuffer", "", POSITION_TOPCENTER, 200, false, L"Click inside the green area to place the structure");
+	m_apTutorials["strategy-placebuffer"]->m_flSlideAmount = 200;
+	m_apTutorials["strategy-placebuffer"]->m_bSlideX = false;
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -218,54 +225,25 @@ void CInstructor::SetActive(bool bActive)
 		Initialize();
 }
 
-void CInstructor::DisplayFirstBasicsTutorial()
+void CInstructor::DisplayFirstTutorial(eastl::string sTutorial)
 {
 	m_bActive = true;
-	m_iLastTutorial = -1;
-	m_iCurrentTutorial = TUTORIAL_INTRO_BASICS;
-	DisplayTutorial(m_iCurrentTutorial);
-}
-
-void CInstructor::DisplayFirstBasesTutorial()
-{
-	m_bActive = true;
-	m_iLastTutorial = -1;
-	m_iCurrentTutorial = TUTORIAL_INTRO_BASES;
-	DisplayTutorial(m_iCurrentTutorial);
-}
-
-void CInstructor::DisplayFirstUnitsTutorial()
-{
-	m_bActive = true;
-	m_iLastTutorial = -1;
-	m_iCurrentTutorial = TUTORIAL_INTRO_UNITS;
-	DisplayTutorial(m_iCurrentTutorial);
-}
-
-void CInstructor::DisplayIngameArtilleryTutorial()
-{
-	m_bActive = true;
-	m_iLastTutorial = -1;
-	m_iCurrentTutorial = TUTORIAL_INGAME_ARTILLERY_SELECT;
-	DisplayTutorial(m_iCurrentTutorial);
-}
-
-void CInstructor::DisplayIngameStrategyTutorial()
-{
-	m_bActive = true;
-	m_iLastTutorial = -1;
-	m_iCurrentTutorial = TUTORIAL_INGAME_STRATEGY_SELECT;
-	DisplayTutorial(m_iCurrentTutorial);
+	m_sLastTutorial = "";
+	m_sCurrentTutorial = sTutorial;
+	DisplayTutorial(m_sCurrentTutorial);
 }
 
 void CInstructor::NextTutorial()
 {
-	DisplayTutorial(++m_iCurrentTutorial);
+	if (!GetCurrentTutorial())
+		return;
+
+	DisplayTutorial(GetCurrentTutorial()->m_sNextTutorial);
 }
 
 CVar tutorial_enable("tutorial_enable", "1");
 
-void CInstructor::DisplayTutorial(size_t iTutorial, bool bForce)
+void CInstructor::DisplayTutorial(eastl::string sTutorial)
 {
 	if (!tutorial_enable.GetBool())
 		return;
@@ -273,25 +251,18 @@ void CInstructor::DisplayTutorial(size_t iTutorial, bool bForce)
 	if (!m_bActive)
 		return;
 
-	if (m_apTutorials.find(iTutorial) == m_apTutorials.end())
+	if (m_apTutorials.find(sTutorial) == m_apTutorials.end())
 	{
 		SetActive(false);
 		return;
 	}
 
-	if (!bForce)
-	{
-		// May not skip or go back tutorials!
-		if (iTutorial < m_iCurrentTutorial || iTutorial > m_iCurrentTutorial+1)
-			return;
-	}
+	m_sCurrentTutorial = sTutorial;
 
-	m_iCurrentTutorial = iTutorial;
+	if (DigitanksGame() && m_sLastTutorial != m_sCurrentTutorial)
+		DigitanksGame()->OnDisplayTutorial(sTutorial);
 
-	if (DigitanksGame() && m_iLastTutorial != m_iCurrentTutorial)
-		DigitanksGame()->OnDisplayTutorial(iTutorial);
-
-	m_iLastTutorial = m_iCurrentTutorial;
+	m_sLastTutorial = m_sCurrentTutorial;
 
 	if (m_pCurrentPanel)
 	{
@@ -299,13 +270,13 @@ void CInstructor::DisplayTutorial(size_t iTutorial, bool bForce)
 		m_pCurrentPanel->Delete();
 	}
 
-	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[iTutorial]);
+	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[sTutorial]);
 	glgui::CRootPanel::Get()->AddControl(m_pCurrentPanel, true);
 }
 
 void CInstructor::ShowTutorial()
 {
-	DisplayTutorial(m_iCurrentTutorial);
+	DisplayTutorial(m_sCurrentTutorial);
 }
 
 void CInstructor::HideTutorial()
@@ -318,9 +289,9 @@ void CInstructor::HideTutorial()
 	}
 }
 
-void CInstructor::FinishedTutorial(size_t iTutorial, bool bForceNext)
+void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
 {
-	if (iTutorial != m_iCurrentTutorial)
+	if (sTutorial != m_sCurrentTutorial)
 		return;
 
 	if (m_pCurrentPanel)
@@ -334,11 +305,11 @@ void CInstructor::FinishedTutorial(size_t iTutorial, bool bForceNext)
 
 	m_pCurrentPanel = NULL;
 
-	if (m_apTutorials[iTutorial]->m_bAutoNext || bForceNext)
+	if (m_apTutorials[sTutorial]->m_bAutoNext || bForceNext)
 		NextTutorial();
 
 	// If we get to the end here then we turn off the instructor as we have finished completely.
-	if (iTutorial == TUTORIAL_INGAME_ARTILLERY_COMMAND || iTutorial == TUTORIAL_INGAME_STRATEGY_PLACEBUFFER)
+	if (GetCurrentTutorial() && GetCurrentTutorial()->m_bKillOnFinish)
 		SetActive(false);
 }
 
@@ -346,7 +317,7 @@ disable_t CInstructor::GetDisabledFeatures()
 {
 	int iDisabled = 0;
 
-	if (GetCurrentTutorial() < TUTORIAL_TURNCAMERA)
+/*	if (GetCurrentTutorial() < TUTORIAL_TURNCAMERA)
 		iDisabled |= DISABLE_ROTATE;
 
 	if (GetCurrentTutorial() < TUTORIAL_ENTERKEY)
@@ -359,7 +330,7 @@ disable_t CInstructor::GetDisabledFeatures()
 		iDisabled |= DISABLE_PSU;
 
 	if (GetCurrentTutorial() < TUTORIAL_LOADER)
-		iDisabled |= DISABLE_LOADERS;
+		iDisabled |= DISABLE_LOADERS;*/
 
 	return (disable_t)iDisabled;
 }
@@ -372,14 +343,18 @@ bool CInstructor::IsFeatureDisabled(disable_t eFeature)
 	return !!(GetDisabledFeatures()&eFeature);
 }
 
-CTutorial::CTutorial(CInstructor* pInstructor, size_t iTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText)
+CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText)
 {
 	m_pInstructor = pInstructor;
-	m_iTutorial = iTutorial;
+	m_sTutorialName = sTutorial;
+	m_sNextTutorial = sNextTutorial;
 	m_iPosition = iPosition;
 	m_iWidth = iWidth;
 	m_bAutoNext = bAutoNext;
 	m_sText = sText;
+	m_bKillOnFinish = false;
+	m_flSlideAmount = 0;
+	m_bSlideX = true;
 }
 
 CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
@@ -428,7 +403,7 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	if (DigitanksWindow()->GetMenu() && DigitanksWindow()->GetMenu()->IsVisible())
 		return;
 
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+	if (m_pTutorial->m_sTutorialName == "strategy-deploy")
 	{
 		CSelectable* pSelection = DigitanksGame()->GetPrimarySelection();
 		if (!pSelection)
@@ -447,35 +422,19 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	if (m_pTutorial->m_iPosition == CInstructor::POSITION_BUTTONS)
 		y -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f)*20);
 
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT)
-		x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_ARTILLERY_AIM)
-		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND)
-		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 200);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT)
-		x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
-		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 200);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
-		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_BUILDBUFFER)
-		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 1000);
-
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_PLACEBUFFER)
-		y -= (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * 200);
+	if (m_pTutorial->m_flSlideAmount > 0)
+	{
+		if (m_pTutorial->m_bSlideX)
+			x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
+		else
+			y += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
+	}
 
 	CRootPanel::PaintRect(x, y, w, h);
 
 	CPanel::Paint(x, y, w, h);
 
-	if (m_pTutorial->m_iTutorial == CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
+	if (m_pTutorial->m_sTutorialName == "strategy-command")
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);

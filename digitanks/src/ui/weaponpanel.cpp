@@ -224,6 +224,6 @@ void CWeaponButton::ChooseWeaponCallback()
 
 	CRootPanel::Get()->Layout();
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-chooseweapon", true);
 }
 

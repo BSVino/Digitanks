@@ -16,15 +16,19 @@ typedef enum
 class CTutorial
 {
 public:
-									CTutorial(class CInstructor* pInstructor, size_t iTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText);
+									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText);
 
 public:
 	class CInstructor*				m_pInstructor;
-	size_t							m_iTutorial;
+	eastl::string					m_sTutorialName;
+	eastl::string					m_sNextTutorial;
 	int								m_iPosition;
 	eastl::string16					m_sText;
 	int								m_iWidth;
 	bool							m_bAutoNext;
+	bool							m_bKillOnFinish;
+	float							m_flSlideAmount;
+	bool							m_bSlideX;
 };
 
 class CTutorialPanel : public glgui::CPanel
@@ -59,19 +63,15 @@ public:
 	void							SetActive(bool bActive);
 	bool							GetActive() { return m_bActive; };
 
-	void							DisplayFirstBasicsTutorial();
-	void							DisplayFirstBasesTutorial();
-	void							DisplayFirstUnitsTutorial();
-	void							DisplayIngameArtilleryTutorial();
-	void							DisplayIngameStrategyTutorial();
+	void							DisplayFirstTutorial(eastl::string sTutorial);
 	void							NextTutorial();
 
-	void							DisplayTutorial(size_t iTutorial, bool bForce = false);
+	void							DisplayTutorial(eastl::string sTutorial);
 	void							HideTutorial();
 	void							ShowTutorial();
-	void							FinishedTutorial(size_t iTutorial, bool bForceNext = false);
+	void							FinishedTutorial(eastl::string sTutorial, bool bForceNext = false);
 
-	size_t							GetCurrentTutorial() { return m_iCurrentTutorial; };
+	CTutorial*						GetCurrentTutorial() { return m_apTutorials[m_sCurrentTutorial]; };
 
 	disable_t						GetDisabledFeatures();
 	bool							IsFeatureDisabled(disable_t eFeature);
@@ -83,71 +83,11 @@ public:
 		POSITION_BUTTONS,
 	};
 
-	enum {
-		TUTORIAL_INTRO_BASICS,
-		TUTORIAL_MOVECAMERA,
-		TUTORIAL_MOVECAMERA2,
-		TUTORIAL_TURNCAMERA,
-		TUTORIAL_ZOOMCAMERA,
-		TUTORIAL_SELECTION,
-		TUTORIAL_MOVE_MODE,
-		TUTORIAL_MOVE,
-		TUTORIAL_AIM,
-		TUTORIAL_ATTACK,
-		TUTORIAL_BUTTONS,
-		TUTORIAL_ENERGY,
-		TUTORIAL_ENTERKEY,
-		TUTORIAL_FINISHHIM,
-		TUTORIAL_UPGRADE,
-		TUTORIAL_POWERUP,
-		TUTORIAL_SHIFTSELECT,
-		TUTORIAL_BOXSELECT,
-		TUTORIAL_THEEND_BASICS,
-
-		TUTORIAL_INTRO_BASES,
-		TUTORIAL_CPU,
-		TUTORIAL_BUFFER,
-		TUTORIAL_POWER,
-		TUTORIAL_NETWORK,
-		TUTORIAL_PSU,
-		TUTORIAL_SUPPLY,
-		TUTORIAL_LOADER,
-		TUTORIAL_EFFICIENCY,
-		TUTORIAL_PRODUCING_UNITS,
-		TUTORIAL_FLEET_POINTS,
-		TUTORIAL_THEEND_BASES,
-
-		TUTORIAL_INTRO_UNITS,
-		TUTORIAL_INFANTRY,
-		TUTORIAL_FORTIFYING,
-		TUTORIAL_FORTIFYING2,
-		TUTORIAL_ARTILLERY,
-		TUTORIAL_DEPLOYING,
-		TUTORIAL_DEPLOYING2,
-		TUTORIAL_FIRE_ARTILLERY,
-		TUTORIAL_ARTILLERY_SHIELDS,
-		TUTORIAL_ROGUE,
-		TUTORIAL_TORPEDO,
-		TUTORIAL_DISCONNECTING_SUPPLIES,
-		TUTORIAL_THEEND_UNITS,
-
-		TUTORIAL_INGAME_ARTILLERY_SELECT,
-		TUTORIAL_INGAME_ARTILLERY_AIM,
-		TUTORIAL_INGAME_ARTILLERY_CHOOSE_WEAPON,
-		TUTORIAL_INGAME_ARTILLERY_COMMAND,
-
-		TUTORIAL_INGAME_STRATEGY_SELECT,
-		TUTORIAL_INGAME_STRATEGY_COMMAND,
-		TUTORIAL_INGAME_STRATEGY_DEPLOY,
-		TUTORIAL_INGAME_STRATEGY_BUILDBUFFER,
-		TUTORIAL_INGAME_STRATEGY_PLACEBUFFER,
-	};
-
 protected:
 	bool							m_bActive;
-	eastl::map<size_t, CTutorial*>	m_apTutorials;
-	size_t							m_iLastTutorial;
-	size_t							m_iCurrentTutorial;
+	eastl::map<eastl::string, CTutorial*>	m_apTutorials;
+	eastl::string					m_sLastTutorial;
+	eastl::string					m_sCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;
 };
 

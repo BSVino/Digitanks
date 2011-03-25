@@ -185,12 +185,13 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		DigitanksGame()->SetControlMode(MODE_NONE);
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
-			DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+			DigitanksWindow()->GetInstructor()->DisplayTutorial("artillery-select");
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
-				DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+			eastl::string sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
+			if (DigitanksWindow()->GetInstructor()->GetActive() && sTutorialName != "strategy-buildbuffer" && sTutorialName != "strategy-placebuffer")
+				DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-select");
 			else
 				DigitanksWindow()->GetInstructor()->SetActive(false);
 		}
@@ -207,24 +208,23 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	{
 		GetPrimarySelection()->OnCurrentSelection();
 
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_SELECTION);
-
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 		{
 			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
-				DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+				DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-select", true);
 			else
-				DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+				DigitanksWindow()->GetInstructor()->DisplayTutorial("artillery-select");
 		}
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY)
+			eastl::string sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
+			if (sTutorialName != "strategy-buildbuffer" && sTutorialName != "strategy-placebuffer")
 			{
 				if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()) && DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
-					DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+					DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-select", true);
 				else
-					DigitanksWindow()->GetInstructor()->DisplayTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+					DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-select");
 			}
 			else
 			{

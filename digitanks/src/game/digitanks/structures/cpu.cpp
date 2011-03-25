@@ -617,15 +617,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	GetDigitanksTeam()->CountProducers();
 
-	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-
-	if (ePreviewStructure == STRUCTURE_MINIBUFFER && iTutorial == CInstructor::TUTORIAL_BUFFER)
-	{
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_BUFFER);
-		DigitanksWindow()->GetInstructor()->NextTutorial();
-	}
-
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_PLACEBUFFER, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-placebuffer", true);
 
 	pConstructing->FindGround();
 

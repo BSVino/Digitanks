@@ -81,10 +81,11 @@ bool CMobileCPU::CanFortify()
 
 void CMobileCPU::OnFortify()
 {
-	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() <= CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND)
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_COMMAND, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-command", true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-deploy", true);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_DEPLOY, true);
+	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName != "strategy-buildbuffer")
+		DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-buildbuffer");
 }
 
 float CMobileCPU::FindHoverHeight(Vector vecPosition) const

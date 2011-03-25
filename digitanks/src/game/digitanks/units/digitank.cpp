@@ -677,9 +677,9 @@ void CDigitank::StartTurn()
 
 	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetDigitanksTeam())
 	{
-		size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
-			DigitanksWindow()->GetInstructor()->NextTutorial();
+//		size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
+//		if (iTutorial == CInstructor::TUTORIAL_ENTERKEY)
+//			DigitanksWindow()->GetInstructor()->NextTutorial();
 	}
 
 	if (!DigitanksGame()->IsWeaponAllowed(GetCurrentWeapon(), this))
@@ -1090,7 +1090,7 @@ void CDigitank::Move(CNetworkParameters* p)
 					}
 					}
 
-					DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
+//					DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
 				}
 
 				continue;
@@ -1362,8 +1362,8 @@ void CDigitank::Fortify(CNetworkParameters* p)
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FORTIFYING);
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING, true);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FORTIFYING);
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING, true);
 }
 
 bool CDigitank::CanAim() const
@@ -1831,31 +1831,27 @@ void CDigitank::OnCurrentSelection()
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	// So the escape key works.
-	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() != CInstructor::TUTORIAL_THEEND_BASICS)
+	CDigitank* pClosestEnemy = NULL;
+	while (true)
 	{
-		CDigitank* pClosestEnemy = NULL;
-		while (true)
+		pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestEnemy);
+
+		if (!pClosestEnemy)
+			break;
+
+		if (pClosestEnemy->GetTeam() == GetTeam())
+			continue;
+
+		if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
 		{
-			pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(GetOrigin(), pClosestEnemy);
-
-			if (!pClosestEnemy)
-				break;
-
-			if (pClosestEnemy->GetTeam() == GetTeam())
-				continue;
-
-			if ((pClosestEnemy->GetOrigin() - GetOrigin()).Length() > VisibleRange())
-			{
-				pClosestEnemy = NULL;
-				break;
-			}
-
+			pClosestEnemy = NULL;
 			break;
 		}
 
-		DigitanksGame()->SetControlMode(MODE_NONE);
+		break;
 	}
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
 }
 
 bool CDigitank::AllowControlMode(controlmode_t eMode) const
@@ -2205,12 +2201,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				else
 					pHUD->SetButtonColor(2, Color(100, 100, 100));
 
-				CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+/*				CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 				if (pInstructor->GetActive() && pInstructor->GetCurrentTutorial() >= CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT && pInstructor->GetCurrentTutorial() < CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND)
 				{
 					pHUD->SetButtonListener(2, NULL);
 					pHUD->SetButtonColor(2, glgui::g_clrBox);
-				}
+				}*/
 
 				pHUD->SetButtonTexture(2, 0, 0);
 
@@ -2395,9 +2391,6 @@ void CDigitank::Fire(CNetworkParameters* p)
 	DirtyNeedsOrders();
 
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
-
-	if (IsArtillery())
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FIRE_ARTILLERY, true);
 }
 
 void CDigitank::FireWeapon()
@@ -2699,14 +2692,6 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	else
 		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
 
-	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
-	{
-		// BOT MUST DIE
-		if (GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			flDamage += 500;
-	}
-
 	if (pInflictor)
 	{
 		Vector vecLookAt = (pInflictor->GetOrigin() - GetOrigin()).Normalized();
@@ -2835,10 +2820,6 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 void CDigitank::OnKilled(CBaseEntity* pKilledBy)
 {
-	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-	if (iTutorial == CInstructor::TUTORIAL_FINISHHIM)
-		DigitanksWindow()->GetInstructor()->NextTutorial();
-
 	CDigitank* pKiller = dynamic_cast<CDigitank*>(pKilledBy);
 
 	if (pKiller)

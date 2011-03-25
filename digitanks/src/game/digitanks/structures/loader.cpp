@@ -213,12 +213,6 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 
 	GetDigitanksTeam()->ConsumePower(GetUnitProductionCost());
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PRODUCING_UNITS);
-
-	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-	if (iTutorial == CInstructor::TUTORIAL_PRODUCING_UNITS)
-		DigitanksWindow()->GetInstructor()->NextTutorial();
-
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();
 }

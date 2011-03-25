@@ -374,14 +374,6 @@ void CStructure::CompleteConstruction()
 {
 	m_bConstructing = false;
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_PSU);
-	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_LOADER);
-
-	size_t iTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
-	if (iTutorial == CInstructor::TUTORIAL_POWER)
-		DigitanksWindow()->GetInstructor()->NextTutorial();
-
 	if (DigitanksGame()->GetUpdateGrid())
 	{
 		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
@@ -393,19 +385,10 @@ void CStructure::CompleteConstruction()
 			}
 		}
 	}
-
-	if (dynamic_cast<CCollector*>(this) && iTutorial == CInstructor::TUTORIAL_PSU)
-		DigitanksWindow()->GetInstructor()->NextTutorial();
-
-	if (dynamic_cast<CLoader*>(this) && iTutorial == CInstructor::TUTORIAL_LOADER)
-		DigitanksWindow()->GetInstructor()->NextTutorial();
 }
 
 size_t CStructure::GetTurnsToConstruct(Vector vecSpot)
 {
-	if (DigitanksGame()->GetGameType() == GAMETYPE_TUTORIAL)
-		return 1;
-
 	size_t iTurns = InitialTurnsToConstruct();
 
 	// Location location location!

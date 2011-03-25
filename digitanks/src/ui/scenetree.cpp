@@ -368,9 +368,9 @@ void CSceneTreeUnit::Selected()
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(m_hEntity->GetOrigin());
 		}
 
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT, true);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-select", true);
 		if (m_hEntity->GetUnitType() == UNIT_MOBILECPU)
-			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_INGAME_STRATEGY_SELECT, true);
+			DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-select", true);
 	}
 
 	BaseClass::Selected();

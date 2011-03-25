@@ -14,7 +14,6 @@
 typedef enum
 {
 	GAMETYPE_EMPTY,
-	GAMETYPE_TUTORIAL,
 	GAMETYPE_ARTILLERY,
 	GAMETYPE_STANDARD,
 	GAMETYPE_MENU,
@@ -186,7 +185,7 @@ public:
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
-	void					OnDisplayTutorial(size_t iTutorial);
+	void					OnDisplayTutorial(eastl::string sTutorial);
 
 	virtual void			ClientEnterGame();
 

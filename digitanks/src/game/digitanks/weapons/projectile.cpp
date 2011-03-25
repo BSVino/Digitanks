@@ -982,7 +982,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 
 		pClosest->Intercept(0.5f);
 
-		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
+//		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TORPEDO);
 	}
 
 	// Explode before we disable. Disabling removes shields and torpedos only damage tanks with no shields,
