@@ -1957,8 +1957,8 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 
 	m_eControlMode = eMode;
 
-//	if (eMode == MODE_AIM)
-//		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_AIM);
+	if (eMode == MODE_AIM)
+		DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-turret-spotted");
 }
 
 aimtype_t CDigitanksGame::GetAimType()

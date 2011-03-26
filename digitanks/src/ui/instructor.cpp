@@ -362,7 +362,7 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 		DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetTerrain()->SetPointHeight(Vector(vecTarget.x, 0, vecTarget.y)));
 
 	EAngle angTarget = m_apTutorials[sTutorial]->m_angSetViewAngle;
-	if (angTarget.p > 0 && angTarget.y > 0 && angTarget.r > 0)
+	if (angTarget.p >= 0 || angTarget.y >= 0 || angTarget.r >= 0)
 		DigitanksGame()->GetDigitanksCamera()->SetAngle(angTarget);
 
 	float flDistance = m_apTutorials[sTutorial]->m_flSetViewDistance;

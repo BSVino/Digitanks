@@ -133,8 +133,7 @@ void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	r.Rotate(-35, Vector(0, 0, 1));
 
-	if (!GameServer()->GetRenderer()->ShouldUseShaders())
-		r.SetColorSwap(m_clrSwap);
+	r.SetColorSwap(m_clrSwap);
 
 	r.RenderModel(m_iTurretModel);
 }

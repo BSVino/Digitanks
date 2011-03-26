@@ -108,7 +108,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		else if (DigitanksGame()->GetControlMode() == MODE_AIM)
 		{
 			DigitanksGame()->FireTanks();
-//			GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ATTACK);
+			GetInstructor()->FinishedTutorial("mission-1-fire-away");
 		}
 		else if (DigitanksGame()->GetControlMode() == MODE_BUILD)
 		{
