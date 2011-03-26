@@ -50,6 +50,9 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CDigitank*, m_pPathfindingUnit);	// Temp data
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CTerrain);
+INPUTS_TABLE_END();
+
 size_t CTerrain::s_iTreeTexture = 0;
 size_t CTerrain::s_iBeamTexture = 0;
 

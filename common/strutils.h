@@ -105,6 +105,30 @@ inline eastl::string& trim(eastl::string &s)
 	return ltrim(rtrim(s));
 }
 
+inline void writestring(std::ostream& o, const eastl::string& s)
+{
+	size_t iStringSize = s.length();
+	o.write((char*)&iStringSize, sizeof(iStringSize));
+	o.write((char*)s.c_str(), s.size()*sizeof(eastl::string::value_type));
+}
+
+inline eastl::string readstring(std::istream& i)
+{
+	size_t iStringSize;
+	i.read((char*)&iStringSize, sizeof(iStringSize));
+
+	eastl::string s;
+	eastl::string::value_type c[2];
+	c[1] = L'\0';
+	for (size_t j = 0; j < iStringSize; j++)
+	{
+		i.read((char*)&c[0], sizeof(eastl::string::value_type));
+		s.append(c);
+	}
+
+	return s;
+}
+
 inline void writestring16(std::ostream& o, const eastl::string16& s)
 {
 	size_t iStringSize = s.length();

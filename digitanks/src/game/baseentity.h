@@ -52,7 +52,9 @@ public:
 		DATA_COPYARRAY,
 		DATA_COPYVECTOR,
 		DATA_NETVAR,
+		DATA_STRING,
 		DATA_STRING16,
+		DATA_OUTPUT,
 	} datatype_t;
 
 	typedef void (*ResizeVector)(char* pData, size_t iVectorSize);
@@ -65,6 +67,43 @@ public:
 	ResizeVector			m_pfnResizeVector;
 };
 
+typedef void (*EntityInputCallback)(const class CBaseEntity* pTarget, const eastl::vector<eastl::string16>& sArgs);
+class CEntityInput
+{
+public:
+	eastl::string							m_sName;
+	EntityInputCallback						m_pfnCallback;
+};
+
+#define DECLARE_ENTITY_INPUT(name) \
+	virtual void name(const eastl::vector<eastl::string16>& sArgs); \
+	static void name##InputCallback(const class CBaseEntity* pTarget, const eastl::vector<eastl::string16>& sArgs) \
+	{ \
+		((ThisClass*)pTarget)->name(sArgs); \
+	}
+
+class CEntityOutput
+{
+public:
+	void									Call();
+	void									AddTarget(const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs, bool bKill);
+
+public:
+	class CEntityOutputTarget
+	{
+	public:
+		eastl::string						m_sTargetName;
+		eastl::string						m_sInput;
+		eastl::string						m_sArgs;
+		bool								m_bKill;
+	};
+
+	eastl::vector<CEntityOutputTarget>		m_aTargets;
+};
+
+#define DECLARE_ENTITY_OUTPUT(name) \
+	CEntityOutput			name; \
+
 class CEntityRegistration
 {
 public:
@@ -75,6 +114,7 @@ public:
 	EntityCreateCallback	m_pfnCreateCallback;
 	eastl::vector<CSaveData>	m_aSaveData;
 	eastl::vector<CNetworkedVariableData>	m_aNetworkVariables;
+	eastl::map<eastl::string, CEntityInput>		m_aInputs;
 };
 
 #define REGISTER_ENTITY_CLASS_NOBASE(entity) \
@@ -92,6 +132,7 @@ static const char* Get##entity##ParentClass() { return NULL; } \
 virtual const char* GetClassName() { return #entity; } \
 virtual void RegisterNetworkVariables(); \
 virtual void RegisterSaveData(); \
+virtual void RegisterInputData(); \
 virtual size_t SizeOfThis() \
 { \
 	/* -4 because the vtable is 4 bytes */ \
@@ -123,6 +164,7 @@ static const char* Get##entity##ParentClass() { return #base; } \
 virtual const char* GetClassName() { return #entity; } \
 virtual void RegisterNetworkVariables(); \
 virtual void RegisterSaveData(); \
+virtual void RegisterInputData(); \
 virtual size_t SizeOfThis() \
 { \
 	return sizeof(entity) - sizeof(BaseClass); \
@@ -177,8 +219,7 @@ void entity::RegisterSaveData() \
 	CSaveData* pSaveData = NULL; \
 
 #define SAVEDATA_DEFINE(copy, type, name) \
-	pRegistration->m_aSaveData.push_back(CSaveData()); \
-	pSaveData = &pRegistration->m_aSaveData[pRegistration->m_aSaveData.size()-1]; \
+	pSaveData = &pRegistration->m_aSaveData.push_back(); \
 	pSaveData->m_eType = copy; \
 	pSaveData->m_pszVariableName = #name; \
 	if (copy == CSaveData::DATA_NETVAR) \
@@ -194,8 +235,7 @@ void entity::RegisterSaveData() \
 	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfType); \
 
 #define SAVEDATA_OMIT(name) \
-	pRegistration->m_aSaveData.push_back(CSaveData()); \
-	pSaveData = &pRegistration->m_aSaveData[pRegistration->m_aSaveData.size()-1]; \
+	pSaveData = &pRegistration->m_aSaveData.push_back(); \
 	pSaveData->m_eType = CSaveData::DATA_OMIT; \
 	pSaveData->m_pszVariableName = #name; \
 	pSaveData->m_iOffset = (((size_t)((void*)&name))) - ((size_t)((void*)this)); \
@@ -207,7 +247,34 @@ void entity::RegisterSaveData() \
 	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfVariable); \
 	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfType); \
 
+#define SAVEDATA_DEFINE_OUTPUT(name) \
+	pSaveData = &pRegistration->m_aSaveData.push_back(); \
+	pSaveData->m_eType = CSaveData::DATA_OUTPUT; \
+	pSaveData->m_pszVariableName = #name; \
+	pSaveData->m_iOffset = (((size_t)((void*)&name))) - ((size_t)((void*)this)); \
+	pSaveData->m_iSizeOfVariable = sizeof(name); \
+	pSaveData->m_iSizeOfType = sizeof(CEntityOutput); \
+	pSaveData->m_pfnResizeVector = NULL; \
+	pGameServer->GenerateSaveCRC(pSaveData->m_eType); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iOffset); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfVariable); \
+	pGameServer->GenerateSaveCRC(pSaveData->m_iSizeOfType); \
+
 #define SAVEDATA_TABLE_END() \
+	CheckSaveDataSize(pRegistration); \
+} \
+
+#define INPUTS_TABLE_BEGIN(entity) \
+void entity::RegisterInputData() \
+{ \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
+	pRegistration->m_aInputs.clear(); \
+
+#define INPUT_DEFINE(name) \
+	pRegistration->m_aInputs[#name].m_sName = #name; \
+	pRegistration->m_aInputs[#name].m_pfnCallback = &name##InputCallback; \
+
+#define INPUTS_TABLE_END() \
 	CheckSaveDataSize(pRegistration); \
 } \
 
@@ -226,6 +293,9 @@ public:
 public:
 	virtual void							Precache() {};
 	virtual void							Spawn() {};
+
+	void									SetName(const eastl::string& sName) { m_sName = sName; };
+	eastl::string							GetName() { return m_sName; };
 
 	virtual float							GetBoundingRadius() const { return 0; };
 	virtual float							GetRenderRadius() const { return GetBoundingRadius(); };
@@ -297,6 +367,10 @@ public:
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};
 
+	void									CallInput(const eastl::string& sName, const eastl::string16& sArgs);
+	void									CallOutput(const eastl::string& sName);
+	void									AddOutputTarget(const eastl::string& sName, const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs = "", bool bKill = false);
+
 	void									EmitSound(const eastl::string16& sSound, bool bLoop = false);
 	void									StopSound(const eastl::string16& sModel);
 	bool									IsSoundPlaying(const eastl::string16& sModel);
@@ -323,6 +397,7 @@ public:
 
 	size_t									GetRegistration() { return m_iRegistration; }
 
+	CSaveData*								GetSaveData(const char* pszName);
 	CNetworkedVariableData*					GetNetworkVariable(const char* pszName);
 
 	virtual void							OnSerialize(std::ostream& o) {};
@@ -367,6 +442,8 @@ protected:
 	static eastl::vector<CEntityRegistration>& GetEntityRegistration();
 
 protected:
+	eastl::string							m_sName;
+
 	CNetworkedVector						m_vecOrigin;
 	Vector									m_vecLastOrigin;
 	CNetworkedEAngle						m_angAngles;

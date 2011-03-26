@@ -14,6 +14,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CAutoTurret);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CAutoTurret);
+INPUTS_TABLE_END();
+
 void CAutoTurret::Precache()
 {
 	PrecacheModel(L"models/digitanks/autoturret.obj", true);
@@ -69,6 +72,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CGridBug);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CGridBug);
+INPUTS_TABLE_END();
 
 void CGridBug::Precache()
 {

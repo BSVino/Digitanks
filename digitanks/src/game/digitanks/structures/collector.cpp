@@ -17,6 +17,9 @@ SAVEDATA_TABLE_BEGIN(CCollector);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CResource>, m_hResource);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CCollector);
+INPUTS_TABLE_END();
+
 void CCollector::Spawn()
 {
 	BaseClass::Spawn();
@@ -41,7 +44,7 @@ void CCollector::UpdateInfo(eastl::string16& s)
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else
@@ -82,6 +85,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBattery);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CBattery);
+INPUTS_TABLE_END();
 
 void CBattery::Spawn()
 {
@@ -132,7 +138,7 @@ void CBattery::UpdateInfo(eastl::string16& s)
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else

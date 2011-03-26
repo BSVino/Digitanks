@@ -53,9 +53,6 @@ void CInstructor::Initialize()
 	Clear();
 
 /*
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVE, new CTutorial(this, TUTORIAL_MOVE, POSITION_TOPLEFT, 300, true,
-		L"MOVE YOUR TANK\n \nYou are now in 'move mode'. Click inside the yellow area to move your tank.")));
-
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 200, true,
 		L"CHOOSE A WEAPON\n \nYou're closing in for the kill! Now press the red 'Choose Weapon' button to select your means of destruction. The 'Choose Weapon' button is located in the command dock on the bottom of the screen.\n \nPress one of the options to choose that weapon.")));
 

@@ -63,7 +63,7 @@ public:
 
 	virtual void				OnDeleted();
 
-	virtual eastl::string16		GetName() { return L"Central Processing Unit"; };
+	virtual eastl::string16		GetEntityName() { return L"Central Processing Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_CPU; };
 
 protected:

@@ -39,6 +39,7 @@
 #include "digitanks/structures/props.h"
 #include "digitanks/digitankslevel.h"
 #include "digitanks/campaign/userfile.h"
+#include "digitanks/instructor_entity.h"
 
 CGame* CreateGame()
 {
@@ -82,6 +83,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, controlmode_t, m_eControlMode);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, aimtype_t, m_eAimType);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CTerrain>, m_hTerrain);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CInstructorEntity>, m_hInstructor);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, IDigitanksGameListener*, m_pListener);	// Set by constructor
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bWaitingForMoving);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bWaitingForProjectiles);
@@ -105,6 +107,9 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowFightSign);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastHumanMove);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CDigitanksGame);
+INPUTS_TABLE_END();
 
 void CDigitanksGame::Precache()
 {
@@ -212,6 +217,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 	m_eGameType = eGameType;
 	m_iTurn = 0;
+
+	m_hInstructor = GameServer()->Create<CInstructorEntity>("CInstructorEntity");
 
 	if (eGameType == GAMETYPE_STANDARD)
 		SetupStrategy();
@@ -404,7 +411,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 
 	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 	pTeam->SetColor(Color(128, 128, 128));
-	pTeam->SetName(eastl::string16(L"Network Guardians"));
+	pTeam->SetTeamName(eastl::string16(L"Network Guardians"));
 	pTeam->Bot_UseArtilleryAI();
 	pTeam->SetNotHumanPlayable();
 	pTeam->DontIncludeInScoreboard();
@@ -499,13 +506,13 @@ void CDigitanksGame::SetupArtillery()
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
 		pTeam->SetColor(aclrTeamColors[i]);
-		pTeam->SetName(aszTeamNames[i]);
+		pTeam->SetTeamName(aszTeamNames[i]);
 
 		if (game_players.GetInt() == 1 && i == 0)
 		{
 			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 			if (sPlayerNickname.length())
-				pTeam->SetName(sPlayerNickname);
+				pTeam->SetTeamName(sPlayerNickname);
 		}
 	}
 }
@@ -579,14 +586,14 @@ void CDigitanksGame::SetupStrategy()
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
 		pTeam->SetColor(aclrTeamColors[i]);
-		pTeam->SetName(aszTeamNames[i]);
+		pTeam->SetTeamName(aszTeamNames[i]);
 		pTeam->SetLoseCondition(LOSE_NOCPU);
 
 		if (game_players.GetInt() == 1 && i == 0)
 		{
 			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 			if (sPlayerNickname.length())
-				pTeam->SetName(sPlayerNickname);
+				pTeam->SetTeamName(sPlayerNickname);
 		}
 
 		GetTerrain()->ClearArea(avecRandomStartingPositions[i], 40);
@@ -707,6 +714,9 @@ void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asT
 		if (dynamic_cast<CTerrain*>(pEntity))
 			continue;
 
+		if (dynamic_cast<CInstructorEntity*>(pEntity))
+			continue;
+
 		pEntity->Delete();
 	}
 
@@ -733,7 +743,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 	eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 	if (sPlayerNickname.length())
-		m_ahTeams[0]->SetName(sPlayerNickname);
+		m_ahTeams[0]->SetTeamName(sPlayerNickname);
 
 	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[1]->SetColor(Color(255, 0, 0));
@@ -779,6 +789,12 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 				m_ahTeams[0]->AddEntity(pUnit);
 			else if (pLevelUnit->m_sTeamName == "Hackers")
 				m_ahTeams[1]->AddEntity(pUnit);
+		}
+
+		for (size_t iOutputs = 0; iOutputs < pLevelUnit->m_aOutputs.size(); iOutputs++)
+		{
+			CLevelUnitOutput* pOutput = &pLevelUnit->m_aOutputs[iOutputs];
+			pUnit->AddOutputTarget(pOutput->m_sOutput, pOutput->m_sTarget, pOutput->m_sInput, pOutput->m_sArgs, pOutput->m_bKill);
 		}
 
 		if (pLevelUnit->m_bFortified && pTank)

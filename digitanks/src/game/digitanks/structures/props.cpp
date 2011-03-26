@@ -26,6 +26,9 @@ SAVEDATA_TABLE_BEGIN(CStaticProp);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bUseRaytracedCollision);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CStaticProp);
+INPUTS_TABLE_END();
+
 void CStaticProp::Precache()
 {
 	PrecacheModel(L"models/props/prop01.obj", true);

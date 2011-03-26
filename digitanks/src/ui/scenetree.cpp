@@ -62,9 +62,9 @@ void CSceneTree::BuildTree(bool bForce)
 
 		CSceneTreeUnit* pUnit = new CSceneTreeUnit(pEntity, pTreeGroup, this);
 		if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
-			pUnit->SetTooltip(eastl::string16(L"Structure: ") + pEntity->GetName());
+			pUnit->SetTooltip(eastl::string16(L"Structure: ") + pEntity->GetEntityName());
 		else
-			pUnit->SetTooltip(eastl::string16(L"Unit: ") + pEntity->GetName());
+			pUnit->SetTooltip(eastl::string16(L"Unit: ") + pEntity->GetEntityName());
 		pTreeGroup->AddNode(pUnit);
 	}
 
@@ -157,9 +157,9 @@ void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 	CSceneTreeUnit* pUnit = new CSceneTreeUnit(pSelectable, pTreeGroup, this);
 
 	if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
-		pUnit->SetTooltip(eastl::string16(L"Structure: ") + pSelectable->GetName());
+		pUnit->SetTooltip(eastl::string16(L"Structure: ") + pSelectable->GetEntityName());
 	else
-		pUnit->SetTooltip(eastl::string16(L"Unit: ") + pSelectable->GetName());
+		pUnit->SetTooltip(eastl::string16(L"Unit: ") + pSelectable->GetEntityName());
 
 	pTreeGroup->AddNode(pUnit);
 

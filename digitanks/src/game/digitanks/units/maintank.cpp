@@ -10,6 +10,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CMainBattleTank);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CMainBattleTank);
+INPUTS_TABLE_END();
+
 void CMainBattleTank::Precache()
 {
 	PrecacheModel(L"models/digitanks/digitank-body.obj", true);

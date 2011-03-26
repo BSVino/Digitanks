@@ -61,6 +61,9 @@ SAVEDATA_TABLE_BEGIN(CStructure);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, defender_t, m_aoDefenders);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CStructure);
+INPUTS_TABLE_END();
+
 CStructure::CStructure()
 {
 	m_bConstructing = false;
@@ -144,13 +147,13 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToConstruct == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetName());
+			GetDigitanksTeam()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetEntityName());
 			CompleteConstruction();
 
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetEntityName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));
 	}
 
 	if (IsUpgrading())
@@ -159,12 +162,12 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToUpgrade == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(GetName() + L" finished upgrading.");
+			GetDigitanksTeam()->AppendTurnInfo(GetEntityName() + L" finished upgrading.");
 
 			UpgradeComplete();
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Upgrading ") + GetName() + L" (%d turns left)", GetTurnsToUpgrade()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Upgrading ") + GetEntityName() + L" (%d turns left)", GetTurnsToUpgrade()));
 	}
 }
 
@@ -617,6 +620,9 @@ SAVEDATA_TABLE_BEGIN(CSupplier);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTendrilGrowthStartTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CSupplier);
+INPUTS_TABLE_END();
 
 void CSupplier::Precache()
 {

@@ -14,6 +14,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CStandardTank);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CStandardTank);
+INPUTS_TABLE_END();
+
 void CStandardTank::Precache()
 {
 	PrecacheModel(L"models/digitanks/digitank-body.obj", true);

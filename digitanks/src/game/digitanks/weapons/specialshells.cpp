@@ -10,6 +10,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CAirstrikeShell);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CAirstrikeShell);
+INPUTS_TABLE_END();
+
 
 REGISTER_ENTITY(CFireworks);
 
@@ -18,6 +21,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CFireworks);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CFireworks);
+INPUTS_TABLE_END();
 
 bool CFireworks::ShouldTouch(CBaseEntity* pOther) const
 {

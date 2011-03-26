@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual eastl::string16		GetName() { return L"Digitank"; };
+	virtual eastl::string16		GetEntityName() { return L"Digitank"; };
 
 	virtual float				GetBoundingRadius() const { return 6; };
 

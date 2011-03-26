@@ -17,6 +17,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CBuffer);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CBuffer);
+INPUTS_TABLE_END();
+
 void CBuffer::Spawn()
 {
 	BaseClass::Spawn();
@@ -55,7 +58,7 @@ void CBuffer::UpdateInfo(eastl::string16& s)
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else
@@ -86,6 +89,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMiniBuffer);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CMiniBuffer);
+INPUTS_TABLE_END();
 
 void CMiniBuffer::Spawn()
 {
@@ -147,7 +153,7 @@ void CMiniBuffer::UpdateInfo(eastl::string16& s)
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else

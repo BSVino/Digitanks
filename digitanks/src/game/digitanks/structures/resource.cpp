@@ -23,6 +23,9 @@ SAVEDATA_TABLE_BEGIN(CResource);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hSparkParticles);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CResource);
+INPUTS_TABLE_END();
+
 void CResource::Precache()
 {
 	BaseClass::Precache();

@@ -51,7 +51,7 @@ public:
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 
 	virtual void					UpdateInfo(eastl::string16& sInfo) {};
-	virtual eastl::string16			GetName() { return L"Entity"; };
+	virtual eastl::string16			GetEntityName() { return L"Entity"; };
 	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
 	virtual float					HealthRechargeRate() const { return 0.2f; };
@@ -66,6 +66,8 @@ protected:
 	float							m_flVisibility;				// Only for local team!
 
 	float							m_flNextDirtyArea;
+
+	DECLARE_ENTITY_OUTPUT(OnBecomeVisible);
 };
 
 #endif

@@ -43,8 +43,8 @@ public:
 
 	void						AddTeam(class CNetworkParameters* p);
 
-	void						SetName(const eastl::string16& sName) { m_sName = sName; };
-	eastl::string16				GetName() { return m_sName; }
+	void						SetTeamName(const eastl::string16& sName) { m_sName = sName; };
+	eastl::string16				GetTeamName() { return m_sName; }
 
 protected:
 	CNetworkedVariable<bool>	m_bHumanPlayable;

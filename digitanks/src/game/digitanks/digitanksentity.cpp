@@ -22,7 +22,11 @@ SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyArea);
+	SAVEDATA_DEFINE_OUTPUT(OnBecomeVisible);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CDigitanksEntity);
+INPUTS_TABLE_END();
 
 void CDigitanksEntity::Spawn()
 {
@@ -32,6 +36,7 @@ void CDigitanksEntity::Spawn()
 	m_flTotalHealth = TotalHealth();
 	m_flHealth = m_flTotalHealth;
 
+	m_flVisibility = 0;
 	m_bVisibilityDirty = true;
 	m_flNextDirtyArea = 0;
 
@@ -357,6 +362,8 @@ float CDigitanksEntity::GetVisibility()
 	if (!m_bVisibilityDirty)
 		return m_flVisibility;
 
+	float flOldVisibility = m_flVisibility;
+
 	CDigitanksTeam* pLocalTeam = pGame->GetCurrentLocalDigitanksTeam();
 	m_flVisibility = GetVisibility(pLocalTeam);
 
@@ -381,6 +388,9 @@ float CDigitanksEntity::GetVisibility()
 		m_flVisibility = 1 - ((1-m_flVisibility)/2);
 		break;
 	}
+
+	if (flOldVisibility <= 0.5f && m_flVisibility > 0.5f)
+		CallOutput("OnBecomeVisible");
 
 	m_bVisibilityDirty = false;
 	return m_flVisibility;

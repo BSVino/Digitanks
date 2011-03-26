@@ -20,6 +20,9 @@ SAVEDATA_TABLE_BEGIN(CUpdateGrid);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iHighestY);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CUpdateGrid);
+INPUTS_TABLE_END();
+
 void CUpdateGrid::SetupStandardUpdates()
 {
 	int iCPU = UPDATE_GRID_SIZE/2;

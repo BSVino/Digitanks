@@ -23,6 +23,9 @@ SAVEDATA_TABLE_BEGIN(CCameraGuidedMissile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angView);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CCameraGuidedMissile);
+INPUTS_TABLE_END();
+
 void CCameraGuidedMissile::Precache()
 {
 	PrecacheSound(L"sound/missile-launch.wav");

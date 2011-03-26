@@ -19,6 +19,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CArtillery);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CArtillery);
+INPUTS_TABLE_END();
+
 void CArtillery::Precache()
 {
 	PrecacheModel(L"models/digitanks/artillery.obj", true);

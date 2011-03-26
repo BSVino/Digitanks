@@ -10,6 +10,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CUserFile);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CUserFile);
+INPUTS_TABLE_END();
+
 void CUserFile::Spawn()
 {
 	SetModel(L"models/digitanks/digitank-body.obj");

@@ -10,6 +10,7 @@
 #include "digitanksteam.h"
 #include "dt_common.h"
 #include "updates.h"
+#include "instructor_entity.h"
 
 typedef enum
 {
@@ -240,6 +241,8 @@ protected:
 	aimtype_t				m_eAimType;
 
 	CNetworkedHandle<CTerrain> m_hTerrain;
+
+	CNetworkedHandle<CInstructorEntity> m_hInstructor;
 
 	IDigitanksGameListener*	m_pListener;
 

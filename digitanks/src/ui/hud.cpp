@@ -660,7 +660,7 @@ void CHUD::Think()
 			{
 				CDigitanksEntity* pDTHit = dynamic_cast<CDigitanksEntity*>(pHit);
 				if (pDTHit)
-					SetTooltip(pDTHit->GetName());
+					SetTooltip(pDTHit->GetEntityName());
 				else
 				{
 					if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecEntityPoint))
@@ -1502,7 +1502,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (DigitanksGame()->GetCurrentTeam() == pTeam)
 				CBaseControl::PaintRect(w - ahTeamTanks.size() * 30 - 20, 35 + i*40, ahTeamTanks.size()*30+10, 45, Color(0, 0, 0, 150));
 
-			eastl::string16 sTeamName = pTeam->GetName();
+			eastl::string16 sTeamName = pTeam->GetTeamName();
 			if (pTeam->IsPlayerControlled())
 				sTeamName = eastl::string16(L"[") + sTeamName + L"]";
 
@@ -2282,7 +2282,7 @@ void CHUD::UpdateScoreboard()
 
 		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
 			s += L"[";
-		s += pTeam->GetName();
+		s += pTeam->GetTeamName();
 		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
 			s += L"]";
 
@@ -3696,7 +3696,7 @@ void CHUD::ShowPowerInfoCallback()
 			continue;
 
 		if (pStructure->Power() > 0)
-			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%.1f\n", pStructure->Power()));
+			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + L": +%.1f\n", pStructure->Power()));
 
 		CCollector* pCollector = dynamic_cast<CCollector*>(pEntity);
 		if (!pCollector)
@@ -3711,7 +3711,7 @@ void CHUD::ShowPowerInfoCallback()
 		else
 			flEfficiency = pCollector->GetSupplier()->GetChildEfficiency() * pCollector->GetSupplyLine()->GetIntegrity();
 
-		m_pTeamInfo->AppendText(sprintf(pCollector->GetName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced(), (int)(flEfficiency*100)));
+		m_pTeamInfo->AppendText(sprintf(pCollector->GetEntityName() + L": +%.1f (%d%%)\n", pCollector->GetPowerProduced(), (int)(flEfficiency*100)));
 	}
 
 	LayoutTeamInfo();
@@ -3766,7 +3766,7 @@ void CHUD::ShowFleetInfoCallback()
 			continue;
 
 		if (pStructure->FleetPoints() > 0)
-			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%d\n", pStructure->FleetPoints()));
+			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + L": +%d\n", pStructure->FleetPoints()));
 	}
 
 	m_pTeamInfo->AppendText(L" \nFleet:\n");
@@ -3816,7 +3816,7 @@ void CHUD::ShowBandwidthInfoCallback()
 			continue;
 
 		if (pStructure->Bandwidth() > 0)
-			m_pTeamInfo->AppendText(sprintf(pStructure->GetName() + L": +%.1fmb\n", pStructure->Bandwidth()));
+			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + L": +%.1fmb\n", pStructure->Bandwidth()));
 	}
 
 	LayoutTeamInfo();

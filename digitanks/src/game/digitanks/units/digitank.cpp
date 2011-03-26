@@ -203,6 +203,9 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<class CStructure>, m_hFortifyDefending);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CDigitank);
+INPUTS_TABLE_END();
+
 void CDigitank::Precache()
 {
 	BaseClass::Precache();
@@ -3286,12 +3289,12 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 	s = L"";
 	eastl::string16 p;
 
-	s += GetName();
+	s += GetEntityName();
 	s += L"\n \n";
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else

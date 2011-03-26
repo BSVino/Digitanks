@@ -26,6 +26,9 @@ SAVEDATA_TABLE_BEGIN(CSupplyLine);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bDelayRecharge);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CSupplyLine);
+INPUTS_TABLE_END();
+
 void CSupplyLine::Precache()
 {
 	BaseClass::Precache();

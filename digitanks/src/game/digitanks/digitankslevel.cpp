@@ -74,7 +74,7 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 		m_flMaxHeight = pData->GetValueFloat();
 	else if (pData->GetKey() == "Prop")
 		ReadProp(pData);
-	else if (pData->GetKey() == "Unit")
+	else if (pData->GetKey() == "Entity")
 		ReadUnit(pData);
 	else if (pData->GetKey() == "Author")
 		m_sAuthor = pData->GetValueString();
@@ -106,24 +106,46 @@ void CDigitanksLevel::ReadProp(const CData* pData)
 
 void CDigitanksLevel::ReadUnit(const CData* pData)
 {
-	CLevelUnit* pProp = &m_aUnits.push_back();
+	CLevelUnit* pUnit = &m_aUnits.push_back();
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
 		CData* pChildData = pData->GetChild(i);
 
 		if (pChildData->GetKey() == "Class")
-			pProp->m_sClassName = pChildData->GetValueString();
+			pUnit->m_sClassName = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Team")
-			pProp->m_sTeamName = pChildData->GetValueString();
+			pUnit->m_sTeamName = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Position")
-			pProp->m_vecPosition = pChildData->GetValueVector2D();
+			pUnit->m_vecPosition = pChildData->GetValueVector2D();
 		else if (pChildData->GetKey() == "Angle")
-			pProp->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
+			pUnit->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
 		else if (pChildData->GetKey() == "Fortified")
-			pProp->m_bFortified = pChildData->GetValueBool();
+			pUnit->m_bFortified = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "Imprisoned")
-			pProp->m_bImprisoned = pChildData->GetValueBool();
+			pUnit->m_bImprisoned = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "Output")
+			ReadUnitOutput(pChildData, pUnit);
+	}
+}
+
+void CDigitanksLevel::ReadUnitOutput(const CData* pData, CLevelUnit* pUnit)
+{
+	CLevelUnitOutput* pOutput = &pUnit->m_aOutputs.push_back();
+	pOutput->m_sOutput = pData->GetValueString();
+
+	for (size_t i = 0; i < pData->GetNumChildren(); i++)
+	{
+		CData* pChildData = pData->GetChild(i);
+
+		if (pChildData->GetKey() == "Target")
+			pOutput->m_sTarget = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Input")
+			pOutput->m_sInput = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Args")
+			pOutput->m_sArgs = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Kill")
+			pOutput->m_bKill = pChildData->GetValueBool();
 	}
 }
 

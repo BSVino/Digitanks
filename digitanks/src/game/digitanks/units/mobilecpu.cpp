@@ -21,6 +21,9 @@ SAVEDATA_TABLE_BEGIN(CMobileCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotation);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CMobileCPU);
+INPUTS_TABLE_END();
+
 void CMobileCPU::Precache()
 {
 	PrecacheModel(L"models/digitanks/mobile-cpu.obj", true);

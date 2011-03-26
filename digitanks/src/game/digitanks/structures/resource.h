@@ -30,7 +30,7 @@ public:
 	class CCollector*			GetCollector() const { return m_hCollector; }
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
-	virtual eastl::string16		GetName() { return L"Electronode"; };
+	virtual eastl::string16		GetEntityName() { return L"Electronode"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
 

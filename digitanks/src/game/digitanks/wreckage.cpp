@@ -30,6 +30,9 @@ SAVEDATA_TABLE_BEGIN(CWreckage);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksTeam>, m_hOldTeam);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CWreckage);
+INPUTS_TABLE_END();
+
 void CWreckage::Precache()
 {
 	PrecacheParticleSystem(L"wreckage-burn");

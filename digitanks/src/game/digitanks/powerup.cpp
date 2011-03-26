@@ -19,6 +19,9 @@ SAVEDATA_TABLE_BEGIN(CPowerup);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, powerup_type_t, m_ePowerupType);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CPowerup);
+INPUTS_TABLE_END();
+
 void CPowerup::Precache()
 {
 	PrecacheModel(L"models/powerup.obj");
@@ -71,7 +74,7 @@ void CPowerup::Spawn()
 	}
 }
 
-eastl::string16 CPowerup::GetName()
+eastl::string16 CPowerup::GetEntityName()
 {
 	switch (m_ePowerupType)
 	{

@@ -22,6 +22,9 @@ SAVEDATA_TABLE_BEGIN(CTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sName);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CTeam);
+INPUTS_TABLE_END();
+
 CTeam::CTeam()
 {
 	m_bClientControlled = false;

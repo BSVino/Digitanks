@@ -16,7 +16,7 @@ public:
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
 
-	virtual eastl::string16		GetName() { return L"Auto-Turret"; };
+	virtual eastl::string16		GetEntityName() { return L"Auto-Turret"; };
 
 	virtual bool				CanFortify() { return true; };
 

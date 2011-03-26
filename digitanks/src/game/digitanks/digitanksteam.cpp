@@ -84,6 +84,9 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bIncludeInScoreboard);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CDigitanksTeam);
+INPUTS_TABLE_END();
+
 CDigitanksTeam::CDigitanksTeam()
 {
 	m_bLKV = false;

@@ -20,6 +20,9 @@ SAVEDATA_TABLE_BEGIN(CMenuMarcher);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, float, m_flBobOffset);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CMenuMarcher);
+INPUTS_TABLE_END();
+
 void CMenuMarcher::Precache()
 {
 	PrecacheModel(L"models/digitanks/digitank-body.obj", true);

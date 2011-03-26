@@ -16,6 +16,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CLaser);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CLaser);
+INPUTS_TABLE_END();
+
 void CLaser::Precache()
 {
 	s_iBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
@@ -156,3 +159,7 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CInfantryLaser);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CInfantryLaser);
+INPUTS_TABLE_END();
+

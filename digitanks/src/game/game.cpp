@@ -23,6 +23,9 @@ SAVEDATA_TABLE_BEGIN(CGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CEntityHandle<CTeam>, m_ahLocalTeams);	// Detected on the fly.
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CGame);
+INPUTS_TABLE_END();
+
 CVar game_level("game_level", "");
 
 CGame::CGame()

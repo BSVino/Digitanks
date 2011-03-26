@@ -15,6 +15,21 @@ public:
 	EAngle					m_angOrientation;
 };
 
+class CLevelUnitOutput
+{
+public:
+	CLevelUnitOutput()
+	{
+		m_bKill = false;
+	};
+
+	eastl::string			m_sOutput;
+	eastl::string			m_sTarget;
+	eastl::string			m_sInput;
+	eastl::string			m_sArgs;
+	bool					m_bKill;
+};
+
 class CLevelUnit
 {
 public:
@@ -30,6 +45,8 @@ public:
 	EAngle					m_angOrientation;
 	bool					m_bFortified;
 	bool					m_bImprisoned;
+
+	eastl::vector<CLevelUnitOutput>	m_aOutputs;
 };
 
 class CDigitanksLevel : public CLevel
@@ -44,6 +61,7 @@ public:
 	virtual void			OnReadData(const class CData* pData);
 	void					ReadProp(const class CData* pData);
 	void					ReadUnit(const class CData* pData);
+	void					ReadUnitOutput(const class CData* pData, CLevelUnit* pUnit);
 	void					ReadGameRules(const class CData* pData);
 
 	gametype_t				GetGameType() { return m_eGameType; }

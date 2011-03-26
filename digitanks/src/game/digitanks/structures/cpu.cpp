@@ -36,6 +36,9 @@ SAVEDATA_TABLE_BEGIN(CCPU);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFanRotation);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CCPU);
+INPUTS_TABLE_END();
+
 void CCPU::Spawn()
 {
 	BaseClass::Spawn();
@@ -847,7 +850,7 @@ void CCPU::UpdateInfo(eastl::string16& s)
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else

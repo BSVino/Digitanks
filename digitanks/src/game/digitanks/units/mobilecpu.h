@@ -12,7 +12,7 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual eastl::string16		GetName() { return L"MCP"; };
+	virtual eastl::string16		GetEntityName() { return L"MCP"; };
 
 	virtual bool				CanFortify();
 	virtual void				OnFortify();

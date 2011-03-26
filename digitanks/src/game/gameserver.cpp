@@ -289,7 +289,7 @@ void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNicknam
 {
 	if (iClient == GetClientIndex() && Game()->GetNumLocalTeams())
 	{
-		Game()->GetLocalTeam(0)->SetName(sNickname);
+		Game()->GetLocalTeam(0)->SetTeamName(sNickname);
 		return;
 	}
 
@@ -297,7 +297,7 @@ void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNicknam
 	{
 		if (Game()->GetTeam(i)->GetClient() == iClient)
 		{
-			Game()->GetTeam(i)->SetName(sNickname);
+			Game()->GetTeam(i)->SetTeamName(sNickname);
 			return;
 		}
 	}

@@ -11,6 +11,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CSelectable);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CSelectable);
+INPUTS_TABLE_END();
+
 void CSelectable::OnCurrentSelection()
 {
 	if (!AllowControlMode(DigitanksGame()->GetControlMode()))

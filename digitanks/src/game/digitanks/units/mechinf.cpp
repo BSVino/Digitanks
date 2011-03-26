@@ -22,6 +22,9 @@ SAVEDATA_TABLE_BEGIN(CMechInfantry);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iFortifyWallModel);		// Set in Spawn()
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CMechInfantry);
+INPUTS_TABLE_END();
+
 void CMechInfantry::Precache()
 {
 	BaseClass::Precache();

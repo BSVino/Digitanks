@@ -19,7 +19,7 @@ public:
 	virtual float				GetPowerProduced();
 
 	virtual size_t				InitialTurnsToConstruct() { return 4; };
-	virtual eastl::string16		GetName() { return L"Power Supply Unit"; };
+	virtual eastl::string16		GetEntityName() { return L"Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_PSU; };
 
 protected:
@@ -47,7 +47,7 @@ public:
 	virtual float				GetPowerProduced();
 
 	virtual size_t				InitialTurnsToConstruct() { return 2; };
-	virtual eastl::string16		GetName() { return L"Capacitor"; };
+	virtual eastl::string16		GetEntityName() { return L"Capacitor"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_PSU; };
 };

@@ -35,6 +35,7 @@ NETVAR_TABLE_BEGIN(CBaseEntity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
+	SAVEDATA_DEFINE(CSaveData::DATA_STRING, eastl::string, m_sName);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLastOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, EAngle, m_angAngles);
@@ -57,6 +58,9 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientSpawn);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iRegistration);	// Set as part of spawning process
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CBaseEntity);
+INPUTS_TABLE_END();
 
 CBaseEntity::CBaseEntity()
 {
@@ -248,6 +252,108 @@ void CBaseEntity::Delete()
 	GameServer()->Delete(this);
 }
 
+void CBaseEntity::CallInput(const eastl::string& sName, const eastl::string16& sArgs)
+{
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration());
+
+	eastl::map<eastl::string, CEntityInput>::iterator it = pRegistration->m_aInputs.find(sName);
+	if (it == pRegistration->m_aInputs.end())
+	{
+		assert(!"Input missing.");
+		TMsg(sprintf(L"Input %s not found in %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		return;
+	}
+
+	CEntityInput* pInput = &it->second;
+
+	eastl::vector<eastl::string16> asArgs;
+	wcstok(sArgs, asArgs);
+	pInput->m_pfnCallback(this, asArgs);
+}
+
+void CBaseEntity::CallOutput(const eastl::string& sName)
+{
+	CSaveData* pData = GetSaveData(sName.c_str());
+
+	if (!pData)
+	{
+		assert(!"Output missing.");
+		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		return;
+	}
+
+	CEntityOutput* pOutput = (CEntityOutput*)((size_t)this + (size_t)pData->m_iOffset);
+	pOutput->Call();
+}
+
+void CBaseEntity::AddOutputTarget(const eastl::string& sName, const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs, bool bKill)
+{
+	CSaveData* pData = GetSaveData(sName.c_str());
+
+	if (!pData)
+	{
+		assert(!"Output missing.");
+		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		return;
+	}
+
+	CEntityOutput* pOutput = (CEntityOutput*)((size_t)this + (size_t)pData->m_iOffset);
+	pOutput->AddTarget(sTargetName, sInput, sArgs, bKill);
+}
+
+void CEntityOutput::Call()
+{
+	if (m_aTargets.size() == 0)
+		return;
+
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
+		if (pEntity->IsDeleted())
+			continue;
+
+		for (size_t j = 0; j < m_aTargets.size(); j++)
+		{
+			CEntityOutputTarget* pTarget = &m_aTargets[j];
+
+			if (pTarget->m_sTargetName.length() == 0)
+				continue;
+
+			if (pTarget->m_sInput.length() == 0)
+				continue;
+
+			if (pEntity->GetName() != pTarget->m_sTargetName)
+				continue;
+
+			pEntity->CallInput(pTarget->m_sInput, convertstring<char, char16_t>(pTarget->m_sArgs));
+		}
+	}
+
+	for (size_t i = 0; i < m_aTargets.size(); i++)
+	{
+		CEntityOutputTarget* pTarget = &m_aTargets[i];
+		if (pTarget->m_bKill)
+		{
+			m_aTargets.erase(m_aTargets.begin()+i);
+			i--;
+		}
+	}
+}
+
+void CEntityOutput::AddTarget(const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs, bool bKill)
+{
+	CEntityOutputTarget* pTarget = &m_aTargets.push_back();
+
+	pTarget->m_sTargetName = sTargetName;
+	pTarget->m_sInput = sInput;
+	pTarget->m_sArgs = sArgs;
+	pTarget->m_bKill = bKill;
+}
+
 SERVER_COMMAND(EmitSound)
 {
 	if (pCmd->GetNumArguments() < 3)
@@ -360,6 +466,27 @@ void CBaseEntity::ClientSpawn()
 {
 	assert(!m_bClientSpawn);
 	m_bClientSpawn = true;
+}
+
+CSaveData* CBaseEntity::GetSaveData(const char* pszName)
+{
+	size_t iRegistration = GetRegistration();
+	CEntityRegistration* pRegistration = NULL;
+	
+	do
+	{
+		pRegistration = CBaseEntity::GetRegisteredEntity(iRegistration);
+
+		for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
+		{
+			CSaveData* pVarData = &pRegistration->m_aSaveData[i];
+
+			if (strcmp(pVarData->m_pszVariableName, pszName) == 0)
+				return pVarData;
+		}
+	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
+
+	return NULL;
 }
 
 CNetworkedVariableData* CBaseEntity::GetNetworkVariable(const char* pszName)
@@ -543,9 +670,29 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 			break;
 		}
 
+		case CSaveData::DATA_STRING:
+			writestring(o, *(eastl::string*)pData);
+			break;
+
 		case CSaveData::DATA_STRING16:
 			writestring16(o, *(eastl::string16*)pData);
 			break;
+
+		case CSaveData::DATA_OUTPUT:
+		{
+			CEntityOutput* pOutput = (CEntityOutput*)pData;
+			size_t iTargets = pOutput->m_aTargets.size();
+			o.write((char*)&iTargets, sizeof(iTargets));
+			for (size_t i = 0; i < pOutput->m_aTargets.size(); i++)
+			{
+				CEntityOutput::CEntityOutputTarget* pTarget = &pOutput->m_aTargets[i];
+				writestring(o, pTarget->m_sTargetName);
+				writestring(o, pTarget->m_sInput);
+				writestring(o, pTarget->m_sArgs);
+				o.write((char*)&pTarget->m_bKill, sizeof(pTarget->m_bKill));
+			}
+			break;
+		}
 		}
 	}
 }
@@ -604,9 +751,32 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 			break;
 		}
 
+		case CSaveData::DATA_STRING:
+			((eastl::string*)pData)->assign(readstring(i));
+			break;
+
 		case CSaveData::DATA_STRING16:
 			((eastl::string16*)pData)->assign(readstring16(i));
 			break;
+
+		case CSaveData::DATA_OUTPUT:
+		{
+			CEntityOutput* pOutput = (CEntityOutput*)pData;
+			size_t iTargets = 0;
+			i.read((char*)&iTargets, sizeof(iTargets));
+			for (size_t j = 0; j < iTargets; j++)
+			{
+				bool bKill;
+
+				eastl::string sTargetName = readstring(i);
+				eastl::string sInput = readstring(i);
+				eastl::string sArgs = readstring(i);
+				i.read((char*)&bKill, sizeof(bool));
+
+				pOutput->AddTarget(sTargetName, sInput, sArgs, bKill);
+			}
+			break;
+		}
 		}
 	}
 
@@ -650,6 +820,7 @@ void CBaseEntity::Register(CBaseEntity* pEntity)
 	pEntity->Precache();
 	pEntity->RegisterSaveData();
 	pEntity->RegisterNetworkVariables();
+	pEntity->RegisterInputData();
 }
 
 size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)

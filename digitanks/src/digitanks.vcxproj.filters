@@ -354,6 +354,9 @@
     <ClCompile Include="game\digitanks\campaign\userfile.cpp">
       <Filter>Source Files\digitanks\campaign</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\instructor_entity.cpp">
+      <Filter>Source Files\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -604,6 +607,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\campaign\userfile.h">
       <Filter>Source Files\digitanks\campaign</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\instructor_entity.h">
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

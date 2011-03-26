@@ -19,6 +19,9 @@ SAVEDATA_TABLE_BEGIN(CBaseWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CBaseWeapon);
+INPUTS_TABLE_END();
+
 void CBaseWeapon::Precache()
 {
 	PrecacheSound(L"sound/explosion.wav");

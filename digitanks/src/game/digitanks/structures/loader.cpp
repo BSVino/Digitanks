@@ -42,6 +42,9 @@ SAVEDATA_TABLE_BEGIN(CLoader);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iTankRange);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CLoader);
+INPUTS_TABLE_END();
+
 void CLoader::Precache()
 {
 	BaseClass::Precache();
@@ -409,7 +412,7 @@ void CLoader::UpdateInfo(eastl::string16& s)
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetName() + L"\n";
+		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			s += L" Friendly\n \n";
 		else
@@ -473,7 +476,7 @@ void CLoader::DrawQueue(int x, int y, int w, int h)
 	glgui::CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, (float)(x + w/2 + iSize/2), (float)(y + h/2 - iSize/2 - 2));
 }
 
-eastl::string16 CLoader::GetName()
+eastl::string16 CLoader::GetEntityName()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
 		return L"Resistor Factory";

@@ -15,6 +15,9 @@ SAVEDATA_TABLE_BEGIN(CMissileDefense);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CProjectile>, m_hTarget);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CMissileDefense);
+INPUTS_TABLE_END();
+
 void CMissileDefense::SetTarget(CProjectile* pTarget)
 {
 	m_hTarget = pTarget;

@@ -32,6 +32,9 @@ SAVEDATA_TABLE_BEGIN(CProjectile);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CProjectile);
+INPUTS_TABLE_END();
+
 CProjectile::CProjectile()
 {
 	m_bFallSoundPlayed = false;
@@ -405,6 +408,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CSmallShell);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CSmallShell);
+INPUTS_TABLE_END();
+
 float CSmallShell::ExplosionRadius()
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
@@ -420,6 +426,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CMediumShell);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CMediumShell);
+INPUTS_TABLE_END();
 
 float CMediumShell::ExplosionRadius()
 {
@@ -437,6 +446,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CLargeShell);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CLargeShell);
+INPUTS_TABLE_END();
+
 float CLargeShell::ExplosionRadius()
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
@@ -452,6 +464,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAOEShell);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CAOEShell);
+INPUTS_TABLE_END();
 
 void CAOEShell::Precache()
 {
@@ -494,6 +509,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CEMP);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CEMP);
+INPUTS_TABLE_END();
+
 void CEMP::Precache()
 {
 	PrecacheParticleSystem(L"emp-explosion");
@@ -521,6 +539,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CICBM);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CICBM);
+INPUTS_TABLE_END();
+
 REGISTER_ENTITY(CGrenade);
 
 NETVAR_TABLE_BEGIN(CGrenade);
@@ -530,6 +551,9 @@ SAVEDATA_TABLE_BEGIN(CGrenade);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angAngle);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, EAngle, m_angRotation);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CGrenade);
+INPUTS_TABLE_END();
 
 void CGrenade::Precache()
 {
@@ -572,6 +596,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CDaisyChain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flExplosionRadius);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CDaisyChain);
+INPUTS_TABLE_END();
 
 void CDaisyChain::Spawn()
 {
@@ -619,6 +646,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CClusterBomb);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flExplosionRadius);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CClusterBomb);
+INPUTS_TABLE_END();
 
 void CClusterBomb::Spawn()
 {
@@ -668,6 +698,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CEarthshaker);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CEarthshaker);
+INPUTS_TABLE_END();
+
 REGISTER_ENTITY(CSploogeShell);
 
 NETVAR_TABLE_BEGIN(CSploogeShell);
@@ -675,6 +708,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CSploogeShell);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CSploogeShell);
+INPUTS_TABLE_END();
 
 void CSploogeShell::Precache()
 {
@@ -716,6 +752,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CTractorBomb);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CTractorBomb);
+INPUTS_TABLE_END();
+
 void CTractorBomb::Precache()
 {
 	PrecacheParticleSystem(L"tractor-bomb-explosion");
@@ -746,6 +785,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CArtilleryShell);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CArtilleryShell);
+INPUTS_TABLE_END();
+
 void CArtilleryShell::Precache()
 {
 	PrecacheParticleSystem(L"emp-explosion");
@@ -769,6 +811,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CArtilleryAoE);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CArtilleryAoE);
+INPUTS_TABLE_END();
 
 void CArtilleryAoE::Precache()
 {
@@ -794,6 +839,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CArtilleryICBM);
 SAVEDATA_TABLE_END();
 
+INPUTS_TABLE_BEGIN(CArtilleryICBM);
+INPUTS_TABLE_END();
+
 REGISTER_ENTITY(CDevastator);
 
 NETVAR_TABLE_BEGIN(CDevastator);
@@ -801,6 +849,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDevastator);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CDevastator);
+INPUTS_TABLE_END();
 
 size_t CInfantryFlak::s_iTrailSystem = ~0;
 
@@ -811,6 +862,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CInfantryFlak);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CInfantryFlak);
+INPUTS_TABLE_END();
 
 void CInfantryFlak::Precache()
 {
@@ -854,6 +908,9 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CTorpedo);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bBurrowing);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CTorpedo);
+INPUTS_TABLE_END();
 
 CTorpedo::CTorpedo()
 {
@@ -1020,3 +1077,6 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTreeCutter);
 SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CTreeCutter);
+INPUTS_TABLE_END();
