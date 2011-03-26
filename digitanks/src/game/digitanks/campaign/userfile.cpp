@@ -8,6 +8,7 @@ NETVAR_TABLE_BEGIN(CUserFile);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CUserFile);
+	SAVEDATA_DEFINE_OUTPUT(OnPickup);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CUserFile);
@@ -48,5 +49,7 @@ bool CUserFile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 
 void CUserFile::Pickup(CDigitank* pTank)
 {
+	CallOutput("OnPickup");
+
 	Delete();
 }

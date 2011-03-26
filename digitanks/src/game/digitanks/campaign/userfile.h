@@ -15,6 +15,8 @@ public:
 
 	virtual bool					IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	void							Pickup(class CDigitank* pTank);
+	DECLARE_ENTITY_OUTPUT(OnPickup);
+
 protected:
 };
 
