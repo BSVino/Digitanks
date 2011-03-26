@@ -331,6 +331,7 @@ public:
 
 	bool						IsDisabled() { return !!m_iTurnsDisabled; }
 	void						Disable(size_t iTurns);
+	DECLARE_ENTITY_OUTPUT(OnDisable);
 
 	virtual size_t				GetTurretModel() { return m_iTurretModel; }
 

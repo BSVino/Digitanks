@@ -681,7 +681,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					continue;
 
 				float flTargetVisibility = pClosestEnemy->GetVisibility(this);
-				if (flTargetVisibility < 0.6f)
+				if (flTargetVisibility < 0.4f)
 					continue;
 
 				if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
@@ -755,6 +755,13 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 						continue;
 
 					if (pClosestEnemy->IsImprisoned())
+						continue;
+
+					float flTargetVisibility = pClosestEnemy->GetVisibility(this);
+					if (flTargetVisibility < 0.4f)
+						continue;
+
+					if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 						continue;
 
 					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))

@@ -389,7 +389,7 @@ float CDigitanksEntity::GetVisibility()
 		break;
 	}
 
-	if (flOldVisibility <= 0.5f && m_flVisibility > 0.5f)
+	if (flOldVisibility <= 0.25f && m_flVisibility > 0.25f)
 		CallOutput("OnBecomeVisible");
 
 	m_bVisibilityDirty = false;

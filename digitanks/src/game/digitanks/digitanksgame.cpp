@@ -780,6 +780,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pUnit);
 
+		pUnit->SetName(pLevelUnit->m_sName);
 		pUnit->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
 		pUnit->SetAngles(EAngle(0, pLevelUnit->m_angOrientation.y, 0));
 
@@ -2412,7 +2413,7 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 	{
 		// Enemy tanks have access to this weapon from the first mission.
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
-			return true;
+			return pLevel->AllowEnemyInfantryLasers();
 
 		return pLevel->AllowInfantryLasers();
 	}

@@ -87,6 +87,7 @@ class CEntityOutput
 public:
 	void									Call();
 	void									AddTarget(const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs, bool bKill);
+	void									Clear();
 
 public:
 	class CEntityOutputTarget
@@ -345,6 +346,7 @@ public:
 	void									Kill();
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
+	DECLARE_ENTITY_OUTPUT(OnKill);
 
 	virtual bool							ShouldRender() const { return false; };
 	virtual bool							ShouldRenderModel() const { return true; };
@@ -370,6 +372,8 @@ public:
 	void									CallInput(const eastl::string& sName, const eastl::string16& sArgs);
 	void									CallOutput(const eastl::string& sName);
 	void									AddOutputTarget(const eastl::string& sName, const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs = "", bool bKill = false);
+	void									RemoveOutputs(const eastl::string& sName);
+	DECLARE_ENTITY_INPUT(RemoveOutput);
 
 	void									EmitSound(const eastl::string16& sSound, bool bLoop = false);
 	void									StopSound(const eastl::string16& sModel);
@@ -399,6 +403,7 @@ public:
 
 	CSaveData*								GetSaveData(const char* pszName);
 	CNetworkedVariableData*					GetNetworkVariable(const char* pszName);
+	CEntityInput*							GetInput(const char* pszName);
 
 	virtual void							OnSerialize(std::ostream& o) {};
 	virtual bool							OnUnserialize(std::istream& i) { return true; };

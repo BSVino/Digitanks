@@ -39,6 +39,7 @@ public:
 		m_bImprisoned = false;
 	};
 
+	eastl::string			m_sName;
 	eastl::string			m_sClassName;
 	eastl::string			m_sTeamName;
 	Vector2D				m_vecPosition;
@@ -84,6 +85,8 @@ public:
 	bool					AllowInfantryTreeCutters() { return m_bInfantryTreeCutters; }
 	bool					AllowInfantryFortify() { return m_bInfantryFortify; }
 
+	bool					AllowEnemyInfantryLasers() { return m_bEnemyInfantryLasers; }
+
 	eastl::string			GetStartingLesson() { return m_sStartingLesson; }
 
 protected:
@@ -103,6 +106,8 @@ protected:
 	bool					m_bInfantryLasers;
 	bool					m_bInfantryTreeCutters;
 	bool					m_bInfantryFortify;
+
+	bool					m_bEnemyInfantryLasers;
 
 	eastl::string			m_sStartingLesson;
 };

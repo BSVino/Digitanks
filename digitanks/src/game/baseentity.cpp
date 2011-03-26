@@ -35,6 +35,7 @@ NETVAR_TABLE_BEGIN(CBaseEntity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
+	SAVEDATA_DEFINE_OUTPUT(OnKill);
 	SAVEDATA_DEFINE(CSaveData::DATA_STRING, eastl::string, m_sName);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLastOrigin);
@@ -60,6 +61,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBaseEntity);
+	INPUT_DEFINE(RemoveOutput);
 INPUTS_TABLE_END();
 
 CBaseEntity::CBaseEntity()
@@ -203,6 +205,8 @@ void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 
 	OnKilled(pKilledBy);
 	Game()->OnKilled(this);
+
+	CallOutput("OnKill");
 }
 
 void CBaseEntity::Render(bool bTransparent)
@@ -254,17 +258,14 @@ void CBaseEntity::Delete()
 
 void CBaseEntity::CallInput(const eastl::string& sName, const eastl::string16& sArgs)
 {
-	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration());
+	CEntityInput* pInput = GetInput(sName.c_str());
 
-	eastl::map<eastl::string, CEntityInput>::iterator it = pRegistration->m_aInputs.find(sName);
-	if (it == pRegistration->m_aInputs.end())
+	if (!pInput)
 	{
 		assert(!"Input missing.");
 		TMsg(sprintf(L"Input %s not found in %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
 		return;
 	}
-
-	CEntityInput* pInput = &it->second;
 
 	eastl::vector<eastl::string16> asArgs;
 	wcstok(sArgs, asArgs);
@@ -299,6 +300,32 @@ void CBaseEntity::AddOutputTarget(const eastl::string& sName, const eastl::strin
 
 	CEntityOutput* pOutput = (CEntityOutput*)((size_t)this + (size_t)pData->m_iOffset);
 	pOutput->AddTarget(sTargetName, sInput, sArgs, bKill);
+}
+
+void CBaseEntity::RemoveOutputs(const eastl::string& sName)
+{
+	CSaveData* pData = GetSaveData(sName.c_str());
+
+	if (!pData)
+	{
+		assert(!"Output missing.");
+		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		return;
+	}
+
+	CEntityOutput* pOutput = (CEntityOutput*)((size_t)this + (size_t)pData->m_iOffset);
+	pOutput->Clear();
+}
+
+void CBaseEntity::RemoveOutput(const eastl::vector<eastl::string16>& sArgs)
+{
+	if (sArgs.size() == 0)
+	{
+		TMsg("RemoveOutput called without a output name argument.\n");
+		return;
+	}
+
+	RemoveOutputs(convertstring<char16_t, char>(sArgs[0]));
 }
 
 void CEntityOutput::Call()
@@ -352,6 +379,11 @@ void CEntityOutput::AddTarget(const eastl::string& sTargetName, const eastl::str
 	pTarget->m_sInput = sInput;
 	pTarget->m_sArgs = sArgs;
 	pTarget->m_bKill = bKill;
+}
+
+void CEntityOutput::Clear()
+{
+	m_aTargets.clear();
 }
 
 SERVER_COMMAND(EmitSound)
@@ -505,6 +537,25 @@ CNetworkedVariableData* CBaseEntity::GetNetworkVariable(const char* pszName)
 			if (strcmp(pVarData->m_pszName, pszName) == 0)
 				return pVarData;
 		}
+	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
+
+	return NULL;
+}
+
+CEntityInput* CBaseEntity::GetInput(const char* pszName)
+{
+	size_t iRegistration = GetRegistration();
+	CEntityRegistration* pRegistration = NULL;
+	
+	do
+	{
+		pRegistration = CBaseEntity::GetRegisteredEntity(iRegistration);
+
+		eastl::map<eastl::string, CEntityInput>::iterator it = pRegistration->m_aInputs.find(pszName);
+
+		if (it != pRegistration->m_aInputs.end())
+			return &it->second;
+
 	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
 
 	return NULL;

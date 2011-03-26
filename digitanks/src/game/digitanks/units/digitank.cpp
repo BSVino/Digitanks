@@ -126,6 +126,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitank);
+	SAVEDATA_DEFINE_OUTPUT(OnDisable);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartingPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTotalPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flAttackPower);
@@ -3642,6 +3643,9 @@ float CDigitank::FirstProjectileTime() const
 
 void CDigitank::Disable(size_t iTurns)
 {
+	if (m_iTurnsDisabled == (size_t)0 && iTurns > 0)
+		CallOutput("OnDisable");
+
 	if (m_iTurnsDisabled < iTurns)
 		m_iTurnsDisabled = iTurns;
 

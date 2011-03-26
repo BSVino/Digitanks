@@ -16,6 +16,7 @@ CDigitanksLevel::CDigitanksLevel()
 	m_bInfantryLasers = true;
 	m_bInfantryTreeCutters = true;
 	m_bInfantryFortify = true;
+	m_bEnemyInfantryLasers = true;
 }
 
 CDigitanksLevel::~CDigitanksLevel()
@@ -112,7 +113,9 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 	{
 		CData* pChildData = pData->GetChild(i);
 
-		if (pChildData->GetKey() == "Class")
+		if (pChildData->GetKey() == "Name")
+			pUnit->m_sName = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Class")
 			pUnit->m_sClassName = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Team")
 			pUnit->m_sTeamName = pChildData->GetValueString();
@@ -161,6 +164,8 @@ void CDigitanksLevel::ReadGameRules(const CData* pData)
 			m_bInfantryTreeCutters = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "InfantryFortify")
 			m_bInfantryFortify = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "EnemyInfantryLasers")
+			m_bEnemyInfantryLasers = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "StartingLesson")
 			m_sStartingLesson = pChildData->GetValueString();
 	}
