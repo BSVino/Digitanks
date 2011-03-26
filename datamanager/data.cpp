@@ -98,3 +98,19 @@ Vector2D CData::GetValueVector2D() const
 
 	return vecResult;
 }
+
+EAngle CData::GetValueEAngle() const
+{
+	eastl::vector<eastl::string> asTokens;
+	strtok(GetValueString(), asTokens, ",");
+
+	EAngle vecResult;
+	if (asTokens.size() > 0)
+		vecResult.p = (float)atof(asTokens[0].c_str());
+	if (asTokens.size() > 1)
+		vecResult.y = (float)atof(asTokens[1].c_str());
+	if (asTokens.size() > 2)
+		vecResult.r = (float)atof(asTokens[2].c_str());
+
+	return vecResult;
+}

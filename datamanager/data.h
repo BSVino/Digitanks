@@ -29,6 +29,7 @@ public:
 	size_t					GetValueUInt() const;
 	float					GetValueFloat() const;
 	Vector2D				GetValueVector2D() const;
+	EAngle					GetValueEAngle() const;
 
 	size_t					GetNumChildren() const { return m_apChildren.size(); }
 	CData*					GetChild(size_t i) const { return m_apChildren[i]; }

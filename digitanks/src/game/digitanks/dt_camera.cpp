@@ -88,11 +88,15 @@ void CDigitanksCamera::SnapAngle(EAngle angCamera)
 void CDigitanksCamera::ZoomOut()
 {
 	SetDistance(m_flNewDistance+20);
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-zoomview");
 }
 
 void CDigitanksCamera::ZoomIn()
 {
 	SetDistance(m_flNewDistance-20);
+
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-zoomview");
 }
 
 void CDigitanksCamera::Shake(Vector vecLocation, float flMagnitude)
@@ -652,11 +656,12 @@ void CDigitanksCamera::MouseInput(int x, int y)
 
 		SetTarget(m_vecTarget + vecVelocity);
 
-//		DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA2);
+		DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-moveview2");
 	}
 	else if (DigitanksWindow()->ShouldConstrainMouse() && !m_bFreeMode && !m_bDraggingCamera)
 	{
-		if (!m_bMouseDragLeft && x < 15)
+		CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
+		if (!m_bMouseDragLeft && x < 15 && !pInstructor->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		{
 			m_bMouseDragLeft = true;
 			m_vecGoalVelocity.z = 80.0f;
@@ -666,10 +671,10 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		{
 			m_bMouseDragLeft = false;
 			m_vecGoalVelocity.z = 0;
-//			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-moveview");
 		}
 
-		if (!m_bMouseDragUp && y < 15)
+		if (!m_bMouseDragUp && y < 15 && !pInstructor->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		{
 			m_bMouseDragUp = true;
 			m_vecGoalVelocity.x = -80.0f;
@@ -679,10 +684,10 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		{
 			m_bMouseDragUp = false;
 			m_vecGoalVelocity.x = 0;
-//			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-moveview");
 		}
 
-		if (!m_bMouseDragRight && x > DigitanksWindow()->GetWindowWidth()-15)
+		if (!m_bMouseDragRight && x > DigitanksWindow()->GetWindowWidth()-15 && !pInstructor->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		{
 			m_bMouseDragRight = true;
 			m_vecGoalVelocity.z = -80.0f;
@@ -692,10 +697,10 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		{
 			m_bMouseDragRight = false;
 			m_vecGoalVelocity.z = 0;
-//			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-moveview");
 		}
 
-		if (!m_bMouseDragDown && y > DigitanksWindow()->GetWindowHeight()-15)
+		if (!m_bMouseDragDown && y > DigitanksWindow()->GetWindowHeight()-15 && !pInstructor->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		{
 			m_bMouseDragDown = true;
 			m_vecGoalVelocity.x = 80.0f;
@@ -705,7 +710,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		{
 			m_bMouseDragDown = false;
 			m_vecGoalVelocity.x = 0;
-//			DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVECAMERA);
+			DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-moveview");
 		}
 	}
 	else
@@ -726,7 +731,7 @@ void CDigitanksCamera::MouseButton(int iButton, int iState)
 
 void CDigitanksCamera::KeyDown(int c)
 {
-	if (!m_bFreeMode)
+	if (!m_bFreeMode && !DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 	{
 		if (c == TINKER_KEY_UP)
 			m_vecGoalVelocity.x = -80.0f;
@@ -738,7 +743,7 @@ void CDigitanksCamera::KeyDown(int c)
 			m_vecGoalVelocity.z = 80.0f;
 	}
 
-	if (c == ' ')
+	if (c == ' ' && !DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		m_bDraggingCamera = true;
 
 	if (c == TINKER_KEY_LSHIFT)

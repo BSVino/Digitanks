@@ -52,7 +52,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	if (GameServer() && GameServer()->GetCamera())
 	{
 		// MouseButton enables camera rotation, so don't send the signal if the feature is disabled.
-		if (!m_pInstructor->IsFeatureDisabled(DISABLE_ROTATE))
+		if (!m_pInstructor->IsFeatureDisabled(DISABLE_VIEW_ROTATE))
 			GameServer()->GetCamera()->MouseButton(iButton, iState);
 	}
 
@@ -142,8 +142,8 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_iMouseMoved = 0;
 		else
 		{
-//			if (m_iMouseMoved > 30)
-//				GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_TURNCAMERA);
+			if (m_iMouseMoved > 30)
+				GetInstructor()->FinishedTutorial("mission-1-rotateview");
 		}
 	}
 

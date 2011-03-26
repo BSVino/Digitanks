@@ -371,6 +371,8 @@ public:
 				Vector2D(Vector v);
 
 public:
+	float	LengthSqr() const;
+
 	Vector2D	operator+(const Vector2D& v) const;
 	Vector2D	operator-(const Vector2D& v) const;
 	Vector2D	operator*(float s) const;
@@ -397,6 +399,11 @@ inline Vector2D::Vector2D(unit_t X, unit_t Y)
 inline Vector2D::Vector2D(Vector v)
 	: x(v.x), y(v.y)
 {
+}
+
+inline float Vector2D::LengthSqr() const
+{
+	return x*x + y*y;
 }
 
 inline Vector2D Vector2D::operator+(const Vector2D& v) const

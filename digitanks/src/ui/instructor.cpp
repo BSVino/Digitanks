@@ -7,6 +7,7 @@
 #include "digitanks/units/digitank.h"
 #include "digitanks/units/mobilecpu.h"
 #include "digitanks/digitanksgame.h"
+#include "digitanks/dt_camera.h"
 #include "digitankswindow.h"
 #include "ui.h"
 #include "renderer/renderer.h"
@@ -21,6 +22,7 @@ CInstructor::CInstructor()
 	m_pCurrentPanel = NULL;
 	m_sLastTutorial = "";
 	Initialize();
+	m_eDisabled = DISABLE_NOTHING;
 
 	CSoundLibrary::Get()->AddSound(L"sound/lesson-learned.wav");
 }
@@ -50,27 +52,7 @@ void CInstructor::Initialize()
 
 	Clear();
 
-/*	m_apTutorials["intro-basics"] = new CTutorial(this, "intro-basics", "move-camera", POSITION_TOPCENTER, 200, true,
-		L"Welcome to Digitanks!\n \nThis tutorial will help you get accustomed to the game.\n \nClick here to continue.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA, new CTutorial(this, TUTORIAL_MOVECAMERA, POSITION_TOPCENTER, 220, true,
-		L"VIEW CONTROLS\n \nFirst, let's take a look around. Move your mouse to the edge of the screen to move the view in that direction.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVECAMERA2, new CTutorial(this, TUTORIAL_MOVECAMERA2, POSITION_TOPCENTER, 220, true,
-		L"VIEW CONTROLS\n \nYou can also hold down space bar and move the mouse to move the view around.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_TURNCAMERA, new CTutorial(this, TUTORIAL_TURNCAMERA, POSITION_TOPCENTER, 210, true,
-		L"VIEW CONTROLS\n \nHold down the right mouse button and drag to rotate the view.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ZOOMCAMERA, new CTutorial(this, TUTORIAL_ZOOMCAMERA, POSITION_TOPCENTER, 200, true,
-		L"VIEW CONTROLS\n \nYou can use the mouse wheel or the PGUP and PGDN buttons on your keyboard to zoom in and out.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_SELECTION, new CTutorial(this, TUTORIAL_SELECTION, POSITION_TOPCENTER, 250, true,
-		L"TANK SELECTION\n \nThe cute guy you see here is your ever obedient Digitank. He would die fearlessly at your command, but you'd never send him to his death would you? He's so cute!\n \nSelect him by clicking on him with the left mouse button.")));
-
-	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVE_MODE, new CTutorial(this, TUTORIAL_MOVE_MODE, POSITION_BUTTONS, 300, true,
-		L"MOVE YOUR TANK\n \nAn enemy tank is closeby. Let's get a bit closer so we can get a better shot. Press the 'Move' button below to enter move mode.")));
-
+/*
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_MOVE, new CTutorial(this, TUTORIAL_MOVE, POSITION_TOPLEFT, 300, true,
 		L"MOVE YOUR TANK\n \nYou are now in 'move mode'. Click inside the yellow area to move your tank.")));
 
@@ -228,6 +210,11 @@ void CInstructor::ReadLesson(const class CData* pData)
 	eastl::string sButton1Text;
 	eastl::string sButton2Action;
 	eastl::string sButton2Text;
+	disable_t eEnable = DISABLE_NOTHING;
+	disable_t eDisable = DISABLE_NOTHING;
+	Vector2D vecTarget = Vector2D(0,0);		// Origin means do not use
+	EAngle angTarget = EAngle(-1,-1,-1);	// Negative values means do not use
+	float flDistance = 0;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -259,6 +246,48 @@ void CInstructor::ReadLesson(const class CData* pData)
 			sButton2Action = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Button2Text")
 			sButton2Text = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Enable")
+		{
+			eastl::string sEnable = pChildData->GetValueString();
+			int iEnable = eEnable;
+			if (sEnable == "view-move")
+				iEnable |= DISABLE_VIEW_MOVE;
+			else if (sEnable == "view-rotate")
+				iEnable |= DISABLE_VIEW_ROTATE;
+			else if (sEnable == "enter")
+				iEnable |= DISABLE_ENTER;
+			else if (sEnable == "buffer")
+				iEnable |= DISABLE_BUFFER;
+			else if (sEnable == "psu")
+				iEnable |= DISABLE_PSU;
+			else if (sEnable == "loaders")
+				iEnable |= DISABLE_LOADERS;
+			eEnable = (disable_t)iEnable;
+		}
+		else if (pChildData->GetKey() == "Disable")
+		{
+			eastl::string sDisable = pChildData->GetValueString();
+			int iDisable = eDisable;
+			if (sDisable == "view-move")
+				iDisable |= DISABLE_VIEW_MOVE;
+			else if (sDisable == "view-rotate")
+				iDisable |= DISABLE_VIEW_ROTATE;
+			else if (sDisable == "enter")
+				iDisable |= DISABLE_ENTER;
+			else if (sDisable == "buffer")
+				iDisable |= DISABLE_BUFFER;
+			else if (sDisable == "psu")
+				iDisable |= DISABLE_PSU;
+			else if (sDisable == "loaders")
+				iDisable |= DISABLE_LOADERS;
+			eDisable = (disable_t)iDisable;
+		}
+		else if (pChildData->GetKey() == "SetViewTarget")
+			vecTarget = pChildData->GetValueVector2D();
+		else if (pChildData->GetKey() == "SetViewAngle")
+			angTarget = pChildData->GetValueEAngle();
+		else if (pChildData->GetKey() == "SetViewDistance")
+			flDistance = pChildData->GetValueFloat();
 	}
 
 	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
@@ -266,6 +295,11 @@ void CInstructor::ReadLesson(const class CData* pData)
 	m_apTutorials[sLessonName]->m_sButton1Action = sButton1Action;
 	m_apTutorials[sLessonName]->m_sButton2Text = sButton2Text;
 	m_apTutorials[sLessonName]->m_sButton2Action = sButton2Action;
+	m_apTutorials[sLessonName]->m_eDisable = eDisable;
+	m_apTutorials[sLessonName]->m_eEnable = eEnable;
+	m_apTutorials[sLessonName]->m_vecSetViewTarget = vecTarget;
+	m_apTutorials[sLessonName]->m_angSetViewAngle = angTarget;
+	m_apTutorials[sLessonName]->m_flSetViewDistance = flDistance;
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -280,6 +314,7 @@ void CInstructor::DisplayFirstTutorial(eastl::string sTutorial)
 	m_bActive = true;
 	m_sLastTutorial = "";
 	m_sCurrentTutorial = sTutorial;
+	m_eDisabled = DISABLE_NOTHING;
 	DisplayTutorial(m_sCurrentTutorial);
 }
 
@@ -319,6 +354,23 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
 		m_pCurrentPanel->Delete();
 	}
+
+	int iDisabled = m_eDisabled;
+	iDisabled |= m_apTutorials[sTutorial]->m_eDisable;
+	iDisabled &= ~m_apTutorials[sTutorial]->m_eEnable;
+	m_eDisabled = (disable_t)iDisabled;
+
+	Vector2D vecTarget = m_apTutorials[sTutorial]->m_vecSetViewTarget;
+	if (vecTarget.LengthSqr() > 0)
+		DigitanksGame()->GetDigitanksCamera()->SetTarget(DigitanksGame()->GetTerrain()->SetPointHeight(Vector(vecTarget.x, 0, vecTarget.y)));
+
+	EAngle angTarget = m_apTutorials[sTutorial]->m_angSetViewAngle;
+	if (angTarget.p > 0 && angTarget.y > 0 && angTarget.r > 0)
+		DigitanksGame()->GetDigitanksCamera()->SetAngle(angTarget);
+
+	float flDistance = m_apTutorials[sTutorial]->m_flSetViewDistance;
+	if (flDistance > 0)
+		DigitanksGame()->GetDigitanksCamera()->SetDistance(flDistance);
 
 	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[sTutorial]);
 	glgui::CRootPanel::Get()->AddControl(m_pCurrentPanel, true);
@@ -365,24 +417,7 @@ void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
 
 disable_t CInstructor::GetDisabledFeatures()
 {
-	int iDisabled = 0;
-
-/*	if (GetCurrentTutorial() < TUTORIAL_TURNCAMERA)
-		iDisabled |= DISABLE_ROTATE;
-
-	if (GetCurrentTutorial() < TUTORIAL_ENTERKEY)
-		iDisabled |= DISABLE_ENTER;
-
-	if (GetCurrentTutorial() < TUTORIAL_BUFFER)
-		iDisabled |= DISABLE_BUFFER;
-
-	if (GetCurrentTutorial() < TUTORIAL_PSU)
-		iDisabled |= DISABLE_PSU;
-
-	if (GetCurrentTutorial() < TUTORIAL_LOADER)
-		iDisabled |= DISABLE_LOADERS;*/
-
-	return (disable_t)iDisabled;
+	return m_eDisabled;
 }
 
 bool CInstructor::IsFeatureDisabled(disable_t eFeature)
@@ -405,6 +440,10 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::s
 	m_bKillOnFinish = false;
 	m_flSlideAmount = 0;
 	m_bSlideX = true;
+
+	m_vecSetViewTarget = Vector2D(0, 0);
+	m_angSetViewAngle = EAngle(-1, -1, -1);
+	m_flSetViewDistance = 0;
 }
 
 CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
@@ -413,7 +452,7 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
 	m_pTutorial = pTutorial;
 
 	m_pText = new CLabel(0, 0, m_pTutorial->m_iWidth, 1000, L"");
-	m_pText->SetText(pTutorial->m_sText.c_str());
+	m_pText->SetText(str_replace(pTutorial->m_sText, L"\\n", L"\n"));
 	m_pText->SetPos(10, 0);
 	m_pText->SetSize(m_pTutorial->m_iWidth, (int)m_pText->GetTextHeight() + 10);
 	m_pText->SetWrap(true);

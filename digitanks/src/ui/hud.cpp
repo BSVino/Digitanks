@@ -3198,7 +3198,7 @@ void CHUD::MoveCallback()
 	else
 		DigitanksGame()->SetControlMode(MODE_MOVE);
 
-//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE_MODE, true);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-move-mode");
 
 	SetupMenu();
 }

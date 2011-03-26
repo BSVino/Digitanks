@@ -208,6 +208,8 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 	{
 		GetPrimarySelection()->OnCurrentSelection();
 
+		DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-selection");
+
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 		{
 			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())

@@ -1274,7 +1274,7 @@ void CDigitanksGame::MoveTanks()
 
 	SetControlMode(MODE_NONE);
 
-//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_MOVE);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-move");
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-command");
 }
 

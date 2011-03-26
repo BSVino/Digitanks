@@ -6,11 +6,13 @@
 
 typedef enum
 {
-	DISABLE_ROTATE = (1<<0),
-	DISABLE_ENTER = (1<<1),
-	DISABLE_BUFFER = (1<<2),
-	DISABLE_PSU = (1<<3),
-	DISABLE_LOADERS = (1<<4),
+	DISABLE_NOTHING		= 0,
+	DISABLE_VIEW_MOVE	= (1<<0),
+	DISABLE_VIEW_ROTATE	= (1<<1),
+	DISABLE_ENTER		= (1<<2),
+	DISABLE_BUFFER		= (1<<3),
+	DISABLE_PSU			= (1<<4),
+	DISABLE_LOADERS		= (1<<5),
 } disable_t;
 
 class CTutorial
@@ -35,6 +37,13 @@ public:
 
 	eastl::string					m_sButton2Text;
 	eastl::string					m_sButton2Action;
+
+	disable_t						m_eDisable;
+	disable_t						m_eEnable;
+
+	Vector2D						m_vecSetViewTarget;
+	EAngle							m_angSetViewAngle;
+	float							m_flSetViewDistance;
 };
 
 class CTutorialPanel : public glgui::CPanel, public glgui::IEventListener
@@ -105,6 +114,8 @@ protected:
 	eastl::string					m_sLastTutorial;
 	eastl::string					m_sCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;
+
+	disable_t						m_eDisabled;
 };
 
 #endif
