@@ -127,6 +127,8 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 			pUnit->m_bFortified = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "Imprisoned")
 			pUnit->m_bImprisoned = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "Active")
+			pUnit->m_bActive = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "Output")
 			ReadUnitOutput(pChildData, pUnit);
 	}

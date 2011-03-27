@@ -28,6 +28,7 @@ NETVAR_TABLE_BEGIN(CBaseEntity);
 	NETVAR_DEFINE(bool, m_bTakeDamage);
 	NETVAR_DEFINE(float, m_flTotalHealth);
 	NETVAR_DEFINE(float, m_flHealth);
+	NETVAR_DEFINE(bool, m_bActive);
 	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_hTeam);
 	NETVAR_DEFINE(int, m_iCollisionGroup);
 	NETVAR_DEFINE(size_t, m_iModel);
@@ -35,7 +36,9 @@ NETVAR_TABLE_BEGIN(CBaseEntity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
-	SAVEDATA_DEFINE_OUTPUT(OnKill);
+	SAVEDATA_DEFINE_OUTPUT(OnKilled);
+	SAVEDATA_DEFINE_OUTPUT(OnActivated);
+	SAVEDATA_DEFINE_OUTPUT(OnDeactivated);
 	SAVEDATA_DEFINE(CSaveData::DATA_STRING, eastl::string, m_sName);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLastOrigin);
@@ -48,6 +51,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTotalHealth);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flHealth);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flTimeKilled);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bActive);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CTeam>, m_hTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, bool, m_bDeleted);	// Deleted entities are not saved.
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CBaseEntity>, m_ahTouching);
@@ -61,6 +65,9 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBaseEntity);
+	INPUT_DEFINE(Activate);
+	INPUT_DEFINE(Deactivate);
+	INPUT_DEFINE(ToggleActive);
 	INPUT_DEFINE(RemoveOutput);
 INPUTS_TABLE_END();
 
@@ -206,7 +213,39 @@ void CBaseEntity::Killed(CBaseEntity* pKilledBy)
 	OnKilled(pKilledBy);
 	Game()->OnKilled(this);
 
-	CallOutput("OnKill");
+	CallOutput("OnKilled");
+}
+
+void CBaseEntity::SetActive(bool bActive)
+{
+	if (bActive && !m_bActive)
+	{
+		OnActivated();
+		CallOutput("OnActivated");
+	}
+
+	if (m_bActive && !bActive)
+	{
+		OnDeactivated();
+		CallOutput("OnDeactivated");
+	}
+
+	m_bActive = bActive;
+}
+
+void CBaseEntity::Activate(const eastl::vector<eastl::string16>& sArgs)
+{
+	SetActive(true);
+}
+
+void CBaseEntity::Deactivate(const eastl::vector<eastl::string16>& sArgs)
+{
+	SetActive(false);
+}
+
+void CBaseEntity::ToggleActive(const eastl::vector<eastl::string16>& sArgs)
+{
+	SetActive(!IsActive());
 }
 
 void CBaseEntity::Render(bool bTransparent)
@@ -274,7 +313,7 @@ void CBaseEntity::CallInput(const eastl::string& sName, const eastl::string16& s
 
 void CBaseEntity::CallOutput(const eastl::string& sName)
 {
-	CSaveData* pData = GetSaveData(sName.c_str());
+	CSaveData* pData = GetSaveData((eastl::string("m_Output_") + sName).c_str());
 
 	if (!pData)
 	{
@@ -289,7 +328,7 @@ void CBaseEntity::CallOutput(const eastl::string& sName)
 
 void CBaseEntity::AddOutputTarget(const eastl::string& sName, const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs, bool bKill)
 {
-	CSaveData* pData = GetSaveData(sName.c_str());
+	CSaveData* pData = GetSaveData((eastl::string("m_Output_") + sName).c_str());
 
 	if (!pData)
 	{
@@ -304,7 +343,7 @@ void CBaseEntity::AddOutputTarget(const eastl::string& sName, const eastl::strin
 
 void CBaseEntity::RemoveOutputs(const eastl::string& sName)
 {
-	CSaveData* pData = GetSaveData(sName.c_str());
+	CSaveData* pData = GetSaveData((eastl::string("m_Output_") + sName).c_str());
 
 	if (!pData)
 	{
@@ -353,8 +392,16 @@ void CEntityOutput::Call()
 			if (pTarget->m_sInput.length() == 0)
 				continue;
 
-			if (pEntity->GetName() != pTarget->m_sTargetName)
-				continue;
+			if (pTarget->m_sTargetName[0] == '*')
+			{
+				if (eastl::string(pEntity->GetClassName()) != pTarget->m_sTargetName.c_str()+1)
+					continue;
+			}
+			else
+			{
+				if (pEntity->GetName() != pTarget->m_sTargetName)
+					continue;
+			}
 
 			pEntity->CallInput(pTarget->m_sInput, convertstring<char, char16_t>(pTarget->m_sArgs));
 		}

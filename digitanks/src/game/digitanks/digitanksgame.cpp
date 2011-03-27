@@ -109,6 +109,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksGame);
+	INPUT_DEFINE(PlayerVictory);
 INPUTS_TABLE_END();
 
 void CDigitanksGame::Precache()
@@ -803,6 +804,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 		if (pLevelUnit->m_bImprisoned && pTank)
 			pTank->Imprison();
+
+		pUnit->SetActive(pLevelUnit->m_bActive);
 
 		// All starting tanks should stay put.
 		// This means if they are fortified they should always stay fortified and not join an attack team.
@@ -1874,6 +1877,20 @@ void CDigitanksGame::GameOver()
 
 	GetDigitanksCamera()->SetDistance(250);
 	GetDigitanksCamera()->SetTarget(Vector(0,0,0));
+}
+
+void CDigitanksGame::PlayerVictory(const eastl::vector<eastl::string16>& sArgs)
+{
+	for (size_t i = 0; i < GetNumTeams(); i++)
+	{
+		if (!GetTeam(i))
+			continue;
+
+		if (!GetTeam(i)->IsPlayerControlled())
+			GetDigitanksTeam(i)->YouLoseSirGoodDay();
+	}
+
+	GameOver();
 }
 
 void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)

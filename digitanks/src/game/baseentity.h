@@ -103,7 +103,7 @@ public:
 };
 
 #define DECLARE_ENTITY_OUTPUT(name) \
-	CEntityOutput			name; \
+	CEntityOutput			m_Output_##name; \
 
 class CEntityRegistration
 {
@@ -251,9 +251,9 @@ void entity::RegisterSaveData() \
 #define SAVEDATA_DEFINE_OUTPUT(name) \
 	pSaveData = &pRegistration->m_aSaveData.push_back(); \
 	pSaveData->m_eType = CSaveData::DATA_OUTPUT; \
-	pSaveData->m_pszVariableName = #name; \
-	pSaveData->m_iOffset = (((size_t)((void*)&name))) - ((size_t)((void*)this)); \
-	pSaveData->m_iSizeOfVariable = sizeof(name); \
+	pSaveData->m_pszVariableName = "m_Output_" #name; \
+	pSaveData->m_iOffset = (((size_t)((void*)&m_Output_##name))) - ((size_t)((void*)this)); \
+	pSaveData->m_iSizeOfVariable = sizeof(m_Output_##name); \
 	pSaveData->m_iSizeOfType = sizeof(CEntityOutput); \
 	pSaveData->m_pfnResizeVector = NULL; \
 	pGameServer->GenerateSaveCRC(pSaveData->m_eType); \
@@ -346,7 +346,17 @@ public:
 	void									Kill();
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
-	DECLARE_ENTITY_OUTPUT(OnKill);
+	DECLARE_ENTITY_OUTPUT(OnKilled);
+
+	void									SetActive(bool bActive);
+	bool									IsActive() const { return m_bActive; };
+	virtual void							OnActivated() {};
+	virtual void							OnDeactivated() {};
+	DECLARE_ENTITY_INPUT(Activate);
+	DECLARE_ENTITY_INPUT(Deactivate);
+	DECLARE_ENTITY_INPUT(ToggleActive);
+	DECLARE_ENTITY_OUTPUT(OnActivated);
+	DECLARE_ENTITY_OUTPUT(OnDeactivated);
 
 	virtual bool							ShouldRender() const { return false; };
 	virtual bool							ShouldRenderModel() const { return true; };
@@ -463,6 +473,8 @@ protected:
 	CNetworkedVariable<float>				m_flTotalHealth;
 	CNetworkedVariable<float>				m_flHealth;
 	float									m_flTimeKilled;
+
+	CNetworkedVariable<bool>				m_bActive;
 
 	CNetworkedHandle<CTeam>					m_hTeam;
 

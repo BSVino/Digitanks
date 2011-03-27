@@ -37,6 +37,7 @@ public:
 	{
 		m_bFortified = false;
 		m_bImprisoned = false;
+		m_bActive = true;
 	};
 
 	eastl::string			m_sName;
@@ -46,6 +47,7 @@ public:
 	EAngle					m_angOrientation;
 	bool					m_bFortified;
 	bool					m_bImprisoned;
+	bool					m_bActive;
 
 	eastl::vector<CLevelUnitOutput>	m_aOutputs;
 };

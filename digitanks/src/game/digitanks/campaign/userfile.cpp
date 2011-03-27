@@ -27,6 +27,9 @@ EAngle CUserFile::GetRenderAngles() const
 
 bool CUserFile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 {
+	if (!IsActive())
+		return false;
+
 	if (!pOther)
 		return false;
 
@@ -49,6 +52,9 @@ bool CUserFile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 
 void CUserFile::Pickup(CDigitank* pTank)
 {
+	if (!IsActive())
+		return;
+
 	CallOutput("OnPickup");
 
 	Delete();
