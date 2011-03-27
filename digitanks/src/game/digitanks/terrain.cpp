@@ -607,19 +607,19 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 			if (GameServer()->GetRenderer()->ShouldUseShaders())
 				glVertexAttrib1f(iSlowMovement, (bTree||bWater)?1.0f:0.0f);
 
-			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility);
+			glColor3fv((vecColor + m_avecQuadMods[0]) * flVisibility * GetAOValue(x, y));
 			glTexCoord2f(flUVX0, flUVY0);
 			glVertex3f(flX, GetRealHeight(x, y), flY);
 
-			glColor3fv((vecColor + m_avecQuadMods[1]) * flVisibility);
+			glColor3fv((vecColor + m_avecQuadMods[1]) * flVisibility * GetAOValue(x, y+1));
 			glTexCoord2f(flUVX1, flUVY0);
 			glVertex3f(flX, GetRealHeight(x, y+1), flY1);
 
-			glColor3fv((vecColor + m_avecQuadMods[2]) * flVisibility);
+			glColor3fv((vecColor + m_avecQuadMods[2]) * flVisibility * GetAOValue(x+1, y+1));
 			glTexCoord2f(flUVX1, flUVY1);
 			glVertex3f(flX1, GetRealHeight(x+1, y+1), flY1);
 
-			glColor3fv((vecColor + m_avecQuadMods[3]) * flVisibility);
+			glColor3fv((vecColor + m_avecQuadMods[3]) * flVisibility * GetAOValue(x+1, y));
 			glTexCoord2f(flUVX0, flUVY1);
 			glVertex3f(flX1, GetRealHeight(x+1, y), flY);
 		}
@@ -917,6 +917,22 @@ void CTerrain::GenerateCallLists()
 	GenerateTerrainCallLists();
 
 	TMsg(L"Done.\n");
+}
+
+float CTerrain::GetAOValue(int x, int y)
+{
+	float flAvgHeight = GetRealHeight(x+1, y) + GetRealHeight(x-1, y) + GetRealHeight(x, y+1) + GetRealHeight(x, y-1);
+	flAvgHeight /= 4;
+
+	float flAvgCornersHeight = GetRealHeight(x+2, y+2) + GetRealHeight(x-2, y-2) + GetRealHeight(x-2, y+2) + GetRealHeight(x+2, y-2);
+	flAvgCornersHeight /= 4;
+
+	flAvgHeight = flAvgHeight + flAvgCornersHeight/2;
+	flAvgHeight /= 1.5f;
+
+	float flHeight = GetRealHeight(x, y);
+
+	return RemapValClamped(flAvgHeight - flHeight, 0, 10, 1, 0.5f);
 }
 
 void CTerrain::ClearArea(Vector vecCenter, float flRadius)

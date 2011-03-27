@@ -98,6 +98,8 @@ public:
 	void					GenerateTerrainCallList(int x, int y);
 	void					GenerateCallLists();
 
+	float					GetAOValue(int x, int y);
+
 	void					ClearArea(Vector vecCenter, float flRadius);
 
 	void					CalculateVisibility();
