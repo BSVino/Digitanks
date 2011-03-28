@@ -1,11 +1,11 @@
-#ifndef DT_AUTOTURRET_H
-#define DT_AUTOTURRET_H
+#ifndef DT_BUGTURRET_H
+#define DT_BUGTURRET_H
 
 #include <digitanks/units/digitank.h>
 
-class CAutoTurret : public CDigitank
+class CBugTurret : public CDigitank
 {
-	REGISTER_ENTITY_CLASS(CAutoTurret, CDigitank);
+	REGISTER_ENTITY_CLASS(CBugTurret, CDigitank);
 
 public:
 	virtual void				Precache();
@@ -16,7 +16,7 @@ public:
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
 
-	virtual eastl::string16		GetEntityName() { return L"Auto-Turret"; };
+	virtual eastl::string16		GetEntityName() { return L"Bug Turret"; };
 
 	virtual bool				CanFortify() { return true; };
 
@@ -31,7 +31,7 @@ public:
 
 	virtual size_t				FleetPoints() const { return 0; };
 
-	virtual unittype_t			GetUnitType() const { return UNIT_AUTOTURRET; }
+	virtual unittype_t			GetUnitType() const { return UNIT_BUGTURRET; }
 };
 
 class CGridBug : public CDigitank

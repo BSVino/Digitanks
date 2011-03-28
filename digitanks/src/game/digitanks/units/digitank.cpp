@@ -3129,7 +3129,7 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	if (GetTeam())
 		r.SetColorSwap(GetTeam()->GetColor());
 
-	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && (GetUnitType() == UNIT_GRIDBUG || GetUnitType() == UNIT_AUTOTURRET))
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && (GetUnitType() == UNIT_GRIDBUG || GetUnitType() == UNIT_BUGTURRET))
 		r.SetColorSwap(Vector(DigitanksGame()->GetTerrain()->GetPrimaryTerrainColor())*2/3);
 
 	r.RenderModel(m_iTurretModel);

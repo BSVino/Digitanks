@@ -6,24 +6,24 @@
 #include <digitanks/digitanksgame.h>
 #include <digitanks/terrain.h>
 
-REGISTER_ENTITY(CAutoTurret);
+REGISTER_ENTITY(CBugTurret);
 
-NETVAR_TABLE_BEGIN(CAutoTurret);
+NETVAR_TABLE_BEGIN(CBugTurret);
 NETVAR_TABLE_END();
 
-SAVEDATA_TABLE_BEGIN(CAutoTurret);
+SAVEDATA_TABLE_BEGIN(CBugTurret);
 SAVEDATA_TABLE_END();
 
-INPUTS_TABLE_BEGIN(CAutoTurret);
+INPUTS_TABLE_BEGIN(CBugTurret);
 INPUTS_TABLE_END();
 
-void CAutoTurret::Precache()
+void CBugTurret::Precache()
 {
 	PrecacheModel(L"models/digitanks/autoturret.obj", true);
 	PrecacheModel(L"models/digitanks/autoturret-turret.obj", true);
 }
 
-void CAutoTurret::Spawn()
+void CBugTurret::Spawn()
 {
 	BaseClass::Spawn();
 
@@ -39,7 +39,7 @@ void CAutoTurret::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
-void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CBugTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -55,12 +55,12 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 		pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
-float CAutoTurret::GetFortifyAttackPowerBonus()
+float CBugTurret::GetFortifyAttackPowerBonus()
 {
 	return 0;
 }
 
-float CAutoTurret::GetFortifyDefensePowerBonus()
+float CBugTurret::GetFortifyDefensePowerBonus()
 {
 	return 0;
 }

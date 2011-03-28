@@ -433,7 +433,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 			if (x > m_hTerrain->GetMapSize()-10 || z > m_hTerrain->GetMapSize()-10)
 				continue;
 
-			CAutoTurret* pTurret = GameServer()->Create<CAutoTurret>("CAutoTurret");
+			CBugTurret* pTurret = GameServer()->Create<CBugTurret>("CBugTurret");
 			pTurret->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
 			pTeam->AddEntity(pTurret);
 		}
@@ -622,9 +622,9 @@ void CDigitanksGame::SetupStrategy()
 			if ((pDTEntity->GetOrigin() - pMobileCPU->GetOrigin()).Length2D() < 30)
 				pEntity->Delete();
 
-			CAutoTurret* pAutoTurret = dynamic_cast<CAutoTurret*>(pEntity);
-			if (pAutoTurret && pTeam->GetVisibilityAtPoint(pAutoTurret->GetOrigin()) > 0.5f)
-				pAutoTurret->Delete();
+			CBugTurret* pBugTurret = dynamic_cast<CBugTurret*>(pEntity);
+			if (pBugTurret && pTeam->GetVisibilityAtPoint(pBugTurret->GetOrigin()) > 0.5f)
+				pBugTurret->Delete();
 		}
 
 		CDigitank* pTank;
@@ -767,8 +767,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 			pUnit = GameServer()->Create<CScout>("CScout");
 		else if (pLevelUnit->m_sClassName == "Resistor")
 			pUnit = GameServer()->Create<CMechInfantry>("CMechInfantry");
-		else if (pLevelUnit->m_sClassName == "AutoTurret")
-			pUnit = GameServer()->Create<CAutoTurret>("CAutoTurret");
+		else if (pLevelUnit->m_sClassName == "BugTurret")
+			pUnit = GameServer()->Create<CBugTurret>("CBugTurret");
 		else if (pLevelUnit->m_sClassName == "GridBug")
 			pUnit = GameServer()->Create<CGridBug>("CGridBug");
 		else if (pLevelUnit->m_sClassName == "UserFile")

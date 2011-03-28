@@ -603,7 +603,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					continue;
 
 				// Just in case.
-				if (pTank->GetUnitType() == UNIT_MOBILECPU || pTank->GetUnitType() == UNIT_AUTOTURRET)
+				if (pTank->GetUnitType() == UNIT_MOBILECPU || pTank->GetUnitType() == UNIT_BUGTURRET)
 					continue;
 
 				// Gotta leave some infantry behind to support the cause
