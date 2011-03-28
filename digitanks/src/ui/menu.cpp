@@ -613,7 +613,7 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 		m_pLevels->GetNode(i)->SetCursorInListener(this, LevelPreview);
 		m_pLevels->GetNode(i)->SetCursorOutListener(this, LevelRevertPreview);
 	}
-	m_iLevelSelected = ~0;
+	m_iLevelSelected = RandomInt(0, CDigitanksGame::GetNumLevels(GAMETYPE_ARTILLERY)-1);
 
 	m_pLevelDescription = new CLabel(0, 0, 32, 32, L"");
 	m_pLevelDescription->SetWrap(true);
