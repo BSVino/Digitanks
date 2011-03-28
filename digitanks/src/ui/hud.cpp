@@ -2941,7 +2941,7 @@ void CHUD::SlideUpdateIcon(int x, int y)
 	m_flUpdateIconSlide = GameServer()->GetGameTime();
 }
 
-void ActionSignCallback(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+void ActionSignCallback(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
 	if (asTokens.size() < 2)
 		return;

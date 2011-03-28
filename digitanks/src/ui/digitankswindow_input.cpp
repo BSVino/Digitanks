@@ -354,6 +354,9 @@ void CDigitanksWindow::CharPress(int c)
 		}
 	}
 
+	if (c == 'y')
+		DigitanksWindow()->OpenChat();
+
 	if (c == 'q')
 		GetHUD()->ButtonCallback(0);
 

@@ -40,6 +40,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_pGameServer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
+	m_pChatBox = NULL;
 
 	m_bBoxSelect = false;
 
@@ -245,7 +246,7 @@ void CDigitanksWindow::RenderMouseCursor()
 	glPopAttrib();
 }
 
-void LoadLevel(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+void LoadLevel(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
 	if (asTokens.size() == 1)
 	{

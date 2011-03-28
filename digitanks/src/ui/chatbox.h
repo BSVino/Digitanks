@@ -1,40 +1,36 @@
-#ifndef LW_TINKER_CONSOLE
-#define LW_TINKER_CONSOLE
+#ifndef DT_CHATBOX_H
+#define DT_CHATBOX_H
 
 #include <glgui/glgui.h>
 
-class CConsole : public glgui::CPanel
+class CChatBox : public glgui::CPanel
 {
-	DECLARE_CLASS(CConsole, glgui::CPanel);
+	DECLARE_CLASS(CChatBox, glgui::CPanel);
 
 public:
-							CConsole();
+							CChatBox();
+	virtual					~CChatBox();
 
 public:
-	virtual void			Destructor();
 	virtual void			Delete() { delete this; };
 
 	virtual bool			IsVisible();
 	virtual void			SetVisible(bool bVisible);
 	virtual bool			IsOpen();
 
-	virtual bool			IsCursorListener();
-
 	virtual void			Layout();
 	virtual void			Paint(int x, int y, int w, int h);
 
-	void					PrintConsole(eastl::string16 sText);
+	void					PrintChat(eastl::string16 sText);
 
 	virtual bool			KeyPressed(int code, bool bCtrlDown = false);
 	virtual bool			CharPressed(int iKey);
-
-	virtual void			SetRenderBackground(bool bBackground) { m_bBackground = bBackground; }
 
 protected:
 	glgui::CLabel*			m_pOutput;
 	glgui::CTextField*		m_pInput;
 
-	bool					m_bBackground;
+	float					m_flLastMessage;
 };
 
 #endif

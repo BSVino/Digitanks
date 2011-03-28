@@ -700,7 +700,7 @@ void CDigitanksGame::SetupMenuMarch()
 	m_iPowerups = 0;
 }
 
-void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{

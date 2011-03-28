@@ -198,7 +198,7 @@ void CParticleSystemLibrary::ReloadSystems()
 		pPSL->LoadParticleSystem(i);
 }
 
-void ReloadParticles(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+void ReloadParticles(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
 	CParticleSystemLibrary::ReloadSystems();
 }

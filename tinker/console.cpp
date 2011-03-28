@@ -28,6 +28,8 @@ CConsole::CConsole()
 
 	m_pInput = new glgui::CTextField();
 	AddControl(m_pInput);
+
+	m_bBackground = true;
 }
 
 void CConsole::Destructor()
@@ -39,7 +41,7 @@ void CConsole::Destructor()
 
 bool CConsole::IsVisible()
 {
-	if (developer.GetBool())
+	if (developer.GetBool() && m_bBackground)
 		return true;
 
 	return BaseClass::IsVisible();

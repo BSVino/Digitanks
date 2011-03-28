@@ -6,7 +6,7 @@
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
 
-typedef void (*CommandCallback)(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens);
+typedef void (*CommandCallback)(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand);
 
 class CCommand
 {

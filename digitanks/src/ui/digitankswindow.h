@@ -114,6 +114,14 @@ public:
 
 	size_t						GetLunarWorkshopLogo() { return m_iLunarWorkshop; }
 
+	void						OpenChat();
+	void						CloseChat();
+	void						ToggleChat();
+	bool						IsChatOpen();
+	void						PrintChat(eastl::string16 sText);
+	void						PrintChat(eastl::string sText);
+	class CChatBox*				GetChatBox();
+
 protected:
 	int							m_iMouseLastX;
 	int							m_iMouseLastY;
@@ -134,6 +142,8 @@ protected:
 	class CHUD*					m_pHUD;
 
 	class CInstructor*			m_pInstructor;
+
+	class CChatBox*				m_pChatBox;
 
 	bool						m_bBoxSelect;
 	int							m_iMouseInitialX;

@@ -192,6 +192,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shaders\prop.cpp" />
+    <ClCompile Include="ui\chatbox.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />
     <ClCompile Include="ui\digitankswindow.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebug</RuntimeLibrary>
@@ -297,6 +298,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\level.h" />
     <ClInclude Include="game\networkedeffect.h" />
     <ClInclude Include="shaders\dt_shaders.h" />
+    <ClInclude Include="ui\chatbox.h" />
     <ClInclude Include="ui\debugdraw.h" />
     <ClInclude Include="ui\digitankswindow.h" />
     <ClInclude Include="ui\hud.h" />

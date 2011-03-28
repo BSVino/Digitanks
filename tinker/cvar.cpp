@@ -38,7 +38,7 @@ void CCommand::Run(eastl::string16 sCommand)
 	}
 
 	CCommand* pCommand = it->second;
-	pCommand->m_pfnCallback(pCommand, asTokens);
+	pCommand->m_pfnCallback(pCommand, asTokens, sCommand);
 }
 
 void CCommand::RegisterCommand(CCommand* pCommand)
@@ -46,7 +46,7 @@ void CCommand::RegisterCommand(CCommand* pCommand)
 	GetCommands()[pCommand->m_sName] = pCommand;
 }
 
-void SetCVar(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens)
+void SetCVar(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
 	CVar* pCVar = dynamic_cast<CVar*>(pCommand);
 	assert(pCVar);

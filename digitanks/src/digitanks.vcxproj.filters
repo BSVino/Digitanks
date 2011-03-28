@@ -357,6 +357,9 @@
     <ClCompile Include="game\digitanks\instructor_entity.cpp">
       <Filter>Source Files\digitanks</Filter>
     </ClCompile>
+    <ClCompile Include="ui\chatbox.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -610,6 +613,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\instructor_entity.h">
       <Filter>Source Files\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\chatbox.h">
+      <Filter>Source Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
