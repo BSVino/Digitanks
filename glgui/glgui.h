@@ -1339,6 +1339,8 @@ namespace glgui
 		virtual void	AppendText(const wchar_t* pszText);
 		virtual eastl::string16	GetText();
 
+		virtual void	SetCursorPosition(size_t iPosition);
+
 		virtual void	SetFontFaceSize(int iSize);
 		virtual int		GetFontFaceSize() { return m_iFontFaceSize; };
 

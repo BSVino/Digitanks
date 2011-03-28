@@ -41,6 +41,22 @@ void CCommand::Run(eastl::string16 sCommand)
 	pCommand->m_pfnCallback(pCommand, asTokens, sCommand);
 }
 
+eastl::vector<eastl::string16> CCommand::GetCommandsBeginningWith(eastl::string16 sFragment)
+{
+	eastl::vector<eastl::string16> sResults;
+
+	size_t iFragLength = sFragment.length();
+
+	eastl::map<eastl::string16, CCommand*>& sCommands = GetCommands();
+	for (eastl::map<eastl::string16, CCommand*>::iterator it = sCommands.begin(); it != sCommands.end(); it++)
+	{
+		if (it->first.substr(0, iFragLength) == sFragment)
+			sResults.push_back(it->first);
+	}
+
+	return sResults;
+}
+
 void CCommand::RegisterCommand(CCommand* pCommand)
 {
 	GetCommands()[pCommand->m_sName] = pCommand;

@@ -96,6 +96,36 @@ void CConsole::Paint(int x, int y, int w, int h)
 	glgui::CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, 200));
 
 	BaseClass::Paint(x, y, w, h);
+
+	eastl::string16 sInput = m_pInput->GetText();
+	if (sInput.length() && sInput.find(L' ') == ~0)
+	{
+		eastl::vector<eastl::string16> sCommands = CCommand::GetCommandsBeginningWith(sInput);
+
+		size_t iCommandsToShow = sCommands.size();
+		bool bAbbreviated = false;
+
+		if (iCommandsToShow > 5)
+		{
+			iCommandsToShow = 5;
+			bAbbreviated = true;
+		}
+
+		if (bAbbreviated)
+			glgui::CRootPanel::PaintRect(x+5, y+h+2, w, (iCommandsToShow+1)*13+3, Color(0, 0, 0, 200));
+		else
+			glgui::CRootPanel::PaintRect(x+5, y+h+2, w, iCommandsToShow*13+3, Color(0, 0, 0, 200));
+
+		int iCommandsPainted = 0;
+		for (size_t i = 0; i < iCommandsToShow; i++)
+			glgui::CLabel::PaintText(sCommands[i], sCommands[i].length(), L"sans-serif", 13, (float)(x + 5), (float)(y + h + 13 + iCommandsPainted++*13));
+
+		if (bAbbreviated)
+		{
+			eastl::string16 sDotDotDot = L"...";
+			glgui::CLabel::PaintText(sDotDotDot, sDotDotDot.length(), L"sans-serif", 13, (float)(x + 5), (float)(y + h + 13 + iCommandsPainted++*13));
+		}
+	}
 }
 
 void CConsole::PrintConsole(eastl::string16 sText)
@@ -128,6 +158,20 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 		CCommand::Run(sText);
 
 		return true;
+	}
+
+	if (code == TINKER_KEY_TAB)
+	{
+		eastl::string16 sInput = m_pInput->GetText();
+		if (sInput.length() && sInput.find(L' ') == ~0)
+		{
+			eastl::vector<eastl::string16> aCommands = CCommand::GetCommandsBeginningWith(sInput);
+			if (aCommands.size())
+			{
+				m_pInput->SetText(aCommands[0] + L" ");
+				m_pInput->SetCursorPosition(-1);
+			}
+		}
 	}
 
 	bool bReturn = BaseClass::KeyPressed(code, bCtrlDown);

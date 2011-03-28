@@ -3103,6 +3103,14 @@ void CTextField::AppendText(const char* pszText)
 	free(pszBuf);
 }
 
+void CTextField::SetCursorPosition(size_t iPosition)
+{
+	m_iCursor = iPosition;
+
+	if (m_iCursor > m_sText.length())
+		m_iCursor = m_sText.length();
+}
+
 void CTextField::SetFontFaceSize(int iSize)
 {
 	if (!CLabel::GetFont(L"sans-serif", iSize))

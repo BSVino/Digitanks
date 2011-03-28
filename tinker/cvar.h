@@ -21,6 +21,8 @@ public:
 
 	virtual void		MakeMePolymorphic() {};	// Can delete if another virtual function is added
 
+	static eastl::vector<eastl::string16> GetCommandsBeginningWith(eastl::string16 sFragment);
+
 protected:
 	eastl::string16		m_sName;
 	CommandCallback		m_pfnCallback;
