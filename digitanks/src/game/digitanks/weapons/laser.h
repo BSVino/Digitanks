@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				ClientSpawn();
 
-	virtual void				OnSetOwner(class CDigitank* pOwner);
+	virtual void				OnSetOwner(class CDigitanksEntity* pOwner);
 
 	virtual float				GetRenderRadius() const { return LaserLength(); };
 

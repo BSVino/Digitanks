@@ -427,6 +427,8 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		size_t iMainTanks = 0;
 		size_t iArtillery = 0;
 		size_t iScouts = 0;
+		size_t iStructures = 0;
+		size_t iAutoTurrets = 0;
 
 		eastl::vector<CEntityHandle<CMiniBuffer> > ahMinibufferUpgrades;
 		eastl::vector<CEntityHandle<CBattery> > ahBatteryUpgrades;
@@ -461,6 +463,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				ahMinibufferUpgrades.push_back(static_cast<CMiniBuffer*>(pDTEnt));
 			else if (pDTEnt->GetUnitType() == STRUCTURE_BATTERY && CanBuildPSUs())
 				ahBatteryUpgrades.push_back(static_cast<CBattery*>(pDTEnt));
+
+			if (pDTEnt->GetUnitType() == STRUCTURE_AUTOTURRET)
+				iAutoTurrets++;
+			else if (dynamic_cast<CStructure*>(pDTEnt))
+				iStructures++;
 		}
 
 		// Build a ratio of tanks similar to the cost of constructing the tanks. This way we won't build a bajillion infantry and only one or two other tanks.
@@ -524,6 +531,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 
 		if (m_hArtilleryLoader == NULL && CanBuildArtilleryLoaders())
 			Bot_AddBuildPriority(STRUCTURE_ARTILLERYLOADER);
+
+		if (((float)iAutoTurrets/(float)iStructures) < 0.6f)
+			Bot_AddBuildPriority(STRUCTURE_AUTOTURRET);
 
 		if (m_bCanUpgrade)
 		{

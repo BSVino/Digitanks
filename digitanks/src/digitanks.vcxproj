@@ -163,6 +163,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\dt_camera.cpp" />
     <ClCompile Include="game\digitanks\instructor_entity.cpp" />
     <ClCompile Include="game\digitanks\menumarcher.cpp" />
+    <ClCompile Include="game\digitanks\structures\autoturret.cpp" />
     <ClCompile Include="game\digitanks\structures\buffer.cpp" />
     <ClCompile Include="game\digitanks\structures\collector.cpp" />
     <ClCompile Include="game\digitanks\structures\cpu.cpp" />
@@ -185,6 +186,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\digitanks\weapons\missiledefense.cpp" />
     <ClCompile Include="game\digitanks\weapons\projectile.cpp" />
     <ClCompile Include="game\digitanks\weapons\specialshells.cpp" />
+    <ClCompile Include="game\digitanks\weapons\turretmissile.cpp" />
     <ClCompile Include="game\digitanks\wreckage.cpp" />
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="game\level.cpp" />
@@ -271,6 +273,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\dt_common.h" />
     <ClInclude Include="game\digitanks\instructor_entity.h" />
     <ClInclude Include="game\digitanks\menumarcher.h" />
+    <ClInclude Include="game\digitanks\structures\autoturret.h" />
     <ClInclude Include="game\digitanks\structures\buffer.h" />
     <ClInclude Include="game\digitanks\structures\collector.h" />
     <ClInclude Include="game\digitanks\structures\cpu.h" />
@@ -293,6 +296,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\digitanks\weapons\missiledefense.h" />
     <ClInclude Include="game\digitanks\weapons\projectile.h" />
     <ClInclude Include="game\digitanks\weapons\specialshells.h" />
+    <ClInclude Include="game\digitanks\weapons\turretmissile.h" />
     <ClInclude Include="game\digitanks\wreckage.h" />
     <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="game\level.h" />

@@ -47,7 +47,7 @@ public:
 	virtual float	GetCameraNear();
 	virtual float	GetCameraFar();
 
-	virtual Vector	GetTankFollowPosition(CDigitank* pTank);
+	virtual Vector	GetTankFollowPosition(class CDigitank* pTank);
 
 	virtual void	SetFreeMode(bool bOn);
 

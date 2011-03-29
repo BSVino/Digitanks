@@ -245,6 +245,7 @@ public:
 	EVENT_CALLBACK(CHUD, CancelBuild);
 	EVENT_CALLBACK(CHUD, BuildUnit);
 	EVENT_CALLBACK(CHUD, BuildScout);
+	EVENT_CALLBACK(CHUD, BuildTurret);
 	EVENT_CALLBACK(CHUD, BeginUpgrade);
 	EVENT_CALLBACK(CHUD, Cloak);
 	EVENT_CALLBACK(CHUD, ChooseWeapon);
@@ -262,6 +263,7 @@ public:
 	EVENT_CALLBACK(CHUD, ShowFleetInfo);
 	EVENT_CALLBACK(CHUD, ShowBandwidthInfo);
 	EVENT_CALLBACK(CHUD, HideTeamInfo);
+	EVENT_CALLBACK(CHUD, FireTurret);
 
 	void						LayoutTeamInfo();
 

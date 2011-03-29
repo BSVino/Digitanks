@@ -369,7 +369,7 @@ bool CProjectile::ShouldPlayExplosionSound()
 	return DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0;
 }
 
-void CProjectile::OnSetOwner(CDigitank* pOwner)
+void CProjectile::OnSetOwner(CDigitanksEntity* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
 

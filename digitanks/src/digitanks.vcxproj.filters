@@ -360,6 +360,12 @@
     <ClCompile Include="ui\chatbox.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\structures\autoturret.cpp">
+      <Filter>Source Files\digitanks\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\weapons\turretmissile.cpp">
+      <Filter>Source Files\digitanks\weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -616,6 +622,12 @@
     </ClInclude>
     <ClInclude Include="ui\chatbox.h">
       <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\structures\autoturret.h">
+      <Filter>Source Files\digitanks\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\weapons\turretmissile.h">
+      <Filter>Source Files\digitanks\weapons</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

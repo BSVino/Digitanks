@@ -253,6 +253,10 @@ void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 	{
 		CData* pChild;
 		
+		pChild = pConstructionCosts->FindChild("AutoTurret");
+		if (pChild)
+			m_aflConstructionCosts[STRUCTURE_AUTOTURRET] = pChild->GetValueFloat();
+
 		pChild = pConstructionCosts->FindChild("Minibuffer");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_MINIBUFFER] = pChild->GetValueFloat();

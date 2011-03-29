@@ -35,11 +35,15 @@ void CLaser::ClientSpawn()
 	}
 }
 
-void CLaser::OnSetOwner(CDigitank* pOwner)
+void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
 
-	SetAngles(VectorAngles((pOwner->GetLastAim() - GetOrigin()).Normalized()));
+	CDigitank* pTank = dynamic_cast<CDigitank*>(pOwner);
+	if (!pTank)
+		return;
+
+	SetAngles(VectorAngles((pTank->GetLastAim() - GetOrigin()).Normalized()));
 	SetOrigin(pOwner->GetOrigin());
 	SetSimulated(false);
 	SetVelocity(Vector(0,0,0));
@@ -113,14 +117,15 @@ void CLaser::PostRender(bool bTransparent)
 
 	float flLength = LaserLength();
 
+	CDigitank* pOwner = dynamic_cast<CDigitank*>(GetOwner());
 	Vector vecMuzzle = m_hOwner->GetOrigin();
 	Vector vecTarget = vecMuzzle + AngleVector(GetAngles()) * flLength;
-	if (m_hOwner != NULL)
+	if (pOwner)
 	{
-		Vector vecDirection = (m_hOwner->GetLastAim() - m_hOwner->GetOrigin()).Normalized();
+		Vector vecDirection = (pOwner->GetLastAim() - pOwner->GetOrigin()).Normalized();
 		vecTarget = vecMuzzle + vecDirection * flLength;
 		AngleVectors(VectorAngles(vecDirection), &vecForward, &vecRight, &vecUp);
-		vecMuzzle = m_hOwner->GetOrigin() + vecDirection * 3 + Vector(0, 3, 0);
+		vecMuzzle = pOwner->GetOrigin() + vecDirection * 3 + Vector(0, 3, 0);
 	}
 
 	float flBeamWidth = 1.5;

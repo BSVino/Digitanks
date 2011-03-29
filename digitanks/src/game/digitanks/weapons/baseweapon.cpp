@@ -8,13 +8,13 @@ REGISTER_ENTITY(CBaseWeapon);
 
 NETVAR_TABLE_BEGIN(CBaseWeapon);
 	NETVAR_DEFINE(float, m_flTimeExploded);
-	NETVAR_DEFINE(CEntityHandle<CDigitank>, m_hOwner);
+	NETVAR_DEFINE(CEntityHandle<CDigitanksEntity>, m_hOwner);
 	NETVAR_DEFINE(float, m_flDamage);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTimeExploded);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitank>, m_hOwner);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksEntity>, m_hOwner);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamage);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
@@ -50,15 +50,16 @@ void CBaseWeapon::ClientSpawn()
 		m_bShouldRender = false;
 }
 
-void CBaseWeapon::SetOwner(CDigitank* pOwner)
+void CBaseWeapon::SetOwner(CDigitanksEntity* pOwner)
 {
 	m_hOwner = pOwner;
 	if (pOwner)
 		SetOrigin(pOwner->GetOrigin() + Vector(0, 1, 0));
 
 	float flBonusDamage = 0;
-	if (pOwner)
-		flBonusDamage = pOwner->GetBonusAttackDamage();
+	CDigitank* pTank = dynamic_cast<CDigitank*>(pOwner);
+	if (pOwner && pTank)
+		flBonusDamage = pTank->GetBonusAttackDamage();
 
 	m_flDamage = (GetWeaponDamage(GetWeaponType()) + flBonusDamage)/(float)GetWeaponShells(GetWeaponType());
 
@@ -99,7 +100,11 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 		EmitSound(L"sound/explosion.wav");
 
 	if (m_hOwner != NULL && dynamic_cast<CTerrain*>(pInstigator) && !bHit)
-		m_hOwner->Speak(TANKSPEECH_MISSED);
+	{
+		CDigitank* pOwner = dynamic_cast<CDigitank*>(GetOwner());
+		if (pOwner)
+			pOwner->Speak(TANKSPEECH_MISSED);
+	}
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
@@ -134,6 +139,7 @@ static float g_aflWeaponEnergies[WEAPON_MAX] =
 	7.0f,	// camera guided missile
 	7.0f,	// laser
 	0.0f,	// missile defense
+	0.0f,	// turret missile
 	7.0f,	// charging ram
 
 	0.0f,	// airstrike
@@ -169,6 +175,7 @@ static float g_aflWeaponDamages[WEAPON_MAX] =
 	50.0f,	// camera guided missile
 	50.0f,	// laser
 	0.0f,	// missile defense
+	30.0f,	// turret missile
 	0.0f,	// charging ram
 
 	50.0f,	// airstrike
@@ -205,6 +212,7 @@ static size_t g_aiWeaponShells[WEAPON_MAX] =
 	1,	// camera guided missile
 	1,	// laser
 	1,	// missile defense
+	1,	// turret missile
 	1,	// charging ram
 
 	1,	// airstrike
@@ -241,6 +249,7 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0,		// camera guided missile
 	0,		// laser
 	0,		// missile defense
+	0,		// turret missile
 	0,		// charging ram
 
 	0,		// airstrike
@@ -276,6 +285,7 @@ static char16_t* g_apszWeaponNames[WEAPON_MAX] =
 	L"Camera-Guided Missile",
 	L"Fragmentation Ray",
 	L"Missile Defense",
+	L"Turret Missile",
 	L"Charging RAM Attack",
 
 	L"Airstrike",
@@ -311,6 +321,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first-person.",
 	L"This weapon emits a wall of rays in one direction. Great for hitting multiple tanks in a line. This weapon goes through any objects or terrian and has no range limitations.",
 	L"These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!",
+	L"Auto-turrets use these small missiles to defend their base.",
 	L"Combine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields. This attack requires your movement energy, if you move your tank you won't be able to execute it.",
 
 	L"Rain fire and brimstone upon your enemies.",

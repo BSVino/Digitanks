@@ -17,6 +17,7 @@
 #include <game/digitanks/structures/loader.h>
 #include <game/digitanks/structures/props.h>
 #include <game/digitanks/structures/collector.h>
+#include <game/digitanks/structures/autoturret.h>
 #include <game/digitanks/units/mobilecpu.h>
 #include <game/digitanks/units/scout.h>
 #include <game/digitanks/units/artillery.h>
@@ -1560,7 +1561,9 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 		glgui::CLabel::PaintText(sLaunch, sLaunch.length(), L"cameramissile", 40, w/2-flLaunchWidth/2, 200);
 	}
 
-	CDigitank* pOwner = pMissile->GetOwner();
+	CDigitank* pOwner = dynamic_cast<CDigitank*>(pMissile->GetOwner());
+	if (!pOwner)
+		return;
 
 	eastl::string16 sRange = sprintf(L"RANGE %.2f", (pOwner->GetLastAim() - pMissile->GetOrigin()).Length());
 	glgui::CLabel::PaintText(sRange, sRange.length(), L"cameramissile", 20, 10, 100);
@@ -2683,7 +2686,8 @@ void CHUD::ShowActionItem(size_t iActionItem)
 
 	// Some action items are handled just by looking at them.
 	if (pItem->eActionType == ACTIONTYPE_WELCOME || pItem->eActionType == ACTIONTYPE_CONTROLS || pItem->eActionType == ACTIONTYPE_NEWSTRUCTURE ||
-		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE || pItem->eActionType == ACTIONTYPE_UNITREADY)
+		pItem->eActionType == ACTIONTYPE_AUTOMOVEENEMY || pItem->eActionType == ACTIONTYPE_UPGRADE || pItem->eActionType == ACTIONTYPE_UNITREADY ||
+		pItem->eActionType == ACTIONTYPE_FORTIFIEDENEMY)
 	{
 		DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(iActionItem);
 		UpdateTurnButton();
@@ -3610,6 +3614,28 @@ void CHUD::BuildScoutCallback()
 	UpdateTeamInfo();
 }
 
+void CHUD::BuildTurretCallback()
+{
+	if (!m_bHUDActive)
+		return;
+
+	if (!DigitanksGame())
+		return;
+
+	if (!DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU())
+		return;
+
+	CCPU* pCPU = DigitanksGame()->GetCurrentTeam()->GetPrimaryCPU();
+	if (!pCPU)
+		return;
+
+	pCPU->SetPreviewStructure(STRUCTURE_AUTOTURRET);
+
+	DigitanksGame()->SetControlMode(MODE_BUILD);
+
+	SetupMenu();
+}
+
 void CHUD::BeginUpgradeCallback()
 {
 	if (!m_bHUDActive)
@@ -3825,6 +3851,16 @@ void CHUD::ShowBandwidthInfoCallback()
 void CHUD::HideTeamInfoCallback()
 {
 	m_pTeamInfo->SetText("");
+}
+
+void CHUD::FireTurretCallback()
+{
+	CAutoTurret* pTurret = dynamic_cast<CAutoTurret*>(DigitanksGame()->GetPrimarySelection());
+
+	if (!pTurret)
+		return;
+
+	pTurret->Fire();
 }
 
 void CHUD::LayoutTeamInfo()

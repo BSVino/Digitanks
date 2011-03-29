@@ -15,7 +15,7 @@ public:
 
 	virtual void				Think();
 
-	virtual void				OnSetOwner(class CDigitank* pOwner);
+	virtual void				OnSetOwner(class CDigitanksEntity* pOwner);
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };

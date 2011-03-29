@@ -79,14 +79,16 @@ void CCameraGuidedMissile::Think()
 	m_hTrailParticles.SetActive(m_flTimeExploded == 0.0f && GetOwner() && GetOwner()->GetDigitanksTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam());
 }
 
-void CCameraGuidedMissile::OnSetOwner(CDigitank* pOwner)
+void CCameraGuidedMissile::OnSetOwner(CDigitanksEntity* pOwner)
 {
 	BaseClass::OnSetOwner(pOwner);
 
-	if (pOwner)
+	CDigitank* pTank = dynamic_cast<CDigitank*>(pOwner);
+
+	if (pTank)
 	{
 		SetOrigin(pOwner->GetOrigin() + Vector(0, 5, 0));
-		EAngle angMissile = VectorAngles((pOwner->GetLastAim() - pOwner->GetOrigin()).Normalized());
+		EAngle angMissile = VectorAngles((pTank->GetLastAim() - pOwner->GetOrigin()).Normalized());
 		angMissile.p = 30;
 		SetViewAngles(angMissile);
 		SetAngles(angMissile);

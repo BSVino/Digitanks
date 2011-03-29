@@ -635,6 +635,10 @@ void CDigitanksRenderer::RenderPreviewModes()
 				size_t iModel = 0;
 				switch (pCPU->GetPreviewStructure())
 				{
+				case STRUCTURE_AUTOTURRET:
+					iModel = CModelLibrary::Get()->FindModel(L"models/digitanks/autoturret.obj");
+					break;
+
 				case STRUCTURE_MINIBUFFER:
 					iModel = CModelLibrary::Get()->FindModel(L"models/structures/minibuffer.obj");
 					break;

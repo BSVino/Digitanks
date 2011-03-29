@@ -14,9 +14,9 @@ public:
 	virtual void				Spawn();
 	virtual void				ClientSpawn();
 
-	virtual void				SetOwner(class CDigitank* pOwner);
-	virtual class CDigitank*	GetOwner() { return m_hOwner; }
-	virtual void				OnSetOwner(class CDigitank* pOwner) {};
+	virtual void				SetOwner(class CDigitanksEntity* pOwner);
+	virtual class CDigitanksEntity*	GetOwner() { return m_hOwner; }
+	virtual void				OnSetOwner(class CDigitanksEntity* pOwner) {};
 	virtual bool				ShouldBeVisible() { return true; };
 
 	virtual void				Think();
@@ -53,7 +53,7 @@ public:
 protected:
 	CNetworkedVariable<float>	m_flTimeExploded;
 
-	CNetworkedHandle<CDigitank>	m_hOwner;
+	CNetworkedHandle<CDigitanksEntity>	m_hOwner;
 	CNetworkedVariable<float>	m_flDamage;
 
 	bool						m_bShouldRender;

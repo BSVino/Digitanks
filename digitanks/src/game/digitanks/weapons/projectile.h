@@ -47,7 +47,7 @@ public:
 	virtual bool				ShouldPlayExplosionSound();
 	virtual bool				HasFragmented() { return m_bFragmented; };
 
-	virtual void				OnSetOwner(CDigitank* pOwner);
+	virtual void				OnSetOwner(CDigitanksEntity* pOwner);
 	virtual bool				ShouldBeVisible();
 
 	virtual void				SetLandingSpot(Vector vecLandingSpot) { m_vecLandingSpot = vecLandingSpot; };

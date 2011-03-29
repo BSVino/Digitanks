@@ -18,6 +18,7 @@
 #include <digitanks/structures/buffer.h>
 #include <digitanks/structures/collector.h>
 #include <digitanks/structures/loader.h>
+#include <digitanks/structures/autoturret.h>
 #include <digitanks/units/scout.h>
 
 REGISTER_ENTITY(CCPU);
@@ -367,6 +368,23 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		s += L"Shortcut: D";
 		pHUD->SetButtonInfo(7, s);
 		pHUD->SetButtonTooltip(7, L"Build Rogue");
+
+		if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_AUTOTURRET))
+		{
+			pHUD->SetButtonColor(8, Color(150, 150, 150));
+			pHUD->SetButtonListener(8, CHUD::BuildTurret);
+		}
+
+		s = L"BUILD AUTO-TURRET\n \n";
+		s += L"Set them up Auto-Turrets around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nAuto-Turrets get weaker when they need to fire at more targets, so be sure to build enough for the job.";
+		s += p.sprintf(L"Power to construct: %d Power\n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_AUTOTURRET));
+
+		if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_AUTOTURRET))
+			s += L"NOT ENOUGH POWER\n \n";
+
+		s += L"Shortcut: F";
+		pHUD->SetButtonInfo(8, s);
+		pHUD->SetButtonTooltip(8, L"Build Auto-Turret");
 	}
 }
 
@@ -525,7 +543,11 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 
 	CStructure* pConstructing = NULL;
 
-	if (ePreviewStructure == STRUCTURE_MINIBUFFER)
+	if (ePreviewStructure == STRUCTURE_AUTOTURRET)
+	{
+		pConstructing = GameServer()->Create<CAutoTurret>("CAutoTurret");
+	}
+	else if (ePreviewStructure == STRUCTURE_MINIBUFFER)
 	{
 		pConstructing = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
 	}
@@ -801,7 +823,7 @@ bool CCPU::IsAvailableAreaActive(int iArea) const
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
 		return false;
 
-	if (m_ePreviewStructure != STRUCTURE_BUFFER && m_ePreviewStructure != STRUCTURE_MINIBUFFER)
+	if (m_ePreviewStructure != STRUCTURE_BUFFER && m_ePreviewStructure != STRUCTURE_MINIBUFFER && m_ePreviewStructure != STRUCTURE_AUTOTURRET)
 		return false;
 
 	if (!IsPreviewBuildValid())
@@ -821,19 +843,22 @@ void CCPU::RenderAvailableArea(int iArea)
 	if (DigitanksGame()->GetControlMode() != MODE_BUILD)
 		return;
 
-	if (m_ePreviewStructure != STRUCTURE_BUFFER && m_ePreviewStructure != STRUCTURE_MINIBUFFER)
+	if (m_ePreviewStructure != STRUCTURE_BUFFER && m_ePreviewStructure != STRUCTURE_MINIBUFFER && m_ePreviewStructure != STRUCTURE_AUTOTURRET)
 		return;
 
 	if (!IsPreviewBuildValid())
 		return;
 
-	size_t iInitialDataStrength;
+	size_t iAreaSize;
 	if (m_ePreviewStructure == STRUCTURE_BUFFER)
-		iInitialDataStrength = CBuffer::InitialBufferDataStrength();
+		iAreaSize = CBuffer::InitialBufferDataStrength();
 	else
-		iInitialDataStrength = CMiniBuffer::InitialMiniBufferDataStrength();
+		iAreaSize = CMiniBuffer::InitialMiniBufferDataStrength();
 
-	float flRadius = sqrt((float)iInitialDataStrength/M_PI) + 5;	// 5 is the bounding radius for both structures
+	float flRadius = sqrt((float)iAreaSize/M_PI) + 5;	// 5 is the bounding radius for both structures
+
+	if (m_ePreviewStructure == STRUCTURE_AUTOTURRET)
+		flRadius = CAutoTurret::DefenseRadius();
 
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.Translate(GetPreviewBuild());
