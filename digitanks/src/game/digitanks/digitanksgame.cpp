@@ -801,6 +801,20 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 			pEntity = GameServer()->Create<CCPU>("CCPU");
 		else if (pLevelUnit->m_sClassName == "Counter")
 			pEntity = GameServer()->Create<CBaseEntity>("CCounter");
+		else if (pLevelUnit->m_sClassName == "Electronode")
+			pEntity = GameServer()->Create<CResource>("CResource");
+		else if (pLevelUnit->m_sClassName == "Capacitor")
+			pEntity = GameServer()->Create<CBattery>("CBattery");
+		else if (pLevelUnit->m_sClassName == "Buffer")
+			pEntity = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
+		else if (pLevelUnit->m_sClassName == "AutoTurret")
+			pEntity = GameServer()->Create<CStructure>("CAutoTurret");
+		else if (pLevelUnit->m_sClassName == "InfantryLoader")
+		{
+			CLoader* pLoader = GameServer()->Create<CLoader>("CLoader");
+			pLoader->SetBuildUnit(UNIT_INFANTRY);
+			pEntity = pLoader;
+		}
 		else
 		{
 			assert(!"Invalid unit");
@@ -857,6 +871,10 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		// If they are not fortified they should hang around to protect the base in case it is attacked.
 		if (pTank)
 			pTank->StayPut();
+
+ 		CStructure* pStructure = dynamic_cast<CStructure*>(pUnit);
+		if (pStructure)
+			pStructure->SetConstructing(false);
 
 		pUnit->StartTurn();
 	}

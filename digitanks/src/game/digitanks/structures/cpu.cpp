@@ -809,7 +809,9 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 			r.SetBlend(BLEND_ALPHA);
 	}
 
-	m_flFanRotation -= 100 * GameServer()->GetFrameTime();
+	if (GetTeam())
+		m_flFanRotation -= 100 * GameServer()->GetFrameTime();
+
 	r.Rotate(m_flFanRotation, Vector(0, 1, 0));
 
 	r.RenderModel(m_iFanModel);

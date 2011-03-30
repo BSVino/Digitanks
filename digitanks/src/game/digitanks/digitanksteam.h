@@ -79,7 +79,7 @@ public:
 	void						CountFleetPoints();
 	size_t						GetTotalFleetPoints() { return m_iTotalFleetPoints; };
 	size_t						GetUsedFleetPoints() { return m_iUsedFleetPoints; };
-	size_t						GetUnusedFleetPoints() { return (int)GetTotalFleetPoints() - (int)GetUsedFleetPoints(); };
+	size_t						GetUnusedFleetPoints();
 
 	void						CountScore();
 	size_t						GetScore() { return m_iScore; };

@@ -973,7 +973,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
-	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && pCurrentLocalTeam && pCurrentLocalTeam->GetPrimaryCPU())
+	if ((DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN) && pCurrentLocalTeam && pCurrentLocalTeam->GetPrimaryCPU())
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
@@ -1185,7 +1185,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		// Main control pannel
 		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
 
-		if (bShowCPUStuff && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		if (bShowCPUStuff && (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN))
 		{
 			if (m_bUpdatesBlinking)
 			{
@@ -2213,7 +2213,7 @@ void CHUD::UpdateTeamInfo()
 		return;
 
 	bool bShow = false;
-	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN)
 		bShow = true;
 	
 	if (!bShow)
@@ -2227,6 +2227,9 @@ void CHUD::UpdateTeamInfo()
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 	if (!pTeam)
+		return;
+
+	if (!pTeam->GetPrimaryCPU())
 		return;
 
 	eastl::string16 s1;
@@ -3050,6 +3053,9 @@ void CHUD::ShowSmallActionItemCallback()
 	m_flSmallActionItemLerpGoal = 1;
 
 	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		return;
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems() == 0)
 		return;
 
 	const actionitem_t* pItem = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(m_iCurrentSmallActionItem);

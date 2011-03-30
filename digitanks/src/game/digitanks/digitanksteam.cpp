@@ -481,6 +481,14 @@ void CDigitanksTeam::CountFleetPoints()
 	}
 }
 
+size_t CDigitanksTeam::GetUnusedFleetPoints()
+{
+	if (GetUsedFleetPoints() > GetTotalFleetPoints())
+		return 0;
+
+	return GetTotalFleetPoints() - GetUsedFleetPoints();
+}
+
 void CDigitanksTeam::CountScore()
 {
 	if (!CNetwork::IsHost())
@@ -689,7 +697,10 @@ void CDigitanksTeam::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
 	if (pUnit && pUnit->GetDigitanksTeam() != this)
 		return;
 
-	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
+	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD && DigitanksGame()->GetGameType() != GAMETYPE_CAMPAIGN)
+		return;
+
+	if (!GetPrimaryCPU())
 		return;
 
 	// Prevent duplicates

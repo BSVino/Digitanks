@@ -10,6 +10,7 @@ class CCollector : public CStructure
 public:
 	virtual void				Spawn();
 	virtual void				Precache();
+	virtual void				ClientSpawn();
 
 	virtual void				UpdateInfo(eastl::string16& sInfo);
 

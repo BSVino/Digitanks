@@ -657,7 +657,7 @@ void CDigitank::StartTurn()
 
 	CDigitank* pClosestEnemy = FindClosestVisibleEnemyTank();
 
-	if (!IsDisabled())
+	if (!IsDisabled() && GetDigitanksTeam())
 	{
 		if (HasGoalMovePosition() && pClosestEnemy)
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_AUTOMOVEENEMY);

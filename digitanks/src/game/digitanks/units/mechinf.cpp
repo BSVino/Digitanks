@@ -71,7 +71,12 @@ void CMechInfantry::PostRender(bool bTransparent)
 			c.SetBlend(BLEND_ALPHA);
 			c.SetAlpha(flAlpha);
 		}
-		c.SetColorSwap(GetTeam()->GetColor());
+
+		if (GetTeam())
+			c.SetColorSwap(GetTeam()->GetColor());
+		else
+			c.SetColorSwap(Color(150, 150, 150));
+
 		c.RenderModel(m_iFortifyWallModel);
 	}
 

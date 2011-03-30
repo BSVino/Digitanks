@@ -459,8 +459,8 @@ void CDigitanksEntity::FreeFromConfinement(CDigitanksEntity* pOther)
 	if (!pOther->GetTeam())
 		return;
 
-	// Only CPUs can free structures other than CPUs. Otherwise they'd just go bunk again immediately.
-	if (GetUnitType() != STRUCTURE_CPU && dynamic_cast<CStructure*>(this) && !dynamic_cast<CCPU*>(pOther))
+	// Only suppliers can free structures other than CPUs. Otherwise they'd just go bunk again immediately.
+	if (GetUnitType() != STRUCTURE_CPU && dynamic_cast<CStructure*>(this) && !dynamic_cast<CSupplier*>(pOther))
 		return;
 
 	pOther->GetTeam()->AddEntity(this);

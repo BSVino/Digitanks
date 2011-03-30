@@ -34,6 +34,20 @@ void CCollector::Precache()
 	PrecacheModel(L"models/structures/psu.obj");
 }
 
+void CCollector::ClientSpawn()
+{
+	BaseClass::ClientSpawn();
+
+	if (CNetwork::IsHost() && !GetResource())
+	{
+		SetResource(CResource::FindClosestResource(GetOrigin(), GetResourceType()));
+		if (GetResource())
+			GetResource()->SetCollector(this);
+		else
+			Delete();
+	}
+}
+
 void CCollector::UpdateInfo(eastl::string16& s)
 {
 	eastl::string16 p;
