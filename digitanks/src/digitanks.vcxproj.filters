@@ -73,6 +73,9 @@
     <Filter Include="Source Files\digitanks\campaign">
       <UniqueIdentifier>{d1c71b9a-c3a1-4883-b293-dbb8162e44cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\game\entities">
+      <UniqueIdentifier>{4e7d513a-9984-4385-afba-87a168871fa3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -372,6 +375,9 @@
     <ClCompile Include="game\digitanks\campaign\campaigninfo.cpp">
       <Filter>Source Files\digitanks\campaign</Filter>
     </ClCompile>
+    <ClCompile Include="game\entities\counter.cpp">
+      <Filter>Source Files\game\entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -640,6 +646,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\campaign\campaigndata.h">
       <Filter>Source Files\digitanks\campaign</Filter>
+    </ClInclude>
+    <ClInclude Include="game\entities\counter.h">
+      <Filter>Source Files\game\entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

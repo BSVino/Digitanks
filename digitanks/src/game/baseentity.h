@@ -293,7 +293,8 @@ public:
 
 public:
 	virtual void							Precache() {};
-	virtual void							Spawn() {};
+	virtual void							Spawn();
+	DECLARE_ENTITY_OUTPUT(OnSpawn);
 
 	void									SetName(const eastl::string& sName) { m_sName = sName; };
 	eastl::string							GetName() { return m_sName; };
@@ -371,6 +372,7 @@ public:
 	virtual void							OnDeleted(class CBaseEntity* pEntity) {};
 	bool									IsDeleted() { return m_bDeleted; }
 	void									SetDeleted() { m_bDeleted = true; }
+	DECLARE_ENTITY_INPUT(Delete);
 
 	virtual void							Think() {};
 

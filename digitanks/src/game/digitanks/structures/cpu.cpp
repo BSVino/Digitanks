@@ -903,6 +903,9 @@ void CCPU::OnDeleted()
 {
 	eastl::vector<CBaseEntity*> apDeleteThese;
 
+	if (!GetTeam())
+		return;
+
 	for (size_t i = 0; i < GetTeam()->GetNumMembers(); i++)
 	{
 		CBaseEntity* pMember = GetTeam()->GetMember(i);

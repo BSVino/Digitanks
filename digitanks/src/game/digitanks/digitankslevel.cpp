@@ -36,6 +36,8 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 			m_eGameType = GAMETYPE_ARTILLERY;
 		else if (sValue == "strategy")
 			m_eGameType = GAMETYPE_STANDARD;
+		else if (sValue == "campaign")
+			m_eGameType = GAMETYPE_CAMPAIGN;
 	}
 	else if (pData->GetKey() == "TerrainHeight")
 	{
@@ -131,6 +133,8 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 			pUnit->m_bActive = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "Output")
 			ReadUnitOutput(pChildData, pUnit);
+		else if (pChildData->GetKey() == "Type")
+			pUnit->m_sType = pChildData->GetValueString();
 	}
 }
 

@@ -42,36 +42,18 @@ void CPowerup::Spawn()
 		{
 		case 0:
 		case 1:
-			m_ePowerupType = POWERUP_AIRSTRIKE;
+			SetPowerupType(POWERUP_AIRSTRIKE);
 			break;
 
 		case 4:
-			m_ePowerupType = POWERUP_TANK;
+			SetPowerupType(POWERUP_TANK);
 			break;
 		}
 	}
 	else
-		m_ePowerupType = POWERUP_BONUS;
+		SetPowerupType(POWERUP_BONUS);
 
-	switch (m_ePowerupType)
-	{
-	default:
-	case POWERUP_BONUS:
-		SetModel(L"models/powerup.obj");
-		break;
-
-	case POWERUP_AIRSTRIKE:
-		SetModel(L"models/powerup-airstrike.obj");
-		break;
-
-	case POWERUP_TANK:
-		SetModel(L"models/powerup-tank.obj");
-		break;
-
-	case POWERUP_MISSILEDEFENSE:
-		SetModel(L"models/powerup-missiledefense.obj");
-		break;
-	}
+	CalculateVisibility();
 }
 
 eastl::string16 CPowerup::GetEntityName()
@@ -114,4 +96,29 @@ void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparen
 	pContext->SetDepthMask(false);
 
 	pContext->SetAlpha(RemapValClamped(GameServer()->GetGameTime() - GetSpawnTime(), 0, 3, 0, 1));
+}
+
+void CPowerup::SetPowerupType(powerup_type_t eType)
+{
+	m_ePowerupType = eType;
+
+	switch (m_ePowerupType)
+	{
+	default:
+	case POWERUP_BONUS:
+		SetModel(L"models/powerup.obj");
+		break;
+
+	case POWERUP_AIRSTRIKE:
+		SetModel(L"models/powerup-airstrike.obj");
+		break;
+
+	case POWERUP_TANK:
+		SetModel(L"models/powerup-tank.obj");
+		break;
+
+	case POWERUP_MISSILEDEFENSE:
+		SetModel(L"models/powerup-missiledefense.obj");
+		break;
+	}
 }

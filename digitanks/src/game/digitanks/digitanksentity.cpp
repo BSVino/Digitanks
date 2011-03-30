@@ -22,6 +22,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyArea);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
 	SAVEDATA_DEFINE_OUTPUT(OnBecomeVisible);
 SAVEDATA_TABLE_END();
 
@@ -39,6 +40,8 @@ void CDigitanksEntity::Spawn()
 	m_flVisibility = 0;
 	m_bVisibilityDirty = true;
 	m_flNextDirtyArea = 0;
+
+	m_bImprisoned = false;
 
 	CalculateVisibility();
 }
@@ -425,6 +428,46 @@ void CDigitanksEntity::RenderAvailableArea(int iArea)
 	c.Translate(GetOrigin());
 	c.Scale(flAvailableArea, flAvailableArea*flScoutScale, flAvailableArea);
 	c.RenderSphere();
+}
+
+bool CDigitanksEntity::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
+{
+	if (IsImprisoned())
+	{
+		CDigitank* pOtherTank = dynamic_cast<CDigitank*>(pOther);
+
+		if (!pOtherTank)
+			return false;
+
+		if (!pOtherTank->GetTeam())
+			return false;
+
+		if (Distance(pOtherTank->GetRealOrigin()) > 20)
+			return false;
+
+		return true;
+	}
+
+	return BaseClass::IsTouching(pOther, vecPoint);
+}
+
+void CDigitanksEntity::FreeFromConfinement(CDigitanksEntity* pOther)
+{
+	if (!pOther)
+		return;
+
+	if (!pOther->GetTeam())
+		return;
+
+	// Only CPUs can free structures other than CPUs. Otherwise they'd just go bunk again immediately.
+	if (GetUnitType() != STRUCTURE_CPU && dynamic_cast<CStructure*>(this) && !dynamic_cast<CCPU*>(pOther))
+		return;
+
+	pOther->GetTeam()->AddEntity(this);
+
+	m_bImprisoned = false;
+
+	StartTurn();
 }
 
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)

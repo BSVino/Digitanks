@@ -36,6 +36,7 @@ NETVAR_TABLE_BEGIN(CBaseEntity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
+	SAVEDATA_DEFINE_OUTPUT(OnSpawn);
 	SAVEDATA_DEFINE_OUTPUT(OnKilled);
 	SAVEDATA_DEFINE_OUTPUT(OnActivated);
 	SAVEDATA_DEFINE_OUTPUT(OnDeactivated);
@@ -69,6 +70,7 @@ INPUTS_TABLE_BEGIN(CBaseEntity);
 	INPUT_DEFINE(Deactivate);
 	INPUT_DEFINE(ToggleActive);
 	INPUT_DEFINE(RemoveOutput);
+	INPUT_DEFINE(Delete);
 INPUTS_TABLE_END();
 
 CBaseEntity::CBaseEntity()
@@ -116,6 +118,10 @@ CBaseEntity::~CBaseEntity()
 
 	if (m_pTracer)
 		delete m_pTracer;
+}
+
+void CBaseEntity::Spawn()
+{
 }
 
 void CBaseEntity::SetModel(const eastl::string16& sModel)
@@ -293,6 +299,11 @@ void CBaseEntity::Render(bool bTransparent)
 void CBaseEntity::Delete()
 {
 	GameServer()->Delete(this);
+}
+
+void CBaseEntity::Delete(const eastl::vector<eastl::string16>& sArgs)
+{
+	Delete();
 }
 
 void CBaseEntity::CallInput(const eastl::string& sName, const eastl::string16& sArgs)
@@ -545,6 +556,8 @@ void CBaseEntity::ClientSpawn()
 {
 	assert(!m_bClientSpawn);
 	m_bClientSpawn = true;
+
+	CallOutput("OnSpawn");
 }
 
 CSaveData* CBaseEntity::GetSaveData(const char* pszName)

@@ -27,6 +27,7 @@ public:
 	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
 	powerup_type_t	GetPowerupType() { return m_ePowerupType; }
+	void			SetPowerupType(powerup_type_t eType);
 
 protected:
 	CNetworkedVariable<powerup_type_t> m_ePowerupType;

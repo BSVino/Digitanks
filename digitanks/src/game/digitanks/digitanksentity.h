@@ -45,6 +45,12 @@ public:
 	virtual bool					IsAvailableAreaActive(int iArea) const { return true; };
 	virtual void					RenderAvailableArea(int iArea);
 
+	virtual bool					IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
+
+	void							Imprison() { m_bImprisoned = true; }
+	bool							IsImprisoned() const { return m_bImprisoned; }
+	void							FreeFromConfinement(CDigitanksEntity* pOther);
+
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
 
@@ -66,6 +72,8 @@ protected:
 	float							m_flVisibility;				// Only for local team!
 
 	float							m_flNextDirtyArea;
+
+	bool							m_bImprisoned;
 
 	DECLARE_ENTITY_OUTPUT(OnBecomeVisible);
 };

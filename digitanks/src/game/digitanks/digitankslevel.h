@@ -48,6 +48,7 @@ public:
 	bool					m_bFortified;
 	bool					m_bImprisoned;
 	bool					m_bActive;
+	eastl::string			m_sType;
 
 	eastl::vector<CLevelUnitOutput>	m_aOutputs;
 };

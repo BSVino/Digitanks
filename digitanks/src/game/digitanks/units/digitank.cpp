@@ -126,6 +126,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitank);
+	SAVEDATA_DEFINE_OUTPUT(OnTakeLaserDamage);
 	SAVEDATA_DEFINE_OUTPUT(OnDisable);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartingPower);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTotalPower);
@@ -171,7 +172,6 @@ SAVEDATA_TABLE_BEGIN(CDigitank);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFiredWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bActionTaken);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLostConcealment);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flFireWeaponTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFireWeapons);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CBaseWeapon>, m_hWeapon);
@@ -354,7 +354,6 @@ void CDigitank::Spawn()
 	m_bCloaked = false;
 	m_bHasCloak = false;
 	m_bLostConcealment = false;
-	m_bImprisoned = false;
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)
@@ -1105,9 +1104,9 @@ void CDigitank::Move(CNetworkParameters* p)
 			if (pUserFile && pUserFile->IsTouching(this, vecTouchingPoint))
 				pUserFile->Pickup(this);
 
-			CDigitank* pOtherTank = dynamic_cast<CDigitank*>(pEntity);
-			if (pOtherTank && pOtherTank->IsTouching(this, vecTouchingPoint))
-				pOtherTank->FreeFromConfinement(this);
+			CDigitanksEntity* pOtherEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
+			if (pOtherEntity && pOtherEntity->IsTouching(this, vecTouchingPoint))
+				pOtherEntity->FreeFromConfinement(this);
 		}
 	}
 
@@ -1534,21 +1533,6 @@ float CDigitank::GetCloakConcealment() const
 		return 0.5f;
 
 	return 0;
-}
-
-void CDigitank::FreeFromConfinement(CDigitank* pOther)
-{
-	if (!pOther)
-		return;
-
-	if (!pOther->GetTeam())
-		return;
-
-	pOther->GetTeam()->AddEntity(this);
-
-	m_bImprisoned = false;
-
-	StartTurn();
 }
 
 bool CDigitank::MovesWith(CDigitank* pOther) const
@@ -2608,6 +2592,11 @@ float CDigitank::GetWeaponEnergy() const
 
 size_t CDigitank::GetNumWeapons() const
 {
+	return m_aeWeapons.size();
+}
+
+size_t CDigitank::GetNumAllowedWeapons() const
+{
 	size_t iWeapons = 0;
 	size_t iTotalWeapons = m_aeWeapons.size();
 	for (size_t i = 0; i < iTotalWeapons; i++)
@@ -2688,6 +2677,9 @@ void CDigitank::ClientUpdate(int iClient)
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
 {
+	if (eDamageType == DAMAGE_LASER)
+		CallOutput("OnTakeLaserDamage");
+
 	if (flDamage > 0)
 	{
 		CancelGoalMovePosition();
@@ -3183,22 +3175,6 @@ void CDigitank::RenderShield()
 
 bool CDigitank::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 {
-	if (IsImprisoned())
-	{
-		CDigitank* pOtherTank = dynamic_cast<CDigitank*>(pOther);
-
-		if (!pOtherTank)
-			return false;
-
-		if (!pOtherTank->GetTeam())
-			return false;
-
-		if (Distance(pOtherTank->GetRealOrigin()) > 20)
-			return false;
-
-		return true;
-	}
-
 	return BaseClass::IsTouching(pOther, vecPoint);
 }
 

@@ -783,27 +783,43 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	for (size_t iUnits = 0; iUnits < pLevel->GetNumUnits(); iUnits++)
 	{
 		CLevelUnit* pLevelUnit = pLevel->GetUnit(iUnits);
-		CDigitanksEntity* pUnit = NULL;
+		CBaseEntity* pEntity = NULL;
 		
 		if (pLevelUnit->m_sClassName == "Rogue")
-			pUnit = GameServer()->Create<CScout>("CScout");
+			pEntity = GameServer()->Create<CScout>("CScout");
 		else if (pLevelUnit->m_sClassName == "Resistor")
-			pUnit = GameServer()->Create<CMechInfantry>("CMechInfantry");
+			pEntity = GameServer()->Create<CMechInfantry>("CMechInfantry");
 		else if (pLevelUnit->m_sClassName == "BugTurret")
-			pUnit = GameServer()->Create<CBugTurret>("CBugTurret");
+			pEntity = GameServer()->Create<CBugTurret>("CBugTurret");
 		else if (pLevelUnit->m_sClassName == "GridBug")
-			pUnit = GameServer()->Create<CGridBug>("CGridBug");
+			pEntity = GameServer()->Create<CGridBug>("CGridBug");
 		else if (pLevelUnit->m_sClassName == "UserFile")
-			pUnit = GameServer()->Create<CUserFile>("CUserFile");
+			pEntity = GameServer()->Create<CUserFile>("CUserFile");
+		else if (pLevelUnit->m_sClassName == "Powerup")
+			pEntity = GameServer()->Create<CPowerup>("CPowerup");
+		else if (pLevelUnit->m_sClassName == "CPU")
+			pEntity = GameServer()->Create<CCPU>("CCPU");
+		else if (pLevelUnit->m_sClassName == "Counter")
+			pEntity = GameServer()->Create<CBaseEntity>("CCounter");
 		else
 		{
 			assert(!"Invalid unit");
 			continue;
 		}
 
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pUnit);
+		pEntity->SetName(pLevelUnit->m_sName);
+		pEntity->SetActive(pLevelUnit->m_bActive);
 
-		pUnit->SetName(pLevelUnit->m_sName);
+		for (size_t iOutputs = 0; iOutputs < pLevelUnit->m_aOutputs.size(); iOutputs++)
+		{
+			CLevelUnitOutput* pOutput = &pLevelUnit->m_aOutputs[iOutputs];
+			pEntity->AddOutputTarget(pOutput->m_sOutput, pOutput->m_sTarget, pOutput->m_sInput, pOutput->m_sArgs, pOutput->m_bKill);
+		}
+
+		CDigitanksEntity* pUnit = dynamic_cast<CDigitanksEntity*>(pEntity);
+		if (!pUnit)
+			continue;
+
 		pUnit->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
 		pUnit->SetAngles(EAngle(0, pLevelUnit->m_angOrientation.y, 0));
 
@@ -815,19 +831,26 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 				m_ahTeams[1]->AddEntity(pUnit);
 		}
 
-		for (size_t iOutputs = 0; iOutputs < pLevelUnit->m_aOutputs.size(); iOutputs++)
-		{
-			CLevelUnitOutput* pOutput = &pLevelUnit->m_aOutputs[iOutputs];
-			pUnit->AddOutputTarget(pOutput->m_sOutput, pOutput->m_sTarget, pOutput->m_sInput, pOutput->m_sArgs, pOutput->m_bKill);
-		}
+ 		CDigitank* pTank = dynamic_cast<CDigitank*>(pUnit);
 
 		if (pLevelUnit->m_bFortified && pTank)
 			pTank->Fortify();
 
-		if (pLevelUnit->m_bImprisoned && pTank)
-			pTank->Imprison();
+		if (pLevelUnit->m_bImprisoned)
+			pUnit->Imprison();
 
-		pUnit->SetActive(pLevelUnit->m_bActive);
+		CPowerup* pPowerup = dynamic_cast<CPowerup*>(pUnit);
+		if (pPowerup)
+		{
+			if (pLevelUnit->m_sType == "Airstrike")
+				pPowerup->SetPowerupType(POWERUP_AIRSTRIKE);
+			else if (pLevelUnit->m_sType == "Tank")
+				pPowerup->SetPowerupType(POWERUP_TANK);
+			else if (pLevelUnit->m_sType == "MissileDefense")
+				pPowerup->SetPowerupType(POWERUP_MISSILEDEFENSE);
+			else if (pLevelUnit->m_sType == "Bonus")
+				pPowerup->SetPowerupType(POWERUP_BONUS);
+		}
 
 		// All starting tanks should stay put.
 		// This means if they are fortified they should always stay fortified and not join an attack team.

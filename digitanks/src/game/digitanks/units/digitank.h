@@ -203,10 +203,6 @@ public:
 	virtual float				GetCloakConcealment() const;
 	virtual bool				HasLostConcealment() const { return m_bLostConcealment; }
 
-	void						Imprison() { m_bImprisoned = true; }
-	bool						IsImprisoned() const { return m_bImprisoned; }
-	void						FreeFromConfinement(CDigitank* pOther);
-
 	virtual bool				MovesWith(CDigitank* pOther) const;
 	virtual bool				TurnsWith(CDigitank* pOther) const;
 	virtual bool				AimsWith(CDigitank* pOther) const;
@@ -245,6 +241,7 @@ public:
 	void						SetCurrentWeapon(weapon_t e, bool bNetworked = true);
 	float						GetWeaponEnergy() const;
 	size_t						GetNumWeapons() const;
+	size_t						GetNumAllowedWeapons() const;
 	weapon_t					GetWeapon(size_t iProjectile) const { return m_aeWeapons[iProjectile]; };
 	bool						HasWeapon(weapon_t eWeapon) const;
 	virtual bool				IsWaitingToFire() { return m_flFireWeaponTime != 0; };
@@ -260,6 +257,7 @@ public:
 	virtual bool				TakesLavaDamage() { return true; }
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
+	DECLARE_ENTITY_OUTPUT(OnTakeLaserDamage);
 
 	virtual Vector				GetOrigin() const;
 	virtual Vector				GetRealOrigin() const;
@@ -412,8 +410,6 @@ protected:
 	CNetworkedVariable<bool>	m_bFiredWeapon;
 	CNetworkedVariable<bool>	m_bActionTaken;
 	CNetworkedVariable<bool>	m_bLostConcealment;
-
-	bool						m_bImprisoned;
 
 	float						m_flFireWeaponTime;
 	size_t						m_iFireWeapons;

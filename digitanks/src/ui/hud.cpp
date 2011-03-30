@@ -829,13 +829,17 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN && m_bHUDActive)
 	{
-		if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName == "artillery-aim")
+		eastl::string sTutorialName;
+		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
+			sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
+
+		if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && sTutorialName == "artillery-aim")
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
 			m_apButtons[7]->SetButtonColor(Color(iColor, 0, 0));
 		}
-		else if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName == "strategy-deploy" && dynamic_cast<CMobileCPU*>(pCurrentTank))
+		else if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && sTutorialName == "strategy-deploy" && dynamic_cast<CMobileCPU*>(pCurrentTank))
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			m_apButtons[8]->SetButtonColor(Color(0, 0, (int)RemapVal(flRamp, 0, 1, 0, 250)));

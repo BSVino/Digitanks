@@ -798,6 +798,9 @@ void CSupplier::StartTurn()
 	CDigitanksTeam* pLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	if (!DigitanksGame()->ShouldRenderFogOfWar() || pLocalTeam == GetDigitanksTeam())
 		m_bShouldRender = true;
+	else if (!GetTeam())
+		// Let regular culling happen
+		m_bShouldRender = true;
 	else if (pLocalTeam)
 	{
 		float flVisibleDistance = GetDataFlowRadius();
@@ -869,6 +872,14 @@ void CSupplier::StartTurn()
 			CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
 			if (!pEntity)
 				continue;
+
+			CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+			if (pDTEnt && pDTEnt->IsImprisoned())
+			{
+				float flFlow = GetDataFlow(pDTEnt->GetOrigin());
+				if (flFlow > 0)
+					pDTEnt->FreeFromConfinement(this);
+			}
 
 			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 			if (!pStructure)
