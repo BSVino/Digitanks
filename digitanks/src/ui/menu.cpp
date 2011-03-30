@@ -334,10 +334,8 @@ void CCampaignPanel::Layout()
 
 void CCampaignPanel::Mission1Callback()
 {
-	CVar::SetCVar("game_level", "levels/campaign/1.txt");
+	DigitanksWindow()->NewCampaign();
 
-	DigitanksWindow()->SetServerType(SERVER_LOCAL);
-	DigitanksWindow()->CreateGame(GAMETYPE_CAMPAIGN);
 	DigitanksGame()->SetDifficulty(1);
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);

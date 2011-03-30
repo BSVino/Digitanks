@@ -31,6 +31,7 @@
 #include "menu.h"
 #include "ui.h"
 #include "renderer/renderer.h"
+#include "digitanks/campaign/campaigndata.h"
 
 ConfigFile c( GetAppDataDirectory(L"Digitanks", L"options.cfg") );
 
@@ -41,6 +42,9 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
 	m_pChatBox = NULL;
+	m_pCampaign = NULL;
+
+	m_eHaltAction = HALTACTION_TOMENU;
 
 	m_bBoxSelect = false;
 
@@ -370,6 +374,42 @@ void CDigitanksWindow::DestroyGame()
 	CSoundLibrary::StopMusic();
 }
 
+void CDigitanksWindow::NewCampaign()
+{
+	if (m_pCampaign)
+		delete m_pCampaign;
+
+	m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
+
+	CVar::SetCVar("game_level", m_pCampaign->GetFirstLevel());
+
+	DigitanksWindow()->SetServerType(SERVER_LOCAL);
+	DigitanksWindow()->CreateGame(GAMETYPE_CAMPAIGN);
+}
+
+void CDigitanksWindow::RestartCampaignLevel()
+{
+	Halt(HALTACTION_CAMPAIGNLEVEL);
+}
+
+void CDigitanksWindow::NextCampaignLevel()
+{
+	eastl::string sNextLevel = m_pCampaign->GetNextLevel();
+	if (sNextLevel.length() == 0)
+		Halt(HALTACTION_TOMENU);
+	else
+	{
+		CVar::SetCVar("game_level", sNextLevel);
+		Halt(HALTACTION_CAMPAIGNLEVEL);
+	}
+}
+
+void CDigitanksWindow::Halt(haltaction_t eHaltAction)
+{
+	m_eHaltAction = eHaltAction;
+	GameServer()->Halt();
+}
+
 void CDigitanksWindow::Run()
 {
 	CreateGame(GAMETYPE_MENU);
@@ -395,7 +435,12 @@ void CDigitanksWindow::Run()
 			if (GameServer()->IsHalting())
 			{
 				DestroyGame();
-				CreateGame(GAMETYPE_MENU);
+				if (m_eHaltAction == HALTACTION_CAMPAIGNLEVEL)
+					CreateGame(GAMETYPE_CAMPAIGN);
+				else
+					CreateGame(GAMETYPE_MENU);
+
+				m_eHaltAction = HALTACTION_TOMENU;
 			}
 
 			float flTime = GetTime();

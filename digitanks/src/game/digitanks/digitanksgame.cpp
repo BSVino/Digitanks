@@ -110,6 +110,7 @@ SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksGame);
 	INPUT_DEFINE(PlayerVictory);
+	INPUT_DEFINE(PlayerLoss);
 INPUTS_TABLE_END();
 
 void CDigitanksGame::Precache()
@@ -731,6 +732,23 @@ void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asT
 
 CCommand mission_reload("mission_reload", ::MissionReload);
 
+void MissionWin(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+{
+	if (!CVar::GetCVarBool("cheats"))
+		return;
+
+	DigitanksGame()->PlayerVictory(asTokens);
+}
+
+CCommand mission_win("mission_win", ::MissionWin);
+
+void MissionLose(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+{
+	DigitanksGame()->PlayerLoss(asTokens);
+}
+
+CCommand mission_lose("mission_lose", ::MissionLose);
+
 void CDigitanksGame::SetupCampaign(bool bReload)
 {
 	TMsg(sprintf(L"Setting up campaign %s.\n", CVar::GetCVarValue(L"game_level")));
@@ -959,7 +977,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	}
 
 	if (CNetwork::IsConnected() && !DigitanksWindow()->IsRegistered() && GetGameType() == GAMETYPE_STANDARD)
-		GameServer()->Halt();
+		DigitanksWindow()->Halt(HALTACTION_TOMENU);
 }
 
 void CDigitanksGame::StartNewRound()
@@ -1179,6 +1197,18 @@ void CDigitanksGame::Think()
 
 	if (m_bPartyMode)
 	{
+		if (GetGameType() == GAMETYPE_CAMPAIGN)
+		{
+			if (GameServer()->GetGameTime() - m_flPartyModeStart > 5)
+			{
+				if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->HasLost())
+					DigitanksWindow()->RestartCampaignLevel();
+				else
+					DigitanksWindow()->NextCampaignLevel();
+				return;
+			}
+		}
+
 		EAngle angCamera = GetDigitanksCamera()->GetAngles();
 		angCamera.y += GameServer()->GetFrameTime()*2;
 		GetDigitanksCamera()->SnapAngle(angCamera);
@@ -1443,7 +1473,7 @@ void CDigitanksGame::StartTurn()
 
 	if (GetGameType() == GAMETYPE_STANDARD && !DigitanksWindow()->IsRegistered() && GetTurn() > GetDemoTurns())
 	{
-		GameServer()->Halt();
+		DigitanksWindow()->Halt(HALTACTION_TOMENU);
 		return;
 	}
 
@@ -1891,6 +1921,20 @@ void CDigitanksGame::PlayerVictory(const eastl::vector<eastl::string16>& sArgs)
 			continue;
 
 		if (!GetTeam(i)->IsPlayerControlled())
+			GetDigitanksTeam(i)->YouLoseSirGoodDay();
+	}
+
+	GameOver();
+}
+
+void CDigitanksGame::PlayerLoss(const eastl::vector<eastl::string16>& sArgs)
+{
+	for (size_t i = 0; i < GetNumTeams(); i++)
+	{
+		if (!GetTeam(i))
+			continue;
+
+		if (GetTeam(i)->IsPlayerControlled())
 			GetDigitanksTeam(i)->YouLoseSirGoodDay();
 	}
 

@@ -366,6 +366,12 @@
     <ClCompile Include="game\digitanks\weapons\turretmissile.cpp">
       <Filter>Source Files\digitanks\weapons</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\campaign\campaigndata.cpp">
+      <Filter>Source Files\digitanks\campaign</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\campaign\campaigninfo.cpp">
+      <Filter>Source Files\digitanks\campaign</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -628,6 +634,12 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\weapons\turretmissile.h">
       <Filter>Source Files\digitanks\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\campaign\campaigninfo.h">
+      <Filter>Source Files\digitanks\campaign</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\campaign\campaigndata.h">
+      <Filter>Source Files\digitanks\campaign</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
