@@ -1203,6 +1203,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iResearchWidth = 617;
 			PaintHUDSheet(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, 350, 628, 617, 57);
 
+			CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 - 34, 0, 34, 35, Color(0, 0, 0, 150));
+
 			if (pCurrentLocalTeam && pCurrentLocalTeam->GetUpdateDownloading())
 			{
 				CUpdateItem* pItem = pCurrentLocalTeam->GetUpdateDownloading();
@@ -1808,6 +1810,22 @@ void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, in
 	{
 		sx = 100;
 		sy = 200;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == UNIT_GRIDBUG)
+	{
+		sx = 300;
+		sy = 200;
+		sw = 100;
+		sh = 100;
+		return;
+	}
+	else if (eUnit == UNIT_AUTOTURRET)
+	{
+		sx = 000;
+		sy = 300;
 		sw = 100;
 		sh = 100;
 		return;
