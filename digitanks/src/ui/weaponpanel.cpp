@@ -72,8 +72,16 @@ void CWeaponPanel::Layout()
 
 			weapon_t eWeapon = pTank->GetWeapon(iWeapon++);
 
-			if (!DigitanksGame()->IsWeaponAllowed(eWeapon, pTank))
-				continue;
+			while (!DigitanksGame()->IsWeaponAllowed(eWeapon, pTank))
+			{
+				if (iWeapon >= pTank->GetNumWeapons())
+					break;
+
+				eWeapon = pTank->GetWeapon(iWeapon++);
+			}
+
+			if (!DigitanksGame()->IsWeaponAllowed(eWeapon, pTank) && iWeapon >= pTank->GetNumWeapons())
+				break;
 
 			m_apWeapons.push_back(new CWeaponButton(this));
 			CWeaponButton* pWeapon = m_apWeapons[m_apWeapons.size()-1];

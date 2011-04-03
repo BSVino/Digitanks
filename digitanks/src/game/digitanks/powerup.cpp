@@ -6,6 +6,10 @@
 #include <models/models.h>
 #include <renderer/renderer.h>
 
+#include <digitanks/units/scout.h>
+#include <digitanks/units/standardtank.h>
+#include <digitanks/units/maintank.h>
+#include <digitanks/units/mechinf.h>
 #include "units/digitank.h"
 #include "digitanksgame.h"
 
@@ -16,6 +20,7 @@ NETVAR_TABLE_BEGIN(CPowerup);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CPowerup);
+	SAVEDATA_DEFINE_OUTPUT(OnPickup);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, powerup_type_t, m_ePowerupType);
 SAVEDATA_TABLE_END();
 
@@ -72,6 +77,9 @@ eastl::string16 CPowerup::GetEntityName()
 
 	case POWERUP_MISSILEDEFENSE:
 		return L"Missile Defense Powerup";
+
+	case POWERUP_WEAPON:
+		return L"New Weapon Powerup";
 	}
 }
 
@@ -120,5 +128,77 @@ void CPowerup::SetPowerupType(powerup_type_t eType)
 	case POWERUP_MISSILEDEFENSE:
 		SetModel(L"models/powerup-missiledefense.obj");
 		break;
+
+	case POWERUP_WEAPON:
+		SetModel(L"models/powerup-airstrike.obj");
+		break;
 	}
+}
+
+void CPowerup::Pickup(class CDigitank* pTank)
+{
+	CallOutput("OnPickup");
+
+	Delete();
+
+	switch (GetPowerupType())
+	{
+	case POWERUP_BONUS:
+	default:
+		pTank->GiveBonusPoints(1);
+		break;
+
+	case POWERUP_AIRSTRIKE:
+		pTank->GiveAirstrike();
+		break;
+
+//	case POWERUP_MISSILEDEFENSE:
+//		m_iMissileDefenses += 3;
+//		break;
+
+	case POWERUP_TANK:
+	{
+		CDigitank* pTank;
+		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+			pTank = GameServer()->Create<CStandardTank>("CStandardTank");
+		else
+		{
+			switch(RandomInt(0, 4))
+			{
+			default:
+			case 0:
+			case 1:
+				pTank = GameServer()->Create<CScout>("CScout");
+				break;
+
+			case 2:
+			case 3:
+				pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+				break;
+
+			case 4:
+				pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+				break;
+			}
+		}
+
+		GetTeam()->AddEntity(pTank);
+
+		Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
+		vecTank.y = pTank->FindHoverHeight(vecTank);
+		EAngle angTank = VectorAngles(-vecTank.Normalized());
+
+		pTank->SetOrigin(vecTank);
+		pTank->SetAngles(angTank);
+		pTank->StartTurn();
+
+		pTank->CalculateVisibility();
+	}
+
+	case POWERUP_WEAPON:
+		DigitanksGame()->AllowLaser();
+		break;
+	}
+
+//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWERUP);
 }

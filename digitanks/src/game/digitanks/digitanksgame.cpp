@@ -101,6 +101,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bPartyMode);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPartyModeStart);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastFireworks);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bOverrideAllowLasers);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, airstrike_t, m_aAirstrikes);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_aflConstructionCosts);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_aflUpgradeCosts);
@@ -141,6 +142,8 @@ void CDigitanksGame::Spawn()
 	m_bPartyMode = false;
 
 	m_flShowFightSign = 0;
+
+	m_bOverrideAllowLasers = false;
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -868,6 +871,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 				pPowerup->SetPowerupType(POWERUP_MISSILEDEFENSE);
 			else if (pLevelUnit->m_sType == "Bonus")
 				pPowerup->SetPowerupType(POWERUP_BONUS);
+			else if (pLevelUnit->m_sType == "Weapon")
+				pPowerup->SetPowerupType(POWERUP_WEAPON);
 		}
 
 		// All starting tanks should stay put.
@@ -2534,6 +2539,9 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 
 	if (eWeapon == WEAPON_INFANTRYLASER)
 	{
+		if (m_bOverrideAllowLasers)
+			return true;
+
 		// Enemy tanks have access to this weapon from the first mission.
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
 			return pLevel->AllowEnemyInfantryLasers();
@@ -2558,6 +2566,11 @@ bool CDigitanksGame::IsInfantryFortifyAllowed()
 	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 
 	return pLevel->AllowInfantryFortify();
+}
+
+void CDigitanksGame::AllowLaser()
+{
+	m_bOverrideAllowLasers = true;
 }
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)

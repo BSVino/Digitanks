@@ -8,6 +8,7 @@ typedef enum {
 	POWERUP_AIRSTRIKE,
 	POWERUP_TANK,
 	POWERUP_MISSILEDEFENSE,
+	POWERUP_WEAPON,
 } powerup_type_t;
 
 class CPowerup : public CDigitanksEntity
@@ -28,6 +29,9 @@ public:
 
 	powerup_type_t	GetPowerupType() { return m_ePowerupType; }
 	void			SetPowerupType(powerup_type_t eType);
+
+	void			Pickup(class CDigitank* pTank);
+	DECLARE_ENTITY_OUTPUT(OnPickup);
 
 protected:
 	CNetworkedVariable<powerup_type_t> m_ePowerupType;

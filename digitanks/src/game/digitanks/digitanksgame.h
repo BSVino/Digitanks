@@ -212,6 +212,7 @@ public:
 
 	bool					IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank);
 	bool					IsInfantryFortifyAllowed();
+	void					AllowLaser();
 
 	void					BeginAirstrike(Vector vecLocation);
 	float					AirstrikeSize() const { return 50; };
@@ -273,6 +274,8 @@ protected:
 	CNetworkedVariable<bool>	m_bPartyMode;
 	float						m_flPartyModeStart;
 	float						m_flLastFireworks;
+
+	bool					m_bOverrideAllowLasers;
 
 	eastl::vector<airstrike_t>	m_aAirstrikes;
 

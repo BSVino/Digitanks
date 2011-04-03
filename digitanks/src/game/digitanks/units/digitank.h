@@ -344,6 +344,8 @@ public:
 	virtual bool				HasFortifyPoint() { return m_bFortifyPoint; };
 	virtual Vector				GetFortifyPoint() { return m_vecFortifyPoint; }
 
+	void						GiveAirstrike() { m_iAirstrikes++; }
+
 	static size_t				GetAimBeamTexture() { return s_iAimBeam; }
 	static size_t				GetAutoMoveTexture() { return s_iAutoMove; }
 
