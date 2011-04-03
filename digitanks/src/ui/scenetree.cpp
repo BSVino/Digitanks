@@ -1,15 +1,17 @@
 #include "scenetree.h"
 
 #include <game/gameserver.h>
+#include <models/texturelibrary.h>
+#include <renderer/renderer.h>
+
 #include <game/digitanks/digitanksgame.h>
 #include "digitankswindow.h"
 #include "hud.h"
-#include <renderer\renderer.h>
 #include <game/digitanks/dt_camera.h>
 #include "instructor.h"
 
 CSceneTree::CSceneTree()
-	: CTree(CRenderer::LoadTextureIntoGL(L"textures/hud/arrow.png"), 0, 0)
+	: CTree(CTextureLibrary::AddTexture(L"textures/hud/arrow.png"), 0, 0)
 {
 }
 

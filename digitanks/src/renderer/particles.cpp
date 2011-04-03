@@ -7,6 +7,7 @@
 #include <tinker/cvar.h>
 #include <tinker/profiler.h>
 #include <models/models.h>
+#include <models/texturelibrary.h>
 
 #include "renderer.h"
 
@@ -239,7 +240,7 @@ void CParticleSystem::Load()
 	m_bLoaded = true;
 
 	if (GetTextureName().length() > 0)
-		SetTexture(CRenderer::LoadTextureIntoGL(GetTextureName()));
+		SetTexture(CTextureLibrary::AddTexture(GetTextureName()));
 
 	if (GetModelName().length() > 0)
 		SetModel(CModelLibrary::Get()->AddModel(GetModelName(), true));

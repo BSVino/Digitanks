@@ -3,6 +3,7 @@
 #include <strutils.h>
 
 #include <renderer/renderer.h>
+#include <models/texturelibrary.h>
 
 #include <game/digitanks/digitanksgame.h>
 #include <ui/digitankswindow.h>
@@ -25,32 +26,6 @@ CUpdatesPanel::CUpdatesPanel()
 	m_pTutorial = new CLabel(0, 0, 100, 300, L"");
 	m_pTutorial->SetFont(L"text");
 	AddControl(m_pTutorial);
-
-	m_iIconCPU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu.png");
-	m_iIconBuffer = CRenderer::LoadTextureIntoGL(L"textures/hud/update-buffer.png");
-	m_iIconPSU = CRenderer::LoadTextureIntoGL(L"textures/hud/update-psu.png");
-	m_iIconInfantryLoader = CRenderer::LoadTextureIntoGL(L"textures/hud/update-infantry-loader.png");
-	m_iIconTankLoader = CRenderer::LoadTextureIntoGL(L"textures/hud/update-tank-loader.png");
-	m_iIconArtilleryLoader = CRenderer::LoadTextureIntoGL(L"textures/hud/update-artillery-loader.png");
-	m_iIconInfantryAttack = CRenderer::LoadTextureIntoGL(L"textures/hud/update-infantry-attack.png");
-	m_iIconInfantryDefense = CRenderer::LoadTextureIntoGL(L"textures/hud/update-infantry-defense.png");
-	m_iIconInfantryMovement = CRenderer::LoadTextureIntoGL(L"textures/hud/update-infantry-movement.png");
-	m_iIconInfantryHealth = CRenderer::LoadTextureIntoGL(L"textures/hud/update-infantry-health.png");
-	m_iIconTankAttack = CRenderer::LoadTextureIntoGL(L"textures/hud/update-tank-attack.png");
-	m_iIconTankDefense = CRenderer::LoadTextureIntoGL(L"textures/hud/update-tank-defense.png");
-	m_iIconTankMovement = CRenderer::LoadTextureIntoGL(L"textures/hud/update-tank-movement.png");
-	m_iIconTankHealth = CRenderer::LoadTextureIntoGL(L"textures/hud/update-tank-health.png");
-	m_iIconArtilleryAttack = CRenderer::LoadTextureIntoGL(L"textures/hud/update-artillery-attack.png");
-	m_iIconArtilleryRange = CRenderer::LoadTextureIntoGL(L"textures/hud/update-artillery-range.png");
-	m_iIconArtilleryMovement = CRenderer::LoadTextureIntoGL(L"textures/hud/update-artillery-movement.png");
-	m_iIconArtilleryHealth = CRenderer::LoadTextureIntoGL(L"textures/hud/update-artillery-health.png");
-	m_iIconBufferRecharge = CRenderer::LoadTextureIntoGL(L"textures/hud/update-buffer-recharge.png");
-	m_iIconBufferEnergy = CRenderer::LoadTextureIntoGL(L"textures/hud/update-buffer-energy.png");
-	m_iIconBufferFleet = CRenderer::LoadTextureIntoGL(L"textures/hud/update-buffer-fleet.png");
-	m_iIconBufferBandwidth = CRenderer::LoadTextureIntoGL(L"textures/hud/update-buffer-bandwidth.png");
-	m_iIconCPUPower = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu-power.png");
-	m_iIconCPUFleet = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu-fleet.png");
-	m_iIconCPUBandwidth = CRenderer::LoadTextureIntoGL(L"textures/hud/update-cpu-bandwidth.png");
 }
 
 void CUpdatesPanel::Layout()

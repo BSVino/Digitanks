@@ -7,11 +7,14 @@
 
 #include <tinker/cvar.h>
 
+#include <models/texturelibrary.h>
+#include <sound/sound.h>
+#include <renderer/renderer.h>
+
 #include "digitankswindow.h"
 #include "digitanks/digitanksgame.h"
 #include "debugdraw.h"
 #include "instructor.h"
-#include "renderer/renderer.h"
 #include <game/digitanks/structures/cpu.h>
 #include <game/digitanks/weapons/projectile.h>
 #include <game/digitanks/structures/loader.h>
@@ -25,7 +28,6 @@
 #include <game/digitanks/units/maintank.h>
 #include <game/digitanks/dt_camera.h>
 #include <game/digitanks/weapons/cameraguided.h>
-#include <sound/sound.h>
 #include "weaponpanel.h"
 #include "scenetree.h"
 
@@ -160,16 +162,16 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_iHUDSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-sheet.png");
-	m_iUnitsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/units-sheet.png");
-	m_iWeaponsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-weapons-01.png");
-	m_iButtonSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-menu-sheet-01.png");
-	m_iDownloadSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-download-sheet-01.png");
-	m_iKeysSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/keys.png");
-	m_iActionTanksSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/tanks.png");
-	m_iActionSignsSheet = CRenderer::LoadTextureIntoGL(L"textures/hud/actionsigns/signs.png");
-	m_iPurchasePanel = CRenderer::LoadTextureIntoGL(L"textures/purchasepanel.png");
-	m_iShieldTexture = CRenderer::LoadTextureIntoGL(L"textures/hud/hud-shield.png");
+	m_iHUDSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-sheet.png");
+	m_iUnitsSheet = CTextureLibrary::AddTexture(L"textures/hud/units-sheet.png");
+	m_iWeaponsSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-weapons-01.png");
+	m_iButtonSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-menu-sheet-01.png");
+	m_iDownloadSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-download-sheet-01.png");
+	m_iKeysSheet = CTextureLibrary::AddTexture(L"textures/hud/keys.png");
+	m_iActionTanksSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/tanks.png");
+	m_iActionSignsSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/signs.png");
+	m_iPurchasePanel = CTextureLibrary::AddTexture(L"textures/purchasepanel.png");
+	m_iShieldTexture = CTextureLibrary::AddTexture(L"textures/hud/hud-shield.png");
 
 	m_eActionSign = ACTIONSIGN_NONE;
 
@@ -322,7 +324,7 @@ CHUD::CHUD()
 	m_pSpacebarHint->SetFont(L"text");
 	AddControl(m_pSpacebarHint);
 
-	//m_iCompetitionWatermark = CRenderer::LoadTextureIntoGL(L"textures/competition.png");
+	//m_iCompetitionWatermark = CTextureLibrary::AddTexture(L"textures/competition.png");
 }
 
 void CHUD::Layout()

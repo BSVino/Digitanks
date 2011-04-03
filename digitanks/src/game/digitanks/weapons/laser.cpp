@@ -2,6 +2,8 @@
 
 #include <geometry.h>
 
+#include <models/texturelibrary.h>
+
 #include <digitanks/units/digitank.h>
 #include <digitanks/digitanksgame.h>
 #include <digitanks/dt_renderer.h>
@@ -21,7 +23,7 @@ INPUTS_TABLE_END();
 
 void CLaser::Precache()
 {
-	s_iBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
+	s_iBeam = CTextureLibrary::AddTexture(L"textures/beam-pulse.png");
 }
 
 void CLaser::ClientSpawn()

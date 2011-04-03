@@ -378,6 +378,9 @@
     <ClCompile Include="game\entities\counter.cpp">
       <Filter>Source Files\game\entities</Filter>
     </ClCompile>
+    <ClCompile Include="models\texturelibrary.cpp">
+      <Filter>Source Files\models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -649,6 +652,9 @@
     </ClInclude>
     <ClInclude Include="game\entities\counter.h">
       <Filter>Source Files\game\entities</Filter>
+    </ClInclude>
+    <ClInclude Include="models\texturelibrary.h">
+      <Filter>Source Files\models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

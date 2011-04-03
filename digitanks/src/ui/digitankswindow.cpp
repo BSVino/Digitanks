@@ -20,6 +20,7 @@
 #include <tinker/cvar.h>
 #include <tinker/profiler.h>
 #include <tinker/portals/portal.h>
+#include <models/texturelibrary.h>
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
 #include "digitanks/digitankslevel.h"
@@ -114,9 +115,9 @@ void CDigitanksWindow::OpenWindow()
 
 	ilInit();
 
-	m_iCursors = CRenderer::LoadTextureIntoGL(L"textures/cursors.png");
-	m_iLoading = CRenderer::LoadTextureIntoGL(L"textures/loading.png");
-	m_iLunarWorkshop = CRenderer::LoadTextureIntoGL(L"textures/lunar-workshop.png");
+	m_iCursors = CTextureLibrary::AddTexture(L"textures/cursors.png");
+	m_iLoading = CTextureLibrary::AddTexture(L"textures/loading.png");
+	m_iLunarWorkshop = CTextureLibrary::AddTexture(L"textures/lunar-workshop.png");
 
 	RenderLoading();
 

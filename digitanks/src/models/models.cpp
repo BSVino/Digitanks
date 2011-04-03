@@ -2,6 +2,7 @@
 
 #include <modelconverter/modelconverter.h>
 #include <renderer/renderer.h>
+#include <models/texturelibrary.h>
 
 CModelLibrary* CModelLibrary::s_pModelLibrary = NULL;
 static CModelLibrary g_ModelLibrary = CModelLibrary();
@@ -82,5 +83,5 @@ CModel::~CModel()
 
 size_t CModel::LoadTextureIntoGL(size_t iMaterial)
 {
-	return CRenderer::LoadTextureIntoGL(m_pScene->GetMaterial(iMaterial)->GetDiffuseTexture());
+	return CTextureLibrary::AddTexture(m_pScene->GetMaterial(iMaterial)->GetDiffuseTexture());
 }

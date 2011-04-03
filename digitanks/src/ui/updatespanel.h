@@ -48,32 +48,6 @@ protected:
 	eastl::vector<CUpdateButton*>	m_apUpdates;
 
 	int								m_iButtonSize;
-
-	size_t							m_iIconCPU;
-	size_t							m_iIconBuffer;
-	size_t							m_iIconPSU;
-	size_t							m_iIconInfantryLoader;
-	size_t							m_iIconTankLoader;
-	size_t							m_iIconArtilleryLoader;
-	size_t							m_iIconInfantryAttack;
-	size_t							m_iIconInfantryDefense;
-	size_t							m_iIconInfantryMovement;
-	size_t							m_iIconInfantryHealth;
-	size_t							m_iIconTankAttack;
-	size_t							m_iIconTankDefense;
-	size_t							m_iIconTankMovement;
-	size_t							m_iIconTankHealth;
-	size_t							m_iIconArtilleryAttack;
-	size_t							m_iIconArtilleryRange;
-	size_t							m_iIconArtilleryMovement;
-	size_t							m_iIconArtilleryHealth;
-	size_t							m_iIconBufferRecharge;
-	size_t							m_iIconBufferEnergy;
-	size_t							m_iIconBufferFleet;
-	size_t							m_iIconBufferBandwidth;
-	size_t							m_iIconCPUPower;
-	size_t							m_iIconCPUFleet;
-	size_t							m_iIconCPUBandwidth;
 };
 
 #endif

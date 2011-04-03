@@ -16,6 +16,7 @@
 #include <shaders/shaders.h>
 #include <models/models.h>
 #include <network/network.h>
+#include <models/texturelibrary.h>
 
 #include "collector.h"
 #include "loader.h"
@@ -628,7 +629,7 @@ void CSupplier::Precache()
 {
 	BaseClass::Precache();
 
-	s_iTendrilBeam = CRenderer::LoadTextureIntoGL(L"textures/tendril.png");
+	s_iTendrilBeam = CTextureLibrary::AddTexture(L"textures/tendril.png");
 }
 
 void CSupplier::Spawn()

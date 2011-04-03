@@ -11,8 +11,10 @@
 
 #include <tinker/cvar.h>
 #include <dt_version.h>
-#include <digitanks/digitanksgame.h>
+#include <models/texturelibrary.h>
 #include <renderer/renderer.h>
+
+#include <digitanks/digitanksgame.h>
 #include <game/digitanks/digitankslevel.h>
 
 #include "instructor.h"

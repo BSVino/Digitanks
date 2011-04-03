@@ -12,6 +12,7 @@
 
 #include <tinker/cvar.h>
 #include <raytracer/raytracer.h>
+#include <models/texturelibrary.h>
 
 #include "dt_renderer.h"
 #include "digitanksgame.h"
@@ -81,8 +82,8 @@ CTerrain::~CTerrain()
 void CTerrain::Precache()
 {
 	BaseClass::Spawn();
-	s_iTreeTexture = CRenderer::LoadTextureIntoGL(L"textures/tree.png", 1);
-	s_iBeamTexture = CRenderer::LoadTextureIntoGL(L"textures/beam.png");
+	s_iTreeTexture = CTextureLibrary::AddTexture(L"textures/tree.png", 1);
+	s_iBeamTexture = CTextureLibrary::AddTexture(L"textures/beam.png");
 }
 
 void CTerrain::Spawn()

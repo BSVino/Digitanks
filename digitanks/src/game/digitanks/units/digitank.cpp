@@ -11,6 +11,7 @@
 #include <renderer/particles.h>
 #include <glgui/glgui.h>
 #include <shaders/shaders.h>
+#include <models/texturelibrary.h>
 
 #include <networkedeffect.h>
 #include <digitanks/digitanksgame.h>
@@ -224,9 +225,9 @@ void CDigitank::Precache()
 	PrecacheSound(L"sound/tank-aim.wav");
 	PrecacheSound(L"sound/tank-promoted.wav");
 
-	s_iAimBeam = CRenderer::LoadTextureIntoGL(L"textures/beam-pulse.png");
-	s_iAutoMove = CRenderer::LoadTextureIntoGL(L"textures/auto-move.png");
-	s_iSupportGlow = CRenderer::LoadTextureIntoGL(L"textures/particles/support.png");
+	s_iAimBeam = CTextureLibrary::AddTexture(L"textures/beam-pulse.png");
+	s_iAutoMove = CTextureLibrary::AddTexture(L"textures/auto-move.png");
+	s_iSupportGlow = CTextureLibrary::AddTexture(L"textures/particles/support.png");
 
 	SetupSpeechLines();
 }

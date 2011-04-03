@@ -18,6 +18,7 @@
 #include <datamanager/data.h>
 #include <datamanager/dataserializer.h>
 #include <models/models.h>
+#include <models/texturelibrary.h>
 #include <tinker/portals/portal.h>
 
 #include "camera.h"
@@ -81,7 +82,7 @@ CGameServer::CGameServer()
 		pRegistration->m_pfnRegisterCallback();
 	}
 	TMsg(L"Done.\n");
-	TMsg(sprintf(L"%d models, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModels(), CRenderer::GetNumTexturesLoaded(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
+	TMsg(sprintf(L"%d models, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModels(), CTextureLibrary::GetNumTextures(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
 
 	mtsrand(iPostSeed);
 

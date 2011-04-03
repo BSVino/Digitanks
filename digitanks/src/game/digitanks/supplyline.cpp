@@ -2,6 +2,8 @@
 
 #include <geometry.h>
 
+#include <models/texturelibrary.h>
+
 #include "dt_renderer.h"
 #include "structures/structure.h"
 #include <team.h>
@@ -33,7 +35,7 @@ void CSupplyLine::Precache()
 {
 	BaseClass::Precache();
 
-	s_iSupplyBeam = CRenderer::LoadTextureIntoGL(L"textures/tendril.png");
+	s_iSupplyBeam = CTextureLibrary::AddTexture(L"textures/tendril.png");
 }
 
 void CSupplyLine::Spawn()
