@@ -109,6 +109,9 @@ void CLaser::PostRender(bool bTransparent)
 	if (!m_bShouldRender)
 		return;
 
+	if (m_hOwner == NULL)
+		return;
+
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());
 
 	r.SetBlend(BLEND_ADDITIVE);
