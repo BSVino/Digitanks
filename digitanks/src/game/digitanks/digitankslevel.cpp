@@ -13,10 +13,17 @@ CDigitanksLevel::CDigitanksLevel()
 	m_iTerrainHeight = 0;
 	m_iTerrainData = 0;
 
+	m_bBuffers = true;
+	m_bPSUs = true;
+	m_bTankLoaders = true;
+	m_bArtilleryLoaders = true;
+
 	m_bInfantryLasers = true;
 	m_bInfantryTreeCutters = true;
 	m_bInfantryFortify = true;
 	m_bEnemyInfantryLasers = true;
+
+	m_iBonusCPUFleetPoints = 0;
 }
 
 CDigitanksLevel::~CDigitanksLevel()
@@ -164,7 +171,15 @@ void CDigitanksLevel::ReadGameRules(const CData* pData)
 	{
 		CData* pChildData = pData->GetChild(i);
 
-		if (pChildData->GetKey() == "InfantryLasers")
+		if (pChildData->GetKey() == "MacroBuffers")
+			m_bBuffers = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "PSUs")
+			m_bPSUs = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "TankFactories")
+			m_bTankLoaders = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "ArtilleryFactories")
+			m_bArtilleryLoaders = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "InfantryLasers")
 			m_bInfantryLasers = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "InfantryTreeCutters")
 			m_bInfantryTreeCutters = pChildData->GetValueBool();
@@ -174,5 +189,7 @@ void CDigitanksLevel::ReadGameRules(const CData* pData)
 			m_bEnemyInfantryLasers = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "StartingLesson")
 			m_sStartingLesson = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "CPUBonusFleetPoints")
+			m_iBonusCPUFleetPoints = pChildData->GetValueInt();
 	}
 }

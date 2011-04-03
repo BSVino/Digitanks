@@ -106,6 +106,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 	if (pNextBuild->m_eUnit == UNIT_SCOUT)
 	{
 		m_hPrimaryCPU->BeginRogueProduction();
+		m_iLastScoutBuilt = DigitanksGame()->GetTurn();
 		return m_hPrimaryCPU->IsProducing();
 	}
 
@@ -388,6 +389,9 @@ void CDigitanksTeam::Bot_AssignDefenders()
 		if (pTank->IsInAttackTeam())
 			continue;
 
+		if (pTank->ShouldStayPut())
+			continue;
+
 		size_t iFirst = rand()%apDefend.size();
 		size_t iStructure = iFirst;
 		CStructure* pDefendStructure;
@@ -545,7 +549,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		m_bCanUpgrade = true;
 
-		if (iScouts < 2)
+		if (iScouts < 2 && DigitanksGame()->GetTurn() > m_iLastScoutBuilt + 5)
 			Bot_AddBuildPriority(UNIT_SCOUT);
 
 		if (m_hInfantryLoader != NULL && !m_hInfantryLoader->IsProducing() && flInfantryFleetRatio < flBuildInfantryRatio && GetUnusedFleetPoints() >= CMechInfantry::InfantryFleetPoints())

@@ -196,6 +196,8 @@ protected:
 	size_t						m_iFleetPointAttackQuota;
 	eastl::vector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
 
+	size_t						m_iLastScoutBuilt;
+
 	CNetworkedVariable<int>		m_iCurrentUpdateX;
 	CNetworkedVariable<int>		m_iCurrentUpdateY;
 	CNetworkedArray<bool, UPDATE_GRID_SIZE*UPDATE_GRID_SIZE> m_abUpdates;

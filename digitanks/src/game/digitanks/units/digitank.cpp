@@ -1106,7 +1106,7 @@ void CDigitank::Move(CNetworkParameters* p)
 
 			CDigitanksEntity* pOtherEntity = dynamic_cast<CDigitanksEntity*>(pEntity);
 			if (pOtherEntity && pOtherEntity->IsTouching(this, vecTouchingPoint))
-				pOtherEntity->FreeFromConfinement(this);
+				pOtherEntity->Rescue(this);
 		}
 	}
 

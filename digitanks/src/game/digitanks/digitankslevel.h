@@ -84,11 +84,18 @@ public:
 	eastl::string			GetAuthor() { return m_sAuthor; }
 	eastl::string			GetDescription() { return m_sDescription; }
 
+	bool					AllowBuffers() { return m_bBuffers; }
+	bool					AllowPSUs() { return m_bPSUs; }
+	bool					AllowTankLoaders() { return m_bTankLoaders; }
+	bool					AllowArtilleryLoaders() { return m_bArtilleryLoaders; }
+
 	bool					AllowInfantryLasers() { return m_bInfantryLasers; }
 	bool					AllowInfantryTreeCutters() { return m_bInfantryTreeCutters; }
 	bool					AllowInfantryFortify() { return m_bInfantryFortify; }
 
 	bool					AllowEnemyInfantryLasers() { return m_bEnemyInfantryLasers; }
+
+	int						GetBonusCPUFleetPoints() { return m_iBonusCPUFleetPoints; }
 
 	eastl::string			GetStartingLesson() { return m_sStartingLesson; }
 
@@ -106,11 +113,18 @@ protected:
 
 	eastl::vector<CLevelUnit>	m_aUnits;
 
+	bool					m_bBuffers;
+	bool					m_bPSUs;
+	bool					m_bTankLoaders;
+	bool					m_bArtilleryLoaders;
+
 	bool					m_bInfantryLasers;
 	bool					m_bInfantryTreeCutters;
 	bool					m_bInfantryFortify;
 
 	bool					m_bEnemyInfantryLasers;
+
+	int						m_iBonusCPUFleetPoints;
 
 	eastl::string			m_sStartingLesson;
 };

@@ -878,7 +878,7 @@ void CSupplier::StartTurn()
 			{
 				float flFlow = GetDataFlow(pDTEnt->GetOrigin());
 				if (flFlow > 0)
-					pDTEnt->FreeFromConfinement(this);
+					pDTEnt->Rescue(this);
 			}
 
 			CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);

@@ -13,7 +13,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 {
 	m_aeBuildPriorities.clear();
 
-	if (m_hPrimaryCPU != NULL)
+	if (m_hPrimaryCPU != NULL && m_hPrimaryCPU->IsActive())
 	{
 		m_hInfantryLoader = NULL;
 		m_hTankLoader = NULL;
@@ -80,7 +80,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 		float flArtilleryFleetRatio = ((float)iArtillery+1)/iTotalFleetPoints;
 		float flBuildArtilleryRatio = flArtilleryRatio/flRatioTotal;
 
-		if (iScouts < 2)
+		if (iScouts < 2 && DigitanksGame()->GetTurn() > m_iLastScoutBuilt + 5)
 			Bot_AddBuildPriority(UNIT_SCOUT);
 
 		if (m_hInfantryLoader != NULL && !m_hInfantryLoader->IsProducing() && flInfantryFleetRatio < flBuildInfantryRatio && GetUnusedFleetPoints() >= CMechInfantry::InfantryFleetPoints())

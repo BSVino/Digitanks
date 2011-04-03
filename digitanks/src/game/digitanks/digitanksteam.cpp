@@ -67,6 +67,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLKV);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iFleetPointAttackQuota);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<CDigitank>, m_ahAttackTeam);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iLastScoutBuilt);
 
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateX);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iCurrentUpdateY);
@@ -94,6 +95,8 @@ CDigitanksTeam::CDigitanksTeam()
 
 	for (size_t i = 0; i < UPDATE_GRID_SIZE*UPDATE_GRID_SIZE; i++)
 		m_abUpdates[i] = false;
+
+	m_iLastScoutBuilt = 0;
 }
 
 CDigitanksTeam::~CDigitanksTeam()

@@ -18,12 +18,13 @@ NETVAR_TABLE_BEGIN(CDigitanksEntity);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
+	SAVEDATA_DEFINE_OUTPUT(OnBecomeVisible);
+	SAVEDATA_DEFINE_OUTPUT(OnRescue);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<class CSupplyLine>, m_ahSupplyLinesIntercepted);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyArea);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
-	SAVEDATA_DEFINE_OUTPUT(OnBecomeVisible);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksEntity);
@@ -451,7 +452,7 @@ bool CDigitanksEntity::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 	return BaseClass::IsTouching(pOther, vecPoint);
 }
 
-void CDigitanksEntity::FreeFromConfinement(CDigitanksEntity* pOther)
+void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 {
 	if (!pOther)
 		return;
@@ -468,6 +469,8 @@ void CDigitanksEntity::FreeFromConfinement(CDigitanksEntity* pOther)
 	m_bImprisoned = false;
 
 	StartTurn();
+
+	CallOutput("OnRescue");
 }
 
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)

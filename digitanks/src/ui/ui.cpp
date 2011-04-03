@@ -414,8 +414,8 @@ void CPurchasePanel::ClosingApplication()
 {
 	m_bClosing = true;
 
-	m_pPurchase->SetText(L"PREORDER NOW\n \n"
-		L"Pre-purchase now and get $3 off the full price");
+	m_pPurchase->SetText(L"LIKE WHAT YOU SEE?\n \n"
+		L"Use the discount code DIGIDEMO to\nget 25% off the full price");
 
 	m_pEmail->SetText(L"");
 
@@ -431,8 +431,8 @@ void CPurchasePanel::OpeningApplication()
 {
 	m_bClosing = false;
 
-	m_pPurchase->SetText(L"PREORDER NOW\n \n"
-		L"Pre-purchase now and get $3 off the full price");
+	m_pPurchase->SetText(L"AVAILABLE NOW\n \n"
+		L"The best way to buy indie games\nis direct from the developer.\n \nIt's the best $12.99 you'll spend this week, I promise.");
 
 	m_pEmail->SetText(L"");
 

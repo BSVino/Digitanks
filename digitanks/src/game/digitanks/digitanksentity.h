@@ -33,6 +33,7 @@ public:
 	virtual float					GetVisibility();
 	virtual void					CalculateVisibility();
 	virtual void					DirtyVisibility() { m_bVisibilityDirty = true; };
+	DECLARE_ENTITY_OUTPUT(OnBecomeVisible);
 
 	virtual bool					GetsConcealmentBonus() const { return true; };
 	virtual float					GetCloakConcealment() const { return 0; };
@@ -49,7 +50,8 @@ public:
 
 	void							Imprison() { m_bImprisoned = true; }
 	bool							IsImprisoned() const { return m_bImprisoned; }
-	void							FreeFromConfinement(CDigitanksEntity* pOther);
+	void							Rescue(CDigitanksEntity* pOther);
+	DECLARE_ENTITY_OUTPUT(OnRescue);
 
 	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
@@ -74,8 +76,6 @@ protected:
 	float							m_flNextDirtyArea;
 
 	bool							m_bImprisoned;
-
-	DECLARE_ENTITY_OUTPUT(OnBecomeVisible);
 };
 
 #endif

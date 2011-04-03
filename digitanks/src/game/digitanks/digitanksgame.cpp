@@ -798,7 +798,11 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		else if (pLevelUnit->m_sClassName == "Powerup")
 			pEntity = GameServer()->Create<CPowerup>("CPowerup");
 		else if (pLevelUnit->m_sClassName == "CPU")
-			pEntity = GameServer()->Create<CCPU>("CCPU");
+		{
+			CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
+			pCPU->AddFleetPoints(pLevel->GetBonusCPUFleetPoints());
+			pEntity = pCPU;
+		}
 		else if (pLevelUnit->m_sClassName == "Counter")
 			pEntity = GameServer()->Create<CBaseEntity>("CCounter");
 		else if (pLevelUnit->m_sClassName == "Electronode")
@@ -809,7 +813,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 			pEntity = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
 		else if (pLevelUnit->m_sClassName == "AutoTurret")
 			pEntity = GameServer()->Create<CStructure>("CAutoTurret");
-		else if (pLevelUnit->m_sClassName == "InfantryLoader")
+		else if (pLevelUnit->m_sClassName == "InfantryFactory")
 		{
 			CLoader* pLoader = GameServer()->Create<CLoader>("CLoader");
 			pLoader->SetBuildUnit(UNIT_INFANTRY);
@@ -2479,7 +2483,8 @@ bool CDigitanksGame::CanBuildMiniBuffers()
 
 bool CDigitanksGame::CanBuildBuffers()
 {
-	return true;
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	return pLevel->AllowBuffers();
 }
 
 bool CDigitanksGame::CanBuildBatteries()
@@ -2489,6 +2494,10 @@ bool CDigitanksGame::CanBuildBatteries()
 
 bool CDigitanksGame::CanBuildPSUs()
 {
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	if (!pLevel->AllowPSUs())
+		return false;
+
 	bool bDisablePSU = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
 	return !bDisablePSU;
 }
@@ -2501,12 +2510,20 @@ bool CDigitanksGame::CanBuildInfantryLoaders()
 
 bool CDigitanksGame::CanBuildTankLoaders()
 {
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	if (!pLevel->AllowTankLoaders())
+		return false;
+
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
 }
 
 bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	if (!pLevel->AllowArtilleryLoaders())
+		return false;
+
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
 	return !bDisableLoaders;
 }
