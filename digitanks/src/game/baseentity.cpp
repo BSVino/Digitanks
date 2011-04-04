@@ -139,7 +139,7 @@ void CBaseEntity::SetOrigin(const Vector& vecOrigin)
 
 CBaseEntity* CBaseEntity::GetEntity(size_t iHandle)
 {
-	if (iHandle == ~0)
+	if (iHandle >= GameServer()->GetMaxEntities())
 		return NULL;
 
 	return s_apEntityList[iHandle];
