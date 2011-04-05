@@ -38,6 +38,7 @@ public:
 		m_bFortified = false;
 		m_bImprisoned = false;
 		m_bActive = true;
+		m_bObjective = false;
 	};
 
 	eastl::string			m_sName;
@@ -48,6 +49,7 @@ public:
 	bool					m_bFortified;
 	bool					m_bImprisoned;
 	bool					m_bActive;
+	bool					m_bObjective;
 	eastl::string			m_sType;
 
 	eastl::vector<CLevelUnitOutput>	m_aOutputs;

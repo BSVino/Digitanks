@@ -843,6 +843,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 		pUnit->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
 		pUnit->SetAngles(EAngle(0, pLevelUnit->m_angOrientation.y, 0));
+		pUnit->SetObjective(pLevelUnit->m_bObjective);
 
 		if (!pLevelUnit->m_bImprisoned)
 		{

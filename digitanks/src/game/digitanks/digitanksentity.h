@@ -62,6 +62,11 @@ public:
 	virtual eastl::string16			GetEntityName() { return L"Entity"; };
 	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
+	void							SetObjective(bool bObjective) { m_bObjective = bObjective; }
+	bool							IsObjective() { return m_bObjective; }
+	DECLARE_ENTITY_INPUT(MakeObjective);
+	DECLARE_ENTITY_INPUT(ClearObjective);
+
 	virtual float					HealthRechargeRate() const { return 0.2f; };
 	virtual float					BaseVisibleRange() const { return 0; };
 	virtual float					TreesReduceVisibility() const { return true; };
@@ -76,6 +81,8 @@ protected:
 	float							m_flNextDirtyArea;
 
 	bool							m_bImprisoned;
+
+	bool							m_bObjective;
 };
 
 #endif

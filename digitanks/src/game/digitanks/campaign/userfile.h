@@ -17,6 +17,8 @@ public:
 	void							Pickup(class CDigitank* pTank);
 	DECLARE_ENTITY_OUTPUT(OnPickup);
 
+	virtual eastl::string16			GetEntityName() { return L"Your File"; };
+
 protected:
 };
 

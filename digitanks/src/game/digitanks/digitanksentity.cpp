@@ -25,9 +25,12 @@ SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyArea);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bObjective);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksEntity);
+	INPUT_DEFINE(MakeObjective);
+	INPUT_DEFINE(ClearObjective);
 INPUTS_TABLE_END();
 
 void CDigitanksEntity::Spawn()
@@ -43,6 +46,7 @@ void CDigitanksEntity::Spawn()
 	m_flNextDirtyArea = 0;
 
 	m_bImprisoned = false;
+	m_bObjective = false;
 
 	CalculateVisibility();
 }
@@ -526,4 +530,14 @@ void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent)
 	pContext->RenderModel(GetModel());
 
 	glPopAttrib();
+}
+
+void CDigitanksEntity::MakeObjective(const eastl::vector<eastl::string16>& sArgs)
+{
+	m_bObjective = true;
+}
+
+void CDigitanksEntity::ClearObjective(const eastl::vector<eastl::string16>& sArgs)
+{
+	m_bObjective = false;
 }

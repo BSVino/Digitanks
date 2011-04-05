@@ -27,6 +27,7 @@
 #include <game/digitanks/units/maintank.h>
 #include <game/digitanks/dt_camera.h>
 #include <game/digitanks/weapons/cameraguided.h>
+#include <game/digitanks/campaign/userfile.h>
 #include "weaponpanel.h"
 #include "scenetree.h"
 
@@ -991,17 +992,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (!pDTEntity)
 			continue;
 
-		if (pDTEntity->GetVisibility() == 0)
-			continue;
-
-		CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
-
-		if (!pSelectable)
-			continue;
-
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
-		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
-
 		Vector vecOrigin = pEntity->GetOrigin();
 
 		Vector vecScreen = GameServer()->GetRenderer()->ScreenPosition(vecOrigin);
@@ -1015,6 +1005,28 @@ void CHUD::Paint(int x, int y, int w, int h)
 		// Cull tanks behind the camera
 		if (vecForward.Dot((vecOrigin-GameServer()->GetCamera()->GetCameraPosition()).Normalized()) < 0)
 			continue;
+
+		if (pDTEntity->IsObjective() && pDTEntity->IsActive())
+		{
+			eastl::string16 sText = sprintf(L"Objective: %s", pDTEntity->GetEntityName());
+			float flWidth = CLabel::GetTextWidth(sText, sText.length(), L"text", 13);
+			CLabel::PaintText(sText, sText.length(), L"text", 13, vecScreen.x - flWidth/2, vecScreen.y + 60);
+
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ADDITIVE);
+			PaintSheet(&m_HUDSheet, "Objective", (int)vecScreen.x - 50, (int)vecScreen.y - 50, 100, 100);
+		}
+
+		if (pDTEntity->GetVisibility() == 0)
+			continue;
+
+		CSelectable* pSelectable = dynamic_cast<CSelectable*>(pEntity);
+
+		if (!pSelectable)
+			continue;
+
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
 
 		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
 		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
