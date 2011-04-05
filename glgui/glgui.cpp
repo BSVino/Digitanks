@@ -1395,6 +1395,18 @@ void CPictureButton::SetSheetTexture(size_t iSheet, int sx, int sy, int sw, int 
 	m_iTH = th;
 }
 
+void CPictureButton::SetSheetTexture(size_t iSheet, const Rect& rArea, int tw, int th)
+{
+	m_bSheet = true;
+	m_iTexture = iSheet;
+	m_iSX = rArea.x;
+	m_iSY = rArea.y;
+	m_iSW = rArea.w;
+	m_iSH = rArea.h;
+	m_iTW = tw;
+	m_iTH = th;
+}
+
 CCheckBox::CCheckBox()
 	: CButton(0, 0, 10, 10, L"", true)
 {

@@ -2,11 +2,18 @@
 #define DT_HUD_H
 
 #include "glgui/glgui.h"
+#include <models/texturesheet.h>
 #include <common.h>
 #include "digitanks/digitanksgame.h"
 #include "updatespanel.h"
+#include <models/texturelibrary.h>
 
 #define NUM_BUTTONS 10
+
+inline void SetButtonSheetTexture(class glgui::CPictureButton* pButton, CTextureSheet* pSheet, const eastl::string& sArea)
+{
+	pButton->SetSheetTexture(pSheet->GetSheet(), pSheet->GetArea(sArea), pSheet->GetSheetWidth(), pSheet->GetSheetHeight());
+}
 
 typedef enum
 {
@@ -127,15 +134,15 @@ public:
 	class CUpdatesPanel*		GetUpdatesPanel() { return m_pUpdatesPanel; }
 
 	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
-	static void					PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c = Color(255,255,255));
-	static size_t				GetHUDSheet();
+	static void					PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static const CTextureSheet&	GetHUDSheet();
 	static void					GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static void					GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c = Color(255,255,255));
-	static size_t				GetWeaponSheet();
-	static size_t				GetButtonSheet();
-	static size_t				GetDownloadSheet();
+	static const CTextureSheet&	GetWeaponSheet();
+	static const CTextureSheet&	GetButtonSheet();
+	static const CTextureSheet&	GetDownloadSheet();
 	static size_t				GetActionTanksSheet();
 	static size_t				GetPurchasePanel();
 	static size_t				GetShieldTexture();
@@ -155,7 +162,7 @@ public:
 	void						SetupMenu(menumode_t eMenuMode);
 
 	void						SetButtonListener(int iButton, IEventListener::Callback pfnCallback);
-	void						SetButtonTexture(int iButton, size_t iX, size_t iY);
+	void						SetButtonTexture(int iButton, const eastl::string& sArea);
 	void						SetButtonColor(int iButton, Color clrButton);
 	void						SetButtonInfo(int iButton, const eastl::string16& pszInfo);
 	void						SetButtonTooltip(int iButton, const eastl::string16& sTooltip);
@@ -343,11 +350,11 @@ protected:
 	class CWeaponPanel*			m_pWeaponPanel;
 	class CSceneTree*			m_pSceneTree;
 
-	size_t						m_iHUDSheet;
-	size_t						m_iUnitsSheet;
-	size_t						m_iWeaponsSheet;
-	size_t						m_iButtonSheet;
-	size_t						m_iDownloadSheet;
+	CTextureSheet				m_HUDSheet;
+	CTextureSheet				m_UnitsSheet;
+	CTextureSheet				m_WeaponsSheet;
+	CTextureSheet				m_ButtonSheet;
+	CTextureSheet				m_DownloadSheet;
 	size_t						m_iShieldTexture;
 
 	size_t						m_iTurnSound;

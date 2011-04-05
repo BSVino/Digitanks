@@ -1972,7 +1972,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
 			pHUD->SetButtonColor(0, Color(100, 100, 100));
-			pHUD->SetButtonTexture(0, 192, 64);
+			pHUD->SetButtonTexture(0, "Move");
 			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q");
 			pHUD->SetButtonTooltip(0, L"Cancel Auto-Move");
 		}
@@ -1986,9 +1986,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 			if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-				pHUD->SetButtonTexture(0, 192, 64);
+				pHUD->SetButtonTexture(0, "Cancel");
 			else
-				pHUD->SetButtonTexture(0, 128, 128);
+				pHUD->SetButtonTexture(0, "Move");
 
 			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q");
 			pHUD->SetButtonTooltip(0, L"Move");
@@ -1998,7 +1998,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonListener(1, NULL);
 			pHUD->SetButtonColor(1, Color(100, 100, 100));
-			pHUD->SetButtonTexture(1, 64, 192);
+			pHUD->SetButtonTexture(1, "Rotate");
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nNOT ENOUGH ENERGY\n \nShortcut: W");
 			pHUD->SetButtonTooltip(1, L"Rotate");
 		}
@@ -2012,9 +2012,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(1, Color(100, 100, 100));
 
 			if (DigitanksGame()->GetControlMode() == MODE_TURN)
-				pHUD->SetButtonTexture(1, 192, 64);
+				pHUD->SetButtonTexture(1, "Cancel");
 			else
-				pHUD->SetButtonTexture(1, 64, 192);
+				pHUD->SetButtonTexture(1, "Rotate");
 			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
 			pHUD->SetButtonTooltip(1, L"Rotate");
 		}
@@ -2023,13 +2023,13 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			if (IsSentried())
 			{
-				pHUD->SetButtonTexture(5, 64, 128);
+				pHUD->SetButtonTexture(5, "Mobilize");
 				pHUD->SetButtonInfo(5, L"MOBILIZE\n \nCancel the 'Hold Position' order.\n \nShortcut: A");
 				pHUD->SetButtonTooltip(5, L"Mobilize");
 			}
 			else
 			{
-				pHUD->SetButtonTexture(5, 0, 192);
+				pHUD->SetButtonTexture(5, "Sentry");
 				pHUD->SetButtonInfo(5, L"HOLD POSITION\n \nThis unit will hold position and not require orders until told otherwise.\n \nShortcut: A");
 				pHUD->SetButtonTooltip(5, L"Hold Position");
 			}
@@ -2043,13 +2043,13 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonInfo(6, L"DEACTIVATE CLOAKING DEVICE\n \nClick to turn off this tank's cloaking device.\n \nShortcut: S");
 				pHUD->SetButtonTooltip(6, L"Uncloak");
-				pHUD->SetButtonTexture(6, 320, 192);
+				pHUD->SetButtonTexture(6, "Uncloak");
 			}
 			else
 			{
 				pHUD->SetButtonInfo(6, L"ACTIVATE CLOAKING DEVICE\n \nThis tank has a cloaking device available. Click to activate it.\n \nShortcut: S");
 				pHUD->SetButtonTooltip(6, L"Cloak");
-				pHUD->SetButtonTexture(6, 256, 192);
+				pHUD->SetButtonTexture(6, "Cloak");
 			}
 			pHUD->SetButtonListener(6, CHUD::Cloak);
 			pHUD->SetButtonColor(6, Color(0, 0, 150));
@@ -2057,7 +2057,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 		if (GetNumWeapons() > 1)
 		{
-			pHUD->SetButtonTexture(7, 256, 64);
+			pHUD->SetButtonTexture(7, "ChooseWeapon");
 			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
 			pHUD->SetButtonTooltip(7, L"Choose Weapon");
 			pHUD->SetButtonListener(7, CHUD::ChooseWeapon);
@@ -2075,7 +2075,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			if (IsFortified() || IsFortifying())
 			{
-				pHUD->SetButtonTexture(8, 64, 128);
+				pHUD->SetButtonTexture(8, "Mobilize");
 				pHUD->SetButtonInfo(8, L"MOBILIZE\n \nAllows this unit to move again.\n \nShortcut: F");
 				pHUD->SetButtonTooltip(8, L"Mobilize");
 			}
@@ -2083,19 +2083,19 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				if (IsMobileCPU())
 				{
-					pHUD->SetButtonTexture(8, 384, 192);
+					pHUD->SetButtonTexture(8, "DeployCPU");
 					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this MCP deploy and create a CPU. The CPU will be the center of operations for your base. This action cannot be undone.\n \nShortcut: F");
 					pHUD->SetButtonTooltip(8, L"Deploy");
 				}
 				else if (IsArtillery())
 				{
-					pHUD->SetButtonTexture(8, 320, 64);
+					pHUD->SetButtonTexture(8, "Deploy");
 					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.\n \nShortcut: F");
 					pHUD->SetButtonTooltip(8, L"Deploy");
 				}
 				else
 				{
-					pHUD->SetButtonTexture(8, 0, 128);
+					pHUD->SetButtonTexture(8, "Fortify");
 					pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.\n \nShortcut: F");
 					pHUD->SetButtonTooltip(8, L"Fortify");
 				}
@@ -2110,7 +2110,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonListener(2, NULL);
 				pHUD->SetButtonColor(2, glgui::g_clrBox);
-				pHUD->SetButtonTexture(2, 0, 0);
+				pHUD->SetButtonTexture(2, "Aim");
 
 				eastl::string16 s = L"AIM AND FIRE\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.";
 
@@ -2135,10 +2135,10 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 					pHUD->SetButtonColor(2, glgui::g_clrBox);
 				}*/
 
-				pHUD->SetButtonTexture(2, 0, 0);
+				pHUD->SetButtonTexture(2, "Aim");
 
 				if (DigitanksGame()->GetControlMode() == MODE_AIM)
-					pHUD->SetButtonTexture(2, 192, 64);
+					pHUD->SetButtonTexture(2, "Cancel");
 
 				eastl::string16 s;
 				if (IsInfantry())
@@ -2166,7 +2166,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (HasBonusPoints() && m_iBonusLevel < 5)
 		{
 			pHUD->SetButtonListener(4, CHUD::Promote);
-			pHUD->SetButtonTexture(4, 192, 128);
+			pHUD->SetButtonTexture(4, "Promote");
 			pHUD->SetButtonColor(4, glgui::g_clrBox);
 			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T");
 			pHUD->SetButtonTooltip(4, L"Upgrade");
@@ -2180,9 +2180,9 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(9, Color(100, 100, 100));
 
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
-				pHUD->SetButtonTexture(9, 192, 64);
+				pHUD->SetButtonTexture(9, "Cancel");
 			else
-				pHUD->SetButtonTexture(9, 448, 192);
+				pHUD->SetButtonTexture(9, "Airstrike");
 
 			pHUD->SetButtonListener(9, CHUD::FireSpecial);
 			pHUD->SetButtonInfo(9, L"CALL AN AIRSTRIKE\n \nThis unit can call an airstrike. Click to aim and fire the airstrike.\n \nShortcut: G");
@@ -2194,7 +2194,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (!IsScout())
 		{
 			pHUD->SetButtonListener(0, CHUD::PromoteAttack);
-			pHUD->SetButtonTexture(0, 256, 128);
+			pHUD->SetButtonTexture(0, "UpgradeAttack");
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 
 			eastl::string16 s1;
@@ -2209,7 +2209,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (!IsArtillery() && !IsScout())
 		{
 			pHUD->SetButtonListener(1, CHUD::PromoteDefense);
-			pHUD->SetButtonTexture(1, 320, 128);
+			pHUD->SetButtonTexture(1, "UpgradeShield");
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			eastl::string16 s;
@@ -2222,7 +2222,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		}
 
 		pHUD->SetButtonListener(2, CHUD::PromoteMovement);
-		pHUD->SetButtonTexture(2, 384, 128);
+		pHUD->SetButtonTexture(2, "UpgradeMovement");
 		pHUD->SetButtonColor(2, Color(150, 150, 150));
 
 		eastl::string16 s2;
@@ -2234,7 +2234,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonTooltip(2, L"Upgrade Movement");
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
-		pHUD->SetButtonTexture(9, 192, 64);
+		pHUD->SetButtonTexture(9, "Cancel");
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
 		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
 		pHUD->SetButtonTooltip(9, L"Return");
@@ -3193,7 +3193,9 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 		eastl::string16 sTurns = sprintf(L"+%d", GetFortifyLevel());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 
-		glgui::CBaseControl::PaintSheet(CHUD::GetButtonSheet(), (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 0, 128, 64, 64, 512, 256);
+		const Rect& rArea = CHUD::GetButtonSheet().GetArea("Fortify");
+		glgui::CBaseControl::PaintSheet(CHUD::GetButtonSheet().GetSheet(), (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight,
+			rArea.x, rArea.y, rArea.w, rArea.h, CHUD::GetButtonSheet().GetSheetWidth(), CHUD::GetButtonSheet().GetSheetHeight());
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
 		flYPosition -= flIconFontHeight;

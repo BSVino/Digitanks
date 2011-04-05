@@ -124,7 +124,7 @@ void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 
 	if (!IsConstructing() && !IsUpgrading() && !m_bHasFired)
 	{
-		pHUD->SetButtonTexture(2, 0, 0);
+		pHUD->SetButtonTexture(2, "Aim");
 
 		bool bHasTargets = GetTargets().size() > 0;
 		if (bHasTargets && (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM))

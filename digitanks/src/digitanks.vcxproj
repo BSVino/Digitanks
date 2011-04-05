@@ -197,6 +197,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="models\texturelibrary.cpp" />
+    <ClCompile Include="models\texturesheet.cpp" />
     <ClCompile Include="shaders\prop.cpp" />
     <ClCompile Include="ui\chatbox.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />
@@ -309,6 +310,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\level.h" />
     <ClInclude Include="game\networkedeffect.h" />
     <ClInclude Include="models\texturelibrary.h" />
+    <ClInclude Include="models\texturesheet.h" />
     <ClInclude Include="shaders\dt_shaders.h" />
     <ClInclude Include="ui\chatbox.h" />
     <ClInclude Include="ui\debugdraw.h" />

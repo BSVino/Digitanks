@@ -162,7 +162,7 @@ void CUpdatesPanel::Layout()
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
+					pUpdate->SetButtonColor(Color(0, 0, 0));
 					pUpdate->SetAlpha(200*2/3);
 				}
 			}
@@ -279,16 +279,17 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
-	int iDownloadWidth = 512;
-	int iDownloadHeight = 256;
+	int iDownloadWidth = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+	int iDownloadHeight = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
 
 	if (!pInfo)
 	{
-		iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-		sx = 64;
-		sy = 192;
-		sw = 64;
-		sh = 64;
+		iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+		Rect rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DownloadButton");
+		sx = rArea.x;
+		sy = rArea.y;
+		sw = rArea.w;
+		sh = rArea.h;
 		tw = iDownloadWidth;
 		th = iDownloadHeight;
 		return;
@@ -299,288 +300,197 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTURE)
 	{
+		Rect rArea;
 		switch (pInfo->m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 128;
-			sy = 64;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("CPU");
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			break;
 
 		case STRUCTURE_BUFFER:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 320;
-			sy = 0;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("MacroBuffer");
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			break;
 
 		case STRUCTURE_PSU:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 192;
-			sy = 128;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("PSU");
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			break;
 
 		case STRUCTURE_INFANTRYLOADER:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 64;
-			sy = 128;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ResistorLoader");
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			break;
 
 		case STRUCTURE_TANKLOADER:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 448;
-			sy = 128;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DigitankLoader");
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 128;
-			sy = 0;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ArtilleryLoader");
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			break;
 
 		default:
-			return;
+			break;
 		}
+
+		sx = rArea.x;
+		sy = rArea.y;
+		sw = rArea.w;
+		sh = rArea.h;
+		return;
 	}
 	else if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 	{
+		eastl::string sArea;
+		const CTextureSheet* pSheet;
 		switch (pInfo->m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 320;
-			sy = 64;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			sArea = "CPUPower";
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			return;
 
 		case UPDATETYPE_BANDWIDTH:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_CPU)
-			{
-				sx = 192;
-				sy = 64;
-				return;
-			}
+				sArea = "CPUBandwidth";
 			else
-			{
-				sx = 384;
-				sy = 0;
-				return;
-			}
+				sArea = "BufferBandwidth";
+			break;
 
 		case UPDATETYPE_FLEETSUPPLY:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_CPU)
-			{
-				sx = 256;
-				sy = 64;
-				return;
-			}
+				sArea = "CPUFleet";
 			else
-			{
-				sx = 0;
-				sy = 64;
-				return;
-			}
+				sArea = "BufferFleet";
+			break;
 
 		case UPDATETYPE_SUPPORTENERGY:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 448;
-			sy = 0;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sArea = "BufferEnergy";
+			break;
 
 		case UPDATETYPE_SUPPORTRECHARGE:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 64;
-			sy = 64;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sArea = "BufferRecharge";
+			break;
 
 		case UPDATETYPE_TANKATTACK:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-			{
-				sx = 384;
-				sy = 64;
-				return;
-			}
+				sArea = "ResistorAttack";
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-			{
-				sx = 256;
-				sy = 128;
-				return;
-			}
+				sArea = "DigitankAttack";
 			else
-			{
-				sx = 0;
-				sy = 0;
-				return;
-			}
+				sArea = "ArtilleryAttack";
+			break;
 
 		case UPDATETYPE_TANKDEFENSE:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-			{
-				sx = 448;
-				sy = 64;
-				return;
-			}
+				sArea = "ResistorAttack";
 			else
-			{
-				sx = 320;
-				sy = 128;
-				return;
-			}
+				sArea = "DigitankAttack";
+			break;
 
 		case UPDATETYPE_TANKMOVEMENT:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-			{
-				sx = 128;
-				sy = 128;
-				return;
-			}
+				sArea = "ResistorMovement";
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-			{
-				sx = 0;
-				sy = 192;
-				return;
-			}
+				sArea = "DigitankMovement";
 			else
-			{
-				sx = 192;
-				sy = 0;
-				return;
-			}
+				sArea = "ArtilleryMovement";
+			break;
 
 		case UPDATETYPE_TANKHEALTH:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-			{
-				sx = 0;
-				sy = 128;
-				return;
-			}
+				sArea = "ResistorMovement";
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-			{
-				sx = 384;
-				sy = 128;
-				return;
-			}
+				sArea = "DigitankMovement";
 			else
-			{
-				sx = 64;
-				sy = 0;
-				return;
-			}
+				sArea = "ArtilleryMovement";
+			break;
 
 		case UPDATETYPE_TANKRANGE:
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sx = 256;
-			sy = 0;
-			sw = 64;
-			sh = 64;
-			tw = iDownloadWidth;
-			th = iDownloadHeight;
-			return;
+			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
+			sArea = "ArtilleryRange";
+			break;
 		}
+
+		Rect rArea = pSheet->GetArea(sArea);
+		sx = rArea.x;
+		sy = rArea.y;
+		sw = rArea.w;
+		sh = rArea.h;
+		tw = pSheet->GetSheetWidth();
+		th = pSheet->GetSheetHeight();
+		return;
 	}
 	else if (pInfo->m_eUpdateClass == UPDATECLASS_UNITSKILL)
 	{
+		eastl::string sArea;
+		const CTextureSheet* pSheet;
+
 		switch (pInfo->m_eUpdateType)
 		{
 		case UPDATETYPE_SKILL_CLOAK:
-			iSheet = DigitanksWindow()->GetHUD()->GetButtonSheet();
-			sx = 256;
-			sy = 192;
-			sw = 64;
-			sh = 64;
-			tw = iMenuWidth;
-			th = iMenuHeight;
-			return;
+			sArea = "Cloak";
+			pSheet = &DigitanksWindow()->GetHUD()->GetButtonSheet();
+			break;
 
 		case UPDATETYPE_WEAPON_CHARGERAM:
-			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
-			DigitanksWindow()->GetHUD()->GetWeaponSheet(WEAPON_CHARGERAM, sx, sy, sw, sh, tw, th);
-			return;
+			sArea = "ChargeRam";
+			pSheet = &DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			break;
 
 		case UPDATETYPE_WEAPON_AOE:
-			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
-			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_AOE, sx, sy, sw, sh, tw, th);
-			return;
+			sArea = "AOE";
+			pSheet = &DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			break;
 
 		case UPDATETYPE_WEAPON_CLUSTER:
-			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
-			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_CLUSTERBOMB, sx, sy, sw, sh, tw, th);
-			return;
+			sArea = "ClusterBomb";
+			pSheet = &DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			break;
 
 		case UPDATETYPE_WEAPON_ICBM:
-			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
-			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_ICBM, sx, sy, sw, sh, tw, th);
-			return;
+			sArea = "ICBM";
+			pSheet = &DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			break;
 
 		case UPDATETYPE_WEAPON_DEVASTATOR:
-			iSheet = DigitanksWindow()->GetHUD()->GetWeaponSheet();
-			DigitanksWindow()->GetHUD()->GetWeaponSheet(PROJECTILE_DEVASTATOR, sx, sy, sw, sh, tw, th);
-			return;
+			sArea = "Devastator";
+			pSheet = &DigitanksWindow()->GetHUD()->GetWeaponSheet();
+			break;
 		}
+
+		Rect rArea = pSheet->GetArea(sArea);
+		sx = rArea.x;
+		sy = rArea.y;
+		sw = rArea.w;
+		sh = rArea.h;
+		tw = pSheet->GetSheetWidth();
+		th = pSheet->GetSheetHeight();
+		return;
 	}
 
 	return;

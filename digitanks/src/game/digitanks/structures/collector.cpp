@@ -124,7 +124,7 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 
 	if (!IsConstructing() && !IsUpgrading() && CanStructureUpgrade())
 	{
-		pHUD->SetButtonTexture(0, 448, 0);
+		pHUD->SetButtonTexture(0, "PSU");
 
 		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{

@@ -560,7 +560,7 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintSheet(CHUD::GetHUDSheet(), x + w + 10, y + h/2 - 222/2, 145, 211, 878, 414, 145, 211, 1024, 1024);
+		CHUD::PaintHUDSheet("ElectronodeExample", x + w + 10, y + h/2 - 222/2, 145, 211);
 	}
 }
 

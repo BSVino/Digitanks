@@ -314,21 +314,26 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 		size_t iX = x+h+h+h+4;
 
+		size_t iSheetWidth = CHUD::GetButtonSheet().GetSheetWidth();
+		size_t iSheetHeight = CHUD::GetButtonSheet().GetSheetHeight();
 		if (pTank->IsFortified() || pTank->IsFortifying())
 		{
-			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet(), iX, y+4, iSize, iSize, 0, 128, 64, 64, 512, 256);
+			const Rect& rArea = CHUD::GetButtonSheet().GetArea("Fortify");
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet(), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
 			iX += h;
 		}
 
 		if (pTank->IsSentried())
 		{
-			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet(), iX, y+4, iSize, iSize, 0, 192, 64, 64, 512, 256);
+			const Rect& rArea = CHUD::GetButtonSheet().GetArea("Sentry");
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet(), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
 			iX += h;
 		}
 
 		if (pTank->HasGoalMovePosition())
 		{
-			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet(), iX, y+4, iSize, iSize, 128, 128, 64, 64, 512, 256);
+			const Rect& rArea = CHUD::GetButtonSheet().GetArea("Move");
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet(), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
 			iX += h;
 		}
 	}

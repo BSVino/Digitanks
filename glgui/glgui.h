@@ -7,6 +7,7 @@
 #include <color.h>
 #include <maths.h>
 #include <common.h>
+#include <geometry.h>
 
 // Not my favorite hack.
 #define EVENT_CALLBACK(type, pfn) \
@@ -592,6 +593,7 @@ namespace glgui
 
 		virtual void	SetTexture(size_t iTexture);
 		virtual void	SetSheetTexture(size_t iSheet, int sx, int sy, int sw, int sh, int tw, int th);
+		virtual void	SetSheetTexture(size_t iSheet, const Rect& rArea, int tw, int th);
 		virtual void	ShowBackground(bool bShow) { m_bShowBackground = bShow; };
 
 	protected:

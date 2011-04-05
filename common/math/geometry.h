@@ -4,6 +4,28 @@
 #include "vector.h"
 #include <EASTL/vector.h>
 
+class Rect
+{
+public:
+	Rect()
+	{
+		x = 0;
+		y = 0;
+		w = 0;
+		h = 0;
+	}
+
+	Rect(int X, int Y, int W, int H)
+	{
+		x = X;
+		y = Y;
+		w = W;
+		h = H;
+	}
+
+	int x, y, w, h;
+};
+
 class Ray
 {
 public:

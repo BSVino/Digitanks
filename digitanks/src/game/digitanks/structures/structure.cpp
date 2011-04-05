@@ -318,7 +318,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		eastl::string16 sBandwidth = sprintf(L": %.1f", Bandwidth());
 		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 537, 350, 20, 20);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("BandwidthIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
 
 		glgui::CLabel::PaintText(sBandwidth, sBandwidth.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
@@ -330,7 +330,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		eastl::string16 sFleetPoints = sprintf(L": %d", FleetPoints());
 		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 557, 350, 20, 20);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("FleetPointsIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
 
 		glgui::CLabel::PaintText(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
@@ -342,7 +342,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		eastl::string16 sPower = sprintf(L": %.1f", Power());
 		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), sFont, iIconFontSize);
 
-		DigitanksWindow()->GetHUD()->PaintHUDSheet((int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight, 517, 350, 20, 20);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("PowerIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
 
 		glgui::CLabel::PaintText(sPower, sPower.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 

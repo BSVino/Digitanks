@@ -160,7 +160,7 @@ void CMainMenu::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 
 		c.SetBlend(BLEND_ALPHA);
-		CHUD::PaintHUDSheet(20, 20, 350, 730, 0, 0, 350, 730);
+		CHUD::PaintHUDSheet("MainMenu", 20, 20, 350, 730);
 		if (!m_pCredits->IsVisible())
 			CRootPanel::PaintTexture(DigitanksWindow()->GetLunarWorkshopLogo(), CRootPanel::Get()->GetWidth()-200-20, CRootPanel::Get()->GetHeight()-200, 200, 200);
 	}

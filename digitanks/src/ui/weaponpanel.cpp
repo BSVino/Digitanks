@@ -193,7 +193,7 @@ void CWeaponPanel::SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon)
 	int sx, sy, sw, sh, tw, th;
 	CHUD::GetWeaponSheet(eWeapon, sx, sy, sw, sh, tw, th);
 
-	pWeapon->SetSheetTexture(CHUD::GetWeaponSheet(), sx, sy, sw, sh, tw, th);
+	pWeapon->SetSheetTexture(CHUD::GetWeaponSheet().GetSheet(), sx, sy, sw, sh, tw, th);
 }
 
 CWeaponButton::CWeaponButton(CWeaponPanel* pPanel)

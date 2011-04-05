@@ -7,7 +7,6 @@
 
 #include <tinker/cvar.h>
 
-#include <models/texturelibrary.h>
 #include <sound/sound.h>
 #include <renderer/renderer.h>
 
@@ -146,7 +145,12 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 }
 
 CHUD::CHUD()
-	: CPanel(0, 0, 100, 100)
+	: CPanel(0, 0, 100, 100),
+	m_HUDSheet(L"textures/hud/hud-sheet.txt"),
+	m_UnitsSheet(L"textures/hud/units-sheet.txt"),
+	m_WeaponsSheet(L"textures/hud/hud-weapons-01.txt"),
+	m_ButtonSheet(L"textures/hud/hud-menu-sheet-01.txt"),
+	m_DownloadSheet(L"textures/hud/hud-download-sheet-01.txt")
 {
 	m_bNeedsUpdate = false;
 
@@ -162,11 +166,6 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_iHUDSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-sheet.png");
-	m_iUnitsSheet = CTextureLibrary::AddTexture(L"textures/hud/units-sheet.png");
-	m_iWeaponsSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-weapons-01.png");
-	m_iButtonSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-menu-sheet-01.png");
-	m_iDownloadSheet = CTextureLibrary::AddTexture(L"textures/hud/hud-download-sheet-01.png");
 	m_iKeysSheet = CTextureLibrary::AddTexture(L"textures/hud/keys.png");
 	m_iActionTanksSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/tanks.png");
 	m_iActionSignsSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/signs.png");
@@ -307,7 +306,7 @@ CHUD::CHUD()
 	AddControl(m_pSceneTree, true);
 
 	m_pTurnButton = new CPictureButton(L"TURN");
-	m_pTurnButton->SetSheetTexture(m_iHUDSheet, 0, 730, 160, 120, 1024, 1024);
+	SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "EndTurn");
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
 	AddControl(m_pTurnButton);
@@ -395,13 +394,13 @@ void CHUD::Layout()
 			{
 			case ACTIONTYPE_WELCOME:
 				// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
+				SetButtonSheetTexture(pButton, &m_HUDSheet, "FleetPointsIcon");
 				pButton->SetTooltip(L"Intro");
 				break;
 
 			case ACTIONTYPE_CONTROLS:
 				// Use the fleet logo, which is also the digitanks logo, for the welcome icon.
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 557, 350, 20, 20, 1024, 1024);
+				SetButtonSheetTexture(pButton, &m_HUDSheet, "FleetPointsIcon");
 				pButton->SetTooltip(L"Controls");
 				break;
 
@@ -410,7 +409,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Structure Complete");
 				}
 				break;
@@ -420,7 +419,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Move Canceled");
 				}
 				break;
@@ -430,7 +429,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Enemy Sighted");
 				}
 				break;
@@ -440,7 +439,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Unit Damaged");
 				}
 				break;
@@ -450,7 +449,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Enemy Sighted");
 				}
 				break;
@@ -460,7 +459,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Move Completed");
 				}
 				break;
@@ -470,7 +469,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Orders Needed");
 				}
 				break;
@@ -480,7 +479,7 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Upgrade Compeleted");
 				}
 				break;
@@ -490,18 +489,18 @@ void CHUD::Layout()
 				{
 					int sx, sy, sw, sh, tw, th;
 					GetUnitSheet(hUnit->GetUnitType(), sx, sy, sw, sh, tw, th);
-					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iUnitsSheet, sx, sy, sw, sh, tw, th);
+					pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), sx, sy, sw, sh, tw, th);
 					pButton->SetTooltip(L"Unit Ready");
 				}
 				break;
 
 			case ACTIONTYPE_DOWNLOADUPDATES:
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
+				SetButtonSheetTexture(pButton, &m_HUDSheet, "BandwidthIcon");
 				pButton->SetTooltip(L"Download Grid");
 				break;
 
 			case ACTIONTYPE_DOWNLOADCOMPLETE:
-				pButton->SetSheetTexture(DigitanksWindow()->GetHUD()->m_iHUDSheet, 537, 350, 20, 20, 1024, 1024);
+				SetButtonSheetTexture(pButton, &m_HUDSheet, "BandwidthIcon");
 				pButton->SetTooltip(L"Download Complete");
 				break;
 			}
@@ -980,7 +979,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 
-		PaintHUDSheet(iWidth - 208, 0, 208, 341, 816, 683, 208, 341);
+		PaintHUDSheet("TeamInfoBackground", iWidth - 208, 0, 208, 341);
 	}
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -1084,7 +1083,10 @@ void CHUD::Paint(int x, int y, int w, int h)
 					CRenderingContext c(GameServer()->GetRenderer());
 					c.SetBlend(BLEND_ALPHA);
 
-					CBaseControl::PaintSheet(m_iButtonSheet, (int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize, 0, 128, 64, 64, 512, 256);
+					Rect rArea = m_ButtonSheet.GetArea("Fortify");
+					CBaseControl::PaintSheet(m_ButtonSheet.GetSheet(),
+						(int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize,
+						rArea.x, rArea.y, rArea.w, rArea.y, m_ButtonSheet.GetSheetWidth(), m_ButtonSheet.GetSheetHeight());
 					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, flXPosition - 13, flYPosition - 3);
 				}
 			}
@@ -1152,7 +1154,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			int iWidth = 77*2/3;
 			int iHeight = 39*2/3;
 
-			CHUD::PaintHUDSheet((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth + 2), iWidth, iHeight, 522, 311, 77, 39, Color(255, 255, 255, 255));
+			CHUD::PaintHUDSheet("TankDisabled", (int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth + 2), iWidth, iHeight, Color(255, 255, 255, 255));
 
 			int iFontSize = 17;
 
@@ -1185,7 +1187,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		c.SetBlend(BLEND_ALPHA);
 
 		// Main control pannel
-		PaintHUDSheet(iWidth/2 - 720/2, iHeight-160, 720, 160, 0, 864, 720, 160);
+		PaintHUDSheet("MainControlPanel", iWidth/2 - 720/2, iHeight-160, 720, 160);
 
 		if (bShowCPUStuff && (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN))
 		{
@@ -1193,17 +1195,17 @@ void CHUD::Paint(int x, int y, int w, int h)
 			{
 				int iArrowWidth = 50;
 				int iArrowHeight = 82;
-				PaintHUDSheet(m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight, 920, 20, 65, 108);
+				PaintHUDSheet("UpdatesArrow", m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight);
 			}
 
-			PaintHUDSheet(iWidth - 190, 10, 20, 20, 517, 350, 20, 20);
-			PaintHUDSheet(iWidth - 190, 40, 20, 20, 557, 350, 20, 20);
-			PaintHUDSheet(iWidth - 190, 70, 20, 20, 537, 350, 20, 20);
+			PaintHUDSheet("PowerIcon", iWidth - 190, 10, 20, 20);
+			PaintHUDSheet("FleetPointsIcon", iWidth - 190, 40, 20, 20);
+			PaintHUDSheet("BandwidthIcon", iWidth - 190, 70, 20, 20);
 
-			PaintHUDSheet(m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600, 600, 0, 278, 600);
+			PaintHUDSheet("TurnReport", m_pTurnInfo->GetLeft()-15, m_pTurnInfo->GetBottom()-585, 278, 600);
 
 			int iResearchWidth = 617;
-			PaintHUDSheet(iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35, 350, 628, 617, 57);
+			PaintHUDSheet("ResearchBar", iWidth/2 - iResearchWidth/2, 0, iResearchWidth, 35);
 
 			CRootPanel::PaintRect(iWidth/2 - iResearchWidth/2 - 34, 0, 34, 35, Color(0, 0, 0, 150));
 
@@ -1242,13 +1244,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		if (m_flAttackInfoAlpha > 0)
-			PaintHUDSheet(iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, 351, 685, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
+			PaintHUDSheet("AttackInfo", iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
 
 		if (bShowCPUStuff && m_flActionItemsLerp > 0)
-			PaintHUDSheet(m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, (int)m_flActionItemsWidth, 340, 350, 0, 250, 310, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
+			PaintHUDSheet("ActionItemPanel", m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, (int)m_flActionItemsWidth, 340, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
 
 		// Tank info
-		PaintHUDSheet(0, iHeight-250, 150, 250, 350, 378, 150, 250);
+		PaintHUDSheet("TankInfo", 0, iHeight-250, 150, 250);
 	} while (false);
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
@@ -1365,7 +1367,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 				bObstruction = false;
 
 			if (bObstruction)
-				CRootPanel::PaintSheet(m_iHUDSheet, iX, iY, 124, 68, 351, 310, 124, 68, 1024, 1024, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
+				PaintHUDSheet("Obstruction", iX, iY, 124, 68, Color(255, 255, 255, (int)RemapVal(Oscillate(GameServer()->GetGameTime(), 0.8f), 0, 1, 150, 255)));
 		}
 	}
 
@@ -1480,7 +1482,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		int iTextureLeft = iLeft - 243;
 
-		PaintHUDSheet(iTextureLeft - 10, iTop, 243, 40, 350, 800, 243, 40, Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
+		PaintHUDSheet("SmallActionItem", iTextureLeft - 10, iTop, 243, 40, Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
 
 		c.SetColor(Color(255, 255, 255, (int)(255*m_flSmallActionItemLerp)));
 		float flWidth = CLabel::GetTextWidth(m_sSmallActionItem, m_sSmallActionItem.length(), L"text", 13);
@@ -1529,7 +1531,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 				PaintUnitSheet(UNIT_TANK, w - (iTank+1)*30 - 10, 50 + i*40, 20, 20, clrTank);
 
 				if (!pTank || !pTank->IsAlive())
-					PaintHUDSheet(w - (iTank+1)*30 - 10, 50 + i*40, 20, 20, 481, 312, 32, 32);
+					PaintHUDSheet("DeadTank", w - (iTank+1)*30 - 10, 50 + i*40, 20, 20);
 
 				iTank++;
 			}
@@ -1763,296 +1765,190 @@ void CHUD::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int s
 	glgui::CBaseControl::PaintSheet(iTexture, x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
-void CHUD::PaintHUDSheet(int x, int y, int w, int h, int sx, int sy, int sw, int sh, const Color& c)
+void CHUD::PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c)
 {
-	PaintSheet(DigitanksWindow()->GetHUD()->m_iHUDSheet, x, y, w, h, sx, sy, sw, sh, 1024, 1024, c);
+	CHUD* pHUD = DigitanksWindow()->GetHUD();
+	const Rect* pRect = &pHUD->m_HUDSheet.GetArea(sArea);
+	PaintSheet(pHUD->m_HUDSheet.GetSheet(), x, y, w, h, pRect->x, pRect->y, pRect->w, pRect->h, pHUD->m_HUDSheet.GetSheetWidth(), pHUD->m_HUDSheet.GetSheetHeight(), c);
 }
 
-size_t CHUD::GetHUDSheet()
+const CTextureSheet& CHUD::GetHUDSheet()
 {
-	return DigitanksWindow()->GetHUD()->m_iHUDSheet;
+	return DigitanksWindow()->GetHUD()->m_HUDSheet;
 }
 
 void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
-	tw = th = 512;
+	CTextureSheet* pUnits = &DigitanksWindow()->GetHUD()->m_UnitsSheet;
+	tw = pUnits->GetSheetWidth();
+	th = pUnits->GetSheetHeight();
+
+	Rect rUnit;
 	if (eUnit == UNIT_TANK)
-	{
-		sx = 0;
-		sy = 0;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Digitank");
 	else if (eUnit == UNIT_SCOUT)
-	{
-		sx = 100;
-		sy = 0;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Rogue");
 	else if (eUnit == UNIT_ARTILLERY)
-	{
-		sx = 0;
-		sy = 100;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Artillery");
 	else if (eUnit == UNIT_INFANTRY)
-	{
-		sx = 100;
-		sy = 100;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Resistor");
 	else if (eUnit == UNIT_MOBILECPU)
-	{
-		sx = 100;
-		sy = 200;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("MobileCPU");
 	else if (eUnit == UNIT_GRIDBUG)
-	{
-		sx = 300;
-		sy = 200;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("GridBug");
 	else if (eUnit == UNIT_BUGTURRET)
-	{
-		sx = 000;
-		sy = 300;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("BugTurret");
 	else if (eUnit == STRUCTURE_MINIBUFFER)
-	{
-		sx = 300;
-		sy = 0;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Buffer");
 	else if (eUnit == STRUCTURE_BUFFER)
-	{
-		sx = 200;
-		sy = 0;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("MacroBuffer");
 	else if (eUnit == STRUCTURE_BATTERY)
-	{
-		sx = 300;
-		sy = 100;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Capacitor");
 	else if (eUnit == STRUCTURE_PSU)
-	{
-		sx = 200;
-		sy = 100;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("PSU");
 	else if (eUnit == STRUCTURE_INFANTRYLOADER)
-	{
-		sx = 400;
-		sy = 0;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("InfantryFactory");
 	else if (eUnit == STRUCTURE_TANKLOADER)
-	{
-		sx = 400;
-		sy = 100;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("TankFactory");
 	else if (eUnit == STRUCTURE_ARTILLERYLOADER)
-	{
-		sx = 400;
-		sy = 200;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("ArtilleryFactory");
 	else if (eUnit == STRUCTURE_CPU)
-	{
-		sx = 000;
-		sy = 200;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("CPU");
 	else if (eUnit == STRUCTURE_ELECTRONODE)
-	{
-		sx = 200;
-		sy = 200;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = pUnits->GetArea("Electronode");
 	else
-	{
-		sx = 0;
-		sy = 0;
-		sw = 100;
-		sh = 100;
-		return;
-	}
+		rUnit = Rect(0, 0, 100, 100);
+
+	sx = rUnit.x;
+	sy = rUnit.y;
+	sw = rUnit.w;
+	sh = rUnit.h;
 }
 
 void CHUD::PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c)
 {
 	int sx, sy, sw, sh, tw, th;
 	GetUnitSheet(eUnit, sx, sy, sw, sh, tw, th);
-	PaintSheet(DigitanksWindow()->GetHUD()->m_iUnitsSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+	PaintSheet(DigitanksWindow()->GetHUD()->m_UnitsSheet.GetSheet(), x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
 void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
-	tw = 512;
-	th = 256;
+	CTextureSheet* pWeapons = &DigitanksWindow()->GetHUD()->m_UnitsSheet;
+	tw = pWeapons->GetSheetWidth();
+	th = pWeapons->GetSheetHeight();
 
-	sw = 64;
-	sh = 64;
-
+	Rect rUnit;
 	switch (eWeapon)
 	{
 	default:
 	case WEAPON_NONE:
 	case PROJECTILE_SMALL:
-		sx = 0;
-		sy = 0;
+		rUnit = pWeapons->GetArea("LittleBoy");
 		break;
 
 	case PROJECTILE_MEDIUM:
-		sx = 64;
-		sy = 0;
+		rUnit = pWeapons->GetArea("FatMan");
 		break;
 
 	case PROJECTILE_LARGE:
-		sx = 128;
-		sy = 0;
+		rUnit = pWeapons->GetArea("BigMama");
 		break;
 
 	case PROJECTILE_AOE:
 	case PROJECTILE_ARTILLERY_AOE:
-		sx = 192;
-		sy = 0;
+		rUnit = pWeapons->GetArea("AOE");
 		break;
 
 	case PROJECTILE_EMP:
-		sx = 256;
-		sy = 0;
+		rUnit = pWeapons->GetArea("EMP");
 		break;
 
 	case PROJECTILE_ICBM:
 	case PROJECTILE_ARTILLERY_ICBM:
-		sx = 320;
-		sy = 0;
+		rUnit = pWeapons->GetArea("ICBM");
 		break;
 
 	case PROJECTILE_GRENADE:
-		sx = 384;
-		sy = 0;
+		rUnit = pWeapons->GetArea("Grenade");
 		break;
 
 	case PROJECTILE_DAISYCHAIN:
-		sx = 448;
-		sy = 0;
+		rUnit = pWeapons->GetArea("DaisyChain");
 		break;
 
 	case PROJECTILE_CLUSTERBOMB:
-		sx = 0;
-		sy = 64;
+		rUnit = pWeapons->GetArea("ClusterBomb");
 		break;
 
 	case PROJECTILE_SPLOOGE:
-		sx = 64;
-		sy = 64;
+		rUnit = pWeapons->GetArea("Grapeshot");
 		break;
 
 	case PROJECTILE_TRACTORBOMB:
-		sx = 128;
-		sy = 64;
+		rUnit = pWeapons->GetArea("RepulsorBomb");
 		break;
 
 	case PROJECTILE_EARTHSHAKER:
-		sx = 192;
-		sy = 64;
+		rUnit = pWeapons->GetArea("Earthshaker");
 		break;
 
 	case PROJECTILE_CAMERAGUIDED:
-		sx = 256;
-		sy = 64;
+		rUnit = pWeapons->GetArea("CameraGuidedMissile");
 		break;
 
 	case WEAPON_LASER:
 	case WEAPON_INFANTRYLASER:
-		sx = 320;
-		sy = 64;
+		rUnit = pWeapons->GetArea("FragmentationRay");
 		break;
 
 	case WEAPON_CHARGERAM:
-		sx = 384;
-		sy = 64;
+		rUnit = pWeapons->GetArea("ChargingRAM");
 		break;
 
 	case PROJECTILE_TREECUTTER:
-		sx = 448;
-		sy = 64;
+		rUnit = pWeapons->GetArea("TreeCutter");
 		break;
 
 	case PROJECTILE_FLAK:
-		sx = 0;
-		sy = 128;
+		rUnit = pWeapons->GetArea("MachineGun");
 		break;
 
 	case PROJECTILE_DEVASTATOR:
-		sx = 64;
-		sy = 128;
+		rUnit = pWeapons->GetArea("Devastator");
 		break;
 
 	case PROJECTILE_TORPEDO:
-		sx = 128;
-		sy = 128;
+		rUnit = pWeapons->GetArea("Torpedo");
 		break;
 	}
+
+	sx = rUnit.x;
+	sy = rUnit.y;
+	sw = rUnit.w;
+	sh = rUnit.h;
 }
 
 void CHUD::PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c)
 {
 	int sx, sy, sw, sh, tw, th;
 	GetWeaponSheet(eWeapon, sx, sy, sw, sh, tw, th);
-	PaintSheet(DigitanksWindow()->GetHUD()->m_iWeaponsSheet, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+	PaintSheet(DigitanksWindow()->GetHUD()->m_WeaponsSheet.GetSheet(), x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
-size_t CHUD::GetWeaponSheet()
+const CTextureSheet& CHUD::GetWeaponSheet()
 {
-	return DigitanksWindow()->GetHUD()->m_iWeaponsSheet;
+	return DigitanksWindow()->GetHUD()->m_WeaponsSheet;
 }
 
-size_t CHUD::GetButtonSheet()
+const CTextureSheet& CHUD::GetButtonSheet()
 {
-	return DigitanksWindow()->GetHUD()->m_iButtonSheet;
+	return DigitanksWindow()->GetHUD()->m_ButtonSheet;
 }
 
-size_t CHUD::GetDownloadSheet()
+const CTextureSheet& CHUD::GetDownloadSheet()
 {
-	return DigitanksWindow()->GetHUD()->m_iDownloadSheet;
+	return DigitanksWindow()->GetHUD()->m_DownloadSheet;
 }
 
 size_t CHUD::GetActionTanksSheet()
@@ -2343,7 +2239,7 @@ void CHUD::UpdateTurnButton()
 
 	if (!DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 	{
-		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 529, 685, 120, 90, 1024, 1024);
+		SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "EnemyTurnButton");
 		m_pPressEnter->SetVisible(true);
 		return;
 	}
@@ -2377,12 +2273,12 @@ void CHUD::UpdateTurnButton()
 	
 	if (bTurnComplete)
 	{
-		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 160, 730, 160, 120, 1024, 1024);
+		SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "TurnCompleteButton");
 		m_pPressEnter->SetVisible(true);
 	}
 	else
 	{
-		m_pTurnButton->SetSheetTexture(m_iHUDSheet, 0, 730, 160, 120, 1024, 1024);
+		SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "TurnButton");
 		m_pPressEnter->SetVisible(false);
 	}
 
@@ -2435,9 +2331,9 @@ void CHUD::SetButtonListener(int i, IEventListener::Callback pfnCallback)
 	}
 }
 
-void CHUD::SetButtonTexture(int i, size_t iX, size_t iY)
+void CHUD::SetButtonTexture(int i, const eastl::string& sArea)
 {
-	m_apButtons[i]->SetSheetTexture(m_iButtonSheet, iX, iY, 64, 64, 512, 256);
+	SetButtonSheetTexture(m_apButtons[i], &m_ButtonSheet, sArea);
 }
 
 void CHUD::SetButtonColor(int i, Color clrButton)
@@ -4156,7 +4052,7 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 	do {
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CHUD::PaintHUDSheet(x, y, w, h, 517, 371, 83, 47, Color(255, 255, 255, GetAlpha()));
+		CHUD::PaintHUDSheet("SpeechBubble", x, y, w, h, Color(255, 255, 255, GetAlpha()));
 	} while (false);
 
 	BaseClass::Paint(x, y, w, h);
