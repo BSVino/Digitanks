@@ -557,6 +557,9 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 			y += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
 	}
 
+	if (m_pTutorial->m_sHelperEmotion.length())
+		m_pText->SetPrintChars((int)((GameServer()->GetGameTime() - m_flStartTime)*50));
+
 	CRootPanel::PaintRect(x, y, w, h);
 
 	CPanel::Paint(x, y, w, h);

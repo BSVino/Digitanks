@@ -476,6 +476,8 @@ namespace glgui
 		virtual bool	GetWrap() { return m_bWrap; };
 		virtual void	SetWrap(bool bWrap) { m_bWrap = bWrap; ComputeLines(); };
 
+		virtual void	SetPrintChars(int iPrintChars) { m_iPrintChars = iPrintChars; }
+
 		virtual void	SetText(const eastl::string16& sText);
 		virtual void	SetText(const eastl::string& sText);
 		virtual void	AppendText(const eastl::string& sText);
@@ -512,6 +514,9 @@ namespace glgui
 
 		int				m_iTotalLines;
 		int				m_iLine;
+
+		int				m_iPrintChars;
+		int				m_iCharsDrawn;
 
 		eastl::string16	m_sFontName;
 		int				m_iFontFaceSize;

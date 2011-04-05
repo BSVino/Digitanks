@@ -761,6 +761,8 @@ CLabel::CLabel(int x, int y, int w, int h, const eastl::string16& sText, const e
 	SetFont(sFont, iSize);
 
 	SetText(sText);
+
+	m_iPrintChars = -1;
 }
 
 void CLabel::Destructor()
@@ -788,6 +790,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 	wchar_t* pszTok = wcstok(pszText, pszSeps);
 	m_iLine = 0;
 
+	m_iCharsDrawn = 0;
+
 	while (pszTok)
 	{
 		glColor4ubv(FGColor);
@@ -797,7 +801,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 		if (!m_bWrap || tw < w || w == 0 || (m_iLine+1)*t > h)
 		{
-			DrawLine(pszTok, (unsigned int)wcslen(pszTok), x, y, w, h);
+			if (m_iPrintChars == -1 || pszTok - pszText < m_iPrintChars)
+				DrawLine(pszTok, (unsigned int)wcslen(pszTok), x, y, w, h);
 
 			m_iLine++;
 		}
@@ -828,7 +833,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 					iSource -= iBackup;
 					iLength -= iBackup;
 
-					DrawLine(pszTok + iLastBreak, iLength, x, y, w, h);
+					if (m_iPrintChars == -1 || pszTok + iLastBreak - pszText < m_iPrintChars)
+						DrawLine(pszTok + iLastBreak, iLength, x, y, w, h);
 
 					iLength = 0;
 					tw = 0;
@@ -841,7 +847,8 @@ void CLabel::Paint(int x, int y, int w, int h)
 				iSource++;
 			}
 
-			DrawLine(pszTok + iLastBreak, iLength, x, y, w, h);
+			if (m_iPrintChars == -1 || pszTok + iLastBreak - pszText < m_iPrintChars)
+				DrawLine(pszTok + iLastBreak, iLength, x, y, w, h);
 			m_iLine++;
 		}
 
@@ -880,7 +887,20 @@ void CLabel::DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, i
 	else	// TA_TOPLEFT
 		vecPosition = Vector((float)x, (float)y + flBaseline + m_iLine*t, 0);
 
-	PaintText(pszText, iLength, m_sFontName, m_iFontFaceSize, vecPosition.x, vecPosition.y);
+	int iDrawChars;
+	if (m_iPrintChars == -1)
+		iDrawChars = iLength;
+	else
+	{
+		if ((int)iLength > m_iPrintChars - m_iCharsDrawn)
+			iDrawChars = m_iPrintChars - m_iCharsDrawn;
+		else
+			iDrawChars = iLength;
+	}
+
+	PaintText(pszText, iDrawChars, m_sFontName, m_iFontFaceSize, vecPosition.x, vecPosition.y);
+
+	m_iCharsDrawn += iLength+1;
 }
 
 float CLabel::GetTextWidth(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize)
