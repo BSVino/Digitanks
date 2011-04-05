@@ -2209,7 +2209,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (!IsArtillery() && !IsScout())
 		{
 			pHUD->SetButtonListener(1, CHUD::PromoteDefense);
-			pHUD->SetButtonTexture(1, "UpgradeShield");
+			pHUD->SetButtonTexture(1, "UpgradeShields");
 			pHUD->SetButtonColor(1, Color(150, 150, 150));
 
 			eastl::string16 s;

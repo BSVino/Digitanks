@@ -4,6 +4,8 @@
 #include <EASTL/map.h>
 #include <glgui/glgui.h>
 
+#include <models/texturesheet.h>
+
 typedef enum
 {
 	DISABLE_NOTHING		= 0,
@@ -44,6 +46,8 @@ public:
 	Vector2D						m_vecSetViewTarget;
 	EAngle							m_angSetViewAngle;
 	float							m_flSetViewDistance;
+
+	eastl::string					m_sHelperEmotion;
 };
 
 class CTutorialPanel : public glgui::CPanel, public glgui::IEventListener
@@ -108,6 +112,8 @@ public:
 		POSITION_BUTTONS,
 	};
 
+	const CTextureSheet*			GetEmotionsSheet() { return &m_EmotionsSheet; }
+
 protected:
 	bool							m_bActive;
 	eastl::map<eastl::string, CTutorial*>	m_apTutorials;
@@ -116,6 +122,8 @@ protected:
 	CTutorialPanel*					m_pCurrentPanel;
 
 	disable_t						m_eDisabled;
+
+	CTextureSheet					m_EmotionsSheet;
 };
 
 #endif

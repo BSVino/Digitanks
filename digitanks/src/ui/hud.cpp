@@ -1760,9 +1760,16 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 	}
 }
 
+// Let's phase this one out in favor of the below.
 void CHUD::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c)
 {
 	glgui::CBaseControl::PaintSheet(iTexture, x, y, w, h, sx, sy, sw, sh, tw, th, c);
+}
+
+void CHUD::PaintSheet(const CTextureSheet* pSheet, const eastl::string& sArea, int x, int y, int w, int h, const Color& c)
+{
+	const Rect& rArea = pSheet->GetArea(sArea);
+	glgui::CBaseControl::PaintSheet(pSheet->GetSheet(), x, y, w, h, rArea.x, rArea.y, rArea.w, rArea.h, pSheet->GetSheetWidth(), pSheet->GetSheetHeight(), c);
 }
 
 void CHUD::PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c)

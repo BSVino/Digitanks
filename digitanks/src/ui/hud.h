@@ -134,6 +134,7 @@ public:
 	class CUpdatesPanel*		GetUpdatesPanel() { return m_pUpdatesPanel; }
 
 	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
+	static void					PaintSheet(const CTextureSheet* pSheet, const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static void					PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetHUDSheet();
 	static void					GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);

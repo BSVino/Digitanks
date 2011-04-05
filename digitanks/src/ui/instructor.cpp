@@ -17,6 +17,7 @@
 using namespace glgui;
 
 CInstructor::CInstructor()
+	: m_EmotionsSheet(L"textures/hud/helper-emotions.txt")
 {
 	m_bActive = true;
 	m_pCurrentPanel = NULL;
@@ -212,6 +213,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	Vector2D vecTarget = Vector2D(0,0);		// Origin means do not use
 	EAngle angTarget = EAngle(-1,-1,-1);	// Negative values means do not use
 	float flDistance = 0;
+	eastl::string sEmotion;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -285,6 +287,8 @@ void CInstructor::ReadLesson(const class CData* pData)
 			angTarget = pChildData->GetValueEAngle();
 		else if (pChildData->GetKey() == "SetViewDistance")
 			flDistance = pChildData->GetValueFloat();
+		else if (pChildData->GetKey() == "HelperEmotion")
+			sEmotion = pChildData->GetValueString();
 	}
 
 	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
@@ -297,6 +301,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	m_apTutorials[sLessonName]->m_vecSetViewTarget = vecTarget;
 	m_apTutorials[sLessonName]->m_angSetViewAngle = angTarget;
 	m_apTutorials[sLessonName]->m_flSetViewDistance = flDistance;
+	m_apTutorials[sLessonName]->m_sHelperEmotion = sEmotion;
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -561,6 +566,13 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 		CHUD::PaintHUDSheet("ElectronodeExample", x + w + 10, y + h/2 - 222/2, 145, 211);
+	}
+
+	if (m_pTutorial->m_sHelperEmotion.length())
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - 108, y + h/2 - 256/2, 128, 256);
 	}
 }
 
