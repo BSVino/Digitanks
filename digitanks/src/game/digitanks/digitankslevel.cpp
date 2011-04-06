@@ -181,13 +181,13 @@ void CDigitanksLevel::ReadGameRules(const CData* pData)
 			m_bTankLoaders = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "ArtilleryFactories")
 			m_bArtilleryLoaders = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "InfantryLasers")
+		else if (pChildData->GetKey() == "ResistorLasers")
 			m_bInfantryLasers = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "InfantryTreeCutters")
+		else if (pChildData->GetKey() == "ResistorTreeCutters")
 			m_bInfantryTreeCutters = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "InfantryFortify")
+		else if (pChildData->GetKey() == "ResistorFortify")
 			m_bInfantryFortify = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "EnemyInfantryLasers")
+		else if (pChildData->GetKey() == "EnemyResistorLasers")
 			m_bEnemyInfantryLasers = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "StartingLesson")
 			m_sStartingLesson = pChildData->GetValueString();

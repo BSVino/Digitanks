@@ -285,11 +285,11 @@ void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 		if (pChild)
 			m_aflUpgradeCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("InfantryLoader");
+		pChild = pConstructionCosts->FindChild("ResistorLoader");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_INFANTRYLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("TankLoader");
+		pChild = pConstructionCosts->FindChild("DigitankLoader");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_TANKLOADER] = pChild->GetValueFloat();
 
@@ -297,7 +297,7 @@ void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_ARTILLERYLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Infantry");
+		pChild = pConstructionCosts->FindChild("Resistor");
 		if (pChild)
 			m_aflConstructionCosts[UNIT_INFANTRY] = pChild->GetValueFloat();
 
@@ -816,7 +816,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 			pEntity = GameServer()->Create<CMiniBuffer>("CMiniBuffer");
 		else if (pLevelUnit->m_sClassName == "AutoTurret")
 			pEntity = GameServer()->Create<CStructure>("CAutoTurret");
-		else if (pLevelUnit->m_sClassName == "InfantryFactory")
+		else if (pLevelUnit->m_sClassName == "ResistorFactory")
 		{
 			CLoader* pLoader = GameServer()->Create<CLoader>("CLoader");
 			pLoader->SetBuildUnit(UNIT_INFANTRY);

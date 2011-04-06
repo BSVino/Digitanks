@@ -1375,7 +1375,8 @@ void CHUD::Paint(int x, int y, int w, int h)
 				vecLastOrigin = vecCurrentOrigin;
 			}
 
-			if (DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon() == WEAPON_LASER || DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon() == WEAPON_INFANTRYLASER)
+			weapon_t eWeapon = DigitanksGame()->GetPrimarySelectionTank()->GetCurrentWeapon();
+			if (eWeapon == WEAPON_LASER || eWeapon == WEAPON_INFANTRYLASER || eWeapon == PROJECTILE_TORPEDO)
 				bObstruction = false;
 
 			if (bObstruction)
@@ -1826,9 +1827,9 @@ void CHUD::GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, in
 	else if (eUnit == STRUCTURE_PSU)
 		rUnit = pUnits->GetArea("PSU");
 	else if (eUnit == STRUCTURE_INFANTRYLOADER)
-		rUnit = pUnits->GetArea("InfantryFactory");
+		rUnit = pUnits->GetArea("ResistorFactory");
 	else if (eUnit == STRUCTURE_TANKLOADER)
-		rUnit = pUnits->GetArea("TankFactory");
+		rUnit = pUnits->GetArea("DigitankFactory");
 	else if (eUnit == STRUCTURE_ARTILLERYLOADER)
 		rUnit = pUnits->GetArea("ArtilleryFactory");
 	else if (eUnit == STRUCTURE_CPU)
@@ -1853,7 +1854,7 @@ void CHUD::PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Co
 
 void CHUD::GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
-	CTextureSheet* pWeapons = &DigitanksWindow()->GetHUD()->m_UnitsSheet;
+	CTextureSheet* pWeapons = &DigitanksWindow()->GetHUD()->m_WeaponsSheet;
 	tw = pWeapons->GetSheetWidth();
 	th = pWeapons->GetSheetHeight();
 
@@ -2485,6 +2486,9 @@ void CHUD::NewCurrentSelection()
 	SetupMenu(MENUMODE_MAIN);
 
 	ShowActionItem(DigitanksGame()->GetPrimarySelection());
+
+	if (m_pWeaponPanel->IsVisible())
+		m_pWeaponPanel->SetVisible(false);
 }
 
 void CHUD::ShowFirstActionItem()
