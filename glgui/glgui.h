@@ -495,6 +495,7 @@ namespace glgui
 		virtual Color	GetFGColor();
 		virtual void	SetFGColor(Color FGColor);
 		virtual void	SetAlpha(int a);
+		virtual void	SetAlpha(float a);
 
 		static class ::FTFont*	GetFont(const eastl::string16& sName, size_t iSize);
 		static void		AddFont(const eastl::string16& sName, const eastl::string16& sFile);

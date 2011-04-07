@@ -345,6 +345,7 @@ protected:
 	int							m_iUpdateIconSlideStartY;
 
 	glgui::CPictureButton*		m_pTurnButton;
+	bool						m_bBlinkTurnButton;
 
 	glgui::CLabel*				m_pScoreboard;
 

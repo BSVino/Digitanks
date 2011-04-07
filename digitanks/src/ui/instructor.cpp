@@ -172,9 +172,17 @@ void CInstructor::Initialize()
 
 	m_apTutorials["artillery-chooseweapon"] = new CTutorial(this, "artillery-chooseweapon", "artillery-command", POSITION_TOPCENTER, 200, false, L"Choices!\n \nChoose your weapon.");
 
-	m_apTutorials["artillery-command"] = new CTutorial(this, "artillery-chooseweapon", "", POSITION_TOPCENTER, 200, false, L"Click on an enemy to fire");
+	m_apTutorials["artillery-command"] = new CTutorial(this, "artillery-chooseweapon", "artillery-onepertank", POSITION_TOPCENTER, 200, false, L"Click on an enemy to fire");
 	m_apTutorials["artillery-command"]->m_flSlideAmount = 200;
 	m_apTutorials["artillery-command"]->m_bSlideX = false;
+
+	m_apTutorials["artillery-onepertank"] = new CTutorial(this, "artillery-onepertank", "", POSITION_SCENETREE, 200, false, L"Each tank can fire one weapon per turn!");
+	m_apTutorials["artillery-onepertank"]->m_flSlideAmount = 1000;
+	m_apTutorials["artillery-onepertank"]->m_bSlideX = true;
+
+	m_apTutorials["artillery-endturn"] = new CTutorial(this, "artillery-endturn", "", POSITION_TOPCENTER, 200, false, L"Press the 'End Turn' button on the lower right to end your turn!");
+	m_apTutorials["artillery-endturn"]->m_flSlideAmount = 200;
+	m_apTutorials["artillery-endturn"]->m_bSlideX = false;
 
 	m_apTutorials["strategy-select"] = new CTutorial(this, "strategy-select", "strategy-command", POSITION_SCENETREE, 150, false, L"< Select the MCP");
 	m_apTutorials["strategy-select"]->m_flSlideAmount = 1000;

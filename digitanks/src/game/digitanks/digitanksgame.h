@@ -283,6 +283,7 @@ protected:
 	CNetworkedArray<float, MAX_UNITS> m_aflUpgradeCosts;
 
 	float						m_flShowFightSign;
+	float						m_flShowArtilleryTutorial;
 
 	float						m_flLastHumanMove;
 };

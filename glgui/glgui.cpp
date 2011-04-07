@@ -1101,6 +1101,12 @@ void CLabel::SetAlpha(int a)
 	m_FGColor.SetAlpha(a);
 }
 
+void CLabel::SetAlpha(float a)
+{
+	CBaseControl::SetAlpha((int)(255*a));
+	m_FGColor.SetAlpha((int)(255*a));
+}
+
 ::FTFont* CLabel::GetFont(const eastl::string16& sName, size_t iSize)
 {
 	eastl::string16 sRealName = sName;

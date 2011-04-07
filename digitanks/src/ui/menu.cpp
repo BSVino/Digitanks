@@ -812,7 +812,6 @@ void CArtilleryGamePanel::BeginGameCallback()
 
 	pInstructor->SetActive(true);
 	pInstructor->Initialize();
-	pInstructor->DisplayTutorial("artillery-select");
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }

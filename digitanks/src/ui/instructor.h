@@ -101,6 +101,7 @@ public:
 	void							FinishedTutorial(eastl::string sTutorial, bool bForceNext = false);
 
 	CTutorial*						GetCurrentTutorial() { return m_apTutorials[m_sCurrentTutorial]; };
+	CTutorialPanel*					GetCurrentPanel() { return m_pCurrentPanel; };
 
 	disable_t						GetDisabledFeatures();
 	bool							IsFeatureDisabled(disable_t eFeature);

@@ -926,6 +926,11 @@ void CHUD::Think()
 		}
 	}
 
+	if (m_bBlinkTurnButton)
+		m_pTurnButton->SetAlpha(Lerp(Oscillate(GameServer()->GetGameTime(), 1.0f), 0.8f));
+	else
+		m_pTurnButton->SetAlpha(1.0f);
+
 	SetVisible(hud_enable.GetBool() || DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile());
 }
 
@@ -2248,6 +2253,9 @@ void CHUD::UpdateScoreboard()
 
 void CHUD::UpdateTurnButton()
 {
+	bool bWasBlinking = m_bBlinkTurnButton;
+	m_bBlinkTurnButton = false;
+
 	if (!DigitanksGame())
 		return;
 
@@ -2293,6 +2301,10 @@ void CHUD::UpdateTurnButton()
 	
 	if (bTurnComplete)
 	{
+		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY && !bWasBlinking && DigitanksGame()->GetTurn() == 0 && !DigitanksWindow()->GetInstructor()->GetCurrentPanel())
+			DigitanksWindow()->GetInstructor()->DisplayTutorial("artillery-endturn");
+
+		m_bBlinkTurnButton = true;
 		SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "TurnCompleteButton");
 		m_pPressEnter->SetVisible(true);
 	}
@@ -2489,6 +2501,28 @@ void CHUD::NewCurrentSelection()
 
 	if (m_pWeaponPanel->IsVisible())
 		m_pWeaponPanel->SetVisible(false);
+
+	if (DigitanksGame()->GetPrimarySelection())
+	{
+		Vector vecTarget = DigitanksGame()->GetPrimarySelection()->GetOrigin();
+		EAngle angCamera = DigitanksGame()->GetDigitanksCamera()->GetAngles();
+		float flDistance = DigitanksGame()->GetDigitanksCamera()->GetDistance();
+		int iRotations = 0;
+		while (iRotations++ < 4)
+		{
+			Vector vecCamera = AngleVector(angCamera) * flDistance + vecTarget;
+
+			Vector vecHit;
+			CBaseEntity* pHit;
+			Game()->TraceLine(vecCamera, vecTarget, vecHit, &pHit);
+			if (pHit == DigitanksGame()->GetPrimarySelection())
+				break;
+
+			angCamera.y += 90;
+		}
+
+		DigitanksGame()->GetDigitanksCamera()->SetAngle(angCamera);
+	}
 }
 
 void CHUD::ShowFirstActionItem()

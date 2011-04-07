@@ -219,7 +219,10 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
 		{
 			if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
+			{
 				DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-select", true);
+				DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-onepertank");
+			}
 			else
 				DigitanksWindow()->GetInstructor()->DisplayTutorial("artillery-select");
 		}

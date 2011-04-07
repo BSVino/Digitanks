@@ -106,6 +106,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_aflConstructionCosts);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_aflUpgradeCosts);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowFightSign);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowArtilleryTutorial);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastHumanMove);
 SAVEDATA_TABLE_END();
 
@@ -142,6 +143,7 @@ void CDigitanksGame::Spawn()
 	m_bPartyMode = false;
 
 	m_flShowFightSign = 0;
+	m_flShowArtilleryTutorial = 0;
 
 	m_bOverrideAllowLasers = false;
 }
@@ -1193,6 +1195,12 @@ void CDigitanksGame::Think()
 		m_flShowFightSign = 0;
 	}
 
+	if (m_flShowArtilleryTutorial > 0 && m_flShowArtilleryTutorial < GameServer()->GetGameTime())
+	{
+		DigitanksWindow()->GetInstructor()->DisplayFirstTutorial("artillery-select");
+		m_flShowArtilleryTutorial = 0;
+	}
+
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
@@ -1429,7 +1437,7 @@ void CDigitanksGame::TurnTanks(Vector vecLookAt)
 
 	SetControlMode(MODE_NONE);
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command");
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command", true);
 }
 
 void CDigitanksGame::FireTanks()
@@ -1483,7 +1491,7 @@ void CDigitanksGame::FireTanks()
 		GetCurrentLocalDigitanksTeam()->HandledActionItem(pTank);
 	}
 
-	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command");
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command", true);
 	SetControlMode(MODE_NONE);
 }
 
@@ -2426,7 +2434,12 @@ void CDigitanksGame::ClientEnterGame()
 	// Give the game a second to load up before showing the fight sign.
 	// Otherwise the sound sometimes plays while the game is still loading.
 	if (m_eGameType == GAMETYPE_ARTILLERY)
+	{
 		m_flShowFightSign = GameServer()->GetGameTime() + 1.0f;
+
+		// Wait until after the view dolly-in to show the tutorial, so the dolly-in doesn't distract
+		m_flShowArtilleryTutorial = GameServer()->GetGameTime() + 3.0f;
+	}
 
 	DigitanksWindow()->GetHUD()->ClientEnterGame();
 	glgui::CRootPanel::Get()->Layout();
