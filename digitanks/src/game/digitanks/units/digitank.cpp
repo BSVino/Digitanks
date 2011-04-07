@@ -2793,7 +2793,7 @@ Vector CDigitank::GetOrigin() const
 		else
 			flLerp = Lerp(flRamp, 0.8f);
 
-		Vector vecNewOrigin = m_vecPreviousOrigin * (1-flLerp) + BaseClass::GetOrigin() * flLerp;
+		Vector vecNewOrigin = LerpValue<Vector>(m_vecPreviousOrigin, BaseClass::GetOrigin(), flLerp);
 
 		float flHoverHeight = FindHoverHeight(vecNewOrigin);
 		if (vecNewOrigin.y < flHoverHeight)

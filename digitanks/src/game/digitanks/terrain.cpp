@@ -377,17 +377,20 @@ void CTerrain::GenerateTerrain(float flHeight)
 				if (aflTrees[x][y] > flTreeHighest)
 					flTreeHighest = aflTrees[x][y];
 
-				aflWater[x][y]  = w1.Noise(x*0.02f, y*0.02f) * 5;
-				aflWater[x][y] += w2.Noise(x*0.04f, y*0.04f) * 2;
+				if (DigitanksGame()->GetGameType() != GAMETYPE_ARTILLERY)
+				{
+					aflWater[x][y]  = w1.Noise(x*0.02f, y*0.02f) * 5;
+					aflWater[x][y] += w2.Noise(x*0.04f, y*0.04f) * 2;
 
-				if (!m_bHeightsInitialized)
-					flWaterHighest = flWaterLowest = aflWater[x][y];
+					if (!m_bHeightsInitialized)
+						flWaterHighest = flWaterLowest = aflWater[x][y];
 
-				if (aflWater[x][y] < flWaterLowest)
-					flWaterLowest = aflWater[x][y];
+					if (aflWater[x][y] < flWaterLowest)
+						flWaterLowest = aflWater[x][y];
 
-				if (aflWater[x][y] > flWaterHighest)
-					flWaterHighest = aflWater[x][y];
+					if (aflWater[x][y] > flWaterHighest)
+						flWaterHighest = aflWater[x][y];
+				}
 			}
 
 			m_bHeightsInitialized = true;
@@ -421,7 +424,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 					SetBit(x, y, TB_HOLE, flHeight < HoleHeight());
 				}
 
-				if (!GetBit(x, y, TB_LAVA))
+				if (DigitanksGame()->GetGameType() != GAMETYPE_ARTILLERY && !GetBit(x, y, TB_LAVA))
 				{
 					flHeight = RemapVal(aflWater[x][y], flWaterLowest, flWaterHighest, 0.0f, 1.0f);
 					SetBit(x, y, TB_WATER, flHeight > WaterHeight());

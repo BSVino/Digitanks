@@ -162,7 +162,7 @@ Color CProjectile::GetBonusDamageColor()
 	if (m_flDamageBonusFreeze > 0)
 		flRamp = m_flDamageBonusFreeze;
 
-	return Vector(1, 0.2f, 0) * flRamp + Vector(1, 1, 1) * (1-flRamp);
+	return LerpValue<Vector>(Vector(1, 1, 1), Vector(1, 0.2f, 0), flRamp);
 }
 
 float CProjectile::GetBonusDamage()

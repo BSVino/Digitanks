@@ -45,7 +45,7 @@ Vector CMissileDefense::GetOrigin() const
 
 	float flLerp = Lerp(RemapVal(flTimeSinceFire, 0, InterceptTime(), 0, 1), 0.2f);
 
-	Vector vecPosition = vecInterceptLocation * flLerp + vecMissilePosition * (1-flLerp);
+	Vector vecPosition = LerpValue<Vector>(vecMissilePosition, vecInterceptLocation, flLerp);
 
 	return vecPosition;
 }

@@ -27,6 +27,12 @@ inline float SLerp(float x, float flLerp)
 		return 1-Lerp(2-2*x, flLerp)/2;
 }
 
+template <class T>
+inline T LerpValue(T from, T to, float flLerp)
+{
+	return to * flLerp + from * (1-flLerp);
+}
+
 inline float RemapVal(float flInput, float flInLo, float flInHi, float flOutLo, float flOutHi)
 {
 	return (((flInput-flInLo) / (flInHi-flInLo)) * (flOutHi-flOutLo)) + flOutLo;

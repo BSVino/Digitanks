@@ -39,6 +39,7 @@ public:
 	void			ReplaceProjectileTarget(class CProjectile* pTarget);
 	void			ClearFollowTarget();
 
+	virtual void	EnterGame();
 	virtual void	Think();
 
 	virtual Vector	GetCameraPosition();
@@ -98,6 +99,8 @@ public:
 	CEntityHandle<class CDigitank>		m_hTankTarget;
 	CEntityHandle<class CProjectile>	m_hTankProjectile;
 	float			m_flTransitionToProjectileTime;
+
+	float			m_flTimeSinceNewGame;
 };
 
 #endif

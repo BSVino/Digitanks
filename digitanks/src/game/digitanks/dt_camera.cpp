@@ -320,6 +320,11 @@ void CDigitanksCamera::ClearFollowTarget()
 	m_hTankProjectile = NULL;
 }
 
+void CDigitanksCamera::EnterGame()
+{
+	m_flTimeSinceNewGame = GameServer()->GetGameTime();
+}
+
 void CDigitanksCamera::Think()
 {
 	BaseClass::Think();
@@ -350,7 +355,7 @@ void CDigitanksCamera::Think()
 	if (m_flTargetRamp && flGameTime - m_flTargetRamp < flLerpTime)
 	{
 		float flLerp = Lerp((flGameTime - m_flTargetRamp)/flLerpTime, flLerpAmount);
-		m_vecTarget = m_vecNewTarget * flLerp + m_vecOldTarget * (1-flLerp);
+		m_vecTarget = LerpValue<Vector>(m_vecOldTarget, m_vecNewTarget, flLerp);
 		m_vecVelocity = m_vecGoalVelocity = Vector(0,0,0);
 	}
 	else
@@ -389,7 +394,7 @@ void CDigitanksCamera::Think()
 	if (m_flDistanceRamp && flGameTime - m_flDistanceRamp < flLerpTime)
 	{
 		float flLerp = Lerp((flGameTime - m_flDistanceRamp)/flLerpTime, flLerpAmount);
-		m_flDistance = m_flNewDistance * flLerp + m_flOldDistance * (1-flLerp);
+		m_flDistance = LerpValue<float>(m_flOldDistance, m_flNewDistance, flLerp);
 	}
 	else
 		m_flDistance = m_flNewDistance;
@@ -404,6 +409,20 @@ void CDigitanksCamera::Think()
 	}
 
 	m_vecCamera = AngleVector(m_angCamera) * m_flDistance + m_vecTarget;
+
+	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3)
+	{
+		float flCameraIntroLerp = SLerp(RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0, 3, 0, 1), 0.2f);
+
+		EAngle angIntro = m_angCamera;
+		angIntro.y += 90;
+
+		Vector vecIntroTarget = DigitanksGame()->GetTerrain()->SetPointHeight(Vector(0,0,0));
+		Vector vecIntroCamera = AngleVector(angIntro) * 400 + vecIntroTarget;
+
+		m_vecTarget = LerpValue<Vector>(vecIntroTarget, m_vecTarget, flCameraIntroLerp);
+		m_vecCamera = LerpValue<Vector>(vecIntroCamera, m_vecCamera, flCameraIntroLerp);
+	}
 
 	m_flShakeMagnitude = Approach(0, m_flShakeMagnitude, GameServer()->GetFrameTime()*5);
 	if (m_flShakeMagnitude)
@@ -443,7 +462,7 @@ Vector CDigitanksCamera::GetCameraPosition()
 			Vector vecTorpedoFollow = m_hTankProjectile->GetOrigin() - vecDirection*15 + Vector(0, 15, 0);
 
 			if (flLerp < 1 && m_hTankProjectile->GetOwner())
-				return vecTorpedoFollow * flLerp + GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())) * (1-flLerp);
+				return LerpValue<Vector>(GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())), vecTorpedoFollow, flLerp);
 
 			return vecTorpedoFollow;
 		}
@@ -456,7 +475,7 @@ Vector CDigitanksCamera::GetCameraPosition()
 		Vector vecProjectileFollow = m_hTankProjectile->GetOrigin() - vecForward*13 - vecRight*4;
 
 		if (flLerp < 1 && m_hTankProjectile->GetOwner())
-			return vecProjectileFollow * flLerp + GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())) * (1-flLerp);
+			return LerpValue<Vector>(GetTankFollowPosition(dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner())), vecProjectileFollow, flLerp);
 
 		return vecProjectileFollow;
 	}
@@ -494,7 +513,7 @@ Vector CDigitanksCamera::GetCameraTarget()
 			Vector vecTorpedoTarget = m_hTankProjectile->GetOrigin();
 
 			if (flLerp < 1 && m_hTankProjectile->GetOwner())
-				return vecTorpedoTarget * flLerp + pTank->GetLastAim() * (1-flLerp);
+				return LerpValue<Vector>(pTank->GetLastAim(), vecTorpedoTarget, flLerp);
 
 			return vecTorpedoTarget;
 		}
@@ -502,7 +521,7 @@ Vector CDigitanksCamera::GetCameraTarget()
 		Vector vecProjectileTarget = m_hTankProjectile->GetOrigin() + m_hTankProjectile->GetVelocity();
 
 		if (flLerp < 1 && m_hTankProjectile->GetOwner())
-			return vecProjectileTarget * flLerp + pTank->GetLastAim() * (1-flLerp);
+			return LerpValue<Vector>(pTank->GetLastAim(), vecProjectileTarget, flLerp);
 
 		return vecProjectileTarget;
 	}

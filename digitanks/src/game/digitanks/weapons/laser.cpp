@@ -150,7 +150,7 @@ void CLaser::PostRender(bool bTransparent)
 	{
 		float flUp = RemapVal((float)i, 0, (float)iBeams, -flLength, flLength);
 
-		Vector vecRay = avecRayColors[i%3] * flRayRamp + Vector(1, 1, 1) * (1-flRayRamp);
+		Vector vecRay = LerpValue<Vector>(Vector(1, 1, 1), avecRayColors[i%3], flRayRamp);
 		Color clrRay = vecRay;
 		clrRay.SetAlpha((int)(200*flAlphaRamp));
 
