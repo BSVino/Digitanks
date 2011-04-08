@@ -116,6 +116,37 @@ public:
 	virtual bool			MouseReleased(int code, int mx, int my);
 };
 
+class CHowToPlayPanel : public glgui::CPanel
+{
+	DECLARE_CLASS(CHowToPlayPanel, glgui::CPanel);
+
+public:
+							CHowToPlayPanel();
+
+public:
+	virtual void			Layout();
+	virtual void			Think();
+
+	virtual void			Paint(int x, int y, int w, int h);
+
+	virtual bool			IsOpen();
+	virtual void			Open();
+	virtual void			Close();
+
+	virtual bool			MousePressed(int code, int mx, int my);
+	virtual bool			MouseReleased(int code, int mx, int my);
+
+protected:
+	glgui::CLabel*			m_pOpen;
+
+	bool					m_bOpen;
+
+	float					m_flGoalLerp;
+	float					m_flCurLerp;
+
+	glgui::CLabel*			m_pControls;
+};
+
 class CHUD : public glgui::CPanel, public IDigitanksGameListener, public glgui::IEventListener
 {
 	DECLARE_CLASS(CHUD, glgui::CPanel);
@@ -303,6 +334,8 @@ protected:
 	eastl::vector<eastl::map<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
 
 	CMouseCapturePanel*			m_pButtonPanel;
+
+	CHowToPlayPanel*			m_pHowToPlayPanel;
 
 	glgui::CPictureButton*		m_apButtons[10];
 

@@ -189,6 +189,9 @@ CHUD::CHUD()
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
 
+	m_pHowToPlayPanel = new CHowToPlayPanel();
+	AddControl(m_pHowToPlayPanel);
+
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
 		m_apButtons[i] = new CPictureButton(L"");
@@ -513,6 +516,8 @@ void CHUD::Layout()
 	m_pButtonPanel->SetPos(iWidth/2 - 720/2 + 380, iHeight - 140);
 	m_pButtonPanel->SetRight(m_pButtonPanel->GetLeft() + 330);
 	m_pButtonPanel->SetBottom(iHeight - 10);
+
+	m_pHowToPlayPanel->Layout();
 
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
@@ -4113,6 +4118,101 @@ void CSpeechBubble::Paint(int x, int y, int w, int h)
 	} while (false);
 
 	BaseClass::Paint(x, y, w, h);
+}
+
+CHowToPlayPanel::CHowToPlayPanel()
+	: CPanel(0, 0, 100, 100)
+{
+	m_pOpen = new CLabel(0, 0, 100, 100, L"", L"header", 18);
+	AddControl(m_pOpen);
+
+	m_bOpen = false;
+
+	m_flGoalLerp = 0;
+	m_flCurLerp = 0;
+
+	m_pControls = new CLabel(0, 0, 100, 100, L"", L"text", 13);
+	AddControl(m_pControls);
+}
+
+void CHowToPlayPanel::Layout()
+{
+	BaseClass::Layout();
+
+	if (IsOpen())
+		m_pOpen->SetText(L"Click to close");
+	else
+		m_pOpen->SetText(L"How to play");
+
+	m_pOpen->SetSize(150, 50);
+	m_pOpen->SetPos(0, 100);
+	m_pOpen->SetAlign(CLabel::TA_MIDDLECENTER);
+
+	m_pControls->SetSize(280, 250);
+	m_pControls->SetPos(10, 30);
+	m_pControls->SetAlign(CLabel::TA_TOPLEFT);
+
+	m_pControls->SetText(
+		"Scroll view: Hold spacebar\n"
+		"Rotate view: Hold right click\n"
+		"Zoom view: Scrollwheel or pgup/pgdn\n"
+		"Select similar units: Double click\n"
+	);
+}
+
+void CHowToPlayPanel::Think()
+{
+	BaseClass::Think();
+
+	m_flCurLerp = Approach(m_flGoalLerp, m_flCurLerp, GameServer()->GetFrameTime()*2);
+
+	SetPos(150, (int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, -100, 0)));
+	SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 150);
+	m_pOpen->SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 50);
+	m_pControls->SetAlpha(m_flCurLerp);
+}
+
+void CHowToPlayPanel::Paint(int x, int y, int w, int h)
+{
+	CRootPanel::PaintRect(x, y, w, h);
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+bool CHowToPlayPanel::IsOpen()
+{
+	return m_bOpen;
+}
+
+void CHowToPlayPanel::Open()
+{
+	m_bOpen = true;
+	m_flGoalLerp = 1;
+
+	Layout();
+}
+
+void CHowToPlayPanel::Close()
+{
+	m_bOpen = false;
+	m_flGoalLerp = 0;
+
+	Layout();
+}
+
+bool CHowToPlayPanel::MousePressed(int code, int mx, int my)
+{
+	if (IsOpen())
+		Close();
+	else
+		Open();
+
+	return true;
+}
+
+bool CHowToPlayPanel::MouseReleased(int code, int mx, int my)
+{
+	return true;
 }
 
 bool CMouseCapturePanel::MousePressed(int code, int mx, int my)
