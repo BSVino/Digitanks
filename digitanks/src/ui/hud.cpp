@@ -151,7 +151,8 @@ CHUD::CHUD()
 	m_UnitsSheet(L"textures/hud/units-sheet.txt"),
 	m_WeaponsSheet(L"textures/hud/hud-weapons-01.txt"),
 	m_ButtonSheet(L"textures/hud/hud-menu-sheet-01.txt"),
-	m_DownloadSheet(L"textures/hud/hud-download-sheet-01.txt")
+	m_DownloadSheet(L"textures/hud/hud-download-sheet-01.txt"),
+	m_ActionSignsSheet(L"textures/hud/actionsigns/signs.txt")
 {
 	m_bNeedsUpdate = false;
 
@@ -169,7 +170,6 @@ CHUD::CHUD()
 
 	m_iKeysSheet = CTextureLibrary::AddTexture(L"textures/hud/keys.png");
 	m_iActionTanksSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/tanks.png");
-	m_iActionSignsSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/signs.png");
 	m_iPurchasePanel = CTextureLibrary::AddTexture(L"textures/purchasepanel.png");
 	m_iShieldTexture = CTextureLibrary::AddTexture(L"textures/hud/hud-shield.png");
 
@@ -1481,9 +1481,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 			size_t iSignWidth = (size_t)(iTotalWidth/2 * Lerp(flWarpIn, 0.2f));
 			size_t iSignHeight = (size_t)(iSignWidth*0.32f);
 			if (m_eActionSign == ACTIONSIGN_FIGHT)
-				PaintSheet(m_iActionSignsSheet, iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, 0, 0, 1024, 330, 1024, 1024, Color(255, 255, 255, (int)(flAlpha*255)));
+				PaintSheet(&m_ActionSignsSheet, "Fight", iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, Color(255, 255, 255, (int)(flAlpha*255)));
 			else if (m_eActionSign == ACTIONSIGN_SHOWDOWN)
-				PaintSheet(m_iActionSignsSheet, iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, 0, 330, 1024, 330, 1024, 1024, Color(255, 255, 255, (int)(flAlpha*255)));
+				PaintSheet(&m_ActionSignsSheet, "Showdown", iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, Color(255, 255, 255, (int)(flAlpha*255)));
+			else if (m_eActionSign == ACTIONSIGN_NEWTURN)
+				PaintSheet(&m_ActionSignsSheet, "NewTurn", iTotalWidth/2-iSignWidth/2, iTotalHeight/2-iSignHeight/2, iSignWidth, iSignHeight, Color(255, 255, 255, (int)(flAlpha*255)));
 		}
 	}
 
@@ -2470,6 +2472,13 @@ void CHUD::NewCurrentTeam()
 
 		// If we have local hotseat multiplayer, update for the new team.
 		m_pSceneTree->BuildTree();
+
+		if (DigitanksGame()->GetTeam(0) == DigitanksGame()->GetCurrentTeam() && DigitanksGame()->GetTurn() == 0)
+		{
+			// Don't show for the first team on the first turn, show fight instead.
+		}
+		else
+			DigitanksWindow()->GetHUD()->ShowNewTurnSign();
 	}
 
 	UpdateScoreboard();
@@ -2939,6 +2948,8 @@ void ActionSignCallback(CCommand* pCommand, eastl::vector<eastl::string16>& asTo
 		DigitanksWindow()->GetHUD()->ShowFightSign();
 	else if (asTokens[1] == L"showdown")
 		DigitanksWindow()->GetHUD()->ShowShowdownSign();
+	else if (asTokens[1] == L"newturn")
+		DigitanksWindow()->GetHUD()->ShowNewTurnSign();
 }
 
 CCommand actionsign("actionsign", ActionSignCallback);
@@ -2953,6 +2964,13 @@ void CHUD::ShowFightSign()
 void CHUD::ShowShowdownSign()
 {
 	m_eActionSign = ACTIONSIGN_SHOWDOWN;
+	m_flActionSignStart = GameServer()->GetGameTime();
+	CSoundLibrary::PlaySound(NULL, L"sound/actionsign.wav");
+}
+
+void CHUD::ShowNewTurnSign()
+{
+	m_eActionSign = ACTIONSIGN_NEWTURN;
 	m_flActionSignStart = GameServer()->GetGameTime();
 	CSoundLibrary::PlaySound(NULL, L"sound/actionsign.wav");
 }

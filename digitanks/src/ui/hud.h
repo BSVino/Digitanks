@@ -240,6 +240,7 @@ public:
 
 	void						ShowFightSign();
 	void						ShowShowdownSign();
+	void						ShowNewTurnSign();
 
 	EVENT_CALLBACK(CHUD, ChooseActionItem);
 	EVENT_CALLBACK(CHUD, ShowSmallActionItem);
@@ -400,13 +401,14 @@ protected:
 	glgui::CLabel*				m_pSpacebarHint;
 
 	size_t						m_iActionTanksSheet;
-	size_t						m_iActionSignsSheet;
+	CTextureSheet				m_ActionSignsSheet;
 	float						m_flActionSignStart;
 	typedef enum
 	{
 		ACTIONSIGN_NONE = 0,
 		ACTIONSIGN_FIGHT,
 		ACTIONSIGN_SHOWDOWN,
+		ACTIONSIGN_NEWTURN,
 	} actionsign_t;
 	actionsign_t				m_eActionSign;
 
