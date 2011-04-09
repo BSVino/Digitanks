@@ -1501,7 +1501,7 @@ void CDigitanksGame::EndTurn()
 
 	EndTurn(NULL);
 
-//	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_ENTERKEY);
+	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-endturn");
 //	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 }
 

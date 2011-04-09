@@ -674,7 +674,6 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTanks->AddSelection(CScrollSelection<int>(1, L"1"));
 	m_pTanks->AddSelection(CScrollSelection<int>(2, L"2"));
 	m_pTanks->AddSelection(CScrollSelection<int>(3, L"3"));
-	m_pTanks->AddSelection(CScrollSelection<int>(4, L"4"));
 	m_pTanks->SetSelection(2);
 	AddControl(m_pTanks);
 
