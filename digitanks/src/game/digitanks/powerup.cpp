@@ -182,7 +182,7 @@ void CPowerup::Pickup(class CDigitank* pTank)
 			}
 		}
 
-		GetTeam()->AddEntity(pTank);
+		pTank->GetTeam()->AddEntity(pTank);
 
 		Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
 		vecTank.y = pTank->FindHoverHeight(vecTank);
