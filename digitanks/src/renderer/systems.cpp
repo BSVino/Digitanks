@@ -645,6 +645,47 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashFlame2->SetGravity(Vector(0, 3, 0));
 	pWreckageCrashFlame2->SetRandomBillboardYaw(true);
 
+	size_t iDebrisFire = pPSL->AddParticleSystem(L"debris-burn");
+	size_t iDebrisFireSmoke = pPSL->AddParticleSystem(L"debris-burn-smoke");
+	size_t iDebrisFlame1 = pPSL->AddParticleSystem(L"debris-burn-flame1");
+
+	CParticleSystem* pDebrisFire = pPSL->GetParticleSystem(iDebrisFire);
+	CParticleSystem* pDebrisFireSmoke = pPSL->GetParticleSystem(iDebrisFireSmoke);
+	CParticleSystem* pDebrisFlame1 = pPSL->GetParticleSystem(iDebrisFlame1);
+
+	pDebrisFire->AddChild(iDebrisFireSmoke);
+	pDebrisFire->AddChild(iDebrisFlame1);
+
+	pDebrisFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pDebrisFireSmoke->SetLifeTime(1.2f);
+	pDebrisFireSmoke->SetEmissionRate(0.15f);
+	pDebrisFireSmoke->SetEmissionMaxDistance(3);
+	pDebrisFireSmoke->SetAlpha(0.2f);
+	pDebrisFireSmoke->SetStartRadius(1.5f);
+	pDebrisFireSmoke->SetEndRadius(4.0f);
+	pDebrisFireSmoke->SetFadeOut(0.5f);
+	pDebrisFireSmoke->SetInheritedVelocity(0.0f);
+	pDebrisFireSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDebrisFireSmoke->SetDrag(0.9f);
+	pDebrisFireSmoke->SetGravity(Vector(0, 10, 0));
+	pDebrisFireSmoke->SetRandomBillboardYaw(true);
+	pDebrisFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
+	pDebrisFireSmoke->SetColor(Color(255, 197, 157));
+
+	pDebrisFlame1->SetTexture(L"textures/particles/cloud-white.png");
+	pDebrisFlame1->SetLifeTime(0.6f);
+	pDebrisFlame1->SetEmissionRate(0.05f);
+	pDebrisFlame1->SetEmissionMaxDistance(2);
+	pDebrisFlame1->SetAlpha(1.0f);
+	pDebrisFlame1->SetStartRadius(0.5f);
+	pDebrisFlame1->SetEndRadius(2.0f);
+	pDebrisFlame1->SetFadeOut(1.0f);
+	pDebrisFlame1->SetInheritedVelocity(0.0f);
+	pDebrisFlame1->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pDebrisFlame1->SetDrag(0.9f);
+	pDebrisFlame1->SetGravity(Vector(0, 3, 0));
+	pDebrisFlame1->SetRandomBillboardYaw(true);
+
 	size_t iChargeBurst = pPSL->AddParticleSystem(L"charge-burst");
 	size_t iChargeBurstPulses = pPSL->AddParticleSystem(L"charge-burst-pulses");
 	size_t iChargeBurstSmoke = pPSL->AddParticleSystem(L"charge-burst-smoke");

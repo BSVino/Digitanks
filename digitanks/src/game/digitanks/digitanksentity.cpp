@@ -11,6 +11,7 @@
 
 #include "digitanksgame.h"
 #include "wreckage.h"
+#include "dt_camera.h"
 
 REGISTER_ENTITY(CDigitanksEntity);
 
@@ -103,8 +104,16 @@ void CDigitanksEntity::Think()
 			case 8:
 			default:
 			{
+				for (size_t i = 0; i < 8; i++)
+				{
+					CDebris* pDebris = GameServer()->Create<CDebris>("CDebris");
+					pDebris->SetOrigin(GetOrigin());
+				}
+
 				CWreckage* pWreckage = CreateWreckage();
 				pWreckage->SetScale(2);
+
+				DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
 				break;
 			}
 

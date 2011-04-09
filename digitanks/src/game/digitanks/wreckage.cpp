@@ -147,3 +147,51 @@ void CWreckage::SetColorSwap(Color clrSwap)
 	m_clrSwap = clrSwap;
 	m_vecColorSwap = clrSwap;
 }
+
+REGISTER_ENTITY(CDebris);
+
+NETVAR_TABLE_BEGIN(CDebris);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CDebris);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hBurnParticles);
+SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CDebris);
+INPUTS_TABLE_END();
+
+void CDebris::Precache()
+{
+	PrecacheParticleSystem(L"debris-burn");
+}
+
+void CDebris::Spawn()
+{
+	BaseClass::Spawn();
+
+	m_hBurnParticles.SetSystem(L"debris-burn", GetOrigin());
+	m_hBurnParticles.FollowEntity(this);
+	m_hBurnParticles.SetActive(true);
+	m_bTakeDamage = false;
+
+	SetVelocity(Vector(RandomFloat(-40, 40), RandomFloat(5, 40), RandomFloat(-40, 40)));
+	SetGravity(Vector(0, -50, 0));
+	SetSimulated(true);
+}
+
+void CDebris::Think()
+{
+	BaseClass::Think();
+
+	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z))
+		Delete();
+
+	if (GameServer()->GetGameTime() - GetSpawnTime() > 10)
+		Delete();
+}
+
+void CDebris::Touching(CBaseEntity* pOther)
+{
+	if (dynamic_cast<CTerrain*>(pOther))
+		Delete();
+}

@@ -29,6 +29,7 @@
 #include <digitanks/weapons/missiledefense.h>
 #include <digitanks/units/scout.h>
 #include <digitanks/campaign/userfile.h>
+#include <digitanks/wreckage.h>
 
 size_t CDigitank::s_iAimBeam = 0;
 size_t CDigitank::s_iAutoMove = 0;
@@ -2692,6 +2693,19 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 		// Force the tank damage sound, suppress the shield damage sound.
 		flShield = 0;
+	}
+
+	if (eDamageType == DAMAGE_COLLISION || eDamageType == DAMAGE_EXPLOSION || eDamageType == DAMAGE_LASER || eDamageType == DAMAGE_GENERIC)
+	{
+		size_t iDebris = (int)(flDamage/10);
+		if (iDebris < 0)
+			iDebris = 1;
+
+		for (size_t i = 0; i < iDebris; i++)
+		{
+			CDebris* pDebris = GameServer()->Create<CDebris>("CDebris");
+			pDebris->SetOrigin(GetOrigin());
+		}
 	}
 
 	float flShieldDamageScale = 1;

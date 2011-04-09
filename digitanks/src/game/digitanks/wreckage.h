@@ -48,4 +48,19 @@ protected:
 	CNetworkedHandle<CDigitanksTeam> m_hOldTeam;
 };
 
+class CDebris : public CDigitanksEntity
+{
+	REGISTER_ENTITY_CLASS(CDebris, CDigitanksEntity);
+
+public:
+	virtual void					Precache();
+	virtual void					Spawn();
+	virtual void					Think();
+
+	virtual void					Touching(CBaseEntity* pOther);
+
+protected:
+	CParticleSystemInstanceHandle	m_hBurnParticles;
+};
+
 #endif
