@@ -410,7 +410,7 @@ void CDigitanksCamera::Think()
 
 	m_vecCamera = AngleVector(m_angCamera) * m_flDistance + m_vecTarget;
 
-	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3)
+	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
 		float flCameraIntroLerp = SLerp(RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0, 3, 0, 1), 0.2f);
 
