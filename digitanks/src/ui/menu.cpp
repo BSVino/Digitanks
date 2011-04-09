@@ -797,15 +797,13 @@ void CArtilleryGamePanel::BeginGameCallback()
 	CVar::SetCVar("game_bots", m_pBotPlayers->GetSelectionValue());
 	CVar::SetCVar("game_tanks", m_pTanks->GetSelectionValue());
 	CVar::SetCVar("game_terrainheight", m_pTerrain->GetSelectionValue());
+	CVar::SetCVar("game_difficulty", m_pDifficulty->GetSelectionValue());
 	CVar::SetCVar(L"game_level", CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetFile());
 
 	DigitanksWindow()->CreateGame(GAMETYPE_ARTILLERY);
 
 	if (!GameServer())
 		return;
-
-	if (CNetwork::IsHost() && DigitanksGame())
-		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 
 	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 
@@ -1040,15 +1038,13 @@ void CStrategyGamePanel::BeginGameCallback()
 {
 	CVar::SetCVar("game_players", 1);
 	CVar::SetCVar("game_bots", m_pBotPlayers->GetSelectionValue());
+	CVar::SetCVar("game_difficulty", m_pDifficulty->GetSelectionValue());
 	CVar::SetCVar(L"game_level", CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetFile());
 
 	DigitanksWindow()->CreateGame(GAMETYPE_STANDARD);
 
 	if (!GameServer())
 		return;
-
-	if (CNetwork::IsHost() && DigitanksGame())
-		DigitanksGame()->SetDifficulty(m_pDifficulty->GetSelectionValue());
 
 	CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 

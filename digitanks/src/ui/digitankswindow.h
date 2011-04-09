@@ -27,6 +27,7 @@ typedef enum
 {
 	HALTACTION_TOMENU,
 	HALTACTION_CAMPAIGNLEVEL,
+	HALTACTION_RESTART,
 } haltaction_t;
 
 class CDigitanksWindow : public CApplication
@@ -51,7 +52,7 @@ public:
 	void						RenderLoading();
 	void						RenderMouseCursor();
 
-	void						CreateGame(gametype_t eGameType);
+	void						CreateGame(gametype_t eGameType = GAMETYPE_EMPTY);
 	void						DestroyGame();
 
 	void						NewCampaign();

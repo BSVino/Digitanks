@@ -209,7 +209,7 @@ void CDigitanksGame::ClientUpdate(int iClient)
 	GetTerrain()->ResyncClientTerrainData(iClient);
 }
 
-CVar game_type("game_type", "");
+CVar game_difficulty("game_difficulty", "1");
 
 void CDigitanksGame::SetupGame(gametype_t eGameType)
 {
@@ -240,6 +240,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 	if (eGameType != GAMETYPE_EMPTY)
 		StartGame();
+
+	DigitanksGame()->SetDifficulty(game_difficulty.GetInt());
 }
 
 void CDigitanksGame::ReadGameScript(eastl::string16 sScript)

@@ -289,9 +289,38 @@ void LoadLevel(class CCommand* pCommand, eastl::vector<eastl::string16>& asToken
 }
 
 CCommand load_level("load_level", ::LoadLevel);
+CVar game_type("game_type", "");
 
-void CDigitanksWindow::CreateGame(gametype_t eGameType)
+void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 {
+	gametype_t eGameType = GAMETYPE_MENU;
+	if (eRequestedGameType == GAMETYPE_FROM_CVAR)
+	{
+		if (game_type.GetValue() == L"menu")
+			eGameType = GAMETYPE_MENU;
+		else if (game_type.GetValue() == L"artillery")
+			eGameType = GAMETYPE_ARTILLERY;
+		else if (game_type.GetValue() == L"strategy")
+			eGameType = GAMETYPE_STANDARD;
+		else if (game_type.GetValue() == L"campaign")
+			eGameType = GAMETYPE_CAMPAIGN;
+		else
+			eGameType = GAMETYPE_EMPTY;
+	}
+	else
+		eGameType = eRequestedGameType;
+
+	if (eGameType == GAMETYPE_MENU)
+		game_type.SetValue(L"menu");
+	else if (eGameType == GAMETYPE_ARTILLERY)
+		game_type.SetValue(L"artillery");
+	else if (eGameType == GAMETYPE_STANDARD)
+		game_type.SetValue(L"strategy");
+	else if (eGameType == GAMETYPE_CAMPAIGN)
+		game_type.SetValue(L"campaign");
+	else
+		game_type.SetValue(L"empty");
+
 	RenderLoading();
 
 	if (eGameType != GAMETYPE_MENU)
@@ -438,6 +467,8 @@ void CDigitanksWindow::Run()
 				DestroyGame();
 				if (m_eHaltAction == HALTACTION_CAMPAIGNLEVEL)
 					CreateGame(GAMETYPE_CAMPAIGN);
+				else if (m_eHaltAction == HALTACTION_RESTART)
+					CreateGame(GAMETYPE_FROM_CVAR);
 				else
 					CreateGame(GAMETYPE_MENU);
 

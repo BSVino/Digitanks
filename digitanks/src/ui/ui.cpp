@@ -246,6 +246,10 @@ CVictoryPanel::CVictoryPanel()
 	m_pVictory->SetFont(L"text");
 	AddControl(m_pVictory);
 
+	m_pRestart = new CButton(0, 0, 100, 100, L"Restart");
+	m_pRestart->SetFont(L"header");
+	AddControl(m_pRestart);
+
 	SetVisible(false);
 
 	Layout();
@@ -253,12 +257,16 @@ CVictoryPanel::CVictoryPanel()
 
 void CVictoryPanel::Layout()
 {
-	SetSize(250, 250);
+	SetSize(550, 200);
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
 	m_pVictory->SetPos(10, 20);
 	m_pVictory->SetSize(GetWidth()-20, GetHeight());
 	m_pVictory->SetAlign(CLabel::TA_TOPCENTER);
+
+	m_pRestart->SetSize(80, 35);
+	m_pRestart->SetPos(GetWidth()/2-m_pRestart->GetWidth()/2, GetHeight() - m_pRestart->GetHeight() - 20);
+	m_pRestart->SetClickedListener(this, Restart);
 }
 
 void CVictoryPanel::Paint(int x, int y, int w, int h)
@@ -266,22 +274,6 @@ void CVictoryPanel::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 235));
 
 	BaseClass::Paint(x, y, w, h);
-}
-
-bool CVictoryPanel::MousePressed(int code, int mx, int my)
-{
-	if (BaseClass::MousePressed(code, mx, my))
-		return true;
-
-	SetVisible(false);
-	return true;
-}
-
-bool CVictoryPanel::KeyPressed(int iKey, bool bCtrlDown)
-{
-	SetVisible(false);
-	// Pass the keypress through so that the menu opens.
-	return false;
 }
 
 void CVictoryPanel::GameOver(bool bPlayerWon)
@@ -297,6 +289,13 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 		m_pVictory->AppendText(L"Thanks for playing Digitanks. Return to the main menu to start a new game.");
 
 	SetVisible(true);
+}
+
+void CVictoryPanel::RestartCallback()
+{
+	DigitanksWindow()->Halt(HALTACTION_RESTART);
+
+	SetVisible(false);
 }
 
 CPurchasePanel::CPurchasePanel()

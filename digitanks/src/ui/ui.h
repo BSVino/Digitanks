@@ -40,7 +40,7 @@ protected:
 	class COptionsPanel*			m_pOptionsPanel;
 };
 
-class CVictoryPanel : public glgui::CPanel
+class CVictoryPanel : public glgui::CPanel, public glgui::IEventListener
 {
 	DECLARE_CLASS(CVictoryPanel, glgui::CPanel);
 
@@ -51,14 +51,14 @@ public:
 	virtual void					Layout();
 	virtual void					Paint(int x, int y, int w, int h);
 
-	virtual bool					IsCursorListener() {return true;};
-	virtual bool					MousePressed(int code, int mx, int my);
-	virtual bool					KeyPressed(int iKey, bool bCtrlDown = false);
-
 	virtual void					GameOver(bool bPlayerWon);
+
+	EVENT_CALLBACK(CVictoryPanel, Restart);
 
 protected:
 	glgui::CLabel*					m_pVictory;
+
+	glgui::CButton*					m_pRestart;
 };
 
 class CPurchasePanel : public glgui::CPanel, public glgui::IEventListener
