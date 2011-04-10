@@ -2209,6 +2209,8 @@ void CDigitanksGame::WeaponSpecialCommand(CDigitanksTeam* pTeam)
 
 		pWeapon->SpecialCommand();
 	}
+
+	DigitanksWindow()->GetHUD()->ClearHintWeapon();
 }
 
 void CDigitanksGame::AddTankAim(Vector vecAim, float flRadius, bool bFocus)

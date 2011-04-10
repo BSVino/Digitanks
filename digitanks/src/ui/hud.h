@@ -253,6 +253,8 @@ public:
 
 	void						AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup);
 
+	void						ClearHintWeapon() { m_hHintWeapon = NULL; };
+
 	EVENT_CALLBACK(CHUD, ChooseActionItem);
 	EVENT_CALLBACK(CHUD, ShowSmallActionItem);
 	EVENT_CALLBACK(CHUD, HideSmallActionItem);

@@ -11,6 +11,7 @@
 #include <digitanks/dt_camera.h>
 #include "ui/instructor.h"
 #include "ui/digitankswindow.h"
+#include "ui/hud.h"
 
 REGISTER_ENTITY(CProjectile);
 
@@ -52,6 +53,7 @@ void CProjectile::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
 	PrecacheSound(L"sound/bomb-drop.wav");
+	PrecacheParticleSystem(L"dmg-boost");
 }
 
 void CProjectile::Spawn()
@@ -150,6 +152,10 @@ void CProjectile::SpecialCommand()
 		return;
 
 	m_flDamageBonusTime = GameServer()->GetGameTime();
+
+	size_t iPulse = CParticleSystemLibrary::AddInstance(L"dmg-boost", GetOrigin());
+	if (iPulse != ~0)
+		CParticleSystemLibrary::GetInstance(iPulse)->FollowEntity(this);
 }
 
 Color CProjectile::GetBonusDamageColor()
@@ -362,6 +368,8 @@ void CProjectile::OnExplode(CBaseEntity* pInstigator)
 
 	if (m_flDamageBonusTime > 0)
 		m_flDamageBonusFreeze = RemapValClamped(GameServer()->GetGameTime() - m_flDamageBonusTime, 0, DamageBonusTime(), 1, 0);
+
+	DigitanksWindow()->GetHUD()->ClearHintWeapon();
 }
 
 bool CProjectile::ShouldPlayExplosionSound()

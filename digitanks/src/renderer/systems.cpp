@@ -738,4 +738,25 @@ void CParticleSystemLibrary::InitSystems()
 	pChargeCharge->SetInheritedVelocity(0.0f);
 	pChargeCharge->SetDrag(0.0f);
 	pChargeCharge->SetRandomBillboardYaw(true);
+
+	size_t iDamageBoost = pPSL->AddParticleSystem(L"dmg-boost");
+	size_t iDamageBoostPulse = pPSL->AddParticleSystem(L"dmg-boost-pulse");
+
+	CParticleSystem* pDamageBoost = pPSL->GetParticleSystem(iDamageBoost);
+	CParticleSystem* pDamageBoostPulse = pPSL->GetParticleSystem(iDamageBoostPulse);
+
+	pDamageBoost->AddChild(iDamageBoostPulse);
+
+	pDamageBoostPulse->SetTexture(L"textures/particles/aoe-bubble.png");
+	pDamageBoostPulse->SetLifeTime(1.0f);
+	pDamageBoostPulse->SetEmissionRate(0.0f);
+	pDamageBoostPulse->SetEmissionMax(1);
+	pDamageBoostPulse->SetAlpha(1.0f);
+	pDamageBoostPulse->SetStartRadius(0.5f);
+	pDamageBoostPulse->SetEndRadius(50.0f);
+	pDamageBoostPulse->SetFadeOut(1.0f);
+	pDamageBoostPulse->SetInheritedVelocity(0.5f);
+	pDamageBoostPulse->SetDrag(0.5f);
+	pDamageBoostPulse->SetRandomBillboardYaw(true);
+	pDamageBoostPulse->SetColor(Color(255,0,0));
 }

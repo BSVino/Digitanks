@@ -26,7 +26,7 @@ public:
 	virtual Color				GetBonusDamageColor();
 	virtual float				GetBonusDamage();
 	virtual float				DamageBonus() const { return 30; };
-	virtual float				DamageBonusTime() const { return 1.0f; };
+	virtual float				DamageBonusTime() const { return 1.5f; };
 
 	virtual void				Fragment();
 

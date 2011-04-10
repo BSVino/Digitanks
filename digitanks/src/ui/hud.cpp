@@ -1320,6 +1320,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (pWeapon->GetOwner()->GetTeam() != pLocalTeam)
 				continue;
 
+			if (pWeapon->GetBonusDamage() > 0)
+				continue;
+
 			m_hHintWeapon = pWeapon;
 			break;
 		}
