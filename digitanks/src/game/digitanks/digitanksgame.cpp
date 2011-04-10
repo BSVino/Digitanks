@@ -1547,7 +1547,7 @@ void CDigitanksGame::StartTurn()
 	else
 		iPowerupChance = RandomInt(0, 3);
 
-	if (GetGameType() != GAMETYPE_MENU && !DigitanksWindow()->GetInstructor()->GetActive() && m_iPowerups < 10 && iPowerupChance == 0)
+	if (GetGameType() != GAMETYPE_MENU && GetGameType() != GAMETYPE_CAMPAIGN && m_iPowerups < 10 && iPowerupChance == 0)
 	{
 		float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());
 		float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize());

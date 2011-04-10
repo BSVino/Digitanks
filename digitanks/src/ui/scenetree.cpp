@@ -227,6 +227,19 @@ void CSceneTree::OnTeamMembersUpdated()
 	BuildTree(true);
 }
 
+void CSceneTree::GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h)
+{
+	if (!pEntity)
+		return;
+
+	CSceneTreeGroup* pGroup = GetUnitNode(pEntity->GetUnitType());
+
+	if (!pGroup)
+		return;
+
+	pGroup->GetUnitDimensions(pEntity, x, y, w, h);
+}
+
 CSceneTreeGroup::CSceneTreeGroup(unittype_t eUnit, glgui::CTree* pTree)
 	: CSceneTreeNode(NULL, pTree)
 {
@@ -246,6 +259,24 @@ void CSceneTreeGroup::Paint(int x, int y, int w, int h, bool bFloating)
 	CHUD::PaintUnitSheet(m_eUnit, x+h, y, h, h, pCurrentLocalTeam?pCurrentLocalTeam->GetColor():Color(255,255,255,255));
 
 	BaseClass::Paint(x, y, w, h, bFloating);
+}
+
+void CSceneTreeGroup::GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h)
+{
+	for (size_t i = 0; i < m_apNodes.size(); i++)
+	{
+		CSceneTreeUnit* pUnit = dynamic_cast<CSceneTreeUnit*>(m_apNodes[i]);
+		if (!pUnit)
+			continue;
+
+		if (pUnit->GetEntity() == pEntity)
+		{
+			pUnit->GetAbsDimensions(x, y, w, h);
+			return;
+		}
+	}
+
+	assert(!"Can't find dimensions for a unit");
 }
 
 CSceneTreeUnit::CSceneTreeUnit(CEntityHandle<CSelectable> hEntity, glgui::CTreeNode* pParent, glgui::CTree* pTree)

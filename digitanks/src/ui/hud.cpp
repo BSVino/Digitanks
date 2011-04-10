@@ -152,7 +152,8 @@ CHUD::CHUD()
 	m_WeaponsSheet(L"textures/hud/hud-weapons-01.txt"),
 	m_ButtonSheet(L"textures/hud/hud-menu-sheet-01.txt"),
 	m_DownloadSheet(L"textures/hud/hud-download-sheet-01.txt"),
-	m_ActionSignsSheet(L"textures/hud/actionsigns/signs.txt")
+	m_ActionSignsSheet(L"textures/hud/actionsigns/signs.txt"),
+	m_PowerupsSheet(L"textures/hud/powerups-sheet.txt")
 {
 	m_bNeedsUpdate = false;
 
@@ -1561,6 +1562,87 @@ void CHUD::Paint(int x, int y, int w, int h)
 				iTank++;
 			}
 		}
+	}
+
+	int iNotificationHeight = 40;
+	int iFirstNotificationHeight = glgui::CRootPanel::Get()->GetHeight()/3 - 50;
+	int iNotificationX = glgui::CRootPanel::Get()->GetWidth()/6;
+
+	for (size_t i = 0; i < m_aPowerupNotifications.size(); i++)
+	{
+		powerup_notification_t* pNotification = &m_aPowerupNotifications[i];
+
+		if (!pNotification->bActive)
+			continue;
+
+		if (!pNotification->hTank || GameServer()->GetGameTime() - pNotification->flTime > 3)
+		{
+			pNotification->bActive = false;
+			continue;
+		}
+
+		if (pNotification->hTank->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			continue;
+
+		float flLerpIn = Lerp(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 0, 0.5f, 0, 1), 0.2f);
+		int iX = (int)RemapValClamped(flLerpIn, 0, 1, -350, (float)iNotificationX);
+
+		int iY = iFirstNotificationHeight - (iNotificationHeight+10)*i;
+
+		Color clrBox = glgui::g_clrBox;
+		clrBox.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5f, 2, 1, 0));
+		glgui::CRootPanel::PaintRect(iX, iY, 350, iNotificationHeight, clrBox);
+
+		if (GameServer()->GetGameTime() - pNotification->flTime < 2)
+		{
+			eastl::string16 sText;
+			if (pNotification->ePowerupType == POWERUP_TANK)
+				sText = L"Bonus Tank Found!";
+			else if (pNotification->ePowerupType == POWERUP_MISSILEDEFENSE)
+				sText = L"Missile Defense Received!";
+			else if (pNotification->ePowerupType == POWERUP_AIRSTRIKE)
+				sText = L"Airstrike Received!";
+			else
+				sText = L"Tank Upgrade Received!";
+
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 1.5f, 2, 1, 0));
+			c.SetColor(Color(255, 255, 255, 255));
+			glgui::CLabel::PaintText(sText, sText.length(), L"header", 18, (float)(iX + iNotificationHeight + 20), (float)(iY + iNotificationHeight - 15));
+		}
+
+		int iSceneX, iSceneY, iSceneW, iSceneH;
+		m_pSceneTree->GetUnitDimensions(pNotification->hTank, iSceneX, iSceneY, iSceneW, iSceneH);
+
+		int iIconX, iIconY, iIconW, iIconH;
+
+		int iSpacing = 3;
+		float flMoveLerp = SLerp(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.0f, 2.5f, 0, 1), 0.1f);
+		iIconX = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iX+iSpacing, (float)iSceneX);
+		iIconY = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iY+iSpacing, (float)iSceneY);
+		iIconW = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iNotificationHeight-iSpacing*2, (float)iSceneH);
+		iIconH = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iNotificationHeight-iSpacing*2, (float)iSceneH);
+
+		eastl::string sArea;
+		if (pNotification->ePowerupType == POWERUP_AIRSTRIKE)
+			sArea = "Airstrike";
+		else if (pNotification->ePowerupType == POWERUP_TANK)
+		{
+			if (pNotification->hTank->GetUnitType() == UNIT_SCOUT)
+				sArea = "NewRogue";
+			else if (pNotification->hTank->GetUnitType() == UNIT_INFANTRY)
+				sArea = "NewResistor";
+			else
+				sArea = "NewDigitank";
+		}
+		else
+			sArea = "Upgrade";
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ADDITIVE);
+		Color clrPowerup(255, 255, 255, 255);
+		clrPowerup.SetAlpha(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 2.5f, 3.0f, 1, 0));
+		PaintSheet(&m_PowerupsSheet, sArea, iIconX, iIconY, iIconW, iIconH, clrPowerup);
 	}
 
 //	while (true)
@@ -2973,6 +3055,40 @@ void CHUD::ShowNewTurnSign()
 	m_eActionSign = ACTIONSIGN_NEWTURN;
 	m_flActionSignStart = GameServer()->GetGameTime();
 	CSoundLibrary::PlaySound(NULL, L"sound/actionsign.wav");
+}
+
+void PowerupNotifyCallback(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+{
+	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		return;
+
+	DigitanksWindow()->GetHUD()->AddPowerupNotification(DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetTank(0), POWERUP_BONUS);
+}
+
+CCommand powerup_notify("powerup_notify", PowerupNotifyCallback);
+
+void CHUD::AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup)
+{
+	powerup_notification_t* pNewNotification = NULL;
+
+	for (size_t i = 0; i < m_aPowerupNotifications.size(); i++)
+	{
+		powerup_notification_t* pNotification = &m_aPowerupNotifications[i];
+
+		if (pNotification->bActive)
+			continue;
+
+		pNewNotification = pNotification;
+		break;
+	}
+
+	if (!pNewNotification)
+		pNewNotification = &m_aPowerupNotifications.push_back();
+
+	pNewNotification->bActive = true;
+	pNewNotification->ePowerupType = ePowerup;
+	pNewNotification->flTime = GameServer()->GetGameTime();
+	pNewNotification->hTank = pTank;
 }
 
 void CHUD::ChooseActionItemCallback()

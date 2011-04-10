@@ -58,6 +58,8 @@ public:
 
 	virtual unittype_t				GetUnitType() { return m_eUnit; };
 
+	void							GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h);
+
 protected:
 	unittype_t						m_eUnit;
 };
@@ -82,6 +84,8 @@ public:
 	virtual void					OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 	virtual void					OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 	virtual void					OnTeamMembersUpdated();
+
+	void							GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& y, int& w, int& h);
 
 protected:
 	CEntityHandle<CDigitanksTeam>	m_hTeam;

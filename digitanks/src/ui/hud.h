@@ -7,6 +7,7 @@
 #include "digitanks/digitanksgame.h"
 #include "updatespanel.h"
 #include <models/texturelibrary.h>
+#include <game/digitanks/powerup.h>
 
 #define NUM_BUTTONS 10
 
@@ -23,6 +24,14 @@ typedef enum
 	POWERBAR_DEFENSE,
 	POWERBAR_MOVEMENT,
 } powerbar_type_t;
+
+typedef struct
+{
+	powerup_type_t				ePowerupType;
+	CEntityHandle<CDigitank>	hTank;
+	float						flTime;
+	bool						bActive;
+} powerup_notification_t;
 
 class CPowerBar : public glgui::CLabel
 {
@@ -242,6 +251,8 @@ public:
 	void						ShowShowdownSign();
 	void						ShowNewTurnSign();
 
+	void						AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup);
+
 	EVENT_CALLBACK(CHUD, ChooseActionItem);
 	EVENT_CALLBACK(CHUD, ShowSmallActionItem);
 	EVENT_CALLBACK(CHUD, HideSmallActionItem);
@@ -411,6 +422,9 @@ protected:
 		ACTIONSIGN_NEWTURN,
 	} actionsign_t;
 	actionsign_t				m_eActionSign;
+
+	CTextureSheet				m_PowerupsSheet;
+	eastl::vector<powerup_notification_t>	m_aPowerupNotifications;
 
 	size_t						m_iPurchasePanel;
 

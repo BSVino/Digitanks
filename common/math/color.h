@@ -16,6 +16,7 @@ public:
 	inline void		SetGreen(int _g);
 	inline void		SetBlue(int _b);
 	inline void		SetAlpha(int _a);
+	inline void		SetAlpha(float f);
 
 	int				r() const { return red; };
 	int				g() const { return green; };
@@ -87,6 +88,11 @@ void Color::SetBlue(int _b)
 void Color::SetAlpha(int _a)
 {
 	alpha = _a;
+}
+
+void Color::SetAlpha(float f)
+{
+	alpha = (int)(f*255);
 }
 
 #endif

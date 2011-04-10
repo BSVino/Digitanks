@@ -12,6 +12,8 @@
 #include <digitanks/units/mechinf.h>
 #include "units/digitank.h"
 #include "digitanksgame.h"
+#include <ui/digitankswindow.h>
+#include <ui/hud.h>
 
 REGISTER_ENTITY(CPowerup);
 
@@ -146,10 +148,12 @@ void CPowerup::Pickup(class CDigitank* pTank)
 	case POWERUP_BONUS:
 	default:
 		pTank->GiveBonusPoints(1);
+		DigitanksWindow()->GetHUD()->AddPowerupNotification(pTank, POWERUP_BONUS);
 		break;
 
 	case POWERUP_AIRSTRIKE:
 		pTank->GiveAirstrike();
+		DigitanksWindow()->GetHUD()->AddPowerupNotification(pTank, POWERUP_AIRSTRIKE);
 		break;
 
 //	case POWERUP_MISSILEDEFENSE:
@@ -158,9 +162,9 @@ void CPowerup::Pickup(class CDigitank* pTank)
 
 	case POWERUP_TANK:
 	{
-		CDigitank* pTank;
+		CDigitank* pNewTank;
 		if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
-			pTank = GameServer()->Create<CStandardTank>("CStandardTank");
+			pNewTank = GameServer()->Create<CStandardTank>("CStandardTank");
 		else
 		{
 			switch(RandomInt(0, 4))
@@ -168,31 +172,33 @@ void CPowerup::Pickup(class CDigitank* pTank)
 			default:
 			case 0:
 			case 1:
-				pTank = GameServer()->Create<CScout>("CScout");
+				pNewTank = GameServer()->Create<CScout>("CScout");
 				break;
 
 			case 2:
 			case 3:
-				pTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
+				pNewTank = GameServer()->Create<CMechInfantry>("CMechInfantry");
 				break;
 
 			case 4:
-				pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
+				pNewTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 				break;
 			}
 		}
 
-		pTank->GetTeam()->AddEntity(pTank);
+		pTank->GetTeam()->AddEntity(pNewTank);
 
 		Vector vecTank = m_vecOrigin - (GetOrigin().Normalized() * (GetBoundingRadius()*2));
-		vecTank.y = pTank->FindHoverHeight(vecTank);
+		vecTank.y = pNewTank->FindHoverHeight(vecTank);
 		EAngle angTank = VectorAngles(-vecTank.Normalized());
 
-		pTank->SetOrigin(vecTank);
-		pTank->SetAngles(angTank);
-		pTank->StartTurn();
+		pNewTank->SetOrigin(vecTank);
+		pNewTank->SetAngles(angTank);
+		pNewTank->StartTurn();
 
-		pTank->CalculateVisibility();
+		pNewTank->CalculateVisibility();
+
+		DigitanksWindow()->GetHUD()->AddPowerupNotification(pNewTank, POWERUP_TANK);
 	}
 
 	case POWERUP_WEAPON:
