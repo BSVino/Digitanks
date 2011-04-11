@@ -775,7 +775,7 @@ void CDigitanksCamera::KeyDown(int c)
 			m_vecGoalVelocity.z = 80.0f;
 	}
 
-	if (c == ' ' && !DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
+	if (c == ' ' && m_hCameraGuidedMissile == NULL && !DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_VIEW_MOVE))
 		m_bDraggingCamera = true;
 
 	if (c == TINKER_KEY_LSHIFT)
