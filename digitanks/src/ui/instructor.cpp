@@ -451,6 +451,8 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::s
 	m_bKillOnFinish = false;
 	m_flSlideAmount = 0;
 	m_bSlideX = true;
+	m_eDisable = DISABLE_NOTHING;
+	m_eEnable = DISABLE_NOTHING;
 
 	m_vecSetViewTarget = Vector2D(0, 0);
 	m_angSetViewAngle = EAngle(-1, -1, -1);
