@@ -115,8 +115,6 @@ void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 
 void CNetwork::CreateHost(int iPort)
 {
-	TMsg(sprintf(L"Creating host on port %d\n", iPort));
-
 	s_bConnected = false;
 
 	ENetAddress oAddress;
@@ -127,6 +125,8 @@ void CNetwork::CreateHost(int iPort)
 		oAddress.port = iPort;
 	else
 		oAddress.port = 30203;
+
+	TMsg(sprintf(L"Creating host on port %d\n", (int)oAddress.port));
 
 	g_pServer = enet_host_create(&oAddress, 32, 1, 0, 0);
 
@@ -151,8 +151,6 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 	if (!s_bInitialized)
 		return;
 
-	TMsg(sprintf(L"Connecting to '%s' on port %d\n", convertstring<char, char16_t>(pszHost), iPort));
-
 	g_pClient = enet_host_create(NULL, 1, 1, 0, 0);
 
     if (g_pClient == NULL)
@@ -170,6 +168,8 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 		oAddress.port = iPort;
 	else
 		oAddress.port = 30203;
+
+	TMsg(sprintf(L"Connecting to '%s' on port %d\n", convertstring<char, char16_t>(pszHost).c_str(), (int)oAddress.port));
 
 	g_pClientPeer = enet_host_connect(g_pClient, &oAddress, 1, 0);    
 

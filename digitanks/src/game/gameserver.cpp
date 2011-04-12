@@ -88,6 +88,7 @@ CGameServer::CGameServer()
 
 	CBaseEntity::s_iNextEntityListIndex = 0;
 
+	m_iPort = 0;
 	m_iClient = -1;
 
 	m_bHalting = false;
