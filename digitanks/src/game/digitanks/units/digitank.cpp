@@ -2942,7 +2942,7 @@ Vector CDigitank::GetRenderOrigin() const
 
 EAngle CDigitank::GetRenderAngles() const
 {
-	if (GetDigitanksTeam()->IsPrimarySelection(this))
+	if (GetDigitanksTeam() && GetDigitanksTeam()->IsPrimarySelection(this))
 	{
 		if (DigitanksGame()->GetControlMode() == MODE_TURN && GetPreviewTurnPower() <= GetRemainingMovementEnergy())
 			return EAngle(0, GetPreviewTurn(), 0);
