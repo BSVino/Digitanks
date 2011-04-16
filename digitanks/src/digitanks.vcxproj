@@ -153,6 +153,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\tinker\application.cpp" />
     <ClCompile Include="..\..\tinker\console.cpp" />
     <ClCompile Include="..\..\tinker\cvar.cpp" />
+    <ClCompile Include="..\..\tinker\lobby\lobby.cpp" />
     <ClCompile Include="..\..\tinker\portals\portal_steam.cpp" />
     <ClCompile Include="..\..\tinker\portals\portal_stubs.cpp" />
     <ClCompile Include="..\..\tinker\profiler.cpp" />
@@ -198,6 +199,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="main.cpp" />
     <ClCompile Include="models\texturelibrary.cpp" />
     <ClCompile Include="models\texturesheet.cpp" />
+    <ClCompile Include="network\commands.cpp" />
+    <ClCompile Include="network\replication.cpp" />
     <ClCompile Include="shaders\prop.cpp" />
     <ClCompile Include="ui\chatbox.cpp" />
     <ClCompile Include="ui\debugdraw.cpp" />
@@ -245,6 +248,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\common\mtrand.cpp" />
     <ClCompile Include="..\..\common\platform_win32.cpp" />
     <ClCompile Include="network\network.cpp" />
+    <ClCompile Include="ui\lobbyui.cpp" />
     <ClCompile Include="ui\menu.cpp" />
     <ClCompile Include="ui\scenetree.cpp" />
     <ClCompile Include="ui\ui.cpp" />
@@ -269,6 +273,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="..\..\tinker\console.h" />
     <ClInclude Include="..\..\tinker\cvar.h" />
     <ClInclude Include="..\..\tinker\keys.h" />
+    <ClInclude Include="..\..\tinker\lobby\lobby.h" />
     <ClInclude Include="..\..\tinker\portals\portal.h" />
     <ClInclude Include="..\..\tinker\profiler.h" />
     <ClInclude Include="dt_version.h" />
@@ -311,6 +316,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="game\networkedeffect.h" />
     <ClInclude Include="models\texturelibrary.h" />
     <ClInclude Include="models\texturesheet.h" />
+    <ClInclude Include="network\commands.h" />
+    <ClInclude Include="network\replication.h" />
     <ClInclude Include="shaders\dt_shaders.h" />
     <ClInclude Include="ui\chatbox.h" />
     <ClInclude Include="ui\debugdraw.h" />
@@ -339,6 +346,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="..\..\common\mtrand.h" />
     <ClInclude Include="..\..\common\platform.h" />
     <ClInclude Include="network\network.h" />
+    <ClInclude Include="ui\lobbyui.h" />
     <ClInclude Include="ui\menu.h" />
     <ClInclude Include="ui\scenetree.h" />
     <ClInclude Include="ui\ui.h" />

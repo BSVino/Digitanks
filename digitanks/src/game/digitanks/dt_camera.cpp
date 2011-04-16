@@ -5,6 +5,7 @@
 #include <renderer/renderer.h>
 #include <tinker/cvar.h>
 #include <tinker/keys.h>
+#include <network/commands.h>
 
 #include "digitanks/digitanksgame.h"
 

@@ -383,8 +383,6 @@ void CDigitanksWindow::DestroyGame()
 
 	RenderLoading();
 
-	CNetwork::Disconnect();
-
 	if (m_pGameServer)
 		delete m_pGameServer;
 
@@ -480,8 +478,8 @@ void CDigitanksWindow::Run()
 			{
 				if (GameServer()->IsLoading())
 				{
-					// PreThink pumps the network
-					CNetwork::PreThink();
+					// Pump the network
+					CNetwork::Think();
 					RenderLoading();
 					continue;
 				}

@@ -6,8 +6,10 @@
 #include <tinker/keys.h>
 #include <tinker/cvar.h>
 #include <tinker/console.h>
+#include <network/commands.h>
 
 #include "digitankswindow.h"
+#include "lobbyui.h"
 
 SERVER_COMMAND(ServerChatSay)
 {
@@ -56,10 +58,11 @@ void ChatOpen(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens
 
 CCommand chat_open("chat_open", ::ChatOpen);
 
-CChatBox::CChatBox()
+CChatBox::CChatBox(bool bFloating)
 	: glgui::CPanel(0, 0, 100, 100)
 {
-	glgui::CRootPanel::Get()->AddControl(this, true);
+	if (!bFloating)
+		glgui::CRootPanel::Get()->AddControl(this, true);
 
 	m_pOutput = new glgui::CLabel(0, 0, 100, 100, L"");
 	m_pOutput->SetAlign(glgui::CLabel::TA_BOTTOMLEFT);
@@ -69,15 +72,24 @@ CChatBox::CChatBox()
 	AddControl(m_pInput);
 
 	m_flLastMessage = 0;
+
+	SetSize(glgui::CRootPanel::Get()->GetWidth()/3, 250);
+	SetPos(glgui::CRootPanel::Get()->GetWidth()/6, glgui::CRootPanel::Get()->GetHeight()/2);
+
+	m_bFloating = bFloating;
 }
 
 CChatBox::~CChatBox()
 {
-	glgui::CRootPanel::Get()->RemoveControl(this);
+	if (m_bFloating)
+		glgui::CRootPanel::Get()->RemoveControl(this);
 }
 
 bool CChatBox::IsVisible()
 {
+	if (!m_bFloating)
+		return BaseClass::IsVisible();
+
 	if (CApplication::Get()->GetConsole()->IsVisible())
 		return false;
 
@@ -94,10 +106,13 @@ void CChatBox::SetVisible(bool bVisible)
 
 	m_pInput->SetFocus(bVisible);
 
-	m_flLastMessage = GameServer()->GetGameTime();
-
 	if (IsVisible())
 		Layout();
+
+	if (!m_bFloating)
+		return;
+
+	m_flLastMessage = GameServer()->GetGameTime();
 }
 
 bool CChatBox::IsOpen()
@@ -107,9 +122,6 @@ bool CChatBox::IsOpen()
 
 void CChatBox::Layout()
 {
-	SetSize(glgui::CRootPanel::Get()->GetWidth()/3, 250);
-	SetPos(glgui::CRootPanel::Get()->GetWidth()/6, glgui::CRootPanel::Get()->GetHeight()/2);
-
 	m_pInput->SetSize(GetWidth(), 20);
 	m_pInput->SetPos(0, GetHeight()-20);
 
@@ -124,6 +136,8 @@ void CChatBox::Paint(int x, int y, int w, int h)
 	float flAlpha;
 	float flTimeSinceLastMessage = GameServer()->GetGameTime() - m_flLastMessage;
 	if (IsOpen() || flTimeSinceLastMessage < 1)
+		flAlpha = 1;
+	else if (!m_bFloating)
 		flAlpha = 1;
 	else if (flTimeSinceLastMessage < 5)
 		flAlpha = RemapValClamped(flTimeSinceLastMessage, 1, 2, 1, 0.5f);
@@ -140,7 +154,8 @@ void CChatBox::Paint(int x, int y, int w, int h)
 
 	m_pOutput->SetFGColor(Color(255, 255, 255, (int)(255*flAlpha)));
 
-	m_pInput->SetVisible(IsOpen());
+	if (m_bFloating)
+		m_pInput->SetVisible(IsOpen());
 
 	BaseClass::Paint(x, y, w, h);
 }
@@ -202,6 +217,10 @@ void CDigitanksWindow::OpenChat()
 		return;
 
 	CChatBox* pChat = GetChatBox();
+
+	if (!pChat->IsFloating())
+		return;
+
 	pChat->Layout();
 	pChat->SetVisible(true);
 
@@ -216,6 +235,10 @@ void CDigitanksWindow::CloseChat()
 		return;
 
 	CChatBox* pChat = GetChatBox();
+
+	if (!pChat->IsFloating())
+		return;
+
 	pChat->SetVisible(false);
 
 	CApplication::Get()->GetConsole()->SetRenderBackground(true);
@@ -261,6 +284,9 @@ void CDigitanksWindow::PrintChat(eastl::string sText)
 
 CChatBox* CDigitanksWindow::GetChatBox()
 {
+	if (GetLobbyPanel()->IsVisible())
+		return GetLobbyPanel()->GetChat();
+
 	if (m_pChatBox == NULL)
 	{
 		m_pChatBox = new CChatBox();

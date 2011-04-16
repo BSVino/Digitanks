@@ -15,6 +15,7 @@
 #include <renderer/dissolver.h>
 #include <sound/sound.h>
 #include <network/network.h>
+#include <network/commands.h>
 #include <datamanager/data.h>
 #include <datamanager/dataserializer.h>
 #include <models/models.h>
@@ -155,18 +156,6 @@ void CGameServer::Initialize()
 		m_pCamera = CreateCamera();
 
 	RegisterNetworkFunctions();
-
-	int iPort = m_iPort;
-
-	if (m_eServerType == SERVER_HOST)
-		CNetwork::CreateHost(iPort);
-
-	if (m_eServerType == SERVER_CLIENT)
-	{
-		CNetwork::ConnectToHost(m_sConnectHost.c_str(), iPort);
-		if (!CNetwork::IsConnected())
-			return;
-	}
 }
 
 void CGameServer::ReadLevels()
@@ -259,7 +248,7 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 		CNetwork::CallFunction(p->i2, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
 	}
 
-	CNetwork::UpdateNetworkVariables(p->i2, true);
+	CGameServerNetwork::UpdateNetworkVariables(p->i2, true);
 
 	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -330,7 +319,7 @@ void CGameServer::Think(float flHostTime)
 
 	m_flHostTime = flHostTime;
 
-	if (CNetwork::IsConnected() && m_flHostTime > m_flNextClientInfoUpdate)
+	if (CNetwork::IsConnected() && CNetwork::IsHost() && m_flHostTime > m_flNextClientInfoUpdate)
 	{
 		m_flNextClientInfoUpdate = m_flHostTime + 5.0f;
 
@@ -338,6 +327,9 @@ void CGameServer::Think(float flHostTime)
 		for (size_t i = 0; i < iClientsConnected; i++)
 		{
 			size_t iClient = CNetwork::GetClientConnectionId(i);
+			if (iClient == ~0)
+				continue;
+
 			CNetwork::CallFunction(iClient, "ClientInfo", iClient, GetGameTime());
 		}
 	}
@@ -348,7 +340,7 @@ void CGameServer::Think(float flHostTime)
 
 	m_ahDeletedEntities.clear();
 
-	CNetwork::PreThink();
+	CNetwork::Think();
 
 	Simulate();
 
@@ -367,7 +359,8 @@ void CGameServer::Think(float flHostTime)
 
 	Think();
 
-	CNetwork::PostThink();
+	if (CNetwork::IsHost())
+		CGameServerNetwork::UpdateNetworkVariables(NETWORK_TOCLIENTS);
 
 	if (CNetwork::IsHost())
 	{

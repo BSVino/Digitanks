@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <network/network.h>
+#include <network/replication.h>
 
 template <class C>
 class CEntityHandle

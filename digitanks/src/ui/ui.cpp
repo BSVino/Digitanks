@@ -11,6 +11,7 @@
 #include "menu.h"
 #include "ui.h"
 #include "instructor.h"
+#include "lobbyui.h"
 
 using namespace glgui;
 
@@ -21,12 +22,14 @@ void CDigitanksWindow::InitUI()
 	m_pVictory = new CVictoryPanel();
 	m_pPurchase = new CPurchasePanel();
 	m_pStory = new CStoryPanel();
+	m_pLobby = new CLobbyPanel();
 
 	CRootPanel::Get()->AddControl(m_pMainMenu);
 	CRootPanel::Get()->AddControl(m_pMenu);
 	CRootPanel::Get()->AddControl(m_pVictory);
 	CRootPanel::Get()->AddControl(m_pPurchase);
 	CRootPanel::Get()->AddControl(m_pStory);
+	CRootPanel::Get()->AddControl(m_pLobby);
 
 	CRootPanel::Get()->Layout();
 

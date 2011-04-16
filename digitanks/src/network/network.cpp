@@ -7,8 +7,7 @@
 
 #include <tinker/application.h>
 
-#include <baseentity.h>
-#include <gameserver.h>
+#include "commands.h"
 
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
@@ -23,6 +22,17 @@ static ENetHost* g_pServer = NULL;
 static eastl::vector<ENetPeer*> g_apServerPeers;
 static bool g_bIsRunningClientFunctions = false;
 static size_t g_iCurrentClient = 0;
+static size_t g_iClientID = 0;
+
+SERVER_COMMAND(SetClientID)
+{
+	assert(pCmd->GetNumArguments());
+
+	if (!pCmd->GetNumArguments())
+		return;
+
+	g_iClientID = pCmd->ArgAsUInt(0);
+}
 
 void CNetwork::Initialize()
 {
@@ -61,56 +71,6 @@ void CNetwork::RegisterFunction(const char* pszName, INetworkListener* pListener
 void CNetwork::ClearRegisteredFunctions()
 {
 	s_aFunctions.clear();
-}
-
-void CNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
-{
-	size_t iMaxEnts = GameServer()->GetMaxEntities();
-	for (size_t i = 0; i < iMaxEnts; i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-		if (!pEntity)
-			continue;
-
-		size_t iRegistration = pEntity->GetRegistration();
-
-		CEntityRegistration* pRegistration = NULL;
-		do
-		{
-			pRegistration = pEntity->GetRegisteredEntity(iRegistration);
-
-			assert(pRegistration);
-			if (!pRegistration)
-				break;
-
-			size_t iNetVarsSize = pRegistration->m_aNetworkVariables.size();
-			for (size_t j = 0; j < iNetVarsSize; j++)
-			{
-				CNetworkedVariableData* pVarData = &pRegistration->m_aNetworkVariables[j];
-				CNetworkedVariableBase* pVariable = pVarData->GetNetworkedVariableBase(pEntity);
-
-				if (!bForceAll && !pVariable->IsDirty())
-					continue;
-
-				CNetworkParameters p;
-				p.ui1 = pEntity->GetHandle();
-
-				size_t iDataSize;
-				void* pValue = pVariable->Serialize(iDataSize);
-
-				p.CreateExtraData(iDataSize + strlen(pVarData->GetName())+1);
-				strcpy((char*)p.m_pExtraData, pVarData->GetName());
-				memcpy((unsigned char*)(p.m_pExtraData) + strlen(pVarData->GetName())+1, pValue, iDataSize);
-
-				// UV stands for UpdateValue
-				CallFunctionParameters(iClient, "UV", &p);
-
-				// Only reset the dirty flag if all clients got the message.
-				if (iClient == NETWORK_TOCLIENTS)
-					pVariable->SetDirty(false);
-			}
-		} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
-	}
 }
 
 void CNetwork::CreateHost(int iPort)
@@ -230,7 +190,7 @@ void CNetwork::Disconnect()
 	}
 }
 
-void CNetwork::PreThink()
+void CNetwork::Think()
 {
 	ENetEvent oEvent;
 
@@ -269,6 +229,8 @@ void CNetwork::PreThink()
 					g_apServerPeers.push_back(oEvent.peer);
 					iPeer = (int)g_apServerPeers.size()-1;
 				}
+
+				SetClientID.RunCommand(sprintf(L"%u", iPeer));
 
 				p.p1 = &oEvent.data;
 				p.i2 = iPeer;
@@ -320,21 +282,6 @@ void CNetwork::PreThink()
 			break;
         }
     }
-}
-
-void CNetwork::PostThink()
-{
-	if (!s_bConnected)
-		return;
-
-	ENetHost* pHost = g_pClient;
-	if (!pHost)
-		pHost = g_pServer;
-	if (!pHost)
-		return;
-
-	if (IsHost())
-		UpdateNetworkVariables(NETWORK_TOCLIENTS);
 }
 
 void CNetwork::CallFunction(int iClient, const char* pszFunction, ...)
@@ -477,141 +424,7 @@ size_t CNetwork::GetClientConnectionId(size_t iClient)
 	return ~0;
 }
 
-CNetworkedVariableData::CNetworkedVariableData()
+size_t CNetwork::GetClientID()
 {
-	m_iOffset = 0;
-}
-
-CNetworkedVariableBase* CNetworkedVariableData::GetNetworkedVariableBase(CBaseEntity* pEntity)
-{
-	assert(m_iOffset);
-	return (CNetworkedVariableBase*)(((size_t)pEntity) + m_iOffset);
-}
-
-CNetworkedVariableBase::CNetworkedVariableBase()
-{
-	m_bDirty = true;
-}
-
-void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
-{
-	if (m_iMessageTarget == NETWORK_TOCLIENTS)
-	{
-		if (CNetwork::IsHost())
-		{
-			// If I'm the host then pass me the message too.
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-		}
-		else
-		{
-			// If we're running client functions then we're going to get this message from the server anyway.
-			if (CNetwork::IsRunningClientFunctions())
-				return;
-
-			// Some shared code. Run the callback but don't send it over the wire.
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-			return;
-		}
-	}
-
-	if (m_iMessageTarget == NETWORK_TOSERVER)
-	{
-		if (CNetwork::IsHost() || !CNetwork::IsConnected())
-		{
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-			return;
-		}
-
-		// If we're running client functions then the server already knows about this call.
-		if (!CNetwork::IsHost() && CNetwork::IsRunningClientFunctions())
-		{
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-			return;
-		}
-	}
-
-	eastl::string16 sCommand = m_sName + L" " + sParameters;
-
-	CNetworkParameters p;
-	p.CreateExtraData(sizeof(eastl::string16::value_type) * (sCommand.length() + 1));
-	char16_t* pszData = (char16_t*)p.m_pExtraData;
-
-	assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
-	wcscpy(pszData, sCommand.c_str());
-
-	p.ui1 = GameServer()->GetClientIndex();
-
-	CNetwork::CallFunctionParameters(m_iMessageTarget, "NC", &p);
-}
-
-void CNetworkCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
-{
-	wcstok(sParameters, m_asArguments);
-
-	m_pfnCallback(this, iClient, sParameters);
-}
-
-size_t CNetworkCommand::GetNumArguments()
-{
-	return m_asArguments.size();
-}
-
-eastl::string16 CNetworkCommand::Arg(size_t iArg)
-{
-	assert(iArg < GetNumArguments());
-	if (iArg >= GetNumArguments())
-		return 0;
-
-	return m_asArguments[iArg];
-}
-
-size_t CNetworkCommand::ArgAsUInt(size_t iArg)
-{
-	assert(iArg < GetNumArguments());
-	if (iArg >= GetNumArguments())
-		return 0;
-
-	return _wtoi(m_asArguments[iArg].c_str());
-}
-
-int CNetworkCommand::ArgAsInt(size_t iArg)
-{
-	assert(iArg < GetNumArguments());
-	if (iArg >= GetNumArguments())
-		return 0;
-
-	return _wtoi(m_asArguments[iArg].c_str());
-}
-
-float CNetworkCommand::ArgAsFloat(size_t iArg)
-{
-	assert(iArg < GetNumArguments());
-	if (iArg >= GetNumArguments())
-		return 0;
-
-	return (float)_wtof(m_asArguments[iArg].c_str());
-}
-
-eastl::map<eastl::string16, CNetworkCommand*>& CNetworkCommand::GetCommands()
-{
-	static eastl::map<eastl::string16, CNetworkCommand*> aCommands;
-	return aCommands;
-}
-
-CNetworkCommand* CNetworkCommand::GetCommand(const eastl::string16& sName)
-{
-	eastl::map<eastl::string16, CNetworkCommand*>::iterator it = GetCommands().find(sName);
-	if (it == GetCommands().end())
-		return NULL;
-
-	return it->second;
-}
-
-void CNetworkCommand::RegisterCommand(CNetworkCommand* pCommand)
-{
-	GetCommands()[pCommand->m_sName] = pCommand;
+	return g_iClientID;
 }

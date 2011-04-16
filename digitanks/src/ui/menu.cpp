@@ -20,6 +20,7 @@
 #include "instructor.h"
 #include "digitankswindow.h"
 #include "hud.h"
+#include "lobbyui.h"
 
 using namespace glgui;
 
@@ -445,31 +446,11 @@ CMultiplayerPanel::CMultiplayerPanel()
 	m_pConnect->SetFont(L"header", 18);
 	AddControl(m_pConnect);
 
-	m_pArtillery = new CButton(0, 0, 100, 100, L"HOST ARTILLERY");
-	m_pArtillery->SetClickedListener(this, Artillery);
-	m_pArtillery->SetCursorInListener(this, HostHint);
-	m_pArtillery->SetFont(L"header", 18);
-	AddControl(m_pArtillery);
-
-	if (DigitanksWindow()->IsRegistered())
-	{
-		m_pStrategy = new CButton(0, 0, 100, 100, L"HOST STRATEGY");
-		m_pStrategy->SetClickedListener(this, Strategy);
-		m_pStrategy->SetCursorInListener(this, HostHint);
-		m_pStrategy->SetFont(L"header", 18);
-		AddControl(m_pStrategy);
-	}
-
-	m_pLoad = new CButton(0, 0, 100, 100, L"LOAD");
-	m_pLoad->SetClickedListener(this, Load);
-	m_pLoad->SetCursorInListener(this, LoadHint);
-	m_pLoad->SetFont(L"header", 18);
-
-#if !defined(TINKER_UNLOCKED)
-	m_pLoad->SetEnabled(false);
-#endif
-
-	AddControl(m_pLoad);
+	m_pCreateLobby = new CButton(0, 0, 100, 100, L"CREATE LOBBY");
+	m_pCreateLobby->SetClickedListener(this, CreateLobby);
+	m_pCreateLobby->SetCursorInListener(this, CreateHint);
+	m_pCreateLobby->SetFont(L"header", 18);
+	AddControl(m_pCreateLobby);
 
 	m_pDockPanel = new CDockPanel();
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 255));
@@ -481,17 +462,8 @@ void CMultiplayerPanel::Layout()
 	m_pConnect->SetPos(20, 20);
 	m_pConnect->SetSize(135, 40);
 
-	m_pArtillery->SetPos(20, 100);
-	m_pArtillery->SetSize(135, 40);
-
-	if (DigitanksWindow()->IsRegistered())
-	{
-		m_pStrategy->SetPos(20, 160);
-		m_pStrategy->SetSize(135, 40);
-	}
-
-	m_pLoad->SetPos(20, GetHeight() - 60);
-	m_pLoad->SetSize(135, 40);
+	m_pCreateLobby->SetPos(20, 100);
+	m_pCreateLobby->SetSize(135, 40);
 
 	m_pDockPanel->SetSize(GetWidth() - 20 - 135 - 20 - 20, GetHeight() - 40);
 	m_pDockPanel->SetPos(20 + 135 + 20, 20);
@@ -504,14 +476,9 @@ void CMultiplayerPanel::ConnectCallback()
 	m_pDockPanel->SetDockedPanel(new CConnectPanel());
 }
 
-void CMultiplayerPanel::ArtilleryCallback()
+void CMultiplayerPanel::CreateLobbyCallback()
 {
-	m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
-}
-
-void CMultiplayerPanel::StrategyCallback()
-{
-	m_pDockPanel->SetDockedPanel(new CStrategyGamePanel(true));
+	m_pDockPanel->SetDockedPanel(new CCreateLobbyPanel());
 }
 
 void CMultiplayerPanel::LoadCallback()
@@ -542,18 +509,128 @@ void CMultiplayerPanel::ClientHintCallback()
 	DigitanksWindow()->GetMainMenu()->SetHint(L"Enter a hostname and port to connect to a remote host and play.");
 }
 
-void CMultiplayerPanel::HostHintCallback()
+void CMultiplayerPanel::CreateHintCallback()
 {
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Start a game here to set up your own host in this game mode.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Create a lobby to host a game for you and your friends.");
 }
 
-void CMultiplayerPanel::LoadHintCallback()
+CCreateLobbyPanel::CCreateLobbyPanel()
+	: CPanel(0, 0, 570, 520)
 {
-#if !defined(TINKER_UNLOCKED)
-	DigitanksWindow()->GetMainMenu()->SetHint(L"The load feature is not available in this demo.");
-	return;
-#endif
-	DigitanksWindow()->GetMainMenu()->SetHint(L"You can load any saved game here to host it in multiplayer.");
+	m_pGameTypes = new CTree(0, 0, 0);
+	m_pGameTypes->SetSelectedListener(this, GameTypeChosen);
+	AddControl(m_pGameTypes);
+
+	m_pGameTypes->AddNode(L"Artillery");
+	m_pGameTypes->AddNode(L"Strategy");
+
+	m_pGameTypes->GetNode(0)->SetCursorInListener(this, GameTypePreview);
+	m_pGameTypes->GetNode(0)->SetCursorOutListener(this, GameTypeRevertPreview);
+	m_pGameTypes->GetNode(1)->SetCursorInListener(this, GameTypePreview);
+	m_pGameTypes->GetNode(1)->SetCursorOutListener(this, GameTypeRevertPreview);
+
+	m_eGameTypeSelected = GAMETYPE_ARTILLERY;
+
+	m_pGameTypeDescription = new CLabel(0, 0, 32, 32, L"");
+	m_pGameTypeDescription->SetWrap(true);
+	m_pGameTypeDescription->SetFont(L"text");
+	m_pGameTypeDescription->SetAlign(CLabel::TA_TOPLEFT);
+	AddControl(m_pGameTypeDescription);
+
+	m_pCreateLobby = new CButton(0, 0, 100, 100, L"Create Lobby");
+	m_pCreateLobby->SetClickedListener(this, CreateLobby);
+	m_pCreateLobby->SetFont(L"header", 12);
+	AddControl(m_pCreateLobby);
+}
+
+void CCreateLobbyPanel::Layout()
+{
+	m_pGameTypes->SetSize(200, 150);
+	m_pGameTypes->SetPos(10, 10);
+
+	m_pGameTypeDescription->SetSize(GetWidth()-40, 80);
+	m_pGameTypeDescription->SetPos(20, 170);
+
+	m_pCreateLobby->SetSize(135, 40);
+	m_pCreateLobby->SetPos(GetWidth()/2-135/2, GetHeight()-60);
+
+	BaseClass::Layout();
+}
+
+void CCreateLobbyPanel::CreateLobbyCallback()
+{
+	CVar::SetCVar("lobby_gametype", (int)m_eGameTypeSelected);
+
+	DigitanksWindow()->GetLobbyPanel()->CreateLobby();
+}
+
+void CCreateLobbyPanel::UpdateLayoutCallback()
+{
+	Layout();
+}
+
+void CCreateLobbyPanel::GameTypeChosenCallback()
+{
+	size_t iMode = m_pGameTypes->GetSelectedNodeId();
+
+	if (iMode == 0)
+	{
+		m_eGameTypeSelected = GAMETYPE_ARTILLERY;
+		PreviewGameType(m_eGameTypeSelected);
+	}
+	else if (iMode == 1)
+	{
+		m_eGameTypeSelected = GAMETYPE_STANDARD;
+		PreviewGameType(m_eGameTypeSelected);
+	}
+}
+
+void CCreateLobbyPanel::GameTypePreviewCallback()
+{
+	size_t iMode = ~0;
+
+	for (size_t i = 0; i < m_pGameTypes->GetControls().size(); i++)
+	{
+		int cx, cy, cw, ch, mx, my;
+		m_pGameTypes->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
+		CRootPanel::GetFullscreenMousePos(mx, my);
+		if (mx >= cx &&
+			my >= cy &&
+			mx < cx + cw &&
+			my < cy + ch)
+		{
+			iMode = i;
+			break;
+		}
+	}
+
+	if (iMode == 0)
+		PreviewGameType(GAMETYPE_ARTILLERY);
+	else if (iMode == 1)
+		PreviewGameType(GAMETYPE_STANDARD);
+}
+
+void CCreateLobbyPanel::GameTypeRevertPreviewCallback()
+{
+	PreviewGameType(m_eGameTypeSelected);
+}
+
+void CCreateLobbyPanel::PreviewGameType(gametype_t eGameType)
+{
+	switch (eGameType)
+	{
+	default:
+		m_pGameTypeDescription->SetText("");
+		break;
+
+	case GAMETYPE_ARTILLERY:
+		m_pGameTypeDescription->SetText(L"Artillery mode is a quick no-holds-barred fight to the death. You control 1 to 4 tanks in a head-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
+		break;
+
+	case GAMETYPE_STANDARD:
+		m_pGameTypeDescription->SetText(L"Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs.");
+		break;
+	}
 }
 
 CConnectPanel::CConnectPanel()

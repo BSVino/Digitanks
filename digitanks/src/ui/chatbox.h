@@ -8,7 +8,7 @@ class CChatBox : public glgui::CPanel
 	DECLARE_CLASS(CChatBox, glgui::CPanel);
 
 public:
-							CChatBox();
+							CChatBox(bool bFloating = true);
 	virtual					~CChatBox();
 
 public:
@@ -26,11 +26,15 @@ public:
 	virtual bool			KeyPressed(int code, bool bCtrlDown = false);
 	virtual bool			CharPressed(int iKey);
 
+	virtual bool			IsFloating() { return m_bFloating; }
+
 protected:
 	glgui::CLabel*			m_pOutput;
 	glgui::CTextField*		m_pInput;
 
 	float					m_flLastMessage;
+
+	bool					m_bFloating;
 };
 
 #endif

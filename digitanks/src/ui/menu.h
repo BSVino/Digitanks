@@ -2,7 +2,10 @@
 #define DT_MENU_H
 
 #include <common.h>
-#include "glgui/glgui.h"
+
+#include <glgui/glgui.h>
+
+#include <game/digitanks/digitanksgame.h>
 
 class CDockPanel : public glgui::CPanel
 {
@@ -88,23 +91,46 @@ public:
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CMultiplayerPanel,	Connect);
-	EVENT_CALLBACK(CMultiplayerPanel,	Artillery);
-	EVENT_CALLBACK(CMultiplayerPanel,	Strategy);
+	EVENT_CALLBACK(CMultiplayerPanel,	CreateLobby);
 	EVENT_CALLBACK(CMultiplayerPanel,	Load);
 
 	EVENT_CALLBACK(CMultiplayerPanel,	ClientHint);
-	EVENT_CALLBACK(CMultiplayerPanel,	HostHint);
-	EVENT_CALLBACK(CMultiplayerPanel,	LoadHint);
+	EVENT_CALLBACK(CMultiplayerPanel,	CreateHint);
 
 protected:
 	glgui::CButton*					m_pConnect;
-
-	glgui::CButton*					m_pArtillery;
-	glgui::CButton*					m_pStrategy;
-
-	glgui::CButton*					m_pLoad;
+	glgui::CButton*					m_pCreateLobby;
 
 	CDockPanel*						m_pDockPanel;
+};
+
+class CCreateLobbyPanel : public glgui::CPanel, public glgui::IEventListener
+{
+	DECLARE_CLASS(CCreateLobbyPanel, glgui::CPanel);
+
+public:
+									CCreateLobbyPanel();
+
+public:
+	virtual void					Delete() { delete this; };
+
+	virtual void					Layout();
+
+	EVENT_CALLBACK(CCreateLobbyPanel,	CreateLobby);
+	EVENT_CALLBACK(CCreateLobbyPanel,	UpdateLayout);
+	EVENT_CALLBACK(CCreateLobbyPanel,	GameTypeChosen);
+	EVENT_CALLBACK(CCreateLobbyPanel,	GameTypePreview);
+	EVENT_CALLBACK(CCreateLobbyPanel,	GameTypeRevertPreview);
+
+	void							PreviewGameType(gametype_t eGameType);
+
+protected:
+	glgui::CTree*					m_pGameTypes;
+	gametype_t						m_eGameTypeSelected;
+
+	glgui::CLabel*					m_pGameTypeDescription;
+
+	glgui::CButton*					m_pCreateLobby;
 };
 
 class CConnectPanel : public glgui::CPanel, public glgui::IEventListener

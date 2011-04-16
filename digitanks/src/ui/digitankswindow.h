@@ -116,6 +116,7 @@ public:
 	class CInstructor*			GetInstructor();
 	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
 	class CStoryPanel*			GetStoryPanel() { return m_pStory; };
+	class CLobbyPanel*			GetLobbyPanel() { return m_pLobby; };
 
 	float						GetSoundVolume() { return m_flSoundVolume; };
 	void						SetSoundVolume(float flSoundVolume);
@@ -146,6 +147,7 @@ protected:
 	class CVictoryPanel*		m_pVictory;
 	class CPurchasePanel*		m_pPurchase;
 	class CStoryPanel*			m_pStory;
+	class CLobbyPanel*			m_pLobby;
 
 	servertype_t				m_eServerType;
 	eastl::string16				m_sConnectHost;

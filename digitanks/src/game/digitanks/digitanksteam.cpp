@@ -5,6 +5,7 @@
 
 #include <ui/digitankswindow.h>
 #include <network/network.h>
+#include <network/commands.h>
 #include <ui/instructor.h>
 #include <ui/hud.h>
 

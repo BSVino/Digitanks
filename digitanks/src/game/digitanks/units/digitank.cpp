@@ -12,6 +12,7 @@
 #include <glgui/glgui.h>
 #include <shaders/shaders.h>
 #include <models/texturelibrary.h>
+#include <network/commands.h>
 
 #include <networkedeffect.h>
 #include <digitanks/digitanksgame.h>

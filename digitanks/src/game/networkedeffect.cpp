@@ -1,6 +1,7 @@
 #include "networkedeffect.h"
 
 #include <network/network.h>
+#include <network/commands.h>
 #include <tinker/application.h>
 #include <renderer/particles.h>
 

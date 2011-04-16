@@ -10,6 +10,7 @@
 #include <sound/sound.h>
 #include <tinker/application.h>
 #include <tinker/profiler.h>
+#include <network/commands.h>
 
 #include "game.h"
 

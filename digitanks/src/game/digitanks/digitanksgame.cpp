@@ -13,6 +13,7 @@
 
 #include <game/gameserver.h>
 #include <network/network.h>
+#include <network/commands.h>
 #include <ui/digitankswindow.h>
 #include <ui/ui.h>
 #include <ui/instructor.h>
