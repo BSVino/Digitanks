@@ -88,8 +88,9 @@ void CNetwork::CreateHost(int iPort)
 
 	TMsg(sprintf(L"Creating host on port %d\n", (int)oAddress.port));
 
-	g_pServer = enet_host_create(&oAddress, 32, 1, 0, 0);
+	g_pServer = enet_host_create(&oAddress, NETWORK_MAX_CLIENTS, 1, 0, 0);
 
+	g_iClientID = ~0;
 	if (g_pServer == NULL)
 	{
 		TError(L"There was a problem creating the host.\n");
@@ -142,6 +143,7 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 	if (enet_host_service(g_pClient, &oEvent, 5000) > 0 && oEvent.type == ENET_EVENT_TYPE_CONNECT)
 	{
 		s_bConnected = true;
+		g_iClientID = ~0;
 		return;
 	}
 
@@ -174,6 +176,8 @@ void CNetwork::Disconnect()
 		return;
 
 	s_bConnected = false;
+
+	g_iClientID = ~0;
 
 	if (g_pClient)
 	{

@@ -153,7 +153,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="..\..\tinker\application.cpp" />
     <ClCompile Include="..\..\tinker\console.cpp" />
     <ClCompile Include="..\..\tinker\cvar.cpp" />
-    <ClCompile Include="..\..\tinker\lobby\lobby.cpp" />
+    <ClCompile Include="..\..\tinker\lobby\lobby_client.cpp" />
+    <ClCompile Include="..\..\tinker\lobby\lobby_server.cpp" />
     <ClCompile Include="..\..\tinker\portals\portal_steam.cpp" />
     <ClCompile Include="..\..\tinker\portals\portal_stubs.cpp" />
     <ClCompile Include="..\..\tinker\profiler.cpp" />
@@ -274,6 +275,8 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClInclude Include="..\..\tinker\cvar.h" />
     <ClInclude Include="..\..\tinker\keys.h" />
     <ClInclude Include="..\..\tinker\lobby\lobby.h" />
+    <ClInclude Include="..\..\tinker\lobby\lobby_client.h" />
+    <ClInclude Include="..\..\tinker\lobby\lobby_server.h" />
     <ClInclude Include="..\..\tinker\portals\portal.h" />
     <ClInclude Include="..\..\tinker\profiler.h" />
     <ClInclude Include="dt_version.h" />

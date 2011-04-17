@@ -34,6 +34,7 @@ public:
 
 	size_t					GetNumArguments();
 	eastl::string16			Arg(size_t i);
+	bool					ArgAsBool(size_t i);
 	size_t					ArgAsUInt(size_t i);
 	int						ArgAsInt(size_t i);
 	float					ArgAsFloat(size_t i);

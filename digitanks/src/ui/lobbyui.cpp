@@ -1,6 +1,8 @@
 #include "lobbyui.h"
 
 #include <tinker/cvar.h>
+#include <tinker/lobby/lobby_server.h>
+#include <tinker/lobby/lobby_client.h>
 
 #include "menu.h"
 #include "digitankswindow.h"
@@ -47,6 +49,22 @@ void CLobbyPanel::Layout()
 
 	m_pReady->SetSize(180, 35);
 	m_pReady->SetPos(925 - 200, 668 - 55);
+
+	for (size_t i = 0; i < m_apPlayerPanels.size(); i++)
+	{
+		m_apPlayerPanels[i]->Destructor();
+		m_apPlayerPanels[i]->Delete();
+	}
+
+	m_apPlayerPanels.clear();
+
+	for (size_t i = 0; i < CGameLobbyClient::GetNumPlayers(); i++)
+	{
+		m_apPlayerPanels.push_back(new CPlayerPanel());
+		CPlayerPanel* pPanel = m_apPlayerPanels[m_apPlayerPanels.size()-1];
+		AddControl(pPanel);
+		pPanel->SetPlayer(CGameLobbyClient::GetPlayer(i)->iClient);
+	}
 }
 
 void CLobbyPanel::Paint(int x, int y, int w, int h)
@@ -58,12 +76,12 @@ void CLobbyPanel::Paint(int x, int y, int w, int h)
 
 void CLobbyPanel::CreateLobby()
 {
-	CNetwork::Disconnect();
+	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
 
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
-	CNetwork::CreateHost(iPort);
+	m_iLobby = CGameLobbyServer::CreateLobby(iPort);
 
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
 		m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
@@ -72,13 +90,73 @@ void CLobbyPanel::CreateLobby()
 
 	SetVisible(true);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
+
+	CGameLobbyClient::JoinLobby(m_iLobby);
+	UpdatePlayerInfo();
+}
+
+void CLobbyPanel::UpdatePlayerInfo()
+{
+	CGameLobbyClient::UpdateInfo(L"name", DigitanksWindow()->GetPlayerNickname());
 }
 
 void CLobbyPanel::LeaveLobbyCallback()
 {
-	CNetwork::Disconnect();
+	CGameLobbyServer::DestroyLobby(m_iLobby);
 
 	SetVisible(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);
 }
 
+void CLobbyPanel::LobbyUpdateCallback(INetworkListener*, class CNetworkParameters*)
+{
+	DigitanksWindow()->GetLobbyPanel()->LobbyUpdate();
+}
+
+void CLobbyPanel::LobbyUpdate()
+{
+	Layout();
+}
+
+CPlayerPanel::CPlayerPanel()
+	: CPanel(0, 0, 100, 100)
+{
+	m_pName = new glgui::CLabel(0, 0, 100, 100, L"Player");
+	AddControl(m_pName);
+}
+
+void CPlayerPanel::Layout()
+{
+	SetSize(260, 60);
+	SetPos(925 - 280, 20 + 120*m_iLobbyPlayer);
+
+	m_pName->SetSize(100, 60);
+	m_pName->SetPos(20, 0);
+	m_pName->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+}
+
+void CPlayerPanel::Paint(int x, int y, int w, int h)
+{
+	glgui::CRootPanel::PaintRect(x, y, w, h, glgui::g_clrBox);
+
+	BaseClass::Paint(x, y, w, h);
+}
+
+void CPlayerPanel::SetPlayer(size_t iClient)
+{
+	CLobbyPlayer* pPlayer = CGameLobbyClient::GetPlayerByClient(iClient);
+
+	assert(pPlayer);
+	if (!pPlayer)
+		return;
+
+	m_iLobbyPlayer = CGameLobbyClient::GetPlayerIndex(iClient);
+
+	eastl::string16 sName = pPlayer->GetInfoValue(L"name");
+	if (sName.length() == 0)
+		sName = L"Player";
+
+	m_pName->SetText(sName);
+
+	Layout();
+}

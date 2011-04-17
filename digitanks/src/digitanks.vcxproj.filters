@@ -387,9 +387,6 @@
     <ClCompile Include="models\texturesheet.cpp">
       <Filter>Source Files\models</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\tinker\lobby\lobby.cpp">
-      <Filter>Source Files\tinker\lobby</Filter>
-    </ClCompile>
     <ClCompile Include="network\replication.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
@@ -398,6 +395,12 @@
     </ClCompile>
     <ClCompile Include="ui\lobbyui.cpp">
       <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\lobby\lobby_server.cpp">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\lobby\lobby_client.cpp">
+      <Filter>Source Files\tinker\lobby</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -677,9 +680,6 @@
     <ClInclude Include="models\texturesheet.h">
       <Filter>Source Files\models</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\tinker\lobby\lobby.h">
-      <Filter>Source Files\tinker\lobby</Filter>
-    </ClInclude>
     <ClInclude Include="network\replication.h">
       <Filter>Source Files\network</Filter>
     </ClInclude>
@@ -688,6 +688,15 @@
     </ClInclude>
     <ClInclude Include="ui\lobbyui.h">
       <Filter>Source Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\lobby\lobby_server.h">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\lobby\lobby_client.h">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\lobby\lobby.h">
+      <Filter>Source Files\tinker\lobby</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

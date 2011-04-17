@@ -83,6 +83,15 @@ eastl::string16 CNetworkCommand::Arg(size_t iArg)
 	return m_asArguments[iArg];
 }
 
+bool CNetworkCommand::ArgAsBool(size_t iArg)
+{
+	assert(iArg < GetNumArguments());
+	if (iArg >= GetNumArguments())
+		return 0;
+
+	return !!_wtoi(m_asArguments[iArg].c_str());
+}
+
 size_t CNetworkCommand::ArgAsUInt(size_t iArg)
 {
 	assert(iArg < GetNumArguments());

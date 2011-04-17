@@ -11,6 +11,8 @@
 #include <vector.h>
 #include <strutils.h>
 
+#define NETWORK_MAX_CLIENTS 32
+
 class INetworkListener
 {
 public:
@@ -167,7 +169,7 @@ public:
 	static size_t			GetClientsConnected();
 	static size_t			GetClientConnectionId(size_t iClient);	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
 
-	static size_t			GetClientID();	// Server only
+	static size_t			GetClientID();	// Client only
 
 protected:
 	static bool				s_bInitialized;
