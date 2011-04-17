@@ -1317,34 +1317,37 @@ void CDigitanksGame::Think()
 		}
 	}
 
-	for (size_t i = 0; i < m_aAirstrikes.size(); i++)
+	if (CNetwork::IsHost())
 	{
-		airstrike_t* pAirstrike = &m_aAirstrikes[i];
-		if (pAirstrike->flNextShell < GameServer()->GetGameTime())
+		for (size_t i = 0; i < m_aAirstrikes.size(); i++)
 		{
-			Vector vecLandingSpot = pAirstrike->vecLocation;
-
-			float flYaw = RandomFloat(0, 360);
-			float flRadius = RandomFloat(0, AirstrikeSize());
-
-			// Don't use uniform distribution, I like how it's clustered on the target.
-			vecLandingSpot += Vector(flRadius*cos(flYaw), 0, flRadius*sin(flYaw));
-
-			CAirstrikeShell* pShell = GameServer()->Create<CAirstrikeShell>("CAirstrikeShell");
-			pShell->SetOrigin(vecLandingSpot + Vector(30, 100, 30));
-			pShell->SetVelocity(Vector(-30, -100, -30));
-			pShell->SetGravity(Vector());
-			pShell->SetOwner(NULL);
-
-			pAirstrike->iShells--;
-			if (pAirstrike->iShells == 0)
+			airstrike_t* pAirstrike = &m_aAirstrikes[i];
+			if (pAirstrike->flNextShell < GameServer()->GetGameTime())
 			{
-				m_aAirstrikes.erase(m_aAirstrikes.begin()+i);
-				// Prevent problems with the array resizing. Other airstrikes can be figured out next frame.
-				break;
-			}
+				Vector vecLandingSpot = pAirstrike->vecLocation;
 
-			pAirstrike->flNextShell = GameServer()->GetGameTime() + RandomFloat(0.1f, 0.5f);
+				float flYaw = RandomFloat(0, 360);
+				float flRadius = RandomFloat(0, AirstrikeSize());
+
+				// Don't use uniform distribution, I like how it's clustered on the target.
+				vecLandingSpot += Vector(flRadius*cos(flYaw), 0, flRadius*sin(flYaw));
+
+				CAirstrikeShell* pShell = GameServer()->Create<CAirstrikeShell>("CAirstrikeShell");
+				pShell->SetOrigin(vecLandingSpot + Vector(30, 100, 30));
+				pShell->SetVelocity(Vector(-30, -100, -30));
+				pShell->SetGravity(Vector());
+				pShell->SetOwner(NULL);
+
+				pAirstrike->iShells--;
+				if (pAirstrike->iShells == 0)
+				{
+					m_aAirstrikes.erase(m_aAirstrikes.begin()+i);
+					// Prevent problems with the array resizing. Other airstrikes can be figured out next frame.
+					break;
+				}
+
+				pAirstrike->flNextShell = GameServer()->GetGameTime() + RandomFloat(0.1f, 0.5f);
+			}
 		}
 	}
 }
@@ -2597,6 +2600,9 @@ void CDigitanksGame::AllowLaser()
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	m_aAirstrikes.push_back();
 	size_t iAirstrike = m_aAirstrikes.size()-1;
 	airstrike_t* pAirstrike = &m_aAirstrikes[iAirstrike];
