@@ -21,6 +21,7 @@
 #include <models/models.h>
 #include <models/texturelibrary.h>
 #include <tinker/portals/portal.h>
+#include <tinker/lobby/lobby_server.h>
 
 #include "camera.h"
 #include "level.h"
@@ -319,7 +320,7 @@ void CGameServer::Think(float flHostTime)
 
 	m_flHostTime = flHostTime;
 
-	if (CNetwork::IsConnected() && CNetwork::IsHost() && m_flHostTime > m_flNextClientInfoUpdate)
+	if (CNetwork::IsConnected() && CNetwork::IsHost() && !CGameLobbyServer::GetActiveLobbies() && m_flHostTime > m_flNextClientInfoUpdate)
 	{
 		m_flNextClientInfoUpdate = m_flHostTime + 5.0f;
 

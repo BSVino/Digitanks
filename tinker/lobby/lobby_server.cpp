@@ -113,6 +113,18 @@ void CGameLobbyServer::LeaveLobby(size_t iClient)
 		s_iClientLobbies[iClient] = ~0;
 }
 
+size_t CGameLobbyServer::GetActiveLobbies()
+{
+	size_t iLobbies = 0;
+	for (size_t i = 0; i < s_aLobbies.size(); i++)
+	{
+		if (s_aLobbies[i].m_bActive)
+			iLobbies++;
+	}
+
+	return iLobbies;
+}
+
 void CGameLobbyServer::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)
 {
 	if (iClient != ~0 && s_iClientLobbies[iClient] == ~0)
@@ -158,6 +170,7 @@ void CGameLobby::Initialize(size_t iPort)
 	CNetwork::SetCallbacks(NULL, CGameLobbyServer::ClientConnect, CGameLobbyServer::ClientDisconnect);
 	CNetwork::CreateHost(iPort);
 	m_bActive = true;
+	m_aClients.clear();
 }
 
 void CGameLobby::Shutdown()

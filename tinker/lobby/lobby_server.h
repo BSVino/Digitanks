@@ -40,6 +40,8 @@ public:
 	static void							JoinLobby(size_t iLobby, size_t iClient);
 	static void							LeaveLobby(size_t iClient);
 
+	static size_t						GetActiveLobbies();
+
 	static void							UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue);
 
 	static void							ClientConnect(class INetworkListener*, class CNetworkParameters*);
