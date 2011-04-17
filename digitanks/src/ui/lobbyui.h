@@ -38,7 +38,7 @@ public:
 	virtual void					Layout();
 
 protected:
-	glgui::CLabel*					m_pLevelDescription;
+	glgui::CLabel*					m_pLobbyDescription;
 };
 
 class CLobbyPanel : public glgui::CPanel, public glgui::IEventListener, public INetworkListener

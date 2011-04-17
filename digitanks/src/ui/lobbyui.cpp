@@ -123,7 +123,7 @@ void CLobbyPanel::CreateLobby()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 
 	CGameLobbyClient::JoinLobby(m_iLobby);
-	CGameLobbyClient::UpdateInfo(L"host", L"1");
+	CGameLobbyClient::UpdatePlayerInfo(L"host", L"1");
 	UpdatePlayerInfo();
 }
 
@@ -148,7 +148,7 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 
 void CLobbyPanel::UpdatePlayerInfo()
 {
-	CGameLobbyClient::UpdateInfo(L"name", DigitanksWindow()->GetPlayerNickname());
+	CGameLobbyClient::UpdatePlayerInfo(L"name", DigitanksWindow()->GetPlayerNickname());
 }
 
 void CLobbyPanel::LeaveLobbyCallback()
@@ -175,17 +175,19 @@ void CLobbyPanel::LobbyUpdate()
 CInfoPanel::CInfoPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pLevelDescription = new glgui::CLabel(0, 0, 32, 32, L"");
-	m_pLevelDescription->SetWrap(true);
-	m_pLevelDescription->SetFont(L"text");
-	m_pLevelDescription->SetAlign(glgui::CLabel::TA_TOPLEFT);
-	AddControl(m_pLevelDescription);
+	m_pLobbyDescription = new glgui::CLabel(0, 0, 32, 32, L"");
+	m_pLobbyDescription->SetWrap(true);
+	m_pLobbyDescription->SetFont(L"text");
+	m_pLobbyDescription->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	AddControl(m_pLobbyDescription);
 }
 
 void CInfoPanel::Layout()
 {
-	m_pLevelDescription->SetSize(GetWidth()-40, 80);
-	m_pLevelDescription->SetPos(20, 170);
+	m_pLobbyDescription->SetSize(GetWidth()-40, 80);
+	m_pLobbyDescription->SetPos(20, 20);
+
+	m_pLobbyDescription->AppendText(eastl::string16(L"Level: ") + CGameLobbyClient::GetInfoValue(L"level") + L"\n");
 
 	BaseClass::Layout();
 }
