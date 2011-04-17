@@ -123,7 +123,10 @@ void CLobbyPanel::UpdatePlayerInfo()
 
 void CLobbyPanel::LeaveLobbyCallback()
 {
-	CGameLobbyServer::DestroyLobby(m_iLobby);
+	if (CNetwork::IsHost())
+		CGameLobbyServer::DestroyLobby(m_iLobby);
+	else
+		CGameLobbyClient::LeaveLobby();
 
 	SetVisible(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);

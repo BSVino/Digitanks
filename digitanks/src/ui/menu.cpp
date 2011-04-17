@@ -665,9 +665,7 @@ void CConnectPanel::Layout()
 
 void CConnectPanel::ConnectCallback()
 {
-	DigitanksWindow()->GetLobbyPanel()->CreateLobby();
-	DigitanksWindow()->SetConnectHost(m_pHostname->GetText());
-	DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
+	DigitanksWindow()->GetLobbyPanel()->ConnectToLocalLobby(m_pHostname->GetText());
 }
 
 CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
