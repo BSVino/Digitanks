@@ -4,6 +4,8 @@
 #include <tinker/lobby/lobby_server.h>
 #include <tinker/lobby/lobby_client.h>
 
+#include <renderer/renderer.h>
+
 #include "menu.h"
 #include "digitankswindow.h"
 #include "chatbox.h"
@@ -95,6 +97,25 @@ void CLobbyPanel::CreateLobby()
 	UpdatePlayerInfo();
 }
 
+void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
+{
+	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
+
+	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
+	int iPort = pszPort?atoi(pszPort):0;
+
+	CNetwork::ConnectToHost(convertstring<char16_t, char>(sHost).c_str(), iPort);
+	if (!CNetwork::IsConnected())
+		return;
+
+	m_pDockPanel->SetDockedPanel(new CInfoPanel());
+
+	SetVisible(true);
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
+
+	UpdatePlayerInfo();
+}
+
 void CLobbyPanel::UpdatePlayerInfo()
 {
 	CGameLobbyClient::UpdateInfo(L"name", DigitanksWindow()->GetPlayerNickname());
@@ -116,6 +137,24 @@ void CLobbyPanel::LobbyUpdateCallback(INetworkListener*, class CNetworkParameter
 void CLobbyPanel::LobbyUpdate()
 {
 	Layout();
+}
+
+CInfoPanel::CInfoPanel()
+	: CPanel(0, 0, 570, 520)
+{
+	m_pLevelDescription = new glgui::CLabel(0, 0, 32, 32, L"");
+	m_pLevelDescription->SetWrap(true);
+	m_pLevelDescription->SetFont(L"text");
+	m_pLevelDescription->SetAlign(glgui::CLabel::TA_TOPLEFT);
+	AddControl(m_pLevelDescription);
+}
+
+void CInfoPanel::Layout()
+{
+	m_pLevelDescription->SetSize(GetWidth()-40, 80);
+	m_pLevelDescription->SetPos(20, 170);
+
+	BaseClass::Layout();
 }
 
 CPlayerPanel::CPlayerPanel()

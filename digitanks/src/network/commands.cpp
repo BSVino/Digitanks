@@ -9,7 +9,12 @@
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
-	if (m_iMessageTarget == NETWORK_TOCLIENTS)
+	RunCommand(sParameters, m_iMessageTarget);
+}
+
+void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget)
+{
+	if (iTarget == NETWORK_TOCLIENTS)
 	{
 		if (CNetwork::IsHost())
 		{
@@ -30,7 +35,7 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 		}
 	}
 
-	if (m_iMessageTarget == NETWORK_TOSERVER)
+	if (iTarget == NETWORK_TOSERVER)
 	{
 		if (CNetwork::IsHost() || !CNetwork::IsConnected())
 		{
@@ -59,7 +64,7 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 
 	p.ui1 = CNetwork::GetClientID();
 
-	CNetwork::CallFunctionParameters(m_iMessageTarget, "NC", &p);
+	CNetwork::CallFunctionParameters(iTarget, "NC", &p);
 }
 
 void CNetworkCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)

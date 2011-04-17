@@ -638,7 +638,7 @@ CConnectPanel::CConnectPanel()
 {
 	DigitanksWindow()->SetServerType(SERVER_CLIENT);
 
-	m_pHostnameLabel = new CLabel(0, 0, 32, 32, L"Host:");
+	m_pHostnameLabel = new CLabel(0, 0, 32, 32, L"Lobby Host:");
 	m_pHostnameLabel->SetWrap(false);
 	m_pHostnameLabel->SetFont(L"text");
 	AddControl(m_pHostnameLabel);
@@ -665,6 +665,7 @@ void CConnectPanel::Layout()
 
 void CConnectPanel::ConnectCallback()
 {
+	DigitanksWindow()->GetLobbyPanel()->CreateLobby();
 	DigitanksWindow()->SetConnectHost(m_pHostname->GetText());
 	DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 }

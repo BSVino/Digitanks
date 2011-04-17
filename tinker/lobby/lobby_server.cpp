@@ -90,6 +90,20 @@ void CGameLobbyServer::JoinLobby(size_t iLobby, size_t iClient)
 		s_iClientLobbies[iClient] = iLobby;
 }
 
+void CGameLobbyServer::LeaveLobby(size_t iLobby, size_t iClient)
+{
+	if (iLobby >= s_aLobbies.size())
+	{
+		assert(!"What lobby is this?");
+		return;
+	}
+
+	s_aLobbies[iLobby].RemovePlayer(iClient);
+
+	if (iClient != ~0)
+		s_iClientLobbies[iClient] = ~0;
+}
+
 void CGameLobbyServer::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)
 {
 	if (iClient != ~0 && s_iClientLobbies[iClient] == ~0)
@@ -108,6 +122,22 @@ void CGameLobbyServer::UpdatePlayer(size_t iClient, const eastl::string16& sKey,
 	s_aLobbies[iLobby].UpdatePlayer(iClient, sKey, sValue);
 }
 
+void CGameLobbyServer::ClientConnect(class INetworkListener*, class CNetworkParameters* pParameters)
+{
+	int iClient = pParameters->i1;
+
+	JoinLobby(0, iClient);
+
+	s_aLobbies[0].SendFullUpdate(iClient);
+}
+
+void CGameLobbyServer::ClientDisconnect(class INetworkListener*, class CNetworkParameters* pParameters)
+{
+	int iClient = pParameters->i1;
+
+	LeaveLobby(0, iClient);
+}
+
 CGameLobby::CGameLobby()
 {
 	m_bActive = false;
@@ -116,6 +146,7 @@ CGameLobby::CGameLobby()
 void CGameLobby::Initialize(size_t iPort)
 {
 	CNetwork::Disconnect();
+	CNetwork::SetCallbacks(NULL, CGameLobbyServer::ClientConnect, CGameLobbyServer::ClientDisconnect);
 	CNetwork::CreateHost(iPort);
 	m_bActive = true;
 }
@@ -157,16 +188,24 @@ CLobbyPlayer* CGameLobby::GetPlayerByClient(size_t iClient)
 
 void CGameLobby::AddPlayer(size_t iClient)
 {
-	for (size_t i = 0; i < m_aClients.size(); i++)
-	{
-		if (m_aClients[i].iClient == iClient)
-			return;
-	}
+	if (GetPlayerByClient(iClient))
+		return;
 
 	CLobbyPlayer* pPlayer = &m_aClients.push_back();
 	pPlayer->iClient = iClient;
 
 	::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 1", iClient));
+}
+
+void CGameLobby::RemovePlayer(size_t iClient)
+{
+	size_t iPlayer = GetPlayerIndex(iClient);
+	if (!GetPlayer(iPlayer))
+		return;
+
+	m_aClients.erase(m_aClients.begin()+iPlayer);
+
+	::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 0", iClient));
 }
 
 void CGameLobby::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)
@@ -179,4 +218,20 @@ void CGameLobby::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const
 
 	eastl::string16 sCommand = sprintf(eastl::string16(L"%d ") + sKey + L" " + sValue, iClient);
 	::LobbyPlayerInfo.RunCommand(sCommand);
+}
+
+void CGameLobby::SendFullUpdate(size_t iClient)
+{
+	for (size_t i = 0; i < m_aClients.size(); i++)
+	{
+		CLobbyPlayer* pPlayer = &m_aClients[i];
+
+		::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 1", pPlayer->iClient), pPlayer->iClient);
+
+		for (eastl::map<eastl::string16, eastl::string16>::iterator it = pPlayer->asInfo.begin(); it != pPlayer->asInfo.end(); it++)
+		{
+			eastl::string16 sCommand = sprintf(eastl::string16(L"%d ") + it->first + L" " + it->second, iClient);
+			::LobbyPlayerInfo.RunCommand(sCommand, pPlayer->iClient);
+		}
+	}
 }

@@ -27,6 +27,7 @@ public:
 
 public:
 	void					RunCommand(const eastl::string16& sParameters);
+	void					RunCommand(const eastl::string16& sParameters, int iTarget);
 	void					RunCallback(size_t iClient, const eastl::string16& sParameters);
 
 	// Flips the message around, it becomes a message to all clients

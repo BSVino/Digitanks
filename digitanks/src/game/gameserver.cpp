@@ -234,7 +234,7 @@ void CGameServer::RegisterNetworkFunctions()
 
 void CGameServer::ClientConnect(CNetworkParameters* p)
 {
-	CNetwork::CallFunction(p->i2, "ClientInfo", p->i2, GetGameTime());
+	CNetwork::CallFunction(p->i1, "ClientInfo", p->i1, GetGameTime());
 
 	GetGame()->OnClientConnect(p);
 
@@ -245,10 +245,10 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 		if (!pEntity)
 			continue;
 
-		CNetwork::CallFunction(p->i2, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
+		CNetwork::CallFunction(p->i1, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
 	}
 
-	CGameServerNetwork::UpdateNetworkVariables(p->i2, true);
+	CGameServerNetwork::UpdateNetworkVariables(p->i1, true);
 
 	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -258,12 +258,12 @@ void CGameServer::ClientConnect(CNetworkParameters* p)
 		if (!pEntity)
 			continue;
 
-		pEntity->ClientUpdate(p->i2);
+		pEntity->ClientUpdate(p->i1);
 	}
 
-	CNetwork::CallFunction(p->i2, "LoadingDone");
+	CNetwork::CallFunction(p->i1, "LoadingDone");
 
-	CNetwork::CallFunction(p->i2, "EnterGame");
+	CNetwork::CallFunction(p->i1, "EnterGame");
 }
 
 void CGameServer::LoadingDone(CNetworkParameters* p)

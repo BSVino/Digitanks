@@ -236,8 +236,7 @@ void CNetwork::Think()
 
 				SetClientID.RunCommand(sprintf(L"%u", iPeer));
 
-				p.p1 = &oEvent.data;
-				p.i2 = iPeer;
+				p.i1 = iPeer;
 
 				s_pfnClientConnect(s_pClientListener, &p);
 			}

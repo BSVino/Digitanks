@@ -52,14 +52,13 @@ void CGame::RegisterNetworkFunctions()
 
 void CGame::OnClientConnect(CNetworkParameters* p)
 {
-	TMsg(sprintf(L"Client %d connected.\n", p->i2));
+	TMsg(sprintf(L"Client %d connected.\n", p->i1));
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (!m_ahTeams[i]->IsPlayerControlled() && m_ahTeams[i]->IsHumanPlayable())
 		{
-			p->p1 = (void*)i;
-			m_ahTeams[i]->SetClient(p->i2);
+			m_ahTeams[i]->SetClient(p->i1);
 			TMsg(sprintf(L"Assigning to team %s (%d).\n", m_ahTeams[i]->GetName().c_str(), i));
 			return;
 		}

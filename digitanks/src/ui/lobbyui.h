@@ -25,6 +25,22 @@ protected:
 	glgui::CLabel*					m_pName;
 };
 
+class CInfoPanel : public glgui::CPanel
+{
+	DECLARE_CLASS(CInfoPanel, glgui::CPanel);
+
+public:
+									CInfoPanel();
+
+public:
+	virtual void					Delete() { delete this; };
+
+	virtual void					Layout();
+
+protected:
+	glgui::CLabel*					m_pLevelDescription;
+};
+
 class CLobbyPanel : public glgui::CPanel, public glgui::IEventListener, public INetworkListener
 {
 	DECLARE_CLASS(CLobbyPanel, glgui::CPanel);
@@ -39,6 +55,7 @@ public:
 	virtual void					Paint(int x, int y, int w, int h);
 
 	void							CreateLobby();
+	void							ConnectToLocalLobby(const eastl::string16& sHost);
 
 	void							UpdatePlayerInfo();
 
