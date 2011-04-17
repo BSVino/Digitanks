@@ -57,9 +57,12 @@ void CGame::OnClientConnect(CNetworkParameters* p)
 		{
 			p->p1 = (void*)i;
 			m_ahTeams[i]->SetClient(p->i2);
-			break;
+			TMsg(sprintf(L"Assigning to team %s (%d).\n", m_ahTeams[i]->GetName().c_str(), i));
+			return;
 		}
 	}
+
+	TError(L"Can't find team to assign new client to!\n");
 }
 
 void CGame::OnClientDisconnect(CNetworkParameters* p)
