@@ -7,6 +7,7 @@
 #include <tinker/cvar.h>
 #include <tinker/console.h>
 #include <network/commands.h>
+#include <tinker/lobby/lobby_server.h>
 
 #include "digitankswindow.h"
 #include "lobbyui.h"
@@ -30,12 +31,26 @@ CLIENT_COMMAND(ClientChatSay)
 	}
 	else
 	{
-		for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+		if (CGameLobbyServer::GetActiveLobbies())
 		{
-			if (Game()->GetTeam(i)->GetClient() == iClient)
+			size_t iLobby = CGameLobbyServer::GetPlayerLobby(iClient);
+			CGameLobby* pLobby = CGameLobbyServer::GetLobby(iLobby);
+			if (pLobby)
 			{
-				sName = Game()->GetTeam(i)->GetTeamName();
-				break;
+				CLobbyPlayer* pPlayer = pLobby->GetPlayerByClient(iClient);
+				if (pPlayer)
+					sName = pPlayer->GetInfoValue(L"name");
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+			{
+				if (Game()->GetTeam(i)->GetClient() == iClient)
+				{
+					sName = Game()->GetTeam(i)->GetTeamName();
+					break;
+				}
 			}
 		}
 	}

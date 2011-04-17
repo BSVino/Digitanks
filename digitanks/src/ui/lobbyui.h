@@ -67,6 +67,9 @@ public:
 	void							LobbyUpdate();
 
 protected:
+	glgui::CLabel*					m_pLobbyName;
+	glgui::CLabel*					m_pPlayerList;
+
 	class CDockPanel*				m_pDockPanel;
 	class CChatBox*					m_pChatBox;
 

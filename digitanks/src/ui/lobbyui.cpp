@@ -17,6 +17,14 @@ CLobbyPanel::CLobbyPanel()
 {
 	SetVisible(false);
 
+	m_pLobbyName = new glgui::CLabel(0, 0, 100, 100, L"Lobby");
+	m_pLobbyName->SetFont(L"header", 30);
+	AddControl(m_pLobbyName);
+
+	m_pPlayerList = new glgui::CLabel(0, 0, 100, 100, L"Player List");
+	m_pPlayerList->SetFont(L"header", 18);
+	AddControl(m_pPlayerList);
+
 	m_pDockPanel = new CDockPanel();
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 0));
 	AddControl(m_pDockPanel);
@@ -26,9 +34,11 @@ CLobbyPanel::CLobbyPanel()
 
 	m_pLeave = new glgui::CButton(0, 0, 100, 100, L"Leave Lobby");
 	m_pLeave->SetClickedListener(this, LeaveLobby);
+	m_pLeave->SetFont(L"header");
 	AddControl(m_pLeave);
 
 	m_pReady = new glgui::CButton(0, 0, 100, 100, L"Ready");
+	m_pReady->SetFont(L"header");
 	AddControl(m_pReady);
 }
 
@@ -40,8 +50,27 @@ void CLobbyPanel::Layout()
 	SetSize(924, 668);
 	SetPos(iWidth/2-GetWidth()/2, iHeight/2-GetHeight()/2);
 
+	// Find the lobby leader's name
+	for (size_t i = 0; i < CGameLobbyClient::GetNumPlayers(); i++)
+	{
+		CLobbyPlayer* pPlayer = CGameLobbyClient::GetPlayer(i);
+		if (pPlayer->GetInfoValue(L"host") == L"1")
+		{
+			m_pLobbyName->SetText(pPlayer->GetInfoValue(L"name") + L"'s Lobby");
+			break;
+		}
+	}
+
+	m_pLobbyName->SetSize(GetWidth(), 30);
+	m_pLobbyName->SetPos(0, 0);
+	m_pLobbyName->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+
+	m_pPlayerList->SetSize(260, 20);
+	m_pPlayerList->SetPos(925 - 280, 30);
+	m_pPlayerList->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+
 	m_pDockPanel->SetSize(375, 480);
-	m_pDockPanel->SetPos(20, 20);
+	m_pDockPanel->SetPos(20, 50);
 
 	m_pChatBox->SetSize(565, 120); 
 	m_pChatBox->SetPos(20, 520);
@@ -94,6 +123,7 @@ void CLobbyPanel::CreateLobby()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 
 	CGameLobbyClient::JoinLobby(m_iLobby);
+	CGameLobbyClient::UpdateInfo(L"host", L"1");
 	UpdatePlayerInfo();
 }
 
@@ -164,17 +194,18 @@ CPlayerPanel::CPlayerPanel()
 	: CPanel(0, 0, 100, 100)
 {
 	m_pName = new glgui::CLabel(0, 0, 100, 100, L"Player");
+	m_pName->SetFont(L"text");
 	AddControl(m_pName);
 }
 
 void CPlayerPanel::Layout()
 {
 	SetSize(260, 60);
-	SetPos(925 - 280, 20 + 80*m_iLobbyPlayer);
+	SetPos(925 - 280, 70 + 80*m_iLobbyPlayer);
 
 	m_pName->SetSize(100, 60);
-	m_pName->SetPos(20, 0);
-	m_pName->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
+	m_pName->SetPos(50, 0);
+	m_pName->SetAlign(glgui::CLabel::TA_LEFTCENTER);
 }
 
 void CPlayerPanel::Paint(int x, int y, int w, int h)
@@ -197,6 +228,10 @@ void CPlayerPanel::SetPlayer(size_t iClient)
 	eastl::string16 sName = pPlayer->GetInfoValue(L"name");
 	if (sName.length() == 0)
 		sName = L"Player";
+
+	eastl::string16 sHost = pPlayer->GetInfoValue(L"host");
+	if (sHost == L"1")
+		sName += L" - Host";
 
 	m_pName->SetText(sName);
 

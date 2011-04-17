@@ -673,11 +673,6 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 {
 	m_iLevelPreview = 0;
 
-	if (bMultiplayer)
-		DigitanksWindow()->SetServerType(SERVER_HOST);
-	else
-		DigitanksWindow()->SetServerType(SERVER_LOCAL);
-
 	m_pLevels = new CTree(0, 0, 0);
 	m_pLevels->SetSelectedListener(this, LevelChosen);
 	AddControl(m_pLevels);
@@ -771,10 +766,15 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTerrainLabel->SetFont(L"text");
 	AddControl(m_pTerrainLabel);
 
-	m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
-	m_pBeginGame->SetClickedListener(this, BeginGame);
-	m_pBeginGame->SetFont(L"header", 12);
-	AddControl(m_pBeginGame);
+	if (bMultiplayer)
+		m_pBeginGame = NULL;
+	else
+	{
+		m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
+		m_pBeginGame->SetClickedListener(this, BeginGame);
+		m_pBeginGame->SetFont(L"header", 12);
+		AddControl(m_pBeginGame);
+	}
 }
 
 CArtilleryGamePanel::~CArtilleryGamePanel()
@@ -844,8 +844,11 @@ void CArtilleryGamePanel::Layout()
 	m_pTerrain->SetSize(GetWidth() - m_pTerrainLabel->GetLeft()*2 - m_pTerrainLabel->GetWidth(), iSelectorSize);
 	m_pTerrain->SetPos(m_pTerrainLabel->GetRight(), 370);
 
-	m_pBeginGame->SetSize(135, 40);
-	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-60);
+	if (m_pBeginGame)
+	{
+		m_pBeginGame->SetSize(135, 40);
+		m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-60);
+	}
 
 	BaseClass::Layout();
 }
@@ -996,11 +999,6 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 {
 	m_iLevelPreview = 0;
 
-	if (bMultiplayer)
-		DigitanksWindow()->SetServerType(SERVER_HOST);
-	else
-		DigitanksWindow()->SetServerType(SERVER_LOCAL);
-
 	m_pLevels = new CTree(0, 0, 0);
 	m_pLevels->SetSelectedListener(this, LevelChosen);
 	AddControl(m_pLevels);
@@ -1045,10 +1043,15 @@ CStrategyGamePanel::CStrategyGamePanel(bool bMultiplayer)
 	m_pBotPlayersLabel->SetFont(L"text");
 	AddControl(m_pBotPlayersLabel);
 
-	m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
-	m_pBeginGame->SetClickedListener(this, BeginGame);
-	m_pBeginGame->SetFont(L"header", 12);
-	AddControl(m_pBeginGame);
+	if (bMultiplayer)
+		m_pBeginGame = NULL;
+	else
+	{
+		m_pBeginGame = new CButton(0, 0, 100, 100, L"BEGIN!");
+		m_pBeginGame->SetClickedListener(this, BeginGame);
+		m_pBeginGame->SetFont(L"header", 12);
+		AddControl(m_pBeginGame);
+	}
 }
 
 CStrategyGamePanel::~CStrategyGamePanel()
@@ -1087,8 +1090,11 @@ void CStrategyGamePanel::Layout()
 	m_pBotPlayers->AddSelection(CScrollSelection<int>(3, L"3"));
 	m_pBotPlayers->SetSelection(m_pBotPlayers->GetNumSelections()-1);
 
-	m_pBeginGame->SetSize(135, 40);
-	m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-60);
+	if (m_pBeginGame)
+	{
+		m_pBeginGame->SetSize(135, 40);
+		m_pBeginGame->SetPos(GetWidth()/2-135/2, GetHeight()-60);
+	}
 
 	BaseClass::Layout();
 }

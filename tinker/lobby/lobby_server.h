@@ -39,8 +39,10 @@ public:
 	static void							DestroyLobby(size_t iLobby);
 	static void							JoinLobby(size_t iLobby, size_t iClient);
 	static void							LeaveLobby(size_t iClient);
+	static CGameLobby*					GetLobby(size_t iLobby);
 
 	static size_t						GetActiveLobbies();
+	static size_t						GetPlayerLobby(size_t iClient);
 
 	static void							UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue);
 

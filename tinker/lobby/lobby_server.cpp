@@ -5,6 +5,7 @@
 #include <tinker/application.h>
 
 extern CNetworkCommand LobbyPlayerInfo;
+extern CNetworkCommand ServerChatSay;
 
 CLIENT_COMMAND(JoinLobby)
 {
@@ -113,6 +114,17 @@ void CGameLobbyServer::LeaveLobby(size_t iClient)
 		s_iClientLobbies[iClient] = ~0;
 }
 
+CGameLobby* CGameLobbyServer::GetLobby(size_t iLobby)
+{
+	if (iLobby >= s_aLobbies.size())
+	{
+		assert(!"What lobby is this?");
+		return NULL;
+	}
+
+	return &s_aLobbies[iLobby];
+}
+
 size_t CGameLobbyServer::GetActiveLobbies()
 {
 	size_t iLobbies = 0;
@@ -123,6 +135,13 @@ size_t CGameLobbyServer::GetActiveLobbies()
 	}
 
 	return iLobbies;
+}
+
+size_t CGameLobbyServer::GetPlayerLobby(size_t iClient)
+{
+	if (iClient == ~0)
+		return 0;
+	return s_iClientLobbies[iClient];
 }
 
 void CGameLobbyServer::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)
@@ -225,6 +244,8 @@ void CGameLobby::RemovePlayer(size_t iClient)
 	if (!GetPlayer(iPlayer))
 		return;
 
+	::ServerChatSay.RunCommand(GetPlayer(iPlayer)->GetInfoValue(L"name") + L" has left the lobby.\n");
+
 	m_aClients.erase(m_aClients.begin()+iPlayer);
 
 	::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 0", iClient));
@@ -235,6 +256,15 @@ void CGameLobby::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const
 	CLobbyPlayer* pPlayer = GetPlayerByClient(iClient);
 	if (!pPlayer)
 		return;
+
+	eastl::string16 sPreviousValue = pPlayer->asInfo[sKey];
+	if (sKey == L"name")
+	{
+		if (sPreviousValue == L"" && sValue.length() > 0)
+			::ServerChatSay.RunCommand(sValue + L" has joined the lobby.\n");
+		else
+			::ServerChatSay.RunCommand(sPreviousValue + L" is now known as " + sValue + L".\n");
+	}
 
 	pPlayer->asInfo[sKey] = sValue;
 
