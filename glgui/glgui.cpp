@@ -2863,6 +2863,9 @@ CTextField::CTextField()
 	m_flBlinkTime = 0;
 
 	m_flRenderOffset = 0;
+
+	m_pfnContentsChangedCallback = NULL;
+	m_pContentsChangedListener = NULL;
 }
 
 void CTextField::Paint(int x, int y, int w, int h)
@@ -3006,7 +3009,10 @@ bool CTextField::CharPressed(int iKey)
 	if (HasFocus())
 	{
 		if (iKey <= TINKER_KEY_FIRST)
+		{
 			m_sText.insert(m_iCursor++, 1, iKey);
+			UpdateContentsChangedListener();
+		}
 
 		m_flBlinkTime = CRootPanel::Get()->GetTime();
 
@@ -3040,12 +3046,16 @@ bool CTextField::KeyPressed(int iKey, bool bCtrlDown)
 			{
 				m_sText.erase(m_iCursor-1, 1);
 				m_iCursor--;
+				UpdateContentsChangedListener();
 			}
 		}
 		else if (iKey == TINKER_KEY_DEL)
 		{
 			if (m_iCursor < m_sText.length())
+			{
 				m_sText.erase(m_iCursor, 1);
+				UpdateContentsChangedListener();
+			}
 		}
 		else if (iKey == TINKER_KEY_HOME)
 		{
@@ -3060,6 +3070,7 @@ bool CTextField::KeyPressed(int iKey, bool bCtrlDown)
 			eastl::string16 sClipboard = convertstring<char, char16_t>(GetClipboard());
 			m_sText.insert(m_sText.begin()+m_iCursor, sClipboard.begin(), sClipboard.end());
 			m_iCursor += sClipboard.length();
+			UpdateContentsChangedListener();
 		}
 
 		m_flBlinkTime = CRootPanel::Get()->GetTime();
@@ -3070,6 +3081,18 @@ bool CTextField::KeyPressed(int iKey, bool bCtrlDown)
 	}
 
 	return CBaseControl::KeyPressed(iKey, bCtrlDown);
+}
+
+void CTextField::SetContentsChangedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
+{
+	m_pfnContentsChangedCallback = pfnCallback;
+	m_pContentsChangedListener = pListener;
+}
+
+void CTextField::UpdateContentsChangedListener()
+{
+	if (m_pfnContentsChangedCallback)
+		m_pfnContentsChangedCallback(m_pContentsChangedListener);
 }
 
 void CTextField::FindRenderOffset()

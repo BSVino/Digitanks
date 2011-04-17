@@ -1336,6 +1336,9 @@ namespace glgui
 		virtual bool	CharPressed(int iKey);
 		virtual bool	KeyPressed(int iKey, bool bCtrlDown = false);
 
+		virtual void	SetContentsChangedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
+		virtual void	UpdateContentsChangedListener();
+
 		virtual void	FindRenderOffset();
 
 		virtual bool	IsEnabled() {return m_bEnabled;};
@@ -1372,6 +1375,9 @@ namespace glgui
 		size_t			m_iCursor;
 
 		float			m_flRenderOffset;
+
+		IEventListener::Callback m_pfnContentsChangedCallback;
+		IEventListener*	m_pContentsChangedListener;
 	};
 };
 

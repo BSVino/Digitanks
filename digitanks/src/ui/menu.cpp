@@ -1242,6 +1242,15 @@ COptionsPanel::COptionsPanel()
 {
 	m_bStandalone = false;
 
+	m_pNicknameLabel = new CLabel(0, 0, 32, 32, L"Nickname:");
+	m_pNicknameLabel->SetWrap(false);
+	m_pNicknameLabel->SetFont(L"text");
+	AddControl(m_pNicknameLabel);
+
+	m_pNickname = new CTextField();
+	m_pNickname->SetContentsChangedListener(this, NewNickname);
+	AddControl(m_pNickname);
+
 	m_pSoundVolume = new CScrollSelector<float>(L"text");
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0, L"Off"));
 	m_pSoundVolume->AddSelection(CScrollSelection<float>(0.1f, L"10%"));
@@ -1367,19 +1376,23 @@ void COptionsPanel::Layout()
 
 	int iSelectorSize = m_pMusicVolumeLabel->GetHeight() - 4;
 
+	m_pNicknameLabel->SetPos(GetWidth()/2-m_pNicknameLabel->GetWidth()/2, 50);
+	m_pNickname->SetPos(GetWidth()/2-m_pNickname->GetWidth()/2, 80);
+	m_pNickname->SetText(DigitanksWindow()->GetPlayerNickname());
+
 	m_pSoundVolumeLabel->EnsureTextFits();
-	m_pSoundVolumeLabel->SetPos(75, 80);
+	m_pSoundVolumeLabel->SetPos(75, 160);
 
 	m_pSoundVolume->SetSize(GetWidth() - m_pSoundVolumeLabel->GetLeft()*2 - m_pSoundVolumeLabel->GetWidth(), iSelectorSize);
-	m_pSoundVolume->SetPos(m_pSoundVolumeLabel->GetRight(), 80);
+	m_pSoundVolume->SetPos(m_pSoundVolumeLabel->GetRight(), 160);
 
 	m_pSoundVolume->SetSelection((size_t)(DigitanksWindow()->GetSoundVolume()*10));
 
 	m_pMusicVolumeLabel->EnsureTextFits();
-	m_pMusicVolumeLabel->SetPos(75, 160);
+	m_pMusicVolumeLabel->SetPos(75, 200);
 
 	m_pMusicVolume->SetSize(GetWidth() - m_pMusicVolumeLabel->GetLeft()*2 - m_pMusicVolumeLabel->GetWidth(), iSelectorSize);
-	m_pMusicVolume->SetPos(m_pMusicVolumeLabel->GetRight(), 160);
+	m_pMusicVolume->SetPos(m_pMusicVolumeLabel->GetRight(), 200);
 
 	m_pMusicVolume->SetSelection((size_t)(DigitanksWindow()->GetMusicVolume()*10));
 
@@ -1423,7 +1436,7 @@ void COptionsPanel::Layout()
 	m_pConstrainLabel->EnsureTextFits();
 	m_pConstrainLabel->SetPos(GetWidth()/2 - m_pConstrainLabel->GetWidth()/2 + 10 + 40, GetHeight()-130);
 	m_pConstrain->SetPos(m_pConstrainLabel->GetLeft() - 15, GetHeight()-130 + m_pConstrainLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
-	m_pConstrain->SetState(DigitanksWindow()->ShouldConstrainMouse(), false);
+	m_pConstrain->SetState(DigitanksWindow()->WantsConstrainMouse(), false);
 
 	BaseClass::Layout();
 
@@ -1439,6 +1452,11 @@ void COptionsPanel::Paint(int x, int y, int w, int h)
 		CRootPanel::PaintRect(x, y, w, h, Color(12, 13, 12, 255));
 
 	BaseClass::Paint(x, y, w, h);
+}
+
+void COptionsPanel::NewNicknameCallback()
+{
+	DigitanksWindow()->SetPlayerNickname(m_pNickname->GetText());
 }
 
 void COptionsPanel::SoundVolumeChangedCallback()

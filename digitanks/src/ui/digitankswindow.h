@@ -91,6 +91,7 @@ public:
 	void						SetConfigFullscreen(bool bFullscreen) { m_bCfgFullscreen = bFullscreen; };
 	void						SetConstrainMouse(bool bConstrain) { m_bConstrainMouse = bConstrain; };
 	bool						ShouldConstrainMouse();
+	bool						WantsConstrainMouse() { return m_bConstrainMouse; };
 
 	void						SetWantsFramebuffers(bool bWantsFramebuffers) { m_bWantsFramebuffers = bWantsFramebuffers; }
 	bool						WantsFramebuffers() { return m_bWantsFramebuffers; }

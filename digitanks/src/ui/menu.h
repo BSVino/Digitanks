@@ -256,6 +256,7 @@ public:
 
 	void							SetStandalone(bool bStandalone) { m_bStandalone = bStandalone; }
 
+	EVENT_CALLBACK(COptionsPanel,	NewNickname);
 	EVENT_CALLBACK(COptionsPanel,	SoundVolumeChanged);
 	EVENT_CALLBACK(COptionsPanel,	MusicVolumeChanged);
 	EVENT_CALLBACK(COptionsPanel,	VideoModeChosen);
@@ -266,6 +267,9 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	Close);
 
 protected:
+	glgui::CLabel*					m_pNicknameLabel;
+	glgui::CTextField*				m_pNickname;
+
 	glgui::CScrollSelector<float>*	m_pSoundVolume;
 	glgui::CLabel*					m_pSoundVolumeLabel;
 
