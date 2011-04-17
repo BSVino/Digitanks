@@ -6,18 +6,23 @@
 
 extern CNetworkCommand LobbyPlayerInfo;
 
-SERVER_COMMAND(JoinLobby)
+CLIENT_COMMAND(JoinLobby)
 {
-	if (pCmd->GetNumArguments() < 2)
+	if (pCmd->GetNumArguments() < 1)
 	{
 		TMsg("JoinLobby not enough arguments\n");
 		return;
 	}
 
-	CGameLobbyServer::JoinLobby(pCmd->ArgAsUInt(0), pCmd->ArgAsUInt(1));
+	CGameLobbyServer::JoinLobby(pCmd->ArgAsUInt(0), iClient);
 }
 
-SERVER_COMMAND(UpdateInfo)
+CLIENT_COMMAND(LeaveLobby)
+{
+	CGameLobbyServer::LeaveLobby(iClient);
+}
+
+CLIENT_COMMAND(UpdateInfo)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -90,8 +95,12 @@ void CGameLobbyServer::JoinLobby(size_t iLobby, size_t iClient)
 		s_iClientLobbies[iClient] = iLobby;
 }
 
-void CGameLobbyServer::LeaveLobby(size_t iLobby, size_t iClient)
+void CGameLobbyServer::LeaveLobby(size_t iClient)
 {
+	size_t iLobby = 0;
+	if (iClient != ~0)
+		s_iClientLobbies[iClient] = iLobby;
+
 	if (iLobby >= s_aLobbies.size())
 	{
 		assert(!"What lobby is this?");
@@ -135,7 +144,7 @@ void CGameLobbyServer::ClientDisconnect(class INetworkListener*, class CNetworkP
 {
 	int iClient = pParameters->i1;
 
-	LeaveLobby(0, iClient);
+	LeaveLobby(iClient);
 }
 
 CGameLobby::CGameLobby()

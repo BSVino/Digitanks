@@ -5,6 +5,7 @@
 #include <tinker/application.h>
 
 extern CNetworkCommand JoinLobby;
+extern CNetworkCommand LeaveLobby;
 extern CNetworkCommand UpdateInfo;
 
 SERVER_COMMAND(LobbyPlayerInfo)
@@ -43,7 +44,13 @@ INetworkListener::Callback CGameLobbyClient::s_pfnLobbyUpdateCallback = NULL;
 
 void CGameLobbyClient::JoinLobby(size_t iLobby)
 {
-	::JoinLobby.RunCommand(sprintf(L"%d %d", (int)iLobby, (int)CNetwork::GetClientID()));
+	::JoinLobby.RunCommand(sprintf(L"%d", (int)iLobby));
+}
+
+void CGameLobbyClient::LeaveLobby()
+{
+	::LeaveLobby.RunCommand(L"");
+	CNetwork::Disconnect();
 }
 
 size_t CGameLobbyClient::GetNumPlayers()

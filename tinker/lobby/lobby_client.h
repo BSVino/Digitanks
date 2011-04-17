@@ -11,6 +11,7 @@ class CGameLobbyClient
 {
 public:
 	static void							JoinLobby(size_t iLobby);
+	static void							LeaveLobby();
 
 	static size_t						GetNumPlayers();
 	static size_t						GetPlayerIndex(size_t iIndex);
