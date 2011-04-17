@@ -45,12 +45,14 @@ INetworkListener::Callback CGameLobbyClient::s_pfnLobbyUpdateCallback = NULL;
 void CGameLobbyClient::JoinLobby(size_t iLobby)
 {
 	::JoinLobby.RunCommand(sprintf(L"%d", (int)iLobby));
+	s_aClients.clear();
 }
 
 void CGameLobbyClient::LeaveLobby()
 {
 	::LeaveLobby.RunCommand(L"");
 	CNetwork::Disconnect();
+	s_aClients.clear();
 }
 
 size_t CGameLobbyClient::GetNumPlayers()

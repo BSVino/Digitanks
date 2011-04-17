@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <strutils.h>
+#include <platform.h>
 
 #include <tinker/application.h>
 
@@ -140,16 +141,34 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 		return;
 	}
 
-	if (enet_host_service(g_pClient, &oEvent, 5000) > 0 && oEvent.type == ENET_EVENT_TYPE_CONNECT)
+	g_iClientID = ~0;
+
+	if (enet_host_service(g_pClient, &oEvent, 5000) <= 0 || oEvent.type != ENET_EVENT_TYPE_CONNECT)
 	{
-		s_bConnected = true;
-		g_iClientID = ~0;
+		TError(L"Did not receive connection event.\n");
+		enet_peer_reset(g_pClientPeer);
 		return;
 	}
 
-	TError(L"Did not receive connection event.\n");
+	s_bConnected = true;
 
-	enet_peer_reset(g_pClientPeer);
+	float flStartWaitTime = CApplication::Get()->GetTime();
+	while (CApplication::Get()->GetTime() - flStartWaitTime < 10)
+	{
+		CNetwork::Think();
+		if (g_iClientID != ~0)
+			break;
+
+		SleepMS(50);
+	}
+
+	if (g_iClientID == ~0)
+	{
+		s_bConnected = false;
+		TError(L"Did not receive initial Client ID packet.\n");
+		enet_peer_reset(g_pClientPeer);
+		return;
+	}
 }
 
 bool CNetwork::IsHost()

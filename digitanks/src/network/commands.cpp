@@ -53,6 +53,9 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 		}
 	}
 
+	if (!CNetwork::IsConnected())
+		return;
+
 	eastl::string16 sCommand = m_sName + L" " + sParameters;
 
 	CNetworkParameters p;
