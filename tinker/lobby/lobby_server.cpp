@@ -226,12 +226,12 @@ void CGameLobby::SendFullUpdate(size_t iClient)
 	{
 		CLobbyPlayer* pPlayer = &m_aClients[i];
 
-		::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 1", pPlayer->iClient), pPlayer->iClient);
+		::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 1", pPlayer->iClient), iClient);
 
 		for (eastl::map<eastl::string16, eastl::string16>::iterator it = pPlayer->asInfo.begin(); it != pPlayer->asInfo.end(); it++)
 		{
-			eastl::string16 sCommand = sprintf(eastl::string16(L"%d ") + it->first + L" " + it->second, iClient);
-			::LobbyPlayerInfo.RunCommand(sCommand, pPlayer->iClient);
+			eastl::string16 sCommand = sprintf(eastl::string16(L"%d ") + it->first + L" " + it->second, pPlayer->iClient);
+			::LobbyPlayerInfo.RunCommand(sCommand, iClient);
 		}
 	}
 }
