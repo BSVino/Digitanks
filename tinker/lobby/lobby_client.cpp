@@ -21,9 +21,9 @@ SERVER_COMMAND(LobbyPlayerInfo)
 	if (pCmd->Arg(1) == L"active")
 	{
 		if (pCmd->ArgAsBool(2) && iLobbyClient == ~0)
-			CGameLobbyClient::AddPlayer(iLobbyClient);
-		else
-			CGameLobbyClient::RemovePlayer(iLobbyClient);
+			CGameLobbyClient::AddPlayer(pCmd->ArgAsUInt(0));
+		else if (!pCmd->ArgAsBool(2) && iLobbyClient != ~0)
+			CGameLobbyClient::RemovePlayer(pCmd->ArgAsUInt(0));
 	}
 	else
 	{
@@ -34,7 +34,7 @@ SERVER_COMMAND(LobbyPlayerInfo)
 			return;
 		}
 
-		CGameLobbyClient::UpdatePlayer(iClient, pCmd->Arg(1), pCmd->Arg(2));
+		CGameLobbyClient::UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), pCmd->Arg(2));
 	}
 }
 

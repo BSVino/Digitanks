@@ -170,7 +170,7 @@ CPlayerPanel::CPlayerPanel()
 void CPlayerPanel::Layout()
 {
 	SetSize(260, 60);
-	SetPos(925 - 280, 20 + 120*m_iLobbyPlayer);
+	SetPos(925 - 280, 20 + 80*m_iLobbyPlayer);
 
 	m_pName->SetSize(100, 60);
 	m_pName->SetPos(20, 0);
