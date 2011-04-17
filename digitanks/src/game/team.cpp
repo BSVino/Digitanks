@@ -28,6 +28,7 @@ INPUTS_TABLE_END();
 CTeam::CTeam()
 {
 	m_bClientControlled = false;
+	m_bHumanPlayable = true;
 	m_iClient = -1;
 }
 
