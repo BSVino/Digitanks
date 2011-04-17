@@ -2878,7 +2878,7 @@ void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseE
 	// Cleans itself up.
 	new CDamageIndicator(pVictim, flDamage, true);
 
-	if (!pVictim->IsAlive() && bDirectHit && flDamage > 0)
+	if (pVictim && !pVictim->IsAlive() && bDirectHit && flDamage > 0)
 		new CHitIndicator(pVictim, L"OVERKILL!");
 }
 
@@ -2937,7 +2937,7 @@ void CHUD::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pIn
 	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
 		return;
 
-	if (pVictim->IsAlive())
+	if (pVictim && pVictim->IsAlive())
 		new CHitIndicator(pVictim, L"MISS!");
 }
 
