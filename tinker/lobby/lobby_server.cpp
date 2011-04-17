@@ -4,6 +4,7 @@
 #include <network/commands.h>
 #include <tinker/application.h>
 
+extern CNetworkCommand LobbyInfo;
 extern CNetworkCommand LobbyPlayerInfo;
 extern CNetworkCommand ServerChatSay;
 
@@ -23,7 +24,18 @@ CLIENT_COMMAND(LeaveLobby)
 	CGameLobbyServer::LeaveLobby(iClient);
 }
 
-CLIENT_COMMAND(UpdateInfo)
+CLIENT_COMMAND(UpdateLobbyInfo)
+{
+	if (pCmd->GetNumArguments() < 2)
+	{
+		TMsg("UpdateInfo not enough arguments\n");
+		return;
+	}
+
+	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iClient), pCmd->Arg(0), pCmd->Arg(1));
+}
+
+CLIENT_COMMAND(UpdatePlayerInfo)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -144,6 +156,17 @@ size_t CGameLobbyServer::GetPlayerLobby(size_t iClient)
 	return s_iClientLobbies[iClient];
 }
 
+void CGameLobbyServer::UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue)
+{
+	if (iLobby == ~0)
+	{
+		assert(!"What lobby is this?");
+		return;
+	}
+
+	s_aLobbies[iLobby].UpdateInfo(sKey, sValue);
+}
+
 void CGameLobbyServer::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)
 {
 	if (iClient != ~0 && s_iClientLobbies[iClient] == ~0)
@@ -249,6 +272,14 @@ void CGameLobby::RemovePlayer(size_t iClient)
 	m_aClients.erase(m_aClients.begin()+iPlayer);
 
 	::LobbyPlayerInfo.RunCommand(sprintf(L"%d active 0", iClient));
+}
+
+void CGameLobby::UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue)
+{
+	m_asInfo[sKey] = sValue;
+
+	eastl::string16 sCommand = sprintf(sKey + L" " + sValue);
+	::LobbyInfo.RunCommand(sCommand);
 }
 
 void CGameLobby::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)

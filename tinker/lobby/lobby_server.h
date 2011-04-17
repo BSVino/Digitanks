@@ -21,6 +21,8 @@ public:
 	CLobbyPlayer*						GetPlayer(size_t iIndex);
 	CLobbyPlayer*						GetPlayerByClient(size_t iClient);
 
+	void								UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue);
+
 	void								AddPlayer(size_t iClient);
 	void								RemovePlayer(size_t iClient);
 	void								UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue);
@@ -30,6 +32,7 @@ public:
 protected:
 	bool								m_bActive;
 	eastl::vector<CLobbyPlayer>			m_aClients;
+	eastl::map<eastl::string16, eastl::string16> m_asInfo;
 };
 
 class CGameLobbyServer
@@ -44,6 +47,7 @@ public:
 	static size_t						GetActiveLobbies();
 	static size_t						GetPlayerLobby(size_t iClient);
 
+	static void							UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue);
 	static void							UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue);
 
 	static void							ClientConnect(class INetworkListener*, class CNetworkParameters*);

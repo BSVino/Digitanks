@@ -6,7 +6,19 @@
 
 extern CNetworkCommand JoinLobby;
 extern CNetworkCommand LeaveLobby;
-extern CNetworkCommand UpdateInfo;
+extern CNetworkCommand UpdateLobbyInfo;
+extern CNetworkCommand UpdatePlayerInfo;
+
+SERVER_COMMAND(LobbyInfo)
+{
+	if (pCmd->GetNumArguments() < 2)
+	{
+		TMsg("LobbyInfo with not enough arguments\n");
+		return;
+	}
+
+	CGameLobbyClient::UpdateLobby(pCmd->Arg(0), pCmd->Arg(1));
+}
 
 SERVER_COMMAND(LobbyPlayerInfo)
 {
@@ -38,7 +50,9 @@ SERVER_COMMAND(LobbyPlayerInfo)
 	}
 }
 
+bool CGameLobbyClient::s_bInLobby = false;
 eastl::vector<CLobbyPlayer> CGameLobbyClient::s_aClients;
+eastl::map<eastl::string16, eastl::string16> CGameLobbyClient::s_asInfo;
 INetworkListener* CGameLobbyClient::s_pfnLobbyUpdateListener = NULL;
 INetworkListener::Callback CGameLobbyClient::s_pfnLobbyUpdateCallback = NULL;
 
@@ -46,6 +60,8 @@ void CGameLobbyClient::JoinLobby(size_t iLobby)
 {
 	s_aClients.clear();
 	::JoinLobby.RunCommand(sprintf(L"%d", (int)iLobby));
+
+	s_bInLobby = true;
 }
 
 void CGameLobbyClient::LeaveLobby()
@@ -53,6 +69,8 @@ void CGameLobbyClient::LeaveLobby()
 	::LeaveLobby.RunCommand(L"");
 	CNetwork::Disconnect();
 	s_aClients.clear();
+
+	s_bInLobby = false;
 }
 
 size_t CGameLobbyClient::GetNumPlayers()
@@ -109,9 +127,31 @@ void CGameLobbyClient::RemovePlayer(size_t iClient)
 	UpdateListener();
 }
 
-void CGameLobbyClient::UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue)
+void CGameLobbyClient::UpdateLobbyInfo(const eastl::string16& sKey, const eastl::string16& sValue)
 {
-	::UpdateInfo.RunCommand(sKey + L" " + sValue);
+	::UpdateLobbyInfo.RunCommand(sKey + L" " + sValue);
+}
+
+void CGameLobbyClient::UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue)
+{
+	s_asInfo[sKey] = sValue;
+
+	UpdateListener();
+}
+
+eastl::string16 CGameLobbyClient::GetInfoValue(const eastl::string16& sKey)
+{
+	eastl::map<eastl::string16, eastl::string16>::iterator it = s_asInfo.find(sKey);
+
+	if (it == s_asInfo.end())
+		return L"";
+
+	return it->second;
+}
+
+void CGameLobbyClient::UpdatePlayerInfo(const eastl::string16& sKey, const eastl::string16& sValue)
+{
+	::UpdatePlayerInfo.RunCommand(sKey + L" " + sValue);
 }
 
 void CGameLobbyClient::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue)

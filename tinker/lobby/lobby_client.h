@@ -12,6 +12,7 @@ class CGameLobbyClient
 public:
 	static void							JoinLobby(size_t iLobby);
 	static void							LeaveLobby();
+	static bool							IsInLobby() { return s_bInLobby; }
 
 	static size_t						GetNumPlayers();
 	static size_t						GetPlayerIndex(size_t iIndex);
@@ -21,14 +22,20 @@ public:
 	static void							AddPlayer(size_t iClient);
 	static void							RemovePlayer(size_t iClient);
 
-	static void							UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue);	// Updates server
+	static void							UpdateLobbyInfo(const eastl::string16& sKey, const eastl::string16& sValue);	// Updates server
+	static void							UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue); // Update from server
+	static eastl::string16				GetInfoValue(const eastl::string16& sKey);
+
+	static void							UpdatePlayerInfo(const eastl::string16& sKey, const eastl::string16& sValue);	// Updates server
 	static void							UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue); // Update from server
 
 	static void							SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback);
 	static void							UpdateListener();
 
 protected:
+	static bool							s_bInLobby;
 	static eastl::vector<CLobbyPlayer>	s_aClients;
+	static eastl::map<eastl::string16, eastl::string16> s_asInfo;
 
 	static INetworkListener*			s_pfnLobbyUpdateListener;
 	static INetworkListener::Callback	s_pfnLobbyUpdateCallback;
