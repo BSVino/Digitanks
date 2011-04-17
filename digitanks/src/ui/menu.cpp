@@ -731,7 +731,11 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTanks->AddSelection(CScrollSelection<int>(2, L"2"));
 	m_pTanks->AddSelection(CScrollSelection<int>(3, L"3"));
 	m_pTanks->SetSelection(2);
+	m_pTanks->SetSelectedListener(this, TanksSelected);
 	AddControl(m_pTanks);
+
+	if (CGameLobbyClient::IsInLobby())
+		CGameLobbyClient::UpdateLobbyInfo(L"tanks", sprintf(L"%d", m_pTanks->GetSelectionValue()));
 
 	m_pTanksLabel = new CLabel(0, 0, 32, 32, L"Tanks Per Player");
 	m_pTanksLabel->SetWrap(false);
@@ -744,7 +748,11 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTerrain->AddSelection(CScrollSelection<float>(80, L"Mountainy"));
 	m_pTerrain->AddSelection(CScrollSelection<float>(120, L"Everesty"));
 	m_pTerrain->SetSelection(2);
+	m_pTerrain->SetSelectedListener(this, TerrainSelected);
 	AddControl(m_pTerrain);
+
+	if (CGameLobbyClient::IsInLobby())
+		CGameLobbyClient::UpdateLobbyInfo(L"terrain", sprintf(L"%.1f", m_pTerrain->GetSelectionValue()));
 
 	m_pTerrainLabel = new CLabel(0, 0, 32, 32, L"Terrain");
 	m_pTerrainLabel->SetWrap(false);
@@ -911,6 +919,18 @@ void CArtilleryGamePanel::LevelPreviewCallback()
 void CArtilleryGamePanel::LevelRevertPreviewCallback()
 {
 	PreviewLevel(m_iLevelSelected);
+}
+
+void CArtilleryGamePanel::TanksSelectedCallback()
+{
+	if (CGameLobbyClient::IsInLobby())
+		CGameLobbyClient::UpdateLobbyInfo(L"tanks", sprintf(L"%d", m_pTanks->GetSelectionValue()));
+}
+
+void CArtilleryGamePanel::TerrainSelectedCallback()
+{
+	if (CGameLobbyClient::IsInLobby())
+		CGameLobbyClient::UpdateLobbyInfo(L"terrain", sprintf(L"%d", m_pTerrain->GetSelectionValue()));
 }
 
 void CArtilleryGamePanel::PreviewLevel(size_t iLevel)

@@ -173,6 +173,8 @@ public:
 	EVENT_CALLBACK(CArtilleryGamePanel,	LevelChosen);
 	EVENT_CALLBACK(CArtilleryGamePanel,	LevelPreview);
 	EVENT_CALLBACK(CArtilleryGamePanel,	LevelRevertPreview);
+	EVENT_CALLBACK(CArtilleryGamePanel,	TanksSelected);
+	EVENT_CALLBACK(CArtilleryGamePanel,	TerrainSelected);
 
 	void							PreviewLevel(size_t iLevel);
 

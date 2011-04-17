@@ -96,6 +96,8 @@ void CLobbyPanel::Layout()
 		AddControl(pPanel);
 		pPanel->SetPlayer(CGameLobbyClient::GetPlayer(i)->iClient);
 	}
+
+	BaseClass::Layout();
 }
 
 void CLobbyPanel::Paint(int x, int y, int w, int h)
@@ -124,6 +126,7 @@ void CLobbyPanel::CreateLobby()
 
 	CGameLobbyClient::JoinLobby(m_iLobby);
 	CGameLobbyClient::UpdatePlayerInfo(L"host", L"1");
+	CGameLobbyClient::UpdateLobbyInfo(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
 	UpdatePlayerInfo();
 }
 
@@ -187,7 +190,20 @@ void CInfoPanel::Layout()
 	m_pLobbyDescription->SetSize(GetWidth()-40, 80);
 	m_pLobbyDescription->SetPos(20, 20);
 
+	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::GetInfoValue(L"gametype").c_str());
+
+	if (eGameType == GAMETYPE_ARTILLERY)
+		m_pLobbyDescription->SetText(L"Game Mode: Artillery\n");
+	else
+		m_pLobbyDescription->SetText(L"Game Mode: Standard\n");
+
 	m_pLobbyDescription->AppendText(eastl::string16(L"Level: ") + CGameLobbyClient::GetInfoValue(L"level") + L"\n");
+
+	if (eGameType == GAMETYPE_ARTILLERY)
+	{
+		m_pLobbyDescription->AppendText(eastl::string16(L"Tanks per player: ") + CGameLobbyClient::GetInfoValue(L"tanks") + L"\n");
+		m_pLobbyDescription->AppendText(eastl::string16(L"Terrain height: ") + CGameLobbyClient::GetInfoValue(L"terrain") + L"\n");
+	}
 
 	BaseClass::Layout();
 }

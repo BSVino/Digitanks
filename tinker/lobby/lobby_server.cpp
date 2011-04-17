@@ -32,6 +32,17 @@ CLIENT_COMMAND(UpdateLobbyInfo)
 		return;
 	}
 
+	CGameLobby* pLobby = CGameLobbyServer::GetLobby(CGameLobbyServer::GetPlayerLobby(iClient));
+	if (!pLobby)
+		return;
+
+	CLobbyPlayer* pPlayer = pLobby->GetPlayerByClient(iClient);
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->GetInfoValue(L"host") != L"1")
+		return;
+
 	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iClient), pCmd->Arg(0), pCmd->Arg(1));
 }
 
