@@ -930,7 +930,7 @@ void CArtilleryGamePanel::TanksSelectedCallback()
 void CArtilleryGamePanel::TerrainSelectedCallback()
 {
 	if (CGameLobbyClient::IsInLobby())
-		CGameLobbyClient::UpdateLobbyInfo(L"terrain", sprintf(L"%d", m_pTerrain->GetSelectionValue()));
+		CGameLobbyClient::UpdateLobbyInfo(L"terrain", sprintf(L"%.1f", m_pTerrain->GetSelectionValue()));
 }
 
 void CArtilleryGamePanel::PreviewLevel(size_t iLevel)

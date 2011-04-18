@@ -116,6 +116,11 @@ void CLobbyPanel::CreateLobby()
 
 	m_iLobby = CGameLobbyServer::CreateLobby(iPort);
 
+	CGameLobbyClient::JoinLobby(m_iLobby);
+	CGameLobbyClient::UpdatePlayerInfo(L"host", L"1");
+	CGameLobbyClient::UpdateLobbyInfo(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
+	UpdatePlayerInfo();
+
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
 		m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
 	else
@@ -123,11 +128,6 @@ void CLobbyPanel::CreateLobby()
 
 	SetVisible(true);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
-
-	CGameLobbyClient::JoinLobby(m_iLobby);
-	CGameLobbyClient::UpdatePlayerInfo(L"host", L"1");
-	CGameLobbyClient::UpdateLobbyInfo(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
-	UpdatePlayerInfo();
 }
 
 void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)

@@ -43,7 +43,8 @@ CLIENT_COMMAND(UpdateLobbyInfo)
 	if (pPlayer->GetInfoValue(L"host") != L"1")
 		return;
 
-	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iClient), pCmd->Arg(0), pCmd->Arg(1));
+	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ')+1);
+	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iClient), pCmd->Arg(0), sValue);
 }
 
 CLIENT_COMMAND(UpdatePlayerInfo)
@@ -54,7 +55,8 @@ CLIENT_COMMAND(UpdatePlayerInfo)
 		return;
 	}
 
-	CGameLobbyServer::UpdatePlayer(iClient, pCmd->Arg(0), pCmd->Arg(1));
+	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
+	CGameLobbyServer::UpdatePlayer(iClient, pCmd->Arg(0), sValue);
 }
 
 eastl::vector<CGameLobby> CGameLobbyServer::s_aLobbies;
@@ -316,6 +318,12 @@ void CGameLobby::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const
 
 void CGameLobby::SendFullUpdate(size_t iClient)
 {
+	for (eastl::map<eastl::string16, eastl::string16>::iterator it = m_asInfo.begin(); it != m_asInfo.end(); it++)
+	{
+		eastl::string16 sCommand = it->first + L" " + it->second;
+		::LobbyInfo.RunCommand(sCommand, iClient);
+	}
+
 	for (size_t i = 0; i < m_aClients.size(); i++)
 	{
 		CLobbyPlayer* pPlayer = &m_aClients[i];
