@@ -888,7 +888,10 @@ void CArtilleryGamePanel::LevelChosenCallback()
 	PreviewLevel(iMode);
 
 	if (CGameLobbyClient::IsInLobby())
+	{
 		CGameLobbyClient::UpdateLobbyInfo(L"level", convertstring<char, char16_t>(CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetName()));
+		CGameLobbyClient::UpdateLobbyInfo(L"level_file", CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetFile());
+	}
 }
 
 void CArtilleryGamePanel::LevelPreviewCallback()
@@ -1157,7 +1160,10 @@ void CStrategyGamePanel::LevelChosenCallback()
 	PreviewLevel(iMode);
 
 	if (CGameLobbyClient::IsInLobby())
+	{
 		CGameLobbyClient::UpdateLobbyInfo(L"level", convertstring<char, char16_t>(CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetName()));
+		CGameLobbyClient::UpdateLobbyInfo(L"level_file", CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetFile());
+	}
 }
 
 void CStrategyGamePanel::LevelPreviewCallback()

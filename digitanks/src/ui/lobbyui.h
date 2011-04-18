@@ -62,9 +62,12 @@ public:
 	class CChatBox*					GetChat() { return m_pChatBox; }
 
 	EVENT_CALLBACK(CLobbyPanel,		LeaveLobby);
+	EVENT_CALLBACK(CLobbyPanel,		PlayerReady);
 
 	static void						LobbyUpdateCallback(INetworkListener*, class CNetworkParameters*);
 	void							LobbyUpdate();
+
+	static void						BeginGameCallback(INetworkListener*, class CNetworkParameters*);
 
 protected:
 	glgui::CLabel*					m_pLobbyName;

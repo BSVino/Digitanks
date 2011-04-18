@@ -29,8 +29,13 @@ public:
 	static void							UpdatePlayerInfo(const eastl::string16& sKey, const eastl::string16& sValue);	// Updates server
 	static void							UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue); // Update from server
 
+	static bool							IsHost();
+
 	static void							SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback);
 	static void							UpdateListener();
+
+	static void							SetBeginGameCallback(INetworkListener::Callback pfnCallback);
+	static void							BeginGame();
 
 protected:
 	static bool							s_bInLobby;
@@ -39,6 +44,8 @@ protected:
 
 	static INetworkListener*			s_pfnLobbyUpdateListener;
 	static INetworkListener::Callback	s_pfnLobbyUpdateCallback;
+
+	static INetworkListener::Callback	s_pfnBeginGameCallback;
 };
 
 #endif

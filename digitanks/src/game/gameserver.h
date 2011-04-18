@@ -31,6 +31,9 @@ public:
 
 	void										Initialize();
 
+	void										SetupFromLobby(bool bFromLobby) { m_bSetupFromLobby = bFromLobby; };
+	bool										ShouldSetupFromLobby() { return m_bSetupFromLobby; };
+
 	void										ReadLevels();
 	void										ReadLevels(eastl::string16 sDirectory);
 	void										ReadLevel(eastl::string16 sFile);
@@ -123,6 +126,8 @@ protected:
 	servertype_t								m_eServerType;
 	eastl::string								m_sConnectHost;
 	int											m_iPort;
+
+	bool										m_bSetupFromLobby;
 
 	bool										m_bHalting;
 

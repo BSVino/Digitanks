@@ -21,6 +21,8 @@
 #include <tinker/profiler.h>
 #include <tinker/portals/portal.h>
 #include <models/texturelibrary.h>
+#include <tinker/lobby/lobby_client.h>
+
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
 #include "digitanks/digitankslevel.h"
@@ -307,6 +309,8 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		else
 			eGameType = GAMETYPE_EMPTY;
 	}
+	else if (eRequestedGameType == GAMETYPE_FROM_LOBBY)
+		eGameType = (gametype_t)_wtoi(CGameLobbyClient::GetInfoValue(L"gametype").c_str());
 	else
 		eGameType = eRequestedGameType;
 
@@ -365,6 +369,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 
 	if (CNetwork::IsHost() && DigitanksGame())
 	{
+		GameServer()->SetupFromLobby(eRequestedGameType == GAMETYPE_FROM_LOBBY);
 		DigitanksGame()->SetupGame(eGameType);
 	}
 

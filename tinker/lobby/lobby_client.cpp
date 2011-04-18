@@ -52,11 +52,17 @@ SERVER_COMMAND(LobbyPlayerInfo)
 	}
 }
 
+SERVER_COMMAND(BeginGame)
+{
+	CGameLobbyClient::BeginGame();
+}
+
 bool CGameLobbyClient::s_bInLobby = false;
 eastl::vector<CLobbyPlayer> CGameLobbyClient::s_aClients;
 eastl::map<eastl::string16, eastl::string16> CGameLobbyClient::s_asInfo;
 INetworkListener* CGameLobbyClient::s_pfnLobbyUpdateListener = NULL;
 INetworkListener::Callback CGameLobbyClient::s_pfnLobbyUpdateCallback = NULL;
+INetworkListener::Callback CGameLobbyClient::s_pfnBeginGameCallback = NULL;
 
 void CGameLobbyClient::JoinLobby(size_t iLobby)
 {
@@ -167,6 +173,11 @@ void CGameLobbyClient::UpdatePlayer(size_t iClient, const eastl::string16& sKey,
 	UpdateListener();
 }
 
+bool CGameLobbyClient::IsHost()
+{
+	return GetInfoValue(L"host") == L"1";
+}
+
 void CGameLobbyClient::SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback)
 {
 	s_pfnLobbyUpdateListener = pListener;
@@ -177,4 +188,15 @@ void CGameLobbyClient::UpdateListener()
 {
 	if (s_pfnLobbyUpdateListener)
 		s_pfnLobbyUpdateCallback(s_pfnLobbyUpdateListener, NULL);
+}
+
+void CGameLobbyClient::SetBeginGameCallback(INetworkListener::Callback pfnCallback)
+{
+	s_pfnBeginGameCallback = pfnCallback;
+}
+
+void CGameLobbyClient::BeginGame()
+{
+	if (s_pfnBeginGameCallback)
+		s_pfnBeginGameCallback(NULL, NULL);
 }

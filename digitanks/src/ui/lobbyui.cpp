@@ -38,6 +38,7 @@ CLobbyPanel::CLobbyPanel()
 	AddControl(m_pLeave);
 
 	m_pReady = new glgui::CButton(0, 0, 100, 100, L"Ready");
+	m_pReady->SetClickedListener(this, PlayerReady);
 	m_pReady->SetFont(L"header");
 	AddControl(m_pReady);
 }
@@ -80,6 +81,16 @@ void CLobbyPanel::Layout()
 
 	m_pReady->SetSize(180, 35);
 	m_pReady->SetPos(925 - 200, 668 - 55);
+	if (CGameLobbyClient::GetPlayerByClient(CNetwork::GetClientID()))
+	{
+		bool bReady = !!_wtoi(CGameLobbyClient::GetPlayerByClient(CNetwork::GetClientID())->GetInfoValue(L"ready").c_str());
+		if (bReady)
+			m_pReady->SetText(L"Not Ready");
+		else
+			m_pReady->SetText(L"Ready");
+	}
+	else
+		m_pReady->SetText(L"Ready");
 
 	for (size_t i = 0; i < m_apPlayerPanels.size(); i++)
 	{
@@ -110,6 +121,7 @@ void CLobbyPanel::Paint(int x, int y, int w, int h)
 void CLobbyPanel::CreateLobby()
 {
 	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
+	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
@@ -133,6 +145,7 @@ void CLobbyPanel::CreateLobby()
 void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 {
 	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
+	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
@@ -152,6 +165,7 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 void CLobbyPanel::UpdatePlayerInfo()
 {
 	CGameLobbyClient::UpdatePlayerInfo(L"name", DigitanksWindow()->GetPlayerNickname());
+	CGameLobbyClient::UpdatePlayerInfo(L"ready", L"0");
 }
 
 void CLobbyPanel::LeaveLobbyCallback()
@@ -173,6 +187,27 @@ void CLobbyPanel::LobbyUpdateCallback(INetworkListener*, class CNetworkParameter
 void CLobbyPanel::LobbyUpdate()
 {
 	Layout();
+}
+
+void CLobbyPanel::PlayerReadyCallback()
+{
+	bool bReady = !!_wtoi(CGameLobbyClient::GetPlayerByClient(CNetwork::GetClientID())->GetInfoValue(L"ready").c_str());
+
+	if (bReady)
+		CGameLobbyClient::UpdatePlayerInfo(L"ready", L"0");
+	else
+		CGameLobbyClient::UpdatePlayerInfo(L"ready", L"1");
+}
+
+void CLobbyPanel::BeginGameCallback(INetworkListener*, class CNetworkParameters*)
+{
+	DigitanksWindow()->DestroyGame();
+
+	CVar::SetCVar(L"game_level", CGameLobbyClient::GetInfoValue(L"level_file"));
+
+	DigitanksWindow()->CreateGame(GAMETYPE_FROM_LOBBY);
+
+	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
 }
 
 CInfoPanel::CInfoPanel()

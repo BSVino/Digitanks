@@ -7,6 +7,7 @@
 extern CNetworkCommand LobbyInfo;
 extern CNetworkCommand LobbyPlayerInfo;
 extern CNetworkCommand ServerChatSay;
+extern CNetworkCommand BeginGame;
 
 CLIENT_COMMAND(JoinLobby)
 {
@@ -314,6 +315,19 @@ void CGameLobby::UpdatePlayer(size_t iClient, const eastl::string16& sKey, const
 
 	eastl::string16 sCommand = sprintf(eastl::string16(L"%d ") + sKey + L" " + sValue, iClient);
 	::LobbyPlayerInfo.RunCommand(sCommand);
+
+	bool bAllPlayersReady = true;
+	for (size_t i = 0; i < m_aClients.size(); i++)
+	{
+		if (m_aClients[i].GetInfoValue(L"ready") != L"1")
+		{
+			bAllPlayersReady = false;
+			break;
+		}
+	}
+
+	if (bAllPlayersReady)
+		::BeginGame.RunCommand(L"");
 }
 
 void CGameLobby::SendFullUpdate(size_t iClient)
