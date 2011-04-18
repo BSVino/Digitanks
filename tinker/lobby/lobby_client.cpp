@@ -17,7 +17,8 @@ SERVER_COMMAND(LobbyInfo)
 		return;
 	}
 
-	CGameLobbyClient::UpdateLobby(pCmd->Arg(0), pCmd->Arg(1));
+	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ')+1);
+	CGameLobbyClient::UpdateLobby(pCmd->Arg(0), sValue);
 }
 
 SERVER_COMMAND(LobbyPlayerInfo)
@@ -46,7 +47,8 @@ SERVER_COMMAND(LobbyPlayerInfo)
 			return;
 		}
 
-		CGameLobbyClient::UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), pCmd->Arg(2));
+		eastl::string16 sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
+		CGameLobbyClient::UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), sValue);
 	}
 }
 

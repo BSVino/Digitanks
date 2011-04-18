@@ -202,7 +202,18 @@ void CInfoPanel::Layout()
 	if (eGameType == GAMETYPE_ARTILLERY)
 	{
 		m_pLobbyDescription->AppendText(eastl::string16(L"Tanks per player: ") + CGameLobbyClient::GetInfoValue(L"tanks") + L"\n");
-		m_pLobbyDescription->AppendText(eastl::string16(L"Terrain height: ") + CGameLobbyClient::GetInfoValue(L"terrain") + L"\n");
+
+		eastl::string16 sHeight = CGameLobbyClient::GetInfoValue(L"terrain");
+		float flHeight = (float)_wtof(sHeight.c_str());
+		if (fabs(flHeight - 10.0f) < 0.5f)
+			sHeight = L"Flatty";
+		else if (fabs(flHeight - 50.0f) < 0.5f)
+			sHeight = L"Hilly";
+		else if (fabs(flHeight - 80.0f) < 0.5f)
+			sHeight = L"Mountainy";
+		else if (fabs(flHeight - 120.0f) < 0.5f)
+			sHeight = L"Everesty";
+		m_pLobbyDescription->AppendText(eastl::string16(L"Terrain height: ") + sHeight + L"\n");
 	}
 
 	BaseClass::Layout();
