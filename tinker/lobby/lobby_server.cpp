@@ -55,7 +55,7 @@ CLIENT_COMMAND(UpdatePlayerInfo)
 		return;
 	}
 
-	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
+	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ')+1);
 	CGameLobbyServer::UpdatePlayer(iClient, pCmd->Arg(0), sValue);
 }
 
