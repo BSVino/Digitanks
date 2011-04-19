@@ -22,10 +22,9 @@ public:
 
 	virtual void								RegisterNetworkFunctions();
 
-	virtual void								OnClientConnect(CNetworkParameters* p);
-	virtual void								OnClientDisconnect(CNetworkParameters* p);
+	virtual void								OnClientConnect(int iClient);
+	virtual void								OnClientDisconnect(int iClient);
 
-	virtual void								ClientSpawn();
 	virtual void								EnterGame();
 
 	NET_CALLBACK(CGame,							SetAngles);

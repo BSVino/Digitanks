@@ -355,6 +355,9 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 			m_pInstructor = new CInstructor();
 	}
 
+	// Suppress all network commands until the game is done loading.
+	CNetwork::SendCommands(false);
+
 	if (GameServer())
 	{
 		GameServer()->SetConnectHost(sHost);
@@ -372,6 +375,10 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		GameServer()->SetupFromLobby(eRequestedGameType == GAMETYPE_FROM_LOBBY);
 		DigitanksGame()->SetupGame(eGameType);
 	}
+
+	// Now turn the network on and connect all clients.
+	CNetwork::SendCommands(true);
+	GameServer()->ClientConnect(NETWORK_TOCLIENTS);
 
 	// Must set player nickname after teams have been set up or it won't stick.
 	if (GameServer())

@@ -199,11 +199,6 @@ void CDigitanksGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 1, NET_HANDLE);
 }
 
-void CDigitanksGame::OnClientDisconnect(CNetworkParameters* p)
-{
-	BaseClass::OnClientDisconnect(p);
-}
-
 void CDigitanksGame::ClientUpdate(int iClient)
 {
 	BaseClass::ClientUpdate(iClient);

@@ -457,7 +457,6 @@ void CTerrain::GenerateTerrain(float flHeight)
 				pChunk->m_bNeedsRegenerate = true;
 			}
 		}
-		return;
 	}
 }
 

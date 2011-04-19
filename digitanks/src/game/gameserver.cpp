@@ -244,36 +244,7 @@ void CGameServer::RegisterNetworkFunctions()
 
 void CGameServer::ClientConnect(CNetworkParameters* p)
 {
-	CNetwork::CallFunction(p->i1, "ClientInfo", p->i1, GetGameTime());
-
-	GetGame()->OnClientConnect(p);
-
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-
-		if (!pEntity)
-			continue;
-
-		CNetwork::CallFunction(p->i1, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
-	}
-
-	CGameServerNetwork::UpdateNetworkVariables(p->i1, true);
-
-	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
-	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
-
-		if (!pEntity)
-			continue;
-
-		pEntity->ClientUpdate(p->i1);
-	}
-
-	CNetwork::CallFunction(p->i1, "LoadingDone");
-
-	CNetwork::CallFunction(p->i1, "EnterGame");
+	ClientConnect(p->i1);
 }
 
 void CGameServer::LoadingDone(CNetworkParameters* p)
@@ -283,7 +254,46 @@ void CGameServer::LoadingDone(CNetworkParameters* p)
 
 void CGameServer::ClientDisconnect(CNetworkParameters* p)
 {
-	GetGame()->OnClientDisconnect(p);
+	ClientDisconnect(p->i1);
+}
+
+void CGameServer::ClientConnect(int iClient)
+{
+	CNetwork::CallFunction(iClient, "ClientInfo", iClient, GetGameTime());
+
+	GetGame()->OnClientConnect(iClient);
+
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
+		CNetwork::CallFunction(iClient, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
+	}
+
+	CGameServerNetwork::UpdateNetworkVariables(iClient, true);
+
+	// Update entities after all creations have been run, so we don't refer to entities that haven't been created yet.
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
+		pEntity->ClientUpdate(iClient);
+	}
+
+	CNetwork::CallFunction(iClient, "LoadingDone");
+
+	CNetwork::CallFunction(iClient, "EnterGame");
+}
+
+void CGameServer::ClientDisconnect(int iClient)
+{
+	GetGame()->OnClientDisconnect(iClient);
 }
 
 void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNickname)
@@ -722,8 +732,6 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 	if (!CNetwork::IsHost() && !IsLoading())
 		return;
 
-	// Don't send these delete commands, the client is already processing them predicted.
-	CNetwork::SendCommands(false);
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -745,7 +753,6 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 
 		pEntity->Delete();
 	}
-	CNetwork::SendCommands(true);
 
 	for (size_t i = 0; i < GameServer()->m_ahDeletedEntities.size(); i++)
 		delete GameServer()->m_ahDeletedEntities[i];

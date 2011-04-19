@@ -50,15 +50,15 @@ void CGame::RegisterNetworkFunctions()
 	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 }
 
-void CGame::OnClientConnect(CNetworkParameters* p)
+void CGame::OnClientConnect(int iClient)
 {
-	TMsg(sprintf(L"Client %d connected.\n", p->i1));
+	TMsg(sprintf(L"Client %d connected.\n", iClient));
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (!m_ahTeams[i]->IsPlayerControlled() && m_ahTeams[i]->IsHumanPlayable())
 		{
-			m_ahTeams[i]->SetClient(p->i1);
+			m_ahTeams[i]->SetClient(iClient);
 			TMsg(sprintf(L"Assigning to team %s (%d).\n", m_ahTeams[i]->GetName().c_str(), i));
 			return;
 		}
@@ -67,13 +67,13 @@ void CGame::OnClientConnect(CNetworkParameters* p)
 	TError(L"Can't find team to assign new client to!\n");
 }
 
-void CGame::OnClientDisconnect(CNetworkParameters* p)
+void CGame::OnClientDisconnect(int iClient)
 {
-	TMsg(sprintf(L"Client %d disconnected.\n", p->i1));
+	TMsg(sprintf(L"Client %d disconnected.\n", iClient));
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_ahTeams[i]->GetClient() == p->i1)
+		if (m_ahTeams[i]->GetClient() == iClient)
 		{
 			m_ahTeams[i]->SetClient(-2);
 			return;
@@ -81,13 +81,6 @@ void CGame::OnClientDisconnect(CNetworkParameters* p)
 	}
 
 	assert(!"Couldn't find the guy who just quit!");
-}
-
-void CGame::ClientSpawn()
-{
-	BaseClass::ClientSpawn();
-
-	GameServer()->SetLoading(false);
 }
 
 void CGame::EnterGame()

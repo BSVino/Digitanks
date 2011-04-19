@@ -62,7 +62,6 @@ public:
 
 	virtual void			RegisterNetworkFunctions();
 
-	virtual void			OnClientDisconnect(CNetworkParameters* p);
 	virtual void			ClientUpdate(int iClient);
 
 	void					SetupGame(gametype_t eGameType);
