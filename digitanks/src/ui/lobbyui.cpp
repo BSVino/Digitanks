@@ -201,13 +201,11 @@ void CLobbyPanel::PlayerReadyCallback()
 
 void CLobbyPanel::BeginGameCallback(INetworkListener*, class CNetworkParameters*)
 {
-	DigitanksWindow()->DestroyGame();
-
 	CVar::SetCVar(L"game_level", CGameLobbyClient::GetInfoValue(L"level_file"));
 
-	DigitanksWindow()->CreateGame(GAMETYPE_FROM_LOBBY);
-
 	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
+
+	DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);
 }
 
 CInfoPanel::CInfoPanel()

@@ -1079,7 +1079,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 	}
 
 	if (CNetwork::IsConnected() && !DigitanksWindow()->IsRegistered() && GetGameType() == GAMETYPE_STANDARD)
-		DigitanksWindow()->Halt(HALTACTION_TOMENU);
+		DigitanksWindow()->Restart(GAMETYPE_MENU);
 
 	if (m_eGameType == GAMETYPE_STANDARD || m_eGameType == GAMETYPE_ARTILLERY || m_eGameType == GAMETYPE_CAMPAIGN)
 		DigitanksGame()->GetDigitanksCamera()->EnterGame();
@@ -1613,7 +1613,7 @@ void CDigitanksGame::StartTurn()
 
 	if (GetGameType() == GAMETYPE_STANDARD && !DigitanksWindow()->IsRegistered() && GetTurn() > GetDemoTurns())
 	{
-		DigitanksWindow()->Halt(HALTACTION_TOMENU);
+		DigitanksWindow()->Restart(GAMETYPE_MENU);
 		return;
 	}
 

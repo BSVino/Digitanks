@@ -291,7 +291,7 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 
 void CVictoryPanel::RestartCallback()
 {
-	DigitanksWindow()->Halt(HALTACTION_RESTART);
+	DigitanksWindow()->Restart(GAMETYPE_FROM_CVAR);
 
 	SetVisible(false);
 }

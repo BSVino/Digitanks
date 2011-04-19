@@ -23,13 +23,6 @@ typedef enum
 	MOUSECURSOR_AIMINVALID,
 } mousecursor_t;
 
-typedef enum
-{
-	HALTACTION_TOMENU,
-	HALTACTION_CAMPAIGNLEVEL,
-	HALTACTION_RESTART,
-} haltaction_t;
-
 class CDigitanksWindow : public CApplication
 {
 	DECLARE_CLASS(CDigitanksWindow, CApplication);
@@ -59,7 +52,7 @@ public:
 	void						RestartCampaignLevel();
 	void						NextCampaignLevel();
 
-	void						Halt(haltaction_t eHaltAction);
+	void						Restart(gametype_t eRestartAction);
 
 	void						Run();	// Doesn't return
 
@@ -153,7 +146,7 @@ protected:
 	servertype_t				m_eServerType;
 	eastl::string16				m_sConnectHost;
 
-	haltaction_t				m_eHaltAction;
+	gametype_t					m_eRestartAction;
 
 	class CGameServer*			m_pGameServer;
 

@@ -12,6 +12,7 @@
 
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
+bool CNetwork::s_bPumping = true;
 eastl::map<eastl::string, CRegisteredFunction> CNetwork::s_aFunctions;
 INetworkListener* CNetwork::s_pClientListener = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientConnect = NULL;
@@ -226,6 +227,9 @@ void CNetwork::Think()
 	if (!pHost)
 		return;
 
+	if (!s_bPumping)
+		return;
+
 	CNetworkParameters p;
 
 	while (enet_host_service(pHost, &oEvent, 0) > 0)
@@ -303,7 +307,10 @@ void CNetwork::Think()
 			}
 			break;
         }
-    }
+
+		if (!s_bPumping)
+			break;
+	}
 }
 
 void CNetwork::CallFunction(int iClient, const char* pszFunction, ...)

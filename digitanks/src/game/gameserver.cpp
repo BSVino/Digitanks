@@ -157,6 +157,8 @@ void CGameServer::Initialize()
 		m_pCamera = CreateCamera();
 
 	RegisterNetworkFunctions();
+
+	CNetwork::ResumePumping();
 }
 
 void CGameServer::ReadLevels()
@@ -220,6 +222,13 @@ CLevel* CGameServer::GetLevel(eastl::string16 sFile)
 	}
 
 	return NULL;
+}
+
+void CGameServer::Halt()
+{
+	m_bHalting = true;
+
+	CNetwork::SuspendPumping();
 }
 
 void CGameServer::RegisterNetworkFunctions()

@@ -47,7 +47,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	m_pChatBox = NULL;
 	m_pCampaign = NULL;
 
-	m_eHaltAction = HALTACTION_TOMENU;
+	m_eRestartAction = GAMETYPE_MENU;
 
 	m_bBoxSelect = false;
 
@@ -422,24 +422,24 @@ void CDigitanksWindow::NewCampaign()
 
 void CDigitanksWindow::RestartCampaignLevel()
 {
-	Halt(HALTACTION_CAMPAIGNLEVEL);
+	Restart(GAMETYPE_CAMPAIGN);
 }
 
 void CDigitanksWindow::NextCampaignLevel()
 {
 	eastl::string sNextLevel = m_pCampaign->GetNextLevel();
 	if (sNextLevel.length() == 0)
-		Halt(HALTACTION_TOMENU);
+		Restart(GAMETYPE_MENU);
 	else
 	{
 		CVar::SetCVar("game_level", sNextLevel);
-		Halt(HALTACTION_CAMPAIGNLEVEL);
+		Restart(GAMETYPE_CAMPAIGN);
 	}
 }
 
-void CDigitanksWindow::Halt(haltaction_t eHaltAction)
+void CDigitanksWindow::Restart(gametype_t eRestartAction)
 {
-	m_eHaltAction = eHaltAction;
+	m_eRestartAction = eRestartAction;
 	GameServer()->Halt();
 }
 
@@ -468,14 +468,9 @@ void CDigitanksWindow::Run()
 			if (GameServer()->IsHalting())
 			{
 				DestroyGame();
-				if (m_eHaltAction == HALTACTION_CAMPAIGNLEVEL)
-					CreateGame(GAMETYPE_CAMPAIGN);
-				else if (m_eHaltAction == HALTACTION_RESTART)
-					CreateGame(GAMETYPE_FROM_CVAR);
-				else
-					CreateGame(GAMETYPE_MENU);
+				CreateGame(m_eRestartAction);
 
-				m_eHaltAction = HALTACTION_TOMENU;
+				m_eRestartAction = GAMETYPE_MENU;
 			}
 
 			float flTime = GetTime();

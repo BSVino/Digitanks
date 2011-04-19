@@ -14,6 +14,22 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget)
 {
+	if (CNetwork::IsConnected())
+	{
+		eastl::string16 sCommand = m_sName + L" " + sParameters;
+
+		CNetworkParameters p;
+		p.CreateExtraData(sizeof(eastl::string16::value_type) * (sCommand.length() + 1));
+		char16_t* pszData = (char16_t*)p.m_pExtraData;
+
+		assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+		wcscpy(pszData, sCommand.c_str());
+
+		p.ui1 = CNetwork::GetClientID();
+
+		CNetwork::CallFunctionParameters(iTarget, "NC", &p);
+	}
+
 	if (iTarget == NETWORK_TOCLIENTS)
 	{
 		if (CNetwork::IsHost())
@@ -52,22 +68,6 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 			return;
 		}
 	}
-
-	if (!CNetwork::IsConnected())
-		return;
-
-	eastl::string16 sCommand = m_sName + L" " + sParameters;
-
-	CNetworkParameters p;
-	p.CreateExtraData(sizeof(eastl::string16::value_type) * (sCommand.length() + 1));
-	char16_t* pszData = (char16_t*)p.m_pExtraData;
-
-	assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
-	wcscpy(pszData, sCommand.c_str());
-
-	p.ui1 = CNetwork::GetClientID();
-
-	CNetwork::CallFunctionParameters(iTarget, "NC", &p);
 }
 
 void CNetworkCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
