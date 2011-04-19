@@ -13,6 +13,7 @@
 bool CNetwork::s_bInitialized = false;
 bool CNetwork::s_bConnected = false;
 bool CNetwork::s_bPumping = true;
+bool CNetwork::s_bSendCommands = true;
 eastl::map<eastl::string, CRegisteredFunction> CNetwork::s_aFunctions;
 INetworkListener* CNetwork::s_pClientListener = NULL;
 INetworkListener::Callback CNetwork::s_pfnClientConnect = NULL;
@@ -354,6 +355,9 @@ void CNetwork::CallFunctionParameters(int iClient, const char* pszFunction, CNet
 void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient)
 {
 	if (!s_bConnected)
+		return;
+
+	if (!s_bSendCommands)
 		return;
 
 	size_t iPSize = p?p->SizeOf():0;

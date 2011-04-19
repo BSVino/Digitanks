@@ -143,6 +143,8 @@ void CGameServer::Initialize()
 
 	CNetwork::ClearRegisteredFunctions();
 
+	RegisterNetworkFunctions();
+
 	DestroyAllEntities(eastl::vector<eastl::string>(), true);
 
 	CParticleSystemLibrary::ClearInstances();
@@ -155,8 +157,6 @@ void CGameServer::Initialize()
 
 	if (!m_pCamera)
 		m_pCamera = CreateCamera();
-
-	RegisterNetworkFunctions();
 
 	CNetwork::ResumePumping();
 }
@@ -722,6 +722,8 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 	if (!CNetwork::IsHost() && !IsLoading())
 		return;
 
+	// Don't send these delete commands, the client is already processing them predicted.
+	CNetwork::SendCommands(false);
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -743,6 +745,7 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 
 		pEntity->Delete();
 	}
+	CNetwork::SendCommands(true);
 
 	for (size_t i = 0; i < GameServer()->m_ahDeletedEntities.size(); i++)
 		delete GameServer()->m_ahDeletedEntities[i];

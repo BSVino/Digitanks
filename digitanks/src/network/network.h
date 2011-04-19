@@ -166,6 +166,7 @@ public:
 	static void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false);
 	static void				CallbackFunction(const char* pszName, CNetworkParameters* p);
 
+	static void				SendCommands(bool bSend) { s_bSendCommands = bSend; };
 	static void				SuspendPumping() { s_bPumping = false; };
 	static void				ResumePumping() { s_bPumping = true; };
 
@@ -178,6 +179,7 @@ protected:
 	static bool				s_bInitialized;
 	static bool				s_bConnected;
 	static bool				s_bPumping;
+	static bool				s_bSendCommands;
 	static eastl::map<eastl::string, CRegisteredFunction> s_aFunctions;
 	static INetworkListener* s_pClientListener;
 	static INetworkListener::Callback s_pfnClientConnect;
