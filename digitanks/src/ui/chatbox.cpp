@@ -304,7 +304,7 @@ CChatBox* CDigitanksWindow::GetChatBox()
 
 	if (m_pChatBox == NULL)
 	{
-		m_pChatBox = new CChatBox();
+		m_pChatBox = new CChatBox(true);
 		m_pChatBox->SetVisible(false);
 	}
 
