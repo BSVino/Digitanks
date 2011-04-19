@@ -2111,7 +2111,9 @@ CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
 	if (m_iCurrentTeam >= m_ahTeams.size())
 		return NULL;
 
-	return static_cast<CDigitanksTeam*>(m_ahTeams[m_iCurrentTeam].GetPointer());
+	// Force the const version so we don't send it over the wire.
+	const CNetworkedSTLVector<CEntityHandle<CTeam> >& ahTeams = m_ahTeams;
+	return static_cast<CDigitanksTeam*>(ahTeams[m_iCurrentTeam].GetPointer());
 }
 
 CSelectable* CDigitanksGame::GetPrimarySelection()

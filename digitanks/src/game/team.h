@@ -30,10 +30,10 @@ public:
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
-	bool						IsPlayerControlled() { return m_bClientControlled; };
+	bool						IsPlayerControlled() const { return m_bClientControlled; };
 	void						SetClient(int iClient);
 	void						SetBot();
-	int							GetClient() { return m_iClient; };
+	int							GetClient() const { return m_iClient; };
 
 	void						SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
 	Color						GetColor() { return m_clrTeam; };
