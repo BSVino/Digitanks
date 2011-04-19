@@ -186,17 +186,20 @@ const eastl::vector<CEntityHandle<CTeam> >& CGame::GetLocalTeams()
 {
 	if (m_ahLocalTeams.size() == 0)
 	{
+		// Force the const version so that accessing doesn't send it over the wire
+		const CNetworkedSTLVector<CEntityHandle<CTeam> >& ahTeams = m_ahTeams;
+
 		CGameServer* pGameServer = GameServer();
-		for (size_t i = 0; i < m_ahTeams.size(); i++)
+		for (size_t i = 0; i < ahTeams.size(); i++)
 		{
-			if (!m_ahTeams[i])
+			if (!ahTeams[i])
 				continue;
 
-			if (!m_ahTeams[i]->IsPlayerControlled())
+			if (!ahTeams[i]->IsPlayerControlled())
 				continue;
 
-			if (m_ahTeams[i]->GetClient() == pGameServer->GetClientIndex())
-				m_ahLocalTeams.push_back(m_ahTeams[i]);
+			if (ahTeams[i]->GetClient() == pGameServer->GetClientIndex())
+				m_ahLocalTeams.push_back(ahTeams[i]);
 		}
 	}
 
