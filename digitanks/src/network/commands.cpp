@@ -14,7 +14,41 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget)
 {
-	if (CNetwork::IsConnected())
+	bool bNoNetwork = false;
+	bool bPredict = false;
+	if (iTarget == NETWORK_TOCLIENTS)
+	{
+		if (CNetwork::IsHost())
+			bPredict = true;
+		else
+		{
+			// If we're running client functions then we're going to get this message from the server anyway.
+			if (CNetwork::IsRunningClientFunctions())
+				return;
+
+			// Some shared code. Run the callback but don't send it over the wire.
+			bNoNetwork = true;
+			bPredict = true;
+		}
+	}
+
+	if (iTarget == NETWORK_TOSERVER)
+	{
+		if (CNetwork::IsHost() || !CNetwork::IsConnected())
+		{
+			bNoNetwork = true;
+			bPredict = true;
+		}
+
+		// If we're running client functions then the server already knows about this call.
+		else if (!CNetwork::IsHost() && CNetwork::IsRunningClientFunctions())
+		{
+			bNoNetwork = true;
+			bPredict = true;
+		}
+	}
+
+	if (!bNoNetwork && CNetwork::IsConnected())
 	{
 		eastl::string16 sCommand = m_sName + L" " + sParameters;
 
@@ -30,43 +64,10 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 		CNetwork::CallFunctionParameters(iTarget, "NC", &p);
 	}
 
-	if (iTarget == NETWORK_TOCLIENTS)
+	if (bPredict)
 	{
-		if (CNetwork::IsHost())
-		{
-			// If I'm the host then pass me the message too.
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-		}
-		else
-		{
-			// If we're running client functions then we're going to get this message from the server anyway.
-			if (CNetwork::IsRunningClientFunctions())
-				return;
-
-			// Some shared code. Run the callback but don't send it over the wire.
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-			return;
-		}
-	}
-
-	if (iTarget == NETWORK_TOSERVER)
-	{
-		if (CNetwork::IsHost() || !CNetwork::IsConnected())
-		{
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-			return;
-		}
-
-		// If we're running client functions then the server already knows about this call.
-		if (!CNetwork::IsHost() && CNetwork::IsRunningClientFunctions())
-		{
-			wcstok(sParameters, m_asArguments);
-			m_pfnCallback(this, -1, sParameters);
-			return;
-		}
+		wcstok(sParameters, m_asArguments);
+		m_pfnCallback(this, -1, sParameters);
 	}
 }
 
