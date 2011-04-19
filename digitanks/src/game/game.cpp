@@ -83,6 +83,13 @@ void CGame::OnClientDisconnect(CNetworkParameters* p)
 	assert(!"Couldn't find the guy who just quit!");
 }
 
+void CGame::ClientSpawn()
+{
+	BaseClass::ClientSpawn();
+
+	GameServer()->SetLoading(false);
+}
+
 void CGame::EnterGame()
 {
 }

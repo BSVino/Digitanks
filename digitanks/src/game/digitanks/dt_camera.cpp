@@ -48,6 +48,9 @@ void CDigitanksCamera::SetTarget(Vector vecTarget)
 
 void CDigitanksCamera::SnapTarget(Vector vecTarget)
 {
+	if (!DigitanksGame()->GetTerrain())
+		return;
+
 	DigitanksGame()->GetTerrain()->SetPointHeight(vecTarget);
 
 	m_flTargetRamp = 0;
