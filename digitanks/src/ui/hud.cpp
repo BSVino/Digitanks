@@ -2981,6 +2981,9 @@ void CHUD::SetHUDActive(bool bActive)
 
 bool CHUD::IsVisible()
 {
+	if (!DigitanksGame())
+		return false;
+
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return false;
 

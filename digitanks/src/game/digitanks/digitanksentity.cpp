@@ -346,6 +346,9 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 
 void CDigitanksEntity::CalculateVisibility()
 {
+	if (!DigitanksGame())
+		return;
+
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
 		if (!DigitanksGame()->GetDigitanksTeam(i))
