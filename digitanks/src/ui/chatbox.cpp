@@ -76,7 +76,7 @@ CCommand chat_open("chat_open", ::ChatOpen);
 CChatBox::CChatBox(bool bFloating)
 	: glgui::CPanel(0, 0, 100, 100)
 {
-	if (!bFloating)
+	if (bFloating)
 		glgui::CRootPanel::Get()->AddControl(this, true);
 
 	m_pOutput = new glgui::CLabel(0, 0, 100, 100, L"");

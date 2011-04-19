@@ -29,7 +29,7 @@ CLobbyPanel::CLobbyPanel()
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 0));
 	AddControl(m_pDockPanel);
 
-	m_pChatBox = new CChatBox(false);
+	m_pChatBox = new CChatBox();
 	AddControl(m_pChatBox);
 
 	m_pLeave = new glgui::CButton(0, 0, 100, 100, L"Leave Lobby");
