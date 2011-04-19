@@ -663,7 +663,8 @@ void CGameServer::Delete(CBaseEntity* pEntity)
 	if (!CNetwork::ShouldRunClientFunction())
 		return;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "DestroyEntity", pEntity->GetHandle());
+	if (CNetwork::IsHost())
+		CNetwork::CallFunction(NETWORK_TOCLIENTS, "DestroyEntity", pEntity->GetHandle());
 
 	CNetworkParameters p;
 	p.i1 = (int)pEntity->GetHandle();
@@ -709,7 +710,7 @@ void CGameServer::DestroyEntity(CNetworkParameters* p)
 
 void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare, bool bRemakeGame)
 {
-	if (!CNetwork::IsHost() && !m_bLoading)
+	if (!CNetwork::IsHost() && !IsLoading())
 		return;
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -742,7 +743,7 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 	if (CBaseEntity::GetNumEntities() == 0)
 		CBaseEntity::s_iNextEntityListIndex = 0;
 
-	if (bRemakeGame)
+	if (bRemakeGame && CNetwork::IsHost())
 		m_hGame = CreateGame();
 }
 

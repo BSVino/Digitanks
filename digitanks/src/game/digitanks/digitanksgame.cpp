@@ -957,6 +957,9 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 	CSoundLibrary::StopSound();
 	CParticleSystemLibrary::ClearInstances();
 
+	if (!CNetwork::IsHost())
+		return;
+
 	while (m_ahTeams.size())
 	{
 		CTeam* pTeam = m_ahTeams[0];

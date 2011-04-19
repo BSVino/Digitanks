@@ -1552,6 +1552,9 @@ void CDigitank::Think()
 {
 	BaseClass::Think();
 
+	if (!DigitanksGame())
+		return;
+
 	if (IsMoving())
 		DirtyVisibility();
 

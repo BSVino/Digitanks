@@ -25,6 +25,9 @@ void CSceneTree::Layout()
 
 void CSceneTree::BuildTree(bool bForce)
 {
+	if (!DigitanksGame())
+		return;
+
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 	if (!pCurrentLocalTeam)

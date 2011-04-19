@@ -333,6 +333,9 @@ CHUD::CHUD()
 
 void CHUD::Layout()
 {
+	if (!DigitanksGame())
+		return;
+
 	SetSize(GetParent()->GetWidth(), GetParent()->GetHeight());
 
 	int iWidth = DigitanksWindow()->GetWindowWidth();
