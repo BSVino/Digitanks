@@ -25,6 +25,7 @@ public:
 	virtual void								OnClientConnect(CNetworkParameters* p);
 	virtual void								OnClientDisconnect(CNetworkParameters* p);
 
+	virtual void								ClientSpawn();
 	virtual void								EnterGame();
 
 	NET_CALLBACK(CGame,							SetAngles);
