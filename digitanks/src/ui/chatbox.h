@@ -8,7 +8,7 @@ class CChatBox : public glgui::CPanel
 	DECLARE_CLASS(CChatBox, glgui::CPanel);
 
 public:
-							CChatBox(bool bFloating = true);
+							CChatBox(bool bFloating = false);
 	virtual					~CChatBox();
 
 public:
