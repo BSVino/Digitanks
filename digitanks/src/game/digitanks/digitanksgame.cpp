@@ -1129,15 +1129,24 @@ void CDigitanksGame::SetupArtilleryRound()
 	float flMapBuffer = GetTerrain()->GetMapSize()*0.1f;
 	float flMapSize = GetTerrain()->GetMapSize() - flMapBuffer*2;
 
-	size_t iTotalTanks = game_tanks.GetInt() * (game_players.GetInt() + game_bots.GetInt());
+	size_t iPlayers = (game_players.GetInt() + game_bots.GetInt());
+	if (GameServer()->ShouldSetupFromLobby())
+		iPlayers = CGameLobbyClient::GetNumPlayers();
+
+	size_t iTanksPerPlayer = game_tanks.GetInt();
+	if (GameServer()->ShouldSetupFromLobby())
+		iTanksPerPlayer = _wtoi(CGameLobbyClient::GetInfoValue(L"tanks").c_str());
+
+	size_t iTotalTanks = iTanksPerPlayer * iPlayers;
+
 	size_t iSections = (int)sqrt((float)iTotalTanks);
 	float flSectionSize = flMapSize*2/iSections;
 
 	eastl::vector<size_t> aiRandomTeamPositions;
 	// 8 random starting positions.
-	for (int i = 0; i < (game_players.GetInt() + game_bots.GetInt()); i++)
+	for (size_t i = 0; i < iPlayers; i++)
 	{
-		for (int j = 0; j < game_tanks.GetInt(); j++)
+		for (size_t j = 0; j < iTanksPerPlayer; j++)
 			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
 	}
 

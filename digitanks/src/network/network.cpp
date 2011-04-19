@@ -448,5 +448,8 @@ size_t CNetwork::GetClientConnectionId(size_t iClient)
 
 size_t CNetwork::GetClientID()
 {
+	if (IsHost())
+		return ~0;
+
 	return g_iClientID;
 }
