@@ -460,7 +460,7 @@ void CDigitanksGame::SetupArtillery()
 	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
 	if (GameServer()->ShouldSetupFromLobby())
-		iPlayers = CGameLobbyClient::GetNumPlayers();
+		iPlayers = CGameLobbyClient::L_GetNumPlayers();
 
 	if (iPlayers > 8)
 	{
@@ -486,7 +486,7 @@ void CDigitanksGame::SetupArtillery()
 	int iTanks = game_tanks.GetInt();
 
 	if (GameServer()->ShouldSetupFromLobby())
-		iTanks = _wtoi(CGameLobbyClient::GetInfoValue(L"tanks").c_str());
+		iTanks = _wtoi(CGameLobbyClient::L_GetInfoValue(L"tanks").c_str());
 
 	if (iTanks > 4)
 		iTanks = 4;
@@ -529,16 +529,26 @@ void CDigitanksGame::SetupArtillery()
 
 		if (GameServer()->ShouldSetupFromLobby())
 		{
-			if (!CGameLobbyClient::GetPlayer(i) || CGameLobbyClient::GetPlayer(i)->GetInfoValue(L"bot") == L"1")
+			if (!CGameLobbyClient::L_GetPlayer(i) || CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
 				pTeam->SetTeamName(aszTeamNames[i]);
 			else
-				pTeam->SetTeamName(CGameLobbyClient::GetPlayer(i)->GetInfoValue(L"name"));
+				pTeam->SetTeamName(CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"name"));
+
+			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
+				pTeam->SetClient(-2);
+			else
+				pTeam->SetClient(CGameLobbyClient::L_GetPlayer(i)->iClient);
 		}
-		else if (game_players.GetInt() == 1 && i == 0)
+		else
 		{
-			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
-			if (sPlayerNickname.length())
-				pTeam->SetTeamName(sPlayerNickname);
+			if (game_players.GetInt() == 1 && i == 0)
+			{
+				eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+				if (sPlayerNickname.length())
+					pTeam->SetTeamName(sPlayerNickname);
+			}
+
+			pTeam->SetClient(-1);
 		}
 	}
 }
@@ -559,7 +569,7 @@ void CDigitanksGame::SetupStrategy()
 	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
 	if (GameServer()->ShouldSetupFromLobby())
-		iPlayers = CGameLobbyClient::GetNumPlayers();
+		iPlayers = CGameLobbyClient::L_GetNumPlayers();
 
 	if (iPlayers > 4)
 	{
@@ -622,10 +632,10 @@ void CDigitanksGame::SetupStrategy()
 
 		if (GameServer()->ShouldSetupFromLobby())
 		{
-			if (!CGameLobbyClient::GetPlayer(i) || CGameLobbyClient::GetPlayer(i)->GetInfoValue(L"bot") == L"1")
+			if (!CGameLobbyClient::L_GetPlayer(i) || CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
 				pTeam->SetTeamName(aszTeamNames[i]);
 			else
-				pTeam->SetTeamName(CGameLobbyClient::GetPlayer(i)->GetInfoValue(L"name"));
+				pTeam->SetTeamName(CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"name"));
 		}
 		else if (game_players.GetInt() == 1 && i == 0)
 		{
@@ -684,13 +694,13 @@ void CDigitanksGame::SetupStrategy()
 
 	if (GameServer()->ShouldSetupFromLobby())
 	{
-		for (size_t i = 0; i < CGameLobbyClient::GetNumPlayers(); i++)
+		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
-			if (CGameLobbyClient::GetPlayer(i)->GetInfoValue(L"bot") == L"1")
+			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
 				continue;
 
 			// There's one neutral team at the front so skip it.
-			m_ahTeams[i+1]->SetClient(CGameLobbyClient::GetPlayer(i)->iClient);
+			m_ahTeams[i+1]->SetClient(CGameLobbyClient::L_GetPlayer(i)->iClient);
 		}
 	}
 	else
@@ -1119,7 +1129,7 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	float flTerrainHeight = game_terrainheight.GetFloat();
 	if (GameServer()->ShouldSetupFromLobby())
-		flTerrainHeight = (float)_wtof(CGameLobbyClient::GetInfoValue(L"terrain").c_str());
+		flTerrainHeight = (float)_wtof(CGameLobbyClient::L_GetInfoValue(L"terrain").c_str());
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain(flTerrainHeight);
@@ -1129,11 +1139,11 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	size_t iPlayers = (game_players.GetInt() + game_bots.GetInt());
 	if (GameServer()->ShouldSetupFromLobby())
-		iPlayers = CGameLobbyClient::GetNumPlayers();
+		iPlayers = CGameLobbyClient::L_GetNumPlayers();
 
 	size_t iTanksPerPlayer = game_tanks.GetInt();
 	if (GameServer()->ShouldSetupFromLobby())
-		iTanksPerPlayer = _wtoi(CGameLobbyClient::GetInfoValue(L"tanks").c_str());
+		iTanksPerPlayer = _wtoi(CGameLobbyClient::L_GetInfoValue(L"tanks").c_str());
 
 	size_t iTotalTanks = iTanksPerPlayer * iPlayers;
 
@@ -1193,22 +1203,6 @@ void CDigitanksGame::SetupArtilleryRound()
 				iTanksPlaced++;
 			}
 		}
-	}
-
-	if (GameServer()->ShouldSetupFromLobby())
-	{
-		for (size_t i = 0; i < CGameLobbyClient::GetNumPlayers(); i++)
-		{
-			if (CGameLobbyClient::GetPlayer(i)->GetInfoValue(L"bot") == L"1")
-				continue;
-
-			m_ahTeams[i]->SetClient(CGameLobbyClient::GetPlayer(i)->iClient);
-		}
-	}
-	else
-	{
-		for (int i = 0; i < game_players.GetInt(); i++)
-			m_ahTeams[i]->SetClient(-1);
 	}
 
 	CPowerup* pPowerup;

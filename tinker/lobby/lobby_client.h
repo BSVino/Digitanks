@@ -10,26 +10,38 @@
 class CGameLobbyClient
 {
 public:
-	static void							JoinLobby(size_t iLobby);
-	static void							LeaveLobby();
-	static bool							IsInLobby() { return s_bInLobby; }
+	// NOMENCLATURE:
+	// S_Function - Send a command to the server.
+	// R_Function - Receives a command from the server. (Don't call this from outside lobby_client.cpp)
+	// L_Function - Local data query. No network calls.
 
-	static size_t						GetNumPlayers();
-	static size_t						GetPlayerIndex(size_t iIndex);
-	static CLobbyPlayer*				GetPlayer(size_t iIndex);
-	static CLobbyPlayer*				GetPlayerByClient(size_t iClient);
+	static void							S_JoinLobby(size_t iLobby);
+	static void							S_LeaveLobby();
+	static bool							L_IsInLobby() { return s_bInLobby; }
 
-	static void							AddPlayer(size_t iClient);
-	static void							RemovePlayer(size_t iClient);
+	static size_t						L_GetLocalPlayerID();
 
-	static void							UpdateLobbyInfo(const eastl::string16& sKey, const eastl::string16& sValue);	// Updates server
-	static void							UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue); // Update from server
-	static eastl::string16				GetInfoValue(const eastl::string16& sKey);
+	static size_t						L_GetNumPlayers();
+	static size_t						L_GetPlayerIndexByID(size_t iID);
+	static size_t						L_GetPlayerIndexByClient(size_t iClient);
+	static CLobbyPlayer*				L_GetPlayer(size_t iIndex);
+	static CLobbyPlayer*				L_GetPlayerByID(size_t iID);
+	static CLobbyPlayer*				L_GetPlayerByClient(size_t iClient);
 
-	static void							UpdatePlayerInfo(const eastl::string16& sKey, const eastl::string16& sValue);	// Updates server
-	static void							UpdatePlayer(size_t iClient, const eastl::string16& sKey, const eastl::string16& sValue); // Update from server
+	static void							R_AddPlayer(size_t iID, size_t iClient);
+	static void							R_RemovePlayer(size_t iID);
 
-	static bool							IsHost();
+	static void							S_AddBot();
+	static void							S_RemovePlayer(size_t iID);
+
+	static void							S_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue);
+	static void							R_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue);
+	static eastl::string16				L_GetInfoValue(const eastl::string16& sKey);
+
+	static void							S_UpdatePlayer(const eastl::string16& sKey, const eastl::string16& sValue);
+	static void							R_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
+
+	static bool							L_IsHost();
 
 	static void							SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback);
 	static void							UpdateListener();

@@ -734,8 +734,8 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTanks->SetSelectedListener(this, TanksSelected);
 	AddControl(m_pTanks);
 
-	if (CGameLobbyClient::IsInLobby())
-		CGameLobbyClient::UpdateLobbyInfo(L"tanks", sprintf(L"%d", m_pTanks->GetSelectionValue()));
+	if (CGameLobbyClient::L_IsInLobby())
+		CGameLobbyClient::S_UpdateLobby(L"tanks", sprintf(L"%d", m_pTanks->GetSelectionValue()));
 
 	m_pTanksLabel = new CLabel(0, 0, 32, 32, L"Tanks Per Player");
 	m_pTanksLabel->SetWrap(false);
@@ -751,8 +751,8 @@ CArtilleryGamePanel::CArtilleryGamePanel(bool bMultiplayer)
 	m_pTerrain->SetSelectedListener(this, TerrainSelected);
 	AddControl(m_pTerrain);
 
-	if (CGameLobbyClient::IsInLobby())
-		CGameLobbyClient::UpdateLobbyInfo(L"terrain", sprintf(L"%.1f", m_pTerrain->GetSelectionValue()));
+	if (CGameLobbyClient::L_IsInLobby())
+		CGameLobbyClient::S_UpdateLobby(L"terrain", sprintf(L"%.1f", m_pTerrain->GetSelectionValue()));
 
 	m_pTerrainLabel = new CLabel(0, 0, 32, 32, L"Terrain");
 	m_pTerrainLabel->SetWrap(false);
@@ -887,10 +887,10 @@ void CArtilleryGamePanel::LevelChosenCallback()
 
 	PreviewLevel(iMode);
 
-	if (CGameLobbyClient::IsInLobby())
+	if (CGameLobbyClient::L_IsInLobby())
 	{
-		CGameLobbyClient::UpdateLobbyInfo(L"level", convertstring<char, char16_t>(CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetName()));
-		CGameLobbyClient::UpdateLobbyInfo(L"level_file", CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetFile());
+		CGameLobbyClient::S_UpdateLobby(L"level", convertstring<char, char16_t>(CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetName()));
+		CGameLobbyClient::S_UpdateLobby(L"level_file", CDigitanksGame::GetLevel(GAMETYPE_ARTILLERY, m_iLevelSelected)->GetFile());
 	}
 }
 
@@ -926,14 +926,14 @@ void CArtilleryGamePanel::LevelRevertPreviewCallback()
 
 void CArtilleryGamePanel::TanksSelectedCallback()
 {
-	if (CGameLobbyClient::IsInLobby())
-		CGameLobbyClient::UpdateLobbyInfo(L"tanks", sprintf(L"%d", m_pTanks->GetSelectionValue()));
+	if (CGameLobbyClient::L_IsInLobby())
+		CGameLobbyClient::S_UpdateLobby(L"tanks", sprintf(L"%d", m_pTanks->GetSelectionValue()));
 }
 
 void CArtilleryGamePanel::TerrainSelectedCallback()
 {
-	if (CGameLobbyClient::IsInLobby())
-		CGameLobbyClient::UpdateLobbyInfo(L"terrain", sprintf(L"%.1f", m_pTerrain->GetSelectionValue()));
+	if (CGameLobbyClient::L_IsInLobby())
+		CGameLobbyClient::S_UpdateLobby(L"terrain", sprintf(L"%.1f", m_pTerrain->GetSelectionValue()));
 }
 
 void CArtilleryGamePanel::PreviewLevel(size_t iLevel)
@@ -1159,10 +1159,10 @@ void CStrategyGamePanel::LevelChosenCallback()
 
 	PreviewLevel(iMode);
 
-	if (CGameLobbyClient::IsInLobby())
+	if (CGameLobbyClient::L_IsInLobby())
 	{
-		CGameLobbyClient::UpdateLobbyInfo(L"level", convertstring<char, char16_t>(CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetName()));
-		CGameLobbyClient::UpdateLobbyInfo(L"level_file", CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetFile());
+		CGameLobbyClient::S_UpdateLobby(L"level", convertstring<char, char16_t>(CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetName()));
+		CGameLobbyClient::S_UpdateLobby(L"level_file", CDigitanksGame::GetLevel(GAMETYPE_STANDARD, m_iLevelSelected)->GetFile());
 	}
 }
 

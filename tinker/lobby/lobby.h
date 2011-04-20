@@ -18,6 +18,7 @@ public:
 	}
 
 public:
+	size_t											iID;
 	size_t											iClient;
 	eastl::map<eastl::string16, eastl::string16>	asInfo;
 };

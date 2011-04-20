@@ -53,18 +53,6 @@ void CGame::RegisterNetworkFunctions()
 void CGame::OnClientConnect(int iClient)
 {
 	TMsg(sprintf(L"Client %d connected.\n", iClient));
-
-	for (size_t i = 0; i < m_ahTeams.size(); i++)
-	{
-		if (!m_ahTeams[i]->IsPlayerControlled() && m_ahTeams[i]->IsHumanPlayable())
-		{
-			m_ahTeams[i]->SetClient(iClient);
-			TMsg(sprintf(L"Assigning to team %s (%d).\n", m_ahTeams[i]->GetName().c_str(), i));
-			return;
-		}
-	}
-
-	TError(L"Can't find team to assign new client to!\n");
 }
 
 void CGame::OnClientDisconnect(int iClient)

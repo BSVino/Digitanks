@@ -25,6 +25,11 @@ CLobbyPanel::CLobbyPanel()
 	m_pPlayerList->SetFont(L"header", 18);
 	AddControl(m_pPlayerList);
 
+	m_pAddBot = new glgui::CButton(0, 0, 100, 100, L"+ Add Bot");
+	m_pAddBot->SetClickedListener(this, AddBot);
+	m_pAddBot->SetFont(L"header", 11);
+	AddControl(m_pAddBot);
+
 	m_pDockPanel = new CDockPanel();
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 0));
 	AddControl(m_pDockPanel);
@@ -52,9 +57,9 @@ void CLobbyPanel::Layout()
 	SetPos(iWidth/2-GetWidth()/2, iHeight/2-GetHeight()/2);
 
 	// Find the lobby leader's name
-	for (size_t i = 0; i < CGameLobbyClient::GetNumPlayers(); i++)
+	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 	{
-		CLobbyPlayer* pPlayer = CGameLobbyClient::GetPlayer(i);
+		CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
 		if (pPlayer->GetInfoValue(L"host") == L"1")
 		{
 			m_pLobbyName->SetText(pPlayer->GetInfoValue(L"name") + L"'s Lobby");
@@ -70,6 +75,9 @@ void CLobbyPanel::Layout()
 	m_pPlayerList->SetPos(925 - 280, 30);
 	m_pPlayerList->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 
+	m_pAddBot->SetSize(70, 20);
+	m_pAddBot->SetPos(925 - 90, 30);
+
 	m_pDockPanel->SetSize(375, 480);
 	m_pDockPanel->SetPos(20, 50);
 
@@ -81,9 +89,9 @@ void CLobbyPanel::Layout()
 
 	m_pReady->SetSize(180, 35);
 	m_pReady->SetPos(925 - 200, 668 - 55);
-	if (CGameLobbyClient::GetPlayerByClient(CNetwork::GetClientID()))
+	if (CGameLobbyClient::L_GetPlayerByClient(CNetwork::GetClientID()))
 	{
-		bool bReady = !!_wtoi(CGameLobbyClient::GetPlayerByClient(CNetwork::GetClientID())->GetInfoValue(L"ready").c_str());
+		bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(CNetwork::GetClientID())->GetInfoValue(L"ready").c_str());
 		if (bReady)
 			m_pReady->SetText(L"Not Ready");
 		else
@@ -91,6 +99,20 @@ void CLobbyPanel::Layout()
 	}
 	else
 		m_pReady->SetText(L"Ready");
+
+	m_pReady->SetEnabled(CGameLobbyClient::L_GetNumPlayers() >= 2);
+
+	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(L"gametype").c_str());
+	if (CGameLobbyClient::L_GetNumPlayers() > 8 && eGameType == GAMETYPE_ARTILLERY)
+	{
+		m_pReady->SetEnabled(false);
+		m_pAddBot->SetEnabled(false);
+	}
+	else if (CGameLobbyClient::L_GetNumPlayers() > 4 && eGameType == GAMETYPE_STANDARD)
+	{
+		m_pReady->SetEnabled(false);
+		m_pAddBot->SetEnabled(false);
+	}
 
 	for (size_t i = 0; i < m_apPlayerPanels.size(); i++)
 	{
@@ -100,12 +122,12 @@ void CLobbyPanel::Layout()
 
 	m_apPlayerPanels.clear();
 
-	for (size_t i = 0; i < CGameLobbyClient::GetNumPlayers(); i++)
+	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 	{
 		m_apPlayerPanels.push_back(new CPlayerPanel());
 		CPlayerPanel* pPanel = m_apPlayerPanels[m_apPlayerPanels.size()-1];
 		AddControl(pPanel);
-		pPanel->SetPlayer(CGameLobbyClient::GetPlayer(i)->iClient);
+		pPanel->SetPlayer(CGameLobbyClient::L_GetPlayer(i)->iID);
 	}
 
 	BaseClass::Layout();
@@ -128,9 +150,9 @@ void CLobbyPanel::CreateLobby()
 
 	m_iLobby = CGameLobbyServer::CreateLobby(iPort);
 
-	CGameLobbyClient::JoinLobby(m_iLobby);
-	CGameLobbyClient::UpdatePlayerInfo(L"host", L"1");
-	CGameLobbyClient::UpdateLobbyInfo(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
+	CGameLobbyClient::S_JoinLobby(m_iLobby);
+	CGameLobbyClient::S_UpdatePlayer(L"host", L"1");
+	CGameLobbyClient::S_UpdateLobby(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
 	UpdatePlayerInfo();
 
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
@@ -164,8 +186,8 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 
 void CLobbyPanel::UpdatePlayerInfo()
 {
-	CGameLobbyClient::UpdatePlayerInfo(L"name", DigitanksWindow()->GetPlayerNickname());
-	CGameLobbyClient::UpdatePlayerInfo(L"ready", L"0");
+	CGameLobbyClient::S_UpdatePlayer(L"name", DigitanksWindow()->GetPlayerNickname());
+	CGameLobbyClient::S_UpdatePlayer(L"ready", L"0");
 }
 
 void CLobbyPanel::LeaveLobbyCallback()
@@ -173,7 +195,7 @@ void CLobbyPanel::LeaveLobbyCallback()
 	if (CNetwork::IsHost())
 		CGameLobbyServer::DestroyLobby(m_iLobby);
 	else
-		CGameLobbyClient::LeaveLobby();
+		CGameLobbyClient::S_LeaveLobby();
 
 	SetVisible(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);
@@ -191,17 +213,22 @@ void CLobbyPanel::LobbyUpdate()
 
 void CLobbyPanel::PlayerReadyCallback()
 {
-	bool bReady = !!_wtoi(CGameLobbyClient::GetPlayerByClient(CNetwork::GetClientID())->GetInfoValue(L"ready").c_str());
+	bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(CNetwork::GetClientID())->GetInfoValue(L"ready").c_str());
 
 	if (bReady)
-		CGameLobbyClient::UpdatePlayerInfo(L"ready", L"0");
+		CGameLobbyClient::S_UpdatePlayer(L"ready", L"0");
 	else
-		CGameLobbyClient::UpdatePlayerInfo(L"ready", L"1");
+		CGameLobbyClient::S_UpdatePlayer(L"ready", L"1");
+}
+
+void CLobbyPanel::AddBotCallback()
+{
+	CGameLobbyClient::S_AddBot();
 }
 
 void CLobbyPanel::BeginGameCallback(INetworkListener*, class CNetworkParameters*)
 {
-	CVar::SetCVar(L"game_level", CGameLobbyClient::GetInfoValue(L"level_file"));
+	CVar::SetCVar(L"game_level", CGameLobbyClient::L_GetInfoValue(L"level_file"));
 
 	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
 
@@ -223,20 +250,20 @@ void CInfoPanel::Layout()
 	m_pLobbyDescription->SetSize(GetWidth()-40, 80);
 	m_pLobbyDescription->SetPos(20, 20);
 
-	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::GetInfoValue(L"gametype").c_str());
+	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(L"gametype").c_str());
 
 	if (eGameType == GAMETYPE_ARTILLERY)
 		m_pLobbyDescription->SetText(L"Game Mode: Artillery\n");
 	else
 		m_pLobbyDescription->SetText(L"Game Mode: Standard\n");
 
-	m_pLobbyDescription->AppendText(eastl::string16(L"Level: ") + CGameLobbyClient::GetInfoValue(L"level") + L"\n");
+	m_pLobbyDescription->AppendText(eastl::string16(L"Level: ") + CGameLobbyClient::L_GetInfoValue(L"level") + L"\n");
 
 	if (eGameType == GAMETYPE_ARTILLERY)
 	{
-		m_pLobbyDescription->AppendText(eastl::string16(L"Tanks per player: ") + CGameLobbyClient::GetInfoValue(L"tanks") + L"\n");
+		m_pLobbyDescription->AppendText(eastl::string16(L"Tanks per player: ") + CGameLobbyClient::L_GetInfoValue(L"tanks") + L"\n");
 
-		eastl::string16 sHeight = CGameLobbyClient::GetInfoValue(L"terrain");
+		eastl::string16 sHeight = CGameLobbyClient::L_GetInfoValue(L"terrain");
 		float flHeight = (float)_wtof(sHeight.c_str());
 		if (fabs(flHeight - 10.0f) < 0.5f)
 			sHeight = L"Flatty";
@@ -262,10 +289,10 @@ CPlayerPanel::CPlayerPanel()
 
 void CPlayerPanel::Layout()
 {
-	SetSize(260, 60);
-	SetPos(925 - 280, 70 + 80*m_iLobbyPlayer);
+	SetSize(260, 40);
+	SetPos(925 - 280, 70 + 60*m_iLobbyPlayer);
 
-	m_pName->SetSize(100, 60);
+	m_pName->SetSize(100, 40);
 	m_pName->SetPos(50, 0);
 	m_pName->SetAlign(glgui::CLabel::TA_LEFTCENTER);
 }
@@ -277,15 +304,15 @@ void CPlayerPanel::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CPlayerPanel::SetPlayer(size_t iClient)
+void CPlayerPanel::SetPlayer(size_t iID)
 {
-	CLobbyPlayer* pPlayer = CGameLobbyClient::GetPlayerByClient(iClient);
+	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayerByID(iID);
 
 	assert(pPlayer);
 	if (!pPlayer)
 		return;
 
-	m_iLobbyPlayer = CGameLobbyClient::GetPlayerIndex(iClient);
+	m_iLobbyPlayer = CGameLobbyClient::L_GetPlayerIndexByID(iID);
 
 	eastl::string16 sName = pPlayer->GetInfoValue(L"name");
 	if (sName.length() == 0)

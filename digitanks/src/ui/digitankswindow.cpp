@@ -310,7 +310,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 			eGameType = GAMETYPE_EMPTY;
 	}
 	else if (eRequestedGameType == GAMETYPE_FROM_LOBBY)
-		eGameType = (gametype_t)_wtoi(CGameLobbyClient::GetInfoValue(L"gametype").c_str());
+		eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(L"gametype").c_str());
 	else
 		eGameType = eRequestedGameType;
 
