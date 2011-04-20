@@ -88,10 +88,32 @@ CLIENT_COMMAND(AddBot)
 	if (pSender->GetInfoValue(L"host") != L"1")
 		return;
 
-	size_t iID = CGameLobbyServer::AddPlayer(iLobby, -1);
+	size_t iID = CGameLobbyServer::AddPlayer(iLobby, -2);
 	CGameLobbyServer::UpdatePlayer(iID, L"bot", L"1");
 	CGameLobbyServer::UpdatePlayer(iID, L"name", L"Bot");
 	CGameLobbyServer::UpdatePlayer(iID, L"ready", L"1");
+}
+
+CLIENT_COMMAND(RemovePlayer)
+{
+	if (pCmd->GetNumArguments() < 1)
+	{
+		TMsg("RemovePlayer not enough arguments\n");
+		return;
+	}
+
+	size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
+	if (!CGameLobbyServer::GetLobby(iLobby))
+		return;
+
+	CLobbyPlayer* pSender = CGameLobbyServer::GetLobby(iLobby)->GetPlayerByClient(iClient);
+	if (!pSender)
+		return;
+
+	if (pSender->GetInfoValue(L"host") != L"1")
+		return;
+
+	CGameLobbyServer::RemovePlayer(pCmd->ArgAsUInt(0));
 }
 
 eastl::vector<CGameLobby> CGameLobbyServer::s_aLobbies;
@@ -343,7 +365,7 @@ void CGameLobby::RemovePlayer(size_t iID)
 
 	m_aClients.erase(m_aClients.begin()+iPlayer);
 
-	::LobbyPlayerInfo.RunCommand(sprintf(L"%d remove", iID));
+	::LobbyPlayerInfo.RunCommand(sprintf(L"%d remove 0", iID));
 }
 
 void CGameLobby::UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue)

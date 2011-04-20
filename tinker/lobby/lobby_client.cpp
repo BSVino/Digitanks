@@ -9,6 +9,7 @@ extern CNetworkCommand LeaveLobby;
 extern CNetworkCommand UpdateLobbyInfo;
 extern CNetworkCommand UpdatePlayerInfo;
 extern CNetworkCommand AddBot;
+extern CNetworkCommand RemovePlayer;
 
 SERVER_COMMAND(LobbyInfo)
 {
@@ -168,6 +169,7 @@ void CGameLobbyClient::S_AddBot()
 
 void CGameLobbyClient::S_RemovePlayer(size_t iID)
 {
+	::RemovePlayer.RunCommand(sprintf(L"%d", iID));
 }
 
 void CGameLobbyClient::S_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue)
@@ -210,7 +212,12 @@ void CGameLobbyClient::R_UpdatePlayer(size_t iID, const eastl::string16& sKey, c
 
 bool CGameLobbyClient::L_IsHost()
 {
-	return L_GetInfoValue(L"host") == L"1";
+	CLobbyPlayer* pPlayer = L_GetPlayerByID(L_GetLocalPlayerID());
+	assert(pPlayer);
+	if (!pPlayer)
+		return false;
+
+	return pPlayer->GetInfoValue(L"host") == L"1";
 }
 
 void CGameLobbyClient::SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback)

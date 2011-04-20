@@ -285,6 +285,17 @@ CPlayerPanel::CPlayerPanel()
 	m_pName = new glgui::CLabel(0, 0, 100, 100, L"Player");
 	m_pName->SetFont(L"text");
 	AddControl(m_pName);
+
+	if (CGameLobbyClient::L_IsHost())
+	{
+		m_pKick = new glgui::CButton(0, 0, 100, 100, L"Kick");
+		m_pKick->SetClickedListener(this, Kick);
+		m_pKick->SetFont(L"header", 11);
+		m_pKick->SetButtonColor(Color(255, 0, 0));
+		AddControl(m_pKick);
+	}
+	else
+		m_pKick = NULL;
 }
 
 void CPlayerPanel::Layout()
@@ -295,6 +306,12 @@ void CPlayerPanel::Layout()
 	m_pName->SetSize(100, 40);
 	m_pName->SetPos(50, 0);
 	m_pName->SetAlign(glgui::CLabel::TA_LEFTCENTER);
+
+	if (m_pKick)
+	{
+		m_pKick->SetSize(40, 15);
+		m_pKick->SetPos(200, GetHeight()/2-m_pKick->GetHeight()/2);
+	}
 }
 
 void CPlayerPanel::Paint(int x, int y, int w, int h)
@@ -324,5 +341,19 @@ void CPlayerPanel::SetPlayer(size_t iID)
 
 	m_pName->SetText(sName);
 
+	if (m_pKick && iID == CGameLobbyClient::L_GetLocalPlayerID())
+		m_pKick->SetVisible(false);
+
 	Layout();
+}
+
+void CPlayerPanel::KickCallback()
+{
+	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
+
+	assert(pPlayer);
+	if (!pPlayer)
+		return;
+
+	CGameLobbyClient::S_RemovePlayer(pPlayer->iID);
 }

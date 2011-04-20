@@ -4,7 +4,7 @@
 #include <glgui/glgui.h>
 #include <network/network.h>
 
-class CPlayerPanel : public glgui::CPanel
+class CPlayerPanel : public glgui::CPanel, public glgui::IEventListener
 {
 	DECLARE_CLASS(CPlayerPanel, glgui::CPanel);
 
@@ -19,10 +19,14 @@ public:
 
 	void							SetPlayer(size_t iClient);
 
+	EVENT_CALLBACK(CPlayerPanel,	Kick);
+
 protected:
 	size_t							m_iLobbyPlayer;
 
 	glgui::CLabel*					m_pName;
+
+	glgui::CButton*					m_pKick;
 };
 
 class CInfoPanel : public glgui::CPanel
