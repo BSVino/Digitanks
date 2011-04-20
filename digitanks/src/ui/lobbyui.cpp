@@ -104,15 +104,16 @@ void CLobbyPanel::Layout()
 
 	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(L"gametype").c_str());
 	if (CGameLobbyClient::L_GetNumPlayers() > 8 && eGameType == GAMETYPE_ARTILLERY)
-	{
 		m_pReady->SetEnabled(false);
-		m_pAddBot->SetEnabled(false);
-	}
 	else if (CGameLobbyClient::L_GetNumPlayers() > 4 && eGameType == GAMETYPE_STANDARD)
-	{
 		m_pReady->SetEnabled(false);
+
+	if (CGameLobbyClient::L_GetNumPlayers() >= 8 && eGameType == GAMETYPE_ARTILLERY)
 		m_pAddBot->SetEnabled(false);
-	}
+	else if (CGameLobbyClient::L_GetNumPlayers() >= 4 && eGameType == GAMETYPE_STANDARD)
+		m_pAddBot->SetEnabled(false);
+	else
+		m_pAddBot->SetEnabled(true);
 
 	for (size_t i = 0; i < m_apPlayerPanels.size(); i++)
 	{
@@ -140,8 +141,10 @@ void CLobbyPanel::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CLobbyPanel::CreateLobby()
+void CLobbyPanel::CreateLobby(bool bOnline)
 {
+	m_bOnline = bOnline;
+
 	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
 	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
@@ -150,10 +153,24 @@ void CLobbyPanel::CreateLobby()
 
 	m_iLobby = CGameLobbyServer::CreateLobby(iPort);
 
+	if (m_bOnline)
+	{
+		CNetwork::Disconnect();
+		CNetwork::SetCallbacks(NULL, CGameLobbyServer::ClientConnect, CGameLobbyServer::ClientDisconnect);
+		CNetwork::CreateHost(iPort);
+	}
+
 	CGameLobbyClient::S_JoinLobby(m_iLobby);
 	CGameLobbyClient::S_UpdatePlayer(L"host", L"1");
 	CGameLobbyClient::S_UpdateLobby(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
 	UpdatePlayerInfo();
+
+	if (!m_bOnline)
+	{
+		CGameLobbyClient::S_AddBot();
+		CGameLobbyClient::S_AddBot();
+		CGameLobbyClient::S_AddBot();
+	}
 
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
 		m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
@@ -166,6 +183,8 @@ void CLobbyPanel::CreateLobby()
 
 void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 {
+	m_bOnline = true;
+
 	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
 	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
@@ -193,9 +212,14 @@ void CLobbyPanel::UpdatePlayerInfo()
 void CLobbyPanel::LeaveLobbyCallback()
 {
 	if (CNetwork::IsHost())
+	{
 		CGameLobbyServer::DestroyLobby(m_iLobby);
+	}
 	else
 		CGameLobbyClient::S_LeaveLobby();
+
+	if (m_bOnline)
+		CNetwork::Disconnect();
 
 	SetVisible(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);
@@ -284,6 +308,7 @@ CPlayerPanel::CPlayerPanel()
 {
 	m_pName = new glgui::CLabel(0, 0, 100, 100, L"Player");
 	m_pName->SetFont(L"text");
+	m_pName->SetWrap(false);
 	AddControl(m_pName);
 
 	if (CGameLobbyClient::L_IsHost())

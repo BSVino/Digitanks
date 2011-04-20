@@ -58,7 +58,7 @@ public:
 	virtual void					Layout();
 	virtual void					Paint(int x, int y, int w, int h);
 
-	void							CreateLobby();
+	void							CreateLobby(bool bOnline);
 	void							ConnectToLocalLobby(const eastl::string16& sHost);
 
 	void							UpdatePlayerInfo();
@@ -75,6 +75,8 @@ public:
 	static void						BeginGameCallback(INetworkListener*, class CNetworkParameters*);
 
 protected:
+	bool							m_bOnline;
+
 	glgui::CLabel*					m_pLobbyName;
 	glgui::CLabel*					m_pPlayerList;
 	glgui::CButton*					m_pAddBot;

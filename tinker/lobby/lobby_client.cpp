@@ -241,4 +241,6 @@ void CGameLobbyClient::BeginGame()
 {
 	if (s_pfnBeginGameCallback)
 		s_pfnBeginGameCallback(NULL, NULL);
+
+	s_bInLobby = false;
 }

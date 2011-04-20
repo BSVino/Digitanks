@@ -91,15 +91,18 @@ public:
 	virtual void					Layout();
 
 	EVENT_CALLBACK(CMultiplayerPanel,	Connect);
-	EVENT_CALLBACK(CMultiplayerPanel,	CreateLobby);
+	EVENT_CALLBACK(CMultiplayerPanel,	CreateArtilleryLobby);
+	EVENT_CALLBACK(CMultiplayerPanel,	CreateStrategyLobby);
 	EVENT_CALLBACK(CMultiplayerPanel,	Load);
 
 	EVENT_CALLBACK(CMultiplayerPanel,	ClientHint);
-	EVENT_CALLBACK(CMultiplayerPanel,	CreateHint);
+	EVENT_CALLBACK(CMultiplayerPanel,	CreateArtilleryHint);
+	EVENT_CALLBACK(CMultiplayerPanel,	CreateStrategyHint);
 
 protected:
 	glgui::CButton*					m_pConnect;
-	glgui::CButton*					m_pCreateLobby;
+	glgui::CButton*					m_pCreateArtilleryLobby;
+	glgui::CButton*					m_pCreateStrategyLobby;
 
 	CDockPanel*						m_pDockPanel;
 };
@@ -109,28 +112,23 @@ class CCreateLobbyPanel : public glgui::CPanel, public glgui::IEventListener
 	DECLARE_CLASS(CCreateLobbyPanel, glgui::CPanel);
 
 public:
-									CCreateLobbyPanel();
+									CCreateLobbyPanel(gametype_t eGameType);
 
 public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
 
-	EVENT_CALLBACK(CCreateLobbyPanel,	CreateLobby);
-	EVENT_CALLBACK(CCreateLobbyPanel,	UpdateLayout);
-	EVENT_CALLBACK(CCreateLobbyPanel,	GameTypeChosen);
-	EVENT_CALLBACK(CCreateLobbyPanel,	GameTypePreview);
-	EVENT_CALLBACK(CCreateLobbyPanel,	GameTypeRevertPreview);
-
-	void							PreviewGameType(gametype_t eGameType);
+	EVENT_CALLBACK(CCreateLobbyPanel,	CreateHotseatLobby);
+	EVENT_CALLBACK(CCreateLobbyPanel,	CreateOnlineLobby);
+	EVENT_CALLBACK(CCreateLobbyPanel,	CreateHotseatHint);
+	EVENT_CALLBACK(CCreateLobbyPanel,	CreateOnlineHint);
 
 protected:
-	glgui::CTree*					m_pGameTypes;
-	gametype_t						m_eGameTypeSelected;
+	gametype_t						m_eGameType;
 
-	glgui::CLabel*					m_pGameTypeDescription;
-
-	glgui::CButton*					m_pCreateLobby;
+	glgui::CButton*					m_pCreateHotseatLobby;
+	glgui::CButton*					m_pCreateOnlineLobby;
 };
 
 class CConnectPanel : public glgui::CPanel, public glgui::IEventListener

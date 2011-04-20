@@ -447,11 +447,17 @@ CMultiplayerPanel::CMultiplayerPanel()
 	m_pConnect->SetFont(L"header", 18);
 	AddControl(m_pConnect);
 
-	m_pCreateLobby = new CButton(0, 0, 100, 100, L"CREATE LOBBY");
-	m_pCreateLobby->SetClickedListener(this, CreateLobby);
-	m_pCreateLobby->SetCursorInListener(this, CreateHint);
-	m_pCreateLobby->SetFont(L"header", 18);
-	AddControl(m_pCreateLobby);
+	m_pCreateArtilleryLobby = new CButton(0, 0, 100, 100, L"CREATE ARTILLERY LOBBY");
+	m_pCreateArtilleryLobby->SetClickedListener(this, CreateArtilleryLobby);
+	m_pCreateArtilleryLobby->SetCursorInListener(this, CreateArtilleryHint);
+	m_pCreateArtilleryLobby->SetFont(L"header", 18);
+	AddControl(m_pCreateArtilleryLobby);
+
+	m_pCreateStrategyLobby = new CButton(0, 0, 100, 100, L"CREATE STRATEGY LOBBY");
+	m_pCreateStrategyLobby->SetClickedListener(this, CreateStrategyLobby);
+	m_pCreateStrategyLobby->SetCursorInListener(this, CreateStrategyHint);
+	m_pCreateStrategyLobby->SetFont(L"header", 18);
+	AddControl(m_pCreateStrategyLobby);
 
 	m_pDockPanel = new CDockPanel();
 	m_pDockPanel->SetBGColor(Color(12, 13, 12, 255));
@@ -463,8 +469,11 @@ void CMultiplayerPanel::Layout()
 	m_pConnect->SetPos(20, 20);
 	m_pConnect->SetSize(135, 40);
 
-	m_pCreateLobby->SetPos(20, 100);
-	m_pCreateLobby->SetSize(135, 40);
+	m_pCreateArtilleryLobby->SetPos(20, 100);
+	m_pCreateArtilleryLobby->SetSize(135, 80);
+
+	m_pCreateStrategyLobby->SetPos(20, 200);
+	m_pCreateStrategyLobby->SetSize(135, 80);
 
 	m_pDockPanel->SetSize(GetWidth() - 20 - 135 - 20 - 20, GetHeight() - 40);
 	m_pDockPanel->SetPos(20 + 135 + 20, 20);
@@ -477,9 +486,14 @@ void CMultiplayerPanel::ConnectCallback()
 	m_pDockPanel->SetDockedPanel(new CConnectPanel());
 }
 
-void CMultiplayerPanel::CreateLobbyCallback()
+void CMultiplayerPanel::CreateArtilleryLobbyCallback()
 {
-	m_pDockPanel->SetDockedPanel(new CCreateLobbyPanel());
+	m_pDockPanel->SetDockedPanel(new CCreateLobbyPanel(GAMETYPE_ARTILLERY));
+}
+
+void CMultiplayerPanel::CreateStrategyLobbyCallback()
+{
+	m_pDockPanel->SetDockedPanel(new CCreateLobbyPanel(GAMETYPE_STANDARD));
 }
 
 void CMultiplayerPanel::LoadCallback()
@@ -510,128 +524,75 @@ void CMultiplayerPanel::ClientHintCallback()
 	DigitanksWindow()->GetMainMenu()->SetHint(L"Enter a hostname and port to connect to a remote host and play.");
 }
 
-void CMultiplayerPanel::CreateHintCallback()
+void CMultiplayerPanel::CreateArtilleryHintCallback()
 {
-	DigitanksWindow()->GetMainMenu()->SetHint(L"Create a lobby to host a game for you and your friends.");
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Artillery mode is a quick no-holds-barred fight to the death. You control 1 to 4 tanks in a head-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
 }
 
-CCreateLobbyPanel::CCreateLobbyPanel()
+void CMultiplayerPanel::CreateStrategyHintCallback()
+{
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs.");
+}
+
+CCreateLobbyPanel::CCreateLobbyPanel(gametype_t eGameType)
 	: CPanel(0, 0, 570, 520)
 {
-	m_pGameTypes = new CTree(0, 0, 0);
-	m_pGameTypes->SetSelectedListener(this, GameTypeChosen);
-	AddControl(m_pGameTypes);
+	m_eGameType = eGameType;
 
-	m_pGameTypes->AddNode(L"Artillery");
-	m_pGameTypes->AddNode(L"Strategy");
+	if (m_eGameType == GAMETYPE_ARTILLERY)
+	{
+		m_pCreateHotseatLobby = new CButton(0, 0, 100, 100, L"Create Hotseat Lobby");
+		m_pCreateHotseatLobby->SetClickedListener(this, CreateHotseatLobby);
+		m_pCreateHotseatLobby->SetCursorInListener(this, CreateHotseatHint);
+		m_pCreateHotseatLobby->SetFont(L"header", 12);
+		AddControl(m_pCreateHotseatLobby);
+	}
+	else
+		m_pCreateHotseatLobby = NULL;
 
-	m_pGameTypes->GetNode(0)->SetCursorInListener(this, GameTypePreview);
-	m_pGameTypes->GetNode(0)->SetCursorOutListener(this, GameTypeRevertPreview);
-	m_pGameTypes->GetNode(1)->SetCursorInListener(this, GameTypePreview);
-	m_pGameTypes->GetNode(1)->SetCursorOutListener(this, GameTypeRevertPreview);
-
-	m_eGameTypeSelected = GAMETYPE_ARTILLERY;
-
-	m_pGameTypeDescription = new CLabel(0, 0, 32, 32, L"");
-	m_pGameTypeDescription->SetWrap(true);
-	m_pGameTypeDescription->SetFont(L"text");
-	m_pGameTypeDescription->SetAlign(CLabel::TA_TOPLEFT);
-	AddControl(m_pGameTypeDescription);
-
-	m_pCreateLobby = new CButton(0, 0, 100, 100, L"Create Lobby");
-	m_pCreateLobby->SetClickedListener(this, CreateLobby);
-	m_pCreateLobby->SetFont(L"header", 12);
-	AddControl(m_pCreateLobby);
+	m_pCreateOnlineLobby = new CButton(0, 0, 100, 100, L"Create Online Lobby");
+	m_pCreateOnlineLobby->SetClickedListener(this, CreateOnlineLobby);
+	m_pCreateOnlineLobby->SetCursorInListener(this, CreateOnlineHint);
+	m_pCreateOnlineLobby->SetFont(L"header", 12);
+	AddControl(m_pCreateOnlineLobby);
 }
 
 void CCreateLobbyPanel::Layout()
 {
-	m_pGameTypes->SetSize(200, 150);
-	m_pGameTypes->SetPos(10, 10);
+	if (m_pCreateHotseatLobby)
+	{
+		m_pCreateHotseatLobby->SetSize(135, 40);
+		m_pCreateHotseatLobby->SetPos(GetWidth()/2-135/2, 160);
+	}
 
-	m_pGameTypeDescription->SetSize(GetWidth()-40, 80);
-	m_pGameTypeDescription->SetPos(20, 170);
-
-	m_pCreateLobby->SetSize(135, 40);
-	m_pCreateLobby->SetPos(GetWidth()/2-135/2, GetHeight()-60);
+	m_pCreateOnlineLobby->SetSize(135, 40);
+	m_pCreateOnlineLobby->SetPos(GetWidth()/2-135/2, 220);
 
 	BaseClass::Layout();
 }
 
-void CCreateLobbyPanel::CreateLobbyCallback()
+void CCreateLobbyPanel::CreateHotseatLobbyCallback()
 {
-	CVar::SetCVar("lobby_gametype", (int)m_eGameTypeSelected);
+	CVar::SetCVar("lobby_gametype", (int)m_eGameType);
 
-	DigitanksWindow()->GetLobbyPanel()->CreateLobby();
+	DigitanksWindow()->GetLobbyPanel()->CreateLobby(false);
 }
 
-void CCreateLobbyPanel::UpdateLayoutCallback()
+void CCreateLobbyPanel::CreateOnlineLobbyCallback()
 {
-	Layout();
+	CVar::SetCVar("lobby_gametype", (int)m_eGameType);
+
+	DigitanksWindow()->GetLobbyPanel()->CreateLobby(true);
 }
 
-void CCreateLobbyPanel::GameTypeChosenCallback()
+void CCreateLobbyPanel::CreateHotseatHintCallback()
 {
-	size_t iMode = m_pGameTypes->GetSelectedNodeId();
-
-	if (iMode == 0)
-	{
-		m_eGameTypeSelected = GAMETYPE_ARTILLERY;
-		PreviewGameType(m_eGameTypeSelected);
-	}
-	else if (iMode == 1)
-	{
-		m_eGameTypeSelected = GAMETYPE_STANDARD;
-		PreviewGameType(m_eGameTypeSelected);
-	}
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Hotseat games are played with you and a few friends on this computer. You and your friends will take turns at the computer.");
 }
 
-void CCreateLobbyPanel::GameTypePreviewCallback()
+void CCreateLobbyPanel::CreateOnlineHintCallback()
 {
-	size_t iMode = ~0;
-
-	for (size_t i = 0; i < m_pGameTypes->GetControls().size(); i++)
-	{
-		int cx, cy, cw, ch, mx, my;
-		m_pGameTypes->GetControls()[i]->GetAbsDimensions(cx, cy, cw, ch);
-		CRootPanel::GetFullscreenMousePos(mx, my);
-		if (mx >= cx &&
-			my >= cy &&
-			mx < cx + cw &&
-			my < cy + ch)
-		{
-			iMode = i;
-			break;
-		}
-	}
-
-	if (iMode == 0)
-		PreviewGameType(GAMETYPE_ARTILLERY);
-	else if (iMode == 1)
-		PreviewGameType(GAMETYPE_STANDARD);
-}
-
-void CCreateLobbyPanel::GameTypeRevertPreviewCallback()
-{
-	PreviewGameType(m_eGameTypeSelected);
-}
-
-void CCreateLobbyPanel::PreviewGameType(gametype_t eGameType)
-{
-	switch (eGameType)
-	{
-	default:
-		m_pGameTypeDescription->SetText("");
-		break;
-
-	case GAMETYPE_ARTILLERY:
-		m_pGameTypeDescription->SetText(L"Artillery mode is a quick no-holds-barred fight to the death. You control 1 to 4 tanks in a head-on deathmatch against your enemies. The last team standing wins. Not much strategy here, just make sure you bring the biggest guns!");
-		break;
-
-	case GAMETYPE_STANDARD:
-		m_pGameTypeDescription->SetText(L"Strap in and grab a cup of coffee! Strategy mode takes a couple hours to play. You control a CPU, build a base, and produce units. You'll have to control and harvest the valuable Electronode resources to win. The objective is to destroy all enemy CPUs.");
-		break;
-	}
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Online multiplayer games take place over the internet. You need a LAN or internet connection and a few friends to play online.");
 }
 
 CConnectPanel::CConnectPanel()

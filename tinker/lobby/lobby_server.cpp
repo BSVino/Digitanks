@@ -285,16 +285,12 @@ CGameLobby::CGameLobby()
 
 void CGameLobby::Initialize(size_t iPort)
 {
-	CNetwork::Disconnect();
-	CNetwork::SetCallbacks(NULL, CGameLobbyServer::ClientConnect, CGameLobbyServer::ClientDisconnect);
-	CNetwork::CreateHost(iPort);
 	m_bActive = true;
 	m_aClients.clear();
 }
 
 void CGameLobby::Shutdown()
 {
-	CNetwork::Disconnect();
 	m_bActive = false;
 }
 
@@ -407,7 +403,10 @@ void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eas
 	}
 
 	if (bAllPlayersReady)
+	{
 		::BeginGame.RunCommand(L"");
+		m_bActive = false;
+	}
 }
 
 void CGameLobby::SendFullUpdate(size_t iClient)
