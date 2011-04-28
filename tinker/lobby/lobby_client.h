@@ -39,6 +39,7 @@ public:
 	static eastl::string16				L_GetInfoValue(const eastl::string16& sKey);
 
 	static void							S_UpdatePlayer(const eastl::string16& sKey, const eastl::string16& sValue);
+	static void							S_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
 	static void							R_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
 
 	static bool							L_IsHost();

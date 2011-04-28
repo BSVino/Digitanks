@@ -402,6 +402,12 @@
     <ClCompile Include="..\..\tinker\lobby\lobby_client.cpp">
       <Filter>Source Files\tinker\lobby</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\dt_common.cpp">
+      <Filter>Source Files\digitanks</Filter>
+    </ClCompile>
+    <ClCompile Include="game\digitanks\dt_lobbylistener.cpp">
+      <Filter>Source Files\digitanks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -697,6 +703,9 @@
     </ClInclude>
     <ClInclude Include="..\..\tinker\lobby\lobby.h">
       <Filter>Source Files\tinker\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\dt_lobbylistener.h">
+      <Filter>Source Files\digitanks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

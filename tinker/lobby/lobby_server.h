@@ -37,6 +37,16 @@ protected:
 	eastl::map<eastl::string16, eastl::string16> m_asInfo;
 };
 
+class ILobbyListener
+{
+public:
+	virtual bool						ClientConnect(size_t iClient)=0;
+	virtual void						ClientDisconnect(size_t iClient)=0;
+
+	virtual bool						UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue)=0;
+	virtual bool						UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)=0;
+};
+
 class CGameLobbyServer
 {
 public:
@@ -56,12 +66,15 @@ public:
 	static void							ClientConnect(class INetworkListener*, class CNetworkParameters*);
 	static void							ClientDisconnect(class INetworkListener*, class CNetworkParameters*);
 
+	static void							SetListener(ILobbyListener* pListener);
+
 	static size_t						GetNextPlayerID();
 
 protected:
 	static eastl::vector<CGameLobby>	s_aLobbies;
 	static eastl::map<size_t, size_t>	s_aiPlayerLobbies;
 	static eastl::map<size_t, size_t>	s_aiClientPlayerIDs;
+	static ILobbyListener*				s_pListener;
 };
 
 #endif

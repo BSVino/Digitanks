@@ -1,6 +1,9 @@
 #ifndef DT_COMMON
 #define DT_COMMON
 
+#include <EASTL/string.h>
+#include <color.h>
+
 typedef enum
 {
 	MODE_NONE = 0,
@@ -123,5 +126,8 @@ typedef enum
 	LOSE_NOTANKS,
 	LOSE_NOCPU,
 } losecondition_t;
+
+extern Color g_aclrTeamColors[];
+extern eastl::string16 g_aszTeamNames[];
 
 #endif

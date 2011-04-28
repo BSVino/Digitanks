@@ -494,29 +494,30 @@ void CDigitanksGame::SetupArtillery()
 		iTanks = 1;
 	game_tanks.SetValue(iTanks);
 
-	Color aclrTeamColors[] =
+	eastl::vector<size_t> aiAvailableColors;
+	if (GameServer()->ShouldSetupFromLobby())
 	{
-		Color(0, 0, 255),		// Blue
-		Color(255, 0, 0),		// Red
-		Color(42, 255, 0),		// Green
-		Color(255, 200, 0),		// Yellow
-		Color(0, 255, 221),		// Teal
-		Color(200, 50, 150),	// Pink
-		Color(100, 0, 255),		// Purple
-		Color(255, 255, 255),	// White
-	};
+		for (int i = 0; i < 8; i++)
+			aiAvailableColors.push_back(i);
 
-	eastl::string16 aszTeamNames[] =
-	{
-		L"Blue",
-		L"Red",
-		L"Green",
-		L"Yellow",
-		L"Teal",
-		L"Pink",
-		L"Purple",
-		L"White",
-	};
+		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
+		{
+			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
+			eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+			if (sColor == L"random" || sColor == L"")
+				continue;
+
+			size_t iColor = _wtoi(sColor.c_str());
+			for (size_t j = 0; j < aiAvailableColors.size(); j++)
+			{
+				if (aiAvailableColors[j] == iColor)
+				{
+					aiAvailableColors.erase(aiAvailableColors.begin() + j);
+					break;
+				}
+			}
+		}
+	}
 
 	for (int i = 0; i < iPlayers; i++)
 	{
@@ -524,23 +525,47 @@ void CDigitanksGame::SetupArtillery()
 
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
-		pTeam->SetColor(aclrTeamColors[i]);
-		pTeam->SetTeamName(aszTeamNames[i]);
-
 		if (GameServer()->ShouldSetupFromLobby())
 		{
-			if (!CGameLobbyClient::L_GetPlayer(i) || CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
-				pTeam->SetTeamName(aszTeamNames[i]);
+			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
+			if (pPlayer)
+			{
+				eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+				if (sColor == L"random" || sColor == L"")
+				{
+					size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
+					pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
+					pTeam->SetTeamName(g_aszTeamNames[aiAvailableColors[iColor]]);
+					aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
+				}
+				else
+				{
+					size_t iColor = _wtoi(sColor.c_str());
+					pTeam->SetColor(g_aclrTeamColors[iColor]);
+					pTeam->SetTeamName(g_aszTeamNames[iColor]);
+				}
+			}
 			else
-				pTeam->SetTeamName(CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"name"));
+			{
+				size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
+				pTeam->SetColor(g_aclrTeamColors[iColor]);
+				pTeam->SetTeamName(g_aszTeamNames[iColor]);
+				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
+			}
 
-			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
+			if (pPlayer && pPlayer->GetInfoValue(L"bot") != L"1")
+				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
+
+			if (pPlayer->GetInfoValue(L"bot") == L"1")
 				pTeam->SetClient(-2);
 			else
-				pTeam->SetClient(CGameLobbyClient::L_GetPlayer(i)->iClient);
+				pTeam->SetClient(pPlayer->iClient);
 		}
 		else
 		{
+			pTeam->SetColor(g_aclrTeamColors[i]);
+			pTeam->SetTeamName(g_aszTeamNames[i]);
+
 			if (game_players.GetInt() == 1 && i == 0)
 			{
 				eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
@@ -592,22 +617,6 @@ void CDigitanksGame::SetupStrategy()
 		game_bots.SetValue(1);
 	}
 
-	Color aclrTeamColors[] =
-	{
-		Color(0, 64, 255),		// Blue
-		Color(255, 0, 0),		// Red
-		Color(42, 255, 0),		// Green
-		Color(255, 200, 0),		// Yellow
-	};
-
-	eastl::string16 aszTeamNames[] =
-	{
-		L"Blue",
-		L"Red",
-		L"Green",
-		L"Yellow",
-	};
-
 	Vector avecStartingPositions[] =
 	{
 		Vector(180, 0, 180),
@@ -626,14 +635,14 @@ void CDigitanksGame::SetupStrategy()
 
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
-		pTeam->SetColor(aclrTeamColors[i]);
-		pTeam->SetTeamName(aszTeamNames[i]);
+		pTeam->SetColor(g_aclrTeamColors[i]);
+		pTeam->SetTeamName(g_aszTeamNames[i]);
 		pTeam->SetLoseCondition(LOSE_NOCPU);
 
 		if (GameServer()->ShouldSetupFromLobby())
 		{
 			if (!CGameLobbyClient::L_GetPlayer(i) || CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
-				pTeam->SetTeamName(aszTeamNames[i]);
+				pTeam->SetTeamName(g_aszTeamNames[i]);
 			else
 				pTeam->SetTeamName(CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"name"));
 		}

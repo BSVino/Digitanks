@@ -119,6 +119,7 @@ CLIENT_COMMAND(RemovePlayer)
 eastl::vector<CGameLobby> CGameLobbyServer::s_aLobbies;
 eastl::map<size_t, size_t> CGameLobbyServer::s_aiPlayerLobbies;
 eastl::map<size_t, size_t> CGameLobbyServer::s_aiClientPlayerIDs;
+ILobbyListener* CGameLobbyServer::s_pListener = NULL;
 
 size_t CGameLobbyServer::CreateLobby(size_t iPort)
 {
@@ -240,6 +241,12 @@ void CGameLobbyServer::UpdateLobby(size_t iLobby, const eastl::string16& sKey, c
 		return;
 	}
 
+	if (s_pListener)
+	{
+		if (!s_pListener->UpdateLobby(iLobby, sKey, sValue))
+			return;
+	}
+
 	s_aLobbies[iLobby].UpdateInfo(sKey, sValue);
 }
 
@@ -253,6 +260,12 @@ void CGameLobbyServer::UpdatePlayer(size_t iID, const eastl::string16& sKey, con
 		return;
 	}
 
+	if (s_pListener)
+	{
+		if (!s_pListener->UpdatePlayer(iID, sKey, sValue))
+			return;
+	}
+
 	s_aLobbies[iLobby].UpdatePlayer(iID, sKey, sValue);
 }
 
@@ -263,13 +276,27 @@ void CGameLobbyServer::ClientConnect(class INetworkListener*, class CNetworkPara
 	AddPlayer(0, iClient);
 
 	s_aLobbies[0].SendFullUpdate(iClient);
+
+	if (s_pListener)
+	{
+		if (!s_pListener->ClientConnect(iClient))
+			RemovePlayer(GetClientPlayerID(iClient));
+	}
 }
 
 void CGameLobbyServer::ClientDisconnect(class INetworkListener*, class CNetworkParameters* pParameters)
 {
+	if (s_pListener)
+		s_pListener->ClientDisconnect(pParameters->i1);
+
 	int iID = GetClientPlayerID(pParameters->i1);
 
 	RemovePlayer(iID);
+}
+
+void CGameLobbyServer::SetListener(ILobbyListener* pListener)
+{
+	s_pListener = pListener;
 }
 
 size_t CGameLobbyServer::GetNextPlayerID()

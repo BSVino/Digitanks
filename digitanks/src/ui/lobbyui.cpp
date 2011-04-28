@@ -6,6 +6,8 @@
 
 #include <renderer/renderer.h>
 
+#include <digitanks/dt_lobbylistener.h>
+
 #include "menu.h"
 #include "digitankswindow.h"
 #include "chatbox.h"
@@ -152,6 +154,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	int iPort = pszPort?atoi(pszPort):0;
 
 	m_iLobby = CGameLobbyServer::CreateLobby(iPort);
+	CGameLobbyServer::SetListener(DigitanksLobbyListener());
 
 	if (m_bOnline)
 	{
@@ -171,6 +174,9 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 		CGameLobbyClient::S_AddBot();
 		CGameLobbyClient::S_AddBot();
 	}
+
+	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
+		CGameLobbyClient::S_UpdatePlayer(CGameLobbyClient::L_GetPlayer(i)->iID, L"color", sprintf(L"%d", i));
 
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
 		m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
@@ -207,6 +213,7 @@ void CLobbyPanel::UpdatePlayerInfo()
 {
 	CGameLobbyClient::S_UpdatePlayer(L"name", DigitanksWindow()->GetPlayerNickname());
 	CGameLobbyClient::S_UpdatePlayer(L"ready", L"0");
+	CGameLobbyClient::S_UpdatePlayer(L"color", L"random");
 }
 
 void CLobbyPanel::LeaveLobbyCallback()
@@ -321,6 +328,36 @@ CPlayerPanel::CPlayerPanel()
 	}
 	else
 		m_pKick = NULL;
+
+	m_pColor = new glgui::CMenu(L"Color");
+	m_pColor->SetFont(L"text", 11);
+	AddControl(m_pColor);
+	m_bRandomColor = true;
+
+	for (int i = 0; i < 8; i++)
+		m_aiAvailableColors.push_back(i);
+
+	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
+	{
+		CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
+		eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+		if (sColor == L"random" || sColor == L"")
+			continue;
+
+		size_t iColor = _wtoi(sColor.c_str());
+		for (size_t j = 0; j < m_aiAvailableColors.size(); j++)
+		{
+			if (m_aiAvailableColors[j] == iColor)
+			{
+				m_aiAvailableColors.erase(m_aiAvailableColors.begin() + j);
+				break;
+			}
+		}
+	}
+
+	m_pColor->AddSubmenu(L"Random", this, ColorChosen);
+	for (size_t i = 0; i < m_aiAvailableColors.size(); i++)
+		m_pColor->AddSubmenu(g_aszTeamNames[m_aiAvailableColors[i]], this, ColorChosen);
 }
 
 void CPlayerPanel::Layout()
@@ -329,13 +366,27 @@ void CPlayerPanel::Layout()
 	SetPos(925 - 280, 70 + 60*m_iLobbyPlayer);
 
 	m_pName->SetSize(100, 40);
-	m_pName->SetPos(50, 0);
+	m_pName->SetPos(40, 0);
 	m_pName->SetAlign(glgui::CLabel::TA_LEFTCENTER);
 
 	if (m_pKick)
 	{
 		m_pKick->SetSize(40, 15);
 		m_pKick->SetPos(200, GetHeight()/2-m_pKick->GetHeight()/2);
+	}
+
+	m_pColor->SetPos(5, 5);
+	m_pColor->SetSize(30, 30);
+
+	if (m_bRandomColor)
+	{
+		m_pColor->SetButtonColor(Color(0, 0, 0));
+		m_pColor->SetText(L"Rnd");
+	}
+	else
+	{
+		m_pColor->SetButtonColor(g_aclrTeamColors[m_iColor]);
+		m_pColor->SetText(L"");
 	}
 }
 
@@ -369,6 +420,12 @@ void CPlayerPanel::SetPlayer(size_t iID)
 	if (m_pKick && iID == CGameLobbyClient::L_GetLocalPlayerID())
 		m_pKick->SetVisible(false);
 
+	m_pColor->SetEnabled(iID == CGameLobbyClient::L_GetLocalPlayerID() || CGameLobbyClient::L_IsHost());
+
+	eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+	m_bRandomColor = (sColor == L"random" || sColor == L"");
+	m_iColor = _wtoi(sColor.c_str());
+
 	Layout();
 }
 
@@ -381,4 +438,24 @@ void CPlayerPanel::KickCallback()
 		return;
 
 	CGameLobbyClient::S_RemovePlayer(pPlayer->iID);
+}
+
+void CPlayerPanel::ColorChosenCallback()
+{
+	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
+
+	assert(pPlayer);
+	if (!pPlayer)
+		return;
+
+	size_t iSelected = m_pColor->GetSelectedMenu();
+	m_bRandomColor = (iSelected == 0);
+	m_iColor = m_aiAvailableColors[iSelected]-1;
+
+	m_pColor->Pop(true, true);
+
+	if (m_bRandomColor)
+		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, L"color", L"random");
+	else
+		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, L"color", sprintf(L"%d", m_iColor));
 }

@@ -20,9 +20,15 @@ public:
 	void							SetPlayer(size_t iClient);
 
 	EVENT_CALLBACK(CPlayerPanel,	Kick);
+	EVENT_CALLBACK(CPlayerPanel,	ColorChosen);
 
 protected:
 	size_t							m_iLobbyPlayer;
+
+	glgui::CMenu*					m_pColor;
+	bool							m_bRandomColor;
+	size_t							m_iColor;
+	eastl::vector<size_t>			m_aiAvailableColors;
 
 	glgui::CLabel*					m_pName;
 

@@ -196,7 +196,12 @@ eastl::string16 CGameLobbyClient::L_GetInfoValue(const eastl::string16& sKey)
 
 void CGameLobbyClient::S_UpdatePlayer(const eastl::string16& sKey, const eastl::string16& sValue)
 {
-	::UpdatePlayerInfo.RunCommand(sprintf(eastl::string16(L"%d ") + sKey + L" " + sValue, L_GetLocalPlayerID()));
+	S_UpdatePlayer(L_GetLocalPlayerID(), sKey, sValue);
+}
+
+void CGameLobbyClient::S_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)
+{
+	::UpdatePlayerInfo.RunCommand(sprintf(eastl::string16(L"%d ") + sKey + L" " + sValue, iID));
 }
 
 void CGameLobbyClient::R_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)

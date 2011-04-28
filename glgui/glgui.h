@@ -711,7 +711,9 @@ namespace glgui
 	{
 	public:
 									CMenu(const eastl::string16& sTitle, bool bSubmenu = false);
+		virtual						~CMenu();
 
+	public:
 		virtual void				Think();
 		virtual void				Layout();
 		virtual void				Paint(int x, int y, int w, int h);
