@@ -230,7 +230,9 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			eastl::string sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
+			eastl::string sTutorialName;
+			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
+				sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
 			if (sTutorialName != "strategy-buildbuffer" && sTutorialName != "strategy-placebuffer")
 			{
 				if (dynamic_cast<CMobileCPU*>(GetPrimarySelection()) && DigitanksGame()->GetCurrentLocalDigitanksTeam() == GetPrimarySelection()->GetTeam())
