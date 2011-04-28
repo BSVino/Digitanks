@@ -47,6 +47,8 @@ public:
 	size_t										GetNumLocalTeams();
 	CTeam*										GetLocalTeam(size_t i);
 
+	static void									ClearLocalTeams(CNetworkedVariableBase* pVariable);
+
 	virtual bool								AllowCheats();
 
 protected:

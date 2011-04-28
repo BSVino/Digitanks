@@ -15,7 +15,7 @@
 REGISTER_ENTITY(CGame);
 
 NETVAR_TABLE_BEGIN(CGame);
-	NETVAR_DEFINE(CEntityHandle<CTeam>, m_ahTeams);
+	NETVAR_DEFINE_CALLBACK(CEntityHandle<CTeam>, m_ahTeams, &CGame::ClearLocalTeams);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CGame);
@@ -96,6 +96,7 @@ void CGame::AddTeam(CTeam* pTeam)
 	}
 
 	m_ahTeams.push_back(pTeam);
+	m_ahLocalTeams.clear();
 }
 
 void CGame::RemoveTeam(CTeam* pTeam)
@@ -208,6 +209,11 @@ CTeam* CGame::GetLocalTeam(size_t i)
 		GetLocalTeams();
 
 	return m_ahLocalTeams[i];
+}
+
+void CGame::ClearLocalTeams(CNetworkedVariableBase* pVariable)
+{
+	Game()->m_ahLocalTeams.clear();
 }
 
 CVar cheats("cheats", "off");
