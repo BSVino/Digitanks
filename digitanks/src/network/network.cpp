@@ -91,6 +91,7 @@ void CNetwork::CreateHost(int iPort)
 
 	TMsg(sprintf(L"Creating host on port %d\n", (int)oAddress.port));
 
+	g_pClient = NULL;
 	g_pServer = enet_host_create(&oAddress, NETWORK_MAX_CLIENTS, 1, 0, 0);
 
 	g_iClientID = ~0;
@@ -115,6 +116,7 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 	if (!s_bInitialized)
 		return;
 
+	g_pServer = NULL;
 	g_pClient = enet_host_create(NULL, 1, 1, 0, 0);
 
     if (g_pClient == NULL)
