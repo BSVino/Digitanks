@@ -9,6 +9,7 @@ extern CNetworkCommand LeaveLobby;
 extern CNetworkCommand UpdateLobbyInfo;
 extern CNetworkCommand UpdateClientInfo;
 extern CNetworkCommand UpdatePlayerInfo;
+extern CNetworkCommand AddLocalPlayer;
 extern CNetworkCommand AddBot;
 extern CNetworkCommand RemovePlayer;
 
@@ -166,6 +167,11 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 	s_aClients.erase(s_aClients.begin() + iPlayer);
 
 	UpdateListener();
+}
+
+void CGameLobbyClient::S_AddLocalPlayer()
+{
+	::AddLocalPlayer.RunCommand(L"");
 }
 
 void CGameLobbyClient::S_AddBot()
