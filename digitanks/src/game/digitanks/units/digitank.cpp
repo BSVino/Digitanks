@@ -2699,7 +2699,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		flShield = 0;
 	}
 
-	if (eDamageType == DAMAGE_COLLISION || eDamageType == DAMAGE_EXPLOSION || eDamageType == DAMAGE_LASER || eDamageType == DAMAGE_GENERIC)
+	if (CNetwork::IsHost() && (eDamageType == DAMAGE_COLLISION || eDamageType == DAMAGE_EXPLOSION || eDamageType == DAMAGE_LASER || eDamageType == DAMAGE_GENERIC))
 	{
 		size_t iDebris = (int)(flDamage/10);
 		if (iDebris < 0)
