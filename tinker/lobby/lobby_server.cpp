@@ -90,6 +90,25 @@ CLIENT_COMMAND(UpdatePlayerInfo)
 	CGameLobbyServer::UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), sValue);
 }
 
+CLIENT_COMMAND(AddLocalPlayer)
+{
+	size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
+	if (!CGameLobbyServer::GetLobby(iLobby))
+		return;
+
+	CLobbyPlayer* pSender = CGameLobbyServer::GetLobby(iLobby)->GetPlayerByClient(iClient);
+	if (!pSender)
+		return;
+
+	if (pSender->GetInfoValue(L"host") != L"1")
+		return;
+
+	size_t iID = CGameLobbyServer::AddPlayer(iLobby, -1);
+	CGameLobbyServer::UpdatePlayer(iID, L"bot", L"0");
+	CGameLobbyServer::UpdatePlayer(iID, L"name", L"Player");
+	CGameLobbyServer::UpdatePlayer(iID, L"ready", L"1");
+}
+
 CLIENT_COMMAND(AddBot)
 {
 	size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
