@@ -42,6 +42,8 @@ public:
 	static void							S_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
 	static void							R_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
 
+	static void							R_Clear();
+
 	static bool							L_IsHost();
 
 	static void							SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback);

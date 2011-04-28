@@ -4,6 +4,7 @@
 #include <network/commands.h>
 #include <tinker/application.h>
 
+extern CNetworkCommand FullUpdate;
 extern CNetworkCommand LobbyInfo;
 extern CNetworkCommand LobbyPlayerInfo;
 extern CNetworkCommand ServerChatSay;
@@ -438,6 +439,8 @@ void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eas
 
 void CGameLobby::SendFullUpdate(size_t iClient)
 {
+	::FullUpdate.RunCommand(L"", iClient);
+
 	for (eastl::map<eastl::string16, eastl::string16>::iterator it = m_asInfo.begin(); it != m_asInfo.end(); it++)
 	{
 		eastl::string16 sCommand = it->first + L" " + it->second;
@@ -448,7 +451,7 @@ void CGameLobby::SendFullUpdate(size_t iClient)
 	{
 		CLobbyPlayer* pPlayer = &m_aClients[i];
 
-		::LobbyPlayerInfo.RunCommand(sprintf(L"%d active %d", pPlayer->iID, pPlayer->iClient), iClient);
+		::LobbyPlayerInfo.RunCommand(sprintf(L"%d add %d", pPlayer->iID, pPlayer->iClient), iClient);
 
 		for (eastl::map<eastl::string16, eastl::string16>::iterator it = pPlayer->asInfo.begin(); it != pPlayer->asInfo.end(); it++)
 		{

@@ -11,6 +11,11 @@ extern CNetworkCommand UpdatePlayerInfo;
 extern CNetworkCommand AddBot;
 extern CNetworkCommand RemovePlayer;
 
+SERVER_COMMAND(FullUpdate)
+{
+	CGameLobbyClient::R_Clear();
+}
+
 SERVER_COMMAND(LobbyInfo)
 {
 	if (pCmd->GetNumArguments() < 2)
@@ -213,6 +218,12 @@ void CGameLobbyClient::R_UpdatePlayer(size_t iID, const eastl::string16& sKey, c
 	pPlayer->asInfo[sKey] = sValue;
 
 	UpdateListener();
+}
+
+void CGameLobbyClient::R_Clear()
+{
+	s_aClients.clear();
+	s_asInfo.clear();
 }
 
 bool CGameLobbyClient::L_IsHost()
