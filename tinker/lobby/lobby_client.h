@@ -31,6 +31,7 @@ public:
 	static void							R_AddPlayer(size_t iID, size_t iClient);
 	static void							R_RemovePlayer(size_t iID);
 
+	static void							S_AddLocalPlayer();
 	static void							S_AddBot();
 	static void							S_RemovePlayer(size_t iID);
 

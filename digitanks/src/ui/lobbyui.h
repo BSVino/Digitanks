@@ -74,6 +74,7 @@ public:
 
 	EVENT_CALLBACK(CLobbyPanel,		LeaveLobby);
 	EVENT_CALLBACK(CLobbyPanel,		PlayerReady);
+	EVENT_CALLBACK(CLobbyPanel,		AddPlayer);
 	EVENT_CALLBACK(CLobbyPanel,		AddBot);
 
 	static void						LobbyUpdateCallback(INetworkListener*, class CNetworkParameters*);
@@ -86,6 +87,7 @@ protected:
 
 	glgui::CLabel*					m_pLobbyName;
 	glgui::CLabel*					m_pPlayerList;
+	glgui::CButton*					m_pAddPlayer;
 	glgui::CButton*					m_pAddBot;
 
 	class CDockPanel*				m_pDockPanel;

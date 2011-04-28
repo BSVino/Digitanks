@@ -27,9 +27,14 @@ CLobbyPanel::CLobbyPanel()
 	m_pPlayerList->SetFont(L"header", 18);
 	AddControl(m_pPlayerList);
 
+	m_pAddPlayer = new glgui::CButton(0, 0, 100, 100, L"+ Add Player");
+	m_pAddPlayer->SetClickedListener(this, AddPlayer);
+	m_pAddPlayer->SetFont(L"header", 9);
+	AddControl(m_pAddPlayer);
+
 	m_pAddBot = new glgui::CButton(0, 0, 100, 100, L"+ Add Bot");
 	m_pAddBot->SetClickedListener(this, AddBot);
-	m_pAddBot->SetFont(L"header", 11);
+	m_pAddBot->SetFont(L"header", 9);
 	AddControl(m_pAddBot);
 
 	m_pDockPanel = new CDockPanel();
@@ -49,7 +54,7 @@ CLobbyPanel::CLobbyPanel()
 	m_pReady->SetFont(L"header");
 	AddControl(m_pReady);
 
-	m_bLayout = true;
+	m_bLayout = false;
 }
 
 void CLobbyPanel::Layout()
@@ -58,6 +63,9 @@ void CLobbyPanel::Layout()
 		return;
 
 	m_bLayout = false;
+
+	if (!IsVisible())
+		return;
 
 	size_t iWidth = DigitanksWindow()->GetWindowWidth();
 	size_t iHeight = DigitanksWindow()->GetWindowHeight();
@@ -84,8 +92,22 @@ void CLobbyPanel::Layout()
 	m_pPlayerList->SetPos(925 - 280, 30);
 	m_pPlayerList->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 
-	m_pAddBot->SetSize(70, 20);
-	m_pAddBot->SetPos(925 - 90, 30);
+	m_pAddPlayer->SetSize(70, 15);
+	m_pAddPlayer->SetPos(925 - 90, 20);
+
+	m_pAddBot->SetSize(70, 15);
+	m_pAddBot->SetPos(925 - 90, 40);
+
+	if (CGameLobbyClient::L_IsHost())
+	{
+		m_pAddPlayer->SetVisible(!m_bOnline);
+		m_pAddBot->SetVisible(true);
+	}
+	else
+	{
+		m_pAddPlayer->SetVisible(false);
+		m_pAddBot->SetVisible(false);
+	}
 
 	m_pDockPanel->SetSize(375, 480);
 	m_pDockPanel->SetPos(20, 50);
@@ -116,6 +138,13 @@ void CLobbyPanel::Layout()
 		m_pReady->SetEnabled(false);
 	else if (CGameLobbyClient::L_GetNumPlayers() > 4 && eGameType == GAMETYPE_STANDARD)
 		m_pReady->SetEnabled(false);
+
+	if (CGameLobbyClient::L_GetNumPlayers() >= 8 && eGameType == GAMETYPE_ARTILLERY)
+		m_pAddPlayer->SetEnabled(false);
+	else if (CGameLobbyClient::L_GetNumPlayers() >= 4 && eGameType == GAMETYPE_STANDARD)
+		m_pAddPlayer->SetEnabled(false);
+	else
+		m_pAddPlayer->SetEnabled(true);
 
 	if (CGameLobbyClient::L_GetNumPlayers() >= 8 && eGameType == GAMETYPE_ARTILLERY)
 		m_pAddBot->SetEnabled(false);
@@ -200,6 +229,8 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 
 	SetVisible(true);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
+
+	m_bLayout = true;
 }
 
 void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
@@ -222,6 +253,8 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 
 	UpdatePlayerInfo();
+
+	m_bLayout = true;
 }
 
 void CLobbyPanel::UpdatePlayerInfo()
@@ -263,6 +296,11 @@ void CLobbyPanel::PlayerReadyCallback()
 		CGameLobbyClient::S_UpdatePlayer(L"ready", L"0");
 	else
 		CGameLobbyClient::S_UpdatePlayer(L"ready", L"1");
+}
+
+void CLobbyPanel::AddPlayerCallback()
+{
+	CGameLobbyClient::S_AddLocalPlayer();
 }
 
 void CLobbyPanel::AddBotCallback()

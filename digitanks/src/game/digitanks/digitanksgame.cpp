@@ -629,22 +629,69 @@ void CDigitanksGame::SetupStrategy()
 	for (int i = 0; i < 4; i++)
 		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
 
+	eastl::vector<size_t> aiAvailableColors;
+	if (GameServer()->ShouldSetupFromLobby())
+	{
+		for (int i = 0; i < 8; i++)
+			aiAvailableColors.push_back(i);
+
+		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
+		{
+			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
+			eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+			if (sColor == L"random" || sColor == L"")
+				continue;
+
+			size_t iColor = _wtoi(sColor.c_str());
+			for (size_t j = 0; j < aiAvailableColors.size(); j++)
+			{
+				if (aiAvailableColors[j] == iColor)
+				{
+					aiAvailableColors.erase(aiAvailableColors.begin() + j);
+					break;
+				}
+			}
+		}
+	}
+
 	for (int i = 0; i < iPlayers; i++)
 	{
 		AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
-		pTeam->SetColor(g_aclrTeamColors[i]);
-		pTeam->SetTeamName(g_aszTeamNames[i]);
+		CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
+		if (pPlayer)
+		{
+			eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+			if (sColor == L"random" || sColor == L"")
+			{
+				size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
+				pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
+				pTeam->SetTeamName(g_aszTeamNames[aiAvailableColors[iColor]]);
+				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
+			}
+			else
+			{
+				size_t iColor = _wtoi(sColor.c_str());
+				pTeam->SetColor(g_aclrTeamColors[iColor]);
+				pTeam->SetTeamName(g_aszTeamNames[iColor]);
+			}
+		}
+		else
+		{
+			size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
+			pTeam->SetColor(g_aclrTeamColors[iColor]);
+			pTeam->SetTeamName(g_aszTeamNames[iColor]);
+			aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
+		}
+
 		pTeam->SetLoseCondition(LOSE_NOCPU);
 
 		if (GameServer()->ShouldSetupFromLobby())
 		{
-			if (!CGameLobbyClient::L_GetPlayer(i) || CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
-				pTeam->SetTeamName(g_aszTeamNames[i]);
-			else
-				pTeam->SetTeamName(CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"name"));
+			if (pPlayer && pPlayer->GetInfoValue(L"bot") != L"1")
+				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
 		}
 		else if (game_players.GetInt() == 1 && i == 0)
 		{
