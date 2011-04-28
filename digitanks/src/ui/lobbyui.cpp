@@ -48,10 +48,17 @@ CLobbyPanel::CLobbyPanel()
 	m_pReady->SetClickedListener(this, PlayerReady);
 	m_pReady->SetFont(L"header");
 	AddControl(m_pReady);
+
+	m_bLayout = true;
 }
 
 void CLobbyPanel::Layout()
 {
+	if (!m_bLayout)
+		return;
+
+	m_bLayout = false;
+
 	size_t iWidth = DigitanksWindow()->GetWindowWidth();
 	size_t iHeight = DigitanksWindow()->GetWindowHeight();
 
@@ -134,6 +141,14 @@ void CLobbyPanel::Layout()
 	}
 
 	BaseClass::Layout();
+}
+
+void CLobbyPanel::Think()
+{
+	if (m_bLayout)
+		Layout();
+
+	BaseClass::Think();
 }
 
 void CLobbyPanel::Paint(int x, int y, int w, int h)
@@ -237,7 +252,7 @@ void CLobbyPanel::LobbyUpdateCallback(INetworkListener*, class CNetworkParameter
 
 void CLobbyPanel::LobbyUpdate()
 {
-	Layout();
+	m_bLayout = true;
 }
 
 void CLobbyPanel::PlayerReadyCallback()
@@ -311,6 +326,8 @@ void CInfoPanel::Layout()
 CPlayerPanel::CPlayerPanel()
 	: CPanel(0, 0, 100, 100)
 {
+	m_iLobbyPlayer = ~0;
+
 	m_pName = new glgui::CLabel(0, 0, 100, 100, L"Player");
 	m_pName->SetFont(L"text");
 	m_pName->SetWrap(false);
@@ -366,6 +383,13 @@ void CPlayerPanel::Layout()
 	m_pName->SetSize(100, 40);
 	m_pName->SetPos(40, 0);
 	m_pName->SetAlign(glgui::CLabel::TA_LEFTCENTER);
+
+	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
+
+	if (pPlayer && pPlayer->GetInfoValue(L"ready") == L"1")
+		m_pName->SetFGColor(Color(0, 255, 0));
+	else
+		m_pName->SetFGColor(Color(255, 255, 255));
 
 	if (m_pKick)
 	{
@@ -448,7 +472,8 @@ void CPlayerPanel::ColorChosenCallback()
 
 	size_t iSelected = m_pColor->GetSelectedMenu();
 	m_bRandomColor = (iSelected == 0);
-	m_iColor = m_aiAvailableColors[iSelected]-1;
+	if (!m_bRandomColor)
+		m_iColor = m_aiAvailableColors[iSelected-1];
 
 	m_pColor->Pop(true, true);
 

@@ -62,6 +62,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
+	virtual void					Think();
 	virtual void					Paint(int x, int y, int w, int h);
 
 	void							CreateLobby(bool bOnline);
@@ -96,6 +97,8 @@ protected:
 	size_t							m_iLobby;
 
 	eastl::vector<CPlayerPanel*>	m_apPlayerPanels;
+
+	bool							m_bLayout;
 };
 
 #endif

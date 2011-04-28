@@ -378,7 +378,9 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 
 	// Now turn the network on and connect all clients.
 	CNetwork::SendCommands(true);
-	GameServer()->ClientConnect(NETWORK_TOCLIENTS);
+
+	if (CNetwork::IsHost())
+		GameServer()->ClientConnect(NETWORK_TOCLIENTS);
 
 	// Must set player nickname after teams have been set up or it won't stick.
 	if (GameServer())
