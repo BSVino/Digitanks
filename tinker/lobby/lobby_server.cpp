@@ -160,6 +160,7 @@ size_t CGameLobbyServer::CreateLobby(size_t iPort)
 	{
 		pLobby = &s_aLobbies.push_back();
 		iLobby = s_aLobbies.size()-1;
+		s_aLobbies[iLobby].m_iLobbyID = iLobby;
 	}
 
 	pLobby->Initialize(iPort);
@@ -188,10 +189,10 @@ size_t CGameLobbyServer::AddPlayer(size_t iLobby, size_t iClient)
 
 	size_t iID = GetNextPlayerID();
 
-	s_aLobbies[iLobby].AddPlayer(iID, iClient);
-
 	s_aiPlayerLobbies[iID] = iLobby;
 	s_aiClientPlayerIDs[iClient] = iID;
+
+	s_aLobbies[iLobby].AddPlayer(iID, iClient);
 
 	return iID;
 }
@@ -419,6 +420,16 @@ void CGameLobby::UpdateInfo(const eastl::string16& sKey, const eastl::string16& 
 	::LobbyInfo.RunCommand(sCommand);
 }
 
+eastl::string16 CGameLobby::GetInfoValue(const eastl::string16& sKey)
+{
+	eastl::map<eastl::string16, eastl::string16>::iterator it = m_asInfo.find(sKey);
+
+	if (it == m_asInfo.end())
+		return L"";
+
+	return it->second;
+}
+
 void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)
 {
 	CLobbyPlayer* pPlayer = GetPlayerByID(iID);
@@ -439,17 +450,20 @@ void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eas
 	eastl::string16 sCommand = sprintf(eastl::string16(L"%d ") + sKey + L" " + sValue, iID);
 	::LobbyPlayerInfo.RunCommand(sCommand);
 
-	bool bAllPlayersReady = true;
+	bool bBeginGame = true;
 	for (size_t i = 0; i < m_aClients.size(); i++)
 	{
 		if (m_aClients[i].GetInfoValue(L"ready") != L"1")
 		{
-			bAllPlayersReady = false;
+			bBeginGame = false;
 			break;
 		}
 	}
 
-	if (bAllPlayersReady)
+	if (CGameLobbyServer::s_pListener && !CGameLobbyServer::s_pListener->BeginGame(m_iLobbyID))
+		bBeginGame = false;
+
+	if (bBeginGame)
 	{
 		::BeginGame.RunCommand(L"");
 		m_bActive = false;

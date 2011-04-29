@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include <digitanks/digitanksgame.h>
+
 bool CDigitanksLobbyListener::ClientConnect(size_t iClient)
 {
 	return true;
@@ -41,6 +43,17 @@ bool CDigitanksLobbyListener::UpdatePlayer(size_t iID, const eastl::string16& sK
 				return false;
 		}
 	}
+
+	return true;
+}
+
+bool CDigitanksLobbyListener::BeginGame(size_t iLobby)
+{
+	if (CGameLobbyServer::GetLobby(iLobby)->GetInfoValue(L"level_file") == L"")
+		return false;
+
+	if (CDigitanksGame::GetLevel(CGameLobbyServer::GetLobby(iLobby)->GetInfoValue(L"level_file")) == NULL)
+		return false;
 
 	return true;
 }

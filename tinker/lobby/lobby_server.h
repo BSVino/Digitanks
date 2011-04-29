@@ -24,6 +24,7 @@ public:
 	CLobbyPlayer*						GetPlayerByClient(size_t iClient);
 
 	void								UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue);
+	eastl::string16						GetInfoValue(const eastl::string16& sKey);
 
 	void								AddPlayer(size_t iID, size_t iClient);
 	void								RemovePlayer(size_t iID);
@@ -33,6 +34,7 @@ public:
 
 protected:
 	bool								m_bActive;
+	size_t								m_iLobbyID;
 	eastl::vector<CLobbyPlayer>			m_aClients;
 	eastl::map<eastl::string16, eastl::string16> m_asInfo;
 };
@@ -45,10 +47,14 @@ public:
 
 	virtual bool						UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue)=0;
 	virtual bool						UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)=0;
+
+	virtual bool						BeginGame(size_t iLobby)=0;
 };
 
 class CGameLobbyServer
 {
+	friend class CGameLobby;
+
 public:
 	static size_t						CreateLobby(size_t iPort);
 	static void							DestroyLobby(size_t iLobby);

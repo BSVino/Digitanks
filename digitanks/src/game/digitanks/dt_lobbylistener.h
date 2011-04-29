@@ -11,6 +11,8 @@ public:
 
 	virtual bool						UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue);
 	virtual bool						UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
+
+	virtual bool						BeginGame(size_t iLobby);
 };
 
 CDigitanksLobbyListener* DigitanksLobbyListener();
