@@ -47,7 +47,7 @@ void CMobileCPU::Think()
 {
 	BaseClass::Think();
 
-	if (m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime > 1)
+	if (CNetwork::IsHost() && m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime > 1)
 	{
 		Delete();
 
