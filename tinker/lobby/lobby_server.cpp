@@ -51,20 +51,6 @@ CLIENT_COMMAND(UpdateLobbyInfo)
 	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iID), pCmd->Arg(0), sValue);
 }
 
-CLIENT_COMMAND(UpdateClientInfo)
-{
-	if (pCmd->GetNumArguments() < 2)
-	{
-		TMsg("UpdateInfo not enough arguments\n");
-		return;
-	}
-
-	size_t iID = CGameLobbyServer::GetClientPlayerID(iClient);
-
-	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ')+1);
-	CGameLobbyServer::UpdatePlayer(iID, pCmd->Arg(0), sValue);
-}
-
 CLIENT_COMMAND(UpdatePlayerInfo)
 {
 	if (pCmd->GetNumArguments() < 3)

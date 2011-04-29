@@ -7,7 +7,6 @@
 extern CNetworkCommand JoinLobby;
 extern CNetworkCommand LeaveLobby;
 extern CNetworkCommand UpdateLobbyInfo;
-extern CNetworkCommand UpdateClientInfo;
 extern CNetworkCommand UpdatePlayerInfo;
 extern CNetworkCommand AddLocalPlayer;
 extern CNetworkCommand AddBot;
@@ -208,7 +207,7 @@ eastl::string16 CGameLobbyClient::L_GetInfoValue(const eastl::string16& sKey)
 
 void CGameLobbyClient::S_UpdatePlayer(const eastl::string16& sKey, const eastl::string16& sValue)
 {
-	::UpdateClientInfo.RunCommand(sKey + L" " + sValue);
+	S_UpdatePlayer(CGameLobbyClient::L_GetLocalPlayerID(), sKey, sValue);
 }
 
 void CGameLobbyClient::S_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)
