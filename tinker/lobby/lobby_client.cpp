@@ -156,6 +156,8 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 
 	if (iClient == CNetwork::GetClientID())
 	{
+		s_bInLobby = true;
+
 		if (s_pfnLobbyJoinCallback)
 			s_pfnLobbyJoinCallback(NULL, NULL);
 	}
@@ -172,6 +174,8 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 
 	if (s_aClients[iPlayer].iClient == CNetwork::GetClientID())
 	{
+		s_bInLobby = false;
+
 		if (s_pfnLobbyLeaveCallback)
 			s_pfnLobbyLeaveCallback(NULL, NULL);
 	}

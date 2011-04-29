@@ -7,6 +7,7 @@
 #include <renderer/renderer.h>
 
 #include <digitanks/dt_lobbylistener.h>
+#include <digitanks/digitankslevel.h>
 
 #include "menu.h"
 #include "digitankswindow.h"
@@ -326,7 +327,11 @@ void CLobbyPanel::AddBotCallback()
 
 void CLobbyPanel::BeginGameCallback(INetworkListener*, class CNetworkParameters*)
 {
-	CVar::SetCVar(L"game_level", CGameLobbyClient::L_GetInfoValue(L"level_file"));
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CGameLobbyClient::L_GetInfoValue(L"level_file"));
+	if (!pLevel)
+		return;
+
+	CVar::SetCVar(L"game_level", pLevel->GetFile());
 
 	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
 

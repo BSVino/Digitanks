@@ -110,6 +110,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowFightSign);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowArtilleryTutorial);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastHumanMove);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CDigitanksLevel*, m_pLevel);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksGame);
@@ -148,6 +149,8 @@ void CDigitanksGame::Spawn()
 	m_flShowArtilleryTutorial = 0;
 
 	m_bOverrideAllowLasers = false;
+
+	m_pLevel = NULL;
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -221,6 +224,8 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 	m_eGameType = eGameType;
 	m_iTurn = 0;
+
+	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 
 	m_hInstructor = GameServer()->Create<CInstructorEntity>("CInstructorEntity");
 
@@ -660,51 +665,58 @@ void CDigitanksGame::SetupStrategy()
 
 		CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 
-		CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-		if (pPlayer)
+		if (GameServer()->ShouldSetupFromLobby())
 		{
-			eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
-			if (sColor == L"random" || sColor == L"")
+			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
+			if (pPlayer)
 			{
-				size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
-				pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
-				pTeam->SetTeamName(g_aszTeamNames[aiAvailableColors[iColor]]);
-				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
+				eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
+				if (sColor == L"random" || sColor == L"")
+				{
+					size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
+					pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
+					pTeam->SetTeamName(g_aszTeamNames[aiAvailableColors[iColor]]);
+					aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
+				}
+				else
+				{
+					size_t iColor = _wtoi(sColor.c_str());
+					pTeam->SetColor(g_aclrTeamColors[iColor]);
+					pTeam->SetTeamName(g_aszTeamNames[iColor]);
+				}
 			}
 			else
 			{
-				size_t iColor = _wtoi(sColor.c_str());
+				size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
 				pTeam->SetColor(g_aclrTeamColors[iColor]);
 				pTeam->SetTeamName(g_aszTeamNames[iColor]);
+				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
 			}
+
+			if (pPlayer && pPlayer->GetInfoValue(L"bot") != L"1")
+				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
+
+			if (pPlayer->GetInfoValue(L"bot") == L"1")
+				pTeam->SetClient(-2);
+			else
+				pTeam->SetClient(pPlayer->iClient);
 		}
 		else
 		{
-			size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
-			pTeam->SetColor(g_aclrTeamColors[iColor]);
-			pTeam->SetTeamName(g_aszTeamNames[iColor]);
-			aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
-		}
+			pTeam->SetColor(g_aclrTeamColors[i]);
+			pTeam->SetTeamName(g_aszTeamNames[i]);
 
-		pTeam->SetLoseCondition(LOSE_NOCPU);
-
-		pTeam->SetClient(-2);
-		if (GameServer()->ShouldSetupFromLobby())
-		{
-			if (pPlayer && pPlayer->GetInfoValue(L"bot") != L"1")
+			if (game_players.GetInt() == 1 && i == 0)
 			{
-				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
-				pTeam->SetClient(pPlayer->iClient);
+				eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+				if (sPlayerNickname.length())
+					pTeam->SetTeamName(sPlayerNickname);
 			}
-		}
-		else if (i == 0)
-		{
-			eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
-			if (sPlayerNickname.length())
-				pTeam->SetTeamName(sPlayerNickname);
 
 			pTeam->SetClient(-1);
 		}
+
+		pTeam->SetLoseCondition(LOSE_NOCPU);
 
 		GetTerrain()->ClearArea(avecRandomStartingPositions[i], 40);
 
@@ -893,14 +905,12 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 	m_iPowerups = 0;
 
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
-
-	if (!pLevel)
+	if (!m_pLevel)
 		return;
 
-	for (size_t iUnits = 0; iUnits < pLevel->GetNumUnits(); iUnits++)
+	for (size_t iUnits = 0; iUnits < m_pLevel->GetNumUnits(); iUnits++)
 	{
-		CLevelUnit* pLevelUnit = pLevel->GetUnit(iUnits);
+		CLevelUnit* pLevelUnit = m_pLevel->GetUnit(iUnits);
 		CBaseEntity* pEntity = NULL;
 		
 		if (pLevelUnit->m_sClassName == "Rogue")
@@ -918,7 +928,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		else if (pLevelUnit->m_sClassName == "CPU")
 		{
 			CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-			pCPU->AddFleetPoints(pLevel->GetBonusCPUFleetPoints());
+			pCPU->AddFleetPoints(m_pLevel->GetBonusCPUFleetPoints());
 			pEntity = pCPU;
 		}
 		else if (pLevelUnit->m_sClassName == "Counter")
@@ -1004,8 +1014,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		pUnit->StartTurn();
 	}
 
-	if (pLevel->GetStartingLesson().length())
-		DigitanksWindow()->GetInstructor()->DisplayFirstTutorial(pLevel->GetStartingLesson());
+	if (m_pLevel->GetStartingLesson().length())
+		DigitanksWindow()->GetInstructor()->DisplayFirstTutorial(m_pLevel->GetStartingLesson());
 }
 
 void CDigitanksGame::SetupEntities()
@@ -2638,8 +2648,10 @@ bool CDigitanksGame::CanBuildMiniBuffers()
 
 bool CDigitanksGame::CanBuildBuffers()
 {
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
-	return pLevel->AllowBuffers();
+	if (!m_pLevel)
+		return true;
+
+	return m_pLevel->AllowBuffers();
 }
 
 bool CDigitanksGame::CanBuildBatteries()
@@ -2649,8 +2661,10 @@ bool CDigitanksGame::CanBuildBatteries()
 
 bool CDigitanksGame::CanBuildPSUs()
 {
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
-	if (!pLevel->AllowPSUs())
+	if (!m_pLevel)
+		return true;
+
+	if (!m_pLevel->AllowPSUs())
 		return false;
 
 	bool bDisablePSU = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
@@ -2665,8 +2679,10 @@ bool CDigitanksGame::CanBuildInfantryLoaders()
 
 bool CDigitanksGame::CanBuildTankLoaders()
 {
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
-	if (!pLevel->AllowTankLoaders())
+	if (!m_pLevel)
+		return true;
+
+	if (!m_pLevel->AllowTankLoaders())
 		return false;
 
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
@@ -2675,8 +2691,10 @@ bool CDigitanksGame::CanBuildTankLoaders()
 
 bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
-	if (!pLevel->AllowArtilleryLoaders())
+	if (!m_pLevel)
+		return true;
+
+	if (!m_pLevel->AllowArtilleryLoaders())
 		return false;
 
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
@@ -2685,7 +2703,8 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 
 bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 {
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	if (!m_pLevel)
+		return false;
 
 	if (eWeapon == WEAPON_INFANTRYLASER)
 	{
@@ -2694,9 +2713,9 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 
 		// Enemy tanks have access to this weapon from the first mission.
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
-			return pLevel->AllowEnemyInfantryLasers();
+			return m_pLevel->AllowEnemyInfantryLasers();
 
-		return pLevel->AllowInfantryLasers();
+		return m_pLevel->AllowInfantryLasers();
 	}
 
 	if (eWeapon == PROJECTILE_TREECUTTER)
@@ -2705,7 +2724,7 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
 			return true;
 
-		return pLevel->AllowInfantryTreeCutters();
+		return m_pLevel->AllowInfantryTreeCutters();
 	}
 
 	return true;
@@ -2713,9 +2732,10 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 
 bool CDigitanksGame::IsInfantryFortifyAllowed()
 {
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	if (!m_pLevel)
+		return false;
 
-	return pLevel->AllowInfantryFortify();
+	return m_pLevel->AllowInfantryFortify();
 }
 
 void CDigitanksGame::AllowLaser()

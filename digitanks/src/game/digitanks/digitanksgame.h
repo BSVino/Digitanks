@@ -238,6 +238,8 @@ public:
 
 	CDigitanksTeam*			GetCurrentLocalDigitanksTeam();
 
+	class CDigitanksLevel*	GetCurrentLevel() { return m_pLevel; };
+
 protected:
 	CNetworkedVariable<size_t> m_iCurrentTeam;
 
@@ -287,6 +289,8 @@ protected:
 	float						m_flShowArtilleryTutorial;
 
 	float						m_flLastHumanMove;
+
+	class CDigitanksLevel*		m_pLevel;
 };
 
 inline class CDigitanksGame* DigitanksGame()

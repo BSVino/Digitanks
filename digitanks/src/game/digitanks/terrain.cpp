@@ -251,7 +251,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	size_t iTerrainData = 0;
 	Color* pclrTerrainData = NULL;
 
-	pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	pLevel = DigitanksGame()->GetCurrentLevel();
 	if (pLevel)
 	{
 		iTerrainHeight = pLevel->GetTerrainHeightImage();
