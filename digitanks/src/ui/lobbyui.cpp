@@ -193,8 +193,8 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	m_bOnline = bOnline;
 
 	CGameLobbyClient::SetLobbyUpdateCallback(&LobbyUpdateCallback);
-	CGameLobbyClient::SetLobbyJoinCallback(&LobbyUpdateCallback);
-	CGameLobbyClient::SetLobbyLeaveCallback(&LobbyUpdateCallback);
+	CGameLobbyClient::SetLobbyJoinCallback(&LobbyJoinCallback);
+	CGameLobbyClient::SetLobbyLeaveCallback(&LobbyLeaveCallback);
 	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
