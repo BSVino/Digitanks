@@ -87,7 +87,7 @@ void CMobileCPU::OnFortify()
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-command", true);
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-deploy", true);
 
-	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName != "strategy-buildbuffer")
+	if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName != "strategy-buildbuffer")
 		DigitanksWindow()->GetInstructor()->DisplayTutorial("strategy-buildbuffer");
 }
 

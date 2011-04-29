@@ -191,7 +191,9 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 {
 	m_bOnline = bOnline;
 
-	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
+	CGameLobbyClient::SetLobbyUpdateCallback(&LobbyUpdateCallback);
+	CGameLobbyClient::SetLobbyJoinCallback(&LobbyUpdateCallback);
+	CGameLobbyClient::SetLobbyLeaveCallback(&LobbyUpdateCallback);
 	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
@@ -210,7 +212,6 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	CGameLobbyClient::S_JoinLobby(m_iLobby);
 	CGameLobbyClient::S_UpdatePlayer(L"host", L"1");
 	CGameLobbyClient::S_UpdateLobby(L"gametype", sprintf(L"%d", (gametype_t)lobby_gametype.GetInt()));
-	UpdatePlayerInfo();
 
 	if (!m_bOnline)
 	{
@@ -237,7 +238,9 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 {
 	m_bOnline = true;
 
-	CGameLobbyClient::SetLobbyUpdateCallback(this, &LobbyUpdateCallback);
+	CGameLobbyClient::SetLobbyUpdateCallback(&LobbyUpdateCallback);
+	CGameLobbyClient::SetLobbyJoinCallback(&LobbyJoinCallback);
+	CGameLobbyClient::SetLobbyLeaveCallback(&LobbyLeaveCallback);
 	CGameLobbyClient::SetBeginGameCallback(&BeginGameCallback);
 
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
@@ -252,13 +255,12 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 	SetVisible(true);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 
-	UpdatePlayerInfo();
-
 	m_bLayout = true;
 }
 
 void CLobbyPanel::UpdatePlayerInfo()
 {
+	CNetwork::SetRunningClientFunctions(false);
 	CGameLobbyClient::S_UpdatePlayer(L"name", DigitanksWindow()->GetPlayerNickname());
 	CGameLobbyClient::S_UpdatePlayer(L"ready", L"0");
 	CGameLobbyClient::S_UpdatePlayer(L"color", L"random");
@@ -286,6 +288,20 @@ void CLobbyPanel::LobbyUpdateCallback(INetworkListener*, class CNetworkParameter
 void CLobbyPanel::LobbyUpdate()
 {
 	m_bLayout = true;
+}
+
+void CLobbyPanel::LobbyJoinCallback(INetworkListener*, class CNetworkParameters*)
+{
+	DigitanksWindow()->GetLobbyPanel()->UpdatePlayerInfo();
+}
+
+void CLobbyPanel::LobbyLeaveCallback(INetworkListener*, class CNetworkParameters*)
+{
+	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
+	DigitanksWindow()->GetMainMenu()->SetVisible(true);
+
+	if (DigitanksWindow()->GetLobbyPanel()->m_bOnline)
+		CNetwork::Disconnect();
 }
 
 void CLobbyPanel::PlayerReadyCallback()

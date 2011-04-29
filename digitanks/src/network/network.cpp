@@ -313,6 +313,9 @@ void CNetwork::Think()
 
 		if (!s_bPumping)
 			break;
+
+		if (!s_bConnected)
+			break;
 	}
 }
 

@@ -65,8 +65,9 @@ SERVER_COMMAND(BeginGame)
 bool CGameLobbyClient::s_bInLobby = false;
 eastl::vector<CLobbyPlayer> CGameLobbyClient::s_aClients;
 eastl::map<eastl::string16, eastl::string16> CGameLobbyClient::s_asInfo;
-INetworkListener* CGameLobbyClient::s_pfnLobbyUpdateListener = NULL;
 INetworkListener::Callback CGameLobbyClient::s_pfnLobbyUpdateCallback = NULL;
+INetworkListener::Callback CGameLobbyClient::s_pfnLobbyJoinCallback = NULL;
+INetworkListener::Callback CGameLobbyClient::s_pfnLobbyLeaveCallback = NULL;
 INetworkListener::Callback CGameLobbyClient::s_pfnBeginGameCallback = NULL;
 
 void CGameLobbyClient::S_JoinLobby(size_t iLobby)
@@ -153,6 +154,12 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 	pPlayer->iID = iID;
 	pPlayer->iClient = iClient;
 
+	if (iClient == CNetwork::GetClientID())
+	{
+		if (s_pfnLobbyJoinCallback)
+			s_pfnLobbyJoinCallback(NULL, NULL);
+	}
+
 	UpdateListener();
 }
 
@@ -162,6 +169,12 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 
 	if (iPlayer == ~0)
 		return;
+
+	if (s_aClients[iPlayer].iClient == CNetwork::GetClientID())
+	{
+		if (s_pfnLobbyLeaveCallback)
+			s_pfnLobbyLeaveCallback(NULL, NULL);
+	}
 
 	s_aClients.erase(s_aClients.begin() + iPlayer);
 
@@ -242,16 +255,25 @@ bool CGameLobbyClient::L_IsHost()
 	return pPlayer->GetInfoValue(L"host") == L"1";
 }
 
-void CGameLobbyClient::SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback)
+void CGameLobbyClient::SetLobbyUpdateCallback(INetworkListener::Callback pfnCallback)
 {
-	s_pfnLobbyUpdateListener = pListener;
 	s_pfnLobbyUpdateCallback = pfnCallback;
 }
 
 void CGameLobbyClient::UpdateListener()
 {
-	if (s_pfnLobbyUpdateListener)
-		s_pfnLobbyUpdateCallback(s_pfnLobbyUpdateListener, NULL);
+	if (s_pfnLobbyUpdateCallback)
+		s_pfnLobbyUpdateCallback(NULL, NULL);
+}
+
+void CGameLobbyClient::SetLobbyJoinCallback(INetworkListener::Callback pfnCallback)
+{
+	s_pfnLobbyJoinCallback = pfnCallback;
+}
+
+void CGameLobbyClient::SetLobbyLeaveCallback(INetworkListener::Callback pfnCallback)
+{
+	s_pfnLobbyLeaveCallback = pfnCallback;
 }
 
 void CGameLobbyClient::SetBeginGameCallback(INetworkListener::Callback pfnCallback)

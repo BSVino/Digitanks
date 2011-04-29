@@ -80,6 +80,9 @@ public:
 	static void						LobbyUpdateCallback(INetworkListener*, class CNetworkParameters*);
 	void							LobbyUpdate();
 
+	static void						LobbyJoinCallback(INetworkListener*, class CNetworkParameters*);
+	static void						LobbyLeaveCallback(INetworkListener*, class CNetworkParameters*);
+
 	static void						BeginGameCallback(INetworkListener*, class CNetworkParameters*);
 
 protected:

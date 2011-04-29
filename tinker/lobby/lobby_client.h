@@ -47,8 +47,11 @@ public:
 
 	static bool							L_IsHost();
 
-	static void							SetLobbyUpdateCallback(INetworkListener* pListener, INetworkListener::Callback pfnCallback);
+	static void							SetLobbyUpdateCallback(INetworkListener::Callback pfnCallback);
 	static void							UpdateListener();
+
+	static void							SetLobbyJoinCallback(INetworkListener::Callback pfnCallback);
+	static void							SetLobbyLeaveCallback(INetworkListener::Callback pfnCallback);
 
 	static void							SetBeginGameCallback(INetworkListener::Callback pfnCallback);
 	static void							BeginGame();
@@ -58,8 +61,9 @@ protected:
 	static eastl::vector<CLobbyPlayer>	s_aClients;
 	static eastl::map<eastl::string16, eastl::string16> s_asInfo;
 
-	static INetworkListener*			s_pfnLobbyUpdateListener;
 	static INetworkListener::Callback	s_pfnLobbyUpdateCallback;
+	static INetworkListener::Callback	s_pfnLobbyJoinCallback;
+	static INetworkListener::Callback	s_pfnLobbyLeaveCallback;
 
 	static INetworkListener::Callback	s_pfnBeginGameCallback;
 };
