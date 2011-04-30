@@ -3518,6 +3518,9 @@ float CDigitank::FindHoverHeight(Vector vecPosition) const
 
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
+	if (!pTerrain)
+		return 0;
+
 	Vector vecHit;
 
 	float flHighestTerrain = pTerrain->GetHeight(vecPosition.x, vecPosition.z);
