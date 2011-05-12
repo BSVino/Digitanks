@@ -16,8 +16,6 @@ void CModelConverter::SaveDAE(const eastl::string16& sFilename)
 
 #else
 
-#include <assert.h>
-
 #include <FCollada.h>
 #include <FCDocument/FCDocument.h>
 #include <FCDocument/FCDocumentTools.h>

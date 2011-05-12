@@ -1,7 +1,5 @@
 #include "cvar.h"
 
-#include <assert.h>
-
 #include <strutils.h>
 
 #include <tinker/application.h>
@@ -65,7 +63,7 @@ void CCommand::RegisterCommand(CCommand* pCommand)
 void SetCVar(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
 	CVar* pCVar = dynamic_cast<CVar*>(pCommand);
-	assert(pCVar);
+	TAssert(pCVar);
 	if (!pCVar)
 		return;
 

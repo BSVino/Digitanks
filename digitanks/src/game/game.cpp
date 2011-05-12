@@ -68,7 +68,7 @@ void CGame::OnClientDisconnect(int iClient)
 		}
 	}
 
-	assert(!"Couldn't find the guy who just quit!");
+	TAssert(!"Couldn't find the guy who just quit!");
 }
 
 void CGame::EnterGame()

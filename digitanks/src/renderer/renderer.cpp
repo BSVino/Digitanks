@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
-#include <assert.h>
 
 #include <maths.h>
 #include <simplex.h>
@@ -174,7 +173,7 @@ void CRenderingContext::RenderModel(size_t iModel, CModel* pCompilingModel)
 	{
 		if (m_pRenderer->IsBatching())
 		{
-			assert(m_eBlend == BLEND_NONE);
+			TAssert(m_eBlend == BLEND_NONE);
 
 			Matrix4x4 mTransformations;
 			glGetFloatv(GL_MODELVIEW_MATRIX, mTransformations);
@@ -185,7 +184,7 @@ void CRenderingContext::RenderModel(size_t iModel, CModel* pCompilingModel)
 		{
 			glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 
-			assert(pModel->m_iCallListTexture);
+			TAssert(pModel->m_iCallListTexture);
 			glBindTexture(GL_TEXTURE_2D, pModel->m_iCallListTexture);
 
 			if (m_pRenderer->ShouldUseShaders())
@@ -312,7 +311,7 @@ void CRenderingContext::RenderMeshInstance(CModel* pModel, CConversionScene* pSc
 				else
 					// If you hit this you have more than one texture in a call list that's building.
 					// That's a no-no because these call lists are batched.
-					assert(pModel->m_iCallListTexture == iTexture);
+					TAssert(pModel->m_iCallListTexture == iTexture);
 			}
 		}
 
@@ -398,7 +397,7 @@ void CRenderingContext::RenderSphere()
 
 void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 {
-	assert(m_pRenderer->ShouldUseFramebuffers());
+	TAssert(m_pRenderer->ShouldUseFramebuffers());
 
 	m_bFBO = true;
 	glBindFramebufferEXT(GL_FRAMEBUFFER, (GLuint)pBuffer->m_iFB);
@@ -407,7 +406,7 @@ void CRenderingContext::UseFrameBuffer(const CFrameBuffer* pBuffer)
 
 void CRenderingContext::UseProgram(size_t iProgram)
 {
-	assert(m_pRenderer->ShouldUseShaders());
+	TAssert(m_pRenderer->ShouldUseShaders());
 
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
@@ -418,7 +417,7 @@ void CRenderingContext::UseProgram(size_t iProgram)
 
 void CRenderingContext::SetUniform(const char* pszName, int iValue)
 {
-	assert(m_pRenderer->ShouldUseShaders());
+	TAssert(m_pRenderer->ShouldUseShaders());
 
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
@@ -429,7 +428,7 @@ void CRenderingContext::SetUniform(const char* pszName, int iValue)
 
 void CRenderingContext::SetUniform(const char* pszName, float flValue)
 {
-	assert(m_pRenderer->ShouldUseShaders());
+	TAssert(m_pRenderer->ShouldUseShaders());
 
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
@@ -440,7 +439,7 @@ void CRenderingContext::SetUniform(const char* pszName, float flValue)
 
 void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 {
-	assert(m_pRenderer->ShouldUseShaders());
+	TAssert(m_pRenderer->ShouldUseShaders());
 
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
@@ -451,7 +450,7 @@ void CRenderingContext::SetUniform(const char* pszName, const Vector& vecValue)
 
 void CRenderingContext::SetUniform(const char* pszName, const Color& clrValue)
 {
-	assert(m_pRenderer->ShouldUseShaders());
+	TAssert(m_pRenderer->ShouldUseShaders());
 
 	if (!m_pRenderer->ShouldUseShaders())
 		return;
@@ -766,7 +765,7 @@ void CRenderer::Initialize()
 
 CFrameBuffer CRenderer::CreateFrameBuffer(size_t iWidth, size_t iHeight, bool bDepth, bool bLinear)
 {
-	assert(ShouldUseFramebuffers());
+	TAssert(ShouldUseFramebuffers());
 
 	if (!GLEW_ARB_texture_non_power_of_two)
 	{
@@ -1181,7 +1180,7 @@ void CRenderer::RenderMapFullscreen(size_t iMap)
 
 void CRenderer::RenderMapToBuffer(size_t iMap, CFrameBuffer* pBuffer)
 {
-	assert(ShouldUseFramebuffers());
+	TAssert(ShouldUseFramebuffers());
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -1238,12 +1237,12 @@ void CRenderer::BeginBatching()
 
 void CRenderer::AddToBatch(class CModel* pModel, const Matrix4x4& mTransformations, bool bClrSwap, const Color& clrSwap)
 {
-	assert(pModel);
+	TAssert(pModel);
 
 	if (!pModel)
 		return;
 
-	assert(pModel->m_iCallListTexture);
+	TAssert(pModel->m_iCallListTexture);
 
 	CRenderBatch* pBatch = &m_aBatches[pModel->m_iCallListTexture].push_back();
 
@@ -1367,7 +1366,7 @@ void CRenderer::SetSize(int w, int h)
 
 void CRenderer::ClearProgram()
 {
-	assert(ShouldUseShaders());
+	TAssert(ShouldUseShaders());
 
 	if (!ShouldUseShaders())
 		return;
@@ -1377,7 +1376,7 @@ void CRenderer::ClearProgram()
 
 void CRenderer::UseProgram(size_t i)
 {
-	assert(ShouldUseShaders());
+	TAssert(ShouldUseShaders());
 
 	if (!ShouldUseShaders())
 		return;
@@ -1576,14 +1575,14 @@ size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, int iClamp)
 
 	if (ImageInfo.Width & (ImageInfo.Width-1))
 	{
-		//assert(!"Image width is not power of 2.");
+		//TAssert(!"Image width is not power of 2.");
 		ilDeleteImages(1, &iDevILId);
 		return 0;
 	}
 
 	if (ImageInfo.Height & (ImageInfo.Height-1))
 	{
-		//assert(!"Image height is not power of 2.");
+		//TAssert(!"Image height is not power of 2.");
 		ilDeleteImages(1, &iDevILId);
 		return 0;
 	}

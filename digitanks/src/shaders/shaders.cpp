@@ -1,9 +1,9 @@
 #include "shaders.h"
 
 #include <GL/glew.h>
-#include <assert.h>
 #include <time.h>
 
+#include <common.h>
 #include <platform.h>
 
 CShaderLibrary* CShaderLibrary::s_pShaderLibrary = NULL;
@@ -123,7 +123,7 @@ bool CShaderLibrary::CompileShader(size_t iShader)
 	int iProgramLinked;
 	glGetProgramiv((GLuint)pShader->m_iProgram, GL_LINK_STATUS, &iProgramLinked);
 
-	assert(iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE);
+	TAssert(iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE);
 	if (iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE)
 		return true;
 	else

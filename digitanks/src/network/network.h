@@ -1,7 +1,7 @@
 #ifndef _TINKER_NETWORK_H
 #define _TINKER_NETWORK_H
 
-#include <assert.h>
+#include <common.h>
 
 #include <EASTL/map.h>
 #include <EASTL/vector.h>

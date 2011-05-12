@@ -482,7 +482,7 @@ void CPlayerPanel::SetPlayer(size_t iID)
 {
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayerByID(iID);
 
-	assert(pPlayer);
+	TAssert(pPlayer);
 	if (!pPlayer)
 		return;
 
@@ -514,7 +514,7 @@ void CPlayerPanel::KickCallback()
 {
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
 
-	assert(pPlayer);
+	TAssert(pPlayer);
 	if (!pPlayer)
 		return;
 
@@ -525,7 +525,7 @@ void CPlayerPanel::ColorChosenCallback()
 {
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
 
-	assert(pPlayer);
+	TAssert(pPlayer);
 	if (!pPlayer)
 		return;
 

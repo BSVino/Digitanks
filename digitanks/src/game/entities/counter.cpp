@@ -27,7 +27,7 @@ void CCounter::Spawn()
 
 void CCounter::SetCount(const eastl::vector<eastl::string16>& sArgs)
 {
-	assert(sArgs.size());
+	TAssert(sArgs.size());
 
 	if (sArgs.size() == 0)
 		return;

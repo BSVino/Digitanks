@@ -508,7 +508,7 @@ Vector CDigitanksCamera::GetCameraTarget()
 		float flLerp = RemapValClamped(GameServer()->GetGameTime(), m_flTransitionToProjectileTime, m_flTransitionToProjectileTime + 0.5f, 0, 1);
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(m_hTankProjectile->GetOwner());
-		assert(pTank);
+		TAssert(pTank);
 		if (!pTank)
 			return Vector();
 
@@ -568,7 +568,7 @@ float CDigitanksCamera::GetCameraFar()
 
 Vector CDigitanksCamera::GetTankFollowPosition(CDigitank* pTank)
 {
-	assert(pTank);
+	TAssert(pTank);
 	if (!pTank)
 		return Vector();
 

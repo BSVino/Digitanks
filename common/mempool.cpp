@@ -1,5 +1,5 @@
 #include "mempool.h"
-#include <assert.h>
+#include <common.h>
 
 size_t CMemPool::s_iMemoryAllocated = 0;
 eastl::vector<CMemPool*> CMemPool::s_apMemPools;
@@ -27,7 +27,7 @@ CMemPool* CMemPool::AddPool(size_t iSize, size_t iHandle)
 	pPool->m_iMemoryAllocated = 0;
 	pPool->m_iHandle = iHandle;
 
-	assert(pPool->m_pMemPool);
+	TAssert(pPool->m_pMemPool);
 
 	return pPool;
 }
@@ -137,7 +137,7 @@ void* CMemPool::Alloc(size_t iSize, size_t iHandle)
 		pReturn = pPool->Reserve(pPool->m_pMemPool, iSize);
 	}
 
-	assert(pReturn);
+	TAssert(pReturn);
 
 	s_iMemoryAllocated += sizeof(CMemChunk) + iSize;
 	return pReturn;
@@ -189,7 +189,7 @@ void CMemPool::Free(void* p, size_t iHandle)
 			break;
 	}
 
-	assert(bFound);
+	TAssert(bFound);
 }
 
 size_t CMemPool::GetMemPoolHandle()

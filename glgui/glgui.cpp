@@ -1,11 +1,11 @@
 #include "glgui.h"
 
-#include <assert.h>
 #include <GL/glew.h>
 
 #include <FTGL/ftgl.h>
 #include <EASTL/algorithm.h>
 
+#include <common.h>
 #include <maths.h>
 #include <vector.h>
 #include <platform.h>
@@ -285,14 +285,14 @@ void CBaseControl::CursorOut()
 
 void CBaseControl::SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	TAssert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pCursorInListener = pListener;
 	m_pfnCursorInCallback = pfnCallback;
 }
 
 void CBaseControl::SetCursorOutListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	TAssert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pCursorOutListener = pListener;
 	m_pfnCursorOutCallback = pfnCallback;
 }
@@ -521,7 +521,7 @@ void CPanel::AddControl(IControl* pControl, bool bToTail)
 
 #ifdef _DEBUG
 	for (size_t i = 0; i < m_apControls.size(); i++)
-		assert(m_apControls[i] != pControl);	// You're adding a control to the panel twice! Quit it!
+		TAssert(m_apControls[i] != pControl);	// You're adding a control to the panel twice! Quit it!
 #endif
 
 	pControl->SetParent(this);
@@ -1227,14 +1227,14 @@ void CButton::SetState(bool bDown, bool bRegister)
 
 void CButton::SetClickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	TAssert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pClickListener = pListener;
 	m_pfnClickCallback = pfnCallback;
 }
 
 void CButton::SetUnclickedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	TAssert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pUnclickListener = pListener;
 	m_pfnUnclickCallback = pfnCallback;
 }
@@ -1502,7 +1502,7 @@ bool CSlidingPanel::CInnerPanel::IsVisible()
 CSlidingPanel::CSlidingPanel(CSlidingContainer* pParent, char* pszTitle)
 	: CPanel(0, 0, 100, 5)
 {
-	assert(pParent);
+	TAssert(pParent);
 
 	m_bCurrent = false;
 
@@ -1603,7 +1603,7 @@ void CSlidingContainer::AddControl(IControl* pControl, bool bToTail)
 	if (!pControl)
 		return;
 
-	assert(dynamic_cast<CSlidingPanel*>(pControl));
+	TAssert(dynamic_cast<CSlidingPanel*>(pControl));
 
 	CPanel::AddControl(pControl, bToTail);
 
@@ -1676,7 +1676,7 @@ CRootPanel*	CRootPanel::s_pRootPanel = NULL;
 CRootPanel::CRootPanel() :
 	CPanel(0, 0, 800, 600)
 {
-	assert(!s_pRootPanel);
+	TAssert(!s_pRootPanel);
 
 	s_pRootPanel = this;
 
@@ -1826,7 +1826,7 @@ CButton* CRootPanel::GetButtonDown()
 
 bool CRootPanel::MousePressed(int code, int mx, int my, bool bInsideControl)
 {
-	assert(!m_pDragging);
+	TAssert(!m_pDragging);
 
 	if (m_pPopup)
 	{
@@ -1910,20 +1910,20 @@ void CRootPanel::DragonDrop(IDroppable* pDroppable)
 	if (!pDroppable->GetCurrentDraggable()->IsDraggable())
 		return;
 
-	assert(pDroppable);
+	TAssert(pDroppable);
 
 	m_pDragging = pDroppable;
 }
 
 void CRootPanel::AddDroppable(IDroppable* pDroppable)
 {
-	assert(pDroppable);
+	TAssert(pDroppable);
 	m_apDroppables.push_back(pDroppable);
 }
 
 void CRootPanel::RemoveDroppable(IDroppable* pDroppable)
 {
-	assert(pDroppable);
+	TAssert(pDroppable);
 	if (!m_bDestructing)
 	{
 		for (size_t i = 0; i < m_apDroppables.size(); i++)
@@ -1934,7 +1934,7 @@ void CRootPanel::RemoveDroppable(IDroppable* pDroppable)
 
 bool CRootPanel::DropDraggable()
 {
-	assert(m_pDragging);
+	TAssert(m_pDragging);
 
 	int mx, my;
 	CRootPanel::GetFullscreenMousePos(mx, my);
@@ -1946,7 +1946,7 @@ bool CRootPanel::DropDraggable()
 	{
 		IDroppable* pDroppable = m_apDroppables[i];
 
-		assert(pDroppable);
+		TAssert(pDroppable);
 
 		if (!pDroppable)
 			continue;
@@ -2555,14 +2555,14 @@ CTreeNode* CTree::GetNode(size_t i)
 
 void CTree::SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	TAssert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pSelectedListener = pListener;
 	m_pfnSelectedCallback = pfnCallback;
 }
 
 void CTree::SetDroppedListener(IEventListener* pListener, IEventListener::Callback pfnCallback)
 {
-	assert(pListener && pfnCallback || !pListener && !pfnCallback);
+	TAssert(pListener && pfnCallback || !pListener && !pfnCallback);
 	m_pDroppedListener = pListener;
 	m_pfnDroppedCallback = pfnCallback;
 }

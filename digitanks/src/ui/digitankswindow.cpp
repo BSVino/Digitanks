@@ -4,11 +4,12 @@
 #include <Windows.h>
 #endif
 
-#include <assert.h>
 #include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <time.h>
+
+#include <common.h>
 #include <vector.h>
 #include <strutils.h>
 

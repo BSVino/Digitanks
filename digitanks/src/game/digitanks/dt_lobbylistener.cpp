@@ -1,6 +1,6 @@
 #include "dt_lobbylistener.h"
 
-#include <assert.h>
+#include <common.h>
 
 #include <digitanks/digitanksgame.h>
 
@@ -27,7 +27,7 @@ bool CDigitanksLobbyListener::UpdatePlayer(size_t iID, const eastl::string16& sK
 		size_t iLobby = CGameLobbyServer::GetPlayerLobby(iID);
 		CGameLobby* pLobby = CGameLobbyServer::GetLobby(iLobby);
 
-		assert(pLobby);
+		TAssert(pLobby);
 		if (!pLobby)
 			return false;
 

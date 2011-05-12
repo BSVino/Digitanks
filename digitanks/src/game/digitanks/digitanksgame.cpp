@@ -1,6 +1,5 @@
 #include "digitanksgame.h"
 
-#include <assert.h>
 #include <maths.h>
 #include <mtrand.h>
 #include <strutils.h>
@@ -469,7 +468,7 @@ void CDigitanksGame::SetupArtillery()
 
 	if (iPlayers > 8)
 	{
-		assert(!GameServer()->ShouldSetupFromLobby());
+		TAssert(!GameServer()->ShouldSetupFromLobby());
 
 		iPlayers = 8;
 		if (game_players.GetInt() > 8)
@@ -603,7 +602,7 @@ void CDigitanksGame::SetupStrategy()
 
 	if (iPlayers > 4)
 	{
-		assert(!GameServer()->ShouldSetupFromLobby());
+		TAssert(!GameServer()->ShouldSetupFromLobby());
 
 		iPlayers = 4;
 		if (game_players.GetInt() > 4)
@@ -949,7 +948,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		}
 		else
 		{
-			assert(!"Invalid unit");
+			TAssert(!"Invalid unit");
 			continue;
 		}
 
@@ -1045,7 +1044,7 @@ void CDigitanksGame::SetupEntities(CNetworkParameters* p)
 	}
 
 	// Just in case!
-	assert(m_ahTeams.size() == 0);
+	TAssert(m_ahTeams.size() == 0);
 	m_ahTeams.clear();
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)

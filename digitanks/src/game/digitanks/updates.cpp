@@ -1,7 +1,5 @@
 #include "updates.h"
 
-#include <assert.h>
-
 #include <network/network.h>
 
 #include "digitanksgame.h"
@@ -504,7 +502,7 @@ void CUpdateGrid::FindUpdate(CUpdateItem* pItem, int& x, int& y)
 		}
 	}
 
-	assert(!"Can't find an update.");
+	TAssert(!"Can't find an update.");
 }
 
 eastl::string16 CUpdateItem::GetName()

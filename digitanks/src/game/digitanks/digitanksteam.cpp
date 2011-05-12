@@ -453,7 +453,7 @@ void CDigitanksTeam::AddPowerPerTurn(float flPower)
 
 void CDigitanksTeam::ConsumePower(float flPower)
 {
-	assert(m_flPower >= flPower);
+	TAssert(m_flPower >= flPower);
 
 	if (flPower > m_flPower)
 		m_flPower = 0;

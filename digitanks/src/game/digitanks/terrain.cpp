@@ -219,7 +219,7 @@ void CTerrain::Think()
 
 		while (GameServer()->GetGameTime() > pRunner->flNextPoint)
 		{
-			assert(pRunner->avecPoints.size());
+			TAssert(pRunner->avecPoints.size());
 
 			Vector vecPoint = pRunner->avecPoints.front() + pRunner->vecCurrentDirection * 4;
 
@@ -462,7 +462,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 void CTerrain::GenerateCollision()
 {
-	assert(m_bHeightsInitialized || !CNetwork::IsHost());
+	TAssert(m_bHeightsInitialized || !CNetwork::IsHost());
 
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
@@ -2678,7 +2678,7 @@ CQuadBranch* CQuadBranch::FindLeaf(const Vector& vecPoint)
 			return pResult;
 	}
 
-	assert(!"Should never get here.");
+	TAssert(!"Should never get here.");
 	return NULL;
 }
 

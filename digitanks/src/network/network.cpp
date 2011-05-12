@@ -1,7 +1,6 @@
 #include "network.h"
 
 #include <enet/enet.h>
-#include <assert.h>
 
 #include <strutils.h>
 #include <platform.h>
@@ -29,7 +28,7 @@ static size_t g_iClientID = 0;
 
 SERVER_COMMAND(SetClientID)
 {
-	assert(pCmd->GetNumArguments());
+	TAssert(pCmd->GetNumArguments());
 
 	if (!pCmd->GetNumArguments())
 		return;
@@ -379,7 +378,7 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 
 	if (g_pServer)
 	{
-		assert(iClient != NETWORK_TOSERVER);
+		TAssert(iClient != NETWORK_TOSERVER);
 		if (iClient == NETWORK_TOCLIENTS || iClient == NETWORK_TOEVERYONE)
 		{
 			for (size_t i = 0; i < g_apServerPeers.size(); i++)
@@ -395,7 +394,7 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 		}
 		else if (iClient >= 0)
 		{
-			assert (g_apServerPeers[iClient]);
+			TAssert(g_apServerPeers[iClient]);
 
 			if (g_apServerPeers[iClient])
 				enet_peer_send(g_apServerPeers[iClient], 0, pPacket);
@@ -405,7 +404,7 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 	}
 	else
 	{
-		assert(iClient != NETWORK_TOCLIENTS);
+		TAssert(iClient != NETWORK_TOCLIENTS);
 		if (iClient == NETWORK_TOSERVER || iClient == NETWORK_TOEVERYONE)
 		{
 			enet_peer_send(g_pClientPeer, 0, pPacket);
