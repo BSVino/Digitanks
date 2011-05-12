@@ -1,12 +1,11 @@
 #ifndef _TINKER_REPLICATION_H
 #define _TINKER_REPLICATION_H
 
-#include <assert.h>
-
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
 
+#include <common.h>
 #include <color.h>
 #include <vector.h>
 #include <strutils.h>
@@ -320,14 +319,14 @@ public:
 
 	inline C& Get2D(size_t s, size_t x, size_t y)
 	{
-		assert(iArraySize%s == 0);
+		TAssert(iArraySize%s == 0);
 		m_bDirty = true;
 		return m_oVariable[s*x + y];
 	}
 
 	inline const C& Get2D(size_t s, size_t x, size_t y) const
 	{
-		assert(iArraySize%s == 0);
+		TAssert(iArraySize%s == 0);
 		return m_oVariable[s*x + y];
 	}
 
@@ -340,7 +339,7 @@ public:
 	virtual void Unserialize(size_t iDataSize, void* pValue)
 	{
 		size_t iElements = iDataSize / sizeof(C);
-		assert(iElements == iArraySize);
+		TAssert(iElements == iArraySize);
 		memcpy(&m_oVariable[0], pValue, iDataSize);
 	}
 

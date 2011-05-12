@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <assert.h>
 
 #include <strutils.h>
 
@@ -34,7 +33,7 @@ void CCampaignInfo::ReadFromData(CData* pData)
 		{
 			CData* pChild = pLevels->FindChild(convertstring<char16_t, char>(sprintf(L"%d", i+1)));
 
-			assert(pChild);
+			TAssert(pChild);
 			if (!pChild)
 				continue;
 

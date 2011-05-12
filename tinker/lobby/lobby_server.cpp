@@ -172,7 +172,7 @@ void CGameLobbyServer::DestroyLobby(size_t iLobby)
 {
 	if (iLobby >= s_aLobbies.size())
 	{
-		assert(!"What lobby is this?");
+		TAssert(!"What lobby is this?");
 		return;
 	}
 
@@ -183,7 +183,7 @@ size_t CGameLobbyServer::AddPlayer(size_t iLobby, size_t iClient)
 {
 	if (iLobby >= s_aLobbies.size())
 	{
-		assert(!"What lobby is this?");
+		TAssert(!"What lobby is this?");
 		return ~0;
 	}
 
@@ -203,7 +203,7 @@ void CGameLobbyServer::RemovePlayer(size_t iID)
 
 	if (iLobby >= s_aLobbies.size())
 	{
-		assert(!"What lobby is this?");
+		TAssert(!"What lobby is this?");
 		return;
 	}
 
@@ -217,7 +217,7 @@ CGameLobby* CGameLobbyServer::GetLobby(size_t iLobby)
 {
 	if (iLobby >= s_aLobbies.size())
 	{
-		assert(!"What lobby is this?");
+		TAssert(!"What lobby is this?");
 		return NULL;
 	}
 
@@ -258,7 +258,7 @@ void CGameLobbyServer::UpdateLobby(size_t iLobby, const eastl::string16& sKey, c
 {
 	if (iLobby == ~0)
 	{
-		assert(!"What lobby is this?");
+		TAssert(!"What lobby is this?");
 		return;
 	}
 
@@ -277,7 +277,7 @@ void CGameLobbyServer::UpdatePlayer(size_t iID, const eastl::string16& sKey, con
 	if (iLobby == ~0)
 	{
 		TMsg(sprintf(L"Can't find lobby for client ID# %d\n", iID));
-		assert(!"Can't find lobby for client");
+		TAssert(!"Can't find lobby for client");
 		return;
 	}
 

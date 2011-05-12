@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "../modelconverter.h"
+#include "common.h"
 #include "strutils.h"
 
 #include <string>
@@ -611,7 +611,7 @@ void CModelConverter::SaveSIA(const eastl::string16& sFilename)
 
 			sFile << L"-face " << pFace->GetNumVertices();
 
-			assert(pFace->GetNumEdges() == pFace->GetNumVertices());
+			TAssert(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			for (size_t iVertsInFace = 0; iVertsInFace < pFace->GetNumVertices(); iVertsInFace++)
 			{
@@ -630,7 +630,7 @@ void CModelConverter::SaveSIA(const eastl::string16& sFilename)
 						break;
 					}
 				}
-				assert(iEdge != ~0);
+				TAssert(iEdge != ~0);
 
 				Vector vecUV = pMesh->GetUV(pVertex->vu);
 				sFile << L" " << pVertex->v << L" " << iEdge << L" " << vecUV.x << L" " << vecUV.y;

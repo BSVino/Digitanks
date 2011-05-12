@@ -2482,7 +2482,7 @@ CBaseWeapon* CDigitank::CreateWeapon()
 	else if (GetCurrentWeapon() == WEAPON_CHARGERAM)
 		return NULL;
 
-	assert(!"Unrecognized projectile");
+	TAssert(!"Unrecognized projectile");
 	return GameServer()->Create<CSmallShell>("CSmallShell");
 }
 

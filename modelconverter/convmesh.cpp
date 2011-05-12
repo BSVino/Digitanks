@@ -1,8 +1,8 @@
-#include <assert.h>
 #include <EASTL/algorithm.h>
 #include <EASTL/utility.h>
 
 #include "convmesh.h"
+#include <common.h>
 #include <geometry.h>
 
 CConversionMesh::CConversionMesh(class CConversionScene* pScene, const eastl::string16& sName)
@@ -108,7 +108,7 @@ void CConversionMesh::CalculateEdgeData()
 				AddEdgeToFace(iFace, iEdge);
 			}
 
-			assert(pFace->GetNumEdges() == pFace->GetNumVertices());
+			TAssert(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			if (m_pScene->m_pWorkListener)
 				m_pScene->m_pWorkListener->WorkProgress(iFace);
@@ -131,7 +131,7 @@ void CConversionMesh::CalculateEdgeData()
 				pEdge->m_aiFaces.push_back(iFace);
 			}
 
-			assert(pFace->GetNumEdges() == pFace->GetNumVertices());
+			TAssert(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			if (m_pScene->m_pWorkListener)
 				m_pScene->m_pWorkListener->WorkProgress(iFace);
@@ -682,7 +682,7 @@ Vector CConversionMeshInstance::GetBaseVector(int iVector, CConversionVertex* pV
 	else if (iVector == 2)
 		return GetNormal(pVertex->vn);
 
-	assert(false);
+	TAssert(false);
 	return Vector(0,0,0);
 }
 
@@ -772,7 +772,7 @@ CConversionMaterialStub::CConversionMaterialStub(const eastl::string16& sName)
 
 Vector CConversionFace::GetNormal()
 {
-	assert(GetNumVertices() >= 3);
+	TAssert(GetNumVertices() >= 3);
 
 	if (m_bFaceNormal)
 		return m_vecFaceNormal;
@@ -801,7 +801,7 @@ Vector CConversionFace::GetNormal()
 
 Vector CConversionFace::GetCenter()
 {
-	assert(GetNumVertices() >= 3);
+	TAssert(GetNumVertices() >= 3);
 
 	// Precompute this shit maybe?
 	Vector v(0, 0, 0);
@@ -1044,7 +1044,7 @@ void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vu, size_t 
 void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
 {
 	m_aFaces[iFace].m_aEdges.push_back(iEdge);
-	assert(m_aFaces[iFace].GetNumEdges() <= m_aFaces[iFace].GetNumVertices());
+	TAssert(m_aFaces[iFace].GetNumEdges() <= m_aFaces[iFace].GetNumVertices());
 }
 
 void CConversionMesh::RemoveFace(size_t iFace)
@@ -1079,7 +1079,7 @@ Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)
 	else if (iVector == 2)
 		return GetNormal(pVertex->vn);
 
-	assert(false);
+	TAssert(false);
 	return Vector(0,0,0);
 }
 

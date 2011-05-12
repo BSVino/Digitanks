@@ -1,8 +1,8 @@
 #include "commands.h"
 
 #include <enet/enet.h>
-#include <assert.h>
 
+#include <common.h>
 #include <strutils.h>
 
 #include <tinker/application.h>
@@ -56,7 +56,7 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 		p.CreateExtraData(sizeof(eastl::string16::value_type) * (sCommand.length() + 1));
 		char16_t* pszData = (char16_t*)p.m_pExtraData;
 
-		assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+		TAssert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
 		wcscpy(pszData, sCommand.c_str());
 
 		p.ui1 = CNetwork::GetClientID();
@@ -85,7 +85,7 @@ size_t CNetworkCommand::GetNumArguments()
 
 eastl::string16 CNetworkCommand::Arg(size_t iArg)
 {
-	assert(iArg < GetNumArguments());
+	TAssert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
 		return 0;
 
@@ -94,7 +94,7 @@ eastl::string16 CNetworkCommand::Arg(size_t iArg)
 
 bool CNetworkCommand::ArgAsBool(size_t iArg)
 {
-	assert(iArg < GetNumArguments());
+	TAssert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
 		return 0;
 
@@ -103,7 +103,7 @@ bool CNetworkCommand::ArgAsBool(size_t iArg)
 
 size_t CNetworkCommand::ArgAsUInt(size_t iArg)
 {
-	assert(iArg < GetNumArguments());
+	TAssert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
 		return 0;
 
@@ -112,7 +112,7 @@ size_t CNetworkCommand::ArgAsUInt(size_t iArg)
 
 int CNetworkCommand::ArgAsInt(size_t iArg)
 {
-	assert(iArg < GetNumArguments());
+	TAssert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
 		return 0;
 
@@ -121,7 +121,7 @@ int CNetworkCommand::ArgAsInt(size_t iArg)
 
 float CNetworkCommand::ArgAsFloat(size_t iArg)
 {
-	assert(iArg < GetNumArguments());
+	TAssert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
 		return 0;
 

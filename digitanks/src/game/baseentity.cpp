@@ -114,7 +114,7 @@ CBaseEntity::~CBaseEntity()
 {
 	s_apEntityList[m_iHandle] = NULL;
 
-	assert(s_iEntities > 0);
+	TAssert(s_iEntities > 0);
 	s_iEntities--;
 
 	if (m_pTracer)
@@ -313,7 +313,7 @@ void CBaseEntity::CallInput(const eastl::string& sName, const eastl::string16& s
 
 	if (!pInput)
 	{
-		assert(!"Input missing.");
+		TAssert(!"Input missing.");
 		TMsg(sprintf(L"Input %s not found in %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
 		return;
 	}
@@ -329,7 +329,7 @@ void CBaseEntity::CallOutput(const eastl::string& sName)
 
 	if (!pData)
 	{
-		assert(!"Output missing.");
+		TAssert(!"Output missing.");
 		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
 		return;
 	}
@@ -344,7 +344,7 @@ void CBaseEntity::AddOutputTarget(const eastl::string& sName, const eastl::strin
 
 	if (!pData)
 	{
-		assert(!"Output missing.");
+		TAssert(!"Output missing.");
 		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
 		return;
 	}
@@ -359,7 +359,7 @@ void CBaseEntity::RemoveOutputs(const eastl::string& sName)
 
 	if (!pData)
 	{
-		assert(!"Output missing.");
+		TAssert(!"Output missing.");
 		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
 		return;
 	}
@@ -555,7 +555,7 @@ void CBaseEntity::IssueClientSpawn()
 // ClientSpawn is always guaranteed to run after the client has received all initial data about a new entity.
 void CBaseEntity::ClientSpawn()
 {
-	assert(!m_bClientSpawn);
+	TAssert(!m_bClientSpawn);
 	m_bClientSpawn = true;
 
 	CallOutput("OnSpawn");
@@ -644,7 +644,7 @@ void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 			iSaveTableSize += 4-iSaveTableSize%4;
 
 		// This can help you find where missing stuff is, if all of the save data is in order.
-		assert(pData->m_iOffset - iFirstOffset == iSaveTableSize);
+		TAssert(pData->m_iOffset - iFirstOffset == iSaveTableSize);
 
 		iSaveTableSize += pData->m_iSizeOfVariable;
 	}
@@ -659,7 +659,7 @@ void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 	if (iSaveTableSize != iSizeOfThis)
 	{
 		TMsg(sprintf(L"Save table for class '%s' doesn't match the class's size.\n", convertstring<char, char16_t>(GetClassName())));
-		assert(!L"Save table size doesn't match class size.\n");
+		TAssert(!L"Save table size doesn't match class size.\n");
 	}
 }
 
@@ -678,10 +678,10 @@ void CBaseEntity::CheckTables(char* pszEntity)
 		CNetworkedVariableData* pVariable = GetNetworkVariable(aSaveData[i].m_pszVariableName);
 		if (aSaveData[i].m_eType == CSaveData::DATA_NETVAR)
 			// I better be finding this in the network tables or yer gon have some 'splainin to do!
-			assert(pVariable);
+			TAssert(pVariable)
 		else
 			// I better NOT be finding this in the network tables or yer gon have some 'splainin to do!
-			assert(!pVariable);
+			TAssert(!pVariable);
 	}
 }
 
@@ -717,7 +717,7 @@ bool CBaseEntity::UnserializeEntity(std::istream& i)
 	i.read((char*)&iSpawnSeed, sizeof(iSpawnSeed));
 
 	size_t iNewHandle = GameServer()->CreateEntity(iRegistration, iHandle, iSpawnSeed);
-	assert(iNewHandle == iHandle);
+	TAssert(iNewHandle == iHandle);
 
 	CEntityHandle<CBaseEntity> hEntity(iNewHandle);
 
@@ -824,7 +824,7 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 
 		CSaveData* pSaveData = &pRegistration->m_aSaveData[iSaveData];
 
-		assert(pSaveData->m_eType != CSaveData::DATA_OMIT);
+		TAssert(pSaveData->m_eType != CSaveData::DATA_OMIT);
 
 		char* pData = (char*)pEntity + pSaveData->m_iOffset;
 		switch(pSaveData->m_eType)

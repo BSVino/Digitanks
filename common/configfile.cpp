@@ -3,7 +3,7 @@
 #include "ConfigFile.h"
 
 #include <string>
-#include <assert.h>
+#include <common.h>
 
 ConfigFile::ConfigFile( string16 filename, string16 delimiter,
                         string16 comment, string16 sentry )
@@ -81,7 +81,7 @@ std::wistream& operator>>( std::wistream& is, ConfigFile& cf )
 	
 	string16 nextline = L"";  // might need to read ahead to see where value ends
 
-	assert(sizeof(wchar_t) == sizeof(char16_t));
+	TAssert(sizeof(wchar_t) == sizeof(char16_t));
 
 	while( is || nextline.length() > 0 )
 	{

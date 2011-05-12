@@ -1,7 +1,7 @@
 #ifndef DT_ENTITYHANDLE_H
 #define DT_ENTITYHANDLE_H
 
-#include <assert.h>
+#include <common.h>
 
 #include <network/network.h>
 #include <network/replication.h>

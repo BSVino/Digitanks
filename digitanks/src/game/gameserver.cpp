@@ -32,7 +32,7 @@ ConfigFile g_cfgEngine(L"scripts/engine.cfg");
 
 CGameServer::CGameServer()
 {
-	assert(!s_pGameServer);
+	TAssert(!s_pGameServer);
 	s_pGameServer = this;
 
 	m_iMaxEnts = g_cfgEngine.read(L"MaxEnts", 1024);
@@ -71,7 +71,7 @@ CGameServer::CGameServer()
 				}
 			}
 
-			assert(bFound);	// I have no idea how you could trip this.
+			TAssert(bFound);	// I have no idea how you could trip this.
 		}
 		else
 			pRegistration->m_iParentRegistration = ~0;
@@ -111,13 +111,13 @@ CGameServer::~CGameServer()
 	if (m_pCamera)
 		delete m_pCamera;
 
-	assert(s_pGameServer == this);
+	TAssert(s_pGameServer == this);
 	s_pGameServer = NULL;
 }
 
 CLIENT_COMMAND(SendNickname)
 {
-	assert(GameServer());
+	TAssert(GameServer());
 	if (!GameServer())
 		return;
 
@@ -632,7 +632,7 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 
 CEntityHandle<CBaseEntity> CGameServer::Create(const char* pszEntityName)
 {
-	assert(CNetwork::IsHost());
+	TAssert(CNetwork::IsHost());
 
 	if (!CNetwork::ShouldRunClientFunction())
 		return CEntityHandle<CBaseEntity>();
@@ -788,7 +788,7 @@ void CGameServer::UpdateValue(CNetworkParameters* p)
 
 void CGameServer::NetworkCommand(CNetworkParameters* p)
 {
-	assert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+	TAssert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
 	char16_t* pszData = (char16_t*)p->m_pExtraData;
 
 	eastl::string16 sCommand(pszData);

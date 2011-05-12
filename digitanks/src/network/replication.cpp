@@ -1,7 +1,6 @@
 #include "replication.h"
 
 #include <enet/enet.h>
-#include <assert.h>
 
 #include <strutils.h>
 
@@ -17,7 +16,7 @@ CNetworkedVariableData::CNetworkedVariableData()
 
 CNetworkedVariableBase* CNetworkedVariableData::GetNetworkedVariableBase(CBaseEntity* pEntity)
 {
-	assert(m_iOffset);
+	TAssert(m_iOffset);
 	return (CNetworkedVariableBase*)(((size_t)pEntity) + m_iOffset);
 }
 
@@ -42,7 +41,7 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 		{
 			pRegistration = pEntity->GetRegisteredEntity(iRegistration);
 
-			assert(pRegistration);
+			TAssert(pRegistration);
 			if (!pRegistration)
 				break;
 

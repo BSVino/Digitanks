@@ -48,7 +48,7 @@ SERVER_COMMAND(LobbyPlayerInfo)
 		if (iLobbyClient == ~0)
 		{
 			TMsg(sprintf(L"Can't find lobby player %d\n", iLobbyClient));
-			assert(!"Can't find lobby player.");
+			TAssert(!"Can't find lobby player.");
 			return;
 		}
 
@@ -91,7 +91,7 @@ size_t CGameLobbyClient::L_GetLocalPlayerID()
 {
 	CLobbyPlayer* pPlayer = L_GetPlayerByClient(CNetwork::GetClientID());
 
-	assert(pPlayer);
+	TAssert(pPlayer);
 	if (!pPlayer)
 		return ~0;
 
@@ -252,7 +252,7 @@ void CGameLobbyClient::R_Clear()
 bool CGameLobbyClient::L_IsHost()
 {
 	CLobbyPlayer* pPlayer = L_GetPlayerByID(L_GetLocalPlayerID());
-	assert(pPlayer);
+	TAssert(pPlayer);
 	if (!pPlayer)
 		return false;
 

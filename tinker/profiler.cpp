@@ -1,7 +1,5 @@
 #include "profiler.h"
 
-#include <assert.h>
-
 #include <GL/glew.h>
 
 #include <strutils.h>
@@ -114,11 +112,11 @@ void CProfiler::PopScope(CProfileScope* pScope)
 	if (!IsProfiling())
 		return;
 
-	assert(s_pTopBlock);
+	TAssert(s_pTopBlock);
 	if (!s_pTopBlock)
 		return;
 
-	assert(pScope->GetName() == s_pTopBlock->GetName());
+	TAssert(pScope->GetName() == s_pTopBlock->GetName());
 
 	s_pTopBlock->BlockEnded();
 

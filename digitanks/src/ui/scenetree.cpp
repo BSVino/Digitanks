@@ -279,7 +279,7 @@ void CSceneTreeGroup::GetUnitDimensions(CDigitanksEntity* pEntity, int& x, int& 
 		}
 	}
 
-	assert(!"Can't find dimensions for a unit");
+	TAssert(!"Can't find dimensions for a unit");
 }
 
 CSceneTreeUnit::CSceneTreeUnit(CEntityHandle<CSelectable> hEntity, glgui::CTreeNode* pParent, glgui::CTree* pTree)
