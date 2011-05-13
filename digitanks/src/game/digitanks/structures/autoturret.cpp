@@ -140,7 +140,7 @@ void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 
 		eastl::string16 s;
 		s += L"DEFEND YOUR TERRITORY\n \n";
-		s += L"Activate this Auto-Turret to automatically fire at all enemies within range.\n \n";
+		s += L"Activate this Firewall to automatically fire at all enemies within range.\n \n";
 
 		if (!bHasTargets)
 			s += L"NO TARGETS IN RANGE\n \n";
@@ -148,7 +148,7 @@ void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 		s += L"Shortcut: e";
 
 		pHUD->SetButtonInfo(2, s);
-		pHUD->SetButtonTooltip(2, L"Fire Auto-Turret");
+		pHUD->SetButtonTooltip(2, L"Activate Firewall");
 	}
 }
 
@@ -157,7 +157,7 @@ void CAutoTurret::UpdateInfo(eastl::string16& s)
 	eastl::string16 p;
 
 	s = L"";
-	s += L"AUTO-TURRET INFO\n";
+	s += L"FIREWALL INFO\n";
 	s += L"Network defender\n \n";
 
 	if (GetTeam())

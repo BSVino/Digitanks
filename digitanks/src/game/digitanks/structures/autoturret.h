@@ -36,7 +36,7 @@ public:
 	virtual size_t				InitialTurnsToConstruct() { return 2; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual eastl::string16		GetEntityName() { return L"Auto-Turret"; };
+	virtual eastl::string16		GetEntityName() { return L"Firewall"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_AUTOTURRET; };
 
 protected:

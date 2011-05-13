@@ -321,7 +321,7 @@ static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
 	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first-person.",
 	L"This weapon emits a wall of rays in one direction. Great for hitting multiple tanks in a line. This weapon goes through any objects or terrian and has no range limitations.",
 	L"These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!",
-	L"Auto-turrets use these small missiles to defend their base.",
+	L"Firewalls use these small missiles to defend their base.",
 	L"Combine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields. This attack requires your movement energy, if you move your tank you won't be able to execute it.",
 
 	L"Rain fire and brimstone upon your enemies.",

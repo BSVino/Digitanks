@@ -376,8 +376,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(8, CHUD::BuildTurret);
 		}
 
-		s = L"BUILD AUTO-TURRET\n \n";
-		s += L"Set them up Auto-Turrets around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nAuto-Turrets get weaker when they need to fire at more targets, so be sure to build enough for the job.";
+		s = L"BUILD FIREWALL\n \n";
+		s += L"Set them up Firewalls around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nFirewalls get weaker when they need to fire at more targets, so be sure to build enough for the job.";
 		s += p.sprintf(L"Power to construct: %d Power\n", (int)DigitanksGame()->GetConstructionCost(STRUCTURE_AUTOTURRET));
 
 		if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_AUTOTURRET))
@@ -385,7 +385,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		s += L"Shortcut: F";
 		pHUD->SetButtonInfo(8, s);
-		pHUD->SetButtonTooltip(8, L"Build Auto-Turret");
+		pHUD->SetButtonTooltip(8, L"Build Firewall");
 	}
 }
 
