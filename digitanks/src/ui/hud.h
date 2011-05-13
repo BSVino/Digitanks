@@ -184,6 +184,7 @@ public:
 	static const CTextureSheet&	GetWeaponSheet();
 	static const CTextureSheet&	GetButtonSheet();
 	static const CTextureSheet&	GetDownloadSheet();
+	static const CTextureSheet&	GetKeysSheet();
 	static size_t				GetActionTanksSheet();
 	static size_t				GetPurchasePanel();
 	static size_t				GetShieldTexture();
@@ -410,7 +411,7 @@ protected:
 
 	size_t						m_iTurnSound;
 
-	size_t						m_iKeysSheet;
+	CTextureSheet				m_KeysSheet;
 
 	CEntityHandle<CBaseWeapon>	m_hHintWeapon;
 	glgui::CLabel*				m_pSpacebarHint;

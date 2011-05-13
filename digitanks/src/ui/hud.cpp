@@ -152,6 +152,7 @@ CHUD::CHUD()
 	m_WeaponsSheet(L"textures/hud/hud-weapons-01.txt"),
 	m_ButtonSheet(L"textures/hud/hud-menu-sheet-01.txt"),
 	m_DownloadSheet(L"textures/hud/hud-download-sheet-01.txt"),
+	m_KeysSheet(L"textures/hud/keys.txt"),
 	m_ActionSignsSheet(L"textures/hud/actionsigns/signs.txt"),
 	m_PowerupsSheet(L"textures/hud/powerups-sheet.txt")
 {
@@ -169,7 +170,6 @@ CHUD::CHUD()
 	AddControl(m_pDefensePower);
 	AddControl(m_pMovementPower);
 
-	m_iKeysSheet = CTextureLibrary::AddTexture(L"textures/hud/keys.png");
 	m_iActionTanksSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/tanks.png");
 	m_iPurchasePanel = CTextureLibrary::AddTexture(L"textures/purchasepanel.png");
 	m_iShieldTexture = CTextureLibrary::AddTexture(L"textures/hud/hud-shield.png");
@@ -1359,7 +1359,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		iY -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
 
-		PaintSheet(m_iKeysSheet, iX+45, iY, 60, 60, 128, 64, 64, 64, 256, 256, Color(255, 255, 255, 255));
+		PaintSheet(&m_KeysSheet, "SpaceBar", iX+45, iY, 60, 60);
 	}
 	else
 	{
@@ -1873,7 +1873,7 @@ void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
 
 		iY -= (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 0.5f), 0.2f) * 10);
 
-		PaintSheet(m_iKeysSheet, iX+45, iY, 60, 60, 128, 64, 64, 64, 256, 256, Color(255, 255, 255, 255));
+		PaintSheet(&m_KeysSheet, "SpaceBar", iX+45, iY, 60, 60);
 
 		m_pSpacebarHint->Paint();
 	}
@@ -2079,6 +2079,11 @@ const CTextureSheet& CHUD::GetButtonSheet()
 const CTextureSheet& CHUD::GetDownloadSheet()
 {
 	return DigitanksWindow()->GetHUD()->m_DownloadSheet;
+}
+
+const CTextureSheet& CHUD::GetKeysSheet()
+{
+	return DigitanksWindow()->GetHUD()->m_KeysSheet;
 }
 
 size_t CHUD::GetActionTanksSheet()

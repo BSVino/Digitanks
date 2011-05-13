@@ -226,6 +226,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	eastl::string sEmotion;
 	bool bLeaveMouthOpen = false;
 	int iHintButton = -1;
+	bool bMousePrompt = true;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -310,6 +311,8 @@ void CInstructor::ReadLesson(const class CData* pData)
 
 			iHintButton = pChildData->GetValueInt();
 		}
+		else if (pChildData->GetKey() == "NoMousePrompt")
+			bMousePrompt = false;
 	}
 
 	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
@@ -325,6 +328,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	m_apTutorials[sLessonName]->m_sHelperEmotion = sEmotion;
 	m_apTutorials[sLessonName]->m_bLeaveMouthOpen = bLeaveMouthOpen;
 	m_apTutorials[sLessonName]->m_iHintButton = iHintButton;
+	m_apTutorials[sLessonName]->m_bMousePrompt = bMousePrompt;
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -618,6 +622,18 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("HintArrow", r.x + r.w/2 - iArrowWidth/2, r.y - (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, -iArrowHeight);
+	}
+
+	if (m_pTutorial->m_bMousePrompt)
+	{
+		eastl::string sIcon = "Mouse";
+		if (Oscillate(GameServer()->GetGameTime(), 0.4f) > 0.5)
+			sIcon = "MouseLeft";
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+
+		DigitanksWindow()->GetHUD()->PaintSheet(&DigitanksWindow()->GetHUD()->GetKeysSheet(), sIcon, x+w - 16, y+h - 16, 32, 32);
 	}
 }
 

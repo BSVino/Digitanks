@@ -35,6 +35,7 @@ public:
 	bool							m_bSlideX;
 	bool							m_bLeaveMouthOpen;
 	int								m_iHintButton;
+	bool							m_bMousePrompt;
 
 	eastl::string					m_sButton1Text;
 	eastl::string					m_sButton1Action;
