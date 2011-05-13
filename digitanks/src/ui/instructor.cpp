@@ -17,7 +17,8 @@
 using namespace glgui;
 
 CInstructor::CInstructor()
-	: m_EmotionsSheet(L"textures/hud/helper-emotions.txt")
+	: m_EmotionsSheet(L"textures/hud/helper-emotions.txt"),
+	m_EmotionsOpenSheet(L"textures/hud/helper-emotions-open.txt")
 {
 	m_bActive = true;
 	m_pCurrentPanel = NULL;
@@ -223,6 +224,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	EAngle angTarget = EAngle(-1,-1,-1);	// Negative values means do not use
 	float flDistance = 0;
 	eastl::string sEmotion;
+	bool bLeaveMouthOpen = false;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -298,6 +300,8 @@ void CInstructor::ReadLesson(const class CData* pData)
 			flDistance = pChildData->GetValueFloat();
 		else if (pChildData->GetKey() == "HelperEmotion")
 			sEmotion = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "LeaveMouthOpen")
+			bLeaveMouthOpen = pChildData->GetValueBool();
 	}
 
 	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
@@ -311,6 +315,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	m_apTutorials[sLessonName]->m_angSetViewAngle = angTarget;
 	m_apTutorials[sLessonName]->m_flSetViewDistance = flDistance;
 	m_apTutorials[sLessonName]->m_sHelperEmotion = sEmotion;
+	m_apTutorials[sLessonName]->m_bLeaveMouthOpen = bLeaveMouthOpen;
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -568,8 +573,11 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 			y += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
 	}
 
+	int iPrintChars = (int)((GameServer()->GetGameTime() - m_flStartTime)*50);
 	if (m_pTutorial->m_sHelperEmotion.length())
-		m_pText->SetPrintChars((int)((GameServer()->GetGameTime() - m_flStartTime)*50));
+		m_pText->SetPrintChars(iPrintChars);
+
+	bool bScrolling = (iPrintChars < (int)m_pText->GetText().length());
 
 	CRootPanel::PaintRect(x, y, w, h);
 
@@ -587,6 +595,9 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
 		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - 108, y + h/2 - 256/2, 128, 256);
+
+		if (bScrolling && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || !bScrolling && m_pTutorial->m_bLeaveMouthOpen)
+			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - 108, y + h/2 - 256/2, 128, 256);
 	}
 }
 

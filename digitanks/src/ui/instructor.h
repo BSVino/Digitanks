@@ -33,6 +33,7 @@ public:
 	bool							m_bKillOnFinish;
 	float							m_flSlideAmount;
 	bool							m_bSlideX;
+	bool							m_bLeaveMouthOpen;
 
 	eastl::string					m_sButton1Text;
 	eastl::string					m_sButton1Action;
@@ -114,6 +115,7 @@ public:
 	};
 
 	const CTextureSheet*			GetEmotionsSheet() { return &m_EmotionsSheet; }
+	const CTextureSheet*			GetEmotionsOpenSheet() { return &m_EmotionsOpenSheet; }
 
 protected:
 	bool							m_bActive;
@@ -125,6 +127,7 @@ protected:
 	disable_t						m_eDisabled;
 
 	CTextureSheet					m_EmotionsSheet;
+	CTextureSheet					m_EmotionsOpenSheet;
 };
 
 #endif
