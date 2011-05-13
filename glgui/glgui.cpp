@@ -241,6 +241,7 @@ void CBaseControl::PaintSheet(size_t iTexture, int x, int y, int w, int h, int s
 	glPushAttrib(GL_ENABLE_BIT);
 
 	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_CULL_FACE);
 
 	glBindTexture(GL_TEXTURE_2D, (GLuint)iTexture);
 	glColor4ubv(c);

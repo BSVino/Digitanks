@@ -882,6 +882,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 {
 	TMsg(sprintf(L"Setting up campaign %s.\n", CVar::GetCVarValue(L"game_level")));
 
+	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
 	if (!bReload)
 	{
 		m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
@@ -2559,7 +2561,7 @@ void CDigitanksGame::ClientEnterGame()
 		GetDigitanksCamera()->SnapAngle(EAngle(55,20,0));
 		GetDigitanksCamera()->SnapDistance(60);
 	}
-	else
+	else if (m_eGameType != GAMETYPE_CAMPAIGN)
 	{
 		if (GetCurrentLocalDigitanksTeam() && GetCurrentLocalDigitanksTeam()->GetMember(0))
 			GetDigitanksCamera()->SnapTarget(GetCurrentLocalDigitanksTeam()->GetMember(0)->GetOrigin());

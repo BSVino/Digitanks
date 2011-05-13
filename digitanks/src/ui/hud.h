@@ -255,6 +255,8 @@ public:
 
 	void						ClearHintWeapon() { m_hHintWeapon = NULL; };
 
+	Rect						GetButtonDimensions(size_t i);
+
 	EVENT_CALLBACK(CHUD, ChooseActionItem);
 	EVENT_CALLBACK(CHUD, ShowSmallActionItem);
 	EVENT_CALLBACK(CHUD, HideSmallActionItem);

@@ -34,6 +34,7 @@ public:
 	float							m_flSlideAmount;
 	bool							m_bSlideX;
 	bool							m_bLeaveMouthOpen;
+	int								m_iHintButton;
 
 	eastl::string					m_sButton1Text;
 	eastl::string					m_sButton1Action;

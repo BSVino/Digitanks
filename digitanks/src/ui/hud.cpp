@@ -840,11 +840,21 @@ void CHUD::Think()
 
 	if (m_eMenuMode == MENUMODE_MAIN && m_bHUDActive)
 	{
+		CTutorial* pTutorial = NULL;
+		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
+			pTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
+
 		eastl::string sTutorialName;
 		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
 			sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
 
-		if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && sTutorialName == "artillery-aim")
+		if (pTutorial && pTutorial->m_iHintButton >= 0)
+		{
+			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
+			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
+			m_apButtons[pTutorial->m_iHintButton]->SetButtonColor(Color(iColor, 0, 0));
+		}
+		else if (pCurrentTank && pCurrentTank->GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && sTutorialName == "artillery-aim")
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
@@ -1221,7 +1231,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			{
 				int iArrowWidth = 50;
 				int iArrowHeight = 82;
-				PaintHUDSheet("UpdatesArrow", m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight);
+				PaintHUDSheet("HintArrow", m_pUpdatesButton->GetLeft() + m_pUpdatesButton->GetWidth()/2 - iArrowWidth/2, 40 + (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, iArrowHeight);
 			}
 
 			PaintHUDSheet("PowerIcon", iWidth - 190, 10, 20, 20);
@@ -3098,6 +3108,13 @@ void CHUD::AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup)
 	pNewNotification->ePowerupType = ePowerup;
 	pNewNotification->flTime = GameServer()->GetGameTime();
 	pNewNotification->hTank = pTank;
+}
+
+Rect CHUD::GetButtonDimensions(size_t i)
+{
+	Rect r;
+	m_apButtons[i]->GetAbsDimensions(r.x, r.y, r.w, r.h);
+	return r;
 }
 
 void CHUD::ChooseActionItemCallback()

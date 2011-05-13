@@ -225,6 +225,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	float flDistance = 0;
 	eastl::string sEmotion;
 	bool bLeaveMouthOpen = false;
+	int iHintButton = -1;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -302,6 +303,13 @@ void CInstructor::ReadLesson(const class CData* pData)
 			sEmotion = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "LeaveMouthOpen")
 			bLeaveMouthOpen = pChildData->GetValueBool();
+		else if (pChildData->GetKey() == "HintButton")
+		{
+			if (iHintButton >= 10)
+				iHintButton = -1;
+
+			iHintButton = pChildData->GetValueInt();
+		}
 	}
 
 	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
@@ -316,6 +324,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 	m_apTutorials[sLessonName]->m_flSetViewDistance = flDistance;
 	m_apTutorials[sLessonName]->m_sHelperEmotion = sEmotion;
 	m_apTutorials[sLessonName]->m_bLeaveMouthOpen = bLeaveMouthOpen;
+	m_apTutorials[sLessonName]->m_iHintButton = iHintButton;
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -598,6 +607,17 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 		if (bScrolling && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || !bScrolling && m_pTutorial->m_bLeaveMouthOpen)
 			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - 108, y + h/2 - 256/2, 128, 256);
+	}
+
+	if (m_pTutorial->m_iHintButton >= 0)
+	{
+		int iArrowWidth = 50;
+		int iArrowHeight = 82;
+		Rect r = DigitanksWindow()->GetHUD()->GetButtonDimensions(m_pTutorial->m_iHintButton);
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		DigitanksWindow()->GetHUD()->PaintHUDSheet("HintArrow", r.x + r.w/2 - iArrowWidth/2, r.y - (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, -iArrowHeight);
 	}
 }
 

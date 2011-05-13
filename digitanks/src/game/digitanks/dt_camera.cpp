@@ -29,6 +29,12 @@ CDigitanksCamera::CDigitanksCamera()
 
 void CDigitanksCamera::SetTarget(Vector vecTarget)
 {
+	if (GameServer()->IsLoading())
+	{
+		SnapTarget(vecTarget);
+		return;
+	}
+
 	if (vecTarget.x < -DigitanksGame()->GetTerrain()->GetMapSize())
 		vecTarget.x = -DigitanksGame()->GetTerrain()->GetMapSize();
 	if (vecTarget.z < -DigitanksGame()->GetTerrain()->GetMapSize())
@@ -60,6 +66,12 @@ void CDigitanksCamera::SnapTarget(Vector vecTarget)
 
 void CDigitanksCamera::SetDistance(float flDistance)
 {
+	if (GameServer()->IsLoading())
+	{
+		SnapDistance(flDistance);
+		return;
+	}
+
 	if (flDistance < 40)
 		flDistance = 40;
 
@@ -79,6 +91,12 @@ void CDigitanksCamera::SnapDistance(float flDistance)
 
 void CDigitanksCamera::SetAngle(EAngle angCamera)
 {
+	if (GameServer()->IsLoading())
+	{
+		SnapAngle(angCamera);
+		return;
+	}
+
 	m_flAngleRamp = GameServer()->GetGameTime();
 	m_angOldAngle = m_angCamera;
 	m_angNewAngle = angCamera;
@@ -414,20 +432,6 @@ void CDigitanksCamera::Think()
 
 	m_vecCamera = AngleVector(m_angCamera) * m_flDistance + m_vecTarget;
 
-	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
-	{
-		float flCameraIntroLerp = SLerp(RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0, 3, 0, 1), 0.2f);
-
-		EAngle angIntro = m_angCamera;
-		angIntro.y += 90;
-
-		Vector vecIntroTarget = DigitanksGame()->GetTerrain()->SetPointHeight(Vector(0,0,0));
-		Vector vecIntroCamera = AngleVector(angIntro) * 400 + vecIntroTarget;
-
-		m_vecTarget = LerpValue<Vector>(vecIntroTarget, m_vecTarget, flCameraIntroLerp);
-		m_vecCamera = LerpValue<Vector>(vecIntroCamera, m_vecCamera, flCameraIntroLerp);
-	}
-
 	m_flShakeMagnitude = Approach(0, m_flShakeMagnitude, GameServer()->GetFrameTime()*5);
 	if (m_flShakeMagnitude)
 	{
@@ -490,6 +494,19 @@ Vector CDigitanksCamera::GetCameraPosition()
 	if (m_bFreeMode)
 		return BaseClass::GetCameraPosition();
 
+	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
+	{
+		float flCameraIntroLerp = SLerp(RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0, 3, 0, 1), 0.2f);
+
+		EAngle angIntro = m_angCamera;
+		angIntro.y += 90;
+
+		Vector vecIntroTarget = m_vecTarget;
+		Vector vecIntroCamera = AngleVector(angIntro) * 400 + vecIntroTarget;
+
+		return LerpValue<Vector>(vecIntroCamera, m_vecCamera, flCameraIntroLerp) + m_vecShake;
+	}
+
 	return m_vecCamera + m_vecShake;
 }
 
@@ -535,6 +552,19 @@ Vector CDigitanksCamera::GetCameraTarget()
 
 	if (m_bFreeMode)
 		return BaseClass::GetCameraTarget();
+
+	if (GameServer()->GetGameTime() - m_flTimeSinceNewGame < 3 && DigitanksGame()->GetGameType() != GAMETYPE_MENU)
+	{
+		float flCameraIntroLerp = SLerp(RemapVal(GameServer()->GetGameTime() - m_flTimeSinceNewGame, 0, 3, 0, 1), 0.2f);
+
+		EAngle angIntro = m_angCamera;
+		angIntro.y += 90;
+
+		Vector vecIntroTarget = m_vecTarget;
+		Vector vecIntroCamera = AngleVector(angIntro) * 400 + vecIntroTarget;
+
+		return LerpValue<Vector>(vecIntroTarget, m_vecTarget, flCameraIntroLerp) + m_vecShake;
+	}
 
 	return m_vecTarget + m_vecShake;
 }
