@@ -624,7 +624,7 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("HintArrow", r.x + r.w/2 - iArrowWidth/2, r.y - (int)(Lerp(Oscillate(GameServer()->GetGameTime(), 1), 0.8f)*20), iArrowWidth, -iArrowHeight);
 	}
 
-	if (m_pTutorial->m_bMousePrompt)
+	if (m_pTutorial->m_bMousePrompt && !bScrolling)
 	{
 		eastl::string sIcon = "Mouse";
 		if (Oscillate(GameServer()->GetGameTime(), 0.4f) > 0.5)
