@@ -1555,9 +1555,6 @@ void CDigitank::Think()
 	if (!DigitanksGame())
 		return;
 
-	if (IsMoving())
-		DirtyVisibility();
-
 	if (!IsMoving() && IsAlive() && GameServer()->GetGameTime() > m_flNextHoverHeightCheck)
 	{
 		// Checking the hover height so often can be expensive, so we only do i once in a while.

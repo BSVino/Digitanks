@@ -79,6 +79,7 @@ protected:
 	float							m_flVisibility;				// Only for local team!
 
 	float							m_flNextDirtyArea;
+	float							m_flNextDirtyOrigin;
 
 	bool							m_bImprisoned;
 

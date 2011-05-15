@@ -25,6 +25,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flVisibility);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyArea);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bObjective);
 SAVEDATA_TABLE_END();
@@ -45,6 +46,7 @@ void CDigitanksEntity::Spawn()
 	m_flVisibility = 0;
 	m_bVisibilityDirty = true;
 	m_flNextDirtyArea = 0;
+	m_flNextDirtyOrigin = 0;
 
 	m_bImprisoned = false;
 	m_bObjective = false;
@@ -55,6 +57,13 @@ void CDigitanksEntity::Spawn()
 void CDigitanksEntity::Think()
 {
 	BaseClass::Think();
+
+	if (m_flNextDirtyOrigin > 0 && GameServer()->GetGameTime() > m_flNextDirtyOrigin)
+	{
+		DirtyVisibility();
+
+		m_flNextDirtyOrigin = 0;
+	}
 
 	if (m_flNextDirtyArea > 0 && GameServer()->GetGameTime() > m_flNextDirtyArea)
 	{
@@ -300,7 +309,12 @@ void CDigitanksEntity::OnSetOrigin(const Vector& vecOrigin)
 {
 	BaseClass::OnSetOrigin(vecOrigin);
 
-	DirtyVisibility();
+	// Don't do this constantly.
+	if (GameServer()->GetGameTime() > m_flNextDirtyOrigin)
+	{
+		DirtyVisibility();
+		m_flNextDirtyOrigin = GameServer()->GetGameTime() + RandomFloat(0.5, 0.8f);
+	}
 
 	// Don't do this constantly.
 	if (GameServer()->GetGameTime() > m_flNextDirtyArea)
