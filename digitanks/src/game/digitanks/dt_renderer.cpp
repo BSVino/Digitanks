@@ -397,8 +397,18 @@ void CDigitanksRenderer::RenderPreviewModes()
 	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();
 
+	Vector vecPreviewMove;
+	Vector vecPreviewDirection;
+	if (pCurrentTank)
+	{
+		vecPreviewMove = pCurrentTank->GetPreviewMove();
+		vecPreviewDirection = (vecPreviewMove - pCurrentTank->GetOrigin()).Normalized();
+	}
+
 	if (!pTeam)
 		return;
+
+	size_t iFormation = 0;
 	
 	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
 	{
@@ -443,16 +453,17 @@ void CDigitanksRenderer::RenderPreviewModes()
 			{
 				if (pTank->GetDigitanksTeam()->IsSelected(pTank) && pTank->MovesWith(pCurrentTank))
 				{
-					Vector vecTankMove = (pCurrentTank->GetPreviewMove() - pCurrentTank->GetOrigin()).Normalized();
-					if (vecTankMove.Length() > pTank->GetRemainingMovementDistance())
-						vecTankMove = vecTankMove * pTank->GetRemainingMovementDistance() * 0.95f;
+					Vector vecNewPosition = DigitanksGame()->GetFormationPosition(vecPreviewMove, vecPreviewDirection, pTeam->GetNumTanks(), iFormation++);
 
-					Vector vecNewPosition = pCurrentTank->GetPreviewMove();
 					vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
 
 					CRenderingContext r(GameServer()->GetRenderer());
 					r.Translate(vecNewPosition + Vector(0, 1, 0));
-					r.Rotate(-VectorAngles(vecTankMove).y, Vector(0, 1, 0));
+					r.Rotate(-VectorAngles(vecPreviewDirection).y, Vector(0, 1, 0));
+
+					if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
+						r.Scale(2, 2, 2);
+
 					r.SetAlpha(50.0f/255);
 					r.SetBlend(BLEND_ALPHA);
 					r.SetColorSwap(pTank->GetTeam()->GetColor());

@@ -132,6 +132,8 @@ public:
 	CDigitank*				GetPrimarySelectionTank();
 	CStructure*				GetPrimarySelectionStructure();
 
+	Vector					GetFormationPosition(Vector vecPosition, Vector vecFacing, size_t iUnitsInFormation, size_t iPosition);
+
 	controlmode_t			GetControlMode();
 	void					SetControlMode(controlmode_t eMode);
 

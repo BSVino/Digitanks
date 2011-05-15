@@ -1505,7 +1505,10 @@ void CDigitanksGame::MoveTanks()
 
 	Vector vecPreview = pCurrentTank->GetPreviewMove();
 	Vector vecOrigin = pCurrentTank->GetOrigin();
+
 	Vector vecMove = vecPreview - vecOrigin;
+
+	size_t iFormation = 0;
 
 	CDigitanksTeam* pTeam = GetCurrentTeam();
 	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -1515,9 +1518,8 @@ void CDigitanksGame::MoveTanks()
 		if (!pTank->MovesWith(pCurrentTank))
 			continue;
 
-		Vector vecTankMove = vecMove;
+		Vector vecNewPosition = GetFormationPosition(vecPreview, vecMove, pTeam->GetNumTanks(), iFormation++);
 
-		Vector vecNewPosition = pTank->GetOrigin() + vecTankMove;
 		vecNewPosition.y = pTank->FindHoverHeight(vecNewPosition);
 
 		pTank->SetPreviewMove(vecNewPosition);
@@ -2204,6 +2206,28 @@ CDigitank* CDigitanksGame::GetPrimarySelectionTank()
 CStructure* CDigitanksGame::GetPrimarySelectionStructure()
 {
 	return dynamic_cast<CStructure*>(GetPrimarySelection());
+}
+
+Vector CDigitanksGame::GetFormationPosition(Vector vecPosition, Vector vecFacing, size_t iUnitsInFormation, size_t iPosition)
+{
+	vecFacing.y = 0;
+	vecFacing.Normalize();
+
+	if (iPosition == 0)
+		return vecPosition;
+
+	float flSeparation = 10;
+	if (GetGameType() == GAMETYPE_ARTILLERY)
+		flSeparation = 12;
+
+	Vector vecRight = Vector(0,1,0).Cross(vecFacing).Normalized();
+	if (iPosition%2 == 1)
+		return vecPosition + vecRight*flSeparation*(float)((iPosition+1)/2);
+
+	if (iPosition%2 == 0)
+		return vecPosition - vecRight*flSeparation*(float)(iPosition/2);
+
+	return vecPosition;
 }
 
 controlmode_t CDigitanksGame::GetControlMode()
