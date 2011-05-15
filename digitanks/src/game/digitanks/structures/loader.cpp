@@ -135,21 +135,21 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 
 	if (GetBuildUnit() == UNIT_INFANTRY)
 	{
-		pHUD->SetButtonTexture(0, "ResistorFactory");
+		pHUD->SetButtonTexture(0, "Resistor");
 		s += L"BUILD RESISTOR\n \n";
 		s += L"Resistors can fortify, gaining attack and shield energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
 		pHUD->SetButtonTooltip(0, L"Build Resistor");
 	}
 	else if (GetBuildUnit() == UNIT_TANK)
 	{
-		pHUD->SetButtonTexture(0, "DigitankFactory");
+		pHUD->SetButtonTexture(0, "Digitank");
 		s += L"BUILD DIGITANK\n \n";
 		s += L"Digitanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
 		pHUD->SetButtonTooltip(0, L"Build Digitank");
 	}
 	else
 	{
-		pHUD->SetButtonTexture(0, "ArtilleryFactory");
+		pHUD->SetButtonTexture(0, "Artillery");
 		s += L"BUILD ARTILLERY\n \n";
 		s += L"Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n";
 		pHUD->SetButtonTooltip(0, L"Build Artillery");

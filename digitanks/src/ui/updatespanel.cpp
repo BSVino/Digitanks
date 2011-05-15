@@ -325,21 +325,21 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 
 		case STRUCTURE_INFANTRYLOADER:
-			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ResistorLoader");
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ResistorFactory");
 			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
 			break;
 
 		case STRUCTURE_TANKLOADER:
-			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DigitankLoader");
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DigitankFactory");
 			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
 			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
-			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ArtilleryLoader");
+			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ArtilleryFactory");
 			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
 			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
 			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
@@ -364,14 +364,14 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 		case UPDATETYPE_PRODUCTION:
 			sArea = "CPUPower";
 			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			return;
+			break;
 
 		case UPDATETYPE_BANDWIDTH:
 			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_CPU)
 				sArea = "CPUBandwidth";
 			else
-				sArea = "BufferBandwidth";
+				sArea = "MacroBufferBandwidth";
 			break;
 
 		case UPDATETYPE_FLEETSUPPLY:
@@ -379,17 +379,17 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			if (pInfo->m_eStructure == STRUCTURE_CPU)
 				sArea = "CPUFleet";
 			else
-				sArea = "BufferFleet";
+				sArea = "MacroBufferFleet";
 			break;
 
 		case UPDATETYPE_SUPPORTENERGY:
 			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sArea = "BufferEnergy";
+			sArea = "MacroBufferEnergy";
 			break;
 
 		case UPDATETYPE_SUPPORTRECHARGE:
 			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
-			sArea = "BufferRecharge";
+			sArea = "MacroBufferRecharge";
 			break;
 
 		case UPDATETYPE_TANKATTACK:
@@ -405,9 +405,9 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 		case UPDATETYPE_TANKDEFENSE:
 			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-				sArea = "ResistorAttack";
+				sArea = "ResistorShields";
 			else
-				sArea = "DigitankAttack";
+				sArea = "DigitankShields";
 			break;
 
 		case UPDATETYPE_TANKMOVEMENT:
@@ -423,11 +423,11 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 		case UPDATETYPE_TANKHEALTH:
 			pSheet = &DigitanksWindow()->GetHUD()->GetDownloadSheet();
 			if (pInfo->m_eStructure == STRUCTURE_INFANTRYLOADER)
-				sArea = "ResistorMovement";
+				sArea = "ResistorHealth";
 			else if (pInfo->m_eStructure == STRUCTURE_TANKLOADER)
-				sArea = "DigitankMovement";
+				sArea = "DigitankHealth";
 			else
-				sArea = "ArtilleryMovement";
+				sArea = "ArtilleryHealth";
 			break;
 
 		case UPDATETYPE_TANKRANGE:
@@ -436,6 +436,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 		}
 
+		iSheet = pSheet->GetSheet();
 		Rect rArea = pSheet->GetArea(sArea);
 		sx = rArea.x;
 		sy = rArea.y;
@@ -453,12 +454,12 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 		switch (pInfo->m_eUpdateType)
 		{
 		case UPDATETYPE_SKILL_CLOAK:
-			sArea = "Cloak";
+			sArea = "Stealth";
 			pSheet = &DigitanksWindow()->GetHUD()->GetButtonSheet();
 			break;
 
 		case UPDATETYPE_WEAPON_CHARGERAM:
-			sArea = "ChargeRam";
+			sArea = "ChargingRAM";
 			pSheet = &DigitanksWindow()->GetHUD()->GetWeaponSheet();
 			break;
 
@@ -483,6 +484,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 		}
 
+		iSheet = pSheet->GetSheet();
 		Rect rArea = pSheet->GetArea(sArea);
 		sx = rArea.x;
 		sy = rArea.y;
