@@ -51,6 +51,7 @@ public:
 	bool					m_bActive;
 	bool					m_bObjective;
 	eastl::string			m_sType;
+	eastl::string			m_sFile;
 
 	eastl::vector<CLevelUnitOutput>	m_aOutputs;
 };

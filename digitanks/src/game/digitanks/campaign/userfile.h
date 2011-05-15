@@ -12,6 +12,9 @@ public:
 	virtual void					Spawn();
 
 	virtual EAngle					GetRenderAngles() const;
+	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual bool					ShouldRender() const { return true; }
 
 	virtual bool					IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	void							Pickup(class CDigitank* pTank);
@@ -19,7 +22,11 @@ public:
 
 	virtual eastl::string16			GetEntityName() { return L"Your File"; };
 
+	void							SetFile(const eastl::string& sFile);
+
 protected:
+	size_t							m_iImage;
+	eastl::string16					m_sFilename;
 };
 
 #endif

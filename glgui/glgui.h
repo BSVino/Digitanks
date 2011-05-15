@@ -504,6 +504,7 @@ namespace glgui
 		static float	GetTextWidth(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize);
 		static float	GetFontHeight(const eastl::string16& sFontName, int iFontFaceSize);
 		static void		PaintText(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, float x, float y);
+		static void		PaintText3D(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, Vector vecPosition);
 
 	protected:
 		bool			m_bEnabled;

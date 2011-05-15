@@ -144,6 +144,8 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 			ReadUnitOutput(pChildData, pUnit);
 		else if (pChildData->GetKey() == "Type")
 			pUnit->m_sType = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "File")
+			pUnit->m_sFile = pChildData->GetValueString();
 	}
 }
 

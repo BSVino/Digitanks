@@ -940,6 +940,14 @@ void CLabel::PaintText(const eastl::string16& sText, unsigned iLength, const eas
 	glMatrixMode(GL_MODELVIEW);
 }
 
+void CLabel::PaintText3D(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, Vector vecPosition)
+{
+	if (!GetFont(sFontName, iFontFaceSize))
+		AddFontSize(sFontName, iFontFaceSize);
+
+	s_apFonts[sFontName][iFontFaceSize]->Render(sText.c_str(), iLength, FTPoint(vecPosition.x, vecPosition.y, vecPosition.z));
+}
+
 void CLabel::SetSize(int w, int h)
 {
 	CBaseControl::SetSize(w, h);

@@ -924,7 +924,11 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		else if (pLevelUnit->m_sClassName == "GridBug")
 			pEntity = GameServer()->Create<CGridBug>("CGridBug");
 		else if (pLevelUnit->m_sClassName == "UserFile")
-			pEntity = GameServer()->Create<CUserFile>("CUserFile");
+		{
+			CUserFile* pUserFile = GameServer()->Create<CUserFile>("CUserFile");
+			pUserFile->SetFile(pLevelUnit->m_sFile);
+			pEntity = pUserFile;
+		}
 		else if (pLevelUnit->m_sClassName == "Powerup")
 			pEntity = GameServer()->Create<CPowerup>("CPowerup");
 		else if (pLevelUnit->m_sClassName == "CPU")
