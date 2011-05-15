@@ -173,6 +173,7 @@ CHUD::CHUD()
 	m_iActionTanksSheet = CTextureLibrary::AddTexture(L"textures/hud/actionsigns/tanks.png");
 	m_iPurchasePanel = CTextureLibrary::AddTexture(L"textures/purchasepanel.png");
 	m_iShieldTexture = CTextureLibrary::AddTexture(L"textures/hud/hud-shield.png");
+	m_iSelectorMedalTexture = CTextureLibrary::AddTexture(L"textures/hud/selector-medal.png");
 
 	m_eActionSign = ACTIONSIGN_NONE;
 
@@ -320,6 +321,8 @@ CHUD::CHUD()
 
 	m_flTurnInfoLerp = m_flTurnInfoLerpGoal = 0;
 	m_flTurnInfoHeight = m_flTurnInfoHeightGoal = 0;
+
+	m_flSelectorMedalStart = 0;
 
 	m_iTurnSound = CSoundLibrary::Get()->AddSound(L"sound/turn.wav");
 
@@ -1661,6 +1664,28 @@ void CHUD::Paint(int x, int y, int w, int h)
 		PaintSheet(&m_PowerupsSheet, sArea, iIconX, iIconY, iIconW, iIconH, clrPowerup);
 	}
 
+	if (m_flSelectorMedalStart > 0 && GameServer()->GetGameTime() > m_flSelectorMedalStart)
+	{
+		if (GameServer()->GetGameTime() > m_flSelectorMedalStart + 4)
+			m_flSelectorMedalStart = 0;
+
+		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart, m_flSelectorMedalStart+0.5f, 0, 1);
+		if (GameServer()->GetGameTime() - m_flSelectorMedalStart > 3.0)
+			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+2, m_flSelectorMedalStart+4, 1, 0);
+
+		Color clrMedal = Color(255, 255, 255, (int)(255*flAlpha));
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		glgui::CBaseControl::PaintTexture(m_iSelectorMedalTexture, w/2-128, h/2-128, 256, 256, clrMedal);
+
+		c.SetColor(clrMedal);
+
+		eastl::string16 sMedal = L"YOU RECEIVED A MEDAL";
+		float flMedalWidth = glgui::CLabel::GetTextWidth(sMedal, sMedal.length(), L"header", 18);
+		glgui::CLabel::PaintText(sMedal, sMedal.length(), L"header", 18, w/2-flMedalWidth/2, h/2 + (float)120);
+	}
+
 //	while (true)
 //	{
 //		CRenderingContext c(GameServer()->GetRenderer());
@@ -2879,6 +2904,13 @@ void CHUD::ShowActionItem(size_t iActionItem)
 void CHUD::OnAddNewActionItem()
 {
 	m_bAllActionItemsHandled = false;
+}
+
+void CHUD::ShowTankSelectionMedal()
+{
+	m_flSelectorMedalStart = GameServer()->GetGameTime();
+
+	CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");
 }
 
 void CHUD::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)

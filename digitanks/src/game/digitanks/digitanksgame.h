@@ -116,6 +116,8 @@ public:
 	DECLARE_ENTITY_INPUT(PlayerVictory);
 	DECLARE_ENTITY_INPUT(PlayerLoss);
 
+	DECLARE_ENTITY_INPUT(TankSelectionMedal);
+
 	virtual void			OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
 	virtual void			OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
 

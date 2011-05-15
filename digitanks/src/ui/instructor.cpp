@@ -210,23 +210,8 @@ void CInstructor::Initialize()
 void CInstructor::ReadLesson(const class CData* pData)
 {
 	eastl::string sLessonName = pData->GetValueString();
-	int iPosition = POSITION_TOPCENTER;
-	int iWidth = 200;
-	eastl::string sNext;
-	eastl::string sText;
-	eastl::string sButton1Action;
-	eastl::string sButton1Text;
-	eastl::string sButton2Action;
-	eastl::string sButton2Text;
-	disable_t eEnable = DISABLE_NOTHING;
-	disable_t eDisable = DISABLE_NOTHING;
-	Vector2D vecTarget = Vector2D(0,0);		// Origin means do not use
-	EAngle angTarget = EAngle(-1,-1,-1);	// Negative values means do not use
-	float flDistance = 0;
-	eastl::string sEmotion;
-	bool bLeaveMouthOpen = false;
-	int iHintButton = -1;
-	bool bMousePrompt = true;
+	CTutorial* pTutorial = new CTutorial(this, sLessonName);
+	m_apTutorials[sLessonName] = pTutorial;
 
 	for (size_t i = 0; i < pData->GetNumChildren(); i++)
 	{
@@ -236,32 +221,32 @@ void CInstructor::ReadLesson(const class CData* pData)
 		{
 			eastl::string sPosition = pChildData->GetValueString();
 			if (sPosition == "top-center")
-				iPosition = POSITION_TOPCENTER;
+				pTutorial->m_iPosition = POSITION_TOPCENTER;
 			else if (sPosition == "top-left")
-				iPosition = POSITION_TOPLEFT;
+				pTutorial->m_iPosition = POSITION_TOPLEFT;
 			else if (sPosition == "scene-tree")
-				iPosition = POSITION_SCENETREE;
+				pTutorial->m_iPosition = POSITION_SCENETREE;
 			else if (sPosition == "buttons")
-				iPosition = POSITION_BUTTONS;
+				pTutorial->m_iPosition = POSITION_BUTTONS;
 		}
 		else if (pChildData->GetKey() == "Width")
-			iWidth = pChildData->GetValueInt();
+			pTutorial->m_iWidth = pChildData->GetValueInt();
 		else if (pChildData->GetKey() == "Next")
-			sNext = pChildData->GetValueString();
+			pTutorial->m_sNextTutorial = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Text")
-			sText = pChildData->GetValueString();
+			pTutorial->m_sText = convertstring<char, char16_t>(pChildData->GetValueString());
 		else if (pChildData->GetKey() == "Button1")
-			sButton1Action = pChildData->GetValueString();
+			pTutorial->m_sButton1Action = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Button1Text")
-			sButton1Text = pChildData->GetValueString();
+			pTutorial->m_sButton1Text = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Button2")
-			sButton2Action = pChildData->GetValueString();
+			pTutorial->m_sButton2Action = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Button2Text")
-			sButton2Text = pChildData->GetValueString();
+			pTutorial->m_sButton2Text = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Enable")
 		{
 			eastl::string sEnable = pChildData->GetValueString();
-			int iEnable = eEnable;
+			int iEnable = pTutorial->m_eEnable;
 			if (sEnable == "view-move")
 				iEnable |= DISABLE_VIEW_MOVE;
 			else if (sEnable == "view-rotate")
@@ -274,12 +259,12 @@ void CInstructor::ReadLesson(const class CData* pData)
 				iEnable |= DISABLE_PSU;
 			else if (sEnable == "loaders")
 				iEnable |= DISABLE_LOADERS;
-			eEnable = (disable_t)iEnable;
+			pTutorial->m_eEnable = (disable_t)iEnable;
 		}
 		else if (pChildData->GetKey() == "Disable")
 		{
 			eastl::string sDisable = pChildData->GetValueString();
-			int iDisable = eDisable;
+			int iDisable = pTutorial->m_eDisable;
 			if (sDisable == "view-move")
 				iDisable |= DISABLE_VIEW_MOVE;
 			else if (sDisable == "view-rotate")
@@ -292,43 +277,48 @@ void CInstructor::ReadLesson(const class CData* pData)
 				iDisable |= DISABLE_PSU;
 			else if (sDisable == "loaders")
 				iDisable |= DISABLE_LOADERS;
-			eDisable = (disable_t)iDisable;
+			pTutorial->m_eDisable = (disable_t)iDisable;
 		}
 		else if (pChildData->GetKey() == "SetViewTarget")
-			vecTarget = pChildData->GetValueVector2D();
+			pTutorial->m_vecSetViewTarget = pChildData->GetValueVector2D();
 		else if (pChildData->GetKey() == "SetViewAngle")
-			angTarget = pChildData->GetValueEAngle();
+			pTutorial->m_angSetViewAngle = pChildData->GetValueEAngle();
 		else if (pChildData->GetKey() == "SetViewDistance")
-			flDistance = pChildData->GetValueFloat();
+			pTutorial->m_flSetViewDistance = pChildData->GetValueFloat();
 		else if (pChildData->GetKey() == "HelperEmotion")
-			sEmotion = pChildData->GetValueString();
+			pTutorial->m_sHelperEmotion = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "LeaveMouthOpen")
-			bLeaveMouthOpen = pChildData->GetValueBool();
+			pTutorial->m_bLeaveMouthOpen = pChildData->GetValueBool();
 		else if (pChildData->GetKey() == "HintButton")
 		{
-			if (iHintButton >= 10)
-				iHintButton = -1;
+			pTutorial->m_iHintButton = pChildData->GetValueInt();
 
-			iHintButton = pChildData->GetValueInt();
+			if (pTutorial->m_iHintButton >= 10)
+				pTutorial->m_iHintButton = -1;
 		}
 		else if (pChildData->GetKey() == "NoMousePrompt")
-			bMousePrompt = false;
+			pTutorial->m_bMousePrompt = false;
+		else if (pChildData->GetKey() == "Output")
+			ReadLessonOutput(pChildData, pTutorial);
 	}
+}
 
-	m_apTutorials[sLessonName] = new CTutorial(this, sLessonName, sNext, iPosition, iWidth, !!sNext.length(), convertstring<char, char16_t>(sText));
-	m_apTutorials[sLessonName]->m_sButton1Text = sButton1Text;
-	m_apTutorials[sLessonName]->m_sButton1Action = sButton1Action;
-	m_apTutorials[sLessonName]->m_sButton2Text = sButton2Text;
-	m_apTutorials[sLessonName]->m_sButton2Action = sButton2Action;
-	m_apTutorials[sLessonName]->m_eDisable = eDisable;
-	m_apTutorials[sLessonName]->m_eEnable = eEnable;
-	m_apTutorials[sLessonName]->m_vecSetViewTarget = vecTarget;
-	m_apTutorials[sLessonName]->m_angSetViewAngle = angTarget;
-	m_apTutorials[sLessonName]->m_flSetViewDistance = flDistance;
-	m_apTutorials[sLessonName]->m_sHelperEmotion = sEmotion;
-	m_apTutorials[sLessonName]->m_bLeaveMouthOpen = bLeaveMouthOpen;
-	m_apTutorials[sLessonName]->m_iHintButton = iHintButton;
-	m_apTutorials[sLessonName]->m_bMousePrompt = bMousePrompt;
+void CInstructor::ReadLessonOutput(const CData* pData, CTutorial* pLesson)
+{
+	CLessonOutput* pOutput = &pLesson->m_aOutputs.push_back();
+	pOutput->m_sOutput = pData->GetValueString();
+
+	for (size_t i = 0; i < pData->GetNumChildren(); i++)
+	{
+		CData* pChildData = pData->GetChild(i);
+
+		if (pChildData->GetKey() == "Target")
+			pOutput->m_sTarget = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Input")
+			pOutput->m_sInput = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Args")
+			pOutput->m_sArgs = pChildData->GetValueString();
+	}
 }
 
 void CInstructor::SetActive(bool bActive)
@@ -349,10 +339,11 @@ void CInstructor::DisplayFirstTutorial(eastl::string sTutorial)
 
 void CInstructor::NextTutorial()
 {
-	if (!GetCurrentTutorial())
+	CTutorial* pTutorial = GetCurrentTutorial();
+	if (!pTutorial)
 		return;
 
-	DisplayTutorial(GetCurrentTutorial()->m_sNextTutorial);
+	DisplayTutorial(pTutorial->m_sNextTutorial);
 }
 
 CVar tutorial_enable("tutorial_enable", "1");
@@ -367,7 +358,8 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 
 	if (m_apTutorials.find(sTutorial) == m_apTutorials.end())
 	{
-		SetActive(false);
+		if (m_apTutorials[m_sCurrentTutorial] && m_apTutorials[m_sCurrentTutorial]->m_bKillOnFinish)
+			SetActive(false);
 		return;
 	}
 
@@ -403,6 +395,43 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 
 	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[sTutorial]);
 	glgui::CRootPanel::Get()->AddControl(m_pCurrentPanel, true);
+
+	for (size_t i = 0; i < m_apTutorials[sTutorial]->m_aOutputs.size(); i++)
+	{
+		CLessonOutput* pOutput = &m_apTutorials[sTutorial]->m_aOutputs[i];
+		if (pOutput->m_sOutput == "OnDisplay")
+		{
+			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+			{
+				CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+				if (!pEntity)
+					continue;
+
+				if (pEntity->IsDeleted())
+					continue;
+
+				if (pOutput->m_sTarget.length() == 0)
+					continue;
+
+				if (pOutput->m_sTarget.length() == 0)
+					continue;
+
+				if (pOutput->m_sTarget[0] == '*')
+				{
+					if (eastl::string(pEntity->GetClassName()) != pOutput->m_sTarget.c_str()+1)
+						continue;
+				}
+				else
+				{
+					if (pEntity->GetName() != pOutput->m_sTarget)
+						continue;
+				}
+
+				pEntity->CallInput(pOutput->m_sInput, convertstring<char, char16_t>(pOutput->m_sArgs));
+			}
+		}
+	}
 }
 
 void CInstructor::ShowTutorial()
@@ -461,20 +490,45 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::s
 {
 	m_pInstructor = pInstructor;
 	m_sTutorialName = sTutorial;
-	m_sNextTutorial = sNextTutorial;
+	m_sText = sText;
 	m_iPosition = iPosition;
 	m_iWidth = iWidth;
 	m_bAutoNext = bAutoNext;
-	m_sText = sText;
 	m_bKillOnFinish = false;
 	m_flSlideAmount = 0;
 	m_bSlideX = true;
 	m_eDisable = DISABLE_NOTHING;
 	m_eEnable = DISABLE_NOTHING;
 
-	m_vecSetViewTarget = Vector2D(0, 0);
-	m_angSetViewAngle = EAngle(-1, -1, -1);
+	m_vecSetViewTarget = Vector2D(0, 0);	// Origin means do not use
+	m_angSetViewAngle = EAngle(-1,-1,-1);	// Negative values means do not use
 	m_flSetViewDistance = 0;
+
+	m_bLeaveMouthOpen = false;
+	m_iHintButton = -1;
+	m_bMousePrompt = true;
+}
+
+CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial)
+{
+	m_pInstructor = pInstructor;
+	m_sTutorialName = sTutorial;
+	m_iPosition = CInstructor::POSITION_TOPCENTER;
+	m_iWidth = 200;
+	m_bAutoNext = true;
+	m_bKillOnFinish = false;
+	m_flSlideAmount = 0;
+	m_bSlideX = true;
+	m_eDisable = DISABLE_NOTHING;
+	m_eEnable = DISABLE_NOTHING;
+
+	m_vecSetViewTarget = Vector2D(0, 0);	// Origin means do not use
+	m_angSetViewAngle = EAngle(-1,-1,-1);	// Negative values means do not use
+	m_flSetViewDistance = 0;
+
+	m_bLeaveMouthOpen = false;
+	m_iHintButton = -1;
+	m_bMousePrompt = true;
 }
 
 CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)

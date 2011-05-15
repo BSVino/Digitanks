@@ -17,10 +17,24 @@ typedef enum
 	DISABLE_LOADERS		= (1<<5),
 } disable_t;
 
+class CLessonOutput
+{
+public:
+	CLessonOutput()
+	{
+	};
+
+	eastl::string			m_sOutput;
+	eastl::string			m_sTarget;
+	eastl::string			m_sInput;
+	eastl::string			m_sArgs;
+};
+
 class CTutorial
 {
 public:
 									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText);
+									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial);
 
 public:
 	class CInstructor*				m_pInstructor;
@@ -51,6 +65,8 @@ public:
 	float							m_flSetViewDistance;
 
 	eastl::string					m_sHelperEmotion;
+
+	eastl::vector<CLessonOutput>	m_aOutputs;
 };
 
 class CTutorialPanel : public glgui::CPanel, public glgui::IEventListener
@@ -91,6 +107,7 @@ public:
 	void							Initialize();
 
 	void							ReadLesson(const class CData* pData);
+	void							ReadLessonOutput(const class CData* pData, CTutorial* pLesson);
 
 	void							SetActive(bool bActive);
 	bool							GetActive() { return m_bActive; };

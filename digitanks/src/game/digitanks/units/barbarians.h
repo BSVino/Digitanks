@@ -44,7 +44,7 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 
-	virtual eastl::string16		GetName() { return L"Grid Bug"; };
+	virtual eastl::string16		GetEntityName() { return L"Grid Bug"; };
 
 	virtual float				BaseVisibleRange() const { return 60.0f; };
 	virtual float				TotalHealth() const { return 40; };

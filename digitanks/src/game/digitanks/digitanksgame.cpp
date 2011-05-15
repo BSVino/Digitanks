@@ -115,6 +115,7 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CDigitanksGame);
 	INPUT_DEFINE(PlayerVictory);
 	INPUT_DEFINE(PlayerLoss);
+	INPUT_DEFINE(TankSelectionMedal);
 INPUTS_TABLE_END();
 
 void CDigitanksGame::Precache()
@@ -2141,6 +2142,11 @@ void CDigitanksGame::PlayerLoss(const eastl::vector<eastl::string16>& sArgs)
 	}
 
 	GameOver();
+}
+
+void CDigitanksGame::TankSelectionMedal(const eastl::vector<eastl::string16>& sArgs)
+{
+	DigitanksWindow()->GetHUD()->ShowTankSelectionMedal();
 }
 
 void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)

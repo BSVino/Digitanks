@@ -223,6 +223,8 @@ public:
 	void						ShowActionItem(size_t iActionItem);
 	void						OnAddNewActionItem();
 
+	void						ShowTankSelectionMedal();
+
 	virtual void				OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 	virtual void				OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
@@ -347,6 +349,9 @@ protected:
 	float						m_flSmallActionItemLerpGoal;
 	size_t						m_iCurrentSmallActionItem;
 	eastl::string16				m_sSmallActionItem;
+
+	float						m_flSelectorMedalStart;
+	size_t						m_iSelectorMedalTexture;
 
 	eastl::vector<eastl::map<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
 
