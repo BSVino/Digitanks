@@ -5,6 +5,15 @@
 #include <EASTL/string.h>
 #include <geometry.h>
 
+class CTextureArea
+{
+public:
+	Rect					m_rRect;
+	size_t					m_iSheet;
+	size_t					m_iSheetWidth;
+	size_t					m_iSheetHeight;
+};
+
 class CTextureSheet
 {
 public:
@@ -13,15 +22,15 @@ public:
 
 public:
 	const Rect&				GetArea(const eastl::string& sArea) const;
-	size_t					GetSheet() const { return m_iSheet; };
-	size_t					GetSheetWidth() const { return m_iSheetWidth; };
-	size_t					GetSheetHeight() const { return m_iSheetHeight; };
+	size_t					GetSheet(const eastl::string& sArea) const;
+	size_t					GetSheetWidth(const eastl::string& sArea) const;
+	size_t					GetSheetHeight(const eastl::string& sArea) const;
 
 protected:
-	eastl::map<eastl::string, Rect>	m_aAreas;
-	size_t					m_iSheet;
-	size_t					m_iSheetWidth;
-	size_t					m_iSheetHeight;
+	eastl::map<eastl::string, CTextureArea>	m_aAreas;
+	size_t					m_iDefaultSheet;
+	size_t					m_iDefaultSheetWidth;
+	size_t					m_iDefaultSheetHeight;
 };
 
 #endif

@@ -13,7 +13,7 @@
 
 inline void SetButtonSheetTexture(class glgui::CPictureButton* pButton, CTextureSheet* pSheet, const eastl::string& sArea)
 {
-	pButton->SetSheetTexture(pSheet->GetSheet(), pSheet->GetArea(sArea), pSheet->GetSheetWidth(), pSheet->GetSheetHeight());
+	pButton->SetSheetTexture(pSheet->GetSheet(sArea), pSheet->GetArea(sArea), pSheet->GetSheetWidth(sArea), pSheet->GetSheetHeight(sArea));
 }
 
 typedef enum
@@ -177,9 +177,9 @@ public:
 	static void					PaintSheet(const CTextureSheet* pSheet, const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static void					PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetHUDSheet();
-	static void					GetUnitSheet(unittype_t eUnit, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	static void					GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
-	static void					GetWeaponSheet(weapon_t eWeapon, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
+	static void					GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintWeaponSheet(weapon_t eWeapon, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetWeaponSheet();
 	static const CTextureSheet&	GetButtonSheet();

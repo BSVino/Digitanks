@@ -629,7 +629,7 @@ void CSupplier::Precache()
 {
 	BaseClass::Precache();
 
-	s_iTendrilBeam = CTextureLibrary::AddTexture(L"textures/tendril.png");
+	s_iTendrilBeam = CTextureLibrary::AddTextureID(L"textures/tendril.png");
 }
 
 void CSupplier::Spawn()

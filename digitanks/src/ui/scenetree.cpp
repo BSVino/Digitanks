@@ -11,7 +11,7 @@
 #include "instructor.h"
 
 CSceneTree::CSceneTree()
-	: CTree(CTextureLibrary::AddTexture(L"textures/hud/arrow.png"), 0, 0)
+	: CTree(CTextureLibrary::AddTextureID(L"textures/hud/arrow.png"), 0, 0)
 {
 }
 
@@ -348,26 +348,30 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 		size_t iX = x+h+h+h+4;
 
-		size_t iSheetWidth = CHUD::GetButtonSheet().GetSheetWidth();
-		size_t iSheetHeight = CHUD::GetButtonSheet().GetSheetHeight();
 		if (pTank->IsFortified() || pTank->IsFortifying())
 		{
+			size_t iSheetWidth = CHUD::GetButtonSheet().GetSheetWidth("Fortify");
+			size_t iSheetHeight = CHUD::GetButtonSheet().GetSheetHeight("Fortify");
 			const Rect& rArea = CHUD::GetButtonSheet().GetArea("Fortify");
-			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet(), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet("Fortify"), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
 			iX += h;
 		}
 
 		if (pTank->IsSentried())
 		{
+			size_t iSheetWidth = CHUD::GetButtonSheet().GetSheetWidth("Sentry");
+			size_t iSheetHeight = CHUD::GetButtonSheet().GetSheetHeight("Sentry");
 			const Rect& rArea = CHUD::GetButtonSheet().GetArea("Sentry");
-			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet(), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet("Sentry"), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
 			iX += h;
 		}
 
 		if (pTank->HasGoalMovePosition())
 		{
+			size_t iSheetWidth = CHUD::GetButtonSheet().GetSheetWidth("Move");
+			size_t iSheetHeight = CHUD::GetButtonSheet().GetSheetHeight("Move");
 			const Rect& rArea = CHUD::GetButtonSheet().GetArea("Move");
-			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet(), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
+			glgui::CRootPanel::PaintSheet(CHUD::GetButtonSheet().GetSheet("Move"), iX, y+4, iSize, iSize, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
 			iX += h;
 		}
 	}

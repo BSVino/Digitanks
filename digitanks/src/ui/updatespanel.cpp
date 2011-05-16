@@ -279,19 +279,16 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
 {
-	int iDownloadWidth = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-	int iDownloadHeight = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
-
 	if (!pInfo)
 	{
-		iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
+		iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("DownloadButton");
 		Rect rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DownloadButton");
 		sx = rArea.x;
 		sy = rArea.y;
 		sw = rArea.w;
 		sh = rArea.h;
-		tw = iDownloadWidth;
-		th = iDownloadHeight;
+		tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("DownloadButton");
+		th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("DownloadButton");
 		return;
 	}
 
@@ -305,44 +302,44 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 		{
 		case STRUCTURE_CPU:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("CPU");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
-			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("CPU");
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("CPU");
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("CPU");
 			break;
 
 		case STRUCTURE_BUFFER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("MacroBuffer");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
-			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("MacroBuffer");
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("MacroBuffer");
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("MacroBuffer");
 			break;
 
 		case STRUCTURE_PSU:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("PSU");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
-			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("PSU");
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("PSU");
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("PSU");
 			break;
 
 		case STRUCTURE_INFANTRYLOADER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ResistorFactory");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
-			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("ResistorFactory");
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("ResistorFactory");
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("ResistorFactory");
 			break;
 
 		case STRUCTURE_TANKLOADER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("DigitankFactory");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
-			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("DigitankFactory");
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("DigitankFactory");
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("DigitankFactory");
 			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
 			rArea = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetArea("ArtilleryFactory");
-			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet();
-			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth();
-			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight();
+			iSheet = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheet("ArtilleryFactory");
+			tw = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetWidth("ArtilleryFactory");
+			th = DigitanksWindow()->GetHUD()->GetDownloadSheet().GetSheetHeight("ArtilleryFactory");
 			break;
 
 		default:
@@ -436,14 +433,14 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 		}
 
-		iSheet = pSheet->GetSheet();
+		iSheet = pSheet->GetSheet(sArea);
 		Rect rArea = pSheet->GetArea(sArea);
 		sx = rArea.x;
 		sy = rArea.y;
 		sw = rArea.w;
 		sh = rArea.h;
-		tw = pSheet->GetSheetWidth();
-		th = pSheet->GetSheetHeight();
+		tw = pSheet->GetSheetWidth(sArea);
+		th = pSheet->GetSheetHeight(sArea);
 		return;
 	}
 	else if (pInfo->m_eUpdateClass == UPDATECLASS_UNITSKILL)
@@ -484,14 +481,14 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 			break;
 		}
 
-		iSheet = pSheet->GetSheet();
+		iSheet = pSheet->GetSheet(sArea);
 		Rect rArea = pSheet->GetArea(sArea);
 		sx = rArea.x;
 		sy = rArea.y;
 		sw = rArea.w;
 		sh = rArea.h;
-		tw = pSheet->GetSheetWidth();
-		th = pSheet->GetSheetHeight();
+		tw = pSheet->GetSheetWidth(sArea);
+		th = pSheet->GetSheetHeight(sArea);
 		return;
 	}
 

@@ -118,9 +118,9 @@ void CDigitanksWindow::OpenWindow()
 
 	ilInit();
 
-	m_iCursors = CTextureLibrary::AddTexture(L"textures/cursors.png");
-	m_iLoading = CTextureLibrary::AddTexture(L"textures/loading.png");
-	m_iLunarWorkshop = CTextureLibrary::AddTexture(L"textures/lunar-workshop.png");
+	m_iCursors = CTextureLibrary::AddTextureID(L"textures/cursors.png");
+	m_iLoading = CTextureLibrary::AddTextureID(L"textures/loading.png");
+	m_iLunarWorkshop = CTextureLibrary::AddTextureID(L"textures/lunar-workshop.png");
 
 	RenderLoading();
 

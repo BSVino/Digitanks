@@ -12,33 +12,79 @@ CTextureLibrary::CTextureLibrary()
 
 CTextureLibrary::~CTextureLibrary()
 {
-	for (eastl::map<eastl::string16, size_t>::iterator it = m_aiTextures.begin(); it != m_aiTextures.end(); it++)
-		CRenderer::UnloadTextureFromGL(it->second);
+	for (eastl::map<eastl::string16, CTexture>::iterator it = m_aTextures.begin(); it != m_aTextures.end(); it++)
+		CRenderer::UnloadTextureFromGL(it->second.m_iGLID);
 
 	s_pTextureLibrary = NULL;
 }
 
-size_t CTextureLibrary::AddTexture(const eastl::string16& sTexture, int iClamp)
+const CTexture* CTextureLibrary::AddTexture(const eastl::string16& sTexture, int iClamp)
 {
 	if (!sTexture.length())
-		return 0;
+		return NULL;
 
-	size_t iTexture = FindTexture(sTexture);
-	if (iTexture != ~0)
-		return iTexture;
+	const CTexture* pTexture = FindTexture(sTexture);
+	if (pTexture != NULL)
+		return pTexture;
 
-	iTexture = CRenderer::LoadTextureIntoGL(sTexture, iClamp);
+	size_t iILID = CRenderer::LoadTextureData(sTexture);
+	if (iILID == 0)
+		return NULL;
 
-	Get()->m_aiTextures[sTexture] = iTexture;
+	CTexture oTex;
+	
+	oTex.m_iGLID = CRenderer::LoadTextureIntoGL(iILID, iClamp);
+	oTex.m_iWidth = CRenderer::GetTextureWidth(iILID);
+	oTex.m_iHeight = CRenderer::GetTextureHeight(iILID);
+	CRenderer::UnloadTextureData(iILID);
 
-	return iTexture;
+	Get()->m_aTextures[sTexture] = oTex;
+
+	return &Get()->m_aTextures[sTexture];
 }
 
-size_t CTextureLibrary::FindTexture(const eastl::string16& sTexture)
+size_t CTextureLibrary::AddTextureID(const eastl::string16& sTexture, int iClamp)
 {
-	eastl::map<eastl::string16, size_t>::iterator it = Get()->m_aiTextures.find(sTexture);
-	if (it == Get()->m_aiTextures.end())
+	const CTexture* pTex = AddTexture(sTexture, iClamp);
+
+	if (!pTex)
+		return 0;
+
+	return pTex->m_iGLID;
+}
+
+const CTexture* CTextureLibrary::FindTexture(const eastl::string16& sTexture)
+{
+	eastl::map<eastl::string16, CTexture>::iterator it = Get()->m_aTextures.find(sTexture);
+	if (it == Get()->m_aTextures.end())
+		return NULL;
+
+	return &it->second;
+}
+
+size_t CTextureLibrary::GetTextureGLID(const eastl::string16& sTexture)
+{
+	eastl::map<eastl::string16, CTexture>::iterator it = Get()->m_aTextures.find(sTexture);
+	if (it == Get()->m_aTextures.end())
 		return ~0;
 
-	return it->second;
+	return it->second.m_iGLID;
+}
+
+size_t CTextureLibrary::GetTextureWidth(const eastl::string16& sTexture)
+{
+	eastl::map<eastl::string16, CTexture>::iterator it = Get()->m_aTextures.find(sTexture);
+	if (it == Get()->m_aTextures.end())
+		return 0;
+
+	return it->second.m_iWidth;
+}
+
+size_t CTextureLibrary::GetTextureHeight(const eastl::string16& sTexture)
+{
+	eastl::map<eastl::string16, CTexture>::iterator it = Get()->m_aTextures.find(sTexture);
+	if (it == Get()->m_aTextures.end())
+		return 0;
+
+	return it->second.m_iHeight;
 }

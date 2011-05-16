@@ -190,10 +190,11 @@ void CWeaponPanel::SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon)
 	int iTextureWidth = 512;
 	int iTextureHeight = 256;
 
+	size_t iSheet;
 	int sx, sy, sw, sh, tw, th;
-	CHUD::GetWeaponSheet(eWeapon, sx, sy, sw, sh, tw, th);
+	CHUD::GetWeaponSheet(eWeapon, iSheet, sx, sy, sw, sh, tw, th);
 
-	pWeapon->SetSheetTexture(CHUD::GetWeaponSheet().GetSheet(), sx, sy, sw, sh, tw, th);
+	pWeapon->SetSheetTexture(iSheet, sx, sy, sw, sh, tw, th);
 }
 
 CWeaponButton::CWeaponButton(CWeaponPanel* pPanel)

@@ -659,12 +659,15 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 	if (m_pTutorial->m_sHelperEmotion.length())
 	{
+		int iHelperWidth = 150;
+		int iHelperHeight = 300;
+
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - 108, y + h/2 - 256/2, 128, 256);
+		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight);
 
 		if (bScrolling && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || !bScrolling && m_pTutorial->m_bLeaveMouthOpen)
-			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - 108, y + h/2 - 256/2, 128, 256);
+			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight);
 	}
 
 	if (m_pTutorial->m_iHintButton >= 0)

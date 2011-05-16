@@ -83,5 +83,5 @@ CModel::~CModel()
 
 size_t CModel::LoadTextureIntoGL(size_t iMaterial)
 {
-	return CTextureLibrary::AddTexture(m_pScene->GetMaterial(iMaterial)->GetDiffuseTexture());
+	return CTextureLibrary::AddTextureID(m_pScene->GetMaterial(iMaterial)->GetDiffuseTexture());
 }

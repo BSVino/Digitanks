@@ -30,14 +30,14 @@ CDigitanksRenderer::CDigitanksRenderer()
 	if (DigitanksWindow()->HasCommandLineSwitch("--no-shaders"))
 		m_bUseShaders = false;
 
-	m_iVignetting = CTextureLibrary::AddTexture(L"textures/vignetting.png");
+	m_iVignetting = CTextureLibrary::AddTextureID(L"textures/vignetting.png");
 
-	m_iSkyboxFT = CTextureLibrary::AddTexture(L"textures/skybox/standard-ft.png", 2);
-	m_iSkyboxLF = CTextureLibrary::AddTexture(L"textures/skybox/standard-lf.png", 2);
-	m_iSkyboxBK = CTextureLibrary::AddTexture(L"textures/skybox/standard-bk.png", 2);
-	m_iSkyboxRT = CTextureLibrary::AddTexture(L"textures/skybox/standard-rt.png", 2);
-	m_iSkyboxDN = CTextureLibrary::AddTexture(L"textures/skybox/standard-dn.png", 2);
-	m_iSkyboxUP = CTextureLibrary::AddTexture(L"textures/skybox/standard-up.png", 2);
+	m_iSkyboxFT = CTextureLibrary::AddTextureID(L"textures/skybox/standard-ft.png", 2);
+	m_iSkyboxLF = CTextureLibrary::AddTextureID(L"textures/skybox/standard-lf.png", 2);
+	m_iSkyboxBK = CTextureLibrary::AddTextureID(L"textures/skybox/standard-bk.png", 2);
+	m_iSkyboxRT = CTextureLibrary::AddTextureID(L"textures/skybox/standard-rt.png", 2);
+	m_iSkyboxDN = CTextureLibrary::AddTextureID(L"textures/skybox/standard-dn.png", 2);
+	m_iSkyboxUP = CTextureLibrary::AddTextureID(L"textures/skybox/standard-up.png", 2);
 
 	m_iRing1 = CModelLibrary::Get()->AddModel(L"models/skybox/ring1.obj", true);
 	m_iRing2 = CModelLibrary::Get()->AddModel(L"models/skybox/ring2.obj", true);

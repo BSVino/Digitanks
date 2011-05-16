@@ -21,12 +21,11 @@ CTextureSheet::CTextureSheet(eastl::string16 sFile)
 		CData* pChild = pFile->GetChild(i);
 		if (pChild->GetKey() == "Texture")
 		{
-			m_iSheet = CTextureLibrary::AddTexture(convertstring<char, char16_t>(pChild->GetValueString()));
-
-			size_t iTextureData = CRenderer::LoadTextureData(convertstring<char, char16_t>(pChild->GetValueString()));
-			m_iSheetWidth = CRenderer::GetTextureWidth(iTextureData);
-			m_iSheetHeight = CRenderer::GetTextureHeight(iTextureData);
-			CRenderer::UnloadTextureData(iTextureData);
+			eastl::string16 sTexture = convertstring<char, char16_t>(pChild->GetValueString());
+			const CTexture* pTex = CTextureLibrary::AddTexture(sTexture);
+			m_iDefaultSheet = pTex->m_iGLID;
+			m_iDefaultSheetWidth = pTex->m_iWidth;
+			m_iDefaultSheetHeight = pTex->m_iHeight;
 		}
 		else if (pChild->GetKey() == "Area")
 		{
@@ -51,7 +50,18 @@ CTextureSheet::CTextureSheet(eastl::string16 sFile)
 			if (pData)
 				h = pData->GetValueInt();
 
-			m_aAreas[pChild->GetValueString()] = Rect(x, y, w, h);
+			m_aAreas[pChild->GetValueString()].m_rRect = Rect(x, y, w, h);
+
+			m_aAreas[pChild->GetValueString()].m_iSheet = ~0;
+			pData = pChild->FindChild("Texture");
+			if (pData)
+			{
+				eastl::string16 sTexture = convertstring<char, char16_t>(pData->GetValueString());
+				const CTexture* pTex = CTextureLibrary::AddTexture(sTexture);
+				m_aAreas[pChild->GetValueString()].m_iSheet = pTex->m_iGLID;
+				m_aAreas[pChild->GetValueString()].m_iSheetWidth = pTex->m_iWidth;
+				m_aAreas[pChild->GetValueString()].m_iSheetHeight = pTex->m_iHeight;
+			}
 		}
 	}
 
@@ -64,7 +74,7 @@ CTextureSheet::~CTextureSheet()
 
 const Rect& CTextureSheet::GetArea(const eastl::string& sArea) const
 {
-	eastl::map<eastl::string, Rect>::const_iterator it = m_aAreas.find(sArea);
+	eastl::map<eastl::string, CTextureArea>::const_iterator it = m_aAreas.find(sArea);
 
 	if (it == m_aAreas.end())
 	{
@@ -72,5 +82,47 @@ const Rect& CTextureSheet::GetArea(const eastl::string& sArea) const
 		return empty;
 	}
 
-	return it->second;
+	return it->second.m_rRect;
+}
+
+size_t CTextureSheet::GetSheet(const eastl::string& sArea) const
+{
+	eastl::map<eastl::string, CTextureArea>::const_iterator it = m_aAreas.find(sArea);
+
+	if (it == m_aAreas.end())
+		return 0;
+
+	size_t iSheet = it->second.m_iSheet;
+	if (iSheet == ~0)
+		return m_iDefaultSheet;
+
+	return iSheet;
+}
+
+size_t CTextureSheet::GetSheetWidth(const eastl::string& sArea) const
+{
+	eastl::map<eastl::string, CTextureArea>::const_iterator it = m_aAreas.find(sArea);
+
+	if (it == m_aAreas.end())
+		return 0;
+
+	size_t iSheet = it->second.m_iSheet;
+	if (iSheet == ~0)
+		return m_iDefaultSheetWidth;
+
+	return it->second.m_iSheetWidth;
+}
+
+size_t CTextureSheet::GetSheetHeight(const eastl::string& sArea) const
+{
+	eastl::map<eastl::string, CTextureArea>::const_iterator it = m_aAreas.find(sArea);
+
+	if (it == m_aAreas.end())
+		return 0;
+
+	size_t iSheet = it->second.m_iSheet;
+	if (iSheet == ~0)
+		return m_iDefaultSheetHeight;
+
+	return it->second.m_iSheetHeight;
 }

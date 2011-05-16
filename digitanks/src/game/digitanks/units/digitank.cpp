@@ -227,9 +227,9 @@ void CDigitank::Precache()
 	PrecacheSound(L"sound/tank-aim.wav");
 	PrecacheSound(L"sound/tank-promoted.wav");
 
-	s_iAimBeam = CTextureLibrary::AddTexture(L"textures/beam-pulse.png");
-	s_iAutoMove = CTextureLibrary::AddTexture(L"textures/auto-move.png");
-	s_iSupportGlow = CTextureLibrary::AddTexture(L"textures/particles/support.png");
+	s_iAimBeam = CTextureLibrary::AddTextureID(L"textures/beam-pulse.png");
+	s_iAutoMove = CTextureLibrary::AddTextureID(L"textures/auto-move.png");
+	s_iSupportGlow = CTextureLibrary::AddTextureID(L"textures/particles/support.png");
 
 	SetupSpeechLines();
 }
@@ -3209,8 +3209,8 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 
 		const Rect& rArea = CHUD::GetButtonSheet().GetArea("Fortify");
-		glgui::CBaseControl::PaintSheet(CHUD::GetButtonSheet().GetSheet(), (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight,
-			rArea.x, rArea.y, rArea.w, rArea.h, CHUD::GetButtonSheet().GetSheetWidth(), CHUD::GetButtonSheet().GetSheetHeight());
+		glgui::CBaseControl::PaintSheet(CHUD::GetButtonSheet().GetSheet("Fortify"), (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight,
+			rArea.x, rArea.y, rArea.w, rArea.h, CHUD::GetButtonSheet().GetSheetWidth("Fortify"), CHUD::GetButtonSheet().GetSheetHeight("Fortify"));
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, flYPosition);
 
 		flYPosition -= flIconFontHeight;

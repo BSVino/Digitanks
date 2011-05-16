@@ -240,7 +240,7 @@ void CParticleSystem::Load()
 	m_bLoaded = true;
 
 	if (GetTextureName().length() > 0)
-		SetTexture(CTextureLibrary::AddTexture(GetTextureName()));
+		SetTexture(CTextureLibrary::AddTextureID(GetTextureName()));
 
 	if (GetModelName().length() > 0)
 		SetModel(CModelLibrary::Get()->AddModel(GetModelName(), true));

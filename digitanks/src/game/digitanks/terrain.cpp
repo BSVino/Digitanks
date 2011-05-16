@@ -82,8 +82,8 @@ CTerrain::~CTerrain()
 void CTerrain::Precache()
 {
 	BaseClass::Spawn();
-	s_iTreeTexture = CTextureLibrary::AddTexture(L"textures/tree.png", 1);
-	s_iBeamTexture = CTextureLibrary::AddTexture(L"textures/beam.png");
+	s_iTreeTexture = CTextureLibrary::AddTextureID(L"textures/tree.png", 1);
+	s_iBeamTexture = CTextureLibrary::AddTextureID(L"textures/beam.png");
 }
 
 void CTerrain::Spawn()
