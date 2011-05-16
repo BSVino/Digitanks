@@ -309,7 +309,7 @@ public:
 	virtual float				BaseHealthRechargeRate() const { return 3.0f; };
 	virtual float				BaseShieldRechargeRate() const { return 30.0f; };
 	virtual float				GetTankSpeed() const { return 2.0f; };
-	virtual float				TurnPerPower() const { return 45; };
+	virtual float				TurnPerPower() const { return 0; };
 	virtual float				InitialMaxRange() const { return 70.0f; };
 	virtual float				GetMaxRange() const { return InitialMaxRange() + m_flRangeBonus; };
 	virtual float				InitialEffRange() const { return 50.0f; };
@@ -325,6 +325,7 @@ public:
 	virtual float				MaxRangeRadius() const { return 10; };
 	virtual float				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.5f; };
+	virtual bool				TurningMatters() const { return false; };
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 

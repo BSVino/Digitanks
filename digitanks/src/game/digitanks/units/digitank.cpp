@@ -1997,29 +1997,32 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTooltip(0, L"Move");
 		}
 
-		if (GetRemainingMovementEnergy() < 1)
+		if (TurningMatters())
 		{
-			pHUD->SetButtonListener(1, NULL);
-			pHUD->SetButtonColor(1, Color(100, 100, 100));
-			pHUD->SetButtonTexture(1, "Rotate");
-			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nNOT ENOUGH ENERGY\n \nShortcut: W");
-			pHUD->SetButtonTooltip(1, L"Rotate");
-		}
-		else if (!IsScout() && (!IsFortified() && !IsFortifying() || CanTurnFortified()))
-		{
-			pHUD->SetButtonListener(1, CHUD::Turn);
-
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_TURN)
-				pHUD->SetButtonColor(1, Color(150, 150, 0));
-			else
+			if (GetRemainingMovementEnergy() < 1)
+			{
+				pHUD->SetButtonListener(1, NULL);
 				pHUD->SetButtonColor(1, Color(100, 100, 100));
-
-			if (DigitanksGame()->GetControlMode() == MODE_TURN)
-				pHUD->SetButtonTexture(1, "Cancel");
-			else
 				pHUD->SetButtonTexture(1, "Rotate");
-			pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
-			pHUD->SetButtonTooltip(1, L"Rotate");
+				pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nNOT ENOUGH ENERGY\n \nShortcut: W");
+				pHUD->SetButtonTooltip(1, L"Rotate");
+			}
+			else if ((!IsFortified() && !IsFortifying() || CanTurnFortified()))
+			{
+				pHUD->SetButtonListener(1, CHUD::Turn);
+
+				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_TURN)
+					pHUD->SetButtonColor(1, Color(150, 150, 0));
+				else
+					pHUD->SetButtonColor(1, Color(100, 100, 100));
+
+				if (DigitanksGame()->GetControlMode() == MODE_TURN)
+					pHUD->SetButtonTexture(1, "Cancel");
+				else
+					pHUD->SetButtonTexture(1, "Rotate");
+				pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
+				pHUD->SetButtonTooltip(1, L"Rotate");
+			}
 		}
 
 		if (CanSentry() && !IsFortified() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)

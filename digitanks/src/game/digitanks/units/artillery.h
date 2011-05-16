@@ -36,6 +36,7 @@ public:
 	virtual float				MaxRangeRadius() const { return 25; };
 	virtual float				FirstProjectileTime() const;
 	virtual float				SlowMovementFactor() const { return 0.5f; };
+	virtual bool				TurningMatters() const { return true; };
 
 	virtual size_t				FleetPoints() const { return ArtilleryFleetPoints(); };
 	static size_t				ArtilleryFleetPoints() { return 5; };

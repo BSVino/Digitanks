@@ -269,9 +269,9 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 			iTurns = 1;
 
 		if (iTurns == 1)
-			m_pTutorial->SetText(L"This update will take 1 turn to download. It will be available on your next turn.");
+			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. It would take 1 turn to download and be available on your next turn.", (int)pInfo->m_flSize));
 		else
-			m_pTutorial->SetText(sprintf(L"This update will take %d turns to download.", iTurns));
+			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. This update would take %d turns to download.", (int)pInfo->m_flSize, iTurns));
 	}
 	else
 		m_pTutorial->SetText(L"This update is not yet available for download.");

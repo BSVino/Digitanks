@@ -35,6 +35,7 @@ public:
 	virtual float				ChargeEnergy() const { return 9.0f; }
 	virtual float				ChargeDamage() const { return 30.0f; }
 	virtual float				ChargePushDistance() const { return 20.0f; }
+	virtual bool				TurningMatters() const { return true; };
 
 	virtual size_t				FleetPoints() const { return InfantryFleetPoints(); };
 	static size_t				InfantryFleetPoints() { return 2; };
