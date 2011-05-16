@@ -126,6 +126,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitank);
+	SAVEDATA_DEFINE_OUTPUT(OnTakeShieldDamage);
 	SAVEDATA_DEFINE_OUTPUT(OnTakeLaserDamage);
 	SAVEDATA_DEFINE_OUTPUT(OnDisable);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flStartingPower);
@@ -2723,6 +2724,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage*flShieldDamageScale, 0, 50, 0, 0.5f));
 		}
 
+		CallOutput("OnTakeShieldDamage");
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamage*flShieldDamageScale, bDirectHit, true);
 
 		m_flShieldPulse = GameServer()->GetGameTime();
@@ -2762,6 +2764,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		if (eDamageType != DAMAGE_BURN)
 			SetShieldValue(0);
 
+		CallOutput("OnTakeShieldDamage");
 		DigitanksGame()->OnTakeShieldDamage(this, pAttacker, pInflictor, flDamageBlocked, bDirectHit, false);
 	}
 

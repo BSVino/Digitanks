@@ -38,6 +38,7 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE_OUTPUT(OnSpawn);
+	SAVEDATA_DEFINE_OUTPUT(OnTakeDamage);
 	SAVEDATA_DEFINE_OUTPUT(OnKilled);
 	SAVEDATA_DEFINE_OUTPUT(OnActivated);
 	SAVEDATA_DEFINE_OUTPUT(OnDeactivated);
@@ -195,6 +196,8 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, da
 
 	if (CNetwork::IsHost())
 		m_flHealth -= flDamage;
+
+	CallOutput("OnTakeDamage");
 
 	Game()->OnTakeDamage(this, pAttacker, pInflictor, flDamage, bDirectHit, !IsAlive() && bWasAlive);
 

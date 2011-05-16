@@ -257,6 +257,7 @@ public:
 	virtual bool				TakesLavaDamage() { return true; }
 	virtual void				TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 	virtual void				OnKilled(CBaseEntity* pKilledBy);
+	DECLARE_ENTITY_OUTPUT(OnTakeShieldDamage);
 	DECLARE_ENTITY_OUTPUT(OnTakeLaserDamage);
 
 	virtual Vector				GetOrigin() const;

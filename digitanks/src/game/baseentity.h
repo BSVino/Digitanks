@@ -343,6 +343,7 @@ public:
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
 	virtual bool							TakesDamage() { return m_bTakeDamage; };
+	DECLARE_ENTITY_OUTPUT(OnTakeDamage);
 	void									Kill();
 	void									Killed(CBaseEntity* pKilledBy);
 	virtual void							OnKilled(CBaseEntity* pKilledBy) {};
