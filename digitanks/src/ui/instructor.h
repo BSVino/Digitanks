@@ -74,7 +74,7 @@ class CTutorialPanel : public glgui::CPanel, public glgui::IEventListener
 	DECLARE_CLASS(CTutorialPanel, glgui::CPanel);
 
 public:
-									CTutorialPanel(CTutorial* pTutorial);
+									CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel = false);
 
 public:
 	virtual void					Paint(int x, int y, int w, int h);
@@ -94,6 +94,8 @@ protected:
 	glgui::CButton*					m_pButton2;
 
 	float							m_flStartTime;
+
+	bool							m_bFirstHelperPanel;
 };
 
 class CInstructor
