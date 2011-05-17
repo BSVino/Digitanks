@@ -2625,13 +2625,16 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	if (eDamageType == DAMAGE_LASER)
 		CallOutput("OnTakeLaserDamage");
 
-	if (flDamage > 0)
+	if (GetDigitanksTeam())
 	{
-		CancelGoalMovePosition();
-		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
+		if (flDamage > 0)
+		{
+			CancelGoalMovePosition();
+			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_AUTOMOVECANCELED);
+		}
+		else
+			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
 	}
-	else
-		GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITDAMAGED);
 
 	if (pInflictor)
 	{
