@@ -360,7 +360,20 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 	{
 		if (m_apTutorials[m_sCurrentTutorial] && m_apTutorials[m_sCurrentTutorial]->m_bKillOnFinish)
 			SetActive(false);
+
+		if (m_pCurrentPanel)
+			m_pCurrentPanel->SetVisible(false);
 		return;
+	}
+
+	bool bFirstHelper = false;
+	if (m_apTutorials[sTutorial] && m_apTutorials[sTutorial]->m_sHelperEmotion.length())
+	{
+		if (!m_pCurrentPanel || !m_pCurrentPanel->IsVisible())
+			bFirstHelper = true;
+
+		if (!m_apTutorials[m_sCurrentTutorial] || !m_apTutorials[m_sCurrentTutorial]->m_sHelperEmotion.length())
+			bFirstHelper = true;
 	}
 
 	m_sCurrentTutorial = sTutorial;
@@ -393,7 +406,7 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 	if (flDistance > 0)
 		DigitanksGame()->GetDigitanksCamera()->SetDistance(flDistance);
 
-	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[sTutorial]);
+	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[sTutorial], bFirstHelper);
 	glgui::CRootPanel::Get()->AddControl(m_pCurrentPanel, true);
 
 	for (size_t i = 0; i < m_apTutorials[sTutorial]->m_aOutputs.size(); i++)
@@ -455,15 +468,8 @@ void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
 		return;
 
 	if (m_pCurrentPanel)
-	{
 		// Only play the sound if the current panel is showing so we don't play it multiple times.
 		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");
-
-		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
-		m_pCurrentPanel->Delete();
-	}
-
-	m_pCurrentPanel = NULL;
 
 	if (m_apTutorials[sTutorial]->m_bAutoNext || bForceNext)
 		NextTutorial();
@@ -531,10 +537,11 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial)
 	m_bMousePrompt = true;
 }
 
-CTutorialPanel::CTutorialPanel(CTutorial* pTutorial)
+CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 	: CPanel(0, 0, 100, 100)
 {
 	m_pTutorial = pTutorial;
+	m_bFirstHelperPanel = bFirstHelperPanel;
 
 	m_pText = new CLabel(0, 0, m_pTutorial->m_iWidth, 1000, L"");
 	m_pText->SetText(str_replace(pTutorial->m_sText, L"\\n", L"\n"));
@@ -664,10 +671,18 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight);
+
+		float flLerp = Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 0, 1), 0.2f);
+
+		if (!m_bFirstHelperPanel)
+			flLerp = 1;
+
+		int iSlide = (int)((1-flLerp) * 50);
+
+		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20 - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
 
 		if (bScrolling && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || !bScrolling && m_pTutorial->m_bLeaveMouthOpen)
-			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight);
+			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20 - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
 	}
 
 	if (m_pTutorial->m_iHintButton >= 0)
@@ -701,7 +716,6 @@ bool CTutorialPanel::MousePressed(int code, int mx, int my)
 
 	if (m_pTutorial->m_sButton1Action.length() == 0 && m_pTutorial->m_sButton2Action.length() == 0)
 	{
-		SetVisible(false);
 		if (m_pTutorial->m_bAutoNext)
 			m_pTutorial->m_pInstructor->NextTutorial();
 		return true;
