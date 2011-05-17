@@ -68,6 +68,10 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
+	// The taskbar is at the bottom of the screen. Pretend the screen is smaller so the window doesn't clip down into it.
+	// Also the window's title bar at the top takes up space.
+	iScreenHeight -= 70;
+
 	int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
 	int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
 	glfwSetWindowPos(iWindowX, iWindowY);
