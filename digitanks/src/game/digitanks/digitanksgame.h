@@ -92,6 +92,9 @@ public:
 	void					SetupArtilleryRound();
 	bool					HasRounds();
 
+	DECLARE_ENTITY_INPUT(Autosave);
+	void					Autosave();
+
 	virtual void			Think();
 
 	void					MoveTanks();

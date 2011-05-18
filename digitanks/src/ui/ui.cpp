@@ -184,7 +184,7 @@ void CDigitanksMenu::SaveCallback()
 	return;
 #endif
 
-	wchar_t* pszFilename = SaveFileDialog(L"Save Games *.sav\0*.sav\0");
+	wchar_t* pszFilename = SaveFileDialog(L"Save Games *.sav\0*.sav\0", GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"").c_str());
 	if (!pszFilename)
 		return;
 
@@ -200,7 +200,7 @@ void CDigitanksMenu::LoadCallback()
 	if (!GameServer())
 		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 
-	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
+	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0", GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"").c_str());
 	if (!pszFilename)
 		return;
 

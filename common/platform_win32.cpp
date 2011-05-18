@@ -132,7 +132,7 @@ void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
 #endif
 }
 
-wchar_t* OpenFileDialog(wchar_t* pszFileTypes)
+wchar_t* OpenFileDialog(wchar_t* pszFileTypes, const wchar_t* pszDirectory)
 {
 	static wchar_t szFile[256];
 	szFile[0] = '\0';
@@ -148,7 +148,7 @@ wchar_t* OpenFileDialog(wchar_t* pszFileTypes)
 	opf.nMaxFile = 256;
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
-	opf.lpstrInitialDir = NULL;
+	opf.lpstrInitialDir = pszDirectory;
 	opf.lpstrTitle = L"Open File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
@@ -164,7 +164,7 @@ wchar_t* OpenFileDialog(wchar_t* pszFileTypes)
 	return NULL;
 }
 
-wchar_t* SaveFileDialog(wchar_t* pszFileTypes)
+wchar_t* SaveFileDialog(wchar_t* pszFileTypes, const wchar_t* pszDirectory)
 {
 	static wchar_t szFile[256];
 	szFile[0] = '\0';
@@ -180,7 +180,7 @@ wchar_t* SaveFileDialog(wchar_t* pszFileTypes)
 	opf.nMaxFile = 256;
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
-	opf.lpstrInitialDir = NULL;
+	opf.lpstrInitialDir = pszDirectory;
 	opf.lpstrTitle = L"Save File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;

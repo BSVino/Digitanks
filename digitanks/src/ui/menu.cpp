@@ -409,7 +409,7 @@ void CGamesPanel::StrategyCallback()
 
 void CGamesPanel::LoadCallback()
 {
-	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
+	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0", GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"").c_str());
 	if (!pszFilename)
 		return;
 
@@ -498,7 +498,7 @@ void CMultiplayerPanel::CreateStrategyLobbyCallback()
 
 void CMultiplayerPanel::LoadCallback()
 {
-	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0");
+	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0", GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"").c_str());
 	if (!pszFilename)
 		return;
 

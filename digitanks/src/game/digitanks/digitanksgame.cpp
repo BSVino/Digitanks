@@ -3,6 +3,8 @@
 #include <maths.h>
 #include <mtrand.h>
 #include <strutils.h>
+#include <platform.h>
+
 #include <datamanager/dataserializer.h>
 #include <models/models.h>
 #include <sound/sound.h>
@@ -10,10 +12,10 @@
 #include <tinker/portals/portal.h>
 #include <tinker/cvar.h>
 #include <tinker/lobby/lobby_client.h>
-
 #include <game/gameserver.h>
 #include <network/network.h>
 #include <network/commands.h>
+
 #include <ui/digitankswindow.h>
 #include <ui/ui.h>
 #include <ui/instructor.h>
@@ -21,6 +23,7 @@
 #include "powerup.h"
 #include "terrain.h"
 #include "dt_camera.h"
+#include <ui/chatbox.h>
 
 #include "digitanks/menumarcher.h"
 #include "digitanks/units/standardtank.h"
@@ -113,6 +116,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksGame);
+	INPUT_DEFINE(Autosave);
 	INPUT_DEFINE(PlayerVictory);
 	INPUT_DEFINE(PlayerLoss);
 	INPUT_DEFINE(TankSelectionMedal);
@@ -1327,6 +1331,18 @@ bool CDigitanksGame::HasRounds()
 	return m_eGameType == GAMETYPE_ARTILLERY;
 }
 
+void CDigitanksGame::Autosave(const eastl::vector<eastl::string16>& sArgs)
+{
+	Autosave();
+}
+
+void CDigitanksGame::Autosave()
+{
+	GameServer()->SaveToFile(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"autosave.sav").c_str());
+
+	DigitanksWindow()->GetChatBox()->PrintChat(L"Autosave...\n");
+}
+
 void CDigitanksGame::Think()
 {
 	BaseClass::Think();
@@ -1782,6 +1798,9 @@ void CDigitanksGame::StartTurn(CNetworkParameters* p)
 
 	if (m_iCurrentTeam == (size_t)0)
 		m_iTurn++;
+
+	if (GetGameType() != GAMETYPE_CAMPAIGN && m_iCurrentTeam == (size_t)0 && m_iTurn > 10 && m_iTurn%5 == 0)
+		Autosave(eastl::vector<eastl::string16>());
 
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
