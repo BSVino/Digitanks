@@ -35,16 +35,7 @@ void CDigitanksCamera::SetTarget(Vector vecTarget)
 		return;
 	}
 
-	if (vecTarget.x < -DigitanksGame()->GetTerrain()->GetMapSize())
-		vecTarget.x = -DigitanksGame()->GetTerrain()->GetMapSize();
-	if (vecTarget.z < -DigitanksGame()->GetTerrain()->GetMapSize())
-		vecTarget.z = -DigitanksGame()->GetTerrain()->GetMapSize();
-	if (vecTarget.x > DigitanksGame()->GetTerrain()->GetMapSize())
-		vecTarget.x = DigitanksGame()->GetTerrain()->GetMapSize();
-	if (vecTarget.z > DigitanksGame()->GetTerrain()->GetMapSize())
-		vecTarget.z = DigitanksGame()->GetTerrain()->GetMapSize();
-
-	DigitanksGame()->GetTerrain()->SetPointHeight(vecTarget);
+	DigitanksGame()->GetTerrain()->SetPointHeight(DigitanksGame()->GetTerrain()->ConstrainVectorToMap(vecTarget));
 
 	m_flTargetRamp = GameServer()->GetGameTime();
 	m_vecOldTarget = m_vecTarget;
@@ -400,14 +391,7 @@ void CDigitanksCamera::Think()
 
 			m_vecTarget = m_vecTarget + vecVelocity * flFrameTime;
 
-			if (m_vecTarget.x < -DigitanksGame()->GetTerrain()->GetMapSize())
-				m_vecTarget.x = -DigitanksGame()->GetTerrain()->GetMapSize();
-			if (m_vecTarget.z < -DigitanksGame()->GetTerrain()->GetMapSize())
-				m_vecTarget.z = -DigitanksGame()->GetTerrain()->GetMapSize();
-			if (m_vecTarget.x > DigitanksGame()->GetTerrain()->GetMapSize())
-				m_vecTarget.x = DigitanksGame()->GetTerrain()->GetMapSize();
-			if (m_vecTarget.z > DigitanksGame()->GetTerrain()->GetMapSize())
-				m_vecTarget.z = DigitanksGame()->GetTerrain()->GetMapSize();
+			m_vecTarget = DigitanksGame()->GetTerrain()->ConstrainVectorToMap(m_vecTarget);
 
 			DigitanksGame()->GetTerrain()->SetPointHeight(m_vecTarget);
 		}

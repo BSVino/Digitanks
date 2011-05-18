@@ -132,6 +132,12 @@ public:
 	bool					IsPointOverWater(Vector vecPoint);
 	bool					IsPointInTrees(Vector vecPoint);
 
+	float					GetMinX();
+	float					GetMaxX();
+	float					GetMinY();
+	float					GetMaxY();
+	Vector					ConstrainVectorToMap(Vector v);
+
 	void					SetBit(int x, int y, terrainbit_t b, bool v);
 	bool					GetBit(int x, int y, terrainbit_t b);
 	terrainbit_t			GetBits(int x, int y);
@@ -175,6 +181,11 @@ protected:
 	Vector					m_avecQuadMods[4];
 
 	CTerrainChunk			m_aTerrainChunks[TERRAIN_CHUNKS][TERRAIN_CHUNKS];
+
+	CNetworkedVariable<size_t> m_iMinX;
+	CNetworkedVariable<size_t> m_iMaxX;
+	CNetworkedVariable<size_t> m_iMinY;
+	CNetworkedVariable<size_t> m_iMaxY;
 
 	float					m_flNextThink;
 	int						m_iThinkChunkX;

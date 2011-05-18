@@ -41,6 +41,10 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecTerrainColor);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecQuadMods);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CTerrainChunk, m_aTerrainChunks);	// Onserialize
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMinX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMaxX);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMinY);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMaxY);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkX);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkY);
@@ -132,6 +136,11 @@ void CTerrain::Spawn()
 	m_flNextThink = 0;
 
 	m_flNextRunner = 0;
+
+	m_iMinX = TERRAIN_SIZE-1;
+	m_iMaxX = 0;
+	m_iMinY = TERRAIN_SIZE-1;
+	m_iMaxY = 0;
 }
 
 void CTerrain::Think()
@@ -391,6 +400,19 @@ void CTerrain::GenerateTerrain(float flHeight)
 					if (aflWater[x][y] > flWaterHighest)
 						flWaterHighest = aflWater[x][y];
 				}
+			}
+
+			if (!GetBit(x, y, TB_HOLE))
+			{
+				if (x < m_iMinX)
+					m_iMinX = x;
+				else if (x > m_iMaxX)
+					m_iMaxX = x;
+
+				if (y < m_iMinY)
+					m_iMinY = y;
+				else if (y > m_iMaxY)
+					m_iMaxY = y;
 			}
 
 			m_bHeightsInitialized = true;
@@ -1587,6 +1609,40 @@ bool CTerrain::IsPointOverWater(Vector vecPoint)
 bool CTerrain::IsPointInTrees(Vector vecPoint)
 {
 	return GetBit(WorldToArraySpace(vecPoint.x), WorldToArraySpace(vecPoint.z), TB_TREE);
+}
+
+float CTerrain::GetMinX()
+{
+	return ArrayToWorldSpace(m_iMinX);
+}
+
+float CTerrain::GetMaxX()
+{
+	return ArrayToWorldSpace(m_iMaxX);
+}
+
+float CTerrain::GetMinY()
+{
+	return ArrayToWorldSpace(m_iMinY);
+}
+
+float CTerrain::GetMaxY()
+{
+	return ArrayToWorldSpace(m_iMaxY);
+}
+
+Vector CTerrain::ConstrainVectorToMap(Vector v)
+{
+	if (v.x < GetMinX())
+		v.x = GetMinX();
+	if (v.z < GetMinY())
+		v.z = GetMinY();
+	if (v.x > GetMaxX())
+		v.x = GetMaxX();
+	if (v.z > GetMaxY())
+		v.z = GetMaxY();
+
+	return v;
 }
 
 void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)
