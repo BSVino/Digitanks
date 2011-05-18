@@ -2,6 +2,7 @@
 #define DT_DIGITANKSENTITY_H
 
 #include <baseentity.h>
+#include <renderer/particles.h>
 
 #include "dt_common.h"
 
@@ -10,6 +11,7 @@ class CDigitanksEntity : public CBaseEntity
 	REGISTER_ENTITY_CLASS(CDigitanksEntity, CBaseEntity);
 
 public:
+	virtual void					Precache();
 	virtual void					Spawn();
 
 	virtual void					Think();
@@ -48,7 +50,7 @@ public:
 
 	virtual bool					IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 
-	void							Imprison() { m_bImprisoned = true; }
+	void							Imprison();
 	bool							IsImprisoned() const { return m_bImprisoned; }
 	void							Rescue(CDigitanksEntity* pOther);
 	DECLARE_ENTITY_OUTPUT(OnRescue);
@@ -84,6 +86,9 @@ protected:
 	bool							m_bImprisoned;
 
 	bool							m_bObjective;
+
+	size_t							m_iCageModel;
+	CParticleSystemInstanceHandle	m_hCageParticles;
 };
 
 #endif

@@ -759,4 +759,41 @@ void CParticleSystemLibrary::InitSystems()
 	pDamageBoostPulse->SetDrag(0.5f);
 	pDamageBoostPulse->SetRandomBillboardYaw(true);
 	pDamageBoostPulse->SetColor(Color(255,0,0));
+
+	size_t iCageAura = pPSL->AddParticleSystem(L"cage-aura");
+	size_t iCageAuraSpots = pPSL->AddParticleSystem(L"cage-aura-spots");
+	size_t iCageAuraGlow = pPSL->AddParticleSystem(L"cage-aura-glow");
+
+	CParticleSystem* pCageAura = pPSL->GetParticleSystem(iCageAura);
+	CParticleSystem* pCageAuraSpots = pPSL->GetParticleSystem(iCageAuraSpots);
+	CParticleSystem* pCageAuraGlow = pPSL->GetParticleSystem(iCageAuraGlow);
+
+	pCageAura->AddChild(iCageAuraSpots);
+	pCageAura->AddChild(iCageAuraGlow);
+
+	pCageAuraSpots->SetTexture(L"textures/particles/cloud-white.png");
+	pCageAuraSpots->SetLifeTime(1.0f);
+	pCageAuraSpots->SetEmissionRate(0.03f);
+	pCageAuraSpots->SetEmissionMaxDistance(15);
+	pCageAuraSpots->SetAlpha(1.0f);
+	pCageAuraSpots->SetStartRadius(0.1f);
+	pCageAuraSpots->SetEndRadius(0.4f);
+	pCageAuraSpots->SetFadeOut(0.5f);
+	pCageAuraSpots->SetRandomVelocity(AABB(Vector(-1, -1, -1), Vector(1, 1, 1)));
+	pCageAuraSpots->SetDrag(0.5f);
+	pCageAuraSpots->SetGravity(Vector(0,-1,0));
+	pCageAuraSpots->SetRandomBillboardYaw(true);
+
+	pCageAuraGlow->SetTexture(L"textures/particles/haze-white.png");
+	pCageAuraGlow->SetLifeTime(5.0f);
+	pCageAuraGlow->SetEmissionRate(0.5f);
+	pCageAuraGlow->SetEmissionMaxDistance(10);
+	pCageAuraGlow->SetAlpha(0.05f);
+	pCageAuraGlow->SetStartRadius(8.0f);
+	pCageAuraGlow->SetEndRadius(10.0f);
+	pCageAuraGlow->SetFadeIn(0.5f);
+	pCageAuraGlow->SetFadeOut(0.5f);
+	pCageAuraGlow->SetDrag(0.8f);
+	pCageAuraGlow->SetGravity(Vector(0,0,0));
+	pCageAuraGlow->SetRandomBillboardYaw(true);
 }

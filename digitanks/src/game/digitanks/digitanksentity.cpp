@@ -6,6 +6,8 @@
 #include <mtrand.h>
 #include <geometry.h>
 
+#include <models/models.h>
+#include <shaders/shaders.h>
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>
 
@@ -28,12 +30,20 @@ SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextDirtyOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bImprisoned);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bObjective);
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iCageModel);	// Set in Spawn()
+	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hCageParticles);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksEntity);
 	INPUT_DEFINE(MakeObjective);
 	INPUT_DEFINE(ClearObjective);
 INPUTS_TABLE_END();
+
+void CDigitanksEntity::Precache()
+{
+	PrecacheModel(L"models/cage.obj", true);
+	PrecacheParticleSystem(L"cage-aura");
+}
 
 void CDigitanksEntity::Spawn()
 {
@@ -52,6 +62,10 @@ void CDigitanksEntity::Spawn()
 	m_bObjective = false;
 
 	CalculateVisibility();
+
+	m_iCageModel = CModelLibrary::Get()->FindModel(L"models/cage.obj");
+	m_hCageParticles.SetSystem(L"cage-aura", GetOrigin());
+	m_hCageParticles.FollowEntity(this);
 }
 
 void CDigitanksEntity::Think()
@@ -178,6 +192,8 @@ void CDigitanksEntity::Think()
 			CreateWreckage();
 		}
 	}
+
+	m_hCageParticles.SetActive(IsImprisoned() && GetVisibility() > 0.1f);
 }
 
 CWreckage* CDigitanksEntity::CreateWreckage()
@@ -482,6 +498,13 @@ bool CDigitanksEntity::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 	return BaseClass::IsTouching(pOther, vecPoint);
 }
 
+void CDigitanksEntity::Imprison()
+{
+	m_bImprisoned = true;
+
+	m_hCageParticles.SetActive(true);
+}
+
 void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 {
 	if (!pOther)
@@ -501,6 +524,8 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	StartTurn();
 
 	CallOutput("OnRescue");
+
+	m_hCageParticles.SetActive(false);
 }
 
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)
@@ -520,6 +545,58 @@ void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTranspar
 void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent)
 {
 	BaseClass::OnRender(pContext, bTransparent);
+
+	if (bTransparent && IsImprisoned())
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBackCulling(false);
+		c.SetBlend(BLEND_ADDITIVE);
+		c.Scale(GetBoundingRadius(), GetBoundingRadius(), GetBoundingRadius());
+		c.Rotate(GameServer()->GetGameTime() * 90, Vector(0, 1, 0));
+
+		float flVisibility = GetVisibility() * 0.6f;
+		if (GameServer()->GetRenderer()->ShouldUseShaders())
+		{
+			c.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
+			c.SetUniform("iTexture", 0);
+			c.SetUniform("flAlpha", flVisibility);
+			c.SetUniform("flTime", -GameServer()->GetGameTime());
+			c.SetUniform("flSpeed", 1.0f);
+		}
+		else
+			c.SetAlpha(flVisibility);
+
+		CModel* pModel = CModelLibrary::Get()->GetModel(m_iCageModel);
+		c.BindTexture(pModel->m_iCallListTexture);
+		if (pModel)
+			glCallList((GLuint)pModel->m_iCallList);
+	}
+
+	if (bTransparent && IsImprisoned())
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBackCulling(false);
+		c.SetBlend(BLEND_ADDITIVE);
+		c.Scale(GetBoundingRadius()+1, GetBoundingRadius()+1, GetBoundingRadius()+1);
+		c.Rotate(-GameServer()->GetGameTime() * 90, Vector(0, 1, 0));
+
+		float flVisibility = GetVisibility() * 0.6f;
+		if (GameServer()->GetRenderer()->ShouldUseShaders())
+		{
+			c.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
+			c.SetUniform("iTexture", 0);
+			c.SetUniform("flAlpha", flVisibility);
+			c.SetUniform("flTime", -GameServer()->GetGameTime());
+			c.SetUniform("flSpeed", 1.0f);
+		}
+		else
+			c.SetAlpha(flVisibility);
+
+		CModel* pModel = CModelLibrary::Get()->GetModel(m_iCageModel);
+		c.BindTexture(pModel->m_iCallListTexture);
+		if (pModel)
+			glCallList((GLuint)pModel->m_iCallList);
+	}
 
 	if (!bTransparent)
 		return;
