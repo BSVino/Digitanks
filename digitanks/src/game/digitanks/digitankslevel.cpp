@@ -46,6 +46,10 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 		else if (sValue == "campaign")
 			m_eGameType = GAMETYPE_CAMPAIGN;
 	}
+	else if (pData->GetKey() == "Objective")
+	{
+		m_sObjective = pData->GetValueString();
+	}
 	else if (pData->GetKey() == "TerrainHeight")
 	{
 		m_sTerrainHeight = pData->GetValueString();

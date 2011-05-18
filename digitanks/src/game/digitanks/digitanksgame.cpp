@@ -71,6 +71,7 @@ REGISTER_ENTITY(CDigitanksGame);
 
 NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(size_t, m_iCurrentTeam);
+	NETVAR_DEFINE(eastl::string16, m_sObjective);
 	NETVAR_DEFINE(CEntityHandle<CTerrain>, m_hTerrain);
 	NETVAR_DEFINE(size_t, m_iDifficulty);
 	NETVAR_DEFINE(bool, m_bRenderFogOfWar);
@@ -86,6 +87,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iCurrentTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, controlmode_t, m_eControlMode);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, aimtype_t, m_eAimType);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sObjective);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CTerrain>, m_hTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CInstructorEntity>, m_hInstructor);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, IDigitanksGameListener*, m_pListener);	// Set by constructor
@@ -155,6 +157,8 @@ void CDigitanksGame::Spawn()
 	m_bOverrideAllowLasers = false;
 
 	m_pLevel = NULL;
+
+	m_sObjective = L"Win the game";
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -466,6 +470,8 @@ void CDigitanksGame::SetupArtillery()
 {
 	TMsg(L"Setting up artillery game.\n");
 
+	m_sObjective = L"Destroy all enemy tanks";
+
 	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
 	if (GameServer()->ShouldSetupFromLobby())
@@ -590,6 +596,8 @@ void CDigitanksGame::SetupArtillery()
 void CDigitanksGame::SetupStrategy()
 {
 	TMsg(L"Setting up strategy game.\n");
+
+	m_sObjective = L"Destroy all enemy CPUs";
 
 	ReadGameScript(L"strategy.txt");
 
@@ -888,6 +896,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	TMsg(sprintf(L"Setting up campaign %s.\n", CVar::GetCVarValue(L"game_level")));
 
 	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
+	m_sObjective = convertstring<char, char16_t>(m_pLevel->GetObjective());
 
 	if (!bReload)
 	{

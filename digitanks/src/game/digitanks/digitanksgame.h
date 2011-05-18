@@ -60,6 +60,8 @@ public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
 	IDigitanksGameListener*	GetListener() { return m_pListener; };
 
+	eastl::string16			GetObjective() { return m_sObjective; }
+
 	virtual void			RegisterNetworkFunctions();
 
 	virtual void			ClientUpdate(int iClient);
@@ -252,6 +254,8 @@ protected:
 
 	controlmode_t			m_eControlMode;
 	aimtype_t				m_eAimType;
+
+	CNetworkedString		m_sObjective;
 
 	CNetworkedHandle<CTerrain> m_hTerrain;
 

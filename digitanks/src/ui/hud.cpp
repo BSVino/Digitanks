@@ -4357,18 +4357,25 @@ void CHowToPlayPanel::Layout()
 		m_pOpen->SetText(L"How to play");
 
 	m_pOpen->SetSize(150, 50);
-	m_pOpen->SetPos(0, 100);
+	m_pOpen->SetPos(0, 300);
 	m_pOpen->SetAlign(CLabel::TA_MIDDLECENTER);
 
-	m_pControls->SetSize(280, 250);
+	m_pControls->SetSize(330, 250);
 	m_pControls->SetPos(10, 30);
 	m_pControls->SetAlign(CLabel::TA_TOPLEFT);
 
+	eastl::string16 sStrategyHints;
+
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
+		sStrategyHints = L"TIPS:\n* Structures can only be built on your Network.\n* To create more Network, build Buffers.\n* To harvest more resources, build a Buffer near an Electronode and then build a Capacitor on top of the Electronode.\n* Use Resistors and Firewalls to defend your base and destroy the enemy CPUs to win.\n \n";
+
 	m_pControls->SetText(
-		"Scroll view: Hold spacebar\n"
-		"Rotate view: Hold right click\n"
-		"Zoom view: Scrollwheel or pgup/pgdn\n"
-		"Select similar units: Double click\n"
+		eastl::string16(L"OBJECTIVE: ") + DigitanksGame()->GetObjective() + L"\n \n" + sStrategyHints +
+		L"CONTROLS:\n"
+		L"Scroll view: Hold spacebar\n"
+		L"Rotate view: Hold right click\n"
+		L"Zoom view: Scrollwheel or pgup/pgdn\n"
+		L"Select similar units: Double click\n"
 	);
 }
 
@@ -4378,8 +4385,8 @@ void CHowToPlayPanel::Think()
 
 	m_flCurLerp = Approach(m_flGoalLerp, m_flCurLerp, GameServer()->GetFrameTime()*2);
 
-	SetPos(150, (int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, -100, 0)));
-	SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 150);
+	SetPos(150, (int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, -300, 0)));
+	SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 350)), 350);
 	m_pOpen->SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 50);
 	m_pControls->SetAlpha(m_flCurLerp);
 }

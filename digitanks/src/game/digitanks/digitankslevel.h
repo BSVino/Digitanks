@@ -71,6 +71,7 @@ public:
 	void					ReadUnitOutput(const class CData* pData, CLevelUnit* pUnit);
 	void					ReadGameRules(const class CData* pData);
 
+	eastl::string			GetObjective() { return m_sObjective; }
 	gametype_t				GetGameType() { return m_eGameType; }
 	eastl::string			GetTerrainHeight() { return m_sTerrainHeight; }
 	size_t					GetTerrainHeightImage() { return m_iTerrainHeight; }
@@ -104,6 +105,7 @@ public:
 
 protected:
 	gametype_t				m_eGameType;
+	eastl::string			m_sObjective;
 	eastl::string			m_sTerrainHeight;
 	size_t					m_iTerrainHeight;
 	eastl::string			m_sTerrainData;
