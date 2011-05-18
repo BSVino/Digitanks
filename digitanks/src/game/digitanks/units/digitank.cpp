@@ -1975,26 +1975,46 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
 			pHUD->SetButtonColor(0, Color(100, 100, 100));
-			pHUD->SetButtonTexture(0, "Move");
+			pHUD->SetButtonTexture(0, "Cancel");
 			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q");
 			pHUD->SetButtonTooltip(0, L"Cancel Auto-Move");
 		}
 		else if (!IsFortified() && !IsFortifying())
 		{
-			pHUD->SetButtonListener(0, CHUD::Move);
+			if (GetRemainingMovementEnergy() < 1)
+			{
+				pHUD->SetButtonListener(0, CHUD::Move);
 
-			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
-				pHUD->SetButtonColor(0, Color(150, 150, 0));
+				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
+					pHUD->SetButtonColor(0, Color(150, 150, 0));
+				else
+					pHUD->SetButtonColor(0, Color(100, 100, 100));
+
+				if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+					pHUD->SetButtonTexture(0, "Cancel");
+				else
+					pHUD->SetButtonTexture(0, "AutoMove");
+
+				pHUD->SetButtonInfo(0, L"AUTO MOVE\n \nThis tank is out of move energy for this turn.\n \nSet a move command for this tank to executex over the next few turns.\n \nShortcut: Q");
+				pHUD->SetButtonTooltip(0, L"Auto-Move");
+			}
 			else
-				pHUD->SetButtonColor(0, Color(100, 100, 100));
+			{
+				pHUD->SetButtonListener(0, CHUD::Move);
 
-			if (DigitanksGame()->GetControlMode() == MODE_MOVE)
-				pHUD->SetButtonTexture(0, "Cancel");
-			else
-				pHUD->SetButtonTexture(0, "Move");
+				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
+					pHUD->SetButtonColor(0, Color(150, 150, 0));
+				else
+					pHUD->SetButtonColor(0, Color(100, 100, 100));
 
-			pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q");
-			pHUD->SetButtonTooltip(0, L"Move");
+				if (DigitanksGame()->GetControlMode() == MODE_MOVE)
+					pHUD->SetButtonTexture(0, "Cancel");
+				else
+					pHUD->SetButtonTexture(0, "Move");
+
+				pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q");
+				pHUD->SetButtonTooltip(0, L"Move");
+			}
 		}
 
 		if (TurningMatters())

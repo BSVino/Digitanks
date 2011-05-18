@@ -286,6 +286,11 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 	else
 		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n");
 
+	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && bPlayerWon)
+		m_pRestart->SetVisible(false);
+	else
+		m_pRestart->SetVisible(true);
+
 	SetVisible(true);
 }
 

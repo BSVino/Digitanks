@@ -442,6 +442,7 @@ void CDigitanksWindow::NextCampaignLevel()
 		Restart(GAMETYPE_MENU);
 	else
 	{
+		GetVictoryPanel()->SetVisible(false);
 		CVar::SetCVar("game_level", sNextLevel);
 		Restart(GAMETYPE_CAMPAIGN);
 	}
