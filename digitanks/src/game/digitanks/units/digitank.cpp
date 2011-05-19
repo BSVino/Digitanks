@@ -3319,7 +3319,12 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 	if (!CNetwork::IsHost())
 		return;
 
+	if (m_iBonusLevel + m_iBonusPoints >= 5)
+		return;
+
 	m_iBonusPoints += i;
+
+	DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_BONUS);
 
 	if (bPlayEffects)
 	{

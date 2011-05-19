@@ -148,7 +148,6 @@ void CPowerup::Pickup(class CDigitank* pTank)
 	case POWERUP_BONUS:
 	default:
 		pTank->GiveBonusPoints(1);
-		DigitanksWindow()->GetHUD()->AddPowerupNotification(pTank, POWERUP_BONUS);
 		break;
 
 	case POWERUP_AIRSTRIKE:
