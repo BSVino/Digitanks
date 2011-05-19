@@ -12,7 +12,25 @@ SAVEDATA_TABLE_BEGIN(CSelectable);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CSelectable);
+	INPUT_DEFINE(Select);
 INPUTS_TABLE_END();
+
+void CSelectable::Select(const eastl::vector<eastl::string16>& sArgs)
+{
+	if (!GetDigitanksTeam())
+		return;
+
+	for (size_t i = 0; i < sArgs.size(); i++)
+	{
+		if (sArgs[i] == L"if-selection-empty")
+		{
+			if (GetDigitanksTeam()->GetPrimarySelection())
+				return;
+		}
+	}
+
+	GetDigitanksTeam()->SetPrimarySelection(this);
+}
 
 void CSelectable::OnCurrentSelection()
 {

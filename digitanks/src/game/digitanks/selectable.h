@@ -12,6 +12,8 @@ class CSelectable : public CDigitanksEntity
 public:
 	virtual float				GetBoundingRadius() const { return 4; };
 
+	DECLARE_ENTITY_INPUT(Select);
+
 	virtual void				OnCurrentSelection();
 	virtual bool				AllowControlMode(controlmode_t eMode) const { return eMode == MODE_NONE; };
 	virtual void				OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMode) { };
