@@ -259,6 +259,10 @@ void CInstructor::ReadLesson(const class CData* pData)
 				iEnable |= DISABLE_PSU;
 			else if (sEnable == "loaders")
 				iEnable |= DISABLE_LOADERS;
+			else if (sEnable == "select")
+				iEnable |= DISABLE_SELECT;
+			else if (sEnable == "howtoplay")
+				iEnable |= DISABLE_HOWTOPLAY;
 			pTutorial->m_eEnable = (disable_t)iEnable;
 		}
 		else if (pChildData->GetKey() == "Disable")
@@ -277,6 +281,10 @@ void CInstructor::ReadLesson(const class CData* pData)
 				iDisable |= DISABLE_PSU;
 			else if (sDisable == "loaders")
 				iDisable |= DISABLE_LOADERS;
+			else if (sDisable == "select")
+				iDisable |= DISABLE_SELECT;
+			else if (sDisable == "howtoplay")
+				iDisable |= DISABLE_HOWTOPLAY;
 			pTutorial->m_eDisable = (disable_t)iDisable;
 		}
 		else if (pChildData->GetKey() == "SetViewTarget")
@@ -706,6 +714,24 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		c.SetBlend(BLEND_ALPHA);
 
 		DigitanksWindow()->GetHUD()->PaintSheet(&DigitanksWindow()->GetHUD()->GetKeysSheet(), sIcon, x+w - 16, y+h - 16, 32, 32);
+	}
+
+	if (m_pTutorial->m_bMousePrompt && !bScrolling)
+	{
+		// start time + the amount of time it takes for the text to scroll + 5 seconds
+		float flClickHintTime = m_flStartTime + ((float)m_pTutorial->m_sHelperEmotion.length())/50 + 5;
+		if (GameServer()->GetGameTime() > flClickHintTime)
+		{
+			eastl::string16 sClickHint = L"Click inside the above box to progress.";
+
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+			c.SetColor(Color(255, 255, 255, (int)(255 * RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 0, 1) * RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1))));
+
+			float flHintWidth = glgui::CLabel::GetTextWidth(sClickHint, sClickHint.length(), L"text", 8);
+			glgui::CLabel::PaintText(sClickHint, sClickHint.length(), L"text", 8, (float)(x + w/2) - flHintWidth/2, (float)(y + h + 10) + Lerp(RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 1, 0), 0.2f)*100);
+			x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
+		}
 	}
 }
 

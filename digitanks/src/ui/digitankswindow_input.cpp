@@ -159,7 +159,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 		}
 	}
 
-	if (bDoubleClick && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam())
+	if (bDoubleClick && pClickedEntity && DigitanksGame()->GetCurrentLocalDigitanksTeam() && !m_pInstructor->IsFeatureDisabled(DISABLE_SELECT))
 	{
 		CSelectable* pClickedSelectable = dynamic_cast<CSelectable*>(pClickedEntity);
 
@@ -199,7 +199,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			}
 		}
 	}
-	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT)
+	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT && !m_pInstructor->IsFeatureDisabled(DISABLE_SELECT))
 	{
 		if (m_bBoxSelect && IsMouseDragging())
 		{

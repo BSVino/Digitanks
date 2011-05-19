@@ -675,7 +675,7 @@ void CHUD::Think()
 		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			bSpotVisible = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecEntityPoint) > 0.2f;
 
-		if (pHit && dynamic_cast<CSelectable*>(pHit) && bSpotVisible)
+		if (pHit && dynamic_cast<CSelectable*>(pHit) && bSpotVisible && !DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_SELECT))
 			DigitanksWindow()->SetMouseCursor(MOUSECURSOR_SELECT);
 
 		if (pHit)
@@ -1675,12 +1675,14 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (m_flSelectorMedalStart > 0 && GameServer()->GetGameTime() > m_flSelectorMedalStart)
 	{
-		if (GameServer()->GetGameTime() > m_flSelectorMedalStart + 4)
+		float flMedalDisplayTime = 5;
+
+		if (GameServer()->GetGameTime() > m_flSelectorMedalStart + flMedalDisplayTime)
 			m_flSelectorMedalStart = 0;
 
 		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart, m_flSelectorMedalStart+0.5f, 0, 1);
-		if (GameServer()->GetGameTime() - m_flSelectorMedalStart > 3.0)
-			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+2, m_flSelectorMedalStart+4, 1, 0);
+		if (GameServer()->GetGameTime() - m_flSelectorMedalStart > flMedalDisplayTime-1)
+			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+2, m_flSelectorMedalStart+flMedalDisplayTime, 1, 0);
 
 		Color clrMedal = Color(255, 255, 255, (int)(255*flAlpha));
 
@@ -4382,6 +4384,8 @@ void CHowToPlayPanel::Layout()
 void CHowToPlayPanel::Think()
 {
 	BaseClass::Think();
+
+	SetVisible(!DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_HOWTOPLAY));
 
 	m_flCurLerp = Approach(m_flGoalLerp, m_flCurLerp, GameServer()->GetFrameTime()*2);
 

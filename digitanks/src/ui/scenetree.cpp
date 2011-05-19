@@ -403,6 +403,9 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 void CSceneTreeUnit::Selected()
 {
+	if (!DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_SELECT))
+		return;
+
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
 	if (m_hEntity != NULL && pCurrentLocalTeam)

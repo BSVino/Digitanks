@@ -15,6 +15,8 @@ typedef enum
 	DISABLE_BUFFER		= (1<<3),
 	DISABLE_PSU			= (1<<4),
 	DISABLE_LOADERS		= (1<<5),
+	DISABLE_SELECT		= (1<<6),
+	DISABLE_HOWTOPLAY	= (1<<7),
 } disable_t;
 
 class CLessonOutput
