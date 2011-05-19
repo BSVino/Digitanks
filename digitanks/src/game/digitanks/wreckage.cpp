@@ -101,6 +101,8 @@ void CWreckage::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 
 	pContext->SetColorSwap(m_clrSwap);
 	pContext->Scale(m_flScale, m_flScale, m_flScale);
+	pContext->SetBlend(BLEND_ALPHA);
+	pContext->SetAlpha(Flicker("mmmmmmqtmmmmtfqmmmmmm", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 2.0f) * 0.7f);
 }
 
 void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent)
@@ -115,19 +117,13 @@ void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent)
 
 	float flVisibility = GetVisibility();
 
-	if (bTransparent && flVisibility == 1)
-		return;
-
-	if (!bTransparent && flVisibility < 1)
+	if (!bTransparent)
 		return;
 
 	CRenderingContext r(GameServer()->GetRenderer());
 
-	if (bTransparent && flVisibility < 1)
-	{
-		r.SetAlpha(flVisibility);
-		r.SetBlend(BLEND_ALPHA);
-	}
+	r.SetAlpha(pContext->GetAlpha() * flVisibility);
+	r.SetBlend(BLEND_ALPHA);
 
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
