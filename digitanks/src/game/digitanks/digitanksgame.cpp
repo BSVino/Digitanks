@@ -914,6 +914,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	if (sPlayerNickname.length())
 		m_ahTeams[0]->SetTeamName(sPlayerNickname);
 
+	GetDigitanksTeam(0)->SetLoseCondition(LOSE_NOTANKS);
+
 	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[1]->SetColor(Color(255, 0, 0));
 
@@ -1431,9 +1433,7 @@ void CDigitanksGame::Think()
 		{
 			if (GameServer()->GetGameTime() - m_flPartyModeStart > 5)
 			{
-				if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->HasLost())
-					DigitanksWindow()->RestartCampaignLevel();
-				else
+				if (!DigitanksGame()->GetCurrentLocalDigitanksTeam()->HasLost())
 					DigitanksWindow()->NextCampaignLevel();
 				return;
 			}
@@ -2076,7 +2076,7 @@ void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
 
 void CDigitanksGame::CheckWinConditions()
 {
-	if (m_eGameType == GAMETYPE_MENU || m_eGameType == GAMETYPE_CAMPAIGN)
+	if (m_eGameType == GAMETYPE_MENU)
 		return;
 
 	if (m_bPartyMode)

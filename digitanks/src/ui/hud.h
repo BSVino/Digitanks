@@ -265,6 +265,9 @@ public:
 	EVENT_CALLBACK(CHUD, HideSmallActionItem);
 	EVENT_CALLBACK(CHUD, CloseActionItems);
 
+	EVENT_CALLBACK(CHUD, CursorInTurnButton);
+	EVENT_CALLBACK(CHUD, CursorOutTurnButton);
+
 	EVENT_CALLBACK(CHUD, ButtonCursorIn0);
 	EVENT_CALLBACK(CHUD, ButtonCursorIn1);
 	EVENT_CALLBACK(CHUD, ButtonCursorIn2);
@@ -401,6 +404,10 @@ protected:
 
 	glgui::CPictureButton*		m_pTurnButton;
 	bool						m_bBlinkTurnButton;
+
+	glgui::CLabel*				m_pTurnWarning;
+	float						m_flTurnWarningGoal;
+	float						m_flTurnWarningLerp;
 
 	glgui::CLabel*				m_pScoreboard;
 

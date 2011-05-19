@@ -315,7 +315,18 @@ CHUD::CHUD()
 	SetButtonSheetTexture(m_pTurnButton, &m_HUDSheet, "EndTurn");
 	m_pTurnButton->SetClickedListener(this, EndTurn);
 	m_pTurnButton->ShowBackground(false);
+	m_pTurnButton->SetCursorInListener(this, CursorInTurnButton);
+	m_pTurnButton->SetCursorOutListener(this, CursorOutTurnButton);
 	AddControl(m_pTurnButton);
+
+	m_pTurnWarning = new CLabel(0, 0, 100, 100, L"");
+	AddControl(m_pTurnWarning);
+	m_pTurnWarning->SetAlign(CLabel::TA_TOPLEFT);
+	m_pTurnWarning->SetFGColor(Color(255, 255, 255));
+	m_pTurnWarning->SetFont(L"text");
+
+	m_flTurnWarningGoal = 0;
+	m_flTurnWarningLerp = 0;
 
 	m_flAttackInfoAlpha = m_flAttackInfoAlphaGoal = 0;
 
@@ -599,6 +610,9 @@ void CHUD::Layout()
 	m_pPressEnter->SetDimensions(iWidth/2 - 100/2, iHeight*2/3, 100, 50);
 	m_pPressEnter->SetAlign(glgui::CLabel::TA_MIDDLECENTER);
 	m_pPressEnter->SetWrap(false);
+
+	m_pTurnWarning->SetPos(iWidth - 165, iHeight - 150 - 90 - 10);
+	m_pTurnWarning->SetSize(165, 90);
 
 	m_pPowerInfo->SetAlign(CLabel::TA_LEFTCENTER);
 	m_pPowerInfo->SetPos(iWidth - 160, 12);
@@ -906,6 +920,7 @@ void CHUD::Think()
 	}
 
 	m_flAttackInfoAlpha = Approach(m_flAttackInfoAlphaGoal, m_flAttackInfoAlpha, GameServer()->GetFrameTime());
+	m_flTurnWarningLerp = Approach(m_flTurnWarningGoal, m_flTurnWarningLerp, GameServer()->GetFrameTime()*5);
 
 	m_flTurnInfoHeightGoal = m_pTurnInfo->GetTextHeight();
 	m_flTurnInfoLerp = Approach(m_flTurnInfoLerpGoal, m_flTurnInfoLerp, GameServer()->GetFrameTime());
@@ -1293,6 +1308,20 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		if (m_flAttackInfoAlpha > 0)
 			PaintHUDSheet("AttackInfo", iWidth-175, m_pAttackInfo->GetTop()-15, 175, 110, Color(255, 255, 255, (int)(255*m_flAttackInfoAlpha)));
+
+		if (m_flTurnWarningLerp > 0)
+		{
+			float flWarningLerp = Lerp(m_flTurnWarningLerp, 0.7f);
+			m_pTurnWarning->SetText(L"WARNING!\n \nSome tanks still need orders. Ending the turn will forfeit their moves or attacks.");
+			m_pTurnWarning->SetSize(220, 75);
+			m_pTurnWarning->SetPos(iWidth - (int)(220*flWarningLerp), iHeight - 75 - 90 - 10);
+			m_pTurnWarning->SetAlpha(m_flTurnWarningLerp);
+			CRootPanel::PaintRect(m_pTurnWarning->GetLeft()-3, m_pTurnWarning->GetTop()-9, m_pTurnWarning->GetWidth()+6, m_pTurnWarning->GetHeight()+6);
+		}
+		else
+		{
+			m_pTurnWarning->SetAlpha(0);
+		}
 
 		if (bShowCPUStuff && m_flActionItemsLerp > 0)
 			PaintHUDSheet("ActionItemPanel", m_pActionItem->GetLeft()-30, m_pActionItem->GetTop()-30, (int)m_flActionItemsWidth, 340, Color(255, 255, 255, (int)(255*m_flActionItemsLerp)));
@@ -3316,6 +3345,32 @@ void CHUD::HideSmallActionItemCallback()
 void CHUD::CloseActionItemsCallback()
 {
 	ShowActionItem(~0);
+}
+
+void CHUD::CursorInTurnButtonCallback()
+{
+	if (!DigitanksGame()->GetCurrentTeam())
+		return;
+
+	for (size_t i = 0; i < DigitanksGame()->GetCurrentTeam()->GetNumTanks(); i++)
+	{
+		CDigitank* pTank = DigitanksGame()->GetCurrentTeam()->GetTank(i);
+		if (!pTank)
+			continue;
+
+		if (pTank->NeedsOrders())
+		{
+			m_flTurnWarningGoal = 1;
+			return;
+		}
+	}
+
+	m_flTurnWarningGoal = 0;
+}
+
+void CHUD::CursorOutTurnButtonCallback()
+{
+	m_flTurnWarningGoal = 0;
 }
 
 void CHUD::ButtonCursorIn0Callback()
