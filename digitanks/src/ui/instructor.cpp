@@ -737,9 +737,8 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 			c.SetBlend(BLEND_ALPHA);
 			c.SetColor(Color(255, 255, 255, (int)(255 * RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 0, 1) * RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1))));
 
-			float flHintWidth = glgui::CLabel::GetTextWidth(sClickHint, sClickHint.length(), L"text", 8);
-			glgui::CLabel::PaintText(sClickHint, sClickHint.length(), L"text", 8, (float)(x + w/2) - flHintWidth/2, (float)(y + h + 10) + Lerp(RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 1, 0), 0.2f)*100);
-			x += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
+			float flHintWidth = glgui::CLabel::GetTextWidth(sClickHint, sClickHint.length(), L"text", 9);
+			glgui::CLabel::PaintText(sClickHint, sClickHint.length(), L"text", 9, (float)(x + w/2) - flHintWidth/2, (float)(y + h + 10) + Lerp(RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 1, 0), 0.2f)*100);
 		}
 	}
 }

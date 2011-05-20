@@ -35,7 +35,7 @@ void CDigitanksCamera::SetTarget(Vector vecTarget)
 		return;
 	}
 
-	DigitanksGame()->GetTerrain()->SetPointHeight(DigitanksGame()->GetTerrain()->ConstrainVectorToMap(vecTarget));
+	vecTarget = DigitanksGame()->GetTerrain()->SetPointHeight(DigitanksGame()->GetTerrain()->ConstrainVectorToMap(vecTarget));
 
 	m_flTargetRamp = GameServer()->GetGameTime();
 	m_vecOldTarget = m_vecTarget;

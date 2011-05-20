@@ -1726,6 +1726,18 @@ void CHUD::Paint(int x, int y, int w, int h)
 		glgui::CLabel::PaintText(sMedal, sMedal.length(), L"header", 18, w/2-flMedalWidth/2, h/2 + (float)120);
 	}
 
+	if (m_eMenuMode == MENUMODE_PROMOTE)
+	{
+		eastl::string16 sChooseHint = L"Choose a promotion for this unit below.";
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		c.SetColor(Color(255, 255, 255, (int)(255*RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1))));
+
+		float flHintWidth = glgui::CLabel::GetTextWidth(sChooseHint, sChooseHint.length(), L"text", 9);
+		glgui::CLabel::PaintText(sChooseHint, sChooseHint.length(), L"text", 9, (float)(m_pButtonPanel->GetLeft() + m_pButtonPanel->GetWidth()/2) - flHintWidth/2, (float)(m_pButtonPanel->GetTop() - 12));
+	}
+
 //	while (true)
 //	{
 //		CRenderingContext c(GameServer()->GetRenderer());
@@ -4421,13 +4433,15 @@ void CHowToPlayPanel::Layout()
 	m_pControls->SetPos(10, 30);
 	m_pControls->SetAlign(CLabel::TA_TOPLEFT);
 
-	eastl::string16 sStrategyHints;
+	eastl::string16 sTips;
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		sStrategyHints = L"TIPS:\n* Structures can only be built on your Network.\n* To create more Network, build Buffers.\n* To harvest more resources, build a Buffer near an Electronode and then build a Capacitor on top of the Electronode.\n* Use Resistors and Firewalls to defend your base and destroy the enemy CPUs to win.\n \n";
+		sTips = L"TIPS:\n* Structures can only be built on your Network.\n* To create more Network, build Buffers.\n* To harvest more resources, build a Buffer near an Electronode and then build a Capacitor on top of the Electronode.\n* Use Resistors and Firewalls to defend your base and destroy the enemy CPUs to win.\n \n";
+	else
+		sTips = L"TIPS:\n* Tanks have a limited amount of movement energy per turn.\n* Each tank can fire once per turn.\n* When all tanks have moved or fired, press the 'End Turn' button to regain movement energy and attacks.\n \n";
 
 	m_pControls->SetText(
-		eastl::string16(L"OBJECTIVE: ") + DigitanksGame()->GetObjective() + L"\n \n" + sStrategyHints +
+		eastl::string16(L"OBJECTIVE: ") + DigitanksGame()->GetObjective() + L"\n \n" + sTips +
 		L"CONTROLS:\n"
 		L"Scroll view: Hold spacebar\n"
 		L"Rotate view: Hold right click\n"
