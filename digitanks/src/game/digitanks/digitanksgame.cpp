@@ -921,6 +921,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 	m_ahTeams[1]->SetClient(-2);
 
+	GetDigitanksTeam(1)->SetLoseCondition(LOSE_NONE);
+
 	m_iPowerups = 0;
 
 	if (!m_pLevel)
@@ -2126,6 +2128,9 @@ void CDigitanksGame::CheckWinConditions()
 				iTeamsLeft++;
 			break;
 		}
+
+		default:
+			iTeamsLeft++;
 		}
 	}
 

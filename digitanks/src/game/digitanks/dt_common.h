@@ -123,6 +123,7 @@ typedef enum
 
 typedef enum
 {
+	LOSE_NONE = 0,
 	LOSE_NOTANKS,
 	LOSE_NOCPU,
 } losecondition_t;
