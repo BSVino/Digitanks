@@ -1222,11 +1222,43 @@ void CDigitank::MoveTowardsGoalMovePosition()
 
 	CNetwork::SetRunningClientFunctions(false);
 
+	bool bIsAHoleInTheWay = false;
+
 	Vector vecGoal = GetGoalMovePosition();
 	Vector vecOrigin = GetOrigin();
 	Vector vecMove = vecGoal - vecOrigin;
 
 	Vector vecNewPosition = GetOrigin() + vecMove;
+
+	float flDistance = vecMove.Length2D();
+	float flDistancePerSegment = 5;
+	Vector vecPathFlat = vecMove;
+	vecPathFlat.y = 0;
+	Vector vecDirection = vecPathFlat.Normalized();
+	size_t iSegments = (size_t)(flDistance/flDistancePerSegment);
+
+	Vector vecLastSegmentStart = GetRealOrigin();
+	float flMaxMoveDistance = GetMaxMovementDistance();
+	float flSegmentLength = flMaxMoveDistance;
+
+	if ((vecGoal - GetRealOrigin()).LengthSqr() < flMaxMoveDistance*flMaxMoveDistance)
+		flSegmentLength = (vecGoal - GetRealOrigin()).Length();
+
+	for (size_t i = 1; i < iSegments; i++)
+	{
+		float flCurrentDistance = ((float)i*flDistancePerSegment);
+
+		Vector vecLink = GetRealOrigin() + vecDirection*flCurrentDistance;
+
+		if (DigitanksGame()->GetTerrain()->IsPointOverHole(vecLink))
+		{
+			bIsAHoleInTheWay = true;
+			break;
+		}
+	}
+
+	if (bIsAHoleInTheWay)
+		vecMove = DigitanksGame()->GetTerrain()->FindPath(GetOrigin(), vecGoal, this) - vecOrigin;
 
 	do
 	{
