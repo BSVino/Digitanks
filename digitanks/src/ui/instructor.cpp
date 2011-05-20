@@ -370,7 +370,7 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 			SetActive(false);
 
 		if (m_pCurrentPanel)
-			m_pCurrentPanel->SetVisible(false);
+			HideTutorial();
 		return;
 	}
 
@@ -384,18 +384,15 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 			bFirstHelper = true;
 	}
 
+	if (m_pCurrentPanel)
+		HideTutorial();
+
 	m_sCurrentTutorial = sTutorial;
 
 	if (DigitanksGame() && m_sLastTutorial != m_sCurrentTutorial)
 		DigitanksGame()->OnDisplayTutorial(sTutorial);
 
 	m_sLastTutorial = m_sCurrentTutorial;
-
-	if (m_pCurrentPanel)
-	{
-		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
-		m_pCurrentPanel->Delete();
-	}
 
 	int iDisabled = m_eDisabled;
 	iDisabled |= m_apTutorials[sTutorial]->m_eDisable;
@@ -417,10 +414,54 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 	m_pCurrentPanel = new CTutorialPanel(m_apTutorials[sTutorial], bFirstHelper);
 	glgui::CRootPanel::Get()->AddControl(m_pCurrentPanel, true);
 
-	for (size_t i = 0; i < m_apTutorials[sTutorial]->m_aOutputs.size(); i++)
+	CallOutput("OnDisplay");
+}
+
+void CInstructor::ShowTutorial()
+{
+	DisplayTutorial(m_sCurrentTutorial);
+}
+
+void CInstructor::HideTutorial()
+{
+	if (m_pCurrentPanel)
 	{
-		CLessonOutput* pOutput = &m_apTutorials[sTutorial]->m_aOutputs[i];
-		if (pOutput->m_sOutput == "OnDisplay")
+		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
+		m_pCurrentPanel->Delete();
+		m_pCurrentPanel = NULL;
+
+		CallOutput("OnClose");
+	}
+}
+
+void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
+{
+	if (sTutorial != m_sCurrentTutorial)
+		return;
+
+	if (m_pCurrentPanel)
+		// Only play the sound if the current panel is showing so we don't play it multiple times.
+		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");
+
+	if (m_apTutorials[sTutorial]->m_bAutoNext || bForceNext)
+		NextTutorial();
+	else
+		HideTutorial();
+
+	// If we get to the end here then we turn off the instructor as we have finished completely.
+	if (GetCurrentTutorial() && GetCurrentTutorial()->m_bKillOnFinish)
+		SetActive(false);
+}
+
+void CInstructor::CallOutput(const eastl::string& sOutput)
+{
+	if (!GetCurrentTutorial())
+		return;
+
+	for (size_t i = 0; i < GetCurrentTutorial()->m_aOutputs.size(); i++)
+	{
+		CLessonOutput* pOutput = &GetCurrentTutorial()->m_aOutputs[i];
+		if (pOutput->m_sOutput == sOutput)
 		{
 			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 			{
@@ -453,38 +494,6 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 			}
 		}
 	}
-}
-
-void CInstructor::ShowTutorial()
-{
-	DisplayTutorial(m_sCurrentTutorial);
-}
-
-void CInstructor::HideTutorial()
-{
-	if (m_pCurrentPanel)
-	{
-		CRootPanel::Get()->RemoveControl(m_pCurrentPanel);
-		m_pCurrentPanel->Delete();
-		m_pCurrentPanel = NULL;
-	}
-}
-
-void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
-{
-	if (sTutorial != m_sCurrentTutorial)
-		return;
-
-	if (m_pCurrentPanel)
-		// Only play the sound if the current panel is showing so we don't play it multiple times.
-		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");
-
-	if (m_apTutorials[sTutorial]->m_bAutoNext || bForceNext)
-		NextTutorial();
-
-	// If we get to the end here then we turn off the instructor as we have finished completely.
-	if (GetCurrentTutorial() && GetCurrentTutorial()->m_bKillOnFinish)
-		SetActive(false);
 }
 
 disable_t CInstructor::GetDisabledFeatures()

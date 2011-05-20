@@ -127,6 +127,8 @@ public:
 	CTutorial*						GetCurrentTutorial() { return m_apTutorials[m_sCurrentTutorial]; };
 	CTutorialPanel*					GetCurrentPanel() { return m_pCurrentPanel; };
 
+	void							CallOutput(const eastl::string& sOutput);
+
 	disable_t						GetDisabledFeatures();
 	bool							IsFeatureDisabled(disable_t eFeature);
 
