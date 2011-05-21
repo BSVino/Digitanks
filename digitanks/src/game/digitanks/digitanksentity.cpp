@@ -11,6 +11,8 @@
 #include <renderer/renderer.h>
 #include <renderer/dissolver.h>
 
+#include <ui/digitankswindow.h>
+#include <ui/hud.h>
 #include "digitanksgame.h"
 #include "wreckage.h"
 #include "dt_camera.h"
@@ -514,6 +516,9 @@ void CDigitanksEntity::Imprison()
 
 void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 {
+	if (!m_bImprisoned)
+		return;
+
 	if (!pOther)
 		return;
 
@@ -525,6 +530,8 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 		return;
 
 	pOther->GetTeam()->AddEntity(this);
+
+	DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_TANK);
 
 	m_bImprisoned = false;
 	m_bTakeDamage = true;

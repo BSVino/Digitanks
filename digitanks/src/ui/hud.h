@@ -28,7 +28,7 @@ typedef enum
 typedef struct
 {
 	powerup_type_t				ePowerupType;
-	CEntityHandle<CDigitank>	hTank;
+	CEntityHandle<CDigitanksEntity>	hEntity;
 	float						flTime;
 	bool						bActive;
 } powerup_notification_t;
@@ -254,7 +254,7 @@ public:
 	void						ShowShowdownSign();
 	void						ShowNewTurnSign();
 
-	void						AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup);
+	void						AddPowerupNotification(CDigitanksEntity* pEntity, powerup_type_t ePowerup);
 
 	void						ShowFileRescue(const eastl::string16& sTexture);
 

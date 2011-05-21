@@ -1187,7 +1187,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		bool bShowFortify = pTank && (pTank->IsFortified() || pTank->IsFortifying());
-		if (pTank->GetTeam() != pCurrentLocalTeam)
+		if (pEntity->GetTeam() != pCurrentLocalTeam)
 			bShowFortify = false;
 
 		if (bShowFortify)
@@ -1684,13 +1684,13 @@ void CHUD::Paint(int x, int y, int w, int h)
 		if (!pNotification->bActive)
 			continue;
 
-		if (!pNotification->hTank || GameServer()->GetGameTime() - pNotification->flTime > 3)
+		if (!pNotification->hEntity || GameServer()->GetGameTime() - pNotification->flTime > 3)
 		{
 			pNotification->bActive = false;
 			continue;
 		}
 
-		if (pNotification->hTank->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		if (pNotification->hEntity->GetTeam() != DigitanksGame()->GetCurrentLocalDigitanksTeam())
 			continue;
 
 		float flLerpIn = Lerp(RemapValClamped(GameServer()->GetGameTime() - pNotification->flTime, 0, 0.5f, 0, 1), 0.2f);
@@ -1706,7 +1706,12 @@ void CHUD::Paint(int x, int y, int w, int h)
 		{
 			eastl::string16 sText;
 			if (pNotification->ePowerupType == POWERUP_TANK)
-				sText = L"Bonus Tank Found!";
+			{
+				if (dynamic_cast<CDigitank*>(pNotification->hEntity.GetPointer()))
+					sText = L"Bonus Tank Received!";
+				else
+					sText = L"Structure Rescued!";
+			}
 			else if (pNotification->ePowerupType == POWERUP_MISSILEDEFENSE)
 				sText = L"Missile Defense Received!";
 			else if (pNotification->ePowerupType == POWERUP_AIRSTRIKE)
@@ -1721,7 +1726,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		}
 
 		int iSceneX, iSceneY, iSceneW, iSceneH;
-		m_pSceneTree->GetUnitDimensions(pNotification->hTank, iSceneX, iSceneY, iSceneW, iSceneH);
+		m_pSceneTree->GetUnitDimensions(pNotification->hEntity, iSceneX, iSceneY, iSceneW, iSceneH);
 
 		int iIconX, iIconY, iIconW, iIconH;
 
@@ -1737,9 +1742,11 @@ void CHUD::Paint(int x, int y, int w, int h)
 			sArea = "Airstrike";
 		else if (pNotification->ePowerupType == POWERUP_TANK)
 		{
-			if (pNotification->hTank->GetUnitType() == UNIT_SCOUT)
+			if (pNotification->hEntity->GetUnitType() == STRUCTURE_CPU)
+				sArea = "NewCPU";
+			else if (pNotification->hEntity->GetUnitType() == UNIT_SCOUT)
 				sArea = "NewRogue";
-			else if (pNotification->hTank->GetUnitType() == UNIT_INFANTRY)
+			else if (pNotification->hEntity->GetUnitType() == UNIT_INFANTRY)
 				sArea = "NewResistor";
 			else
 				sArea = "NewDigitank";
@@ -3257,7 +3264,7 @@ void PowerupNotifyCallback(CCommand* pCommand, eastl::vector<eastl::string16>& a
 
 CCommand powerup_notify("powerup_notify", PowerupNotifyCallback);
 
-void CHUD::AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup)
+void CHUD::AddPowerupNotification(CDigitanksEntity* pEntity, powerup_type_t ePowerup)
 {
 	powerup_notification_t* pNewNotification = NULL;
 
@@ -3278,7 +3285,7 @@ void CHUD::AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup)
 	pNewNotification->bActive = true;
 	pNewNotification->ePowerupType = ePowerup;
 	pNewNotification->flTime = GameServer()->GetGameTime();
-	pNewNotification->hTank = pTank;
+	pNewNotification->hEntity = pEntity;
 }
 
 void CHUD::ShowFileRescue(const eastl::string16& sTexture)
