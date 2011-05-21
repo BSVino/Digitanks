@@ -1635,11 +1635,17 @@ void CDigitank::Think()
 
 		if (GetCurrentWeapon() != WEAPON_CHARGERAM && (m_bFiredWeapon || bMouseOK))
 		{
+			Vector vecDirection = vecTankAim - GetRealOrigin();
+			vecDirection.y = 0;
+
 			while (!IsInsideMaxRange(vecTankAim))
 			{
-				Vector vecDirection = vecTankAim - GetOrigin();
-				vecDirection.y = 0;
-				vecTankAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+				vecDirection = vecDirection * 0.95f;
+
+				if (vecDirection.LengthSqr() < 1)
+					break;
+
+				vecTankAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D());
 			}
 
 			if ((vecTankAim - GetOrigin()).Length() < GetMinRange())
