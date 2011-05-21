@@ -27,6 +27,9 @@ CInstructor::CInstructor()
 	m_eDisabled = DISABLE_NOTHING;
 
 	CSoundLibrary::Get()->AddSound(L"sound/lesson-learned.wav");
+	CSoundLibrary::Get()->AddSound(L"sound/helper-speech.wav");
+
+	m_bHelperSpeaking = false;
 }
 
 CInstructor::~CInstructor()
@@ -334,6 +337,12 @@ void CInstructor::SetActive(bool bActive)
 	m_bActive = bActive;
 	if (!bActive)
 		HideTutorial();
+
+	if (m_bHelperSpeaking)
+	{
+		CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+		m_bHelperSpeaking = false;
+	}
 }
 
 void CInstructor::DisplayFirstTutorial(eastl::string sTutorial)
@@ -371,6 +380,13 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 
 		if (m_pCurrentPanel)
 			HideTutorial();
+
+		if (m_bHelperSpeaking)
+		{
+			CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+			m_bHelperSpeaking = false;
+		}
+
 		return;
 	}
 
@@ -741,6 +757,25 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 			glgui::CLabel::PaintText(sClickHint, sClickHint.length(), L"text", 9, (float)(x + w/2) - flHintWidth/2, (float)(y + h + 10) + Lerp(RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 1, 0), 0.2f)*100);
 		}
 	}
+
+	if (bScrolling)
+	{
+		if (!DigitanksWindow()->GetInstructor()->m_bHelperSpeaking)
+		{
+			CSoundLibrary::PlaySound(NULL, L"sound/helper-speech.wav", true);
+			DigitanksWindow()->GetInstructor()->m_bHelperSpeaking = true;
+		}
+	}
+	else
+	{
+		if (DigitanksWindow()->GetInstructor()->m_bHelperSpeaking)
+		{
+			CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+			DigitanksWindow()->GetInstructor()->m_bHelperSpeaking = false;
+		}
+	}
+
+	CSoundLibrary::SetSoundVolume(NULL, L"sound/helper-speech.wav", bScrolling?0.2f:0);
 }
 
 bool CTutorialPanel::MousePressed(int code, int mx, int my)

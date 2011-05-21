@@ -102,6 +102,8 @@ protected:
 
 class CInstructor
 {
+	friend class CTutorialPanel;
+
 public:
 									CInstructor();
 									~CInstructor();
@@ -148,6 +150,7 @@ protected:
 	eastl::string					m_sLastTutorial;
 	eastl::string					m_sCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;
+	bool							m_bHelperSpeaking;
 
 	disable_t						m_eDisabled;
 
