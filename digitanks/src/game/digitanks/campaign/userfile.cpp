@@ -5,6 +5,8 @@
 
 #include <digitanks/digitanksgame.h>
 #include <digitanks/units/digitank.h>
+#include <ui/digitankswindow.h>
+#include <ui/hud.h>
 
 REGISTER_ENTITY(CUserFile);
 
@@ -15,6 +17,7 @@ SAVEDATA_TABLE_BEGIN(CUserFile);
 	SAVEDATA_DEFINE_OUTPUT(OnPickup);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iImage);
 	SAVEDATA_DEFINE(CSaveData::DATA_STRING, eastl::string, m_sFilename);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPickupTime);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CUserFile);
@@ -22,7 +25,10 @@ INPUTS_TABLE_END();
 
 void CUserFile::Spawn()
 {
+	BaseClass::Spawn();
+
 	m_iImage = ~0;
+	m_flPickupTime = 0;
 }
 
 EAngle CUserFile::GetRenderAngles() const
@@ -40,6 +46,12 @@ void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
 	if (!bTransparent)
 		return;
+
+	if (m_flPickupTime > 0)
+	{
+		float flScale = RemapValClamped(GameServer()->GetGameTime(), m_flPickupTime, m_flPickupTime + 1, 1, 0);
+		pContext->Scale(flScale, flScale, flScale);
+	}
 
 	pContext->SetBlend(BLEND_ADDITIVE);
 	pContext->SetBackCulling(false);
@@ -75,6 +87,14 @@ void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	glgui::CLabel::PaintText3D(sFile, sFile.length(), L"text", 12, Vector(0-flWidth/2, 0, 0));
 }
 
+void CUserFile::Think()
+{
+	BaseClass::Think();
+
+	if (m_flPickupTime > 0 && GameServer()->GetGameTime() > m_flPickupTime + 1)
+		Delete();
+}
+
 bool CUserFile::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 {
 	if (!IsActive())
@@ -105,13 +125,15 @@ void CUserFile::Pickup(CDigitank* pTank)
 	if (!IsActive())
 		return;
 
+	m_flPickupTime = GameServer()->GetGameTime();
+
 	CallOutput("OnPickup");
 
-	Delete();
+	DigitanksWindow()->GetHUD()->ShowFileRescue(m_sFilename);
 }
 
 void CUserFile::SetFile(const eastl::string& sFile)
 {
 	m_sFilename = convertstring<char, char16_t>(sFile);
-	m_iImage = CRenderer::LoadTextureIntoGL(m_sFilename);
+	m_iImage = CTextureLibrary::AddTextureID(m_sFilename);
 }

@@ -575,9 +575,12 @@ void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent)
 			c.SetAlpha(flVisibility);
 
 		CModel* pModel = CModelLibrary::Get()->GetModel(m_iCageModel);
-		c.BindTexture(pModel->m_iCallListTexture);
 		if (pModel)
-			glCallList((GLuint)pModel->m_iCallList);
+		{
+			c.BindTexture(pModel->m_iCallListTexture);
+			if (pModel)
+				glCallList((GLuint)pModel->m_iCallList);
+		}
 	}
 
 	if (bTransparent && IsImprisoned())

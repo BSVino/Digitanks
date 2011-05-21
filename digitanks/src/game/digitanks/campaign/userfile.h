@@ -16,6 +16,8 @@ public:
 	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
 	virtual bool					ShouldRender() const { return true; }
 
+	virtual void					Think();
+
 	virtual bool					IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
 	void							Pickup(class CDigitank* pTank);
 	DECLARE_ENTITY_OUTPUT(OnPickup);
@@ -27,6 +29,8 @@ public:
 protected:
 	size_t							m_iImage;
 	eastl::string16					m_sFilename;
+
+	float							m_flPickupTime;
 };
 
 #endif

@@ -335,6 +335,8 @@ CHUD::CHUD()
 
 	m_flSelectorMedalStart = 0;
 
+	m_flFileRescueStart = 0;
+
 	m_iTurnSound = CSoundLibrary::Get()->AddSound(L"sound/turn.wav");
 
 	m_pSpacebarHint = new CLabel(0, 0, 200, 20, L"");
@@ -1711,7 +1713,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart, m_flSelectorMedalStart+0.5f, 0, 1);
 		if (GameServer()->GetGameTime() - m_flSelectorMedalStart > flMedalDisplayTime-1)
-			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+2, m_flSelectorMedalStart+flMedalDisplayTime, 1, 0);
+			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flSelectorMedalStart+flMedalDisplayTime-1, m_flSelectorMedalStart+flMedalDisplayTime, 1, 0);
 
 		Color clrMedal = Color(255, 255, 255, (int)(255*flAlpha));
 
@@ -1724,6 +1726,30 @@ void CHUD::Paint(int x, int y, int w, int h)
 		eastl::string16 sMedal = L"YOU RECEIVED A MEDAL";
 		float flMedalWidth = glgui::CLabel::GetTextWidth(sMedal, sMedal.length(), L"header", 18);
 		glgui::CLabel::PaintText(sMedal, sMedal.length(), L"header", 18, w/2-flMedalWidth/2, h/2 + (float)120);
+	}
+
+	if (m_flFileRescueStart > 0 && GameServer()->GetGameTime() > m_flFileRescueStart)
+	{
+		float flFileRescueTime = 5;
+
+		if (GameServer()->GetGameTime() > m_flFileRescueStart + flFileRescueTime)
+			m_flFileRescueStart = 0;
+
+		float flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flFileRescueStart, m_flFileRescueStart+0.5f, 0, 1);
+		if (GameServer()->GetGameTime() - m_flFileRescueStart > flFileRescueTime-1)
+			flAlpha = RemapValClamped(GameServer()->GetGameTime(), m_flFileRescueStart+flFileRescueTime-1, m_flFileRescueStart+flFileRescueTime, 1, 0);
+
+		Color clrFile = Color(255, 255, 255, (int)(255*flAlpha));
+
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		glgui::CBaseControl::PaintTexture(CTextureLibrary::FindTextureID(m_sFileRescueTexture), w/2-128, h/2-128, 256, 256, clrFile);
+
+		c.SetColor(clrFile);
+
+		eastl::string16 sText = L"FILE RETRIEVED";
+		float flTextWidth = glgui::CLabel::GetTextWidth(sText, sText.length(), L"header", 18);
+		glgui::CLabel::PaintText(sText, sText.length(), L"header", 18, w/2-flTextWidth/2, h/2 + (float)150);
 	}
 
 	if (m_eMenuMode == MENUMODE_PROMOTE)
@@ -3203,6 +3229,13 @@ void CHUD::AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup)
 	pNewNotification->ePowerupType = ePowerup;
 	pNewNotification->flTime = GameServer()->GetGameTime();
 	pNewNotification->hTank = pTank;
+}
+
+void CHUD::ShowFileRescue(const eastl::string16& sTexture)
+{
+	m_sFileRescueTexture = sTexture;
+	m_flFileRescueStart = GameServer()->GetGameTime();
+	CSoundLibrary::PlaySound(NULL, L"lesson-learned.wav");	// No time to make a new sound.
 }
 
 Rect CHUD::GetButtonDimensions(size_t i)

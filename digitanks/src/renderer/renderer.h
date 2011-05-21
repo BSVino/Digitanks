@@ -171,6 +171,12 @@ public:
 	void			SetCameraNear(float flNear) { m_flCameraNear = flNear; };
 	void			SetCameraFar(float flFar) { m_flCameraFar = flFar; };
 
+	Vector			GetCameraPosition() { return m_vecCameraPosition; };
+	Vector			GetCameraTarget() { return m_vecCameraTarget; };
+	float			GetCameraFOV() { return m_flCameraFOV; };
+	float			GetCameraNear() { return m_flCameraNear; };
+	float			GetCameraFar() { return m_flCameraFar; };
+
 	void			FrustumOverride(Vector vecPosition, Vector vecTarget, float flFOV, float flNear, float flFar);
 	void			CancelFrustumOverride();
 

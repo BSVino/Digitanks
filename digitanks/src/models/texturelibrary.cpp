@@ -62,6 +62,16 @@ const CTexture* CTextureLibrary::FindTexture(const eastl::string16& sTexture)
 	return &it->second;
 }
 
+size_t CTextureLibrary::FindTextureID(const eastl::string16& sTexture)
+{
+	const CTexture* pTex = FindTexture(sTexture);
+
+	if (!pTex)
+		return 0;
+
+	return pTex->m_iGLID;
+}
+
 size_t CTextureLibrary::GetTextureGLID(const eastl::string16& sTexture)
 {
 	eastl::map<eastl::string16, CTexture>::iterator it = Get()->m_aTextures.find(sTexture);

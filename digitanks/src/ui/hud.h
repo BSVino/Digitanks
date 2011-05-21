@@ -256,6 +256,8 @@ public:
 
 	void						AddPowerupNotification(CDigitank* pTank, powerup_type_t ePowerup);
 
+	void						ShowFileRescue(const eastl::string16& sTexture);
+
 	void						ClearHintWeapon() { m_hHintWeapon = NULL; };
 
 	Rect						GetButtonDimensions(size_t i);
@@ -439,6 +441,9 @@ protected:
 		ACTIONSIGN_NEWTURN,
 	} actionsign_t;
 	actionsign_t				m_eActionSign;
+
+	eastl::string16				m_sFileRescueTexture;
+	float						m_flFileRescueStart;
 
 	CTextureSheet				m_PowerupsSheet;
 	eastl::vector<powerup_notification_t>	m_aPowerupNotifications;

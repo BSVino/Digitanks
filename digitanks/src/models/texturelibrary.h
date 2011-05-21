@@ -24,6 +24,7 @@ public:
 	static const CTexture*	AddTexture(const eastl::string16& sTexture, int iClamp = 0);
 	static size_t			AddTextureID(const eastl::string16& sTexture, int iClamp = 0);
 	static const CTexture*	FindTexture(const eastl::string16& sTexture);
+	static size_t			FindTextureID(const eastl::string16& sTexture);
 
 	static size_t			GetTextureGLID(const eastl::string16& sTexture);
 	static size_t			GetTextureWidth(const eastl::string16& sTexture);
