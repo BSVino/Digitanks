@@ -67,7 +67,7 @@ void CCameraGuidedMissile::Think()
 		{
 			m_bLaunched = true;
 			EmitSound(L"sound/missile-launch.wav");
-			EmitSound(L"sound/missile-flight.wav", true);
+			EmitSound(L"sound/missile-flight.wav", 1.0f, true);
 		}
 
 		SetVelocity(AngleVector(GetViewAngles()) * (VelocityPerSecond() + m_flBoostVelocity));

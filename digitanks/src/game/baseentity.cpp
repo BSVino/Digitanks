@@ -450,25 +450,25 @@ void CEntityOutput::Clear()
 
 SERVER_COMMAND(EmitSound)
 {
-	if (pCmd->GetNumArguments() < 3)
+	if (pCmd->GetNumArguments() < 4)
 	{
-		TMsg("EmitSound with less than 3 arguments.\n");
+		TMsg("EmitSound with less than 4 arguments.\n");
 		return;
 	}
 
-	CSoundLibrary::PlaySound(CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(0)), pCmd->Arg(2), !!pCmd->ArgAsInt(1));
+	CSoundLibrary::PlaySound(CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(0)), pCmd->Arg(3), pCmd->ArgAsFloat(1), !!pCmd->ArgAsInt(2));
 }
 
-void CBaseEntity::EmitSound(const eastl::string16& sFilename, bool bLoop)
+void CBaseEntity::EmitSound(const eastl::string16& sFilename, float flVolume, bool bLoop)
 {
-	::EmitSound.RunCommand(sprintf(L"%d %d %s", GetHandle(), bLoop?1:0, sFilename));
+	::EmitSound.RunCommand(sprintf(L"%d %.1f %d %s", GetHandle(), flVolume, bLoop?1:0, sFilename));
 }
 
 SERVER_COMMAND(StopSound)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
-		TMsg("EmitSound with less than 3 arguments.\n");
+		TMsg("StopSound with less than 2 arguments.\n");
 		return;
 	}
 

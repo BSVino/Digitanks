@@ -387,7 +387,7 @@ public:
 	void									RemoveOutputs(const eastl::string& sName);
 	DECLARE_ENTITY_INPUT(RemoveOutput);
 
-	void									EmitSound(const eastl::string16& sSound, bool bLoop = false);
+	void									EmitSound(const eastl::string16& sSound, float flVolume = 1.0f, bool bLoop = false);
 	void									StopSound(const eastl::string16& sModel);
 	bool									IsSoundPlaying(const eastl::string16& sModel);
 	void									SetSoundVolume(const eastl::string16& sModel, float flVolume);
