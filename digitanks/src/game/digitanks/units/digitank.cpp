@@ -2674,6 +2674,9 @@ void CDigitank::ClientUpdate(int iClient)
 
 void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
 {
+	if (!m_bTakeDamage)
+		return;
+
 	if (eDamageType == DAMAGE_LASER)
 		CallOutput("OnTakeLaserDamage");
 

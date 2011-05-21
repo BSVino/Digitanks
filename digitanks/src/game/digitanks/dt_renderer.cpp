@@ -410,6 +410,9 @@ void CDigitanksRenderer::RenderPreviewModes()
 
 	size_t iFormation = 0;
 	
+	Vector vecLookAt;
+	bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
+
 	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
 	{
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pTeam->GetMember(i));
@@ -421,8 +424,6 @@ void CDigitanksRenderer::RenderPreviewModes()
 				EAngle angTurn = EAngle(0, pTank->GetAngles().y, 0);
 				if (pTank->TurnsWith(pCurrentTank))
 				{
-					Vector vecLookAt;
-					bool bMouseOK = DigitanksWindow()->GetMouseGridPosition(vecLookAt);
 					bool bNoTurn = bMouseOK && (vecLookAt - DigitanksGame()->GetPrimarySelectionTank()->GetOrigin()).LengthSqr() < 3*3;
 
 					if (!bNoTurn && bMouseOK)
@@ -519,7 +520,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 			}
 			else if (pTank == pCurrentTank && DigitanksGame()->GetControlMode() == MODE_MOVE)
 			{
-				if (!pCurrentTank->IsPreviewMoveValid())
+				if (!pCurrentTank->IsPreviewMoveValid() && bMouseOK)
 				{
 					bShowGoalMove = true;
 					vecGoalMove = pTank->GetPreviewMove();

@@ -36,6 +36,7 @@ public:
 	virtual void					CalculateVisibility();
 	virtual void					DirtyVisibility() { m_bVisibilityDirty = true; };
 	DECLARE_ENTITY_OUTPUT(OnBecomeVisible);
+	DECLARE_ENTITY_OUTPUT(OnBecomeFullyVisible);
 
 	virtual bool					GetsConcealmentBonus() const { return true; };
 	virtual float					GetCloakConcealment() const { return 0; };

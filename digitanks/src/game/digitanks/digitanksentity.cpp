@@ -22,6 +22,7 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksEntity);
 	SAVEDATA_DEFINE_OUTPUT(OnBecomeVisible);
+	SAVEDATA_DEFINE_OUTPUT(OnBecomeFullyVisible);
 	SAVEDATA_DEFINE_OUTPUT(OnRescue);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYVECTOR, CEntityHandle<class CSupplyLine>, m_ahSupplyLinesIntercepted);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bVisibilityDirty);
@@ -439,7 +440,12 @@ float CDigitanksEntity::GetVisibility()
 		break;
 	}
 
-	if (flOldVisibility <= 0.25f && m_flVisibility > 0.25f)
+	bool bBecameVisible = (flOldVisibility <= 0.25f && m_flVisibility > 0.25f);
+	bool bBecameFullyVisible = (flOldVisibility <= 1.0f && m_flVisibility > 1.0f);
+
+	if (bBecameFullyVisible)
+		CallOutput("OnBecomeFullyVisible");
+	else if (bBecameVisible)
 		CallOutput("OnBecomeVisible");
 
 	m_bVisibilityDirty = false;
@@ -501,6 +507,7 @@ bool CDigitanksEntity::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const
 void CDigitanksEntity::Imprison()
 {
 	m_bImprisoned = true;
+	m_bTakeDamage = false;
 
 	m_hCageParticles.SetActive(true);
 }
@@ -520,6 +527,7 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	pOther->GetTeam()->AddEntity(this);
 
 	m_bImprisoned = false;
+	m_bTakeDamage = true;
 
 	StartTurn();
 

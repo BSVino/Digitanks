@@ -551,7 +551,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFireSmoke->SetEndRadius(4.0f);
 	pWreckageFireSmoke->SetFadeOut(0.5f);
 	pWreckageFireSmoke->SetInheritedVelocity(0.0f);
-	pWreckageFireSmoke->SetRandomVelocity(AABB(Vector(-1, 0, -1), Vector(1, 4, 1)));
+	pWreckageFireSmoke->SetRandomVelocity(AABB(Vector(-2, 0, -2), Vector(2, 4, 2)));
 	pWreckageFireSmoke->SetDrag(0.9f);
 	pWreckageFireSmoke->SetGravity(Vector(0, 10, 0));
 	pWreckageFireSmoke->SetRandomBillboardYaw(true);
