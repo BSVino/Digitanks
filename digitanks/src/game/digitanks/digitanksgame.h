@@ -103,6 +103,8 @@ public:
 	void					TurnTanks(Vector vecLookAt = Vector());
 	void					FireTanks();
 
+	DECLARE_ENTITY_INPUT(CancelAutoMoves);
+
 	void					EndTurn();
 	NET_CALLBACK(CDigitanksGame, EndTurn);
 	void					StartTurn();

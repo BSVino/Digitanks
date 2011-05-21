@@ -78,7 +78,7 @@ public:
 	bool						IsMouseDragging();
 
 	int							GetMouseCurrentX() { return m_iMouseCurrentX; };
-	int							GetMouseCurrentY() { return m_iMouseCurrentX; };
+	int							GetMouseCurrentY() { return m_iMouseCurrentY; };
 
 	void						SetConfigWindowDimensions(int iWidth, int iHeight) { m_iCfgWidth = iWidth; m_iCfgHeight = iHeight; };
 	void						SetConfigFullscreen(bool bFullscreen) { m_bCfgFullscreen = bFullscreen; };

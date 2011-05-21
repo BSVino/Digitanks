@@ -55,7 +55,7 @@ void CPowerBar::Think()
 	if (m_ePowerbarType == POWERBAR_SHIELD)
 	{
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pSelection);
-		if (pTank && pTank->GetShieldMaxStrength())
+		if (pTank && pTank->GetShieldMaxStrength() && pTank->TakesDamage())
 		{
 			sprintf(szLabel, "Shield Strength: %d/%d", (int)(pTank->GetShieldStrength() * pTank->GetShieldMaxStrength()), (int)(pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true)));
 			SetText(szLabel);
@@ -75,7 +75,7 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
 	{
-		if (strlen(pSelection->GetPowerBar1Text()))
+		if (strlen(pSelection->GetPowerBar1Text()) && pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		{
 			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar1Text(), (int)(pSelection->GetPowerBar1Value()*100));
 			SetText(szLabel);
@@ -85,7 +85,7 @@ void CPowerBar::Think()
 	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
 	{
-		if (strlen(pSelection->GetPowerBar2Text()))
+		if (strlen(pSelection->GetPowerBar2Text()) && pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		{
 			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar2Text(), (int)(pSelection->GetPowerBar2Value()*100));
 			SetText(szLabel);
@@ -95,7 +95,7 @@ void CPowerBar::Think()
 	}
 	else
 	{
-		if (strlen(pSelection->GetPowerBar3Text()))
+		if (strlen(pSelection->GetPowerBar3Text()) && pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		{
 			sprintf(szLabel, "%s: %d%%", pSelection->GetPowerBar3Text(), (int)(pSelection->GetPowerBar3Value()*100));
 			SetText(szLabel);
@@ -126,7 +126,7 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 	if (m_ePowerbarType == POWERBAR_SHIELD)
 	{
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pSelection);
-		if (pTank && pTank->GetShieldMaxStrength())
+		if (pTank && pTank->GetShieldMaxStrength() && pTank->TakesDamage())
 		{
 			float flShield = pTank->GetShieldStrength() * pTank->GetShieldMaxStrength();
 			float flShieldMax = pTank->GetShieldMaxStrength() * pTank->GetDefenseScale(true);
@@ -134,13 +134,26 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 		}
 	}
 	else if (m_ePowerbarType == POWERBAR_HEALTH)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetHealth() / pSelection->GetTotalHealth())-2, h-2, Color(0, 150, 0));
+	{
+		CDigitank* pTank = dynamic_cast<CDigitank*>(pSelection);
+		if (!pTank || pTank->TakesDamage())
+			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetHealth() / pSelection->GetTotalHealth())-2, h-2, Color(0, 150, 0));
+	}
 	else if (m_ePowerbarType == POWERBAR_ATTACK)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar1Size())-2, h-2, Color(150, 0, 0));
+	{
+		if (pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar1Size())-2, h-2, Color(150, 0, 0));
+	}
 	else if (m_ePowerbarType == POWERBAR_DEFENSE)
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar2Size())-2, h-2, Color(0, 0, 150));
+	{
+		if (pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar2Size())-2, h-2, Color(0, 0, 150));
+	}
 	else
-		CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar3Size())-2, h-2, Color(100, 100, 0));
+	{
+		if (pSelection->GetTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
+			CRootPanel::PaintRect(x+1, y+1, (int)(w * pSelection->GetPowerBar3Size())-2, h-2, Color(100, 100, 0));
+	}
 
 	BaseClass::Paint(x, y, w, h);
 }
@@ -1028,6 +1041,9 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
+	int iMouseX = DigitanksWindow()->GetMouseCurrentX();
+	int iMouseY = DigitanksWindow()->GetMouseCurrentY();
+
 	if ((DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN) && pCurrentLocalTeam && pCurrentLocalTeam->GetPrimaryCPU())
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
@@ -1084,18 +1100,32 @@ void CHUD::Paint(int x, int y, int w, int h)
 		Vector vecTop = GameServer()->GetRenderer()->ScreenPosition(vecOrigin + vecUp*flRadius);
 		float flWidth = (vecTop - vecScreen).Length()*2 + 10;
 
-		if (pCurrentLocalTeam && pCurrentLocalTeam->IsSelected(pSelectable) && !IsUpdatesPanelOpen())
+		bool bMouseOver = false;
+		if (fabs(vecScreen.x - iMouseX) < flWidth/2 && fabs(vecScreen.y - iMouseY) < flWidth/2)
+			bMouseOver = true;
+
+		bool bShowBox = false;
+		if (pCurrentLocalTeam && pCurrentLocalTeam->IsSelected(pSelectable))
+			bShowBox = true;
+		if (bMouseOver)
+			bShowBox = true;
+		if (IsUpdatesPanelOpen())
+			bShowBox = false;
+
+		if (bShowBox)
 		{
 			Color clrSelection(255, 255, 255, 128);
-			if (pCurrentLocalTeam->IsPrimarySelection(pSelectable))
+			if (pCurrentLocalTeam && pCurrentLocalTeam->IsPrimarySelection(pSelectable))
 				clrSelection = Color(255, 255, 255, 255);
+			else if (pCurrentLocalTeam && !pCurrentLocalTeam->IsSelected(pSelectable) && bMouseOver)
+				clrSelection = Color(255, 255, 255, 50);
 
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), (int)flWidth, 1, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x + flWidth/2), (int)(vecScreen.y - flWidth/2), 1, (int)flWidth, clrSelection);
 			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y + flWidth/2), (int)flWidth, 1, clrSelection);
 
-			if (pTank)
+			if (pTank && pTank->GetTeam() == pCurrentLocalTeam)
 			{
 				CRenderingContext c(GameServer()->GetRenderer());
 				c.SetBlend(BLEND_ALPHA);
@@ -1105,108 +1135,128 @@ void CHUD::Paint(int x, int y, int w, int h)
 			}
 		}
 
-		if (pCurrentLocalTeam && (DigitanksWindow()->IsAltDown() || pEntity->GetTeam() == pCurrentLocalTeam || pCurrentLocalTeam->IsSelected(pSelectable)))
+		bool bShowHealth = false;
+		if (pCurrentLocalTeam && (pEntity->GetTeam() == pCurrentLocalTeam || pCurrentLocalTeam->IsSelected(pSelectable)))
+			bShowHealth = true;
+		if (bMouseOver)
+			bShowHealth = true;
+		if (DigitanksWindow()->IsAltDown())
+			bShowHealth = true;
+		if (!pSelectable->ShowHealthBar())
+			bShowHealth = false;
+
+		if (bShowHealth)
 		{
-			if (pSelectable->ShowHealthBar())
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 11), (int)flWidth + 2, 5, Color(255, 255, 255, 128));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 10), (int)(flWidth*pEntity->GetHealth()/pEntity->GetTotalHealth()), 3, Color(100, 255, 100));
+		}
+
+		bool bShowPower = bMouseOver;
+		if (DigitanksWindow()->IsAltDown())
+			bShowPower = true;
+		if (pEntity->GetTeam() != pCurrentLocalTeam)
+			bShowPower = false;
+		if (!pTank)
+			bShowPower = false;
+
+		if (bShowPower)
+		{
+			float flAttackPower = pTank->GetBaseAttackPower(true);
+			float flDefensePower = pTank->GetBaseDefensePower(true);
+			float flMovementPower = pTank->GetUsedMovementEnergy(true);
+			float flTotalPower = pTank->GetStartingPower();
+			flAttackPower = flAttackPower/flTotalPower;
+			flDefensePower = flDefensePower/flTotalPower;
+			flMovementPower = flMovementPower/pTank->GetMaxMovementEnergy();
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 7), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 6), (int)(flWidth*flAttackPower), 3, Color(255, 0, 0));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*flAttackPower), (int)(vecScreen.y - flWidth/2 - 6), (int)(flWidth*flDefensePower), 3, Color(0, 0, 255));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 3), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
+			CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*flMovementPower), 3, Color(255, 255, 0));
+		}
+
+		bool bShowGoalMove = pTank && pTank->GetTeam() == pCurrentLocalTeam && pTank->HasGoalMovePosition();
+
+		if (bShowGoalMove)
+		{
+			float flDistance = (pTank->GetRealOrigin() - pTank->GetGoalMovePosition()).Length();
+			int iTurns = (int)(flDistance/pTank->GetMaxMovementDistance())+1;
+				
+			eastl::string16 sTurns = sprintf(L":%d", iTurns);
+			CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
+		}
+
+		bool bShowFortify = pTank && (pTank->IsFortified() || pTank->IsFortifying());
+		if (pTank->GetTeam() != pCurrentLocalTeam)
+			bShowFortify = false;
+
+		if (bShowFortify)
+		{
+			eastl::string16 sTurns = sprintf(L"+%d", pTank->GetFortifyLevel());
+
+			float flYPosition = vecScreen.y + flWidth/2;
+			float flXPosition = vecScreen.x + flWidth/2;
+			float flIconSize = 10;
+
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+
+			Rect rArea = m_ButtonSheet.GetArea("Fortify");
+			CBaseControl::PaintSheet(m_ButtonSheet.GetSheet("Fortify"),
+				(int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize,
+				rArea.x, rArea.y, rArea.w, rArea.y, m_ButtonSheet.GetSheetWidth("Fortify"), m_ButtonSheet.GetSheetHeight("Fortify"));
+			CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, flXPosition - 13, flYPosition - 3);
+		}
+
+		if (pStructure)
+		{
+			int iTurnsProgressed = 0;
+			int iTotalTurns = 0;
+			if (pStructure->IsConstructing())
 			{
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 11), (int)flWidth + 2, 5, Color(255, 255, 255, 128));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 10), (int)(flWidth*pEntity->GetHealth()/pEntity->GetTotalHealth()), 3, Color(100, 255, 100));
+				iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetOrigin());
+				iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToConstruct();
+			}
+			else if (pStructure->IsUpgrading())
+			{
+				iTotalTurns = pStructure->GetTurnsToUpgrade();
+				iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToUpgrade();
 			}
 
-			if (pTank)
+			iTurnsProgressed++;
+			iTotalTurns++;
+
+			if (pStructure->IsConstructing() || pStructure->IsUpgrading())
+				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*iTurnsProgressed/iTotalTurns), 3, Color(255, 255, 0));
+
+			if (pStructure->IsConstructing())
 			{
-				float flAttackPower = pTank->GetBaseAttackPower(true);
-				float flDefensePower = pTank->GetBaseDefensePower(true);
-				float flMovementPower = pTank->GetUsedMovementEnergy(true);
-				float flTotalPower = pTank->GetStartingPower();
-				flAttackPower = flAttackPower/flTotalPower;
-				flDefensePower = flDefensePower/flTotalPower;
-				flMovementPower = flMovementPower/pTank->GetMaxMovementEnergy();
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 7), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 6), (int)(flWidth*flAttackPower), 3, Color(255, 0, 0));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 + flWidth*flAttackPower), (int)(vecScreen.y - flWidth/2 - 6), (int)(flWidth*flDefensePower), 3, Color(0, 0, 255));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2 - 1), (int)(vecScreen.y - flWidth/2 - 3), (int)(flWidth + 2), 5, Color(255, 255, 255, 128));
-				CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*flMovementPower), 3, Color(255, 255, 0));
+				eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToConstruct());
+				CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
+			}
+			else if (pStructure->IsUpgrading())
+			{
+				eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToUpgrade());
+				CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
+			}
 
-				if (pTank->HasGoalMovePosition())
+			if (pStructure->GetUnitType() == STRUCTURE_CPU)
+			{
+				CCPU* pCPU = static_cast<CCPU*>(pStructure);
+				if (pCPU->IsProducing())
 				{
-					float flDistance = (pTank->GetRealOrigin() - pTank->GetGoalMovePosition()).Length();
-					int iTurns = (int)(flDistance/pTank->GetMaxMovementDistance())+1;
-
-					eastl::string16 sTurns = sprintf(L":%d", iTurns);
+					eastl::string16 sTurns = L":1";	// It only ever takes one turn to make a rogue.
 					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
-				}
-
-				if (pTank->IsFortified() || pTank->IsFortifying())
-				{
-					eastl::string16 sTurns = sprintf(L"+%d", pTank->GetFortifyLevel());
-
-					float flYPosition = vecScreen.y + flWidth/2;
-					float flXPosition = vecScreen.x + flWidth/2;
-					float flIconSize = 10;
-
-					CRenderingContext c(GameServer()->GetRenderer());
-					c.SetBlend(BLEND_ALPHA);
-
-					Rect rArea = m_ButtonSheet.GetArea("Fortify");
-					CBaseControl::PaintSheet(m_ButtonSheet.GetSheet("Fortify"),
-						(int)(flXPosition - 14 - flIconSize), (int)(flYPosition - flIconSize)-1, (int)flIconSize, (int)flIconSize,
-						rArea.x, rArea.y, rArea.w, rArea.y, m_ButtonSheet.GetSheetWidth("Fortify"), m_ButtonSheet.GetSheetHeight("Fortify"));
-					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, flXPosition - 13, flYPosition - 3);
 				}
 			}
 
-			CStructure* pStructure = dynamic_cast<CStructure*>(pSelectable);
-			if (pStructure)
+			if (pStructure->GetUnitType() == STRUCTURE_TANKLOADER || pStructure->GetUnitType() == STRUCTURE_INFANTRYLOADER || pStructure->GetUnitType() == STRUCTURE_ARTILLERYLOADER)
 			{
-				int iTurnsProgressed = 0;
-				int iTotalTurns = 0;
-				if (pStructure->IsConstructing())
+				CLoader* pLoader = static_cast<CLoader*>(pStructure);
+				if (pLoader->IsProducing())
 				{
-					iTotalTurns = pStructure->GetTurnsToConstruct(pStructure->GetOrigin());
-					iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToConstruct();
-				}
-				else if (pStructure->IsUpgrading())
-				{
-					iTotalTurns = pStructure->GetTurnsToUpgrade();
-					iTurnsProgressed = iTotalTurns-pStructure->GetTurnsRemainingToUpgrade();
-				}
-
-				iTurnsProgressed++;
-				iTotalTurns++;
-
-				if (pStructure->IsConstructing() || pStructure->IsUpgrading())
-					CRootPanel::PaintRect((int)(vecScreen.x - flWidth/2), (int)(vecScreen.y - flWidth/2 - 2), (int)(flWidth*iTurnsProgressed/iTotalTurns), 3, Color(255, 255, 0));
-
-				if (pStructure->IsConstructing())
-				{
-					eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToConstruct());
+					eastl::string16 sTurns = sprintf(L":%d", pLoader->GetTurnsRemainingToProduce());
 					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
-				}
-				else if (pStructure->IsUpgrading())
-				{
-					eastl::string16 sTurns = sprintf(L":%d", pStructure->GetTurnsRemainingToUpgrade());
-					CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
-				}
-
-				if (pStructure->GetUnitType() == STRUCTURE_CPU)
-				{
-					CCPU* pCPU = static_cast<CCPU*>(pStructure);
-					if (pCPU->IsProducing())
-					{
-						eastl::string16 sTurns = L":1";	// It only ever takes one turn to make a rogue.
-						CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
-					}
-				}
-
-				if (pStructure->GetUnitType() == STRUCTURE_TANKLOADER || pStructure->GetUnitType() == STRUCTURE_INFANTRYLOADER || pStructure->GetUnitType() == STRUCTURE_ARTILLERYLOADER)
-				{
-					CLoader* pLoader = static_cast<CLoader*>(pStructure);
-					if (pLoader->IsProducing())
-					{
-						eastl::string16 sTurns = sprintf(L":%d", pLoader->GetTurnsRemainingToProduce());
-						CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, vecScreen.x + flWidth/2 - 10, vecScreen.y - flWidth/2 + CLabel::GetFontHeight(L"text", 10) - 2);
-					}
 				}
 			}
 		}

@@ -25,11 +25,8 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 	if (IsMouseRightDown())
 		m_iMouseMoved += (int)(fabs((float)x-m_iMouseLastX) + fabs((float)y-m_iMouseLastY));
 
-	if (IsMouseLeftDown())
-	{
-		m_iMouseCurrentX = x;
-		m_iMouseCurrentY = y;
-	}
+	m_iMouseCurrentX = x;
+	m_iMouseCurrentY = y;
 
 	m_iMouseLastX = x;
 	m_iMouseLastY = y;

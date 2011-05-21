@@ -119,6 +119,7 @@ SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksGame);
 	INPUT_DEFINE(Autosave);
+	INPUT_DEFINE(CancelAutoMoves);
 	INPUT_DEFINE(PlayerVictory);
 	INPUT_DEFINE(PlayerLoss);
 	INPUT_DEFINE(TankSelectionMedal);
@@ -1668,6 +1669,16 @@ void CDigitanksGame::FireTanks()
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-command", true);
 	SetControlMode(MODE_NONE);
+}
+
+void CDigitanksGame::CancelAutoMoves(const eastl::vector<eastl::string16>& sArgs)
+{
+	CDigitanksTeam* pTeam = GetCurrentTeam();
+	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
+	{
+		CDigitank* pTank = pTeam->GetTank(i);
+		pTank->CancelGoalMovePosition();
+	}
 }
 
 void CDigitanksGame::EndTurn()
