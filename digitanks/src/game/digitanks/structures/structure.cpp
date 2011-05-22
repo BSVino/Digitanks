@@ -782,6 +782,9 @@ void CSupplier::OnTeamChange()
 
 	BaseClass::OnTeamChange();
 	UpdateTendrils();
+
+	// This happens in UpdateTendrils() but do it again here anyway because UpdateTendrils only does it if there's a new tendril created.
+	DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetOrigin(), GetDataFlowRadius() + GetBoundingRadius());
 }
 
 void CSupplier::StartTurn()

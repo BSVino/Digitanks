@@ -988,7 +988,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 
 					float flX = RemapVal((float)a, 0, TERRAIN_CHUNK_TEXTURE_SIZE, flXMin, flXMax);
 					float flY = RemapVal((float)b, 0, TERRAIN_CHUNK_TEXTURE_SIZE, flYMin, flYMax);
-					Vector vecPoint = Vector(flX, 0, flY);
+					Vector vecPoint = SetPointHeight(Vector(flX, 0, flY));
 
 					float flDistanceSqr = vecSupplierOrigin.DistanceSqr(vecPoint);
 					if (flDistanceSqr > flDataFlowRadius*flDataFlowRadius)
