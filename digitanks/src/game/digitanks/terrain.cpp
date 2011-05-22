@@ -477,6 +477,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 				pChunk->m_aflTerrainVisibility[1][1] = 1.0f;
 
 				pChunk->m_bNeedsRegenerate = true;
+				pChunk->m_bNeedsRegenerateTexture = true;
 			}
 		}
 	}
@@ -869,14 +870,25 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	glEnd();
 	glEndList();
 
+	GenerateTerrainTexture(i, j);
+
+	pChunk->m_bNeedsRegenerate = false;
+}
+
+void CTerrain::GenerateTerrainTexture(int i, int j)
+{
+	CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
+	if (!pChunk->m_bNeedsRegenerateTexture)
+		return;
+
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
+		int x = TERRAIN_CHUNK_SIZE*i + a * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
+		int xbit = x%TERRAIN_CHUNK_SIZE;
+
 		for (int b = 0; b < TERRAIN_CHUNK_TEXTURE_SIZE; b++)
 		{
-			int x = TERRAIN_CHUNK_SIZE*i + a * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
 			int y = TERRAIN_CHUNK_SIZE*j + b * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
-
-			int xbit = x%TERRAIN_CHUNK_SIZE;
 			int ybit = y%TERRAIN_CHUNK_SIZE;
 
 			if (pChunk->GetBit(xbit, ybit, TB_LAVA))
@@ -903,6 +915,92 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		}
 	}
 
+	// Add colored areas around each supplier to indicate network area.
+	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD || DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN)
+	{
+		float flXMin = ChunkToWorldSpace(i, 0);
+		float flXMax = ChunkToWorldSpace(i+1, 0);
+		float flYMin = ChunkToWorldSpace(j, 0);
+		float flYMax = ChunkToWorldSpace(j+1, 0);
+		size_t iMaxEnts = GameServer()->GetMaxEntities();
+
+		for (size_t e = 0; e < iMaxEnts; e++)
+		{
+			CBaseEntity* pEntity = CBaseEntity::GetEntity(e);
+			if (!pEntity)
+				continue;
+
+			if (!pEntity->GetTeam())
+				continue;
+
+			CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
+			if (!pSupplier)
+				continue;
+
+			if (pSupplier->IsConstructing())
+				continue;
+
+			if (pSupplier->IsImprisoned())
+				continue;
+
+			float flDataFlowRadius = pSupplier->GetDataFlowRadius() + pSupplier->GetBoundingRadius();
+			if (flDataFlowRadius == 0)
+				continue;
+
+			Vector vecSupplierOrigin = SetPointHeight(pSupplier->GetOrigin());
+
+			int iAMin = (int)RemapVal(vecSupplierOrigin.x - flDataFlowRadius, flXMin, flXMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
+			int iAMax = (int)RemapVal(vecSupplierOrigin.x + flDataFlowRadius, flXMin, flXMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
+
+			if (iAMin < 0 && iAMax < 0)
+				continue;
+
+			if (iAMin >= TERRAIN_CHUNK_TEXTURE_SIZE && iAMax >= TERRAIN_CHUNK_TEXTURE_SIZE)
+				continue;
+
+			int iBMin = (int)RemapVal(vecSupplierOrigin.z - flDataFlowRadius, flYMin, flYMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
+			int iBMax = (int)RemapVal(vecSupplierOrigin.z + flDataFlowRadius, flYMin, flYMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
+
+			if (iBMin < 0 && iBMax < 0)
+				continue;
+
+			if (iBMin >= TERRAIN_CHUNK_TEXTURE_SIZE && iBMax >= TERRAIN_CHUNK_TEXTURE_SIZE)
+				continue;
+
+			for (int a = iAMin; a < iAMax; a++)
+			{
+				if (a < 0 || a >= TERRAIN_CHUNK_TEXTURE_SIZE)
+					continue;
+
+				int x = TERRAIN_CHUNK_SIZE*i + a * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
+				int xbit = x%TERRAIN_CHUNK_SIZE;
+
+				for (int b = iBMin; b < iBMax; b++)
+				{
+					if (b < 0 || b >= TERRAIN_CHUNK_TEXTURE_SIZE)
+						continue;
+
+					int y = TERRAIN_CHUNK_SIZE*j + b * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
+					int ybit = y%TERRAIN_CHUNK_SIZE;
+
+					if (pChunk->GetBit(xbit, ybit, (terrainbit_t)(TB_LAVA|TB_WATER|TB_HOLE)))
+						continue;
+
+					float flX = RemapVal((float)a, 0, TERRAIN_CHUNK_TEXTURE_SIZE, flXMin, flXMax);
+					float flY = RemapVal((float)b, 0, TERRAIN_CHUNK_TEXTURE_SIZE, flYMin, flYMax);
+					Vector vecPoint = Vector(flX, 0, flY);
+
+					float flDistanceSqr = vecSupplierOrigin.DistanceSqr(vecPoint);
+					if (flDistanceSqr > flDataFlowRadius*flDataFlowRadius)
+						continue;
+
+					float flWeight = Lerp(RemapVal(flDistanceSqr, 0, flDataFlowRadius*flDataFlowRadius, RemapValClamped(pSupplier->GetDataFlowRate(), 3000, 5000, 0.2f, 1.0f), 0), 0.65f);
+					pChunk->m_aclrTexture[a][b] = Vector(pSupplier->GetTeam()->GetColor())*flWeight + Vector(pChunk->m_aclrTexture[a][b])*(1-flWeight);
+				}
+			}
+		}
+	}
+
 	if (pChunk->m_iChunkTexture)
 		glDeleteTextures(1, &pChunk->m_iChunkTexture);
 	glGenTextures(1, &pChunk->m_iChunkTexture);
@@ -912,7 +1010,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TERRAIN_CHUNK_TEXTURE_SIZE, TERRAIN_CHUNK_TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)pChunk->m_aclrTexture[0][0]);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	pChunk->m_bNeedsRegenerate = false;
+	pChunk->m_bNeedsRegenerateTexture = false;
 }
 
 void CTerrain::GenerateCallLists()
@@ -942,6 +1040,34 @@ void CTerrain::GenerateCallLists()
 	GenerateTerrainCallLists();
 
 	TMsg(L"Done.\n");
+}
+
+void CTerrain::DirtyChunkTexturesWithinDistance(Vector vecPoint, float flDistance)
+{
+	vecPoint = SetPointHeight(vecPoint);
+
+	float flChunkWidth = ArrayToWorldSpace(TERRAIN_CHUNK_SIZE) - ArrayToWorldSpace(0);
+	float flChunkRadius = Vector(flChunkWidth/2, 0, flChunkWidth/2).Length();
+	float flMaxDistance = flDistance + flChunkRadius;
+
+	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
+	{
+		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
+		{
+			CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
+
+			float flXMin = ChunkToWorldSpace(i, 0);
+			float flYMin = ChunkToWorldSpace(j, 0);
+			Vector vecChunkCenter(flXMin + flChunkWidth/2, 0, flYMin + flChunkWidth/2);
+			float flDistanceToPointSqr = (vecChunkCenter-vecPoint).Length2DSqr();
+
+			if (flDistanceToPointSqr < flMaxDistance*flMaxDistance)
+			{
+				pChunk->m_bNeedsRegenerate = pChunk->m_bNeedsRegenerateTexture = true;
+				continue;
+			}
+		}
+	}
 }
 
 float CTerrain::GetAOValue(int x, int y)
@@ -1003,6 +1129,7 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 				SetBit(x, z, TB_WATER, false);
 
 				pChunk->m_bNeedsRegenerate = true;
+				pChunk->m_bNeedsRegenerateTexture = true;
 			}
 		}
 	}
@@ -1657,7 +1784,7 @@ void CTerrain::SetBit(int x, int y, terrainbit_t b, bool v)
 
 	bool bCurrentBit = GetBit(x, y, b);
 	if (bCurrentBit != v)
-		pChunk->m_bNeedsRegenerate = true;
+		pChunk->m_bNeedsRegenerate = pChunk->m_bNeedsRegenerateTexture = true;
 
 	if (v)
 		pChunk->m_aiSpecialData[x2][y2] |= b;
@@ -2463,6 +2590,7 @@ CTerrainChunk::CTerrainChunk()
 	m_iTransparentCallList = 0;
 	m_iWallList = 0;
 	m_bNeedsRegenerate = true;
+	m_bNeedsRegenerateTexture = true;
 	m_iChunkTexture = 0;
 
 	memset(m_aiSpecialData, 0, sizeof(m_aiSpecialData));
@@ -2560,7 +2688,7 @@ void CTerrainChunk::SetBit(int x, int y, terrainbit_t b, bool v)
 {
 	bool bCurrentBit = GetBit(x, y, b);
 	if (bCurrentBit != v)
-		m_bNeedsRegenerate = true;
+		m_bNeedsRegenerate = m_bNeedsRegenerateTexture = true;
 
 	if (v)
 		m_aiSpecialData[x][y] |= b;

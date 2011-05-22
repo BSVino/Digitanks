@@ -683,7 +683,8 @@ float CSupplier::GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore)
 		return 0;
 
 	float flDataStrength = 0;
-	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
+	size_t iNumMembers = pTeam->GetNumMembers();
+	for (size_t i = 0; i < iNumMembers; i++)
 	{
 		CBaseEntity* pEntity = pTeam->GetMember(i);
 		if (!pEntity)
@@ -985,6 +986,9 @@ void CSupplier::PostRender(bool bTransparent)
 
 		for (size_t i = 0; i < m_aTendrils.size(); i++)
 		{
+			if (i < m_aTendrils.size() - 15)
+				continue;
+
 			CTendril* pTendril = &m_aTendrils[i];
 
 			float flGrowthLength = RemapVal(flGrowthTime, 0, GROWTH_TIME, pTendril->m_flLength-flTotalSize, pTendril->m_flLength);
@@ -1007,7 +1011,7 @@ void CSupplier::PostRender(bool bTransparent)
 				glUniform1f(flSpeed, pTendril->m_flSpeed);
 			}
 
-			clrTeam.SetAlpha(160);
+			clrTeam.SetAlpha(105);
 
 			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
 			oRope.SetColor(clrTeam);
@@ -1017,7 +1021,7 @@ void CSupplier::PostRender(bool bTransparent)
 
 			for (size_t i = 1; i < iSegments; i++)
 			{
-				clrTeam.SetAlpha((int)RemapVal((float)i, 1, (float)iSegments, 155, 50));
+				clrTeam.SetAlpha((int)RemapVal((float)i, 1, (float)iSegments, 100, 30));
 				oRope.SetColor(clrTeam);
 
 				float flCurrentDistance = ((float)i*flDistance)/iSegments;
@@ -1043,12 +1047,15 @@ void CSupplier::UpdateTendrils()
 			glDeleteLists((GLuint)m_iTendrilsCallList, 1);
 
 		m_iTendrilsCallList = 0;
+
+		DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetOrigin(), GetDataFlowRadius() + GetBoundingRadius());
 		return;
 	}
 
 	if (GameServer()->IsLoading())
 		return;
 
+	bool bUpdateTerrain = false;
 	size_t iRadius = (size_t)GetDataFlowRadius();
 	while (m_aTendrils.size() < iRadius)
 	{
@@ -1059,7 +1066,12 @@ void CSupplier::UpdateTendrils()
 		pTendril->m_flScale = RandomFloat(3, 7);
 		pTendril->m_flOffset = RandomFloat(0, 1);
 		pTendril->m_flSpeed = RandomFloat(0.5f, 2);
+
+		bUpdateTerrain = true;
 	}
+
+	if (bUpdateTerrain)
+		DigitanksGame()->GetTerrain()->DirtyChunkTexturesWithinDistance(GetOrigin(), GetDataFlowRadius() + GetBoundingRadius());
 
 	if (m_iTendrilsCallList)
 		glDeleteLists((GLuint)m_iTendrilsCallList, 1);
@@ -1069,6 +1081,10 @@ void CSupplier::UpdateTendrils()
 	glNewList((GLuint)m_iTendrilsCallList, GL_COMPILE);
 	for (size_t i = 0; i < m_aTendrils.size(); i++)
 	{
+		// Only show the longest tendrils, for perf reasons.
+		if (i < iRadius - 15)
+			continue;
+
 		CTendril* pTendril = &m_aTendrils[i];
 
 		Vector vecDestination = pTendril->m_vecEndPoint;
@@ -1087,7 +1103,7 @@ void CSupplier::UpdateTendrils()
 		GLuint flSpeed = glGetUniformLocation(iScrollingTextureProgram, "flSpeed");
 		glUniform1f(flSpeed, pTendril->m_flSpeed);
 
-		clrTeam.SetAlpha(160);
+		clrTeam.SetAlpha(105);
 
 		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
 		oRope.SetColor(clrTeam);
@@ -1097,7 +1113,7 @@ void CSupplier::UpdateTendrils()
 
 		for (size_t i = 1; i < iSegments; i++)
 		{
-			clrTeam.SetAlpha((int)RemapVal((float)i, 1, (float)iSegments, 155, 50));
+			clrTeam.SetAlpha((int)RemapVal((float)i, 1, (float)iSegments, 100, 30));
 			oRope.SetColor(clrTeam);
 
 			float flCurrentDistance = ((float)i*flDistance)/iSegments;

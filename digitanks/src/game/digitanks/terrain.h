@@ -68,6 +68,7 @@ protected:
 	size_t							m_iWallList;
 
 	bool							m_bNeedsRegenerate;
+	bool							m_bNeedsRegenerateTexture;
 
 	size_t							x, y;
 
@@ -96,7 +97,10 @@ public:
 	void					GenerateCollision();
 	void					GenerateTerrainCallLists();
 	void					GenerateTerrainCallList(int x, int y);
+	void					GenerateTerrainTexture(int x, int y);
 	void					GenerateCallLists();
+
+	void					DirtyChunkTexturesWithinDistance(Vector vecPoint, float flDistance);
 
 	float					GetAOValue(int x, int y);
 

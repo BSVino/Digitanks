@@ -373,7 +373,7 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 	if (!m_bActive)
 		return;
 
-	if (m_apTutorials.find(sTutorial) == m_apTutorials.end())
+	if (sTutorial.length() == 0 || m_apTutorials.find(sTutorial) == m_apTutorials.end())
 	{
 		if (m_apTutorials[m_sCurrentTutorial] && m_apTutorials[m_sCurrentTutorial]->m_bKillOnFinish)
 			SetActive(false);
