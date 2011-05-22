@@ -1009,11 +1009,11 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			{
 				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin, pTank);
 
-				if (pTank->GetUnitType() == UNIT_TANK)
+				if (pTank->GetUnitType() == UNIT_INFANTRY)
 				{
 					Vector vecMove = vecDesiredMove - pTank->GetOrigin();
 
-					// Don't let tanks get ahead of their infantry complements.
+					// Don't let resistors get ahead of their tank complements.
 					vecMove *= 0.7f;
 
 					vecDesiredMove = pTank->GetOrigin() + vecMove;

@@ -22,7 +22,7 @@ public:
 
 	virtual float				BaseShieldRechargeRate() const;
 	virtual float				BaseHealthRechargeRate() const;
-	virtual float				GetTankSpeed() const { return 2.0f; }
+	virtual float				GetTankSpeed() const { return 3.0f; }
 	virtual float				InitialEffRange() const { return 30.0f; };
 	virtual float				InitialMaxRange() const { return 60.0f; };
 	virtual float				TurnPerPower() const { return 45; }
