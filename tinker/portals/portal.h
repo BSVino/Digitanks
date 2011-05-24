@@ -4,7 +4,9 @@
 #include <EASTL/string.h>
 
 #if !defined(TINKER_PORTAL_STEAM)
+#ifndef TINKER_PORTAL_NONE
 #define TINKER_PORTAL_NONE
+#endif
 #endif
 
 bool TPortal_Startup();

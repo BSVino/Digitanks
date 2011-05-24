@@ -326,3 +326,8 @@ void DebugPrint(eastl::string16 sText)
 {
 	OutputDebugString(sText.c_str());
 }
+
+void Exec(eastl::string sLine)
+{
+	system(sLine.c_str());
+}

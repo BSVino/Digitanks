@@ -198,7 +198,6 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "D:\My Dro
     <ClCompile Include="game\gameserver.cpp" />
     <ClCompile Include="game\level.cpp" />
     <ClCompile Include="game\networkedeffect.cpp" />
-    <ClCompile Include="intro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="models\texturelibrary.cpp" />
     <ClCompile Include="models\texturesheet.cpp" />

@@ -25,8 +25,10 @@ public:
 	virtual eastl::string16		AppDirectory() { return L"Tinker"; }
 
 	void						SwapBuffers();
-	bool						IsOpen();
 	float						GetTime();
+
+	bool						IsOpen();
+	void						Close();
 
 	static void					RenderCallback() { Get()->Render(); };
 	virtual void				Render();
@@ -48,13 +50,19 @@ public:
 
 	static void					KeyEventCallback(int c, int e) { Get()->KeyEvent(c, e); };
 	void						KeyEvent(int c, int e);
-	virtual void				KeyPress(int c) {};
-	virtual void				KeyRelease(int c) {};
+	virtual void				KeyPress(int c);
+	virtual void				KeyRelease(int c);
 
 	static void					CharEventCallback(int c, int e) { Get()->CharEvent(c, e); };
 	void						CharEvent(int c, int e);
-	virtual void				CharPress(int c) {};
-	virtual void				CharRelease(int c) {};
+	virtual void				CharPress(int c);
+	virtual void				CharRelease(int c);
+
+	virtual void				DoKeyPress(int c) {};
+	virtual void				DoKeyRelease(int c) {};
+
+	virtual void				DoCharPress(int c) {};
+	virtual void				DoCharRelease(int c) {};
 
 	bool						IsCtrlDown();
 	bool						IsAltDown();
@@ -115,5 +123,8 @@ protected:
 // Tinker messages and errors
 #define TMsg CApplication::PrintConsole
 #define TError(x) CApplication::PrintConsole(eastl::string16(L"Error: ") + x)
+
+typedef void (*CreateApplicationCallback)(int argc, char** argv);
+void CreateApplicationWithErrorHandling(CreateApplicationCallback pfnCallback, int argc, char** argv);
 
 #endif

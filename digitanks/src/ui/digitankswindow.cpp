@@ -5,8 +5,6 @@
 #endif
 
 #include <GL/glew.h>
-#include <IL/il.h>
-#include <IL/ilu.h>
 #include <time.h>
 
 #include <common.h>
@@ -115,8 +113,6 @@ void CDigitanksWindow::OpenWindow()
 	glgui::CLabel::AddFont(L"cameramissile", L"fonts/cameramissile.ttf");
 
 	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
-
-	ilInit();
 
 	m_iCursors = CTextureLibrary::AddTextureID(L"textures/cursors.png");
 	m_iLoading = CTextureLibrary::AddTextureID(L"textures/loading.png");

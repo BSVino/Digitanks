@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{b43e453b-3cc6-46ee-9b0c-314e3cc0a7b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tinker">
+      <UniqueIdentifier>{8acd59b9-9e0d-4e06-a94a-f8374f9467fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{e407e473-a06b-4b8e-a9b7-3501b343ad10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tinker\portals">
+      <UniqueIdentifier>{016dba3c-3b4f-4311-a072-d7b5176118f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\eastl">
+      <UniqueIdentifier>{873cfc02-5d1d-407f-b740-fd20a2f5e7da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glew">
+      <UniqueIdentifier>{dfb137f9-67bf-4bd4-915a-3916d7c6ad19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glgui">
+      <UniqueIdentifier>{8998ab98-6e15-41db-91d2-968499be6db0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{280f7515-f30e-4efe-9196-44020e6ae33a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer">
+      <UniqueIdentifier>{48dae240-a348-4d06-b690-8da925d77447}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\network">
+      <UniqueIdentifier>{6af195d0-1a8b-4d9a-99a6-d36b940f1ebf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\models">
+      <UniqueIdentifier>{33f1904e-e24c-4c3a-b4bc-39fafcdbb791}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sound">
+      <UniqueIdentifier>{5b88feb7-31f9-4d7f-bb6d-c242d047cd26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\datamanager">
+      <UniqueIdentifier>{31edcbc4-ad98-4d5d-9b0a-05e7870c6dc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tinker\lobby">
+      <UniqueIdentifier>{b345d0b5-e3a0-498d-86ea-fa31fec4d654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{9c3c09e9-dcaf-4c07-9d66-2585a4150370}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\application.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mtrand.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\portals\portal_stubs.cpp">
+      <Filter>Source Files\tinker\portals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\configfile.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\register.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\fixed_pool.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\hashtable.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\red_black_tree.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\string.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\allocator.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\assert.cpp">
+      <Filter>Source Files\eastl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\glew\src\glew.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\platform_win32.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\console.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\cvar.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glgui\glgui.cpp">
+      <Filter>Source Files\glgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\eastl.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\gamewindow.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\profiler.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\gameserver.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderer\renderer.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderer\particles.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderer\systems.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\baseentity.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\commands.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\network.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\replication.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\models\models.cpp">
+      <Filter>Source Files\models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\models\texturelibrary.cpp">
+      <Filter>Source Files\models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\models\texturesheet.cpp">
+      <Filter>Source Files\models</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sound\sound.cpp">
+      <Filter>Source Files\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\camera.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\game.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\team.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\level.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\datamanager\data.cpp">
+      <Filter>Source Files\datamanager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\datamanager\dataserializer.cpp">
+      <Filter>Source Files\datamanager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderer\dissolver.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\lobby\lobby_client.cpp">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tinker\lobby\lobby_server.cpp">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ui\chatbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\blur.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\explosion.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\filters.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\model.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\prop.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\shaders.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shaders\terrain.cpp">
+      <Filter>Source Files\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\tinker\application.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\mtrand.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\portals\portal.h">
+      <Filter>Source Files\tinker\portals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\configfile.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\common.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\platform.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\console.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\cvar.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glgui\glgui.h">
+      <Filter>Source Files\glgui</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_window.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\gamewindow.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\profiler.h">
+      <Filter>Source Files\tinker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\gameserver.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderer\renderer.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderer\particles.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\baseentity.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\commands.h">
+      <Filter>Source Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\network.h">
+      <Filter>Source Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\replication.h">
+      <Filter>Source Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\models\models.h">
+      <Filter>Source Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\models\texturelibrary.h">
+      <Filter>Source Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\models\texturesheet.h">
+      <Filter>Source Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sound\sound.h">
+      <Filter>Source Files\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\camera.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\game.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\team.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_game.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\level.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\datamanager\dataserializer.h">
+      <Filter>Source Files\datamanager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\datamanager\data.h">
+      <Filter>Source Files\datamanager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderer\dissolver.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\lobby\lobby.h">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\lobby\lobby_client.h">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tinker\lobby\lobby_server.h">
+      <Filter>Source Files\tinker\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ui\chatbox.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shaders\dt_shaders.h">
+      <Filter>Source Files\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shaders\shaders.h">
+      <Filter>Source Files\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_camera.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="screen.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_renderer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -94,10 +94,6 @@ CGameServer::CGameServer()
 	m_iClient = -1;
 
 	m_bHalting = false;
-
-#ifdef _DEBUG
-	CParticleSystemLibrary::Get()->LoadParticleSystem(0);
-#endif
 }
 
 CGameServer::~CGameServer()
@@ -481,6 +477,9 @@ void CGameServer::Simulate()
 void CGameServer::Render()
 {
 	TPROF("CGameServer::Render");
+
+	if (!m_pCamera)
+		return;
 
 	m_pCamera->Think();
 

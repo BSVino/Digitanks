@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AD2CE08C-B886-4770-AEE3-0B5DF78B1F52}</ProjectGuid>
+    <RootNamespace>dtintro</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;..;../..;../../..;..\game\;../../../ext-deps/EASTL/include;../../../ext-deps/glfw/include;../../../ext-deps/glew/include;../../..\common\math;../../../ext-deps/DevIL-1.7.8/include;../../..\ext-deps/ftgl-2.1.3~rc5\src;../../..\ext-deps/freetype-2.3.11\include;../../..\common;../..\..\ext-deps/SDL_mixer-1.2.11\include;../..\..\ext-deps/SDL-1.2.14\include;..\..\..\ext-deps\enet-1.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC;FREEGLUT_STATIC;FTGL_LIBRARY_STATIC;WIN32;_CHAR16T;TINKER_NO_REGISTRATION;TINKER_UNLOCKED;TINKER_PORTAL_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ftgl_static_D.lib;freetype2311MT_D.lib;raytracer.lib;modelconverter_nocollada.lib;SDL_mixer.lib;SDL.lib;SDLmain.lib;Iphlpapi.lib;GLFW.lib;opengl32.lib;glu32.lib;Winmm.lib;enet.lib;Ws2_32.lib;raytracer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../ext-deps/glfw/support/msvc2010/Debug;../../../lib/debug;../../..\ext-deps/freetype-2.3.11\objs\win32\vc2010;../../..\ext-deps/ftgl-2.1.3~rc5\msvc\build;../..\..\ext-deps\devil-1.7.8\msvc10\Debug;$(PROGRAMFILES)\Feeling Software\FCollada\Output\Debug Unicode Win32;../..\..\ext-deps/SDL-1.2.14\lib;../..\..\ext-deps/SDL_mixer-1.2.11\lib;../..\..\ext-deps/enet-1.3.0\Debug;../..\..\ext-deps\steamworks-sdk-1.12\redistributable_bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.;..;../..;../../..;..\game\;../../../ext-deps/EASTL/include;../../../ext-deps/glfw/include;../../../ext-deps/glew/include;../../..\common\math;../../../ext-deps/DevIL-1.7.8/include;../../..\ext-deps/ftgl-2.1.3~rc5\src;../../..\ext-deps/freetype-2.3.11\include;../../..\common;../..\..\ext-deps/SDL_mixer-1.2.11\include;../..\..\ext-deps/SDL-1.2.14\include;..\..\..\ext-deps\enet-1.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC;FREEGLUT_STATIC;FTGL_LIBRARY_STATIC;WIN32;NDEBUG;_CHAR16T;TINKER_NO_REGISTRATION;TINKER_UNLOCKED;TINKER_PORTAL_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>../../../ext-deps/glfw/support/msvc2010/Release;../../../lib/release;../..\..\ext-deps\devil-1.7.8\msvc10\Release;../../..\ext-deps/freetype-2.3.11\objs\win32\vc2010;../../..\ext-deps/ftgl-2.1.3~rc5\msvc\build;$(PROGRAMFILES)\Feeling Software\FCollada\Output\Retail Unicode Win32;../..\..\ext-deps/SDL-1.2.14\lib;../..\..\ext-deps/SDL_mixer-1.2.11\lib;../..\..\ext-deps/enet-1.3.0\Release;../..\..\ext-deps\steamworks-sdk-1.12\redistributable_bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ftgl_static.lib;freetype2311MT.lib;modelconverter_nocollada.lib;SDL_mixer.lib;SDL.lib;SDLmain.lib;GLFW.lib;opengl32.lib;glu32.lib;Winmm.lib;dbghelp.lib;Iphlpapi.lib;enet.lib;Ws2_32.lib;raytracer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)"dtintro.exe copy "$(TargetDir)"dtintro.exe "\My Dropbox\Digitanks\install\dtintro.exe"
+if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\Digitanks\install\dtintro.pdb"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\common\configfile.cpp" />
+    <ClCompile Include="..\..\..\common\eastl.cpp" />
+    <ClCompile Include="..\..\..\common\mtrand.cpp" />
+    <ClCompile Include="..\..\..\common\platform_win32.cpp" />
+    <ClCompile Include="..\..\..\datamanager\data.cpp" />
+    <ClCompile Include="..\..\..\datamanager\dataserializer.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\allocator.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\assert.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\fixed_pool.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\hashtable.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\red_black_tree.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\EASTL\src\string.cpp" />
+    <ClCompile Include="..\..\..\ext-deps\glew\src\glew.c" />
+    <ClCompile Include="..\..\..\glgui\glgui.cpp" />
+    <ClCompile Include="..\..\..\tinker\application.cpp" />
+    <ClCompile Include="..\..\..\tinker\console.cpp" />
+    <ClCompile Include="..\..\..\tinker\cvar.cpp" />
+    <ClCompile Include="..\..\..\tinker\gamewindow.cpp" />
+    <ClCompile Include="..\..\..\tinker\lobby\lobby_client.cpp" />
+    <ClCompile Include="..\..\..\tinker\lobby\lobby_server.cpp" />
+    <ClCompile Include="..\..\..\tinker\portals\portal_stubs.cpp" />
+    <ClCompile Include="..\..\..\tinker\profiler.cpp" />
+    <ClCompile Include="..\..\..\tinker\register.cpp" />
+    <ClCompile Include="..\game\baseentity.cpp" />
+    <ClCompile Include="..\game\camera.cpp" />
+    <ClCompile Include="..\game\game.cpp" />
+    <ClCompile Include="..\game\gameserver.cpp" />
+    <ClCompile Include="..\game\level.cpp" />
+    <ClCompile Include="..\game\team.cpp" />
+    <ClCompile Include="..\models\models.cpp" />
+    <ClCompile Include="..\models\texturelibrary.cpp" />
+    <ClCompile Include="..\models\texturesheet.cpp" />
+    <ClCompile Include="..\network\commands.cpp" />
+    <ClCompile Include="..\network\network.cpp" />
+    <ClCompile Include="..\network\replication.cpp" />
+    <ClCompile Include="..\renderer\dissolver.cpp" />
+    <ClCompile Include="..\renderer\particles.cpp" />
+    <ClCompile Include="..\renderer\renderer.cpp" />
+    <ClCompile Include="..\renderer\systems.cpp" />
+    <ClCompile Include="..\shaders\blur.cpp" />
+    <ClCompile Include="..\shaders\explosion.cpp" />
+    <ClCompile Include="..\shaders\filters.cpp" />
+    <ClCompile Include="..\shaders\model.cpp" />
+    <ClCompile Include="..\shaders\prop.cpp" />
+    <ClCompile Include="..\shaders\shaders.cpp" />
+    <ClCompile Include="..\shaders\terrain.cpp" />
+    <ClCompile Include="..\sound\sound.cpp" />
+    <ClCompile Include="..\ui\chatbox.cpp" />
+    <ClCompile Include="intro_camera.cpp" />
+    <ClCompile Include="intro_game.cpp" />
+    <ClCompile Include="intro_renderer.cpp" />
+    <ClCompile Include="intro_win32.cpp" />
+    <ClCompile Include="intro_window.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="screen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\common\common.h" />
+    <ClInclude Include="..\..\..\common\configfile.h" />
+    <ClInclude Include="..\..\..\common\mtrand.h" />
+    <ClInclude Include="..\..\..\common\platform.h" />
+    <ClInclude Include="..\..\..\datamanager\data.h" />
+    <ClInclude Include="..\..\..\datamanager\dataserializer.h" />
+    <ClInclude Include="..\..\..\glgui\glgui.h" />
+    <ClInclude Include="..\..\..\tinker\application.h" />
+    <ClInclude Include="..\..\..\tinker\console.h" />
+    <ClInclude Include="..\..\..\tinker\cvar.h" />
+    <ClInclude Include="..\..\..\tinker\gamewindow.h" />
+    <ClInclude Include="..\..\..\tinker\lobby\lobby.h" />
+    <ClInclude Include="..\..\..\tinker\lobby\lobby_client.h" />
+    <ClInclude Include="..\..\..\tinker\lobby\lobby_server.h" />
+    <ClInclude Include="..\..\..\tinker\portals\portal.h" />
+    <ClInclude Include="..\..\..\tinker\profiler.h" />
+    <ClInclude Include="..\game\baseentity.h" />
+    <ClInclude Include="..\game\camera.h" />
+    <ClInclude Include="..\game\game.h" />
+    <ClInclude Include="..\game\gameserver.h" />
+    <ClInclude Include="..\game\level.h" />
+    <ClInclude Include="..\game\team.h" />
+    <ClInclude Include="..\models\models.h" />
+    <ClInclude Include="..\models\texturelibrary.h" />
+    <ClInclude Include="..\models\texturesheet.h" />
+    <ClInclude Include="..\network\commands.h" />
+    <ClInclude Include="..\network\network.h" />
+    <ClInclude Include="..\network\replication.h" />
+    <ClInclude Include="..\renderer\dissolver.h" />
+    <ClInclude Include="..\renderer\particles.h" />
+    <ClInclude Include="..\renderer\renderer.h" />
+    <ClInclude Include="..\shaders\dt_shaders.h" />
+    <ClInclude Include="..\shaders\shaders.h" />
+    <ClInclude Include="..\sound\sound.h" />
+    <ClInclude Include="..\ui\chatbox.h" />
+    <ClInclude Include="intro_camera.h" />
+    <ClInclude Include="intro_game.h" />
+    <ClInclude Include="intro_renderer.h" />
+    <ClInclude Include="intro_window.h" />
+    <ClInclude Include="screen.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

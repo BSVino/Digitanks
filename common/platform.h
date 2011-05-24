@@ -20,5 +20,6 @@ eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bD
 bool IsFile(eastl::string16 sPath);
 bool IsDirectory(eastl::string16 sPath);
 void DebugPrint(eastl::string16 sText);
+void Exec(eastl::string sLine);
 
 #endif

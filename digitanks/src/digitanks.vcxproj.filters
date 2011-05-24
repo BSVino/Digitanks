@@ -213,9 +213,6 @@
     <ClCompile Include="..\..\license\license.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="intro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\common\eastl.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>

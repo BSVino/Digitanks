@@ -1,8 +1,14 @@
 #include "application.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <time.h>
 #include <GL/glew.h>
 #include <GL/glfw.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
 #include <iostream>
 #include <fstream>
 
@@ -11,12 +17,16 @@
 #include <mtrand.h>
 #include <tinker/keys.h>
 #include <tinker/portals/portal.h>
+#include <tinker/cvar.h>
+#include <glgui/glgui.h>
 
 CApplication* CApplication::s_pApplication = NULL;
 
 CApplication::CApplication(int argc, char** argv)
 {
 	TPortal_Startup();
+
+	ilInit();
 
 	s_pApplication = this;
 
@@ -68,13 +78,16 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
-	// The taskbar is at the bottom of the screen. Pretend the screen is smaller so the window doesn't clip down into it.
-	// Also the window's title bar at the top takes up space.
-	iScreenHeight -= 70;
+	if (!m_bFullscreen)
+	{
+		// The taskbar is at the bottom of the screen. Pretend the screen is smaller so the window doesn't clip down into it.
+		// Also the window's title bar at the top takes up space.
+		iScreenHeight -= 70;
 
-	int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
-	int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
-	glfwSetWindowPos(iWindowX, iWindowY);
+		int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
+		int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
+		glfwSetWindowPos(iWindowX, iWindowY);
+	}
 
 	glfwSetWindowCloseCallback(&CApplication::WindowCloseCallback);
 	glfwSetWindowSizeCallback(&CApplication::WindowResizeCallback);
@@ -255,14 +268,26 @@ void CApplication::SwapBuffers()
 	glfwSwapBuffers();
 }
 
+float CApplication::GetTime()
+{
+	return (float)glfwGetTime();
+}
+
 bool CApplication::IsOpen()
 {
 	return !!glfwGetWindowParam( GLFW_OPENED ) && m_bIsOpen;
 }
 
-float CApplication::GetTime()
+void Quit(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
-	return (float)glfwGetTime();
+	CApplication::Get()->Close();
+}
+
+CCommand quit("quit", ::Quit);
+
+void CApplication::Close()
+{
+	m_bIsOpen = false;
 }
 
 void CApplication::Render()
@@ -518,6 +543,41 @@ void CApplication::CharEvent(int c, int e)
 		CharRelease(c);
 }
 
+void CApplication::KeyPress(int c)
+{
+	if (glgui::CRootPanel::Get()->KeyPressed(c, IsCtrlDown()))
+		return;
+
+	if (c == TINKER_KEY_F4 && IsAltDown())
+		exit(0);
+
+	DoKeyPress(c);
+}
+
+void CApplication::KeyRelease(int c)
+{
+	DoKeyRelease(c);
+}
+
+void CApplication::CharPress(int c)
+{
+	if (c == '`')
+	{
+		ToggleConsole();
+		return;
+	}
+
+	if (glgui::CRootPanel::Get()->CharPressed(c))
+		return;
+
+	DoCharPress(c);
+}
+
+void CApplication::CharRelease(int c)
+{
+	DoCharRelease(c);
+}
+
 bool CApplication::IsCtrlDown()
 {
 	return glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
@@ -582,4 +642,24 @@ const char* CApplication::GetCommandLineSwitchValue(const char* pszSwitch)
 	}
 
 	return NULL;
+}
+
+void CreateApplicationWithErrorHandling(CreateApplicationCallback pfnCallback, int argc, char** argv)
+{
+#ifdef _WIN32
+#ifndef _DEBUG
+	__try
+	{
+#endif
+#endif
+
+		// Put in a different function to avoid warnings and errors associated with object deconstructors and try/catch blocks.
+		pfnCallback(argc, argv);
+
+#if defined(_WIN32) && !defined(_DEBUG)
+	}
+	__except (CreateMinidump(GetExceptionInformation(), L"Digitanks"), EXCEPTION_EXECUTE_HANDLER)
+	{
+	}
+#endif
 }
