@@ -4,15 +4,21 @@
 
 Vector CIntroCamera::GetCameraPosition()
 {
+	if (m_bFreeMode)
+		return BaseClass::GetCameraPosition();
+
 	return Vector(0, 0, 0);
 }
 
 Vector CIntroCamera::GetCameraTarget()
 {
-	return Vector(-10, 0, 0);
+	if (m_bFreeMode)
+		return BaseClass::GetCameraTarget();
+
+	return Vector(-500, 0, 0);
 }
 
 float CIntroCamera::GetCameraFOV()
 {
-	return 10;
+	return 90;
 }

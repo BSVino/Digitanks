@@ -22,6 +22,7 @@
 #include <models/texturelibrary.h>
 #include <tinker/portals/portal.h>
 #include <tinker/lobby/lobby_server.h>
+#include <tinker/cvar.h>
 
 #include "camera.h"
 #include "level.h"
@@ -474,6 +475,8 @@ void CGameServer::Simulate()
 	}
 }
 
+CVar r_cullfrustum("r_frustumculling", "on");
+
 void CGameServer::Render()
 {
 	TPROF("CGameServer::Render");
@@ -496,6 +499,8 @@ void CGameServer::Render()
 	m_apRenderList.reserve(CBaseEntity::GetNumEntities());
 	m_apRenderList.clear();
 
+	bool bFrustumCulling = r_cullfrustum.GetBool();
+
 	// None of these had better get deleted while we're doing this since they're not handles.
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -506,7 +511,7 @@ void CGameServer::Render()
 		if (!pEntity->ShouldRender())
 			continue;
 
-		if (!m_pRenderer->IsSphereInFrustum(pEntity->GetRenderOrigin(), pEntity->GetRenderRadius()))
+		if (bFrustumCulling && !m_pRenderer->IsSphereInFrustum(pEntity->GetRenderOrigin(), pEntity->GetRenderRadius()))
 			continue;
 
 		m_apRenderList.push_back(pEntity);

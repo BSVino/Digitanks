@@ -594,17 +594,6 @@ Vector CDigitanksCamera::GetTankFollowPosition(CDigitank* pTank)
 	return pTank->GetOrigin() - vecForward*20 - vecRight*6 - vecUp*5;
 }
 
-void CDigitanksCamera::SetFreeMode(bool bOn)
-{
-	if (!DigitanksGame()->AllowCheats())
-	{
-		BaseClass::SetFreeMode(false);
-		return;
-	}
-
-	BaseClass::SetFreeMode(bOn);
-}
-
 // Camera guided missile angles
 CLIENT_COMMAND(CGAng)
 {

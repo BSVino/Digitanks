@@ -15,6 +15,7 @@ public:
 	virtual eastl::string16		AppDirectory() { return L"Digitanks"; }
 
 	void						SetScreenshot(size_t iScreenshot) { m_iScreenshot = iScreenshot; };
+	void						SetupEngine();
 	void						SetupIntro();
 
 	virtual void				RenderLoading();

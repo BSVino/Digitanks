@@ -17,7 +17,6 @@ public:
 	virtual float	GetCameraNear() { return 1.0f; };
 	virtual float	GetCameraFar() { return 10000.0f; };
 
-	virtual void	SetFreeMode(bool bOn);
 	bool			GetFreeMode() { return m_bFreeMode; };
 
 	virtual void	MouseInput(int x, int y);

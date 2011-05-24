@@ -10,7 +10,7 @@ void CreateApplication(int argc, char** argv)
 
 	oWindow.SetScreenshot(iScreenshot);
 	oWindow.OpenWindow();
-	oWindow.SetupIntro();
+	oWindow.SetupEngine();
 	oWindow.Run();
 }
 

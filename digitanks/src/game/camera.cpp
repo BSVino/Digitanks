@@ -18,8 +18,19 @@ CCamera::CCamera()
 
 CVar shrink_frustum("debug_shrink_frustum", "no");
 
+CVar cam_free("cam_free", "off");
+
 void CCamera::Think()
 {
+	bool bFreeMode = cam_free.GetBool();
+	if (bFreeMode != m_bFreeMode)
+	{
+		m_vecFreeCamera = GetCameraPosition();
+		m_angFreeCamera = VectorAngles((GetCameraTarget() - GetCameraPosition()).Normalized());
+		m_bFreeMode = bFreeMode;
+		DigitanksWindow()->SetMouseCursorEnabled(!m_bFreeMode);
+	}
+
 	if (m_bFreeMode)
 	{
 		Vector vecForward, vecRight;
@@ -33,14 +44,6 @@ void CCamera::Think()
 		if (shrink_frustum.GetBool())
 			GameServer()->GetRenderer()->FrustumOverride(GetCameraPosition(), GetCameraTarget(), GetCameraFOV()-1, GetCameraNear()+1, GetCameraFar()-1);
 	}
-}
-
-void CCamera::SetFreeMode(bool bOn)
-{
-	m_vecFreeCamera = GetCameraPosition();
-	m_angFreeCamera = VectorAngles((GetCameraTarget() - GetCameraPosition()).Normalized());
-	m_bFreeMode = bOn;
-	DigitanksWindow()->SetMouseCursorEnabled(!m_bFreeMode);
 }
 
 Vector CCamera::GetCameraPosition()
@@ -99,7 +102,7 @@ void CCamera::KeyDown(int c)
 {
 	if (c == 'Z')
 	{
-		SetFreeMode(!m_bFreeMode);
+		cam_free.SetValue(m_bFreeMode?L"off":L"on");
 
 		if (lock_freemode_frustum.GetBool())
 		{

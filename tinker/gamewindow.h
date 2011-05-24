@@ -24,6 +24,9 @@ public:
 	virtual void				KeyPress(int c);
 	virtual void				KeyRelease(int c);
 
+	virtual void				MouseMotion(int x, int y);
+	virtual void				MouseInput(int iButton, int iState);
+
 protected:
 	class CGameServer*			m_pGameServer;
 };

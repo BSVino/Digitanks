@@ -31,18 +31,10 @@ void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
 
 	pContext->Scale((flWidth+flHeight)/2, flHeight, flWidth);
-	pContext->SetBackCulling(false);
 }
 
 void CScreen::OnRender(class CRenderingContext* pContext, bool bTransparent)
 {
-	pContext->SetColor(Color(255, 255, 255, 255));
-	pContext->BeginRenderQuads();
-	pContext->Vertex(Vector(10, 10, 10));
-	pContext->Vertex(Vector(10, -10, 10));
-	pContext->Vertex(Vector(10, -10, -10));
-	pContext->Vertex(Vector(10, 10, -00));
-	pContext->EndRender();
 }
 
 void CScreen::SetScreenshot(size_t iScreenshot)

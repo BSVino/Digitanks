@@ -46,6 +46,12 @@
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{9c3c09e9-dcaf-4c07-9d66-2585a4150370}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\intro">
+      <UniqueIdentifier>{ae39a649-062c-4537-b6d2-61f76e4b975b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\intro\actors">
+      <UniqueIdentifier>{7d93ce52-d5eb-4477-bbbd-03bf279408d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -102,9 +108,6 @@
     <ClCompile Include="..\..\..\common\eastl.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="intro_window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\tinker\gamewindow.cpp">
       <Filter>Source Files\tinker</Filter>
     </ClCompile>
@@ -156,9 +159,6 @@
     <ClCompile Include="..\game\team.cpp">
       <Filter>Source Files\game</Filter>
     </ClCompile>
-    <ClCompile Include="intro_game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\level.cpp">
       <Filter>Source Files\game</Filter>
     </ClCompile>
@@ -176,9 +176,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\tinker\lobby\lobby_server.cpp">
       <Filter>Source Files\tinker\lobby</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\chatbox.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shaders\blur.cpp">
       <Filter>Source Files\shaders</Filter>
@@ -201,17 +198,32 @@
     <ClCompile Include="..\shaders\terrain.cpp">
       <Filter>Source Files\shaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\ui\chatbox.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
     <ClCompile Include="intro_camera.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\intro</Filter>
     </ClCompile>
-    <ClCompile Include="screen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="intro_win32.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="intro_game.cpp">
+      <Filter>Source Files\intro</Filter>
     </ClCompile>
     <ClCompile Include="intro_renderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\intro</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_win32.cpp">
+      <Filter>Source Files\intro</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_window.cpp">
+      <Filter>Source Files\intro</Filter>
+    </ClCompile>
+    <ClCompile Include="screen.cpp">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClCompile>
+    <ClCompile Include="bug.cpp">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClCompile>
+    <ClCompile Include="introtank.cpp">
+      <Filter>Source Files\intro\actors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -241,9 +253,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\glgui\glgui.h">
       <Filter>Source Files\glgui</Filter>
-    </ClInclude>
-    <ClInclude Include="intro_window.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\tinker\gamewindow.h">
       <Filter>Source Files\tinker</Filter>
@@ -293,9 +302,6 @@
     <ClInclude Include="..\game\team.h">
       <Filter>Source Files\game</Filter>
     </ClInclude>
-    <ClInclude Include="intro_game.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\game\level.h">
       <Filter>Source Files\game</Filter>
     </ClInclude>
@@ -317,23 +323,35 @@
     <ClInclude Include="..\..\..\tinker\lobby\lobby_server.h">
       <Filter>Source Files\tinker\lobby</Filter>
     </ClInclude>
-    <ClInclude Include="..\ui\chatbox.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\shaders\dt_shaders.h">
       <Filter>Source Files\shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\shaders\shaders.h">
       <Filter>Source Files\shaders</Filter>
     </ClInclude>
-    <ClInclude Include="intro_camera.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="..\ui\chatbox.h">
+      <Filter>Source Files\tinker</Filter>
     </ClInclude>
-    <ClInclude Include="screen.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="intro_window.h">
+      <Filter>Source Files\intro</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_camera.h">
+      <Filter>Source Files\intro</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_game.h">
+      <Filter>Source Files\intro</Filter>
     </ClInclude>
     <ClInclude Include="intro_renderer.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\intro</Filter>
+    </ClInclude>
+    <ClInclude Include="screen.h">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="bug.h">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="introtank.h">
+      <Filter>Source Files\intro\actors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

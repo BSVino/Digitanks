@@ -17,7 +17,11 @@ void CGameWindow::OpenWindow()
 	int iScreenWidth, iScreenHeight;
 	GetScreenSize(iScreenWidth, iScreenHeight);
 
+#ifdef _DEBUG
+	BaseClass::OpenWindow(iScreenWidth/2, iScreenHeight/2, false, false);
+#else
 	BaseClass::OpenWindow(iScreenWidth, iScreenHeight, true, false);
+#endif
 
 	RenderLoading();
 
@@ -101,4 +105,22 @@ void CGameWindow::KeyRelease(int c)
 
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyUp(c);
+}
+
+void CGameWindow::MouseMotion(int x, int y)
+{
+	BaseClass::MouseMotion(x, y);
+
+	glgui::CRootPanel::Get()->CursorMoved(x, y);
+
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->MouseInput(x, y);
+}
+
+void CGameWindow::MouseInput(int iButton, int iState)
+{
+	BaseClass::MouseInput(iButton, iState);
+
+	if (GameServer() && GameServer()->GetCamera())
+		GameServer()->GetCamera()->MouseButton(iButton, iState);
 }

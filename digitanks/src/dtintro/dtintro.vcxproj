@@ -126,6 +126,8 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClCompile Include="..\shaders\terrain.cpp" />
     <ClCompile Include="..\sound\sound.cpp" />
     <ClCompile Include="..\ui\chatbox.cpp" />
+    <ClCompile Include="bug.cpp" />
+    <ClCompile Include="introtank.cpp" />
     <ClCompile Include="intro_camera.cpp" />
     <ClCompile Include="intro_game.cpp" />
     <ClCompile Include="intro_renderer.cpp" />
@@ -170,6 +172,8 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClInclude Include="..\shaders\shaders.h" />
     <ClInclude Include="..\sound\sound.h" />
     <ClInclude Include="..\ui\chatbox.h" />
+    <ClInclude Include="bug.h" />
+    <ClInclude Include="introtank.h" />
     <ClInclude Include="intro_camera.h" />
     <ClInclude Include="intro_game.h" />
     <ClInclude Include="intro_renderer.h" />

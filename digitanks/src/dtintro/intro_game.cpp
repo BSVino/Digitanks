@@ -43,6 +43,8 @@ void CIntroGame::Think()
 {
 	BaseClass::Think();
 
-	if (GameServer()->GetGameTime() > 10)
+#ifndef _DEBUG
+	if (GameServer()->GetGameTime() > 20)
 		exit(0);
+#endif
 }

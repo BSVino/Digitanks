@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include <tinker/application.h>
+#include <tinker/cvar.h>
 
 CIntroRenderer::CIntroRenderer()
 	: CRenderer(CApplication::Get()->GetWindowWidth(), CApplication::Get()->GetWindowHeight())
@@ -18,12 +19,22 @@ CIntroRenderer::CIntroRenderer()
 #define FRUSTUM_UP		4
 #define FRUSTUM_DOWN	5
 
+CVar cam_free_ortho("cam_free_ortho", "off");
+
 void CIntroRenderer::StartRendering()
 {
+	if (!cam_free_ortho.GetBool() && CVar::GetCVarBool("cam_free"))
+	{
+		BaseClass::StartRendering();
+		return;
+	}
+
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
 
 	glViewport(0, 0, (GLsizei)flWidth, (GLsizei)flHeight);
+
+	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -93,9 +104,6 @@ void CIntroRenderer::StartRendering()
 	glGetIntegerv( GL_VIEWPORT, m_aiViewport );
 	glPopAttrib();
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
-
-	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
@@ -105,6 +113,12 @@ void CIntroRenderer::StartRendering()
 
 void CIntroRenderer::FinishRendering()
 {
+	if (!cam_free_ortho.GetBool() && CVar::GetCVarBool("cam_free"))
+	{
+		BaseClass::FinishRendering();
+		return;
+	}
+
 	glEnable(GL_DEPTH_TEST);
 
 	glMatrixMode(GL_PROJECTION);
