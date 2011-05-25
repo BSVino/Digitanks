@@ -10,6 +10,16 @@ class CBug : public CIntroTank
 public:
 	void			Precache();
 	virtual void	Spawn();
+
+	virtual void	Think();
+
+	DECLARE_ENTITY_INPUT(FireRandomly);
+
+protected:
+	bool			m_bFiringRandomly;
+	Vector			m_vecNextAim;
+	float			m_flNextAim;
+	float			m_flNextFire;
 };
 
 #endif

@@ -228,6 +228,9 @@
     <ClCompile Include="intro_systems.cpp">
       <Filter>Source Files\intro</Filter>
     </ClCompile>
+    <ClCompile Include="bomb.cpp">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\tinker\application.h">
@@ -357,6 +360,9 @@
       <Filter>Source Files\intro\actors</Filter>
     </ClInclude>
     <ClInclude Include="script.h">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="bomb.h">
       <Filter>Source Files\intro\actors</Filter>
     </ClInclude>
   </ItemGroup>

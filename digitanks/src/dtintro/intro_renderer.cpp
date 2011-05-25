@@ -2,14 +2,32 @@
 
 #include <GL/glew.h>
 
+#include <mtrand.h>
+
 #include <tinker/application.h>
 #include <tinker/cvar.h>
+#include <models/texturelibrary.h>
+#include <game/gameserver.h>
+#include <shaders/shaders.h>
 
 CIntroRenderer::CIntroRenderer()
 	: CRenderer(CApplication::Get()->GetWindowWidth(), CApplication::Get()->GetWindowHeight())
 {
 	m_bUseFramebuffers = false;
 //	m_bUseShaders = false;
+
+	m_iBackdrop = CTextureLibrary::AddTextureID(L"textures/intro/backdrop.png");
+	m_flLayer1Speed = -RandomFloat(0.1f, 0.5f);
+	m_flLayer2Speed = -RandomFloat(0.1f, 0.5f);
+	m_flLayer3Speed = -RandomFloat(0.1f, 0.5f);
+	m_flLayer4Speed = -RandomFloat(0.1f, 0.5f);
+	m_flLayer5Speed = -RandomFloat(0.1f, 0.5f);
+
+	m_flLayer1Alpha = RandomFloat(0.2f, 1);
+	m_flLayer2Alpha = RandomFloat(0.2f, 1);
+	m_flLayer3Alpha = RandomFloat(0.2f, 1);
+	m_flLayer4Alpha = RandomFloat(0.2f, 1);
+	m_flLayer5Alpha = RandomFloat(0.2f, 1);
 }
 
 #define FRUSTUM_NEAR	0
@@ -26,6 +44,8 @@ void CIntroRenderer::StartRendering()
 	if (!cam_free_ortho.GetBool() && CVar::GetCVarBool("cam_free"))
 	{
 		BaseClass::StartRendering();
+	
+		RenderBackdrop();
 		return;
 	}
 
@@ -39,7 +59,7 @@ void CIntroRenderer::StartRendering()
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(-flWidth/2, flWidth/2, -flHeight/2, flHeight/2, 1, flWidth);
+	glOrtho(-flWidth/2, flWidth/2, -flHeight/2, flHeight/2, 1, 2000);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -109,6 +129,8 @@ void CIntroRenderer::StartRendering()
 	glEnable(GL_COLOR_MATERIAL);
 
 	glShadeModel(GL_SMOOTH);
+
+	RenderBackdrop();
 }
 
 void CIntroRenderer::FinishRendering()
@@ -130,3 +152,94 @@ void CIntroRenderer::FinishRendering()
 	glPopAttrib();
 }
 
+void CIntroRenderer::RenderBackdrop()
+{
+	float flWidth = (float)CApplication::Get()->GetWindowWidth();
+
+	{
+		CRenderingContext c(this);
+		c.BindTexture(m_iBackdrop);
+		c.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
+
+		c.SetUniform("iTexture", 0);
+		c.SetUniform("flTime", GameServer()->GetGameTime());
+
+		c.SetBlend(BLEND_ADDITIVE);
+		c.SetDepthTest(false);
+
+		c.SetUniform("flAlpha", m_flLayer1Alpha);
+		c.SetUniform("flSpeed", m_flLayer1Speed);
+		c.SetColor(Color(100, 255, 100, 255));
+
+		c.BeginRenderQuads();
+		c.TexCoord(Vector(1.8f, 0, 0));
+		c.Vertex(Vector(-100, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1.8f, 2, 0));
+		c.Vertex(Vector(-100, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(-0.2f, 2, 0));
+		c.Vertex(Vector(-100, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-0.2f, 0, 0));
+		c.Vertex(Vector(-100, -flWidth/2, flWidth/2));
+		c.EndRender();
+
+		c.SetUniform("flAlpha", m_flLayer2Alpha);
+		c.SetUniform("flSpeed", m_flLayer2Speed);
+		c.SetColor(Color(0, 255, 0, 255));
+
+		c.BeginRenderQuads();
+		c.TexCoord(Vector(1.5f, -0.5f, 0));
+		c.Vertex(Vector(-200, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1.5f, 1.5f, 0));
+		c.Vertex(Vector(-200, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(-0.5f, 1.5f, 0));
+		c.Vertex(Vector(-200, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-0.5f, -0.5f, 0));
+		c.Vertex(Vector(-200, -flWidth/2, flWidth/2));
+		c.EndRender();
+
+		c.SetUniform("flAlpha", m_flLayer3Alpha);
+		c.SetUniform("flSpeed", m_flLayer3Speed);
+		c.SetColor(Color(55, 255, 55, 155));
+
+		c.BeginRenderQuads();
+		c.TexCoord(Vector(1, -2.5f, 0));
+		c.Vertex(Vector(-300, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1, 1, 0));
+		c.Vertex(Vector(-300, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(-2.5f, 1, 0));
+		c.Vertex(Vector(-300, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-2.5f, -2.5f, 0));
+		c.Vertex(Vector(-300, -flWidth/2, flWidth/2));
+		c.EndRender();
+
+		c.SetUniform("flAlpha", m_flLayer4Alpha);
+		c.SetUniform("flSpeed", m_flLayer4Speed);
+		c.SetColor(Color(100, 255, 100, 205));
+
+		c.BeginRenderQuads();
+		c.TexCoord(Vector(2.4f, 0.5f, 0));
+		c.Vertex(Vector(-400, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(2.4f, 2.5f, 0));
+		c.Vertex(Vector(-400, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(0.4f, 2.5f, 0));
+		c.Vertex(Vector(-400, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(0.4f, 0.5f, 0));
+		c.Vertex(Vector(-400, -flWidth/2, flWidth/2));
+		c.EndRender();
+
+		c.SetUniform("flAlpha", m_flLayer5Alpha);
+		c.SetUniform("flSpeed", m_flLayer5Speed);
+		c.SetColor(Color(55, 255, 55, 120));
+
+		c.BeginRenderQuads();
+		c.TexCoord(Vector(0.9f, 0.2f, 0));
+		c.Vertex(Vector(-500, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(0.9f, 1.2f, 0));
+		c.Vertex(Vector(-500, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(-.1f, 1.2f, 0));
+		c.Vertex(Vector(-500, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-.1f, 0.2f, 0));
+		c.Vertex(Vector(-500, -flWidth/2, flWidth/2));
+		c.EndRender();
+	}
+}

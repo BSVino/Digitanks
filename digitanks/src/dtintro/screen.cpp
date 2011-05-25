@@ -2,6 +2,7 @@
 
 #include <tinker/application.h>
 #include <renderer/renderer.h>
+#include <renderer/particles.h>
 #include <models/models.h>
 
 REGISTER_ENTITY(CScreen);
@@ -18,6 +19,7 @@ INPUTS_TABLE_END();
 void CScreen::Precache()
 {
 	PrecacheModel(L"models/intro/screen.obj");
+	PrecacheParticleSystem(L"intro-explosion-fragments");
 }
 
 void CScreen::Spawn()
@@ -41,6 +43,11 @@ void CScreen::SetScreenshot(size_t iScreenshot)
 {
 	size_t iModel = CModelLibrary::Get()->FindModel(L"models/intro/screen.obj");
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
+	pModel->m_aiTextures[0] = iScreenshot;
+	pModel->m_iCallListTexture = iScreenshot;
+
+	iModel = CModelLibrary::Get()->FindModel(L"models/intro/screen-fragment.obj");
+	pModel = CModelLibrary::Get()->GetModel(iModel);
 	pModel->m_aiTextures[0] = iScreenshot;
 	pModel->m_iCallListTexture = iScreenshot;
 }

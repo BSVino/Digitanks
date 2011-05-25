@@ -102,6 +102,20 @@ void CScript::PlayEvent(size_t i)
 		}
 		break;
 	}
+
+	case EC_FIREOUTPUT:
+	{
+		eastl::vector<CBaseEntity*> apEntities;
+		CBaseEntity::FindEntitiesByName(pEvent->m_sName, apEntities);
+
+		for (size_t j = 0; j < apEntities.size(); j++)
+		{
+			if (apEntities[j]->GetInput(pEvent->m_sOutput.c_str()))
+				apEntities[j]->CallInput(pEvent->m_sOutput, pEvent->m_sArgs);
+		}
+
+		break;
+	}
 	}
 
 	if (!pEvent->m_flEndTime)

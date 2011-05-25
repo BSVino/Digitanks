@@ -6,6 +6,7 @@
 #include <color.h>
 #include <geometry.h>
 #include <game/baseentity.h>
+#include <renderer/renderer.h>
 
 class CParticle
 {
@@ -22,6 +23,7 @@ public:
 	Vector							m_vecVelocity;
 
 	EAngle							m_angAngles;
+	EAngle							m_angAngleVelocity;
 
 	float							m_flAlpha;
 	float							m_flSpawnTime;
@@ -103,6 +105,9 @@ public:
 
 	bool							IsRenderable();
 
+	void							SetBlend(blendtype_t eBlend) { m_eBlend = eBlend; }
+	inline blendtype_t				GetBlend() { return m_eBlend; }
+
 	void							SetLifeTime(float flLifeTime) { m_flLifeTime = flLifeTime; }
 	inline float					GetLifeTime() { return m_flLifeTime; }
 
@@ -159,6 +164,9 @@ public:
 	void							SetRandomModelRoll(bool bRoll) { m_bRandomModelRoll = bRoll; }
 	bool							GetRandomModelRoll() { return m_bRandomModelRoll; }
 
+	void							SetRandomAngleVelocity(bool b) { m_bRandomAngleVelocity = b; }
+	bool							GetRandomAngleVelocity() { return m_bRandomAngleVelocity; }
+
 	void							AddChild(size_t iSystem);
 	void							AddChild(CParticleSystem* pSystem);
 	size_t							GetNumChildren() { return m_aiChildren.size(); };
@@ -174,6 +182,8 @@ protected:
 
 	eastl::string16					m_sModel;
 	size_t							m_iModel;
+
+	blendtype_t						m_eBlend;
 
 	float							m_flLifeTime;
 	float							m_flEmissionRate;
@@ -193,6 +203,7 @@ protected:
 	bool							m_bRandomBillboardYaw;
 	bool							m_bRandomModelYaw;
 	bool							m_bRandomModelRoll;
+	bool							m_bRandomAngleVelocity;
 
 	eastl::vector<size_t>			m_aiChildren;
 };

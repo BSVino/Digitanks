@@ -25,6 +25,7 @@ typedef enum
 	EC_UNDEFINED = 0,
 	EC_MOVEACTOR,
 	EC_PARTICLES,
+	EC_FIREOUTPUT,
 } eventclass_t;
 
 class CScriptEvent
@@ -43,6 +44,8 @@ public:
 	Vector								m_vecOrigin;
 	EAngle								m_angAngles;
 	size_t								m_iParticleInstance;
+	eastl::string						m_sOutput;
+	eastl::string16						m_sArgs;
 };
 
 class CScript

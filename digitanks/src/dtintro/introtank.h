@@ -11,11 +11,15 @@ public:
 					CIntroTank();
 
 public:
+	virtual void	Precache();
+
 	virtual bool	ShouldRender() const { return true; };
 	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	void			FaceTurret(float flYaw) { m_flGoalTurretYaw = flYaw; };
+
+	void			FireBomb(Vector vecLandingSpot);
 
 protected:
 	float			m_flCurrentTurretYaw;

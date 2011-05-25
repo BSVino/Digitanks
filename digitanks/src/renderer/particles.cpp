@@ -98,19 +98,45 @@ void CParticleSystemLibrary::Render()
 	TPROF("CParticleSystemLibrary::Render");
 
 	CParticleSystemLibrary* pPSL = Get();
-	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
+	eastl::map<size_t, CSystemInstance*>::iterator it;
 
-	CRenderingContext c(GameServer()->GetRenderer());
-	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	if (true)
 	{
-		c.UseProgram(CShaderLibrary::GetModelProgram());
-		c.SetUniform("bDiffuse", true);
-		c.SetUniform("iDiffuse", 0);
-		c.SetUniform("bColorSwapInAlpha", false);
+		CRenderingContext c(GameServer()->GetRenderer());
+		if (GameServer()->GetRenderer()->ShouldUseShaders())
+		{
+			c.UseProgram(CShaderLibrary::GetModelProgram());
+			c.SetUniform("bDiffuse", true);
+			c.SetUniform("iDiffuse", 0);
+			c.SetUniform("bColorSwapInAlpha", false);
+		}
+
+		for (it = pPSL->m_apInstances.begin(); it != pPSL->m_apInstances.end(); it++)
+		{
+			CSystemInstance* pInstance = (*it).second;
+			if (pInstance->GetSystem()->GetBlend() == BLEND_NONE)
+				pInstance->Render(&c);
+		}
 	}
 
-	for (; it != pPSL->m_apInstances.end(); it++)
-		(*it).second->Render(&c);
+	if (true)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		if (GameServer()->GetRenderer()->ShouldUseShaders())
+		{
+			c.UseProgram(CShaderLibrary::GetModelProgram());
+			c.SetUniform("bDiffuse", true);
+			c.SetUniform("iDiffuse", 0);
+			c.SetUniform("bColorSwapInAlpha", false);
+		}
+
+		for (it = pPSL->m_apInstances.begin(); it != pPSL->m_apInstances.end(); it++)
+		{
+			CSystemInstance* pInstance = (*it).second;
+			if (pInstance->GetSystem()->GetBlend() != BLEND_NONE)
+				pInstance->Render(&c);
+		}
+	}
 }
 
 size_t CParticleSystemLibrary::AddInstance(const eastl::string16& sName, Vector vecOrigin, EAngle angAngles)
@@ -214,6 +240,7 @@ CParticleSystem::CParticleSystem(eastl::string16 sName)
 	m_iTexture = 0;
 	m_iModel = 0;
 
+	m_eBlend = BLEND_ADDITIVE;
 	m_flLifeTime = 1.0f;
 	m_flEmissionRate = 0.1f;
 	m_iEmissionMax = 0;
@@ -230,6 +257,7 @@ CParticleSystem::CParticleSystem(eastl::string16 sName)
 	m_bRandomBillboardYaw = false;
 	m_bRandomModelYaw = true;
 	m_bRandomModelRoll = true;
+	m_bRandomAngleVelocity = false;
 }
 
 void CParticleSystem::Load()
@@ -325,6 +353,9 @@ void CSystemInstance::Simulate()
 		pParticle->m_vecVelocity += m_pSystem->GetGravity() * flFrameTime;
 		pParticle->m_vecVelocity *= (1-((1-m_pSystem->GetDrag()) * flFrameTime));
 
+		if (m_pSystem->GetRandomAngleVelocity())
+			pParticle->m_angAngles = (pParticle->m_angAngles + pParticle->m_angAngleVelocity*GameServer()->GetFrameTime());
+
 		float flLifeTimeRamp = flLifeTime / m_pSystem->GetLifeTime();
 
 		float flFadeIn = 1;
@@ -415,6 +446,9 @@ void CSystemInstance::SpawnParticle()
 	if (m_pSystem->GetRandomModelRoll())
 		pNewParticle->m_angAngles.r = RandomFloat(-180, 180);
 
+	if (m_pSystem->GetRandomAngleVelocity())
+		pNewParticle->m_angAngleVelocity = EAngle(RandomFloat(-90, 90), RandomFloat(-180, 180), RandomFloat(-90, 90));
+
 	if (m_pSystem->GetFadeIn())
 		pNewParticle->m_flAlpha = 0;
 	else
@@ -441,8 +475,8 @@ void CSystemInstance::Render(CRenderingContext* c)
 	if (m_pSystem->GetTexture())
 		c->BindTexture(m_pSystem->GetTexture());
 
-	c->SetBlend(BLEND_ADDITIVE);
-	c->SetDepthMask(false);
+	c->SetBlend(m_pSystem->GetBlend());
+	c->SetDepthMask(m_pSystem->GetBlend() == BLEND_NONE);
 
 	for (size_t i = 0; i < m_aParticles.size(); i++)
 	{
@@ -453,7 +487,10 @@ void CSystemInstance::Render(CRenderingContext* c)
 
 		if (m_pSystem->GetModel())
 		{
-			c->SetAlpha(pParticle->m_flAlpha);
+			if (pRenderer->ShouldUseShaders())
+				c->SetUniform("flAlpha", pParticle->m_flAlpha);
+			else
+				c->SetAlpha(pParticle->m_flAlpha);
 
 			if (m_bColorOverride)
 				c->SetColor(m_clrOverride);
@@ -461,9 +498,9 @@ void CSystemInstance::Render(CRenderingContext* c)
 				c->SetColor(m_pSystem->GetColor());
 
 			c->Translate(pParticle->m_vecOrigin);
-			c->Rotate(-m_angAngles.y, Vector(0, 1, 0));
-			c->Rotate(m_angAngles.p, Vector(0, 0, 1));
-			c->Rotate(m_angAngles.r, Vector(1, 0, 0));
+			c->Rotate(-pParticle->m_angAngles.y, Vector(0, 1, 0));
+			c->Rotate(pParticle->m_angAngles.p, Vector(0, 0, 1));
+			c->Rotate(pParticle->m_angAngles.r, Vector(1, 0, 0));
 			c->Scale(pParticle->m_flRadius, pParticle->m_flRadius, pParticle->m_flRadius);
 			c->RenderModel(m_pSystem->GetModel());
 			c->ResetTransformations();
