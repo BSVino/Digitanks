@@ -18,6 +18,14 @@
 #include "screen.h"
 #include "bug.h"
 #include "script.h"
+#include "general_window.h"
+#include "general.h"
+
+CIntroWindow::CIntroWindow(int argc, char** argv)
+	: CGameWindow(argc, argv)
+{
+	m_pGeneralWindow = NULL;
+}
 
 void CIntroWindow::SetupEngine()
 {
@@ -25,6 +33,8 @@ void CIntroWindow::SetupEngine()
 
 	GameServer()->Initialize();
 
+	glgui::CRootPanel::Get()->SetLighting(false);
+	m_pGeneralWindow = new CGeneralWindow();
 	glgui::CRootPanel::Get()->Layout();
 
 	SetupIntro();
@@ -57,6 +67,8 @@ void CIntroWindow::SetupIntro()
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
 
+	GetGeneralWindow()->Reset();
+
 	CScreen* pScreen = GameServer()->Create<CScreen>("CScreen");
 	pScreen->SetScreenshot(CRenderer::LoadTextureIntoGL(m_iScreenshot));
 	pScreen->SetOrigin(Vector(0, 0, 0));
@@ -79,6 +91,9 @@ void CIntroWindow::SetupIntro()
 	pBug->SetAngles(EAngle(-10, 20, 0));
 	pBug->FaceTurret(40);
 	pBugsTeam->AddEntity(pBug);
+
+	CIntroGeneral* pGeneral = GameServer()->Create<CIntroGeneral>("CIntroGeneral");
+	pGeneral->SetName("general");
 
 	ScriptManager()->ClearScripts();
 
@@ -125,6 +140,12 @@ void CIntroWindow::SetupIntro()
 	pEvent->m_flStartTime = 4.5f;
 	pEvent->m_sName = "bug2";
 	pEvent->m_sOutput = "FireRandomly";
+
+	pEvent = pBustOutScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 8.5f;
+	pEvent->m_sName = "general";
+	pEvent->m_sOutput = "Deploy";
 
 	ScriptManager()->PlayScript("bustout");
 }

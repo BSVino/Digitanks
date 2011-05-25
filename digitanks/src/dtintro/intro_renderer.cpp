@@ -141,8 +141,6 @@ void CIntroRenderer::FinishRendering()
 		return;
 	}
 
-	glEnable(GL_DEPTH_TEST);
-
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();   
 

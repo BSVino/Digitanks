@@ -3134,7 +3134,7 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 		}
 	}
 
-	float flSpeed = RemapValClamped(fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)), 30, 90, 20, 40);
+	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * GameServer()->GetFrameTime() * 10;
 	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
 
 	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 1, 0));

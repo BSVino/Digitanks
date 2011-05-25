@@ -231,6 +231,12 @@
     <ClCompile Include="bomb.cpp">
       <Filter>Source Files\intro\actors</Filter>
     </ClCompile>
+    <ClCompile Include="general.cpp">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClCompile>
+    <ClCompile Include="general_window.cpp">
+      <Filter>Source Files\intro</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\tinker\application.h">
@@ -364,6 +370,12 @@
     </ClInclude>
     <ClInclude Include="bomb.h">
       <Filter>Source Files\intro\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="general.h">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="general_window.h">
+      <Filter>Source Files\intro</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

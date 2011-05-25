@@ -8,7 +8,7 @@ class CIntroWindow : public CGameWindow
 	DECLARE_CLASS(CIntroWindow, CGameWindow);
 
 public:
-								CIntroWindow(int argc, char** argv) : CGameWindow(argc, argv) {};
+								CIntroWindow(int argc, char** argv);
 
 public:
 	virtual eastl::string		WindowTitle() { return "Digitanks!"; }
@@ -22,8 +22,17 @@ public:
 
 	virtual void				DoKeyPress(int c);
 
+	class CGeneralWindow*		GetGeneralWindow() { return m_pGeneralWindow; }
+
 protected:
 	size_t						m_iScreenshot;
+
+	class CGeneralWindow*		m_pGeneralWindow;
 };
+
+inline CIntroWindow* IntroWindow()
+{
+	return static_cast<CIntroWindow*>(CApplication::Get());
+}
 
 #endif
