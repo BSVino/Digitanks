@@ -17,6 +17,7 @@
 
 #include "screen.h"
 #include "bug.h"
+#include "script.h"
 
 void CIntroWindow::SetupEngine()
 {
@@ -58,19 +59,51 @@ void CIntroWindow::SetupIntro()
 
 	CScreen* pScreen = GameServer()->Create<CScreen>("CScreen");
 	pScreen->SetScreenshot(CRenderer::LoadTextureIntoGL(m_iScreenshot));
-	pScreen->SetOrigin(Vector(-500, 0, 0));
+	pScreen->SetOrigin(Vector(0, 0, 0));
 
 	CBug* pBug;
 
 	pBug = GameServer()->Create<CBug>("CBug");
-	pBug->SetOrigin(Vector(-500, -20, -flWidth/4));
+	pBug->SetName("bug1");
+	pBug->SetOrigin(Vector(-50, -20, -flWidth*0.16f));
 	pBug->SetAngles(EAngle(-10, -10, 0));
 	pBug->FaceTurret(-40);
 
 	pBug = GameServer()->Create<CBug>("CBug");
-	pBug->SetOrigin(Vector(-500, 60, -flWidth*0.23f));
+	pBug->SetName("bug2");
+	pBug->SetOrigin(Vector(-50, 60, -flWidth*0.32f));
 	pBug->SetAngles(EAngle(-10, 20, 0));
 	pBug->FaceTurret(40);
+
+	ScriptManager()->ClearScripts();
+
+	CScriptEvent* pEvent;
+
+	CScript* pBustOutScript = ScriptManager()->AddScript("bustout");
+
+	pEvent = pBustOutScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_PARTICLES;
+	pEvent->m_flStartTime = 0;
+	pEvent->m_sName = "intro-explosion";
+	pEvent->m_vecOrigin = Vector(0, 0, 0);
+
+	pEvent = pBustOutScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 1;
+	pEvent->m_flEndTime = 3;
+	pEvent->m_sName = "bug1";
+	pEvent->m_vecOrigin = Vector(150, 60, -flWidth*0.35f);
+	pEvent->m_angAngles = EAngle(-10, 20, 0);
+
+	pEvent = pBustOutScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 2;
+	pEvent->m_flEndTime = 4;
+	pEvent->m_sName = "bug2";
+	pEvent->m_vecOrigin = Vector(150, -20, -flWidth*0.14f);
+	pEvent->m_angAngles = EAngle(-10, 20, 0);
+
+	ScriptManager()->PlayScript("bustout");
 }
 
 void CIntroWindow::RenderLoading()

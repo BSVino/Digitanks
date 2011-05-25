@@ -6,6 +6,7 @@
 
 #include "intro_camera.h"
 #include "intro_renderer.h"
+#include "script.h"
 
 CGame* CreateGame()
 {
@@ -39,6 +40,11 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CIntroGame);
 INPUTS_TABLE_END();
 
+void CIntroGame::Precache()
+{
+	PrecacheParticleSystem(L"intro-explosion");
+}
+
 void CIntroGame::Think()
 {
 	BaseClass::Think();
@@ -47,4 +53,6 @@ void CIntroGame::Think()
 	if (GameServer()->GetGameTime() > 20)
 		exit(0);
 #endif
+
+	ScriptManager()->Think();
 }

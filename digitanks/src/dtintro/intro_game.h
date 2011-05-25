@@ -8,6 +8,8 @@ class CIntroGame : public CGame
 	REGISTER_ENTITY_CLASS(CIntroGame, CGame);
 
 public:
+	virtual void	Precache();
+
 	virtual void	Think();
 };
 

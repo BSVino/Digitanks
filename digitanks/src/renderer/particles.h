@@ -160,6 +160,7 @@ public:
 	bool							GetRandomModelRoll() { return m_bRandomModelRoll; }
 
 	void							AddChild(size_t iSystem);
+	void							AddChild(CParticleSystem* pSystem);
 	size_t							GetNumChildren() { return m_aiChildren.size(); };
 	size_t							GetChild(size_t iChild) { return m_aiChildren[iChild]; };
 

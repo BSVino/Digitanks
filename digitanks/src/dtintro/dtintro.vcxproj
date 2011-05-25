@@ -116,7 +116,6 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClCompile Include="..\renderer\dissolver.cpp" />
     <ClCompile Include="..\renderer\particles.cpp" />
     <ClCompile Include="..\renderer\renderer.cpp" />
-    <ClCompile Include="..\renderer\systems.cpp" />
     <ClCompile Include="..\shaders\blur.cpp" />
     <ClCompile Include="..\shaders\explosion.cpp" />
     <ClCompile Include="..\shaders\filters.cpp" />
@@ -131,10 +130,12 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClCompile Include="intro_camera.cpp" />
     <ClCompile Include="intro_game.cpp" />
     <ClCompile Include="intro_renderer.cpp" />
+    <ClCompile Include="intro_systems.cpp" />
     <ClCompile Include="intro_win32.cpp" />
     <ClCompile Include="intro_window.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="screen.cpp" />
+    <ClCompile Include="script.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\common\common.h" />
@@ -179,6 +180,7 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClInclude Include="intro_renderer.h" />
     <ClInclude Include="intro_window.h" />
     <ClInclude Include="screen.h" />
+    <ClInclude Include="script.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

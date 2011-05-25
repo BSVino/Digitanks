@@ -387,39 +387,21 @@ void CEntityOutput::Call()
 	if (m_aTargets.size() == 0)
 		return;
 
-	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	for (size_t j = 0; j < m_aTargets.size(); j++)
 	{
-		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+		CEntityOutputTarget* pTarget = &m_aTargets[j];
 
-		if (!pEntity)
+		if (pTarget->m_sTargetName.length() == 0)
 			continue;
 
-		if (pEntity->IsDeleted())
+		if (pTarget->m_sInput.length() == 0)
 			continue;
 
-		for (size_t j = 0; j < m_aTargets.size(); j++)
-		{
-			CEntityOutputTarget* pTarget = &m_aTargets[j];
+		eastl::vector<CBaseEntity*> apEntities;
+		CBaseEntity::FindEntitiesByName(pTarget->m_sTargetName, apEntities);
 
-			if (pTarget->m_sTargetName.length() == 0)
-				continue;
-
-			if (pTarget->m_sInput.length() == 0)
-				continue;
-
-			if (pTarget->m_sTargetName[0] == '*')
-			{
-				if (eastl::string(pEntity->GetClassName()) != pTarget->m_sTargetName.c_str()+1)
-					continue;
-			}
-			else
-			{
-				if (pEntity->GetName() != pTarget->m_sTargetName)
-					continue;
-			}
-
-			pEntity->CallInput(pTarget->m_sInput, convertstring<char, char16_t>(pTarget->m_sArgs));
-		}
+		for (size_t i = 0; i < apEntities.size(); i++)
+			apEntities[i]->CallInput(pTarget->m_sInput, convertstring<char, char16_t>(pTarget->m_sArgs));
 	}
 
 	for (size_t i = 0; i < m_aTargets.size(); i++)
@@ -953,4 +935,34 @@ size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
 CEntityRegistration* CBaseEntity::GetRegisteredEntity(size_t iEntity)
 {
 	return &GetEntityRegistration()[iEntity];
+}
+
+void CBaseEntity::FindEntitiesByName(const eastl::string& sName, eastl::vector<CBaseEntity*>& apEntities)
+{
+	if (sName.length() == 0)
+		return;
+
+	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
+	{
+		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
+
+		if (!pEntity)
+			continue;
+
+		if (pEntity->IsDeleted())
+			continue;
+
+		if (sName[0] == '*')
+		{
+			if (eastl::string(pEntity->GetClassName()) != sName.c_str()+1)
+				continue;
+		}
+		else
+		{
+			if (pEntity->GetName() != sName)
+				continue;
+		}
+
+		apEntities.push_back(pEntity);
+	}
 }

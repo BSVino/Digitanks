@@ -259,6 +259,15 @@ void CParticleSystem::AddChild(size_t iSystem)
 	m_aiChildren.push_back(iSystem);
 }
 
+void CParticleSystem::AddChild(CParticleSystem* pSystem)
+{
+	for (size_t i = 0; i < CParticleSystemLibrary::GetNumParticleSystems(); i++)
+	{
+		if (CParticleSystemLibrary::Get()->GetParticleSystem(i) == pSystem)
+			AddChild(i);
+	}
+}
+
 CSystemInstance::CSystemInstance(CParticleSystem* pSystem, Vector vecOrigin, EAngle angAngles)
 {
 	m_pSystem = pSystem;
