@@ -9,6 +9,8 @@ class CIntroGeneral : public CBaseEntity
 
 public:
 	DECLARE_ENTITY_INPUT(Deploy);
+	DECLARE_ENTITY_INPUT(RetryDebugging);
+	DECLARE_ENTITY_INPUT(GiveUpDebugging);
 
 protected:
 };

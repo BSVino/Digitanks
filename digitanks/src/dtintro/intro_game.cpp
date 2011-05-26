@@ -49,10 +49,5 @@ void CIntroGame::Think()
 {
 	BaseClass::Think();
 
-#ifndef _DEBUG
-	if (GameServer()->GetGameTime() > 20)
-		exit(0);
-#endif
-
 	ScriptManager()->Think();
 }

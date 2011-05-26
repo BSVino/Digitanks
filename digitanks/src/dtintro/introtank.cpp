@@ -16,6 +16,9 @@ SAVEDATA_TABLE_BEGIN(CIntroTank);
 	SAVEDATA_OMIT(m_flCurrentTurretYaw);
 	SAVEDATA_OMIT(m_flGoalTurretYaw);
 	SAVEDATA_OMIT(m_iTurretModel);
+	SAVEDATA_OMIT(m_flStartedRock);
+	SAVEDATA_OMIT(m_flRockIntensity);
+	SAVEDATA_OMIT(m_vecRockDirection);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CIntroTank);
@@ -26,6 +29,7 @@ CIntroTank::CIntroTank()
 	m_flCurrentTurretYaw = 0;
 	m_flGoalTurretYaw = 0;
 	m_iTurretModel = ~0;
+	m_flStartedRock = 0;
 }
 
 void CIntroTank::Precache()
@@ -40,12 +44,34 @@ void CIntroTank::ModifyContext(class CRenderingContext* pContext, bool bTranspar
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
 
-	float flScale = 10*flWidth/flHeight;
+	float flScale = 15*flWidth/flHeight;
 
 	pContext->Scale(flScale, flScale, flScale);
 
 	if (GetTeam())
 		pContext->SetColorSwap(GetTeam()->GetColor());
+}
+
+EAngle CIntroTank::GetRenderAngles() const
+{
+	if (IsRocking())
+	{
+		EAngle angReturn = GetAngles();
+
+		Vector vecForward, vecRight;
+		AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
+		float flDotForward = -m_vecRockDirection.Dot(vecForward.Normalized());
+		float flDotRight = -m_vecRockDirection.Dot(vecRight.Normalized());
+
+		float flLerp = Lerp(1-Oscillate(GameServer()->GetGameTime() - m_flStartedRock, 1), 0.7f);
+
+		angReturn.p += flDotForward*flLerp*m_flRockIntensity*45;
+		angReturn.r += flDotRight*flLerp*m_flRockIntensity*45;
+
+		return angReturn;
+	}
+
+	return GetAngles();
 }
 
 void CIntroTank::OnRender(class CRenderingContext* pContext, bool bTransparent)
@@ -93,5 +119,23 @@ void CIntroTank::FireBomb(Vector vecLandingSpot)
 
 	CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
 
-//	RockTheBoat(0.8f, -vecForce.Normalized());
+	RockTheBoat(0.6f, -vecForce.Normalized());
+}
+
+void CIntroTank::RockTheBoat(float flIntensity, Vector vecDirection)
+{
+	m_flStartedRock = GameServer()->GetGameTime();
+	m_flRockIntensity = flIntensity;
+	m_vecRockDirection = vecDirection;
+}
+
+bool CIntroTank::IsRocking() const
+{
+	float flTransitionTime = 1;
+
+	float flTimeSinceRock = GameServer()->GetGameTime() - m_flStartedRock;
+	if (m_flStartedRock && flTimeSinceRock < flTransitionTime)
+		return true;
+
+	return false;
 }

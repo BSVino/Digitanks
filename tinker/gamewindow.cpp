@@ -111,8 +111,6 @@ void CGameWindow::MouseMotion(int x, int y)
 {
 	BaseClass::MouseMotion(x, y);
 
-	glgui::CRootPanel::Get()->CursorMoved(x, y);
-
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->MouseInput(x, y);
 }

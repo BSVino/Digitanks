@@ -92,6 +92,27 @@ void CIntroWindow::SetupIntro()
 	pBug->FaceTurret(40);
 	pBugsTeam->AddEntity(pBug);
 
+	pBug = GameServer()->Create<CBug>("CBug");
+	pBug->SetName("bug3");
+	pBug->SetOrigin(Vector(-50, flHeight*0.7f, -flWidth*0.16f));
+	pBug->SetAngles(EAngle(-10, -10, 0));
+	pBug->FaceTurret(-40);
+	pBugsTeam->AddEntity(pBug);
+
+	pBug = GameServer()->Create<CBug>("CBug");
+	pBug->SetName("bug4");
+	pBug->SetOrigin(Vector(-50, 0, -flWidth*0.7f));
+	pBug->SetAngles(EAngle(-10, 20, 0));
+	pBug->FaceTurret(40);
+	pBugsTeam->AddEntity(pBug);
+
+	pBug = GameServer()->Create<CBug>("CBug");
+	pBug->SetName("bug5");
+	pBug->SetOrigin(Vector(-50, -flHeight*0.7f, -flWidth*0.16f));
+	pBug->SetAngles(EAngle(-10, -10, 0));
+	pBug->FaceTurret(-40);
+	pBugsTeam->AddEntity(pBug);
+
 	CIntroGeneral* pGeneral = GameServer()->Create<CIntroGeneral>("CIntroGeneral");
 	pGeneral->SetName("general");
 
@@ -115,16 +136,16 @@ void CIntroWindow::SetupIntro()
 
 	pEvent = pBustOutScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_MOVEACTOR;
-	pEvent->m_flStartTime = 1;
-	pEvent->m_flEndTime = 3;
+	pEvent->m_flStartTime = 0.5f;
+	pEvent->m_flEndTime = 2.5f;
 	pEvent->m_sName = "bug1";
 	pEvent->m_vecOrigin = Vector(250, 60, -flWidth*0.35f);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
 
 	pEvent = pBustOutScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_MOVEACTOR;
-	pEvent->m_flStartTime = 2;
-	pEvent->m_flEndTime = 4;
+	pEvent->m_flStartTime = 1.5f;
+	pEvent->m_flEndTime = 3.5f;
 	pEvent->m_sName = "bug2";
 	pEvent->m_vecOrigin = Vector(250, -20, -flWidth*0.14f);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
@@ -146,6 +167,76 @@ void CIntroWindow::SetupIntro()
 	pEvent->m_flStartTime = 8.5f;
 	pEvent->m_sName = "general";
 	pEvent->m_sOutput = "Deploy";
+
+	CScript* pGeneralDebug1Script = ScriptManager()->AddScript("general-debug-1");
+
+	pEvent = pGeneralDebug1Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_PARTICLES;
+	pEvent->m_flStartTime = 3;
+	pEvent->m_sName = "intro-explosion";
+	pEvent->m_vecOrigin = Vector(0, 0, 0);
+
+	pEvent = pGeneralDebug1Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 6;
+	pEvent->m_sName = "general";
+	pEvent->m_sOutput = "RetryDebugging";
+
+	CScript* pGeneralDebug2Script = ScriptManager()->AddScript("general-debug-2");
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_PARTICLES;
+	pEvent->m_flStartTime = 3;
+	pEvent->m_sName = "intro-explosion";
+	pEvent->m_vecOrigin = Vector(0, 0, 0);
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 3.5f;
+	pEvent->m_flEndTime = 5.5f;
+	pEvent->m_sName = "bug3";
+	pEvent->m_vecOrigin = Vector(250, flHeight*0.28f, -flWidth*0.16f);
+	pEvent->m_angAngles = EAngle(-10, 20, 0);
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 4.0f;
+	pEvent->m_flEndTime = 6.0f;
+	pEvent->m_sName = "bug4";
+	pEvent->m_vecOrigin = Vector(250, -flHeight*0.1f, -flWidth*0.35f);
+	pEvent->m_angAngles = EAngle(-10, 20, 0);
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 4.5f;
+	pEvent->m_flEndTime = 6.5f;
+	pEvent->m_sName = "bug5";
+	pEvent->m_vecOrigin = Vector(250, -flHeight*0.28f, -flWidth*0.16f);
+	pEvent->m_angAngles = EAngle(-10, 20, 0);
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 4.0;
+	pEvent->m_sName = "bug3";
+	pEvent->m_sOutput = "FireRandomly";
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 4.5f;
+	pEvent->m_sName = "bug4";
+	pEvent->m_sOutput = "FireRandomly";
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 5.0f;
+	pEvent->m_sName = "bug5";
+	pEvent->m_sOutput = "FireRandomly";
+
+	pEvent = pGeneralDebug2Script->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 8;
+	pEvent->m_sName = "general";
+	pEvent->m_sOutput = "GiveUpDebugging";
 
 	ScriptManager()->PlayScript("bustout");
 }

@@ -4,7 +4,14 @@
 #include <glgui/glgui.h>
 #include <models/texturesheet.h>
 
-class CGeneralWindow : public glgui::CPanel
+typedef enum
+{
+	STAGE_REPAIR,
+	STAGE_REPAIR2,
+	STAGE_DIGITANKS,
+} generalstage_t;
+
+class CGeneralWindow : public glgui::CPanel, public glgui::IEventListener
 {
 	DECLARE_CLASS(CGeneralWindow, glgui::CPanel);
 
@@ -18,6 +25,10 @@ public:
 
 	void				Reset();
 	void				Deploy();
+	void				RetryDebugging();
+	void				GiveUpDebugging();
+
+	EVENT_CALLBACK(CGeneralWindow, ButtonPressed);
 
 public:
 	float				m_flDeployedGoal;
@@ -29,6 +40,8 @@ public:
 	CTextureSheet		m_hGeneral;
 	CTextureSheet		m_hGeneralMouth;
 	eastl::string		m_sEmotion;
+
+	generalstage_t		m_eStage;
 };
 
 #endif

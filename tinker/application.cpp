@@ -309,6 +309,38 @@ void CApplication::WindowResize(int w, int h)
 	SwapBuffers();
 }
 
+void CApplication::MouseMotion(int x, int y)
+{
+	glgui::CRootPanel::Get()->CursorMoved(x, y);
+}
+
+void CApplication::MouseInput(int iButton, int iState)
+{
+	int mx, my;
+	GetMousePosition(mx, my);
+	if (iState == 1)
+	{
+		if (glgui::CRootPanel::Get()->MousePressed(iButton, mx, my))
+		{
+			m_bMouseDownInGUI = true;
+			return;
+		}
+		else
+			m_bMouseDownInGUI = false;
+	}
+	else
+	{
+		if (glgui::CRootPanel::Get()->MouseReleased(iButton, mx, my))
+			return;
+
+		if (m_bMouseDownInGUI)
+		{
+			m_bMouseDownInGUI = false;
+			return;
+		}
+	}
+}
+
 tinker_keys_t MapKey(int c)
 {
 	switch (c)

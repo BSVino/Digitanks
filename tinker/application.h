@@ -40,10 +40,10 @@ public:
 	virtual void				WindowResize(int x, int y);
 
 	static void					MouseMotionCallback(int x, int y) { Get()->MouseMotion(x, y); };
-	virtual void				MouseMotion(int x, int y) {};
+	virtual void				MouseMotion(int x, int y);
 
 	static void					MouseInputCallback(int iButton, int iState);
-	virtual void				MouseInput(int iButton, int iState) {};
+	virtual void				MouseInput(int iButton, int iState);
 
 	static void					MouseWheelCallback(int iState) { Get()->MouseWheel(iState); };
 	virtual void				MouseWheel(int iState) {};
@@ -114,6 +114,8 @@ protected:
 	ConfigFile					m_oRegFile;
 	eastl::string				m_sCode;
 	eastl::string				m_sKey;
+
+	bool						m_bMouseDownInGUI;
 
 	class CConsole*				m_pConsole;
 

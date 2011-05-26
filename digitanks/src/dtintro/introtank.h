@@ -14,6 +14,7 @@ public:
 	virtual void	Precache();
 
 	virtual bool	ShouldRender() const { return true; };
+	virtual EAngle	GetRenderAngles() const;
 	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
 	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
 
@@ -21,10 +22,17 @@ public:
 
 	void			FireBomb(Vector vecLandingSpot);
 
+	void			RockTheBoat(float flIntensity, Vector vecDirection);
+	bool			IsRocking() const;
+
 protected:
 	float			m_flCurrentTurretYaw;
 	float			m_flGoalTurretYaw;
 	size_t			m_iTurretModel;
+
+	float			m_flStartedRock;
+	float			m_flRockIntensity;
+	Vector			m_vecRockDirection;
 };
 
 #endif
