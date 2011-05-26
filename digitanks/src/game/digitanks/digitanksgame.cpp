@@ -582,14 +582,19 @@ void CDigitanksGame::SetupArtillery()
 			pTeam->SetColor(g_aclrTeamColors[i]);
 			pTeam->SetTeamName(g_aszTeamNames[i]);
 
-			if (game_players.GetInt() == 1 && i == 0)
+			if (i <= game_players.GetInt())
 			{
-				eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
-				if (sPlayerNickname.length())
-					pTeam->SetTeamName(sPlayerNickname);
-			}
+				if (i == 0)
+				{
+					eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+					if (sPlayerNickname.length())
+						pTeam->SetTeamName(sPlayerNickname);
+				}
 
-			pTeam->SetClient(-1);
+				pTeam->SetClient(-1);
+			}
+			else
+				pTeam->SetClient(-2);
 		}
 	}
 }
@@ -719,14 +724,16 @@ void CDigitanksGame::SetupStrategy()
 			pTeam->SetColor(g_aclrTeamColors[i]);
 			pTeam->SetTeamName(g_aszTeamNames[i]);
 
-			if (game_players.GetInt() == 1 && i == 0)
+			if (i == 0)
 			{
 				eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 				if (sPlayerNickname.length())
 					pTeam->SetTeamName(sPlayerNickname);
-			}
 
-			pTeam->SetClient(-1);
+				pTeam->SetClient(-1);
+			}
+			else
+				pTeam->SetClient(-2);
 		}
 
 		pTeam->SetLoseCondition(LOSE_NOCPU);
