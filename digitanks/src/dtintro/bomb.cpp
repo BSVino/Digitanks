@@ -20,6 +20,7 @@ void CBomb::Precache()
 {
 	PrecacheParticleSystem(L"shell-trail");
 	PrecacheParticleSystem(L"explosion");
+	PrecacheSound(L"sound/explosion.wav");
 }
 
 void CBomb::Spawn()
@@ -39,6 +40,8 @@ void CBomb::Think()
 
 	if (m_flExplodeTime && GameServer()->GetGameTime() > m_flExplodeTime)
 	{
+		EmitSound(L"sound/explosion.wav");
+
 		CParticleSystemLibrary::AddInstance(L"explosion", GetOrigin());
 		Delete();
 

@@ -38,6 +38,7 @@ public:
 	float				m_flDeployed;
 
 	float				m_flStartTime;
+	bool				m_bHelperSpeaking;
 
 	glgui::CLabel*		m_pText;
 	glgui::CButton*		m_pButton;

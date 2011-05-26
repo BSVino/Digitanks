@@ -35,6 +35,7 @@ CIntroTank::CIntroTank()
 void CIntroTank::Precache()
 {
 	PrecacheParticleSystem(L"tank-fire");
+	PrecacheSound(L"sound/tank-fire.wav");
 }
 
 void CIntroTank::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
@@ -121,6 +122,8 @@ void CIntroTank::FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget)
 	CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
 
 	RockTheBoat(0.6f, -vecForce.Normalized());
+
+	EmitSound(L"sound/tank-fire.wav");
 }
 
 void CIntroTank::RockTheBoat(float flIntensity, Vector vecDirection)

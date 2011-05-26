@@ -20,6 +20,8 @@ void CScreen::Precache()
 {
 	PrecacheModel(L"models/intro/screen.obj");
 	PrecacheParticleSystem(L"intro-explosion-fragments");
+	PrecacheSound(L"sound/tank-damage.wav");
+	PrecacheSound(L"sound/helper-speech.wav");	// For the UI
 }
 
 void CScreen::Spawn()
@@ -50,4 +52,6 @@ void CScreen::SetScreenshot(size_t iScreenshot)
 	pModel = CModelLibrary::Get()->GetModel(iModel);
 	pModel->m_aiTextures[0] = iScreenshot;
 	pModel->m_iCallListTexture = iScreenshot;
+
+	EmitSound(L"sound/tank-damage.wav");
 }

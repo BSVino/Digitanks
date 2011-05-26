@@ -2,6 +2,8 @@
 
 #include <game/gameserver.h>
 #include <renderer/renderer.h>
+#include <sound/sound.h>
+#include <game/game.h>
 
 #include "script.h"
 #include "intro_window.h"
@@ -24,6 +26,7 @@ CGeneralWindow::CGeneralWindow()
 
 	m_flFadeToBlack = 0;
 	m_flStartTime = 0;
+	m_bHelperSpeaking = false;
 }
 
 void CGeneralWindow::Layout()
@@ -45,10 +48,28 @@ void CGeneralWindow::Think()
 
 	SetPos(100, glgui::CRootPanel::Get()->GetHeight() - (int)(m_flDeployed*GetHeight()));
 
+	int iPrintChars = (int)((GameServer()->GetGameTime() - m_flStartTime)*50);
 	if (m_flStartTime)
-	{
-		int iPrintChars = (int)((GameServer()->GetGameTime() - m_flStartTime)*50);
 		m_pText->SetPrintChars(iPrintChars);
+
+	bool bScrolling = (iPrintChars < (int)m_pText->GetText().length());
+
+	if (bScrolling)
+	{
+		if (!m_bHelperSpeaking)
+		{
+			CSoundLibrary::PlaySound(NULL, L"sound/helper-speech.wav", true);
+			m_bHelperSpeaking = true;
+			CSoundLibrary::SetSoundVolume(NULL, L"sound/helper-speech.wav", 0.7f);
+		}
+	}
+	else
+	{
+		if (m_bHelperSpeaking)
+		{
+			CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+			m_bHelperSpeaking = false;
+		}
 	}
 }
 

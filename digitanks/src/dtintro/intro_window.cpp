@@ -74,6 +74,7 @@ void CIntroWindow::SetupIntro()
 	GetGeneralWindow()->Reset();
 
 	CScreen* pScreen = GameServer()->Create<CScreen>("CScreen");
+	pScreen->SetName("screen");
 	pScreen->SetScreenshot(CRenderer::LoadTextureIntoGL(m_iScreenshot));
 	pScreen->SetOrigin(Vector(0, 0, 0));
 
