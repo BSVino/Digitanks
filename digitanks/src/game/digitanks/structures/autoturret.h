@@ -14,6 +14,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	virtual void				StartTurn();
 	virtual void				EndTurn();
@@ -42,6 +43,7 @@ public:
 protected:
 	CNetworkedVariable<bool>	m_bHasFired;
 
+	size_t						m_iShieldModel;
 };
 
 #endif

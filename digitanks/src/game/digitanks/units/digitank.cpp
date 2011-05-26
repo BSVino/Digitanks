@@ -3194,7 +3194,10 @@ void CDigitank::RenderShield()
 	// If you just call r.RenderModel() it overrides the shader
 	CModel* pModel = CModelLibrary::Get()->GetModel(m_iShieldModel);
 	if (pModel)
+	{
+		r.BindTexture(pModel->m_iCallListTexture);
 		glCallList((GLuint)pModel->m_iCallList);
+	}
 }
 
 bool CDigitank::IsTouching(CBaseEntity* pOther, Vector& vecPoint) const

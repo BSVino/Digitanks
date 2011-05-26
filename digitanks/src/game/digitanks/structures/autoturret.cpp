@@ -1,7 +1,10 @@
 #include "autoturret.h"
 
+#include <GL/glew.h>
+
 #include <models/models.h>
 #include <renderer/renderer.h>
+#include <shaders/shaders.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/hud.h>
@@ -16,6 +19,7 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CAutoTurret);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bHasFired);
+	SAVEDATA_OMIT(m_iShieldModel);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CAutoTurret);
@@ -23,26 +27,83 @@ INPUTS_TABLE_END();
 
 void CAutoTurret::Precache()
 {
-	PrecacheModel(L"models/digitanks/autoturret.obj", true);
+	PrecacheModel(L"models/structures/firewall.obj", true);
+	PrecacheModel(L"models/structures/firewall-shield.obj", true);
 }
 
 void CAutoTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/autoturret.obj");
+	SetModel(L"models/structures/firewall.obj");
+
+	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/structures/firewall-shield.obj");
 }
 
 void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
-	pContext->Scale(1.5f, 1.5f, 1.5f);
-
 	if (!GetTeam())
 		return;
 
 	pContext->SetColorSwap(GetTeam()->GetColor());
+}
+
+void CAutoTurret::OnRender(CRenderingContext* pContext, bool bTransparent)
+{
+	if (m_iShieldModel == ~0)
+		return;
+
+	if (GetVisibility() == 0)
+		return;
+
+	if (!GetTeam())
+		return;
+
+	if (!bTransparent)
+		return;
+
+	float flFlicker = 1;
+	
+	if (GetHealth() < GetTotalHealth()/2)
+		flFlicker = Flicker("zzzzmmzzztzzzzzznzzz", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 1.0f);
+
+	CRenderingContext r(GameServer()->GetRenderer());
+
+	float flFinalAlpha = flFlicker*GetVisibility()*0.4f;
+
+	if (flFinalAlpha <= 0)
+		return;
+
+	if (GameServer()->GetRenderer()->ShouldUseShaders())
+	{
+		r.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
+		r.SetUniform("iTexture", 0);
+		r.SetUniform("flAlpha", flFinalAlpha);
+		r.SetUniform("flTime", GameServer()->GetGameTime());
+		r.SetUniform("flSpeed", 1.0f);
+	}
+	else
+		r.SetAlpha(flFinalAlpha);
+
+	r.SetBlend(BLEND_ADDITIVE);
+	r.SetDepthTest(false);
+	r.SetBackCulling(false);
+
+	// If you just call r.RenderModel() it overrides the shader
+	CModel* pModel = CModelLibrary::Get()->GetModel(m_iShieldModel);
+	if (pModel)
+	{
+		r.BindTexture(pModel->m_iCallListTexture);
+		glCallList((GLuint)pModel->m_iCallList);
+
+		r.Scale(1.1f, 1.1f, 1.1f);
+		r.Rotate(90, Vector(0, 1, 0));
+		r.SetUniform("flTime", GameServer()->GetGameTime()*1.2f);
+
+		glCallList((GLuint)pModel->m_iCallList);
+	}
 }
 
 void CAutoTurret::StartTurn()
