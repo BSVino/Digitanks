@@ -20,7 +20,7 @@ public:
 
 	void			FaceTurret(float flYaw) { m_flGoalTurretYaw = flYaw; };
 
-	void			FireBomb(Vector vecLandingSpot);
+	void			FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget = NULL);
 
 	void			RockTheBoat(float flIntensity, Vector vecDirection);
 	bool			IsRocking() const;

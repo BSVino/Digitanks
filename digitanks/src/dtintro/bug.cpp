@@ -5,6 +5,7 @@
 #include <tinker/application.h>
 #include <renderer/renderer.h>
 #include <models/models.h>
+#include <renderer/dissolver.h>
 
 REGISTER_ENTITY(CBug);
 
@@ -20,6 +21,7 @@ SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBug);
 	INPUT_DEFINE(FireRandomly);
+	INPUT_DEFINE(Dissolve);
 INPUTS_TABLE_END();
 
 void CBug::Precache()
@@ -69,4 +71,30 @@ void CBug::FireRandomly(const eastl::vector<eastl::string16>& sArgs)
 	m_bFiringRandomly = true;
 
 	m_flNextAim = GameServer()->GetGameTime() + RandomFloat(0, 0.5f);
+}
+
+void CBug::Dissolve(const eastl::vector<eastl::string16>& sArgs)
+{
+	float flWidth = (float)CApplication::Get()->GetWindowWidth();
+	float flHeight = (float)CApplication::Get()->GetWindowHeight();
+
+	float flScale = 15*flWidth/flHeight;
+
+	Vector vecScale(flScale, flScale, flScale);
+
+	CModelDissolver::AddModel(this, &GetTeam()->GetColor(), &vecScale);
+
+	CModel* pModel = CModelLibrary::Get()->GetModel(m_iTurretModel);
+
+	Matrix4x4 mTransform;
+	mTransform.SetTranslation(GetRenderOrigin() + Vector(-0.0f, 0.810368f, 0));
+	mTransform.SetRotation(GetRenderAngles() - EAngle(0, m_flCurrentTurretYaw, 0));
+
+	Matrix4x4 mScale;
+	mScale.SetScale(vecScale);
+	mTransform = mTransform * mScale;
+
+	CModelDissolver::Get()->AddScene(pModel, mTransform, &GetTeam()->GetColor());
+
+	Delete();
 }

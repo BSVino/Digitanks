@@ -19,10 +19,12 @@ public:
 	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
 
 	void			SetExplodeTime(float flExplodeTime) { m_flExplodeTime = flExplodeTime; };
+	void			SetTarget(CBaseEntity* pTarget) { m_hTarget = pTarget; }
 
 protected:
 	float			m_flExplodeTime;
 	CParticleSystemInstanceHandle m_hTrailParticles;
+	CEntityHandle<CBaseEntity> m_hTarget;
 };
 
 #endif

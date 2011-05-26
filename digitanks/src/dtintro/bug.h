@@ -14,6 +14,7 @@ public:
 	virtual void	Think();
 
 	DECLARE_ENTITY_INPUT(FireRandomly);
+	DECLARE_ENTITY_INPUT(Dissolve);
 
 protected:
 	bool			m_bFiringRandomly;

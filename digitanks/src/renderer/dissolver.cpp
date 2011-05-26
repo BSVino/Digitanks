@@ -22,7 +22,7 @@ CModelDissolver::CModelDissolver()
 	m_flLifeTime = 2.0f;
 }
 
-void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap)
+void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap, Vector* pvecScale)
 {
 	if (!Get())
 		return;
@@ -39,6 +39,14 @@ void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap)
 	Matrix4x4 mTransform;
 	mTransform.SetTranslation(pEntity->GetRenderOrigin());
 	mTransform.SetRotation(pEntity->GetRenderAngles());
+
+	if (pvecScale)
+	{
+		Matrix4x4 mScale;
+		mScale.SetScale(*pvecScale);
+		mTransform = mTransform * mScale;
+	}
+
 	Get()->AddScene(pModel, mTransform, pclrSwap);
 }
 

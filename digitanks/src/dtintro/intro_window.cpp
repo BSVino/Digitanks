@@ -17,9 +17,11 @@
 
 #include "screen.h"
 #include "bug.h"
+#include "digitank.h"
 #include "script.h"
 #include "general_window.h"
 #include "general.h"
+#include "intro_renderer.h"
 
 CIntroWindow::CIntroWindow(int argc, char** argv)
 	: CGameWindow(argc, argv)
@@ -40,6 +42,8 @@ void CIntroWindow::SetupEngine()
 	SetupIntro();
 
 	GameServer()->SetLoading(false);
+
+	CVar::SetCVar("r_frustumculling", false);
 }
 
 void SetupIntro(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
@@ -115,6 +119,32 @@ void CIntroWindow::SetupIntro()
 
 	CIntroGeneral* pGeneral = GameServer()->Create<CIntroGeneral>("CIntroGeneral");
 	pGeneral->SetName("general");
+
+	CTeam* pDigitanksTeam = GameServer()->Create<CTeam>("CTeam");
+	pDigitanksTeam->SetColor(Color(0, 64, 255, 255));
+
+	CDigitank* pDigitank;
+
+	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
+	pDigitank->SetName("digitank1");
+	pDigitank->SetOrigin(Vector(-50, -flHeight*0.7f, flWidth*0.7f));
+	pDigitank->SetAngles(EAngle(-10, -70, 0));
+	pDigitank->FaceTurret(-40);
+	pDigitanksTeam->AddEntity(pDigitank);
+
+	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
+	pDigitank->SetName("digitank2");
+	pDigitank->SetOrigin(Vector(-50, 60, flWidth*0.7f));
+	pDigitank->SetAngles(EAngle(-10, -70, 0));
+	pDigitank->FaceTurret(-40);
+	pDigitanksTeam->AddEntity(pDigitank);
+
+	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
+	pDigitank->SetName("digitank3");
+	pDigitank->SetOrigin(Vector(-50, flHeight*0.7f, flWidth*0.7f));
+	pDigitank->SetAngles(EAngle(-10, -70, 0));
+	pDigitank->FaceTurret(-40);
+	pDigitanksTeam->AddEntity(pDigitank);
 
 	ScriptManager()->ClearScripts();
 
@@ -234,9 +264,76 @@ void CIntroWindow::SetupIntro()
 
 	pEvent = pGeneralDebug2Script->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
-	pEvent->m_flStartTime = 8;
+	pEvent->m_flStartTime = 6;
 	pEvent->m_sName = "general";
 	pEvent->m_sOutput = "GiveUpDebugging";
+
+	CScript* pDigitanksScript = ScriptManager()->AddScript("digitanks");
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 0.0f;
+	pEvent->m_flEndTime = 1.0f;
+	pEvent->m_sName = "digitank2";
+	pEvent->m_vecOrigin = Vector(250, flHeight*0.25f, flWidth*0.30f);
+	pEvent->m_angAngles = EAngle(-20, -40, 0);
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 0.2f;
+	pEvent->m_flEndTime = 1.2f;
+	pEvent->m_sName = "digitank3";
+	pEvent->m_vecOrigin = Vector(250, flHeight*0.35f, flWidth*0.35f);
+	pEvent->m_angAngles = EAngle(-20, -40, 0);
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_MOVEACTOR;
+	pEvent->m_flStartTime = 0.4f;
+	pEvent->m_flEndTime = 1.4f;
+	pEvent->m_sName = "digitank1";
+	pEvent->m_vecOrigin = Vector(250, flHeight*0.1f, flWidth*0.35f);
+	pEvent->m_angAngles = EAngle(-20, -40, 0);
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 2;
+	pEvent->m_sName = "digitank1";
+	pEvent->m_sOutput = "FireAt";
+	pEvent->m_sArgs = L"bug1";
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 2.3f;
+	pEvent->m_sName = "digitank2";
+	pEvent->m_sOutput = "FireAt";
+	pEvent->m_sArgs = L"bug2";
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 2.6f;
+	pEvent->m_sName = "digitank3";
+	pEvent->m_sOutput = "FireAt";
+	pEvent->m_sArgs = L"bug3";
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 3;
+	pEvent->m_sName = "digitank1";
+	pEvent->m_sOutput = "FireAt";
+	pEvent->m_sArgs = L"bug4";
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 3.3f;
+	pEvent->m_sName = "digitank2";
+	pEvent->m_sOutput = "FireAt";
+	pEvent->m_sArgs = L"bug5";
+
+	pEvent = pDigitanksScript->AddScriptEvent();
+	pEvent->m_eEventClass = EC_FIREOUTPUT;
+	pEvent->m_flStartTime = 6;
+	pEvent->m_sName = "general";
+	pEvent->m_sOutput = "DigitanksWon";
 
 	ScriptManager()->PlayScript("bustout");
 }
@@ -265,4 +362,9 @@ void CIntroWindow::DoKeyPress(int c)
 
 	if (c == TINKER_KEY_ESCAPE)
 		exit(0);
+}
+
+CIntroRenderer* CIntroWindow::GetRenderer()
+{
+	return static_cast<CIntroRenderer*>(GameServer()->GetRenderer());
 }

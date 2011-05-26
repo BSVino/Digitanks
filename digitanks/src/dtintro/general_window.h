@@ -9,6 +9,8 @@ typedef enum
 	STAGE_REPAIR,
 	STAGE_REPAIR2,
 	STAGE_DIGITANKS,
+	STAGE_INTEL,
+	STAGE_FINISH,
 } generalstage_t;
 
 class CGeneralWindow : public glgui::CPanel, public glgui::IEventListener
@@ -27,12 +29,15 @@ public:
 	void				Deploy();
 	void				RetryDebugging();
 	void				GiveUpDebugging();
+	void				DigitanksWon();
 
 	EVENT_CALLBACK(CGeneralWindow, ButtonPressed);
 
 public:
 	float				m_flDeployedGoal;
 	float				m_flDeployed;
+
+	float				m_flStartTime;
 
 	glgui::CLabel*		m_pText;
 	glgui::CButton*		m_pButton;
@@ -42,6 +47,8 @@ public:
 	eastl::string		m_sEmotion;
 
 	generalstage_t		m_eStage;
+
+	float				m_flFadeToBlack;
 };
 
 #endif

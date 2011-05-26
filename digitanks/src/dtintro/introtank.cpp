@@ -96,7 +96,7 @@ void CIntroTank::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	r.RenderModel(m_iTurretModel);
 }
 
-void CIntroTank::FireBomb(Vector vecLandingSpot)
+void CIntroTank::FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget)
 {
 	CBomb* pBomb = GameServer()->Create<CBomb>("CBomb");
 
@@ -116,6 +116,7 @@ void CIntroTank::FireBomb(Vector vecLandingSpot)
 	pBomb->SetGravity(Vector(0, flGravity, 0));
 	pBomb->SetOrigin(GetOrigin() + vecMuzzle);
 	pBomb->SetExplodeTime(GameServer()->GetGameTime() + flTime);
+	pBomb->SetTarget(pTarget);
 
 	CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
 

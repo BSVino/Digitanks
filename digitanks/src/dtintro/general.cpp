@@ -15,6 +15,7 @@ INPUTS_TABLE_BEGIN(CIntroGeneral);
 	INPUT_DEFINE(Deploy);
 	INPUT_DEFINE(RetryDebugging);
 	INPUT_DEFINE(GiveUpDebugging);
+	INPUT_DEFINE(DigitanksWon);
 INPUTS_TABLE_END();
 
 void CIntroGeneral::Deploy(const eastl::vector<eastl::string16>& sArgs)
@@ -30,4 +31,9 @@ void CIntroGeneral::RetryDebugging(const eastl::vector<eastl::string16>& sArgs)
 void CIntroGeneral::GiveUpDebugging(const eastl::vector<eastl::string16>& sArgs)
 {
 	IntroWindow()->GetGeneralWindow()->GiveUpDebugging();
+}
+
+void CIntroGeneral::DigitanksWon(const eastl::vector<eastl::string16>& sArgs)
+{
+	IntroWindow()->GetGeneralWindow()->DigitanksWon();
 }

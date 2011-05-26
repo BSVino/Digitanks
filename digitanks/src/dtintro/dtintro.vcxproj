@@ -127,6 +127,7 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClCompile Include="..\ui\chatbox.cpp" />
     <ClCompile Include="bomb.cpp" />
     <ClCompile Include="bug.cpp" />
+    <ClCompile Include="digitank.cpp" />
     <ClCompile Include="general.cpp" />
     <ClCompile Include="general_window.cpp" />
     <ClCompile Include="introtank.cpp" />
@@ -178,6 +179,7 @@ if exist "$(TargetDir)"dtintro.pdb copy "$(TargetDir)"dtintro.pdb "\My Dropbox\D
     <ClInclude Include="..\ui\chatbox.h" />
     <ClInclude Include="bomb.h" />
     <ClInclude Include="bug.h" />
+    <ClInclude Include="digitank.h" />
     <ClInclude Include="general.h" />
     <ClInclude Include="general_window.h" />
     <ClInclude Include="introtank.h" />

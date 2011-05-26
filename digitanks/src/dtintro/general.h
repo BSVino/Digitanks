@@ -11,6 +11,7 @@ public:
 	DECLARE_ENTITY_INPUT(Deploy);
 	DECLARE_ENTITY_INPUT(RetryDebugging);
 	DECLARE_ENTITY_INPUT(GiveUpDebugging);
+	DECLARE_ENTITY_INPUT(DigitanksWon);
 
 protected:
 };

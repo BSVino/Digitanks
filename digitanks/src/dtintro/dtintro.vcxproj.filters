@@ -237,6 +237,9 @@
     <ClCompile Include="general_window.cpp">
       <Filter>Source Files\intro</Filter>
     </ClCompile>
+    <ClCompile Include="digitank.cpp">
+      <Filter>Source Files\intro\actors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\tinker\application.h">
@@ -376,6 +379,9 @@
     </ClInclude>
     <ClInclude Include="general_window.h">
       <Filter>Source Files\intro</Filter>
+    </ClInclude>
+    <ClInclude Include="digitank.h">
+      <Filter>Source Files\intro\actors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

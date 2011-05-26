@@ -52,7 +52,7 @@ public:
 	static void						Simulate();
 	static void						Render();
 
-	static void						AddModel(class CBaseEntity* pEntity, Color* pclrSwap = NULL);
+	static void						AddModel(class CBaseEntity* pEntity, Color* pclrSwap = NULL, Vector* pvecScale = NULL);
 
 	static CModelDissolver*			Get() { return s_pModelDissolver; };
 

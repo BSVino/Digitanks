@@ -10,6 +10,7 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CBomb);
 	SAVEDATA_OMIT(m_flExplodeTime);
 	SAVEDATA_OMIT(m_hTrailParticles);
+	SAVEDATA_OMIT(m_hTarget);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBomb);
@@ -40,6 +41,9 @@ void CBomb::Think()
 	{
 		CParticleSystemLibrary::AddInstance(L"explosion", GetOrigin());
 		Delete();
+
+		if (m_hTarget != NULL && m_hTarget->GetInput("Dissolve"))
+			m_hTarget->CallInput("Dissolve", L"");
 	}
 }
 

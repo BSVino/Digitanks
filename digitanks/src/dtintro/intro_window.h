@@ -24,6 +24,8 @@ public:
 
 	class CGeneralWindow*		GetGeneralWindow() { return m_pGeneralWindow; }
 
+	class CIntroRenderer*		GetRenderer();
+
 protected:
 	size_t						m_iScreenshot;
 
