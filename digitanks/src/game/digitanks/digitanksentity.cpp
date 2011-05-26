@@ -442,12 +442,12 @@ float CDigitanksEntity::GetVisibility()
 		break;
 	}
 
-	bool bBecameVisible = (flOldVisibility <= 0.25f && m_flVisibility > 0.25f);
-	bool bBecameFullyVisible = (flOldVisibility <= 1.0f && m_flVisibility > 1.0f);
+	bool bBecameVisible = (flOldVisibility < 0.25f && m_flVisibility >= 0.25f);
+	bool bBecameFullyVisible = (flOldVisibility < 1.0f && m_flVisibility >= 1.0f);
 
 	if (bBecameFullyVisible)
 		CallOutput("OnBecomeFullyVisible");
-	else if (bBecameVisible)
+	if (bBecameVisible)
 		CallOutput("OnBecomeVisible");
 
 	m_bVisibilityDirty = false;
