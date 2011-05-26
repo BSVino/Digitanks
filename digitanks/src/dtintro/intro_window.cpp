@@ -130,21 +130,21 @@ void CIntroWindow::SetupIntro()
 	pDigitank->SetName("digitank1");
 	pDigitank->SetOrigin(Vector(-50, -flHeight*0.7f, flWidth*0.7f));
 	pDigitank->SetAngles(EAngle(-10, -70, 0));
-	pDigitank->FaceTurret(-40);
+	pDigitank->FaceTurret(0);
 	pDigitanksTeam->AddEntity(pDigitank);
 
 	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
 	pDigitank->SetName("digitank2");
 	pDigitank->SetOrigin(Vector(-50, 60, flWidth*0.7f));
 	pDigitank->SetAngles(EAngle(-10, -70, 0));
-	pDigitank->FaceTurret(-40);
+	pDigitank->FaceTurret(0);
 	pDigitanksTeam->AddEntity(pDigitank);
 
 	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
 	pDigitank->SetName("digitank3");
 	pDigitank->SetOrigin(Vector(-50, flHeight*0.7f, flWidth*0.7f));
 	pDigitank->SetAngles(EAngle(-10, -70, 0));
-	pDigitank->FaceTurret(-40);
+	pDigitank->FaceTurret(0);
 	pDigitanksTeam->AddEntity(pDigitank);
 
 	ScriptManager()->ClearScripts();
