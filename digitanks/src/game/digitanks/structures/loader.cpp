@@ -361,9 +361,9 @@ size_t CLoader::InitialTurnsToConstruct()
 	if (m_eBuildUnit == UNIT_INFANTRY)
 		return 2;
 	else if (m_eBuildUnit == UNIT_ARTILLERY)
-		return 4;
+		return 3;
 	else if (m_eBuildUnit == UNIT_TANK)
-		return 5;
+		return 3;
 
 	return 2;
 }
