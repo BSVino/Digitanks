@@ -909,6 +909,8 @@ void CSupplier::StartTurn()
 			GetDigitanksTeam()->AddEntity(pStructure);
 			pStructure->SetSupplier(this);
 			pStructure->GetSupplyLine()->SetIntegrity(0.5f);
+
+			pStructure->DirtyArea();
 		}
 	}
 }
@@ -959,8 +961,6 @@ void CSupplier::PostRender(bool bTransparent)
 	if (DigitanksGame()->GetTerrain()->GetBit(CTerrain::WorldToArraySpace(GetOrigin().x), CTerrain::WorldToArraySpace(GetOrigin().z), TB_TREE))
 		flTreeAlpha = 0.3f;
 
-	Color clrTeam = GetTeam()?GetTeam()->GetColor():Color(255,255,255,255);
-
 	CRenderingContext r(GameServer()->GetRenderer());
 	if (DigitanksGame()->ShouldRenderFogOfWar() && DigitanksGame()->GetDigitanksRenderer()->ShouldUseFramebuffers())
 		r.UseFrameBuffer(DigitanksGame()->GetDigitanksRenderer()->GetVisibilityMaskedBuffer());
@@ -982,6 +982,9 @@ void CSupplier::PostRender(bool bTransparent)
 		GLuint flAlpha = glGetUniformLocation(iScrollingTextureProgram, "flAlpha");
 		glUniform1f(flAlpha, flFadeAlpha * flTreeAlpha);
 	}
+
+	Color clrTeam = GetTeam()?GetTeam()->GetColor():Color(255,255,255,255);
+	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
 
 	if (m_flTendrilGrowthStartTime > 0)
 	{
@@ -1081,6 +1084,9 @@ void CSupplier::UpdateTendrils()
 
 	m_iTendrilsCallList = glGenLists(1);
 
+	Color clrTeam = GetTeam()->GetColor();
+	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
+
 	glNewList((GLuint)m_iTendrilsCallList, GL_COMPILE);
 	for (size_t i = 0; i < m_aTendrils.size(); i++)
 	{
@@ -1098,8 +1104,6 @@ void CSupplier::UpdateTendrils()
 		float flDistance = vecPath.Length2D();
 		Vector vecDirection = vecPath.Normalized();
 		size_t iSegments = (size_t)(flDistance/3);
-
-		Color clrTeam = GetTeam()->GetColor();
 
 		GLuint iScrollingTextureProgram = (GLuint)CShaderLibrary::GetScrollingTextureProgram();
 

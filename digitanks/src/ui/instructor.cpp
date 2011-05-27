@@ -169,20 +169,25 @@ void CInstructor::Initialize()
 	m_apTutorials["artillery-select"] = new CTutorial(this, "artillery-select", "artillery-aim", POSITION_SCENETREE, 150, false, L"< Select a unit");
 	m_apTutorials["artillery-select"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-select"]->m_bSlideX = true;
+	m_apTutorials["artillery-select"]->m_bMousePrompt = false;
 
 	m_apTutorials["artillery-aim"] = new CTutorial(this, "artillery-aim", "artillery-chooseweapon", POSITION_BUTTONS, 200, false, L"Press the 'Choose Weapon' button");
 	m_apTutorials["artillery-aim"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-aim"]->m_bSlideX = false;
+	m_apTutorials["artillery-aim"]->m_bMousePrompt = false;
 
 	m_apTutorials["artillery-chooseweapon"] = new CTutorial(this, "artillery-chooseweapon", "artillery-command", POSITION_TOPCENTER, 200, false, L"Choices!\n \nChoose your weapon.");
+	m_apTutorials["artillery-chooseweapon"]->m_bMousePrompt = false;
 
 	m_apTutorials["artillery-command"] = new CTutorial(this, "artillery-chooseweapon", "artillery-onepertank", POSITION_TOPCENTER, 200, false, L"Click on an enemy to fire");
 	m_apTutorials["artillery-command"]->m_flSlideAmount = 200;
 	m_apTutorials["artillery-command"]->m_bSlideX = false;
+	m_apTutorials["artillery-command"]->m_bMousePrompt = false;
 
 	m_apTutorials["artillery-onepertank"] = new CTutorial(this, "artillery-onepertank", "", POSITION_SCENETREE, 200, false, L"Each tank can fire one weapon per turn!");
 	m_apTutorials["artillery-onepertank"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-onepertank"]->m_bSlideX = true;
+	m_apTutorials["artillery-onepertank"]->m_bMousePrompt = false;
 
 	m_apTutorials["artillery-endturn"] = new CTutorial(this, "artillery-endturn", "", POSITION_TOPCENTER, 200, false, L"Press the 'End Turn' button on the lower right to end your turn!");
 	m_apTutorials["artillery-endturn"]->m_flSlideAmount = 200;
@@ -192,22 +197,27 @@ void CInstructor::Initialize()
 	m_apTutorials["strategy-select"] = new CTutorial(this, "strategy-select", "strategy-command", POSITION_SCENETREE, 150, false, L"< Select the MCP");
 	m_apTutorials["strategy-select"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-select"]->m_bSlideX = true;
+	m_apTutorials["strategy-select"]->m_bMousePrompt = false;
 
 	m_apTutorials["strategy-command"] = new CTutorial(this, "strategy-command", "strategy-deploy", POSITION_TOPCENTER, 200, false, L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes, such as this one");
 	m_apTutorials["strategy-command"]->m_flSlideAmount = 200;
 	m_apTutorials["strategy-command"]->m_bSlideX = false;
+	m_apTutorials["strategy-command"]->m_bMousePrompt = false;
 
 	m_apTutorials["strategy-deploy"] = new CTutorial(this, "strategy-deploy", "strategy-buildbuffer", POSITION_BUTTONS, 200, false, L"Press the 'Deploy' button to create a CPU");
 	m_apTutorials["strategy-deploy"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-deploy"]->m_bSlideX = false;
+	m_apTutorials["strategy-deploy"]->m_bMousePrompt = false;
 
 	m_apTutorials["strategy-buildbuffer"] = new CTutorial(this, "strategy-buildbuffer", "strategy-placebuffer", POSITION_BUTTONS, 200, false, L"Choose 'Build Buffer' from the construction options");
 	m_apTutorials["strategy-buildbuffer"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-buildbuffer"]->m_bSlideX = false;
+	m_apTutorials["strategy-buildbuffer"]->m_bMousePrompt = false;
 
 	m_apTutorials["strategy-placebuffer"] = new CTutorial(this, "strategy-placebuffer", "", POSITION_TOPCENTER, 200, false, L"Click inside the green area to place the structure");
 	m_apTutorials["strategy-placebuffer"]->m_flSlideAmount = 200;
 	m_apTutorials["strategy-placebuffer"]->m_bSlideX = false;
+	m_apTutorials["strategy-placebuffer"]->m_bMousePrompt = false;
 }
 
 void CInstructor::ReadLesson(const class CData* pData)

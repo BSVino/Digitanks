@@ -169,6 +169,7 @@ void CSupplyLine::PostRender(bool bTransparent)
 	Color clrTeam(255, 255, 255, 255);
 	if (GetTeam())
 		clrTeam = GetTeam()->GetColor();
+	clrTeam = (Vector(clrTeam) + Vector(1,1,1))/2;
 
 	CRopeRenderer oRope(GameServer()->GetRenderer(), s_iSupplyBeam, DigitanksGame()->GetTerrain()->SetPointHeight(m_hSupplier->GetOrigin()) + Vector(0, 2, 0), 2.5f);
 	if (dynamic_cast<CStructure*>(m_hEntity.GetPointer()))

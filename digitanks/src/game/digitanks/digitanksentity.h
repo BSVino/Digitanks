@@ -35,6 +35,7 @@ public:
 	virtual float					GetVisibility();
 	virtual void					CalculateVisibility();
 	virtual void					DirtyVisibility() { m_bVisibilityDirty = true; };
+	virtual void					DirtyArea() { m_flNextDirtyArea = GameServer()->GetGameTime(); };
 	DECLARE_ENTITY_OUTPUT(OnBecomeVisible);
 	DECLARE_ENTITY_OUTPUT(OnBecomeFullyVisible);
 

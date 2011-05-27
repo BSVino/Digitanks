@@ -42,6 +42,7 @@ public:
 
 protected:
 	glgui::CButton*					m_pCloseButton;
+	glgui::CLabel*					m_pAvailable;
 	glgui::CLabel*					m_pInfo;
 	glgui::CLabel*					m_pTutorial;
 

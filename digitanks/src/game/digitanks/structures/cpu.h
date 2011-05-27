@@ -15,8 +15,8 @@ public:
 	virtual size_t				InitialDataStrength() { return 3200; };
 	virtual size_t				BaseDataFlowPerTurn() { return 50; };
 	virtual float				TotalHealth() const { return 1000; };
-	virtual size_t				InitialFleetPoints() const { return 4; };
-	virtual float				InitialBandwidth() const { return 6; };
+	virtual size_t				InitialFleetPoints() const { return 3; };
+	virtual float				InitialBandwidth() const { return 7; };
 	virtual float				InitialPower() const { return 4; };
 	virtual float				InitialRechargeBonus() const { return 5.0f; };
 	virtual size_t				InitialEnergyBonus() const { return 1; };

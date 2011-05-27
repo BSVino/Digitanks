@@ -2457,9 +2457,14 @@ void CHUD::UpdateTeamInfo()
 	s2.sprintf(L"%d/%d\n", pTeam->GetUsedFleetPoints(), pTeam->GetTotalFleetPoints());
 	m_pFleetInfo->SetText(s2);
 
-	eastl::string16 s3;
-	s3.sprintf(L"%d/%dmb +%.1fmb/turn\n", (int)pTeam->GetUpdateDownloaded(), (int)pTeam->GetUpdateSize(), pTeam->GetBandwidth());
-	m_pBandwidthInfo->SetText(s3);
+	if (pTeam->GetUpdateDownloading())
+	{
+		eastl::string16 s3;
+		s3.sprintf(L"%d/%dmb +%.1fmb/turn\n", (int)pTeam->GetUpdateDownloaded(), (int)pTeam->GetUpdateSize(), pTeam->GetBandwidth());
+		m_pBandwidthInfo->SetText(s3);
+	}
+	else
+		m_pBandwidthInfo->SetText(sprintf(L"%dmb +%.1fmb/turn\n", (int)pTeam->GetMegabytes(), pTeam->GetBandwidth()));
 }
 
 void CHUD::UpdateScoreboard()

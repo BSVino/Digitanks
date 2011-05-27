@@ -19,6 +19,10 @@ CUpdatesPanel::CUpdatesPanel()
 	m_pCloseButton->SetFont(L"header");
 	AddControl(m_pCloseButton);
 
+	m_pAvailable = new CLabel(0, 0, 100, 300, L"");
+	m_pAvailable->SetFont(L"text", 18);
+	AddControl(m_pAvailable);
+
 	m_pInfo = new CLabel(0, 0, 100, 300, L"");
 	m_pInfo->SetFont(L"text");
 	AddControl(m_pInfo);
@@ -35,6 +39,10 @@ void CUpdatesPanel::Layout()
 	SetPos(CRootPanel::Get()->GetWidth()/2-GetWidth()/2, CRootPanel::Get()->GetHeight()/2-GetHeight()/2);
 
 	m_pCloseButton->SetPos(GetWidth()-m_pCloseButton->GetWidth()-20, 20);
+
+	m_pAvailable->SetPos(20, 20);
+	m_pAvailable->SetSize(GetWidth(), 20);
+	m_pAvailable->SetAlign(glgui::CLabel::TA_LEFTCENTER);
 
 	m_pInfo->SetSize(200, 200);
 	m_pInfo->SetPos(GetWidth()+2, GetHeight()/2 - m_pInfo->GetHeight()/2);
@@ -162,7 +170,7 @@ void CUpdatesPanel::Layout()
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(0, 0, 0));
+					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
 					pUpdate->SetAlpha(200*2/3);
 				}
 			}
@@ -229,18 +237,19 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
+	m_pAvailable->SetText(sprintf(L"Available: %dMB", (int)pTeam->GetMegabytes()));
+
 	int x, y;
 	DigitanksGame()->GetUpdateGrid()->FindUpdate(pInfo, x, y);
 
 	eastl::string16 s;
 	eastl::string16 p;
 	s += pInfo->GetName() + L"\n \n";
-	s += pInfo->GetInfo() + L"\n \n";
 
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 		s += p.sprintf(L"Increase: %.1f %s\n", pInfo->m_flValue, pInfo->GetUnits());
 
-	s += p.sprintf(L"Download size: %d\n", (int)pInfo->m_flSize);
+	s += p.sprintf(L"Download cost: %dMB\n", (int)pInfo->m_flSize);
 
 	if (pTeam && pTeam->GetBandwidth() > 0 && !pTeam->HasDownloadedUpdate(x, y))
 	{
@@ -252,6 +261,9 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 		s += p.sprintf(L"Turns to download: %d\n", iTurns);
 	}
+
+	s += L" \n";
+	s += pInfo->GetInfo();
 
 	m_pInfo->SetText(s);
 
@@ -265,11 +277,16 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		float flDownloaded = pTeam->GetMegabytes();
 		int iTurns = (int)((pInfo->m_flSize-flDownloaded)/pTeam->GetBandwidth())+1;
 
-		if (iTurns < 1)
-			iTurns = 1;
+		if (pInfo->m_flSize <= flDownloaded)
+			iTurns = 0;
 
-		if (iTurns == 1)
-			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. It would take 1 turn to download and be available on your next turn.", (int)pInfo->m_flSize));
+		if (iTurns < 0)
+			iTurns = 0;
+
+		if (iTurns == 0)
+			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download.", (int)pInfo->m_flSize));
+		else if (iTurns == 1)
+			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. This update would take 1 turn to download.", (int)pInfo->m_flSize, iTurns));
 		else
 			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. This update would take %d turns to download.", (int)pInfo->m_flSize, iTurns));
 	}
@@ -534,11 +551,12 @@ void CUpdateButton::ChooseDownloadCallback()
 
 	DigitanksGame()->GetCurrentLocalDigitanksTeam()->DownloadUpdate(m_iX, m_iY);
 
-	m_pUpdatesPanel->SetVisible(false);
-
-	int x, y;
-	GetAbsPos(x, y);
-	DigitanksWindow()->GetHUD()->SlideUpdateIcon(x, y);
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->IsDownloading(m_iX, m_iY))
+	{
+		int x, y;
+		GetAbsPos(x, y);
+		DigitanksWindow()->GetHUD()->SlideUpdateIcon(x, y);
+	}
 
 	// Do this very last thing because since it calls Layout() this button will be deleted.
 	DigitanksGame()->GetCurrentLocalDigitanksTeam()->HandledActionItem(ACTIONTYPE_DOWNLOADCOMPLETE);

@@ -415,7 +415,7 @@ float CDigitank::GetMaxMovementEnergy() const
 	float flNetworkBonus = 0;
 
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
-		flNetworkBonus = 8.0f;
+		flNetworkBonus = 4.0f;
 
 	return GetStartingPower() + GetBonusMovementEnergy() + flNetworkBonus;
 }

@@ -541,6 +541,8 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	CallOutput("OnRescue");
 
 	m_hCageParticles.SetActive(false);
+
+	m_flNextDirtyArea = GameServer()->GetGameTime();
 }
 
 void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)
