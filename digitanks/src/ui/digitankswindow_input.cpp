@@ -309,6 +309,100 @@ void CDigitanksWindow::KeyPress(int c)
 
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyDown(c);
+
+	if (c == ' ')
+		DigitanksGame()->WeaponSpecialCommand();
+
+	if (c == 'H')
+	{
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
+		{
+			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumMembers(); i++)
+			{
+				CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetMember(i);
+				CCPU* pCPU = dynamic_cast<CCPU*>(pMember);
+				if (pCPU)
+				{
+					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pCPU);
+					break;
+				}
+			}
+		}
+	}
+
+	if (c == 'Y')
+		DigitanksWindow()->OpenChat();
+
+	if (c == 'Q')
+		GetHUD()->ButtonCallback(0);
+
+	if (c == 'W')
+		GetHUD()->ButtonCallback(1);
+
+	if (c == 'E')
+		GetHUD()->ButtonCallback(2);
+
+	if (c == 'R')
+		GetHUD()->ButtonCallback(3);
+
+	if (c == 'T')
+		GetHUD()->ButtonCallback(4);
+
+	if (c == 'A')
+		GetHUD()->ButtonCallback(5);
+
+	if (c == 'S')
+		GetHUD()->ButtonCallback(6);
+
+	if (c == 'D')
+		GetHUD()->ButtonCallback(7);
+
+	if (c == 'F')
+		GetHUD()->ButtonCallback(8);
+
+	if (c == 'G')
+		GetHUD()->ButtonCallback(9);
+
+	if (!DigitanksGame()->AllowCheats())
+		return;
+
+	// Cheats from here on out
+	if (c == 'X')
+		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
+
+	if (c == 'C')
+		DigitanksGame()->CompleteProductions();
+
+	if (c == 'V')
+	{
+		if (DigitanksGame()->GetPrimarySelection())
+			DigitanksGame()->GetPrimarySelection()->Delete();
+	}
+
+	if (c == 'B')
+	{
+		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
+		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+		{
+			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+			{
+				if (DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y].m_eUpdateClass == UPDATECLASS_EMPTY)
+					continue;
+
+				pTeam->DownloadUpdate(x, y, false);
+				pTeam->DownloadComplete();
+			}
+		}
+	}
+
+	if (c == 'N')
+		GetHUD()->SetVisible(!GetHUD()->IsVisible());
+
+	if (c == 'M')
+	{
+		if (DigitanksGame()->GetPrimarySelection())
+			DigitanksGame()->TankSpeak(DigitanksGame()->GetPrimarySelectionTank(), ":D!");
+	}
 }
 
 void CDigitanksWindow::KeyRelease(int c)
@@ -330,100 +424,6 @@ void CDigitanksWindow::CharPress(int c)
 
 	if (!GetHUD())
 		return;
-
-	if (c == ' ')
-		DigitanksGame()->WeaponSpecialCommand();
-
-	if (c == 'h')
-	{
-		if (DigitanksGame()->GetCurrentLocalDigitanksTeam())
-		{
-			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumMembers(); i++)
-			{
-				CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetMember(i);
-				CCPU* pCPU = dynamic_cast<CCPU*>(pMember);
-				if (pCPU)
-				{
-					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pCPU);
-					break;
-				}
-			}
-		}
-	}
-
-	if (c == 'y')
-		DigitanksWindow()->OpenChat();
-
-	if (c == 'q')
-		GetHUD()->ButtonCallback(0);
-
-	if (c == 'w')
-		GetHUD()->ButtonCallback(1);
-
-	if (c == 'e')
-		GetHUD()->ButtonCallback(2);
-
-	if (c == 'r')
-		GetHUD()->ButtonCallback(3);
-
-	if (c == 't')
-		GetHUD()->ButtonCallback(4);
-
-	if (c == 'a')
-		GetHUD()->ButtonCallback(5);
-
-	if (c == 's')
-		GetHUD()->ButtonCallback(6);
-
-	if (c == 'd')
-		GetHUD()->ButtonCallback(7);
-
-	if (c == 'f')
-		GetHUD()->ButtonCallback(8);
-
-	if (c == 'g')
-		GetHUD()->ButtonCallback(9);
-
-	if (!DigitanksGame()->AllowCheats())
-		return;
-
-	// Cheats from here on out
-	if (c == 'x')
-		DigitanksGame()->SetRenderFogOfWar(!DigitanksGame()->ShouldRenderFogOfWar());
-
-	if (c == 'c')
-		DigitanksGame()->CompleteProductions();
-
-	if (c == 'v')
-	{
-		if (DigitanksGame()->GetPrimarySelection())
-			DigitanksGame()->GetPrimarySelection()->Delete();
-	}
-
-	if (c == 'b')
-	{
-		CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
-		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
-		{
-			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
-			{
-				if (DigitanksGame()->GetUpdateGrid()->m_aUpdates[x][y].m_eUpdateClass == UPDATECLASS_EMPTY)
-					continue;
-
-				pTeam->DownloadUpdate(x, y, false);
-				pTeam->DownloadComplete();
-			}
-		}
-	}
-
-	if (c == 'n')
-		GetHUD()->SetVisible(!GetHUD()->IsVisible());
-
-	if (c == 'm')
-	{
-		if (DigitanksGame()->GetPrimarySelection())
-			DigitanksGame()->TankSpeak(DigitanksGame()->GetPrimarySelectionTank(), ":D!");
-	}
 }
 
 void CDigitanksWindow::CharRelease(int c)
