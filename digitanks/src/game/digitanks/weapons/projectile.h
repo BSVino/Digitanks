@@ -410,6 +410,7 @@ public:
 	virtual bool				BombDropNoise() { return false; };
 	virtual bool				SendsNotifications() { return true; };
 	virtual bool				UsesSpecialCommand() { return false; };
+	virtual float				ShakeCamera() { return 2.0f; };
 
 private:
 	static size_t				s_iTrailSystem;

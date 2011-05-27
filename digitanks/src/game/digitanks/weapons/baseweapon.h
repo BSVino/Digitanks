@@ -41,6 +41,7 @@ public:
 	virtual float				RockIntensity() { return 0.5f; };
 	virtual float				PushDistance() { return 4.0f; };
 	virtual bool				HasDamageFalloff() { return true; };
+	virtual float				ShakeCamera() { return 3.0f; };
 
 	static float				GetWeaponEnergy(weapon_t eProjectile);
 	static float				GetWeaponDamage(weapon_t eProjectile);

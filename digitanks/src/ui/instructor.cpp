@@ -175,6 +175,7 @@ void CInstructor::Initialize()
 	m_apTutorials["artillery-aim"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-aim"]->m_bSlideX = false;
 	m_apTutorials["artillery-aim"]->m_bMousePrompt = false;
+	m_apTutorials["artillery-aim"]->m_iHintButton = 7;
 
 	m_apTutorials["artillery-chooseweapon"] = new CTutorial(this, "artillery-chooseweapon", "artillery-command", POSITION_TOPCENTER, 200, false, L"Choices!\n \nChoose your weapon.");
 	m_apTutorials["artillery-chooseweapon"]->m_bMousePrompt = false;
@@ -208,11 +209,13 @@ void CInstructor::Initialize()
 	m_apTutorials["strategy-deploy"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-deploy"]->m_bSlideX = false;
 	m_apTutorials["strategy-deploy"]->m_bMousePrompt = false;
+	m_apTutorials["strategy-deploy"]->m_iHintButton = 8;
 
 	m_apTutorials["strategy-buildbuffer"] = new CTutorial(this, "strategy-buildbuffer", "strategy-placebuffer", POSITION_BUTTONS, 200, false, L"Choose 'Build Buffer' from the construction options");
 	m_apTutorials["strategy-buildbuffer"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-buildbuffer"]->m_bSlideX = false;
 	m_apTutorials["strategy-buildbuffer"]->m_bMousePrompt = false;
+	m_apTutorials["strategy-buildbuffer"]->m_iHintButton = 5;
 
 	m_apTutorials["strategy-placebuffer"] = new CTutorial(this, "strategy-placebuffer", "", POSITION_TOPCENTER, 200, false, L"Click inside the green area to place the structure");
 	m_apTutorials["strategy-placebuffer"]->m_flSlideAmount = 200;
@@ -539,6 +542,7 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::s
 {
 	m_pInstructor = pInstructor;
 	m_sTutorialName = sTutorial;
+	m_sNextTutorial = sNextTutorial;
 	m_sText = sText;
 	m_iPosition = iPosition;
 	m_iWidth = iWidth;
@@ -656,6 +660,11 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 		m_flStartTime = GameServer()->GetGameTime();
 	else
 		m_flStartTime = 0;
+
+	if (m_pTutorial->m_sHelperEmotion.length())
+		m_bDoneScrolling = false;
+	else
+		m_bDoneScrolling = true;
 }
 
 void CTutorialPanel::Paint(int x, int y, int w, int h)
@@ -690,11 +699,20 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 			y += (int)(Lerp(RemapValClamped(GameServer()->GetGameTime() - m_flStartTime, 0, 1, 1, 0), 0.2f) * m_pTutorial->m_flSlideAmount);
 	}
 
-	int iPrintChars = (int)((GameServer()->GetGameTime() - m_flStartTime)*50);
-	if (m_pTutorial->m_sHelperEmotion.length())
-		m_pText->SetPrintChars(iPrintChars);
+	bool bScrolling = false;
+	if (!m_bDoneScrolling)
+	{
+		int iPrintChars = (int)((GameServer()->GetGameTime() - m_flStartTime)*70);
+		if (m_pTutorial->m_sHelperEmotion.length())
+			m_pText->SetPrintChars(iPrintChars);
 
-	bool bScrolling = (iPrintChars < (int)m_pText->GetText().length());
+		bScrolling = (iPrintChars < (int)m_pText->GetText().length());
+
+		if (!bScrolling)
+			m_bDoneScrolling = true;
+	}
+	else
+		m_pText->SetPrintChars(-1);
 
 	CRootPanel::PaintRect(x, y, w, h);
 
@@ -792,6 +810,12 @@ bool CTutorialPanel::MousePressed(int code, int mx, int my)
 {
 	if (BaseClass::MousePressed(code, mx, my))
 		return true;
+
+	if (!m_bDoneScrolling)
+	{
+		m_bDoneScrolling = true;
+		return true;
+	}
 
 	if (m_pTutorial->m_sButton1Action.length() == 0 && m_pTutorial->m_sButton2Action.length() == 0)
 	{

@@ -146,7 +146,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 
 	if (iButton == TINKER_KEY_MOUSE_LEFT)
 	{
-		if (iState == 1)
+		if (iState == 1 && !m_pInstructor->IsFeatureDisabled(DISABLE_SELECT))
 		{
 			// Prevent UI interactions from affecting the camera target.
 			// If the mouse was used no the UI, this will remain false.

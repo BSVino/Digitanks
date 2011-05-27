@@ -96,6 +96,7 @@ protected:
 	glgui::CButton*					m_pButton2;
 
 	float							m_flStartTime;
+	bool							m_bDoneScrolling;
 
 	bool							m_bFirstHelperPanel;
 };

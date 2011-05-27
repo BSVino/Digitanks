@@ -88,7 +88,7 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 	m_flTimeExploded = GameServer()->GetGameTime();
 
 	if (m_bShouldRender)
-		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), 3);
+		DigitanksGame()->GetDigitanksCamera()->Shake(GetOrigin(), ShakeCamera());
 
 	bool bCanSeeOwner;
 	if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
