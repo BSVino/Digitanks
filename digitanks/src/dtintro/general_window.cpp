@@ -27,6 +27,8 @@ CGeneralWindow::CGeneralWindow()
 	m_flFadeToBlack = 0;
 	m_flStartTime = 0;
 	m_bHelperSpeaking = false;
+
+	CSoundLibrary::SetSoundVolume(0.6f);
 }
 
 void CGeneralWindow::Layout()
@@ -36,6 +38,7 @@ void CGeneralWindow::Layout()
 
 	m_pText->SetPos(160, 10);
 	m_pText->SetSize(230, 230);
+	m_pText->SetFont(L"sans-serif", 16);
 
 	m_pButton->SetPos(160+230/2-m_pButton->GetWidth()/2, GetHeight()-50);
 }
@@ -46,13 +49,18 @@ void CGeneralWindow::Think()
 
 	m_flDeployed = Approach(m_flDeployedGoal, m_flDeployed, GameServer()->GetFrameTime());
 
-	SetPos(100, glgui::CRootPanel::Get()->GetHeight() - (int)(m_flDeployed*GetHeight()));
+	SetPos(100, glgui::CRootPanel::Get()->GetHeight() - (int)(m_flDeployed*GetHeight()*1.5f));
 
 	int iPrintChars = (int)((GameServer()->GetGameTime() - m_flStartTime)*50);
 	if (m_flStartTime)
 		m_pText->SetPrintChars(iPrintChars);
 
 	bool bScrolling = (iPrintChars < (int)m_pText->GetText().length());
+
+	if (bScrolling)
+		m_pButton->SetButtonColor(Color(255, 0, 0, 255));
+	else
+		m_pButton->SetButtonColor(Color(255, 0, 0, 255)*Oscillate(GameServer()->GetGameTime(), 1));
 
 	if (bScrolling)
 	{
