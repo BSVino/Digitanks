@@ -1478,7 +1478,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			Vector vecForce;
 			FindLaunchVelocity(vecTankOrigin, pDigitank->GetPreviewAim(), flGravity, vecForce, flTime, pDigitank->ProjectileCurve());
 
-			size_t iLinks = 20;
+			size_t iLinks = 10;
 			float flTimePerLink = flTime/iLinks;
 			Vector vecLastOrigin = vecTankOrigin;
 			Vector vecPoint;
