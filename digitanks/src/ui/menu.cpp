@@ -17,6 +17,7 @@
 
 #include <digitanks/digitanksgame.h>
 #include <game/digitanks/digitankslevel.h>
+#include <game/digitanks/campaign/campaigndata.h>
 
 #include "instructor.h"
 #include "digitankswindow.h"
@@ -321,22 +322,38 @@ void CDockPanel::SetDockedPanel(glgui::CPanel* pDock)
 CCampaignPanel::CCampaignPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pMission1 = new CButton(0, 0, 100, 100, L"BEGIN CAMPAIGN");
-	m_pMission1->SetClickedListener(this, Mission1);
-	m_pMission1->SetCursorInListener(this, Mission1Hint);
-	m_pMission1->SetFont(L"header", 18);
-	AddControl(m_pMission1);
+	m_pNewCampaign = new CButton(0, 0, 100, 100, L"BEGIN CAMPAIGN");
+	m_pNewCampaign->SetClickedListener(this, NewCampaign);
+	m_pNewCampaign->SetCursorInListener(this, NewCampaignHint);
+	m_pNewCampaign->SetFont(L"header", 18);
+	AddControl(m_pNewCampaign);
+
+	m_pContinueCampaign = new CButton(0, 0, 100, 100, L"CONTINUE CAMPAIGN");
+	m_pContinueCampaign->SetClickedListener(this, ContinueCampaign);
+	m_pContinueCampaign->SetCursorInListener(this, ContinueCampaignHint);
+	m_pContinueCampaign->SetFont(L"header", 18);
+	AddControl(m_pContinueCampaign);
 }
 
 void CCampaignPanel::Layout()
 {
-	m_pMission1->SetSize(300, 40);
-	m_pMission1->SetPos(GetWidth()/2-m_pMission1->GetWidth()/2, 60);
+	CCampaignData* pData = DigitanksWindow()->GetCampaignData();
+
+	m_pNewCampaign->SetSize(300, 40);
+	m_pNewCampaign->SetPos(GetWidth()/2-m_pNewCampaign->GetWidth()/2, 60);
+
+	m_pContinueCampaign->SetSize(300, 40);
+	m_pContinueCampaign->SetPos(GetWidth()/2-m_pContinueCampaign->GetWidth()/2, 120);
+
+	if (pData && pData->GetCurrentLevel() > 0 && pData->GetCurrentLevel() < CCampaignInfo::GetCampaignInfo()->m_asLevels.size())
+		m_pContinueCampaign->SetVisible(true);
+	else
+		m_pContinueCampaign->SetVisible(false);
 
 	BaseClass::Layout();
 }
 
-void CCampaignPanel::Mission1Callback()
+void CCampaignPanel::NewCampaignCallback()
 {
 	DigitanksWindow()->NewCampaign();
 
@@ -345,9 +362,23 @@ void CCampaignPanel::Mission1Callback()
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 }
 
-void CCampaignPanel::Mission1HintCallback()
+void CCampaignPanel::NewCampaignHintCallback()
 {
 	DigitanksWindow()->GetMainMenu()->SetHint(L"The Digitanks have captured your files. You've got to rescue them and take your hard drive back!");
+}
+
+void CCampaignPanel::ContinueCampaignCallback()
+{
+	DigitanksWindow()->ContinueCampaign();
+
+	DigitanksGame()->SetDifficulty(1);
+
+	DigitanksWindow()->GetMainMenu()->SetVisible(false);
+}
+
+void CCampaignPanel::ContinueCampaignHintCallback()
+{
+	DigitanksWindow()->GetMainMenu()->SetHint(L"Resume a previous campaign where you left off.");
 }
 
 CGamesPanel::CGamesPanel()

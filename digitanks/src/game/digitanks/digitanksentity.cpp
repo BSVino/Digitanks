@@ -529,6 +529,9 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	if (GetUnitType() != STRUCTURE_CPU && dynamic_cast<CStructure*>(this) && !dynamic_cast<CSupplier*>(pOther))
 		return;
 
+	if (GetUnitType() == STRUCTURE_CPU)
+		pOther->GetDigitanksTeam()->AddPower(5);
+
 	pOther->GetTeam()->AddEntity(this);
 
 	DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_TANK);

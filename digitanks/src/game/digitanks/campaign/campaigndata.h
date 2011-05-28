@@ -14,8 +14,15 @@ public:
 									CCampaignData(const CCampaignInfo* pCampaignInfo);
 
 public:
-	eastl::string					GetFirstLevel();
-	eastl::string					GetNextLevel();
+	eastl::string					BeginCampaign();
+	eastl::string					ProceedToNextLevel();
+	size_t							GetCurrentLevel() { return m_iCurrentLevel; };
+	eastl::string					GetCurrentLevelFile();
+
+	void							NewCampaign();
+
+	void							ReadData(const eastl::string16& sFile);
+	void							SaveData(const eastl::string16& sFile);
 
 protected:
 	const CCampaignInfo*			m_pCampaignInfo;

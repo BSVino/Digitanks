@@ -43,11 +43,14 @@ public:
 
 	virtual void					Layout();
 
-	EVENT_CALLBACK(CCampaignPanel,	Mission1);
-	EVENT_CALLBACK(CCampaignPanel,	Mission1Hint);
+	EVENT_CALLBACK(CCampaignPanel,	NewCampaign);
+	EVENT_CALLBACK(CCampaignPanel,	NewCampaignHint);
+	EVENT_CALLBACK(CCampaignPanel,	ContinueCampaign);
+	EVENT_CALLBACK(CCampaignPanel,	ContinueCampaignHint);
 
 protected:
-	glgui::CButton*					m_pMission1;
+	glgui::CButton*					m_pNewCampaign;
+	glgui::CButton*					m_pContinueCampaign;
 };
 
 class CGamesPanel : public glgui::CPanel, public glgui::IEventListener

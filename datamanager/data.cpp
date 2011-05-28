@@ -114,3 +114,33 @@ EAngle CData::GetValueEAngle() const
 
 	return vecResult;
 }
+
+void CData::SetValue(bool bValue)
+{
+	m_sValue = bValue?"true":"false";
+}
+
+void CData::SetValue(int iValue)
+{
+	m_sValue = convertstring<char16_t, char>(sprintf(L"%d", iValue));
+}
+
+void CData::SetValue(size_t iValue)
+{
+	m_sValue = convertstring<char16_t, char>(sprintf(L"%u", iValue));
+}
+
+void CData::SetValue(float flValue)
+{
+	m_sValue = convertstring<char16_t, char>(sprintf(L"%f", flValue));
+}
+
+void CData::SetValue(Vector2D vecValue)
+{
+	m_sValue = convertstring<char16_t, char>(sprintf(L"%f, %f", vecValue.x, vecValue.y));
+}
+
+void CData::SetValue(EAngle angValue)
+{
+	m_sValue = convertstring<char16_t, char>(sprintf(L"%f, %f, %f", angValue.p, angValue.y, angValue.r));
+}

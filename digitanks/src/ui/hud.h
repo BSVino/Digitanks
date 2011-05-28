@@ -260,6 +260,8 @@ public:
 
 	void						ClearHintWeapon() { m_hHintWeapon = NULL; };
 
+	void						CloseWeaponPanel();
+
 	Rect						GetButtonDimensions(size_t i);
 
 	EVENT_CALLBACK(CHUD, ChooseActionItem);

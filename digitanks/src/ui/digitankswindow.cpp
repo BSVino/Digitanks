@@ -103,6 +103,12 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
+
+	if (IsFile(GetAppDataDirectory(L"Digitanks", L"campaign.txt")))
+	{
+		m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
+		m_pCampaign->ReadData(GetAppDataDirectory(L"Digitanks", L"campaign.txt"));
+	}
 }
 
 void CDigitanksWindow::OpenWindow()
@@ -415,12 +421,10 @@ void CDigitanksWindow::DestroyGame()
 
 void CDigitanksWindow::NewCampaign()
 {
-	if (m_pCampaign)
-		delete m_pCampaign;
+	if (!m_pCampaign)
+		m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
 
-	m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
-
-	CVar::SetCVar("game_level", m_pCampaign->GetFirstLevel());
+	CVar::SetCVar("game_level", m_pCampaign->BeginCampaign());
 
 	DigitanksWindow()->SetServerType(SERVER_LOCAL);
 	DigitanksWindow()->CreateGame(GAMETYPE_CAMPAIGN);
@@ -433,7 +437,7 @@ void CDigitanksWindow::RestartCampaignLevel()
 
 void CDigitanksWindow::NextCampaignLevel()
 {
-	eastl::string sNextLevel = m_pCampaign->GetNextLevel();
+	eastl::string sNextLevel = m_pCampaign->ProceedToNextLevel();
 	if (sNextLevel.length() == 0)
 		Restart(GAMETYPE_MENU);
 	else
@@ -442,6 +446,21 @@ void CDigitanksWindow::NextCampaignLevel()
 		CVar::SetCVar("game_level", sNextLevel);
 		Restart(GAMETYPE_CAMPAIGN);
 	}
+
+	m_pCampaign->SaveData(GetAppDataDirectory(L"Digitanks", L"campaign.txt"));
+}
+
+void CDigitanksWindow::ContinueCampaign()
+{
+	eastl::string sLevel = m_pCampaign->GetCurrentLevelFile();
+	if (sLevel.length() != 0)
+	{
+		GetVictoryPanel()->SetVisible(false);
+		CVar::SetCVar("game_level", sLevel);
+		Restart(GAMETYPE_CAMPAIGN);
+	}
+
+	m_pCampaign->SaveData(GetAppDataDirectory(L"Digitanks", L"campaign.txt"));
 }
 
 void CDigitanksWindow::Restart(gametype_t eRestartAction)

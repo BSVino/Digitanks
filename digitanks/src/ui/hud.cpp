@@ -3300,6 +3300,11 @@ void CHUD::ShowFileRescue(const eastl::string16& sTexture)
 	CSoundLibrary::PlaySound(NULL, L"lesson-learned.wav");	// No time to make a new sound.
 }
 
+void CHUD::CloseWeaponPanel()
+{
+	m_pWeaponPanel->SetVisible(false);
+}
+
 Rect CHUD::GetButtonDimensions(size_t i)
 {
 	Rect r;

@@ -51,6 +51,8 @@ public:
 	void						NewCampaign();
 	void						RestartCampaignLevel();
 	void						NextCampaignLevel();
+	void						ContinueCampaign();
+	class CCampaignData*		GetCampaignData() { return m_pCampaign; };
 
 	void						Restart(gametype_t eRestartAction);
 

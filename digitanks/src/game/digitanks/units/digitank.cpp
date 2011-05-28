@@ -3368,10 +3368,9 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 
 	m_iBonusPoints += i;
 
-	DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_BONUS);
-
 	if (bPlayEffects)
 	{
+		DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_BONUS);
 		TankPromoted(NULL);
 		CNetwork::CallFunction(NETWORK_TOCLIENTS, "TankPromoted", GetHandle());
 	}

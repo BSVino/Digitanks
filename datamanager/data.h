@@ -31,6 +31,15 @@ public:
 	Vector2D				GetValueVector2D() const;
 	EAngle					GetValueEAngle() const;
 
+	void					SetKey(eastl::string sKey) { m_sKey = sKey; }
+	void					SetValue(eastl::string sValue) { m_sValue = sValue; }
+	void					SetValue(bool);
+	void					SetValue(int);
+	void					SetValue(size_t);
+	void					SetValue(float);
+	void					SetValue(Vector2D);
+	void					SetValue(EAngle);
+
 	size_t					GetNumChildren() const { return m_apChildren.size(); }
 	CData*					GetChild(size_t i) const { return m_apChildren[i]; }
 
