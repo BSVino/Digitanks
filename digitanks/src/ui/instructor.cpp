@@ -623,28 +623,35 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 	else
 		m_pButton2 = NULL;
 
-	if (m_pButton1 && m_pButton2)
+	if (m_pTutorial->m_sHelperEmotion.length())
 	{
-		m_pButton1->SetPos(m_pText->GetWidth()-160, m_pText->GetHeight()+10);
-		m_pButton2->SetPos(m_pText->GetWidth()-80, m_pText->GetHeight()+10);
-		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight() + 55);
-	}
-	else if (m_pButton1)
-	{
-		m_pButton1->SetPos(m_pText->GetWidth()/2 - m_pButton1->GetWidth()/2, m_pText->GetHeight()+10);
-		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight() + 55);
+		SetSize(400, 200);
+		m_pText->SetPos(180, 10);
+		m_pText->SetSize(200, 180);
 	}
 	else
 		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight());
 
+	if (m_pButton1 && m_pButton2)
+	{
+		m_pText->SetSize(m_pText->GetWidth(), m_pText->GetHeight()-55);
+		m_pButton1->SetPos(m_pText->GetRight()-160, m_pText->GetHeight()+10);
+		m_pButton2->SetPos(m_pText->GetRight()-80, m_pText->GetHeight()+10);
+	}
+	else if (m_pButton1)
+	{
+		m_pText->SetSize(m_pText->GetWidth(), m_pText->GetHeight()-55);
+		m_pButton1->SetPos(m_pText->GetWidth()/2 - m_pButton1->GetWidth()/2, m_pText->GetHeight()+10);
+	}
+
 	switch (pTutorial->m_iPosition)
 	{
 	case CInstructor::POSITION_TOPCENTER:
-		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-m_pTutorial->m_iWidth/2, 100);
+		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-GetWidth()/2, 100);
 		break;
 
 	case CInstructor::POSITION_BUTTONS:
-		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-m_pTutorial->m_iWidth/2 + 150, glgui::CRootPanel::Get()->GetHeight()-160-GetHeight());
+		SetPos(glgui::CRootPanel::Get()->GetWidth()/2-GetWidth()/2 + 150, glgui::CRootPanel::Get()->GetHeight()-160-GetHeight());
 		break;
 
 	case CInstructor::POSITION_SCENETREE:
@@ -727,8 +734,8 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 	if (m_pTutorial->m_sHelperEmotion.length())
 	{
-		int iHelperWidth = 150;
-		int iHelperHeight = 300;
+		int iHelperWidth = 200;
+		int iHelperHeight = 200;
 
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
@@ -740,10 +747,10 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 		int iSlide = (int)((1-flLerp) * 50);
 
-		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20 - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
+		CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsSheet(), m_pTutorial->m_sHelperEmotion, x - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
 
 		if (bScrolling && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || !bScrolling && m_pTutorial->m_bLeaveMouthOpen)
-			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - iHelperWidth + 20 - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
+			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
 	}
 
 	if (m_pTutorial->m_iHintButton >= 0)
