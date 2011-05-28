@@ -43,6 +43,7 @@ public:
 	glgui::CLabel*		m_pText;
 	glgui::CButton*		m_pButton;
 
+	CTextureSheet		m_hAntivirus;
 	CTextureSheet		m_hGeneral;
 	CTextureSheet		m_hGeneralMouth;
 	eastl::string		m_sEmotion;

@@ -10,7 +10,7 @@
 #include "intro_renderer.h"
 
 CGeneralWindow::CGeneralWindow()
-	: CPanel(0, 0, 400, 400), m_hGeneral(L"textures/hud/helper-emotions.txt"), m_hGeneralMouth(L"textures/hud/helper-emotions-open.txt")
+	: CPanel(0, 0, 400, 400), m_hAntivirus(L"textures/intro/antivirus.txt"), m_hGeneral(L"textures/hud/helper-emotions.txt"), m_hGeneralMouth(L"textures/hud/helper-emotions-open.txt")
 {
 	glgui::CRootPanel::Get()->AddControl(this);
 
@@ -33,14 +33,15 @@ CGeneralWindow::CGeneralWindow()
 
 void CGeneralWindow::Layout()
 {
-	SetSize(400, 300);
+	SetSize(512, 256);
 	SetPos(100, glgui::CRootPanel::Get()->GetHeight() - (int)(m_flDeployed*GetHeight()));
 
-	m_pText->SetPos(160, 10);
-	m_pText->SetSize(230, 230);
-	m_pText->SetFont(L"sans-serif", 16);
+	m_pText->SetPos(230, 30);
+	m_pText->SetSize(260, 160);
+	m_pText->SetFont(L"sans-serif", 14);
+	m_pText->SetFGColor(Color(0, 0, 0, 255));
 
-	m_pButton->SetPos(160+230/2-m_pButton->GetWidth()/2, GetHeight()-50);
+	m_pButton->SetPos(230+260/2-m_pButton->GetWidth()/2, GetHeight()-50);
 }
 
 void CGeneralWindow::Think()
@@ -90,7 +91,8 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 		return;
 	}
 
-	glgui::CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, 220));
+	Rect recAntivirus = m_hAntivirus.GetArea("Antivirus");
+	glgui::CBaseControl::PaintSheet(m_hAntivirus.GetSheet("Antivirus"), x, y, w, h, recAntivirus.x, recAntivirus.y, recAntivirus.w, recAntivirus.h, m_hAntivirus.GetSheetWidth("Antivirus"), m_hAntivirus.GetSheetHeight("Antivirus"));
 
 	BaseClass::Paint(x, y, w, h);
 
@@ -102,6 +104,12 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 
 	Rect recEmotion = m_hGeneral.GetArea(m_sEmotion);
 	glgui::CBaseControl::PaintSheet(m_hGeneral.GetSheet(m_sEmotion), x, y, 150, 300, recEmotion.x, recEmotion.y, recEmotion.w, recEmotion.h, m_hGeneral.GetSheetWidth(m_sEmotion), m_hGeneral.GetSheetHeight(m_sEmotion));
+
+	if (m_bHelperSpeaking && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5)
+	{
+		Rect recMouth = m_hGeneralMouth.GetArea(m_sEmotion);
+		glgui::CBaseControl::PaintSheet(m_hGeneralMouth.GetSheet(m_sEmotion), x, y, 150, 300, recMouth.x, recMouth.y, recMouth.w, recMouth.h, m_hGeneralMouth.GetSheetWidth(m_sEmotion), m_hGeneralMouth.GetSheetHeight(m_sEmotion));
+	}
 }
 
 void CGeneralWindow::Reset()
@@ -119,7 +127,7 @@ void CGeneralWindow::Deploy()
 
 	m_flDeployedGoal = 1;
 
-	m_pText->SetText(L"THE GENERAL'S\nANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to repair them for you?");
+	m_pText->SetText(L"H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to repair them for you?");
 	m_pButton->SetText(L"Repair");
 	m_pButton->SetVisible(true);
 
