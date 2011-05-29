@@ -148,7 +148,7 @@ void CGeneralWindow::RetryDebugging()
 {
 	Layout();
 
-	m_pText->SetText(L"DE-BUGGING HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another de-Bugging attempt.");
+	m_pText->SetText(L"BUG REMOVAL HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another removal attempt.");
 	m_pButton->SetText(L"Retry");
 	m_pButton->SetVisible(true);
 
@@ -191,7 +191,7 @@ void CGeneralWindow::ButtonPressedCallback()
 	{
 		ScriptManager()->PlayScript("general-debug-1");
 
-		m_pText->SetText("Debugging. Please wait...");
+		m_pText->SetText("Removing bugs. Please wait...");
 		m_pButton->SetVisible(false);
 		m_sEmotion = "KillingBugs";
 		m_eStage = STAGE_REPAIR2;
@@ -202,7 +202,7 @@ void CGeneralWindow::ButtonPressedCallback()
 	{
 		ScriptManager()->PlayScript("general-debug-2");
 
-		m_pText->SetText("Debugging. Please wait...");
+		m_pText->SetText("Removing bugs. Please wait...");
 		m_pButton->SetVisible(false);
 		m_sEmotion = "KillingBugsHard";
 		m_eStage = STAGE_DIGITANKS;
