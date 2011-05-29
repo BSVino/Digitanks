@@ -62,7 +62,7 @@ void CBug::Think()
 		FireBomb(m_vecNextAim);
 
 		m_flNextFire = 0;
-		m_flNextAim = GameServer()->GetGameTime() + RandomFloat(1.0f, 1.5f);
+		m_flNextAim = GameServer()->GetGameTime() + RandomFloat(2.0f, 2.5f);
 	}
 }
 

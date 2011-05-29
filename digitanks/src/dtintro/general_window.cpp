@@ -135,8 +135,8 @@ void CGeneralWindow::Deploy()
 
 	m_flDeployedGoal = 1;
 
-	m_pText->SetText(L"H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to repair them for you?");
-	m_pButton->SetText(L"Repair");
+	m_pText->SetText(L"H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to remove them for you?");
+	m_pButton->SetText(L"Remove");
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "Pleased";
@@ -148,7 +148,7 @@ void CGeneralWindow::RetryDebugging()
 {
 	Layout();
 
-	m_pText->SetText(L"THE GENERAL HAS FAILED DE-BUGGING\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another de-bugging attempt.");
+	m_pText->SetText(L"THE GENERAL HAS FAILED DE-BUGGING\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another de-Bugging attempt.");
 	m_pButton->SetText(L"Retry");
 	m_pButton->SetVisible(true);
 
@@ -162,7 +162,7 @@ void CGeneralWindow::GiveUpDebugging()
 {
 	Layout();
 
-	m_pText->SetText(L"WARNING: ADDITIONAL BUGS FOUND\n \nArgh! They have reinforcements! I can't do anything right.\n \nBut don't look so smug, I don't see you doing any better.");
+	m_pText->SetText(L"WARNING: ADDITIONAL BUGS FOUND\n \nArgh! They have reinforcements! I can't seem to do anything right.\n \nDon't look so smug, I don't see you doing any better.");
 	m_pButton->SetText(L"Do Better");
 	m_pButton->SetVisible(true);
 
@@ -222,8 +222,8 @@ void CGeneralWindow::ButtonPressedCallback()
 	}
 	else if (m_eStage == STAGE_INTEL)
 	{
-		m_pText->SetText(L"Oh no... it looks like the Bugs have captured some of your files!\n \nWe need to get to your hard drive to rescue your files. Let's go!");
-		m_pButton->SetText(L"Affirmative");
+		m_pText->SetText(L"Oh no... it looks like the Bugs have captured some of your files!\n \nWe need to get to your hard drive to rescue your files --\n \nWhat's that? No! Not \"those\" files. I don't want to see what's in \"those\" files. We can rescue your other files!");
+		m_pButton->SetText(L"Let's go!");
 		m_pButton->SetVisible(true);
 
 		m_sEmotion = "OhNo";
