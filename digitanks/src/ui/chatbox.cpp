@@ -109,7 +109,7 @@ bool CChatBox::IsVisible()
 		return false;
 
 	float flTimeSinceLastMessage = GameServer()->GetGameTime() - m_flLastMessage;
-	if (flTimeSinceLastMessage < 6)
+	if (flTimeSinceLastMessage > 0 && flTimeSinceLastMessage < 6)
 		return true;
 
 	return BaseClass::IsVisible();

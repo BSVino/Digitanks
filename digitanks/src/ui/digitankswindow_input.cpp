@@ -41,7 +41,10 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 			m_flLastClick = 0;
 
 		if (GameServer()->GetGameTime() - m_flLastClick < 0.2f)
+		{
 			bDoubleClick = true;
+			m_bBoxSelect = false;
+		}
 		else
 			m_flLastClick = GameServer()->GetGameTime();
 	}
@@ -198,7 +201,7 @@ void CDigitanksWindow::MouseInput(int iButton, int iState)
 	}
 	else if (iState == 0 && iButton == TINKER_KEY_MOUSE_LEFT && !m_pInstructor->IsFeatureDisabled(DISABLE_SELECT))
 	{
-		if (m_bBoxSelect && IsMouseDragging())
+		if (m_bBoxSelect && IsMouseDragging() && !bDoubleClick)
 		{
 			if (!IsShiftDown() && DigitanksGame()->GetCurrentLocalDigitanksTeam())
 				DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(NULL);
@@ -435,6 +438,9 @@ void CDigitanksWindow::CharRelease(int c)
 
 bool CDigitanksWindow::GetBoxSelection(size_t& iX, size_t& iY, size_t& iX2, size_t& iY2)
 {
+	if (!IsMouseDragging())
+		return false;
+
 	if (m_bBoxSelect)
 	{
 		iX = (m_iMouseInitialX < m_iMouseCurrentX) ? m_iMouseInitialX : m_iMouseCurrentX;
