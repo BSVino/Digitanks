@@ -148,7 +148,7 @@ void CGeneralWindow::RetryDebugging()
 {
 	Layout();
 
-	m_pText->SetText(L"THE GENERAL HAS FAILED DE-BUGGING\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another de-Bugging attempt.");
+	m_pText->SetText(L"DE-BUGGING HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another de-Bugging attempt.");
 	m_pButton->SetText(L"Retry");
 	m_pButton->SetVisible(true);
 
