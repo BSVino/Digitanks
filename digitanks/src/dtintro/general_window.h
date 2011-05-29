@@ -39,6 +39,7 @@ public:
 
 	float				m_flStartTime;
 	bool				m_bHelperSpeaking;
+	bool				m_bProgressBar;
 
 	glgui::CLabel*		m_pText;
 	glgui::CButton*		m_pButton;

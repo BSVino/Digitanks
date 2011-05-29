@@ -27,6 +27,7 @@ CGeneralWindow::CGeneralWindow()
 	m_flFadeToBlack = 0;
 	m_flStartTime = 0;
 	m_bHelperSpeaking = false;
+	m_bProgressBar = false;
 
 	CSoundLibrary::SetSoundVolume(0.6f);
 }
@@ -103,12 +104,19 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 	c.BindTexture(0);
 
 	Rect recEmotion = m_hGeneral.GetArea(m_sEmotion);
-	glgui::CBaseControl::PaintSheet(m_hGeneral.GetSheet(m_sEmotion), x, y, 150, 300, recEmotion.x, recEmotion.y, recEmotion.w, recEmotion.h, m_hGeneral.GetSheetWidth(m_sEmotion), m_hGeneral.GetSheetHeight(m_sEmotion));
+	glgui::CBaseControl::PaintSheet(m_hGeneral.GetSheet(m_sEmotion), x, y, 256, 256, recEmotion.x, recEmotion.y, recEmotion.w, recEmotion.h, m_hGeneral.GetSheetWidth(m_sEmotion), m_hGeneral.GetSheetHeight(m_sEmotion));
 
 	if (m_bHelperSpeaking && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5)
 	{
 		Rect recMouth = m_hGeneralMouth.GetArea(m_sEmotion);
-		glgui::CBaseControl::PaintSheet(m_hGeneralMouth.GetSheet(m_sEmotion), x, y, 150, 300, recMouth.x, recMouth.y, recMouth.w, recMouth.h, m_hGeneralMouth.GetSheetWidth(m_sEmotion), m_hGeneralMouth.GetSheetHeight(m_sEmotion));
+		glgui::CBaseControl::PaintSheet(m_hGeneralMouth.GetSheet(m_sEmotion), x, y, 256, 256, recMouth.x, recMouth.y, recMouth.w, recMouth.h, m_hGeneralMouth.GetSheetWidth(m_sEmotion), m_hGeneralMouth.GetSheetHeight(m_sEmotion));
+	}
+
+	if (m_bProgressBar)
+	{
+		float flTime = 3;
+		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft(), y + 160, m_pText->GetWidth(), 10, Color(255, 255, 255, 255));
+		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft() + 2, y + 160 + 2, (int)((m_pText->GetWidth() - 4) * RemapValClamped(GameServer()->GetGameTime(), m_flStartTime, m_flStartTime+flTime, 0, 1)), 10 - 4, Color(42, 65, 122, 255));
 	}
 }
 
@@ -145,6 +153,7 @@ void CGeneralWindow::RetryDebugging()
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "Disappointed";
+	m_bProgressBar = false;
 
 	m_flStartTime = GameServer()->GetGameTime();
 }
@@ -158,6 +167,7 @@ void CGeneralWindow::GiveUpDebugging()
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "Surprised";
+	m_bProgressBar = false;
 
 	m_flStartTime = GameServer()->GetGameTime();
 }
@@ -181,27 +191,23 @@ void CGeneralWindow::ButtonPressedCallback()
 	{
 		ScriptManager()->PlayScript("general-debug-1");
 
-		m_pText->SetText("Please wait...");
+		m_pText->SetText("Debugging. Please wait...");
 		m_pButton->SetVisible(false);
-
 		m_sEmotion = "KillingBugs";
-
 		m_eStage = STAGE_REPAIR2;
-
 		m_flStartTime = GameServer()->GetGameTime();
+		m_bProgressBar = true;
 	}
 	else if (m_eStage == STAGE_REPAIR2)
 	{
 		ScriptManager()->PlayScript("general-debug-2");
 
-		m_pText->SetText("Please wait...");
+		m_pText->SetText("Debugging. Please wait...");
 		m_pButton->SetVisible(false);
-
 		m_sEmotion = "KillingBugsHard";
-
 		m_eStage = STAGE_DIGITANKS;
-
 		m_flStartTime = GameServer()->GetGameTime();
+		m_bProgressBar = true;
 	}
 	else if (m_eStage == STAGE_DIGITANKS)
 	{
