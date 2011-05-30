@@ -304,7 +304,7 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 	CDigitank* pTank = dynamic_cast<CDigitank*>(m_hEntity.GetPointer());
 	if (pTank && !pTank->NeedsOrders())
 	{
-		clrTeam = (clrTeam/2+Color(255,255,255,255)/2);
+		clrTeam = (clrTeam/2+Color(128,128,128,255)/2);
 		clrTeam.SetAlpha(100);
 	}
 

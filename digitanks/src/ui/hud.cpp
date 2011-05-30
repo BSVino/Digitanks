@@ -1348,7 +1348,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 				float flSlideTime = 0.8f;
 				if (iItemSheet && GameServer()->GetGameTime() - m_flUpdateIconSlide < flSlideTime)
 				{
-					float flSlideLerp = Lerp(GameServer()->GetGameTime() - m_flUpdateIconSlide, flSlideTime);
+					float flSlideLerp = Lerp((GameServer()->GetGameTime() - m_flUpdateIconSlide)/flSlideTime, 0.7f);
 					int iIconX = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartX, (float)(iWidth/2 - iResearchWidth/2 - 35));
 					int iIconY = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_iUpdateIconSlideStartY, 0.0f);
 					int iButtonSize = (int)RemapValClamped(flSlideLerp, 0.0f, 1.0f, (float)m_pUpdatesPanel->GetButtonSize(), 35.0f);

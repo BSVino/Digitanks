@@ -139,7 +139,7 @@ void CUpdatesPanel::Layout()
 				else if (!bCanDownload)
 				{
 					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
-					pUpdate->SetAlpha(200/6);
+					pUpdate->SetAlpha(200/15);
 				}
 				else
 				{
@@ -166,7 +166,7 @@ void CUpdatesPanel::Layout()
 				else if (!bCanDownload)
 				{
 					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
-					pUpdate->SetAlpha(200/6);
+					pUpdate->SetAlpha(200/15);
 				}
 				else
 				{
@@ -183,7 +183,7 @@ void CUpdatesPanel::Layout()
 				else if (!bCanDownload)
 				{
 					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
-					pUpdate->SetAlpha(200/6);
+					pUpdate->SetAlpha(200/15);
 				}
 				else
 				{
@@ -556,6 +556,8 @@ void CUpdateButton::ChooseDownloadCallback()
 		int x, y;
 		GetAbsPos(x, y);
 		DigitanksWindow()->GetHUD()->SlideUpdateIcon(x, y);
+
+		GetParent()->SetVisible(false);
 	}
 
 	// Do this very last thing because since it calls Layout() this button will be deleted.
