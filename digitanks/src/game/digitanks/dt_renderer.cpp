@@ -716,6 +716,9 @@ void CDigitanksRenderer::RenderFogOfWar()
 		if (pDTEntity->VisibleRange() == 0)
 			continue;
 
+		if (!IsSphereInFrustum(pDTEntity->GetRenderOrigin(), pDTEntity->VisibleRange()))
+			continue;
+
 		CRenderingContext c(this);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);

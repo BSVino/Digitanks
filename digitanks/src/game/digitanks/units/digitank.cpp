@@ -3327,32 +3327,32 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 
 	if (m_flBonusAttackPower > 0)
 	{
-		s += p.sprintf(L"+%d bonus attack", (int)m_flBonusAttackPower.Get());
+		s += p.sprintf(L"+%d attack", (int)m_flBonusAttackPower.Get());
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s += p.sprintf(L" (+%d from fortify)", (int)GetFortifyAttackPowerBonus());
+			s += p.sprintf(L" (+%d fortify)", (int)GetFortifyAttackPowerBonus());
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s += p.sprintf(L" (+%d from support)", (int)GetSupportAttackPowerBonus());
+			s += p.sprintf(L" (+%d support)", (int)GetSupportAttackPowerBonus());
 
 		s += L" \n";
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s += p.sprintf(L"+%d bonus shield", (int)GetBonusDefensePower());
+		s += p.sprintf(L"+%d shield", (int)m_flBonusDefensePower.Get());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s += p.sprintf(L" (+%d from fortify)", (int)GetFortifyDefensePowerBonus());
+			s += p.sprintf(L" (+%d fortify)", (int)GetFortifyDefensePowerBonus());
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s += p.sprintf(L" (+%d from support)", (int)GetSupportDefensePowerBonus());
+			s += p.sprintf(L" (+%d support)", (int)GetSupportDefensePowerBonus());
 
 		s += L" \n";
 	}
 
 	if (GetBonusMovementEnergy() > 0)
-		s += p.sprintf(L"+%d movement energy\n", (int)GetBonusMovementEnergy());
+		s += p.sprintf(L"+%d movement\n", (int)GetBonusMovementEnergy());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)

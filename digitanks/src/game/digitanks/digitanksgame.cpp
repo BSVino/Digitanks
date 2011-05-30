@@ -2112,6 +2112,10 @@ void CDigitanksGame::CheckWinConditions()
 		if (GetDigitanksTeam(i)->HasLost())
 			continue;
 
+		// The barbarian team doesn't count towards teams left.
+		if (GetGameType() == GAMETYPE_STANDARD && i == 0)
+			continue;
+
 		switch (GetDigitanksTeam(i)->GetLoseCondition())
 		{
 		case LOSE_NOCPU:
