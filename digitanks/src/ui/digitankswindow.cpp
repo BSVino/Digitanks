@@ -473,11 +473,13 @@ void CDigitanksWindow::Run()
 {
 	CreateGame(GAMETYPE_MENU);
 
+#ifndef DT_COMPETITION
 	if (!IsRegistered())
 	{
 		m_pMainMenu->SetVisible(false);
 		m_pPurchase->OpeningApplication();
 	}
+#endif
 
 	while (IsOpen())
 	{
@@ -649,6 +651,10 @@ void CDigitanksWindow::GameOver(bool bPlayerWon)
 
 void CDigitanksWindow::CloseApplication()
 {
+#ifdef DT_COMPETITION
+	exit(0);
+#endif
+
 	if (IsRegistered())
 		exit(0);
 

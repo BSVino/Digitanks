@@ -1726,11 +1726,13 @@ void CDigitanksGame::StartTurn()
 	if (!CNetwork::IsHost())
 		return;
 
+#ifndef DT_COMPETITION
 	if (GetGameType() == GAMETYPE_STANDARD && !DigitanksWindow()->IsRegistered() && GetTurn() > GetDemoTurns())
 	{
 		DigitanksWindow()->Restart(GAMETYPE_MENU);
 		return;
 	}
+#endif
 
 	int iPowerupChance;
 	if (GetGameType() == GAMETYPE_STANDARD)

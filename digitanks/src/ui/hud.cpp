@@ -357,7 +357,9 @@ CHUD::CHUD()
 	m_pSpacebarHint->SetFont(L"text");
 	AddControl(m_pSpacebarHint);
 
-	//m_iCompetitionWatermark = CTextureLibrary::AddTexture(L"textures/competition.png");
+#ifdef DT_COMPETITION
+	m_iCompetitionWatermark = CTextureLibrary::AddTextureID(L"textures/competition.png");
+#endif
 }
 
 void CHUD::Layout()
@@ -1013,6 +1015,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
+
+#ifdef DT_COMPETITION
+	if (true)
+	{
+		CRenderingContext c(GameServer()->GetRenderer());
+		c.SetBlend(BLEND_ALPHA);
+		CRootPanel::PaintTexture(m_iCompetitionWatermark, 100, 20, 128/2, 128/2);
+	}
+#endif
 
 	if (show_fps.GetBool())
 	{
@@ -1838,14 +1849,6 @@ void CHUD::Paint(int x, int y, int w, int h)
 		float flHintWidth = glgui::CLabel::GetTextWidth(sChooseHint, sChooseHint.length(), L"text", 9);
 		glgui::CLabel::PaintText(sChooseHint, sChooseHint.length(), L"text", 9, (float)(m_pButtonPanel->GetLeft() + m_pButtonPanel->GetWidth()/2) - flHintWidth/2, (float)(m_pButtonPanel->GetTop() - 12));
 	}
-
-//	while (true)
-//	{
-//		CRenderingContext c(GameServer()->GetRenderer());
-//		c.SetBlend(BLEND_ALPHA);
-//		CRootPanel::PaintTexture(m_iCompetitionWatermark, 20, 20, 125/2, 184/2);
-//		break;
-//	}
 }
 
 void CHUD::PaintCameraGuidedMissile(int x, int y, int w, int h)
@@ -2755,14 +2758,7 @@ void CHUD::NewCurrentTeam()
 		if (DigitanksWindow()->GetInstructor()->GetActive())
 			m_bUpdatesBlinking = false;
 
-		if (!DigitanksWindow()->IsRegistered() && DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		{
-			eastl::string16 s;
-			s.sprintf(L"Demo turns left: %d", DigitanksGame()->GetDemoTurns() - DigitanksGame()->GetTurn());
-			m_pDemoNotice->SetText(s);
-		}
-		else
-			m_pDemoNotice->SetText("");
+		m_pDemoNotice->SetText("");
 
 		// If we have local hotseat multiplayer, update for the new team.
 		m_pSceneTree->BuildTree();
