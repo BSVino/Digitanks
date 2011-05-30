@@ -259,6 +259,10 @@ void CInstructor::ReadLesson(const class CData* pData)
 			pTutorial->m_sButton2Action = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Button2Text")
 			pTutorial->m_sButton2Text = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Button3")
+			pTutorial->m_sButton3Action = pChildData->GetValueString();
+		else if (pChildData->GetKey() == "Button3Text")
+			pTutorial->m_sButton3Text = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Enable")
 		{
 			eastl::string sEnable = pChildData->GetValueString();
@@ -623,6 +627,17 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 	else
 		m_pButton2 = NULL;
 
+	if (m_pTutorial->m_sButton3Text.length() > 0)
+	{
+		m_pButton3 = new CButton(0, 0, 60, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton3Text));
+		m_pButton3->SetButtonColor(g_clrPanel);
+		m_pButton3->SetFont(L"text");
+		m_pButton3->SetClickedListener(this, Button3);
+		AddControl(m_pButton3);
+	}
+	else
+		m_pButton3 = NULL;
+
 	if (m_pTutorial->m_sHelperEmotion.length())
 	{
 		SetSize(400, 200);
@@ -642,6 +657,18 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 	{
 		m_pText->SetSize(m_pText->GetWidth(), m_pText->GetHeight()-55);
 		m_pButton1->SetPos(m_pText->GetWidth()/2 - m_pButton1->GetWidth()/2, m_pText->GetHeight()+10);
+	}
+
+	if (m_pButton3)
+	{
+		if (m_pButton1)
+			m_pButton1->SetSize(m_pButton1->GetWidth(), 20);
+
+		if (m_pButton2)
+			m_pButton2->SetSize(m_pButton2->GetWidth(), 20);
+
+		m_pButton3->SetPos(m_pText->GetRight()-160, m_pText->GetHeight()+35);
+		m_pButton3->SetSize(m_pButton1->GetWidth() + m_pButton2->GetWidth() + (m_pButton2->GetLeft() - m_pButton1->GetRight()), 35);
 	}
 
 	switch (pTutorial->m_iPosition)
@@ -824,7 +851,7 @@ bool CTutorialPanel::MousePressed(int code, int mx, int my)
 		return true;
 	}
 
-	if (m_pTutorial->m_sButton1Action.length() == 0 && m_pTutorial->m_sButton2Action.length() == 0)
+	if (m_pTutorial->m_sButton1Action.length() == 0 && m_pTutorial->m_sButton2Action.length() == 0 && m_pTutorial->m_sButton3Action.length() == 0)
 	{
 		if (m_pTutorial->m_bAutoNext)
 			m_pTutorial->m_pInstructor->NextTutorial();
@@ -844,4 +871,10 @@ void CTutorialPanel::Button2Callback()
 {
 	if (m_pTutorial->m_sButton2Action.length() > 0)
 		m_pTutorial->m_pInstructor->DisplayTutorial(m_pTutorial->m_sButton2Action);
+}
+
+void CTutorialPanel::Button3Callback()
+{
+	if (m_pTutorial->m_sButton3Action.length() > 0)
+		m_pTutorial->m_pInstructor->DisplayTutorial(m_pTutorial->m_sButton3Action);
 }

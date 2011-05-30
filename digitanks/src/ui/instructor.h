@@ -59,6 +59,9 @@ public:
 	eastl::string					m_sButton2Text;
 	eastl::string					m_sButton2Action;
 
+	eastl::string					m_sButton3Text;
+	eastl::string					m_sButton3Action;
+
 	disable_t						m_eDisable;
 	disable_t						m_eEnable;
 
@@ -86,6 +89,7 @@ public:
 
 	EVENT_CALLBACK(CTutorialPanel,	Button1);
 	EVENT_CALLBACK(CTutorialPanel,	Button2);
+	EVENT_CALLBACK(CTutorialPanel,	Button3);
 
 protected:
 	CTutorial*						m_pTutorial;
@@ -94,6 +98,7 @@ protected:
 
 	glgui::CButton*					m_pButton1;
 	glgui::CButton*					m_pButton2;
+	glgui::CButton*					m_pButton3;
 
 	float							m_flStartTime;
 	bool							m_bDoneScrolling;
