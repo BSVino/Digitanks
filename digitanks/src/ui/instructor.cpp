@@ -626,8 +626,8 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 	if (m_pTutorial->m_sHelperEmotion.length())
 	{
 		SetSize(400, 200);
-		m_pText->SetPos(180, 10);
-		m_pText->SetSize(200, 180);
+		m_pText->SetPos(190, 10);
+		m_pText->SetSize(190, 180);
 	}
 	else
 		SetSize(m_pText->GetWidth()+20, m_pText->GetHeight());
@@ -723,8 +723,6 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 	CRootPanel::PaintRect(x, y, w, h);
 
-	CPanel::Paint(x, y, w, h);
-
 	if (m_pTutorial->m_sTutorialName == "strategy-command")
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
@@ -752,6 +750,8 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		if (bScrolling && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || !bScrolling && m_pTutorial->m_bLeaveMouthOpen)
 			CHUD::PaintSheet(DigitanksWindow()->GetInstructor()->GetEmotionsOpenSheet(), m_pTutorial->m_sHelperEmotion, x - iSlide, y + h/2 - iHelperHeight/2, iHelperWidth, iHelperHeight, Color(255, 255, 255, (int)(flLerp*255)));
 	}
+
+	CPanel::Paint(x, y, w, h);
 
 	if (m_pTutorial->m_iHintButton >= 0)
 	{

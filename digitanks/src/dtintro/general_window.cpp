@@ -139,7 +139,7 @@ void CGeneralWindow::Deploy()
 	m_pButton->SetText(L"Remove");
 	m_pButton->SetVisible(true);
 
-	m_sEmotion = "Pleased";
+	m_sEmotion = "PleasedIntro";
 
 	m_flStartTime = GameServer()->GetGameTime();
 }
@@ -152,7 +152,7 @@ void CGeneralWindow::RetryDebugging()
 	m_pButton->SetText(L"Retry");
 	m_pButton->SetVisible(true);
 
-	m_sEmotion = "Disappointed";
+	m_sEmotion = "DisappointedIntro";
 	m_bProgressBar = false;
 
 	m_flStartTime = GameServer()->GetGameTime();
@@ -166,7 +166,7 @@ void CGeneralWindow::GiveUpDebugging()
 	m_pButton->SetText(L"Do Better");
 	m_pButton->SetVisible(true);
 
-	m_sEmotion = "Surprised";
+	m_sEmotion = "SurprisedIntro";
 	m_bProgressBar = false;
 
 	m_flStartTime = GameServer()->GetGameTime();
@@ -180,7 +180,7 @@ void CGeneralWindow::DigitanksWon()
 	m_pButton->SetText(L"Roger");
 	m_pButton->SetVisible(true);
 
-	m_sEmotion = "Cheering";
+	m_sEmotion = "CheeringIntro";
 
 	m_flStartTime = GameServer()->GetGameTime();
 }
@@ -193,7 +193,7 @@ void CGeneralWindow::ButtonPressedCallback()
 
 		m_pText->SetText("Removing bugs. Please wait...");
 		m_pButton->SetVisible(false);
-		m_sEmotion = "KillingBugs";
+		m_sEmotion = "KillingBugsIntro";
 		m_eStage = STAGE_REPAIR2;
 		m_flStartTime = GameServer()->GetGameTime();
 		m_bProgressBar = true;
@@ -204,7 +204,7 @@ void CGeneralWindow::ButtonPressedCallback()
 
 		m_pText->SetText("Removing bugs. Please wait...");
 		m_pButton->SetVisible(false);
-		m_sEmotion = "KillingBugsHard";
+		m_sEmotion = "KillingBugsHardIntro";
 		m_eStage = STAGE_DIGITANKS;
 		m_flStartTime = GameServer()->GetGameTime();
 		m_bProgressBar = true;
@@ -226,7 +226,7 @@ void CGeneralWindow::ButtonPressedCallback()
 		m_pButton->SetText(L"Let's go!");
 		m_pButton->SetVisible(true);
 
-		m_sEmotion = "OhNo";
+		m_sEmotion = "OhNoIntro";
 
 		m_eStage = STAGE_FINISH;
 

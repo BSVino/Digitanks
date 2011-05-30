@@ -216,7 +216,7 @@ public:
 
 	virtual const char*			GetPowerBar1Text() { return "Attack"; }
 	virtual const char*			GetPowerBar2Text() { return "Defense"; }
-	virtual const char*			GetPowerBar3Text() { return "Movement"; }
+	virtual const char*			GetPowerBar3Text() { return "Distance"; }
 
 	virtual float				GetPowerBar1Value();
 	virtual float				GetPowerBar2Value();

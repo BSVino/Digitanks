@@ -1904,7 +1904,7 @@ float CDigitank::GetPowerBar2Size()
 
 float CDigitank::GetPowerBar3Size()
 {
-	float flPower = GetUsedMovementEnergy(true) / GetMaxMovementEnergy();
+	float flPower = 1-(GetUsedMovementEnergy(true) / GetMaxMovementEnergy());
 
 	if (flPower > 1)
 		return 1;
@@ -2033,7 +2033,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				else
 					pHUD->SetButtonTexture(0, "AutoMove");
 
-				pHUD->SetButtonInfo(0, L"AUTO MOVE\n \nThis tank is out of move energy for this turn.\n \nSet a move command for this tank to executex over the next few turns.\n \nShortcut: Q");
+				pHUD->SetButtonInfo(0, L"AUTO MOVE\n \nThis tank is out of move energy for this turn.\n \nSet a move command for this tank to execute over the next few turns.\n \nShortcut: Q");
 				pHUD->SetButtonTooltip(0, L"Auto-Move");
 			}
 			else
@@ -2119,7 +2119,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(6, Color(0, 0, 150));
 		}
 
-		if (GetNumWeapons() > 1)
+		if (GetNumAllowedWeapons() > 1)
 		{
 			pHUD->SetButtonTexture(7, "ChooseWeapon");
 			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
@@ -2255,20 +2255,17 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
 	{
-		if (!IsScout())
-		{
-			pHUD->SetButtonListener(0, CHUD::PromoteAttack);
-			pHUD->SetButtonTexture(0, "UpgradeAttack");
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
+		pHUD->SetButtonListener(0, CHUD::PromoteAttack);
+		pHUD->SetButtonTexture(0, "UpgradeAttack");
+		pHUD->SetButtonColor(0, Color(150, 150, 150));
 
-			eastl::string16 s1;
-			s1 += L"UPGRADE ATTACK ENERGY\n \n";
-			s1 += L"This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n";
-			s1 += L"Attack Energy increase: 10%\n \n";
-			s1 += L"Shortcut: Q";
-			pHUD->SetButtonInfo(0, s1);
-			pHUD->SetButtonTooltip(0, L"Upgrade Attack");
-		}
+		eastl::string16 s1;
+		s1 += L"UPGRADE ATTACK ENERGY\n \n";
+		s1 += L"This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n";
+		s1 += L"Attack Energy increase: 10%\n \n";
+		s1 += L"Shortcut: Q";
+		pHUD->SetButtonInfo(0, s1);
+		pHUD->SetButtonTooltip(0, L"Upgrade Attack");
 
 		if (!IsArtillery() && !IsScout())
 		{
@@ -2816,7 +2813,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		SetSoundVolume(L"sound/tank-damage.wav", RemapValClamped(flDamage, 0, 50, 0, 1));
 	}
 
-	if (flShield > 1.0f)
+	if (flShield > 1.0f && !IsDisabled())
 	{
 		if (GetVisibility() > 0)
 		{

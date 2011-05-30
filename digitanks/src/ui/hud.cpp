@@ -873,7 +873,7 @@ void CHUD::Think()
 				break;
 
 			if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i)->bHandled)
-				m_apActionItemButtons[i]->SetAlpha(100);
+				m_apActionItemButtons[i]->SetAlpha(50);
 			else
 				m_apActionItemButtons[i]->SetAlpha((int)RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 100, 255));
 		}
@@ -889,7 +889,7 @@ void CHUD::Think()
 		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
 			sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
 
-		if (pTutorial && pTutorial->m_iHintButton >= 0)
+		if (pTutorial && pTutorial->m_iHintButton >= 0 && DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentPanel() && DigitanksWindow()->GetInstructor()->GetCurrentPanel()->IsVisible())
 		{
 			float flRamp = Oscillate(GameServer()->GetGameTime(), 1);
 			int iColor = (int)RemapVal(flRamp, 0, 1, 0, 150);
@@ -1623,6 +1623,24 @@ void CHUD::Paint(int x, int y, int w, int h)
 		float flWidth = CLabel::GetTextWidth(m_sSmallActionItem, m_sSmallActionItem.length(), L"text", 13);
 		float flHeight = CLabel::GetFontHeight(L"text", 13);
 		CLabel::PaintText(m_sSmallActionItem, m_sSmallActionItem.length(), L"text", 13, (float)(iLeft - flWidth) - 25, iTop + flHeight + 5);
+	}
+
+	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
+	{
+		if (i >= m_apActionItemButtons.size())
+			break;
+
+		CPictureButton* pButton = m_apActionItemButtons[i];
+
+		if (!pButton)
+			continue;
+
+		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i)->bHandled)
+		{
+			CRenderingContext c(GameServer()->GetRenderer());
+			c.SetBlend(BLEND_ALPHA);
+			PaintHUDSheet("CheckMark", pButton->GetLeft(), pButton->GetTop(), pButton->GetWidth(), pButton->GetHeight(), Color(255, 255, 255));
+		}
 	}
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_ARTILLERY)
@@ -4293,13 +4311,14 @@ CDamageIndicator::CDamageIndicator(CBaseEntity* pVictim, float flDamage, bool bS
 
 	char szDamage[100];
 	if (iDamage < 0)
-		sprintf(szDamage, "+%d", -iDamage);
+		sprintf(szDamage, "+%d %s", -iDamage, bShield?"shield":"hull");
 	else
 		sprintf(szDamage, "-%d", iDamage);
 	SetText(szDamage);
 
 	SetFont(L"header", 18);
 	SetAlign(CLabel::TA_TOPLEFT);
+	SetWrap(false);
 }
 
 void CDamageIndicator::Destructor()

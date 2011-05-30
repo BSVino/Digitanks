@@ -303,7 +303,10 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 
 	CDigitank* pTank = dynamic_cast<CDigitank*>(m_hEntity.GetPointer());
 	if (pTank && !pTank->NeedsOrders())
+	{
+		clrTeam = (clrTeam/2+Color(255,255,255,255)/2);
 		clrTeam.SetAlpha(100);
+	}
 
 	CDigitanksTeam* pCurrentLocalTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
@@ -339,12 +342,26 @@ void CSceneTreeUnit::Paint(int x, int y, int w, int h, bool bFloating)
 		flDefensePower = flDefensePower/flTotalPower;
 		flMovementPower = flMovementPower/pTank->GetMaxMovementEnergy();
 
-		glgui::CRootPanel::PaintRect(x+h, y, (int)(h*flAttackPower), 3, Color(255, 0, 0));
+		if (flMovementPower > 0.1f)
+		{
+			size_t iSheetWidth = CHUD::GetHUDSheet().GetSheetWidth("MoveIcon");
+			size_t iSheetHeight = CHUD::GetHUDSheet().GetSheetHeight("MoveIcon");
+			const Rect& rArea = CHUD::GetHUDSheet().GetArea("MoveIcon");
+			glgui::CRootPanel::PaintSheet(CHUD::GetHUDSheet().GetSheet("MoveIcon"), x+h+h+2 - 18, y+h+2 - 14, 16, 12, rArea.x, rArea.y, rArea.w, rArea.h, iSheetWidth, iSheetHeight);
+		}
+
+		if (flAttackPower)
+			glgui::CRootPanel::PaintRect(x+h, y, (int)(h*flAttackPower), 3, Color(255, 0, 0));
 		glgui::CRootPanel::PaintRect(x+h+(int)(h*flAttackPower), y, (int)(h*flDefensePower), 3, Color(0, 0, 255));
-		glgui::CRootPanel::PaintRect(x+h, y + 3, (int)(h*flMovementPower), 3, Color(255, 255, 0));
+		if (flMovementPower)
+			glgui::CRootPanel::PaintRect(x+h, y + 3, (int)(h*flMovementPower), 3, Color(255, 255, 0));
 
 		size_t iSize = 22;
-		CHUD::PaintWeaponSheet(pTank->GetCurrentWeapon(), x+h+h+4, y+4, iSize, iSize, Color(255, 255, 255, 255));
+		int iAlpha = 20;
+		if (pTank->HasFiredWeapon())
+			iAlpha = 255;
+
+		CHUD::PaintWeaponSheet(pTank->GetCurrentWeapon(), x+h+h+4, y+4, iSize, iSize, Color(255, 255, 255, iAlpha));
 
 		size_t iX = x+h+h+h+4;
 

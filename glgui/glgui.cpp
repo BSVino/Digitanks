@@ -137,7 +137,7 @@ void CBaseControl::Paint(int x, int y, int w, int h)
 {
 	if (m_sTip.length() > 0 && m_flMouseInTime > 0 && CRootPanel::Get()->GetTime() > m_flMouseInTime + 0.5f)
 	{
-		int iFontSize = 10;
+		int iFontSize = 12;
 
 		float flFontHeight = CLabel::GetFontHeight(L"sans-serif", iFontSize);
 		float flTextWidth = CLabel::GetTextWidth(m_sTip, m_sTip.length(), L"sans-serif", iFontSize);
