@@ -268,7 +268,7 @@ bool CAutoTurret::IsAvailableAreaActive(int iArea) const
 		return false;
 
 	// If we're selecting an auto-turret, show all auto-turret areas. Otherwise don't!
-	if (GetDigitanksTeam()->GetPrimarySelection()->GetUnitType() == STRUCTURE_AUTOTURRET)
+	if (GetDigitanksTeam()->GetPrimarySelection()->GetUnitType() == STRUCTURE_FIREWALL)
 		return true;
 
 	return false;

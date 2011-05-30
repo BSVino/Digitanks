@@ -157,7 +157,7 @@ void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 	if (eUnit == STRUCTURE_PSU)
 		return;
 
-	if (eUnit == STRUCTURE_AUTOTURRET)
+	if (eUnit == STRUCTURE_FIREWALL)
 		return;
 
 	CSceneTreeGroup* pTreeGroup = GetUnitNode(eUnit);

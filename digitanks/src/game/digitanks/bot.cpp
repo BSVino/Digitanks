@@ -468,7 +468,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			else if (pDTEnt->GetUnitType() == STRUCTURE_BATTERY && CanBuildPSUs())
 				ahBatteryUpgrades.push_back(static_cast<CBattery*>(pDTEnt));
 
-			if (pDTEnt->GetUnitType() == STRUCTURE_AUTOTURRET)
+			if (pDTEnt->GetUnitType() == STRUCTURE_FIREWALL)
 				iAutoTurrets++;
 			else if (dynamic_cast<CStructure*>(pDTEnt))
 				iStructures++;
@@ -537,7 +537,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			Bot_AddBuildPriority(STRUCTURE_ARTILLERYLOADER);
 
 		if (((float)iAutoTurrets/(float)iStructures) < 0.6f)
-			Bot_AddBuildPriority(STRUCTURE_AUTOTURRET);
+			Bot_AddBuildPriority(STRUCTURE_FIREWALL);
 
 		if (m_bCanUpgrade)
 		{

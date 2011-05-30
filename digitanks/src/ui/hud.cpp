@@ -2123,6 +2123,8 @@ void CHUD::GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int&
 		sArea = "CPU";
 	else if (eUnit == STRUCTURE_ELECTRONODE)
 		sArea = "Electronode";
+	else if (eUnit == STRUCTURE_FIREWALL)
+		sArea = "Firewall";
 
 	Rect rUnit = pUnits->GetArea(sArea);
 	iSheet = pUnits->GetSheet(sArea);
@@ -4016,7 +4018,7 @@ void CHUD::BuildTurretCallback()
 	if (!pCPU)
 		return;
 
-	pCPU->SetPreviewStructure(STRUCTURE_AUTOTURRET);
+	pCPU->SetPreviewStructure(STRUCTURE_FIREWALL);
 
 	DigitanksGame()->SetControlMode(MODE_BUILD);
 

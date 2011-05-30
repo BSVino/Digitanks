@@ -274,7 +274,7 @@ void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
 		
 		pChild = pConstructionCosts->FindChild("AutoTurret");
 		if (pChild)
-			m_aflConstructionCosts[STRUCTURE_AUTOTURRET] = pChild->GetValueFloat();
+			m_aflConstructionCosts[STRUCTURE_FIREWALL] = pChild->GetValueFloat();
 
 		pChild = pConstructionCosts->FindChild("Minibuffer");
 		if (pChild)

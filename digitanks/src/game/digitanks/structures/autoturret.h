@@ -38,7 +38,7 @@ public:
 	virtual float				TotalHealth() const { return 150; };
 
 	virtual eastl::string16		GetEntityName() { return L"Firewall"; };
-	virtual unittype_t			GetUnitType() const { return STRUCTURE_AUTOTURRET; };
+	virtual unittype_t			GetUnitType() const { return STRUCTURE_FIREWALL; };
 
 protected:
 	CNetworkedVariable<bool>	m_bHasFired;

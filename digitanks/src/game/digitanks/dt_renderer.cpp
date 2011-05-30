@@ -645,7 +645,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 				size_t iModel = 0;
 				switch (pCPU->GetPreviewStructure())
 				{
-				case STRUCTURE_AUTOTURRET:
+				case STRUCTURE_FIREWALL:
 					iModel = CModelLibrary::Get()->FindModel(L"models/digitanks/autoturret.obj");
 					break;
 
