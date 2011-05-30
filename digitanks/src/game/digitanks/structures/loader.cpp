@@ -218,16 +218,19 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();
+
+	if (CNetwork::IsHost())
+		CompleteProduction();
 }
 
 void CLoader::CompleteProduction()
 {
-	if (GetBuildUnit() == UNIT_INFANTRY)
+/*	if (GetBuildUnit() == UNIT_INFANTRY)
 		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Resistor");
 	else if (GetBuildUnit() == UNIT_TANK)
 		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Digitank");
 	else if (GetBuildUnit() == UNIT_ARTILLERY)
-		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Artillery");
+		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Artillery");*/
 
 	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 

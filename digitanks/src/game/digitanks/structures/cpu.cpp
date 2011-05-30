@@ -641,6 +641,9 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		pCollector->GetResource()->SetCollector(pCollector);
 	}
 
+	if (CNetwork::IsHost())
+		pConstructing->CompleteConstruction();
+
 	GetDigitanksTeam()->CountProducers();
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("strategy-placebuffer", true);
@@ -719,6 +722,33 @@ void CCPU::BeginRogueProduction(class CNetworkParameters* p)
 
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();
+
+	if (CNetwork::IsHost())
+	{
+		CDigitank* pTank = GameServer()->Create<CScout>("CScout");
+		pTank->SetOrigin(GetOrigin());
+		pTank->CalculateVisibility();
+		GetTeam()->AddEntity(pTank);
+
+		for (size_t x = 0; x < UPDATE_GRID_SIZE; x++)
+		{
+			for (size_t y = 0; y < UPDATE_GRID_SIZE; y++)
+			{
+				if (GetDigitanksTeam()->HasDownloadedUpdate(x, y))
+					pTank->DownloadComplete(x, y);
+			}
+		}
+
+		// Face him toward the center.
+		pTank->Move(pTank->GetOrigin() + -GetOrigin().Normalized()*15);
+		pTank->Turn(VectorAngles(-GetOrigin().Normalized()));
+
+		pTank->StartTurn();
+	}
+
+	m_bProducing = false;
+
+	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 }
 
 void CCPU::StartTurn()
