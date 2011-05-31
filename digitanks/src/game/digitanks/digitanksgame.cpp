@@ -582,7 +582,7 @@ void CDigitanksGame::SetupArtillery()
 			pTeam->SetColor(g_aclrTeamColors[i]);
 			pTeam->SetTeamName(g_aszTeamNames[i]);
 
-			if (i <= game_players.GetInt())
+			if (i < game_players.GetInt())
 			{
 				if (i == 0)
 				{

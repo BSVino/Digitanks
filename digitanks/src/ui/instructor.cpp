@@ -194,6 +194,7 @@ void CInstructor::Initialize()
 	m_apTutorials["artillery-endturn"]->m_flSlideAmount = 200;
 	m_apTutorials["artillery-endturn"]->m_bSlideX = false;
 	m_apTutorials["artillery-endturn"]->m_bKillOnFinish = true;
+	m_apTutorials["artillery-endturn"]->m_bMousePrompt = false;
 
 	m_apTutorials["strategy-select"] = new CTutorial(this, "strategy-select", "strategy-command", POSITION_SCENETREE, 150, false, L"< Select the MCP");
 	m_apTutorials["strategy-select"]->m_flSlideAmount = 1000;
