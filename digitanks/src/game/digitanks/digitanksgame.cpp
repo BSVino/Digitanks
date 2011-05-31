@@ -2703,7 +2703,7 @@ bool CDigitanksGame::ShouldRenderFogOfWar()
 
 float CDigitanksGame::GetVisibilityAtPoint(CDigitanksTeam* pViewingTeam, Vector vecPoint)
 {
-	if (!ShouldRenderFogOfWar())
+	if (pViewingTeam && pViewingTeam->IsPlayerControlled() && !ShouldRenderFogOfWar())
 		return 1.0f;
 
 	if (!pViewingTeam)

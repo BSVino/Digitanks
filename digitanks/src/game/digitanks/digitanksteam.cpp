@@ -663,7 +663,7 @@ float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 
 float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak)
 {
-	if (!DigitanksGame()->ShouldRenderFogOfWar())
+	if (IsPlayerControlled() && !DigitanksGame()->ShouldRenderFogOfWar())
 		return 1;
 
 	float flFinalVisibility = 0;

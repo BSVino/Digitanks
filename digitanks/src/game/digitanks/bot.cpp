@@ -137,7 +137,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 		return m_hArtilleryLoader->IsProducing();
 	}
 
-	if (pNextBuild->m_eUnit == STRUCTURE_PSU && pNextBuild->m_hTarget != NULL)
+	if (pNextBuild->m_eUnit == STRUCTURE_PSU && pNextBuild->m_hTarget != NULL && dynamic_cast<CBattery*>(pNextBuild->m_hTarget.GetPointer()))
 	{
 		CBattery* pBattery = static_cast<CBattery*>(pNextBuild->m_hTarget.GetPointer());
 		pBattery->BeginUpgrade();
@@ -257,7 +257,14 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 		if (pUnused == NULL)
 		{
 			eBuild = CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER;
-			continue;
+
+			pUnused = Bot_FindUnusedSupplier(4, false);
+
+			if (!pUnused)
+				pUnused = Bot_FindUnusedSupplier(6, false);
+
+			if (!pUnused)
+				pUnused = Bot_FindUnusedSupplier(9999, false);
 		}
 
 		float flYaw;
@@ -328,7 +335,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 
 	} while (iTries++ < 5);
 
-	m_hPrimaryCPU->SetPreviewStructure(pNextBuild->m_eUnit);
+	m_hPrimaryCPU->SetPreviewStructure(eBuild);
 	m_hPrimaryCPU->SetPreviewBuild(vecStructure);
 
 	if (!m_hPrimaryCPU->IsPreviewBuildValid())
@@ -417,6 +424,16 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	{
 		Bot_ExecuteTurnArtillery();
 		return;
+	}
+
+	// Do this first so we have the info while we're deciding what things to build.
+	if (m_ahAttackTeam.size())
+	{
+		for (size_t i = m_ahAttackTeam.size()-1; i < m_ahAttackTeam.size(); i--)
+		{
+			if (m_ahAttackTeam[i] == NULL)
+				m_ahAttackTeam.erase(m_ahAttackTeam.begin()+i);
+		}
 	}
 
 	m_aeBuildPriorities.clear();
@@ -536,29 +553,75 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		if (m_hArtilleryLoader == NULL && CanBuildArtilleryLoaders())
 			Bot_AddBuildPriority(STRUCTURE_ARTILLERYLOADER);
 
-		if (((float)iAutoTurrets/(float)iStructures) < 0.6f)
+		if (m_ahAttackTeam.size() && ((float)iAutoTurrets/(float)iStructures) < 0.6f)
 			Bot_AddBuildPriority(STRUCTURE_FIREWALL);
 
-		if (m_bCanUpgrade)
+		if (m_ahAttackTeam.size() && m_bCanUpgrade && RandomFloat(0, 1) > 0.7f)
 		{
 			for (size_t i = 0; i < ahBatteryUpgrades.size(); i++)
+			{
 				Bot_AddBuildPriority(STRUCTURE_PSU, ahBatteryUpgrades[i]);
+				break;
+			}
 
 			for (size_t i = 0; i < ahMinibufferUpgrades.size(); i++)
+			{
 				Bot_AddBuildPriority(STRUCTURE_BUFFER, ahMinibufferUpgrades[i]);
+				break;
+			}
 		}
 		m_bCanUpgrade = true;
 
-		if (iScouts < 2 && DigitanksGame()->GetTurn() > m_iLastScoutBuilt + 5)
+		if (m_ahAttackTeam.size() && iScouts < 2 && DigitanksGame()->GetTurn() > m_iLastScoutBuilt + 5)
 			Bot_AddBuildPriority(UNIT_SCOUT);
 
-		if (m_hInfantryLoader != NULL && !m_hInfantryLoader->IsProducing() && flInfantryFleetRatio < flBuildInfantryRatio && GetUnusedFleetPoints() >= CMechInfantry::InfantryFleetPoints())
-			Bot_AddBuildPriority(UNIT_INFANTRY);
+		bool bBuildInfantry = m_hInfantryLoader != NULL && !m_hInfantryLoader->IsProducing() && !m_hInfantryLoader->IsConstructing() && flInfantryFleetRatio < flBuildInfantryRatio && GetUnusedFleetPoints() >= CMechInfantry::InfantryFleetPoints();
+		bool bBuildTank = m_hTankLoader != NULL && !m_hTankLoader->IsProducing() && !m_hTankLoader->IsConstructing() && flTankFleetRatio < flBuildTankRatio && GetUnusedFleetPoints() >= CMainBattleTank::MainTankFleetPoints();
+		bool bBuildArtillery = m_hArtilleryLoader != NULL && !m_hArtilleryLoader->IsProducing() && !m_hArtilleryLoader->IsConstructing() && flArtilleryFleetRatio < flBuildArtilleryRatio && GetUnusedFleetPoints() >= CArtillery::ArtilleryFleetPoints();
 
-		if (m_hTankLoader != NULL && !m_hTankLoader->IsProducing() && flTankFleetRatio < flBuildTankRatio && GetUnusedFleetPoints() >= CMainBattleTank::MainTankFleetPoints())
-			Bot_AddBuildPriority(UNIT_TANK);
+		// If we have no attack team don't worry about artillery.
+		if (!m_ahAttackTeam.size())
+			bBuildArtillery = false;
 
-		if (m_hArtilleryLoader != NULL && !m_hArtilleryLoader->IsProducing() && flArtilleryFleetRatio < flBuildArtilleryRatio && GetUnusedFleetPoints() >= CArtillery::ArtilleryFleetPoints())
+		// If we are on the warpath then reduce unit priority in favor of falling through to buffers, which means expansion.
+		if (m_ahAttackTeam.size() && RandomFloat(0, 1) < 0.5f)
+			bBuildInfantry = bBuildTank = false;
+
+		if (bBuildInfantry)
+		{
+			if (bBuildTank || bBuildArtillery)
+			{
+				if (flTankFleetRatio < flInfantryFleetRatio || flArtilleryFleetRatio < flInfantryFleetRatio)
+				{
+					// If other tanks need to be built more than infantry, then don't be a hog.
+					if (RandomFloat(0, 1) > 0.7f)
+						Bot_AddBuildPriority(UNIT_INFANTRY);
+				}
+				// If infantry is needed more than other tanks, still don't be a hog sometimes.
+				else if (RandomFloat(0, 1) > 0.3f)
+					Bot_AddBuildPriority(UNIT_INFANTRY);
+			}
+			else
+				Bot_AddBuildPriority(UNIT_INFANTRY);
+		}
+
+		if (bBuildTank)
+		{
+			if (bBuildArtillery)
+			{
+				if (flArtilleryFleetRatio < flTankFleetRatio)
+				{
+					if (RandomFloat(0, 1) > 0.7f)
+						Bot_AddBuildPriority(UNIT_TANK);
+				}
+				else if (RandomFloat(0, 1) > 0.5f)
+					Bot_AddBuildPriority(UNIT_TANK);
+			}
+			else
+				Bot_AddBuildPriority(UNIT_TANK);
+		}
+
+		if (bBuildArtillery)
 			Bot_AddBuildPriority(UNIT_ARTILLERY);
 
 		Bot_AddBuildPriority(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
@@ -577,15 +640,6 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 	}
 
 	CDigitank* pHeadTank = NULL;
-
-	if (m_ahAttackTeam.size())
-	{
-		for (size_t i = m_ahAttackTeam.size()-1; i < m_ahAttackTeam.size(); i--)
-		{
-			if (m_ahAttackTeam[i] == NULL)
-				m_ahAttackTeam.erase(m_ahAttackTeam.begin()+i);
-		}
-	}
 
 	if (!m_ahAttackTeam.size())
 	{
@@ -722,6 +776,9 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		bool bCloseToLKV = false;
 		for (size_t i = 0; i < GetNumTanks(); i++)
 		{
+			if (GetTank(i)->GetUnitType() == UNIT_ARTILLERY)
+				continue;
+
 			if ((GetTank(i)->GetOrigin() - m_vecLKV).Length() < (GetTank(i)->GetEffRange()+GetTank(i)->GetMaxRange())/2)
 			{
 				bCloseToLKV = true;
@@ -1007,7 +1064,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 			// I've been watching too much of the movie Patton. It's research!
 			if ((vecTargetOrigin - pTank->GetOrigin()).LengthSqr() > pTank->GetEffRange()*pTank->GetEffRange())
 			{
-				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin, pTank);
+				Vector vecDesiredMove = DigitanksGame()->GetTerrain()->FindPath(pTank->GetOrigin(), vecTargetOrigin + Vector(RandomFloat(-4, 4), 0, RandomFloat(-4, 4)), pTank);
 
 				if (pTank->GetUnitType() == UNIT_INFANTRY)
 				{
@@ -1106,42 +1163,92 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		else if (pTank->IsArtillery())
 		{
-			// If we're fortified and our target is too close, get the fuck outta there!
-			if (pTank->IsFortified() && (pTank->GetOrigin() - vecTargetOrigin).Length() < pTank->GetMinRange())
-				pTank->Fortify();
-
-			if (!pTank->IsFortified())
+			// We HATE infantry, so always know where the closest one is.
+			CDigitank* pClosestEnemy = NULL;
+			while (true)
 			{
-				if ((pTank->GetOrigin() - vecTargetOrigin).Length() > pTank->GetMinRange())
+				pClosestEnemy = CBaseEntity::FindClosest<CDigitank>(pTank->GetOrigin(), pClosestEnemy);
+
+				if (!pClosestEnemy)
+					break;
+
+				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+					continue;
+
+				if (pClosestEnemy->GetUnitType() == UNIT_ARTILLERY)
+					continue;
+
+				float flTargetVisibility = pClosestEnemy->GetVisibility(this);
+				if (flTargetVisibility < 0.4f)
+					continue;
+
+				if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
+					continue;
+
+				if (!pClosestEnemy->IsInsideMaxRange(pTank->GetOrigin()))
 				{
-					// Deploy so we can rain some hell down.
-					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
-					pTank->Turn();
-					pTank->Fortify();
+					pClosestEnemy = NULL;
+					break;
 				}
-				else
-				{
-					// Head away from enemies at full speed
-					float flMovementDistance = pTank->GetRemainingMovementDistance();
-					Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
-					vecDirection = -vecDirection.Normalized() * (flMovementDistance*0.90f);
 
-					Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
-					vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
-
-					pTank->SetPreviewMove(vecDesiredMove);
-					pTank->Move();
-
-					pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
-					pTank->Turn();
-				}
+				break;
 			}
 
-			// If we are within the max range, try to fire.
-			if (pTank->IsInsideMaxRange(vecTargetOrigin))
+			if (pClosestEnemy)
 			{
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
-				pTank->Fire();
+				if (pTank->IsFortified())
+					pTank->Fortify();
+
+				// Head away from enemies at full speed
+				float flMovementDistance = pTank->GetRemainingMovementDistance();
+				Vector vecDirection = vecTargetOrigin - pTank->GetOrigin();
+				vecDirection = -vecDirection.Normalized() * (flMovementDistance*0.90f);
+
+				Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+				vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+				pTank->SetPreviewMove(vecDesiredMove);
+				pTank->Move();
+			}
+			else
+			{
+				if (pTarget)
+				{
+					float flDistanceToTarget = (pTank->GetOrigin() - pTarget->GetOrigin()).Length();
+
+					if (flDistanceToTarget > pTank->GetMinRange() && flDistanceToTarget < pTank->GetMaxRange())
+					{
+						if (pTank->IsFortified())
+						{
+							pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+							pTank->Fire();
+						}
+						else
+						{
+							// Deploy so we can rain some hell down.
+							pTank->SetPreviewTurn(VectorAngles(vecTargetOrigin - pTank->GetOrigin()).y);
+							pTank->Turn();
+							pTank->Fortify();
+						}
+					}
+					else if (flDistanceToTarget > pTank->GetMaxRange())
+					{
+						if (pTank->IsFortified())
+							pTank->Fortify();
+
+						// Head towards the target
+						float flMovementDistance = pTank->GetRemainingMovementDistance();
+						Vector vecDirection = pTarget->GetOrigin() - pTank->GetOrigin();
+						vecDirection = vecDirection.Normalized() * (flMovementDistance*0.90f);
+
+						Vector vecDesiredMove = pTank->GetOrigin() + vecDirection;
+						vecDesiredMove.y = pTank->FindHoverHeight(vecDesiredMove);
+
+						pTank->SetPreviewMove(vecDesiredMove);
+						pTank->Move();
+					}
+				}
+				// Otherwise hang around and wait for a target.
 			}
 		}
 		else if (pTank->CanFortify())
@@ -1165,8 +1272,21 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				if (pClosestEnemy->GetTeam() == pTank->GetTeam())
 					continue;
 
+				if (pClosestEnemy->IsImprisoned())
+					continue;
+
+				float flTargetVisibility = pClosestEnemy->GetVisibility(this);
+				if (flTargetVisibility < 0.4f)
+					continue;
+
+				if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
+					continue;
+
 				if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
+					if (pClosestEnemy->Distance(pTank->GetOrigin()) < pTank->VisibleRange()*1.5f)
+						break;
+
 					pClosestEnemy = NULL;
 					break;
 				}
@@ -1222,6 +1342,16 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 						break;
 
 					if (pClosestEnemy->GetTeam() == pTank->GetTeam())
+						continue;
+
+					if (pClosestEnemy->IsImprisoned())
+						continue;
+
+					float flTargetVisibility = pClosestEnemy->GetVisibility(this);
+					if (flTargetVisibility < 0.4f)
+						continue;
+
+					if (flTargetVisibility < 1 && RandomFloat(0, 1) > flTargetVisibility)
 						continue;
 
 					if (!pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))

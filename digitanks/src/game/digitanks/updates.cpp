@@ -367,7 +367,7 @@ void CUpdateGrid::SetupStandardUpdates()
 	m_aUpdates[iCPU+4][iCPU-7].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;
 	m_aUpdates[iCPU+4][iCPU-7].m_eStructure = STRUCTURE_BUFFER;
 	m_aUpdates[iCPU+4][iCPU-7].m_eUpdateType = UPDATETYPE_FLEETSUPPLY;
-	m_aUpdates[iCPU+4][iCPU-7].m_flValue = 2;
+	m_aUpdates[iCPU+4][iCPU-7].m_flValue = 1;
 	m_aUpdates[iCPU+4][iCPU-7].m_flSize = 45;
 
 	m_aUpdates[iCPU+5][iCPU-7].m_eUpdateClass = UPDATECLASS_STRUCTUREUPDATE;

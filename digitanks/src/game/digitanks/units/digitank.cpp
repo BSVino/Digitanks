@@ -2107,13 +2107,13 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonInfo(6, L"DEACTIVATE CLOAKING DEVICE\n \nClick to turn off this tank's cloaking device.\n \nShortcut: S");
 				pHUD->SetButtonTooltip(6, L"Uncloak");
-				pHUD->SetButtonTexture(6, "Uncloak");
+				pHUD->SetButtonTexture(6, "Unstealth");
 			}
 			else
 			{
 				pHUD->SetButtonInfo(6, L"ACTIVATE CLOAKING DEVICE\n \nThis tank has a cloaking device available. Click to activate it.\n \nShortcut: S");
 				pHUD->SetButtonTooltip(6, L"Cloak");
-				pHUD->SetButtonTexture(6, "Cloak");
+				pHUD->SetButtonTexture(6, "Stealth");
 			}
 			pHUD->SetButtonListener(6, CHUD::Cloak);
 			pHUD->SetButtonColor(6, Color(0, 0, 150));

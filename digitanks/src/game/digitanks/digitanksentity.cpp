@@ -364,7 +364,10 @@ float CDigitanksEntity::GetVisibility(CDigitanksTeam* pTeam) const
 		return 1 - flConceal/2;
 
 	if (!pGame->ShouldRenderFogOfWar())
-		return 1 - flConceal;
+	{
+		if (pTeam && pTeam->IsPlayerControlled())
+			return 1 - flConceal;
+	}
 
 	if (!pTeam)
 		return 0;
