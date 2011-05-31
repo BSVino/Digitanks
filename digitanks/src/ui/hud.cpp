@@ -1021,7 +1021,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.SetBlend(BLEND_ALPHA);
-		CRootPanel::PaintTexture(m_iCompetitionWatermark, 100, 20, 128/2, 128/2);
+		CRootPanel::PaintTexture(m_iCompetitionWatermark, 70, 20, 128/2, 128/2);
 	}
 #endif
 
