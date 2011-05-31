@@ -19,7 +19,7 @@ public:
 
 	static size_t				InitialBufferDataStrength() { return 3500; }
 
-	virtual size_t				InitialTurnsToConstruct() { return 2; };
+	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	virtual size_t				InitialDataStrength() { return InitialBufferDataStrength(); };
 	virtual size_t				InitialFleetPoints() const { return 2; };
 	virtual float				InitialBandwidth() const { return 1; };
@@ -50,7 +50,7 @@ public:
 
 	static size_t				InitialMiniBufferDataStrength() { return 2000; }
 
-	virtual size_t				InitialTurnsToConstruct() { return 1; };
+	virtual size_t				InitialTurnsToConstruct() { return 0; };
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	virtual size_t				InitialDataStrength() { return InitialMiniBufferDataStrength(); };
 	virtual size_t				InitialFleetPoints() const { return 1; };

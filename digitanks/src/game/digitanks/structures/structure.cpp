@@ -109,6 +109,9 @@ void CStructure::Think()
 
 	if (IsAlive())
 		FindGround();
+
+	if (m_flConstructionStartTime && GameServer()->GetGameTime() - m_flConstructionStartTime > 3)
+		m_flConstructionStartTime = 0;
 }
 
 void CStructure::OnTeamChange()
@@ -200,7 +203,7 @@ void CStructure::PostRender(bool bTransparent)
 {
 	BaseClass::PostRender(bTransparent);
 
-	if (bTransparent && (IsConstructing() || IsUpgrading()) && GetVisibility() > 0)
+	if (bTransparent && (m_flConstructionStartTime > 0) && GetVisibility() > 0)
 	{
 		CRenderingContext c(GameServer()->GetRenderer());
 		c.Translate(GetOrigin());
@@ -397,11 +400,23 @@ size_t CStructure::GetTurnsToConstruct(Vector vecSpot)
 
 	// Location location location!
 	if (DigitanksGame()->GetTerrain()->IsPointInTrees(vecSpot))
+	{
 		iTurns = (size_t)(iTurns*1.5f);
+		if (iTurns < 1)
+			iTurns = 1;
+	}
 	else if (DigitanksGame()->GetTerrain()->IsPointOverWater(vecSpot))
+	{
 		iTurns = (size_t)(iTurns*2.0f);
+		if (iTurns < 2)
+			iTurns = 2;
+	}
 	else if (DigitanksGame()->GetTerrain()->IsPointOverLava(vecSpot))
+	{
 		iTurns = (size_t)(iTurns*2.5f);
+		if (iTurns < 2)
+			iTurns = 2;
+	}
 
 	return iTurns;
 }

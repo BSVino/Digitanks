@@ -1638,12 +1638,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 	for (size_t i = 0; i < m_apActionItemButtons.size(); i++)
 	{
-		if (i >= m_apActionItemButtons.size())
+		if (i >= m_apActionItemButtons.size() || i >= DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumActionItems())
 			break;
 
 		CPictureButton* pButton = m_apActionItemButtons[i];
 
 		if (!pButton)
+			continue;
+
+		if (!DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i))
 			continue;
 
 		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetActionItem(i)->bHandled)

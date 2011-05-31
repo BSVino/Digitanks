@@ -607,10 +607,11 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 
 	if (m_pTutorial->m_sButton1Text.length() > 0)
 	{
-		m_pButton1 = new CButton(0, 0, 60, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton1Text));
+		m_pButton1 = new CButton(0, 0, 70, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton1Text));
 		m_pButton1->SetButtonColor(g_clrPanel);
 		m_pButton1->SetFont(L"text");
 		m_pButton1->SetClickedListener(this, Button1);
+		m_pButton1->SetWrap(false);
 		AddControl(m_pButton1);
 	}
 	else
@@ -618,10 +619,11 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 
 	if (m_pTutorial->m_sButton2Text.length() > 0)
 	{
-		m_pButton2 = new CButton(0, 0, 60, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton2Text));
+		m_pButton2 = new CButton(0, 0, 70, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton2Text));
 		m_pButton2->SetButtonColor(g_clrPanel);
 		m_pButton2->SetFont(L"text");
 		m_pButton2->SetClickedListener(this, Button2);
+		m_pButton2->SetWrap(false);
 		AddControl(m_pButton2);
 	}
 	else

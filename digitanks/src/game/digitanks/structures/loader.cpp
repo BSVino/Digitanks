@@ -218,19 +218,16 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 
 	GetDigitanksTeam()->CountFleetPoints();
 	GetDigitanksTeam()->CountProducers();
-
-	if (CNetwork::IsHost())
-		CompleteProduction();
 }
 
 void CLoader::CompleteProduction()
 {
-/*	if (GetBuildUnit() == UNIT_INFANTRY)
+	if (GetBuildUnit() == UNIT_INFANTRY)
 		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Resistor");
 	else if (GetBuildUnit() == UNIT_TANK)
 		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Digitank");
 	else if (GetBuildUnit() == UNIT_ARTILLERY)
-		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Artillery");*/
+		GetDigitanksTeam()->AppendTurnInfo(L"Production finished on Artillery");
 
 	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 
@@ -362,25 +359,25 @@ bool CLoader::HasEnoughPower()
 size_t CLoader::InitialTurnsToConstruct()
 {
 	if (m_eBuildUnit == UNIT_INFANTRY)
-		return 2;
+		return 1;
 	else if (m_eBuildUnit == UNIT_ARTILLERY)
-		return 3;
+		return 2;
 	else if (m_eBuildUnit == UNIT_TANK)
-		return 3;
+		return 2;
 
-	return 2;
+	return 1;
 }
 
 size_t CLoader::GetTurnsToProduce()
 {
 	if (m_eBuildUnit == UNIT_INFANTRY)
-		return 2;
+		return 1;
 
 	if (m_eBuildUnit == UNIT_TANK)
-		return 4;
+		return 2;
 
 	if (m_eBuildUnit == UNIT_ARTILLERY)
-		return 5;
+		return 2;
 
 	return 2;
 }

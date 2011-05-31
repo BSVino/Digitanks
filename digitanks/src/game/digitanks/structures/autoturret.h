@@ -34,7 +34,7 @@ public:
 	virtual int					GetNumAvailableAreas() const { return 2; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 
-	virtual size_t				InitialTurnsToConstruct() { return 2; };
+	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	virtual float				TotalHealth() const { return 150; };
 
 	virtual eastl::string16		GetEntityName() { return L"Firewall"; };

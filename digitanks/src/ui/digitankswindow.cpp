@@ -392,6 +392,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	glgui::CRootPanel::Get()->Layout();
 
 	m_pMainMenu->SetVisible(eGameType == GAMETYPE_MENU);
+	m_pVictory->SetVisible(false);
 }
 
 void CDigitanksWindow::DestroyGame()

@@ -72,7 +72,7 @@ void CCollector::UpdateInfo(eastl::string16& s)
 	if (IsConstructing())
 	{
 		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", InitialTurnsToConstruct());
+		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
