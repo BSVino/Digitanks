@@ -261,6 +261,7 @@ public:
 	void						ClearHintWeapon() { m_hHintWeapon = NULL; };
 
 	void						CloseWeaponPanel();
+	class CWeaponPanel*			GetWeaponPanel() { return m_pWeaponPanel; };
 
 	Rect						GetButtonDimensions(size_t i);
 

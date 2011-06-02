@@ -24,6 +24,7 @@
 #include "terrain.h"
 #include "dt_camera.h"
 #include <ui/chatbox.h>
+#include <ui/weaponpanel.h>
 
 #include "digitanks/menumarcher.h"
 #include "digitanks/units/standardtank.h"
@@ -1381,6 +1382,47 @@ void CDigitanksGame::Think()
 		m_flShowArtilleryTutorial = 0;
 	}
 
+	if (DigitanksWindow()->ShouldUseContextualCommands())
+	{
+		CDigitank* pSelection = GetCurrentLocalDigitanksTeam()->GetPrimarySelectionTank();
+
+		if (DigitanksWindow()->GetHUD()->GetWeaponPanel() && DigitanksWindow()->GetHUD()->GetWeaponPanel()->IsVisible())
+			SetControlMode(MODE_NONE);
+		else if (pSelection)
+		{
+			CBaseEntity* pHit = NULL;
+			Vector vecEntityPoint;
+
+			bool bMouseOnGrid = DigitanksWindow()->GetMouseGridPosition(vecEntityPoint, &pHit);
+
+			if (pHit)
+			{
+				CDigitanksEntity* pDTEntity = dynamic_cast<CDigitanksEntity*>(pHit);
+				if (pDTEntity)
+				{
+					if (pDTEntity->GetDigitanksTeam() != pSelection->GetDigitanksTeam())
+					{
+						SetControlMode(MODE_AIM);
+						SetAimTypeByWeapon(pSelection->GetCurrentWeapon());
+						if (pSelection->GetCurrentWeapon() == WEAPON_CHARGERAM)
+							pSelection->SetPreviewCharge(pHit);
+						else
+							pSelection->SetPreviewAim(vecEntityPoint);
+					}
+					else
+						SetControlMode(MODE_NONE);
+				}
+				else
+				{
+					SetControlMode(MODE_MOVE);
+					pSelection->SetPreviewMove(vecEntityPoint);
+				}
+			}
+			else
+				SetControlMode(MODE_NONE);
+		}
+	}
+
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
@@ -2321,6 +2363,8 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 
 	if (eMode == MODE_AIM)
 		DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-turret-spotted");
+
+	DigitanksWindow()->GetHUD()->SetupMenu();
 }
 
 aimtype_t CDigitanksGame::GetAimType()

@@ -1367,6 +1367,15 @@ COptionsPanel::COptionsPanel()
 	m_pConstrainLabel->SetFont(L"text");
 	AddControl(m_pConstrainLabel);
 
+	m_pContextual = new CCheckBox();
+	m_pContextual->SetClickedListener(this, ContextualChanged);
+	m_pContextual->SetUnclickedListener(this, ContextualChanged);
+	AddControl(m_pContextual);
+
+	m_pContextualLabel = new CLabel(0, 0, 100, 100, L"Contextual mouse commands");
+	m_pContextualLabel->SetFont(L"text");
+	AddControl(m_pContextualLabel);
+
 	m_pClose = new CButton(0, 0, 100, 100, L"X");
 	m_pClose->SetClickedListener(this, Close);
 	AddControl(m_pClose);
@@ -1443,6 +1452,14 @@ void COptionsPanel::Layout()
 	m_pConstrainLabel->SetPos(GetWidth()/2 - m_pConstrainLabel->GetWidth()/2 + 10 + 40, GetHeight()-130);
 	m_pConstrain->SetPos(m_pConstrainLabel->GetLeft() - 15, GetHeight()-130 + m_pConstrainLabel->GetHeight()/2 - m_pConstrain->GetHeight()/2);
 	m_pConstrain->SetState(DigitanksWindow()->WantsConstrainMouse(), false);
+
+	m_pContextualLabel->SetWrap(false);
+	m_pContextualLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pContextualLabel->SetSize(10, 10);
+	m_pContextualLabel->EnsureTextFits();
+	m_pContextualLabel->SetPos(GetWidth()/2 - m_pContextualLabel->GetWidth()/2 + 10 + 40, GetHeight()-100);
+	m_pContextual->SetPos(m_pContextualLabel->GetLeft() - 15, GetHeight()-100 + m_pContextualLabel->GetHeight()/2 - m_pContextual->GetHeight()/2);
+	m_pContextual->SetState(DigitanksWindow()->WantsContextualCommands(), false);
 
 	BaseClass::Layout();
 
@@ -1521,6 +1538,12 @@ void COptionsPanel::ShadersChangedCallback()
 void COptionsPanel::ConstrainChangedCallback()
 {
 	DigitanksWindow()->SetConstrainMouse(m_pConstrain->GetState());
+	DigitanksWindow()->SaveConfig();
+}
+
+void COptionsPanel::ContextualChangedCallback()
+{
+	DigitanksWindow()->SetContextualCommands(m_pContextual->GetState());
 	DigitanksWindow()->SaveConfig();
 }
 

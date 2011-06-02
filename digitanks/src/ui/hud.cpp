@@ -3592,6 +3592,8 @@ void CHUD::MoveCallback()
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("mission-1-move-mode");
 
+	DigitanksWindow()->SetContextualCommandsOverride(true);
+
 	SetupMenu();
 }
 
@@ -3621,6 +3623,8 @@ void CHUD::TurnCallback()
 	else
 		DigitanksGame()->SetControlMode(MODE_TURN);
 
+	DigitanksWindow()->SetContextualCommandsOverride(true);
+
 	SetupMenu();
 }
 
@@ -3645,6 +3649,8 @@ void CHUD::AimCallback()
 		DigitanksGame()->SetControlMode(MODE_AIM);
 		DigitanksGame()->SetAimTypeByWeapon(pTank->GetCurrentWeapon());
 	}
+
+	DigitanksWindow()->SetContextualCommandsOverride(true);
 
 	SetupMenu();
 }

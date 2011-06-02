@@ -1130,6 +1130,8 @@ void CDigitank::Turn()
 	p.ui1 = GetHandle();
 	p.fl2 = m_flPreviewTurn;
 	Turn(&p);
+
+	DigitanksWindow()->SetContextualCommandsOverride(true);
 }
 
 void CDigitank::Turn(CNetworkParameters* p)
@@ -1449,6 +1451,7 @@ void CDigitank::Charge()
 	::Charge.RunCommand(sprintf(L"%d %d", GetHandle(), m_hPreviewCharge->GetHandle()));
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
+	DigitanksWindow()->SetContextualCommandsOverride(true);
 }
 
 void CDigitank::Charge(CBaseEntity* pTarget)
@@ -2335,6 +2338,8 @@ void CDigitank::Fire()
 	p.fl3 = m_vecPreviewAim.y;
 	p.fl4 = m_vecPreviewAim.z;
 	Fire(&p);
+
+	DigitanksWindow()->SetContextualCommandsOverride(true);
 }
 
 void CDigitank::Fire(CNetworkParameters* p)

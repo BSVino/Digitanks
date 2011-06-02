@@ -187,6 +187,8 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 {
 	m_aiCurrentSelection.clear();
 
+	DigitanksWindow()->SetContextualCommandsOverride(false);
+
 	if (!pCurrent)
 	{
 		DigitanksGame()->SetControlMode(MODE_NONE);

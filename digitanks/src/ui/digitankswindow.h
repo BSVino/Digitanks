@@ -88,6 +88,11 @@ public:
 	bool						ShouldConstrainMouse();
 	bool						WantsConstrainMouse() { return m_bConstrainMouse; };
 
+	void						SetContextualCommands(bool b) { m_bContextualCommands = b; };
+	void						SetContextualCommandsOverride(bool b) { m_bContextualCommandsOverride = b; };
+	bool						WantsContextualCommands() { return m_bContextualCommands; };
+	bool						ShouldUseContextualCommands() { return m_bContextualCommands && !m_bContextualCommandsOverride; };
+
 	void						SetWantsFramebuffers(bool bWantsFramebuffers) { m_bWantsFramebuffers = bWantsFramebuffers; }
 	bool						WantsFramebuffers() { return m_bWantsFramebuffers; }
 
@@ -179,6 +184,8 @@ protected:
 	int							m_iCfgWidth;
 	int							m_iCfgHeight;
 	bool						m_bConstrainMouse;
+	bool						m_bContextualCommands;
+	bool						m_bContextualCommandsOverride;
 	bool						m_bWantsFramebuffers;
 	bool						m_bWantsShaders;
 	eastl::string16				m_sNickname;

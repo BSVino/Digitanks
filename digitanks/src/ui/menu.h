@@ -264,6 +264,7 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	FramebuffersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ShadersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ConstrainChanged);
+	EVENT_CALLBACK(COptionsPanel,	ContextualChanged);
 	EVENT_CALLBACK(COptionsPanel,	Close);
 
 protected:
@@ -289,6 +290,9 @@ protected:
 
 	glgui::CCheckBox*				m_pConstrain;
 	glgui::CLabel*					m_pConstrainLabel;
+
+	glgui::CCheckBox*				m_pContextual;
+	glgui::CLabel*					m_pContextualLabel;
 
 	glgui::CLabel*					m_pVideoChangedNotice;
 
