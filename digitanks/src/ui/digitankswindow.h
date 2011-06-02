@@ -93,6 +93,9 @@ public:
 	bool						WantsContextualCommands() { return m_bContextualCommands; };
 	bool						ShouldUseContextualCommands() { return m_bContextualCommands && !m_bContextualCommandsOverride; };
 
+	void						SetReverseSpacebar(bool b) { m_bReverseSpacebar = b; };
+	bool						ShouldReverseSpacebar() { return m_bReverseSpacebar; };
+
 	void						SetWantsFramebuffers(bool bWantsFramebuffers) { m_bWantsFramebuffers = bWantsFramebuffers; }
 	bool						WantsFramebuffers() { return m_bWantsFramebuffers; }
 
@@ -186,6 +189,7 @@ protected:
 	bool						m_bConstrainMouse;
 	bool						m_bContextualCommands;
 	bool						m_bContextualCommandsOverride;
+	bool						m_bReverseSpacebar;
 	bool						m_bWantsFramebuffers;
 	bool						m_bWantsShaders;
 	eastl::string16				m_sNickname;

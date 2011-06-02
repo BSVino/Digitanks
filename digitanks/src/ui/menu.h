@@ -265,6 +265,7 @@ public:
 	EVENT_CALLBACK(COptionsPanel,	ShadersChanged);
 	EVENT_CALLBACK(COptionsPanel,	ConstrainChanged);
 	EVENT_CALLBACK(COptionsPanel,	ContextualChanged);
+	EVENT_CALLBACK(COptionsPanel,	ReverseSpacebarChanged);
 	EVENT_CALLBACK(COptionsPanel,	Close);
 
 protected:
@@ -293,6 +294,9 @@ protected:
 
 	glgui::CCheckBox*				m_pContextual;
 	glgui::CLabel*					m_pContextualLabel;
+
+	glgui::CCheckBox*				m_pReverseSpacebar;
+	glgui::CLabel*					m_pReverseSpacebarLabel;
 
 	glgui::CLabel*					m_pVideoChangedNotice;
 

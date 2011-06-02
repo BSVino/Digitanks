@@ -1376,6 +1376,15 @@ COptionsPanel::COptionsPanel()
 	m_pContextualLabel->SetFont(L"text");
 	AddControl(m_pContextualLabel);
 
+	m_pReverseSpacebar = new CCheckBox();
+	m_pReverseSpacebar->SetClickedListener(this, ReverseSpacebarChanged);
+	m_pReverseSpacebar->SetUnclickedListener(this, ReverseSpacebarChanged);
+	AddControl(m_pReverseSpacebar);
+
+	m_pReverseSpacebarLabel = new CLabel(0, 0, 100, 100, L"Reverse spacebar drag");
+	m_pReverseSpacebarLabel->SetFont(L"text");
+	AddControl(m_pReverseSpacebarLabel);
+
 	m_pClose = new CButton(0, 0, 100, 100, L"X");
 	m_pClose->SetClickedListener(this, Close);
 	AddControl(m_pClose);
@@ -1461,6 +1470,14 @@ void COptionsPanel::Layout()
 	m_pContextual->SetPos(m_pContextualLabel->GetLeft() - 15, GetHeight()-100 + m_pContextualLabel->GetHeight()/2 - m_pContextual->GetHeight()/2);
 	m_pContextual->SetState(DigitanksWindow()->WantsContextualCommands(), false);
 
+	m_pReverseSpacebarLabel->SetWrap(false);
+	m_pReverseSpacebarLabel->SetAlign(CLabel::TA_LEFTCENTER);
+	m_pReverseSpacebarLabel->SetSize(10, 10);
+	m_pReverseSpacebarLabel->EnsureTextFits();
+	m_pReverseSpacebarLabel->SetPos(GetWidth()/2 - m_pReverseSpacebarLabel->GetWidth()/2 + 10 + 40, GetHeight()-70);
+	m_pReverseSpacebar->SetPos(m_pReverseSpacebarLabel->GetLeft() - 15, GetHeight()-70 + m_pReverseSpacebarLabel->GetHeight()/2 - m_pReverseSpacebar->GetHeight()/2);
+	m_pReverseSpacebar->SetState(DigitanksWindow()->ShouldReverseSpacebar(), false);
+
 	BaseClass::Layout();
 
 	m_pClose->SetPos(GetWidth()-20, 10);
@@ -1544,6 +1561,12 @@ void COptionsPanel::ConstrainChangedCallback()
 void COptionsPanel::ContextualChangedCallback()
 {
 	DigitanksWindow()->SetContextualCommands(m_pContextual->GetState());
+	DigitanksWindow()->SaveConfig();
+}
+
+void COptionsPanel::ReverseSpacebarChangedCallback()
+{
+	DigitanksWindow()->SetReverseSpacebar(m_pReverseSpacebar->GetState());
 	DigitanksWindow()->SaveConfig();
 }
 

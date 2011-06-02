@@ -69,6 +69,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bConstrainMouse = c.read<bool>(L"constrainmouse", true);
 
 		m_bContextualCommands = c.read<bool>(L"contextualcommands", false);
+		m_bReverseSpacebar = c.read<bool>(L"reversespacebar", false);
 
 		m_bWantsFramebuffers = c.read<bool>(L"useframebuffers", true);
 		m_bWantsShaders = c.read<bool>(L"useshaders", true);
@@ -90,6 +91,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_bConstrainMouse = true;
 
 		m_bContextualCommands = false;
+		m_bReverseSpacebar = false;
 
 		m_bWantsFramebuffers = true;
 		m_bWantsShaders = true;
@@ -680,6 +682,7 @@ void CDigitanksWindow::SaveConfig()
 	c.add<bool>(L"windowed", !m_bCfgFullscreen);
 	c.add<bool>(L"constrainmouse", m_bConstrainMouse);
 	c.add<bool>(L"contextualcommands", m_bContextualCommands);
+	c.add<bool>(L"reversespacebar", m_bReverseSpacebar);
 	c.add<bool>(L"useframebuffers", m_bWantsFramebuffers);
 	c.add<bool>(L"useshaders", m_bWantsShaders);
 	c.add<int>(L"width", m_iCfgWidth);

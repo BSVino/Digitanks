@@ -691,6 +691,8 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		if (m_bFastDraggingCamera)
 			flStrength = 4;
 
+		flStrength *= DigitanksWindow()->ShouldReverseSpacebar()?-1:1;
+
 		Vector vecVelocity = mRotation * Vector((float)dy*flStrength, 0, (float)-dx*flStrength);
 
 		SetTarget(m_vecTarget + vecVelocity);
