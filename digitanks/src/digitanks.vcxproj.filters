@@ -405,6 +405,9 @@
     <ClCompile Include="game\digitanks\dt_lobbylistener.cpp">
       <Filter>Source Files\digitanks</Filter>
     </ClCompile>
+    <ClCompile Include="game\digitanks\campaign\campaignentity.cpp">
+      <Filter>Source Files\digitanks\campaign</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -703,6 +706,9 @@
     </ClInclude>
     <ClInclude Include="game\digitanks\dt_lobbylistener.h">
       <Filter>Source Files\digitanks</Filter>
+    </ClInclude>
+    <ClInclude Include="game\digitanks\campaign\campaignentity.h">
+      <Filter>Source Files\digitanks\campaign</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

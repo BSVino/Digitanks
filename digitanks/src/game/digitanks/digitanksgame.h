@@ -249,6 +249,7 @@ public:
 
 	CDigitanksTeam*			GetCurrentLocalDigitanksTeam();
 
+	void					SetCurrentLevel(eastl::string sLevel);
 	class CDigitanksLevel*	GetCurrentLevel() { return m_pLevel; };
 
 protected:

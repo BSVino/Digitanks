@@ -19,6 +19,8 @@ public:
 	size_t							GetCurrentLevel() { return m_iCurrentLevel; };
 	eastl::string					GetCurrentLevelFile();
 
+	eastl::string					GetLevel(size_t i);
+
 	void							NewCampaign();
 
 	void							ReadData(const eastl::string16& sFile);

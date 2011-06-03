@@ -45,6 +45,7 @@
 #include "digitanks/digitankslevel.h"
 #include "digitanks/campaign/userfile.h"
 #include "digitanks/instructor_entity.h"
+#include "digitanks/campaign/campaignentity.h"
 
 CGame* CreateGame()
 {
@@ -907,6 +908,8 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 
 	m_sObjective = convertstring<char, char16_t>(m_pLevel->GetObjective());
+
+	GameServer()->Create<CCampaignEntity>("CCampaignEntity");
 
 	if (!bReload)
 	{
@@ -2938,6 +2941,12 @@ CDigitanksTeam* CDigitanksGame::GetCurrentLocalDigitanksTeam()
 	}
 
 	return NULL;
+}
+
+void CDigitanksGame::SetCurrentLevel(eastl::string sLevel)
+{
+	CVar::SetCVar("game_level", sLevel);
+	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 }
 
 bool CDigitanksGame::SoftCraters()

@@ -35,6 +35,14 @@ eastl::string CCampaignData::GetCurrentLevelFile()
 	return m_pCampaignInfo->m_asLevels[m_iCurrentLevel];
 }
 
+eastl::string CCampaignData::GetLevel(size_t i)
+{
+	if (i >= m_pCampaignInfo->m_asLevels.size())
+		return "";
+
+	return m_pCampaignInfo->m_asLevels[i];
+}
+
 void CCampaignData::ReadData(const eastl::string16& sFile)
 {
 	std::ifstream f(sFile.c_str());

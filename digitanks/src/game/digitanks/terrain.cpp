@@ -32,6 +32,10 @@ REGISTER_ENTITY(CTerrain);
 NETVAR_TABLE_BEGIN(CTerrain);
 	NETVAR_DEFINE(float, m_flHighest);
 	NETVAR_DEFINE(float, m_flLowest);
+	NETVAR_DEFINE(size_t, m_iMinX);
+	NETVAR_DEFINE(size_t, m_iMaxX);
+	NETVAR_DEFINE(size_t, m_iMinY);
+	NETVAR_DEFINE(size_t, m_iMaxY);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTerrain);
@@ -41,10 +45,10 @@ SAVEDATA_TABLE_BEGIN(CTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecTerrainColor);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYARRAY, Vector, m_avecQuadMods);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CTerrainChunk, m_aTerrainChunks);	// Onserialize
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMinX);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMaxX);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMinY);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iMaxY);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iMinX);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iMaxX);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iMinY);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iMaxY);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flNextThink);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkX);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iThinkChunkY);

@@ -207,6 +207,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "\My Dropb
     <ClCompile Include="..\..\tinker\register.cpp" />
     <ClCompile Include="game\digitanks\bot_campaign.cpp" />
     <ClCompile Include="game\digitanks\campaign\campaigndata.cpp" />
+    <ClCompile Include="game\digitanks\campaign\campaignentity.cpp" />
     <ClCompile Include="game\digitanks\campaign\campaigninfo.cpp" />
     <ClCompile Include="game\digitanks\campaign\userfile.cpp" />
     <ClCompile Include="game\digitanks\digitankslevel.cpp" />
@@ -331,6 +332,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "\My Dropb
     <ClInclude Include="..\..\tinker\profiler.h" />
     <ClInclude Include="dt_version.h" />
     <ClInclude Include="game\digitanks\campaign\campaigndata.h" />
+    <ClInclude Include="game\digitanks\campaign\campaignentity.h" />
     <ClInclude Include="game\digitanks\campaign\campaigninfo.h" />
     <ClInclude Include="game\digitanks\campaign\userfile.h" />
     <ClInclude Include="game\digitanks\digitankslevel.h" />

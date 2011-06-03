@@ -660,13 +660,16 @@ void CBaseEntity::CheckTables(char* pszEntity)
 
 	for (size_t i = 0; i < aSaveData.size(); i++)
 	{
-		CNetworkedVariableData* pVariable = GetNetworkVariable(aSaveData[i].m_pszVariableName);
-		if (aSaveData[i].m_eType == CSaveData::DATA_NETVAR)
+		CSaveData* pSaveData = &aSaveData[i];
+		CNetworkedVariableData* pVariable = GetNetworkVariable(pSaveData->m_pszVariableName);
+		if (pSaveData->m_eType == CSaveData::DATA_NETVAR)
 			// I better be finding this in the network tables or yer gon have some 'splainin to do!
 			TAssert(pVariable)
 		else
+		{
 			// I better NOT be finding this in the network tables or yer gon have some 'splainin to do!
 			TAssert(!pVariable);
+		}
 	}
 }
 
