@@ -1385,7 +1385,7 @@ void CDigitanksGame::Think()
 		m_flShowArtilleryTutorial = 0;
 	}
 
-	if (DigitanksWindow()->ShouldUseContextualCommands())
+	if (DigitanksWindow()->ShouldUseContextualCommands() && GetCurrentLocalDigitanksTeam())
 	{
 		CDigitank* pSelection = GetCurrentLocalDigitanksTeam()->GetPrimarySelectionTank();
 

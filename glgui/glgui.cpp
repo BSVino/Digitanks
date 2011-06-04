@@ -758,6 +758,7 @@ CLabel::CLabel(int x, int y, int w, int h, const eastl::string16& sText, const e
 	m_iTotalLines = 0;
 	m_eAlign = TA_MIDDLECENTER;
 	m_FGColor = Color(255, 255, 255, 255);
+	m_bScissor = false;
 
 	SetFont(sFont, iSize);
 
@@ -781,6 +782,14 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_LIGHTING);
+
+	if (m_bScissor)
+	{
+		int cx, cy;
+		GetAbsPos(cx, cy);
+		glScissor(cx, glgui::CRootPanel::Get()->GetHeight()-cy-GetHeight()-3, GetWidth(), GetHeight()+3);
+		glEnable(GL_SCISSOR_TEST);
+	}
 
 	Color FGColor = m_FGColor;
 	if (!m_bEnabled)
@@ -857,6 +866,9 @@ void CLabel::Paint(int x, int y, int w, int h)
 	}
 
 	free(pszText);
+
+	if (m_bScissor)
+		glDisable(GL_SCISSOR_TEST);
 
 	glPopAttrib();
 
@@ -1114,6 +1126,11 @@ void CLabel::SetAlpha(float a)
 {
 	CBaseControl::SetAlpha((int)(255*a));
 	m_FGColor.SetAlpha((int)(255*a));
+}
+
+void CLabel::SetScissor(bool bScissor)
+{
+	m_bScissor = bScissor;
 }
 
 ::FTFont* CLabel::GetFont(const eastl::string16& sName, size_t iSize)

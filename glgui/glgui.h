@@ -497,6 +497,8 @@ namespace glgui
 		virtual void	SetAlpha(int a);
 		virtual void	SetAlpha(float a);
 
+		virtual void	SetScissor(bool bScissor); // 61
+
 		static class ::FTFont*	GetFont(const eastl::string16& sName, size_t iSize);
 		static void		AddFont(const eastl::string16& sName, const eastl::string16& sFile);
 		static void		AddFontSize(const eastl::string16& sName, size_t iSize);
@@ -511,6 +513,7 @@ namespace glgui
 		bool			m_bWrap;
 		eastl::string16	m_sText;
 		Color			m_FGColor;
+		bool			m_bScissor;
 
 		TextAlign		m_eAlign;
 

@@ -335,9 +335,6 @@ void CDigitanksWindow::KeyPress(int c)
 		}
 	}
 
-	if (c == 'Y')
-		DigitanksWindow()->OpenChat();
-
 	if (c == 'Q')
 		GetHUD()->ButtonCallback(0);
 
@@ -424,6 +421,12 @@ void CDigitanksWindow::CharPress(int c)
 	if (c == '`')
 	{
 		ToggleConsole();
+		return;
+	}
+
+	if (c == 'y' && !DigitanksWindow()->IsChatOpen())
+	{
+		DigitanksWindow()->OpenChat();
 		return;
 	}
 

@@ -22,7 +22,8 @@ CLIENT_COMMAND(ClientChatSay)
 	// Once the server gets it, send it to all of the clients, but with the speaker's name in there.
 
 	eastl::string16 sName;
-	if (iClient < 0)
+	int iIntClient = iClient;
+	if (iIntClient < 0)
 	{
 		if (Game()->GetNumLocalTeams() > 0)
 			sName = Game()->GetLocalTeam(0)->GetTeamName();
@@ -33,7 +34,7 @@ CLIENT_COMMAND(ClientChatSay)
 	{
 		if (CGameLobbyServer::GetActiveLobbies())
 		{
-			size_t iLobby = CGameLobbyServer::GetPlayerLobby(iClient);
+			size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
 			CGameLobby* pLobby = CGameLobbyServer::GetLobby(iLobby);
 			if (pLobby)
 			{
@@ -46,7 +47,10 @@ CLIENT_COMMAND(ClientChatSay)
 		{
 			for (size_t i = 0; i < Game()->GetNumTeams(); i++)
 			{
-				if (Game()->GetTeam(i)->GetClient() == iClient)
+				if (iIntClient < 0 && !Game()->GetTeam(i)->IsPlayerControlled())
+					continue;
+
+				if (Game()->GetTeam(i)->GetClient() == iIntClient)
 				{
 					sName = Game()->GetTeam(i)->GetTeamName();
 					break;
@@ -81,6 +85,7 @@ CChatBox::CChatBox(bool bFloating)
 
 	m_pOutput = new glgui::CLabel(0, 0, 100, 100, L"");
 	m_pOutput->SetAlign(glgui::CLabel::TA_BOTTOMLEFT);
+	m_pOutput->SetScissor(true);
 	AddControl(m_pOutput);
 
 	m_pInput = new glgui::CTextField();
