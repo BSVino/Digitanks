@@ -368,6 +368,9 @@ void CDigitanksWindow::KeyPress(int c)
 	if (c == 'G')
 		GetHUD()->ButtonCallback(9);
 
+	if (!DigitanksGame())
+		return;
+
 	if (!DigitanksGame()->AllowCheats())
 		return;
 
