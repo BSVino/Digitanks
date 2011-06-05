@@ -130,6 +130,9 @@ void CProjectile::Think()
 
 	m_hTrailParticles.SetActive(m_bShouldRender && m_flTimeExploded == 0.0f);
 
+	if (!CNetwork::IsHost())
+		return;
+
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
 		Delete();
 

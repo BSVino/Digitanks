@@ -2360,6 +2360,9 @@ void CDigitanksGame::SetControlMode(controlmode_t eMode)
 	if (!GetPrimarySelection()->AllowControlMode(eMode))
 		return;
 
+	if (m_eControlMode == eMode)
+		return;
+
 	GetPrimarySelection()->OnControlModeChange(m_eControlMode, eMode);
 
 	m_eControlMode = eMode;

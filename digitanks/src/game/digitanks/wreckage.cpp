@@ -179,6 +179,9 @@ void CDebris::Think()
 {
 	BaseClass::Think();
 
+	if (!CNetwork::IsHost())
+		return;
+
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z))
 		Delete();
 
@@ -188,6 +191,9 @@ void CDebris::Think()
 
 void CDebris::Touching(CBaseEntity* pOther)
 {
+	if (!CNetwork::IsHost())
+		return;
+
 	if (dynamic_cast<CTerrain*>(pOther))
 		Delete();
 }
