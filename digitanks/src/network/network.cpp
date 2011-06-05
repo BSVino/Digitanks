@@ -23,8 +23,8 @@ static ENetPeer* g_pClientPeer = NULL;
 static ENetHost* g_pServer = NULL;
 static eastl::vector<ENetPeer*> g_apServerPeers;
 static bool g_bIsRunningClientFunctions = false;
-static size_t g_iCurrentClient = 0;
-static size_t g_iClientID = 0;
+static size_t g_iCurrentClient = ~0;
+static size_t g_iClientID = ~0;
 
 SERVER_COMMAND(SetClientID)
 {
@@ -221,8 +221,6 @@ void CNetwork::Disconnect(bool bForced)
 		}
 	}
 
-	g_iClientID = ~0;
-
 	if (g_pClient)
 	{
 		if (!bForced)
@@ -245,6 +243,8 @@ void CNetwork::Disconnect(bool bForced)
 		enet_host_destroy(g_pServer);
 		g_pServer = NULL;
 	}
+
+	g_iClientID = ~0;
 
 	s_bConnected = false;
 }
