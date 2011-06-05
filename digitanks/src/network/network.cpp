@@ -257,6 +257,8 @@ void CNetwork::DisconnectClient(int iClient)
 	if ((size_t)iClient >= g_apServerPeers.size())
 		return;
 
+	ForceDisconnect.RunCommand(L"", iClient);
+
 	enet_peer_reset(g_apServerPeers[iClient]);
 
 	g_apServerPeers[iClient] = NULL;

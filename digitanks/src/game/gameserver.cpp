@@ -858,3 +858,39 @@ CGame* CGameServer::GetGame()
 {
 	return m_hGame;
 }
+
+void ShowStatus(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+{
+	TMsg(eastl::string("Level: ") + CVar::GetCVarValue("game_level") + "\n");
+	TMsg(convertstring<char16_t, char>(sprintf(L"Clients: %d Entities: %d/%d\n", CNetwork::GetClientsConnected(), CBaseEntity::GetNumEntities(), GameServer()->GetMaxEntities())));
+
+	for (size_t i = 0; i < Game()->GetNumTeams(); i++)
+	{
+		CTeam* pTeam = Game()->GetTeam(i);
+		if (!pTeam)
+			continue;
+
+		if (!pTeam->IsPlayerControlled())
+			TMsg("Bot: ");
+		else if (pTeam->GetClient() < 0)
+			TMsg("Local: ");
+		else
+			TMsg(convertstring<char16_t, char>(sprintf(L"%d: ", pTeam->GetClient())));
+
+		TMsg(pTeam->GetTeamName());
+
+		TMsg("\n");
+	}
+}
+
+CCommand status(L"status", ::ShowStatus);
+
+void KickPlayer(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+{
+	if (!asTokens.size())
+		return;
+
+	CNetwork::DisconnectClient(_wtoi(asTokens[0].c_str()));
+}
+
+CCommand kick(L"kick", ::KickPlayer);
