@@ -2950,6 +2950,9 @@ void CDigitanksGame::SetCurrentLevel(eastl::string sLevel)
 	CVar::SetCVar("game_level", sLevel);
 	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
 
+	if (!m_pLevel)
+		return;
+
 	m_bLevelAllowsBuffers = m_pLevel->AllowBuffers();
 	m_bLevelAllowsPSUs = m_pLevel->AllowPSUs();
 	m_bLevelAllowsTankLoaders = m_pLevel->AllowTankLoaders();
