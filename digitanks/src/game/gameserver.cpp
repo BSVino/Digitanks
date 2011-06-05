@@ -683,8 +683,7 @@ size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_
 
 void CGameServer::Delete(CBaseEntity* pEntity)
 {
-	if (!CNetwork::ShouldRunClientFunction())
-		return;
+	TAssert(CNetwork::IsHost() || IsLoading());
 
 	if (CNetwork::IsHost())
 		CNetwork::CallFunction(NETWORK_TOCLIENTS, "DestroyEntity", pEntity->GetHandle());

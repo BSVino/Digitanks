@@ -127,6 +127,9 @@ void CDigitanksRenderer::StartRendering()
 
 void CDigitanksRenderer::RenderSkybox()
 {
+	if (!DigitanksGame())
+		return;
+
 	if (DigitanksGame()->GetGameType() == GAMETYPE_MENU || DigitanksGame()->GetGameType() == GAMETYPE_EMPTY)
 		return;
 
@@ -372,6 +375,9 @@ void CDigitanksRenderer::FinishRendering()
 
 void CDigitanksRenderer::SetupSceneShader()
 {
+	if (!DigitanksGame())
+		return;
+
 	if (!DigitanksGame()->GetDigitanksCamera()->HasCameraGuidedMissile())
 		return;
 
@@ -392,6 +398,9 @@ void CDigitanksRenderer::SetupSceneShader()
 void CDigitanksRenderer::RenderPreviewModes()
 {
 	TPROF("CDigitanksRenderer::RenderPreviewModes");
+
+	if (!DigitanksGame())
+		return;
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 	CSelectable* pCurrentSelection = DigitanksGame()->GetPrimarySelection();
@@ -689,6 +698,9 @@ CVar r_fogofwar("r_fogofwar", "1");
 
 void CDigitanksRenderer::RenderFogOfWar()
 {
+	if (!DigitanksGame())
+		return;
+
 	if (!DigitanksGame()->ShouldRenderFogOfWar() || !ShouldUseFramebuffers() || !ShouldUseShaders())
 		return;
 
@@ -764,6 +776,9 @@ void CDigitanksRenderer::RenderFogOfWar()
 void CDigitanksRenderer::RenderAvailableAreas()
 {
 	if (!HardwareSupportsFramebuffers())
+		return;
+
+	if (!DigitanksGame())
 		return;
 
 	TPROF("CDigitanksRenderer::RenderAvailableAreas");
@@ -844,6 +859,9 @@ void CDigitanksRenderer::RenderAvailableAreas()
 void CDigitanksRenderer::RenderOffscreenBuffers()
 {
 	TPROF("CDigitanksRenderer::RenderOffscreenBuffers");
+
+	if (!DigitanksGame())
+		return;
 
 	if (ShouldUseFramebuffers() && ShouldUseShaders())
 	{
@@ -986,6 +1004,9 @@ void CDigitanksRenderer::RenderFullscreenBuffers()
 {
 	TPROF("CDigitanksRenderer::RenderFullscreenBuffers");
 
+	if (!DigitanksGame())
+		return;
+
 	glEnable(GL_BLEND);
 
 	if (ShouldUseFramebuffers())
@@ -1069,6 +1090,9 @@ void CDigitanksRenderer::AddTendrilBatch(CSupplier* pSupplier)
 void CDigitanksRenderer::RenderTendrilBatches()
 {
 	TPROF("CDigitanksRenderer::RenderTendrilBatches");
+
+	if (!DigitanksGame())
+		return;
 
 	GLuint iScrollingTextureProgram;
 	if (GameServer()->GetRenderer()->ShouldUseShaders())

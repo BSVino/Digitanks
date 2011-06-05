@@ -691,6 +691,9 @@ void CHUD::Think()
 	if (GameServer()->IsLoading())
 		return;
 
+	if (!DigitanksGame())
+		return;
+
 	BaseClass::Think();
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();

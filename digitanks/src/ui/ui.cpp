@@ -231,10 +231,13 @@ void CDigitanksMenu::OptionsCallback()
 
 void CDigitanksMenu::ExitCallback()
 {
+	CNetwork::Disconnect();
+	GameServer()->SetLoading(true);
 	DigitanksWindow()->DestroyGame();
 	DigitanksWindow()->CreateGame(GAMETYPE_MENU);
 	SetVisible(false);
 	DigitanksWindow()->GetMainMenu()->SetVisible(true);
+	GameServer()->SetLoading(false);
 }
 
 void CDigitanksMenu::QuitCallback()

@@ -907,10 +907,13 @@ void CCPU::UpdateInfo(eastl::string16& s)
 
 void CCPU::OnDeleted()
 {
-	eastl::vector<CBaseEntity*> apDeleteThese;
+	if (!CNetwork::IsHost())
+		return;
 
 	if (!GetTeam())
 		return;
+
+	eastl::vector<CBaseEntity*> apDeleteThese;
 
 	for (size_t i = 0; i < GetTeam()->GetNumMembers(); i++)
 	{

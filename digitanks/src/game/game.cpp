@@ -213,7 +213,11 @@ CTeam* CGame::GetLocalTeam(size_t i)
 
 void CGame::ClearLocalTeams(CNetworkedVariableBase* pVariable)
 {
-	Game()->m_ahLocalTeams.clear();
+	CGame* pGame = Game();
+	if (!pGame)
+		return;
+
+	pGame->m_ahLocalTeams.clear();
 }
 
 CVar cheats("cheats", "off");
