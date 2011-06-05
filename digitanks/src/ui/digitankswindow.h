@@ -109,6 +109,8 @@ public:
 
 	void						GameOver(bool bPlayerWon);
 
+	virtual void				OnClientDisconnect(int iClient);
+
 	void						CloseApplication();
 
 	void						SaveConfig();

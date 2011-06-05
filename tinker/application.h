@@ -79,6 +79,8 @@ public:
 
 	bool						IsFullscreen() { return m_bFullscreen; };
 
+	virtual void				OnClientDisconnect(int iClient) {};
+
 	bool						HasCommandLineSwitch(const char* pszSwitch);
 	const char*					GetCommandLineSwitchValue(const char* pszSwitch);
 

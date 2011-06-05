@@ -290,7 +290,10 @@ void CGameServer::ClientConnect(int iClient)
 
 void CGameServer::ClientDisconnect(int iClient)
 {
-	GetGame()->OnClientDisconnect(iClient);
+	CApplication::Get()->OnClientDisconnect(iClient);
+
+	if (GetGame())
+		GetGame()->OnClientDisconnect(iClient);
 }
 
 void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNickname)

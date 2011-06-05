@@ -157,7 +157,8 @@ public:
 	static bool				ShouldRunClientFunction() { return IsHost() || IsRunningClientFunctions(); };
 	static bool				ShouldReplicateClientFunction() { return !IsRunningClientFunctions(); };
 
-	static void				Disconnect();
+	static void				Disconnect(bool bForced = false);
+	static void				DisconnectClient(int iClient);
 
 	static void				Think();
 

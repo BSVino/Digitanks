@@ -1,7 +1,5 @@
 #include "commands.h"
 
-#include <enet/enet.h>
-
 #include <common.h>
 #include <strutils.h>
 

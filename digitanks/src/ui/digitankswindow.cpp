@@ -656,6 +656,12 @@ void CDigitanksWindow::GameOver(bool bPlayerWon)
 	m_pVictory->GameOver(bPlayerWon);
 }
 
+void CDigitanksWindow::OnClientDisconnect(int iClient)
+{
+	if (iClient == CNetwork::GetClientID())
+		Restart(GAMETYPE_MENU);
+}
+
 void CDigitanksWindow::CloseApplication()
 {
 #ifdef DT_COMPETITION

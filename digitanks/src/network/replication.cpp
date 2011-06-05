@@ -1,7 +1,5 @@
 #include "replication.h"
 
-#include <enet/enet.h>
-
 #include <strutils.h>
 
 #include <tinker/application.h>

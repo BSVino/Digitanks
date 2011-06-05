@@ -36,6 +36,20 @@ SERVER_COMMAND(SetClientID)
 	g_iClientID = pCmd->ArgAsUInt(0);
 }
 
+SERVER_COMMAND(ForceDisconnect)
+{
+	// I've been forcibly disconnected
+
+	CNetwork::Disconnect(true);
+}
+
+CLIENT_COMMAND(ClientDisconnecting)
+{
+	// This client is disconnecting
+
+	CNetwork::DisconnectClient(iClient);
+}
+
 void CNetwork::Initialize()
 {
 	enet_initialize();
@@ -192,28 +206,64 @@ void CNetwork::SetRunningClientFunctions(bool bRunningClientFunctions)
 	g_bIsRunningClientFunctions = bRunningClientFunctions;
 }
 
-void CNetwork::Disconnect()
+void CNetwork::Disconnect(bool bForced)
 {
 	if (!s_bConnected)
 		return;
 
-	s_bConnected = false;
+	if (bForced)
+	{
+		if (g_iClientID != ~0)
+		{
+			CNetworkParameters p;
+			p.i1 = (int)g_iClientID;
+			s_pfnClientDisconnect(s_pClientListener, &p);
+		}
+	}
 
 	g_iClientID = ~0;
 
 	if (g_pClient)
 	{
+		if (!bForced)
+			// Inform server of disconnection.
+			ClientDisconnecting.RunCommand(L"");
+
 		enet_host_destroy(g_pClient);
+		g_pClient = NULL;
 	}
 
 	if (g_pServer)
 	{
+		// Inform all clients of disconnection.
+		ForceDisconnect.RunCommand(L"");
+
 		s_pClientListener = NULL;
 		s_pfnClientConnect = NULL;
 		s_pfnClientDisconnect = NULL;
 
 		enet_host_destroy(g_pServer);
+		g_pServer = NULL;
 	}
+
+	s_bConnected = false;
+}
+
+void CNetwork::DisconnectClient(int iClient)
+{
+	if (!s_bConnected)
+		return;
+
+	if ((size_t)iClient >= g_apServerPeers.size())
+		return;
+
+	enet_peer_reset(g_apServerPeers[iClient]);
+
+	g_apServerPeers[iClient] = NULL;
+
+	CNetworkParameters p;
+	p.i1 = (int)iClient;
+	s_pfnClientDisconnect(s_pClientListener, &p);
 }
 
 void CNetwork::Think()
