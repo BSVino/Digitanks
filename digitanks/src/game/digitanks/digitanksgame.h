@@ -305,6 +305,14 @@ protected:
 	float						m_flLastHumanMove;
 
 	class CDigitanksLevel*		m_pLevel;
+
+	CNetworkedVariable<bool>	m_bLevelAllowsBuffers;
+	CNetworkedVariable<bool>	m_bLevelAllowsPSUs;
+	CNetworkedVariable<bool>	m_bLevelAllowsTankLoaders;
+	CNetworkedVariable<bool>	m_bLevelAllowsArtilleryLoaders;
+	CNetworkedVariable<bool>	m_bLevelAllowsInfantryLasers;
+	CNetworkedVariable<bool>	m_bLevelAllowsInfantryTreeCutters;
+	CNetworkedVariable<bool>	m_bLevelAllowsInfantryFortify;
 };
 
 inline class CDigitanksGame* DigitanksGame()

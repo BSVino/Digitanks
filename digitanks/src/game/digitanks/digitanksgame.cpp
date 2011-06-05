@@ -83,6 +83,13 @@ NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(bool, m_bPartyMode);
 	NETVAR_DEFINE(float, m_aflConstructionCosts);
 	NETVAR_DEFINE(float, m_aflUpgradeCosts);
+	NETVAR_DEFINE(bool, m_bLevelAllowsBuffers);
+	NETVAR_DEFINE(bool, m_bLevelAllowsPSUs);
+	NETVAR_DEFINE(bool, m_bLevelAllowsTankLoaders);
+	NETVAR_DEFINE(bool, m_bLevelAllowsArtilleryLoaders);
+	NETVAR_DEFINE(bool, m_bLevelAllowsInfantryLasers);
+	NETVAR_DEFINE(bool, m_bLevelAllowsInfantryTreeCutters);
+	NETVAR_DEFINE(bool, m_bLevelAllowsInfantryFortify);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CDigitanksGame);
@@ -117,6 +124,13 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flShowArtilleryTutorial);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flLastHumanMove);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CDigitanksLevel*, m_pLevel);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsBuffers);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsPSUs);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsTankLoaders);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsArtilleryLoaders);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsInfantryLasers);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsInfantryTreeCutters);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bLevelAllowsInfantryFortify);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CDigitanksGame);
@@ -236,7 +250,7 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	m_eGameType = eGameType;
 	m_iTurn = 0;
 
-	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
 	m_hInstructor = GameServer()->Create<CInstructorEntity>("CInstructorEntity");
 
@@ -905,7 +919,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 {
 	TMsg(sprintf(L"Setting up campaign %s.\n", CVar::GetCVarValue(L"game_level")));
 
-	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
 	m_sObjective = convertstring<char, char16_t>(m_pLevel->GetObjective());
 
@@ -2791,10 +2805,7 @@ bool CDigitanksGame::CanBuildMiniBuffers()
 
 bool CDigitanksGame::CanBuildBuffers()
 {
-	if (!m_pLevel)
-		return true;
-
-	return m_pLevel->AllowBuffers();
+	return m_bLevelAllowsBuffers;
 }
 
 bool CDigitanksGame::CanBuildBatteries()
@@ -2804,10 +2815,7 @@ bool CDigitanksGame::CanBuildBatteries()
 
 bool CDigitanksGame::CanBuildPSUs()
 {
-	if (!m_pLevel)
-		return true;
-
-	if (!m_pLevel->AllowPSUs())
+	if (!m_bLevelAllowsPSUs)
 		return false;
 
 	bool bDisablePSU = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_PSU);
@@ -2822,10 +2830,7 @@ bool CDigitanksGame::CanBuildInfantryLoaders()
 
 bool CDigitanksGame::CanBuildTankLoaders()
 {
-	if (!m_pLevel)
-		return true;
-
-	if (!m_pLevel->AllowTankLoaders())
+	if (!m_bLevelAllowsTankLoaders)
 		return false;
 
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
@@ -2834,10 +2839,7 @@ bool CDigitanksGame::CanBuildTankLoaders()
 
 bool CDigitanksGame::CanBuildArtilleryLoaders()
 {
-	if (!m_pLevel)
-		return true;
-
-	if (!m_pLevel->AllowArtilleryLoaders())
+	if (!m_bLevelAllowsArtilleryLoaders)
 		return false;
 
 	bool bDisableLoaders = DigitanksWindow()->GetInstructor()->IsFeatureDisabled(DISABLE_LOADERS);
@@ -2846,9 +2848,6 @@ bool CDigitanksGame::CanBuildArtilleryLoaders()
 
 bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 {
-	if (!m_pLevel)
-		return false;
-
 	if (eWeapon == WEAPON_INFANTRYLASER)
 	{
 		if (m_bOverrideAllowLasers)
@@ -2856,9 +2855,12 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 
 		// Enemy tanks have access to this weapon from the first mission.
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
+		{
+			TAssert(!CNetwork::IsConnected());
 			return m_pLevel->AllowEnemyInfantryLasers();
+		}
 
-		return m_pLevel->AllowInfantryLasers();
+		return m_bLevelAllowsInfantryLasers;
 	}
 
 	if (eWeapon == PROJECTILE_TREECUTTER)
@@ -2867,7 +2869,7 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
 			return true;
 
-		return m_pLevel->AllowInfantryTreeCutters();
+		return m_bLevelAllowsInfantryTreeCutters;
 	}
 
 	return true;
@@ -2875,10 +2877,7 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 
 bool CDigitanksGame::IsInfantryFortifyAllowed()
 {
-	if (!m_pLevel)
-		return false;
-
-	return m_pLevel->AllowInfantryFortify();
+	return m_bLevelAllowsInfantryFortify;
 }
 
 void CDigitanksGame::AllowLaser()
@@ -2950,6 +2949,14 @@ void CDigitanksGame::SetCurrentLevel(eastl::string sLevel)
 {
 	CVar::SetCVar("game_level", sLevel);
 	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+
+	m_bLevelAllowsBuffers = m_pLevel->AllowBuffers();
+	m_bLevelAllowsPSUs = m_pLevel->AllowPSUs();
+	m_bLevelAllowsTankLoaders = m_pLevel->AllowTankLoaders();
+	m_bLevelAllowsArtilleryLoaders = m_pLevel->AllowArtilleryLoaders();
+	m_bLevelAllowsInfantryLasers = m_pLevel->AllowInfantryLasers();
+	m_bLevelAllowsInfantryTreeCutters = m_pLevel->AllowInfantryTreeCutters();
+	m_bLevelAllowsInfantryFortify = m_pLevel->AllowInfantryFortify();
 }
 
 bool CDigitanksGame::SoftCraters()
