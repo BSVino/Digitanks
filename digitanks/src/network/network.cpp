@@ -295,7 +295,8 @@ void CENetConnection::Disconnect(bool bForced)
 		{
 			CNetworkParameters p;
 			p.i1 = (int)m_iClientID;
-			m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
+			if (m_pfnClientDisconnect)
+				m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
 		}
 	}
 
