@@ -390,7 +390,8 @@ void CENetConnection::Think()
 
 				p.i1 = iPeer;
 
-				m_pfnClientConnect(m_iConnection, m_pClientListener, &p);
+				if (m_pfnClientConnect)
+					m_pfnClientConnect(m_iConnection, m_pClientListener, &p);
 			}
             break;
 

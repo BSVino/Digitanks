@@ -36,6 +36,8 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 	TAssert(!s_pGameServer);
 	s_pGameServer = this;
 
+	GameNetwork()->SetCallbacks(this, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
+
 	m_pWorkListener = pWorkListener;
 
 	m_iMaxEnts = g_cfgEngine.read(L"MaxEnts", 1024);
@@ -120,6 +122,8 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 
 CGameServer::~CGameServer()
 {
+	GameNetwork()->SetCallbacks(NULL, NULL, NULL);
+
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
 
