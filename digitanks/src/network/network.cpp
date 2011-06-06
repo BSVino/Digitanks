@@ -386,7 +386,13 @@ void CENetConnection::Think()
 					iPeer = (int)m_apServerPeers.size()-1;
 				}
 
+				bool bSend = m_bSendCommands;
+				m_bSendCommands = true;
 				::SetClientID.RunCommand(m_iConnection, sprintf(L"%u", iPeer));
+				m_bSendCommands = bSend;
+
+				if (!m_bSendCommands)
+					return;
 
 				p.i1 = iPeer;
 
@@ -419,6 +425,9 @@ void CENetConnection::Think()
 		case ENET_EVENT_TYPE_DISCONNECT:
 			if (IsHost())
 			{
+				if (!m_bSendCommands)
+					return;
+
 				for (size_t i = 0; i < m_apServerPeers.size(); i++)
 				{
 					if (oEvent.peer == m_apServerPeers[i])

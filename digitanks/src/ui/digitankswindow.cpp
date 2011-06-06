@@ -349,6 +349,9 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	else
 		game_type.SetValue(L"empty");
 
+	// Suppress all network commands until the game is done loading.
+	GameNetwork()->SendCommands(false);
+
 	RenderLoading();
 
 	if (eGameType != GAMETYPE_MENU)
@@ -377,9 +380,6 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		if (!m_pInstructor)
 			m_pInstructor = new CInstructor();
 	}
-
-	// Suppress all network commands until the game is done loading.
-	GameNetwork()->SendCommands(false);
 
 	if (GameServer())
 	{
