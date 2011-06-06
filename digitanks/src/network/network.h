@@ -200,8 +200,6 @@ public:
 	virtual void		CallbackFunction(const char* pszName, CNetworkParameters* p);
 
 	virtual void		SendCommands(bool bSend) { m_bSendCommands = bSend; };
-	virtual void		SuspendPumping() { m_bPumping = false; };
-	virtual void		ResumePumping() { m_bPumping = true; };
 
 	virtual size_t		GetClientsConnected() = 0;
 	virtual size_t		GetClientConnectionId(size_t iClient) = 0;	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
@@ -215,7 +213,6 @@ public:
 protected:
 	int					m_iConnection;
 	bool				m_bConnected;
-	bool				m_bPumping;
 	bool				m_bSendCommands;
 	eastl::map<eastl::string, CRegisteredFunction> m_aFunctions;
 	INetworkListener*	m_pClientListener;

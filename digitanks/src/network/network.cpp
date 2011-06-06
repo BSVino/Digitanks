@@ -108,7 +108,6 @@ CNetworkConnection::CNetworkConnection(int iConnection)
 	m_bIsRunningClientFunctions = false;
 	m_iCurrentClient = ~0;
 	m_iClientID = ~0;
-	m_bPumping = true;
 	m_bSendCommands = true;
 	m_pClientListener = NULL;
 	m_pfnClientConnect = NULL;
@@ -360,9 +359,6 @@ void CENetConnection::Think()
 	if (!pHost)
 		return;
 
-	if (!m_bPumping)
-		return;
-
 	CNetworkParameters p;
 
 	while (enet_host_service(pHost, &oEvent, 0) > 0)
@@ -440,9 +436,6 @@ void CENetConnection::Think()
 			}
 			break;
         }
-
-		if (!m_bPumping)
-			break;
 
 		if (!m_bConnected)
 			break;
