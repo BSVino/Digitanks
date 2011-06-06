@@ -4,6 +4,9 @@
 #include <strutils.h>
 
 #include <tinker/application.h>
+#include <tinker/cvar.h>
+
+CVar net_debug("net_debug", "off");
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
@@ -60,6 +63,20 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 		p.ui1 = CNetwork::GetClientID();
 
 		CNetwork::CallFunctionParameters(iTarget, "NC", &p);
+
+		if (net_debug.GetBool())
+		{
+			if (iTarget == NETWORK_TOSERVER)
+				TMsg(L"Net cmd to server: ");
+			else if (iTarget == NETWORK_TOCLIENTS)
+				TMsg(L"Net cmd to clients: ");
+			else if (iTarget == NETWORK_TOEVERYONE)
+				TMsg(L"Net cmd to all: ");
+			else
+				TMsg(sprintf(L"Net cmd to client %d: ", iTarget));
+
+			TMsg(sCommand + L"\n");
+		}
 	}
 
 	if (bPredict)
@@ -71,6 +88,14 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 
 void CNetworkCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
 {
+	if (net_debug.GetBool())
+	{
+		if (CNetwork::IsHost())
+			TMsg(sprintf(L"Net cmd from client %d: ", iClient) + m_sName + L" " + sParameters + L"\n");
+		else
+			TMsg(eastl::string16(L"Net cmd from server: ") + m_sName + L" " + sParameters + L"\n");
+	}
+
 	wcstok(sParameters, m_asArguments);
 
 	m_pfnCallback(this, iClient, sParameters);

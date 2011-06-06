@@ -694,6 +694,9 @@ void CHUD::Think()
 	if (!DigitanksGame())
 		return;
 
+	if (!IsVisible())
+		return;
+
 	BaseClass::Think();
 
 	CDigitank* pCurrentTank = DigitanksGame()->GetPrimarySelectionTank();

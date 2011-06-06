@@ -269,9 +269,11 @@ void CLobbyPanel::UpdatePlayerInfo()
 
 void CLobbyPanel::LeaveLobbyCallback()
 {
+	bool bWasHost = CNetwork::IsHost();
+
 	CGameLobbyClient::S_LeaveLobby();
 
-	if (CNetwork::IsHost())
+	if (bWasHost)
 		CGameLobbyServer::DestroyLobby(m_iLobby);
 
 	if (m_bOnline)
