@@ -6,7 +6,7 @@
 #include <renderer/particles.h>
 
 // A networked particle effect. Call it on the server and it will show up on all clients.
-SERVER_COMMAND(NetworkedEffect)
+SERVER_GAME_COMMAND(NetworkedEffect)
 {
 	if (pCmd->GetNumArguments() < 7)
 	{

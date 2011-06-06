@@ -197,15 +197,15 @@ void CLoader::BeginProduction()
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		BeginProduction(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginProduction", &p);
+		GameNetwork()->CallFunctionParameters(NETWORK_TOSERVER, "BeginProduction", &p);
 }
 
 void CLoader::BeginProduction(class CNetworkParameters* p)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (GetDigitanksTeam()->GetPower() < GetUnitProductionCost())
@@ -231,7 +231,7 @@ void CLoader::CompleteProduction()
 
 	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		CDigitank* pTank;
 		if (GetBuildUnit() == UNIT_INFANTRY)
@@ -281,7 +281,7 @@ void CLoader::CompleteProduction()
 		pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9);
 		pTank->Turn(VectorAngles(-GetOrigin().Normalized()));
 
-		if (!GetTeam()->IsPlayerControlled() && CNetwork::IsHost())
+		if (!GetTeam()->IsPlayerControlled() && GameNetwork()->IsHost())
 			// It's not a real move but i dun care
 			// We just need to get them spaced out around the loader, like a rally point
 			pTank->Move(pTank->GetOrigin() + AngleVector(pTank->GetAngles())*9 + AngleVector(EAngle(0, RandomFloat(0, 360), 0))*10);

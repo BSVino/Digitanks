@@ -10,44 +10,60 @@
 #include "commands.h"
 
 bool CNetwork::s_bInitialized = false;
-bool CNetwork::s_bConnected = false;
-bool CNetwork::s_bPumping = true;
-bool CNetwork::s_bSendCommands = true;
-eastl::map<eastl::string, CRegisteredFunction> CNetwork::s_aFunctions;
-INetworkListener* CNetwork::s_pClientListener = NULL;
-INetworkListener::Callback CNetwork::s_pfnClientConnect = NULL;
-INetworkListener::Callback CNetwork::s_pfnClientDisconnect = NULL;
 
-static ENetHost* g_pClient = NULL;
-static ENetPeer* g_pClientPeer = NULL;
-static ENetHost* g_pServer = NULL;
-static eastl::vector<ENetPeer*> g_apServerPeers;
-static bool g_bIsRunningClientFunctions = false;
-static size_t g_iCurrentClient = ~0;
-static size_t g_iClientID = ~0;
+class CENetConnection : public CNetworkConnection
+{
+public:
+								CENetConnection(int iConnection);
 
-SERVER_COMMAND(SetClientID)
+public:
+	virtual void				CreateHost(int iPort);
+	virtual void				ConnectToHost(const char* pszHost, int iPort);
+
+	virtual bool				IsHost();
+
+	virtual void				Disconnect(bool bForced = false);
+	virtual void				DisconnectClient(int iClient);
+
+	virtual void				Think();
+
+	virtual void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false);
+
+	virtual size_t				GetClientsConnected();
+	virtual size_t				GetClientConnectionId(size_t iClient);
+
+protected:
+	ENetHost*					m_pClient;
+	ENetPeer*					m_pClientPeer;
+	ENetHost*					m_pServer;
+	eastl::vector<ENetPeer*>	m_apServerPeers;
+};
+
+SERVER_COMMAND(CONNECTION_UNDEFINED, SetClientID)
 {
 	TAssert(pCmd->GetNumArguments());
 
 	if (!pCmd->GetNumArguments())
 		return;
 
-	g_iClientID = pCmd->ArgAsUInt(0);
+	Network(iConnection)->SetClientID(pCmd->ArgAsUInt(0));
 }
 
-SERVER_COMMAND(ForceDisconnect)
+SERVER_COMMAND(CONNECTION_UNDEFINED, ForceDisconnect)
 {
 	// I've been forcibly disconnected
 
-	CNetwork::Disconnect(true);
+	if (Network(iConnection)->IsHost())
+		return;
+
+	Network(iConnection)->Disconnect(true);
 }
 
-CLIENT_COMMAND(ClientDisconnecting)
+CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientDisconnecting)
 {
 	// This client is disconnecting
 
-	CNetwork::DisconnectClient(iClient);
+	Network(iConnection)->DisconnectClient(iClient);
 }
 
 void CNetwork::Initialize()
@@ -55,7 +71,6 @@ void CNetwork::Initialize()
 	enet_initialize();
 
 	s_bInitialized = true;
-	s_bConnected = false;
 }
 
 void CNetwork::Deinitialize()
@@ -63,35 +78,86 @@ void CNetwork::Deinitialize()
 	enet_deinitialize();
 
 	s_bInitialized = false;
-	s_bConnected = false;
 }
 
-void CNetwork::RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...)
-{
-	s_aFunctions[pszName].m_pszFunction = pszName;
+eastl::vector<CNetworkConnection*> g_apNetworkConnections;
 
-	s_aFunctions[pszName].m_pParameters.clear();
+size_t CNetwork::GetNumConnections()
+{
+	return g_apNetworkConnections.size();
+}
+
+CNetworkConnection* CNetwork::GetConnection(int iConnect)
+{
+	while ((int)g_apNetworkConnections.size() <= iConnect)
+		g_apNetworkConnections.push_back(new CENetConnection(g_apNetworkConnections.size()));
+
+	return g_apNetworkConnections[iConnect];
+}
+
+void CNetwork::Think()
+{
+	for (size_t i = 0; i < g_apNetworkConnections.size(); i++)
+		g_apNetworkConnections[i]->Think();
+}
+
+CNetworkConnection::CNetworkConnection(int iConnection)
+{
+	m_iConnection = iConnection;
+	m_bConnected = false;
+	m_bIsRunningClientFunctions = false;
+	m_iCurrentClient = ~0;
+	m_iClientID = ~0;
+	m_bPumping = true;
+	m_bSendCommands = true;
+	m_pClientListener = NULL;
+	m_pfnClientConnect = NULL;
+	m_pfnClientDisconnect = NULL;
+
+	ClearRegisteredFunctions();
+}
+
+CENetConnection::CENetConnection(int iConnection)
+	: CNetworkConnection(iConnection)
+{
+	m_pClient = NULL;
+	m_pClientPeer = NULL;
+	m_pServer = NULL;
+}
+
+void CNetworkConnection::RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...)
+{
+	m_aFunctions[pszName].m_pszFunction = pszName;
+
+	m_aFunctions[pszName].m_pParameters.clear();
 
 	va_list args;
 	va_start(args, iParameters);
 
 	for (int i = 0; i < (int)iParameters; i++)
-		s_aFunctions[pszName].m_pParameters.push_back(va_arg(args, int));
+		m_aFunctions[pszName].m_pParameters.push_back(va_arg(args, int));
 
 	va_end(args);
 
-	s_aFunctions[pszName].m_pListener = pListener;
-	s_aFunctions[pszName].m_pfnCallback = pfnCallback;
+	m_aFunctions[pszName].m_pListener = pListener;
+	m_aFunctions[pszName].m_pfnCallback = pfnCallback;
 }
 
-void CNetwork::ClearRegisteredFunctions()
+void CNetworkConnection::ClearRegisteredFunctions()
 {
-	s_aFunctions.clear();
+	m_aFunctions.clear();
+
+	RegisterFunction("NC", this, NetworkCommandCallback, 0);
 }
 
-void CNetwork::CreateHost(int iPort)
+void CENetConnection::CreateHost(int iPort)
 {
-	s_bConnected = false;
+	if (!CNetwork::IsInitialized())
+		return;
+
+	Disconnect();
+
+	m_bConnected = false;
 
 	ENetAddress oAddress;
 
@@ -100,39 +166,44 @@ void CNetwork::CreateHost(int iPort)
 	if (iPort)
 		oAddress.port = iPort;
 	else
-		oAddress.port = 30203;
+	{
+		if (m_iConnection == CONNECTION_LOBBY)
+			oAddress.port = 30202;
+		else
+			oAddress.port = 30203;
+	}
 
 	TMsg(sprintf(L"Creating host on port %d\n", (int)oAddress.port));
 
-	g_pClient = NULL;
-	g_pServer = enet_host_create(&oAddress, NETWORK_MAX_CLIENTS, 1, 0, 0);
+	m_pClient = NULL;
+	m_pServer = enet_host_create(&oAddress, NETWORK_MAX_CLIENTS, 1, 0, 0);
 
-	g_iClientID = ~0;
-	if (g_pServer == NULL)
+	m_iClientID = ~0;
+	if (m_pServer == NULL)
 	{
 		TError(L"There was a problem creating the host.\n");
 		return;
 	}
 
-	s_bConnected = true;
+	m_bConnected = true;
 }
 
-void CNetwork::SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect)
+void CNetworkConnection::SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect)
 {
-	s_pClientListener = pListener;
-	s_pfnClientConnect = pfnClientConnect;
-	s_pfnClientDisconnect = pfnClientDisconnect;
+	m_pClientListener = pListener;
+	m_pfnClientConnect = pfnClientConnect;
+	m_pfnClientDisconnect = pfnClientDisconnect;
 }
 
-void CNetwork::ConnectToHost(const char* pszHost, int iPort)
+void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 {
-	if (!s_bInitialized)
+	if (!CNetwork::IsInitialized())
 		return;
 
-	g_pServer = NULL;
-	g_pClient = enet_host_create(NULL, 1, 1, 0, 0);
+	m_pServer = NULL;
+	m_pClient = enet_host_create(NULL, 1, 1, 0, 0);
 
-    if (g_pClient == NULL)
+    if (m_pClient == NULL)
 	{
 		TError(L"There was a problem creating the client host.\n");
 		return;
@@ -150,138 +221,138 @@ void CNetwork::ConnectToHost(const char* pszHost, int iPort)
 
 	TMsg(sprintf(L"Connecting to '%s' on port %d\n", convertstring<char, char16_t>(pszHost).c_str(), (int)oAddress.port));
 
-	g_pClientPeer = enet_host_connect(g_pClient, &oAddress, 1, 0);    
+	m_pClientPeer = enet_host_connect(m_pClient, &oAddress, 1, 0);    
 
-	if (g_pClientPeer == NULL)
+	if (m_pClientPeer == NULL)
 	{
 		TError(L"There was a problem connecting to the server.\n");
 		return;
 	}
 
-	g_iClientID = ~0;
+	m_iClientID = ~0;
 
-	if (enet_host_service(g_pClient, &oEvent, 5000) <= 0 || oEvent.type != ENET_EVENT_TYPE_CONNECT)
+	if (enet_host_service(m_pClient, &oEvent, 5000) <= 0 || oEvent.type != ENET_EVENT_TYPE_CONNECT)
 	{
 		TError(L"Did not receive connection event.\n");
-		enet_peer_reset(g_pClientPeer);
+		enet_peer_reset(m_pClientPeer);
 		return;
 	}
 
-	s_bConnected = true;
+	m_bConnected = true;
 
 	float flStartWaitTime = CApplication::Get()->GetTime();
 	while (CApplication::Get()->GetTime() - flStartWaitTime < 10)
 	{
-		CNetwork::Think();
-		if (g_iClientID != ~0)
+		Think();
+		if (m_iClientID != ~0)
 			break;
 
 		SleepMS(50);
 	}
 
-	if (g_iClientID == ~0)
+	if (m_iClientID == ~0)
 	{
-		s_bConnected = false;
+		m_bConnected = false;
 		TError(L"Did not receive initial Client ID packet.\n");
-		enet_peer_reset(g_pClientPeer);
+		enet_peer_reset(m_pClientPeer);
 		return;
 	}
 }
 
-bool CNetwork::IsHost()
+bool CENetConnection::IsHost()
 {
 	if (!IsConnected())
 		return true;
 
-	return !!g_pServer;
+	return !!m_pServer;
 }
 
-bool CNetwork::IsRunningClientFunctions()
+bool CNetworkConnection::IsRunningClientFunctions()
 {
-	return g_bIsRunningClientFunctions;
+	return m_bIsRunningClientFunctions;
 }
 
-void CNetwork::SetRunningClientFunctions(bool bRunningClientFunctions)
+void CNetworkConnection::SetRunningClientFunctions(bool bRunningClientFunctions)
 {
-	g_bIsRunningClientFunctions = bRunningClientFunctions;
+	m_bIsRunningClientFunctions = bRunningClientFunctions;
 }
 
-void CNetwork::Disconnect(bool bForced)
+void CENetConnection::Disconnect(bool bForced)
 {
-	if (!s_bConnected)
+	if (!m_bConnected)
 		return;
 
 	if (bForced)
 	{
-		if (g_iClientID != ~0)
+		if (m_iClientID != ~0)
 		{
 			CNetworkParameters p;
-			p.i1 = (int)g_iClientID;
-			s_pfnClientDisconnect(s_pClientListener, &p);
+			p.i1 = (int)m_iClientID;
+			m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
 		}
 	}
 
-	if (g_pClient)
+	if (m_pClient)
 	{
 		if (!bForced)
 			// Inform server of disconnection.
-			ClientDisconnecting.RunCommand(L"");
+			ClientDisconnecting.RunCommand(m_iConnection, L"");
 
-		enet_host_destroy(g_pClient);
-		g_pClient = NULL;
+		enet_host_destroy(m_pClient);
+		m_pClient = NULL;
 	}
 
-	if (g_pServer)
+	if (m_pServer)
 	{
 		// Inform all clients of disconnection.
-		ForceDisconnect.RunCommand(L"");
+		ForceDisconnect.RunCommand(m_iConnection, L"");
 
-		s_pClientListener = NULL;
-		s_pfnClientConnect = NULL;
-		s_pfnClientDisconnect = NULL;
+		m_pClientListener = NULL;
+		m_pfnClientConnect = NULL;
+		m_pfnClientDisconnect = NULL;
 
-		enet_host_destroy(g_pServer);
-		g_pServer = NULL;
+		enet_host_destroy(m_pServer);
+		m_pServer = NULL;
 	}
 
-	g_iClientID = ~0;
+	m_iClientID = ~0;
 
-	s_bConnected = false;
+	m_bConnected = false;
 }
 
-void CNetwork::DisconnectClient(int iClient)
+void CENetConnection::DisconnectClient(int iClient)
 {
-	if (!s_bConnected)
+	if (!m_bConnected)
 		return;
 
-	if ((size_t)iClient >= g_apServerPeers.size())
+	if ((size_t)iClient >= m_apServerPeers.size())
 		return;
 
-	ForceDisconnect.RunCommand(L"", iClient);
+	ForceDisconnect.RunCommand(m_iConnection, L"", iClient);
 
-	enet_peer_reset(g_apServerPeers[iClient]);
+	enet_peer_reset(m_apServerPeers[iClient]);
 
-	g_apServerPeers[iClient] = NULL;
+	m_apServerPeers[iClient] = NULL;
 
 	CNetworkParameters p;
 	p.i1 = (int)iClient;
-	s_pfnClientDisconnect(s_pClientListener, &p);
+	m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
 }
 
-void CNetwork::Think()
+void CENetConnection::Think()
 {
 	ENetEvent oEvent;
 
-	if (!s_bConnected)
+	if (!m_bConnected)
 		return;
 
-	ENetHost* pHost = g_pClient;
+	ENetHost* pHost = m_pClient;
 	if (!pHost)
-		pHost = g_pServer;
+		pHost = m_pServer;
 	if (!pHost)
 		return;
 
-	if (!s_bPumping)
+	if (!m_bPumping)
 		return;
 
 	CNetworkParameters p;
@@ -295,11 +366,11 @@ void CNetwork::Think()
 			{
 				// Find the first unused peer.
 				int iPeer = -1;
-				for (size_t i = 0; i < g_apServerPeers.size(); i++)
+				for (size_t i = 0; i < m_apServerPeers.size(); i++)
 				{
-					if (!g_apServerPeers[i])
+					if (!m_apServerPeers[i])
 					{
-						g_apServerPeers[i] = oEvent.peer;
+						m_apServerPeers[i] = oEvent.peer;
 						iPeer = i;
 						break;
 					}
@@ -307,26 +378,26 @@ void CNetwork::Think()
 
 				if (iPeer < 0)
 				{
-					g_apServerPeers.push_back(oEvent.peer);
-					iPeer = (int)g_apServerPeers.size()-1;
+					m_apServerPeers.push_back(oEvent.peer);
+					iPeer = (int)m_apServerPeers.size()-1;
 				}
 
-				SetClientID.RunCommand(sprintf(L"%u", iPeer));
+				::SetClientID.RunCommand(m_iConnection, sprintf(L"%u", iPeer));
 
 				p.i1 = iPeer;
 
-				s_pfnClientConnect(s_pClientListener, &p);
+				m_pfnClientConnect(m_iConnection, m_pClientListener, &p);
 			}
             break;
 
 		case ENET_EVENT_TYPE_RECEIVE:
-			g_bIsRunningClientFunctions = true;
+			m_bIsRunningClientFunctions = true;
 
-			for (size_t i = 0; i < g_apServerPeers.size(); i++)
+			for (size_t i = 0; i < m_apServerPeers.size(); i++)
 			{
-				if (oEvent.peer == g_apServerPeers[i])
+				if (oEvent.peer == m_apServerPeers[i])
 				{
-					g_iCurrentClient = i;
+					m_iCurrentClient = i;
 					break;
 				}
 			}
@@ -336,20 +407,20 @@ void CNetwork::Think()
 			else
 				CallbackFunction((const char*)oEvent.packet->data, NULL);
 
-			g_bIsRunningClientFunctions = false;
+			m_bIsRunningClientFunctions = false;
 			enet_packet_destroy(oEvent.packet);
 			break;
 
 		case ENET_EVENT_TYPE_DISCONNECT:
 			if (IsHost())
 			{
-				for (size_t i = 0; i < g_apServerPeers.size(); i++)
+				for (size_t i = 0; i < m_apServerPeers.size(); i++)
 				{
-					if (oEvent.peer == g_apServerPeers[i])
+					if (oEvent.peer == m_apServerPeers[i])
 					{
-						g_apServerPeers[i] = NULL;
+						m_apServerPeers[i] = NULL;
 						p.i1 = (int)i;
-						s_pfnClientDisconnect(s_pClientListener, &p);
+						m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
 						break;
 					}
 				}
@@ -362,23 +433,23 @@ void CNetwork::Think()
 			break;
         }
 
-		if (!s_bPumping)
+		if (!m_bPumping)
 			break;
 
-		if (!s_bConnected)
+		if (!m_bConnected)
 			break;
 	}
 }
 
-void CNetwork::CallFunction(int iClient, const char* pszFunction, ...)
+void CNetworkConnection::CallFunction(int iClient, const char* pszFunction, ...)
 {
-	if (!s_bConnected)
+	if (!m_bConnected)
 		return;
 
-	if (s_aFunctions.find(pszFunction) == s_aFunctions.end())
+	if (m_aFunctions.find(pszFunction) == m_aFunctions.end())
 		return;
 
-	CRegisteredFunction* pFunction = &s_aFunctions[pszFunction];
+	CRegisteredFunction* pFunction = &m_aFunctions[pszFunction];
 
 	CNetworkParameters p;
 
@@ -402,18 +473,18 @@ void CNetwork::CallFunction(int iClient, const char* pszFunction, ...)
 	CallFunction(iClient, pFunction, &p);
 }
 
-void CNetwork::CallFunctionParameters(int iClient, const char* pszFunction, CNetworkParameters* p)
+void CNetworkConnection::CallFunctionParameters(int iClient, const char* pszFunction, CNetworkParameters* p)
 {
-	CRegisteredFunction* pFunction = &s_aFunctions[pszFunction];
+	CRegisteredFunction* pFunction = &m_aFunctions[pszFunction];
 	CallFunction(iClient, pFunction, p);
 }
 
-void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient)
+void CENetConnection::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient)
 {
-	if (!s_bConnected)
+	if (!m_bConnected)
 		return;
 
-	if (!s_bSendCommands)
+	if (!m_bSendCommands)
 		return;
 
 	size_t iPSize = p?p->SizeOf():0;
@@ -428,46 +499,46 @@ void CNetwork::CallFunction(int iClient, CRegisteredFunction* pFunction, CNetwor
 		memcpy(pPacket->data+strlen(pFunction->m_pszFunction)+1+sizeof(*p), p->m_pExtraData, p->m_iExtraDataSize);
 	}
 
-	if (g_pServer)
+	if (m_pServer)
 	{
 		TAssert(iClient != NETWORK_TOSERVER);
 		if (iClient == NETWORK_TOCLIENTS || iClient == NETWORK_TOEVERYONE)
 		{
-			for (size_t i = 0; i < g_apServerPeers.size(); i++)
+			for (size_t i = 0; i < m_apServerPeers.size(); i++)
 			{
-				if (!g_apServerPeers[i])
+				if (!m_apServerPeers[i])
 					continue;
 
-				if (g_bIsRunningClientFunctions && bNoCurrentClient && g_iCurrentClient == i)
+				if (m_bIsRunningClientFunctions && bNoCurrentClient && m_iCurrentClient == i)
 					continue;
 
-				enet_peer_send(g_apServerPeers[i], 0, pPacket);
+				enet_peer_send(m_apServerPeers[i], 0, pPacket);
 			}
 		}
 		else if (iClient >= 0)
 		{
-			TAssert(g_apServerPeers[iClient]);
+			TAssert(m_apServerPeers[iClient]);
 
-			if (g_apServerPeers[iClient])
-				enet_peer_send(g_apServerPeers[iClient], 0, pPacket);
+			if (m_apServerPeers[iClient])
+				enet_peer_send(m_apServerPeers[iClient], 0, pPacket);
 		}
 
-		enet_host_flush(g_pServer);
+		enet_host_flush(m_pServer);
 	}
 	else
 	{
 		TAssert(iClient != NETWORK_TOCLIENTS);
 		if (iClient == NETWORK_TOSERVER || iClient == NETWORK_TOEVERYONE)
 		{
-			enet_peer_send(g_pClientPeer, 0, pPacket);
-			enet_host_flush(g_pClient);
+			enet_peer_send(m_pClientPeer, 0, pPacket);
+			enet_host_flush(m_pClient);
 		}
 	}
 }
 
-void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
+void CNetworkConnection::CallbackFunction(const char* pszName, CNetworkParameters* p)
 {
-	if (s_aFunctions.find(pszName) == s_aFunctions.end())
+	if (m_aFunctions.find(pszName) == m_aFunctions.end())
 		return;
 
 	// Since CallbackFunction is called by casting the second argument (p) and the CNetworkParameters destructor won't run.
@@ -475,33 +546,33 @@ void CNetwork::CallbackFunction(const char* pszName, CNetworkParameters* p)
 	if (p)
 		p->m_pExtraData = ((unsigned char*)p) + sizeof(*p);
 
-	CRegisteredFunction* pFunction = &s_aFunctions[pszName];
+	CRegisteredFunction* pFunction = &m_aFunctions[pszName];
 
-	pFunction->m_pfnCallback(pFunction->m_pListener, p);
+	pFunction->m_pfnCallback(m_iConnection, pFunction->m_pListener, p);
 
 	// If I'm host and I got this message from a client, forward it to all of the other clients.
 	if (IsHost())
 		CallFunction(-1, pFunction, p, true);
 }
 
-size_t CNetwork::GetClientsConnected()
+size_t CENetConnection::GetClientsConnected()
 {
 	size_t iClients = 0;
-	for (size_t i = 0; i < g_apServerPeers.size(); i++)
+	for (size_t i = 0; i < m_apServerPeers.size(); i++)
 	{
-		if (g_apServerPeers[i])
+		if (m_apServerPeers[i])
 			iClients++;
 	}
 
 	return iClients;
 }
 
-size_t CNetwork::GetClientConnectionId(size_t iClient)
+size_t CENetConnection::GetClientConnectionId(size_t iClient)
 {
 	size_t iClients = 0;
-	for (size_t i = 0; i < g_apServerPeers.size(); i++)
+	for (size_t i = 0; i < m_apServerPeers.size(); i++)
 	{
-		if (g_apServerPeers[i])
+		if (m_apServerPeers[i])
 		{
 			if (iClients == iClient)
 				return i;
@@ -513,10 +584,45 @@ size_t CNetwork::GetClientConnectionId(size_t iClient)
 	return ~0;
 }
 
-size_t CNetwork::GetClientID()
+size_t CNetworkConnection::GetClientID()
 {
 	if (IsHost())
 		return ~0;
 
-	return g_iClientID;
+	return m_iClientID;
+}
+
+void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
+{
+	TAssert(m_iConnection == iConnection);
+	TAssert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+
+	char16_t* pszData = (char16_t*)p->m_pExtraData;
+
+	eastl::string16 sCommand(pszData);
+
+	size_t iSpace = sCommand.find(L' ');
+
+	eastl::string16 sName;
+	eastl::string16 sParameters;
+	if (eastl::string16::npos == iSpace)
+	{
+		sName = sCommand;
+		sParameters = L"";
+	}
+	else
+	{
+		sName = sCommand.substr(0, iSpace);
+		sParameters = sCommand.substr(iSpace+1);
+	}
+
+	CNetworkCommand* pCommand = CNetworkCommand::GetCommand(sName);
+
+	if (!pCommand)
+	{
+		TMsg(sprintf(L"Network command '%s' unknown.\n", sName));
+		return;
+	}
+
+	pCommand->RunCallback(m_iConnection, p->ui1, sParameters);
 }

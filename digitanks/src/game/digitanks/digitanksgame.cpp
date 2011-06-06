@@ -182,49 +182,49 @@ void CDigitanksGame::RegisterNetworkFunctions()
 {
 	BaseClass::RegisterNetworkFunctions();
 
-	CNetwork::RegisterFunction("SetupEntities", this, SetupEntitiesCallback, 0);
-	CNetwork::RegisterFunction("EnterGame", this, EnterGameCallback, 0);
-	CNetwork::RegisterFunction("EndTurn", this, EndTurnCallback, 0);
-	CNetwork::RegisterFunction("StartTurn", this, StartTurnCallback, 0);
-	CNetwork::RegisterFunction("Move", this, MoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("Turn", this, TurnCallback, 2, NET_HANDLE, NET_FLOAT);
-	CNetwork::RegisterFunction("Fire", this, FireCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("FireWeapon", this, FireWeaponCallback, 5, NET_HANDLE, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("SetBonusPoints", this, SetBonusPointsCallback, 5, NET_HANDLE, NET_INT, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("TankPromoted", this, TankPromotedCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("PromoteAttack", this, PromoteAttackCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("PromoteDefense", this, PromoteDefenseCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
-	CNetwork::RegisterFunction("Fortify", this, FortifyCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("Sentry", this, SentryCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("SetGoalMovePosition", this, SetGoalMovePositionCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
-	CNetwork::RegisterFunction("CancelGoalMovePosition", this, CancelGoalMovePositionCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("SetupEntities", this, SetupEntitiesCallback, 0);
+	GameNetwork()->RegisterFunction("EnterGame", this, EnterGameCallback, 0);
+	GameNetwork()->RegisterFunction("EndTurn", this, EndTurnCallback, 0);
+	GameNetwork()->RegisterFunction("StartTurn", this, StartTurnCallback, 0);
+	GameNetwork()->RegisterFunction("Move", this, MoveCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	GameNetwork()->RegisterFunction("Turn", this, TurnCallback, 2, NET_HANDLE, NET_FLOAT);
+	GameNetwork()->RegisterFunction("Fire", this, FireCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	GameNetwork()->RegisterFunction("FireWeapon", this, FireWeaponCallback, 5, NET_HANDLE, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	GameNetwork()->RegisterFunction("SetBonusPoints", this, SetBonusPointsCallback, 5, NET_HANDLE, NET_INT, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	GameNetwork()->RegisterFunction("TankPromoted", this, TankPromotedCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("PromoteAttack", this, PromoteAttackCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("PromoteDefense", this, PromoteDefenseCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("PromoteMovement", this, PromoteMovementCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("TankSpeak", this, SpeakCallback, 2, NET_HANDLE, NET_INT);
+	GameNetwork()->RegisterFunction("Fortify", this, FortifyCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("Sentry", this, SentryCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("SetGoalMovePosition", this, SetGoalMovePositionCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
+	GameNetwork()->RegisterFunction("CancelGoalMovePosition", this, CancelGoalMovePositionCallback, 1, NET_HANDLE);
 
-	CNetwork::RegisterFunction("TerrainData", this, TerrainDataCallback, 0);
+	GameNetwork()->RegisterFunction("TerrainData", this, TerrainDataCallback, 0);
 
 	// CUpdateGrid
-	CNetwork::RegisterFunction("UpdatesData", this, UpdatesDataCallback, 0);
+	GameNetwork()->RegisterFunction("UpdatesData", this, UpdatesDataCallback, 0);
 
 	// CDigitanksTeam
-	CNetwork::RegisterFunction("DownloadUpdate", this, DownloadUpdateCallback, 0);
-	CNetwork::RegisterFunction("DownloadComplete", this, DownloadCompleteCallback, 0);
+	GameNetwork()->RegisterFunction("DownloadUpdate", this, DownloadUpdateCallback, 0);
+	GameNetwork()->RegisterFunction("DownloadComplete", this, DownloadCompleteCallback, 0);
 
 	// CPU
-	CNetwork::RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
-	CNetwork::RegisterFunction("BeginRogueProduction", this, BeginRogueProductionCallback, 0);
+	GameNetwork()->RegisterFunction("BeginConstruction", this, BeginConstructionCallback, 0);
+	GameNetwork()->RegisterFunction("BeginRogueProduction", this, BeginRogueProductionCallback, 0);
 
 	// CStructure
-	CNetwork::RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("InstallUpdate", this, InstallUpdateCallback, 1, NET_HANDLE);
-	CNetwork::RegisterFunction("BeginUpgrade", this, BeginUpgradeCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("BeginStructureConstruction", this, BeginStructureConstructionCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("InstallUpdate", this, InstallUpdateCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("BeginUpgrade", this, BeginUpgradeCallback, 1, NET_HANDLE);
 
 	// CSupplier
-	CNetwork::RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
-	CNetwork::RegisterFunction("RemoveChild", this, RemoveChildCallback, 2, NET_HANDLE, NET_HANDLE);
+	GameNetwork()->RegisterFunction("AddChild", this, AddChildCallback, 2, NET_HANDLE, NET_HANDLE);
+	GameNetwork()->RegisterFunction("RemoveChild", this, RemoveChildCallback, 2, NET_HANDLE, NET_HANDLE);
 
 	// CLoader
-	CNetwork::RegisterFunction("BeginProduction", this, BeginProductionCallback, 1, NET_HANDLE);
+	GameNetwork()->RegisterFunction("BeginProduction", this, BeginProductionCallback, 1, NET_HANDLE);
 }
 
 void CDigitanksGame::ClientUpdate(int iClient)
@@ -244,7 +244,7 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 
 	SetupEntities();
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_eGameType = eGameType;
@@ -1070,21 +1070,21 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 
 void CDigitanksGame::SetupEntities()
 {
-	if (!CNetwork::ShouldRunClientFunction())
+	if (!GameNetwork()->ShouldRunClientFunction())
 		return;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetupEntities");
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "SetupEntities");
 
 	CNetworkParameters p;
-	SetupEntities(&p);
+	SetupEntities(CONNECTION_GAME, &p);
 }
 
-void CDigitanksGame::SetupEntities(CNetworkParameters* p)
+void CDigitanksGame::SetupEntities(int iConnection, CNetworkParameters* p)
 {
 	CSoundLibrary::StopSound();
 	CParticleSystemLibrary::ClearInstances();
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	while (m_ahTeams.size())
@@ -1158,24 +1158,24 @@ void CDigitanksGame::StartGame()
 	else
 		GetCurrentTeam()->StartTurn();
 
-	EnterGame(NULL);
+	EnterGame(CONNECTION_GAME, NULL);
 }
 
 void CDigitanksGame::EnterGame()
 {
 	BaseClass::EnterGame();
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "EnterGame");
-	EnterGame(NULL);
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "EnterGame");
+	EnterGame(CONNECTION_GAME, NULL);
 }
 
-void CDigitanksGame::EnterGame(CNetworkParameters* p)
+void CDigitanksGame::EnterGame(int iConnection, CNetworkParameters* p)
 {
-	if (!CNetwork::ShouldRunClientFunction())
+	if (!GameNetwork()->ShouldRunClientFunction())
 		return;
 
-	if (CNetwork::IsHost())
-		CNetwork::CallFunction(NETWORK_TOCLIENTS, "EnterGame");
+	if (GameNetwork()->IsHost())
+		GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "EnterGame");
 
 	for (size_t i = 0; i < GetNumTeams(); i++)
 		GetDigitanksTeam(i)->CountScore();
@@ -1193,7 +1193,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		m_pListener->NewCurrentSelection();
 	}
 
-	if (m_eGameType == GAMETYPE_STANDARD && !CNetwork::IsConnected())
+	if (m_eGameType == GAMETYPE_STANDARD && !GameNetwork()->IsConnected())
 		DigitanksWindow()->GetStoryPanel()->SetVisible(true);
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -1205,7 +1205,7 @@ void CDigitanksGame::EnterGame(CNetworkParameters* p)
 		pEntity->ClientEnterGame();
 	}
 
-	if (CNetwork::IsConnected() && !DigitanksWindow()->IsRegistered() && GetGameType() == GAMETYPE_STANDARD)
+	if (GameNetwork()->IsConnected() && !DigitanksWindow()->IsRegistered() && GetGameType() == GAMETYPE_STANDARD)
 		DigitanksWindow()->Restart(GAMETYPE_MENU);
 
 	if (m_eGameType == GAMETYPE_STANDARD || m_eGameType == GAMETYPE_ARTILLERY || m_eGameType == GAMETYPE_CAMPAIGN)
@@ -1443,7 +1443,7 @@ void CDigitanksGame::Think()
 	if (GetGameType() == GAMETYPE_MENU)
 		return;
 
-	if (m_bTurnActive && GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled() && CNetwork::IsHost())
+	if (m_bTurnActive && GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled() && GameNetwork()->IsHost())
 		GetCurrentTeam()->Bot_ExecuteTurn();
 
 	if (m_bWaitingForMoving)
@@ -1512,7 +1512,7 @@ void CDigitanksGame::Think()
 		angCamera.y += GameServer()->GetFrameTime()*2;
 		GetDigitanksCamera()->SnapAngle(angCamera);
 
-		if (CNetwork::IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
+		if (GameNetwork()->IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
 		{
 			eastl::vector<CEntityHandle<CDigitanksEntity> > ahEntities;
 			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
@@ -1551,7 +1551,7 @@ void CDigitanksGame::Think()
 		}
 	}
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		for (size_t i = 0; i < m_aAirstrikes.size(); i++)
 		{
@@ -1749,17 +1749,17 @@ void CDigitanksGame::CancelAutoMoves(const eastl::vector<eastl::string16>& sArgs
 
 void CDigitanksGame::EndTurn()
 {
-	CNetwork::CallFunction(NETWORK_TOEVERYONE, "EndTurn");
+	GameNetwork()->CallFunction(NETWORK_TOEVERYONE, "EndTurn");
 
-	EndTurn(NULL);
+	EndTurn(CONNECTION_GAME, NULL);
 
 	DigitanksWindow()->GetInstructor()->FinishedTutorial("artillery-endturn");
 //	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_POWER);
 }
 
-void CDigitanksGame::EndTurn(CNetworkParameters* p)
+void CDigitanksGame::EndTurn(int iConnection, CNetworkParameters* p)
 {
-	if (!CNetwork::ShouldRunClientFunction())
+	if (!GameNetwork()->ShouldRunClientFunction())
 		return;
 
 	if (!GetCurrentTeam()->IsPlayerControlled())
@@ -1782,7 +1782,7 @@ void CDigitanksGame::EndTurn(CNetworkParameters* p)
 
 void CDigitanksGame::StartTurn()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 #ifndef DT_COMPETITION
@@ -1872,17 +1872,17 @@ void CDigitanksGame::StartTurn()
 		}
 	}
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "StartTurn");
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "StartTurn");
 
-	StartTurn(NULL);
+	StartTurn(CONNECTION_GAME, NULL);
 
 	if (GetCurrentTeam()->HasLost())
 		EndTurn();
 }
 
-void CDigitanksGame::StartTurn(CNetworkParameters* p)
+void CDigitanksGame::StartTurn(int iConnection, CNetworkParameters* p)
 {
-	if (!CNetwork::ShouldRunClientFunction())
+	if (!GameNetwork()->ShouldRunClientFunction())
 		return;
 
 	DigitanksGame()->GetDigitanksCamera()->ClearFollowTarget();
@@ -2020,7 +2020,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	return bHit;
 }
 
-SERVER_COMMAND(HitIndicator)
+SERVER_GAME_COMMAND(HitIndicator)
 {
 	if (pCmd->GetNumArguments() == 0)
 	{
@@ -2113,19 +2113,19 @@ SERVER_COMMAND(HitIndicator)
 
 void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		HitIndicator.RunCommand(sprintf(L"sdmg %d %d %d %f %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bShieldOnly));
 }
 
 void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		HitIndicator.RunCommand(sprintf(L"dmg %d %d %d %f %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bKilled));
 }
 
 void CDigitanksGame::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		HitIndicator.RunCommand(sprintf(L"disable %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
@@ -2137,7 +2137,7 @@ void CDigitanksGame::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CB
 
 void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		HitIndicator.RunCommand(sprintf(L"miss %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
@@ -2427,7 +2427,7 @@ void CDigitanksGame::SetAimTypeByWeapon(weapon_t eWeapon)
 		SetAimType(AIM_NORMAL);
 }
 
-void CDigitanksGame::TerrainData(class CNetworkParameters* p)
+void CDigitanksGame::TerrainData(int iConnection, class CNetworkParameters* p)
 {
 	if (!GetTerrain())
 		return;
@@ -2451,9 +2451,9 @@ float CDigitanksGame::GetGravity()
 	return -20;
 }
 
-CLIENT_COMMAND(WeaponSpecial)
+CLIENT_GAME_COMMAND(WeaponSpecial)
 {
-	if (CNetwork::IsRunningClientFunctions() && (DigitanksGame()->GetCurrentTeam()->GetClient() != (int)iClient))
+	if (GameNetwork()->IsRunningClientFunctions() && (DigitanksGame()->GetCurrentTeam()->GetClient() != (int)iClient))
 		return;
 
 	DigitanksGame()->WeaponSpecialCommand(DigitanksGame()->GetCurrentTeam());
@@ -2856,7 +2856,7 @@ bool CDigitanksGame::IsWeaponAllowed(weapon_t eWeapon, const CDigitank* pTank)
 		// Enemy tanks have access to this weapon from the first mission.
 		if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && pTank && pTank->GetTeam() && !pTank->GetTeam()->IsPlayerControlled())
 		{
-			TAssert(!CNetwork::IsConnected());
+			TAssert(!GameNetwork()->IsConnected());
 			return m_pLevel->AllowEnemyInfantryLasers();
 		}
 
@@ -2887,7 +2887,7 @@ void CDigitanksGame::AllowLaser()
 
 void CDigitanksGame::BeginAirstrike(Vector vecLocation)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_aAirstrikes.push_back();

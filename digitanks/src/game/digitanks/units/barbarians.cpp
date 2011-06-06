@@ -32,7 +32,7 @@ void CBugTurret::Spawn()
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		Fortify();
 
 	m_aeWeapons.push_back(PROJECTILE_SMALL);

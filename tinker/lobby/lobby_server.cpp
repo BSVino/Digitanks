@@ -10,7 +10,7 @@ extern CNetworkCommand LobbyPlayerInfo;
 extern CNetworkCommand ServerChatSay;
 extern CNetworkCommand BeginGame;
 
-CLIENT_COMMAND(JoinLobby)
+CLIENT_COMMAND(CONNECTION_LOBBY, JoinLobby)
 {
 	if (pCmd->GetNumArguments() < 1)
 	{
@@ -21,12 +21,12 @@ CLIENT_COMMAND(JoinLobby)
 	CGameLobbyServer::AddPlayer(pCmd->ArgAsUInt(0), iClient);
 }
 
-CLIENT_COMMAND(LeaveLobby)
+CLIENT_COMMAND(CONNECTION_LOBBY, LeaveLobby)
 {
 	CGameLobbyServer::RemovePlayer(CGameLobbyServer::GetClientPlayerID(iClient));
 }
 
-CLIENT_COMMAND(UpdateLobbyInfo)
+CLIENT_COMMAND(CONNECTION_LOBBY, UpdateLobbyInfo)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -51,7 +51,7 @@ CLIENT_COMMAND(UpdateLobbyInfo)
 	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iID), pCmd->Arg(0), sValue);
 }
 
-CLIENT_COMMAND(UpdatePlayerInfo)
+CLIENT_COMMAND(CONNECTION_LOBBY, UpdatePlayerInfo)
 {
 	if (pCmd->GetNumArguments() < 3)
 	{
@@ -76,7 +76,7 @@ CLIENT_COMMAND(UpdatePlayerInfo)
 	CGameLobbyServer::UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), sValue);
 }
 
-CLIENT_COMMAND(AddLocalPlayer)
+CLIENT_COMMAND(CONNECTION_LOBBY, AddLocalPlayer)
 {
 	size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
 	if (!CGameLobbyServer::GetLobby(iLobby))
@@ -95,7 +95,7 @@ CLIENT_COMMAND(AddLocalPlayer)
 	CGameLobbyServer::UpdatePlayer(iID, L"ready", L"1");
 }
 
-CLIENT_COMMAND(AddBot)
+CLIENT_COMMAND(CONNECTION_LOBBY, AddBot)
 {
 	size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
 	if (!CGameLobbyServer::GetLobby(iLobby))
@@ -114,7 +114,7 @@ CLIENT_COMMAND(AddBot)
 	CGameLobbyServer::UpdatePlayer(iID, L"ready", L"1");
 }
 
-CLIENT_COMMAND(RemovePlayer)
+CLIENT_COMMAND(CONNECTION_LOBBY, RemovePlayer)
 {
 	if (pCmd->GetNumArguments() < 1)
 	{
@@ -141,7 +141,7 @@ eastl::map<size_t, size_t> CGameLobbyServer::s_aiPlayerLobbies;
 eastl::map<size_t, size_t> CGameLobbyServer::s_aiClientPlayerIDs;
 ILobbyListener* CGameLobbyServer::s_pListener = NULL;
 
-size_t CGameLobbyServer::CreateLobby(size_t iPort)
+size_t CGameLobbyServer::CreateLobby()
 {
 	CGameLobby* pLobby = NULL;
 	size_t iLobby;
@@ -163,7 +163,7 @@ size_t CGameLobbyServer::CreateLobby(size_t iPort)
 		s_aLobbies[iLobby].m_iLobbyID = iLobby;
 	}
 
-	pLobby->Initialize(iPort);
+	pLobby->Initialize();
 
 	return iLobby;
 }
@@ -290,8 +290,10 @@ void CGameLobbyServer::UpdatePlayer(size_t iID, const eastl::string16& sKey, con
 	s_aLobbies[iLobby].UpdatePlayer(iID, sKey, sValue);
 }
 
-void CGameLobbyServer::ClientConnect(class INetworkListener*, class CNetworkParameters* pParameters)
+void CGameLobbyServer::ClientConnect(int iConnection, class INetworkListener*, class CNetworkParameters* pParameters)
 {
+	TAssert(iConnection == CONNECTION_LOBBY);
+
 	int iClient = pParameters->i1;
 
 	AddPlayer(0, iClient);
@@ -305,8 +307,10 @@ void CGameLobbyServer::ClientConnect(class INetworkListener*, class CNetworkPara
 	}
 }
 
-void CGameLobbyServer::ClientDisconnect(class INetworkListener*, class CNetworkParameters* pParameters)
+void CGameLobbyServer::ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters* pParameters)
 {
+	TAssert(iConnection == CONNECTION_LOBBY);
+
 	if (s_pListener)
 		s_pListener->ClientDisconnect(pParameters->i1);
 
@@ -331,7 +335,7 @@ CGameLobby::CGameLobby()
 	m_bActive = false;
 }
 
-void CGameLobby::Initialize(size_t iPort)
+void CGameLobby::Initialize()
 {
 	m_bActive = true;
 	m_aClients.clear();
@@ -405,7 +409,7 @@ void CGameLobby::RemovePlayer(size_t iID)
 	if (!GetPlayer(iPlayer))
 		return;
 
-	::ServerChatSay.RunCommand(GetPlayer(iPlayer)->GetInfoValue(L"name") + L" has left the lobby.\n");
+	::ServerChatSay.RunCommand(CONNECTION_LOBBY, GetPlayer(iPlayer)->GetInfoValue(L"name") + L" has left the lobby.\n");
 
 	m_aClients.erase(m_aClients.begin()+iPlayer);
 
@@ -440,9 +444,9 @@ void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eas
 	if (sKey == L"name")
 	{
 		if (sPreviousValue == L"" && sValue.length() > 0)
-			::ServerChatSay.RunCommand(sValue + L" has joined the lobby.\n");
+			::ServerChatSay.RunCommand(CONNECTION_LOBBY, sValue + L" has joined the lobby.\n");
 		else
-			::ServerChatSay.RunCommand(sPreviousValue + L" is now known as " + sValue + L".\n");
+			::ServerChatSay.RunCommand(CONNECTION_LOBBY, sPreviousValue + L" is now known as " + sValue + L".\n");
 	}
 
 	pPlayer->asInfo[sKey] = sValue;

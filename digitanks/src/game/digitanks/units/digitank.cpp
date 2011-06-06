@@ -635,7 +635,7 @@ void CDigitank::StartTurn()
 
 	DirtyNeedsOrders();
 
-	if (CNetwork::IsHost() && m_bFortified)
+	if (GameNetwork()->IsHost() && m_bFortified)
 	{
 		if (m_iFortifyLevel < 5)
 			m_iFortifyLevel++;
@@ -644,7 +644,7 @@ void CDigitank::StartTurn()
 	m_vecPreviewMove = GetOrigin();
 	m_flPreviewTurn = GetAngles().y;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		m_flTotalPower = m_flStartingPower;
 		m_flMovementPower = m_flAttackPower = m_flDefensePower = 0;
@@ -703,7 +703,7 @@ void CDigitank::EndTurn()
 {
 	BaseClass::EndTurn();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		m_flDefensePower = m_flTotalPower;
 		m_flTotalPower = 0;
@@ -979,8 +979,8 @@ void CDigitank::Move()
 	Speak(TANKSPEECH_MOVED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOEVERYONE, "Move", GetHandle(), m_vecPreviewMove.x, m_vecPreviewMove.y, m_vecPreviewMove.z);
+	if (GameNetwork()->ShouldReplicateClientFunction())
+		GameNetwork()->CallFunction(NETWORK_TOEVERYONE, "Move", GetHandle(), m_vecPreviewMove.x, m_vecPreviewMove.y, m_vecPreviewMove.z);
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -1015,12 +1015,12 @@ void CDigitank::Move(CNetworkParameters* p)
 	if (m_flFireWeaponTime)
 		m_flFireWeaponTime = GameServer()->GetGameTime();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		m_flMovementPower += flMovePower;
 	}
 
-	if (CNetwork::IsHost() && CanGetPowerups())
+	if (GameNetwork()->IsHost() && CanGetPowerups())
 	{
 		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
@@ -1081,7 +1081,7 @@ bool CDigitank::IsMoving()
 	float flTransitionTime = GetTransitionTime();
 
 	// If we're in multiplayer and this tank belongs to real player, never skip its movement.
-	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	if (!GameNetwork()->IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
 	{
 		if (GetVisibility() == 0)
 			flTransitionTime = 0;
@@ -1123,8 +1123,8 @@ void CDigitank::Turn()
 	if (flMovePower > GetRemainingMovementEnergy())
 		return;
 
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOEVERYONE, "Turn", GetHandle(), m_flPreviewTurn);
+	if (GameNetwork()->ShouldReplicateClientFunction())
+		GameNetwork()->CallFunction(NETWORK_TOEVERYONE, "Turn", GetHandle(), m_flPreviewTurn);
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -1142,7 +1142,7 @@ void CDigitank::Turn(CNetworkParameters* p)
 
 	float flMovePower = GetPreviewBaseTurnPower();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		m_flMovementPower += flMovePower;
 	}
@@ -1160,7 +1160,7 @@ bool CDigitank::IsTurning()
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	if (!GameNetwork()->IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
 	{
 		if (GetVisibility() == 0)
 			flTransitionTime = 0;
@@ -1194,7 +1194,7 @@ void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
 	if (fabs(vecPosition.z) > DigitanksGame()->GetTerrain()->GetMapSize())
 		return;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		CNetworkParameters p;
 		p.fl2 = vecPosition.x;
@@ -1203,12 +1203,12 @@ void CDigitank::SetGoalMovePosition(const Vector& vecPosition)
 		SetGoalMovePosition(&p);
 	}
 	else
-		CNetwork::CallFunction(NETWORK_TOSERVER, "SetGoalMovePosition", GetHandle(), vecPosition.x, vecPosition.y, vecPosition.z);
+		GameNetwork()->CallFunction(NETWORK_TOSERVER, "SetGoalMovePosition", GetHandle(), vecPosition.x, vecPosition.y, vecPosition.z);
 }
 
 void CDigitank::SetGoalMovePosition(CNetworkParameters* p)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_bGoalMovePosition = true;
@@ -1219,10 +1219,10 @@ void CDigitank::SetGoalMovePosition(CNetworkParameters* p)
 
 void CDigitank::MoveTowardsGoalMovePosition()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
-	CNetwork::SetRunningClientFunctions(false);
+	GameNetwork()->SetRunningClientFunctions(false);
 
 	bool bIsAHoleInTheWay = false;
 
@@ -1289,10 +1289,10 @@ void CDigitank::MoveTowardsGoalMovePosition()
 
 void CDigitank::CancelGoalMovePosition()
 {
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		CancelGoalMovePosition(NULL);
 	else
-		CNetwork::CallFunction(NETWORK_TOSERVER, "CancelGoalMovePosition", GetHandle());
+		GameNetwork()->CallFunction(NETWORK_TOSERVER, "CancelGoalMovePosition", GetHandle());
 }
 
 void CDigitank::CancelGoalMovePosition(CNetworkParameters* p)
@@ -1308,7 +1308,7 @@ void CDigitank::Fortify()
 	if (IsDisabled())
 		return;
 
-	CNetwork::CallFunction(NETWORK_TOEVERYONE, "Fortify", GetHandle());
+	GameNetwork()->CallFunction(NETWORK_TOEVERYONE, "Fortify", GetHandle());
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -1374,7 +1374,7 @@ void CDigitank::Sentry()
 	if (IsDisabled())
 		return;
 
-	CNetwork::CallFunction(NETWORK_TOEVERYONE, "Sentry", GetHandle());
+	GameNetwork()->CallFunction(NETWORK_TOEVERYONE, "Sentry", GetHandle());
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -1399,7 +1399,7 @@ void CDigitank::Sentry(CNetworkParameters* p)
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
-CLIENT_COMMAND(Charge)
+CLIENT_GAME_COMMAND(Charge)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -1719,7 +1719,7 @@ void CDigitank::Think()
 	{
 		m_flEndCharge = -1;
 
-		if (CNetwork::IsHost() && m_hChargeTarget != NULL)
+		if (GameNetwork()->IsHost() && m_hChargeTarget != NULL)
 		{
 			m_hChargeTarget->TakeDamage(this, this, DAMAGE_COLLISION, ChargeDamage() + GetBonusAttackDamage(), true);
 
@@ -1755,7 +1755,7 @@ void CDigitank::Think()
 
 	float flTransitionTime = GetTransitionTime();
 
-	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	if (!GameNetwork()->IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
 	{
 		if (GetVisibility() == 0)
 			flTransitionTime = 0;
@@ -2329,8 +2329,8 @@ void CDigitank::Fire()
 	if (IsDisabled())
 		return;
 
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOEVERYONE, "Fire", GetHandle(), m_vecPreviewAim.x, m_vecPreviewAim.y, m_vecPreviewAim.z);
+	if (GameNetwork()->ShouldReplicateClientFunction())
+		GameNetwork()->CallFunction(NETWORK_TOEVERYONE, "Fire", GetHandle(), m_vecPreviewAim.x, m_vecPreviewAim.y, m_vecPreviewAim.z);
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -2351,7 +2351,7 @@ void CDigitank::Fire(CNetworkParameters* p)
 
 	float flAttackPower = GetWeaponEnergy();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		m_flTotalPower -= flAttackPower;
 		m_flAttackPower += flAttackPower;
@@ -2363,7 +2363,7 @@ void CDigitank::Fire(CNetworkParameters* p)
 		SetSoundVolume(L"sound/tank-aim.wav", 0.5f);
 	}
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		if (IsMoving())
 			m_flFireWeaponTime += m_flStartedMove + GetTransitionTime() + FirstProjectileTime();
@@ -2416,8 +2416,8 @@ void CDigitank::FireWeapon()
 	if (pProjectile)
 		DigitanksGame()->AddProjectileToWaitFor();
 
-	if (CNetwork::ShouldReplicateClientFunction())
-		CNetwork::CallFunction(NETWORK_TOCLIENTS, "FireWeapon", GetHandle(), m_hWeapon->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
+	if (GameNetwork()->ShouldReplicateClientFunction())
+		GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "FireWeapon", GetHandle(), m_hWeapon->GetHandle(), vecLandingSpot.x, vecLandingSpot.y, vecLandingSpot.z);
 
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
@@ -2547,7 +2547,7 @@ CBaseWeapon* CDigitank::CreateWeapon()
 	return GameServer()->Create<CSmallShell>("CSmallShell");
 }
 
-CLIENT_COMMAND(SetCurrentWeapon)
+CLIENT_GAME_COMMAND(SetCurrentWeapon)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -2564,7 +2564,7 @@ CLIENT_COMMAND(SetCurrentWeapon)
 		return;
 	}
 
-	if (CNetwork::IsRunningClientFunctions() && (!hTank->GetTeam() || hTank->GetTeam()->GetClient() != (int)iClient))
+	if (GameNetwork()->IsRunningClientFunctions() && (!hTank->GetTeam() || hTank->GetTeam()->GetClient() != (int)iClient))
 	{
 		TMsg("SetCurrentWeapon for a tank the player doesn't own.\n");
 		return;
@@ -2715,7 +2715,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
 
-	if (!CNetwork::IsConnected())
+	if (!GameNetwork()->IsConnected())
 	{
 		if (DigitanksGame()->IsTeamControlledByMe(GetTeam()))
 		{
@@ -2766,7 +2766,7 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		flShield = 0;
 	}
 
-	if (CNetwork::IsHost() && (eDamageType == DAMAGE_COLLISION || eDamageType == DAMAGE_EXPLOSION || eDamageType == DAMAGE_LASER || eDamageType == DAMAGE_GENERIC))
+	if (GameNetwork()->IsHost() && (eDamageType == DAMAGE_COLLISION || eDamageType == DAMAGE_EXPLOSION || eDamageType == DAMAGE_LASER || eDamageType == DAMAGE_GENERIC))
 	{
 		size_t iDebris = (int)(flDamage/10);
 		if (iDebris < 0)
@@ -2862,7 +2862,7 @@ Vector CDigitank::GetOrigin() const
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	if (!GameNetwork()->IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
 	{
 		if (GetVisibility() == 0)
 			flTransitionTime = 0;
@@ -2901,7 +2901,7 @@ EAngle CDigitank::GetAngles() const
 {
 	float flTransitionTime = GetTransitionTime();
 
-	if (!CNetwork::IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
+	if (!GameNetwork()->IsConnected() || GetDigitanksTeam() && !GetDigitanksTeam()->IsPlayerControlled())
 	{
 		if (GetVisibility() == 0)
 			flTransitionTime = 0;
@@ -3362,7 +3362,7 @@ void CDigitank::UpdateInfo(eastl::string16& s)
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (m_iBonusLevel + m_iBonusPoints >= 5)
@@ -3374,10 +3374,10 @@ void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
 	{
 		DigitanksWindow()->GetHUD()->AddPowerupNotification(this, POWERUP_BONUS);
 		TankPromoted(NULL);
-		CNetwork::CallFunction(NETWORK_TOCLIENTS, "TankPromoted", GetHandle());
+		GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "TankPromoted", GetHandle());
 	}
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	Speak(TANKSPEECH_PROMOTED);
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -3393,9 +3393,9 @@ bool CDigitank::HasBonusPoints()
 
 void CDigitank::PromoteAttack()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 	{
-		CNetwork::CallFunction(NETWORK_TOSERVER, "PromoteAttack", GetHandle());
+		GameNetwork()->CallFunction(NETWORK_TOSERVER, "PromoteAttack", GetHandle());
 		return;
 	}
 
@@ -3409,7 +3409,7 @@ void CDigitank::PromoteAttack()
 	m_iBonusPoints--;
 	m_flBonusAttackPower++;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	if (GetTeam()->IsPlayerControlled())
 	{
@@ -3420,9 +3420,9 @@ void CDigitank::PromoteAttack()
 
 void CDigitank::PromoteDefense()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 	{
-		CNetwork::CallFunction(NETWORK_TOSERVER, "PromoteDefense", GetHandle());
+		GameNetwork()->CallFunction(NETWORK_TOSERVER, "PromoteDefense", GetHandle());
 		return;
 	}
 
@@ -3436,7 +3436,7 @@ void CDigitank::PromoteDefense()
 	m_iBonusPoints--;
 	m_flBonusDefensePower++;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	if (GetTeam()->IsPlayerControlled())
 	{
@@ -3447,9 +3447,9 @@ void CDigitank::PromoteDefense()
 
 void CDigitank::PromoteMovement()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 	{
-		CNetwork::CallFunction(NETWORK_TOSERVER, "PromoteMovement", GetHandle());
+		GameNetwork()->CallFunction(NETWORK_TOSERVER, "PromoteMovement", GetHandle());
 		return;
 	}
 
@@ -3463,7 +3463,7 @@ void CDigitank::PromoteMovement()
 	m_iBonusPoints--;
 	m_flBonusMovementPower++;
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "SetBonusPoints", GetHandle(), m_iBonusPoints.Get(), m_flBonusAttackPower.Get(), m_flBonusDefensePower.Get(), m_flBonusMovementPower.Get());
 
 	if (GetTeam()->IsPlayerControlled())
 	{
@@ -3527,7 +3527,7 @@ void CDigitank::TankPromoted(class CNetworkParameters* p)
 
 void CDigitank::PromoteAttack(class CNetworkParameters* p)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	PromoteAttack();
@@ -3535,7 +3535,7 @@ void CDigitank::PromoteAttack(class CNetworkParameters* p)
 
 void CDigitank::PromoteDefense(class CNetworkParameters* p)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	PromoteDefense();
@@ -3543,7 +3543,7 @@ void CDigitank::PromoteDefense(class CNetworkParameters* p)
 
 void CDigitank::PromoteMovement(class CNetworkParameters* p)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	PromoteMovement();
@@ -3551,7 +3551,7 @@ void CDigitank::PromoteMovement(class CNetworkParameters* p)
 
 void CDigitank::Speak(size_t iSpeech)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (rand()%4 != 0)
@@ -3575,7 +3575,7 @@ void CDigitank::Speak(size_t iSpeech)
 	m_flLastSpeech = GameServer()->GetGameTime();
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "TankSpeak", GetHandle(), iLine);
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "TankSpeak", GetHandle(), iLine);
 
 	CNetworkParameters p;
 	p.i2 = (int)iLine;

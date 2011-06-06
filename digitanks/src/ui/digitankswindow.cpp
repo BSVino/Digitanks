@@ -365,7 +365,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	}
 
 	// Suppress all network commands until the game is done loading.
-	CNetwork::SendCommands(false);
+	GameNetwork()->SendCommands(false);
 
 	if (GameServer())
 	{
@@ -376,19 +376,19 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		GameServer()->SetServerPort(iPort);
 		GameServer()->Initialize();
 
-		CNetwork::SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
+		GameNetwork()->SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
 	}
 
-	if (CNetwork::IsHost() && DigitanksGame())
+	if (GameNetwork()->IsHost() && DigitanksGame())
 	{
 		GameServer()->SetupFromLobby(eRequestedGameType == GAMETYPE_FROM_LOBBY);
 		DigitanksGame()->SetupGame(eGameType);
 	}
 
 	// Now turn the network on and connect all clients.
-	CNetwork::SendCommands(true);
+	GameNetwork()->SendCommands(true);
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		GameServer()->ClientConnect(NETWORK_TOCLIENTS);
 
 	// Must set player nickname after teams have been set up or it won't stick.
@@ -518,7 +518,7 @@ void CDigitanksWindow::Run()
 					RenderLoading();
 					continue;
 				}
-				else if (GameServer()->IsClient() && !CNetwork::IsConnected())
+				else if (GameServer()->IsClient() && !GameNetwork()->IsConnected())
 				{
 					DestroyGame();
 					CreateGame(GAMETYPE_MENU);
@@ -658,7 +658,7 @@ void CDigitanksWindow::GameOver(bool bPlayerWon)
 
 void CDigitanksWindow::OnClientDisconnect(int iClient)
 {
-	if (iClient == CNetwork::GetClientID())
+	if (iClient == GameNetwork()->GetClientID())
 		Restart(GAMETYPE_MENU);
 }
 

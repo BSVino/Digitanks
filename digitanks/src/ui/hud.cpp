@@ -2797,7 +2797,7 @@ void CHUD::NewCurrentTeam()
 			ShowFirstActionItem();
 	}
 
-	if (CNetwork::IsConnected() && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
+	if (GameNetwork()->IsConnected() && DigitanksGame()->IsTeamControlledByMe(DigitanksGame()->GetCurrentTeam()))
 		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");	// No time to make a new sound.
 
 	CRootPanel::Get()->Layout();

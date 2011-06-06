@@ -361,7 +361,7 @@ void CDigitanksTeam::StartTurn()
 
 	if (GetUpdateDownloading())
 	{
-		if (CNetwork::IsHost())
+		if (GameNetwork()->IsHost())
 		{
 			m_flUpdateDownloaded += m_flMegabytes;
 			m_flMegabytes = 0;
@@ -420,7 +420,7 @@ void CDigitanksTeam::EndTurn()
 
 void CDigitanksTeam::CountProducers()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_flPowerPerTurn = 0;
@@ -447,7 +447,7 @@ void CDigitanksTeam::CountProducers()
 
 void CDigitanksTeam::AddPowerPerTurn(float flPower)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_flPowerPerTurn += flPower;
@@ -465,7 +465,7 @@ void CDigitanksTeam::ConsumePower(float flPower)
 
 void CDigitanksTeam::CountFleetPoints()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_iTotalFleetPoints = 0;
@@ -506,7 +506,7 @@ size_t CDigitanksTeam::GetUnusedFleetPoints()
 
 void CDigitanksTeam::CountScore()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (!m_bIncludeInScoreboard)
@@ -547,7 +547,7 @@ void CDigitanksTeam::YouLoseSirGoodDay()
 
 void CDigitanksTeam::CountBandwidth()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_flBandwidth = 0;
@@ -755,7 +755,7 @@ void CDigitanksTeam::ServerHandledActionItem(size_t i)
 	DigitanksWindow()->GetHUD()->Layout();
 }
 
-CLIENT_COMMAND(HandledActionItem)
+CLIENT_GAME_COMMAND(HandledActionItem)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -785,7 +785,7 @@ void CDigitanksTeam::HandledActionItem(size_t i)
 	::HandledActionItem.RunCommand(sprintf(L"%d %d", GetHandle(), i));
 
 	// Predict the handling so it happens immediately.
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		ServerHandledActionItem(i);
 }
 
@@ -839,7 +839,7 @@ void CDigitanksTeam::DownloadUpdate(int iX, int iY, bool bCheckValid)
 
 	DownloadUpdate(&p);
 
-	CNetwork::CallFunctionParameters(NETWORK_TOEVERYONE, "DownloadUpdate", &p);
+	GameNetwork()->CallFunctionParameters(NETWORK_TOEVERYONE, "DownloadUpdate", &p);
 }
 
 void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
@@ -869,7 +869,7 @@ void CDigitanksTeam::DownloadUpdate(class CNetworkParameters* p)
 	m_iCurrentUpdateX = iX;
 	m_iCurrentUpdateY = iY;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 	{
 		m_flUpdateDownloaded += m_flMegabytes;
 		m_flMegabytes = 0;
@@ -903,7 +903,7 @@ void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 	if (!DigitanksGame()->GetUpdateGrid())
 		return;
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	CNetworkParameters p;
@@ -912,7 +912,7 @@ void CDigitanksTeam::DownloadComplete(bool bInformMembers)
 
 	DownloadComplete(&p);
 
-	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "DownloadComplete", &p);
+	GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "DownloadComplete", &p);
 }
 
 void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
@@ -938,7 +938,7 @@ void CDigitanksTeam::DownloadComplete(class CNetworkParameters* p)
 
 	AddActionItem(NULL, ACTIONTYPE_DOWNLOADCOMPLETE);
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	// Host-only shit from here on out, gets auto-sent to the clients.

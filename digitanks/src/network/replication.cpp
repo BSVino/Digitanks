@@ -63,7 +63,7 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 				memcpy((unsigned char*)(p.m_pExtraData) + strlen(pVarData->GetName())+1, pValue, iDataSize);
 
 				// UV stands for UpdateValue
-				CNetwork::CallFunctionParameters(iClient, "UV", &p);
+				GameNetwork()->CallFunctionParameters(iClient, "UV", &p);
 
 				// Only reset the dirty flag if all clients got the message.
 				if (iClient == NETWORK_TOCLIENTS)

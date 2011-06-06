@@ -184,7 +184,6 @@ void CBaseEntity::SetTeam(class CTeam* pTeam)
 
 void CBaseEntity::ClientUpdate(int iClient)
 {
-	CNetwork::CallFunction(iClient, "SetAngles", GetHandle(), GetAngles().p, GetAngles().y, GetAngles().r);
 }
 
 void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit)
@@ -194,7 +193,7 @@ void CBaseEntity::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, da
 
 	bool bWasAlive = IsAlive();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		m_flHealth -= flDamage;
 
 	CallOutput("OnTakeDamage");
@@ -210,7 +209,7 @@ void CBaseEntity::Kill()
 	if (!IsAlive())
 		return;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		m_flHealth = -1;
 
 	Killed(NULL);
@@ -430,7 +429,7 @@ void CEntityOutput::Clear()
 	m_aTargets.clear();
 }
 
-SERVER_COMMAND(EmitSound)
+SERVER_GAME_COMMAND(EmitSound)
 {
 	if (pCmd->GetNumArguments() < 4)
 	{
@@ -446,7 +445,7 @@ void CBaseEntity::EmitSound(const eastl::string16& sFilename, float flVolume, bo
 	::EmitSound.RunCommand(sprintf(L"%d %.1f %d %s", GetHandle(), flVolume, bLoop?1:0, sFilename));
 }
 
-SERVER_COMMAND(StopSound)
+SERVER_GAME_COMMAND(StopSound)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -513,7 +512,7 @@ void CBaseEntity::SetSpawnSeed(size_t iSpawnSeed)
 	mtsrand(iSpawnSeed);
 }
 
-SERVER_COMMAND(ClientSpawn)
+SERVER_GAME_COMMAND(ClientSpawn)
 {
 	if (pCmd->GetNumArguments() < 1)
 	{

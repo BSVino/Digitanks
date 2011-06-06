@@ -70,7 +70,7 @@ void CBaseWeapon::Think()
 {
 	BaseClass::Think();
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (m_flTimeExploded != 0.0f && GameServer()->GetGameTime() - m_flTimeExploded > 2.0f)

@@ -12,12 +12,12 @@ extern CNetworkCommand AddLocalPlayer;
 extern CNetworkCommand AddBot;
 extern CNetworkCommand RemovePlayer;
 
-SERVER_COMMAND(FullUpdate)
+SERVER_COMMAND(CONNECTION_LOBBY, FullUpdate)
 {
 	CGameLobbyClient::R_Clear();
 }
 
-SERVER_COMMAND(LobbyInfo)
+SERVER_COMMAND(CONNECTION_LOBBY, LobbyInfo)
 {
 	if (pCmd->GetNumArguments() < 2)
 	{
@@ -29,7 +29,7 @@ SERVER_COMMAND(LobbyInfo)
 	CGameLobbyClient::R_UpdateLobby(pCmd->Arg(0), sValue);
 }
 
-SERVER_COMMAND(LobbyPlayerInfo)
+SERVER_COMMAND(CONNECTION_LOBBY, LobbyPlayerInfo)
 {
 	if (pCmd->GetNumArguments() < 3)
 	{
@@ -57,7 +57,7 @@ SERVER_COMMAND(LobbyPlayerInfo)
 	}
 }
 
-SERVER_COMMAND(BeginGame)
+SERVER_COMMAND(CONNECTION_LOBBY, BeginGame)
 {
 	CGameLobbyClient::BeginGame();
 }
@@ -81,7 +81,7 @@ void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 void CGameLobbyClient::S_LeaveLobby()
 {
 	::LeaveLobby.RunCommand(L"");
-	CNetwork::Disconnect();
+	LobbyNetwork()->Disconnect();
 	s_aClients.clear();
 
 	s_bInLobby = false;
@@ -89,7 +89,7 @@ void CGameLobbyClient::S_LeaveLobby()
 
 size_t CGameLobbyClient::L_GetLocalPlayerID()
 {
-	CLobbyPlayer* pPlayer = L_GetPlayerByClient(CNetwork::GetClientID());
+	CLobbyPlayer* pPlayer = L_GetPlayerByClient(LobbyNetwork()->GetClientID());
 
 	TAssert(pPlayer);
 	if (!pPlayer)
@@ -154,12 +154,12 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 	pPlayer->iID = iID;
 	pPlayer->iClient = iClient;
 
-	if (iClient == CNetwork::GetClientID())
+	if (iClient == LobbyNetwork()->GetClientID())
 	{
 		s_bInLobby = true;
 
 		if (s_pfnLobbyJoinCallback)
-			s_pfnLobbyJoinCallback(NULL, NULL);
+			s_pfnLobbyJoinCallback(CONNECTION_LOBBY, NULL, NULL);
 	}
 
 	UpdateListener();
@@ -172,12 +172,12 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 	if (iPlayer == ~0)
 		return;
 
-	if (s_aClients[iPlayer].iClient == CNetwork::GetClientID())
+	if (s_aClients[iPlayer].iClient == LobbyNetwork()->GetClientID())
 	{
 		s_bInLobby = false;
 
 		if (s_pfnLobbyLeaveCallback)
-			s_pfnLobbyLeaveCallback(NULL, NULL);
+			s_pfnLobbyLeaveCallback(CONNECTION_LOBBY, NULL, NULL);
 	}
 
 	s_aClients.erase(s_aClients.begin() + iPlayer);
@@ -267,7 +267,7 @@ void CGameLobbyClient::SetLobbyUpdateCallback(INetworkListener::Callback pfnCall
 void CGameLobbyClient::UpdateListener()
 {
 	if (s_pfnLobbyUpdateCallback)
-		s_pfnLobbyUpdateCallback(NULL, NULL);
+		s_pfnLobbyUpdateCallback(CONNECTION_LOBBY, NULL, NULL);
 }
 
 void CGameLobbyClient::SetLobbyJoinCallback(INetworkListener::Callback pfnCallback)
@@ -288,7 +288,7 @@ void CGameLobbyClient::SetBeginGameCallback(INetworkListener::Callback pfnCallba
 void CGameLobbyClient::BeginGame()
 {
 	if (s_pfnBeginGameCallback)
-		s_pfnBeginGameCallback(NULL, NULL);
+		s_pfnBeginGameCallback(CONNECTION_LOBBY, NULL, NULL);
 
 	s_bInLobby = false;
 }

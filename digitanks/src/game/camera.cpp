@@ -4,9 +4,8 @@
 #include <mtrand.h>
 #include <renderer/renderer.h>
 #include <tinker/cvar.h>
-
-#include <ui/digitankswindow.h>
-#include <ui/instructor.h>
+#include <tinker/application.h>
+#include <game/gameserver.h>
 
 CCamera::CCamera()
 {
@@ -28,7 +27,7 @@ void CCamera::Think()
 		m_vecFreeCamera = GetCameraPosition();
 		m_angFreeCamera = VectorAngles((GetCameraTarget() - GetCameraPosition()).Normalized());
 		m_bFreeMode = bFreeMode;
-		DigitanksWindow()->SetMouseCursorEnabled(!m_bFreeMode);
+		CApplication::Get()->SetMouseCursorEnabled(!m_bFreeMode);
 	}
 
 	if (m_bFreeMode)

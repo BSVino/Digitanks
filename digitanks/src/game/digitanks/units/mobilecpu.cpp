@@ -47,11 +47,11 @@ void CMobileCPU::Think()
 {
 	BaseClass::Think();
 
-	if (CNetwork::IsHost() && m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime > 1)
+	if (GameNetwork()->IsHost() && m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime > 1)
 	{
 		Delete();
 
-		CNetwork::SetRunningClientFunctions(false);
+		GameNetwork()->SetRunningClientFunctions(false);
 
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
 		pCPU->SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin()));

@@ -56,7 +56,7 @@ void CGameWindow::Run()
 					RenderLoading();
 					continue;
 				}
-				else if (GameServer()->IsClient() && !CNetwork::IsConnected())
+				else if (GameServer()->IsClient() && !GameNetwork()->IsConnected())
 				{
 					//DestroyGame();
 					//CreateGame(GAMETYPE_MENU);

@@ -158,7 +158,7 @@ void CAutoTurret::Fire()
 	if (m_bHasFired)
 		return;
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	eastl::vector<CDigitank*> apTargets = GetTargets();

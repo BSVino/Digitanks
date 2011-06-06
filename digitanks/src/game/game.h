@@ -3,7 +3,7 @@
 
 #include <EASTL/vector.h>
 
-#include <network/network.h>
+#include <network/replication.h>
 
 #include "baseentity.h"
 #include "gameserver.h"
@@ -26,8 +26,6 @@ public:
 	virtual void								OnClientDisconnect(int iClient);
 
 	virtual void								EnterGame();
-
-	NET_CALLBACK(CGame,							SetAngles);
 
 	void										AddTeam(CTeam* pTeam);
 	void										RemoveTeam(CTeam* pTeam);

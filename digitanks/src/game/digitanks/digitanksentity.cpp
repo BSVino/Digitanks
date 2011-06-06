@@ -105,7 +105,7 @@ void CDigitanksEntity::Think()
 		m_flNextDirtyArea = 0;
 	}
 
-	if (CNetwork::IsHost() && !IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
+	if (GameNetwork()->IsHost() && !IsAlive() && GameServer()->GetGameTime() > m_flTimeKilled + 1.0f)
 	{
 		GameServer()->Delete(this);
 

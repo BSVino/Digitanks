@@ -491,15 +491,15 @@ bool CCPU::BeginConstruction()
 	p.fl4 = GetPreviewBuild().y;
 	p.fl5 = GetPreviewBuild().z;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		BeginConstruction(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginConstruction", &p);
+		GameNetwork()->CallFunctionParameters(NETWORK_TOSERVER, "BeginConstruction", &p);
 
 	bool bSuccess = false;
 
 	// This is used for the bot to see if a build was successful.
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		bSuccess = (p.ui1 != ~0);
 	else
 		bSuccess = true;
@@ -516,11 +516,11 @@ bool CCPU::BeginConstruction()
 
 void CCPU::BeginConstruction(CNetworkParameters* p)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	// Overload this so that things this function calls get replicated.
-	CNetwork::SetRunningClientFunctions(false);
+	GameNetwork()->SetRunningClientFunctions(false);
 
 	unittype_t ePreviewStructure = (unittype_t)p->i2;
 	Vector vecPreview(p->fl3, p->fl4, p->fl5);
@@ -604,7 +604,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 			pLoader->SetBuildUnit(UNIT_ARTILLERY);
 	}
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		p->ui1 = pConstructing->GetHandle();
 
 	GetDigitanksTeam()->ConsumePower(GetPowerToConstruct(ePreviewStructure, vecPreview));
@@ -641,7 +641,7 @@ void CCPU::BeginConstruction(CNetworkParameters* p)
 		pCollector->GetResource()->SetCollector(pCollector);
 	}
 
-	if (CNetwork::IsHost() && pConstructing->GetTurnsRemainingToConstruct() == 0)
+	if (GameNetwork()->IsHost() && pConstructing->GetTurnsRemainingToConstruct() == 0)
 		pConstructing->CompleteConstruction();
 
 	GetDigitanksTeam()->CountProducers();
@@ -699,10 +699,10 @@ void CCPU::BeginRogueProduction()
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		BeginRogueProduction(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginRogueProduction", &p);
+		GameNetwork()->CallFunctionParameters(NETWORK_TOSERVER, "BeginRogueProduction", &p);
 }
 
 void CCPU::BeginRogueProduction(class CNetworkParameters* p)
@@ -733,7 +733,7 @@ void CCPU::StartTurn()
 		m_iTurnsToProduceRogue -= (size_t)1;
 		if (m_iTurnsToProduceRogue == (size_t)0)
 		{
-			if (CNetwork::IsHost())
+			if (GameNetwork()->IsHost())
 			{
 				CDigitank* pTank = GameServer()->Create<CScout>("CScout");
 				pTank->SetOrigin(GetOrigin());
@@ -907,7 +907,7 @@ void CCPU::UpdateInfo(eastl::string16& s)
 
 void CCPU::OnDeleted()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (!GetTeam())

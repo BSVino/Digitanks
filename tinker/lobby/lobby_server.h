@@ -13,7 +13,7 @@ public:
 										CGameLobby();
 
 public:
-	void								Initialize(size_t iPort);
+	void								Initialize();
 	void								Shutdown();
 
 	size_t								GetNumPlayers();
@@ -56,7 +56,7 @@ class CGameLobbyServer
 	friend class CGameLobby;
 
 public:
-	static size_t						CreateLobby(size_t iPort);
+	static size_t						CreateLobby();
 	static void							DestroyLobby(size_t iLobby);
 	static size_t						AddPlayer(size_t iLobby, size_t iClient);
 	static void							RemovePlayer(size_t iID);
@@ -69,8 +69,8 @@ public:
 	static void							UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue);
 	static void							UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
 
-	static void							ClientConnect(class INetworkListener*, class CNetworkParameters*);
-	static void							ClientDisconnect(class INetworkListener*, class CNetworkParameters*);
+	static void							ClientConnect(int iConnection, class INetworkListener*, class CNetworkParameters*);
+	static void							ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters*);
 
 	static void							SetListener(ILobbyListener* pListener);
 

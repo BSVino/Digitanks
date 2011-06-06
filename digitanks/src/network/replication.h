@@ -12,13 +12,6 @@
 
 #include "network.h"
 
-#define NET_CALLBACK(type, pfn) \
-	virtual void pfn(CNetworkParameters* p); \
-	static void pfn##Callback(INetworkListener* obj, CNetworkParameters* p) \
-	{ \
-		((type*)obj)->pfn(p); \
-	}
-
 #define NET_CALLBACK_ENTITY(type, entity, pfn) \
 	virtual void pfn(CNetworkParameters* p) \
 	{ \
@@ -26,8 +19,9 @@
 	if (hEntity != NULL) \
 		hEntity->pfn(p); \
 	} \
-	static void pfn##Callback(INetworkListener* obj, CNetworkParameters* p) \
+	static void pfn##Callback(int iConnection, INetworkListener* obj, CNetworkParameters* p) \
 	{ \
+		TAssert(iConnection == CONNECTION_GAME); \
 		((type*)obj)->pfn(p); \
 	}
 

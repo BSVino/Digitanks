@@ -16,7 +16,7 @@
 class INetworkListener
 {
 public:
-	typedef void (*Callback)(INetworkListener*, class CNetworkParameters*);
+	typedef void (*Callback)(int iConnection, INetworkListener*, class CNetworkParameters*);
 };
 
 class CNetworkParameters
@@ -136,55 +136,110 @@ enum
 	NETWORK_TOEVERYONE	= -3,	// This message is all of the above.
 };
 
+enum
+{
+	CONNECTION_UNDEFINED = 0,
+	CONNECTION_LOBBY,
+	CONNECTION_GAME,
+};
+
+#define NET_CALLBACK(type, pfn) \
+	virtual void pfn(int iConnection, CNetworkParameters* p); \
+	static void pfn##Callback(int iConnection, INetworkListener* obj, CNetworkParameters* p) \
+	{ \
+		((type*)obj)->pfn(iConnection, p); \
+	}
+
 class CNetwork
 {
 public:
-	static void				Initialize();
-	static void				Deinitialize();
+	static void			Initialize();
+	static void			Deinitialize();
 
-	static void				ClearRegisteredFunctions();
-	static void				RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...);
+	static size_t		GetNumConnections();
+	static class CNetworkConnection* GetConnection(int iConnection);
 
-	static void				CreateHost(int iPort);
-	static void				SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect);
-	static void				ConnectToHost(const char* pszHost, int iPort);
+	static bool			IsInitialized() { return s_bInitialized; }
 
-	static bool				IsConnected() { return s_bConnected; };
-	static bool				IsHost();
-
-	static bool				IsRunningClientFunctions();
-	static void				SetRunningClientFunctions(bool bRunningClientFunctions);
-	static bool				ShouldRunClientFunction() { return IsHost() || IsRunningClientFunctions(); };
-	static bool				ShouldReplicateClientFunction() { return !IsRunningClientFunctions(); };
-
-	static void				Disconnect(bool bForced = false);
-	static void				DisconnectClient(int iClient);
-
-	static void				Think();
-
-	static void				CallFunction(int iClient, const char* pszName, ...);
-	static void				CallFunctionParameters(int iClient, const char* pszName, CNetworkParameters* p);
-	static void				CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false);
-	static void				CallbackFunction(const char* pszName, CNetworkParameters* p);
-
-	static void				SendCommands(bool bSend) { s_bSendCommands = bSend; };
-	static void				SuspendPumping() { s_bPumping = false; };
-	static void				ResumePumping() { s_bPumping = true; };
-
-	static size_t			GetClientsConnected();
-	static size_t			GetClientConnectionId(size_t iClient);	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
-
-	static size_t			GetClientID();	// Client only
+	static void			Think();
 
 protected:
-	static bool				s_bInitialized;
-	static bool				s_bConnected;
-	static bool				s_bPumping;
-	static bool				s_bSendCommands;
-	static eastl::map<eastl::string, CRegisteredFunction> s_aFunctions;
-	static INetworkListener* s_pClientListener;
-	static INetworkListener::Callback s_pfnClientConnect;
-	static INetworkListener::Callback s_pfnClientDisconnect;
+	static bool			s_bInitialized;
 };
+
+class CNetworkConnection : public INetworkListener
+{
+public:
+						CNetworkConnection(int iConnection);
+	virtual				~CNetworkConnection() {};
+
+public:
+	virtual void		ClearRegisteredFunctions();
+	virtual void		RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...);
+
+	virtual void		CreateHost(int iPort) = 0;
+	virtual void		SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect);
+	virtual void		ConnectToHost(const char* pszHost, int iPort) = 0;
+
+	virtual bool		IsConnected() { return m_bConnected; };
+	virtual bool		IsHost() = 0;
+
+	virtual bool		IsRunningClientFunctions();
+	virtual void		SetRunningClientFunctions(bool bRunningClientFunctions);
+	virtual bool		ShouldRunClientFunction() { return IsHost() || IsRunningClientFunctions(); };
+	virtual bool		ShouldReplicateClientFunction() { return !IsRunningClientFunctions(); };
+
+	virtual void		Disconnect(bool bForced = false) = 0;
+	virtual void		DisconnectClient(int iClient) = 0;
+
+	virtual void		Think() = 0;
+
+	virtual void		CallFunction(int iClient, const char* pszName, ...);
+	virtual void		CallFunctionParameters(int iClient, const char* pszName, CNetworkParameters* p);
+	virtual void		CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false) = 0;
+	virtual void		CallbackFunction(const char* pszName, CNetworkParameters* p);
+
+	virtual void		SendCommands(bool bSend) { m_bSendCommands = bSend; };
+	virtual void		SuspendPumping() { m_bPumping = false; };
+	virtual void		ResumePumping() { m_bPumping = true; };
+
+	virtual size_t		GetClientsConnected() = 0;
+	virtual size_t		GetClientConnectionId(size_t iClient) = 0;	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
+
+	// Client only
+	virtual void		SetClientID(size_t iID) { m_iClientID = iID; };
+	virtual size_t		GetClientID();
+
+	NET_CALLBACK(CNetworkConnection, NetworkCommand);
+
+protected:
+	int					m_iConnection;
+	bool				m_bConnected;
+	bool				m_bPumping;
+	bool				m_bSendCommands;
+	eastl::map<eastl::string, CRegisteredFunction> m_aFunctions;
+	INetworkListener*	m_pClientListener;
+	INetworkListener::Callback m_pfnClientConnect;
+	INetworkListener::Callback m_pfnClientDisconnect;
+
+	bool				m_bIsRunningClientFunctions;
+	size_t				m_iCurrentClient;
+	size_t				m_iClientID;
+};
+
+inline CNetworkConnection* Network(int iNetwork)
+{
+	return CNetwork::GetConnection(iNetwork);
+}
+
+inline CNetworkConnection* LobbyNetwork()
+{
+	return CNetwork::GetConnection(CONNECTION_LOBBY);
+}
+
+inline CNetworkConnection* GameNetwork()
+{
+	return CNetwork::GetConnection(CONNECTION_GAME);
+}
 
 #endif

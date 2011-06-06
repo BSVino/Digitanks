@@ -38,7 +38,7 @@ void CCollector::ClientSpawn()
 {
 	BaseClass::ClientSpawn();
 
-	if (CNetwork::IsHost() && !GetResource())
+	if (GameNetwork()->IsHost() && !GetResource())
 	{
 		SetResource(CResource::FindClosestResource(GetOrigin(), GetResourceType()));
 		if (GetResource())
@@ -195,7 +195,7 @@ bool CBattery::CanStructureUpgrade()
 
 void CBattery::UpgradeComplete()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	CCollector* pCollector = GameServer()->Create<CCollector>("CCollector");

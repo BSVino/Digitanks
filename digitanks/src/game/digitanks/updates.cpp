@@ -474,7 +474,7 @@ void CUpdateGrid::ClientUpdate(int iClient)
 
 	memcpy(p.m_pExtraData, &m_aUpdates[0][0], sizeof(m_aUpdates));
 
-	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "UpdatesData", &p);
+	GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "UpdatesData", &p);
 }
 
 void CUpdateGrid::UpdatesData(CNetworkParameters* p)

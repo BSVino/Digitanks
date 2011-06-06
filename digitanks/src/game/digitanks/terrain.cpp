@@ -489,7 +489,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 void CTerrain::GenerateCollision()
 {
-	TAssert(m_bHeightsInitialized || !CNetwork::IsHost());
+	TAssert(m_bHeightsInitialized || !GameNetwork()->IsHost());
 
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
@@ -1876,7 +1876,7 @@ void CTerrain::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damag
 
 	Vector vecOrigin = pInflictor->GetOrigin();
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	int iX = WorldToArraySpace(vecOrigin.x);
@@ -2413,8 +2413,8 @@ void CTerrain::UpdateTerrainData()
 				}
 			}
 
-			if (CNetwork::ShouldReplicateClientFunction())
-				CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "TerrainData", &p);
+			if (GameNetwork()->ShouldReplicateClientFunction())
+				GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "TerrainData", &p);
 
 			TerrainData(&p);
 		}
@@ -2449,7 +2449,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 				float flHeight = flHeightData[iPosition];
 
-				if (CNetwork::IsHost())
+				if (GameNetwork()->IsHost())
 				{
 					if (!m_bHeightsInitialized)
 					{
@@ -2542,7 +2542,7 @@ void CTerrain::ResyncClientTerrainData(int iClient)
 				}
 			}
 
-			CNetwork::CallFunctionParameters(iClient, "TerrainData", &p);
+			GameNetwork()->CallFunctionParameters(iClient, "TerrainData", &p);
 		}
 	}
 }
@@ -2616,7 +2616,7 @@ CTerrainChunk::~CTerrainChunk()
 
 void CTerrainChunk::Think()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	for (size_t i = 0; i < TERRAIN_CHUNK_SIZE; i++)

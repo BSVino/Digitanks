@@ -77,13 +77,13 @@ public:
 	EVENT_CALLBACK(CLobbyPanel,		AddPlayer);
 	EVENT_CALLBACK(CLobbyPanel,		AddBot);
 
-	static void						LobbyUpdateCallback(INetworkListener*, class CNetworkParameters*);
+	static void						LobbyUpdateCallback(int iConnection, INetworkListener*, class CNetworkParameters*);
 	void							LobbyUpdate();
 
-	static void						LobbyJoinCallback(INetworkListener*, class CNetworkParameters*);
-	static void						LobbyLeaveCallback(INetworkListener*, class CNetworkParameters*);
+	static void						LobbyJoinCallback(int iConnection, INetworkListener*, class CNetworkParameters*);
+	static void						LobbyLeaveCallback(int iConnection, INetworkListener*, class CNetworkParameters*);
 
-	static void						BeginGameCallback(INetworkListener*, class CNetworkParameters*);
+	static void						BeginGameCallback(int iConnection, INetworkListener*, class CNetworkParameters*);
 
 protected:
 	bool							m_bOnline;

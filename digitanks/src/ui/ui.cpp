@@ -116,11 +116,11 @@ void CDigitanksMenu::Layout()
 
 	m_pDifficultyLabel->EnsureTextFits();
 	m_pDifficultyLabel->SetPos(25, 60);
-	m_pDifficultyLabel->SetVisible(!CNetwork::IsConnected());
+	m_pDifficultyLabel->SetVisible(!GameNetwork()->IsConnected());
 
 	m_pDifficulty->SetSize(GetWidth() - m_pDifficultyLabel->GetLeft()*2 - m_pDifficultyLabel->GetWidth(), iSelectorSize);
 	m_pDifficulty->SetPos(m_pDifficultyLabel->GetRight(), 60);
-	m_pDifficulty->SetVisible(!CNetwork::IsConnected());
+	m_pDifficulty->SetVisible(!GameNetwork()->IsConnected());
 
 	m_pSaveGame->SetPos(25, 130);
 	m_pSaveGame->SetSize(150, 20);
@@ -231,7 +231,9 @@ void CDigitanksMenu::OptionsCallback()
 
 void CDigitanksMenu::ExitCallback()
 {
-	CNetwork::Disconnect();
+	GameNetwork()->Disconnect();
+	LobbyNetwork()->Disconnect();
+
 	GameServer()->SetLoading(true);
 	DigitanksWindow()->DestroyGame();
 	DigitanksWindow()->CreateGame(GAMETYPE_MENU);

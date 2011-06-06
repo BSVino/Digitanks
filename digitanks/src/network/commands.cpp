@@ -10,21 +10,33 @@ CVar net_debug("net_debug", "off");
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
 {
-	RunCommand(sParameters, m_iMessageTarget);
+	RunCommand(m_iConnection, sParameters, m_iMessageTarget);
+}
+
+void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParameters)
+{
+	RunCommand(iConnection, sParameters, m_iMessageTarget);
 }
 
 void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget)
 {
+	RunCommand(m_iConnection, sParameters, iTarget);
+}
+
+void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParameters, int iTarget)
+{
+	TAssert(iConnection != CONNECTION_UNDEFINED);
+
 	bool bNoNetwork = false;
 	bool bPredict = false;
 	if (iTarget == NETWORK_TOCLIENTS)
 	{
-		if (CNetwork::IsHost())
+		if (Network(iConnection)->IsHost())
 			bPredict = true;
 		else
 		{
 			// If we're running client functions then we're going to get this message from the server anyway.
-			if (CNetwork::IsRunningClientFunctions())
+			if (Network(iConnection)->IsRunningClientFunctions())
 				return;
 
 			// Some shared code. Run the callback but don't send it over the wire.
@@ -35,21 +47,21 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 
 	if (iTarget == NETWORK_TOSERVER)
 	{
-		if (CNetwork::IsHost() || !CNetwork::IsConnected())
+		if (Network(iConnection)->IsHost() || !Network(iConnection)->IsConnected())
 		{
 			bNoNetwork = true;
 			bPredict = true;
 		}
 
 		// If we're running client functions then the server already knows about this call.
-		else if (!CNetwork::IsHost() && CNetwork::IsRunningClientFunctions())
+		else if (!Network(iConnection)->IsHost() && Network(iConnection)->IsRunningClientFunctions())
 		{
 			bNoNetwork = true;
 			bPredict = true;
 		}
 	}
 
-	if (!bNoNetwork && CNetwork::IsConnected())
+	if (!bNoNetwork && Network(iConnection)->IsConnected())
 	{
 		eastl::string16 sCommand = m_sName + L" " + sParameters;
 
@@ -60,9 +72,9 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 		TAssert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
 		wcscpy(pszData, sCommand.c_str());
 
-		p.ui1 = CNetwork::GetClientID();
+		p.ui1 = Network(iConnection)->GetClientID();
 
-		CNetwork::CallFunctionParameters(iTarget, "NC", &p);
+		Network(iConnection)->CallFunctionParameters(iTarget, "NC", &p);
 
 		if (net_debug.GetBool())
 		{
@@ -82,23 +94,23 @@ void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget
 	if (bPredict)
 	{
 		wcstok(sParameters, m_asArguments);
-		m_pfnCallback(this, -1, sParameters);
+		m_pfnCallback(iConnection, this, -1, sParameters);
 	}
 }
 
-void CNetworkCommand::RunCallback(size_t iClient, const eastl::string16& sParameters)
+void CNetworkCommand::RunCallback(int iConnection, size_t iClient, const eastl::string16& sParameters)
 {
 	if (net_debug.GetBool())
 	{
-		if (CNetwork::IsHost())
-			TMsg(sprintf(L"Net cmd from client %d: ", iClient) + m_sName + L" " + sParameters + L"\n");
+		if (Network(iConnection)->IsHost())
+			TMsg(sprintf(L"Cxn %d cmd from client %d: ", iConnection, iClient) + m_sName + L" " + sParameters + L"\n");
 		else
-			TMsg(eastl::string16(L"Net cmd from server: ") + m_sName + L" " + sParameters + L"\n");
+			TMsg(sprintf(L"Cxn %d cmd from server: ", iConnection) + m_sName + L" " + sParameters + L"\n");
 	}
 
 	wcstok(sParameters, m_asArguments);
 
-	m_pfnCallback(this, iClient, sParameters);
+	m_pfnCallback(iConnection, this, iClient, sParameters);
 }
 
 size_t CNetworkCommand::GetNumArguments()

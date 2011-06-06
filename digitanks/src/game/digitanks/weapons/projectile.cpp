@@ -130,7 +130,7 @@ void CProjectile::Think()
 
 	m_hTrailParticles.SetActive(m_bShouldRender && m_flTimeExploded == 0.0f);
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (GetOrigin().y < DigitanksGame()->GetTerrain()->GetHeight(GetOrigin().x, GetOrigin().z) - 20 || GetOrigin().y < -100)
@@ -184,7 +184,7 @@ float CProjectile::GetBonusDamage()
 
 void CProjectile::Fragment()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	for (size_t i = 0; i < Fragments(); i++)
@@ -633,7 +633,7 @@ void CDaisyChain::OnExplode(CBaseEntity* pInstigator)
 	if (m_flExplosionRadius < 13)
 		return;
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	CDaisyChain* pProjectile = GameServer()->Create<CDaisyChain>(GetClassName());
@@ -684,7 +684,7 @@ void CClusterBomb::OnExplode(CBaseEntity* pInstigator)
 	if (m_flExplosionRadius < 15)
 		return;
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	for (size_t i = 0; i < 6; i++)
@@ -951,7 +951,7 @@ size_t CTorpedo::CreateTrailSystem()
 
 void CTorpedo::Think()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 	{
 		if (m_bBurrowing)
 		{

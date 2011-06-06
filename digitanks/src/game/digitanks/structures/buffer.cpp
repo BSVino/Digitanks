@@ -194,7 +194,7 @@ bool CMiniBuffer::CanStructureUpgrade()
 
 void CMiniBuffer::UpgradeComplete()
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");

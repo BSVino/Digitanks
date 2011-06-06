@@ -47,7 +47,6 @@ void CGame::Spawn()
 
 void CGame::RegisterNetworkFunctions()
 {
-	CNetwork::RegisterFunction("SetAngles", this, SetAnglesCallback, 4, NET_HANDLE, NET_FLOAT, NET_FLOAT, NET_FLOAT);
 }
 
 void CGame::OnClientConnect(int iClient)
@@ -73,14 +72,6 @@ void CGame::OnClientDisconnect(int iClient)
 
 void CGame::EnterGame()
 {
-}
-
-void CGame::SetAngles(CNetworkParameters* p)
-{
-	CEntityHandle<CBaseEntity> hEntity(p->ui1);
-
-	if (hEntity != NULL)
-		hEntity->SetAngles(EAngle(p->fl2, p->fl3, p->fl4));
 }
 
 void CGame::AddTeam(CTeam* pTeam)

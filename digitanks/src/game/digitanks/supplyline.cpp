@@ -112,7 +112,7 @@ void CSupplyLine::StartTurn()
 	if (m_hSupplier == NULL)
 		return;
 
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (!m_bDelayRecharge)
@@ -127,7 +127,7 @@ void CSupplyLine::StartTurn()
 
 void CSupplyLine::Intercept(float flIntercept)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_flIntegrity -= flIntercept;

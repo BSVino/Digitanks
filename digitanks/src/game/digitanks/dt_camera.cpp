@@ -595,7 +595,7 @@ Vector CDigitanksCamera::GetTankFollowPosition(CDigitank* pTank)
 }
 
 // Camera guided missile angles
-CLIENT_COMMAND(CGAng)
+CLIENT_GAME_COMMAND(CGAng)
 {
 	if (pCmd->GetNumArguments() < 4)
 	{
@@ -659,7 +659,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 		while (angMissile.y < -180)
 			angMissile.y += 360;
 
-		if (CNetwork::IsConnected() && !CNetwork::IsHost())
+		if (GameNetwork()->IsConnected() && !GameNetwork()->IsHost())
 			CGAng.RunCommand(sprintf(L"%d %f %f %f", m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
 
 		m_hCameraGuidedMissile->SetViewAngles(angMissile);

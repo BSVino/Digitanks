@@ -12,36 +12,35 @@
 #include "digitankswindow.h"
 #include "lobbyui.h"
 
-SERVER_COMMAND(ServerChatSay)
+SERVER_COMMAND(CONNECTION_UNDEFINED, ServerChatSay)
 {
 	DigitanksWindow()->GetChatBox()->PrintChat(sParameters);
 }
 
-CLIENT_COMMAND(ClientChatSay)
+CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientChatSay)
 {
 	// Once the server gets it, send it to all of the clients, but with the speaker's name in there.
 
-	eastl::string16 sName;
-	int iIntClient = iClient;
-	if (iIntClient < 0)
+	eastl::string16 sName = L"Player";
+
+	if (iConnection == CONNECTION_LOBBY)
 	{
-		if (Game()->GetNumLocalTeams() > 0)
-			sName = Game()->GetLocalTeam(0)->GetTeamName();
-		else
-			sName = L"Player";
+		size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
+		CGameLobby* pLobby = CGameLobbyServer::GetLobby(iLobby);
+		if (pLobby)
+		{
+			CLobbyPlayer* pPlayer = pLobby->GetPlayerByClient(iClient);
+			if (pPlayer)
+				sName = pPlayer->GetInfoValue(L"name");
+		}
 	}
 	else
 	{
-		if (CGameLobbyServer::GetActiveLobbies())
+		int iIntClient = iClient;
+		if (iIntClient < 0)
 		{
-			size_t iLobby = CGameLobbyServer::GetPlayerLobby(CGameLobbyServer::GetClientPlayerID(iClient));
-			CGameLobby* pLobby = CGameLobbyServer::GetLobby(iLobby);
-			if (pLobby)
-			{
-				CLobbyPlayer* pPlayer = pLobby->GetPlayerByClient(iClient);
-				if (pPlayer)
-					sName = pPlayer->GetInfoValue(L"name");
-			}
+			if (Game()->GetNumLocalTeams() > 0)
+				sName = Game()->GetLocalTeam(0)->GetTeamName();
 		}
 		else
 		{
@@ -59,12 +58,16 @@ CLIENT_COMMAND(ClientChatSay)
 		}
 	}
 
-	ServerChatSay.RunCommand(sName + L": " + sParameters + L"\n");
+	ServerChatSay.RunCommand(iConnection, sName + L": " + sParameters + L"\n");
 }
 
 void ChatSay(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
 {
-	ClientChatSay.RunCommand(sCommand.substr(sCommand.find(L' ')));
+	if (GameNetwork()->IsConnected())
+		ClientChatSay.RunCommand(CONNECTION_GAME, sCommand.substr(sCommand.find(L' ')));
+
+	if (LobbyNetwork()->IsConnected())
+		ClientChatSay.RunCommand(CONNECTION_LOBBY, sCommand.substr(sCommand.find(L' ')));
 }
 
 CCommand chat_say("say", ::ChatSay);

@@ -367,7 +367,7 @@ void CStructure::BeginConstruction(Vector vecConstructionOrigin)
 		m_flScaffoldingSize = vecScaffoldingSize.Length()/2;
 	}
 
-	CNetwork::CallFunction(NETWORK_TOCLIENTS, "BeginStructureConstruction", GetHandle());
+	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "BeginStructureConstruction", GetHandle());
 
 	BeginStructureConstruction(NULL);
 }
@@ -428,10 +428,10 @@ void CStructure::InstallUpdate(size_t x, size_t y)
 	p.ui2 = x;
 	p.ui3 = y;
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		InstallUpdate(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "InstallUpdate", &p);
+		GameNetwork()->CallFunctionParameters(NETWORK_TOSERVER, "InstallUpdate", &p);
 }
 
 void CStructure::InstallUpdate(CNetworkParameters* p)
@@ -492,10 +492,10 @@ void CStructure::BeginUpgrade()
 	CNetworkParameters p;
 	p.ui1 = GetHandle();
 
-	if (CNetwork::IsHost())
+	if (GameNetwork()->IsHost())
 		BeginUpgrade(&p);
 	else
-		CNetwork::CallFunctionParameters(NETWORK_TOSERVER, "BeginUpgrade", &p);
+		GameNetwork()->CallFunctionParameters(NETWORK_TOSERVER, "BeginUpgrade", &p);
 }
 
 void CStructure::BeginUpgrade(CNetworkParameters* p)
@@ -545,7 +545,7 @@ bool CStructure::NeedsOrders()
 
 void CStructure::SetSupplier(class CSupplier* pSupplier)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	m_hSupplier = pSupplier;
@@ -885,7 +885,7 @@ void CSupplier::StartTurn()
 	if (IsConstructing())
 		return;
 
-	if (CNetwork::IsHost() && GetSupplyLine() && GetSupplyLine()->GetIntegrity() >= 0.7f || IsDataFlowSource())
+	if (GameNetwork()->IsHost() && GetSupplyLine() && GetSupplyLine()->GetIntegrity() >= 0.7f || IsDataFlowSource())
 	{
 		for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 		{
@@ -1154,7 +1154,7 @@ void CSupplier::BeginTendrilGrowth()
 
 void CSupplier::AddChild(CStructure* pChild)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (!pChild)
@@ -1166,7 +1166,7 @@ void CSupplier::AddChild(CStructure* pChild)
 
 	AddChild(&p);
 
-	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "AddChild", &p);
+	GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "AddChild", &p);
 }
 
 void CSupplier::AddChild(CNetworkParameters* p)
@@ -1181,7 +1181,7 @@ void CSupplier::AddChild(CNetworkParameters* p)
 
 void CSupplier::RemoveChild(CStructure* pChild)
 {
-	if (!CNetwork::IsHost())
+	if (!GameNetwork()->IsHost())
 		return;
 
 	if (!pChild)
@@ -1193,7 +1193,7 @@ void CSupplier::RemoveChild(CStructure* pChild)
 
 	AddChild(&p);
 
-	CNetwork::CallFunctionParameters(NETWORK_TOCLIENTS, "RemoveChild", &p);
+	GameNetwork()->CallFunctionParameters(NETWORK_TOCLIENTS, "RemoveChild", &p);
 }
 
 void CSupplier::RemoveChild(CNetworkParameters* p)
