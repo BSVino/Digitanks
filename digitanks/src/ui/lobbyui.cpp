@@ -66,6 +66,9 @@ void CLobbyPanel::Layout()
 	if (!m_bLayout)
 		return;
 
+	if (!CGameLobbyClient::L_GetNumPlayers())
+		return;
+
 	m_bLayout = false;
 
 	size_t iWidth = DigitanksWindow()->GetWindowWidth();
@@ -258,6 +261,7 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 
+	SetVisible(true);
 	m_bLayout = true;
 }
 
@@ -289,7 +293,6 @@ void CLobbyPanel::LobbyUpdateCallback(int iConnection, INetworkListener*, class 
 {
 	TAssert(iConnection == CONNECTION_LOBBY);
 
-	DigitanksWindow()->GetLobbyPanel()->SetVisible(true);
 	DigitanksWindow()->GetLobbyPanel()->LobbyUpdate();
 }
 
@@ -356,7 +359,10 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 	else
 		GameNetwork()->ConnectToHost(convertstring<char16_t, char>(DigitanksWindow()->GetLobbyPanel()->m_sHost).c_str(), iPort);
 
-	DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);
+	if (GameNetwork()->IsConnected())
+		DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);
+	else
+		DigitanksWindow()->Restart(GAMETYPE_MENU);
 }
 
 CInfoPanel::CInfoPanel()

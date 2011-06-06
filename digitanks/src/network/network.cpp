@@ -200,6 +200,8 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 	if (!CNetwork::IsInitialized())
 		return;
 
+	Disconnect();
+
 	m_pServer = NULL;
 	m_pClient = enet_host_create(NULL, 1, 1, 0, 0);
 
