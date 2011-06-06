@@ -264,6 +264,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 	size_t iTerrainData = 0;
 	Color* pclrTerrainData = NULL;
 
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Reticulating splines", 0);
+
 	pLevel = DigitanksGame()->GetCurrentLevel();
 	if (pLevel)
 	{
@@ -311,6 +314,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 	float aflWater[TERRAIN_SIZE][TERRAIN_SIZE];
 	float flWaterHighest, flWaterLowest;
+
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Triangulating terrain", TERRAIN_SIZE);
 
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
@@ -421,11 +427,17 @@ void CTerrain::GenerateTerrain(float flHeight)
 
 			m_bHeightsInitialized = true;
 		}
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->WorkProgress(x);
 	}
 
 	if (!pclrTerrainData)
 	{
 		float flLavaHeight = RemapVal(LavaHeight(), 0.0f, 1.0f, m_flLowest, m_flHighest);
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->SetAction(L"Randomizing polygons", TERRAIN_SIZE);
 
 		for (size_t x = 0; x < TERRAIN_SIZE; x++)
 		{
@@ -464,11 +476,17 @@ void CTerrain::GenerateTerrain(float flHeight)
 					SetBit(x, y, TB_TREE, flHeight > TreeHeight());
 				}
 			}
+
+			if (GameServer()->GetWorkListener())
+				GameServer()->GetWorkListener()->WorkProgress(x);
 		}
 	}
 
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->SetAction(L"Calculating visibility", TERRAIN_CHUNKS);
+
 		for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 		{
 			for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
@@ -483,6 +501,9 @@ void CTerrain::GenerateTerrain(float flHeight)
 				pChunk->m_bNeedsRegenerate = true;
 				pChunk->m_bNeedsRegenerateTexture = true;
 			}
+
+			if (GameServer()->GetWorkListener())
+				GameServer()->GetWorkListener()->WorkProgress(i);
 		}
 	}
 }
@@ -496,6 +517,9 @@ void CTerrain::GenerateCollision()
 	{
 		TMsg(L"Generating terrain navigation mesh.\n");
 
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->SetAction(L"Prenavigating terrain", 0);
+
 		if (m_pQuadTreeHead)
 			delete m_pQuadTreeHead;
 
@@ -503,6 +527,9 @@ void CTerrain::GenerateCollision()
 		m_pQuadTreeHead->BuildBranch();
 
 		TMsg(L"Generating terrain collision mesh... ");
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->SetAction(L"Precolliding terrain", TERRAIN_CHUNKS);
 
 		for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 		{
@@ -545,6 +572,9 @@ void CTerrain::GenerateCollision()
 				pChunk->m_bNeedsRegenerate = true;
 				pChunk->m_pTracer->BuildTree();
 			}
+
+			if (GameServer()->GetWorkListener())
+				GameServer()->GetWorkListener()->WorkProgress(x);
 		}
 
 		TMsg(L"Done.\n");
@@ -557,12 +587,18 @@ void CTerrain::GenerateTerrainCallLists()
 {
 	// Break it up into sectors of smaller size so that when it comes time to regenerate,
 	// it can be done only for the sector that needs it and it won't take too long
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Prerendering terrain", TERRAIN_CHUNKS);
+
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
 		{
 			GenerateTerrainCallList(i, j);
 		}
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->WorkProgress(i);
 	}
 }
 

@@ -31,10 +31,12 @@ CGameServer* CGameServer::s_pGameServer = NULL;
 
 ConfigFile g_cfgEngine(L"scripts/engine.cfg");
 
-CGameServer::CGameServer()
+CGameServer::CGameServer(IWorkListener* pWorkListener)
 {
 	TAssert(!s_pGameServer);
 	s_pGameServer = this;
+
+	m_pWorkListener = pWorkListener;
 
 	m_iMaxEnts = g_cfgEngine.read(L"MaxEnts", 1024);
 
@@ -54,6 +56,12 @@ CGameServer::CGameServer()
 	m_flNextClientInfoUpdate = 0;
 
 	size_t iPostSeed = mtrand();
+
+	if (m_pWorkListener)
+		m_pWorkListener->BeginProgress();
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Sorting connections", CBaseEntity::GetEntityRegistration().size());
 
 	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
 	{
@@ -76,13 +84,23 @@ CGameServer::CGameServer()
 		}
 		else
 			pRegistration->m_iParentRegistration = ~0;
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(i);
 	}
 
 	TMsg(L"Precaching entities... ");
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Loading polygons", CBaseEntity::GetEntityRegistration().size());
+
 	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
 	{
 		CEntityRegistration* pRegistration = &CBaseEntity::GetEntityRegistration()[i];
 		pRegistration->m_pfnRegisterCallback();
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(i);
 	}
 	TMsg(L"Done.\n");
 	TMsg(sprintf(L"%d models, %d textures, %d sounds and %d particle systems precached.\n", CModelLibrary::GetNumModels(), CTextureLibrary::GetNumTextures(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
@@ -95,10 +113,19 @@ CGameServer::CGameServer()
 	m_iClient = -1;
 
 	m_bHalting = false;
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
 }
 
 CGameServer::~CGameServer()
 {
+	if (m_pWorkListener)
+		m_pWorkListener->BeginProgress();
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Scrubbing database", CBaseEntity::GetEntityRegistration().size());
+
 	for (size_t i = 0; i < m_apLevels.size(); i++)
 		delete m_apLevels[i];
 
@@ -107,6 +134,9 @@ CGameServer::~CGameServer()
 
 	if (m_pCamera)
 		delete m_pCamera;
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
 
 	TAssert(s_pGameServer == this);
 	s_pGameServer = NULL;
@@ -131,6 +161,9 @@ void CGameServer::SetPlayerNickname(const eastl::string16& sNickname)
 
 void CGameServer::Initialize()
 {
+	if (m_pWorkListener)
+		m_pWorkListener->BeginProgress();
+
 	m_bGotClientInfo = false;
 	m_bLoading = true;
 
@@ -156,6 +189,9 @@ void CGameServer::Initialize()
 		m_pCamera = CreateCamera();
 
 	GameNetwork()->ResumePumping();
+
+	if (m_pWorkListener)
+		m_pWorkListener->EndProgress();
 }
 
 void CGameServer::ReadLevels()
@@ -164,6 +200,9 @@ void CGameServer::ReadLevels()
 		delete m_apLevels[i];
 
 	m_apLevels.clear();
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Reading meta-structures", 0);
 
 	ReadLevels(L"levels");
 
@@ -635,9 +674,12 @@ bool CGameServer::LoadFromFile(const wchar_t* pFileName)
 		CBaseEntity::GetEntity(i)->ClientEnterGame();
 	}
 
-	GameServer()->SetLoading(false);
-
 	Game()->EnterGame();
+
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Encountering resistance", 0);
+
+	GameServer()->SetLoading(false);
 
 	return true;
 }
@@ -745,6 +787,9 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 	if (!GameNetwork()->IsHost() && !IsLoading())
 		return;
 
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Locating dead nodes", GameServer()->GetMaxEntities());
+
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -765,10 +810,21 @@ void CGameServer::DestroyAllEntities(const eastl::vector<eastl::string>& asSpare
 			continue;
 
 		pEntity->Delete();
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(i);
 	}
 
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Clearing buffers", GameServer()->m_ahDeletedEntities.size());
+
 	for (size_t i = 0; i < GameServer()->m_ahDeletedEntities.size(); i++)
+	{
 		delete GameServer()->m_ahDeletedEntities[i];
+
+		if (m_pWorkListener)
+			m_pWorkListener->WorkProgress(i);
+	}
 
 	GameServer()->m_ahDeletedEntities.clear();
 

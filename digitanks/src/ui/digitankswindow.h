@@ -5,6 +5,7 @@
 #include <EASTL/vector.h>
 #include <vector.h>
 #include <color.h>
+#include <worklistener.h>
 
 #include <game/digitanks/digitanksgame.h>
 #include <tinker/application.h>
@@ -23,7 +24,7 @@ typedef enum
 	MOUSECURSOR_AIMINVALID,
 } mousecursor_t;
 
-class CDigitanksWindow : public CApplication
+class CDigitanksWindow : public CApplication, public IWorkListener
 {
 	DECLARE_CLASS(CDigitanksWindow, CApplication);
 
@@ -141,6 +142,12 @@ public:
 	void						PrintChat(eastl::string sText);
 	class CChatBox*				GetChatBox();
 
+	// IWorkListener
+	virtual void				BeginProgress();
+	virtual void				SetAction(const wchar_t* pszAction, size_t iTotalProgress);
+	virtual void				WorkProgress(size_t iProgress, bool bForceDraw = false);
+	virtual void				EndProgress();
+
 protected:
 	int							m_iMouseLastX;
 	int							m_iMouseLastY;
@@ -200,6 +207,10 @@ protected:
 	int							m_iInstallID;
 
 	size_t						m_iLunarWorkshop;
+
+	eastl::string16				m_sAction;
+	size_t						m_iTotalProgress;
+	size_t						m_iProgress;
 };
 
 inline CDigitanksWindow* DigitanksWindow()

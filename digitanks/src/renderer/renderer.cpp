@@ -13,6 +13,7 @@
 #include <tinker/application.h>
 #include <tinker/cvar.h>
 #include <tinker/profiler.h>
+#include <game/gameserver.h>
 
 CRenderingContext::CRenderingContext(CRenderer* pRenderer)
 {
@@ -755,7 +756,13 @@ void CRenderer::Initialize()
 			m_oBloom2Buffers[i] = CreateFrameBuffer(iWidth, iHeight, false, false);
 			iWidth /= 2;
 			iHeight /= 2;
+
+			if (GameServer()->GetWorkListener())
+				GameServer()->GetWorkListener()->WorkProgress(i);
 		}
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->SetAction(L"Making noise", 0);
 
 		m_oNoiseBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 

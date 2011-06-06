@@ -318,6 +318,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "\My Dropb
     <ClInclude Include="..\..\common\math\vector.h" />
     <ClInclude Include="..\..\common\sockets\sockets.h" />
     <ClInclude Include="..\..\common\strutils.h" />
+    <ClInclude Include="..\..\common\worklistener.h" />
     <ClInclude Include="..\..\datamanager\data.h" />
     <ClInclude Include="..\..\datamanager\dataserializer.h" />
     <ClInclude Include="..\..\license\license.h" />

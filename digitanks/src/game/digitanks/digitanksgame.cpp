@@ -263,12 +263,12 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	else if (eGameType == GAMETYPE_CAMPAIGN)
 		SetupCampaign();
 
-	GameServer()->SetLoading(false);
-
 	if (eGameType != GAMETYPE_EMPTY)
 		StartGame();
 
 	DigitanksGame()->SetDifficulty(game_difficulty.GetInt());
+
+	GameServer()->SetLoading(false);
 }
 
 void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
@@ -848,6 +848,9 @@ void CDigitanksGame::SetupMenuMarch()
 #ifndef _DEBUG
 	CMenuMarcher* pMarcher;
 
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Specifying marchers", 4*5*4);
+
 	for (size_t i = 0; i < 4; i++)
 	{
 		float flZ = RemapVal((float)i, 0, 4, -79, 79);
@@ -861,6 +864,9 @@ void CDigitanksGame::SetupMenuMarch()
 
 				pMarcher->SetOrigin(GetTerrain()->SetPointHeight(Vector(RemapVal((float)j, 0, 5, -15, 15), 0, flZ + RemapVal((float)k, 0, 4, -15, 15))));
 				pMarcher->SetAngles(EAngle(0,90,0));
+
+				if (GameServer()->GetWorkListener())
+					GameServer()->GetWorkListener()->WorkProgress(i*4*5 + j*4 + k);
 			}
 		}
 	}
@@ -1280,6 +1286,9 @@ void CDigitanksGame::SetupArtilleryRound()
 			aiRandomTeamPositions.insert(aiRandomTeamPositions.begin()+RandomInt(0, aiRandomTeamPositions.size()-1), i);
 	}
 
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Randomizing tank locations", iTotalTanks);
+
 	size_t iPosition = 0;
 	size_t iTanksPlaced = 0;
 	while (iTanksPlaced < iTotalTanks)
@@ -1325,6 +1334,9 @@ void CDigitanksGame::SetupArtilleryRound()
 				iTanksPlaced++;
 			}
 		}
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->WorkProgress(iTanksPlaced);
 	}
 
 	CPowerup* pPowerup;
@@ -1362,8 +1374,6 @@ void CDigitanksGame::SetupArtilleryRound()
 	}
 
 	SetupProps();
-
-	GameServer()->SetLoading(false);
 }
 
 bool CDigitanksGame::HasRounds()

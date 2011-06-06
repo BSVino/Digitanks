@@ -84,6 +84,9 @@ void CConsole::Layout()
 
 void CConsole::Paint(int x, int y, int w, int h)
 {
+	if (!CApplication::Get()->IsOpen())
+		return;
+
 	if (!BaseClass::IsVisible() && developer.GetBool())
 	{
 		int iAlpha = m_pOutput->GetAlpha();
@@ -92,6 +95,9 @@ void CConsole::Paint(int x, int y, int w, int h)
 		m_pOutput->SetAlpha(iAlpha);
 		return;
 	}
+
+	if (!BaseClass::IsVisible())
+		return;
 
 	glgui::CRootPanel::PaintRect(x, y, w, h, Color(0, 0, 0, 200));
 
@@ -133,7 +139,10 @@ void CConsole::PrintConsole(eastl::string16 sText)
 	DebugPrint(sText);
 	m_pOutput->AppendText(sText);
 
-	if (IsOpen())
+	if (!CApplication::Get()->IsOpen())
+		return;
+
+	if (IsVisible())
 		Layout();
 }
 

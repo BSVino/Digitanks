@@ -21,6 +21,7 @@
 #include <tinker/portals/portal.h>
 #include <models/texturelibrary.h>
 #include <tinker/lobby/lobby_client.h>
+#include <tinker/console.h>
 
 #include "glgui/glgui.h"
 #include "digitanks/digitanksgame.h"
@@ -115,6 +116,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
 		m_pCampaign->ReadData(GetAppDataDirectory(L"Digitanks", L"campaign.txt"));
 	}
+
+	m_iTotalProgress = 0;
 }
 
 void CDigitanksWindow::OpenWindow()
@@ -186,6 +189,18 @@ void CDigitanksWindow::RenderLoading()
 
 	glgui::CRootPanel::PaintTexture(m_iLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
 	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), m_iWindowWidth-200-20, m_iWindowHeight - 200, 200, 200);
+
+	float flWidth = glgui::CLabel::GetTextWidth(m_sAction, m_sAction.length(), L"text", 12);
+	glgui::CLabel::PaintText(m_sAction, m_sAction.length(), L"text", 12, (float)m_iWindowWidth/2 - flWidth/2, (float)m_iWindowHeight/2 + 170);
+
+	if (m_iTotalProgress)
+	{
+		glDisable(GL_TEXTURE_2D);
+		float flProgress = (float)m_iProgress/(float)m_iTotalProgress;
+		glgui::CBaseControl::PaintRect(m_iWindowWidth/2 - 200, m_iWindowHeight/2 + 190, (int)(400*flProgress), 10, Color(255, 255, 255));
+	}
+
+	CApplication::Get()->GetConsole()->Paint();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();   
@@ -357,7 +372,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		m_pHUD = new CHUD();
 		glgui::CRootPanel::Get()->AddControl(m_pHUD);
 
-		m_pGameServer = new CGameServer();
+		m_pGameServer = new CGameServer(this);
 
 		if (!m_pInstructor)
 			m_pInstructor = new CInstructor();
@@ -718,4 +733,40 @@ void CDigitanksWindow::SetMusicVolume(float flMusicVolume)
 {
 	m_flMusicVolume = flMusicVolume;
 	CSoundLibrary::SetMusicVolume(m_flMusicVolume);
+}
+
+void CDigitanksWindow::BeginProgress()
+{
+}
+
+void CDigitanksWindow::SetAction(const wchar_t* pszAction, size_t iTotalProgress)
+{
+	m_sAction = pszAction;
+	m_iTotalProgress = iTotalProgress;
+
+	WorkProgress(0, true);
+}
+
+void CDigitanksWindow::WorkProgress(size_t iProgress, bool bForceDraw)
+{
+	if (!GameServer()->IsLoading())
+		return;
+
+	m_iProgress = iProgress;
+
+	static float flLastTime = 0;
+
+	CNetwork::Think();
+
+	// Don't update too often or it'll slow us down just because of the updates.
+	if (!bForceDraw && GetTime() - flLastTime < 0.5f)
+		return;
+
+	RenderLoading();
+
+	flLastTime = GetTime();
+}
+
+void CDigitanksWindow::EndProgress()
+{
 }

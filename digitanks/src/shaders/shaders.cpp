@@ -5,6 +5,9 @@
 
 #include <common.h>
 #include <platform.h>
+#include <worklistener.h>
+
+#include <game/gameserver.h>
 
 CShaderLibrary* CShaderLibrary::s_pShaderLibrary = NULL;
 static CShaderLibrary g_ShaderLibrary = CShaderLibrary();
@@ -64,9 +67,20 @@ void CShaderLibrary::CompileShaders()
 
 	Get()->ClearLog();
 
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Compiling shaders", Get()->m_aShaders.size());
+
 	bool bShadersCompiled = true;
 	for (size_t i = 0; i < Get()->m_aShaders.size(); i++)
+	{
 		bShadersCompiled &= Get()->CompileShader(i);
+
+		if (!bShadersCompiled)
+			break;
+
+		if (GameServer()->GetWorkListener())
+			GameServer()->GetWorkListener()->WorkProgress(i);
+	}
 
 	if (bShadersCompiled)
 		Get()->m_bCompiled = true;

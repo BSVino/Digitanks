@@ -18,7 +18,7 @@ typedef enum
 class CGameServer : public INetworkListener
 {
 public:
-												CGameServer();
+												CGameServer(class IWorkListener* pWorkListener = NULL);
 	virtual										~CGameServer();
 
 public:
@@ -93,6 +93,9 @@ public:
 	bool										IsClient() { return m_iClient >= 0; };
 	size_t										GetMaxEntities() { return m_iMaxEnts; };
 
+	void										SetWorkListener(IWorkListener* pListener);
+	IWorkListener*								GetWorkListener() { return m_pWorkListener; };
+
 	static CGameServer*							GetGameServer() { return s_pGameServer; };
 	class CGame*								GetGame();
 
@@ -135,6 +138,8 @@ protected:
 	size_t										m_iMaxEnts;
 
 	float										m_flNextClientInfoUpdate;
+
+	IWorkListener*								m_pWorkListener;
 };
 
 inline class CGameServer* GameServer()

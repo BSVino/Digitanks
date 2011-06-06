@@ -212,6 +212,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 		LobbyNetwork()->Disconnect();
 		LobbyNetwork()->SetCallbacks(NULL, CGameLobbyServer::ClientConnect, CGameLobbyServer::ClientDisconnect);
 		LobbyNetwork()->CreateHost(iPort);
+		GameNetwork()->CreateHost(iPort);
 	}
 
 	CGameLobbyClient::S_JoinLobby(m_iLobby);
@@ -354,9 +355,7 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
-	if (LobbyNetwork()->IsHost())
-		GameNetwork()->CreateHost(iPort);
-	else
+	if (!LobbyNetwork()->IsHost())
 		GameNetwork()->ConnectToHost(convertstring<char16_t, char>(DigitanksWindow()->GetLobbyPanel()->m_sHost).c_str(), iPort);
 
 	if (GameNetwork()->IsConnected())

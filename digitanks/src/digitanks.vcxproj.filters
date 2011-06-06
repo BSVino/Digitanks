@@ -710,6 +710,9 @@
     <ClInclude Include="game\digitanks\campaign\campaignentity.h">
       <Filter>Source Files\digitanks\campaign</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\common\worklistener.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\build\digitanks.ico">
