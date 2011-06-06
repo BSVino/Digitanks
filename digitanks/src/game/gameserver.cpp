@@ -365,7 +365,7 @@ void CGameServer::Think(float flHostTime)
 
 	m_ahDeletedEntities.clear();
 
-	GameNetwork()->Think();
+	CNetwork::Think();
 
 	Simulate();
 
