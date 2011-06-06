@@ -217,7 +217,12 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 	if (iPort)
 		oAddress.port = iPort;
 	else
-		oAddress.port = 30203;
+	{
+		if (m_iConnection == CONNECTION_LOBBY)
+			oAddress.port = 30202;
+		else
+			oAddress.port = 30203;
+	}
 
 	TMsg(sprintf(L"Connecting to '%s' on port %d\n", convertstring<char, char16_t>(pszHost).c_str(), (int)oAddress.port));
 

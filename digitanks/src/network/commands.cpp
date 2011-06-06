@@ -79,13 +79,13 @@ void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParame
 		if (net_debug.GetBool())
 		{
 			if (iTarget == NETWORK_TOSERVER)
-				TMsg(L"Net cmd to server: ");
+				TMsg(sprintf(L"Cxn %d to server: ", iConnection));
 			else if (iTarget == NETWORK_TOCLIENTS)
-				TMsg(L"Net cmd to clients: ");
+				TMsg(sprintf(L"Cxn %d to clients: ", iConnection));
 			else if (iTarget == NETWORK_TOEVERYONE)
-				TMsg(L"Net cmd to all: ");
+				TMsg(sprintf(L"Cxn %d to all: ", iConnection));
 			else
-				TMsg(sprintf(L"Net cmd to client %d: ", iTarget));
+				TMsg(sprintf(L"Cxn %d to client %d: ", iConnection, iTarget));
 
 			TMsg(sCommand + L"\n");
 		}

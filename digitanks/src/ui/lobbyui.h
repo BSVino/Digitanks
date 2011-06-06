@@ -86,6 +86,7 @@ public:
 	static void						BeginGameCallback(int iConnection, INetworkListener*, class CNetworkParameters*);
 
 protected:
+	eastl::string16					m_sHost;
 	bool							m_bOnline;
 
 	glgui::CLabel*					m_pLobbyName;

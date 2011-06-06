@@ -60,13 +60,13 @@ CLobbyPanel::CLobbyPanel()
 
 void CLobbyPanel::Layout()
 {
+	if (!IsVisible())
+		return;
+
 	if (!m_bLayout)
 		return;
 
 	m_bLayout = false;
-
-	if (!IsVisible())
-		return;
 
 	size_t iWidth = DigitanksWindow()->GetWindowWidth();
 	size_t iHeight = DigitanksWindow()->GetWindowHeight();
@@ -238,6 +238,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 
 void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 {
+	m_sHost = sHost;
 	m_bOnline = true;
 
 	CGameLobbyClient::SetLobbyUpdateCallback(&LobbyUpdateCallback);
@@ -255,7 +256,6 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 
 	m_pDockPanel->SetDockedPanel(new CInfoPanel());
 
-	SetVisible(true);
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
 
 	m_bLayout = true;
@@ -289,6 +289,7 @@ void CLobbyPanel::LobbyUpdateCallback(int iConnection, INetworkListener*, class 
 {
 	TAssert(iConnection == CONNECTION_LOBBY);
 
+	DigitanksWindow()->GetLobbyPanel()->SetVisible(true);
 	DigitanksWindow()->GetLobbyPanel()->LobbyUpdate();
 }
 
@@ -346,6 +347,14 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 	CVar::SetCVar(L"game_level", pLevel->GetFile());
 
 	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
+
+	const char* pszPort = DigitanksWindow()->GetCommandLineSwitchValue("--port");
+	int iPort = pszPort?atoi(pszPort):0;
+
+	if (LobbyNetwork()->IsHost())
+		GameNetwork()->CreateHost(iPort);
+	else
+		GameNetwork()->ConnectToHost(convertstring<char16_t, char>(DigitanksWindow()->GetLobbyPanel()->m_sHost).c_str(), iPort);
 
 	DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);
 }

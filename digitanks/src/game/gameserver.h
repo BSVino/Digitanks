@@ -23,7 +23,6 @@ public:
 
 public:
 	void										SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
-	void										SetConnectHost(const eastl::string sHost) { m_sConnectHost = sHost; };
 	void										SetServerPort(int iPort) { m_iPort = iPort; };
 
 	void										SetPlayerNickname(const eastl::string16& sNickname);
@@ -125,7 +124,6 @@ protected:
 	bool										m_bGotClientInfo;
 
 	servertype_t								m_eServerType;
-	eastl::string								m_sConnectHost;
 	int											m_iPort;
 
 	bool										m_bSetupFromLobby;

@@ -349,7 +349,6 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 
 	mtsrand((size_t)time(NULL));
 
-	eastl::string sHost = convertstring<char16_t, char>(m_sConnectHost);
 	const char* pszPort = GetCommandLineSwitchValue("--port");
 	int iPort = pszPort?atoi(pszPort):0;
 
@@ -369,7 +368,6 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 
 	if (GameServer())
 	{
-		GameServer()->SetConnectHost(sHost);
 		GameServer()->SetServerType(m_eServerType);
 		if (eGameType == GAMETYPE_MENU)
 			GameServer()->SetServerType(SERVER_LOCAL);

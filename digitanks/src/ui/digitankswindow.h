@@ -40,7 +40,6 @@ public:
 	void						InitUI();
 
 	void						SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
-	void						SetConnectHost(const eastl::string16 sHost) { m_sConnectHost = sHost; };
 
 	void						RenderLoading();
 	void						RenderMouseCursor();
@@ -156,7 +155,6 @@ protected:
 	class CLobbyPanel*			m_pLobby;
 
 	servertype_t				m_eServerType;
-	eastl::string16				m_sConnectHost;
 
 	gametype_t					m_eRestartAction;
 
