@@ -308,3 +308,13 @@ void CGameLobbyClient::BeginGame()
 
 	s_bInLobby = false;
 }
+
+void CGameLobbyClient::ClientEnterGame(int iConnection, class INetworkListener*, class CNetworkParameters*)
+{
+	R_Clear();
+}
+
+void CGameLobbyClient::ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters*)
+{
+	R_Clear();
+}

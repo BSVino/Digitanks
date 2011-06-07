@@ -624,7 +624,7 @@ void CENetConnection::CallbackFunction(const char* pszName, CNetworkParameters* 
 
 void CNetworkConnection::SetLoading(bool bLoading)
 {
-	m_bLoading = true;
+	m_bLoading = false;
 	::SetLoading.RunCommand(m_iConnection, bLoading?L"1":L"0", NETWORK_TOSERVER);
 	m_bLoading = bLoading;
 }
@@ -815,7 +815,7 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 
 	int iCurrentClient = Network(iConnection)->GetCurrentClient();
 
-	if (sName != L"SetLoading" && sName != L"ClientInfo")
+	if (sName != L"SetLoading" && sName != L"ClientInfo" && sName != L"SetClientID")
 	{
 		if (m_bLoading)
 			return;

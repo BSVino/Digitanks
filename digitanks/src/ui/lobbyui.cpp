@@ -253,6 +253,7 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 	int iPort = pszPort?atoi(pszPort):0;
 
 	GameNetwork()->Disconnect();
+	LobbyNetwork()->SetCallbacks(NULL, NULL, CGameLobbyClient::ClientEnterGame, CGameLobbyClient::ClientDisconnect);
 	LobbyNetwork()->ConnectToHost(convertstring<char16_t, char>(sHost).c_str(), iPort);
 	if (!LobbyNetwork()->IsConnected())
 		return;

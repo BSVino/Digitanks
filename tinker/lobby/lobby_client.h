@@ -56,6 +56,9 @@ public:
 	static void							SetBeginGameCallback(INetworkListener::Callback pfnCallback);
 	static void							BeginGame();
 
+	static void							ClientEnterGame(int iConnection, class INetworkListener*, class CNetworkParameters*);
+	static void							ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters*);
+
 protected:
 	static bool							s_bInLobby;
 	static eastl::vector<CLobbyPlayer>	s_aClients;
