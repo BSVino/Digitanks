@@ -3,6 +3,7 @@
 #include <network/network.h>
 #include <network/commands.h>
 #include <tinker/application.h>
+#include <tinker/cvar.h>
 
 extern CNetworkCommand FullUpdate;
 extern CNetworkCommand LobbyInfo;
@@ -141,6 +142,8 @@ eastl::map<size_t, size_t> CGameLobbyServer::s_aiPlayerLobbies;
 eastl::map<size_t, size_t> CGameLobbyServer::s_aiClientPlayerIDs;
 ILobbyListener* CGameLobbyServer::s_pListener = NULL;
 
+CVar lobby_debug("lobby_debug", "0");
+
 size_t CGameLobbyServer::CreateLobby()
 {
 	CGameLobby* pLobby = NULL;
@@ -189,6 +192,9 @@ size_t CGameLobbyServer::AddPlayer(size_t iLobby, size_t iClient)
 
 	size_t iID = GetNextPlayerID();
 
+	if (lobby_debug.GetBool())
+		TMsg(sprintf(L"CGameLobbyServer::AddPlayer(%d, %d) = %d\n", iLobby, iClient, iID));
+
 	s_aiPlayerLobbies[iID] = iLobby;
 	s_aiClientPlayerIDs[iClient] = iID;
 
@@ -206,6 +212,9 @@ void CGameLobbyServer::RemovePlayer(size_t iID)
 		TAssert(!"What lobby is this?");
 		return;
 	}
+
+	if (lobby_debug.GetBool())
+		TMsg(sprintf(L"CGameLobbyServer::RemovePlayer(%d)\n", iID));
 
 	s_aiPlayerLobbies.erase(iID);
 	s_aiClientPlayerIDs.erase(s_aLobbies[iLobby].GetPlayerByID(iID)->iClient);
@@ -406,6 +415,9 @@ void CGameLobby::AddPlayer(size_t iID, size_t iClient)
 	if (GetPlayerByID(iID))
 		return;
 
+	if (lobby_debug.GetBool())
+		TMsg(sprintf(L"CGameLobby::AddPlayer(%d, %d)\n", iID, iClient));
+
 	CLobbyPlayer* pPlayer = &m_aClients.push_back();
 	pPlayer->iID = iID;
 	pPlayer->iClient = iClient;
@@ -418,6 +430,9 @@ void CGameLobby::RemovePlayer(size_t iID)
 	size_t iPlayer = GetPlayerIndexByID(iID);
 	if (!GetPlayer(iPlayer))
 		return;
+
+	if (lobby_debug.GetBool())
+		TMsg(sprintf(L"CGameLobby::RemovePlayer(%d)\n", iID));
 
 	::ServerChatSay.RunCommand(CONNECTION_LOBBY, GetPlayer(iPlayer)->GetInfoValue(L"name") + L" has left the lobby.\n");
 

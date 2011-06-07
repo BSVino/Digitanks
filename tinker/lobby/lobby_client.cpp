@@ -3,6 +3,7 @@
 #include <network/network.h>
 #include <network/commands.h>
 #include <tinker/application.h>
+#include <tinker/cvar.h>
 
 extern CNetworkCommand JoinLobby;
 extern CNetworkCommand LeaveLobby;
@@ -72,6 +73,9 @@ INetworkListener::Callback CGameLobbyClient::s_pfnBeginGameCallback = NULL;
 
 void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 {
+	if (CVar::GetCVarBool("lobby_debug"))
+		TMsg(sprintf(L"CGameLobbyClient::S_JoinLobby(%d)\n", iLobby));
+
 	s_aClients.clear();
 	::JoinLobby.RunCommand(sprintf(L"%d", (int)iLobby));
 
@@ -80,6 +84,9 @@ void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 
 void CGameLobbyClient::S_LeaveLobby()
 {
+	if (CVar::GetCVarBool("lobby_debug"))
+		TMsg(L"CGameLobbyClient::S_LeaveLobby()\n");
+
 	::LeaveLobby.RunCommand(L"");
 	LobbyNetwork()->Disconnect();
 	s_aClients.clear();
@@ -150,6 +157,9 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 	if (iPlayer != ~0)
 		return;
 
+	if (CVar::GetCVarBool("lobby_debug"))
+		TMsg(sprintf(L"CGameLobbyClient::R_AddPlayer(%d, %d)\n", iID, iClient));
+
 	CLobbyPlayer* pPlayer = &s_aClients.push_back();
 	pPlayer->iID = iID;
 	pPlayer->iClient = iClient;
@@ -171,6 +181,9 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 
 	if (iPlayer == ~0)
 		return;
+
+	if (CVar::GetCVarBool("lobby_debug"))
+		TMsg(sprintf(L"CGameLobbyClient::R_RemovePlayer(%d)\n", iID));
 
 	if (s_aClients[iPlayer].iClient == LobbyNetwork()->GetClientID())
 	{
@@ -245,6 +258,9 @@ void CGameLobbyClient::R_UpdatePlayer(size_t iID, const eastl::string16& sKey, c
 
 void CGameLobbyClient::R_Clear()
 {
+	if (CVar::GetCVarBool("lobby_debug"))
+		TMsg(L"CGameLobbyClient::R_Clear()\n");
+
 	s_aClients.clear();
 	s_asInfo.clear();
 }
