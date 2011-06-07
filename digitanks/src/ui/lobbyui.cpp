@@ -357,7 +357,10 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 	if (LobbyNetwork()->IsHost())
 		GameNetwork()->CreateHost(iPort);
 	else
+	{
 		GameNetwork()->ConnectToHost(convertstring<char16_t, char>(DigitanksWindow()->GetLobbyPanel()->m_sHost).c_str(), iPort);
+		GameNetwork()->SetLoading(true);
+	}
 
 	if (GameNetwork()->IsConnected())
 		DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);

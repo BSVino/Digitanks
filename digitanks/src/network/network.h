@@ -205,9 +205,11 @@ public:
 	virtual void		CallFunction(int iClient, const char* pszName, ...);
 	virtual void		CallFunctionParameters(int iClient, const char* pszName, CNetworkParameters* p);
 	virtual void		CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false) = 0;
-	virtual void		CallbackFunction(const char* pszName, CNetworkParameters* p);
+	virtual void		CallbackFunction(const char* pszName, CNetworkParameters* p) = 0;
 
-	virtual void		SendCommands(bool bSend) { m_bSendCommands = bSend; };
+	virtual void		SetLoading(bool bLoading);			// Client only, tells the server whether I'm loading or not
+	virtual void		SetClientLoading(int iClient, bool bLoading) = 0;
+	virtual bool		GetClientLoading(int iClient) = 0;
 
 	virtual size_t		GetClientsConnected() = 0;
 	virtual size_t		GetClientConnectionId(size_t iClient) = 0;	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
@@ -226,7 +228,7 @@ public:
 protected:
 	int					m_iConnection;
 	bool				m_bConnected;
-	bool				m_bSendCommands;
+	bool				m_bLoading;
 	eastl::map<eastl::string, CRegisteredFunction> m_aFunctions;
 	INetworkListener*	m_pClientListener;
 	INetworkListener::Callback m_pfnClientConnect;

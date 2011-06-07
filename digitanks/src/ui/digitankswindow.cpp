@@ -352,7 +352,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		game_type.SetValue(L"empty");
 
 	// Suppress all network commands until the game is done loading.
-	GameNetwork()->SendCommands(false);
+	GameNetwork()->SetLoading(true);
 
 	RenderLoading();
 
@@ -401,7 +401,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	}
 
 	// Now turn the network on and connect all clients.
-	GameNetwork()->SendCommands(true);
+	GameNetwork()->SetLoading(false);
 
 	if (GameNetwork()->IsHost())
 		GameServer()->ClientEnterGame(NETWORK_TOCLIENTS);
