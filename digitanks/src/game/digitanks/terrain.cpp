@@ -2468,6 +2468,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 	CTerrainChunk* pChunk = GetChunk((int)i, j);
 
+	if (GameServer()->GetWorkListener())
+		GameServer()->GetWorkListener()->SetAction(L"Triangulating terrain", TERRAIN_CHUNK_SIZE);
+
 	// Unserialize the height data
 	for (int x = TERRAIN_CHUNK_SIZE*i; x < (int)(TERRAIN_CHUNK_SIZE*(i+1)); x++)
 	{

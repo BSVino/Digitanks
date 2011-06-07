@@ -194,6 +194,9 @@ void CGameServer::Initialize()
 
 	if (m_pWorkListener)
 		m_pWorkListener->EndProgress();
+
+	if (m_pWorkListener)
+		m_pWorkListener->SetAction(L"Pending network actions", 0);
 }
 
 void CGameServer::ReadLevels()
