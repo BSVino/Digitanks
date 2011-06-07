@@ -322,7 +322,8 @@ void CGameLobbyServer::ClientDisconnect(int iConnection, class INetworkListener*
 
 	int iID = GetClientPlayerID(pParameters->i1);
 
-	RemovePlayer(iID);
+	if (iID >= 0)
+		RemovePlayer(iID);
 }
 
 void CGameLobbyServer::SetListener(ILobbyListener* pListener)
@@ -454,7 +455,7 @@ void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eas
 	{
 		if (sPreviousValue == L"" && sValue.length() > 0)
 			::ServerChatSay.RunCommand(CONNECTION_LOBBY, sValue + L" has joined the lobby.\n");
-		else
+		else if (sPreviousValue != sValue)
 			::ServerChatSay.RunCommand(CONNECTION_LOBBY, sPreviousValue + L" is now known as " + sValue + L".\n");
 	}
 
