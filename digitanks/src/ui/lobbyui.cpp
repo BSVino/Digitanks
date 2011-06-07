@@ -257,6 +257,8 @@ void CLobbyPanel::ConnectToLocalLobby(const eastl::string16& sHost)
 	if (!LobbyNetwork()->IsConnected())
 		return;
 
+	LobbyNetwork()->SetLoading(false);
+
 	m_pDockPanel->SetDockedPanel(new CInfoPanel());
 
 	DigitanksWindow()->GetMainMenu()->SetVisible(false);
@@ -357,10 +359,7 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 	if (LobbyNetwork()->IsHost())
 		GameNetwork()->CreateHost(iPort);
 	else
-	{
 		GameNetwork()->ConnectToHost(convertstring<char16_t, char>(DigitanksWindow()->GetLobbyPanel()->m_sHost).c_str(), iPort);
-		GameNetwork()->SetLoading(true);
-	}
 
 	if (GameNetwork()->IsConnected())
 		DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);

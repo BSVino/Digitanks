@@ -287,7 +287,9 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 
 	m_bConnected = true;
 
+	m_bLoading = false;
 	::ClientInfo.RunCommand(m_iConnection, sprintf(L"%d " + CNetwork::GetNickname(), CNetwork::GetInstallID()));
+	m_bLoading = true;
 
 	float flStartWaitTime = CApplication::Get()->GetTime();
 	while (CApplication::Get()->GetTime() - flStartWaitTime < 10)
@@ -435,7 +437,7 @@ void CENetConnection::Think()
 				m_aServerPeers[iPeer].m_pPeer = oEvent.peer;
 				m_aServerPeers[iPeer].m_iInstallID = 0;
 				m_aServerPeers[iPeer].m_sNickname = L"Player";
-				m_aServerPeers[iPeer].m_bLoading = false;
+				m_aServerPeers[iPeer].m_bLoading = true;
 				m_aServerPeers[iPeer].m_flTimeConnected = flTime;
 
 				p.i1 = iPeer;
@@ -596,18 +598,21 @@ void CENetConnection::CallbackFunction(const char* pszName, CNetworkParameters* 
 	if (m_aFunctions.find(pszName) == m_aFunctions.end())
 		return;
 
-	if (m_bLoading)
-		return;
+	CRegisteredFunction* pFunction = &m_aFunctions[pszName];
 
-	if (IsHost() && m_iCurrentClient < m_aServerPeers.size() && m_aServerPeers[m_iCurrentClient].m_bLoading)
-		return;
+	if (eastl::string(pFunction->m_pszFunction) != "SetLoading")
+	{
+		if (m_bLoading)
+			return;
+
+		if (IsHost() && m_iCurrentClient < m_aServerPeers.size() && m_aServerPeers[m_iCurrentClient].m_bLoading)
+			return;
+	}
 
 	// Since CallbackFunction is called by casting the second argument (p) and the CNetworkParameters destructor won't run.
 	// If it did this next line would be a problem!
 	if (p)
 		p->m_pExtraData = ((unsigned char*)p) + sizeof(*p);
-
-	CRegisteredFunction* pFunction = &m_aFunctions[pszName];
 
 	pFunction->m_pfnCallback(m_iConnection, pFunction->m_pListener, p);
 
@@ -620,7 +625,6 @@ void CNetworkConnection::SetLoading(bool bLoading)
 {
 	m_bLoading = true;
 	::SetLoading.RunCommand(m_iConnection, bLoading?L"1":L"0", NETWORK_TOSERVER);
-
 	m_bLoading = bLoading;
 }
 
@@ -636,6 +640,15 @@ void CENetConnection::SetClientLoading(int iClient, bool bLoading)
 		return;
 
 	m_aServerPeers[iClient].m_bLoading = bLoading;
+
+	if (!bLoading)
+	{
+		CNetworkParameters p;
+		p.i1 = iClient;
+
+		if (m_pfnClientEnterGame)
+			m_pfnClientEnterGame(m_iConnection, m_pClientListener, &p);
+	}
 }
 
 bool CENetConnection::GetClientLoading(int iClient)
@@ -717,19 +730,15 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const eas
 	m_aServerPeers[iClient].m_iInstallID = iInstallID;
 	m_aServerPeers[iClient].m_sNickname = sUniqueNickname;
 
+	bool bClientLoading = m_aServerPeers[iClient].m_bLoading;
 	bool bLoading = m_bLoading;
+	m_aServerPeers[iClient].m_bLoading = false;
 	m_bLoading = false;
+
 	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient));
+
 	m_bLoading = bLoading;
-
-	if (m_bLoading)
-		return;
-
-	CNetworkParameters p;
-	p.i1 = iClient;
-
-	if (m_pfnClientEnterGame)
-		m_pfnClientEnterGame(m_iConnection, m_pClientListener, &p);
+	m_aServerPeers[iClient].m_bLoading = bClientLoading;
 }
 
 size_t CENetConnection::GetClientInstallID(size_t iClient)
