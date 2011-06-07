@@ -600,7 +600,8 @@ void CENetConnection::CallbackFunction(const char* pszName, CNetworkParameters* 
 
 	CRegisteredFunction* pFunction = &m_aFunctions[pszName];
 
-	if (eastl::string(pFunction->m_pszFunction) != "SetLoading")
+	eastl::string sFunction = pFunction->m_pszFunction;
+	if (sFunction != "NC")
 	{
 		if (m_bLoading)
 			return;
@@ -735,7 +736,7 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const eas
 	m_aServerPeers[iClient].m_bLoading = false;
 	m_bLoading = false;
 
-	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient));
+	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient), iClient);
 
 	m_bLoading = bLoading;
 	m_aServerPeers[iClient].m_bLoading = bClientLoading;
@@ -812,5 +813,16 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 		return;
 	}
 
-	pCommand->RunCallback(m_iConnection, Network(iConnection)->GetCurrentClient(), sParameters);
+	int iCurrentClient = Network(iConnection)->GetCurrentClient();
+
+	if (sName != L"SetLoading" && sName != L"ClientInfo")
+	{
+		if (m_bLoading)
+			return;
+
+		if (IsHost() && Network(iConnection)->GetClientLoading(iCurrentClient))
+			return;
+	}
+
+	pCommand->RunCallback(m_iConnection, iCurrentClient, sParameters);
 }
