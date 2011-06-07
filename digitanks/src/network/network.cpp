@@ -722,7 +722,7 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const eas
 	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient));
 	m_bLoading = bLoading;
 
-	if (!m_bSendCommands)
+	if (m_bLoading)
 		return;
 
 	CNetworkParameters p;
