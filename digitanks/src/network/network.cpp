@@ -718,7 +718,7 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const eas
 	m_aServerPeers[iClient].m_sNickname = sUniqueNickname;
 
 	bool bLoading = m_bLoading;
-	m_bLoading = true;
+	m_bLoading = false;
 	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient));
 	m_bLoading = bLoading;
 
