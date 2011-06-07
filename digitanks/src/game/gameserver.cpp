@@ -327,9 +327,9 @@ void CGameServer::ClientConnect(int iClient)
 		pEntity->ClientUpdate(iClient);
 	}
 
-	GameNetwork()->CallFunction(iClient, "LoadingDone");
-
 	GameNetwork()->CallFunction(iClient, "EnterGame");
+
+	GameNetwork()->CallFunction(iClient, "LoadingDone");
 }
 
 void CGameServer::ClientDisconnect(int iClient)
