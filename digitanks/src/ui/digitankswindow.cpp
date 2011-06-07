@@ -404,7 +404,10 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	GameNetwork()->SetLoading(false);
 
 	if (GameNetwork()->IsHost())
-		GameServer()->ClientEnterGame(NETWORK_TOCLIENTS);
+	{
+		for (size_t i = 0; i < GameNetwork()->GetClientsConnected(); i++)
+			GameServer()->ClientEnterGame(GameNetwork()->GetClientConnectionId(i));
+	}
 
 	// Must set player nickname after teams have been set up or it won't stick.
 	if (GameServer())

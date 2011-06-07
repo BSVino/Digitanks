@@ -383,11 +383,11 @@ void CENetConnection::DisconnectClient(int iClient)
 
 	enet_peer_reset(m_aServerPeers[iClient].m_pPeer);
 
-	m_aServerPeers[iClient].m_pPeer = NULL;
-
 	CNetworkParameters p;
 	p.i1 = (int)iClient;
 	m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
+
+	m_aServerPeers[iClient].m_pPeer = NULL;
 }
 
 void CENetConnection::Think()
@@ -722,6 +722,9 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const eas
 	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient));
 	m_bLoading = bLoading;
 
+	if (!m_bSendCommands)
+		return;
+
 	CNetworkParameters p;
 	p.i1 = iClient;
 
@@ -800,5 +803,5 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 		return;
 	}
 
-	pCommand->RunCallback(m_iConnection, p->ui1, sParameters);
+	pCommand->RunCallback(m_iConnection, Network(iConnection)->GetCurrentClient(), sParameters);
 }

@@ -211,6 +211,8 @@ public:
 	virtual void		SetClientLoading(int iClient, bool bLoading) = 0;
 	virtual bool		GetClientLoading(int iClient) = 0;
 
+	virtual size_t		GetCurrentClient() { return m_iCurrentClient; };
+
 	virtual size_t		GetClientsConnected() = 0;
 	virtual size_t		GetClientConnectionId(size_t iClient) = 0;	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
 
