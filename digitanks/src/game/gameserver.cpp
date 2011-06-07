@@ -36,7 +36,7 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 	TAssert(!s_pGameServer);
 	s_pGameServer = this;
 
-	GameNetwork()->SetCallbacks(this, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
+	GameNetwork()->SetCallbacks(this, CGameServer::ClientConnectCallback, CGameServer::ClientEnterGameCallback, CGameServer::ClientDisconnectCallback);
 
 	m_pWorkListener = pWorkListener;
 
@@ -122,7 +122,7 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 
 CGameServer::~CGameServer()
 {
-	GameNetwork()->SetCallbacks(NULL, NULL, NULL);
+	GameNetwork()->SetCallbacks(NULL, NULL, NULL, NULL);
 
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
@@ -287,6 +287,13 @@ void CGameServer::ClientConnect(int iConnection, CNetworkParameters* p)
 	ClientConnect(p->i1);
 }
 
+void CGameServer::ClientEnterGame(int iConnection, CNetworkParameters* p)
+{
+	TAssert(iConnection == CONNECTION_GAME);
+
+	ClientEnterGame(p->i1);
+}
+
 void CGameServer::LoadingDone(int iConnection, CNetworkParameters* p)
 {
 	TAssert(iConnection == CONNECTION_GAME);
@@ -303,9 +310,20 @@ void CGameServer::ClientDisconnect(int iConnection, CNetworkParameters* p)
 
 void CGameServer::ClientConnect(int iClient)
 {
+	TMsg(sprintf(L"Client %d connected.\n", iClient));
+
 	GameNetwork()->CallFunction(iClient, "ClientInfo", iClient, GetGameTime());
 
-	GetGame()->OnClientConnect(iClient);
+	if (GetGame())
+		GetGame()->OnClientConnect(iClient);
+}
+
+void CGameServer::ClientEnterGame(int iClient)
+{
+	TMsg(sprintf(L"Client %d (" + GameNetwork()->GetClientNickname(iClient) + L") entering game.\n", iClient));
+
+	if (GetGame())
+		GetGame()->OnClientEnterGame(iClient);
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -337,6 +355,8 @@ void CGameServer::ClientConnect(int iClient)
 
 void CGameServer::ClientDisconnect(int iClient)
 {
+	TMsg(sprintf(L"Client %d (" + GameNetwork()->GetClientNickname(iClient) + L") disconnected.\n", iClient));
+
 	CApplication::Get()->OnClientDisconnect(iClient);
 
 	if (GetGame())

@@ -19,6 +19,7 @@ SAVEDATA_TABLE_BEGIN(CTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CBaseEntity>, m_ahMembers);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bClientControlled);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iClient);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iInstallID);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sName);
 SAVEDATA_TABLE_END();
 

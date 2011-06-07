@@ -51,13 +51,14 @@ void CGame::RegisterNetworkFunctions()
 
 void CGame::OnClientConnect(int iClient)
 {
-	TMsg(sprintf(L"Client %d connected.\n", iClient));
+}
+
+void CGame::OnClientEnterGame(int iClient)
+{
 }
 
 void CGame::OnClientDisconnect(int iClient)
 {
-	TMsg(sprintf(L"Client %d disconnected.\n", iClient));
-
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
 		if (m_ahTeams[i]->GetClient() == iClient)

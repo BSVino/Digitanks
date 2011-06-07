@@ -290,7 +290,7 @@ void CGameLobbyServer::UpdatePlayer(size_t iID, const eastl::string16& sKey, con
 	s_aLobbies[iLobby].UpdatePlayer(iID, sKey, sValue);
 }
 
-void CGameLobbyServer::ClientConnect(int iConnection, class INetworkListener*, class CNetworkParameters* pParameters)
+void CGameLobbyServer::ClientEnterGame(int iConnection, class INetworkListener*, class CNetworkParameters* pParameters)
 {
 	TAssert(iConnection == CONNECTION_LOBBY);
 
@@ -303,8 +303,14 @@ void CGameLobbyServer::ClientConnect(int iConnection, class INetworkListener*, c
 	if (s_pListener)
 	{
 		if (!s_pListener->ClientConnect(iClient))
+		{
 			RemovePlayer(GetClientPlayerID(iClient));
+			return;
+		}
 	}
+
+	if (s_aLobbies[0].GetInfoValue(L"gameactive") == L"1")
+		::BeginGame.RunCommand(L"", iClient);
 }
 
 void CGameLobbyServer::ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters* pParameters)
@@ -339,6 +345,9 @@ void CGameLobby::Initialize()
 {
 	m_bActive = true;
 	m_aClients.clear();
+	m_asInfo.clear();
+
+	m_asInfo[L"gameactive"] = L"0";
 }
 
 void CGameLobby::Shutdown()
@@ -470,7 +479,7 @@ void CGameLobby::UpdatePlayer(size_t iID, const eastl::string16& sKey, const eas
 	if (bBeginGame)
 	{
 		::BeginGame.RunCommand(L"");
-		m_bActive = false;
+		m_asInfo[L"gameactive"] = L"1";
 	}
 }
 

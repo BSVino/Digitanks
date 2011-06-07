@@ -10,6 +10,17 @@
 #include "commands.h"
 
 bool CNetwork::s_bInitialized = false;
+size_t CNetwork::s_iInstallID = false;
+eastl::string16 CNetwork::s_sNickname;
+
+class CENetClientPeer
+{
+public:
+	float						m_flTimeConnected;
+	size_t						m_iInstallID;
+	eastl::string16				m_sNickname;
+	ENetPeer*					m_pPeer;
+};
 
 class CENetConnection : public CNetworkConnection
 {
@@ -32,11 +43,16 @@ public:
 	virtual size_t				GetClientsConnected();
 	virtual size_t				GetClientConnectionId(size_t iClient);
 
+	virtual void				SetClientInfo(size_t iClient, size_t iInstallID, const eastl::string16& sNickname);
+
+	virtual size_t				GetClientInstallID(size_t iClient);
+	virtual const eastl::string16& GetClientNickname(size_t iClient);
+
 protected:
 	ENetHost*					m_pClient;
 	ENetPeer*					m_pClientPeer;
 	ENetHost*					m_pServer;
-	eastl::vector<ENetPeer*>	m_apServerPeers;
+	eastl::vector<CENetClientPeer>	m_aServerPeers;
 };
 
 SERVER_COMMAND(CONNECTION_UNDEFINED, SetClientID)
@@ -47,6 +63,8 @@ SERVER_COMMAND(CONNECTION_UNDEFINED, SetClientID)
 		return;
 
 	Network(iConnection)->SetClientID(pCmd->ArgAsUInt(0));
+
+	CNetwork::SetClientInfo(CNetwork::GetInstallID(), sParameters.substr(sParameters.find(L' ')+1));
 }
 
 SERVER_COMMAND(CONNECTION_UNDEFINED, ForceDisconnect)
@@ -57,6 +75,11 @@ SERVER_COMMAND(CONNECTION_UNDEFINED, ForceDisconnect)
 		return;
 
 	Network(iConnection)->Disconnect(true);
+}
+
+CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientInfo)
+{
+	Network(iConnection)->SetClientInfo(iClient, pCmd->ArgAsUInt(0), sParameters.substr(sParameters.find(L' ')+1));
 }
 
 CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientDisconnecting)
@@ -101,6 +124,12 @@ void CNetwork::Think()
 		g_apNetworkConnections[i]->Think();
 }
 
+void CNetwork::SetClientInfo(size_t iInstallID, const eastl::string16& sNickname)
+{
+	s_iInstallID = iInstallID;
+	s_sNickname = sNickname;
+}
+
 CNetworkConnection::CNetworkConnection(int iConnection)
 {
 	m_iConnection = iConnection;
@@ -111,6 +140,7 @@ CNetworkConnection::CNetworkConnection(int iConnection)
 	m_bSendCommands = true;
 	m_pClientListener = NULL;
 	m_pfnClientConnect = NULL;
+	m_pfnClientEnterGame = NULL;
 	m_pfnClientDisconnect = NULL;
 
 	ClearRegisteredFunctions();
@@ -187,10 +217,11 @@ void CENetConnection::CreateHost(int iPort)
 	m_bConnected = true;
 }
 
-void CNetworkConnection::SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect)
+void CNetworkConnection::SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientEnterGame, INetworkListener::Callback pfnClientDisconnect)
 {
 	m_pClientListener = pListener;
 	m_pfnClientConnect = pfnClientConnect;
+	m_pfnClientEnterGame = pfnClientEnterGame;
 	m_pfnClientDisconnect = pfnClientDisconnect;
 }
 
@@ -245,6 +276,8 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 	}
 
 	m_bConnected = true;
+
+	::ClientInfo.RunCommand(m_iConnection, sprintf(L"%d " + CNetwork::GetNickname(), CNetwork::GetInstallID()));
 
 	float flStartWaitTime = CApplication::Get()->GetTime();
 	while (CApplication::Get()->GetTime() - flStartWaitTime < 10)
@@ -316,6 +349,7 @@ void CENetConnection::Disconnect(bool bForced)
 
 		m_pClientListener = NULL;
 		m_pfnClientConnect = NULL;
+		m_pfnClientEnterGame = NULL;
 		m_pfnClientDisconnect = NULL;
 
 		enet_host_destroy(m_pServer);
@@ -332,14 +366,14 @@ void CENetConnection::DisconnectClient(int iClient)
 	if (!m_bConnected)
 		return;
 
-	if ((size_t)iClient >= m_apServerPeers.size())
+	if ((size_t)iClient >= m_aServerPeers.size())
 		return;
 
 	ForceDisconnect.RunCommand(m_iConnection, L"", iClient);
 
-	enet_peer_reset(m_apServerPeers[iClient]);
+	enet_peer_reset(m_aServerPeers[iClient].m_pPeer);
 
-	m_apServerPeers[iClient] = NULL;
+	m_aServerPeers[iClient].m_pPeer = NULL;
 
 	CNetworkParameters p;
 	p.i1 = (int)iClient;
@@ -368,13 +402,15 @@ void CENetConnection::Think()
 		case ENET_EVENT_TYPE_CONNECT:
 			if (IsHost())
 			{
+				float flTime = CApplication::Get()->GetTime();
+
 				// Find the first unused peer.
 				int iPeer = -1;
-				for (size_t i = 0; i < m_apServerPeers.size(); i++)
+				for (size_t i = 0; i < m_aServerPeers.size(); i++)
 				{
-					if (!m_apServerPeers[i])
+					if (!m_aServerPeers[i].m_pPeer || (flTime - m_aServerPeers[i].m_flTimeConnected > 10))
 					{
-						m_apServerPeers[i] = oEvent.peer;
+						m_aServerPeers[i].m_pPeer = oEvent.peer;
 						iPeer = i;
 						break;
 					}
@@ -382,17 +418,14 @@ void CENetConnection::Think()
 
 				if (iPeer < 0)
 				{
-					m_apServerPeers.push_back(oEvent.peer);
-					iPeer = (int)m_apServerPeers.size()-1;
+					m_aServerPeers.push_back();
+					iPeer = (int)m_aServerPeers.size()-1;
 				}
 
-				bool bSend = m_bSendCommands;
-				m_bSendCommands = true;
-				::SetClientID.RunCommand(m_iConnection, sprintf(L"%u", iPeer));
-				m_bSendCommands = bSend;
-
-				if (!m_bSendCommands)
-					return;
+				m_aServerPeers[iPeer].m_pPeer = oEvent.peer;
+				m_aServerPeers[iPeer].m_iInstallID = 0;
+				m_aServerPeers[iPeer].m_sNickname = L"Player";
+				m_aServerPeers[iPeer].m_flTimeConnected = flTime;
 
 				p.i1 = iPeer;
 
@@ -404,9 +437,9 @@ void CENetConnection::Think()
 		case ENET_EVENT_TYPE_RECEIVE:
 			m_bIsRunningClientFunctions = true;
 
-			for (size_t i = 0; i < m_apServerPeers.size(); i++)
+			for (size_t i = 0; i < m_aServerPeers.size(); i++)
 			{
-				if (oEvent.peer == m_apServerPeers[i])
+				if (oEvent.peer == m_aServerPeers[i].m_pPeer)
 				{
 					m_iCurrentClient = i;
 					break;
@@ -428,11 +461,11 @@ void CENetConnection::Think()
 				if (!m_bSendCommands)
 					return;
 
-				for (size_t i = 0; i < m_apServerPeers.size(); i++)
+				for (size_t i = 0; i < m_aServerPeers.size(); i++)
 				{
-					if (oEvent.peer == m_apServerPeers[i])
+					if (oEvent.peer == m_aServerPeers[i].m_pPeer)
 					{
-						m_apServerPeers[i] = NULL;
+						m_aServerPeers[i].m_pPeer = NULL;
 						p.i1 = (int)i;
 						m_pfnClientDisconnect(m_iConnection, m_pClientListener, &p);
 						break;
@@ -515,23 +548,23 @@ void CENetConnection::CallFunction(int iClient, CRegisteredFunction* pFunction, 
 		TAssert(iClient != NETWORK_TOSERVER);
 		if (iClient == NETWORK_TOCLIENTS || iClient == NETWORK_TOEVERYONE)
 		{
-			for (size_t i = 0; i < m_apServerPeers.size(); i++)
+			for (size_t i = 0; i < m_aServerPeers.size(); i++)
 			{
-				if (!m_apServerPeers[i])
+				if (!m_aServerPeers[i].m_pPeer)
 					continue;
 
 				if (m_bIsRunningClientFunctions && bNoCurrentClient && m_iCurrentClient == i)
 					continue;
 
-				enet_peer_send(m_apServerPeers[i], 0, pPacket);
+				enet_peer_send(m_aServerPeers[i].m_pPeer, 0, pPacket);
 			}
 		}
 		else if (iClient >= 0)
 		{
-			TAssert(m_apServerPeers[iClient]);
+			TAssert(m_aServerPeers[iClient].m_pPeer);
 
-			if (m_apServerPeers[iClient])
-				enet_peer_send(m_apServerPeers[iClient], 0, pPacket);
+			if (m_aServerPeers[iClient].m_pPeer)
+				enet_peer_send(m_aServerPeers[iClient].m_pPeer, 0, pPacket);
 		}
 
 		enet_host_flush(m_pServer);
@@ -569,9 +602,9 @@ void CNetworkConnection::CallbackFunction(const char* pszName, CNetworkParameter
 size_t CENetConnection::GetClientsConnected()
 {
 	size_t iClients = 0;
-	for (size_t i = 0; i < m_apServerPeers.size(); i++)
+	for (size_t i = 0; i < m_aServerPeers.size(); i++)
 	{
-		if (m_apServerPeers[i])
+		if (m_aServerPeers[i].m_pPeer)
 			iClients++;
 	}
 
@@ -581,9 +614,9 @@ size_t CENetConnection::GetClientsConnected()
 size_t CENetConnection::GetClientConnectionId(size_t iClient)
 {
 	size_t iClients = 0;
-	for (size_t i = 0; i < m_apServerPeers.size(); i++)
+	for (size_t i = 0; i < m_aServerPeers.size(); i++)
 	{
-		if (m_apServerPeers[i])
+		if (m_aServerPeers[i].m_pPeer)
 		{
 			if (iClients == iClient)
 				return i;
@@ -593,6 +626,85 @@ size_t CENetConnection::GetClientConnectionId(size_t iClient)
 	}
 
 	return ~0;
+}
+
+void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const eastl::string16& sNickname)
+{
+	TAssert(m_aServerPeers[iClient].m_pPeer);
+	TAssert(m_aServerPeers.size() > iClient);
+
+	if (!m_aServerPeers[iClient].m_pPeer)
+		return;
+
+	bool bUnique = false;
+	eastl::string16 sUniqueNickname = sNickname;
+	int iTries = 1;
+	do
+	{
+		bUnique = true;
+
+		for (size_t i = 0; i < m_aServerPeers.size(); i++)
+		{
+			if (i == iClient)
+				continue;
+
+			if (!m_aServerPeers[i].m_pPeer)
+				continue;
+
+			if (m_aServerPeers[i].m_sNickname == sUniqueNickname)
+			{
+				bUnique = false;
+				sUniqueNickname = sprintf(sNickname + L"(%d)", iTries++);
+				break;
+			}
+		}
+	}
+	while (!bUnique);
+
+	m_aServerPeers[iClient].m_iInstallID = iInstallID;
+	m_aServerPeers[iClient].m_sNickname = sUniqueNickname;
+
+	bool bSend = m_bSendCommands;
+	m_bSendCommands = true;
+	::SetClientID.RunCommand(m_iConnection, sprintf(L"%u " + sUniqueNickname, iClient));
+	m_bSendCommands = bSend;
+
+	CNetworkParameters p;
+	p.i1 = iClient;
+
+	if (m_pfnClientEnterGame)
+		m_pfnClientEnterGame(m_iConnection, m_pClientListener, &p);
+}
+
+size_t CENetConnection::GetClientInstallID(size_t iClient)
+{
+	if (iClient == ~0)
+		return CNetwork::GetInstallID();
+
+	TAssert(iClient < m_aServerPeers.size());
+	TAssert(m_aServerPeers[iClient].m_pPeer);
+
+	if (iClient >= m_aServerPeers.size())
+		return 0;
+
+	return m_aServerPeers[iClient].m_iInstallID;
+}
+
+const eastl::string16& CENetConnection::GetClientNickname(size_t iClient)
+{
+	if (iClient == ~0)
+		return CNetwork::GetNickname();
+
+	TAssert(iClient < m_aServerPeers.size());
+	TAssert(m_aServerPeers[iClient].m_pPeer);
+
+	if (iClient >= m_aServerPeers.size())
+	{
+		static eastl::string16 sPlayer = L"Player";
+		return sPlayer;
+	}
+
+	return m_aServerPeers[iClient].m_sNickname;
 }
 
 size_t CNetworkConnection::GetClientID()

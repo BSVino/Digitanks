@@ -210,7 +210,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	{
 		GameNetwork()->Disconnect();
 		LobbyNetwork()->Disconnect();
-		LobbyNetwork()->SetCallbacks(NULL, CGameLobbyServer::ClientConnect, CGameLobbyServer::ClientDisconnect);
+		LobbyNetwork()->SetCallbacks(NULL, NULL, CGameLobbyServer::ClientEnterGame, CGameLobbyServer::ClientDisconnect);
 		LobbyNetwork()->CreateHost(iPort);
 	}
 

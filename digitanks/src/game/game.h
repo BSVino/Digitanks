@@ -23,6 +23,7 @@ public:
 	virtual void								RegisterNetworkFunctions();
 
 	virtual void								OnClientConnect(int iClient);
+	virtual void								OnClientEnterGame(int iClient);
 	virtual void								OnClientDisconnect(int iClient);
 
 	virtual void								EnterGame();

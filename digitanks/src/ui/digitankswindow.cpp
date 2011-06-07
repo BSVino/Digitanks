@@ -105,6 +105,8 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 		m_sNickname = L"";
 	}
 
+	CNetwork::SetClientInfo(m_iInstallID, m_sNickname);
+
 	if (m_iWindowWidth < 1024)
 		m_iWindowWidth = 1024;
 
@@ -389,7 +391,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		GameServer()->SetServerPort(iPort);
 		GameServer()->Initialize();
 
-		GameNetwork()->SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientDisconnectCallback);
+		GameNetwork()->SetCallbacks(m_pGameServer, CGameServer::ClientConnectCallback, CGameServer::ClientEnterGameCallback, CGameServer::ClientDisconnectCallback);
 	}
 
 	if (GameNetwork()->IsHost() && DigitanksGame())
@@ -402,7 +404,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	GameNetwork()->SendCommands(true);
 
 	if (GameNetwork()->IsHost())
-		GameServer()->ClientConnect(NETWORK_TOCLIENTS);
+		GameServer()->ClientEnterGame(NETWORK_TOCLIENTS);
 
 	// Must set player nickname after teams have been set up or it won't stick.
 	if (GameServer())

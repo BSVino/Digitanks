@@ -34,6 +34,8 @@ public:
 	void						SetClient(int iClient);
 	void						SetBot();
 	int							GetClient() const { return m_iClient; };
+	void						SetInstallID(int i) { m_iInstallID = i; };
+	int							GetInstallID() const { return m_iInstallID; };
 
 	void						SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
 	Color						GetColor() { return m_clrTeam; };
@@ -55,6 +57,7 @@ protected:
 
 	CNetworkedVariable<bool>	m_bClientControlled;
 	CNetworkedVariable<int>		m_iClient;
+	size_t						m_iInstallID;
 
 	CNetworkedString			m_sName;
 };

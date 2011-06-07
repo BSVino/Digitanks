@@ -163,8 +163,16 @@ public:
 
 	static void			Think();
 
+	static void			SetClientInfo(size_t iInstallID, const eastl::string16& sNickname);
+
+	static size_t		GetInstallID() { return s_iInstallID; }
+	static const eastl::string16& GetNickname() { return s_sNickname; }
+
 protected:
 	static bool			s_bInitialized;
+
+	static size_t			s_iInstallID;
+	static eastl::string16	s_sNickname;
 };
 
 class CNetworkConnection : public INetworkListener
@@ -178,7 +186,7 @@ public:
 	virtual void		RegisterFunction(const char* pszName, INetworkListener* pListener, INetworkListener::Callback pfnCallback, size_t iParameters, ...);
 
 	virtual void		CreateHost(int iPort) = 0;
-	virtual void		SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientDisconnect);
+	virtual void		SetCallbacks(INetworkListener* pListener, INetworkListener::Callback pfnClientConnect, INetworkListener::Callback pfnClientEnterGame, INetworkListener::Callback pfnClientDisconnect);
 	virtual void		ConnectToHost(const char* pszHost, int iPort) = 0;
 
 	virtual bool		IsConnected() { return m_bConnected; };
@@ -204,6 +212,11 @@ public:
 	virtual size_t		GetClientsConnected() = 0;
 	virtual size_t		GetClientConnectionId(size_t iClient) = 0;	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
 
+	virtual void		SetClientInfo(size_t iClient, size_t iInstallID, const eastl::string16& sNickname) = 0;
+
+	virtual size_t		GetClientInstallID(size_t iClient) = 0;
+	virtual const eastl::string16& GetClientNickname(size_t iClient) = 0;
+
 	// Client only
 	virtual void		SetClientID(size_t iID) { m_iClientID = iID; };
 	virtual size_t		GetClientID();
@@ -217,6 +230,7 @@ protected:
 	eastl::map<eastl::string, CRegisteredFunction> m_aFunctions;
 	INetworkListener*	m_pClientListener;
 	INetworkListener::Callback m_pfnClientConnect;
+	INetworkListener::Callback m_pfnClientEnterGame;
 	INetworkListener::Callback m_pfnClientDisconnect;
 
 	bool				m_bIsRunningClientFunctions;

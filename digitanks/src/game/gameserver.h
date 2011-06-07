@@ -47,9 +47,11 @@ public:
 	void										RegisterNetworkFunctions();
 
 	NET_CALLBACK(CGameServer,					ClientConnect);
+	NET_CALLBACK(CGameServer,					ClientEnterGame);
 	NET_CALLBACK(CGameServer,					LoadingDone);
 	NET_CALLBACK(CGameServer,					ClientDisconnect);
 	void										ClientConnect(int iClient);
+	void										ClientEnterGame(int iClient);
 	void										ClientDisconnect(int iClient);
 	void										SetClientNickname(int iClient, const eastl::string16& sNickname);
 

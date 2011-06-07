@@ -69,7 +69,7 @@ public:
 	static void							UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue);
 	static void							UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
 
-	static void							ClientConnect(int iConnection, class INetworkListener*, class CNetworkParameters*);
+	static void							ClientEnterGame(int iConnection, class INetworkListener*, class CNetworkParameters*);
 	static void							ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters*);
 
 	static void							SetListener(ILobbyListener* pListener);

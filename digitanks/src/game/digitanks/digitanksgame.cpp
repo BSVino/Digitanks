@@ -591,7 +591,10 @@ void CDigitanksGame::SetupArtillery()
 			if (pPlayer->GetInfoValue(L"bot") == L"1")
 				pTeam->SetClient(-2);
 			else
+			{
 				pTeam->SetClient(pPlayer->iClient);
+				pTeam->SetInstallID(LobbyNetwork()->GetClientInstallID(pPlayer->iClient));
+			}
 		}
 		else
 		{
@@ -608,6 +611,7 @@ void CDigitanksGame::SetupArtillery()
 				}
 
 				pTeam->SetClient(-1);
+				pTeam->SetInstallID(CNetwork::GetInstallID());
 			}
 			else
 				pTeam->SetClient(-2);
@@ -733,7 +737,10 @@ void CDigitanksGame::SetupStrategy()
 			if (pPlayer->GetInfoValue(L"bot") == L"1")
 				pTeam->SetClient(-2);
 			else
+			{
 				pTeam->SetClient(pPlayer->iClient);
+				pTeam->SetInstallID(LobbyNetwork()->GetClientInstallID(pPlayer->iClient));
+			}
 		}
 		else
 		{
@@ -747,6 +754,7 @@ void CDigitanksGame::SetupStrategy()
 					pTeam->SetTeamName(sPlayerNickname);
 
 				pTeam->SetClient(-1);
+				pTeam->SetInstallID(CNetwork::GetInstallID());
 			}
 			else
 				pTeam->SetClient(-2);
@@ -811,13 +819,17 @@ void CDigitanksGame::SetupStrategy()
 
 			// There's one neutral team at the front so skip it.
 			m_ahTeams[i+1]->SetClient(CGameLobbyClient::L_GetPlayer(i)->iClient);
+			m_ahTeams[i+1]->SetInstallID(LobbyNetwork()->GetClientInstallID(CGameLobbyClient::L_GetPlayer(i)->iClient));
 		}
 	}
 	else
 	{
 		for (int i = 0; i < game_players.GetInt(); i++)
+		{
 			// There's one neutral team at the front so skip it.
 			m_ahTeams[i+1]->SetClient(-1);
+			m_ahTeams[i+1]->SetInstallID(CNetwork::GetInstallID());
+		}
 	}
 
 	CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
@@ -941,6 +953,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
 	m_ahTeams[0]->SetClient(-1);
+	m_ahTeams[0]->SetInstallID(CNetwork::GetInstallID());
 
 	eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
 	if (sPlayerNickname.length())
@@ -1922,6 +1935,36 @@ void CDigitanksGame::StartTurn(int iConnection, CNetworkParameters* p)
 		GetPrimarySelection()->OnCurrentSelection();
 
 	GetTerrain()->CalculateVisibility();
+}
+
+void CDigitanksGame::OnClientEnterGame(int iClient)
+{
+	size_t iInstallID = GameNetwork()->GetClientInstallID(iClient);
+
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
+		if (m_ahTeams[i]->GetInstallID() == iInstallID)
+		{
+			m_ahTeams[i]->SetClient(iClient);
+			m_ahTeams[i]->SetTeamName(GameNetwork()->GetClientNickname(iClient));
+			return;
+		}
+	}
+
+	// Couldn't find any spot for the guy? Take over a bot.
+	for (size_t i = 0; i < m_ahTeams.size(); i++)
+	{
+		if (!m_ahTeams[i]->IsPlayerControlled() && m_ahTeams[i]->IsHumanPlayable())
+		{
+			m_ahTeams[i]->SetInstallID(iInstallID);
+			m_ahTeams[i]->SetClient(iClient);
+			m_ahTeams[i]->SetTeamName(GameNetwork()->GetClientNickname(iClient));
+			return;
+		}
+	}
+
+	// No spots? Boot him.
+	GameNetwork()->DisconnectClient(iClient);
 }
 
 bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
