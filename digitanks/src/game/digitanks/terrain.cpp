@@ -65,8 +65,13 @@ INPUTS_TABLE_END();
 size_t CTerrain::s_iTreeTexture = 0;
 size_t CTerrain::s_iBeamTexture = 0;
 
+CVar terrain_debug("terrain_debug", "off");
+
 CTerrain::CTerrain()
 {
+	if (terrain_debug.GetBool())
+		TMsg("CTerrain::CTerrain()\n");
+
 	SetCollisionGroup(CG_TERRAIN);
 
 	for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
@@ -83,6 +88,9 @@ CTerrain::CTerrain()
 
 CTerrain::~CTerrain()
 {
+	if (terrain_debug.GetBool())
+		TMsg("CTerrain::~CTerrain()\n");
+
 	if (m_pQuadTreeHead)
 		delete m_pQuadTreeHead;
 }
@@ -96,6 +104,9 @@ void CTerrain::Precache()
 
 void CTerrain::Spawn()
 {
+	if (terrain_debug.GetBool())
+		TMsg("CTerrain::Spawn()\n");
+
 	BaseClass::Spawn();
 
 	switch (mtrand()%4)
@@ -257,6 +268,9 @@ void CTerrain::Think()
 void CTerrain::GenerateTerrain(float flHeight)
 {
 	TMsg(L"Generating terrain.\n");
+
+	if (terrain_debug.GetBool())
+		TMsg("CTerrain::GenerateTerrain()\n");
 
 	CDigitanksLevel* pLevel = NULL;
 	size_t iTerrainHeight = 0;
@@ -512,6 +526,9 @@ void CTerrain::GenerateCollision()
 {
 	TAssert(m_bHeightsInitialized || !GameNetwork()->IsHost());
 
+	if (terrain_debug.GetBool())
+		TMsg("CTerrain::GenerateCollision()\n");
+
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
@@ -585,6 +602,9 @@ void CTerrain::GenerateCollision()
 
 void CTerrain::GenerateTerrainCallLists()
 {
+	if (terrain_debug.GetBool())
+		TMsg("CTerrain::GenerateTerrainCallLists()\n");
+
 	// Break it up into sectors of smaller size so that when it comes time to regenerate,
 	// it can be done only for the sector that needs it and it won't take too long
 	if (GameServer()->GetWorkListener())
@@ -607,6 +627,9 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 	CTerrainChunk* pChunk = &m_aTerrainChunks[i][j];
 	if (!pChunk->m_bNeedsRegenerate)
 		return;
+
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::GenerateTerrainCallList(%d, %d)\n", i, j));
 
 	// What a hack!
 	GLuint iSlowMovement;
@@ -921,6 +944,9 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 	if (!pChunk->m_bNeedsRegenerateTexture)
 		return;
 
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::GenerateTerrainTexture(%d, %d)\n", i, j));
+
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
 		int x = TERRAIN_CHUNK_SIZE*i + a * TERRAIN_CHUNK_SIZE / TERRAIN_CHUNK_TEXTURE_SIZE;
@@ -1057,6 +1083,9 @@ void CTerrain::GenerateCallLists()
 {
 	TMsg(L"Generating terrain call lists... ");
 
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::GenerateCallLists()\n"));
+
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
@@ -1177,6 +1206,9 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 
 void CTerrain::CalculateVisibility()
 {
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::CalculateVisibility()\n"));
+
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
 		for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
@@ -2462,6 +2494,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	size_t i = p->ui1;
 	size_t j = p->ui2;
 
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::TerrainData(%d, %d)\n", i, j));
+
 	size_t iPosition = 0;
 	float* flHeightData = (float*)p->m_pExtraData;
 	unsigned char* piTerrainData = (unsigned char*)((size_t)p->m_pExtraData + sizeof(float)*TERRAIN_CHUNK_SIZE*TERRAIN_CHUNK_SIZE);
@@ -2516,6 +2551,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	if (pChunk->m_pTracer)
 		delete pChunk->m_pTracer;
 
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::TerrainData(%d, %d) regenerating collision\n", i, j));
+
 	pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
 
 	int iXMin = (int)(TERRAIN_CHUNK_SIZE*i);
@@ -2555,6 +2593,9 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 
 void CTerrain::ResyncClientTerrainData(int iClient)
 {
+	if (terrain_debug.GetBool())
+		TMsg(sprintf(L"CTerrain::ResyncClientTerrainData(%d)\n", iClient));
+
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
 		for (size_t j = 0; j < TERRAIN_CHUNKS; j++)
@@ -2619,6 +2660,9 @@ bool CTerrain::OnUnserialize(std::istream& i)
 
 void CTerrain::ClientEnterGame()
 {
+	if (terrain_debug.GetBool())
+		TMsg(L"CTerrain::ClientEnterGame()\n");
+
 	BaseClass::ClientEnterGame();
 
 	GenerateCollision();

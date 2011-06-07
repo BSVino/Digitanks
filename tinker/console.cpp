@@ -139,6 +139,9 @@ void CConsole::PrintConsole(eastl::string16 sText)
 	DebugPrint(sText);
 	m_pOutput->AppendText(sText);
 
+	if (m_pOutput->GetText().length() > 2500)
+		m_pOutput->SetText(m_pOutput->GetText().substr(500));
+
 	if (!CApplication::Get()->IsOpen())
 		return;
 
