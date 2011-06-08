@@ -589,7 +589,7 @@ void CDigitanksGame::SetupArtillery()
 				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
 
 			if (pPlayer->GetInfoValue(L"bot") == L"1")
-				pTeam->SetClient(-2);
+				pTeam->SetClient(NETWORK_BOT);
 			else
 			{
 				pTeam->SetClient(pPlayer->iClient);
@@ -610,11 +610,11 @@ void CDigitanksGame::SetupArtillery()
 						pTeam->SetTeamName(sPlayerNickname);
 				}
 
-				pTeam->SetClient(-1);
+				pTeam->SetClient(NETWORK_LOCAL);
 				pTeam->SetInstallID(CNetwork::GetInstallID());
 			}
 			else
-				pTeam->SetClient(-2);
+				pTeam->SetClient(NETWORK_BOT);
 		}
 	}
 }
@@ -735,7 +735,7 @@ void CDigitanksGame::SetupStrategy()
 				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
 
 			if (pPlayer->GetInfoValue(L"bot") == L"1")
-				pTeam->SetClient(-2);
+				pTeam->SetClient(NETWORK_BOT);
 			else
 			{
 				pTeam->SetClient(pPlayer->iClient);
@@ -753,11 +753,11 @@ void CDigitanksGame::SetupStrategy()
 				if (sPlayerNickname.length())
 					pTeam->SetTeamName(sPlayerNickname);
 
-				pTeam->SetClient(-1);
+				pTeam->SetClient(NETWORK_LOCAL);
 				pTeam->SetInstallID(CNetwork::GetInstallID());
 			}
 			else
-				pTeam->SetClient(-2);
+				pTeam->SetClient(NETWORK_BOT);
 		}
 
 		pTeam->SetLoseCondition(LOSE_NOCPU);
@@ -827,7 +827,7 @@ void CDigitanksGame::SetupStrategy()
 		for (int i = 0; i < game_players.GetInt(); i++)
 		{
 			// There's one neutral team at the front so skip it.
-			m_ahTeams[i+1]->SetClient(-1);
+			m_ahTeams[i+1]->SetClient(NETWORK_LOCAL);
 			m_ahTeams[i+1]->SetInstallID(CNetwork::GetInstallID());
 		}
 	}
@@ -884,7 +884,7 @@ void CDigitanksGame::SetupMenuMarch()
 	}
 #endif
 
-	m_ahTeams[0]->SetClient(-2);
+	m_ahTeams[0]->SetClient(NETWORK_BOT);
 
 	m_iPowerups = 0;
 }
@@ -952,7 +952,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
-	m_ahTeams[0]->SetClient(-1);
+	m_ahTeams[0]->SetClient(NETWORK_LOCAL);
 	m_ahTeams[0]->SetInstallID(CNetwork::GetInstallID());
 
 	eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
@@ -964,7 +964,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[1]->SetColor(Color(255, 0, 0));
 
-	m_ahTeams[1]->SetClient(-2);
+	m_ahTeams[1]->SetClient(NETWORK_BOT);
 
 	GetDigitanksTeam(1)->SetLoseCondition(LOSE_NONE);
 

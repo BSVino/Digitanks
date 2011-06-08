@@ -537,12 +537,16 @@ void CDigitanksTeam::CountScore()
 	}
 }
 
+SERVER_GAME_COMMAND(YouLoseSirGoodDay)
+{
+	DigitanksGame()->GetListener()->GameOver(false);
+}
+
 void CDigitanksTeam::YouLoseSirGoodDay()
 {
 	m_bLost = true;
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == this)
-		DigitanksGame()->GetListener()->GameOver(false);
+	::YouLoseSirGoodDay.RunCommand(L"", GetClient());
 }
 
 void CDigitanksTeam::CountBandwidth()

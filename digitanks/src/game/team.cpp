@@ -30,7 +30,7 @@ CTeam::CTeam()
 {
 	m_bClientControlled = false;
 	m_bHumanPlayable = true;
-	m_iClient = -1;
+	m_iClient = NETWORK_LOCAL;
 }
 
 CTeam::~CTeam()
@@ -45,7 +45,7 @@ CTeam::~CTeam()
 bool CTeam::OnUnserialize(std::istream& i)
 {
 	if (IsPlayerControlled() && m_iClient >= 0)
-		SetClient(-2);
+		SetClient(NETWORK_BOT);
 
 	return BaseClass::OnUnserialize(i);
 }
@@ -101,17 +101,14 @@ void CTeam::OnDeleted(CBaseEntity* pEntity)
 
 void CTeam::SetClient(int iClient)
 {
-	if (iClient < -1)
-	{
-		SetBot();
-		return;
-	}
-
-	m_bClientControlled = true;
 	m_iClient = iClient;
+
+	if (iClient == NETWORK_BOT)
+		m_bClientControlled = false;
+	else
+		m_bClientControlled = true;
 }
 
 void CTeam::SetBot()
 {
-	m_bClientControlled = false;
 }

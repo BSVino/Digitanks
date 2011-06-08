@@ -620,7 +620,7 @@ void CENetConnection::CallbackFunction(const char* pszName, CNetworkParameters* 
 
 	// If I'm host and I got this message from a client, forward it to all of the other clients.
 	if (IsHost())
-		CallFunction(-1, pFunction, p, true);
+		CallFunction(NETWORK_TOCLIENTS, pFunction, p, true);
 }
 
 void CENetConnection::SetLoading(bool bLoading)

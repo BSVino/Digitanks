@@ -90,7 +90,7 @@ CLIENT_COMMAND(CONNECTION_LOBBY, AddLocalPlayer)
 	if (pSender->GetInfoValue(L"host") != L"1")
 		return;
 
-	size_t iID = CGameLobbyServer::AddPlayer(iLobby, -1);
+	size_t iID = CGameLobbyServer::AddPlayer(iLobby, NETWORK_LOCAL);
 	CGameLobbyServer::UpdatePlayer(iID, L"bot", L"0");
 	CGameLobbyServer::UpdatePlayer(iID, L"name", L"Player");
 	CGameLobbyServer::UpdatePlayer(iID, L"ready", L"1");
@@ -109,7 +109,7 @@ CLIENT_COMMAND(CONNECTION_LOBBY, AddBot)
 	if (pSender->GetInfoValue(L"host") != L"1")
 		return;
 
-	size_t iID = CGameLobbyServer::AddPlayer(iLobby, -2);
+	size_t iID = CGameLobbyServer::AddPlayer(iLobby, NETWORK_BOT);
 	CGameLobbyServer::UpdatePlayer(iID, L"bot", L"1");
 	CGameLobbyServer::UpdatePlayer(iID, L"name", L"Bot");
 	CGameLobbyServer::UpdatePlayer(iID, L"ready", L"1");

@@ -45,7 +45,7 @@ void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParame
 		}
 	}
 
-	if (iTarget == NETWORK_TOSERVER)
+	else if (iTarget == NETWORK_TOSERVER)
 	{
 		if (Network(iConnection)->IsHost() || !Network(iConnection)->IsConnected())
 		{
@@ -58,6 +58,23 @@ void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParame
 		{
 			bNoNetwork = true;
 			bPredict = true;
+		}
+	}
+
+	else if (iTarget == NETWORK_BOT)
+		return;
+
+	else if (iTarget == NETWORK_LOCAL)
+	{
+		if (Network(iConnection)->IsHost())
+		{
+			bNoNetwork = true;
+			bPredict = true;
+		}
+		else
+		{
+			TAssert(false);
+			return;
 		}
 	}
 

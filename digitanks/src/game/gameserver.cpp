@@ -112,7 +112,7 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 	CBaseEntity::s_iNextEntityListIndex = 0;
 
 	m_iPort = 0;
-	m_iClient = -1;
+	m_iClient = NETWORK_LOCAL;
 
 	m_bHalting = false;
 

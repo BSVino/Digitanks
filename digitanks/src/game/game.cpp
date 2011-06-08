@@ -63,7 +63,7 @@ void CGame::OnClientDisconnect(int iClient)
 	{
 		if (m_ahTeams[i]->GetClient() == iClient)
 		{
-			m_ahTeams[i]->SetClient(-2);
+			m_ahTeams[i]->SetClient(NETWORK_BOT);
 			return;
 		}
 	}
