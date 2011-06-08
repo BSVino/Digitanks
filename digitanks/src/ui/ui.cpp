@@ -296,12 +296,15 @@ void CVictoryPanel::GameOver(bool bPlayerWon)
 	else
 		m_pRestart->SetVisible(true);
 
+	if (!GameNetwork()->IsHost())
+		m_pRestart->SetVisible(false);
+
 	SetVisible(true);
 }
 
 void CVictoryPanel::RestartCallback()
 {
-	DigitanksWindow()->Restart(GAMETYPE_FROM_CVAR);
+	DigitanksWindow()->RestartLevel();
 
 	SetVisible(false);
 }

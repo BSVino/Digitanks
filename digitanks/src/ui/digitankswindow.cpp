@@ -15,12 +15,14 @@
 #include <configfile.h>
 #include <platform.h>
 #include <network/network.h>
+#include <network/commands.h>
 #include <sound/sound.h>
 #include <tinker/cvar.h>
 #include <tinker/profiler.h>
 #include <tinker/portals/portal.h>
 #include <models/texturelibrary.h>
 #include <tinker/lobby/lobby_client.h>
+#include <tinker/lobby/lobby_server.h>
 #include <tinker/console.h>
 
 #include "glgui/glgui.h"
@@ -487,6 +489,23 @@ void CDigitanksWindow::ContinueCampaign()
 	}
 
 	m_pCampaign->SaveData(GetAppDataDirectory(L"Digitanks", L"campaign.txt"));
+}
+
+SERVER_GAME_COMMAND(RestartLevel)
+{
+	if (GameServer()->ShouldSetupFromLobby())
+		DigitanksWindow()->Restart(GAMETYPE_FROM_LOBBY);
+	else
+		DigitanksWindow()->Restart(GAMETYPE_FROM_CVAR);
+}
+
+void CDigitanksWindow::RestartLevel()
+{
+	TAssert(GameNetwork()->IsHost());
+	if (!GameNetwork()->IsHost())
+		return;
+
+	::RestartLevel.RunCommand(L"");
 }
 
 void CDigitanksWindow::Restart(gametype_t eRestartAction)

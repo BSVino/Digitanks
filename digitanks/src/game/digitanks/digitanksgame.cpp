@@ -1233,8 +1233,6 @@ void CDigitanksGame::EnterGame(int iConnection, CNetworkParameters* p)
 
 void CDigitanksGame::StartNewRound()
 {
-	DigitanksWindow()->GetVictoryPanel()->SetVisible(false);
-
 	m_iCurrentTeam = 0;
 
 	m_iWaitingForProjectiles = 0;
@@ -2277,19 +2275,24 @@ void CDigitanksGame::CheckWinConditions()
 		GameOver();
 }
 
+SERVER_GAME_COMMAND(GameOver)
+{
+	if (DigitanksGame()->GetListener() && DigitanksGame()->GetCurrentLocalDigitanksTeam() && !DigitanksGame()->GetCurrentLocalDigitanksTeam()->HasLost())
+		DigitanksGame()->GetListener()->GameOver(!DigitanksGame()->GetCurrentLocalDigitanksTeam()->HasLost());
+
+	DigitanksGame()->GetDigitanksCamera()->SetDistance(250);
+	DigitanksGame()->GetDigitanksCamera()->SetTarget(Vector(0,0,0));
+}
+
 void CDigitanksGame::GameOver()
 {
 	if (GameServer()->IsLoading())
 		return;
 
-	if (m_pListener && GetCurrentLocalDigitanksTeam() && !GetCurrentLocalDigitanksTeam()->HasLost())
-		m_pListener->GameOver(!GetCurrentLocalDigitanksTeam()->HasLost());
-
 	m_bPartyMode = true;
 	m_flPartyModeStart = GameServer()->GetGameTime();
 
-	GetDigitanksCamera()->SetDistance(250);
-	GetDigitanksCamera()->SetTarget(Vector(0,0,0));
+	::GameOver.RunCommand(L"");
 }
 
 void CDigitanksGame::PlayerVictory(const eastl::vector<eastl::string16>& sArgs)

@@ -55,6 +55,8 @@ public:
 	void						ContinueCampaign();
 	class CCampaignData*		GetCampaignData() { return m_pCampaign; };
 
+	void						RestartLevel();
+
 	void						Restart(gametype_t eRestartAction);
 
 	void						Run();	// Doesn't return
