@@ -520,7 +520,9 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 {
 	T* pClosest = NULL;
 
-	float flFurtherDistance = pFurther->Distance(vecPoint);
+	float flFurtherDistance = 0;
+	if (pFurther)
+		flFurtherDistance = pFurther->Distance(vecPoint);
 
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
