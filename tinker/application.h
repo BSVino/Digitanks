@@ -124,6 +124,11 @@ protected:
 	static CApplication*		s_pApplication;
 };
 
+inline CApplication* Application()
+{
+	return CApplication::Get();
+}
+
 // Tinker messages and errors
 #define TMsg CApplication::PrintConsole
 #define TError(x) CApplication::PrintConsole(eastl::string16(L"Error: ") + x)

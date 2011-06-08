@@ -23,6 +23,7 @@
 #include <tinker/portals/portal.h>
 #include <tinker/lobby/lobby_server.h>
 #include <tinker/cvar.h>
+#include <tinker/gamewindow.h>
 
 #include "camera.h"
 #include "level.h"
@@ -44,7 +45,6 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 
 	CBaseEntity::s_apEntityList.resize(m_iMaxEnts);
 
-	m_pRenderer = NULL;
 	m_pCamera = NULL;
 
 	m_iSaveCRC = 0;
@@ -133,9 +133,6 @@ CGameServer::~CGameServer()
 	for (size_t i = 0; i < m_apLevels.size(); i++)
 		delete m_apLevels[i];
 
-	if (m_pRenderer)
-		delete m_pRenderer;
-
 	if (m_pCamera)
 		delete m_pCamera;
 
@@ -182,12 +179,6 @@ void CGameServer::Initialize()
 	DestroyAllEntities(eastl::vector<eastl::string>(), true);
 
 	CParticleSystemLibrary::ClearInstances();
-
-	if (!m_pRenderer)
-	{
-		m_pRenderer = CreateRenderer();
-		m_pRenderer->Initialize();
-	}
 
 	if (!m_pCamera)
 		m_pCamera = CreateCamera();
@@ -355,12 +346,19 @@ void CGameServer::ClientEnterGame(int iClient)
 
 void CGameServer::ClientDisconnect(int iClient)
 {
-	TMsg(sprintf(L"Client %d (" + GameNetwork()->GetClientNickname(iClient) + L") disconnected.\n", iClient));
+	if (!GameNetwork()->IsHost() && iClient == GameNetwork()->GetClientID())
+	{
+		TMsg(L"Disconnected from server.\n");
+	}
+	else
+	{
+		TMsg(sprintf(L"Client %d (" + GameNetwork()->GetClientNickname(iClient) + L") disconnected.\n", iClient));
 
-	CApplication::Get()->OnClientDisconnect(iClient);
+		CApplication::Get()->OnClientDisconnect(iClient);
 
-	if (GetGame())
-		GetGame()->OnClientDisconnect(iClient);
+		if (GetGame())
+			GetGame()->OnClientDisconnect(iClient);
+	}
 }
 
 void CGameServer::SetClientNickname(int iClient, const eastl::string16& sNickname)
@@ -556,15 +554,15 @@ void CGameServer::Render()
 
 	m_pCamera->Think();
 
-	m_pRenderer->SetCameraPosition(m_pCamera->GetCameraPosition());
-	m_pRenderer->SetCameraTarget(m_pCamera->GetCameraTarget());
-	m_pRenderer->SetCameraFOV(m_pCamera->GetCameraFOV());
-	m_pRenderer->SetCameraNear(m_pCamera->GetCameraNear());
-	m_pRenderer->SetCameraFar(m_pCamera->GetCameraFar());
+	GameWindow()->GetRenderer()->SetCameraPosition(m_pCamera->GetCameraPosition());
+	GameWindow()->GetRenderer()->SetCameraTarget(m_pCamera->GetCameraTarget());
+	GameWindow()->GetRenderer()->SetCameraFOV(m_pCamera->GetCameraFOV());
+	GameWindow()->GetRenderer()->SetCameraNear(m_pCamera->GetCameraNear());
+	GameWindow()->GetRenderer()->SetCameraFar(m_pCamera->GetCameraFar());
 
-	m_pRenderer->SetupFrame();
-	m_pRenderer->DrawBackground();
-	m_pRenderer->StartRendering();
+	GameWindow()->GetRenderer()->SetupFrame();
+	GameWindow()->GetRenderer()->DrawBackground();
+	GameWindow()->GetRenderer()->StartRendering();
 
 	m_apRenderList.reserve(CBaseEntity::GetNumEntities());
 	m_apRenderList.clear();
@@ -581,20 +579,20 @@ void CGameServer::Render()
 		if (!pEntity->ShouldRender())
 			continue;
 
-		if (bFrustumCulling && !m_pRenderer->IsSphereInFrustum(pEntity->GetRenderOrigin(), pEntity->GetRenderRadius()))
+		if (bFrustumCulling && !GameWindow()->GetRenderer()->IsSphereInFrustum(pEntity->GetRenderOrigin(), pEntity->GetRenderRadius()))
 			continue;
 
 		m_apRenderList.push_back(pEntity);
 	}
 
-	m_pRenderer->BeginBatching();
+	GameWindow()->GetRenderer()->BeginBatching();
 
 	// First render all opaque objects
 	size_t iEntites = m_apRenderList.size();
 	for (size_t i = 0; i < iEntites; i++)
 		m_apRenderList[i]->Render(false);
 
-	m_pRenderer->RenderBatches();
+	GameWindow()->GetRenderer()->RenderBatches();
 
 	// Now render all transparent objects. Should really sort this back to front but meh for now.
 	for (size_t i = 0; i < iEntites; i++)
@@ -603,7 +601,7 @@ void CGameServer::Render()
 	CParticleSystemLibrary::Render();
 	CModelDissolver::Render();
 
-	m_pRenderer->FinishRendering();
+	GameWindow()->GetRenderer()->FinishRendering();
 }
 
 void CGameServer::GenerateSaveCRC(size_t iInput)
@@ -899,12 +897,7 @@ void CGameServer::ClientInfo(int iConnection, CNetworkParameters* p)
 
 CRenderer* CGameServer::GetRenderer()
 {
-	if (m_pRenderer)
-		return m_pRenderer;
-
-	m_pRenderer = CreateRenderer();
-
-	return m_pRenderer;
+	return GameWindow()->GetRenderer();
 }
 
 CGame* CGameServer::GetGame()

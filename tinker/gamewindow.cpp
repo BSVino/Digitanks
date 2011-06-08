@@ -6,6 +6,7 @@
 #include <game/gameserver.h>
 #include <glgui/glgui.h>
 #include <game/camera.h>
+#include <renderer/renderer.h>
 
 CGameWindow::CGameWindow(int argc, char** argv)
 	: CApplication(argc, argv)
@@ -26,6 +27,18 @@ void CGameWindow::OpenWindow()
 	RenderLoading();
 
 	m_pGameServer = new CGameServer();
+
+	m_pRenderer = CreateRenderer();
+	m_pRenderer->Initialize();
+}
+
+CGameWindow::~CGameWindow()
+{
+	if (m_pRenderer)
+		delete m_pRenderer;
+
+	if (m_pGameServer)
+		delete m_pGameServer;
 }
 
 void CGameWindow::Run()

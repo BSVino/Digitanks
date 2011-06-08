@@ -199,6 +199,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "\My Dropb
     <ClCompile Include="..\..\tinker\application.cpp" />
     <ClCompile Include="..\..\tinker\console.cpp" />
     <ClCompile Include="..\..\tinker\cvar.cpp" />
+    <ClCompile Include="..\..\tinker\gamewindow.cpp" />
     <ClCompile Include="..\..\tinker\lobby\lobby_client.cpp" />
     <ClCompile Include="..\..\tinker\lobby\lobby_server.cpp" />
     <ClCompile Include="..\..\tinker\portals\portal_steam.cpp" />
@@ -325,6 +326,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "\My Dropb
     <ClInclude Include="..\..\tinker\application.h" />
     <ClInclude Include="..\..\tinker\console.h" />
     <ClInclude Include="..\..\tinker\cvar.h" />
+    <ClInclude Include="..\..\tinker\gamewindow.h" />
     <ClInclude Include="..\..\tinker\keys.h" />
     <ClInclude Include="..\..\tinker\lobby\lobby.h" />
     <ClInclude Include="..\..\tinker\lobby\lobby_client.h" />

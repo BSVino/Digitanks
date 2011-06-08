@@ -11,6 +11,7 @@ class CGameWindow : public CApplication
 
 public:
 								CGameWindow(int argc, char** argv);
+	virtual						~CGameWindow();
 
 public:
 	void						OpenWindow();
@@ -27,8 +28,17 @@ public:
 	virtual void				MouseMotion(int x, int y);
 	virtual void				MouseInput(int iButton, int iState);
 
+	class CGameServer*			GetGameServer() { return m_pGameServer; };
+	class CRenderer*			GetRenderer() { return m_pRenderer; };
+
 protected:
 	class CGameServer*			m_pGameServer;
+	class CRenderer*			m_pRenderer;
 };
+
+inline CGameWindow* GameWindow()
+{
+	return dynamic_cast<CGameWindow*>(CApplication::Get());
+}
 
 #endif

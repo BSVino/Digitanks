@@ -7,8 +7,9 @@
 #include <color.h>
 #include <worklistener.h>
 
+#include <tinker/gamewindow.h>
+
 #include <game/digitanks/digitanksgame.h>
-#include <tinker/application.h>
 
 typedef enum
 {
@@ -24,9 +25,9 @@ typedef enum
 	MOUSECURSOR_AIMINVALID,
 } mousecursor_t;
 
-class CDigitanksWindow : public CApplication, public IWorkListener
+class CDigitanksWindow : public CGameWindow, public IWorkListener
 {
-	DECLARE_CLASS(CDigitanksWindow, CApplication);
+	DECLARE_CLASS(CDigitanksWindow, CGameWindow);
 
 public:
 								CDigitanksWindow(int argc, char** argv);
@@ -117,7 +118,6 @@ public:
 
 	class CMainMenu*			GetMainMenu() { return m_pMainMenu; };
 	class CDigitanksMenu*		GetMenu() { return m_pMenu; };
-	class CGameServer*			GetGameServer() { return m_pGameServer; };
 	class CHUD*					GetHUD() { return m_pHUD; };
 	class CInstructor*			GetInstructor();
 	class CVictoryPanel*		GetVictoryPanel() { return m_pVictory; };
@@ -164,8 +164,6 @@ protected:
 	servertype_t				m_eServerType;
 
 	gametype_t					m_eRestartAction;
-
-	class CGameServer*			m_pGameServer;
 
 	class CHUD*					m_pHUD;
 

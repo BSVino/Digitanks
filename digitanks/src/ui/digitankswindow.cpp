@@ -39,9 +39,10 @@
 ConfigFile c( GetAppDataDirectory(L"Digitanks", L"options.cfg") );
 
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
-	: CApplication(argc, argv)
+	: CGameWindow(argc, argv)
 {
 	m_pGameServer = NULL;
+	m_pRenderer = NULL;
 	m_pHUD = NULL;
 	m_pInstructor = NULL;
 	m_pChatBox = NULL;
@@ -129,7 +130,7 @@ void CDigitanksWindow::OpenWindow()
 	glgui::CLabel::AddFont(L"smileys", L"fonts/smileys.ttf");
 	glgui::CLabel::AddFont(L"cameramissile", L"fonts/cameramissile.ttf");
 
-	BaseClass::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
+	CApplication::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
 	m_iCursors = CTextureLibrary::AddTextureID(L"textures/cursors.png");
 	m_iLoading = CTextureLibrary::AddTextureID(L"textures/loading.png");
@@ -378,6 +379,12 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 		glgui::CRootPanel::Get()->AddControl(m_pHUD);
 
 		m_pGameServer = new CGameServer(this);
+
+		if (!m_pRenderer)
+		{
+			m_pRenderer = CreateRenderer();
+			m_pRenderer->Initialize();
+		}
 
 		if (!m_pInstructor)
 			m_pInstructor = new CInstructor();

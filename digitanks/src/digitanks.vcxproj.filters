@@ -408,6 +408,9 @@
     <ClCompile Include="game\digitanks\campaign\campaignentity.cpp">
       <Filter>Source Files\digitanks\campaign</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tinker\gamewindow.cpp">
+      <Filter>Source Files\tinker</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui\debugdraw.h">
@@ -712,6 +715,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\worklistener.h">
       <Filter>Source Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tinker\gamewindow.h">
+      <Filter>Source Files\tinker</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

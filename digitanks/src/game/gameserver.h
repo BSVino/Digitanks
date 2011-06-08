@@ -121,7 +121,6 @@ protected:
 	eastl::vector<CBaseEntity*>					m_apRenderList;
 
 	class CCamera*								m_pCamera;
-	class CRenderer*							m_pRenderer;
 
 	bool										m_bLoading;
 
