@@ -69,6 +69,9 @@ void CLobbyPanel::Layout()
 	if (!CGameLobbyClient::L_GetNumPlayers())
 		return;
 
+	if (CGameLobbyClient::L_GetPlayerIndexByClient(LobbyNetwork()->GetClientID()) == ~0)
+		return;
+
 	m_bLayout = false;
 
 	size_t iWidth = DigitanksWindow()->GetWindowWidth();

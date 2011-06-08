@@ -308,7 +308,7 @@ void CDigitanksWindow::KeyPress(int c)
 			GetMenu()->SetVisible(true);
 		else if (GetHUD()->GetUpdatesPanel()->IsVisible())
 			GetHUD()->GetUpdatesPanel()->CloseCallback();
-		else
+		else if (DigitanksGame())
 			DigitanksGame()->SetControlMode(MODE_NONE);
 	}
 
