@@ -16,6 +16,9 @@ inline float Lerp(float x, float flLerp)
 	if (flLastLerp != flLerp)
 		flLastExp = log(flLerp) * -1.4427f;	// 1/log(0.5f)
 
+	if (x < 0)
+		return 0;
+
 	return pow(x, flLastExp);
 }
 

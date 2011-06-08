@@ -2872,7 +2872,7 @@ Vector CDigitank::GetOrigin() const
 	if (m_flStartedMove && flTimeSinceMove < flTransitionTime)
 	{
 		float flLerp = 0;
-		float flRamp = RemapVal(flTimeSinceMove, 0, flTransitionTime, 0, 1);
+		float flRamp = RemapValClamped(flTimeSinceMove, 0, flTransitionTime, 0, 1);
 		if (m_iMoveType == 0)
 			flLerp = SLerp(flRamp, 0.2f);
 		else if (m_iMoveType == 1)
