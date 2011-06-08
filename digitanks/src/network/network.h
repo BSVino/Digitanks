@@ -207,7 +207,7 @@ public:
 	virtual void		CallFunction(int iClient, CRegisteredFunction* pFunction, CNetworkParameters* p, bool bNoCurrentClient = false) = 0;
 	virtual void		CallbackFunction(const char* pszName, CNetworkParameters* p) = 0;
 
-	virtual void		SetLoading(bool bLoading);			// Client only, tells the server whether I'm loading or not
+	virtual void		SetLoading(bool bLoading) = 0;			// Client only, tells the server whether I'm loading or not
 	virtual void		SetClientLoading(int iClient, bool bLoading) = 0;
 	virtual bool		GetClientLoading(int iClient) = 0;
 

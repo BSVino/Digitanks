@@ -45,6 +45,7 @@ public:
 	virtual size_t				GetClientsConnected();
 	virtual size_t				GetClientConnectionId(size_t iClient);
 
+	virtual void				SetLoading(bool bLoading);
 	virtual void				SetClientLoading(int iClient, bool bLoading);
 	virtual bool				GetClientLoading(int iClient);
 
@@ -622,11 +623,28 @@ void CENetConnection::CallbackFunction(const char* pszName, CNetworkParameters* 
 		CallFunction(-1, pFunction, p, true);
 }
 
-void CNetworkConnection::SetLoading(bool bLoading)
+void CENetConnection::SetLoading(bool bLoading)
 {
+	bool bWas = m_bLoading;
+
 	m_bLoading = false;
 	::SetLoading.RunCommand(m_iConnection, bLoading?L"1":L"0", NETWORK_TOSERVER);
 	m_bLoading = bLoading;
+
+	if (IsHost() && bWas && !m_bLoading)
+	{
+		CNetworkParameters p;
+		for (size_t i = 0; i < m_aServerPeers.size(); i++)
+		{
+			if (m_aServerPeers[i].m_bLoading)
+				continue;
+
+			p.i1 = i;
+
+			if (m_pfnClientEnterGame)
+				m_pfnClientEnterGame(m_iConnection, m_pClientListener, &p);
+		}
+	}
 }
 
 void CENetConnection::SetClientLoading(int iClient, bool bLoading)
@@ -642,7 +660,7 @@ void CENetConnection::SetClientLoading(int iClient, bool bLoading)
 
 	m_aServerPeers[iClient].m_bLoading = bLoading;
 
-	if (!bLoading)
+	if (!bLoading && !m_bLoading)
 	{
 		CNetworkParameters p;
 		p.i1 = iClient;
