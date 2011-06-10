@@ -65,8 +65,7 @@ void ChatSay(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens,
 {
 	if (GameNetwork()->IsConnected())
 		ClientChatSay.RunCommand(CONNECTION_GAME, sCommand.substr(sCommand.find(L' ')));
-
-	if (LobbyNetwork()->IsConnected())
+	else if (LobbyNetwork()->IsConnected())
 		ClientChatSay.RunCommand(CONNECTION_LOBBY, sCommand.substr(sCommand.find(L' ')));
 }
 

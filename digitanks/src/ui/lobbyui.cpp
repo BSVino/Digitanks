@@ -80,6 +80,8 @@ void CLobbyPanel::Layout()
 	SetSize(924, 668);
 	SetPos(iWidth/2-GetWidth()/2, iHeight/2-GetHeight()/2);
 
+	bool bAllButMe = true;
+
 	// Find the lobby leader's name
 	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 	{
@@ -87,9 +89,19 @@ void CLobbyPanel::Layout()
 		if (pPlayer->GetInfoValue(L"host") == L"1")
 		{
 			m_pLobbyName->SetText(pPlayer->GetInfoValue(L"name") + L"'s Lobby");
-			break;
+
+			if (pPlayer->GetInfoValue(L"ready") == L"1")
+				bAllButMe = false;
+
+			continue;
 		}
+
+		if (pPlayer->GetInfoValue(L"ready") != L"1")
+			bAllButMe = false;
 	}
+
+	if (!LobbyNetwork()->IsHost())
+		bAllButMe = false;
 
 	m_pLobbyName->SetSize(GetWidth(), 30);
 	m_pLobbyName->SetPos(0, 0);
@@ -127,7 +139,10 @@ void CLobbyPanel::Layout()
 
 	m_pReady->SetSize(180, 35);
 	m_pReady->SetPos(925 - 200, 668 - 55);
-	if (CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID()))
+
+	if (bAllButMe)
+		m_pReady->SetText(L"Start Game");
+	else if (CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID()))
 	{
 		bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(L"ready").c_str());
 		if (bReady)
@@ -139,6 +154,9 @@ void CLobbyPanel::Layout()
 		m_pReady->SetText(L"Ready");
 
 	m_pReady->SetEnabled(CGameLobbyClient::L_GetNumPlayers() >= 2);
+
+	if (LobbyNetwork()->IsHost() && CGameLobbyClient::L_GetInfoValue(L"level").length() == 0)
+		m_pReady->SetEnabled(false);
 
 	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(L"gametype").c_str());
 	if (CGameLobbyClient::L_GetNumPlayers() > 8 && eGameType == GAMETYPE_ARTILLERY)
@@ -535,6 +553,10 @@ void CPlayerPanel::SetPlayer(size_t iID)
 		m_pKick->SetVisible(false);
 
 	m_pColor->SetEnabled(iID == CGameLobbyClient::L_GetLocalPlayerID() || CGameLobbyClient::L_IsHost());
+
+	bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(L"ready").c_str());
+	if (bReady)
+		m_pColor->SetEnabled(false);
 
 	eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
 	m_bRandomColor = (sColor == L"random" || sColor == L"");
