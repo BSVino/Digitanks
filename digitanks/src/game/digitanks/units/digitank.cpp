@@ -13,6 +13,7 @@
 #include <shaders/shaders.h>
 #include <models/texturelibrary.h>
 #include <network/commands.h>
+#include <sound/sound.h>
 
 #include <networkedeffect.h>
 #include <digitanks/digitanksgame.h>
@@ -1812,9 +1813,9 @@ void CDigitank::OnCurrentSelection()
 	if (GetVisibility() > 0)
 	{
 		if (rand()%2 == 0)
-			EmitSound(L"sound/tank-active.wav");
+			CSoundLibrary::PlaySound(this, L"sound/tank-active.wav");
 		else
-			EmitSound(L"sound/tank-active2.wav");
+			CSoundLibrary::PlaySound(this, L"sound/tank-active2.wav");
 	}
 
 	Speak(TANKSPEECH_SELECTED);
