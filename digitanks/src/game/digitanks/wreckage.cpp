@@ -98,7 +98,7 @@ void CWreckage::Think()
 		Delete();
 }
 
-void CWreckage::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CWreckage::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -108,7 +108,7 @@ void CWreckage::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 	pContext->SetAlpha(Flicker("mmmmmmqtmmmmtfqmmmmmm", GameServer()->GetGameTime() + ((float)GetSpawnSeed()/100), 2.0f) * 0.7f);
 }
 
-void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CWreckage::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 

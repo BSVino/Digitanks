@@ -75,7 +75,7 @@ void CResource::UpdateInfo(eastl::string16& s)
 	s += L"Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 
-void CResource::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CResource::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -83,7 +83,7 @@ void CResource::ModifyContext(class CRenderingContext* pContext, bool bTranspare
 		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());
 }
 
-void CResource::PostRender(bool bTransparent)
+void CResource::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 

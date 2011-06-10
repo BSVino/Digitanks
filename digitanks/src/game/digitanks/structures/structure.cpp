@@ -199,7 +199,7 @@ void CStructure::FindGround()
 	SetOrigin(Vector(GetOrigin().x, flHeight + GetBoundingRadius()/2 + 2, GetOrigin().z));
 }
 
-void CStructure::PostRender(bool bTransparent)
+void CStructure::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 
@@ -543,7 +543,7 @@ bool CStructure::NeedsOrders()
 	return BaseClass::NeedsOrders();
 }
 
-void CStructure::SetSupplier(class CSupplier* pSupplier)
+void CStructure::SetSupplier(const class CSupplier* pSupplier)
 {
 	if (!GameNetwork()->IsHost())
 		return;
@@ -560,7 +560,23 @@ void CStructure::SetSupplier(class CSupplier* pSupplier)
 		m_hSupplyLine->SetEntities(m_hSupplier, this);
 }
 
-void CStructure::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+CSupplier* CStructure::GetSupplier() const
+{
+	if (m_hSupplier == NULL)
+		return NULL;
+
+	return m_hSupplier;
+}
+
+CSupplyLine* CStructure::GetSupplyLine() const
+{
+	if (m_hSupplyLine == NULL)
+		return NULL;
+
+	return m_hSupplyLine;
+}
+
+void CStructure::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -687,12 +703,12 @@ float CSupplier::GetDataFlowRadius() const
 	return sqrt((float)m_iDataStrength.Get()/M_PI) + GetBoundingRadius();
 }
 
-float CSupplier::GetDataFlow(Vector vecPoint)
+float CSupplier::GetDataFlow(Vector vecPoint) const
 {
 	return RemapValClamped((vecPoint - GetOrigin()).Length(), GetBoundingRadius(), GetDataFlowRadius()+GetBoundingRadius(), (float)m_iDataStrength, 0);
 }
 
-float CSupplier::GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore)
+float CSupplier::GetDataFlow(Vector vecPoint, const CTeam* pTeam, const CSupplier* pIgnore)
 {
 	if (!pTeam)
 		return 0;
@@ -701,11 +717,11 @@ float CSupplier::GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore)
 	size_t iNumMembers = pTeam->GetNumMembers();
 	for (size_t i = 0; i < iNumMembers; i++)
 	{
-		CBaseEntity* pEntity = pTeam->GetMember(i);
+		const CBaseEntity* pEntity = pTeam->GetMember(i);
 		if (!pEntity)
 			continue;
 
-		CSupplier* pSupplier = dynamic_cast<CSupplier*>(pEntity);
+		const CSupplier* pSupplier = dynamic_cast<const CSupplier*>(pEntity);
 		if (!pSupplier)
 			continue;
 
@@ -743,7 +759,7 @@ void CSupplier::CalculateDataFlow()
 	}
 }
 
-float CSupplier::GetChildEfficiency()
+float CSupplier::GetChildEfficiency() const
 {
 	size_t iEfficientChildren = EfficientChildren();
 
@@ -828,11 +844,11 @@ void CSupplier::StartTurn()
 		m_bShouldRender = false;
 		for (size_t i = 0; i < pLocalTeam->GetNumMembers(); i++)
 		{
-			CBaseEntity* pEntity = pLocalTeam->GetMember(i);
+			const CBaseEntity* pEntity = pLocalTeam->GetMember(i);
 			if (!pEntity)
 				continue;
 
-			CDigitank* pDigitank = dynamic_cast<CDigitank*>(pEntity);
+			const CDigitank* pDigitank = dynamic_cast<const CDigitank*>(pEntity);
 			if (pDigitank)
 			{
 				float flDistanceSqr = pDigitank->GetOrigin().DistanceSqr(GetOrigin());
@@ -851,7 +867,7 @@ void CSupplier::StartTurn()
 				continue;
 			}
 
-			CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+			const CDigitanksEntity* pDTEnt = dynamic_cast<const CDigitanksEntity*>(pEntity);
 			if (pDTEnt)
 			{
 				float flDistanceSqr = pDTEnt->GetOrigin().DistanceSqr(GetOrigin());
@@ -1261,7 +1277,7 @@ CSupplier* CSupplier::FindClosestSupplier(CBaseEntity* pUnit)
 	return pClosest;
 }
 
-CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, CTeam* pTeam)
+CSupplier* CSupplier::FindClosestSupplier(Vector vecPoint, const CTeam* pTeam)
 {
 	CSupplier* pClosest = NULL;
 	CSupplier* pClosestInNetwork = NULL;

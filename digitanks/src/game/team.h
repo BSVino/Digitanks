@@ -32,21 +32,18 @@ public:
 
 	bool						IsPlayerControlled() const { return m_bClientControlled; };
 	void						SetClient(int iClient);
-	void						SetBot();
 	int							GetClient() const { return m_iClient; };
 	void						SetInstallID(int i) { m_iInstallID = i; };
 	int							GetInstallID() const { return m_iInstallID; };
 
 	void						SetColor(Color clrTeam) { m_clrTeam = clrTeam; };
-	Color						GetColor() { return m_clrTeam; };
+	Color						GetColor() const { return m_clrTeam; };
 
-	size_t						GetNumMembers() { return m_ahMembers.size(); };
-	CBaseEntity*				GetMember(size_t i) { if (!m_ahMembers.size()) return NULL; return m_ahMembers[i]; };
-
-	void						AddTeam(class CNetworkParameters* p);
+	size_t						GetNumMembers() const { return m_ahMembers.size(); };
+	CBaseEntity*				GetMember(size_t i) const;
 
 	void						SetTeamName(const eastl::string16& sName) { m_sName = sName; };
-	eastl::string16				GetTeamName() { return m_sName; }
+	const eastl::string16&		GetTeamName() const { return m_sName; }
 
 protected:
 	CNetworkedVariable<bool>	m_bHumanPlayable;

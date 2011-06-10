@@ -15,7 +15,7 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
-	virtual eastl::string16		GetEntityName() { return L"Rogue"; };
+	virtual eastl::string16		GetEntityName() const { return L"Rogue"; };
 
 	CSupplyLine*				FindClosestEnemySupplyLine(bool bInRange = false);
 

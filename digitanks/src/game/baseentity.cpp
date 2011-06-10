@@ -257,7 +257,7 @@ void CBaseEntity::ToggleActive(const eastl::vector<eastl::string16>& sArgs)
 	SetActive(!IsActive());
 }
 
-void CBaseEntity::Render(bool bTransparent)
+void CBaseEntity::Render(bool bTransparent) const
 {
 	TPROF("CBaseEntity::Render");
 

@@ -40,7 +40,7 @@ void CAutoTurret::Spawn()
 	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/structures/firewall-shield.obj");
 }
 
-void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -50,7 +50,7 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
-void CAutoTurret::OnRender(CRenderingContext* pContext, bool bTransparent)
+void CAutoTurret::OnRender(CRenderingContext* pContext, bool bTransparent) const
 {
 	if (m_iShieldModel == ~0)
 		return;

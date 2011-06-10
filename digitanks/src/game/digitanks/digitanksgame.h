@@ -114,7 +114,7 @@ public:
 
 	virtual void			OnClientEnterGame(int iClient);
 
-	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore);
+	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CTeam* pTeamIgnore);
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
 
@@ -134,9 +134,9 @@ public:
 
 	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
 
-	CDigitanksTeam*			GetDigitanksTeam(size_t i);
+	CDigitanksTeam*			GetDigitanksTeam(size_t i) const;
 
-	CDigitanksTeam*			GetCurrentTeam();
+	CDigitanksTeam*			GetCurrentTeam() const;
 	CSelectable*			GetPrimarySelection();
 	CDigitank*				GetPrimarySelectionTank();
 	CStructure*				GetPrimarySelectionStructure();

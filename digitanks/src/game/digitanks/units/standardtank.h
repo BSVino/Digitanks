@@ -11,11 +11,11 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual eastl::string16		GetEntityName() { return L"Digitank"; };
+	virtual eastl::string16		GetEntityName() const { return L"Digitank"; };
 
 	virtual float				GetBoundingRadius() const { return 6; };
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual float				BaseHealthRechargeRate() const { return 10.0f; };
 	virtual float				BaseShieldRechargeRate() const { return 50.0f; };

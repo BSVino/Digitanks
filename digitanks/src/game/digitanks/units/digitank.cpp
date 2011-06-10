@@ -619,7 +619,7 @@ float CDigitank::GetShieldBlockRadius()
 	return RenderShieldScale();
 }
 
-float CDigitank::GetShieldValue()
+float CDigitank::GetShieldValue() const
 {
 	return m_flShieldStrength;
 }
@@ -1076,7 +1076,7 @@ void CDigitank::Move(CNetworkParameters* p)
 	DigitanksWindow()->GetHUD()->UpdateTurnButton();
 }
 
-bool CDigitank::IsMoving()
+bool CDigitank::IsMoving() const
 {
 	float flTransitionTime = GetTransitionTime();
 
@@ -1590,6 +1590,25 @@ void CDigitank::Think()
 
 	if (!DigitanksGame())
 		return;
+
+	if ((GetDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
+	{
+		if (GetCurrentWeapon() != WEAPON_CHARGERAM)
+		{
+			Vector vecAimTarget;
+			if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
+				vecAimTarget = GetPreviewAim();
+			else
+				vecAimTarget = m_vecLastAim;
+			Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
+			m_flGoalTurretYaw = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
+		}
+	}
+
+	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * GameServer()->GetFrameTime() * 10;
+	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
+
+	m_flGlowYaw += fmod(GameServer()->GetFrameTime()*10, 360);
 
 	if (!IsMoving() && IsAlive() && GameServer()->GetGameTime() > m_flNextHoverHeightCheck)
 	{
@@ -2919,7 +2938,7 @@ EAngle CDigitank::GetAngles() const
 	return BaseClass::GetAngles();
 }
 
-void CDigitank::PreRender(bool bTransparent)
+void CDigitank::PreRender(bool bTransparent) const
 {
 	BaseClass::PreRender(bTransparent);
 
@@ -2935,7 +2954,6 @@ void CDigitank::PreRender(bool bTransparent)
 		Vector vecOrigin = GetRenderOrigin();
 		Vector vecParticleUp, vecParticleRight;
 		float flRadius = GetBoundingRadius()*2;
-		m_flGlowYaw += fmod(GameServer()->GetFrameTime()*10, 360);
 
 		c.BindTexture(s_iSupportGlow);
 		c.SetAlpha(0.5f);
@@ -3074,7 +3092,7 @@ EAngle CDigitank::GetRenderAngles() const
 	return GetAngles();
 }
 
-void CDigitank::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CDigitank::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -3084,19 +3102,17 @@ void CDigitank::ModifyContext(CRenderingContext* pContext, bool bTransparent)
 	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
-void CDigitank::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CDigitank::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 
 	RenderTurret(bTransparent);
 
 	if (bTransparent)
-	{
 		RenderShield();
-	}
 }
 
-void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
+void CDigitank::RenderTurret(bool bTransparent, float flAlpha) const
 {
 	if (m_iTurretModel == ~0)
 		return;
@@ -3122,23 +3138,6 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
-	if ((GetDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM) || m_bFiredWeapon)
-	{
-		if (GetCurrentWeapon() != WEAPON_CHARGERAM)
-		{
-			Vector vecAimTarget;
-			if (GetDigitanksTeam()->IsSelected(this) && DigitanksGame()->GetControlMode() == MODE_AIM)
-				vecAimTarget = GetPreviewAim();
-			else
-				vecAimTarget = m_vecLastAim;
-			Vector vecTarget = (vecAimTarget - GetRenderOrigin()).Normalized();
-			m_flGoalTurretYaw = atan2(vecTarget.z, vecTarget.x) * 180/M_PI - GetRenderAngles().y;
-		}
-	}
-
-	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * GameServer()->GetFrameTime() * 10;
-	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
-
 	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 1, 0));
 
 	if (IsDisabled())
@@ -3153,7 +3152,7 @@ void CDigitank::RenderTurret(bool bTransparent, float flAlpha)
 	r.RenderModel(m_iTurretModel);
 }
 
-void CDigitank::RenderShield()
+void CDigitank::RenderShield() const
 {
 	if (m_iShieldModel == ~0)
 		return;

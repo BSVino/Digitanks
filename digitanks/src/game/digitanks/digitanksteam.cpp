@@ -133,7 +133,7 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 
 	m_aflVisibilities[pEntity->GetHandle()] = 1;
 
-	CCPU* pCPU = dynamic_cast<CCPU*>(pEntity);
+	const CCPU* pCPU = dynamic_cast<const CCPU*>(pEntity);
 	if (m_hPrimaryCPU == NULL && pCPU)
 		m_hPrimaryCPU = pCPU;
 
@@ -596,7 +596,7 @@ void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)
 	}
 }
 
-size_t CDigitanksTeam::GetNumTanksAlive()
+size_t CDigitanksTeam::GetNumTanksAlive() const
 {
 	size_t iTanksAlive = 0;
 	for (size_t i = 0; i < m_ahTanks.size(); i++)
@@ -667,7 +667,7 @@ float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 	return (*it).second;
 }
 
-float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak)
+float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak) const
 {
 	if (IsPlayerControlled() && !DigitanksGame()->ShouldRenderFogOfWar())
 		return 1;
@@ -711,7 +711,7 @@ float CDigitanksTeam::GetVisibilityAtPoint(Vector vecPoint, bool bCloak)
 	return flFinalVisibility;
 }
 
-void CDigitanksTeam::AddActionItem(CSelectable* pUnit, actiontype_t eActionType)
+void CDigitanksTeam::AddActionItem(const CSelectable* pUnit, actiontype_t eActionType)
 {
 	if (pUnit && pUnit->GetDigitanksTeam() != this)
 		return;
@@ -1120,4 +1120,12 @@ bool CDigitanksTeam::CanBuildArtilleryLoaders()
 		return true;
 
 	return m_bCanBuildArtilleryLoaders;
+}
+
+CDigitank* CDigitanksTeam::GetTank(size_t i) const
+{
+	if (!m_ahTanks.size())
+		return NULL;
+
+	return m_ahTanks[i];
 }

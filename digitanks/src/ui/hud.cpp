@@ -668,12 +668,12 @@ void CHUD::Layout()
 
 		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 		{
-			CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+			const CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
 			eastl::map<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
 
 			for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
 			{
-				CDigitank* pTank = pTeam->GetTank(j);
+				const CDigitank* pTank = pTeam->GetTank(j);
 				ahTeamTanks[pTank->GetHandle()] = pTank;
 			}
 		}
@@ -1672,7 +1672,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 
 		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 		{
-			CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+			const CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
 			if (!pTeam)
 				continue;
 
@@ -2507,12 +2507,12 @@ void CHUD::UpdateScoreboard()
 	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
 		return;
 
-	eastl::vector<CDigitanksTeam*> apSortedTeams;
+	eastl::vector<const CDigitanksTeam*> apSortedTeams;
 
 	// Prob not the fastest sorting algorithm but it doesn't need to be.
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 	{
-		CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
+		const CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
 
 		if (!pTeam->ShouldIncludeInScoreboard())
 			continue;
@@ -2542,7 +2542,7 @@ void CHUD::UpdateScoreboard()
 	eastl::string16 p;
 	for (size_t i = 0; i < apSortedTeams.size(); i++)
 	{
-		CDigitanksTeam* pTeam = apSortedTeams[i];
+		const CDigitanksTeam* pTeam = apSortedTeams[i];
 
 		if (DigitanksGame()->IsTeamControlledByMe(pTeam))
 			s += L"[";
@@ -3294,7 +3294,7 @@ void PowerupNotifyCallback(CCommand* pCommand, eastl::vector<eastl::string16>& a
 
 CCommand powerup_notify("powerup_notify", PowerupNotifyCallback);
 
-void CHUD::AddPowerupNotification(CDigitanksEntity* pEntity, powerup_type_t ePowerup)
+void CHUD::AddPowerupNotification(const CDigitanksEntity* pEntity, powerup_type_t ePowerup)
 {
 	powerup_notification_t* pNewNotification = NULL;
 
@@ -4113,18 +4113,18 @@ void CHUD::ShowPowerInfoCallback()
 
 	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
 	{
-		CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		const CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
 		if (!pEntity)
 			continue;
 
-		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		const CStructure* pStructure = dynamic_cast<const CStructure*>(pEntity);
 		if (!pStructure)
 			continue;
 
 		if (pStructure->Power() > 0)
 			m_pTeamInfo->AppendText(sprintf(pStructure->GetEntityName() + L": +%.1f\n", pStructure->Power()));
 
-		CCollector* pCollector = dynamic_cast<CCollector*>(pEntity);
+		const CCollector* pCollector = dynamic_cast<const CCollector*>(pEntity);
 		if (!pCollector)
 			continue;
 
@@ -4167,11 +4167,11 @@ void CHUD::ShowFleetInfoCallback()
 	m_pTeamInfo->AppendText(L"Suppliers:\n");
 	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
 	{
-		CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		const CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
 		if (!pEntity)
 			continue;
 
-		CDigitanksEntity* pDTEnt = dynamic_cast<CDigitanksEntity*>(pEntity);
+		const CDigitanksEntity* pDTEnt = dynamic_cast<const CDigitanksEntity*>(pEntity);
 		if (pDTEnt)
 		{
 			if (pDTEnt->GetUnitType() == UNIT_SCOUT)
@@ -4184,7 +4184,7 @@ void CHUD::ShowFleetInfoCallback()
 				iArtillery++;
 		}
 
-		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		const CStructure* pStructure = dynamic_cast<const CStructure*>(pEntity);
 		if (!pStructure)
 			continue;
 
@@ -4230,11 +4230,11 @@ void CHUD::ShowBandwidthInfoCallback()
 
 	for (size_t i = 0; i < pCurrentTeam->GetNumMembers(); i++)
 	{
-		CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
+		const CBaseEntity* pEntity = pCurrentTeam->GetMember(i);
 		if (!pEntity)
 			continue;
 
-		CStructure* pStructure = dynamic_cast<CStructure*>(pEntity);
+		const CStructure* pStructure = dynamic_cast<const CStructure*>(pEntity);
 		if (!pStructure)
 			continue;
 

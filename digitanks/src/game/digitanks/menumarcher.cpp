@@ -75,14 +75,14 @@ Vector CMenuMarcher::GetRenderOrigin() const
 	return GetOrigin() + Vector(0, 1 + flLerp*0.5f, 0);
 }
 
-void CMenuMarcher::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CMenuMarcher::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
 	pContext->SetColorSwap(Color(0, 0, 255));
 }
 
-void CMenuMarcher::OnRender(CRenderingContext* pContext, bool bTransparent)
+void CMenuMarcher::OnRender(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 
@@ -90,7 +90,7 @@ void CMenuMarcher::OnRender(CRenderingContext* pContext, bool bTransparent)
 		RenderTurret();
 }
 
-void CMenuMarcher::RenderTurret()
+void CMenuMarcher::RenderTurret() const
 {
 	if (m_iTurretModel == ~0)
 		return;

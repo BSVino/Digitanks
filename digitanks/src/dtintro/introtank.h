@@ -13,10 +13,12 @@ public:
 public:
 	virtual void	Precache();
 
+	virtual void	Think();
+
 	virtual bool	ShouldRender() const { return true; };
 	virtual EAngle	GetRenderAngles() const;
-	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	void			FaceTurret(float flYaw) { m_flGoalTurretYaw = flYaw; };
 

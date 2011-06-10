@@ -99,11 +99,11 @@ public:
 
 	bool						IsPreviewMoveValid() const;
 
-	virtual float				GetShieldMaxStrength() { return m_flMaxShieldStrength; };
+	virtual float				GetShieldMaxStrength() const { return m_flMaxShieldStrength; };
 	virtual float				GetShieldStrength();
 	virtual float				GetShieldBlockRadius();
 
-	virtual float				GetShieldValue();
+	virtual float				GetShieldValue() const;
 	virtual void				SetShieldValue(float flValue);
 
 	virtual void				SetGoalTurretYaw(float flYaw) { m_flGoalTurretYaw = flYaw; }
@@ -148,7 +148,7 @@ public:
 
 	void						Move();
 	void						Move(class CNetworkParameters* p);
-	bool						IsMoving();
+	bool						IsMoving() const;
 	void						Move(Vector vecNewPosition, int iMoveType = 0);
 
 	void						Turn();
@@ -161,8 +161,8 @@ public:
 	void						MoveTowardsGoalMovePosition();
 	void						CancelGoalMovePosition();
 	void						CancelGoalMovePosition(CNetworkParameters* p);
-	bool						HasGoalMovePosition() { return m_bGoalMovePosition; };
-	Vector						GetGoalMovePosition() { return m_vecGoalMovePosition; };
+	bool						HasGoalMovePosition() const { return m_bGoalMovePosition; };
+	Vector						GetGoalMovePosition() const { return m_vecGoalMovePosition; };
 
 	virtual bool				IsArtillery() const { return false; };
 	virtual bool				IsInfantry() const { return false; };
@@ -244,7 +244,7 @@ public:
 	size_t						GetNumAllowedWeapons() const;
 	weapon_t					GetWeapon(size_t iProjectile) const { return m_aeWeapons[iProjectile]; };
 	bool						HasWeapon(weapon_t eWeapon) const;
-	virtual bool				IsWaitingToFire() { return m_flFireWeaponTime != 0; };
+	virtual bool				IsWaitingToFire() const { return m_flFireWeaponTime != 0; };
 
 	void						FireSpecial();
 	bool						HasSpecialWeapons();
@@ -264,13 +264,13 @@ public:
 	virtual Vector				GetRealOrigin() const;
 	virtual EAngle				GetAngles() const;
 
-	virtual void				PreRender(bool bTransparent);
+	virtual void				PreRender(bool bTransparent) const;
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f);
-	virtual void				RenderShield();
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f) const;
+	virtual void				RenderShield() const;
 	virtual float				RenderShieldScale() const { return 20.0f; };
 
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
@@ -329,7 +329,7 @@ public:
 
 	virtual bool				HasFiredWeapon() const { return m_bFiredWeapon; }
 
-	bool						IsDisabled() { return !!m_iTurnsDisabled; }
+	bool						IsDisabled() const { return !!m_iTurnsDisabled; }
 	void						Disable(size_t iTurns);
 	DECLARE_ENTITY_OUTPUT(OnDisable);
 

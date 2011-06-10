@@ -912,7 +912,7 @@ void ShowStatus(class CCommand* pCommand, eastl::vector<eastl::string16>& asToke
 
 	for (size_t i = 0; i < Game()->GetNumTeams(); i++)
 	{
-		CTeam* pTeam = Game()->GetTeam(i);
+		const CTeam* pTeam = Game()->GetTeam(i);
 		if (!pTeam)
 			continue;
 

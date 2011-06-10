@@ -476,7 +476,7 @@ void CLoader::DrawQueue(int x, int y, int w, int h)
 	glgui::CLabel::PaintText(sTurns, sTurns.length(), L"text", 10, (float)(x + w/2 + iSize/2), (float)(y + h/2 - iSize/2 - 2));
 }
 
-eastl::string16 CLoader::GetEntityName()
+eastl::string16 CLoader::GetEntityName() const
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
 		return L"Resistor Factory";

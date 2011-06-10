@@ -51,7 +51,7 @@ void CStandardTank::Spawn()
 	m_flMaxShieldStrength = m_flShieldStrength = 200;
 }
 
-void CStandardTank::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CStandardTank::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 

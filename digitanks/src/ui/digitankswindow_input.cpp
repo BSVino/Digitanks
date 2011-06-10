@@ -324,8 +324,8 @@ void CDigitanksWindow::KeyPress(int c)
 		{
 			for (size_t i = 0; i < DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetNumMembers(); i++)
 			{
-				CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetMember(i);
-				CCPU* pCPU = dynamic_cast<CCPU*>(pMember);
+				const CBaseEntity* pMember = DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetMember(i);
+				const CCPU* pCPU = dynamic_cast<const CCPU*>(pMember);
 				if (pCPU)
 				{
 					DigitanksGame()->GetCurrentLocalDigitanksTeam()->SetPrimarySelection(pCPU);

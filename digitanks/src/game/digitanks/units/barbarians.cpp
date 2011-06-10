@@ -39,7 +39,7 @@ void CBugTurret::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
-void CBugTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CBugTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -95,7 +95,7 @@ void CGridBug::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
-void CGridBug::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CGridBug::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 

@@ -63,7 +63,7 @@ void CPowerup::Spawn()
 	CalculateVisibility();
 }
 
-eastl::string16 CPowerup::GetEntityName()
+eastl::string16 CPowerup::GetEntityName() const
 {
 	switch (m_ePowerupType)
 	{
@@ -98,7 +98,7 @@ Vector CPowerup::GetRenderOrigin() const
 	return vecOrigin;
 }
 
-void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 

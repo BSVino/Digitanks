@@ -424,7 +424,7 @@ void CDigitanksRenderer::RenderPreviewModes()
 
 	for (size_t i = 0; i < pTeam->GetNumMembers(); i++)
 	{
-		CDigitank* pTank = dynamic_cast<CDigitank*>(pTeam->GetMember(i));
+		const CDigitank* pTank = dynamic_cast<const CDigitank*>(pTeam->GetMember(i));
 
 		if (pTank)
 		{

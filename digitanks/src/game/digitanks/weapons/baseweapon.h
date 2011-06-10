@@ -33,7 +33,7 @@ public:
 	virtual bool				HasFragmented() { return false; };
 
 	virtual weapon_t			GetWeaponType() { return WEAPON_NONE; }
-	virtual float				ExplosionRadius() { return 4.0f; };
+	virtual float				ExplosionRadius() const { return 4.0f; };
 	virtual bool				MakesSounds() { return true; };
 
 	virtual bool				CreatesCraters() { return true; };

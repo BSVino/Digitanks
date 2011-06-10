@@ -20,9 +20,9 @@ public:
 
 	virtual bool				ShouldRender() const { return true; };
 	virtual Vector				GetRenderOrigin() const;
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				RenderTurret();
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				RenderTurret() const;
 
 	void						Speak();
 

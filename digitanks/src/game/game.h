@@ -38,9 +38,9 @@ public:
 
 	virtual bool								TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseEntity** pHit, int iCollisionGroup = 0);
 
-	size_t										GetNumTeams() { return m_ahTeams.size(); };
-	CTeam*										GetTeam(size_t i) { if (i >= GetNumTeams()) return NULL; return m_ahTeams[i]; };
-	bool										IsTeamControlledByMe(CTeam* pTeam);
+	size_t										GetNumTeams() const { return m_ahTeams.size(); };
+	CTeam*										GetTeam(size_t i) const;
+	bool										IsTeamControlledByMe(const CTeam* pTeam);
 
 	const eastl::vector<CEntityHandle<CTeam> >&	GetLocalTeams();
 	size_t										GetNumLocalTeams();

@@ -12,8 +12,8 @@ public:
 	virtual void	Spawn();
 
 	virtual bool	ShouldRender() const { return true; };
-	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual void	SetScreenshot(size_t iScreenshot);
 };

@@ -109,11 +109,11 @@ public:
 	void					CalculateVisibility();
 
 	virtual bool			ShouldRender() const { return true; };
-	virtual void			OnRender(class CRenderingContext* pContext, bool bTransparent);
-	void					RenderTransparentTerrain();
-	void					RenderWithShaders();
-	void					RenderWithoutShaders();
-	void					DebugRenderQuadTree();
+	virtual void			OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	void					RenderTransparentTerrain() const;
+	void					RenderWithShaders() const;
+	void					RenderWithoutShaders() const;
+	void					DebugRenderQuadTree() const;
 
 	void					GetChunk(float x, float y, int& i, int& j);
 	CTerrainChunk*			GetChunk(int x, int y);

@@ -13,7 +13,7 @@ public:
 
 	virtual void				PostRender(bool bTransparent);
 
-	virtual eastl::string16		GetEntityName() { return L"Resistor"; };
+	virtual eastl::string16		GetEntityName() const { return L"Resistor"; };
 
 	virtual float				RenderShieldScale() const { return 10.0f; };
 

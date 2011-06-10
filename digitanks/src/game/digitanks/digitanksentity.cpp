@@ -554,7 +554,7 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	m_flNextDirtyArea = GameServer()->GetGameTime();
 }
 
-void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -568,7 +568,7 @@ void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTranspar
 	}
 }
 
-void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent)
+void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 

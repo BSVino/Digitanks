@@ -84,7 +84,7 @@ void CCollector::UpdateInfo(eastl::string16& s)
 	}
 }
 
-float CCollector::GetPowerProduced()
+float CCollector::GetPowerProduced() const
 {
 	if (m_hSupplyLine == NULL || GetSupplier() == NULL)
 		return 0;
@@ -212,7 +212,7 @@ void CBattery::UpgradeComplete()
 	GetDigitanksTeam()->AddActionItem(pCollector, ACTIONTYPE_UPGRADE);
 }
 
-float CBattery::GetPowerProduced()
+float CBattery::GetPowerProduced() const
 {
 	if (m_hSupplyLine == NULL || m_hSupplier == NULL)
 		return 0;

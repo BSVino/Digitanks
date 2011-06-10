@@ -11,6 +11,8 @@ public:
 	virtual void				Spawn();
 	virtual void				Precache();
 
+	virtual void				Think();
+
 	virtual bool				GetsConcealmentBonus() const { return false; };
 	virtual size_t				InitialDataStrength() { return 3200; };
 	virtual size_t				BaseDataFlowPerTurn() { return 50; };
@@ -53,8 +55,8 @@ public:
 
 	virtual void				StartTurn();
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 	virtual int					GetNumAvailableAreas() const { return 3; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 	virtual void				RenderAvailableArea(int iArea);
@@ -63,7 +65,7 @@ public:
 
 	virtual void				OnDeleted();
 
-	virtual eastl::string16		GetEntityName() { return L"Central Processing Unit"; };
+	virtual eastl::string16		GetEntityName() const { return L"Central Processing Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_CPU; };
 
 protected:

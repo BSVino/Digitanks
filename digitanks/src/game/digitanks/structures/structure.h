@@ -32,7 +32,7 @@ public:
 	virtual void				StartTurn();
 	virtual void				FindGround();
 
-	virtual void				PostRender(bool bTransparent);
+	virtual void				PostRender(bool bTransparent) const;
 
 	virtual float				AvailableArea(int iArea) const;
 	virtual int					GetNumAvailableAreas() const { return 1; };
@@ -59,17 +59,16 @@ public:
 	void						BeginUpgrade(CNetworkParameters* p);
 	virtual void				UpgradeComplete() {};
 	size_t						GetTurnsToUpgrade();
-	bool						IsUpgrading() { return m_bUpgrading; };
+	bool						IsUpgrading() const { return m_bUpgrading; };
 	virtual size_t				GetTurnsRemainingToUpgrade() { return m_iTurnsToUpgrade; };
 
 	virtual bool				NeedsOrders();
 
-	virtual void				SetSupplier(class CSupplier* pSupplier);
-	virtual class CSupplier*	GetSupplier() { if (m_hSupplier == NULL) return NULL; return m_hSupplier; };
+	virtual void				SetSupplier(const class CSupplier* pSupplier);
+	virtual class CSupplier*	GetSupplier() const;
+	virtual class CSupplyLine*	GetSupplyLine() const;
 
-	virtual class CSupplyLine*	GetSupplyLine() { if (m_hSupplyLine == NULL) return NULL; return m_hSupplyLine; };
-
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual void				OnDeleted();
 	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
@@ -164,13 +163,13 @@ public:
 	virtual bool				IsDataFlowSource() { return false; };
 	virtual float				GetDataFlowRate();
 	float						GetDataFlowRadius() const;
-	float						GetDataFlow(Vector vecPoint);
-	static float				GetDataFlow(Vector vecPoint, CTeam* pTeam, CSupplier* pIgnore = NULL);
+	float						GetDataFlow(Vector vecPoint) const;
+	static float				GetDataFlow(Vector vecPoint, const CTeam* pTeam, const CSupplier* pIgnore = NULL);
 	void						CalculateDataFlow();
 	void						GiveDataStrength(size_t iStrength) { m_iDataStrength += iStrength; };
-	virtual size_t				EfficientChildren() { return 2; };
+	virtual size_t				EfficientChildren() const { return 2; };
 
-	float						GetChildEfficiency();
+	float						GetChildEfficiency() const;
 
 	virtual void				OnTeamChange();
 
@@ -201,7 +200,7 @@ public:
 	size_t						GetTendrilsCallList() { return m_iTendrilsCallList; }
 
 	static CSupplier*			FindClosestSupplier(CBaseEntity* pUnit);
-	static CSupplier*			FindClosestSupplier(Vector vecPoint, class CTeam* pTeam);
+	static CSupplier*			FindClosestSupplier(Vector vecPoint, const class CTeam* pTeam);
 
 	static size_t				GetTendrilBeam() { return s_iTendrilBeam; }
 

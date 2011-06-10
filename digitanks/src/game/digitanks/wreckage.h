@@ -16,8 +16,8 @@ public:
 
 	virtual void					Touching(CBaseEntity* pOther);
 
-	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	void							FellIntoHole() { m_bFallingIntoHole = true; };
 

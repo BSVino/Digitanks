@@ -303,7 +303,7 @@ public:
 
 	void									SetModel(const eastl::string16& sModel);
 	void									SetModel(size_t iModel);
-	size_t									GetModel() { return m_iModel; };
+	size_t									GetModel() const { return m_iModel; };
 
 	virtual Vector							GetRenderOrigin() const { return GetOrigin(); };
 	virtual EAngle							GetRenderAngles() const { return GetAngles(); };
@@ -329,9 +329,9 @@ public:
 
 	size_t									GetHandle() const { return m_iHandle; }
 
-	virtual float							GetTotalHealth() { return m_flTotalHealth; }
+	virtual float							GetTotalHealth() const { return m_flTotalHealth; }
 	virtual void							SetTotalHealth(float flHealth) { m_flTotalHealth = m_flHealth = flHealth; }
-	virtual float							GetHealth() { return m_flHealth; }
+	virtual float							GetHealth() const { return m_flHealth; }
 	virtual bool							IsAlive() { return m_flHealth > 0; }
 
 	class CTeam*							GetTeam() const;
@@ -342,7 +342,7 @@ public:
 	virtual void							ClientEnterGame();
 
 	virtual void							TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, damagetype_t eDamageType, float flDamage, bool bDirectHit = true);
-	virtual bool							TakesDamage() { return m_bTakeDamage; };
+	virtual bool							TakesDamage() const { return m_bTakeDamage; };
 	DECLARE_ENTITY_OUTPUT(OnTakeDamage);
 	void									Kill();
 	void									Killed(CBaseEntity* pKilledBy);
@@ -361,11 +361,11 @@ public:
 
 	virtual bool							ShouldRender() const { return false; };
 	virtual bool							ShouldRenderModel() const { return true; };
-	virtual void							PreRender(bool bTransparent) {};
-	virtual void							ModifyContext(class CRenderingContext* pContext, bool bTransparent) {};
-	void									Render(bool bTransparent);
-	virtual void							OnRender(class CRenderingContext* pContext, bool bTransparent) {};
-	virtual void							PostRender(bool bTransparent) {};
+	virtual void							PreRender(bool bTransparent) const {};
+	virtual void							ModifyContext(class CRenderingContext* pContext, bool bTransparent) const {};
+	void									Render(bool bTransparent) const;
+	virtual void							OnRender(class CRenderingContext* pContext, bool bTransparent) const {};
+	virtual void							PostRender(bool bTransparent) const {};
 
 	void									Delete();
 	virtual void							OnDeleted() {};
@@ -401,7 +401,7 @@ public:
 
 	virtual bool							UsesRaytracedCollision() { return false; }
 
-	size_t									GetSpawnSeed() { return m_iSpawnSeed; }
+	size_t									GetSpawnSeed() const { return m_iSpawnSeed; }
 	void									SetSpawnSeed(size_t iSpawnSeed);
 
 	float									GetSpawnTime() const { return m_flSpawnTime; }

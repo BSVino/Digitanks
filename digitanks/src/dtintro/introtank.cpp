@@ -38,7 +38,15 @@ void CIntroTank::Precache()
 	PrecacheSound(L"sound/tank-fire.wav");
 }
 
-void CIntroTank::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CIntroTank::Think()
+{
+	BaseClass::Think();
+
+	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * GameServer()->GetFrameTime() * 10;
+	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
+}
+
+void CIntroTank::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -75,7 +83,7 @@ EAngle CIntroTank::GetRenderAngles() const
 	return GetAngles();
 }
 
-void CIntroTank::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CIntroTank::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 
@@ -85,9 +93,6 @@ void CIntroTank::OnRender(class CRenderingContext* pContext, bool bTransparent)
 	CRenderingContext r(GameServer()->GetRenderer());
 
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
-
-	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * GameServer()->GetFrameTime() * 10;
-	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
 
 	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 1, 0));
 

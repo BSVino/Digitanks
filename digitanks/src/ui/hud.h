@@ -254,7 +254,7 @@ public:
 	void						ShowShowdownSign();
 	void						ShowNewTurnSign();
 
-	void						AddPowerupNotification(CDigitanksEntity* pEntity, powerup_type_t ePowerup);
+	void						AddPowerupNotification(const CDigitanksEntity* pEntity, powerup_type_t ePowerup);
 
 	void						ShowFileRescue(const eastl::string16& sTexture);
 

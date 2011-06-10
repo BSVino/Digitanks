@@ -23,21 +23,21 @@ public:
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
 	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar For\nDamage Bonus"; };
-	virtual Color				GetBonusDamageColor();
+	virtual Color				GetBonusDamageColor() const;
 	virtual float				GetBonusDamage();
 	virtual float				DamageBonus() const { return 30; };
 	virtual float				DamageBonusTime() const { return 1.5f; };
 
 	virtual void				Fragment();
 
-	virtual bool				UsesStandardShell() { return true; };
+	virtual bool				UsesStandardShell() const { return true; };
 
 	virtual bool				MakesSounds() { return true; };
-	virtual bool				UsesStandardExplosion() { return true; };
+	virtual bool				UsesStandardExplosion() const { return true; };
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;
@@ -90,7 +90,7 @@ class CSmallShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_SMALL; }
 	virtual float				ShellRadius() { return 0.5f; };
-	virtual float				ExplosionRadius();
+	virtual float				ExplosionRadius() const;
 	virtual float				PushDistance() { return 3.0f; };
 	virtual float				RockIntensity() { return 0.4f; };
 };
@@ -102,7 +102,7 @@ class CMediumShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_MEDIUM; }
 	virtual float				ShellRadius() { return 1.0f; };
-	virtual float				ExplosionRadius();
+	virtual float				ExplosionRadius() const;
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 };
@@ -114,7 +114,7 @@ class CLargeShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_LARGE; }
 	virtual float				ShellRadius() { return 1.5f; };
-	virtual float				ExplosionRadius();
+	virtual float				ExplosionRadius() const;
 	virtual float				PushDistance() { return 9.0f; };
 	virtual float				RockIntensity() { return 1.0f; };
 };
@@ -129,10 +129,10 @@ public:
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();
 
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_AOE; }
 	virtual float				ShellRadius() { return 1.2f; };
-	virtual float				ExplosionRadius();
+	virtual float				ExplosionRadius() const;
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
@@ -149,13 +149,13 @@ public:
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();
 
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_EMP; }
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShellRadius() { return 0.7f; };
-	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual float				ExplosionRadius() const { return 6.0f; };
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 };
@@ -169,7 +169,7 @@ public:
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ICBM; }
 	virtual float				ShellRadius() { return 1.2f; };
-	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				ExplosionRadius() const { return 12.0f; };
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 	virtual size_t				Fragments() { return 6; };
@@ -190,11 +190,11 @@ public:
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
-	virtual bool				UsesStandardShell() { return false; };
+	virtual bool				UsesStandardShell() const { return false; };
 	virtual size_t				CreateTrailSystem() { return ~0; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_GRENADE; }
 	virtual float				ShellRadius() { return 0.8f; };
-	virtual float				ExplosionRadius() { return 16.0f; };
+	virtual float				ExplosionRadius() const { return 16.0f; };
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 	virtual size_t				Bounces() { return 2; };
@@ -218,7 +218,7 @@ public:
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_DAISYCHAIN; }
 	virtual float				ShellRadius() { return 0.8f; };
-	virtual float				ExplosionRadius() { return m_flExplosionRadius; };
+	virtual float				ExplosionRadius() const { return m_flExplosionRadius; };
 	virtual float				PushDistance() { return 3.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 
@@ -240,7 +240,7 @@ public:
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_CLUSTERBOMB; }
 	virtual float				ShellRadius() { return 1.3f; };
-	virtual float				ExplosionRadius() { return m_flExplosionRadius; };
+	virtual float				ExplosionRadius() const { return m_flExplosionRadius; };
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 
@@ -257,7 +257,7 @@ public:
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_EARTHSHAKER; }
 	virtual float				ShellRadius() { return 0.8f; };
-	virtual float				ExplosionRadius() { return 22.0f; };
+	virtual float				ExplosionRadius() const { return 22.0f; };
 	virtual float				PushDistance() { return 6.0f; };
 	virtual float				RockIntensity() { return 0.7f; };
 };
@@ -275,11 +275,11 @@ public:
 	virtual size_t				CreateTrailSystem();
 	virtual void				CreateExplosionSystem();
 
-	virtual bool				UsesStandardShell() { return false; };
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardShell() const { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_SPLOOGE; }
 	virtual float				ShellRadius() { return 0.2f; };
-	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual float				ExplosionRadius() const { return 0.0f; };
 	virtual float				PushDistance() { return 0.0f; };
 	virtual float				RockIntensity() { return 0.0f; };
 	virtual bool				CreatesCraters() { return false; };
@@ -299,10 +299,10 @@ public:
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();
 
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TRACTORBOMB; }
 	virtual float				ShellRadius() { return 0.8f; };
-	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual float				ExplosionRadius() const { return 0.0f; };
 	virtual float				PushRadius() { return 40.0f; };
 	virtual float				PushDistance() { return 20.0f; };
 	virtual float				RockIntensity() { return 1.0f; };
@@ -320,9 +320,9 @@ public:
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();
 
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY; }
-	virtual float				ExplosionRadius() { return 6.0f; };
+	virtual float				ExplosionRadius() const { return 6.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
@@ -341,9 +341,9 @@ public:
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();
 
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY_AOE; }
-	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				ExplosionRadius() const { return 12.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
@@ -359,7 +359,7 @@ class CArtilleryICBM : public CProjectile
 
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ARTILLERY_ICBM; }
-	virtual float				ExplosionRadius() { return 8.0f; };
+	virtual float				ExplosionRadius() const { return 8.0f; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 0.5f; };
@@ -375,7 +375,7 @@ class CDevastator : public CProjectile
 
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_DEVASTATOR; }
-	virtual float				ExplosionRadius() { return 24.0f; };
+	virtual float				ExplosionRadius() const { return 24.0f; };
 	virtual bool				CreatesCraters() { return true; };
 	virtual float				ShieldDamageScale() { return 2; };
 	virtual float				HealthDamageScale() { return 1; };
@@ -397,12 +397,12 @@ public:
 	virtual size_t				CreateTrailSystem();
 	virtual void				CreateExplosionSystem();
 
-	virtual bool				UsesStandardShell() { return false; };
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardShell() const { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_FLAK; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.2f; };
-	virtual float				ExplosionRadius() { return 0.0f; };
+	virtual float				ExplosionRadius() const { return 0.0f; };
 	virtual float				PushRadius() { return 4.0f; };
 	virtual float				PushDistance() { return 0.5f; };
 	virtual float				RockIntensity() { return 0.2f; };
@@ -436,7 +436,7 @@ public:
 
 	virtual size_t				CreateTrailSystem();
 
-	virtual bool				UsesStandardExplosion() { return false; };
+	virtual bool				UsesStandardExplosion() const { return false; };
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TORPEDO; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.35f; };
@@ -462,7 +462,7 @@ public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_TREECUTTER; }
 	virtual bool				MakesSounds() { return true; };
 	virtual float				ShellRadius() { return 0.5f; };
-	virtual float				ExplosionRadius() { return 8.0f; };
+	virtual float				ExplosionRadius() const { return 8.0f; };
 	virtual bool				ShouldExplode() { return true; };
 	virtual bool				CreatesCraters() { return false; };
 	virtual bool				BombDropNoise() { return true; };

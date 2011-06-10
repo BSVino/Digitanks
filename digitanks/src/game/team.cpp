@@ -109,6 +109,10 @@ void CTeam::SetClient(int iClient)
 		m_bClientControlled = true;
 }
 
-void CTeam::SetBot()
+CBaseEntity* CTeam::GetMember(size_t i) const
 {
+	if (i >= m_ahMembers.size())
+		return NULL;
+
+	return m_ahMembers[i];
 }

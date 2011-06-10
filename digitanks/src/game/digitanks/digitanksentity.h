@@ -57,13 +57,13 @@ public:
 	void							Rescue(CDigitanksEntity* pOther);
 	DECLARE_ENTITY_OUTPUT(OnRescue);
 
-	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 
 	virtual void					UpdateInfo(eastl::string16& sInfo) {};
-	virtual eastl::string16			GetEntityName() { return L"Entity"; };
+	virtual eastl::string16			GetEntityName() const { return L"Entity"; };
 	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
 	void							SetObjective(bool bObjective) { m_bObjective = bObjective; }

@@ -29,7 +29,7 @@ void CScreen::Spawn()
 	SetModel(L"models/intro/screen.obj");
 }
 
-void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
@@ -37,7 +37,7 @@ void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent
 	pContext->Scale((flWidth+flHeight)/2, flHeight, flWidth);
 }
 
-void CScreen::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CScreen::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 }
 

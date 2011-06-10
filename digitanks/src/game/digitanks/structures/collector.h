@@ -17,10 +17,10 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
-	virtual float				GetPowerProduced();
+	virtual float				GetPowerProduced() const;
 
 	virtual size_t				InitialTurnsToConstruct() { return 2; };
-	virtual eastl::string16		GetEntityName() { return L"Power Supply Unit"; };
+	virtual eastl::string16		GetEntityName() const { return L"Power Supply Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_PSU; };
 
 protected:
@@ -45,10 +45,10 @@ public:
 	resource_t					GetResourceType() { return RESOURCE_ELECTRONODE; };
 	void						SetResource(class CResource* pResource) { m_hResource = pResource; };
 	class CResource*			GetResource() { return m_hResource; };
-	virtual float				GetPowerProduced();
+	virtual float				GetPowerProduced() const;
 
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
-	virtual eastl::string16		GetEntityName() { return L"Capacitor"; };
+	virtual eastl::string16		GetEntityName() const { return L"Capacitor"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_PSU; };
 };

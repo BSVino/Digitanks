@@ -1299,7 +1299,7 @@ void CTerrain::CalculateVisibility()
 	GenerateTerrainCallLists();
 }
 
-void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
+void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent) const
 {
 	if (bTransparent)
 	{
@@ -1332,7 +1332,7 @@ void CTerrain::OnRender(CRenderingContext* pContext, bool bTransparent)
 #endif
 }
 
-void CTerrain::RenderTransparentTerrain()
+void CTerrain::RenderTransparentTerrain() const
 {
 	glPushAttrib(GL_ENABLE_BIT|GL_CURRENT_BIT);
 	glDisable(GL_CULL_FACE);
@@ -1351,7 +1351,7 @@ void CTerrain::RenderTransparentTerrain()
 
 	for (size_t i = 0; i < m_aRunners.size(); i++)
 	{
-		runner_t* pRunner = &m_aRunners[i];
+		const runner_t* pRunner = &m_aRunners[i];
 
 		if (!pRunner->bActive)
 			continue;
@@ -1368,7 +1368,7 @@ void CTerrain::RenderTransparentTerrain()
 
 		int j = 0;
 
-		for (eastl::list<Vector>::iterator it2 = ++(pRunner->avecPoints.begin()); it2 != --(pRunner->avecPoints.end()); it2++)
+		for (eastl::list<Vector>::const_iterator it2 = ++(pRunner->avecPoints.begin()); it2 != --(pRunner->avecPoints.end()); it2++)
 		{
 			Vector vecPoint = *it2;
 
@@ -1383,7 +1383,7 @@ void CTerrain::RenderTransparentTerrain()
 	glPopAttrib();
 }
 
-void CTerrain::RenderWithShaders()
+void CTerrain::RenderWithShaders() const
 {
 	glPushAttrib(GL_ENABLE_BIT);
 
@@ -1595,7 +1595,7 @@ void CTerrain::RenderWithShaders()
 	glPopAttrib();
 }
 
-void CTerrain::RenderWithoutShaders()
+void CTerrain::RenderWithoutShaders() const
 {
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1617,7 +1617,7 @@ void CTerrain::RenderWithoutShaders()
 	}
 }
 
-void CTerrain::DebugRenderQuadTree()
+void CTerrain::DebugRenderQuadTree() const
 {
 	if (m_pQuadTreeHead)
 		m_pQuadTreeHead->DebugRender();

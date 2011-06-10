@@ -1490,7 +1490,7 @@ void CDigitanksGame::Think()
 			bool bTanksWaiting = false;
 			for (size_t i = 0; i < GetCurrentTeam()->GetNumTanks(); i++)
 			{
-				CDigitank* pTank = GetCurrentTeam()->GetTank(i);
+				const CDigitank* pTank = GetCurrentTeam()->GetTank(i);
 				if (pTank->IsWaitingToFire())
 				{
 					bTanksWaiting = true;
@@ -1506,7 +1506,7 @@ void CDigitanksGame::Think()
 	bool bWaitingASecond = false;
 	if (GetCurrentTeam() && !GetCurrentTeam()->IsPlayerControlled())
 	{
-		CTeam* pNextTeam = GetTeam((m_iCurrentTeam+(size_t)1)%GetNumTeams());
+		const CTeam* pNextTeam = GetTeam((m_iCurrentTeam+(size_t)1)%GetNumTeams());
 		if (pNextTeam && pNextTeam->IsPlayerControlled())
 		{
 			if (GameServer()->GetGameTime() - m_flLastHumanMove < 2.0f)
@@ -1857,7 +1857,7 @@ void CDigitanksGame::StartTurn()
 				// Skip the first team, that's the barbarians.
 				for (size_t i = 1; i < GetNumTeams(); i++)
 				{
-					CDigitanksTeam* pTeam = GetDigitanksTeam(i);
+					const CDigitanksTeam* pTeam = GetDigitanksTeam(i);
 					if (pTeam->GetVisibilityAtPoint(vecPoint) > 0)
 					{
 						bIsVisible = true;
@@ -1965,7 +1965,7 @@ void CDigitanksGame::OnClientEnterGame(int iClient)
 	GameNetwork()->DisconnectClient(iClient);
 }
 
-bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, CTeam* pTeamIgnore)
+bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CTeam* pTeamIgnore)
 {
 	CBaseWeapon* pWeapon = dynamic_cast<CBaseWeapon*>(pInflictor);
 
@@ -2233,8 +2233,8 @@ void CDigitanksGame::CheckWinConditions()
 			bool bHasCPU = false;
 			for (size_t j = 0; j < m_ahTeams[i]->GetNumMembers(); j++)
 			{
-				CBaseEntity* pEntity = m_ahTeams[i]->GetMember(j);
-				if (dynamic_cast<CCPU*>(pEntity) || dynamic_cast<CMobileCPU*>(pEntity))
+				const CBaseEntity* pEntity = m_ahTeams[i]->GetMember(j);
+				if (dynamic_cast<const CCPU*>(pEntity) || dynamic_cast<const CMobileCPU*>(pEntity))
 				{
 					bHasCPU = true;
 					iTeamsLeft++;
@@ -2348,19 +2348,17 @@ void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const eastl::string& sS
 		m_pListener->TankSpeak(pTank, sSpeech);
 }
 
-CDigitanksTeam* CDigitanksGame::GetDigitanksTeam(size_t i)
+CDigitanksTeam* CDigitanksGame::GetDigitanksTeam(size_t i) const
 {
 	return static_cast<CDigitanksTeam*>(BaseClass::GetTeam(i));
 }
 
-CDigitanksTeam* CDigitanksGame::GetCurrentTeam()
+CDigitanksTeam* CDigitanksGame::GetCurrentTeam() const
 {
 	if (m_iCurrentTeam >= m_ahTeams.size())
 		return NULL;
 
-	// Force the const version so we don't send it over the wire.
-	const CNetworkedSTLVector<CEntityHandle<CTeam> >& ahTeams = m_ahTeams;
-	return static_cast<CDigitanksTeam*>(ahTeams[m_iCurrentTeam].GetPointer());
+	return static_cast<CDigitanksTeam*>(m_ahTeams[m_iCurrentTeam].GetPointer());
 }
 
 CSelectable* CDigitanksGame::GetPrimarySelection()
@@ -2775,8 +2773,9 @@ void CDigitanksGame::ClientEnterGame()
 	}
 	else if (m_eGameType != GAMETYPE_CAMPAIGN)
 	{
-		if (GetCurrentLocalDigitanksTeam() && GetCurrentLocalDigitanksTeam()->GetMember(0))
-			GetDigitanksCamera()->SnapTarget(GetCurrentLocalDigitanksTeam()->GetMember(0)->GetOrigin());
+		const CBaseEntity* pMember = GetCurrentLocalDigitanksTeam()->GetMember(0);
+		if (GetCurrentLocalDigitanksTeam() && pMember)
+			GetDigitanksCamera()->SnapTarget(pMember->GetOrigin());
 		else
 			GetDigitanksCamera()->SnapTarget(Vector(0,0,0));
 		GetDigitanksCamera()->SnapAngle(EAngle(45,0,0));

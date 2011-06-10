@@ -13,8 +13,8 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual void				StartTurn();
 	virtual void				EndTurn();
@@ -37,7 +37,7 @@ public:
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual eastl::string16		GetEntityName() { return L"Firewall"; };
+	virtual eastl::string16		GetEntityName() const { return L"Firewall"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_FIREWALL; };
 
 protected:

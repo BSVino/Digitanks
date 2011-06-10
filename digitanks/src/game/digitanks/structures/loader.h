@@ -44,7 +44,7 @@ public:
 	void						SetBuildUnit(unittype_t eBuildUnit);
 	unittype_t					GetBuildUnit() const { return m_eBuildUnit; };
 
-	virtual eastl::string16		GetEntityName();
+	virtual eastl::string16		GetEntityName() const;
 	virtual unittype_t			GetUnitType() const;
 	virtual float				TotalHealth() const { return 700; };
 

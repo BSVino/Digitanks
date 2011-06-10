@@ -51,14 +51,14 @@ void CStaticProp::Spawn()
 	m_bUseRaytracedCollision = true;
 }
 
-void CStaticProp::ModifyContext(CRenderingContext* pContext, bool bTransparent)
+void CStaticProp::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
 {
 	pContext->SetColorSwap(m_clrSwap);
 
 	BaseClass::ModifyContext(pContext, bTransparent);
 }
 
-void CStaticProp::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CStaticProp::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
 

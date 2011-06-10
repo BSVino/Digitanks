@@ -37,12 +37,12 @@ EAngle CUserFile::GetRenderAngles() const
 	return EAngle(0, flRotate, 0);
 }
 
-void CUserFile::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CUserFile::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	// Don't run CDigitanksEntity::ModifyContext, we want to show our user file all the time.
 }
 
-void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	if (!bTransparent)
 		return;

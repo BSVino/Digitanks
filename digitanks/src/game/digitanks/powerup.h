@@ -21,11 +21,11 @@ public:
 	void			Precache();
 	virtual void	Spawn();
 
-	virtual eastl::string16	GetEntityName();
+	virtual eastl::string16	GetEntityName() const;
 
 	virtual EAngle	GetRenderAngles() const;
 	virtual Vector	GetRenderOrigin() const;
-	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent);
+	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 
 	powerup_type_t	GetPowerupType() { return m_ePowerupType; }
 	void			SetPowerupType(powerup_type_t eType);

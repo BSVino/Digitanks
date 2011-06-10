@@ -82,10 +82,10 @@ public:
 	size_t						GetUnusedFleetPoints();
 
 	void						CountScore();
-	size_t						GetScore() { return m_iScore; };
+	size_t						GetScore() const { return m_iScore; };
 
 	void						YouLoseSirGoodDay();
-	bool						HasLost() { return m_bLost; }
+	bool						HasLost() const { return m_bLost; }
 
 	void						CountBandwidth();
 	float						GetBandwidth() { return m_flBandwidth; };
@@ -95,14 +95,14 @@ public:
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 
-	size_t						GetNumTanksAlive();
+	size_t						GetNumTanksAlive() const;
 
 	void						CalculateVisibility();
 	void						CalculateEntityVisibility(class CBaseEntity* pEntity);
 	float						GetEntityVisibility(size_t iHandle);
-	float						GetVisibilityAtPoint(Vector vecPoint, bool bCloak = false);
+	float						GetVisibilityAtPoint(Vector vecPoint, bool bCloak = false) const;
 
-	void						AddActionItem(CSelectable* pUnit, actiontype_t eActionType);
+	void						AddActionItem(const CSelectable* pUnit, actiontype_t eActionType);
 	void						ClearActionItems();
 	size_t						GetNumActionItems() const { return m_aActionItems.size(); };
 	const actionitem_t*			GetActionItem(size_t i) const { return &m_aActionItems[i]; };
@@ -145,14 +145,14 @@ public:
 	bool						Bot_BuildCollector(class CResource* pResource);
 	void						Bot_UseArtilleryAI() { m_bUseArtilleryAI = true; }
 
-	size_t						GetNumTanks() { return m_ahTanks.size(); };
-	class CDigitank*			GetTank(size_t i) { if (!m_ahTanks.size()) return NULL; return m_ahTanks[i]; };
+	size_t						GetNumTanks() const { return m_ahTanks.size(); };
+	class CDigitank*			GetTank(size_t i) const;
 
 	void						SetLoseCondition(losecondition_t eLose) { m_eLoseCondition = eLose; }
 	losecondition_t				GetLoseCondition() { return m_eLoseCondition; }
 
 	void						DontIncludeInScoreboard() { m_bIncludeInScoreboard = false; }
-	bool						ShouldIncludeInScoreboard() { return m_bIncludeInScoreboard; }
+	bool						ShouldIncludeInScoreboard() const { return m_bIncludeInScoreboard; }
 
 protected:
 	CNetworkedSTLVector<CEntityHandle<CDigitank> >	m_ahTanks;

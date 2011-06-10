@@ -65,6 +65,14 @@ void CCPU::Precache()
 	PrecacheModel(L"models/structures/cpu-fan.obj");
 }
 
+void CCPU::Think()
+{
+	BaseClass::Think();
+
+	if (GetTeam())
+		m_flFanRotation -= 100 * GameServer()->GetFrameTime();
+}
+
 void CCPU::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
@@ -769,7 +777,7 @@ void CCPU::StartTurn()
 	}
 }
 
-void CCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -782,7 +790,7 @@ void CCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
 	}
 }
 
-void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 
@@ -812,9 +820,6 @@ void CCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 		if (r.GetAlpha() < 1)
 			r.SetBlend(BLEND_ALPHA);
 	}
-
-	if (GetTeam())
-		m_flFanRotation -= 100 * GameServer()->GetFrameTime();
 
 	r.Rotate(m_flFanRotation, Vector(0, 1, 0));
 

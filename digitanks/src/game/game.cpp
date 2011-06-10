@@ -152,7 +152,15 @@ bool CGame::TraceLine(const Vector& s1, const Vector& s2, Vector& vecHit, CBaseE
 	return bHit;
 }
 
-bool CGame::IsTeamControlledByMe(CTeam* pTeam)
+CTeam* CGame::GetTeam(size_t i) const
+{
+	if (i >= m_ahTeams.size())
+		return NULL;
+
+	return m_ahTeams[i];
+}
+
+bool CGame::IsTeamControlledByMe(const CTeam* pTeam)
 {
 	if (!pTeam)
 		return false;

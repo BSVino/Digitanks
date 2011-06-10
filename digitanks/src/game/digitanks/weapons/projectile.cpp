@@ -161,7 +161,7 @@ void CProjectile::SpecialCommand()
 		CParticleSystemLibrary::GetInstance(iPulse)->FollowEntity(this);
 }
 
-Color CProjectile::GetBonusDamageColor()
+Color CProjectile::GetBonusDamageColor() const
 {
 	if (m_flDamageBonusTime == 0.0f)
 		return Color(255, 255, 255);
@@ -206,12 +206,12 @@ void CProjectile::Fragment()
 	Delete();
 }
 
-void CProjectile::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CProjectile::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 }
 
-void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	if (!m_bShouldRender)
 		return;
@@ -422,7 +422,7 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CSmallShell);
 INPUTS_TABLE_END();
 
-float CSmallShell::ExplosionRadius()
+float CSmallShell::ExplosionRadius() const
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		return 4.0f;
@@ -441,7 +441,7 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CMediumShell);
 INPUTS_TABLE_END();
 
-float CMediumShell::ExplosionRadius()
+float CMediumShell::ExplosionRadius() const
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		return 6.0f;
@@ -460,7 +460,7 @@ SAVEDATA_TABLE_END();
 INPUTS_TABLE_BEGIN(CLargeShell);
 INPUTS_TABLE_END();
 
-float CLargeShell::ExplosionRadius()
+float CLargeShell::ExplosionRadius() const
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		return 8.0f;
@@ -504,7 +504,7 @@ size_t CAOEShell::CreateTrailSystem()
 	return CParticleSystemLibrary::Get()->FindParticleSystem(L"aoe-trail");
 }
 
-float CAOEShell::ExplosionRadius()
+float CAOEShell::ExplosionRadius() const
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
 		return 12.0f;

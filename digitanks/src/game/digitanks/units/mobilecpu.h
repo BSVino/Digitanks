@@ -12,7 +12,7 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual eastl::string16		GetEntityName() { return L"MCP"; };
+	virtual eastl::string16		GetEntityName() const { return L"MCP"; };
 
 	virtual bool				CanFortify();
 	virtual void				OnFortify();
@@ -20,8 +20,8 @@ public:
 	virtual float				FindHoverHeight(Vector vecPosition) const;
 	virtual Vector				GetRenderOrigin() const;
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent);
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	virtual bool				IsMobileCPU() const { return true; };
 	virtual float				BaseHealthRechargeRate() const { return 20.0f; };

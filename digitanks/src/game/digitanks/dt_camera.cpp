@@ -144,13 +144,13 @@ void CDigitanksCamera::ShowEnemyMoves()
 	if (pCurrentTeam->GetNumTanks() == 0)
 		return;
 
-	eastl::vector<CDigitank*> apTargets;
+	eastl::vector<const CDigitank*> apTargets;
 
 	Vector vecAveragePosition = Vector(0,0,0);
 
 	for (size_t i = 0; i < pCurrentTeam->GetNumTanks(); i++)
 	{
-		CDigitank* pTank = pCurrentTeam->GetTank(i);
+		const CDigitank* pTank = pCurrentTeam->GetTank(i);
 
 		if (!pTank)
 			continue;
@@ -189,10 +189,10 @@ void CDigitanksCamera::ShowEnemyMoves()
 	if (apTargets.size() == 0)
 	{
 		// No targets of interest? Show whatever's the first thing we can find.
-		CDigitank* pFollow = NULL;
+		const CDigitank* pFollow = NULL;
 		for (size_t i = 0; i < pCurrentTeam->GetNumTanks(); i++)
 		{
-			CDigitank* pTank = pCurrentTeam->GetTank(i);
+			const CDigitank* pTank = pCurrentTeam->GetTank(i);
 
 			if (!pTank)
 				continue;
@@ -250,7 +250,7 @@ void CDigitanksCamera::ShowEnemyMoves()
 	vecAveragePosition /= (float)apTargets.size();
 
 	// Find the closest target to the center.
-	CDigitank* pClosestTarget = apTargets[0];
+	const CDigitank* pClosestTarget = apTargets[0];
 	for (size_t i = 1; i < apTargets.size(); i++)
 	{
 		if ((apTargets[i]->GetOrigin() - vecAveragePosition).LengthSqr() < (pClosestTarget->GetOrigin() - vecAveragePosition).LengthSqr())

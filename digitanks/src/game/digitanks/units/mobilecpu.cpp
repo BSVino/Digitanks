@@ -47,6 +47,8 @@ void CMobileCPU::Think()
 {
 	BaseClass::Think();
 
+	m_flFanRotation -= 100 * GameServer()->GetFrameTime();
+
 	if (GameNetwork()->IsHost() && m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime > 1)
 	{
 		Delete();
@@ -111,7 +113,7 @@ Vector CMobileCPU::GetRenderOrigin() const
 	return GetOrigin() + Vector(0, flHoverHeight, 0);
 }
 
-void CMobileCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent)
+void CMobileCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::ModifyContext(pContext, bTransparent);
 
@@ -126,7 +128,7 @@ void CMobileCPU::ModifyContext(class CRenderingContext* pContext, bool bTranspar
 	}
 }
 
-void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	BaseClass::OnRender(pContext, bTransparent);
 
@@ -160,7 +162,6 @@ void CMobileCPU::OnRender(class CRenderingContext* pContext, bool bTransparent)
 			r.SetBlend(BLEND_ALPHA);
 	}
 
-	m_flFanRotation -= 100 * GameServer()->GetFrameTime();
 	r.Rotate(m_flFanRotation, Vector(1, 0, 0));
 	r.Translate(Vector(-3.9f, 0, 0));
 

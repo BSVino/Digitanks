@@ -13,7 +13,7 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
-	virtual eastl::string16		GetEntityName() { return L"Artillery"; };
+	virtual eastl::string16		GetEntityName() const { return L"Artillery"; };
 
 	virtual void				OnFortify();
 	virtual bool				CanFortify() { return true; };
