@@ -2641,7 +2641,33 @@ bool CDigitank::HasWeapon(weapon_t eWeapon) const
 	return false;
 }
 
+CLIENT_GAME_COMMAND(FireSpecial)
+{
+	if (pCmd->GetNumArguments() < 4)
+	{
+		TMsg("FireSpecial with not enough arguments.\n");
+		return;
+	}
+
+	CEntityHandle<CDigitank> hTank(pCmd->ArgAsInt(0));
+
+	if (hTank == NULL)
+	{
+		TMsg("FireSpecial with invalid tank.\n");
+		return;
+	}
+
+	hTank->FireSpecial(Vector(pCmd->ArgAsFloat(1), pCmd->ArgAsFloat(2), pCmd->ArgAsFloat(3)));
+}
+
 void CDigitank::FireSpecial()
+{
+	::FireSpecial.RunCommand(sprintf(L"%d %f %f %f", GetHandle(), GetPreviewAim().x, GetPreviewAim().y, GetPreviewAim().z));
+
+	DigitanksGame()->SetControlMode(MODE_NONE);
+}
+
+void CDigitank::FireSpecial(Vector vecAim)
 {
 	if (m_iAirstrikes <= 0)
 		return;
@@ -2651,7 +2677,7 @@ void CDigitank::FireSpecial()
 
 	m_iAirstrikes--;
 
-	DigitanksGame()->BeginAirstrike(GetPreviewAim());
+	DigitanksGame()->BeginAirstrike(vecAim);
 
 	m_bActionTaken = true;
 

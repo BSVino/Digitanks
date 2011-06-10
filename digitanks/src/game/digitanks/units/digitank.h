@@ -247,6 +247,7 @@ public:
 	virtual bool				IsWaitingToFire() const { return m_flFireWeaponTime != 0; };
 
 	void						FireSpecial();
+	void						FireSpecial(Vector vecAim);
 	bool						HasSpecialWeapons();
 
 	void						FireMissileDefense(CProjectile* pTarget);
