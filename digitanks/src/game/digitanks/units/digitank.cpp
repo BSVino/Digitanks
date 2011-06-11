@@ -2470,11 +2470,13 @@ void CDigitank::FireWeapon(CNetworkParameters* p)
 
 void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 {
+	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
 	bool bIsVisible = false;
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) > 0.3f)
+	if (pCurrentTeam && pCurrentTeam->GetVisibilityAtPoint(GetOrigin()) > 0.3f)
 		bIsVisible = true;
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(vecLandingSpot) > 0.3f)
+	if (pCurrentTeam && pCurrentTeam->GetVisibilityAtPoint(vecLandingSpot) > 0.3f)
 		bIsVisible = true;
 
 	if (GetDigitanksTeam() && GetDigitanksTeam()->IsPlayerControlled())

@@ -2261,12 +2261,19 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 	glEnd();
 #endif
 
-	eastl::list<CQuadBranch*>::iterator it = apRoute.begin();
-	it++;
-	Vector vecSecondNode = (*it)->GetCenter();
-
 	if (!pUnit)
-		return vecSecondNode;
+	{
+		eastl::list<CQuadBranch*>::iterator it = apRoute.begin();
+		it++;
+
+		if (*it)
+		{
+			Vector vecSecondNode = (*it)->GetCenter();
+			return vecSecondNode;
+		}
+
+		return vecEnd;
+	}
 
 	float flMoveDistance = pUnit->GetRemainingMovementDistance();
 	Vector vecLastCenter;

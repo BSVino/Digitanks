@@ -90,9 +90,11 @@ void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 		}
 	}
 
-	if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
+	CDigitanksTeam* pCurrentTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
+
+	if (pCurrentTeam && pCurrentTeam->GetVisibilityAtPoint(GetOrigin()) < 0.1f)
 	{
-		if (DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
+		if (pCurrentTeam->GetVisibilityAtPoint(GetOrigin() + AngleVector(GetAngles())*LaserLength()) < 0.1f)
 		{
 			// If the start and end points are both in the fog of war, delete it now that we've aready done the damage so it doesn't get rendered later.
 			if (GameNetwork()->IsHost())
