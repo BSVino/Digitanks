@@ -78,7 +78,7 @@ void CTeam::RemoveEntity(CBaseEntity* pEntity)
 	{
 		if (pEntity == m_ahMembers[i])
 		{
-			m_ahMembers.erase(m_ahMembers.begin()+i);
+			m_ahMembers.erase(i);
 			pEntity->SetTeam(NULL);
 			OnRemoveEntity(pEntity);
 			return;
@@ -90,9 +90,9 @@ void CTeam::OnDeleted(CBaseEntity* pEntity)
 {
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
-		if (m_ahMembers[i] == pEntity)
+		if (pEntity == m_ahMembers[i])
 		{
-			m_ahMembers.erase(m_ahMembers.begin()+i);
+			m_ahMembers.erase(i);
 			OnRemoveEntity(pEntity);
 			break;
 		}

@@ -3,6 +3,7 @@
 #include <strutils.h>
 
 #include <tinker/application.h>
+#include <tinker/cvar.h>
 
 #include <baseentity.h>
 #include <gameserver.h>
@@ -10,6 +11,7 @@
 CNetworkedVariableData::CNetworkedVariableData()
 {
 	m_iOffset = 0;
+	m_flUpdateInterval = 0;
 }
 
 CNetworkedVariableBase* CNetworkedVariableData::GetNetworkedVariableBase(CBaseEntity* pEntity)
@@ -21,10 +23,15 @@ CNetworkedVariableBase* CNetworkedVariableData::GetNetworkedVariableBase(CBaseEn
 CNetworkedVariableBase::CNetworkedVariableBase()
 {
 	m_bDirty = true;
+	m_flLastUpdate = 0;
 }
+
+CVar net_replication_debug("net_replication_debug", "off");
 
 void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 {
+	float flTime = GameServer()->GetGameTime();
+
 	size_t iMaxEnts = GameServer()->GetMaxEntities();
 	for (size_t i = 0; i < iMaxEnts; i++)
 	{
@@ -49,8 +56,17 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 				CNetworkedVariableData* pVarData = &pRegistration->m_aNetworkVariables[j];
 				CNetworkedVariableBase* pVariable = pVarData->GetNetworkedVariableBase(pEntity);
 
-				if (!bForceAll && !pVariable->IsDirty())
-					continue;
+				if (!bForceAll)
+				{
+					if (!pVariable->IsDirty())
+						continue;
+
+					if (flTime - pVariable->m_flLastUpdate < pVarData->m_flUpdateInterval)
+						continue;
+				}
+
+				if (net_replication_debug.GetBool())
+					TMsg(eastl::string16(L"Updating ") + convertstring<char, char16_t>(pVarData->GetName()) + L"\n");
 
 				CNetworkParameters p;
 				p.ui1 = pEntity->GetHandle();

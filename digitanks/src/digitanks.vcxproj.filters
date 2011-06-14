@@ -719,6 +719,9 @@
     <ClInclude Include="..\..\tinker\gamewindow.h">
       <Filter>Source Files\tinker</Filter>
     </ClInclude>
+    <ClInclude Include="game\entityhandle.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\build\digitanks.ico">

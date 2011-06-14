@@ -83,7 +83,7 @@ void CGame::AddTeam(CTeam* pTeam)
 	// Prevent dupes
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_ahTeams[i] == pTeam)
+		if (pTeam == m_ahTeams[i])
 			return;
 	}
 
@@ -98,9 +98,9 @@ void CGame::RemoveTeam(CTeam* pTeam)
 
 	for (size_t i = 0; i < m_ahTeams.size(); i++)
 	{
-		if (m_ahTeams[i] == pTeam)
+		if (pTeam == m_ahTeams[i])
 		{
-			m_ahTeams.erase(m_ahTeams.begin()+i);
+			m_ahTeams.erase(i);
 			break;
 		}
 	}

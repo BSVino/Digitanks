@@ -42,6 +42,7 @@ public:
 	size_t					m_iOffset;
 	const char*				m_pszName;
 	NetVarChangeCallback	m_pfnChanged;
+	float					m_flUpdateInterval;
 };
 
 class CNetworkedVariableBase
@@ -58,6 +59,7 @@ public:
 
 public:
 	bool				m_bDirty;
+	float				m_flLastUpdate;
 };
 
 template <class C>
@@ -68,6 +70,8 @@ public:
 	{
 		// Don't zero it out, the constructor will set whatever value it wants and the rest can remain undefined.
 		// memset(&m_oVariable, 0, sizeof(C));
+
+		m_flEpsilon = 0.001f;
 	}
 
 	CNetworkedVariable(const C& c)
@@ -76,39 +80,12 @@ public:
 	}
 
 public:
-	inline const C& operator=(const C& c)
-	{
-		if (c == m_oVariable)
-			return m_oVariable;
-
-		m_bDirty = true;
-		m_oVariable = c;
-		return m_oVariable;
-	}
-
-	inline const C& operator=(const CNetworkedVariable<C>& c)
-	{
-		if (c.m_oVariable == m_oVariable)
-			return m_oVariable;
-
-		m_bDirty = true;
-		m_oVariable = c.m_oVariable;
-		return m_oVariable;
-	}
-
-	inline bool operator==(const C& c)
-	{
-		return c == m_oVariable;
-	}
+	const C& operator=(const C& c);
+	const C& operator=(const CNetworkedVariable<C>& c);
 
 	inline bool operator==(const C& c) const
 	{
 		return c == m_oVariable;
-	}
-
-	inline bool operator!=(const C& c)
-	{
-		return c != m_oVariable;
 	}
 
 	inline bool operator!=(const C& c) const
@@ -198,9 +175,59 @@ public:
 	virtual void*		Serialize(size_t& iSize) { iSize = sizeof(C); return &m_oVariable; }
 	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = *(C*)pValue; }
 
+	void				SetEpsilon(float flEpsilon) { m_flEpsilon = flEpsilon; }
+	float				GetEpsilon() { return m_flEpsilon; }
+
 public:
 	C					m_oVariable;
+	float				m_flEpsilon;
 };
+
+template <>
+inline const float& CNetworkedVariable<float>::operator=(const float& c)
+{
+	float flDifference = c - m_oVariable;
+	if (((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
+		return m_oVariable;
+
+	m_bDirty = true;
+	m_oVariable = c;
+	return m_oVariable;
+}
+
+template <>
+inline const float& CNetworkedVariable<float>::operator=(const CNetworkedVariable<float>& c)
+{
+	float flDifference = c.m_oVariable - m_oVariable;
+	if (((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
+		return m_oVariable;
+
+	m_bDirty = true;
+	m_oVariable = c.m_oVariable;
+	return m_oVariable;
+}
+
+template <class C>
+inline const C& CNetworkedVariable<C>::operator=(const C& c)
+{
+	if (c == m_oVariable)
+		return m_oVariable;
+
+	m_bDirty = true;
+	m_oVariable = c;
+	return m_oVariable;
+}
+
+template <class C>
+inline const C& CNetworkedVariable<C>::operator=(const CNetworkedVariable<C>& c)
+{
+	if (c.m_oVariable == m_oVariable)
+		return m_oVariable;
+
+	m_bDirty = true;
+	m_oVariable = c.m_oVariable;
+	return m_oVariable;
+}
 
 template <class C>
 class CNetworkedSTLVector : public CNetworkedVariable<eastl::vector<C> >
@@ -211,7 +238,7 @@ public:
 		return m_oVariable.size();
 	}
 
-	inline C& operator[] (size_t i)
+	inline C& Index(size_t i)
 	{
 		m_bDirty = true;
 		return m_oVariable[i];
@@ -240,32 +267,10 @@ public:
 		return m_oVariable.push_back();
 	}
 
-	inline typename eastl::vector<C>::iterator erase(typename eastl::vector<C>::iterator position)
+	inline typename eastl::vector<C>::iterator erase(size_t iPosition)
 	{
 		m_bDirty = true;
-		return m_oVariable.erase(position);
-	}
-
-	inline typename eastl::vector<C>::iterator begin()
-	{
-		m_bDirty = true;
-		return m_oVariable.begin();
-	}
-
-	inline const typename eastl::vector<C>::iterator begin() const
-	{
-		return m_oVariable.begin();
-	}
-
-	inline typename eastl::vector<C>::iterator end()
-	{
-		m_bDirty = true;
-		return m_oVariable.end();
-	}
-
-	inline const typename eastl::vector<C>::iterator end() const
-	{
-		return m_oVariable.end();
+		return m_oVariable.erase(m_oVariable.begin()+iPosition);
 	}
 
 	virtual void* Serialize(size_t& iSize)

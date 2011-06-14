@@ -22,9 +22,9 @@ size_t CBaseEntity::s_iNextEntityListIndex = 0;
 REGISTER_ENTITY(CBaseEntity);
 
 NETVAR_TABLE_BEGIN(CBaseEntity);
-	NETVAR_DEFINE(Vector, m_vecOrigin);
-	NETVAR_DEFINE(EAngle, m_angAngles);
-	NETVAR_DEFINE(Vector, m_vecVelocity);
+	NETVAR_DEFINE_INTERVAL(Vector, m_vecOrigin, 0.15f);
+	NETVAR_DEFINE_INTERVAL(EAngle, m_angAngles, 0.15f);
+	NETVAR_DEFINE_INTERVAL(Vector, m_vecVelocity, 0.15f);
 	NETVAR_DEFINE(Vector, m_vecGravity);
 	NETVAR_DEFINE(bool, m_bTakeDamage);
 	NETVAR_DEFINE(float, m_flTotalHealth);

@@ -592,7 +592,7 @@ void CDigitanksTeam::OnDeleted(CBaseEntity* pEntity)
 	for (size_t i = 0; i < m_ahTanks.size(); i++)
 	{
 		if ((CBaseEntity*)m_ahTanks[i] == pEntity)
-			m_ahTanks.erase(m_ahTanks.begin()+i);
+			m_ahTanks.erase(i);
 	}
 }
 
@@ -732,7 +732,7 @@ void CDigitanksTeam::AddActionItem(const CSelectable* pUnit, actiontype_t eActio
 		{
 			// Use the lowest value, that list is sorted that way.
 			if (eActionType < m_aActionItems[i].eActionType)
-				m_aActionItems[i].eActionType = eActionType;
+				m_aActionItems.Index(i).eActionType = eActionType;
 
 			return;
 		}
@@ -755,7 +755,7 @@ void CDigitanksTeam::ServerHandledActionItem(size_t i)
 	if (i >= m_aActionItems.size())
 		return;
 
-	m_aActionItems[i].bHandled = true;
+	m_aActionItems.Index(i).bHandled = true;
 	DigitanksWindow()->GetHUD()->Layout();
 }
 

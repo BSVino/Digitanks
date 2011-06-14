@@ -784,7 +784,7 @@ void CGameServer::DestroyEntity(int iConnection, CNetworkParameters* p)
 	CSoundLibrary::EntityDeleted(pEntity);
 
 	for (size_t i = 0; i < m_ahDeletedEntities.size(); i++)
-		if (m_ahDeletedEntities[i] == pEntity)
+		if (pEntity == m_ahDeletedEntities[i])
 			return;
 
 	pEntity->OnDeleted();

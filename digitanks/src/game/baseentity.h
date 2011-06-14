@@ -201,10 +201,15 @@ void entity::RegisterNetworkVariables() \
 	pVarData->m_iOffset = (((size_t)((void*)((CNetworkedVariableBase*)&name)))) - ((size_t)((CBaseEntity*)this)); \
 	pVarData->m_pszName = #name; \
 	pVarData->m_pfnChanged = NULL; \
+	pVarData->m_flUpdateInterval = 0; \
 
 #define NETVAR_DEFINE_CALLBACK(type, name, callback) \
 	NETVAR_DEFINE(type, name); \
 	pVarData->m_pfnChanged = callback; \
+
+#define NETVAR_DEFINE_INTERVAL(type, name, interval) \
+	NETVAR_DEFINE(type, name); \
+	pVarData->m_flUpdateInterval = interval; \
 
 #define NETVAR_TABLE_END() \
 	CheckTables(pszEntity); \

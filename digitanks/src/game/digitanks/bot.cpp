@@ -1658,7 +1658,7 @@ void CStructure::RemoveDefender(CDigitank* pTank)
 {
 	for (size_t i = 0; i < m_aoDefenders.size(); i++)
 	{
-		if (m_aoDefenders[i].m_hDefender == pTank)
+		if (pTank == m_aoDefenders[i].m_hDefender)
 			m_aoDefenders[i].m_hDefender = NULL;
 	}
 }

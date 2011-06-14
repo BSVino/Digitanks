@@ -33,7 +33,7 @@ void CSceneTree::BuildTree(bool bForce)
 	if (!pCurrentLocalTeam)
 		return;
 
-	if (m_hTeam == pCurrentLocalTeam && !bForce)
+	if (pCurrentLocalTeam == m_hTeam && !bForce)
 		return;
 
 	ClearTree();

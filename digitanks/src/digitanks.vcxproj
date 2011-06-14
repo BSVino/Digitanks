@@ -370,6 +370,7 @@ if exist "$(TargetDir)"digitanks.pdb copy "$(TargetDir)"digitanks.pdb "\My Dropb
     <ClInclude Include="game\digitanks\weapons\turretmissile.h" />
     <ClInclude Include="game\digitanks\wreckage.h" />
     <ClInclude Include="game\entities\counter.h" />
+    <ClInclude Include="game\entityhandle.h" />
     <ClInclude Include="game\gameserver.h" />
     <ClInclude Include="game\level.h" />
     <ClInclude Include="game\networkedeffect.h" />

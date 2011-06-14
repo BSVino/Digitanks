@@ -38,29 +38,24 @@ public:
 		return *this;
 	}
 
-	inline bool operator==(C* pEntity)
-	{
-		return IsEqual(pEntity);
-	}
-
 	inline bool operator==(const C* pEntity) const
 	{
 		return IsEqual(pEntity);
 	}
 
-	inline bool operator!=(C* pEntity)
+	inline bool operator==(const CEntityHandle<C>& hEntity) const
 	{
-		return !IsEqual(pEntity);
-	}
-
-	inline bool operator!=(const CEntityHandle<C>& hEntity)
-	{
-		return !IsEqual(hEntity);
+		return IsEqual(hEntity);
 	}
 
 	inline bool operator!=(const C* pEntity) const
 	{
 		return !IsEqual(pEntity);
+	}
+
+	inline bool operator!=(const CEntityHandle<C>& hEntity) const
+	{
+		return !IsEqual(hEntity);
 	}
 
 	inline operator C*() const
@@ -76,22 +71,6 @@ public:
 	inline bool operator!() const
 	{
 		return IsEqual(NULL);
-	}
-
-	inline bool IsEqual(const C* pOther)
-	{
-		if (!pOther)
-		{
-			if (!CBaseEntity::GetEntity(m_iHandle))
-				return true;
-
-			if (!dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle)))
-				return true;
-
-			return m_iHandle == ~0;
-		}
-
-		return m_iHandle == pOther->GetHandle();
 	}
 
 	inline bool IsEqual(const C* pOther) const
