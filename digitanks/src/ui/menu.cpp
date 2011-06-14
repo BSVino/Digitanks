@@ -1242,6 +1242,7 @@ void CStrategyGamePanel::PreviewLevel(size_t iLevel)
 
 // HOLY CRAP A GLOBAL! Yeah it's bad. Sue me.
 eastl::vector<GLFWvidmode> g_aVideoModes;
+GLFWvidmode g_aModes[ 100 ];
 
 COptionsPanel::COptionsPanel()
 	: CPanel(0, 0, 570, 520)
@@ -1317,27 +1318,26 @@ COptionsPanel::COptionsPanel()
 	m_pVideoModes->SetFont(L"text");
 	AddControl(m_pVideoModes);
 
-	GLFWvidmode aModes[ 20 ];
     int iModes;
 
 	g_aVideoModes.clear();
 
-	iModes = glfwGetVideoModes( aModes, 20 );
+	iModes = glfwGetVideoModes( g_aModes, 100 );
     for( int i = 0; i < iModes; i ++ )
     {
-		if (aModes[i].Width < 1024)
+		if (g_aModes[i].Width < 1024)
 			continue;
 
-		if (aModes[i].Height < 768)
+		if (g_aModes[i].Height < 768)
 			continue;
 
-		if (aModes[i].BlueBits < 8)
+		if (g_aModes[i].BlueBits < 8)
 			continue;
 
 		eastl::string16 sMode;
-		sMode.sprintf(L"%dx%d", aModes[i].Width, aModes[i].Height);
+		sMode.sprintf(L"%dx%d", g_aModes[i].Width, g_aModes[i].Height);
 		m_pVideoModes->AddSubmenu(sMode, this, VideoModeChosen);
-		g_aVideoModes.push_back(aModes[i]);
+		g_aVideoModes.push_back(g_aModes[i]);
 	}
 
 	m_pFramebuffers = new CCheckBox();
