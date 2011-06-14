@@ -3220,6 +3220,7 @@ void CDigitank::RenderShield() const
 	r.SetBlend(BLEND_ADDITIVE);
 	r.Scale(RenderShieldScale(), RenderShieldScale(), RenderShieldScale());
 	r.SetDepthTest(false);
+	r.SetColor(Color(255, 255, 255, 255));
 
 	// If you just call r.RenderModel() it overrides the shader
 	CModel* pModel = CModelLibrary::Get()->GetModel(m_iShieldModel);
