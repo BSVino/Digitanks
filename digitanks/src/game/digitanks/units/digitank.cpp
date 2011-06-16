@@ -2820,6 +2820,9 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 		if (iDebris < 0)
 			iDebris = 1;
 
+		if (iDebris > 10)
+			iDebris = 10;
+
 		for (size_t i = 0; i < iDebris; i++)
 		{
 			CDebris* pDebris = GameServer()->Create<CDebris>("CDebris");

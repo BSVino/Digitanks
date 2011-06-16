@@ -1030,6 +1030,9 @@ void CDigitanksRenderer::RenderFullscreenBuffers()
 			}
 			glPopAttrib();
 		}
+
+		if (flGameTime > m_flLastBloomPulse + flBloomPulseLength)
+			m_flLastBloomPulse = 0;
 	}
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
