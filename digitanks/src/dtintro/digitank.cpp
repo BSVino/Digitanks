@@ -36,6 +36,8 @@ void CDigitank::Spawn()
 
 void CDigitank::Think()
 {
+	BaseClass::Think();
+
 	if (m_flNextFire && GameServer()->GetGameTime() > m_flNextFire)
 	{
 		FireBomb(m_vecNextAim, m_hTarget);

@@ -41,6 +41,8 @@ void CBug::Spawn()
 
 void CBug::Think()
 {
+	BaseClass::Think();
+
 	if (m_bFiringRandomly && m_flNextAim && GameServer()->GetGameTime() > m_flNextAim)
 	{
 		float flWidth = (float)CApplication::Get()->GetWindowWidth();

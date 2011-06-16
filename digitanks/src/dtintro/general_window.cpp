@@ -1,5 +1,8 @@
 #include "general_window.h"
 
+#include <mtrand.h>
+#include <strutils.h>
+
 #include <game/gameserver.h>
 #include <renderer/renderer.h>
 #include <sound/sound.h>
@@ -106,7 +109,7 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 	Rect recEmotion = m_hGeneral.GetArea(m_sEmotion);
 	glgui::CBaseControl::PaintSheet(m_hGeneral.GetSheet(m_sEmotion), x, y, 256, 256, recEmotion.x, recEmotion.y, recEmotion.w, recEmotion.h, m_hGeneral.GetSheetWidth(m_sEmotion), m_hGeneral.GetSheetHeight(m_sEmotion));
 
-	if (m_bHelperSpeaking && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5)
+	if (m_bHelperSpeaking && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || m_bProgressBar)
 	{
 		Rect recMouth = m_hGeneralMouth.GetArea(m_sEmotion);
 		glgui::CBaseControl::PaintSheet(m_hGeneralMouth.GetSheet(m_sEmotion), x, y, 256, 256, recMouth.x, recMouth.y, recMouth.w, recMouth.h, m_hGeneralMouth.GetSheetWidth(m_sEmotion), m_hGeneralMouth.GetSheetHeight(m_sEmotion));
@@ -117,6 +120,34 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 		float flTime = 3;
 		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft(), y + 160, m_pText->GetWidth(), 10, Color(255, 255, 255, 255));
 		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft() + 2, y + 160 + 2, (int)((m_pText->GetWidth() - 4) * RemapValClamped(GameServer()->GetGameTime(), m_flStartTime, m_flStartTime+flTime, 0, 1)), 10 - 4, Color(42, 65, 122, 255));
+
+		static eastl::string16 sEstimate;
+		static float flLastEstimateUpdate = 0;
+
+		if (!sEstimate.length() || GameServer()->GetGameTime() - flLastEstimateUpdate > 1)
+		{
+			int iRandomTime = RandomInt(0, 5);
+			eastl::string16 sRandomTime;
+			if (iRandomTime == 0)
+				sRandomTime = L"centuries";
+			else if (iRandomTime == 1)
+				sRandomTime = L"minutes";
+			else if (iRandomTime == 2)
+				sRandomTime = L"hours";
+			else if (iRandomTime == 3)
+				sRandomTime = L"days";
+			else
+				sRandomTime = L"seconds";
+
+			sEstimate = sprintf(L"Estimated time remaining: %d %s", RandomInt(2, 100), sRandomTime);
+
+			flLastEstimateUpdate = GameServer()->GetGameTime();
+		}
+
+		c.SetColor(Color(0, 0, 0, 255));
+
+		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), L"sans-serif", 12);
+		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), L"sans-serif", 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190);
 	}
 }
 
