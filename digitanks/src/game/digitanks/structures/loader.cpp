@@ -97,7 +97,7 @@ void CLoader::StartTurn()
 	}
 }
 
-void CLoader::PostRender(bool bTransparent)
+void CLoader::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 

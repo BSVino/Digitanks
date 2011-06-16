@@ -50,7 +50,7 @@ void CBomb::Think()
 	}
 }
 
-void CBomb::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CBomb::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	pContext->SetColor(Color(255, 255, 255, 255));
 	pContext->Scale(5, 5, 5);

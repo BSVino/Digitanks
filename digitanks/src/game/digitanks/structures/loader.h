@@ -15,7 +15,7 @@ public:
 
 	virtual void				StartTurn();
 
-	virtual void				PostRender(bool bTransparent);
+	virtual void				PostRender(bool bTransparent) const;
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
@@ -28,7 +28,7 @@ public:
 	void						BeginProduction();
 	void						BeginProduction(class CNetworkParameters* p);
 	void						CompleteProduction();
-	bool						IsProducing() { return m_bProducing; };
+	bool						IsProducing() const { return m_bProducing; };
 	float						GetUnitProductionCost();
 	size_t						GetTurnsRemainingToProduce() { return m_iTurnsToProduce; };
 

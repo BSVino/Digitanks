@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				PostRender(bool bTransparent);
+	virtual void				PostRender(bool bTransparent) const;
 
 	virtual eastl::string16		GetEntityName() const { return L"Resistor"; };
 

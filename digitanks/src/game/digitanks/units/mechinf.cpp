@@ -54,7 +54,7 @@ void CMechInfantry::Spawn()
 	m_eWeapon = WEAPON_INFANTRYLASER;
 }
 
-void CMechInfantry::PostRender(bool bTransparent)
+void CMechInfantry::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 

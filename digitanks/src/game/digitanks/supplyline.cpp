@@ -143,7 +143,7 @@ void CSupplyLine::Intercept(float flIntercept)
 	}
 }
 
-void CSupplyLine::PostRender(bool bTransparent)
+void CSupplyLine::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 

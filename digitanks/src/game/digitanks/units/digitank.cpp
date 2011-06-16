@@ -366,7 +366,7 @@ float CDigitank::GetBaseAttackPower(bool bPreview)
 	return m_flAttackPower;
 }
 
-float CDigitank::GetBaseDefensePower(bool bPreview)
+float CDigitank::GetBaseDefensePower(bool bPreview) const
 {
 	if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam() && GetDigitanksTeam()->IsSelected(this) && bPreview && DigitanksGame()->GetControlMode() == MODE_AIM)
 		return m_flTotalPower - GetWeaponEnergy();
@@ -380,7 +380,7 @@ float CDigitank::GetAttackPower(bool bPreview)
 	return GetBaseAttackPower(bPreview) + m_flBonusAttackPower;
 }
 
-float CDigitank::GetDefensePower(bool bPreview)
+float CDigitank::GetDefensePower(bool bPreview) const
 {
 	Vector vecOrigin = GetOrigin();
 
@@ -471,7 +471,7 @@ float CDigitank::GetBonusAttackDamage()
 	return (m_flBonusAttackPower + GetSupportAttackPowerBonus() + GetFortifyAttackPowerBonus()) * 10;
 }
 
-float CDigitank::GetBonusDefensePower(bool bPreview)
+float CDigitank::GetBonusDefensePower(bool bPreview) const
 {
 	return (m_flBonusDefensePower + GetSupportDefensePowerBonus() + GetFortifyDefensePowerBonus());
 }
@@ -489,7 +489,7 @@ float CDigitank::GetSupportAttackPowerBonus()
 	return flBonus;
 }
 
-float CDigitank::GetSupportDefensePowerBonus()
+float CDigitank::GetSupportDefensePowerBonus() const
 {
 	float flBonus = 0;
 	if (CSupplier::GetDataFlow(GetOrigin(), GetTeam()) > 0)
@@ -601,7 +601,7 @@ bool CDigitank::IsPreviewMoveValid() const
 	return DigitanksGame()->GetTerrain()->IsPointOnMap(GetPreviewMove());
 }
 
-float CDigitank::GetShieldStrength()
+float CDigitank::GetShieldStrength() const
 {
 	if (GetShieldMaxStrength() == 0)
 		return 0;
@@ -1359,7 +1359,7 @@ float CDigitank::GetFortifyAttackPowerBonus()
 		return 0;
 }
 
-float CDigitank::GetFortifyDefensePowerBonus()
+float CDigitank::GetFortifyDefensePowerBonus() const
 {
 	if (m_bFortified)
 		return (float)m_iFortifyLevel;

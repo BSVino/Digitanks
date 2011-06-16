@@ -149,6 +149,8 @@ public:
 	virtual void				Spawn();
 	virtual void				ClientSpawn();
 
+	virtual void				Think();
+
 	virtual float				GetRenderRadius() const { return GetBoundingRadius() + GetDataFlowRadius() + 5; };
 
 	virtual void				ClientEnterGame();
@@ -177,7 +179,7 @@ public:
 
 	// Even if we're invisible our tendrils might not be, we should still render those.
 	virtual bool				ShouldRender() const { return m_bShouldRender; };
-	virtual void				PostRender(bool bTransparent);
+	virtual void				PostRender(bool bTransparent) const;
 
 	void						UpdateTendrils();
 	void						BeginTendrilGrowth();

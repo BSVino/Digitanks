@@ -63,10 +63,10 @@ public:
 	float						GetTotalPower() const { return m_flTotalPower; };
 	float						GetStartingPower() const { return m_flStartingPower; };
 	float						GetBaseAttackPower(bool bPreview = false);
-	float						GetBaseDefensePower(bool bPreview = false);
+	float						GetBaseDefensePower(bool bPreview = false) const;
 
 	float						GetAttackPower(bool bPreview = false);
-	float						GetDefensePower(bool bPreview = false);
+	float						GetDefensePower(bool bPreview = false) const;
 	float						GetTotalAttackPower();
 	float						GetTotalDefensePower();
 
@@ -78,15 +78,15 @@ public:
 	float						GetRemainingMovementDistance() const;
 	float						GetRemainingTurningDistance() const;
 
-	float						GetDefenseScale(bool bPreview = false) { return GetDefensePower(bPreview) / 10; };
+	float						GetDefenseScale(bool bPreview = false) const { return GetDefensePower(bPreview) / 10; };
 
 	virtual float				GetBonusAttackDamage();
-	virtual float				GetBonusDefensePower(bool bPreview = false);
+	virtual float				GetBonusDefensePower(bool bPreview = false) const;
 
 	virtual void				AddRangeBonus(float flAmount) { m_flRangeBonus += flAmount; };
 
 	virtual float				GetSupportAttackPowerBonus();
-	virtual float				GetSupportDefensePowerBonus();
+	virtual float				GetSupportDefensePowerBonus() const;
 
 	virtual float				GetSupportHealthRechargeBonus() const;
 	virtual float				GetSupportShieldRechargeBonus() const;
@@ -100,7 +100,7 @@ public:
 	bool						IsPreviewMoveValid() const;
 
 	virtual float				GetShieldMaxStrength() const { return m_flMaxShieldStrength; };
-	virtual float				GetShieldStrength();
+	virtual float				GetShieldStrength() const;
 	virtual float				GetShieldBlockRadius();
 
 	virtual float				GetShieldValue() const;
@@ -180,7 +180,7 @@ public:
 	virtual bool				CanAimMobilized() const { return true; };
 	virtual bool				CanAim() const;
 	virtual float				GetFortifyAttackPowerBonus();
-	virtual float				GetFortifyDefensePowerBonus();
+	virtual float				GetFortifyDefensePowerBonus() const;
 	virtual bool				CanGetPowerups() const { return true; };
 	virtual size_t				GetFortifyLevel() { return m_iFortifyLevel; }
 

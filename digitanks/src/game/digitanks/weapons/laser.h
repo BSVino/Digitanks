@@ -16,7 +16,7 @@ public:
 	virtual float				GetRenderRadius() const { return LaserLength(); };
 
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				PostRender(bool bTransparent);
+	virtual void				PostRender(bool bTransparent) const;
 
 	virtual float				LaserLength() const { return 400; }
 

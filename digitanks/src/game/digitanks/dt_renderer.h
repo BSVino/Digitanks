@@ -38,7 +38,7 @@ public:
 	void			BloomPulse();
 
 	void			ClearTendrilBatches();
-	void			AddTendrilBatch(class CSupplier* pSupplier);
+	void			AddTendrilBatch(const class CSupplier* pSupplier);
 	void			RenderTendrilBatches();
 
 protected:

@@ -16,7 +16,7 @@ public:
 	virtual void	Think();
 
 	virtual bool	ShouldRender() const { return true; };
-	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent);
+	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent) const;
 
 	void			SetExplodeTime(float flExplodeTime) { m_flExplodeTime = flExplodeTime; };
 	void			SetTarget(CBaseEntity* pTarget) { m_hTarget = pTarget; }

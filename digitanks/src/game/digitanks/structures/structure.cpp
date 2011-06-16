@@ -684,6 +684,17 @@ void CSupplier::ClientSpawn()
 	UpdateTendrils();
 }
 
+#define GROWTH_TIME 3
+
+void CSupplier::Think()
+{
+	BaseClass::Think();
+
+	float flGrowthTime = GameServer()->GetGameTime() - m_flTendrilGrowthStartTime;
+	if (flGrowthTime >= GROWTH_TIME)
+		m_flTendrilGrowthStartTime = 0;
+}
+
 void CSupplier::ClientEnterGame()
 {
 	BaseClass::ClientEnterGame();
@@ -953,11 +964,9 @@ void CSupplier::CompleteConstruction()
 	BaseClass::CompleteConstruction();
 }
 
-#define GROWTH_TIME 3
-
 CVar tendril_fade_distance("perf_tendril_fade_distance", "200");
 
-void CSupplier::PostRender(bool bTransparent)
+void CSupplier::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 
@@ -968,9 +977,6 @@ void CSupplier::PostRender(bool bTransparent)
 
 	if (flGrowthTime < 0)
 		return;
-
-	if (flGrowthTime >= GROWTH_TIME)
-		m_flTendrilGrowthStartTime = 0;
 
 	if (m_flTendrilGrowthStartTime == 0)
 	{
@@ -1026,7 +1032,7 @@ void CSupplier::PostRender(bool bTransparent)
 			if (i < m_aTendrils.size() - 15)
 				continue;
 
-			CTendril* pTendril = &m_aTendrils[i];
+			const CTendril* pTendril = &m_aTendrils[i];
 
 			float flGrowthLength = RemapVal(flGrowthTime, 0, GROWTH_TIME, pTendril->m_flLength-flTotalSize, pTendril->m_flLength);
 

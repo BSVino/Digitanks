@@ -103,7 +103,7 @@ void CLaser::OnSetOwner(CDigitanksEntity* pOwner)
 	}
 }
 
-void CLaser::PostRender(bool bTransparent)
+void CLaser::PostRender(bool bTransparent) const
 {
 	BaseClass::PostRender(bTransparent);
 

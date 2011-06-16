@@ -1085,7 +1085,7 @@ void CDigitanksRenderer::ClearTendrilBatches()
 	m_ahTendrilBatches.clear();
 }
 
-void CDigitanksRenderer::AddTendrilBatch(CSupplier* pSupplier)
+void CDigitanksRenderer::AddTendrilBatch(const CSupplier* pSupplier)
 {
 	m_ahTendrilBatches.push_back() = pSupplier;
 }

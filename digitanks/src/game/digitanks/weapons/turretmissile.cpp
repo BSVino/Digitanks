@@ -80,7 +80,7 @@ void CTurretMissile::Think()
 	}
 }
 
-void CTurretMissile::OnRender(class CRenderingContext* pContext, bool bTransparent)
+void CTurretMissile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	if (bTransparent)
 		return;

@@ -15,7 +15,7 @@ public:
 	virtual void				ClientSpawn();
 
 	virtual void				SetOwner(class CDigitanksEntity* pOwner);
-	virtual class CDigitanksEntity*	GetOwner() { return m_hOwner; }
+	virtual class CDigitanksEntity*	GetOwner() const { return m_hOwner; }
 	virtual void				OnSetOwner(class CDigitanksEntity* pOwner) {};
 	virtual bool				ShouldBeVisible() { return true; };
 

@@ -24,7 +24,7 @@ public:
 	void							SetIntegrity(float flIntegrity) { m_flIntegrity = flIntegrity; m_bDelayRecharge = false; };
 
 	virtual bool					ShouldRender() const { return true; };
-	virtual void					PostRender(bool bTransparent);
+	virtual void					PostRender(bool bTransparent) const;
 
 	CSupplier*						GetSupplier();
 	CBaseEntity*					GetEntity();
