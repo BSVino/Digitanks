@@ -71,12 +71,15 @@ public:
 		// Don't zero it out, the constructor will set whatever value it wants and the rest can remain undefined.
 		// memset(&m_oVariable, 0, sizeof(C));
 
-		m_flEpsilon = 0.001f;
+		m_flEpsilon = 0.0001f;
+		m_bInitialized = false;
 	}
 
 	CNetworkedVariable(const C& c)
 	{
 		m_oVariable = c;
+		m_flEpsilon = 0.0001f;
+		m_bInitialized = true;
 	}
 
 public:
@@ -85,26 +88,32 @@ public:
 
 	inline bool operator==(const C& c) const
 	{
+		TAssert(m_bInitialized);
 		return c == m_oVariable;
 	}
 
 	inline bool operator!=(const C& c) const
 	{
+		TAssert(m_bInitialized);
 		return c != m_oVariable;
 	}
 
 	inline C operator+(const C& c) const
 	{
+		TAssert(m_bInitialized);
 		return m_oVariable + c;
 	}
 
 	inline C operator-(const C& c) const
 	{
+		TAssert(m_bInitialized);
 		return m_oVariable - c;
 	}
 
 	inline const C& operator+=(const C& c)
 	{
+		TAssert(m_bInitialized);
+
 		if (c == 0)
 			return m_oVariable;
 
@@ -115,6 +124,8 @@ public:
 
 	inline const C& operator-=(const C& c)
 	{
+		TAssert(m_bInitialized);
+
 		if (c == 0)
 			return m_oVariable;
 
@@ -126,6 +137,8 @@ public:
 	// Suffix
 	inline C operator++(int)
 	{
+		TAssert(m_bInitialized);
+
 		m_bDirty = true;
 		C oReturn = m_oVariable;
 		m_oVariable++;
@@ -135,6 +148,8 @@ public:
 	// Prefix
 	inline const C& operator++()
 	{
+		TAssert(m_bInitialized);
+
 		m_bDirty = true;
 		m_oVariable++;
 		return m_oVariable;
@@ -143,6 +158,8 @@ public:
 	// Suffix
 	inline C operator--(int)
 	{
+		TAssert(m_bInitialized);
+
 		m_bDirty = true;
 		C oReturn = m_oVariable;
 		m_oVariable--;
@@ -152,6 +169,8 @@ public:
 	// Prefix
 	inline const C& operator--()
 	{
+		TAssert(m_bInitialized);
+
 		m_bDirty = true;
 		m_oVariable--;
 		return m_oVariable;
@@ -159,6 +178,8 @@ public:
 
 	inline operator const C&() const
 	{
+		TAssert(m_bInitialized);
+
 		return m_oVariable;
 	}
 
@@ -181,17 +202,19 @@ public:
 public:
 	C					m_oVariable;
 	float				m_flEpsilon;
+	bool				m_bInitialized;
 };
 
 template <>
 inline const float& CNetworkedVariable<float>::operator=(const float& c)
 {
 	float flDifference = c - m_oVariable;
-	if (((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
+	if (m_bInitialized && ((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
 		return m_oVariable;
 
 	m_bDirty = true;
 	m_oVariable = c;
+	m_bInitialized = true;
 	return m_oVariable;
 }
 
@@ -199,11 +222,12 @@ template <>
 inline const float& CNetworkedVariable<float>::operator=(const CNetworkedVariable<float>& c)
 {
 	float flDifference = c.m_oVariable - m_oVariable;
-	if (((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
+	if (m_bInitialized && ((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
 		return m_oVariable;
 
 	m_bDirty = true;
 	m_oVariable = c.m_oVariable;
+	m_bInitialized = true;
 	return m_oVariable;
 }
 
@@ -215,6 +239,7 @@ inline const C& CNetworkedVariable<C>::operator=(const C& c)
 
 	m_bDirty = true;
 	m_oVariable = c;
+	m_bInitialized = true;
 	return m_oVariable;
 }
 
@@ -226,6 +251,7 @@ inline const C& CNetworkedVariable<C>::operator=(const CNetworkedVariable<C>& c)
 
 	m_bDirty = true;
 	m_oVariable = c.m_oVariable;
+	m_bInitialized = true;
 	return m_oVariable;
 }
 
@@ -233,6 +259,12 @@ template <class C>
 class CNetworkedSTLVector : public CNetworkedVariable<eastl::vector<C> >
 {
 public:
+	CNetworkedSTLVector()
+	{
+		// Because stl vectors automatically initialize themselves
+		m_bInitialized = true;
+	}
+
 	inline size_t size() const
 	{
 		return m_oVariable.size();
@@ -349,6 +381,12 @@ protected:
 class CNetworkedVector : public CNetworkedVariable<Vector>
 {
 public:
+	CNetworkedVector()
+	{
+		// Because Vectors automatically initialize themselves to the origin
+		m_bInitialized = true;
+	}
+
 	inline const CNetworkedVector& operator=(const Vector v)
 	{
 		if ((m_oVariable - v).LengthSqr() > 0)
@@ -356,6 +394,8 @@ public:
 			m_bDirty = true;
 			m_oVariable = v;
 		}
+
+		m_bInitialized = true;
 
 		return *this;
 	}
@@ -384,6 +424,12 @@ public:
 class CNetworkedEAngle : public CNetworkedVariable<EAngle>
 {
 public:
+	CNetworkedEAngle()
+	{
+		// Because EAngles automatically initialize themselves
+		m_bInitialized = true;
+	}
+
 	inline const CNetworkedEAngle& operator=(const EAngle v)
 	{
 		if (v.p != m_oVariable.p || v.y != m_oVariable.y || v.r != m_oVariable.r)
@@ -392,6 +438,8 @@ public:
 			m_oVariable = v;
 		}
 
+		m_bInitialized = true;
+
 		return *this;
 	}
 };
@@ -399,6 +447,12 @@ public:
 class CNetworkedColor : public CNetworkedVariable<Color>
 {
 public:
+	CNetworkedColor()
+	{
+		// Because Colors automatically initialize themselves
+		m_bInitialized = true;
+	}
+
 	inline const CNetworkedColor& operator=(const Color v)
 	{
 		if (m_oVariable.r() != v.r() || m_oVariable.g() != v.g() || m_oVariable.b() != v.b())
@@ -407,6 +461,8 @@ public:
 			m_oVariable = v;
 		}
 
+		m_bInitialized = true;
+
 		return *this;
 	}
 };
@@ -414,6 +470,12 @@ public:
 class CNetworkedString : public CNetworkedVariable<eastl::string16>
 {
 public:
+	CNetworkedString()
+	{
+		// Strings automatically initialize themselves
+		m_bInitialized = true;
+	}
+
 	inline const CNetworkedString& operator=(const eastl::string16 v)
 	{
 		if (m_oVariable != v)
@@ -422,11 +484,15 @@ public:
 			m_oVariable = v;
 		}
 
+		m_bInitialized = true;
+
 		return *this;
 	}
 
 	inline const eastl::string16& operator+=(const eastl::string16& c)
 	{
+		TAssert(m_bInitialized);
+
 		if (c.length() == 0)
 			return m_oVariable;
 
@@ -437,6 +503,8 @@ public:
 
 	size_t length() const
 	{
+		TAssert(m_bInitialized);
+
 		return m_oVariable.length();
 	}
 

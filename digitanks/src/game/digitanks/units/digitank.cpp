@@ -294,21 +294,7 @@ void CDigitank::SetupSpeechLines()
 
 void CDigitank::Spawn()
 {
-	BaseClass::Spawn();
-
 	SetCollisionGroup(CG_ENTITY);
-
-	m_hHoverParticles.SetSystem(L"tank-hover", GetOrigin());
-	m_hHoverParticles.FollowEntity(this);
-
-	m_hSmokeParticles.SetSystem(L"digitank-smoke", GetOrigin());
-	m_hSmokeParticles.FollowEntity(this);
-
-	m_hFireParticles.SetSystem(L"digitank-fire", GetOrigin());
-	m_hFireParticles.FollowEntity(this);
-
-	m_hChargeParticles.SetSystem(L"charge-charge", GetOrigin());
-	m_hChargeParticles.FollowEntity(this);
 
 	m_flStartingPower = 10;
 	m_flAttackPower = 0;
@@ -356,6 +342,20 @@ void CDigitank::Spawn()
 	m_bCloaked = false;
 	m_bHasCloak = false;
 	m_bLostConcealment = false;
+
+	BaseClass::Spawn();
+
+	m_hHoverParticles.SetSystem(L"tank-hover", GetOrigin());
+	m_hHoverParticles.FollowEntity(this);
+
+	m_hSmokeParticles.SetSystem(L"digitank-smoke", GetOrigin());
+	m_hSmokeParticles.FollowEntity(this);
+
+	m_hFireParticles.SetSystem(L"digitank-fire", GetOrigin());
+	m_hFireParticles.FollowEntity(this);
+
+	m_hChargeParticles.SetSystem(L"charge-charge", GetOrigin());
+	m_hChargeParticles.FollowEntity(this);
 }
 
 float CDigitank::GetBaseAttackPower(bool bPreview)

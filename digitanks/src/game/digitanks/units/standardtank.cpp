@@ -3,8 +3,10 @@
 #include <maths.h>
 
 #include <models/models.h>
-#include "digitanks/digitanksgame.h"
+#include <tinker/application.h>
 #include <renderer/renderer.h>
+
+#include "digitanks/digitanksgame.h"
 
 REGISTER_ENTITY(CStandardTank);
 

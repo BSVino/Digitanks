@@ -109,7 +109,7 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 	Rect recEmotion = m_hGeneral.GetArea(m_sEmotion);
 	glgui::CBaseControl::PaintSheet(m_hGeneral.GetSheet(m_sEmotion), x, y, 256, 256, recEmotion.x, recEmotion.y, recEmotion.w, recEmotion.h, m_hGeneral.GetSheetWidth(m_sEmotion), m_hGeneral.GetSheetHeight(m_sEmotion));
 
-	if (m_bHelperSpeaking && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5 || m_bProgressBar)
+	if ((m_bHelperSpeaking || m_bProgressBar) && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5)
 	{
 		Rect recMouth = m_hGeneralMouth.GetArea(m_sEmotion);
 		glgui::CBaseControl::PaintSheet(m_hGeneralMouth.GetSheet(m_sEmotion), x, y, 256, 256, recMouth.x, recMouth.y, recMouth.w, recMouth.h, m_hGeneralMouth.GetSheetWidth(m_sEmotion), m_hGeneralMouth.GetSheetHeight(m_sEmotion));
