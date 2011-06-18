@@ -115,6 +115,9 @@ bool CChatBox::IsVisible()
 	if (CApplication::Get()->GetConsole()->IsVisible())
 		return false;
 
+	if (!GameServer())
+		return false;
+
 	float flTimeSinceLastMessage = GameServer()->GetGameTime() - m_flLastMessage;
 	if (flTimeSinceLastMessage > 0 && flTimeSinceLastMessage < 6)
 		return true;

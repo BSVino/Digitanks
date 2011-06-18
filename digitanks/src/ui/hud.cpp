@@ -2566,6 +2566,9 @@ void CHUD::UpdateScoreboard()
 
 void CHUD::UpdateTurnButton()
 {
+	if (!IsVisible())
+		return;
+
 	bool bWasBlinking = m_bBlinkTurnButton;
 	m_bBlinkTurnButton = false;
 
@@ -3199,6 +3202,12 @@ void CHUD::SetHUDActive(bool bActive)
 
 bool CHUD::IsVisible()
 {
+	if (!GameServer())
+		return false;
+
+	if (GameServer()->IsLoading())
+		return false;
+
 	if (!DigitanksGame())
 		return false;
 

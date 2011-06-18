@@ -318,6 +318,7 @@ void CDigitank::Spawn()
 	m_flMaxShieldStrength = 150;
 	m_flShieldStrength = 150;
 	m_bNeedsOrdersDirty = true;
+	m_bNeedsOrders = true;
 	m_flFireWeaponTime = 0;
 	m_iFireWeapons = 0;
 	m_flLastSpeech = 0;
@@ -1340,7 +1341,8 @@ void CDigitank::Fortify(CNetworkParameters* p)
 
 	DirtyNeedsOrders();
 
-	DigitanksWindow()->GetHUD()->UpdateTurnButton();
+	if (!GameServer()->IsLoading())
+		DigitanksWindow()->GetHUD()->UpdateTurnButton();
 
 //	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_FORTIFYING);
 //	DigitanksWindow()->GetInstructor()->FinishedTutorial(CInstructor::TUTORIAL_DEPLOYING, true);

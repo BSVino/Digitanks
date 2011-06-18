@@ -16,6 +16,9 @@ void CDigitanksWindow::MouseMotion(int x, int y)
 {
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
 
+	if (GameServer() && GameServer()->IsLoading())
+		return;
+
 	if (DigitanksGame() && DigitanksGame()->GetGameType() == GAMETYPE_MENU)
 		return;
 

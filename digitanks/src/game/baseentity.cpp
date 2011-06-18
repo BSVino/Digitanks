@@ -101,7 +101,7 @@ CBaseEntity::CBaseEntity()
 	m_flTimeKilled = 0;
 
 	m_bDeleted = false;
-
+	m_bActive = true;
 	m_bSimulated = false;
 
 	m_iModel = ~0;
