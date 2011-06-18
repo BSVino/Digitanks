@@ -1251,7 +1251,7 @@ namespace glgui
 	{
 	public:
 		CTreeNodeObject(T* pObject, CTreeNode* pParent, class CTree* pTree, const eastl::string16& sName)
-			: CTreeNode(pParent, pTree, sName)
+			: CTreeNode(pParent, pTree, sName, L"sans-serif")
 		{
 			m_pObject = pObject;
 		}
