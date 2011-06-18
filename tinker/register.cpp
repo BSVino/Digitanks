@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include <string>
 #include <time.h>
 
 #include <strutils.h>
@@ -79,8 +80,8 @@ bool CApplication::IsRegistered()
 
 void CApplication::SaveProductCode()
 {
-	m_oRegFile.add("code", m_sCode.c_str());
-	m_oRegFile.add("key", m_sKey.c_str());
+	m_oRegFile.add(L"code", m_sCode.c_str());
+	m_oRegFile.add(L"key", m_sKey.c_str());
 
 	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
 #ifdef _WIN32
@@ -89,7 +90,7 @@ void CApplication::SaveProductCode()
 
 	do
 	{
-		std::ofstream o;
+		std::wofstream o;
 		o.open(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), std::ios_base::out);
 		o << m_oRegFile;
 	} while (false);
@@ -147,13 +148,13 @@ void CApplication::ReadProductCode()
 {
 	if (m_oRegFile.isFileValid())
 	{
-		if (m_oRegFile.keyExists("code"))
-			m_sCode = m_oRegFile.read<eastl::string>("code");
+		if (m_oRegFile.keyExists(L"code"))
+			m_sCode = convertstring<char16_t, char>(m_oRegFile.read<eastl::string16>(L"code"));
 		else
 			m_sCode = GenerateCode();
 
-		if (m_oRegFile.keyExists("key"))
-			m_sKey = m_oRegFile.read<eastl::string>("key");
+		if (m_oRegFile.keyExists(L"key"))
+			m_sKey = convertstring<char16_t, char>(m_oRegFile.read<eastl::string16>(L"key"));
 	}
 	else
 		m_sCode = GenerateCode();
