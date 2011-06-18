@@ -91,7 +91,7 @@ void CApplication::SaveProductCode()
 	do
 	{
 		std::wofstream o;
-		o.open(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), std::ios_base::out);
+		o.open(convertstring<char16_t, char>(GetAppDataDirectory(AppDirectory(), L"reg.cfg")).c_str(), std::ios_base::out);
 		o << m_oRegFile;
 	} while (false);
 

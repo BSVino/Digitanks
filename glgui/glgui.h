@@ -437,7 +437,7 @@ namespace glgui
 
 	class CLabel : public CBaseControl
 	{
-		friend CRootPanel;
+		friend class CRootPanel;
 
 	public:
 						CLabel(int x, int y, int w, int h, const eastl::string16& sText, const eastl::string16& sFont=L"sans-serif", size_t iSize=13);
@@ -532,7 +532,7 @@ namespace glgui
 
 	class CButton : public CLabel
 	{
-		friend CRootPanel;
+		friend class CRootPanel;
 		friend class CSlidingPanel;
 
 	public:
@@ -632,7 +632,7 @@ namespace glgui
 	class CSlidingPanel : public CPanel
 	{
 	public:
-		friend CRootPanel;
+		friend class CRootPanel;
 
 		class CInnerPanel : public CPanel
 		{
@@ -1045,7 +1045,7 @@ namespace glgui
 		}
 
 	protected:
-		eastl::vector<CScrollSelection<T>>	m_aSelections;
+		eastl::vector<CScrollSelection<T> >	m_aSelections;
 
 		CLabel*								m_pOption;
 
@@ -1082,12 +1082,7 @@ namespace glgui
 
 		size_t								AddNode(const eastl::string16& sName);
 		template <typename T>
-		size_t								AddNode(const eastl::string16& sName, T* pObject)
-		{
-			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
-			// Who the hell knows, it's the magick of templates.
-			return AddNode(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
-		}
+		size_t								AddNode(const eastl::string16& sName, T* pObject);
 		size_t								AddNode(CTreeNode* pNode);
 		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
@@ -1182,12 +1177,7 @@ namespace glgui
 
 		size_t								AddNode(const eastl::string16& sName);
 		template <typename T>
-		size_t								AddNode(const eastl::string16& sName, T* pObject)
-		{
-			// How the hell does this resolve CTreeNodeObject when that class is below this one in the file?
-			// Who the hell knows, it's the magick of templates.
-			return AddNode(new CTreeNodeObject<T>(pObject, NULL, this, sName));
-		}
+		size_t								AddNode(const eastl::string16& sName, T* pObject);
 		size_t								AddNode(CTreeNode* pNode, size_t iPosition = ~0);
 		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
@@ -1322,9 +1312,21 @@ namespace glgui
 		m_pfnCallback(m_pObject);
 	}
 
+	template <typename T>
+	inline size_t CTreeNode::AddNode(const eastl::string16& sName, T* pObject)
+	{
+		return AddNode(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
+	}
+
+	template <typename T>
+	inline size_t CTree::AddNode(const eastl::string16& sName, T* pObject)
+	{
+		return AddNode(new CTreeNodeObject<T>(pObject, NULL, this, sName));
+	}
+
 	class CTextField : public CBaseControl
 	{
-		friend CRootPanel;
+		friend class CRootPanel;
 
 	public:
 						CTextField();

@@ -129,12 +129,12 @@ void CApplication::DumpGLInfo()
 {
 	glewInit();
 
-	std::ifstream i(GetAppDataDirectory(AppDirectory(), L"glinfo.txt").c_str());
+	std::ifstream i(convertstring<char16_t, char>(GetAppDataDirectory(AppDirectory(), L"glinfo.txt")).c_str());
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o(GetAppDataDirectory(AppDirectory(), L"glinfo.txt").c_str());
+	std::ofstream o(convertstring<char16_t, char>(GetAppDataDirectory(AppDirectory(), L"glinfo.txt")).c_str());
 	if (!o || !o.is_open())
 		return;
 
@@ -155,7 +155,7 @@ void CApplication::DumpGLInfo()
 
 	typedef struct
 	{
-		char* pszName;
+		const char* pszName;
 		int iParameter;
 	} GLParameter;
 

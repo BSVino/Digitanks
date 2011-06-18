@@ -8,3 +8,5 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 
 add_subdirectory (raytracer)
 add_subdirectory (modelconverter)
+
+add_subdirectory (tinker)
