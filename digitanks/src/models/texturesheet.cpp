@@ -9,7 +9,7 @@
 #include <renderer/renderer.h>
 #include <models/texturelibrary.h>
 
-CTextureSheet::CTextureSheet(eastl::string16 sFile)
+CTextureSheet::CTextureSheet(tstring sFile)
 {
 	std::ifstream f(sFile.c_str());
 
@@ -21,7 +21,7 @@ CTextureSheet::CTextureSheet(eastl::string16 sFile)
 		CData* pChild = pFile->GetChild(i);
 		if (pChild->GetKey() == "Texture")
 		{
-			eastl::string16 sTexture = convertstring<char, char16_t>(pChild->GetValueString());
+			tstring sTexture = convertstring<char, tchar>(pChild->GetValueString());
 			const CTexture* pTex = CTextureLibrary::AddTexture(sTexture);
 			m_iDefaultSheet = pTex->m_iGLID;
 			m_iDefaultSheetWidth = pTex->m_iWidth;
@@ -56,7 +56,7 @@ CTextureSheet::CTextureSheet(eastl::string16 sFile)
 			pData = pChild->FindChild("Texture");
 			if (pData)
 			{
-				eastl::string16 sTexture = convertstring<char, char16_t>(pData->GetValueString());
+				tstring sTexture = convertstring<char, tchar>(pData->GetValueString());
 				const CTexture* pTex = CTextureLibrary::AddTexture(sTexture);
 				m_aAreas[pChild->GetValueString()].m_iSheet = pTex->m_iGLID;
 				m_aAreas[pChild->GetValueString()].m_iSheetWidth = pTex->m_iWidth;

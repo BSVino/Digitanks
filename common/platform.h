@@ -1,24 +1,25 @@
 #ifndef _LW_PLATFORM
 #define _LW_PLATFORM
 
-#include <EASTL/string.h>
 #include <EASTL/vector.h>
+
+#include <tstring.h>
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses);
 void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
-void OpenBrowser(const eastl::string16& sURL);
-void CreateMinidump(void* pInfo, wchar_t* pszDirectory);
-wchar_t* OpenFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory = NULL);
-wchar_t* SaveFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory = NULL);
+void OpenBrowser(const tstring& sURL);
+void CreateMinidump(void* pInfo, tchar* pszDirectory);
+tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory = NULL);
+tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory = NULL);
 eastl::string GetClipboard();
 void SetClipboard(const eastl::string& sBuf);
-eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eastl::string16& sFile);
-eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bDirectories = true);
-bool IsFile(eastl::string16 sPath);
-bool IsDirectory(eastl::string16 sPath);
-void DebugPrint(eastl::string16 sText);
+tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile);
+eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories = true);
+bool IsFile(tstring sPath);
+bool IsDirectory(tstring sPath);
+void DebugPrint(tstring sText);
 void Exec(eastl::string sLine);
 
 #endif

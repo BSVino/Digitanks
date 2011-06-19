@@ -282,7 +282,7 @@ public:
 
 	virtual void				DrawSchema(int x, int y, int w, int h);
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
 	bool						HasBonusPoints();

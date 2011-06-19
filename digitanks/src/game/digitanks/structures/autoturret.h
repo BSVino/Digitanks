@@ -25,7 +25,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	static float				DefenseRadius() { return 50; };
 	virtual float				BaseVisibleRange() const { return DefenseRadius(); };
@@ -37,7 +37,7 @@ public:
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual eastl::string16		GetEntityName() const { return L"Firewall"; };
+	virtual tstring		GetEntityName() const { return _T("Firewall"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_FIREWALL; };
 
 protected:

@@ -24,14 +24,14 @@ void CCollector::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/structures/psu.obj");
+	SetModel(_T("models/structures/psu.obj");
 }
 
 void CCollector::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/psu.obj");
+	PrecacheModel(_T("models/structures/psu.obj");
 }
 
 void CCollector::ClientSpawn()
@@ -48,38 +48,38 @@ void CCollector::ClientSpawn()
 	}
 }
 
-void CCollector::UpdateInfo(eastl::string16& s)
+void CCollector::UpdateInfo(tstring& s)
 {
-	eastl::string16 p;
-	s = L"";
+	tstring p;
+	s = _T("";
 
-	s += L"POWER SUPPLY UNIT\n";
-	s += L"Resource collector\n \n";
+	s += _T("POWER SUPPLY UNIT\n";
+	s += _T("Resource collector\n \n";
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
+		s += _T("Team: " + GetTeam()->GetTeamName() + _T("\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += L" Friendly\n \n";
+			s += _T(" Friendly\n \n";
 		else
-			s += L" Hostile\n \n";
+			s += _T(" Hostile\n \n";
 	}
 	else
 	{
-		s += L"Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
+		s += _T("(Constructing)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (GetSupplier() && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(L"Power: %.1f/turn\n", GetPowerProduced());
-		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
+		s += p.sprintf(_T("Power: %.1f/turn\n", GetPowerProduced());
+		s += p.sprintf(_T("Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
 }
@@ -107,20 +107,20 @@ void CBattery::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/structures/battery.obj");
+	SetModel(_T("models/structures/battery.obj");
 }
 
 void CBattery::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/battery.obj");
+	PrecacheModel(_T("models/structures/battery.obj");
 }
 
 void CBattery::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
-	eastl::string16 p;
+	tstring p;
 
 	if (!IsConstructing() && !IsUpgrading() && CanStructureUpgrade())
 	{
@@ -132,55 +132,55 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 		}
 
-		eastl::string16 s;
-		s += L"UPGRADE TO POWER SUPPLY UNIT\n \n";
-		s += L"Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
-		s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
-		s += L"Shortcut: Q";
+		tstring s;
+		s += _T("UPGRADE TO POWER SUPPLY UNIT\n \n";
+		s += _T("Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+		s += p.sprintf(_T("Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
+		s += _T("Shortcut: Q";
 
 		pHUD->SetButtonInfo(0, s);
-		pHUD->SetButtonTooltip(0, L"Upgrade To PSU");
+		pHUD->SetButtonTooltip(0, _T("Upgrade To PSU");
 	}
 }
 
-void CBattery::UpdateInfo(eastl::string16& s)
+void CBattery::UpdateInfo(tstring& s)
 {
-	eastl::string16 p;
-	s = L"";
-	s += L"CAPACITOR\n";
-	s += L"Resource collector\n \n";
+	tstring p;
+	s = _T("";
+	s += _T("CAPACITOR\n";
+	s += _T("Resource collector\n \n";
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
+		s += _T("Team: " + GetTeam()->GetTeamName() + _T("\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += L" Friendly\n \n";
+			s += _T(" Friendly\n \n";
 		else
-			s += L" Hostile\n \n";
+			s += _T(" Hostile\n \n";
 	}
 	else
 	{
-		s += L"Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
+		s += _T("(Constructing)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
-		s += L"(Upgrading to Power Supply Unit)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToUpgrade());
+		s += _T("(Upgrading to Power Supply Unit)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToUpgrade());
 		return;
 	}
 
 	if (m_hSupplier != NULL && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(L"Power Supplied: %.1f\n", GetPowerProduced());
-		s += p.sprintf(L"Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
+		s += p.sprintf(_T("Power Supplied: %.1f\n", GetPowerProduced());
+		s += p.sprintf(_T("Efficiency: %d\n", (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
 }

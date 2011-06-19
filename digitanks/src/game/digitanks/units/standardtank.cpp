@@ -21,18 +21,18 @@ INPUTS_TABLE_END();
 
 void CStandardTank::Precache()
 {
-	PrecacheModel(L"models/digitanks/digitank-body.obj", true);
-	PrecacheModel(L"models/digitanks/digitank-turret.obj", true);
-	PrecacheModel(L"models/digitanks/digitank-shield.obj", true);
+	PrecacheModel(_T("models/digitanks/digitank-body.obj", true);
+	PrecacheModel(_T("models/digitanks/digitank-turret.obj", true);
+	PrecacheModel(_T("models/digitanks/digitank-shield.obj", true);
 }
 
 void CStandardTank::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/digitank-body.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
-	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+	SetModel(_T("models/digitanks/digitank-body.obj");
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj");
+	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-shield.obj");
 
 	m_aeWeapons.push_back(PROJECTILE_MEDIUM);
 	m_aeWeapons.push_back(PROJECTILE_LARGE);

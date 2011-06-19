@@ -8,6 +8,7 @@
 #include <maths.h>
 #include <common.h>
 #include <geometry.h>
+#include <tstring.h>
 
 // Not my favorite hack.
 #define EVENT_CALLBACK(type, pfn) \
@@ -92,7 +93,7 @@ namespace glgui
 
 		virtual IControl*	GetHasCursor()=0;
 
-		virtual eastl::string16	GetTooltip()=0;
+		virtual tstring	GetTooltip()=0;
 
 		virtual void		Destructor()=0;
 		virtual void		Delete()=0;
@@ -229,8 +230,8 @@ namespace glgui
 		virtual void	SetCursorInListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 		virtual void	SetCursorOutListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 
-		virtual void	SetTooltip(const eastl::string16& sTip);
-		virtual eastl::string16	GetTooltip() { return m_sTip; };
+		virtual void	SetTooltip(const tstring& sTip);
+		virtual tstring	GetTooltip() { return m_sTip; };
 
 		static void		PaintRect(int x, int y, int w, int h, const Color& c = g_clrBox);
 		static void		PaintTexture(size_t iTexture, int x, int y, int w, int h, const Color& c = Color(255, 255, 255, 255));
@@ -258,7 +259,7 @@ namespace glgui
 
 		bool			m_bFocus;
 
-		eastl::string16	m_sTip;
+		tstring	m_sTip;
 	};
 
 	// A panel is a container for other controls. It is for organization
@@ -394,7 +395,7 @@ namespace glgui
 		class CButton*				GetButtonDown();
 
 		class CMenuBar*				GetMenuBar() { return m_pMenuBar; };
-		class CMenu*				AddMenu(const eastl::string16& sText);
+		class CMenu*				AddMenu(const tstring& sText);
 
 		void						SetLighting(bool bLighting) { m_bUseLighting = bLighting; };
 
@@ -440,7 +441,7 @@ namespace glgui
 		friend class CRootPanel;
 
 	public:
-						CLabel(int x, int y, int w, int h, const eastl::string16& sText, const eastl::string16& sFont=L"sans-serif", size_t iSize=13);
+						CLabel(int x, int y, int w, int h, const tstring& sText, const tstring& sFont=_T("sans-serif"), size_t iSize=13);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -458,7 +459,7 @@ namespace glgui
 		virtual void	Paint() { int x = 0, y = 0; GetAbsPos(x, y); Paint(x, y); };
 		virtual void	Paint(int x, int y) { Paint(x, y, m_iW, m_iH); };
 		virtual void	Paint(int x, int y, int w, int h);
-		virtual void	DrawLine(wchar_t* pszText, unsigned iLength, int x, int y, int w, int h);
+		virtual void	DrawLine(tchar* pszText, unsigned iLength, int x, int y, int w, int h);
 		virtual void	Layout() {};
 		virtual void	Think() {};
 
@@ -478,13 +479,13 @@ namespace glgui
 
 		virtual void	SetPrintChars(int iPrintChars) { m_iPrintChars = iPrintChars; }
 
-		virtual void	SetText(const eastl::string16& sText);
+		virtual void	SetText(const tstring& sText);
 		virtual void	SetText(const eastl::string& sText);
 		virtual void	AppendText(const eastl::string& sText);
-		virtual void	AppendText(const eastl::string16& sText);
-		virtual eastl::string16	GetText();
+		virtual void	AppendText(const tstring& sText);
+		virtual tstring	GetText();
 
-		virtual void	SetFont(const eastl::string16& sFontName, int iSize=13);
+		virtual void	SetFont(const tstring& sFontName, int iSize=13);
 		virtual int		GetFontFaceSize() { return m_iFontFaceSize; };
 
 		virtual int		GetTextWidth();
@@ -499,19 +500,19 @@ namespace glgui
 
 		virtual void	SetScissor(bool bScissor); // 61
 
-		static class ::FTFont*	GetFont(const eastl::string16& sName, size_t iSize);
-		static void		AddFont(const eastl::string16& sName, const eastl::string16& sFile);
-		static void		AddFontSize(const eastl::string16& sName, size_t iSize);
+		static class ::FTFont*	GetFont(const tstring& sName, size_t iSize);
+		static void		AddFont(const tstring& sName, const tstring& sFile);
+		static void		AddFontSize(const tstring& sName, size_t iSize);
 
-		static float	GetTextWidth(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize);
-		static float	GetFontHeight(const eastl::string16& sFontName, int iFontFaceSize);
-		static void		PaintText(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, float x, float y);
-		static void		PaintText3D(const eastl::string16& sText, unsigned iLength, const eastl::string16& sFontName, int iFontFaceSize, Vector vecPosition);
+		static float	GetTextWidth(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize);
+		static float	GetFontHeight(const tstring& sFontName, int iFontFaceSize);
+		static void		PaintText(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize, float x, float y);
+		static void		PaintText3D(const tstring& sText, unsigned iLength, const tstring& sFontName, int iFontFaceSize, Vector vecPosition);
 
 	protected:
 		bool			m_bEnabled;
 		bool			m_bWrap;
-		eastl::string16	m_sText;
+		tstring	m_sText;
 		Color			m_FGColor;
 		bool			m_bScissor;
 
@@ -523,11 +524,11 @@ namespace glgui
 		int				m_iPrintChars;
 		int				m_iCharsDrawn;
 
-		eastl::string16	m_sFontName;
+		tstring	m_sFontName;
 		int				m_iFontFaceSize;
 
-		static eastl::map<eastl::string16, eastl::map<size_t, class ::FTFont*> >	s_apFonts;
-		static eastl::map<eastl::string16, eastl::string16>							s_apFontNames;
+		static eastl::map<tstring, eastl::map<size_t, class ::FTFont*> >	s_apFonts;
+		static eastl::map<tstring, tstring>							s_apFontNames;
 	};
 
 	class CButton : public CLabel
@@ -536,7 +537,7 @@ namespace glgui
 		friend class CSlidingPanel;
 
 	public:
-						CButton(int x, int y, int w, int h, const eastl::string16& sText, bool bToggle = false, const eastl::string16& sFont=L"sans-serif", size_t iSize=13);
+						CButton(int x, int y, int w, int h, const tstring& sText, bool bToggle = false, const tstring& sFont=_T("sans-serif"), size_t iSize=13);
 		virtual void	Destructor();
 		virtual void	Delete() { delete this; };
 
@@ -594,7 +595,7 @@ namespace glgui
 	class CPictureButton : public CButton
 	{
 	public:
-						CPictureButton(const eastl::string16& sText, size_t iTexture = 0, bool bToggle = false);
+						CPictureButton(const tstring& sText, size_t iTexture = 0, bool bToggle = false);
 		virtual void	Delete() { delete this; };
 
 	public:
@@ -660,9 +661,9 @@ namespace glgui
 		virtual void				SetCurrent(bool bCurrent);
 
 //		virtual void				SetTitle(char* pszNew) { m_pTitle->SetText(pszNew); };
-//		virtual void				SetTitle(wchar_t* pszNew) { m_pTitle->SetText(pszNew); };
+//		virtual void				SetTitle(tchar* pszNew) { m_pTitle->SetText(pszNew); };
 //		virtual void				AppendTitle(char* pszNew) { m_pTitle->AppendText(pszNew); };
-//		virtual void				AppendTitle(wchar_t* pszNew) { m_pTitle->AppendText(pszNew); };
+//		virtual void				AppendTitle(tchar* pszNew) { m_pTitle->AppendText(pszNew); };
 
 		static const int			SLIDER_COLLAPSED_HEIGHT = 30;
 
@@ -714,7 +715,7 @@ namespace glgui
 	class CMenu : public CButton, public IEventListener
 	{
 	public:
-									CMenu(const eastl::string16& sTitle, bool bSubmenu = false);
+									CMenu(const tstring& sTitle, bool bSubmenu = false);
 		virtual						~CMenu();
 
 	public:
@@ -732,7 +733,7 @@ namespace glgui
 		EVENT_CALLBACK(CMenu, Close);
 		EVENT_CALLBACK(CMenu, Clicked);
 
-		virtual void				AddSubmenu(const eastl::string16& sTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
+		virtual void				AddSubmenu(const tstring& sTitle, IEventListener* pListener = NULL, IEventListener::Callback pfnCallback = NULL);
 
 		virtual size_t				GetSelectedMenu();
 
@@ -779,21 +780,21 @@ namespace glgui
 	class CScrollSelection
 	{
 	public:
-		CScrollSelection(T oParam, const eastl::string16& sLabel)
+		CScrollSelection(T oParam, const tstring& sLabel)
 		{
 			m_oParam = oParam;
 			m_sLabel = sLabel;
 		}
 
 		T									m_oParam;
-		eastl::string16						m_sLabel;
+		tstring						m_sLabel;
 	};
 
 	template <typename T>
 	class CScrollSelector : public CPanel
 	{
 	public:
-		CScrollSelector(const eastl::string16& sFont=L"sans-serif", size_t iSize=13)
+		CScrollSelector(const tstring& sFont=_T("sans-serif"), size_t iSize=13)
 			: CPanel(0, 0, 100, 16)
 		{
 			m_flHandlePositionGoal = 0;
@@ -805,7 +806,7 @@ namespace glgui
 			m_pfnSelectedCallback = NULL;
 			m_pSelectedListener = NULL;
 
-			m_pOption = new CLabel(0, 0, 100, 100, L"");
+			m_pOption = new CLabel(0, 0, 100, 100, _T(""));
 			m_pOption->SetWrap(false);
 			m_pOption->SetFont(sFont, iSize);
 			AddControl(m_pOption);
@@ -816,8 +817,8 @@ namespace glgui
 			m_pOption->SetSize(1, 1);
 
 			// Make sure there's some text to be fit to.
-			if (m_pOption->GetText() == L"")
-				m_pOption->SetText(L"-");
+			if (m_pOption->GetText() == _T(""))
+				m_pOption->SetText(_T("-"));
 
 			m_pOption->EnsureTextFits();
 			m_pOption->SetPos(GetWidth()/2 - m_pOption->GetWidth()/2, GetHeight()-15);
@@ -1065,7 +1066,7 @@ namespace glgui
 		DECLARE_CLASS(CTreeNode, CPanel);
 
 	public:
-											CTreeNode(CTreeNode* pParent, class CTree* pTree, const eastl::string16& sText, const eastl::string16& sFont);
+											CTreeNode(CTreeNode* pParent, class CTree* pTree, const tstring& sText, const tstring& sFont);
 											CTreeNode(const CTreeNode& c);
 
 	public:
@@ -1080,9 +1081,9 @@ namespace glgui
 		virtual void						Paint(int x, int y, int w, int h);
 		virtual void						Paint(int x, int y, int w, int h, bool bFloating);
 
-		size_t								AddNode(const eastl::string16& sName);
+		size_t								AddNode(const tstring& sName);
 		template <typename T>
-		size_t								AddNode(const eastl::string16& sName, T* pObject);
+		size_t								AddNode(const tstring& sName, T* pObject);
 		size_t								AddNode(CTreeNode* pNode);
 		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
@@ -1175,9 +1176,9 @@ namespace glgui
 
 		void								ClearTree();
 
-		size_t								AddNode(const eastl::string16& sName);
+		size_t								AddNode(const tstring& sName);
 		template <typename T>
-		size_t								AddNode(const eastl::string16& sName, T* pObject);
+		size_t								AddNode(const tstring& sName, T* pObject);
 		size_t								AddNode(CTreeNode* pNode, size_t iPosition = ~0);
 		void								RemoveNode(CTreeNode* pNode);
 		CTreeNode*							GetNode(size_t i);
@@ -1240,8 +1241,8 @@ namespace glgui
 	class CTreeNodeObject : public CTreeNode
 	{
 	public:
-		CTreeNodeObject(T* pObject, CTreeNode* pParent, class CTree* pTree, const eastl::string16& sName)
-			: CTreeNode(pParent, pTree, sName, L"sans-serif")
+		CTreeNodeObject(T* pObject, CTreeNode* pParent, class CTree* pTree, const tstring& sName)
+			: CTreeNode(pParent, pTree, sName, _T("sans-serif"))
 		{
 			m_pObject = pObject;
 		}
@@ -1272,14 +1273,14 @@ namespace glgui
 
 		virtual void AddVisibilityButton()
 		{
-			m_pVisibilityButton = new CPictureButton(L"@", m_pTree->m_iVisibilityTexture);
+			m_pVisibilityButton = new CPictureButton(_T("@"), m_pTree->m_iVisibilityTexture);
 			m_pVisibilityButton->SetClickedListener(this, Visibility);
 			AddControl(m_pVisibilityButton);
 		}
 
 		virtual void AddEditButton(EditFnCallback pfnCallback)
 		{
-			m_pEditButton = new CPictureButton(L"*", m_pTree->m_iEditTexture);
+			m_pEditButton = new CPictureButton(_T("*"), m_pTree->m_iEditTexture);
 			m_pEditButton->SetClickedListener(this, Edit);
 			AddControl(m_pEditButton);
 			m_pfnCallback = pfnCallback;
@@ -1313,13 +1314,13 @@ namespace glgui
 	}
 
 	template <typename T>
-	inline size_t CTreeNode::AddNode(const eastl::string16& sName, T* pObject)
+	inline size_t CTreeNode::AddNode(const tstring& sName, T* pObject)
 	{
 		return AddNode(new CTreeNodeObject<T>(pObject, this, m_pTree, sName));
 	}
 
 	template <typename T>
-	inline size_t CTree::AddNode(const eastl::string16& sName, T* pObject)
+	inline size_t CTree::AddNode(const tstring& sName, T* pObject)
 	{
 		return AddNode(new CTreeNodeObject<T>(pObject, NULL, this, sName));
 	}
@@ -1335,7 +1336,7 @@ namespace glgui
 		virtual void	Paint() { int x = 0, y = 0; GetAbsPos(x, y); Paint(x, y); };
 		virtual void	Paint(int x, int y) { Paint(x, y, m_iW, m_iH); };
 		virtual void	Paint(int x, int y, int w, int h);
-		virtual void	DrawLine(const wchar_t* pszText, unsigned iLength, int x, int y, int w, int h);
+		virtual void	DrawLine(const tchar* pszText, unsigned iLength, int x, int y, int w, int h);
 
 		virtual bool	IsCursorListener() {return true;};
 
@@ -1352,11 +1353,11 @@ namespace glgui
 		virtual bool	IsEnabled() {return m_bEnabled;};
 		virtual void	SetEnabled(bool bEnabled) {m_bEnabled = bEnabled;};
 
-		virtual void	SetText(const eastl::string16& pszText);
+		virtual void	SetText(const tstring& pszText);
 		virtual void	SetText(const char* pszText);
 		virtual void	AppendText(const char* pszText);
-		virtual void	AppendText(const wchar_t* pszText);
-		virtual eastl::string16	GetText();
+		virtual void	AppendText(const tchar* pszText);
+		virtual tstring	GetText();
 
 		virtual void	SetCursorPosition(size_t iPosition);
 
@@ -1373,7 +1374,7 @@ namespace glgui
 
 	protected:
 		bool			m_bEnabled;
-		eastl::string16	m_sText;
+		tstring	m_sText;
 		Color			m_FGColor;
 
 		float			m_flBlinkTime;

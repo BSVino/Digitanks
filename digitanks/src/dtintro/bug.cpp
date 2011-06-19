@@ -26,14 +26,14 @@ INPUTS_TABLE_END();
 
 void CBug::Precache()
 {
-	PrecacheModel(L"models/digitanks/gridbug.obj");
-	PrecacheModel(L"models/digitanks/gridbug-turret.obj");
+	PrecacheModel(_T("models/digitanks/gridbug.obj");
+	PrecacheModel(_T("models/digitanks/gridbug-turret.obj");
 }
 
 void CBug::Spawn()
 {
-	SetModel(L"models/digitanks/gridbug.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/gridbug-turret.obj");
+	SetModel(_T("models/digitanks/gridbug.obj");
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.obj");
 
 	m_bFiringRandomly = false;
 	m_flNextAim = m_flNextFire = 0;
@@ -68,14 +68,14 @@ void CBug::Think()
 	}
 }
 
-void CBug::FireRandomly(const eastl::vector<eastl::string16>& sArgs)
+void CBug::FireRandomly(const eastl::vector<tstring>& sArgs)
 {
 	m_bFiringRandomly = true;
 
 	m_flNextAim = GameServer()->GetGameTime() + RandomFloat(0, 0.5f);
 }
 
-void CBug::Dissolve(const eastl::vector<eastl::string16>& sArgs)
+void CBug::Dissolve(const eastl::vector<tstring>& sArgs)
 {
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();

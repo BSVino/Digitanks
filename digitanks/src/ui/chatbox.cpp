@@ -21,7 +21,7 @@ CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientChatSay)
 {
 	// Once the server gets it, send it to all of the clients, but with the speaker's name in there.
 
-	eastl::string16 sName = L"Player";
+	tstring sName = _T("Player";
 
 	if (iConnection == CONNECTION_LOBBY)
 	{
@@ -31,7 +31,7 @@ CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientChatSay)
 		{
 			CLobbyPlayer* pPlayer = pLobby->GetPlayerByClient(iClient);
 			if (pPlayer)
-				sName = pPlayer->GetInfoValue(L"name");
+				sName = pPlayer->GetInfoValue(_T("name");
 		}
 	}
 	else
@@ -58,10 +58,10 @@ CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientChatSay)
 		}
 	}
 
-	ServerChatSay.RunCommand(iConnection, sName + L": " + sParameters + L"\n");
+	ServerChatSay.RunCommand(iConnection, sName + _T(": " + sParameters + _T("\n");
 }
 
-void ChatSay(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void ChatSay(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	if (GameNetwork()->IsConnected())
 		ClientChatSay.RunCommand(CONNECTION_GAME, sCommand.substr(sCommand.find(L' ')));
@@ -72,7 +72,7 @@ void ChatSay(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens,
 CCommand chat_say("say", ::ChatSay);
 CCommand chat_say2("chat_say", ::ChatSay);
 
-void ChatOpen(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void ChatOpen(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	DigitanksWindow()->OpenChat();
 }
@@ -85,7 +85,7 @@ CChatBox::CChatBox(bool bFloating)
 	if (bFloating)
 		glgui::CRootPanel::Get()->AddControl(this, true);
 
-	m_pOutput = new glgui::CLabel(0, 0, 100, 100, L"");
+	m_pOutput = new glgui::CLabel(0, 0, 100, 100, _T("");
 	m_pOutput->SetAlign(glgui::CLabel::TA_BOTTOMLEFT);
 	m_pOutput->SetScissor(true);
 	AddControl(m_pOutput);
@@ -185,7 +185,7 @@ void CChatBox::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-void CChatBox::PrintChat(eastl::string16 sText)
+void CChatBox::PrintChat(tstring sText)
 {
 	TMsg(sText);
 
@@ -210,10 +210,10 @@ bool CChatBox::KeyPressed(int code, bool bCtrlDown)
 
 	if (code == TINKER_KEY_ENTER || code == TINKER_KEY_KP_ENTER)
 	{
-		eastl::string16 sText = m_pInput->GetText();
+		tstring sText = m_pInput->GetText();
 		m_pInput->SetText("");
 
-		CCommand::Run(eastl::string16(L"say ") + sText);
+		CCommand::Run(tstring(_T("say ") + sText);
 
 		DigitanksWindow()->CloseChat();
 
@@ -290,11 +290,11 @@ bool CDigitanksWindow::IsChatOpen()
 	return pChat->IsOpen();
 }
 
-void CDigitanksWindow::PrintChat(eastl::string16 sText)
+void CDigitanksWindow::PrintChat(tstring sText)
 {
 	if (!Get())
 	{
-		puts(convertstring<char16_t, char>(sText).c_str());
+		puts(convertstring<tchar, char>(sText).c_str());
 		return;
 	}
 
@@ -304,7 +304,7 @@ void CDigitanksWindow::PrintChat(eastl::string16 sText)
 
 void CDigitanksWindow::PrintChat(eastl::string sText)
 {
-	PrintChat(convertstring<char, char16_t>(sText));
+	PrintChat(convertstring<char, tchar>(sText));
 }
 
 CChatBox* CDigitanksWindow::GetChatBox()

@@ -21,7 +21,7 @@ public:
 	void			Precache();
 	virtual void	Spawn();
 
-	virtual eastl::string16	GetEntityName() const;
+	virtual tstring	GetEntityName() const;
 
 	virtual EAngle	GetRenderAngles() const;
 	virtual Vector	GetRenderOrigin() const;

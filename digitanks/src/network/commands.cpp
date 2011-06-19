@@ -8,22 +8,22 @@
 
 CVar net_debug("net_debug", "off");
 
-void CNetworkCommand::RunCommand(const eastl::string16& sParameters)
+void CNetworkCommand::RunCommand(const tstring& sParameters)
 {
 	RunCommand(m_iConnection, sParameters, m_iMessageTarget);
 }
 
-void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParameters)
+void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters)
 {
 	RunCommand(iConnection, sParameters, m_iMessageTarget);
 }
 
-void CNetworkCommand::RunCommand(const eastl::string16& sParameters, int iTarget)
+void CNetworkCommand::RunCommand(const tstring& sParameters, int iTarget)
 {
 	RunCommand(m_iConnection, sParameters, iTarget);
 }
 
-void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParameters, int iTarget)
+void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters, int iTarget)
 {
 	TAssert(iConnection != CONNECTION_UNDEFINED);
 
@@ -80,13 +80,13 @@ void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParame
 
 	if (!bNoNetwork && Network(iConnection)->IsConnected())
 	{
-		eastl::string16 sCommand = m_sName + L" " + sParameters;
+		tstring sCommand = m_sName + _T(" " + sParameters;
 
 		CNetworkParameters p;
-		p.CreateExtraData(sizeof(eastl::string16::value_type) * (sCommand.length() + 1));
-		char16_t* pszData = (char16_t*)p.m_pExtraData;
+		p.CreateExtraData(sizeof(tstring::value_type) * (sCommand.length() + 1));
+		tchar* pszData = (tchar*)p.m_pExtraData;
 
-		TAssert(sizeof(eastl::string16::value_type) == sizeof(char16_t));
+		TAssert(sizeof(tstring::value_type) == sizeof(tchar));
 		wcscpy(pszData, sCommand.c_str());
 
 		p.ui1 = Network(iConnection)->GetClientID();
@@ -96,15 +96,15 @@ void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParame
 		if (net_debug.GetBool())
 		{
 			if (iTarget == NETWORK_TOSERVER)
-				TMsg(sprintf(L"Cxn %d to server: ", iConnection));
+				TMsg(sprintf(_T("Cxn %d to server: ", iConnection));
 			else if (iTarget == NETWORK_TOCLIENTS)
-				TMsg(sprintf(L"Cxn %d to clients: ", iConnection));
+				TMsg(sprintf(_T("Cxn %d to clients: ", iConnection));
 			else if (iTarget == NETWORK_TOEVERYONE)
-				TMsg(sprintf(L"Cxn %d to all: ", iConnection));
+				TMsg(sprintf(_T("Cxn %d to all: ", iConnection));
 			else
-				TMsg(sprintf(L"Cxn %d to client %d: ", iConnection, iTarget));
+				TMsg(sprintf(_T("Cxn %d to client %d: ", iConnection, iTarget));
 
-			TMsg(sCommand + L"\n");
+			TMsg(sCommand + _T("\n");
 		}
 	}
 
@@ -115,14 +115,14 @@ void CNetworkCommand::RunCommand(int iConnection, const eastl::string16& sParame
 	}
 }
 
-void CNetworkCommand::RunCallback(int iConnection, size_t iClient, const eastl::string16& sParameters)
+void CNetworkCommand::RunCallback(int iConnection, size_t iClient, const tstring& sParameters)
 {
 	if (net_debug.GetBool())
 	{
 		if (Network(iConnection)->IsHost())
-			TMsg(sprintf(L"Cxn %d cmd from client %d: ", iConnection, iClient) + m_sName + L" " + sParameters + L"\n");
+			TMsg(sprintf(_T("Cxn %d cmd from client %d: ", iConnection, iClient) + m_sName + _T(" " + sParameters + _T("\n");
 		else
-			TMsg(sprintf(L"Cxn %d cmd from server: ", iConnection) + m_sName + L" " + sParameters + L"\n");
+			TMsg(sprintf(_T("Cxn %d cmd from server: ", iConnection) + m_sName + _T(" " + sParameters + _T("\n");
 	}
 
 	wcstok(sParameters, m_asArguments);
@@ -135,7 +135,7 @@ size_t CNetworkCommand::GetNumArguments()
 	return m_asArguments.size();
 }
 
-eastl::string16 CNetworkCommand::Arg(size_t iArg)
+tstring CNetworkCommand::Arg(size_t iArg)
 {
 	TAssert(iArg < GetNumArguments());
 	if (iArg >= GetNumArguments())
@@ -180,15 +180,15 @@ float CNetworkCommand::ArgAsFloat(size_t iArg)
 	return (float)_wtof(m_asArguments[iArg].c_str());
 }
 
-eastl::map<eastl::string16, CNetworkCommand*>& CNetworkCommand::GetCommands()
+eastl::map<tstring, CNetworkCommand*>& CNetworkCommand::GetCommands()
 {
-	static eastl::map<eastl::string16, CNetworkCommand*> aCommands;
+	static eastl::map<tstring, CNetworkCommand*> aCommands;
 	return aCommands;
 }
 
-CNetworkCommand* CNetworkCommand::GetCommand(const eastl::string16& sName)
+CNetworkCommand* CNetworkCommand::GetCommand(const tstring& sName)
 {
-	eastl::map<eastl::string16, CNetworkCommand*>::iterator it = GetCommands().find(sName);
+	eastl::map<tstring, CNetworkCommand*>::iterator it = GetCommands().find(sName);
 	if (it == GetCommands().end())
 		return NULL;
 

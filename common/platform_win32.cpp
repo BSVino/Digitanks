@@ -62,22 +62,22 @@ void SleepMS(size_t iMS)
 	Sleep(iMS);
 }
 
-void OpenBrowser(const eastl::string16& sURL)
+void OpenBrowser(const tstring& sURL)
 {
-	ShellExecute(NULL, L"open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, _T("open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 static int g_iMinidumpsWritten = 0;
 
-void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
+void CreateMinidump(void* pInfo, tchar* pszDirectory)
 {
 #ifndef _DEBUG
 	time_t currTime = ::time( NULL );
 	struct tm * pTime = ::localtime( &currTime );
 
-	wchar_t szModule[MAX_PATH];
-	::GetModuleFileName( NULL, szModule, sizeof(szModule) / sizeof(wchar_t) );
-	wchar_t *pModule = wcsrchr( szModule, '.' );
+	tchar szModule[MAX_PATH];
+	::GetModuleFileName( NULL, szModule, sizeof(szModule) / sizeof(tchar) );
+	tchar *pModule = wcsrchr( szModule, '.' );
 
 	if ( pModule )
 		*pModule = 0;
@@ -88,8 +88,8 @@ void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
 	else
 		pModule = _T("unknown");
 
-	wchar_t szFileName[MAX_PATH];
-	_snwprintf( szFileName, sizeof(szFileName) / sizeof(wchar_t),
+	tchar szFileName[MAX_PATH];
+	_snwprintf( szFileName, sizeof(szFileName) / sizeof(tchar),
 			_T("%s_%d.%.2d.%2d.%.2d.%.2d.%.2d_%d.mdmp"),
 			pModule,
 			pTime->tm_year + 1900,
@@ -132,9 +132,9 @@ void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
 #endif
 }
 
-wchar_t* OpenFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory)
+tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
-	static wchar_t szFile[256];
+	static tchar szFile[256];
 	szFile[0] = '\0';
 
 	OPENFILENAME opf;
@@ -149,10 +149,10 @@ wchar_t* OpenFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
 	opf.lpstrInitialDir = pszDirectory;
-	opf.lpstrTitle = L"Open File";
+	opf.lpstrTitle = _T("Open File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
-	opf.lpstrDefExt = L"*.*";
+	opf.lpstrDefExt = _T("*.*";
 	opf.lpfnHook = NULL;
 	opf.lCustData = 0;
 	opf.Flags = (OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
@@ -164,9 +164,9 @@ wchar_t* OpenFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory
 	return NULL;
 }
 
-wchar_t* SaveFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory)
+tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
-	static wchar_t szFile[256];
+	static tchar szFile[256];
 	szFile[0] = '\0';
 
 	OPENFILENAME opf;
@@ -181,10 +181,10 @@ wchar_t* SaveFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
 	opf.lpstrInitialDir = pszDirectory;
-	opf.lpstrTitle = L"Save File";
+	opf.lpstrTitle = _T("Save File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
-	opf.lpstrDefExt = L"*.*";
+	opf.lpstrDefExt = _T("*.*";
 	opf.lpfnHook = NULL;
 	opf.lCustData = 0;
 	opf.Flags = (OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
@@ -231,39 +231,39 @@ void SetClipboard(const eastl::string& sBuf)
 	CloseClipboard();
 }
 
-eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eastl::string16& sFile)
+tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 {
 	size_t iSize;
-	_wgetenv_s(&iSize, NULL, 0, L"APPDATA");
+	_wgetenv_s(&iSize, NULL, 0, _T("APPDATA");
 
-	eastl::string16 sSuffix;
-	sSuffix.append(sDirectory).append(L"\\").append(sFile);
+	tstring sSuffix;
+	sSuffix.append(sDirectory).append(_T("\\").append(sFile);
 
 	if (!iSize)
 		return sSuffix;
 
-	wchar_t* pszVar = (wchar_t*)malloc(iSize * sizeof(wchar_t));
+	tchar* pszVar = (tchar*)malloc(iSize * sizeof(tchar));
 	if (!pszVar)
 		return sSuffix;
 
-	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
+	_wgetenv_s(&iSize, pszVar, iSize, _T("APPDATA");
 
-	eastl::string16 sReturn(pszVar);
+	tstring sReturn(pszVar);
 
 	free(pszVar);
 
-	CreateDirectory(eastl::string16(sReturn).append(L"\\").append(sDirectory).c_str(), NULL);
+	CreateDirectory(tstring(sReturn).append(_T("\\").append(sDirectory).c_str(), NULL);
 
-	sReturn.append(L"\\").append(sSuffix);
+	sReturn.append(_T("\\").append(sSuffix);
 	return sReturn;
 }
 
-eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bDirectories)
+eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 {
-	eastl::vector<eastl::string16> asResult;
+	eastl::vector<tstring> asResult;
 
-	char16_t szPath[MAX_PATH];
-	_swprintf(szPath, L"%s\\*", sDirectory.c_str());
+	tchar szPath[MAX_PATH];
+	_swprintf(szPath, _T("%s\\*", sDirectory.c_str());
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(szPath, &fd);
@@ -277,7 +277,7 @@ eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bD
 				continue;
 
 			// Duh.
-			if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
+			if (wcscmp(fd.cFileName, _T(".") == 0 || wcscmp(fd.cFileName, _T("..") == 0)
 				continue;
 
 			asResult.push_back(fd.cFileName);
@@ -289,7 +289,7 @@ eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bD
 	return asResult;
 }
 
-bool IsFile(eastl::string16 sPath)
+bool IsFile(tstring sPath)
 {
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(sPath.c_str(), &fd);
@@ -303,7 +303,7 @@ bool IsFile(eastl::string16 sPath)
 	return true;
 }
 
-bool IsDirectory(eastl::string16 sPath)
+bool IsDirectory(tstring sPath)
 {
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(sPath.c_str(), &fd);
@@ -317,7 +317,7 @@ bool IsDirectory(eastl::string16 sPath)
 	return false;
 }
 
-void DebugPrint(eastl::string16 sText)
+void DebugPrint(tstring sText)
 {
 	OutputDebugString(sText.c_str());
 }

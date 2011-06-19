@@ -83,24 +83,24 @@ protected:
 class CParticleSystem
 {
 public:
-									CParticleSystem(eastl::string16 sName);
+									CParticleSystem(tstring sName);
 
 public:
 	bool							IsLoaded() { return m_bLoaded; }
 	void							Load();
 
-	eastl::string16					GetName() { return m_sName; }
+	tstring					GetName() { return m_sName; }
 
-	void							SetTexture(eastl::string16 sTexture) { m_sTexture = sTexture; };
+	void							SetTexture(tstring sTexture) { m_sTexture = sTexture; };
 	void							SetTexture(size_t iTexture) { m_iTexture = iTexture; };
 
-	eastl::string16					GetTextureName() { return m_sTexture; }
+	tstring					GetTextureName() { return m_sTexture; }
 	inline size_t					GetTexture() { return m_iTexture; }
 
-	void							SetModel(eastl::string16 sModel) { m_sModel = sModel; };
+	void							SetModel(tstring sModel) { m_sModel = sModel; };
 	void							SetModel(size_t iModel) { m_iModel = iModel; };
 
-	eastl::string16					GetModelName() { return m_sModel; }
+	tstring					GetModelName() { return m_sModel; }
 	inline size_t					GetModel() { return m_iModel; }
 
 	bool							IsRenderable();
@@ -175,12 +175,12 @@ public:
 protected:
 	bool							m_bLoaded;
 
-	eastl::string16					m_sName;
+	tstring					m_sName;
 
-	eastl::string16					m_sTexture;
+	tstring					m_sTexture;
 	size_t							m_iTexture;
 
-	eastl::string16					m_sModel;
+	tstring					m_sModel;
 	size_t							m_iModel;
 
 	blendtype_t						m_eBlend;
@@ -217,8 +217,8 @@ public:
 public:
 	static size_t					GetNumParticleSystems() { return Get()->m_apParticleSystems.size(); };
 
-	size_t							AddParticleSystem(const eastl::string16& sName);
-	size_t							FindParticleSystem(const eastl::string16& sName);
+	size_t							AddParticleSystem(const tstring& sName);
+	size_t							FindParticleSystem(const tstring& sName);
 	void							LoadParticleSystem(size_t iSystem);
 	CParticleSystem*				GetParticleSystem(size_t i);
 
@@ -226,10 +226,10 @@ public:
 	static void						Simulate();
 	static void						Render();
 
-	static size_t					AddInstance(const eastl::string16& sName, Vector vecOrigin, EAngle angAngles=EAngle(0, 0, 0));
+	static size_t					AddInstance(const tstring& sName, Vector vecOrigin, EAngle angAngles=EAngle(0, 0, 0));
 	static size_t					AddInstance(size_t iParticleSystem, Vector vecOrigin, EAngle angAngles=EAngle(0, 0, 0));
 	static void						StopInstance(size_t iInstance);
-	static void						StopInstances(const eastl::string16& sName);
+	static void						StopInstances(const tstring& sName);
 	static void						RemoveInstance(size_t iInstance);
 	static CSystemInstance*			GetInstance(size_t iInstance);
 
@@ -258,7 +258,7 @@ public:
 	~CParticleSystemInstanceHandle();
 
 public:
-	void							SetSystem(const eastl::string16& sSystem, Vector vecOrigin);
+	void							SetSystem(const tstring& sSystem, Vector vecOrigin);
 	void							SetSystem(size_t iSystem, Vector vecOrigin);
 
 	void							FollowEntity(CBaseEntity* pFollow) { m_hFollow = pFollow; }

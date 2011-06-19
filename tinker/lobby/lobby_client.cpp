@@ -26,7 +26,7 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyInfo)
 		return;
 	}
 
-	eastl::string16 sValue = sParameters.substr(sParameters.find(L' ')+1);
+	tstring sValue = sParameters.substr(sParameters.find(L' ')+1);
 	CGameLobbyClient::R_UpdateLobby(pCmd->Arg(0), sValue);
 }
 
@@ -38,9 +38,9 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyPlayerInfo)
 		return;
 	}
 
-	if (pCmd->Arg(1) == L"add")
+	if (pCmd->Arg(1) == _T("add")
 		CGameLobbyClient::R_AddPlayer(pCmd->ArgAsUInt(0), pCmd->ArgAsUInt(2));
-	else if (pCmd->Arg(1) == L"remove")
+	else if (pCmd->Arg(1) == _T("remove")
 		CGameLobbyClient::R_RemovePlayer(pCmd->ArgAsUInt(0));
 	else
 	{
@@ -48,12 +48,12 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyPlayerInfo)
 
 		if (iLobbyClient == ~0)
 		{
-			TMsg(sprintf(L"Can't find lobby player %d\n", iLobbyClient));
+			TMsg(sprintf(_T("Can't find lobby player %d\n", iLobbyClient));
 			TAssert(!"Can't find lobby player.");
 			return;
 		}
 
-		eastl::string16 sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
+		tstring sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
 		CGameLobbyClient::R_UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), sValue);
 	}
 }
@@ -65,7 +65,7 @@ SERVER_COMMAND(CONNECTION_LOBBY, BeginGame)
 
 bool CGameLobbyClient::s_bInLobby = false;
 eastl::vector<CLobbyPlayer> CGameLobbyClient::s_aClients;
-eastl::map<eastl::string16, eastl::string16> CGameLobbyClient::s_asInfo;
+eastl::map<tstring, tstring> CGameLobbyClient::s_asInfo;
 INetworkListener::Callback CGameLobbyClient::s_pfnLobbyUpdateCallback = NULL;
 INetworkListener::Callback CGameLobbyClient::s_pfnLobbyJoinCallback = NULL;
 INetworkListener::Callback CGameLobbyClient::s_pfnLobbyLeaveCallback = NULL;
@@ -74,10 +74,10 @@ INetworkListener::Callback CGameLobbyClient::s_pfnBeginGameCallback = NULL;
 void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 {
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(L"CGameLobbyClient::S_JoinLobby(%d)\n", iLobby));
+		TMsg(sprintf(_T("CGameLobbyClient::S_JoinLobby(%d)\n", iLobby));
 
 	s_aClients.clear();
-	::JoinLobby.RunCommand(sprintf(L"%d", (int)iLobby));
+	::JoinLobby.RunCommand(sprintf(_T("%d", (int)iLobby));
 
 	s_bInLobby = true;
 }
@@ -85,9 +85,9 @@ void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 void CGameLobbyClient::S_LeaveLobby()
 {
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(L"CGameLobbyClient::S_LeaveLobby()\n");
+		TMsg(_T("CGameLobbyClient::S_LeaveLobby()\n");
 
-	::LeaveLobby.RunCommand(L"");
+	::LeaveLobby.RunCommand(_T("");
 	LobbyNetwork()->Disconnect();
 	s_aClients.clear();
 
@@ -158,7 +158,7 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 		return;
 
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(L"CGameLobbyClient::R_AddPlayer(%d, %d)\n", iID, iClient));
+		TMsg(sprintf(_T("CGameLobbyClient::R_AddPlayer(%d, %d)\n", iID, iClient));
 
 	CLobbyPlayer* pPlayer = &s_aClients.push_back();
 	pPlayer->iID = iID;
@@ -183,7 +183,7 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 		return;
 
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(L"CGameLobbyClient::R_RemovePlayer(%d)\n", iID));
+		TMsg(sprintf(_T("CGameLobbyClient::R_RemovePlayer(%d)\n", iID));
 
 	if (s_aClients[iPlayer].iClient == LobbyNetwork()->GetClientID())
 	{
@@ -200,52 +200,52 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 
 void CGameLobbyClient::S_AddLocalPlayer()
 {
-	::AddLocalPlayer.RunCommand(L"");
+	::AddLocalPlayer.RunCommand(_T("");
 }
 
 void CGameLobbyClient::S_AddBot()
 {
-	::AddBot.RunCommand(L"");
+	::AddBot.RunCommand(_T("");
 }
 
 void CGameLobbyClient::S_RemovePlayer(size_t iID)
 {
-	::RemovePlayer.RunCommand(sprintf(L"%d", iID));
+	::RemovePlayer.RunCommand(sprintf(_T("%d", iID));
 }
 
-void CGameLobbyClient::S_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue)
+void CGameLobbyClient::S_UpdateLobby(const tstring& sKey, const tstring& sValue)
 {
-	::UpdateLobbyInfo.RunCommand(sKey + L" " + sValue);
+	::UpdateLobbyInfo.RunCommand(sKey + _T(" " + sValue);
 }
 
-void CGameLobbyClient::R_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue)
+void CGameLobbyClient::R_UpdateLobby(const tstring& sKey, const tstring& sValue)
 {
 	s_asInfo[sKey] = sValue;
 
 	UpdateListener();
 }
 
-eastl::string16 CGameLobbyClient::L_GetInfoValue(const eastl::string16& sKey)
+tstring CGameLobbyClient::L_GetInfoValue(const tstring& sKey)
 {
-	eastl::map<eastl::string16, eastl::string16>::iterator it = s_asInfo.find(sKey);
+	eastl::map<tstring, tstring>::iterator it = s_asInfo.find(sKey);
 
 	if (it == s_asInfo.end())
-		return L"";
+		return _T("";
 
 	return it->second;
 }
 
-void CGameLobbyClient::S_UpdatePlayer(const eastl::string16& sKey, const eastl::string16& sValue)
+void CGameLobbyClient::S_UpdatePlayer(const tstring& sKey, const tstring& sValue)
 {
 	S_UpdatePlayer(CGameLobbyClient::L_GetLocalPlayerID(), sKey, sValue);
 }
 
-void CGameLobbyClient::S_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)
+void CGameLobbyClient::S_UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue)
 {
-	::UpdatePlayerInfo.RunCommand(sprintf(eastl::string16(L"%d ") + sKey + L" " + sValue, iID));
+	::UpdatePlayerInfo.RunCommand(sprintf(tstring(_T("%d ") + sKey + _T(" " + sValue, iID));
 }
 
-void CGameLobbyClient::R_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)
+void CGameLobbyClient::R_UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue)
 {
 	CLobbyPlayer* pPlayer = L_GetPlayerByID(iID);
 	if (!pPlayer)
@@ -259,7 +259,7 @@ void CGameLobbyClient::R_UpdatePlayer(size_t iID, const eastl::string16& sKey, c
 void CGameLobbyClient::R_Clear()
 {
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(L"CGameLobbyClient::R_Clear()\n");
+		TMsg(_T("CGameLobbyClient::R_Clear()\n");
 
 	s_aClients.clear();
 	s_asInfo.clear();
@@ -272,7 +272,7 @@ bool CGameLobbyClient::L_IsHost()
 	if (!pPlayer)
 		return false;
 
-	return pPlayer->GetInfoValue(L"host") == L"1";
+	return pPlayer->GetInfoValue(_T("host") == _T("1";
 }
 
 void CGameLobbyClient::SetLobbyUpdateCallback(INetworkListener::Callback pfnCallback)

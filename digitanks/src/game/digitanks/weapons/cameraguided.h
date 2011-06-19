@@ -19,7 +19,7 @@ public:
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar\nTo Boost"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar\nTo Boost"; };
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;

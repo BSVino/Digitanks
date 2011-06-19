@@ -7,7 +7,7 @@
 class CNetworkedEffect
 {
 public:
-	static void AddInstance(const eastl::string16& sName, Vector vecPosition, EAngle angDirection = EAngle());
+	static void AddInstance(const tstring& sName, Vector vecPosition, EAngle angDirection = EAngle());
 };
 
 #endif

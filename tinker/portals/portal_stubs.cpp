@@ -20,14 +20,14 @@ bool TPortal_IsAvailable()
 	return false;
 }
 
-eastl::string16 TPortal_GetPortalIdentifier()
+tstring TPortal_GetPortalIdentifier()
 {
-	return L"Tinker";
+	return _T("Tinker");
 }
 
-eastl::string16 TPortal_GetPlayerNickname()
+tstring TPortal_GetPlayerNickname()
 {
-	return L"";
+	return _T("");
 }
 
 #endif

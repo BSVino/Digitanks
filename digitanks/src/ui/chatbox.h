@@ -21,7 +21,7 @@ public:
 	virtual void			Layout();
 	virtual void			Paint(int x, int y, int w, int h);
 
-	void					PrintChat(eastl::string16 sText);
+	void					PrintChat(tstring sText);
 
 	virtual bool			KeyPressed(int code, bool bCtrlDown = false);
 	virtual bool			CharPressed(int iKey);

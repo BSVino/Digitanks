@@ -60,7 +60,7 @@ public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
 	IDigitanksGameListener*	GetListener() { return m_pListener; };
 
-	eastl::string16			GetObjective() { return m_sObjective; }
+	tstring			GetObjective() { return m_sObjective; }
 
 	virtual void			RegisterNetworkFunctions();
 
@@ -73,9 +73,9 @@ public:
 	static eastl::vector<class CLevel*> GetLevels(gametype_t eGameType);
 	static size_t			GetNumLevels(gametype_t eGameType);
 	static class CDigitanksLevel* GetLevel(gametype_t eGameType, size_t i);
-	static class CDigitanksLevel* GetLevel(eastl::string16 sFile);
+	static class CDigitanksLevel* GetLevel(tstring sFile);
 
-	void					ReadGameScript(eastl::string16 sScript);
+	void					ReadGameScript(tstring sScript);
 
 	void					ScatterResources();
 	void					SetupProps();

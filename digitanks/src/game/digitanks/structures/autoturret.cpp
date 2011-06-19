@@ -27,17 +27,17 @@ INPUTS_TABLE_END();
 
 void CAutoTurret::Precache()
 {
-	PrecacheModel(L"models/structures/firewall.obj", true);
-	PrecacheModel(L"models/structures/firewall-shield.obj", true);
+	PrecacheModel(_T("models/structures/firewall.obj", true);
+	PrecacheModel(_T("models/structures/firewall-shield.obj", true);
 }
 
 void CAutoTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/structures/firewall.obj");
+	SetModel(_T("models/structures/firewall.obj");
 
-	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/structures/firewall-shield.obj");
+	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/structures/firewall-shield.obj");
 }
 
 void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
@@ -181,7 +181,7 @@ void CAutoTurret::Fire()
 void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 {
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
-	eastl::string16 p;
+	tstring p;
 
 	if (!IsConstructing() && !IsUpgrading() && !m_bHasFired)
 	{
@@ -199,45 +199,45 @@ void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(2, NULL);
 		}
 
-		eastl::string16 s;
-		s += L"DEFEND YOUR TERRITORY\n \n";
-		s += L"Activate this Firewall to automatically fire at all enemies within range.\n \n";
+		tstring s;
+		s += _T("DEFEND YOUR TERRITORY\n \n";
+		s += _T("Activate this Firewall to automatically fire at all enemies within range.\n \n";
 
 		if (!bHasTargets)
-			s += L"NO TARGETS IN RANGE\n \n";
+			s += _T("NO TARGETS IN RANGE\n \n";
 
-		s += L"Shortcut: e";
+		s += _T("Shortcut: e";
 
 		pHUD->SetButtonInfo(2, s);
-		pHUD->SetButtonTooltip(2, L"Activate Firewall");
+		pHUD->SetButtonTooltip(2, _T("Activate Firewall");
 	}
 }
 
-void CAutoTurret::UpdateInfo(eastl::string16& s)
+void CAutoTurret::UpdateInfo(tstring& s)
 {
-	eastl::string16 p;
+	tstring p;
 
-	s = L"";
-	s += L"FIREWALL INFO\n";
-	s += L"Network defender\n \n";
+	s = _T("";
+	s += _T("FIREWALL INFO\n";
+	s += _T("Network defender\n \n";
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
+		s += _T("Team: " + GetTeam()->GetTeamName() + _T("\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += L" Friendly\n \n";
+			s += _T(" Friendly\n \n";
 		else
-			s += L" Hostile\n \n";
+			s += _T(" Hostile\n \n";
 	}
 	else
 	{
-		s += L"Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
+		s += _T("(Constructing)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 }

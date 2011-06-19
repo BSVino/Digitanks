@@ -483,7 +483,7 @@ public:
 	}
 };
 
-class CNetworkedString : public CNetworkedVariable<eastl::string16>
+class CNetworkedString : public CNetworkedVariable<tstring>
 {
 public:
 	CNetworkedString()
@@ -492,7 +492,7 @@ public:
 		m_bInitialized = true;
 	}
 
-	inline const CNetworkedString& operator=(const eastl::string16 v)
+	inline const CNetworkedString& operator=(const tstring v)
 	{
 		if (m_oVariable != v)
 		{
@@ -505,7 +505,7 @@ public:
 		return *this;
 	}
 
-	inline const eastl::string16& operator+=(const eastl::string16& c)
+	inline const tstring& operator+=(const tstring& c)
 	{
 		TAssert(m_bInitialized);
 
@@ -524,8 +524,8 @@ public:
 		return m_oVariable.length();
 	}
 
-	virtual void*		Serialize(size_t& iSize) { iSize = (m_oVariable.size()+1)*sizeof(eastl::string16::value_type); return (void*)m_oVariable.c_str(); }
-	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = (eastl::string16::value_type*)pValue; }
+	virtual void*		Serialize(size_t& iSize) { iSize = (m_oVariable.size()+1)*sizeof(tstring::value_type); return (void*)m_oVariable.c_str(); }
+	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = (tstring::value_type*)pValue; }
 };
 
 class CGameServerNetwork

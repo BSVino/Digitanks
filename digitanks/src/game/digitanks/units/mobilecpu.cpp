@@ -26,16 +26,16 @@ INPUTS_TABLE_END();
 
 void CMobileCPU::Precache()
 {
-	PrecacheModel(L"models/digitanks/mobile-cpu.obj", true);
-	PrecacheModel(L"models/digitanks/mobile-cpu-fan.obj", true);
+	PrecacheModel(_T("models/digitanks/mobile-cpu.obj", true);
+	PrecacheModel(_T("models/digitanks/mobile-cpu-fan.obj", true);
 }
 
 void CMobileCPU::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/mobile-cpu.obj");
-	m_iFanModel = CModelLibrary::Get()->FindModel(L"models/digitanks/mobile-cpu-fan.obj");
+	SetModel(_T("models/digitanks/mobile-cpu.obj");
+	m_iFanModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/mobile-cpu-fan.obj");
 	m_flFanRotation = RandomFloat(0, 1);
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;

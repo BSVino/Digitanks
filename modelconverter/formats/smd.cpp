@@ -4,52 +4,48 @@
 #include "../modelconverter.h"
 #include "strutils.h"
 
-void CModelConverter::WriteSMDs(const eastl::string16& sFilename)
+void CModelConverter::WriteSMDs(const tstring& sFilename)
 {
 	for (size_t i = 0; i < m_pScene->GetNumMeshes(); i++)
 		WriteSMD(i, sFilename);
 }
 
-void CModelConverter::WriteSMD(size_t iMesh, const eastl::string16& sFilename)
+void CModelConverter::WriteSMD(size_t iMesh, const tstring& sFilename)
 {
 	CConversionMesh* pMesh = m_pScene->GetMesh(iMesh);
 
-	eastl::string16 sFile;
+	tstring sFile;
 	if (sFilename.length())
 	{
 		sFile.append(sFilename);
-		sFile.append(L"_");
+		sFile.append(_T("_"));
 	}
 	sFile.append(pMesh->GetBoneName(0));
 
 	sFile = GetFilename(sFile.c_str());
 
-	sFile.append(L".smd");
+	sFile.append(_T(".smd"));
 
-#ifdef _MSC_VER
-	FILE* fp = _wfopen(sFile.c_str(), L"w");
-#else
-	FILE* fp = fopen(convertstring<char16_t, char>(sFile).c_str(), "r");
-#endif
+	FILE* fp = tfopen(sFile, _T("w"));
 
 	// SMD file format: http://developer.valvesoftware.com/wiki/SMD
 
 	// Header section
-	fwprintf(fp, L"version 1\n\n");
+	fprintf(fp, "version 1\n\n");
 
 	// Nodes section
-	fwprintf(fp, L"nodes\n");
+	fprintf(fp, "nodes\n");
 	// Only bothering with one node, we're only doing static props with this code for now.
-	fwprintf(fp, L"0 \"%s\" -1\n", pMesh->GetBoneName(0).c_str());
-	fwprintf(fp, L"end\n\n");
+	fprintf(fp, "0 \"%s\" -1\n", convertstring<tchar, char>(pMesh->GetBoneName(0)).c_str());
+	fprintf(fp, "end\n\n");
 
 	// Skeleton section
-	fwprintf(fp, L"skeleton\n");
-	fwprintf(fp, L"time 0\n");
-	fwprintf(fp, L"0 0.000000 0.000000 0.000000 1.570796 0.000000 0.0000001\n");
-	fwprintf(fp, L"end\n\n");
+	fprintf(fp, "skeleton\n");
+	fprintf(fp, "time 0\n");
+	fprintf(fp, "0 0.000000 0.000000 0.000000 1.570796 0.000000 0.0000001\n");
+	fprintf(fp, "end\n\n");
 	
-	fwprintf(fp, L"triangles\n");
+	fprintf(fp, "triangles\n");
 	for (size_t i = 0; i < pMesh->GetNumFaces(); i++)
 	{
 		CConversionFace* pFace = pMesh->GetFace(i);
@@ -85,19 +81,19 @@ void CModelConverter::WriteSMD(size_t iMesh, const eastl::string16& sFilename)
 			if (iMaterial == ((size_t)~0) || !m_pScene->GetMaterial(iMaterial))
 			{
 				printf("ERROR! Can't find a material for a triangle.\n");
-				fwprintf(fp, L"error\n");
+				fprintf(fp, "error\n");
 			}
 			else
-				fwprintf(fp, L"%s\n", m_pScene->GetMaterial(iMaterial)->GetName().c_str());
+				fprintf(fp, "%s\n", convertstring<tchar, char>(m_pScene->GetMaterial(iMaterial)->GetName()).c_str());
 
 			// <int|Parent bone> <float|PosX PosY PosZ> <normal|NormX NormY NormZ> <normal|U V>
 			// Studio coordinates are not the same as game coordinates. Studio (x, y, z) is game (x, -z, y) and vice versa.
-			fwprintf(fp, L"0 \t %f %f %f \t %f %f %f \t %f %f\n", v1.x, -v1.z, v1.y, n1.x, -n1.z, n1.y, uv1.x, uv1.y);
-			fwprintf(fp, L"0 \t %f %f %f \t %f %f %f \t %f %f\n", v2.x, -v2.z, v2.y, n2.x, -n2.z, n2.y, uv2.x, uv2.y);
-			fwprintf(fp, L"0 \t %f %f %f \t %f %f %f \t %f %f\n", v3.x, -v3.z, v3.y, n3.x, -n3.z, n3.y, uv3.x, uv3.y);
+			fprintf(fp, "0 \t %f %f %f \t %f %f %f \t %f %f\n", v1.x, -v1.z, v1.y, n1.x, -n1.z, n1.y, uv1.x, uv1.y);
+			fprintf(fp, "0 \t %f %f %f \t %f %f %f \t %f %f\n", v2.x, -v2.z, v2.y, n2.x, -n2.z, n2.y, uv2.x, uv2.y);
+			fprintf(fp, "0 \t %f %f %f \t %f %f %f \t %f %f\n", v3.x, -v3.z, v3.y, n3.x, -n3.z, n3.y, uv3.x, uv3.y);
 		}
 	}
-	fwprintf(fp, L"end\n");
+	fprintf(fp, "end\n");
 
 	fclose(fp);
 }

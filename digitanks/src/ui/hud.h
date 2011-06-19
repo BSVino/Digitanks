@@ -76,7 +76,7 @@ class CHitIndicator : public glgui::CLabel
 	DECLARE_CLASS(CHitIndicator, glgui::CLabel);
 
 public:
-								CHitIndicator(CBaseEntity* pVictim, eastl::string16 sMessage);
+								CHitIndicator(CBaseEntity* pVictim, tstring sMessage);
 
 public:
 	virtual void				Destructor();
@@ -206,8 +206,8 @@ public:
 	void						SetButtonListener(int iButton, IEventListener::Callback pfnCallback);
 	void						SetButtonTexture(int iButton, const eastl::string& sArea);
 	void						SetButtonColor(int iButton, Color clrButton);
-	void						SetButtonInfo(int iButton, const eastl::string16& pszInfo);
-	void						SetButtonTooltip(int iButton, const eastl::string16& sTooltip);
+	void						SetButtonInfo(int iButton, const tstring& pszInfo);
+	void						SetButtonTooltip(int iButton, const tstring& sTooltip);
 	void						ButtonCallback(int iButton);
 
 	virtual void				GameStart();
@@ -256,7 +256,7 @@ public:
 
 	void						AddPowerupNotification(const CDigitanksEntity* pEntity, powerup_type_t ePowerup);
 
-	void						ShowFileRescue(const eastl::string16& sTexture);
+	void						ShowFileRescue(const tstring& sTexture);
 
 	void						ClearHintWeapon() { m_hHintWeapon = NULL; };
 
@@ -356,7 +356,7 @@ protected:
 	float						m_flSmallActionItemLerp;
 	float						m_flSmallActionItemLerpGoal;
 	size_t						m_iCurrentSmallActionItem;
-	eastl::string16				m_sSmallActionItem;
+	tstring				m_sSmallActionItem;
 
 	float						m_flSelectorMedalStart;
 	size_t						m_iSelectorMedalTexture;
@@ -385,7 +385,7 @@ protected:
 	glgui::CLabel*				m_pResearchInfo;
 
 	glgui::CLabel*				m_pButtonInfo;
-	eastl::string16				m_aszButtonInfos[NUM_BUTTONS];
+	tstring				m_aszButtonInfos[NUM_BUTTONS];
 
 	glgui::CLabel*				m_pPressEnter;
 
@@ -445,7 +445,7 @@ protected:
 	} actionsign_t;
 	actionsign_t				m_eActionSign;
 
-	eastl::string16				m_sFileRescueTexture;
+	tstring				m_sFileRescueTexture;
 	float						m_flFileRescueStart;
 
 	CTextureSheet				m_PowerupsSheet;

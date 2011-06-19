@@ -43,7 +43,7 @@ eastl::string CCampaignData::GetLevel(size_t i)
 	return m_pCampaignInfo->m_asLevels[i];
 }
 
-void CCampaignData::ReadData(const eastl::string16& sFile)
+void CCampaignData::ReadData(const tstring& sFile)
 {
 	std::ifstream f(sFile.c_str());
 	CData* pData = new CData();
@@ -56,7 +56,7 @@ void CCampaignData::ReadData(const eastl::string16& sFile)
 	delete pData;
 }
 
-void CCampaignData::SaveData(const eastl::string16& sFile)
+void CCampaignData::SaveData(const tstring& sFile)
 {
 	std::ofstream f(sFile.c_str());
 	CData* pData = new CData();

@@ -31,9 +31,9 @@ INPUTS_TABLE_END();
 
 void CPowerup::Precache()
 {
-	PrecacheModel(L"models/powerup.obj");
-	PrecacheModel(L"models/powerup-airstrike.obj");
-	PrecacheModel(L"models/powerup-tank.obj");
+	PrecacheModel(_T("models/powerup.obj");
+	PrecacheModel(_T("models/powerup-airstrike.obj");
+	PrecacheModel(_T("models/powerup-tank.obj");
 }
 
 void CPowerup::Spawn()
@@ -63,25 +63,25 @@ void CPowerup::Spawn()
 	CalculateVisibility();
 }
 
-eastl::string16 CPowerup::GetEntityName() const
+tstring CPowerup::GetEntityName() const
 {
 	switch (m_ePowerupType)
 	{
 	default:
 	case POWERUP_BONUS:
-		return L"Promotion Powerup";
+		return _T("Promotion Powerup";
 
 	case POWERUP_AIRSTRIKE:
-		return L"Airstrike Powerup";
+		return _T("Airstrike Powerup";
 
 	case POWERUP_TANK:
-		return L"New Unit Powerup";
+		return _T("New Unit Powerup";
 
 	case POWERUP_MISSILEDEFENSE:
-		return L"Missile Defense Powerup";
+		return _T("Missile Defense Powerup";
 
 	case POWERUP_WEAPON:
-		return L"New Weapon Powerup";
+		return _T("New Weapon Powerup";
 	}
 }
 
@@ -116,23 +116,23 @@ void CPowerup::SetPowerupType(powerup_type_t eType)
 	{
 	default:
 	case POWERUP_BONUS:
-		SetModel(L"models/powerup.obj");
+		SetModel(_T("models/powerup.obj");
 		break;
 
 	case POWERUP_AIRSTRIKE:
-		SetModel(L"models/powerup-airstrike.obj");
+		SetModel(_T("models/powerup-airstrike.obj");
 		break;
 
 	case POWERUP_TANK:
-		SetModel(L"models/powerup-tank.obj");
+		SetModel(_T("models/powerup-tank.obj");
 		break;
 
 	case POWERUP_MISSILEDEFENSE:
-		SetModel(L"models/powerup-missiledefense.obj");
+		SetModel(_T("models/powerup-missiledefense.obj");
 		break;
 
 	case POWERUP_WEAPON:
-		SetModel(L"models/powerup-airstrike.obj");
+		SetModel(_T("models/powerup-airstrike.obj");
 		break;
 	}
 }

@@ -37,7 +37,7 @@ public:
 	void						OpenWindow();
 
 	virtual eastl::string		WindowTitle() { return "Digitanks!"; }
-	virtual eastl::string16		AppDirectory() { return L"Digitanks"; }
+	virtual tstring		AppDirectory() { return _T("Digitanks"; }
 
 	void						InitUI();
 
@@ -105,8 +105,8 @@ public:
 	void						SetWantsShaders(bool bWantsShaders) { m_bWantsShaders = bWantsShaders; }
 	bool						WantsShaders() { return m_bWantsShaders; }
 
-	void						SetPlayerNickname(eastl::string16 sNickname) { m_sNickname = sNickname; }
-	eastl::string16				GetPlayerNickname() { return m_sNickname; }
+	void						SetPlayerNickname(tstring sNickname) { m_sNickname = sNickname; }
+	tstring				GetPlayerNickname() { return m_sNickname; }
 
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
@@ -140,13 +140,13 @@ public:
 	void						CloseChat();
 	void						ToggleChat();
 	bool						IsChatOpen();
-	void						PrintChat(eastl::string16 sText);
+	void						PrintChat(tstring sText);
 	void						PrintChat(eastl::string sText);
 	class CChatBox*				GetChatBox();
 
 	// IWorkListener
 	virtual void				BeginProgress();
-	virtual void				SetAction(const wchar_t* pszAction, size_t iTotalProgress);
+	virtual void				SetAction(const tstring& sAction, size_t iTotalProgress);
 	virtual void				WorkProgress(size_t iProgress, bool bForceDraw = false);
 	virtual void				EndProgress();
 
@@ -199,7 +199,7 @@ protected:
 	bool						m_bReverseSpacebar;
 	bool						m_bWantsFramebuffers;
 	bool						m_bWantsShaders;
-	eastl::string16				m_sNickname;
+	tstring				m_sNickname;
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;
@@ -208,7 +208,7 @@ protected:
 
 	size_t						m_iLunarWorkshop;
 
-	eastl::string16				m_sAction;
+	tstring				m_sAction;
 	size_t						m_iTotalProgress;
 	size_t						m_iProgress;
 };

@@ -24,14 +24,14 @@ void CBuffer::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/structures/buffer.obj");
+	SetModel(_T("models/structures/buffer.obj");
 }
 
 void CBuffer::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/buffer.obj");
+	PrecacheModel(_T("models/structures/buffer.obj");
 }
 
 bool CBuffer::AllowControlMode(controlmode_t eMode) const
@@ -48,38 +48,38 @@ void CBuffer::SetupMenu(menumode_t eMenuMode)
 		GetDigitanksTeam()->GetPrimaryCPU()->SetupMenu(eMenuMode);
 }
 
-void CBuffer::UpdateInfo(eastl::string16& s)
+void CBuffer::UpdateInfo(tstring& s)
 {
-	eastl::string16 p;
+	tstring p;
 
-	s = L"";
-	s += L"MACRO-BUFFER INFO\n";
-	s += L"Network extender\n \n";
+	s = _T("";
+	s += _T("MACRO-BUFFER INFO\n";
+	s += _T("Network extender\n \n";
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
+		s += _T("Team: " + GetTeam()->GetTeamName() + _T("\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += L" Friendly\n \n";
+			s += _T(" Friendly\n \n";
 		else
-			s += L" Hostile\n \n";
+			s += _T(" Hostile\n \n";
 	}
 	else
 	{
-		s += L"Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
+		s += _T("(Constructing)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
-	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
-	s += p.sprintf(L"Bandwidth: %.1f/turn\n", Bandwidth());
-	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
-	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
+	s += p.sprintf(_T("Fleet Points: %d\n", FleetPoints());
+	s += p.sprintf(_T("Bandwidth: %.1f/turn\n", Bandwidth());
+	s += p.sprintf(_T("Network Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(_T("Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 
 REGISTER_ENTITY(CMiniBuffer);
@@ -97,14 +97,14 @@ void CMiniBuffer::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/structures/minibuffer.obj");
+	SetModel(_T("models/structures/minibuffer.obj");
 }
 
 void CMiniBuffer::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/minibuffer.obj");
+	PrecacheModel(_T("models/structures/minibuffer.obj");
 }
 
 bool CMiniBuffer::AllowControlMode(controlmode_t eMode) const
@@ -121,7 +121,7 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 		GetDigitanksTeam()->GetPrimaryCPU()->SetupMenu(eMenuMode);
 
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
-	eastl::string16 p;
+	tstring p;
 
 	if (!IsConstructing() && !IsUpgrading() && CanStructureUpgrade())
 	{
@@ -133,55 +133,55 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(150, 150, 150));
 		}
 
-		eastl::string16 s;
-		s += L"UPGRADE TO MACRO-BUFFER\n \n";
-		s += L"Macro-Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
-		s += p.sprintf(L"Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
-		s += L"Shortcut: Q";
+		tstring s;
+		s += _T("UPGRADE TO MACRO-BUFFER\n \n";
+		s += _T("Macro-Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
+		s += p.sprintf(_T("Turns to upgrade: %d Turns\n \n", GetTurnsToUpgrade());
+		s += _T("Shortcut: Q";
 
 		pHUD->SetButtonInfo(0, s);
-		pHUD->SetButtonTooltip(0, L"Upgrade To Macro-Buffer");
+		pHUD->SetButtonTooltip(0, _T("Upgrade To Macro-Buffer");
 	}
 }
 
-void CMiniBuffer::UpdateInfo(eastl::string16& s)
+void CMiniBuffer::UpdateInfo(tstring& s)
 {
-	eastl::string16 p;
-	s = L"";
-	s += L"BUFFER INFO\n";
-	s += L"Network extender\n \n";
+	tstring p;
+	s = _T("";
+	s += _T("BUFFER INFO\n";
+	s += _T("Network extender\n \n";
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
+		s += _T("Team: " + GetTeam()->GetTeamName() + _T("\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += L" Friendly\n \n";
+			s += _T(" Friendly\n \n";
 		else
-			s += L" Hostile\n \n";
+			s += _T(" Hostile\n \n";
 	}
 	else
 	{
-		s += L"Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += L"(Constructing)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToConstruct());
+		s += _T("(Constructing)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
-		s += L"(Upgrading to Macro-Buffer)\n";
-		s += p.sprintf(L"Turns left: %d\n", GetTurnsRemainingToUpgrade());
+		s += _T("(Upgrading to Macro-Buffer)\n";
+		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToUpgrade());
 		return;
 	}
 
-	s += p.sprintf(L"Fleet Points: %d\n", FleetPoints());
-	s += p.sprintf(L"Bandwidth: %.1f/turn\n", Bandwidth());
-	s += p.sprintf(L"Network Size: %d\n", (int)GetDataFlowRadius());
-	s += p.sprintf(L"Efficiency: %d\n", (int)(GetChildEfficiency()*100));
+	s += p.sprintf(_T("Fleet Points: %d\n", FleetPoints());
+	s += p.sprintf(_T("Bandwidth: %.1f/turn\n", Bandwidth());
+	s += p.sprintf(_T("Network Size: %d\n", (int)GetDataFlowRadius());
+	s += p.sprintf(_T("Efficiency: %d\n", (int)(GetChildEfficiency()*100));
 }
 
 bool CMiniBuffer::CanStructureUpgrade()

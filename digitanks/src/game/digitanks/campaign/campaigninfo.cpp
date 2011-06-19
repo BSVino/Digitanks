@@ -7,7 +7,7 @@
 
 #include <datamanager/dataserializer.h>
 
-CCampaignInfo::CCampaignInfo(eastl::string16 sScript)
+CCampaignInfo::CCampaignInfo(tstring sScript)
 {
 	std::ifstream f(sScript.c_str());
 
@@ -31,7 +31,7 @@ void CCampaignInfo::ReadFromData(CData* pData)
 	{
 		for (size_t i = 0; i < pLevels->GetNumChildren(); i++)
 		{
-			CData* pChild = pLevels->FindChild(convertstring<char16_t, char>(sprintf(L"%d", i+1)));
+			CData* pChild = pLevels->FindChild(convertstring<tchar, char>(sprintf(_T("%d", i+1)));
 
 			TAssert(pChild);
 			if (!pChild)
@@ -44,7 +44,7 @@ void CCampaignInfo::ReadFromData(CData* pData)
 
 const CCampaignInfo* CCampaignInfo::GetCampaignInfo()
 {
-	static CCampaignInfo gInfo(L"scripts/campaign.txt");
+	static CCampaignInfo gInfo(_T("scripts/campaign.txt");
 
 	return &gInfo;
 }

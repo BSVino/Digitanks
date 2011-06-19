@@ -23,8 +23,8 @@ public:
 
 	void							NewCampaign();
 
-	void							ReadData(const eastl::string16& sFile);
-	void							SaveData(const eastl::string16& sFile);
+	void							ReadData(const tstring& sFile);
+	void							SaveData(const tstring& sFile);
 
 protected:
 	const CCampaignInfo*			m_pCampaignInfo;

@@ -12,7 +12,7 @@ class CCampaignInfo
 	DECLARE_CLASS(CCampaignInfo, CCampaignInfo);
 
 public:
-									CCampaignInfo(eastl::string16 sScript);
+									CCampaignInfo(tstring sScript);
 
 public:
 	static const CCampaignInfo*		GetCampaignInfo();

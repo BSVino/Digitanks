@@ -12,6 +12,11 @@
 #include <iostream>
 #include <sstream>
 
+template <class F, class T>
+inline eastl::basic_string<T> convertstring(eastl::basic_string<F> s);
+
+#include "tstring.h"
+
 // It's inline so I don't have to make a strutils.cpp :P
 inline void strtok(const eastl::string& str, eastl::vector<eastl::string>& tokens, const eastl::string& delimiters = " \r\n\t")
 {
@@ -32,16 +37,16 @@ inline void strtok(const eastl::string& str, eastl::vector<eastl::string>& token
 }
 
 // It's inline so I don't have to make a strutils.cpp :P
-inline void wcstok(const eastl::string16& str, eastl::vector<eastl::string16>& tokens, const eastl::string16& delimiters = L" \r\n\t")
+inline void tstrtok(const tstring& str, eastl::vector<tstring>& tokens, const tstring& delimiters = _T(" \r\n\t"))
 {
 	tokens.clear();
 
 	// Skip delimiters at beginning.
-    eastl::string16::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    tstring::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
-    eastl::string16::size_type pos     = str.find_first_of(delimiters, lastPos);
+    tstring::size_type pos     = str.find_first_of(delimiters, lastPos);
 
-    while (eastl::string16::npos != pos || eastl::string16::npos != lastPos)
+    while (tstring::npos != pos || tstring::npos != lastPos)
     {
         // Found a token, add it to the vector.
         tokens.push_back(str.substr(lastPos, pos - lastPos));
@@ -55,16 +60,16 @@ inline void wcstok(const eastl::string16& str, eastl::vector<eastl::string16>& t
 // explode is slightly different in that repeated delineators return multiple tokens.
 // ie "a|b||c" returns { "a", "b", "", "c" } whereas strtok will cut out the blank result.
 // Basically it works like PHP's explode.
-inline void explode(const eastl::string16& str, eastl::vector<eastl::string16>& tokens, const eastl::string16& delimiter = L" ")
+inline void explode(const tstring& str, eastl::vector<tstring>& tokens, const tstring& delimiter = _T(" "))
 {
-    eastl::string16::size_type lastPos = str.find_first_of(delimiter, 0);
-    eastl::string16::size_type pos = 0;
+    tstring::size_type lastPos = str.find_first_of(delimiter, 0);
+    tstring::size_type pos = 0;
 
     while (true)
     {
         tokens.push_back(str.substr(pos, lastPos - pos));
 
-		if (lastPos == eastl::string16::npos)
+		if (lastPos == tstring::npos)
 			break;
 
 		pos = lastPos+1;
@@ -130,24 +135,24 @@ inline eastl::string readstring(std::istream& i)
 	return s;
 }
 
-inline void writestring16(std::ostream& o, const eastl::string16& s)
+inline void writetstring(std::ostream& o, const tstring& s)
 {
 	size_t iStringSize = s.length();
 	o.write((char*)&iStringSize, sizeof(iStringSize));
-	o.write((char*)s.c_str(), s.size()*sizeof(eastl::string16::value_type));
+	o.write((char*)s.c_str(), s.size()*sizeof(tstring::value_type));
 }
 
-inline eastl::string16 readstring16(std::istream& i)
+inline tstring readtstring(std::istream& i)
 {
 	size_t iStringSize;
 	i.read((char*)&iStringSize, sizeof(iStringSize));
 
-	eastl::string16 s;
-	eastl::string16::value_type c[2];
+	tstring s;
+	tstring::value_type c[2];
 	c[1] = L'\0';
 	for (size_t j = 0; j < iStringSize; j++)
 	{
-		i.read((char*)&c[0], sizeof(eastl::string16::value_type));
+		i.read((char*)&c[0], sizeof(tstring::value_type));
 		s.append(c);
 	}
 
@@ -167,12 +172,12 @@ inline eastl::basic_string<T> convertstring(eastl::basic_string<F> s)
 	return t;
 }
 
-inline eastl::string16 sprintf(eastl::string16 s, ...)
+inline tstring sprintf(tstring s, ...)
 {
 	va_list arguments;
 	va_start(arguments, s);
 
-	eastl::string16 p;
+	tstring p;
 	p.sprintf_va_list(s.c_str(), arguments);
 
 	va_end(arguments);
@@ -180,9 +185,9 @@ inline eastl::string16 sprintf(eastl::string16 s, ...)
 	return p;
 }
 
-inline eastl::string16 str_replace(const eastl::string16& s, const eastl::string16& f, const eastl::string16& r)
+inline tstring str_replace(const tstring& s, const tstring& f, const tstring& r)
 {
-	eastl::string16 sResult = s;
+	tstring sResult = s;
 
 	size_t iPosition;
 	while ((iPosition = sResult.find(f)) != ~0)
@@ -191,9 +196,9 @@ inline eastl::string16 str_replace(const eastl::string16& s, const eastl::string
 	return sResult;
 }
 
-inline int stoi(const eastl::string16& s)
+inline int stoi(const tstring& s)
 {
-	std::istringstream i(convertstring<char16_t, char>(s).c_str());
+	std::istringstream i(convertstring<tchar, char>(s).c_str());
 	int x;
 	if (!(i >> x))
 		return 0;
@@ -201,14 +206,71 @@ inline int stoi(const eastl::string16& s)
 	return x;
 }
 
-inline float stof(const eastl::string16& s)
+inline float stof(const tstring& s)
 {
-	std::istringstream i(convertstring<char16_t, char>(s).c_str());
+	std::istringstream i(convertstring<tchar, char>(s).c_str());
 	float x;
 	if (!(i >> x))
 		return 0;
 
 	return x;
+}
+
+template <class C>
+inline C* strtok(C* s, const C* delim, C** last)
+{
+	C* spanp;
+	int c, sc;
+	C* tok;
+
+
+	if (s == NULL && (s = *last) == NULL)
+		return (NULL);
+
+	/*
+	 * Skip (span) leading delimiters (s += strspn(s, delim), sort of).
+	 */
+cont:
+	c = *s++;
+	for (spanp = (C*)delim; (sc = *spanp++) != 0;) {
+		if (c == sc)
+			goto cont;
+	}
+
+	if (c == 0) {		/* no non-delimiter characters */
+		*last = NULL;
+		return (NULL);
+	}
+	tok = s - 1;
+
+	/*
+	 * Scan token (scan for delimiters: s += strcspn(s, delim), sort of).
+	 * Note that delim must have one NUL; we stop if we see that, too.
+	 */
+	for (;;) {
+		c = *s++;
+		spanp = (C *)delim;
+		do {
+			if ((sc = *spanp++) == c) {
+				if (c == 0)
+					s = NULL;
+				else
+					s[-1] = 0;
+				*last = s;
+				return (tok);
+			}
+		} while (sc != 0);
+	}
+	/* NOTREACHED */
+}
+
+template <class C>
+inline C* strdup(const C* s)
+{
+	size_t len = (1+std::char_traits<C>::length(s)) * sizeof(C);
+	C* p = (C*)malloc(len);
+
+  	return p ? (C*)memcpy(p, s, len) : NULL;
 }
 
 #endif

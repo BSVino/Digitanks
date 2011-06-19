@@ -5,21 +5,13 @@
 #include "../modelconverter.h"
 #include "strutils.h"
 
-#ifdef _MSC_VER
-#define wcstok(a,b,c) wcstok(a, b)
-#define swprintf _snwprintf
-#endif
 
-void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
+void CModelConverter::ReadOBJ(const tstring& sFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
 
-#ifdef _MSC_VER
-	FILE* fp = _wfopen(sFilename.c_str(), L"r");
-#else
-	FILE* fp = fopen(convertstring<char16_t, char>(sFilename).c_str(), "r");
-#endif
+	FILE* fp = tfopen(sFilename, _T("r"));
 
 	if (!fp)
 	{
@@ -27,7 +19,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 		return;
 	}
 
-	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(sFilename).append(L".obj")));
+	CConversionSceneNode* pScene = m_pScene->GetScene(m_pScene->AddScene(GetFilename(sFilename).append(_T(".obj"))));
 
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_pScene->AddMesh(GetFilename(sFilename)));
 	// Make sure it exists.
@@ -38,7 +30,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 	bool bSmoothingGroups = false;
 
-	eastl::string16 sLastTask;
+	tstring sLastTask;
 
 	int iTotalVertices = 0;
 	int iTotalFaces = 0;
@@ -46,24 +38,23 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 	int iFacesComplete = 0;
 
 	if (m_pWorkListener)
-		m_pWorkListener->SetAction(L"Reading file into memory...", 0);
+		m_pWorkListener->SetAction(_T("Reading file into memory..."), 0);
 
 	fseek(fp, 0L, SEEK_END);
 	long iOBJSize = ftell(fp);
 	fseek(fp, 0L, SEEK_SET);
 
 	// Make sure we allocate more than we need just in case.
-	char16_t* pszEntireFile = (char16_t*)malloc((iOBJSize+1) * (sizeof(char16_t)+1));
-	char16_t* pszCurrent = pszEntireFile;
+	size_t iFileSize = (iOBJSize+1) * (sizeof(tchar)+1);
+	tchar* pszEntireFile = (tchar*)malloc(iFileSize);
+	tchar* pszCurrent = pszEntireFile;
 
 	// Read the entire file into an array first for faster processing.
-	const size_t iChars = 1024;
-	char16_t szLine[iChars];
-	const char16_t* pszLine;
-	while (pszLine = fgetws(szLine, iChars, fp))
+	tstring sLine;
+	while (fgetts(sLine, fp))
 	{
-		wcscpy(pszCurrent, pszLine);
-		size_t iLength = wcslen(pszLine);
+		tstrncpy(pszCurrent, sLine.c_str(), iFileSize-(pszCurrent-pszEntireFile));
+		size_t iLength = sLine.length();
 
 		if (pszCurrent[iLength-1] == L'\n')
 		{
@@ -82,33 +73,33 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 	fclose(fp);
 
-	pszLine = pszEntireFile;
-	const char16_t* pszNextLine = NULL;
+	const tchar* pszLine = pszEntireFile;
+	const tchar* pszNextLine = NULL;
 	while (pszLine < pszCurrent)
 	{
 		if (pszNextLine)
 			pszLine = pszNextLine;
 
-		pszNextLine = pszLine + wcslen(pszLine) + 1;
+		pszNextLine = pszLine + tstrlen(pszLine) + 1;
 
 		// This code used to call StripWhitespace() but that's too slow for very large files w/ millions of lines.
 		// Instead we'll just cut the whitespace off the front and deal with whitespace on the end when we come to it.
 		while (*pszLine && IsWhitespace(*pszLine))
 			pszLine++;
 
-		if (wcslen(pszLine) == 0)
+		if (tstrlen(pszLine) == 0)
 			continue;
 
 		if (pszLine[0] == '#')
 		{
 			// ZBrush is kind enough to notate exactly how many vertices and faces we have in the comments at the top of the file.
-			if (wcsncmp(pszLine, L"#Vertex Count", 13) == 0)
+			if (tstrncmp(pszLine, _T("#Vertex Count"), 13) == 0)
 			{
 				iTotalVertices = stoi(pszLine+13);
 				pMesh->SetTotalVertices(iTotalVertices);
 			}
 
-			if (wcsncmp(pszLine, L"#Face Count", 11) == 0)
+			if (tstrncmp(pszLine, _T("#Face Count"), 11) == 0)
 			{
 				iTotalFaces = stoi(pszLine+11);
 				pMesh->SetTotalFaces(iTotalFaces);
@@ -121,40 +112,37 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			continue;
 		}
 
-		wchar_t szToken[1024];
-		wcscpy(szToken, pszLine);
-		wchar_t* pszToken = NULL;
-		wchar_t* pszState = NULL;
-		pszToken = wcstok(szToken, L" ", &pszState);
+		eastl::vector<tstring> asTokens;
+		tstrtok(pszLine, asTokens, _T(" "));
+		const tchar* pszToken = asTokens[0].c_str();
 
-		if (wcscmp(pszToken, L"mtllib") == 0)
+		if (tstrncmp(pszToken, _T("mtllib"), 6) == 0)
 		{
-			eastl::string16 sDirectory = GetDirectory(sFilename);
-			wchar_t szMaterial[1024];
-			swprintf(szMaterial, 1023, L"%s/%s", sDirectory.c_str(), pszLine + 7);
-			ReadMTL(szMaterial);
+			tstring sDirectory = GetDirectory(sFilename);
+			tstring sMaterial = sprintf(_T("%s/%s"), sDirectory.c_str(), pszLine + 7);
+			ReadMTL(sMaterial);
 		}
-		else if (wcscmp(pszToken, L"o") == 0)
+		else if (tstrncmp(pszToken, _T("o"), 1) == 0)
 		{
 			// Dunno what this does.
 		}
-		else if (wcscmp(pszToken, L"v") == 0)
+		else if (tstrncmp(pszToken, _T("v"), 1) == 0)
 		{
 			if (m_pWorkListener)
 			{
-				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+				if (tstrncmp(sLastTask.c_str(), pszToken, sLastTask.length()) == 0)
 					m_pWorkListener->WorkProgress(iVerticesComplete++);
 				else
 				{
-					m_pWorkListener->SetAction(L"Reading vertex data", iTotalVertices);
-					sLastTask = eastl::string16(pszToken);
+					m_pWorkListener->SetAction(_T("Reading vertex data"), iTotalVertices);
+					sLastTask = tstring(pszToken);
 				}
 			}
 
 			// A vertex.
 			float v[3];
 			// scanf is pretty slow even for such a short string due to lots of mallocs.
-			const wchar_t* pszToken = pszLine+1;
+			const tchar* pszToken = pszLine+1;
 			int iDimension = 0;
 			while (*pszToken)
 			{
@@ -170,47 +158,60 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			}
 			pMesh->AddVertex(v[0], v[1], v[2]);
 		}
-		else if (wcscmp(pszToken, L"vn") == 0)
+		else if (tstrncmp(pszToken, _T("vn"), 2) == 0)
 		{
 			if (m_pWorkListener)
 			{
-				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+				if (tstrncmp(sLastTask.c_str(), pszToken, sLastTask.length()) == 0)
 					m_pWorkListener->WorkProgress(0);
 				else
-					m_pWorkListener->SetAction(L"Reading vertex normal data", 0);
+					m_pWorkListener->SetAction(_T("Reading vertex normal data"), 0);
 			}
-			sLastTask = eastl::string16(pszToken);
+			sLastTask = tstring(pszToken);
 
 			// A vertex normal.
 			float x, y, z;
-			swscanf(pszLine, L"vn %f %f %f", &x, &y, &z);
-			pMesh->AddNormal(x, y, z);
+			eastl::vector<tstring> asTokens;
+			tstrtok(pszLine, asTokens, _T(" "));
+			if (asTokens.size() == 4)
+			{
+				x = stof(asTokens[1]);
+				y = stof(asTokens[2]);
+				z = stof(asTokens[3]);
+				pMesh->AddNormal(x, y, z);
+			}
 		}
-		else if (wcscmp(pszToken, L"vt") == 0)
+		else if (tstrncmp(pszToken, _T("vt"), 2) == 0)
 		{
 			if (m_pWorkListener)
 			{
-				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+				if (tstrncmp(sLastTask.c_str(), pszToken, sLastTask.length()) == 0)
 					m_pWorkListener->WorkProgress(0);
 				else
-					m_pWorkListener->SetAction(L"Reading texture coordinate data", 0);
+					m_pWorkListener->SetAction(_T("Reading texture coordinate data"), 0);
 			}
-			sLastTask = eastl::string16(pszToken);
+			sLastTask = tstring(pszToken);
 
 			// A UV coordinate for a vertex.
 			float u, v;
-			swscanf(pszLine, L"vt %f %f", &u, &v);
-			pMesh->AddUV(u, v);
+			eastl::vector<tstring> asTokens;
+			tstrtok(pszLine, asTokens, _T(" "));
+			if (asTokens.size() == 3)
+			{
+				u = stof(asTokens[1]);
+				v = stof(asTokens[2]);
+				pMesh->AddUV(u, v);
+			}
 		}
-		else if (wcscmp(pszToken, L"g") == 0)
+		else if (tstrncmp(pszToken, _T("g"), 1) == 0)
 		{
 			// A group of faces.
 			pMesh->AddBone(pszLine+2);
 		}
-		else if (wcscmp(pszToken, L"usemtl") == 0)
+		else if (tstrncmp(pszToken, _T("usemtl"), 6) == 0)
 		{
 			// All following faces should use this material.
-			eastl::string16 sMaterial = eastl::string16(pszLine+7);
+			tstring sMaterial = tstring(pszLine+7);
 			size_t iMaterial = pMesh->FindMaterialStub(sMaterial);
 			if (iMaterial == ((size_t)~0))
 			{
@@ -227,9 +228,9 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			else
 				iCurrentMaterial = iMaterial;
 		}
-		else if (wcscmp(pszToken, L"s") == 0)
+		else if (tstrncmp(pszToken, _T("s"), 1) == 0)
 		{
-			if (wcsncmp(pszLine, L"s off", 5) == 0)
+			if (tstrncmp(pszLine, _T("s off"), 5) == 0)
 			{
 				iSmoothingGroup = ~0;
 			}
@@ -237,20 +238,22 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			{
 				bSmoothingGroups = true;
 				size_t s;
-				swscanf(pszLine, L"s %d", &s);
-				iSmoothingGroup = s;
+				eastl::vector<tstring> asTokens;
+				tstrtok(pszLine, asTokens, _T(" "));
+				if (asTokens.size() == 2)
+					iSmoothingGroup = stoi(asTokens[1]);
 			}
 		}
-		else if (wcscmp(pszToken, L"f") == 0)
+		else if (tstrncmp(pszToken, _T("f"), 1) == 0)
 		{
 			if (m_pWorkListener)
 			{
-				if (wcscmp(sLastTask.c_str(), pszToken) == 0)
+				if (tstrncmp(sLastTask.c_str(), pszToken, sLastTask.length()) == 0)
 					m_pWorkListener->WorkProgress(iFacesComplete++);
 				else
 				{
-					m_pWorkListener->SetAction(L"Reading polygon data", iTotalFaces);
-					sLastTask = eastl::string16(pszToken);
+					m_pWorkListener->SetAction(_T("Reading polygon data"), iTotalFaces);
+					sLastTask = tstring(pszToken);
 				}
 			}
 
@@ -266,12 +269,10 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 			pMesh->GetFace(iFace)->m_iSmoothingGroup = iSmoothingGroup;
 
-			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
-			wcscpy(szToken, pszLine);
-			pszToken = wcstok(szToken, L" ", &pszState);
-
-			while (pszToken = wcstok(NULL, L" ", &pszState))
+			for (size_t i = 1; i < asTokens.size(); i++)
 			{
+				const tchar* pszToken = asTokens[i].c_str();
+
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
 				long f[3];
 				bool bValues[3];
@@ -280,7 +281,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 				bValues[2] = false;
 
 				// scanf is pretty slow even for such a short string due to lots of mallocs.
-				const wchar_t* pszValues = pszToken;
+				const tchar* pszValues = pszToken;
 				int iValue = 0;
 				do
 				{
@@ -361,29 +362,21 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 		m_pWorkListener->EndProgress();
 }
 
-void CModelConverter::ReadMTL(const eastl::string16& sFilename)
+void CModelConverter::ReadMTL(const tstring& sFilename)
 {
-#ifdef _MSC_VER
-	FILE* fp = _wfopen(sFilename.c_str(), L"r");
-#else
-	FILE* fp = fopen(convertstring<char16_t, char>(sFilename).c_str(), "r");
-#endif
+	FILE* fp = tfopen(sFilename, _T("r"));
 
 	if (!fp)
 		return;
 
 	if (m_pWorkListener)
-		m_pWorkListener->SetAction(L"Reading materials", 0);
+		m_pWorkListener->SetAction(_T("Reading materials"), 0);
 
 	size_t iCurrentMaterial = ~0;
 
-	const size_t iCount = 1024;
-	wchar_t szLine[iCount];
-	wchar_t* pszLine = NULL;
-	eastl::string16 sLine;
-	while (pszLine = fgetws(szLine, iCount, fp))
+	tstring sLine;
+	while (fgetts(sLine, fp))
 	{
-		sLine = pszLine;
 		sLine = StripWhitespace(sLine);
 
 		if (sLine.length() == 0)
@@ -392,84 +385,83 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 		if (sLine[0] == '#')
 			continue;
 
-		wchar_t szToken[1024];
-		wcscpy(szToken, sLine.c_str());
-		wchar_t* pszToken = NULL;
-		wchar_t* pszState = NULL;
-		pszToken = wcstok(szToken, L" ", &pszState);
+		eastl::vector<tstring> asTokens;
+		tstrtok(sLine, asTokens, _T(" "));
+		const tchar* pszToken = NULL;
+		pszToken = asTokens[0].c_str();
 
 		CConversionMaterial* pMaterial = NULL;
 		if (iCurrentMaterial != ~0)
 			pMaterial = m_pScene->GetMaterial(iCurrentMaterial);
 
-		if (wcscmp(pszToken, L"newmtl") == 0)
+		if (tstrncmp(pszToken, _T("newmtl"), 6) == 0)
 		{
-			pszToken = wcstok(NULL, L" ", &pszState);
+			pszToken = asTokens[1].c_str();
 			CConversionMaterial oMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0);
 			iCurrentMaterial = m_pScene->AddMaterial(oMaterial);
 		}
-		else if (wcscmp(pszToken, L"Ka") == 0)
+		else if (tstrncmp(pszToken, _T("Ka"), 2) == 0)
 		{
-			float r, g, b;
-			swscanf(sLine.c_str(), L"Ka %f %f %f", &r, &g, &b);
-			pMaterial->m_vecAmbient.x = r;
-			pMaterial->m_vecAmbient.y = g;
-			pMaterial->m_vecAmbient.z = b;
+			eastl::vector<tstring> asTokens;
+			tstrtok(sLine, asTokens, _T(" "));
+			if (asTokens.size() == 4)
+			{
+				pMaterial->m_vecAmbient.x = stof(asTokens[1]);
+				pMaterial->m_vecAmbient.y = stof(asTokens[2]);
+				pMaterial->m_vecAmbient.z = stof(asTokens[3]);
+			}
 		}
-		else if (wcscmp(pszToken, L"Kd") == 0)
+		else if (tstrncmp(pszToken, _T("Kd"), 2) == 0)
 		{
-			float r, g, b;
-			swscanf(sLine.c_str(), L"Kd %f %f %f", &r, &g, &b);
-			pMaterial->m_vecDiffuse.x = r;
-			pMaterial->m_vecDiffuse.y = g;
-			pMaterial->m_vecDiffuse.z = b;
+			eastl::vector<tstring> asTokens;
+			tstrtok(sLine, asTokens, _T(" "));
+			if (asTokens.size() == 4)
+			{
+				pMaterial->m_vecDiffuse.x = stof(asTokens[1]);
+				pMaterial->m_vecDiffuse.y = stof(asTokens[2]);
+				pMaterial->m_vecDiffuse.z = stof(asTokens[3]);
+			}
 		}
-		else if (wcscmp(pszToken, L"Ks") == 0)
+		else if (tstrncmp(pszToken, _T("Ks"), 2) == 0)
 		{
-			float r, g, b;
-			swscanf(sLine.c_str(), L"Ks %f %f %f", &r, &g, &b);
-			pMaterial->m_vecSpecular.x = r;
-			pMaterial->m_vecSpecular.y = g;
-			pMaterial->m_vecSpecular.z = b;
+			eastl::vector<tstring> asTokens;
+			tstrtok(sLine, asTokens, _T(" "));
+			if (asTokens.size() == 4)
+			{
+				pMaterial->m_vecSpecular.x = stof(asTokens[1]);
+				pMaterial->m_vecSpecular.y = stof(asTokens[2]);
+				pMaterial->m_vecSpecular.z = stof(asTokens[3]);
+			}
 		}
-		else if (wcscmp(pszToken, L"d") == 0 || wcscmp(pszToken, L"Tr") == 0)
+		else if (tstrncmp(pszToken, _T("d"), 1) == 0 || tstrncmp(pszToken, _T("Tr"), 2) == 0)
 		{
-			pszToken = wcstok(NULL, L" ", &pszState);
-			pMaterial->m_flTransparency = (float)stof(pszToken);
+			pMaterial->m_flTransparency = (float)stof(asTokens[1]);
 		}
-		else if (wcscmp(pszToken, L"Ns") == 0)
+		else if (tstrncmp(pszToken, _T("Ns"), 2) == 0)
 		{
-			pszToken = wcstok(NULL, L" ", &pszState);
-			pMaterial->m_flShininess = (float)stof(pszToken)*128/1000;
+			pMaterial->m_flShininess = (float)stof(asTokens[1])*128/1000;
 		}
-		else if (wcscmp(pszToken, L"illum") == 0)
+		else if (tstrncmp(pszToken, _T("illum"), 5) == 0)
 		{
-			pszToken = wcstok(NULL, L" ", &pszState);
-			pMaterial->m_eIllumType = (IllumType_t)stoi(pszToken);
+			pMaterial->m_eIllumType = (IllumType_t)stoi(asTokens[1]);
 		}
-		else if (wcscmp(pszToken, L"map_Kd") == 0)
+		else if (tstrncmp(pszToken, _T("map_Kd"), 6) == 0)
 		{
-			pszToken = wcstok(NULL, L" ", &pszState);
+			pszToken = asTokens[1].c_str();
 
-#ifdef _MSC_VER
-			FILE* fpTest = _wfopen(pszToken, L"r");
-#else
-			FILE* fpTest = fopen(convertstring<char16_t, char>(pszToken).c_str(), "r");
-#endif
+			FILE* fpTest = tfopen(pszToken, _T("r"));
 
 			if (fpTest)
 			{
 				fclose(fpTest);
 
-				pMaterial->m_sDiffuseTexture = eastl::string16(pszToken);
+				pMaterial->m_sDiffuseTexture = tstring(pszToken);
 			}
 			else
 			{
-				eastl::string16 sDirectory = GetDirectory(sFilename);
-				wchar_t szTexture[1024];
-				swprintf(szTexture, 1023, L"%s/%s", sDirectory.c_str(), pszToken);
+				tstring sDirectory = GetDirectory(sFilename);
 
-				pMaterial->m_sDiffuseTexture = eastl::string16(szTexture);
+				pMaterial->m_sDiffuseTexture = sprintf(_T("%s/%s"), sDirectory.c_str(), pszToken);
 			}
 		}
 	}
@@ -477,27 +469,27 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 	fclose(fp);
 }
 
-void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
+void CModelConverter::SaveOBJ(const tstring& sFilename)
 {
-	eastl::string16 sMaterialFileName = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sFilename).c_str() + L".mtl";
+	tstring sMaterialFileName = tstring(GetDirectory(sFilename).c_str()) + _T("/") + GetFilename(sFilename).c_str() + _T(".mtl");
 
-	std::wofstream sMaterialFile(convertstring<char16_t, char>(sMaterialFileName).c_str());
+	std::wofstream sMaterialFile(convertstring<tchar, char>(sMaterialFileName).c_str());
 	if (!sMaterialFile.is_open())
 		return;
 
 	if (m_pWorkListener)
 	{
 		m_pWorkListener->BeginProgress();
-		m_pWorkListener->SetAction(L"Writing materials file", 0);
+		m_pWorkListener->SetAction(_T("Writing materials file"), 0);
 	}
 
 	for (size_t i = 0; i < m_pScene->GetNumMaterials(); i++)
 	{
 		CConversionMaterial* pMaterial = m_pScene->GetMaterial(i);
 		sMaterialFile << "newmtl " << pMaterial->GetName().c_str() << std::endl;
-		sMaterialFile << "Ka " << pMaterial->m_vecAmbient.x << L" " << pMaterial->m_vecAmbient.y << L" " << pMaterial->m_vecAmbient.z << std::endl;
-		sMaterialFile << "Kd " << pMaterial->m_vecDiffuse.x << L" " << pMaterial->m_vecDiffuse.y << L" " << pMaterial->m_vecDiffuse.z << std::endl;
-		sMaterialFile << "Ks " << pMaterial->m_vecSpecular.x << L" " << pMaterial->m_vecSpecular.y << L" " << pMaterial->m_vecSpecular.z << std::endl;
+		sMaterialFile << "Ka " << pMaterial->m_vecAmbient.x << _T(" ") << pMaterial->m_vecAmbient.y << _T(" ") << pMaterial->m_vecAmbient.z << std::endl;
+		sMaterialFile << "Kd " << pMaterial->m_vecDiffuse.x << _T(" ") << pMaterial->m_vecDiffuse.y << _T(" ") << pMaterial->m_vecDiffuse.z << std::endl;
+		sMaterialFile << "Ks " << pMaterial->m_vecSpecular.x << _T(" ") << pMaterial->m_vecSpecular.y << _T(" ") << pMaterial->m_vecSpecular.z << std::endl;
 		sMaterialFile << "d " << pMaterial->m_flTransparency << std::endl;
 		sMaterialFile << "Ns " << pMaterial->m_flShininess << std::endl;
 		sMaterialFile << "illum " << pMaterial->m_eIllumType << std::endl;
@@ -516,32 +508,32 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 		CConversionSceneNode* pScene = NULL;
 		for (size_t j = 0; j < m_pScene->GetNumScenes(); j++)
 		{
-			if (m_pScene->GetScene(j)->GetName() == pMesh->GetName() + L".obj")
+			if (m_pScene->GetScene(j)->GetName() == pMesh->GetName() + _T(".obj"))
 			{
 				pScene = m_pScene->GetScene(j);
 				break;
 			}
 		}
 
-		eastl::string16 sNodeName = pMesh->GetName();
+		tstring sNodeName = pMesh->GetName();
 
-		eastl::string16 sOBJFilename = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sNodeName).c_str() + L".obj";
-		eastl::string16 sMTLFilename = eastl::string16(GetFilename(sFilename).c_str()) + L".mtl";
+		tstring sOBJFilename = tstring(GetDirectory(sFilename).c_str()) + _T("/") + GetFilename(sNodeName).c_str() + _T(".obj");
+		tstring sMTLFilename = tstring(GetFilename(sFilename).c_str()) + _T(".mtl");
 
 		if (m_pScene->GetNumMeshes() == 1)
 			sOBJFilename = sFilename;
 
-		std::wofstream sOBJFile(convertstring<char16_t, char>(sOBJFilename).c_str());
+		std::wofstream sOBJFile(convertstring<tchar, char>(sOBJFilename).c_str());
 		sOBJFile.precision(8);
 		sOBJFile.setf(std::ios::fixed, std::ios::floatfield);
 
-		sOBJFile << L"mtllib " << sMTLFilename.c_str() << std::endl;
+		sOBJFile << _T("mtllib ") << sMTLFilename.c_str() << std::endl;
 		sOBJFile << std::endl;
 
-		sOBJFile << L"o " << sNodeName.c_str() << std::endl;
+		sOBJFile << _T("o ") << sNodeName.c_str() << std::endl;
 
 		if (m_pWorkListener)
-			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" vertices...").c_str(), pMesh->GetNumVertices());
+			m_pWorkListener->SetAction((tstring(_T("Writing ")) + sNodeName + _T(" vertices...")).c_str(), pMesh->GetNumVertices());
 
 		for (size_t iVertices = 0; iVertices < pMesh->GetNumVertices(); iVertices++)
 		{
@@ -549,11 +541,11 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 				m_pWorkListener->WorkProgress(iVertices);
 
 			Vector vecVertex = pMesh->GetVertex(iVertices);
-			sOBJFile << L"v " << vecVertex.x << L" " << vecVertex.y << L" " << vecVertex.z << std::endl;
+			sOBJFile << _T("v ") << vecVertex.x << _T(" ") << vecVertex.y << _T(" ") << vecVertex.z << std::endl;
 		}
 
 		if (m_pWorkListener)
-			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" normals...").c_str(), pMesh->GetNumNormals());
+			m_pWorkListener->SetAction((tstring(_T("Writing ")) + sNodeName + _T(" normals...")).c_str(), pMesh->GetNumNormals());
 
 		for (size_t iNormals = 0; iNormals < pMesh->GetNumNormals(); iNormals++)
 		{
@@ -561,11 +553,11 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 				m_pWorkListener->WorkProgress(iNormals);
 
 			Vector vecNormal = pMesh->GetNormal(iNormals);
-			sOBJFile << L"vn " << vecNormal.x << L" " << vecNormal.y << L" " << vecNormal.z << std::endl;
+			sOBJFile << _T("vn ") << vecNormal.x << _T(" ") << vecNormal.y << _T(" ") << vecNormal.z << std::endl;
 		}
 
 		if (m_pWorkListener)
-			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" UVs...").c_str(), pMesh->GetNumUVs());
+			m_pWorkListener->SetAction((tstring(_T("Writing ")) + sNodeName + _T(" UVs...")).c_str(), pMesh->GetNumUVs());
 
 		for (size_t iUVs = 0; iUVs < pMesh->GetNumUVs(); iUVs++)
 		{
@@ -573,11 +565,11 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 				m_pWorkListener->WorkProgress(iUVs);
 
 			Vector vecUV = pMesh->GetUV(iUVs);
-			sOBJFile << L"vt " << vecUV.x << L" " << vecUV.y << std::endl;
+			sOBJFile << _T("vt ") << vecUV.x << _T(" ") << vecUV.y << std::endl;
 		}
 
 		if (m_pWorkListener)
-			m_pWorkListener->SetAction((eastl::string16(L"Writing ") + sNodeName + L" faces...").c_str(), pMesh->GetNumFaces());
+			m_pWorkListener->SetAction((tstring(_T("Writing ")) + sNodeName + _T(" faces...")).c_str(), pMesh->GetNumFaces());
 
 		size_t iLastMaterial = ~0;
 
@@ -605,11 +597,11 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 				}
 			}
 
-			sOBJFile << L"f";
+			sOBJFile << _T("f");
 			for (size_t iVertsInFace = 0; iVertsInFace < pFace->GetNumVertices(); iVertsInFace++)
 			{
 				CConversionVertex* pVertex = pFace->GetVertex(iVertsInFace);
-				sOBJFile << L" " << pVertex->v+1 << L"/" << pVertex->vu+1 << L"/" << pVertex->vn+1;
+				sOBJFile << _T(" ") << pVertex->v+1 << _T("/") << pVertex->vu+1 << _T("/") << pVertex->vn+1;
 			}
 			sOBJFile << std::endl;
 		}

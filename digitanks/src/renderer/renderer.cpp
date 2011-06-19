@@ -705,7 +705,7 @@ CVar r_batch("r_batch", "1");
 
 CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
-	TMsg(L"Initializing renderer\n");
+	TMsg(_T("Initializing renderer\n");
 
 	m_bHardwareSupportsFramebuffers = false;
 	m_bHardwareSupportsFramebuffersTestCompleted = false;
@@ -729,9 +729,9 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 		m_bUseShaders = false;
 
 	if (m_bUseShaders)
-		TMsg(L"* Using shaders\n");
+		TMsg(_T("* Using shaders\n");
 	if (m_bUseFramebuffers)
-		TMsg(L"* Using framebuffers\n");
+		TMsg(_T("* Using framebuffers\n");
 
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -762,7 +762,7 @@ void CRenderer::Initialize()
 		}
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(L"Making noise", 0);
+			GameServer()->GetWorkListener()->SetAction(_T("Making noise", 0);
 
 		m_oNoiseBuffer = CreateFrameBuffer(m_iWidth, m_iHeight, false, false);
 
@@ -1420,7 +1420,7 @@ bool CRenderer::HardwareSupportsFramebuffers()
 
 	if (!GLEW_EXT_framebuffer_object)
 	{
-		TMsg(L"EXT_framebuffer_object not supported.\n");
+		TMsg(_T("EXT_framebuffer_object not supported.\n");
 		m_bHardwareSupportsFramebuffers = false;
 		return false;
 	}
@@ -1448,7 +1448,7 @@ bool CRenderer::HardwareSupportsFramebuffers()
     GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 	{
-		TMsg(L"Test framebuffer compile failed.\n");
+		TMsg(_T("Test framebuffer compile failed.\n");
 		glDeleteTextures(1, &oBuffer.m_iMap);
 		glDeleteRenderbuffersEXT(1, &oBuffer.m_iDepth);
 		glDeleteFramebuffersEXT(1, &oBuffer.m_iFB);
@@ -1475,14 +1475,14 @@ bool CRenderer::HardwareSupportsShaders()
 
 	if (!GLEW_ARB_fragment_program)
 	{
-		TMsg(L"ARB_fragment_program not supported.\n");
+		TMsg(_T("ARB_fragment_program not supported.\n");
 		m_bHardwareSupportsShaders = false;
 		return false;
 	}
 
 	if (!GLEW_VERSION_2_0)
 	{
-		TMsg(L"GL_VERSION_2_0 not supported.\n");
+		TMsg(_T("GL_VERSION_2_0 not supported.\n");
 		m_bHardwareSupportsShaders = false;
 		return false;
 	}
@@ -1531,7 +1531,7 @@ bool CRenderer::HardwareSupportsShaders()
 	if (iVertexCompiled == GL_TRUE && iFragmentCompiled == GL_TRUE && iProgramLinked == GL_TRUE)
 		m_bHardwareSupportsShaders = true;
 	else
-		TMsg(L"Test shader compile failed.\n");
+		TMsg(_T("Test shader compile failed.\n");
 
 	glDetachShader(iProgram, iVShader);
 	glDetachShader(iProgram, iFShader);
@@ -1554,7 +1554,7 @@ size_t CRenderer::CreateCallList(size_t iModel)
 	return iCallList;
 }
 
-size_t CRenderer::LoadTextureIntoGL(eastl::string16 sFilename, int iClamp)
+size_t CRenderer::LoadTextureIntoGL(tstring sFilename, int iClamp)
 {
 	if (!sFilename.length())
 		return 0;
@@ -1692,7 +1692,7 @@ void CRenderer::UnloadTextureFromGL(size_t iGLId)
 
 size_t CRenderer::s_iTexturesLoaded = 0;
 
-size_t CRenderer::LoadTextureData(eastl::string16 sFilename)
+size_t CRenderer::LoadTextureData(tstring sFilename)
 {
 	if (!sFilename.length())
 		return 0;

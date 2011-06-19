@@ -83,7 +83,7 @@ void CScript::PlayEvent(size_t i)
 	switch (pEvent->m_eEventClass)
 	{
 	case EC_PARTICLES:
-		pEvent->m_iParticleInstance = CParticleSystemLibrary::AddInstance(convertstring<char, char16_t>(pEvent->m_sName), pEvent->m_vecOrigin, pEvent->m_angAngles);
+		pEvent->m_iParticleInstance = CParticleSystemLibrary::AddInstance(convertstring<char, tchar>(pEvent->m_sName), pEvent->m_vecOrigin, pEvent->m_angAngles);
 		break;
 
 	case EC_MOVEACTOR:

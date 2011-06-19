@@ -17,7 +17,7 @@ public:
 class CTextureSheet
 {
 public:
-							CTextureSheet(eastl::string16 sFile);
+							CTextureSheet(tstring sFile);
 							~CTextureSheet();
 
 public:

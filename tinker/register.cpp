@@ -46,7 +46,7 @@ void CApplication::SetLicenseKey(eastl::string sKey)
 {
 }
 
-bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string sProduct, eastl::string16& sError)
+bool CApplication::QueryRegistrationKey(tstring sServer, tstring sURI, tstring sKey, eastl::string sProduct, tstring& sError)
 {
 #ifdef TINKER_UNLOCKED
 	return true;
@@ -62,7 +62,7 @@ void CApplication::InitRegistrationFile()
 	if (m_oRegFile.isFileValid() || m_sCode.length())
 		return;
 
-	m_oRegFile = ConfigFile(GetAppDataDirectory(AppDirectory(), L"reg.cfg"));
+	m_oRegFile = ConfigFile(GetAppDataDirectory(AppDirectory(), _T("reg.cfg")));
 	ReadProductCode();
 }
 
@@ -80,23 +80,23 @@ bool CApplication::IsRegistered()
 
 void CApplication::SaveProductCode()
 {
-	m_oRegFile.add(L"code", m_sCode.c_str());
-	m_oRegFile.add(L"key", m_sKey.c_str());
+	m_oRegFile.add(_T("code"), m_sCode.c_str());
+	m_oRegFile.add(_T("key"), m_sKey.c_str());
 
 	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
 #ifdef _WIN32
-	SetFileAttributes(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), FILE_ATTRIBUTE_NORMAL);
+	SetFileAttributes(GetAppDataDirectory(AppDirectory(), _T("reg.cfg")).c_str(), FILE_ATTRIBUTE_NORMAL);
 #endif
 
 	do
 	{
-		std::wofstream o;
-		o.open(convertstring<char16_t, char>(GetAppDataDirectory(AppDirectory(), L"reg.cfg")).c_str(), std::ios_base::out);
+		std::basic_ofstream<tchar> o;
+		o.open(convertstring<tchar, char>(GetAppDataDirectory(AppDirectory(), _T("reg.cfg"))).c_str(), std::ios_base::out);
 		o << m_oRegFile;
 	} while (false);
 
 #ifdef _WIN32
-	SetFileAttributes(GetAppDataDirectory(AppDirectory(), L"reg.cfg").c_str(), FILE_ATTRIBUTE_HIDDEN);
+	SetFileAttributes(GetAppDataDirectory(AppDirectory(), _T("reg.cfg")).c_str(), FILE_ATTRIBUTE_HIDDEN);
 #endif
 }
 
@@ -148,13 +148,13 @@ void CApplication::ReadProductCode()
 {
 	if (m_oRegFile.isFileValid())
 	{
-		if (m_oRegFile.keyExists(L"code"))
-			m_sCode = convertstring<char16_t, char>(m_oRegFile.read<eastl::string16>(L"code"));
+		if (m_oRegFile.keyExists(_T("code")))
+			m_sCode = convertstring<tchar, char>(m_oRegFile.read<tstring>(_T("code")));
 		else
 			m_sCode = GenerateCode();
 
-		if (m_oRegFile.keyExists(L"key"))
-			m_sKey = convertstring<char16_t, char>(m_oRegFile.read<eastl::string16>(L"key"));
+		if (m_oRegFile.keyExists(_T("key")))
+			m_sKey = convertstring<tchar, char>(m_oRegFile.read<tstring>(_T("key")));
 	}
 	else
 		m_sCode = GenerateCode();
@@ -181,22 +181,22 @@ void CApplication::SetLicenseKey(eastl::string sKey)
 		SaveProductCode();
 }
 
-bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string sProduct, eastl::string16& sError)
+bool CApplication::QueryRegistrationKey(tstring sServer, tstring sURI, tstring sKey, eastl::string sProduct, tstring& sError)
 {
-	sKey = convertstring<char, char16_t>(trim(convertstring<char16_t, char>(sKey)));
+	sKey = convertstring<char, tchar>(trim(convertstring<tchar, char>(sKey)));
 
-	CHTTPPostSocket s(convertstring<char16_t, char>(sServer.c_str()).c_str());
+	CHTTPPostSocket s(convertstring<tchar, char>(sServer.c_str()).c_str());
 
 	if (!s.IsOpen())
 	{
-		sError = convertstring<char, char16_t>(s.GetError());
+		sError = convertstring<char, tchar>(s.GetError());
 		return false;
 	}
 
-	s.AddPost("key", convertstring<char16_t, char>(sKey).c_str());
+	s.AddPost("key", convertstring<tchar, char>(sKey).c_str());
 	s.AddPost("product", sProduct.c_str());
 
-	s.SendHTTP11(convertstring<char16_t, char>(sURI).c_str());
+	s.SendHTTP11(convertstring<tchar, char>(sURI).c_str());
 
 //	int iOptVal = 0;
 //	setsockopt(iSocket, SOL_SOCKET, SO_SNDBUF, (char*)&iOptVal, sizeof(iOptVal));
@@ -224,17 +224,17 @@ bool CApplication::QueryRegistrationKey(eastl::string16 sServer, eastl::string16
 		SaveProductCode();
 
 		// Register.
-		sError = L"Thank you for registering!";
+		sError = _T("Thank you for registering!");
 		bReturn = true;
 	}
 	else if (iCode == 1)
-		sError = L"Looks like that key has already been registered. Please contact support <support@lunarworkshop.com> to register your game.";
+		sError = _T("Looks like that key has already been registered. Please contact support <support@lunarworkshop.com> to register your game.");
 	else if (iCode == 2)
-		sError = L"Sorry, that registration key doesn't look valid. Double check it and try again.";
+		sError = _T("Sorry, that registration key doesn't look valid. Double check it and try again.");
 	else if (iCode == -1)
-		sError = L"Looks like there's something wrong with the server at the moment, try again in a bit or contact support <support@lunarworkshop.com> if it continues.";
+		sError = _T("Looks like there's something wrong with the server at the moment, try again in a bit or contact support <support@lunarworkshop.com> if it continues.");
 	else
-		sError = L"Looks like there's something wrong, please contact support <support@lunarworkshop.com> if it continues.";
+		sError = _T("Looks like there's something wrong, please contact support <support@lunarworkshop.com> if it continues.");
 
 	return bReturn;
 }

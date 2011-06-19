@@ -78,13 +78,13 @@ void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent) c
 	c.Scale(0.1f, 0.1f, 0.1f);
 	c.Translate(Vector(0, 105, 0));
 
-	eastl::string16 sFile = L"Your file: ";
+	tstring sFile = _T("Your file: ";
 	sFile += m_sFilename.substr(m_sFilename.find_last_of(L'/')+1);
-	float flWidth = glgui::CLabel::GetTextWidth(sFile, sFile.length(), L"text", 12);
-	glgui::CLabel::PaintText3D(sFile, sFile.length(), L"text", 12, Vector(0-flWidth/2, 0, 0));
+	float flWidth = glgui::CLabel::GetTextWidth(sFile, sFile.length(), _T("text", 12);
+	glgui::CLabel::PaintText3D(sFile, sFile.length(), _T("text", 12, Vector(0-flWidth/2, 0, 0));
 
 	c.Scale(-1.0f, 1.0f, 1.0f);
-	glgui::CLabel::PaintText3D(sFile, sFile.length(), L"text", 12, Vector(0-flWidth/2, 0, 0));
+	glgui::CLabel::PaintText3D(sFile, sFile.length(), _T("text", 12, Vector(0-flWidth/2, 0, 0));
 }
 
 void CUserFile::Think()
@@ -134,6 +134,6 @@ void CUserFile::Pickup(CDigitank* pTank)
 
 void CUserFile::SetFile(const eastl::string& sFile)
 {
-	m_sFilename = convertstring<char, char16_t>(sFile);
+	m_sFilename = convertstring<char, tchar>(sFile);
 	m_iImage = CTextureLibrary::AddTextureID(m_sFilename);
 }

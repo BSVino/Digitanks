@@ -7,13 +7,13 @@
 #include <strutils.h>
 #include <common.h>
 
-ConfigFile::ConfigFile( string16 filename, string16 delimiter,
-                        string16 comment, string16 sentry )
+ConfigFile::ConfigFile( tstring filename, tstring delimiter,
+                        tstring comment, tstring sentry )
 	: myDelimiter(delimiter), myComment(comment), mySentry(sentry)
 {
 	// Construct a ConfigFile, getting keys and values from given file
 	
-	std::wifstream in( convertstring<char16_t, char>(filename).c_str() );
+	std::basic_ifstream<tchar> in( convertstring<tchar, char>(filename).c_str() );
 
 	fileValid = !!in;
 
@@ -23,7 +23,7 @@ ConfigFile::ConfigFile( string16 filename, string16 delimiter,
 
 
 ConfigFile::ConfigFile()
-	: myDelimiter( string16(1,L'=') ), myComment( string16(1,L'#') )
+	: myDelimiter( tstring(1,L'=') ), myComment( tstring(1,L'#') )
 {
 	// Construct a ConfigFile without a file; empty
 
@@ -31,7 +31,7 @@ ConfigFile::ConfigFile()
 }
 
 
-void ConfigFile::remove( const string16& key )
+void ConfigFile::remove( const tstring& key )
 {
 	// Remove key and its value
 	myContents.erase( myContents.find( key ) );
@@ -39,7 +39,7 @@ void ConfigFile::remove( const string16& key )
 }
 
 
-bool ConfigFile::keyExists( const string16& key ) const
+bool ConfigFile::keyExists( const tstring& key ) const
 {
 	// Indicate whether key is found
 	mapci p = myContents.find( key );
@@ -48,16 +48,16 @@ bool ConfigFile::keyExists( const string16& key ) const
 
 
 /* static */
-void ConfigFile::trim( string16& s )
+void ConfigFile::trim( tstring& s )
 {
 	// Remove leading and trailing whitespace
-	static const char16_t whitespace[] = L" \n\t\v\r\f";
+	static const tchar whitespace[] = _T(" \n\t\v\r\f");
 	s.erase( 0, s.find_first_not_of(whitespace) );
 	s.erase( s.find_last_not_of(whitespace) + 1U );
 }
 
 
-std::wostream& operator<<( std::wostream& os, const ConfigFile& cf )
+std::basic_ostream<tchar>& operator<<( std::basic_ostream<tchar>& os, const ConfigFile& cf )
 {
 	// Save a ConfigFile to os
 	for( ConfigFile::mapci p = cf.myContents.begin();
@@ -71,29 +71,29 @@ std::wostream& operator<<( std::wostream& os, const ConfigFile& cf )
 }
 
 
-std::wistream& operator>>( std::wistream& is, ConfigFile& cf )
+std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile& cf )
 {
 	// Load a ConfigFile from is
 	// Read in keys and values, keeping internal whitespace
-	typedef string16::size_type pos;
-	const string16& delim  = cf.myDelimiter;  // separator
-	const string16& comm   = cf.myComment;    // comment
-	const string16& sentry = cf.mySentry;     // end of file sentry
+	typedef tstring::size_type pos;
+	const tstring& delim  = cf.myDelimiter;  // separator
+	const tstring& comm   = cf.myComment;    // comment
+	const tstring& sentry = cf.mySentry;     // end of file sentry
 	const pos skip = delim.length();        // length of separator
 	
-	string16 nextline = L"";  // might need to read ahead to see where value ends
+	tstring nextline = _T("");  // might need to read ahead to see where value ends
 
-	TAssert(sizeof(wchar_t) == sizeof(char16_t));
+	TAssert(sizeof(wchar_t) == sizeof(tchar));
 
 	while( is || nextline.length() > 0 )
 	{
 		// Read an entire line at a time
-		std::wstring sline;
-		string16 line;
+		std::basic_string<tchar> sline;
+		tstring line;
 		if( nextline.length() > 0 )
 		{
 			line = nextline;  // we read ahead; use it now
-			nextline = L"";
+			nextline = _T("");
 		}
 		else
 		{
@@ -105,15 +105,15 @@ std::wistream& operator>>( std::wistream& is, ConfigFile& cf )
 		line = line.substr( 0, line.find(comm) );
 		
 		// Check for end of file sentry
-		if( sentry != L"" && line.find(sentry) != string16::npos ) return is;
+		if( sentry != _T("") && line.find(sentry) != tstring::npos ) return is;
 		
 		// Parse the line if it contains a delimiter
 		pos delimPos = line.find( delim );
-		if( delimPos < string16::npos )
+		if( delimPos < tstring::npos )
 		{
 			// Extract the key
-			string16 key = line.substr( 0, delimPos );
-			line.replace( 0, delimPos+skip, L"" );
+			tstring key = line.substr( 0, delimPos );
+			line.replace( 0, delimPos+skip, _T("") );
 			
 			// See if value continues on the next line
 			// Stop at blank line, next line with a key, end of stream,
@@ -121,24 +121,24 @@ std::wistream& operator>>( std::wistream& is, ConfigFile& cf )
 			bool terminate = false;
 			while( !terminate && is )
 			{
-				std::wstring snextline;
+				std::basic_string<tchar> snextline;
 				std::getline( is, snextline );
 				nextline = snextline.c_str();
 				terminate = true;
 				
-				string16 nlcopy = nextline;
+				tstring nlcopy = nextline;
 				ConfigFile::trim(nlcopy);
-				if( nlcopy == L"" ) continue;
+				if( nlcopy == _T("") ) continue;
 				
 				nextline = nextline.substr( 0, nextline.find(comm) );
-				if( nextline.find(delim) != string16::npos )
+				if( nextline.find(delim) != tstring::npos )
 					continue;
-				if( sentry != L"" && nextline.find(sentry) != string16::npos )
+				if( sentry != _T("") && nextline.find(sentry) != tstring::npos )
 					continue;
 				
 				nlcopy = nextline;
 				ConfigFile::trim(nlcopy);
-				if( nlcopy != L"" ) line += L"\n";
+				if( nlcopy != _T("") ) line += _T("\n");
 				line += nextline;
 				terminate = false;
 			}

@@ -53,7 +53,7 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 	else if (pData->GetKey() == "TerrainHeight")
 	{
 		m_sTerrainHeight = pData->GetValueString();
-		m_iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(m_sTerrainHeight));
+		m_iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, tchar>(m_sTerrainHeight));
 
 		if (CRenderer::GetTextureHeight(m_iTerrainHeight) != 256)
 		{
@@ -70,7 +70,7 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 	else if (pData->GetKey() == "TerrainData")
 	{
 		m_sTerrainData = pData->GetValueString();
-		m_iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(m_sTerrainData));
+		m_iTerrainData = CRenderer::LoadTextureData(convertstring<char, tchar>(m_sTerrainData));
 
 		if (CRenderer::GetTextureHeight(m_iTerrainData) != 256)
 		{

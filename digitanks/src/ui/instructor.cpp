@@ -17,8 +17,8 @@
 using namespace glgui;
 
 CInstructor::CInstructor()
-	: m_EmotionsSheet(L"textures/hud/helper-emotions.txt"),
-	m_EmotionsOpenSheet(L"textures/hud/helper-emotions-open.txt")
+	: m_EmotionsSheet(_T("textures/hud/helper-emotions.txt"),
+	m_EmotionsOpenSheet(_T("textures/hud/helper-emotions-open.txt")
 {
 	m_bActive = true;
 	m_pCurrentPanel = NULL;
@@ -26,8 +26,8 @@ CInstructor::CInstructor()
 	Initialize();
 	m_eDisabled = DISABLE_NOTHING;
 
-	CSoundLibrary::Get()->AddSound(L"sound/lesson-learned.wav");
-	CSoundLibrary::Get()->AddSound(L"sound/helper-speech.wav");
+	CSoundLibrary::Get()->AddSound(_T("sound/lesson-learned.wav");
+	CSoundLibrary::Get()->AddSound(_T("sound/helper-speech.wav");
 
 	m_bHelperSpeaking = false;
 }
@@ -59,166 +59,166 @@ void CInstructor::Initialize()
 
 /*
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_AIM, new CTutorial(this, TUTORIAL_AIM, POSITION_TOPLEFT, 200, true,
-		L"CHOOSE A WEAPON\n \nYou're closing in for the kill! Now press the red 'Choose Weapon' button to select your means of destruction. The 'Choose Weapon' button is located in the command dock on the bottom of the screen.\n \nPress one of the options to choose that weapon.")));
+		_T("CHOOSE A WEAPON\n \nYou're closing in for the kill! Now press the red 'Choose Weapon' button to select your means of destruction. The 'Choose Weapon' button is located in the command dock on the bottom of the screen.\n \nPress one of the options to choose that weapon.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ATTACK, new CTutorial(this, TUTORIAL_ATTACK, POSITION_TOPLEFT, 300, true,
-		L"ATTACK!!!\n \nYou're ready to attack!\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nClick on the enemy tank to fire at him.")));
+		_T("ATTACK!!!\n \nYou're ready to attack!\n \nYour tank has very good accuracy inside the green area, but outside that your accuracy will decrease. Your tank's maximum range is the red circle.\n \nClick on the enemy tank to fire at him.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_BUTTONS, new CTutorial(this, TUTORIAL_BUTTONS, POSITION_TOPLEFT, 250, true,
-		L"CONTROL BUTTONS\n \nGood job, you messed that guy up pretty good! Don't forget you can enter move mode and aim mode at any time by using the buttons in the command dock on the bottom of the screen.\n \nYou can exit move turn or aim mode by pressing the 'Escape' key.\n \nClick here to continue.")));
+		_T("CONTROL BUTTONS\n \nGood job, you messed that guy up pretty good! Don't forget you can enter move mode and aim mode at any time by using the buttons in the command dock on the bottom of the screen.\n \nYou can exit move turn or aim mode by pressing the 'Escape' key.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ENERGY, new CTutorial(this, TUTORIAL_ENERGY, POSITION_TOPLEFT, 300, true,
-		L"MIND YOUR ENERGY\n \nEach weapon in your arsenal requires a different amount of energy. The more energy the weapon requires, the less will be available for your shields. Be mindful when you fire more powerful weapons, as you are leaving yourself vulnerable.\n \nClick here to continue.")));
+		_T("MIND YOUR ENERGY\n \nEach weapon in your arsenal requires a different amount of energy. The more energy the weapon requires, the less will be available for your shields. Be mindful when you fire more powerful weapons, as you are leaving yourself vulnerable.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ENTERKEY, new CTutorial(this, TUTORIAL_ENTERKEY, POSITION_TOPCENTER, 200, false,
-		L"END YOUR TURN\n \nThat's it! Now press the 'Enter' key to end your turn.\n \nAlternatively, you can depress the large friendly green 'END TURN' button on the bottom right.")));
+		_T("END YOUR TURN\n \nThat's it! Now press the 'Enter' key to end your turn.\n \nAlternatively, you can depress the large friendly green 'END TURN' button on the bottom right.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FINISHHIM, new CTutorial(this, TUTORIAL_FINISHHIM, POSITION_TOPLEFT, 200, false,
-		L"FINISH THE JOB\n \nYou messed that guy up pretty good! Now let's finish the job. Aim your tank at the enemy again and click on him to fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
+		_T("FINISH THE JOB\n \nYou messed that guy up pretty good! Now let's finish the job. Aim your tank at the enemy again and click on him to fire. If you have trouble hitting the tank, try rotating your camera for a better view.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_UPGRADE, new CTutorial(this, TUTORIAL_UPGRADE, POSITION_TOPCENTER, 250, true,
-		L"UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received an upgrade! With this you can upgrade your tank's Energy. Press the blinking 'Upgrade' button with the star icon on the bottom right to show a list of upgrade options, and then select an upgrade.\n \nKilling enemy tanks can grant you additional upgrades.")));
+		_T("UPGRADE YOUR TANK\n \nYou destroyed the enemy tank, and received an upgrade! With this you can upgrade your tank's Energy. Press the blinking 'Upgrade' button with the star icon on the bottom right to show a list of upgrade options, and then select an upgrade.\n \nKilling enemy tanks can grant you additional upgrades.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_POWERUP, new CTutorial(this, TUTORIAL_POWERUP, POSITION_TOPLEFT, 250, true,
-		L"GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Press the 'Move' button and move your tank on top of the powerup to retrieve it. If you can't move far enough, you may need to end your turn to get your power back.\n \nPicking up more powerups can grant you additional upgrades, just like killing enemy tanks.")));
+		_T("GET THE POWERUP\n \nLook at that! A powerup has appeared next to your tank. Press the 'Move' button and move your tank on top of the powerup to retrieve it. If you can't move far enough, you may need to end your turn to get your power back.\n \nPicking up more powerups can grant you additional upgrades, just like killing enemy tanks.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_SHIFTSELECT, new CTutorial(this, TUTORIAL_SHIFTSELECT, POSITION_TOPLEFT, 250, true,
-		L"SHIFT SELECTION\n \nGood news! Reinforcements have arrived. You are now in command of three friendly tanks.\n \nManaging multiple tanks can be tricky, but you can command them all at the same time by selecting multiple tanks. Hold the 'Shift' key while clicking the tanks to select all three tanks at once.")));
+		_T("SHIFT SELECTION\n \nGood news! Reinforcements have arrived. You are now in command of three friendly tanks.\n \nManaging multiple tanks can be tricky, but you can command them all at the same time by selecting multiple tanks. Hold the 'Shift' key while clicking the tanks to select all three tanks at once.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_BOXSELECT, new CTutorial(this, TUTORIAL_BOXSELECT, POSITION_TOPLEFT, 250, true,
-		L"BOX SELECTION\n \nGood work. You can also use box selection to select all three tanks with one click. Use the left mouse button to drag a selection box around all of the tanks so you can issue orders to all three at once.")));
+		_T("BOX SELECTION\n \nGood work. You can also use box selection to select all three tanks with one click. Use the left mouse button to drag a selection box around all of the tanks so you can issue orders to all three at once.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASICS, new CTutorial(this, TUTORIAL_THEEND_BASICS, POSITION_TOPCENTER, 250, false,
-		L"END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Bases tutorial. You can also start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
+		_T("END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Bases tutorial. You can also start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INTRO_BASES, new CTutorial(this, TUTORIAL_INTRO_BASES, POSITION_TOPCENTER, 250, true,
-		L"Welcome to Digitanks!\n \nThis tutorial will help you learn how to build bases. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
+		_T("Welcome to Digitanks!\n \nThis tutorial will help you learn how to build bases. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_CPU, new CTutorial(this, TUTORIAL_CPU, POSITION_TOPLEFT, 250, true,
-		L"THE CENTRAL PROCESSING UNIT (CPU)\n \nThis is your CPU. It is your command center. If it is destroyed then you lose the game, so protect it well.\n \nThe CPU is the source of your Network. Your Network is represented by the glowy tendrils that come from your CPU.\n \nClick here to continue.")));
+		_T("THE CENTRAL PROCESSING UNIT (CPU)\n \nThis is your CPU. It is your command center. If it is destroyed then you lose the game, so protect it well.\n \nThe CPU is the source of your Network. Your Network is represented by the glowy tendrils that come from your CPU.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_BUFFER, new CTutorial(this, TUTORIAL_BUFFER, POSITION_TOPLEFT, 250, false,
-		L"CONSTRUCTING\n \nYou can use your CPU to construct other structures. A 'Buffer' is a special structure that extends your Network and buffs your units. Construct a Buffer by clicking the 'Build Buffer' button and then clicking inside the green highlighted area.")));
+		_T("CONSTRUCTING\n \nYou can use your CPU to construct other structures. A 'Buffer' is a special structure that extends your Network and buffs your units. Construct a Buffer by clicking the 'Build Buffer' button and then clicking inside the green highlighted area.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_POWER, new CTutorial(this, TUTORIAL_POWER, POSITION_TOPLEFT, 250, false,
-		L"POWER\n \nYour Buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you have at the top right of the screen. Once the structure is placed it takes a certain number of turns to complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
+		_T("POWER\n \nYour Buffer is now constructing. Structures take Power to build. Power accumulates every turn, you can see how much power you have at the top right of the screen. Once the structure is placed it takes a certain number of turns to complete. For this tutorial, the build time for your Buffer has been shortened.\n \nPress 'Enter' to complete construction.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_NETWORK, new CTutorial(this, TUTORIAL_NETWORK, POSITION_TOPCENTER, 250, true,
-		L"THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. You can only build more structures inside your Network. Friendly units inside your Network will receive combat bonuses.\n \nClick here to continue.")));
+		_T("THE NETWORK\n \nBuffers and CPUs extend your Network, marking your terrain. You can only build more structures inside your Network. Friendly units inside your Network will receive combat bonuses.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_PSU, new CTutorial(this, TUTORIAL_PSU, POSITION_TOPLEFT, 250, false,
-		L"POWER SUPPLIES\n \nElectronodes are digital resources that contain Power. Batteries and Power Supplies can extract Power from Electronodes. They must be built directly on top of an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Power Supply' button and click on the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
+		_T("POWER SUPPLIES\n \nElectronodes are digital resources that contain Power. Batteries and Power Supplies can extract Power from Electronodes. They must be built directly on top of an Electronode, and only one per Electronode can be built. There is an Electronode next to your CPU.\n \nClick the CPU to select it. Then press the 'Build Power Supply' button and click on the Electronode to build a Power Supply. Press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_SUPPLY, new CTutorial(this, TUTORIAL_SUPPLY, POSITION_TOPCENTER, 250, true,
-		L"SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));
+		_T("SUPPLY LINES\n \nAll units and structures maintain supply lines to the nearest Buffer or CPU. These lines provide support, such as combat bonuses and health regeneration. They can be broken by moving an enemy unit on them, so be sure to protect them.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_LOADER, new CTutorial(this, TUTORIAL_LOADER, POSITION_TOPLEFT, 250, false,
-		L"FACTORIES\n \nFactories are specialized structures that produce combat units. With the CPU selected, build a Factory by pressing the 'Build Factory' button, selecting any factory, and clicking in the green area to build it. Then press the 'Enter' key to complete construction.")));
+		_T("FACTORIES\n \nFactories are specialized structures that produce combat units. With the CPU selected, build a Factory by pressing the 'Build Factory' button, selecting any factory, and clicking in the green area to build it. Then press the 'Enter' key to complete construction.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_EFFICIENCY, new CTutorial(this, TUTORIAL_EFFICIENCY, POSITION_TOPCENTER, 250, true,
-		L"EFFICIENCY\n \nBuilding more than two structures off any Buffer will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nThe CPU doesn't have this restriction.\n \nClick here to continue.")));
+		_T("EFFICIENCY\n \nBuilding more than two structures off any Buffer will cause the structures to become inefficient. It's best to spread out your structures so they use many different Buffers. However, the Buffers themselves aren't affected, you can have as many buffers as you want.\n \nThe CPU doesn't have this restriction.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_PRODUCING_UNITS, new CTutorial(this, TUTORIAL_PRODUCING_UNITS, POSITION_TOPLEFT, 250, false,
-		L"PRODUCING UNITS\n \nNow that your Factory has finished constructing, it can start producing units. Select the Factory and click the build button to begin producing a unit.")));
+		_T("PRODUCING UNITS\n \nNow that your Factory has finished constructing, it can start producing units. Select the Factory and click the build button to begin producing a unit.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FLEET_POINTS, new CTutorial(this, TUTORIAL_FLEET_POINTS, POSITION_TOPCENTER, 250, true,
-		L"FLEET POINTS\n \nYour fleet points can be seen on the upper right. When tanks are produced, they use up these fleet points. To get more fleet points, just build more buffers.\n \nClick here to continue.")));
+		_T("FLEET POINTS\n \nYour fleet points can be seen on the upper right. When tanks are produced, they use up these fleet points. To get more fleet points, just build more buffers.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_BASES, new CTutorial(this, TUTORIAL_THEEND_BASES, POSITION_TOPCENTER, 250, false,
-		L"END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Units tutorial. You can return to the main menu by pressing the 'Escape' key.")));
+		_T("END OF TUTORIAL\n \nThat's it! Now is a good time to move on to the Units tutorial. You can return to the main menu by pressing the 'Escape' key.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INTRO_UNITS, new CTutorial(this, TUTORIAL_INTRO_UNITS, POSITION_TOPCENTER, 250, true,
-		L"Welcome to Digitanks!\n \nThis tutorial will help you learn the individual units. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
+		_T("Welcome to Digitanks!\n \nThis tutorial will help you learn the individual units. It is recommended to finish the basics tutorial first.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_INFANTRY, new CTutorial(this, TUTORIAL_INFANTRY, POSITION_TOPCENTER, 250, true,
-		L"RESISTOR\n \nThis unit is a Resistor. They are a mobile support and defense platform.\n \nClick here to continue.")));
+		_T("RESISTOR\n \nThis unit is a Resistor. They are a mobile support and defense platform.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING, new CTutorial(this, TUTORIAL_FORTIFYING, POSITION_TOPCENTER, 250, true,
-		L"FORTIFYING\n \nResistors can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and shield energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
+		_T("FORTIFYING\n \nResistors can function just fine like normal tanks but their real strength is in their fortification ability. Fortifying increases your tank's attack and shield energy a great deal.\n \nSelect the unit and press the 'Fortify Unit' button to fortify this infantry.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FORTIFYING2, new CTutorial(this, TUTORIAL_FORTIFYING2, POSITION_TOPCENTER, 250, true,
-		L"FORTIFYING\n \nGreat! That energy wall is incredibly strong and regenerates faster when the unit is fortified. Fortified units can't rotate, but if you position them well they won't need to. Resistors also get bonuses to their attack when they're fortified.\n \nClick here to continue.")));
+		_T("FORTIFYING\n \nGreat! That energy wall is incredibly strong and regenerates faster when the unit is fortified. Fortified units can't rotate, but if you position them well they won't need to. Resistors also get bonuses to their attack when they're fortified.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ARTILLERY, new CTutorial(this, TUTORIAL_ARTILLERY, POSITION_TOPCENTER, 250, true,
-		L"ARTILLERY\n \nArtillery are a long-range support unit. They are best used to soften up enemy positions before moving in with your tanks. However, they must be deployed before you can use them.\n \nClick here to continue.")));
+		_T("ARTILLERY\n \nArtillery are a long-range support unit. They are best used to soften up enemy positions before moving in with your tanks. However, they must be deployed before you can use them.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_DEPLOYING, new CTutorial(this, TUTORIAL_DEPLOYING, POSITION_TOPCENTER, 250, false,
-		L"DEPLOYING\n \nOnce deployed your artillery can't move, and turning is more expensive, so consider your deploy spot carefully.\n \nWhen you are ready, select the unit and then press the 'Deploy Unit' button.")));
+		_T("DEPLOYING\n \nOnce deployed your artillery can't move, and turning is more expensive, so consider your deploy spot carefully.\n \nWhen you are ready, select the unit and then press the 'Deploy Unit' button.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_DEPLOYING2, new CTutorial(this, TUTORIAL_DEPLOYING2, POSITION_TOPCENTER, 250, false,
-		L"DEPLOYING\n \nGood work. Your artillery is deployed, but it won't be ready to use until next turn. Press the 'END TURN' button on the bottom right to proceed.")));
+		_T("DEPLOYING\n \nGood work. Your artillery is deployed, but it won't be ready to use until next turn. Press the 'END TURN' button on the bottom right to proceed.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_FIRE_ARTILLERY, new CTutorial(this, TUTORIAL_FIRE_ARTILLERY, POSITION_TOPLEFT, 250, false,
-		L"ATTACK!\n \nNow that your artillery is ready to fire, you'll notice it has an incredible range. It has some drawbacks though, the cone of fire is limited. Also, artillery can't see into the fog of war and will need spotters. You have been given a spotter to help you see your target.\n \nPress the 'Fire' button and click on the red tank to fire.")));
+		_T("ATTACK!\n \nNow that your artillery is ready to fire, you'll notice it has an incredible range. It has some drawbacks though, the cone of fire is limited. Also, artillery can't see into the fog of war and will need spotters. You have been given a spotter to help you see your target.\n \nPress the 'Fire' button and click on the red tank to fire.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ARTILLERY_SHIELDS, new CTutorial(this, TUTORIAL_ARTILLERY_SHIELDS, POSITION_TOPLEFT, 250, true,
-		L"SHELLING SHIELDS\n \nArtillery are great for shelling enemy tanks and Resistor positions, but while their EMP shells are extremely effective against shields, they are rather weak against tank hulls and structures. After the enemy shields are down it's time to move in with your tanks.\n \nClick here to continue.")));
+		_T("SHELLING SHIELDS\n \nArtillery are great for shelling enemy tanks and Resistor positions, but while their EMP shells are extremely effective against shields, they are rather weak against tank hulls and structures. After the enemy shields are down it's time to move in with your tanks.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_ROGUE, new CTutorial(this, TUTORIAL_ROGUE, POSITION_TOPCENTER, 250, true,
-		L"THE ROGUE\n \nThe Rogue is a light reconnaissance unit. It lacks shields and can only damage enemies if their shields are down. However, its torpedo attack can be a dangerous threat to enemies.\n \nClick here to continue.")));
+		_T("THE ROGUE\n \nThe Rogue is a light reconnaissance unit. It lacks shields and can only damage enemies if their shields are down. However, its torpedo attack can be a dangerous threat to enemies.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_TORPEDO, new CTutorial(this, TUTORIAL_TORPEDO, POSITION_TOPCENTER, 250, true,
-		L"FIRE TORPEDO NUMBER ONE\n \nThe Rogue's torpedos attack supply lines. Hey look, there's an enemy supply line now! Select the Rogue and press the 'Fire' button. Then click on the supply line to attack it.")));
+		_T("FIRE TORPEDO NUMBER ONE\n \nThe Rogue's torpedos attack supply lines. Hey look, there's an enemy supply line now! Select the Rogue and press the 'Fire' button. Then click on the supply line to attack it.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_DISCONNECTING_SUPPLIES, new CTutorial(this, TUTORIAL_DISCONNECTING_SUPPLIES, POSITION_TOPCENTER, 250, true,
-		L"DISCONNECTING SUPPLY LINES\n \nYou can force an enemy structure to become neutral by destroying its supply line and disconnecting it from the enemy base. Any neutral structure can then be taken over if you build a buffer nearby.\n \nRogue torpedoes can also disable enemy units, preventing them from taking any action for one turn.\n \nClick here to continue.")));
+		_T("DISCONNECTING SUPPLY LINES\n \nYou can force an enemy structure to become neutral by destroying its supply line and disconnecting it from the enemy base. Any neutral structure can then be taken over if you build a buffer nearby.\n \nRogue torpedoes can also disable enemy units, preventing them from taking any action for one turn.\n \nClick here to continue.")));
 
 	m_apTutorials.insert(eastl::pair<size_t, CTutorial*>(TUTORIAL_THEEND_UNITS, new CTutorial(this, TUTORIAL_THEEND_UNITS, POSITION_TOPCENTER, 250, false,
-		L"END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));*/
+		_T("END OF TUTORIAL\n \nThat's it! You can start a new game by opening the menu with the 'Escape' key. Enjoy Digitanks!")));*/
 
-	m_apTutorials["artillery-select"] = new CTutorial(this, "artillery-select", "artillery-aim", POSITION_SCENETREE, 150, false, L"< Select a unit");
+	m_apTutorials["artillery-select"] = new CTutorial(this, "artillery-select", "artillery-aim", POSITION_SCENETREE, 150, false, _T("< Select a unit");
 	m_apTutorials["artillery-select"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-select"]->m_bSlideX = true;
 	m_apTutorials["artillery-select"]->m_bMousePrompt = false;
 
-	m_apTutorials["artillery-aim"] = new CTutorial(this, "artillery-aim", "artillery-chooseweapon", POSITION_BUTTONS, 200, false, L"Press the 'Choose Weapon' button");
+	m_apTutorials["artillery-aim"] = new CTutorial(this, "artillery-aim", "artillery-chooseweapon", POSITION_BUTTONS, 200, false, _T("Press the 'Choose Weapon' button");
 	m_apTutorials["artillery-aim"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-aim"]->m_bSlideX = false;
 	m_apTutorials["artillery-aim"]->m_bMousePrompt = false;
 	m_apTutorials["artillery-aim"]->m_iHintButton = 7;
 
-	m_apTutorials["artillery-chooseweapon"] = new CTutorial(this, "artillery-chooseweapon", "artillery-command", POSITION_TOPCENTER, 200, false, L"Choices!\n \nChoose your weapon.");
+	m_apTutorials["artillery-chooseweapon"] = new CTutorial(this, "artillery-chooseweapon", "artillery-command", POSITION_TOPCENTER, 200, false, _T("Choices!\n \nChoose your weapon.");
 	m_apTutorials["artillery-chooseweapon"]->m_bMousePrompt = false;
 
-	m_apTutorials["artillery-command"] = new CTutorial(this, "artillery-chooseweapon", "artillery-onepertank", POSITION_TOPCENTER, 200, false, L"Click on an enemy to fire");
+	m_apTutorials["artillery-command"] = new CTutorial(this, "artillery-chooseweapon", "artillery-onepertank", POSITION_TOPCENTER, 200, false, _T("Click on an enemy to fire");
 	m_apTutorials["artillery-command"]->m_flSlideAmount = 200;
 	m_apTutorials["artillery-command"]->m_bSlideX = false;
 	m_apTutorials["artillery-command"]->m_bMousePrompt = false;
 
-	m_apTutorials["artillery-onepertank"] = new CTutorial(this, "artillery-onepertank", "", POSITION_SCENETREE, 200, false, L"Each tank can fire one weapon per turn!");
+	m_apTutorials["artillery-onepertank"] = new CTutorial(this, "artillery-onepertank", "", POSITION_SCENETREE, 200, false, _T("Each tank can fire one weapon per turn!");
 	m_apTutorials["artillery-onepertank"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-onepertank"]->m_bSlideX = true;
 	m_apTutorials["artillery-onepertank"]->m_bMousePrompt = false;
 
-	m_apTutorials["artillery-endturn"] = new CTutorial(this, "artillery-endturn", "", POSITION_TOPCENTER, 200, false, L"Press the 'End Turn' button on the lower right to end your turn!");
+	m_apTutorials["artillery-endturn"] = new CTutorial(this, "artillery-endturn", "", POSITION_TOPCENTER, 200, false, _T("Press the 'End Turn' button on the lower right to end your turn!");
 	m_apTutorials["artillery-endturn"]->m_flSlideAmount = 200;
 	m_apTutorials["artillery-endturn"]->m_bSlideX = false;
 	m_apTutorials["artillery-endturn"]->m_bKillOnFinish = true;
 	m_apTutorials["artillery-endturn"]->m_bMousePrompt = false;
 
-	m_apTutorials["strategy-select"] = new CTutorial(this, "strategy-select", "strategy-command", POSITION_SCENETREE, 150, false, L"< Select the MCP");
+	m_apTutorials["strategy-select"] = new CTutorial(this, "strategy-select", "strategy-command", POSITION_SCENETREE, 150, false, _T("< Select the MCP");
 	m_apTutorials["strategy-select"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-select"]->m_bSlideX = true;
 	m_apTutorials["strategy-select"]->m_bMousePrompt = false;
 
-	m_apTutorials["strategy-command"] = new CTutorial(this, "strategy-command", "strategy-deploy", POSITION_TOPCENTER, 200, false, L"Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes, such as this one");
+	m_apTutorials["strategy-command"] = new CTutorial(this, "strategy-command", "strategy-deploy", POSITION_TOPCENTER, 200, false, _T("Click in the yellow area to move the MCP\n \nTry to choose a location with nearby electronodes, such as this one");
 	m_apTutorials["strategy-command"]->m_flSlideAmount = 200;
 	m_apTutorials["strategy-command"]->m_bSlideX = false;
 	m_apTutorials["strategy-command"]->m_bMousePrompt = false;
 
-	m_apTutorials["strategy-deploy"] = new CTutorial(this, "strategy-deploy", "strategy-buildbuffer", POSITION_BUTTONS, 200, false, L"Press the 'Deploy' button to create a CPU");
+	m_apTutorials["strategy-deploy"] = new CTutorial(this, "strategy-deploy", "strategy-buildbuffer", POSITION_BUTTONS, 200, false, _T("Press the 'Deploy' button to create a CPU");
 	m_apTutorials["strategy-deploy"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-deploy"]->m_bSlideX = false;
 	m_apTutorials["strategy-deploy"]->m_bMousePrompt = false;
 	m_apTutorials["strategy-deploy"]->m_iHintButton = 8;
 
-	m_apTutorials["strategy-buildbuffer"] = new CTutorial(this, "strategy-buildbuffer", "strategy-placebuffer", POSITION_BUTTONS, 200, false, L"Choose 'Build Buffer' from the construction options");
+	m_apTutorials["strategy-buildbuffer"] = new CTutorial(this, "strategy-buildbuffer", "strategy-placebuffer", POSITION_BUTTONS, 200, false, _T("Choose 'Build Buffer' from the construction options");
 	m_apTutorials["strategy-buildbuffer"]->m_flSlideAmount = 1000;
 	m_apTutorials["strategy-buildbuffer"]->m_bSlideX = false;
 	m_apTutorials["strategy-buildbuffer"]->m_bMousePrompt = false;
 	m_apTutorials["strategy-buildbuffer"]->m_iHintButton = 5;
 
-	m_apTutorials["strategy-placebuffer"] = new CTutorial(this, "strategy-placebuffer", "", POSITION_TOPCENTER, 200, false, L"Click inside the green area to place the structure");
+	m_apTutorials["strategy-placebuffer"] = new CTutorial(this, "strategy-placebuffer", "", POSITION_TOPCENTER, 200, false, _T("Click inside the green area to place the structure");
 	m_apTutorials["strategy-placebuffer"]->m_flSlideAmount = 200;
 	m_apTutorials["strategy-placebuffer"]->m_bSlideX = false;
 	m_apTutorials["strategy-placebuffer"]->m_bMousePrompt = false;
@@ -251,7 +251,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 		else if (pChildData->GetKey() == "Next")
 			pTutorial->m_sNextTutorial = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Text")
-			pTutorial->m_sText = convertstring<char, char16_t>(pChildData->GetValueString());
+			pTutorial->m_sText = convertstring<char, tchar>(pChildData->GetValueString());
 		else if (pChildData->GetKey() == "Button1")
 			pTutorial->m_sButton1Action = pChildData->GetValueString();
 		else if (pChildData->GetKey() == "Button1Text")
@@ -358,7 +358,7 @@ void CInstructor::SetActive(bool bActive)
 
 	if (m_bHelperSpeaking)
 	{
-		CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+		CSoundLibrary::StopSound(NULL, _T("sound/helper-speech.wav");
 		m_bHelperSpeaking = false;
 	}
 }
@@ -401,7 +401,7 @@ void CInstructor::DisplayTutorial(eastl::string sTutorial)
 
 		if (m_bHelperSpeaking)
 		{
-			CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+			CSoundLibrary::StopSound(NULL, _T("sound/helper-speech.wav");
 			m_bHelperSpeaking = false;
 		}
 
@@ -475,7 +475,7 @@ void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
 
 	if (m_pCurrentPanel)
 		// Only play the sound if the current panel is showing so we don't play it multiple times.
-		CSoundLibrary::PlaySound(NULL, L"sound/lesson-learned.wav");
+		CSoundLibrary::PlaySound(NULL, _T("sound/lesson-learned.wav");
 
 	if (m_apTutorials[sTutorial]->m_bAutoNext || bForceNext)
 		NextTutorial();
@@ -524,7 +524,7 @@ void CInstructor::CallOutput(const eastl::string& sOutput)
 						continue;
 				}
 
-				pEntity->CallInput(pOutput->m_sInput, convertstring<char, char16_t>(pOutput->m_sArgs));
+				pEntity->CallInput(pOutput->m_sInput, convertstring<char, tchar>(pOutput->m_sArgs));
 			}
 		}
 	}
@@ -543,7 +543,7 @@ bool CInstructor::IsFeatureDisabled(disable_t eFeature)
 	return !!(GetDisabledFeatures()&eFeature);
 }
 
-CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText)
+CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, tstring sText)
 {
 	m_pInstructor = pInstructor;
 	m_sTutorialName = sTutorial;
@@ -595,22 +595,22 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 	m_pTutorial = pTutorial;
 	m_bFirstHelperPanel = bFirstHelperPanel;
 
-	m_pText = new CLabel(0, 0, m_pTutorial->m_iWidth, 1000, L"");
-	m_pText->SetText(str_replace(pTutorial->m_sText, L"\\n", L"\n"));
+	m_pText = new CLabel(0, 0, m_pTutorial->m_iWidth, 1000, _T("");
+	m_pText->SetText(str_replace(pTutorial->m_sText, _T("\\n", _T("\n"));
 	m_pText->SetPos(10, 0);
 	m_pText->SetSize(m_pTutorial->m_iWidth, (int)m_pText->GetTextHeight() + 10);
 	m_pText->SetWrap(true);
 	m_pText->SetAlign(CLabel::TA_MIDDLECENTER);
-	m_pText->SetFont(L"text");
+	m_pText->SetFont(_T("text");
 	AddControl(m_pText);
 
 	m_pText->ComputeLines();
 
 	if (m_pTutorial->m_sButton1Text.length() > 0)
 	{
-		m_pButton1 = new CButton(0, 0, 70, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton1Text));
+		m_pButton1 = new CButton(0, 0, 70, 35, convertstring<char, tchar>(m_pTutorial->m_sButton1Text));
 		m_pButton1->SetButtonColor(g_clrPanel);
-		m_pButton1->SetFont(L"text");
+		m_pButton1->SetFont(_T("text");
 		m_pButton1->SetClickedListener(this, Button1);
 		m_pButton1->SetWrap(false);
 		AddControl(m_pButton1);
@@ -620,9 +620,9 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 
 	if (m_pTutorial->m_sButton2Text.length() > 0)
 	{
-		m_pButton2 = new CButton(0, 0, 70, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton2Text));
+		m_pButton2 = new CButton(0, 0, 70, 35, convertstring<char, tchar>(m_pTutorial->m_sButton2Text));
 		m_pButton2->SetButtonColor(g_clrPanel);
-		m_pButton2->SetFont(L"text");
+		m_pButton2->SetFont(_T("text");
 		m_pButton2->SetClickedListener(this, Button2);
 		m_pButton2->SetWrap(false);
 		AddControl(m_pButton2);
@@ -632,9 +632,9 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 
 	if (m_pTutorial->m_sButton3Text.length() > 0)
 	{
-		m_pButton3 = new CButton(0, 0, 60, 35, convertstring<char, char16_t>(m_pTutorial->m_sButton3Text));
+		m_pButton3 = new CButton(0, 0, 60, 35, convertstring<char, tchar>(m_pTutorial->m_sButton3Text));
 		m_pButton3->SetButtonColor(g_clrPanel);
-		m_pButton3->SetFont(L"text");
+		m_pButton3->SetFont(_T("text");
 		m_pButton3->SetClickedListener(this, Button3);
 		AddControl(m_pButton3);
 	}
@@ -812,14 +812,14 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 		float flClickHintTime = m_flStartTime + ((float)m_pTutorial->m_sHelperEmotion.length())/50 + 5;
 		if (GameServer()->GetGameTime() > flClickHintTime)
 		{
-			eastl::string16 sClickHint = L"Click inside the above box to progress.";
+			tstring sClickHint = _T("Click inside the above box to progress.";
 
 			CRenderingContext c(GameServer()->GetRenderer());
 			c.SetBlend(BLEND_ALPHA);
 			c.SetColor(Color(255, 255, 255, (int)(255 * RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 0, 1) * RemapVal(Oscillate(GameServer()->GetGameTime(), 1), 0, 1, 0.5f, 1))));
 
-			float flHintWidth = glgui::CLabel::GetTextWidth(sClickHint, sClickHint.length(), L"text", 9);
-			glgui::CLabel::PaintText(sClickHint, sClickHint.length(), L"text", 9, (float)(x + w/2) - flHintWidth/2, (float)(y + h + 10) + Lerp(RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 1, 0), 0.2f)*100);
+			float flHintWidth = glgui::CLabel::GetTextWidth(sClickHint, sClickHint.length(), _T("text", 9);
+			glgui::CLabel::PaintText(sClickHint, sClickHint.length(), _T("text", 9, (float)(x + w/2) - flHintWidth/2, (float)(y + h + 10) + Lerp(RemapValClamped(GameServer()->GetGameTime(), flClickHintTime, flClickHintTime+1, 1, 0), 0.2f)*100);
 		}
 	}
 
@@ -827,7 +827,7 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	{
 		if (!DigitanksWindow()->GetInstructor()->m_bHelperSpeaking)
 		{
-			CSoundLibrary::PlaySound(NULL, L"sound/helper-speech.wav", true);
+			CSoundLibrary::PlaySound(NULL, _T("sound/helper-speech.wav", true);
 			DigitanksWindow()->GetInstructor()->m_bHelperSpeaking = true;
 		}
 	}
@@ -835,12 +835,12 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 	{
 		if (DigitanksWindow()->GetInstructor()->m_bHelperSpeaking)
 		{
-			CSoundLibrary::StopSound(NULL, L"sound/helper-speech.wav");
+			CSoundLibrary::StopSound(NULL, _T("sound/helper-speech.wav");
 			DigitanksWindow()->GetInstructor()->m_bHelperSpeaking = false;
 		}
 	}
 
-	CSoundLibrary::SetSoundVolume(NULL, L"sound/helper-speech.wav", bScrolling?0.2f:0);
+	CSoundLibrary::SetSoundVolume(NULL, _T("sound/helper-speech.wav", bScrolling?0.2f:0);
 }
 
 bool CTutorialPanel::MousePressed(int code, int mx, int my)

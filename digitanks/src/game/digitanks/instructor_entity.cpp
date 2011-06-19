@@ -22,7 +22,7 @@ void CInstructorEntity::Spawn()
 	SetName("instructor");
 }
 
-void CInstructorEntity::DisplayLesson(const eastl::vector<eastl::string16>& sArgs)
+void CInstructorEntity::DisplayLesson(const eastl::vector<tstring>& sArgs)
 {
 	if (sArgs.size() == 0)
 	{
@@ -30,5 +30,5 @@ void CInstructorEntity::DisplayLesson(const eastl::vector<eastl::string16>& sArg
 		return;
 	}
 
-	DigitanksWindow()->GetInstructor()->DisplayTutorial(convertstring<char16_t, char>(sArgs[0]));
+	DigitanksWindow()->GetInstructor()->DisplayTutorial(convertstring<tchar, char>(sArgs[0]));
 }

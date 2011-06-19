@@ -18,7 +18,7 @@ CIntroRenderer::CIntroRenderer()
 	m_bUseFramebuffers = false;
 //	m_bUseShaders = false;
 
-	m_iBackdrop = CTextureLibrary::AddTextureID(L"textures/intro/backdrop.png");
+	m_iBackdrop = CTextureLibrary::AddTextureID(_T("textures/intro/backdrop.png");
 	m_flLayer1Speed = -RandomFloat(0.1f, 0.5f);
 	m_flLayer2Speed = -RandomFloat(0.1f, 0.5f);
 	m_flLayer3Speed = -RandomFloat(0.1f, 0.5f);
@@ -43,12 +43,12 @@ CIntroRenderer::CIntroRenderer()
 
 CVar cam_free_ortho("cam_free_ortho", "off");
 
-void ZoomIntoHole(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void ZoomIntoHole(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	IntroWindow()->GetRenderer()->ZoomIntoHole();
 }
 
-CCommand zoomintohole(L"zoomintohole", ::ZoomIntoHole);
+CCommand zoomintohole(_T("zoomintohole", ::ZoomIntoHole);
 
 void CIntroRenderer::StartRendering()
 {

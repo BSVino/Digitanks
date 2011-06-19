@@ -23,7 +23,7 @@ void CTurretMissile::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_hTrailParticles.SetSystem(L"shell-trail", GetOrigin());
+	m_hTrailParticles.SetSystem(_T("shell-trail", GetOrigin());
 	m_hTrailParticles.FollowEntity(this);
 	m_hTrailParticles.SetActive(true);
 }
@@ -75,7 +75,7 @@ void CTurretMissile::Think()
 	{
 		m_hTarget->TakeDamage(GetOwner(), this, DAMAGE_EXPLOSION, m_flDamage, true);
 		DigitanksGame()->Explode(GetOwner(), this, ExplosionRadius(), m_flDamage, m_hTarget, GetOwner()?GetOwner()->GetTeam():NULL);
-		CParticleSystemLibrary::AddInstance(L"bolt-explosion", GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("bolt-explosion", GetOrigin());
 		Delete();
 	}
 }

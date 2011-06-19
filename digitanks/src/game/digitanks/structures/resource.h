@@ -18,7 +18,7 @@ public:
 
 	virtual bool				GetsConcealmentBonus() const { return false; };
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 	virtual void				PostRender(bool bTransparent) const;
@@ -30,7 +30,7 @@ public:
 	class CCollector*			GetCollector() const { return m_hCollector; }
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
-	virtual eastl::string16		GetEntityName() const { return L"Electronode"; };
+	virtual tstring		GetEntityName() const { return _T("Electronode"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
 

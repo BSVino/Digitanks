@@ -10,19 +10,19 @@ CModelConverter::CModelConverter(CConversionScene* pScene)
 	m_pWorkListener = NULL;
 }
 
-bool CModelConverter::ReadModel(const eastl::string16& sFilename)
+bool CModelConverter::ReadModel(const tstring& sFilename)
 {
-	eastl::string16 sExtension;
+	tstring sExtension;
 
-	size_t iFileLength = wcslen(sFilename.c_str());
+	size_t iFileLength = sFilename.length();
 	sExtension = sFilename.c_str()+iFileLength-4;
 	sExtension.make_lower();
 
-	if (sExtension == L".obj")
+	if (sExtension == _T(".obj"))
 		ReadOBJ(sFilename);
-	else if (sExtension == L".sia")
+	else if (sExtension == _T(".sia"))
 		ReadSIA(sFilename);
-	else if (sExtension == L".dae")
+	else if (sExtension == _T(".dae"))
 		ReadDAE(sFilename);
 	else
 		return false;
@@ -30,19 +30,19 @@ bool CModelConverter::ReadModel(const eastl::string16& sFilename)
 	return true;
 }
 
-bool CModelConverter::SaveModel(const eastl::string16& sFilename)
+bool CModelConverter::SaveModel(const tstring& sFilename)
 {
-	eastl::string16 sExtension;
+	tstring sExtension;
 
-	size_t iFileLength = wcslen(sFilename.c_str());
+	size_t iFileLength = sFilename.length();
 	sExtension = sFilename.c_str()+iFileLength-4;
 	sExtension.make_lower();
 
-	if (sExtension == L".obj")
+	if (sExtension == _T(".obj"))
 		SaveOBJ(sFilename);
-	else if (sExtension == L".sia")
+	else if (sExtension == _T(".sia"))
 		SaveSIA(sFilename);
-	else if (sExtension == L".dae")
+	else if (sExtension == _T(".dae"))
 		SaveDAE(sFilename);
 	else
 		return false;
@@ -51,7 +51,7 @@ bool CModelConverter::SaveModel(const eastl::string16& sFilename)
 }
 
 // Takes a path + filename + extension and removes path and extension to return only the filename.
-eastl::string16 CModelConverter::GetFilename(const eastl::string16& sFilename)
+tstring CModelConverter::GetFilename(const tstring& sFilename)
 {
 	int iLastChar = -1;
 	int i = -1;
@@ -60,7 +60,7 @@ eastl::string16 CModelConverter::GetFilename(const eastl::string16& sFilename)
 		if (sFilename[i] == L'\\' || sFilename[i] == L'/')
 			iLastChar = i;
 
-	eastl::string16 sReturn = sFilename.c_str() + iLastChar + 1;
+	tstring sReturn = sFilename.c_str() + iLastChar + 1;
 
 	i = -1;
 	while (++i < (int)sReturn.length())
@@ -73,11 +73,11 @@ eastl::string16 CModelConverter::GetFilename(const eastl::string16& sFilename)
 	return sReturn;
 }
 
-eastl::string16 CModelConverter::GetDirectory(const eastl::string16& sFilename)
+tstring CModelConverter::GetDirectory(const tstring& sFilename)
 {
 	int iLastSlash = -1;
 	int i = -1;
-	eastl::string16 sResult = sFilename;
+	tstring sResult = sFilename;
 
 	while (++i < (int)sResult.length())
 		if (sResult[i] == L'\\' || sResult[i] == L'/')
@@ -89,12 +89,12 @@ eastl::string16 CModelConverter::GetDirectory(const eastl::string16& sFilename)
 	return sResult;
 }
 
-bool CModelConverter::IsWhitespace(eastl::string16::value_type cChar)
+bool CModelConverter::IsWhitespace(tstring::value_type cChar)
 {
 	return (cChar == L' ' || cChar == L'\t' || cChar == L'\r' || cChar == L'\n');
 }
 
-eastl::string16 CModelConverter::StripWhitespace(eastl::string16 sLine)
+tstring CModelConverter::StripWhitespace(tstring sLine)
 {
 	int i = 0;
 	while (IsWhitespace(sLine[i]) && sLine[i] != L'\0')

@@ -9,8 +9,8 @@ public:
 	virtual bool						ClientConnect(size_t iClient);
 	virtual void						ClientDisconnect(size_t iClient);
 
-	virtual bool						UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue);
-	virtual bool						UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
+	virtual bool						UpdateLobby(size_t iLobby, const tstring& sKey, const tstring& sValue);
+	virtual bool						UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue);
 
 	virtual bool						BeginGame(size_t iLobby);
 };

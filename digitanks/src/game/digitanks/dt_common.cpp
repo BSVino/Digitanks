@@ -12,14 +12,14 @@ Color g_aclrTeamColors[] =
 	Color(255, 255, 255),	// White
 };
 
-eastl::string16 g_aszTeamNames[] =
+tstring g_aszTeamNames[] =
 {
-	L"Blue",
-	L"Red",
-	L"Green",
-	L"Yellow",
-	L"Teal",
-	L"Pink",
-	L"Purple",
-	L"White",
+	_T("Blue",
+	_T("Red",
+	_T("Green",
+	_T("Yellow",
+	_T("Teal",
+	_T("Pink",
+	_T("Purple",
+	_T("White",
 };

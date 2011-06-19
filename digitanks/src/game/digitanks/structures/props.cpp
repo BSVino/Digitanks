@@ -31,11 +31,11 @@ INPUTS_TABLE_END();
 
 void CStaticProp::Precache()
 {
-	PrecacheModel(L"models/props/prop01.obj", true);
-	PrecacheModel(L"models/props/prop02.obj", true);
-	PrecacheModel(L"models/props/prop03.obj", true);
-	PrecacheModel(L"models/props/prop04.obj", true);
-	PrecacheModel(L"models/props/prop05.obj", true);
+	PrecacheModel(_T("models/props/prop01.obj", true);
+	PrecacheModel(_T("models/props/prop02.obj", true);
+	PrecacheModel(_T("models/props/prop03.obj", true);
+	PrecacheModel(_T("models/props/prop04.obj", true);
+	PrecacheModel(_T("models/props/prop05.obj", true);
 }
 
 void CStaticProp::Spawn()

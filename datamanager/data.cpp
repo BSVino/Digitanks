@@ -122,25 +122,25 @@ void CData::SetValue(bool bValue)
 
 void CData::SetValue(int iValue)
 {
-	m_sValue = convertstring<char16_t, char>(sprintf(L"%d", iValue));
+	m_sValue = convertstring<tchar, char>(sprintf(_T("%d", iValue));
 }
 
 void CData::SetValue(size_t iValue)
 {
-	m_sValue = convertstring<char16_t, char>(sprintf(L"%u", iValue));
+	m_sValue = convertstring<tchar, char>(sprintf(_T("%u", iValue));
 }
 
 void CData::SetValue(float flValue)
 {
-	m_sValue = convertstring<char16_t, char>(sprintf(L"%f", flValue));
+	m_sValue = convertstring<tchar, char>(sprintf(_T("%f", flValue));
 }
 
 void CData::SetValue(Vector2D vecValue)
 {
-	m_sValue = convertstring<char16_t, char>(sprintf(L"%f, %f", vecValue.x, vecValue.y));
+	m_sValue = convertstring<tchar, char>(sprintf(_T("%f, %f", vecValue.x, vecValue.y));
 }
 
 void CData::SetValue(EAngle angValue)
 {
-	m_sValue = convertstring<char16_t, char>(sprintf(L"%f, %f, %f", angValue.p, angValue.y, angValue.r));
+	m_sValue = convertstring<tchar, char>(sprintf(_T("%f, %f, %f", angValue.p, angValue.y, angValue.r));
 }

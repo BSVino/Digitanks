@@ -35,7 +35,7 @@ void CSupplyLine::Precache()
 {
 	BaseClass::Precache();
 
-	s_iSupplyBeam = CTextureLibrary::AddTextureID(L"textures/tendril.png");
+	s_iSupplyBeam = CTextureLibrary::AddTextureID(_T("textures/tendril.png");
 }
 
 void CSupplyLine::Spawn()

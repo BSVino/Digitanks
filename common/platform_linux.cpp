@@ -89,20 +89,20 @@ void SleepMS(size_t iMS)
 	usleep(iMS);
 }
 
-void OpenBrowser(const eastl::string16& sURL)
+void OpenBrowser(const tstring& sURL)
 {
-	system(convertstring<char16_t, char>(eastl::string16("firefox ") + sURL).c_str());
+	system(convertstring<tchar, char>(tstring("firefox ") + sURL).c_str());
 }
 
-void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
-{
-}
-
-wchar_t* OpenFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory)
+void CreateMinidump(void* pInfo, tchar* pszDirectory)
 {
 }
 
-wchar_t* SaveFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory)
+tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
+{
+}
+
+tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
 }
 
@@ -114,71 +114,71 @@ void SetClipboard(const eastl::string& sBuf)
 {
 }
 
-eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eastl::string16& sFile)
+tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 {
 	char* pszVar = getenv("HOME");
 
-	eastl::string16 sSuffix;
-	sSuffix.append(sDirectory).append(L"\\").append(sFile);
+	tstring sSuffix;
+	sSuffix.append(sDirectory).append(_T("\\")).append(sFile);
 
-	eastl::string16 sReturn(convertstring<char, char16_t>(pszVar));
+	tstring sReturn(convertstring<char, tchar>(pszVar));
 
-	mkdir(convertstring<char16_t, char>(eastl::string16(sReturn).append(L"\\").append(sDirectory)).c_str(), 0777);
+	mkdir(convertstring<tchar, char>(tstring(sReturn).append(_T("\\")).append(sDirectory)).c_str(), 0777);
 
-	sReturn.append(L"\\").append(sSuffix);
+	sReturn.append(_T("\\")).append(sSuffix);
 	return sReturn;
 }
 
-eastl::vector<eastl::string16> ListDirectory(eastl::string16 sDirectory, bool bDirectories)
+eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 {
-	eastl::vector<eastl::string16> asResult;
+	eastl::vector<tstring> asResult;
 
 	struct dirent *dp;
 
-	DIR *dir = opendir(convertstring<char16_t, char>(sDirectory).c_str());
+	DIR *dir = opendir(convertstring<tchar, char>(sDirectory).c_str());
 	while ((dp=readdir(dir)) != NULL)
 	{
 		if (!bDirectories && (dp->d_type == DT_DIR))
 			continue;
 
-		asResult.push_back(convertstring<char, char16_t>(dp->d_name));
+		asResult.push_back(convertstring<char, tchar>(dp->d_name));
 	}
 	closedir(dir);
 
 	return asResult;
 }
 
-bool IsFile(eastl::string16 sPath)
+bool IsFile(tstring sPath)
 {
 	struct stat stFileInfo;
 	bool blnReturn;
 	int intStat;
 
 	// Attempt to get the file attributes
-	intStat = stat(convertstring<char16_t, char>(sPath).c_str(), &stFileInfo);
+	intStat = stat(convertstring<tchar, char>(sPath).c_str(), &stFileInfo);
 	if(intStat == 0 && S_ISREG(stFileInfo.st_mode))
 		return true;
 	else
 		return false;
 }
 
-bool IsDirectory(eastl::string16 sPath)
+bool IsDirectory(tstring sPath)
 {
 	struct stat stFileInfo;
 	bool blnReturn;
 	int intStat;
 
 	// Attempt to get the file attributes
-	intStat = stat(convertstring<char16_t, char>(sPath).c_str(), &stFileInfo);
+	intStat = stat(convertstring<tchar, char>(sPath).c_str(), &stFileInfo);
 	if(intStat == 0 && S_ISDIR(stFileInfo.st_mode))
 		return true;
 	else
 		return false;
 }
 
-void DebugPrint(eastl::string16 sText)
+void DebugPrint(tstring sText)
 {
-	wprintf(sText.c_str());
+	puts(convertstring<tchar, char>(sText).c_str());
 }
 
 void Exec(eastl::string sLine)

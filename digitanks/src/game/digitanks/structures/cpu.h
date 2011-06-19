@@ -61,11 +61,11 @@ public:
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 	virtual void				RenderAvailableArea(int iArea);
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	virtual void				OnDeleted();
 
-	virtual eastl::string16		GetEntityName() const { return L"Central Processing Unit"; };
+	virtual tstring		GetEntityName() const { return _T("Central Processing Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_CPU; };
 
 protected:

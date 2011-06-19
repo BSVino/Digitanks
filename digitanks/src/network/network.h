@@ -165,16 +165,16 @@ public:
 
 	static void			Think();
 
-	static void			SetClientInfo(size_t iInstallID, const eastl::string16& sNickname);
+	static void			SetClientInfo(size_t iInstallID, const tstring& sNickname);
 
 	static size_t		GetInstallID() { return s_iInstallID; }
-	static const eastl::string16& GetNickname() { return s_sNickname; }
+	static const tstring& GetNickname() { return s_sNickname; }
 
 protected:
 	static bool			s_bInitialized;
 
 	static size_t			s_iInstallID;
-	static eastl::string16	s_sNickname;
+	static tstring	s_sNickname;
 };
 
 class CNetworkConnection : public INetworkListener
@@ -218,10 +218,10 @@ public:
 	virtual size_t		GetClientsConnected() = 0;
 	virtual size_t		GetClientConnectionId(size_t iClient) = 0;	// Server only, for iterating over GetClientsConnected() clients, returns ~0 if invalid
 
-	virtual void		SetClientInfo(size_t iClient, size_t iInstallID, const eastl::string16& sNickname) = 0;
+	virtual void		SetClientInfo(size_t iClient, size_t iInstallID, const tstring& sNickname) = 0;
 
 	virtual size_t		GetClientInstallID(size_t iClient) = 0;
-	virtual const eastl::string16& GetClientNickname(size_t iClient) = 0;
+	virtual const tstring& GetClientNickname(size_t iClient) = 0;
 
 	// Client only
 	virtual void		SetClientID(size_t iID) { m_iClientID = iID; };

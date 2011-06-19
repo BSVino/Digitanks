@@ -42,7 +42,7 @@ INPUTS_TABLE_END();
 
 void CIntroGame::Precache()
 {
-	PrecacheParticleSystem(L"intro-explosion");
+	PrecacheParticleSystem(_T("intro-explosion");
 }
 
 void CIntroGame::Think()

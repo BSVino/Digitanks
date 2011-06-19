@@ -1,38 +1,40 @@
 #ifndef LW_TINKER_CVAR
 #define LW_TINKER_CVAR
 
-#include <common.h>
 #include <EASTL/string.h>
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
 
-typedef void (*CommandCallback)(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand);
+#include <common.h>
+#include <tstring.h>
+
+typedef void (*CommandCallback)(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand);
 
 class CCommand
 {
 public:
-						CCommand(eastl::string16 sName, CommandCallback pfnCallback);
+						CCommand(tstring sName, CommandCallback pfnCallback);
 						CCommand(eastl::string sName, CommandCallback pfnCallback);
 
 public:
-	static void			Run(eastl::string16 sCommand);
+	static void			Run(tstring sCommand);
 
-	eastl::string16		GetName() { return m_sName; };
+	tstring		GetName() { return m_sName; };
 
 	virtual void		MakeMePolymorphic() {};	// Can delete if another virtual function is added
 
-	static eastl::vector<eastl::string16> GetCommandsBeginningWith(eastl::string16 sFragment);
+	static eastl::vector<tstring> GetCommandsBeginningWith(tstring sFragment);
 
 protected:
-	eastl::string16		m_sName;
+	tstring		m_sName;
 	CommandCallback		m_pfnCallback;
 
 	static void			RegisterCommand(CCommand* pCommand);
 
 protected:
-	static eastl::map<eastl::string16, CCommand*>& GetCommands()
+	static eastl::map<tstring, CCommand*>& GetCommands()
 	{
-		static eastl::map<eastl::string16, CCommand*> aCommands;
+		static eastl::map<tstring, CCommand*> aCommands;
 		return aCommands;
 	}
 };
@@ -42,29 +44,29 @@ class CVar : public CCommand
 	DECLARE_CLASS(CVar, CCommand);
 
 public:
-						CVar(eastl::string16 sName, eastl::string16 sValue);
+						CVar(tstring sName, tstring sValue);
 						CVar(eastl::string sName, eastl::string sValue);
 
 public:
-	void				SetValue(eastl::string16 sValue);
+	void				SetValue(tstring sValue);
 	void				SetValue(int iValue);
 	void				SetValue(float flValue);
 
-	eastl::string16		GetValue() { return m_sValue; };
+	tstring		GetValue() { return m_sValue; };
 	bool				GetBool();
 	int					GetInt();
 	float				GetFloat();
 
-	static CVar*		FindCVar(eastl::string16 sName);
+	static CVar*		FindCVar(tstring sName);
 
-	static void			SetCVar(eastl::string16 sName, eastl::string16 sValue);
-	static void			SetCVar(eastl::string16 sName, int iValue);
-	static void			SetCVar(eastl::string16 sName, float flValue);
+	static void			SetCVar(tstring sName, tstring sValue);
+	static void			SetCVar(tstring sName, int iValue);
+	static void			SetCVar(tstring sName, float flValue);
 
-	static eastl::string16 GetCVarValue(eastl::string16 sName);
-	static bool			GetCVarBool(eastl::string16 sName);
-	static int			GetCVarInt(eastl::string16 sName);
-	static float		GetCVarFloat(eastl::string16 sName);
+	static tstring GetCVarValue(tstring sName);
+	static bool			GetCVarBool(tstring sName);
+	static int			GetCVarInt(tstring sName);
+	static float		GetCVarFloat(tstring sName);
 
 	static void			SetCVar(eastl::string sName, eastl::string sValue);
 	static void			SetCVar(eastl::string sName, int iValue);
@@ -76,7 +78,7 @@ public:
 	static float		GetCVarFloat(eastl::string sName);
 
 protected:
-	eastl::string16		m_sValue;
+	tstring		m_sValue;
 };
 
 #endif

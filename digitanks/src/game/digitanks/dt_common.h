@@ -129,6 +129,6 @@ typedef enum
 } losecondition_t;
 
 extern Color g_aclrTeamColors[];
-extern eastl::string16 g_aszTeamNames[];
+extern tstring g_aszTeamNames[];
 
 #endif

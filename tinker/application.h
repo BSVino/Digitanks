@@ -22,7 +22,7 @@ public:
 	void						DumpGLInfo();
 
 	virtual eastl::string		WindowTitle() { return "Tinker"; }
-	virtual eastl::string16		AppDirectory() { return L"Tinker"; }
+	virtual tstring		AppDirectory() { return _T("Tinker"); }
 
 	void						SwapBuffers();
 	float						GetTime();
@@ -89,7 +89,7 @@ public:
 	void						ReadProductCode();
 	eastl::string				GetProductCode();
 	void						SetLicenseKey(eastl::string sKey);
-	bool						QueryRegistrationKey(eastl::string16 sServer, eastl::string16 sURI, eastl::string16 sKey, eastl::string sProduct, eastl::string16& sError);
+	bool						QueryRegistrationKey(tstring sServer, tstring sURI, tstring sKey, eastl::string sProduct, tstring& sError);
 	void						SaveProductCode();
 	eastl::string				GenerateCode();
 
@@ -97,7 +97,7 @@ public:
 	static void					CloseConsole();
 	static void					ToggleConsole();
 	static bool					IsConsoleOpen();
-	static void					PrintConsole(eastl::string16 sText);
+	static void					PrintConsole(tstring sText);
 	static void					PrintConsole(eastl::string sText);
 	class CConsole*				GetConsole();
 
@@ -131,7 +131,7 @@ inline CApplication* Application()
 
 // Tinker messages and errors
 #define TMsg CApplication::PrintConsole
-#define TError(x) CApplication::PrintConsole(eastl::string16(L"Error: ") + x)
+#define TError(x) CApplication::PrintConsole(tstring(_T("Error: ")) + x)
 
 typedef void (*CreateApplicationCallback)(int argc, char** argv);
 void CreateApplicationWithErrorHandling(CreateApplicationCallback pfnCallback, int argc, char** argv);

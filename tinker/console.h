@@ -24,7 +24,7 @@ public:
 	virtual void			Paint() { Paint(GetLeft(), GetTop(), GetWidth(), GetHeight()); };
 	virtual void			Paint(int x, int y, int w, int h);
 
-	void					PrintConsole(eastl::string16 sText);
+	void					PrintConsole(tstring sText);
 
 	virtual bool			KeyPressed(int code, bool bCtrlDown = false);
 	virtual bool			CharPressed(int iKey);

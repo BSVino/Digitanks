@@ -25,20 +25,20 @@ INPUTS_TABLE_END();
 
 void CMenuMarcher::Precache()
 {
-	PrecacheModel(L"models/digitanks/digitank-body.obj", true);
-	PrecacheModel(L"models/digitanks/digitank-turret.obj", true);
-	PrecacheParticleSystem(L"tank-hover");
+	PrecacheModel(_T("models/digitanks/digitank-body.obj", true);
+	PrecacheModel(_T("models/digitanks/digitank-turret.obj", true);
+	PrecacheParticleSystem(_T("tank-hover");
 }
 
 void CMenuMarcher::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/digitank-body.obj");
+	SetModel(_T("models/digitanks/digitank-body.obj");
 
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-turret.obj");
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj");
 
-	m_hHoverParticles.SetSystem(L"tank-hover", GetOrigin());
+	m_hHoverParticles.SetSystem(_T("tank-hover", GetOrigin());
 	m_hHoverParticles.FollowEntity(this);
 
 	m_flBobOffset = RandomFloat(0, 10);
