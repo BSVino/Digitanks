@@ -4,6 +4,10 @@
 
 using eastl::string;
 
+#ifdef __GNUC__
+#define INVALID_SOCKET -1
+#endif
+
 CClientSocket::CClientSocket(const char* pszHostname, int iPort)
 {
 	m_sHostname = pszHostname;
@@ -72,7 +76,12 @@ bool CClientSocket::Connect(const char* pszHostname, int iPort)
 		if (iResult == SOCKET_ERROR)
 		{
 			m_sError = "connect() failed";
+#ifdef _WIN32
 			closesocket(m_iSocket);
+#else
+			shutdown(m_iSocket, SHUT_RDWR);
+			close(m_iSocket);
+#endif
 			iResult = INVALID_SOCKET;
 			continue;
 		}

@@ -1,8 +1,10 @@
 // ConfigFile.cpp
 
-#include "ConfigFile.h"
+#include "configfile.h"
 
 #include <string>
+
+#include <strutils.h>
 #include <common.h>
 
 ConfigFile::ConfigFile( string16 filename, string16 delimiter,
@@ -11,7 +13,7 @@ ConfigFile::ConfigFile( string16 filename, string16 delimiter,
 {
 	// Construct a ConfigFile, getting keys and values from given file
 	
-	std::wifstream in( filename.c_str() );
+	std::wifstream in( convertstring<char16_t, char>(filename).c_str() );
 
 	fileValid = !!in;
 

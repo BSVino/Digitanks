@@ -7,6 +7,10 @@
 
 #include <string>
 
+#ifdef _MSC_VER
+#define swprintf _snwprintf
+#endif
+
 // Silo ascii
 void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 {
@@ -18,7 +22,11 @@ void CModelConverter::ReadSIA(const eastl::string16& sFilename)
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(L"Reading file into memory...", 0);
 
+#ifdef _MSC_VER
 	FILE* fp = _wfopen(sFilename.c_str(), L"r");
+#else
+	FILE* fp = fopen(convertstring<char16_t, char>(sFilename).c_str(), "r");
+#endif
 
 	if (!fp)
 	{
@@ -205,7 +213,7 @@ const char16_t* CModelConverter::ReadSIAMat(const char16_t* pszLine, const char1
 
 			eastl::string16 sDirectory = GetDirectory(sFilename);
 			wchar_t szTexture[1024];
-			swprintf(szTexture, L"%s/%s", sDirectory.c_str(), aName[0].c_str());
+			swprintf(szTexture, 1023, L"%s/%s", sDirectory.c_str(), aName[0].c_str());
 
 			pMaterial->m_sDiffuseTexture = szTexture;
 		}
@@ -319,7 +327,7 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 				while (pszToken[0] == L' ')
 					pszToken++;
 
-				v[iDimension++] = (float)_wtof(pszToken);
+				v[iDimension++] = (float)stof(pszToken);
 				if (iDimension >= 3)
 					break;
 
@@ -351,7 +359,7 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 				while (pszToken[0] == L' ')
 					pszToken++;
 
-				e[iDimension++] = (int)_wtoi(pszToken);
+				e[iDimension++] = (int)stoi(pszToken);
 				if (iDimension >= 2)
 					break;
 
@@ -371,14 +379,14 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 			// The first one is the number of creases, skip it
 			for (size_t i = 1; i < iCreases; i++)
 			{
-				int iEdge = _wtoi(aCreases[i].c_str());
+				int iEdge = stoi(aCreases[i].c_str());
 				pMesh->GetEdge(iEdge+iAddE)->m_bCreased = true;
 			}
 		}
 		else if (wcscmp(pszToken, L"-setmat") == 0)
 		{
 			const wchar_t* pszMaterial = pszLine+8;
-			size_t iNewMaterial = _wtoi(pszMaterial);
+			size_t iNewMaterial = stoi(pszMaterial);
 
 			if (iNewMaterial == (size_t)(-1))
 				iCurrentMaterial = ~0;
@@ -421,7 +429,7 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 			// scanf is pretty slow even for such a short string due to lots of mallocs.
 			const wchar_t* pszToken = pszLine+6;
 
-			size_t iVerts = _wtoi(pszToken);
+			size_t iVerts = stoi(pszToken);
 
 			while (pszToken[0] != L' ')
 				pszToken++;
@@ -429,22 +437,22 @@ const char16_t* CModelConverter::ReadSIAShape(const char16_t* pszLine, const cha
 			size_t iProcessed = 0;
 			while (iProcessed++ < iVerts)
 			{
-				size_t iVertex = _wtoi(++pszToken)+iAddV;
+				size_t iVertex = stoi(++pszToken)+iAddV;
 
 				while (pszToken[0] != L' ')
 					pszToken++;
 
-				size_t iEdge = _wtoi(++pszToken)+iAddE;
+				size_t iEdge = stoi(++pszToken)+iAddE;
 
 				while (pszToken[0] != L' ')
 					pszToken++;
 
-				float flU = (float)_wtof(++pszToken);
+				float flU = (float)stof(++pszToken);
 
 				while (pszToken[0] != L' ')
 					pszToken++;
 
-				float flV = (float)_wtof(++pszToken);
+				float flV = (float)stof(++pszToken);
 
 				size_t iUV = pMesh->AddUV(flU, flV);
 
@@ -482,7 +490,7 @@ void CModelConverter::SaveSIA(const eastl::string16& sFilename)
 {
 	eastl::string16 sSIAFileName = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sFilename).c_str() + L".sia";
 
-	std::wofstream sFile(sSIAFileName.c_str());
+	std::wofstream sFile(convertstring<char16_t, char>(sSIAFileName).c_str());
 	if (!sFile.is_open())
 		return;
 

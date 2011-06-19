@@ -4,4 +4,13 @@ include_directories (
 	../common/math
 )
 
-add_library (modelconverter convmesh.cpp modelconverter.cpp)
+add_definitions(-DNO_COLLADA)
+
+add_library (modelconverter
+	convmesh.cpp
+	modelconverter.cpp
+	formats/collada.cpp
+	formats/obj.cpp
+	formats/silo.cpp
+	formats/smd.cpp
+)

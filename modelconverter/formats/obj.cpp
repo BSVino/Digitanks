@@ -5,12 +5,21 @@
 #include "../modelconverter.h"
 #include "strutils.h"
 
+#ifdef _MSC_VER
+#define wcstok(a,b,c) wcstok(a, b)
+#define swprintf _snwprintf
+#endif
+
 void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 {
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
 
+#ifdef _MSC_VER
 	FILE* fp = _wfopen(sFilename.c_str(), L"r");
+#else
+	FILE* fp = fopen(convertstring<char16_t, char>(sFilename).c_str(), "r");
+#endif
 
 	if (!fp)
 	{
@@ -95,13 +104,13 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 			// ZBrush is kind enough to notate exactly how many vertices and faces we have in the comments at the top of the file.
 			if (wcsncmp(pszLine, L"#Vertex Count", 13) == 0)
 			{
-				iTotalVertices = _wtoi(pszLine+13);
+				iTotalVertices = stoi(pszLine+13);
 				pMesh->SetTotalVertices(iTotalVertices);
 			}
 
 			if (wcsncmp(pszLine, L"#Face Count", 11) == 0)
 			{
-				iTotalFaces = _wtoi(pszLine+11);
+				iTotalFaces = stoi(pszLine+11);
 				pMesh->SetTotalFaces(iTotalFaces);
 
 				// Don't kill the video card while we're loading the faces.
@@ -115,13 +124,14 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 		wchar_t szToken[1024];
 		wcscpy(szToken, pszLine);
 		wchar_t* pszToken = NULL;
-		pszToken = wcstok(szToken, L" ");
+		wchar_t* pszState = NULL;
+		pszToken = wcstok(szToken, L" ", &pszState);
 
 		if (wcscmp(pszToken, L"mtllib") == 0)
 		{
 			eastl::string16 sDirectory = GetDirectory(sFilename);
 			wchar_t szMaterial[1024];
-			swprintf(szMaterial, L"%s/%s", sDirectory.c_str(), pszLine + 7);
+			swprintf(szMaterial, 1023, L"%s/%s", sDirectory.c_str(), pszLine + 7);
 			ReadMTL(szMaterial);
 		}
 		else if (wcscmp(pszToken, L"o") == 0)
@@ -151,7 +161,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 				while (pszToken[0] == L' ')
 					pszToken++;
 
-				v[iDimension++] = (float)_wtof(pszToken);
+				v[iDimension++] = (float)stof(pszToken);
 				if (iDimension >= 3)
 					break;
 
@@ -258,9 +268,9 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 			// HACK! CModelWindow::SetAction() ends up calling wcstok so we reset it here.
 			wcscpy(szToken, pszLine);
-			pszToken = wcstok(szToken, L" ");
+			pszToken = wcstok(szToken, L" ", &pszState);
 
-			while (pszToken = wcstok(NULL, L" "))
+			while (pszToken = wcstok(NULL, L" ", &pszState))
 			{
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
 				long f[3];
@@ -283,7 +293,7 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 							pszValues++;
 
 						bValues[iValue] = true;
-						f[iValue++] = (long)_wtoi(pszValues);
+						f[iValue++] = (long)stoi(pszValues);
 						if (iValue >= 3)
 							break;
 					}
@@ -353,7 +363,11 @@ void CModelConverter::ReadOBJ(const eastl::string16& sFilename)
 
 void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 {
+#ifdef _MSC_VER
 	FILE* fp = _wfopen(sFilename.c_str(), L"r");
+#else
+	FILE* fp = fopen(convertstring<char16_t, char>(sFilename).c_str(), "r");
+#endif
 
 	if (!fp)
 		return;
@@ -381,7 +395,8 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 		wchar_t szToken[1024];
 		wcscpy(szToken, sLine.c_str());
 		wchar_t* pszToken = NULL;
-		pszToken = wcstok(szToken, L" ");
+		wchar_t* pszState = NULL;
+		pszToken = wcstok(szToken, L" ", &pszState);
 
 		CConversionMaterial* pMaterial = NULL;
 		if (iCurrentMaterial != ~0)
@@ -389,8 +404,9 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 
 		if (wcscmp(pszToken, L"newmtl") == 0)
 		{
-			pszToken = wcstok(NULL, L" ");
-			iCurrentMaterial = m_pScene->AddMaterial(CConversionMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0));
+			pszToken = wcstok(NULL, L" ", &pszState);
+			CConversionMaterial oMaterial(pszToken, Vector(0.2f,0.2f,0.2f), Vector(0.8f,0.8f,0.8f), Vector(1,1,1), Vector(0,0,0), 1.0, 0);
+			iCurrentMaterial = m_pScene->AddMaterial(oMaterial);
 		}
 		else if (wcscmp(pszToken, L"Ka") == 0)
 		{
@@ -418,24 +434,30 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 		}
 		else if (wcscmp(pszToken, L"d") == 0 || wcscmp(pszToken, L"Tr") == 0)
 		{
-			pszToken = wcstok(NULL, L" ");
-			pMaterial->m_flTransparency = (float)_wtof(pszToken);
+			pszToken = wcstok(NULL, L" ", &pszState);
+			pMaterial->m_flTransparency = (float)stof(pszToken);
 		}
 		else if (wcscmp(pszToken, L"Ns") == 0)
 		{
-			pszToken = wcstok(NULL, L" ");
-			pMaterial->m_flShininess = (float)_wtof(pszToken)*128/1000;
+			pszToken = wcstok(NULL, L" ", &pszState);
+			pMaterial->m_flShininess = (float)stof(pszToken)*128/1000;
 		}
 		else if (wcscmp(pszToken, L"illum") == 0)
 		{
-			pszToken = wcstok(NULL, L" ");
-			pMaterial->m_eIllumType = (IllumType_t)_wtoi(pszToken);
+			pszToken = wcstok(NULL, L" ", &pszState);
+			pMaterial->m_eIllumType = (IllumType_t)stoi(pszToken);
 		}
 		else if (wcscmp(pszToken, L"map_Kd") == 0)
 		{
-			pszToken = wcstok(NULL, L" ");
+			pszToken = wcstok(NULL, L" ", &pszState);
 
-			if (FILE* fpTest = _wfopen(pszToken, L"r"))
+#ifdef _MSC_VER
+			FILE* fpTest = _wfopen(pszToken, L"r");
+#else
+			FILE* fpTest = fopen(convertstring<char16_t, char>(pszToken).c_str(), "r");
+#endif
+
+			if (fpTest)
 			{
 				fclose(fpTest);
 
@@ -445,7 +467,7 @@ void CModelConverter::ReadMTL(const eastl::string16& sFilename)
 			{
 				eastl::string16 sDirectory = GetDirectory(sFilename);
 				wchar_t szTexture[1024];
-				swprintf(szTexture, L"%s/%s", sDirectory.c_str(), pszToken);
+				swprintf(szTexture, 1023, L"%s/%s", sDirectory.c_str(), pszToken);
 
 				pMaterial->m_sDiffuseTexture = eastl::string16(szTexture);
 			}
@@ -459,7 +481,7 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 {
 	eastl::string16 sMaterialFileName = eastl::string16(GetDirectory(sFilename).c_str()) + L"/" + GetFilename(sFilename).c_str() + L".mtl";
 
-	std::wofstream sMaterialFile(sMaterialFileName.c_str());
+	std::wofstream sMaterialFile(convertstring<char16_t, char>(sMaterialFileName).c_str());
 	if (!sMaterialFile.is_open())
 		return;
 
@@ -509,7 +531,7 @@ void CModelConverter::SaveOBJ(const eastl::string16& sFilename)
 		if (m_pScene->GetNumMeshes() == 1)
 			sOBJFilename = sFilename;
 
-		std::wofstream sOBJFile(sOBJFilename.c_str());
+		std::wofstream sOBJFile(convertstring<char16_t, char>(sOBJFilename).c_str());
 		sOBJFile.precision(8);
 		sOBJFile.setf(std::ios::fixed, std::ios::floatfield);
 

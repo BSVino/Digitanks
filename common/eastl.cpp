@@ -30,6 +30,6 @@ int Vsnprintf16(char16_t* pDestination, size_t n, const char16_t* pFormat, va_li
     #ifdef _MSC_VER
         return _vsnwprintf(pDestination, n, pFormat, arguments);
     #else
-        return vsnwprintf(pDestination, n, pFormat, arguments);
+        return vswprintf(pDestination, n, pFormat, arguments);
     #endif
 }

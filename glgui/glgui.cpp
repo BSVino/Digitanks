@@ -12,6 +12,11 @@
 #include <strutils.h>
 #include <tinker/keys.h>
 
+#ifdef _MSC_VER
+#define wcsdup _wcsdup
+#define wcstok(a,b,c) wcstok(a, b)
+#endif
+
 using namespace glgui;
 
 Color glgui::g_clrPanel = Color(66, 72, 82, 255);
@@ -795,9 +800,10 @@ void CLabel::Paint(int x, int y, int w, int h)
 	if (!m_bEnabled)
 		FGColor.SetColor(m_FGColor.r()/2, m_FGColor.g()/2, m_FGColor.b()/2, m_iAlpha);
 
-	wchar_t* pszSeps = L"\n";
-	wchar_t* pszText = _wcsdup(m_sText.c_str());
-	wchar_t* pszTok = wcstok(pszText, pszSeps);
+	const wchar_t* pszSeps = L"\n";
+	wchar_t* pszState;
+	wchar_t* pszText = wcsdup(m_sText.c_str());
+	wchar_t* pszTok = wcstok(pszText, pszSeps, &pszState);
 	m_iLine = 0;
 
 	m_iCharsDrawn = 0;
@@ -862,7 +868,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 			m_iLine++;
 		}
 
-		pszTok = wcstok(NULL, pszSeps);
+		pszTok = wcstok(NULL, pszSeps, &pszState);
 	}
 
 	free(pszText);
@@ -1015,8 +1021,8 @@ void CLabel::ComputeLines(int w, int h)
 	if (h == -1)
 		h = m_iH;
 
-	wchar_t* pszSeps = L"\n";
-	wchar_t* pszText = _wcsdup(m_sText.c_str());
+	const wchar_t* pszSeps = L"\n";
+	wchar_t* pszText = wcsdup(m_sText.c_str());
 
 	// Cut off any ending line returns so that labels don't have hanging space below.
 	if (pszText[wcslen(pszText)-1] == L'\n')
@@ -1027,7 +1033,8 @@ void CLabel::ComputeLines(int w, int h)
 	// of lineating method is required or something...? We need to
 	// add up all the lines as if they were being truncated during
 	// printing to get the real height of all the text.
-	wchar_t* pszTok = wcstok(pszText, pszSeps);
+	wchar_t* pszState;
+	wchar_t* pszTok = wcstok(pszText, pszSeps, &pszState);
 
 	m_iTotalLines = 0;
 
@@ -1081,7 +1088,7 @@ void CLabel::ComputeLines(int w, int h)
 			m_iTotalLines++;
 		}
 
-		pszTok = wcstok(NULL, pszSeps);
+		pszTok = wcstok(NULL, pszSeps, &pszState);
 	}
 
 	free(pszText);

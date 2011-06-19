@@ -4,9 +4,14 @@ project (lw)
 
 if (CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(-fshort-wchar)
+	include_directories(/usr/include/freetype2)
 endif (CMAKE_COMPILER_IS_GNUCC)
+
+add_definitions(-D_UNICODE)
 
 add_subdirectory (raytracer)
 add_subdirectory (modelconverter)
 
 add_subdirectory (tinker)
+
+add_subdirectory (smak)

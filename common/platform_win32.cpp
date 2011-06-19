@@ -59,7 +59,7 @@ size_t GetNumberOfProcessors()
 
 void SleepMS(size_t iMS)
 {
-	Sleep(1);
+	Sleep(iMS);
 }
 
 void OpenBrowser(const eastl::string16& sURL)
@@ -132,7 +132,7 @@ void CreateMinidump(void* pInfo, wchar_t* pszDirectory)
 #endif
 }
 
-wchar_t* OpenFileDialog(wchar_t* pszFileTypes, const wchar_t* pszDirectory)
+wchar_t* OpenFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory)
 {
 	static wchar_t szFile[256];
 	szFile[0] = '\0';
@@ -164,7 +164,7 @@ wchar_t* OpenFileDialog(wchar_t* pszFileTypes, const wchar_t* pszDirectory)
 	return NULL;
 }
 
-wchar_t* SaveFileDialog(wchar_t* pszFileTypes, const wchar_t* pszDirectory)
+wchar_t* SaveFileDialog(const wchar_t* pszFileTypes, const wchar_t* pszDirectory)
 {
 	static wchar_t szFile[256];
 	szFile[0] = '\0';
@@ -229,11 +229,6 @@ void SetClipboard(const eastl::string& sBuf)
 	SetClipboardData(CF_TEXT, hClipboard);
 
 	CloseClipboard();
-}
-
-void ShowMessage(const wchar_t* pszMessage)
-{
-	MessageBox(NULL, pszMessage, L"Digitanks!", MB_OK|MB_ICONINFORMATION);
 }
 
 eastl::string16 GetAppDataDirectory(const eastl::string16& sDirectory, const eastl::string16& sFile)

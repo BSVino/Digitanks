@@ -779,10 +779,10 @@ namespace glgui
 	class CScrollSelection
 	{
 	public:
-		CScrollSelection(T oParam, wchar_t* szLabel)
+		CScrollSelection(T oParam, const eastl::string16& sLabel)
 		{
 			m_oParam = oParam;
-			m_sLabel = szLabel;
+			m_sLabel = sLabel;
 		}
 
 		T									m_oParam;
@@ -949,7 +949,7 @@ namespace glgui
 				m_pfnSelectedCallback(m_pSelectedListener);
 		}
 
-		virtual void AddSelection(CScrollSelection<T>& oSelection)
+		virtual void AddSelection(const CScrollSelection<T>& oSelection)
 		{
 			m_aSelections.push_back(oSelection);
 		}

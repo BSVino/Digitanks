@@ -26,7 +26,11 @@ void CModelConverter::WriteSMD(size_t iMesh, const eastl::string16& sFilename)
 
 	sFile.append(L".smd");
 
+#ifdef _MSC_VER
 	FILE* fp = _wfopen(sFile.c_str(), L"w");
+#else
+	FILE* fp = fopen(convertstring<char16_t, char>(sFile).c_str(), "r");
+#endif
 
 	// SMD file format: http://developer.valvesoftware.com/wiki/SMD
 
@@ -36,7 +40,7 @@ void CModelConverter::WriteSMD(size_t iMesh, const eastl::string16& sFilename)
 	// Nodes section
 	fwprintf(fp, L"nodes\n");
 	// Only bothering with one node, we're only doing static props with this code for now.
-	fwprintf(fp, L"0 \"%s\" -1\n", pMesh->GetBoneName(0));
+	fwprintf(fp, L"0 \"%s\" -1\n", pMesh->GetBoneName(0).c_str());
 	fwprintf(fp, L"end\n\n");
 
 	// Skeleton section
@@ -84,7 +88,7 @@ void CModelConverter::WriteSMD(size_t iMesh, const eastl::string16& sFilename)
 				fwprintf(fp, L"error\n");
 			}
 			else
-				fwprintf(fp, L"%s\n", m_pScene->GetMaterial(iMaterial)->GetName());
+				fwprintf(fp, L"%s\n", m_pScene->GetMaterial(iMaterial)->GetName().c_str());
 
 			// <int|Parent bone> <float|PosX PosY PosZ> <normal|NormX NormY NormZ> <normal|U V>
 			// Studio coordinates are not the same as game coordinates. Studio (x, y, z) is game (x, -z, y) and vice versa.

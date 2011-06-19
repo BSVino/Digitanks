@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <sstream>
 
 // It's inline so I don't have to make a strutils.cpp :P
 inline void strtok(const eastl::string& str, eastl::vector<eastl::string>& tokens, const eastl::string& delimiters = " \r\n\t")
@@ -188,6 +189,26 @@ inline eastl::string16 str_replace(const eastl::string16& s, const eastl::string
 		sResult = sResult.substr(0, iPosition) + r + (sResult.c_str()+iPosition+f.length());
 
 	return sResult;
+}
+
+inline int stoi(const eastl::string16& s)
+{
+	std::istringstream i(convertstring<char16_t, char>(s).c_str());
+	int x;
+	if (!(i >> x))
+		return 0;
+
+	return x;
+}
+
+inline float stof(const eastl::string16& s)
+{
+	std::istringstream i(convertstring<char16_t, char>(s).c_str());
+	float x;
+	if (!(i >> x))
+		return 0;
+
+	return x;
 }
 
 #endif

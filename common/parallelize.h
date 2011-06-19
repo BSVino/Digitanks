@@ -33,7 +33,7 @@ typedef void (*JobCallback)(void*);
 class CParallelizer
 {
 public:
-	friend CParallelizeThread;
+	friend class CParallelizeThread;
 
 public:
 									CParallelizer(JobCallback pfnCallback);
