@@ -1153,6 +1153,8 @@ void CLabel::SetScissor(bool bScissor)
 
 #ifdef _WIN32
 		sFont = sprintf(_T("%s\\Fonts\\Arial.ttf"), convertstring<char, tchar>(getenv("windir")));
+#else
+		sFont = _T("/usr/share/fonts/truetype/freefont/FreeSans.ttf");
 #endif
 
 		AddFont(_T("sans-serif"), sFont);
