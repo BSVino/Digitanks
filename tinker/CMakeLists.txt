@@ -1,8 +1,3 @@
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	find_package(GTK2 REQUIRED)
-	include_directories(${GTK2_INCLUDE_DIRS})
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
 include_directories (
 	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
 	../
@@ -28,4 +23,5 @@ if (WIN32)
 	)
 endif (WIN32)
 
-add_library(tinker ${TINKER_SOURCES})
+add_library(tinker SHARED ${TINKER_SOURCES})
+target_link_libraries(tinker lwbase)

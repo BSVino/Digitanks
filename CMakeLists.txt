@@ -20,6 +20,8 @@ if (WIN32)
 	add_definitions(-DFTGL_LIBRARY_STATIC)
 endif (WIN32)
 
+add_subdirectory (lwbase)
+
 add_subdirectory (raytracer)
 add_subdirectory (modelconverter)
 

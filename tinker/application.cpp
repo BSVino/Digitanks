@@ -4,10 +4,6 @@
 #include <Windows.h>
 #endif
 
-#ifdef __linux__
-#include <gtk/gtk.h>
-#endif
-
 #include <time.h>
 #include <GL/glew.h>
 #include <GL/glfw.h>
@@ -28,10 +24,6 @@ CApplication* CApplication::s_pApplication = NULL;
 
 CApplication::CApplication(int argc, char** argv)
 {
-#ifdef __linux__
-	gtk_init(&argc, &argv);
-#endif
-
 	TPortal_Startup();
 
 	ilInit();

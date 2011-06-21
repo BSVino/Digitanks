@@ -40,8 +40,7 @@ inline bool fgetts(tstring& str, FILE* fp)
 	if (!r)
 		return false;
 
-	tstring sResult = convertstring<char, tchar>(szLine);
-
+	str = convertstring<char, tchar>(szLine);
 	return !!r;
 #endif
 }
