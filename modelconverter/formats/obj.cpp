@@ -48,12 +48,13 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 	size_t iFileSize = (iOBJSize+1) * (sizeof(tchar)+1);
 	tchar* pszEntireFile = (tchar*)malloc(iFileSize);
 	tchar* pszCurrent = pszEntireFile;
+	pszCurrent[0] = _T('\0');
 
 	// Read the entire file into an array first for faster processing.
 	tstring sLine;
 	while (fgetts(sLine, fp))
 	{
-		tstrncpy(pszCurrent, sLine.c_str(), iFileSize-(pszCurrent-pszEntireFile));
+		tstrncpy(pszCurrent, iFileSize-(pszCurrent-pszEntireFile), sLine.c_str(), sLine.length());
 		size_t iLength = sLine.length();
 
 		if (pszCurrent[iLength-1] == L'\n')
@@ -237,7 +238,6 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 			else
 			{
 				bSmoothingGroups = true;
-				size_t s;
 				eastl::vector<tstring> asTokens;
 				tstrtok(pszLine, asTokens, _T(" "));
 				if (asTokens.size() == 2)

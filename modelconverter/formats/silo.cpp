@@ -39,7 +39,7 @@ void CModelConverter::ReadSIA(const tstring& sFilename)
 	tstring sLine;
 	while (fgetts(sLine, fp))
 	{
-		tstrncpy(pszCurrent, sLine.c_str(), iFileSize-(pszCurrent-pszEntireFile));
+		tstrncpy(pszCurrent, iFileSize-(pszCurrent-pszEntireFile), sLine.c_str(), sLine.length());
 		size_t iLength = sLine.length();
 
 		if (pszCurrent[iLength-1] == L'\n')

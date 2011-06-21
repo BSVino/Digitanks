@@ -5,4 +5,22 @@ include_directories (
 	../common/math
 )
 
-add_library(tinker application.cpp console.cpp cvar.cpp portals/portal_stubs.cpp register.cpp)
+set (TINKER_SOURCES
+	application.cpp
+	console.cpp
+	cvar.cpp
+	portals/portal_stubs.cpp
+	register.cpp
+)
+
+if (WIN32)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glew/include)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glfw/include)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/include)
+
+	set (TINKER_SOURCES ${TINKER_SOURCES}
+		${CMAKE_SOURCE_DIR}/ext-deps/glew/src/glew.c
+	)
+endif (WIN32)
+
+add_library(tinker ${TINKER_SOURCES})

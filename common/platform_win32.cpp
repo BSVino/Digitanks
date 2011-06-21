@@ -1,10 +1,22 @@
 #include <platform.h>
 
+// tchar.h defines it
+#ifdef _T
+#undef _T
+#endif
+
 #include <windows.h>
 #include <iphlpapi.h>
 #include <tchar.h>
 #include <dbghelp.h>
-#include <EASTL/string.h>
+
+// tchar.h defines it so reset it
+#ifdef _T
+#undef _T
+#define _T EA_CHAR16
+#endif
+
+#include <tstring.h>
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 {
@@ -64,7 +76,7 @@ void SleepMS(size_t iMS)
 
 void OpenBrowser(const tstring& sURL)
 {
-	ShellExecute(NULL, _T("open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 static int g_iMinidumpsWritten = 0;
@@ -90,7 +102,7 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 
 	tchar szFileName[MAX_PATH];
 	_snwprintf( szFileName, sizeof(szFileName) / sizeof(tchar),
-			_T("%s_%d.%.2d.%2d.%.2d.%.2d.%.2d_%d.mdmp"),
+			L"%s_%d.%.2d.%2d.%.2d.%.2d.%.2d_%d.mdmp",
 			pModule,
 			pTime->tm_year + 1900,
 			pTime->tm_mon + 1,
@@ -149,10 +161,10 @@ tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
 	opf.lpstrInitialDir = pszDirectory;
-	opf.lpstrTitle = _T("Open File";
+	opf.lpstrTitle = L"Open File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
-	opf.lpstrDefExt = _T("*.*";
+	opf.lpstrDefExt = L"*.*";
 	opf.lpfnHook = NULL;
 	opf.lCustData = 0;
 	opf.Flags = (OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
@@ -181,10 +193,10 @@ tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
 	opf.lpstrInitialDir = pszDirectory;
-	opf.lpstrTitle = _T("Save File";
+	opf.lpstrTitle = L"Save File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
-	opf.lpstrDefExt = _T("*.*";
+	opf.lpstrDefExt = L"*.*";
 	opf.lpfnHook = NULL;
 	opf.lCustData = 0;
 	opf.Flags = (OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
@@ -234,10 +246,10 @@ void SetClipboard(const eastl::string& sBuf)
 tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 {
 	size_t iSize;
-	_wgetenv_s(&iSize, NULL, 0, _T("APPDATA");
+	_wgetenv_s(&iSize, NULL, 0, L"APPDATA");
 
 	tstring sSuffix;
-	sSuffix.append(sDirectory).append(_T("\\").append(sFile);
+	sSuffix.append(sDirectory).append(_T("\\")).append(sFile);
 
 	if (!iSize)
 		return sSuffix;
@@ -246,15 +258,15 @@ tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 	if (!pszVar)
 		return sSuffix;
 
-	_wgetenv_s(&iSize, pszVar, iSize, _T("APPDATA");
+	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
 
 	tstring sReturn(pszVar);
 
 	free(pszVar);
 
-	CreateDirectory(tstring(sReturn).append(_T("\\").append(sDirectory).c_str(), NULL);
+	CreateDirectory(tstring(sReturn).append(_T("\\")).append(sDirectory).c_str(), NULL);
 
-	sReturn.append(_T("\\").append(sSuffix);
+	sReturn.append(_T("\\")).append(sSuffix);
 	return sReturn;
 }
 
@@ -263,7 +275,7 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 	eastl::vector<tstring> asResult;
 
 	tchar szPath[MAX_PATH];
-	_swprintf(szPath, _T("%s\\*", sDirectory.c_str());
+	_swprintf(szPath, L"%s\\*", sDirectory.c_str());
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(szPath, &fd);
@@ -277,7 +289,7 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 				continue;
 
 			// Duh.
-			if (wcscmp(fd.cFileName, _T(".") == 0 || wcscmp(fd.cFileName, _T("..") == 0)
+			if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
 				continue;
 
 			asResult.push_back(fd.cFileName);

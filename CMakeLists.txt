@@ -1,13 +1,25 @@
 cmake_minimum_required (VERSION 2.8)
-project (lw)
 
+set (CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_overrides.cmake)
+set (CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_overrides.cmake)
+
+project (lw)
 
 if (CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(-std=c++0x)
 	include_directories(/usr/include/freetype2)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
-#add_definitions(-D_UNICODE)
+if (WIN32)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+	add_definitions(-D_CRT_NON_CONFORMING_SWPRINTFS)
+	add_definitions(-D_CHAR16T)
+	add_definitions(-D_UNICODE)
+	add_definitions(-DGLEW_STATIC)
+	add_definitions(-DFREEGLUT_STATIC)
+	add_definitions(-DFTGL_LIBRARY_STATIC)
+endif (WIN32)
 
 add_subdirectory (raytracer)
 add_subdirectory (modelconverter)
