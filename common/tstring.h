@@ -27,13 +27,22 @@ inline bool fgetts(tstring& str, FILE* fp)
 #ifdef _MSC_VER
 	static wchar_t szLine[1024];
 	tchar* r = fgetws(szLine, 1023, fp);
+
+	if (!r)
+		return false;
+
 	str = szLine;
 	return !!r;
 #else
 	static char szLine[1024];
 	char* r = fgets(szLine, 1023, fp);
-	str = convertstring<char, tchar>(szLine);
-	return r;
+
+	if (!r)
+		return false;
+
+	tstring sResult = convertstring<char, tchar>(szLine);
+
+	return !!r;
 #endif
 }
 

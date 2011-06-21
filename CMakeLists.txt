@@ -7,7 +7,6 @@ project (lw)
 
 if (CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(-std=c++0x)
-	include_directories(/usr/include/freetype2)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 if (WIN32)

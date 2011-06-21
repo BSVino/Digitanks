@@ -10,6 +10,8 @@
 #include <linux/if.h>
 #include <X11/Xlib.h>
 
+#include <gtk/gtk.h>
+
 #include <EASTL/string.h>
 
 #include <strutils.h>
@@ -100,10 +102,35 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 
 tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
+	static tchar szFile[256];
+	szFile[0] = '\0';
+
+	GtkWidget* pDialog = gtk_file_chooser_dialog_new("Open File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+
+	char* pszFilename = NULL;
+
+	if (gtk_dialog_run(GTK_DIALOG(pDialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		pszFilename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(pDialog));
+		printf("Returning: %s\n", pszFilename);
+		tstring sFilename = convertstring<char, tchar>(pszFilename);
+		tstrncpy(szFile, 255, sFilename.c_str(), sFilename.length());
+		g_free(pszFilename);
+	}
+
+	gtk_widget_destroy(pDialog);
+
+	while (gtk_main_iteration_do(FALSE));
+
+	if (pszFilename)
+		return szFile;
+	else
+		return NULL;
 }
 
 tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
+	return NULL;
 }
 
 eastl::string GetClipboard()

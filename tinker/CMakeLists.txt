@@ -1,3 +1,8 @@
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	find_package(GTK2 REQUIRED)
+	include_directories(${GTK2_INCLUDE_DIRS})
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 include_directories (
 	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
 	../
