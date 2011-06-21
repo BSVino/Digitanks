@@ -14,7 +14,9 @@ typedef tstring::value_type tchar;
 inline FILE* tfopen(const tstring& sFile, const tstring& sMode)
 {
 #ifdef _MSC_VER
-	return _wfopen_s(sFile.c_str(), sMode.c_str());
+	static FILE* fp;
+	_wfopen_s(&fp, sFile.c_str(), sMode.c_str());
+	return fp;
 #else
 	return fopen(convertstring<tchar, char>(sFile).c_str(), convertstring<tchar, char>(sMode).c_str());
 #endif
@@ -26,7 +28,7 @@ inline bool fgetts(tstring& str, FILE* fp)
 	static wchar_t szLine[1024];
 	tchar* r = fgetws(szLine, 1023, fp);
 	str = szLine;
-	return r;
+	return !!r;
 #else
 	static char szLine[1024];
 	char* r = fgets(szLine, 1023, fp);
@@ -35,8 +37,11 @@ inline bool fgetts(tstring& str, FILE* fp)
 #endif
 }
 
-inline tchar* tstrncpy(tchar* d, const tchar* s, size_t n)
+inline tchar* tstrncpy(tchar* d, size_t d_size, const tchar* s, size_t n)
 {
+	if (d_size < n)
+		n = d_size;
+
 	return std::char_traits<tchar>::copy(d, s, n);
 }
 
