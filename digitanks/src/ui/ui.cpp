@@ -5,6 +5,9 @@
 #include <strutils.h>
 #include <sockets/sockets.h>
 
+#include <tinker/lobby/lobby_client.h>
+#include <tinker/lobby/lobby_server.h>
+
 #include <renderer/renderer.h>
 
 #include "hud.h"
@@ -231,6 +234,9 @@ void CDigitanksMenu::OptionsCallback()
 
 void CDigitanksMenu::ExitCallback()
 {
+	CGameLobbyClient::S_LeaveLobby();
+	CGameLobbyServer::DestroyLobby(0);
+
 	GameNetwork()->Disconnect();
 	LobbyNetwork()->Disconnect();
 
