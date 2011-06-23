@@ -47,10 +47,14 @@ inline bool fgetts(tstring& str, FILE* fp)
 
 inline tchar* tstrncpy(tchar* d, size_t d_size, const tchar* s, size_t n)
 {
+#ifdef _WIN32
+	return std::char_traits<tchar>::_Copy_s(d, d_size, s, n);
+#else
 	if (d_size < n)
 		n = d_size;
 
 	return std::char_traits<tchar>::copy(d, s, n);
+#endif
 }
 
 inline size_t tstrlen(const tchar* s)

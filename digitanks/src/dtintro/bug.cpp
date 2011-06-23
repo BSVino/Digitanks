@@ -26,14 +26,14 @@ INPUTS_TABLE_END();
 
 void CBug::Precache()
 {
-	PrecacheModel(_T("models/digitanks/gridbug.obj");
-	PrecacheModel(_T("models/digitanks/gridbug-turret.obj");
+	PrecacheModel(_T("models/digitanks/gridbug.obj"));
+	PrecacheModel(_T("models/digitanks/gridbug-turret.obj"));
 }
 
 void CBug::Spawn()
 {
-	SetModel(_T("models/digitanks/gridbug.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.obj");
+	SetModel(_T("models/digitanks/gridbug.obj"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.obj"));
 
 	m_bFiringRandomly = false;
 	m_flNextAim = m_flNextFire = 0;
@@ -84,7 +84,8 @@ void CBug::Dissolve(const eastl::vector<tstring>& sArgs)
 
 	Vector vecScale(flScale, flScale, flScale);
 
-	CModelDissolver::AddModel(this, &GetTeam()->GetColor(), &vecScale);
+	Color clrTeam = GetTeam()->GetColor();
+	CModelDissolver::AddModel(this, &clrTeam, &vecScale);
 
 	CModel* pModel = CModelLibrary::Get()->GetModel(m_iTurretModel);
 
@@ -96,7 +97,7 @@ void CBug::Dissolve(const eastl::vector<tstring>& sArgs)
 	mScale.SetScale(vecScale);
 	mTransform = mTransform * mScale;
 
-	CModelDissolver::Get()->AddScene(pModel, mTransform, &GetTeam()->GetColor());
+	CModelDissolver::Get()->AddScene(pModel, mTransform, &clrTeam);
 
 	Delete();
 }

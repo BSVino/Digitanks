@@ -28,8 +28,8 @@ INPUTS_TABLE_END();
 
 void CCameraGuidedMissile::Precache()
 {
-	PrecacheSound(_T("sound/missile-launch.wav");
-	PrecacheSound(_T("sound/missile-flight.wav");
+	PrecacheSound(_T("sound/missile-launch.wav"));
+	PrecacheSound(_T("sound/missile-flight.wav"));
 }
 
 void CCameraGuidedMissile::Spawn()
@@ -41,7 +41,7 @@ void CCameraGuidedMissile::Spawn()
 	m_flBoostTime = 0;
 	m_bLaunched = false;
 
-	m_hTrailParticles.SetSystem(_T("shell-trail", GetOrigin());
+	m_hTrailParticles.SetSystem(_T("shell-trail"), GetOrigin());
 	m_hTrailParticles.FollowEntity(this);
 }
 
@@ -66,8 +66,8 @@ void CCameraGuidedMissile::Think()
 		if (!m_bLaunched)
 		{
 			m_bLaunched = true;
-			EmitSound(_T("sound/missile-launch.wav");
-			EmitSound(_T("sound/missile-flight.wav", 1.0f, true);
+			EmitSound(_T("sound/missile-launch.wav"));
+			EmitSound(_T("sound/missile-flight.wav"), 1.0f, true);
 		}
 
 		SetVelocity(AngleVector(GetViewAngles()) * (VelocityPerSecond() + m_flBoostVelocity));
@@ -185,7 +185,7 @@ void CCameraGuidedMissile::Touching(CBaseEntity* pOther)
 		bCanSeeOwner = false;
 
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0 || bCanSeeOwner)
-		EmitSound(_T("sound/explosion.wav");
+		EmitSound(_T("sound/explosion.wav"));
 }
 
 void CCameraGuidedMissile::OnExplode(CBaseEntity* pInstigator)
@@ -199,11 +199,11 @@ void CCameraGuidedMissile::OnExplode(CBaseEntity* pInstigator)
 		DigitanksWindow()->SetMouseCursorEnabled(true);
 	}
 
-	StopSound(_T("sound/missile-flight.wav");
+	StopSound(_T("sound/missile-flight.wav"));
 }
 
 void CCameraGuidedMissile::OnDeleted()
 {
 	DigitanksWindow()->SetMouseCursorEnabled(true);
-	StopSound(_T("sound/missile-flight.wav");
+	StopSound(_T("sound/missile-flight.wav"));
 }

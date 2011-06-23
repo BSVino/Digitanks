@@ -11,7 +11,7 @@
 #include "instructor.h"
 
 CSceneTree::CSceneTree()
-	: CTree(CTextureLibrary::AddTextureID(_T("textures/hud/arrow.png"), 0, 0)
+	: CTree(CTextureLibrary::AddTextureID(_T("textures/hud/arrow.png")), 0, 0)
 {
 }
 
@@ -67,9 +67,9 @@ void CSceneTree::BuildTree(bool bForce)
 
 		CSceneTreeUnit* pUnit = new CSceneTreeUnit(pEntity, pTreeGroup, this);
 		if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
-			pUnit->SetTooltip(tstring(_T("Structure: ") + pEntity->GetEntityName());
+			pUnit->SetTooltip(tstring(_T("Structure: ")) + pEntity->GetEntityName());
 		else
-			pUnit->SetTooltip(tstring(_T("Unit: ") + pEntity->GetEntityName());
+			pUnit->SetTooltip(tstring(_T("Unit: ")) + pEntity->GetEntityName());
 		pTreeGroup->AddNode(pUnit);
 	}
 
@@ -110,9 +110,9 @@ CSceneTreeGroup* CSceneTree::GetUnitNode(unittype_t eUnit)
 	CSceneTreeGroup* pReturn = new CSceneTreeGroup(eUnit, this);
 
 	if (pReturn->GetUnitType() == STRUCTURE_CPU)
-		pReturn->SetTooltip(_T("Group: Structures");
+		pReturn->SetTooltip(_T("Group: Structures"));
 	else
-		pReturn->SetTooltip(_T("Group: Units");
+		pReturn->SetTooltip(_T("Group: Units"));
 
 	AddNode(pReturn);
 	return pReturn;
@@ -165,9 +165,9 @@ void CSceneTree::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 	CSceneTreeUnit* pUnit = new CSceneTreeUnit(pSelectable, pTreeGroup, this);
 
 	if (pTreeGroup->GetUnitType() == STRUCTURE_CPU)
-		pUnit->SetTooltip(tstring(_T("Structure: ") + pSelectable->GetEntityName());
+		pUnit->SetTooltip(tstring(_T("Structure: ")) + pSelectable->GetEntityName());
 	else
-		pUnit->SetTooltip(tstring(_T("Unit: ") + pSelectable->GetEntityName());
+		pUnit->SetTooltip(tstring(_T("Unit: ")) + pSelectable->GetEntityName());
 
 	pTreeGroup->AddNode(pUnit);
 
@@ -445,7 +445,7 @@ void CSceneTreeUnit::Selected()
 }
 
 CSceneTreeNode::CSceneTreeNode(glgui::CTreeNode* pParent, glgui::CTree* pTree)
-	: glgui::CTreeNode(pParent, pTree, _T("", _T("sans-serif")
+	: glgui::CTreeNode(pParent, pTree, _T(""), _T("sans-serif"))
 {
 }
 

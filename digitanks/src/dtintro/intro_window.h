@@ -12,7 +12,7 @@ public:
 
 public:
 	virtual eastl::string		WindowTitle() { return "Digitanks!"; }
-	virtual tstring		AppDirectory() { return _T("Digitanks"; }
+	virtual tstring				AppDirectory() { return _T("Digitanks"); }
 
 	void						SetScreenshot(size_t iScreenshot) { m_iScreenshot = iScreenshot; };
 	void						SetupEngine();

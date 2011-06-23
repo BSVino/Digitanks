@@ -37,8 +37,9 @@
 #include "ui.h"
 #include "renderer/renderer.h"
 #include "digitanks/campaign/campaigndata.h"
+#include "lobbyui.h"
 
-ConfigFile c( GetAppDataDirectory(_T("Digitanks", _T("options.cfg") );
+ConfigFile c( GetAppDataDirectory(_T("Digitanks"), _T("options.cfg")) );
 
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	: CGameWindow(argc, argv)
@@ -66,24 +67,24 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 	if (c.isFileValid())
 	{
-		m_iWindowWidth = c.read<int>(_T("width", 1024);
-		m_iWindowHeight = c.read<int>(_T("height", 768);
+		m_iWindowWidth = c.read<int>(_T("width"), 1024);
+		m_iWindowHeight = c.read<int>(_T("height"), 768);
 
-		m_bCfgFullscreen = !c.read<bool>(_T("windowed", true);
-		m_bConstrainMouse = c.read<bool>(_T("constrainmouse", true);
+		m_bCfgFullscreen = !c.read<bool>(_T("windowed"), true);
+		m_bConstrainMouse = c.read<bool>(_T("constrainmouse"), true);
 
-		m_bContextualCommands = c.read<bool>(_T("contextualcommands", false);
-		m_bReverseSpacebar = c.read<bool>(_T("reversespacebar", false);
+		m_bContextualCommands = c.read<bool>(_T("contextualcommands"), false);
+		m_bReverseSpacebar = c.read<bool>(_T("reversespacebar"), false);
 
-		m_bWantsFramebuffers = c.read<bool>(_T("useframebuffers", true);
-		m_bWantsShaders = c.read<bool>(_T("useshaders", true);
+		m_bWantsFramebuffers = c.read<bool>(_T("useframebuffers"), true);
+		m_bWantsShaders = c.read<bool>(_T("useshaders"), true);
 
-		SetSoundVolume(c.read<float>(_T("soundvolume", 0.8f));
-		SetMusicVolume(c.read<float>(_T("musicvolume", 0.8f));
+		SetSoundVolume(c.read<float>(_T("soundvolume"), 0.8f));
+		SetMusicVolume(c.read<float>(_T("musicvolume"), 0.8f));
 
-		m_iInstallID = c.read<int>(_T("installid", RandomInt(10000000, 99999999));
+		m_iInstallID = c.read<int>(_T("installid"), RandomInt(10000000, 99999999));
 
-		m_sNickname = c.read<tstring>(_T("nickname", _T("");
+		m_sNickname = c.read<tstring>(_T("nickname"), _T(""));
 	}
 	else
 	{
@@ -105,7 +106,7 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 		m_iInstallID = RandomInt(10000000, 99999999);
 
-		m_sNickname = _T("";
+		m_sNickname = _T("");
 	}
 
 	CNetwork::SetClientInfo(m_iInstallID, m_sNickname);
@@ -116,10 +117,10 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	if (m_iWindowHeight < 768)
 		m_iWindowHeight = 768;
 
-	if (IsFile(GetAppDataDirectory(_T("Digitanks", _T("campaign.txt")))
+	if (IsFile(GetAppDataDirectory(_T("Digitanks"), _T("campaign.txt"))))
 	{
 		m_pCampaign = new CCampaignData(CCampaignInfo::GetCampaignInfo());
-		m_pCampaign->ReadData(GetAppDataDirectory(_T("Digitanks", _T("campaign.txt"));
+		m_pCampaign->ReadData(GetAppDataDirectory(_T("Digitanks"), _T("campaign.txt")));
 	}
 
 	m_iTotalProgress = 0;
@@ -127,16 +128,16 @@ CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 
 void CDigitanksWindow::OpenWindow()
 {
-	glgui::CLabel::AddFont(_T("header", _T("fonts/header.ttf");
-	glgui::CLabel::AddFont(_T("text", _T("fonts/text.ttf");
-	glgui::CLabel::AddFont(_T("smileys", _T("fonts/smileys.ttf");
-	glgui::CLabel::AddFont(_T("cameramissile", _T("fonts/cameramissile.ttf");
+	glgui::CLabel::AddFont(_T("header"), _T("fonts/header.ttf"));
+	glgui::CLabel::AddFont(_T("text"), _T("fonts/text.ttf"));
+	glgui::CLabel::AddFont(_T("smileys"), _T("fonts/smileys.ttf"));
+	glgui::CLabel::AddFont(_T("cameramissile"), _T("fonts/cameramissile.ttf"));
 
 	CApplication::OpenWindow(m_iWindowWidth, m_iWindowHeight, m_bCfgFullscreen, false);
 
-	m_iCursors = CTextureLibrary::AddTextureID(_T("textures/cursors.png");
-	m_iLoading = CTextureLibrary::AddTextureID(_T("textures/loading.png");
-	m_iLunarWorkshop = CTextureLibrary::AddTextureID(_T("textures/lunar-workshop.png");
+	m_iCursors = CTextureLibrary::AddTextureID(_T("textures/cursors.png"));
+	m_iLoading = CTextureLibrary::AddTextureID(_T("textures/loading.png"));
+	m_iLunarWorkshop = CTextureLibrary::AddTextureID(_T("textures/lunar-workshop.png"));
 
 	RenderLoading();
 
@@ -152,10 +153,10 @@ void CDigitanksWindow::OpenWindow()
 		if (TPortal_IsAvailable())
 		{
 			m_sNickname = TPortal_GetPlayerNickname();
-			TMsg(tstring(_T("Retrieved player nickname from ") + TPortal_GetPortalIdentifier() + _T(": " + m_sNickname + _T("\n");
+			TMsg(tstring(_T("Retrieved player nickname from ")) + TPortal_GetPortalIdentifier() + _T(": ") + m_sNickname + _T("\n"));
 		}
 		else
-			m_sNickname = _T("Noobie";
+			m_sNickname = _T("Noobie");
 	}
 
 	SaveConfig();
@@ -195,8 +196,8 @@ void CDigitanksWindow::RenderLoading()
 	glgui::CRootPanel::PaintTexture(m_iLoading, m_iWindowWidth/2 - 150, m_iWindowHeight/2 - 150, 300, 300);
 	glgui::CRootPanel::PaintTexture(GetLunarWorkshopLogo(), m_iWindowWidth-200-20, m_iWindowHeight - 200, 200, 200);
 
-	float flWidth = glgui::CLabel::GetTextWidth(m_sAction, m_sAction.length(), _T("text", 12);
-	glgui::CLabel::PaintText(m_sAction, m_sAction.length(), _T("text", 12, (float)m_iWindowWidth/2 - flWidth/2, (float)m_iWindowHeight/2 + 170);
+	float flWidth = glgui::CLabel::GetTextWidth(m_sAction, m_sAction.length(), _T("text"), 12);
+	glgui::CLabel::PaintText(m_sAction, m_sAction.length(), _T("text"), 12, (float)m_iWindowWidth/2 - flWidth/2, (float)m_iWindowHeight/2 + 170);
 
 	if (m_iTotalProgress)
 	{
@@ -292,11 +293,11 @@ void LoadLevel(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const
 			return;
 		}
 
-		CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(_T("game_level"));
+		CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(_T("game_level")));
 
 		if (!pLevel)
 		{
-			TMsg(tstring(_T("Can't find file '") + CVar::GetCVarValue(_T("game_level") + _T("'.\n");
+			TMsg(tstring(_T("Can't find file '")) + CVar::GetCVarValue(_T("game_level")) + _T("'.\n"));
 			return;
 		}
 
@@ -308,11 +309,11 @@ void LoadLevel(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const
 
 	if (!pLevel)
 	{
-		TMsg(tstring(_T("Can't find file '") + asTokens[1] + _T("'.\n");
+		TMsg(tstring(_T("Can't find file '")) + asTokens[1] + _T("'.\n"));
 		return;
 	}
 
-	CVar::SetCVar(_T("game_level", pLevel->GetFile());
+	CVar::SetCVar(_T("game_level"), pLevel->GetFile());
 
 	DigitanksWindow()->CreateGame(pLevel->GetGameType());
 
@@ -327,32 +328,32 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	gametype_t eGameType = GAMETYPE_MENU;
 	if (eRequestedGameType == GAMETYPE_FROM_CVAR)
 	{
-		if (game_type.GetValue() == _T("menu")
+		if (game_type.GetValue() == _T("menu"))
 			eGameType = GAMETYPE_MENU;
-		else if (game_type.GetValue() == _T("artillery")
+		else if (game_type.GetValue() == _T("artillery"))
 			eGameType = GAMETYPE_ARTILLERY;
-		else if (game_type.GetValue() == _T("strategy")
+		else if (game_type.GetValue() == _T("strategy"))
 			eGameType = GAMETYPE_STANDARD;
-		else if (game_type.GetValue() == _T("campaign")
+		else if (game_type.GetValue() == _T("campaign"))
 			eGameType = GAMETYPE_CAMPAIGN;
 		else
 			eGameType = GAMETYPE_EMPTY;
 	}
 	else if (eRequestedGameType == GAMETYPE_FROM_LOBBY)
-		eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(_T("gametype").c_str());
+		eGameType = (gametype_t)stoi(CGameLobbyClient::L_GetInfoValue(_T("gametype")).c_str());
 	else
 		eGameType = eRequestedGameType;
 
 	if (eGameType == GAMETYPE_MENU)
-		game_type.SetValue(_T("menu");
+		game_type.SetValue(_T("menu"));
 	else if (eGameType == GAMETYPE_ARTILLERY)
-		game_type.SetValue(_T("artillery");
+		game_type.SetValue(_T("artillery"));
 	else if (eGameType == GAMETYPE_STANDARD)
-		game_type.SetValue(_T("strategy");
+		game_type.SetValue(_T("strategy"));
 	else if (eGameType == GAMETYPE_CAMPAIGN)
-		game_type.SetValue(_T("campaign");
+		game_type.SetValue(_T("campaign"));
 	else
-		game_type.SetValue(_T("empty");
+		game_type.SetValue(_T("empty"));
 
 	// Suppress all network commands until the game is done loading.
 	GameNetwork()->SetLoading(true);
@@ -365,10 +366,10 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 	if (eGameType == GAMETYPE_MENU)
 	{
 		if (!CSoundLibrary::IsMusicPlaying() && !HasCommandLineSwitch("--no-music"))
-			CSoundLibrary::PlayMusic(_T("sound/assemble-for-victory.ogg", true);
+			CSoundLibrary::PlayMusic(_T("sound/assemble-for-victory.ogg"), true);
 	}
 	else if (!HasCommandLineSwitch("--no-music"))
-		CSoundLibrary::PlayMusic(_T("sound/network-rise-network-fall.ogg", true);
+		CSoundLibrary::PlayMusic(_T("sound/network-rise-network-fall.ogg"), true);
 
 	mtsrand((size_t)time(NULL));
 
@@ -424,7 +425,7 @@ void CDigitanksWindow::CreateGame(gametype_t eRequestedGameType)
 
 void CDigitanksWindow::DestroyGame()
 {
-	TMsg(_T("Destroying game.\n");
+	TMsg(_T("Destroying game.\n"));
 
 	RenderLoading();
 
@@ -475,7 +476,7 @@ void CDigitanksWindow::NextCampaignLevel()
 		Restart(GAMETYPE_CAMPAIGN);
 	}
 
-	m_pCampaign->SaveData(GetAppDataDirectory(_T("Digitanks", _T("campaign.txt"));
+	m_pCampaign->SaveData(GetAppDataDirectory(_T("Digitanks"), _T("campaign.txt")));
 }
 
 void CDigitanksWindow::ContinueCampaign()
@@ -488,7 +489,7 @@ void CDigitanksWindow::ContinueCampaign()
 		Restart(GAMETYPE_CAMPAIGN);
 	}
 
-	m_pCampaign->SaveData(GetAppDataDirectory(_T("Digitanks", _T("campaign.txt"));
+	m_pCampaign->SaveData(GetAppDataDirectory(_T("Digitanks"), _T("campaign.txt")));
 }
 
 SERVER_GAME_COMMAND(RestartLevel)
@@ -505,7 +506,7 @@ void CDigitanksWindow::RestartLevel()
 	if (!GameNetwork()->IsHost())
 		return;
 
-	::RestartLevel.RunCommand(_T("");
+	::RestartLevel.RunCommand(_T(""));
 }
 
 void CDigitanksWindow::Restart(gametype_t eRestartAction)
@@ -580,7 +581,7 @@ void CDigitanksWindow::ConstrainMouse()
 	if (IsFullscreen())
 		return;
 
-	HWND hWindow = FindWindow(NULL, _T("Digitanks!");
+	HWND hWindow = FindWindow(NULL, _T("Digitanks!"));
 
 	if (!hWindow)
 		return;
@@ -648,7 +649,7 @@ bool CDigitanksWindow::ShouldConstrainMouse()
 		return false;
 
 #ifdef _WIN32
-	HWND hWindow = FindWindow(NULL, _T("Digitanks!");
+	HWND hWindow = FindWindow(NULL, _T("Digitanks!"));
 	HWND hActiveWindow = GetActiveWindow();
 
 	if (hActiveWindow != hWindow)
@@ -721,23 +722,23 @@ void CDigitanksWindow::CloseApplication()
 
 void CDigitanksWindow::SaveConfig()
 {
-	c.add<float>(_T("soundvolume", GetSoundVolume());
-	c.add<float>(_T("musicvolume", GetMusicVolume());
-	c.add<bool>(_T("windowed", !m_bCfgFullscreen);
-	c.add<bool>(_T("constrainmouse", m_bConstrainMouse);
-	c.add<bool>(_T("contextualcommands", m_bContextualCommands);
-	c.add<bool>(_T("reversespacebar", m_bReverseSpacebar);
-	c.add<bool>(_T("useframebuffers", m_bWantsFramebuffers);
-	c.add<bool>(_T("useshaders", m_bWantsShaders);
-	c.add<int>(_T("width", m_iCfgWidth);
-	c.add<int>(_T("height", m_iCfgHeight);
-	c.add<int>(_T("installid", m_iInstallID);
-	c.add<tstring>(_T("nickname", m_sNickname);
-	std::wofstream o;
-	o.open(GetAppDataDirectory(_T("Digitanks", _T("options.cfg").c_str(), std::ios_base::out);
+	c.add<float>(_T("soundvolume"), GetSoundVolume());
+	c.add<float>(_T("musicvolume"), GetMusicVolume());
+	c.add<bool>(_T("windowed"), !m_bCfgFullscreen);
+	c.add<bool>(_T("constrainmouse"), m_bConstrainMouse);
+	c.add<bool>(_T("contextualcommands"), m_bContextualCommands);
+	c.add<bool>(_T("reversespacebar"), m_bReverseSpacebar);
+	c.add<bool>(_T("useframebuffers"), m_bWantsFramebuffers);
+	c.add<bool>(_T("useshaders"), m_bWantsShaders);
+	c.add<int>(_T("width"), m_iCfgWidth);
+	c.add<int>(_T("height"), m_iCfgHeight);
+	c.add<int>(_T("installid"), m_iInstallID);
+	c.add<tstring>(_T("nickname"), m_sNickname);
+	std::basic_ofstream<tchar> o;
+	o.open(convertstring<tchar, char>(GetAppDataDirectory(_T("Digitanks"), _T("options.cfg"))).c_str(), std::ios_base::out);
 	o << c;
 
-	TMsg(_T("Saved config.\n");
+	TMsg(_T("Saved config.\n"));
 }
 
 CInstructor* CDigitanksWindow::GetInstructor()
@@ -758,6 +759,14 @@ void CDigitanksWindow::SetMusicVolume(float flMusicVolume)
 {
 	m_flMusicVolume = flMusicVolume;
 	CSoundLibrary::SetMusicVolume(m_flMusicVolume);
+}
+
+CChatBox* CDigitanksWindow::GetChatBox()
+{
+	if (GetLobbyPanel()->IsVisible())
+		return GetLobbyPanel()->GetChat();
+
+	return BaseClass::GetChatBox();
 }
 
 void CDigitanksWindow::BeginProgress()

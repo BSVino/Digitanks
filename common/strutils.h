@@ -111,6 +111,23 @@ inline eastl::string trim(eastl::string s)
 	return ltrim(rtrim(s));
 }
 
+inline tstring ltrim(tstring s)
+{
+	s.erase(s.begin(), eastl::find_if(s.begin(), s.end(), eastl::not1(eastl::ptr_fun<int, int>(isspace))));
+	return s;
+}
+
+inline tstring rtrim(tstring s)
+{
+	s.erase(eastl::find_if(s.rbegin(), s.rend(), eastl::not1(eastl::ptr_fun<int, int>(isspace))).base(), s.end());
+	return s;
+}
+
+inline tstring trim(tstring s)
+{
+	return ltrim(rtrim(s));
+}
+
 inline void writestring(std::ostream& o, const eastl::string& s)
 {
 	size_t iStringSize = s.length();

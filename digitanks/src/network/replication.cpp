@@ -66,7 +66,7 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 				}
 
 				if (net_replication_debug.GetBool())
-					TMsg(tstring(_T("Updating ") + convertstring<char, tchar>(pVarData->GetName()) + _T("\n");
+					TMsg(tstring(_T("Updating ")) + convertstring<char, tchar>(pVarData->GetName()) + _T("\n"));
 
 				CNetworkParameters p;
 				p.ui1 = pEntity->GetHandle();

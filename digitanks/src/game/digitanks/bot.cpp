@@ -92,7 +92,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 {
 	CTerrain* pTerrain = DigitanksGame()->GetTerrain();
 
-	if (m_hPrimaryCPU == NULL)
+	if (!m_hPrimaryCPU)
 		return false;
 
 	if (m_aeBuildPriorities.size() == 0)
@@ -222,7 +222,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 				if (CSupplier::GetDataFlow(vecStructure, this) <= 0)
 					vecStructure = pClosestSupplier->GetOrigin() + vecStructureDirection * pClosestSupplier->GetDataFlowRadius()*2/3;
 
-				pTerrain->SetPointHeight(vecStructure);
+				vecStructure = pTerrain->GetPointHeight(vecStructure);
 
 				m_hPrimaryCPU->SetPreviewStructure(CanBuildBuffers()?STRUCTURE_BUFFER:STRUCTURE_MINIBUFFER);
 				m_hPrimaryCPU->SetPreviewBuild(vecStructure);
@@ -300,7 +300,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 		if (vecStructure.z > pTerrain->GetMapSize()-15)
 			continue;
 
-		pTerrain->SetPointHeight(vecStructure);
+		vecStructure = pTerrain->GetPointHeight(vecStructure);
 
 		if (eBuild == STRUCTURE_INFANTRYLOADER || eBuild == STRUCTURE_TANKLOADER || eBuild == STRUCTURE_ARTILLERYLOADER)
 		{
@@ -814,7 +814,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		}
 		while (DigitanksGame()->GetTerrain()->IsPointOverHole(m_vecExplore));
 
-		DigitanksGame()->GetTerrain()->SetPointHeight(m_vecExplore);
+		m_vecExplore = DigitanksGame()->GetTerrain()->GetPointHeight(m_vecExplore);
 	}
 
 	if (!pTarget && !m_bLKV)
@@ -980,7 +980,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					// If we are within the max range, try to fire.
 					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -1046,7 +1046,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				// If we are within the max range, try to fire.
 				if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 					pTank->Fire();
 				}
 			}
@@ -1091,7 +1091,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 				}
 
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
 			else
@@ -1130,7 +1130,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 								pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 						}
 
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -1220,7 +1220,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					{
 						if (pTank->IsFortified())
 						{
-							pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+							pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(vecTargetOrigin));
 							pTank->Fire();
 						}
 						else
@@ -1310,7 +1310,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					// If we are within the max range, try to fire.
 					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -1326,7 +1326,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 				else
 					pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
 			else
@@ -1370,7 +1370,7 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 					else
 						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 					pTank->Fire();
 				}
 			}
@@ -1505,7 +1505,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 		// If we are within the max range, try to fire.
 		if (pTarget && pTank->IsInsideMaxRange(pTarget->GetOrigin()))
 		{
-			pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pTarget->GetOrigin()));
+			pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pTarget->GetOrigin()));
 			pTank->Fire();
 		}
 	}
@@ -1564,9 +1564,7 @@ bool CDigitanksTeam::Bot_BuildCollector(CResource* pResource)
 	if (CSupplier::GetDataFlow(pResource->GetOrigin(), this) < 1)
 		return false;
 
-	Vector vecPSU = pResource->GetOrigin();
-
-	DigitanksGame()->GetTerrain()->SetPointHeight(vecPSU);
+	Vector vecPSU = DigitanksGame()->GetTerrain()->GetPointHeight(pResource->GetOrigin());
 
 	m_hPrimaryCPU->SetPreviewStructure(CanBuildPSUs()?STRUCTURE_PSU:STRUCTURE_BATTERY);
 	m_hPrimaryCPU->SetPreviewBuild(vecPSU);
@@ -1597,7 +1595,7 @@ void CStructure::AddDefender(CDigitank* pTank)
 			m_aoDefenders[i].m_hDefender = pTank;
 
 			Vector vecFortify = GetOrigin() + AngleVector(EAngle(0, m_aoDefenders[i].m_flPosition, 0)) * 20;
-			pTerrain->SetPointHeight(vecFortify);
+			vecFortify = pTerrain->GetPointHeight(vecFortify);
 
 			if (pTerrain->IsPointOverHole(vecFortify) || pTerrain->IsPointOverWater(vecFortify) || pTerrain->IsPointOverLava(vecFortify))
 				continue;
@@ -1631,7 +1629,7 @@ void CStructure::AddDefender(CDigitank* pTank)
 			flYaw -= 45*(iFortifies/2+1);
 
 		vecFortify = GetOrigin() + AngleVector(EAngle(0, flYaw, 0)) * 20;
-		DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+		vecFortify = DigitanksGame()->GetTerrain()->GetPointHeight(vecFortify);
 
 		iFortifies++;
 
@@ -1645,7 +1643,7 @@ void CStructure::AddDefender(CDigitank* pTank)
 	if (!bFound)
 		return;
 
-	DigitanksGame()->GetTerrain()->SetPointHeight(vecFortify);
+	vecFortify = DigitanksGame()->GetTerrain()->GetPointHeight(vecFortify);
 
 	m_aoDefenders.push_back(defender_t());
 	defender_t* pDefender = &m_aoDefenders[m_aoDefenders.size()-1];

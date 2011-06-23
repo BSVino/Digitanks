@@ -32,7 +32,7 @@ void CCounter::SetCount(const eastl::vector<tstring>& sArgs)
 	if (sArgs.size() == 0)
 		return;
 
-	SetGoalCount(_wtoi(sArgs[0].c_str()));
+	SetGoalCount(stoi(sArgs[0]));
 }
 
 void CCounter::Increment(const eastl::vector<tstring>& sArgs)

@@ -18,7 +18,7 @@ CIntroRenderer::CIntroRenderer()
 	m_bUseFramebuffers = false;
 //	m_bUseShaders = false;
 
-	m_iBackdrop = CTextureLibrary::AddTextureID(_T("textures/intro/backdrop.png");
+	m_iBackdrop = CTextureLibrary::AddTextureID(_T("textures/intro/backdrop.png"));
 	m_flLayer1Speed = -RandomFloat(0.1f, 0.5f);
 	m_flLayer2Speed = -RandomFloat(0.1f, 0.5f);
 	m_flLayer3Speed = -RandomFloat(0.1f, 0.5f);
@@ -48,7 +48,7 @@ void ZoomIntoHole(class CCommand* pCommand, eastl::vector<tstring>& asTokens, co
 	IntroWindow()->GetRenderer()->ZoomIntoHole();
 }
 
-CCommand zoomintohole(_T("zoomintohole", ::ZoomIntoHole);
+CCommand zoomintohole(_T("zoomintohole"), ::ZoomIntoHole);
 
 void CIntroRenderer::StartRendering()
 {

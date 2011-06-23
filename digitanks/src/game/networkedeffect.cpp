@@ -23,5 +23,5 @@ SERVER_GAME_COMMAND(NetworkedEffect)
 
 void CNetworkedEffect::AddInstance(const tstring& sName, Vector vecPosition, EAngle angDirection)
 {
-	::NetworkedEffect.RunCommand(sName + sprintf(_T(" %f %f %f %f %f %f", vecPosition.x, vecPosition.y, vecPosition.z, angDirection.p, angDirection.y, angDirection.r));
+	::NetworkedEffect.RunCommand(sName + sprintf(_T(" %f %f %f %f %f %f"), vecPosition.x, vecPosition.y, vecPosition.z, angDirection.p, angDirection.y, angDirection.r));
 }

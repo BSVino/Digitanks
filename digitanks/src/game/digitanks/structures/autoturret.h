@@ -37,7 +37,7 @@ public:
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual tstring		GetEntityName() const { return _T("Firewall"; };
+	virtual tstring		GetEntityName() const { return _T("Firewall"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_FIREWALL; };
 
 protected:

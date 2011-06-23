@@ -22,14 +22,14 @@ INPUTS_TABLE_END();
 
 void CDigitank::Precache()
 {
-	PrecacheModel(_T("models/digitanks/digitank-body.obj");
-	PrecacheModel(_T("models/digitanks/digitank-turret.obj");
+	PrecacheModel(_T("models/digitanks/digitank-body.obj"));
+	PrecacheModel(_T("models/digitanks/digitank-turret.obj"));
 }
 
 void CDigitank::Spawn()
 {
-	SetModel(_T("models/digitanks/digitank-body.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj");
+	SetModel(_T("models/digitanks/digitank-body.obj"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj"));
 
 	m_flNextFire = 0;
 }

@@ -101,7 +101,7 @@ void CCamera::KeyDown(int c)
 {
 	if (CVar::GetCVarBool("cheats") && c == 'Z')
 	{
-		cam_free.SetValue(m_bFreeMode?_T("off":_T("on");
+		cam_free.SetValue(m_bFreeMode?_T("off"):_T("on"));
 
 		if (lock_freemode_frustum.GetBool())
 		{

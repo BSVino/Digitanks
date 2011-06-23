@@ -514,25 +514,25 @@ tstring CUpdateItem::GetName()
 		switch (m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			return _T("CPU";
+			return _T("CPU");
 
 		case STRUCTURE_BUFFER:
-			return _T("Macro-Buffer";
+			return _T("Macro-Buffer");
 
 		case STRUCTURE_PSU:
-			return _T("Power Supply";
+			return _T("Power Supply");
 
 		case STRUCTURE_INFANTRYLOADER:
-			return _T("Resistor Factory";
+			return _T("Resistor Factory");
 
 		case STRUCTURE_TANKLOADER:
-			return _T("Digitank Factory";
+			return _T("Digitank Factory");
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return _T("Artillery Factory";
+			return _T("Artillery Factory");
 
 		default:
-			return _T("Structure";
+			return _T("Structure");
 		}
 	}
 	else if (m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
@@ -540,73 +540,73 @@ tstring CUpdateItem::GetName()
 		switch (m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			sResult = _T("CPU ";
+			sResult = _T("CPU ");
 			break;
 
 		case STRUCTURE_BUFFER:
-			sResult = _T("Macro-Buffer ";
+			sResult = _T("Macro-Buffer ");
 			break;
 
 		case STRUCTURE_PSU:
-			sResult = _T("Power Supply ";
+			sResult = _T("Power Supply ");
 			break;
 
 		case STRUCTURE_INFANTRYLOADER:
-			sResult = _T("Resistor Factory ";
+			sResult = _T("Resistor Factory ");
 			break;
 
 		case STRUCTURE_TANKLOADER:
-			sResult = _T("Tank Factory ";
+			sResult = _T("Tank Factory ");
 			break;
 
 		case STRUCTURE_ARTILLERYLOADER:
-			sResult = _T("Artillery Factory ";
+			sResult = _T("Artillery Factory ");
 			break;
 
 		default:
-			sResult = _T("Structure ";
+			sResult = _T("Structure ");
 		}
 
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			sResult += _T("Power";
+			sResult += _T("Power");
 			break;
 
 		case UPDATETYPE_BANDWIDTH:
-			sResult += _T("Bandwidth";
+			sResult += _T("Bandwidth");
 			break;
 
 		case UPDATETYPE_FLEETSUPPLY:
-			sResult += _T("Fleet Supply";
+			sResult += _T("Fleet Supply");
 			break;
 
 		case UPDATETYPE_SUPPORTENERGY:
-			sResult += _T("Support Energy Bonus";
+			sResult += _T("Support Energy Bonus");
 			break;
 
 		case UPDATETYPE_SUPPORTRECHARGE:
-			sResult += _T("Support Recharge Bonus";
+			sResult += _T("Support Recharge Bonus");
 			break;
 
 		case UPDATETYPE_TANKATTACK:
-			sResult += _T("Attack Bonus";
+			sResult += _T("Attack Bonus");
 			break;
 
 		case UPDATETYPE_TANKDEFENSE:
-			sResult += _T("Shield Energy Bonus";
+			sResult += _T("Shield Energy Bonus");
 			break;
 
 		case UPDATETYPE_TANKMOVEMENT:
-			sResult += _T("Movement Bonus";
+			sResult += _T("Movement Bonus");
 			break;
 
 		case UPDATETYPE_TANKHEALTH:
-			sResult += _T("Health Bonus";
+			sResult += _T("Health Bonus");
 			break;
 
 		case UPDATETYPE_TANKRANGE:
-			sResult += _T("Range Bonus";
+			sResult += _T("Range Bonus");
 			break;
 
 		}
@@ -616,47 +616,47 @@ tstring CUpdateItem::GetName()
 		switch (m_eStructure)
 		{
 		case UNIT_SCOUT:
-			sResult = _T("Rogue ";
+			sResult = _T("Rogue ");
 			break;
 
 		case UNIT_INFANTRY:
-			sResult = _T("Resistor ";
+			sResult = _T("Resistor ");
 			break;
 
 		case UNIT_TANK:
 		default:
-			sResult = _T("Digitank ";
+			sResult = _T("Digitank ");
 			break;
 
 		case UNIT_ARTILLERY:
-			sResult = _T("Artillery ";
+			sResult = _T("Artillery ");
 			break;
 		}
 
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_SKILL_CLOAK:
-			sResult += _T("Cloaking Device";
+			sResult += _T("Cloaking Device");
 			break;
 
 		case UPDATETYPE_WEAPON_CHARGERAM:
-			sResult += _T("Charging Ram";
+			sResult += _T("Charging Ram");
 			break;
 
 		case UPDATETYPE_WEAPON_AOE:
-			sResult += _T("Plasma Charge";
+			sResult += _T("Plasma Charge");
 			break;
 
 		case UPDATETYPE_WEAPON_CLUSTER:
-			sResult += _T("Cluster Bomb";
+			sResult += _T("Cluster Bomb");
 			break;
 
 		case UPDATETYPE_WEAPON_ICBM:
-			sResult += _T("WAN Bomb";
+			sResult += _T("WAN Bomb");
 			break;
 
 		case UPDATETYPE_WEAPON_DEVASTATOR:
-			sResult += _T("Devastator";
+			sResult += _T("Devastator");
 			break;
 		}
 	}
@@ -671,25 +671,25 @@ tstring CUpdateItem::GetInfo()
 		switch (m_eStructure)
 		{
 		case STRUCTURE_CPU:
-			return _T("This program allows the player to construct a CPU. The CPU is the life and brains of your operation. It allows you to build structures and units.";
+			return _T("This program allows the player to construct a CPU. The CPU is the life and brains of your operation. It allows you to build structures and units.");
 
 		case STRUCTURE_BUFFER:
-			return _T("This program allows the player to construct Macro-Buffers, which expand your territory and provide support to your tanks. Downloads are also available for them to provide additional fleet supply points and bandwidth as well.";
+			return _T("This program allows the player to construct Macro-Buffers, which expand your territory and provide support to your tanks. Downloads are also available for them to provide additional fleet supply points and bandwidth as well.");
 
 		case STRUCTURE_PSU:
-			return _T("This program allows the player to construct Power Supplies to mine the valuable Electronodes that provide your base with more Power. Then you can further your nefarious plans to construct units and erect structures.";
+			return _T("This program allows the player to construct Power Supplies to mine the valuable Electronodes that provide your base with more Power. Then you can further your nefarious plans to construct units and erect structures.");
 
 		case STRUCTURE_INFANTRYLOADER:
-			return _T("This program allows the player to construct Resistor Factories, which provide the Resistor unit, an cheap but essential defensive unit that can be fortified to defend your base.";
+			return _T("This program allows the player to construct Resistor Factories, which provide the Resistor unit, an cheap but essential defensive unit that can be fortified to defend your base.");
 
 		case STRUCTURE_TANKLOADER:
-			return _T("This program allows the player to construct the Digitank Factory which produces Digitanks, the primary tool of defeating your enemies. These units are more expensive to build.";
+			return _T("This program allows the player to construct the Digitank Factory which produces Digitanks, the primary tool of defeating your enemies. These units are more expensive to build.");
 
 		case STRUCTURE_ARTILLERYLOADER:
-			return _T("This program allows the player to construct Artillery Factories. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar. Artillery do double damage to shields, but only half damage to structures and tank hulls.";
+			return _T("This program allows the player to construct Artillery Factories. These provide the Artillery unit, which can support your tanks in their attacks by pulverizing the enemy from afar. Artillery do double damage to shields, but only half damage to structures and tank hulls.");
 
 		default:
-			return _T("Somehow you have found a way to construct an edifice which shouldn't exist. Please be careful not to open a wormhole while you're doing it.";
+			return _T("Somehow you have found a way to construct an edifice which shouldn't exist. Please be careful not to open a wormhole while you're doing it.");
 		}
 	}
 	else if (m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
@@ -697,34 +697,34 @@ tstring CUpdateItem::GetInfo()
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_PRODUCTION:
-			return _T("This update increases the amount of power that you generate per turn. Power helps you build structures and units faster.";
+			return _T("This update increases the amount of power that you generate per turn. Power helps you build structures and units faster.");
 
 		case UPDATETYPE_BANDWIDTH:
-			return _T("This update increases the amount of bandwidth available to you. Increased bandwidth helps you download updates and programs faster.";
+			return _T("This update increases the amount of bandwidth available to you. Increased bandwidth helps you download updates and programs faster.");
 
 		case UPDATETYPE_FLEETSUPPLY:
-			return _T("This update increases your maximum fleet capacity, so that you can build more tanks.";
+			return _T("This update increases your maximum fleet capacity, so that you can build more tanks.");
 
 		case UPDATETYPE_SUPPORTENERGY:
-			return _T("This update improves unit support energy, units supported by all buffers will receive bonuses to Attack and Shield energy.";
+			return _T("This update improves unit support energy, units supported by all buffers will receive bonuses to Attack and Shield energy.");
 
 		case UPDATETYPE_SUPPORTRECHARGE:
-			return _T("This update improves unit health and shield recharge, units supported by all buffers will recharge more health and shields each turn.";
+			return _T("This update improves unit health and shield recharge, units supported by all buffers will recharge more health and shields each turn.");
 
 		case UPDATETYPE_TANKATTACK:
-			return _T("This gives every tank produced an automatic increase to its Attack Energy.";
+			return _T("This gives every tank produced an automatic increase to its Attack Energy.");
 
 		case UPDATETYPE_TANKDEFENSE:
-			return _T("This gives every tank produced an automatic increase to its Shield Energy.";
+			return _T("This gives every tank produced an automatic increase to its Shield Energy.");
 
 		case UPDATETYPE_TANKMOVEMENT:
-			return _T("This gives every tank produced an automatic increase to its Movement Energy.";
+			return _T("This gives every tank produced an automatic increase to its Movement Energy.");
 
 		case UPDATETYPE_TANKHEALTH:
-			return _T("This gives every tank produced an automatic increase to its health.";
+			return _T("This gives every tank produced an automatic increase to its health.");
 
 		case UPDATETYPE_TANKRANGE:
-			return _T("This gives every tank produced an automatic increase to its maximum firing range.";
+			return _T("This gives every tank produced an automatic increase to its maximum firing range.");
 		}
 	}
 	else if (m_eUpdateClass == UPDATECLASS_UNITSKILL)
@@ -732,32 +732,32 @@ tstring CUpdateItem::GetInfo()
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_SKILL_CLOAK:
-			return _T("Once downloaded, every Rogue will receive a cloaking device.";
+			return _T("Once downloaded, every Rogue will receive a cloaking device.");
 
 		case UPDATETYPE_WEAPON_CHARGERAM:
-			return _T("Once downloaded, every Infantry will receive a Charging R.A.M. attack, which he can use to ram enemy units.";
+			return _T("Once downloaded, every Infantry will receive a Charging R.A.M. attack, which he can use to ram enemy units.");
 
 		case UPDATETYPE_WEAPON_AOE:
 			if (m_eStructure == UNIT_TANK)
-				return _T("Once downloaded, every Digitank will receive a Plasma Charge weapon, which does double damage to shields.";
+				return _T("Once downloaded, every Digitank will receive a Plasma Charge weapon, which does double damage to shields.");
 			else
-				return _T("Once downloaded, every Artillery will receive a Plasma Charge weapon, which does damage over a much larger area.";
+				return _T("Once downloaded, every Artillery will receive a Plasma Charge weapon, which does damage over a much larger area.");
 
 		case UPDATETYPE_WEAPON_CLUSTER:
-			return _T("Once downloaded, every Digitank will receive a Cluster Bomb, which splits into multiple smaller fragments after the initial explosion.";
+			return _T("Once downloaded, every Digitank will receive a Cluster Bomb, which splits into multiple smaller fragments after the initial explosion.");
 
 		case UPDATETYPE_WEAPON_ICBM:
 			if (m_eStructure == UNIT_TANK)
-				return _T("Once downloaded, every Digitank will receive an Wide Area Network Bomb, which splits into multiple smaller fragments in the air before impact.";
+				return _T("Once downloaded, every Digitank will receive an Wide Area Network Bomb, which splits into multiple smaller fragments in the air before impact.");
 			else
-				return _T("Once downloaded, every Artillery will receive an Wide Area Network Bomb, which splits into multiple smaller fragments in the air before impact.";
+				return _T("Once downloaded, every Artillery will receive an Wide Area Network Bomb, which splits into multiple smaller fragments in the air before impact.");
 
 		case UPDATETYPE_WEAPON_DEVASTATOR:
-			return _T("Once downloaded, every Artillery will receive The Devastator. The Devastator is the ultimate weapon of destruction.";
+			return _T("Once downloaded, every Artillery will receive The Devastator. The Devastator is the ultimate weapon of destruction.");
 		}
 	}
 
-	return _T("If you can figure out what hell this thing does, please let me know.";
+	return _T("If you can figure out what hell this thing does, please let me know.");
 }
 
 tstring CUpdateItem::GetUnits()
@@ -765,35 +765,35 @@ tstring CUpdateItem::GetUnits()
 	switch (m_eUpdateType)
 	{
 	case UPDATETYPE_PRODUCTION:
-		return _T("power";
+		return _T("power");
 
 	case UPDATETYPE_BANDWIDTH:
-		return _T("mb per turn";
+		return _T("mb per turn");
 
 	case UPDATETYPE_FLEETSUPPLY:
-		return _T("fleet supply";
+		return _T("fleet supply");
 
 	case UPDATETYPE_SUPPORTENERGY:
-		return _T("energy";
+		return _T("energy");
 
 	case UPDATETYPE_SUPPORTRECHARGE:
-		return _T("recharge";
+		return _T("recharge");
 
 	case UPDATETYPE_TANKATTACK:
-		return _T("attack energy";
+		return _T("attack energy");
 
 	case UPDATETYPE_TANKDEFENSE:
-		return _T("shield energy";
+		return _T("shield energy");
 
 	case UPDATETYPE_TANKMOVEMENT:
-		return _T("units";
+		return _T("units");
 
 	case UPDATETYPE_TANKHEALTH:
-		return _T("hull points";
+		return _T("hull points");
 
 	case UPDATETYPE_TANKRANGE:
-		return _T("units";
+		return _T("units");
 	}
 
-	return _T("";
+	return _T("");
 }

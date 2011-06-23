@@ -37,7 +37,7 @@ public:
 	void						OpenWindow();
 
 	virtual eastl::string		WindowTitle() { return "Digitanks!"; }
-	virtual tstring		AppDirectory() { return _T("Digitanks"; }
+	virtual tstring				AppDirectory() { return _T("Digitanks"); }
 
 	void						InitUI();
 
@@ -106,7 +106,7 @@ public:
 	bool						WantsShaders() { return m_bWantsShaders; }
 
 	void						SetPlayerNickname(tstring sNickname) { m_sNickname = sNickname; }
-	tstring				GetPlayerNickname() { return m_sNickname; }
+	tstring						GetPlayerNickname() { return m_sNickname; }
 
 	bool						GetMouseGridPosition(Vector& vecPoint, CBaseEntity** pHit = NULL, int iCollisionGroup = 0);
 
@@ -136,13 +136,7 @@ public:
 
 	size_t						GetLunarWorkshopLogo() { return m_iLunarWorkshop; }
 
-	void						OpenChat();
-	void						CloseChat();
-	void						ToggleChat();
-	bool						IsChatOpen();
-	void						PrintChat(tstring sText);
-	void						PrintChat(eastl::string sText);
-	class CChatBox*				GetChatBox();
+	virtual class CChatBox*		GetChatBox();
 
 	// IWorkListener
 	virtual void				BeginProgress();
@@ -171,8 +165,6 @@ protected:
 
 	class CInstructor*			m_pInstructor;
 
-	class CChatBox*				m_pChatBox;
-
 	class CCampaignData*		m_pCampaign;
 
 	bool						m_bBoxSelect;
@@ -199,7 +191,7 @@ protected:
 	bool						m_bReverseSpacebar;
 	bool						m_bWantsFramebuffers;
 	bool						m_bWantsShaders;
-	tstring				m_sNickname;
+	tstring						m_sNickname;
 
 	float						m_flSoundVolume;
 	float						m_flMusicVolume;
@@ -208,7 +200,7 @@ protected:
 
 	size_t						m_iLunarWorkshop;
 
-	tstring				m_sAction;
+	tstring						m_sAction;
 	size_t						m_iTotalProgress;
 	size_t						m_iProgress;
 };

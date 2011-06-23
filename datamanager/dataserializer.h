@@ -5,11 +5,13 @@
 
 #include <iostream>
 
+#include <tstring.h>
+
 class CDataSerializer
 {
 public:
-	static void			Read(std::istream& sStream, class CData* pData);
-	static void			Save(std::ostream& sStream, class CData* pData);
+	static void			Read(std::basic_istream<tchar>& sStream, class CData* pData);
+	static void			Save(std::basic_ostream<tchar>& sStream, class CData* pData);
 };
 
 #endif

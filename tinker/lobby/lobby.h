@@ -2,7 +2,8 @@
 #define _TINKER_LOBBY_H
 
 #include <EASTL/map.h>
-#include <EASTL/string.h>
+
+#include <tstring.h>
 
 class CLobbyPlayer
 {
@@ -12,7 +13,7 @@ public:
 		eastl::map<tstring, tstring>::iterator it = asInfo.find(sKey);
 
 		if (it == asInfo.end())
-			return _T("";
+			return _T("");
 
 		return it->second;
 	}

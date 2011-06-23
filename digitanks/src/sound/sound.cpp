@@ -122,7 +122,7 @@ void CSoundLibrary::StopSound(CBaseEntity* pEntity, const tstring& pszFilename)
 	if (Get()->m_aiActiveSounds.find(pEntity) == Get()->m_aiActiveSounds.end())
 		return;
 
-	if (pszFilename != _T("")
+	if (pszFilename != _T(""))
 	{
 		// Un-register the channel finish callback for the time being because we clear the active sound list by ourselves.
 		Mix_ChannelFinished(NULL);

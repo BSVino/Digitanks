@@ -35,7 +35,7 @@ void CDigitanksCamera::SetTarget(Vector vecTarget)
 		return;
 	}
 
-	vecTarget = DigitanksGame()->GetTerrain()->SetPointHeight(DigitanksGame()->GetTerrain()->ConstrainVectorToMap(vecTarget));
+	vecTarget = DigitanksGame()->GetTerrain()->GetPointHeight(DigitanksGame()->GetTerrain()->ConstrainVectorToMap(vecTarget));
 
 	m_flTargetRamp = GameServer()->GetGameTime();
 	m_vecOldTarget = m_vecTarget;
@@ -48,7 +48,7 @@ void CDigitanksCamera::SnapTarget(Vector vecTarget)
 	if (!DigitanksGame()->GetTerrain())
 		return;
 
-	DigitanksGame()->GetTerrain()->SetPointHeight(vecTarget);
+	vecTarget = DigitanksGame()->GetTerrain()->GetPointHeight(vecTarget);
 
 	m_flTargetRamp = 0;
 	m_vecNewTarget = m_vecTarget = vecTarget;
@@ -393,7 +393,7 @@ void CDigitanksCamera::Think()
 
 			m_vecTarget = DigitanksGame()->GetTerrain()->ConstrainVectorToMap(m_vecTarget);
 
-			DigitanksGame()->GetTerrain()->SetPointHeight(m_vecTarget);
+			m_vecTarget = DigitanksGame()->GetTerrain()->GetPointHeight(m_vecTarget);
 		}
 	}
 
@@ -660,7 +660,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 			angMissile.y += 360;
 
 		if (GameNetwork()->IsConnected() && !GameNetwork()->IsHost())
-			CGAng.RunCommand(sprintf(_T("%d %f %f %f", m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
+			CGAng.RunCommand(sprintf(_T("%d %f %f %f"), m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
 
 		m_hCameraGuidedMissile->SetViewAngles(angMissile);
 		m_hCameraGuidedMissile->SetAngles(angMissile);

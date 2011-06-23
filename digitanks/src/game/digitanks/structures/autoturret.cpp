@@ -27,17 +27,17 @@ INPUTS_TABLE_END();
 
 void CAutoTurret::Precache()
 {
-	PrecacheModel(_T("models/structures/firewall.obj", true);
-	PrecacheModel(_T("models/structures/firewall-shield.obj", true);
+	PrecacheModel(_T("models/structures/firewall.obj"), true);
+	PrecacheModel(_T("models/structures/firewall-shield.obj"), true);
 }
 
 void CAutoTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/structures/firewall.obj");
+	SetModel(_T("models/structures/firewall.obj"));
 
-	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/structures/firewall-shield.obj");
+	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/structures/firewall-shield.obj"));
 }
 
 void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
@@ -200,16 +200,16 @@ void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 		}
 
 		tstring s;
-		s += _T("DEFEND YOUR TERRITORY\n \n";
-		s += _T("Activate this Firewall to automatically fire at all enemies within range.\n \n";
+		s += _T("DEFEND YOUR TERRITORY\n \n");
+		s += _T("Activate this Firewall to automatically fire at all enemies within range.\n \n");
 
 		if (!bHasTargets)
-			s += _T("NO TARGETS IN RANGE\n \n";
+			s += _T("NO TARGETS IN RANGE\n \n");
 
-		s += _T("Shortcut: e";
+		s += _T("Shortcut: e");
 
 		pHUD->SetButtonInfo(2, s);
-		pHUD->SetButtonTooltip(2, _T("Activate Firewall");
+		pHUD->SetButtonTooltip(2, _T("Activate Firewall"));
 	}
 }
 
@@ -217,27 +217,27 @@ void CAutoTurret::UpdateInfo(tstring& s)
 {
 	tstring p;
 
-	s = _T("";
-	s += _T("FIREWALL INFO\n";
-	s += _T("Network defender\n \n";
+	s = _T("");
+	s += _T("FIREWALL INFO\n");
+	s += _T("Network defender\n \n");
 
 	if (GetTeam())
 	{
-		s += _T("Team: " + GetTeam()->GetTeamName() + _T("\n";
+		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += _T(" Friendly\n \n";
+			s += _T(" Friendly\n \n");
 		else
-			s += _T(" Hostile\n \n";
+			s += _T(" Hostile\n \n");
 	}
 	else
 	{
-		s += _T("Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n");
 	}
 
 	if (IsConstructing())
 	{
-		s += _T("(Constructing)\n";
-		s += p.sprintf(_T("Turns left: %d\n", GetTurnsRemainingToConstruct());
+		s += _T("(Constructing)\n");
+		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 }

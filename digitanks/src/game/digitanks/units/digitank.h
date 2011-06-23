@@ -10,7 +10,7 @@
 #include <renderer/particles.h>
 
 // Tank speech
-typedef enum
+enum
 {
 	TANKSPEECH_SELECTED,
 	TANKSPEECH_MOVED,
@@ -25,7 +25,7 @@ typedef enum
 	TANKSPEECH_DISABLED,
 };
 
-typedef enum
+enum
 {
 	TANKLINE_CUTE,
 	TANKLINE_LOVE,

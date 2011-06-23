@@ -22,7 +22,7 @@ void CSelectable::Select(const eastl::vector<tstring>& sArgs)
 
 	for (size_t i = 0; i < sArgs.size(); i++)
 	{
-		if (sArgs[i] == _T("if-selection-empty")
+		if (sArgs[i] == _T("if-selection-empty"))
 		{
 			if (GetDigitanksTeam()->GetPrimarySelection())
 				return;

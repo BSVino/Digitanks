@@ -134,7 +134,7 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 	m_aflVisibilities[pEntity->GetHandle()] = 1;
 
 	const CCPU* pCPU = dynamic_cast<const CCPU*>(pEntity);
-	if (m_hPrimaryCPU == NULL && pCPU)
+	if (!m_hPrimaryCPU && pCPU)
 		m_hPrimaryCPU = pCPU;
 
 	DigitanksWindow()->GetHUD()->OnAddEntityToTeam(this, pEntity);
@@ -372,14 +372,14 @@ void CDigitanksTeam::StartTurn()
 			// Return the excess.
 			m_flMegabytes = GetUpdateDownloaded() - GetUpdateSize();
 
-			AppendTurnInfo(_T("'" + GetUpdateDownloading()->GetName() + _T("' finished downloading.");
+			AppendTurnInfo(_T("'") + GetUpdateDownloading()->GetName() + _T("' finished downloading."));
 
 			DownloadComplete();
 		}
 		else
 		{
 			tstring s;
-			s.sprintf((_T("Downloading '" + GetUpdateDownloading()->GetName() + _T("' (%d turns left)").c_str(), GetTurnsToDownload());
+			s.sprintf((_T("Downloading '") + GetUpdateDownloading()->GetName() + _T("' (%d turns left)")).c_str(), GetTurnsToDownload());
 			AppendTurnInfo(s);
 		}
 	}
@@ -401,7 +401,7 @@ void CDigitanksTeam::StartTurn()
 
 void CDigitanksTeam::EndTurn()
 {
-	m_sTurnInfo = _T("";
+	m_sTurnInfo = _T("");
 	m_aActionItems.clear();
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -546,7 +546,7 @@ void CDigitanksTeam::YouLoseSirGoodDay()
 {
 	m_bLost = true;
 
-	::YouLoseSirGoodDay.RunCommand(_T("", GetClient());
+	::YouLoseSirGoodDay.RunCommand(_T(""), GetClient());
 }
 
 void CDigitanksTeam::CountBandwidth()
@@ -575,9 +575,9 @@ void CDigitanksTeam::CountBandwidth()
 void CDigitanksTeam::AppendTurnInfo(const tstring& sTurnInfo)
 {
 	if (m_sTurnInfo.length() == 0)
-		m_sTurnInfo = _T("TURN REPORT\n \n";
+		m_sTurnInfo = _T("TURN REPORT\n \n");
 
-	m_sTurnInfo += _T("* " + sTurnInfo + _T("\n";
+	m_sTurnInfo += _T("* ") + sTurnInfo + _T("\n");
 }
 
 tstring CDigitanksTeam::GetTurnInfo()
@@ -786,7 +786,7 @@ CLIENT_GAME_COMMAND(HandledActionItem)
 
 void CDigitanksTeam::HandledActionItem(size_t i)
 {
-	::HandledActionItem.RunCommand(sprintf(_T("%d %d", GetHandle(), i));
+	::HandledActionItem.RunCommand(sprintf(_T("%d %d"), GetHandle(), i));
 
 	// Predict the handling so it happens immediately.
 	if (!GameNetwork()->IsHost())

@@ -65,7 +65,7 @@ public:
 
 	virtual void				OnDeleted();
 
-	virtual tstring		GetEntityName() const { return _T("Central Processing Unit"; };
+	virtual tstring		GetEntityName() const { return _T("Central Processing Unit"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_CPU; };
 
 protected:

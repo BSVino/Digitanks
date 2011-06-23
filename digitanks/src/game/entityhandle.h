@@ -23,13 +23,7 @@ public:
 			m_iHandle = pEntity->GetHandle();
 	}
 
-	CEntityHandle(size_t iHandle)
-	{
-		if (dynamic_cast<C*>(CBaseEntity::GetEntity(iHandle)))
-			m_iHandle = iHandle;
-		else
-			m_iHandle = ~0;
-	}
+	CEntityHandle(size_t iHandle);
 
 public:
 	inline const CEntityHandle& operator=(const C* pEntity)
@@ -58,6 +52,11 @@ public:
 		return !IsEqual(hEntity);
 	}
 
+	inline bool operator!() const
+	{
+		return IsEqual(NULL);
+	}
+
 	inline operator C*() const
 	{
 		return GetPointer();
@@ -68,31 +67,9 @@ public:
 		return GetPointer();
 	}
 
-	inline bool operator!() const
-	{
-		return IsEqual(NULL);
-	}
+	inline bool IsEqual(const C* pOther) const;
 
-	inline bool IsEqual(const C* pOther) const
-	{
-		if (!pOther)
-		{
-			if (!CBaseEntity::GetEntity(m_iHandle))
-				return true;
-
-			if (!dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle)))
-				return true;
-
-			return m_iHandle == ~0;
-		}
-
-		return m_iHandle == pOther->GetHandle();
-	}
-
-	inline C* GetPointer() const
-	{
-		return static_cast<C*>(CBaseEntity::GetEntity(m_iHandle));
-	}
+	inline C* GetPointer() const;
 
 	inline void Set(const C* pEntity)
 	{
@@ -113,6 +90,10 @@ template <class T>
 class CNetworkedHandle : public CNetworkedVariable<CEntityHandle<T> >
 {
 public:
+	// For some reason GCC 4.4.3 won't build without these.
+	using CNetworkedVariable<CEntityHandle<T> >::m_oVariable;
+	using CNetworkedVariable<CEntityHandle<T> >::m_bDirty;
+
 	inline const CNetworkedHandle& operator=(const T* pEntity)
 	{
 		if (m_oVariable == pEntity)

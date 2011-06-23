@@ -3,6 +3,7 @@
 #include <tinker/cvar.h>
 #include <tinker/lobby/lobby_server.h>
 #include <tinker/lobby/lobby_client.h>
+#include <tinker/chatbox.h>
 
 #include <renderer/renderer.h>
 
@@ -11,7 +12,6 @@
 
 #include "menu.h"
 #include "digitankswindow.h"
-#include "chatbox.h"
 
 CVar lobby_gametype("lobby_gametype", "");
 
@@ -20,22 +20,22 @@ CLobbyPanel::CLobbyPanel()
 {
 	SetVisible(false);
 
-	m_pLobbyName = new glgui::CLabel(0, 0, 100, 100, _T("Lobby");
-	m_pLobbyName->SetFont(_T("header", 30);
+	m_pLobbyName = new glgui::CLabel(0, 0, 100, 100, _T("Lobby"));
+	m_pLobbyName->SetFont(_T("header"), 30);
 	AddControl(m_pLobbyName);
 
-	m_pPlayerList = new glgui::CLabel(0, 0, 100, 100, _T("Player List");
-	m_pPlayerList->SetFont(_T("header", 18);
+	m_pPlayerList = new glgui::CLabel(0, 0, 100, 100, _T("Player List"));
+	m_pPlayerList->SetFont(_T("header"), 18);
 	AddControl(m_pPlayerList);
 
-	m_pAddPlayer = new glgui::CButton(0, 0, 100, 100, _T("+ Add Player");
+	m_pAddPlayer = new glgui::CButton(0, 0, 100, 100, _T("+ Add Player"));
 	m_pAddPlayer->SetClickedListener(this, AddPlayer);
-	m_pAddPlayer->SetFont(_T("header", 9);
+	m_pAddPlayer->SetFont(_T("header"), 9);
 	AddControl(m_pAddPlayer);
 
-	m_pAddBot = new glgui::CButton(0, 0, 100, 100, _T("+ Add Bot");
+	m_pAddBot = new glgui::CButton(0, 0, 100, 100, _T("+ Add Bot"));
 	m_pAddBot->SetClickedListener(this, AddBot);
-	m_pAddBot->SetFont(_T("header", 9);
+	m_pAddBot->SetFont(_T("header"), 9);
 	AddControl(m_pAddBot);
 
 	m_pDockPanel = new CDockPanel();
@@ -45,14 +45,14 @@ CLobbyPanel::CLobbyPanel()
 	m_pChatBox = new CChatBox();
 	AddControl(m_pChatBox);
 
-	m_pLeave = new glgui::CButton(0, 0, 100, 100, _T("Leave Lobby");
+	m_pLeave = new glgui::CButton(0, 0, 100, 100, _T("Leave Lobby"));
 	m_pLeave->SetClickedListener(this, LeaveLobby);
-	m_pLeave->SetFont(_T("header");
+	m_pLeave->SetFont(_T("header"));
 	AddControl(m_pLeave);
 
-	m_pReady = new glgui::CButton(0, 0, 100, 100, _T("Ready");
+	m_pReady = new glgui::CButton(0, 0, 100, 100, _T("Ready"));
 	m_pReady->SetClickedListener(this, PlayerReady);
-	m_pReady->SetFont(_T("header");
+	m_pReady->SetFont(_T("header"));
 	AddControl(m_pReady);
 
 	m_bLayout = false;
@@ -86,17 +86,17 @@ void CLobbyPanel::Layout()
 	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 	{
 		CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-		if (pPlayer->GetInfoValue(_T("host") == _T("1")
+		if (pPlayer->GetInfoValue(_T("host")) == _T("1"))
 		{
-			m_pLobbyName->SetText(pPlayer->GetInfoValue(_T("name") + _T("'s Lobby");
+			m_pLobbyName->SetText(pPlayer->GetInfoValue(_T("name")) + _T("'s Lobby"));
 
-			if (pPlayer->GetInfoValue(_T("ready") == _T("1")
+			if (pPlayer->GetInfoValue(_T("ready")) == _T("1"))
 				bAllButMe = false;
 
 			continue;
 		}
 
-		if (pPlayer->GetInfoValue(_T("ready") != _T("1")
+		if (pPlayer->GetInfoValue(_T("ready")) != _T("1"))
 			bAllButMe = false;
 	}
 
@@ -141,24 +141,24 @@ void CLobbyPanel::Layout()
 	m_pReady->SetPos(925 - 200, 668 - 55);
 
 	if (bAllButMe)
-		m_pReady->SetText(_T("Start Game");
+		m_pReady->SetText(_T("Start Game"));
 	else if (CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID()))
 	{
-		bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready").c_str());
+		bool bReady = !!stoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready")).c_str());
 		if (bReady)
-			m_pReady->SetText(_T("Not Ready");
+			m_pReady->SetText(_T("Not Ready"));
 		else
-			m_pReady->SetText(_T("Ready");
+			m_pReady->SetText(_T("Ready"));
 	}
 	else
-		m_pReady->SetText(_T("Ready");
+		m_pReady->SetText(_T("Ready"));
 
 	m_pReady->SetEnabled(CGameLobbyClient::L_GetNumPlayers() >= 2);
 
-	if (LobbyNetwork()->IsHost() && CGameLobbyClient::L_GetInfoValue(_T("level").length() == 0)
+	if (LobbyNetwork()->IsHost() && CGameLobbyClient::L_GetInfoValue(_T("level")).length() == 0)
 		m_pReady->SetEnabled(false);
 
-	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(_T("gametype").c_str());
+	gametype_t eGameType = (gametype_t)stoi(CGameLobbyClient::L_GetInfoValue(_T("gametype")).c_str());
 	if (CGameLobbyClient::L_GetNumPlayers() > 8 && eGameType == GAMETYPE_ARTILLERY)
 		m_pReady->SetEnabled(false);
 	else if (CGameLobbyClient::L_GetNumPlayers() > 4 && eGameType == GAMETYPE_STANDARD)
@@ -236,8 +236,8 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	}
 
 	CGameLobbyClient::S_JoinLobby(m_iLobby);
-	CGameLobbyClient::S_UpdatePlayer(_T("host", _T("1");
-	CGameLobbyClient::S_UpdateLobby(_T("gametype", sprintf(_T("%d", (gametype_t)lobby_gametype.GetInt()));
+	CGameLobbyClient::S_UpdatePlayer(_T("host"), _T("1"));
+	CGameLobbyClient::S_UpdateLobby(_T("gametype"), sprintf(_T("%d"), (gametype_t)lobby_gametype.GetInt()));
 
 	if (!m_bOnline)
 	{
@@ -247,7 +247,7 @@ void CLobbyPanel::CreateLobby(bool bOnline)
 	}
 
 	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
-		CGameLobbyClient::S_UpdatePlayer(CGameLobbyClient::L_GetPlayer(i)->iID, _T("color", sprintf(_T("%d", i));
+		CGameLobbyClient::S_UpdatePlayer(CGameLobbyClient::L_GetPlayer(i)->iID, _T("color"), sprintf(_T("%d"), i));
 
 	if ((gametype_t)lobby_gametype.GetInt() == GAMETYPE_ARTILLERY)
 		m_pDockPanel->SetDockedPanel(new CArtilleryGamePanel(true));
@@ -292,9 +292,9 @@ void CLobbyPanel::ConnectToLocalLobby(const tstring& sHost)
 void CLobbyPanel::UpdatePlayerInfo()
 {
 	LobbyNetwork()->SetRunningClientFunctions(false);
-	CGameLobbyClient::S_UpdatePlayer(_T("name", DigitanksWindow()->GetPlayerNickname());
-	CGameLobbyClient::S_UpdatePlayer(_T("ready", _T("0");
-	CGameLobbyClient::S_UpdatePlayer(_T("color", _T("random");
+	CGameLobbyClient::S_UpdatePlayer(_T("name"), DigitanksWindow()->GetPlayerNickname());
+	CGameLobbyClient::S_UpdatePlayer(_T("ready"), _T("0"));
+	CGameLobbyClient::S_UpdatePlayer(_T("color"), _T("random"));
 }
 
 void CLobbyPanel::LeaveLobbyCallback()
@@ -345,12 +345,12 @@ void CLobbyPanel::LobbyLeaveCallback(int iConnection, INetworkListener*, class C
 
 void CLobbyPanel::PlayerReadyCallback()
 {
-	bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready").c_str());
+	bool bReady = !!stoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready")).c_str());
 
 	if (bReady)
-		CGameLobbyClient::S_UpdatePlayer(_T("ready", _T("0");
+		CGameLobbyClient::S_UpdatePlayer(_T("ready"), _T("0"));
 	else
-		CGameLobbyClient::S_UpdatePlayer(_T("ready", _T("1");
+		CGameLobbyClient::S_UpdatePlayer(_T("ready"), _T("1"));
 }
 
 void CLobbyPanel::AddPlayerCallback()
@@ -367,11 +367,11 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 {
 	TAssert(iConnection == CONNECTION_LOBBY);
 
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CGameLobbyClient::L_GetInfoValue(_T("level_file"));
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CGameLobbyClient::L_GetInfoValue(_T("level_file")));
 	if (!pLevel)
 		return;
 
-	CVar::SetCVar(_T("game_level", pLevel->GetFile());
+	CVar::SetCVar(_T("game_level"), pLevel->GetFile());
 
 	DigitanksWindow()->GetLobbyPanel()->SetVisible(false);
 
@@ -392,9 +392,9 @@ void CLobbyPanel::BeginGameCallback(int iConnection, INetworkListener*, class CN
 CInfoPanel::CInfoPanel()
 	: CPanel(0, 0, 570, 520)
 {
-	m_pLobbyDescription = new glgui::CLabel(0, 0, 32, 32, _T("");
+	m_pLobbyDescription = new glgui::CLabel(0, 0, 32, 32, _T(""));
 	m_pLobbyDescription->SetWrap(true);
-	m_pLobbyDescription->SetFont(_T("text");
+	m_pLobbyDescription->SetFont(_T("text"));
 	m_pLobbyDescription->SetAlign(glgui::CLabel::TA_TOPLEFT);
 	AddControl(m_pLobbyDescription);
 }
@@ -404,30 +404,30 @@ void CInfoPanel::Layout()
 	m_pLobbyDescription->SetSize(GetWidth()-40, 80);
 	m_pLobbyDescription->SetPos(20, 20);
 
-	gametype_t eGameType = (gametype_t)_wtoi(CGameLobbyClient::L_GetInfoValue(_T("gametype").c_str());
+	gametype_t eGameType = (gametype_t)stoi(CGameLobbyClient::L_GetInfoValue(_T("gametype")).c_str());
 
 	if (eGameType == GAMETYPE_ARTILLERY)
-		m_pLobbyDescription->SetText(_T("Game Mode: Artillery\n");
+		m_pLobbyDescription->SetText(_T("Game Mode: Artillery\n"));
 	else
-		m_pLobbyDescription->SetText(_T("Game Mode: Standard\n");
+		m_pLobbyDescription->SetText(_T("Game Mode: Standard\n"));
 
-	m_pLobbyDescription->AppendText(tstring(_T("Level: ") + CGameLobbyClient::L_GetInfoValue(_T("level") + _T("\n");
+	m_pLobbyDescription->AppendText(tstring(_T("Level: ")) + CGameLobbyClient::L_GetInfoValue(_T("level")) + _T("\n"));
 
 	if (eGameType == GAMETYPE_ARTILLERY)
 	{
-		m_pLobbyDescription->AppendText(tstring(_T("Tanks per player: ") + CGameLobbyClient::L_GetInfoValue(_T("tanks") + _T("\n");
+		m_pLobbyDescription->AppendText(tstring(_T("Tanks per player: ")) + CGameLobbyClient::L_GetInfoValue(_T("tanks")) + _T("\n"));
 
-		tstring sHeight = CGameLobbyClient::L_GetInfoValue(_T("terrain");
-		float flHeight = (float)_wtof(sHeight.c_str());
+		tstring sHeight = CGameLobbyClient::L_GetInfoValue(_T("terrain"));
+		float flHeight = (float)stof(sHeight.c_str());
 		if (fabs(flHeight - 10.0f) < 0.5f)
-			sHeight = _T("Flatty";
+			sHeight = _T("Flatty");
 		else if (fabs(flHeight - 50.0f) < 0.5f)
-			sHeight = _T("Hilly";
+			sHeight = _T("Hilly");
 		else if (fabs(flHeight - 80.0f) < 0.5f)
-			sHeight = _T("Mountainy";
+			sHeight = _T("Mountainy");
 		else if (fabs(flHeight - 120.0f) < 0.5f)
-			sHeight = _T("Everesty";
-		m_pLobbyDescription->AppendText(tstring(_T("Terrain height: ") + sHeight + _T("\n");
+			sHeight = _T("Everesty");
+		m_pLobbyDescription->AppendText(tstring(_T("Terrain height: ")) + sHeight + _T("\n"));
 	}
 
 	BaseClass::Layout();
@@ -438,24 +438,24 @@ CPlayerPanel::CPlayerPanel()
 {
 	m_iLobbyPlayer = ~0;
 
-	m_pName = new glgui::CLabel(0, 0, 100, 100, _T("Player");
-	m_pName->SetFont(_T("text");
+	m_pName = new glgui::CLabel(0, 0, 100, 100, _T("Player"));
+	m_pName->SetFont(_T("text"));
 	m_pName->SetWrap(false);
 	AddControl(m_pName);
 
 	if (CGameLobbyClient::L_IsHost())
 	{
-		m_pKick = new glgui::CButton(0, 0, 100, 100, _T("Kick");
+		m_pKick = new glgui::CButton(0, 0, 100, 100, _T("Kick"));
 		m_pKick->SetClickedListener(this, Kick);
-		m_pKick->SetFont(_T("header", 11);
+		m_pKick->SetFont(_T("header"), 11);
 		m_pKick->SetButtonColor(Color(255, 0, 0));
 		AddControl(m_pKick);
 	}
 	else
 		m_pKick = NULL;
 
-	m_pColor = new glgui::CMenu(_T("Color");
-	m_pColor->SetFont(_T("text", 11);
+	m_pColor = new glgui::CMenu(_T("Color"));
+	m_pColor->SetFont(_T("text"), 11);
 	AddControl(m_pColor);
 	m_bRandomColor = true;
 
@@ -465,11 +465,11 @@ CPlayerPanel::CPlayerPanel()
 	for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 	{
 		CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-		tstring sColor = pPlayer->GetInfoValue(_T("color");
-		if (sColor == _T("random" || sColor == _T("")
+		tstring sColor = pPlayer->GetInfoValue(_T("color"));
+		if (sColor == _T("random") || sColor == _T(""))
 			continue;
 
-		size_t iColor = _wtoi(sColor.c_str());
+		size_t iColor = stoi(sColor.c_str());
 		for (size_t j = 0; j < m_aiAvailableColors.size(); j++)
 		{
 			if (m_aiAvailableColors[j] == iColor)
@@ -480,7 +480,7 @@ CPlayerPanel::CPlayerPanel()
 		}
 	}
 
-	m_pColor->AddSubmenu(_T("Random", this, ColorChosen);
+	m_pColor->AddSubmenu(_T("Random"), this, ColorChosen);
 	for (size_t i = 0; i < m_aiAvailableColors.size(); i++)
 		m_pColor->AddSubmenu(g_aszTeamNames[m_aiAvailableColors[i]], this, ColorChosen);
 }
@@ -496,7 +496,7 @@ void CPlayerPanel::Layout()
 
 	CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(m_iLobbyPlayer);
 
-	if (pPlayer && pPlayer->GetInfoValue(_T("ready") == _T("1")
+	if (pPlayer && pPlayer->GetInfoValue(_T("ready")) == _T("1"))
 		m_pName->SetFGColor(Color(0, 255, 0));
 	else
 		m_pName->SetFGColor(Color(255, 255, 255));
@@ -513,12 +513,12 @@ void CPlayerPanel::Layout()
 	if (m_bRandomColor)
 	{
 		m_pColor->SetButtonColor(Color(0, 0, 0));
-		m_pColor->SetText(_T("Rnd");
+		m_pColor->SetText(_T("Rnd"));
 	}
 	else
 	{
 		m_pColor->SetButtonColor(g_aclrTeamColors[m_iColor]);
-		m_pColor->SetText(_T("");
+		m_pColor->SetText(_T(""));
 	}
 }
 
@@ -539,13 +539,13 @@ void CPlayerPanel::SetPlayer(size_t iID)
 
 	m_iLobbyPlayer = CGameLobbyClient::L_GetPlayerIndexByID(iID);
 
-	tstring sName = pPlayer->GetInfoValue(_T("name");
+	tstring sName = pPlayer->GetInfoValue(_T("name"));
 	if (sName.length() == 0)
-		sName = _T("Player";
+		sName = _T("Player");
 
-	tstring sHost = pPlayer->GetInfoValue(_T("host");
-	if (sHost == _T("1")
-		sName += _T(" - Host";
+	tstring sHost = pPlayer->GetInfoValue(_T("host"));
+	if (sHost == _T("1"))
+		sName += _T(" - Host");
 
 	m_pName->SetText(sName);
 
@@ -554,13 +554,13 @@ void CPlayerPanel::SetPlayer(size_t iID)
 
 	m_pColor->SetEnabled(iID == CGameLobbyClient::L_GetLocalPlayerID() || CGameLobbyClient::L_IsHost());
 
-	bool bReady = !!_wtoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready").c_str());
+	bool bReady = !!stoi(CGameLobbyClient::L_GetPlayerByClient(LobbyNetwork()->GetClientID())->GetInfoValue(_T("ready")).c_str());
 	if (bReady)
 		m_pColor->SetEnabled(false);
 
-	tstring sColor = pPlayer->GetInfoValue(_T("color");
-	m_bRandomColor = (sColor == _T("random" || sColor == _T("");
-	m_iColor = _wtoi(sColor.c_str());
+	tstring sColor = pPlayer->GetInfoValue(_T("color"));
+	m_bRandomColor = (sColor == _T("random") || sColor == _T(""));
+	m_iColor = stoi(sColor.c_str());
 
 	Layout();
 }
@@ -592,7 +592,7 @@ void CPlayerPanel::ColorChosenCallback()
 	m_pColor->Pop(true, true);
 
 	if (m_bRandomColor)
-		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color", _T("random");
+		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), _T("random"));
 	else
-		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color", sprintf(_T("%d", m_iColor));
+		CGameLobbyClient::S_UpdatePlayer(pPlayer->iID, _T("color"), sprintf(_T("%d"), m_iColor));
 }

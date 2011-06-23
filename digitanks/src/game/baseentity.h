@@ -1,5 +1,5 @@
-#ifndef DT_BASEENTITY_H
-#define DT_BASEENTITY_H
+#ifndef TINKER_BASEENTITY_H
+#define TINKER_BASEENTITY_H
 
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
@@ -188,7 +188,7 @@ virtual bool Unserialize(std::istream& i) \
 #define NETVAR_TABLE_BEGIN(entity) \
 void entity::RegisterNetworkVariables() \
 { \
-	char* pszEntity = #entity; \
+	const char* pszEntity = #entity; \
 	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
 	pRegistration->m_aNetworkVariables.clear(); \
 	CGameServer* pGameServer = GameServer(); \
@@ -426,7 +426,7 @@ public:
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
 	void									CheckSaveDataSize(CEntityRegistration* pRegistration);
 
-	void									CheckTables(char* pszEntity);
+	void									CheckTables(const char* pszEntity);
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	template <class T>
@@ -520,6 +520,9 @@ public: \
 	} \
 } s_Register##entity = CRegister##entity(); \
 
+#include "gameserver.h"
+#include "template_functions.h"
+
 template <class T>
 T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 {
@@ -560,7 +563,5 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 
 	return pClosest;
 }
-
-#include "gameserver.h"
 
 #endif

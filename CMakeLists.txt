@@ -28,3 +28,5 @@ add_subdirectory (modelconverter)
 add_subdirectory (tinker)
 
 add_subdirectory (smak)
+
+add_subdirectory (digitanks)

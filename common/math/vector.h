@@ -3,6 +3,9 @@
 
 #include <math.h>
 
+// for size_t
+#include <stdlib.h>
+
 typedef float unit_t;
 
 #ifndef M_PI

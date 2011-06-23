@@ -44,8 +44,8 @@ INPUTS_TABLE_END();
 
 void CDigitanksEntity::Precache()
 {
-	PrecacheModel(_T("models/cage.obj", true);
-	PrecacheParticleSystem(_T("cage-aura");
+	PrecacheModel(_T("models/cage.obj"), true);
+	PrecacheParticleSystem(_T("cage-aura"));
 }
 
 void CDigitanksEntity::Spawn()
@@ -66,8 +66,8 @@ void CDigitanksEntity::Spawn()
 
 	CalculateVisibility();
 
-	m_iCageModel = CModelLibrary::Get()->FindModel(_T("models/cage.obj");
-	m_hCageParticles.SetSystem(_T("cage-aura", GetOrigin());
+	m_iCageModel = CModelLibrary::Get()->FindModel(_T("models/cage.obj"));
+	m_hCageParticles.SetSystem(_T("cage-aura"), GetOrigin());
 	m_hCageParticles.FollowEntity(this);
 }
 

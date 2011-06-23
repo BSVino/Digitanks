@@ -98,6 +98,13 @@ public:
 		return c != m_oVariable;
 	}
 
+	inline bool operator!() const
+	{
+		TAssert(m_bInitialized);
+
+		return !m_oVariable;
+	}
+
 	inline C operator+(const C& c) const
 	{
 		TAssert(m_bInitialized);
@@ -275,6 +282,11 @@ template <class C>
 class CNetworkedSTLVector : public CNetworkedVariable<eastl::vector<C> >
 {
 public:
+	// For some reason GCC 4.4.3 won't build without these.
+	using CNetworkedVariable<eastl::vector<C> >::m_bInitialized;
+	using CNetworkedVariable<eastl::vector<C> >::m_bDirty;
+	using CNetworkedVariable<eastl::vector<C> >::m_oVariable;
+
 	CNetworkedSTLVector()
 	{
 		// Because stl vectors automatically initialize themselves

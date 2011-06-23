@@ -150,7 +150,7 @@ public:
 	void					SetAimType(aimtype_t eAimType);
 	void					SetAimTypeByWeapon(weapon_t eWeapon);
 
-	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
+	CTerrain*				GetTerrain() { return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Move);
@@ -231,7 +231,7 @@ public:
 	void					BeginAirstrike(Vector vecLocation);
 	float					AirstrikeSize() const { return 50; };
 
-	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
+	CUpdateGrid*			GetUpdateGrid() { return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }
 	size_t					GetTurn() { return m_iTurn; }

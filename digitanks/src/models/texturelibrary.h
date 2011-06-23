@@ -2,7 +2,8 @@
 #define DT_TEXTURE_LIBRARY_H
 
 #include <EASTL/map.h>
-#include <EASTL/string.h>
+
+#include <tstring.h>
 
 class CTexture
 {

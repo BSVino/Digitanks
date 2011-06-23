@@ -27,7 +27,7 @@ public:
 	virtual float				InitialRechargeBonus() const { return 10.0f; };
 	virtual float				TotalHealth() const { return 250; };
 
-	virtual tstring		GetEntityName() const { return _T("Macro-Buffer"; };
+	virtual tstring				GetEntityName() const { return _T("Macro-Buffer"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BUFFER; };
 };
 
@@ -59,7 +59,7 @@ public:
 	virtual float				InitialRechargeBonus() const { return 5.0f; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual tstring		GetEntityName() const { return _T("Buffer"; };
+	virtual tstring				GetEntityName() const { return _T("Buffer"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_MINIBUFFER; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_BUFFER; };
 };

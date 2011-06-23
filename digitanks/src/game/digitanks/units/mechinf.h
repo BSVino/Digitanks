@@ -13,7 +13,7 @@ public:
 
 	virtual void				PostRender(bool bTransparent) const;
 
-	virtual tstring		GetEntityName() const { return _T("Resistor"; };
+	virtual tstring				GetEntityName() const { return _T("Resistor"); };
 
 	virtual float				RenderShieldScale() const { return 10.0f; };
 

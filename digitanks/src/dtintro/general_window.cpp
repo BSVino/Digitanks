@@ -13,16 +13,16 @@
 #include "intro_renderer.h"
 
 CGeneralWindow::CGeneralWindow()
-	: CPanel(0, 0, 400, 400), m_hAntivirus(_T("textures/intro/antivirus.txt"), m_hGeneral(_T("textures/hud/helper-emotions.txt"), m_hGeneralMouth(_T("textures/hud/helper-emotions-open.txt")
+	: CPanel(0, 0, 400, 400), m_hAntivirus(_T("textures/intro/antivirus.txt")), m_hGeneral(_T("textures/hud/helper-emotions.txt")), m_hGeneralMouth(_T("textures/hud/helper-emotions-open.txt"))
 {
 	glgui::CRootPanel::Get()->AddControl(this);
 
 	m_flDeployed = m_flDeployedGoal = 0;
 
-	m_pText = new glgui::CLabel(100, 0, 300, 300, _T("");
+	m_pText = new glgui::CLabel(100, 0, 300, 300, _T(""));
 	AddControl(m_pText);
 
-	m_pButton = new glgui::CButton(0, 0, 100, 30, _T("");
+	m_pButton = new glgui::CButton(0, 0, 100, 30, _T(""));
 	AddControl(m_pButton);
 	m_pButton->SetClickedListener(this, ButtonPressed);
 	m_pButton->SetButtonColor(Color(255, 0, 0, 255));
@@ -42,7 +42,7 @@ void CGeneralWindow::Layout()
 
 	m_pText->SetPos(230, 30);
 	m_pText->SetSize(260, 160);
-	m_pText->SetFont(_T("sans-serif", 14);
+	m_pText->SetFont(_T("sans-serif"), 14);
 	m_pText->SetFGColor(Color(0, 0, 0, 255));
 
 	m_pButton->SetPos(230+260/2-m_pButton->GetWidth()/2, GetHeight()-50);
@@ -71,16 +71,16 @@ void CGeneralWindow::Think()
 	{
 		if (!m_bHelperSpeaking)
 		{
-			CSoundLibrary::PlaySound(NULL, _T("sound/helper-speech.wav", true);
+			CSoundLibrary::PlaySound(NULL, _T("sound/helper-speech.wav"), true);
 			m_bHelperSpeaking = true;
-			CSoundLibrary::SetSoundVolume(NULL, _T("sound/helper-speech.wav", 0.7f);
+			CSoundLibrary::SetSoundVolume(NULL, _T("sound/helper-speech.wav"), 0.7f);
 		}
 	}
 	else
 	{
 		if (m_bHelperSpeaking)
 		{
-			CSoundLibrary::StopSound(NULL, _T("sound/helper-speech.wav");
+			CSoundLibrary::StopSound(NULL, _T("sound/helper-speech.wav"));
 			m_bHelperSpeaking = false;
 		}
 	}
@@ -129,25 +129,25 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 			int iRandomTime = RandomInt(0, 5);
 			tstring sRandomTime;
 			if (iRandomTime == 0)
-				sRandomTime = _T("centuries";
+				sRandomTime = _T("centuries");
 			else if (iRandomTime == 1)
-				sRandomTime = _T("minutes";
+				sRandomTime = _T("minutes");
 			else if (iRandomTime == 2)
-				sRandomTime = _T("hours";
+				sRandomTime = _T("hours");
 			else if (iRandomTime == 3)
-				sRandomTime = _T("days";
+				sRandomTime = _T("days");
 			else
-				sRandomTime = _T("seconds";
+				sRandomTime = _T("seconds");
 
-			sEstimate = sprintf(_T("Estimated time remaining: %d %s", RandomInt(2, 100), sRandomTime);
+			sEstimate = sprintf(_T("Estimated time remaining: %d %s"), RandomInt(2, 100), sRandomTime.c_str());
 
 			flLastEstimateUpdate = GameServer()->GetGameTime();
 		}
 
 		c.SetColor(Color(0, 0, 0, 255));
 
-		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), _T("sans-serif", 12);
-		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), _T("sans-serif", 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190);
+		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), _T("sans-serif"), 12);
+		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), _T("sans-serif"), 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190);
 	}
 }
 
@@ -166,8 +166,8 @@ void CGeneralWindow::Deploy()
 
 	m_flDeployedGoal = 1;
 
-	m_pText->SetText(_T("H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to remove them for you?");
-	m_pButton->SetText(_T("Remove");
+	m_pText->SetText(_T("H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to remove them for you?"));
+	m_pButton->SetText(_T("Remove"));
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "PleasedIntro";
@@ -179,8 +179,8 @@ void CGeneralWindow::RetryDebugging()
 {
 	Layout();
 
-	m_pText->SetText(_T("BUG REMOVAL HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another removal attempt.");
-	m_pButton->SetText(_T("Retry");
+	m_pText->SetText(_T("BUG REMOVAL HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another removal attempt."));
+	m_pButton->SetText(_T("Retry"));
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "DisappointedIntro";
@@ -193,8 +193,8 @@ void CGeneralWindow::GiveUpDebugging()
 {
 	Layout();
 
-	m_pText->SetText(_T("WARNING: ADDITIONAL BUGS FOUND\n \nArgh! They have reinforcements! I can't seem to do anything right.\n \nDon't look so smug, I don't see you doing any better.");
-	m_pButton->SetText(_T("Do Better");
+	m_pText->SetText(_T("WARNING: ADDITIONAL BUGS FOUND\n \nArgh! They have reinforcements! I can't seem to do anything right.\n \nDon't look so smug, I don't see you doing any better."));
+	m_pButton->SetText(_T("Do Better"));
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "SurprisedIntro";
@@ -207,8 +207,8 @@ void CGeneralWindow::DigitanksWon()
 {
 	Layout();
 
-	m_pText->SetText(_T("Hot bolts, what a brilliant tactic! Digitanks are a computer's natural defense system against Bugs. You're showing the talent of a true Hacker.\n \nLet's see if we can get any intel.");
-	m_pButton->SetText(_T("Roger");
+	m_pText->SetText(_T("Hot bolts, what a brilliant tactic! Digitanks are a computer's natural defense system against Bugs. You're showing the talent of a true Hacker.\n \nLet's see if we can get any intel."));
+	m_pButton->SetText(_T("Roger"));
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "CheeringIntro";
@@ -253,8 +253,8 @@ void CGeneralWindow::ButtonPressedCallback()
 	}
 	else if (m_eStage == STAGE_INTEL)
 	{
-		m_pText->SetText(_T("Oh no... it looks like the Bugs have captured some of your files!\n \nWe need to get to your hard drive to rescue your files --\n \nWhat's that? No! Not \"those\" files. I don't want to see what's in \"those\" files. We can rescue your other files!");
-		m_pButton->SetText(_T("Let's go!");
+		m_pText->SetText(_T("Oh no... it looks like the Bugs have captured some of your files!\n \nWe need to get to your hard drive to rescue your files --\n \nWhat's that? No! Not \"those\" files. I don't want to see what's in \"those\" files. We can rescue your other files!"));
+		m_pButton->SetText(_T("Let's go!"));
 		m_pButton->SetVisible(true);
 
 		m_sEmotion = "OhNoIntro";

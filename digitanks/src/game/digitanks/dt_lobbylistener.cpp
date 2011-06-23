@@ -20,7 +20,7 @@ bool CDigitanksLobbyListener::UpdateLobby(size_t iLobby, const tstring& sKey, co
 
 bool CDigitanksLobbyListener::UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue)
 {
-	if (sKey == _T("color" && sValue != _T("random")
+	if (sKey == _T("color") && sValue != _T("random"))
 	{
 		// Only one player can have any particular color.
 
@@ -38,7 +38,7 @@ bool CDigitanksLobbyListener::UpdatePlayer(size_t iID, const tstring& sKey, cons
 			if (pPlayer->iID == iID)
 				continue;
 
-			if (pPlayer->GetInfoValue(_T("color") == sValue)
+			if (pPlayer->GetInfoValue(_T("color")) == sValue)
 				// Only one player can have any particular color. If another player already has this color deny the color change.
 				return false;
 		}
@@ -49,10 +49,10 @@ bool CDigitanksLobbyListener::UpdatePlayer(size_t iID, const tstring& sKey, cons
 
 bool CDigitanksLobbyListener::BeginGame(size_t iLobby)
 {
-	if (CGameLobbyServer::GetLobby(iLobby)->GetInfoValue(_T("level_file") == _T("")
+	if (CGameLobbyServer::GetLobby(iLobby)->GetInfoValue(_T("level_file")) == _T(""))
 		return false;
 
-	if (CDigitanksGame::GetLevel(CGameLobbyServer::GetLobby(iLobby)->GetInfoValue(_T("level_file")) == NULL)
+	if (CDigitanksGame::GetLevel(CGameLobbyServer::GetLobby(iLobby)->GetInfoValue(_T("level_file"))) == NULL)
 		return false;
 
 	return true;

@@ -1,9 +1,10 @@
 #ifndef DT_RENDERER_H
 #define DT_RENDERER_H
 
-#include <EASTL/string.h>
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
+
+#include <tstring.h>
 #include <vector.h>
 #include <plane.h>
 #include <matrix.h>

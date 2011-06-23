@@ -19,6 +19,9 @@ set (LWBASE_SOURCES
 	../common/mtrand.cpp
 	../common/parallelize.cpp
 	../common/sockets/sockets.cpp
+
+	../datamanager/data.cpp
+	../datamanager/dataserializer.cpp
 )
 
 if (WIN32)

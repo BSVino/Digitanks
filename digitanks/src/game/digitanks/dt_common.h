@@ -1,7 +1,7 @@
 #ifndef DT_COMMON
 #define DT_COMMON
 
-#include <EASTL/string.h>
+#include <tstring.h>
 #include <color.h>
 
 typedef enum

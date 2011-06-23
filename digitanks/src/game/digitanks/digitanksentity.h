@@ -63,7 +63,7 @@ public:
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 
 	virtual void					UpdateInfo(tstring& sInfo) {};
-	virtual tstring			GetEntityName() const { return _T("Entity"; };
+	virtual tstring					GetEntityName() const { return _T("Entity"); };
 	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
 	void							SetObjective(bool bObjective) { m_bObjective = bObjective; }

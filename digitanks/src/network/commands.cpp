@@ -80,14 +80,13 @@ void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters, in
 
 	if (!bNoNetwork && Network(iConnection)->IsConnected())
 	{
-		tstring sCommand = m_sName + _T(" " + sParameters;
+		tstring sCommand = m_sName + _T(" ") + sParameters;
 
 		CNetworkParameters p;
 		p.CreateExtraData(sizeof(tstring::value_type) * (sCommand.length() + 1));
 		tchar* pszData = (tchar*)p.m_pExtraData;
 
-		TAssert(sizeof(tstring::value_type) == sizeof(tchar));
-		wcscpy(pszData, sCommand.c_str());
+		tstrncpy(pszData, sCommand.length()+1, sCommand.c_str(), sCommand.length()-1);
 
 		p.ui1 = Network(iConnection)->GetClientID();
 
@@ -96,21 +95,21 @@ void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters, in
 		if (net_debug.GetBool())
 		{
 			if (iTarget == NETWORK_TOSERVER)
-				TMsg(sprintf(_T("Cxn %d to server: ", iConnection));
+				TMsg(sprintf(_T("Cxn %d to server: "), iConnection));
 			else if (iTarget == NETWORK_TOCLIENTS)
-				TMsg(sprintf(_T("Cxn %d to clients: ", iConnection));
+				TMsg(sprintf(_T("Cxn %d to clients: "), iConnection));
 			else if (iTarget == NETWORK_TOEVERYONE)
-				TMsg(sprintf(_T("Cxn %d to all: ", iConnection));
+				TMsg(sprintf(_T("Cxn %d to all: "), iConnection));
 			else
-				TMsg(sprintf(_T("Cxn %d to client %d: ", iConnection, iTarget));
+				TMsg(sprintf(_T("Cxn %d to client %d: "), iConnection, iTarget));
 
-			TMsg(sCommand + _T("\n");
+			TMsg(sCommand + _T("\n"));
 		}
 	}
 
 	if (bPredict)
 	{
-		wcstok(sParameters, m_asArguments);
+		tstrtok(sParameters, m_asArguments);
 		m_pfnCallback(iConnection, this, -1, sParameters);
 	}
 }
@@ -120,12 +119,12 @@ void CNetworkCommand::RunCallback(int iConnection, size_t iClient, const tstring
 	if (net_debug.GetBool())
 	{
 		if (Network(iConnection)->IsHost())
-			TMsg(sprintf(_T("Cxn %d cmd from client %d: ", iConnection, iClient) + m_sName + _T(" " + sParameters + _T("\n");
+			TMsg(sprintf(_T("Cxn %d cmd from client %d: "), iConnection, iClient) + m_sName + _T(" ") + sParameters + _T("\n"));
 		else
-			TMsg(sprintf(_T("Cxn %d cmd from server: ", iConnection) + m_sName + _T(" " + sParameters + _T("\n");
+			TMsg(sprintf(_T("Cxn %d cmd from server: "), iConnection) + m_sName + _T(" ") + sParameters + _T("\n"));
 	}
 
-	wcstok(sParameters, m_asArguments);
+	tstrtok(sParameters, m_asArguments);
 
 	m_pfnCallback(iConnection, this, iClient, sParameters);
 }
@@ -150,7 +149,7 @@ bool CNetworkCommand::ArgAsBool(size_t iArg)
 	if (iArg >= GetNumArguments())
 		return 0;
 
-	return !!_wtoi(m_asArguments[iArg].c_str());
+	return !!stoi(m_asArguments[iArg].c_str());
 }
 
 size_t CNetworkCommand::ArgAsUInt(size_t iArg)
@@ -159,7 +158,7 @@ size_t CNetworkCommand::ArgAsUInt(size_t iArg)
 	if (iArg >= GetNumArguments())
 		return 0;
 
-	return _wtoi(m_asArguments[iArg].c_str());
+	return stoi(m_asArguments[iArg].c_str());
 }
 
 int CNetworkCommand::ArgAsInt(size_t iArg)
@@ -168,7 +167,7 @@ int CNetworkCommand::ArgAsInt(size_t iArg)
 	if (iArg >= GetNumArguments())
 		return 0;
 
-	return _wtoi(m_asArguments[iArg].c_str());
+	return stoi(m_asArguments[iArg].c_str());
 }
 
 float CNetworkCommand::ArgAsFloat(size_t iArg)
@@ -177,7 +176,7 @@ float CNetworkCommand::ArgAsFloat(size_t iArg)
 	if (iArg >= GetNumArguments())
 		return 0;
 
-	return (float)_wtof(m_asArguments[iArg].c_str());
+	return (float)stof(m_asArguments[iArg].c_str());
 }
 
 eastl::map<tstring, CNetworkCommand*>& CNetworkCommand::GetCommands()

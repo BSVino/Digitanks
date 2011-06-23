@@ -12,7 +12,7 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual tstring		GetEntityName() const { return _T("MCP"; };
+	virtual tstring		GetEntityName() const { return _T("MCP"); };
 
 	virtual bool				CanFortify();
 	virtual void				OnFortify();

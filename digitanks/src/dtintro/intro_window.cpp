@@ -300,35 +300,35 @@ void CIntroWindow::SetupIntro()
 	pEvent->m_flStartTime = 2;
 	pEvent->m_sName = "digitank1";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = _T("bug1";
+	pEvent->m_sArgs = _T("bug1");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 2.3f;
 	pEvent->m_sName = "digitank2";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = _T("bug2";
+	pEvent->m_sArgs = _T("bug2");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 2.6f;
 	pEvent->m_sName = "digitank3";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = _T("bug3";
+	pEvent->m_sArgs = _T("bug3");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 3;
 	pEvent->m_sName = "digitank1";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = _T("bug4";
+	pEvent->m_sArgs = _T("bug4");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 3.3f;
 	pEvent->m_sName = "digitank2";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = _T("bug5";
+	pEvent->m_sArgs = _T("bug5");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;

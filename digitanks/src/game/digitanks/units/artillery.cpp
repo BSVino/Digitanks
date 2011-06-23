@@ -24,15 +24,15 @@ INPUTS_TABLE_END();
 
 void CArtillery::Precache()
 {
-	PrecacheModel(_T("models/digitanks/artillery.obj", true);
-	PrecacheModel(_T("models/digitanks/artillery-move.obj", true);
+	PrecacheModel(_T("models/digitanks/artillery.obj"), true);
+	PrecacheModel(_T("models/digitanks/artillery-move.obj"), true);
 }
 
 void CArtillery::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/artillery-move.obj");
+	SetModel(_T("models/digitanks/artillery-move.obj"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -54,9 +54,9 @@ void CArtillery::OnFortify()
 	BaseClass::OnFortify();
 
 	if (IsFortified() || IsFortifying())
-		SetModel(_T("models/digitanks/artillery.obj");
+		SetModel(_T("models/digitanks/artillery.obj"));
 	else
-		SetModel(_T("models/digitanks/artillery-move.obj");
+		SetModel(_T("models/digitanks/artillery-move.obj"));
 }
 
 float CArtillery::BaseShieldRechargeRate() const

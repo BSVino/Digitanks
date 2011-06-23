@@ -20,7 +20,7 @@ public:
 	virtual float				GetPowerProduced() const;
 
 	virtual size_t				InitialTurnsToConstruct() { return 2; };
-	virtual tstring		GetEntityName() const { return _T("Power Supply Unit"; };
+	virtual tstring				GetEntityName() const { return _T("Power Supply Unit"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_PSU; };
 
 protected:
@@ -48,7 +48,7 @@ public:
 	virtual float				GetPowerProduced() const;
 
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
-	virtual tstring		GetEntityName() const { return _T("Capacitor"; };
+	virtual tstring				GetEntityName() const { return _T("Capacitor"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BATTERY; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_PSU; };
 };

@@ -1,9 +1,9 @@
 #ifndef DT_CAMPAIGNINFO_H
 #define DT_CAMPAIGNINFO_H
 
-#include <EASTL/string.h>
 #include <EASTL/vector.h>
 
+#include <tstring.h>
 #include <common.h>
 
 // Data loaded from the disk about the campaign

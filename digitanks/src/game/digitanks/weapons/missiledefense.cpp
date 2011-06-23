@@ -25,7 +25,7 @@ void CMissileDefense::SetTarget(CProjectile* pTarget)
 
 Vector CMissileDefense::GetOrigin() const
 {
-	if (m_hOwner == NULL)
+	if (!m_hOwner)
 		return BaseClass::GetOrigin();
 
 	float flTimeSinceFire = GameServer()->GetGameTime() - GetSpawnTime();
@@ -35,7 +35,7 @@ Vector CMissileDefense::GetOrigin() const
 	// Standard constant acceleration formula.
 	Vector vecMissilePosition = m_hOwner->GetOrigin() + 0.5f*vecMissileAcceleration*flTimeSinceFire*flTimeSinceFire;
 
-	if (m_hTarget == NULL)
+	if (!m_hTarget)
 		return vecMissilePosition;
 
 	float flTimeUntilIntercept = (GetSpawnTime() + InterceptTime()) - GameServer()->GetGameTime();
@@ -54,7 +54,7 @@ void CMissileDefense::Think()
 {
 	BaseClass::Think();
 
-	if (m_hTarget == NULL)
+	if (!m_hTarget)
 	{
 		Delete();
 		return;

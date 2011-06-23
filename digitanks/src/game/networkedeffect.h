@@ -1,8 +1,8 @@
 #ifndef NETWORKEDEFFECT_H
 #define NETWORKEDEFFECT_H
 
-#include <EASTL/string.h>
 #include <vector.h>
+#include <tstring.h>
 
 class CNetworkedEffect
 {

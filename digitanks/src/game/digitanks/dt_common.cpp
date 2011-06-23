@@ -14,12 +14,12 @@ Color g_aclrTeamColors[] =
 
 tstring g_aszTeamNames[] =
 {
-	_T("Blue",
-	_T("Red",
-	_T("Green",
-	_T("Yellow",
-	_T("Teal",
-	_T("Pink",
-	_T("Purple",
-	_T("White",
+	_T("Blue"),
+	_T("Red"),
+	_T("Green"),
+	_T("Yellow"),
+	_T("Teal"),
+	_T("Pink"),
+	_T("Purple"),
+	_T("White"),
 };

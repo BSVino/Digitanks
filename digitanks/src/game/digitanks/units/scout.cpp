@@ -21,15 +21,15 @@ INPUTS_TABLE_END();
 
 void CScout::Precache()
 {
-	PrecacheModel(_T("models/digitanks/scout.obj", true);
-	PrecacheSound(_T("sound/torpedo-drop.wav");
+	PrecacheModel(_T("models/digitanks/scout.obj"), true);
+	PrecacheSound(_T("sound/torpedo-drop.wav"));
 }
 
 void CScout::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/scout.obj");
+	SetModel(_T("models/digitanks/scout.obj"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -110,7 +110,7 @@ void CScout::FireWeapon(CNetworkParameters* p)
 	pTorpedo->SetLandingSpot(vecLandingSpot);
 
 	if (GetVisibility() > 0)
-		EmitSound(_T("sound/torpedo-drop.wav");
+		EmitSound(_T("sound/torpedo-drop.wav"));
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
 }

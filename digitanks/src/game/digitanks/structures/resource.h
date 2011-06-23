@@ -30,7 +30,7 @@ public:
 	class CCollector*			GetCollector() const { return m_hCollector; }
 	void						SetCollector(class CCollector* pCollector) { m_hCollector = pCollector; }
 
-	virtual tstring		GetEntityName() const { return _T("Electronode"; };
+	virtual tstring				GetEntityName() const { return _T("Electronode"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_ELECTRONODE; };
 	virtual bool				IsRammable() const { return false; }
 

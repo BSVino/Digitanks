@@ -1,3 +1,9 @@
+#include "baseentity.h"
+// Always include baseentity.h first, it has some stuff this file relies on
+#ifndef TINKER_BASEENTITY_H
+#include "baseentity.h"
+#endif
+
 #ifndef GAMESERVER_H
 #define GAMESERVER_H
 
@@ -5,7 +11,6 @@
 
 #include <network/network.h>
 
-#include "baseentity.h"
 #include "team.h"
 
 typedef enum

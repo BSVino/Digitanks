@@ -2,7 +2,8 @@
 #define DT_TEXTURE_SHEET_H
 
 #include <EASTL/map.h>
-#include <EASTL/string.h>
+
+#include <tstring.h>
 #include <geometry.h>
 
 class CTextureArea
@@ -21,13 +22,18 @@ public:
 							~CTextureSheet();
 
 public:
+	const Rect&				GetArea(const tstring& sArea) const;
+	size_t					GetSheet(const tstring& sArea) const;
+	size_t					GetSheetWidth(const tstring& sArea) const;
+	size_t					GetSheetHeight(const tstring& sArea) const;
+
 	const Rect&				GetArea(const eastl::string& sArea) const;
 	size_t					GetSheet(const eastl::string& sArea) const;
 	size_t					GetSheetWidth(const eastl::string& sArea) const;
 	size_t					GetSheetHeight(const eastl::string& sArea) const;
 
 protected:
-	eastl::map<eastl::string, CTextureArea>	m_aAreas;
+	eastl::map<tstring, CTextureArea>	m_aAreas;
 	size_t					m_iDefaultSheet;
 	size_t					m_iDefaultSheetWidth;
 	size_t					m_iDefaultSheetHeight;

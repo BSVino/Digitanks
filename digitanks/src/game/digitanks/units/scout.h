@@ -15,7 +15,7 @@ public:
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
-	virtual tstring		GetEntityName() const { return _T("Rogue"; };
+	virtual tstring				GetEntityName() const { return _T("Rogue"); };
 
 	CSupplyLine*				FindClosestEnemySupplyLine(bool bInRange = false);
 

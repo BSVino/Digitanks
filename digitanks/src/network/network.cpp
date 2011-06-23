@@ -213,7 +213,7 @@ void CENetConnection::CreateHost(int iPort)
 			oAddress.port = 30203;
 	}
 
-	TMsg(sprintf(_T("Creating host on port %d\n", (int)oAddress.port));
+	TMsg(sprintf(_T("Creating host on port %d\n"), (int)oAddress.port));
 
 	m_pClient = NULL;
 	m_pServer = enet_host_create(&oAddress, NETWORK_MAX_CLIENTS, 1, 0, 0);
@@ -221,7 +221,7 @@ void CENetConnection::CreateHost(int iPort)
 	m_iClientID = ~0;
 	if (m_pServer == NULL)
 	{
-		TError(_T("There was a problem creating the host.\n");
+		TError(_T("There was a problem creating the host.\n"));
 		return;
 	}
 
@@ -248,7 +248,7 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 
     if (m_pClient == NULL)
 	{
-		TError(_T("There was a problem creating the client host.\n");
+		TError(_T("There was a problem creating the client host.\n"));
 		return;
 	}
 
@@ -267,13 +267,13 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 			oAddress.port = 30203;
 	}
 
-	TMsg(sprintf(_T("Connecting to '%s' on port %d\n", convertstring<char, tchar>(pszHost).c_str(), (int)oAddress.port));
+	TMsg(sprintf(_T("Connecting to '%s' on port %d\n"), convertstring<char, tchar>(pszHost).c_str(), (int)oAddress.port));
 
 	m_pClientPeer = enet_host_connect(m_pClient, &oAddress, 1, 0);    
 
 	if (m_pClientPeer == NULL)
 	{
-		TError(_T("There was a problem connecting to the server.\n");
+		TError(_T("There was a problem connecting to the server.\n"));
 		return;
 	}
 
@@ -281,7 +281,7 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 
 	if (enet_host_service(m_pClient, &oEvent, 5000) <= 0 || oEvent.type != ENET_EVENT_TYPE_CONNECT)
 	{
-		TError(_T("Did not receive connection event.\n");
+		TError(_T("Did not receive connection event.\n"));
 		enet_peer_reset(m_pClientPeer);
 		return;
 	}
@@ -289,7 +289,7 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 	m_bConnected = true;
 
 	m_bLoading = false;
-	::ClientInfo.RunCommand(m_iConnection, sprintf(_T("%d " + CNetwork::GetNickname(), CNetwork::GetInstallID()));
+	::ClientInfo.RunCommand(m_iConnection, sprintf(_T("%d ") + CNetwork::GetNickname(), CNetwork::GetInstallID()));
 	m_bLoading = true;
 
 	float flStartWaitTime = CApplication::Get()->GetTime();
@@ -305,7 +305,7 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 	if (m_iClientID == ~0)
 	{
 		m_bConnected = false;
-		TError(_T("Did not receive initial Client ID packet.\n");
+		TError(_T("Did not receive initial Client ID packet.\n"));
 		enet_peer_reset(m_pClientPeer);
 		return;
 	}
@@ -349,7 +349,7 @@ void CENetConnection::Disconnect(bool bForced)
 	{
 		if (!bForced)
 			// Inform server of disconnection.
-			ClientDisconnecting.RunCommand(m_iConnection, _T("");
+			ClientDisconnecting.RunCommand(m_iConnection, _T(""));
 
 		enet_host_destroy(m_pClient);
 		m_pClient = NULL;
@@ -358,7 +358,7 @@ void CENetConnection::Disconnect(bool bForced)
 	if (m_pServer)
 	{
 		// Inform all clients of disconnection.
-		ForceDisconnect.RunCommand(m_iConnection, _T("");
+		ForceDisconnect.RunCommand(m_iConnection, _T(""));
 
 		m_pClientListener = NULL;
 		m_pfnClientConnect = NULL;
@@ -382,7 +382,7 @@ void CENetConnection::DisconnectClient(int iClient)
 	if ((size_t)iClient >= m_aServerPeers.size())
 		return;
 
-	ForceDisconnect.RunCommand(m_iConnection, _T("", iClient);
+	ForceDisconnect.RunCommand(m_iConnection, _T(""), iClient);
 
 	enet_peer_reset(m_aServerPeers[iClient].m_pPeer);
 
@@ -437,7 +437,7 @@ void CENetConnection::Think()
 
 				m_aServerPeers[iPeer].m_pPeer = oEvent.peer;
 				m_aServerPeers[iPeer].m_iInstallID = 0;
-				m_aServerPeers[iPeer].m_sNickname = _T("Player";
+				m_aServerPeers[iPeer].m_sNickname = _T("Player");
 				m_aServerPeers[iPeer].m_bLoading = true;
 				m_aServerPeers[iPeer].m_flTimeConnected = flTime;
 
@@ -628,7 +628,7 @@ void CENetConnection::SetLoading(bool bLoading)
 	bool bWas = m_bLoading;
 
 	m_bLoading = false;
-	::SetLoading.RunCommand(m_iConnection, bLoading?_T("1":_T("0", NETWORK_TOSERVER);
+	::SetLoading.RunCommand(m_iConnection, bLoading?_T("1"):_T("0"), NETWORK_TOSERVER);
 	m_bLoading = bLoading;
 
 	if (IsHost() && bWas && !m_bLoading)
@@ -739,7 +739,7 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const tst
 			if (m_aServerPeers[i].m_sNickname == sUniqueNickname)
 			{
 				bUnique = false;
-				sUniqueNickname = sprintf(sNickname + _T("(%d)", iTries++);
+				sUniqueNickname = sprintf(sNickname + _T("(%d)"), iTries++);
 				break;
 			}
 		}
@@ -754,7 +754,7 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const tst
 	m_aServerPeers[iClient].m_bLoading = false;
 	m_bLoading = false;
 
-	::SetClientID.RunCommand(m_iConnection, sprintf(_T("%u " + sUniqueNickname, iClient), iClient);
+	::SetClientID.RunCommand(m_iConnection, sprintf(_T("%u ") + sUniqueNickname, iClient), iClient);
 
 	m_bLoading = bLoading;
 	m_aServerPeers[iClient].m_bLoading = bClientLoading;
@@ -784,7 +784,7 @@ const tstring& CENetConnection::GetClientNickname(size_t iClient)
 
 	if (iClient >= m_aServerPeers.size())
 	{
-		static tstring sPlayer = _T("Player";
+		static tstring sPlayer = _T("Player");
 		return sPlayer;
 	}
 
@@ -815,7 +815,7 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 	if (tstring::npos == iSpace)
 	{
 		sName = sCommand;
-		sParameters = _T("";
+		sParameters = _T("");
 	}
 	else
 	{
@@ -827,13 +827,13 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 
 	if (!pCommand)
 	{
-		TMsg(sprintf(_T("Network command '%s' unknown.\n", sName));
+		TMsg(sprintf(_T("Network command '%s' unknown.\n"), sName.c_str()));
 		return;
 	}
 
 	int iCurrentClient = Network(iConnection)->GetCurrentClient();
 
-	if (sName != _T("SetLoading" && sName != _T("ClientInfo" && sName != _T("SetClientID")
+	if (sName != _T("SetLoading") && sName != _T("ClientInfo") && sName != _T("SetClientID"))
 	{
 		if (m_bLoading)
 			return;

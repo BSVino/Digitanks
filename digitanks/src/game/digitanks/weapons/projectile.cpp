@@ -51,9 +51,9 @@ CProjectile::CProjectile()
 
 void CProjectile::Precache()
 {
-	PrecacheParticleSystem(_T("shell-trail");
-	PrecacheSound(_T("sound/bomb-drop.wav");
-	PrecacheParticleSystem(_T("dmg-boost");
+	PrecacheParticleSystem(_T("shell-trail"));
+	PrecacheSound(_T("sound/bomb-drop.wav"));
+	PrecacheParticleSystem(_T("dmg-boost"));
 }
 
 void CProjectile::Spawn()
@@ -85,8 +85,8 @@ void CProjectile::Think()
 
 		if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0 || bCanSeeOwner)
 		{
-			EmitSound(_T("sound/bomb-drop.wav");
-			SetSoundVolume(_T("sound/bomb-drop.wav", 0.5f);
+			EmitSound(_T("sound/bomb-drop.wav"));
+			SetSoundVolume(_T("sound/bomb-drop.wav"), 0.5f);
 		}
 
 		m_bFallSoundPlayed = true;
@@ -156,7 +156,7 @@ void CProjectile::SpecialCommand()
 
 	m_flDamageBonusTime = GameServer()->GetGameTime();
 
-	size_t iPulse = CParticleSystemLibrary::AddInstance(_T("dmg-boost", GetOrigin());
+	size_t iPulse = CParticleSystemLibrary::AddInstance(_T("dmg-boost"), GetOrigin());
 	if (iPulse != ~0)
 		CParticleSystemLibrary::GetInstance(iPulse)->FollowEntity(this);
 }
@@ -312,7 +312,7 @@ void CProjectile::Touching(CBaseEntity* pOther)
 			Matrix4x4 mReflect;
 
 			Vector vecProjectileOrigin = GetOrigin();
-			DigitanksGame()->GetTerrain()->SetPointHeight(vecProjectileOrigin);
+			vecProjectileOrigin = DigitanksGame()->GetTerrain()->GetPointHeight(vecProjectileOrigin);
 			vecProjectileOrigin.y += 0.5f;
 
 			mReflect.SetReflection(dynamic_cast<CTerrain*>(pOther)->GetNormalAtPoint(vecProjectileOrigin));
@@ -341,7 +341,7 @@ void CProjectile::Touching(CBaseEntity* pOther)
 
 	if (MakesSounds())
 	{
-		StopSound(_T("sound/bomb-drop.wav");
+		StopSound(_T("sound/bomb-drop.wav"));
 
 		bool bCanSeeOwner;
 		if (m_hOwner != NULL && DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_hOwner->GetOrigin()) > 0)
@@ -350,7 +350,7 @@ void CProjectile::Touching(CBaseEntity* pOther)
 			bCanSeeOwner = false;
 
 		if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), m_vecLandingSpot) > 0 || bCanSeeOwner)
-			EmitSound(_T("sound/explosion.wav");
+			EmitSound(_T("sound/explosion.wav"));
 	}
 }
 
@@ -362,7 +362,7 @@ void CProjectile::OnExplode(CBaseEntity* pInstigator)
 		Fragment();
 
 	if (MakesSounds())
-		StopSound(_T("sound/bomb-drop.wav");
+		StopSound(_T("sound/bomb-drop.wav"));
 
 	m_hTrailParticles.SetActive(false);
 
@@ -397,7 +397,7 @@ bool CProjectile::ShouldBeVisible()
 
 size_t CProjectile::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("shell-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("shell-trail"));
 }
 
 void CProjectile::CreateExplosionSystem()
@@ -481,18 +481,18 @@ INPUTS_TABLE_END();
 
 void CAOEShell::Precache()
 {
-	PrecacheParticleSystem(_T("aoe-explosion-strategy");
-	PrecacheParticleSystem(_T("aoe-explosion-artillery");
-	PrecacheParticleSystem(_T("aoe-trail");
+	PrecacheParticleSystem(_T("aoe-explosion-strategy"));
+	PrecacheParticleSystem(_T("aoe-explosion-artillery"));
+	PrecacheParticleSystem(_T("aoe-trail"));
 }
 
 void CAOEShell::CreateExplosionSystem()
 {
 	if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD)
-		CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy", GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy"), GetOrigin());
 	else
 	{
-		size_t iInstance = CParticleSystemLibrary::AddInstance(_T("aoe-explosion-artillery", GetOrigin());
+		size_t iInstance = CParticleSystemLibrary::AddInstance(_T("aoe-explosion-artillery"), GetOrigin());
 		CSystemInstance* pInstance = CParticleSystemLibrary::GetInstance(iInstance);
 		if (pInstance)
 			pInstance->SetColor(GetBonusDamageColor());
@@ -501,7 +501,7 @@ void CAOEShell::CreateExplosionSystem()
 
 size_t CAOEShell::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("aoe-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("aoe-trail"));
 }
 
 float CAOEShell::ExplosionRadius() const
@@ -525,13 +525,13 @@ INPUTS_TABLE_END();
 
 void CEMP::Precache()
 {
-	PrecacheParticleSystem(_T("emp-explosion");
-	PrecacheParticleSystem(_T("emp-trail");
+	PrecacheParticleSystem(_T("emp-explosion"));
+	PrecacheParticleSystem(_T("emp-trail"));
 }
 
 void CEMP::CreateExplosionSystem()
 {
-	size_t iInstance = CParticleSystemLibrary::AddInstance(_T("emp-explosion", GetOrigin());
+	size_t iInstance = CParticleSystemLibrary::AddInstance(_T("emp-explosion"), GetOrigin());
 	CSystemInstance* pInstance = CParticleSystemLibrary::GetInstance(iInstance);
 	if (pInstance)
 		pInstance->SetColor(GetBonusDamageColor());
@@ -539,7 +539,7 @@ void CEMP::CreateExplosionSystem()
 
 size_t CEMP::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("emp-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("emp-trail"));
 }
 
 REGISTER_ENTITY(CICBM);
@@ -568,14 +568,14 @@ INPUTS_TABLE_END();
 
 void CGrenade::Precache()
 {
-	PrecacheModel(_T("models/weapons/grenade.obj", true);
+	PrecacheModel(_T("models/weapons/grenade.obj"), true);
 }
 
 void CGrenade::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/weapons/grenade.obj");
+	SetModel(_T("models/weapons/grenade.obj"));
 
 	m_angAngle = EAngle(RandomFloat(-90, 90), RandomFloat(0, 360), RandomFloat(-90, 90));
 	m_angRotation = EAngle(RandomFloat(-5, 5), RandomFloat(-5, 5), RandomFloat(-5, 5));
@@ -596,7 +596,7 @@ void CGrenade::OnExplode(CBaseEntity* pInstigator)
 {
 	BaseClass::OnExplode(pInstigator);
 
-	SetModel(_T("");
+	SetModel(_T(""));
 }
 
 REGISTER_ENTITY(CDaisyChain);
@@ -725,16 +725,16 @@ INPUTS_TABLE_END();
 
 void CSploogeShell::Precache()
 {
-	PrecacheModel(_T("models/weapons/bolt.obj", true);
-	PrecacheParticleSystem(_T("bolt-trail");
-	PrecacheParticleSystem(_T("bolt-explosion");
+	PrecacheModel(_T("models/weapons/bolt.obj"), true);
+	PrecacheParticleSystem(_T("bolt-trail"));
+	PrecacheParticleSystem(_T("bolt-explosion"));
 }
 
 void CSploogeShell::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/weapons/bolt.obj");
+	SetModel(_T("models/weapons/bolt.obj"));
 }
 
 EAngle CSploogeShell::GetRenderAngles() const
@@ -747,12 +747,12 @@ EAngle CSploogeShell::GetRenderAngles() const
 
 size_t CSploogeShell::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("bolt-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("bolt-trail"));
 }
 
 void CSploogeShell::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("bolt-explosion", GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetOrigin());
 }
 
 REGISTER_ENTITY(CTractorBomb);
@@ -768,8 +768,8 @@ INPUTS_TABLE_END();
 
 void CTractorBomb::Precache()
 {
-	PrecacheParticleSystem(_T("tractor-bomb-explosion");
-	PrecacheParticleSystem(_T("tractor-bomb-trail");
+	PrecacheParticleSystem(_T("tractor-bomb-explosion"));
+	PrecacheParticleSystem(_T("tractor-bomb-trail"));
 }
 
 void CTractorBomb::SpecialCommand()
@@ -780,12 +780,12 @@ void CTractorBomb::SpecialCommand()
 
 size_t CTractorBomb::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("tractor-bomb-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("tractor-bomb-trail"));
 }
 
 void CTractorBomb::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("tractor-bomb-explosion", GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("tractor-bomb-explosion"), GetOrigin());
 }
 
 REGISTER_ENTITY(CArtilleryShell);
@@ -801,18 +801,18 @@ INPUTS_TABLE_END();
 
 void CArtilleryShell::Precache()
 {
-	PrecacheParticleSystem(_T("emp-explosion");
-	PrecacheParticleSystem(_T("emp-trail");
+	PrecacheParticleSystem(_T("emp-explosion"));
+	PrecacheParticleSystem(_T("emp-trail"));
 }
 
 void CArtilleryShell::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("emp-explosion", GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("emp-explosion"), GetOrigin());
 }
 
 size_t CArtilleryShell::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("emp-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("emp-trail"));
 }
 
 REGISTER_ENTITY(CArtilleryAoE);
@@ -828,18 +828,18 @@ INPUTS_TABLE_END();
 
 void CArtilleryAoE::Precache()
 {
-	PrecacheParticleSystem(_T("aoe-explosion-strategy");
-	PrecacheParticleSystem(_T("aoe-trail");
+	PrecacheParticleSystem(_T("aoe-explosion-strategy"));
+	PrecacheParticleSystem(_T("aoe-trail"));
 }
 
 void CArtilleryAoE::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy", GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("aoe-explosion-strategy"), GetOrigin());
 }
 
 size_t CArtilleryAoE::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("aoe-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("aoe-trail"));
 }
 
 REGISTER_ENTITY(CArtilleryICBM);
@@ -879,18 +879,18 @@ INPUTS_TABLE_END();
 
 void CInfantryFlak::Precache()
 {
-	PrecacheModel(_T("models/weapons/bolt.obj", true);
-	PrecacheParticleSystem(_T("bolt-trail");
-	PrecacheParticleSystem(_T("bolt-explosion");
+	PrecacheModel(_T("models/weapons/bolt.obj"), true);
+	PrecacheParticleSystem(_T("bolt-trail"));
+	PrecacheParticleSystem(_T("bolt-explosion"));
 
-	s_iTrailSystem = CParticleSystemLibrary::Get()->FindParticleSystem(_T("bolt-trail");
+	s_iTrailSystem = CParticleSystemLibrary::Get()->FindParticleSystem(_T("bolt-trail"));
 }
 
 void CInfantryFlak::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/weapons/bolt.obj");
+	SetModel(_T("models/weapons/bolt.obj"));
 }
 
 EAngle CInfantryFlak::GetRenderAngles() const
@@ -908,7 +908,7 @@ size_t CInfantryFlak::CreateTrailSystem()
 
 void CInfantryFlak::CreateExplosionSystem()
 {
-	CParticleSystemLibrary::AddInstance(_T("bolt-explosion", GetOrigin());
+	CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetOrigin());
 }
 
 REGISTER_ENTITY(CTorpedo);
@@ -932,8 +932,8 @@ CTorpedo::CTorpedo()
 
 void CTorpedo::Precache()
 {
-	PrecacheParticleSystem(_T("torpedo-trail");
-	PrecacheParticleSystem(_T("torpedo-explosion");
+	PrecacheParticleSystem(_T("torpedo-trail"));
+	PrecacheParticleSystem(_T("torpedo-explosion"));
 }
 
 void CTorpedo::Spawn()
@@ -946,7 +946,7 @@ void CTorpedo::Spawn()
 
 size_t CTorpedo::CreateTrailSystem()
 {
-	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("torpedo-trail");
+	return CParticleSystemLibrary::Get()->FindParticleSystem(_T("torpedo-trail"));
 }
 
 void CTorpedo::Think()
@@ -996,7 +996,7 @@ void CTorpedo::Think()
 
 		// Insert Jaws theme here.
 		Vector vecPosition = GetOrigin() + vecDirection.Normalized() * flDistance;
-		SetOrigin(DigitanksGame()->GetTerrain()->SetPointHeight(vecPosition));
+		SetOrigin(DigitanksGame()->GetTerrain()->GetPointHeight(vecPosition));
 	}
 	else
 	{
@@ -1077,7 +1077,7 @@ void CTorpedo::Explode(CBaseEntity* pInstigator)
 	if (DigitanksGame()->GetVisibilityAtPoint(DigitanksGame()->GetCurrentLocalDigitanksTeam(), GetOrigin()) > 0.5f)
 	{
 		DigitanksGame()->GetDigitanksRenderer()->BloomPulse();
-		CParticleSystemLibrary::AddInstance(_T("torpedo-explosion", GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("torpedo-explosion"), GetOrigin());
 	}
 }
 
