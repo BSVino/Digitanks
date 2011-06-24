@@ -20,6 +20,10 @@ if (WIN32)
 	add_definitions(-DFTGL_LIBRARY_STATIC)
 endif (WIN32)
 
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+	add_definitions(-D_DEBUG)
+endif (CMAKE_BUILD_TYPE MATCHES Debug)
+
 add_subdirectory (lwbase)
 
 add_subdirectory (raytracer)

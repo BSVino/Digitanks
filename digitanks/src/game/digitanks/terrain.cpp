@@ -629,7 +629,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::GenerateTerrainCallList(%d, %d)\n"), i, j));
+		TMsg(sprintf(tstring("CTerrain::GenerateTerrainCallList(%d, %d)\n"), i, j));
 
 	// What a hack!
 	GLuint iSlowMovement;
@@ -945,7 +945,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::GenerateTerrainTexture(%d, %d)\n"), i, j));
+		TMsg(sprintf(tstring("CTerrain::GenerateTerrainTexture(%d, %d)\n"), i, j));
 
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
@@ -1084,7 +1084,7 @@ void CTerrain::GenerateCallLists()
 	TMsg(_T("Generating terrain call lists... "));
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::GenerateCallLists()\n")));
+		TMsg(sprintf(tstring("CTerrain::GenerateCallLists()\n")));
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1207,7 +1207,7 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 void CTerrain::CalculateVisibility()
 {
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::CalculateVisibility()\n")));
+		TMsg(sprintf(tstring("CTerrain::CalculateVisibility()\n")));
 
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
@@ -2502,7 +2502,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	size_t j = p->ui2;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::TerrainData(%d, %d)\n"), i, j));
+		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d)\n"), i, j));
 
 	size_t iPosition = 0;
 	float* flHeightData = (float*)p->m_pExtraData;
@@ -2556,7 +2556,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 		delete pChunk->m_pTracer;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
+		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
 
 	pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
 
@@ -2598,7 +2598,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 void CTerrain::ResyncClientTerrainData(int iClient)
 {
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(_T("CTerrain::ResyncClientTerrainData(%d)\n"), iClient));
+		TMsg(sprintf(tstring("CTerrain::ResyncClientTerrainData(%d)\n"), iClient));
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{

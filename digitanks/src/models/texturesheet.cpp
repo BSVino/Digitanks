@@ -126,23 +126,3 @@ size_t CTextureSheet::GetSheetHeight(const tstring& sArea) const
 
 	return it->second.m_iSheetHeight;
 }
-
-const Rect& CTextureSheet::GetArea(const eastl::string& sArea) const
-{
-	return GetArea(convertstring<char, tchar>(sArea));
-}
-
-size_t CTextureSheet::GetSheet(const eastl::string& sArea) const
-{
-	return GetSheet(convertstring<char, tchar>(sArea));
-}
-
-size_t CTextureSheet::GetSheetWidth(const eastl::string& sArea) const
-{
-	return GetSheetWidth(convertstring<char, tchar>(sArea));
-}
-
-size_t CTextureSheet::GetSheetHeight(const eastl::string& sArea) const
-{
-	return GetSheetHeight(convertstring<char, tchar>(sArea));
-}

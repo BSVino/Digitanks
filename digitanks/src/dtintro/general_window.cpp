@@ -139,7 +139,7 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 			else
 				sRandomTime = _T("seconds");
 
-			sEstimate = sprintf(_T("Estimated time remaining: %d %s"), RandomInt(2, 100), sRandomTime.c_str());
+			sEstimate = sprintf(tstring("Estimated time remaining: %d %s"), RandomInt(2, 100), sRandomTime.c_str());
 
 			flLastEstimateUpdate = GameServer()->GetGameTime();
 		}

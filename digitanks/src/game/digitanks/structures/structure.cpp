@@ -273,7 +273,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (IsConstructing())
 	{
-		tstring sTurns = sprintf(_T("Turns To Construct: %d"), GetTurnsRemainingToConstruct());
+		tstring sTurns = sprintf(tstring("Turns To Construct: %d"), GetTurnsRemainingToConstruct());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		return;
@@ -281,7 +281,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (IsUpgrading())
 	{
-		tstring sTurns = sprintf(_T("Turns To Upgrade: %d"), GetTurnsRemainingToUpgrade());
+		tstring sTurns = sprintf(tstring("Turns To Upgrade: %d"), GetTurnsRemainingToUpgrade());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		return;
@@ -318,7 +318,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (Bandwidth() > 0)
 	{
-		tstring sBandwidth = sprintf(_T(": %.1f"), Bandwidth());
+		tstring sBandwidth = sprintf(tstring(": %.1f"), Bandwidth());
 		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("BandwidthIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
@@ -330,7 +330,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (FleetPoints() > 0)
 	{
-		tstring sFleetPoints = sprintf(_T(": %d"), FleetPoints());
+		tstring sFleetPoints = sprintf(tstring(": %d"), FleetPoints());
 		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("FleetPointsIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
@@ -342,7 +342,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (Power() > 0)
 	{
-		tstring sPower = sprintf(_T(": %.1f"), Power());
+		tstring sPower = sprintf(tstring(": %.1f"), Power());
 		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("PowerIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);

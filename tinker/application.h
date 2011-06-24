@@ -98,7 +98,6 @@ public:
 	static void					ToggleConsole();
 	static bool					IsConsoleOpen();
 	static void					PrintConsole(tstring sText);
-	static void					PrintConsole(eastl::string sText);
 	class CConsole*				GetConsole();
 
 	static CApplication*		Get() { return s_pApplication; };

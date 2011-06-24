@@ -26,8 +26,6 @@ CApplication::CApplication(int argc, char** argv)
 {
 	TPortal_Startup();
 
-	ilInit();
-
 	s_pApplication = this;
 
 	srand((unsigned int)time(NULL));
@@ -63,7 +61,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	if (m_bMultisampling)
 		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
 
-	TMsg(sprintf(_T("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?_T("fullscreen"):_T("windowed"), bResizeable?_T("resizeable"):_T("fixed-size")));
+	TMsg(sprintf(tstring("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?_T("fullscreen"):_T("windowed"), bResizeable?_T("resizeable"):_T("fixed-size")));
 
 	if (!glfwOpenWindow(iWidth, iHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
 	{

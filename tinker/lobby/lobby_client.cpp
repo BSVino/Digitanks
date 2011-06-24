@@ -48,7 +48,7 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyPlayerInfo)
 
 		if (iLobbyClient == ~0)
 		{
-			TMsg(sprintf(_T("Can't find lobby player %d\n"), iLobbyClient));
+			TMsg(sprintf(tstring("Can't find lobby player %d\n"), iLobbyClient));
 			TAssert(!"Can't find lobby player.");
 			return;
 		}
@@ -74,10 +74,10 @@ INetworkListener::Callback CGameLobbyClient::s_pfnBeginGameCallback = NULL;
 void CGameLobbyClient::S_JoinLobby(size_t iLobby)
 {
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(_T("CGameLobbyClient::S_JoinLobby(%d)\n"), iLobby));
+		TMsg(sprintf(tstring("CGameLobbyClient::S_JoinLobby(%d)\n"), iLobby));
 
 	s_aClients.clear();
-	::JoinLobby.RunCommand(sprintf(_T("%d"), (int)iLobby));
+	::JoinLobby.RunCommand(sprintf(tstring("%d"), (int)iLobby));
 
 	s_bInLobby = true;
 }
@@ -158,7 +158,7 @@ void CGameLobbyClient::R_AddPlayer(size_t iID, size_t iClient)
 		return;
 
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(_T("CGameLobbyClient::R_AddPlayer(%d, %d)\n"), iID, iClient));
+		TMsg(sprintf(tstring("CGameLobbyClient::R_AddPlayer(%d, %d)\n"), iID, iClient));
 
 	CLobbyPlayer* pPlayer = &s_aClients.push_back();
 	pPlayer->iID = iID;
@@ -183,7 +183,7 @@ void CGameLobbyClient::R_RemovePlayer(size_t iID)
 		return;
 
 	if (CVar::GetCVarBool("lobby_debug"))
-		TMsg(sprintf(_T("CGameLobbyClient::R_RemovePlayer(%d)\n"), iID));
+		TMsg(sprintf(tstring("CGameLobbyClient::R_RemovePlayer(%d)\n"), iID));
 
 	if (s_aClients[iPlayer].iClient == LobbyNetwork()->GetClientID())
 	{
@@ -210,7 +210,7 @@ void CGameLobbyClient::S_AddBot()
 
 void CGameLobbyClient::S_RemovePlayer(size_t iID)
 {
-	::RemovePlayer.RunCommand(sprintf(_T("%d"), iID));
+	::RemovePlayer.RunCommand(sprintf(tstring("%d"), iID));
 }
 
 void CGameLobbyClient::S_UpdateLobby(const tstring& sKey, const tstring& sValue)

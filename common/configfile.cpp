@@ -83,8 +83,6 @@ std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile
 	
 	tstring nextline = _T("");  // might need to read ahead to see where value ends
 
-	TAssert(sizeof(wchar_t) == sizeof(tchar));
-
 	while( is || nextline.length() > 0 )
 	{
 		// Read an entire line at a time

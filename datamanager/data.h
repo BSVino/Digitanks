@@ -34,7 +34,6 @@ public:
 
 	void					SetKey(tstring sKey) { m_sKey = sKey; }
 	void					SetValue(tstring sValue) { m_sValue = sValue; }
-	void					SetValue(eastl::string sValue) { m_sValue = convertstring<char, tchar>(sValue); }
 	void					SetValue(bool);
 	void					SetValue(int);
 	void					SetValue(size_t);

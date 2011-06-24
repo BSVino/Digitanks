@@ -480,8 +480,6 @@ namespace glgui
 		virtual void	SetPrintChars(int iPrintChars) { m_iPrintChars = iPrintChars; }
 
 		virtual void	SetText(const tstring& sText);
-		virtual void	SetText(const eastl::string& sText);
-		virtual void	AppendText(const eastl::string& sText);
 		virtual void	AppendText(const tstring& sText);
 		virtual tstring	GetText();
 
@@ -1354,8 +1352,6 @@ namespace glgui
 		virtual void	SetEnabled(bool bEnabled) {m_bEnabled = bEnabled;};
 
 		virtual void	SetText(const tstring& pszText);
-		virtual void	SetText(const char* pszText);
-		virtual void	AppendText(const char* pszText);
 		virtual void	AppendText(const tchar* pszText);
 		virtual tstring	GetText();
 

@@ -95,13 +95,13 @@ void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters, in
 		if (net_debug.GetBool())
 		{
 			if (iTarget == NETWORK_TOSERVER)
-				TMsg(sprintf(_T("Cxn %d to server: "), iConnection));
+				TMsg(sprintf(tstring("Cxn %d to server: "), iConnection));
 			else if (iTarget == NETWORK_TOCLIENTS)
-				TMsg(sprintf(_T("Cxn %d to clients: "), iConnection));
+				TMsg(sprintf(tstring("Cxn %d to clients: "), iConnection));
 			else if (iTarget == NETWORK_TOEVERYONE)
-				TMsg(sprintf(_T("Cxn %d to all: "), iConnection));
+				TMsg(sprintf(tstring("Cxn %d to all: "), iConnection));
 			else
-				TMsg(sprintf(_T("Cxn %d to client %d: "), iConnection, iTarget));
+				TMsg(sprintf(tstring("Cxn %d to client %d: "), iConnection, iTarget));
 
 			TMsg(sCommand + _T("\n"));
 		}
@@ -119,9 +119,9 @@ void CNetworkCommand::RunCallback(int iConnection, size_t iClient, const tstring
 	if (net_debug.GetBool())
 	{
 		if (Network(iConnection)->IsHost())
-			TMsg(sprintf(_T("Cxn %d cmd from client %d: "), iConnection, iClient) + m_sName + _T(" ") + sParameters + _T("\n"));
+			TMsg(sprintf(tstring("Cxn %d cmd from client %d: "), iConnection, iClient) + m_sName + _T(" ") + sParameters + _T("\n"));
 		else
-			TMsg(sprintf(_T("Cxn %d cmd from server: "), iConnection) + m_sName + _T(" ") + sParameters + _T("\n"));
+			TMsg(sprintf(tstring("Cxn %d cmd from server: "), iConnection) + m_sName + _T(" ") + sParameters + _T("\n"));
 	}
 
 	tstrtok(sParameters, m_asArguments);

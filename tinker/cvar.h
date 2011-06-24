@@ -14,7 +14,6 @@ class CCommand
 {
 public:
 						CCommand(tstring sName, CommandCallback pfnCallback);
-						CCommand(eastl::string sName, CommandCallback pfnCallback);
 
 public:
 	static void			Run(tstring sCommand);
@@ -45,7 +44,6 @@ class CVar : public CCommand
 
 public:
 						CVar(tstring sName, tstring sValue);
-						CVar(eastl::string sName, eastl::string sValue);
 
 public:
 	void				SetValue(tstring sValue);
@@ -67,15 +65,6 @@ public:
 	static bool			GetCVarBool(tstring sName);
 	static int			GetCVarInt(tstring sName);
 	static float		GetCVarFloat(tstring sName);
-
-	static void			SetCVar(eastl::string sName, eastl::string sValue);
-	static void			SetCVar(eastl::string sName, int iValue);
-	static void			SetCVar(eastl::string sName, float flValue);
-
-	static eastl::string GetCVarValue(eastl::string sName);
-	static bool			GetCVarBool(eastl::string sName);
-	static int			GetCVarInt(eastl::string sName);
-	static float		GetCVarFloat(eastl::string sName);
 
 protected:
 	tstring		m_sValue;

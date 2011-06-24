@@ -143,7 +143,7 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 		glgui::CBaseControl::PaintTexture(DigitanksWindow()->GetHUD()->GetShieldTexture(), iWindowWidth/4 - iShieldSize/2, iWindowHeight/2 - iShieldSize/2, iShieldSize, iShieldSize, Color(255, 255, 255, iShield));
 
 		c.SetColor(Color(255, 255, 255, 255));
-		tstring sShields = sprintf(_T("Shield Power: %d%%"), 100-((int)CProjectile::GetWeaponEnergy(m_eWeapon)*10));
+		tstring sShields = sprintf(tstring("Shield Power: %d%%"), 100-((int)CProjectile::GetWeaponEnergy(m_eWeapon)*10));
 		float flTextWidth = glgui::CLabel::GetTextWidth(sShields, sShields.length(), _T("text"), 12);
 		glgui::CLabel::PaintText(sShields, sShields.length(), _T("text"), 12, iWindowWidth/4 - flTextWidth/2, (float)(iWindowHeight/2 - iShieldSize/2));
 	}
@@ -176,8 +176,8 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 
 	s += sName + _T("\n \n");
 	s += tstring(CProjectile::GetWeaponDescription(eWeapon)) + _T("\n \n");
-	s += p.sprintf(_T("Energy Required: %d%%\n"), ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
-	s += p.sprintf(_T("Damage: %.1f\n"), CProjectile::GetWeaponDamage(eWeapon));
+	s += sprintf(tstring("Energy Required: %d%%\n"), ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
+	s += sprintf(tstring("Damage: %.1f\n"), CProjectile::GetWeaponDamage(eWeapon));
 
 	m_pInfo->SetText(s);
 

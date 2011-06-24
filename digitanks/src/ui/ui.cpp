@@ -456,13 +456,13 @@ void CPurchasePanel::OpeningApplication()
 
 void CPurchasePanel::PurchaseCallback()
 {
-	OpenBrowser(sprintf(_T("http://digitanks.com/gamelanding/?a=p&i=%d"), DigitanksWindow()->GetInstallID()));
+	OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=p&i=%d"), DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
 void CPurchasePanel::ExitCallback()
 {
-	OpenBrowser(sprintf(_T("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
+	OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
@@ -477,7 +477,7 @@ void CPurchasePanel::EmailCallback()
 	tstring sEmail = m_pEmail->GetText();
 	sEmail = str_replace(sEmail, _T("@"), _T("%40"));
 	sEmail = str_replace(sEmail, _T("+"), _T("%2B"));
-	tstring sURI = sprintf(_T("/reg/email.php?e=%s&i=%d"), sEmail.c_str(), DigitanksWindow()->GetInstallID());
+	tstring sURI = sprintf(tstring("/reg/email.php?e=%s&i=%d"), sEmail.c_str(), DigitanksWindow()->GetInstallID());
 
 	CHTTPPostSocket s("reg.lunarworkshop.com");
 	s.SendHTTP11(convertstring<tchar, char>(sURI).c_str());
@@ -486,7 +486,7 @@ void CPurchasePanel::EmailCallback()
 
 	if (m_bClosing)
 	{
-		OpenBrowser(sprintf(_T("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
+		OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
 		exit(0);
 	}
 	else

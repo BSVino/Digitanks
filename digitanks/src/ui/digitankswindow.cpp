@@ -6,6 +6,7 @@
 
 #include <GL/glew.h>
 #include <time.h>
+#include <IL/il.h>
 
 #include <common.h>
 #include <vector.h>
@@ -44,6 +45,8 @@ ConfigFile c( GetAppDataDirectory(_T("Digitanks"), _T("options.cfg")) );
 CDigitanksWindow::CDigitanksWindow(int argc, char** argv)
 	: CGameWindow(argc, argv)
 {
+	ilInit();
+
 	m_pGameServer = NULL;
 	m_pRenderer = NULL;
 	m_pHUD = NULL;

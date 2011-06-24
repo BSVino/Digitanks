@@ -262,11 +262,6 @@ void CApplication::PrintConsole(tstring sText)
 	pConsole->PrintConsole(sText);
 }
 
-void CApplication::PrintConsole(eastl::string sText)
-{
-	PrintConsole(convertstring<char, tchar>(sText));
-}
-
 CConsole* CApplication::GetConsole()
 {
 	if (m_pConsole == NULL)

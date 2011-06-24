@@ -980,19 +980,9 @@ void CLabel::SetText(const tstring& sText)
 	ComputeLines();
 }
 
-void CLabel::SetText(const eastl::string& sText)
-{
-	SetText(convertstring<char, tchar>(sText));
-}
-
 void CLabel::AppendText(const tstring& sText)
 {
 	m_sText.append(sText);
-}
-
-void CLabel::AppendText(const eastl::string& sText)
-{
-	AppendText(convertstring<char, tchar>(sText));
 }
 
 void CLabel::SetFont(const tstring& sFontName, int iSize)
@@ -1152,7 +1142,7 @@ void CLabel::SetScissor(bool bScissor)
 		tstring sFont;
 
 #ifdef _WIN32
-		sFont = sprintf(_T("%s\\Fonts\\Arial.ttf"), convertstring<char, tchar>(getenv("windir")));
+		sFont = sprintf(tstring("%s\\Fonts\\Arial.ttf"), convertstring<char, tchar>(getenv("windir")));
 #else
 		sFont = _T("/usr/share/fonts/truetype/freefont/FreeSans.ttf");
 #endif
@@ -3171,28 +3161,12 @@ void CTextField::SetText(const tstring& sText)
 		m_iCursor = m_sText.length();
 }
 
-void CTextField::SetText(const char* pszText)
-{
-	if (!pszText)
-		SetText(_T(""));
-	else
-		SetText(convertstring<char, tchar>(pszText));
-}
-
 void CTextField::AppendText(const tchar* pszText)
 {
 	if (!pszText)
 		return;
 
 	m_sText.append(pszText);
-}
-
-void CTextField::AppendText(const char* pszText)
-{
-	if (!pszText)
-		return;
-
-	AppendText(convertstring<char, tchar>(pszText).c_str());
 }
 
 void CTextField::SetCursorPosition(size_t iPosition)

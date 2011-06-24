@@ -12,14 +12,6 @@ CCommand::CCommand(tstring sName, CommandCallback pfnCallback)
 	RegisterCommand(this);
 }
 
-CCommand::CCommand(eastl::string sName, CommandCallback pfnCallback)
-{
-	m_sName = convertstring<char, tchar>(sName);
-	m_pfnCallback = pfnCallback;
-
-	RegisterCommand(this);
-}
-
 void CCommand::Run(tstring sCommand)
 {
 	eastl::vector<tstring> asTokens;
@@ -70,19 +62,13 @@ void SetCVar(CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring
 	if (asTokens.size() > 1)
 		pCVar->SetValue(asTokens[1]);
 
-	TMsg(sprintf(_T("%s = %s\n"), pCVar->GetName().c_str(), pCVar->GetValue().c_str()));
+	TMsg(sprintf(tstring("%s = %s\n"), pCVar->GetName().c_str(), pCVar->GetValue().c_str()));
 }
 
 CVar::CVar(tstring sName, tstring sValue)
 	: CCommand(sName, ::SetCVar)
 {
 	m_sValue = sValue;
-}
-
-CVar::CVar(eastl::string sName, eastl::string sValue)
-	: CCommand(sName, ::SetCVar)
-{
-	m_sValue = convertstring<char, tchar>(sValue);
 }
 
 void CVar::SetValue(tstring sValue)
@@ -92,12 +78,12 @@ void CVar::SetValue(tstring sValue)
 
 void CVar::SetValue(int iValue)
 {
-	m_sValue = sprintf(_T("%d"), iValue);
+	m_sValue = sprintf(tstring("%d"), iValue);
 }
 
 void CVar::SetValue(float flValue)
 {
-	m_sValue = sprintf(_T("%f"), flValue);
+	m_sValue = sprintf(tstring("%f"), flValue);
 }
 
 bool CVar::GetBool()
@@ -201,39 +187,4 @@ float CVar::GetCVarFloat(tstring sName)
 		return 0;
 
 	return pVar->GetFloat();
-}
-
-void CVar::SetCVar(eastl::string sName, eastl::string sValue)
-{
-	SetCVar(convertstring<char, tchar>(sName), convertstring<char, tchar>(sValue));
-}
-
-void CVar::SetCVar(eastl::string sName, int iValue)
-{
-	SetCVar(convertstring<char, tchar>(sName), iValue);
-}
-
-void CVar::SetCVar(eastl::string sName, float flValue)
-{
-	SetCVar(convertstring<char, tchar>(sName), flValue);
-}
-
-eastl::string CVar::GetCVarValue(eastl::string sName)
-{
-	return convertstring<tchar, char>(GetCVarValue(convertstring<char, tchar>(sName)));
-}
-
-bool CVar::GetCVarBool(eastl::string sName)
-{
-	return GetCVarBool(convertstring<char, tchar>(sName));
-}
-
-int CVar::GetCVarInt(eastl::string sName)
-{
-	return GetCVarInt(convertstring<char, tchar>(sName));
-}
-
-float CVar::GetCVarFloat(eastl::string sName)
-{
-	return GetCVarFloat(convertstring<char, tchar>(sName));
 }

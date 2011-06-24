@@ -5,13 +5,29 @@
 	typedef baseClassName BaseClass; \
 	typedef className ThisClass; \
 
+extern void DebugBreak();
+
+#ifdef __GNUC__
+
+#include <csignal>
+
+#define DebugBreak() \
+	::raise(SIGTRAP); \
+
+#else
+
+#define DebugBreak() \
+	__debugbreak(); \
+
+#endif
+
 #ifdef _DEBUG
 
 #define TAssert(x) \
-	{ \
-		if (!(x)) \
-			__asm { int 3 }; \
-	} \
+{ \
+	if (!(x)) \
+		DebugBreak(); \
+} \
 
 #else
 

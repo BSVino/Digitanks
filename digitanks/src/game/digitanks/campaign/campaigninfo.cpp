@@ -31,7 +31,7 @@ void CCampaignInfo::ReadFromData(CData* pData)
 	{
 		for (size_t i = 0; i < pLevels->GetNumChildren(); i++)
 		{
-			CData* pChild = pLevels->FindChild(sprintf(_T("%d"), i+1));
+			CData* pChild = pLevels->FindChild(sprintf(tstring("%d"), i+1));
 
 			TAssert(pChild);
 			if (!pChild)

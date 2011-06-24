@@ -224,7 +224,7 @@ const tchar* CModelConverter::ReadSIAMat(const tchar* pszLine, const tchar* pszE
 
 			tstring sDirectory = GetDirectory(sFilename);
 
-			pMaterial->m_sDiffuseTexture = sprintf(_T("%s/%s"), sDirectory.c_str(), aName[0].c_str());
+			pMaterial->m_sDiffuseTexture = sprintf(tstring("%s/%s"), sDirectory.c_str(), aName[0].c_str());
 		}
 		else if (tstrncmp(pszToken, _T("-endMat"), 7) == 0)
 		{
@@ -574,7 +574,6 @@ void CModelConverter::SaveSIA(const tstring& sFilename)
 			m_pWorkListener->SetAction((tstring(_T("Writing ")) + sNodeName + _T(" edges...")).c_str(), pMesh->GetNumEdges());
 
 		tstring sCreases;
-		tstring p;
 
 		for (size_t iEdges = 0; iEdges < pMesh->GetNumEdges(); iEdges++)
 		{
@@ -585,7 +584,7 @@ void CModelConverter::SaveSIA(const tstring& sFilename)
 			sFile << _T("-edge ") << pEdge->v1 << _T(" ") << pEdge->v2 << std::endl;
 
 			if (pEdge->m_bCreased)
-				sCreases += p.sprintf(_T(" %d"), iEdges);
+				sCreases += sprintf(tstring(" %d"), iEdges);
 		}
 
 		if (sCreases.length())

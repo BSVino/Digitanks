@@ -72,14 +72,14 @@ void CBuffer::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += _T("(Constructing)\n");
-		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
-	s += p.sprintf(_T("Fleet Points: %d\n"), FleetPoints());
-	s += p.sprintf(_T("Bandwidth: %.1f/turn\n"), Bandwidth());
-	s += p.sprintf(_T("Network Size: %d\n"), (int)GetDataFlowRadius());
-	s += p.sprintf(_T("Efficiency: %d\n"), (int)(GetChildEfficiency()*100));
+	s += sprintf(tstring("Fleet Points: %d\n"), FleetPoints());
+	s += sprintf(tstring("Bandwidth: %.1f/turn\n"), Bandwidth());
+	s += sprintf(tstring("Network Size: %d\n"), (int)GetDataFlowRadius());
+	s += sprintf(tstring("Efficiency: %d\n"), (int)(GetChildEfficiency()*100));
 }
 
 REGISTER_ENTITY(CMiniBuffer);
@@ -136,7 +136,7 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 		tstring s;
 		s += _T("UPGRADE TO MACRO-BUFFER\n \n");
 		s += _T("Macro-Buffers provide larger Network radius and can be updated by installing downloaded updates. Upgrading will make this structure inactive until the upgrade is complete.\n \n");
-		s += p.sprintf(_T("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
+		s += sprintf(tstring("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
 		s += _T("Shortcut: Q");
 
 		pHUD->SetButtonInfo(0, s);
@@ -167,21 +167,21 @@ void CMiniBuffer::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += _T("(Constructing)\n");
-		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
 		s += _T("(Upgrading to Macro-Buffer)\n");
-		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
+		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
 		return;
 	}
 
-	s += p.sprintf(_T("Fleet Points: %d\n"), FleetPoints());
-	s += p.sprintf(_T("Bandwidth: %.1f/turn\n"), Bandwidth());
-	s += p.sprintf(_T("Network Size: %d\n"), (int)GetDataFlowRadius());
-	s += p.sprintf(_T("Efficiency: %d\n"), (int)(GetChildEfficiency()*100));
+	s += sprintf(tstring("Fleet Points: %d\n"), FleetPoints());
+	s += sprintf(tstring("Bandwidth: %.1f/turn\n"), Bandwidth());
+	s += sprintf(tstring("Network Size: %d\n"), (int)GetDataFlowRadius());
+	s += sprintf(tstring("Efficiency: %d\n"), (int)(GetChildEfficiency()*100));
 }
 
 bool CMiniBuffer::CanStructureUpgrade()

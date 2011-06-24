@@ -213,7 +213,7 @@ void CENetConnection::CreateHost(int iPort)
 			oAddress.port = 30203;
 	}
 
-	TMsg(sprintf(_T("Creating host on port %d\n"), (int)oAddress.port));
+	TMsg(sprintf(tstring("Creating host on port %d\n"), (int)oAddress.port));
 
 	m_pClient = NULL;
 	m_pServer = enet_host_create(&oAddress, NETWORK_MAX_CLIENTS, 1, 0, 0);
@@ -267,7 +267,7 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 			oAddress.port = 30203;
 	}
 
-	TMsg(sprintf(_T("Connecting to '%s' on port %d\n"), convertstring<char, tchar>(pszHost).c_str(), (int)oAddress.port));
+	TMsg(sprintf(tstring("Connecting to '%s' on port %d\n"), convertstring<char, tchar>(pszHost).c_str(), (int)oAddress.port));
 
 	m_pClientPeer = enet_host_connect(m_pClient, &oAddress, 1, 0);    
 
@@ -289,7 +289,7 @@ void CENetConnection::ConnectToHost(const char* pszHost, int iPort)
 	m_bConnected = true;
 
 	m_bLoading = false;
-	::ClientInfo.RunCommand(m_iConnection, sprintf(_T("%d ") + CNetwork::GetNickname(), CNetwork::GetInstallID()));
+	::ClientInfo.RunCommand(m_iConnection, sprintf(tstring("%d ") + CNetwork::GetNickname(), CNetwork::GetInstallID()));
 	m_bLoading = true;
 
 	float flStartWaitTime = CApplication::Get()->GetTime();
@@ -754,7 +754,7 @@ void CENetConnection::SetClientInfo(size_t iClient, size_t iInstallID, const tst
 	m_aServerPeers[iClient].m_bLoading = false;
 	m_bLoading = false;
 
-	::SetClientID.RunCommand(m_iConnection, sprintf(_T("%u ") + sUniqueNickname, iClient), iClient);
+	::SetClientID.RunCommand(m_iConnection, sprintf(tstring("%u ") + sUniqueNickname, iClient), iClient);
 
 	m_bLoading = bLoading;
 	m_aServerPeers[iClient].m_bLoading = bClientLoading;
@@ -827,7 +827,7 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 
 	if (!pCommand)
 	{
-		TMsg(sprintf(_T("Network command '%s' unknown.\n"), sName.c_str()));
+		TMsg(sprintf(tstring("Network command '%s' unknown.\n"), sName.c_str()));
 		return;
 	}
 

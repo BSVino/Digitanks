@@ -660,7 +660,7 @@ void CDigitanksCamera::MouseInput(int x, int y)
 			angMissile.y += 360;
 
 		if (GameNetwork()->IsConnected() && !GameNetwork()->IsHost())
-			CGAng.RunCommand(sprintf(_T("%d %f %f %f"), m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
+			CGAng.RunCommand(sprintf(tstring("%d %f %f %f"), m_hCameraGuidedMissile->GetHandle(), angMissile.p, angMissile.y, angMissile.r));
 
 		m_hCameraGuidedMissile->SetViewAngles(angMissile);
 		m_hCameraGuidedMissile->SetAngles(angMissile);

@@ -94,23 +94,6 @@ inline int isspace(int i)
 	return false;
 }
 
-inline eastl::string ltrim(eastl::string s)
-{
-	s.erase(s.begin(), eastl::find_if(s.begin(), s.end(), eastl::not1(eastl::ptr_fun<int, int>(isspace))));
-	return s;
-}
-
-inline eastl::string rtrim(eastl::string s)
-{
-	s.erase(eastl::find_if(s.rbegin(), s.rend(), eastl::not1(eastl::ptr_fun<int, int>(isspace))).base(), s.end());
-	return s;
-}
-
-inline eastl::string trim(eastl::string s)
-{
-	return ltrim(rtrim(s));
-}
-
 inline tstring ltrim(tstring s)
 {
 	s.erase(s.begin(), eastl::find_if(s.begin(), s.end(), eastl::not1(eastl::ptr_fun<int, int>(isspace))));

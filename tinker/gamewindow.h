@@ -36,7 +36,6 @@ public:
 	void						ToggleChat();
 	bool						IsChatOpen();
 	void						PrintChat(tstring sText);
-	void						PrintChat(eastl::string sText);
 	virtual class CChatBox*		GetChatBox();
 
 protected:

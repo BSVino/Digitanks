@@ -112,7 +112,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD RESISTOR FACTORY\n \n");
 			s += _T("This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -148,7 +148,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD DIGITANK FACTORY\n \n");
 			s += _T("This program lets you build Digitanks, the primary assault force in your fleet.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -184,7 +184,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD ARTILLERY FACTORY\n \n");
 			s += _T("This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -228,7 +228,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD BUFFER\n \n");
 			s += _T("Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be upgraded to Macro-Buffers after downloading them from the Downloads Grid.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -264,7 +264,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD MACRO-BUFFER\n \n");
 			s += _T("Macro-Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Macro-Buffers can be improved by downloading updates.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -300,7 +300,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD CAPACITOR\n \n");
 			s += _T("Capacitors allow you to harvest Power, which lets you build structures and units more quickly. Capacitors can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -336,7 +336,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			tstring s;
 			s += _T("BUILD POWER SUPPLY UNIT\n \n");
 			s += _T("PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n");
-			s += p.sprintf(_T("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
+			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
 				s += _T("NOT ENOUGH POWER\n \n");
@@ -365,7 +365,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		tstring s;
 		s += _T("BUILD ROGUE\n \n");
 		s += _T("Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n");
-		s += p.sprintf(_T("Power to construct: %d Power\n"), (int)DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
+		s += sprintf(tstring("Power to construct: %d Power\n"), (int)DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
 
 		if (!GetDigitanksTeam()->GetUnusedFleetPoints())
 			s += _T("NOT ENOUGH FLEET POINTS\n \n");
@@ -386,7 +386,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 
 		s = _T("BUILD FIREWALL\n \n");
 		s += _T("Set them up Firewalls around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nFirewalls get weaker when they need to fire at more targets, so be sure to build enough for the job.\n \n");
-		s += p.sprintf(_T("Power to construct: %d Power\n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL));
+		s += sprintf(tstring("Power to construct: %d Power\n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL));
 
 		if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL))
 			s += _T("NOT ENOUGH POWER\n \n");
@@ -772,7 +772,7 @@ void CCPU::StartTurn()
 		}
 		else
 		{
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(_T("Producing Rogue (%d turns left)"), m_iTurnsToProduceRogue.Get()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring("Producing Rogue (%d turns left)"), m_iTurnsToProduceRogue.Get()));
 		}
 	}
 }
@@ -900,14 +900,14 @@ void CCPU::UpdateInfo(tstring& s)
 	if (IsProducing())
 	{
 		s += _T("[Producing Rogue]\n");
-		s += sprintf(_T("Turns left: %d\n \n"), m_iTurnsToProduceRogue.Get());
+		s += sprintf(tstring("Turns left: %d\n \n"), m_iTurnsToProduceRogue.Get());
 	}
 
-	s += p.sprintf(_T("Power: %.1f/turn\n"), Power());
-	s += p.sprintf(_T("Fleet Points: %d\n"), FleetPoints());
-	s += p.sprintf(_T("Bandwidth: %.1f/turn\n"), Bandwidth());
-	s += p.sprintf(_T("Network Size: %d\n"), (int)GetDataFlowRadius());
-	s += p.sprintf(_T("Efficiency: %d\n"), (int)(GetChildEfficiency()*100));
+	s += sprintf(tstring("Power: %.1f/turn\n"), Power());
+	s += sprintf(tstring("Fleet Points: %d\n"), FleetPoints());
+	s += sprintf(tstring("Bandwidth: %.1f/turn\n"), Bandwidth());
+	s += sprintf(tstring("Network Size: %d\n"), (int)GetDataFlowRadius());
+	s += sprintf(tstring("Efficiency: %d\n"), (int)(GetChildEfficiency()*100));
 }
 
 void CCPU::OnDeleted()

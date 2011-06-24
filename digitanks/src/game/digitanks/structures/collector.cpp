@@ -72,14 +72,14 @@ void CCollector::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += _T("(Constructing)\n");
-		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (GetSupplier() && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(_T("Power: %.1f/turn\n"), GetPowerProduced());
-		s += p.sprintf(_T("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
+		s += sprintf(tstring("Power: %.1f/turn\n"), GetPowerProduced());
+		s += sprintf(tstring("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
 }
@@ -135,7 +135,7 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 		tstring s;
 		s += _T("UPGRADE TO POWER SUPPLY UNIT\n \n");
 		s += _T("Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n");
-		s += p.sprintf(_T("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
+		s += sprintf(tstring("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
 		s += _T("Shortcut: Q");
 
 		pHUD->SetButtonInfo(0, s);
@@ -166,21 +166,21 @@ void CBattery::UpdateInfo(tstring& s)
 	if (IsConstructing())
 	{
 		s += _T("(Constructing)\n");
-		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToConstruct());
+		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
 		s += _T("(Upgrading to Power Supply Unit)\n");
-		s += p.sprintf(_T("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
+		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
 		return;
 	}
 
 	if (m_hSupplier != NULL && m_hSupplyLine != NULL)
 	{
-		s += p.sprintf(_T("Power Supplied: %.1f\n"), GetPowerProduced());
-		s += p.sprintf(_T("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
+		s += sprintf(tstring("Power Supplied: %.1f\n"), GetPowerProduced());
+		s += sprintf(tstring("Efficiency: %d\n"), (int)(m_hSupplier->GetChildEfficiency() * m_hSupplyLine->GetIntegrity() * 100));
 		return;
 	}
 }

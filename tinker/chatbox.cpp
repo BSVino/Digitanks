@@ -301,11 +301,6 @@ void CGameWindow::PrintChat(tstring sText)
 	pChat->PrintChat(sText);
 }
 
-void CGameWindow::PrintChat(eastl::string sText)
-{
-	PrintChat(convertstring<char, tchar>(sText));
-}
-
 CChatBox* CGameWindow::GetChatBox()
 {
 	if (m_pChatBox == NULL)

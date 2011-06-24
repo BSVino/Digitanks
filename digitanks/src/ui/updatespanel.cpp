@@ -237,7 +237,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
-	m_pAvailable->SetText(sprintf(_T("Available: %dMB"), (int)pTeam->GetMegabytes()));
+	m_pAvailable->SetText(sprintf(tstring("Available: %dMB"), (int)pTeam->GetMegabytes()));
 
 	int x, y;
 	DigitanksGame()->GetUpdateGrid()->FindUpdate(pInfo, x, y);
@@ -247,9 +247,9 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 	s += pInfo->GetName() + _T("\n \n");
 
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
-		s += p.sprintf(_T("Increase: %.1f %s\n"), pInfo->m_flValue, pInfo->GetUnits().c_str());
+		s += sprintf(tstring("Increase: %.1f %s\n"), pInfo->m_flValue, pInfo->GetUnits().c_str());
 
-	s += p.sprintf(_T("Download cost: %dMB\n"), (int)pInfo->m_flSize);
+	s += sprintf(tstring("Download cost: %dMB\n"), (int)pInfo->m_flSize);
 
 	if (pTeam && pTeam->GetBandwidth() > 0 && !pTeam->HasDownloadedUpdate(x, y))
 	{
@@ -259,7 +259,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		if (iTurns < 1)
 			iTurns = 1;
 
-		s += p.sprintf(_T("Turns to download: %d\n"), iTurns);
+		s += sprintf(tstring("Turns to download: %d\n"), iTurns);
 	}
 
 	s += _T(" \n");
@@ -284,11 +284,11 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 			iTurns = 0;
 
 		if (iTurns == 0)
-			m_pTutorial->SetText(sprintf(_T("This update costs %dMB to download."), (int)pInfo->m_flSize));
+			m_pTutorial->SetText(sprintf(tstring("This update costs %dMB to download."), (int)pInfo->m_flSize));
 		else if (iTurns == 1)
-			m_pTutorial->SetText(sprintf(_T("This update costs %dMB to download. This update would take 1 turn to download."), (int)pInfo->m_flSize, iTurns));
+			m_pTutorial->SetText(sprintf(tstring("This update costs %dMB to download. This update would take 1 turn to download."), (int)pInfo->m_flSize, iTurns));
 		else
-			m_pTutorial->SetText(sprintf(_T("This update costs %dMB to download. This update would take %d turns to download."), (int)pInfo->m_flSize, iTurns));
+			m_pTutorial->SetText(sprintf(tstring("This update costs %dMB to download. This update would take %d turns to download."), (int)pInfo->m_flSize, iTurns));
 	}
 	else
 		m_pTutorial->SetText(_T("This update is not yet available for download."));

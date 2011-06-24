@@ -3,22 +3,38 @@
 
 #include <EASTL/string.h>
 
-typedef eastl::string16 tstring;
+typedef eastl::string tstring;
 typedef tstring::value_type tchar;
 
-#define _T EA_CHAR16
+// No support for the c++0x string literals yet
+#define _T(x) x
 
 #include "strutils.h"
 #include <string>
 
 inline FILE* tfopen(const tstring& sFile, const tstring& sMode)
 {
+	tstring sBinaryMode = sMode;
+	bool bHasB = false;
+	for (size_t i = 0; i < sBinaryMode.length(); i++)
+	{
+		if (sMode[i] == _T('b'))
+		{
+			bHasB = true;
+			break;
+		}
+	}
+
+	// Open all files in binary mode to preserve unicodeness.
+	if (!bHasB)
+		sBinaryMode = sMode + _T("b");
+
 #ifdef _MSC_VER
 	static FILE* fp;
-	_wfopen_s(&fp, sFile.c_str(), sMode.c_str());
+	_wfopen_s(&fp, sFile.c_str(), sBinaryMode.c_str());
 	return fp;
 #else
-	return fopen(convertstring<tchar, char>(sFile).c_str(), convertstring<tchar, char>(sMode).c_str());
+	return fopen(convertstring<tchar, char>(sFile).c_str(), convertstring<tchar, char>(sBinaryMode).c_str());
 #endif
 }
 

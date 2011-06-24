@@ -1451,7 +1451,7 @@ void CDigitank::Charge()
 	if (IsDisabled())
 		return;
 
-	::Charge.RunCommand(sprintf(_T("%d %d"), GetHandle(), m_hPreviewCharge->GetHandle()));
+	::Charge.RunCommand(sprintf(tstring("%d %d"), GetHandle(), m_hPreviewCharge->GetHandle()));
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 	DigitanksWindow()->SetContextualCommandsOverride(true);
@@ -2606,7 +2606,7 @@ CLIENT_GAME_COMMAND(SetCurrentWeapon)
 void CDigitank::SetCurrentWeapon(weapon_t e, bool bNetworked)
 {
 	if (bNetworked)
-		::SetCurrentWeapon.RunCommand(sprintf(_T("%d %d"), GetHandle(), e));
+		::SetCurrentWeapon.RunCommand(sprintf(tstring("%d %d"), GetHandle(), e));
 
 	if (!DigitanksGame()->IsWeaponAllowed(e, this))
 		return;
@@ -2667,7 +2667,7 @@ CLIENT_GAME_COMMAND(FireSpecial)
 
 void CDigitank::FireSpecial()
 {
-	::FireSpecial.RunCommand(sprintf(_T("%d %f %f %f"), GetHandle(), GetPreviewAim().x, GetPreviewAim().y, GetPreviewAim().z));
+	::FireSpecial.RunCommand(sprintf(tstring("%d %f %f %f"), GetHandle(), GetPreviewAim().x, GetPreviewAim().y, GetPreviewAim().z));
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 }
@@ -3305,7 +3305,7 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 		float flDistance = (GetRealOrigin() - GetGoalMovePosition()).Length();
 		int iTurns = (int)(flDistance/GetMaxMovementDistance());
 
-		tstring sTurns = sprintf(_T("Auto-Move: %d"), iTurns);
+		tstring sTurns = sprintf(tstring("Auto-Move: %d"), iTurns);
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 	}
@@ -3314,7 +3314,7 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 
 	if (IsFortified() || IsFortifying())
 	{
-		tstring sTurns = sprintf(_T("+%d"), GetFortifyLevel());
+		tstring sTurns = sprintf(tstring("+%d"), GetFortifyLevel());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 
 		const Rect& rArea = CHUD::GetButtonSheet().GetArea("Fortify");
@@ -3359,39 +3359,39 @@ void CDigitank::UpdateInfo(tstring& s)
 	if (HasBonusPoints())
 	{
 		if (GetBonusPoints() > 1)
-			s += p.sprintf(_T("%d upgrades\n \n"), GetBonusPoints());
+			s += sprintf(tstring("%d upgrades\n \n"), GetBonusPoints());
 		else
 			s += _T("1 upgrade\n \n");
 	}
 
 	if (m_flBonusAttackPower > 0)
 	{
-		s += p.sprintf(_T("+%d attack"), (int)m_flBonusAttackPower.Get());
+		s += sprintf(tstring("+%d attack"), (int)m_flBonusAttackPower.Get());
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s += p.sprintf(_T(" (+%d fortify)"), (int)GetFortifyAttackPowerBonus());
+			s += sprintf(tstring(" (+%d fortify)"), (int)GetFortifyAttackPowerBonus());
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s += p.sprintf(_T(" (+%d support)"), (int)GetSupportAttackPowerBonus());
+			s += sprintf(tstring(" (+%d support)"), (int)GetSupportAttackPowerBonus());
 
 		s += _T(" \n");
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s += p.sprintf(_T("+%d shield"), (int)m_flBonusDefensePower.Get());
+		s += sprintf(tstring("+%d shield"), (int)m_flBonusDefensePower.Get());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s += p.sprintf(_T(" (+%d fortify)"), (int)GetFortifyDefensePowerBonus());
+			s += sprintf(tstring(" (+%d fortify)"), (int)GetFortifyDefensePowerBonus());
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s += p.sprintf(_T(" (+%d support)"), (int)GetSupportDefensePowerBonus());
+			s += sprintf(tstring(" (+%d support)"), (int)GetSupportDefensePowerBonus());
 
 		s += _T(" \n");
 	}
 
 	if (GetBonusMovementEnergy() > 0)
-		s += p.sprintf(_T("+%d movement\n"), (int)GetBonusMovementEnergy());
+		s += sprintf(tstring("+%d movement\n"), (int)GetBonusMovementEnergy());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
