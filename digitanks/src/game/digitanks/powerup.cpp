@@ -59,8 +59,6 @@ void CPowerup::Spawn()
 	}
 	else
 		SetPowerupType(POWERUP_BONUS);
-
-	CalculateVisibility();
 }
 
 tstring CPowerup::GetEntityName() const

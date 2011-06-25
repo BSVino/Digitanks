@@ -275,7 +275,7 @@ inline void CNetworkedVariable<C>::Unserialize(size_t iDataSize, void* pValue)
 {
 	TAssert(iDataSize == sizeof(m_oVariable) + sizeof(m_flEpsilon) + sizeof(m_bInitialized));
 	memcpy(&m_oVariable, pValue, iDataSize);
-	m_bDirty = true;
+	m_bInitialized = true;
 }
 
 template <class C>
@@ -353,6 +353,7 @@ public:
 		C* pData = (C*)pValue;
 		for (size_t i = 0; i < iElements; i++)
 			m_oVariable.push_back(*pData++);
+		m_bInitialized = true;
 	}
 };
 
@@ -537,7 +538,11 @@ public:
 	}
 
 	virtual void*		Serialize(size_t& iSize) { iSize = (m_oVariable.size()+1)*sizeof(tstring::value_type); return (void*)m_oVariable.c_str(); }
-	virtual void		Unserialize(size_t iDataSize, void* pValue) { m_oVariable = (tstring::value_type*)pValue; }
+	virtual void		Unserialize(size_t iDataSize, void* pValue)
+	{
+		m_oVariable = (tstring::value_type*)pValue;
+		m_bInitialized = true;
+	}
 };
 
 class CGameServerNetwork

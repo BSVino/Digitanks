@@ -64,11 +64,14 @@ void CDigitanksEntity::Spawn()
 	m_bImprisoned = false;
 	m_bObjective = false;
 
-	CalculateVisibility();
-
 	m_iCageModel = CModelLibrary::Get()->FindModel(_T("models/cage.obj"));
 	m_hCageParticles.SetSystem(_T("cage-aura"), GetOrigin());
 	m_hCageParticles.FollowEntity(this);
+}
+
+void CDigitanksEntity::ClientSpawn()
+{
+	CalculateVisibility();
 }
 
 void CDigitanksEntity::Think()

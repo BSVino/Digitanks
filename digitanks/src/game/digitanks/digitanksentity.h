@@ -14,6 +14,8 @@ public:
 	virtual void					Precache();
 	virtual void					Spawn();
 
+	virtual void					ClientSpawn();
+
 	virtual void					Think();
 
 	class CWreckage*				CreateWreckage();

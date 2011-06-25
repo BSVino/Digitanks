@@ -2,6 +2,8 @@
 
 #include <network/network.h>
 
+#include "game.h"
+
 REGISTER_ENTITY(CTeam);
 
 NETVAR_TABLE_BEGIN(CTeam);
@@ -9,7 +11,7 @@ NETVAR_TABLE_BEGIN(CTeam);
 	NETVAR_DEFINE(Color, m_clrTeam);
 	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_ahMembers);
 	NETVAR_DEFINE(bool, m_bClientControlled);
-	NETVAR_DEFINE(int, m_iClient);
+	NETVAR_DEFINE_CALLBACK(int, m_iClient, &CGame::ClearLocalTeams);
 	NETVAR_DEFINE(tstring, m_sName);
 NETVAR_TABLE_END();
 

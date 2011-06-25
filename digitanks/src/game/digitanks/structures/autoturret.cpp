@@ -38,6 +38,8 @@ void CAutoTurret::Spawn()
 	SetModel(_T("models/structures/firewall.obj"));
 
 	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/structures/firewall-shield.obj"));
+
+	m_bHasFired = false;
 }
 
 void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const

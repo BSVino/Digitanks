@@ -878,6 +878,9 @@ void CGameServer::UpdateValue(int iConnection, CNetworkParameters* p)
 
 void CGameServer::ClientInfo(int iConnection, CNetworkParameters* p)
 {
+	if (m_iClient != p->i1)
+		CGame::ClearLocalTeams(NULL);
+
 	m_iClient = p->i1;
 	float flNewGameTime = p->fl2;
 	if (flNewGameTime - m_flGameTime > 0.1f)

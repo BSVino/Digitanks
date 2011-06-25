@@ -98,6 +98,9 @@ CDigitanksTeam::CDigitanksTeam()
 		m_abUpdates[i] = false;
 
 	m_iLastScoutBuilt = 0;
+
+	m_iScore = 0;
+	m_bLost = false;
 }
 
 CDigitanksTeam::~CDigitanksTeam()
