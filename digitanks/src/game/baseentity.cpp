@@ -533,6 +533,7 @@ SERVER_GAME_COMMAND(ClientSpawn)
 
 void CBaseEntity::IssueClientSpawn()
 {
+	m_bClientSpawn = true;
 	::ClientSpawn.RunCommand(sprintf(L"%d", GetHandle()));
 }
 
