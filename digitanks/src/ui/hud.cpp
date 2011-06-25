@@ -204,9 +204,6 @@ CHUD::CHUD()
 	m_pButtonPanel = new CMouseCapturePanel();
 	AddControl(m_pButtonPanel);
 
-	m_pHowToPlayPanel = new CHowToPlayPanel();
-	AddControl(m_pHowToPlayPanel);
-
 	for (size_t i = 0; i < NUM_BUTTONS; i++)
 	{
 		m_apButtons[i] = new CPictureButton(L"");
@@ -356,6 +353,9 @@ CHUD::CHUD()
 	m_pSpacebarHint->SetAlign(CLabel::TA_MIDDLECENTER);
 	m_pSpacebarHint->SetFont(L"text");
 	AddControl(m_pSpacebarHint);
+
+	m_pHowToPlayPanel = new CHowToPlayPanel();
+	AddControl(m_pHowToPlayPanel, true);
 
 #ifdef DT_COMPETITION
 	m_iCompetitionWatermark = CTextureLibrary::AddTextureID(L"textures/competition.png");
@@ -1035,15 +1035,15 @@ void CHUD::Paint(int x, int y, int w, int h)
 	{
 		float flFontHeight = glgui::CLabel::GetFontHeight(L"text", 10);
 		eastl::string16 sFPS = sprintf(L"Time: %.2f", GameServer()->GetGameTime());
-		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight + 5);
+		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 125, flFontHeight + 50);
 		sFPS = sprintf(L"FPS: %d", (int)(1/GameServer()->GetFrameTime()));
-		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight*2 + 5);
+		glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 125, flFontHeight*2 + 50);
 
 		Vector vecTerrainPoint;
 		if (DigitanksWindow()->GetMouseGridPosition(vecTerrainPoint, NULL, CG_TERRAIN))
 		{
 			sFPS = sprintf(L"%.2f, %.2f", vecTerrainPoint.x, vecTerrainPoint.z);
-			glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 5, flFontHeight*3 + 5);
+			glgui::CLabel::PaintText(sFPS, sFPS.length(), L"text", 10, 125, flFontHeight*3 + 50);
 		}
 	}
 
@@ -4599,8 +4599,17 @@ void CHowToPlayPanel::Think()
 
 	m_flCurLerp = Approach(m_flGoalLerp, m_flCurLerp, GameServer()->GetFrameTime()*2);
 
-	SetPos(150, (int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, -300, 0)));
+//	m_pUpdatesButton->SetPos(iWidth/2 - 617/2 - 35, 0);
+
+	int iX = 150;
+
+	// Keep it to the left of the downloads button. Don't want to cover that up.
+	if (iX > (GetParent()->GetWidth()/2 - 617/2 - 35) - 150 - 10)
+		iX = (GetParent()->GetWidth()/2 - 617/2 - 35) - 150 - 10;
+
+	SetPos(iX, (int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, -300, 0)));
 	SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 350)), 350);
+
 	m_pOpen->SetSize((int)(RemapVal(Lerp(m_flCurLerp, 0.6f), 0, 1, 150, 300)), 50);
 	m_pControls->SetAlpha(m_flCurLerp);
 }
