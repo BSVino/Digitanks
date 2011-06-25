@@ -1528,7 +1528,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 	CPanel::Paint(x, y, w, h);
 	m_pCloseActionItems->SetVisible(bCloseVisible);
 
-	if (m_pButtonInfo->GetText()[0] != L'\0')
+	if (m_pButtonInfo->GetText()[0] != _T('\0'))
 	{
 		CRootPanel::PaintRect(m_pButtonInfo->GetLeft()-3, m_pButtonInfo->GetTop()-9, m_pButtonInfo->GetWidth()+6, m_pButtonInfo->GetHeight()+6, Color(0, 0, 0));
 		m_pButtonInfo->SetVisible(true);

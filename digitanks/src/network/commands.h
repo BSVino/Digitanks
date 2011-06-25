@@ -1,8 +1,6 @@
 #ifndef _TINKER_COMMANDS_H
 #define _TINKER_COMMANDS_H
 
-#include <assert.h>
-
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
 #include <EASTL/string.h>

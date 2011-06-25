@@ -23,14 +23,14 @@ NETVAR_TABLE_BEGIN(CProjectile);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CProjectile);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecLandingSpot);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, CParticleSystemInstanceHandle, m_hTrailParticles);	// Generated on load
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bFragmented);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iBounces);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bFallSoundPlayed);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamageBonusTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamageBonusFreeze);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bMissileDefensesNotified);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CProjectile);

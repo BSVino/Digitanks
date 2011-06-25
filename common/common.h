@@ -7,6 +7,8 @@
 
 extern void DebugBreak();
 
+#define TMsg printf;
+
 #ifdef __GNUC__
 
 #include <csignal>
@@ -26,14 +28,19 @@ extern void DebugBreak();
 #define TAssert(x) \
 { \
 	if (!(x)) \
+	{ \
+		TMsg("Assert failed: " #x "\n"); \
 		DebugBreak(); \
+	} \
 } \
 
 #else
 
 #define TAssert(x) \
-	{ \
-	} \
+{ \
+	if (!(x)) \
+		printf("Assert failed: " #x "\n"); \
+} \
 
 #endif
 

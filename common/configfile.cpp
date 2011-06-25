@@ -23,7 +23,7 @@ ConfigFile::ConfigFile( tstring filename, tstring delimiter,
 
 
 ConfigFile::ConfigFile()
-	: myDelimiter( tstring(1,L'=') ), myComment( tstring(1,L'#') )
+	: myDelimiter( tstring(1,_T('=')) ), myComment( tstring(1,_T('#')) )
 {
 	// Construct a ConfigFile without a file; empty
 

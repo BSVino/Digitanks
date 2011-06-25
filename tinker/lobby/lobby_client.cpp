@@ -26,7 +26,7 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyInfo)
 		return;
 	}
 
-	tstring sValue = sParameters.substr(sParameters.find(L' ')+1);
+	tstring sValue = sParameters.substr(sParameters.find(_T(' '))+1);
 	CGameLobbyClient::R_UpdateLobby(pCmd->Arg(0), sValue);
 }
 
@@ -53,7 +53,7 @@ SERVER_COMMAND(CONNECTION_LOBBY, LobbyPlayerInfo)
 			return;
 		}
 
-		tstring sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
+		tstring sValue = sParameters.substr(sParameters.find(_T(' '), sParameters.find(_T(' '))+1)+1);
 		CGameLobbyClient::R_UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), sValue);
 	}
 }

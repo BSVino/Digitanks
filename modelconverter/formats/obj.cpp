@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+
+#include <common.h>
 
 #include "../modelconverter.h"
 #include "strutils.h"
@@ -57,10 +58,12 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 		tstrncpy(pszCurrent, iFileSize-(pszCurrent-pszEntireFile), sLine.c_str(), sLine.length());
 		size_t iLength = sLine.length();
 
-		if (pszCurrent[iLength-1] == L'\n')
+		tchar cLastChar = pszCurrent[iLength-1];
+		while (cLastChar == _T('\n') || cLastChar == _T('\r'))
 		{
-			pszCurrent[iLength-1] = L'\0';
+			pszCurrent[iLength-1] = _T('\0');
 			iLength--;
+			cLastChar = pszCurrent[iLength-1];
 		}
 
 		pszCurrent += iLength;
@@ -70,7 +73,7 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 			m_pWorkListener->WorkProgress(0);
 	}
 
-	pszCurrent[0] = L'\0';
+	pszCurrent[0] = _T('\0');
 
 	fclose(fp);
 
@@ -147,14 +150,14 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 			int iDimension = 0;
 			while (*pszToken)
 			{
-				while (pszToken[0] == L' ')
+				while (pszToken[0] == _T(' '))
 					pszToken++;
 
 				v[iDimension++] = (float)stof(pszToken);
 				if (iDimension >= 3)
 					break;
 
-				while (pszToken[0] != L' ')
+				while (pszToken[0] != _T(' '))
 					pszToken++;
 			}
 			pMesh->AddVertex(v[0], v[1], v[2]);
@@ -272,6 +275,8 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 			for (size_t i = 1; i < asTokens.size(); i++)
 			{
 				const tchar* pszToken = asTokens[i].c_str();
+				if (tstrlen(pszToken) == 0)
+					continue;
 
 				// We don't use size_t because SOME EXPORTS put out negative numbers.
 				long f[3];
@@ -288,9 +293,9 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 					if (!pszValues)
 						break;
 
-					if (!bValues[0] || pszValues[0] == L'/')
+					if (!bValues[0] || pszValues[0] == _T('/'))
 					{
-						if (pszValues[0] == L'/')
+						if (pszValues[0] == _T('/'))
 							pszValues++;
 
 						bValues[iValue] = true;
@@ -300,7 +305,7 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 					}
 
 					// Don't advance if we're on a slash, because that means empty slashes. ie, 11//12 <-- the 12 would get skipped.
-					if (pszValues[0] != L'/')
+					if (pszValues[0] != _T('/'))
 						pszValues++;
 				}
 				while (*pszValues);
@@ -309,21 +314,21 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 				{
 					if (f[0] < 0)
 						f[0] = (long)pMesh->GetNumVertices()+f[0]+1;
-					assert ( f[0] >= 1 && f[0] < (long)pMesh->GetNumVertices()+1 );
+					TAssert ( f[0] >= 1 && f[0] < (long)pMesh->GetNumVertices()+1 );
 				}
 
 				if (bValues[1] && pMesh->GetNumUVs())
 				{
 					if (f[1] < 0)
 						f[1] = (long)pMesh->GetNumUVs()+f[1]+1;
-					assert ( f[1] >= 1 && f[1] < (long)pMesh->GetNumUVs()+1 );
+					TAssert ( f[1] >= 1 && f[1] < (long)pMesh->GetNumUVs()+1 );
 				}
 
 				if (bValues[2] && pMesh->GetNumNormals())
 				{
 					if (f[2] < 0)
 						f[2] = (long)pMesh->GetNumNormals()+f[2]+1;
-					assert ( f[2] >= 1 && f[2] < (long)pMesh->GetNumNormals()+1 );
+					TAssert ( f[2] >= 1 && f[2] < (long)pMesh->GetNumNormals()+1 );
 				}
 
 				// OBJ uses 1-based indexing.

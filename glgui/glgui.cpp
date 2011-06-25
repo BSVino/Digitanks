@@ -832,12 +832,12 @@ void CLabel::Paint(int x, int y, int w, int h)
 			{
 				tchar szChar[2];
 				szChar[0] = pszTok[iSource];
-				szChar[1] = L'\0';
+				szChar[1] = _T('\0');
 				float cw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(convertstring<tchar, FTGLchar>(szChar).c_str());
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iLine+1)*t > h)
 				{
 					iLength++;
-					if (pszTok[iSource] == L' ')
+					if (pszTok[iSource] == _T(' '))
 						iLastSpace = iSource;
 					tw += cw;
 				}
@@ -855,7 +855,7 @@ void CLabel::Paint(int x, int y, int w, int h)
 
 					iLength = 0;
 					tw = 0;
-					while (iSource < tstrlen(pszTok) && pszTok[iSource] == L' ')
+					while (iSource < tstrlen(pszTok) && pszTok[iSource] == _T(' '))
 						iSource++;
 					iLastBreak = iLastSpace = iSource--;	// Skip over any following spaces, but leave iSource at the space 'cause it's incremented again below.
 					m_iLine++;
@@ -1016,8 +1016,8 @@ void CLabel::ComputeLines(int w, int h)
 	tchar* pszText = strdup<tchar>(m_sText.c_str());
 
 	// Cut off any ending line returns so that labels don't have hanging space below.
-	if (pszText[tstrlen(pszText)-1] == L'\n')
-		pszText[tstrlen(pszText)-1] = L'\0';
+	if (pszText[tstrlen(pszText)-1] == _T('\n'))
+		pszText[tstrlen(pszText)-1] = _T('\0');
 
 	// FIXME: All this code is technically duplicated from Paint(),
 	// but I can't think of a good way to reconcile them. Some kind
@@ -1047,12 +1047,12 @@ void CLabel::ComputeLines(int w, int h)
 			{
 				tchar szChar[2];
 				szChar[0] = pszTok[iSource];
-				szChar[1] = L'\0';
+				szChar[1] = _T('\0');
 				float cw = s_apFonts[m_sFontName][m_iFontFaceSize]->Advance(convertstring<tchar, FTGLchar>(szChar).c_str());
 				if (tw + cw < w || (tw == 0 && w < cw) || (m_iTotalLines+1)*t > h)
 				{
 					iLength++;
-					if (pszTok[iSource] == L' ')
+					if (pszTok[iSource] == _T(' '))
 						iLastSpace = iSource;
 					tw += cw;
 				}
@@ -1067,7 +1067,7 @@ void CLabel::ComputeLines(int w, int h)
 
 					iLength = 0;
 					tw = 0;
-					while (iSource < tstrlen(pszTok) && pszTok[iSource] == L' ')
+					while (iSource < tstrlen(pszTok) && pszTok[iSource] == _T(' '))
 						iSource++;
 					iLastBreak = iLastSpace = iSource--;	// Skip over any following spaces, but leave iSource at the space 'cause it's incremented again below.
 					m_iTotalLines++;

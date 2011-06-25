@@ -54,10 +54,10 @@ public:
 protected:
 	CNetworkedVariable<float>	m_flTimeExploded;
 
+	bool						m_bShouldRender;
+
 	CNetworkedHandle<CDigitanksEntity>	m_hOwner;
 	CNetworkedVariable<float>	m_flDamage;
-
-	bool						m_bShouldRender;
 };
 
 #endif

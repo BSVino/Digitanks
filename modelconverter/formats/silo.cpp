@@ -42,9 +42,9 @@ void CModelConverter::ReadSIA(const tstring& sFilename)
 		tstrncpy(pszCurrent, iFileSize-(pszCurrent-pszEntireFile), sLine.c_str(), sLine.length());
 		size_t iLength = sLine.length();
 
-		if (pszCurrent[iLength-1] == L'\n')
+		if (pszCurrent[iLength-1] == _T('\n'))
 		{
-			pszCurrent[iLength-1] = L'\0';
+			pszCurrent[iLength-1] = _T('\0');
 			iLength--;
 		}
 
@@ -55,7 +55,7 @@ void CModelConverter::ReadSIA(const tstring& sFilename)
 			m_pWorkListener->WorkProgress(0);
 	}
 
-	pszCurrent[0] = L'\0';
+	pszCurrent[0] = _T('\0');
 
 	fclose(fp);
 
@@ -268,13 +268,13 @@ const tchar* CModelConverter::ReadSIAShape(const tchar* pszLine, const tchar* ps
 
 		const tchar* pszToken = pszLine;
 
-		while (*pszToken && *pszToken != L' ')
+		while (*pszToken && *pszToken != _T(' '))
 			pszToken++;
 
 		sToken.reserve(iLineLength);
 		sToken.clear();
 		sToken.append(pszLine, pszToken-pszLine);
-		sToken[pszToken-pszLine] = L'\0';
+		sToken[pszToken-pszLine] = _T('\0');
 		pszToken = sToken.c_str();
 
 		if (!bCare)
@@ -333,14 +333,14 @@ const tchar* CModelConverter::ReadSIAShape(const tchar* pszLine, const tchar* ps
 			int iDimension = 0;
 			while (*pszToken)
 			{
-				while (pszToken[0] == L' ')
+				while (pszToken[0] == _T(' '))
 					pszToken++;
 
 				v[iDimension++] = (float)stof(pszToken);
 				if (iDimension >= 3)
 					break;
 
-				while (pszToken[0] != L' ')
+				while (pszToken[0] != _T(' '))
 					pszToken++;
 			}
 			pMesh->AddVertex(v[0], v[1], v[2]);
@@ -365,14 +365,14 @@ const tchar* CModelConverter::ReadSIAShape(const tchar* pszLine, const tchar* ps
 			int iDimension = 0;
 			while (*pszToken)
 			{
-				while (pszToken[0] == L' ')
+				while (pszToken[0] == _T(' '))
 					pszToken++;
 
 				e[iDimension++] = (int)stoi(pszToken);
 				if (iDimension >= 2)
 					break;
 
-				while (pszToken[0] != L' ')
+				while (pszToken[0] != _T(' '))
 					pszToken++;
 			}
 			pMesh->AddEdge(e[0]+iAddV, e[1]+iAddV);
@@ -440,7 +440,7 @@ const tchar* CModelConverter::ReadSIAShape(const tchar* pszLine, const tchar* ps
 
 			size_t iVerts = stoi(pszToken);
 
-			while (pszToken[0] != L' ')
+			while (pszToken[0] != _T(' '))
 				pszToken++;
 
 			size_t iProcessed = 0;
@@ -448,17 +448,17 @@ const tchar* CModelConverter::ReadSIAShape(const tchar* pszLine, const tchar* ps
 			{
 				size_t iVertex = stoi(++pszToken)+iAddV;
 
-				while (pszToken[0] != L' ')
+				while (pszToken[0] != _T(' '))
 					pszToken++;
 
 				size_t iEdge = stoi(++pszToken)+iAddE;
 
-				while (pszToken[0] != L' ')
+				while (pszToken[0] != _T(' '))
 					pszToken++;
 
 				float flU = (float)stof(++pszToken);
 
-				while (pszToken[0] != L' ')
+				while (pszToken[0] != _T(' '))
 					pszToken++;
 
 				float flV = (float)stof(++pszToken);
@@ -470,7 +470,7 @@ const tchar* CModelConverter::ReadSIAShape(const tchar* pszLine, const tchar* ps
 				pMesh->AddVertexToFace(iFace, iVertex, iUV, iNormal);
 				pMesh->AddEdgeToFace(iFace, iEdge);
 
-				while (pszToken[0] != L'\0' && pszToken[0] != L' ')
+				while (pszToken[0] != _T('\0') && pszToken[0] != _T(' '))
 					pszToken++;
 			}
 		}

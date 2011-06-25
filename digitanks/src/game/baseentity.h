@@ -280,7 +280,6 @@ void entity::RegisterInputData() \
 	pRegistration->m_aInputs[#name].m_pfnCallback = &name##InputCallback; \
 
 #define INPUTS_TABLE_END() \
-	CheckSaveDataSize(pRegistration); \
 } \
 
 class CTeam;

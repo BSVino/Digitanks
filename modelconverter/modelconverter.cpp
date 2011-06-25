@@ -57,14 +57,14 @@ tstring CModelConverter::GetFilename(const tstring& sFilename)
 	int i = -1;
 
 	while (++i < (int)sFilename.length())
-		if (sFilename[i] == L'\\' || sFilename[i] == L'/')
+		if (sFilename[i] == _T('\\') || sFilename[i] == _T('/'))
 			iLastChar = i;
 
 	tstring sReturn = sFilename.c_str() + iLastChar + 1;
 
 	i = -1;
 	while (++i < (int)sReturn.length())
-		if (sReturn[i] == L'.')
+		if (sReturn[i] == _T('.'))
 			iLastChar = i;
 
 	if (iLastChar >= 0)
@@ -80,24 +80,24 @@ tstring CModelConverter::GetDirectory(const tstring& sFilename)
 	tstring sResult = sFilename;
 
 	while (++i < (int)sResult.length())
-		if (sResult[i] == L'\\' || sResult[i] == L'/')
+		if (sResult[i] == _T('\\') || sResult[i] == _T('/'))
 			iLastSlash = i;
 
 	if (iLastSlash >= 0)
-		sResult[iLastSlash] = L'\0';
+		sResult[iLastSlash] = _T('\0');
 
 	return sResult;
 }
 
 bool CModelConverter::IsWhitespace(tstring::value_type cChar)
 {
-	return (cChar == L' ' || cChar == L'\t' || cChar == L'\r' || cChar == L'\n');
+	return (cChar == _T(' ') || cChar == _T('\t') || cChar == _T('\r') || cChar == _T('\n'));
 }
 
 tstring CModelConverter::StripWhitespace(tstring sLine)
 {
 	int i = 0;
-	while (IsWhitespace(sLine[i]) && sLine[i] != L'\0')
+	while (IsWhitespace(sLine[i]) && sLine[i] != _T('\0'))
 		i++;
 
 	int iEnd = ((int)sLine.length())-1;
@@ -105,7 +105,7 @@ tstring CModelConverter::StripWhitespace(tstring sLine)
 		iEnd--;
 
 	if (iEnd >= -1)
-		sLine[iEnd+1] = L'\0';
+		sLine[iEnd+1] = _T('\0');
 
 	return sLine.substr(i);
 }

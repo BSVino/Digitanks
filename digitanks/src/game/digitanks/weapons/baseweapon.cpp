@@ -14,9 +14,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTimeExploded);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksEntity>, m_hOwner);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamage);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBaseWeapon);

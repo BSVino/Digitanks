@@ -63,9 +63,9 @@ CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientChatSay)
 void ChatSay(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	if (GameNetwork()->IsConnected())
-		ClientChatSay.RunCommand(CONNECTION_GAME, sCommand.substr(sCommand.find(L' ')));
+		ClientChatSay.RunCommand(CONNECTION_GAME, sCommand.substr(sCommand.find(_T(' '))));
 	else if (LobbyNetwork()->IsConnected())
-		ClientChatSay.RunCommand(CONNECTION_LOBBY, sCommand.substr(sCommand.find(L' ')));
+		ClientChatSay.RunCommand(CONNECTION_LOBBY, sCommand.substr(sCommand.find(_T(' '))));
 }
 
 CCommand chat_say("say", ::ChatSay);

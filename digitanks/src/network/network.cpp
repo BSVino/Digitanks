@@ -70,7 +70,7 @@ SERVER_COMMAND(CONNECTION_UNDEFINED, SetClientID)
 
 	Network(iConnection)->SetClientID(pCmd->ArgAsUInt(0));
 
-	CNetwork::SetClientInfo(CNetwork::GetInstallID(), sParameters.substr(sParameters.find(L' ')+1));
+	CNetwork::SetClientInfo(CNetwork::GetInstallID(), sParameters.substr(sParameters.find(_T(' '))+1));
 }
 
 SERVER_COMMAND(CONNECTION_UNDEFINED, ForceDisconnect)
@@ -85,7 +85,7 @@ SERVER_COMMAND(CONNECTION_UNDEFINED, ForceDisconnect)
 
 CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientInfo)
 {
-	Network(iConnection)->SetClientInfo(iClient, pCmd->ArgAsUInt(0), sParameters.substr(sParameters.find(L' ')+1));
+	Network(iConnection)->SetClientInfo(iClient, pCmd->ArgAsUInt(0), sParameters.substr(sParameters.find(_T(' '))+1));
 }
 
 CLIENT_COMMAND(CONNECTION_UNDEFINED, ClientDisconnecting)
@@ -808,7 +808,7 @@ void CNetworkConnection::NetworkCommand(int iConnection, CNetworkParameters* p)
 
 	tstring sCommand(pszData);
 
-	size_t iSpace = sCommand.find(L' ');
+	size_t iSpace = sCommand.find(_T(' '));
 
 	tstring sName;
 	tstring sParameters;

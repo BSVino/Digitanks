@@ -4,6 +4,7 @@
 #include <EASTL/string.h>
 #include <EASTL/vector.h>
 
+#include <common.h>
 #include <vector.h>
 #include <color.h>
 #include <configfile.h>
@@ -129,6 +130,7 @@ inline CApplication* Application()
 }
 
 // Tinker messages and errors
+#undef TMsg
 #define TMsg CApplication::PrintConsole
 #define TError(x) CApplication::PrintConsole(tstring(_T("Error: ")) + x)
 

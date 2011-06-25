@@ -68,8 +68,6 @@ public:
 	virtual size_t				Bounces() { return 0; };
 
 protected:
-	bool						m_bFallSoundPlayed;
-
 	CNetworkedVector			m_vecLandingSpot;
 
 	CParticleSystemInstanceHandle m_hTrailParticles;
@@ -77,10 +75,11 @@ protected:
 	CNetworkedVariable<bool>	m_bFragmented;
 	size_t						m_iBounces;
 
+	bool						m_bMissileDefensesNotified;
+	bool						m_bFallSoundPlayed;
+
 	CNetworkedVariable<float>	m_flDamageBonusTime;
 	CNetworkedVariable<float>	m_flDamageBonusFreeze;
-
-	bool						m_bMissileDefensesNotified;
 };
 
 class CSmallShell : public CProjectile

@@ -104,7 +104,7 @@ void CConsole::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 
 	tstring sInput = m_pInput->GetText();
-	if (sInput.length() && sInput.find(L' ') == ~0)
+	if (sInput.length() && sInput.find(_T(' ')) == ~0)
 	{
 		eastl::vector<tstring> sCommands = CCommand::GetCommandsBeginningWith(sInput);
 
@@ -175,7 +175,7 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 	if (code == TINKER_KEY_TAB)
 	{
 		tstring sInput = m_pInput->GetText();
-		if (sInput.length() && sInput.find(L' ') == ~0)
+		if (sInput.length() && sInput.find(_T(' ')) == ~0)
 		{
 			eastl::vector<tstring> aCommands = CCommand::GetCommandsBeginningWith(sInput);
 			if (aCommands.size())

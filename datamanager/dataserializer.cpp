@@ -49,7 +49,7 @@ void CDataSerializer::Read(std::basic_istream<tchar>& sStream, CData* pData)
 		if (asTokens.size() == 1)
 			pLastData = pCurrentData->AddChild(trim(sLine));
 		else if (asTokens.size() >= 2)
-			pLastData = pCurrentData->AddChild(trim(asTokens[0]), trim(sLine.substr(sLine.find(L':')+1)));
+			pLastData = pCurrentData->AddChild(trim(asTokens[0]), trim(sLine.substr(sLine.find(_T(':'))+1)));
 	}
 }
 

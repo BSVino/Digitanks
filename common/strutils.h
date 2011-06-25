@@ -125,7 +125,7 @@ inline eastl::string readstring(std::istream& i)
 
 	eastl::string s;
 	eastl::string::value_type c[2];
-	c[1] = L'\0';
+	c[1] = _T('\0');
 	for (size_t j = 0; j < iStringSize; j++)
 	{
 		i.read((char*)&c[0], sizeof(eastl::string::value_type));
@@ -149,7 +149,7 @@ inline tstring readtstring(std::istream& i)
 
 	tstring s;
 	tstring::value_type c[2];
-	c[1] = L'\0';
+	c[1] = _T('\0');
 	for (size_t j = 0; j < iStringSize; j++)
 	{
 		i.read((char*)&c[0], sizeof(tstring::value_type));

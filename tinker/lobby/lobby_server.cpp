@@ -48,7 +48,7 @@ CLIENT_COMMAND(CONNECTION_LOBBY, UpdateLobbyInfo)
 	if (pPlayer->GetInfoValue(_T("host")) != _T("1"))
 		return;
 
-	tstring sValue = sParameters.substr(sParameters.find(L' ')+1);
+	tstring sValue = sParameters.substr(sParameters.find(_T(' '))+1);
 	CGameLobbyServer::UpdateLobby(CGameLobbyServer::GetPlayerLobby(iID), pCmd->Arg(0), sValue);
 }
 
@@ -73,7 +73,7 @@ CLIENT_COMMAND(CONNECTION_LOBBY, UpdatePlayerInfo)
 	if (pPlayer->GetInfoValue(_T("host")) != _T("1") && pPlayer->iClient != iClient)
 		return;
 
-	tstring sValue = sParameters.substr(sParameters.find(L' ', sParameters.find(L' ')+1)+1);
+	tstring sValue = sParameters.substr(sParameters.find(_T(' '), sParameters.find(_T(' '))+1)+1);
 	CGameLobbyServer::UpdatePlayer(pCmd->ArgAsUInt(0), pCmd->Arg(1), sValue);
 }
 
