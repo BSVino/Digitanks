@@ -533,8 +533,8 @@ SERVER_GAME_COMMAND(ClientSpawn)
 
 void CBaseEntity::IssueClientSpawn()
 {
-	m_bClientSpawn = true;
 	::ClientSpawn.RunCommand(sprintf(L"%d", GetHandle()));
+	m_bClientSpawn = true;
 }
 
 // ClientSpawn is always guaranteed to run after the client has received all initial data about a new entity.
