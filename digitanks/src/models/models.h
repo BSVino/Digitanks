@@ -8,14 +8,14 @@
 class CModel
 {
 public:
-							CModel(const eastl::string16& sFilename);
+							CModel(const tstring& sFilename);
 							~CModel();
 
 public:
 	size_t					LoadTextureIntoGL(size_t iMaterial);
 
 public:
-	eastl::string16			m_sFilename;
+	tstring			m_sFilename;
 	CConversionScene*		m_pScene;
 
 	bool					m_bStatic;
@@ -34,8 +34,8 @@ public:
 public:
 	static size_t			GetNumModels() { return Get()->m_apModels.size(); }
 
-	size_t					AddModel(const eastl::string16& sModel, bool bStatic = true);
-	size_t					FindModel(const eastl::string16& sModel);
+	size_t					AddModel(const tstring& sModel, bool bStatic = true);
+	size_t					FindModel(const tstring& sModel);
 	CModel*					GetModel(size_t i);
 
 public:

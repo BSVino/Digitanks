@@ -286,7 +286,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 		}
 		while (DigitanksGame()->GetTerrain()->IsPointOverHole(m_vecExplore));
 
-		DigitanksGame()->GetTerrain()->SetPointHeight(m_vecExplore);
+		m_vecExplore = DigitanksGame()->GetTerrain()->GetPointHeight(m_vecExplore);
 	}
 
 	if (!pTarget && !m_bLKV)
@@ -432,7 +432,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					// If we are within the max range, try to fire.
 					if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 					{
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -498,7 +498,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				// If we are within the max range, try to fire.
 				if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 					pTank->Fire();
 				}
 			}
@@ -543,7 +543,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 				}
 
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
 			else
@@ -585,7 +585,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 								pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 						}
 
-						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+						pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 						pTank->Fire();
 					}
 				}
@@ -652,7 +652,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 			// If we are within the max range, try to fire.
 			if (pTank->IsInsideMaxRange(vecTargetOrigin))
 			{
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
 		}
@@ -721,7 +721,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				// If we are within the max range, try to fire.
 				if (pTank->IsInsideMaxRange(pClosestEnemy->GetOrigin()))
 				{
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 					pTank->Fire();
 				}
 			}
@@ -736,7 +736,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 				else
 					pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
-				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(vecTargetOrigin));
+				pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(vecTargetOrigin));
 				pTank->Fire();
 			}
 			else
@@ -780,7 +780,7 @@ void CDigitanksTeam::Bot_ExecuteTurnCampaign()
 					else
 						pTank->SetCurrentWeapon(PROJECTILE_FLAK, false);
 
-					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->SetPointHeight(pClosestEnemy->GetOrigin()));
+					pTank->SetPreviewAim(DigitanksGame()->GetTerrain()->GetPointHeight(pClosestEnemy->GetOrigin()));
 					pTank->Fire();
 				}
 			}

@@ -90,8 +90,8 @@ public:
 	void						CountBandwidth();
 	float						GetBandwidth() { return m_flBandwidth; };
 
-	void						AppendTurnInfo(const eastl::string16& sTurnInfo);
-	eastl::string16				GetTurnInfo();
+	void						AppendTurnInfo(const tstring& sTurnInfo);
+	tstring				GetTurnInfo();
 
 	virtual void				OnDeleted(class CBaseEntity* pEntity);
 

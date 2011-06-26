@@ -98,8 +98,8 @@ CTerrain::~CTerrain()
 void CTerrain::Precache()
 {
 	BaseClass::Spawn();
-	s_iTreeTexture = CTextureLibrary::AddTextureID(L"textures/tree.png", 1);
-	s_iBeamTexture = CTextureLibrary::AddTextureID(L"textures/beam.png");
+	s_iTreeTexture = CTextureLibrary::AddTextureID(_T("textures/tree.png"), 1);
+	s_iBeamTexture = CTextureLibrary::AddTextureID(_T("textures/beam.png"));
 }
 
 void CTerrain::Spawn()
@@ -249,7 +249,7 @@ void CTerrain::Think()
 
 			if (IsPointOnMap(vecPoint) && !IsPointOverHole(vecPoint))
 			{
-				pRunner->avecPoints.push_front(SetPointHeight(vecPoint) + Vector(0, 1, 0));
+				pRunner->avecPoints.push_front(GetPointHeight(vecPoint) + Vector(0, 1, 0));
 
 				if (pRunner->avecPoints.size() > 20)
 					pRunner->avecPoints.pop_back();
@@ -267,7 +267,7 @@ void CTerrain::Think()
 
 void CTerrain::GenerateTerrain(float flHeight)
 {
-	TMsg(L"Generating terrain.\n");
+	TMsg(_T("Generating terrain.\n"));
 
 	if (terrain_debug.GetBool())
 		TMsg("CTerrain::GenerateTerrain()\n");
@@ -279,7 +279,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	Color* pclrTerrainData = NULL;
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(L"Reticulating splines", 0);
+		GameServer()->GetWorkListener()->SetAction(_T("Reticulating splines"), 0);
 
 	pLevel = DigitanksGame()->GetCurrentLevel();
 	if (pLevel)
@@ -330,7 +330,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	float flWaterHighest, flWaterLowest;
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(L"Triangulating terrain", TERRAIN_SIZE);
+		GameServer()->GetWorkListener()->SetAction(_T("Triangulating terrain"), TERRAIN_SIZE);
 
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
@@ -451,7 +451,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 		float flLavaHeight = RemapVal(LavaHeight(), 0.0f, 1.0f, m_flLowest, m_flHighest);
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(L"Randomizing polygons", TERRAIN_SIZE);
+			GameServer()->GetWorkListener()->SetAction(_T("Randomizing polygons"), TERRAIN_SIZE);
 
 		for (size_t x = 0; x < TERRAIN_SIZE; x++)
 		{
@@ -499,7 +499,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(L"Calculating visibility", TERRAIN_CHUNKS);
+			GameServer()->GetWorkListener()->SetAction(_T("Calculating visibility"), TERRAIN_CHUNKS);
 
 		for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 		{
@@ -532,10 +532,10 @@ void CTerrain::GenerateCollision()
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
-		TMsg(L"Generating terrain navigation mesh.\n");
+		TMsg(_T("Generating terrain navigation mesh.\n"));
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(L"Prenavigating terrain", 0);
+			GameServer()->GetWorkListener()->SetAction(_T("Prenavigating terrain"), 0);
 
 		if (m_pQuadTreeHead)
 			delete m_pQuadTreeHead;
@@ -543,10 +543,10 @@ void CTerrain::GenerateCollision()
 		m_pQuadTreeHead = new CQuadBranch(this, NULL, CQuadVector(0, 0), CQuadVector(TERRAIN_SIZE, TERRAIN_SIZE));
 		m_pQuadTreeHead->BuildBranch();
 
-		TMsg(L"Generating terrain collision mesh... ");
+		TMsg(_T("Generating terrain collision mesh... "));
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(L"Precolliding terrain", TERRAIN_CHUNKS);
+			GameServer()->GetWorkListener()->SetAction(_T("Precolliding terrain"), TERRAIN_CHUNKS);
 
 		for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 		{
@@ -594,7 +594,7 @@ void CTerrain::GenerateCollision()
 				GameServer()->GetWorkListener()->WorkProgress(x);
 		}
 
-		TMsg(L"Done.\n");
+		TMsg(_T("Done.\n"));
 	}
 
 	GenerateCallLists();
@@ -608,7 +608,7 @@ void CTerrain::GenerateTerrainCallLists()
 	// Break it up into sectors of smaller size so that when it comes time to regenerate,
 	// it can be done only for the sector that needs it and it won't take too long
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(L"Prerendering terrain", TERRAIN_CHUNKS);
+		GameServer()->GetWorkListener()->SetAction(_T("Prerendering terrain"), TERRAIN_CHUNKS);
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -629,7 +629,7 @@ void CTerrain::GenerateTerrainCallList(int i, int j)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::GenerateTerrainCallList(%d, %d)\n", i, j));
+		TMsg(sprintf(tstring("CTerrain::GenerateTerrainCallList(%d, %d)\n"), i, j));
 
 	// What a hack!
 	GLuint iSlowMovement;
@@ -945,7 +945,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 		return;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::GenerateTerrainTexture(%d, %d)\n", i, j));
+		TMsg(sprintf(tstring("CTerrain::GenerateTerrainTexture(%d, %d)\n"), i, j));
 
 	for (int a = 0; a < TERRAIN_CHUNK_TEXTURE_SIZE; a++)
 	{
@@ -1013,7 +1013,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 			if (flDataFlowRadius == 0)
 				continue;
 
-			Vector vecSupplierOrigin = SetPointHeight(pSupplier->GetOrigin());
+			Vector vecSupplierOrigin = GetPointHeight(pSupplier->GetOrigin());
 
 			int iAMin = (int)RemapVal(vecSupplierOrigin.x - flDataFlowRadius, flXMin, flXMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
 			int iAMax = (int)RemapVal(vecSupplierOrigin.x + flDataFlowRadius, flXMin, flXMax, 0, TERRAIN_CHUNK_TEXTURE_SIZE);
@@ -1054,7 +1054,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 
 					float flX = RemapVal((float)a, 0, TERRAIN_CHUNK_TEXTURE_SIZE, flXMin, flXMax);
 					float flY = RemapVal((float)b, 0, TERRAIN_CHUNK_TEXTURE_SIZE, flYMin, flYMax);
-					Vector vecPoint = SetPointHeight(Vector(flX, 0, flY));
+					Vector vecPoint = GetPointHeight(Vector(flX, 0, flY));
 
 					float flDistanceSqr = vecSupplierOrigin.DistanceSqr(vecPoint);
 					if (flDistanceSqr > flDataFlowRadius*flDataFlowRadius)
@@ -1081,10 +1081,10 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 
 void CTerrain::GenerateCallLists()
 {
-	TMsg(L"Generating terrain call lists... ");
+	TMsg(_T("Generating terrain call lists... "));
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::GenerateCallLists()\n"));
+		TMsg(sprintf(tstring("CTerrain::GenerateCallLists()\n")));
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1108,12 +1108,12 @@ void CTerrain::GenerateCallLists()
 
 	GenerateTerrainCallLists();
 
-	TMsg(L"Done.\n");
+	TMsg(_T("Done.\n"));
 }
 
 void CTerrain::DirtyChunkTexturesWithinDistance(Vector vecPoint, float flDistance)
 {
-	vecPoint = SetPointHeight(vecPoint);
+	vecPoint = GetPointHeight(vecPoint);
 
 	float flChunkWidth = ArrayToWorldSpace(TERRAIN_CHUNK_SIZE) - ArrayToWorldSpace(0);
 	float flChunkRadius = Vector(flChunkWidth/2, 0, flChunkWidth/2).Length();
@@ -1207,7 +1207,7 @@ void CTerrain::ClearArea(Vector vecCenter, float flRadius)
 void CTerrain::CalculateVisibility()
 {
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::CalculateVisibility()\n"));
+		TMsg(sprintf(tstring("CTerrain::CalculateVisibility()\n")));
 
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
@@ -1266,28 +1266,28 @@ void CTerrain::CalculateVisibility()
 
 			float flVisibility;
 
-			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX0, 0, flY0)));
+			flVisibility = pTeam->GetVisibilityAtPoint(GetPointHeight(Vector(flX0, 0, flY0)));
 			if (fabs(pChunk->m_aflTerrainVisibility[0][0] - flVisibility) > 0.1f)
 			{
 				pChunk->m_aflTerrainVisibility[0][0] = flVisibility;
 				pChunk->m_bNeedsRegenerate = true;
 			}
 
-			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX1, 0, flY0)));
+			flVisibility = pTeam->GetVisibilityAtPoint(GetPointHeight(Vector(flX1, 0, flY0)));
 			if (fabs(pChunk->m_aflTerrainVisibility[1][0] - flVisibility) > 0.1f)
 			{
 				pChunk->m_aflTerrainVisibility[1][0] = flVisibility;
 				pChunk->m_bNeedsRegenerate = true;
 			}
 
-			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX0, 0, flY1)));
+			flVisibility = pTeam->GetVisibilityAtPoint(GetPointHeight(Vector(flX0, 0, flY1)));
 			if (fabs(pChunk->m_aflTerrainVisibility[0][1] - flVisibility) > 0.1f)
 			{
 				pChunk->m_aflTerrainVisibility[0][1] = flVisibility;
 				pChunk->m_bNeedsRegenerate = true;
 			}
 
-			flVisibility = pTeam->GetVisibilityAtPoint(SetPointHeight(Vector(flX1, 0, flY1)));
+			flVisibility = pTeam->GetVisibilityAtPoint(GetPointHeight(Vector(flX1, 0, flY1)));
 			if (fabs(pChunk->m_aflTerrainVisibility[1][1] - flVisibility) > 0.1f)
 			{
 				pChunk->m_aflTerrainVisibility[1][1] = flVisibility;
@@ -1700,7 +1700,7 @@ float CTerrain::GetHeight(float flX, float flY)
 	return RemapVal(flXLerp, 0, 1, l1, l2);
 }
 
-Vector CTerrain::SetPointHeight(Vector& vecPoint)
+Vector CTerrain::GetPointHeight(Vector vecPoint)
 {
 	vecPoint.y = GetHeight(vecPoint.x, vecPoint.z);
 	return vecPoint;
@@ -2102,7 +2102,7 @@ void CTerrain::AddRunner(Vector vecPosition, Vector vecPrimaryDirection, Color c
 	pRunner->flNextTurn = RandomFloat(5, 50);
 	pRunner->flNextPoint = GameServer()->GetGameTime() + 0.2f;
 	pRunner->avecPoints.clear();
-	pRunner->avecPoints.push_front(SetPointHeight(vecPosition));
+	pRunner->avecPoints.push_front(GetPointHeight(vecPosition));
 	pRunner->bActive = true;
 	pRunner->flAlpha = 1;
 	pRunner->flFadeRate = flFade;
@@ -2385,7 +2385,7 @@ float CTerrain::WeightedLeafDistance(CQuadBranch* pStart, CQuadBranch* pEnd, boo
 		if (i == iSections)
 			vecLocation = vecEnd;
 		else
-			vecLocation = SetPointHeight(vecStart + vecStep*((float)i+1));
+			vecLocation = GetPointHeight(vecStart + vecStep*((float)i+1));
 
 		flSectionDistance = vecLocation.Distance(vecLastLocation);
 		flWeightedDistance += flSectionDistance;
@@ -2502,7 +2502,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 	size_t j = p->ui2;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::TerrainData(%d, %d)\n", i, j));
+		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d)\n"), i, j));
 
 	size_t iPosition = 0;
 	float* flHeightData = (float*)p->m_pExtraData;
@@ -2556,7 +2556,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 		delete pChunk->m_pTracer;
 
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::TerrainData(%d, %d) regenerating collision\n", i, j));
+		TMsg(sprintf(tstring("CTerrain::TerrainData(%d, %d) regenerating collision\n"), i, j));
 
 	pChunk->m_pTracer = new raytrace::CRaytracer(NULL, 7);
 
@@ -2598,7 +2598,7 @@ void CTerrain::TerrainData(class CNetworkParameters* p)
 void CTerrain::ResyncClientTerrainData(int iClient)
 {
 	if (terrain_debug.GetBool())
-		TMsg(sprintf(L"CTerrain::ResyncClientTerrainData(%d)\n", iClient));
+		TMsg(sprintf(tstring("CTerrain::ResyncClientTerrainData(%d)\n"), iClient));
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -2665,7 +2665,7 @@ bool CTerrain::OnUnserialize(std::istream& i)
 void CTerrain::ClientEnterGame()
 {
 	if (terrain_debug.GetBool())
-		TMsg(L"CTerrain::ClientEnterGame()\n");
+		TMsg(_T("CTerrain::ClientEnterGame()\n"));
 
 	BaseClass::ClientEnterGame();
 
@@ -2987,7 +2987,7 @@ Vector CQuadBranch::GetCenter()
 		Vector vecMin = Vector(m_pTerrain->ArrayToWorldSpace(m_vecMin.x), 0, m_pTerrain->ArrayToWorldSpace(m_vecMin.y));
 		Vector vecMax = Vector(m_pTerrain->ArrayToWorldSpace(m_vecMax.x), 0, m_pTerrain->ArrayToWorldSpace(m_vecMax.y));
 
-		m_vecCenter = m_pTerrain->SetPointHeight((vecMin + vecMax)/2);
+		m_vecCenter = m_pTerrain->GetPointHeight((vecMin + vecMax)/2);
 
 		m_bCenterCalculated = true;
 	}

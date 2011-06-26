@@ -35,13 +35,13 @@ public:
 	static void							S_AddBot();
 	static void							S_RemovePlayer(size_t iID);
 
-	static void							S_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue);
-	static void							R_UpdateLobby(const eastl::string16& sKey, const eastl::string16& sValue);
-	static eastl::string16				L_GetInfoValue(const eastl::string16& sKey);
+	static void							S_UpdateLobby(const tstring& sKey, const tstring& sValue);
+	static void							R_UpdateLobby(const tstring& sKey, const tstring& sValue);
+	static tstring				L_GetInfoValue(const tstring& sKey);
 
-	static void							S_UpdatePlayer(const eastl::string16& sKey, const eastl::string16& sValue);
-	static void							S_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
-	static void							R_UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
+	static void							S_UpdatePlayer(const tstring& sKey, const tstring& sValue);
+	static void							S_UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue);
+	static void							R_UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue);
 
 	static void							R_Clear();
 
@@ -62,7 +62,7 @@ public:
 protected:
 	static bool							s_bInLobby;
 	static eastl::vector<CLobbyPlayer>	s_aClients;
-	static eastl::map<eastl::string16, eastl::string16> s_asInfo;
+	static eastl::map<tstring, tstring> s_asInfo;
 
 	static INetworkListener::Callback	s_pfnLobbyUpdateCallback;
 	static INetworkListener::Callback	s_pfnLobbyJoinCallback;

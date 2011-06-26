@@ -36,24 +36,24 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 {
 	BaseClass::OnReadData(pData);
 
-	if (pData->GetKey() == "GameType")
+	if (pData->GetKey() == _T("GameType"))
 	{
-		eastl::string sValue = pData->GetValueString();
-		if (sValue == "artillery")
+		tstring sValue = pData->GetValueTString();
+		if (sValue == _T("artillery"))
 			m_eGameType = GAMETYPE_ARTILLERY;
-		else if (sValue == "strategy")
+		else if (sValue == _T("strategy"))
 			m_eGameType = GAMETYPE_STANDARD;
-		else if (sValue == "campaign")
+		else if (sValue == _T("campaign"))
 			m_eGameType = GAMETYPE_CAMPAIGN;
 	}
-	else if (pData->GetKey() == "Objective")
+	else if (pData->GetKey() == _T("Objective"))
 	{
-		m_sObjective = pData->GetValueString();
+		m_sObjective = pData->GetValueTString();
 	}
-	else if (pData->GetKey() == "TerrainHeight")
+	else if (pData->GetKey() == _T("TerrainHeight"))
 	{
-		m_sTerrainHeight = pData->GetValueString();
-		m_iTerrainHeight = CRenderer::LoadTextureData(convertstring<char, char16_t>(m_sTerrainHeight));
+		m_sTerrainHeight = pData->GetValueTString();
+		m_iTerrainHeight = CRenderer::LoadTextureData(m_sTerrainHeight);
 
 		if (CRenderer::GetTextureHeight(m_iTerrainHeight) != 256)
 		{
@@ -67,10 +67,10 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 			m_iTerrainHeight = 0;
 		}
 	}
-	else if (pData->GetKey() == "TerrainData")
+	else if (pData->GetKey() == _T("TerrainData"))
 	{
-		m_sTerrainData = pData->GetValueString();
-		m_iTerrainData = CRenderer::LoadTextureData(convertstring<char, char16_t>(m_sTerrainData));
+		m_sTerrainData = pData->GetValueTString();
+		m_iTerrainData = CRenderer::LoadTextureData(m_sTerrainData);
 
 		if (CRenderer::GetTextureHeight(m_iTerrainData) != 256)
 		{
@@ -84,19 +84,19 @@ void CDigitanksLevel::OnReadData(const CData* pData)
 			m_iTerrainData = 0;
 		}
 	}
-	else if (pData->GetKey() == "MaxHeight")
+	else if (pData->GetKey() == _T("MaxHeight"))
 		m_flMaxHeight = pData->GetValueFloat();
-	else if (pData->GetKey() == "Prop")
+	else if (pData->GetKey() == _T("Prop"))
 		ReadProp(pData);
-	else if (pData->GetKey() == "Entity")
+	else if (pData->GetKey() == _T("Entity"))
 		ReadUnit(pData);
-	else if (pData->GetKey() == "Author")
-		m_sAuthor = pData->GetValueString();
-	else if (pData->GetKey() == "Description")
-		m_sDescription = pData->GetValueString();
-	else if (pData->GetKey() == "GameRules")
+	else if (pData->GetKey() == _T("Author"))
+		m_sAuthor = pData->GetValueTString();
+	else if (pData->GetKey() == _T("Description"))
+		m_sDescription = pData->GetValueTString();
+	else if (pData->GetKey() == _T("GameRules"))
 		ReadGameRules(pData);
-	else if (pData->GetKey() == "Lesson")
+	else if (pData->GetKey() == _T("Lesson"))
 		DigitanksWindow()->GetInstructor()->ReadLesson(pData);
 }
 
@@ -109,11 +109,11 @@ void CDigitanksLevel::ReadProp(const CData* pData)
 	{
 		CData* pChildData = pData->GetChild(i);
 
-		if (pChildData->GetKey() == "Model")
-			pProp->m_sModel = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Position")
+		if (pChildData->GetKey() == _T("Model"))
+			pProp->m_sModel = pChildData->GetValueTString();
+		else if (pChildData->GetKey() == _T("Position"))
 			pProp->m_vecPosition = pChildData->GetValueVector2D();
-		else if (pChildData->GetKey() == "Angle")
+		else if (pChildData->GetKey() == _T("Angle"))
 			pProp->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
 	}
 }
@@ -126,30 +126,30 @@ void CDigitanksLevel::ReadUnit(const CData* pData)
 	{
 		CData* pChildData = pData->GetChild(i);
 
-		if (pChildData->GetKey() == "Name")
+		if (pChildData->GetKey() == _T("Name"))
 			pUnit->m_sName = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Class")
+		else if (pChildData->GetKey() == _T("Class"))
 			pUnit->m_sClassName = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Team")
+		else if (pChildData->GetKey() == _T("Team"))
 			pUnit->m_sTeamName = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Position")
+		else if (pChildData->GetKey() == _T("Position"))
 			pUnit->m_vecPosition = pChildData->GetValueVector2D();
-		else if (pChildData->GetKey() == "Angle")
+		else if (pChildData->GetKey() == _T("Angle"))
 			pUnit->m_angOrientation = EAngle(0, pChildData->GetValueFloat(), 0);
-		else if (pChildData->GetKey() == "Fortified")
+		else if (pChildData->GetKey() == _T("Fortified"))
 			pUnit->m_bFortified = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "Imprisoned")
+		else if (pChildData->GetKey() == _T("Imprisoned"))
 			pUnit->m_bImprisoned = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "Active")
+		else if (pChildData->GetKey() == _T("Active"))
 			pUnit->m_bActive = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "Objective")
+		else if (pChildData->GetKey() == _T("Objective"))
 			pUnit->m_bObjective = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "Output")
+		else if (pChildData->GetKey() == _T("Output"))
 			ReadUnitOutput(pChildData, pUnit);
-		else if (pChildData->GetKey() == "Type")
+		else if (pChildData->GetKey() == _T("Type"))
 			pUnit->m_sType = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "File")
-			pUnit->m_sFile = pChildData->GetValueString();
+		else if (pChildData->GetKey() == _T("File"))
+			pUnit->m_sFile = pChildData->GetValueTString();
 	}
 }
 
@@ -162,13 +162,13 @@ void CDigitanksLevel::ReadUnitOutput(const CData* pData, CLevelUnit* pUnit)
 	{
 		CData* pChildData = pData->GetChild(i);
 
-		if (pChildData->GetKey() == "Target")
+		if (pChildData->GetKey() == _T("Target"))
 			pOutput->m_sTarget = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Input")
+		else if (pChildData->GetKey() == _T("Input"))
 			pOutput->m_sInput = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Args")
+		else if (pChildData->GetKey() == _T("Args"))
 			pOutput->m_sArgs = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "Kill")
+		else if (pChildData->GetKey() == _T("Kill"))
 			pOutput->m_bKill = pChildData->GetValueBool();
 	}
 }
@@ -179,25 +179,25 @@ void CDigitanksLevel::ReadGameRules(const CData* pData)
 	{
 		CData* pChildData = pData->GetChild(i);
 
-		if (pChildData->GetKey() == "MacroBuffers")
+		if (pChildData->GetKey() == _T("MacroBuffers"))
 			m_bBuffers = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "PSUs")
+		else if (pChildData->GetKey() == _T("PSUs"))
 			m_bPSUs = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "TankFactories")
+		else if (pChildData->GetKey() == _T("TankFactories"))
 			m_bTankLoaders = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "ArtilleryFactories")
+		else if (pChildData->GetKey() == _T("ArtilleryFactories"))
 			m_bArtilleryLoaders = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "ResistorLasers")
+		else if (pChildData->GetKey() == _T("ResistorLasers"))
 			m_bInfantryLasers = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "ResistorTreeCutters")
+		else if (pChildData->GetKey() == _T("ResistorTreeCutters"))
 			m_bInfantryTreeCutters = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "ResistorFortify")
+		else if (pChildData->GetKey() == _T("ResistorFortify"))
 			m_bInfantryFortify = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "EnemyResistorLasers")
+		else if (pChildData->GetKey() == _T("EnemyResistorLasers"))
 			m_bEnemyInfantryLasers = pChildData->GetValueBool();
-		else if (pChildData->GetKey() == "StartingLesson")
+		else if (pChildData->GetKey() == _T("StartingLesson"))
 			m_sStartingLesson = pChildData->GetValueString();
-		else if (pChildData->GetKey() == "CPUBonusFleetPoints")
+		else if (pChildData->GetKey() == _T("CPUBonusFleetPoints"))
 			m_iBonusCPUFleetPoints = pChildData->GetValueInt();
 	}
 }

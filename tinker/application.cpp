@@ -26,8 +26,6 @@ CApplication::CApplication(int argc, char** argv)
 {
 	TPortal_Startup();
 
-	ilInit();
-
 	s_pApplication = this;
 
 	srand((unsigned int)time(NULL));
@@ -63,7 +61,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	if (m_bMultisampling)
 		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
 
-	TMsg(sprintf(L"Opening %dx%d %s %s window.\n", iWidth, iHeight, bFullscreen?L"fullscreen":L"windowed", bResizeable?L"resizeable":L"fixed-size"));
+	TMsg(sprintf(tstring("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?_T("fullscreen"):_T("windowed"), bResizeable?_T("resizeable"):_T("fixed-size")));
 
 	if (!glfwOpenWindow(iWidth, iHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
 	{
@@ -129,12 +127,12 @@ void CApplication::DumpGLInfo()
 {
 	glewInit();
 
-	std::ifstream i(GetAppDataDirectory(AppDirectory(), L"glinfo.txt").c_str());
+	std::ifstream i(convertstring<tchar, char>(GetAppDataDirectory(AppDirectory(), _T("glinfo.txt"))).c_str());
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o(GetAppDataDirectory(AppDirectory(), L"glinfo.txt").c_str());
+	std::ofstream o(convertstring<tchar, char>(GetAppDataDirectory(AppDirectory(), _T("glinfo.txt"))).c_str());
 	if (!o || !o.is_open())
 		return;
 
@@ -155,7 +153,7 @@ void CApplication::DumpGLInfo()
 
 	typedef struct
 	{
-		char* pszName;
+		const char* pszName;
 		int iParameter;
 	} GLParameter;
 
@@ -278,7 +276,7 @@ bool CApplication::IsOpen()
 	return !!glfwGetWindowParam( GLFW_OPENED ) && m_bIsOpen;
 }
 
-void Quit(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void Quit(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	CApplication::Get()->Close();
 }
@@ -690,7 +688,7 @@ void CreateApplicationWithErrorHandling(CreateApplicationCallback pfnCallback, i
 
 #if defined(_WIN32) && !defined(_DEBUG)
 	}
-	__except (CreateMinidump(GetExceptionInformation(), L"Digitanks"), EXCEPTION_EXECUTE_HANDLER)
+	__except (CreateMinidump(GetExceptionInformation(), _T("Digitanks")), EXCEPTION_EXECUTE_HANDLER)
 	{
 	}
 #endif

@@ -1,5 +1,7 @@
 #include <EASTL/string.h>
 
+#include <strutils.h>
+
 // EASTL expects us to define these, see allocator.h line 194
 void* operator new[](size_t size, const char* pName, int flags,
     unsigned debugFlags, const char* file, int line)
@@ -30,6 +32,10 @@ int Vsnprintf16(char16_t* pDestination, size_t n, const char16_t* pFormat, va_li
     #ifdef _MSC_VER
         return _vsnwprintf(pDestination, n, pFormat, arguments);
     #else
-        return vsnwprintf(pDestination, n, pFormat, arguments);
+		char* d = new char[n+1];
+		int r = vsnprintf(d, n, convertstring<char16_t, char>(pFormat).c_str(), arguments);
+		memcpy(pDestination, convertstring<char, char16_t>(d).c_str(), (n+1)*sizeof(char16_t));
+		delete[] d;
+		return r;
     #endif
 }

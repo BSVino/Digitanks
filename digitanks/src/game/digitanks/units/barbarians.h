@@ -16,7 +16,7 @@ public:
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
 
-	virtual eastl::string16		GetEntityName() const { return L"Bug Turret"; };
+	virtual tstring				GetEntityName() const { return _T("Bug Turret"); };
 
 	virtual bool				CanFortify() { return true; };
 
@@ -44,7 +44,7 @@ public:
 
 	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 
-	virtual eastl::string16		GetEntityName() const { return L"Grid Bug"; };
+	virtual tstring				GetEntityName() const { return _T("Grid Bug"); };
 
 	virtual float				BaseVisibleRange() const { return 60.0f; };
 	virtual float				TotalHealth() const { return 40; };

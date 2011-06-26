@@ -23,7 +23,7 @@ void CTurretMissile::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_hTrailParticles.SetSystem(L"shell-trail", GetOrigin());
+	m_hTrailParticles.SetSystem(_T("shell-trail"), GetOrigin());
 	m_hTrailParticles.FollowEntity(this);
 	m_hTrailParticles.SetActive(true);
 }
@@ -35,7 +35,7 @@ void CTurretMissile::SetTarget(CBaseEntity* pTarget)
 
 Vector CTurretMissile::GetOrigin() const
 {
-	if (m_hOwner == NULL)
+	if (!m_hOwner)
 		return BaseClass::GetOrigin();
 
 	float flTimeSinceFire = GameServer()->GetGameTime() - GetSpawnTime();
@@ -45,7 +45,7 @@ Vector CTurretMissile::GetOrigin() const
 	// Standard constant acceleration formula.
 	Vector vecMissilePosition = m_hOwner->GetOrigin() + 0.5f*vecMissileAcceleration*flTimeSinceFire*flTimeSinceFire;
 
-	if (m_hTarget == NULL)
+	if (!m_hTarget)
 		return vecMissilePosition;
 
 	float flTimeUntilIntercept = (GetSpawnTime() + InterceptTime()) - GameServer()->GetGameTime();
@@ -64,7 +64,7 @@ void CTurretMissile::Think()
 {
 	BaseClass::Think();
 
-	if (m_hTarget == NULL)
+	if (!m_hTarget)
 	{
 		Delete();
 		return;
@@ -75,7 +75,7 @@ void CTurretMissile::Think()
 	{
 		m_hTarget->TakeDamage(GetOwner(), this, DAMAGE_EXPLOSION, m_flDamage, true);
 		DigitanksGame()->Explode(GetOwner(), this, ExplosionRadius(), m_flDamage, m_hTarget, GetOwner()?GetOwner()->GetTeam():NULL);
-		CParticleSystemLibrary::AddInstance(L"bolt-explosion", GetOrigin());
+		CParticleSystemLibrary::AddInstance(_T("bolt-explosion"), GetOrigin());
 		Delete();
 	}
 }

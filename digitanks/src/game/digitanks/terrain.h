@@ -122,7 +122,7 @@ public:
 	float					GetRealHeight(int x, int y);
 	void					SetRealHeight(int x, int y, float h);
 	float					GetHeight(float x, float y);
-	Vector					SetPointHeight(Vector& vecPoint);
+	Vector					GetPointHeight(Vector vecPoint);
 	static float			GetMapSize();
 	float					ArrayToWorldSpace(int i);
 	static int				WorldToArraySpace(float f);

@@ -11,8 +11,8 @@ using namespace glgui;
 CWeaponPanel::CWeaponPanel()
 	: CPanel(0, 0, 260, 300)
 {
-	m_pInfo = new CLabel(0, 0, 100, 300, L"");
-	m_pInfo->SetFont(L"text");
+	m_pInfo = new CLabel(0, 0, 100, 300, _T(""));
+	m_pInfo->SetFont(_T("text"));
 	AddControl(m_pInfo);
 }
 
@@ -87,7 +87,7 @@ void CWeaponPanel::Layout()
 			CWeaponButton* pWeapon = m_apWeapons[m_apWeapons.size()-1];
 			pWeapon->SetSize(iButtonSize-2, iButtonSize-1);
 			pWeapon->SetPos(i*iButtonSize + iPaddingSize*i, j*iButtonSize + iPaddingSize*j);
-			pWeapon->SetFont(L"text", 10);
+			pWeapon->SetFont(_T("text"), 10);
 			pWeapon->SetWeapon(eWeapon);
 			AddControl(pWeapon);
 
@@ -143,9 +143,9 @@ void CWeaponPanel::Paint(int x, int y, int w, int h)
 		glgui::CBaseControl::PaintTexture(DigitanksWindow()->GetHUD()->GetShieldTexture(), iWindowWidth/4 - iShieldSize/2, iWindowHeight/2 - iShieldSize/2, iShieldSize, iShieldSize, Color(255, 255, 255, iShield));
 
 		c.SetColor(Color(255, 255, 255, 255));
-		eastl::string16 sShields = sprintf(L"Shield Power: %d%%", 100-((int)CProjectile::GetWeaponEnergy(m_eWeapon)*10));
-		float flTextWidth = glgui::CLabel::GetTextWidth(sShields, sShields.length(), L"text", 12);
-		glgui::CLabel::PaintText(sShields, sShields.length(), L"text", 12, iWindowWidth/4 - flTextWidth/2, (float)(iWindowHeight/2 - iShieldSize/2));
+		tstring sShields = sprintf(tstring("Shield Power: %d%%"), 100-((int)CProjectile::GetWeaponEnergy(m_eWeapon)*10));
+		float flTextWidth = glgui::CLabel::GetTextWidth(sShields, sShields.length(), _T("text"), 12);
+		glgui::CLabel::PaintText(sShields, sShields.length(), _T("text"), 12, iWindowWidth/4 - flTextWidth/2, (float)(iWindowHeight/2 - iShieldSize/2));
 	}
 
 	if (m_pInfo->GetText().length() > 1)
@@ -168,16 +168,16 @@ void CWeaponPanel::UpdateInfo(weapon_t eWeapon)
 		return;
 	}
 
-	eastl::string16 s;
-	eastl::string16 p;
+	tstring s;
+	tstring p;
 
-	eastl::string16 sName = CProjectile::GetWeaponName(eWeapon);
+	tstring sName = CProjectile::GetWeaponName(eWeapon);
 	sName.make_upper();
 
-	s += sName + L"\n \n";
-	s += eastl::string16(CProjectile::GetWeaponDescription(eWeapon)) + L"\n \n";
-	s += p.sprintf(L"Energy Required: %d%%\n", ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
-	s += p.sprintf(L"Damage: %.1f\n", CProjectile::GetWeaponDamage(eWeapon));
+	s += sName + _T("\n \n");
+	s += tstring(CProjectile::GetWeaponDescription(eWeapon)) + _T("\n \n");
+	s += sprintf(tstring("Energy Required: %d%%\n"), ((int)CProjectile::GetWeaponEnergy(eWeapon)*10));
+	s += sprintf(tstring("Damage: %.1f\n"), CProjectile::GetWeaponDamage(eWeapon));
 
 	m_pInfo->SetText(s);
 
@@ -198,7 +198,7 @@ void CWeaponPanel::SetTextureForWeapon(CWeaponButton* pWeapon, weapon_t eWeapon)
 }
 
 CWeaponButton::CWeaponButton(CWeaponPanel* pPanel)
-	: CPictureButton(L"")
+	: CPictureButton(_T(""))
 {
 	m_pWeaponPanel = pPanel;
 	m_eWeapon = WEAPON_NONE;

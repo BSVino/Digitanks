@@ -43,27 +43,27 @@ eastl::string CCampaignData::GetLevel(size_t i)
 	return m_pCampaignInfo->m_asLevels[i];
 }
 
-void CCampaignData::ReadData(const eastl::string16& sFile)
+void CCampaignData::ReadData(const tstring& sFile)
 {
-	std::ifstream f(sFile.c_str());
+	std::basic_ifstream<tchar> f(convertstring<tchar, char>(sFile).c_str());
 	CData* pData = new CData();
 	CDataSerializer::Read(f, pData);
 
-	CData* pCampaign = pData->FindChild("Campaign");
-	m_iHighestLevelReached = pCampaign->FindChild("HighestLevel")->GetValueInt();
-	m_iCurrentLevel = pCampaign->FindChild("CurrentLevel")->GetValueInt();
+	CData* pCampaign = pData->FindChild(_T("Campaign"));
+	m_iHighestLevelReached = pCampaign->FindChild(_T("HighestLevel"))->GetValueInt();
+	m_iCurrentLevel = pCampaign->FindChild(_T("CurrentLevel"))->GetValueInt();
 
 	delete pData;
 }
 
-void CCampaignData::SaveData(const eastl::string16& sFile)
+void CCampaignData::SaveData(const tstring& sFile)
 {
-	std::ofstream f(sFile.c_str());
+	std::basic_ofstream<tchar> f(convertstring<tchar, char>(sFile).c_str());
 	CData* pData = new CData();
 
-	CData* pCampaign = pData->AddChild("Campaign");
-	pCampaign->AddChild("HighestLevel")->SetValue(m_iHighestLevelReached);
-	pCampaign->AddChild("CurrentLevel")->SetValue(m_iCurrentLevel);
+	CData* pCampaign = pData->AddChild(_T("Campaign"));
+	pCampaign->AddChild(_T("HighestLevel"))->SetValue(m_iHighestLevelReached);
+	pCampaign->AddChild(_T("CurrentLevel"))->SetValue(m_iCurrentLevel);
 
 	CDataSerializer::Save(f, pData);
 

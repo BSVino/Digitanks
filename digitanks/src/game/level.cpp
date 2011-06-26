@@ -14,6 +14,6 @@ void CLevel::ReadFromData(const CData* pData)
 
 void CLevel::OnReadData(const CData* pData)
 {
-	if (pData->GetKey() == "Name")
-		m_sName = pData->GetValueString();
+	if (pData->GetKey() == _T("Name"))
+		m_sName = pData->GetValueTString();
 }

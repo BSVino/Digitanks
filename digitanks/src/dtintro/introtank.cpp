@@ -34,8 +34,8 @@ CIntroTank::CIntroTank()
 
 void CIntroTank::Precache()
 {
-	PrecacheParticleSystem(L"tank-fire");
-	PrecacheSound(L"sound/tank-fire.wav");
+	PrecacheParticleSystem(_T("tank-fire"));
+	PrecacheSound(_T("sound/tank-fire.wav"));
 }
 
 void CIntroTank::Think()
@@ -124,11 +124,11 @@ void CIntroTank::FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget)
 	pBomb->SetExplodeTime(GameServer()->GetGameTime() + flTime);
 	pBomb->SetTarget(pTarget);
 
-	CParticleSystemLibrary::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
+	CParticleSystemLibrary::AddInstance(_T("tank-fire"), GetOrigin() + vecMuzzle);
 
 	RockTheBoat(0.6f, -vecForce.Normalized());
 
-	EmitSound(L"sound/tank-fire.wav");
+	EmitSound(_T("sound/tank-fire.wav"));
 }
 
 void CIntroTank::RockTheBoat(float flIntensity, Vector vecDirection)

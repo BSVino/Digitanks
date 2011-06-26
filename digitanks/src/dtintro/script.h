@@ -45,7 +45,7 @@ public:
 	EAngle								m_angAngles;
 	size_t								m_iParticleInstance;
 	eastl::string						m_sOutput;
-	eastl::string16						m_sArgs;
+	tstring						m_sArgs;
 };
 
 class CScript

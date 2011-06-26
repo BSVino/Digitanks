@@ -18,15 +18,15 @@ INPUTS_TABLE_END();
 
 void CScreen::Precache()
 {
-	PrecacheModel(L"models/intro/screen.obj");
-	PrecacheParticleSystem(L"intro-explosion-fragments");
-	PrecacheSound(L"sound/tank-damage.wav");
-	PrecacheSound(L"sound/helper-speech.wav");	// For the UI
+	PrecacheModel(_T("models/intro/screen.obj"));
+	PrecacheParticleSystem(_T("intro-explosion-fragments"));
+	PrecacheSound(_T("sound/tank-damage.wav"));
+	PrecacheSound(_T("sound/helper-speech.wav"));	// For the UI
 }
 
 void CScreen::Spawn()
 {
-	SetModel(L"models/intro/screen.obj");
+	SetModel(_T("models/intro/screen.obj"));
 }
 
 void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
@@ -43,15 +43,15 @@ void CScreen::OnRender(class CRenderingContext* pContext, bool bTransparent) con
 
 void CScreen::SetScreenshot(size_t iScreenshot)
 {
-	size_t iModel = CModelLibrary::Get()->FindModel(L"models/intro/screen.obj");
+	size_t iModel = CModelLibrary::Get()->FindModel(_T("models/intro/screen.obj"));
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
 	pModel->m_aiTextures[0] = iScreenshot;
 	pModel->m_iCallListTexture = iScreenshot;
 
-	iModel = CModelLibrary::Get()->FindModel(L"models/intro/screen-fragment.obj");
+	iModel = CModelLibrary::Get()->FindModel(_T("models/intro/screen-fragment.obj"));
 	pModel = CModelLibrary::Get()->GetModel(iModel);
 	pModel->m_aiTextures[0] = iScreenshot;
 	pModel->m_iCallListTexture = iScreenshot;
 
-	EmitSound(L"sound/tank-damage.wav");
+	EmitSound(_T("sound/tank-damage.wav"));
 }

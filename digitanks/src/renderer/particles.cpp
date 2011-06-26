@@ -37,14 +37,14 @@ CParticleSystemLibrary::~CParticleSystemLibrary()
 	s_pParticleSystemLibrary = NULL;
 }
 
-size_t CParticleSystemLibrary::AddParticleSystem(const eastl::string16& sName)
+size_t CParticleSystemLibrary::AddParticleSystem(const tstring& sName)
 {
 	m_apParticleSystems.push_back(new CParticleSystem(sName));
 
 	return m_apParticleSystems.size()-1;
 }
 
-size_t CParticleSystemLibrary::FindParticleSystem(const eastl::string16& sName)
+size_t CParticleSystemLibrary::FindParticleSystem(const tstring& sName)
 {
 	for (size_t i = 0; i < m_apParticleSystems.size(); i++)
 	{
@@ -139,7 +139,7 @@ void CParticleSystemLibrary::Render()
 	}
 }
 
-size_t CParticleSystemLibrary::AddInstance(const eastl::string16& sName, Vector vecOrigin, EAngle angAngles)
+size_t CParticleSystemLibrary::AddInstance(const tstring& sName, Vector vecOrigin, EAngle angAngles)
 {
 	return AddInstance(CParticleSystemLibrary::Get()->FindParticleSystem(sName), vecOrigin, angAngles);
 }
@@ -166,7 +166,7 @@ void CParticleSystemLibrary::StopInstance(size_t iInstance)
 	pInstance->Stop();
 }
 
-void CParticleSystemLibrary::StopInstances(const eastl::string16& sName)
+void CParticleSystemLibrary::StopInstances(const tstring& sName)
 {
 	CParticleSystemLibrary* pPSL = Get();
 	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
@@ -225,14 +225,14 @@ void CParticleSystemLibrary::ReloadSystems()
 		pPSL->LoadParticleSystem(i);
 }
 
-void ReloadParticles(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void ReloadParticles(CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	CParticleSystemLibrary::ReloadSystems();
 }
 
 CCommand particles_reload("particles_reload", ReloadParticles);
 
-CParticleSystem::CParticleSystem(eastl::string16 sName)
+CParticleSystem::CParticleSystem(tstring sName)
 {
 	m_bLoaded = false;
 	m_sName = sName;
@@ -641,7 +641,7 @@ CParticleSystemInstanceHandle::~CParticleSystemInstanceHandle()
 		CParticleSystemLibrary::StopInstance(m_iInstance);
 }
 
-void CParticleSystemInstanceHandle::SetSystem(const eastl::string16& sSystem, Vector vecOrigin)
+void CParticleSystemInstanceHandle::SetSystem(const tstring& sSystem, Vector vecOrigin)
 {
 	SetSystem(CParticleSystemLibrary::Get()->FindParticleSystem(sSystem), vecOrigin);
 }

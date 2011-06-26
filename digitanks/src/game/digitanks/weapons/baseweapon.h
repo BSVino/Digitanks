@@ -23,7 +23,7 @@ public:
 
 	virtual void				SpecialCommand() {};
 	virtual bool				UsesSpecialCommand() { return false; };
-	virtual eastl::string16		SpecialCommandHint() { return L""; };
+	virtual tstring		SpecialCommandHint() { return _T(""); };
 	virtual float				GetBonusDamage() { return 0; };
 
 	void						Explode(CBaseEntity* pInstigator = NULL);
@@ -47,17 +47,17 @@ public:
 	static float				GetWeaponDamage(weapon_t eProjectile);
 	static size_t				GetWeaponShells(weapon_t eProjectile);
 	static float				GetWeaponFireInterval(weapon_t eProjectile);
-	static char16_t*			GetWeaponName(weapon_t eProjectile);
-	static char16_t*			GetWeaponDescription(weapon_t eProjectile);
+	static const tchar*			GetWeaponName(weapon_t eProjectile);
+	static const tchar*			GetWeaponDescription(weapon_t eProjectile);
 	static bool					IsWeaponPrimarySelectionOnly(weapon_t eProjectile);
 
 protected:
 	CNetworkedVariable<float>	m_flTimeExploded;
 
+	bool						m_bShouldRender;
+
 	CNetworkedHandle<CDigitanksEntity>	m_hOwner;
 	CNetworkedVariable<float>	m_flDamage;
-
-	bool						m_bShouldRender;
 };
 
 #endif

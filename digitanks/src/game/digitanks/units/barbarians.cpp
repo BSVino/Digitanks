@@ -19,16 +19,16 @@ INPUTS_TABLE_END();
 
 void CBugTurret::Precache()
 {
-	PrecacheModel(L"models/digitanks/autoturret.obj", true);
-	PrecacheModel(L"models/digitanks/autoturret-turret.obj", true);
+	PrecacheModel(_T("models/digitanks/autoturret.obj"), true);
+	PrecacheModel(_T("models/digitanks/autoturret-turret.obj"), true);
 }
 
 void CBugTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/autoturret.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/autoturret-turret.obj");
+	SetModel(_T("models/digitanks/autoturret.obj"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/autoturret-turret.obj"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -78,16 +78,16 @@ INPUTS_TABLE_END();
 
 void CGridBug::Precache()
 {
-	PrecacheModel(L"models/digitanks/gridbug.obj", true);
-	PrecacheModel(L"models/digitanks/gridbug-turret.obj", true);
+	PrecacheModel(_T("models/digitanks/gridbug.obj"), true);
+	PrecacheModel(_T("models/digitanks/gridbug-turret.obj"), true);
 }
 
 void CGridBug::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(L"models/digitanks/gridbug.obj");
-	m_iTurretModel = CModelLibrary::Get()->FindModel(L"models/digitanks/gridbug-turret.obj");
+	SetModel(_T("models/digitanks/gridbug.obj"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.obj"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 

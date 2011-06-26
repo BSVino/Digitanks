@@ -1,3 +1,9 @@
+#include "baseentity.h"
+// Always include baseentity.h first, it has some stuff this file relies on
+#ifndef TINKER_BASEENTITY_H
+#include "baseentity.h"
+#endif
+
 #ifndef GAMESERVER_H
 #define GAMESERVER_H
 
@@ -5,7 +11,6 @@
 
 #include <network/network.h>
 
-#include "baseentity.h"
 #include "team.h"
 
 typedef enum
@@ -25,8 +30,8 @@ public:
 	void										SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 	void										SetServerPort(int iPort) { m_iPort = iPort; };
 
-	void										SetPlayerNickname(const eastl::string16& sNickname);
-	eastl::string16								GetPlayerNickname() { return m_sNickname; }
+	void										SetPlayerNickname(const tstring& sNickname);
+	tstring								GetPlayerNickname() { return m_sNickname; }
 
 	void										Initialize();
 
@@ -34,12 +39,12 @@ public:
 	bool										ShouldSetupFromLobby() { return m_bSetupFromLobby; };
 
 	void										ReadLevels();
-	void										ReadLevels(eastl::string16 sDirectory);
-	void										ReadLevel(eastl::string16 sFile);
+	void										ReadLevels(tstring sDirectory);
+	void										ReadLevel(tstring sFile);
 
 	size_t										GetNumLevels() { return m_apLevels.size(); }
 	class CLevel*								GetLevel(size_t i) { return m_apLevels[i]; }
-	class CLevel*								GetLevel(eastl::string16 sFile);
+	class CLevel*								GetLevel(tstring sFile);
 
 	void										Halt();
 	bool										IsHalting() { return m_bHalting; };
@@ -53,7 +58,7 @@ public:
 	void										ClientConnect(int iClient);
 	void										ClientEnterGame(int iClient);
 	void										ClientDisconnect(int iClient);
-	void										SetClientNickname(int iClient, const eastl::string16& sNickname);
+	void										SetClientNickname(int iClient, const tstring& sNickname);
 
 	void										Think(float flHostTime);
 	void										Simulate();
@@ -62,8 +67,8 @@ public:
 	virtual void								Think() {};
 
 	void										GenerateSaveCRC(size_t iInput);
-	static void									SaveToFile(const wchar_t* pFileName);
-	static bool									LoadFromFile(const wchar_t* pFileName);
+	static void									SaveToFile(const tchar* pFileName);
+	static bool									LoadFromFile(const tchar* pFileName);
 
 	CEntityHandle<CBaseEntity>					Create(const char* pszEntityName);
 	size_t										CreateEntity(size_t iRegisteredEntity, size_t iHandle = ~0, size_t iSpawnSeed = 0);
@@ -102,7 +107,7 @@ public:
 	class CGame*								GetGame();
 
 protected:
-	eastl::string16				m_sNickname;
+	tstring				m_sNickname;
 
 	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
 

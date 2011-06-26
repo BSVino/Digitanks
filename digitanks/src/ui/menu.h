@@ -330,7 +330,7 @@ public:
 
 	CDockPanel*						GetDockPanel();
 
-	virtual void					SetHint(const eastl::string16 &sHint);
+	virtual void					SetHint(const tstring &sHint);
 
 protected:
 	glgui::CButton*					m_pCampaign;

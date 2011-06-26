@@ -21,7 +21,7 @@ public:
 
 	virtual bool				NeedsOrders();
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	virtual void				DrawQueue(int x, int y, int w, int h);
 
@@ -44,7 +44,7 @@ public:
 	void						SetBuildUnit(unittype_t eBuildUnit);
 	unittype_t					GetBuildUnit() const { return m_eBuildUnit; };
 
-	virtual eastl::string16		GetEntityName() const;
+	virtual tstring		GetEntityName() const;
 	virtual unittype_t			GetUnitType() const;
 	virtual float				TotalHealth() const { return 700; };
 

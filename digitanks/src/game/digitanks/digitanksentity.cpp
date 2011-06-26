@@ -44,8 +44,8 @@ INPUTS_TABLE_END();
 
 void CDigitanksEntity::Precache()
 {
-	PrecacheModel(L"models/cage.obj", true);
-	PrecacheParticleSystem(L"cage-aura");
+	PrecacheModel(_T("models/cage.obj"), true);
+	PrecacheParticleSystem(_T("cage-aura"));
 }
 
 void CDigitanksEntity::Spawn()
@@ -64,8 +64,8 @@ void CDigitanksEntity::Spawn()
 	m_bImprisoned = false;
 	m_bObjective = false;
 
-	m_iCageModel = CModelLibrary::Get()->FindModel(L"models/cage.obj");
-	m_hCageParticles.SetSystem(L"cage-aura", GetOrigin());
+	m_iCageModel = CModelLibrary::Get()->FindModel(_T("models/cage.obj"));
+	m_hCageParticles.SetSystem(_T("cage-aura"), GetOrigin());
 	m_hCageParticles.FollowEntity(this);
 }
 
@@ -667,12 +667,12 @@ void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent) 
 	glPopAttrib();
 }
 
-void CDigitanksEntity::MakeObjective(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksEntity::MakeObjective(const eastl::vector<tstring>& sArgs)
 {
 	m_bObjective = true;
 }
 
-void CDigitanksEntity::ClearObjective(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksEntity::ClearObjective(const eastl::vector<tstring>& sArgs)
 {
 	m_bObjective = false;
 }

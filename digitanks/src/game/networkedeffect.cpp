@@ -14,14 +14,14 @@ SERVER_GAME_COMMAND(NetworkedEffect)
 		return;
 	}
 
-	eastl::string16 sName(pCmd->Arg(0));
+	tstring sName(pCmd->Arg(0));
 	Vector vecPosition(pCmd->ArgAsFloat(1), pCmd->ArgAsFloat(2), pCmd->ArgAsFloat(3));
 	EAngle angDirection(pCmd->ArgAsFloat(4), pCmd->ArgAsFloat(5), pCmd->ArgAsFloat(6));
 
 	CParticleSystemLibrary::AddInstance(sName, vecPosition, angDirection);
 }
 
-void CNetworkedEffect::AddInstance(const eastl::string16& sName, Vector vecPosition, EAngle angDirection)
+void CNetworkedEffect::AddInstance(const tstring& sName, Vector vecPosition, EAngle angDirection)
 {
-	::NetworkedEffect.RunCommand(sName + sprintf(L" %f %f %f %f %f %f", vecPosition.x, vecPosition.y, vecPosition.z, angDirection.p, angDirection.y, angDirection.r));
+	::NetworkedEffect.RunCommand(sName + sprintf(tstring(" %f %f %f %f %f %f"), vecPosition.x, vecPosition.y, vecPosition.z, angDirection.p, angDirection.y, angDirection.r));
 }

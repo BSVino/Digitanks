@@ -82,7 +82,7 @@ void CStructure::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/structures/scaffolding.obj");
+	PrecacheModel(_T("models/structures/scaffolding.obj"));
 }
 
 void CStructure::Spawn()
@@ -95,7 +95,7 @@ void CStructure::Spawn()
 	m_iEnergyBonus = InitialEnergyBonus();
 	m_flRechargeBonus = InitialRechargeBonus();
 
-	m_iScaffolding = CModelLibrary::Get()->FindModel(L"models/structures/scaffolding.obj");
+	m_iScaffolding = CModelLibrary::Get()->FindModel(_T("models/structures/scaffolding.obj"));
 	m_flScaffoldingSize = 10;
 
 	m_flConstructionStartTime = 0;
@@ -151,13 +151,13 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToConstruct == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(eastl::string16(L"Construction finished on ") + GetEntityName());
+			GetDigitanksTeam()->AppendTurnInfo(tstring(_T("Construction finished on ")) + GetEntityName());
 			CompleteConstruction();
 
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Constructing ") + GetEntityName() + L" (%d turns left)", m_iTurnsToConstruct.Get()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring(_T("Constructing ")) + GetEntityName() + _T(" (%d turns left)"), m_iTurnsToConstruct.Get()));
 	}
 
 	if (IsUpgrading())
@@ -166,12 +166,12 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToUpgrade == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(GetEntityName() + L" finished upgrading.");
+			GetDigitanksTeam()->AppendTurnInfo(GetEntityName() + _T(" finished upgrading."));
 
 			UpgradeComplete();
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(eastl::string16(L"Upgrading ") + GetEntityName() + L" (%d turns left)", GetTurnsToUpgrade()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring(_T("Upgrading ")) + GetEntityName() + _T(" (%d turns left)"), GetTurnsToUpgrade()));
 	}
 }
 
@@ -268,12 +268,12 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 	float flXPosition = (float)x + w + 20;
 
 	int iIconFontSize = 11;
-	eastl::string16 sFont = L"text";
+	tstring sFont = _T("text");
 	float flIconFontHeight = glgui::CLabel::GetFontHeight(sFont, iIconFontSize) + 2;
 
 	if (IsConstructing())
 	{
-		eastl::string16 sTurns = sprintf(L"Turns To Construct: %d", GetTurnsRemainingToConstruct());
+		tstring sTurns = sprintf(tstring("Turns To Construct: %d"), GetTurnsRemainingToConstruct());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		return;
@@ -281,7 +281,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (IsUpgrading())
 	{
-		eastl::string16 sTurns = sprintf(L"Turns To Upgrade: %d", GetTurnsRemainingToUpgrade());
+		tstring sTurns = sprintf(tstring("Turns To Upgrade: %d"), GetTurnsRemainingToUpgrade());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		return;
@@ -292,7 +292,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		CCPU* pCPU = static_cast<CCPU*>(this);
 		if (pCPU->IsProducing())
 		{
-			eastl::string16 sTurns = L"Rogue: 1";	// It only ever takes one turn to make a rogue.
+			tstring sTurns = _T("Rogue: 1");	// It only ever takes one turn to make a rogue.
 			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 			glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		}
@@ -302,15 +302,15 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		CLoader* pLoader = static_cast<CLoader*>(this);
 		if (pLoader->IsProducing())
 		{
-			eastl::string16 sUnit;
+			tstring sUnit;
 			if (pLoader->GetBuildUnit() == UNIT_INFANTRY)
-				sUnit = L"Resistor";
+				sUnit = _T("Resistor");
 			else if (pLoader->GetBuildUnit() == UNIT_ARTILLERY)
-				sUnit = L"Artillery";
+				sUnit = _T("Artillery");
 			else
-				sUnit = L"Digitank";
+				sUnit = _T("Digitank");
 
-			eastl::string16 sTurns = sprintf(sUnit + L": %d", pLoader->GetTurnsRemainingToProduce());
+			tstring sTurns = sprintf(sUnit + _T(": %d"), pLoader->GetTurnsRemainingToProduce());
 			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 			glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		}
@@ -318,7 +318,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (Bandwidth() > 0)
 	{
-		eastl::string16 sBandwidth = sprintf(L": %.1f", Bandwidth());
+		tstring sBandwidth = sprintf(tstring(": %.1f"), Bandwidth());
 		float flWidth = glgui::CLabel::GetTextWidth(sBandwidth, sBandwidth.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("BandwidthIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
@@ -330,7 +330,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (FleetPoints() > 0)
 	{
-		eastl::string16 sFleetPoints = sprintf(L": %d", FleetPoints());
+		tstring sFleetPoints = sprintf(tstring(": %d"), FleetPoints());
 		float flWidth = glgui::CLabel::GetTextWidth(sFleetPoints, sFleetPoints.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("FleetPointsIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
@@ -342,7 +342,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 
 	if (Power() > 0)
 	{
-		eastl::string16 sPower = sprintf(L": %.1f", Power());
+		tstring sPower = sprintf(tstring(": %.1f"), Power());
 		float flWidth = glgui::CLabel::GetTextWidth(sPower, sPower.length(), sFont, iIconFontSize);
 
 		DigitanksWindow()->GetHUD()->PaintHUDSheet("PowerIcon", (int)(flXPosition - flWidth - flIconFontHeight), (int)(flYPosition - flIconFontHeight) + 5, (int)flIconFontHeight, (int)flIconFontHeight);
@@ -550,10 +550,10 @@ void CStructure::SetSupplier(const class CSupplier* pSupplier)
 
 	m_hSupplier = pSupplier;
 
-	if (m_hSupplyLine == NULL && m_hSupplier != NULL)
+	if (!m_hSupplyLine && m_hSupplier != NULL)
 		m_hSupplyLine = GameServer()->Create<CSupplyLine>("CSupplyLine");
 
-	if (m_hSupplyLine != NULL && m_hSupplier == NULL)
+	if (m_hSupplyLine != NULL && !m_hSupplier)
 		GameServer()->Delete(m_hSupplyLine);
 
 	if (m_hSupplyLine != NULL && m_hSupplier != NULL)
@@ -562,7 +562,7 @@ void CStructure::SetSupplier(const class CSupplier* pSupplier)
 
 CSupplier* CStructure::GetSupplier() const
 {
-	if (m_hSupplier == NULL)
+	if (!m_hSupplier)
 		return NULL;
 
 	return m_hSupplier;
@@ -570,7 +570,7 @@ CSupplier* CStructure::GetSupplier() const
 
 CSupplyLine* CStructure::GetSupplyLine() const
 {
-	if (m_hSupplyLine == NULL)
+	if (!m_hSupplyLine)
 		return NULL;
 
 	return m_hSupplyLine;
@@ -660,7 +660,7 @@ void CSupplier::Precache()
 {
 	BaseClass::Precache();
 
-	s_iTendrilBeam = CTextureLibrary::AddTextureID(L"textures/tendril.png");
+	s_iTendrilBeam = CTextureLibrary::AddTextureID(_T("textures/tendril.png"));
 }
 
 void CSupplier::Spawn()
@@ -1056,7 +1056,7 @@ void CSupplier::PostRender(bool bTransparent) const
 
 			clrTeam.SetAlpha(105);
 
-			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
+			CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
 			oRope.SetColor(clrTeam);
 			oRope.SetTextureScale(pTendril->m_flScale);
 			oRope.SetTextureOffset(pTendril->m_flOffset);
@@ -1068,10 +1068,10 @@ void CSupplier::PostRender(bool bTransparent) const
 				oRope.SetColor(clrTeam);
 
 				float flCurrentDistance = ((float)i*flDistance)/iSegments;
-				oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+				oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
 			}
 
-			oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
+			oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 1, 0));
 		}
 	}
 
@@ -1105,7 +1105,7 @@ void CSupplier::UpdateTendrils()
 		m_aTendrils.push_back(CTendril());
 		CTendril* pTendril = &m_aTendrils[m_aTendrils.size()-1];
 		pTendril->m_flLength = (float)m_aTendrils.size() + GetBoundingRadius();
-		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(EAngle(0, RandomFloat(0, 360), 0)) * pTendril->m_flLength);
+		pTendril->m_vecEndPoint = DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + AngleVector(EAngle(0, RandomFloat(0, 360), 0)) * pTendril->m_flLength);
 		pTendril->m_flScale = RandomFloat(3, 7);
 		pTendril->m_flOffset = RandomFloat(0, 1);
 		pTendril->m_flSpeed = RandomFloat(0.5f, 2);
@@ -1149,7 +1149,7 @@ void CSupplier::UpdateTendrils()
 
 		clrTeam.SetAlpha(105);
 
-		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
+		CRopeRenderer oRope(GameServer()->GetRenderer(), s_iTendrilBeam, DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin()) + Vector(0, 1, 0), 1.0f);
 		oRope.SetColor(clrTeam);
 		oRope.SetTextureScale(pTendril->m_flScale);
 		oRope.SetTextureOffset(pTendril->m_flOffset);
@@ -1161,10 +1161,10 @@ void CSupplier::UpdateTendrils()
 			oRope.SetColor(clrTeam);
 
 			float flCurrentDistance = ((float)i*flDistance)/iSegments;
-			oRope.AddLink(DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
+			oRope.AddLink(DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + vecDirection*flCurrentDistance) + Vector(0, 1, 0));
 		}
 
-		oRope.Finish(DigitanksGame()->GetTerrain()->SetPointHeight(vecDestination) + Vector(0, 1, 0));
+		oRope.Finish(DigitanksGame()->GetTerrain()->GetPointHeight(vecDestination) + Vector(0, 1, 0));
 	}
 	glEndList();
 }

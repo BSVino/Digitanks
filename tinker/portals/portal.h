@@ -1,7 +1,7 @@
 #ifndef TINKER_PORTAL_H
 #define TINKER_PORTAL_H
 
-#include <EASTL/string.h>
+#include <tstring.h>
 
 #if !defined(TINKER_PORTAL_STEAM)
 #ifndef TINKER_PORTAL_NONE
@@ -13,9 +13,9 @@ bool TPortal_Startup();
 void TPortal_Think();
 void TPortal_Shutdown();
 
-eastl::string16 TPortal_GetPortalIdentifier();
+tstring TPortal_GetPortalIdentifier();
 bool TPortal_IsAvailable();
 
-eastl::string16 TPortal_GetPlayerNickname();
+tstring TPortal_GetPlayerNickname();
 
 #endif

@@ -10,7 +10,7 @@
 class CLevelProp
 {
 public:
-	eastl::string			m_sModel;
+	tstring					m_sModel;
 	Vector2D				m_vecPosition;
 	EAngle					m_angOrientation;
 };
@@ -51,7 +51,7 @@ public:
 	bool					m_bActive;
 	bool					m_bObjective;
 	eastl::string			m_sType;
-	eastl::string			m_sFile;
+	tstring					m_sFile;
 
 	eastl::vector<CLevelUnitOutput>	m_aOutputs;
 };
@@ -71,11 +71,11 @@ public:
 	void					ReadUnitOutput(const class CData* pData, CLevelUnit* pUnit);
 	void					ReadGameRules(const class CData* pData);
 
-	eastl::string			GetObjective() { return m_sObjective; }
+	tstring					GetObjective() { return m_sObjective; }
 	gametype_t				GetGameType() { return m_eGameType; }
-	eastl::string			GetTerrainHeight() { return m_sTerrainHeight; }
+	tstring					GetTerrainHeight() { return m_sTerrainHeight; }
 	size_t					GetTerrainHeightImage() { return m_iTerrainHeight; }
-	eastl::string			GetTerrainData() { return m_sTerrainData; }
+	tstring					GetTerrainData() { return m_sTerrainData; }
 	size_t					GetTerrainDataImage() { return m_iTerrainData; }
 	float					GetMaxHeight() { return m_flMaxHeight; }
 
@@ -85,8 +85,8 @@ public:
 	size_t					GetNumUnits() { return m_aUnits.size(); }
 	CLevelUnit*				GetUnit(size_t i) { return &m_aUnits[i]; }
 
-	eastl::string			GetAuthor() { return m_sAuthor; }
-	eastl::string			GetDescription() { return m_sDescription; }
+	tstring					GetAuthor() { return m_sAuthor; }
+	tstring					GetDescription() { return m_sDescription; }
 
 	bool					AllowBuffers() { return m_bBuffers; }
 	bool					AllowPSUs() { return m_bPSUs; }
@@ -105,16 +105,16 @@ public:
 
 protected:
 	gametype_t				m_eGameType;
-	eastl::string			m_sObjective;
-	eastl::string			m_sTerrainHeight;
+	tstring					m_sObjective;
+	tstring					m_sTerrainHeight;
 	size_t					m_iTerrainHeight;
-	eastl::string			m_sTerrainData;
+	tstring					m_sTerrainData;
 	size_t					m_iTerrainData;
 	float					m_flMaxHeight;
 	eastl::vector<CLevelProp>	m_aProps;
 
-	eastl::string			m_sAuthor;
-	eastl::string			m_sDescription;
+	tstring					m_sAuthor;
+	tstring					m_sDescription;
 
 	eastl::vector<CLevelUnit>	m_aUnits;
 

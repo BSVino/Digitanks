@@ -61,7 +61,7 @@ public:
 	void					SetListener(IDigitanksGameListener* pListener) { m_pListener = pListener; };
 	IDigitanksGameListener*	GetListener() { return m_pListener; };
 
-	eastl::string16			GetObjective() { return m_sObjective; }
+	tstring			GetObjective() { return m_sObjective; }
 
 	virtual void			RegisterNetworkFunctions();
 
@@ -74,9 +74,9 @@ public:
 	static eastl::vector<class CLevel*> GetLevels(gametype_t eGameType);
 	static size_t			GetNumLevels(gametype_t eGameType);
 	static class CDigitanksLevel* GetLevel(gametype_t eGameType, size_t i);
-	static class CDigitanksLevel* GetLevel(eastl::string16 sFile);
+	static class CDigitanksLevel* GetLevel(tstring sFile);
 
-	void					ReadGameScript(eastl::string16 sScript);
+	void					ReadGameScript(tstring sScript);
 
 	void					ScatterResources();
 	void					SetupProps();
@@ -152,7 +152,7 @@ public:
 	void					SetAimType(aimtype_t eAimType);
 	void					SetAimTypeByWeapon(weapon_t eWeapon);
 
-	CTerrain*				GetTerrain() { if (m_hTerrain == NULL) return NULL; return m_hTerrain; };
+	CTerrain*				GetTerrain() { return m_hTerrain; };
 	NET_CALLBACK(CDigitanksGame, TerrainData);
 
 	NET_CALLBACK_ENTITY(CDigitanksGame, CDigitank, Move);
@@ -233,7 +233,7 @@ public:
 	void					BeginAirstrike(Vector vecLocation);
 	float					AirstrikeSize() const { return 50; };
 
-	CUpdateGrid*			GetUpdateGrid() { if (m_hUpdates == NULL) return NULL; return m_hUpdates; };
+	CUpdateGrid*			GetUpdateGrid() { return m_hUpdates; };
 
 	gametype_t				GetGameType() { return m_eGameType; }
 	size_t					GetTurn() { return m_iTurn; }

@@ -38,19 +38,19 @@ bool TPortal_IsAvailable()
 	return !!SteamUser();
 }
 
-eastl::string16 TPortal_GetPortalIdentifier()
+tstring TPortal_GetPortalIdentifier()
 {
-	return L"Steam";
+	return _T("Steam";
 }
 
-eastl::string16 TPortal_GetPlayerNickname()
+tstring TPortal_GetPlayerNickname()
 {
 	if (!SteamFriends())
-		return L"";
+		return _T("";
 
 	const char* pszNickname = SteamFriends()->GetPersonaName();
 
-	return convertstring<char, char16_t>(pszNickname);
+	return convertstring<char, tchar>(pszNickname);
 }
 
 #endif

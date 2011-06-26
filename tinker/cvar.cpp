@@ -4,7 +4,7 @@
 
 #include <tinker/application.h>
 
-CCommand::CCommand(eastl::string16 sName, CommandCallback pfnCallback)
+CCommand::CCommand(tstring sName, CommandCallback pfnCallback)
 {
 	m_sName = sName;
 	m_pfnCallback = pfnCallback;
@@ -12,26 +12,18 @@ CCommand::CCommand(eastl::string16 sName, CommandCallback pfnCallback)
 	RegisterCommand(this);
 }
 
-CCommand::CCommand(eastl::string sName, CommandCallback pfnCallback)
+void CCommand::Run(tstring sCommand)
 {
-	m_sName = convertstring<char, char16_t>(sName);
-	m_pfnCallback = pfnCallback;
-
-	RegisterCommand(this);
-}
-
-void CCommand::Run(eastl::string16 sCommand)
-{
-	eastl::vector<eastl::string16> asTokens;
-	wcstok(sCommand, asTokens);
+	eastl::vector<tstring> asTokens;
+	tstrtok(sCommand, asTokens);
 
 	if (asTokens.size() == 0)
 		return;
 
-	eastl::map<eastl::string16, CCommand*>::iterator it = GetCommands().find(asTokens[0]);
+	eastl::map<tstring, CCommand*>::iterator it = GetCommands().find(asTokens[0]);
 	if (it == GetCommands().end())
 	{
-		TMsg(L"Unrecognized command.\n");
+		TMsg(_T("Unrecognized command.\n"));
 		return;
 	}
 
@@ -39,14 +31,14 @@ void CCommand::Run(eastl::string16 sCommand)
 	pCommand->m_pfnCallback(pCommand, asTokens, sCommand);
 }
 
-eastl::vector<eastl::string16> CCommand::GetCommandsBeginningWith(eastl::string16 sFragment)
+eastl::vector<tstring> CCommand::GetCommandsBeginningWith(tstring sFragment)
 {
-	eastl::vector<eastl::string16> sResults;
+	eastl::vector<tstring> sResults;
 
 	size_t iFragLength = sFragment.length();
 
-	eastl::map<eastl::string16, CCommand*>& sCommands = GetCommands();
-	for (eastl::map<eastl::string16, CCommand*>::iterator it = sCommands.begin(); it != sCommands.end(); it++)
+	eastl::map<tstring, CCommand*>& sCommands = GetCommands();
+	for (eastl::map<tstring, CCommand*>::iterator it = sCommands.begin(); it != sCommands.end(); it++)
 	{
 		if (it->first.substr(0, iFragLength) == sFragment)
 			sResults.push_back(it->first);
@@ -60,7 +52,7 @@ void CCommand::RegisterCommand(CCommand* pCommand)
 	GetCommands()[pCommand->m_sName] = pCommand;
 }
 
-void SetCVar(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void SetCVar(CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	CVar* pCVar = dynamic_cast<CVar*>(pCommand);
 	TAssert(pCVar);
@@ -70,49 +62,43 @@ void SetCVar(CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const
 	if (asTokens.size() > 1)
 		pCVar->SetValue(asTokens[1]);
 
-	TMsg(sprintf(L"%s = %s\n", pCVar->GetName().c_str(), pCVar->GetValue().c_str()));
+	TMsg(sprintf(tstring("%s = %s\n"), pCVar->GetName().c_str(), pCVar->GetValue().c_str()));
 }
 
-CVar::CVar(eastl::string16 sName, eastl::string16 sValue)
+CVar::CVar(tstring sName, tstring sValue)
 	: CCommand(sName, ::SetCVar)
 {
 	m_sValue = sValue;
 }
 
-CVar::CVar(eastl::string sName, eastl::string sValue)
-	: CCommand(sName, ::SetCVar)
-{
-	m_sValue = convertstring<char, char16_t>(sValue);
-}
-
-void CVar::SetValue(eastl::string16 sValue)
+void CVar::SetValue(tstring sValue)
 {
 	m_sValue = sValue;
 }
 
 void CVar::SetValue(int iValue)
 {
-	m_sValue = sprintf(L"%d", iValue);
+	m_sValue = sprintf(tstring("%d"), iValue);
 }
 
 void CVar::SetValue(float flValue)
 {
-	m_sValue = sprintf(L"%f", flValue);
+	m_sValue = sprintf(tstring("%f"), flValue);
 }
 
 bool CVar::GetBool()
 {
-	if (m_sValue.comparei(L"yes") == 0)
+	if (m_sValue.comparei(_T("yes")) == 0)
 		return true;
 
-	if (m_sValue.comparei(L"true") == 0)
+	if (m_sValue.comparei(_T("true")) == 0)
 		return true;
 
-	if (m_sValue.comparei(L"on") == 0)
+	if (m_sValue.comparei(_T("on")) == 0)
 		return true;
 
 	// Don't want to use _wtoi I don't think it's as portable.
-	if (atoi(convertstring<char16_t, char>(m_sValue).c_str()) != 0)
+	if (atoi(convertstring<tchar, char>(m_sValue).c_str()) != 0)
 		return true;
 
 	return false;
@@ -121,18 +107,18 @@ bool CVar::GetBool()
 int CVar::GetInt()
 {
 	// Don't want to use _wtoi I don't think it's as portable.
-	return atoi(convertstring<char16_t, char>(m_sValue).c_str());
+	return atoi(convertstring<tchar, char>(m_sValue).c_str());
 }
 
 float CVar::GetFloat()
 {
 	// Don't want to use _wtof I don't think it's as portable.
-	return (float)atof(convertstring<char16_t, char>(m_sValue).c_str());
+	return (float)atof(convertstring<tchar, char>(m_sValue).c_str());
 }
 
-CVar* CVar::FindCVar(eastl::string16 sName)
+CVar* CVar::FindCVar(tstring sName)
 {
-	eastl::map<eastl::string16, CCommand*>::iterator it = GetCommands().find(sName);
+	eastl::map<tstring, CCommand*>::iterator it = GetCommands().find(sName);
 	if (it == GetCommands().end())
 		return NULL;
 
@@ -140,7 +126,7 @@ CVar* CVar::FindCVar(eastl::string16 sName)
 	return pVar;
 }
 
-void CVar::SetCVar(eastl::string16 sName, eastl::string16 sValue)
+void CVar::SetCVar(tstring sName, tstring sValue)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
@@ -149,7 +135,7 @@ void CVar::SetCVar(eastl::string16 sName, eastl::string16 sValue)
 	pVar->SetValue(sValue);
 }
 
-void CVar::SetCVar(eastl::string16 sName, int iValue)
+void CVar::SetCVar(tstring sName, int iValue)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
@@ -158,7 +144,7 @@ void CVar::SetCVar(eastl::string16 sName, int iValue)
 	pVar->SetValue(iValue);
 }
 
-void CVar::SetCVar(eastl::string16 sName, float flValue)
+void CVar::SetCVar(tstring sName, float flValue)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
@@ -167,16 +153,16 @@ void CVar::SetCVar(eastl::string16 sName, float flValue)
 	pVar->SetValue(flValue);
 }
 
-eastl::string16 CVar::GetCVarValue(eastl::string16 sName)
+tstring CVar::GetCVarValue(tstring sName)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
-		return L"";
+		return _T("");
 
 	return pVar->GetValue();
 }
 
-bool CVar::GetCVarBool(eastl::string16 sName)
+bool CVar::GetCVarBool(tstring sName)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
@@ -185,7 +171,7 @@ bool CVar::GetCVarBool(eastl::string16 sName)
 	return pVar->GetBool();
 }
 
-int CVar::GetCVarInt(eastl::string16 sName)
+int CVar::GetCVarInt(tstring sName)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
@@ -194,46 +180,11 @@ int CVar::GetCVarInt(eastl::string16 sName)
 	return pVar->GetInt();
 }
 
-float CVar::GetCVarFloat(eastl::string16 sName)
+float CVar::GetCVarFloat(tstring sName)
 {
 	CVar* pVar = FindCVar(sName);
 	if (!pVar)
 		return 0;
 
 	return pVar->GetFloat();
-}
-
-void CVar::SetCVar(eastl::string sName, eastl::string sValue)
-{
-	SetCVar(convertstring<char, char16_t>(sName), convertstring<char, char16_t>(sValue));
-}
-
-void CVar::SetCVar(eastl::string sName, int iValue)
-{
-	SetCVar(convertstring<char, char16_t>(sName), iValue);
-}
-
-void CVar::SetCVar(eastl::string sName, float flValue)
-{
-	SetCVar(convertstring<char, char16_t>(sName), flValue);
-}
-
-eastl::string CVar::GetCVarValue(eastl::string sName)
-{
-	return convertstring<char16_t, char>(GetCVarValue(convertstring<char, char16_t>(sName)));
-}
-
-bool CVar::GetCVarBool(eastl::string sName)
-{
-	return GetCVarBool(convertstring<char, char16_t>(sName));
-}
-
-int CVar::GetCVarInt(eastl::string sName)
-{
-	return GetCVarInt(convertstring<char, char16_t>(sName));
-}
-
-float CVar::GetCVarFloat(eastl::string sName)
-{
-	return GetCVarFloat(convertstring<char, char16_t>(sName));
 }

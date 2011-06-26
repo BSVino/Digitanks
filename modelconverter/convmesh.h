@@ -9,6 +9,7 @@
 #include <vector.h>
 #include <matrix.h>
 #include <geometry.h>
+#include <tstring.h>
 
 // These belong specifically to a face and are never shared.
 class CConversionVertex
@@ -93,9 +94,9 @@ public:
 class CConversionBone
 {
 public:
-									CConversionBone(const eastl::string16& sName);
+									CConversionBone(const tstring& sName);
 
-	eastl::string16					m_sName;
+	tstring					m_sName;
 };
 
 typedef enum
@@ -108,7 +109,7 @@ typedef enum
 class CConversionMaterial
 {
 public:
-									CConversionMaterial(const eastl::string16& sName,
+									CConversionMaterial(const tstring& sName,
 										Vector vecAmbient = Vector(0.2f, 0.2f, 0.2f),
 										Vector vecDiffuse = Vector(0.8f, 0.8f, 0.8f),
 										Vector vecSpecular = Vector(0.0f, 0.0f, 0.0f),
@@ -116,18 +117,18 @@ public:
 										float flTransparency = 1.0f,
 										float flShininess = 10.0f);
 
-	eastl::string16					GetName() const { return m_sName; }
+	tstring					GetName() const { return m_sName; }
 
-	eastl::string16					GetDiffuseTexture() const { return m_sDiffuseTexture; }
-	eastl::string16					GetNormalTexture() const { return m_sNormalTexture; }
-	eastl::string16					GetAOTexture() const { return m_sAOTexture; }
-	eastl::string16					GetCAOTexture() const { return m_sCAOTexture; }
+	tstring					GetDiffuseTexture() const { return m_sDiffuseTexture; }
+	tstring					GetNormalTexture() const { return m_sNormalTexture; }
+	tstring					GetAOTexture() const { return m_sAOTexture; }
+	tstring					GetCAOTexture() const { return m_sCAOTexture; }
 
 	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool							IsVisible() { return m_bVisible; };
 
 public:
-	eastl::string16					m_sName;
+	tstring					m_sName;
 
 	Vector							m_vecAmbient;
 	Vector							m_vecDiffuse;
@@ -137,10 +138,10 @@ public:
 	float							m_flShininess;
 	IllumType_t						m_eIllumType;
 
-	eastl::string16					m_sDiffuseTexture;
-	eastl::string16					m_sNormalTexture;
-	eastl::string16					m_sAOTexture;
-	eastl::string16					m_sCAOTexture;
+	tstring					m_sDiffuseTexture;
+	tstring					m_sNormalTexture;
+	tstring					m_sAOTexture;
+	tstring					m_sCAOTexture;
 
 	bool							m_bVisible;
 };
@@ -149,18 +150,18 @@ public:
 class CConversionMaterialStub
 {
 public:
-									CConversionMaterialStub(const eastl::string16& sName);
+									CConversionMaterialStub(const tstring& sName);
 
 public:
-	eastl::string16					GetName() const { return m_sName; }
+	tstring					GetName() const { return m_sName; }
 
-	eastl::string16					m_sName;
+	tstring					m_sName;
 };
 
 class CConversionMesh
 {
 public:
-									CConversionMesh(class CConversionScene* pScene, const eastl::string16& sName);
+									CConversionMesh(class CConversionScene* pScene, const tstring& sName);
 
 	void							Clear();
 
@@ -169,14 +170,14 @@ public:
 	void							CalculateExtends();
 	void							CalculateVertexTangents();
 
-	eastl::string16					GetName() { return m_sName; };
+	tstring					GetName() { return m_sName; };
 
 	size_t							AddVertex(float x, float y, float z);
 	size_t							AddNormal(float x, float y, float z);
 	size_t							AddTangent(float x, float y, float z);
 	size_t							AddBitangent(float x, float y, float z);
 	size_t							AddUV(float u, float v);
-	size_t							AddBone(const eastl::string16& sName);
+	size_t							AddBone(const tstring& sName);
 	size_t							AddEdge(size_t v1, size_t v2);
 	size_t							AddFace(size_t iMaterial);
 
@@ -202,7 +203,7 @@ public:
 	Vector							GetBaseVector(int iVector, CConversionVertex* pVertex);
 
 	size_t							GetNumBones() { return m_aBones.size(); };
-	eastl::string16					GetBoneName(size_t i) { return m_aBones[i].m_sName; };
+	tstring					GetBoneName(size_t i) { return m_aBones[i].m_sName; };
 
 	size_t							GetNumEdges() { return m_aEdges.size(); };
 	CConversionEdge*				GetEdge(size_t i) { return &m_aEdges[i]; };
@@ -210,16 +211,16 @@ public:
 	size_t							GetNumFaces() { return m_aFaces.size(); };
 	CConversionFace*				GetFace(size_t i) { return &m_aFaces[i]; };
 
-	size_t							AddMaterialStub(const eastl::string16& sName = L"");
+	size_t							AddMaterialStub(const tstring& sName = _T(""));
 	size_t							GetNumMaterialStubs() { return m_aMaterialStubs.size(); };
-	size_t							FindMaterialStub(const eastl::string16& sName);
+	size_t							FindMaterialStub(const tstring& sName);
 	CConversionMaterialStub*		GetMaterialStub(size_t i) { return &m_aMaterialStubs[i]; };
 
 	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool							IsVisible() { return m_bVisible; };
 
 public:
-	eastl::string16					m_sName;
+	tstring					m_sName;
 	class CConversionScene*			m_pScene;
 
 	// A vector of Vectors? Holy crap!
@@ -296,7 +297,7 @@ public:
 class CConversionSceneNode
 {
 public:
-										CConversionSceneNode(const eastl::string16& sName, CConversionScene* pScene, CConversionSceneNode* pParent);
+										CConversionSceneNode(const tstring& sName, CConversionScene* pScene, CConversionSceneNode* pParent);
 										~CConversionSceneNode();
 
 public:
@@ -308,7 +309,7 @@ public:
 
 	bool								IsEmpty();
 
-	size_t								AddChild(const eastl::string16& sName);
+	size_t								AddChild(const tstring& sName);
 	size_t								GetNumChildren() { return m_apChildren.size(); };
 	CConversionSceneNode*				GetChild(size_t i) { return m_apChildren[i]; };
 
@@ -317,13 +318,13 @@ public:
 	size_t								FindMeshInstance(CConversionMesh* pMesh);
 	CConversionMeshInstance*			GetMeshInstance(size_t i) { return &m_aMeshInstances[i]; };
 
-	eastl::string16						GetName() { return m_sName; }
+	tstring						GetName() { return m_sName; }
 
 	void								SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool								IsVisible() { return m_bVisible; };
 
 public:
-	eastl::string16						m_sName;
+	tstring						m_sName;
 	CConversionScene*					m_pScene;
 	CConversionSceneNode*				m_pParent;
 
@@ -352,19 +353,19 @@ public:
 
 	void								CalculateExtends();
 
-	size_t								AddMaterial(const eastl::string16& sName);
+	size_t								AddMaterial(const tstring& sName);
 	size_t								AddMaterial(CConversionMaterial& oMaterial);
 	size_t								GetNumMaterials() { return m_aMaterials.size(); };
-	size_t								FindMaterial(const eastl::string16& sName);
+	size_t								FindMaterial(const tstring& sName);
 	CConversionMaterial*				GetMaterial(size_t i) { if (i >= m_aMaterials.size()) return NULL; return &m_aMaterials[i]; };
 
-	size_t								AddMesh(const eastl::string16& sName);
+	size_t								AddMesh(const tstring& sName);
 	size_t								GetNumMeshes() { return m_aMeshes.size(); };
 	CConversionMesh*					GetMesh(size_t i) { return &m_aMeshes[i]; };
-	size_t								FindMesh(const eastl::string16& sName);
+	size_t								FindMesh(const tstring& sName);
 	size_t								FindMesh(CConversionMesh* pMesh);
 
-	size_t								AddScene(const eastl::string16& sName);
+	size_t								AddScene(const tstring& sName);
 	size_t								GetNumScenes() { return m_apScenes.size(); };
 	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_apScenes.size()) return NULL; return m_apScenes[i]; };
 
@@ -374,7 +375,7 @@ public:
 
 	// For model formats that don't have the concept of scenes,
 	// this will add a material to the mesh and map it properly in the scene.
-	size_t								AddDefaultSceneMaterial(CConversionSceneNode* pScene, CConversionMesh* pMesh, const eastl::string16& sName);
+	size_t								AddDefaultSceneMaterial(CConversionSceneNode* pScene, CConversionMesh* pMesh, const tstring& sName);
 
 	bool								DoesFaceHaveValidMaterial(CConversionFace* pFace, class CConversionMeshInstance* pMeshInstance = NULL);
 

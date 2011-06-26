@@ -2,17 +2,18 @@
 #define _TINKER_LOBBY_H
 
 #include <EASTL/map.h>
-#include <EASTL/string.h>
+
+#include <tstring.h>
 
 class CLobbyPlayer
 {
 public:
-	eastl::string16									GetInfoValue(const eastl::string16& sKey)
+	tstring									GetInfoValue(const tstring& sKey)
 	{
-		eastl::map<eastl::string16, eastl::string16>::iterator it = asInfo.find(sKey);
+		eastl::map<tstring, tstring>::iterator it = asInfo.find(sKey);
 
 		if (it == asInfo.end())
-			return L"";
+			return _T("");
 
 		return it->second;
 	}
@@ -20,7 +21,7 @@ public:
 public:
 	size_t											iID;
 	size_t											iClient;
-	eastl::map<eastl::string16, eastl::string16>	asInfo;
+	eastl::map<tstring, tstring>	asInfo;
 };
 
 #endif

@@ -29,21 +29,21 @@ void CMechInfantry::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(L"models/digitanks/infantry-body.obj", true);
-	PrecacheModel(L"models/digitanks/digitank-shield.obj", true);
-	PrecacheModel(L"models/digitanks/infantry-fortify-base.obj", true);
-	PrecacheModel(L"models/digitanks/infantry-fortify-shield.obj", true);
+	PrecacheModel(_T("models/digitanks/infantry-body.obj"), true);
+	PrecacheModel(_T("models/digitanks/digitank-shield.obj"), true);
+	PrecacheModel(_T("models/digitanks/infantry-fortify-base.obj"), true);
+	PrecacheModel(_T("models/digitanks/infantry-fortify-shield.obj"), true);
 }
 
 void CMechInfantry::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_iFortifyShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-fortify-shield.obj");
-	m_iFortifyWallModel = CModelLibrary::Get()->FindModel(L"models/digitanks/infantry-fortify-base.obj");
+	m_iFortifyShieldModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/infantry-fortify-shield.obj"));
+	m_iFortifyWallModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/infantry-fortify-base.obj"));
 
-	SetModel(L"models/digitanks/infantry-body.obj");
-	m_iShieldModel = CModelLibrary::Get()->FindModel(L"models/digitanks/digitank-shield.obj");
+	SetModel(_T("models/digitanks/infantry-body.obj"));
+	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-shield.obj"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 100;
 

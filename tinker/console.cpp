@@ -22,7 +22,7 @@ CConsole::CConsole()
 {
 	glgui::CRootPanel::Get()->AddControl(this, true);
 
-	m_pOutput = new glgui::CLabel(0, 0, 100, 100, L"");
+	m_pOutput = new glgui::CLabel(0, 0, 100, 100, _T(""));
 	m_pOutput->SetAlign(glgui::CLabel::TA_BOTTOMLEFT);
 	AddControl(m_pOutput);
 
@@ -103,10 +103,10 @@ void CConsole::Paint(int x, int y, int w, int h)
 
 	BaseClass::Paint(x, y, w, h);
 
-	eastl::string16 sInput = m_pInput->GetText();
-	if (sInput.length() && sInput.find(L' ') == ~0)
+	tstring sInput = m_pInput->GetText();
+	if (sInput.length() && sInput.find(_T(' ')) == ~0)
 	{
-		eastl::vector<eastl::string16> sCommands = CCommand::GetCommandsBeginningWith(sInput);
+		eastl::vector<tstring> sCommands = CCommand::GetCommandsBeginningWith(sInput);
 
 		size_t iCommandsToShow = sCommands.size();
 		bool bAbbreviated = false;
@@ -124,17 +124,17 @@ void CConsole::Paint(int x, int y, int w, int h)
 
 		int iCommandsPainted = 0;
 		for (size_t i = 0; i < iCommandsToShow; i++)
-			glgui::CLabel::PaintText(sCommands[i], sCommands[i].length(), L"sans-serif", 13, (float)(x + 5), (float)(y + h + 13 + iCommandsPainted++*13));
+			glgui::CLabel::PaintText(sCommands[i], sCommands[i].length(), _T("sans-serif"), 13, (float)(x + 5), (float)(y + h + 13 + iCommandsPainted++*13));
 
 		if (bAbbreviated)
 		{
-			eastl::string16 sDotDotDot = L"...";
-			glgui::CLabel::PaintText(sDotDotDot, sDotDotDot.length(), L"sans-serif", 13, (float)(x + 5), (float)(y + h + 13 + iCommandsPainted++*13));
+			tstring sDotDotDot = _T("...");
+			glgui::CLabel::PaintText(sDotDotDot, sDotDotDot.length(), _T("sans-serif"), 13, (float)(x + 5), (float)(y + h + 13 + iCommandsPainted++*13));
 		}
 	}
 }
 
-void CConsole::PrintConsole(eastl::string16 sText)
+void CConsole::PrintConsole(tstring sText)
 {
 	DebugPrint(sText);
 	m_pOutput->AppendText(sText);
@@ -162,10 +162,10 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 
 	if (code == TINKER_KEY_ENTER || code == TINKER_KEY_KP_ENTER)
 	{
-		eastl::string16 sText = m_pInput->GetText();
+		tstring sText = m_pInput->GetText();
 		m_pInput->SetText("");
 
-		PrintConsole(eastl::string16(L"] ") + sText + L"\n");
+		PrintConsole(tstring(_T("] ")) + sText + _T("\n"));
 
 		CCommand::Run(sText);
 
@@ -174,13 +174,13 @@ bool CConsole::KeyPressed(int code, bool bCtrlDown)
 
 	if (code == TINKER_KEY_TAB)
 	{
-		eastl::string16 sInput = m_pInput->GetText();
-		if (sInput.length() && sInput.find(L' ') == ~0)
+		tstring sInput = m_pInput->GetText();
+		if (sInput.length() && sInput.find(_T(' ')) == ~0)
 		{
-			eastl::vector<eastl::string16> aCommands = CCommand::GetCommandsBeginningWith(sInput);
+			eastl::vector<tstring> aCommands = CCommand::GetCommandsBeginningWith(sInput);
 			if (aCommands.size())
 			{
-				m_pInput->SetText(aCommands[0] + L" ");
+				m_pInput->SetText(aCommands[0] + _T(" "));
 				m_pInput->SetCursorPosition(-1);
 			}
 		}
@@ -250,21 +250,16 @@ bool CApplication::IsConsoleOpen()
 	return pConsole->IsOpen();
 }
 
-void CApplication::PrintConsole(eastl::string16 sText)
+void CApplication::PrintConsole(tstring sText)
 {
 	if (!Get())
 	{
-		puts(convertstring<char16_t, char>(sText).c_str());
+		puts(convertstring<tchar, char>(sText).c_str());
 		return;
 	}
 
 	CConsole* pConsole = Get()->GetConsole();
 	pConsole->PrintConsole(sText);
-}
-
-void CApplication::PrintConsole(eastl::string sText)
-{
-	PrintConsole(convertstring<char, char16_t>(sText));
 }
 
 CConsole* CApplication::GetConsole()
@@ -275,7 +270,7 @@ CConsole* CApplication::GetConsole()
 		m_pConsole->SetVisible(false);
 
 		if (developer.GetBool())
-			TMsg(L"Developer mode ON.\n");
+			TMsg(_T("Developer mode ON.\n"));
 	}
 
 	return m_pConsole;

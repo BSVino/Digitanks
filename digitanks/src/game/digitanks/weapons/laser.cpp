@@ -23,7 +23,7 @@ INPUTS_TABLE_END();
 
 void CLaser::Precache()
 {
-	s_iBeam = CTextureLibrary::AddTextureID(L"textures/beam-pulse.png");
+	s_iBeam = CTextureLibrary::AddTextureID(_T("textures/beam-pulse.png"));
 }
 
 void CLaser::ClientSpawn()
@@ -113,7 +113,7 @@ void CLaser::PostRender(bool bTransparent) const
 	if (!m_bShouldRender)
 		return;
 
-	if (m_hOwner == NULL)
+	if (!m_hOwner)
 		return;
 
 	CRenderingContext r(DigitanksGame()->GetDigitanksRenderer());

@@ -15,6 +15,7 @@
 #include <game/gameserver.h>
 #include <network/network.h>
 #include <network/commands.h>
+#include <tinker/chatbox.h>
 
 #include <ui/digitankswindow.h>
 #include <ui/ui.h>
@@ -23,7 +24,6 @@
 #include "powerup.h"
 #include "terrain.h"
 #include "dt_camera.h"
-#include <ui/chatbox.h>
 #include <ui/weaponpanel.h>
 
 #include "digitanks/menumarcher.h"
@@ -73,7 +73,7 @@ REGISTER_ENTITY(CDigitanksGame);
 
 NETVAR_TABLE_BEGIN(CDigitanksGame);
 	NETVAR_DEFINE(size_t, m_iCurrentTeam);
-	NETVAR_DEFINE(eastl::string16, m_sObjective);
+	NETVAR_DEFINE(tstring, m_sObjective);
 	NETVAR_DEFINE(CEntityHandle<CTerrain>, m_hTerrain);
 	NETVAR_DEFINE(size_t, m_iDifficulty);
 	NETVAR_DEFINE(bool, m_bRenderFogOfWar);
@@ -96,7 +96,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksGame);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, size_t, m_iCurrentTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, controlmode_t, m_eControlMode);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, aimtype_t, m_eAimType);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sObjective);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, tstring, m_sObjective);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CTerrain>, m_hTerrain);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, CEntityHandle<CInstructorEntity>, m_hInstructor);
 	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, IDigitanksGameListener*, m_pListener);	// Set by constructor
@@ -146,7 +146,7 @@ void CDigitanksGame::Precache()
 	BaseClass::Precache();
 
 	// We precache this for the hud since it's not an entity
-	PrecacheSound(L"sound/actionsign.wav");
+	PrecacheSound(_T("sound/actionsign.wav"));
 }
 
 void CDigitanksGame::Spawn()
@@ -175,7 +175,7 @@ void CDigitanksGame::Spawn()
 
 	m_pLevel = NULL;
 
-	m_sObjective = L"Win the game";
+	m_sObjective = _T("Win the game");
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -271,76 +271,76 @@ void CDigitanksGame::SetupGame(gametype_t eGameType)
 	GameServer()->SetLoading(false);
 }
 
-void CDigitanksGame::ReadGameScript(eastl::string16 sScript)
+void CDigitanksGame::ReadGameScript(tstring sScript)
 {
 	for (size_t i = 0; i < m_aflConstructionCosts.size(); i++)
 		m_aflConstructionCosts[i] = 0;
 	for (size_t i = 0; i < m_aflUpgradeCosts.size(); i++)
 		m_aflUpgradeCosts[i] = 0;
 
-	std::ifstream f((eastl::string16(L"scripts/") + sScript).c_str());
+	std::basic_ifstream<tchar> f((eastl::string("scripts/") + convertstring<tchar, char>(sScript)).c_str());
 	CData* pData = new CData();
 	CDataSerializer::Read(f, pData);
 
-	CData* pConstructionCosts = pData->FindChild("ConstructionCosts");
+	CData* pConstructionCosts = pData->FindChild(_T("ConstructionCosts"));
 
 	if (pConstructionCosts)
 	{
 		CData* pChild;
 		
-		pChild = pConstructionCosts->FindChild("AutoTurret");
+		pChild = pConstructionCosts->FindChild(_T("AutoTurret"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_FIREWALL] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Minibuffer");
+		pChild = pConstructionCosts->FindChild(_T("Minibuffer"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_MINIBUFFER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Buffer");
+		pChild = pConstructionCosts->FindChild(_T("Buffer"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_BUFFER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("BufferUpgrade");
+		pChild = pConstructionCosts->FindChild(_T("BufferUpgrade"));
 		if (pChild)
 			m_aflUpgradeCosts[STRUCTURE_BUFFER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Battery");
+		pChild = pConstructionCosts->FindChild(_T("Battery"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_BATTERY] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("PSU");
+		pChild = pConstructionCosts->FindChild(_T("PSU"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("PSUUpgrade");
+		pChild = pConstructionCosts->FindChild(_T("PSUUpgrade"));
 		if (pChild)
 			m_aflUpgradeCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("ResistorLoader");
+		pChild = pConstructionCosts->FindChild(_T("ResistorLoader"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_INFANTRYLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("DigitankLoader");
+		pChild = pConstructionCosts->FindChild(_T("DigitankLoader"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_TANKLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("ArtilleryLoader");
+		pChild = pConstructionCosts->FindChild(_T("ArtilleryLoader"));
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_ARTILLERYLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Resistor");
+		pChild = pConstructionCosts->FindChild(_T("Resistor"));
 		if (pChild)
 			m_aflConstructionCosts[UNIT_INFANTRY] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Tank");
+		pChild = pConstructionCosts->FindChild(_T("Tank"));
 		if (pChild)
 			m_aflConstructionCosts[UNIT_TANK] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Artillery");
+		pChild = pConstructionCosts->FindChild(_T("Artillery"));
 		if (pChild)
 			m_aflConstructionCosts[UNIT_ARTILLERY] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild("Scout");
+		pChild = pConstructionCosts->FindChild(_T("Scout"));
 		if (pChild)
 			m_aflConstructionCosts[UNIT_SCOUT] = pChild->GetValueFloat();
 	}
@@ -370,7 +370,7 @@ void CDigitanksGame::ScatterResources()
 				continue;
 
 			CResource* pResource = GameServer()->Create<CResource>("CResource");
-			pResource->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			pResource->SetOrigin(m_hTerrain->GetPointHeight(Vector(x, 0, z)));
 			pResource->FindGround();
 		}
 	}
@@ -380,7 +380,7 @@ void CDigitanksGame::SetupProps()
 {
 /*	// I'm changing the game settings code over to cvars and since this code is not used I'm just commenting it out.
 	// I did try to change it to what it should be though.
-	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	CDigitanksLevel* pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(_T("game_level")));
 
 	if (!pLevel)
 		return;
@@ -389,10 +389,10 @@ void CDigitanksGame::SetupProps()
 	{
 		CLevelProp* pLevelProp = pLevel->GetProp(iProps);
 		CStaticProp* pProp = GameServer()->Create<CStaticProp>("CStaticProp");
-		pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelProp->m_vecPosition.x, 0, pLevelProp->m_vecPosition.y)));
+		pProp->SetOrigin(m_hTerrain->GetPointHeight(Vector(pLevelProp->m_vecPosition.x, 0, pLevelProp->m_vecPosition.y)));
 		pProp->SetAngles(EAngle(0, pLevelProp->m_angOrientation.y, 0));
 		pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
-		pProp->SetModel(convertstring<char, char16_t>(pLevelProp->m_sModel));
+		pProp->SetModel(convertstring<char, tchar>(pLevelProp->m_sModel));
 	}*/
 
 /*	for (int i = (int)-m_hTerrain->GetMapSize(); i < (int)m_hTerrain->GetMapSize(); i += 100)
@@ -412,32 +412,32 @@ void CDigitanksGame::SetupProps()
 				continue;
 
 			CStaticProp* pProp = GameServer()->Create<CStaticProp>("CStaticProp");
-			pProp->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			pProp->SetOrigin(m_hTerrain->GetPointHeight(Vector(x, 0, z)));
 			pProp->SetAngles(EAngle(0, RandomFloat(0, 360), 0));
 			pProp->SetColorSwap(m_hTerrain->GetPrimaryTerrainColor());
 
 			if (GetGameType() == GAMETYPE_ARTILLERY)
 			{
-				pProp->SetModel(L"models/props/prop05.obj");
+				pProp->SetModel(_T("models/props/prop05.obj"));
 			}
 			else
 			{
 				switch (RandomInt(0, 3))
 				{
 				case 0:
-					pProp->SetModel(L"models/props/prop01.obj");
+					pProp->SetModel(_T("models/props/prop01.obj"));
 					break;
 
 				case 1:
-					pProp->SetModel(L"models/props/prop02.obj");
+					pProp->SetModel(_T("models/props/prop02.obj"));
 					break;
 
 				case 2:
-					pProp->SetModel(L"models/props/prop03.obj");
+					pProp->SetModel(_T("models/props/prop03.obj"));
 					break;
 
 				case 3:
-					pProp->SetModel(L"models/props/prop04.obj");
+					pProp->SetModel(_T("models/props/prop04.obj"));
 					break;
 				}
 			}
@@ -451,7 +451,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 
 	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 	pTeam->SetColor(Color(128, 128, 128));
-	pTeam->SetTeamName(eastl::string16(L"Network Guardians"));
+	pTeam->SetTeamName(tstring(_T("Network Guardians")));
 	pTeam->Bot_UseArtilleryAI();
 	pTeam->SetNotHumanPlayable();
 	pTeam->DontIncludeInScoreboard();
@@ -473,7 +473,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 				continue;
 
 			CBugTurret* pTurret = GameServer()->Create<CBugTurret>("CBugTurret");
-			pTurret->SetOrigin(m_hTerrain->SetPointHeight(Vector(x, 0, z)));
+			pTurret->SetOrigin(m_hTerrain->GetPointHeight(Vector(x, 0, z)));
 			pTeam->AddEntity(pTurret);
 		}
 	}
@@ -485,9 +485,9 @@ CVar game_tanks("game_tanks", "3");
 
 void CDigitanksGame::SetupArtillery()
 {
-	TMsg(L"Setting up artillery game.\n");
+	TMsg(_T("Setting up artillery game.\n"));
 
-	m_sObjective = L"Destroy all enemy tanks";
+	m_sObjective = _T("Destroy all enemy tanks");
 
 	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
@@ -518,7 +518,7 @@ void CDigitanksGame::SetupArtillery()
 	int iTanks = game_tanks.GetInt();
 
 	if (GameServer()->ShouldSetupFromLobby())
-		iTanks = _wtoi(CGameLobbyClient::L_GetInfoValue(L"tanks").c_str());
+		iTanks = stoi(CGameLobbyClient::L_GetInfoValue(_T("tanks")).c_str());
 
 	if (iTanks > 4)
 		iTanks = 4;
@@ -535,11 +535,11 @@ void CDigitanksGame::SetupArtillery()
 		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-			eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
-			if (sColor == L"random" || sColor == L"")
+			tstring sColor = pPlayer->GetInfoValue(_T("color"));
+			if (sColor == _T("random") || sColor == _T(""))
 				continue;
 
-			size_t iColor = _wtoi(sColor.c_str());
+			size_t iColor = stoi(sColor.c_str());
 			for (size_t j = 0; j < aiAvailableColors.size(); j++)
 			{
 				if (aiAvailableColors[j] == iColor)
@@ -562,8 +562,8 @@ void CDigitanksGame::SetupArtillery()
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
 			if (pPlayer)
 			{
-				eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
-				if (sColor == L"random" || sColor == L"")
+				tstring sColor = pPlayer->GetInfoValue(_T("color"));
+				if (sColor == _T("random") || sColor == _T(""))
 				{
 					size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
 					pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
@@ -572,7 +572,7 @@ void CDigitanksGame::SetupArtillery()
 				}
 				else
 				{
-					size_t iColor = _wtoi(sColor.c_str());
+					size_t iColor = stoi(sColor.c_str());
 					pTeam->SetColor(g_aclrTeamColors[iColor]);
 					pTeam->SetTeamName(g_aszTeamNames[iColor]);
 				}
@@ -585,10 +585,10 @@ void CDigitanksGame::SetupArtillery()
 				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
 			}
 
-			if (pPlayer && pPlayer->GetInfoValue(L"bot") != L"1")
-				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
+			if (pPlayer && pPlayer->GetInfoValue(_T("bot")) != _T("1"))
+				pTeam->SetTeamName(pPlayer->GetInfoValue(_T("name")));
 
-			if (pPlayer->GetInfoValue(L"bot") == L"1")
+			if (pPlayer->GetInfoValue(_T("bot")) == _T("1"))
 				pTeam->SetClient(NETWORK_BOT);
 			else
 			{
@@ -605,7 +605,7 @@ void CDigitanksGame::SetupArtillery()
 			{
 				if (i == 0)
 				{
-					eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+					tstring sPlayerNickname = TPortal_GetPlayerNickname();
 					if (sPlayerNickname.length())
 						pTeam->SetTeamName(sPlayerNickname);
 				}
@@ -621,11 +621,11 @@ void CDigitanksGame::SetupArtillery()
 
 void CDigitanksGame::SetupStrategy()
 {
-	TMsg(L"Setting up strategy game.\n");
+	TMsg(_T("Setting up strategy game.\n"));
 
-	m_sObjective = L"Destroy all enemy CPUs";
+	m_sObjective = _T("Destroy all enemy CPUs");
 
-	ReadGameScript(L"strategy.txt");
+	ReadGameScript(_T("strategy.txt"));
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
@@ -681,11 +681,11 @@ void CDigitanksGame::SetupStrategy()
 		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-			eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
-			if (sColor == L"random" || sColor == L"")
+			tstring sColor = pPlayer->GetInfoValue(_T("color"));
+			if (sColor == _T("random") || sColor == _T(""))
 				continue;
 
-			size_t iColor = _wtoi(sColor.c_str());
+			size_t iColor = stoi(sColor.c_str());
 			for (size_t j = 0; j < aiAvailableColors.size(); j++)
 			{
 				if (aiAvailableColors[j] == iColor)
@@ -708,8 +708,8 @@ void CDigitanksGame::SetupStrategy()
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
 			if (pPlayer)
 			{
-				eastl::string16 sColor = pPlayer->GetInfoValue(L"color");
-				if (sColor == L"random" || sColor == L"")
+				tstring sColor = pPlayer->GetInfoValue(_T("color"));
+				if (sColor == _T("random") || sColor == _T(""))
 				{
 					size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
 					pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
@@ -718,7 +718,7 @@ void CDigitanksGame::SetupStrategy()
 				}
 				else
 				{
-					size_t iColor = _wtoi(sColor.c_str());
+					size_t iColor = stoi(sColor.c_str());
 					pTeam->SetColor(g_aclrTeamColors[iColor]);
 					pTeam->SetTeamName(g_aszTeamNames[iColor]);
 				}
@@ -731,10 +731,10 @@ void CDigitanksGame::SetupStrategy()
 				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
 			}
 
-			if (pPlayer && pPlayer->GetInfoValue(L"bot") != L"1")
-				pTeam->SetTeamName(pPlayer->GetInfoValue(L"name"));
+			if (pPlayer && pPlayer->GetInfoValue(_T("bot")) != _T("1"))
+				pTeam->SetTeamName(pPlayer->GetInfoValue(_T("name")));
 
-			if (pPlayer->GetInfoValue(L"bot") == L"1")
+			if (pPlayer->GetInfoValue(_T("bot")) == _T("1"))
 				pTeam->SetClient(NETWORK_BOT);
 			else
 			{
@@ -749,7 +749,7 @@ void CDigitanksGame::SetupStrategy()
 
 			if (i == 0)
 			{
-				eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+				tstring sPlayerNickname = TPortal_GetPlayerNickname();
 				if (sPlayerNickname.length())
 					pTeam->SetTeamName(sPlayerNickname);
 
@@ -766,7 +766,7 @@ void CDigitanksGame::SetupStrategy()
 
 		CMobileCPU* pMobileCPU = GameServer()->Create<CMobileCPU>("CMobileCPU");
 		pTeam->AddEntity(pMobileCPU);
-		pMobileCPU->SetOrigin(m_hTerrain->SetPointHeight(avecRandomStartingPositions[i]));
+		pMobileCPU->SetOrigin(m_hTerrain->GetPointHeight(avecRandomStartingPositions[i]));
 		pMobileCPU->SetAngles(VectorAngles(-avecRandomStartingPositions[i].Normalized()));
 
 
@@ -805,7 +805,7 @@ void CDigitanksGame::SetupStrategy()
 		vecTank = avecRandomStartingPositions[i] + vecForward * 20 + vecRight * 20;
 		angTank = VectorAngles(-vecTank.Normalized());
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(vecTank));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(vecTank));
 		pTank->SetAngles(angTank);
 		pTank->GiveBonusPoints(1, false);
 	}
@@ -814,7 +814,7 @@ void CDigitanksGame::SetupStrategy()
 	{
 		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
-			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(L"bot") == L"1")
+			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(_T("bot")) == _T("1"))
 				continue;
 
 			// There's one neutral team at the front so skip it.
@@ -849,7 +849,7 @@ void CDigitanksGame::SetupStrategy()
 
 void CDigitanksGame::SetupMenuMarch()
 {
-	TMsg(L"Setting up menu march.\n");
+	TMsg(_T("Setting up menu march.\n"));
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
@@ -861,7 +861,7 @@ void CDigitanksGame::SetupMenuMarch()
 	CMenuMarcher* pMarcher;
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(L"Specifying marchers", 4*5*4);
+		GameServer()->GetWorkListener()->SetAction(_T("Specifying marchers"), 4*5*4);
 
 	for (size_t i = 0; i < 4; i++)
 	{
@@ -874,7 +874,7 @@ void CDigitanksGame::SetupMenuMarch()
 				pMarcher = GameServer()->Create<CMenuMarcher>("CMenuMarcher");
 				m_ahTeams[0]->AddEntity(pMarcher);
 
-				pMarcher->SetOrigin(GetTerrain()->SetPointHeight(Vector(RemapVal((float)j, 0, 5, -15, 15), 0, flZ + RemapVal((float)k, 0, 4, -15, 15))));
+				pMarcher->SetOrigin(GetTerrain()->GetPointHeight(Vector(RemapVal((float)j, 0, 5, -15, 15), 0, flZ + RemapVal((float)k, 0, 4, -15, 15))));
 				pMarcher->SetAngles(EAngle(0,90,0));
 
 				if (GameServer()->GetWorkListener())
@@ -889,7 +889,7 @@ void CDigitanksGame::SetupMenuMarch()
 	m_iPowerups = 0;
 }
 
-void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void MissionReload(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -916,7 +916,7 @@ void MissionReload(class CCommand* pCommand, eastl::vector<eastl::string16>& asT
 
 CCommand mission_reload("mission_reload", ::MissionReload);
 
-void MissionWin(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void MissionWin(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	if (!CVar::GetCVarBool("cheats"))
 		return;
@@ -926,7 +926,7 @@ void MissionWin(class CCommand* pCommand, eastl::vector<eastl::string16>& asToke
 
 CCommand mission_win("mission_win", ::MissionWin);
 
-void MissionLose(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void MissionLose(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	DigitanksGame()->PlayerLoss(asTokens);
 }
@@ -935,11 +935,11 @@ CCommand mission_lose("mission_lose", ::MissionLose);
 
 void CDigitanksGame::SetupCampaign(bool bReload)
 {
-	TMsg(sprintf(L"Setting up campaign %s.\n", CVar::GetCVarValue(L"game_level")));
+	TMsg(sprintf(tstring("Setting up campaign %s.\n"), CVar::GetCVarValue(_T("game_level")).c_str()));
 
 	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
-	m_sObjective = convertstring<char, char16_t>(m_pLevel->GetObjective());
+	m_sObjective = m_pLevel->GetObjective();
 
 	GameServer()->Create<CCampaignEntity>("CCampaignEntity");
 
@@ -955,7 +955,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 	m_ahTeams[0]->SetClient(NETWORK_LOCAL);
 	m_ahTeams[0]->SetInstallID(CNetwork::GetInstallID());
 
-	eastl::string16 sPlayerNickname = TPortal_GetPlayerNickname();
+	tstring sPlayerNickname = TPortal_GetPlayerNickname();
 	if (sPlayerNickname.length())
 		m_ahTeams[0]->SetTeamName(sPlayerNickname);
 
@@ -1035,7 +1035,7 @@ void CDigitanksGame::SetupCampaign(bool bReload)
 		if (!pUnit)
 			continue;
 
-		pUnit->SetOrigin(m_hTerrain->SetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
+		pUnit->SetOrigin(m_hTerrain->GetPointHeight(Vector(pLevelUnit->m_vecPosition.x, 0, pLevelUnit->m_vecPosition.y)));
 		pUnit->SetAngles(EAngle(0, pLevelUnit->m_angOrientation.y, 0));
 		pUnit->SetObjective(pLevelUnit->m_bObjective);
 
@@ -1156,7 +1156,7 @@ CDigitanksLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
 	return dynamic_cast<CDigitanksLevel*>(GetLevels(eGameType)[i]);
 }
 
-CDigitanksLevel* CDigitanksGame::GetLevel(eastl::string16 sFile)
+CDigitanksLevel* CDigitanksGame::GetLevel(tstring sFile)
 {
 	return dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(sFile));
 }
@@ -1268,7 +1268,7 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	float flTerrainHeight = game_terrainheight.GetFloat();
 	if (GameServer()->ShouldSetupFromLobby())
-		flTerrainHeight = (float)_wtof(CGameLobbyClient::L_GetInfoValue(L"terrain").c_str());
+		flTerrainHeight = (float)stof(CGameLobbyClient::L_GetInfoValue(_T("terrain")).c_str());
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain(flTerrainHeight);
@@ -1282,7 +1282,7 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	size_t iTanksPerPlayer = game_tanks.GetInt();
 	if (GameServer()->ShouldSetupFromLobby())
-		iTanksPerPlayer = _wtoi(CGameLobbyClient::L_GetInfoValue(L"tanks").c_str());
+		iTanksPerPlayer = stoi(CGameLobbyClient::L_GetInfoValue(_T("tanks")).c_str());
 
 	size_t iTotalTanks = iTanksPerPlayer * iPlayers;
 
@@ -1298,7 +1298,7 @@ void CDigitanksGame::SetupArtilleryRound()
 	}
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(L"Randomizing tank locations", iTotalTanks);
+		GameServer()->GetWorkListener()->SetAction(_T("Randomizing tank locations"), iTotalTanks);
 
 	size_t iPosition = 0;
 	size_t iTanksPlaced = 0;
@@ -1392,16 +1392,16 @@ bool CDigitanksGame::HasRounds()
 	return m_eGameType == GAMETYPE_ARTILLERY;
 }
 
-void CDigitanksGame::Autosave(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksGame::Autosave(const eastl::vector<tstring>& sArgs)
 {
 	Autosave();
 }
 
 void CDigitanksGame::Autosave()
 {
-	GameServer()->SaveToFile(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"autosave.sav").c_str());
+	GameServer()->SaveToFile(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("autosave.sav")).c_str());
 
-	DigitanksWindow()->GetChatBox()->PrintChat(L"Autosave...\n");
+	DigitanksWindow()->GetChatBox()->PrintChat(_T("Autosave...\n"));
 }
 
 void CDigitanksGame::Think()
@@ -1745,7 +1745,7 @@ void CDigitanksGame::FireTanks()
 		{
 			Vector vecDirection = vecTankAim - pTank->GetOrigin();
 			vecDirection.y = 0;
-			vecTankAim = DigitanksGame()->GetTerrain()->SetPointHeight(pTank->GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+			vecTankAim = DigitanksGame()->GetTerrain()->GetPointHeight(pTank->GetOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 		}
 
 		pTank->SetPreviewAim(vecTankAim);
@@ -1758,7 +1758,7 @@ void CDigitanksGame::FireTanks()
 	SetControlMode(MODE_NONE);
 }
 
-void CDigitanksGame::CancelAutoMoves(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksGame::CancelAutoMoves(const eastl::vector<tstring>& sArgs)
 {
 	CDigitanksTeam* pTeam = GetCurrentTeam();
 	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -1849,8 +1849,7 @@ void CDigitanksGame::StartTurn()
 				float flX = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize()) * 0.95f;
 				float flZ = RandomFloat(-GetTerrain()->GetMapSize(), GetTerrain()->GetMapSize()) * 0.95f;
 
-				vecPoint = Vector(flX, 0, flZ);
-				GetTerrain()->SetPointHeight(vecPoint);
+				vecPoint = GetTerrain()->GetPointHeight(Vector(flX, 0, flZ));
 
 				bIsVisible = false;
 
@@ -1912,7 +1911,7 @@ void CDigitanksGame::StartTurn(int iConnection, CNetworkParameters* p)
 		m_iTurn++;
 
 	if (GetGameType() != GAMETYPE_CAMPAIGN && m_iCurrentTeam == (size_t)0 && m_iTurn > 10 && m_iTurn%5 == 0)
-		Autosave(eastl::vector<eastl::string16>());
+		Autosave(eastl::vector<tstring>());
 
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
@@ -2075,15 +2074,15 @@ SERVER_GAME_COMMAND(HitIndicator)
 {
 	if (pCmd->GetNumArguments() == 0)
 	{
-		TMsg(L"HitIndicator with 0 arguments.\n");
+		TMsg(_T("HitIndicator with 0 arguments.\n"));
 		return;
 	}
 
-	if (pCmd->Arg(0) == L"sdmg")
+	if (pCmd->Arg(0) == _T("sdmg"))
 	{
 		if (pCmd->GetNumArguments() < 7)
 		{
-			TMsg(L"HitIndicator sdmg with not enough arguments.\n");
+			TMsg(_T("HitIndicator sdmg with not enough arguments.\n"));
 			return;
 		}
 
@@ -2099,11 +2098,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == L"dmg")
+	if (pCmd->Arg(0) == _T("dmg"))
 	{
 		if (pCmd->GetNumArguments() < 7)
 		{
-			TMsg(L"HitIndicator dmg with not enough arguments.\n");
+			TMsg(_T("HitIndicator dmg with not enough arguments.\n"));
 			return;
 		}
 
@@ -2119,11 +2118,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == L"disable")
+	if (pCmd->Arg(0) == _T("disable"))
 	{
 		if (pCmd->GetNumArguments() < 4)
 		{
-			TMsg(L"HitIndicator disable with not enough arguments.\n");
+			TMsg(_T("HitIndicator disable with not enough arguments.\n"));
 			return;
 		}
 
@@ -2139,11 +2138,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == L"miss")
+	if (pCmd->Arg(0) == _T("miss"))
 	{
 		if (pCmd->GetNumArguments() < 4)
 		{
-			TMsg(L"HitIndicator miss with not enough arguments.\n");
+			TMsg(_T("HitIndicator miss with not enough arguments.\n"));
 			return;
 		}
 
@@ -2185,20 +2184,20 @@ SERVER_GAME_COMMAND(HitIndicator)
 void CDigitanksGame::OnTakeShieldDamage(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly)
 {
 	if (GameNetwork()->IsHost())
-		HitIndicator.RunCommand(sprintf(L"sdmg %d %d %d %f %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bShieldOnly));
+		HitIndicator.RunCommand(sprintf(tstring("sdmg %d %d %d %f %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bShieldOnly));
 }
 
 void CDigitanksGame::OnTakeDamage(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)
 {
 	if (GameNetwork()->IsHost())
-		HitIndicator.RunCommand(sprintf(L"dmg %d %d %d %f %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bKilled));
+		HitIndicator.RunCommand(sprintf(tstring("dmg %d %d %d %f %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor), flDamage, bDirectHit, bKilled));
 }
 
 void CDigitanksGame::OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
 	if (GameNetwork()->IsHost())
 	{
-		HitIndicator.RunCommand(sprintf(L"disable %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
+		HitIndicator.RunCommand(sprintf(tstring("disable %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
 		if (pTank)
@@ -2210,7 +2209,7 @@ void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseE
 {
 	if (GameNetwork()->IsHost())
 	{
-		HitIndicator.RunCommand(sprintf(L"miss %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
+		HitIndicator.RunCommand(sprintf(tstring("miss %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 
 		CDigitank* pTank = dynamic_cast<CDigitank*>(pVictim);
 		if (pTank)
@@ -2318,10 +2317,10 @@ void CDigitanksGame::GameOver()
 	m_bPartyMode = true;
 	m_flPartyModeStart = GameServer()->GetGameTime();
 
-	::GameOver.RunCommand(L"");
+	::GameOver.RunCommand(_T(""));
 }
 
-void CDigitanksGame::PlayerVictory(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksGame::PlayerVictory(const eastl::vector<tstring>& sArgs)
 {
 	for (size_t i = 0; i < GetNumTeams(); i++)
 	{
@@ -2335,7 +2334,7 @@ void CDigitanksGame::PlayerVictory(const eastl::vector<eastl::string16>& sArgs)
 	GameOver();
 }
 
-void CDigitanksGame::PlayerLoss(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksGame::PlayerLoss(const eastl::vector<tstring>& sArgs)
 {
 	for (size_t i = 0; i < GetNumTeams(); i++)
 	{
@@ -2349,7 +2348,7 @@ void CDigitanksGame::PlayerLoss(const eastl::vector<eastl::string16>& sArgs)
 	GameOver();
 }
 
-void CDigitanksGame::TankSelectionMedal(const eastl::vector<eastl::string16>& sArgs)
+void CDigitanksGame::TankSelectionMedal(const eastl::vector<tstring>& sArgs)
 {
 	DigitanksWindow()->GetHUD()->ShowTankSelectionMedal();
 }
@@ -2546,7 +2545,7 @@ void CDigitanksGame::WeaponSpecialCommand(CDigitanksTeam* pTeam)
 
 	if (!pTeam)
 	{
-		::WeaponSpecial.RunCommand(L"");
+		::WeaponSpecial.RunCommand(_T(""));
 		return;
 	}
 
@@ -2620,7 +2619,7 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 		m_ahTeams[0]->AddEntity(pTank);
 		pTank->StartTurn();
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(Vector(0, 0, 0)));
 
 		GetDigitanksCamera()->SnapTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2634,7 +2633,7 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 		CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[1]->AddEntity(pTank);
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, -50)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(Vector(0, 0, -50)));
 
 		GetDigitanksCamera()->SetTarget(GetDigitanksTeam(0)->GetTank(0)->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2643,19 +2642,19 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 	else if (sTutorial == CInstructor::TUTORIAL_POWERUP)
 	{
 		CPowerup* pPowerup = GameServer()->Create<CPowerup>("CPowerup");
-		pPowerup->SetOrigin(GetTerrain()->SetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
+		pPowerup->SetOrigin(GetTerrain()->GetPointHeight(GetDigitanksTeam(0)->GetTank(0)->GetOrigin() + Vector(0, 0, -10)));
 	}
 	else if (sTutorial == CInstructor::TUTORIAL_SHIFTSELECT)
 	{
 		CDigitank* pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[0]->AddEntity(pTank);
 		pTank->StartTurn();
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(-15, 0, 15)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(-15, 0, 15)));
 
 		pTank = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[0]->AddEntity(pTank);
 		pTank->StartTurn();
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(15, 0, -15)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(m_ahTeams[0]->GetMember(0)->GetOrigin() + Vector(15, 0, -15)));
 	}
 	else if (sTutorial == CInstructor::TUTORIAL_THEEND_BASICS)
 	{
@@ -2665,12 +2664,12 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 	else if (sTutorial == CInstructor::TUTORIAL_INTRO_BASES)
 	{
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+		pCPU->SetOrigin(GetTerrain()->GetPointHeight(Vector(0, 0, 0)));
 		m_ahTeams[0]->AddEntity(pCPU);
 		pCPU->UpdateTendrils();
 
 		CResource* pResource = GameServer()->Create<CResource>("CResource");
-		pResource->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 20)));
+		pResource->SetOrigin(GetTerrain()->GetPointHeight(Vector(0, 0, 20)));
 
 		GetDigitanksCamera()->SnapTarget(pCPU->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2691,7 +2690,7 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 		m_ahTeams[0]->AddEntity(pTank);
 		pTank->StartTurn();
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(Vector(0, 0, 0)));
 
 		GetDigitanksCamera()->SnapTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2710,7 +2709,7 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 		m_ahTeams[0]->AddEntity(pTank);
 		pTank->StartTurn();
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0, 0, 0)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(Vector(0, 0, 0)));
 
 		GetDigitanksCamera()->SetTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2728,14 +2727,14 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 		pTarget->StartTurn();
 
 		Vector vecOrigin = pArtillery->GetOrigin() + AngleVector(pTarget->GetAngles()) * pArtillery->GetEffRange();
-		pTarget->SetOrigin(GetTerrain()->SetPointHeight(vecOrigin));
+		pTarget->SetOrigin(GetTerrain()->GetPointHeight(vecOrigin));
 
 		CDigitank* pSpotter = GameServer()->Create<CMainBattleTank>("CMainBattleTank");
 		m_ahTeams[0]->AddEntity(pSpotter);
 		pSpotter->StartTurn();
 
 		vecOrigin = pArtillery->GetOrigin() + AngleVector(pTarget->GetAngles()) * (pArtillery->GetMinRange() + pArtillery->GetEffRange())/2;
-		pSpotter->SetOrigin(GetTerrain()->SetPointHeight(vecOrigin));
+		pSpotter->SetOrigin(GetTerrain()->GetPointHeight(vecOrigin));
 
 		GetDigitanksCamera()->SetTarget(pTarget->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2757,7 +2756,7 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 		m_ahTeams[0]->AddEntity(pTank);
 		pTank->StartTurn();
 
-		pTank->SetOrigin(GetTerrain()->SetPointHeight(Vector(0.0f, 0, 0.0f)));
+		pTank->SetOrigin(GetTerrain()->GetPointHeight(Vector(0.0f, 0, 0.0f)));
 
 		GetDigitanksCamera()->SetTarget(pTank->GetOrigin());
 		GetDigitanksCamera()->SetDistance(100);
@@ -2768,12 +2767,12 @@ void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
 	else if (sTutorial == CInstructor::TUTORIAL_TORPEDO)
 	{
 		CCPU* pCPU = GameServer()->Create<CCPU>("CCPU");
-		pCPU->SetOrigin(GetTerrain()->SetPointHeight(Vector(20, 0, 20)));
+		pCPU->SetOrigin(GetTerrain()->GetPointHeight(Vector(20, 0, 20)));
 		m_ahTeams[1]->AddEntity(pCPU);
 
 		CBuffer* pBuffer = GameServer()->Create<CBuffer>("CBuffer");
 		pBuffer->CompleteConstruction();
-		pBuffer->SetOrigin(GetTerrain()->SetPointHeight(Vector(-20, 0, 20)));
+		pBuffer->SetOrigin(GetTerrain()->GetPointHeight(Vector(-20, 0, 20)));
 		m_ahTeams[1]->AddEntity(pBuffer);
 		pBuffer->SetSupplier(pCPU);
 
@@ -3029,7 +3028,7 @@ CDigitanksTeam* CDigitanksGame::GetCurrentLocalDigitanksTeam()
 void CDigitanksGame::SetCurrentLevel(eastl::string sLevel)
 {
 	CVar::SetCVar("game_level", sLevel);
-	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(L"game_level"));
+	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(_T("game_level")));
 
 	if (!m_pLevel)
 		return;

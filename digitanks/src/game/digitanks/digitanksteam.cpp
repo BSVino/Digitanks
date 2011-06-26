@@ -34,7 +34,7 @@ NETVAR_TABLE_BEGIN(CDigitanksTeam);
 	NETVAR_DEFINE_CALLBACK(float, m_flUpdateDownloaded, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flMegabytes, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(float, m_flBandwidth, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE_CALLBACK(eastl::string16, m_sTurnInfo, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(tstring, m_sTurnInfo, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildBuffers, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildPSUs, &CDigitanksGame::UpdateHUD);
 	NETVAR_DEFINE_CALLBACK(bool, m_bCanBuildInfantryLoaders, &CDigitanksGame::UpdateHUD);
@@ -76,7 +76,7 @@ SAVEDATA_TABLE_BEGIN(CDigitanksTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flUpdateDownloaded);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flMegabytes);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flBandwidth);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sTurnInfo);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, tstring, m_sTurnInfo);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildBuffers);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildPSUs);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bCanBuildInfantryLoaders);
@@ -137,7 +137,7 @@ void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
 	m_aflVisibilities[pEntity->GetHandle()] = 1;
 
 	const CCPU* pCPU = dynamic_cast<const CCPU*>(pEntity);
-	if (m_hPrimaryCPU == NULL && pCPU)
+	if (!m_hPrimaryCPU && pCPU)
 		m_hPrimaryCPU = pCPU;
 
 	DigitanksWindow()->GetHUD()->OnAddEntityToTeam(this, pEntity);
@@ -375,14 +375,14 @@ void CDigitanksTeam::StartTurn()
 			// Return the excess.
 			m_flMegabytes = GetUpdateDownloaded() - GetUpdateSize();
 
-			AppendTurnInfo(L"'" + GetUpdateDownloading()->GetName() + L"' finished downloading.");
+			AppendTurnInfo(_T("'") + GetUpdateDownloading()->GetName() + _T("' finished downloading."));
 
 			DownloadComplete();
 		}
 		else
 		{
-			eastl::string16 s;
-			s.sprintf((L"Downloading '" + GetUpdateDownloading()->GetName() + L"' (%d turns left)").c_str(), GetTurnsToDownload());
+			tstring s;
+			s.sprintf((_T("Downloading '") + GetUpdateDownloading()->GetName() + _T("' (%d turns left)")).c_str(), GetTurnsToDownload());
 			AppendTurnInfo(s);
 		}
 	}
@@ -404,7 +404,7 @@ void CDigitanksTeam::StartTurn()
 
 void CDigitanksTeam::EndTurn()
 {
-	m_sTurnInfo = L"";
+	m_sTurnInfo = _T("");
 	m_aActionItems.clear();
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -549,7 +549,7 @@ void CDigitanksTeam::YouLoseSirGoodDay()
 {
 	m_bLost = true;
 
-	::YouLoseSirGoodDay.RunCommand(L"", GetClient());
+	::YouLoseSirGoodDay.RunCommand(_T(""), GetClient());
 }
 
 void CDigitanksTeam::CountBandwidth()
@@ -575,15 +575,15 @@ void CDigitanksTeam::CountBandwidth()
 	}
 }
 
-void CDigitanksTeam::AppendTurnInfo(const eastl::string16& sTurnInfo)
+void CDigitanksTeam::AppendTurnInfo(const tstring& sTurnInfo)
 {
 	if (m_sTurnInfo.length() == 0)
-		m_sTurnInfo = L"TURN REPORT\n \n";
+		m_sTurnInfo = _T("TURN REPORT\n \n");
 
-	m_sTurnInfo += L"* " + sTurnInfo + L"\n";
+	m_sTurnInfo += _T("* ") + sTurnInfo + _T("\n");
 }
 
-eastl::string16 CDigitanksTeam::GetTurnInfo()
+tstring CDigitanksTeam::GetTurnInfo()
 {
 	return m_sTurnInfo;
 }
@@ -789,7 +789,7 @@ CLIENT_GAME_COMMAND(HandledActionItem)
 
 void CDigitanksTeam::HandledActionItem(size_t i)
 {
-	::HandledActionItem.RunCommand(sprintf(L"%d %d", GetHandle(), i));
+	::HandledActionItem.RunCommand(sprintf(tstring("%d %d"), GetHandle(), i));
 
 	// Predict the handling so it happens immediately.
 	if (!GameNetwork()->IsHost())

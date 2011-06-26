@@ -23,12 +23,12 @@ public:
 	CLobbyPlayer*						GetPlayerByID(size_t iID);
 	CLobbyPlayer*						GetPlayerByClient(size_t iClient);
 
-	void								UpdateInfo(const eastl::string16& sKey, const eastl::string16& sValue);
-	eastl::string16						GetInfoValue(const eastl::string16& sKey);
+	void								UpdateInfo(const tstring& sKey, const tstring& sValue);
+	tstring						GetInfoValue(const tstring& sKey);
 
 	void								AddPlayer(size_t iID, size_t iClient);
 	void								RemovePlayer(size_t iID);
-	void								UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
+	void								UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue);
 
 	void								SendFullUpdate(size_t iID);
 
@@ -36,7 +36,7 @@ protected:
 	bool								m_bActive;
 	size_t								m_iLobbyID;
 	eastl::vector<CLobbyPlayer>			m_aClients;
-	eastl::map<eastl::string16, eastl::string16> m_asInfo;
+	eastl::map<tstring, tstring> m_asInfo;
 };
 
 class ILobbyListener
@@ -45,8 +45,8 @@ public:
 	virtual bool						ClientConnect(size_t iClient)=0;
 	virtual void						ClientDisconnect(size_t iClient)=0;
 
-	virtual bool						UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue)=0;
-	virtual bool						UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue)=0;
+	virtual bool						UpdateLobby(size_t iLobby, const tstring& sKey, const tstring& sValue)=0;
+	virtual bool						UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue)=0;
 
 	virtual bool						BeginGame(size_t iLobby)=0;
 };
@@ -66,8 +66,8 @@ public:
 	static size_t						GetPlayerLobby(size_t iID);
 	static size_t						GetClientPlayerID(size_t iClient);
 
-	static void							UpdateLobby(size_t iLobby, const eastl::string16& sKey, const eastl::string16& sValue);
-	static void							UpdatePlayer(size_t iID, const eastl::string16& sKey, const eastl::string16& sValue);
+	static void							UpdateLobby(size_t iLobby, const tstring& sKey, const tstring& sValue);
+	static void							UpdatePlayer(size_t iID, const tstring& sKey, const tstring& sValue);
 
 	static void							ClientEnterGame(int iConnection, class INetworkListener*, class CNetworkParameters*);
 	static void							ClientDisconnect(int iConnection, class INetworkListener*, class CNetworkParameters*);

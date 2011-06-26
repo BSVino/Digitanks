@@ -1,9 +1,10 @@
 #ifndef DT_RENDERER_H
 #define DT_RENDERER_H
 
-#include <EASTL/string.h>
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
+
+#include <tstring.h>
 #include <vector.h>
 #include <plane.h>
 #include <matrix.h>
@@ -209,13 +210,13 @@ public:
 
 public:
 	static size_t	CreateCallList(size_t iModel);
-	static size_t	LoadTextureIntoGL(eastl::string16 sFilename, int iClamp = 0);
+	static size_t	LoadTextureIntoGL(tstring sFilename, int iClamp = 0);
 	static size_t	LoadTextureIntoGL(size_t iImageID, int iClamp = 0);
 	static size_t	LoadTextureIntoGL(Color* pclrData, int iClamp = 0);
 	static void		UnloadTextureFromGL(size_t iGLID);
 	static size_t	GetNumTexturesLoaded() { return s_iTexturesLoaded; }
 
-	static size_t	LoadTextureData(eastl::string16 sFilename);
+	static size_t	LoadTextureData(tstring sFilename);
 	static Color*	GetTextureData(size_t iTexture);
 	static size_t	GetTextureWidth(size_t iTexture);
 	static size_t	GetTextureHeight(size_t iTexture);

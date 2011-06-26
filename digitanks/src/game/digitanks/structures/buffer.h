@@ -15,7 +15,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	static size_t				InitialBufferDataStrength() { return 3500; }
 
@@ -27,7 +27,7 @@ public:
 	virtual float				InitialRechargeBonus() const { return 10.0f; };
 	virtual float				TotalHealth() const { return 250; };
 
-	virtual eastl::string16		GetEntityName() const { return L"Macro-Buffer"; };
+	virtual tstring				GetEntityName() const { return _T("Macro-Buffer"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_BUFFER; };
 };
 
@@ -43,7 +43,7 @@ public:
 
 	virtual void				SetupMenu(menumode_t eMenuMode);
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	virtual bool				CanStructureUpgrade();
 	virtual void				UpgradeComplete();
@@ -59,7 +59,7 @@ public:
 	virtual float				InitialRechargeBonus() const { return 5.0f; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual eastl::string16		GetEntityName() const { return L"Buffer"; };
+	virtual tstring				GetEntityName() const { return _T("Buffer"); };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_MINIBUFFER; };
 	virtual unittype_t			GetUpgradeType() const { return STRUCTURE_BUFFER; };
 };

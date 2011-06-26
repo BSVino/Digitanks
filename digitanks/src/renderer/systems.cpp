@@ -4,12 +4,12 @@ void CParticleSystemLibrary::InitSystems()
 {
 	CParticleSystemLibrary* pPSL = CParticleSystemLibrary::Get();
 
-	size_t iTrail = pPSL->AddParticleSystem(L"shell-trail");
-	size_t iTrailSparks = pPSL->AddParticleSystem(L"shell-trail-sparks");
-	size_t iTrailAura = pPSL->AddParticleSystem(L"shell-trail-aura");
-	size_t iTrailWireframe1 = pPSL->AddParticleSystem(L"shell-trail-wf1");
-	size_t iTrailWireframe2 = pPSL->AddParticleSystem(L"shell-trail-wf2");
-	size_t iTrailWireframe3 = pPSL->AddParticleSystem(L"shell-trail-wf3");
+	size_t iTrail = pPSL->AddParticleSystem(_T("shell-trail"));
+	size_t iTrailSparks = pPSL->AddParticleSystem(_T("shell-trail-sparks"));
+	size_t iTrailAura = pPSL->AddParticleSystem(_T("shell-trail-aura"));
+	size_t iTrailWireframe1 = pPSL->AddParticleSystem(_T("shell-trail-wf1"));
+	size_t iTrailWireframe2 = pPSL->AddParticleSystem(_T("shell-trail-wf2"));
+	size_t iTrailWireframe3 = pPSL->AddParticleSystem(_T("shell-trail-wf3"));
 
 	CParticleSystem* pTrail = pPSL->GetParticleSystem(iTrail);
 	CParticleSystem* pTrailSparks = pPSL->GetParticleSystem(iTrailSparks);
@@ -24,7 +24,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTrail->AddChild(iTrailWireframe2);
 	pTrail->AddChild(iTrailWireframe3);
 
-	pTrailSparks->SetTexture(L"textures/particles/cloud-white.png");
+	pTrailSparks->SetTexture(_T("textures/particles/cloud-white.png"));
 	pTrailSparks->SetLifeTime(1.0f);
 	pTrailSparks->SetEmissionRate(0.05f);
 	pTrailSparks->SetAlpha(0.7f);
@@ -36,7 +36,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailSparks->SetDrag(0.5f);
 	pTrailSparks->SetRandomBillboardYaw(true);
 
-	pTrailAura->SetTexture(L"textures/particles/haze-white.png");
+	pTrailAura->SetTexture(_T("textures/particles/haze-white.png"));
 	pTrailAura->SetLifeTime(1.0f);
 	pTrailAura->SetEmissionRate(0.1f);
 	pTrailAura->SetAlpha(0.05f);
@@ -47,7 +47,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailAura->SetDrag(0.8f);
 	pTrailAura->SetRandomBillboardYaw(true);
 
-	pTrailWireframe1->SetTexture(L"textures/particles/wireframe1.png");
+	pTrailWireframe1->SetTexture(_T("textures/particles/wireframe1.png"));
 	pTrailWireframe1->SetLifeTime(1.0f);
 	pTrailWireframe1->SetEmissionRate(1.0f);
 	pTrailWireframe1->SetAlpha(0.2f);
@@ -59,7 +59,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailWireframe1->SetDrag(0.7f);
 	pTrailWireframe1->SetRandomBillboardYaw(true);
 
-	pTrailWireframe2->SetTexture(L"textures/particles/wireframe2.png");
+	pTrailWireframe2->SetTexture(_T("textures/particles/wireframe2.png"));
 	pTrailWireframe2->SetLifeTime(1.0f);
 	pTrailWireframe2->SetEmissionRate(1.0f);
 	pTrailWireframe2->SetAlpha(0.2f);
@@ -71,7 +71,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailWireframe2->SetDrag(0.7f);
 	pTrailWireframe2->SetRandomBillboardYaw(true);
 
-	pTrailWireframe3->SetTexture(L"textures/particles/wireframe3.png");
+	pTrailWireframe3->SetTexture(_T("textures/particles/wireframe3.png"));
 	pTrailWireframe3->SetLifeTime(1.0f);
 	pTrailWireframe3->SetEmissionRate(1.0f);
 	pTrailWireframe3->SetAlpha(0.2f);
@@ -83,9 +83,9 @@ void CParticleSystemLibrary::InitSystems()
 	pTrailWireframe3->SetDrag(0.7f);
 	pTrailWireframe3->SetRandomBillboardYaw(true);
 
-	size_t iTankFire = pPSL->AddParticleSystem(L"tank-fire");
-	size_t iTankFireFlash = pPSL->AddParticleSystem(L"tank-fire-flash");
-	size_t iTankFireSmoke = pPSL->AddParticleSystem(L"tank-fire-smoke");
+	size_t iTankFire = pPSL->AddParticleSystem(_T("tank-fire"));
+	size_t iTankFireFlash = pPSL->AddParticleSystem(_T("tank-fire-flash"));
+	size_t iTankFireSmoke = pPSL->AddParticleSystem(_T("tank-fire-smoke"));
 
 	CParticleSystem* pTankFire = pPSL->GetParticleSystem(iTankFire);
 	CParticleSystem* pTankFireFlash = pPSL->GetParticleSystem(iTankFireFlash);
@@ -94,7 +94,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTankFire->AddChild(iTankFireFlash);
 	pTankFire->AddChild(iTankFireSmoke);
 
-	pTankFireFlash->SetTexture(L"textures/particles/tank-fire.png");
+	pTankFireFlash->SetTexture(_T("textures/particles/tank-fire.png"));
 	pTankFireFlash->SetLifeTime(0.1f);
 	pTankFireFlash->SetEmissionMax(1);
 	pTankFireFlash->SetAlpha(0.5f);
@@ -102,7 +102,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTankFireFlash->SetFadeOut(1.0f);
 	pTankFireFlash->SetRandomBillboardYaw(true);
 
-	pTankFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pTankFireSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pTankFireSmoke->SetLifeTime(0.5f);
 	pTankFireSmoke->SetEmissionMax(4);
 	pTankFireSmoke->SetEmissionRate(0.01f);
@@ -115,9 +115,9 @@ void CParticleSystemLibrary::InitSystems()
 	pTankFireSmoke->SetDrag(0.3f);
 	pTankFireSmoke->SetRandomBillboardYaw(true);
 
-	size_t iPromotion = pPSL->AddParticleSystem(L"promotion");
-	size_t iPromotionStar = pPSL->AddParticleSystem(L"promotion-star");
-	size_t iPromotionGlow = pPSL->AddParticleSystem(L"promotion-glow");
+	size_t iPromotion = pPSL->AddParticleSystem(_T("promotion"));
+	size_t iPromotionStar = pPSL->AddParticleSystem(_T("promotion-star"));
+	size_t iPromotionGlow = pPSL->AddParticleSystem(_T("promotion-glow"));
 
 	CParticleSystem* pPromotion = pPSL->GetParticleSystem(iPromotion);
 	CParticleSystem* pPromotionStar = pPSL->GetParticleSystem(iPromotionStar);
@@ -126,7 +126,7 @@ void CParticleSystemLibrary::InitSystems()
 	pPromotion->AddChild(iPromotionStar);
 	pPromotion->AddChild(iPromotionGlow);
 
-	pPromotionStar->SetTexture(L"textures/particles/promotion.png");
+	pPromotionStar->SetTexture(_T("textures/particles/promotion.png"));
 	pPromotionStar->SetLifeTime(2.0f);
 	pPromotionStar->SetEmissionMax(1);
 	pPromotionStar->SetAlpha(0.5f);
@@ -136,7 +136,7 @@ void CParticleSystemLibrary::InitSystems()
 	pPromotionStar->SetRandomVelocity(AABB(Vector(0, 0.5f, 0), Vector(0, 0.5f, 0)));
 	pPromotionStar->SetGravity(Vector(0, 3, 0));
 
-	pPromotionGlow->SetTexture(L"textures/particles/haze-white.png");
+	pPromotionGlow->SetTexture(_T("textures/particles/haze-white.png"));
 	pPromotionGlow->SetLifeTime(1.5f);
 	pPromotionGlow->SetEmissionMax(3);
 	pPromotionGlow->SetEmissionRate(0.01f);
@@ -149,10 +149,10 @@ void CParticleSystemLibrary::InitSystems()
 	pPromotionGlow->SetGravity(Vector(0, 0, 0));
 	pPromotionGlow->SetRandomBillboardYaw(true);
 
-	size_t iTankHover = pPSL->AddParticleSystem(L"tank-hover");
+	size_t iTankHover = pPSL->AddParticleSystem(_T("tank-hover"));
 	CParticleSystem* pTankHover = pPSL->GetParticleSystem(iTankHover);
 
-	pTankHover->SetTexture(L"textures/particles/haze-white.png");
+	pTankHover->SetTexture(_T("textures/particles/haze-white.png"));
 	pTankHover->SetLifeTime(0.5f);
 	pTankHover->SetEmissionRate(0.1f);
 	pTankHover->SetAlpha(0.2f);
@@ -162,10 +162,10 @@ void CParticleSystemLibrary::InitSystems()
 	pTankHover->SetRandomVelocity(AABB(Vector(0, -1, 0), Vector(0, -2, 0)));
 	pTankHover->SetGravity(Vector(0, 10, 0));
 
-	size_t iElectronodeSpark = pPSL->AddParticleSystem(L"electronode-spark");
+	size_t iElectronodeSpark = pPSL->AddParticleSystem(_T("electronode-spark"));
 	CParticleSystem* pElectronodeSpark = pPSL->GetParticleSystem(iElectronodeSpark);
 
-	pElectronodeSpark->SetTexture(L"textures/particles/electrospark.png");
+	pElectronodeSpark->SetTexture(_T("textures/particles/electrospark.png"));
 	pElectronodeSpark->SetLifeTime(2.0f);
 	pElectronodeSpark->SetEmissionRate(0.6f);
 	pElectronodeSpark->SetAlpha(0.5f);
@@ -176,9 +176,9 @@ void CParticleSystemLibrary::InitSystems()
 	pElectronodeSpark->SetGravity(Vector(0, 0, 0));
 	pElectronodeSpark->SetDrag(0.03f);
 
-	size_t iTorpedoTrail = pPSL->AddParticleSystem(L"torpedo-trail");
-	size_t iTorpedoTrailSparks = pPSL->AddParticleSystem(L"torpedo-trail-sparks");
-	size_t iTorpedoTrailAura = pPSL->AddParticleSystem(L"torpedo-trail-aura");
+	size_t iTorpedoTrail = pPSL->AddParticleSystem(_T("torpedo-trail"));
+	size_t iTorpedoTrailSparks = pPSL->AddParticleSystem(_T("torpedo-trail-sparks"));
+	size_t iTorpedoTrailAura = pPSL->AddParticleSystem(_T("torpedo-trail-aura"));
 
 	CParticleSystem* pTorpedoTrail = pPSL->GetParticleSystem(iTorpedoTrail);
 	CParticleSystem* pTorpedoTrailSparks = pPSL->GetParticleSystem(iTorpedoTrailSparks);
@@ -187,7 +187,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoTrail->AddChild(iTorpedoTrailSparks);
 	pTorpedoTrail->AddChild(iTorpedoTrailAura);
 
-	pTorpedoTrailSparks->SetTexture(L"textures/particles/cloud-white.png");
+	pTorpedoTrailSparks->SetTexture(_T("textures/particles/cloud-white.png"));
 	pTorpedoTrailSparks->SetLifeTime(1.0f);
 	pTorpedoTrailSparks->SetEmissionRate(0.05f);
 	pTorpedoTrailSparks->SetAlpha(0.9f);
@@ -199,7 +199,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoTrailSparks->SetDrag(0.95f);
 	pTorpedoTrailSparks->SetRandomBillboardYaw(true);
 
-	pTorpedoTrailAura->SetTexture(L"textures/particles/haze-white.png");
+	pTorpedoTrailAura->SetTexture(_T("textures/particles/haze-white.png"));
 	pTorpedoTrailAura->SetLifeTime(1.0f);
 	pTorpedoTrailAura->SetEmissionRate(0.1f);
 	pTorpedoTrailAura->SetAlpha(0.3f);
@@ -210,9 +210,9 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoTrailAura->SetDrag(0.6f);
 	pTorpedoTrailAura->SetRandomBillboardYaw(true);
 
-	size_t iTorpedoExplosion = pPSL->AddParticleSystem(L"torpedo-explosion");
-	size_t iTorpedoExplosionBolts1 = pPSL->AddParticleSystem(L"torpedo-explosion-bolts1");
-	size_t iTorpedoExplosionBolts2 = pPSL->AddParticleSystem(L"torpedo-explosion-bolts2");
+	size_t iTorpedoExplosion = pPSL->AddParticleSystem(_T("torpedo-explosion"));
+	size_t iTorpedoExplosionBolts1 = pPSL->AddParticleSystem(_T("torpedo-explosion-bolts1"));
+	size_t iTorpedoExplosionBolts2 = pPSL->AddParticleSystem(_T("torpedo-explosion-bolts2"));
 
 	CParticleSystem* pTorpedoExplosion = pPSL->GetParticleSystem(iTorpedoExplosion);
 	CParticleSystem* pTorpedoExplosionBolts1 = pPSL->GetParticleSystem(iTorpedoExplosionBolts1);
@@ -221,7 +221,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoExplosion->AddChild(iTorpedoExplosionBolts1);
 	pTorpedoExplosion->AddChild(iTorpedoExplosionBolts2);
 
-	pTorpedoExplosionBolts1->SetTexture(L"textures/particles/lightning-bolt-1.png");
+	pTorpedoExplosionBolts1->SetTexture(_T("textures/particles/lightning-bolt-1.png"));
 	pTorpedoExplosionBolts1->SetLifeTime(1.0f);
 	pTorpedoExplosionBolts1->SetEmissionRate(0.0f);
 	pTorpedoExplosionBolts1->SetEmissionMax(20);
@@ -234,7 +234,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoExplosionBolts1->SetDrag(0.95f);
 	pTorpedoExplosionBolts1->SetRandomBillboardYaw(true);
 
-	pTorpedoExplosionBolts2->SetTexture(L"textures/particles/lightning-bolt-2.png");
+	pTorpedoExplosionBolts2->SetTexture(_T("textures/particles/lightning-bolt-2.png"));
 	pTorpedoExplosionBolts2->SetLifeTime(1.0f);
 	pTorpedoExplosionBolts2->SetEmissionRate(0.0f);
 	pTorpedoExplosionBolts2->SetEmissionMax(20);
@@ -247,11 +247,11 @@ void CParticleSystemLibrary::InitSystems()
 	pTorpedoExplosionBolts2->SetDrag(0.95f);
 	pTorpedoExplosionBolts2->SetRandomBillboardYaw(true);
 
-	size_t iAoEExplosionStrategy = pPSL->AddParticleSystem(L"aoe-explosion-strategy");
+	size_t iAoEExplosionStrategy = pPSL->AddParticleSystem(_T("aoe-explosion-strategy"));
 
 	CParticleSystem* pAoEExplosionStrategy = pPSL->GetParticleSystem(iAoEExplosionStrategy);
 
-	pAoEExplosionStrategy->SetTexture(L"textures/particles/aoe-bubble.png");
+	pAoEExplosionStrategy->SetTexture(_T("textures/particles/aoe-bubble.png"));
 	pAoEExplosionStrategy->SetLifeTime(0.5f);
 	pAoEExplosionStrategy->SetEmissionRate(0.01f);
 	pAoEExplosionStrategy->SetEmissionMax(150);
@@ -265,11 +265,11 @@ void CParticleSystemLibrary::InitSystems()
 	pAoEExplosionStrategy->SetDrag(0.95f);
 	pAoEExplosionStrategy->SetRandomBillboardYaw(true);
 
-	size_t iAoEExplosionArtillery = pPSL->AddParticleSystem(L"aoe-explosion-artillery");
+	size_t iAoEExplosionArtillery = pPSL->AddParticleSystem(_T("aoe-explosion-artillery"));
 
 	CParticleSystem* pAoEExplosionArtillery = pPSL->GetParticleSystem(iAoEExplosionArtillery);
 
-	pAoEExplosionArtillery->SetTexture(L"textures/particles/aoe-bubble.png");
+	pAoEExplosionArtillery->SetTexture(_T("textures/particles/aoe-bubble.png"));
 	pAoEExplosionArtillery->SetLifeTime(0.5f);
 	pAoEExplosionArtillery->SetEmissionRate(0.01f);
 	pAoEExplosionArtillery->SetEmissionMax(150);
@@ -283,8 +283,8 @@ void CParticleSystemLibrary::InitSystems()
 	pAoEExplosionArtillery->SetDrag(0.95f);
 	pAoEExplosionArtillery->SetRandomBillboardYaw(true);
 
-	size_t iAoETrail = pPSL->AddParticleSystem(L"aoe-trail");
-	size_t iAoETrailSparks = pPSL->AddParticleSystem(L"aoe-trail-sparks");
+	size_t iAoETrail = pPSL->AddParticleSystem(_T("aoe-trail"));
+	size_t iAoETrailSparks = pPSL->AddParticleSystem(_T("aoe-trail-sparks"));
 
 	CParticleSystem* pAoETrail = pPSL->GetParticleSystem(iAoETrail);
 	CParticleSystem* pAoETrailSparks = pPSL->GetParticleSystem(iAoETrailSparks);
@@ -295,7 +295,7 @@ void CParticleSystemLibrary::InitSystems()
 	pAoETrail->AddChild(iTrailWireframe2);
 	pAoETrail->AddChild(iTrailWireframe3);
 
-	pAoETrailSparks->SetTexture(L"textures/particles/aoe-bubble.png");
+	pAoETrailSparks->SetTexture(_T("textures/particles/aoe-bubble.png"));
 	pAoETrailSparks->SetLifeTime(1.0f);
 	pAoETrailSparks->SetEmissionRate(0.05f);
 	pAoETrailSparks->SetAlpha(0.7f);
@@ -307,9 +307,9 @@ void CParticleSystemLibrary::InitSystems()
 	pAoETrailSparks->SetDrag(0.5f);
 	pAoETrailSparks->SetRandomBillboardYaw(true);
 
-	size_t iEMPExplosion = pPSL->AddParticleSystem(L"emp-explosion");
-	size_t iEMPExplosionBolts1 = pPSL->AddParticleSystem(L"emp-explosion-bolts1");
-	size_t iEMPExplosionBolts2 = pPSL->AddParticleSystem(L"emp-explosion-bolts2");
+	size_t iEMPExplosion = pPSL->AddParticleSystem(_T("emp-explosion"));
+	size_t iEMPExplosionBolts1 = pPSL->AddParticleSystem(_T("emp-explosion-bolts1"));
+	size_t iEMPExplosionBolts2 = pPSL->AddParticleSystem(_T("emp-explosion-bolts2"));
 
 	CParticleSystem* pEMPExplosion = pPSL->GetParticleSystem(iEMPExplosion);
 	CParticleSystem* pEMPExplosionBolts1 = pPSL->GetParticleSystem(iEMPExplosionBolts1);
@@ -318,7 +318,7 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPExplosion->AddChild(iEMPExplosionBolts1);
 	pEMPExplosion->AddChild(iEMPExplosionBolts2);
 
-	pEMPExplosionBolts1->SetTexture(L"textures/particles/lightning-bolt-1.png");
+	pEMPExplosionBolts1->SetTexture(_T("textures/particles/lightning-bolt-1.png"));
 	pEMPExplosionBolts1->SetLifeTime(1.0f);
 	pEMPExplosionBolts1->SetEmissionRate(0.0f);
 	pEMPExplosionBolts1->SetEmissionMax(20);
@@ -331,7 +331,7 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPExplosionBolts1->SetDrag(0.95f);
 	pEMPExplosionBolts1->SetRandomBillboardYaw(true);
 
-	pEMPExplosionBolts2->SetTexture(L"textures/particles/lightning-bolt-2.png");
+	pEMPExplosionBolts2->SetTexture(_T("textures/particles/lightning-bolt-2.png"));
 	pEMPExplosionBolts2->SetLifeTime(1.0f);
 	pEMPExplosionBolts2->SetEmissionRate(0.0f);
 	pEMPExplosionBolts2->SetEmissionMax(20);
@@ -344,9 +344,9 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPExplosionBolts2->SetDrag(0.95f);
 	pEMPExplosionBolts2->SetRandomBillboardYaw(true);
 
-	size_t iEMPTrail = pPSL->AddParticleSystem(L"emp-trail");
-	size_t iEMPTrailSparks1 = pPSL->AddParticleSystem(L"emp-trail-sparks1");
-	size_t iEMPTrailSparks2 = pPSL->AddParticleSystem(L"emp-trail-sparks2");
+	size_t iEMPTrail = pPSL->AddParticleSystem(_T("emp-trail"));
+	size_t iEMPTrailSparks1 = pPSL->AddParticleSystem(_T("emp-trail-sparks1"));
+	size_t iEMPTrailSparks2 = pPSL->AddParticleSystem(_T("emp-trail-sparks2"));
 
 	CParticleSystem* pEMPTrail = pPSL->GetParticleSystem(iEMPTrail);
 	CParticleSystem* pEMPTrailSparks1 = pPSL->GetParticleSystem(iEMPTrailSparks1);
@@ -359,7 +359,7 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPTrail->AddChild(iTrailWireframe2);
 	pEMPTrail->AddChild(iTrailWireframe3);
 
-	pEMPTrailSparks1->SetTexture(L"textures/particles/lightning-bolt-1.png");
+	pEMPTrailSparks1->SetTexture(_T("textures/particles/lightning-bolt-1.png"));
 	pEMPTrailSparks1->SetLifeTime(1.0f);
 	pEMPTrailSparks1->SetEmissionRate(0.05f);
 	pEMPTrailSparks1->SetAlpha(0.7f);
@@ -371,7 +371,7 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPTrailSparks1->SetDrag(0.5f);
 	pEMPTrailSparks1->SetRandomBillboardYaw(true);
 
-	pEMPTrailSparks2->SetTexture(L"textures/particles/lightning-bolt-2.png");
+	pEMPTrailSparks2->SetTexture(_T("textures/particles/lightning-bolt-2.png"));
 	pEMPTrailSparks2->SetLifeTime(1.0f);
 	pEMPTrailSparks2->SetEmissionRate(0.05f);
 	pEMPTrailSparks2->SetAlpha(0.7f);
@@ -383,9 +383,9 @@ void CParticleSystemLibrary::InitSystems()
 	pEMPTrailSparks2->SetDrag(0.5f);
 	pEMPTrailSparks2->SetRandomBillboardYaw(true);
 
-	size_t iTractorBomb = pPSL->AddParticleSystem(L"tractor-bomb-explosion");
-	size_t iTractorBombPulses = pPSL->AddParticleSystem(L"tractor-bomb-explosion-pulses");
-	size_t iTractorBombSmoke = pPSL->AddParticleSystem(L"tractor-bomb-explosion-smoke");
+	size_t iTractorBomb = pPSL->AddParticleSystem(_T("tractor-bomb-explosion"));
+	size_t iTractorBombPulses = pPSL->AddParticleSystem(_T("tractor-bomb-explosion-pulses"));
+	size_t iTractorBombSmoke = pPSL->AddParticleSystem(_T("tractor-bomb-explosion-smoke"));
 
 	CParticleSystem* pTractorBomb = pPSL->GetParticleSystem(iTractorBomb);
 	CParticleSystem* pTractorBombPulses = pPSL->GetParticleSystem(iTractorBombPulses);
@@ -394,7 +394,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBomb->AddChild(iTractorBombPulses);
 	pTractorBomb->AddChild(iTractorBombSmoke);
 
-	pTractorBombPulses->SetModel(L"models/particles/pulse.obj");
+	pTractorBombPulses->SetModel(_T("models/particles/pulse.obj"));
 	pTractorBombPulses->SetLifeTime(0.3f);
 	pTractorBombPulses->SetEmissionRate(0.15f);
 	pTractorBombPulses->SetEmissionMax(3);
@@ -406,7 +406,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBombPulses->SetDrag(0.0f);
 	pTractorBombPulses->SetRandomModelYaw(true);
 
-	pTractorBombSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pTractorBombSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pTractorBombSmoke->SetLifeTime(1.0f);
 	pTractorBombSmoke->SetEmissionRate(0.01f);
 	pTractorBombSmoke->SetEmissionMax(5);
@@ -418,7 +418,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBombSmoke->SetRandomVelocity(AABB(Vector(-30, -10, -30), Vector(30, 30, 30)));
 	pTractorBombSmoke->SetRandomBillboardYaw(true);
 
-	size_t iTractorBombTrail = pPSL->AddParticleSystem(L"tractor-bomb-trail");
+	size_t iTractorBombTrail = pPSL->AddParticleSystem(_T("tractor-bomb-trail"));
 
 	CParticleSystem* pTractorBombTrail = pPSL->GetParticleSystem(iTractorBombTrail);
 
@@ -427,7 +427,7 @@ void CParticleSystemLibrary::InitSystems()
 	pTractorBombTrail->AddChild(iTrailWireframe2);
 	pTractorBombTrail->AddChild(iTrailWireframe3);
 
-	size_t iBoltTrail = pPSL->AddParticleSystem(L"bolt-trail");
+	size_t iBoltTrail = pPSL->AddParticleSystem(_T("bolt-trail"));
 
 	CParticleSystem* pBoltTrail = pPSL->GetParticleSystem(iBoltTrail);
 
@@ -436,11 +436,11 @@ void CParticleSystemLibrary::InitSystems()
 	pBoltTrail->AddChild(iTrailWireframe2);
 	pBoltTrail->AddChild(iTrailWireframe3);
 
-	size_t iBoltExplosion = pPSL->AddParticleSystem(L"bolt-explosion");
+	size_t iBoltExplosion = pPSL->AddParticleSystem(_T("bolt-explosion"));
 
 	CParticleSystem* pBoltExplosion = pPSL->GetParticleSystem(iBoltExplosion);
 
-	pBoltExplosion->SetTexture(L"textures/particles/cloud-white.png");
+	pBoltExplosion->SetTexture(_T("textures/particles/cloud-white.png"));
 	pBoltExplosion->SetLifeTime(1.1f);
 	pBoltExplosion->SetEmissionRate(0.0f);
 	pBoltExplosion->SetEmissionMax(10);
@@ -453,11 +453,11 @@ void CParticleSystemLibrary::InitSystems()
 	pBoltExplosion->SetDrag(0.1f);
 	pBoltExplosion->SetRandomBillboardYaw(true);
 
-	size_t iDigitankSmoke = pPSL->AddParticleSystem(L"digitank-smoke");
+	size_t iDigitankSmoke = pPSL->AddParticleSystem(_T("digitank-smoke"));
 
 	CParticleSystem* pDigitankSmoke = pPSL->GetParticleSystem(iDigitankSmoke);
 
-	pDigitankSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pDigitankSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pDigitankSmoke->SetLifeTime(1.0f);
 	pDigitankSmoke->SetEmissionRate(0.2f);
 	pDigitankSmoke->SetEmissionMaxDistance(2);
@@ -471,10 +471,10 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankSmoke->SetGravity(Vector(0, 5, 0));
 	pDigitankSmoke->SetRandomBillboardYaw(true);
 
-	size_t iDigitankFire = pPSL->AddParticleSystem(L"digitank-fire");
-	size_t iDigitankFireSmoke = pPSL->AddParticleSystem(L"digitank-fire-smoke");
-	size_t iDigitankFlame1 = pPSL->AddParticleSystem(L"digitank-fire-flame1");
-	size_t iDigitankFlame2 = pPSL->AddParticleSystem(L"digitank-fire-flame2");
+	size_t iDigitankFire = pPSL->AddParticleSystem(_T("digitank-fire"));
+	size_t iDigitankFireSmoke = pPSL->AddParticleSystem(_T("digitank-fire-smoke"));
+	size_t iDigitankFlame1 = pPSL->AddParticleSystem(_T("digitank-fire-flame1"));
+	size_t iDigitankFlame2 = pPSL->AddParticleSystem(_T("digitank-fire-flame2"));
 
 	CParticleSystem* pDigitankFire = pPSL->GetParticleSystem(iDigitankFire);
 	CParticleSystem* pDigitankFireSmoke = pPSL->GetParticleSystem(iDigitankFireSmoke);
@@ -485,7 +485,7 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFire->AddChild(iDigitankFlame1);
 	pDigitankFire->AddChild(iDigitankFlame2);
 
-	pDigitankFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pDigitankFireSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pDigitankFireSmoke->SetLifeTime(1.2f);
 	pDigitankFireSmoke->SetEmissionRate(0.3f);
 	pDigitankFireSmoke->SetEmissionMaxDistance(3);
@@ -500,7 +500,7 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFireSmoke->SetRandomBillboardYaw(true);
 	pDigitankFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
 
-	pDigitankFlame1->SetTexture(L"textures/particles/fire1.png");
+	pDigitankFlame1->SetTexture(_T("textures/particles/fire1.png"));
 	pDigitankFlame1->SetLifeTime(0.6f);
 	pDigitankFlame1->SetEmissionRate(1.0f);
 	pDigitankFlame1->SetEmissionMaxDistance(2);
@@ -514,7 +514,7 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFlame1->SetGravity(Vector(0, 3, 0));
 	pDigitankFlame1->SetRandomBillboardYaw(true);
 
-	pDigitankFlame2->SetTexture(L"textures/particles/fire2.png");
+	pDigitankFlame2->SetTexture(_T("textures/particles/fire2.png"));
 	pDigitankFlame2->SetLifeTime(0.6f);
 	pDigitankFlame2->SetEmissionRate(1.0f);
 	pDigitankFlame2->SetEmissionMaxDistance(2);
@@ -528,10 +528,10 @@ void CParticleSystemLibrary::InitSystems()
 	pDigitankFlame2->SetGravity(Vector(0, 3, 0));
 	pDigitankFlame2->SetRandomBillboardYaw(true);
 
-	size_t iWreckageFire = pPSL->AddParticleSystem(L"wreckage-burn");
-	size_t iWreckageFireSmoke = pPSL->AddParticleSystem(L"wreckage-burn-smoke");
-	size_t iWreckageFlame1 = pPSL->AddParticleSystem(L"wreckage-burn-flame1");
-	size_t iWreckageFlame2 = pPSL->AddParticleSystem(L"wreckage-burn-flame2");
+	size_t iWreckageFire = pPSL->AddParticleSystem(_T("wreckage-burn"));
+	size_t iWreckageFireSmoke = pPSL->AddParticleSystem(_T("wreckage-burn-smoke"));
+	size_t iWreckageFlame1 = pPSL->AddParticleSystem(_T("wreckage-burn-flame1"));
+	size_t iWreckageFlame2 = pPSL->AddParticleSystem(_T("wreckage-burn-flame2"));
 
 	CParticleSystem* pWreckageFire = pPSL->GetParticleSystem(iWreckageFire);
 	CParticleSystem* pWreckageFireSmoke = pPSL->GetParticleSystem(iWreckageFireSmoke);
@@ -542,7 +542,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFire->AddChild(iWreckageFlame1);
 	pWreckageFire->AddChild(iWreckageFlame2);
 
-	pWreckageFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pWreckageFireSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pWreckageFireSmoke->SetLifeTime(1.2f);
 	pWreckageFireSmoke->SetEmissionRate(0.15f);
 	pWreckageFireSmoke->SetEmissionMaxDistance(3);
@@ -558,7 +558,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
 	pWreckageFireSmoke->SetColor(Color(255, 197, 157));
 
-	pWreckageFlame1->SetTexture(L"textures/particles/fire1.png");
+	pWreckageFlame1->SetTexture(_T("textures/particles/fire1.png"));
 	pWreckageFlame1->SetLifeTime(0.6f);
 	pWreckageFlame1->SetEmissionRate(0.1f);
 	pWreckageFlame1->SetEmissionMaxDistance(2);
@@ -572,7 +572,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFlame1->SetGravity(Vector(0, 3, 0));
 	pWreckageFlame1->SetRandomBillboardYaw(true);
 
-	pWreckageFlame2->SetTexture(L"textures/particles/fire2.png");
+	pWreckageFlame2->SetTexture(_T("textures/particles/fire2.png"));
 	pWreckageFlame2->SetLifeTime(0.6f);
 	pWreckageFlame2->SetEmissionRate(0.1f);
 	pWreckageFlame2->SetEmissionMaxDistance(2);
@@ -586,10 +586,10 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageFlame2->SetGravity(Vector(0, 3, 0));
 	pWreckageFlame2->SetRandomBillboardYaw(true);
 
-	size_t iWreckageCrash = pPSL->AddParticleSystem(L"wreckage-crash");
-	size_t iWreckageCrashSmoke = pPSL->AddParticleSystem(L"wreckage-crash-smoke");
-	size_t iWreckageCrashFlame1 = pPSL->AddParticleSystem(L"wreckage-crash-flame1");
-	size_t iWreckageCrashFlame2 = pPSL->AddParticleSystem(L"wreckage-crash-flame2");
+	size_t iWreckageCrash = pPSL->AddParticleSystem(_T("wreckage-crash"));
+	size_t iWreckageCrashSmoke = pPSL->AddParticleSystem(_T("wreckage-crash-smoke"));
+	size_t iWreckageCrashFlame1 = pPSL->AddParticleSystem(_T("wreckage-crash-flame1"));
+	size_t iWreckageCrashFlame2 = pPSL->AddParticleSystem(_T("wreckage-crash-flame2"));
 
 	CParticleSystem* pWreckageCrash = pPSL->GetParticleSystem(iWreckageCrash);
 	CParticleSystem* pWreckageCrashSmoke = pPSL->GetParticleSystem(iWreckageCrashSmoke);
@@ -600,7 +600,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrash->AddChild(iWreckageCrashFlame1);
 	pWreckageCrash->AddChild(iWreckageCrashFlame2);
 
-	pWreckageCrashSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pWreckageCrashSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pWreckageCrashSmoke->SetLifeTime(5.0f);
 	pWreckageCrashSmoke->SetEmissionRate(0.0f);
 	pWreckageCrashSmoke->SetEmissionMax(3);
@@ -615,7 +615,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashSmoke->SetGravity(Vector(0, 1, 0));
 	pWreckageCrashSmoke->SetRandomBillboardYaw(true);
 
-	pWreckageCrashFlame1->SetTexture(L"textures/particles/fire1.png");
+	pWreckageCrashFlame1->SetTexture(_T("textures/particles/fire1.png"));
 	pWreckageCrashFlame1->SetLifeTime(1.5f);
 	pWreckageCrashFlame1->SetEmissionRate(0.01f);
 	pWreckageCrashFlame1->SetEmissionMax(20);
@@ -630,7 +630,7 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashFlame1->SetGravity(Vector(0, 3, 0));
 	pWreckageCrashFlame1->SetRandomBillboardYaw(true);
 
-	pWreckageCrashFlame2->SetTexture(L"textures/particles/fire2.png");
+	pWreckageCrashFlame2->SetTexture(_T("textures/particles/fire2.png"));
 	pWreckageCrashFlame2->SetLifeTime(1.5f);
 	pWreckageCrashFlame2->SetEmissionRate(0.01f);
 	pWreckageCrashFlame2->SetEmissionMax(20);
@@ -645,9 +645,9 @@ void CParticleSystemLibrary::InitSystems()
 	pWreckageCrashFlame2->SetGravity(Vector(0, 3, 0));
 	pWreckageCrashFlame2->SetRandomBillboardYaw(true);
 
-	size_t iDebrisFire = pPSL->AddParticleSystem(L"debris-burn");
-	size_t iDebrisFireSmoke = pPSL->AddParticleSystem(L"debris-burn-smoke");
-	size_t iDebrisFlame1 = pPSL->AddParticleSystem(L"debris-burn-flame1");
+	size_t iDebrisFire = pPSL->AddParticleSystem(_T("debris-burn"));
+	size_t iDebrisFireSmoke = pPSL->AddParticleSystem(_T("debris-burn-smoke"));
+	size_t iDebrisFlame1 = pPSL->AddParticleSystem(_T("debris-burn-flame1"));
 
 	CParticleSystem* pDebrisFire = pPSL->GetParticleSystem(iDebrisFire);
 	CParticleSystem* pDebrisFireSmoke = pPSL->GetParticleSystem(iDebrisFireSmoke);
@@ -656,7 +656,7 @@ void CParticleSystemLibrary::InitSystems()
 	pDebrisFire->AddChild(iDebrisFireSmoke);
 	pDebrisFire->AddChild(iDebrisFlame1);
 
-	pDebrisFireSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pDebrisFireSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pDebrisFireSmoke->SetLifeTime(1.2f);
 	pDebrisFireSmoke->SetEmissionRate(0.15f);
 	pDebrisFireSmoke->SetEmissionMaxDistance(3);
@@ -672,7 +672,7 @@ void CParticleSystemLibrary::InitSystems()
 	pDebrisFireSmoke->SetSpawnOffset(Vector(0, 2, 0));
 	pDebrisFireSmoke->SetColor(Color(255, 197, 157));
 
-	pDebrisFlame1->SetTexture(L"textures/particles/cloud-white.png");
+	pDebrisFlame1->SetTexture(_T("textures/particles/cloud-white.png"));
 	pDebrisFlame1->SetLifeTime(0.6f);
 	pDebrisFlame1->SetEmissionRate(0.05f);
 	pDebrisFlame1->SetEmissionMaxDistance(2);
@@ -686,9 +686,9 @@ void CParticleSystemLibrary::InitSystems()
 	pDebrisFlame1->SetGravity(Vector(0, 3, 0));
 	pDebrisFlame1->SetRandomBillboardYaw(true);
 
-	size_t iChargeBurst = pPSL->AddParticleSystem(L"charge-burst");
-	size_t iChargeBurstPulses = pPSL->AddParticleSystem(L"charge-burst-pulses");
-	size_t iChargeBurstSmoke = pPSL->AddParticleSystem(L"charge-burst-smoke");
+	size_t iChargeBurst = pPSL->AddParticleSystem(_T("charge-burst"));
+	size_t iChargeBurstPulses = pPSL->AddParticleSystem(_T("charge-burst-pulses"));
+	size_t iChargeBurstSmoke = pPSL->AddParticleSystem(_T("charge-burst-smoke"));
 
 	CParticleSystem* pChargeBurst = pPSL->GetParticleSystem(iChargeBurst);
 	CParticleSystem* pChargeBurstPulses = pPSL->GetParticleSystem(iChargeBurstPulses);
@@ -697,7 +697,7 @@ void CParticleSystemLibrary::InitSystems()
 	pChargeBurst->AddChild(iChargeBurstPulses);
 	pChargeBurst->AddChild(iChargeBurstSmoke);
 
-	pChargeBurstPulses->SetModel(L"models/particles/charge-burst.obj");
+	pChargeBurstPulses->SetModel(_T("models/particles/charge-burst.obj"));
 	pChargeBurstPulses->SetLifeTime(0.3f);
 	pChargeBurstPulses->SetEmissionRate(0.03f);
 	pChargeBurstPulses->SetEmissionMax(3);
@@ -709,7 +709,7 @@ void CParticleSystemLibrary::InitSystems()
 	pChargeBurstPulses->SetDrag(0.0f);
 	pChargeBurstPulses->SetRandomModelYaw(true);
 
-	pChargeBurstSmoke->SetTexture(L"textures/particles/haze-white.png");
+	pChargeBurstSmoke->SetTexture(_T("textures/particles/haze-white.png"));
 	pChargeBurstSmoke->SetLifeTime(2.0f);
 	pChargeBurstSmoke->SetEmissionRate(0.01f);
 	pChargeBurstSmoke->SetEmissionMax(5);
@@ -723,11 +723,11 @@ void CParticleSystemLibrary::InitSystems()
 	pChargeBurstSmoke->SetRandomBillboardYaw(true);
 	pChargeBurstSmoke->SetSpawnOffset(Vector(0, 10, 0));
 
-	size_t iChargeCharge = pPSL->AddParticleSystem(L"charge-charge");
+	size_t iChargeCharge = pPSL->AddParticleSystem(_T("charge-charge"));
 
 	CParticleSystem* pChargeCharge = pPSL->GetParticleSystem(iChargeCharge);
 
-	pChargeCharge->SetTexture(L"textures/particles/charge-charge.png");
+	pChargeCharge->SetTexture(_T("textures/particles/charge-charge.png"));
 	pChargeCharge->SetLifeTime(0.3f);
 	pChargeCharge->SetEmissionRate(0.10f);
 	pChargeCharge->SetAlpha(0.5f);
@@ -739,15 +739,15 @@ void CParticleSystemLibrary::InitSystems()
 	pChargeCharge->SetDrag(0.0f);
 	pChargeCharge->SetRandomBillboardYaw(true);
 
-	size_t iDamageBoost = pPSL->AddParticleSystem(L"dmg-boost");
-	size_t iDamageBoostPulse = pPSL->AddParticleSystem(L"dmg-boost-pulse");
+	size_t iDamageBoost = pPSL->AddParticleSystem(_T("dmg-boost"));
+	size_t iDamageBoostPulse = pPSL->AddParticleSystem(_T("dmg-boost-pulse"));
 
 	CParticleSystem* pDamageBoost = pPSL->GetParticleSystem(iDamageBoost);
 	CParticleSystem* pDamageBoostPulse = pPSL->GetParticleSystem(iDamageBoostPulse);
 
 	pDamageBoost->AddChild(iDamageBoostPulse);
 
-	pDamageBoostPulse->SetTexture(L"textures/particles/aoe-bubble.png");
+	pDamageBoostPulse->SetTexture(_T("textures/particles/aoe-bubble.png"));
 	pDamageBoostPulse->SetLifeTime(1.0f);
 	pDamageBoostPulse->SetEmissionRate(0.0f);
 	pDamageBoostPulse->SetEmissionMax(1);
@@ -760,9 +760,9 @@ void CParticleSystemLibrary::InitSystems()
 	pDamageBoostPulse->SetRandomBillboardYaw(true);
 	pDamageBoostPulse->SetColor(Color(255,0,0));
 
-	size_t iCageAura = pPSL->AddParticleSystem(L"cage-aura");
-	size_t iCageAuraSpots = pPSL->AddParticleSystem(L"cage-aura-spots");
-	size_t iCageAuraGlow = pPSL->AddParticleSystem(L"cage-aura-glow");
+	size_t iCageAura = pPSL->AddParticleSystem(_T("cage-aura"));
+	size_t iCageAuraSpots = pPSL->AddParticleSystem(_T("cage-aura-spots"));
+	size_t iCageAuraGlow = pPSL->AddParticleSystem(_T("cage-aura-glow"));
 
 	CParticleSystem* pCageAura = pPSL->GetParticleSystem(iCageAura);
 	CParticleSystem* pCageAuraSpots = pPSL->GetParticleSystem(iCageAuraSpots);
@@ -771,7 +771,7 @@ void CParticleSystemLibrary::InitSystems()
 	pCageAura->AddChild(iCageAuraSpots);
 	pCageAura->AddChild(iCageAuraGlow);
 
-	pCageAuraSpots->SetTexture(L"textures/particles/cloud-white.png");
+	pCageAuraSpots->SetTexture(_T("textures/particles/cloud-white.png"));
 	pCageAuraSpots->SetLifeTime(1.0f);
 	pCageAuraSpots->SetEmissionRate(0.03f);
 	pCageAuraSpots->SetEmissionMaxDistance(15);
@@ -784,7 +784,7 @@ void CParticleSystemLibrary::InitSystems()
 	pCageAuraSpots->SetGravity(Vector(0,-1,0));
 	pCageAuraSpots->SetRandomBillboardYaw(true);
 
-	pCageAuraGlow->SetTexture(L"textures/particles/haze-white.png");
+	pCageAuraGlow->SetTexture(_T("textures/particles/haze-white.png"));
 	pCageAuraGlow->SetLifeTime(5.0f);
 	pCageAuraGlow->SetEmissionRate(0.5f);
 	pCageAuraGlow->SetEmissionMaxDistance(10);

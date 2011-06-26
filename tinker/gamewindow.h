@@ -31,9 +31,18 @@ public:
 	class CGameServer*			GetGameServer() { return m_pGameServer; };
 	class CRenderer*			GetRenderer() { return m_pRenderer; };
 
+	void						OpenChat();
+	void						CloseChat();
+	void						ToggleChat();
+	bool						IsChatOpen();
+	void						PrintChat(tstring sText);
+	virtual class CChatBox*		GetChatBox();
+
 protected:
 	class CGameServer*			m_pGameServer;
 	class CRenderer*			m_pRenderer;
+
+	class CChatBox*				m_pChatBox;
 };
 
 inline CGameWindow* GameWindow()

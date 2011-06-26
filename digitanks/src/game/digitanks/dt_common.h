@@ -1,7 +1,7 @@
 #ifndef DT_COMMON
 #define DT_COMMON
 
-#include <EASTL/string.h>
+#include <tstring.h>
 #include <color.h>
 
 typedef enum
@@ -129,6 +129,6 @@ typedef enum
 } losecondition_t;
 
 extern Color g_aclrTeamColors[];
-extern eastl::string16 g_aszTeamNames[];
+extern tstring g_aszTeamNames[];
 
 #endif

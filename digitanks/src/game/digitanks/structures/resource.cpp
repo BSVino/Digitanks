@@ -30,8 +30,8 @@ void CResource::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheParticleSystem(L"electronode-spark");
-	PrecacheModel(L"models/structures/electronode.obj", true);
+	PrecacheParticleSystem(_T("electronode-spark"));
+	PrecacheModel(_T("models/structures/electronode.obj"), true);
 }
 
 void CResource::Spawn()
@@ -40,9 +40,9 @@ void CResource::Spawn()
 
 	m_bTakeDamage = false;
 
-	SetModel(L"models/structures/electronode.obj");
+	SetModel(_T("models/structures/electronode.obj"));
 
-	m_hSparkParticles.SetSystem(L"electronode-spark", GetOrigin());
+	m_hSparkParticles.SetSystem(_T("electronode-spark"), GetOrigin());
 
 	m_bConstructing = false;
 }
@@ -65,14 +65,14 @@ void CResource::Think()
 	}
 }
 
-void CResource::UpdateInfo(eastl::string16& s)
+void CResource::UpdateInfo(tstring& s)
 {
-	s = L"ELECTRONODE\n";
-	s += L"Digital resource\n \n";
+	s = _T("ELECTRONODE\n");
+	s += _T("Digital resource\n \n");
 
-	s += L"Team: Neutral\n \n";
+	s += _T("Team: Neutral\n \n");
 
-	s += L"Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n";
+	s += _T("Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n");
 }
 
 void CResource::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
@@ -132,11 +132,11 @@ void CResource::PostRender(bool bTransparent) const
 			switch (pTeam->GetPrimaryCPU()->GetPreviewStructure())
 			{
 			case STRUCTURE_BATTERY:
-				iModel = CModelLibrary::Get()->FindModel(L"models/structures/battery.obj");
+				iModel = CModelLibrary::Get()->FindModel(_T("models/structures/battery.obj"));
 				break;
 
 			case STRUCTURE_PSU:
-				iModel = CModelLibrary::Get()->FindModel(L"models/structures/psu.obj");
+				iModel = CModelLibrary::Get()->FindModel(_T("models/structures/psu.obj"));
 				break;
 			}
 

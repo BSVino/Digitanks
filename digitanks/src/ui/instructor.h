@@ -35,7 +35,7 @@ public:
 class CTutorial
 {
 public:
-									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, eastl::string16 sText);
+									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, tstring sText);
 									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial);
 
 public:
@@ -43,7 +43,7 @@ public:
 	eastl::string					m_sTutorialName;
 	eastl::string					m_sNextTutorial;
 	int								m_iPosition;
-	eastl::string16					m_sText;
+	tstring					m_sText;
 	int								m_iWidth;
 	bool							m_bAutoNext;
 	bool							m_bKillOnFinish;

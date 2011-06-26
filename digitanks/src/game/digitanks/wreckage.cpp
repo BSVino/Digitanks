@@ -35,8 +35,8 @@ INPUTS_TABLE_END();
 
 void CWreckage::Precache()
 {
-	PrecacheParticleSystem(L"wreckage-burn");
-	PrecacheParticleSystem(L"wreckage-crash");
+	PrecacheParticleSystem(_T("wreckage-burn"));
+	PrecacheParticleSystem(_T("wreckage-crash"));
 }
 
 void CWreckage::Spawn()
@@ -53,7 +53,7 @@ void CWreckage::Spawn()
 
 	m_angList = EAngle(RandomFloat(-90, 90), RandomFloat(-180, 180), RandomFloat(-90, 90));
 
-	m_hBurnParticles.SetSystem(L"wreckage-burn", GetOrigin());
+	m_hBurnParticles.SetSystem(_T("wreckage-burn"), GetOrigin());
 	m_hBurnParticles.FollowEntity(this);
 	m_iTurretModel = ~0;
 	m_bTakeDamage = false;
@@ -76,7 +76,7 @@ void CWreckage::Think()
 		m_angList = EAngle(0, 0, 0);
 
 		if (GetVisibility() > 0)
-			CNetworkedEffect::AddInstance(L"wreckage-crash", GetOrigin());
+			CNetworkedEffect::AddInstance(_T("wreckage-crash"), GetOrigin());
 	}
 
 	SetAngles(GetAngles() + m_angList*GameServer()->GetFrameTime());
@@ -161,14 +161,14 @@ INPUTS_TABLE_END();
 
 void CDebris::Precache()
 {
-	PrecacheParticleSystem(L"debris-burn");
+	PrecacheParticleSystem(_T("debris-burn"));
 }
 
 void CDebris::Spawn()
 {
 	BaseClass::Spawn();
 
-	m_hBurnParticles.SetSystem(L"debris-burn", GetOrigin());
+	m_hBurnParticles.SetSystem(_T("debris-burn"), GetOrigin());
 	m_hBurnParticles.FollowEntity(this);
 	m_hBurnParticles.SetActive(true);
 	m_bTakeDamage = false;

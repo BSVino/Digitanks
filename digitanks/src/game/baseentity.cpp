@@ -126,7 +126,7 @@ void CBaseEntity::Spawn()
 {
 }
 
-void CBaseEntity::SetModel(const eastl::string16& sModel)
+void CBaseEntity::SetModel(const tstring& sModel)
 {
 	SetModel(CModelLibrary::Get()->FindModel(sModel));
 }
@@ -242,17 +242,17 @@ void CBaseEntity::SetActive(bool bActive)
 	m_bActive = bActive;
 }
 
-void CBaseEntity::Activate(const eastl::vector<eastl::string16>& sArgs)
+void CBaseEntity::Activate(const eastl::vector<tstring>& sArgs)
 {
 	SetActive(true);
 }
 
-void CBaseEntity::Deactivate(const eastl::vector<eastl::string16>& sArgs)
+void CBaseEntity::Deactivate(const eastl::vector<tstring>& sArgs)
 {
 	SetActive(false);
 }
 
-void CBaseEntity::ToggleActive(const eastl::vector<eastl::string16>& sArgs)
+void CBaseEntity::ToggleActive(const eastl::vector<tstring>& sArgs)
 {
 	SetActive(!IsActive());
 }
@@ -304,24 +304,24 @@ void CBaseEntity::Delete()
 	GameServer()->Delete(this);
 }
 
-void CBaseEntity::Delete(const eastl::vector<eastl::string16>& sArgs)
+void CBaseEntity::Delete(const eastl::vector<tstring>& sArgs)
 {
 	Delete();
 }
 
-void CBaseEntity::CallInput(const eastl::string& sName, const eastl::string16& sArgs)
+void CBaseEntity::CallInput(const eastl::string& sName, const tstring& sArgs)
 {
 	CEntityInput* pInput = GetInput(sName.c_str());
 
 	if (!pInput)
 	{
 		TAssert(!"Input missing.");
-		TMsg(sprintf(L"Input %s not found in %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		TMsg(sprintf(tstring("Input %s not found in %s\n"), convertstring<char, tchar>(sName).c_str(), convertstring<char, tchar>(GetClassName()).c_str()));
 		return;
 	}
 
-	eastl::vector<eastl::string16> asArgs;
-	wcstok(sArgs, asArgs);
+	eastl::vector<tstring> asArgs;
+	tstrtok(sArgs, asArgs);
 	pInput->m_pfnCallback(this, asArgs);
 }
 
@@ -332,7 +332,7 @@ void CBaseEntity::CallOutput(const eastl::string& sName)
 	if (!pData)
 	{
 		TAssert(!"Output missing.");
-		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		TMsg(sprintf(tstring("Called nonexistant output %s of entity %s\n"), convertstring<char, tchar>(sName).c_str(), convertstring<char, tchar>(GetClassName()).c_str()));
 		return;
 	}
 
@@ -347,7 +347,7 @@ void CBaseEntity::AddOutputTarget(const eastl::string& sName, const eastl::strin
 	if (!pData)
 	{
 		TAssert(!"Output missing.");
-		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		TMsg(sprintf(tstring("Called nonexistant output %s of entity %s\n"), convertstring<char, tchar>(sName).c_str(), convertstring<char, tchar>(GetClassName()).c_str()));
 		return;
 	}
 
@@ -362,7 +362,7 @@ void CBaseEntity::RemoveOutputs(const eastl::string& sName)
 	if (!pData)
 	{
 		TAssert(!"Output missing.");
-		TMsg(sprintf(L"Called nonexistant output %s of entity %s\n", convertstring<char, char16_t>(sName).c_str(), convertstring<char, char16_t>(GetClassName())));
+		TMsg(sprintf(tstring("Called nonexistant output %s of entity %s\n"), convertstring<char, tchar>(sName).c_str(), convertstring<char, tchar>(GetClassName()).c_str()));
 		return;
 	}
 
@@ -370,7 +370,7 @@ void CBaseEntity::RemoveOutputs(const eastl::string& sName)
 	pOutput->Clear();
 }
 
-void CBaseEntity::RemoveOutput(const eastl::vector<eastl::string16>& sArgs)
+void CBaseEntity::RemoveOutput(const eastl::vector<tstring>& sArgs)
 {
 	if (sArgs.size() == 0)
 	{
@@ -378,7 +378,7 @@ void CBaseEntity::RemoveOutput(const eastl::vector<eastl::string16>& sArgs)
 		return;
 	}
 
-	RemoveOutputs(convertstring<char16_t, char>(sArgs[0]));
+	RemoveOutputs(convertstring<tchar, char>(sArgs[0]));
 }
 
 void CEntityOutput::Call()
@@ -400,7 +400,7 @@ void CEntityOutput::Call()
 		CBaseEntity::FindEntitiesByName(pTarget->m_sTargetName, apEntities);
 
 		for (size_t i = 0; i < apEntities.size(); i++)
-			apEntities[i]->CallInput(pTarget->m_sInput, convertstring<char, char16_t>(pTarget->m_sArgs));
+			apEntities[i]->CallInput(pTarget->m_sInput, convertstring<char, tchar>(pTarget->m_sArgs));
 	}
 
 	for (size_t i = 0; i < m_aTargets.size(); i++)
@@ -440,9 +440,9 @@ SERVER_GAME_COMMAND(EmitSound)
 	CSoundLibrary::PlaySound(CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(0)), pCmd->Arg(3), pCmd->ArgAsFloat(1), !!pCmd->ArgAsInt(2));
 }
 
-void CBaseEntity::EmitSound(const eastl::string16& sFilename, float flVolume, bool bLoop)
+void CBaseEntity::EmitSound(const tstring& sFilename, float flVolume, bool bLoop)
 {
-	::EmitSound.RunCommand(sprintf(L"%d %.1f %d %s", GetHandle(), flVolume, bLoop?1:0, sFilename));
+	::EmitSound.RunCommand(sprintf(tstring("%d %.1f %d %s"), GetHandle(), flVolume, bLoop?1:0, sFilename.c_str()));
 }
 
 SERVER_GAME_COMMAND(StopSound)
@@ -456,17 +456,17 @@ SERVER_GAME_COMMAND(StopSound)
 	CSoundLibrary::StopSound(CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(0)), pCmd->Arg(1));
 }
 
-void CBaseEntity::StopSound(const eastl::string16& sFilename)
+void CBaseEntity::StopSound(const tstring& sFilename)
 {
-	::StopSound.RunCommand(sprintf(L"%d %s", GetHandle(), sFilename));
+	::StopSound.RunCommand(sprintf(tstring("%d %s"), GetHandle(), sFilename.c_str()));
 }
 
-bool CBaseEntity::IsSoundPlaying(const eastl::string16& sFilename)
+bool CBaseEntity::IsSoundPlaying(const tstring& sFilename)
 {
 	return CSoundLibrary::IsSoundPlaying(this, sFilename);
 }
 
-void CBaseEntity::SetSoundVolume(const eastl::string16& sFilename, float flVolume)
+void CBaseEntity::SetSoundVolume(const tstring& sFilename, float flVolume)
 {
 	CSoundLibrary::SetSoundVolume(this, sFilename, flVolume);
 }
@@ -533,7 +533,7 @@ SERVER_GAME_COMMAND(ClientSpawn)
 
 void CBaseEntity::IssueClientSpawn()
 {
-	::ClientSpawn.RunCommand(sprintf(L"%d", GetHandle()));
+	::ClientSpawn.RunCommand(sprintf(tstring("%d"), GetHandle()));
 	m_bClientSpawn = true;
 }
 
@@ -629,6 +629,7 @@ void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 			iSaveTableSize += 4-iSaveTableSize%4;
 
 		// This can help you find where missing stuff is, if all of the save data is in order.
+		// On GCC there's also a problem where a boolean at the end of a parent class can make the beginning address of any child classes be not a multiple of 4, which can cause this to trip. Solution: Keep your booleans near the center of your class definitions. (Really should rewrite this function but meh.)
 		TAssert(pData->m_iOffset - iFirstOffset == iSaveTableSize);
 
 		iSaveTableSize += pData->m_iSizeOfVariable;
@@ -643,12 +644,12 @@ void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 	// If you're getting this assert it probably means you forgot to add a savedata entry for some variable that you added to a class.
 	if (iSaveTableSize != iSizeOfThis)
 	{
-		TMsg(sprintf(L"Save table for class '%s' doesn't match the class's size.\n", convertstring<char, char16_t>(GetClassName())));
-		TAssert(!L"Save table size doesn't match class size.\n");
+		TMsg(sprintf(tstring("Save table for class '%s' doesn't match the class's size.\n"), convertstring<char, tchar>(GetClassName()).c_str()));
+		TAssert(!_T("Save table size doesn't match class size.\n"));
 	}
 }
 
-void CBaseEntity::CheckTables(char* pszEntity)
+void CBaseEntity::CheckTables(const char* pszEntity)
 {
 #ifndef _DEBUG
 	return;
@@ -775,7 +776,7 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 			break;
 
 		case CSaveData::DATA_STRING16:
-			writestring16(o, *(eastl::string16*)pData);
+			writetstring(o, *(tstring*)pData);
 			break;
 
 		case CSaveData::DATA_OUTPUT:
@@ -856,7 +857,7 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 			break;
 
 		case CSaveData::DATA_STRING16:
-			((eastl::string16*)pData)->assign(readstring16(i));
+			((tstring*)pData)->assign(readtstring(i));
 			break;
 
 		case CSaveData::DATA_OUTPUT:
@@ -883,18 +884,18 @@ bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* p
 	return true;
 }
 
-void CBaseEntity::PrecacheModel(const eastl::string16& sModel, bool bStatic)
+void CBaseEntity::PrecacheModel(const tstring& sModel, bool bStatic)
 {
 	CModelLibrary::Get()->AddModel(sModel, bStatic);
 }
 
-void CBaseEntity::PrecacheParticleSystem(const eastl::string16& sSystem)
+void CBaseEntity::PrecacheParticleSystem(const tstring& sSystem)
 {
 	size_t iSystem = CParticleSystemLibrary::Get()->FindParticleSystem(sSystem);
 	CParticleSystemLibrary::Get()->LoadParticleSystem(iSystem);
 }
 
-void CBaseEntity::PrecacheSound(const eastl::string16& sSound)
+void CBaseEntity::PrecacheSound(const tstring& sSound)
 {
 	CSoundLibrary::Get()->AddSound(sSound);
 }

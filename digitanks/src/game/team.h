@@ -42,8 +42,8 @@ public:
 	size_t						GetNumMembers() const { return m_ahMembers.size(); };
 	CBaseEntity*				GetMember(size_t i) const;
 
-	void						SetTeamName(const eastl::string16& sName) { m_sName = sName; };
-	const eastl::string16&		GetTeamName() const { return m_sName; }
+	void						SetTeamName(const tstring& sName) { m_sName = sName; };
+	const tstring&		GetTeamName() const { return m_sName; }
 
 protected:
 	CNetworkedVariable<bool>	m_bHumanPlayable;

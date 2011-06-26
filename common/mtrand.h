@@ -1,6 +1,10 @@
 #ifndef _MTRAND_H
 #define _MTRAND_H
 
+#ifdef __GNUC__
+#include <stddef.h>
+#endif
+
 void mtsrand(size_t iSeed);
 size_t mtrand();
 

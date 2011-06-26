@@ -1,7 +1,7 @@
 #ifndef LW_LEVEL_H
 #define LW_LEVEL_H
 
-#include <eastl/string.h>
+#include <tstring.h>
 
 class CLevel
 {
@@ -12,14 +12,14 @@ public:
 	void					ReadFromData(const class CData* pData);
 	virtual void			OnReadData(const class CData* pData);
 
-	eastl::string			GetName() { return m_sName; }
-	eastl::string16			GetFile() { return m_sFile; }
+	tstring					GetName() { return m_sName; }
+	tstring					GetFile() { return m_sFile; }
 
-	void					SetFile(eastl::string16 sFile) { m_sFile = sFile; }
+	void					SetFile(tstring sFile) { m_sFile = sFile; }
 
 protected:
-	eastl::string			m_sName;
-	eastl::string16			m_sFile;
+	tstring					m_sName;
+	tstring					m_sFile;
 };
 
 #endif

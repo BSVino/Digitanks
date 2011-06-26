@@ -49,72 +49,73 @@
 #include <fstream>
 #include <sstream>
 
+#include "tstring.h"
+
 using eastl::string;
-using eastl::string16;
 
 class ConfigFile {
 // Data
 protected:
-	string16 myDelimiter;  // separator between key and value
-	string16 myComment;    // separator between value and comments
-	string16 mySentry;     // optional string to signal end of file
-	eastl::map<string16,string16> myContents;  // extracted keys and values
+	tstring myDelimiter;  // separator between key and value
+	tstring myComment;    // separator between value and comments
+	tstring mySentry;     // optional string to signal end of file
+	eastl::map<tstring,tstring> myContents;  // extracted keys and values
 
 	bool fileValid;
 
-	typedef eastl::map<string16,string16>::iterator mapi;
-	typedef eastl::map<string16,string16>::const_iterator mapci;
+	typedef eastl::map<tstring,tstring>::iterator mapi;
+	typedef eastl::map<tstring,tstring>::const_iterator mapci;
 
 // Methods
 public:
-	ConfigFile( string16 filename,
-	            string16 delimiter = L"=",
-	            string16 comment = L"#",
-				string16 sentry = L"EndConfigFile" );
+	ConfigFile( tstring filename,
+	            tstring delimiter = _T("="),
+	            tstring comment = _T("#"),
+				tstring sentry = _T("EndConfigFile") );
 	ConfigFile();
 	
 	// Search for key and read value or optional default value
-	template<class T> T read( const string16& key ) const;  // call as read<T>
-	template<class T> T read( const string16& key, const T& value ) const;
-	template<class T> bool readInto( T& var, const string16& key ) const;
+	template<class T> T read( const tstring& key ) const;  // call as read<T>
+	template<class T> T read( const tstring& key, const T& value ) const;
+	template<class T> bool readInto( T& var, const tstring& key ) const;
 	template<class T>
-	bool readInto( T& var, const string16& key, const T& value ) const;
+	bool readInto( T& var, const tstring& key, const T& value ) const;
 	
 	// Modify keys and values
-	template<class T> void add( string16 key, const T& value );
-	void remove( const string16& key );
+	template<class T> void add( tstring key, const T& value );
+	void remove( const tstring& key );
 	
 	// Check whether key exists in configuration
-	bool keyExists( const string16& key ) const;
+	bool keyExists( const tstring& key ) const;
 	
 	// Check or change configuration syntax
-	string16 getDelimiter() const { return myDelimiter; }
-	string16 getComment() const { return myComment; }
-	string16 getSentry() const { return mySentry; }
-	string16 setDelimiter( const string16& s )
-		{ string16 old = myDelimiter;  myDelimiter = s;  return old; }  
-	string16 setComment( const string16& s )
-		{ string16 old = myComment;  myComment = s;  return old; }
+	tstring getDelimiter() const { return myDelimiter; }
+	tstring getComment() const { return myComment; }
+	tstring getSentry() const { return mySentry; }
+	tstring setDelimiter( const tstring& s )
+		{ tstring old = myDelimiter;  myDelimiter = s;  return old; }  
+	tstring setComment( const tstring& s )
+		{ tstring old = myComment;  myComment = s;  return old; }
 
 	bool isFileValid() const { return fileValid; }
 	
 	// Write or read configuration
-	friend std::wostream& operator<<( std::wostream& os, const ConfigFile& cf );
-	friend std::wistream& operator>>( std::wistream& is, ConfigFile& cf );
+	friend std::basic_ostream<tchar>& operator<<( std::basic_ostream<tchar>& os, const ConfigFile& cf );
+	friend std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile& cf );
 	
 protected:
-	template<class T> static string16 T_as_string( const T& t );
-	template<class T> static T string_as_T( const string16& s );
-	static void trim( string16& s );
+	template<class T> static tstring T_as_string( const T& t );
+	template<class T> static T string_as_T( const tstring& s );
+	static void trim( tstring& s );
 };
 
 /* static */
 template<class T>
-string16 ConfigFile::T_as_string( const T& t )
+tstring ConfigFile::T_as_string( const T& t )
 {
 	// Convert from a T to a string
 	// Type T must support << operator
-	std::wostringstream ost;
+	std::basic_ostringstream<tchar> ost;
 	ost << t;
 	return ost.str().c_str();
 }
@@ -122,7 +123,7 @@ string16 ConfigFile::T_as_string( const T& t )
 
 /* static */
 template<>
-inline string16 ConfigFile::T_as_string<string16>( const string16& s )
+inline tstring ConfigFile::T_as_string<tstring>( const tstring& s )
 {
 	// Convert from a string to a string
 	// In other words, do nothing
@@ -132,12 +133,12 @@ inline string16 ConfigFile::T_as_string<string16>( const string16& s )
 
 /* static */
 template<class T>
-T ConfigFile::string_as_T( const string16& s )
+T ConfigFile::string_as_T( const tstring& s )
 {
 	// Convert from a string to a T
 	// Type T must support >> operator
 	T t;
-	std::wistringstream ist(s.c_str());
+	std::basic_istringstream<tchar> ist(s.c_str());
 	ist >> t;
 	return t;
 }
@@ -145,7 +146,7 @@ T ConfigFile::string_as_T( const string16& s )
 
 /* static */
 template<>
-inline string16 ConfigFile::string_as_T<string16>( const string16& s )
+inline tstring ConfigFile::string_as_T<tstring>( const tstring& s )
 {
 	// Convert from a string to a string
 	// In other words, do nothing
@@ -155,25 +156,25 @@ inline string16 ConfigFile::string_as_T<string16>( const string16& s )
 
 /* static */
 template<>
-inline bool ConfigFile::string_as_T<bool>( const string16& s )
+inline bool ConfigFile::string_as_T<bool>( const tstring& s )
 {
 	// Convert from a string to a bool
 	// Interpret "false", "F", "no", "n", "0" as false
 	// Interpret "true", "T", "yes", "y", "1", "-1", or anything else as true
 	bool b = true;
-	string16 sup = s;
-	for( string16::iterator p = sup.begin(); p != sup.end(); ++p )
+	tstring sup = s;
+	for( tstring::iterator p = sup.begin(); p != sup.end(); ++p )
 		*p = toupper(*p);  // make string all caps
-	if( sup==string16(L"FALSE") || sup==string16(L"F") ||
-	    sup==string16(L"NO") || sup==string16(L"N") ||
-	    sup==string16(L"0") || sup==string16(L"NONE")|| sup==string16(L"OFF") )
+	if( sup==tstring(_T("FALSE")) || sup==tstring(_T("F")) ||
+	    sup==tstring(_T("NO")) || sup==tstring(_T("N")) ||
+	    sup==tstring(_T("0")) || sup==tstring(_T("NONE"))|| sup==tstring(_T("OFF")) )
 		b = false;
 	return b;
 }
 
 
 template<class T>
-T ConfigFile::read( const string16& key ) const
+T ConfigFile::read( const tstring& key ) const
 {
 	// Read the value corresponding to key
 	mapci p = myContents.find(key);
@@ -183,7 +184,7 @@ T ConfigFile::read( const string16& key ) const
 
 
 template<class T>
-T ConfigFile::read( const string16& key, const T& value ) const
+T ConfigFile::read( const tstring& key, const T& value ) const
 {
 	// Return the value corresponding to key or given default value
 	// if key is not found
@@ -194,7 +195,7 @@ T ConfigFile::read( const string16& key, const T& value ) const
 
 
 template<class T>
-bool ConfigFile::readInto( T& var, const string16& key ) const
+bool ConfigFile::readInto( T& var, const tstring& key ) const
 {
 	// Get the value corresponding to key and store in var
 	// Return true if key is found
@@ -207,7 +208,7 @@ bool ConfigFile::readInto( T& var, const string16& key ) const
 
 
 template<class T>
-bool ConfigFile::readInto( T& var, const string16& key, const T& value ) const
+bool ConfigFile::readInto( T& var, const tstring& key, const T& value ) const
 {
 	// Get the value corresponding to key and store in var
 	// Return true if key is found
@@ -223,10 +224,10 @@ bool ConfigFile::readInto( T& var, const string16& key, const T& value ) const
 
 
 template<class T>
-void ConfigFile::add( string16 key, const T& value )
+void ConfigFile::add( tstring key, const T& value )
 {
 	// Add a key with given value
-	string16 v = T_as_string( value );
+	tstring v = T_as_string( value );
 	trim(key);
 	trim(v);
 	myContents[key] = v;

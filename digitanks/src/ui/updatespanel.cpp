@@ -14,21 +14,21 @@ using namespace glgui;
 CUpdatesPanel::CUpdatesPanel()
 	: CPanel(0, 0, 600, 600)
 {
-	m_pCloseButton = new CButton(0, 0, 100, 20, L"Close");
+	m_pCloseButton = new CButton(0, 0, 100, 20, _T("Close"));
 	m_pCloseButton->SetClickedListener(this, Close);
-	m_pCloseButton->SetFont(L"header");
+	m_pCloseButton->SetFont(_T("header"));
 	AddControl(m_pCloseButton);
 
-	m_pAvailable = new CLabel(0, 0, 100, 300, L"");
-	m_pAvailable->SetFont(L"text", 18);
+	m_pAvailable = new CLabel(0, 0, 100, 300, _T(""));
+	m_pAvailable->SetFont(_T("text"), 18);
 	AddControl(m_pAvailable);
 
-	m_pInfo = new CLabel(0, 0, 100, 300, L"");
-	m_pInfo->SetFont(L"text");
+	m_pInfo = new CLabel(0, 0, 100, 300, _T(""));
+	m_pInfo->SetFont(_T("text"));
 	AddControl(m_pInfo);
 
-	m_pTutorial = new CLabel(0, 0, 100, 300, L"");
-	m_pTutorial->SetFont(L"text");
+	m_pTutorial = new CLabel(0, 0, 100, 300, _T(""));
+	m_pTutorial->SetFont(_T("text"));
 	AddControl(m_pTutorial);
 }
 
@@ -99,7 +99,7 @@ void CUpdatesPanel::Layout()
 			CUpdateButton* pUpdate = m_apUpdates[m_apUpdates.size()-1];
 			pUpdate->SetSize(m_iButtonSize-2, m_iButtonSize-1);
 			pUpdate->SetPos((i-iLowestX)*m_iButtonSize + iXBuffer, (j-iLowestY)*m_iButtonSize + iYBuffer);
-			pUpdate->SetFont(L"text", 10);
+			pUpdate->SetFont(_T("text"), 10);
 			pUpdate->SetLocation(i, j);
 			AddControl(pUpdate);
 
@@ -260,19 +260,19 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentLocalDigitanksTeam();
 
-	m_pAvailable->SetText(sprintf(L"Available: %dMB", (int)pTeam->GetMegabytes()));
+	m_pAvailable->SetText(sprintf(tstring("Available: %dMB"), (int)pTeam->GetMegabytes()));
 
 	int x, y;
 	DigitanksGame()->GetUpdateGrid()->FindUpdate(pInfo, x, y);
 
-	eastl::string16 s;
-	eastl::string16 p;
-	s += pInfo->GetName() + L"\n \n";
+	tstring s;
+	tstring p;
+	s += pInfo->GetName() + _T("\n \n");
 
 	if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
-		s += p.sprintf(L"Increase: %.1f %s\n", pInfo->m_flValue, pInfo->GetUnits());
+		s += sprintf(tstring("Increase: %.1f %s\n"), pInfo->m_flValue, pInfo->GetUnits().c_str());
 
-	s += p.sprintf(L"Download cost: %dMB\n", (int)pInfo->m_flSize);
+	s += sprintf(tstring("Download cost: %dMB\n"), (int)pInfo->m_flSize);
 
 	if (pTeam && pTeam->GetBandwidth() > 0 && !pTeam->HasDownloadedUpdate(x, y))
 	{
@@ -282,10 +282,10 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 		if (iTurns < 1)
 			iTurns = 1;
 
-		s += p.sprintf(L"Turns to download: %d\n", iTurns);
+		s += sprintf(tstring("Turns to download: %d\n"), iTurns);
 	}
 
-	s += L" \n";
+	s += _T(" \n");
 	s += pInfo->GetInfo();
 
 	m_pInfo->SetText(s);
@@ -294,7 +294,7 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 	m_pInfo->SetSize(m_pInfo->GetWidth(), (int)m_pInfo->GetTextHeight()+20);
 
 	if (pTeam->HasDownloadedUpdate(x, y))
-		m_pTutorial->SetText(L"You already have this update.");
+		m_pTutorial->SetText(_T("You already have this update."));
 	else if (pTeam->CanDownloadUpdate(x, y))
 	{
 		float flDownloaded = pTeam->GetMegabytes();
@@ -307,14 +307,14 @@ void CUpdatesPanel::UpdateInfo(CUpdateItem* pInfo)
 			iTurns = 0;
 
 		if (iTurns == 0)
-			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download.", (int)pInfo->m_flSize));
+			m_pTutorial->SetText(sprintf(tstring("This update costs %dMB to download."), (int)pInfo->m_flSize));
 		else if (iTurns == 1)
-			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. This update would take 1 turn to download.", (int)pInfo->m_flSize, iTurns));
+			m_pTutorial->SetText(sprintf(tstring("This update costs %dMB to download. This update would take 1 turn to download."), (int)pInfo->m_flSize, iTurns));
 		else
-			m_pTutorial->SetText(sprintf(L"This update costs %dMB to download. This update would take %d turns to download.", (int)pInfo->m_flSize, iTurns));
+			m_pTutorial->SetText(sprintf(tstring("This update costs %dMB to download. This update would take %d turns to download."), (int)pInfo->m_flSize, iTurns));
 	}
 	else
-		m_pTutorial->SetText(L"This update is not yet available for download.");
+		m_pTutorial->SetText(_T("This update is not yet available for download."));
 }
 
 void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th)
@@ -536,7 +536,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 }
 
 CUpdateButton::CUpdateButton(CUpdatesPanel* pPanel)
-	: CPictureButton(L"")
+	: CPictureButton(_T(""))
 {
 	m_pUpdatesPanel = pPanel;
 	m_iX = m_iY = 0;

@@ -12,7 +12,7 @@ NETVAR_TABLE_BEGIN(CTeam);
 	NETVAR_DEFINE(CEntityHandle<CBaseEntity>, m_ahMembers);
 	NETVAR_DEFINE(bool, m_bClientControlled);
 	NETVAR_DEFINE_CALLBACK(int, m_iClient, &CGame::ClearLocalTeams);
-	NETVAR_DEFINE(eastl::string16, m_sName);
+	NETVAR_DEFINE(tstring, m_sName);
 NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CTeam);
@@ -22,7 +22,7 @@ SAVEDATA_TABLE_BEGIN(CTeam);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, bool, m_bClientControlled);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, int, m_iClient);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iInstallID);
-	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, eastl::string16, m_sName);
+	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, tstring, m_sName);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CTeam);

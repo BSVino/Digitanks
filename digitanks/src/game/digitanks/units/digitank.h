@@ -10,7 +10,7 @@
 #include <renderer/particles.h>
 
 // Tank speech
-typedef enum
+enum
 {
 	TANKSPEECH_SELECTED,
 	TANKSPEECH_MOVED,
@@ -25,7 +25,7 @@ typedef enum
 	TANKSPEECH_DISABLED,
 };
 
-typedef enum
+enum
 {
 	TANKLINE_CUTE,
 	TANKLINE_LOVE,
@@ -282,7 +282,7 @@ public:
 
 	virtual void				DrawSchema(int x, int y, int w, int h);
 
-	virtual void				UpdateInfo(eastl::string16& sInfo);
+	virtual void				UpdateInfo(tstring& sInfo);
 
 	void						GiveBonusPoints(size_t i, bool bPlayEffects = true);
 	bool						HasBonusPoints();

@@ -22,7 +22,7 @@ public:
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar For\nDamage Bonus"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar For\nDamage Bonus"); };
 	virtual Color				GetBonusDamageColor() const;
 	virtual float				GetBonusDamage();
 	virtual float				DamageBonus() const { return 30; };
@@ -68,8 +68,6 @@ public:
 	virtual size_t				Bounces() { return 0; };
 
 protected:
-	bool						m_bFallSoundPlayed;
-
 	CNetworkedVector			m_vecLandingSpot;
 
 	CParticleSystemInstanceHandle m_hTrailParticles;
@@ -77,10 +75,11 @@ protected:
 	CNetworkedVariable<bool>	m_bFragmented;
 	size_t						m_iBounces;
 
+	bool						m_bMissileDefensesNotified;
+	bool						m_bFallSoundPlayed;
+
 	CNetworkedVariable<float>	m_flDamageBonusTime;
 	CNetworkedVariable<float>	m_flDamageBonusFreeze;
-
-	bool						m_bMissileDefensesNotified;
 };
 
 class CSmallShell : public CProjectile
@@ -165,7 +164,7 @@ class CICBM : public CProjectile
 	REGISTER_ENTITY_CLASS(CICBM, CProjectile);
 
 public:
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar\nTo Fragment"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar\nTo Fragment"); };
 
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_ICBM; }
 	virtual float				ShellRadius() { return 1.2f; };
@@ -186,7 +185,7 @@ public:
 	virtual EAngle				GetRenderAngles() const;
 
 	virtual void				SpecialCommand();
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -212,7 +211,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				SpecialCommand();
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -234,7 +233,7 @@ public:
 	virtual void				Spawn();
 
 	virtual void				SpecialCommand();
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
 
 	virtual void				OnExplode(CBaseEntity* pInstigator);
 
@@ -294,7 +293,7 @@ public:
 	virtual void				Precache();
 
 	virtual void				SpecialCommand();
-	virtual eastl::string16		SpecialCommandHint() { return L"Space Bar To\nDetonate"; };
+	virtual tstring		SpecialCommandHint() { return _T("Space Bar To\nDetonate"); };
 
 	virtual void				CreateExplosionSystem();
 	virtual size_t				CreateTrailSystem();

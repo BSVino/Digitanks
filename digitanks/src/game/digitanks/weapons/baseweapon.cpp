@@ -14,9 +14,9 @@ NETVAR_TABLE_END();
 
 SAVEDATA_TABLE_BEGIN(CBaseWeapon);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flTimeExploded);
+	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, CEntityHandle<CDigitanksEntity>, m_hOwner);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flDamage);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bShouldRender);
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBaseWeapon);
@@ -24,7 +24,7 @@ INPUTS_TABLE_END();
 
 void CBaseWeapon::Precache()
 {
-	PrecacheSound(L"sound/explosion.wav");
+	PrecacheSound(_T("sound/explosion.wav"));
 }
 
 void CBaseWeapon::Spawn()
@@ -81,7 +81,7 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 {
 	bool bHit = false;
 	if (m_flDamage > 0)
-		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage + GetBonusDamage(), pInstigator, (m_hOwner == NULL)?NULL:m_hOwner->GetTeam());
+		bHit = DigitanksGame()->Explode(m_hOwner, this, ExplosionRadius(), m_flDamage + GetBonusDamage(), pInstigator, (!m_hOwner)?NULL:m_hOwner->GetTeam());
 
 	OnExplode(pInstigator);
 
@@ -100,7 +100,7 @@ void CBaseWeapon::Explode(CBaseEntity* pInstigator)
 		bCanSeeOwner = false;
 
 	if (MakesSounds() && ShouldPlayExplosionSound() || bCanSeeOwner)
-		EmitSound(L"sound/explosion.wav");
+		EmitSound(_T("sound/explosion.wav"));
 
 	if (m_hOwner != NULL && dynamic_cast<CTerrain*>(pInstigator) && !bHit)
 	{
@@ -259,76 +259,76 @@ static float g_aflWeaponFireInterval[WEAPON_MAX] =
 	0,		// fireworks
 };
 
-static char16_t* g_apszWeaponNames[WEAPON_MAX] =
+static const tchar* g_apszWeaponNames[WEAPON_MAX] =
 {
-	L"None",
+	_T("None"),
 
-	L"Little Boy",
-	L"Fat Man",
-	L"Big Mama",
-	L"Plasma Charge",
-	L"Electro-Magnetic Pulse",
-	L"Repulsor Bomb",
-	L"Grapeshot",
-	L"WAN Bomb",
-	L"Grenade",
-	L"Daisy Chain",
-	L"Cluster Bomb",
-	L"Earthshaker",
+	_T("Little Boy"),
+	_T("Fat Man"),
+	_T("Big Mama"),
+	_T("Plasma Charge"),
+	_T("Electro-Magnetic Pulse"),
+	_T("Repulsor Bomb"),
+	_T("Grapeshot"),
+	_T("WAN Bomb"),
+	_T("Grenade"),
+	_T("Daisy Chain"),
+	_T("Cluster Bomb"),
+	_T("Earthshaker"),
 
-	L"Machine Gun",
-	L"Tree Cutter",
-	L"Fragmentation Ray",
-	L"Torpedo",
-	L"Artillery Shell",
-	L"Artillery Plasma Charge",
-	L"Artillery WAN Bomb",
-	L"The Devastator",
+	_T("Machine Gun"),
+	_T("Tree Cutter"),
+	_T("Fragmentation Ray"),
+	_T("Torpedo"),
+	_T("Artillery Shell"),
+	_T("Artillery Plasma Charge"),
+	_T("Artillery WAN Bomb"),
+	_T("The Devastator"),
 
-	L"Camera-Guided Missile",
-	L"Fragmentation Ray",
-	L"Missile Defense",
-	L"Turret Missile",
-	L"Charging RAM Attack",
+	_T("Camera-Guided Missile"),
+	_T("Fragmentation Ray"),
+	_T("Missile Defense"),
+	_T("Turret Missile"),
+	_T("Charging RAM Attack"),
 
-	L"Airstrike",
-	L"Fireworks",
+	_T("Airstrike"),
+	_T("Fireworks"),
 };
 
-static char16_t* g_apszWeaponDescriptions[WEAPON_MAX] =
+static const tchar* g_apszWeaponDescriptions[WEAPON_MAX] =
 {
-	L"None",
+	_T("None"),
 
-	L"This light projectile bomb does just enough damage to keep the enemy from regenerating his shields next turn.",
-	L"This medium projectile bomb is a good trade-off between firepower and defense.",
-	L"This heavy projectile bomb packs a mean punch at the cost of your shield energy.",
-	L"This large area of effect projectile bomb is good for attacking a group of tanks.",
-	L"This medium projectile bomb sends out an electonic pulse that does extra damage against shields but relatively little damage against tank hulls.",
-	L"This light projectile bomb does very little damage, but can knock tanks around a great deal.",
-	L"This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance.",
-	L"This heavy projectile breaks into multiple fragments before it falls down onto its target.",
-	L"This heavy projectile bounces three times before it explodes. Chuck it into holes to find out-of-reach targets.",
-	L"This medium projectile can't be stopped. Even after it explodes, it continues on its previous path through the cleared terrain. Good for punching through dirt.",
-	L"This heavy projectile breaks into a large number of smaller pieces on impact for maximum distruction.",
-	L"This projectile bomb does very little damage but is effective at creating a rather large hole in the ground.",
+	_T("This light projectile bomb does just enough damage to keep the enemy from regenerating his shields next turn."),
+	_T("This medium projectile bomb is a good trade-off between firepower and defense."),
+	_T("This heavy projectile bomb packs a mean punch at the cost of your shield energy."),
+	_T("This large area of effect projectile bomb is good for attacking a group of tanks."),
+	_T("This medium projectile bomb sends out an electonic pulse that does extra damage against shields but relatively little damage against tank hulls."),
+	_T("This light projectile bomb does very little damage, but can knock tanks around a great deal."),
+	_T("This light attack fires a stream of small projectiles at your enemy. It can be deadly at close range, but loses effectiveness with distance."),
+	_T("This heavy projectile breaks into multiple fragments before it falls down onto its target."),
+	_T("This heavy projectile bounces three times before it explodes. Chuck it into holes to find out-of-reach targets."),
+	_T("This medium projectile can't be stopped. Even after it explodes, it continues on its previous path through the cleared terrain. Good for punching through dirt."),
+	_T("This heavy projectile breaks into a large number of smaller pieces on impact for maximum distruction."),
+	_T("This projectile bomb does very little damage but is effective at creating a rather large hole in the ground."),
 
-	L"The Resistor's light mounted gun is its main firepower. However, it can't hit flying units such as the Rogue.",
-	L"The Tree Cutter is not a weapon, but a tool that can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units.",
-	L"This weapon emits a wall of rays in one direction. It's not blocked by objects or terrain and can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues.",
-	L"Torpedos do damage only if the target's shields are down, but they also disable units and sever structures from their network, forcing them to become neutral.",
-	L"The Artillery fires a salvo of shells which do double damage against shields but half damage against structures.",
-	L"These charges are similar to the standard shells but have a large radius and pack a larger whallop.",
-	L"The Artillery Wide Area Network Bomb fragments into many pieces before raining chaos and destruction down on your foes.",
-	L"The Devastor is the ultimate weapon of destruction.",
+	_T("The Resistor's light mounted gun is its main firepower. However, it can't hit flying units such as the Rogue."),
+	_T("The Tree Cutter is not a weapon, but a tool that can be used to clear trees to make a path or remove hiding spots. It also deals a small amount of damage to enemy units."),
+	_T("This weapon emits a wall of rays in one direction. It's not blocked by objects or terrain and can hit flying units with no problem, so it's great for taking care of those pesky enemy Rogues."),
+	_T("Torpedos do damage only if the target's shields are down, but they also disable units and sever structures from their network, forcing them to become neutral."),
+	_T("The Artillery fires a salvo of shells which do double damage against shields but half damage against structures."),
+	_T("These charges are similar to the standard shells but have a large radius and pack a larger whallop."),
+	_T("The Artillery Wide Area Network Bomb fragments into many pieces before raining chaos and destruction down on your foes."),
+	_T("The Devastor is the ultimate weapon of destruction."),
 
-	L"This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first-person.",
-	L"This weapon emits a wall of rays in one direction. Great for hitting multiple tanks in a line. This weapon goes through any objects or terrian and has no range limitations.",
-	L"These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!",
-	L"Firewalls use these small missiles to defend their base.",
-	L"Combine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields. This attack requires your movement energy, if you move your tank you won't be able to execute it.",
+	_T("This special missile can be steered by using your mouse. Just aim it in the general direction and use your mouse to control the missile from first-person."),
+	_T("This weapon emits a wall of rays in one direction. Great for hitting multiple tanks in a line. This weapon goes through any objects or terrian and has no range limitations."),
+	_T("These small anti-air missiles can detonate an incoming projectile before it reaches the tank. Warning: Not effective against some projectile types!"),
+	_T("Firewalls use these small missiles to defend their base."),
+	_T("Combine your engine and attack energies to charge an enemy unit with a RAM attack that bypasses shields. This attack requires your movement energy, if you move your tank you won't be able to execute it."),
 
-	L"Rain fire and brimstone upon your enemies.",
-	L"You won! Fireworks are in order.",
+	_T("Rain fire and brimstone upon your enemies."),
+	_T("You won! Fireworks are in order."),
 };
 
 float CBaseWeapon::GetWeaponEnergy(weapon_t eProjectile)
@@ -351,12 +351,12 @@ float CBaseWeapon::GetWeaponFireInterval(weapon_t eProjectile)
 	return g_aflWeaponFireInterval[eProjectile];
 }
 
-char16_t* CBaseWeapon::GetWeaponName(weapon_t eProjectile)
+const tchar* CBaseWeapon::GetWeaponName(weapon_t eProjectile)
 {
 	return g_apszWeaponNames[eProjectile];
 }
 
-char16_t* CBaseWeapon::GetWeaponDescription(weapon_t eProjectile)
+const tchar* CBaseWeapon::GetWeaponDescription(weapon_t eProjectile)
 {
 	return g_apszWeaponDescriptions[eProjectile];
 }

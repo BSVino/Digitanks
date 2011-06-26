@@ -7,9 +7,9 @@
 class CUpdateItem
 {
 public:
-	eastl::string16	GetName();
-	eastl::string16	GetInfo();
-	eastl::string16	GetUnits();
+	tstring	GetName();
+	tstring	GetInfo();
+	tstring	GetUnits();
 
 public:
 	updateclass_t	m_eUpdateClass;

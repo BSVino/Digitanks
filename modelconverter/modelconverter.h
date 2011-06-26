@@ -15,33 +15,33 @@ public:
 						CModelConverter(CConversionScene* pScene);
 
 public:
-	bool				ReadModel(const eastl::string16& sFilename);
+	bool				ReadModel(const tstring& sFilename);
 
-	void				ReadOBJ(const eastl::string16& sFilename);
-	void				ReadMTL(const eastl::string16& sFilename);
+	void				ReadOBJ(const tstring& sFilename);
+	void				ReadMTL(const tstring& sFilename);
 
 	// SIA and its utility functions.
-	void				ReadSIA(const eastl::string16& sFilename);
-	const char16_t*		ReadSIAMat(const char16_t* pszLine, const char16_t* pszEnd, CConversionSceneNode* pScene, const eastl::string16& sFilename);
-	const char16_t*		ReadSIAShape(const char16_t* pszLine, const char16_t* pszEnd, CConversionSceneNode* pScene, bool bCare = true);
+	void				ReadSIA(const tstring& sFilename);
+	const tchar*		ReadSIAMat(const tchar* pszLine, const tchar* pszEnd, CConversionSceneNode* pScene, const tstring& sFilename);
+	const tchar*		ReadSIAShape(const tchar* pszLine, const tchar* pszEnd, CConversionSceneNode* pScene, bool bCare = true);
 
-	void				ReadDAE(const eastl::string16& sFilename);
+	void				ReadDAE(const tstring& sFilename);
 	void				ReadDAESceneTree(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
 
-	bool				SaveModel(const eastl::string16& sFilename);
+	bool				SaveModel(const tstring& sFilename);
 
-	void				SaveOBJ(const eastl::string16& sFilename);
-	void				SaveSIA(const eastl::string16& sFilename);
-	void				SaveDAE(const eastl::string16& sFilename);
+	void				SaveOBJ(const tstring& sFilename);
+	void				SaveSIA(const tstring& sFilename);
+	void				SaveDAE(const tstring& sFilename);
 	void				SaveDAEScene(class FCDSceneNode* pNode, CConversionSceneNode* pScene);
 
-	void				WriteSMDs(const eastl::string16& sFilename = L"");
-	void				WriteSMD(size_t iMesh, const eastl::string16& sFilename = L"");
+	void				WriteSMDs(const tstring& sFilename = _T(""));
+	void				WriteSMD(size_t iMesh, const tstring& sFilename = _T(""));
 
-	eastl::string16		GetFilename(const eastl::string16& sFilename);
-	eastl::string16		GetDirectory(const eastl::string16& sFilename);
-	bool				IsWhitespace(eastl::string16::value_type cChar);
-	eastl::string16		StripWhitespace(eastl::string16 sLine);
+	tstring		GetFilename(const tstring& sFilename);
+	tstring		GetDirectory(const tstring& sFilename);
+	bool				IsWhitespace(tstring::value_type cChar);
+	tstring		StripWhitespace(tstring sLine);
 
 	void				SetScene(CConversionScene* pScene) { m_pScene = pScene; };
 	CConversionScene*	GetScene() { return m_pScene; };

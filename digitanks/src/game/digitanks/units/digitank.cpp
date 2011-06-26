@@ -213,25 +213,25 @@ void CDigitank::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheParticleSystem(L"tank-fire");
-	PrecacheParticleSystem(L"promotion");
-	PrecacheParticleSystem(L"tank-hover");
-	PrecacheParticleSystem(L"digitank-smoke");
-	PrecacheParticleSystem(L"digitank-fire");
-	PrecacheParticleSystem(L"charge-burst");
-	PrecacheParticleSystem(L"charge-charge");
-	PrecacheSound(L"sound/tank-fire.wav");
-	PrecacheSound(L"sound/shield-damage.wav");
-	PrecacheSound(L"sound/tank-damage.wav");
-	PrecacheSound(L"sound/tank-active.wav");
-	PrecacheSound(L"sound/tank-active2.wav");
-	PrecacheSound(L"sound/tank-move.wav");
-	PrecacheSound(L"sound/tank-aim.wav");
-	PrecacheSound(L"sound/tank-promoted.wav");
+	PrecacheParticleSystem(_T("tank-fire"));
+	PrecacheParticleSystem(_T("promotion"));
+	PrecacheParticleSystem(_T("tank-hover"));
+	PrecacheParticleSystem(_T("digitank-smoke"));
+	PrecacheParticleSystem(_T("digitank-fire"));
+	PrecacheParticleSystem(_T("charge-burst"));
+	PrecacheParticleSystem(_T("charge-charge"));
+	PrecacheSound(_T("sound/tank-fire.wav"));
+	PrecacheSound(_T("sound/shield-damage.wav"));
+	PrecacheSound(_T("sound/tank-damage.wav"));
+	PrecacheSound(_T("sound/tank-active.wav"));
+	PrecacheSound(_T("sound/tank-active2.wav"));
+	PrecacheSound(_T("sound/tank-move.wav"));
+	PrecacheSound(_T("sound/tank-aim.wav"));
+	PrecacheSound(_T("sound/tank-promoted.wav"));
 
-	s_iAimBeam = CTextureLibrary::AddTextureID(L"textures/beam-pulse.png");
-	s_iAutoMove = CTextureLibrary::AddTextureID(L"textures/auto-move.png");
-	s_iSupportGlow = CTextureLibrary::AddTextureID(L"textures/particles/support.png");
+	s_iAimBeam = CTextureLibrary::AddTextureID(_T("textures/beam-pulse.png"));
+	s_iAutoMove = CTextureLibrary::AddTextureID(_T("textures/auto-move.png"));
+	s_iSupportGlow = CTextureLibrary::AddTextureID(_T("textures/particles/support.png"));
 
 	SetupSpeechLines();
 }
@@ -346,16 +346,16 @@ void CDigitank::Spawn()
 
 	BaseClass::Spawn();
 
-	m_hHoverParticles.SetSystem(L"tank-hover", GetOrigin());
+	m_hHoverParticles.SetSystem(_T("tank-hover"), GetOrigin());
 	m_hHoverParticles.FollowEntity(this);
 
-	m_hSmokeParticles.SetSystem(L"digitank-smoke", GetOrigin());
+	m_hSmokeParticles.SetSystem(_T("digitank-smoke"), GetOrigin());
 	m_hSmokeParticles.FollowEntity(this);
 
-	m_hFireParticles.SetSystem(L"digitank-fire", GetOrigin());
+	m_hFireParticles.SetSystem(_T("digitank-fire"), GetOrigin());
 	m_hFireParticles.FollowEntity(this);
 
-	m_hChargeParticles.SetSystem(L"charge-charge", GetOrigin());
+	m_hChargeParticles.SetSystem(_T("charge-charge"), GetOrigin());
 	m_hChargeParticles.FollowEntity(this);
 }
 
@@ -802,7 +802,7 @@ void CDigitank::SetPreviewAim(Vector vecPreviewAim)
 	{
 		Vector vecDirection = vecPreviewAim - GetRealOrigin();
 		vecDirection.y = 0;
-		vecPreviewAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
+		vecPreviewAim = DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D() * 0.99f);
 	}
 
 	if ((vecPreviewAim - GetRealOrigin()).Length2DSqr() < GetMinRange()*GetMinRange())
@@ -1007,8 +1007,8 @@ void CDigitank::Move(CNetworkParameters* p)
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound(L"sound/tank-move.wav");
-		SetSoundVolume(L"sound/tank-move.wav", 0.5f);
+		EmitSound(_T("sound/tank-move.wav"));
+		SetSoundVolume(_T("sound/tank-move.wav"), 0.5f);
 
 		m_hHoverParticles.SetActive(true);
 	}
@@ -1451,7 +1451,7 @@ void CDigitank::Charge()
 	if (IsDisabled())
 		return;
 
-	::Charge.RunCommand(sprintf(L"%d %d", GetHandle(), m_hPreviewCharge->GetHandle()));
+	::Charge.RunCommand(sprintf(tstring("%d %d"), GetHandle(), m_hPreviewCharge->GetHandle()));
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 	DigitanksWindow()->SetContextualCommandsOverride(true);
@@ -1670,7 +1670,7 @@ void CDigitank::Think()
 				if (vecDirection.LengthSqr() < 1)
 					break;
 
-				vecTankAim = DigitanksGame()->GetTerrain()->SetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D());
+				vecTankAim = DigitanksGame()->GetTerrain()->GetPointHeight(GetRealOrigin() + vecDirection.Normalized() * vecDirection.Length2D());
 			}
 
 			if ((vecTankAim - GetOrigin()).Length() < GetMinRange())
@@ -1765,7 +1765,7 @@ void CDigitank::Think()
 				Vector vecLookAt = (GetOrigin() - pDigitank->GetOrigin()).Normalized();
 				pDigitank->m_flGoalTurretYaw = atan2(vecLookAt.z, vecLookAt.x) * 180/M_PI - pDigitank->GetRenderAngles().y;
 
-				CNetworkedEffect::AddInstance(L"charge-burst", GetOrigin() + vecLookAt*3, GetAngles());
+				CNetworkedEffect::AddInstance(_T("charge-burst"), GetOrigin() + vecLookAt*3, GetAngles());
 			}
 
 			RockTheBoat(1, vecPushDirection);
@@ -1817,9 +1817,9 @@ void CDigitank::OnCurrentSelection()
 	if (GetVisibility() > 0)
 	{
 		if (rand()%2 == 0)
-			CSoundLibrary::PlaySound(this, L"sound/tank-active.wav");
+			CSoundLibrary::PlaySound(this, _T("sound/tank-active.wav"));
 		else
-			CSoundLibrary::PlaySound(this, L"sound/tank-active2.wav");
+			CSoundLibrary::PlaySound(this, _T("sound/tank-active2.wav"));
 	}
 
 	Speak(TANKSPEECH_SELECTED);
@@ -1882,7 +1882,7 @@ void CDigitank::OnControlModeChange(controlmode_t eOldMode, controlmode_t eNewMo
 	{
 		if (IsArtillery())
 		{
-			Vector vecCenter = DigitanksGame()->GetTerrain()->SetPointHeight(GetOrigin() + AngleVector(GetAngles()) * GetMaxRange()/2);
+			Vector vecCenter = DigitanksGame()->GetTerrain()->GetPointHeight(GetOrigin() + AngleVector(GetAngles()) * GetMaxRange()/2);
 			DigitanksGame()->GetDigitanksCamera()->SetTarget(vecCenter);
 		}
 	}
@@ -2041,8 +2041,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
 			pHUD->SetButtonColor(0, Color(50, 50, 50));
 			pHUD->SetButtonTexture(0, "Cancel");
-			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q");
-			pHUD->SetButtonTooltip(0, L"Cancel Auto-Move");
+			pHUD->SetButtonInfo(0, _T("CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q"));
+			pHUD->SetButtonTooltip(0, _T("Cancel Auto-Move"));
 		}
 		else if (!IsFortified() && !IsFortifying())
 		{
@@ -2060,8 +2060,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				else
 					pHUD->SetButtonTexture(0, "AutoMove");
 
-				pHUD->SetButtonInfo(0, L"AUTO MOVE\n \nThis tank is out of move energy for this turn.\n \nSet a move command for this tank to execute over the next few turns.\n \nShortcut: Q");
-				pHUD->SetButtonTooltip(0, L"Auto-Move");
+				pHUD->SetButtonInfo(0, _T("AUTO MOVE\n \nThis tank is out of move energy for this turn.\n \nSet a move command for this tank to execute over the next few turns.\n \nShortcut: Q"));
+				pHUD->SetButtonTooltip(0, _T("Auto-Move"));
 			}
 			else
 			{
@@ -2077,8 +2077,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				else
 					pHUD->SetButtonTexture(0, "Move");
 
-				pHUD->SetButtonInfo(0, L"MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q");
-				pHUD->SetButtonTooltip(0, L"Move");
+				pHUD->SetButtonInfo(0, _T("MOVE UNIT\n \nGo into Move mode. Click inside the yellow area to move this unit.\n \nShortcut: Q"));
+				pHUD->SetButtonTooltip(0, _T("Move"));
 			}
 		}
 
@@ -2089,8 +2089,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonListener(1, NULL);
 				pHUD->SetButtonColor(1, Color(100, 100, 100));
 				pHUD->SetButtonTexture(1, "Rotate");
-				pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nNOT ENOUGH ENERGY\n \nShortcut: W");
-				pHUD->SetButtonTooltip(1, L"Rotate");
+				pHUD->SetButtonInfo(1, _T("ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nNOT ENOUGH ENERGY\n \nShortcut: W"));
+				pHUD->SetButtonTooltip(1, _T("Rotate"));
 			}
 			else if ((!IsFortified() && !IsFortifying() || CanTurnFortified()))
 			{
@@ -2105,8 +2105,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 					pHUD->SetButtonTexture(1, "Cancel");
 				else
 					pHUD->SetButtonTexture(1, "Rotate");
-				pHUD->SetButtonInfo(1, L"ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W");
-				pHUD->SetButtonTooltip(1, L"Rotate");
+				pHUD->SetButtonInfo(1, _T("ROTATE UNIT\n \nGo into Rotate mode. Click any spot on the terrain to have this unit face that spot.\n \nShortcut: W"));
+				pHUD->SetButtonTooltip(1, _T("Rotate"));
 			}
 		}
 
@@ -2115,14 +2115,14 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (IsSentried())
 			{
 				pHUD->SetButtonTexture(5, "Mobilize");
-				pHUD->SetButtonInfo(5, L"MOBILIZE\n \nCancel the 'Hold Position' order.\n \nShortcut: A");
-				pHUD->SetButtonTooltip(5, L"Mobilize");
+				pHUD->SetButtonInfo(5, _T("MOBILIZE\n \nCancel the 'Hold Position' order.\n \nShortcut: A"));
+				pHUD->SetButtonTooltip(5, _T("Mobilize"));
 			}
 			else
 			{
 				pHUD->SetButtonTexture(5, "Sentry");
-				pHUD->SetButtonInfo(5, L"HOLD POSITION\n \nThis unit will hold position and not require orders until told otherwise.\n \nShortcut: A");
-				pHUD->SetButtonTooltip(5, L"Hold Position");
+				pHUD->SetButtonInfo(5, _T("HOLD POSITION\n \nThis unit will hold position and not require orders until told otherwise.\n \nShortcut: A"));
+				pHUD->SetButtonTooltip(5, _T("Hold Position"));
 			}
 			pHUD->SetButtonListener(5, CHUD::Sentry);
 			pHUD->SetButtonColor(5, Color(0, 0, 150));
@@ -2132,14 +2132,14 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			if (IsCloaked())
 			{
-				pHUD->SetButtonInfo(6, L"DEACTIVATE CLOAKING DEVICE\n \nClick to turn off this tank's cloaking device.\n \nShortcut: S");
-				pHUD->SetButtonTooltip(6, L"Uncloak");
+				pHUD->SetButtonInfo(6, _T("DEACTIVATE CLOAKING DEVICE\n \nClick to turn off this tank's cloaking device.\n \nShortcut: S"));
+				pHUD->SetButtonTooltip(6, _T("Uncloak"));
 				pHUD->SetButtonTexture(6, "Unstealth");
 			}
 			else
 			{
-				pHUD->SetButtonInfo(6, L"ACTIVATE CLOAKING DEVICE\n \nThis tank has a cloaking device available. Click to activate it.\n \nShortcut: S");
-				pHUD->SetButtonTooltip(6, L"Cloak");
+				pHUD->SetButtonInfo(6, _T("ACTIVATE CLOAKING DEVICE\n \nThis tank has a cloaking device available. Click to activate it.\n \nShortcut: S"));
+				pHUD->SetButtonTooltip(6, _T("Cloak"));
 				pHUD->SetButtonTexture(6, "Stealth");
 			}
 			pHUD->SetButtonListener(6, CHUD::Cloak);
@@ -2149,8 +2149,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (GetNumAllowedWeapons() > 1)
 		{
 			pHUD->SetButtonTexture(7, "ChooseWeapon");
-			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
-			pHUD->SetButtonTooltip(7, L"Choose Weapon");
+			pHUD->SetButtonInfo(7, _T("CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D"));
+			pHUD->SetButtonTooltip(7, _T("Choose Weapon"));
 			pHUD->SetButtonListener(7, CHUD::ChooseWeapon);
 			pHUD->SetButtonColor(7, Color(50, 50, 50));
 
@@ -2158,7 +2158,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			{
 				pHUD->SetButtonColor(7, Color(100, 100, 100));
 				pHUD->SetButtonListener(7, NULL);
-				pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.\n \nShortcut: D");
+				pHUD->SetButtonInfo(7, _T("CHOOSE WEAPON\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.\n \nShortcut: D"));
 			}
 		}
 
@@ -2167,28 +2167,28 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (IsFortified() || IsFortifying())
 			{
 				pHUD->SetButtonTexture(8, "Mobilize");
-				pHUD->SetButtonInfo(8, L"MOBILIZE\n \nAllows this unit to move again.\n \nShortcut: F");
-				pHUD->SetButtonTooltip(8, L"Mobilize");
+				pHUD->SetButtonInfo(8, _T("MOBILIZE\n \nAllows this unit to move again.\n \nShortcut: F"));
+				pHUD->SetButtonTooltip(8, _T("Mobilize"));
 			}
 			else
 			{
 				if (IsMobileCPU())
 				{
 					pHUD->SetButtonTexture(8, "DeployCPU");
-					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this MCP deploy and create a CPU. The CPU will be the center of operations for your base. This action cannot be undone.\n \nShortcut: F");
-					pHUD->SetButtonTooltip(8, L"Deploy");
+					pHUD->SetButtonInfo(8, _T("DEPLOY UNIT\n \nHave this MCP deploy and create a CPU. The CPU will be the center of operations for your base. This action cannot be undone.\n \nShortcut: F"));
+					pHUD->SetButtonTooltip(8, _T("Deploy"));
 				}
 				else if (IsArtillery())
 				{
 					pHUD->SetButtonTexture(8, "Deploy");
-					pHUD->SetButtonInfo(8, L"DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.\n \nShortcut: F");
-					pHUD->SetButtonTooltip(8, L"Deploy");
+					pHUD->SetButtonInfo(8, _T("DEPLOY UNIT\n \nHave this artillery deploy. Artillery must be deployed before they can be fired.\n \nShortcut: F"));
+					pHUD->SetButtonTooltip(8, _T("Deploy"));
 				}
 				else
 				{
 					pHUD->SetButtonTexture(8, "Fortify");
-					pHUD->SetButtonInfo(8, L"FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.\n \nShortcut: F");
-					pHUD->SetButtonTooltip(8, L"Fortify");
+					pHUD->SetButtonInfo(8, _T("FORTIFY UNIT\n \nHave this unit fortify his position mode. Offers combat bonuses that accumulate over the next few turns.\n \nShortcut: F"));
+					pHUD->SetButtonTooltip(8, _T("Fortify"));
 				}
 			}
 			pHUD->SetButtonListener(8, CHUD::Fortify);
@@ -2203,12 +2203,12 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(2, glgui::g_clrBox);
 				pHUD->SetButtonTexture(2, "Aim");
 
-				eastl::string16 s = L"AIM AND FIRE\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.";
+				tstring s = _T("AIM AND FIRE\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.");
 
-				s += L"\n \nShortcut: E";
+				s += _T("\n \nShortcut: E");
 
 				pHUD->SetButtonInfo(2, s);
-				pHUD->SetButtonTooltip(2, L"Aim");
+				pHUD->SetButtonTooltip(2, _T("Aim"));
 			}
 			else if (m_eWeapon != WEAPON_NONE)
 			{
@@ -2231,26 +2231,26 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (DigitanksGame()->GetControlMode() == MODE_AIM)
 					pHUD->SetButtonTexture(2, "Cancel");
 
-				eastl::string16 s;
+				tstring s;
 				if (IsInfantry())
-					s += L"AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
+					s += _T("AIM AND FIRE MOUNTED GUN\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.");
 				else if (IsScout())
-					s += L"AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nTorpedos contain a special EMP that can disable enemy tanks and sever support lines. It can't hit other Rogues and only does physical damage to structures or units without shields.";
+					s += _T("AIM AND FIRE TORPEDO\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.\n \nTorpedos contain a special EMP that can disable enemy tanks and sever support lines. It can't hit other Rogues and only does physical damage to structures or units without shields.");
 				else
-					s += L"AIM AND FIRE CANNON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.";
+					s += _T("AIM AND FIRE CANNON\n \nClick to enter Aim mode. Click any spot on the terrain to fire on that location.");
 
 				if (m_flTotalPower < GetWeaponEnergy())
 				{
 					pHUD->SetButtonColor(2, Color(100, 100, 100));
-					s += L"\n \nNOT ENOUGH ENERGY";
+					s += _T("\n \nNOT ENOUGH ENERGY");
 
 					pHUD->SetButtonListener(2, NULL);
 				}
 
-				s += L"\n \nShortcut: E";
+				s += _T("\n \nShortcut: E");
 
 				pHUD->SetButtonInfo(2, s);
-				pHUD->SetButtonTooltip(2, L"Aim");
+				pHUD->SetButtonTooltip(2, _T("Aim"));
 			}
 		}
 
@@ -2259,8 +2259,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(4, CHUD::Promote);
 			pHUD->SetButtonTexture(4, "Promote");
 			pHUD->SetButtonColor(4, Color(50, 50, 50));
-			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T");
-			pHUD->SetButtonTooltip(4, L"Upgrade");
+			pHUD->SetButtonInfo(4, _T("UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T"));
+			pHUD->SetButtonTooltip(4, _T("Upgrade"));
 		}
 
 		if (m_iAirstrikes && !m_bActionTaken)
@@ -2276,8 +2276,8 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonTexture(9, "Airstrike");
 
 			pHUD->SetButtonListener(9, CHUD::FireSpecial);
-			pHUD->SetButtonInfo(9, L"CALL AN AIRSTRIKE\n \nThis unit can call an airstrike. Click to aim and fire the airstrike.\n \nShortcut: G");
-			pHUD->SetButtonTooltip(9, L"Airstrike");
+			pHUD->SetButtonInfo(9, _T("CALL AN AIRSTRIKE\n \nThis unit can call an airstrike. Click to aim and fire the airstrike.\n \nShortcut: G"));
+			pHUD->SetButtonTooltip(9, _T("Airstrike"));
 		}
 	}
 	else if (eMenuMode == MENUMODE_PROMOTE)
@@ -2286,13 +2286,13 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonTexture(0, "UpgradeAttack");
 		pHUD->SetButtonColor(0, Color(150, 50, 50));
 
-		eastl::string16 s1;
-		s1 += L"UPGRADE ATTACK ENERGY\n \n";
-		s1 += L"This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n";
-		s1 += L"Attack Energy increase: 10%\n \n";
-		s1 += L"Shortcut: Q";
+		tstring s1;
+		s1 += _T("UPGRADE ATTACK ENERGY\n \n");
+		s1 += _T("This upgrade amplifies your tank's arsenal, increasing the maximum Attack Energy available to your tank past its normal levels. With greater Attack Energy, this tank's shells will deal more damage.\n \n");
+		s1 += _T("Attack Energy increase: 10%\n \n");
+		s1 += _T("Shortcut: Q");
 		pHUD->SetButtonInfo(0, s1);
-		pHUD->SetButtonTooltip(0, L"Upgrade Attack");
+		pHUD->SetButtonTooltip(0, _T("Upgrade Attack"));
 
 		if (!IsArtillery() && !IsScout())
 		{
@@ -2300,32 +2300,32 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(1, "UpgradeShields");
 			pHUD->SetButtonColor(1, Color(50, 50, 150));
 
-			eastl::string16 s;
-			s += L"UPGRADE SHIELD ENERGY\n \n";
-			s += L"This upgrade strengthens your tank's shield generator, increasing the maximum Shield Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n";
-			s += L"Shield Energy increase: 10%\n \n";
-			s += L"Shortcut: W";
+			tstring s;
+			s += _T("UPGRADE SHIELD ENERGY\n \n");
+			s += _T("This upgrade strengthens your tank's shield generator, increasing the maximum Shield Energy available to your tank past its normal levels. As a result, your tank's shields will take more damage before they fail.\n \n");
+			s += _T("Shield Energy increase: 10%\n \n");
+			s += _T("Shortcut: W");
 			pHUD->SetButtonInfo(1, s);
-			pHUD->SetButtonTooltip(1, L"Upgrade Shields");
+			pHUD->SetButtonTooltip(1, _T("Upgrade Shields"));
 		}
 
 		pHUD->SetButtonListener(2, CHUD::PromoteMovement);
 		pHUD->SetButtonTexture(2, "UpgradeMovement");
 		pHUD->SetButtonColor(2, Color(150, 150, 50));
 
-		eastl::string16 s2;
-		s2 += L"UPGRADE MOVEMENT ENERGY\n \n";
-		s2 += L"This upgrade overclocks your tank's engines, increasing the maximum Movement Energy available to your tank past its normal levels. With this you'll spend less energy moving your tank around.\n \n";
-		s2 += L"Movement Energy increase: 10%\n \n";
-		s2 += L"Shortcut: E";
+		tstring s2;
+		s2 += _T("UPGRADE MOVEMENT ENERGY\n \n");
+		s2 += _T("This upgrade overclocks your tank's engines, increasing the maximum Movement Energy available to your tank past its normal levels. With this you'll spend less energy moving your tank around.\n \n");
+		s2 += _T("Movement Energy increase: 10%\n \n");
+		s2 += _T("Shortcut: E");
 		pHUD->SetButtonInfo(2, s2);
-		pHUD->SetButtonTooltip(2, L"Upgrade Movement");
+		pHUD->SetButtonTooltip(2, _T("Upgrade Movement"));
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
 		pHUD->SetButtonTexture(9, "Cancel");
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, L"RETURN\n \nShortcut: G");
-		pHUD->SetButtonTooltip(9, L"Return");
+		pHUD->SetButtonInfo(9, _T("RETURN\n \nShortcut: G"));
+		pHUD->SetButtonTooltip(9, _T("Return"));
 	}
 }
 
@@ -2383,8 +2383,8 @@ void CDigitank::Fire(CNetworkParameters* p)
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound(L"sound/tank-aim.wav");
-		SetSoundVolume(L"sound/tank-aim.wav", 0.5f);
+		EmitSound(_T("sound/tank-aim.wav"));
+		SetSoundVolume(_T("sound/tank-aim.wav"), 0.5f);
 	}
 
 	if (GameNetwork()->IsHost())
@@ -2466,7 +2466,7 @@ void CDigitank::FireWeapon(CNetworkParameters* p)
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound(L"sound/tank-fire.wav");
+		EmitSound(_T("sound/tank-fire.wav"));
 	}
 
 	m_flNextIdle = GameServer()->GetGameTime() + RandomFloat(10, 20);
@@ -2502,7 +2502,7 @@ void CDigitank::FireProjectile(CProjectile* pProjectile, Vector vecLandingSpot)
 	if (GetVisibility() > 0)
 	{
 		Vector vecMuzzle = (vecLandingSpot - GetOrigin()).Normalized() * 3 + Vector(0, 3, 0);
-		CNetworkedEffect::AddInstance(L"tank-fire", GetOrigin() + vecMuzzle);
+		CNetworkedEffect::AddInstance(_T("tank-fire"), GetOrigin() + vecMuzzle);
 	}
 
 	RockTheBoat(0.8f, -vecForce.Normalized());
@@ -2608,7 +2608,7 @@ CLIENT_GAME_COMMAND(SetCurrentWeapon)
 void CDigitank::SetCurrentWeapon(weapon_t e, bool bNetworked)
 {
 	if (bNetworked)
-		::SetCurrentWeapon.RunCommand(sprintf(L"%d %d", GetHandle(), e));
+		::SetCurrentWeapon.RunCommand(sprintf(tstring("%d %d"), GetHandle(), e));
 
 	if (!DigitanksGame()->IsWeaponAllowed(e, this))
 		return;
@@ -2669,7 +2669,7 @@ CLIENT_GAME_COMMAND(FireSpecial)
 
 void CDigitank::FireSpecial()
 {
-	::FireSpecial.RunCommand(sprintf(L"%d %f %f %f", GetHandle(), GetPreviewAim().x, GetPreviewAim().y, GetPreviewAim().z));
+	::FireSpecial.RunCommand(sprintf(tstring("%d %f %f %f"), GetHandle(), GetPreviewAim().x, GetPreviewAim().y, GetPreviewAim().z));
 
 	DigitanksGame()->SetControlMode(MODE_NONE);
 }
@@ -2851,8 +2851,8 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 		if (GetVisibility() > 0)
 		{
-			EmitSound(L"sound/shield-damage.wav");
-			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flDamage*flShieldDamageScale, 0, 50, 0, 0.5f));
+			EmitSound(_T("sound/shield-damage.wav"));
+			SetSoundVolume(_T("sound/shield-damage.wav"), RemapValClamped(flDamage*flShieldDamageScale, 0, 50, 0, 0.5f));
 		}
 
 		CallOutput("OnTakeShieldDamage");
@@ -2876,16 +2876,16 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 
 	if (GetVisibility() > 0)
 	{
-		EmitSound(L"sound/tank-damage.wav");
-		SetSoundVolume(L"sound/tank-damage.wav", RemapValClamped(flDamage, 0, 50, 0, 1));
+		EmitSound(_T("sound/tank-damage.wav"));
+		SetSoundVolume(_T("sound/tank-damage.wav"), RemapValClamped(flDamage, 0, 50, 0, 1));
 	}
 
 	if (flShield > 1.0f && !IsDisabled())
 	{
 		if (GetVisibility() > 0)
 		{
-			EmitSound(L"sound/shield-damage.wav");
-			SetSoundVolume(L"sound/shield-damage.wav", RemapValClamped(flShield, 0, 50, 0, 1));
+			EmitSound(_T("sound/shield-damage.wav"));
+			SetSoundVolume(_T("sound/shield-damage.wav"), RemapValClamped(flShield, 0, 50, 0, 1));
 		}
 	}
 
@@ -3304,7 +3304,7 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 	DigitanksWindow()->GetHUD()->PaintWeaponSheet(GetCurrentWeapon(), x - 20, y + h - iSize + 10, iSize, iSize);
 
 	int iIconFontSize = 11;
-	eastl::string16 sFont = L"text";
+	tstring sFont = _T("text");
 
 	float flYPosition = (float)y + h;
 	float flXPosition = (float)x + w + 20;
@@ -3314,7 +3314,7 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 		float flDistance = (GetRealOrigin() - GetGoalMovePosition()).Length();
 		int iTurns = (int)(flDistance/GetMaxMovementDistance());
 
-		eastl::string16 sTurns = sprintf(L"Auto-Move: %d", iTurns);
+		tstring sTurns = sprintf(tstring("Auto-Move: %d"), iTurns);
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 		glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 	}
@@ -3323,7 +3323,7 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 
 	if (IsFortified() || IsFortifying())
 	{
-		eastl::string16 sTurns = sprintf(L"+%d", GetFortifyLevel());
+		tstring sTurns = sprintf(tstring("+%d"), GetFortifyLevel());
 		float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 
 		const Rect& rArea = CHUD::GetButtonSheet().GetArea("Fortify");
@@ -3335,72 +3335,72 @@ void CDigitank::DrawSchema(int x, int y, int w, int h)
 	}
 }
 
-void CDigitank::UpdateInfo(eastl::string16& s)
+void CDigitank::UpdateInfo(tstring& s)
 {
-	s = L"";
-	eastl::string16 p;
+	s = _T("");
+	tstring p;
 
 	s += GetEntityName();
-	s += L"\n \n";
+	s += _T("\n \n");
 
 	if (GetTeam())
 	{
-		s += L"Team: " + GetTeam()->GetTeamName() + L"\n";
+		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += L" Friendly\n \n";
+			s += _T(" Friendly\n \n");
 		else
-			s += L" Hostile\n \n";
+			s += _T(" Hostile\n \n");
 	}
 	else
 	{
-		s += L"Team: Neutral\n \n";
+		s += _T("Team: Neutral\n \n");
 	}
 
 	if (IsDisabled())
-		s += L"[Disabled]\n \n";
+		s += _T("[Disabled]\n \n");
 
 	if (IsFortified())
-		s += L"[Fortified]\n \n";
+		s += _T("[Fortified]\n \n");
 
 	else if (IsFortifying())
-		s += L"[Fortifying...]\n \n";
+		s += _T("[Fortifying...]\n \n");
 
 	if (HasBonusPoints())
 	{
 		if (GetBonusPoints() > 1)
-			s += p.sprintf(L"%d upgrades\n \n", GetBonusPoints());
+			s += sprintf(tstring("%d upgrades\n \n"), GetBonusPoints());
 		else
-			s += L"1 upgrade\n \n";
+			s += _T("1 upgrade\n \n");
 	}
 
 	if (m_flBonusAttackPower > 0)
 	{
-		s += p.sprintf(L"+%d attack", (int)m_flBonusAttackPower.Get());
+		s += sprintf(tstring("+%d attack"), (int)m_flBonusAttackPower.Get());
 
 		if (IsFortified() && (int)GetFortifyAttackPowerBonus() > 0)
-			s += p.sprintf(L" (+%d fortify)", (int)GetFortifyAttackPowerBonus());
+			s += sprintf(tstring(" (+%d fortify)"), (int)GetFortifyAttackPowerBonus());
 
 		if ((int)GetSupportAttackPowerBonus() > 0)
-			s += p.sprintf(L" (+%d support)", (int)GetSupportAttackPowerBonus());
+			s += sprintf(tstring(" (+%d support)"), (int)GetSupportAttackPowerBonus());
 
-		s += L" \n";
+		s += _T(" \n");
 	}
 
 	if (GetBonusDefensePower())
 	{
-		s += p.sprintf(L"+%d shield", (int)m_flBonusDefensePower.Get());
+		s += sprintf(tstring("+%d shield"), (int)m_flBonusDefensePower.Get());
 
 		if (IsFortified() && (int)GetFortifyDefensePowerBonus() > 0)
-			s += p.sprintf(L" (+%d fortify)", (int)GetFortifyDefensePowerBonus());
+			s += sprintf(tstring(" (+%d fortify)"), (int)GetFortifyDefensePowerBonus());
 
 		if ((int)GetSupportDefensePowerBonus() > 0)
-			s += p.sprintf(L" (+%d support)", (int)GetSupportDefensePowerBonus());
+			s += sprintf(tstring(" (+%d support)"), (int)GetSupportDefensePowerBonus());
 
-		s += L" \n";
+		s += _T(" \n");
 	}
 
 	if (GetBonusMovementEnergy() > 0)
-		s += p.sprintf(L"+%d movement\n", (int)GetBonusMovementEnergy());
+		s += sprintf(tstring("+%d movement\n"), (int)GetBonusMovementEnergy());
 }
 
 void CDigitank::GiveBonusPoints(size_t i, bool bPlayEffects)
@@ -3563,8 +3563,8 @@ void CDigitank::TankPromoted(class CNetworkParameters* p)
 {
 	if (GetVisibility() > 0)
 	{
-		EmitSound(L"sound/tank-promoted.wav");
-		CNetworkedEffect::AddInstance(L"promotion", GetRealOrigin());
+		EmitSound(_T("sound/tank-promoted.wav"));
+		CNetworkedEffect::AddInstance(_T("promotion"), GetRealOrigin());
 	}
 }
 

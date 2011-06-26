@@ -7,9 +7,9 @@
 
 #include <datamanager/dataserializer.h>
 
-CCampaignInfo::CCampaignInfo(eastl::string16 sScript)
+CCampaignInfo::CCampaignInfo(tstring sScript)
 {
-	std::ifstream f(sScript.c_str());
+	std::basic_ifstream<tchar> f(convertstring<tchar, char>(sScript).c_str());
 
 	CData* pData = new CData();
 	CDataSerializer::Read(f, pData);
@@ -21,17 +21,17 @@ CCampaignInfo::CCampaignInfo(eastl::string16 sScript)
 
 void CCampaignInfo::ReadFromData(CData* pData)
 {
-	CData* pName = pData->FindChild("Name");
+	CData* pName = pData->FindChild(_T("Name"));
 	if (pName)
 		m_sName = pName->GetValueString();
 
-	CData* pLevels = pData->FindChild("Levels");
+	CData* pLevels = pData->FindChild(_T("Levels"));
 
 	if (pLevels)
 	{
 		for (size_t i = 0; i < pLevels->GetNumChildren(); i++)
 		{
-			CData* pChild = pLevels->FindChild(convertstring<char16_t, char>(sprintf(L"%d", i+1)));
+			CData* pChild = pLevels->FindChild(sprintf(tstring("%d"), i+1));
 
 			TAssert(pChild);
 			if (!pChild)
@@ -44,7 +44,7 @@ void CCampaignInfo::ReadFromData(CData* pData)
 
 const CCampaignInfo* CCampaignInfo::GetCampaignInfo()
 {
-	static CCampaignInfo gInfo(L"scripts/campaign.txt");
+	static CCampaignInfo gInfo(_T("scripts/campaign.txt"));
 
 	return &gInfo;
 }

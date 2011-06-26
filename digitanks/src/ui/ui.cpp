@@ -49,54 +49,54 @@ CDigitanksMenu::CDigitanksMenu()
 {
 	m_pOptionsPanel = NULL;
 
-	m_pDigitanks = new CLabel(0, 0, 100, 100, L"DIGITANKS");
-	m_pDigitanks->SetFont(L"header");
+	m_pDigitanks = new CLabel(0, 0, 100, 100, _T("DIGITANKS"));
+	m_pDigitanks->SetFont(_T("header"));
 	AddControl(m_pDigitanks);
 
-	m_pDifficulty = new CScrollSelector<int>(L"text");
-	m_pDifficulty->AddSelection(CScrollSelection<int>(0, L"Easy"));
-	m_pDifficulty->AddSelection(CScrollSelection<int>(1, L"Normal"));
+	m_pDifficulty = new CScrollSelector<int>(_T("text"));
+	m_pDifficulty->AddSelection(CScrollSelection<int>(0, _T("Easy")));
+	m_pDifficulty->AddSelection(CScrollSelection<int>(1, _T("Normal")));
 	m_pDifficulty->SetSelection(1);
 	AddControl(m_pDifficulty);
 
-	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, L"Difficulty");
+	m_pDifficultyLabel = new CLabel(0, 0, 32, 32, _T("Difficulty"));
 	m_pDifficultyLabel->SetWrap(false);
-	m_pDifficultyLabel->SetFont(L"text");
+	m_pDifficultyLabel->SetFont(_T("text"));
 	AddControl(m_pDifficultyLabel);
 
-	m_pReturnToMenu = new CButton(0, 0, 100, 100, L"EXIT TO MENU");
+	m_pReturnToMenu = new CButton(0, 0, 100, 100, _T("EXIT TO MENU"));
 	m_pReturnToMenu->SetClickedListener(this, Exit);
-	m_pReturnToMenu->SetFont(L"header");
+	m_pReturnToMenu->SetFont(_T("header"));
 	AddControl(m_pReturnToMenu);
 
-	m_pReturnToGame = new CButton(0, 0, 100, 100, L"X");
+	m_pReturnToGame = new CButton(0, 0, 100, 100, _T("X"));
 	m_pReturnToGame->SetClickedListener(this, Close);
 	AddControl(m_pReturnToGame);
 
-	m_pSaveGame = new CButton(0, 0, 100, 100, L"SAVE GAME");
+	m_pSaveGame = new CButton(0, 0, 100, 100, _T("SAVE GAME"));
 	m_pSaveGame->SetClickedListener(this, Save);
-	m_pSaveGame->SetFont(L"header");
+	m_pSaveGame->SetFont(_T("header"));
 #if !defined(TINKER_UNLOCKED)
 	m_pSaveGame->SetEnabled(false);
 #endif
 	AddControl(m_pSaveGame);
 
-	m_pLoadGame = new CButton(0, 0, 100, 100, L"LOAD GAME");
+	m_pLoadGame = new CButton(0, 0, 100, 100, _T("LOAD GAME"));
 	m_pLoadGame->SetClickedListener(this, Load);
-	m_pLoadGame->SetFont(L"header");
+	m_pLoadGame->SetFont(_T("header"));
 #if !defined(TINKER_UNLOCKED)
 	m_pLoadGame->SetEnabled(false);
 #endif
 	AddControl(m_pLoadGame);
 
-	m_pOptions = new CButton(0, 0, 100, 100, L"OPTIONS");
+	m_pOptions = new CButton(0, 0, 100, 100, _T("OPTIONS"));
 	m_pOptions->SetClickedListener(this, Options);
-	m_pOptions->SetFont(L"header");
+	m_pOptions->SetFont(_T("header"));
 	AddControl(m_pOptions);
 
-	m_pExit = new CButton(0, 0, 100, 100, L"QUIT TO DESKTOP");
+	m_pExit = new CButton(0, 0, 100, 100, _T("QUIT TO DESKTOP"));
 	m_pExit->SetClickedListener(this, Quit);
-	m_pExit->SetFont(L"header");
+	m_pExit->SetFont(_T("header"));
 	AddControl(m_pExit);
 
 	Layout();
@@ -187,7 +187,7 @@ void CDigitanksMenu::SaveCallback()
 	return;
 #endif
 
-	wchar_t* pszFilename = SaveFileDialog(L"Save Games *.sav\0*.sav\0", GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"").c_str());
+	tchar* pszFilename = SaveFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
 	if (!pszFilename)
 		return;
 
@@ -203,7 +203,7 @@ void CDigitanksMenu::LoadCallback()
 	if (!GameServer())
 		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 
-	wchar_t* pszFilename = OpenFileDialog(L"Save Games *.sav\0*.sav\0", GetAppDataDirectory(DigitanksWindow()->AppDirectory(), L"").c_str());
+	tchar* pszFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
 	if (!pszFilename)
 		return;
 
@@ -256,12 +256,12 @@ void CDigitanksMenu::QuitCallback()
 CVictoryPanel::CVictoryPanel()
 	: CPanel(0, 0, 400, 300)
 {
-	m_pVictory = new CLabel(0, 0, 100, 100, L"");
-	m_pVictory->SetFont(L"text");
+	m_pVictory = new CLabel(0, 0, 100, 100, _T(""));
+	m_pVictory->SetFont(_T("text"));
 	AddControl(m_pVictory);
 
-	m_pRestart = new CButton(0, 0, 100, 100, L"Restart");
-	m_pRestart->SetFont(L"header");
+	m_pRestart = new CButton(0, 0, 100, 100, _T("Restart"));
+	m_pRestart->SetFont(_T("header"));
 	AddControl(m_pRestart);
 
 	SetVisible(false);
@@ -293,9 +293,9 @@ void CVictoryPanel::Paint(int x, int y, int w, int h)
 void CVictoryPanel::GameOver(bool bPlayerWon)
 {
 	if (bPlayerWon)
-		m_pVictory->SetText(L"VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the Digiverse!\n \n");
+		m_pVictory->SetText(_T("VICTORY!\n \nYou have crushed the weak and foolish under your merciless, unwavering treads. Your enemies bow before you as you stand - ruler of the Digiverse!\n \n"));
 	else
-		m_pVictory->SetText(L"DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n");
+		m_pVictory->SetText(_T("DEFEAT!\n \nYour ravenous enemies have destroyed your feeble tank armies. Database memories will recall the day when your once-glorious digital empire crumbled!\n \n"));
 
 	if (DigitanksGame()->GetGameType() == GAMETYPE_CAMPAIGN && bPlayerWon)
 		m_pRestart->SetVisible(false);
@@ -318,24 +318,24 @@ void CVictoryPanel::RestartCallback()
 CPurchasePanel::CPurchasePanel()
 	: CPanel(0, 0, 400, 300)
 {
-	m_pPurchase = new CLabel(0, 0, 100, 100, L"");
-	m_pPurchase->SetFont(L"text", 18);
+	m_pPurchase = new CLabel(0, 0, 100, 100, _T(""));
+	m_pPurchase->SetFont(_T("text"), 18);
 	AddControl(m_pPurchase);
 
-	m_pPurchaseButton = new CButton(0, 0, 100, 100, L"Buy now!");
+	m_pPurchaseButton = new CButton(0, 0, 100, 100, _T("Buy now!"));
 	m_pPurchaseButton->SetClickedListener(this, Purchase);
-	m_pPurchaseButton->SetFont(L"header");
+	m_pPurchaseButton->SetFont(_T("header"));
 	AddControl(m_pPurchaseButton);
 
-	m_pEnterEmail = new CLabel(0, 0, 100, 100, L"");
-	m_pEnterEmail->SetFont(L"text", 18);
+	m_pEnterEmail = new CLabel(0, 0, 100, 100, _T(""));
+	m_pEnterEmail->SetFont(_T("text"), 18);
 	AddControl(m_pEnterEmail);
 
 	m_pEmail = new CTextField();
 	AddControl(m_pEmail);
 
-	m_pContinueButton = new CButton(0, 0, 100, 100, L"Maybe later");
-	m_pContinueButton->SetFont(L"header");
+	m_pContinueButton = new CButton(0, 0, 100, 100, _T("Maybe later"));
+	m_pContinueButton->SetFont(_T("header"));
 	AddControl(m_pContinueButton);
 
 	SetVisible(false);
@@ -359,8 +359,8 @@ void CPurchasePanel::Layout()
 	m_pEnterEmail->SetPos(30, 340);
 	m_pEnterEmail->SetSize(GetWidth()-60, 200);
 	m_pEnterEmail->SetAlign(CLabel::TA_TOPCENTER);
-	m_pEnterEmail->SetText(L"NEWS FROM THE FRONT\n \n"
-		L"Enter your email to get the\nLunar Workshop Newsletter!");
+	m_pEnterEmail->SetText(_T("NEWS FROM THE FRONT\n \n")
+		_T("Enter your email to get the\nLunar Workshop Newsletter!"));
 
 	m_pEmail->SetPos(GetWidth()/2 - m_pEmail->GetWidth()/2, 450);
 	m_pEmail->SetSize(200, m_pEmail->GetHeight());
@@ -430,10 +430,10 @@ void CPurchasePanel::ClosingApplication()
 {
 	m_bClosing = true;
 
-	m_pPurchase->SetText(L"LIKE WHAT YOU SEE?\n \n"
-		L"Use the discount code DIGIDEMO to\nget 25% off the full price");
+	m_pPurchase->SetText(_T("LIKE WHAT YOU SEE?\n \n")
+		_T("Use the discount code DIGIDEMO to\nget 25% off the full price"));
 
-	m_pEmail->SetText(L"");
+	m_pEmail->SetText(_T(""));
 
 	SetVisible(true);
 
@@ -447,10 +447,10 @@ void CPurchasePanel::OpeningApplication()
 {
 	m_bClosing = false;
 
-	m_pPurchase->SetText(L"AVAILABLE NOW\n \n"
-		L"The best way to buy indie games\nis direct from the developer.\n \nIt's the best $12.99 you'll spend this week, I promise.");
+	m_pPurchase->SetText(_T("AVAILABLE NOW\n \n")
+		_T("The best way to buy indie games\nis direct from the developer.\n \nIt's the best $12.99 you'll spend this week, I promise."));
 
-	m_pEmail->SetText(L"");
+	m_pEmail->SetText(_T(""));
 
 	SetVisible(true);
 
@@ -462,13 +462,13 @@ void CPurchasePanel::OpeningApplication()
 
 void CPurchasePanel::PurchaseCallback()
 {
-	OpenBrowser(sprintf(L"http://digitanks.com/gamelanding/?a=p&i=%d", DigitanksWindow()->GetInstallID()));
+	OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=p&i=%d"), DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
 void CPurchasePanel::ExitCallback()
 {
-	OpenBrowser(sprintf(L"http://digitanks.com/gamelanding/?a=e&i=%d", DigitanksWindow()->GetInstallID()));
+	OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
@@ -480,19 +480,19 @@ void CPurchasePanel::MainMenuCallback()
 
 void CPurchasePanel::EmailCallback()
 {
-	eastl::string16 sEmail = m_pEmail->GetText();
-	sEmail = str_replace(sEmail, L"@", L"%40");
-	sEmail = str_replace(sEmail, L"+", L"%2B");
-	eastl::string16 sURI = sprintf(L"/reg/email.php?e=%s&i=%d", sEmail, DigitanksWindow()->GetInstallID());
+	tstring sEmail = m_pEmail->GetText();
+	sEmail = str_replace(sEmail, _T("@"), _T("%40"));
+	sEmail = str_replace(sEmail, _T("+"), _T("%2B"));
+	tstring sURI = sprintf(tstring("/reg/email.php?e=%s&i=%d"), sEmail.c_str(), DigitanksWindow()->GetInstallID());
 
 	CHTTPPostSocket s("reg.lunarworkshop.com");
-	s.SendHTTP11(convertstring<char16_t, char>(sURI).c_str());
+	s.SendHTTP11(convertstring<tchar, char>(sURI).c_str());
 	// Don't care about the output.
 	s.Close();
 
 	if (m_bClosing)
 	{
-		OpenBrowser(sprintf(L"http://digitanks.com/gamelanding/?a=e&i=%d", DigitanksWindow()->GetInstallID()));
+		OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
 		exit(0);
 	}
 	else
@@ -506,31 +506,31 @@ CStoryPanel::CStoryPanel()
 	: CPanel(0, 0, 400, 300)
 {
 	m_pStory = new CLabel(0, 0, 100, 100,
-		L"THE STORY OF DIGIVILLE\n \n"
+		_T("THE STORY OF DIGIVILLE\n \n")
 
-		L"The Digizens of Digiville were happy and content.\n"
-		L"They ate in tiny bits and bytes and always paid their rent.\n"
-		L"They shared every Electronode and Data Wells were free,\n"
-		L"But that's not very interesting, as you're about to see.\n \n "
+		_T("The Digizens of Digiville were happy and content.\n")
+		_T("They ate in tiny bits and bytes and always paid their rent.\n")
+		_T("They shared every Electronode and Data Wells were free,\n")
+		_T("But that's not very interesting, as you're about to see.\n \n ")
 
-		L"One day the shortest Digizen in all the Digiverse\n"
-		L"He cried, \"U nubs OLOL i h4x j0ur m3g4hu|2tz!\"\n"
-		L"The Digizens of Digiville just laughed and said, \"That's great!\"\n"
-		L"\"You're way too short and you're just trying to overcompensate!\"\n \n"
+		_T("One day the shortest Digizen in all the Digiverse\n")
+		_T("He cried, \"U nubs OLOL i h4x j0ur m3g4hu|2tz!\"\n")
+		_T("The Digizens of Digiville just laughed and said, \"That's great!\"\n")
+		_T("\"You're way too short and you're just trying to overcompensate!\"\n \n")
 
-		L"Our little man was not so pleased, retreating to his lair\n"
-		L"He powered up his Trolling Rage Machine with utmost flair.\n"
-		L"It sputtered up to life with a cacophony of clanks\n"
-		L"And shortly then thereafter it began to spit out tanks.\n \n"
+		_T("Our little man was not so pleased, retreating to his lair\n")
+		_T("He powered up his Trolling Rage Machine with utmost flair.\n")
+		_T("It sputtered up to life with a cacophony of clanks\n")
+		_T("And shortly then thereafter it began to spit out tanks.\n \n")
 
-		L"The Digizens were sleeping when there came a sudden chill\n"
-		L"And when they woke there was no longer any Digiville.\n"
-		L"It's up to you now! You must act before it gets much worse,\n"
-		L"And while you're there, why not conquer the whole damn Digiverse?\n \n"
+		_T("The Digizens were sleeping when there came a sudden chill\n")
+		_T("And when they woke there was no longer any Digiville.\n")
+		_T("It's up to you now! You must act before it gets much worse,\n")
+		_T("And while you're there, why not conquer the whole damn Digiverse?\n \n")
 
-		L"Click here to begin."
+		_T("Click here to begin.")
 		);
-	m_pStory->SetFont(L"text");
+	m_pStory->SetFont(_T("text"));
 	AddControl(m_pStory);
 
 	SetVisible(false);

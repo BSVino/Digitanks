@@ -22,7 +22,7 @@ CModelLibrary::~CModelLibrary()
 	s_pModelLibrary = NULL;
 }
 
-size_t CModelLibrary::AddModel(const eastl::string16& sModel, bool bStatic)
+size_t CModelLibrary::AddModel(const tstring& sModel, bool bStatic)
 {
 	if (!sModel.length())
 		return 0;
@@ -47,7 +47,7 @@ CModel* CModelLibrary::GetModel(size_t i)
 	return m_apModels[i];
 }
 
-size_t CModelLibrary::FindModel(const eastl::string16& sModel)
+size_t CModelLibrary::FindModel(const tstring& sModel)
 {
 	for (size_t i = 0; i < m_apModels.size(); i++)
 	{
@@ -58,7 +58,7 @@ size_t CModelLibrary::FindModel(const eastl::string16& sModel)
 	return ~0;
 }
 
-CModel::CModel(const eastl::string16& sFilename)
+CModel::CModel(const tstring& sFilename)
 {
 	m_sFilename = sFilename;
 	m_pScene = new CConversionScene();

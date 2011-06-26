@@ -1,5 +1,5 @@
-#ifndef DT_BASEENTITY_H
-#define DT_BASEENTITY_H
+#ifndef TINKER_BASEENTITY_H
+#define TINKER_BASEENTITY_H
 
 #include <EASTL/map.h>
 #include <EASTL/vector.h>
@@ -66,7 +66,7 @@ public:
 	ResizeVector			m_pfnResizeVector;
 };
 
-typedef void (*EntityInputCallback)(const class CBaseEntity* pTarget, const eastl::vector<eastl::string16>& sArgs);
+typedef void (*EntityInputCallback)(const class CBaseEntity* pTarget, const eastl::vector<tstring>& sArgs);
 class CEntityInput
 {
 public:
@@ -75,8 +75,8 @@ public:
 };
 
 #define DECLARE_ENTITY_INPUT(name) \
-	virtual void name(const eastl::vector<eastl::string16>& sArgs); \
-	static void name##InputCallback(const class CBaseEntity* pTarget, const eastl::vector<eastl::string16>& sArgs) \
+	virtual void name(const eastl::vector<tstring>& sArgs); \
+	static void name##InputCallback(const class CBaseEntity* pTarget, const eastl::vector<tstring>& sArgs) \
 	{ \
 		((ThisClass*)pTarget)->name(sArgs); \
 	}
@@ -188,7 +188,7 @@ virtual bool Unserialize(std::istream& i) \
 #define NETVAR_TABLE_BEGIN(entity) \
 void entity::RegisterNetworkVariables() \
 { \
-	char* pszEntity = #entity; \
+	const char* pszEntity = #entity; \
 	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
 	pRegistration->m_aNetworkVariables.clear(); \
 	CGameServer* pGameServer = GameServer(); \
@@ -280,7 +280,6 @@ void entity::RegisterInputData() \
 	pRegistration->m_aInputs[#name].m_pfnCallback = &name##InputCallback; \
 
 #define INPUTS_TABLE_END() \
-	CheckSaveDataSize(pRegistration); \
 } \
 
 class CTeam;
@@ -306,7 +305,7 @@ public:
 	virtual float							GetBoundingRadius() const { return 0; };
 	virtual float							GetRenderRadius() const { return GetBoundingRadius(); };
 
-	void									SetModel(const eastl::string16& sModel);
+	void									SetModel(const tstring& sModel);
 	void									SetModel(size_t iModel);
 	size_t									GetModel() const { return m_iModel; };
 
@@ -386,16 +385,16 @@ public:
 	virtual bool							IsTouching(CBaseEntity* pOther, Vector& vecPoint) const { return false; };
 	virtual void							Touching(CBaseEntity* pOther) {};
 
-	void									CallInput(const eastl::string& sName, const eastl::string16& sArgs);
+	void									CallInput(const eastl::string& sName, const tstring& sArgs);
 	void									CallOutput(const eastl::string& sName);
 	void									AddOutputTarget(const eastl::string& sName, const eastl::string& sTargetName, const eastl::string& sInput, const eastl::string& sArgs = "", bool bKill = false);
 	void									RemoveOutputs(const eastl::string& sName);
 	DECLARE_ENTITY_INPUT(RemoveOutput);
 
-	void									EmitSound(const eastl::string16& sSound, float flVolume = 1.0f, bool bLoop = false);
-	void									StopSound(const eastl::string16& sModel);
-	bool									IsSoundPlaying(const eastl::string16& sModel);
-	void									SetSoundVolume(const eastl::string16& sModel, float flVolume);
+	void									EmitSound(const tstring& sSound, float flVolume = 1.0f, bool bLoop = false);
+	void									StopSound(const tstring& sModel);
+	bool									IsSoundPlaying(const tstring& sModel);
+	void									SetSoundVolume(const tstring& sModel, float flVolume);
 
 	virtual float							Distance(Vector vecSpot) const;
 
@@ -426,7 +425,7 @@ public:
 	virtual bool							OnUnserialize(std::istream& i) { return true; };
 	void									CheckSaveDataSize(CEntityRegistration* pRegistration);
 
-	void									CheckTables(char* pszEntity);
+	void									CheckTables(const char* pszEntity);
 
 	static CBaseEntity*						GetEntity(size_t iHandle);
 	template <class T>
@@ -441,9 +440,9 @@ public:
 
 	static size_t							GetNumEntities();
 
-	static void								PrecacheModel(const eastl::string16& sModel, bool bStatic = true);
-	static void								PrecacheParticleSystem(const eastl::string16& sSystem);
-	static void								PrecacheSound(const eastl::string16& sSound);
+	static void								PrecacheModel(const tstring& sModel, bool bStatic = true);
+	static void								PrecacheParticleSystem(const tstring& sSystem);
+	static void								PrecacheSound(const tstring& sSound);
 
 public:
 	static void								RegisterEntity(const char* pszEntityName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
@@ -520,6 +519,9 @@ public: \
 	} \
 } s_Register##entity = CRegister##entity(); \
 
+#include "gameserver.h"
+#include "template_functions.h"
+
 template <class T>
 T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 {
@@ -560,7 +562,5 @@ T* CBaseEntity::FindClosest(Vector vecPoint, CBaseEntity* pFurther)
 
 	return pClosest;
 }
-
-#include "gameserver.h"
 
 #endif

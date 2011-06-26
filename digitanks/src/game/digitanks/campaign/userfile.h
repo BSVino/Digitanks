@@ -22,13 +22,13 @@ public:
 	void							Pickup(class CDigitank* pTank);
 	DECLARE_ENTITY_OUTPUT(OnPickup);
 
-	virtual eastl::string16			GetEntityName() const { return L"Your File"; };
+	virtual tstring					GetEntityName() const { return _T("Your File"); };
 
-	void							SetFile(const eastl::string& sFile);
+	void							SetFile(const tstring& sFile);
 
 protected:
 	size_t							m_iImage;
-	eastl::string16					m_sFilename;
+	tstring							m_sFilename;
 
 	float							m_flPickupTime;
 };

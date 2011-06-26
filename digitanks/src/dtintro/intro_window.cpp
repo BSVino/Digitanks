@@ -46,7 +46,7 @@ void CIntroWindow::SetupEngine()
 	CVar::SetCVar("r_frustumculling", false);
 }
 
-void SetupIntro(class CCommand* pCommand, eastl::vector<eastl::string16>& asTokens, const eastl::string16& sCommand)
+void SetupIntro(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
 {
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -300,35 +300,35 @@ void CIntroWindow::SetupIntro()
 	pEvent->m_flStartTime = 2;
 	pEvent->m_sName = "digitank1";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = L"bug1";
+	pEvent->m_sArgs = _T("bug1");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 2.3f;
 	pEvent->m_sName = "digitank2";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = L"bug2";
+	pEvent->m_sArgs = _T("bug2");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 2.6f;
 	pEvent->m_sName = "digitank3";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = L"bug3";
+	pEvent->m_sArgs = _T("bug3");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 3;
 	pEvent->m_sName = "digitank1";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = L"bug4";
+	pEvent->m_sArgs = _T("bug4");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
 	pEvent->m_flStartTime = 3.3f;
 	pEvent->m_sName = "digitank2";
 	pEvent->m_sOutput = "FireAt";
-	pEvent->m_sArgs = L"bug5";
+	pEvent->m_sArgs = _T("bug5");
 
 	pEvent = pDigitanksScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_FIREOUTPUT;
