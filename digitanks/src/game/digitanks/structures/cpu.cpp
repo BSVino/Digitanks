@@ -91,7 +91,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, "Cancel");
 
 			pHUD->SetButtonListener(0, CHUD::CancelBuild);
-			pHUD->SetButtonColor(0, Color(100, 100, 100));
+			pHUD->SetButtonColor(0, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -106,8 +106,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
 			{
 				pHUD->SetButtonListener(0, CHUD::BuildInfantryLoader);
-				pHUD->SetButtonColor(0, Color(150, 150, 150));
+				pHUD->SetButtonColor(0, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD RESISTOR FACTORY\n \n";
@@ -127,7 +129,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(1, "Cancel");
 
 			pHUD->SetButtonListener(1, CHUD::CancelBuild);
-			pHUD->SetButtonColor(1, Color(100, 100, 100));
+			pHUD->SetButtonColor(1, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -142,8 +144,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
 			{
 				pHUD->SetButtonListener(1, CHUD::BuildTankLoader);
-				pHUD->SetButtonColor(1, Color(150, 150, 150));
+				pHUD->SetButtonColor(1, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(1, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD DIGITANK FACTORY\n \n";
@@ -163,7 +167,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(2, "Cancel");
 
 			pHUD->SetButtonListener(2, CHUD::CancelBuild);
-			pHUD->SetButtonColor(2, Color(100, 100, 100));
+			pHUD->SetButtonColor(2, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -178,8 +182,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
 			{
 				pHUD->SetButtonListener(2, CHUD::BuildArtilleryLoader);
-				pHUD->SetButtonColor(2, Color(150, 150, 150));
+				pHUD->SetButtonColor(2, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(2, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD ARTILLERY FACTORY\n \n";
@@ -207,7 +213,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(5, "Cancel");
 
 			pHUD->SetButtonListener(5, CHUD::CancelBuild);
-			pHUD->SetButtonColor(5, Color(100, 100, 100));
+			pHUD->SetButtonColor(5, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -222,8 +228,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
 			{
 				pHUD->SetButtonListener(5, CHUD::BuildMiniBuffer);
-				pHUD->SetButtonColor(5, Color(150, 150, 150));
+				pHUD->SetButtonColor(5, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(5, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD BUFFER\n \n";
@@ -243,7 +251,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(0, "Cancel");
 
 			pHUD->SetButtonListener(0, CHUD::CancelBuild);
-			pHUD->SetButtonColor(0, Color(100, 100, 100));
+			pHUD->SetButtonColor(0, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -258,8 +266,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
 			{
 				pHUD->SetButtonListener(0, CHUD::BuildBuffer);
-				pHUD->SetButtonColor(0, Color(150, 150, 150));
+				pHUD->SetButtonColor(0, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD MACRO-BUFFER\n \n";
@@ -279,7 +289,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(6, "Cancel");
 
 			pHUD->SetButtonListener(6, CHUD::CancelBuild);
-			pHUD->SetButtonColor(6, Color(100, 100, 100));
+			pHUD->SetButtonColor(6, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -294,8 +304,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
 			{
 				pHUD->SetButtonListener(6, CHUD::BuildBattery);
-				pHUD->SetButtonColor(6, Color(150, 150, 150));
+				pHUD->SetButtonColor(6, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(6, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD CAPACITOR\n \n";
@@ -315,7 +327,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonTexture(1, "Cancel");
 
 			pHUD->SetButtonListener(1, CHUD::CancelBuild);
-			pHUD->SetButtonColor(1, Color(100, 100, 100));
+			pHUD->SetButtonColor(1, Color(50, 50, 50));
 
 			eastl::string16 s;
 			s += L"CANCEL\n \n";
@@ -330,8 +342,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
 			{
 				pHUD->SetButtonListener(1, CHUD::BuildPSU);
-				pHUD->SetButtonColor(1, Color(150, 150, 150));
+				pHUD->SetButtonColor(1, Color(50, 50, 50));
 			}
+			else
+				pHUD->SetButtonColor(1, Color(100, 100, 100));
 
 			eastl::string16 s;
 			s += L"BUILD POWER SUPPLY UNIT\n \n";
@@ -350,7 +364,7 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonListener(2, CHUD::BuildLoader);
 			pHUD->SetButtonTexture(2, "Factory");
-			pHUD->SetButtonColor(2, Color(150, 150, 150));
+			pHUD->SetButtonColor(2, Color(50, 50, 50));
 			pHUD->SetButtonInfo(2, L"OPEN FACTORY CONSTRUCTION MENU\n \nFactories allow you to produce more advanced units.\n \nShortcut: E");
 			pHUD->SetButtonTooltip(2, L"Open Factory Menu");
 		}
@@ -358,9 +372,11 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonTexture(7, "Rogue");
 		if (GetDigitanksTeam()->GetUnusedFleetPoints() && GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(UNIT_SCOUT) && !IsProducing())
 		{
-			pHUD->SetButtonColor(7, Color(150, 150, 150));
+			pHUD->SetButtonColor(7, Color(50, 50, 50));
 			pHUD->SetButtonListener(7, CHUD::BuildScout);
 		}
+		else
+			pHUD->SetButtonColor(7, Color(100, 100, 100));
 
 		eastl::string16 s;
 		s += L"BUILD ROGUE\n \n";
@@ -380,9 +396,11 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		pHUD->SetButtonTexture(8, "Firewall");
 		if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL))
 		{
-			pHUD->SetButtonColor(8, Color(150, 150, 150));
+			pHUD->SetButtonColor(8, Color(50, 50, 50));
 			pHUD->SetButtonListener(8, CHUD::BuildTurret);
 		}
+		else
+			pHUD->SetButtonColor(8, Color(100, 100, 100));
 
 		s = L"BUILD FIREWALL\n \n";
 		s += L"Set them up Firewalls around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nFirewalls get weaker when they need to fire at more targets, so be sure to build enough for the job.\n \n";

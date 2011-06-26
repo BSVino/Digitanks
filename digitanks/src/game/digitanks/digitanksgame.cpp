@@ -1426,7 +1426,7 @@ void CDigitanksGame::Think()
 
 		if (DigitanksWindow()->GetHUD()->GetWeaponPanel() && DigitanksWindow()->GetHUD()->GetWeaponPanel()->IsVisible())
 			SetControlMode(MODE_NONE);
-		else if (pSelection)
+		else if (pSelection && pSelection->GetDigitanksTeam() == GetCurrentLocalDigitanksTeam())
 		{
 			CBaseEntity* pHit = NULL;
 			Vector vecEntityPoint;

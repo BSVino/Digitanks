@@ -2039,7 +2039,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		if (HasGoalMovePosition())
 		{
 			pHUD->SetButtonListener(0, CHUD::CancelAutoMove);
-			pHUD->SetButtonColor(0, Color(100, 100, 100));
+			pHUD->SetButtonColor(0, Color(50, 50, 50));
 			pHUD->SetButtonTexture(0, "Cancel");
 			pHUD->SetButtonInfo(0, L"CANCEL AUTO MOVE\n \nCancel this unit's auto move command.\n \nShortcut: Q");
 			pHUD->SetButtonTooltip(0, L"Cancel Auto-Move");
@@ -2053,7 +2053,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
 					pHUD->SetButtonColor(0, Color(150, 150, 0));
 				else
-					pHUD->SetButtonColor(0, Color(100, 100, 100));
+					pHUD->SetButtonColor(0, Color(50, 50, 50));
 
 				if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 					pHUD->SetButtonTexture(0, "Cancel");
@@ -2070,7 +2070,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_MOVE)
 					pHUD->SetButtonColor(0, Color(150, 150, 0));
 				else
-					pHUD->SetButtonColor(0, Color(100, 100, 100));
+					pHUD->SetButtonColor(0, Color(50, 50, 50));
 
 				if (DigitanksGame()->GetControlMode() == MODE_MOVE)
 					pHUD->SetButtonTexture(0, "Cancel");
@@ -2099,7 +2099,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_TURN)
 					pHUD->SetButtonColor(1, Color(150, 150, 0));
 				else
-					pHUD->SetButtonColor(1, Color(100, 100, 100));
+					pHUD->SetButtonColor(1, Color(50, 50, 50));
 
 				if (DigitanksGame()->GetControlMode() == MODE_TURN)
 					pHUD->SetButtonTexture(1, "Cancel");
@@ -2152,11 +2152,11 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \nThis tank has multiple weapons available. Click to choose a weapon.\n \nShortcut: D");
 			pHUD->SetButtonTooltip(7, L"Choose Weapon");
 			pHUD->SetButtonListener(7, CHUD::ChooseWeapon);
-			pHUD->SetButtonColor(7, Color(100, 100, 100));
+			pHUD->SetButtonColor(7, Color(50, 50, 50));
 
 			if (HasFiredWeapon())
 			{
-				pHUD->SetButtonColor(7, glgui::g_clrBox);
+				pHUD->SetButtonColor(7, Color(100, 100, 100));
 				pHUD->SetButtonListener(7, NULL);
 				pHUD->SetButtonInfo(7, L"CHOOSE WEAPON\n \n(Unavailable)\n \nYou may only fire this tank's weapon once per turn.\n \nShortcut: D");
 			}
@@ -2217,7 +2217,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 				if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
 					pHUD->SetButtonColor(2, Color(150, 0, 0));
 				else
-					pHUD->SetButtonColor(2, Color(100, 100, 100));
+					pHUD->SetButtonColor(2, Color(50, 50, 50));
 
 /*				CInstructor* pInstructor = DigitanksWindow()->GetInstructor();
 				if (pInstructor->GetActive() && pInstructor->GetCurrentTutorial() >= CInstructor::TUTORIAL_INGAME_ARTILLERY_SELECT && pInstructor->GetCurrentTutorial() < CInstructor::TUTORIAL_INGAME_ARTILLERY_COMMAND)
@@ -2241,7 +2241,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 				if (m_flTotalPower < GetWeaponEnergy())
 				{
-					pHUD->SetButtonColor(2, glgui::g_clrBox);
+					pHUD->SetButtonColor(2, Color(100, 100, 100));
 					s += L"\n \nNOT ENOUGH ENERGY";
 
 					pHUD->SetButtonListener(2, NULL);
@@ -2258,7 +2258,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonListener(4, CHUD::Promote);
 			pHUD->SetButtonTexture(4, "Promote");
-			pHUD->SetButtonColor(4, glgui::g_clrBox);
+			pHUD->SetButtonColor(4, Color(50, 50, 50));
 			pHUD->SetButtonInfo(4, L"UPGRADE UNIT\n \nThis unit has upgrades available. Click to open the upgrades menu.\n \nShortcut: T");
 			pHUD->SetButtonTooltip(4, L"Upgrade");
 		}
@@ -2268,7 +2268,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 			if (!DigitanksGame()->GetControlMode() || DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonColor(9, Color(150, 0, 0));
 			else
-				pHUD->SetButtonColor(9, Color(100, 100, 100));
+				pHUD->SetButtonColor(9, Color(50, 50, 50));
 
 			if (DigitanksGame()->GetControlMode() == MODE_AIM)
 				pHUD->SetButtonTexture(9, "Cancel");
@@ -2284,7 +2284,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 	{
 		pHUD->SetButtonListener(0, CHUD::PromoteAttack);
 		pHUD->SetButtonTexture(0, "UpgradeAttack");
-		pHUD->SetButtonColor(0, Color(150, 150, 150));
+		pHUD->SetButtonColor(0, Color(150, 50, 50));
 
 		eastl::string16 s1;
 		s1 += L"UPGRADE ATTACK ENERGY\n \n";
@@ -2298,7 +2298,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 		{
 			pHUD->SetButtonListener(1, CHUD::PromoteDefense);
 			pHUD->SetButtonTexture(1, "UpgradeShields");
-			pHUD->SetButtonColor(1, Color(150, 150, 150));
+			pHUD->SetButtonColor(1, Color(50, 50, 150));
 
 			eastl::string16 s;
 			s += L"UPGRADE SHIELD ENERGY\n \n";
@@ -2311,7 +2311,7 @@ void CDigitank::SetupMenu(menumode_t eMenuMode)
 
 		pHUD->SetButtonListener(2, CHUD::PromoteMovement);
 		pHUD->SetButtonTexture(2, "UpgradeMovement");
-		pHUD->SetButtonColor(2, Color(150, 150, 150));
+		pHUD->SetButtonColor(2, Color(150, 150, 50));
 
 		eastl::string16 s2;
 		s2 += L"UPGRADE MOVEMENT ENERGY\n \n";

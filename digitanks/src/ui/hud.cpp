@@ -2671,11 +2671,13 @@ void CHUD::SetButtonListener(int i, IEventListener::Callback pfnCallback)
 	{
 		m_apButtons[i]->SetClickedListener(this, pfnCallback);
 		m_apButtons[i]->SetEnabled(true);
+		m_apButtons[i]->SetAlpha(1.0f);
 	}
 	else
 	{
 		m_apButtons[i]->SetClickedListener(NULL, NULL);
 		m_apButtons[i]->SetEnabled(false);
+		m_apButtons[i]->SetAlpha(0.5f);
 	}
 }
 

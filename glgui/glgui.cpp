@@ -1369,6 +1369,10 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 	if (m_bShowBackground)
 		PaintButton(x, y, w, h);
 
+	float flHighlight = 1;
+	if (m_bEnabled)
+		flHighlight = RemapVal(m_flHighlight, 0, 1, 0.8f, 1);
+
 	if (m_bSheet)
 	{
 		glPushAttrib(GL_ENABLE_BIT);
@@ -1379,7 +1383,8 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 		glEnable(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
-		glColor4f(1,1,1,(float)GetAlpha()/255);
+
+		glColor4f(1,1,1,(float)GetAlpha()*flHighlight/255);
 		glBegin(GL_QUADS);
 			glTexCoord2f((float)m_iSX/m_iTW, 1-(float)m_iSY/m_iTH);
 			glVertex2d(x, y);
@@ -1404,7 +1409,7 @@ void CPictureButton::Paint(int x, int y, int w, int h)
 		glEnable(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, (GLuint)m_iTexture);
-		glColor4f(1,1,1,(float)GetAlpha()/255);
+		glColor4f(1,1,1,(float)GetAlpha()*flHighlight/255);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0, 1);
 			glVertex2d(x, y);

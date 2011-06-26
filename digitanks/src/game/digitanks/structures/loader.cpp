@@ -128,8 +128,10 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	if (HasEnoughFleetPoints() && HasEnoughPower() && !IsProducing())
 	{
 		pHUD->SetButtonListener(0, CHUD::BuildUnit);
-		pHUD->SetButtonColor(0, Color(150, 150, 150));
+		pHUD->SetButtonColor(0, Color(50, 50, 50));
 	}
+	else
+		pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 	eastl::string16 s;
 

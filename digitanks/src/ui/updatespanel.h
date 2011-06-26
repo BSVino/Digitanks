@@ -14,6 +14,9 @@ public:
 	virtual void					CursorIn();
 	virtual void					CursorOut();
 
+	virtual void					Think();
+	virtual void					Paint(int x, int y, int w, int h);
+
 	EVENT_CALLBACK(CUpdateButton, ChooseDownload);
 
 public:
@@ -21,6 +24,9 @@ public:
 
 	int								m_iX;
 	int								m_iY;
+
+	float							m_flFocusRamp;
+	float							m_flFocusRampGoal;
 };
 
 class CUpdatesPanel : public glgui::CPanel, public glgui::IEventListener

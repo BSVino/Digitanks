@@ -130,7 +130,7 @@ void CMiniBuffer::SetupMenu(menumode_t eMenuMode)
 		if (UpgradeCost() <= GetDigitanksTeam()->GetPower())
 		{
 			pHUD->SetButtonTexture(0, "MacroBuffer");
-			pHUD->SetButtonColor(0, Color(150, 150, 150));
+			pHUD->SetButtonColor(0, Color(50, 50, 50));
 		}
 
 		eastl::string16 s;

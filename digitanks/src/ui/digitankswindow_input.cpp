@@ -313,6 +313,9 @@ void CDigitanksWindow::KeyPress(int c)
 			GetHUD()->GetUpdatesPanel()->CloseCallback();
 		else if (DigitanksGame())
 			DigitanksGame()->SetControlMode(MODE_NONE);
+
+		if (DigitanksGame())
+			m_bContextualCommandsOverride = true;
 	}
 
 	if (GameServer() && GameServer()->GetCamera())

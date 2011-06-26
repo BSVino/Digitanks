@@ -128,50 +128,56 @@ void CUpdatesPanel::Layout()
 
 			if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTURE)
 			{
-				Color clrButton = Color(50, 50, 255);
+				Color clrButton = Color(10, 10, 200);
 				if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_TANKLOADER)
-					clrButton = Color(255, 255, 50);
+					clrButton = Color(200, 200, 10);
 				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_ARTILLERYLOADER)
-					clrButton = Color(255, 255, 50);
+					clrButton = Color(200, 200, 10);
 
 				if (bAlreadyDownloaded)
-					pUpdate->SetButtonColor(Color(clrButton.r()/2, clrButton.g()/2, clrButton.b()/2));
+				{
+					pUpdate->SetButtonColor(clrButton/2);
+					pUpdate->SetEnabled(false);
+				}
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
-					pUpdate->SetAlpha(200/15);
+					pUpdate->SetButtonColor((Vector(clrButton)*0.1f + Vector(0.2f, 0.2f, 0.2f)*0.9f));
+					pUpdate->SetAlpha(0.2f);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
-					pUpdate->SetAlpha(200*2/3);
+					pUpdate->SetButtonColor((Vector(clrButton) + Vector(0.3f, 0.3f, 0.3f))/2);
+					pUpdate->SetAlpha(200);
 				}
 			}
 			else if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 			{
-				Color clrButton = Color(200, 200, 200);
+				Color clrButton = Color(10, 10, 10);
 				if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_CPU)
-					clrButton = Color(200, 200, 200);
+					clrButton = Color(10, 10, 10);
 				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_INFANTRYLOADER)
-					clrButton = Color(200, 200, 150);
+					clrButton = Color(150, 150, 10);
 				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_TANKLOADER)
-					clrButton = Color(200, 200, 150);
+					clrButton = Color(150, 150, 10);
 				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_ARTILLERYLOADER)
-					clrButton = Color(200, 200, 150);
+					clrButton = Color(150, 150, 10);
 				else if (pUpdates->m_aUpdates[i][j].m_eStructure == STRUCTURE_BUFFER)
-					clrButton = Color(150, 150, 200);
+					clrButton = Color(10, 10, 150);
 
 				if (bAlreadyDownloaded)
-					pUpdate->SetButtonColor(Color(clrButton.r()/2, clrButton.g()/2, clrButton.b()/2));
+				{
+					pUpdate->SetButtonColor(clrButton/2);
+					pUpdate->SetEnabled(false);
+				}
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
-					pUpdate->SetAlpha(200/15);
+					pUpdate->SetButtonColor((Vector(clrButton)*0.1f + Vector(0.2f, 0.2f, 0.2f)*0.9f));
+					pUpdate->SetAlpha(0.2f);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
-					pUpdate->SetAlpha(200*2/3);
+					pUpdate->SetButtonColor((Vector(clrButton) + Vector(0.3f, 0.3f, 0.3f))/2);
+					pUpdate->SetAlpha(200);
 				}
 			}
 			else if (pUpdates->m_aUpdates[i][j].m_eUpdateClass == UPDATECLASS_UNITSKILL)
@@ -179,16 +185,19 @@ void CUpdatesPanel::Layout()
 				Color clrButton = Color(200, 0, 0);
 
 				if (bAlreadyDownloaded)
-					pUpdate->SetButtonColor(Color(clrButton.r()/2, clrButton.g()/2, clrButton.b()/2));
+				{
+					pUpdate->SetButtonColor(clrButton/2);
+					pUpdate->SetEnabled(false);
+				}
 				else if (!bCanDownload)
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/10, clrButton.g()/10, clrButton.b()/10));
-					pUpdate->SetAlpha(200/15);
+					pUpdate->SetButtonColor((Vector(clrButton)*0.1f + Vector(0.2f, 0.2f, 0.2f)*0.9f));
+					pUpdate->SetAlpha(0.2f);
 				}
 				else
 				{
-					pUpdate->SetButtonColor(Color(clrButton.r()/3, clrButton.g()/3, clrButton.b()/3));
-					pUpdate->SetAlpha(200*2/3);
+					pUpdate->SetButtonColor((Vector(clrButton) + Vector(0.3f, 0.3f, 0.3f))/2);
+					pUpdate->SetAlpha(200);
 				}
 			}
 
@@ -220,6 +229,20 @@ void CUpdatesPanel::Paint(int x, int y, int w, int h)
 	CRootPanel::PaintRect(ix, iy, iw, ih, Color(0, 0, 0, GetAlpha()));
 
 	CPanel::Paint(x, y, w, h);
+
+	for (size_t i = 0; i < m_apUpdates.size(); i++)
+	{
+		CUpdateButton* pButton = m_apUpdates[i];
+		if (!pButton)
+			continue;
+
+		if (pButton->m_flFocusRamp > 0)
+		{
+			int x, y, w, h;
+			pButton->GetAbsDimensions(x, y, w, h);
+			pButton->Paint(x, y, w, h);
+		}
+	}
 }
 
 void CUpdatesPanel::CloseCallback()
@@ -517,6 +540,7 @@ CUpdateButton::CUpdateButton(CUpdatesPanel* pPanel)
 {
 	m_pUpdatesPanel = pPanel;
 	m_iX = m_iY = 0;
+	m_flFocusRamp = m_flFocusRampGoal = 0;
 }
 
 void CUpdateButton::SetLocation(int x, int y)
@@ -534,6 +558,9 @@ void CUpdateButton::CursorIn()
 		return;
 
 	m_pUpdatesPanel->UpdateInfo(&pUpdates->m_aUpdates[m_iX][m_iY]);
+
+	if (IsEnabled())
+		m_flFocusRampGoal = 1;
 }
 
 void CUpdateButton::CursorOut()
@@ -541,6 +568,21 @@ void CUpdateButton::CursorOut()
 	CPictureButton::CursorOut();
 
 	m_pUpdatesPanel->UpdateInfo(NULL);
+
+	m_flFocusRampGoal = 0;
+}
+
+void CUpdateButton::Think()
+{
+	m_flFocusRamp = Approach(m_flFocusRampGoal, m_flFocusRamp, GameServer()->GetFrameTime()*3);
+
+	CPictureButton::Think();
+}
+
+void CUpdateButton::Paint(int x, int y, int w, int h)
+{
+	float flScale = RemapVal(m_flFocusRamp, 0, 1, 1, 1.5f);
+	CPictureButton::Paint(x + w/2 - (int)(flScale*w)/2, y + h/2 - (int)(flScale*h)/2, (int)(w*flScale), (int)(h*flScale));
 }
 
 void CUpdateButton::ChooseDownloadCallback()
