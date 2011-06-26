@@ -10,7 +10,7 @@ class CAirstrikeShell : public CProjectile
 public:
 	virtual weapon_t			GetWeaponType() { return PROJECTILE_AIRSTRIKE; }
 	virtual float				ShellRadius() { return 0.7f; };
-	virtual float				ExplosionRadius() { return 12.0f; };
+	virtual float				ExplosionRadius() const { return 12.0f; };
 	virtual float				PushRadius() { return 20.0f; };
 	virtual float				PushDistance() { return 4.0f; };
 	virtual float				RockIntensity() { return 0.8f; };

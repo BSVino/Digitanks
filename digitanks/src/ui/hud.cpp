@@ -3165,6 +3165,22 @@ void CHUD::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pIn
 		new CHitIndicator(pVictim, L"MISS!");
 }
 
+void CHUD::OnCritical(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
+{
+	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+	if (pProjectile && !pProjectile->SendsNotifications())
+		return;
+
+	if (DigitanksGame()->GetCurrentLocalDigitanksTeam() == NULL)
+		return;
+
+	if (pVictim && DigitanksGame()->GetCurrentLocalDigitanksTeam()->GetVisibilityAtPoint(pVictim->GetOrigin()) < 0.1f)
+		return;
+
+	if (pVictim)
+		new CHitIndicator(pVictim, L"CRITICAL HIT!");
+}
+
 void CHUD::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 {
 	m_pSceneTree->OnAddEntityToTeam(pTeam, pEntity);

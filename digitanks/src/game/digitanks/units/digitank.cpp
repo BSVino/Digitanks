@@ -1480,7 +1480,7 @@ void CDigitank::Charge(CBaseEntity* pTarget)
 	m_flAttackPower += ChargeEnergy();
 	m_flMovementPower += ChargeEnergy();
 
-	m_flGoalTurretYaw = -180;
+	m_flGoalTurretYaw = 0;
 
 	m_bActionTaken = true;
 	m_bFiredWeapon = true;
@@ -1733,7 +1733,7 @@ void CDigitank::Think()
 			Move(GetChargePosition(m_hChargeTarget), 1);
 			m_flEndCharge = GameServer()->GetGameTime() + GetTransitionTime();
 
-			m_flGoalTurretYaw = -180;
+			m_flGoalTurretYaw = 0;
 		}
 	}
 
@@ -1772,6 +1772,8 @@ void CDigitank::Think()
 			Turn(EAngle(0, GetAngles().y, 0));
 
 			m_flGoalTurretYaw = 0;
+
+			DigitanksWindow()->GetHUD()->UpdateTurnButton();
 		}
 	}
 
@@ -2685,6 +2687,7 @@ void CDigitank::FireSpecial(Vector vecAim)
 	DigitanksGame()->BeginAirstrike(vecAim);
 
 	m_bActionTaken = true;
+	m_bFiredWeapon = true;
 
 	DirtyNeedsOrders();
 
@@ -2764,6 +2767,12 @@ void CDigitank::TakeDamage(CBaseEntity* pAttacker, CBaseEntity* pInflictor, dama
 	size_t iDifficulty = DigitanksGame()->GetDifficulty();
 
 	CProjectile* pProjectile = dynamic_cast<CProjectile*>(pInflictor);
+
+	if (pProjectile && pProjectile->GetBonusDamage() > 0)
+	{
+		DigitanksGame()->OnCritical(this, pAttacker, pInflictor);
+		bDirectHit = false;
+	}
 
 	if (!GameNetwork()->IsConnected())
 	{

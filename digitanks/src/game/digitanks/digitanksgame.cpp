@@ -2158,6 +2158,26 @@ SERVER_GAME_COMMAND(HitIndicator)
 
 		return;
 	}
+
+	if (pCmd->Arg(0) == L"crit")
+	{
+		if (pCmd->GetNumArguments() < 4)
+		{
+			TMsg(L"HitIndicator crit with not enough arguments.\n");
+			return;
+		}
+
+		if (DigitanksGame()->GetListener())
+		{
+			DigitanksGame()->GetListener()->OnCritical(
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(1)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(2)),
+					CEntityHandle<CBaseEntity>(pCmd->ArgAsUInt(3))
+				);
+		}
+
+		return;
+	}
 }
 
 #define SAFE_HANDLE(pEntity) pEntity?pEntity->GetHandle():~0
@@ -2196,6 +2216,12 @@ void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseE
 		if (pTank)
 			pTank->Speak(TANKSPEECH_TAUNT);
 	}
+}
+
+void CDigitanksGame::OnCritical(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
+{
+	if (GameNetwork()->IsHost())
+		HitIndicator.RunCommand(sprintf(L"crit %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)

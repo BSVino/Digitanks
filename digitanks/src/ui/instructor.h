@@ -52,6 +52,7 @@ public:
 	bool							m_bLeaveMouthOpen;
 	int								m_iHintButton;
 	bool							m_bMousePrompt;
+	bool							m_bPointAtUnused;
 
 	eastl::string					m_sButton1Text;
 	eastl::string					m_sButton1Action;

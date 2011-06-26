@@ -13,6 +13,7 @@
 #include "renderer/renderer.h"
 #include "sound/sound.h"
 #include "hud.h"
+#include "scenetree.h"
 
 using namespace glgui;
 
@@ -170,6 +171,7 @@ void CInstructor::Initialize()
 	m_apTutorials["artillery-select"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-select"]->m_bSlideX = true;
 	m_apTutorials["artillery-select"]->m_bMousePrompt = false;
+	m_apTutorials["artillery-select"]->m_bPointAtUnused = true;
 
 	m_apTutorials["artillery-aim"] = new CTutorial(this, "artillery-aim", "artillery-chooseweapon", POSITION_BUTTONS, 200, false, L"Press the 'Choose Weapon' button");
 	m_apTutorials["artillery-aim"]->m_flSlideAmount = 1000;
@@ -189,6 +191,7 @@ void CInstructor::Initialize()
 	m_apTutorials["artillery-onepertank"]->m_flSlideAmount = 1000;
 	m_apTutorials["artillery-onepertank"]->m_bSlideX = true;
 	m_apTutorials["artillery-onepertank"]->m_bMousePrompt = false;
+	m_apTutorials["artillery-onepertank"]->m_bPointAtUnused = true;
 
 	m_apTutorials["artillery-endturn"] = new CTutorial(this, "artillery-endturn", "", POSITION_TOPCENTER, 200, false, L"Press the 'End Turn' button on the lower right to end your turn!");
 	m_apTutorials["artillery-endturn"]->m_flSlideAmount = 200;
@@ -565,6 +568,7 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::s
 	m_bLeaveMouthOpen = false;
 	m_iHintButton = -1;
 	m_bMousePrompt = true;
+	m_bPointAtUnused = false;
 }
 
 CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial)
@@ -587,6 +591,7 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial)
 	m_bLeaveMouthOpen = false;
 	m_iHintButton = -1;
 	m_bMousePrompt = true;
+	m_bPointAtUnused = false;
 }
 
 CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
@@ -685,7 +690,44 @@ CTutorialPanel::CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel)
 		break;
 
 	case CInstructor::POSITION_SCENETREE:
-		SetPos(150, 100);
+		if (pTutorial->m_bPointAtUnused)
+		{
+			CSceneTreeGroup* pGroup = DigitanksWindow()->GetHUD()->GetSceneTree()->GetUnitNode(UNIT_TANK);
+			if (!pGroup)
+				SetPos(150, 100);
+			else
+			{
+				bool bFound = false;
+				for (size_t i = 0; i < pGroup->m_apNodes.size(); i++)
+				{
+					CSceneTreeUnit* pUnit = dynamic_cast<CSceneTreeUnit*>(pGroup->m_apNodes[i]);
+					if (!pUnit)
+						continue;
+
+					CBaseEntity* pEntity = pUnit->GetEntity();
+					if (!pEntity)
+						continue;
+
+					CDigitank* pTank = dynamic_cast<CDigitank*>(pEntity);
+					if (!pTank)
+						continue;
+
+					if (pTank->NeedsOrders())
+					{
+						int x, y;
+						pUnit->GetAbsPos(x, y);
+						SetPos(x + 60, y);
+						bFound = true;
+						break;
+					}
+				}
+
+				if (!bFound)
+					SetPos(150, 100);
+			}
+		}
+		else
+			SetPos(150, 100);
 		break;
 
 	case CInstructor::POSITION_TOPLEFT:

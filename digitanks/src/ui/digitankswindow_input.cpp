@@ -319,7 +319,12 @@ void CDigitanksWindow::KeyPress(int c)
 		GameServer()->GetCamera()->KeyDown(c);
 
 	if (c == ' ')
-		DigitanksGame()->WeaponSpecialCommand();
+	{
+		// Use m_iMouseInitialX to start tracking where teh spacebar was pressed so we can tell when it's released if it was dragged or not.
+		// Then we'll know whether to drag the camera or blow up projectiles.
+		m_iMouseInitialX = m_iMouseCurrentX;
+		m_iMouseInitialY = m_iMouseCurrentY;
+	}
 
 	if (c == 'H')
 	{
@@ -417,6 +422,9 @@ void CDigitanksWindow::KeyRelease(int c)
 {
 	if (GameServer() && GameServer()->GetCamera())
 		GameServer()->GetCamera()->KeyUp(c);
+
+	if (c == ' ' && !IsMouseDragging())
+		DigitanksGame()->WeaponSpecialCommand();
 }
 
 void CDigitanksWindow::CharPress(int c)

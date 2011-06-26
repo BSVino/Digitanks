@@ -43,6 +43,7 @@ public:
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled)=0;
 	virtual void			OnDisabled(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor)=0;
 	virtual void			OnMiss(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor)=0;
+	virtual void			OnCritical(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor)=0;
 
 	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)=0;
 
@@ -117,6 +118,7 @@ public:
 	virtual bool			Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, float flRadius, float flDamage, CBaseEntity* pIgnore, const CTeam* pTeamIgnore);
 
 	virtual void			OnTakeShieldDamage(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bShieldOnly);
+	virtual void			OnCritical(class CDigitank* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor);
 
 	virtual void			OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 	virtual void			OnKilled(class CBaseEntity* pEntity);

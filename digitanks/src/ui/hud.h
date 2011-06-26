@@ -229,6 +229,7 @@ public:
 	virtual void				OnTakeDamage(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor, float flDamage, bool bDirectHit, bool bKilled);
 	virtual void				OnDisabled(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
 	virtual void				OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor);
+	virtual void				OnCritical(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor);
 
 	virtual void				OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 	virtual void				OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
@@ -262,6 +263,8 @@ public:
 
 	void						CloseWeaponPanel();
 	class CWeaponPanel*			GetWeaponPanel() { return m_pWeaponPanel; };
+
+	class CSceneTree*			GetSceneTree() { return m_pSceneTree; };
 
 	Rect						GetButtonDimensions(size_t i);
 
