@@ -1,7 +1,7 @@
 #ifndef DT_INTRO_BOMB_H
 #define DT_INTRO_BOMB_H
 
-#include <baseentity.h>
+#include <game/baseentity.h>
 
 #include <renderer/particles.h>
 
