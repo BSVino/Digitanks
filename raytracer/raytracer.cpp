@@ -629,8 +629,7 @@ bool CKDNode::Raytrace(const Vector& vecStart, const Vector& vecEnd, CTraceResul
 
 #ifdef _DEBUG
 		// If it hit this node then it's got to hit one of our child nodes since both child nodes add up to this one.
-		if (!(bHitsRight || bHitsLeft))
-			DebugBreak();
+		TAssert(bHitsRight || bHitsLeft);
 #endif
 
 		if (bHitsLeft && !bHitsRight)

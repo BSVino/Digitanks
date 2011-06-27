@@ -27,8 +27,8 @@ if (WIN32)
 	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glfw/include)
 	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/include)
 	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/pthreads-w32-2-8-0-release)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/ftgl-2.1.3~rc5/src)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/freetype-2.3.11/include)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/SDL-1.2.14/include)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/SDL_mixer-1.2.11/include)
 endif (WIN32)
 
 set (TENGINE_SOURCES
@@ -71,26 +71,27 @@ set (TENGINE_SOURCES
 	../../tinker/chatbox.cpp
 )
 
-add_library(tengine SHARED ${TENGINE_SOURCES})
+add_library(tengine STATIC ${TENGINE_SOURCES})
 target_link_libraries (tengine tinker modelconverter raytracer)
 
 if (WIN32)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/glfw/support/msvc2010/Debug/GLFW.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/ftgl-2.1.3~rc5/msvc/build/ftgl_static_D.lib)
-	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/freetype-2.3.11/objs/win32/vc2010/freetype2311MT_D.lib)
 	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/msvc10/Debug/DevIL.lib)
 	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/msvc10/Debug/ILU.lib)
 	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/pthreads-w32-2-8-0-release/Debug/pthread.lib)
+	target_link_libraries(tengine debug ${CMAKE_SOURCE_DIR}/ext-deps/enet-1.3.0/Debug/enet.lib)
 
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/glfw/support/msvc2010/Release/GLFW.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/ftgl-2.1.3~rc5/msvc/build/ftgl_static.lib)
-	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/freetype-2.3.11/objs/win32/vc2010/freetype2311MT.lib)
 	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/msvc10/Release/DevIL.lib)
 	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/msvc10/Release/ILU.lib)
 	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/pthreads-w32-2-8-0-release/Release/pthread.lib)
-	target_link_libraries(tengine optimized dbghelp.lib)
+	target_link_libraries(tengine optimized ${CMAKE_SOURCE_DIR}/ext-deps/enet-1.3.0/Release/enet.lib)
 
-	target_link_libraries(tengine opengl32 glu32 iphlpapi ws2_32)
+	target_link_libraries(tengine iphlpapi ws2_32 Winmm)
+
+	target_link_libraries(tengine
+		${CMAKE_SOURCE_DIR}/ext-deps/SDL-1.2.14/lib/sdl.lib
+		${CMAKE_SOURCE_DIR}/ext-deps/SDL-1.2.14/lib/sdlmain.lib
+		${CMAKE_SOURCE_DIR}/ext-deps/SDL_mixer-1.2.11/lib/sdl_mixer.lib
+	)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

@@ -187,11 +187,11 @@ void CDigitanksMenu::SaveCallback()
 	return;
 #endif
 
-	tchar* pszFilename = SaveFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
-	if (!pszFilename)
+	tstring sFilename = SaveFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	if (!sFilename.length())
 		return;
 
-	CGameServer::SaveToFile(pszFilename);
+	CGameServer::SaveToFile(sFilename.c_str());
 }
 
 void CDigitanksMenu::LoadCallback()
@@ -203,13 +203,13 @@ void CDigitanksMenu::LoadCallback()
 	if (!GameServer())
 		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 
-	tchar* pszFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
-	if (!pszFilename)
+	tstring sFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	if (!sFilename.length())
 		return;
 
 	DigitanksWindow()->RenderLoading();
 
-	if (CGameServer::LoadFromFile(pszFilename))
+	if (CGameServer::LoadFromFile(sFilename.c_str()))
 		SetVisible(false);
 	else
 	{

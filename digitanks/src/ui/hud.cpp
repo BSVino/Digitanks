@@ -3180,7 +3180,7 @@ void CHUD::OnCritical(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseEntity*
 		return;
 
 	if (pVictim)
-		new CHitIndicator(pVictim, L"CRITICAL HIT!");
+		new CHitIndicator(pVictim, _T("CRITICAL HIT!"));
 }
 
 void CHUD::OnAddEntityToTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)

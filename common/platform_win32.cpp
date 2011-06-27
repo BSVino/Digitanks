@@ -13,7 +13,7 @@
 // tchar.h defines it so reset it
 #ifdef _T
 #undef _T
-#define _T EA_CHAR16
+#define _T(x) x
 #endif
 
 #include <tstring.h>
@@ -76,7 +76,7 @@ void SleepMS(size_t iMS)
 
 void OpenBrowser(const tstring& sURL)
 {
-	ShellExecute(NULL, L"open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", convertstring<tchar, wchar_t>(sURL).c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 static int g_iMinidumpsWritten = 0;
@@ -87,9 +87,9 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 	time_t currTime = ::time( NULL );
 	struct tm * pTime = ::localtime( &currTime );
 
-	tchar szModule[MAX_PATH];
+	wchar_t szModule[MAX_PATH];
 	::GetModuleFileName( NULL, szModule, sizeof(szModule) / sizeof(tchar) );
-	tchar *pModule = wcsrchr( szModule, '.' );
+	wchar_t *pModule = wcsrchr( szModule, '.' );
 
 	if ( pModule )
 		*pModule = 0;
@@ -98,9 +98,9 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 	if ( pModule )
 		pModule++;
 	else
-		pModule = _T("unknown");
+		pModule = L"unknown";
 
-	tchar szFileName[MAX_PATH];
+	wchar_t szFileName[MAX_PATH];
 	_snwprintf( szFileName, sizeof(szFileName) / sizeof(tchar),
 			L"%s_%d.%.2d.%2d.%.2d.%.2d.%.2d_%d.mdmp",
 			pModule,
@@ -113,7 +113,7 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 			g_iMinidumpsWritten++
 			);
 
-	HANDLE hFile = CreateFile( GetAppDataDirectory(pszDirectory, szFileName).c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile( convertstring<tchar, wchar_t>(GetAppDataDirectory(pszDirectory, convertstring<wchar_t, tchar>(szFileName))).c_str(), GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
 	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) )
@@ -144,23 +144,26 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 #endif
 }
 
-tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
+tstring OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
-	static tchar szFile[256];
-	szFile[0] = '\0';
+	static wchar_t szWFile[256];
+	szWFile[0] = '\0';
+
+	eastl::basic_string<wchar_t> sWFileTypes = convertstring<tchar, wchar_t>(pszFileTypes);
+	eastl::basic_string<wchar_t> sWDirectory = convertstring<tchar, wchar_t>(pszDirectory);
 
 	OPENFILENAME opf;
 	opf.hwndOwner = 0;
-	opf.lpstrFilter = pszFileTypes;
+	opf.lpstrFilter = sWFileTypes.c_str();
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
 	opf.nFilterIndex = 1L;
-	opf.lpstrFile = szFile;
+	opf.lpstrFile = szWFile;
 	opf.lpstrFile[0] = '\0';
 	opf.nMaxFile = 256;
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
-	opf.lpstrInitialDir = pszDirectory;
+	opf.lpstrInitialDir = sWDirectory.c_str();
 	opf.lpstrTitle = L"Open File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
@@ -171,28 +174,31 @@ tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 	opf.lStructSize = sizeof(OPENFILENAME);
 
 	if(GetOpenFileName(&opf))
-		return opf.lpstrFile;
+		return convertstring<wchar_t, tchar>(opf.lpstrFile);
 
 	return NULL;
 }
 
-tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
+tstring SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
-	static tchar szFile[256];
-	szFile[0] = '\0';
+	static wchar_t szWFile[256];
+	szWFile[0] = '\0';
+
+	eastl::basic_string<wchar_t> sWFileTypes = convertstring<tchar, wchar_t>(pszFileTypes);
+	eastl::basic_string<wchar_t> sWDirectory = convertstring<tchar, wchar_t>(pszDirectory);
 
 	OPENFILENAME opf;
 	opf.hwndOwner = 0;
-	opf.lpstrFilter = pszFileTypes;
+	opf.lpstrFilter = sWFileTypes.c_str();
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
 	opf.nFilterIndex = 1L;
-	opf.lpstrFile = szFile;
+	opf.lpstrFile = szWFile;
 	opf.lpstrFile[0] = '\0';
 	opf.nMaxFile = 256;
 	opf.lpstrFileTitle = 0;
 	opf.nMaxFileTitle=50;
-	opf.lpstrInitialDir = pszDirectory;
+	opf.lpstrInitialDir = sWDirectory.c_str();
 	opf.lpstrTitle = L"Save File";
 	opf.nFileOffset = 0;
 	opf.nFileExtension = 0;
@@ -203,7 +209,7 @@ tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 	opf.lStructSize = sizeof(OPENFILENAME);
 
 	if(GetSaveFileName(&opf))
-		return opf.lpstrFile;
+		return convertstring<wchar_t, tchar>(opf.lpstrFile);
 
 	return NULL;
 }
@@ -254,17 +260,17 @@ tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 	if (!iSize)
 		return sSuffix;
 
-	tchar* pszVar = (tchar*)malloc(iSize * sizeof(tchar));
+	wchar_t* pszVar = (wchar_t*)malloc(iSize * sizeof(wchar_t));
 	if (!pszVar)
 		return sSuffix;
 
 	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
 
-	tstring sReturn(pszVar);
+	tstring sReturn = convertstring<wchar_t, tchar>(pszVar);
 
 	free(pszVar);
 
-	CreateDirectory(tstring(sReturn).append(_T("\\")).append(sDirectory).c_str(), NULL);
+	CreateDirectory(convertstring<tchar, wchar_t>(tstring(sReturn).append(_T("\\")).append(sDirectory)).c_str(), NULL);
 
 	sReturn.append(_T("\\")).append(sSuffix);
 	return sReturn;
@@ -274,8 +280,8 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 {
 	eastl::vector<tstring> asResult;
 
-	tchar szPath[MAX_PATH];
-	_swprintf(szPath, L"%s\\*", sDirectory.c_str());
+	wchar_t szPath[MAX_PATH];
+	_swprintf(szPath, L"%s\\*", convertstring<tchar, wchar_t>(sDirectory).c_str());
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(szPath, &fd);
@@ -292,7 +298,7 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 			if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
 				continue;
 
-			asResult.push_back(fd.cFileName);
+			asResult.push_back(convertstring<wchar_t, tchar>(fd.cFileName));
 		} while(FindNextFile(hFind, &fd));
 
 		FindClose(hFind);
@@ -304,7 +310,7 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 bool IsFile(tstring sPath)
 {
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(sPath.c_str(), &fd);
+	HANDLE hFind = FindFirstFile(convertstring<tchar, wchar_t>(sPath).c_str(), &fd);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 		return false;
@@ -318,7 +324,7 @@ bool IsFile(tstring sPath)
 bool IsDirectory(tstring sPath)
 {
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(sPath.c_str(), &fd);
+	HANDLE hFind = FindFirstFile(convertstring<tchar, wchar_t>(sPath).c_str(), &fd);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 		return false;
@@ -331,7 +337,7 @@ bool IsDirectory(tstring sPath)
 
 void DebugPrint(tstring sText)
 {
-	OutputDebugString(sText.c_str());
+	OutputDebugString(convertstring<tchar, wchar_t>(sText).c_str());
 }
 
 void Exec(eastl::string sLine)

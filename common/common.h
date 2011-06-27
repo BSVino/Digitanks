@@ -5,20 +5,18 @@
 	typedef baseClassName BaseClass; \
 	typedef className ThisClass; \
 
-extern void DebugBreak();
-
-#define TMsg printf;
+#define TMsg printf
 
 #ifdef __GNUC__
 
 #include <csignal>
 
-#define DebugBreak() \
+#define TDebugBreak() \
 	::raise(SIGTRAP); \
 
 #else
 
-#define DebugBreak() \
+#define TDebugBreak() \
 	__debugbreak(); \
 
 #endif
@@ -30,7 +28,7 @@ extern void DebugBreak();
 	if (!(x)) \
 	{ \
 		TMsg("Assert failed: " #x "\n"); \
-		DebugBreak(); \
+		TDebugBreak(); \
 	} \
 } \
 

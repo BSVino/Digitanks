@@ -85,7 +85,7 @@ void CApplication::SaveProductCode()
 
 	// Apparently you can't modify a hidden file so we need to make it normal before changing it.
 #ifdef _WIN32
-	SetFileAttributes(GetAppDataDirectory(AppDirectory(), _T("reg.cfg")).c_str(), FILE_ATTRIBUTE_NORMAL);
+	SetFileAttributes(convertstring<tchar, wchar_t>(GetAppDataDirectory(AppDirectory(), _T("reg.cfg"))).c_str(), FILE_ATTRIBUTE_NORMAL);
 #endif
 
 	do
@@ -96,7 +96,7 @@ void CApplication::SaveProductCode()
 	} while (false);
 
 #ifdef _WIN32
-	SetFileAttributes(GetAppDataDirectory(AppDirectory(), _T("reg.cfg")).c_str(), FILE_ATTRIBUTE_HIDDEN);
+	SetFileAttributes(convertstring<tchar, wchar_t>(GetAppDataDirectory(AppDirectory(), _T("reg.cfg"))).c_str(), FILE_ATTRIBUTE_HIDDEN);
 #endif
 }
 

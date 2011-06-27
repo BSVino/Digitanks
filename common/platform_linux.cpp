@@ -98,13 +98,12 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 {
 }
 
-tchar* OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
+tstring OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
 }
 
-tchar* SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
+tstring SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
-	return NULL;
 }
 
 eastl::string GetClipboard()

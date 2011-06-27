@@ -3,6 +3,8 @@
 
 #include <EASTL/string.h>
 
+#include "common.h"
+
 typedef eastl::string tstring;
 typedef tstring::value_type tchar;
 
@@ -29,27 +31,11 @@ inline FILE* tfopen(const tstring& sFile, const tstring& sMode)
 	if (!bHasB)
 		sBinaryMode = sMode + _T("b");
 
-#ifdef _MSC_VER
-	static FILE* fp;
-	_wfopen_s(&fp, sFile.c_str(), sBinaryMode.c_str());
-	return fp;
-#else
 	return fopen(convertstring<tchar, char>(sFile).c_str(), convertstring<tchar, char>(sBinaryMode).c_str());
-#endif
 }
 
 inline bool fgetts(tstring& str, FILE* fp)
 {
-#ifdef _MSC_VER
-	static wchar_t szLine[1024];
-	tchar* r = fgetws(szLine, 1023, fp);
-
-	if (!r)
-		return false;
-
-	str = szLine;
-	return !!r;
-#else
 	static char szLine[1024];
 	char* r = fgets(szLine, 1023, fp);
 
@@ -58,7 +44,6 @@ inline bool fgetts(tstring& str, FILE* fp)
 
 	str = convertstring<char, tchar>(szLine);
 	return !!r;
-#endif
 }
 
 inline tchar* tstrncpy(tchar* d, size_t d_size, const tchar* s, size_t n)

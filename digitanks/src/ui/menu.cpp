@@ -440,8 +440,8 @@ void CGamesPanel::StrategyCallback()
 
 void CGamesPanel::LoadCallback()
 {
-	tchar* pszFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
-	if (!pszFilename)
+	tstring sFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	if (!sFilename.length())
 		return;
 
 #if !defined(TINKER_UNLOCKED)
@@ -450,7 +450,7 @@ void CGamesPanel::LoadCallback()
 
 	DigitanksWindow()->RenderLoading();
 
-	if (CGameServer::LoadFromFile(pszFilename))
+	if (CGameServer::LoadFromFile(sFilename.c_str()))
 		DigitanksWindow()->GetMainMenu()->SetVisible(false);
 	else
 	{
@@ -529,8 +529,8 @@ void CMultiplayerPanel::CreateStrategyLobbyCallback()
 
 void CMultiplayerPanel::LoadCallback()
 {
-	tchar* pszFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
-	if (!pszFilename)
+	tstring sFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	if (!sFilename.length())
 		return;
 
 #if !defined(TINKER_UNLOCKED)
@@ -541,7 +541,7 @@ void CMultiplayerPanel::LoadCallback()
 
 	DigitanksWindow()->RenderLoading();
 
-	if (CGameServer::LoadFromFile(pszFilename))
+	if (CGameServer::LoadFromFile(sFilename.c_str()))
 		DigitanksWindow()->GetMainMenu()->SetVisible(false);
 	else
 	{

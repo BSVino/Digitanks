@@ -584,7 +584,7 @@ void CDigitanksWindow::ConstrainMouse()
 	if (IsFullscreen())
 		return;
 
-	HWND hWindow = FindWindow(NULL, _T("Digitanks!"));
+	HWND hWindow = FindWindow(NULL, L"Digitanks!");
 
 	if (!hWindow)
 		return;
@@ -652,7 +652,7 @@ bool CDigitanksWindow::ShouldConstrainMouse()
 		return false;
 
 #ifdef _WIN32
-	HWND hWindow = FindWindow(NULL, _T("Digitanks!"));
+	HWND hWindow = FindWindow(NULL, L"Digitanks!");
 	HWND hActiveWindow = GetActiveWindow();
 
 	if (hActiveWindow != hWindow)

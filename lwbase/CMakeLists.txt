@@ -5,6 +5,12 @@ include_directories (
 	../common/math
 )
 
+if (WIN32)
+	include_directories (
+		${PROJECT_SOURCE_DIR}/ext-deps/pthreads-w32-2-8-0-release
+	)
+endif (WIN32)
+
 set (LWBASE_SOURCES
 	../ext-deps/EASTL/src/allocator.cpp
 	../ext-deps/EASTL/src/assert.cpp
@@ -39,5 +45,5 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 add_library(lwbase ${LWBASE_SOURCES})
 
 if (WIN32)
-	target_link_libraries(lwbase iphlpapi ws2_32)
+	target_link_libraries(lwbase iphlpapi ws2_32 dbghelp)
 endif (WIN32)

@@ -18,6 +18,8 @@ if (WIN32)
 	add_definitions(-DGLEW_STATIC)
 	add_definitions(-DFREEGLUT_STATIC)
 	add_definitions(-DFTGL_LIBRARY_STATIC)
+	add_definitions(-DTINKER_UNLOCKED)
+	add_definitions(-DTINKER_NO_REGISTRATION)
 endif (WIN32)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)

@@ -6,7 +6,7 @@
 size_t FullScreenShot()
 {
 	/// Take a screenshot of the user's desktop.
-	HDC hdcScreen  = CreateDC(_T("DISPLAY", NULL, NULL, NULL);
+	HDC hdcScreen  = CreateDC(L"DISPLAY", NULL, NULL, NULL);
 	HDC hdcCapture = CreateCompatibleDC(hdcScreen);
 	int nWidth     = GetDeviceCaps(hdcScreen, HORZRES),
 		nHeight    = GetDeviceCaps(hdcScreen, VERTRES),

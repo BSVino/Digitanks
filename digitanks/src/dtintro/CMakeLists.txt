@@ -7,6 +7,11 @@ include_directories (
 	${CMAKE_SOURCE_DIR}/digitanks/src/game/
 )
 
+if (WIN32)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glew/include)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/include)
+endif (WIN32)
+
 set (DTINTRO_SOURCES
 	main.cpp
 

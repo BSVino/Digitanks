@@ -2158,11 +2158,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == L"crit")
+	if (pCmd->Arg(0) == _T("crit"))
 	{
 		if (pCmd->GetNumArguments() < 4)
 		{
-			TMsg(L"HitIndicator crit with not enough arguments.\n");
+			TMsg(_T("HitIndicator crit with not enough arguments.\n"));
 			return;
 		}
 
@@ -2220,7 +2220,7 @@ void CDigitanksGame::OnMiss(CBaseEntity* pVictim, CBaseEntity* pAttacker, CBaseE
 void CDigitanksGame::OnCritical(CDigitank* pVictim, CBaseEntity* pAttacker, CBaseEntity* pInflictor)
 {
 	if (GameNetwork()->IsHost())
-		HitIndicator.RunCommand(sprintf(L"crit %d %d %d", SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
+		HitIndicator.RunCommand(sprintf(tstring("crit %d %d %d"), SAFE_HANDLE(pVictim), SAFE_HANDLE(pAttacker), SAFE_HANDLE(pInflictor)));
 }
 
 void CDigitanksGame::OnKilled(CBaseEntity* pEntity)
