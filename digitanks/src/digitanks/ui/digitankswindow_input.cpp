@@ -347,35 +347,38 @@ void CDigitanksWindow::KeyPress(int c)
 		}
 	}
 
-	if (c == 'Q')
-		GetHUD()->ButtonCallback(0);
+	if (GetHUD())
+	{
+		if (c == 'Q')
+			GetHUD()->ButtonCallback(0);
 
-	if (c == 'W')
-		GetHUD()->ButtonCallback(1);
+		if (c == 'W')
+			GetHUD()->ButtonCallback(1);
 
-	if (c == 'E')
-		GetHUD()->ButtonCallback(2);
+		if (c == 'E')
+			GetHUD()->ButtonCallback(2);
 
-	if (c == 'R')
-		GetHUD()->ButtonCallback(3);
+		if (c == 'R')
+			GetHUD()->ButtonCallback(3);
 
-	if (c == 'T')
-		GetHUD()->ButtonCallback(4);
+		if (c == 'T')
+			GetHUD()->ButtonCallback(4);
 
-	if (c == 'A')
-		GetHUD()->ButtonCallback(5);
+		if (c == 'A')
+			GetHUD()->ButtonCallback(5);
 
-	if (c == 'S')
-		GetHUD()->ButtonCallback(6);
+		if (c == 'S')
+			GetHUD()->ButtonCallback(6);
 
-	if (c == 'D')
-		GetHUD()->ButtonCallback(7);
+		if (c == 'D')
+			GetHUD()->ButtonCallback(7);
 
-	if (c == 'F')
-		GetHUD()->ButtonCallback(8);
+		if (c == 'F')
+			GetHUD()->ButtonCallback(8);
 
-	if (c == 'G')
-		GetHUD()->ButtonCallback(9);
+		if (c == 'G')
+			GetHUD()->ButtonCallback(9);
+	}
 
 	if (!DigitanksGame())
 		return;

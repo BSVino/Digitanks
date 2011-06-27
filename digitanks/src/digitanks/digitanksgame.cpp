@@ -857,7 +857,7 @@ void CDigitanksGame::SetupMenuMarch()
 	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
-//#ifndef _DEBUG
+#ifndef _DEBUG
 	CMenuMarcher* pMarcher;
 
 	if (GameServer()->GetWorkListener())
@@ -882,7 +882,7 @@ void CDigitanksGame::SetupMenuMarch()
 			}
 		}
 	}
-//#endif
+#endif
 
 	m_ahTeams[0]->SetClient(NETWORK_BOT);
 

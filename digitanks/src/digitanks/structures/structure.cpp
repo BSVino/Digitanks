@@ -101,6 +101,9 @@ void CStructure::Spawn()
 	m_flConstructionStartTime = 0;
 
 	m_bConstructing = true;
+
+	m_hSupplyLine = NULL;
+	m_hSupplier = NULL;
 }
 
 void CStructure::Think()

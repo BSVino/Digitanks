@@ -6,7 +6,6 @@
 #include "../modelconverter.h"
 #include "strutils.h"
 
-
 void CModelConverter::ReadOBJ(const tstring& sFilename)
 {
 	if (m_pWorkListener)
@@ -116,9 +115,10 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 			continue;
 		}
 
-		eastl::vector<tstring> asTokens;
-		tstrtok(pszLine, asTokens, _T(" "));
-		const tchar* pszToken = asTokens[0].c_str();
+		tchar szToken[1024];
+		tstrncpy(szToken, 1024, pszLine, 1024);
+		tchar* pszState = NULL;
+		tchar* pszToken = strtok<tchar>(szToken, " ", &pszState);
 
 		if (tstrncmp(pszToken, _T("mtllib"), 6) == 0)
 		{
@@ -130,7 +130,7 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 		{
 			// Dunno what this does.
 		}
-		else if (tstrncmp(pszToken, _T("v"), 1) == 0)
+		else if (tstrncmp(pszToken, _T("v"), 2) == 0)
 		{
 			if (m_pWorkListener)
 			{
@@ -162,7 +162,7 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 			}
 			pMesh->AddVertex(v[0], v[1], v[2]);
 		}
-		else if (tstrncmp(pszToken, _T("vn"), 2) == 0)
+		else if (tstrncmp(pszToken, _T("vn"), 3) == 0)
 		{
 			if (m_pWorkListener)
 			{
@@ -185,7 +185,7 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 				pMesh->AddNormal(x, y, z);
 			}
 		}
-		else if (tstrncmp(pszToken, _T("vt"), 2) == 0)
+		else if (tstrncmp(pszToken, _T("vt"), 3) == 0)
 		{
 			if (m_pWorkListener)
 			{
@@ -272,9 +272,8 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 
 			pMesh->GetFace(iFace)->m_iSmoothingGroup = iSmoothingGroup;
 
-			for (size_t i = 1; i < asTokens.size(); i++)
+			while (pszToken = strtok<tchar>(NULL, _T(" "), &pszState))
 			{
-				const tchar* pszToken = asTokens[i].c_str();
 				if (tstrlen(pszToken) == 0)
 					continue;
 

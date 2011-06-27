@@ -40,6 +40,9 @@ void CSupplyLine::Precache()
 
 void CSupplyLine::Spawn()
 {
+	m_hSupplier = NULL;
+	m_hEntity = NULL;
+
 	BaseClass::Spawn();
 
 	m_flIntegrity = 1.0f;

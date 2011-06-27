@@ -96,6 +96,8 @@ public:
 
 	inline const CNetworkedHandle& operator=(const T* pEntity)
 	{
+		m_bInitialized = true;
+
 		if (m_oVariable == pEntity)
 			return *this;
 

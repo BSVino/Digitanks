@@ -126,6 +126,8 @@ void CDigitanksTeam::Spawn()
 	m_bIncludeInScoreboard = true;
 
 	m_iFleetPointAttackQuota = ~0;
+
+	m_hPrimaryCPU = NULL;
 }
 
 void CDigitanksTeam::OnAddEntity(CBaseEntity* pEntity)
