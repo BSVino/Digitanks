@@ -81,5 +81,11 @@ set (DIGITANKS_SOURCES
 	../../renderer/systems.cpp
 )
 
+if (WIN32)
+	set (DIGITANKS_SOURCES ${DIGITANKS_SOURCES}
+		../../digitanks.rc
+	)
+endif (WIN32)
+
 add_executable (digitanks ${DIGITANKS_SOURCES})
 target_link_libraries (digitanks tinker tengine)
