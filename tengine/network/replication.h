@@ -379,14 +379,16 @@ public:
 
 	inline C& Get2D(size_t s, size_t x, size_t y)
 	{
-		TAssert(iArraySize%s == 0);
+		int a = iArraySize%s;
+		TAssert(a == 0);
 		m_bDirty = true;
 		return m_oVariable[s*x + y];
 	}
 
 	inline const C& Get2D(size_t s, size_t x, size_t y) const
 	{
-		TAssert(iArraySize%s == 0);
+		int a = iArraySize%s;
+		TAssert(a == 0);
 		return m_oVariable[s*x + y];
 	}
 

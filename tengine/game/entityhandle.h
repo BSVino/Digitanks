@@ -93,6 +93,7 @@ public:
 	// For some reason GCC 4.4.3 won't build without these.
 	using CNetworkedVariable<CEntityHandle<T> >::m_oVariable;
 	using CNetworkedVariable<CEntityHandle<T> >::m_bDirty;
+	using CNetworkedVariable<CEntityHandle<T> >::m_bInitialized;
 
 	inline const CNetworkedHandle& operator=(const T* pEntity)
 	{
