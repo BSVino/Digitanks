@@ -1,1 +1,86 @@
-Lunar Workshop source code tree
+TINKER
+
+Tinker is Lunar Workshop's internal engine. It is a simple game engine made specifially for one game, Digitanks.
+
+WARNING: I DO NOT RECOMMEND THAT YOU USE THIS SOURCE CODE TO MAKE YOUR GAME.
+
+Tinker was made specifically for one purpose and probably would not serve other purposes very well. As an engine it has many deficiencies. For example:
+
+* No animation code whatsoever
+* Slow rendering code
+* Hard-coded shaders
+* Difficult to use particle system
+* Shoddy networking code
+* No localization support
+* Difficult to compile
+
+And so on. The engine is here for the purposes of learning. It can be used to see how a functional game engine could be written. It can be studied to learn from (or perhaps learn not to use) my various programming techniques. But please don't use this engine for your own project. You have been warned.
+
+
+
+
+OVERVIEW
+
+common - These files are general utility files. tstring.h is important - it defines a tstring which is the string format you should use for applications based on Tinker. Avoid using windows.h or other platform-specific libraries, use platform.h from this directory instead.
+
+datamanager - Sometimes data needs to be serialized to and from the hard drive. data.h contains a CData class that is a generic data container, and dataserializer.h can serialize any CData to and from a stream. Data is stored in a simple format that looks like this:
+
+key: value
+{
+	// Sub-datas
+	key: value
+	key2: value
+
+	// Values are optional
+	key3
+	{
+		subdata
+	}
+}
+
+glgui - This contains files for a GUI that renders directly to OpenGL. Tinker will automatically create the root panel for this GUI. To create a control use this syntax:
+
+CButton* pButton = new CButton();
+AddControl(pButton);
+
+Once a control is added to a panel, the panel is responsible for freeing its allocated memory. Don't free a control's memory after it's passed into AddControl unless you call RemoveControl as well. The Layout() function is responsible for laying out items on a screen. Mostly it should be used to set positions and sizes for child controls or itself. Layout is usually called when a panel is created, resized or changed somehow.
+
+modelconverter - Can save and load different model formats
+
+raytracer - A raytracer
+
+tengine - The core game engine
+
+tinker - Application classes. The creator of a game project is responsible for the main() function of his application. Subclass the CApplication class (or CGameWindow if creating a game) and call OpenWindow() and then Run() to start your application.
+
+
+
+
+COMPILING
+
+This engine is difficult to compile. I will not be providing step-by-step instructions, you shouldn't attempt this if you don't have some programming and specifically C++ experience. It relies on the following libraries.
+
+DevIL
+EASTL
+ENet 1.3
+FCollada (optional)
+Freetype
+FTGL
+GLEW
+GLFW
+pthreads-w32 (win32 only)
+SDL
+SDL_mixer
+Steamworks SDK (optional)
+
+For Linux you can mostly get away with installing these packages with your package manager, but some packages may need manual installing. For Windows you must download these packages and place them in a directory named ext-deps, which is where Tinker will look for them when you compile.
+
+Tinker uses CMake to generate its project files. Download and install the latest version of CMake (make sure to add it to your environment path) and create a "build" directory. (Google "out of source builds" for information.) Go to that source directory and run the following command:
+
+cmake c:\path\to\source\
+
+or for Linux
+
+cmake /path/to/source
+
+This will create makefiles or Visual Studio project files. The majority of Tinker is compiled statically. That is, static C++ runtimes, static supporting libraries linked in statically, and Tinker itself is a statically linked application which is linked statically into your game. In many cases this requires rebuilding the supporting libraries as they don't always support static/unicode or they link against the dynamic c runtimes.

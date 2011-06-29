@@ -45,3 +45,5 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 add_executable (dtintro ${DTINTRO_SOURCES})
 target_link_libraries (dtintro tinker tengine)
+
+install(TARGETS dtintro RUNTIME DESTINATION .)

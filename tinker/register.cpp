@@ -4,7 +4,6 @@
 #include <time.h>
 
 #include <strutils.h>
-#include <license/license.h>
 #include <mtrand.h>
 #include <platform.h>
 #include <sockets/sockets.h>

@@ -18,8 +18,6 @@ set (TINKER_SOURCES
 	register.cpp
 
 	../glgui/glgui.cpp
-
-	../license/license.cpp
 )
 
 if (WIN32)

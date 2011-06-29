@@ -88,3 +88,5 @@ endif (WIN32)
 
 add_executable (digitanks ${DIGITANKS_SOURCES})
 target_link_libraries (digitanks tinker tengine)
+
+install(TARGETS digitanks RUNTIME DESTINATION .)
