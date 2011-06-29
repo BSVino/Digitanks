@@ -123,7 +123,7 @@ tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 
 	tstring sReturn(convertstring<char, tchar>(pszVar));
 
-	mkdir(convertstring<tchar, char>(tstring(sReturn).append(_T("/")).append(sDirectory)).c_str(), 0777);
+	mkdir(convertstring<tchar, char>(tstring(sReturn).append(_T("/")).append(_T(".")).append(sDirectory)).c_str(), 0777);
 
 	sReturn.append(_T("/")).append(sSuffix);
 	return sReturn;

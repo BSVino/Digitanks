@@ -242,24 +242,26 @@ inline const float& CNetworkedVariable<float>::operator=(const CNetworkedVariabl
 template <class C>
 inline const C& CNetworkedVariable<C>::operator=(const C& c)
 {
+	m_bInitialized = true;
+
 	if (c == m_oVariable)
 		return m_oVariable;
 
 	m_bDirty = true;
 	m_oVariable = c;
-	m_bInitialized = true;
 	return m_oVariable;
 }
 
 template <class C>
 inline const C& CNetworkedVariable<C>::operator=(const CNetworkedVariable<C>& c)
 {
+	m_bInitialized = true;
+
 	if (c.m_oVariable == m_oVariable)
 		return m_oVariable;
 
 	m_bDirty = true;
 	m_oVariable = c.m_oVariable;
-	m_bInitialized = true;
 	return m_oVariable;
 }
 
