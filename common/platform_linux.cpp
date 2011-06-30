@@ -141,7 +141,14 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 		if (!bDirectories && (dp->d_type == DT_DIR))
 			continue;
 
-		asResult.push_back(convertstring<char, tchar>(dp->d_name));
+		tstring sName = convertstring<char, tchar>(dp->d_name);
+		if (sName == _T("."))
+			continue;
+
+		if (sName == _T(".."))
+			continue;
+
+		asResult.push_back(sName);
 	}
 	closedir(dir);
 

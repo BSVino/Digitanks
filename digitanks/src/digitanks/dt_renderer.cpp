@@ -208,6 +208,7 @@ void CDigitanksRenderer::RenderSkybox()
 		m_vecCameraTarget.x/16, m_vecCameraTarget.y/16, m_vecCameraTarget.z/16,
 		0.0, 1.0, 0.0);
 
+#ifndef TINKER_OPTIMIZE_SOFTWARE
 	if (true)
 	{
 		CRenderingContext r(this);
@@ -349,6 +350,7 @@ void CDigitanksRenderer::RenderSkybox()
 
 		m_flRing3Yaw -= GameServer()->GetFrameTime()*10;
 	}
+#endif
 
 	// Reset the camera
 	glMatrixMode(GL_MODELVIEW);
@@ -1037,8 +1039,10 @@ void CDigitanksRenderer::RenderFullscreenBuffers()
 			m_flLastBloomPulse = 0;
 	}
 
+#ifndef TINKER_OPTIMIZE_SOFTWARE
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	RenderMapFullscreen(m_iVignetting);
+#endif
 
 	glDisable(GL_BLEND);
 }

@@ -183,7 +183,7 @@ void CGameServer::ReadLevels(tstring sDirectory)
 
 	for (size_t i = 0; i < asFiles.size(); i++)
 	{
-		tstring sFile = sDirectory + _T("\\") + asFiles[i];
+		tstring sFile = sDirectory + _T("/") + asFiles[i];
 
 		if (IsFile(sFile) && sFile.substr(sFile.length()-4).compare(_T(".txt")) == 0)
 			ReadLevel(sFile);

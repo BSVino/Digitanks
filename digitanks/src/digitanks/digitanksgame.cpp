@@ -857,7 +857,7 @@ void CDigitanksGame::SetupMenuMarch()
 	AddTeam(GameServer()->Create<CDigitanksTeam>("CDigitanksTeam"));
 	m_ahTeams[0]->SetColor(Color(0, 0, 255));
 
-#ifndef _DEBUG
+#if !defined(_DEBUG) && !defined(TINKER_OPTIMIZE_SOFTWARE)
 	CMenuMarcher* pMarcher;
 
 	if (GameServer()->GetWorkListener())
@@ -1153,7 +1153,11 @@ size_t CDigitanksGame::GetNumLevels(gametype_t eGameType)
 
 CDigitanksLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
 {
-	return dynamic_cast<CDigitanksLevel*>(GetLevels(eGameType)[i]);
+	eastl::vector<CLevel*> ahLevels = GetLevels(eGameType);
+	if (i >= ahLevels.size())
+		return NULL;
+
+	return dynamic_cast<CDigitanksLevel*>(ahLevels[i]);
 }
 
 CDigitanksLevel* CDigitanksGame::GetLevel(tstring sFile)
