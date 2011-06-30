@@ -86,7 +86,7 @@ void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters, in
 		p.CreateExtraData(sizeof(tstring::value_type) * (sCommand.length() + 1));
 		tchar* pszData = (tchar*)p.m_pExtraData;
 
-		tstrncpy(pszData, sCommand.length()+1, sCommand.c_str(), sCommand.length()-1);
+		tstrncpy(pszData, sCommand.length()+1, sCommand.c_str(), sCommand.length()+1);
 
 		p.ui1 = Network(iConnection)->GetClientID();
 

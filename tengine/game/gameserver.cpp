@@ -301,8 +301,6 @@ void CGameServer::ClientDisconnect(int iConnection, CNetworkParameters* p)
 
 void CGameServer::ClientConnect(int iClient)
 {
-	TMsg(sprintf(tstring("Client %d connected.\n"), iClient));
-
 	GameNetwork()->CallFunction(iClient, "ClientInfo", iClient, GetGameTime());
 
 	if (GetGame())
