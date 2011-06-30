@@ -471,8 +471,6 @@ protected:
 	CNetworkedVector						m_vecVelocity;
 	CNetworkedVector						m_vecGravity;
 
-	bool									m_bSimulated;
-
 	size_t									m_iHandle;
 
 	CNetworkedVariable<bool>				m_bTakeDamage;
@@ -484,7 +482,9 @@ protected:
 
 	CNetworkedHandle<CTeam>					m_hTeam;
 
+	bool									m_bSimulated;
 	bool									m_bDeleted;
+	bool									m_bClientSpawn;
 
 	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahTouching;
 
@@ -495,8 +495,6 @@ protected:
 
 	size_t									m_iSpawnSeed;
 	CNetworkedVariable<float>				m_flSpawnTime;
-
-	bool									m_bClientSpawn;
 
 private:
 	static eastl::vector<CBaseEntity*>		s_apEntityList;
