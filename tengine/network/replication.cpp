@@ -65,14 +65,19 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 						continue;
 				}
 
-				if (net_replication_debug.GetBool())
-					TMsg(tstring(_T("Updating ")) + convertstring<char, tchar>(pVarData->GetName()) + _T("\n"));
-
 				CNetworkParameters p;
 				p.ui1 = pEntity->GetHandle();
 
 				size_t iDataSize;
 				void* pValue = pVariable->Serialize(iDataSize);
+
+				if (net_replication_debug.GetBool())
+				{
+					if (iDataSize >= 4)
+						TMsg(tstring(_T("Updating ")) + convertstring<char, tchar>(pVarData->GetName()) + sprintf(tstring(" (%x) (%f) (%d)\n"), *(unsigned int*)pValue, *(float*)pValue, *(int*)pValue));
+					else
+						TMsg(tstring(_T("Updating ")) + convertstring<char, tchar>(pVarData->GetName()) + _T("\n"));
+				}
 
 				p.CreateExtraData(iDataSize + strlen(pVarData->GetName())+1);
 				strcpy((char*)p.m_pExtraData, pVarData->GetName());
