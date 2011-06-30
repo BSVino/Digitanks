@@ -1808,7 +1808,11 @@ void CRootPanel::Paint(int x, int y, int w, int h)
 		glDisable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
 
+#ifdef TINKER_OPTIMIZE_SOFTWARE
+	glShadeModel(GL_FLAT);
+#else
 	glShadeModel(GL_SMOOTH);
+#endif
 
 	CPanel::Paint(x, y, w, h);
 

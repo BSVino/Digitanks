@@ -707,6 +707,15 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 {
 	TMsg(_T("Initializing renderer\n"));
 
+#ifdef TINKER_OPTIMIZE_SOFTWARE
+	m_bHardwareSupportsFramebuffers = false;
+	m_bHardwareSupportsFramebuffersTestCompleted = true;
+	m_bUseFramebuffers = false;
+
+	m_bHardwareSupportsShaders = false;
+	m_bHardwareSupportsShadersTestCompleted = true;
+	m_bUseShaders = false;
+#else
 	m_bHardwareSupportsFramebuffers = false;
 	m_bHardwareSupportsFramebuffersTestCompleted = false;
 
@@ -727,6 +736,7 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 
 	if (!CShaderLibrary::IsCompiled())
 		m_bUseShaders = false;
+#endif
 
 	if (m_bUseShaders)
 		TMsg(_T("* Using shaders\n"));
@@ -940,7 +950,11 @@ void CRenderer::DrawBackground()
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 
+#ifdef TINKER_OPTIMIZE_SOFTWARE
+	glShadeModel(GL_FLAT);
+#else
 	glShadeModel(GL_SMOOTH);
+#endif
 
 	glBegin(GL_QUADS);
 		glColor3ub(0, 0, 0);
@@ -1628,6 +1642,11 @@ size_t CRenderer::LoadTextureIntoGL(size_t iImageID, int iClamp)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
+#ifdef TINKER_OPTIMIZE_SOFTWARE
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+#endif
+
 	ilBindImage(iImageID);
 
 	gluBuild2DMipmaps(GL_TEXTURE_2D,
@@ -1668,6 +1687,11 @@ size_t CRenderer::LoadTextureIntoGL(Color* pclrData, int iClamp)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
+
+#ifdef TINKER_OPTIMIZE_SOFTWARE
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+#endif
 
 	gluBuild2DMipmaps(GL_TEXTURE_2D,
 		4,

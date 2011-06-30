@@ -171,8 +171,6 @@ void CProfiler::Render()
 	glDisable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
 
-	glShadeModel(GL_SMOOTH);
-
 	glColor4ubv(Color(255, 255, 255, 255));
 
 	glgui::CBaseControl::PaintRect(iCurrLeft, iCurrTop, 400, 800, Color(0, 0, 0, 150));

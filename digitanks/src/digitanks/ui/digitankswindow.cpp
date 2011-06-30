@@ -245,7 +245,11 @@ void CDigitanksWindow::RenderMouseCursor()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+#ifdef TINKER_OPTIMIZE_SOFTWARE
+	glShadeModel(GL_FLAT);
+#else
 	glShadeModel(GL_SMOOTH);
+#endif
 
 	int mx, my;
 	GetMousePosition(mx, my);

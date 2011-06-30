@@ -5,6 +5,12 @@ set (CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_ov
 
 project (lw)
 
+option(OPTIMIZE_SOFTWARE "Build with an eye towards optimization of software implementations." OFF)
+
+if (OPTIMIZE_SOFTWARE)
+	add_definitions(-DTINKER_OPTIMIZE_SOFTWARE)
+endif (OPTIMIZE_SOFTWARE)
+
 if (CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(-std=c++0x)
 endif (CMAKE_COMPILER_IS_GNUCC)

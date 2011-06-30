@@ -141,6 +141,8 @@ void CDigitanksRenderer::RenderSkybox()
 		glPushMatrix();
 		glTranslatef(m_vecCameraPosition.x, m_vecCameraPosition.y, m_vecCameraPosition.z);
 
+		glDisable(GL_DEPTH_TEST);
+
 		if (GLEW_ARB_multitexture || GLEW_VERSION_1_3)
 			glActiveTexture(GL_TEXTURE0);
 		glEnable(GL_TEXTURE_2D);
