@@ -62,47 +62,19 @@ CGameServer::CGameServer(IWorkListener* pWorkListener)
 	if (m_pWorkListener)
 		m_pWorkListener->BeginProgress();
 
-	if (m_pWorkListener)
-		m_pWorkListener->SetAction(_T("Sorting connections"), CBaseEntity::GetEntityRegistration().size());
-
-	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
-	{
-		CEntityRegistration* pRegistration = &CBaseEntity::GetEntityRegistration()[i];
-
-		if (pRegistration->m_pszParentClass)
-		{
-			bool bFound = false;
-			for (size_t j = 0; j < CBaseEntity::GetEntityRegistration().size(); j++)
-			{
-				if (strcmp(CBaseEntity::GetEntityRegistration()[j].m_pszEntityName, pRegistration->m_pszParentClass) == 0)
-				{
-					bFound = true;
-					pRegistration->m_iParentRegistration = j;
-					break;
-				}
-			}
-
-			TAssert(bFound);	// I have no idea how you could trip this.
-		}
-		else
-			pRegistration->m_iParentRegistration = ~0;
-
-		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(i);
-	}
-
 	TMsg(_T("Precaching entities... "));
 
 	if (m_pWorkListener)
 		m_pWorkListener->SetAction(_T("Loading polygons"), CBaseEntity::GetEntityRegistration().size());
 
-	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
+	size_t i = 0;
+	for (eastl::map<tstring, CEntityRegistration>::iterator it = CBaseEntity::GetEntityRegistration().begin(); it != CBaseEntity::GetEntityRegistration().end(); it++)
 	{
-		CEntityRegistration* pRegistration = &CBaseEntity::GetEntityRegistration()[i];
+		CEntityRegistration* pRegistration = &it->second;
 		pRegistration->m_pfnRegisterCallback();
 
 		if (m_pWorkListener)
-			m_pWorkListener->WorkProgress(i);
+			m_pWorkListener->WorkProgress(++i);
 	}
 	TMsg(_T("Done.\n"));
 	TMsg(sprintf(tstring("%d models, %d textures, %d sounds and %d particle systems precached.\n"), CModelLibrary::GetNumModels(), CTextureLibrary::GetNumTextures(), CSoundLibrary::GetNumSounds(), CParticleSystemLibrary::GetNumParticleSystems()));
@@ -266,7 +238,6 @@ void CGameServer::RegisterNetworkFunctions()
 	GameNetwork()->RegisterFunction("UV", this, UpdateValueCallback, 2, NET_HANDLE, NET_HANDLE);
 
 	GameNetwork()->RegisterFunction("ClientInfo", this, ClientInfoCallback, 2, NET_INT, NET_FLOAT);
-	GameNetwork()->RegisterFunction("CreateEntity", this, CreateEntityCallback, 3, NET_INT, NET_HANDLE, NET_INT);
 	GameNetwork()->RegisterFunction("DestroyEntity", this, DestroyEntityCallback, 1, NET_INT);
 	GameNetwork()->RegisterFunction("LoadingDone", this, LoadingDoneCallback, 0);
 }
@@ -307,6 +278,17 @@ void CGameServer::ClientConnect(int iClient)
 		GetGame()->OnClientConnect(iClient);
 }
 
+SERVER_GAME_COMMAND(CreateEntity)
+{
+	if (pCmd->GetNumArguments() < 3)
+	{
+		TError("CreateEntity with too few arguments.");
+		return;
+	}
+
+	GameServer()->CreateEntity(pCmd->Arg(0), pCmd->ArgAsUInt(1), pCmd->ArgAsUInt(2));
+}
+
 void CGameServer::ClientEnterGame(int iClient)
 {
 	TMsg(sprintf(tstring("Client %d (") + GameNetwork()->GetClientNickname(iClient) + _T(") entering game.\n"), iClient));
@@ -321,7 +303,7 @@ void CGameServer::ClientEnterGame(int iClient)
 		if (!pEntity)
 			continue;
 
-		GameNetwork()->CallFunction(iClient, "CreateEntity", CBaseEntity::FindRegisteredEntity(pEntity->GetClassName()), pEntity->GetHandle(), pEntity->GetSpawnSeed());
+		::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pEntity->GetClassName(), pEntity->GetHandle(), pEntity->GetSpawnSeed()), iClient);
 	}
 
 	CGameServerNetwork::UpdateNetworkVariables(iClient, true);
@@ -710,26 +692,24 @@ CEntityHandle<CBaseEntity> CGameServer::Create(const char* pszEntityName)
 	if (!GameNetwork()->ShouldRunClientFunction())
 		return CEntityHandle<CBaseEntity>();
 
-	size_t iRegisteredEntity = CBaseEntity::FindRegisteredEntity(pszEntityName);
+	CEntityHandle<CBaseEntity> hEntity(CreateEntity(pszEntityName));
 
-	if (iRegisteredEntity == ~0)
-		return CEntityHandle<CBaseEntity>();
-
-	CEntityHandle<CBaseEntity> hEntity(CreateEntity(iRegisteredEntity));
-
-	GameNetwork()->CallFunction(NETWORK_TOCLIENTS, "CreateEntity", iRegisteredEntity, hEntity->GetHandle(), hEntity->GetSpawnSeed());
+	::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pszEntityName, hEntity->GetHandle(), hEntity->GetSpawnSeed()));
 
 	return hEntity;
 }
 
-size_t CGameServer::CreateEntity(size_t iRegisteredEntity, size_t iHandle, size_t iSpawnSeed)
+size_t CGameServer::CreateEntity(const tstring& sClassName, size_t iHandle, size_t iSpawnSeed)
 {
+	if (CVar::GetCVarBool("net_debug"))
+		TMsg(tstring("Creating entity: ") + sClassName + "\n");
+
 	CBaseEntity::s_iOverrideEntityListIndex = iHandle;
-	iHandle = CBaseEntity::GetEntityRegistration()[iRegisteredEntity].m_pfnCreateCallback();
+	iHandle = CBaseEntity::GetEntityRegistration()[sClassName].m_pfnCreateCallback();
 	CBaseEntity::s_iOverrideEntityListIndex = ~0;
 
 	CEntityHandle<CBaseEntity> hEntity(iHandle);
-	hEntity->m_iRegistration = iRegisteredEntity;
+	hEntity->m_sClassName = sClassName;
 
 	size_t iPostSeed = mtrand();
 
@@ -762,14 +742,6 @@ void CGameServer::Delete(CBaseEntity* pEntity)
 	CNetworkParameters p;
 	p.i1 = (int)pEntity->GetHandle();
 	DestroyEntity(CONNECTION_GAME, &p);
-}
-
-void CGameServer::CreateEntity(int iConnection, CNetworkParameters* p)
-{
-	if (CBaseEntity::GetEntityRegistration().size() <= (size_t)p->i1)
-		return;
-
-	CreateEntity(p->i1, p->ui2, p->i3);
 }
 
 void CGameServer::DestroyEntity(int iConnection, CNetworkParameters* p)
@@ -862,6 +834,10 @@ void CGameServer::UpdateValue(int iConnection, CNetworkParameters* p)
 		return;
 
 	CNetworkedVariableData* pVarData = hEntity->GetNetworkVariable((char*)p->m_pExtraData);
+
+	if (!pVarData)
+		return;
+
 	CNetworkedVariableBase* pVariable = pVarData->GetNetworkedVariableBase(hEntity);
 
 	if (!pVariable)

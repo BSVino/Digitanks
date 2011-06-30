@@ -435,7 +435,7 @@ void CENetConnection::Think()
 					iPeer = (int)m_aServerPeers.size()-1;
 				}
 
-				TMsg(sprintf(tstring("Client %d connecting.\n"), iPeer));
+				TMsg(sprintf(tstring("Client %d connecting. (Cxn: %d)\n"), iPeer, m_iConnection));
 
 				m_aServerPeers[iPeer].m_pPeer = oEvent.peer;
 				m_aServerPeers[iPeer].m_iInstallID = 0;

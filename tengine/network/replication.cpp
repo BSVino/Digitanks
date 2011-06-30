@@ -39,12 +39,12 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 		if (!pEntity)
 			continue;
 
-		size_t iRegistration = pEntity->GetRegistration();
+		const tchar* pszClassName = pEntity->GetClassName();
 
 		CEntityRegistration* pRegistration = NULL;
 		do
 		{
-			pRegistration = pEntity->GetRegisteredEntity(iRegistration);
+			pRegistration = pEntity->GetRegisteredEntity(pszClassName);
 
 			TAssert(pRegistration);
 			if (!pRegistration)
@@ -85,6 +85,8 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 				if (iClient == NETWORK_TOCLIENTS)
 					pVariable->SetDirty(false);
 			}
-		} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
+
+			pszClassName = pRegistration->m_pszParentClass;
+		} while (pszClassName);
 	}
 }

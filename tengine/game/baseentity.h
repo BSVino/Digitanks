@@ -29,7 +29,7 @@ typedef void (*EntityRegisterCallback)();
 typedef size_t (*EntityCreateCallback)();
 
 template<typename T>
-size_t CreateEntity()
+size_t NewEntity()
 {
 	T* pT = new T();
 	return pT->GetHandle();
@@ -110,7 +110,6 @@ class CEntityRegistration
 public:
 	const char*				m_pszEntityName;
 	const char*				m_pszParentClass;
-	size_t					m_iParentRegistration;
 	EntityRegisterCallback	m_pfnRegisterCallback;
 	EntityCreateCallback	m_pfnCreateCallback;
 	eastl::vector<CSaveData>	m_aSaveData;
@@ -124,7 +123,7 @@ public: \
 static void RegisterCallback##entity() \
 { \
 	entity* pEntity = new entity(); \
-	pEntity->m_iRegistration = FindRegisteredEntity(#entity); \
+	pEntity->m_sClassName = #entity; \
 	CBaseEntity::Register(pEntity); \
 	delete pEntity; \
 } \
@@ -156,7 +155,7 @@ public: \
 static void RegisterCallback##entity() \
 { \
 	entity* pEntity = new entity(); \
-	pEntity->m_iRegistration = FindRegisteredEntity(#entity); \
+	pEntity->m_sClassName = #entity; \
 	CBaseEntity::Register(pEntity); \
 	delete pEntity; \
 } \
@@ -190,7 +189,7 @@ virtual bool Unserialize(std::istream& i) \
 void entity::RegisterNetworkVariables() \
 { \
 	const char* pszEntity = #entity; \
-	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetClassName()); \
 	pRegistration->m_aNetworkVariables.clear(); \
 	CGameServer* pGameServer = GameServer(); \
 	CNetworkedVariableData* pVarData = NULL; \
@@ -219,7 +218,7 @@ void entity::RegisterNetworkVariables() \
 #define SAVEDATA_TABLE_BEGIN(entity) \
 void entity::RegisterSaveData() \
 { \
-	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetClassName()); \
 	pRegistration->m_aSaveData.clear(); \
 	CGameServer* pGameServer = GameServer(); \
 	CSaveData* pSaveData = NULL; \
@@ -273,7 +272,7 @@ void entity::RegisterSaveData() \
 #define INPUTS_TABLE_BEGIN(entity) \
 void entity::RegisterInputData() \
 { \
-	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration()); \
+	CEntityRegistration* pRegistration = GetRegisteredEntity(GetClassName()); \
 	pRegistration->m_aInputs.clear(); \
 
 #define INPUT_DEFINE(name) \
@@ -416,8 +415,6 @@ public:
 	void									IssueClientSpawn();
 	virtual void							ClientSpawn();
 
-	size_t									GetRegistration() { return m_iRegistration; }
-
 	CSaveData*								GetSaveData(const char* pszName);
 	CNetworkedVariableData*					GetNetworkVariable(const char* pszName);
 	CEntityInput*							GetInput(const char* pszName);
@@ -446,10 +443,9 @@ public:
 	static void								PrecacheSound(const tstring& sSound);
 
 public:
-	static void								RegisterEntity(const char* pszEntityName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
+	static void								RegisterEntity(const char* pszClassName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback);
 	static void								Register(CBaseEntity* pEntity);
-	static size_t							FindRegisteredEntity(const char* pszEntityName);
-	static CEntityRegistration*				GetRegisteredEntity(size_t iEntity);
+	static CEntityRegistration*				GetRegisteredEntity(tstring sClassName);
 
 	static void								SerializeEntity(std::ostream& o, CBaseEntity* pEntity);
 	static bool								UnserializeEntity(std::istream& i);
@@ -463,10 +459,11 @@ public:
 	static void								FindEntitiesByName(const eastl::string& sName, eastl::vector<CBaseEntity*>& apEntities);
 
 protected:
-	static eastl::vector<CEntityRegistration>& GetEntityRegistration();
+	static eastl::map<tstring, CEntityRegistration>& GetEntityRegistration();
 
 protected:
 	eastl::string							m_sName;
+	tstring									m_sClassName;
 
 	CNetworkedVector						m_vecOrigin;
 	Vector									m_vecLastOrigin;
@@ -501,8 +498,6 @@ protected:
 
 	bool									m_bClientSpawn;
 
-	size_t									m_iRegistration;
-
 private:
 	static eastl::vector<CBaseEntity*>		s_apEntityList;
 	static size_t							s_iEntities;
@@ -516,7 +511,7 @@ class CRegister##entity \
 public: \
 	CRegister##entity() \
 	{ \
-		CBaseEntity::RegisterEntity(#entity, entity::Get##entity##ParentClass(), &CreateEntity<entity>, &entity::RegisterCallback##entity); \
+		CBaseEntity::RegisterEntity(#entity, entity::Get##entity##ParentClass(), &NewEntity<entity>, &entity::RegisterCallback##entity); \
 	} \
 } s_Register##entity = CRegister##entity(); \
 

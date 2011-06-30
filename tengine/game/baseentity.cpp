@@ -43,6 +43,7 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE_OUTPUT(OnActivated);
 	SAVEDATA_DEFINE_OUTPUT(OnDeactivated);
 	SAVEDATA_DEFINE(CSaveData::DATA_STRING, eastl::string, m_sName);
+	SAVEDATA_DEFINE(CSaveData::DATA_STRING, tstring, m_sClassName);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, Vector, m_vecOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, Vector, m_vecLastOrigin);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, EAngle, m_angAngles);
@@ -64,7 +65,6 @@ SAVEDATA_TABLE_BEGIN(CBaseEntity);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iSpawnSeed);
 	SAVEDATA_DEFINE(CSaveData::DATA_NETVAR, float, m_flSpawnTime);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, bool, m_bClientSpawn);
-	SAVEDATA_DEFINE(CSaveData::DATA_OMIT, size_t, m_iRegistration);	// Set as part of spawning process
 SAVEDATA_TABLE_END();
 
 INPUTS_TABLE_BEGIN(CBaseEntity);
@@ -548,12 +548,12 @@ void CBaseEntity::ClientSpawn()
 
 CSaveData* CBaseEntity::GetSaveData(const char* pszName)
 {
-	size_t iRegistration = GetRegistration();
+	const tchar* pszClassName = GetClassName();
 	CEntityRegistration* pRegistration = NULL;
 	
 	do
 	{
-		pRegistration = CBaseEntity::GetRegisteredEntity(iRegistration);
+		pRegistration = CBaseEntity::GetRegisteredEntity(pszClassName);
 
 		for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
 		{
@@ -562,19 +562,21 @@ CSaveData* CBaseEntity::GetSaveData(const char* pszName)
 			if (strcmp(pVarData->m_pszVariableName, pszName) == 0)
 				return pVarData;
 		}
-	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
+
+		pszClassName = pRegistration->m_pszParentClass;
+	} while (pRegistration->m_pszParentClass);
 
 	return NULL;
 }
 
 CNetworkedVariableData* CBaseEntity::GetNetworkVariable(const char* pszName)
 {
-	size_t iRegistration = GetRegistration();
+	const tchar* pszClassName = GetClassName();
 	CEntityRegistration* pRegistration = NULL;
 	
 	do
 	{
-		pRegistration = CBaseEntity::GetRegisteredEntity(iRegistration);
+		pRegistration = CBaseEntity::GetRegisteredEntity(pszClassName);
 
 		for (size_t i = 0; i < pRegistration->m_aNetworkVariables.size(); i++)
 		{
@@ -583,26 +585,29 @@ CNetworkedVariableData* CBaseEntity::GetNetworkVariable(const char* pszName)
 			if (strcmp(pVarData->m_pszName, pszName) == 0)
 				return pVarData;
 		}
-	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
+
+		pszClassName = pRegistration->m_pszParentClass;
+	} while (pRegistration->m_pszParentClass);
 
 	return NULL;
 }
 
 CEntityInput* CBaseEntity::GetInput(const char* pszName)
 {
-	size_t iRegistration = GetRegistration();
+	const tchar* pszClassName = GetClassName();
 	CEntityRegistration* pRegistration = NULL;
 	
 	do
 	{
-		pRegistration = CBaseEntity::GetRegisteredEntity(iRegistration);
+		pRegistration = CBaseEntity::GetRegisteredEntity(pszClassName);
 
 		eastl::map<eastl::string, CEntityInput>::iterator it = pRegistration->m_aInputs.find(pszName);
 
 		if (it != pRegistration->m_aInputs.end())
 			return &it->second;
 
-	} while ((iRegistration = pRegistration->m_iParentRegistration) != ~0);
+		pszClassName = pRegistration->m_pszParentClass;
+	} while (pRegistration->m_pszParentClass);
 
 	return NULL;
 }
@@ -655,7 +660,7 @@ void CBaseEntity::CheckTables(const char* pszEntity)
 	return;
 #endif
 
-	CEntityRegistration* pRegistration = GetRegisteredEntity(GetRegistration());
+	CEntityRegistration* pRegistration = GetRegisteredEntity(pszEntity);
 
 	eastl::vector<CSaveData>& aSaveData = pRegistration->m_aSaveData;
 
@@ -681,8 +686,7 @@ void CBaseEntity::ClientEnterGame()
 
 void CBaseEntity::SerializeEntity(std::ostream& o, CBaseEntity* pEntity)
 {
-	size_t iRegistration = FindRegisteredEntity(pEntity->GetClassName());
-	o.write((char*)&iRegistration, sizeof(iRegistration));
+	writetstring(o, pEntity->GetClassName());
 
 	size_t iHandle = pEntity->GetHandle();
 	o.write((char*)&iHandle, sizeof(iHandle));
@@ -696,8 +700,7 @@ void CBaseEntity::SerializeEntity(std::ostream& o, CBaseEntity* pEntity)
 
 bool CBaseEntity::UnserializeEntity(std::istream& i)
 {
-	size_t iRegistration;
-	i.read((char*)&iRegistration, sizeof(iRegistration));
+	tstring sClassName = readtstring(i);
 
 	size_t iHandle;
 	i.read((char*)&iHandle, sizeof(iHandle));
@@ -705,7 +708,7 @@ bool CBaseEntity::UnserializeEntity(std::istream& i)
 	size_t iSpawnSeed;
 	i.read((char*)&iSpawnSeed, sizeof(iSpawnSeed));
 
-	size_t iNewHandle = GameServer()->CreateEntity(iRegistration, iHandle, iSpawnSeed);
+	size_t iNewHandle = GameServer()->CreateEntity(sClassName, iHandle, iSpawnSeed);
 	TAssert(iNewHandle == iHandle);
 
 	CEntityHandle<CBaseEntity> hEntity(iNewHandle);
@@ -718,8 +721,7 @@ bool CBaseEntity::UnserializeEntity(std::istream& i)
 
 void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEntity)
 {
-	size_t iEntity = CBaseEntity::FindRegisteredEntity(pszClassName);
-	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(iEntity);
+	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(pszClassName);
 
 	size_t iSaveDataSize = 0;
 	for (size_t i = 0; i < pRegistration->m_aSaveData.size(); i++)
@@ -800,8 +802,7 @@ void CBaseEntity::Serialize(std::ostream& o, const char* pszClassName, void* pEn
 
 bool CBaseEntity::Unserialize(std::istream& i, const char* pszClassName, void* pEntity)
 {
-	size_t iEntity = CBaseEntity::FindRegisteredEntity(pszClassName);
-	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(iEntity);
+	CEntityRegistration* pRegistration = CBaseEntity::GetRegisteredEntity(pszClassName);
 
 	size_t iSaveDataSize;
 	i.read((char*)&iSaveDataSize, sizeof(iSaveDataSize));
@@ -900,17 +901,16 @@ void CBaseEntity::PrecacheSound(const tstring& sSound)
 	CSoundLibrary::Get()->AddSound(sSound);
 }
 
-eastl::vector<CEntityRegistration>& CBaseEntity::GetEntityRegistration()
+eastl::map<tstring, CEntityRegistration>& CBaseEntity::GetEntityRegistration()
 {
-	static eastl::vector<CEntityRegistration> aEntityRegistration;
+	static eastl::map<tstring, CEntityRegistration> aEntityRegistration;
 	return aEntityRegistration;
 }
 
-void CBaseEntity::RegisterEntity(const char* pszEntityName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)
+void CBaseEntity::RegisterEntity(const char* pszClassName, const char* pszParentClass, EntityCreateCallback pfnCreateCallback, EntityRegisterCallback pfnRegisterCallback)
 {
-	GetEntityRegistration().push_back(CEntityRegistration());
-	CEntityRegistration* pEntity = &GetEntityRegistration()[GetEntityRegistration().size()-1];
-	pEntity->m_pszEntityName = pszEntityName;
+	CEntityRegistration* pEntity = &GetEntityRegistration()[pszClassName];
+	pEntity->m_pszEntityName = pszClassName;
 	pEntity->m_pszParentClass = pszParentClass;
 	pEntity->m_pfnCreateCallback = pfnCreateCallback;
 	pEntity->m_pfnRegisterCallback = pfnRegisterCallback;
@@ -924,21 +924,12 @@ void CBaseEntity::Register(CBaseEntity* pEntity)
 	pEntity->RegisterInputData();
 }
 
-size_t CBaseEntity::FindRegisteredEntity(const char* pszEntityName)
+CEntityRegistration* CBaseEntity::GetRegisteredEntity(tstring sClassName)
 {
-	for (size_t i = 0; i < CBaseEntity::GetEntityRegistration().size(); i++)
-	{
-		if (strcmp(CBaseEntity::GetEntityRegistration()[i].m_pszEntityName, pszEntityName) == 0)
-		{
-			return i;
-		}
-	}
-	return ~0;
-}
+	if (GetEntityRegistration().find(sClassName) == GetEntityRegistration().end())
+		return NULL;
 
-CEntityRegistration* CBaseEntity::GetRegisteredEntity(size_t iEntity)
-{
-	return &GetEntityRegistration()[iEntity];
+	return &GetEntityRegistration()[sClassName];
 }
 
 void CBaseEntity::FindEntitiesByName(const eastl::string& sName, eastl::vector<CBaseEntity*>& apEntities)

@@ -71,10 +71,9 @@ public:
 	static bool									LoadFromFile(const tchar* pFileName);
 
 	CEntityHandle<CBaseEntity>					Create(const char* pszEntityName);
-	size_t										CreateEntity(size_t iRegisteredEntity, size_t iHandle = ~0, size_t iSpawnSeed = 0);
+	size_t										CreateEntity(const tstring& sClassName, size_t iHandle = ~0, size_t iSpawnSeed = 0);
 	void										Delete(class CBaseEntity* pEntity);
 
-	NET_CALLBACK(CGameServer,					CreateEntity);
 	NET_CALLBACK(CGameServer,					DestroyEntity);
 
 	template<class T>
