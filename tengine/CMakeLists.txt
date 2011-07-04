@@ -1,7 +1,4 @@
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	find_package(Freetype REQUIRED)
-	include_directories(${FREETYPE_INCLUDE_DIRS})
-
 	find_package(DevIL REQUIRED)
 	include_directories(${IL_INCLUDE_DIR})
 
@@ -91,8 +88,11 @@ if (WIN32)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	target_link_libraries (tengine ${SDLMIXER_LIBRARY})
 	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/enet-1.3.0/.libs/libenet.a)
-	target_link_libraries (tengine ${IL_LIBRARIES} ${ILU_LIBRARIES})
+	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/lib/.libs/libIL.a)
+	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/lib/.libs/libILU.a)
+	target_link_libraries (tengine /usr/lib/libpng.a)
+	target_link_libraries (tengine /usr/lib/libz.a)
+	target_link_libraries (tengine SDL SDL_mixer)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 

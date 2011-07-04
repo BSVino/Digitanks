@@ -1,5 +1,4 @@
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	find_package(Freetype REQUIRED)
 	include_directories(${FREETYPE_INCLUDE_DIRS})
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
@@ -36,8 +35,13 @@ add_library(tinker STATIC ${TINKER_SOURCES})
 target_link_libraries(tinker lwbase)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	target_link_libraries (tinker glfw GLEW ftgl)
-	target_link_libraries (tinker ${FREETYPE_LIBRARY})
+	target_link_libraries (tinker /usr/lib/gcc/i486-linux-gnu/4.4/libstdc++.a)
+	target_link_libraries (tinker /usr/lib/libc.a)
+	target_link_libraries (tinker /usr/lib/libftgl.a)
+	target_link_libraries (tinker /usr/lib/libfreetype.a)
+	target_link_libraries (tinker /usr/lib/libglfw.a)
+	target_link_libraries (tinker /usr/lib/libGLEW.a)
+	target_link_libraries (tinker X11 Xrandr GL GLU)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (WIN32)
