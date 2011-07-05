@@ -190,5 +190,5 @@ void DebugPrint(tstring sText)
 
 void Exec(eastl::string sLine)
 {
-	system(sLine.c_str());
+	system((tstring("./") + sLine).c_str());
 }
