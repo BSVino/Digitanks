@@ -194,6 +194,19 @@ CShader* CShaderLibrary::GetShader(size_t i)
 	return &m_aShaders[i];
 }
 
+size_t CShaderLibrary::GetProgram(size_t iProgram)
+{
+	TAssert(Get());
+	if (!Get())
+		return 0;
+
+	TAssert(Get()->GetShader(iProgram));
+	if (!Get()->GetShader(iProgram))
+		return 0;
+
+	return Get()->GetShader(iProgram)->m_iProgram;
+}
+
 CShader::CShader(const char* pszVS, const char* pszFS)
 {
 	m_sVS = pszVS;

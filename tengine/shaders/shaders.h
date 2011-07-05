@@ -31,7 +31,7 @@ public:
 	CShader*				GetShader(size_t i);
 
 public:
-	static size_t			GetProgram(size_t iProgram) { return Get()->GetShader(iProgram)->m_iProgram; };
+	static size_t			GetProgram(size_t iProgram);
 
 	static const char*		GetVSPassShader();
 
