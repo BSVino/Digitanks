@@ -1,4 +1,5 @@
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	find_package(Freetype REQUIRED)
 	include_directories(${FREETYPE_INCLUDE_DIRS})
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
