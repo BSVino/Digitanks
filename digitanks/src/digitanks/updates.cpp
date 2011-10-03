@@ -732,7 +732,7 @@ tstring CUpdateItem::GetInfo()
 		switch (m_eUpdateType)
 		{
 		case UPDATETYPE_SKILL_CLOAK:
-			return _T("Once downloaded, every Rogue will receive a cloaking device.");
+			return _T("Once downloaded, every Rogue will receive a cloaking device.\n \nThe Rogue will be invisible to enemy units unless it gets too close.");
 
 		case UPDATETYPE_WEAPON_CHARGERAM:
 			return _T("Once downloaded, every Infantry will receive a Charging R.A.M. attack, which he can use to ram enemy units.");

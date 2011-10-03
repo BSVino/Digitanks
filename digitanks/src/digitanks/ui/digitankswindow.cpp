@@ -324,6 +324,8 @@ void LoadLevel(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const
 	DigitanksWindow()->CreateGame(pLevel->GetGameType());
 
 	CApplication::CloseConsole();
+
+	DigitanksWindow()->GetInstructor()->SetActive(false);
 }
 
 CCommand load_level("load_level", ::LoadLevel);
