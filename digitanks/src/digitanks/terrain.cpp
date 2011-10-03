@@ -2138,6 +2138,9 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 	CQuadBranch* pStart = FindLeaf(vecStart);
 	CQuadBranch* pEnd = m_pPathEnd = FindLeaf(vecEnd);
 
+	if (!pEnd)
+		return vecEnd;
+
 	if (pStart == pEnd)
 	{
 		if (pUnit)
