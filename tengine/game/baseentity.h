@@ -511,7 +511,7 @@ public: \
 	{ \
 		CBaseEntity::RegisterEntity(#entity, entity::Get##entity##ParentClass(), &NewEntity<entity>, &entity::RegisterCallback##entity); \
 	} \
-} s_Register##entity = CRegister##entity(); \
+} g_Register##entity = CRegister##entity(); \
 
 #include "gameserver.h"
 #include "template_functions.h"

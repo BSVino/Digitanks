@@ -1,5 +1,5 @@
-#ifndef _COUNTER_H
-#define _COUNTER_H
+#ifndef TENGINE_COUNTER_H
+#define TENGINE_COUNTER_H
 
 #include <game/baseentity.h>
 

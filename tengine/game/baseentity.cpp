@@ -14,6 +14,11 @@
 
 #include "game.h"
 
+#ifdef _WIN32
+// The linker throws out objects in a .lib that aren't referenced by the .exe, so we need to force some of our registrations to be imported when we link.
+#pragma comment(linker, "/include:?g_RegisterCCounter@@3VCRegisterCCounter@@A")
+#endif
+
 eastl::vector<CBaseEntity*> CBaseEntity::s_apEntityList;
 size_t CBaseEntity::s_iEntities = 0;
 size_t CBaseEntity::s_iOverrideEntityListIndex = ~0;

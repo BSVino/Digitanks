@@ -705,6 +705,10 @@ size_t CGameServer::CreateEntity(const tstring& sClassName, size_t iHandle, size
 	if (CVar::GetCVarBool("net_debug"))
 		TMsg(tstring("Creating entity: ") + sClassName + "\n");
 
+	TAssert(CBaseEntity::GetEntityRegistration().find(sClassName) != CBaseEntity::GetEntityRegistration().end());
+	if (CBaseEntity::GetEntityRegistration().find(sClassName) == CBaseEntity::GetEntityRegistration().end())
+		return ~0;
+
 	CBaseEntity::s_iOverrideEntityListIndex = iHandle;
 	iHandle = CBaseEntity::GetEntityRegistration()[sClassName].m_pfnCreateCallback();
 	CBaseEntity::s_iOverrideEntityListIndex = ~0;
