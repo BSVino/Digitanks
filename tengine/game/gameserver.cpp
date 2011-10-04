@@ -694,7 +694,8 @@ CEntityHandle<CBaseEntity> CGameServer::Create(const char* pszEntityName)
 
 	CEntityHandle<CBaseEntity> hEntity(CreateEntity(pszEntityName));
 
-	::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pszEntityName, hEntity->GetHandle(), hEntity->GetSpawnSeed()));
+	if (GameNetwork()->IsConnected())
+		::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pszEntityName, hEntity->GetHandle(), hEntity->GetSpawnSeed()));
 
 	return hEntity;
 }
