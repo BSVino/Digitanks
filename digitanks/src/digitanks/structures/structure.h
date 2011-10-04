@@ -169,7 +169,7 @@ public:
 	static float				GetDataFlow(Vector vecPoint, const CTeam* pTeam, const CSupplier* pIgnore = NULL);
 	void						CalculateDataFlow();
 	void						GiveDataStrength(size_t iStrength) { m_iDataStrength += iStrength; };
-	virtual size_t				EfficientChildren() const { return 2; };
+	virtual size_t				EfficientChildren() const { return 0; };
 
 	float						GetChildEfficiency() const;
 
