@@ -278,7 +278,7 @@ void CGameServer::ClientConnect(int iClient)
 		GetGame()->OnClientConnect(iClient);
 }
 
-SERVER_GAME_COMMAND(CreateEntity)
+SERVER_COMMAND_TARGET(CONNECTION_GAME, CreateEntity, NETWORK_TOREMOTECLIENTS)
 {
 	if (pCmd->GetNumArguments() < 3)
 	{
@@ -694,8 +694,7 @@ CEntityHandle<CBaseEntity> CGameServer::Create(const char* pszEntityName)
 
 	CEntityHandle<CBaseEntity> hEntity(CreateEntity(pszEntityName));
 
-	if (GameNetwork()->IsConnected())
-		::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pszEntityName, hEntity->GetHandle(), hEntity->GetSpawnSeed()));
+	::CreateEntity.RunCommand(sprintf(tstring("%s %d %d"), pszEntityName, hEntity->GetHandle(), hEntity->GetSpawnSeed()));
 
 	return hEntity;
 }

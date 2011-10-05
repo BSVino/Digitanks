@@ -16,7 +16,7 @@ typedef void (*CommandServerCallback)(int iConnection, class CNetworkCommand* pC
 class CNetworkCommand
 {
 public:
-	CNetworkCommand(int iConnection, tstring sName, CommandServerCallback pfnCallback, int iTarget)
+	CNetworkCommand(int iConnection, tstring sName, CommandServerCallback pfnCallback, network_id_t iTarget)
 	{
 		m_iConnection = iConnection;
 		m_sName = str_replace(sName, _T(" "), _T("-"));
@@ -24,7 +24,7 @@ public:
 		m_iMessageTarget = iTarget;
 	};
 
-	CNetworkCommand(tstring sName, CommandServerCallback pfnCallback, int iTarget)
+	CNetworkCommand(tstring sName, CommandServerCallback pfnCallback, network_id_t iTarget)
 	{
 		m_iConnection = CONNECTION_UNDEFINED;
 		m_sName = str_replace(sName, _T(" "), _T("-"));
@@ -41,7 +41,7 @@ public:
 	void					RunCallback(int iConnection, size_t iClient, const tstring& sParameters);
 
 	// Flips the message around, it becomes a message to all clients
-	int						GetMessageTarget() { return m_iMessageTarget; };
+	network_id_t			GetMessageTarget() { return m_iMessageTarget; };
 
 	size_t					GetNumArguments();
 	tstring			Arg(size_t i);
@@ -61,7 +61,7 @@ protected:
 	eastl::vector<tstring> m_asArguments;
 
 	int						m_iConnection;
-	int						m_iMessageTarget;
+	network_id_t			m_iMessageTarget;
 };
 
 #define CLIENT_COMMAND(cxn, name) \
@@ -77,9 +77,9 @@ public: \
 } g_RegisterClientCommand##name = CRegisterClientCommand##name(); \
 void ClientCommand_##name(int iConnection, CNetworkCommand* pCmd, size_t iClient, const tstring& sParameters) \
 
-#define SERVER_COMMAND(cxn, name) \
+#define SERVER_COMMAND_TARGET(cxn, name, target) \
 void ServerCommand_##name(int iConnection, CNetworkCommand* pCmd, size_t iClient, const tstring& sParameters); \
-CNetworkCommand name(cxn, convertstring<char, tchar>(#name), ServerCommand_##name, NETWORK_TOCLIENTS); \
+CNetworkCommand name(cxn, convertstring<char, tchar>(#name), ServerCommand_##name, target); \
 class CRegisterServerCommand##name \
 { \
 public: \
@@ -89,6 +89,9 @@ public: \
 	} \
 } g_RegisterServerCommand##name = CRegisterServerCommand##name(); \
 void ServerCommand_##name(int iConnection, CNetworkCommand* pCmd, size_t iClient, const tstring& sParameters) \
+
+#define SERVER_COMMAND(cxn, name) \
+	SERVER_COMMAND_TARGET(cxn, name, NETWORK_TOCLIENTS)
 
 #define CLIENT_GAME_COMMAND(name) \
 	CLIENT_COMMAND(CONNECTION_GAME, name) \

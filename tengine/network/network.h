@@ -129,14 +129,15 @@ enum
 	NET_HANDLE,
 };
 
-enum
+typedef enum
 {
-	NETWORK_LOCAL		= -1,	// -1 means the host who is also a client.
-	NETWORK_BOT			= -2,	// -2 is a bot running on the host.
-	NETWORK_TOCLIENTS	= -3,	// This message is replicated to all clients when run on the server.
-	NETWORK_TOSERVER	= -4,	// This message is a command sent to the server.
-	NETWORK_TOEVERYONE	= -5,	// This message is all of the above.
-};
+	NETWORK_LOCAL			= -1,	// -1 means the host who is also a client.
+	NETWORK_BOT				= -2,	// -2 is a bot running on the host.
+	NETWORK_TOCLIENTS		= -3,	// This message is replicated to all clients when run on the server. It's also sent to the host through prediction.
+	NETWORK_TOREMOTECLIENTS	= -4,	// This message is replicated to all clients when run on the server, but not predicted to the host.
+	NETWORK_TOSERVER		= -5,	// This message is a command sent to the server.
+	NETWORK_TOEVERYONE		= -6,	// This message is all of the above.
+} network_id_t;
 
 enum
 {

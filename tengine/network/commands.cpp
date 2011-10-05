@@ -29,10 +29,13 @@ void CNetworkCommand::RunCommand(int iConnection, const tstring& sParameters, in
 
 	bool bNoNetwork = false;
 	bool bPredict = false;
-	if (iTarget == NETWORK_TOCLIENTS)
+	if (iTarget == NETWORK_TOCLIENTS || iTarget == NETWORK_TOREMOTECLIENTS)
 	{
 		if (Network(iConnection)->IsHost())
-			bPredict = true;
+		{
+			if (iTarget == NETWORK_TOCLIENTS)
+				bPredict = true;
+		}
 		else
 		{
 			// If we're running client functions then we're going to get this message from the server anyway.
