@@ -116,7 +116,7 @@ void CModelConverter::ReadOBJ(const tstring& sFilename)
 		}
 
 		tchar szToken[1024];
-		tstrncpy(szToken, 1024, pszLine, 1024);
+		tstrncpy(szToken, 1024, pszLine, tstrlen(pszLine)+1);
 		tchar* pszState = NULL;
 		tchar* pszToken = strtok<tchar>(szToken, " ", &pszState);
 
