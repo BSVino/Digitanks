@@ -43,7 +43,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-add_executable (dtintro ${DTINTRO_SOURCES})
+add_executable (dtintro WIN32 ${DTINTRO_SOURCES})
 target_link_libraries (dtintro tinker tengine)
 
 install(TARGETS dtintro RUNTIME DESTINATION .)
