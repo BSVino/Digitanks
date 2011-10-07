@@ -38,7 +38,7 @@ Section "Digitanks (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File /r /x .dropbox /x digitanks.pdb /x dtintro.pdb /x digitanks.exe "\my dropbox\Digitanks\install\*.*"
+  File /r /x .dropbox /x digitanks.pdb /x digitanksdemo.pdb /x dtintro.pdb /x digitanks.exe "\my dropbox\Digitanks\install\*.*"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Digitanks "Install_Dir" "$INSTDIR"

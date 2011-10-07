@@ -20,6 +20,7 @@ if (WIN32)
 	set (CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO	"/ENTRY:mainCRTStartup /DEBUG /INCREMENTAL:NO" CACHE STRING "" FORCE)
 endif (WIN32)
 
+option(DEMO "Build a demo version." OFF)
 option(OPTIMIZE_SOFTWARE "Build with an eye towards optimization of software implementations." OFF)
 
 if (OPTIMIZE_SOFTWARE)
@@ -45,8 +46,12 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 	add_definitions(-D_DEBUG)
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
-add_definitions(-DTINKER_UNLOCKED)
-add_definitions(-DTINKER_NO_REGISTRATION)
+if (DEMO)
+	add_definitions(-DTINKER_NO_REGISTRATION)
+else (DEMO)
+	add_definitions(-DTINKER_UNLOCKED)
+	add_definitions(-DTINKER_NO_REGISTRATION)
+endif (DEMO)
 
 add_subdirectory (lwbase)
 

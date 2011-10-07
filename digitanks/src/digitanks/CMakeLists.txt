@@ -86,7 +86,12 @@ if (WIN32)
 	)
 endif (WIN32)
 
-add_executable (digitanks WIN32 ${DIGITANKS_SOURCES})
-target_link_libraries (digitanks tinker tengine)
+set (DIGITANKS_EXECUTABLE digitanks)
+if (DEMO)
+	set (DIGITANKS_EXECUTABLE digitanksdemo)
+endif (DEMO)
 
-install(TARGETS digitanks RUNTIME DESTINATION .)
+add_executable (${DIGITANKS_EXECUTABLE} WIN32 ${DIGITANKS_SOURCES})
+target_link_libraries (${DIGITANKS_EXECUTABLE} tinker tengine)
+
+install(TARGETS ${DIGITANKS_EXECUTABLE} RUNTIME DESTINATION .)

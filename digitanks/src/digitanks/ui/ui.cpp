@@ -431,7 +431,8 @@ void CPurchasePanel::ClosingApplication()
 	m_bClosing = true;
 
 	m_pPurchase->SetText(_T("LIKE WHAT YOU SEE?\n \n")
-		_T("Use the discount code DIGIDEMO to\nget 25% off the full price"));
+		_T("Digitanks is 'Pay What You Want' through October 2011"));
+//		_T("Use the discount code DIGIDEMO to\nget 25% off the full price"));
 
 	m_pEmail->SetText(_T(""));
 
@@ -448,7 +449,8 @@ void CPurchasePanel::OpeningApplication()
 	m_bClosing = false;
 
 	m_pPurchase->SetText(_T("AVAILABLE NOW\n \n")
-		_T("The best way to buy indie games\nis direct from the developer.\n \nIt's the best $12.99 you'll spend this week, I promise."));
+//		_T("The best way to buy indie games\nis direct from the developer.\n \nIt's the best $12.99 you'll spend this week, I promise."));
+		_T("The best way to buy indie games\nis direct from the developer.\n \nDigitanks is 'Pay What You Want' through October 2011"));
 
 	m_pEmail->SetText(_T(""));
 
@@ -468,7 +470,6 @@ void CPurchasePanel::PurchaseCallback()
 
 void CPurchasePanel::ExitCallback()
 {
-	OpenBrowser(sprintf(tstring("http://digitanks.com/gamelanding/?a=e&i=%d"), DigitanksWindow()->GetInstallID()));
 	exit(0);
 }
 
