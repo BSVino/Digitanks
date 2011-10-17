@@ -9,6 +9,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 include_directories (
 	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
 	${PROJECT_SOURCE_DIR}/ext-deps/enet-1.3.0/include
+	${PROJECT_SOURCE_DIR}/ext-deps/enet-1.3.3/include
 	${CMAKE_SOURCE_DIR}/
 	${CMAKE_SOURCE_DIR}/common
 	${CMAKE_SOURCE_DIR}/common/math

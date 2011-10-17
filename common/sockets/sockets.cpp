@@ -101,7 +101,7 @@ int CClientSocket::Send(const char* pszData, size_t iLength)
 
 int CClientSocket::Send(string sData)
 {
-	return (Send(sData.c_str(), sData.length()));
+	return (Send(sData.c_str(), (size_t)sData.length()));
 }
 
 int CClientSocket::Send(const char* pszData, int iLength)
