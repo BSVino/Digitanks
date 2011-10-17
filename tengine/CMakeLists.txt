@@ -8,7 +8,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 include_directories (
 	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
-	${PROJECT_SOURCE_DIR}/ext-deps/enet-1.3.0/include
 	${PROJECT_SOURCE_DIR}/ext-deps/enet-1.3.3/include
 	${CMAKE_SOURCE_DIR}/
 	${CMAKE_SOURCE_DIR}/common
@@ -89,11 +88,9 @@ if (WIN32)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/enet-1.3.0/.libs/libenet.a)
-	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/lib/.libs/libIL.a)
-	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/lib/.libs/libILU.a)
+	target_link_libraries (tengine ${CMAKE_SOURCE_DIR}/ext-deps/enet-1.3.3/.libs/libenet.a)
 	target_link_libraries (tengine /usr/lib/libpng.a)
 	target_link_libraries (tengine /usr/lib/libz.a)
-	target_link_libraries (tengine SDL SDL_mixer)
+	target_link_libraries (tengine SDL SDL_mixer IL ILU)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 

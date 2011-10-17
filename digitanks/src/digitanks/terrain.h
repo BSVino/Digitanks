@@ -62,7 +62,7 @@ protected:
 	unsigned char					m_aiSpecialData[TERRAIN_CHUNK_SIZE][TERRAIN_CHUNK_SIZE];
 
 	Color							m_aclrTexture[TERRAIN_CHUNK_TEXTURE_SIZE][TERRAIN_CHUNK_TEXTURE_SIZE];
-	size_t							m_iChunkTexture;
+	unsigned int					m_iChunkTexture;
 
 	size_t							m_iCallList;
 	size_t							m_iTransparentCallList;

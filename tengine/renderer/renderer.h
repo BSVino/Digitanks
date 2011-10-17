@@ -119,17 +119,17 @@ protected:
 class CFrameBuffer
 {
 public:
-				CFrameBuffer();
+					CFrameBuffer();
 
 public:
-	size_t		m_iWidth;
-	size_t		m_iHeight;
+	unsigned int	m_iWidth;
+	unsigned int	m_iHeight;
 
-	size_t		m_iMap;
-	size_t		m_iDepth;
-	size_t		m_iFB;
+	unsigned int	m_iMap;
+	unsigned int	m_iDepth;
+	unsigned int	m_iFB;
 
-	size_t		m_iCallList;
+	unsigned int	m_iCallList;
 };
 
 class CRenderBatch
@@ -213,14 +213,14 @@ public:
 	static size_t	LoadTextureIntoGL(tstring sFilename, int iClamp = 0);
 	static size_t	LoadTextureIntoGL(size_t iImageID, int iClamp = 0);
 	static size_t	LoadTextureIntoGL(Color* pclrData, int iClamp = 0);
-	static void		UnloadTextureFromGL(size_t iGLID);
+	static void		UnloadTextureFromGL(unsigned int iGLID);
 	static size_t	GetNumTexturesLoaded() { return s_iTexturesLoaded; }
 
 	static size_t	LoadTextureData(tstring sFilename);
 	static Color*	GetTextureData(size_t iTexture);
 	static size_t	GetTextureWidth(size_t iTexture);
 	static size_t	GetTextureHeight(size_t iTexture);
-	static void		UnloadTextureData(size_t iTexture);
+	static void		UnloadTextureData(unsigned int iTexture);
 
 protected:
 	size_t			m_iWidth;

@@ -1708,7 +1708,7 @@ size_t CRenderer::LoadTextureIntoGL(Color* pclrData, int iClamp)
 	return iGLId;
 }
 
-void CRenderer::UnloadTextureFromGL(size_t iGLId)
+void CRenderer::UnloadTextureFromGL(unsigned int iGLId)
 {
 	glDeleteTextures(1, &iGLId);
 	s_iTexturesLoaded--;
@@ -1783,7 +1783,7 @@ size_t CRenderer::GetTextureHeight(size_t iTexture)
 	return iHeight;
 }
 
-void CRenderer::UnloadTextureData(size_t iTexture)
+void CRenderer::UnloadTextureData(unsigned int iTexture)
 {
 	ilBindImage(0);
 	ilDeleteImages(1, &iTexture);

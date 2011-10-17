@@ -36,7 +36,7 @@ add_library(tinker STATIC ${TINKER_SOURCES})
 target_link_libraries(tinker lwbase)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	target_link_libraries (tinker /usr/lib/gcc/i486-linux-gnu/4.4/libstdc++.a)
+	set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECTUABLE} -static-libgcc")
 	target_link_libraries (tinker /usr/lib/libc.a)
 	target_link_libraries (tinker /usr/lib/libftgl.a)
 	target_link_libraries (tinker /usr/lib/libfreetype.a)
