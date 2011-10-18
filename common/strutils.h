@@ -190,7 +190,7 @@ inline tstring str_replace(const tstring& s, const tstring& f, const tstring& r)
 	tstring sResult = s;
 
 	size_t iPosition;
-	while ((iPosition = sResult.find(f)) != ~0)
+	while ((iPosition = sResult.find(f)) != tstring::npos)
 		sResult = sResult.substr(0, iPosition) + r + (sResult.c_str()+iPosition+f.length());
 
 	return sResult;

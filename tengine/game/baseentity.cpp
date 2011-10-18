@@ -619,9 +619,9 @@ CEntityInput* CBaseEntity::GetInput(const char* pszName)
 
 void CBaseEntity::CheckSaveDataSize(CEntityRegistration* pRegistration)
 {
-#ifndef _DEBUG
+//#ifndef _DEBUG
 	return;
-#endif
+//#endif
 
 	size_t iSaveTableSize = 0;
 
