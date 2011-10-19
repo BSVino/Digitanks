@@ -633,10 +633,15 @@ void CDigitanksWindow::ConstrainMouse()
 		ClipCursor(NULL);
 #else
 #ifdef __linux__
+	Window iFocus;
+	int iRevert;
+	XGetInputFocus(g_pDisplay, &iFocus, &iRevert);
+
+	if (iFocus != g_iWindow)
+		return;
+
 	if (ShouldConstrainMouse())
 	{
-		Window iRootWindow = DefaultRootWindow( g_pDisplay );
-
 		unsigned int mask;
 		Window window, root;
 		int windowX, windowY, rootX, rootY;
