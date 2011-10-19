@@ -13,7 +13,7 @@
 #include <fstream>
 
 #include <strutils.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <mtrand.h>
 #include <tinker/keys.h>
 #include <tinker/portals/portal.h>

@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include <common.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <worklistener.h>
 
 #include <game/gameserver.h>

@@ -1,6 +1,6 @@
 #include "gamewindow.h"
 
-#include <platform.h>
+#include <tinker_platform.h>
 
 #include <tinker/profiler.h>
 #include <game/gameserver.h>

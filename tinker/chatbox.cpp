@@ -1,6 +1,6 @@
 #include "chatbox.h"
 
-#include <platform.h>
+#include <tinker_platform.h>
 #include <strutils.h>
 
 #include <tinker/keys.h>

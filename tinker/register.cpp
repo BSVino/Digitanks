@@ -5,7 +5,7 @@
 
 #include <strutils.h>
 #include <mtrand.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <sockets/sockets.h>
 
 #ifdef TINKER_NO_REGISTRATION

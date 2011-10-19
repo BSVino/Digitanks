@@ -1,7 +1,7 @@
 #include "digitankswindow.h"
 
 #include <glgui/glgui.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <strutils.h>
 #include <sockets/sockets.h>
 

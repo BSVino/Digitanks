@@ -1,7 +1,7 @@
 #include "parallelize.h"
 
 #include <time.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <mempool.h>
 
 void ThreadMain(void* pData)

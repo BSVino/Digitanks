@@ -3,7 +3,7 @@
 #include <enet/enet.h>
 
 #include <strutils.h>
-#include <platform.h>
+#include <tinker_platform.h>
 
 #include <tinker/application.h>
 

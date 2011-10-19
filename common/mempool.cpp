@@ -1,7 +1,7 @@
 #include "mempool.h"
 
 #include <common.h>
-#include <platform.h>
+#include <tinker_platform.h>
 
 size_t CMemPool::s_iMemoryAllocated = 0;
 eastl::vector<CMemPool*> CMemPool::s_apMemPools;

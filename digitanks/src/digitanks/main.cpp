@@ -1,6 +1,6 @@
 #include "ui/digitankswindow.h"
 
-#include <platform.h>
+#include <tinker_platform.h>
 
 void CreateApplication(int argc, char** argv)
 {

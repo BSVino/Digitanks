@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include <mtrand.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <configfile.h>
 #include <strutils.h>
 

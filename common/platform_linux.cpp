@@ -1,4 +1,4 @@
-#include <platform.h>
+#include <tinker_platform.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -91,7 +91,7 @@ void SleepMS(size_t iMS)
 
 void OpenBrowser(const tstring& sURL)
 {
-	system(convertstring<tchar, char>(tstring("firefox ") + sURL).c_str());
+	int iSystem = system(convertstring<tchar, char>(tstring("firefox ") + sURL).c_str());
 }
 
 void CreateMinidump(void* pInfo, tchar* pszDirectory)
@@ -190,5 +190,5 @@ void DebugPrint(tstring sText)
 
 void Exec(eastl::string sLine)
 {
-	system((tstring("./") + sLine).c_str());
+	int iSystem = system((tstring("./") + sLine).c_str());
 }

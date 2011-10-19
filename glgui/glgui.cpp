@@ -8,7 +8,7 @@
 #include <common.h>
 #include <maths.h>
 #include <vector.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <strutils.h>
 #include <tinker/keys.h>
 

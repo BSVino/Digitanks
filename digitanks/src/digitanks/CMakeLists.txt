@@ -1,3 +1,8 @@
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glfw-2.7.2/include)
+	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glfw-2.7.2/lib/x11)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 include_directories (
 	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
 	${CMAKE_SOURCE_DIR}

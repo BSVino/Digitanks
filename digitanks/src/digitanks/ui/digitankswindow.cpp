@@ -14,7 +14,7 @@
 
 #include <mtrand.h>
 #include <configfile.h>
-#include <platform.h>
+#include <tinker_platform.h>
 #include <network/network.h>
 #include <network/commands.h>
 #include <sound/sound.h>
@@ -38,6 +38,16 @@
 #include "ui.h"
 #include "campaign/campaigndata.h"
 #include "lobbyui.h"
+
+#ifdef __linux__
+// Put this last so it doesn't interfere with any other headers
+#include <X11/Xlib.h>
+#include "ext-deps/glfw-2.7.2/lib/internal.h"		// The GLFW internal header file
+													// Needed to grab the window handle so we can restrict the mouse
+
+static Display* g_pDisplay = NULL;
+static Window g_iWindow = 0;
+#endif
 
 ConfigFile c( GetAppDataDirectory(_T("Digitanks"), _T("options.cfg")) );
 
@@ -162,6 +172,11 @@ void CDigitanksWindow::OpenWindow()
 	}
 
 	SaveConfig();
+
+#ifdef __linux__
+	g_pDisplay = XOpenDisplay(NULL);
+	g_iWindow = _glfwWin.window;
+#endif
 }
 
 CDigitanksWindow::~CDigitanksWindow()
@@ -172,6 +187,10 @@ CDigitanksWindow::~CDigitanksWindow()
 	delete m_pMainMenu;
 
 	DestroyGame();
+
+#ifdef __linux__
+	XCloseDisplay(g_pDisplay);
+#endif
 }
 
 void CDigitanksWindow::RenderLoading()
@@ -585,10 +604,10 @@ void CDigitanksWindow::Run()
 
 void CDigitanksWindow::ConstrainMouse()
 {
-#ifdef _WIN32
 	if (IsFullscreen())
 		return;
 
+#ifdef _WIN32
 	HWND hWindow = FindWindow(NULL, L"Digitanks!");
 
 	if (!hWindow)
@@ -612,6 +631,46 @@ void CDigitanksWindow::ConstrainMouse()
 	}
 	else
 		ClipCursor(NULL);
+#else
+#ifdef __linux__
+	if (ShouldConstrainMouse())
+	{
+		Window iRootWindow = DefaultRootWindow( g_pDisplay );
+
+		unsigned int mask;
+		Window window, root;
+		int windowX, windowY, rootX, rootY;
+
+		XQueryPointer( g_pDisplay,
+			g_iWindow,
+			&root,
+			&window,
+			&rootX, &rootY,
+			&windowX, &windowY,
+			&mask );
+
+		if (windowX < 1)
+		{
+			XWarpPointer(g_pDisplay, None, g_iWindow, 0, 0, 0, 0, 1, windowY);
+			windowX = 1;
+		}
+
+		if (windowY < 1)
+		{
+			XWarpPointer(g_pDisplay, None, g_iWindow, 0, 0, 0, 0, windowX, 1);
+			windowY = 1;
+		}
+
+		if (windowX >= GetWindowWidth()-1)
+		{
+			XWarpPointer(g_pDisplay, None, g_iWindow, 0, 0, 0, 0, GetWindowWidth()-2, windowY);
+			windowX = GetWindowWidth()-2;
+		}
+
+		if (windowY >= GetWindowHeight()-1)
+			XWarpPointer(g_pDisplay, None, g_iWindow, 0, 0, 0, 0, windowX, GetWindowHeight()-2);
+	}
+#endif
 #endif
 }
 

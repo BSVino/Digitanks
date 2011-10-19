@@ -3,7 +3,7 @@
 #include <maths.h>
 #include <mtrand.h>
 #include <strutils.h>
-#include <platform.h>
+#include <tinker_platform.h>
 
 #include <datamanager/dataserializer.h>
 #include <models/models.h>

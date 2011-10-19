@@ -1,4 +1,4 @@
-#include <platform.h>
+#include <tinker_platform.h>
 
 // tchar.h defines it
 #ifdef _T
