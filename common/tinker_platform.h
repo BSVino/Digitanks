@@ -10,9 +10,8 @@ void GetScreenSize(int& iWidth, int& iHeight);
 size_t GetNumberOfProcessors();
 void SleepMS(size_t iMS);
 void OpenBrowser(const tstring& sURL);
+void OpenExplorer(const tstring& sDirectory);
 void CreateMinidump(void* pInfo, tchar* pszDirectory);
-tstring OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory = NULL);
-tstring SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory = NULL);
 eastl::string GetClipboard();
 void SetClipboard(const eastl::string& sBuf);
 tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile);
@@ -21,5 +20,11 @@ bool IsFile(tstring sPath);
 bool IsDirectory(tstring sPath);
 void DebugPrint(tstring sText);
 void Exec(eastl::string sLine);
+
+#ifdef _WIN32
+#define DIR_SEP "\\"
+#else
+#define DIR_SEP "/"
+#endif
 
 #endif

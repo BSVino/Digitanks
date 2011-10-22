@@ -1183,6 +1183,7 @@ namespace glgui
 
 		virtual CTreeNode*					GetSelectedNode() { if (m_iSelected == ~0) return NULL; return dynamic_cast<CTreeNode*>(m_apControls[m_iSelected]); };
 		virtual size_t						GetSelectedNodeId() { return m_iSelected; };
+		virtual void						Unselect() { m_iSelected = ~0; }
 		virtual void						SetSelectedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);
 
 		virtual void						SetDroppedListener(IEventListener* pListener, IEventListener::Callback pfnCallback);

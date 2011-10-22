@@ -4,6 +4,7 @@
 #include <tinker_platform.h>
 #include <strutils.h>
 #include <sockets/sockets.h>
+#include <glgui/filedialog.h>
 
 #include <tinker/lobby/lobby_client.h>
 #include <tinker/lobby/lobby_server.h>
@@ -187,7 +188,12 @@ void CDigitanksMenu::SaveCallback()
 	return;
 #endif
 
-	tstring sFilename = SaveFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	glgui::CFileDialog::ShowSaveDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, SaveFile);
+}
+
+void CDigitanksMenu::SaveFileCallback()
+{
+	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
 		return;
 
@@ -203,7 +209,12 @@ void CDigitanksMenu::LoadCallback()
 	if (!GameServer())
 		DigitanksWindow()->CreateGame(GAMETYPE_EMPTY);
 
-	tstring sFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
+}
+
+void CDigitanksMenu::OpenCallback()
+{
+	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
 		return;
 
