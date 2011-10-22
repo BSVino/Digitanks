@@ -18,6 +18,7 @@ set (TINKER_SOURCES
 	register.cpp
 
 	../glgui/glgui.cpp
+	../glgui/filedialog.cpp
 )
 
 if (WIN32)

@@ -20,7 +20,9 @@ public:
 	EVENT_CALLBACK(CDigitanksMenu, Exit);
 	EVENT_CALLBACK(CDigitanksMenu, Close);
 	EVENT_CALLBACK(CDigitanksMenu, Save);
+	EVENT_CALLBACK(CDigitanksMenu, SaveFile);
 	EVENT_CALLBACK(CDigitanksMenu, Load);
+	EVENT_CALLBACK(CDigitanksMenu, Open);
 	EVENT_CALLBACK(CDigitanksMenu, Options);
 	EVENT_CALLBACK(CDigitanksMenu, Quit);
 

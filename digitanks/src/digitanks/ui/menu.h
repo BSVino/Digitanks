@@ -68,6 +68,7 @@ public:
 	EVENT_CALLBACK(CGamesPanel,	Artillery);
 	EVENT_CALLBACK(CGamesPanel,	Strategy);
 	EVENT_CALLBACK(CGamesPanel,	Load);
+	EVENT_CALLBACK(CGamesPanel,	Open);
 
 	EVENT_CALLBACK(CGamesPanel,	ArtilleryHint);
 	EVENT_CALLBACK(CGamesPanel,	StrategyHint);
@@ -97,6 +98,7 @@ public:
 	EVENT_CALLBACK(CMultiplayerPanel,	CreateArtilleryLobby);
 	EVENT_CALLBACK(CMultiplayerPanel,	CreateStrategyLobby);
 	EVENT_CALLBACK(CMultiplayerPanel,	Load);
+	EVENT_CALLBACK(CMultiplayerPanel,	Open);
 
 	EVENT_CALLBACK(CMultiplayerPanel,	ClientHint);
 	EVENT_CALLBACK(CMultiplayerPanel,	CreateArtilleryHint);

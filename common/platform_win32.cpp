@@ -79,6 +79,11 @@ void OpenBrowser(const tstring& sURL)
 	ShellExecute(NULL, L"open", convertstring<tchar, wchar_t>(sURL).c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
+void OpenExplorer(const tstring& sDirectory)
+{
+	ShellExecute(NULL, L"open", convertstring<tchar, wchar_t>(sDirectory).c_str(), NULL, NULL, SW_SHOWNORMAL);
+}
+
 static int g_iMinidumpsWritten = 0;
 
 void CreateMinidump(void* pInfo, tchar* pszDirectory)
@@ -142,76 +147,6 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 		CloseHandle( hFile );
 	}
 #endif
-}
-
-tstring OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
-{
-	static wchar_t szWFile[256];
-	szWFile[0] = '\0';
-
-	eastl::basic_string<wchar_t> sWFileTypes = convertstring<tchar, wchar_t>(pszFileTypes);
-	eastl::basic_string<wchar_t> sWDirectory = convertstring<tchar, wchar_t>(pszDirectory);
-
-	OPENFILENAME opf;
-	opf.hwndOwner = 0;
-	opf.lpstrFilter = sWFileTypes.c_str();
-	opf.lpstrCustomFilter = 0;
-	opf.nMaxCustFilter = 0L;
-	opf.nFilterIndex = 1L;
-	opf.lpstrFile = szWFile;
-	opf.lpstrFile[0] = '\0';
-	opf.nMaxFile = 256;
-	opf.lpstrFileTitle = 0;
-	opf.nMaxFileTitle=50;
-	opf.lpstrInitialDir = sWDirectory.c_str();
-	opf.lpstrTitle = L"Open File";
-	opf.nFileOffset = 0;
-	opf.nFileExtension = 0;
-	opf.lpstrDefExt = L"*.*";
-	opf.lpfnHook = NULL;
-	opf.lCustData = 0;
-	opf.Flags = (OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
-	opf.lStructSize = sizeof(OPENFILENAME);
-
-	if(GetOpenFileName(&opf))
-		return convertstring<wchar_t, tchar>(opf.lpstrFile);
-
-	return NULL;
-}
-
-tstring SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
-{
-	static wchar_t szWFile[256];
-	szWFile[0] = '\0';
-
-	eastl::basic_string<wchar_t> sWFileTypes = convertstring<tchar, wchar_t>(pszFileTypes);
-	eastl::basic_string<wchar_t> sWDirectory = convertstring<tchar, wchar_t>(pszDirectory);
-
-	OPENFILENAME opf;
-	opf.hwndOwner = 0;
-	opf.lpstrFilter = sWFileTypes.c_str();
-	opf.lpstrCustomFilter = 0;
-	opf.nMaxCustFilter = 0L;
-	opf.nFilterIndex = 1L;
-	opf.lpstrFile = szWFile;
-	opf.lpstrFile[0] = '\0';
-	opf.nMaxFile = 256;
-	opf.lpstrFileTitle = 0;
-	opf.nMaxFileTitle=50;
-	opf.lpstrInitialDir = sWDirectory.c_str();
-	opf.lpstrTitle = L"Save File";
-	opf.nFileOffset = 0;
-	opf.nFileExtension = 0;
-	opf.lpstrDefExt = L"*.*";
-	opf.lpfnHook = NULL;
-	opf.lCustData = 0;
-	opf.Flags = (OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR) & ~OFN_ALLOWMULTISELECT;
-	opf.lStructSize = sizeof(OPENFILENAME);
-
-	if(GetSaveFileName(&opf))
-		return convertstring<wchar_t, tchar>(opf.lpstrFile);
-
-	return NULL;
 }
 
 eastl::string GetClipboard()

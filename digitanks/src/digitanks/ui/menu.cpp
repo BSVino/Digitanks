@@ -14,6 +14,7 @@
 #include <models/texturelibrary.h>
 #include <renderer/renderer.h>
 #include <tinker/lobby/lobby_client.h>
+#include <glgui/filedialog.h>
 
 #include <digitanksgame.h>
 #include <digitankslevel.h>
@@ -440,7 +441,12 @@ void CGamesPanel::StrategyCallback()
 
 void CGamesPanel::LoadCallback()
 {
-	tstring sFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
+}
+
+void CGamesPanel::OpenCallback()
+{
+	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
 		return;
 
@@ -529,7 +535,12 @@ void CMultiplayerPanel::CreateStrategyLobbyCallback()
 
 void CMultiplayerPanel::LoadCallback()
 {
-	tstring sFilename = OpenFileDialog(_T("Save Games *.sav\0*.sav\0"), GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")).c_str());
+	glgui::CFileDialog::ShowOpenDialog(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("")), ".sav", this, Open);
+}
+
+void CMultiplayerPanel::OpenCallback()
+{
+	tstring sFilename = glgui::CFileDialog::GetFile();
 	if (!sFilename.length())
 		return;
 
