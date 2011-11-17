@@ -203,6 +203,8 @@ void CBattery::UpgradeComplete()
 	pCollector->SetOrigin(GetOrigin());
 	GetTeam()->AddEntity(pCollector);
 	pCollector->SetSupplier(GetSupplier());
+	if (GetSupplier())
+		GetSupplier()->AddChild(pCollector);
 	pCollector->SetResource(GetResource());
 	GetResource()->SetCollector(pCollector);
 	pCollector->CalculateVisibility();
