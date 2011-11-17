@@ -94,15 +94,12 @@ void OpenBrowser(const tstring& sURL)
 	int iSystem = system(convertstring<tchar, char>(tstring("firefox ") + sURL).c_str());
 }
 
+void OpenExplorer(const tstring& sDirectory)
+{
+	int iSystem = system(convertstring<tchar, char>(tstring("gnome-open ") + sDirectory).c_str());
+}
+
 void CreateMinidump(void* pInfo, tchar* pszDirectory)
-{
-}
-
-tstring OpenFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
-{
-}
-
-tstring SaveFileDialog(const tchar* pszFileTypes, const tchar* pszDirectory)
 {
 }
 
