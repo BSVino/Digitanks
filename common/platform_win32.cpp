@@ -1,20 +1,28 @@
-#include <tinker_platform.h>
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
 
-// tchar.h defines it
-#ifdef _T
-#undef _T
-#endif
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include <tinker_platform.h>
 
 #include <windows.h>
 #include <iphlpapi.h>
 #include <tchar.h>
 #include <dbghelp.h>
-
-// tchar.h defines it so reset it
-#ifdef _T
-#undef _T
-#define _T(x) x
-#endif
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <tstring.h>
 
@@ -76,12 +84,17 @@ void SleepMS(size_t iMS)
 
 void OpenBrowser(const tstring& sURL)
 {
-	ShellExecute(NULL, L"open", convertstring<tchar, wchar_t>(sURL).c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", convert_to_wstring(sURL).c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 void OpenExplorer(const tstring& sDirectory)
 {
-	ShellExecute(NULL, L"open", convertstring<tchar, wchar_t>(sDirectory).c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", convert_to_wstring(sDirectory).c_str(), NULL, NULL, SW_SHOWNORMAL);
+}
+
+void Alert(const tstring& sMessage)
+{
+	MessageBox(NULL, convert_to_wstring(sMessage).c_str(), L"Alert", MB_ICONWARNING|MB_OK);
 }
 
 static int g_iMinidumpsWritten = 0;
@@ -118,7 +131,7 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 			g_iMinidumpsWritten++
 			);
 
-	HANDLE hFile = CreateFile( convertstring<tchar, wchar_t>(GetAppDataDirectory(pszDirectory, convertstring<wchar_t, tchar>(szFileName))).c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile( convert_to_wstring(GetAppDataDirectory(pszDirectory, convert_from_wstring(szFileName))).c_str(), GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
 	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) )
@@ -149,7 +162,7 @@ void CreateMinidump(void* pInfo, tchar* pszDirectory)
 #endif
 }
 
-eastl::string GetClipboard()
+tstring GetClipboard()
 {
 	if (!OpenClipboard(NULL))
 		return "";
@@ -159,12 +172,12 @@ eastl::string GetClipboard()
 	GlobalUnlock(hData);
 	CloseClipboard();
 
-	eastl::string sClipboard(szBuffer);
+	tstring sClipboard(szBuffer);
 
 	return sClipboard;
 }
 
-void SetClipboard(const eastl::string& sBuf)
+void SetClipboard(const tstring& sBuf)
 {
 	if (!OpenClipboard(NULL))
 		return;
@@ -190,7 +203,7 @@ tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 	_wgetenv_s(&iSize, NULL, 0, L"APPDATA");
 
 	tstring sSuffix;
-	sSuffix.append(sDirectory).append(_T("\\")).append(sFile);
+	sSuffix.append(sDirectory).append("\\").append(sFile);
 
 	if (!iSize)
 		return sSuffix;
@@ -201,22 +214,22 @@ tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 
 	_wgetenv_s(&iSize, pszVar, iSize, L"APPDATA");
 
-	tstring sReturn = convertstring<wchar_t, tchar>(pszVar);
+	tstring sReturn = convert_from_wstring(pszVar);
 
 	free(pszVar);
 
-	CreateDirectory(convertstring<tchar, wchar_t>(tstring(sReturn).append(_T("\\")).append(sDirectory)).c_str(), NULL);
+	CreateDirectory(convert_to_wstring(tstring(sReturn).append("\\").append(sDirectory)).c_str(), NULL);
 
-	sReturn.append(_T("\\")).append(sSuffix);
+	sReturn.append("\\").append(sSuffix);
 	return sReturn;
 }
 
-eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
+tvector<tstring> ListDirectory(const tstring& sDirectory, bool bDirectories)
 {
-	eastl::vector<tstring> asResult;
+	tvector<tstring> asResult;
 
 	wchar_t szPath[MAX_PATH];
-	_swprintf(szPath, L"%s\\*", convertstring<tchar, wchar_t>(sDirectory).c_str());
+	_swprintf(szPath, L"%s\\*", convert_to_wstring(sDirectory).c_str());
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(szPath, &fd);
@@ -233,7 +246,7 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 			if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
 				continue;
 
-			asResult.push_back(convertstring<wchar_t, tchar>(fd.cFileName));
+			asResult.push_back(convert_from_wstring(fd.cFileName));
 		} while(FindNextFile(hFind, &fd));
 
 		FindClose(hFind);
@@ -242,10 +255,10 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 	return asResult;
 }
 
-bool IsFile(tstring sPath)
+bool IsFile(const tstring& sPath)
 {
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(convertstring<tchar, wchar_t>(sPath).c_str(), &fd);
+	HANDLE hFind = FindFirstFile(convert_to_wstring(sPath).c_str(), &fd);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 		return false;
@@ -256,10 +269,15 @@ bool IsFile(tstring sPath)
 	return true;
 }
 
-bool IsDirectory(tstring sPath)
+bool IsDirectory(const tstring& sPath)
 {
+	tstring sPathNoSep = sPath;
+
+	while (sPathNoSep.substr(sPathNoSep.length()-1) == DIR_SEP)
+		sPathNoSep = sPathNoSep.substr(0, sPathNoSep.length()-1);
+
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(convertstring<tchar, wchar_t>(sPath).c_str(), &fd);
+	HANDLE hFind = FindFirstFile(convert_to_wstring(sPathNoSep).c_str(), &fd);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 		return false;
@@ -270,12 +288,157 @@ bool IsDirectory(tstring sPath)
 	return false;
 }
 
-void DebugPrint(tstring sText)
+void CreateDirectoryNonRecursive(const tstring& sPath)
 {
-	OutputDebugString(convertstring<tchar, wchar_t>(sText).c_str());
+	CreateDirectory(convert_to_wstring(sPath).c_str(), NULL);
 }
 
-void Exec(eastl::string sLine)
+bool CopyFileTo(const tstring& sFrom, const tstring& sTo, bool bOverride)
+{
+	if (IsFile(sTo) && bOverride)
+		::DeleteFile(convert_to_wstring(sTo).c_str());
+
+	return !!CopyFile(convert_to_wstring(sFrom).c_str(), convert_to_wstring(sTo).c_str(), true);
+}
+
+tstring FindAbsolutePath(const tstring& sPath)
+{
+	wchar_t szPath[MAX_PATH];
+	std::wstring swPath;
+
+	if (!sPath.length())
+		swPath = L".";
+	else
+		swPath = convert_to_wstring(sPath);
+
+	GetFullPathName(swPath.c_str(), MAX_PATH, szPath, nullptr);
+
+	return convert_from_wstring(szPath);
+}
+
+time_t GetFileModificationTime(const char* pszFile)
+{
+	struct stat s;
+	if (stat(pszFile, &s) != 0)
+		return 0;
+
+	return s.st_mtime;
+}
+
+void DebugPrint(const char* pszText)
+{
+	OutputDebugString(convert_to_wstring(pszText).c_str());
+}
+
+void Exec(const tstring& sLine)
 {
 	system(sLine.c_str());
+}
+
+int GetVKForChar(int iChar)
+{
+	switch(iChar)
+	{
+	case ';':
+		return VK_OEM_1;
+
+	case '/':
+		return VK_OEM_2;
+
+	case '`':
+		return VK_OEM_3;
+
+	case '[':
+		return VK_OEM_4;
+
+	case '\\':
+		return VK_OEM_5;
+
+	case ']':
+		return VK_OEM_6;
+
+	case '\'':
+		return VK_OEM_7;
+
+	case '=':
+		return VK_OEM_PLUS;
+
+	case ',':
+		return VK_OEM_COMMA;
+
+	case '-':
+		return VK_OEM_MINUS;
+
+	case '.':
+		return VK_OEM_PERIOD;
+	}
+
+	return iChar;
+}
+
+int GetCharForVK(int iChar)
+{
+	switch(iChar)
+	{
+	case VK_OEM_1:
+		return ';';
+
+	case VK_OEM_2:
+		return '/';
+
+	case VK_OEM_3:
+		return '`';
+
+	case VK_OEM_4:
+		return '[';
+
+	case VK_OEM_5:
+		return '\\';
+
+	case VK_OEM_6:
+		return ']';
+
+	case VK_OEM_7:
+		return '\'';
+
+	case VK_OEM_PLUS:
+		return '=';
+
+	case VK_OEM_COMMA:
+		return ',';
+
+	case VK_OEM_MINUS:
+		return '-';
+
+	case VK_OEM_PERIOD:
+		return '.';
+	}
+
+	return iChar;
+}
+
+static HKL g_iEnglish = LoadKeyboardLayout(L"00000409", 0);
+
+// If we are using a non-qwerty layout, find the qwerty key that matches this letter's position on the keyboard.
+int TranslateKeyToQwerty(int iKey)
+{
+	HKL iCurrent = GetKeyboardLayout(0);
+
+	if (iCurrent == g_iEnglish)
+		return iKey;
+
+	UINT i = MapVirtualKeyEx(GetVKForChar(iKey), MAPVK_VK_TO_VSC, iCurrent);
+	return (int)GetCharForVK(MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, g_iEnglish));
+}
+
+// If we are using a non-qwerty layout, find the localized key that matches this letter's position in qwerty.
+int TranslateKeyFromQwerty(int iKey)
+{
+	HKL iCurrent = GetKeyboardLayout(0);
+
+	if (iCurrent == g_iEnglish)
+		return iKey;
+
+	UINT i = MapVirtualKeyEx(GetVKForChar(iKey), MAPVK_VK_TO_VSC, g_iEnglish);
+	return (int)GetCharForVK(MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, iCurrent));
 }

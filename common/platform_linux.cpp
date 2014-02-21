@@ -1,3 +1,20 @@
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include <tinker_platform.h>
 
 #include <unistd.h>
@@ -5,12 +22,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/sendfile.h>
 #include <dirent.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <linux/if.h>
 #include <X11/Xlib.h>
-
-#include <EASTL/string.h>
 
 #include <strutils.h>
 
@@ -91,23 +108,28 @@ void SleepMS(size_t iMS)
 
 void OpenBrowser(const tstring& sURL)
 {
-	int iSystem = system(convertstring<tchar, char>(tstring("firefox ") + sURL).c_str());
+	int iSystem = system((tstring("firefox ") + sURL).c_str());
 }
 
 void OpenExplorer(const tstring& sDirectory)
 {
-	int iSystem = system(convertstring<tchar, char>(tstring("gnome-open ") + sDirectory).c_str());
+	int iSystem = system((tstring("gnome-open ") + sDirectory).c_str());
+}
+
+void Alert(const tstring& sMessage)
+{
+	fputs(sMessage.c_str(), stderr);
 }
 
 void CreateMinidump(void* pInfo, tchar* pszDirectory)
 {
 }
 
-eastl::string GetClipboard()
+tstring GetClipboard()
 {
 }
 
-void SetClipboard(const eastl::string& sBuf)
+void SetClipboard(const tstring& sBuf)
 {
 }
 
@@ -116,33 +138,33 @@ tstring GetAppDataDirectory(const tstring& sDirectory, const tstring& sFile)
 	char* pszVar = getenv("HOME");
 
 	tstring sSuffix;
-	sSuffix.append(_T(".")).append(sDirectory).append(_T("/")).append(sFile);
+	sSuffix.append(".").append(sDirectory).append("/").append(sFile);
 
-	tstring sReturn(convertstring<char, tchar>(pszVar));
+	tstring sReturn(pszVar);
 
-	mkdir(convertstring<tchar, char>(tstring(sReturn).append(_T("/")).append(_T(".")).append(sDirectory)).c_str(), 0777);
+	mkdir((tstring(sReturn).append("/").append(".").append(sDirectory)).c_str(), 0777);
 
-	sReturn.append(_T("/")).append(sSuffix);
+	sReturn.append("/").append(sSuffix);
 	return sReturn;
 }
 
-eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
+tvector<tstring> ListDirectory(const tstring& sDirectory, bool bDirectories)
 {
-	eastl::vector<tstring> asResult;
+	tvector<tstring> asResult;
 
 	struct dirent *dp;
 
-	DIR *dir = opendir(convertstring<tchar, char>(sDirectory).c_str());
+	DIR *dir = opendir((sDirectory).c_str());
 	while ((dp=readdir(dir)) != NULL)
 	{
 		if (!bDirectories && (dp->d_type == DT_DIR))
 			continue;
 
-		tstring sName = convertstring<char, tchar>(dp->d_name);
-		if (sName == _T("."))
+		tstring sName = dp->d_name;
+		if (sName == ".")
 			continue;
 
-		if (sName == _T(".."))
+		if (sName == "..")
 			continue;
 
 		asResult.push_back(sName);
@@ -152,40 +174,113 @@ eastl::vector<tstring> ListDirectory(tstring sDirectory, bool bDirectories)
 	return asResult;
 }
 
-bool IsFile(tstring sPath)
+bool IsFile(const tstring& sPath)
 {
 	struct stat stFileInfo;
 	bool blnReturn;
 	int intStat;
 
 	// Attempt to get the file attributes
-	intStat = stat(convertstring<tchar, char>(sPath).c_str(), &stFileInfo);
+	intStat = stat(sPath.c_str(), &stFileInfo);
 	if(intStat == 0 && S_ISREG(stFileInfo.st_mode))
 		return true;
 	else
 		return false;
 }
 
-bool IsDirectory(tstring sPath)
+bool IsDirectory(const tstring& sPath)
 {
 	struct stat stFileInfo;
 	bool blnReturn;
 	int intStat;
 
 	// Attempt to get the file attributes
-	intStat = stat(convertstring<tchar, char>(sPath).c_str(), &stFileInfo);
+	intStat = stat(sPath.c_str(), &stFileInfo);
 	if(intStat == 0 && S_ISDIR(stFileInfo.st_mode))
 		return true;
 	else
 		return false;
 }
 
-void DebugPrint(tstring sText)
+void CreateDirectoryNonRecursive(const tstring& sPath)
 {
-	puts(convertstring<tchar, char>(sText).c_str());
+	TUnimplemented();
+
+	mkdir(sPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
-void Exec(eastl::string sLine)
+bool CopyFileTo(const tstring& sFrom, const tstring& sTo, bool bOverride)
+{
+	TUnimplemented();
+
+	int read_fd;
+	int write_fd;
+	struct stat stat_buf;
+	off_t offset = 0;
+
+	read_fd = open(sFrom.c_str(), O_RDONLY);
+
+	if (!read_fd)
+		return false;
+
+	fstat(read_fd, &stat_buf);
+
+	write_fd = open(sTo.c_str(), O_WRONLY | O_CREAT, stat_buf.st_mode);
+	if (!write_fd)
+	{
+		close(read_fd);
+		return false;
+	}
+
+	sendfile(write_fd, read_fd, &offset, stat_buf.st_size);
+
+	close(read_fd);
+	close(write_fd);
+
+	return true;
+}
+
+tstring FindAbsolutePath(const tstring& sPath)
+{
+	TUnimplemented();
+
+	char* pszFullPath = realpath(sPath.c_str(), nullptr);
+	tstring sFullPath = pszFullPath;
+	free(pszFullPath);
+
+	return sFullPath;
+}
+
+time_t GetFileModificationTime(const char* pszFile)
+{
+	TUnimplemented();
+
+	struct stat s;
+	if (stat(pszFile, &s) != 0)
+		return 0;
+
+	return s.st_mtime;
+}
+
+void DebugPrint(const char* pszText)
+{
+	puts(pszText);
+}
+
+void Exec(const tstring& sLine)
 {
 	int iSystem = system((tstring("./") + sLine).c_str());
 }
+
+// Not worried about supporting these on Linux right now.
+int TranslateKeyToQwerty(int iKey)
+{
+	return iKey;
+}
+
+int TranslateKeyFromQwerty(int iKey)
+{
+	return iKey;
+}
+
+

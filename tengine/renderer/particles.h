@@ -1,11 +1,11 @@
 #ifndef DT_PARTICLES_H
 #define DT_PARTICLES_H
 
-#include <EASTL/vector.h>
+#include <tvector.h>
 #include <vector.h>
 #include <color.h>
 #include <geometry.h>
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 #include <renderer/renderer.h>
 
 class CParticle
@@ -26,7 +26,7 @@ public:
 	EAngle							m_angAngleVelocity;
 
 	float							m_flAlpha;
-	float							m_flSpawnTime;
+	double							m_flSpawnTime;
 	float							m_flRadius;
 	float							m_flBillboardYaw;
 };
@@ -43,7 +43,7 @@ public:
 	void							Simulate();
 	void							SpawnParticle();
 
-	void							Render(class CRenderingContext* c);
+	void							Render(class CGameRenderingContext* c);
 
 	void							FollowEntity(CBaseEntity* pFollow);
 	void							SetInheritedVelocity(Vector vecInheritedVelocity);
@@ -59,7 +59,7 @@ public:
 
 protected:
 	CParticleSystem*				m_pSystem;
-	eastl::vector<CSystemInstance*>	m_apChildren;
+	tvector<CSystemInstance*>		m_apChildren;
 
 	Vector							m_vecOrigin;
 	Vector							m_vecInheritedVelocity;
@@ -68,10 +68,10 @@ protected:
 
 	bool							m_bStopped;
 
-	eastl::vector<CParticle>		m_aParticles;
+	tvector<CParticle>				m_aParticles;
 	size_t							m_iNumParticlesAlive;
 
-	float							m_flLastEmission;
+	double							m_flLastEmission;
 	int								m_iTotalEmitted;
 
 	CEntityHandle<CBaseEntity>		m_hFollow;
@@ -84,23 +84,25 @@ class CParticleSystem
 {
 public:
 									CParticleSystem(tstring sName);
+									~CParticleSystem();
 
 public:
 	bool							IsLoaded() { return m_bLoaded; }
 	void							Load();
+	void							Unload();
 
-	tstring					GetName() { return m_sName; }
+	tstring							GetName() { return m_sName; }
 
-	void							SetTexture(tstring sTexture) { m_sTexture = sTexture; };
-	void							SetTexture(size_t iTexture) { m_iTexture = iTexture; };
+	void							SetMaterialName(tstring sMaterial) { m_sMaterial = sMaterial; };
+	void							SetMaterial(const CMaterialHandle& hMaterial) { m_hMaterial = hMaterial; };
 
-	tstring					GetTextureName() { return m_sTexture; }
-	inline size_t					GetTexture() { return m_iTexture; }
+	tstring							GetMaterialName() { return m_sMaterial; }
+	inline const CMaterialHandle&	GetMaterial() { return m_hMaterial; }
 
 	void							SetModel(tstring sModel) { m_sModel = sModel; };
 	void							SetModel(size_t iModel) { m_iModel = iModel; };
 
-	tstring					GetModelName() { return m_sModel; }
+	tstring							GetModelName() { return m_sModel; }
 	inline size_t					GetModel() { return m_iModel; }
 
 	bool							IsRenderable();
@@ -172,15 +174,20 @@ public:
 	size_t							GetNumChildren() { return m_aiChildren.size(); };
 	size_t							GetChild(size_t iChild) { return m_aiChildren[iChild]; };
 
+	void							SetReferences(size_t i) { m_iReferences = i; }
+	size_t							GetReferences() { return m_iReferences; }
+
 protected:
+	size_t							m_iReferences;
+
 	bool							m_bLoaded;
 
-	tstring					m_sName;
+	tstring							m_sName;
 
-	tstring					m_sTexture;
-	size_t							m_iTexture;
+	tstring							m_sMaterial;
+	CMaterialHandle					m_hMaterial;
 
-	tstring					m_sModel;
+	tstring							m_sModel;
 	size_t							m_iModel;
 
 	blendtype_t						m_eBlend;
@@ -205,17 +212,20 @@ protected:
 	bool							m_bRandomModelRoll;
 	bool							m_bRandomAngleVelocity;
 
-	eastl::vector<size_t>			m_aiChildren;
+	tvector<size_t>					m_aiChildren;
 };
 
 class CParticleSystemLibrary
 {
+	friend class CParticleSystem;
+
 public:
 									CParticleSystemLibrary();
 									~CParticleSystemLibrary();
 
 public:
 	static size_t					GetNumParticleSystems() { return Get()->m_apParticleSystems.size(); };
+	static size_t					GetNumParticleSystemsLoaded() { return Get()->m_iParticleSystemsLoaded; };
 
 	size_t							AddParticleSystem(const tstring& sName);
 	size_t							FindParticleSystem(const tstring& sName);
@@ -237,14 +247,18 @@ public:
 
 	static void						ReloadSystems();
 
+	static void						ResetReferenceCounts();
+	static void						ClearUnreferenced();
+
 	static CParticleSystemLibrary*	Get() { return s_pParticleSystemLibrary; };
 
 private:
 	static void						InitSystems();
 
 protected:
-	eastl::vector<CParticleSystem*>	m_apParticleSystems;
-	eastl::map<size_t, CSystemInstance*>	m_apInstances;
+	tvector<CParticleSystem*>		m_apParticleSystems;
+	size_t							m_iParticleSystemsLoaded;
+	tmap<size_t, CSystemInstance*>	m_apInstances;
 	size_t							m_iSystemInstanceIndex;
 
 private:

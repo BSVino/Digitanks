@@ -30,6 +30,23 @@ inline bool CEntityHandle<C>::IsEqual(const C* pOther) const
 }
 
 template <class C>
+inline bool CEntityHandle<C>::IsEqual(C* pOther) const
+{
+	if (!pOther)
+	{
+		if (!CBaseEntity::GetEntity(m_iHandle))
+			return true;
+
+		if (!dynamic_cast<C*>(CBaseEntity::GetEntity(m_iHandle)))
+			return true;
+
+		return m_iHandle == ~0;
+	}
+
+	return m_iHandle == pOther->GetHandle();
+}
+
+template <class C>
 inline C* CEntityHandle<C>::GetPointer() const
 {
 	return static_cast<C*>(CBaseEntity::GetEntity(m_iHandle));

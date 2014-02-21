@@ -5,9 +5,9 @@ REGISTER_ENTITY(CCounter);
 NETVAR_TABLE_BEGIN(CCounter);
 NETVAR_TABLE_END();
 
-SAVEDATA_TABLE_BEGIN(CCounter);
+SAVEDATA_TABLE_BEGIN_EDITOR(CCounter);
 	SAVEDATA_DEFINE_OUTPUT(OnCountReached);
-	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iGoalCount);
+	SAVEDATA_DEFINE_HANDLE(CSaveData::DATA_COPYTYPE, int, m_iGoalCount, "GoalCount");
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, int, m_iCurrentCount);
 SAVEDATA_TABLE_END();
 
@@ -25,7 +25,7 @@ void CCounter::Spawn()
 	SetCurrentCount(0);
 }
 
-void CCounter::SetCount(const eastl::vector<tstring>& sArgs)
+void CCounter::SetCount(const tvector<tstring>& sArgs)
 {
 	TAssert(sArgs.size());
 
@@ -35,7 +35,7 @@ void CCounter::SetCount(const eastl::vector<tstring>& sArgs)
 	SetGoalCount(stoi(sArgs[0]));
 }
 
-void CCounter::Increment(const eastl::vector<tstring>& sArgs)
+void CCounter::Increment(const tvector<tstring>& sArgs)
 {
 	m_iCurrentCount++;
 
@@ -43,7 +43,7 @@ void CCounter::Increment(const eastl::vector<tstring>& sArgs)
 		CallOutput("OnCountReached");
 }
 
-void CCounter::Decrement(const eastl::vector<tstring>& sArgs)
+void CCounter::Decrement(const tvector<tstring>& sArgs)
 {
 	m_iCurrentCount--;
 

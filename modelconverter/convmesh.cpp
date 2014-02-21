@@ -1,7 +1,22 @@
-#include <EASTL/algorithm.h>
-#include <EASTL/utility.h>
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include "convmesh.h"
+
 #include <common.h>
 #include <geometry.h>
 
@@ -31,7 +46,7 @@ void CConversionMesh::CalculateEdgeData()
 	if (!GetNumEdges())
 	{
 		if (m_pScene->m_pWorkListener)
-			m_pScene->m_pWorkListener->SetAction(_T("Generating edges"), GetNumFaces());
+			m_pScene->m_pWorkListener->SetAction("Generating edges", GetNumFaces());
 
 		// For every face, find and create edges.
 		for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
@@ -65,7 +80,7 @@ void CConversionMesh::CalculateEdgeData()
 					continue;
 
 				// Find the other face with these two vertices!
-				eastl::vector<size_t>& aFaces = m_aaVertexFaceMap[pFace->GetVertex(iVertex)->v];
+				tvector<size_t>& aFaces = m_aaVertexFaceMap[pFace->GetVertex(iVertex)->v];
 				for (size_t iFace2 = 0; iFace2 < aFaces.size(); iFace2++)
 				{
 					if (iFace == aFaces[iFace2])
@@ -87,9 +102,9 @@ void CConversionMesh::CalculateEdgeData()
 					// By Jove we found it.
 					iEdge = AddEdge(pFace->GetVertex(iVertex)->v, pFace->GetVertex(iAdjVertex)->v);
 					CConversionEdge* pEdge = GetEdge(iEdge);
-					if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
+					if (find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), iFace) == pEdge->m_aiFaces.end())
 						pEdge->m_aiFaces.push_back(iFace);
-					if (eastl::find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
+					if (find(pEdge->m_aiFaces.begin(), pEdge->m_aiFaces.end(), aFaces[iFace2]) == pEdge->m_aiFaces.end())
 						pEdge->m_aiFaces.push_back(aFaces[iFace2]);
 					AddEdgeToFace(iFace, iEdge);
 					AddEdgeToFace(aFaces[iFace2], iEdge);
@@ -108,7 +123,7 @@ void CConversionMesh::CalculateEdgeData()
 				AddEdgeToFace(iFace, iEdge);
 			}
 
-			TAssert(pFace->GetNumEdges() == pFace->GetNumVertices());
+			TAssertNoMsg(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			if (m_pScene->m_pWorkListener)
 				m_pScene->m_pWorkListener->WorkProgress(iFace);
@@ -117,7 +132,7 @@ void CConversionMesh::CalculateEdgeData()
 	else
 	{
 		if (m_pScene->m_pWorkListener)
-			m_pScene->m_pWorkListener->SetAction(_T("Finding edges"), GetNumFaces());
+			m_pScene->m_pWorkListener->SetAction("Finding edges", GetNumFaces());
 
 		// For every edge, mark the vertexes it contains.
 		for (size_t iFace = 0; iFace < GetNumFaces(); iFace++)
@@ -131,7 +146,7 @@ void CConversionMesh::CalculateEdgeData()
 				pEdge->m_aiFaces.push_back(iFace);
 			}
 
-			TAssert(pFace->GetNumEdges() == pFace->GetNumVertices());
+			TAssertNoMsg(pFace->GetNumEdges() == pFace->GetNumVertices());
 
 			if (m_pScene->m_pWorkListener)
 				m_pScene->m_pWorkListener->WorkProgress(iFace);
@@ -139,7 +154,7 @@ void CConversionMesh::CalculateEdgeData()
 	}
 
 	if (m_pScene->m_pWorkListener)
-		m_pScene->m_pWorkListener->SetAction(_T("Calculating edge data"), GetNumEdges());
+		m_pScene->m_pWorkListener->SetAction("Calculating edge data", GetNumEdges());
 
 	// For every conversion vertex, mark the edges it meets.
 	for (size_t iEdge = 0; iEdge < GetNumEdges(); iEdge++)
@@ -168,11 +183,11 @@ void CConversionMesh::CalculateEdgeData()
 void CConversionMesh::CalculateVertexNormals()
 {
 	if (m_pScene->m_pWorkListener)
-		m_pScene->m_pWorkListener->SetAction(_T("Calculating vertex normals"), GetNumFaces());
+		m_pScene->m_pWorkListener->SetAction("Calculating vertex normals", GetNumFaces());
 
 	m_aNormals.clear();
 
-	eastl::vector<size_t> aNormalFaces;
+	tvector<size_t> aNormalFaces;
 	aNormalFaces.reserve(6);
 
 	// Got to calculate vertex normals now. We have to do it after we read faces because we need all of the face data loaded first.
@@ -219,7 +234,7 @@ void CConversionMesh::CalculateVertexNormals()
 void CConversionMesh::CalculateVertexTangents()
 {
 	if (m_pScene->m_pWorkListener)
-		m_pScene->m_pWorkListener->SetAction(_T("Calculating tangents and bitangents"), GetNumFaces());
+		m_pScene->m_pWorkListener->SetAction("Calculating tangents and bitangents", GetNumFaces());
 
 	m_aTangents.clear();
 	m_aBitangents.clear();
@@ -328,7 +343,7 @@ void CConversionScene::CalculateExtends()
 	}
 
 	if (m_pWorkListener)
-		m_pWorkListener->SetAction(_T("Calculating extends"), GetNumMeshes() + GetNumScenes());
+		m_pWorkListener->SetAction("Calculating extends", GetNumMeshes() + GetNumScenes());
 
 	for (size_t m = 0; m < GetNumMeshes(); m++)
 	{
@@ -411,6 +426,36 @@ size_t CConversionScene::AddScene(const tstring& sName)
 	return m_apScenes.size()-1;
 }
 
+static CConversionSceneNode* FindSceneNode(CConversionSceneNode* pNode, const tstring& sName)
+{
+	for (size_t i = 0; i < pNode->GetNumChildren(); i++)
+	{
+		if (pNode->GetChild(i)->GetName() == sName)
+			return pNode->GetChild(i);
+
+		CConversionSceneNode* pReturn = ::FindSceneNode(pNode->GetChild(i), sName);
+		if (pReturn)
+			return pReturn;
+	}
+
+	return nullptr;
+}
+
+CConversionSceneNode* CConversionScene::FindSceneNode(const tstring& sName)
+{
+	for (size_t i = 0; i < m_apScenes.size(); i++)
+	{
+		if (m_apScenes[i]->GetName() == sName)
+			return m_apScenes[i];
+
+		CConversionSceneNode* pNode = ::FindSceneNode(m_apScenes[i], sName);
+		if (pNode)
+			return pNode;
+	}
+
+	return nullptr;
+}
+
 CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionSceneNode* pScene, CConversionMesh* pMesh, bool bCreate)
 {
 	for (size_t i = 0; i < pScene->GetNumChildren(); i++)
@@ -425,7 +470,7 @@ CConversionSceneNode* CConversionScene::GetDefaultSceneMeshInstance(CConversionS
 		return NULL;
 
 	// Put it in its own child node so that it can be moved around on its own.
-	size_t iChild = pScene->AddChild(_T("Mesh node"));
+	size_t iChild = pScene->AddChild("Mesh node - " + pMesh->GetName());
 	pScene->GetChild(iChild)->AddMeshInstance(FindMesh(pMesh));
 
 	return pScene->GetChild(iChild);
@@ -437,7 +482,7 @@ size_t CConversionScene::AddDefaultSceneMaterial(CConversionSceneNode* pScene, C
 
 	size_t iMaterialStub = pMesh->AddMaterialStub(sName);
 	size_t iMaterial = AddMaterial(sName);
-	pMeshInstance->m_aiMaterialsMap.insert(eastl::pair<size_t, CConversionMaterialMap>(iMaterialStub, CConversionMaterialMap(iMaterialStub, iMaterial)));
+	pMeshInstance->m_aiMaterialsMap[iMaterialStub] = CConversionMaterialMap(iMaterialStub, iMaterial);
 
 	return iMaterialStub;
 }
@@ -627,7 +672,7 @@ CConversionMesh* CConversionMeshInstance::GetMesh()
 
 void CConversionMeshInstance::AddMappedMaterial(size_t s, size_t m)
 {
-	m_aiMaterialsMap.insert(eastl::pair<size_t, CConversionMaterialMap>(s, CConversionMaterialMap(s, m)));
+	m_aiMaterialsMap[s] = CConversionMaterialMap(s, m);
 }
 
 CConversionMaterialMap* CConversionMeshInstance::GetMappedMaterial(size_t m)
@@ -635,7 +680,7 @@ CConversionMaterialMap* CConversionMeshInstance::GetMappedMaterial(size_t m)
 	if (m == m_iLastMap)
 		return m_pLastMap;
 
-	eastl::map<size_t, CConversionMaterialMap>::iterator i = m_aiMaterialsMap.find(m);
+	tmap<size_t, CConversionMaterialMap>::iterator i = m_aiMaterialsMap.find(m);
 
 	m_iLastMap = m;
 
@@ -682,7 +727,7 @@ Vector CConversionMeshInstance::GetBaseVector(int iVector, CConversionVertex* pV
 	else if (iVector == 2)
 		return GetNormal(pVertex->vn);
 
-	TAssert(false);
+	TAssertNoMsg(false);
 	return Vector(0,0,0);
 }
 
@@ -705,7 +750,7 @@ CConversionMaterialMap::CConversionMaterialMap(size_t iStub, size_t iMaterial)
 size_t CConversionMesh::AddVertex(float x, float y, float z)
 {
 	m_aVertices.push_back(Vector(x, y, z));
-	m_aaVertexFaceMap.push_back(eastl::vector<size_t>());
+	m_aaVertexFaceMap.push_back(tvector<size_t>());
 
 	size_t iSize = m_aVertices.size()-1;
 
@@ -737,7 +782,7 @@ size_t CConversionMesh::AddBitangent(float x, float y, float z)
 
 size_t CConversionMesh::AddUV(float u, float v)
 {
-	m_aUVs.push_back(Vector(u, v, 0));
+	m_aUVs.push_back(Vector2D(u, v));
 	return m_aUVs.size()-1;
 }
 
@@ -772,7 +817,7 @@ CConversionMaterialStub::CConversionMaterialStub(const tstring& sName)
 
 Vector CConversionFace::GetNormal()
 {
-	TAssert(GetNumVertices() >= 3);
+	TAssertNoMsg(GetNumVertices() >= 3);
 
 	if (m_bFaceNormal)
 		return m_vecFaceNormal;
@@ -801,7 +846,7 @@ Vector CConversionFace::GetNormal()
 
 Vector CConversionFace::GetCenter()
 {
-	TAssert(GetNumVertices() >= 3);
+	TAssertNoMsg(GetNumVertices() >= 3);
 
 	// Precompute this shit maybe?
 	Vector v(0, 0, 0);
@@ -849,13 +894,13 @@ float CConversionFace::GetUVArea()
 	return flArea;
 }
 
-void CConversionFace::FindAdjacentFaces(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
+void CConversionFace::FindAdjacentFaces(tvector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
 	aResult.push_back(m_iFaceIndex);
 	FindAdjacentFacesInternal(aResult, iVert, bIgnoreCreased);
 }
 
-void CConversionFace::FindAdjacentFacesInternal(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
+void CConversionFace::FindAdjacentFacesInternal(tvector<size_t>& aResult, size_t iVert, bool bIgnoreCreased)
 {
 	size_t iNumEdges = GetNumEdges();
 	CConversionMesh* pMesh = m_pScene->GetMesh(m_iMesh);
@@ -874,7 +919,7 @@ void CConversionFace::FindAdjacentFacesInternal(eastl::vector<size_t>& aResult, 
 		size_t iFaces = pEdge->m_aiFaces.size();
 		for (size_t iEdgeFace = 0; iEdgeFace < iFaces; iEdgeFace++)
 		{
-			eastl::vector<size_t>::iterator it = eastl::find(aResult.begin(), aResult.end(), pEdge->m_aiFaces[iEdgeFace]);
+			tvector<size_t>::iterator it = find(aResult.begin(), aResult.end(), pEdge->m_aiFaces[iEdgeFace]);
 			if (it == aResult.end())
 			{
 				aResult.push_back(pEdge->m_aiFaces[iEdgeFace]);
@@ -907,7 +952,7 @@ size_t CConversionFace::FindVertex(size_t i)
 	return ~0;
 }
 
-eastl::vector<Vector>& CConversionFace::GetVertices(eastl::vector<Vector>& avecVertices)
+tvector<Vector>& CConversionFace::GetVertices(tvector<Vector>& avecVertices)
 {
 	avecVertices.clear();
 
@@ -1028,23 +1073,20 @@ size_t CConversionMesh::AddFace(size_t iMaterial)
 void CConversionMesh::AddVertexToFace(size_t iFace, size_t v, size_t vu, size_t vn)
 {
 	m_aaVertexFaceMap[v].push_back(iFace);
-	m_aFaces[iFace].m_aVertices.push_back();
+	CConversionVertex& oVertex = m_aFaces[iFace].m_aVertices.push_back();
 	m_aFaces[iFace].m_bFaceNormal = false;
 
-	size_t iSize = m_aFaces[iFace].m_aVertices.size()-1;
-	CConversionVertex* pVertex = &m_aFaces[iFace].m_aVertices[iSize];
-
-	pVertex->m_pScene = m_pScene;
-	pVertex->m_iMesh = m_pScene->FindMesh(this);
-	pVertex->v = v;
-	pVertex->vu = vu;
-	pVertex->vn = vn;
+	oVertex.m_pScene = m_pScene;
+	oVertex.m_iMesh = m_pScene->FindMesh(this);
+	oVertex.v = v;
+	oVertex.vu = vu;
+	oVertex.vn = vn;
 }
 
 void CConversionMesh::AddEdgeToFace(size_t iFace, size_t iEdge)
 {
 	m_aFaces[iFace].m_aEdges.push_back(iEdge);
-	TAssert(m_aFaces[iFace].GetNumEdges() <= m_aFaces[iFace].GetNumVertices());
+	TAssertNoMsg(m_aFaces[iFace].GetNumEdges() <= m_aFaces[iFace].GetNumVertices());
 }
 
 void CConversionMesh::RemoveFace(size_t iFace)
@@ -1079,7 +1121,7 @@ Vector CConversionMesh::GetBaseVector(int iVector, CConversionVertex* pVertex)
 	else if (iVector == 2)
 		return GetNormal(pVertex->vn);
 
-	TAssert(false);
+	TAssertNoMsg(false);
 	return Vector(0,0,0);
 }
 

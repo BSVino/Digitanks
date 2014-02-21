@@ -1,14 +1,12 @@
 #ifndef _TINKER_REPLICATION_H
 #define _TINKER_REPLICATION_H
 
-#include <EASTL/map.h>
-#include <EASTL/vector.h>
-#include <EASTL/string.h>
-
 #include <common.h>
 #include <color.h>
-#include <vector.h>
+#include <tengine_config.h>
 #include <strutils.h>
+
+#include <tinker/shell.h>
 
 #include "network.h"
 
@@ -56,6 +54,7 @@ public:
 
 	virtual void*		Serialize(size_t& iSize) { return NULL; }
 	virtual void		Unserialize(size_t iDataSize, void* pValue) {}
+	virtual void		Set(size_t iDataSize, void* pValue) {}
 
 public:
 	bool				m_bDirty;
@@ -202,9 +201,12 @@ public:
 
 	virtual void*		Serialize(size_t& iSize);
 	virtual void		Unserialize(size_t iDataSize, void* pValue);
+	virtual void		Set(size_t iDataSize, void* pValue);
 
 	void				SetEpsilon(float flEpsilon) { m_flEpsilon = flEpsilon; }
 	float				GetEpsilon() { return m_flEpsilon; }
+
+	bool				IsInitialized() { return m_bInitialized; }
 
 public:
 	// Everything below will be serialized, change serialization functions otherwise.
@@ -214,10 +216,10 @@ public:
 };
 
 template <>
-inline const float& CNetworkedVariable<float>::operator=(const float& c)
+inline const TFloat& CNetworkedVariable<TFloat>::operator=(const TFloat& c)
 {
-	float flDifference = c - m_oVariable;
-	if (m_bInitialized && ((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
+	TFloat flDifference = c - m_oVariable;
+	if (m_bInitialized && ((flDifference>TFloat(0))?flDifference:-flDifference) < m_flEpsilon)
 		return m_oVariable;
 
 	m_bDirty = true;
@@ -227,10 +229,10 @@ inline const float& CNetworkedVariable<float>::operator=(const float& c)
 }
 
 template <>
-inline const float& CNetworkedVariable<float>::operator=(const CNetworkedVariable<float>& c)
+inline const TFloat& CNetworkedVariable<TFloat>::operator=(const CNetworkedVariable<TFloat>& c)
 {
-	float flDifference = c.m_oVariable - m_oVariable;
-	if (m_bInitialized && ((flDifference>0)?flDifference:-flDifference) < m_flEpsilon)
+	TFloat flDifference = c.m_oVariable - m_oVariable;
+	if (m_bInitialized && ((flDifference>TFloat(0))?flDifference:-flDifference) < m_flEpsilon)
 		return m_oVariable;
 
 	m_bDirty = true;
@@ -281,13 +283,22 @@ inline void CNetworkedVariable<C>::Unserialize(size_t iDataSize, void* pValue)
 }
 
 template <class C>
-class CNetworkedSTLVector : public CNetworkedVariable<eastl::vector<C> >
+inline void CNetworkedVariable<C>::Set(size_t iDataSize, void* pValue)
+{
+	TAssert(iDataSize == sizeof(m_oVariable));
+	C* pTValue = (C*)pValue;
+	m_oVariable = *pTValue;
+	m_bInitialized = true;
+}
+
+template <class C>
+class CNetworkedSTLVector : public CNetworkedVariable<tvector<C> >
 {
 public:
 	// For some reason GCC 4.4.3 won't build without these.
-	using CNetworkedVariable<eastl::vector<C> >::m_bInitialized;
-	using CNetworkedVariable<eastl::vector<C> >::m_bDirty;
-	using CNetworkedVariable<eastl::vector<C> >::m_oVariable;
+	using CNetworkedVariable<tvector<C> >::m_bInitialized;
+	using CNetworkedVariable<tvector<C> >::m_bDirty;
+	using CNetworkedVariable<tvector<C> >::m_oVariable;
 
 	CNetworkedSTLVector()
 	{
@@ -329,7 +340,7 @@ public:
 		return m_oVariable.push_back();
 	}
 
-	inline typename eastl::vector<C>::iterator erase(size_t iPosition)
+	inline typename tvector<C>::iterator erase(size_t iPosition)
 	{
 		m_bDirty = true;
 		return m_oVariable.erase(m_oVariable.begin()+iPosition);
@@ -411,7 +422,7 @@ protected:
 	C	m_oVariable[iArraySize];
 };
 
-class CNetworkedVector : public CNetworkedVariable<Vector>
+class CNetworkedVector : public CNetworkedVariable<TVector>
 {
 public:
 	CNetworkedVector()
@@ -420,9 +431,9 @@ public:
 		m_bInitialized = true;
 	}
 
-	inline const CNetworkedVector& operator=(const Vector v)
+	inline const CNetworkedVector& operator=(const TVector& v)
 	{
-		if ((m_oVariable - v).LengthSqr() > 0)
+		if (!m_bInitialized || (m_oVariable - v).LengthSqr() > TFloat(0.0f))
 		{
 			m_bDirty = true;
 			m_oVariable = v;
@@ -433,22 +444,22 @@ public:
 		return *this;
 	}
 
-	inline Vector operator*(float f)
+	inline TVector operator*(TFloat f)
 	{
 		return m_oVariable * f;
 	}
 
-	inline Vector operator*(float f) const
+	inline TVector operator*(TFloat f) const
 	{
 		return m_oVariable * f;
 	}
 
-	inline Vector operator/(float f)
+	inline TVector operator/(TFloat f)
 	{
 		return m_oVariable / f;
 	}
 
-	inline Vector operator/(float f) const
+	inline TVector operator/(TFloat f) const
 	{
 		return m_oVariable / f;
 	}

@@ -1,7 +1,7 @@
-#ifndef TENGINE_COUNTER_H
-#define TENGINE_COUNTER_H
+#ifndef _COUNTER_H
+#define _COUNTER_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 
 class CCounter : public CBaseEntity
 {

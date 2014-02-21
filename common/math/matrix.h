@@ -1,3 +1,20 @@
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #ifndef LW_MATRIX_H
 #define LW_MATRIX_H
 
@@ -5,14 +22,43 @@
 
 // The red pill
 
+class Quaternion;
+class Ray;
+
+// This Matrix4x4 class is for use in right-handed coordinate spaces with Z up.
+// A column is in sequential memory positions (m[0][0], m[0][1], m[0][2], m[0][3])
+// A row is in strided positions (m[0][0], m[1][0], m[2][0], m[3][0])
+// Its values are stored with Forward/Up/Right vectors residing in the columns 0, 1, 2
+// Its translations are stored in the fourth column
+// Transformations are done on column vectors on the right
+
+// The notation of each array location
+// [00 10 20 30]
+// [01 11 21 31]
+// [02 12 22 32]
+// [03 13 23 33]
+
+// The layout in that notation of the base vectors (f l u t = forward left up translation)
+// [fx lx ux tx]
+// [fy ly uy ty]
+// [fz lz uz tz]
+// [fw lw uw tw]
+
+class DoubleMatrix4x4;
+
 class Matrix4x4
 {
 public:
-				Matrix4x4() { Identity(); }
-				Matrix4x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33);
-				Matrix4x4(const Matrix4x4& m);
-				Matrix4x4(float* aflValues);
+	            Matrix4x4() { Identity(); }
+	explicit    Matrix4x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33);
+	            Matrix4x4(const Matrix4x4& m);
+	            Matrix4x4(const DoubleMatrix4x4& m);
+	explicit    Matrix4x4(float* aflValues);
+	explicit    Matrix4x4(const Vector& vecForward, const Vector& vecLeft, const Vector& vecUp, const Vector& vecPosition = Vector(0,0,0));
+	explicit    Matrix4x4(const Quaternion& q);
+	explicit    Matrix4x4(const EAngle& angDirection, const Vector& vecPosition=Vector(0,0,0));
 
+public:
 	void		Identity();
 	void		Init(const Matrix4x4& m);
 	void		Init(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33);
@@ -24,44 +70,79 @@ public:
 	// Simple matrix operations
 	Matrix4x4	operator*(float f) const;
 	Matrix4x4	operator+(const Matrix4x4& m) const;
+	Matrix4x4	operator-(const Matrix4x4& m) const;
 
 	// Set a transformation
 	void		SetTranslation(const Vector& vecPos);
-	void		SetRotation(const EAngle& angDir);
-	void		SetRotation(float flAngle, const Vector& vecAxis);
-	void		SetOrientation(const Vector& vecDir);
+	void		SetAngles(const EAngle& angDir);
+	void		SetRotation(float flAngle, const Vector& vecAxis);		// Assumes the axis is a normalized vector.
+	void		SetRotation(const Quaternion& q);
+	void		SetOrientation(const Vector& vecDir, const Vector& vecUp = Vector(0, 0, 1));
 	void		SetScale(const Vector& vecScale);
-	void		SetReflection(const Vector& vecPlane);
+	void		SetReflection(const Vector& vecPlaneNormal);			// Reflection around a plane with this normal which passes through the center of the local space.
+																		// Assumes the plane normal passed in is normalized.
+
+	static Matrix4x4	ProjectPerspective(float flFOV, float flAspectRatio, float flNear, float flFar);							// Just like gluPerspectives
+	static Matrix4x4	ProjectFrustum(float flLeft, float flRight, float flBottom, float flTop, float flNear, float flFar);		// Just like glFrustum
+	static Matrix4x4	ProjectOrthographic(float flLeft, float flRight, float flBottom, float flTop, float flNear, float flFar);	// Just like glOrtho
+	static Matrix4x4	ConstructCameraView(const Vector& vecPosition, const Vector& vecDirection, const Vector& vecUp);			// Like gluLookAt but a direction parameter instead of target
 
 	// Add a translation
 	Matrix4x4	operator+=(const Vector& v);
+	Matrix4x4   operator-(const Vector& v) const;
+
 	// Add a rotation
 	Matrix4x4	operator+=(const EAngle& a);
 
 	// Add a transformation
-	Matrix4x4	operator*(const Matrix4x4& t);
+	Matrix4x4	operator*(const Matrix4x4& t) const;
 	Matrix4x4	operator*=(const Matrix4x4& t);
 
-	// Add a transformation
-	Matrix4x4	AddScale(const Vector& vecScale);
+	bool		operator==(const Matrix4x4& t) const;
+	bool		Equals(const Matrix4x4& t, float flEp = 0.000001f) const;
 
-	Vector		GetTranslation();
-	EAngle		GetAngles();
+	// Add a transformation
+	Matrix4x4	AddTranslation(const Vector& v);
+	Matrix4x4	AddAngles(const EAngle& a);
+	Matrix4x4	AddScale(const Vector& vecScale);
+	Matrix4x4	AddReflection(const Vector& vecPlaneNormal);
+
+	Vector		GetTranslation() const;
+	EAngle		GetAngles() const;
+	Vector      GetScale() const;
 
 	// Transform a vector
 	Vector		operator*(const Vector& v) const;
+	Vector		TransformVector(const Vector& v) const;		// Same as homogenous vector with w=0 transform, no translation.
+															// You want to use this for directional vectors such as normals and velocities because translations will change their length.
+															// It's not immune to scaling though! A matrix with scaling will output a vector of different length than the input.
 
-	Vector4D	GetRow(int i);
-	Vector4D	GetColumn(int i);
-	void		SetColumn(int i, Vector4D vecColumn);
-	void		SetColumn(int i, Vector vecColumn);
+	Vector4D	operator*(const Vector4D& v) const;
+	const Ray   operator*(const Ray& r) const;
 
-	void		InvertTR();
+	// Try not to use these in case the underlying format changes. Use SetXVector() below.
+	Vector4D	GetColumn(int i) const;
+	void		SetColumn(int i, const Vector4D& vecColumn);
+	void		SetColumn(int i, const Vector& vecColumn);
 
-	float		Trace();
-	Vector		RotationAxis();
+	void		SetForwardVector(const Vector& vecForward);
+	void		SetLeftVector(const Vector& vecLeft);
+	void		SetUpVector(const Vector& vecUp);
+	Vector		GetForwardVector() const { return Vector((float*)&m[0][0]); }
+	Vector		GetLeftVector() const { return Vector((float*)&m[1][0]); }
+	Vector		GetUpVector() const { return Vector((float*)&m[2][0]); }
+
+	void		InvertRT();
+	Matrix4x4	InvertedRT() const;
+
+	float		Trace() const;
 
 	operator float*()
+	{
+		return(&m[0][0]);
+	}
+
+	operator const float*() const
 	{
 		return(&m[0][0]);
 	}
@@ -69,358 +150,40 @@ public:
 	float		m[4][4];
 };
 
-inline Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
+// Yes, I know, templates do this, but I really want to avoid moving all the matrix stuff into a header file.
+class DoubleMatrix4x4
 {
-	Init(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-}
+public:
+	                DoubleMatrix4x4() { Identity(); }
+	                DoubleMatrix4x4(const Matrix4x4& m);
 
-inline Matrix4x4::Matrix4x4(const Matrix4x4& i)
-{
-	m[0][0] = i.m[0][0]; m[0][1] = i.m[0][1]; m[0][2] = i.m[0][2]; m[0][3] = i.m[0][3];
-	m[1][0] = i.m[1][0]; m[1][1] = i.m[1][1]; m[1][2] = i.m[1][2]; m[1][3] = i.m[1][3];
-	m[2][0] = i.m[2][0]; m[2][1] = i.m[2][1]; m[2][2] = i.m[2][2]; m[2][3] = i.m[2][3];
-	m[3][0] = i.m[3][0]; m[3][1] = i.m[3][1]; m[3][2] = i.m[3][2]; m[3][3] = i.m[3][3];
-}
+public:
+	void            Identity();
 
-inline Matrix4x4::Matrix4x4(float* aflValues)
-{
-	memcpy(&m[0][0], aflValues, sizeof(float)*16);
-}
+	bool            operator==(const DoubleMatrix4x4& t) const;
 
-inline void Matrix4x4::Identity()
-{
-	memset(this, 0, sizeof(Matrix4x4));
+	// Set a transformation
+	void            SetTranslation(const DoubleVector& vecPos);
 
-	m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1.0f;
-}
+	DoubleMatrix4x4 operator-(const DoubleVector& v) const;
 
-inline void Matrix4x4::Init(const Matrix4x4& i)
-{
-	memcpy(&m[0][0], &i.m[0][0], sizeof(float)*16);
-}
+	DoubleVector    GetTranslation() const;
 
-inline void Matrix4x4::Init(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
-{
-	m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m03;
-	m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
-	m[2][0] = m20; m[2][1] = m21; m[2][2] = m22; m[2][3] = m23;
-	m[3][0] = m30; m[3][1] = m31; m[3][2] = m32; m[3][3] = m33;
-}
+	DoubleMatrix4x4 operator*(const DoubleMatrix4x4& t) const;
+	DoubleVector    operator*(const DoubleVector& v) const;
+	DoubleVector    TransformVector(const DoubleVector& v) const;		// Same as homogenous vector with w=0 transform, no translation.
 
-inline bool Matrix4x4::IsIdentity() const
-{
-	if (!(m[0][0] == 1 && m[1][1] == 1 && m[2][2] == 1 && m[3][3] == 1))
-		return false;
+	void            SetForwardVector(const DoubleVector& vecForward);
+	void            SetLeftVector(const DoubleVector& vecLeft);
+	void            SetUpVector(const DoubleVector& vecUp);
+	DoubleVector    GetForwardVector() const { return DoubleVector((double*)&m[0][0]); }
+	DoubleVector    GetLeftVector() const { return DoubleVector((double*)&m[1][0]); }
+	DoubleVector    GetUpVector() const { return DoubleVector((double*)&m[2][0]); }
 
-	if (!(m[0][1] == 0 && m[0][2] == 0 && m[0][3] == 0))
-		return false;
+	DoubleMatrix4x4 InvertedRT() const;
 
-	if (!(m[1][0] == 0 && m[1][2] == 0 && m[1][3] == 0))
-		return false;
-
-	if (!(m[2][0] == 0 && m[2][1] == 0 && m[2][3] == 0))
-		return false;
-
-	if (!(m[3][0] == 0 && m[3][1] == 0 && m[3][2] == 0))
-		return false;
-
-	return true;
-}
-
-inline Matrix4x4 Matrix4x4::Transposed() const
-{
-	Matrix4x4 r;
-	r.m[0][0] = m[0][0]; r.m[1][0] = m[0][1]; r.m[2][0] = m[0][2]; r.m[3][0] = m[0][3];
-	r.m[0][1] = m[1][0]; r.m[1][1] = m[1][1]; r.m[2][1] = m[1][2]; r.m[3][1] = m[1][3];
-	r.m[0][2] = m[2][0]; r.m[1][2] = m[2][1]; r.m[2][2] = m[2][2]; r.m[3][2] = m[2][3];
-	r.m[0][3] = m[3][0]; r.m[1][3] = m[3][1]; r.m[2][3] = m[3][2]; r.m[3][3] = m[3][3];
-	return r;
-}
-
-inline Matrix4x4 Matrix4x4::operator*(float f) const
-{
-	Matrix4x4 r;
-
-	r.m[0][0] = m[0][0]*f;
-	r.m[0][1] = m[0][1]*f;
-	r.m[0][2] = m[0][2]*f;
-	r.m[0][3] = m[0][3]*f;
-
-	r.m[1][0] = m[1][0]*f;
-	r.m[1][1] = m[1][1]*f;
-	r.m[1][2] = m[1][2]*f;
-	r.m[1][3] = m[1][3]*f;
-
-	r.m[2][0] = m[2][0]*f;
-	r.m[2][1] = m[2][1]*f;
-	r.m[2][2] = m[2][2]*f;
-	r.m[2][3] = m[2][3]*f;
-
-	r.m[3][0] = m[3][0]*f;
-	r.m[3][1] = m[3][1]*f;
-	r.m[3][2] = m[3][2]*f;
-	r.m[3][3] = m[3][3]*f;
-
-	return r;
-}
-
-inline Matrix4x4 Matrix4x4::operator+(const Matrix4x4& t) const
-{
-	Matrix4x4 r;
-
-	r.m[0][0] = m[0][0]+t.m[0][0];
-	r.m[0][1] = m[0][1]+t.m[0][1];
-	r.m[0][2] = m[0][2]+t.m[0][2];
-	r.m[0][3] = m[0][3]+t.m[0][3];
-
-	r.m[1][0] = m[1][0]+t.m[1][0];
-	r.m[1][1] = m[1][1]+t.m[1][1];
-	r.m[1][2] = m[1][2]+t.m[1][2];
-	r.m[1][3] = m[1][3]+t.m[1][3];
-
-	r.m[2][0] = m[2][0]+t.m[2][0];
-	r.m[2][1] = m[2][1]+t.m[2][1];
-	r.m[2][2] = m[2][2]+t.m[2][2];
-	r.m[2][3] = m[2][3]+t.m[2][3];
-
-	r.m[3][0] = m[3][0]+t.m[3][0];
-	r.m[3][1] = m[3][1]+t.m[3][1];
-	r.m[3][2] = m[3][2]+t.m[3][2];
-	r.m[3][3] = m[3][3]+t.m[3][3];
-
-	return r;
-}
-
-inline void Matrix4x4::SetTranslation(const Vector& vecPos)
-{
-	m[0][3] = vecPos.x;
-	m[1][3] = vecPos.y;
-	m[2][3] = vecPos.z;
-}
-
-inline void Matrix4x4::SetRotation(const EAngle& angDir)
-{
-	float sp = sin(angDir.p * M_PI/180);
-	float sy = sin(angDir.y * M_PI/180);
-	float sr = sin(angDir.r * M_PI/180);
-	float cp = cos(angDir.p * M_PI/180);
-	float cy = cos(angDir.y * M_PI/180);
-	float cr = cos(angDir.r * M_PI/180);
-
-	m[0][0] = cy*cp;
-	m[0][1] = -sr*sy*cp-cr*sp;
-	m[0][2] = -cr*sy*cp+sr*sp;
-	m[1][0] = cy*sp;
-	m[1][1] = -sr*sy*sp+cr*cp;
-	m[1][2] = -cr*sy*sp-sr*cp;
-	m[2][0] = sy;
-	m[2][1] = sr*cy;
-	m[2][2] = cr*cy;
-}
-
-inline void Matrix4x4::SetRotation(float flAngle, const Vector& v)
-{
-	float c = cos(flAngle*M_PI/180);
-	float s = sin(flAngle*M_PI/180);
-	float t = 1-c;
-
-	float xyt = v.x*v.y*t;
-	float zs = v.z*s;
-	float xzt = v.x*v.z*t;
-	float ys = v.y*s;
-	float yzt = v.y*v.z*t;
-	float xs = v.x*s;
-
-	Init(c + v.x*v.x*t, xyt - zs, xzt - ys, 0, xyt + zs, c + v.y*v.y*t, yzt - xs, 0, xzt - ys, yzt + xs, c + v.z*v.z*t, 0, 0, 0, 0, 1);
-}
-
-inline void Matrix4x4::SetOrientation(const Vector& vecDir)
-{
-	Vector vecRight, vecUp;
-	vecUp = Vector(0, 1, 0);
-	if (vecDir.DistanceSqr(vecUp) > 0.001f && vecDir.DistanceSqr(-vecUp) > 0.001f)
-		vecRight = vecDir.Cross(vecUp).Normalized();
-	else
-		vecRight = Vector(1, 0, 0);
-
-	vecUp = vecRight.Cross(vecDir).Normalized();
-
-	m[0][0] = vecRight.x;
-	m[1][0] = vecRight.y;
-	m[2][0] = vecRight.z; 
-	m[0][1] = vecUp.x;
-	m[1][1] = vecUp.y;
-	m[2][1] = vecUp.z; 
-	m[0][2] = -vecDir.x;
-	m[1][2] = -vecDir.y;
-	m[2][2] = -vecDir.z; 
-
-	m[3][0] = m[3][1] = m[3][2] = 0.0f;
-	m[0][3] = m[1][3] = m[2][3] = 0.0f;
-	m[3][3] = 1.0f;
-}
-
-inline void Matrix4x4::SetScale(const Vector& vecScale)
-{
-	m[0][0] = vecScale.x;
-	m[1][1] = vecScale.y;
-	m[2][2] = vecScale.z;
-}
-
-inline void Matrix4x4::SetReflection(const Vector& vecPlane)
-{
-	m[0][0] = 1 - 2 * vecPlane.x * vecPlane.x;
-	m[1][1] = 1 - 2 * vecPlane.y * vecPlane.y;
-	m[2][2] = 1 - 2 * vecPlane.z * vecPlane.z;
-	m[1][0] = m[0][1] = -2 * vecPlane.x * vecPlane.y;
-	m[2][0] = m[0][2] = -2 * vecPlane.x * vecPlane.z;
-	m[1][2] = m[2][1] = -2 * vecPlane.y * vecPlane.z;
-}
-
-inline Matrix4x4 Matrix4x4::operator+=(const Vector& v)
-{
-	Matrix4x4 r = *this;
-	r.m[0][3] += v.x;
-	r.m[1][3] += v.y;
-	r.m[2][3] += v.z;
-
-	Init(r);
-
-	return r;
-}
-
-inline Matrix4x4 Matrix4x4::operator+=(const EAngle& a)
-{
-	Matrix4x4 r;
-	r.SetRotation(a);
-	(*this) *= r;
-
-	return *this;
-}
-
-inline Matrix4x4 Matrix4x4::operator*(const Matrix4x4& t)
-{
-	Matrix4x4 r;
-
-	r.m[0][0] = m[0][0]*t.m[0][0] + m[0][1]*t.m[1][0] + m[0][2]*t.m[2][0] + m[0][3]*t.m[3][0];
-	r.m[0][1] = m[0][0]*t.m[0][1] + m[0][1]*t.m[1][1] + m[0][2]*t.m[2][1] + m[0][3]*t.m[3][1];
-	r.m[0][2] = m[0][0]*t.m[0][2] + m[0][1]*t.m[1][2] + m[0][2]*t.m[2][2] + m[0][3]*t.m[3][2];
-	r.m[0][3] = m[0][0]*t.m[0][3] + m[0][1]*t.m[1][3] + m[0][2]*t.m[2][3] + m[0][3]*t.m[3][3];
-
-	r.m[1][0] = m[1][0]*t.m[0][0] + m[1][1]*t.m[1][0] + m[1][2]*t.m[2][0] + m[1][3]*t.m[3][0];
-	r.m[1][1] = m[1][0]*t.m[0][1] + m[1][1]*t.m[1][1] + m[1][2]*t.m[2][1] + m[1][3]*t.m[3][1];
-	r.m[1][2] = m[1][0]*t.m[0][2] + m[1][1]*t.m[1][2] + m[1][2]*t.m[2][2] + m[1][3]*t.m[3][2];
-	r.m[1][3] = m[1][0]*t.m[0][3] + m[1][1]*t.m[1][3] + m[1][2]*t.m[2][3] + m[1][3]*t.m[3][3];
-
-	r.m[2][0] = m[2][0]*t.m[0][0] + m[2][1]*t.m[1][0] + m[2][2]*t.m[2][0] + m[2][3]*t.m[3][0];
-	r.m[2][1] = m[2][0]*t.m[0][1] + m[2][1]*t.m[1][1] + m[2][2]*t.m[2][1] + m[2][3]*t.m[3][1];
-	r.m[2][2] = m[2][0]*t.m[0][2] + m[2][1]*t.m[1][2] + m[2][2]*t.m[2][2] + m[2][3]*t.m[3][2];
-	r.m[2][3] = m[2][0]*t.m[0][3] + m[2][1]*t.m[1][3] + m[2][2]*t.m[2][3] + m[2][3]*t.m[3][3];
-
-	r.m[3][0] = m[3][0]*t.m[0][0] + m[3][1]*t.m[1][0] + m[3][2]*t.m[2][0] + m[3][3]*t.m[3][0];
-	r.m[3][1] = m[3][0]*t.m[0][1] + m[3][1]*t.m[1][1] + m[3][2]*t.m[2][1] + m[3][3]*t.m[3][1];
-	r.m[3][2] = m[3][0]*t.m[0][2] + m[3][1]*t.m[1][2] + m[3][2]*t.m[2][2] + m[3][3]*t.m[3][2];
-	r.m[3][3] = m[3][0]*t.m[0][3] + m[3][1]*t.m[1][3] + m[3][2]*t.m[2][3] + m[3][3]*t.m[3][3];
-
-	return r;
-}
-
-inline Matrix4x4 Matrix4x4::operator*=(const Matrix4x4& t)
-{
-	Matrix4x4 r;
-	r.Init(*this);
-
-	Init(r*t);
-
-	return *this;
-}
-
-inline Matrix4x4 Matrix4x4::AddScale(const Vector& vecScale)
-{
-	Matrix4x4 r;
-	r.SetScale(vecScale);
-	(*this) *= r;
-
-	return *this;
-}
-
-inline Vector Matrix4x4::GetTranslation()
-{
-	return Vector(m[0][3], m[1][3], m[2][3]);
-}
-
-inline EAngle Matrix4x4::GetAngles()
-{
-	// Clamp to [-1, 1] looping
-	float flPitch = fmod(m[0][1], 2);
-	if (flPitch > 1)
-		flPitch -= 2;
-	else if (flPitch < -1)
-		flPitch += 2;
-
-	return EAngle(asin(flPitch) * 180/M_PI, atan2(-m[0][2], m[0][0]) * 180/M_PI, atan2(-m[2][1], m[1][1]) * 180/M_PI);
-}
-
-inline Vector Matrix4x4::operator*(const Vector& v) const
-{
-	Vector vecResult;
-	vecResult.x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3];
-	vecResult.y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3];
-	vecResult.z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3];
-	return vecResult;
-}
-
-inline Vector4D Matrix4x4::GetRow(int i)
-{
-	return Vector4D(m[i][0], m[i][1], m[i][2], m[i][3]);
-}
-
-inline Vector4D Matrix4x4::GetColumn(int i)
-{
-	return Vector4D(m[0][i], m[1][i], m[2][i], m[3][i]);
-}
-
-inline void Matrix4x4::SetColumn(int i, Vector4D vecColumn)
-{
-	m[0][i] = vecColumn.x;
-	m[1][i] = vecColumn.y;
-	m[2][i] = vecColumn.z;
-	m[3][i] = vecColumn.w;
-}
-
-inline void Matrix4x4::SetColumn(int i, Vector vecColumn)
-{
-	m[0][i] = vecColumn.x;
-	m[1][i] = vecColumn.y;
-	m[2][i] = vecColumn.z;
-}
-
-// Not a true inversion, only works if the matrix is a translation/rotation matrix.
-inline void Matrix4x4::InvertTR()
-{
-	Matrix4x4 t;
-
-	for (int h = 0; h < 3; h++)
-		for (int v = 0; v < 3; v++)
-			t.m[h][v] = m[v][h];
-
-	float fl03 = m[0][3];
-	float fl13 = m[1][3];
-	float fl23 = m[2][3];
-
-	Init(t);
-
-	SetColumn(3, t*Vector(-fl03, -fl13, -fl23));
-}
-
-inline float Matrix4x4::Trace()
-{
-	return m[0][0] + m[1][1] + m[2][2];
-}
-
-inline Vector Matrix4x4::RotationAxis()
-{
-	return Vector(m[2][1] - m[1][2], m[0][2] - m[2][0], m[1][0] + m[0][1]).Normalized();
-}
+public:
+	double          m[4][4];
+};
 
 #endif

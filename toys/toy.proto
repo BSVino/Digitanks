@@ -1,0 +1,52 @@
+package tinker.protobuf;
+
+import "common/protobuf/math.proto";
+
+// Base data format - Information about the model
+message ToyBase {
+	optional AABB visual_bounds = 1;
+	optional AABB physics_bounds = 2;
+
+	message Material {
+		required string name = 1;                           // Name of the material to be displayed.
+		required uint32 vertex_count = 2;                   // How many verts are there in the data?
+		required uint32 vertex_size_bytes = 3;              // How big in bytes is a vertex in this array?
+		optional int32 uv_offset = 5 [default=-1];          // The position vector is assumed to be at offset 0 bytes.
+		optional int32 normal_offset = 6 [default=-1];      // All other entries are optional. They can be set to -1, indicating that they're not present.
+		optional int32 tangent_offset = 7 [default=-1];     // All of these offsets are in bytes.
+		optional int32 bitangent_offset = 8 [default=-1];
+	}
+
+	repeated Material material = 3;
+}
+
+// Mesh data format - Stuff that can be freed once it's loaded into the engine. Vertex data, materials, triangles, uv's, normals, etc
+message ToyMesh {
+	message Material {
+		repeated float data = 1 [packed=true];
+	}
+
+	repeated Material material = 1;
+}
+
+// Phys data format - Physics stuff that must remain in memory so the physics simulation can use it
+message ToyPhys {
+	repeated float vert = 1 [packed=true];
+	repeated int32 index = 2 [packed=true];
+	repeated TRS box = 3;
+}
+
+// Area data format - Scene areas used for scene management
+message ToyArea {
+	required AABB size = 1;
+	repeated int32 neighbor = 2 [packed=true];
+	required string file = 3;
+}
+
+message Toy
+{
+	required ToyBase base = 1;
+	optional ToyMesh mesh = 2;
+	optional ToyPhys phys = 3;
+	repeated ToyArea area = 4;
+}

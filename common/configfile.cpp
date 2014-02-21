@@ -13,7 +13,7 @@ ConfigFile::ConfigFile( tstring filename, tstring delimiter,
 {
 	// Construct a ConfigFile, getting keys and values from given file
 	
-	std::basic_ifstream<tchar> in( convertstring<tchar, char>(filename).c_str() );
+	std::basic_ifstream<tchar> in( filename.c_str() );
 
 	fileValid = !!in;
 
@@ -23,7 +23,7 @@ ConfigFile::ConfigFile( tstring filename, tstring delimiter,
 
 
 ConfigFile::ConfigFile()
-	: myDelimiter( tstring(1,_T('=')) ), myComment( tstring(1,_T('#')) )
+	: myDelimiter( tstring(1,'=') ), myComment( tstring(1,'#') )
 {
 	// Construct a ConfigFile without a file; empty
 
@@ -51,7 +51,7 @@ bool ConfigFile::keyExists( const tstring& key ) const
 void ConfigFile::trim( tstring& s )
 {
 	// Remove leading and trailing whitespace
-	static const tchar whitespace[] = _T(" \n\t\v\r\f");
+	static const tchar whitespace[] = " \n\t\v\r\f";
 	s.erase( 0, s.find_first_not_of(whitespace) );
 	s.erase( s.find_last_not_of(whitespace) + 1U );
 }
@@ -81,7 +81,7 @@ std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile
 	const tstring& sentry = cf.mySentry;     // end of file sentry
 	const pos skip = delim.length();        // length of separator
 	
-	tstring nextline = _T("");  // might need to read ahead to see where value ends
+	tstring nextline = "";  // might need to read ahead to see where value ends
 
 	while( is || nextline.length() > 0 )
 	{
@@ -91,7 +91,7 @@ std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile
 		if( nextline.length() > 0 )
 		{
 			line = nextline;  // we read ahead; use it now
-			nextline = _T("");
+			nextline = "";
 		}
 		else
 		{
@@ -103,7 +103,7 @@ std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile
 		line = line.substr( 0, line.find(comm) );
 		
 		// Check for end of file sentry
-		if( sentry != _T("") && line.find(sentry) != tstring::npos ) return is;
+		if( sentry != "" && line.find(sentry) != tstring::npos ) return is;
 		
 		// Parse the line if it contains a delimiter
 		pos delimPos = line.find( delim );
@@ -111,7 +111,7 @@ std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile
 		{
 			// Extract the key
 			tstring key = line.substr( 0, delimPos );
-			line.replace( 0, delimPos+skip, _T("") );
+			line.replace( 0, delimPos+skip, "" );
 			
 			// See if value continues on the next line
 			// Stop at blank line, next line with a key, end of stream,
@@ -126,17 +126,17 @@ std::basic_istream<tchar>& operator>>( std::basic_istream<tchar>& is, ConfigFile
 				
 				tstring nlcopy = nextline;
 				ConfigFile::trim(nlcopy);
-				if( nlcopy == _T("") ) continue;
+				if( nlcopy == "" ) continue;
 				
 				nextline = nextline.substr( 0, nextline.find(comm) );
 				if( nextline.find(delim) != tstring::npos )
 					continue;
-				if( sentry != _T("") && nextline.find(sentry) != tstring::npos )
+				if( sentry != "" && nextline.find(sentry) != tstring::npos )
 					continue;
 				
 				nlcopy = nextline;
 				ConfigFile::trim(nlcopy);
-				if( nlcopy != _T("") ) line += _T("\n");
+				if( nlcopy != "" ) line += "\n";
 				line += nextline;
 				terminate = false;
 			}

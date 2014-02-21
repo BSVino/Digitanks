@@ -1,10 +1,8 @@
 #ifndef _TINKER_COMMANDS_H
 #define _TINKER_COMMANDS_H
 
-#include <EASTL/map.h>
-#include <EASTL/vector.h>
-#include <EASTL/string.h>
-
+#include <tmap.h>
+#include <tvector.h>
 #include <color.h>
 #include <vector.h>
 #include <strutils.h>
@@ -19,7 +17,7 @@ public:
 	CNetworkCommand(int iConnection, tstring sName, CommandServerCallback pfnCallback, network_id_t iTarget)
 	{
 		m_iConnection = iConnection;
-		m_sName = str_replace(sName, _T(" "), _T("-"));
+		m_sName = sName.replace(" ", "-");
 		m_pfnCallback = pfnCallback;
 		m_iMessageTarget = iTarget;
 	};
@@ -27,7 +25,7 @@ public:
 	CNetworkCommand(tstring sName, CommandServerCallback pfnCallback, network_id_t iTarget)
 	{
 		m_iConnection = CONNECTION_UNDEFINED;
-		m_sName = str_replace(sName, _T(" "), _T("-"));
+		m_sName = sName.replace(" ", "-");
 		m_pfnCallback = pfnCallback;
 		m_iMessageTarget = iTarget;
 	};
@@ -50,7 +48,7 @@ public:
 	int						ArgAsInt(size_t i);
 	float					ArgAsFloat(size_t i);
 
-	static eastl::map<tstring, CNetworkCommand*>& GetCommands();
+	static tmap<tstring, CNetworkCommand*>& GetCommands();
 	static CNetworkCommand*	GetCommand(const tstring& sName);
 	static void				RegisterCommand(CNetworkCommand* pCommand);
 
@@ -58,7 +56,7 @@ protected:
 	tstring			m_sName;
 	CommandServerCallback	m_pfnCallback;
 
-	eastl::vector<tstring> m_asArguments;
+	tvector<tstring>		m_asArguments;
 
 	int						m_iConnection;
 	network_id_t			m_iMessageTarget;
@@ -66,7 +64,7 @@ protected:
 
 #define CLIENT_COMMAND(cxn, name) \
 void ClientCommand_##name(int iConnection, CNetworkCommand* pCmd, size_t iClient, const tstring& sParameters); \
-CNetworkCommand name(cxn, convertstring<char, tchar>(#name), ClientCommand_##name, NETWORK_TOSERVER); \
+CNetworkCommand name(cxn, #name, ClientCommand_##name, NETWORK_TOSERVER); \
 class CRegisterClientCommand##name \
 { \
 public: \
@@ -79,7 +77,7 @@ void ClientCommand_##name(int iConnection, CNetworkCommand* pCmd, size_t iClient
 
 #define SERVER_COMMAND_TARGET(cxn, name, target) \
 void ServerCommand_##name(int iConnection, CNetworkCommand* pCmd, size_t iClient, const tstring& sParameters); \
-CNetworkCommand name(cxn, convertstring<char, tchar>(#name), ServerCommand_##name, target); \
+CNetworkCommand name(cxn, #name, ServerCommand_##name, target); \
 class CRegisterServerCommand##name \
 { \
 public: \

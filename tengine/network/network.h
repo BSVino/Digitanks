@@ -3,10 +3,8 @@
 
 #include <common.h>
 
-#include <EASTL/map.h>
-#include <EASTL/vector.h>
-#include <EASTL/string.h>
-
+#include <tmap.h>
+#include <tvector.h>
 #include <color.h>
 #include <vector.h>
 #include <strutils.h>
@@ -119,7 +117,7 @@ public:
 	const char*						m_pszFunction;
 	INetworkListener*				m_pListener;
 	INetworkListener::Callback		m_pfnCallback;
-	eastl::vector<size_t>			m_pParameters;
+	tvector<size_t>					m_pParameters;
 };
 
 enum
@@ -234,7 +232,7 @@ protected:
 	int					m_iConnection;
 	bool				m_bConnected;
 	bool				m_bLoading;
-	eastl::map<eastl::string, CRegisteredFunction> m_aFunctions;
+	tmap<tstring, CRegisteredFunction> m_aFunctions;
 	INetworkListener*	m_pClientListener;
 	INetworkListener::Callback m_pfnClientConnect;
 	INetworkListener::Callback m_pfnClientEnterGame;

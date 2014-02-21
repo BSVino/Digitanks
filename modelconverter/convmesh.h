@@ -1,10 +1,25 @@
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #ifndef LW_CONVMESH_H
 #define LW_CONVMESH_H
 
-#include <EASTL/vector.h>
-#include <EASTL/map.h>
-#include <EASTL/string.h>
-
+#include <tmap.h>
+#include <tvector.h>
 #include <worklistener.h>
 #include <vector.h>
 #include <matrix.h>
@@ -29,7 +44,7 @@ public:
 	size_t							vt;	// Tangent
 	size_t							vb;	// Bitangent
 
-	eastl::vector<size_t>			m_aEdges;	// Index into parent's edge list
+	tvector<size_t>					m_aEdges;	// Index into parent's edge list
 };
 
 class CConversionFace
@@ -42,8 +57,8 @@ public:
 	float							GetArea();
 	float							GetUVArea();
 
-	void							FindAdjacentFaces(eastl::vector<size_t>& aResult, size_t iVert = (size_t)~0, bool bIgnoreCreased = false);
-	void							FindAdjacentFacesInternal(eastl::vector<size_t>& aResult, size_t iVert, bool bIgnoreCreased);
+	void							FindAdjacentFaces(tvector<size_t>& aResult, size_t iVert = (size_t)~0, bool bIgnoreCreased = false);
+	void							FindAdjacentFacesInternal(tvector<size_t>& aResult, size_t iVert, bool bIgnoreCreased);
 
 	size_t							GetNumVertices() { return m_aVertices.size(); }
 	CConversionVertex*				GetVertex(size_t i) { return &m_aVertices[i]; }
@@ -53,7 +68,7 @@ public:
 	size_t							GetEdge(size_t i) { return m_aEdges[i]; }
 	bool							HasEdge(size_t i);
 
-	eastl::vector<Vector>&			GetVertices(eastl::vector<Vector>& avecVertices);
+	tvector<Vector>&				GetVertices(tvector<Vector>& avecVertices);
 
 	Vector							GetBaseVector(Vector vecPoint, int iVector, class CConversionMeshInstance* pMeshInstance = NULL);
 	Vector							GetTangent(Vector vecPoint, class CConversionMeshInstance* pMeshInstance = NULL);
@@ -64,8 +79,8 @@ public:
 	size_t							m_iMesh;
 	size_t							m_iFaceIndex;
 
-	eastl::vector<CConversionVertex>	m_aVertices;
-	eastl::vector<size_t>			m_aEdges;	// Index into parent's vertex edge list
+	tvector<CConversionVertex>		m_aVertices;
+	tvector<size_t>					m_aEdges;	// Index into parent's vertex edge list
 
 	size_t							m;
 
@@ -88,7 +103,7 @@ public:
 	size_t							v1, v2;
 	bool							m_bCreased;
 
-	eastl::vector<size_t>			m_aiFaces;	// Index into parent's face list
+	tvector<size_t>					m_aiFaces;	// Index into parent's face list
 };
 
 class CConversionBone
@@ -96,7 +111,8 @@ class CConversionBone
 public:
 									CConversionBone(const tstring& sName);
 
-	tstring					m_sName;
+public:
+	tstring							m_sName;
 };
 
 typedef enum
@@ -117,18 +133,18 @@ public:
 										float flTransparency = 1.0f,
 										float flShininess = 10.0f);
 
-	tstring					GetName() const { return m_sName; }
+	tstring							GetName() const { return m_sName; }
 
-	tstring					GetDiffuseTexture() const { return m_sDiffuseTexture; }
-	tstring					GetNormalTexture() const { return m_sNormalTexture; }
-	tstring					GetAOTexture() const { return m_sAOTexture; }
-	tstring					GetCAOTexture() const { return m_sCAOTexture; }
+	tstring							GetDiffuseTexture() const { return m_sDiffuseTexture; }
+	tstring							GetNormalTexture() const { return m_sNormalTexture; }
+	tstring							GetAOTexture() const { return m_sAOTexture; }
+	tstring							GetCAOTexture() const { return m_sCAOTexture; }
 
 	void							SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool							IsVisible() { return m_bVisible; };
 
 public:
-	tstring					m_sName;
+	tstring							m_sName;
 
 	Vector							m_vecAmbient;
 	Vector							m_vecDiffuse;
@@ -138,10 +154,10 @@ public:
 	float							m_flShininess;
 	IllumType_t						m_eIllumType;
 
-	tstring					m_sDiffuseTexture;
-	tstring					m_sNormalTexture;
-	tstring					m_sAOTexture;
-	tstring					m_sCAOTexture;
+	tstring							m_sDiffuseTexture;
+	tstring							m_sNormalTexture;
+	tstring							m_sAOTexture;
+	tstring							m_sCAOTexture;
 
 	bool							m_bVisible;
 };
@@ -153,9 +169,9 @@ public:
 									CConversionMaterialStub(const tstring& sName);
 
 public:
-	tstring					GetName() const { return m_sName; }
+	tstring							GetName() const { return m_sName; }
 
-	tstring					m_sName;
+	tstring							m_sName;
 };
 
 class CConversionMesh
@@ -199,11 +215,11 @@ public:
 	size_t							GetNumBitangents() { return m_aBitangents.size(); };
 	Vector							GetBitangent(size_t i) { if (i >= m_aBitangents.size()) return Vector(0,0,1); return m_aBitangents[i]; }
 	size_t							GetNumUVs() { return m_aUVs.size(); };
-	Vector							GetUV(size_t i) { if (!GetNumUVs()) return Vector(0,0,0); return m_aUVs[i]; }
+	Vector2D						GetUV(size_t i) { if (i >= m_aUVs.size()) return Vector2D(0,0); return m_aUVs[i]; }
 	Vector							GetBaseVector(int iVector, CConversionVertex* pVertex);
 
 	size_t							GetNumBones() { return m_aBones.size(); };
-	tstring					GetBoneName(size_t i) { return m_aBones[i].m_sName; };
+	tstring							GetBoneName(size_t i) { return m_aBones[i].m_sName; };
 
 	size_t							GetNumEdges() { return m_aEdges.size(); };
 	CConversionEdge*				GetEdge(size_t i) { return &m_aEdges[i]; };
@@ -211,7 +227,7 @@ public:
 	size_t							GetNumFaces() { return m_aFaces.size(); };
 	CConversionFace*				GetFace(size_t i) { return &m_aFaces[i]; };
 
-	size_t							AddMaterialStub(const tstring& sName = _T(""));
+	size_t							AddMaterialStub(const tstring& sName = "");
 	size_t							GetNumMaterialStubs() { return m_aMaterialStubs.size(); };
 	size_t							FindMaterialStub(const tstring& sName);
 	CConversionMaterialStub*		GetMaterialStub(size_t i) { return &m_aMaterialStubs[i]; };
@@ -220,22 +236,22 @@ public:
 	bool							IsVisible() { return m_bVisible; };
 
 public:
-	tstring					m_sName;
+	tstring							m_sName;
 	class CConversionScene*			m_pScene;
 
 	// A vector of Vectors? Holy crap!
-	eastl::vector<Vector>			m_aVertices;
-	eastl::vector<Vector>			m_aNormals;
-	eastl::vector<Vector>			m_aTangents;
-	eastl::vector<Vector>			m_aBitangents;	// Binormals can kiss my ass.
-	eastl::vector<Vector>			m_aUVs;		// Really don't feel like making a 2d vector just for this.
-	eastl::vector<CConversionBone>	m_aBones;
-	eastl::vector<CConversionEdge>	m_aEdges;
-	eastl::vector<CConversionFace>	m_aFaces;
+	tvector<Vector>					m_aVertices;
+	tvector<Vector>					m_aNormals;
+	tvector<Vector>					m_aTangents;
+	tvector<Vector>					m_aBitangents;	// Binormals can kiss my ass.
+	tvector<Vector2D>				m_aUVs;
+	tvector<CConversionBone>		m_aBones;
+	tvector<CConversionEdge>		m_aEdges;
+	tvector<CConversionFace>		m_aFaces;
 
-	eastl::vector<eastl::vector<size_t> >	m_aaVertexFaceMap;
+	tvector<tvector<size_t> >		m_aaVertexFaceMap;
 
-	eastl::vector<CConversionMaterialStub>	m_aMaterialStubs;
+	tvector<CConversionMaterialStub>	m_aMaterialStubs;
 
 	AABB							m_oExtends;
 
@@ -282,7 +298,7 @@ public:
 public:
 	size_t							m_iMesh;	// Index into CConversionScene::m_aMeshes
 
-	eastl::map<size_t, CConversionMaterialMap>	m_aiMaterialsMap;	// Maps CConversionMesh::m_aMaterialStubs to CConversionScene::m_aMaterials
+	tmap<size_t, CConversionMaterialMap>	m_aiMaterialsMap;	// Maps CConversionMesh::m_aMaterialStubs to CConversionScene::m_aMaterials
 
 	class CConversionScene*			m_pScene;
 	class CConversionSceneNode*		m_pParent;
@@ -318,19 +334,19 @@ public:
 	size_t								FindMeshInstance(CConversionMesh* pMesh);
 	CConversionMeshInstance*			GetMeshInstance(size_t i) { return &m_aMeshInstances[i]; };
 
-	tstring						GetName() { return m_sName; }
+	tstring								GetName() { return m_sName; }
 
 	void								SetVisible(bool bVisible) { m_bVisible = bVisible; };
 	bool								IsVisible() { return m_bVisible; };
 
 public:
-	tstring						m_sName;
+	tstring								m_sName;
 	CConversionScene*					m_pScene;
 	CConversionSceneNode*				m_pParent;
 
-	eastl::vector<CConversionSceneNode*>	m_apChildren;
+	tvector<CConversionSceneNode*>		m_apChildren;
 
-	eastl::vector<CConversionMeshInstance>	m_aMeshInstances;
+	tvector<CConversionMeshInstance>	m_aMeshInstances;
 
 	Matrix4x4							m_mTransformations;
 
@@ -368,6 +384,7 @@ public:
 	size_t								AddScene(const tstring& sName);
 	size_t								GetNumScenes() { return m_apScenes.size(); };
 	CConversionSceneNode*				GetScene(size_t i) { if (i >= m_apScenes.size()) return NULL; return m_apScenes[i]; };
+	CConversionSceneNode*				FindSceneNode(const tstring& sName);
 
 	// For model formats that don't have the concept of scenes, this is a node that contains the one and only mesh instance for this mesh.
 	// It always returns a node and always the same one.
@@ -381,10 +398,10 @@ public:
 
 	void								SetWorkListener(IWorkListener* pWorkListener) { m_pWorkListener = pWorkListener; }
 
-	eastl::vector<CConversionMesh>		m_aMeshes;
-	eastl::vector<CConversionMaterial>	m_aMaterials;
+	tvector<CConversionMesh>			m_aMeshes;
+	tvector<CConversionMaterial>		m_aMaterials;
 
-	eastl::vector<CConversionSceneNode*>	m_apScenes;
+	tvector<CConversionSceneNode*>		m_apScenes;
 
 	AABB								m_oExtends;
 

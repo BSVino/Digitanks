@@ -43,15 +43,12 @@
 #ifndef CONFIGFILE_H
 #define CONFIGFILE_H
 
-#include <EASTL/string.h>
-#include <EASTL/map.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 #include "tstring.h"
-
-using eastl::string;
+#include "tmap.h"
 
 class ConfigFile {
 // Data
@@ -59,19 +56,19 @@ protected:
 	tstring myDelimiter;  // separator between key and value
 	tstring myComment;    // separator between value and comments
 	tstring mySentry;     // optional string to signal end of file
-	eastl::map<tstring,tstring> myContents;  // extracted keys and values
+	tmap<tstring,tstring> myContents;  // extracted keys and values
 
 	bool fileValid;
 
-	typedef eastl::map<tstring,tstring>::iterator mapi;
-	typedef eastl::map<tstring,tstring>::const_iterator mapci;
+	typedef tmap<tstring,tstring>::iterator mapi;
+	typedef tmap<tstring,tstring>::const_iterator mapci;
 
 // Methods
 public:
 	ConfigFile( tstring filename,
-	            tstring delimiter = _T("="),
-	            tstring comment = _T("#"),
-				tstring sentry = _T("EndConfigFile") );
+	            tstring delimiter = "=",
+	            tstring comment = "#",
+				tstring sentry = "EndConfigFile" );
 	ConfigFile();
 	
 	// Search for key and read value or optional default value
@@ -165,9 +162,9 @@ inline bool ConfigFile::string_as_T<bool>( const tstring& s )
 	tstring sup = s;
 	for( tstring::iterator p = sup.begin(); p != sup.end(); ++p )
 		*p = toupper(*p);  // make string all caps
-	if( sup==tstring(_T("FALSE")) || sup==tstring(_T("F")) ||
-	    sup==tstring(_T("NO")) || sup==tstring(_T("N")) ||
-	    sup==tstring(_T("0")) || sup==tstring(_T("NONE"))|| sup==tstring(_T("OFF")) )
+	if( sup==tstring("FALSE") || sup==tstring("F") ||
+	    sup==tstring("NO") || sup==tstring("N") ||
+	    sup==tstring("0") || sup==tstring("NONE") || sup==tstring("OFF") )
 		b = false;
 	return b;
 }

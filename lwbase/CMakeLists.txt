@@ -25,6 +25,9 @@ set (LWBASE_SOURCES
 	../common/mtrand.cpp
 	../common/parallelize.cpp
 	../common/sockets/sockets.cpp
+	../common/math/matrix.cpp
+	../common/math/quaternion.cpp
+	../common/math/frustum.cpp
 
 	../datamanager/data.cpp
 	../datamanager/dataserializer.cpp

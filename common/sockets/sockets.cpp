@@ -1,8 +1,23 @@
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include "sockets.h"
 
 #include "strutils.h"
-
-using eastl::string;
 
 #ifdef __GNUC__
 #define INVALID_SOCKET -1
@@ -49,8 +64,7 @@ bool CClientSocket::Connect(const char* pszHostname, int iPort)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	string sPort;
-	sPort.sprintf("%d", iPort);
+	tstring sPort = sprintf("%d", iPort);
 
 	int iResult = getaddrinfo(pszHostname, sPort.c_str(), &hints, &pResult);
 	if ( iResult != 0 )
@@ -99,7 +113,7 @@ int CClientSocket::Send(const char* pszData, size_t iLength)
 	return Send(pszData, (int)iLength);
 }
 
-int CClientSocket::Send(string sData)
+int CClientSocket::Send(const tstring& sData)
 {
 	return (Send(sData.c_str(), (size_t)sData.length()));
 }
@@ -119,9 +133,9 @@ int CClientSocket::Recv(char* pszData, int iLength)
 	return iResult;
 }
 
-string CClientSocket::RecvAll()
+tstring CClientSocket::RecvAll()
 {
-	string sOutput;
+	tstring sOutput;
 	char szBuffer[1028];
 	int iResult;
 
@@ -156,9 +170,9 @@ CHTTPPostSocket::CHTTPPostSocket(const char* pszHostname, int iPort) : CClientSo
 {
 }
 
-void CHTTPPostSocket::AddPost(const char* pszKey, const eastl::string& pszValue)
+void CHTTPPostSocket::AddPost(const char* pszKey, const tstring& pszValue)
 {
-	string sPostContent = m_sPostContent;
+	tstring sPostContent = m_sPostContent;
 
 	if (sPostContent.length())
 		sPostContent += "&";
@@ -172,33 +186,33 @@ void CHTTPPostSocket::AddPost(const char* pszKey, const eastl::string& pszValue)
 
 void CHTTPPostSocket::SendHTTP11(const char* pszPage)
 {
-	string p;
-	string sOutput;
+	tstring p;
+	tstring sOutput;
 
-	sOutput  = string("POST ") + pszPage + " HTTP/1.1\n";
+	sOutput  = tstring("POST ") + pszPage + " HTTP/1.1\n";
 	sOutput += "Host: " + m_sHostname + "\n";
-	sOutput += p.sprintf("Content-Length: %d\n", m_sPostContent.length());
+	sOutput += sprintf("Content-Length: %d\n", m_sPostContent.length());
 	sOutput += "Content-Type: application/x-www-form-urlencoded\n\n";
 	Send(sOutput);
 
 	Send(m_sPostContent);
 }
 
-void CHTTPPostSocket::SetPostContent(string sPostContent)
+void CHTTPPostSocket::SetPostContent(const tstring& sPostContent)
 {
 	m_sPostContent = sPostContent;
 }
 
 void CHTTPPostSocket::ParseOutput()
 {
-	string sReturn = RecvAll();
+	tstring sReturn = RecvAll();
 	bool bHTTPOver = false;
-	eastl::vector<string> vTokens;
+	tvector<tstring> vTokens;
 
 	strtok(sReturn, vTokens, "\n");
 	for (unsigned int i = 1; i < vTokens.size(); i++)
 	{
-		string sToken = vTokens[i];
+		tstring sToken = vTokens[i];
 		if (!trim(sToken).length())
 		{
 			bHTTPOver = true;
@@ -208,7 +222,7 @@ void CHTTPPostSocket::ParseOutput()
 		if (!bHTTPOver)
 			continue;
 
-		string::size_type iColon = sToken.find(":");
+		tstring::size_type iColon = sToken.find(":");
 		KeyValue(sToken.substr(0, iColon).c_str(), sToken.substr(iColon+2).c_str());
 	}
 }

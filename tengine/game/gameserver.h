@@ -1,7 +1,7 @@
-#include "baseentity.h"
+#include "entities/baseentity.h"
 // Always include baseentity.h first, it has some stuff this file relies on
 #ifndef TINKER_BASEENTITY_H
-#include "baseentity.h"
+#include "entities/baseentity.h"
 #endif
 
 #ifndef GAMESERVER_H
@@ -9,9 +9,13 @@
 
 #include <vector>
 
+#include <tinker_memory.h>
+
 #include <network/network.h>
 
-#include "team.h"
+#include "entities/team.h"
+
+class CLevel;
 
 typedef enum
 {
@@ -20,6 +24,18 @@ typedef enum
 	SERVER_CLIENT,
 } servertype_t;
 
+class CPrecacheItem
+{
+public:
+	CPrecacheItem()
+	{
+	}
+
+public:
+	tstring						m_sClass;
+	CEntityHandle<CBaseEntity>	m_hEntity;
+};
+
 class CGameServer : public INetworkListener
 {
 public:
@@ -27,24 +43,34 @@ public:
 	virtual										~CGameServer();
 
 public:
+	void										AllowPrecaches();
+	bool										PrecachesAllowed() { return m_bAllowPrecaches; };
+	void										AddToPrecacheList(const tstring& sClass);
+	void										AddAllToPrecacheList();
+	void										PrecacheList();
+
 	void										SetServerType(servertype_t eServerType) { m_eServerType = eServerType; };
 	void										SetServerPort(int iPort) { m_iPort = iPort; };
 
 	void										SetPlayerNickname(const tstring& sNickname);
-	tstring								GetPlayerNickname() { return m_sNickname; }
+	tstring										GetPlayerNickname() { return m_sNickname; }
 
 	void										Initialize();
+
+	void										LoadLevel(tstring sFile);
+	void										LoadLevel(const CHandle<CLevel>& pLevel);
+	void										RestartLevel();
 
 	void										SetupFromLobby(bool bFromLobby) { m_bSetupFromLobby = bFromLobby; };
 	bool										ShouldSetupFromLobby() { return m_bSetupFromLobby; };
 
 	void										ReadLevels();
 	void										ReadLevels(tstring sDirectory);
-	void										ReadLevel(tstring sFile);
+	void										ReadLevelInfo(tstring sFile);
 
 	size_t										GetNumLevels() { return m_apLevels.size(); }
-	class CLevel*								GetLevel(size_t i) { return m_apLevels[i]; }
-	class CLevel*								GetLevel(tstring sFile);
+	class CHandle<CLevel>						GetLevel(size_t i) { if (i >= m_apLevels.size()) return CHandle<CLevel>(); return CHandle<CLevel>(m_apLevels[i]); }
+	class CHandle<CLevel>						GetLevel(tstring sFile);
 
 	void										Halt();
 	bool										IsHalting() { return m_bHalting; };
@@ -60,7 +86,7 @@ public:
 	void										ClientDisconnect(int iClient);
 	void										SetClientNickname(int iClient, const tstring& sNickname);
 
-	void										Think(float flHostTime);
+	void										Think(double flHostTime);
 	void										Simulate();
 	void										Render();
 
@@ -82,16 +108,19 @@ public:
 		return dynamic_cast<T*>(Create(pszEntityName).GetPointer());
 	}
 
-	void										DestroyAllEntities(const eastl::vector<eastl::string>& asSpare = eastl::vector<eastl::string>(), bool bRemakeGame = false);
+	void										DestroyAllEntities(const tvector<tstring>& asSpare = tvector<tstring>(), bool bRemakeGame = false);
 
 	NET_CALLBACK(CGameServer,					UpdateValue);
 	NET_CALLBACK(CGameServer,					ClientInfo);
 
-	float										GetFrameTime() { return m_flFrameTime; };
-	float										GetGameTime() { return m_flGameTime; };
+	double										GetFrameTime() { return m_flFrameTime; };
+	double										GetGameTime() { return m_flGameTime; };
+	size_t										GetFrame() { return m_iFrame; }
+	float                                       GetTimeScale() { return m_flTimeScale; }
+	void                                        SetTimeScale(float flTimeScale) { m_flTimeScale = flTimeScale; }
 
-	class CRenderer*							GetRenderer();
-	class CCamera*								GetCamera() { return m_pCamera; };
+	class CGameRenderer*						GetRenderer();
+	class CCameraManager*						GetCameraManager();
 
 	bool										IsLoading() { return m_bLoading; };
 	void										SetLoading(bool bLoading) { m_bLoading = bLoading; };
@@ -106,9 +135,12 @@ public:
 	class CGame*								GetGame();
 
 protected:
-	tstring				m_sNickname;
+	bool										m_bAllowPrecaches;
+	static tmap<tstring, CPrecacheItem>			s_aPrecacheClasses;
 
-	eastl::vector<CEntityHandle<CBaseEntity> >	m_ahDeletedEntities;
+	tstring										m_sNickname;
+
+	tvector<CEntityHandle<CBaseEntity> >		m_ahDeletedEntities;
 
 	static CGameServer*							s_pGameServer;
 
@@ -116,17 +148,16 @@ protected:
 
 	size_t										m_iSaveCRC;
 
-	float										m_flGameTime;		// This is how time passes for the game entities
-	float										m_flSimulationTime;	// This is a higher resolution of game time for physics
-	float										m_flFrameTime;		// This is the delta of each frame of game time
-	float										m_flHostTime;		// This is the current time for the computer
+	double										m_flGameTime;		// This is how time passes for the game entities
+	double										m_flFrameTime;		// This is the delta of each frame of game time
+	double										m_flHostTime;		// This is the current time for the computer
+	float                                       m_flTimeScale;      // This is a scalar applied to the frame time
+	size_t										m_iFrame;
 
-	eastl::vector<CEntityHandle<CBaseEntity> >	m_apSimulateList;
-	eastl::vector<CBaseEntity*>					m_apRenderList;
-
-	class CCamera*								m_pCamera;
+	class CCameraManager*						m_pCameraManager;
 
 	bool										m_bLoading;
+	bool										m_bRestartLevel;
 
 	int											m_iClient;
 	bool										m_bGotClientInfo;
@@ -138,11 +169,11 @@ protected:
 
 	bool										m_bHalting;
 
-	eastl::vector<class CLevel*>				m_apLevels;
+	tvector<CResource<CLevel>>					m_apLevels;
 
 	size_t										m_iMaxEnts;
 
-	float										m_flNextClientInfoUpdate;
+	double										m_flNextClientInfoUpdate;
 
 	IWorkListener*								m_pWorkListener;
 };
@@ -154,8 +185,8 @@ inline class CGameServer* GameServer()
 
 // Let the game directory define this.
 extern class CGame* CreateGame();
-extern class CRenderer* CreateRenderer();
-extern class CCamera* CreateCamera();
-extern class CLevel* CreateLevel();
+extern CResource<CLevel> CreateLevel();
+extern class CHUDViewport* CreateHUD();
+extern tstring GetInitialGameMode();
 
 #endif

@@ -1,3 +1,20 @@
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #ifndef LW_SOCKETS_H
 #define LW_SOCKETS_H
 #ifdef _WIN32
@@ -5,8 +22,9 @@
 #endif
 
 #include <stdio.h>
-#include <EASTL/string.h>
-#include <EASTL/vector.h>
+
+#include <tstring.h>
+#include <tvector.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -42,20 +60,20 @@ public:
 	virtual bool	IsOpen() { return m_bOpen; };
 
 	virtual int		Send(const char* pszData, size_t iLength);
-	virtual int		Send(eastl::string sData);
+	virtual int		Send(const tstring& sData);
 	virtual int		Send(const char* pszData, int iLength);
 	virtual int		Recv(char* pszData, int iLength);
-	virtual eastl::string	RecvAll();
+	virtual tstring	RecvAll();
 
 	virtual void	Close();
 
 	inline SOCKET	GetSocket() { return m_iSocket; };
 
-	inline eastl::string	GetError() { return m_sError; };
+	inline tstring	GetError() { return m_sError; };
 
 protected:
 	SOCKET			m_iSocket;
-	eastl::string	m_sError;
+	tstring			m_sError;
 
 	bool			m_bOpen;
 
@@ -63,22 +81,22 @@ protected:
 	WSADATA			m_WSAData;
 #endif
 
-	eastl::string	m_sHostname;
+	tstring			m_sHostname;
 	int				m_iPort;
 };
 
 class CPostReply
 {
 public:
-	CPostReply(eastl::string sKey, eastl::string sValue)
+	CPostReply(const tstring& sKey, const tstring& sValue)
 	{
 		m_sKey = sKey;
 		m_sValue = sValue;
 	}
 
 public:
-	eastl::string	m_sKey;
-	eastl::string	m_sValue;
+	tstring		m_sKey;
+	tstring		m_sValue;
 };
 
 class CHTTPPostSocket : public CClientSocket
@@ -88,8 +106,8 @@ public:
 
 	virtual void	SendHTTP11(const char* pszPage);
 
-	virtual void	AddPost(const char* pszKey, const eastl::string&);
-	virtual void	SetPostContent(eastl::string sPostContent);
+	virtual void	AddPost(const char* pszKey, const tstring&);
+	virtual void	SetPostContent(const tstring& sPostContent);
 
 	virtual void	ParseOutput();
 	virtual void	KeyValue(const char* pszKey, const char* pszValue);
@@ -98,9 +116,9 @@ public:
 	CPostReply*		GetReply(size_t i) { return &m_aKeys[i]; }
 
 protected:
-	eastl::string	m_sPostContent;
+	tstring			m_sPostContent;
 
-	eastl::vector<CPostReply>	m_aKeys;
+	tvector<CPostReply>	m_aKeys;
 };
 
 #endif

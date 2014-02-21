@@ -1,18 +1,35 @@
-#include "profiler.h"
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
 
-#include <GL/glew.h>
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "profiler.h"
 
 #include <strutils.h>
 
 #include <tinker/application.h>
 #include <tinker/cvar.h>
-#include <glgui/glgui.h>
+#include <renderer/renderingcontext.h>
+#include <glgui/rootpanel.h>
+#include <glgui/label.h>
 
 CVar prof_enable("prof_enable", "no");
 
-CProfileScope::CProfileScope(const eastl::string& sName)
+CProfileScope::CProfileScope(const char* pszName)
 {
-	m_sName = sName;
+	m_pszName = pszName;
 
 	CProfiler::PushScope(this);
 }
@@ -22,16 +39,16 @@ CProfileScope::~CProfileScope()
 	CProfiler::PopScope(this);
 }
 
-CPerfBlock::CPerfBlock(const eastl::string& sName, CPerfBlock* pParent)
+CPerfBlock::CPerfBlock(const char* pszName, CPerfBlock* pParent)
 {
 	m_pParent = pParent;
-	m_sName = sName;
+	m_pszName = pszName;
 	m_flTime = 0;
 }
 
-CPerfBlock* CPerfBlock::GetChild(const eastl::string& sName)
+CPerfBlock* CPerfBlock::GetChild(const char* pszName)
 {
-	eastl::map<eastl::string, CPerfBlock*>::iterator it = m_apPerfBlocks.find(sName);
+	tmap<const char*, CPerfBlock*>::iterator it = m_apPerfBlocks.find(pszName);
 
 	if (it == m_apPerfBlocks.end())
 		return NULL;
@@ -39,10 +56,10 @@ CPerfBlock* CPerfBlock::GetChild(const eastl::string& sName)
 	return it->second;
 }
 
-CPerfBlock* CPerfBlock::AddChild(const eastl::string& sName)
+CPerfBlock* CPerfBlock::AddChild(const char* pszName)
 {
-	CPerfBlock* pChild = new CPerfBlock(sName, this);
-	m_apPerfBlocks[sName] = pChild;
+	CPerfBlock* pChild = new CPerfBlock(pszName, this);
+	m_apPerfBlocks[pszName] = pChild;
 	return pChild;
 }
 
@@ -50,7 +67,7 @@ void CPerfBlock::BeginFrame()
 {
 	m_flTime = 0;
 
-	for (eastl::map<eastl::string, CPerfBlock*>::iterator it = m_apPerfBlocks.begin(); it != m_apPerfBlocks.end(); it++)
+	for (tmap<const char*, CPerfBlock*>::iterator it = m_apPerfBlocks.begin(); it != m_apPerfBlocks.end(); it++)
 		it->second->BeginFrame();
 }
 
@@ -61,7 +78,7 @@ void CPerfBlock::BlockStarted()
 
 void CPerfBlock::BlockEnded()
 {
-	float flTimeBlockEnded = CApplication::Get()->GetTime();
+	double flTimeBlockEnded = CApplication::Get()->GetTime();
 
 	m_flTime += flTimeBlockEnded - m_flTimeBlockStarted;
 }
@@ -149,61 +166,43 @@ void CProfiler::Render()
 
 	PopAllScopes();
 
-	int iWidth = glgui::CRootPanel::Get()->GetWidth();
-	int iHeight = glgui::CRootPanel::Get()->GetHeight();
+	float flWidth = glgui::CRootPanel::Get()->GetWidth();
+	float flHeight = glgui::CRootPanel::Get()->GetHeight();
 
-	int iCurrLeft = iWidth - 400;
-	int iCurrTop = 200;
+	float flCurrLeft = flWidth - 400;
+	float flCurrTop = 200;
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, iWidth, iHeight, 0, -1, 1);
+	Matrix4x4 mProjection = Matrix4x4::ProjectOrthographic(0, flWidth, flHeight, 0, -1000, 1000);
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+	CRenderingContext c;
 
-	glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_ENABLE_BIT|GL_TEXTURE_BIT);
+	c.SetProjection(mProjection);
+	c.UseProgram("gui");
+	c.SetDepthTest(false);
+	c.UseFrameBuffer(NULL);
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glEnable(GL_COLOR_MATERIAL);
+	glgui::CBaseControl::PaintRect(flCurrLeft, flCurrTop, 400, 800, Color(0, 0, 0, 150), 5, true);
 
-	glColor4ubv(Color(255, 255, 255, 255));
-
-	glgui::CBaseControl::PaintRect(iCurrLeft, iCurrTop, 400, 800, Color(0, 0, 0, 150));
-
-	Render(s_pBottomBlock, iCurrLeft, iCurrTop);
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();   
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	glPopAttrib();
+	Render(s_pBottomBlock, flCurrLeft, flCurrTop);
 }
 
-void CProfiler::Render(CPerfBlock* pBlock, int& iLeft, int& iTop)
+void CProfiler::Render(CPerfBlock* pBlock, float& flLeft, float& flTop)
 {
-	iLeft += 15;
-	iTop += 15;
+	flLeft += 15;
+	flTop += 15;
 
 	Color clrBlock(255, 255, 255);
 	if (pBlock->GetTime() < 0.005)
 		clrBlock = Color(255, 255, 255, 150);
 
-	glgui::CBaseControl::PaintRect(iLeft, iTop+1, (int)(pBlock->GetTime()*5000), 1, clrBlock);
+	glgui::CBaseControl::PaintRect(flLeft, flTop+1, (float)pBlock->GetTime()*5000, 1, clrBlock);
 
-	tstring sName = convertstring<char, tchar>(pBlock->GetName());
+	tstring sName = pBlock->GetName();
 	sName += sprintf(tstring(": %d ms"), (int)(pBlock->GetTime()*1000));
-	glColor4ubv(clrBlock);
-	glgui::CLabel::PaintText(sName, sName.length(), _T("sans-serif"), 10, (float)iLeft, (float)iTop);
+	glgui::CLabel::PaintText(sName, sName.length(), "sans-serif", 10, (float)flLeft, (float)flTop, clrBlock);
 
-	for (eastl::map<eastl::string, CPerfBlock*>::iterator it = pBlock->m_apPerfBlocks.begin(); it != pBlock->m_apPerfBlocks.end(); it++)
-		Render(it->second, iLeft, iTop);
+	for (tmap<const char*, CPerfBlock*>::iterator it = pBlock->m_apPerfBlocks.begin(); it != pBlock->m_apPerfBlocks.end(); it++)
+		Render(it->second, flLeft, flTop);
 
-	iLeft -= 15;
+	flLeft -= 15;
 }

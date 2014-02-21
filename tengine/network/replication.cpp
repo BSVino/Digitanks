@@ -5,7 +5,7 @@
 #include <tinker/application.h>
 #include <tinker/cvar.h>
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 #include <game/gameserver.h>
 
 CNetworkedVariableData::CNetworkedVariableData()
@@ -30,7 +30,10 @@ CVar net_replication_debug("net_replication_debug", "off");
 
 void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 {
-	float flTime = GameServer()->GetGameTime();
+	if (!GameNetwork()->IsConnected())
+		return;
+
+	double flTime = GameServer()->GetGameTime();
 
 	size_t iMaxEnts = GameServer()->GetMaxEntities();
 	for (size_t i = 0; i < iMaxEnts; i++)
@@ -65,6 +68,12 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 						continue;
 				}
 
+				// For one, m_flLastUpdate needs to be a double
+				pVariable->m_flLastUpdate = (float)flTime;
+				// For two, it's shit.
+				TUnimplemented();
+				// Try some testing or something.
+
 				CNetworkParameters p;
 				p.ui1 = pEntity->GetHandle();
 
@@ -74,9 +83,9 @@ void CGameServerNetwork::UpdateNetworkVariables(int iClient, bool bForceAll)
 				if (net_replication_debug.GetBool())
 				{
 					if (iDataSize >= 4)
-						TMsg(tstring(_T("Updating ")) + convertstring<char, tchar>(pVarData->GetName()) + sprintf(tstring(" (%x) (%f) (%d)\n"), *(unsigned int*)pValue, *(float*)pValue, *(int*)pValue));
+						TMsg(tstring("Updating ") + pVarData->GetName() + sprintf(tstring(" (%x) (%f) (%d)\n"), *(unsigned int*)pValue, *(float*)pValue, *(int*)pValue));
 					else
-						TMsg(tstring(_T("Updating ")) + convertstring<char, tchar>(pVarData->GetName()) + _T("\n"));
+						TMsg(tstring("Updating ") + pVarData->GetName() + "\n");
 				}
 
 				p.CreateExtraData(iDataSize + strlen(pVarData->GetName())+1);

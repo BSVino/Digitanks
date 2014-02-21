@@ -1,31 +1,46 @@
+/*
+Copyright (c) 2012, Lunar Workshop, Inc.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement:
+   This product includes software developed by Lunar Workshop, Inc.
+4. Neither the name of the Lunar Workshop nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY LUNAR WORKSHOP INC ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LUNAR WORKSHOP BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include "application.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 #include <time.h>
-#include <GL/glew.h>
-#include <GL/glfw.h>
-#include <IL/il.h>
-#include <IL/ilu.h>
+#include <GL3/gl3w.h>
+#include <GL/glfw3.h>
 #include <iostream>
 #include <fstream>
 
 #include <strutils.h>
 #include <tinker_platform.h>
 #include <mtrand.h>
+#include <tvector.h>
+
 #include <tinker/keys.h>
-#include <tinker/portals/portal.h>
 #include <tinker/cvar.h>
-#include <glgui/glgui.h>
+#include <glgui/rootpanel.h>
+#include <tinker/renderer/renderer.h>
+#include <tools/manipulator/manipulator.h>
+
+#include "console.h"
 
 CApplication* CApplication::s_pApplication = NULL;
 
 CApplication::CApplication(int argc, char** argv)
+	: CShell(argc, argv)
 {
-	TPortal_Startup();
-
 	s_pApplication = this;
 
 	srand((unsigned int)time(NULL));
@@ -35,10 +50,83 @@ CApplication::CApplication(int argc, char** argv)
 		m_apszCommandLine.push_back(argv[i]);
 
 	m_bIsOpen = false;
-
 	m_bMultisampling = false;
 
+	m_pRenderer = NULL;
 	m_pConsole = NULL;
+
+	SetMouseCursorEnabled(true);
+	m_bMouseDownInGUI = false;
+	m_flLastMousePress = -1;
+
+	for (int i = 1; i < argc; i++)
+	{
+		if (m_apszCommandLine[i][0] == '+')
+			CCommand::Run(&m_apszCommandLine[i][1]);
+	}
+}
+
+#ifdef _DEBUG
+#define GL_DEBUG_VALUE "1"
+#else
+#define GL_DEBUG_VALUE "0"
+#endif
+
+CVar gl_debug("gl_debug", GL_DEBUG_VALUE);
+
+#ifndef CALLBACK
+#define CALLBACK
+#endif
+
+void CALLBACK GLDebugCallback(GLenum iSource, GLenum iType, GLuint id, GLenum iSeverity, GLsizei iLength, const GLchar* pszMessage, GLvoid* pUserParam)
+{
+	if (iType != GL_DEBUG_TYPE_PERFORMANCE_ARB)
+	{
+		TAssert(iSeverity != GL_DEBUG_SEVERITY_HIGH_ARB);
+		TAssert(iSeverity != GL_DEBUG_SEVERITY_MEDIUM_ARB);
+	}
+
+	if (gl_debug.GetBool())
+	{
+		tstring sMessage = "OpenGL Debug Message (";
+
+		if (iSource == GL_DEBUG_SOURCE_API_ARB)
+			sMessage += "Source: API ";
+		else if (iSource == GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB)
+			sMessage += "Source: Window System ";
+		else if (iSource == GL_DEBUG_SOURCE_SHADER_COMPILER_ARB)
+			sMessage += "Source: Shader Compiler ";
+		else if (iSource == GL_DEBUG_SOURCE_THIRD_PARTY_ARB)
+			sMessage += "Source: Third Party ";
+		else if (iSource == GL_DEBUG_SOURCE_APPLICATION_ARB)
+			sMessage += "Source: Application ";
+		else if (iSource == GL_DEBUG_SOURCE_OTHER_ARB)
+			sMessage += "Source: Other ";
+
+		if (iType == GL_DEBUG_TYPE_ERROR_ARB)
+			sMessage += "Type: Error ";
+		else if (iType == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB)
+			sMessage += "Type: Deprecated Behavior ";
+		else if (iType == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB)
+			sMessage += "Type: Undefined Behavior ";
+		else if (iType == GL_DEBUG_TYPE_PORTABILITY_ARB)
+			sMessage += "Type: Portability ";
+		else if (iType == GL_DEBUG_TYPE_PERFORMANCE_ARB)
+			sMessage += "Type: Performance ";
+		else if (iType == GL_DEBUG_TYPE_OTHER_ARB)
+			sMessage += "Type: Other ";
+
+		if (iSeverity == GL_DEBUG_SEVERITY_HIGH_ARB)
+			sMessage += "Severity: High) ";
+		else if (iSeverity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
+			sMessage += "Severity: Medium) ";
+		else if (iSeverity == GL_DEBUG_SEVERITY_LOW_ARB)
+			sMessage += "Severity: Low) ";
+
+		sMessage += convertstring<GLchar, tchar>(pszMessage) + "\n";
+
+		TMsg(convertstring<GLchar, tchar>(sMessage).c_str());
+	}
 }
 
 void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, bool bResizeable)
@@ -56,20 +144,36 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	m_iWindowWidth = iWidth;
 	m_iWindowHeight = iHeight;
 
-	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, bResizeable?GL_FALSE:GL_TRUE);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
+
+	glfwOpenWindowHint(GLFW_WINDOW_RESIZABLE, bResizeable?GL_TRUE:GL_FALSE);
 
 	if (m_bMultisampling)
 		glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
 
-	TMsg(sprintf(tstring("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?_T("fullscreen"):_T("windowed"), bResizeable?_T("resizeable"):_T("fixed-size")));
+	if (HasCommandLineSwitch("--debug-gl"))
+	{
+		glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-	if (!glfwOpenWindow(iWidth, iHeight, 0, 0, 0, 0, 16, 0, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOW))
+		if (!glDebugMessageCallbackARB)
+			TMsg("Your drivers do not support GL_ARB_debug_output, so no GL debug output will be shown.\n");
+	}
+
+	glfwOpenWindowHint(GLFW_DEPTH_BITS, 16);
+	glfwOpenWindowHint(GLFW_RED_BITS, 8);
+	glfwOpenWindowHint(GLFW_GREEN_BITS, 8);
+	glfwOpenWindowHint(GLFW_BLUE_BITS, 8);
+	glfwOpenWindowHint(GLFW_ALPHA_BITS, 8);
+
+	TMsg(sprintf(tstring("Opening %dx%d %s %s window.\n"), iWidth, iHeight, bFullscreen?"fullscreen":"windowed", bResizeable?"resizeable":"fixed-size"));
+
+	if (!(m_pWindow = (size_t)glfwOpenWindow(iWidth, iHeight, m_bFullscreen?GLFW_FULLSCREEN:GLFW_WINDOWED, WindowTitle().c_str(), NULL)))
 	{
 		glfwTerminate();
 		return;
 	}
-
-	glfwSetWindowTitle( WindowTitle().c_str() );
 
 	int iScreenWidth;
 	int iScreenHeight;
@@ -84,7 +188,7 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 
 		int iWindowX = (int)(iScreenWidth/2-m_iWindowWidth/2);
 		int iWindowY = (int)(iScreenHeight/2-m_iWindowHeight/2);
-		glfwSetWindowPos(iWindowX, iWindowY);
+		glfwSetWindowPos((GLFWwindow)m_pWindow, iWindowX, iWindowY);
 	}
 
 	glfwSetWindowCloseCallback(&CApplication::WindowCloseCallback);
@@ -93,31 +197,43 @@ void CApplication::OpenWindow(size_t iWidth, size_t iHeight, bool bFullscreen, b
 	glfwSetCharCallback(&CApplication::CharEventCallback);
 	glfwSetMousePosCallback(&CApplication::MouseMotionCallback);
 	glfwSetMouseButtonCallback(&CApplication::MouseInputCallback);
-	glfwSetMouseWheelCallback(&CApplication::MouseWheelCallback);
+	glfwSetScrollCallback(&CApplication::MouseWheelCallback);
 	glfwSwapInterval( 1 );
 	glfwSetTime( 0.0 );
-	glfwEnable( GLFW_MOUSE_CURSOR );
 
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
+	InitJoystickInput();
+
+	SetMouseCursorEnabled(true);
+
+	GLenum err = gl3wInit();
+	if (0 != err)
 		exit(0);
 
 	DumpGLInfo();
 
+	if (glDebugMessageCallbackARB)
+	{
+		glDebugMessageCallbackARB(GLDebugCallback, nullptr);
+
+		tstring sMessage("OpenGL Debug Output Activated");
+		glDebugMessageInsertARB(GL_DEBUG_SOURCE_APPLICATION_ARB, GL_DEBUG_TYPE_OTHER_ARB, 0, GL_DEBUG_SEVERITY_LOW_ARB, sMessage.length(), sMessage.c_str());
+	}
+
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
 
 	m_bIsOpen = true;
+
+	m_pRenderer = CreateRenderer();
+	m_pRenderer->Initialize();
+
+	glgui::RootPanel()->SetSize((float)m_iWindowWidth, (float)m_iWindowHeight);
 }
 
 CApplication::~CApplication()
 {
 	glfwTerminate();
-
-	TPortal_Shutdown();
 }
 
 #define MAKE_PARAMETER(name) \
@@ -125,14 +241,14 @@ CApplication::~CApplication()
 
 void CApplication::DumpGLInfo()
 {
-	glewInit();
+	gl3wInit();
 
-	std::ifstream i(convertstring<tchar, char>(GetAppDataDirectory(AppDirectory(), _T("glinfo.txt"))).c_str());
+	std::ifstream i(GetAppDataDirectory(AppDirectory(), "glinfo.txt").c_str());
 	if (i)
 		return;
 	i.close();
 
-	std::ofstream o(convertstring<tchar, char>(GetAppDataDirectory(AppDirectory(), _T("glinfo.txt"))).c_str());
+	std::ofstream o(GetAppDataDirectory(AppDirectory(), "glinfo.txt").c_str());
 	if (!o || !o.is_open())
 		return;
 
@@ -144,8 +260,11 @@ void CApplication::DumpGLInfo()
 	if (pszShadingLanguageVersion)
 		o << "Shading Language Version: " << pszShadingLanguageVersion << std::endl;
 
-	eastl::string sExtensions = (char*)glGetString(GL_EXTENSIONS);
-	eastl::vector<eastl::string> asExtensions;
+	char* pszExtensions = (char*)glGetString(GL_EXTENSIONS);
+	tstring sExtensions;
+	if (pszExtensions)
+		sExtensions = pszExtensions;
+	tvector<tstring> asExtensions;
 	strtok(sExtensions, asExtensions);
 	o << "Extensions:" << std::endl;
 	for (size_t i = 0; i < asExtensions.size(); i++)
@@ -159,40 +278,47 @@ void CApplication::DumpGLInfo()
 
 	GLParameter aParameters[] =
 	{
-		MAKE_PARAMETER(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_ATTRIB_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_CLIP_PLANES),
-		MAKE_PARAMETER(GL_MAX_LIGHTS),
-		MAKE_PARAMETER(GL_MAX_COLOR_MATRIX_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_MODELVIEW_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_PROJECTION_STACK_DEPTH),
 		MAKE_PARAMETER(GL_MAX_TEXTURE_SIZE),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_STACK_DEPTH),
+		MAKE_PARAMETER(GL_MAX_VIEWPORT_DIMS),
 		MAKE_PARAMETER(GL_MAX_3D_TEXTURE_SIZE),
-		MAKE_PARAMETER(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB),
-		MAKE_PARAMETER(GL_MAX_RECTANGLE_TEXTURE_SIZE_NV),
 		MAKE_PARAMETER(GL_MAX_ELEMENTS_VERTICES),
 		MAKE_PARAMETER(GL_MAX_ELEMENTS_INDICES),
-		MAKE_PARAMETER(GL_MAX_EVAL_ORDER),
-		MAKE_PARAMETER(GL_MAX_LIST_NESTING),
-		MAKE_PARAMETER(GL_MAX_NAME_STACK_DEPTH),
-		MAKE_PARAMETER(GL_MAX_PIXEL_MAP_TABLE),
-		MAKE_PARAMETER(GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_UNITS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_LOD_BIAS_EXT),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT),
-		MAKE_PARAMETER(GL_MAX_DRAW_BUFFERS_ARB),
-
+		MAKE_PARAMETER(GL_MAX_TEXTURE_LOD_BIAS),
+		MAKE_PARAMETER(GL_MAX_DRAW_BUFFERS),
+		MAKE_PARAMETER(GL_MAX_VERTEX_ATTRIBS),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_IMAGE_UNITS),
 		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_COMPONENTS),
 		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_VARYING_FLOATS),
+		MAKE_PARAMETER(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS),
 		MAKE_PARAMETER(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS),
-		MAKE_PARAMETER(GL_MAX_VARYING_FLOATS_ARB),
-		MAKE_PARAMETER(GL_MAX_VERTEX_ATTRIBS_ARB),
-		MAKE_PARAMETER(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_COORDS_ARB),
-		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_COORDS_ARB),
-		MAKE_PARAMETER(GL_MAX_TEXTURE_IMAGE_UNITS_ARB),
+		MAKE_PARAMETER(GL_MAX_CLIP_DISTANCES),
+		MAKE_PARAMETER(GL_MAX_ARRAY_TEXTURE_LAYERS),
+		MAKE_PARAMETER(GL_MAX_VARYING_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_TEXTURE_BUFFER_SIZE),
+		MAKE_PARAMETER(GL_MAX_RECTANGLE_TEXTURE_SIZE),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_OUTPUT_VERTICES),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_VERTEX_OUTPUT_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_INPUT_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_OUTPUT_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_RENDERBUFFER_SIZE),
+		MAKE_PARAMETER(GL_MAX_COLOR_ATTACHMENTS),
+		MAKE_PARAMETER(GL_MAX_SAMPLES),
+		MAKE_PARAMETER(GL_MAX_VERTEX_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_GEOMETRY_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_FRAGMENT_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_COMBINED_UNIFORM_BLOCKS),
+		MAKE_PARAMETER(GL_MAX_UNIFORM_BUFFER_BINDINGS),
+		MAKE_PARAMETER(GL_MAX_UNIFORM_BLOCK_SIZE),
+		MAKE_PARAMETER(GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS),
+		MAKE_PARAMETER(GL_MAX_COLOR_TEXTURE_SAMPLES),
+		MAKE_PARAMETER(GL_MAX_DEPTH_TEXTURE_SAMPLES),
+		MAKE_PARAMETER(GL_MAX_INTEGER_SAMPLES),
 	};
 
 	// Clear it
@@ -202,81 +328,35 @@ void CApplication::DumpGLInfo()
 
 	for (size_t i = 0; i < sizeof(aParameters)/sizeof(GLParameter); i++)
 	{
-		GLint iValue;
-		glGetIntegerv(aParameters[i].iParameter, &iValue);
+		GLint iValue[4];
+		glGetIntegerv(aParameters[i].iParameter, &iValue[0]);
 
 		if (glGetError() != GL_NO_ERROR)
 			continue;
 
-		o << aParameters[i].pszName << ": " << iValue << std::endl;
-	}
-
-	GLParameter aProgramParameters[] =
-	{
-		MAKE_PARAMETER(GL_MAX_PROGRAM_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_TEMPORARIES_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ATTRIBS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ENV_PARAMETERS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_ALU_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_TEX_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_TEX_INDIRECTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB),
-		MAKE_PARAMETER(GL_MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB),
-	};
-
-	if (!GLEW_ARB_vertex_program && !GLEW_NV_vertex_program)
-		return;
-
-	o << std::endl;
-	o << "Vertex programs:" << std::endl;
-
-	for (size_t i = 0; i < sizeof(aProgramParameters)/sizeof(GLParameter); i++)
-	{
-		GLint iValue;
-		glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, aProgramParameters[i].iParameter, &iValue);
-
-		if (glGetError() == GL_NO_ERROR)
-			o << aProgramParameters[i].pszName << ": " << iValue << std::endl;
-	}
-
-	o << std::endl;
-	o << "Fragment programs:" << std::endl;
-
-	for (size_t i = 0; i < sizeof(aProgramParameters)/sizeof(GLParameter); i++)
-	{
-		GLint iValue;
-		glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, aProgramParameters[i].iParameter, &iValue);
-
-		if (glGetError() == GL_NO_ERROR)
-			o << aProgramParameters[i].pszName << ": " << iValue << std::endl;
+		o << aParameters[i].pszName << ": " << iValue[0] << std::endl;
 	}
 }
 
 void CApplication::SwapBuffers()
 {
 	glfwSwapBuffers();
+	glfwPollEvents();
+
+	ProcessJoystickInput();
 }
 
-float CApplication::GetTime()
+double CApplication::GetTime()
 {
-	return (float)glfwGetTime();
+	return glfwGetTime();
 }
 
 bool CApplication::IsOpen()
 {
-	return !!glfwGetWindowParam( GLFW_OPENED ) && m_bIsOpen;
+	return !!glfwIsWindow((GLFWwindow)m_pWindow) && m_bIsOpen;
 }
 
-void Quit(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void Quit(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	CApplication::Get()->Close();
 }
@@ -286,6 +366,11 @@ CCommand quit("quit", ::Quit);
 void CApplication::Close()
 {
 	m_bIsOpen = false;
+}
+
+bool CApplication::HasFocus()
+{
+	return glfwGetWindowParam((GLFWwindow)m_pWindow, GLFW_ACTIVE) == GL_TRUE;
 }
 
 void CApplication::Render()
@@ -302,6 +387,12 @@ void CApplication::WindowResize(int w, int h)
 	m_iWindowWidth = w;
 	m_iWindowHeight = h;
 
+	if (m_pRenderer)
+		m_pRenderer->WindowResize(w, h);
+
+	glgui::RootPanel()->SetSize((float)w, (float)h);
+	glgui::RootPanel()->Layout();
+
 	Render();
 
 	SwapBuffers();
@@ -310,33 +401,51 @@ void CApplication::WindowResize(int w, int h)
 void CApplication::MouseMotion(int x, int y)
 {
 	glgui::CRootPanel::Get()->CursorMoved(x, y);
+
+	CManipulatorTool::MouseMoved(x, y);
 }
 
-void CApplication::MouseInput(int iButton, int iState)
+bool CApplication::MouseInput(int iButton, tinker_mouse_state_t iState)
 {
 	int mx, my;
 	GetMousePosition(mx, my);
-	if (iState == 1)
+	if (iState == TINKER_MOUSE_PRESSED)
 	{
 		if (glgui::CRootPanel::Get()->MousePressed(iButton, mx, my))
 		{
 			m_bMouseDownInGUI = true;
-			return;
+			return true;
 		}
 		else
 			m_bMouseDownInGUI = false;
 	}
-	else
+	else if (iState == TINKER_MOUSE_RELEASED)
 	{
 		if (glgui::CRootPanel::Get()->MouseReleased(iButton, mx, my))
-			return;
+			return true;
 
 		if (m_bMouseDownInGUI)
 		{
 			m_bMouseDownInGUI = false;
-			return;
+			return true;
 		}
 	}
+	else if (iState == TINKER_MOUSE_DOUBLECLICK)
+	{
+		if (glgui::CRootPanel::Get()->MouseDoubleClicked(iButton, mx, my))
+			return true;
+
+		if (m_bMouseDownInGUI)
+		{
+			m_bMouseDownInGUI = false;
+			return true;
+		}
+	}
+
+	if (CManipulatorTool::MouseInput(iButton, iState, mx, my))
+		return true;
+
+	return false;
 }
 
 tinker_keys_t MapKey(int c)
@@ -492,7 +601,7 @@ tinker_keys_t MapKey(int c)
 	}
 
 	if (c < 256)
-		return (tinker_keys_t)c;
+		return (tinker_keys_t)TranslateKeyToQwerty(c);
 
 	return TINKER_KEY_UKNOWN;
 }
@@ -552,9 +661,28 @@ tinker_keys_t MapJoystickKey(int c)
 	return TINKER_KEY_UKNOWN;
 }
 
-void CApplication::MouseInputCallback(int iButton, int iState)
+void CApplication::MouseInputCallback(void*, int iButton, int iState)
 {
-	Get()->MouseInput(MapMouseKey(iButton), iState);
+	Get()->MouseInputCallback(MapMouseKey(iButton), (tinker_mouse_state_t)iState);
+}
+
+void CApplication::MouseInputCallback(int iButton, tinker_mouse_state_t iState)
+{
+	if (iState == 1)
+	{
+		if (m_flLastMousePress < 0 || GetTime() - m_flLastMousePress > 0.25f)
+			MouseInput(iButton, iState);
+		else
+			MouseInput(iButton, TINKER_MOUSE_DOUBLECLICK);
+		m_flLastMousePress = GetTime();
+	}
+	else
+		MouseInput(iButton, iState);
+}
+
+void CApplication::MouseWheelCallback(void*, int x, int y)
+{
+	Get()->MouseWheel(x, y);
 }
 
 void CApplication::KeyEvent(int c, int e)
@@ -565,31 +693,7 @@ void CApplication::KeyEvent(int c, int e)
 		KeyRelease(MapKey(c));
 }
 
-void CApplication::CharEvent(int c, int e)
-{
-	if (e == GLFW_PRESS)
-		CharPress(c);
-	else
-		CharRelease(c);
-}
-
-void CApplication::KeyPress(int c)
-{
-	if (glgui::CRootPanel::Get()->KeyPressed(c, IsCtrlDown()))
-		return;
-
-	if (c == TINKER_KEY_F4 && IsAltDown())
-		exit(0);
-
-	DoKeyPress(c);
-}
-
-void CApplication::KeyRelease(int c)
-{
-	DoKeyRelease(c);
-}
-
-void CApplication::CharPress(int c)
+void CApplication::CharEvent(int c)
 {
 	if (c == '`')
 	{
@@ -603,93 +707,164 @@ void CApplication::CharPress(int c)
 	DoCharPress(c);
 }
 
-void CApplication::CharRelease(int c)
+bool CApplication::KeyPress(int c)
 {
-	DoCharRelease(c);
+	if (glgui::CRootPanel::Get()->KeyPressed(c, IsCtrlDown()))
+		return true;
+
+	if (c == TINKER_KEY_F4 && IsAltDown())
+		exit(0);
+
+	return DoKeyPress(c);
+}
+
+void CApplication::KeyRelease(int c)
+{
+	DoKeyRelease(c);
 }
 
 bool CApplication::IsCtrlDown()
 {
-	return glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
+	return glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_LCTRL) || glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_RCTRL);
 }
 
 bool CApplication::IsAltDown()
 {
-	return glfwGetKey(GLFW_KEY_LALT) || glfwGetKey(GLFW_KEY_RALT);
+	return glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_LALT) || glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_RALT);
 }
 
 bool CApplication::IsShiftDown()
 {
-	return glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT);
+	return glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_LSHIFT) || glfwGetKey((GLFWwindow)m_pWindow, GLFW_KEY_RSHIFT);
 }
 
 bool CApplication::IsMouseLeftDown()
 {
-	return glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+	return glfwGetMouseButton((GLFWwindow)m_pWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 }
 
 bool CApplication::IsMouseRightDown()
 {
-	return glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+	return glfwGetMouseButton((GLFWwindow)m_pWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 }
 
 bool CApplication::IsMouseMiddleDown()
 {
-	return glfwGetMouseButton(GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS;
+	return glfwGetMouseButton((GLFWwindow)m_pWindow, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS;
 }
 
 void CApplication::GetMousePosition(int& x, int& y)
 {
-	glfwGetMousePos(&x, &y);
+	glfwGetMousePos((GLFWwindow)m_pWindow, &x, &y);
+}
+
+class CJoystick
+{
+public:
+	CJoystick()
+	{
+		m_bPresent = false;
+	}
+
+public:
+	bool					m_bPresent;
+	tvector<float>			m_aflAxis;
+	unsigned char			m_iButtons;
+	unsigned long long		m_aiButtonStates;
+};
+
+static tvector<CJoystick> g_aJoysticks;
+static const size_t MAX_JOYSTICKS = 16; // This is how many GLFW supports.
+
+void CApplication::InitJoystickInput()
+{
+	g_aJoysticks.resize(MAX_JOYSTICKS);
+
+	for (size_t i = 0; i < MAX_JOYSTICKS; i++)
+	{
+		if (glfwGetJoystickParam(GLFW_JOYSTICK_1 + i, GLFW_PRESENT) == GL_TRUE)
+		{
+			g_aJoysticks[i].m_bPresent = true;
+			g_aJoysticks[i].m_aflAxis.resize(glfwGetJoystickParam(GLFW_JOYSTICK_1 + i, GLFW_AXES));
+
+			for (size_t j = 0; j < g_aJoysticks[i].m_aflAxis.size(); j++)
+				g_aJoysticks[i].m_aflAxis[j] = 0;
+
+			g_aJoysticks[i].m_iButtons = glfwGetJoystickParam(GLFW_JOYSTICK_1 + i, GLFW_BUTTONS);
+			g_aJoysticks[i].m_aiButtonStates = 0;
+
+			TAssert(g_aJoysticks[i].m_iButtons < sizeof(g_aJoysticks[i].m_aiButtonStates)*8);
+		}
+	}
+}
+
+void CApplication::ProcessJoystickInput()
+{
+	if (g_aJoysticks.size() != MAX_JOYSTICKS)
+		return;
+
+	for (size_t i = 0; i < MAX_JOYSTICKS; i++)
+	{
+		CJoystick& oJoystick = g_aJoysticks[i];
+
+		if (!oJoystick.m_bPresent)
+			continue;
+
+		static tvector<float> aflAxis;
+		aflAxis.resize(oJoystick.m_aflAxis.size());
+		glfwGetJoystickPos(i, &aflAxis[0], oJoystick.m_aflAxis.size());
+
+		for (size_t j = 0; j < oJoystick.m_aflAxis.size(); j++)
+		{
+			if (aflAxis[j] != oJoystick.m_aflAxis[j])
+				JoystickAxis(i, j, aflAxis[j], aflAxis[j]-oJoystick.m_aflAxis[j]);
+		}
+
+		oJoystick.m_aflAxis = aflAxis;
+
+		static tvector<unsigned char> aiButtons;
+		aiButtons.resize(oJoystick.m_iButtons);
+		glfwGetJoystickButtons(i, &aiButtons[0], oJoystick.m_iButtons);
+
+		for (size_t j = 0; j < oJoystick.m_iButtons; j++)
+		{
+			unsigned long long iButtonMask = (1<<j);
+			if (aiButtons[j] == GLFW_PRESS && !(oJoystick.m_aiButtonStates&iButtonMask))
+				JoystickButtonPress(i, MapJoystickKey(j));
+			else if (aiButtons[j] == GLFW_RELEASE && (oJoystick.m_aiButtonStates&iButtonMask))
+				JoystickButtonRelease(i, MapJoystickKey(j));
+
+			if (aiButtons[j] == GLFW_PRESS)
+				oJoystick.m_aiButtonStates |= iButtonMask;
+			else
+				oJoystick.m_aiButtonStates &= ~iButtonMask;
+		}
+	}
 }
 
 void CApplication::SetMouseCursorEnabled(bool bEnabled)
 {
 	if (bEnabled)
-		glfwEnable( GLFW_MOUSE_CURSOR );
+		glfwSetCursorMode( (GLFWwindow)m_pWindow, GLFW_CURSOR_NORMAL );
 	else
-		glfwDisable( GLFW_MOUSE_CURSOR );
+		glfwSetCursorMode( (GLFWwindow)m_pWindow, GLFW_CURSOR_CAPTURED );
+
+	m_bMouseEnabled = bEnabled;
 }
 
-bool CApplication::HasCommandLineSwitch(const char* pszSwitch)
+bool CApplication::IsMouseCursorEnabled()
 {
-	for (size_t i = 0; i < m_apszCommandLine.size(); i++)
-	{
-		if (strcmp(m_apszCommandLine[i], pszSwitch) == 0)
-			return true;
-	}
-
-	return false;
+	return m_bMouseEnabled;
 }
 
-const char* CApplication::GetCommandLineSwitchValue(const char* pszSwitch)
+void CApplication::PrintConsole(const tstring& sText)
 {
-	// -1 to prevent buffer overrun
-	for (size_t i = 0; i < m_apszCommandLine.size()-1; i++)
-	{
-		if (strcmp(m_apszCommandLine[i], pszSwitch) == 0)
-			return m_apszCommandLine[i+1];
-	}
-
-	return NULL;
+	GetConsole()->PrintConsole(sText);
 }
 
-void CreateApplicationWithErrorHandling(CreateApplicationCallback pfnCallback, int argc, char** argv)
+void CApplication::PrintError(const tstring& sText)
 {
-#ifdef _WIN32
-#ifndef _DEBUG
-	__try
-	{
-#endif
-#endif
+	tstring sTrimmedText = trim(sText);
 
-		// Put in a different function to avoid warnings and errors associated with object deconstructors and try/catch blocks.
-		pfnCallback(argc, argv);
-
-#if defined(_WIN32) && !defined(_DEBUG)
-	}
-	__except (CreateMinidump(GetExceptionInformation(), _T("Digitanks")), EXCEPTION_EXECUTE_HANDLER)
-	{
-	}
-#endif
+	GetConsole()->PrintConsole(tstring("[color=FF0000]ERROR: ") + sTrimmedText + "[/color]" + (sText.endswith("\n")?"\n":""));
 }

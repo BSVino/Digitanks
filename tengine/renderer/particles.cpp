@@ -2,14 +2,17 @@
 
 #include <maths.h>
 #include <mtrand.h>
-#include <game/game.h>
-#include <shaders/shaders.h>
+#include <tvector.h>
+
+#include <game/entities/game.h>
+#include <renderer/shaders.h>
 #include <tinker/cvar.h>
 #include <tinker/profiler.h>
 #include <models/models.h>
-#include <models/texturelibrary.h>
-
-#include "renderer.h"
+#include <textures/materiallibrary.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
+#include <ui/gamewindow.h>
 
 CParticleSystemLibrary* CParticleSystemLibrary::s_pParticleSystemLibrary = NULL;
 static CParticleSystemLibrary g_pParticleSystemLibrary = CParticleSystemLibrary();
@@ -19,6 +22,7 @@ extern void InitSystems();
 CParticleSystemLibrary::CParticleSystemLibrary()
 {
 	s_pParticleSystemLibrary = this;
+	m_iParticleSystemsLoaded = 0;
 
 	m_iSystemInstanceIndex = 0;
 
@@ -73,9 +77,9 @@ void CParticleSystemLibrary::Simulate()
 {
 	CParticleSystemLibrary* pPSL = Get();
 
-	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
+	tmap<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
 
-	eastl::vector<size_t> aiDeleted;
+	tvector<size_t> aiDeleted;
 
 	for (; it != pPSL->m_apInstances.end(); it++)
 	{
@@ -96,18 +100,19 @@ void CParticleSystemLibrary::Render()
 	TPROF("CParticleSystemLibrary::Render");
 
 	CParticleSystemLibrary* pPSL = Get();
-	eastl::map<size_t, CSystemInstance*>::iterator it;
+
+	if (!pPSL->m_apInstances.size())
+		return;
+
+	tmap<size_t, CSystemInstance*>::iterator it;
 
 	if (true)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
-		if (GameServer()->GetRenderer()->ShouldUseShaders())
-		{
-			c.UseProgram(CShaderLibrary::GetModelProgram());
-			c.SetUniform("bDiffuse", true);
-			c.SetUniform("iDiffuse", 0);
-			c.SetUniform("bColorSwapInAlpha", false);
-		}
+		CGameRenderingContext c(GameServer()->GetRenderer(), true);
+		c.UseProgram("model");
+		c.SetUniform("bDiffuse", true);
+		c.SetUniform("iDiffuse", 0);
+		c.SetUniform("bColorSwapInAlpha", false);
 
 		for (it = pPSL->m_apInstances.begin(); it != pPSL->m_apInstances.end(); it++)
 		{
@@ -119,14 +124,11 @@ void CParticleSystemLibrary::Render()
 
 	if (true)
 	{
-		CRenderingContext c(GameServer()->GetRenderer());
-		if (GameServer()->GetRenderer()->ShouldUseShaders())
-		{
-			c.UseProgram(CShaderLibrary::GetModelProgram());
-			c.SetUniform("bDiffuse", true);
-			c.SetUniform("iDiffuse", 0);
-			c.SetUniform("bColorSwapInAlpha", false);
-		}
+		CGameRenderingContext c(GameServer()->GetRenderer(), true);
+		c.UseProgram("model");
+		c.SetUniform("bDiffuse", true);
+		c.SetUniform("iDiffuse", 0);
+		c.SetUniform("bColorSwapInAlpha", false);
 
 		for (it = pPSL->m_apInstances.begin(); it != pPSL->m_apInstances.end(); it++)
 		{
@@ -150,7 +152,7 @@ size_t CParticleSystemLibrary::AddInstance(size_t iParticleSystem, Vector vecOri
 	if (!pSystem)
 		return ~0;
 
-	pPSL->m_apInstances.insert(eastl::pair<size_t, CSystemInstance*>(pPSL->m_iSystemInstanceIndex++, new CSystemInstance(pSystem, vecOrigin, angAngles)));
+	pPSL->m_apInstances[pPSL->m_iSystemInstanceIndex++] = new CSystemInstance(pSystem, vecOrigin, angAngles);
 	return pPSL->m_iSystemInstanceIndex-1;
 }
 
@@ -167,7 +169,7 @@ void CParticleSystemLibrary::StopInstance(size_t iInstance)
 void CParticleSystemLibrary::StopInstances(const tstring& sName)
 {
 	CParticleSystemLibrary* pPSL = Get();
-	eastl::map<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
+	tmap<size_t, CSystemInstance*>::iterator it = pPSL->m_apInstances.begin();
 
 	for (; it != pPSL->m_apInstances.end(); it++)
 	{
@@ -179,7 +181,7 @@ void CParticleSystemLibrary::StopInstances(const tstring& sName)
 
 void CParticleSystemLibrary::RemoveInstance(size_t iInstance)
 {
-	eastl::map<size_t, CSystemInstance*>::iterator it = Get()->m_apInstances.find(iInstance);
+	tmap<size_t, CSystemInstance*>::iterator it = Get()->m_apInstances.find(iInstance);
 
 	if (it == Get()->m_apInstances.end())
 		return;
@@ -223,7 +225,46 @@ void CParticleSystemLibrary::ReloadSystems()
 		pPSL->LoadParticleSystem(i);
 }
 
-void ReloadParticles(CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void CParticleSystemLibrary::ResetReferenceCounts()
+{
+	for (size_t i = 0; i < Get()->m_apParticleSystems.size(); i++)
+	{
+		if (!Get()->m_apParticleSystems[i])
+			continue;
+
+		Get()->m_apParticleSystems[i]->SetReferences(0);
+	}
+}
+
+void CParticleSystemLibrary::ClearUnreferenced()
+{
+	while (true)
+	{
+		bool bUnloaded = false;
+
+		for (size_t i = 0; i < Get()->m_apParticleSystems.size(); i++)
+		{
+			if (!Get()->m_apParticleSystems[i])
+				continue;
+
+			if (!Get()->m_apParticleSystems[i]->IsLoaded())
+				continue;
+
+			if (!Get()->m_apParticleSystems[i]->GetReferences())
+			{
+				Get()->m_apParticleSystems[i]->Unload();
+				bUnloaded = true;
+				break;
+			}
+		}
+
+		// If we unloaded something we need to start again in case it had a dependency earlier in the list.
+		if (!bUnloaded)
+			break;
+	}
+}
+
+void ReloadParticles(CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	CParticleSystemLibrary::ReloadSystems();
 }
@@ -232,10 +273,10 @@ CCommand particles_reload("particles_reload", ReloadParticles);
 
 CParticleSystem::CParticleSystem(tstring sName)
 {
+	m_iReferences = 0;
 	m_bLoaded = false;
 	m_sName = sName;
 
-	m_iTexture = 0;
 	m_iModel = 0;
 
 	m_eBlend = BLEND_ADDITIVE;
@@ -250,7 +291,7 @@ CParticleSystem::CParticleSystem(tstring sName)
 	m_flFadeIn = 0.0f;
 	m_flFadeOut = 0.25f;
 	m_flInheritedVelocity = 0.0f;
-	m_vecGravity = Vector(0, -10, 0);
+	m_vecGravity = Vector(0, 0, -10);
 	m_flDrag = 1.0f;
 	m_bRandomBillboardYaw = false;
 	m_bRandomModelYaw = true;
@@ -258,26 +299,54 @@ CParticleSystem::CParticleSystem(tstring sName)
 	m_bRandomAngleVelocity = false;
 }
 
+CParticleSystem::~CParticleSystem()
+{
+	Unload();
+}
+
 void CParticleSystem::Load()
 {
 	if (IsLoaded())
 		return;
 
+	m_iReferences = 1;
 	m_bLoaded = true;
 
-	if (GetTextureName().length() > 0)
-		SetTexture(CTextureLibrary::AddTextureID(GetTextureName()));
+	if (GetMaterialName().length() > 0)
+		SetMaterial(CMaterialLibrary::AddMaterial(GetMaterialName()));
 
 	if (GetModelName().length() > 0)
-		SetModel(CModelLibrary::Get()->AddModel(GetModelName(), true));
+		SetModel(CModelLibrary::AddModel(GetModelName()));
+
+	CParticleSystemLibrary::Get()->m_iParticleSystemsLoaded++;
 
 	for (size_t i = 0; i < GetNumChildren(); i++)
 		CParticleSystemLibrary::Get()->GetParticleSystem(GetChild(i))->Load();
 }
 
+void CParticleSystem::Unload()
+{
+	if (!IsLoaded())
+		return;
+
+	TAssert(m_iReferences == 0);
+
+	m_bLoaded = false;
+
+	SetMaterial(CMaterialHandle());
+
+	if (GetModelName().length() > 0)
+		CModelLibrary::ReleaseModel(GetModelName());
+
+	CParticleSystemLibrary::Get()->m_iParticleSystemsLoaded--;
+
+	for (size_t i = 0; i < GetNumChildren(); i++)
+		CParticleSystemLibrary::Get()->GetParticleSystem(GetChild(i))->Unload();
+}
+
 bool CParticleSystem::IsRenderable()
 {
-	return !!GetTexture() || !!GetModel();
+	return !!GetMaterial() || !!GetModel();
 }
 
 void CParticleSystem::AddChild(size_t iSystem)
@@ -323,13 +392,13 @@ CSystemInstance::~CSystemInstance()
 
 void CSystemInstance::Simulate()
 {
-	float flGameTime = GameServer()->GetGameTime();
-	float flFrameTime = GameServer()->GetFrameTime();
+	double flGameTime = GameServer()->GetGameTime();
+	double flFrameTime = GameServer()->GetFrameTime();
 
 	if (m_hFollow != NULL)
 	{
-		m_vecOrigin = m_hFollow->GetRenderOrigin();
-		m_vecInheritedVelocity = m_hFollow->GetVelocity();
+		m_vecOrigin = m_hFollow->BaseGetRenderOrigin();
+		m_vecInheritedVelocity = m_hFollow->GetGlobalVelocity();
 	}
 
 	for (size_t i = 0; i < m_aParticles.size(); i++)
@@ -339,7 +408,7 @@ void CSystemInstance::Simulate()
 		if (!pParticle->m_bActive)
 			continue;
 
-		float flLifeTime = flGameTime - pParticle->m_flSpawnTime;
+		float flLifeTime = (float)(flGameTime - pParticle->m_flSpawnTime);
 		if (flLifeTime > m_pSystem->GetLifeTime())
 		{
 			pParticle->m_bActive = false;
@@ -347,12 +416,12 @@ void CSystemInstance::Simulate()
 			continue;
 		}
 
-		pParticle->m_vecOrigin += pParticle->m_vecVelocity * flFrameTime;
-		pParticle->m_vecVelocity += m_pSystem->GetGravity() * flFrameTime;
-		pParticle->m_vecVelocity *= (1-((1-m_pSystem->GetDrag()) * flFrameTime));
+		pParticle->m_vecOrigin += pParticle->m_vecVelocity * (float)flFrameTime;
+		pParticle->m_vecVelocity += m_pSystem->GetGravity() * (float)flFrameTime;
+		pParticle->m_vecVelocity *= (1-((1-m_pSystem->GetDrag()) * (float)flFrameTime));
 
 		if (m_pSystem->GetRandomAngleVelocity())
-			pParticle->m_angAngles = (pParticle->m_angAngles + pParticle->m_angAngleVelocity*GameServer()->GetFrameTime());
+			pParticle->m_angAngles = (pParticle->m_angAngles + pParticle->m_angAngleVelocity*(float)GameServer()->GetFrameTime());
 
 		float flLifeTimeRamp = flLifeTime / m_pSystem->GetLifeTime();
 
@@ -460,21 +529,20 @@ void CSystemInstance::SpawnParticle()
 		pNewParticle->m_flBillboardYaw = 0;
 }
 
-void CSystemInstance::Render(CRenderingContext* c)
+void CSystemInstance::Render(CGameRenderingContext* c)
 {
 	for (size_t i = 0; i < m_apChildren.size(); i++)
 		m_apChildren[i]->Render(c);
 
-	CRenderer* pRenderer = GameServer()->GetRenderer();
+	CGameRenderer* pRenderer = GameWindow()->GetGameRenderer();
 
-	Vector vecForward, vecRight, vecUp;
-	pRenderer->GetCameraVectors(&vecForward, &vecRight, &vecUp);
+	Vector vecForward, vecLeft, vecUp;
+	pRenderer->GetCameraVectors(&vecForward, &vecLeft, &vecUp);
 
-	if (m_pSystem->GetTexture())
-		c->BindTexture(m_pSystem->GetTexture());
+	if (m_pSystem->GetMaterial())
+		c->UseMaterial(m_pSystem->GetMaterial());
 
 	c->SetBlend(m_pSystem->GetBlend());
-	c->SetDepthMask(m_pSystem->GetBlend() == BLEND_NONE);
 
 	for (size_t i = 0; i < m_aParticles.size(); i++)
 	{
@@ -485,10 +553,7 @@ void CSystemInstance::Render(CRenderingContext* c)
 
 		if (m_pSystem->GetModel())
 		{
-			if (pRenderer->ShouldUseShaders())
-				c->SetUniform("flAlpha", pParticle->m_flAlpha);
-			else
-				c->SetAlpha(pParticle->m_flAlpha);
+			c->SetUniform("flAlpha", pParticle->m_flAlpha);
 
 			if (m_bColorOverride)
 				c->SetColor(m_clrOverride);
@@ -496,8 +561,8 @@ void CSystemInstance::Render(CRenderingContext* c)
 				c->SetColor(m_pSystem->GetColor());
 
 			c->Translate(pParticle->m_vecOrigin);
-			c->Rotate(-pParticle->m_angAngles.y, Vector(0, 1, 0));
-			c->Rotate(pParticle->m_angAngles.p, Vector(0, 0, 1));
+			c->Rotate(-pParticle->m_angAngles.y, Vector(0, 0, 1));
+			c->Rotate(pParticle->m_angAngles.p, Vector(0, 1, 0));
 			c->Rotate(pParticle->m_angAngles.r, Vector(1, 0, 0));
 			c->Scale(pParticle->m_flRadius, pParticle->m_flRadius, pParticle->m_flRadius);
 			c->RenderModel(m_pSystem->GetModel());
@@ -516,13 +581,13 @@ void CSystemInstance::Render(CRenderingContext* c)
 				float flSin = sin(flYaw);
 				float flCos = cos(flYaw);
 
-				vecParticleUp = (flCos*vecUp + flSin*vecRight)*flRadius;
-				vecParticleRight = (flCos*vecRight - flSin*vecUp)*flRadius;
+				vecParticleUp = (flCos*vecUp + flSin*vecLeft)*flRadius;
+				vecParticleRight = (flCos*vecLeft - flSin*vecUp)*flRadius;
 			}
 			else
 			{
 				vecParticleUp = vecUp*flRadius;
-				vecParticleRight = vecRight*flRadius;
+				vecParticleRight = vecLeft*flRadius;
 			}
 
 			Vector vecTL = vecOrigin - vecParticleRight + vecParticleUp;
@@ -530,25 +595,22 @@ void CSystemInstance::Render(CRenderingContext* c)
 			Vector vecBL = vecOrigin - vecParticleRight - vecParticleUp;
 			Vector vecBR = vecOrigin + vecParticleRight - vecParticleUp;
 
-			if (pRenderer->ShouldUseShaders())
-				c->SetUniform("flAlpha", pParticle->m_flAlpha);
-			else
-				c->SetAlpha(pParticle->m_flAlpha);
+			c->SetUniform("flAlpha", pParticle->m_flAlpha);
 
 			if (m_bColorOverride)
 				c->SetColor(m_clrOverride);
 			else
 				c->SetColor(m_pSystem->GetColor());
 
-			c->BeginRenderQuads();
+			c->BeginRenderTriFan();
 
-			c->TexCoord(0, 1);
+			c->TexCoord(0.0f, 1.0f);
 			c->Vertex(vecTL);
-			c->TexCoord(0, 0);
+			c->TexCoord(0.0f, 0.0f);
 			c->Vertex(vecBL);
-			c->TexCoord(1, 0);
+			c->TexCoord(1.0f, 0.0f);
 			c->Vertex(vecBR);
-			c->TexCoord(1, 1);
+			c->TexCoord(1.0f, 1.0f);
 			c->Vertex(vecTR);
 
 			c->EndRender();
