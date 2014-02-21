@@ -22,7 +22,7 @@ void CInstructorEntity::Spawn()
 	SetName("instructor");
 }
 
-void CInstructorEntity::DisplayLesson(const eastl::vector<tstring>& sArgs)
+void CInstructorEntity::DisplayLesson(const tvector<tstring>& sArgs)
 {
 	if (sArgs.size() == 0)
 	{

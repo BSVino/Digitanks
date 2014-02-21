@@ -6,20 +6,20 @@
 
 #include "structures/structure.h"
 
-class CDigitanksRenderer : public CRenderer
+class CDigitanksRenderer : public CGameRenderer
 {
-	DECLARE_CLASS(CDigitanksRenderer, CRenderer);
+	DECLARE_CLASS(CDigitanksRenderer, CGameRenderer);
 
 public:
 					CDigitanksRenderer();
 
 public:
 	virtual void	Initialize();
-	virtual void	SetupFrame();
-	virtual void	DrawBackground() {};	// Skybox instead
-	virtual void	StartRendering();
+	virtual void	SetupFrame(class CRenderingContext* pContext);
+	virtual void	DrawBackground(class CRenderingContext* pContext) {};	// Skybox instead
+	virtual void	StartRendering(class CRenderingContext* pContext);
 	virtual void	RenderSkybox();
-	virtual void	FinishRendering();
+	virtual void	FinishRendering(class CRenderingContext* pContext);
 	virtual void	SetupSceneShader();
 	virtual void	RenderPreviewModes();
 	virtual void	RenderFogOfWar();
@@ -73,7 +73,7 @@ protected:
 
 	float			m_flLastBloomPulse;
 
-	eastl::vector<CEntityHandle<CSupplier> > m_ahTendrilBatches;
+	tvector<CEntityHandle<CSupplier> > m_ahTendrilBatches;
 };
 
 #endif

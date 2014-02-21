@@ -40,13 +40,18 @@ int main(int argc, char** args)
 	}
 	else
 	{
-		if (argc < 3)
+		if (argc < 2)
 		{
-			TMsg(tstring("Usage: ") + Shell()->GetBinaryName() + " input.obj output.toy [--physics input.obj]\n");
+			TMsg(tstring("Usage: ") + Shell()->GetBinaryName() + " input.obj [output.toy] [--physics input.obj]\n");
 			return 1;
 		}
 
-		tstring sOutput = args[2];
+		tstring sOutput;
+		if (argc < 3)
+			sOutput = tstring(args[1]).substr(0, strlen(args[1])-4) + ".toy";
+		else
+			sOutput = args[2];
+
 		tstring sPhysics;
 		bool bGlobalTransformations = false;
 

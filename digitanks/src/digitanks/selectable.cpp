@@ -15,14 +15,14 @@ INPUTS_TABLE_BEGIN(CSelectable);
 	INPUT_DEFINE(Select);
 INPUTS_TABLE_END();
 
-void CSelectable::Select(const eastl::vector<tstring>& sArgs)
+void CSelectable::Select(const tvector<tstring>& sArgs)
 {
 	if (!GetDigitanksTeam())
 		return;
 
 	for (size_t i = 0; i < sArgs.size(); i++)
 	{
-		if (sArgs[i] == _T("if-selection-empty"))
+		if (sArgs[i] == "if-selection-empty")
 		{
 			if (GetDigitanksTeam()->GetPrimarySelection())
 				return;

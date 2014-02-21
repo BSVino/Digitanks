@@ -203,7 +203,7 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			eastl::string sTutorialName;
+			tstring sTutorialName;
 			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
 				sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
 
@@ -240,7 +240,7 @@ void CDigitanksTeam::SetPrimarySelection(const CSelectable* pCurrent)
 
 		if (DigitanksGame()->GetGameType() == GAMETYPE_STANDARD && !GetPrimaryCPU())
 		{
-			eastl::string sTutorialName;
+			tstring sTutorialName;
 			if (DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
 				sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
 
@@ -340,7 +340,7 @@ void CDigitanksTeam::StartTurn()
 			pCPU->CalculateDataFlow();
 	}
 
-	eastl::vector<CDigitanksEntity*> apMembers;
+	tvector<CDigitanksEntity*> apMembers;
 
 	// Form a list so that members added during another member's startturn aren't considered this turn.
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -377,14 +377,14 @@ void CDigitanksTeam::StartTurn()
 			// Return the excess.
 			m_flMegabytes = GetUpdateDownloaded() - GetUpdateSize();
 
-			AppendTurnInfo(_T("'") + GetUpdateDownloading()->GetName() + _T("' finished downloading."));
+			AppendTurnInfo("'" + GetUpdateDownloading()->GetName() + "' finished downloading.");
 
 			DownloadComplete();
 		}
 		else
 		{
 			tstring s;
-			s.sprintf((_T("Downloading '") + GetUpdateDownloading()->GetName() + _T("' (%d turns left)")).c_str(), GetTurnsToDownload());
+			s.sprintf(("Downloading '" + GetUpdateDownloading()->GetName() + "' (%d turns left)").c_str(), GetTurnsToDownload());
 			AppendTurnInfo(s);
 		}
 	}
@@ -406,7 +406,7 @@ void CDigitanksTeam::StartTurn()
 
 void CDigitanksTeam::EndTurn()
 {
-	m_sTurnInfo = _T("");
+	m_sTurnInfo = "";
 	m_aActionItems.clear();
 
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
@@ -551,7 +551,7 @@ void CDigitanksTeam::YouLoseSirGoodDay()
 {
 	m_bLost = true;
 
-	::YouLoseSirGoodDay.RunCommand(_T(""), GetClient());
+	::YouLoseSirGoodDay.RunCommand("", GetClient());
 }
 
 void CDigitanksTeam::CountBandwidth()
@@ -580,9 +580,9 @@ void CDigitanksTeam::CountBandwidth()
 void CDigitanksTeam::AppendTurnInfo(const tstring& sTurnInfo)
 {
 	if (m_sTurnInfo.length() == 0)
-		m_sTurnInfo = _T("TURN REPORT\n \n");
+		m_sTurnInfo = "TURN REPORT\n \n";
 
-	m_sTurnInfo += _T("* ") + sTurnInfo + _T("\n");
+	m_sTurnInfo += "* " + sTurnInfo + "\n";
 }
 
 tstring CDigitanksTeam::GetTurnInfo()
@@ -665,7 +665,7 @@ void CDigitanksTeam::CalculateEntityVisibility(CBaseEntity* pEntity)
 
 float CDigitanksTeam::GetEntityVisibility(size_t iHandle)
 {
-	eastl::map<size_t, float>::iterator it = m_aflVisibilities.find(iHandle);
+	tmap<size_t, float>::iterator it = m_aflVisibilities.find(iHandle);
 	if (it == m_aflVisibilities.end())
 		return 0;
 

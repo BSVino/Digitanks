@@ -24,7 +24,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include <datamanager/dataserializer.h>
 #include <renderer/renderer.h>
-#include <textures/texturelibrary.h>
+#include <textures/materiallibrary.h>
 
 CTextureSheet::CTextureSheet(tstring sFile)
 {
@@ -36,10 +36,10 @@ CTextureSheet::CTextureSheet(tstring sFile)
 	for (size_t i = 0; i < pFile->GetNumChildren(); i++)
 	{
 		CData* pChild = pFile->GetChild(i);
-		if (pChild->GetKey() == "Texture")
+		if (pChild->GetKey() == "Material")
 		{
 			tstring sTexture = pChild->GetValueString();
-			m_hDefaultSheet = CTextureLibrary::AddTexture(sTexture);
+			m_hDefaultSheet = CMaterialLibrary::AddMaterial(sTexture);
 		}
 		else if (pChild->GetKey() == "Area")
 		{
@@ -67,11 +67,11 @@ CTextureSheet::CTextureSheet(tstring sFile)
 			m_aAreas[pChild->GetValueString()].m_rRect = Rect(x, y, w, h);
 
 			m_aAreas[pChild->GetValueString()].m_hSheet.Reset();
-			pData = pChild->FindChild("Texture");
+			pData = pChild->FindChild("Material");
 			if (pData)
 			{
 				tstring sTexture = pData->GetValueString();
-				m_aAreas[pChild->GetValueString()].m_hSheet = CTextureLibrary::AddTexture(sTexture);
+				m_aAreas[pChild->GetValueString()].m_hSheet = CMaterialLibrary::AddMaterial(sTexture);
 			}
 		}
 	}
@@ -96,14 +96,14 @@ const Rect& CTextureSheet::GetArea(const tstring& sArea) const
 	return it->second.m_rRect;
 }
 
-CTextureHandle CTextureSheet::GetSheet(const tstring& sArea) const
+CMaterialHandle CTextureSheet::GetSheet(const tstring& sArea) const
 {
 	tmap<tstring, CTextureArea>::const_iterator it = m_aAreas.find(sArea);
 
 	if (it == m_aAreas.end())
-		return CTextureHandle();
+		return CMaterialHandle();
 
-	const CTextureHandle& hSheet = it->second.m_hSheet;
+	const CMaterialHandle& hSheet = it->second.m_hSheet;
 	if (!hSheet.IsValid())
 		return m_hDefaultSheet;
 
@@ -117,11 +117,15 @@ size_t CTextureSheet::GetSheetWidth(const tstring& sArea) const
 	if (it == m_aAreas.end())
 		return 0;
 
-	const CTextureHandle& hSheet = it->second.m_hSheet;
+	const CMaterialHandle& hSheet = it->second.m_hSheet;
 	if (!hSheet.IsValid())
-		return m_hDefaultSheet->m_iWidth;
+	{
+		TAssertNoMsg(m_hDefaultSheet->m_ahTextures.size());
+		return m_hDefaultSheet->m_ahTextures[0]->m_iWidth;
+	}
 
-	return it->second.m_hSheet->m_iWidth;
+	TAssertNoMsg(it->second.m_hSheet->m_ahTextures.size());
+	return it->second.m_hSheet->m_ahTextures[0]->m_iWidth;
 }
 
 size_t CTextureSheet::GetSheetHeight(const tstring& sArea) const
@@ -131,9 +135,13 @@ size_t CTextureSheet::GetSheetHeight(const tstring& sArea) const
 	if (it == m_aAreas.end())
 		return 0;
 
-	const CTextureHandle& hSheet = it->second.m_hSheet;
+	const CMaterialHandle& hSheet = it->second.m_hSheet;
 	if (!hSheet.IsValid())
-		return m_hDefaultSheet->m_iHeight;
+	{
+		TAssertNoMsg(m_hDefaultSheet->m_ahTextures.size());
+		return m_hDefaultSheet->m_ahTextures[0]->m_iHeight;
+	}
 
-	return it->second.m_hSheet->m_iHeight;
+	TAssertNoMsg(it->second.m_hSheet->m_ahTextures.size());
+	return it->second.m_hSheet->m_ahTextures[0]->m_iHeight;
 }

@@ -64,9 +64,9 @@ CCamera* CreateCamera()
 	return pCamera;
 }
 
-CLevel* CreateLevel()
+CResource<CLevel> CreateLevel()
 {
-	return new CDigitanksLevel();
+	return CResource<CLevel>(new CDigitanksLevel());
 }
 
 REGISTER_ENTITY(CDigitanksGame);
@@ -146,7 +146,7 @@ void CDigitanksGame::Precache()
 	BaseClass::Precache();
 
 	// We precache this for the hud since it's not an entity
-	PrecacheSound(_T("sound/actionsign.wav"));
+	PrecacheSound("sound/actionsign.wav");
 }
 
 void CDigitanksGame::Spawn()
@@ -175,7 +175,7 @@ void CDigitanksGame::Spawn()
 
 	m_pLevel = NULL;
 
-	m_sObjective = _T("Win the game");
+	m_sObjective = "Win the game";
 }
 
 void CDigitanksGame::RegisterNetworkFunctions()
@@ -278,69 +278,69 @@ void CDigitanksGame::ReadGameScript(tstring sScript)
 	for (size_t i = 0; i < m_aflUpgradeCosts.size(); i++)
 		m_aflUpgradeCosts[i] = 0;
 
-	std::basic_ifstream<tchar> f((eastl::string("scripts/") + convertstring<tchar, char>(sScript)).c_str());
+	std::basic_ifstream<tchar> f((tstring("scripts/") + convertstring<tchar, char>(sScript)).c_str());
 	CData* pData = new CData();
 	CDataSerializer::Read(f, pData);
 
-	CData* pConstructionCosts = pData->FindChild(_T("ConstructionCosts"));
+	CData* pConstructionCosts = pData->FindChild("ConstructionCosts");
 
 	if (pConstructionCosts)
 	{
 		CData* pChild;
 		
-		pChild = pConstructionCosts->FindChild(_T("AutoTurret"));
+		pChild = pConstructionCosts->FindChild("AutoTurret");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_FIREWALL] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Minibuffer"));
+		pChild = pConstructionCosts->FindChild("Minibuffer");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_MINIBUFFER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Buffer"));
+		pChild = pConstructionCosts->FindChild("Buffer");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_BUFFER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("BufferUpgrade"));
+		pChild = pConstructionCosts->FindChild("BufferUpgrade");
 		if (pChild)
 			m_aflUpgradeCosts[STRUCTURE_BUFFER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Battery"));
+		pChild = pConstructionCosts->FindChild("Battery");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_BATTERY] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("PSU"));
+		pChild = pConstructionCosts->FindChild("PSU");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("PSUUpgrade"));
+		pChild = pConstructionCosts->FindChild("PSUUpgrade");
 		if (pChild)
 			m_aflUpgradeCosts[STRUCTURE_PSU] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("ResistorLoader"));
+		pChild = pConstructionCosts->FindChild("ResistorLoader");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_INFANTRYLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("DigitankLoader"));
+		pChild = pConstructionCosts->FindChild("DigitankLoader");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_TANKLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("ArtilleryLoader"));
+		pChild = pConstructionCosts->FindChild("ArtilleryLoader");
 		if (pChild)
 			m_aflConstructionCosts[STRUCTURE_ARTILLERYLOADER] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Resistor"));
+		pChild = pConstructionCosts->FindChild("Resistor");
 		if (pChild)
 			m_aflConstructionCosts[UNIT_INFANTRY] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Tank"));
+		pChild = pConstructionCosts->FindChild("Tank");
 		if (pChild)
 			m_aflConstructionCosts[UNIT_TANK] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Artillery"));
+		pChild = pConstructionCosts->FindChild("Artillery");
 		if (pChild)
 			m_aflConstructionCosts[UNIT_ARTILLERY] = pChild->GetValueFloat();
 
-		pChild = pConstructionCosts->FindChild(_T("Scout"));
+		pChild = pConstructionCosts->FindChild("Scout");
 		if (pChild)
 			m_aflConstructionCosts[UNIT_SCOUT] = pChild->GetValueFloat();
 	}
@@ -418,26 +418,26 @@ void CDigitanksGame::SetupProps()
 
 			if (GetGameType() == GAMETYPE_ARTILLERY)
 			{
-				pProp->SetModel(_T("models/props/prop05.obj"));
+				pProp->SetModel(_T("models/props/prop05.toy"));
 			}
 			else
 			{
 				switch (RandomInt(0, 3))
 				{
 				case 0:
-					pProp->SetModel(_T("models/props/prop01.obj"));
+					pProp->SetModel(_T("models/props/prop01.toy"));
 					break;
 
 				case 1:
-					pProp->SetModel(_T("models/props/prop02.obj"));
+					pProp->SetModel(_T("models/props/prop02.toy"));
 					break;
 
 				case 2:
-					pProp->SetModel(_T("models/props/prop03.obj"));
+					pProp->SetModel(_T("models/props/prop03.toy"));
 					break;
 
 				case 3:
-					pProp->SetModel(_T("models/props/prop04.obj"));
+					pProp->SetModel(_T("models/props/prop04.toy"));
 					break;
 				}
 			}
@@ -451,7 +451,7 @@ void CDigitanksGame::ScatterNeutralUnits()
 
 	CDigitanksTeam* pTeam = GetDigitanksTeam(GetNumTeams()-1);
 	pTeam->SetColor(Color(128, 128, 128));
-	pTeam->SetTeamName(tstring(_T("Network Guardians")));
+	pTeam->SetTeamName(tstring("Network Guardians"));
 	pTeam->Bot_UseArtilleryAI();
 	pTeam->SetNotHumanPlayable();
 	pTeam->DontIncludeInScoreboard();
@@ -485,9 +485,9 @@ CVar game_tanks("game_tanks", "3");
 
 void CDigitanksGame::SetupArtillery()
 {
-	TMsg(_T("Setting up artillery game.\n"));
+	TMsg("Setting up artillery game.\n");
 
-	m_sObjective = _T("Destroy all enemy tanks");
+	m_sObjective = "Destroy all enemy tanks";
 
 	int iPlayers = game_players.GetInt() + game_bots.GetInt();
 
@@ -518,7 +518,7 @@ void CDigitanksGame::SetupArtillery()
 	int iTanks = game_tanks.GetInt();
 
 	if (GameServer()->ShouldSetupFromLobby())
-		iTanks = stoi(CGameLobbyClient::L_GetInfoValue(_T("tanks")).c_str());
+		iTanks = stoi(CGameLobbyClient::L_GetInfoValue("tanks").c_str());
 
 	if (iTanks > 4)
 		iTanks = 4;
@@ -526,7 +526,7 @@ void CDigitanksGame::SetupArtillery()
 		iTanks = 1;
 	game_tanks.SetValue(iTanks);
 
-	eastl::vector<size_t> aiAvailableColors;
+	tvector<size_t> aiAvailableColors;
 	if (GameServer()->ShouldSetupFromLobby())
 	{
 		for (int i = 0; i < 8; i++)
@@ -535,8 +535,8 @@ void CDigitanksGame::SetupArtillery()
 		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-			tstring sColor = pPlayer->GetInfoValue(_T("color"));
-			if (sColor == _T("random") || sColor == _T(""))
+			tstring sColor = pPlayer->GetInfoValue("color");
+			if (sColor == "random" || sColor == "")
 				continue;
 
 			size_t iColor = stoi(sColor.c_str());
@@ -562,8 +562,8 @@ void CDigitanksGame::SetupArtillery()
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
 			if (pPlayer)
 			{
-				tstring sColor = pPlayer->GetInfoValue(_T("color"));
-				if (sColor == _T("random") || sColor == _T(""))
+				tstring sColor = pPlayer->GetInfoValue("color");
+				if (sColor == "random" || sColor == "")
 				{
 					size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
 					pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
@@ -585,10 +585,10 @@ void CDigitanksGame::SetupArtillery()
 				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
 			}
 
-			if (pPlayer && pPlayer->GetInfoValue(_T("bot")) != _T("1"))
-				pTeam->SetTeamName(pPlayer->GetInfoValue(_T("name")));
+			if (pPlayer && pPlayer->GetInfoValue("bot") != "1")
+				pTeam->SetTeamName(pPlayer->GetInfoValue("name"));
 
-			if (pPlayer->GetInfoValue(_T("bot")) == _T("1"))
+			if (pPlayer->GetInfoValue("bot") == "1")
 				pTeam->SetClient(NETWORK_BOT);
 			else
 			{
@@ -621,11 +621,11 @@ void CDigitanksGame::SetupArtillery()
 
 void CDigitanksGame::SetupStrategy()
 {
-	TMsg(_T("Setting up strategy game.\n"));
+	TMsg("Setting up strategy game.\n");
 
-	m_sObjective = _T("Destroy all enemy CPUs");
+	m_sObjective = "Destroy all enemy CPUs";
 
-	ReadGameScript(_T("strategy.txt"));
+	ReadGameScript("strategy.txt");
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
@@ -668,11 +668,11 @@ void CDigitanksGame::SetupStrategy()
 		Vector(-180, 0, -180),
 	};
 
-	eastl::vector<Vector> avecRandomStartingPositions;
+	tvector<Vector> avecRandomStartingPositions;
 	for (int i = 0; i < 4; i++)
 		avecRandomStartingPositions.insert(avecRandomStartingPositions.begin()+RandomInt(0, i), avecStartingPositions[i]);
 
-	eastl::vector<size_t> aiAvailableColors;
+	tvector<size_t> aiAvailableColors;
 	if (GameServer()->ShouldSetupFromLobby())
 	{
 		for (int i = 0; i < 8; i++)
@@ -681,8 +681,8 @@ void CDigitanksGame::SetupStrategy()
 		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
-			tstring sColor = pPlayer->GetInfoValue(_T("color"));
-			if (sColor == _T("random") || sColor == _T(""))
+			tstring sColor = pPlayer->GetInfoValue("color");
+			if (sColor == "random" || sColor == "")
 				continue;
 
 			size_t iColor = stoi(sColor.c_str());
@@ -708,8 +708,8 @@ void CDigitanksGame::SetupStrategy()
 			CLobbyPlayer* pPlayer = CGameLobbyClient::L_GetPlayer(i);
 			if (pPlayer)
 			{
-				tstring sColor = pPlayer->GetInfoValue(_T("color"));
-				if (sColor == _T("random") || sColor == _T(""))
+				tstring sColor = pPlayer->GetInfoValue("color");
+				if (sColor == "random" || sColor == "")
 				{
 					size_t iColor = RandomInt(0, aiAvailableColors.size()-1);
 					pTeam->SetColor(g_aclrTeamColors[aiAvailableColors[iColor]]);
@@ -731,10 +731,10 @@ void CDigitanksGame::SetupStrategy()
 				aiAvailableColors.erase(aiAvailableColors.begin()+iColor);
 			}
 
-			if (pPlayer && pPlayer->GetInfoValue(_T("bot")) != _T("1"))
-				pTeam->SetTeamName(pPlayer->GetInfoValue(_T("name")));
+			if (pPlayer && pPlayer->GetInfoValue("bot") != "1")
+				pTeam->SetTeamName(pPlayer->GetInfoValue("name"));
 
-			if (pPlayer->GetInfoValue(_T("bot")) == _T("1"))
+			if (pPlayer->GetInfoValue("bot") == "1")
 				pTeam->SetClient(NETWORK_BOT);
 			else
 			{
@@ -814,7 +814,7 @@ void CDigitanksGame::SetupStrategy()
 	{
 		for (size_t i = 0; i < CGameLobbyClient::L_GetNumPlayers(); i++)
 		{
-			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue(_T("bot")) == _T("1"))
+			if (CGameLobbyClient::L_GetPlayer(i)->GetInfoValue("bot") == "1")
 				continue;
 
 			// There's one neutral team at the front so skip it.
@@ -849,7 +849,7 @@ void CDigitanksGame::SetupStrategy()
 
 void CDigitanksGame::SetupMenuMarch()
 {
-	TMsg(_T("Setting up menu march.\n"));
+	TMsg("Setting up menu march.\n");
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain();
@@ -861,7 +861,7 @@ void CDigitanksGame::SetupMenuMarch()
 	CMenuMarcher* pMarcher;
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(_T("Specifying marchers"), 4*5*4);
+		GameServer()->GetWorkListener()->SetAction("Specifying marchers", 4*5*4);
 
 	for (size_t i = 0; i < 4; i++)
 	{
@@ -889,7 +889,7 @@ void CDigitanksGame::SetupMenuMarch()
 	m_iPowerups = 0;
 }
 
-void MissionReload(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void MissionReload(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
@@ -916,7 +916,7 @@ void MissionReload(class CCommand* pCommand, eastl::vector<tstring>& asTokens, c
 
 CCommand mission_reload("mission_reload", ::MissionReload);
 
-void MissionWin(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void MissionWin(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	if (!CVar::GetCVarBool("cheats"))
 		return;
@@ -926,7 +926,7 @@ void MissionWin(class CCommand* pCommand, eastl::vector<tstring>& asTokens, cons
 
 CCommand mission_win("mission_win", ::MissionWin);
 
-void MissionLose(class CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void MissionLose(class CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	DigitanksGame()->PlayerLoss(asTokens);
 }
@@ -935,7 +935,7 @@ CCommand mission_lose("mission_lose", ::MissionLose);
 
 void CDigitanksGame::SetupCampaign(bool bReload)
 {
-	TMsg(sprintf(tstring("Setting up campaign %s.\n"), CVar::GetCVarValue(_T("game_level")).c_str()));
+	TMsg(sprintf(tstring("Setting up campaign %s.\n"), CVar::GetCVarValue("game_level").c_str()));
 
 	SetCurrentLevel(CVar::GetCVarValue("game_level"));
 
@@ -1130,9 +1130,9 @@ void CDigitanksGame::SetupEntities(int iConnection, CNetworkParameters* p)
 	}
 }
 
-eastl::vector<CLevel*> CDigitanksGame::GetLevels(gametype_t eGameType)
+tvector<CLevel*> CDigitanksGame::GetLevels(gametype_t eGameType)
 {
-	eastl::vector<CLevel*> ahReturn;
+	tvector<CLevel*> ahReturn;
 	for (size_t i = 0; i < GameServer()->GetNumLevels(); i++)
 	{
 		CDigitanksLevel* pLevel = dynamic_cast<CDigitanksLevel*>(GameServer()->GetLevel(i));
@@ -1153,7 +1153,7 @@ size_t CDigitanksGame::GetNumLevels(gametype_t eGameType)
 
 CDigitanksLevel* CDigitanksGame::GetLevel(gametype_t eGameType, size_t i)
 {
-	eastl::vector<CLevel*> ahLevels = GetLevels(eGameType);
+	tvector<CLevel*> ahLevels = GetLevels(eGameType);
 	if (i >= ahLevels.size())
 		return NULL;
 
@@ -1264,7 +1264,7 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	DigitanksWindow()->RenderLoading();
 
-	eastl::vector<eastl::string> asSpare;
+	tvector<tstring> asSpare;
 	asSpare.push_back("CDigitanksGame");
 	asSpare.push_back("CDigitanksTeam");
 
@@ -1272,7 +1272,7 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	float flTerrainHeight = game_terrainheight.GetFloat();
 	if (GameServer()->ShouldSetupFromLobby())
-		flTerrainHeight = (float)stof(CGameLobbyClient::L_GetInfoValue(_T("terrain")).c_str());
+		flTerrainHeight = (float)stof(CGameLobbyClient::L_GetInfoValue("terrain").c_str());
 
 	m_hTerrain = GameServer()->Create<CTerrain>("CTerrain");
 	m_hTerrain->GenerateTerrain(flTerrainHeight);
@@ -1286,14 +1286,14 @@ void CDigitanksGame::SetupArtilleryRound()
 
 	size_t iTanksPerPlayer = game_tanks.GetInt();
 	if (GameServer()->ShouldSetupFromLobby())
-		iTanksPerPlayer = stoi(CGameLobbyClient::L_GetInfoValue(_T("tanks")).c_str());
+		iTanksPerPlayer = stoi(CGameLobbyClient::L_GetInfoValue("tanks").c_str());
 
 	size_t iTotalTanks = iTanksPerPlayer * iPlayers;
 
 	size_t iSections = (int)sqrt((float)iTotalTanks);
 	float flSectionSize = flMapSize*2/iSections;
 
-	eastl::vector<size_t> aiRandomTeamPositions;
+	tvector<size_t> aiRandomTeamPositions;
 	// 8 random starting positions.
 	for (size_t i = 0; i < iPlayers; i++)
 	{
@@ -1302,7 +1302,7 @@ void CDigitanksGame::SetupArtilleryRound()
 	}
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(_T("Randomizing tank locations"), iTotalTanks);
+		GameServer()->GetWorkListener()->SetAction("Randomizing tank locations", iTotalTanks);
 
 	size_t iPosition = 0;
 	size_t iTanksPlaced = 0;
@@ -1396,16 +1396,16 @@ bool CDigitanksGame::HasRounds()
 	return m_eGameType == GAMETYPE_ARTILLERY;
 }
 
-void CDigitanksGame::Autosave(const eastl::vector<tstring>& sArgs)
+void CDigitanksGame::Autosave(const tvector<tstring>& sArgs)
 {
 	Autosave();
 }
 
 void CDigitanksGame::Autosave()
 {
-	GameServer()->SaveToFile(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), _T("autosave.sav")).c_str());
+	GameServer()->SaveToFile(GetAppDataDirectory(DigitanksWindow()->AppDirectory(), "autosave.sav").c_str());
 
-	DigitanksWindow()->GetChatBox()->PrintChat(_T("Autosave...\n"));
+	DigitanksWindow()->GetChatBox()->PrintChat("Autosave...\n");
 }
 
 void CDigitanksGame::Think()
@@ -1539,7 +1539,7 @@ void CDigitanksGame::Think()
 
 		if (GameNetwork()->IsHost() && GameServer()->GetGameTime() > m_flLastFireworks + RandomFloat(0.5f, 3.0f))
 		{
-			eastl::vector<CEntityHandle<CDigitanksEntity> > ahEntities;
+			tvector<CEntityHandle<CDigitanksEntity> > ahEntities;
 			for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 			{
 				if (!CBaseEntity::GetEntity(i))
@@ -1762,7 +1762,7 @@ void CDigitanksGame::FireTanks()
 	SetControlMode(MODE_NONE);
 }
 
-void CDigitanksGame::CancelAutoMoves(const eastl::vector<tstring>& sArgs)
+void CDigitanksGame::CancelAutoMoves(const tvector<tstring>& sArgs)
 {
 	CDigitanksTeam* pTeam = GetCurrentTeam();
 	for (size_t i = 0; i < pTeam->GetNumTanks(); i++)
@@ -1915,7 +1915,7 @@ void CDigitanksGame::StartTurn(int iConnection, CNetworkParameters* p)
 		m_iTurn++;
 
 	if (GetGameType() != GAMETYPE_CAMPAIGN && m_iCurrentTeam == (size_t)0 && m_iTurn > 10 && m_iTurn%5 == 0)
-		Autosave(eastl::vector<tstring>());
+		Autosave(tvector<tstring>());
 
 	if (++m_iCurrentTeam >= GetNumTeams())
 		m_iCurrentTeam = 0;
@@ -1978,7 +1978,7 @@ bool CDigitanksGame::Explode(CBaseEntity* pAttacker, CBaseEntity* pInflictor, fl
 	else
 		vecExplosionOrigin = pAttacker->GetOrigin();
 
-	eastl::vector<CBaseEntity*> apHit;
+	tvector<CBaseEntity*> apHit;
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -2078,15 +2078,15 @@ SERVER_GAME_COMMAND(HitIndicator)
 {
 	if (pCmd->GetNumArguments() == 0)
 	{
-		TMsg(_T("HitIndicator with 0 arguments.\n"));
+		TMsg("HitIndicator with 0 arguments.\n");
 		return;
 	}
 
-	if (pCmd->Arg(0) == _T("sdmg"))
+	if (pCmd->Arg(0) == "sdmg")
 	{
 		if (pCmd->GetNumArguments() < 7)
 		{
-			TMsg(_T("HitIndicator sdmg with not enough arguments.\n"));
+			TMsg("HitIndicator sdmg with not enough arguments.\n");
 			return;
 		}
 
@@ -2102,11 +2102,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == _T("dmg"))
+	if (pCmd->Arg(0) == "dmg")
 	{
 		if (pCmd->GetNumArguments() < 7)
 		{
-			TMsg(_T("HitIndicator dmg with not enough arguments.\n"));
+			TMsg("HitIndicator dmg with not enough arguments.\n");
 			return;
 		}
 
@@ -2122,11 +2122,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == _T("disable"))
+	if (pCmd->Arg(0) == "disable")
 	{
 		if (pCmd->GetNumArguments() < 4)
 		{
-			TMsg(_T("HitIndicator disable with not enough arguments.\n"));
+			TMsg("HitIndicator disable with not enough arguments.\n");
 			return;
 		}
 
@@ -2142,11 +2142,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == _T("miss"))
+	if (pCmd->Arg(0) == "miss")
 	{
 		if (pCmd->GetNumArguments() < 4)
 		{
-			TMsg(_T("HitIndicator miss with not enough arguments.\n"));
+			TMsg("HitIndicator miss with not enough arguments.\n");
 			return;
 		}
 
@@ -2162,11 +2162,11 @@ SERVER_GAME_COMMAND(HitIndicator)
 		return;
 	}
 
-	if (pCmd->Arg(0) == _T("crit"))
+	if (pCmd->Arg(0) == "crit")
 	{
 		if (pCmd->GetNumArguments() < 4)
 		{
-			TMsg(_T("HitIndicator crit with not enough arguments.\n"));
+			TMsg("HitIndicator crit with not enough arguments.\n");
 			return;
 		}
 
@@ -2321,10 +2321,10 @@ void CDigitanksGame::GameOver()
 	m_bPartyMode = true;
 	m_flPartyModeStart = GameServer()->GetGameTime();
 
-	::GameOver.RunCommand(_T(""));
+	::GameOver.RunCommand("");
 }
 
-void CDigitanksGame::PlayerVictory(const eastl::vector<tstring>& sArgs)
+void CDigitanksGame::PlayerVictory(const tvector<tstring>& sArgs)
 {
 	for (size_t i = 0; i < GetNumTeams(); i++)
 	{
@@ -2338,7 +2338,7 @@ void CDigitanksGame::PlayerVictory(const eastl::vector<tstring>& sArgs)
 	GameOver();
 }
 
-void CDigitanksGame::PlayerLoss(const eastl::vector<tstring>& sArgs)
+void CDigitanksGame::PlayerLoss(const tvector<tstring>& sArgs)
 {
 	for (size_t i = 0; i < GetNumTeams(); i++)
 	{
@@ -2352,7 +2352,7 @@ void CDigitanksGame::PlayerLoss(const eastl::vector<tstring>& sArgs)
 	GameOver();
 }
 
-void CDigitanksGame::TankSelectionMedal(const eastl::vector<tstring>& sArgs)
+void CDigitanksGame::TankSelectionMedal(const tvector<tstring>& sArgs)
 {
 	DigitanksWindow()->GetHUD()->ShowTankSelectionMedal();
 }
@@ -2371,7 +2371,7 @@ void CDigitanksGame::OnDeleted(CBaseEntity* pEntity)
 		m_iPowerups--;
 }
 
-void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)
+void CDigitanksGame::TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech)
 {
 	if (m_pListener)
 		m_pListener->TankSpeak(pTank, sSpeech);
@@ -2549,14 +2549,14 @@ void CDigitanksGame::WeaponSpecialCommand(CDigitanksTeam* pTeam)
 
 	if (!pTeam)
 	{
-		::WeaponSpecial.RunCommand(_T(""));
+		::WeaponSpecial.RunCommand("");
 		return;
 	}
 
 	if (pTeam != GetCurrentTeam())
 		return;
 
-	eastl::vector<CEntityHandle<CBaseWeapon> > ahWeapons;
+	tvector<CEntityHandle<CBaseWeapon> > ahWeapons;
 
 	// Form a list of weapons to send the message to since sometimes it creates new projectiles,
 	// and we don't want to send the message to those new ones.
@@ -2601,7 +2601,7 @@ void CDigitanksGame::AddTankAim(Vector vecAim, float flRadius, bool bFocus)
 		m_iTankAimFocus = m_avecTankAims.size()-1;
 }
 
-void CDigitanksGame::GetTankAims(eastl::vector<Vector>& avecAims, eastl::vector<float>& aflAimRadius, size_t& iFocus)
+void CDigitanksGame::GetTankAims(tvector<Vector>& avecAims, tvector<float>& aflAimRadius, size_t& iFocus)
 {
 	avecAims = m_avecTankAims;
 	aflAimRadius = m_aflTankAimRadius;
@@ -2614,7 +2614,7 @@ void CDigitanksGame::ClearTankAims()
 	m_aflTankAimRadius.clear();
 }
 
-void CDigitanksGame::OnDisplayTutorial(eastl::string sTutorial)
+void CDigitanksGame::OnDisplayTutorial(tstring sTutorial)
 {
 	/*
 	if (sTutorial == CInstructor::TUTORIAL_INTRO_BASICS)
@@ -3029,10 +3029,10 @@ CDigitanksTeam* CDigitanksGame::GetCurrentLocalDigitanksTeam()
 	return NULL;
 }
 
-void CDigitanksGame::SetCurrentLevel(eastl::string sLevel)
+void CDigitanksGame::SetCurrentLevel(tstring sLevel)
 {
 	CVar::SetCVar("game_level", sLevel);
-	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue(_T("game_level")));
+	m_pLevel = CDigitanksGame::GetLevel(CVar::GetCVarValue("game_level"));
 
 	if (!m_pLevel)
 		return;

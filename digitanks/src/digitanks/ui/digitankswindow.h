@@ -1,13 +1,11 @@
 #ifndef DT_DIGITANKSWINDOW_H
 #define DT_DIGITANKSWINDOW_H
 
-#include <EASTL/string.h>
-#include <EASTL/vector.h>
 #include <vector.h>
 #include <color.h>
 #include <worklistener.h>
 
-#include <tinker/gamewindow.h>
+#include <tengine/ui/gamewindow.h>
 
 #include <digitanksgame.h>
 
@@ -36,8 +34,8 @@ public:
 public:
 	void						OpenWindow();
 
-	virtual eastl::string		WindowTitle() { return "Digitanks!"; }
-	virtual tstring				AppDirectory() { return _T("Digitanks"); }
+	virtual tstring				WindowTitle() { return "Digitanks!"; }
+	virtual tstring				AppDirectory() { return "Digitanks"; }
 
 	void						InitUI();
 
@@ -74,7 +72,7 @@ public:
 
 	void						SetMouseCursor(mousecursor_t eCursor) { m_eMouseCursor = eCursor; }
 
-	virtual void				KeyPress(int c);
+	virtual bool				KeyPress(int c);
 	virtual void				KeyRelease(int c);
 	virtual void				CharPress(int c);
 	virtual void				CharRelease(int c);

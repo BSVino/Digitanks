@@ -31,9 +31,9 @@ INPUTS_TABLE_END();
 
 void CPowerup::Precache()
 {
-	PrecacheModel(_T("models/powerup.obj"));
-	PrecacheModel(_T("models/powerup-airstrike.obj"));
-	PrecacheModel(_T("models/powerup-tank.obj"));
+	PrecacheModel("models/powerup.toy");
+	PrecacheModel("models/powerup-airstrike.toy");
+	PrecacheModel("models/powerup-tank.toy");
 }
 
 void CPowerup::Spawn()
@@ -67,19 +67,19 @@ tstring CPowerup::GetEntityName() const
 	{
 	default:
 	case POWERUP_BONUS:
-		return _T("Promotion Powerup");
+		return "Promotion Powerup";
 
 	case POWERUP_AIRSTRIKE:
-		return _T("Airstrike Powerup");
+		return "Airstrike Powerup";
 
 	case POWERUP_TANK:
-		return _T("New Unit Powerup");
+		return "New Unit Powerup";
 
 	case POWERUP_MISSILEDEFENSE:
-		return _T("Missile Defense Powerup");
+		return "Missile Defense Powerup";
 
 	case POWERUP_WEAPON:
-		return _T("New Weapon Powerup");
+		return "New Weapon Powerup";
 	}
 }
 
@@ -96,9 +96,9 @@ Vector CPowerup::GetRenderOrigin() const
 	return vecOrigin;
 }
 
-void CPowerup::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CPowerup::ModifyContext(class CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	pContext->SetBlend(BLEND_ADDITIVE);
 	pContext->SetDepthMask(false);
@@ -114,23 +114,23 @@ void CPowerup::SetPowerupType(powerup_type_t eType)
 	{
 	default:
 	case POWERUP_BONUS:
-		SetModel(_T("models/powerup.obj"));
+		SetModel("models/powerup.toy");
 		break;
 
 	case POWERUP_AIRSTRIKE:
-		SetModel(_T("models/powerup-airstrike.obj"));
+		SetModel("models/powerup-airstrike.toy");
 		break;
 
 	case POWERUP_TANK:
-		SetModel(_T("models/powerup-tank.obj"));
+		SetModel("models/powerup-tank.toy");
 		break;
 
 	case POWERUP_MISSILEDEFENSE:
-		SetModel(_T("models/powerup-missiledefense.obj"));
+		SetModel("models/powerup-missiledefense.toy");
 		break;
 
 	case POWERUP_WEAPON:
-		SetModel(_T("models/powerup-airstrike.obj"));
+		SetModel("models/powerup-airstrike.toy");
 		break;
 	}
 }

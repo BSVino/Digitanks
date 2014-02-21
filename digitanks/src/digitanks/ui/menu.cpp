@@ -1252,7 +1252,7 @@ void CStrategyGamePanel::PreviewLevel(size_t iLevel)
 }
 
 // HOLY CRAP A GLOBAL! Yeah it's bad. Sue me.
-eastl::vector<GLFWvidmode> g_aVideoModes;
+tvector<GLFWvidmode> g_aVideoModes;
 GLFWvidmode g_aModes[ 100 ];
 
 COptionsPanel::COptionsPanel()

@@ -21,18 +21,18 @@ INPUTS_TABLE_END();
 
 void CStandardTank::Precache()
 {
-	PrecacheModel(_T("models/digitanks/digitank-body.obj"), true);
-	PrecacheModel(_T("models/digitanks/digitank-turret.obj"), true);
-	PrecacheModel(_T("models/digitanks/digitank-shield.obj"), true);
+	PrecacheModel(_T("models/digitanks/digitank-body.toy"), true);
+	PrecacheModel(_T("models/digitanks/digitank-turret.toy"), true);
+	PrecacheModel(_T("models/digitanks/digitank-shield.toy"), true);
 }
 
 void CStandardTank::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/digitank-body.obj"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj"));
-	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-shield.obj"));
+	SetModel(_T("models/digitanks/digitank-body.toy"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.toy"));
+	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-shield.toy"));
 
 	m_aeWeapons.push_back(PROJECTILE_MEDIUM);
 	m_aeWeapons.push_back(PROJECTILE_LARGE);
@@ -55,9 +55,9 @@ void CStandardTank::Spawn()
 	m_flMaxShieldStrength = m_flShieldStrength = 200;
 }
 
-void CStandardTank::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CStandardTank::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	pContext->Scale(2, 2, 2);
 }

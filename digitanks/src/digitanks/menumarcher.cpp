@@ -25,20 +25,20 @@ INPUTS_TABLE_END();
 
 void CMenuMarcher::Precache()
 {
-	PrecacheModel(_T("models/digitanks/digitank-body.obj"), true);
-	PrecacheModel(_T("models/digitanks/digitank-turret.obj"), true);
-	PrecacheParticleSystem(_T("tank-hover"));
+	PrecacheModel("models/digitanks/digitank-body.toy", true);
+	PrecacheModel("models/digitanks/digitank-turret.toy", true);
+	PrecacheParticleSystem("tank-hover");
 }
 
 void CMenuMarcher::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/digitank-body.obj"));
+	SetModel("models/digitanks/digitank-body.toy");
 
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel("models/digitanks/digitank-turret.toy");
 
-	m_hHoverParticles.SetSystem(_T("tank-hover"), GetOrigin());
+	m_hHoverParticles.SetSystem("tank-hover", GetGlobalOrigin());
 	m_hHoverParticles.FollowEntity(this);
 
 	m_flBobOffset = RandomFloat(0, 10);
@@ -75,18 +75,18 @@ Vector CMenuMarcher::GetRenderOrigin() const
 	return GetOrigin() + Vector(0, 1 + flLerp*0.5f, 0);
 }
 
-void CMenuMarcher::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CMenuMarcher::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	pContext->SetColorSwap(Color(0, 0, 255));
 }
 
-void CMenuMarcher::OnRender(CRenderingContext* pContext, bool bTransparent) const
+void CMenuMarcher::OnRender(CRenderingContext* pContext) const
 {
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
-	if (!bTransparent)
+	if (!Renderer()->IsRenderingTransparent())
 		RenderTurret();
 }
 

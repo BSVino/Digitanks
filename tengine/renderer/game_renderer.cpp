@@ -401,6 +401,10 @@ void CGameRenderer::AddToBatch(class CModel* pModel, const CBaseEntity* pEntity,
 	if (!pModel)
 		return;
 
+	TAssert(pEntity);
+	if (!pEntity)
+		return;
+
 	for (size_t i = 0; i < pModel->m_ahMaterials.size(); i++)
 	{
 		CRenderBatch* pBatch = &m_aBatches[pModel->m_ahMaterials[i]].push_back();
@@ -475,6 +479,9 @@ void CGameRenderer::RenderBatches()
 
 void CGameRenderer::ClassifySceneAreaPosition(CModel* pModel)
 {
+	if (!pModel->m_pToy)
+		return;
+
 	if (!pModel->m_pToy->GetNumSceneAreas())
 		return;
 

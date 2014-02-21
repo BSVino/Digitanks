@@ -3,7 +3,7 @@
 
 #include <EASTL/list.h>
 
-#include <game/team.h>
+#include <game/entities/team.h>
 
 #include "units/digitank.h"
 #include "updates.h"
@@ -158,9 +158,9 @@ public:
 protected:
 	CNetworkedSTLVector<CEntityHandle<CDigitank> >	m_ahTanks;
 
-	eastl::vector<size_t>		m_aiCurrentSelection;
+	tvector<size_t>		m_aiCurrentSelection;
 
-	eastl::map<size_t, float>	m_aflVisibilities;
+	tmap<size_t, float>	m_aflVisibilities;
 
 	CNetworkedVariable<float>	m_flPowerPerTurn;
 	CNetworkedVariable<float>	m_flPower;
@@ -185,7 +185,7 @@ protected:
 		unittype_t				m_eUnit;
 		CEntityHandle<CDigitanksEntity> m_hTarget;
 	} builditem_t;
-	eastl::list<builditem_t>	m_aeBuildPriorities;
+	tvector<builditem_t>		m_aeBuildPriorities;
 	bool						m_bCanUpgrade;
 
 	Vector						m_vecExplore;
@@ -195,7 +195,7 @@ protected:
 	Vector						m_vecLKV;
 
 	size_t						m_iFleetPointAttackQuota;
-	eastl::vector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
+	tvector<CEntityHandle<CDigitank> >	m_ahAttackTeam;
 
 	size_t						m_iLastScoutBuilt;
 

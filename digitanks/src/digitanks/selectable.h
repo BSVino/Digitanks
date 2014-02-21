@@ -10,7 +10,7 @@ class CSelectable : public CDigitanksEntity
 	REGISTER_ENTITY_CLASS(CSelectable, CDigitanksEntity);
 
 public:
-	virtual float				GetBoundingRadius() const { return 4; };
+	virtual const TFloat		GetBoundingRadius() const { return 4; };
 
 	DECLARE_ENTITY_INPUT(Select);
 

@@ -939,6 +939,9 @@ size_t CGameServer::CreateEntity(const tstring& sClassName, size_t iHandle, size
 
 	hEntity->SetSpawnTime(GameServer()->GetGameTime());
 
+	if (PrecachesAllowed())
+		hEntity->Precache();
+
 	hEntity->Spawn();
 
 	mtsrand(iPostSeed);

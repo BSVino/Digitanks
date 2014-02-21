@@ -3,27 +3,30 @@
 #include <mtrand.h>
 #include <strutils.h>
 
+#include <glgui/rootpanel.h>
+#include <glgui/label.h>
+#include <glgui/button.h>
+
 #include <game/gameserver.h>
 #include <renderer/renderer.h>
+#include <renderer/game_renderingcontext.h>
 #include <sound/sound.h>
-#include <game/game.h>
+#include <game/entities/game.h>
 
 #include "script.h"
 #include "intro_window.h"
 #include "intro_renderer.h"
 
 CGeneralWindow::CGeneralWindow()
-	: CPanel(0, 0, 400, 400), m_hAntivirus(_T("textures/intro/antivirus.txt")), m_hGeneral(_T("textures/hud/helper-emotions.txt")), m_hGeneralMouth(_T("textures/hud/helper-emotions-open.txt"))
+	: CPanel(0, 0, 400, 400), m_hAntivirus("textures/intro/antivirus.txt"), m_hGeneral("textures/hud/helper-emotions.txt"), m_hGeneralMouth("textures/hud/helper-emotions-open.txt")
 {
 	glgui::CRootPanel::Get()->AddControl(this);
 
 	m_flDeployed = m_flDeployedGoal = 0;
 
-	m_pText = new glgui::CLabel(100, 0, 300, 300, _T(""));
-	AddControl(m_pText);
+	m_pText = AddControl(new glgui::CLabel(100, 0, 300, 300, ""));
 
-	m_pButton = new glgui::CButton(0, 0, 100, 30, _T(""));
-	AddControl(m_pButton);
+	m_pButton = AddControl(new glgui::CButton(0, 0, 100, 30, ""));
 	m_pButton->SetClickedListener(this, ButtonPressed);
 	m_pButton->SetButtonColor(Color(255, 0, 0, 255));
 
@@ -42,8 +45,8 @@ void CGeneralWindow::Layout()
 
 	m_pText->SetPos(230, 30);
 	m_pText->SetSize(260, 160);
-	m_pText->SetFont(_T("sans-serif"), 14);
-	m_pText->SetFGColor(Color(0, 0, 0, 255));
+	m_pText->SetFont("sans-serif", 14);
+	m_pText->SetTextColor(Color(0, 0, 0, 255));
 
 	m_pButton->SetPos(230+260/2-m_pButton->GetWidth()/2, GetHeight()-50);
 }
@@ -52,7 +55,7 @@ void CGeneralWindow::Think()
 {
 	BaseClass::Think();
 
-	m_flDeployed = Approach(m_flDeployedGoal, m_flDeployed, GameServer()->GetFrameTime());
+	m_flDeployed = Approach(m_flDeployedGoal, m_flDeployed, (float)GameServer()->GetFrameTime());
 
 	SetPos(100, glgui::CRootPanel::Get()->GetHeight() - (int)(m_flDeployed*GetHeight()*1.5f));
 
@@ -65,32 +68,32 @@ void CGeneralWindow::Think()
 	if (bScrolling)
 		m_pButton->SetButtonColor(Color(255, 0, 0, 255));
 	else
-		m_pButton->SetButtonColor(Color(255, 0, 0, 255)*Oscillate(GameServer()->GetGameTime(), 1));
+		m_pButton->SetButtonColor(Color(255, 0, 0, 255)*Oscillate((float)GameServer()->GetGameTime(), 1));
 
 	if (bScrolling)
 	{
 		if (!m_bHelperSpeaking)
 		{
-			CSoundLibrary::PlaySound(NULL, _T("sound/helper-speech.wav"), true);
+			CSoundLibrary::PlaySound(NULL, "sound/helper-speech.wav", true);
 			m_bHelperSpeaking = true;
-			CSoundLibrary::SetSoundVolume(NULL, _T("sound/helper-speech.wav"), 0.7f);
+			CSoundLibrary::SetSoundVolume(NULL, "sound/helper-speech.wav", 0.7f);
 		}
 	}
 	else
 	{
 		if (m_bHelperSpeaking)
 		{
-			CSoundLibrary::StopSound(NULL, _T("sound/helper-speech.wav"));
+			CSoundLibrary::StopSound(NULL, "sound/helper-speech.wav");
 			m_bHelperSpeaking = false;
 		}
 	}
 }
 
-void CGeneralWindow::Paint(int x, int y, int w, int h)
+void CGeneralWindow::Paint(float x, float y, float w, float h)
 {
 	if (m_flFadeToBlack)
 	{
-		float flAlpha = RemapVal(GameServer()->GetGameTime(), m_flFadeToBlack, m_flFadeToBlack+1.5f, 0, 1);
+		float flAlpha = (float)RemapVal(GameServer()->GetGameTime(), m_flFadeToBlack, m_flFadeToBlack+1.5f, 0.0, 1.0);
 		glgui::CRootPanel::PaintRect(0, 0, glgui::CRootPanel::Get()->GetWidth(), glgui::CRootPanel::Get()->GetHeight(), Color(0, 0, 0, (int)(255*flAlpha)));
 		return;
 	}
@@ -100,16 +103,17 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 
 	BaseClass::Paint(x, y, w, h);
 
-	CRenderingContext c(GameServer()->GetRenderer());
+	if (!m_sEmotion.length())
+		return;
+
+	CGameRenderingContext c(GameServer()->GetRenderer(), true);
 	c.SetBlend(BLEND_ALPHA);
 	c.SetColor(Color(255, 255, 255, 255));
-	c.UseProgram(0);
-	c.BindTexture(0);
 
 	Rect recEmotion = m_hGeneral.GetArea(m_sEmotion);
 	glgui::CBaseControl::PaintSheet(m_hGeneral.GetSheet(m_sEmotion), x, y, 256, 256, recEmotion.x, recEmotion.y, recEmotion.w, recEmotion.h, m_hGeneral.GetSheetWidth(m_sEmotion), m_hGeneral.GetSheetHeight(m_sEmotion));
 
-	if ((m_bHelperSpeaking || m_bProgressBar) && Oscillate(GameServer()->GetGameTime(), 0.2f) > 0.5)
+	if ((m_bHelperSpeaking || m_bProgressBar) && Oscillate((float)GameServer()->GetGameTime(), 0.2f) > 0.5)
 	{
 		Rect recMouth = m_hGeneralMouth.GetArea(m_sEmotion);
 		glgui::CBaseControl::PaintSheet(m_hGeneralMouth.GetSheet(m_sEmotion), x, y, 256, 256, recMouth.x, recMouth.y, recMouth.w, recMouth.h, m_hGeneralMouth.GetSheetWidth(m_sEmotion), m_hGeneralMouth.GetSheetHeight(m_sEmotion));
@@ -117,27 +121,27 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 
 	if (m_bProgressBar)
 	{
-		float flTime = 3;
+		double flTime = 3;
 		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft(), y + 160, m_pText->GetWidth(), 10, Color(255, 255, 255, 255));
-		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft() + 2, y + 160 + 2, (int)((m_pText->GetWidth() - 4) * RemapValClamped(GameServer()->GetGameTime(), m_flStartTime, m_flStartTime+flTime, 0, 1)), 10 - 4, Color(42, 65, 122, 255));
+		glgui::CBaseControl::PaintRect(x + m_pText->GetLeft() + 2, y + 160 + 2, ((m_pText->GetWidth() - 4) * (float)RemapValClamped(GameServer()->GetGameTime(), m_flStartTime, m_flStartTime+flTime, 0.0, 1.0)), 10 - 4, Color(42, 65, 122, 255));
 
 		static tstring sEstimate;
-		static float flLastEstimateUpdate = 0;
+		static double flLastEstimateUpdate = 0;
 
 		if (!sEstimate.length() || GameServer()->GetGameTime() - flLastEstimateUpdate > 1)
 		{
 			int iRandomTime = RandomInt(0, 5);
 			tstring sRandomTime;
 			if (iRandomTime == 0)
-				sRandomTime = _T("centuries");
+				sRandomTime = "centuries";
 			else if (iRandomTime == 1)
-				sRandomTime = _T("minutes");
+				sRandomTime = "minutes";
 			else if (iRandomTime == 2)
-				sRandomTime = _T("hours");
+				sRandomTime = "hours";
 			else if (iRandomTime == 3)
-				sRandomTime = _T("days");
+				sRandomTime = "days";
 			else
-				sRandomTime = _T("seconds");
+				sRandomTime = "seconds";
 
 			sEstimate = sprintf(tstring("Estimated time remaining: %d %s"), RandomInt(2, 100), sRandomTime.c_str());
 
@@ -146,8 +150,8 @@ void CGeneralWindow::Paint(int x, int y, int w, int h)
 
 		c.SetColor(Color(0, 0, 0, 255));
 
-		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), _T("sans-serif"), 12);
-		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), _T("sans-serif"), 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190);
+		float flWidth = glgui::CLabel::GetTextWidth(sEstimate, sEstimate.length(), "sans-serif", 12);
+		glgui::CLabel::PaintText(sEstimate, sEstimate.length(), "sans-serif", 12, x + m_pText->GetLeft() + m_pText->GetWidth()/2 - flWidth/2, (float)y + 190);
 	}
 }
 
@@ -166,8 +170,8 @@ void CGeneralWindow::Deploy()
 
 	m_flDeployedGoal = 1;
 
-	m_pText->SetText(_T("H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to remove them for you?"));
-	m_pButton->SetText(_T("Remove"));
+	m_pText->SetText("H4xx0r Att4xx0r\nl337 ANTI-BUG UTILITY\n \nYou are on day 8479\nof your 30 day trial.\n \nI've detected the presence of Bugs in your computer. Would you like me to attempt to remove them for you?");
+	m_pButton->SetText("Remove");
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "PleasedIntro";
@@ -179,8 +183,8 @@ void CGeneralWindow::RetryDebugging()
 {
 	Layout();
 
-	m_pText->SetText(_T("BUG REMOVAL HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another removal attempt."));
-	m_pButton->SetText(_T("Retry"));
+	m_pText->SetText("BUG REMOVAL HAS FAILED\n \nI've sensed a drop in your satisfaction level with this product. Please allow me to regain your confidence with another removal attempt.");
+	m_pButton->SetText("Retry");
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "DisappointedIntro";
@@ -193,8 +197,8 @@ void CGeneralWindow::GiveUpDebugging()
 {
 	Layout();
 
-	m_pText->SetText(_T("WARNING: ADDITIONAL BUGS FOUND\n \nArgh! They have reinforcements! I can't seem to do anything right.\n \nDon't look so smug, I don't see you doing any better."));
-	m_pButton->SetText(_T("Do Better"));
+	m_pText->SetText("WARNING: ADDITIONAL BUGS FOUND\n \nArgh! They have reinforcements! I can't seem to do anything right.\n \nDon't look so smug, I don't see you doing any better.");
+	m_pButton->SetText("Do Better");
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "SurprisedIntro";
@@ -207,8 +211,8 @@ void CGeneralWindow::DigitanksWon()
 {
 	Layout();
 
-	m_pText->SetText(_T("Hot bolts, what a brilliant tactic! Digitanks are a computer's natural defense system against Bugs. You're showing the talent of a true Hacker.\n \nLet's see if we can get any intel."));
-	m_pButton->SetText(_T("Roger"));
+	m_pText->SetText("Hot bolts, what a brilliant tactic! Digitanks are a computer's natural defense system against Bugs. You're showing the talent of a true Hacker.\n \nLet's see if we can get any intel.");
+	m_pButton->SetText("Roger");
 	m_pButton->SetVisible(true);
 
 	m_sEmotion = "CheeringIntro";
@@ -216,7 +220,7 @@ void CGeneralWindow::DigitanksWon()
 	m_flStartTime = GameServer()->GetGameTime();
 }
 
-void CGeneralWindow::ButtonPressedCallback()
+void CGeneralWindow::ButtonPressedCallback(const tstring& sArgs)
 {
 	if (m_eStage == STAGE_REPAIR)
 	{
@@ -253,8 +257,8 @@ void CGeneralWindow::ButtonPressedCallback()
 	}
 	else if (m_eStage == STAGE_INTEL)
 	{
-		m_pText->SetText(_T("Oh no... it looks like the Bugs have captured some of your files!\n \nWe need to get to your hard drive to rescue your files --\n \nWhat's that? No! Not \"those\" files. I don't want to see what's in \"those\" files. We can rescue your other files!"));
-		m_pButton->SetText(_T("Let's go!"));
+		m_pText->SetText("Oh no... it looks like the Bugs have captured some of your files!\n \nWe need to get to your hard drive to rescue your files --\n \nWhat's that? No! Not \"those\" files. I don't want to see what's in \"those\" files. We can rescue your other files!");
+		m_pButton->SetText("Let's go!");
 		m_pButton->SetVisible(true);
 
 		m_sEmotion = "OhNoIntro";

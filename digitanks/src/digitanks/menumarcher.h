@@ -14,14 +14,14 @@ public:
 
 	virtual void				OnDeleted();
 
-	virtual float				GetBoundingRadius() const { return 4; };
+	virtual const TFloat		GetBoundingRadius() const { return 4; };
 
 	virtual void				Think();
 
 	virtual bool				ShouldRender() const { return true; };
 	virtual Vector				GetRenderOrigin() const;
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 	virtual void				RenderTurret() const;
 
 	void						Speak();

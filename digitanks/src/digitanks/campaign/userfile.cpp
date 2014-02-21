@@ -16,7 +16,7 @@ NETVAR_TABLE_END();
 SAVEDATA_TABLE_BEGIN(CUserFile);
 	SAVEDATA_DEFINE_OUTPUT(OnPickup);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, size_t, m_iImage);
-	SAVEDATA_DEFINE(CSaveData::DATA_STRING, eastl::string, m_sFilename);
+	SAVEDATA_DEFINE(CSaveData::DATA_STRING, tstring, m_sFilename);
 	SAVEDATA_DEFINE(CSaveData::DATA_COPYTYPE, float, m_flPickupTime);
 SAVEDATA_TABLE_END();
 
@@ -37,12 +37,12 @@ EAngle CUserFile::GetRenderAngles() const
 	return EAngle(0, flRotate, 0);
 }
 
-void CUserFile::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CUserFile::ModifyContext(class CRenderingContext* pContext) const
 {
 	// Don't run CDigitanksEntity::ModifyContext, we want to show our user file all the time.
 }
 
-void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CUserFile::OnRender(class CRenderingContext* pContext) const
 {
 	if (!bTransparent)
 		return;
@@ -78,13 +78,13 @@ void CUserFile::OnRender(class CRenderingContext* pContext, bool bTransparent) c
 	c.Scale(0.1f, 0.1f, 0.1f);
 	c.Translate(Vector(0, 105, 0));
 
-	tstring sFile = _T("Your file: ");
-	sFile += m_sFilename.substr(m_sFilename.find_last_of(_T('/'))+1);
-	float flWidth = glgui::CLabel::GetTextWidth(sFile, sFile.length(), _T("text"), 12);
-	glgui::CLabel::PaintText3D(sFile, sFile.length(), _T("text"), 12, Vector(0-flWidth/2, 0, 0));
+	tstring sFile = "Your file: ";
+	sFile += m_sFilename.substr(m_sFilename.find_last_of('/')+1);
+	float flWidth = glgui::CLabel::GetTextWidth(sFile, sFile.length(), "text", 12);
+	glgui::CLabel::PaintText3D(sFile, sFile.length(), "text", 12, Vector(0-flWidth/2, 0, 0));
 
 	c.Scale(-1.0f, 1.0f, 1.0f);
-	glgui::CLabel::PaintText3D(sFile, sFile.length(), _T("text"), 12, Vector(0-flWidth/2, 0, 0));
+	glgui::CLabel::PaintText3D(sFile, sFile.length(), "text", 12, Vector(0-flWidth/2, 0, 0));
 }
 
 void CUserFile::Think()

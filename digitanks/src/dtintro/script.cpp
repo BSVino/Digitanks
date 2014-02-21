@@ -8,7 +8,7 @@ CScriptManager::CScriptManager()
 	m_pCurrentScript = NULL;
 }
 
-void CScriptManager::PlayScript(eastl::string sName)
+void CScriptManager::PlayScript(tstring sName)
 {
 	if (m_aScripts.find(sName) == m_aScripts.end())
 		return;
@@ -29,7 +29,7 @@ void CScriptManager::ClearScripts()
 	m_aScripts.clear();
 }
 
-CScript* CScriptManager::AddScript(eastl::string sName)
+CScript* CScriptManager::AddScript(tstring sName)
 {
 	m_aScripts[sName] = CScript();
 	return &m_aScripts[sName];
@@ -44,7 +44,7 @@ void CScript::Play()
 	{
 		CScriptEvent* pEvent = &m_aEvents[i];
 
-		eastl::vector<CBaseEntity*> apEntities;
+		tvector<CBaseEntity*> apEntities;
 		CBaseEntity::FindEntitiesByName(pEvent->m_sName, apEntities);
 
 		for (size_t j = 0; j < apEntities.size(); j++)
@@ -59,7 +59,7 @@ void CScript::Play()
 
 void CScript::Think()
 {
-	float flCurrentTime = GameServer()->GetGameTime() - m_flStartTime;
+	double flCurrentTime = GameServer()->GetGameTime() - m_flStartTime;
 
 	for (size_t i = 0; i < m_aEvents.size(); i++ )
 	{
@@ -91,11 +91,11 @@ void CScript::PlayEvent(size_t i)
 		for (size_t i = 0; i < m_aActors[pEvent->m_sName].size(); i++)
 		{
 			CScriptActor* pActor = &m_aActors[pEvent->m_sName][i];
-			if (pActor->m_hEntity == NULL)
+			if (!pActor->m_hEntity)
 				continue;
 
-			pActor->m_vecOldOrigin = pActor->m_hEntity->GetOrigin();
-			pActor->m_angOldAngles = pActor->m_hEntity->GetAngles();
+			pActor->m_vecOldOrigin = pActor->m_hEntity->GetGlobalOrigin();
+			pActor->m_angOldAngles = pActor->m_hEntity->GetGlobalAngles();
 
 			pActor->m_vecNewOrigin = pEvent->m_vecOrigin;
 			pActor->m_angNewAngles = pEvent->m_angAngles;
@@ -105,12 +105,12 @@ void CScript::PlayEvent(size_t i)
 
 	case EC_FIREOUTPUT:
 	{
-		eastl::vector<CBaseEntity*> apEntities;
+		tvector<CBaseEntity*> apEntities;
 		CBaseEntity::FindEntitiesByName(pEvent->m_sName, apEntities);
 
 		for (size_t j = 0; j < apEntities.size(); j++)
 		{
-			if (apEntities[j]->GetInput(pEvent->m_sOutput.c_str()))
+			if (apEntities[j]->FindInput(pEvent->m_sOutput.c_str()))
 				apEntities[j]->CallInput(pEvent->m_sOutput, pEvent->m_sArgs);
 		}
 
@@ -133,12 +133,12 @@ void CScript::ThinkEvent(size_t i)
 		for (size_t i = 0; i < m_aActors[pEvent->m_sName].size(); i++)
 		{
 			CScriptActor* pActor = &m_aActors[pEvent->m_sName][i];
-			if (pActor->m_hEntity == NULL)
+			if (!pActor->m_hEntity)
 				continue;
 
-			float flLerp = SLerp(RemapVal(GameServer()->GetGameTime() - m_flStartTime, pEvent->m_flStartTime, pEvent->m_flEndTime, 0, 1), 0.2f);
-			pActor->m_hEntity->SetOrigin(pActor->m_vecNewOrigin*flLerp + pActor->m_vecOldOrigin*(1-flLerp));
-			pActor->m_hEntity->SetAngles(pActor->m_angNewAngles*flLerp + pActor->m_angOldAngles*(1-flLerp));
+			float flLerp = Gain(RemapVal((float)(GameServer()->GetGameTime() - m_flStartTime), pEvent->m_flStartTime, pEvent->m_flEndTime, 0, 1), 0.2f);
+			pActor->m_hEntity->SetGlobalOrigin(pActor->m_vecNewOrigin*flLerp + pActor->m_vecOldOrigin*(1-flLerp));
+			pActor->m_hEntity->SetGlobalAngles(pActor->m_angNewAngles*flLerp + pActor->m_angOldAngles*(1-flLerp));
 		}
 		break;
 	}
@@ -164,11 +164,11 @@ void CScript::FinishEvent(size_t i)
 		for (size_t i = 0; i < m_aActors[pEvent->m_sName].size(); i++)
 		{
 			CScriptActor* pActor = &m_aActors[pEvent->m_sName][i];
-			if (pActor->m_hEntity == NULL)
+			if (!pActor->m_hEntity)
 				continue;
 
-			pActor->m_hEntity->SetOrigin(pEvent->m_vecOrigin);
-			pActor->m_hEntity->SetAngles(pEvent->m_angAngles);
+			pActor->m_hEntity->SetGlobalOrigin(pEvent->m_vecOrigin);
+			pActor->m_hEntity->SetGlobalAngles(pEvent->m_angAngles);
 		}
 		break;
 	}

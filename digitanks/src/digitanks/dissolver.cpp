@@ -3,12 +3,11 @@
 #include <maths.h>
 #include <mtrand.h>
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 #include <models/models.h>
-#include <shaders/shaders.h>
-#include <game/game.h>
-
-#include "renderer.h"
+#include <renderer/shaders.h>
+#include <game/entities/game.h>
+#include <renderer/renderer.h>
 
 CModelDissolver* CModelDissolver::s_pModelDissolver = NULL;
 static CModelDissolver g_pModelDissolver = CModelDissolver();
@@ -30,15 +29,14 @@ void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap, Vector* pv
 	if (!CModelLibrary::Get())
 		return;
 
-	size_t iModel = pEntity->GetModel();
-	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
+	CModel* pModel = pEntity->GetModel();
 
 	if (!pModel)
 		return;
 
 	Matrix4x4 mTransform;
 	mTransform.SetTranslation(pEntity->GetRenderOrigin());
-	mTransform.SetRotation(pEntity->GetRenderAngles());
+	mTransform.SetAngles(pEntity->GetRenderAngles());
 
 	if (pvecScale)
 	{
@@ -52,21 +50,22 @@ void CModelDissolver::AddModel(CBaseEntity* pEntity, Color* pclrSwap, Vector* pv
 
 void CModelDissolver::AddScene(CModel* pModel, const Matrix4x4& mTransform, Color* pclrSwap)
 {
-	for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
-		AddSceneNode(pModel, pModel->m_pScene->GetScene(i), mTransform, pclrSwap);
+	//for (size_t i = 0; i < pModel->m_pScene->GetNumScenes(); i++)
+		//AddSceneNode(pModel, pModel->m_pScene->GetScene(i), mTransform, pclrSwap);
 }
 
 void CModelDissolver::AddSceneNode(CModel* pModel, CConversionSceneNode* pNode, const Matrix4x4& mTransform, Color* pclrSwap)
 {
-	for (size_t i = 0; i < pNode->GetNumChildren(); i++)
-		AddSceneNode(pModel, pNode->GetChild(i), mTransform, pclrSwap);
+	//for (size_t i = 0; i < pNode->GetNumChildren(); i++)
+		//AddSceneNode(pModel, pNode->GetChild(i), mTransform, pclrSwap);
 
-	for (size_t i = 0; i < pNode->GetNumMeshInstances(); i++)
-		AddMeshInstance(pModel, pNode->GetMeshInstance(i), mTransform, pclrSwap);
+	//for (size_t i = 0; i < pNode->GetNumMeshInstances(); i++)
+		//AddMeshInstance(pModel, pNode->GetMeshInstance(i), mTransform, pclrSwap);
 }
 
 void CModelDissolver::AddMeshInstance(CModel* pModel, CConversionMeshInstance* pMeshInstance, const Matrix4x4& mTransform, Color* pclrSwap)
 {
+#if 0
 	for (size_t iFace = 0; iFace < pMeshInstance->GetMesh()->GetNumFaces(); iFace++)
 	{
 		CConversionFace* pFace = pMeshInstance->GetMesh()->GetFace(iFace);
@@ -88,10 +87,12 @@ void CModelDissolver::AddMeshInstance(CModel* pModel, CConversionMeshInstance* p
 			AddTriangle(pMeshInstance, pV0, pV1, pV2, pModel->m_aiTextures[pConversionMaterialMap->m_iMaterial], mTransform, pclrSwap);
 		}
 	}
+#endif
 }
 
 void CModelDissolver::AddTriangle(CConversionMeshInstance* pMeshInstance, CConversionVertex* pV0, CConversionVertex* pV1, CConversionVertex* pV2, size_t iTexture, const Matrix4x4& mTransform, Color* pclrSwap)
 {
+#if 0
 	m_iNumTrianglesAlive++;
 
 	Vector v1, v2, v3;
@@ -146,10 +147,12 @@ void CModelDissolver::AddTriangle(CConversionMeshInstance* pMeshInstance, CConve
 	pNewTri->m_bColorSwap = !!pclrSwap;
 	if (pNewTri->m_bColorSwap)
 		pNewTri->m_clrSwap = *pclrSwap;
+#endif
 }
 
 void CModelDissolver::Simulate()
 {
+#if 0
 	CModelDissolver* pDissolver = Get();
 
 	float flGameTime = GameServer()->GetGameTime();
@@ -187,10 +190,12 @@ void CModelDissolver::Simulate()
 
 		pTri->m_flAlpha = RemapValClamped(flLifeTimeRamp, 0.5f, 1, 1, 0);
 	}
+#endif
 }
 
 void CModelDissolver::Render()
 {
+#if 0
 	CRenderer* pRenderer = GameServer()->GetRenderer();
 
 	CRenderingContext c(pRenderer);
@@ -234,6 +239,7 @@ void CModelDissolver::Render()
 
 		c.EndRender();
 	}
+#endif
 }
 
 CDissolveTri::CDissolveTri(const Vector& _v1, const Vector& _v2, const Vector& _v3, const Vector& _vu1, const Vector& _vu2, const Vector& _vu3)

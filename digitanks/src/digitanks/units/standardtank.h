@@ -13,9 +13,9 @@ public:
 
 	virtual tstring				GetEntityName() const { return _T("Digitank"); };
 
-	virtual float				GetBoundingRadius() const { return 6; };
+	virtual const TFloat		GetBoundingRadius() const { return 6; };
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 
 	virtual float				BaseHealthRechargeRate() const { return 10.0f; };
 	virtual float				BaseShieldRechargeRate() const { return 50.0f; };

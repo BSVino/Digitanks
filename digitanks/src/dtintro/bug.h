@@ -19,8 +19,8 @@ public:
 protected:
 	bool			m_bFiringRandomly;
 	Vector			m_vecNextAim;
-	float			m_flNextAim;
-	float			m_flNextFire;
+	double			m_flNextAim;
+	double			m_flNextFire;
 };
 
 #endif

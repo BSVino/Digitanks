@@ -20,7 +20,7 @@ public:
 	virtual void				Spawn();
 	virtual void				Think();
 
-	virtual float				GetBoundingRadius() const { return ShellRadius() + 1.0f; }
+	virtual const TFloat		GetBoundingRadius() const { return ShellRadius() + 1.0f; }
 
 	virtual void				SpecialCommand();
 	virtual bool				UsesSpecialCommand() { return true; };
@@ -37,9 +37,8 @@ public:
 	virtual bool				MakesSounds() { return true; };
 	virtual bool				UsesStandardExplosion() const { return true; };
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 
 	virtual bool				ShouldTouch(CBaseEntity* pOther) const;
 	virtual bool				IsTouching(CBaseEntity* pOther, Vector& vecPoint) const;

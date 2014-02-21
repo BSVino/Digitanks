@@ -24,14 +24,14 @@ void CCollector::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/structures/psu.obj"));
+	SetModel("models/structures/psu.toy");
 }
 
 void CCollector::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(_T("models/structures/psu.obj"));
+	PrecacheModel("models/structures/psu.toy");
 }
 
 void CCollector::ClientSpawn()
@@ -51,27 +51,27 @@ void CCollector::ClientSpawn()
 void CCollector::UpdateInfo(tstring& s)
 {
 	tstring p;
-	s = _T("");
+	s = "";
 
-	s += _T("POWER SUPPLY UNIT\n");
-	s += _T("Resource collector\n \n");
+	s += "POWER SUPPLY UNIT\n";
+	s += "Resource collector\n \n";
 
 	if (GetTeam())
 	{
-		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
+		s += "Team: " + GetTeam()->GetTeamName() + "\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += _T(" Friendly\n \n");
+			s += " Friendly\n \n";
 		else
-			s += _T(" Hostile\n \n");
+			s += " Hostile\n \n";
 	}
 	else
 	{
-		s += _T("Team: Neutral\n \n");
+		s += "Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += _T("(Constructing)\n");
+		s += "(Constructing)\n";
 		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
@@ -107,14 +107,14 @@ void CBattery::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/structures/battery.obj"));
+	SetModel("models/structures/battery.toy");
 }
 
 void CBattery::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(_T("models/structures/battery.obj"));
+	PrecacheModel("models/structures/battery.toy");
 }
 
 void CBattery::SetupMenu(menumode_t eMenuMode)
@@ -133,46 +133,46 @@ void CBattery::SetupMenu(menumode_t eMenuMode)
 		}
 
 		tstring s;
-		s += _T("UPGRADE TO POWER SUPPLY UNIT\n \n");
-		s += _T("Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n");
+		s += "UPGRADE TO POWER SUPPLY UNIT\n \n";
+		s += "Power Supply Units provide 2 additional Power per turn. Upgrading will make this structure inactive until the upgrade is complete.\n \n";
 		s += sprintf(tstring("Turns to upgrade: %d Turns\n \n"), GetTurnsToUpgrade());
-		s += _T("Shortcut: Q");
+		s += "Shortcut: Q";
 
 		pHUD->SetButtonInfo(0, s);
-		pHUD->SetButtonTooltip(0, _T("Upgrade To PSU"));
+		pHUD->SetButtonTooltip(0, "Upgrade To PSU");
 	}
 }
 
 void CBattery::UpdateInfo(tstring& s)
 {
 	tstring p;
-	s = _T("");
-	s += _T("CAPACITOR\n");
-	s += _T("Resource collector\n \n");
+	s = "";
+	s += "CAPACITOR\n";
+	s += "Resource collector\n \n";
 
 	if (GetTeam())
 	{
-		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
+		s += "Team: " + GetTeam()->GetTeamName() + "\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += _T(" Friendly\n \n");
+			s += " Friendly\n \n";
 		else
-			s += _T(" Hostile\n \n");
+			s += " Hostile\n \n";
 	}
 	else
 	{
-		s += _T("Team: Neutral\n \n");
+		s += "Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += _T("(Constructing)\n");
+		s += "(Constructing)\n";
 		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsUpgrading())
 	{
-		s += _T("(Upgrading to Power Supply Unit)\n");
+		s += "(Upgrading to Power Supply Unit)\n";
 		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToUpgrade());
 		return;
 	}

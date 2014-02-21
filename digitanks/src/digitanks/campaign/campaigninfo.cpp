@@ -21,11 +21,11 @@ CCampaignInfo::CCampaignInfo(tstring sScript)
 
 void CCampaignInfo::ReadFromData(CData* pData)
 {
-	CData* pName = pData->FindChild(_T("Name"));
+	CData* pName = pData->FindChild("Name");
 	if (pName)
 		m_sName = pName->GetValueString();
 
-	CData* pLevels = pData->FindChild(_T("Levels"));
+	CData* pLevels = pData->FindChild("Levels");
 
 	if (pLevels)
 	{
@@ -44,7 +44,7 @@ void CCampaignInfo::ReadFromData(CData* pData)
 
 const CCampaignInfo* CCampaignInfo::GetCampaignInfo()
 {
-	static CCampaignInfo gInfo(_T("scripts/campaign.txt"));
+	static CCampaignInfo gInfo("scripts/campaign.txt");
 
 	return &gInfo;
 }

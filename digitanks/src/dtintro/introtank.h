@@ -1,7 +1,7 @@
 #ifndef DT_INTRO_TANK_H
 #define DT_INTRO_TANK_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 
 class CIntroTank : public CBaseEntity
 {
@@ -17,8 +17,8 @@ public:
 
 	virtual bool	ShouldRender() const { return true; };
 	virtual EAngle	GetRenderAngles() const;
-	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void	OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void	ModifyContext(class CRenderingContext* pContext) const;
+	virtual void	OnRender(class CGameRenderingContext* pContext) const;
 
 	void			FaceTurret(float flYaw) { m_flGoalTurretYaw = flYaw; };
 
@@ -32,7 +32,7 @@ protected:
 	float			m_flGoalTurretYaw;
 	size_t			m_iTurretModel;
 
-	float			m_flStartedRock;
+	double			m_flStartedRock;
 	float			m_flRockIntensity;
 	Vector			m_vecRockDirection;
 };

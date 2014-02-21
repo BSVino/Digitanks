@@ -2,7 +2,8 @@
 #define DT_GENERAL_WINDOW_H
 
 #include <glgui/glgui.h>
-#include <models/texturesheet.h>
+#include <glgui/panel.h>
+#include <textures/texturesheet.h>
 
 typedef enum
 {
@@ -23,7 +24,7 @@ public:
 public:
 	virtual void		Layout();
 	virtual void		Think();
-	virtual void		Paint(int x, int y, int w, int h);
+	virtual void		Paint(float x, float y, float w, float h);
 
 	void				Reset();
 	void				Deploy();
@@ -37,21 +38,21 @@ public:
 	float				m_flDeployedGoal;
 	float				m_flDeployed;
 
-	float				m_flStartTime;
+	double				m_flStartTime;
 	bool				m_bHelperSpeaking;
 	bool				m_bProgressBar;
 
-	glgui::CLabel*		m_pText;
-	glgui::CButton*		m_pButton;
+	glgui::CControl<glgui::CLabel>		m_pText;
+	glgui::CControl<glgui::CButton>		m_pButton;
 
 	CTextureSheet		m_hAntivirus;
 	CTextureSheet		m_hGeneral;
 	CTextureSheet		m_hGeneralMouth;
-	eastl::string		m_sEmotion;
+	tstring				m_sEmotion;
 
 	generalstage_t		m_eStage;
 
-	float				m_flFadeToBlack;
+	double				m_flFadeToBlack;
 };
 
 #endif

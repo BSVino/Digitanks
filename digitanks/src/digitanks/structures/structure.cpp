@@ -82,7 +82,7 @@ void CStructure::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(_T("models/structures/scaffolding.obj"));
+	PrecacheModel("models/structures/scaffolding.toy");
 }
 
 void CStructure::Spawn()
@@ -95,7 +95,7 @@ void CStructure::Spawn()
 	m_iEnergyBonus = InitialEnergyBonus();
 	m_flRechargeBonus = InitialRechargeBonus();
 
-	m_iScaffolding = CModelLibrary::Get()->FindModel(_T("models/structures/scaffolding.obj"));
+	m_iScaffolding = CModelLibrary::Get()->FindModel("models/structures/scaffolding.toy");
 	m_flScaffoldingSize = 10;
 
 	m_flConstructionStartTime = 0;
@@ -154,13 +154,13 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToConstruct == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(tstring(_T("Construction finished on ")) + GetEntityName());
+			GetDigitanksTeam()->AppendTurnInfo(tstring("Construction finished on ") + GetEntityName());
 			CompleteConstruction();
 
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_NEWSTRUCTURE);
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring(_T("Constructing ")) + GetEntityName() + _T(" (%d turns left)"), m_iTurnsToConstruct.Get()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring("Constructing ") + GetEntityName() + " (%d turns left)", m_iTurnsToConstruct.Get()));
 	}
 
 	if (IsUpgrading())
@@ -169,12 +169,12 @@ void CStructure::StartTurn()
 
 		if (m_iTurnsToUpgrade == (size_t)0)
 		{
-			GetDigitanksTeam()->AppendTurnInfo(GetEntityName() + _T(" finished upgrading."));
+			GetDigitanksTeam()->AppendTurnInfo(GetEntityName() + " finished upgrading.");
 
 			UpgradeComplete();
 		}
 		else
-			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring(_T("Upgrading ")) + GetEntityName() + _T(" (%d turns left)"), GetTurnsToUpgrade()));
+			GetDigitanksTeam()->AppendTurnInfo(sprintf(tstring("Upgrading ") + GetEntityName() + " (%d turns left)", GetTurnsToUpgrade()));
 	}
 }
 
@@ -271,7 +271,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 	float flXPosition = (float)x + w + 20;
 
 	int iIconFontSize = 11;
-	tstring sFont = _T("text");
+	tstring sFont = "text";
 	float flIconFontHeight = glgui::CLabel::GetFontHeight(sFont, iIconFontSize) + 2;
 
 	if (IsConstructing())
@@ -295,7 +295,7 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		CCPU* pCPU = static_cast<CCPU*>(this);
 		if (pCPU->IsProducing())
 		{
-			tstring sTurns = _T("Rogue: 1");	// It only ever takes one turn to make a rogue.
+			tstring sTurns = "Rogue: 1";	// It only ever takes one turn to make a rogue.
 			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 			glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		}
@@ -307,13 +307,13 @@ void CStructure::DrawSchema(int x, int y, int w, int h)
 		{
 			tstring sUnit;
 			if (pLoader->GetBuildUnit() == UNIT_INFANTRY)
-				sUnit = _T("Resistor");
+				sUnit = "Resistor";
 			else if (pLoader->GetBuildUnit() == UNIT_ARTILLERY)
-				sUnit = _T("Artillery");
+				sUnit = "Artillery";
 			else
-				sUnit = _T("Digitank");
+				sUnit = "Digitank";
 
-			tstring sTurns = sprintf(sUnit + _T(": %d"), pLoader->GetTurnsRemainingToProduce());
+			tstring sTurns = sprintf(sUnit + ": %d", pLoader->GetTurnsRemainingToProduce());
 			float flWidth = glgui::CLabel::GetTextWidth(sTurns, sTurns.length(), sFont, iIconFontSize);
 			glgui::CLabel::PaintText(sTurns, sTurns.length(), sFont, iIconFontSize, flXPosition - flWidth, (float)y);
 		}
@@ -579,9 +579,9 @@ CSupplyLine* CStructure::GetSupplyLine() const
 	return m_hSupplyLine;
 }
 
-void CStructure::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CStructure::ModifyContext(class CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (IsConstructing() || IsUpgrading())
 	{
@@ -663,7 +663,7 @@ void CSupplier::Precache()
 {
 	BaseClass::Precache();
 
-	s_iTendrilBeam = CTextureLibrary::AddTextureID(_T("textures/tendril.png"));
+	s_iTendrilBeam = CTextureLibrary::AddTextureID("textures/tendril.png");
 }
 
 void CSupplier::Spawn()

@@ -30,7 +30,7 @@ void CDigitanksTeam::Bot_DownloadUpdates()
 	if (GetUpdateDownloading())
 		return;
 
-	eastl::vector<update_coordinate_t> aUpdatesAvailable;
+	tvector<update_coordinate_t> aUpdatesAvailable;
 
 	bool bGetTanks = CanBuildPSUs();
 	bool bGetArtillery = CanBuildPSUs() && CanBuildTankLoaders() && CanBuildBuffers();
@@ -346,7 +346,7 @@ bool CDigitanksTeam::Bot_BuildFirstPriority()
 
 void CDigitanksTeam::Bot_AssignDefenders()
 {
-	eastl::vector<CStructure*> apDefend;
+	tvector<CStructure*> apDefend;
 	for (size_t i = 0; i < m_ahMembers.size(); i++)
 	{
 		CBaseEntity* pEntity = m_ahMembers[i];
@@ -451,8 +451,8 @@ void CDigitanksTeam::Bot_ExecuteTurn()
 		size_t iStructures = 0;
 		size_t iAutoTurrets = 0;
 
-		eastl::vector<CEntityHandle<CMiniBuffer> > ahMinibufferUpgrades;
-		eastl::vector<CEntityHandle<CBattery> > ahBatteryUpgrades;
+		tvector<CEntityHandle<CMiniBuffer> > ahMinibufferUpgrades;
+		tvector<CEntityHandle<CBattery> > ahBatteryUpgrades;
 
 		for (size_t i = 0; i < GetNumMembers(); i++)
 		{
@@ -1406,7 +1406,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 			}
 		}
 
-		eastl::vector<CBaseEntity*> apTargets;
+		tvector<CBaseEntity*> apTargets;
 
 		CDigitanksEntity* pClosestEnemy = NULL;
 
@@ -1515,7 +1515,7 @@ void CDigitanksTeam::Bot_ExecuteTurnArtillery()
 
 CSupplier* CDigitanksTeam::Bot_FindUnusedSupplier(size_t iMaxDependents, bool bNoSuppliers)
 {
-	eastl::vector<CSupplier*> apSuppliers;
+	tvector<CSupplier*> apSuppliers;
 
 	// Find an appropriate supplier to build from.
 	for (size_t i = 0; i < GetNumMembers(); i++)

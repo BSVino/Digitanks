@@ -25,7 +25,7 @@ public:
 
 	virtual void				Think();
 
-	virtual float				GetBoundingRadius() const { return 5; };
+	virtual const TFloat		GetBoundingRadius() const { return 5; };
 
 	virtual void				OnTeamChange();
 
@@ -68,7 +68,7 @@ public:
 	virtual class CSupplier*	GetSupplier() const;
 	virtual class CSupplyLine*	GetSupplyLine() const;
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 
 	virtual void				OnDeleted();
 	virtual void				OnDeleted(CBaseEntity* pEntity) { BaseClass::OnDeleted(); };
@@ -137,7 +137,7 @@ protected:
 	} defender_t;
 
 	// AI stuff
-	eastl::vector<defender_t>	m_aoDefenders;
+	tvector<defender_t>	m_aoDefenders;
 };
 
 class CSupplier : public CStructure
@@ -220,8 +220,8 @@ protected:
 		float					m_flSpeed;
 	};
 
-	eastl::vector<CTendril>		m_aTendrils;
-	eastl::vector<CEntityHandle<CStructure> >	m_ahChildren;
+	tvector<CTendril>		m_aTendrils;
+	tvector<CEntityHandle<CStructure> >	m_ahChildren;
 
 	size_t						m_iTendrilsCallList;
 	float						m_flTendrilGrowthStartTime;

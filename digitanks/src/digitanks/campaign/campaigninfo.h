@@ -21,8 +21,8 @@ protected:
 	void							ReadFromData(class CData* pData);
 
 public:
-	eastl::string					m_sName;
-	eastl::vector<eastl::string>	m_asLevels;
+	tstring				m_sName;
+	tvector<tstring>	m_asLevels;
 };
 
 #endif

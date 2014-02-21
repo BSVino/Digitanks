@@ -4,17 +4,11 @@
 
 Vector CIntroCamera::GetCameraPosition()
 {
-	if (m_bFreeMode)
-		return BaseClass::GetCameraPosition();
-
 	return Vector(500, 0, 0);
 }
 
 Vector CIntroCamera::GetCameraTarget()
 {
-	if (m_bFreeMode)
-		return BaseClass::GetCameraTarget();
-
 	return Vector(0, 0, 0);
 }
 

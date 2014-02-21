@@ -16,7 +16,7 @@ class CPowerup : public CDigitanksEntity
 	REGISTER_ENTITY_CLASS(CPowerup, CDigitanksEntity);
 
 public:
-	virtual float	GetBoundingRadius() const { return 4; };
+	virtual const TFloat GetBoundingRadius() const { return 4; };
 
 	void			Precache();
 	virtual void	Spawn();
@@ -25,7 +25,7 @@ public:
 
 	virtual EAngle	GetRenderAngles() const;
 	virtual Vector	GetRenderOrigin() const;
-	virtual void	ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void	ModifyContext(class CRenderingContext* pContext) const;
 
 	powerup_type_t	GetPowerupType() { return m_ePowerupType; }
 	void			SetPowerupType(powerup_type_t eType);

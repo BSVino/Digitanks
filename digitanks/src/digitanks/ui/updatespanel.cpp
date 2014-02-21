@@ -394,7 +394,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 	}
 	else if (pInfo->m_eUpdateClass == UPDATECLASS_STRUCTUREUPDATE)
 	{
-		eastl::string sArea;
+		tstring sArea;
 		const CTextureSheet* pSheet;
 		switch (pInfo->m_eUpdateType)
 		{
@@ -485,7 +485,7 @@ void CUpdatesPanel::GetTextureForUpdateItem(class CUpdateItem* pInfo, size_t& iS
 	}
 	else if (pInfo->m_eUpdateClass == UPDATECLASS_UNITSKILL)
 	{
-		eastl::string sArea;
+		tstring sArea;
 		const CTextureSheet* pSheet;
 
 		switch (pInfo->m_eUpdateType)

@@ -7,7 +7,7 @@
 
 #include <vector.h>
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 
 class CScriptActor
 {
@@ -40,12 +40,12 @@ public:
 	bool								m_bStarted;
 	bool								m_bExecuted;
 
-	eastl::string						m_sName;
+	tstring								m_sName;
 	Vector								m_vecOrigin;
 	EAngle								m_angAngles;
 	size_t								m_iParticleInstance;
-	eastl::string						m_sOutput;
-	tstring						m_sArgs;
+	tstring								m_sOutput;
+	tstring								m_sArgs;
 };
 
 class CScript
@@ -60,9 +60,9 @@ public:
 	CScriptEvent*						AddScriptEvent();
 
 protected:
-	eastl::map<eastl::string, eastl::vector<CScriptActor> > m_aActors;
-	eastl::vector<CScriptEvent>			m_aEvents;
-	float								m_flStartTime;
+	tmap<tstring, tvector<CScriptActor> > m_aActors;
+	tvector<CScriptEvent>				m_aEvents;
+	double								m_flStartTime;
 };
 
 class CScriptManager
@@ -71,16 +71,16 @@ public:
 										CScriptManager();
 
 public:
-	void								PlayScript(eastl::string sName);
+	void								PlayScript(tstring sName);
 
 	void								Think();
 
 	void								ClearScripts();
-	CScript*							AddScript(eastl::string sName);
+	CScript*							AddScript(tstring sName);
 
 protected:
 	CScript*							m_pCurrentScript;
-	eastl::map<eastl::string, CScript>	m_aScripts;
+	tmap<tstring, CScript>				m_aScripts;
 };
 
 inline CScriptManager* ScriptManager()

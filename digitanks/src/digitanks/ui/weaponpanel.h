@@ -30,7 +30,7 @@ public:
 
 public:
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	void							UpdateInfo(weapon_t eWeapon);
 
@@ -39,7 +39,7 @@ public:
 protected:
 	glgui::CLabel*					m_pInfo;
 
-	eastl::vector<CWeaponButton*>	m_apWeapons;
+	tvector<CWeaponButton*>			m_apWeapons;
 
 	weapon_t						m_eWeapon;
 };

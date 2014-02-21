@@ -15,7 +15,7 @@ public:
 	virtual void					CursorOut();
 
 	virtual void					Think();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	EVENT_CALLBACK(CUpdateButton, ChooseDownload);
 
@@ -36,7 +36,7 @@ public:
 
 public:
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	EVENT_CALLBACK(CUpdatesPanel, Close);
 
@@ -52,7 +52,7 @@ protected:
 	glgui::CLabel*					m_pInfo;
 	glgui::CLabel*					m_pTutorial;
 
-	eastl::vector<CUpdateButton*>	m_apUpdates;
+	tvector<CUpdateButton*>			m_apUpdates;
 
 	int								m_iButtonSize;
 };

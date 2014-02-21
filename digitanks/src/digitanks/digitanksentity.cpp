@@ -44,8 +44,8 @@ INPUTS_TABLE_END();
 
 void CDigitanksEntity::Precache()
 {
-	PrecacheModel(_T("models/cage.obj"), true);
-	PrecacheParticleSystem(_T("cage-aura"));
+	PrecacheModel("models/cage.toy", true);
+	PrecacheParticleSystem("cage-aura");
 }
 
 void CDigitanksEntity::Spawn()
@@ -64,8 +64,8 @@ void CDigitanksEntity::Spawn()
 	m_bImprisoned = false;
 	m_bObjective = false;
 
-	m_iCageModel = CModelLibrary::Get()->FindModel(_T("models/cage.obj"));
-	m_hCageParticles.SetSystem(_T("cage-aura"), GetOrigin());
+	m_iCageModel = CModelLibrary::Get()->FindModel("models/cage.toy");
+	m_hCageParticles.SetSystem("cage-aura", GetOrigin());
 	m_hCageParticles.FollowEntity(this);
 }
 
@@ -557,9 +557,9 @@ void CDigitanksEntity::Rescue(CDigitanksEntity* pOther)
 	m_flNextDirtyArea = GameServer()->GetGameTime();
 }
 
-void CDigitanksEntity::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CDigitanksEntity::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	CDigitanksTeam* pTeam = DigitanksGame()->GetCurrentTeam();
 
@@ -667,12 +667,12 @@ void CDigitanksEntity::OnRender(CRenderingContext* pContext, bool bTransparent) 
 	glPopAttrib();
 }
 
-void CDigitanksEntity::MakeObjective(const eastl::vector<tstring>& sArgs)
+void CDigitanksEntity::MakeObjective(const tvector<tstring>& sArgs)
 {
 	m_bObjective = true;
 }
 
-void CDigitanksEntity::ClearObjective(const eastl::vector<tstring>& sArgs)
+void CDigitanksEntity::ClearObjective(const tvector<tstring>& sArgs)
 {
 	m_bObjective = false;
 }

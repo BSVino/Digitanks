@@ -57,7 +57,7 @@ public:
 	virtual void				SetupSpeechLines();
 	virtual void				Spawn();
 
-	virtual float				GetBoundingRadius() const { return 4; };
+	virtual const TFloat		GetBoundingRadius() const { return 4; };
 	virtual float				GetRenderRadius() const { return GetBoundingRadius() + RenderShieldScale(); };
 
 	float						GetTotalPower() const { return m_flTotalPower; };
@@ -268,8 +268,8 @@ public:
 	virtual void				PreRender(bool bTransparent) const;
 	virtual Vector				GetRenderOrigin() const;
 	virtual EAngle				GetRenderAngles() const;
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 	virtual void				RenderTurret(bool bTransparent, float flAlpha = 1.0f) const;
 	virtual void				RenderShield() const;
 	virtual float				RenderShieldScale() const { return 20.0f; };

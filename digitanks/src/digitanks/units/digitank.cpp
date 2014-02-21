@@ -59,7 +59,7 @@ const char* CDigitank::s_apszTankLines[] =
 	":3",	// TANKLINE_CATFACE
 };
 
-eastl::map<size_t, eastl::vector<size_t> > g_aiSpeechLines;
+tmap<size_t, tvector<size_t> > g_aiSpeechLines;
 
 REGISTER_ENTITY(CDigitank);
 
@@ -118,7 +118,7 @@ NETVAR_TABLE_BEGIN(CDigitank);
 	NETVAR_DEFINE_CALLBACK(bool, m_bSentried, &CDigitanksGame::UpdateHUD);
 
 	NETVAR_DEFINE_CALLBACK(weapon_t, m_eWeapon, &CDigitanksGame::UpdateHUD);
-	NETVAR_DEFINE_CALLBACK(eastl::vector<weapon_t>, m_aeWeapons, &CDigitanksGame::UpdateHUD);
+	NETVAR_DEFINE_CALLBACK(tvector<weapon_t>, m_aeWeapons, &CDigitanksGame::UpdateHUD);
 
 	NETVAR_DEFINE_CALLBACK(size_t, m_iAirstrikes, &CDigitanksGame::UpdateHUD);
 
@@ -3134,9 +3134,9 @@ EAngle CDigitank::GetRenderAngles() const
 	return GetAngles();
 }
 
-void CDigitank::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CDigitank::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (!GetTeam())
 		return;
@@ -3144,9 +3144,9 @@ void CDigitank::ModifyContext(CRenderingContext* pContext, bool bTransparent) co
 	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
-void CDigitank::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CDigitank::OnRender(class CRenderingContext* pContext) const
 {
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
 	RenderTurret(bTransparent);
 

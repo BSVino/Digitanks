@@ -1,15 +1,14 @@
 include_directories (
-	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
+	${PROJECT_SOURCE_DIR}/../ext-deps/EASTL/include
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/common
 	${CMAKE_SOURCE_DIR}/common/math
+	${CMAKE_SOURCE_DIR}/tinker
 	${CMAKE_SOURCE_DIR}/tengine
 	${CMAKE_SOURCE_DIR}/digitanks/src/digitanks/
 )
 
 if (WIN32)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glew/include)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/include)
 endif (WIN32)
 
 set (DTINTRO_SOURCES
@@ -29,6 +28,8 @@ set (DTINTRO_SOURCES
 	intro_renderer.cpp
 	intro_systems.cpp
 	intro_window.cpp
+
+	../digitanks/dissolver.cpp
 )
 
 if (WIN32)

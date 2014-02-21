@@ -2,6 +2,7 @@
 
 #include <tinker/application.h>
 #include <renderer/renderer.h>
+#include <renderer/renderingcontext.h>
 #include <renderer/particles.h>
 #include <models/models.h>
 
@@ -18,18 +19,18 @@ INPUTS_TABLE_END();
 
 void CScreen::Precache()
 {
-	PrecacheModel(_T("models/intro/screen.obj"));
-	PrecacheParticleSystem(_T("intro-explosion-fragments"));
-	PrecacheSound(_T("sound/tank-damage.wav"));
-	PrecacheSound(_T("sound/helper-speech.wav"));	// For the UI
+	PrecacheModel("models/intro/screen.toy");
+	PrecacheParticleSystem("intro-explosion-fragments");
+	PrecacheSound("sound/tank-damage.wav");
+	PrecacheSound("sound/helper-speech.wav");	// For the UI
 }
 
 void CScreen::Spawn()
 {
-	SetModel(_T("models/intro/screen.obj"));
+	SetModel("models/intro/screen.toy");
 }
 
-void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CScreen::ModifyContext(class CRenderingContext* pContext) const
 {
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
@@ -37,21 +38,21 @@ void CScreen::ModifyContext(class CRenderingContext* pContext, bool bTransparent
 	pContext->Scale((flWidth+flHeight)/2, flHeight, flWidth);
 }
 
-void CScreen::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CScreen::OnRender(class CGameRenderingContext* pContext) const
 {
 }
 
 void CScreen::SetScreenshot(size_t iScreenshot)
 {
-	size_t iModel = CModelLibrary::Get()->FindModel(_T("models/intro/screen.obj"));
+	size_t iModel = CModelLibrary::Get()->FindModel("models/intro/screen.toy");
 	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
-	pModel->m_aiTextures[0] = iScreenshot;
-	pModel->m_iCallListTexture = iScreenshot;
+//	pModel->m_aiTextures[0] = iScreenshot;
+//	pModel->m_iCallListTexture = iScreenshot;
 
-	iModel = CModelLibrary::Get()->FindModel(_T("models/intro/screen-fragment.obj"));
+	iModel = CModelLibrary::Get()->FindModel("models/intro/screen-fragment.toy");
 	pModel = CModelLibrary::Get()->GetModel(iModel);
-	pModel->m_aiTextures[0] = iScreenshot;
-	pModel->m_iCallListTexture = iScreenshot;
+//	pModel->m_aiTextures[0] = iScreenshot;
+//	pModel->m_iCallListTexture = iScreenshot;
 
-	EmitSound(_T("sound/tank-damage.wav"));
+	EmitSound("sound/tank-damage.wav");
 }

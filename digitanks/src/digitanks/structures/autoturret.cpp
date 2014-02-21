@@ -27,24 +27,24 @@ INPUTS_TABLE_END();
 
 void CAutoTurret::Precache()
 {
-	PrecacheModel(_T("models/structures/firewall.obj"), true);
-	PrecacheModel(_T("models/structures/firewall-shield.obj"), true);
+	PrecacheModel("models/structures/firewall.toy", true);
+	PrecacheModel("models/structures/firewall-shield.toy", true);
 }
 
 void CAutoTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/structures/firewall.obj"));
+	SetModel("models/structures/firewall.toy");
 
-	m_iShieldModel = CModelLibrary::Get()->FindModel(_T("models/structures/firewall-shield.obj"));
+	m_iShieldModel = CModelLibrary::Get()->FindModel("models/structures/firewall-shield.toy");
 
 	m_bHasFired = false;
 }
 
-void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CAutoTurret::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (!GetTeam())
 		return;
@@ -52,7 +52,7 @@ void CAutoTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) 
 	pContext->SetColorSwap(GetTeam()->GetColor());
 }
 
-void CAutoTurret::OnRender(CRenderingContext* pContext, bool bTransparent) const
+void CAutoTurret::OnRender(CRenderingContext* pContext) const
 {
 	if (m_iShieldModel == ~0)
 		return;
@@ -126,9 +126,9 @@ void CAutoTurret::EndTurn()
 		Fire();
 }
 
-eastl::vector<CDigitank*> CAutoTurret::GetTargets()
+tvector<CDigitank*> CAutoTurret::GetTargets()
 {
-	eastl::vector<CDigitank*> apTargets;
+	tvector<CDigitank*> apTargets;
 	for (size_t i = 0; i < GameServer()->GetMaxEntities(); i++)
 	{
 		CBaseEntity* pEntity = CBaseEntity::GetEntity(i);
@@ -163,7 +163,7 @@ void CAutoTurret::Fire()
 	if (!GameNetwork()->IsHost())
 		return;
 
-	eastl::vector<CDigitank*> apTargets = GetTargets();
+	tvector<CDigitank*> apTargets = GetTargets();
 
 	for (size_t i = 0; i < apTargets.size(); i++)
 	{
@@ -202,16 +202,16 @@ void CAutoTurret::SetupMenu(menumode_t eMenuMode)
 		}
 
 		tstring s;
-		s += _T("DEFEND YOUR TERRITORY\n \n");
-		s += _T("Activate this Firewall to automatically fire at all enemies within range.\n \n");
+		s += "DEFEND YOUR TERRITORY\n \n";
+		s += "Activate this Firewall to automatically fire at all enemies within range.\n \n";
 
 		if (!bHasTargets)
-			s += _T("NO TARGETS IN RANGE\n \n");
+			s += "NO TARGETS IN RANGE\n \n";
 
-		s += _T("Shortcut: e");
+		s += "Shortcut: e";
 
 		pHUD->SetButtonInfo(2, s);
-		pHUD->SetButtonTooltip(2, _T("Activate Firewall"));
+		pHUD->SetButtonTooltip(2, "Activate Firewall");
 	}
 }
 
@@ -219,26 +219,26 @@ void CAutoTurret::UpdateInfo(tstring& s)
 {
 	tstring p;
 
-	s = _T("");
-	s += _T("FIREWALL INFO\n");
-	s += _T("Network defender\n \n");
+	s = "";
+	s += "FIREWALL INFO\n";
+	s += "Network defender\n \n";
 
 	if (GetTeam())
 	{
-		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
+		s += "Team: " + GetTeam()->GetTeamName() + "\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += _T(" Friendly\n \n");
+			s += " Friendly\n \n";
 		else
-			s += _T(" Hostile\n \n");
+			s += " Hostile\n \n";
 	}
 	else
 	{
-		s += _T("Team: Neutral\n \n");
+		s += "Team: Neutral\n \n";
 	}
 
 	if (IsConstructing())
 	{
-		s += _T("(Constructing)\n");
+		s += "(Constructing)\n";
 		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}

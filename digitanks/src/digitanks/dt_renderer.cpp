@@ -30,41 +30,41 @@ CDigitanksRenderer::CDigitanksRenderer()
 	if (DigitanksWindow()->HasCommandLineSwitch("--no-shaders"))
 		m_bUseShaders = false;
 
-	m_iVignetting = CTextureLibrary::AddTextureID(_T("textures/vignetting.png"));
+	m_iVignetting = CTextureLibrary::AddTextureID("textures/vignetting.png");
 
-	m_iSkyboxFT = CTextureLibrary::AddTextureID(_T("textures/skybox/standard-ft.png"), 2);
-	m_iSkyboxLF = CTextureLibrary::AddTextureID(_T("textures/skybox/standard-lf.png"), 2);
-	m_iSkyboxBK = CTextureLibrary::AddTextureID(_T("textures/skybox/standard-bk.png"), 2);
-	m_iSkyboxRT = CTextureLibrary::AddTextureID(_T("textures/skybox/standard-rt.png"), 2);
-	m_iSkyboxDN = CTextureLibrary::AddTextureID(_T("textures/skybox/standard-dn.png"), 2);
-	m_iSkyboxUP = CTextureLibrary::AddTextureID(_T("textures/skybox/standard-up.png"), 2);
+	m_iSkyboxFT = CTextureLibrary::AddTextureID("textures/skybox/standard-ft.png", 2);
+	m_iSkyboxLF = CTextureLibrary::AddTextureID("textures/skybox/standard-lf.png", 2);
+	m_iSkyboxBK = CTextureLibrary::AddTextureID("textures/skybox/standard-bk.png", 2);
+	m_iSkyboxRT = CTextureLibrary::AddTextureID("textures/skybox/standard-rt.png", 2);
+	m_iSkyboxDN = CTextureLibrary::AddTextureID("textures/skybox/standard-dn.png", 2);
+	m_iSkyboxUP = CTextureLibrary::AddTextureID("textures/skybox/standard-up.png", 2);
 
-	m_iRing1 = CModelLibrary::Get()->AddModel(_T("models/skybox/ring1.obj"), true);
-	m_iRing2 = CModelLibrary::Get()->AddModel(_T("models/skybox/ring2.obj"), true);
-	m_iRing3 = CModelLibrary::Get()->AddModel(_T("models/skybox/ring3.obj"), true);
+	m_iRing1 = CModelLibrary::Get()->AddModel("models/skybox/ring1.toy", true);
+	m_iRing2 = CModelLibrary::Get()->AddModel("models/skybox/ring2.toy", true);
+	m_iRing3 = CModelLibrary::Get()->AddModel("models/skybox/ring3.toy", true);
 	m_flRing1Yaw = 0;
 	m_flRing2Yaw = 90;
 	m_flRing3Yaw = 190;
 
-	m_iVortex = CModelLibrary::Get()->AddModel(_T("models/skybox/vortex.obj"), true);
+	m_iVortex = CModelLibrary::Get()->AddModel("models/skybox/vortex.toy", true);
 	m_flVortexYaw = 0;
 
-	m_iDigiverse = CModelLibrary::Get()->AddModel(_T("models/skybox/digiverse.obj"), true);
-	m_iFloaters[0] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float01.obj"), true);
-	m_iFloaters[1] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float02.obj"), true);
-	m_iFloaters[2] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float03.obj"), true);
-	m_iFloaters[3] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float04.obj"), true);
-	m_iFloaters[4] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float05.obj"), true);
-	m_iFloaters[5] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float06.obj"), true);
-	m_iFloaters[6] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float07.obj"), true);
-	m_iFloaters[7] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float08.obj"), true);
-	m_iFloaters[8] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float09.obj"), true);
-	m_iFloaters[9] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float10.obj"), true);
-	m_iFloaters[10] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float11.obj"), true);
-	m_iFloaters[11] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float12.obj"), true);
-	m_iFloaters[12] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float13.obj"), true);
-	m_iFloaters[13] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float14.obj"), true);
-	m_iFloaters[14] = CModelLibrary::Get()->AddModel(_T("models/skybox/floaters/float15.obj"), true);
+	m_iDigiverse = CModelLibrary::Get()->AddModel("models/skybox/digiverse.toy", true);
+	m_iFloaters[0] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float01.toy", true);
+	m_iFloaters[1] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float02.toy", true);
+	m_iFloaters[2] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float03.toy", true);
+	m_iFloaters[3] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float04.toy", true);
+	m_iFloaters[4] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float05.toy", true);
+	m_iFloaters[5] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float06.toy", true);
+	m_iFloaters[6] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float07.toy", true);
+	m_iFloaters[7] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float08.toy", true);
+	m_iFloaters[8] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float09.toy", true);
+	m_iFloaters[9] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float10.toy", true);
+	m_iFloaters[10] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float11.toy", true);
+	m_iFloaters[11] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float12.toy", true);
+	m_iFloaters[12] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float13.toy", true);
+	m_iFloaters[13] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float14.toy", true);
+	m_iFloaters[14] = CModelLibrary::Get()->AddModel("models/skybox/floaters/float15.toy", true);
 
 	m_flLastBloomPulse = -100;
 }
@@ -659,35 +659,35 @@ void CDigitanksRenderer::RenderPreviewModes()
 				switch (pCPU->GetPreviewStructure())
 				{
 				case STRUCTURE_FIREWALL:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/autoturret.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/digitanks/autoturret.toy");
 					break;
 
 				case STRUCTURE_MINIBUFFER:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/minibuffer.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/minibuffer.toy");
 					break;
 
 				case STRUCTURE_BUFFER:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/buffer.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/buffer.toy");
 					break;
 
 				case STRUCTURE_BATTERY:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/battery.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/battery.toy");
 					break;
 
 				case STRUCTURE_PSU:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/psu.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/psu.toy");
 					break;
 
 				case STRUCTURE_INFANTRYLOADER:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/loader-infantry.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/loader-infantry.toy");
 					break;
 
 				case STRUCTURE_TANKLOADER:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/loader-main.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/loader-main.toy");
 					break;
 
 				case STRUCTURE_ARTILLERYLOADER:
-					iModel = CModelLibrary::Get()->FindModel(_T("models/structures/loader-artillery.obj"));
+					iModel = CModelLibrary::Get()->FindModel("models/structures/loader-artillery.toy");
 					break;
 				}
 

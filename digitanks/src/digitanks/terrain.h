@@ -28,7 +28,7 @@ typedef struct
 {
 	Vector					vecPrimaryDirection;
 	Vector					vecCurrentDirection;
-	eastl::list<Vector>		avecPoints;
+	tvector<Vector>			avecPoints;
 	Color					clrColor;
 	float					flNextTurn;
 	float					flNextPoint;
@@ -92,7 +92,7 @@ public:
 
 	virtual void			Think();
 
-	virtual float			GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
+	virtual const TFloat	GetBoundingRadius() const { return sqrt(GetMapSize()*GetMapSize() + GetMapSize()*GetMapSize()); };
 
 	void					GenerateTerrain(float flHeight = 50);
 	void					GenerateCollision();
@@ -110,7 +110,7 @@ public:
 	void					CalculateVisibility();
 
 	virtual bool			ShouldRender() const { return true; };
-	virtual void			OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void			OnRender(class CGameRenderingContext* pContext) const;
 	void					RenderTransparentTerrain() const;
 	void					RenderWithShaders() const;
 	void					RenderWithoutShaders() const;
@@ -159,7 +159,7 @@ public:
 	Vector					FindPath(const Vector& vecStart, const Vector& vecEnd, class CDigitank* pUnit);
 	class CQuadBranch*		FindLeaf(const Vector& vecPoint);
 	float					WeightedLeafDistance(class CQuadBranch* pStart, class CQuadBranch* pEnd, bool bEstimate);
-	void					FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors);
+	void					FindNeighbors(const CQuadBranch* pLeaf, tvector<CQuadBranch*>& apNeighbors);
 
 	Color					GetPrimaryTerrainColor();
 
@@ -196,7 +196,7 @@ protected:
 	int						m_iThinkChunkX;
 	int						m_iThinkChunkY;
 
-	eastl::vector<runner_t>	m_aRunners;
+	tvector<runner_t>	m_aRunners;
 	float					m_flNextRunner;
 
 	static size_t			s_iTreeTexture;
@@ -241,7 +241,7 @@ public:
 	void					BuildBranch();
 
 	void					InitPathfinding();
-	void					FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors);
+	void					FindNeighbors(const CQuadBranch* pLeaf, tvector<CQuadBranch*>& apNeighbors);
 	CQuadBranch*			FindLeaf(const Vector& vecPoint);
 	void					SetGScore(float flGScore);
 	float					GetFScore();

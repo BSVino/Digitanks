@@ -1,7 +1,7 @@
 #ifndef DT_DIGITANKSENTITY_H
 #define DT_DIGITANKSENTITY_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 #include <renderer/particles.h>
 
 #include "dt_common.h"
@@ -59,13 +59,13 @@ public:
 	void							Rescue(CDigitanksEntity* pOther);
 	DECLARE_ENTITY_OUTPUT(OnRescue);
 
-	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void					ModifyContext(class CRenderingContext* pContext) const;
+	virtual void					OnRender(class CGameRenderingContext* pContext) const;
 
 	virtual void					DownloadComplete(size_t x, size_t y) {};
 
 	virtual void					UpdateInfo(tstring& sInfo) {};
-	virtual tstring					GetEntityName() const { return _T("Entity"); };
+	virtual tstring					GetEntityName() const { return "Entity"; };
 	virtual unittype_t				GetUnitType() const { return UNITTYPE_UNDEFINED; };
 
 	void							SetObjective(bool bObjective) { m_bObjective = bObjective; }
@@ -79,13 +79,13 @@ public:
 	virtual float					TotalHealth() const { return 100; };
 
 protected:
-	eastl::vector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;
+	tvector<CEntityHandle<class CSupplyLine> >	m_ahSupplyLinesIntercepted;
 
 	bool							m_bVisibilityDirty;
 	float							m_flVisibility;				// Only for local team!
 
-	float							m_flNextDirtyArea;
-	float							m_flNextDirtyOrigin;
+	double							m_flNextDirtyArea;
+	double							m_flNextDirtyOrigin;
 
 	bool							m_bImprisoned;
 

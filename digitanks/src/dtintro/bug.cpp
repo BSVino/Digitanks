@@ -5,7 +5,8 @@
 #include <tinker/application.h>
 #include <renderer/renderer.h>
 #include <models/models.h>
-#include <renderer/dissolver.h>
+
+#include "../digitanks/dissolver.h"
 
 REGISTER_ENTITY(CBug);
 
@@ -26,14 +27,14 @@ INPUTS_TABLE_END();
 
 void CBug::Precache()
 {
-	PrecacheModel(_T("models/digitanks/gridbug.obj"));
-	PrecacheModel(_T("models/digitanks/gridbug-turret.obj"));
+	PrecacheModel("models/digitanks/gridbug.toy");
+	PrecacheModel("models/digitanks/gridbug-turret.toy");
 }
 
 void CBug::Spawn()
 {
-	SetModel(_T("models/digitanks/gridbug.obj"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.obj"));
+	SetModel("models/digitanks/gridbug.toy");
+	m_iTurretModel = CModelLibrary::Get()->FindModel("models/digitanks/gridbug-turret.toy");
 
 	m_bFiringRandomly = false;
 	m_flNextAim = m_flNextFire = 0;
@@ -51,9 +52,9 @@ void CBug::Think()
 		do
 		{
 			m_vecNextAim = Vector(RandomFloat(50, 200), RandomFloat(-flHeight/2, flHeight/2), RandomFloat(-flWidth/2, flWidth/2));
-		} while ((m_vecNextAim-GetOrigin()).Length2D() < 200);
+		} while ((m_vecNextAim-GetGlobalOrigin()).Length2D() < 200);
 
-		FaceTurret(VectorAngles(m_vecNextAim-GetOrigin()).y - GetAngles().y);
+		FaceTurret(VectorAngles(m_vecNextAim-GetGlobalOrigin()).y - GetGlobalAngles().y);
 
 		m_flNextAim = 0;
 		m_flNextFire = GameServer()->GetGameTime() + RandomFloat(0.5f, 1.0f);
@@ -68,14 +69,14 @@ void CBug::Think()
 	}
 }
 
-void CBug::FireRandomly(const eastl::vector<tstring>& sArgs)
+void CBug::FireRandomly(const tvector<tstring>& sArgs)
 {
 	m_bFiringRandomly = true;
 
 	m_flNextAim = GameServer()->GetGameTime() + RandomFloat(0, 0.5f);
 }
 
-void CBug::Dissolve(const eastl::vector<tstring>& sArgs)
+void CBug::Dissolve(const tvector<tstring>& sArgs)
 {
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
@@ -91,7 +92,7 @@ void CBug::Dissolve(const eastl::vector<tstring>& sArgs)
 
 	Matrix4x4 mTransform;
 	mTransform.SetTranslation(GetRenderOrigin() + Vector(-0.0f, 0.810368f, 0));
-	mTransform.SetRotation(GetRenderAngles() - EAngle(0, m_flCurrentTurretYaw, 0));
+	mTransform.SetAngles(GetRenderAngles() - EAngle(0, m_flCurrentTurretYaw, 0));
 
 	Matrix4x4 mScale;
 	mScale.SetScale(vecScale);

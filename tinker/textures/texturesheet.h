@@ -23,13 +23,13 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <tstring.h>
 #include <geometry.h>
 
-#include "texturehandle.h"
+#include "materialhandle.h"
 
 class CTextureArea
 {
 public:
 	Rect					m_rRect;
-	CTextureHandle			m_hSheet;
+	CMaterialHandle			m_hSheet;
 };
 
 class CTextureSheet
@@ -40,13 +40,13 @@ public:
 
 public:
 	const Rect&				GetArea(const tstring& sArea) const;
-	CTextureHandle			GetSheet(const tstring& sArea) const;
+	CMaterialHandle			GetSheet(const tstring& sArea) const;
 	size_t					GetSheetWidth(const tstring& sArea) const;
 	size_t					GetSheetHeight(const tstring& sArea) const;
 
 protected:
 	tmap<tstring, CTextureArea>	m_aAreas;
-	CTextureHandle			m_hDefaultSheet;
+	CMaterialHandle			m_hDefaultSheet;
 };
 
 #endif

@@ -1,6 +1,6 @@
-#ifndef DT_DISSOLVER_H
+#pragma once
 
-#include <EASTL/vector.h>
+#include <tvector.h>
 #include <vector.h>
 #include <matrix.h>
 #include <color.h>
@@ -20,7 +20,7 @@ public:
 	Matrix4x4						m_mVelocity;
 
 	float							m_flAlpha;
-	float							m_flSpawnTime;
+	double							m_flSpawnTime;
 
 	bool							m_bColorSwap;
 	Color							m_clrSwap;
@@ -57,7 +57,7 @@ public:
 	static CModelDissolver*			Get() { return s_pModelDissolver; };
 
 protected:
-	eastl::vector<CDissolveTri>		m_aTriangles;
+	tvector<CDissolveTri>			m_aTriangles;
 
 	size_t							m_iNumTrianglesAlive;
 
@@ -66,5 +66,3 @@ protected:
 private:
 	static CModelDissolver*			s_pModelDissolver;
 };
-
-#endif

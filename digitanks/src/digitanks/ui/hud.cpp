@@ -35,7 +35,7 @@ using namespace glgui;
 CVar hud_enable("hud_enable", "on");
 
 CPowerBar::CPowerBar(powerbar_type_t ePowerbarType)
-	: CLabel(0, 0, 100, 100, _T(""), _T("text"))
+	: CLabel(0, 0, 100, 100, "", "text")
 {
 	m_ePowerbarType = ePowerbarType;
 }
@@ -107,12 +107,12 @@ void CPowerBar::Think()
 	if (m_ePowerbarType == POWERBAR_SHIELD)
 		iSize = 10;
 
-	SetFont(_T("text"), iSize);
+	SetFont("text", iSize);
 	while (iSize > 0 && GetTextWidth() > GetWidth()-1)
-		SetFont(_T("text"), --iSize);
+		SetFont("text", --iSize);
 }
 
-void CPowerBar::Paint(int x, int y, int w, int h)
+void CPowerBar::Paint(float x, float y, float w, float h)
 {
 	if (!DigitanksGame())
 		return;
@@ -159,14 +159,14 @@ void CPowerBar::Paint(int x, int y, int w, int h)
 
 CHUD::CHUD()
 	: CPanel(0, 0, 100, 100),
-	m_HUDSheet(_T("textures/hud/hud-sheet.txt")),
-	m_UnitsSheet(_T("textures/hud/units-sheet.txt")),
-	m_WeaponsSheet(_T("textures/hud/hud-weapons-01.txt")),
-	m_ButtonSheet(_T("textures/hud/hud-menu-sheet-01.txt")),
-	m_DownloadSheet(_T("textures/hud/hud-download-sheet-01.txt")),
-	m_KeysSheet(_T("textures/hud/keys.txt")),
-	m_ActionSignsSheet(_T("textures/hud/actionsigns/signs.txt")),
-	m_PowerupsSheet(_T("textures/hud/powerups-sheet.txt"))
+	m_HUDSheet("textures/hud/hud-sheet.txt"),
+	m_UnitsSheet("textures/hud/units-sheet.txt"),
+	m_WeaponsSheet("textures/hud/hud-weapons-01.txt"),
+	m_ButtonSheet("textures/hud/hud-menu-sheet-01.txt"),
+	m_DownloadSheet("textures/hud/hud-download-sheet-01.txt"),
+	m_KeysSheet("textures/hud/keys.txt")),
+	m_ActionSignsSheet("textures/hud/actionsigns/signs.txt"),
+	m_PowerupsSheet("textures/hud/powerups-sheet.txt")
 {
 	m_bNeedsUpdate = false;
 
@@ -668,7 +668,7 @@ void CHUD::Layout()
 		for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
 		{
 			const CDigitanksTeam* pTeam = DigitanksGame()->GetDigitanksTeam(i);
-			eastl::map<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
+			tmap<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
 
 			for (size_t j = 0; j < pTeam->GetNumTanks(); j++)
 			{
@@ -892,7 +892,7 @@ void CHUD::Think()
 		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
 			pTutorial = DigitanksWindow()->GetInstructor()->GetCurrentTutorial();
 
-		eastl::string sTutorialName;
+		tstring sTutorialName;
 		if (DigitanksWindow()->GetInstructor() && DigitanksWindow()->GetInstructor()->GetCurrentTutorial())
 			sTutorialName = DigitanksWindow()->GetInstructor()->GetCurrentTutorial()->m_sTutorialName;
 
@@ -1675,7 +1675,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			if (!pTeam)
 				continue;
 
-			eastl::map<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
+			tmap<size_t, CEntityHandle<CDigitank> >& ahTeamTanks = m_ahScoreboardTanks[i];
 
 			Color clrTeam = pTeam->GetColor();
 			if (DigitanksGame()->GetCurrentTeam() == pTeam)
@@ -1692,7 +1692,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 			CLabel::PaintText(sTeamName, sTeamName.length(), _T("text"), 13, (float)w - CLabel::GetTextWidth(sTeamName, sTeamName.length(), _T("text"), 13) - 20, 50 + (float)i*40);
 
 			int iTank = 0;
-			for (eastl::map<size_t, CEntityHandle<CDigitank> >::iterator it = ahTeamTanks.begin(); it != ahTeamTanks.end(); it++)
+			for (tmap<size_t, CEntityHandle<CDigitank> >::iterator it = ahTeamTanks.begin(); it != ahTeamTanks.end(); it++)
 			{
 				CDigitank* pTank = it->second;
 
@@ -1774,7 +1774,7 @@ void CHUD::Paint(int x, int y, int w, int h)
 		iIconW = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iNotificationHeight-iSpacing*2, (float)iSceneH);
 		iIconH = (int)RemapValClamped(flMoveLerp, 0, 1, (float)iNotificationHeight-iSpacing*2, (float)iSceneH);
 
-		eastl::string sArea;
+		tstring sArea;
 		if (pNotification->ePowerupType == POWERUP_AIRSTRIKE)
 			sArea = "Airstrike";
 		else if (pNotification->ePowerupType == POWERUP_TANK)
@@ -2078,13 +2078,13 @@ void CHUD::PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int s
 	glgui::CBaseControl::PaintSheet(iTexture, x, y, w, h, sx, sy, sw, sh, tw, th, c);
 }
 
-void CHUD::PaintSheet(const CTextureSheet* pSheet, const eastl::string& sArea, int x, int y, int w, int h, const Color& c)
+void CHUD::PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, int x, int y, int w, int h, const Color& c)
 {
 	const Rect& rArea = pSheet->GetArea(sArea);
 	glgui::CBaseControl::PaintSheet(pSheet->GetSheet(sArea), x, y, w, h, rArea.x, rArea.y, rArea.w, rArea.h, pSheet->GetSheetWidth(sArea), pSheet->GetSheetHeight(sArea), c);
 }
 
-void CHUD::PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c)
+void CHUD::PaintHUDSheet(const tstring& sArea, int x, int y, int w, int h, const Color& c)
 {
 	CHUD* pHUD = DigitanksWindow()->GetHUD();
 	const Rect* pRect = &pHUD->m_HUDSheet.GetArea(sArea);
@@ -2100,7 +2100,7 @@ void CHUD::GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int&
 {
 	CTextureSheet* pUnits = &DigitanksWindow()->GetHUD()->m_UnitsSheet;
 
-	eastl::string sArea;
+	tstring sArea;
 
 	if (eUnit == UNIT_TANK)
 		sArea = "Digitank";
@@ -2159,7 +2159,7 @@ void CHUD::GetWeaponSheet(weapon_t eWeapon, size_t& iSheet, int& sx, int& sy, in
 {
 	CTextureSheet* pWeapons = &DigitanksWindow()->GetHUD()->m_WeaponsSheet;
 
-	eastl::string sArea;
+	tstring sArea;
 
 	switch (eWeapon)
 	{
@@ -2506,7 +2506,7 @@ void CHUD::UpdateScoreboard()
 	if (DigitanksGame()->GetGameType() != GAMETYPE_STANDARD)
 		return;
 
-	eastl::vector<const CDigitanksTeam*> apSortedTeams;
+	tvector<const CDigitanksTeam*> apSortedTeams;
 
 	// Prob not the fastest sorting algorithm but it doesn't need to be.
 	for (size_t i = 0; i < DigitanksGame()->GetNumTeams(); i++)
@@ -2680,7 +2680,7 @@ void CHUD::SetButtonListener(int i, IEventListener::Callback pfnCallback)
 	}
 }
 
-void CHUD::SetButtonTexture(int i, const eastl::string& sArea)
+void CHUD::SetButtonTexture(int i, const tstring& sArea)
 {
 	SetButtonSheetTexture(m_apButtons[i], &m_ButtonSheet, sArea);
 }
@@ -3192,7 +3192,7 @@ void CHUD::OnRemoveEntityFromTeam(CDigitanksTeam* pTeam, CBaseEntity* pEntity)
 	m_pSceneTree->OnRemoveEntityFromTeam(pTeam, pEntity);
 }
 
-void CHUD::TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)
+void CHUD::TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech)
 {
 	CDigitank* pDigitank = dynamic_cast<CDigitank*>(pTank);
 	if (pDigitank && pDigitank->GetVisibility() == 0)
@@ -3274,7 +3274,7 @@ void CHUD::SlideUpdateIcon(int x, int y)
 	m_flUpdateIconSlide = GameServer()->GetGameTime();
 }
 
-void ActionSignCallback(CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void ActionSignCallback(CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	if (asTokens.size() < 2)
 		return;
@@ -3310,7 +3310,7 @@ void CHUD::ShowNewTurnSign()
 	CSoundLibrary::PlaySound(NULL, _T("sound/actionsign.wav"));
 }
 
-void PowerupNotifyCallback(CCommand* pCommand, eastl::vector<tstring>& asTokens, const tstring& sCommand)
+void PowerupNotifyCallback(CCommand* pCommand, tvector<tstring>& asTokens, const tstring& sCommand)
 {
 	if (!DigitanksGame()->GetCurrentLocalDigitanksTeam())
 		return;
@@ -4476,7 +4476,7 @@ void CHitIndicator::Paint(int x, int y, int w, int h)
 	BaseClass::Paint(x, y, w, h);
 }
 
-CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech)
+CSpeechBubble::CSpeechBubble(CBaseEntity* pSpeaker, tstring sSpeech)
 	: CLabel(0, 0, 83*2/3, 47*2/3, _T(""))
 {
 	m_hSpeaker = pSpeaker;

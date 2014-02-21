@@ -21,7 +21,7 @@ INPUTS_TABLE_END();
 
 void CScout::Precache()
 {
-	PrecacheModel(_T("models/digitanks/scout.obj"), true);
+	PrecacheModel(_T("models/digitanks/scout.toy"), true);
 	PrecacheSound(_T("sound/torpedo-drop.wav"));
 }
 
@@ -29,7 +29,7 @@ void CScout::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/scout.obj"));
+	SetModel(_T("models/digitanks/scout.toy"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 

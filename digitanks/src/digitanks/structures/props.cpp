@@ -31,11 +31,11 @@ INPUTS_TABLE_END();
 
 void CStaticProp::Precache()
 {
-	PrecacheModel(_T("models/props/prop01.obj"), true);
-	PrecacheModel(_T("models/props/prop02.obj"), true);
-	PrecacheModel(_T("models/props/prop03.obj"), true);
-	PrecacheModel(_T("models/props/prop04.obj"), true);
-	PrecacheModel(_T("models/props/prop05.obj"), true);
+	PrecacheModel("models/props/prop01.toy", true);
+	PrecacheModel("models/props/prop02.toy", true);
+	PrecacheModel("models/props/prop03.toy", true);
+	PrecacheModel("models/props/prop04.toy", true);
+	PrecacheModel("models/props/prop05.toy", true);
 }
 
 void CStaticProp::Spawn()
@@ -51,24 +51,25 @@ void CStaticProp::Spawn()
 	m_bUseRaytracedCollision = true;
 }
 
-void CStaticProp::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CStaticProp::ModifyContext(CRenderingContext* pContext) const
 {
 	pContext->SetColorSwap(m_clrSwap);
 
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 }
 
-void CStaticProp::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CStaticProp::OnRender(class CRenderingContext* pContext) const
 {
 	CModel* pModel = CModelLibrary::Get()->GetModel(GetModel());
 
 	if (!pModel)
 		return;
 
-	if (bTransparent)
+	CRenderer* pRenderer = GameServer()->GetRenderer();
+
+	if (pRenderer->IsRenderingTransparent())
 		return;
 
-	CRenderer* pRenderer = GameServer()->GetRenderer();
 	CRenderingContext c(pRenderer);
 
 	if (pRenderer->ShouldUseShaders())

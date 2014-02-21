@@ -206,11 +206,6 @@ void CProjectile::Fragment()
 	Delete();
 }
 
-void CProjectile::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
-{
-	BaseClass::ModifyContext(pContext, bTransparent);
-}
-
 void CProjectile::OnRender(class CRenderingContext* pContext, bool bTransparent) const
 {
 	if (!m_bShouldRender)
@@ -568,14 +563,14 @@ INPUTS_TABLE_END();
 
 void CGrenade::Precache()
 {
-	PrecacheModel(_T("models/weapons/grenade.obj"), true);
+	PrecacheModel(_T("models/weapons/grenade.toy"), true);
 }
 
 void CGrenade::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/weapons/grenade.obj"));
+	SetModel(_T("models/weapons/grenade.toy"));
 
 	m_angAngle = EAngle(RandomFloat(-90, 90), RandomFloat(0, 360), RandomFloat(-90, 90));
 	m_angRotation = EAngle(RandomFloat(-5, 5), RandomFloat(-5, 5), RandomFloat(-5, 5));
@@ -725,7 +720,7 @@ INPUTS_TABLE_END();
 
 void CSploogeShell::Precache()
 {
-	PrecacheModel(_T("models/weapons/bolt.obj"), true);
+	PrecacheModel(_T("models/weapons/bolt.toy"), true);
 	PrecacheParticleSystem(_T("bolt-trail"));
 	PrecacheParticleSystem(_T("bolt-explosion"));
 }
@@ -734,7 +729,7 @@ void CSploogeShell::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/weapons/bolt.obj"));
+	SetModel(_T("models/weapons/bolt.toy"));
 }
 
 EAngle CSploogeShell::GetRenderAngles() const
@@ -879,7 +874,7 @@ INPUTS_TABLE_END();
 
 void CInfantryFlak::Precache()
 {
-	PrecacheModel(_T("models/weapons/bolt.obj"), true);
+	PrecacheModel(_T("models/weapons/bolt.toy"), true);
 	PrecacheParticleSystem(_T("bolt-trail"));
 	PrecacheParticleSystem(_T("bolt-explosion"));
 
@@ -890,7 +885,7 @@ void CInfantryFlak::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/weapons/bolt.obj"));
+	SetModel(_T("models/weapons/bolt.toy"));
 }
 
 EAngle CInfantryFlak::GetRenderAngles() const

@@ -26,16 +26,16 @@ INPUTS_TABLE_END();
 
 void CMobileCPU::Precache()
 {
-	PrecacheModel(_T("models/digitanks/mobile-cpu.obj"), true);
-	PrecacheModel(_T("models/digitanks/mobile-cpu-fan.obj"), true);
+	PrecacheModel(_T("models/digitanks/mobile-cpu.toy"), true);
+	PrecacheModel(_T("models/digitanks/mobile-cpu-fan.toy"), true);
 }
 
 void CMobileCPU::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/mobile-cpu.obj"));
-	m_iFanModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/mobile-cpu-fan.obj"));
+	SetModel(_T("models/digitanks/mobile-cpu.toy"));
+	m_iFanModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/mobile-cpu-fan.toy"));
 	m_flFanRotation = RandomFloat(0, 1);
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
@@ -113,9 +113,9 @@ Vector CMobileCPU::GetRenderOrigin() const
 	return GetOrigin() + Vector(0, flHoverHeight, 0);
 }
 
-void CMobileCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CMobileCPU::ModifyContext(class CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (m_flFortifyTime > 0 && GameServer()->GetGameTime() - m_flFortifyTime < 1)
 	{

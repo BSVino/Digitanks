@@ -18,22 +18,22 @@ INPUTS_TABLE_BEGIN(CIntroGeneral);
 	INPUT_DEFINE(DigitanksWon);
 INPUTS_TABLE_END();
 
-void CIntroGeneral::Deploy(const eastl::vector<tstring>& sArgs)
+void CIntroGeneral::Deploy(const tvector<tstring>& sArgs)
 {
 	IntroWindow()->GetGeneralWindow()->Deploy();
 }
 
-void CIntroGeneral::RetryDebugging(const eastl::vector<tstring>& sArgs)
+void CIntroGeneral::RetryDebugging(const tvector<tstring>& sArgs)
 {
 	IntroWindow()->GetGeneralWindow()->RetryDebugging();
 }
 
-void CIntroGeneral::GiveUpDebugging(const eastl::vector<tstring>& sArgs)
+void CIntroGeneral::GiveUpDebugging(const tvector<tstring>& sArgs)
 {
 	IntroWindow()->GetGeneralWindow()->GiveUpDebugging();
 }
 
-void CIntroGeneral::DigitanksWon(const eastl::vector<tstring>& sArgs)
+void CIntroGeneral::DigitanksWon(const tvector<tstring>& sArgs)
 {
 	IntroWindow()->GetGeneralWindow()->DigitanksWon();
 }

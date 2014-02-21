@@ -17,7 +17,7 @@ public:
 
 protected:
 	Vector			m_vecNextAim;
-	float			m_flNextFire;
+	double			m_flNextFire;
 	CEntityHandle<CBaseEntity> m_hTarget;
 };
 

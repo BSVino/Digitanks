@@ -1,7 +1,7 @@
 #ifndef DT_INTRO_CAMERA_H
 #define DT_INTRO_CAMERA_H
 
-#include <game/camera.h>
+#include <game/entities/camera.h>
 #include <common.h>
 
 class CIntroCamera : public CCamera

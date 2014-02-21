@@ -8,18 +8,18 @@ class CAutoTurret : public CStructure
 	REGISTER_ENTITY_CLASS(CAutoTurret, CStructure);
 
 public:
-	virtual float				GetBoundingRadius() const { return 3; };
+	virtual const TFloat		GetBoundingRadius() const { return 3; };
 
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 
 	virtual void				StartTurn();
 	virtual void				EndTurn();
 
-	eastl::vector<CDigitank*>	GetTargets();
+	tvector<CDigitank*>			GetTargets();
 
 	void						Fire();
 
@@ -37,7 +37,7 @@ public:
 	virtual size_t				InitialTurnsToConstruct() { return 1; };
 	virtual float				TotalHealth() const { return 150; };
 
-	virtual tstring		GetEntityName() const { return _T("Firewall"); };
+	virtual tstring		GetEntityName() const { return "Firewall"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_FIREWALL; };
 
 protected:

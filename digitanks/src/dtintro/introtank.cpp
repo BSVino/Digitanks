@@ -1,7 +1,9 @@
 #include "introtank.h"
 
 #include <tinker/application.h>
-#include <renderer/renderer.h>
+#include <game/gameserver.h>
+#include <renderer/game_renderer.h>
+#include <renderer/game_renderingcontext.h>
 #include <renderer/particles.h>
 #include <models/models.h>
 
@@ -34,21 +36,21 @@ CIntroTank::CIntroTank()
 
 void CIntroTank::Precache()
 {
-	PrecacheParticleSystem(_T("tank-fire"));
-	PrecacheSound(_T("sound/tank-fire.wav"));
+	PrecacheParticleSystem("tank-fire");
+	PrecacheSound("sound/tank-fire.wav");
 }
 
 void CIntroTank::Think()
 {
 	BaseClass::Think();
 
-	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * GameServer()->GetFrameTime() * 10;
+	float flSpeed = fabs(AngleDifference(m_flGoalTurretYaw, m_flCurrentTurretYaw)) * (float)GameServer()->GetFrameTime() * 10;
 	m_flCurrentTurretYaw = AngleApproach(m_flGoalTurretYaw, m_flCurrentTurretYaw, flSpeed);
 }
 
-void CIntroTank::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CIntroTank::ModifyContext(class CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
@@ -58,21 +60,24 @@ void CIntroTank::ModifyContext(class CRenderingContext* pContext, bool bTranspar
 	pContext->Scale(flScale, flScale, flScale);
 
 	if (GetTeam())
-		pContext->SetColorSwap(GetTeam()->GetColor());
+	{
+		//TUnimplemented();
+		//pContext->SetColorSwap(GetTeam()->GetColor());
+	}
 }
 
 EAngle CIntroTank::GetRenderAngles() const
 {
 	if (IsRocking())
 	{
-		EAngle angReturn = GetAngles();
+		EAngle angReturn = GetGlobalAngles();
 
 		Vector vecForward, vecRight;
-		AngleVectors(GetAngles(), &vecForward, &vecRight, NULL);
+		AngleVectors(GetGlobalAngles(), &vecForward, &vecRight, NULL);
 		float flDotForward = -m_vecRockDirection.Dot(vecForward.Normalized());
 		float flDotRight = -m_vecRockDirection.Dot(vecRight.Normalized());
 
-		float flLerp = Lerp(1-Oscillate(GameServer()->GetGameTime() - m_flStartedRock, 1), 0.7f);
+		float flLerp = Bias(1-Oscillate((float)(GameServer()->GetGameTime() - m_flStartedRock), 1), 0.7f);
 
 		angReturn.p += flDotForward*flLerp*m_flRockIntensity*45;
 		angReturn.r += flDotRight*flLerp*m_flRockIntensity*45;
@@ -80,24 +85,25 @@ EAngle CIntroTank::GetRenderAngles() const
 		return angReturn;
 	}
 
-	return GetAngles();
+	return GetGlobalAngles();
 }
 
-void CIntroTank::OnRender(class CRenderingContext* pContext, bool bTransparent) const
+void CIntroTank::OnRender(class CGameRenderingContext* pContext) const
 {
-	BaseClass::OnRender(pContext, bTransparent);
+	BaseClass::OnRender(pContext);
 
-	if (bTransparent)
+	if (GameServer()->GetRenderer()->IsRenderingTransparent())
 		return;
 
-	CRenderingContext r(GameServer()->GetRenderer());
+	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 
 	r.Translate(Vector(-0.0f, 0.810368f, 0));
 
 	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 1, 0));
 
-	if (GetTeam())
-		r.SetColorSwap(GetTeam()->GetColor());
+	//if (GetTeam())
+		//TUnimplemented();
+//		r.SetColorSwap(GetTeam()->GetColor());
 
 	r.RenderModel(m_iTurretModel);
 }
@@ -106,29 +112,27 @@ void CIntroTank::FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget)
 {
 	CBomb* pBomb = GameServer()->Create<CBomb>("CBomb");
 
-	pBomb->SetSimulated(true);
-
 	float flGravity = -200;
 
-	Vector vecDirection = vecLandingSpot - GetOrigin();
+	Vector vecDirection = vecLandingSpot - GetGlobalOrigin();
 	vecDirection.y = 0;
 	Vector vecMuzzle = vecDirection.Normalized() * 13 + Vector(0, 40, 0);
 
 	float flTime;
 	Vector vecForce;
-	FindLaunchVelocity(GetOrigin() + vecMuzzle, vecLandingSpot, flGravity, vecForce, flTime, -0.001f);
+	FindLaunchVelocity(GetGlobalOrigin() + vecMuzzle, vecLandingSpot, flGravity, vecForce, flTime, -0.001f);
 
-	pBomb->SetVelocity(vecForce);
-	pBomb->SetGravity(Vector(0, flGravity, 0));
-	pBomb->SetOrigin(GetOrigin() + vecMuzzle);
+	pBomb->SetGlobalVelocity(vecForce);
+	pBomb->SetGlobalGravity(Vector(0, flGravity, 0));
+	pBomb->SetGlobalOrigin(GetGlobalOrigin() + vecMuzzle);
 	pBomb->SetExplodeTime(GameServer()->GetGameTime() + flTime);
 	pBomb->SetTarget(pTarget);
 
-	CParticleSystemLibrary::AddInstance(_T("tank-fire"), GetOrigin() + vecMuzzle);
+	CParticleSystemLibrary::AddInstance("tank-fire", GetGlobalOrigin() + vecMuzzle);
 
 	RockTheBoat(0.6f, -vecForce.Normalized());
 
-	EmitSound(_T("sound/tank-fire.wav"));
+	EmitSound("sound/tank-fire.wav");
 }
 
 void CIntroTank::RockTheBoat(float flIntensity, Vector vecDirection)
@@ -142,7 +146,7 @@ bool CIntroTank::IsRocking() const
 {
 	float flTransitionTime = 1;
 
-	float flTimeSinceRock = GameServer()->GetGameTime() - m_flStartedRock;
+	float flTimeSinceRock = (float)(GameServer()->GetGameTime() - m_flStartedRock);
 	if (m_flStartedRock && flTimeSinceRock < flTransitionTime)
 		return true;
 

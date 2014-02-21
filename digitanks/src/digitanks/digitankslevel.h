@@ -23,11 +23,11 @@ public:
 		m_bKill = false;
 	};
 
-	eastl::string			m_sOutput;
-	eastl::string			m_sTarget;
-	eastl::string			m_sInput;
-	eastl::string			m_sArgs;
-	bool					m_bKill;
+	tstring			m_sOutput;
+	tstring			m_sTarget;
+	tstring			m_sInput;
+	tstring			m_sArgs;
+	bool			m_bKill;
 };
 
 class CLevelUnit
@@ -41,19 +41,19 @@ public:
 		m_bObjective = false;
 	};
 
-	eastl::string			m_sName;
-	eastl::string			m_sClassName;
-	eastl::string			m_sTeamName;
-	Vector2D				m_vecPosition;
-	EAngle					m_angOrientation;
-	bool					m_bFortified;
-	bool					m_bImprisoned;
-	bool					m_bActive;
-	bool					m_bObjective;
-	eastl::string			m_sType;
-	tstring					m_sFile;
+	tstring			m_sName;
+	tstring			m_sClassName;
+	tstring			m_sTeamName;
+	Vector2D		m_vecPosition;
+	EAngle			m_angOrientation;
+	bool			m_bFortified;
+	bool			m_bImprisoned;
+	bool			m_bActive;
+	bool			m_bObjective;
+	tstring			m_sType;
+	tstring			m_sFile;
 
-	eastl::vector<CLevelUnitOutput>	m_aOutputs;
+	tvector<CLevelUnitOutput>	m_aOutputs;
 };
 
 class CDigitanksLevel : public CLevel
@@ -101,7 +101,7 @@ public:
 
 	int						GetBonusCPUFleetPoints() { return m_iBonusCPUFleetPoints; }
 
-	eastl::string			GetStartingLesson() { return m_sStartingLesson; }
+	tstring					GetStartingLesson() { return m_sStartingLesson; }
 
 protected:
 	gametype_t				m_eGameType;
@@ -111,12 +111,12 @@ protected:
 	tstring					m_sTerrainData;
 	size_t					m_iTerrainData;
 	float					m_flMaxHeight;
-	eastl::vector<CLevelProp>	m_aProps;
+	tvector<CLevelProp>		m_aProps;
 
 	tstring					m_sAuthor;
 	tstring					m_sDescription;
 
-	eastl::vector<CLevelUnit>	m_aUnits;
+	tvector<CLevelUnit>		m_aUnits;
 
 	bool					m_bBuffers;
 	bool					m_bPSUs;
@@ -131,7 +131,7 @@ protected:
 
 	int						m_iBonusCPUFleetPoints;
 
-	eastl::string			m_sStartingLesson;
+	tstring					m_sStartingLesson;
 };
 
 #endif

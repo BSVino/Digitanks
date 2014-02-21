@@ -41,7 +41,7 @@ CInstructor::~CInstructor()
 
 void CInstructor::Clear()
 {
-	for (eastl::map<eastl::string, CTutorial*>::iterator it = m_apTutorials.begin(); it != m_apTutorials.end(); it++)
+	for (tmap<tstring, CTutorial*>::iterator it = m_apTutorials.begin(); it != m_apTutorials.end(); it++)
 		delete m_apTutorials[it->first];
 	m_apTutorials.clear();
 }
@@ -229,7 +229,7 @@ void CInstructor::Initialize()
 
 void CInstructor::ReadLesson(const class CData* pData)
 {
-	eastl::string sLessonName = pData->GetValueString();
+	tstring sLessonName = pData->GetValueString();
 	CTutorial* pTutorial = new CTutorial(this, sLessonName);
 	m_apTutorials[sLessonName] = pTutorial;
 
@@ -239,7 +239,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 
 		if (pChildData->GetKey() == _T("Position"))
 		{
-			eastl::string sPosition = pChildData->GetValueString();
+			tstring sPosition = pChildData->GetValueString();
 			if (sPosition == "top-center")
 				pTutorial->m_iPosition = POSITION_TOPCENTER;
 			else if (sPosition == "top-left")
@@ -269,7 +269,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 			pTutorial->m_sButton3Text = pChildData->GetValueString();
 		else if (pChildData->GetKey() == _T("Enable"))
 		{
-			eastl::string sEnable = pChildData->GetValueString();
+			tstring sEnable = pChildData->GetValueString();
 			int iEnable = pTutorial->m_eEnable;
 			if (sEnable == "view-move")
 				iEnable |= DISABLE_VIEW_MOVE;
@@ -291,7 +291,7 @@ void CInstructor::ReadLesson(const class CData* pData)
 		}
 		else if (pChildData->GetKey() == _T("Disable"))
 		{
-			eastl::string sDisable = pChildData->GetValueString();
+			tstring sDisable = pChildData->GetValueString();
 			int iDisable = pTutorial->m_eDisable;
 			if (sDisable == "view-move")
 				iDisable |= DISABLE_VIEW_MOVE;
@@ -366,7 +366,7 @@ void CInstructor::SetActive(bool bActive)
 	}
 }
 
-void CInstructor::DisplayFirstTutorial(eastl::string sTutorial)
+void CInstructor::DisplayFirstTutorial(tstring sTutorial)
 {
 	m_bActive = true;
 	m_sLastTutorial = "";
@@ -386,7 +386,7 @@ void CInstructor::NextTutorial()
 
 CVar tutorial_enable("tutorial_enable", "1");
 
-void CInstructor::DisplayTutorial(eastl::string sTutorial)
+void CInstructor::DisplayTutorial(tstring sTutorial)
 {
 	if (!tutorial_enable.GetBool())
 		return;
@@ -471,7 +471,7 @@ void CInstructor::HideTutorial()
 	}
 }
 
-void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
+void CInstructor::FinishedTutorial(tstring sTutorial, bool bForceNext)
 {
 	if (sTutorial != m_sCurrentTutorial)
 		return;
@@ -490,7 +490,7 @@ void CInstructor::FinishedTutorial(eastl::string sTutorial, bool bForceNext)
 		SetActive(false);
 }
 
-void CInstructor::CallOutput(const eastl::string& sOutput)
+void CInstructor::CallOutput(const tstring& sOutput)
 {
 	if (!GetCurrentTutorial())
 		return;
@@ -518,7 +518,7 @@ void CInstructor::CallOutput(const eastl::string& sOutput)
 
 				if (pOutput->m_sTarget[0] == '*')
 				{
-					if (eastl::string(pEntity->GetClassName()) != pOutput->m_sTarget.c_str()+1)
+					if (tstring(pEntity->GetClassName()) != pOutput->m_sTarget.c_str()+1)
 						continue;
 				}
 				else
@@ -546,7 +546,7 @@ bool CInstructor::IsFeatureDisabled(disable_t eFeature)
 	return !!(GetDisabledFeatures()&eFeature);
 }
 
-CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, tstring sText)
+CTutorial::CTutorial(CInstructor* pInstructor, tstring sTutorial, tstring sNextTutorial, int iPosition, int iWidth, bool bAutoNext, tstring sText)
 {
 	m_pInstructor = pInstructor;
 	m_sTutorialName = sTutorial;
@@ -571,7 +571,7 @@ CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial, eastl::s
 	m_bPointAtUnused = false;
 }
 
-CTutorial::CTutorial(CInstructor* pInstructor, eastl::string sTutorial)
+CTutorial::CTutorial(CInstructor* pInstructor, tstring sTutorial)
 {
 	m_pInstructor = pInstructor;
 	m_sTutorialName = sTutorial;
@@ -838,7 +838,7 @@ void CTutorialPanel::Paint(int x, int y, int w, int h)
 
 	if (m_pTutorial->m_bMousePrompt && !bScrolling)
 	{
-		eastl::string sIcon = "Mouse";
+		tstring sIcon = "Mouse";
 		if (Oscillate(GameServer()->GetGameTime(), 0.4f) > 0.5)
 			sIcon = "MouseLeft";
 

@@ -49,9 +49,9 @@ void CLoader::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(_T("models/structures/loader-infantry.obj"));
-	PrecacheModel(_T("models/structures/loader-main.obj"));
-	PrecacheModel(_T("models/structures/loader-artillery.obj"));
+	PrecacheModel("models/structures/loader-infantry.toy");
+	PrecacheModel("models/structures/loader-main.toy");
+	PrecacheModel("models/structures/loader-artillery.toy");
 }
 
 void CLoader::Spawn()
@@ -138,23 +138,23 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	if (GetBuildUnit() == UNIT_INFANTRY)
 	{
 		pHUD->SetButtonTexture(0, "Resistor");
-		s += _T("BUILD RESISTOR\n \n");
-		s += _T("Resistors can fortify, gaining attack and shield energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n");
-		pHUD->SetButtonTooltip(0, _T("Build Resistor"));
+		s += "BUILD RESISTOR\n \n";
+		s += "Resistors can fortify, gaining attack and shield energy bonuses over time. They are fantastic defense platforms, but once fortified they can't be moved.\n \n";
+		pHUD->SetButtonTooltip(0, "Build Resistor");
 	}
 	else if (GetBuildUnit() == UNIT_TANK)
 	{
 		pHUD->SetButtonTexture(0, "Digitank");
-		s += _T("BUILD DIGITANK\n \n");
-		s += _T("Digitanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n");
-		pHUD->SetButtonTooltip(0, _T("Build Digitank"));
+		s += "BUILD DIGITANK\n \n";
+		s += "Digitanks are the core of any digital tank fleet. Although expensive, they are the only real way of taking territory from your enemies.\n \n";
+		pHUD->SetButtonTooltip(0, "Build Digitank");
 	}
 	else
 	{
 		pHUD->SetButtonTexture(0, "Artillery");
-		s += _T("BUILD ARTILLERY\n \n");
-		s += _T("Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n");
-		pHUD->SetButtonTooltip(0, _T("Build Artillery"));
+		s += "BUILD ARTILLERY\n \n";
+		s += "Artillery must be deployed before use and can only fire in front of themselves, but have ridiculous range and can pummel the enemy from afar. Artillery does double damage to shields, but only half damage to structures and tank hulls. Use them to soften enemy positions before moving in.\n \n";
+		pHUD->SetButtonTooltip(0, "Build Artillery");
 	}
 
 	s += sprintf(tstring("Fleet supply required: %d\n"), GetFleetPointsRequired());
@@ -162,12 +162,12 @@ void CLoader::SetupMenu(menumode_t eMenuMode)
 	s += sprintf(tstring("Turns to produce: %d Turns\n \n"), GetTurnsToProduce());
 
 	if (GetDigitanksTeam()->GetUnusedFleetPoints() < GetFleetPointsRequired())
-		s += _T("NOT ENOUGH FLEET POINTS\n \n");
+		s += "NOT ENOUGH FLEET POINTS\n \n";
 
 	if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(GetBuildUnit()))
-		s += _T("NOT ENOUGH POWER\n \n");
+		s += "NOT ENOUGH POWER\n \n";
 
-	s += _T("Shortcut: Q");
+	s += "Shortcut: Q";
 	pHUD->SetButtonInfo(0, s);
 }
 
@@ -225,11 +225,11 @@ void CLoader::BeginProduction(class CNetworkParameters* p)
 void CLoader::CompleteProduction()
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		GetDigitanksTeam()->AppendTurnInfo(_T("Production finished on Resistor"));
+		GetDigitanksTeam()->AppendTurnInfo("Production finished on Resistor");
 	else if (GetBuildUnit() == UNIT_TANK)
-		GetDigitanksTeam()->AppendTurnInfo(_T("Production finished on Digitank"));
+		GetDigitanksTeam()->AppendTurnInfo("Production finished on Digitank");
 	else if (GetBuildUnit() == UNIT_ARTILLERY)
-		GetDigitanksTeam()->AppendTurnInfo(_T("Production finished on Artillery"));
+		GetDigitanksTeam()->AppendTurnInfo("Production finished on Artillery");
 
 	GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 
@@ -391,59 +391,59 @@ void CLoader::SetBuildUnit(unittype_t eBuildUnit)
 	switch (m_eBuildUnit)
 	{
 	case UNIT_INFANTRY:
-		SetModel(_T("models/structures/loader-infantry.obj"));
-		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/infantry-body.obj"));
+		SetModel("models/structures/loader-infantry.toy");
+		m_iBuildUnitModel = CModelLibrary::Get()->FindModel("models/digitanks/infantry-body.toy");
 		break;
 
 	case UNIT_TANK:
-		SetModel(_T("models/structures/loader-main.obj"));
-		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-body.obj"));
+		SetModel("models/structures/loader-main.toy");
+		m_iBuildUnitModel = CModelLibrary::Get()->FindModel("models/digitanks/digitank-body.toy");
 		break;
 
 	case UNIT_ARTILLERY:
-		SetModel(_T("models/structures/loader-artillery.obj"));
-		m_iBuildUnitModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/artillery.obj"));
+		SetModel("models/structures/loader-artillery.toy");
+		m_iBuildUnitModel = CModelLibrary::Get()->FindModel("models/digitanks/artillery.toy");
 		break;
 	}
 }
 
 void CLoader::UpdateInfo(tstring& s)
 {
-	s = _T("");
+	s = "";
 	tstring p;
 
 	if (GetTeam())
 	{
-		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
+		s += "Team: " + GetTeam()->GetTeamName() + "\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += _T(" Friendly\n \n");
+			s += " Friendly\n \n";
 		else
-			s += _T(" Hostile\n \n");
+			s += " Hostile\n \n";
 	}
 	else
 	{
-		s += _T("Team: Neutral\n \n");
+		s += "Team: Neutral\n \n";
 	}
 
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		s += _T("RESISTOR FACTORY\n");
+		s += "RESISTOR FACTORY\n";
 	else if (GetBuildUnit() == UNIT_TANK)
-		s += _T("DIGITANK FACTORY\n");
+		s += "DIGITANK FACTORY\n";
 	else
-		s += _T("ARTILLERY FACTORY\n");
+		s += "ARTILLERY FACTORY\n";
 
-	s += _T("Unit producer\n \n");
+	s += "Unit producer\n \n";
 
 	if (IsConstructing())
 	{
-		s += _T("(Constructing)\n");
+		s += "(Constructing)\n";
 		s += sprintf(tstring("Turns left: %d\n"), GetTurnsRemainingToConstruct());
 		return;
 	}
 
 	if (IsProducing() && GetSupplier() && GetSupplyLine())
 	{
-		s += _T("(Producing)\n");
+		s += "(Producing)\n";
 		s += sprintf(tstring("Turns left: %d\n \n"), GetTurnsRemainingToProduce());
 	}
 
@@ -475,17 +475,17 @@ void CLoader::DrawQueue(int x, int y, int w, int h)
 	CRenderingContext c(GameServer()->GetRenderer());
 	c.SetColor(Color(255,255,255));
 	tstring sTurns = sprintf(tstring(":%d"), GetTurnsRemainingToProduce());
-	glgui::CLabel::PaintText(sTurns, sTurns.length(), _T("text"), 10, (float)(x + w/2 + iSize/2), (float)(y + h/2 - iSize/2 - 2));
+	glgui::CLabel::PaintText(sTurns, sTurns.length(), "text", 10, (float)(x + w/2 + iSize/2), (float)(y + h/2 - iSize/2 - 2));
 }
 
 tstring CLoader::GetEntityName() const
 {
 	if (GetBuildUnit() == UNIT_INFANTRY)
-		return _T("Resistor Factory");
+		return "Resistor Factory";
 	else if (GetBuildUnit() == UNIT_TANK)
-		return _T("Digitank Factory");
+		return "Digitank Factory";
 	else
-		return _T("Artillery Factory");
+		return "Artillery Factory";
 }
 
 unittype_t CLoader::GetUnitType() const

@@ -19,16 +19,16 @@ INPUTS_TABLE_END();
 
 void CBugTurret::Precache()
 {
-	PrecacheModel(_T("models/digitanks/autoturret.obj"), true);
-	PrecacheModel(_T("models/digitanks/autoturret-turret.obj"), true);
+	PrecacheModel(_T("models/digitanks/autoturret.toy"), true);
+	PrecacheModel(_T("models/digitanks/autoturret-turret.toy"), true);
 }
 
 void CBugTurret::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/autoturret.obj"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/autoturret-turret.obj"));
+	SetModel(_T("models/digitanks/autoturret.toy"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/autoturret-turret.toy"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -39,9 +39,9 @@ void CBugTurret::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
-void CBugTurret::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CBugTurret::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (!DigitanksGame())
 		return;
@@ -78,16 +78,16 @@ INPUTS_TABLE_END();
 
 void CGridBug::Precache()
 {
-	PrecacheModel(_T("models/digitanks/gridbug.obj"), true);
-	PrecacheModel(_T("models/digitanks/gridbug-turret.obj"), true);
+	PrecacheModel(_T("models/digitanks/gridbug.toy"), true);
+	PrecacheModel(_T("models/digitanks/gridbug-turret.toy"), true);
 }
 
 void CGridBug::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/digitanks/gridbug.obj"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.obj"));
+	SetModel(_T("models/digitanks/gridbug.toy"));
+	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/gridbug-turret.toy"));
 
 	m_flMaxShieldStrength = m_flShieldStrength = 0;
 
@@ -95,9 +95,9 @@ void CGridBug::Spawn()
 	m_eWeapon = PROJECTILE_SMALL;
 }
 
-void CGridBug::ModifyContext(CRenderingContext* pContext, bool bTransparent) const
+void CGridBug::ModifyContext(CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (!DigitanksGame())
 		return;

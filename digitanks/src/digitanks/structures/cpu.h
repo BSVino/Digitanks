@@ -25,7 +25,7 @@ public:
 	virtual bool				IsDataFlowSource() { return true; };
 	virtual size_t				EfficientChildren() { return 0; };
 
-	virtual float				GetBoundingRadius() const { return 8; };
+	virtual const TFloat		GetBoundingRadius() const { return 8; };
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 
@@ -55,8 +55,8 @@ public:
 
 	virtual void				StartTurn();
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 	virtual int					GetNumAvailableAreas() const { return 3; };
 	virtual bool				IsAvailableAreaActive(int iArea) const;
 	virtual void				RenderAvailableArea(int iArea);
@@ -65,7 +65,7 @@ public:
 
 	virtual void				OnDeleted();
 
-	virtual tstring		GetEntityName() const { return _T("Central Processing Unit"); };
+	virtual tstring		GetEntityName() const { return "Central Processing Unit"; };
 	virtual unittype_t			GetUnitType() const { return STRUCTURE_CPU; };
 
 protected:

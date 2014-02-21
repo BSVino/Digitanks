@@ -15,7 +15,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	void							SetPlayer(size_t iClient);
 
@@ -28,7 +28,7 @@ protected:
 	glgui::CMenu*					m_pColor;
 	bool							m_bRandomColor;
 	size_t							m_iColor;
-	eastl::vector<size_t>			m_aiAvailableColors;
+	tvector<size_t>					m_aiAvailableColors;
 
 	glgui::CLabel*					m_pName;
 
@@ -63,7 +63,7 @@ public:
 
 	virtual void					Layout();
 	virtual void					Think();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	void							CreateLobby(bool bOnline);
 	void							ConnectToLocalLobby(const tstring& sHost);
@@ -102,7 +102,7 @@ protected:
 
 	size_t							m_iLobby;
 
-	eastl::vector<CPlayerPanel*>	m_apPlayerPanels;
+	tvector<CPlayerPanel*>			m_apPlayerPanels;
 
 	bool							m_bLayout;
 };

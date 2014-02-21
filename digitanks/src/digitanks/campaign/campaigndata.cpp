@@ -12,13 +12,13 @@ CCampaignData::CCampaignData(const CCampaignInfo* pCampaignInfo)
 	m_iCurrentLevel = 0;
 }
 
-eastl::string CCampaignData::BeginCampaign()
+tstring CCampaignData::BeginCampaign()
 {
 	m_iCurrentLevel = 0;
 	return m_pCampaignInfo->m_asLevels[m_iCurrentLevel];
 }
 
-eastl::string CCampaignData::ProceedToNextLevel()
+tstring CCampaignData::ProceedToNextLevel()
 {
 	m_iCurrentLevel += 1;
 	if (m_iHighestLevelReached < m_iCurrentLevel)
@@ -27,7 +27,7 @@ eastl::string CCampaignData::ProceedToNextLevel()
 	return GetCurrentLevelFile();
 }
 
-eastl::string CCampaignData::GetCurrentLevelFile()
+tstring CCampaignData::GetCurrentLevelFile()
 {
 	if (m_iCurrentLevel >= m_pCampaignInfo->m_asLevels.size())
 		return "";
@@ -35,7 +35,7 @@ eastl::string CCampaignData::GetCurrentLevelFile()
 	return m_pCampaignInfo->m_asLevels[m_iCurrentLevel];
 }
 
-eastl::string CCampaignData::GetLevel(size_t i)
+tstring CCampaignData::GetLevel(size_t i)
 {
 	if (i >= m_pCampaignInfo->m_asLevels.size())
 		return "";
@@ -49,9 +49,9 @@ void CCampaignData::ReadData(const tstring& sFile)
 	CData* pData = new CData();
 	CDataSerializer::Read(f, pData);
 
-	CData* pCampaign = pData->FindChild(_T("Campaign"));
-	m_iHighestLevelReached = pCampaign->FindChild(_T("HighestLevel"))->GetValueInt();
-	m_iCurrentLevel = pCampaign->FindChild(_T("CurrentLevel"))->GetValueInt();
+	CData* pCampaign = pData->FindChild("Campaign");
+	m_iHighestLevelReached = pCampaign->FindChild("HighestLevel")->GetValueInt();
+	m_iCurrentLevel = pCampaign->FindChild("CurrentLevel")->GetValueInt();
 
 	delete pData;
 }
@@ -61,9 +61,9 @@ void CCampaignData::SaveData(const tstring& sFile)
 	std::basic_ofstream<tchar> f(convertstring<tchar, char>(sFile).c_str());
 	CData* pData = new CData();
 
-	CData* pCampaign = pData->AddChild(_T("Campaign"));
-	pCampaign->AddChild(_T("HighestLevel"))->SetValue(m_iHighestLevelReached);
-	pCampaign->AddChild(_T("CurrentLevel"))->SetValue(m_iCurrentLevel);
+	CData* pCampaign = pData->AddChild("Campaign");
+	pCampaign->AddChild("HighestLevel")->SetValue(m_iHighestLevelReached);
+	pCampaign->AddChild("CurrentLevel")->SetValue(m_iCurrentLevel);
 
 	CDataSerializer::Save(f, pData);
 

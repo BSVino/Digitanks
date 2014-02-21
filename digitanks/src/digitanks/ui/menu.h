@@ -19,7 +19,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual void					SetDockedPanel(glgui::CPanel* pDock);
 
@@ -169,7 +169,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	EVENT_CALLBACK(CArtilleryGamePanel,	BeginGame);
 	EVENT_CALLBACK(CArtilleryGamePanel,	UpdateLayout);
@@ -216,7 +216,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	EVENT_CALLBACK(CStrategyGamePanel,	BeginGame);
 	EVENT_CALLBACK(CStrategyGamePanel,	UpdateLayout);
@@ -254,7 +254,7 @@ public:
 	virtual void					Delete() { delete this; };
 
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	void							SetStandalone(bool bStandalone) { m_bStandalone = bStandalone; }
 
@@ -319,7 +319,7 @@ public:
 
 	virtual void					Layout();
 	virtual void					Think();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual void					SetVisible(bool bVisible);
 

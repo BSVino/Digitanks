@@ -143,7 +143,7 @@ void CDigitanksCamera::ShowEnemyMoves()
 	if (pCurrentTeam->GetNumTanks() == 0)
 		return;
 
-	eastl::vector<const CDigitank*> apTargets;
+	tvector<const CDigitank*> apTargets;
 
 	Vector vecAveragePosition = Vector(0,0,0);
 

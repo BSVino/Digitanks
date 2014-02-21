@@ -18,7 +18,7 @@ public:
 	virtual void				Think();
 
 	virtual bool				ShouldRender() const { return true; };
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 
 	virtual void				SetDamage(float flDamage) { m_flDamage = flDamage; }
 

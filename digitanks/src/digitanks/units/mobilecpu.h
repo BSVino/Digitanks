@@ -20,8 +20,8 @@ public:
 	virtual float				FindHoverHeight(Vector vecPosition) const;
 	virtual Vector				GetRenderOrigin() const;
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void				OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
+	virtual void				OnRender(class CGameRenderingContext* pContext) const;
 
 	virtual bool				IsMobileCPU() const { return true; };
 	virtual float				BaseHealthRechargeRate() const { return 20.0f; };

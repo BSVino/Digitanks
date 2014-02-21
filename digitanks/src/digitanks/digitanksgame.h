@@ -5,7 +5,7 @@
 
 #include <common.h>
 
-#include <game/game.h>
+#include <game/entities/game.h>
 
 #include "units/digitank.h"
 #include "terrain.h"
@@ -47,7 +47,7 @@ public:
 	virtual void			OnMiss(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor)=0;
 	virtual void			OnCritical(class CBaseEntity* pVictim, class CBaseEntity* pAttacker, class CBaseEntity* pInflictor)=0;
 
-	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech)=0;
+	virtual void			TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech)=0;
 
 	virtual void			SetHUDActive(bool bActive)=0;
 };
@@ -73,7 +73,7 @@ public:
 	void					SetupEntities();
 	NET_CALLBACK(CDigitanksGame, SetupEntities);
 
-	static eastl::vector<class CLevel*> GetLevels(gametype_t eGameType);
+	static tvector<class CLevel*> GetLevels(gametype_t eGameType);
 	static size_t			GetNumLevels(gametype_t eGameType);
 	static class CDigitanksLevel* GetLevel(gametype_t eGameType, size_t i);
 	static class CDigitanksLevel* GetLevel(tstring sFile);
@@ -136,7 +136,7 @@ public:
 
 	virtual void			OnDeleted(class CBaseEntity* pEntity);
 
-	virtual void			TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
+	virtual void			TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech);
 
 	CDigitanksTeam*			GetDigitanksTeam(size_t i) const;
 
@@ -200,13 +200,13 @@ public:
 	void					WeaponSpecialCommand(CDigitanksTeam* pTeam = NULL);
 
 	void					AddTankAim(Vector vecAim, float flRadius, bool bFocus);
-	void					GetTankAims(eastl::vector<Vector>& avecAims, eastl::vector<float>& aflAimRadius, size_t& iFocus);
+	void					GetTankAims(tvector<Vector>& avecAims, tvector<float>& aflAimRadius, size_t& iFocus);
 	void					ClearTankAims();
 
 	void					SetDifficulty(size_t iDifficulty) { m_iDifficulty = iDifficulty; };
 	size_t					GetDifficulty() { return m_iDifficulty; };
 
-	void					OnDisplayTutorial(eastl::string sTutorial);
+	void					OnDisplayTutorial(tstring sTutorial);
 
 	virtual void			ClientEnterGame();
 
@@ -255,7 +255,7 @@ public:
 
 	CDigitanksTeam*			GetCurrentLocalDigitanksTeam();
 
-	void					SetCurrentLevel(eastl::string sLevel);
+	void					SetCurrentLevel(tstring sLevel);
 	class CDigitanksLevel*	GetCurrentLevel() { return m_pLevel; };
 
 protected:
@@ -281,8 +281,8 @@ protected:
 
 	size_t					m_iPowerups;
 
-	eastl::vector<Vector>	m_avecTankAims;
-	eastl::vector<float>	m_aflTankAimRadius;
+	tvector<Vector>			m_avecTankAims;
+	tvector<float>			m_aflTankAimRadius;
 	size_t					m_iTankAimFocus;
 
 	CNetworkedVariable<size_t> m_iDifficulty;
@@ -300,7 +300,7 @@ protected:
 
 	bool					m_bOverrideAllowLasers;
 
-	eastl::vector<airstrike_t>	m_aAirstrikes;
+	tvector<airstrike_t>	m_aAirstrikes;
 
 	CNetworkedArray<float, MAX_UNITS> m_aflConstructionCosts;
 	CNetworkedArray<float, MAX_UNITS> m_aflUpgradeCosts;

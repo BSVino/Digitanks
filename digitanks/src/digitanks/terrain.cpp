@@ -98,8 +98,8 @@ CTerrain::~CTerrain()
 void CTerrain::Precache()
 {
 	BaseClass::Spawn();
-	s_iTreeTexture = CTextureLibrary::AddTextureID(_T("textures/tree.png"), 1);
-	s_iBeamTexture = CTextureLibrary::AddTextureID(_T("textures/beam.png"));
+	s_iTreeTexture = CTextureLibrary::AddTextureID("textures/tree.png", 1);
+	s_iBeamTexture = CTextureLibrary::AddTextureID("textures/beam.png");
 }
 
 void CTerrain::Spawn()
@@ -267,7 +267,7 @@ void CTerrain::Think()
 
 void CTerrain::GenerateTerrain(float flHeight)
 {
-	TMsg(_T("Generating terrain.\n"));
+	TMsg("Generating terrain.\n");
 
 	if (terrain_debug.GetBool())
 		TMsg("CTerrain::GenerateTerrain()\n");
@@ -279,7 +279,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	Color* pclrTerrainData = NULL;
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(_T("Reticulating splines"), 0);
+		GameServer()->GetWorkListener()->SetAction("Reticulating splines", 0);
 
 	pLevel = DigitanksGame()->GetCurrentLevel();
 	if (pLevel)
@@ -330,7 +330,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	float flWaterHighest, flWaterLowest;
 
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(_T("Triangulating terrain"), TERRAIN_SIZE);
+		GameServer()->GetWorkListener()->SetAction("Triangulating terrain", TERRAIN_SIZE);
 
 	for (size_t x = 0; x < TERRAIN_SIZE; x++)
 	{
@@ -451,7 +451,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 		float flLavaHeight = RemapVal(LavaHeight(), 0.0f, 1.0f, m_flLowest, m_flHighest);
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(_T("Randomizing polygons"), TERRAIN_SIZE);
+			GameServer()->GetWorkListener()->SetAction("Randomizing polygons", TERRAIN_SIZE);
 
 		for (size_t x = 0; x < TERRAIN_SIZE; x++)
 		{
@@ -499,7 +499,7 @@ void CTerrain::GenerateTerrain(float flHeight)
 	if (!DigitanksGame()->ShouldRenderFogOfWar())
 	{
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(_T("Calculating visibility"), TERRAIN_CHUNKS);
+			GameServer()->GetWorkListener()->SetAction("Calculating visibility", TERRAIN_CHUNKS);
 
 		for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 		{
@@ -532,10 +532,10 @@ void CTerrain::GenerateCollision()
 	// Don't need the collision mesh in the menu
 	if (DigitanksGame()->GetGameType() != GAMETYPE_MENU)
 	{
-		TMsg(_T("Generating terrain navigation mesh.\n"));
+		TMsg("Generating terrain navigation mesh.\n");
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(_T("Prenavigating terrain"), 0);
+			GameServer()->GetWorkListener()->SetAction("Prenavigating terrain", 0);
 
 		if (m_pQuadTreeHead)
 			delete m_pQuadTreeHead;
@@ -543,10 +543,10 @@ void CTerrain::GenerateCollision()
 		m_pQuadTreeHead = new CQuadBranch(this, NULL, CQuadVector(0, 0), CQuadVector(TERRAIN_SIZE, TERRAIN_SIZE));
 		m_pQuadTreeHead->BuildBranch();
 
-		TMsg(_T("Generating terrain collision mesh... "));
+		TMsg("Generating terrain collision mesh... ");
 
 		if (GameServer()->GetWorkListener())
-			GameServer()->GetWorkListener()->SetAction(_T("Precolliding terrain"), TERRAIN_CHUNKS);
+			GameServer()->GetWorkListener()->SetAction("Precolliding terrain", TERRAIN_CHUNKS);
 
 		for (size_t x = 0; x < TERRAIN_CHUNKS; x++)
 		{
@@ -594,7 +594,7 @@ void CTerrain::GenerateCollision()
 				GameServer()->GetWorkListener()->WorkProgress(x);
 		}
 
-		TMsg(_T("Done.\n"));
+		TMsg("Done.\n");
 	}
 
 	GenerateCallLists();
@@ -608,7 +608,7 @@ void CTerrain::GenerateTerrainCallLists()
 	// Break it up into sectors of smaller size so that when it comes time to regenerate,
 	// it can be done only for the sector that needs it and it won't take too long
 	if (GameServer()->GetWorkListener())
-		GameServer()->GetWorkListener()->SetAction(_T("Prerendering terrain"), TERRAIN_CHUNKS);
+		GameServer()->GetWorkListener()->SetAction("Prerendering terrain", TERRAIN_CHUNKS);
 
 	for (size_t i = 0; i < TERRAIN_CHUNKS; i++)
 	{
@@ -1081,7 +1081,7 @@ void CTerrain::GenerateTerrainTexture(int i, int j)
 
 void CTerrain::GenerateCallLists()
 {
-	TMsg(_T("Generating terrain call lists... "));
+	TMsg("Generating terrain call lists... ");
 
 	if (terrain_debug.GetBool())
 		TMsg(sprintf(tstring("CTerrain::GenerateCallLists()\n")));
@@ -1108,7 +1108,7 @@ void CTerrain::GenerateCallLists()
 
 	GenerateTerrainCallLists();
 
-	TMsg(_T("Done.\n"));
+	TMsg("Done.\n");
 }
 
 void CTerrain::DirtyChunkTexturesWithinDistance(Vector vecPoint, float flDistance)
@@ -1368,7 +1368,7 @@ void CTerrain::RenderTransparentTerrain() const
 
 		int j = 0;
 
-		for (eastl::list<Vector>::const_iterator it2 = ++(pRunner->avecPoints.begin()); it2 != --(pRunner->avecPoints.end()); it2++)
+		for (tlist<Vector>::const_iterator it2 = ++(pRunner->avecPoints.begin()); it2 != --(pRunner->avecPoints.end()); it2++)
 		{
 			Vector vecPoint = *it2;
 
@@ -1528,8 +1528,8 @@ void CTerrain::RenderWithShaders() const
 	}
 	else if (DigitanksGame()->GetAimType() == AIM_NORMAL)
 	{
-		eastl::vector<Vector> avecTankAims;
-		eastl::vector<float> aflTankAimRadius;
+		tvector<Vector> avecTankAims;
+		tvector<float> aflTankAimRadius;
 		size_t iTankAimFocus;
 
 		DigitanksGame()->GetTankAims(avecTankAims, aflTankAimRadius, iTankAimFocus);
@@ -2163,14 +2163,14 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 			return vecEnd;
 	}
 
-	eastl::vector<CQuadBranch*> apOpen;
+	tvector<CQuadBranch*> apOpen;
 
 	LowestF oLowestF;
 	oLowestF.m_pTerrain = this;
 
 	apOpen.push_back(pStart);
 	pStart->m_bOpen = true;
-	eastl::push_heap(apOpen.begin(), apOpen.end(), oLowestF);
+	push_heap(apOpen.begin(), apOpen.end(), oLowestF);
 
 	pStart->SetGScore(0);
 
@@ -2183,7 +2183,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 		}
 
 		CQuadBranch* pCurrent = apOpen.front();
-		eastl::pop_heap(apOpen.begin(), apOpen.end(), oLowestF);
+		pop_heap(apOpen.begin(), apOpen.end(), oLowestF);
 		apOpen.pop_back();
 		pCurrent->m_bOpen = false;
 
@@ -2201,7 +2201,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 
 		pCurrent->m_bClosed = true;
 
-		eastl::vector<CQuadBranch*> apNeighbors;
+		tvector<CQuadBranch*> apNeighbors;
 		FindNeighbors(pCurrent, apNeighbors);
 
 		for (size_t i = 0; i < apNeighbors.size(); i++)
@@ -2217,7 +2217,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 				if (flNeighborGScore < pNeighbor->m_flGScore)
 				{
 					pNeighbor->SetGScore(flNeighborGScore);
-					eastl::make_heap(apOpen.begin(), apOpen.end(), oLowestF);
+					make_heap(apOpen.begin(), apOpen.end(), oLowestF);
 					pNeighbor->m_pPathParent = pCurrent;
 				}
 				continue;
@@ -2229,7 +2229,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 				apOpen.push_back(pNeighbor);
 				pNeighbor->m_bOpen = true;
 				pNeighbor->SetGScore(flNeighborGScore);
-				eastl::push_heap(apOpen.begin(), apOpen.end(), oLowestF);
+				push_heap(apOpen.begin(), apOpen.end(), oLowestF);
 
 				bBetter = true;
 			}
@@ -2244,7 +2244,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 		}
 	}
 
-	eastl::list<CQuadBranch*> apRoute;
+	tvector<CQuadBranch*> apRoute;
 	CQuadBranch* pPath = pEnd;
 	while (pPath->m_pPathParent)
 	{
@@ -2259,14 +2259,14 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 		Vector vecCenter = apRoute.front()->GetCenter();
 
 		glVertex3fv(vecCenter);
-		for (eastl::list<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
+		for (tvector<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
 			glVertex3fv((*it)->GetCenter());
 	glEnd();
 #endif
 
 	if (!pUnit)
 	{
-		eastl::list<CQuadBranch*>::iterator it = apRoute.begin();
+		tvector<CQuadBranch*>::iterator it = apRoute.begin();
 		it++;
 
 		if (*it)
@@ -2280,7 +2280,7 @@ Vector CTerrain::FindPath(const Vector& vecStart, const Vector& vecEnd, CDigitan
 
 	float flMoveDistance = pUnit->GetRemainingMovementDistance();
 	Vector vecLastCenter;
-	for (eastl::list<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
+	for (tvector<CQuadBranch*>::iterator it = apRoute.begin(); it != apRoute.end(); it++)
 	{
 		if (it == apRoute.begin())
 		{
@@ -2445,7 +2445,7 @@ float CTerrain::WeightedLeafDistance(CQuadBranch* pStart, CQuadBranch* pEnd, boo
 	return flWeightedDistance;
 }
 
-void CTerrain::FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors)
+void CTerrain::FindNeighbors(const CQuadBranch* pLeaf, tvector<CQuadBranch*>& apNeighbors)
 {
 	if (!pLeaf)
 		return;
@@ -2668,7 +2668,7 @@ bool CTerrain::OnUnserialize(std::istream& i)
 void CTerrain::ClientEnterGame()
 {
 	if (terrain_debug.GetBool())
-		TMsg(_T("CTerrain::ClientEnterGame()\n"));
+		TMsg("CTerrain::ClientEnterGame()\n");
 
 	BaseClass::ClientEnterGame();
 
@@ -2886,7 +2886,7 @@ void CQuadBranch::InitPathfinding()
 	}
 }
 
-void CQuadBranch::FindNeighbors(const CQuadBranch* pLeaf, eastl::vector<CQuadBranch*>& apNeighbors)
+void CQuadBranch::FindNeighbors(const CQuadBranch* pLeaf, tvector<CQuadBranch*>& apNeighbors)
 {
 	if (!pLeaf)
 		return;

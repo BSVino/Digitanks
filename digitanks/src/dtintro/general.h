@@ -1,7 +1,7 @@
 #ifndef DT_INTRO_GENERAL_H
 #define DT_INTRO_GENERAL_H
 
-#include <game/baseentity.h>
+#include <game/entities/baseentity.h>
 
 class CIntroGeneral : public CBaseEntity
 {

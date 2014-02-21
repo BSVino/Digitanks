@@ -1,9 +1,9 @@
 #include <windows.h>
 
-#include <IL/il.h>
-#include <IL/ilu.h>
+#include <tvector.h>
+#include <color.h>
 
-size_t FullScreenShot()
+tvector<Color> FullScreenShot(int& iWidth, int& iHeight)
 {
 	/// Take a screenshot of the user's desktop.
 	HDC hdcScreen  = CreateDC(L"DISPLAY", NULL, NULL, NULL);
@@ -22,7 +22,7 @@ size_t FullScreenShot()
 	{
 		DeleteDC(hdcCapture);
 		DeleteDC(hdcScreen);
-		return 0;
+		return tvector<Color>();
 	}
 
 	int nCapture = SaveDC(hdcCapture);
@@ -32,26 +32,11 @@ size_t FullScreenShot()
 	DeleteDC(hdcCapture);
 	DeleteDC(hdcScreen);
 
-	ilInit();
+	tvector<Color> aclrScreenshot;
+	aclrScreenshot.resize(nWidth * nHeight);
+	memcpy(&aclrScreenshot[0], lpCapture, sizeof(Color) * aclrScreenshot.size());
 
-	ILuint iDevILId;
-	ilGenImages(1, &iDevILId);
-	ilBindImage(iDevILId);
-
-	ILboolean bSuccess = ilTexImage(nWidth, nHeight, 1, 4, IL_BGRA, IL_UNSIGNED_BYTE, lpCapture);
-
-	if (!bSuccess)
-		return 0;
-
-	bSuccess = ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-	if (!bSuccess)
-		return 0;
-
-	ILinfo ImageInfo;
-	iluGetImageInfo(&ImageInfo);
-
-	if (ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT)
-		iluFlipImage();
-
-	return iDevILId;
+	iWidth = nWidth;
+	iHeight = nHeight;
+	return aclrScreenshot;
 }

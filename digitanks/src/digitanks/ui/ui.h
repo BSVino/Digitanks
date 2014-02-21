@@ -13,7 +13,7 @@ public:
 
 public:
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual void					SetVisible(bool bVisible);
 
@@ -51,7 +51,7 @@ public:
 
 public:
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual void					GameOver(bool bPlayerWon);
 
@@ -73,7 +73,7 @@ public:
 public:
 	virtual void					Layout();
 	virtual void					Think();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual void					ClosingApplication();
 	virtual void					OpeningApplication();
@@ -105,7 +105,7 @@ public:
 
 public:
 	virtual void					Layout();
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual bool					IsCursorListener() {return true;};
 	virtual bool					MousePressed(int code, int mx, int my);

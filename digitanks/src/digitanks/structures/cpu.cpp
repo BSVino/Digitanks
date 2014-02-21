@@ -44,8 +44,8 @@ void CCPU::Spawn()
 {
 	BaseClass::Spawn();
 
-	SetModel(_T("models/structures/cpu.obj"));
-	m_iFanModel = CModelLibrary::Get()->FindModel(_T("models/structures/cpu-fan.obj"));
+	SetModel("models/structures/cpu.toy");
+	m_iFanModel = CModelLibrary::Get()->FindModel("models/structures/cpu-fan.toy");
 
 	m_flFanRotation = RandomFloat(0, 360);
 
@@ -61,8 +61,8 @@ void CCPU::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheModel(_T("models/structures/cpu.obj"));
-	PrecacheModel(_T("models/structures/cpu-fan.obj"));
+	PrecacheModel("models/structures/cpu.toy");
+	PrecacheModel("models/structures/cpu-fan.toy");
 }
 
 void CCPU::Think()
@@ -94,10 +94,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: Q");
+			s += "CANCEL\n \n";
+			s += "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
-			pHUD->SetButtonTooltip(0, _T("Cancel"));
+			pHUD->SetButtonTooltip(0, "Cancel");
 		}
 		else if (GetDigitanksTeam()->CanBuildInfantryLoaders())
 		{
@@ -112,16 +112,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD RESISTOR FACTORY\n \n");
-			s += _T("This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n");
+			s += "BUILD RESISTOR FACTORY\n \n";
+			s += "This program lets you build Resistor, the main defensive force of your fleet. After fortifying them they gain energy bonuses.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_INFANTRYLOADER))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: Q");
+			s += "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
-			pHUD->SetButtonTooltip(0, _T("Build Resistor Factory"));
+			pHUD->SetButtonTooltip(0, "Build Resistor Factory");
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_TANKLOADER)
@@ -132,10 +132,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: W");
+			s += "CANCEL\n \n";
+			s += "Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
-			pHUD->SetButtonTooltip(1, _T("Cancel"));
+			pHUD->SetButtonTooltip(1, "Cancel");
 		}
 		else if (GetDigitanksTeam()->CanBuildTankLoaders())
 		{
@@ -150,16 +150,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(1, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD DIGITANK FACTORY\n \n");
-			s += _T("This program lets you build Digitanks, the primary assault force in your fleet.\n \n");
+			s += "BUILD DIGITANK FACTORY\n \n";
+			s += "This program lets you build Digitanks, the primary assault force in your fleet.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_TANKLOADER))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: W");
+			s += "Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
-			pHUD->SetButtonTooltip(1, _T("Build Digitank Factory"));
+			pHUD->SetButtonTooltip(1, "Build Digitank Factory");
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_ARTILLERYLOADER)
@@ -170,10 +170,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(2, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: E");
+			s += "CANCEL\n \n";
+			s += "Shortcut: E";
 			pHUD->SetButtonInfo(2, s);
-			pHUD->SetButtonTooltip(2, _T("Cancel"));
+			pHUD->SetButtonTooltip(2, "Cancel");
 		}
 		else if (GetDigitanksTeam()->CanBuildArtilleryLoaders())
 		{
@@ -188,23 +188,23 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(2, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD ARTILLERY FACTORY\n \n");
-			s += _T("This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n");
+			s += "BUILD ARTILLERY FACTORY\n \n";
+			s += "This program lets you build Artillery. Once deployed, these units have extreme range and can easily soften enemy defensive positions.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_ARTILLERYLOADER))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: E");
+			s += "Shortcut: E";
 			pHUD->SetButtonInfo(2, s);
-			pHUD->SetButtonTooltip(2, _T("Build Artillery Factory"));
+			pHUD->SetButtonTooltip(2, "Build Artillery Factory");
 		}
 
 		pHUD->SetButtonListener(9, CHUD::GoToMain);
 		pHUD->SetButtonTexture(9, "Cancel");
 		pHUD->SetButtonColor(9, Color(100, 0, 0));
-		pHUD->SetButtonInfo(9, _T("RETURN\n \nShortcut: G"));
-		pHUD->SetButtonTooltip(9, _T("Return"));
+		pHUD->SetButtonInfo(9, "RETURN\n \nShortcut: G");
+		pHUD->SetButtonTooltip(9, "Return");
 	}
 	else
 	{
@@ -216,10 +216,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(5, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: A");
+			s += "CANCEL\n \n";
+			s += "Shortcut: A";
 			pHUD->SetButtonInfo(5, s);
-			pHUD->SetButtonTooltip(5, _T("Cancel"));
+			pHUD->SetButtonTooltip(5, "Cancel");
 		}
 		else if (!bDisableMiniBuffer)
 		{
@@ -234,16 +234,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(5, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD BUFFER\n \n");
-			s += _T("Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be upgraded to Macro-Buffers after downloading them from the Downloads Grid.\n \n");
+			s += "BUILD BUFFER\n \n";
+			s += "Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Buffers can be upgraded to Macro-Buffers after downloading them from the Downloads Grid.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_MINIBUFFER))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: A");
+			s += "Shortcut: A";
 			pHUD->SetButtonInfo(5, s);
-			pHUD->SetButtonTooltip(5, _T("Build Buffer"));
+			pHUD->SetButtonTooltip(5, "Build Buffer");
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_BUFFER)
@@ -254,10 +254,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(0, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: Q");
+			s += "CANCEL\n \n";
+			s += "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
-			pHUD->SetButtonTooltip(0, _T("Cancel"));
+			pHUD->SetButtonTooltip(0, "Cancel");
 		}
 		else if (!bDisableBuffer)
 		{
@@ -272,16 +272,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(0, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD MACRO-BUFFER\n \n");
-			s += _T("Macro-Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Macro-Buffers can be improved by downloading updates.\n \n");
+			s += "BUILD MACRO-BUFFER\n \n";
+			s += "Macro-Buffers allow you to expand your Network, increasing the area under your control. All structures must be built on your Network. Macro-Buffers can be improved by downloading updates.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BUFFER))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: Q");
+			s += "Shortcut: Q";
 			pHUD->SetButtonInfo(0, s);
-			pHUD->SetButtonTooltip(0, _T("Build Macro-Buffer"));
+			pHUD->SetButtonTooltip(0, "Build Macro-Buffer");
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_BATTERY)
@@ -292,10 +292,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(6, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: S");
+			s += "CANCEL\n \n";
+			s += "Shortcut: S";
 			pHUD->SetButtonInfo(6, s);
-			pHUD->SetButtonTooltip(6, _T("Cancel"));
+			pHUD->SetButtonTooltip(6, "Cancel");
 		}
 		else if (!bDisableBattery)
 		{
@@ -310,16 +310,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(6, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD CAPACITOR\n \n");
-			s += _T("Capacitors allow you to harvest Power, which lets you build structures and units more quickly. Capacitors can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n");
+			s += "BUILD CAPACITOR\n \n";
+			s += "Capacitors allow you to harvest Power, which lets you build structures and units more quickly. Capacitors can upgraded to Power Supply Units once those have been downloaded from the Updates Grid.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_BATTERY))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: S");
+			s += "Shortcut: S";
 			pHUD->SetButtonInfo(6, s);
-			pHUD->SetButtonTooltip(6, _T("Build Capacitor"));
+			pHUD->SetButtonTooltip(6, "Build Capacitor");
 		}
 
 		if (DigitanksGame()->GetControlMode() == MODE_BUILD && GetPreviewStructure() == STRUCTURE_PSU)
@@ -330,10 +330,10 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(1, Color(50, 50, 50));
 
 			tstring s;
-			s += _T("CANCEL\n \n");
-			s += _T("Shortcut: W");
+			s += "CANCEL\n \n";
+			s += "Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
-			pHUD->SetButtonTooltip(1, _T("Cancel"));
+			pHUD->SetButtonTooltip(1, "Cancel");
 		}
 		else if (!bDisablePSU)
 		{
@@ -348,16 +348,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 				pHUD->SetButtonColor(1, Color(100, 100, 100));
 
 			tstring s;
-			s += _T("BUILD POWER SUPPLY UNIT\n \n");
-			s += _T("PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n");
+			s += "BUILD POWER SUPPLY UNIT\n \n";
+			s += "PSUs allow you to harvest Power, which lets you build structures and units more quickly.\n \n";
 			s += sprintf(tstring("Power to construct: %d Power\n \n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_PSU));
 
 			if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_PSU))
-				s += _T("NOT ENOUGH POWER\n \n");
+				s += "NOT ENOUGH POWER\n \n";
 
-			s += _T("Shortcut: W");
+			s += "Shortcut: W";
 			pHUD->SetButtonInfo(1, s);
-			pHUD->SetButtonTooltip(1, _T("Build PSU"));
+			pHUD->SetButtonTooltip(1, "Build PSU");
 		}
 
 		if (!bDisableLoaders)
@@ -365,8 +365,8 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonListener(2, CHUD::BuildLoader);
 			pHUD->SetButtonTexture(2, "Factory");
 			pHUD->SetButtonColor(2, Color(50, 50, 50));
-			pHUD->SetButtonInfo(2, _T("OPEN FACTORY CONSTRUCTION MENU\n \nFactories allow you to produce more advanced units.\n \nShortcut: E"));
-			pHUD->SetButtonTooltip(2, _T("Open Factory Menu"));
+			pHUD->SetButtonInfo(2, "OPEN FACTORY CONSTRUCTION MENU\n \nFactories allow you to produce more advanced units.\n \nShortcut: E");
+			pHUD->SetButtonTooltip(2, "Open Factory Menu");
 		}
 
 		pHUD->SetButtonTexture(7, "Rogue");
@@ -379,19 +379,19 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 			pHUD->SetButtonColor(7, Color(100, 100, 100));
 
 		tstring s;
-		s += _T("BUILD ROGUE\n \n");
-		s += _T("Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n");
+		s += "BUILD ROGUE\n \n";
+		s += "Rogues are a cheap reconnaisance unit with good speed but no shields. Their torpedo attack allows you to intercept enemy supply lines. Use them to find and slip behind enemy positions and harrass their support!\n \n";
 		s += sprintf(tstring("Power to construct: %d Power\n"), (int)DigitanksGame()->GetConstructionCost(UNIT_SCOUT));
 
 		if (!GetDigitanksTeam()->GetUnusedFleetPoints())
-			s += _T("NOT ENOUGH FLEET POINTS\n \n");
+			s += "NOT ENOUGH FLEET POINTS\n \n";
 
 		if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(UNIT_SCOUT))
-			s += _T("NOT ENOUGH POWER\n \n");
+			s += "NOT ENOUGH POWER\n \n";
 
-		s += _T("Shortcut: D");
+		s += "Shortcut: D";
 		pHUD->SetButtonInfo(7, s);
-		pHUD->SetButtonTooltip(7, _T("Build Rogue"));
+		pHUD->SetButtonTooltip(7, "Build Rogue");
 
 		pHUD->SetButtonTexture(8, "Firewall");
 		if (GetDigitanksTeam()->GetPower() >= DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL))
@@ -402,16 +402,16 @@ void CCPU::SetupMenu(menumode_t eMenuMode)
 		else
 			pHUD->SetButtonColor(8, Color(100, 100, 100));
 
-		s = _T("BUILD FIREWALL\n \n");
-		s += _T("Set them up Firewalls around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nFirewalls get weaker when they need to fire at more targets, so be sure to build enough for the job.\n \n");
+		s = "BUILD FIREWALL\n \n";
+		s += "Set them up Firewalls around your perimiter to defend your base. If you don't fire them manually, they will automatically fire at all enemies at the end of your turn.\n \nFirewalls get weaker when they need to fire at more targets, so be sure to build enough for the job.\n \n";
 		s += sprintf(tstring("Power to construct: %d Power\n"), (int)DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL));
 
 		if (GetDigitanksTeam()->GetPower() < DigitanksGame()->GetConstructionCost(STRUCTURE_FIREWALL))
-			s += _T("NOT ENOUGH POWER\n \n");
+			s += "NOT ENOUGH POWER\n \n";
 
-		s += _T("Shortcut: F");
+		s += "Shortcut: F";
 		pHUD->SetButtonInfo(8, s);
-		pHUD->SetButtonTooltip(8, _T("Build Firewall"));
+		pHUD->SetButtonTooltip(8, "Build Firewall");
 	}
 }
 
@@ -784,7 +784,7 @@ void CCPU::StartTurn()
 
 			m_bProducing = false;
 
-			GetDigitanksTeam()->AppendTurnInfo(_T("Production finished on Rogue"));
+			GetDigitanksTeam()->AppendTurnInfo("Production finished on Rogue");
 
 			GetDigitanksTeam()->AddActionItem(this, ACTIONTYPE_UNITREADY);
 		}
@@ -795,9 +795,9 @@ void CCPU::StartTurn()
 	}
 }
 
-void CCPU::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CCPU::ModifyContext(class CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (GameServer()->GetGameTime() - m_flConstructionStartTime < 3)
 	{
@@ -898,26 +898,26 @@ void CCPU::RenderAvailableArea(int iArea)
 void CCPU::UpdateInfo(tstring& s)
 {
 	tstring p;
-	s = _T("");
-	s += _T("CENTRAL PROCESSING UNIT\n");
-	s += _T("Command center\n \n");
+	s = "";
+	s += "CENTRAL PROCESSING UNIT\n";
+	s += "Command center\n \n";
 
 	if (GetTeam())
 	{
-		s += _T("Team: ") + GetTeam()->GetTeamName() + _T("\n");
+		s += "Team: " + GetTeam()->GetTeamName() + "\n";
 		if (GetDigitanksTeam() == DigitanksGame()->GetCurrentLocalDigitanksTeam())
-			s += _T(" Friendly\n \n");
+			s += " Friendly\n \n";
 		else
-			s += _T(" Hostile\n \n");
+			s += " Hostile\n \n";
 	}
 	else
 	{
-		s += _T("Team: Neutral\n \n");
+		s += "Team: Neutral\n \n";
 	}
 
 	if (IsProducing())
 	{
-		s += _T("[Producing Rogue]\n");
+		s += "[Producing Rogue]\n";
 		s += sprintf(tstring("Turns left: %d\n \n"), m_iTurnsToProduceRogue.Get());
 	}
 
@@ -936,7 +936,7 @@ void CCPU::OnDeleted()
 	if (!GetTeam())
 		return;
 
-	eastl::vector<CBaseEntity*> apDeleteThese;
+	tvector<CBaseEntity*> apDeleteThese;
 
 	for (size_t i = 0; i < GetTeam()->GetNumMembers(); i++)
 	{

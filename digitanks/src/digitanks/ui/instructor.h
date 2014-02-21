@@ -26,24 +26,24 @@ public:
 	{
 	};
 
-	eastl::string			m_sOutput;
-	eastl::string			m_sTarget;
-	eastl::string			m_sInput;
-	eastl::string			m_sArgs;
+	tstring			m_sOutput;
+	tstring			m_sTarget;
+	tstring			m_sInput;
+	tstring			m_sArgs;
 };
 
 class CTutorial
 {
 public:
-									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial, eastl::string sNextTutorial, int iPosition, int iWidth, bool bAutoNext, tstring sText);
-									CTutorial(class CInstructor* pInstructor, eastl::string sTutorial);
+									CTutorial(class CInstructor* pInstructor, tstring sTutorial, tstring sNextTutorial, int iPosition, int iWidth, bool bAutoNext, tstring sText);
+									CTutorial(class CInstructor* pInstructor, tstring sTutorial);
 
 public:
 	class CInstructor*				m_pInstructor;
-	eastl::string					m_sTutorialName;
-	eastl::string					m_sNextTutorial;
+	tstring							m_sTutorialName;
+	tstring							m_sNextTutorial;
 	int								m_iPosition;
-	tstring					m_sText;
+	tstring							m_sText;
 	int								m_iWidth;
 	bool							m_bAutoNext;
 	bool							m_bKillOnFinish;
@@ -54,14 +54,14 @@ public:
 	bool							m_bMousePrompt;
 	bool							m_bPointAtUnused;
 
-	eastl::string					m_sButton1Text;
-	eastl::string					m_sButton1Action;
+	tstring							m_sButton1Text;
+	tstring							m_sButton1Action;
 
-	eastl::string					m_sButton2Text;
-	eastl::string					m_sButton2Action;
+	tstring							m_sButton2Text;
+	tstring							m_sButton2Action;
 
-	eastl::string					m_sButton3Text;
-	eastl::string					m_sButton3Action;
+	tstring							m_sButton3Text;
+	tstring							m_sButton3Action;
 
 	disable_t						m_eDisable;
 	disable_t						m_eEnable;
@@ -70,9 +70,9 @@ public:
 	EAngle							m_angSetViewAngle;
 	float							m_flSetViewDistance;
 
-	eastl::string					m_sHelperEmotion;
+	tstring					m_sHelperEmotion;
 
-	eastl::vector<CLessonOutput>	m_aOutputs;
+	tvector<CLessonOutput>	m_aOutputs;
 };
 
 class CTutorialPanel : public glgui::CPanel, public glgui::IEventListener
@@ -83,7 +83,7 @@ public:
 									CTutorialPanel(CTutorial* pTutorial, bool bFirstHelperPanel = false);
 
 public:
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual bool					IsCursorListener() {return true;};
 	virtual bool					MousePressed(int code, int mx, int my);
@@ -125,18 +125,18 @@ public:
 	void							SetActive(bool bActive);
 	bool							GetActive() { return m_bActive; };
 
-	void							DisplayFirstTutorial(eastl::string sTutorial);
+	void							DisplayFirstTutorial(tstring sTutorial);
 	void							NextTutorial();
 
-	void							DisplayTutorial(eastl::string sTutorial);
+	void							DisplayTutorial(tstring sTutorial);
 	void							HideTutorial();
 	void							ShowTutorial();
-	void							FinishedTutorial(eastl::string sTutorial, bool bForceNext = false);
+	void							FinishedTutorial(tstring sTutorial, bool bForceNext = false);
 
 	CTutorial*						GetCurrentTutorial() { return m_apTutorials[m_sCurrentTutorial]; };
 	CTutorialPanel*					GetCurrentPanel() { return m_pCurrentPanel; };
 
-	void							CallOutput(const eastl::string& sOutput);
+	void							CallOutput(const tstring& sOutput);
 
 	disable_t						GetDisabledFeatures();
 	bool							IsFeatureDisabled(disable_t eFeature);
@@ -153,9 +153,9 @@ public:
 
 protected:
 	bool							m_bActive;
-	eastl::map<eastl::string, CTutorial*>	m_apTutorials;
-	eastl::string					m_sLastTutorial;
-	eastl::string					m_sCurrentTutorial;
+	tmap<tstring, CTutorial*>		m_apTutorials;
+	tstring							m_sLastTutorial;
+	tstring							m_sCurrentTutorial;
 	CTutorialPanel*					m_pCurrentPanel;
 	bool							m_bHelperSpeaking;
 

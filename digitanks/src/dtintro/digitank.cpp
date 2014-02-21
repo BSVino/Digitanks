@@ -22,14 +22,14 @@ INPUTS_TABLE_END();
 
 void CDigitank::Precache()
 {
-	PrecacheModel(_T("models/digitanks/digitank-body.obj"));
-	PrecacheModel(_T("models/digitanks/digitank-turret.obj"));
+	PrecacheModel("models/digitanks/digitank-body.toy");
+	PrecacheModel("models/digitanks/digitank-turret.toy");
 }
 
 void CDigitank::Spawn()
 {
-	SetModel(_T("models/digitanks/digitank-body.obj"));
-	m_iTurretModel = CModelLibrary::Get()->FindModel(_T("models/digitanks/digitank-turret.obj"));
+	SetModel("models/digitanks/digitank-body.toy");
+	m_iTurretModel = CModelLibrary::Get()->FindModel("models/digitanks/digitank-turret.toy");
 
 	m_flNextFire = 0;
 }
@@ -46,21 +46,21 @@ void CDigitank::Think()
 	}
 }
 
-void CDigitank::FireAt(const eastl::vector<tstring>& sArgs)
+void CDigitank::FireAt(const tvector<tstring>& sArgs)
 {
 	if (sArgs.size() == 0)
 		return;
 
-	m_flNextFire = GameServer()->GetGameTime() + 0.5f;
+	m_flNextFire = GameServer()->GetGameTime() + 0.5;
 
-	eastl::vector<CBaseEntity*> apEntities;
+	tvector<CBaseEntity*> apEntities;
 	CBaseEntity::FindEntitiesByName(convertstring<tchar, char>(sArgs[0]), apEntities);
 
 	if (apEntities.size() == 0)
 		return;
 
 	m_hTarget = apEntities[0];
-	m_vecNextAim = apEntities[0]->GetOrigin();
+	m_vecNextAim = apEntities[0]->GetGlobalOrigin();
 
-	FaceTurret(VectorAngles(m_vecNextAim-GetOrigin()).y - GetAngles().y);
+	FaceTurret(VectorAngles(m_vecNextAim-GetGlobalOrigin()).y - GetGlobalAngles().y);
 }

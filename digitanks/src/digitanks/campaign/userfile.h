@@ -12,8 +12,8 @@ public:
 	virtual void					Spawn();
 
 	virtual EAngle					GetRenderAngles() const;
-	virtual void					ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
-	virtual void					OnRender(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void					ModifyContext(class CRenderingContext* pContext) const;
+	virtual void					OnRender(class CGameRenderingContext* pContext) const;
 	virtual bool					ShouldRender() const { return true; }
 
 	virtual void					Think();
@@ -22,7 +22,7 @@ public:
 	void							Pickup(class CDigitank* pTank);
 	DECLARE_ENTITY_OUTPUT(OnPickup);
 
-	virtual tstring					GetEntityName() const { return _T("Your File"); };
+	virtual tstring					GetEntityName() const { return "Your File"; };
 
 	void							SetFile(const tstring& sFile);
 

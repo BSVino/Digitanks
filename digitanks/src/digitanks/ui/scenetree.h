@@ -17,7 +17,7 @@ public:
 public:
 	virtual void					Delete() { delete this; };
 
-	virtual void					Paint(int x, int y, int w, int h, bool bFloating);
+	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
 	virtual int						GetNodeHeight() { return 30; };
 	virtual int						GetNodeSpacing() { return 10; };
@@ -33,7 +33,7 @@ public:
 public:
 	virtual void					Delete() { delete this; };
 
-	virtual void					Paint(int x, int y, int w, int h, bool bFloating);
+	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
 	virtual CSelectable*			GetEntity() { return m_hEntity; };
 
@@ -55,7 +55,7 @@ public:
 public:
 	virtual void					Delete() { delete this; };
 
-	virtual void					Paint(int x, int y, int w, int h, bool bFloating);
+	virtual void					Paint(float x, float y, float w, float h, bool bFloating);
 
 	virtual unittype_t				GetUnitType() { return m_eUnit; };
 
@@ -80,7 +80,7 @@ public:
 
 	virtual CSceneTreeGroup*		GetUnitNode(unittype_t eUnit);
 
-	virtual void					Paint(int x, int y, int w, int h);
+	virtual void					Paint(float x, float y, float w, float h);
 
 	virtual void					OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 	virtual void					OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);

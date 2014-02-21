@@ -61,8 +61,7 @@ size_t CSoundLibrary::AddSound(const tstring& pszFilename)
 	Get()->m_iSoundsLoaded++;
 
 	Get()->m_apSounds[iLocation] = new CSound(pszFilename);
-
-	Get()->m_apSounds[iSound]->m_iReferences++;
+	Get()->m_apSounds[iLocation]->m_iReferences++;
 	return iLocation;
 }
 

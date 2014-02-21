@@ -14,12 +14,12 @@ public:
 									CCampaignData(const CCampaignInfo* pCampaignInfo);
 
 public:
-	eastl::string					BeginCampaign();
-	eastl::string					ProceedToNextLevel();
+	tstring							BeginCampaign();
+	tstring							ProceedToNextLevel();
 	size_t							GetCurrentLevel() { return m_iCurrentLevel; };
-	eastl::string					GetCurrentLevelFile();
+	tstring							GetCurrentLevelFile();
 
-	eastl::string					GetLevel(size_t i);
+	tstring							GetLevel(size_t i);
 
 	void							NewCampaign();
 

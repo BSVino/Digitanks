@@ -30,8 +30,8 @@ void CResource::Precache()
 {
 	BaseClass::Precache();
 
-	PrecacheParticleSystem(_T("electronode-spark"));
-	PrecacheModel(_T("models/structures/electronode.obj"), true);
+	PrecacheParticleSystem("electronode-spark");
+	PrecacheModel("models/structures/electronode.toy", true);
 }
 
 void CResource::Spawn()
@@ -40,9 +40,9 @@ void CResource::Spawn()
 
 	m_bTakeDamage = false;
 
-	SetModel(_T("models/structures/electronode.obj"));
+	SetModel("models/structures/electronode.toy");
 
-	m_hSparkParticles.SetSystem(_T("electronode-spark"), GetOrigin());
+	m_hSparkParticles.SetSystem("electronode-spark", GetOrigin());
 
 	m_bConstructing = false;
 }
@@ -67,17 +67,17 @@ void CResource::Think()
 
 void CResource::UpdateInfo(tstring& s)
 {
-	s = _T("ELECTRONODE\n");
-	s += _T("Digital resource\n \n");
+	s = "ELECTRONODE\n";
+	s += "Digital resource\n \n";
 
-	s += _T("Team: Neutral\n \n");
+	s += "Team: Neutral\n \n";
 
-	s += _T("Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n");
+	s += "Build a Capacitor or Power Supply Unit to harness this Electronode's Power resource\n";
 }
 
-void CResource::ModifyContext(class CRenderingContext* pContext, bool bTransparent) const
+void CResource::ModifyContext(class CRenderingContext* pContext) const
 {
-	BaseClass::ModifyContext(pContext, bTransparent);
+	BaseClass::ModifyContext(pContext);
 
 	if (HasCollector() && GetCollector()->GetTeam())
 		pContext->SetColorSwap(GetCollector()->GetTeam()->GetColor());
@@ -132,11 +132,11 @@ void CResource::PostRender(bool bTransparent) const
 			switch (pTeam->GetPrimaryCPU()->GetPreviewStructure())
 			{
 			case STRUCTURE_BATTERY:
-				iModel = CModelLibrary::Get()->FindModel(_T("models/structures/battery.obj"));
+				iModel = CModelLibrary::Get()->FindModel("models/structures/battery.toy");
 				break;
 
 			case STRUCTURE_PSU:
-				iModel = CModelLibrary::Get()->FindModel(_T("models/structures/psu.obj"));
+				iModel = CModelLibrary::Get()->FindModel("models/structures/psu.toy");
 				break;
 			}
 

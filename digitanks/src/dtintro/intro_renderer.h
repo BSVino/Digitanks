@@ -1,26 +1,26 @@
 #ifndef DT_INTRO_RENDERER_H
 #define DT_INTRO_RENDERER_H
 
-#include <renderer/renderer.h>
+#include <renderer/game_renderer.h>
 #include <common.h>
 
-class CIntroRenderer : public CRenderer
+class CIntroRenderer : public CGameRenderer
 {
-	DECLARE_CLASS(CIntroRenderer, CRenderer);
+	DECLARE_CLASS(CIntroRenderer, CGameRenderer);
 
 public:
 					CIntroRenderer();
 
 public:
-	virtual void	StartRendering();
-	virtual void	FinishRendering();
+	virtual void	Initialize();
+	virtual void	StartRendering(class CRenderingContext* pContext);
 
 	void			RenderBackdrop();
 
 	void			ZoomIntoHole();
 
 protected:
-	size_t			m_iBackdrop;
+	CMaterialHandle	m_hBackdrop;
 	float			m_flLayer1Speed;
 	float			m_flLayer1Alpha;
 	float			m_flLayer2Speed;
@@ -32,7 +32,7 @@ protected:
 	float			m_flLayer5Speed;
 	float			m_flLayer5Alpha;
 
-	float			m_flZoomIntoHole;
+	double			m_flZoomIntoHole;
 };
 
 #endif

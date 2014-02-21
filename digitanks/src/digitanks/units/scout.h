@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual float				GetBoundingRadius() const { return 2.5; };
+	virtual const TFloat		GetBoundingRadius() const { return 2.5; };
 
 	virtual bool				AllowControlMode(controlmode_t eMode) const;
 

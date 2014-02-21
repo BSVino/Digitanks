@@ -13,7 +13,7 @@
 
 #define NUM_BUTTONS 10
 
-inline void SetButtonSheetTexture(class glgui::CPictureButton* pButton, CTextureSheet* pSheet, const eastl::string& sArea)
+inline void SetButtonSheetTexture(class glgui::CPictureButton* pButton, CTextureSheet* pSheet, const tstring& sArea)
 {
 	pButton->SetSheetTexture(pSheet->GetSheet(sArea), pSheet->GetArea(sArea), pSheet->GetSheetWidth(sArea), pSheet->GetSheetHeight(sArea));
 }
@@ -44,7 +44,7 @@ public:
 
 public:
 	void						Think();
-	void						Paint(int x, int y, int w, int h);
+	void						Paint(float x, float y, float w, float h);
 
 protected:
 	powerbar_type_t				m_ePowerbarType;
@@ -63,7 +63,7 @@ public:
 
 public:
 	void						Think();
-	void						Paint(int x, int y, int w, int h);
+	void						Paint(float x, float y, float w, float h);
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hVictim;
@@ -86,7 +86,7 @@ public:
 
 public:
 	void						Think();
-	void						Paint(int x, int y, int w, int h);
+	void						Paint(float x, float y, float w, float h);
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hVictim;
@@ -99,7 +99,7 @@ class CSpeechBubble : public glgui::CLabel
 	DECLARE_CLASS(CSpeechBubble, glgui::CLabel);
 
 public:
-								CSpeechBubble(CBaseEntity* pSpeaker, eastl::string sSpeech);
+								CSpeechBubble(CBaseEntity* pSpeaker, tstring sSpeech);
 
 public:
 	virtual void				Destructor();
@@ -107,7 +107,7 @@ public:
 
 public:
 	void						Think();
-	void						Paint(int x, int y, int w, int h);
+	void						Paint(float x, float y, float w, float h);
 
 protected:
 	CEntityHandle<CBaseEntity>	m_hSpeaker;
@@ -138,7 +138,7 @@ public:
 	virtual void			Layout();
 	virtual void			Think();
 
-	virtual void			Paint(int x, int y, int w, int h);
+	virtual void			Paint(float x, float y, float w, float h);
 
 	virtual bool			IsOpen();
 	virtual void			Open();
@@ -169,15 +169,15 @@ public:
 	virtual void				Layout();
 	virtual void				Think();
 
-	void						Paint(int x, int y, int w, int h);
+	void						Paint(float x, float y, float w, float h);
 
-	void						PaintCameraGuidedMissile(int x, int y, int w, int h);
+	void						PaintCameraGuidedMissile(float x, float y, float w, float h);
 
 	class CUpdatesPanel*		GetUpdatesPanel() { return m_pUpdatesPanel; }
 
 	static void					PaintSheet(size_t iTexture, int x, int y, int w, int h, int sx, int sy, int sw, int sh, int tw, int th, const Color& c = Color(255,255,255));
-	static void					PaintSheet(const CTextureSheet* pSheet, const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
-	static void					PaintHUDSheet(const eastl::string& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static void					PaintSheet(const CTextureSheet* pSheet, const tstring& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
+	static void					PaintHUDSheet(const tstring& sArea, int x, int y, int w, int h, const Color& c = Color(255,255,255));
 	static const CTextureSheet&	GetHUDSheet();
 	static void					GetUnitSheet(unittype_t eUnit, size_t& iSheet, int& sx, int& sy, int& sw, int& sh, int& tw, int& th);
 	static void					PaintUnitSheet(unittype_t eUnit, int x, int y, int w, int h, const Color& c = Color(255,255,255));
@@ -206,7 +206,7 @@ public:
 	void						SetupMenu(menumode_t eMenuMode);
 
 	void						SetButtonListener(int iButton, IEventListener::Callback pfnCallback);
-	void						SetButtonTexture(int iButton, const eastl::string& sArea);
+	void						SetButtonTexture(int iButton, const tstring& sArea);
 	void						SetButtonColor(int iButton, Color clrButton);
 	void						SetButtonInfo(int iButton, const tstring& pszInfo);
 	void						SetButtonTooltip(int iButton, const tstring& sTooltip);
@@ -236,7 +236,7 @@ public:
 	virtual void				OnAddEntityToTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 	virtual void				OnRemoveEntityFromTeam(class CDigitanksTeam* pTeam, class CBaseEntity* pEntity);
 
-	virtual void				TankSpeak(class CBaseEntity* pTank, const eastl::string& sSpeech);
+	virtual void				TankSpeak(class CBaseEntity* pTank, const tstring& sSpeech);
 
 	virtual void				ClearTurnInfo();
 
@@ -351,7 +351,7 @@ protected:
 	menumode_t					m_eMenuMode;
 
 	glgui::CLabel*				m_pActionItem;
-	eastl::vector<glgui::CPictureButton*> m_apActionItemButtons;
+	tvector<glgui::CPictureButton*> m_apActionItemButtons;
 	glgui::CButton*				m_pCloseActionItems;
 	size_t						m_iCurrentActionItem;
 	bool						m_bAllActionItemsHandled;
@@ -366,7 +366,7 @@ protected:
 	float						m_flSelectorMedalStart;
 	size_t						m_iSelectorMedalTexture;
 
-	eastl::vector<eastl::map<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
+	tvector<tmap<size_t, CEntityHandle<CDigitank> > > m_ahScoreboardTanks;
 
 	CMouseCapturePanel*			m_pButtonPanel;
 
@@ -454,7 +454,7 @@ protected:
 	float						m_flFileRescueStart;
 
 	CTextureSheet				m_PowerupsSheet;
-	eastl::vector<powerup_notification_t>	m_aPowerupNotifications;
+	tvector<powerup_notification_t>	m_aPowerupNotifications;
 
 	size_t						m_iPurchasePanel;
 

@@ -11,7 +11,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 
 	virtual float				GetFortifyAttackPowerBonus();
 	virtual float				GetFortifyDefensePowerBonus();
@@ -42,7 +42,7 @@ public:
 	virtual void				Precache();
 	virtual void				Spawn();
 
-	virtual void				ModifyContext(class CRenderingContext* pContext, bool bTransparent) const;
+	virtual void				ModifyContext(class CRenderingContext* pContext) const;
 
 	virtual tstring				GetEntityName() const { return _T("Grid Bug"); };
 

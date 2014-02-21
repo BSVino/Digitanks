@@ -4,17 +4,16 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 include_directories (
-	${PROJECT_SOURCE_DIR}/ext-deps/EASTL/include
+	${PROJECT_SOURCE_DIR}/../ext-deps/EASTL/include
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/common
 	${CMAKE_SOURCE_DIR}/common/math
+	${CMAKE_SOURCE_DIR}/tinker
 	${CMAKE_SOURCE_DIR}/tengine
 	${CMAKE_SOURCE_DIR}/digitanks/src/digitanks/
 )
 
 if(WIN32)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glew/include)
-	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/devil-1.7.8/include)
 	include_directories(${CMAKE_SOURCE_DIR}/ext-deps/glfw/include)
 endif(WIN32)
 
