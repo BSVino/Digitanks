@@ -13,9 +13,14 @@ public:
 
 	virtual bool	ShouldRender() const { return true; };
 	virtual void	ModifyContext(class CRenderingContext* pContext) const;
+	virtual bool	ModifyShader(class CRenderingContext* pContext) const;
 	virtual void	OnRender(class CGameRenderingContext* pContext) const;
+	virtual bool    ShouldBatch() const { return false; }
 
 	virtual void	SetScreenshot(size_t iScreenshot);
+
+private:
+	size_t  m_iScreenshot;
 };
 
 #endif

@@ -620,6 +620,7 @@ public:
 	void                                    RenderTransparent() const;
 	virtual void							OnRender(class CGameRenderingContext* pContext) const {};
 	virtual void							PostRender() const {};
+	virtual bool                            ShouldBatch() const { return true; }
 
 	void									Delete();
 	virtual void							OnDeleted() {};

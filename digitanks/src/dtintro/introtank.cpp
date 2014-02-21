@@ -58,19 +58,24 @@ void CIntroTank::ModifyContext(class CRenderingContext* pContext) const
 	float flScale = 15*flWidth/flHeight;
 
 	pContext->Scale(flScale, flScale, flScale);
-
-	if (GetTeam())
-	{
-		//TUnimplemented();
-		//pContext->SetColorSwap(GetTeam()->GetColor());
-	}
 }
 
-EAngle CIntroTank::GetRenderAngles() const
+bool CIntroTank::ModifyShader(class CRenderingContext* pContext) const
+{
+	if (GetTeam() && pContext->m_pShader)
+	{
+		pContext->SetUniform("bColorSwapInAlpha", true);
+		pContext->SetUniform("vecColorSwap", GetTeam()->GetColor());
+	}
+
+	return true;
+}
+
+const Matrix4x4 CIntroTank::GetRenderTransform() const
 {
 	if (IsRocking())
 	{
-		EAngle angReturn = GetGlobalAngles();
+		EAngle angReturn;
 
 		Vector vecForward, vecRight;
 		AngleVectors(GetGlobalAngles(), &vecForward, &vecRight, NULL);
@@ -82,10 +87,11 @@ EAngle CIntroTank::GetRenderAngles() const
 		angReturn.p += flDotForward*flLerp*m_flRockIntensity*45;
 		angReturn.r += flDotRight*flLerp*m_flRockIntensity*45;
 
-		return angReturn;
+		Matrix4x4 m = BaseClass::GetRenderTransform();
+		return m.AddAngles(angReturn);
 	}
 
-	return GetGlobalAngles();
+	return BaseClass::GetRenderTransform();
 }
 
 void CIntroTank::OnRender(class CGameRenderingContext* pContext) const
@@ -97,15 +103,11 @@ void CIntroTank::OnRender(class CGameRenderingContext* pContext) const
 
 	CGameRenderingContext r(GameServer()->GetRenderer(), true);
 
-	r.Translate(Vector(-0.0f, 0.810368f, 0));
+	r.Translate(Vector(-0.0f, 0, 0.810368f));
 
-	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 1, 0));
+	r.Rotate(-m_flCurrentTurretYaw, Vector(0, 0, 1));
 
-	//if (GetTeam())
-		//TUnimplemented();
-//		r.SetColorSwap(GetTeam()->GetColor());
-
-	r.RenderModel(m_iTurretModel);
+	r.RenderModel(m_iTurretModel, this);
 }
 
 void CIntroTank::FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget)
@@ -115,15 +117,15 @@ void CIntroTank::FireBomb(Vector vecLandingSpot, CBaseEntity* pTarget)
 	float flGravity = -200;
 
 	Vector vecDirection = vecLandingSpot - GetGlobalOrigin();
-	vecDirection.y = 0;
-	Vector vecMuzzle = vecDirection.Normalized() * 13 + Vector(0, 40, 0);
+	vecDirection.z = 0;
+	Vector vecMuzzle = vecDirection.Normalized() * 13 + Vector(0, 0, 40);
 
 	float flTime;
 	Vector vecForce;
 	FindLaunchVelocity(GetGlobalOrigin() + vecMuzzle, vecLandingSpot, flGravity, vecForce, flTime, -0.001f);
 
 	pBomb->SetGlobalVelocity(vecForce);
-	pBomb->SetGlobalGravity(Vector(0, flGravity, 0));
+	pBomb->SetGlobalGravity(Vector(0, 0, flGravity));
 	pBomb->SetGlobalOrigin(GetGlobalOrigin() + vecMuzzle);
 	pBomb->SetExplodeTime(GameServer()->GetGameTime() + flTime);
 	pBomb->SetTarget(pTarget);

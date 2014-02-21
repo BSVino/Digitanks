@@ -107,6 +107,7 @@ CRenderer::CRenderer(size_t iWidth, size_t iHeight)
 
 	SetSize(iWidth, iHeight);
 
+	m_bCustomProjection = false;
 	m_bFrustumOverride = false;
 	m_bDrawBackground = true;
 }
@@ -445,7 +446,7 @@ void CRenderer::RenderOffscreenBuffers(class CRenderingContext* pContext)
 		c.UseProgram("brightpass");
 
 		c.SetUniform("iSource", 0);
-		c.SetUniform("flScale", (float)1/BLOOM_FILTERS);
+		c.SetUniform("flScale", (float)r_bloom.GetFloat()/BLOOM_FILTERS);
 
 		for (size_t i = 0; i < BLOOM_FILTERS; i++)
 		{

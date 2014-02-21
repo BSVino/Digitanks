@@ -146,7 +146,7 @@ void CVar::CalculateValues()
 	m_bValue = (m_sValue.comparei("yes") == 0 ||
 		m_sValue.comparei("true") == 0 ||
 		m_sValue.comparei("on") == 0 ||
-		atoi(m_sValue.c_str()) != 0);
+		fabs(atof(m_sValue.c_str())) > 0);
 
 	m_bDirtyValues = false;
 }

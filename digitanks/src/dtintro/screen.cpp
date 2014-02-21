@@ -35,7 +35,23 @@ void CScreen::ModifyContext(class CRenderingContext* pContext) const
 	float flWidth = (float)CApplication::Get()->GetWindowWidth();
 	float flHeight = (float)CApplication::Get()->GetWindowHeight();
 
-	pContext->Scale((flWidth+flHeight)/2, flHeight, flWidth);
+	pContext->Scale((flWidth + flHeight)/2, flWidth, flHeight);
+	pContext->BindTexture(m_iScreenshot);
+}
+
+bool CScreen::ModifyShader(class CRenderingContext* pContext) const
+{
+#ifdef _WIN32
+	// Windows gives the screenshot data back as BGR.
+	// Instead of switching the red and blue channels in the screenshot data,
+	// I'll just load a different shader.
+	pContext->UseProgram("screen_win32");
+#endif
+
+	pContext->BindTexture(m_iScreenshot);
+	pContext->SetUniform("bDiffuse", true);
+
+	return true;
 }
 
 void CScreen::OnRender(class CGameRenderingContext* pContext) const
@@ -44,15 +60,7 @@ void CScreen::OnRender(class CGameRenderingContext* pContext) const
 
 void CScreen::SetScreenshot(size_t iScreenshot)
 {
-	size_t iModel = CModelLibrary::Get()->FindModel("models/intro/screen.toy");
-	CModel* pModel = CModelLibrary::Get()->GetModel(iModel);
-//	pModel->m_aiTextures[0] = iScreenshot;
-//	pModel->m_iCallListTexture = iScreenshot;
-
-	iModel = CModelLibrary::Get()->FindModel("models/intro/screen-fragment.toy");
-	pModel = CModelLibrary::Get()->GetModel(iModel);
-//	pModel->m_aiTextures[0] = iScreenshot;
-//	pModel->m_iCallListTexture = iScreenshot;
+	m_iScreenshot = iScreenshot;
 
 	EmitSound("sound/tank-damage.wav");
 }

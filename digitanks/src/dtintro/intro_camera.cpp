@@ -2,17 +2,28 @@
 
 #include <tinker/application.h>
 
-Vector CIntroCamera::GetCameraPosition()
+REGISTER_ENTITY(CIntroCamera);
+
+NETVAR_TABLE_BEGIN(CIntroCamera);
+NETVAR_TABLE_END();
+
+SAVEDATA_TABLE_BEGIN(CIntroCamera);
+SAVEDATA_TABLE_END();
+
+INPUTS_TABLE_BEGIN(CIntroCamera);
+INPUTS_TABLE_END();
+
+void CIntroCamera::Spawn()
 {
-	return Vector(500, 0, 0);
+	BaseClass::Spawn();
+
+	m_bOrtho = true;
+
+	m_flOrthoHeight = (float)CApplication::Get()->GetWindowHeight()/2;
 }
 
-Vector CIntroCamera::GetCameraTarget()
+void CIntroCamera::CameraThink()
 {
-	return Vector(0, 0, 0);
-}
-
-float CIntroCamera::GetCameraFOV()
-{
-	return 90;
+	SetGlobalOrigin(TVector(500, 0, 0));
+	SetGlobalAngles(EAngle(0, 180, 0));
 }

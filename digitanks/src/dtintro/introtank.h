@@ -16,8 +16,9 @@ public:
 	virtual void	Think();
 
 	virtual bool	ShouldRender() const { return true; };
-	virtual EAngle	GetRenderAngles() const;
+	virtual const Matrix4x4 GetRenderTransform() const;
 	virtual void	ModifyContext(class CRenderingContext* pContext) const;
+	virtual bool	ModifyShader(class CRenderingContext* pContext) const;
 	virtual void	OnRender(class CGameRenderingContext* pContext) const;
 
 	void			FaceTurret(float flYaw) { m_flGoalTurretYaw = flYaw; };

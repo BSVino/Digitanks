@@ -12,6 +12,7 @@ public:
 					CIntroRenderer();
 
 public:
+	virtual float	BloomBrightnessCutoff() const { return 0.6f; }
 	virtual void	Initialize();
 	virtual void	StartRendering(class CRenderingContext* pContext);
 

@@ -18,7 +18,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include "renderingcontext.h"
 
 #include <GL3/gl3w.h>
-#include <GL/glu.h>
 #include <FTGL/ftgl.h>
 
 #include <maths.h>
@@ -303,12 +302,55 @@ void CRenderingContext::ClearDepth()
 
 void CRenderingContext::RenderSphere()
 {
-	static GLUquadricObj* pQuadric = nullptr;
+	static size_t iSphereVBO = 0;
+	static size_t iSphereVBOSize = 0;
 
-	if (pQuadric == nullptr)
-		pQuadric = gluNewQuadric();
+	if (!iSphereVBO)
+	{
+		CRenderingContext c(m_pRenderer);
+		c.BeginRenderTris();
 
-	gluSphere(pQuadric, 1, 20, 10);
+		int iRows = 8;
+		int iColumns = 16;
+
+		for (int i = 0; i < iRows+1; i++)
+		{
+			// A row.
+			for (int j = 0; j < iColumns; j++)
+			{
+				float i0 = RemapVal((float)i,   0, (float)iRows, 0, M_PI);
+				float i1 = RemapVal((float)i+1, 0, (float)iRows, 0, M_PI);
+				float j0 = RemapVal((float)j,   0, (float)iColumns, 0, 2*M_PI);
+				float j1 = RemapVal((float)j+1, 0, (float)iColumns, 0, 2*M_PI);
+
+				float ci0 = cos(i0);
+				float si0 = sin(i0);
+
+				float cj0 = cos(j0);
+				float sj0 = sin(j0);
+
+				float ci1 = cos(i1);
+				float si1 = sin(i1);
+
+				float cj1 = cos(j1);
+				float sj1 = sin(j1);
+
+				c.Vertex(Vector(cj0 * si0, sj0 * si0, ci0));
+				c.Vertex(Vector(cj0 * si1, sj0 * si1, ci1));
+				c.Vertex(Vector(cj1 * si1, sj1 * si1, ci1));
+
+				c.Vertex(Vector(cj0 * si0, sj0 * si0, ci0));
+				c.Vertex(Vector(cj1 * si1, sj1 * si1, ci1));
+				c.Vertex(Vector(cj1 * si0, sj1 * si0, ci0));
+			}
+		}
+
+		c.CreateVBO(iSphereVBO, iSphereVBOSize);
+	}
+
+	BeginRenderVertexArray(iSphereVBO);
+		SetPositionBuffer(0);
+	EndRenderVertexArray(iSphereVBOSize);
 }
 
 void CRenderingContext::RenderWireBox(const AABB& aabbBounds)

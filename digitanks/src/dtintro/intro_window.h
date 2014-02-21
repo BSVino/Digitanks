@@ -14,6 +14,8 @@ public:
 	virtual tstring				WindowTitle() { return "Digitanks!"; }
 	virtual tstring				AppDirectory() { return "Digitanks"; }
 
+	virtual void				GetWindowOpenSize(int& iWindowWidth, int& iWindowHeight);
+
 	void						SetScreenshot(const tvector<Color>& aclrScreenshot, int iWidth, int iHeight) { m_aclrScreenshot = aclrScreenshot; m_iScreenshotWidth = iWidth; m_iScreenshotHeight = iHeight; };
 	size_t						GetScreenshot() { return m_iScreenshot; };
 	void						SetupEngine();

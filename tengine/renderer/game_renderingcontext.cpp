@@ -37,8 +37,12 @@ void CGameRenderingContext::RenderModel(size_t iModel, const CBaseEntity* pEntit
 		bBatchThis = false;
 	else if (m_pRenderer && GetContext().m_pFrameBuffer != m_pRenderer->GetSceneBuffer())
 		bBatchThis = false;
+	else if (!pEntity)
+		bBatchThis = false;
+	else if (!pEntity->ShouldBatch())
+		bBatchThis = false;
 
-	if (bBatchThis && pEntity)
+	if (bBatchThis)
 	{
 		TAssert(GetContext().m_eBlend == BLEND_NONE);
 

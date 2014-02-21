@@ -52,18 +52,14 @@ void CIntroRenderer::Initialize()
 	BaseClass::Initialize();
 
 	m_hBackdrop = CMaterialLibrary::AddMaterial("textures/intro/backdrop.mat");
+
+	m_bDrawBackground = true;
+
+	CVar::SetCVar("r_bloom", 0.7f);
 }
 
 void CIntroRenderer::StartRendering(class CRenderingContext* pContext)
 {
-	if (!cam_free_ortho.GetBool() && CVar::GetCVarBool("cam_free"))
-	{
-		BaseClass::StartRendering(pContext);
-	
-		RenderBackdrop();
-		return;
-	}
-
 	if (m_flZoomIntoHole)
 	{
 		float flWidth = (float)CApplication::Get()->GetWindowWidth();
@@ -92,6 +88,8 @@ void CIntroRenderer::StartRendering(class CRenderingContext* pContext)
 			exit(0);
 	}
 
+	BaseClass::StartRendering(pContext);
+
 	RenderBackdrop();
 }
 
@@ -102,10 +100,8 @@ void CIntroRenderer::RenderBackdrop()
 	{
 		CGameRenderingContext c(this, true);
 		c.UseMaterial(m_hBackdrop);
-		//c.UseProgram(CShaderLibrary::GetScrollingTextureProgram());
-		c.UseProgram("model");
+		c.UseProgram("scroll");
 
-		c.SetUniform("iTexture", 0);
 		c.SetUniform("flTime", (float)GameServer()->GetGameTime());
 
 		c.SetBlend(BLEND_ADDITIVE);
@@ -113,76 +109,76 @@ void CIntroRenderer::RenderBackdrop()
 
 		c.SetUniform("flAlpha", m_flLayer1Alpha);
 		c.SetUniform("flSpeed", m_flLayer1Speed);
-		c.SetColor(Color(100, 255, 100, 255));
+		c.SetUniform("vecColor", Color(100, 255, 100, 255));
 
 		c.BeginRenderTriFan();
-		c.TexCoord(Vector(1.8f, 0, 0));
-		c.Vertex(Vector(-100, -flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(1.8f, 2, 0));
-		c.Vertex(Vector(-100, flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(-0.2f, 2, 0));
-		c.Vertex(Vector(-100, flWidth/2, flWidth/2));
 		c.TexCoord(Vector(-0.2f, 0, 0));
+		c.Vertex(Vector(-100, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1.8f, 0, 0));
+		c.Vertex(Vector(-100, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1.8f, 2, 0));
+		c.Vertex(Vector(-100, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-0.2f, 2, 0));
 		c.Vertex(Vector(-100, -flWidth/2, flWidth/2));
 		c.EndRender();
 
 		c.SetUniform("flAlpha", m_flLayer2Alpha);
 		c.SetUniform("flSpeed", m_flLayer2Speed);
-		c.SetColor(Color(0, 255, 0, 255));
+		c.SetUniform("vecColor", Color(0, 255, 0, 255));
 
 		c.BeginRenderTriFan();
-		c.TexCoord(Vector(1.5f, -0.5f, 0));
-		c.Vertex(Vector(-200, -flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(1.5f, 1.5f, 0));
-		c.Vertex(Vector(-200, flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(-0.5f, 1.5f, 0));
-		c.Vertex(Vector(-200, flWidth/2, flWidth/2));
 		c.TexCoord(Vector(-0.5f, -0.5f, 0));
+		c.Vertex(Vector(-200, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1.5f, -0.5f, 0));
+		c.Vertex(Vector(-200, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1.5f, 1.5f, 0));
+		c.Vertex(Vector(-200, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-0.5f, 1.5f, 0));
 		c.Vertex(Vector(-200, -flWidth/2, flWidth/2));
 		c.EndRender();
 
 		c.SetUniform("flAlpha", m_flLayer3Alpha);
 		c.SetUniform("flSpeed", m_flLayer3Speed);
-		c.SetColor(Color(55, 255, 55, 155));
+		c.SetUniform("vecColor", Color(55, 255, 55, 155));
 
 		c.BeginRenderTriFan();
-		c.TexCoord(Vector(1, -2.5f, 0));
-		c.Vertex(Vector(-300, -flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(1, 1, 0));
-		c.Vertex(Vector(-300, flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(-2.5f, 1, 0));
-		c.Vertex(Vector(-300, flWidth/2, flWidth/2));
 		c.TexCoord(Vector(-2.5f, -2.5f, 0));
+		c.Vertex(Vector(-300, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1, -2.5f, 0));
+		c.Vertex(Vector(-300, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(1, 1, 0));
+		c.Vertex(Vector(-300, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-2.5f, 1, 0));
 		c.Vertex(Vector(-300, -flWidth/2, flWidth/2));
 		c.EndRender();
 
 		c.SetUniform("flAlpha", m_flLayer4Alpha);
 		c.SetUniform("flSpeed", m_flLayer4Speed);
-		c.SetColor(Color(100, 255, 100, 205));
+		c.SetUniform("vecColor", Color(100, 255, 100, 205));
 
 		c.BeginRenderTriFan();
-		c.TexCoord(Vector(2.4f, 0.5f, 0));
-		c.Vertex(Vector(-400, -flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(2.4f, 2.5f, 0));
-		c.Vertex(Vector(-400, flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(0.4f, 2.5f, 0));
-		c.Vertex(Vector(-400, flWidth/2, flWidth/2));
 		c.TexCoord(Vector(0.4f, 0.5f, 0));
+		c.Vertex(Vector(-400, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(2.4f, 0.5f, 0));
+		c.Vertex(Vector(-400, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(2.4f, 2.5f, 0));
+		c.Vertex(Vector(-400, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(0.4f, 2.5f, 0));
 		c.Vertex(Vector(-400, -flWidth/2, flWidth/2));
 		c.EndRender();
 
 		c.SetUniform("flAlpha", m_flLayer5Alpha);
 		c.SetUniform("flSpeed", m_flLayer5Speed);
-		c.SetColor(Color(55, 255, 55, 120));
+		c.SetUniform("vecColor", Color(55, 255, 55, 120));
 
 		c.BeginRenderTriFan();
-		c.TexCoord(Vector(0.9f, 0.2f, 0));
-		c.Vertex(Vector(-500, -flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(0.9f, 1.2f, 0));
-		c.Vertex(Vector(-500, flWidth/2, -flWidth/2));
-		c.TexCoord(Vector(-.1f, 1.2f, 0));
-		c.Vertex(Vector(-500, flWidth/2, flWidth/2));
 		c.TexCoord(Vector(-.1f, 0.2f, 0));
+		c.Vertex(Vector(-500, -flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(0.9f, 0.2f, 0));
+		c.Vertex(Vector(-500, flWidth/2, -flWidth/2));
+		c.TexCoord(Vector(0.9f, 1.2f, 0));
+		c.Vertex(Vector(-500, flWidth/2, flWidth/2));
+		c.TexCoord(Vector(-.1f, 1.2f, 0));
 		c.Vertex(Vector(-500, -flWidth/2, flWidth/2));
 		c.EndRender();
 	}

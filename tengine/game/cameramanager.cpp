@@ -232,7 +232,7 @@ Matrix4x4 CCameraManager::GetCustomProjection()
 			mFromProjection = Matrix4x4::ProjectOrthographic(
 					-flAspectRatio*pFrom->GetOrthoHeight(), flAspectRatio*pFrom->GetOrthoHeight(),
 					-pFrom->GetOrthoHeight(), pFrom->GetOrthoHeight(),
-					-100, 100
+					GetCameraNear(), GetCameraFar()
 				);
 		else
 			mFromProjection = Matrix4x4::ProjectPerspective(
@@ -246,7 +246,7 @@ Matrix4x4 CCameraManager::GetCustomProjection()
 			mToProjection = Matrix4x4::ProjectOrthographic(
 					-flAspectRatio*pTo->GetOrthoHeight(), flAspectRatio*pTo->GetOrthoHeight(),
 					-pTo->GetOrthoHeight(), pTo->GetOrthoHeight(),
-					-100, 100
+					GetCameraNear(), GetCameraFar()
 				);
 		else
 			mToProjection = Matrix4x4::ProjectPerspective(
@@ -263,7 +263,7 @@ Matrix4x4 CCameraManager::GetCustomProjection()
 		return Matrix4x4::ProjectOrthographic(
 				-flAspectRatio*pCamera->GetOrthoHeight(), flAspectRatio*pCamera->GetOrthoHeight(),
 				-pCamera->GetOrthoHeight(), pCamera->GetOrthoHeight(),
-				-100, 100
+				GetCameraNear(), GetCameraFar()
 			);
 	else
 		return Matrix4x4::ProjectPerspective(

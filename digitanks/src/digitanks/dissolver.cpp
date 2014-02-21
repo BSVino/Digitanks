@@ -184,7 +184,7 @@ void CModelDissolver::Simulate()
 //		mFrameRotation.SetRotation((acos((pTri->m_mVelocity.Trace()-1)/2)*180/M_PI)*flFrameTime, pTri->m_mVelocity.RotationAxis());
 //		pTri->m_mPosition *= mFrameRotation;
 
-		pTri->m_mVelocity += (Vector(0, 1, 0) * flFrameTime);
+		pTri->m_mVelocity += (Vector(0, 0, 1) * flFrameTime);
 
 		float flLifeTimeRamp = flLifeTime / Get()->m_flLifeTime;
 

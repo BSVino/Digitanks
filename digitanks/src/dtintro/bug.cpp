@@ -29,6 +29,11 @@ void CBug::Precache()
 {
 	PrecacheModel("models/digitanks/gridbug.toy");
 	PrecacheModel("models/digitanks/gridbug-turret.toy");
+
+	// For the bombs.
+	PrecacheParticleSystem("shell-trail");
+	PrecacheParticleSystem("explosion");
+	PrecacheSound("sound/explosion.wav");
 }
 
 void CBug::Spawn()
@@ -51,7 +56,7 @@ void CBug::Think()
 
 		do
 		{
-			m_vecNextAim = Vector(RandomFloat(50, 200), RandomFloat(-flHeight/2, flHeight/2), RandomFloat(-flWidth/2, flWidth/2));
+			m_vecNextAim = Vector(RandomFloat(50, 200), RandomFloat(-flWidth/2, flWidth/2), RandomFloat(-flHeight/2, flHeight/2));
 		} while ((m_vecNextAim-GetGlobalOrigin()).Length2D() < 200);
 
 		FaceTurret(VectorAngles(m_vecNextAim-GetGlobalOrigin()).y - GetGlobalAngles().y);
@@ -91,7 +96,7 @@ void CBug::Dissolve(const tvector<tstring>& sArgs)
 	CModel* pModel = CModelLibrary::Get()->GetModel(m_iTurretModel);
 
 	Matrix4x4 mTransform;
-	mTransform.SetTranslation(GetRenderOrigin() + Vector(-0.0f, 0.810368f, 0));
+	mTransform.SetTranslation(GetRenderOrigin() + Vector(-0.0f, 0, 0.810368f));
 	mTransform.SetAngles(GetRenderAngles() - EAngle(0, m_flCurrentTurretYaw, 0));
 
 	Matrix4x4 mScale;

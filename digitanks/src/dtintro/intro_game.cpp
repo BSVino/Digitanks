@@ -105,6 +105,8 @@ void CIntroGame::SetupIntro()
 	pScreen->SetScreenshot(static_cast<CIntroWindow*>(Application())->GetScreenshot());
 	pScreen->SetGlobalOrigin(Vector(0, 0, 0));
 
+	GameServer()->Create<CIntroCamera>("CIntroCamera");
+
 	CTeam* pBugsTeam = GameServer()->Create<CTeam>("CTeam");
 	pBugsTeam->SetColor(Color(255, 0, 0, 255));
 
@@ -112,35 +114,35 @@ void CIntroGame::SetupIntro()
 
 	pBug = GameServer()->Create<CBug>("CBug");
 	pBug->SetName("bug1");
-	pBug->SetGlobalOrigin(Vector(-50, -20, -flWidth*0.16f));
+	pBug->SetGlobalOrigin(Vector(-50, flWidth*0.16f, -20));
 	pBug->SetGlobalAngles(EAngle(-10, -10, 0));
 	pBug->FaceTurret(-40);
 	pBugsTeam->AddEntity(pBug);
 
 	pBug = GameServer()->Create<CBug>("CBug");
 	pBug->SetName("bug2");
-	pBug->SetGlobalOrigin(Vector(-50, 60, -flWidth*0.32f));
+	pBug->SetGlobalOrigin(Vector(-50, flWidth*0.32f, 60));
 	pBug->SetGlobalAngles(EAngle(-10, 20, 0));
 	pBug->FaceTurret(40);
 	pBugsTeam->AddEntity(pBug);
 
 	pBug = GameServer()->Create<CBug>("CBug");
 	pBug->SetName("bug3");
-	pBug->SetGlobalOrigin(Vector(-50, flHeight*0.7f, -flWidth*0.16f));
+	pBug->SetGlobalOrigin(Vector(-50, flWidth*0.16f, flHeight*0.7f));
 	pBug->SetGlobalAngles(EAngle(-10, -10, 0));
 	pBug->FaceTurret(-40);
 	pBugsTeam->AddEntity(pBug);
 
 	pBug = GameServer()->Create<CBug>("CBug");
 	pBug->SetName("bug4");
-	pBug->SetGlobalOrigin(Vector(-50, 0, -flWidth*0.7f));
+	pBug->SetGlobalOrigin(Vector(-50, flWidth*0.7f, 0));
 	pBug->SetGlobalAngles(EAngle(-10, 20, 0));
 	pBug->FaceTurret(40);
 	pBugsTeam->AddEntity(pBug);
 
 	pBug = GameServer()->Create<CBug>("CBug");
 	pBug->SetName("bug5");
-	pBug->SetGlobalOrigin(Vector(-50, -flHeight*0.7f, -flWidth*0.16f));
+	pBug->SetGlobalOrigin(Vector(-50, flWidth*0.16f, -flHeight*0.7f));
 	pBug->SetGlobalAngles(EAngle(-10, -10, 0));
 	pBug->FaceTurret(-40);
 	pBugsTeam->AddEntity(pBug);
@@ -155,21 +157,21 @@ void CIntroGame::SetupIntro()
 
 	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
 	pDigitank->SetName("digitank1");
-	pDigitank->SetGlobalOrigin(Vector(-50, -flHeight*0.7f, flWidth*0.7f));
+	pDigitank->SetGlobalOrigin(Vector(-50, -flWidth*0.7f, -flHeight*0.7f));
 	pDigitank->SetGlobalAngles(EAngle(-10, -70, 0));
 	pDigitank->FaceTurret(0);
 	pDigitanksTeam->AddEntity(pDigitank);
 
 	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
 	pDigitank->SetName("digitank2");
-	pDigitank->SetGlobalOrigin(Vector(-50, 60, flWidth*0.7f));
+	pDigitank->SetGlobalOrigin(Vector(-50, -flWidth*0.7f, 60));
 	pDigitank->SetGlobalAngles(EAngle(-10, -70, 0));
 	pDigitank->FaceTurret(0);
 	pDigitanksTeam->AddEntity(pDigitank);
 
 	pDigitank = GameServer()->Create<CDigitank>("CDigitank");
 	pDigitank->SetName("digitank3");
-	pDigitank->SetGlobalOrigin(Vector(-50, flHeight*0.7f, flWidth*0.7f));
+	pDigitank->SetGlobalOrigin(Vector(-50, flWidth*0.7f, flHeight*0.7f));
 	pDigitank->SetGlobalAngles(EAngle(-10, -70, 0));
 	pDigitank->FaceTurret(0);
 	pDigitanksTeam->AddEntity(pDigitank);
@@ -190,14 +192,14 @@ void CIntroGame::SetupIntro()
 	pEvent->m_eEventClass = EC_PARTICLES;
 	pEvent->m_flStartTime = 0.5;
 	pEvent->m_sName = "intro-explosion-fragments";
-	pEvent->m_vecOrigin = Vector(50, 20, -flWidth*0.25f);
+	pEvent->m_vecOrigin = Vector(50, flWidth*0.25f, 20);
 
 	pEvent = pBustOutScript->AddScriptEvent();
 	pEvent->m_eEventClass = EC_MOVEACTOR;
 	pEvent->m_flStartTime = 0.5f;
 	pEvent->m_flEndTime = 2.5f;
 	pEvent->m_sName = "bug1";
-	pEvent->m_vecOrigin = Vector(250, 60, -flWidth*0.35f);
+	pEvent->m_vecOrigin = Vector(250, flWidth*0.35f, 60);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
 
 	pEvent = pBustOutScript->AddScriptEvent();
@@ -205,7 +207,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 1.5f;
 	pEvent->m_flEndTime = 3.5f;
 	pEvent->m_sName = "bug2";
-	pEvent->m_vecOrigin = Vector(250, -20, -flWidth*0.14f);
+	pEvent->m_vecOrigin = Vector(250, flWidth*0.14f, -20);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
 
 	pEvent = pBustOutScript->AddScriptEvent();
@@ -253,7 +255,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 3.5f;
 	pEvent->m_flEndTime = 5.5f;
 	pEvent->m_sName = "bug3";
-	pEvent->m_vecOrigin = Vector(250, flHeight*0.28f, -flWidth*0.16f);
+	pEvent->m_vecOrigin = Vector(250, flWidth*0.16f, flHeight*0.28f);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
 
 	pEvent = pGeneralDebug2Script->AddScriptEvent();
@@ -261,7 +263,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 4.0f;
 	pEvent->m_flEndTime = 6.0f;
 	pEvent->m_sName = "bug4";
-	pEvent->m_vecOrigin = Vector(250, -flHeight*0.1f, -flWidth*0.35f);
+	pEvent->m_vecOrigin = Vector(250, flWidth*0.35f, -flHeight*0.1f);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
 
 	pEvent = pGeneralDebug2Script->AddScriptEvent();
@@ -269,7 +271,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 4.5f;
 	pEvent->m_flEndTime = 6.5f;
 	pEvent->m_sName = "bug5";
-	pEvent->m_vecOrigin = Vector(250, -flHeight*0.28f, -flWidth*0.16f);
+	pEvent->m_vecOrigin = Vector(250, flWidth*0.16f, -flHeight*0.28f);
 	pEvent->m_angAngles = EAngle(-10, 20, 0);
 
 	pEvent = pGeneralDebug2Script->AddScriptEvent();
@@ -303,7 +305,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 0.0f;
 	pEvent->m_flEndTime = 1.0f;
 	pEvent->m_sName = "digitank2";
-	pEvent->m_vecOrigin = Vector(250, flHeight*0.25f, flWidth*0.30f);
+	pEvent->m_vecOrigin = Vector(250, -flWidth*0.30f, flHeight*0.25f);
 	pEvent->m_angAngles = EAngle(-20, -40, 0);
 
 	pEvent = pDigitanksScript->AddScriptEvent();
@@ -311,7 +313,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 0.2f;
 	pEvent->m_flEndTime = 1.2f;
 	pEvent->m_sName = "digitank3";
-	pEvent->m_vecOrigin = Vector(250, flHeight*0.35f, flWidth*0.35f);
+	pEvent->m_vecOrigin = Vector(250, -flWidth*0.35f, flHeight*0.35f);
 	pEvent->m_angAngles = EAngle(-20, -40, 0);
 
 	pEvent = pDigitanksScript->AddScriptEvent();
@@ -319,7 +321,7 @@ void CIntroGame::SetupIntro()
 	pEvent->m_flStartTime = 0.4f;
 	pEvent->m_flEndTime = 1.4f;
 	pEvent->m_sName = "digitank1";
-	pEvent->m_vecOrigin = Vector(250, flHeight*0.1f, flWidth*0.35f);
+	pEvent->m_vecOrigin = Vector(250, -flWidth*0.35f, flHeight*0.1f);
 	pEvent->m_angAngles = EAngle(-20, -40, 0);
 
 	pEvent = pDigitanksScript->AddScriptEvent();

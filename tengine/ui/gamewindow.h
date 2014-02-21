@@ -14,6 +14,7 @@ public:
 	virtual						~CGameWindow();
 
 public:
+	virtual void				GetWindowOpenSize(int& iWindowWidth, int& iWindowHeight);
 	void						OpenWindow();
 
 	void						CreateGame(const tstring& sRequestedGameType);

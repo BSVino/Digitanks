@@ -37,14 +37,21 @@ CGameWindow::CGameWindow(int argc, char** argv)
 	m_bReloadLevel = false;
 }
 
+void CGameWindow::GetWindowOpenSize(int& iWindowWidth, int& iWindowHeight)
+{
+	GetScreenSize(iWindowWidth, iWindowHeight);
+	iWindowWidth = iWindowWidth*4/5;
+	iWindowHeight = iWindowHeight*4/5;
+}
+
 void CGameWindow::OpenWindow()
 {
 	SetMultisampling(true);
 
-	int iScreenWidth, iScreenHeight;
-	GetScreenSize(iScreenWidth, iScreenHeight);
+	int iWindowWidth, iWindowHeight;
+	GetWindowOpenSize(iWindowWidth, iWindowHeight);
 
-	BaseClass::OpenWindow(iScreenWidth*4/5, iScreenHeight*4/5, false, true);
+	BaseClass::OpenWindow(iWindowWidth, iWindowHeight, false, true);
 
 	RenderLoading();
 

@@ -19,9 +19,6 @@ INPUTS_TABLE_END();
 
 void CBomb::Precache()
 {
-	PrecacheParticleSystem("shell-trail");
-	PrecacheParticleSystem("explosion");
-	PrecacheSound("sound/explosion.wav");
 }
 
 void CBomb::Spawn()
@@ -53,6 +50,7 @@ void CBomb::Think()
 
 void CBomb::OnRender(class CGameRenderingContext* pContext) const
 {
+	pContext->UseProgram("model");
 	pContext->SetColor(Color(255, 255, 255, 255));
 	pContext->Scale(5, 5, 5);
 	pContext->RenderSphere();

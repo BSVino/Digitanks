@@ -6,12 +6,16 @@
 
 class CIntroCamera : public CCamera
 {
-	DECLARE_CLASS(CIntroCamera, CCamera);
+	REGISTER_ENTITY_CLASS(CIntroCamera, CCamera);
 
 public:
-	virtual Vector	GetCameraPosition();
-	virtual Vector	GetCameraTarget();
-	virtual float	GetCameraFOV();
+	void  Spawn();
+
+	virtual void	CameraThink();
+
+	virtual float	GetOrthoHeight() const { return m_flOrthoHeight; }
+	virtual float	GetCameraNear() const { return 1; }
+	virtual float	GetCameraFar() const { return 2000; }
 };
 
 #endif
